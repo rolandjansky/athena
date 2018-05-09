@@ -98,7 +98,6 @@ IDStandardPerformance::IDStandardPerformance( const std::string & type, const st
 	      m_minTrackPhi(-999),
 	      m_minProbEff(0.8),
 	      m_minProbEffLow(0.5),
-              m_truthParticleName("TruthEvent"),
 	      m_truthJetCollName("Cone4TruthJets"),
 	      m_doTrackInJet(true),
 	      m_doUpgrade(false),
@@ -148,7 +147,7 @@ IDStandardPerformance::IDStandardPerformance( const std::string & type, const st
 		  "Probability cut for track efficiency and fake rate");
   declareProperty("minProbEffLow",            m_minProbEffLow,
                   "Probability lower cut for track efficiency and fake rate");
-  declareProperty("TruthParticleContainerName", m_truthParticleName="TruthEvent"); 
+  declareProperty("TruthParticleContainerName", m_truthParticleNames, "List of McEventCollections for denominator of efficiencies");
   declareProperty("TruthJetCollName",         m_truthJetCollName,
                   "Truth Jet Collection");
   declareProperty("doTrackInJet",             m_doTrackInJet);
@@ -173,6 +172,9 @@ StatusCode IDStandardPerformance::initialize()
 {
   //MsgStream log( msgSvc(), name() );
   StatusCode sc = StatusCode :: SUCCESS;
+
+  if (!m_truthParticleNames.size())
+     m_truthParticleNames.push_back("TruthEvent");
 
   // init truthToTrack
   if (m_doTruth) { //CB
@@ -1659,23 +1661,27 @@ StatusCode IDStandardPerformance::fillHistograms()
   }
 
   // get MC event collection
-  const McEventCollection* SimTracks = NULL;
-  if (haveTruth) {
-    if (evtStore()->retrieve(SimTracks,m_truthParticleName).isFailure()) {
-      std::string key = "G4Truth";
-      if (evtStore()->retrieve(SimTracks,key).isFailure()) {
+  std::vector<const McEventCollection*> SimTracksCollection;
+  for (auto name : m_truthParticleNames) {
+    const McEventCollection* SimTracks = NULL;
+    if (haveTruth) {
+      if (evtStore()->retrieve(SimTracks,name).isFailure()) {
+	std::string key = "G4Truth";
+	if (evtStore()->retrieve(SimTracks,key).isFailure()) {
           key = "";
           if (evtStore()->retrieve(SimTracks,key).isFailure()) {
             msg(MSG::FATAL) << "Could not find the McEventCollection" << endreq;
             haveTruth = false;
             return StatusCode::FAILURE;
           }
+	}
+	if (msgLvl(MSG::VERBOSE)) msg() << "Retrieved Truth Collection with name " << key.c_str() << endreq;
       }
-      if (msgLvl(MSG::VERBOSE)) msg() << "Retrieved Truth Collection with name " << key.c_str() << endreq;
+      else
+	if (msgLvl(MSG::VERBOSE)) msg() << "Retrieved Truth Collection with name " << name.c_str() << endreq;
+      SimTracksCollection.push_back(SimTracks);
     }
-    else
-      if (msgLvl(MSG::VERBOSE)) msg() << "Retrieved Truth Collection with name " << m_truthParticleName.c_str() << endreq;
-  }
+  }//end of loop over input McEventCollection names
     
   // get Pixel tracklet collection
   const DataVector<Trk::Track>* pixel_trks = 0;
@@ -1728,7 +1734,7 @@ StatusCode IDStandardPerformance::fillHistograms()
   m_mu->Fill(mu_val);
   // WJM end
   if (haveTruth)
-    MakeTrackPlots(trks,RecCollection,TruthMap,SimTracks,jetColl);
+    MakeTrackPlots(trks,RecCollection,TruthMap,SimTracksCollection,jetColl);
   else
     MakeDataPlots(trks); //CB - subset of MakeTrackPlots that can be made from data
   if (m_makeHitPlots) MakeHitPlots(trks);
@@ -2101,7 +2107,7 @@ void
 IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
                                       const TrackCollection * RecCollection,
                                       const TrackTruthCollection* TruthMap,
-                                      const McEventCollection* SimTracks,
+                                      std::vector<const McEventCollection*> SimTracksCollection,
                                       const JetCollection* jetColl) {
   // ---------------------------------------------------
   // this function makes track based plots assessing track resolutions and efficiencies w.r.t. the truth and
@@ -2111,7 +2117,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
   //MsgStream log( msgSvc(), name() );
 
  //find the hard scatter genevent number
-  const HepMC::GenEvent* genEventPrimary = SimTracks->at(0);
+  const HepMC::GenEvent* genEventPrimary = SimTracksCollection.at(0)->at(0);
   int genEventNumberPrimary = genEventPrimary->event_number();
 
   float zVertex=0.0;
@@ -2169,6 +2175,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
   DataVector<Trk::Track>::const_iterator trksItrE = trks->end();
   DataVector<Trk::Track>::const_iterator trksItr2  = trks->begin();
   DataVector<Trk::Track>::const_iterator trksItrE2 = trks->end();
+  msg(MSG::VERBOSE) << "Will loop over the " << trks->size() << " Trk::Tracks" << endreq;
   for (; trksItr != trksItrE; ++trksItr) {
 
     // ---------------------------------------------
@@ -2910,13 +2917,17 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
   //     loop through generated tracks and check if there is a reconstructed tracks near it
   // ------------------------------------------------------------------------------------
 
-  unsigned int nb_mc_event = SimTracks->size();
+  unsigned int nb_mc_event = 0;
+  for (auto SimTracks : SimTracksCollection)
+    nb_mc_event += SimTracks->size();
   m_ngenevent->Fill(nb_mc_event);
 
   //int nparticle=0;
-  for (unsigned int ievt=0; ievt<nb_mc_event; ++ievt){
-    //const HepMC::GenEvent* genEvent = *(gen->begin());
-    const HepMC::GenEvent* genEvent = SimTracks->at(ievt);
+  unsigned int icoll=0, ievt=0;
+  for (auto SimTracks : SimTracksCollection ){
+   EBC_EVCOLL truthHMPLCollEnum = HepMcParticleLink::find_enumFromKey(m_truthParticleNames.at(icoll));
+   for (unsigned int ievtCurColl=0; ievtCurColl<SimTracks->size(); ievtCurColl++) {
+    const HepMC::GenEvent* genEvent = SimTracks->at(ievtCurColl);
 
     int nprimperevent=0;
     int nsecperevent=0;
@@ -2938,7 +2949,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 
 
     for (HepMC::GenEvent::particle_const_iterator it = genEvent->particles_begin();
-      it != genEvent->particles_end(); ++it) {
+	 it != genEvent->particles_end(); ++it) {
 
       HepMC::GenParticle * const particle = *it;
 
@@ -3162,7 +3173,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       bool matchedDetPaper = false;
       bool matchedIDRS = false;
       int nmatched = 0;
-      HepMcParticleLink hmpl2(particle, ievt);
+      HepMcParticleLink hmpl2(particle, genEvent->event_number(), truthHMPLCollEnum);
       recoToTruthMap::iterator barcode=rttMap.find(hmpl2);
       if (msgLvl(MSG::VERBOSE)) msg() << "Looking for HMPL=" << hmpl2 << "... " << endreq;
       if (barcode != rttMap.end()){
@@ -3211,6 +3222,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       }
       // BHcheck
       if (m_selHardScatter && ievt!=0) {
+	if (msgLvl(MSG::VERBOSE)) msg() <<"skipping non-hard-scatter event ! "<<endreq;
         //delete generatedTrackPerigee;
         continue;
       }
@@ -3382,8 +3394,10 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
     m_nsecperevent->Fill(nsecperevent);
     m_nprimperevent05->Fill(nprimperevent05);
     m_nsecperevent05->Fill(nsecperevent05);
-
-  }
+    ievt++;
+   }//end of loop over GenEvents
+   icoll++;
+  }//end of loop over McEventCollections
 
   if (msgLvl(MSG::VERBOSE))
   msg() << "Number of Tracks: all = " << nTracks<< "   selected = " << nTrackSelected<< endreq;

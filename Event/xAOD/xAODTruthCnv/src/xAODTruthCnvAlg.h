@@ -57,8 +57,9 @@ namespace xAODMaker {
     static void fillVertex(xAOD::TruthVertex *tv, const HepMC::GenVertex *gv);
     static void fillParticle(xAOD::TruthParticle *tp, const HepMC::GenParticle *gp);
 
-    /// The key of the input AOD truth container
+    /// The keys of the input AOD truth containers
     std::string m_aodContainerName;
+    std::vector<std::string> m_aodAdditionalContainerNames;
 
     /// The key for the output xAOD truth containers
     std::string m_xaodTruthEventContainerName;

@@ -29,6 +29,7 @@ void compare (const HepMcParticleLink& p1,
   assert ( p1.isValid() == p2.isValid() );
   assert ( p1.barcode() == p2.barcode() );
   assert ( p1.eventIndex() == p2.eventIndex() );
+  assert ( p1.getEventCollectionAsChar() == p2.getEventCollectionAsChar() );
   assert ( p1.cptr() == p2.cptr() );
   assert ( p1 == p2 );
 }
@@ -69,7 +70,7 @@ void test1(std::vector<HepMC::GenParticle*> genPartVector)
   TrackParticleTruthCollection trans1 (DataLink<Rec::TrackParticleContainer>("tpc"));
   for (int i=0; i<10; i++) {
     const HepMC::GenParticle* pGenParticle = genPartVector.at(i);
-    HepMcParticleLink trkLink(pGenParticle->barcode(),0);
+    HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
     Rec::TrackParticleTruthKey key (ElementLink<Rec::TrackParticleContainer> ("tpc", i));
     TrackParticleTruth val (trkLink, (float)i/10);
     trans1[key] = val;
@@ -88,7 +89,6 @@ int main()
     return 0;
   }
 
-  SGTest::initTestStore();
   test1(genPartVector);
   return 0;
 }

@@ -129,6 +129,7 @@ private:
   // OUTPUT 
   SG::WriteHandle< InDet::TRT_DriftCircleContainer > m_trtDriftCircleContainer;
   SG::WriteHandle< PRD_MultiTruthCollection > m_trtPrdTruth;
+  bool m_needsMcEventCollHelper;
 
   TimedHitCollection< TRTUncompressedHit > *m_thpctrt;
   std::multimap< Identifier, InDet::TRT_DriftCircle * > m_driftCircleMap;

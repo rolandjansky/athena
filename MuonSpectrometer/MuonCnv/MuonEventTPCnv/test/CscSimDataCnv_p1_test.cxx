@@ -28,6 +28,7 @@ void compare (const HepMcParticleLink& p1,
   assert ( p1.isValid() == p2.isValid() );
   assert ( p1.barcode() == p2.barcode() );
   assert ( p1.eventIndex() == p2.eventIndex() );
+  assert ( p1.getEventCollectionAsChar() == p2.getEventCollectionAsChar() );
   assert ( p1.cptr() == p2.cptr() );
   assert ( p1 == p2 );
 }
@@ -74,14 +75,18 @@ void testit (const CscSimData& trans1)
 void test1(std::vector<HepMC::GenParticle*>& genPartVector)
 {
   std::cout << "test1\n";
+  const HepMC::GenParticle *particle = genPartVector.at(0);
+  // Create HepMcParticleLink outside of leak check.
+  HepMcParticleLink dummyHMPL(particle->barcode(),particle->parent_event()->event_number());
+  assert(dummyHMPL.cptr()==particle);
   Athena_test::Leakcheck check;
 
   std::vector<CscSimData::Deposit> deps;
-  HepMcParticleLink trkLink1(genPartVector.at(0)->barcode(),0);
+  HepMcParticleLink trkLink1(genPartVector.at(0)->barcode(),genPartVector.at(0)->parent_event()->event_number());
   deps.emplace_back (trkLink1, CscMcData ( 2.5,  3.5,  4.5));
-  HepMcParticleLink trkLink2(genPartVector.at(1)->barcode(),0);
+  HepMcParticleLink trkLink2(genPartVector.at(1)->barcode(),genPartVector.at(1)->parent_event()->event_number());
   deps.emplace_back (trkLink2, CscMcData (12.5, 13.5, 14.5));
-  HepMcParticleLink trkLink3(genPartVector.at(2)->barcode(),0);
+  HepMcParticleLink trkLink3(genPartVector.at(2)->barcode(),genPartVector.at(2)->parent_event()->event_number());
   deps.emplace_back (trkLink3, CscMcData (22.5, 23.5, 24.5));
   deps[0].second.setCharge ( 5.5);
   deps[1].second.setCharge (15.5);

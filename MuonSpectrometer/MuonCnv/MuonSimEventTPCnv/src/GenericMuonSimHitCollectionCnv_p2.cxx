@@ -15,9 +15,76 @@
 // Athena
 #include "StoreGate/StoreGateSvc.h"
 
-void GenericMuonSimHitCollectionCnv_p2::transToPers(const GenericMuonSimHitCollection*, Muon::GenericMuonSimHitCollection_p2*, MsgStream &/*log*/)
+void GenericMuonSimHitCollectionCnv_p2::transToPers(const GenericMuonSimHitCollection* transCont, Muon::GenericMuonSimHitCollection_p2* persCont, MsgStream &log)
 {
-  throw std::runtime_error("GenericMuonSimHitCollectionCnv_p2::transToPers is not supported in this release!");
+  // for reasons of efficiency, set size before hand
+  unsigned int size=transCont->size();
+  persCont->m_GenericId.reserve(size);
+  persCont->m_globalTime.reserve(size);
+  persCont->m_globalpreTime.reserve(size);
+  // preStep Global
+  persCont->m_prestX.reserve(size);
+  persCont->m_prestY.reserve(size);
+  persCont->m_prestZ.reserve(size);
+  // preStep Local
+  persCont->m_prelocX.reserve(size);
+  persCont->m_prelocY.reserve(size);
+  persCont->m_prelocZ.reserve(size);
+  // postStep Global
+  persCont->m_stX.reserve(size);
+  persCont->m_stY.reserve(size);
+  persCont->m_stZ.reserve(size);
+  // postStep Local
+  persCont->m_locX.reserve(size);
+  persCont->m_locY.reserve(size);
+  persCont->m_locZ.reserve(size);
+  persCont->m_kineticEnergy.reserve(size);
+  persCont->m_particleEncoding.reserve(size);
+  persCont->m_ptX.reserve(size);
+  persCont->m_ptY.reserve(size);
+  persCont->m_ptZ.reserve(size);
+  persCont->m_depositEnergy.reserve(size);
+  persCont->m_StepLength.reserve(size);
+  persCont->m_partLink.reserve(size);
+
+  // make convertor to handle HepMcParticleLinks
+  HepMcParticleLinkCnv_p2 hepMcPLCnv;
+  HepMcParticleLink_p2 persLink; // will use this as a temp object inside the loop
+
+  // loop through container, filling pers object
+  GenericMuonSimHitCollection::const_iterator it = transCont->begin(), itEnd = transCont->end();
+  for (; it != itEnd; ++it) {
+    persCont->m_GenericId.push_back(it->GenericId());
+    persCont->m_globalTime.push_back(it->globalTime());
+    persCont->m_globalpreTime.push_back(it->globalpreTime());
+    // preStep Global
+    persCont->m_prestX.push_back(it->globalPrePosition().x());
+    persCont->m_prestY.push_back(it->globalPrePosition().y());
+    persCont->m_prestZ.push_back(it->globalPrePosition().z());
+    // preStep Local
+    persCont->m_prelocX.push_back(it->localPrePosition().x());
+    persCont->m_prelocY.push_back(it->localPrePosition().y());
+    persCont->m_prelocZ.push_back(it->localPrePosition().z());
+    // postStep Global
+    persCont->m_stX.push_back(it->globalPosition().x());
+    persCont->m_stY.push_back(it->globalPosition().y());
+    persCont->m_stZ.push_back(it->globalPosition().z());
+    // postStep Local
+    persCont->m_locX.push_back(it->localPosition().x());
+    persCont->m_locY.push_back(it->localPosition().y());
+    persCont->m_locZ.push_back(it->localPosition().z());
+    persCont->m_kineticEnergy.push_back(it->kineticEnergy());
+    persCont->m_particleEncoding.push_back(it->particleEncoding());
+    persCont->m_ptX.push_back(it->globalDirection().x());
+    persCont->m_ptY.push_back(it->globalDirection().y());
+    persCont->m_ptZ.push_back(it->globalDirection().z());
+    persCont->m_depositEnergy.push_back(it->depositEnergy());
+    persCont->m_StepLength.push_back(it->StepLength());
+
+    hepMcPLCnv.transToPers(&it->particleLink(),&persLink, log);
+    persCont->m_partLink.push_back(persLink);
+
+  }
 }
 
 
@@ -45,6 +112,7 @@ void GenericMuonSimHitCollectionCnv_p2::persToTrans(const Muon::GenericMuonSimHi
     HepMcParticleLink link;
     hepMcPLCnv.persToTrans(&persCont->m_partLink[i],&link, log);
 
-    transCont->Emplace(persCont->m_GenericId[i], persCont->m_globalTime[i], persCont->m_globalpreTime[i], position, loc_position, preposition, loc_preposition, persCont->m_particleEncoding[i], persCont->m_kineticEnergy[i], direction, persCont->m_depositEnergy[i], persCont->m_StepLength[i], link.barcode());
+    transCont->Emplace(persCont->m_GenericId[i], persCont->m_globalTime[i], persCont->m_globalpreTime[i], position, loc_position, preposition, loc_preposition, persCont->m_particleEncoding[i], persCont->m_kineticEnergy[i], direction, persCont->m_depositEnergy[i], persCont->m_StepLength[i], link);
   }
 }
+

@@ -277,6 +277,8 @@ namespace xAODMaker {
                xAOD::EventInfo::Cavern;
             subTypeMap[ PileUpTimeEventIndex::HaloGas ] =
                xAOD::EventInfo::HaloGas;
+            subTypeMap[ PileUpTimeEventIndex::HighPtMinimumBias ] =
+               xAOD::EventInfo::HighPtMinimumBias;
             subTypeMap[ PileUpTimeEventIndex::ZeroBias ] =
                xAOD::EventInfo::ZeroBias;
          }

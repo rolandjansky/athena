@@ -11,9 +11,26 @@
 #include "SGTools/CurrentEventStore.h"
 #include "MsgUtil.h"
 
-void InDetSimDataCollectionCnv_p3::transToPers(const InDetSimDataCollection*, InDetSimDataCollection_p3*, MsgStream &/*log*/)
+void InDetSimDataCollectionCnv_p3::transToPers(const InDetSimDataCollection* transCont, InDetSimDataCollection_p3* persCont, MsgStream &log)
 {
-  throw std::runtime_error("InDetSimDataCollectionCnv_p3::transToPers is not supported in this release!");
+
+
+    typedef InDetSimDataCollection TRANS;
+
+    InDetSimDataCnv_p2  simDataCnv;
+
+    TRANS::const_iterator it_Coll     = transCont->begin();
+    TRANS::const_iterator it_CollEnd  = transCont->end();
+    persCont->m_simdata.resize(transCont->size());
+    MSG_DEBUG(log," Preparing " << persCont->m_simdata.size() << "Collections");
+    for (int collIndex=0 ; it_Coll != it_CollEnd; it_Coll++, collIndex++)  {
+        // Add in new collection
+        (persCont->m_simdata[collIndex]).first = (*it_Coll).first.get_compact();
+        const InDetSimData& simData = (*it_Coll).second;
+        InDetSimData_p2& psimData = persCont->m_simdata[collIndex].second;
+        simDataCnv.transToPers(&simData,&psimData,log);
+    }
+    MSG_DEBUG(log," ***  Writing InDetSimdataCollection");
 }
 
 void  InDetSimDataCollectionCnv_p3::persToTrans(const InDetSimDataCollection_p3* persCont, InDetSimDataCollection* transCont, MsgStream &log)

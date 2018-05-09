@@ -61,10 +61,12 @@
 
 //Pile-up
 #include "PileUpTools/PileUpMergeSvc.h"
+#include "PileUpTools/PileUpTypeHelper.h"
 
 //Truth
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
+#include "GeneratorObjects/McEventCollectionHelper.h"
 #include "HepMC/GenParticle.h"
 
 //Random Numbers
@@ -191,6 +193,7 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
 	declareProperty("InputObjectName",     m_inputObjectName     =  "MicromegasSensitiveDetector");
 	declareProperty("OutputObjectName",    m_outputObjectName    =  "MM_DIGITS");
 	declareProperty("OutputSDOName",       m_outputSDOName       =  "MM_SDO");
+	declareProperty("UseMcEventCollectionHelper", m_needsMcEventCollHelper = false);
 
 	//Configurations
 	declareProperty("CheckSimHits",        m_checkMMSimHits      =  true,       "Control on the hit validity"); // Currently deprecated
@@ -402,7 +405,7 @@ StatusCode MM_DigitizationTool::processBunchXing(int bunchXing,
 		ATH_MSG_DEBUG( "SubEvt EventInfo from StoreGate " << seStore.name() << " :"
 			<< " bunch crossing : " << bunchXing );
 
-		PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
+		PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index(),pileupTypeMapper(iEvt->type()));
 
 		const GenericMuonSimHitCollection* seHitColl = 0;
 		ATH_CHECK( seStore.retrieve(seHitColl,m_inputObjectName) );
@@ -593,6 +596,9 @@ StatusCode MM_DigitizationTool::doDigitization() {
 	TimedHitCollection< GenericMuonSimHit >::const_iterator i, e;
 	const GenericMuonSimHit* previousHit = 0;
 
+	EBC_EVCOLL currentMcEventCollection(EBC_NCOLLKINDS); // Base on enum defined in HepMcParticleLink.h
+	int lastPileupType(6); // Based on enum defined in PileUpTimeEventIndex.h
+
 	// ATH_MSG_DEBUG("create PRD container of size " << m_idHelper->detectorElement_hash_max());
 	std::map<Identifier,int> hitsPerChannel;
 	int nhits = 0;
@@ -666,6 +672,15 @@ StatusCode MM_DigitizationTool::doDigitization() {
 			int simId=hit.GenericId();
 			layerID = simToOffline.convert(simId);
 
+			HepMcParticleLink trklink(hit.particleLink());
+			if (m_needsMcEventCollHelper) {
+			  if(phit.pileupType()!=lastPileupType)        {
+			    currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(phit.pileupType());
+			    lastPileupType=phit.pileupType();
+			  }
+			  trklink.setEventCollection(currentMcEventCollection);
+			}
+
 			// Read the information about the Micro Megas hit
 			ATH_MSG_DEBUG ( "> hitID  "
 							<<     hitID
@@ -705,7 +720,7 @@ StatusCode MM_DigitizationTool::doDigitization() {
 																hit.globalDirection(),
 																hit.depositEnergy(),
 																hit.StepLength(),
-																hit.trackNumber()
+																trklink
 																);
 
 			inputSimHitColl->Insert(*copyHit);

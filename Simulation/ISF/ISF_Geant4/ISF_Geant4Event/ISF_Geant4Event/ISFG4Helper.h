@@ -8,6 +8,9 @@
 // Barcode includes
 #include "BarcodeEvent/Barcode.h"
 
+// Generators
+#include "GeneratorObjects/HepMcParticleLink.h"
+
 // ISF Includes
 #include "ISF_Event/ISFParticle.h"
 
@@ -15,9 +18,6 @@
 #include "MCTruth/VTrackInformation.h"
 
 // forward declarations
-namespace HepMC {
-  class GenParticle;
-}
 namespace ISF {
   class TruthBinding;
 }
@@ -36,8 +36,12 @@ class ISFG4Helper {
   /** convert the given G4Track into an ISFParticle */
   static ISF::ISFParticle* convertG4TrackToISFParticle(const G4Track& aTrack,
                                                        const ISF::ISFParticle& parent,
-                                                       ISF::TruthBinding* truth = nullptr);
+                                                       ISF::TruthBinding* truth = nullptr,
+                                                       const HepMcParticleLink * partLink = nullptr);
   
+  /** get the ParticleBarcode corresponding to the given G4Track */
+  static Barcode::ParticleBarcode getParticleBarcode(const G4Track &aTrack);
+
   /** return a valid UserInformation object of the G4Track for use within the ISF */
   static VTrackInformation* getISFTrackInfo(const G4Track& aTrack);
   

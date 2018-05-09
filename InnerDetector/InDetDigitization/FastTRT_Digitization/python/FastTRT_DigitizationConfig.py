@@ -46,6 +46,12 @@ def BasicTRTFastDigitizationTool(name, **kwargs):
     if not digitizationFlags.rndmSeedList.checkForExistingSeed(streamName):
         digitizationFlags.rndmSeedList.addSeed(streamName, 45123, 94345 )
 
+    #If needed we'll adjust the output McEventCollections (for pileup mainly) names
+    if 'MC16Merge' in digitizationFlags.experimentalDigi():
+        kwargs.setdefault("UseMcEventCollectionHelper",True)
+    else:
+        kwargs.setdefault("UseMcEventCollectionHelper",False)
+
     from Digitization.DigitizationFlags import digitizationFlags
     if digitizationFlags.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", FastTRT_FirstXing())

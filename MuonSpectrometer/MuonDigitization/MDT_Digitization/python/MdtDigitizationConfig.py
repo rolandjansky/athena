@@ -41,6 +41,11 @@ def MdtDigitizationTool(name="MdtDigitizationTool",**kwargs):
          kwargs.setdefault("DoQballCharge", False)
    else:
       kwargs.setdefault("DoQballCharge", False)
+
+   if 'MC16Merge' in jobproperties.Digitization.experimentalDigi():
+       kwargs.setdefault("UseMcEventCollectionHelper",True)
+   else:
+       kwargs.setdefault("UseMcEventCollectionHelper",False)
    
    mdtRndm = kwargs.setdefault("RndmEngine","MDT_Digitization")
    mdtTwinRndm = kwargs.setdefault("TwinRndmEngine","MDT_DigitizationTwin")

@@ -35,6 +35,11 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "PixelConditionsTools/IModuleDistortionsTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GeneratorObjects/McEventCollectionHelper.h"
+#include "GeneratorObjects/HepMcParticleLink.h"
+
+#include <limits>
+
 
 // Base class
 class ISiPropertiesSvc;
@@ -62,13 +67,16 @@ public:
 	m_rndmEngineName("PixelDigitization"),
 	m_rndmEngine(0),	
 	m_disableDistortions(false),
-	m_pixDistoTool("PixelDistortionsTool") 
+	m_pixDistoTool("PixelDistortionsTool") ,
+	m_lastPileupType(std::numeric_limits<unsigned short>::max()),
+	m_lastMcEventCollectionHMPLEnum(EBC_MAINEVCOLL)
 {
 	declareInterface< SubChargesTool >( this );
 	declareProperty("SiPropertiesSvc",m_siPropertiesSvc,"SiPropertiesSvc");
 	declareProperty("RndmSvc",         m_rndmSvc,          "Random Number Service used in SCT & Pixel digitization");
 	declareProperty("RndmEngine",      m_rndmEngineName,   "Random engine name");
 	declareProperty("DisableDistortions",m_disableDistortions,"Disable simulation of module distortions");
+	declareProperty("UseMcEventCollectionHelper", m_needsMcEventCollHelper = false);
 }
 
   /** AlgTool InterfaceID */
@@ -130,6 +138,14 @@ public:
 
 
 
+  virtual EBC_EVCOLL getMcEventCollectionHMPLEnumFromTimedHitPtr(const TimedHitPtr<SiHit> phit) {
+      unsigned short newPileupType=phit.pileupType();
+      if (m_lastPileupType!=newPileupType) {
+	m_lastPileupType = newPileupType;
+	m_lastMcEventCollectionHMPLEnum = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(m_lastPileupType);
+      }
+      return m_lastMcEventCollectionHMPLEnum;
+  };
 
  
   
@@ -147,8 +163,11 @@ protected:
   double electronHolePairsPerEnergy;
   bool				m_disableDistortions;
   ToolHandle<IModuleDistortionsTool> m_pixDistoTool;
+  bool m_needsMcEventCollHelper;
 private:
   const InDetDD::SiDetectorElement * m_module;   
+  unsigned short m_lastPileupType; //Speeding up the McEventCollection retrieval
+  EBC_EVCOLL m_lastMcEventCollectionHMPLEnum; //Speeding up the McEventCollection retrieval
  };
 
 

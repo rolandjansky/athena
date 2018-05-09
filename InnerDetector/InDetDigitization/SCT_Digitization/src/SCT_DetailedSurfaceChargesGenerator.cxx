@@ -32,6 +32,8 @@
 #include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
 #include "SiPropertiesSvc/ISiPropertiesSvc.h"
 
+#include "GeneratorObjects/McEventCollectionHelper.h"
+
 using InDetDD::SiDetectorElement;
 using InDetDD::SCT_ModuleSideDesign;
 using InDetDD::SiLocalPosition;
@@ -101,6 +103,7 @@ SCT_DetailedSurfaceChargesGenerator::SCT_DetailedSurfaceChargesGenerator(const s
   //  declareProperty("rndmEngineName",m_rndmEngineName="SCT_Digitization");
   declareProperty("doDistortions",   m_doDistortions, "Simulation of module distortions");
   declareProperty("SCTDistortionsTool", m_distortionsTool, "Tool to retrieve SCT distortions");
+  declareProperty("UseMcEventCollectionHelper", m_needsMcEventCollHelper = false);
   declareProperty("doHistoTrap", m_doHistoTrap, "Allow filling of histos for charge trapping effect"); 
   declareProperty("doTrapping", m_doTrapping, "Simulation of charge trapping effect"); 
   declareProperty("Fluence", m_Fluence, "Fluence for charge trapping effect");
@@ -361,7 +364,8 @@ float SCT_DetailedSurfaceChargesGenerator::SurfaceDriftTime(float ysurf) const {
 //-------------------------------------------------------------------------------------------
 void SCT_DetailedSurfaceChargesGenerator::processFromTool(const SiHit* phit, const ISiSurfaceChargesInserter& inserter, const float p_eventTime, const unsigned short p_eventId) const {
   ATH_MSG_VERBOSE ( "SCT_DetailedSurfaceChargesGenerator::processFromTool starts") ;
-  processSiHit(*phit,inserter,p_eventTime,p_eventId);
+  const int hardScatterPileUpType(0); // Based on enum defined in PileUpTimeEventIndex.h
+  processSiHit(*phit,inserter,p_eventTime,hardScatterPileUpType,p_eventId);
   return;
 }
 //-------------------------------------------------------------------------------------------
@@ -373,7 +377,7 @@ void SCT_DetailedSurfaceChargesGenerator::process(const TimedHitPtr<SiHit> & phi
 
   float p_eventTime =  phit.eventTime();
   unsigned short p_eventId = phit.eventId();
-  processSiHit(*phit,inserter,p_eventTime,p_eventId);
+  processSiHit(*phit,inserter,p_eventTime,phit.pileupType(),p_eventId);
   return;
 
 }
@@ -381,7 +385,7 @@ void SCT_DetailedSurfaceChargesGenerator::process(const TimedHitPtr<SiHit> & phi
 //-------------------------------------------------------------------------------------------
 // create a list of surface charges from a hit - called from both AthAlgorithm and PileUpTool
 //-------------------------------------------------------------------------------------------
-void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float p_eventTime, unsigned short p_eventId) const {
+void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiHit& phit, const ISiSurfaceChargesInserter& inserter, float p_eventTime, int puType, unsigned short /*p_eventId*/) const {
 
   const InDetDD::SCT_ModuleSideDesign *p_design = dynamic_cast<const SCT_ModuleSideDesign *>(&(m_element->design() ) );
   if (!p_design) {
@@ -451,11 +455,14 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiHit& phit, const 
 
   //check the status of truth information for this SiHit
   //some Truth information is cut for pile up events
-  HepMcParticleLink trklink = HepMcParticleLink(phit.trackNumber(), p_eventId);
+  HepMcParticleLink trklink(phit.particleLink());
+  if (m_needsMcEventCollHelper) {
+    trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(puType) );
+  }
   SiCharge::Process hitproc = SiCharge::track;
   if(phit.trackNumber()!=0)
     {
-      if(!trklink.isValid()) { hitproc = SiCharge::cut_track; }
+        if(!trklink.isValid()) { hitproc = SiCharge::cut_track; }
     }
  
   float dstep =-0.5;

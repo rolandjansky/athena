@@ -45,10 +45,12 @@
 
 //Pile-up
 #include "PileUpTools/PileUpMergeSvc.h"
+#include "PileUpTools/PileUpTypeHelper.h"
 
 //Truth
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
+#include "GeneratorObjects/McEventCollectionHelper.h"
 #include "HepMC/GenParticle.h"
 
 //Random Numbers
@@ -168,6 +170,7 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
   declareProperty("OutputObjectName",        m_outputDigitCollectionName = "sTGC_DIGITS",           "name of the output object");
   declareProperty("OutputSDOName",           m_outputSDO_CollectionName  = "sTGC_SDO"); 
   declareProperty("OutputDigitInfoName",     m_outputDigitInfoCollectionName = "sTGC_DIGIT_INFO");
+  declareProperty("UseMcEventCollectionHelper", m_needsMcEventCollHelper = false);
   declareProperty("doToFCorrection",         m_doToFCorrection); 
   declareProperty("doChannelTypes",          m_doChannelTypes); 
   declareProperty("DeadtimeElectronicsStrip",m_deadtimeStrip); 
@@ -323,7 +326,7 @@ StatusCode sTgcDigitizationTool::processBunchXing(int bunchXing,
   //loop on event and sub-events for the current bunch Xing
   for (; iEvt!=eSubEvents; ++iEvt) {
     StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
-    PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
+    PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index(),pileupTypeMapper(iEvt->type()));
     ATH_MSG_VERBOSE( "SubEvt EventInfo from StoreGate " << seStore.name() << " :"
                      << " bunch crossing : " << bunchXing );
 //                     << " time offset : " << iEvt->time()
@@ -560,6 +563,9 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 
   m_digitInfoCollection->clear();
 
+  EBC_EVCOLL currentMcEventCollection(EBC_NCOLLKINDS); // Base on enum defined in HepMcParticleLink.h
+  int lastPileupType(6); // Based on enum defined in PileUpTimeEventIndex.h
+
   ATH_MSG_DEBUG("create PRD container of size " << m_idHelper->detectorElement_hash_max());
 
   IdContext tgcContext = m_idHelper->module_context();
@@ -661,7 +667,17 @@ StatusCode sTgcDigitizationTool::doDigitization() {
           ATH_MSG_VERBOSE("Local Hit on Wire Surface " << HITONSURFACE_WIRE );
           ATH_MSG_VERBOSE("Global Hit on Wire Surface " << G_HITONSURFACE_WIRE );
           
-          GenericMuonSimHit* wireHit = new GenericMuonSimHit(idHit, (hit.globalTime() + eventTime), eventTime, G_HITONSURFACE_WIRE, HITONSURFACE_WIRE, hit.globalPrePosition(), hit.localPrePosition(), hit.particleEncoding(), hit.kineticEnergy(), hit.globalDirection(), hit.depositEnergy(), hit.StepLength(), hit.trackNumber() );
+          const int pileupType = phit.pileupType();
+          HepMcParticleLink trklink(hit.particleLink());
+          if (m_needsMcEventCollHelper) {
+            if(pileupType!=lastPileupType)        {
+              currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(pileupType);
+              lastPileupType=pileupType;
+            }
+            trklink.setEventCollection(currentMcEventCollection);
+          }
+
+          GenericMuonSimHit* wireHit = new GenericMuonSimHit(idHit, (hit.globalTime() + eventTime), eventTime, G_HITONSURFACE_WIRE, HITONSURFACE_WIRE, hit.globalPrePosition(), hit.localPrePosition(), hit.particleEncoding(), hit.kineticEnergy(), hit.globalDirection(), hit.depositEnergy(), hit.StepLength(), trklink );
           SimHits[wireHit] = eventId;  //Associate the sub event the hit came from
           ATH_MSG_VERBOSE("Put hit number " << nhits << " into the map with eventID " << eventId );
 	  } // end of while(i != e)
@@ -694,7 +710,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 				temp_hit.globalDirection(),
 				depositEnergy,
 				temp_hit.StepLength(),
-				temp_hit.trackNumber());
+				temp_hit.particleLink());
 
 
     	float globalHitTime = hit.globalTime();

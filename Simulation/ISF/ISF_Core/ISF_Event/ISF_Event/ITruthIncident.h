@@ -51,9 +51,9 @@ namespace ISF {
   class ITruthIncident {
   public:
     ITruthIncident(AtlasDetDescr::AtlasRegion geoID, unsigned short numChildren): m_geoID(geoID),
-                                                                          m_numChildren(numChildren),
-                                                                          m_passWholeVertex(true),
-                                                                          m_childPassedFilters(numChildren,false) { };
+                                                                                  m_numChildren(numChildren),
+                                                                                  m_passWholeVertex(true),
+                                                                                  m_childPassedFilters(numChildren,false) { };
 
     /** Return the SimGeoID corresponding to the vertex of the truth incident */
     AtlasDetDescr::AtlasRegion geoID() { return m_geoID; };
@@ -79,8 +79,8 @@ namespace ISF {
     virtual HepMC::GenParticle*       parentParticle() const = 0;
     /** Return the barcode of the parent particle */
     virtual Barcode::ParticleBarcode  parentBarcode() const = 0;
-    /** Return the extra barcode of the parent particle */
-    virtual Barcode::ParticleBarcode  parentBCID() const = 0;
+    /** Return the bunch-crossing identifier of the parent particle */
+    virtual int                       parentBCID() const { return 0; }
     /** Return a boolean whether or not the parent particle survives the incident */
     virtual bool                      parentSurvivesIncident() const = 0;
     /** Return the parent particle after the TruthIncident vertex (and assign

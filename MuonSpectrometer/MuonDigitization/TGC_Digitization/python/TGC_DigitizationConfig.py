@@ -27,6 +27,10 @@ def TgcDigitizationTool(name="TgcDigitizationTool", **kwargs):
     if jobproperties.Digitization.PileUpPremixing():
         kwargs.setdefault("IncludePileUpTruth", False)
 
+    if 'MC16Merge' in jobproperties.Digitization.experimentalDigi():
+        kwargs.setdefault("UseMcEventCollectionHelper",True)
+    else:
+        kwargs.setdefault("UseMcEventCollectionHelper",False)
     return CfgMgr.TgcDigitizationTool(name, **kwargs)
 
 def getTgcRange(name="TgcRange", **kwargs):

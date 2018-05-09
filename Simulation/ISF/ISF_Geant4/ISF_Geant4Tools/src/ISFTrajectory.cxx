@@ -117,6 +117,14 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
         baseIsp->getTruthBinding()->setTruthParticle( currentGenPart );
         Barcode::ParticleBarcode newBarcode = currentGenPart->barcode();
         baseIsp->setBarcode( newBarcode );
+        const HepMcParticleLink *hmpl(nullptr);
+        if (baseIsp->getParticleLink()) {
+          hmpl = new HepMcParticleLink(currentGenPart, baseIsp->getParticleLink()->eventIndex(), baseIsp->getParticleLink()->getEventCollection());
+        }
+        else {
+          hmpl = new HepMcParticleLink(newBarcode);
+        }
+        baseIsp->setParticleLink(hmpl);
       }
     }
     else {

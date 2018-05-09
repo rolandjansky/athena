@@ -517,6 +517,10 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
       if (!regisp->getTruthBinding()) {
 	regisp->setTruthBinding(new ISF::TruthBinding(*isp->getTruthBinding()));
       }
+      if (!regisp->getParticleLink()) {
+        regisp->setParticleLink(new HepMcParticleLink(*isp->getParticleLink()));
+      }
+
       m_particleBroker->push(regisp, m_isp);
     }
     if (isp!=m_isp) { delete isp; delete parm; }
@@ -671,6 +675,10 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
     if (!regisp->getTruthBinding()) {
 	regisp->setTruthBinding(new ISF::TruthBinding(*isp->getTruthBinding()));
     }
+    if (!regisp->getParticleLink()) {
+      regisp->setParticleLink(new HepMcParticleLink(*isp->getParticleLink()));
+    }
+
     m_particleBroker->push(regisp, m_isp);
   }
 
@@ -1444,6 +1452,10 @@ void iFatras::McMaterialEffectsUpdator::recordBremPhoton(double time,
     if (!bremPhoton->getTruthBinding()) {
 	bremPhoton->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
     }
+    if (!bremPhoton->getParticleLink()) {
+      bremPhoton->setParticleLink(new HepMcParticleLink(*parent->getParticleLink()));
+    }
+
     m_particleBroker->push( bremPhoton, parent);
 
 
@@ -1573,6 +1585,10 @@ void iFatras::McMaterialEffectsUpdator::recordBremPhotonLay(const ISF::ISFPartic
     if (!bremPhoton->getTruthBinding()) {
 	bremPhoton->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
     }
+    if (!bremPhoton->getParticleLink()) {
+      bremPhoton->setParticleLink(new HepMcParticleLink(*parent->getParticleLink()));
+    }
+
 
     // save info for validation
     if (m_validationMode && m_validationTool) {
@@ -1880,8 +1896,14 @@ ISF::ISFParticleVector  iFatras::McMaterialEffectsUpdator::interactLay(const ISF
     if (!children[0]->getTruthBinding()) {
 	children[0]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
     }
+    if (!children[0]->getParticleLink()) {
+        children[0]->setParticleLink(new HepMcParticleLink(*parent->getParticleLink()));
+    }
     if (!children[1]->getTruthBinding()) {
 	children[1]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+    }
+    if (!children[1]->getParticleLink()) {
+        children[1]->setParticleLink(new HepMcParticleLink(*parent->getParticleLink()));
     }
 
     return children;
@@ -1916,6 +1938,9 @@ ISF::ISFParticleVector  iFatras::McMaterialEffectsUpdator::interactLay(const ISF
 	if (!childVector[i]->getTruthBinding()) {
 		childVector[i]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
 	}
+        if (!childVector[i]->getParticleLink()) {
+                childVector[i]->setParticleLink(new HepMcParticleLink(*parent->getParticleLink()));
+        }
     }
  
     return childVector;
@@ -1959,15 +1984,18 @@ ISF::ISFParticleVector  iFatras::McMaterialEffectsUpdator::interactLay(const ISF
       m_validationTool->saveISFVertexInfo(process,parm.position(),*parent,parm.momentum(),nMom,childVector);
       delete nMom;
     }
-  }
 
-  //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
-  for (unsigned int i=0; i<childVector.size(); i++) {
-	if (!childVector[i]->getTruthBinding()) {
-		childVector[i]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
-	}
-  }
+    //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
+    for (unsigned int i=0; i<childVector.size(); i++) {
+      if (!childVector[i]->getTruthBinding()) {
+        childVector[i]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+      }
+      if (!childVector[i]->getParticleLink()) {
+        childVector[i]->setParticleLink(new HepMcParticleLink(*parent->getParticleLink()));
+      }
+    }
     
+  }
   return childVector;
 }
 

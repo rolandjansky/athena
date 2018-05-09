@@ -12,6 +12,9 @@
 // Gaudi
 #include "GaudiKernel/IInterface.h"
 
+//GeneratorObjects
+#include "GeneratorObjects/HepMcParticleLink.h"
+
 // StoreGate
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
@@ -52,13 +55,13 @@ namespace ISF {
         and push them into the given ISFParticleContainer */
     virtual StatusCode convert(const McEventCollection& inputGenEvents,
                                ISFParticleContainer& simParticles,
-                               bool isPileup) const = 0;
+                               EBC_EVCOLL kindOfCollection=EBC_MAINEVCOLL) const = 0;
 
     /** Convert selected particles from the given McEventCollection into G4PrimaryParticles
         and push them into the given G4Event */
     virtual StatusCode convertHepMCToG4Event(McEventCollection& inputGenEvents,
                                              G4Event*& outputG4Event,
-                                             bool isPileup) const = 0;
+                                             EBC_EVCOLL kindOfCollection=EBC_MAINEVCOLL) const = 0;
 
     /** Converts vector of ISF::ISFParticles to G4Event */
     virtual G4Event* ISF_to_G4Event(const std::vector<const ISF::ISFParticle*>& isp, HepMC::GenEvent *genEvent) const = 0;

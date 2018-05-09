@@ -19,6 +19,7 @@
 #include "InDetSimData/InDetSimData.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
+#include "GeneratorObjects/McEventCollectionHelper.h"
 
 #include "GaudiKernel/SystemOfUnits.h"
 
@@ -29,6 +30,7 @@
 
 // Other includes
 #include "PileUpTools/PileUpMergeSvc.h"
+#include "PileUpTools/PileUpTypeHelper.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "TrkDetElementBase/TrkDetElementBase.h"
@@ -92,6 +94,7 @@ TRTFastDigitizationTool::TRTFastDigitizationTool( const std::string &type,
   declareProperty( "useEventInfo",                m_useEventInfo);
   declareProperty( "EventInfoKey",                m_EventInfoKey);
   declareProperty( "NCollPerEvent",               m_NCollPerEvent);
+  declareProperty("UseMcEventCollectionHelper",   m_needsMcEventCollHelper = false);
 }
 
 
@@ -160,7 +163,7 @@ StatusCode TRTFastDigitizationTool::processBunchXing( int /*bunchXing*/,
   SubEventIterator iEvt( bSubEvents );
   while ( iEvt != eSubEvents ) {
     StoreGateSvc& seStore( *iEvt->ptr()->evtStore() );
-    PileUpTimeEventIndex thisEventIndex( PileUpTimeEventIndex( static_cast< int >( iEvt->time() ),iEvt->index() ) );
+    PileUpTimeEventIndex thisEventIndex( iEvt->time(), iEvt->index(), pileupTypeMapper(iEvt->type()) );
     const TRTUncompressedHitCollection* seHitColl( nullptr );
     CHECK( seStore.retrieve( seHitColl, m_trtHitCollectionKey ) );
     // copy Hit Collection
@@ -214,6 +217,8 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
   m_driftCircleMap.clear();
 
   TimedHitCollection< TRTUncompressedHit >::const_iterator itr1, itr2;
+  EBC_EVCOLL currentMcEventCollection(EBC_NCOLLKINDS); // Base on enum defined in HepMcParticleLink.h
+  int lastPileupType(6); // Based on enum defined in PileUpTimeEventIndex.h
   while ( m_thpctrt->nextDetectorElement( itr1, itr2 ) ) {
 
     for ( ; itr1 != itr2; ++itr1 ) {
@@ -323,15 +328,23 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles() {
 
       m_driftCircleMap.insert( std::multimap< Identifier, InDet::TRT_DriftCircle * >::value_type( straw_id, trtDriftCircle ) );
 
-      if ( hit->particleLink().isValid() ) {
-        const int barcode( hit->particleLink().barcode() );
+      HepMcParticleLink trklink(hit->particleLink());
+      if (m_needsMcEventCollHelper) {
+        if(hit.pileupType()!=lastPileupType)        {
+          currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(hit.pileupType());
+          lastPileupType=hit.pileupType();
+        }
+        trklink.setEventCollection(currentMcEventCollection);
+      }
+      if ( trklink.isValid() ) {
+        const int barcode( trklink.barcode() );
         if ( barcode !=0 && barcode != m_vetoThisBarcode ) {
-          m_trtPrdTruth->insert( std::make_pair( trtDriftCircle->identify(), hit->particleLink() ) );
-          ATH_MSG_DEBUG( "Truth map filled with cluster " << trtDriftCircle << " and link = " << hit->particleLink() );
+          m_trtPrdTruth->insert( std::make_pair( trtDriftCircle->identify(), trklink ) );
+          ATH_MSG_DEBUG( "Truth map filled with cluster " << trtDriftCircle << " and link = " << trklink );
         }
       }
       else {
-        ATH_MSG_DEBUG( "Particle link NOT valid!! Truth map NOT filled with cluster " << trtDriftCircle << " and link = " << hit->particleLink() );
+        ATH_MSG_DEBUG( "Particle link NOT valid!! Truth map NOT filled with cluster " << trtDriftCircle << " and link = " << trklink );
       }
 
     }

@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/Barcode/BarcodeEvent
                           Simulation/Barcode/BarcodeInterfaces
                           Simulation/G4Sim/TrackRecord
+                          Generators/GeneratorObjects
                           Simulation/ISF/ISF_Core/ISF_Event
                           Simulation/ISF/ISF_Core/ISF_Interfaces )
 
@@ -21,7 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( ISF_Tools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel AthenaBaseComps AtlasDetDescr ISF_Event ISF_Interfaces )
+                     LINK_LIBRARIES GaudiKernel AthenaBaseComps AtlasDetDescr GeneratorObjects ISF_Event ISF_Interfaces )
 
 # Install files from the package:
 atlas_install_headers( ISF_Tools )

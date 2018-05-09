@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "InDetSimEventTPCnv/InDetHits/TRT_HitCollectionCnv_p2.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -26,6 +27,7 @@ void compare (const HepMcParticleLink& p1,
   assert ( p1.isValid() == p2.isValid() );
   assert ( p1.barcode() == p2.barcode() );
   assert ( p1.eventIndex() == p2.eventIndex() );
+  assert ( p1.getEventCollectionAsChar() == p2.getEventCollectionAsChar() );
   assert ( p1.cptr() == p2.cptr() );
   assert ( p1 == p2 );
 }
@@ -75,12 +77,19 @@ void testit (const TRTUncompressedHitCollection& trans1)
 void test1(std::vector<HepMC::GenParticle*>& genPartVector)
 {
   std::cout << "test1\n";
+  const HepMC::GenParticle *particle = genPartVector.at(0);
+  // Create HepMcParticleLink outside of leak check.
+  HepMcParticleLink dummyHMPL(particle->barcode(),particle->parent_event()->event_number());
+  assert(dummyHMPL.cptr()==particle);
+  // Create DVL info outside of leak check.
+  TRTUncompressedHitCollection dum ("coll");
+  Athena_test::Leakcheck check;
 
   TRTUncompressedHitCollection trans1 ("coll");
   for (int i=0; i < 10; i++) {
     int o = i*100;
     const HepMC::GenParticle* pGenParticle = genPartVector.at(0);
-    HepMcParticleLink trkLink(pGenParticle->barcode(),0);
+    HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
     trans1.Emplace (101+o, trkLink, pGenParticle->pdg_id(),
                     104.5+o, 105.5+o,
                     (106.5+o)/1000, (107.5+o)/1000, 108.5+o,
@@ -89,7 +98,7 @@ void test1(std::vector<HepMC::GenParticle*>& genPartVector)
   }
   // Special case for photons
   const HepMC::GenParticle* pGenParticle = genPartVector.at(10);
-  HepMcParticleLink trkLink(pGenParticle->barcode(),0);
+  HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
   trans1.Emplace (131, trkLink, 22,
                   134.5, 135.5,
                   10, 3, 138.5,

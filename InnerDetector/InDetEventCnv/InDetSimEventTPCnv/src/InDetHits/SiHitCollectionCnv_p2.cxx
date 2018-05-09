@@ -123,7 +123,7 @@ void SiHitCollectionCnv_p2::transToPers(const SiHitCollection* transCont, SiHitC
       }
     }
 
-    HepGeom::Point3D<double> st = siHit->localStartPosition();    
+    HepGeom::Point3D<double> st = siHit->localStartPosition();
     HepGeom::Point3D<double> en = siHit->localEndPosition();
 
     const double dx = st.x() - lastTransEnd.x();
@@ -298,7 +298,8 @@ void SiHitCollectionCnv_p2::persToTrans(const SiHitCollection_p2* persCont, SiHi
 
         HepGeom::Point3D<double> endThis( endLast + r );
 
-        transCont->Emplace( endLast, endThis, eneLoss, meanTime, persCont->m_barcode[idxBC], persCont->m_id[idxId]);
+        HepMcParticleLink partLink; partLink.setExtendedBarcode( HepMcParticleLink::ExtendedBarCode( persCont->m_barcode[idxBC], 0, EBC_MAINEVCOLL, true) );
+        transCont->Emplace( endLast, endThis, eneLoss, meanTime, partLink, persCont->m_id[idxId]);
 
         endLast = endThis;
 

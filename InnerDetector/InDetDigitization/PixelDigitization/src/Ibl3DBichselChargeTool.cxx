@@ -113,7 +113,9 @@ StatusCode Ibl3DBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
 		  const InDetDD::SiDetectorElement &Module)
 { 
   ATH_MSG_VERBOSE("Applying IBL3D charge processor");
-  const HepMcParticleLink McLink = HepMcParticleLink(phit->trackNumber(),phit.eventId());
+  HepMcParticleLink McLink = HepMcParticleLink(phit->particleLink());
+  if (m_needsMcEventCollHelper)
+    McLink.setEventCollection( getMcEventCollectionHMPLEnumFromTimedHitPtr(phit) );
   const HepMC::GenParticle* genPart= McLink.cptr(); 
   bool delta_hit = true;
   if (genPart) delta_hit = false;
@@ -329,7 +331,7 @@ StatusCode Ibl3DBichselChargeTool::charge(const TimedHitPtr<SiHit> &phit,
             SiLocalPosition chargePos = Module.hitLocalToLocal(y_mod,x_mod);
             //ATH_MSG_INFO(" Si3D charge pos "<<chargePos<<"  ed  "<<ed);
             
-            SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
+            SiSurfaceCharge scharge(chargePos,SiCharge(ed,hitTime(phit),SiCharge::track,McLink));
             SiCellId diode = Module.cellIdOfPosition(scharge.position());
             SiCharge charge = scharge.charge();
             if (diode.isValid()) {

@@ -11,7 +11,7 @@ TimedHitPtrCollection<HIT>::insert(const PileUpTimeEventIndex& timeEventIndex,
   assert(inputCollection);
   typename AthenaHitsVector<HIT>::const_iterator i(inputCollection->begin());
   typename AthenaHitsVector<HIT>::const_iterator e(inputCollection->end());
-  while (i!=e) m_hits.push_back(TimedHitPtr<HIT>(timeEventIndex.time(), timeEventIndex.index(),*i++));
+  while (i!=e) m_hits.push_back(TimedHitPtr<HIT>(timeEventIndex.time(), timeEventIndex.index(),*i++, timeEventIndex.type()));
   if (m_sorted) {
     m_sorted=false;
     throw SortedException();

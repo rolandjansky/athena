@@ -411,6 +411,8 @@ def getKernel_ATLFASTII_PileUp(name="ISF_Kernel_ATLFASTII_PileUp", **kwargs):
   
 ############## Simulator: G4HS_FastPileup ###############
 def getKernel_G4HS_FastPileup(name="ISF_Kernel_G4HS_FastPileup", **kwargs):
+    kwargs.setdefault("InputPileupCollection", "GEN_EVENT_PU")
+    kwargs.setdefault("OutputPileupTruthCollection", "TruthEvent_PU")
     kwargs.setdefault("SimHitService"              , "ISF_PileupSimHitService"                  )
     kwargs.setdefault("BeamPipeSimulationSelectors", [ 'ISF_PileupParticleKillerSelector',
 						       'ISF_FullGeant4Selector' ]        ) 
