@@ -197,7 +197,7 @@ StatusCode DiTauIDVarCalculator::initialize()
         ATH_CHECK(m_tauWPDecorator.setProperty("flatteningFile1Prong", "tauRecTools/00-02-00/FlatJetBDT1Pv2.root"));
         ATH_CHECK(m_tauWPDecorator.setProperty("flatteningFile3Prong", "tauRecTools/00-02-00/FlatJetBDT3Pv2.root"));
         ATH_CHECK(m_tauWPDecorator.setProperty("ScoreName", "BDTScoreRecalc"));
-        ATH_CHECK(m_tauWPDecorator.setProperty("NewScoreName", "BDTScoreRecalcFlat"));
+        ATH_CHECK(m_tauWPDecorator.setProperty("NewScoreName", "BDTScoreFlatRecalc"));
         ATH_CHECK(m_tauWPDecorator.setProperty("DefineWPs", false));
         ATH_CHECK(m_tauWPDecorator.initialize());
       }
