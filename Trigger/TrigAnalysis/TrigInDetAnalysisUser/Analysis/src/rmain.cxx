@@ -934,10 +934,11 @@ int main(int argc, char** argv)
   }
   else { 
     if      ( refChain=="Offline" )             refFilter = &filter_off;
-    else if ( contains( refChain,"Electrons") ) refFilter = &filter_off;
-    else if ( contains( refChain, "Muons" ) )   refFilter = &filter_muon;
-    else if ( contains( refChain,"1Prong" ) )   refFilter = &filter_off;  // tau ref chains
-    else if ( contains( refChain,"3Prong" ) )   refFilter = &filter_off;  // tau ref chains
+    else if ( contains( refChain, "Electrons") ) refFilter = &filter_off;
+    else if ( contains( refChain, "Muons"  ) )   refFilter = &filter_muon;
+    else if ( contains( refChain, "Taus"   ) )   refFilter = &filter_off;  // tau ref chains
+    else if ( contains( refChain, "1Prong" ) )   refFilter = &filter_off;  // tau ref chains
+    else if ( contains( refChain, "3Prong" ) )   refFilter = &filter_off;  // tau ref chains
     else if ( refChain=="Truth" && pdgId!=0 )   refFilter = &filter_truth;
     else if ( refChain=="Truth" && pdgId==0 )   refFilter = &filter_off;
     else { 
