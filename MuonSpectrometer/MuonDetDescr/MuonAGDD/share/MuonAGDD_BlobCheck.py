@@ -5,7 +5,7 @@ MuonAGDDDumperFromAMDBFile.BuildNSW=False
 MuonAGDDDumperFromAMDBFile.Locked=True
 ToolSvc += MuonAGDDDumperFromAMDBFile
 
-# write blob from DB in generated_amdb_simrec_pool.txt
+# write blob from DB in Generated_AMDB_pool.txt
 from MuonAGDD.MuonAGDDConfig import MuonAGDDTool
 MuonAGDDDumperFromDB = MuonAGDDTool(name="AGDDDumperFromDB")
 MuonAGDDDumperFromDB.DumpAGDD=True
