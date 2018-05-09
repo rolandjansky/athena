@@ -48,16 +48,19 @@ class LorentzAngleSvcSetup:
 
         from AthenaCommon.DetFlags      import DetFlags
 
+        from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
+
         ##
         ## Pixel
         ##
         if ( DetFlags.detdescr.pixel_on() ):
 
             from PixelLorentzAngleSvcSetup import pixelLorentzAngleSvcSetup
-
             self.pixel = pixelLorentzAngleSvcSetup.PixelLorentzAngleSvc
             self.pixelSiliconConditionsSvc = pixelLorentzAngleSvcSetup.PixelSiliconConditionsSvc
             self.PixelSiliconConditionsSvc = pixelLorentzAngleSvcSetup.PixelSiliconConditionsSvc
+            self.pixelSiPropertiesSvc      = pixelLorentzAngleSvcSetup.PixelSiPropertiesSvc
+            self.PixelSiPropertiesSvc      = pixelLorentzAngleSvcSetup.PixelSiPropertiesSvc
 
         ##
         ## SCT 
@@ -82,9 +85,9 @@ class LorentzAngleSvcSetup:
         if ( DetFlags.detdescr.SCT_on() ):
             self.sctForceUseDB() 
     
-    def pixelForceUseDB(self) :
-        "Force usage of conditions DB for Pixel" 
-        self.PixelSiliconConditionsSvc.CheckGeoModel = False
+#    def pixelForceUseDB(self) :
+#        "Force usage of conditions DB for Pixel" 
+#        self.PixelSiliconConditionsSvc.CheckGeoModel = False
 
     def sctForceUseDB(self) :
         "Force usage of conditions DB for SCT"
@@ -95,16 +98,16 @@ class LorentzAngleSvcSetup:
     def forceUseGeoModel(self) :
         "Force usage of GeoModel defaults"
         from AthenaCommon.DetFlags      import DetFlags
-        if ( DetFlags.detdescr.pixel_on() ):
-            self.pixelForceUseGeoModel()
+#        if ( DetFlags.detdescr.pixel_on() ):
+#            self.pixelForceUseGeoModel()
 
         if ( DetFlags.detdescr.SCT_on() ):
             self.sctForceUseGeoModel() 
 
 
-    def pixelForceUseGeoModel(self) :
-        "Force usage of GeoModel defaults for Pixel"
-        self.PixelSiliconConditionsSvc.ForceUseGeoModel = True
+#    def pixelForceUseGeoModel(self) :
+#        "Force usage of GeoModel defaults for Pixel"
+#        self.PixelSiliconConditionsSvc.ForceUseGeoModel = True
 
     def sctForceUseGeoModel(self) :
         "Force usage of GeoModel defaults for SCT"
