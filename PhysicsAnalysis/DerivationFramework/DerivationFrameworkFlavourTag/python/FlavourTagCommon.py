@@ -25,7 +25,7 @@ DoneJetCollections=set([])
 DontReduceInfoRun = False
 
 def DontReduceInfo(Rel20=True):
-    
+
     global DontReduceInfoRun
     if (DontReduceInfoRun):
         return
@@ -33,12 +33,12 @@ def DontReduceInfo(Rel20=True):
 
     if globalflags.DataSource()!='geant4':
         return
-    
+
 
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParametersForTruthParticles
-    
+
     TTPName = "TruthParticle"
-    
+
     if Rel20:
         TTPName = "TruthParticles"
 
@@ -46,8 +46,8 @@ def DontReduceInfo(Rel20=True):
                                                                        OutputLevel = Lvl.INFO,
                                                                        DecorationPrefix ="",
                                                                        TruthParticleContainerName=TTPName)
-    
-    
+
+
     global ToolSvc
     if globalflags.DataSource()!='data':
         ToolSvc +=TruthDecor
@@ -56,7 +56,7 @@ def DontReduceInfo(Rel20=True):
         augmentationTools = []
 
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
-    
+
     global DerivationFrameworkJob
     DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("MyDFTSOS_KERN",
                                                                              AugmentationTools = augmentationTools,
@@ -157,32 +157,32 @@ def ReTag(Taggers, JetCollections = ['AntiKt4EMTopoJets' ], Sequencer=None, DoFu
 
     if len(NotInJetToolManager) > 0:
         AuthorSubString = list(set(AuthorSubString) - set(NotInJetToolManager))
-        
+
     # Both standard and aux container must be listed explicitly.
     # For release 19, the container version must be explicit.
     #BaseName = "xAOD::BTaggingContainer_v1#"
     #BaseAuxName = "xAOD::BTaggingAuxContainer_v1#"
-	   
+
     #AOD list
     #BTaggingFlags.btaggingAODList += [ BaseName + author for author in AuthorSubString]
     #BTaggingFlags.btaggingAODList += [ BaseAuxName + author + 'Aux.' for author in AuthorSubString]
     #BTaggingFlags.btaggingAODList += [ BaseName + author + 'AOD' for author in AuthorSubString]
     #BTaggingFlags.btaggingAODList += [ BaseAuxName + author + 'AODAux.' for author in AuthorSubString]
-   
+
     #ESD list
     #BTaggingFlags.btaggingESDList += [ BaseName + author for author in AuthorSubString]
     #BTaggingFlags.btaggingESDList += [ BaseAuxName + author + 'Aux.' for author in AuthorSubString]
-   
+
     #AOD list SeCVert
     #BaseNameSecVtx = "xAOD::VertexContainer_v1#"
     #BaseAuxNameSecVtx = "xAOD::VertexAuxContainer_v1#"
     #BTaggingFlags.btaggingAODList += [ BaseNameSecVtx + author + tmpSVname for author in AuthorSubString]
     #BTaggingFlags.btaggingAODList += [ BaseAuxNameSecVtx + author + tmpSVname + 'Aux.-vxTrackAtVertex' for author in AuthorSubString]
-   
+
     #ESD list
     #BTaggingFlags.btaggingESDList += [ BaseNameSecVtx + author + tmpSVname for author in AuthorSubString]
     #BTaggingFlags.btaggingESDList += [ BaseAuxNameSecVtx + author + tmpSVname + 'Aux.-vxTrackAtVertex' for author in AuthorSubString]
-	   
+
     #AOD list JFSeCVert
     #BaseNameJFSecVtx = "xAOD::BTagVertexContainer_v1#"
     #BaseAuxNameJFSecVtx = "xAOD::BTagVertexAuxContainer_v1#"
@@ -202,11 +202,11 @@ def FlavorTagInit(DoReduceInfo = False,
                   DoMSV = False,
                   Rel20 = True,
                   DoRetag = True,
-                  scheduleFlipped = False, 
-                  myTaggers  = [],  
+                  scheduleFlipped = False,
+                  myTaggers  = [],
                   JetCollections = ['AntiKt4EMTopoJets' ],     #['AntiKt4PV0TrackJets', 'AntiKt4LCTopoJets' ]
-                  DoFullRetag=True, 
-                  Sequencer=None):   
+                  DoFullRetag=True,
+                  Sequencer=None):
 
     # ====================================================================
     # MAIN SWITCHESr
@@ -217,7 +217,7 @@ def FlavorTagInit(DoReduceInfo = False,
     #(only option that will work on original DC14 xAOD)
     #doRetag      =True  ## perform retagging
     #adjust configurations
-    
+
     if DoRetag==False:
         DoReduceInfo=True
 
@@ -231,7 +231,7 @@ def FlavorTagInit(DoReduceInfo = False,
         Taggers = BTaggingFlags.ExpertTaggers
       else:
         Taggers = BTaggingFlags.StandardTaggers
- 
+
 
     ##### VD: THIS IS ALSO NOT NEEDED?????
     ##write minimal amount of info on the output file
@@ -265,6 +265,7 @@ def applyBTagging(jetalg,algname,sequence):
                 # In the absence of properly defined FlatBEff WP we alias them on the flat cut ones
                 btagtool.OperatingPoint = btagWP
                 btagtool.JetAuthor = jetalg+"Jets"
+                btagtool.ErrorOnTagWeightFailure = False #avoid an error when the jets tagweight cannot be retrived, and only print a warning
                 btagtool.FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root"
             btagKey = btagWP+'_'+btagAlg
             btagtooldict[btagKey] = btagtool
