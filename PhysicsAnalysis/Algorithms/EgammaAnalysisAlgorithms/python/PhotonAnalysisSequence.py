@@ -2,7 +2,7 @@
 
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
-def makePhotonAnalysisSequence (dataType,photonContainer="Photons") :
+def makePhotonAnalysisSequence (dataType,photonContainer="Photons",quality=0) :
     if not dataType in ["data", "mc", "afii"] :
         raise Exception ("invalid data type: " + dataType)
 
@@ -43,60 +43,51 @@ def makePhotonAnalysisSequence (dataType,photonContainer="Photons") :
 
 
 
-    # alg = createAlgorithm( 'CP::AsgSelectionAlg', 'PhotonLikelihoodAlg' )
-    # addPrivateTool (alg, "selectionTool", "AsgPhotonLikelihoodTool")
-    # alg.selectionTool.primaryVertexContainer = "PrimaryVertices"
-    # alg.selectionTool.WorkingPoint = likelihoodWP
-    # alg.selectionDecoration = "selectLikelihood"
-    # sequence.append ( {"alg" : alg, "in" : "particles", "out" : "particlesOut"} )
+    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'AsgPhotonIsEMSelectorAlg' )
+    addPrivateTool (alg, "selectionTool", "AsgPhotonIsEMSelector")
+    alg.selectionTool.isEMMask = quality
+    alg.selectionTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMTightSelectorCutDefs.conf"
+    alg.selectionDecoration = "selectEM"
+    sequence.append ( {"alg" : alg, "in" : "particles", "out" : "particlesOut"} )
 
 
 
-    # alg = createAlgorithm( 'CP::EgammaIsolationSelectionAlg', 'PhotonIsolationSelectionAlg' )
-    # addPrivateTool (alg, "selectionTool", "CP::IsolationSelectionTool")
-    # alg.selectionTool.PhotonWP = isolationWP
-    # sequence.append ( {"alg" : alg, "in" : "egammas", "out" : "egammasOut"} )
+    egMapFile = "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/map0.txt"
+
+    alg = createAlgorithm( 'CP::PhotonEfficiencyCorrectionAlg', 'PhotonEfficiencyCorrectionAlg' )
+    addPrivateTool (alg, "efficiencyCorrectionTool", "AsgPhotonEfficiencyCorrectionTool")
+    alg.efficiencyCorrectionTool.MapFilePath = egMapFile
+    alg.efficiencyCorrectionTool.ForceDataType = 1
+    alg.efficiencyDecoration = "effCor"
+    if dataType == "afii" :
+        alg.efficiencyCorrectionTool.ForceDataType = 3
+        pass
+    else :
+        alg.efficiencyCorrectionTool.ForceDataType = 1
+        pass
+    alg.outOfValidity = 2 #silent
+    alg.outOfValidityDeco = "bad_eff"
+    sequence.append ( {"alg" : alg, "in" : "photons", "out" : "photonsOut",
+                       "sys" : "(^PH_EFF_.*)"} )
 
 
 
-    # egMapFile = "PhotonEfficiencyCorrection/2015_2017/rel21.2/Summer2017_Prerec_v1/map0.txt"
-
-    # alg = createAlgorithm( 'CP::PhotonEfficiencyCorrectionAlg', 'PhotonEfficiencyCorrectionAlg' )
-    # addPrivateTool (alg, "efficiencyCorrectionTool", "AsgPhotonEfficiencyCorrectionTool")
-    # alg.efficiencyCorrectionTool.MapFilePath = egMapFile
-    # alg.efficiencyCorrectionTool.RecoKey = "Reconstruction"
-    # alg.efficiencyCorrectionTool.CorrelationModel = "TOTAL"
-    # alg.efficiencyCorrectionTool.CorrelationModel = "TOTAL"
-    # alg.efficiencyDecoration = "effCor"
-    # if dataType == "afii" :
-    #     alg.efficiencyCorrectionTool.ForceDataType = 3
-    #     pass
-    # else :
-    #     alg.efficiencyCorrectionTool.ForceDataType = 1
-    #     pass
-    # alg.outOfValidity = 2 #silent
-    # alg.outOfValidityDeco = "bad_eff"
-    # sequence.append ( {"alg" : alg, "in" : "photons", "out" : "photonsOut",
-    #                    "sys" : "(^EL_EFF_.*)"} )
+    alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'PhotonCutFlowDumperAlg' )
+    alg.histPattern = "photon_cflow_%SYS%"
+    alg.selection = ["selectEM","bad_eff"]
+    alg.selectionNCuts = [1,1]
+    sequence.append ( {"alg" : alg, "in" : "input"} )
 
 
 
-    # alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'PhotonCutFlowDumperAlg' )
-    # alg.histPattern = "photon_cflow_%SYS%"
-    # alg.selection = ["selectLikelihood",'isolated','bad_eff']
-    # alg.selectionNCuts = [7,1,1]
-    # sequence.append ( {"alg" : alg, "in" : "input"} )
+    alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'PhotonViewFromSelectionAlg' )
+    alg.selection = ["selectEM","bad_eff"]
+    sequence.append ( {"alg" : alg, "in" : "input", "out" : "output", "needOut" : True} )
 
 
 
-    # alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'PhotonViewFromSelectionAlg' )
-    # alg.selection = ["selectLikelihood",'isolated']
-    # sequence.append ( {"alg" : alg, "in" : "input", "out" : "output", "needOut" : True} )
-
-
-
-    # alg = createAlgorithm( 'CP::KinematicHistAlg', 'PhotonKinematicDumperAlg' )
-    # alg.histPattern = "photon_%VAR%_%SYS%"
-    # sequence.append ( {"alg" : alg, "in" : "input"} )
+    alg = createAlgorithm( 'CP::KinematicHistAlg', 'PhotonKinematicDumperAlg' )
+    alg.histPattern = "photon_%VAR%_%SYS%"
+    sequence.append ( {"alg" : alg, "in" : "input"} )
 
     return sequence

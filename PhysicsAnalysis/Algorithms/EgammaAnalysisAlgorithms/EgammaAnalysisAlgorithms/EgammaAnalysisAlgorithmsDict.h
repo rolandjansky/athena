@@ -12,6 +12,7 @@
 #include <EgammaAnalysisAlgorithms/EgammaIsolationCorrectionAlg.h>
 #include <EgammaAnalysisAlgorithms/EgammaIsolationSelectionAlg.h>
 #include <EgammaAnalysisAlgorithms/ElectronEfficiencyCorrectionAlg.h>
+#include <EgammaAnalysisAlgorithms/PhotonEfficiencyCorrectionAlg.h>
 #include <EgammaAnalysisAlgorithms/PhotonShowerShapeFudgeAlg.h>
 
 #endif
