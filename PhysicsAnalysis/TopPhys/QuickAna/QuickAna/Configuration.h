@@ -119,6 +119,20 @@ namespace ana
     std::string jetKine;
 
 
+    /// \brief the pflow jet definition
+    ///
+    /// e.g. default, none, etc.
+  public:
+    std::string pfJetDef;
+
+
+    /// \brief the pflow jet kinematic selection
+    ///
+    /// e.g. pt>50e3
+  public:
+    std::string pfJetKine;
+  
+
     /// \brief the fat jet definition
     ///
     /// e.g. antikt10, default, none, etc.
@@ -146,6 +160,13 @@ namespace ana
     /// time.
   public:
     std::string met2Def;
+
+ 
+    /// \brief the event level jet cleaning definition
+    ///
+    /// This is so you can apply event-level jet cleaning
+  public:
+    std::string cleanDef;
 
 
     /// \brief the overlap removal definition

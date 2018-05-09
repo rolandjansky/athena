@@ -78,8 +78,9 @@ int main (int argc, char **argv)
 
   // We just need some files for testing. Do not use these in your analysis
   quickAna.muMcFiles = {
-    "dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root",
-    "dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root",
+    //"dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root",
+    //"dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root",
+    "dev/SUSYTools/mc16a_defaults_buggy.NotRecommended.prw.root",
   };
   // Using test file from SUSYTools
   quickAna.muDataFiles = {"dev/SUSYTools/ilumicalc_histograms_None_276262-284154.root"};

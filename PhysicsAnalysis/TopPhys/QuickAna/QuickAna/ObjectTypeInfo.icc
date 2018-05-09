@@ -38,6 +38,12 @@ namespace ana
     typedef xAOD::JetContainer type;
   };
 
+  template<> struct ObjectTypeInfo::asXAOD<OBJECT_PFLOW_JET>
+  {
+    /// \brief the actual type 
+    typedef xAOD::JetContainer type;
+  };
+
   template<> struct ObjectTypeInfo::asXAOD<OBJECT_FAT_JET>
   {
     /// \brief the actual type
@@ -128,7 +134,7 @@ namespace ana
   template<> struct ObjectTypeInfo::fromXAOD<xAOD::JetContainer>
   {
     /// \brief the mask of supported types
-    static const unsigned support = (1 << OBJECT_JET) | (1 << OBJECT_FAT_JET);
+    static const unsigned support = (1 << OBJECT_JET) | (1 << OBJECT_PFLOW_JET) | (1 << OBJECT_FAT_JET);
 
     /// \brief the object type to use by default
     static const ObjectType base = OBJECT_JET;

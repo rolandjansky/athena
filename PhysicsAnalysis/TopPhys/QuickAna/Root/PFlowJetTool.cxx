@@ -16,7 +16,7 @@
 // includes
 //
 
-#include <QuickAna/JetTool.h>
+#include <QuickAna/PFlowJetTool.h>
 
 #include <JetCalibTools/JetCalibrationTool.h>
 #include <JetResolution/JERSmearingTool.h>
@@ -40,29 +40,13 @@ static const float TeV = 1e6;
 // BTag config options currently depend on release
 namespace
 {
-#if ROOTCORE_RELEASE_SERIES <= 23
-  const char* btagAlgDefault = "MV2c20";
-  const std::string bTagCalibFile =
-    "xAODBTaggingEfficiency/13TeV/2016-Winter-13TeV-MC15-CDI-March10_v1.root";
-  const char *jesFile = "JES_data2016_data2015_Recommendation_Dec2016.config";
-  const std::string uncertConfigFile = "JES_2015/Moriond2016/JES2015_SR_Scenario1.config";
-  const char *mcType = "MC15";
-#elif ROOTCORE_RELEASE_SERIES == 24
-  const char* btagAlgDefault = "MV2c10";
-  const std::string bTagCalibFile =
-    "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-04-24_v1.root";
-  const char *jesFile = "JES_data2016_data2015_Recommendation_Dec2016.config";
-  const std::string uncertConfigFile = "JES_2016/Moriond2017/JES2016_SR_Scenario1.config";
-  const char *mcType = "MC15";
-#else
   const char* btagAlgDefault = "MV2c10";
   const std::string bTagCalibFile =
     "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root";
-  const char *jesFile = "JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config";
-  const char *jesFile_AFII = "JES_MC16Recommendation_AFII_EMTopo_April2018_rel21.config";
+  const char *jesFile_pflow = "JES_data2017_2016_2015_Recommendation_PFlow_Feb2018_rel21.config";
+  const char *jesFile_pflow_AFII = "JES_MC16Recommendation_AFII_PFlow_April2018_rel21.config";
   const std::string uncertConfigFile = "rel21/Moriond2018/R4_StrongReduction_Scenario1.config";
   const char *mcType = "MC16";
-#endif
 }
 
 //
@@ -71,8 +55,8 @@ namespace
 
 namespace ana
 {
-  JetToolCorrect ::
-  JetToolCorrect (const std::string& name)
+  PFlowJetToolCorrect ::
+  PFlowJetToolCorrect (const std::string& name)
     : AsgTool (name), AnaToolCorrect<xAOD::JetContainer> (name),
       m_calibration_tool ("calibration", this),
       m_uncertainties_tool ("uncertainties", this),
@@ -81,8 +65,7 @@ namespace ana
       m_jvt_tool ("jvt", this),
       m_jvtEffTool("jvt_eff", this),
       m_bsel_tool ("btag", this),
-      m_bsel_OR_tool ("btag_OR", this),
-      m_cleaning_tool ("cleaning", this)
+      m_bsel_OR_tool ("btag_OR", this)
   {
     declareProperty("EnableBTagging", m_enableBTagging = true);
     declareProperty("BTagger", m_btagger = btagAlgDefault);
@@ -94,7 +77,7 @@ namespace ana
 
 
 
-  StatusCode JetToolCorrect ::
+  StatusCode PFlowJetToolCorrect ::
   useInitialConfiguration (const InternalConfiguration& conf)
   {
     ATH_CHECK (AnaTool::useInitialConfiguration (conf));
@@ -102,7 +85,7 @@ namespace ana
     m_isData = conf.isData();
     m_isAFII = conf.isAFII();
 
-    m_jetContainer = conf.inputName (OBJECT_JET);
+    m_jetContainer = conf.inputName (OBJECT_PFLOW_JET);
     if (m_jetContainer.empty())
     {
       ATH_MSG_ERROR ("can't apply correction without jet collection name");
@@ -113,54 +96,35 @@ namespace ana
 
 
 
-  StatusCode JetToolCorrect ::
+  StatusCode PFlowJetToolCorrect ::
   initialize()
   {
     ATH_MSG_DEBUG("initialize");
-
-    // JES MC15 calibration recommendations from:
-    //  https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/JetEtmissRecommendationsMC15
 
     // Strip off the "Jets" suffix in the jet collection name
     // @TODO: update AnaToolHandle tool creation mechanism
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_calibration_tool, JetCalibrationTool));
     const auto jetCollection = m_jetContainer.substr(0, m_jetContainer.size()-4);
-#if ROOTCORE_RELEASE_SERIES == 24
-    const std::string configFile = m_isAFII ? "JES_MC15Prerecommendation_AFII_June2015.config"
-                                            : jesFile;
-    const std::string calibSeq = m_isData ? "JetArea_Residual_Origin_EtaJES_GSC_Insitu"
-                                          : "JetArea_Residual_Origin_EtaJES_GSC";
-#else
-    const std::string configFile = m_isAFII ? jesFile_AFII : jesFile;
-
+    const std::string configFile = m_isAFII ? jesFile_pflow_AFII : jesFile_pflow;
     const std::string calibSeq = m_isData ? "JetArea_Residual_EtaJES_GSC_Insitu"
                                           : "JetArea_Residual_EtaJES_GSC";
-
     ATH_CHECK( m_calibration_tool.setProperty("CalibArea", "00-04-81") );
-#endif
     ATH_CHECK( m_calibration_tool.setProperty("JetCollection", jetCollection) );
     ATH_CHECK( m_calibration_tool.setProperty("ConfigFile", configFile) );
     ATH_CHECK( m_calibration_tool.setProperty("CalibSequence", calibSeq) );
     ATH_CHECK( m_calibration_tool.setProperty("IsData", m_isData) );
     ATH_CHECK( m_calibration_tool.initialize() );
 
-    // JES MC15 uncertainty recommendations from:
-    //  https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/JetUncertainties2015Moriond2016
-
     // NOTE: using the strongly reduced uncertainty breakdown. JetEtMiss says
     // that analyses MUST evaluate all four strongly reduced scenarios before
     // adopting this one!
-    // const std::string uncertConfigFile = "JES_2015/ICHEP2016/JES2015_SR_Scenario1.config";
-    //const std::string uncertConfigFile = "JES_2015/Moriond2016/JES2015_19NP.config";
 
     // @TODO: update AnaToolHandle tool creation mechanism
     ATH_CHECK( ASG_MAKE_ANA_TOOL(m_uncertainties_tool, JetUncertaintiesTool) );
     ATH_CHECK( m_uncertainties_tool.setProperty("JetDefinition", jetCollection) );
     ATH_CHECK( m_uncertainties_tool.setProperty("MCType", m_isAFII ? "AFII" : mcType) );
     ATH_CHECK( m_uncertainties_tool.setProperty("ConfigFile", uncertConfigFile) );
-#if ROOTCORE_RELEASE_SERIES == 25
     ATH_CHECK( m_uncertainties_tool.setProperty("CalibArea", "CalibArea-03") );
-#endif
     ATH_CHECK( m_uncertainties_tool.initialize() );
     registerTool( &*m_uncertainties_tool);
 
@@ -221,26 +185,16 @@ namespace ana
       ATH_CHECK( m_bsel_OR_tool.initialize() );
     }
 
-    // Jet cleaning tool for decoration
-    ATH_CHECK (ASG_MAKE_ANA_TOOL (m_cleaning_tool, JetCleaningTool));
-    ATH_CHECK (m_cleaning_tool.setProperty("CutLevel", "LooseBad"));
-    ATH_CHECK (m_cleaning_tool.setProperty("DoUgly", false));
-    ATH_CHECK (m_cleaning_tool.initialize());
-
     registerCut (SelectionStep::MET, "calibration_tool", cut_calibration_tool);
     registerCut (SelectionStep::MET, "uncertainties_tool", cut_uncertainties_tool);
     registerCut (SelectionStep::MET, "smearing_tool", cut_smearing_tool);
-
-    // Only decorate jets with the information, so that event-level
-    // cleaning can be performed later
-    registerCut (SelectionStep::MANUAL, "cleaning_tool", cut_cleaning_tool);
 
     return StatusCode::SUCCESS;
   }
 
 
 
-  StatusCode JetToolCorrect ::
+  StatusCode PFlowJetToolCorrect ::
   correctObject (xAOD::Jet& jet)
   {
     ATH_MSG_DEBUG("correctObject");
@@ -285,23 +239,13 @@ namespace ana
       jet.auxdecor<char>("IsBjet") = isbjet;
     }
 
-    // We only clean, by default, jets that might've passed our JVT selection.
-    // This is too hard-coded, ugly.
-    bool is_clean = ( jet.pt() < 20.*GeV || (jet.pt()<60.*GeV && !jvt_pass) ||
-                   m_cleaning_tool->keep(jet) );
-    cut_cleaning_tool.setPassedIf ( is_clean );
-
-    // Also decorate the jet with the information, so that
-    // event-level cleaning can be performed later.
-    jet.auxdecor<char>("clean_jet") = is_clean;
-
     return StatusCode::SUCCESS;
   }
 
 
 
-  JetToolSelect ::
-  JetToolSelect (const std::string& name)
+  PFlowJetToolSelect ::
+  PFlowJetToolSelect (const std::string& name)
     : AsgTool (name), AnaToolSelect<xAOD::JetContainer> (name),
       m_jvt_cut_step (SelectionStep::MET)
   {
@@ -309,7 +253,7 @@ namespace ana
 
 
 
-  StatusCode JetToolSelect ::
+  StatusCode PFlowJetToolSelect ::
   initialize()
   {
     ATH_MSG_DEBUG("initialize");
@@ -323,7 +267,7 @@ namespace ana
 
 
 
-  StatusCode JetToolSelect ::
+  StatusCode PFlowJetToolSelect ::
   selectObject (xAOD::Jet& jet)
   {
     ATH_MSG_DEBUG("selectObject");
@@ -336,8 +280,8 @@ namespace ana
 
 
 
-  JetToolWeight ::
-  JetToolWeight (const std::string& name)
+  PFlowJetToolWeight ::
+  PFlowJetToolWeight (const std::string& name)
     : AsgTool (name), AnaToolWeight<xAOD::JetContainer> (name),
       m_btagging_eff_tool ("btagging_eff", this),
       m_jvtEffTool("jvt_eff", this),
@@ -349,21 +293,21 @@ namespace ana
   }
 
 
-  unsigned JetToolWeight ::
+  unsigned PFlowJetToolWeight ::
   inputTypes () const
   {
-    return (1 << OBJECT_EVENTINFO) | (1 << OBJECT_JET);
+    return (1 << OBJECT_EVENTINFO) | (1 << OBJECT_PFLOW_JET);
   }
 
 
-  unsigned JetToolWeight ::
+  unsigned PFlowJetToolWeight ::
   outputTypes () const
   {
-    return (1 << OBJECT_EVENTINFO) | (1 << OBJECT_JET);
+    return (1 << OBJECT_EVENTINFO) | (1 << OBJECT_PFLOW_JET);
   }
 
 
-  StatusCode JetToolWeight ::
+  StatusCode PFlowJetToolWeight ::
   initialize()
   {
     ATH_MSG_DEBUG("initialize");
@@ -400,7 +344,7 @@ namespace ana
   }
 
 
-  StatusCode JetToolWeight ::
+  StatusCode PFlowJetToolWeight ::
   execute (IEventObjects& objects)
   {
 
@@ -446,7 +390,7 @@ namespace ana
   }
 
 
-  StatusCode JetToolWeight ::
+  StatusCode PFlowJetToolWeight ::
   objectWeight (const xAOD::Jet& jet, float& weight)
   {
     ATH_MSG_DEBUG("objectWeight");
@@ -471,9 +415,8 @@ namespace ana
   }
 
 
-
   // Maker function for jet tools
-  StatusCode makeJetTool (DefinitionArgs& args,
+  StatusCode makePFlowJetTool (ana::DefinitionArgs& args,
                           const std::string& collection,
                           const SelectionStep& jvt_step,
                           const std::string& btagWP)
@@ -483,17 +426,17 @@ namespace ana
     const bool useBTagging = !btagWP.empty();
     const auto config = args.configuration();
 
-    args.add (std::unique_ptr<IAnaTool>
-      (new AnaToolRetrieve (args.prefix() + "_retrieve", collection)));
+    args.add (std::unique_ptr<ana::IAnaTool>
+      (new ana::AnaToolRetrieve (args.prefix() + "_retrieve", collection)));
 
-    std::unique_ptr<JetToolCorrect> correctTool
-      (new JetToolCorrect (args.prefix() + "_correct"));
+    std::unique_ptr<ana::PFlowJetToolCorrect> correctTool
+      (new ana::PFlowJetToolCorrect (args.prefix() + "_correct"));
     ANA_CHECK( correctTool->setProperty("EnableBTagging", useBTagging) );
     ANA_CHECK( correctTool->setProperty("BTagWP", btagWP) );
     args.add (std::move (correctTool));
 
-    std::unique_ptr<JetToolSelect> selectTool
-      (new JetToolSelect (args.prefix() + "_select"));
+    std::unique_ptr<ana::PFlowJetToolSelect> selectTool
+      (new ana::PFlowJetToolSelect (args.prefix() + "_select"));
     selectTool->m_jvt_cut_step = jvt_step;
     args.add (std::move (selectTool));
 
@@ -502,30 +445,16 @@ namespace ana
     // disable the weight tool if we're not using btagging
     if (config->isData() == false && useBTagging)
     {
-      std::unique_ptr<JetToolWeight> weightTool
-        (new JetToolWeight (args.prefix() + "_weight"));
+      std::unique_ptr<ana::PFlowJetToolWeight> weightTool
+        (new ana::PFlowJetToolWeight (args.prefix() + "_weight"));
       ANA_CHECK( weightTool->setProperty("BTagWP", btagWP));
       args.add (std::move (weightTool));
     }
     return StatusCode::SUCCESS;
   }
 
-  QUICK_ANA_JET_DEFINITION_MAKER ("antikt04_noBtag",
-    makeJetTool (args, "AntiKt4EMTopoJets"))
+  QUICK_ANA_JET_DEFINITION_MAKER ("pflow_HZZ",
+    makePFlowJetTool (args, "AntiKt4EMPFlowJets", SelectionStep::ANALYSIS,
+                      "FixedCutBEff_85"))
 
-  QUICK_ANA_JET_DEFINITION_MAKER ("AntiKt4EMTopoJets antikt04",
-    makeJetTool (args, "AntiKt4EMTopoJets", SelectionStep::MET,
-                 "FixedCutBEff_77"))
-
-  QUICK_ANA_JET_DEFINITION_MAKER ("antikt04_HZZ",
-    makeJetTool (args, "AntiKt4EMTopoJets", SelectionStep::ANALYSIS,
-                 "FixedCutBEff_85"))
-
-  QUICK_ANA_JET_DEFINITION_MAKER( "AntiKt4EMTopo_SUSY",
-    makeJetTool (args, "AntiKt4EMTopoJets", SelectionStep::ANALYSIS,
-                 "FixedCutBEff_77"))
-
-  QUICK_ANA_JET_DEFINITION_MAKER( "antikt04_DiMu",
-    makeJetTool (args, "AntiKt4EMTopoJets", SelectionStep::MET,
-                 "FixedCutBEff_50"))
 }

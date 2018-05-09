@@ -103,6 +103,7 @@ namespace ana
 
     /// Configurations -- tool properties
 
+    bool m_doPFlow;
     bool m_includeTauTerm;
     bool m_doTST;
     bool m_doJVTCut;
