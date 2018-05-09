@@ -52,15 +52,21 @@ StatusCode LArRawChannelBuilderAlg::execute_r(const EventContext& ctx) const {
   SG::ReadCondHandle<ILArShape> shapeHdl(m_shapeKey,ctx);
   const ILArShape* shapes=*shapeHdl;
 
+  SG::ReadCondHandle<LArOnOffIdMapping> cabling(m_cablingKey,ctx);
+  
 
   //Loop over digits:
   for (const LArDigit* digit : *inputContainer) {
+
+    const HWIdentifier id=digit->hardwareID();
+    const bool connected=(*cabling)->isOnlineConnected(id);
+
     const std::vector<short>& samples=digit->samples();
     const size_t nSamples=samples.size();
-    const HWIdentifier id=digit->hardwareID();
     const int gain=digit->gain();
-
     const float p=peds->pedestal(id,gain);
+
+
     //The following autos will resolve either into vectors or vector-proxies
     const auto& ofca=ofcs->OFC_a(id,gain);
     const auto& ofcb=ofcs->OFC_b(id,gain);
@@ -68,30 +74,24 @@ StatusCode LArRawChannelBuilderAlg::execute_r(const EventContext& ctx) const {
     
     //Sanity check on input conditions data:
     if(ATH_UNLIKELY(ofca.size()!=nSamples)) {
-      ATH_MSG_ERROR("Number of OFC a's doesn't mach number of samples for channel " << m_onlineId->channel_name(id) 
-		    << " gain " << gain << ". Got " << ofca.size() << ", expected " << nSamples);
+      if (!connected) continue; //No conditions for disconencted channel, who cares?
+      ATH_MSG_ERROR("Number of OFC a's doesn't match number of samples for conencted channel " << m_onlineId->channel_name(id) 
+		    << " gain " << gain << ". OFC size=" << ofca.size() << ", nbr ADC samples=" << nSamples);
       return StatusCode::FAILURE;
     }
     
     if (ATH_UNLIKELY(p==ILArPedestal::ERRORCODE)) {
-      ATH_MSG_ERROR("No valid pedestal for channel " << m_onlineId->channel_name(id) 
+      if (!connected) continue; //No conditions for disconencted channel, who cares?
+      ATH_MSG_ERROR("No valid pedestal for connected channel " << m_onlineId->channel_name(id) 
 		    << " gain " << gain);
       return StatusCode::FAILURE;
     }
 
     if(ATH_UNLIKELY(adc2mev.size()<2)) {
-      //Apparently we got digits for a disconnected channel. 
-      //Check if it is really disconncted
-      SG::ReadCondHandle<LArOnOffIdMapping> cabling(m_cablingKey,ctx);
-      if ((*cabling)->isOnlineConnected(id)) {
-	ATH_MSG_ERROR("No valid ADC2MeV for connected channel " << m_onlineId->channel_name(id) 
-		      << " gain " << gain);
-	return StatusCode::FAILURE;
-      }
-      else {
- 	//as expected, a disconnected channel
-	continue; //simply skip over this channl 
-      }
+      if (!connected) continue; //No conditions for disconencted channel, who cares?
+      ATH_MSG_ERROR("No valid ADC2MeV for connected channel " << m_onlineId->channel_name(id) 
+		    << " gain " << gain);
+      return StatusCode::FAILURE;
     }
 
 
