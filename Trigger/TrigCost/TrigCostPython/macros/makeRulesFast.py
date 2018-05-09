@@ -44,10 +44,10 @@ import subprocess
 
 
 if opts.db_path == "DETECT":
-    if opts.run <= 342478 and opts.run >= 314940:
+    if int(opts.run) < 342479:
         log.info("A 2017 run is selected")
         opts.db_path = "/eos/atlas/atlascerngroupdisk/tdaq-mon/coca/2017/TRP-Rates"
-    elif opts.run >= 343071:
+    elif int(opts.run) > 343070:
         log.info("A 2018 run is selected")
         opts.db_path = "/eos/atlas/atlascerngroupdisk/tdaq-mon/coca/2018/TRP-Rates"
     else:
