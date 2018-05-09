@@ -178,6 +178,7 @@ namespace top{
     m_jetUncertainties_BunchSpacing("25ns"),
     m_jetUncertainties_NPModel("AllNuisanceParameters"),
     m_jetUncertainties_QGFracFile("None"),
+    m_jetUncertainties_QGHistPatterns(),
     m_doMultipleJES(false),
     m_jetJERSmearingModel("Simple"),
     m_jetCalibSequence("GSC"),
@@ -686,6 +687,7 @@ namespace top{
     this->jetUncertainties_BunchSpacing( settings->value("JetUncertainties_BunchSpacing") );
     this->jetUncertainties_NPModel( settings->value("JetUncertainties_NPModel") );
     this->jetUncertainties_QGFracFile( settings->value("JetUncertainties_QGFracFile") );
+    this->jetUncertainties_QGHistPatterns( settings->value("JetUncertainties_QGHistPatterns") );
     this->jetJERSmearingModel( settings->value("JetJERSmearingModel") );
     this->jetCalibSequence( settings->value("JetCalibSequence") );
     this->doJVTinMET( (settings->value("JVTinMETCalculation") == "True" ? true : false) );
@@ -1035,6 +1037,26 @@ namespace top{
   {
     if (!m_configFixed) {
       m_jetUncertainties_QGFracFile = s;
+    }
+  }
+ 
+  void TopConfig::jetUncertainties_QGHistPatterns( const std::string& s )
+  {
+    if (!m_configFixed) {
+        std::vector<std::string> outVector;
+        if( s.find(" ") != std::string::npos ){
+            throw std::runtime_error{"TopConfig: jetUncertainties_QGHistPatterns string can't contain white spaces"};
+        }
+        if (s != "None") {
+            tokenize(s,outVector,","); // list of DSIDs separated by commas
+            if (outVector.size()!=1) // if size is !=1, we need to check if these are DSIDs
+                for (auto s : outVector) {
+                    int i = std::atoi(s.c_str());
+                    if (i<300000 || i>=1000000)
+                        throw std::runtime_error{"TopConfig: jetUncertainties_QGHistPatterns string doesn't look like a list of DISDs! You can either specify a single string pattern or a list of DSIDs separated by commas."};
+                }
+        }
+        m_jetUncertainties_QGHistPatterns = outVector;
     }
   }
 

@@ -520,10 +520,12 @@ class TopConfig final {
 
   virtual void jetUncertainties_NPModel( const std::string& s );
   virtual void jetUncertainties_QGFracFile( const std::string& s );
+  virtual void jetUncertainties_QGHistPatterns( const std::string& s );
   inline bool doMultipleJES() const {return m_doMultipleJES;}
   inline bool doLargeRSmallRCorrelations() const {return m_largeRSmallRCorrelations;}
   inline virtual const std::string& jetUncertainties_NPModel() const {return m_jetUncertainties_NPModel;}
   inline virtual const std::string& jetUncertainties_QGFracFile() const {return m_jetUncertainties_QGFracFile;}
+  inline virtual const std::vector<std::string>& jetUncertainties_QGHistPatterns() const {return m_jetUncertainties_QGHistPatterns;}
 
   inline virtual void jetJERSmearingModel( const std::string& s ){if(!m_configFixed){m_jetJERSmearingModel = s;}}
   inline virtual const std::string& jetJERSmearingModel() const {return m_jetJERSmearingModel;}
@@ -1090,6 +1092,7 @@ class TopConfig final {
   std::string m_jetUncertainties_BunchSpacing; // 25ns or 50ns
   std::string m_jetUncertainties_NPModel; // AllNuisanceParameters, 19NP or 3NP
   std::string m_jetUncertainties_QGFracFile; // to improve Flavour composition and response
+  std::vector<std::string> m_jetUncertainties_QGHistPatterns; // to improve Flavour composition and response, with more flexibility
   bool m_doMultipleJES;
   bool m_largeRSmallRCorrelations = false; // Add correlations of large/small R jets
   std::string m_jetJERSmearingModel; // Full or Simple

@@ -70,6 +70,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_calibArea("CalibArea-03")
     , m_path("")
     , m_analysisFile("")
+    , m_analysisHistPattern("")
     , m_systFilters()
     , m_defAnaFile("")
     , m_refNPV(-1)
@@ -100,6 +101,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     declareProperty("CalibArea",m_calibArea);
     declareProperty("Path",m_path);
     declareProperty("AnalysisFile",m_analysisFile);
+    declareProperty("AnalysisHistPattern",m_analysisHistPattern);
     declareProperty("VariablesToShift",m_systFilters);
 
     ATH_MSG_DEBUG("Creating JetUncertaintiesTool named "<<m_name);
@@ -122,6 +124,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const JetUncertaintiesTool& toCopy)
     , m_calibArea(toCopy.m_calibArea)
     , m_path(toCopy.m_path)
     , m_analysisFile(toCopy.m_analysisFile)
+    , m_analysisHistPattern(toCopy.m_analysisHistPattern)
     , m_systFilters(toCopy.m_systFilters)
     , m_defAnaFile(toCopy.m_defAnaFile)
     , m_refNPV(toCopy.m_refNPV)
@@ -352,6 +355,11 @@ StatusCode JetUncertaintiesTool::initialize()
             return StatusCode::FAILURE;
         }
         ATH_MSG_INFO(Form("    Location: %s",analysisFilePath.Data()));
+        // if a histogram pattern was provided, then use it (only if an analysis file is used)
+        if (m_analysisHistPattern != "")
+        {
+            ATH_MSG_INFO(Form("  AnalysisHistPattern: \"%s\"",m_analysisHistPattern.c_str()));
+        }
     }
 
     // Get a file-wide validity histogram if specified
@@ -1027,7 +1035,7 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
                 if (component.flavourType == FlavourComp::PerJetResponse)
                     return new PerJetFlavourUncertaintyComponent(component);
                 else
-                    return new FlavourUncertaintyComponent(component,m_jetDef,m_analysisFile.c_str(),m_defAnaFile.c_str(),m_path.c_str(),m_calibArea.c_str());
+                    return new FlavourUncertaintyComponent(component,m_jetDef,m_analysisFile.c_str(),m_defAnaFile.c_str(),m_path.c_str(),m_calibArea.c_str(),m_analysisHistPattern.c_str());
             }
             else
             {

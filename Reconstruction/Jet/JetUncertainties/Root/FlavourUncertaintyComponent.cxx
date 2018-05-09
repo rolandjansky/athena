@@ -23,6 +23,7 @@ FlavourUncertaintyComponent::FlavourUncertaintyComponent(const std::string& name
     , m_flavourType(FlavourComp::UNKNOWN)
     , m_jetType("")
     , m_analysisFileName("")
+    , m_analysisHistPattern("")
     , m_defAnaFileName("")
     , m_absEta(false)
     , m_secondUncName("")
@@ -42,12 +43,14 @@ FlavourUncertaintyComponent::FlavourUncertaintyComponent(   const ComponentHelpe
                                                             const TString analysisRootFileName,
                                                             const TString defaultAnalysisRootFileName,
                                                             const TString path,
-                                                            const TString calibArea
+                                                            const TString calibArea,
+                                                            const TString analysisHistPattern
                                                             )
     : UncertaintyComponent(component,component.flavourType == FlavourComp::Composition ? 2 : 1)
     , m_flavourType(component.flavourType)
     , m_jetType(jetType)
     , m_analysisFileName(analysisRootFileName)
+    , m_analysisHistPattern(analysisHistPattern)
     , m_defAnaFileName(defaultAnalysisRootFileName)
     , m_path(path)
     , m_calibArea(calibArea)
@@ -73,6 +76,7 @@ FlavourUncertaintyComponent::FlavourUncertaintyComponent(const FlavourUncertaint
     , m_flavourType(toCopy.m_flavourType)
     , m_jetType(toCopy.m_jetType)
     , m_analysisFileName(toCopy.m_analysisFileName)
+    , m_analysisHistPattern(toCopy.m_analysisHistPattern)
     , m_defAnaFileName(toCopy.m_defAnaFileName)
     , m_path(toCopy.m_path)
     , m_calibArea(toCopy.m_calibArea)
@@ -618,10 +622,16 @@ void FlavourUncertaintyComponent::getGluonKeys(TFile* analysisFile, std::vector<
 {
     TList* keys = analysisFile->GetListOfKeys();
     TIter nextkey(keys);
+    if (m_analysisHistPattern != "")
+    {
+        ATH_MSG_DEBUG("Ignoring histograms which don't contain pattern " << m_analysisHistPattern.Data());
+    }
     while (TKey* key = dynamic_cast<TKey*>(nextkey()))
     {
         if (!key) continue;
         const TString keyName = key->GetName();
+        //Ignoring histograms which doesn't contain user-defined pattern
+        if (m_analysisHistPattern != "" && !keyName.Contains(m_analysisHistPattern)) continue;
         if (keyName.Contains(m_jetType) && !keyName.Contains("valid"))
         {
             if (keyName.Contains("gluonFractionError"))
