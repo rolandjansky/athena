@@ -68,10 +68,7 @@ StatusCode PixelFillCablingData_Final::initialize( )
   msg(MSG::DEBUG) << "PixelFillCablingData_Final::initialize" <<endmsg;
   
   // Get the PixelID Helper
-  if (detStore()->retrieve(m_idHelper, "PixelID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  CHECK(detStore()->retrieve(m_idHelper,"PixelID"));
   m_cntxpixel = m_idHelper->wafer_context();
   return sc;
 }
