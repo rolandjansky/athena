@@ -4,13 +4,11 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaConfiguration.CfgLogMsg import cfgLogMsg
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 from AthenaCommon.AlgSequence import dumpMasterSequence
 from AthenaCommon.AppMgr import theApp
 #theApp.setup()
 
-cfgLogMsg.setLevel("debug")
 flags = ConfigFlags
 
 flags.set( "global.isMC", False )
