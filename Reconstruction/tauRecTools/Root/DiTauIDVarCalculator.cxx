@@ -334,8 +334,8 @@ StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet&
   static const SG::AuxElement::ConstAccessor<float>  acc_massTrkSys         ("massTrkSys")        ;
   static const SG::AuxElement::ConstAccessor<float>  acc_ChPiEMEOverCaloEME ("ChPiEMEOverCaloEME");
 
-  static const SG::AuxElement::ConstAccessor<double>  acc_BDTScoreRecalc     ("BDTScoreRecalc");
-  static const SG::AuxElement::ConstAccessor<double>  acc_BDTScoreFlatRecalc ("BDTScoreFlatRecalc");
+  static const SG::AuxElement::ConstAccessor<float>  acc_BDTScoreRecalc     ("BDTScoreRecalc");
+  static const SG::AuxElement::ConstAccessor<float>  acc_BDTScoreFlatRecalc ("BDTScoreFlatRecalc");
 
   static const SG::AuxElement::Decorator<float>  dec_centFrac           ("centFrac")          ;
   static const SG::AuxElement::Decorator<float>  dec_massTrkSys         ("massTrkSys")        ;
