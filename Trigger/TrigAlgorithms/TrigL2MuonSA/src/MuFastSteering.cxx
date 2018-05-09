@@ -1288,8 +1288,8 @@ float MuFastSteering::getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* 
       }
    }
    else { // endcap
-      ECRegions reg = whichECRegion(eta,phi);
-      if( reg == WeakBFieldA ) {
+     xAOD::L2MuonParameters::ECRegions reg = xAOD::L2MuonParameters::whichECRegion(eta,phi);
+      if( reg == xAOD::L2MuonParameters::ECRegions::WeakBFieldA ) {
          if( isEta ) {
             memcpy(params,etaParams_ecA,sizeof(params));
             minWin = etaMinWin_ecA;
@@ -1301,7 +1301,7 @@ float MuFastSteering::getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* 
             maxWin = phiMaxWin_ecA;
          }
       }
-      else if( reg == WeakBFieldB ) {
+      else if( reg == xAOD::L2MuonParameters::ECRegions::WeakBFieldB ) {
          if( isEta ) {
             memcpy(params,etaParams_ecB,sizeof(params));
             minWin = etaMinWin_ecB;
