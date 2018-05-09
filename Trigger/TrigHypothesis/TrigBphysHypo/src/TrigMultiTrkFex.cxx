@@ -170,13 +170,7 @@ bool TrigMultiTrkFex::passNTracks(int nObjMin,
 
     //=== check if it is enough muons
   if( (int)outVec.size() < nObjMin ) {
-<<<<<<< HEAD
     ATH_MSG_DEBUG("Rejecting: "<<" #Ntracks= " <<  outVec.size() << " while need "<< nObjMin );
-=======
-    ATH_MSG_DEBUG(  "Rejecting: "
-		    <<" #Ntracks= " <<  outVec.size() 
-		    << " while need "<< nObjMin );
->>>>>>> release/21.0.69
     return false;
   }
   //== check that muons have correct pts
