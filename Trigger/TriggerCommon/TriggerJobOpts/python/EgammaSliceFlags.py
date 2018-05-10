@@ -4,7 +4,7 @@
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
+from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
 __author__  = 'T. Bold, P.Urquijo, R. White'
 __version__="$Revision: 1.42 $"
@@ -100,7 +100,7 @@ class calibMVAVersion (JobProperty):
 _flags.append(calibMVAVersion)
 
 # create container
-class EgammaSlice(JobPropertyContainer, CommonSliceHelper):
+class EgammaSlice(JobPropertyContainer, CommonSignatureHelper):
     """ Egamma Slice Flags """
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags

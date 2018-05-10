@@ -3,7 +3,7 @@
 """ Combined slices specific flags  """
 
 from AthenaCommon.JobProperties         import JobProperty, JobPropertyContainer, jobproperties
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper, AllowedList
+from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper, AllowedList
 
 __author__  = 'T. Bold, B. Demirkoz'
 __version__="$Revision: 1.53 $"
@@ -21,7 +21,7 @@ class signatures(JobProperty):
 _flags.append(signatures)
 
 # create container
-class CombinedSlice(JobPropertyContainer, CommonSliceHelper):
+class CombinedSlice(JobPropertyContainer, CommonSignatureHelper):
     """ Combined Slices Flags """
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
