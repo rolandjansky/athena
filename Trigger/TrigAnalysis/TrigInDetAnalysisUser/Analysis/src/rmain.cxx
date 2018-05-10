@@ -661,11 +661,12 @@ int main(int argc, char** argv)
   std::vector<double> _lumiblocks;
   lumiParser  goodrunslist;
 
-  
+
   if ( inputdata.isTagDefined("GRL") )  { 
     /// read the (xml?) GRL 
-    std::cout << "Reading GRL from: " <<  inputdata.GetString("GRL") << std::endl;
-    goodrunslist.read( inputdata.GetString("GRL") );
+    std::vector<std::string> grlvector = inputdata.GetStringVector("GRL");
+    std::cout << "Reading GRL from: " << grlvector << std::endl;
+    for ( size_t igrl=0 ; igrl<grlvector.size() ; igrl++ ) goodrunslist.read( grlvector[igrl] );
     //    std::cout << goodrunslist << std::endl;
   }
   else if ( inputdata.isTagDefined("LumiBlocks") )  { 
