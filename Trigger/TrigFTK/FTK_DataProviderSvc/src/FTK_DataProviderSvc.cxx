@@ -835,7 +835,7 @@ bool FTK_DataProviderSvc::fillVertexContainerCache(bool withRefit, xAOD::TrackPa
     xAOD::VertexAuxContainer* myVertexAuxContainer = 0;
     std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> myVxContainers = std::make_pair( myVertexContainer, myVertexAuxContainer );
     
-    if (m_doVertexSorting) {
+    if (theXAODContainers.first->size() >1 && m_doVertexSorting) {
       myVxContainers = m_VertexCollectionSortingTool->sortVertexContainer(*theXAODContainers.first);
       delete theXAODContainers.first; 
       delete theXAODContainers.second; 
@@ -844,7 +844,8 @@ bool FTK_DataProviderSvc::fillVertexContainerCache(bool withRefit, xAOD::TrackPa
       myVxContainers.second = theXAODContainers.second;
     }
     if (myVxContainers.first == nullptr) return gotVertices;
-    
+    if (not myVxContainers.first->hasStore()) return gotVertices;
+
     std::string cacheName= m_vertexCacheName;
     if (withRefit) cacheName+="Refit";
 
