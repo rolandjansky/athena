@@ -192,6 +192,13 @@ class doUpdate(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
+class doTauIDAODFix(JobProperty):
+    """ run the Tau-ID AODFix
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
 class tauRecAODFlags(JobPropertyContainer):
     """ tau information if re-running on AODs """
 
@@ -199,12 +206,13 @@ class tauRecAODFlags(JobPropertyContainer):
 jobproperties.add_Container(tauRecAODFlags)
 
 # I want always the following flags in the Rec container  
-_list_tau=[doUpdate]
+_list_tau=[doUpdate, doTauIDAODFix]
 for j in _list_tau: 
     jobproperties.tauRecAODFlags.add_JobProperty(j)
 del _list_tau
 
 
 tauFlags=jobproperties.tauRecFlags
+tauAODFlags=jobproperties.tauRecAODFlags
 #=======================================================================
     
