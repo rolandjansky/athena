@@ -6,12 +6,18 @@
 atlas_subdir( TriggerMenuMT )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py python/LVL1MenuConfig/*.py 
-python/HLTMenuConfig/Menu python/LVL1MenuConfig/LVL1
-python/LVL1MenuConfig/LVL1Menu python/LVL1MenuConfig/LVL1Topo python/LVL1MenuConfig/L1TopoMenu 
-python/HLTMenuConfig/Egamma python/HLTMenuConfig/Muon python/HLTMenuConfig/Jet  
-python/HLTMenuConfig/Combined
-)
+atlas_install_python_modules( python/LVL1MenuConfig/*.py
+			      python/HLTMenuConfig/Menu 
+			      python/LVL1MenuConfig/LVL1
+			      python/LVL1MenuConfig/LVL1Menu 
+			      python/LVL1MenuConfig/LVL1Topo 
+			      python/LVL1MenuConfig/L1TopoMenu 
+			      python/HLTMenuConfig/Egamma 
+			      python/HLTMenuConfig/Muon 
+			      python/HLTMenuConfig/Jet  
+			      python/HLTMenuConfig/Combined
+			      )
+#atlas_install_python_modules( python/*.py)
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( scripts/generate*Menu.py scripts/generateMenuMT.py)
 atlas_install_xmls( data/*.dtd data/*.xml )

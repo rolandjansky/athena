@@ -2,9 +2,9 @@
 
 from sys import settrace
 
-from l1topo.TopoAlgos import TopoAlgo
-from l1topo.L1TopoMenu import L1TopoMenu
-from l1topo.L1TopoFlags import L1TopoFlags
+from TriggerMenuMT.LVL1MenuConfig.L1Topo.TopoAlgos import TopoAlgo
+from TriggerMenuMT.LVL1MenuConfig.L1Topo.L1TopoMenu import L1TopoMenu
+from TriggerMenuMT.LVL1MenuConfig.L1Topo.L1TopoFlags import L1TopoFlags
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerConfigL1Topo")
