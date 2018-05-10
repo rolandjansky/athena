@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags                               import TriggerFlags
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonSliceFlags           import MuonSliceFlags
-from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaSliceFlags       import EgammaSliceFlags
-from TriggerMenuMT.HLTMenuConfig.Jet.JetSliceFlags             import JetSliceFlags
-from TriggerMenuMT.HLTMenuConfig.Combined.CombinedSliceFlags   import CombinedSliceFlags
+from TriggerJobOpts.MuonSliceFlags           import MuonSliceFlags
+from TriggerJobOpts.EgammaSliceFlags       import EgammaSliceFlags
+from TriggerJobOpts.JetSliceFlags             import JetSliceFlags
+from TriggerJobOpts.CombinedSliceFlags   import CombinedSliceFlags
 
 # Configure the scheduler
 from AthenaCommon.AlgScheduler import AlgScheduler
@@ -53,36 +53,37 @@ class GenerateMenuMT:
                 self.doMuonChains = False
                         
 
-    allowedSignatures = ["jet","egamma","muon", "electron", "photon","met","tau", 
+        allowedSignatures = ["jet","egamma","muon", "electron", "photon","met","tau", 
                              "minbias", "heavyion", "cosmic", "calibration", "streaming", "monitoring", "ht", 'bjet','eb']        
     
-    listOfChainDefs = []
-    chainDicts = TriggerMenuMT.HLTMenuConfig.Menu.MenuUtils.splitInterSignatureChainDict(chainDicts)        
-    log.debug("\n chainDicts2 %s", chainDicts)
+        listOfChainDefs = []
+        chainDicts = TriggerMenuMT.HLTMenuConfig.Menu.MenuUtils.splitInterSignatureChainDict(chainDicts)        
+        log.debug("\n chainDicts2 %s", chainDicts)
 
-    for chainDict in chainDicts:
-        chainDef = None
-        print 'checking chainDict for chain %s %s %r' %(chainDict['chainName'],chainDict["signature"], self.doEnhancedBiasChains)
-
-        if chainDict["signature"] == "Muon" and self.doMuonChains:
-            try:
-                chainDef = TriggerMenuMT.HLTMenuConfig.Muon.generateMuonChainDefs.generateChainDefs(chainDict)
-            except:
-                log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
-                log.info(traceback.print_exc())
-                continue
+        for chainDict in chainDicts:
+            chainDef = None
+            print 'checking chainDict for chain %s %s %r' %(chainDict['chainName'],chainDict["signature"], self.doEnhancedBiasChains)
             
-        else:
-            log.error('Chain %s ignored - either because the trigger signature ("slice") has been turned off or because the corresponding chain dictionary cannot be read.' %(chainDict['chainName']))
-            log.debug('Chain dictionary of failed chain is %s.', chainDict)
+            if chainDict["signature"] == "Muon" and self.doMuonChains:
+                try:
+                    chainDef = TriggerMenuMT.HLTMenuConfig.Muon.generateMuonChainDefs.generateChainDefs(chainDict)
+                except:
+                    log.error('Problems creating ChainDef for chain %s ' % (chainDict['chainName']))
+                    log.info(traceback.print_exc())
+                    continue
             
-        log.debug(' ChainDef  %s ' % chainDef)
+            else:
+                log.error('Chain %s ignored - either because the trigger signature ("slice") has been turned off or because the corresponding chain dictionary cannot be read.' %(chainDict['chainName']))
+                log.debug('Chain dictionary of failed chain is %s.', chainDict)
+            
+            log.debug(' ChainDef  %s ' % chainDef)
 
-        if len(listOfChainDefs) == 0:# or not (len(listOfChainDefs)==len(chainDicts)):
+
+        if len(listOfChainDefs) == 0:  
             return False
         else:
             theChainDef = listOfChainDefs[0]
-
+            
         return theChainDef
 
 

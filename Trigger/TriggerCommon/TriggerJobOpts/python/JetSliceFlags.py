@@ -3,7 +3,7 @@
 """ Jet slice specific flags  """
 
 from AthenaCommon.JobProperties         import JobProperty, JobPropertyContainer, jobproperties
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper, AllowedList
+from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper, AllowedList
 
 __author__  = 'T. Bold'
 __version__="$Revision: 1.31 $"
@@ -20,18 +20,14 @@ class signatures(JobProperty):
 _flags.append(signatures)
 
 
-
-# create container
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
-
-class JetSlice(JobPropertyContainer, CommonSliceHelper):
+class JetSlice(JobPropertyContainer, CommonSignatureHelper):
     """ Jet Slice Flags """
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.add_Container(JetSlice)
 
 # add add common slice flags
-TriggerFlags.JetSlice.import_JobProperties('TriggerMenu.menu.CommonSliceFlags')
+TriggerFlags.JetSlice.import_JobProperties('TriggerJobOpts.CommonSignatureFlags')
 
 for flag in _flags:
     TriggerFlags.JetSlice.add_JobProperty(flag)
