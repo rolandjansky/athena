@@ -176,25 +176,21 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
 
   std::string eleIdBaseline = "DFCommonElectronsLH";
   eleIdBaseline += TString(m_eleIdBaseline).ReplaceAll("LooseAndBLayer","LooseBL").ReplaceAll("LLH","").Data();
+  static SG::AuxElement::ConstAccessor<char> eleIdBaselineAcc(eleIdBaseline);
 
+  bool passBaseID = false;
   if (m_eleIdExpert) {
-    if ( !m_elecSelLikelihoodBaseline->accept(&input) )
-      if ( !m_force_noElId )
-        return StatusCode::SUCCESS;
+    passBaseID = m_elecSelLikelihoodBaseline->accept(&input); 
   } else {
-    try {
-      // let's use DFCommonXXX if available
-      if ( !input.auxdata<char>(eleIdBaseline) ) 
-        if ( !m_force_noElId )
-          return StatusCode::SUCCESS;
-    }
-    catch (const SG::ExcBadAuxVar&) {
+    if (eleIdBaselineAcc.isAvailable(input)) {
+      passBaseID = eleIdBaselineAcc(input);
+    } else {
       ATH_MSG_VERBOSE ("DFCommonElectronsLHxxx variables are not found. Calculating the ID from LH tool..");
-      if ( !m_elecSelLikelihoodBaseline->accept(&input) )
-        if ( !m_force_noElId )
-          return StatusCode::SUCCESS;
+      passBaseID = m_elecSelLikelihoodBaseline->accept(&input); 
     }
   }
+  if ( !passBaseID && !m_force_noElId ) return StatusCode::SUCCESS;
+
   //baseline ID decoration for TauEl OR
   //dec_passBaseID(input) = true;
 
@@ -229,6 +225,7 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
 
   //ChargeIDSelector
   if( m_runECIS ){
+    ATH_MSG_WARNING( "ChargeIDSelector tool is not available in R21 yet.");
     dec_passChID(input) = m_elecChargeIDSelectorTool->accept(&input);
     double bdt = m_elecChargeIDSelectorTool->calculate(&input).getResult("bdt");
     dec_ecisBDT(input) = bdt;
@@ -255,17 +252,16 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
   
   std::string eleId = "DFCommonElectronsLH";
   eleId += TString(m_eleId).ReplaceAll("LooseAndBLayer","LooseBL").ReplaceAll("LLH","").Data();
+  static SG::AuxElement::ConstAccessor<char> eleIdAcc(eleId);
   
   if (m_eleIdExpert) {
     if ( !m_elecSelLikelihood.empty() && m_elecSelLikelihood->accept(&input) ) dec_passSignalID(input) = true;
   } else {
-    try{
-      // let's use DFCommonXXX if available
-      if ( input.auxdata<char>(eleId) ) dec_passSignalID(input) = true;
-    }
-    catch(const SG::ExcBadAuxVar&){
+    if (eleIdAcc.isAvailable(input)) {
+      if ( eleIdAcc(input) ) dec_passSignalID(input) = true;
+    } else {
       ATH_MSG_VERBOSE ("DFCommonElectronsLHxxx variables are not found. Calculating the ID from LH tool..");
-      if ( !m_elecSelLikelihood.empty() && m_elecSelLikelihood->accept(&input) ) dec_passSignalID(input) = true;
+      if ( !m_elecSelLikelihood.empty() && m_elecSelLikelihood->accept(&input) ) dec_passSignalID(input) = true; 
     }
   }
 
@@ -324,6 +320,9 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     ATH_MSG_ERROR("No signal electron ID or trigger scale factors provided for the selected working point!");
     ATH_MSG_ERROR("I will now die messily.");
   }
+
+  if (chfSF) 
+    ATH_MSG_WARNING ("Charge mis-ID SF is not provided in R21 yet.");
 
   //shortcut keys for trigger SF config
   static std::string singleLepStr = "singleLepton";

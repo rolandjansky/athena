@@ -134,17 +134,35 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
     return StatusCode::SUCCESS;
 
   //Photon quality as in https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Photon_cleaning
-  if ( (!m_photonAllowLate && !PhotonHelpers::passOQquality(&input)) ||
-       ( m_photonAllowLate && !PhotonHelpers::passOQqualityDelayed(&input)) ){
-    return StatusCode::SUCCESS;
+  bool passPhCleaning = false;
+  static SG::AuxElement::ConstAccessor<char> passPhCleaningAcc("DFCommonPhotonsCleaning");
+  static SG::AuxElement::ConstAccessor<char> passPhCleaningNoTimeAcc("DFCommonPhotonsCleaningNoTime");
+  if (passPhCleaningAcc.isAvailable(input) && passPhCleaningNoTimeAcc.isAvailable(input)) {
+    if ( (!m_photonAllowLate && passPhCleaningAcc(input)) || (m_photonAllowLate && passPhCleaningNoTimeAcc(input)) ) passPhCleaning = true;
+  } else {
+    ATH_MSG_VERBOSE ("DFCommonPhotonsCleaning is not found in DAOD..");
+    if ( (!m_photonAllowLate && PhotonHelpers::passOQquality(&input)) || 
+         ( m_photonAllowLate && PhotonHelpers::passOQqualityDelayed(&input)) ) passPhCleaning = true;
   }
+  if (!passPhCleaning) return StatusCode::SUCCESS;
 
   if (!isAtlfast() && !isData()) {
     if ( m_electronPhotonShowerShapeFudgeTool->applyCorrection(input) != CP::CorrectionCode::Ok)
       ATH_MSG_ERROR("FillPhoton - fudge tool: applyCorrection failed");
   }
 
-  if (!m_photonSelIsEMBaseline->accept(&input) )return StatusCode::SUCCESS;
+  std::string photonIdBaseline = "DFCommonPhotonsIsEM";
+  photonIdBaseline += TString(m_photonIdBaseline).Data();
+  static SG::AuxElement::ConstAccessor<char> photonIdBaselineAcc(photonIdBaseline);
+
+  bool passBaseID = false;
+  if (photonIdBaselineAcc.isAvailable(input)) {
+    passBaseID = photonIdBaselineAcc(input);
+  } else {
+    ATH_MSG_VERBOSE ("DFCommonPhotonsIsEMxxx variables are not found. Calculating the ID from Photon ID tool..");
+    passBaseID = m_photonSelIsEMBaseline->accept(&input);
+  }
+  if (!passBaseID) return StatusCode::SUCCESS;
 
   dec_baseline(input) = true;
   dec_selected(input) = 2;
@@ -181,8 +199,19 @@ bool SUSYObjDef_xAOD::IsSignalPhoton(const xAOD::Photon& input, float ptcut, flo
     ATH_MSG_VERBOSE( "IsSignalPhoton: passed isolation");
   } else return false;
 
-  if (!m_photonSelIsEM->accept(&input) ) return false;
+  std::string photonId = "DFCommonPhotonsIsEM";
+  photonId += TString(m_photonIdBaseline).Data();
+  static SG::AuxElement::ConstAccessor<char> photonIdAcc(photonId);
 
+  bool passID = false;
+  if (photonIdAcc.isAvailable(input)) {
+    passID = photonIdAcc(input);
+  } else {
+    ATH_MSG_VERBOSE ("DFCommonPhotonsIsEMxxx variables are not found. Calculating the ID from Photon ID tool..");
+    passID = m_photonSelIsEM->accept(&input);
+  }
+  if ( !passID ) return false;
+  
   dec_signal(input) = true;
 
   return true;
