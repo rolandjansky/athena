@@ -295,7 +295,19 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
   // Prepare jet tagging - create temporary jet copy 
   auto jetitr=jets->begin();
   xAOD::Jet jet;
-  jet.makePrivateStore(**jetitr);
+
+  if ( m_jetKey != "GSCJet" ) {
+    jet.makePrivateStore(**jetitr);
+  } else {
+    const xAOD::JetContainer* Splitjets = nullptr;
+    if (getFeature(inputTE, Splitjets, "SplitJet") != HLT::OK || Splitjets == nullptr) {
+      ATH_MSG_INFO( "INPUT - No xAOD::JetContainer SplitJet for ALLTE TrigBtagFex" );
+      return HLT::MISSING_FEATURE;
+    }
+
+    auto splitjetitr=Splitjets->begin();
+    jet.makePrivateStore(**splitjetitr);
+  }
 
   // Prepare jet tagging - create SV output 
   auto    trigVertexContainer = new xAOD::VertexContainer();
