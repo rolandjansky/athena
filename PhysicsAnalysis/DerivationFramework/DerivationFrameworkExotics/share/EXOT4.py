@@ -156,7 +156,7 @@ btag_jetnoel_track = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt
                                                      TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
                                                      )
 jtm.modifiersMap["akt4tracknoel"] = jtm.modifiersMap["track"] + [defaultTrackAssoc, defaultMuonAssoc, btag_jetnoel_track]
-jtm.modifiersMap["akt4emtoponoel"] = jtm.modifiersMap["emtopo_ungroomed"] + [btag_jetnoel]
+jtm.modifiersMap["akt4emtoponoel"] = jtm.modifiersMap["emtopo_ungroomed"] + [defaultTrackAssoc, defaultMuonAssoc, btag_jetnoel]
 
 addStandardJets("AntiKt", 0.4, "TrackNoEl",
                 ptmin = 10000, ptminFilter = 10000,
