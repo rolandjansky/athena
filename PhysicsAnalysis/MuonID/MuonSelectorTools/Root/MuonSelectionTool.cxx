@@ -28,7 +28,7 @@ namespace CP {
     declareProperty( "ExpertDevelopMode", m_developMode = false );
     // these are for debugging / testing, *not* for general use!
     declareProperty( "CustomInputFolder", m_custom_dir = "");
-    declareProperty( "TrtCutOff", m_TrtCutOff = false );
+    declareProperty( "TrtCutOff", m_TrtCutOff = true );
     declareProperty( "SctCutOff", m_SctCutOff = false );
     declareProperty( "PixCutOff", m_PixCutOff = false );
     declareProperty( "SiHolesCutOff", m_SiHolesCutOff = false );

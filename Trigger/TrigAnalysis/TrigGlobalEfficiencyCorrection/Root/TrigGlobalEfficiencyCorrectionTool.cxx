@@ -31,7 +31,7 @@ using Lepton = TrigGlobEffCorr::Lepton;
 
 
 TrigGlobalEfficiencyCorrectionTool::TrigGlobalEfficiencyCorrectionTool(const std::string& name)
-	: asg::AsgTool(name), m_checkElectronLegTag(false), m_checkMuonLegTag(false), m_seed(1), 
+	: asg::AsgTool(name), m_trigMatchTool("", nullptr), m_checkElectronLegTag(false), m_checkMuonLegTag(false), m_seed(1), m_validTrigMatchTool(false),
 	m_runNumberDecorator("RandomRunNumber"), m_calculator()
 {
 	declareProperty("ElectronEfficiencyTools", m_suppliedElectronEfficiencyTools, "electron MC efficiency tools (one for each kind of electron trigger leg)");
@@ -54,6 +54,7 @@ TrigGlobalEfficiencyCorrectionTool::TrigGlobalEfficiencyCorrectionTool(const std
 	declareProperty("NumberOfToys", m_numberOfToys = 0, "if different from 0, use toy experiments instead of explicit formulas");
 	declareProperty("OverrideThresholds", m_overrideThresholds, "new thresholds (in MeV) for the plateaux of the indicated trigger legs -- use at your own risk!");
 	declareProperty("UseInternalSeed", m_useInternalSeed = false, "do not use event number as random number generation seed");
+	declareProperty("TriggerMatchingTool", m_trigMatchTool, "handle to an IMatchingTool instance");
 	
 	m_cpCode.ignore();
 }
@@ -93,6 +94,19 @@ StatusCode TrigGlobalEfficiencyCorrectionTool::initialize()
 	{
 		ATH_MSG_ERROR("Unable to retrieve CP tools");
 		return StatusCode::FAILURE;
+	}
+	
+	ATH_MSG_DEBUG("Retrieving trigger matching tool (if provided)");
+	m_validTrigMatchTool = false;
+	if(m_trigMatchTool.name() != "")
+	{
+		if(m_trigMatchTool.retrieve() != StatusCode::SUCCESS)
+		{
+			ATH_MSG_ERROR("Unable to retrieve trigger matching tool");
+			return StatusCode::FAILURE;
+		}
+		ATH_MSG_DEBUG("Trigger matching support enabled");
+		m_validTrigMatchTool = true;
 	}
 	
 	ATH_MSG_DEBUG("Basic checks");
@@ -315,11 +329,6 @@ bool TrigGlobalEfficiencyCorrectionTool::loadTagDecorators(const flat_set<std::s
 	const flat_set<std::size_t>& collectedMuonTags, const flat_set<std::size_t>& collectedPhotonTags)
 {
 	bool success = true;
-	if(!m_muonTools.size() && !m_electronEffTools.size() && !m_photonEffTools.size())
-	{
-		ATH_MSG_ERROR("Internal implementation error: enumerateTools() must be called first");
-		return false;
-	}
 	
 	flat_set<std::size_t> collectedTags(collectedElectronTags);
 	collectedTags.insert(collectedMuonTags.begin(), collectedMuonTags.end());
@@ -765,7 +774,7 @@ CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiency(unsigned ru
 	
 	ATH_MSG_DEBUG("Computing global trigger efficiency for this event with  " << leptons.size() << " lepton(s) as input");
 	
-	if(runNumber<266904 || runNumber>339205)
+	if(runNumber<266904 || runNumber>341649)
 	{
 		ATH_MSG_WARNING("Suspicious run number provided " << runNumber << ", continuing anyway");
 	}
@@ -801,6 +810,45 @@ CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiency(unsigned ru
 		m_cpCode = CP::CorrectionCode::Error;
 	}
 	return m_cpCode;
+}
+
+CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(bool& matched, const std::vector<const xAOD::IParticle*>& particles)
+{
+	LeptonList leptons;
+	updateLeptonList(leptons, particles);
+	return checkTriggerMatching(matched, leptons);
+}
+
+CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(bool& matched, const std::vector<const xAOD::Electron*>& electrons, 
+	const std::vector<const xAOD::Muon*>& muons)
+{
+	LeptonList leptons;
+	updateLeptonList(leptons, electrons);
+	updateLeptonList(leptons, muons);
+	return checkTriggerMatching(matched, leptons);
+}
+
+CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(bool& matched, const std::vector<const xAOD::Photon*>& photons)
+{
+	LeptonList leptons;
+	updateLeptonList(leptons, photons);
+	return checkTriggerMatching(matched, leptons);
+}
+
+CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(bool& matched, const LeptonList& leptons)
+{
+	unsigned runNumber;
+	if(!retrieveRunNumber(runNumber))
+	{
+		ATH_MSG_ERROR("Unable to retrieve run number, aborting checkTriggerMatching()");
+		return CP::CorrectionCode::Error;
+	}
+	if(!m_validTrigMatchTool)
+	{
+		ATH_MSG_ERROR("A valid IMatchingTool instance should be provided via the property 'TriggerMatchingTool'");
+		return CP::CorrectionCode::Error;
+	}
+	return m_calculator->checkTriggerMatching(*this, matched, leptons, runNumber)? CP::CorrectionCode::Ok : CP::CorrectionCode::Error;
 }
 
 bool TrigGlobalEfficiencyCorrectionTool::aboveThreshold(const Lepton& lepton,std::size_t leg) const

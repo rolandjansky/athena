@@ -252,7 +252,6 @@ class Configuration:
   def getOutputFilesBaseAuxNameSecVtx(self):
     """Retrieve the configuration specific setting of BTaggingFlags.OutputFilesBaseAuxNameSecVtx."""
     return self._OutputFilesBaseAuxNameSecVtx
-
   def getOutputFilesBaseNameJFSecVtx(self):
     """Retrieve the configuration specific setting of BTaggingFlags.OutputFilesBaseNameJFSecVtx."""
     return self._OutputFilesBaseNameJFSecVtx
@@ -463,7 +462,7 @@ class Configuration:
           if jetcol in self._BTaggingConfig_JetBTaggerTools:
               returnlist.append(self._BTaggingConfig_JetBTaggerTools.get(jetcol, None))
               print self.BTagTag()+' - INFO - Updating JetBTaggerTool for '+jetcol
-              self.ConfigureMainAssociatorTool(self._BTaggingConfig_MainAssociatorTools[jetcol], jetcol)
+              # self.ConfigureMainAssociatorTool(self._BTaggingConfig_MainAssociatorTools[jetcol], jetcol)
               continue
           # Check if this jet collection has been correctly set up.
           if not jetcol in self._BTaggingConfig_JetCollections:
@@ -473,11 +472,25 @@ class Configuration:
           from BTagging.BTaggingConf import Analysis__JetBTaggerTool as JetBTaggerTool
           options = dict(options)
           options.setdefault('OutputLevel', BTaggingFlags.OutputLevel)
+
           # setup the Analysis__BTagTrackAssociation tool
           # Note that this tool is tied to the JetBTaggerTool
-          thisBTagTrackAssociation = self.setupBTagTrackAssociation('thisBTagTrackAssociation_'+jetcol+self.GeneralToolSuffix(), ToolSvc, Verbose = Verbose)
-          self._BTaggingConfig_MainAssociatorTools[jetcol] = thisBTagTrackAssociation
-          options.setdefault('BTagTrackAssocTool', thisBTagTrackAssociation)
+          from BTagging.BTaggingConf import Analysis__BTagTrackAssociation
+          assoc = \
+                  Analysis__BTagTrackAssociation(
+                          'thisBTagTrackAssociation_'+jetcol+self.GeneralToolSuffix(),
+                          AssociatedTrackLinks = "MatchedTracks",
+                          AssociatedMuonLinks = "MatchedMuons",
+                          TrackContainerName = "InDetTrackParticles",
+                          MuonContainerName = "Muons",
+                          TrackAssociationName = "BTagTrackToJetAssociator",
+                          MuonAssociationName = "Muons"
+                          )
+
+          ToolSvc += assoc
+
+          self._BTaggingConfig_MainAssociatorTools[jetcol] = assoc
+          options.setdefault('BTagTrackAssocTool', assoc)
           # setup for "augmentation" only under the "Retag" scheme
           options.setdefault('BTagAugmentation', (SetupScheme == "Retag"))
           # setup the secondary vertexing tool
@@ -490,7 +503,6 @@ class Configuration:
           options['BTagTool'] = self._BTaggingConfig_JetCollections.get(jetcol, None)
           jetbtaggertool = JetBTaggerTool(**options)
           # Setup the associator tool
-          self.ConfigureMainAssociatorTool(thisBTagTrackAssociation, jetcol)
           # -- add tool to topSequence
           if not topSequence is None:
               topSequence += jetbtaggertool
@@ -506,44 +518,6 @@ class Configuration:
           returnlist.append(jetbtaggertool)
       return returnlist
 
-  def ConfigureMainAssociatorTool(self, AssocTool, JetCollection):
-      """Configures the given associator tool for the given jet collection.
-
-      input: AssocTool:       The main association tool.
-             JetCollection:   The jet collection."""
-      # Get association data
-      muonassoc = self.getMuonAssociatorData(JetCollection)
-      electronassoc = self.getElectronAssociatorData(JetCollection)
-      trackassoc = self.getTrackAssociatorData(JetCollection)
-      # Clean current properties
-      AssocTool.TrackToJetAssocNameList = []
-      AssocTool.TrackToJetAssociatorList = []
-      AssocTool.TrackContainerNameList = []
-      AssocTool.MuonToJetAssocNameList = []
-      AssocTool.MuonToJetAssociatorList = []
-      AssocTool.MuonContainerNameList = []
-      AssocTool.ElectronToJetAssocNameList = []
-      AssocTool.ElectronContainerNameList = []
-      AssocTool.ElectronToJetAssociatorList = []
-      AssocTool.PhotonToJetAssocNameList = []
-      AssocTool.PhotonContainerNameList = []
-      # Tracks
-      for tdata in trackassoc:
-          AssocTool.TrackToJetAssocNameList += [tdata[2], ]
-          AssocTool.TrackToJetAssociatorList += [tdata[0], ]
-          AssocTool.TrackContainerNameList += [tdata[1], ]
-      # Muons
-      for mdata in muonassoc:
-          AssocTool.MuonToJetAssocNameList += [mdata[2], ]
-          AssocTool.MuonToJetAssociatorList += [mdata[0], ]
-          AssocTool.MuonContainerNameList += [mdata[1], ]
-      # Electrons
-      for edata in electronassoc:
-          AssocTool.ElectronToJetAssocNameList += [edata[2], ]
-          AssocTool.ElectronToJetAssociatorList += [edata[0], ]
-          AssocTool.ElectronContainerNameList += [edata[1], ]
-          AssocTool.PhotonToJetAssocNameList += [edata[3], ]
-          AssocTool.PhotonContainerNameList += [edata[4], ]
 
   def registerTool(self, tool_type, tool, track = "", jetcol = "", ToolSvc = None, Verbose = False, MuonCollection='Muons', ElectronCollection='Electrons', PhotonCollection='Photons', CheckPrerequisites=False, CheckOnlyInsideToolCollection=False, DoNotSetUpParticleAssociators=False):
       """Registers a tool so it can be used in order to figure out dependencies.
@@ -919,6 +893,16 @@ class Configuration:
              ContainerName:       Name of the muon container in SG. If left blank BTaggingFlags.MuonCollectionName will be used.
 
       output: The tool."""
+
+      if "ParticlesToAssociateList" in options:
+          # actually not used???
+
+          print self.BTagTag() + " you have requested to tag the following collections of particles: "
+          print options["ParticlesToAssociateList"]
+          self._BTaggingConfig_MuonAssociators[(MuonCollectionName, JetCollection)] = 1
+          self._BTaggingConfig_MuonConCol[(MuonCollectionName, JetCollection)] = (ContainerName, MuonCollectionName)
+          return 1
+
       options = dict(options)
       options['name'] = self.getToolName('BTagMuonToJetAssociator', MuonCollectionName, JetCollection)
       tool = self.getTool('BTagMuonToJetAssociator', MuonCollectionName, JetCollection)
@@ -956,6 +940,13 @@ class Configuration:
                                      A warning will be printed in this case. If this name is also already taken (this means someone is royally
                                      messing things up) an exception will be raised.
       output: The tool."""
+
+      if "ParticlesToAssociateList" in options:
+          print self.BTagTag() + " you have requested to tag the following collections of particles: "
+          print options["ParticlesToAssociateList"]
+          return 1
+
+
       options = dict(options)
       options['name'] = self.getToolName('BTagElectronToJetAssociator', ElectronCollectionName, JetCollection)
       tool = self.getTool('BTagElectronToJetAssociator', ElectronCollectionName, JetCollection)
@@ -1005,6 +996,11 @@ class Configuration:
       output: The tool."""
       options = dict(options)
       options['name'] = self.getToolName('BTagTrackToJetAssociator', TrackCollection, JetCollection)
+
+      if "ParticlesToAssociateList" in options:
+          print self.BTagTag() + " you have requested to tag the following collections of particles: "
+          print options["ParticlesToAssociateList"]
+          options.pop("ParticlesToAssociateList")
 
 
       if "TracksToTagList" in options:
@@ -1342,27 +1338,6 @@ class Configuration:
           if len(options) > 0:
               print self.BTagTag()+' - WARNING - A JetCollection called "'+JetCollection+'" has already been set up; ignoring new btagtool options.'
           return self._BTaggingConfig_JetCollections.get(JetCollection, None)
-
-  def setupBTagTrackAssociation(self, name, ToolSvc, Verbose = False, options={}):
-      """Adds a BTagTrackAssociation instance and registers it.
-
-      input: name:               The tool's name.
-             ToolSvc:            The ToolSvc instance.
-             Verbose:            Whether to print detailed information about the tool.
-             options:            Python dictionary of options to be passed to the tool.
-
-      The following defaults exist for the options:
-
-      BTagAssociation                              default: BTaggingFlags.doStandardAssoc
-
-      output: The tool."""
-      options = dict(options)
-      options['name'] = name
-      options.setdefault('BTagAssociation', BTaggingFlags.doStandardAssoc)
-      from BTagging.BTaggingConf import Analysis__BTagTrackAssociation
-      tool = Analysis__BTagTrackAssociation(**options)
-      ToolSvc += tool
-      return tool
 
   def setupSecVtxTool(self, name, ToolSvc, Verbose = False, options={}):
       """Adds a SecVtxTool instance and registers it.
@@ -1977,3 +1952,30 @@ for tool in dir():
         if 'ToolCollection' in metadict:
             tcoll = metadict['ToolCollection']
         addToolTypeToToolCollection(tname, tcoll)
+
+
+
+from AthenaCommon.AppMgr import ToolSvc
+from ParticleJetTools.ParticleJetToolsConf import JetParticleShrinkingConeAssociation, JetParticleFixedConeAssociation
+
+defaultTrackAssoc = \
+    JetParticleShrinkingConeAssociation(
+        "DefaultBTaggingTrackAssoc",
+        InputParticleCollectionName="InDetTrackParticles",
+        OutputCollectionName="MatchedTracks",
+        coneSizeFitPar1=+0.239,
+        coneSizeFitPar2=-1.220,
+        coneSizeFitPar3=-1.64e-5
+    )
+
+defaultMuonAssoc = \
+    JetParticleFixedConeAssociation(
+        "DefaultBTaggingMuonAssoc",
+        InputParticleCollectionName="Muons",
+        OutputCollectionName="MatchedMuons",
+        coneSize=0.4,
+    )
+
+
+ToolSvc += defaultTrackAssoc
+ToolSvc += defaultMuonAssoc

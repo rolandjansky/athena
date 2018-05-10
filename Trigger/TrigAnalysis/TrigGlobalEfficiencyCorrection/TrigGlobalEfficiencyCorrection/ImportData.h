@@ -78,8 +78,9 @@ public:
 	struct TrigDef
 	{ 
 		TriggerType type;
+		std::size_t name;
 		std::array<std::size_t,3> leg;
-		TrigDef(TriggerType type=TT_UNKNOWN, std::size_t leg0=0, std::size_t leg1=0, std::size_t leg2=0) : type(type), leg{leg0,leg1,leg2} {}
+		TrigDef(TriggerType type=TT_UNKNOWN, std::size_t name=0, std::size_t leg0=0, std::size_t leg1=0, std::size_t leg2=0) : type(type), name(name), leg{leg0,leg1,leg2} {}
 	};	
 
 	ImportData();
@@ -108,6 +109,7 @@ public:
 	static xAOD::Type::ObjectType associatedLeptonFlavour(const std::string& leg, bool& success);
 	std::vector<TrigDef> parseTriggerString(const std::string& triggerString, bool& success);
 	TrigGlobalEfficiencyCorrectionTool* getParent() { return m_parent; }
+	bool adaptTriggerListForTriggerMatching(std::vector<ImportData::TrigDef>& triggers);
 	
 protected:
 	bool readDataFile(const char* filename, std::vector<std::string>& contents);

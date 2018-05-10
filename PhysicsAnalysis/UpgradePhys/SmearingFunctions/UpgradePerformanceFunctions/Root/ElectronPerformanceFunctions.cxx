@@ -6,22 +6,12 @@
 #define ELECTRONPERFORMANCEFUNCTIONS_CXX
 
 #include "UpgradePerformanceFunctions/UpgradePerformanceFunctions.h"
+#include "PathResolver/PathResolver.h"
 
 #include <TH1.h>
 #include <TFile.h>
 
-#ifdef XAOD_STANDALONE
-// Framework include(s):
-#include "PathResolver/PathResolver.h"
-#endif // XAOD_STANDALONE
-
-void UpgradePerformanceFunctions::setElectronWorkingPoint(ElectronCutLevel cutLevel) {
-  m_eleCutLevel = cutLevel;
-}
-
-void UpgradePerformanceFunctions::setElectronRandomSeed(unsigned seed) {
-  m_electronRandom.SetSeed(seed);
-}
+namespace Upgrade {
 
 float UpgradePerformanceFunctions::getElectronSmearedEnergy(float eMeV, float eta) {
   float deltaE = m_electronRandom.Gaus(0., getElectronEnergyResolution(eMeV, eta));
@@ -276,7 +266,7 @@ float UpgradePerformanceFunctions::getElectronEnergyResolution(float eMeV, float
 
     static TFile* ffES = 0;
     if (ffES == 0) {
-      std::string calibFile = PathResolverFindCalibFile(m_electronEnergyResolutionFilename.Data()); //MT : make it configurable!
+      std::string calibFile = PathResolverFindCalibFile(m_electronEnergyResolutionFilename); //MT : make it configurable!
       ATH_MSG_INFO("Using: " << calibFile);
       ffES = new TFile(calibFile.c_str(), "READ");
     }
@@ -482,9 +472,8 @@ float UpgradePerformanceFunctions::getElectronChargeFlipProb( float eMeV, float 
   // read the charge-flip root file
   static TFile* ff = 0;
   if (m_layout == UpgradePerformanceFunctions::run2 && ff == 0) {
-    ATH_MSG_INFO("ElectronPerformanceFunctions: reading the charge-flip rate file " << m_chargeFlipRateFilename.Data());
-    std::string flipFile = m_chargeFlipRateFilename.Data();
-    flipFile = PathResolverFindCalibFile(flipFile);
+    ATH_MSG_INFO("ElectronPerformanceFunctions: reading the charge-flip rate file " << m_chargeFlipRateFilename);
+    std::string flipFile = PathResolverFindCalibFile(m_chargeFlipRateFilename);
     if (flipFile == "") {
       return -1;
     }
@@ -568,6 +557,8 @@ float UpgradePerformanceFunctions::getElectronChargeFlipProb( float eMeV, float 
     ATH_MSG_ERROR("getElectronEfficiency: Invalid layout.");
   }
   return -1;
+}
+
 }
 
 #endif

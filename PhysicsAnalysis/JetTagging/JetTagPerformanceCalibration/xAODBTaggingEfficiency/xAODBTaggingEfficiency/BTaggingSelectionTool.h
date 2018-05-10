@@ -71,6 +71,8 @@ private:
 
   bool m_initialised;
 
+	bool m_ErrorOnTagWeightFailure;
+
    /// Object used to store the last decision
   mutable Root::TAccept m_accept;
 
@@ -91,4 +93,3 @@ private:
 };
 
 #endif // CPBTAGGINGSELECTIONTOOL_H
-

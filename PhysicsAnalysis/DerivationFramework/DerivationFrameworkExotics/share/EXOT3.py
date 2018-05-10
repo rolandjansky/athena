@@ -150,6 +150,8 @@ if isMC:
 
 triggers = [
             # Standard large-R jet support triggers (bootstrap, etc)
+            "HLT_j110_a10_lcw_subjes_L1J30", # new to 2018
+            "HLT_j175_a10_lcw_subjes_L1J50", # new to 2018
             "HLT_j260_a10_lcw_L1J75",
             "HLT_j260_a10_lcw_nojcalib_L1J75",
             "HLT_j260_a10_nojcalib_L1J75",
@@ -172,18 +174,49 @@ triggers = [
             "HLT_j460_a10_nojcalib_L1J100",
             "HLT_j460_a10_lcw_nojcalib_L1J100",
             "HLT_j460_a10_lcw_sub_L1J100",
-            "HLT_j480_a10_lcw_subjes_L1J100", # lowest unprescaled, 2017 (2.0e34 menu)
+            "HLT_j480_a10_lcw_subjes_L1J100", # lowest unprescaled, 2017 (2.0e34 menu) and 2018
+            "HLT_j500_a10_lcw_subjes_L1J100", # backup, 2018
+            "HLT_j520_a10_lcw_subjes_L1J100", # backup, 2018
+            "HLT_j540_a10_lcw_subjes_L1J100", # backup, 2018
             # Trimmed large-R jet primary triggers (new 2017 nominal)
             "HLT_j460_a10t_lcw_jes_L1J100", # lowest unprescaled, 2017 (1.7e34 menu)
-            "HLT_j480_a10t_lcw_jes_L1J100", # lowest unprescaled, 2017 (2.0e34 menu)
+            "HLT_j480_a10t_lcw_jes_L1J100", # lowest unprescaled, 2017 (2.0e34 menu) and 2018
+            "HLT_j500_a10t_lcw_jes_L1J100", # backup, 2018
+            "HLT_j520_a10t_lcw_jes_L1J100", # backup, 2018
+            "HLT_j540_a10t_lcw_jes_L1J100", # backup, 2018
             # Trimmed large-R jets, with 1xmass cuts (substructure-enriched triggers)
+            "HLT_j390_a10t_lcw_jes_L1J100", # prescaled, for mass bootstrap
             "HLT_j420_a10t_lcw_jes_L1J100", # prescaled, for mass bootstrap
             "HLT_j440_a10t_lcw_jes_L1J100", # prescaled, for mass bootstrap
+            "HLT_j390_a10t_lcw_jes_30smcINF_L1J100", # unprescaled for 99% of 2017
+            "HLT_j420_a10t_lcw_jes_35smcINF_L1J100", # lowest unprescaled, 2018
             "HLT_j420_a10t_lcw_jes_40smcINF_L1J100", # lowest unprescaled, 2017 (1.7e34 menu)
+            "HLT_j440_a10t_lcw_jes_35smcINF_L1J100", # backup, 2018
             "HLT_j440_a10t_lcw_jes_40smcINF_L1J100", # lowest unprescaled, 2017 (2.0e34 menu)
             # Trimmed large-R jets, with 2xmass cuts (substructure-enriched triggers)
             "HLT_2j330_a10t_lcw_jes_L1J100", # prescaled, for mass bootstrap
+            "HLT_2j330_a10t_lcw_jes_L1SC111", # prescaled, for mass bootstrap, 2018, L1Topo
+            "HLT_2j330_a10t_lcw_jes_30smcINF_L1J100", # unprescaled for 99% of 2017
+            "HLT_2j330_a10t_lcw_jes_35smcINF_L1J100", # lowest unprescaled, 2018
+            "HLT_2j330_a10t_lcw_jes_35smcINF_L1SC111", # lowest unprescaled, 2018, L1Topo
             "HLT_2j330_a10t_lcw_jes_40smcINF_L1J100", # lowest unprescaled, 2017 (1.7e34 and 2.0e34 menus)
+            "HLT_2j340_a10t_lcw_jes_35smcINF_L1J100", # backup, 2018
+            "HLT_2j340_a10t_lcw_jes_35smcINF_L1SC111", # backup, 2018, L1Topo
+            "HLT_2j340_a10t_lcw_jes_40smcINF_L1J100", # backup, 2018
+            "HLT_2j350_a10t_lcw_jes_35smcINF_L1J100", # backup, 2018
+            "HLT_2j350_a10t_lcw_jes_35smcINF_L1SC111", # backup, 2018, L1Topo
+            "HLT_2j350_a10t_lcw_jes_40smcINF_L1J100", # backup, 2018
+            # Trimmed large-R jets, with two ET cuts and one mass cut (1x substructure + ISR triggers)
+            "HLT_j310_a10t_lcw_jes_60smcINF_j310_a10t_lcw_jes_L1SC111", # Potential primary, 2018, L1Topo
+            "HLT_j325_a10t_lcw_jes_60smcINF_j325_a10t_lcw_jes_L1SC111", # Potential primary, 2018, L1Topo
+            "HLT_j340_a10t_lcw_jes_60smcINF_j340_a10t_lcw_jes_L1SC111", # Potential primary, 2018, L1Topo
+            "HLT_j360_a10t_lcw_jes_60smcINF_j360_a10t_lcw_jes_L1SC111", # Potential primary, 2018, L1Topo
+            "HLT_j370_a10t_lcw_jes_35smcINF_j370_a10t_lcw_jes_L1SC111", # Potential primary, 2018, L1Topo
+            "HLT_j370_a10t_lcw_jes_40smcINF_j370_a10t_lcw_jes_L1SC111", # Potential primary, 2018, L1Topo
+            "HLT_j370_a10t_lcw_jes_50smcINF_j370_a10t_lcw_jes_L1SC111", # Potential primary, 2018, L1Topo
+            "HLT_j370_a10t_lcw_jes_60smcINF_j370_a10t_lcw_jes_L1SC111", # Potential primary, 2018, L1Topo
+            "HLT_j380_a10t_lcw_jes_40smcINF_j380_a10t_lcw_jes_L1SC111", # Potential primary, 2018, L1Topo
+            "HLT_j380_a10t_lcw_jes_50smcINF_j380_a10t_lcw_jes_L1SC111", # Potential primary, 2018, L1Topo
             # Reclustered large-R jet support triggers
             "HLT_j260_a10r_L1J75",
             "HLT_j300_a10r_L1J75",
@@ -194,7 +227,10 @@ triggers = [
             "HLT_j420_a10r_L1J100", # lowest unprescaled, 2016
             "HLT_j440_a10r_L1J100",
             "HLT_j460_a10r_L1J100", # lowest unprescaled, 2017 (1.7e34 menu)
-            "HLT_j480_a10r_L1J100", # lowest unprescaled, 2017 (2.0e34 menu)
+            "HLT_j480_a10r_L1J100", # lowest unprescaled, 2017 (2.0e34 menu) and 2018
+            "HLT_j500_a10r_L1J100", # backup, 2018
+            "HLT_j520_a10r_L1J100", # backup, 2018
+            "HLT_j540_a10r_L1J100", # backup, 2018
             # HT triggers
             "HLT_ht850_L1J75",
             "HLT_ht850_L1J100",

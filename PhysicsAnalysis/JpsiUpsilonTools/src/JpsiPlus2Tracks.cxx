@@ -71,6 +71,8 @@ namespace Analysis {
     m_pipiMassHyp(true),
     m_kkMassHyp(true),
     m_kpiMassHyp(true),
+    m_kpMassHyp(false),
+    m_oppChargesOnly(true),
     m_trkThresholdPt(0.0),
     m_trkMaxEta(102.5),
     m_BThresholdPt(0.0),
@@ -103,6 +105,8 @@ namespace Analysis {
         declareProperty("pionpionHypothesis",m_pipiMassHyp);
         declareProperty("kaonkaonHypothesis",m_kkMassHyp);
         declareProperty("kaonpionHypothesis",m_kpiMassHyp);
+        declareProperty("kaonprotonHypothesis",m_kpMassHyp);
+	declareProperty("oppChargesOnly",m_oppChargesOnly);
         declareProperty("trkThresholdPt",m_trkThresholdPt);
         declareProperty("trkMaxEta",m_trkMaxEta);
         declareProperty("BThresholdPt",m_BThresholdPt);
@@ -160,6 +164,7 @@ namespace Analysis {
         constexpr double muMass = 105.658;
         constexpr double kMass = 493.677;
         constexpr double piMass = 139.57;
+        constexpr double pMass = 938.272;
         
         // Get the J/psis from StoreGate
         const xAOD::VertexContainer* importedJpsiCollection(0);
@@ -247,6 +252,8 @@ namespace Analysis {
         const std::vector<double> mumupipiMasses = {muMass, muMass, piMass, piMass};
         const std::vector<double> mumukpiMasses = {muMass, muMass, kMass, piMass};
         const std::vector<double> mumupikMasses = {muMass, muMass, piMass, kMass};
+        const std::vector<double> mumukpMasses = {muMass, muMass, kMass, pMass};
+        const std::vector<double> mumupkMasses = {muMass, muMass, pMass, kMass};
         
         
         // Attempt to fit each track with the two tracks from the J/psi candidates
@@ -312,7 +319,7 @@ namespace Analysis {
                        fabs((*trkItr2)->z0() - (*jpsiItr)->z()) > m_trkDeltaZ )
                         continue;
                     
-                    if (!oppositeCharges(*trkItr1,*trkItr2)) continue; //enforce opposite charges
+		    if (m_oppChargesOnly && !oppositeCharges(*trkItr1,*trkItr2)) continue; //enforce opposite charges
                     
                     if (m_diTrackPt>0 && JpsiUpsilonCommon::getPt(*trkItr1,*trkItr2) < m_diTrackPt ) continue; // track pair pT cut (daniel Scheirich)
                      
@@ -337,6 +344,10 @@ namespace Analysis {
 			   massCuts.push_back(getInvariantMass(*trkItr1,kMass,*trkItr2,piMass));
 			   massCuts.push_back(getInvariantMass(*trkItr1,piMass,*trkItr2,kMass));
                         }
+                        if(m_kpMassHyp){
+			   massCuts.push_back(getInvariantMass(*trkItr1,kMass,*trkItr2,piMass));
+			   massCuts.push_back(getInvariantMass(*trkItr1,piMass,*trkItr2,kMass));
+                        }
                         passesDiTrack = JpsiUpsilonCommon::cutRangeOR(massCuts, m_diTrackMassLower, m_diTrackMassUpper);
 
                     }
@@ -351,6 +362,10 @@ namespace Analysis {
                         if(m_kpiMassHyp){
                            massCuts.push_back(getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, *trkItr1,kMass , *trkItr2, piMass));
                            massCuts.push_back(getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, *trkItr1,piMass, *trkItr2, kMass));
+                        }
+                        if(m_kpMassHyp){
+                           massCuts.push_back(getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, *trkItr1,kMass, *trkItr2, pMass));
+                           massCuts.push_back(getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, *trkItr1,pMass, *trkItr2, kMass));
                         }
                         passes4TrackMass = JpsiUpsilonCommon::cutRangeOR(massCuts, m_trkQuadrupletMassLower, m_trkQuadrupletMassUpper);
                     }
@@ -373,7 +388,9 @@ namespace Analysis {
                         bool passesCuts = (m_kkMassHyp && passCuts(bHelper, mumukkMasses, "KK")) ||
                                       (m_pipiMassHyp && passCuts(bHelper, mumupipiMasses, "pi pi")) ||
                                       (m_kpiMassHyp && (passCuts(bHelper, mumukpiMasses, "K pi") ||
-                                                        passCuts(bHelper, mumupikMasses, "pi K")));
+                                                        passCuts(bHelper, mumupikMasses, "pi K"))) ||
+                                      (m_kpMassHyp && (passCuts(bHelper, mumukpMasses, "K p") ||
+                                                       passCuts(bHelper, mumupkMasses, "p K")));
                      
                         // Saving successful candidates
                         if (passesCuts) {

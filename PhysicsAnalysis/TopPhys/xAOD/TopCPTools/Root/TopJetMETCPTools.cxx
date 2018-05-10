@@ -50,6 +50,12 @@ JetMETCPTools::JetMETCPTools(const std::string& name) :
     m_jetAntiKt4_MCAFII_ConfigFile("JES_MC15Prerecommendation_AFII_June2015.config"),
     m_jetAntiKt4_MCAFII_CalibSequence("JetArea_Residual_Origin_EtaJES_GSC"),
 
+    // AFII is different - still June 2015 pre-recommendations and not siupported for R20.7 
+    // TODO: Remove all this legacy R20.7 stuff !!
+    m_jetAntiKt4_MCAFII_PFlow_ConfigFile("JES_MC15Prerecommendation_AFII_June2015.config"),
+    m_jetAntiKt4_MCAFII_PFlow_CalibSequence("JetArea_Residual_Origin_EtaJES_GSC"),
+
+
     // Particle-Flow jets, August 2016 recommendations, no GSC
     m_jetAntiKt4_PFlow_MCFS_ConfigFile("JES_MC15cRecommendation_PFlow_Aug2016.config"),
     m_jetAntiKt4_PFlow_MCFS_CalibSequence("JetArea_Residual_EtaJES_GSC"),
@@ -134,8 +140,11 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
     m_jetAntiKt4_MCFS_ConfigFile          = "JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config";
     m_jetAntiKt4_MCFS_CalibSequence       = "JetArea_Residual_EtaJES_GSC";
     // AFII EM/LC
-    m_jetAntiKt4_MCAFII_ConfigFile        = "JES_MC15Prerecommendation_AFII_June2015_rel21.config";
+    m_jetAntiKt4_MCAFII_ConfigFile        = "JES_MC16Recommendation_AFII_EMTopo_April2018_rel21.config";
     m_jetAntiKt4_MCAFII_CalibSequence     = "JetArea_Residual_EtaJES_GSC";
+
+    m_jetAntiKt4_MCAFII_PFlow_ConfigFile        = "JES_MC16Recommendation_AFII_PFlow_April2018_rel21.config";
+    m_jetAntiKt4_MCAFII_PFlow_CalibSequence     = "JetArea_Residual_EtaJES_GSC";
     // FS PFlow
     m_jetAntiKt4_PFlow_MCFS_ConfigFile    = "JES_data2017_2016_2015_Recommendation_PFlow_Feb2018_rel21.config"; // MC15c?
     m_jetAntiKt4_PFlow_MCFS_CalibSequence = "JetArea_Residual_EtaJES_GSC"; 
@@ -173,8 +182,13 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
     if (m_config->isMC()) {
       // AFII
       if (m_config->isAFII()) {
-        calibConfig = m_jetAntiKt4_MCAFII_ConfigFile;
-        calibSequence = m_jetAntiKt4_MCAFII_CalibSequence;
+        if(m_config->useParticleFlowJets()){
+         calibConfig = m_jetAntiKt4_MCAFII_PFlow_ConfigFile;
+          calibSequence = m_jetAntiKt4_MCAFII_PFlow_CalibSequence; 
+        }else{
+          calibConfig = m_jetAntiKt4_MCAFII_ConfigFile;
+          calibSequence = m_jetAntiKt4_MCAFII_CalibSequence;
+        }
       }
       // FS - PFlow
       else if (m_config->useParticleFlowJets()) {
@@ -252,15 +266,6 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
   // Uncertainties
   // Is our MC full or fast simulation?
   std::string MC_type = (m_config->isAFII()) ? "AFII" : "MC16";
-
-  // Normally this is fine, but currently the jet group doesn't support uncertainties on AFII, so we have to tell it to configure for full sim
-  if(MC_type == "AFII"){
-    ATH_MSG_WARNING("JetUncertainties - CalibArea-02 does not support AFII uncertainties");
-    ATH_MSG_WARNING("JetUncertainties - Fast sim jets will need to have full sim uncertainties");
-    ATH_MSG_WARNING("JetUncertainties - This will be an underestimation of your JES uncertainty");
-    MC_type = "MC16";
-  }
-
   std::string conference = "Moriond2018";
 
   // interpret uncertainty model aliases
@@ -275,7 +280,7 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
   
   // Rel21 calibrations are stored in a non-default area - therefore configure
   // the tool to look for the calibration in the correct fille.
-  std::string calib_area = "CalibArea-02";
+  std::string calib_area = "CalibArea-03";
 
   // Are we doing multiple JES for the reduced NP senarios?
   if (!m_config->doMultipleJES()) {
@@ -575,8 +580,28 @@ JetMETCPTools::setupJetUncertaintiesTool(const std::string& name,
           "Failed to set VariablesToShift for LargeR Jes Uncertainty "+ name);
     }
     if (analysis_file != "None") {
-      top::check(asg::setProperty(tool, "AnalysisFile", analysis_file),
-                  "Failed to set AnalysisFile for " + name);
+        if (m_config->jetUncertainties_QGHistPatterns().size()==0 || analysis_file == "") { // no histogram pattern to look for, or empty analysis_file argument
+            top::check(asg::setProperty(tool, "AnalysisFile", analysis_file),
+                    "Failed to set AnalysisFile for " + name);
+        }
+        else if (m_config->jetUncertainties_QGHistPatterns().size()==1) { // a single pattern was specified - let's use it for all DSIDs
+            top::check(asg::setProperty(tool, "AnalysisFile", analysis_file),
+                    "Failed to set AnalysisFile for " + name);
+            top::check(asg::setProperty(tool, "AnalysisHistPattern", m_config->jetUncertainties_QGHistPatterns()[0]),
+                    "Failed to set AnalysisHistPattern for " + name);
+        }
+        else { // a list of DSIDs was specified
+            int DSID = m_config->getDSID();
+            for (auto s : m_config->jetUncertainties_QGHistPatterns()) {
+                if (std::atoi(s.c_str()) == DSID) {
+                    top::check(asg::setProperty(tool, "AnalysisFile", analysis_file),
+                        "Failed to set AnalysisFile for " + name);
+                    top::check(asg::setProperty(tool, "AnalysisHistPattern", s),
+                        "Failed to set AnalysisHistPattern for " + name);
+                    break;
+                }
+            }// if the DSID is not found in the list, we don't try to use the AnalysisFile, so we get the default 50 +/- 50%
+        }
     }
     if (calib_area != "None"){
      top::check(asg::setProperty(tool, "CalibArea", calib_area),

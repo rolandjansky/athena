@@ -177,7 +177,7 @@ namespace Analysis {
 
     StatusCode jetIsAssociated;
     if (!m_BTagTrackAssocTool.empty()) {
-       jetIsAssociated = m_BTagTrackAssocTool->BTagTrackAssociation_exec(JetsList, m_jetFinderBasedOn);
+       jetIsAssociated = m_BTagTrackAssocTool->BTagTrackAssociation_exec(JetsList);
     }
     if ( jetIsAssociated.isFailure() ) {
       ATH_MSG_ERROR("#BTAG# Failed to associate tracks to jet ");
@@ -304,14 +304,6 @@ namespace Analysis {
 	  ijet++;
 	  
         }
-      }
-    }
-
-    // If TrackJets, useless to keep the track association (since they are normally already constituents)
-    if (m_jetFinderBasedOn == "Tracks" && !m_BTagAssociation) {
-      for ( JetCollection::const_iterator jetOfCol = particleJetContainer->begin();
-	    jetOfCol != particleJetContainer->end(); jetOfCol++ ) {
-	(*jetOfCol)->removeAssociation("Tracks");
       }
     }
 

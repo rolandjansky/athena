@@ -48,7 +48,6 @@ To Do
 Other things I might do sometime:
 
  - Allow grouping of different branches into different output datasets
- - Give the option to supply a TCut string to skim the ntuple
  - Merge with the other [root to hdf5 converter][2] I made for histograms.
 
 Versions of this code

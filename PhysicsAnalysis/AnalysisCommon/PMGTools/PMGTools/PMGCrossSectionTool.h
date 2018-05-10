@@ -52,18 +52,22 @@ namespace PMGTools {
     
     /// return the AMI cross-section for DSID
     double getAMIXsection(const int dsid) const;
+
+    /// return the cross-section uncertainty for DSID
+    double getXsectionUncertainty(const int dsid) const;
     
+    // :: below is for future use?
     /// return the branching ratio for DSID
-    double getBR(const int dsid) const;
-    
+    //double getBR(const int dsid) const;
+
     /// return the k-factor for DSID
-   double getKfactor(const int dsid) const;
+    double getKfactor(const int dsid) const;
    
-   /// return the sample cross-section for DSID
-   double getSampleXsection(const int dsid) const;
+    /// return the sample cross-section for DSID
+    double getSampleXsection(const int dsid) const;
    
-   /// get a list of the DSID for the loaded samples
-   std::vector<int> getLoadedDSIDs() const;
+    /// get a list of the DSID for the loaded samples
+    std::vector<int> getLoadedDSIDs() const;
    
   private:
       

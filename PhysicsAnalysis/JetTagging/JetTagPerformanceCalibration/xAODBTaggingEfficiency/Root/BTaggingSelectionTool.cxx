@@ -41,11 +41,12 @@ BTaggingSelectionTool::BTaggingSelectionTool( const std::string & name)
   m_initialised = false;
   declareProperty( "MaxEta", m_maxEta = 2.5 );
   declareProperty( "MinPt", m_minPt = 20000 /*MeV*/);
-  declareProperty( "MaxRangePt", m_maxRangePt = 1000000 /*MeV*/);
+  declareProperty( "MaxRangePt", m_maxRangePt = 3000000 /*MeV*/);
   declareProperty( "FlvTagCutDefinitionsFileName", m_CutFileName = "", "name of the files containing official cut definitions (uses PathResolver)");
   declareProperty( "TaggerName",                    m_taggerName="",    "tagging algorithm name");
   declareProperty( "OperatingPoint",                m_OP="",            "operating point");
   declareProperty( "JetAuthor",                     m_jetAuthor="",     "jet collection");
+  declareProperty( "ErrorOnTagWeightFailure",     m_ErrorOnTagWeightFailure=true, "optionally ignore cases where the tagweight cannot be retrived. default behaviour is to give an error, switching to false will turn it into a warning");
 }
 
 StatusCode BTaggingSelectionTool::initialize() {
@@ -90,11 +91,6 @@ StatusCode BTaggingSelectionTool::initialize() {
     if ("AntiKtVR30Rmax4Rmin02TrackJets"== m_jetAuthor){ m_minPt= 7000; }
     if ("AntiKt4PV0TrackJets"== m_jetAuthor){ m_minPt= 7000; }
   }
-  // Change the maxRangePt cut if the user didn't touch it
-  if (1000000==m_maxRangePt){// is it still the default value
-    if ("AntiKt2PV0TrackJets"== m_jetAuthor || "AntiKtVR30Rmax4Rmin02TrackJets"== m_jetAuthor) m_maxRangePt= 400000;
-    if ("AntiKt4PV0TrackJets"== m_jetAuthor) m_maxRangePt= 500000;
-  }
 
   // Operating point reading
     TString cutname = m_OP;
@@ -127,17 +123,16 @@ StatusCode BTaggingSelectionTool::initialize() {
     m_continuouscuts[5]= +1.e4;
   }
   else {  // Else load only one WP
-    if ("2DFixedCut"==cutname(0,10)){
-      cutname = m_taggerName+"/"+m_jetAuthor+"/"+m_OP+"/cutvalue";
-      m_constcut = (TVector*) m_inf->Get(cutname);
-      if (m_constcut == nullptr) ATH_MSG_ERROR( "Invalid operating point" );
-    }
-    else if ("FlatBEff"==cutname(0,8) || "HybBEff"==cutname(0,7) ){
+    if ("FlatBEff"==cutname(0,8) || "HybBEff"==cutname(0,7) ){
       cutname = m_taggerName+"/"+m_jetAuthor+"/"+m_OP+"/cutprofile";
       m_spline = (TSpline3*) m_inf->Get(cutname);
       if (m_spline == nullptr) ATH_MSG_ERROR( "Invalid operating point" );
-    }
-    else {
+
+      //check the user set range in pt and the range of the spline
+      if(m_spline->GetXmax() > m_maxRangePt/1000.0 ){
+      ATH_MSG_WARNING(" Max Pt is set to "<< m_maxRangePt/1000.0 << " GeV, while the pt-dependent cut is defined up to " << m_spline->GetXmax() << " GeV " );
+      }
+    }else{
       cutname = m_taggerName+"/"+m_jetAuthor+"/"+m_OP+"/cutvalue";
       m_constcut = (TVector*) m_inf->Get(cutname);
       if (m_constcut == nullptr) ATH_MSG_ERROR( "Invalid operating point" );
@@ -196,8 +191,13 @@ CorrectionCode BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet, dou
     const xAOD::BTagging* btag = jet.btagging();
 
     if ((!btag) || (!btag->MVx_discriminant(m_taggerName, tagweight))){
-      ATH_MSG_ERROR("Failed to retrieve "+m_taggerName+" weight!");
-      return CorrectionCode::Error;
+      if(m_ErrorOnTagWeightFailure){
+        ATH_MSG_ERROR("Failed to retrieve "+m_taggerName+" weight!");
+        return CorrectionCode::Error;
+      }else{
+        ATH_MSG_WARNING("Failed to retrieve "+m_taggerName+" weight!");
+        return CorrectionCode::Ok;
+      }
     }
     ATH_MSG_VERBOSE( m_taggerName << " " <<  tagweight );
     return  CorrectionCode::Ok;
@@ -218,19 +218,18 @@ CorrectionCode BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet, dou
   if ( (!btag->pb(m_taggerName, dl1_pb ))
    || (!btag->pc(m_taggerName, dl1_pc ))
    || (!btag->pu(m_taggerName, dl1_pu )) ){
-   ATH_MSG_ERROR("Failed to retrieve the BTagging "+m_taggerName+" weight!");
-   return CorrectionCode::Error;
+
+     if(m_ErrorOnTagWeightFailure){
+       ATH_MSG_ERROR("Failed to retrieve "+m_taggerName+" weight!");
+       return CorrectionCode::Error;
+     }else{
+       ATH_MSG_WARNING("Failed to retrieve "+m_taggerName+" weight!");
+       return CorrectionCode::Ok;
+     }
   }
   ATH_MSG_VERBOSE( "pb " <<  dl1_pb );
   ATH_MSG_VERBOSE( "pc " <<  dl1_pc );
   ATH_MSG_VERBOSE( "pu " <<  dl1_pu );
-
-  bool valid_input = (!std::isnan(dl1_pu) && dl1_pb>0 && dl1_pc>0 && dl1_pu>0);
-
-  if (!valid_input){
-    ATH_MSG_ERROR("Failed to retrieve the BTagging "+m_taggerName+" weight!");
-    return CorrectionCode::Error;
-  }
 
   return getTaggerWeight(dl1_pb, dl1_pc, dl1_pu, tagweight);
 
@@ -246,6 +245,20 @@ CorrectionCode BTaggingSelectionTool::getTaggerWeight( double pb, double pc, dou
 
   tagweight = -100.;
   if( m_taggerName.find("DL1") != string::npos ){
+
+    bool valid_input = (!std::isnan(pu) && pb>0 && pc>0 && pu>0);
+
+    if (!valid_input){
+      if(m_ErrorOnTagWeightFailure){
+        ATH_MSG_ERROR("Invalid inputs for "+m_taggerName+" pb " << pb << " pc " << pc << " pu " << pu << " ");
+        return CorrectionCode::Error;
+      }else{
+        ATH_MSG_WARNING("Invalid inputs for "+m_taggerName+" pb " << pb << " pc " << pc << " pu " << pu << " ");
+        return CorrectionCode::Ok;
+      }
+    }
+
+
 
     if(m_OP.find("CTag") != string::npos){
      tagweight = log( pc/(m_fraction*pb+(1.-m_fraction)*pu) );
@@ -319,7 +332,11 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
     }
 
     if ( (!btag->MVx_discriminant("MV2cl100", weight_mv2cl100 ))|| (!btag->MVx_discriminant("MV2c100", weight_mv2c100 )) ){
-      ATH_MSG_ERROR("Failed to retrieve the BTagging "+m_taggerName+" weight!");
+      if(m_ErrorOnTagWeightFailure){
+        ATH_MSG_ERROR("Failed to retrieve the BTagging "+m_taggerName+" weight!");
+      }else{
+        ATH_MSG_WARNING("Failed to retrieve the BTagging "+m_taggerName+" weight!");
+      }
       return m_accept;
     }
     ATH_MSG_VERBOSE( "MV2cl100 "  <<  weight_mv2cl100 );
@@ -331,7 +348,6 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
     double tagger_weight(-100);
 
     if( getTaggerWeight( jet ,tagger_weight)!=CorrectionCode::Ok){
-      ATH_MSG_ERROR("Failed to retrieve the BTagging "+m_taggerName+" weight!");
       return m_accept;
     };
 
@@ -353,10 +369,6 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
     ATH_MSG_ERROR("BTaggingSelectionTool has not been initialised");
     return m_accept;
   }
-
-  // flat cut for out of range pTs
-  if (pT>m_maxRangePt)
-    pT = m_maxRangePt-500; // 500 MeV below the maximum authorized range
 
   eta = std::fabs(eta);
 
@@ -389,10 +401,6 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
     ATH_MSG_ERROR("BTaggingSelectionTool has not been initialised");
     return m_accept;
   }
-
-  // flat cut for out of range pTs
-  if (pT>m_maxRangePt)
-    pT = m_maxRangePt-500; // 500 MeV below the maximum authorized range
 
   eta = std::fabs(eta);
 
@@ -429,10 +437,6 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
      return m_accept;
    }
 
-   // flat cut for out of range pTs
-   if (pT>m_maxRangePt)
-     pT = m_maxRangePt-500; // 500 MeV below the maximum authorized range
-
    eta = std::fabs(eta);
 
    if (! checkRange(pT, eta))
@@ -449,10 +453,7 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
 
    double tagger_weight(-100);
 
-   bool valid_input = (!std::isnan(pu) && pb>0 && pc>0 && pu>0);
-
-   if( !valid_input || getTaggerWeight(pb, pc, pu, tagger_weight)!=CorrectionCode::Ok){
-      ATH_MSG_ERROR("Failed to retrieve the BTagging "+m_taggerName+" weight!");
+   if( getTaggerWeight(pb, pc, pu, tagger_weight)!=CorrectionCode::Ok){
       return m_accept;
    }
 
@@ -490,7 +491,8 @@ int BTaggingSelectionTool::getQuantile( const xAOD::Jet& jet ) const{
   // Retrieve the tagger weight which was assigned to the jet
   double weight_mv2(-10.);
   if (getTaggerWeight(jet, weight_mv2)==CorrectionCode::Error){
-    ATH_MSG_ERROR("Failed to retrieve "+m_taggerName+" weight!");
+    ATH_MSG_WARNING("getQuantile: Failed to retrieve "+m_taggerName+" weight!");
+    return -1;
   }
   ATH_MSG_VERBOSE( m_taggerName << " " <<  weight_mv2 );
 
@@ -553,8 +555,15 @@ CorrectionCode BTaggingSelectionTool::getCutValue(double pT, double & cutval) co
 {
    cutval = DBL_MAX;
 
+   // flat cut for out of range pTs
+   if (pT>m_maxRangePt)
+     pT = m_maxRangePt;
+
    if (m_spline != nullptr && m_constcut == nullptr) {
-     cutval = m_spline->Eval(pT/1000.);
+     pT = pT/1000.0;
+     double maxsplinept = m_spline->GetXmax();
+     if (pT>maxsplinept){ pT = maxsplinept; }
+     cutval = m_spline->Eval(pT);
    }
 
    else if (m_constcut != nullptr && m_spline == nullptr) {

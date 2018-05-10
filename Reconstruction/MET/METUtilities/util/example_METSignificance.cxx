@@ -287,10 +287,30 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 	std::cout << "Soft term: "  << static_cast<xAOD::MissingET*>(*(newMetContainer->find("PVSoftTrk")))->met() 
 		  << " phi: " << static_cast<xAOD::MissingET*>(*(newMetContainer->find("PVSoftTrk")))->phi() 
 		  << std::endl;
+
+      // Print the METSignificance terms (e.g. jet, muon, ele, pho, etc)
+      // NOTE::: these are not currently rotated if the MET is rotated
+      std::cout << "  jet   VarL: " << metSignif->GetTermVarL(met::ResoJet) << " GeV VarT: " << metSignif->GetTermVarT(met::ResoJet) << " GeV" << std::endl;
+      std::cout << "  muon   VarL: " << metSignif->GetTermVarL(met::ResoMuo) << " GeV VarT: " << metSignif->GetTermVarT(met::ResoMuo) << " GeV" << std::endl;
+      std::cout << "  electron   VarL: " << metSignif->GetTermVarL(met::ResoEle) << " GeV VarT: " << metSignif->GetTermVarT(met::ResoEle) << " GeV" << std::endl;
+      std::cout << "  photon   VarL: " << metSignif->GetTermVarL(met::ResoPho) << " GeV VarT: " << metSignif->GetTermVarT(met::ResoPho) << " GeV" << std::endl;
+      std::cout << "  tau   VarL: " << metSignif->GetTermVarL(met::ResoTau) << " GeV VarT: " << metSignif->GetTermVarT(met::ResoTau) << " GeV" << std::endl;
+      std::cout << "  Soft term   VarL: " << metSignif->GetTermVarL(met::ResoSoft) << " GeV VarT: " << metSignif->GetTermVarT(met::ResoSoft) << " GeV" << std::endl;
+      std::cout << "  other/bug   VarL: " << metSignif->GetTermVarL(met::ResoNone) << " GeV VarT: " << metSignif->GetTermVarT(met::ResoNone) << " GeV" << std::endl;
+
     }
       
     // extracting the MET significance
     std::cout << "MET significance: " << metSignif->GetSignificance() << std::endl;
+
+    if(debug){
+      // Try a rotation to a new lambda parameter
+      std::cout << " Lambda Test Before: " << metSignif->GetSignificance() << " VarL: " << metSignif->GetVarL() << " VarT: " << metSignif->GetVarT() << std::endl;
+      metSignif->SetLambda(0.0, 0.0);
+      std::cout << " Lambda Test 0: " << metSignif->GetSignificance() << " VarL: " << metSignif->GetVarL() << " VarT: " << metSignif->GetVarT() << std::endl;
+      metSignif->SetLambda(10.0, 10.0);
+      std::cout << " Lambda Test 10: " << metSignif->GetSignificance() << " VarL: " << metSignif->GetVarL() << " VarT: " << metSignif->GetVarT() << std::endl;
+    }
 
     ANA_CHECK(store->record( newMetContainer,    "FinalMETContainer"    ));
     ANA_CHECK(store->record( newMetAuxContainer, "FinalMETContainerAux."));

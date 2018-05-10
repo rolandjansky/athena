@@ -81,6 +81,11 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("JetUncertainties_QGFracFile","To specify a root file with quark/gluon fractions,"
                       " in order to reduce FlavourComposition and response uncertainties."
                       " Default: None (i.e. no file is used and default flat 50+/-50% fraction is used).","None");
+    registerParameter("JetUncertainties_QGHistPatterns","To specify a pattern for the name of the quark/gluon fractions histograms, or a list of DSIDs which will have their specific histogram."
+                      " Two syntaxes are possible, either a single string or a list of DSIDs separated by commas:"
+                      "   \"MyQGHisto\" (the histograms with \"MyQGHisto\" in their names will be used for all DSIDs),"
+                      "   \"410470,410472,345873,345874,345875\" (for the listed DSIDs, histograms with the processed DSID will be used, while the flat 50+/-50% fraction will be used for the other DSIDs)."
+                      " Default: None (i.e. no specific pattern is looked for in the name of the provided histograms).","None");
     registerParameter("LargeRSmallRCorrelations",
                       "Do large-small R jet correlation systematics - True or False (default)",
                       "False");
@@ -294,7 +299,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 
     registerParameter("MuonTriggerSF", "Muon trigger SFs to calculate", "HLT_mu20_iloose_L1MU15_OR_HLT_mu50");
 
-    registerParameter("KLFitterTransferFunctionsPath","Select the transfer functions to use","8TeV/ttbar/mc12_LCJets_v1");
+    registerParameter("KLFitterTransferFunctionsPath","Select the transfer functions to use","mc12a/akt4_LCtopo_PP6");
     registerParameter("KLFitterOutput","Select the KLFitter output (FULL, FITTEDTOPS_ONLY, JETPERM_ONLY)","FULL");
     registerParameter("KLFitterJetSelectionMode","kLeadingThree , kLeadingFour , kLeadingFive , kLeadingSix , kLeadingSeven , kBtagPriorityThreeJets , kBtagPriorityFourJets , kBtagPriorityFiveJets, kBtagPrioritySixJets , kBtagPrioritySevenJets","kBtagPriorityFourJets");
     registerParameter("KLFitterBTaggingMethod","Recommend use kNotag or kVetoNoFit - see KLFitter TWiki","kNotag");

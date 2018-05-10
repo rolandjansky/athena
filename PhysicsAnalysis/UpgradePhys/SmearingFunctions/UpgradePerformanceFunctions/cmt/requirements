@@ -41,22 +41,10 @@ apply_pattern declare_joboptions files=*.py
 
 #RTT-related statements
 apply_pattern declare_python_modules files="../share/*.py"
-
 apply_pattern declare_scripts files="../share/*.py"
-
-apply_pattern declare_runtime extras="../test/CPAnalysisExamples_TestConfiguration.xml ../share/*.py"
-
-macro CPAnalysisExamples_TestConfiguration "../test/CPAnalysisExamples_TestConfiguration.xml"
-
-private
-use TestTools      TestTools-*         AtlasTest
-#apply_pattern UnitTest_run unit_test=ut_ath_checkTrigger
-end_private
+apply_pattern declare_runtime extras="../share/*.py"
 
 #Reflex Dictionary Generation:
 private
 use AtlasReflex AtlasReflex-* External
-#apply_pattern lcgdict dict=CPAnalysisExamples selectionfile=selection.xml headerfiles="../CPAnalysisExamples/CPAnalysisExamplesDict.h"
 end_private
-
-#application ut_ath_checkTrigger_test ../test/ut_ath_checkTrigger_test.cxx

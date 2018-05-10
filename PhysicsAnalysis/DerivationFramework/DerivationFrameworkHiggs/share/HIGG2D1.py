@@ -292,6 +292,8 @@ if DerivationFrameworkIsMonteCarlo:
                                                    "AntiKt4TruthWZJets"]
 
 HIGG2D1SlimmingHelper.ExtraVariables = HIGG2D1ExtraContent
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+HIGG2D1SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 HIGG2D1SlimmingHelper.AllVariables = HIGG2D1ExtraContainers
 HIGG2D1SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer',
                                             'BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer'}

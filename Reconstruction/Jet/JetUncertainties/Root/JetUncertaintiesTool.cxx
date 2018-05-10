@@ -25,6 +25,7 @@
 #include "JetUncertainties/ELogMassEtaUncertaintyComponent.h"
 #include "JetUncertainties/PileupUncertaintyComponent.h"
 #include "JetUncertainties/FlavourUncertaintyComponent.h"
+#include "JetUncertainties/PerJetFlavourUncertaintyComponent.h"
 #include "JetUncertainties/PunchthroughUncertaintyComponent.h"
 #include "JetUncertainties/ClosebyUncertaintyComponent.h"
 #include "JetUncertainties/CombinedMassUncertaintyComponent.h"
@@ -66,10 +67,12 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_jetDef("")
     , m_mcType("")
     , m_configFile("")
-    , m_calibArea("")
+    , m_calibArea("CalibArea-03")
     , m_path("")
     , m_analysisFile("")
+    , m_analysisHistPattern("")
     , m_systFilters()
+    , m_defAnaFile("")
     , m_refNPV(-1)
     , m_refMu(-1)
     , m_refNPVHist(NULL)
@@ -98,6 +101,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     declareProperty("CalibArea",m_calibArea);
     declareProperty("Path",m_path);
     declareProperty("AnalysisFile",m_analysisFile);
+    declareProperty("AnalysisHistPattern",m_analysisHistPattern);
     declareProperty("VariablesToShift",m_systFilters);
 
     ATH_MSG_DEBUG("Creating JetUncertaintiesTool named "<<m_name);
@@ -120,7 +124,9 @@ JetUncertaintiesTool::JetUncertaintiesTool(const JetUncertaintiesTool& toCopy)
     , m_calibArea(toCopy.m_calibArea)
     , m_path(toCopy.m_path)
     , m_analysisFile(toCopy.m_analysisFile)
+    , m_analysisHistPattern(toCopy.m_analysisHistPattern)
     , m_systFilters(toCopy.m_systFilters)
+    , m_defAnaFile(toCopy.m_defAnaFile)
     , m_refNPV(toCopy.m_refNPV)
     , m_refMu(toCopy.m_refMu)
     , m_refNPVHist(toCopy.m_refNPVHist?new UncertaintyHistogram(*toCopy.m_refNPVHist):NULL)
@@ -321,9 +327,11 @@ StatusCode JetUncertaintiesTool::initialize()
     }
     
 
-    // Get the analysis ROOT file for later use (only if it wasn't specified by user config)
+    // Get the default analysis ROOT file for later use
+    // Overwrite the analysisFile if it wasn't specified
+    m_defAnaFile = settings.GetValue("AnalysisRootFile","");
     if (m_analysisFile == "")
-        m_analysisFile = settings.GetValue("AnalysisRootFile","");
+        m_analysisFile = m_defAnaFile;
     if (m_analysisFile != "")
     {
         ATH_MSG_INFO(Form("  AnalysisFile: \"%s\"",m_analysisFile.c_str()));
@@ -335,6 +343,23 @@ StatusCode JetUncertaintiesTool::initialize()
             return StatusCode::FAILURE;
         }
         ATH_MSG_INFO(Form("    Location: %s",analysisFilePath.Data()));
+    }
+    if (m_defAnaFile != m_analysisFile && m_defAnaFile != "")
+    {
+        ATH_MSG_INFO(Form("  DefaultAnalysisFile: \"%s\"",m_defAnaFile.c_str()));
+        // Ensure that we can find the file
+        const TString analysisFilePath = utils::findFilePath(m_defAnaFile.c_str(),m_path.c_str(),m_calibArea.c_str());
+        if (analysisFilePath == "")
+        {
+            ATH_MSG_ERROR("Cannot find the path of the default analysis histogram file");
+            return StatusCode::FAILURE;
+        }
+        ATH_MSG_INFO(Form("    Location: %s",analysisFilePath.Data()));
+        // if a histogram pattern was provided, then use it (only if an analysis file is used)
+        if (m_analysisHistPattern != "")
+        {
+            ATH_MSG_INFO(Form("  AnalysisHistPattern: \"%s\"",m_analysisHistPattern.c_str()));
+        }
     }
 
     // Get a file-wide validity histogram if specified
@@ -1006,7 +1031,12 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
                 return NULL;
             }
             else if (component.parametrization == CompParametrization::PtEta || component.parametrization == CompParametrization::PtAbsEta)
-                return new FlavourUncertaintyComponent(component,m_jetDef,m_analysisFile,m_path.c_str(),m_calibArea.c_str());
+            {
+                if (component.flavourType == FlavourComp::PerJetResponse)
+                    return new PerJetFlavourUncertaintyComponent(component);
+                else
+                    return new FlavourUncertaintyComponent(component,m_jetDef,m_analysisFile.c_str(),m_defAnaFile.c_str(),m_path.c_str(),m_calibArea.c_str(),m_analysisHistPattern.c_str());
+            }
             else
             {
                 ATH_MSG_ERROR(Form("Unexpected parametrization of %s for component %s",CompParametrization::enumToString(component.parametrization).Data(),component.name.Data()));

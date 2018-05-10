@@ -74,7 +74,10 @@ namespace ana
 
     /// description: the calibration/smearing tool
   private:
-    asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calib_smear;
+//    asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calib_smear;
+    asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calib_smear_16;
+    asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calib_smear_17;
+
 
   private:
     SelectionCut cut_calib_tool;

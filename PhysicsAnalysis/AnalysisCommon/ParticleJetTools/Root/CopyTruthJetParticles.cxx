@@ -78,18 +78,10 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp,
   else if (!m_includeNonInt && MC::isNonInteracting(pdgid)) return false;
   if (!m_includeMu && abs(pdgid)==13) return false;
 
-  // Cannot use the truth helper functions; they're written for HepMC
-  // Last two switches only apply if the thing is a lepton and not a tau
-  if (MC::PID::isLepton(pdgid) && abs(pdgid)!=15 && tp->hasProdVtx()){
-    bool isPromptLepton = isPrompt( tp, originMap );
-    if (!m_includePromptLeptons && isPromptLepton) {
-      ATH_MSG_VERBOSE("Veto prompt lepton (" << pdgid << ") with pt " << tp->pt() << " origin " << getPartOrigin( tp, originMap ));
-      return false;
-    }
-    // if (!m_includeTau && fromTau( tp, originMap )) {
-    //   ATH_MSG_VERBOSE("Veto lepton (" << pdgid << ") from tau");
-    //   return false;
-    // }
+  // Already built a list of prompt leptons, just use it here
+  if (!m_includePromptLeptons && std::find(promptLeptons.begin(),promptLeptons.end(),tp)!=promptLeptons.end()){
+    ATH_MSG_VERBOSE("Veto prompt lepton (" << pdgid << ") with pt " << tp->pt() << " origin " << getPartOrigin( tp, originMap ));
+    return false;
   }
 
   // -- added for dark jet clustering -- //
@@ -283,9 +275,8 @@ int CopyTruthJetParticles::execute() const {
     // Cannot use the truth helper functions; they're written for HepMC
     // Last two switches only apply if the thing is a lepton and not a tau
     int pdgid = tp->pdgId();
-    if (MC::PID::isLepton(pdgid) && abs(pdgid)!=15 && tp->hasProdVtx()){
-      bool isPromptLepton = isPrompt( tp, originMap );
-      if(isPromptLepton && (abs(pdgid)==11 || abs(pdgid)==13)) promptLeptons.push_back(tp);
+    if ((abs(pdgid)==11 || abs(pdgid)==13) && tp->hasProdVtx()){
+      if(isPrompt(tp,originMap)) promptLeptons.push_back(tp);
     }
   }
 

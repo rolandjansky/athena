@@ -185,6 +185,13 @@ mc15_13TeV.410110.PowhegPythiaEvtGen_P2012radLo_SingleTopSchan_lept_antitop.evge
 mc15_13TeV.410178.MadGraphPythia8EvtGen_A14NNPDF23LO_WtbMET200.evgen.EVNT.e5264
 mc15_13TeV.410179.MadGraphPythia8EvtGen_A14NNPDF23LO_WtbMET60_200.evgen.EVNT.e5264
 
+mc16_13TeV.410642.PhPy8EG_A14_tchan_lept_top.merge.EVNT.e6536_e5984
+mc16_13TeV.410643.PhPy8EG_A14_tchan_lept_antitop.merge.EVNT.e6536_e5984
+mc16_13TeV.410644.PowhegPythia8EvtGen_A14_singletop_schan_lept_top.merge.EVNT.e6527_e5984
+mc16_13TeV.410645.PowhegPythia8EvtGen_A14_singletop_schan_lept_antitop.merge.EVNT.e6527_e5984
+mc16_13TeV.410646.PowhegPythia8EvtGen_A14_Wt_DR_inclusive_top.merge.EVNT.e6552_e5984
+mc16_13TeV.410647.PowhegPythia8EvtGen_A14_Wt_DR_inclusive_antitop.merge.EVNT.e6552_e5984
+
 ################################################################################################################
 # WWbb LO
 
@@ -2809,5 +2816,23 @@ mc15_13TeV.410089.MadGraphPythia8EvtGen_A14NNPDF23LO_ttgamma80_allhad.evgen.EVNT
 # aMcAtNloPythia8EvtGen ttbar+gamma (NLO)
 
 mc15_13TeV.407320.aMcAtNloPythia8EvtGen_MEN30NLO_A14N23LO_tta140.evgen.EVNT.e5587
+
+################################################################################################################
+# Z' to qq + ISR
+
+mc16_13TeV.309710.MGPy8EG_N30LO_A14N23LO_dmA_qqj_Jet350P100_mRp1_gSp25.merge.EVNT.e6584_e5984  
+mc16_13TeV.309711.MGPy8EG_N30LO_A14N23LO_dmA_bbj_Jet350P100_mRp1_gSp25.merge.EVNT.e6584_e5984  
+mc16_13TeV.309712.MGPy8EG_N30LO_A14N23LO_dmA_qqj_Jet350P100_mRp125_gSp25.merge.EVNT.e6584_e5984
+mc16_13TeV.309713.MGPy8EG_N30LO_A14N23LO_dmA_bbj_Jet350P100_mRp125_gSp25.merge.EVNT.e6584_e5984
+mc16_13TeV.309714.MGPy8EG_N30LO_A14N23LO_dmA_qqj_Jet350P100_mRp15_gSp25.merge.EVNT.e6584_e5984 
+mc16_13TeV.309715.MGPy8EG_N30LO_A14N23LO_dmA_bbj_Jet350P100_mRp15_gSp25.merge.EVNT.e6584_e5984 
+mc16_13TeV.309716.MGPy8EG_N30LO_A14N23LO_dmA_qqj_Jet350P100_mRp175_gSp25.merge.EVNT.e6584_e5984
+mc16_13TeV.309717.MGPy8EG_N30LO_A14N23LO_dmA_bbj_Jet350P100_mRp175_gSp25.merge.EVNT.e6584_e5984
+mc16_13TeV.309718.MGPy8EG_N30LO_A14N23LO_dmA_qqj_Jet350P100_mRp2_gSp25.merge.EVNT.e6584_e5984  
+mc16_13TeV.309719.MGPy8EG_N30LO_A14N23LO_dmA_bbj_Jet350P100_mRp2_gSp25.merge.EVNT.e6584_e5984  
+mc16_13TeV.309720.MGPy8EG_N30LO_A14N23LO_dmA_qqj_Jet350P100_mRp25_gSp25.merge.EVNT.e6584_e5984
+mc16_13TeV.309721.MGPy8EG_N30LO_A14N23LO_dmA_bbj_Jet350P100_mRp25_gSp25.merge.EVNT.e6584_e5984
+mc16_13TeV.309722.MGPy8EG_N30LO_A14N23LO_dmA_qqj_Jet350P100_mRp3_gSp25.merge.EVNT.e6584_e5984 
+mc16_13TeV.309723.MGPy8EG_N30LO_A14N23LO_dmA_bbj_Jet350P100_mRp3_gSp25.merge.EVNT.e6584_e5984 
 
 ################################################################################################################

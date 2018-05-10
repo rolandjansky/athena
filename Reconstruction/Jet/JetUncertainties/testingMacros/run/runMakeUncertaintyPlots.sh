@@ -2844,6 +2844,147 @@ function Moriond2017_OnlyFlavourSplit \
 
 
 
+function Moriond2018_LargeR \
+{
+    var="pT"
+    massDef="CombMass"
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16a"
+    configFile="rel21/Moriond2018/R10_${massDef}_all.config"
+    outFile="JetUncertainties-LargeR-Moriond2018-${var}.pdf"
+    compList="#Baseline#;#Modelling#;#Tracking#;#TotalStat#"
+    compLabels="Baseline;Modelling;Tracking;Statistical"
+    totalUnc="Total uncertainty"
+    if [[ $var = "mass" ]] ; then
+        if [[ $massDef = "CombMass" ]] ; then
+            totalUnc="$totalUnc, m_{comb}"
+        elif [[ $massDef = "TAMass" ]] ; then
+            totalUnc="$totalUnc, m_{TA}"
+        elif [[ $massDef = "CaloMass" ]] ; then
+            totalUnc="$totalUnc, m_{calo}"
+        else
+            totalUnc="$totalUnc, mass"
+        fi
+    else
+        totalUnc="$totalUnc, $var"
+    fi
+        
+    options="isDijet=false;isLargeR=true;prefix=JET_;specifyTagger=false;scaleVar=${var};isPublic=false;axisMax=0.30;totalUncName=\"$totalUnc\""
+}
+
+function Moriond2018_LargeR_Validation \
+{
+    var="pT"
+    massDef="CombMass"
+    scenario="strong"
+    jetDefinition="AntiKt10LCTopoTrimmedPtFrac5SmallR20"
+    MCtype="MC16a"
+    configFile="rel21/Moriond2018/R10_${massDef}_all.config;rel21/Moriond2018/R10_${massDef}_${scenario}.config"
+    outFile="JetUncertainties-LargeR-Moriond2018-${scenario}-${massDef}-${var}.pdf"
+    compList="#Baseline#;#Modelling#;#Tracking#;#TotalStat#@#Baseline#;#Modelling#;#Tracking#;#TotalStat#"
+    compLabels="Baseline (all);Modelling (all);Tracking (all);Statistical (all)@Baseline ($scenario);Modelling ($scenario);Tracking ($scenario);Statistical ($scenario)"
+    options="isDijet=false;isLargeR=true;prefix=JET_;specifyTagger=false;scaleVar=${var};isPublic=false;axisMax=0.30"
+}
+
+function Moriond2018 \
+{
+
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="MC16"
+    configFile="rel21/Moriond2018/R4_AllNuisanceParameters.config"
+    outFile="JetUncertainties-Moriond2018-Nominal.pdf"
+    compList="LAr#,Zjet#,Gjet#,MJB#,SingleParticle#;EtaIntercalib#;Flavor_Comp#;Flavor_Resp#;Pileup#;PunchThrough_#"
+    compLabels="Absolute #it{in situ} JES;Relative #it{in situ} JES;Flav. composition;Flav. response;Pileup;Punch-through;"
+    options="isDijet=false;isGSC=true;isLargeR=false;prefix=JET_"
+}
+
+function testRel21AFII \
+{
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
+    MCtype="AFII"
+    configFile="rel21/Moriond2018/R4_AllNuisanceParameters.config"
+    outFile="JetUncertainties-rel21-R4-${MCtype}-RhoTop.pdf"
+    compList="RelativeNonClosure#;Pileup_RhoTopology"
+    compLabels="RelativeNonClosure_${MCtype};Pileup_RhoTopology"
+    options="isDijet=false;prefix=JET_"
+}
+
+function Rel20p7_EffNP1 \
+{
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC15"
+    configFile="JES_2016/Moriond2017/JES2016_AllNuisanceParameters.config;JES_2016/Moriond2017/JES2016_21NP.config"
+    outFile="JetUncertainties-rel20p7-EffNP1.pdf"
+    compList="Zjet_MC,Zjet_Veto,LAr_Jvt@EffectiveNP_1"
+    compLabels="Zjet (MC+Veto) + LAr JVT@EffectiveNP_1"
+    options="isDijet=false;prefix=JET_;fixedEtaVals=0;fixedPtVals=40;drawTotal=false"
+}
+
+function Rel20p7_EffNP2 \
+{
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC15"
+    configFile="JES_2016/Moriond2017/JES2016_AllNuisanceParameters.config;JES_2016/Moriond2017/JES2016_21NP.config"
+    outFile="JetUncertainties-rel20p7-EffNP2.pdf"
+    compList="LAr_ESZee,Gjet_Generator,INV__Gjet_Purity@EffectiveNP_2"
+    compLabels="#gamma+jet (Generator-Purity) + LAr ES(Zee)@EffectiveNP_2"
+    options="isDijet=false;prefix=JET_;fixedEtaVals=0;fixedPtVals=40;drawTotal=false"
+}
+
+function Rel21_EffNP1 \
+{
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC16"
+    CalibArea="CalibArea-02"
+    configFile="rel21/Moriond2018/R4_AllNuisanceParameters.config;rel21/Moriond2018/R4_GlobalReduction.config"
+    outFile="JetUncertainties-rel21-EffNP1.pdf"
+    compList="Zjet_MC,Zjet_Veto,Zjet_JVT@EffectiveNP_1"
+    compLabels="Zjet MC+JVT+Veto@EffectiveNP_1"
+    options="isDijet=false;prefix=JET_;fixedEtaVals=0;fixedPtVals=40;drawTotal=false"
+}
+
+function Rel21_EffNP2 \
+{
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC16"
+    CalibArea="CalibArea-02"
+    configFile="rel21/Moriond2018/R4_AllNuisanceParameters.config;rel21/Moriond2018/R4_GlobalReduction.config"
+    outFile="JetUncertainties-rel21-EffNP2.pdf"
+    compList="Gjet_GamESZee,Gjet_Generator,INV__Gjet_Purity@EffectiveNP_2"
+    compLabels="#gamma+jet ES(Zee)+Generator-Purity@EffectiveNP_2"
+    options="isDijet=false;prefix=JET_;fixedEtaVals=0;fixedPtVals=40;drawTotal=false"
+}
+
+function testDefaultNjets \
+{
+    njet=11
+
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC16"
+    CalibArea="CalibArea-03"
+    configFile="rel21/Moriond2018/R4_AllNuisanceParameters.config"
+    outFile="JetUncertainties-Njets-${njet}.pdf"
+    compList="Flavor_Response;Flavor_Composition"
+    compLabels="Flavor_Response;Flavor_Composition"
+    options="prefix=JET_;fixedEtaVals=0;fixedPtVals=40;NjetFlavour=${njet};Composition=//eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/Inputs/ANALYSISTO-370.root"
+}
+
+function testPerJetFlavour \
+{
+    label=50
+
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC16"
+    CalibArea="CalibArea-03"
+    configFile="rel21/Moriond2018/R4_AllNuisanceParameters_PerJetFlavour.config"
+    outFile="JetUncertainties-TruthLabel-${label}.pdf"
+    compList="FlavorResponse_PerJet#;Flavor_Composition"
+    compLabels="FlavorResponse_PerJet ${label};Flavor_Composition"
+    options="prefix=JET_;fixedEtaVals=0;fixedPtVals=40;TruthLabel=${label};path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/"
+}
+
+
+
 
 
 

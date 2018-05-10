@@ -28,7 +28,7 @@ namespace Trig {
   public:
 
     /// Constructor with signature name 
-    TrigBtagEmulationChain(const std::vector<std::string>& chainDefinition, ToolHandle<Trig::TrigDecisionTool>& trigDec);    
+    TrigBtagEmulationChain(MsgStream&,const std::vector<std::string>& chainDefinition, ToolHandle<Trig::TrigDecisionTool>& trigDec);    
 
     /// Trigger decision ingredient definition
     void addDecisionIngredient(const std::string&);
@@ -41,7 +41,7 @@ namespace Trig {
     bool isPassed();
 
     // Dump
-    void Print();
+    void print();
 
     // Utilities
     bool hasFeature(const std::string&);
@@ -61,6 +61,9 @@ namespace Trig {
     std::vector< std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient > > processL1trigger (std::string);
     std::vector< std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient > > processHLTtrigger (std::string);
 
+    MsgStream& msg() const;
+    MsgStream& msg( const MSG::Level lvl ) const;
+
   private:
     // Chain name
     std::string m_name;
@@ -74,6 +77,8 @@ namespace Trig {
 
     bool m_correctlyConfigured;
     bool m_autoConfigured;
+
+    MsgStream &m_msg;
   };
 
 } //namespace

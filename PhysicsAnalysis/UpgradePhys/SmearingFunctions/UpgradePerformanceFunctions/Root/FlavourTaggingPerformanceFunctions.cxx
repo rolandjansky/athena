@@ -6,6 +6,7 @@
 #define FLAVOURTAGGINGPERFORMANCEFUNCTIONS_CXX
 
 #include "UpgradePerformanceFunctions/UpgradePerformanceFunctions.h"
+#include "PathResolver/PathResolver.h"
 
 #include <map>
 #include <iterator>
@@ -18,20 +19,10 @@ using std::map;
 
 #ifdef XAOD_STANDALONE
 // Framework include(s):
-#include "PathResolver/PathResolver.h"
 #include "CalibrationDataInterface/CalibrationDataContainer.h"
 #endif // XAOD_STANDALONE
 
-void UpgradePerformanceFunctions::setFlavourTaggingCalibrationFilename(TString flavourTaggingCalibrationFilename) {
-  ATH_MSG_INFO("Flavour tagging histogram input filename is " << flavourTaggingCalibrationFilename);
-  std::string file = flavourTaggingCalibrationFilename.Data();
-#ifdef XAOD_STANDALONE
-  // Get file from data path
-  file = PathResolverFindCalibFile(file);
-  ATH_MSG_INFO("Found flavour tagging histogram file: " << file);
-#endif // XAOD_STANDALONE
-  m_flavourTaggingCalibrationFilename = file;
-}
+namespace Upgrade {
 
 float UpgradePerformanceFunctions::getFlavourTagEfficiency(float ptMeV, float eta, char flavour, TString tagger, int operating_point, bool track_confirmation) {
   double ptGeV = ptMeV / 1000.;
@@ -50,7 +41,7 @@ float UpgradePerformanceFunctions::getFlavourTagEfficiency(float ptMeV, float et
   //Run2 settings
   if (m_layout == UpgradePerformanceFunctions::UpgradeLayout::run2) {
 
-    std::string calibFile = m_flavourTaggingCalibrationFilename.Data();
+    std::string calibFile = PathResolverFindCalibFile(m_flavourTaggingCalibrationFilename);
     auto ff = std::unique_ptr<TFile> {TFile::Open(calibFile.c_str())};
 
     static TH2D* fEffs[16] = {0};   // {60,70,77,85} * {B,C,T,L}
@@ -142,7 +133,7 @@ float UpgradePerformanceFunctions::getFlavourTagEfficiency(float ptMeV, float et
   if (funmap_iter == funmap.end()) {
     // add new parameterization
     if (ff == 0) {
-      std::string calibFile = m_flavourTaggingCalibrationFilename.Data();
+      std::string calibFile = PathResolverFindCalibFile(m_flavourTaggingCalibrationFilename);
       std::cout << "Opening " << calibFile << std::endl;
       ff = new TFile(calibFile.c_str(), "READ");
     }
@@ -187,6 +178,8 @@ float UpgradePerformanceFunctions::getFlavourTagEfficiency(float ptMeV, float et
   else if (flavour == 'P') eff = (*funPtr)[3]->Eval(ptGeV, fabs(eta));
 
   return eff * highpt_factor;
+}
+
 }
 
 #endif

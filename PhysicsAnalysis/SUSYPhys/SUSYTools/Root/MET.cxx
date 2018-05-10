@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to <OBJECT>
@@ -206,10 +206,10 @@ StatusCode SUSYObjDef_xAOD::GetTrackMET(xAOD::MissingETContainer &met,
 
   if (!isData()) {
     ATH_MSG_VERBOSE("Apply MET systematics");
-    if ( m_metSystTool->applyCorrection(*met[softTerm],
-                                        metMap) != CP::CorrectionCode::Ok ) {
-      ATH_MSG_WARNING("GetMET: Failed to apply MET track systematics.");
-    }
+    if ( m_metSystTool->applyCorrection(*met[softTerm],metMap) != CP::CorrectionCode::Ok ) 
+      ATH_MSG_WARNING("GetMET: Failed to apply MET track (PVSoftTrk) systematics.");
+    if ( m_metSystTool->applyCorrection(*met[m_jetTerm],metMap) != CP::CorrectionCode::Ok ) 
+      ATH_MSG_WARNING("GetMET: Failed to apply MET track (RefJet) systematics.");
   }
 
   ATH_MSG_VERBOSE("Build MET sum");

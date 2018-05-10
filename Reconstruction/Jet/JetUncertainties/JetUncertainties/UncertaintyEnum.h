@@ -124,7 +124,8 @@ namespace FlavourComp
         UNKNOWN=0,      // Failure/unset/etc
         Response,       // Flavour response
         Composition,    // Flavour compositon
-        bJES            // bJES response
+        bJES,           // bJES response
+        PerJetResponse  // Per-jet flavour response
     };
     TString enumToString(const TypeEnum type);
     TypeEnum stringToEnum(const TString type);
