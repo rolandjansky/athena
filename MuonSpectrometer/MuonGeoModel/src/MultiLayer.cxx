@@ -564,8 +564,6 @@ GeoFullPhysVol* MultiLayer::build()
       for (int i = 0; i < nrOfLayers; i++) {
 	if (verbose_multilayer) std::cout<<"Tube Layers n. "<<i<<std::endl;
         tstart = -mdtthickness/2. + yy[i];
-        int extraTube = 0;
-        if (xx[i] < tubePitch - 1.0) extraTube = 1;
         double loffset = 0.;
         int nttot = 0;
         bool nextTimeSubtract = false;
