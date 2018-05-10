@@ -1076,6 +1076,10 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 
 	// workaround to "fix" broken element links in data
 
+	// skip bad taus which have been discarded
+	if(pContainer->size()==0)
+	  return HLT::OK;
+
 	static SG::AuxElement::Accessor< xAOD::TauJet::JetLink_t > jetAcc( "jetLink" );
 	jetAcc( *p_tau ).toPersistent();
 
