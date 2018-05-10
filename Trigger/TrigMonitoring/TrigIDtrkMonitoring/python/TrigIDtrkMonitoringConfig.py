@@ -468,11 +468,14 @@ def TrigIDtrkMonitoringTool():
 		# tidabase.OutputLevel = DEBUG
 		tidaftk.ntupleChainNames += [
 			"Offline",
-			#jets
-			"HLT_j.*perf_.*FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit",
-			"HLT_j.*perf_.*FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig",
-			"HLT_j.*perf_.*FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK",
-			"HLT_j.*perf_.*FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig",
+			# full scan analysis
+                       ":key=FTK_TrackParticleContainer",
+                       ":key=FTK_TrackParticleContainerRefit",
+			#jets			
+			"HLT_j.*perf_.*FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit:roi=SplitJet",
+			"HLT_j.*perf_.*FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig:roi=SplitJet",
+			"HLT_j.*perf_.*FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK:roi=SplitJet",
+			"HLT_j.*perf_.*FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig:roi=SplitJet",
 			#taus
 			"HLT_tau.*idperf_.*FTK:key=InDetTrigTrackingxAODCnv_Tau_FTK",
                         "HLT_tau.*idperf_.*FTK:key=InDetTrigTrackingxAODCnv_Tau_FTK_IDTrig",

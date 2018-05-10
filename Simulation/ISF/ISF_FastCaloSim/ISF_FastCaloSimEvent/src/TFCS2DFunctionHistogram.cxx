@@ -31,7 +31,10 @@ void TFCS2DFunctionHistogram::Initialize(TH2* hist)
       float binval=hist->GetBinContent(ix,iy);
       if(binval<0) {
         //Can't work if a bin is negative, forcing bins to 0 in this case
-        std::cout<<"ERROR: bin content is negative in histogram "<<hist->GetName()<<" : "<<hist->GetTitle()<<std::endl;
+        double fraction=binval/hist->Integral();
+        if(TMath::Abs(fraction)>1e-5) {
+          std::cout<<"WARNING: bin content is negative in histogram "<<hist->GetName()<<" : "<<hist->GetTitle()<<" binval="<<binval<<" "<<fraction*100<<"% of integral="<<hist->Integral()<<". Forcing bin to 0."<<std::endl;
+        }  
         binval=0;
       }
       integral+=binval;

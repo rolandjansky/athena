@@ -55,6 +55,7 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "FTK_RecToolInterfaces/IFTK_DuplicateTrackRemovalTool.h"
 #include "FTK_RecToolInterfaces/IFTK_VertexFinderTool.h"
+#include "TrkVertexFitterInterfaces/IVertexCollectionSortingTool.h"
 #include "FTK_DataProviderInterfaces/IFTK_UncertaintyTool.h"
 
 #include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
@@ -79,12 +80,17 @@
 using Gaudi::Units::micrometer;
 using namespace InDet;
 
+using Amg::Vector3D;
+
+
 namespace {
   inline double square(const double x){
     return x*x;
   }
   const double ONE_TWELFTH = 1./12.;
 }
+
+
 
 FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* svc):
   AthService(name, svc),
@@ -101,6 +107,7 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   m_trackSumTool("Trk::TrackSummaryTool"),
   m_particleCreatorTool("Trk::ParticleCreatorTool"),
   m_VertexFinderTool("InDet::InDetIterativePriVxFinderTool"),
+  m_VertexCollectionSortingTool ("Trk::VertexCollectionSortingTool"),
   m_RawVertexFinderTool("FTK_VertexFinderTool"),
   m_ROTcreator("Trk::IRIO_OnTrackCreator/FTK_ROTcreatorTool"),
   m_DuplicateTrackRemovalTool("FTK_DuplicateTrackRemovalTool"),
@@ -152,7 +159,9 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   m_dPhiCut(0.4),
   m_dEtaCut(0.6),
   m_nErrors(0),
-  m_reverseIBLlocx(false)
+  m_reverseIBLlocx(false),
+  m_doVertexing(true),
+  m_doVertexSorting(true)
 {
 
   declareProperty("TrackCollectionName",m_trackCacheName);
@@ -166,6 +175,8 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   declareProperty("VertexFinderTool",m_VertexFinderTool);
   declareProperty("ROTcreatorTool",m_ROTcreator);
   declareProperty("RawVertexFinderTool",m_RawVertexFinderTool);
+  declareProperty("VertexCollectionSortingTool",m_VertexCollectionSortingTool );
+  declareProperty("doVertexSorting",m_doVertexSorting );
   declareProperty("doTruth",m_doTruth);
   declareProperty("PixelTruthName",m_ftkPixelTruthName);
   declareProperty("SctTruthName",m_ftkSctTruthName);
@@ -191,6 +202,7 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   declareProperty("setBroadSCT_ClusterOnTrackErrors",m_broadSCT_Errors);
   declareProperty("RemoveDuplicates",m_remove_duplicates);
   declareProperty("ReverseIBLlocX",m_reverseIBLlocx, "reverse the direction of IBL locX from FTK");
+  declareProperty("DoVertexing",m_doVertexing, "Enable Vertexing methods");
 
 
 }
@@ -251,12 +263,20 @@ StatusCode FTK_DataProviderSvc::initialize() {
   ATH_CHECK(m_trackSumTool.retrieve());
   ATH_MSG_INFO( " getting particleCreatorTool tool with name " << m_particleCreatorTool.name());
   ATH_CHECK(m_particleCreatorTool.retrieve());
-  ATH_MSG_INFO( " getting vertexFinderTool tool with name " << m_VertexFinderTool.name());
-  ATH_CHECK(m_VertexFinderTool.retrieve());
+  if (m_doVertexing) {
+    ATH_MSG_INFO( " getting FTK_RawTrackVertexFinderTool tool with name " << m_RawVertexFinderTool.name());
+    ATH_CHECK(m_RawVertexFinderTool.retrieve());
+    ATH_MSG_INFO( " getting vertexFinderTool tool with name " << m_VertexFinderTool.name());
+    ATH_CHECK(m_VertexFinderTool.retrieve());
+    if (m_doVertexSorting) { 
+      ATH_MSG_INFO( " getting vertexCollectionSortingTool tool with name " << m_VertexCollectionSortingTool.name());
+      ATH_CHECK(m_VertexCollectionSortingTool.retrieve());
+    }
+  } else {
+    ATH_MSG_INFO( " Vertex Finding is Disabled");
+  }
   ATH_MSG_INFO( " getting DuplicateTrackRemovalTool tool with name " << m_DuplicateTrackRemovalTool.name());
   ATH_CHECK(m_DuplicateTrackRemovalTool.retrieve());
-  ATH_MSG_INFO( " getting FTK_RawTrackVertexFinderTool tool with name " << m_RawVertexFinderTool.name());
-  ATH_CHECK(m_RawVertexFinderTool.retrieve());
   ATH_MSG_INFO( " getting ROTcreator tool with name " << m_ROTcreator.name());
   ATH_CHECK(m_ROTcreator.retrieve());
 
@@ -303,6 +323,9 @@ StatusCode FTK_DataProviderSvc::initialize() {
     m_nMissingSCTClusters.push_back(0);
   }
 
+#ifdef  FTK_useViewVector
+  ATH_MSG_INFO( "FTK_DataProviderSvc configured to use ViewVectors for storage");
+#endif
 
   return StatusCode::SUCCESS;
 
@@ -787,31 +810,48 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getFastVertices(const ftk::FTK_Track
 bool FTK_DataProviderSvc::fillVertexContainerCache(bool withRefit, xAOD::TrackParticleContainer* tps) {
 
   bool gotVertices = false;
-  if (tps->size() > 0) {
+  if (tps->size() > 1) {
     ATH_MSG_DEBUG( "fillVertexContainerCache: finding vertices from " << tps->size() << " TrackParticles ");
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> vertices = m_VertexFinderTool->findVertex(tps);
-    if (vertices.first == nullptr) return gotVertices;
 
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> theXAODContainers = m_VertexFinderTool->findVertex(tps);
+
+    ATH_MSG_DEBUG( "fillVertexContainerCache: got "<< theXAODContainers.first->size() << " vertices");
+    if (theXAODContainers.first == nullptr) return gotVertices;
+
+    xAOD::VertexContainer* myVertexContainer = 0;
+    xAOD::VertexAuxContainer* myVertexAuxContainer = 0;
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> myVxContainers = std::make_pair( myVertexContainer, myVertexAuxContainer );
+    
+    if (m_doVertexSorting) {
+      myVxContainers = m_VertexCollectionSortingTool->sortVertexContainer(*theXAODContainers.first);
+      delete theXAODContainers.first; 
+      delete theXAODContainers.second; 
+    } else {
+      myVxContainers.first = theXAODContainers.first;
+      myVxContainers.second = theXAODContainers.second;
+    }
+    if (myVxContainers.first == nullptr) return gotVertices;
+    
     std::string cacheName= m_vertexCacheName;
     if (withRefit) cacheName+="Refit";
 
-    StatusCode sc = m_storeGate->record(vertices.first, cacheName);
+    StatusCode sc = m_storeGate->record(myVxContainers.first, cacheName);
     if (sc.isFailure()) {
       ATH_MSG_DEBUG( "fillVertexContainerCache: Failed to record VertexCollection " << cacheName );
-      delete(vertices.first);
-      delete(vertices.second);
+      delete(myVxContainers.first);
+      delete(myVxContainers.second);
       return gotVertices;
     }
-    sc = m_storeGate->record(vertices.second, cacheName+"Aux.");
+    sc = m_storeGate->record(myVxContainers.second, cacheName+"Aux.");
     if (sc.isFailure()) {
       ATH_MSG_DEBUG( "fillVertexContainerCache: Failed to record VertexAuxCollection " << cacheName );
-      delete(vertices.second);
+      delete(myVxContainers.second);
       return gotVertices;
     }
     if (withRefit) {
-      m_refit_vertex = vertices.first;
+      m_refit_vertex = myVxContainers.first;
     } else {
-      m_conv_vertex = vertices.first;
+      m_conv_vertex = myVxContainers.first;
     }
     gotVertices=true;
   }
@@ -827,7 +867,8 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getVertexContainer(const bool withRe
    xAOD::VertexContainer* userVertex = new xAOD::VertexContainer(SG::VIEW_ELEMENTS);
 #endif
 
-  if (fillTrackParticleCache(withRefit).isFailure()) {
+
+   if ((!m_doVertexing) || fillTrackParticleCache(withRefit).isFailure()) {
 
     // must always create a VertexContainer in StroreGate
 
@@ -883,7 +924,7 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getVertexContainer(const bool withRe
 
 StatusCode FTK_DataProviderSvc::getVertexContainer(xAOD::VertexContainer* userVertex, const bool withRefit){
 
-  if (fillTrackParticleCache(withRefit).isFailure()) {
+  if ((!m_doVertexing) || fillTrackParticleCache(withRefit).isFailure()) {
     // must always create a VertexContainer in StroreGate
     
     std::string cacheName= m_vertexCacheName;
@@ -1423,21 +1464,22 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
       m_nMissingPixelClusters[cluster_number]++;
       continue;
     }
-    if (raw_pixel_cluster.getModuleID()==0){
-      ATH_MSG_DEBUG( "hashId is " << raw_pixel_cluster.getModuleID() << " Layer " << cluster_number << " getWordA() "
-          << raw_pixel_cluster.getWordA() << " getWordB() " << raw_pixel_cluster.getWordB() );
-    }
-    const Trk::RIO_OnTrack* pixel_cluster_on_track = createPixelCluster(raw_pixel_cluster,*trkPerigee);
-    if (pixel_cluster_on_track==nullptr){
-      ATH_MSG_WARNING(" PixelClusterOnTrack failed to create cluster " << cluster_number);
+    if (raw_pixel_cluster.getModuleID()>=m_pixelId->wafer_hash_max()){
+      ATH_MSG_DEBUG( "hashId is " << raw_pixel_cluster.getModuleID() << " MaxHash is " << m_pixelId->wafer_hash_max() << " Layer " << cluster_number);
       m_nFailedPixelClusters[cluster_number]++;
     } else {
-
-      clusters.push_back(pixel_cluster_on_track);
-
-      ATH_MSG_VERBOSE(cluster_number << ": r= " << std::sqrt(std::pow(pixel_cluster_on_track->globalPosition().x(),2)+pow(pixel_cluster_on_track->globalPosition().y(),2))
-		      << " z= " << pixel_cluster_on_track->globalPosition().z() << " phi " << pixel_cluster_on_track->globalPosition().phi() 
-		      << " eta= " << pixel_cluster_on_track->globalPosition().eta());
+      const Trk::RIO_OnTrack* pixel_cluster_on_track = createPixelCluster(raw_pixel_cluster,*trkPerigee);
+      if (pixel_cluster_on_track==nullptr){
+	ATH_MSG_WARNING(" PixelClusterOnTrack failed to create cluster " << cluster_number);
+	m_nFailedPixelClusters[cluster_number]++;
+      } else {
+	
+	clusters.push_back(pixel_cluster_on_track);
+	
+	ATH_MSG_VERBOSE(cluster_number << ": r= " << std::sqrt(std::pow(pixel_cluster_on_track->globalPosition().x(),2)+pow(pixel_cluster_on_track->globalPosition().y(),2))
+			<< " z= " << pixel_cluster_on_track->globalPosition().z() << " phi " << pixel_cluster_on_track->globalPosition().phi() 
+			<< " eta= " << pixel_cluster_on_track->globalPosition().eta());
+      }
     }
       
   }	
@@ -1460,18 +1502,25 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
       m_nMissingSCTClusters[cluster_number]++;
       continue;
     }
-    const Trk::RIO_OnTrack* sct_cluster_on_track = createSCT_Cluster(raw_cluster, *trkPerigee);
 
-	
-    if (sct_cluster_on_track==nullptr){
-      ATH_MSG_WARNING(" SCT_ClusterOnTrack failed to create cluster " <<  cluster_number);
+    if (raw_cluster.getModuleID()>=m_sctId->wafer_hash_max()){
+      ATH_MSG_DEBUG( "hashId is " << raw_cluster.getModuleID() << " MaxHash is " << m_sctId->wafer_hash_max() << " Layer " << cluster_number);
       m_nFailedSCTClusters[cluster_number]++;
     } else {
+
+      const Trk::RIO_OnTrack* sct_cluster_on_track = createSCT_Cluster(raw_cluster, *trkPerigee);
       
-      ATH_MSG_VERBOSE( cluster_number << ": r= " << std::sqrt(std::pow(sct_cluster_on_track->globalPosition().x(),2)+std::pow(sct_cluster_on_track->globalPosition().y(),2))
-		       << " z= " << sct_cluster_on_track->globalPosition().z());
-	  
-      clusters.push_back(sct_cluster_on_track);
+      
+      if (sct_cluster_on_track==nullptr){
+	ATH_MSG_WARNING(" SCT_ClusterOnTrack failed to create cluster " <<  cluster_number);
+	m_nFailedSCTClusters[cluster_number]++;
+      } else {
+	
+	ATH_MSG_VERBOSE( cluster_number << ": r= " << std::sqrt(std::pow(sct_cluster_on_track->globalPosition().x(),2)+std::pow(sct_cluster_on_track->globalPosition().y(),2))
+			 << " z= " << sct_cluster_on_track->globalPosition().z());
+	
+	clusters.push_back(sct_cluster_on_track);
+      }
     }
   }
   
