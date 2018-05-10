@@ -57,11 +57,9 @@ namespace
 #else
   const char* btagAlgDefault = "MV2c10";
   const std::string bTagCalibFile =
-    "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-04-24_v1.root";
+    "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root";
   const char *jesFile = "JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config";
   const char *jesFile_AFII = "JES_MC16Recommendation_AFII_EMTopo_April2018_rel21.config";
-  const char *jesFile_pflow = "JES_data2017_2016_2015_Recommendation_PFlow_Feb2018_rel21.config";
-  const char *jesFile_pflow_AFII = "JES_MC16Recommendation_AFII_PFlow_April2018_rel21.config";
   const std::string uncertConfigFile = "rel21/Moriond2018/R4_StrongReduction_Scenario1.config";
   const char *mcType = "MC16";
 #endif
@@ -133,9 +131,7 @@ namespace ana
     const std::string calibSeq = m_isData ? "JetArea_Residual_Origin_EtaJES_GSC_Insitu"
                                           : "JetArea_Residual_Origin_EtaJES_GSC";
 #else
-    const std::string configFile = jetCollection.find("PFlow")!=std::string::npos ? 
-                                   (m_isAFII ? jesFile_pflow_AFII : jesFile_pflow)
-                                  :(m_isAFII ? jesFile_AFII : jesFile);
+    const std::string configFile = m_isAFII ? jesFile_AFII : jesFile;
 
     const std::string calibSeq = m_isData ? "JetArea_Residual_EtaJES_GSC_Insitu"
                                           : "JetArea_Residual_EtaJES_GSC";
@@ -292,7 +288,7 @@ namespace ana
     // We only clean, by default, jets that might've passed our JVT selection.
     // This is too hard-coded, ugly.
     bool is_clean = ( jet.pt() < 20.*GeV || (jet.pt()<60.*GeV && !jvt_pass) ||
-                      m_cleaning_tool->keep(jet) );
+                   m_cleaning_tool->keep(jet) );
     cut_cleaning_tool.setPassedIf ( is_clean );
 
     // Also decorate the jet with the information, so that
@@ -523,10 +519,6 @@ namespace ana
 
   QUICK_ANA_JET_DEFINITION_MAKER ("antikt04_HZZ",
     makeJetTool (args, "AntiKt4EMTopoJets", SelectionStep::ANALYSIS,
-                 "FixedCutBEff_85"))
-
-  QUICK_ANA_JET_DEFINITION_MAKER ("pflow_HZZ",
-    makeJetTool (args, "AntiKt4EMPFlowJets", SelectionStep::ANALYSIS,
                  "FixedCutBEff_85"))
 
   QUICK_ANA_JET_DEFINITION_MAKER( "AntiKt4EMTopo_SUSY",

@@ -475,6 +475,11 @@ HIGG8D1SlimmingHelper.ExtraVariables = ["Muons.clusterLink.allAuthors.charge.ext
                                         "PrimaryVertices.x.y"                                        
                                         ]
 
+#Adding Egamma details
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+HIGG8D1SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
+
+
 HIGG8D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 HIGG8D1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
 

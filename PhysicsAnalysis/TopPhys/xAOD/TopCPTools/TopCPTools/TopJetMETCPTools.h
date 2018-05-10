@@ -8,6 +8,7 @@
 // Include what you use
 #include <vector>
 #include <string>
+#include <cstdlib>
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"

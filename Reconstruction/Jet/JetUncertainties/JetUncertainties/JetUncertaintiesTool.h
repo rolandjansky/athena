@@ -66,6 +66,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         virtual std::string getConfigFile()     const { return m_configFile;   }
         virtual std::string getPath()           const { return m_path;         }
         virtual std::string getAnalysisFile()   const { return m_analysisFile; }
+        virtual std::string getAnalysisHistPattern() const { return m_analysisHistPattern; }
         virtual std::string getDefaultAnaFile() const { return m_defAnaFile;   }
         virtual float       getSqrtS()          const;
 
@@ -177,6 +178,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         std::string m_calibArea;
         std::string m_path;
         std::string m_analysisFile;
+        std::string m_analysisHistPattern;
         std::vector<std::string> m_systFilters;
         bool m_flavourJetByJet;
 
