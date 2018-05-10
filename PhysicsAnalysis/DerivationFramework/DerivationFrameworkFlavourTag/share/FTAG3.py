@@ -8,14 +8,14 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+#from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets,addDefaultTrimmedJets
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool,DerivationFramework__xAODStringSkimmingTool
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 
@@ -31,7 +31,7 @@ FTAG3Seq = CfgMgr.AthSequencer("FTAG3Sequence");
 # Create skimming tool, and create + add kernel to sequence
 #====================================================================
 triggers = []
-#mu-jet triggers without online b-tagging information
+#2016 mu-jet triggers without online b-tagging information
 triggers.append("HLT_mu4_j15_dr05")
 triggers.append("HLT_mu4_j25_dr05")
 triggers.append("HLT_mu4_j35_dr05")
@@ -40,7 +40,7 @@ triggers.append("HLT_mu6_j85_dr05")
 triggers.append("HLT_mu6_j110_dr05")
 triggers.append("HLT_mu6_j150_dr05")
 triggers.append("HLT_mu6_j175_dr05")
-#mu-jet triggers with online b-tagging information
+#2016 menu mu-jet triggers with online b-tagging information
 triggers.append("HLT_mu4_j15_bperf_split_dr05_dz02")
 triggers.append("HLT_mu4_j25_bperf_split_dr05_dz02")
 triggers.append("HLT_mu4_j35_bperf_split_dr05_dz02")
@@ -49,15 +49,36 @@ triggers.append("HLT_mu6_j85_bperf_split_dr05_dz02")
 triggers.append("HLT_mu6_j110_bperf_split_dr05_dz02")
 triggers.append("HLT_mu6_j150_bperf_split_dr05_dz02")
 triggers.append("HLT_mu6_j175_bperf_split_dr05_dz02")
+#2018 additional mu-jet triggers
+triggers.append("HLT_mu4_j15_boffperf_split_dr05_dz02")
+triggers.append("HLT_mu4_j15_gsc35_boffperf_split_dr05_dz02")
+triggers.append("HLT_mu4_j25_boffperf_split_dr05_dz02")
+triggers.append("HLT_mu4_j35_boffperf_split_dr05_dz02")
+triggers.append("HLT_mu4_j35_gsc55_boffperf_split_dr05_dz02")
+triggers.append("HLT_mu6_j60_gsc110_boffperf_split_dr05_dz02")
+triggers.append("HLT_mu6_j60_gsc85_boffperf_split_dr05_dz02")
+triggers.append("HLT_mu6_j110_gsc150_boffperf_split_dr05_dz02") 
+triggers.append("HLT_mu6_j110_gsc150_bperf_split_dr05_dz02")
+triggers.append("HLT_mu6_j150_gsc175_boffperf_split_dr05_dz02")
+triggers.append("HLT_mu6_j175_gsc260_boffperf_split_dr05_dz02")
 
-FTAG3TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "FATG3TriggerSkimmingTool",
+if globalflags.DataSource()=='data':
+    # muon-in-jet triggers are buggy in MC, so only apply them in data
+    FTAG3TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "FTAG3TriggerSkimmingTool",
                                                                     TriggerListOR = triggers )
-ToolSvc += FTAG3TriggerSkimmingTool
-print FTAG3TriggerSkimmingTool
+    ToolSvc += FTAG3TriggerSkimmingTool
+    print FTAG3TriggerSkimmingTool
+    FTAG3Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG3SkimKernel",
+                                                         SkimmingTools = [FTAG3TriggerSkimmingTool] )
 
-FTAG3Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG3SkimKernel",
-                                                         SkimmingTools = [FTAG3TriggerSkimmingTool],
-                                                         )
+if globalflags.DataSource()!='data':
+    # since we aren't using a trigger skim, apply a muon pT cut to avoid gigantic dijet samples
+    FTAG3StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "FTAG3StringSkimmingTool",
+                                  expression = 'count( (Muons.pt > 4*GeV) && (Muons.DFCommonGoodMuon) )  >= 1')
+    ToolSvc += FTAG3StringSkimmingTool
+    print FTAG3StringSkimmingTool
+    FTAG3Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG3SkimKernel",
+                                                             SkimmingTools = [FTAG3StringSkimmingTool] )
 
 #====================================================================
 # TRUTH SETUP
@@ -162,10 +183,8 @@ FTAG3SlimmingHelper.IncludeBJetTriggerContent = True
 
 #FTAG3 TrigNav Thinning
 FTAG3ThinningHelper = ThinningHelper( "FTAG3ThinningHelper" )
-FTAG3ThinningHelper.TriggerChains = 'HLT_mu*_j.*_dr05|HLT_mu*_j.*_bperf_split_dr05_dz02'
+FTAG3ThinningHelper.TriggerChains = 'HLT_mu*_j.*_dr05|HLT_mu*_j.*_bperf_split_dr05_dz02|HLT_mu*_j.*_boffperf_split_dr05_dz02|HLT_mu*_j.*_gsc.*_dr05_dz02'
 FTAG3ThinningHelper.AppendToStream( FTAG3Stream )
 
-
 FTAG3SlimmingHelper.AppendContentToStream(FTAG3Stream)
-
 
