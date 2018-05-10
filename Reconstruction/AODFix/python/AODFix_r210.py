@@ -63,6 +63,9 @@ class AODFix_r210(AODFix_base):
                 self.btagging_postSystemRec(topSequence)
                 pass
 
+            if "tauid" not in oldMetadataList:
+                self.tauid_postSystemRec(topSequence)
+                pass
 
             # Reset all of the ElementLinks. To be safe.
             from AthenaCommon import CfgMgr
@@ -163,3 +166,34 @@ class AODFix_r210(AODFix_base):
     def phIso_postSystemRec (self, topSequence):
         from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter               
         isoAODFixGetter("Photons")        
+
+
+    def tauid_postSystemRec(self, topSequence):
+        from AthenaCommon.AppMgr import ToolSvc
+        from JetRec.JetRecConf import JetAlgorithm
+        from JetRecTools.JetRecToolsConf import CaloClusterConstituentsOrigin
+        from JetRecTools.JetRecToolsConf import JetConstituentModSequence
+
+        # Rebuild LCOriginTopoClusters container
+        xAOD_Type_CaloCluster = 1
+
+        clusterOrigin = CaloClusterConstituentsOrigin(
+            "CaloClusterConstitOrigin_tau_AODFix",
+            InputType=xAOD_Type_CaloCluster)
+        ToolSvc += clusterOrigin
+
+        jetConstitModSeq = JetConstituentModSequence(
+            "JetConstitModSeq_tau_AODFix",
+            InputContainer="CaloCalTopoClusters",
+            OutputContainer="LCOriginTopoClusters",
+            InputType=xAOD_Type_CaloCluster,
+            Modifiers=[clusterOrigin]
+        )
+        ToolSvc += jetConstitModSeq
+
+        jetAlg = JetAlgorithm("jetalgTCOriginLC", Tools=[jetConstitModSeq])
+        topSequence += jetAlg
+
+        # Calculate RNN-ID and set working points
+        from tauRec.TauRecAODBuilder import TauRecAODProcessor_RNN_ID
+        TauRecAODProcessor_RNN_ID()

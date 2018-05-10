@@ -187,4 +187,75 @@ class TauRecAODPi0Processor ( TauRecConfigured ) :
         return self._TauProcessorHandle
 
 
+class TauRecAODProcessor_RNN_ID ( TauRecConfigured ) :
+    """Calculate remaining Tau variables and properties. Use informations available also in AODs, so no cell level is needed."""
+
+    _outputType = "xAOD::TauJetContainer"
+    _outputKey = "TauJets"
+    _outputDetailsType = "xAOD::TauJetAuxContainer"
+    _outputDetailsKey = "TauJetsAux."
+
+    def __init__(self, name = "TauProcessorAODTools_RNN_ID"):
+        TauRecConfigured.__init__(self, name)
+
+    def configure(self):
+        mlog = logging.getLogger ('TauRecAODProcessor_RNN_ID::configure:')
+        mlog.info('entering')
+
+        import tauRec.TauAlgorithmsHolder as taualgs
+        ########################################################################
+        # Tau Modifier Algos
+        ########################################################################
+        try:
+            from tauRecTools.tauRecToolsConf import TauProcessorTool
+            #TauProcessor.OutputLevel = 2
+            self._TauProcessorHandle = TauProcessorTool(
+                name = self.name,
+                TauContainer                 = self._outputKey,
+                TauAuxContainer              = self._outputDetailsKey,
+                deepCopyChargedPFOContainer  = False,
+                deepCopyHadronicPFOContainer = False,
+                deepCopyNeutralPFOContainer  = False,
+                runOnAOD                     = True,
+                )
+
+        except Exception:
+            mlog.error("could not get handle to TauProcessor")
+            print traceback.format_exc()
+            return False
+
+        tools = []
+        try:
+            taualgs.setAODmode(True)
+            ## ATTENTION ##################################################################################
+            # running these tau tools on AODs will lead to inconsistency with standard tau reconstruction
+            ###############################################################################################
+
+            # Calculate the RNN scores
+            tools.append(taualgs.getTauJetRNNEvaluator(
+                suffix="TauJetRNN",
+                NetworkFile1P="rnnid_prelim_config_deep_1p.json",
+                NetworkFile3P="rnnid_prelim_config_deep_3p.json",
+                OutputVarname="RNNJetScore", MaxTracks=10, MaxClusters=6))
+
+            # Decorate working points
+            tools.append(taualgs.getTauWPDecoratorJetRNN())
+
+            TauRecConfigured.AddToolsToToolSvc(self, tools)
+            self.TauProcessorHandle().Tools = tools
+
+        except Exception:
+            mlog.error("could not append tools to TauProcessor")
+            print traceback.format_exc()
+            return False
+
+        TauRecConfigured.WrapTauRecToolExecHandle(self, tool=self.TauProcessorHandle())
+        return True
+
+    #############################################################################################
+    # Helpers
+    #############################################################################################
+
+    def TauProcessorHandle(self):
+        return self._TauProcessorHandle
 
