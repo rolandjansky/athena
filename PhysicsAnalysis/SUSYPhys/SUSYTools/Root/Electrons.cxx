@@ -174,10 +174,27 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
     return StatusCode::FAILURE;
   }
 
-  if ( !m_elecSelLikelihoodBaseline->accept(&input) )
-    if( !m_force_noElId )
-      return StatusCode::SUCCESS;
-  
+  std::string eleIdBaseline = "DFCommonElectronsLH";
+  eleIdBaseline += TString(m_eleIdBaseline).ReplaceAll("LooseAndBLayer","LooseBL").ReplaceAll("LLH","").Data();
+
+  if (m_eleIdExpert) {
+    if ( !m_elecSelLikelihoodBaseline->accept(&input) )
+      if ( !m_force_noElId )
+        return StatusCode::SUCCESS;
+  } else {
+    try {
+      // let's use DFCommonXXX if available
+      if ( !input.auxdata<char>(eleIdBaseline) ) 
+        if ( !m_force_noElId )
+          return StatusCode::SUCCESS;
+    }
+    catch (const SG::ExcBadAuxVar&) {
+      ATH_MSG_VERBOSE ("DFCommonElectronsLHxxx variables are not found. Calculating the ID from LH tool..");
+      if ( !m_elecSelLikelihoodBaseline->accept(&input) )
+        if ( !m_force_noElId )
+          return StatusCode::SUCCESS;
+    }
+  }
   //baseline ID decoration for TauEl OR
   //dec_passBaseID(input) = true;
 
@@ -236,7 +253,21 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
 {
   dec_passSignalID(input) = false;
   
-  if ( !m_elecSelLikelihood.empty() && m_elecSelLikelihood->accept(&input) ) dec_passSignalID(input) = true;
+  std::string eleId = "DFCommonElectronsLH";
+  eleId += TString(m_eleId).ReplaceAll("LooseAndBLayer","LooseBL").ReplaceAll("LLH","").Data();
+  
+  if (m_eleIdExpert) {
+    if ( !m_elecSelLikelihood.empty() && m_elecSelLikelihood->accept(&input) ) dec_passSignalID(input) = true;
+  } else {
+    try{
+      // let's use DFCommonXXX if available
+      if ( input.auxdata<char>(eleId) ) dec_passSignalID(input) = true;
+    }
+    catch(const SG::ExcBadAuxVar&){
+      ATH_MSG_VERBOSE ("DFCommonElectronsLHxxx variables are not found. Calculating the ID from LH tool..");
+      if ( !m_elecSelLikelihood.empty() && m_elecSelLikelihood->accept(&input) ) dec_passSignalID(input) = true;
+    }
+  }
 
   //overwrite ID selection if forced by user
   if(m_force_noElId) dec_passSignalID(input) = true;

@@ -116,6 +116,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_metUseGhostMuons(false),
     m_metDoMuonEloss(false),
     m_metGreedyPhotons(false),
+    m_metVeryGreedyPhotons(false),
     m_metsysConfigPrefix(""),
     m_softTermParam(met::Random),
     m_treatPUJets(true),
@@ -129,6 +130,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_electronTriggerSFStringSingle(""),
     m_eleId(""),
     m_eleIdBaseline(""),
+    m_eleIdExpert(false),
     m_muId(static_cast<int>(xAOD::Muon::Quality(xAOD::Muon::VeryLoose))),
     m_muIdBaseline(static_cast<int>(xAOD::Muon::Quality(xAOD::Muon::VeryLoose))),
     m_photonId(""),
@@ -381,6 +383,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "METUseGhostMuons",  m_metUseGhostMuons );
   declareProperty( "METDoMuonEloss",  m_metDoMuonEloss );
   declareProperty( "METDoGreedyPhotons",  m_metGreedyPhotons );
+  declareProperty( "METDoVeryGreedyPhotons",  m_metVeryGreedyPhotons );
 
 
   declareProperty( "SoftTermParam",  m_softTermParam);
@@ -1020,6 +1023,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_elez0, "Ele.z0", rEnv, 0.5);
   configFromFile(m_elebaselined0sig, "EleBaseline.d0sig", rEnv, -99.);
   configFromFile(m_elebaselinez0, "EleBaseline.z0", rEnv, 0.5);
+  configFromFile(m_eleIdExpert, "Ele.IdExpert", rEnv, "false");
   configFromFile(m_EG_corrModel, "Ele.EffNPcorrModel", rEnv, "TOTAL");
   configFromFile(m_electronTriggerSFStringSingle, "Ele.TriggerSFStringSingle", rEnv, "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0");
   configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v1/map1.txt"); 
@@ -1111,7 +1115,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
   configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "MV2c10");
   configFromFile(m_BtagWP, "Btag.WP", rEnv, "FixedCutBEff_77");
-  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root");
+  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-05-04_v1.root");
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
   //
   configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, false);
@@ -1161,6 +1165,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_metUseGhostMuons, "MET.UseGhostMuons", rEnv, false);
   configFromFile(m_metDoMuonEloss, "MET.DoMuonEloss", rEnv, false);
   configFromFile(m_metGreedyPhotons, "MET.DoGreedyPhotons", rEnv, false);
+  configFromFile(m_metVeryGreedyPhotons, "MET.DoVeryGreedyPhotons", rEnv, false);
 
   configFromFile(m_trkMETsyst, "MET.DoTrkSyst", rEnv, true);
   configFromFile(m_caloMETsyst, "MET.DoCaloSyst", rEnv, false);
@@ -1381,6 +1386,11 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
   if( !m_photonCrackVeto && m_photonBaselineCrackVeto){
     ATH_MSG_WARNING("Your photon crack removal is inconsistent!  Signal : " << m_photonCrackVeto << " while Baseline : " << m_photonBaselineCrackVeto);
     if(strict) return StatusCode::FAILURE;
+  }
+
+  // Jets
+  if ( m_jetPt < 20e3 ){
+    ATH_MSG_WARNING("Your minimum signal jet pt is less than 20 GeV! Jet.Pt : " << m_jetPt << ". This is NOT supported by the jet group!");
   }
 
   //Btagging //OR-wp looser than signal-wp?

@@ -470,6 +470,7 @@ namespace ST {
     bool m_metUseGhostMuons;
     bool m_metDoMuonEloss;
     bool m_metGreedyPhotons;
+    bool m_metVeryGreedyPhotons;
     std::string m_metsysConfigPrefix;
 
     bool m_trkMETsyst;
@@ -505,6 +506,7 @@ namespace ST {
 
     std::string m_eleId;
     std::string m_eleIdBaseline;
+    bool        m_eleIdExpert;
     int         m_muId;
     int         m_muIdBaseline;
     std::string m_photonId;
