@@ -242,7 +242,7 @@ namespace ST {
       }
       else{
         ATH_CHECK( m_jetFatCalibTool->applyCalibration(input) );
-        dec_baseline(input) = input.pt() > 20e3;
+	dec_baseline(input) = ( input.pt() > m_jetPt ) || ( input.pt() > 20e3 ); // Allows for setting m_jetPt < 20e3
         dec_bad(input) = false;
         dec_signal(input) = false;
         dec_bjet_loose(input) = false;
@@ -289,7 +289,7 @@ namespace ST {
       else this->IsBJetContinuous(input);
     }
 
-    if (input.pt() > 15e3) {
+    if ( (input.pt() > m_jetPt) || (input.pt() > 15e3) ) {
       if(!isFat){
         CP::CorrectionCode result = m_jetUncertaintiesTool->applyCorrection(input);
         switch (result) {
@@ -310,7 +310,7 @@ namespace ST {
     if ( m_jerSmearingTool->applyCorrection(input) != CP::CorrectionCode::Ok) ATH_MSG_ERROR("Failed to apply JER smearing ");
 
     dec_passJvt(input) = !m_applyJVTCut || m_jetJvtEfficiencyTool->passesJvtCut(input);
-    dec_baseline(input) = input.pt() > 20e3;
+    dec_baseline(input) = ( input.pt() > m_jetPt ) || ( input.pt() > 20e3 ); // Allows for setting m_jetPt < 20e3
     dec_bad(input) = false;
     dec_signal_less_JVT(input) = false;
     dec_signal(input) = false;
@@ -429,6 +429,8 @@ namespace ST {
     if ( !acc_passOR(input) ) return false;
 
     float ptcut = 20e3;
+    if ( m_jetPt < ptcut ) ptcut = m_jetPt;
+
     bool  isPileup = !acc_passJvt(input);
 
     if ( input.pt() <= ptcut || isPileup ) return false;

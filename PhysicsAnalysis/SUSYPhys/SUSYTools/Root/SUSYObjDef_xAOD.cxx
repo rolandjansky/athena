@@ -1111,7 +1111,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
   configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "MV2c10");
   configFromFile(m_BtagWP, "Btag.WP", rEnv, "FixedCutBEff_77");
-  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root");
+  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-05-04_v1.root");
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
   //
   configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, false);
@@ -1381,6 +1381,11 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
   if( !m_photonCrackVeto && m_photonBaselineCrackVeto){
     ATH_MSG_WARNING("Your photon crack removal is inconsistent!  Signal : " << m_photonCrackVeto << " while Baseline : " << m_photonBaselineCrackVeto);
     if(strict) return StatusCode::FAILURE;
+  }
+
+  // Jets
+  if ( m_jetPt < 20e3 ){
+    ATH_MSG_WARNING("Your minimum signal jet pt is less than 20 GeV! Jet.Pt : " << m_jetPt << ". This is NOT supported by the jet group!");
   }
 
   //Btagging //OR-wp looser than signal-wp?
