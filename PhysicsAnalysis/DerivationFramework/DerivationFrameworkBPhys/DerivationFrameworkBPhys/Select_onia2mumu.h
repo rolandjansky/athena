@@ -46,7 +46,6 @@ namespace DerivationFramework {
        *  and by the vertex thinning tool.
        */
       virtual StatusCode addBranches() const override;
-      void SetDo3d(bool t) { m_do3d = t; }
 
     private:
       void ProcessVertex(xAOD::BPhysHypoHelper&, xAOD::BPhysHelper::pv_type) const;
