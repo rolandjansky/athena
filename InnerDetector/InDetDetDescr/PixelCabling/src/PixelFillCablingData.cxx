@@ -64,7 +64,7 @@ const InterfaceID& PixelFillCablingData::interfaceID()
 StatusCode PixelFillCablingData::initialize()
 {
   StatusCode sc;
-  msg(MSG::DEBUG) << "PixelFillCablingData::initialize" <<endmsg;
+  ATH_MSG_DEBUG("PixelFillCablingData::initialize");
 
   // Get the PixelID Helper
   CHECK(detStore()->retrieve(m_idHelper,"PixelID"));
