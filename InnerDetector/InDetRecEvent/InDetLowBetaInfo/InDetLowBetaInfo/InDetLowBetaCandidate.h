@@ -15,7 +15,7 @@
 #define INDETLOWBETACANDIDATE_H
 
 #include "GaudiKernel/MsgStream.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 class MsgStream;
 
