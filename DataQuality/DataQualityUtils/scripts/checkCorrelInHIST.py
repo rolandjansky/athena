@@ -26,11 +26,11 @@
 #                        Distance to look around x/(x;y) for 1d/2d plot
 #  --histo [ARG11 [ARG11 ...]]
 #                        ROOT-file path of histograms - As many as you want
-#                        with : [type("2d" only so far)] [root path] [x] [y]
+#                        with : [type("1d" or "2d")] [root path] [x] [y]
 #                        [delta] (if not provided use global)
 #  --histoWD [ARG12 [ARG12 ...]]
 #                        Webdisplay path of histograms - As many as you want
-#                        with : [type("2d" only so far)] [root path] [x] [y]
+#                        with : [type("1d" or "2d")] [root path] [x] [y]
 #                        [delta] (if not provided use global)
 # Author : Benjamin Trocme (LPSC Grenoble) / 2017
 
@@ -70,11 +70,11 @@ parser.add_argument('-s','--stream',dest='arg4',default='Main',help="Stream with
 parser.add_argument('-t','--tag',dest='arg5',default='',help="DAQ tag: data16_13TeV, data16_cos...By default retrieve it via atlasdqm",action='store')
 parser.add_argument('-a','--amiTag',dest='arg6',default='f',help="First letter of AMI tag: x->express / f->bulk",action='store')
 parser.add_argument('-x','--globalX',type=float,dest='arg7',default='-999.',help='X region common to all histos',action='store')
-parser.add_argument('-y','--globalY',type=float,dest='arg8',default='-999.',help='Y region common to all histos',action='store')
+parser.add_argument('-y','--globalY',type=float,dest='arg8',default='-999.',help='Y region common to all histos - Only for 2d',action='store')
 parser.add_argument('-ia','--integralAbove',type=float,dest='arg9',default='-999.',help='Lower bound of integral - Not used so far',action='store')
 parser.add_argument('-d','--globalDelta',type=float,dest='arg10',default='0.15',help='Distance to look around x/(x;y) for 1d/2d plot',action='store')
-parser.add_argument('--histo',dest='arg11',default='',help='ROOT-file path of histograms - As many as you want with : [type("2d" only so far)] [root path] [x] [y] [delta] (if not provided use global)',action='store',nargs="*")
-parser.add_argument('--histoWD',dest='arg12',default='',help='Webdisplay path of histograms - As many as you want with : [type("2d" only so far)] [root path] [x] [y] [delta] (if not provided use global)',action='store',nargs="*")
+parser.add_argument('--histo',dest='arg11',default='',help='ROOT-file path of histograms - As many as you want with : [type("1d" or "2d")] [root path] [x] [y if 2d] [delta] (if not provided use global)',action='store',nargs="*")
+parser.add_argument('--histoWD',dest='arg12',default='',help='Webdisplay path of histograms - As many as you want with : [type("1d" or "2d")] [root path] [x] [y if 2d] [delta] (if not provided use global)',action='store',nargs="*")
 
 args = parser.parse_args()
 
@@ -90,7 +90,7 @@ else: # Try to retrieve the data project tag via atlasdqm
   if (not os.path.isfile("atlasdqmpass.txt")):
     print "To retrieve the data project tag, you need to generate an atlasdqm key and store it in this directory as atlasdqmpass.txt (yourname:key)"
     print "To generate a kay, go here : https://atlasdqm.cern.ch/dqauth/"
-    print "You can also define by hand the data project tag wit hthe option -t"
+    print "You can also define by hand the data project tag with the option -t"
     sys.exit()
   passfile = open("atlasdqmpass.txt")
   passwd = passfile.read().strip(); passfile.close()
@@ -127,7 +127,7 @@ else:
 
 histos = {}
 # Histograms must be necessary of this predefined type
-histoTypes = ["2d"]
+histoTypes = ["1d","2d"]
 
 
 runFilePath = "root://eosatlas.cern.ch/%s"%(pathExtract.returnEosHistPath(runNumber,stream,amiTag,tag)).rstrip()
@@ -149,6 +149,53 @@ nbHitInHot = {}
 
 for iArg in xrange(len(hArgs)): # Loop on histogram arguments
   if hArgs[iArg] in histoTypes: # I found a new histogram - Process the next arguments
+    if hArgs[iArg] == "1d": 
+      regionBins = []
+      tmp_type = hArgs[iArg]
+      tmp_path = hArgs[iArg+1]
+      if b_WebdisplayPath: # Replace the webdisplay path bythe ROOT file path
+        dqmf_config = s.get_dqmf_configs(run_spec, tmp_path) 
+        tmp_path = dqmf_config['%d'%runNumber]['annotations']['inputname']
+
+      if (iArg+2>=len(hArgs) or hArgs[iArg+2] in histoTypes): # No x,delta for this histogram choose default
+        tmp_x = globalX
+        tmp_delta = globalDelta
+        iArg = iArg +2
+      else: # Custom (x,delta) for this histogram
+        tmp_x = float(hArgs[iArg+2])
+        tmp_delta = float(hArgs[iArg+3])
+        iArg+4
+
+      histoMerged[tmp_path] = f.Get("run_%d/%s"%(runNumber,tmp_path))
+      histoMerged[tmp_path].SetTitle("%s - Run %d"%(histoMerged[tmp_path].GetTitle(),runNumber))
+
+      c[tmp_path] = TCanvas(tmp_path,tmp_path)
+      minH = histoMerged[tmp_path].GetMinimum()*0.8
+      maxH = histoMerged[tmp_path].GetMaximum()*1.2
+      histoMerged[tmp_path].SetMinimum(minH)
+      histoMerged[tmp_path].SetMaximum(maxH)
+      histoMerged[tmp_path].Draw()
+      box[tmp_path] = TBox(tmp_x-tmp_delta,minH,tmp_x+tmp_delta,maxH)
+      box[tmp_path].SetLineColor(kRed+1)
+      box[tmp_path].SetLineWidth(3)
+      box[tmp_path].SetFillStyle(0)
+      box[tmp_path].Draw()
+
+# Extract the list of bins where to count.
+# Scans the window to find all bins that fall in the window
+# The regionBins is defined for each histogram allowing different binning
+      nSteps = 1000
+      subStep = 2*tmp_delta/nSteps
+      for ix in range(nSteps):
+        iX = tmp_x - tmp_delta + ix * subStep 
+        tmp_bin = histoMerged[tmp_path].FindBin(iX)
+        if (tmp_bin not in regionBins):
+          regionBins.append(tmp_bin)
+
+      histos[tmp_path]={'type':tmp_type,'regionBins':regionBins}
+      nbHitInHot[tmp_path] = [0.] * nLB
+
+
     if hArgs[iArg] == "2d": 
       regionBins = []
       tmp_type = hArgs[iArg]
