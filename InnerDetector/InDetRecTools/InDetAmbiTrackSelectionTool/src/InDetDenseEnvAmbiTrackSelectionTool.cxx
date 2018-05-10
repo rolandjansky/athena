@@ -10,7 +10,7 @@
 #include "InDetAmbiTrackSelectionTool/InDetDenseEnvAmbiTrackSelectionTool.h"
 #include "InDetIdentifier/SiliconID.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrkTrack/Track.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
