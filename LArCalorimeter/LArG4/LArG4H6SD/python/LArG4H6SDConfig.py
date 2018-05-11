@@ -181,7 +181,7 @@ def getLArG4H62004InactiveSDTool(name="LArG4H62004InactiveSDTool", **kwargs):
 
 #---------
 def getLArG4H6WarmTCCalculator(name="LArG4H6WarmTCCalculator", **kwargs):
-    kwargs.setdefault("OOTCut", 2.5*ns)
+    kwargs.setdefault("OOTcut", 2.5*ns)
     return CfgMgr.LArG4H6WarmTCCalculator(name, **kwargs)
 
 def getLArG4H6WarmTCCalculatorWTC_X(name="LArG4H6WarmTCCalculatorWTC_X", **kwargs):
@@ -204,7 +204,7 @@ def getLArG4H6COLDTCMod0Calculator(name="LArG4H6COLDTCMod0Calculator", **kwargs)
     return CfgMgr.LArG4H6COLDTCMod0Calculator(name, **kwargs)
 
 def getFCALColdCalculator(name="FCALColdCalculator", **kwargs):
-    kwargs.setdefault("OOTCut", 10000.) #FIXME units of ns?
+    kwargs.setdefault("OOTcut", 10000.) #FIXME units of ns?
     return getLArG4H6COLDTCMod0Calculator(name, **kwargs)
 
 #----------

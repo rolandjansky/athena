@@ -142,6 +142,7 @@ function waitonallproc   {
 
 # run athena  
 
+
 function runathena { 
    timestamp  "runathena:"
 
@@ -162,6 +163,7 @@ function runathena {
      echo -e "\nrunning athena in athena-$1\n"
      athena.py  -c "$ARGS"              TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice.py  &> athena-local-$1.log
      echo "art-result: $? athena_$1"
+
 
      pwd
      ls -lt

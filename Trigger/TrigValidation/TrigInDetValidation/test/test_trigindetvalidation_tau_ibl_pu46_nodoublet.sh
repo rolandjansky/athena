@@ -142,6 +142,7 @@ function waitonallproc   {
 
 # run athena  
 
+
 function runathena { 
    timestamp  "runathena:"
 

@@ -87,6 +87,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr.MessageSvc.enableSuppression = False
 
 from AthenaCommon.AlgSequence import AlgSequence
-AlgSequence("Streams").StreamRDO.ItemList += ["InDet::PixelClusterContainer#PixelClusters"]
+topSequence = AlgSequence()
+topSequence.StreamRDO.ItemList += ["InDet::PixelClusterContainer#PixelClusters"]
 
 MessageSvc.OutputLevel = INFO #INFO

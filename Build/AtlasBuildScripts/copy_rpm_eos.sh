@@ -81,7 +81,6 @@ _retry_() {
     return 0
 }
 
-
 if [ ! -d ${DESTDIR} ] ; then 
    echo "mkdir -p ${DESTDIR}"
    _retry_ mkdir -p ${DESTDIR} 

@@ -9,30 +9,31 @@
 
 #include "TFile.h"
 #include "TMath.h"
+#include "TRandom3.h"
+#include "TH2.h"
+
 
 //=============================================
 //======= TFCSHistoLateralShapeParametrization =========
 //=============================================
 
 TFCSHistoLateralShapeParametrization::TFCSHistoLateralShapeParametrization(const char* name, const char* title) :
-  TFCSLateralShapeParametrizationHitBase(name,title),
-  m_hist(0)
+  TFCSLateralShapeParametrizationHitBase(name,title),m_nhits(0)
 {
 }
 
 TFCSHistoLateralShapeParametrization::~TFCSHistoLateralShapeParametrization()
 {
-  if(m_hist) delete m_hist;
 }
 
 int TFCSHistoLateralShapeParametrization::get_number_of_hits(TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
 {
-  return gRandom->Poisson(m_hist->Integral());
+  return gRandom->Poisson(m_nhits);
 }
 
-void TFCSHistoLateralShapeParametrization::set_number_of_hits(int nhits)
+void TFCSHistoLateralShapeParametrization::set_number_of_hits(float nhits)
 {
-  if(m_hist) m_hist->Scale(nhits/m_hist->Integral());
+  m_nhits=nhits;
 }
 
 void TFCSHistoLateralShapeParametrization::simulate_hit(Hit& hit,TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
@@ -43,17 +44,26 @@ void TFCSHistoLateralShapeParametrization::simulate_hit(Hit& hit,TFCSSimulationS
   const double center_r=0.5*( extrapol->r(cs, CaloSubPos::SUBPOS_ENT) + extrapol->r(cs, CaloSubPos::SUBPOS_EXT) );
   const double center_z=0.5*( extrapol->z(cs, CaloSubPos::SUBPOS_ENT) + extrapol->z(cs, CaloSubPos::SUBPOS_EXT) );
 
-  double alpha, r;
+  float alpha, r, rnd1, rnd2;
+  //The use of 1-gRandom->Rndm() is a fudge for TRandom3, as it gererates random numbers in (0,1], but [0,1) or (0,1) is needed. 
+  //CLHEP should generate random numbers in (0,1), so this fudge is no longer needed after migrating to CLHEP random numbers
+  rnd1=1-gRandom->Rndm(); 
+  rnd2=1-gRandom->Rndm();
+  m_hist.rnd_to_fct(alpha,r,rnd1,rnd2);
+  if(TMath::IsNaN(alpha) || TMath::IsNaN(r)) {
+    ATH_MSG_ERROR("  Histogram: "<<m_hist.get_HistoBordersx().size()-1<<"*"<<m_hist.get_HistoBordersy().size()-1<<" bins, #hits="<<m_nhits<<" alpha="<<alpha<<" r="<<r<<" rnd1="<<rnd1<<" rnd2="<<rnd2);
+    alpha=0;
+    r=0.001;
+  }
   
-  m_hist->GetRandom2(alpha,r);
-  const double delta_eta_mm = r * cos(alpha);
-  const double delta_phi_mm = r * sin(alpha);
+  const float delta_eta_mm = r * cos(alpha);
+  const float delta_phi_mm = r * sin(alpha);
 
   const float dist000    = TMath::Sqrt(center_r * center_r + center_z * center_z);
   const float eta_jakobi = TMath::Abs(2.0 * TMath::Exp(-center_eta) / (1.0 + TMath::Exp(-2 * center_eta)));
 
-  const double delta_eta = delta_eta_mm / eta_jakobi / dist000;
-  const double delta_phi = delta_phi_mm / center_r;
+  const float delta_eta = delta_eta_mm / eta_jakobi / dist000;
+  const float delta_phi = delta_phi_mm / center_r;
 
   hit.eta() = center_eta + delta_eta;
   hit.phi() = center_phi + delta_phi;
@@ -64,35 +74,30 @@ void TFCSHistoLateralShapeParametrization::simulate_hit(Hit& hit,TFCSSimulationS
 
 bool TFCSHistoLateralShapeParametrization::Initialize(TH2* hist)
 {
-	m_hist=(TH2*)hist->Clone();
-	m_hist->SetDirectory(0);
-	for(int ix=1;ix<=m_hist->GetNbinsX();++ix) {
-  	for(int iy=1;iy<=m_hist->GetNbinsY();++iy) {
-  	  if(m_hist->GetBinContent(ix,iy)<0) {
-        ATH_MSG_WARNING("Histo: "<<m_hist->GetName()<<" : "<<m_hist->GetTitle()<<" : bin("<<ix<<","<<iy<<")="<<m_hist->GetBinContent(ix,ix)<<" is negative. Fixing to 0!");
-  	    m_hist->SetBinContent(ix,iy,0);
-  	  }
-  	}
-	}
+  if(!hist) return false;
+	m_hist.Initialize(hist);
+	if(m_hist.get_HistoContents().size()==0) return false;
+	
+	set_number_of_hits(hist->Integral());
 
   return true;
 }
 
 bool TFCSHistoLateralShapeParametrization::Initialize(const char* filepath, const char* histname)
 {
-    // input file with histogram to fit
-    std::unique_ptr<TFile> inputfile(TFile::Open( filepath, "READ" ));
-    if (inputfile == NULL) return false;
+  // input file with histogram to fit
+  std::unique_ptr<TFile> inputfile(TFile::Open( filepath, "READ" ));
+  if (inputfile == NULL) return false;
 
-    // histogram with hit pattern
-    TH2 *inputShape = (TH2*)inputfile->Get(histname);
-    if (inputShape == NULL) return false;
+  // histogram with hit pattern
+  TH2 *inputShape = (TH2*)inputfile->Get(histname);
+  if (inputShape == NULL) return false;
 
-    bool OK=Initialize(inputShape);
+  bool OK=Initialize(inputShape);
 
-    inputfile->Close();
+  inputfile->Close();
 
-    return OK;
+  return OK;
 }
 
 void TFCSHistoLateralShapeParametrization::Print(Option_t *option) const
@@ -103,5 +108,5 @@ void TFCSHistoLateralShapeParametrization::Print(Option_t *option) const
   TString optprint=opt;optprint.ReplaceAll("short","");
   TFCSLateralShapeParametrizationHitBase::Print(option);
 
-  if(longprint) ATH_MSG_INFO(optprint <<"  Histo: "<<m_hist->GetName()<<" : "<<m_hist->GetTitle()<<" integral="<<m_hist->Integral()<<" ptr="<<m_hist);
+  if(longprint) ATH_MSG_INFO(optprint <<"  Histo: "<<m_hist.get_HistoBordersx().size()-1<<"*"<<m_hist.get_HistoBordersy().size()-1<<" bins, #hits="<<m_nhits);
 }

@@ -36,8 +36,7 @@ atlas_add_component (egammmaValidation
 	LINK_LIBRARIES egammaValidationLib GaudiKernel AthenaBaseComps AsgTools xAODEventInfo 
 	xAODEgamma xAODTracking ElectronPhotonSelectorToolsLib TrkValHistUtils ElectronPhotonSelectorToolsLib AsgAnalysisInterfaces)
 
-# Install JO/python files from the package:
-atlas_install_python_modules( python/*.py )
+# Install JO files from the package:
 atlas_install_joboptions( share/*.py )
 # ART shell executable scripts :
 atlas_install_scripts( test/*.sh)

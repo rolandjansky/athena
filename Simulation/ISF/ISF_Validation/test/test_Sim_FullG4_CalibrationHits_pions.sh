@@ -1,7 +1,12 @@
 #!/bin/sh
 #
 # art-description: Run simulation using ISF with the FullG4 simulator, reading single pion events, writing HITS including full CaloCalibrationHit information, using 2015 geometry and conditions
+# art-include: 21.0/Athena
+# art-include: 21.3/Athena
+# art-include: 21.9/Athena
+# art-include: master/Athena
 # art-type: grid
+# art-output: test.HITS.pool.root
 # art-output: truth.root
 # art-output: comparison.root
 # art-output: comparison.ps

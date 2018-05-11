@@ -111,7 +111,6 @@ class  SCT_FrontEnd : public AthAlgTool, virtual public ISCT_FrontEnd {
   float m_timeOfThreshold ;                 //!< Time for the threshold factor
   short m_data_compression_mode;            //!< To set the data compression mode
   short m_data_readout_mode;                //!< To set the data read out mode
-  bool m_noise_expanded_mode;               //!< To set the noise expanded mode
   bool m_useCalibData;                      //!< Flag to set the use of calibration data for noise, Gain,offset etc. 
   mutable int m_strip_max;                  //!< For SLHC studies
  
