@@ -307,6 +307,7 @@
 + Reconstruction/RecTPCnv
 + Reconstruction/RecAthenaPool
 + Reconstruction/MissingETEvent
++ Reconstruction/VKalVrt/VrtSecInclusive
 
 # Simulation package(s):
 + Simulation/G4Sim/TrackRecord
