@@ -49,11 +49,11 @@ atlas_depends_on_subdirs(
 # Build a shared library:
 atlas_add_library( FlavorTagDiscriminantsLib
   BTagJetAugmenter.cxx
-  PUBLIC_HEADERS FlavorTagDiscriminantsLib
+  PUBLIC_HEADERS FlavorTagDiscriminants
    # INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
-   # LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES}
+   LINK_LIBRARIES xAODBase xAODJet
    # ${LWTNN_LIBRARIES}
-   # AsgTools xAODBase xAODJet JetInterface JetCalibToolsLib 
+   # AsgTools  JetInterface JetCalibToolsLib 
    # MuonSelectorToolsLib MuonMomentumCorrectionsLib PATCoreLib PATInterfaces 
    # JetAnalysisInterfacesLib InDetTrackSelectionToolLib InDetTrackSystematicsToolsLib 
    # MuonAnalysisInterfacesLib ${extra_libs} 
