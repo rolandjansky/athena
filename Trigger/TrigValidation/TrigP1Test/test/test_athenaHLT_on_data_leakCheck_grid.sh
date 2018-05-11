@@ -33,7 +33,3 @@ ATH_RETURN=${PIPESTATUS[0]}
 echo "art-result: ${ATH_RETURN} athena"
 
 source exec_art_trigp1test_post.sh
-
-
-
-still 
