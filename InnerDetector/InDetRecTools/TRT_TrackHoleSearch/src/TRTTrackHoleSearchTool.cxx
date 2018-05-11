@@ -210,7 +210,6 @@ const DataVector<const Trk::TrackStateOnSurface>* TRTTrackHoleSearchTool::getHol
 				holes->pop_back();
 				/*
 				  Note: DataVector::pop_back() deletes pointers if it owns them.
-				  http://alxr.usatlas.bnl.gov/lxr-stb4/source/atlas/Control/DataModel/DataModel/DataVector.h#978
 				*/
 			}
 		}
