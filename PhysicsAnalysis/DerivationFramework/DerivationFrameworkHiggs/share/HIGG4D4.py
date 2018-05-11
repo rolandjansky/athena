@@ -80,7 +80,11 @@ higg4d4_expression = "(((count( (( abs(TauJets.charge)==1.0 && (TauJets.nTracks 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 HIGG4D4SpecialSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name 		= "HIGG4D4SpecialSkimmingTool",
                                                                          expression 	= higg4d4_expression)
-HIGG4D4Sequence += CfgMgr.DerivationFramework__DerivationKernel(DAOD_StreamID+"SkimmingKernel", SkimmingTools = HIGG4D4SpecialSkimmingTool)
+
+ToolSvc += HIGG4D4SpecialSkimmingTool
+ 
+HIGG4D4Sequence += CfgMgr.DerivationFramework__DerivationKernel(DAOD_StreamID+"SkimmingKernel", SkimmingTools = [HIGG4D4SpecialSkimmingTool])
+
 
 # fat/trimmed jet building (after skimming)
 DerivationFrameworkHiggs.HIGG4DxJets.setup(DAOD_StreamID, HIGG4D4Sequence, HIGG4D4SlimmingHelper)
