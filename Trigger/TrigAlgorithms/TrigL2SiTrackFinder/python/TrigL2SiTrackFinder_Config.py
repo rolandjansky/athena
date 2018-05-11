@@ -67,7 +67,7 @@ class TrigL2SiTrackFinder_CommonMonitoring(TrigGenericMonitoringToolConfig):
                                              title="Data Errors",
                                              xbins = 4 , xmin=0., xmax=4.,
                              labels='SP_Abort : SP_Recoverable : TRT_Abort : TRT_Recoverable' ) ]
-        # SCT Errors are defined in : InnerDetector/InDetConditions/SCT_ConditionsServices/SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h
+        # SCT Errors are defined in : InnerDetector/InDetConditions/SCT_ConditionsData/SCT_ConditionsData/SCT_ByteStreamErrors.h
         self.Histograms += [ defineHistogram('dataErrors_SCT',
                                              type='TH1F',
                                              title="SCT Data Errors",

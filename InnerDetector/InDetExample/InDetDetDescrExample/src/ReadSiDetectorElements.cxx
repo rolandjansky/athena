@@ -64,6 +64,7 @@ ReadSiDetectorElements::ReadSiDetectorElements(const std::string& name, ISvcLoca
   declareProperty("LoopOverElements", m_doLoop);
   declareProperty("DoInitialize", m_doInit = false);
   declareProperty("DoExecute",    m_doExec = true);
+  declareProperty("UseConditionsTools", m_useConditionsTools = false);
   declareProperty("SiLorentzAngleSvc", m_siLorentzAngleSvc);
   declareProperty("SiConditionsSvc", m_siConditionsSvc);
   declareProperty("SiPropertiesSvc", m_siPropertiesSvc);
@@ -105,13 +106,20 @@ StatusCode ReadSiDetectorElements::initialize(){
   if (sc.isFailure()) {
     ATH_MSG_ERROR( "Could not retrieve Lorentz Angle Svc: " << m_siLorentzAngleSvc.name() );
   }
-  sc = m_siPropertiesSvc.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not retrieve silicon properties svc: " << m_siPropertiesSvc.name() );
-  }
-  sc = m_siConditionsSvc.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not retrieve silicon conditions service: " << m_siConditionsSvc.name() );
+  if (m_useConditionsTools) {
+    ATH_CHECK(m_siConditionsTool.retrieve());
+    ATH_CHECK(m_siPropertiesTool.retrieve());
+  } else {
+    sc = m_siPropertiesSvc.retrieve();
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR( "Could not retrieve silicon properties svc: " << m_siPropertiesSvc.name() );
+    }
+    sc = m_siConditionsSvc.retrieve();
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR( "Could not retrieve silicon conditions service: " << m_siConditionsSvc.name() );
+    }
+    m_siConditionsTool.disable();
+    m_siPropertiesTool.disable();
   }
   // Print during initialize
   if (m_doInit) {
@@ -160,10 +168,17 @@ void ReadSiDetectorElements::printAllElements() {
   
         // These are no longer accessed through the detector element.
         IdentifierHash hashId = element->identifyHash();
-        cout << " Temperature (C), bias voltage, depletion voltage: "
-             << m_siConditionsSvc->temperature(hashId) << " "
-             << m_siConditionsSvc->biasVoltage(hashId) << " "
-             << m_siConditionsSvc->depletionVoltage(hashId) << endl;
+        cout << " Temperature (C), bias voltage, depletion voltage: ";
+        if (m_useConditionsTools) {
+          cout << m_siConditionsTool->temperature(hashId) << " "
+               << m_siConditionsTool->biasVoltage(hashId) << " "
+               << m_siConditionsTool->depletionVoltage(hashId);
+        } else {
+          cout << m_siConditionsSvc->temperature(hashId) << " "
+               << m_siConditionsSvc->biasVoltage(hashId) << " "
+               << m_siConditionsSvc->depletionVoltage(hashId);
+        }
+        cout << endl;
   
         //cout << "Via SiDetectorElement:"
         cout << " Lorentz correction (mm), tanLorentzPhi = "
@@ -176,7 +191,9 @@ void ReadSiDetectorElements::printAllElements() {
         //     << m_siLorentzAngleSvc->getTanLorentzAngle(hashId) << endl;
   
         // These are no longer accessed through the detector element.
-        const InDet::SiliconProperties & siProperties =  m_siPropertiesSvc->getSiProperties(hashId);
+        const InDet::SiliconProperties & siProperties = m_useConditionsTools
+          ? m_siPropertiesTool->getSiProperties(hashId)
+          : m_siPropertiesSvc->getSiProperties(hashId);
         cout << " Hall Mobility (cm2/volt/s), Drift mobility (cm2/volt/s), diffusion constant (cm2/s) = " 
              << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
              << siProperties.driftMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
@@ -512,15 +529,24 @@ ReadSiDetectorElements::testElement(const Identifier & id,
    << endl;
     cout << " center: r (mm) = " <<  element->center().perp()/CLHEP::mm 
    << ", phi (deg) = " <<  element->center().phi()/CLHEP::deg << endl;
-    const InDet::SiliconProperties & siProperties =  m_siPropertiesSvc->getSiProperties(hashId);
+    const InDet::SiliconProperties & siProperties = m_useConditionsTools
+      ? m_siPropertiesTool->getSiProperties(hashId)
+      : m_siPropertiesSvc->getSiProperties(hashId);
     cout << " Lorentz correction (mm), mobility (cm2/V/s), tanLorentzPhi = "
    << element->getLorentzCorrection()/CLHEP::mm << " " 
    << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
    << element->getTanLorentzAnglePhi() << endl;
-    cout << " Temperature (C), bias voltage, depletion voltage: " 
-   << m_siConditionsSvc->temperature(hashId) << " "
-   << m_siConditionsSvc->biasVoltage(hashId) << " "
-   << m_siConditionsSvc->depletionVoltage(hashId) << endl;
+    cout << " Temperature (C), bias voltage, depletion voltage: ";
+    if (m_useConditionsTools) {
+      cout << m_siConditionsTool->temperature(hashId) << " "
+           << m_siConditionsTool->biasVoltage(hashId) << " "
+           << m_siConditionsTool->depletionVoltage(hashId);
+    } else {
+      cout << m_siConditionsSvc->temperature(hashId) << " "
+           << m_siConditionsSvc->biasVoltage(hashId) << " "
+           << m_siConditionsSvc->depletionVoltage(hashId);
+    }
+    cout << endl;
     cout << " sin(tilt), tilt (deg), sin(stereo), stereo (deg) = " 
    << element->sinTilt() << ", " 
    << asin(element->sinTilt())/CLHEP::degree << ", "

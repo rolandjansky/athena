@@ -12,7 +12,7 @@
 
 #include <string>
 
-namespace SCT_ConditionsServices{
+namespace SCT_ConditionsAlgorithms{
   namespace CoveritySafe{
     ///'getenv' which avoids possibly dereferencing a null pointer
     std::string getenv(const std::string & variableName); 

@@ -9,7 +9,6 @@ atlas_subdir( SCT_ConditionsTools )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           DetectorDescription/Identifier
-                          InnerDetector/InDetConditions/InDetConditionsSummaryService
                           GaudiKernel
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/SCT_ConditionsData
@@ -21,7 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/GeoModel/GeoModelUtilities
-                          InnerDetector/InDetConditions/SCT_ConditionsServices
+                          InnerDetector/InDetConditions/InDetByteStreamErrors
                           InnerDetector/InDetConditions/SiPropertiesSvc
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
@@ -38,14 +37,14 @@ find_package( GMock )
 atlas_add_component ( SCT_ConditionsTools
                       src/components/*.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel Identifier GeoModelUtilities GaudiKernel AthenaBaseComps StoreGateLib SGtests EventInfo xAODEventInfo SCT_ConditionsData InDetIdentifier InDetReadoutGeometry SCT_CablingLib SiPropertiesSvcLib SCT_ConditionsToolsLib )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel Identifier GeoModelUtilities GaudiKernel AthenaBaseComps StoreGateLib SGtests EventInfo xAODEventInfo SCT_ConditionsData InDetByteStreamErrors InDetIdentifier InDetReadoutGeometry SCT_CablingLib SiPropertiesSvcLib SCT_ConditionsToolsLib )
 
 
 atlas_add_library( SCT_ConditionsToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS SCT_ConditionsTools
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel Identifier GeoModelUtilities GaudiKernel AthenaBaseComps StoreGateLib SGtests EventInfo xAODEventInfo SCT_ConditionsData SCT_ConditionsServicesLib SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry SCT_CablingLib )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel Identifier GeoModelUtilities GaudiKernel AthenaBaseComps StoreGateLib SGtests EventInfo xAODEventInfo SCT_ConditionsData SiPropertiesSvcLib InDetByteStreamErrors InDetIdentifier InDetReadoutGeometry SCT_CablingLib )
 
 # Add unit tests
 atlas_add_test( SCT_RODVetoTool_test

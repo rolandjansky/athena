@@ -11,7 +11,7 @@
 #include "SCT_ConditionsUtilities.h"
 #include <cstdlib>
 
-namespace SCT_ConditionsServices{
+namespace SCT_ConditionsAlgorithms{
   namespace CoveritySafe{
     ///get an environment variable
     std::string getenv(const std::string & variableName){

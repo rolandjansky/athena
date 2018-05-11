@@ -281,7 +281,7 @@ class SCT_ConditionsToolsSetup:
       self.useDCS=useDCS
       self.prefix = prefix
     else:
-      print 'Not modifying an instance of SCT_ConditionsServicesSetup as it is locked'
+      print 'Not modifying an instance of SCT_ConditionsToolsSetup as it is locked'
 
   def lock(self):
     " prevent modifications to this instance "

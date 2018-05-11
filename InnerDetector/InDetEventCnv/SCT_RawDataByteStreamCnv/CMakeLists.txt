@@ -19,7 +19,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventInfo
                           Event/xAOD/xAODEventInfo
                           InnerDetector/InDetConditions/SCT_ConditionsData
-                          InnerDetector/InDetConditions/SCT_ConditionsServices
                           InnerDetector/InDetConditions/SCT_ConditionsTools
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry

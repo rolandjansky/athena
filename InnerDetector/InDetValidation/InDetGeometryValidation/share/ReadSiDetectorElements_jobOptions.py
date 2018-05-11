@@ -60,7 +60,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 # Both pixel and SCT
 #
 from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc
-from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc;
+from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
 
 #
 # Pixel
@@ -87,37 +87,33 @@ ReadPixelElements.SiLorentzAngleSvc = lorentzAngleSvc.pixel
 ReadPixelElements.SiPropertiesSvc   = pixelSiPropertiesSvc
 ReadPixelElements.SiConditionsSvc   = pixelSiliconConditionsSvc
 
+ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=lorentzAngleSvc.pixel
 
 #
 # SCT
 #
-# Load DCS service
-conddb.addFolder("DCS_OFL","/SCT/DCS/CHANSTAT")
-conddb.addFolder("DCS_OFL","/SCT/DCS/MODTEMP")
-conddb.addFolder("DCS_OFL","/SCT/DCS/HV")
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
-InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name = "InDetSCT_DCSConditionsSvc")
-ServiceMgr += InDetSCT_DCSConditionsSvc
+# Load DCS Tool
+from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+sct_DCSConditionsToolSetup.setup()
+InDetSCT_DCSConditionsTool = sct_DCSConditionsToolSetup.getTool()
 
-## Silicon conditions service (set up by LorentzAngleSvcSetup)
-sctSiliconConditionsSvc = lorentzAngleSvc.SCT_SiliconConditionsSvc
-## Or directly from ServiceMgr (its the same instance)
-# sctSiliconConditionsSvc = ServiceMgr.SCT_SiliconConditionsSvc
-## Or if you want a different instance than used by LorentzAngleSvcSetup
-#from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconConditionsSvc
-#sctSiliconConditionsSvc=SCT_SiliconConditionsSvc("OtherSCT_SiliconConditionsSvc")
-#ServiceMgr += sctSiliconConditionsSvc
+## Silicon conditions tool (set up by LorentzAngleSvcSetup)
+sctSiliconConditionsTool = lorentzAngleSvc.SCT_SiliconConditionsTool
 
-# Silicon properties service
-sctSiPropertiesSvc = SiPropertiesSvc(name = "SCT_SiPropertiesSvc",
-                                   DetectorName="SCT",
-                                   SiConditionsServices = sctSiliconConditionsSvc)
-ServiceMgr += sctSiPropertiesSvc
+# Silicon properties tool
+from SiPropertiesSvc.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
+sct_SiPropertiesToolSetup = SCT_SiPropertiesToolSetup()
+sct_SiPropertiesToolSetup.setSiliconTool(sctSiliconConditionsTool)
+sct_SiPropertiesToolSetup.setup()
+sctSiPropertiesTool = sct_SiPropertiesToolSetup.getTool()
 
 ReadSCTElements.SiLorentzAngleSvc = lorentzAngleSvc.sct
-ReadSCTElements.SiPropertiesSvc   = sctSiPropertiesSvc
-ReadSCTElements.SiConditionsSvc   = sctSiliconConditionsSvc
+ReadSCTElements.UseConditionsTools = True
+ReadSCTElements.SiPropertiesTool = sctSiPropertiesTool
+ReadSCTElements.SiConditionsTool = sctSiliconConditionsTool
 
+ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=lorentzAngleSvc.sct
 
 print ReadPixelElements
 print lorentzAngleSvc.pixel
@@ -126,8 +122,8 @@ print pixelSiPropertiesSvc
 
 print ReadSCTElements
 print lorentzAngleSvc.sct
-print sctSiliconConditionsSvc
-print sctSiPropertiesSvc
+print sctSiliconConditionsTool
+print sctSiPropertiesTool
 
 
 #--------------------------------------------------------------
@@ -141,6 +137,15 @@ job.ReadSCTElements.OutputLevel = INFO
 
 # Number of events to be processed (default is 10)
 theApp.EvtMax = 1
+
+# MC run number and timestamp for conditions data
+# Simulation/RunDependentSim/RunDependentSimComps/python/RunDMCFlags.py
+import AthenaCommon.AtlasUnixGeneratorJob
+ServiceMgr.EventSelector.RunNumber = 195847 # MC12a run number
+ServiceMgr.EventSelector.InitialTimeStamp  = 1328040250 # MC12a timestamp
+ServiceMgr.EventSelector.TimeStampInterval = 0
+
+ServiceMgr.MessageSvc.Format = "% F%60W%S%7W%R%T %0W%M"
 
 # ReadSiDetectorElement properties
 #

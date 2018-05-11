@@ -11,7 +11,7 @@
 SCT_LinkMaskingCondAlg::SCT_LinkMaskingCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
   , m_readKey{"/purple/pants"}
-  // This folder can be created by SCT_ConditionsServices/python/createLinkMaskingSQLiteFile.py
+  // This folder can be created by InnerDetector/InDetConditions/SCT_ConditionsTools/python/createLinkMaskingSQLiteFile.py
   , m_writeKey{"SCT_LinkMaskingCondData"}
   , m_condSvc{"CondSvc", name}
 {
