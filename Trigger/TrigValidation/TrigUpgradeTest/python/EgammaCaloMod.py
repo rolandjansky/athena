@@ -3,6 +3,7 @@
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import *
 
 
 def CaloLUMIBCIDTool( flags, name='CaloLumiBCIDToolDefault' ):
@@ -157,7 +158,6 @@ def TrigCaloDataAccessConfig(flags):
 def EgammaCaloMod( flags ):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaCommon.CFElements import parOR, seqOR, seqAND
-    from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import *
 
     from AthenaCommon.Constants import DEBUG
     acc = ComponentAccumulator()
