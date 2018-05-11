@@ -1136,7 +1136,7 @@ def setupMenu():
         ['e24_lhmedium_nod0_g35_loose',   'L1_2EM20VH', [], [PhysicsStream], ['RATE:ElectronPhoton', 'BW:Egamma'], -1,['parallel',-1,[] ]], 
 
         
-        ['e13_etcut_L1W-NOMATCH',               'L1_W-NOMATCH', ['L1_EM12'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+#        ['e13_etcut_L1W-NOMATCH',               'L1_W-NOMATCH', ['L1_EM12'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
 
         ['e18_etcut_trkcut_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE', 'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE', ['L1_EM15'], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'], -1],
         ['e5_etcut_L1W-05RO-XEHT-0',            'L1_W-05RO-XEHT-0',           ['L1_EM3'],  [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
@@ -1192,7 +1192,7 @@ def setupMenu():
 
         # support for g+tau chains (ATR-13841)
         ['g35_medium_L1EM22VHI',                    'L1_EM22VHI', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g35_medium_L1EM24VHI',                    'L1_EM24VHI', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
+#        ['g35_medium_L1EM24VHI',                    'L1_EM24VHI', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
 
 #Rerun:         
 #Physics (tri-ele):
@@ -1558,6 +1558,7 @@ def setupMenu():
         ['2g3_loose_dPhi15_L1DPHI-2EM3', 'L1_DPHI-2EM3', ['L1_2EM3'], [PhysicsStream],['RATE:SinglePhoton','BW:Egamma'],-1],
         ['2g3_loose_L1DPHI-2EM3_VTE5.24ETA49', 'L1_DPHI-2EM3_VTE5.24ETA49', ['L1_2EM3'], [PhysicsStream],['RATE:SinglePhoton','BW:Egamma'],-1],
         ['2g3_loose_L1DPHI-2EM3_VTE10', 'L1_DPHI-2EM3_VTE10', ['L1_2EM3'], [PhysicsStream],['RATE:SinglePhoton','BW:Egamma'],-1],
+        ['2g3_loose_L1DPHI-2EM7_VTE50', 'L1_DPHI-2EM7_VTE50', ['L1_2EM7'], [PhysicsStream],['RATE:SinglePhoton','BW:Egamma'],-1],
 
         #ATR-17836 W T&P for low-mu
         ['e15_etcut_trkcut_xe30noL1', 'L1_EM12', ['L1_EM12',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1, ['serial',-1,["e15_etcut_trkcut","xe30noL1"]]],
@@ -3628,7 +3629,7 @@ ps_streamers_list = [
      'noalg_l1topo_L1W-250RO2-XEHT-0',
      'noalg_l1topo_L1W-90RO2-XEHT-0',
      'noalg_l1topo_L1W-HT20-JJ15.ETA49',
-     'noalg_l1topo_L1W-NOMATCH',
+#     'noalg_l1topo_L1W-NOMATCH',
      'noalg_l1topo_L1XE35',
      'noalg_l1topo_L1XE45',
      'noalg_l1topo_L1XE55',

@@ -2249,9 +2249,13 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="282" partition="1" name="L1_W-05RO-XEHT-0" complex_deadtime="0" definition="(05RATIO-XE0-HT0-AJj15all.ETA49[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="282" partition="1" name="L1_DPHI-2EM7_VTE50" complex_deadtime="0" definition="(EM7[x2]&amp;27DPHI32-EMs1-EMs6[x1]&amp;!TE50[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="05RATIO-XE0-HT0-AJj15all.ETA49_x1" triggerthreshold="05RATIO-XE0-HT0-AJj15all.ETA49"/>
+        <TriggerCondition multi="2" name="EM7_x2" triggerthreshold="EM7"/>
+        <TriggerCondition multi="1" name="27DPHI32-EMs1-EMs6_x1" triggerthreshold="27DPHI32-EMs1-EMs6"/>
+        <NOT>
+          <TriggerCondition multi="1" name="TE50_x1" triggerthreshold="TE50"/>
+        </NOT>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -3901,9 +3905,9 @@
         <InternalTrigger name="BGRP0"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="463" partition="1" name="L1_W-NOMATCH" complex_deadtime="0" definition="(NOT-02MATCH-EM10s1-AJj15all.ETA49[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="463" partition="1" name="L1_W-05RO-XEHT-0" complex_deadtime="0" definition="(05RATIO-XE0-HT0-AJj15all.ETA49[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="NOT-02MATCH-EM10s1-AJj15all.ETA49_x1" triggerthreshold="NOT-02MATCH-EM10s1-AJj15all.ETA49"/>
+        <TriggerCondition multi="1" name="05RATIO-XE0-HT0-AJj15all.ETA49_x1" triggerthreshold="05RATIO-XE0-HT0-AJj15all.ETA49"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
