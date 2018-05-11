@@ -44,7 +44,7 @@ void TriggerPseudoJetGetter2::prime(const xAOD::CaloClusterContainer* inputs) {
                                                             isGhost);
   
   constexpr bool noRejection = true;
-  std::vector<PseudoJet> vpj = 
+  std::vector<fastjet::PseudoJet> vpj = 
     PseudoJetCreatorFunctions::createPseudoJets(inputs, 
                                                 m_inputType, 
                                                 m_noNegE,
