@@ -34,7 +34,7 @@ namespace PseudoJetCreatorFunctions{
   std::vector<PseudoJet> 
   createPseudoJets(const xAOD::IParticleContainer*, 
                    xAOD::JetInput::Type,
-                   const ToolHandle<IIParticleRejectionTool>&);
+                   ToolHandle<IIParticleRejectionTool>&);
 }
 
 
