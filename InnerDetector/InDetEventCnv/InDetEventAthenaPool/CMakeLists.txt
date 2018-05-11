@@ -13,6 +13,7 @@ atlas_depends_on_subdirs(
    Generators/GeneratorObjectsTPCnv
    PRIVATE
    AtlasTest/TestTools
+   Control/CxxUtils
    Control/AthContainers
    Control/AthenaBaseComps
    Control/AthenaKernel
