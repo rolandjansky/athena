@@ -822,8 +822,8 @@ StatusCode PixelMainMon::procHitsMon(void) {
     double cont(0.0), err(0.0);
     int entr(0);
     for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
-      if (m_avgocc_per_lumi_mod[i] && m_avgocc_ratio_lastXlb_mod[i] && m_avgocc_ratio_lastXlb_mod_prof[i]) {
-	int bing = m_avgocc_per_lumi_mod[i]->GetXaxis()->FindBin(lastlb);
+      if (m_avgocc_per_lumi_mod[getPixLayerIDWithDBM(i)] && m_avgocc_ratio_lastXlb_mod[i] && m_avgocc_ratio_lastXlb_mod_prof[i]) {
+	int bing = m_avgocc_per_lumi_mod[getPixLayerIDWithDBM(i)]->GetXaxis()->FindBin(lastlb);
 	int nXbins = m_avgocc_ratio_lastXlb_mod[i]->GetNbinsX();
 	m_avgocc_ratio_lastXlb_mod[i]->GetXaxis()->Set(nXbins, lastlb-nXbins+0.5, lastlb+0.5);
 	m_avgocc_ratio_lastXlb_mod[i]->Reset();
@@ -832,10 +832,10 @@ StatusCode PixelMainMon::procHitsMon(void) {
 	m_avgocc_ratio_lastXlb_mod_prof[i]->Reset();
 	for (int binf=m_avgocc_ratio_lastXlb_mod[i]->GetNbinsX(); binf>0; binf--) {
 	  if (bing>0) {
-	    entr = m_avgocc_per_lumi_mod[i]->GetBinEntries(bing);
+	    entr = m_avgocc_per_lumi_mod[getPixLayerIDWithDBM(i)]->GetBinEntries(bing);
 	    if (entr>0) {
-	      cont = m_avgocc_per_lumi_mod[i]->GetBinContent(bing);
-	      err  = m_avgocc_per_lumi_mod[i]->GetBinError(bing);
+	      cont = m_avgocc_per_lumi_mod[getPixLayerIDWithDBM(i)]->GetBinContent(bing);
+	      err  = m_avgocc_per_lumi_mod[getPixLayerIDWithDBM(i)]->GetBinError(bing);
 	      m_avgocc_ratio_lastXlb_mod[i]->SetBinContent(binf, cont);
 	      m_avgocc_ratio_lastXlb_mod[i]->SetBinError(binf, err);
 	    }
