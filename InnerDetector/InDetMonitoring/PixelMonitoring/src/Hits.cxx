@@ -856,7 +856,8 @@ StatusCode PixelMainMon::procHitsMon(void) {
 	    double err  = m_avgocc_ratio_lastXlb_mod[i]->GetBinError(ibin);
 	    if (err!=0.0) err = 1.0 / pow(err, 2);
 	    else err = 1.0;
-	    m_avgocc_ratio_lastXlb_mod_prof[i]->Fill(ibin, cont, err);
+	    double binctr = m_avgocc_ratio_lastXlb_mod[i]->GetXaxis()->GetBinCenter(ibin);
+	    m_avgocc_ratio_lastXlb_mod_prof[i]->Fill(binctr, cont, err);
 	  }
 	}
       }
