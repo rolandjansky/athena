@@ -1,4 +1,3 @@
-dataset_number  physics_short                                                 crossSection_pb [pb]  kFactor         genFiltEff         crossSectionTotalRelUncertUP  
 #id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 # cross-sections are in pb
 
@@ -12,7 +11,7 @@ dataset_number  physics_short                                                 cr
 407344          PhPy8EG_A14_ttbarHT6c_1k_hdamp258p75_nonallhad                729.77                1.13975636159   2.5639E-02         0.0                           
 407345          PhPy8EG_A14_ttbarMET200_300_hdamp258p75_nonallhad             729.77                1.13975636159   8.0661E-03         0.0                           
 407346          PhPy8EG_A14_ttbarMET300_400_hdamp258p75_nonallhad             729.77                1.13975636159   1.1192E-03         0.0                           
-407347          PhPy8EG_A14_ttbarMET400_hdamp258p75_nonallhad                 729.77                1.13975636159   3.1435E-04         0.0                           
+407347          PhPy8EG_A14_ttbarMET400_hdamp258p75_nonallhad                 729.77                1.13975636159   3.1430E-04         0.0                           
 410249          Sherpa_221_NNPDF30NNLO_ttbar_AllHadronic_MEPS_NLO             330.54                1.1484          1.0000E+00         0.0                           
 410250          Sherpa_221_NNPDF30NNLO_ttbar_SingleLeptonP_MEPS_NLO           158.76                1.0             1.0000E+00         0.0                           
 410251          Sherpa_221_NNPDF30NNLO_ttbar_SingleLeptonM_MEPS_NLO           158.97                1.0             1.0000E+00         0.0                           
@@ -60,8 +59,8 @@ dataset_number  physics_short                                                 cr
 410165          aMcAtNloHerwigppEvtGen_UEEE5_CTEQ6L1_CT10ME_Wt_inclusive      73.588                1.0             1.0000E+00         0.0                           
 410642          PhPy8EG_A14_tchan_lept_top                                    36.993                1.0             1.0000E+00         0.0                           
 410643          PhPy8EG_A14_tchan_lept_antitop                                22.174                1.0             1.0000E+00         0.0                           
-410644          PowhegPythia8EvtGen_A14_singletop_schan_lept_top              2.0268                1.0             1.0000E+00         0.0                           
-410645          PowhegPythia8EvtGen_A14_singletop_schan_lept_antitop          1.2676                1.0             1.0000E+00         0.0                           
+410644          PowhegPythia8EvtGen_A14_singletop_schan_lept_top              2.0267                1.0             1.0000E+00         0.0                           
+410645          PowhegPythia8EvtGen_A14_singletop_schan_lept_antitop          1.2675                1.0             1.0000E+00         0.0                           
 410646          PowhegPythia8EvtGen_A14_Wt_DR_inclusive_top                   37.937                1.0             1.0000E+00         0.0                           
 410647          PowhegPythia8EvtGen_A14_Wt_DR_inclusive_antitop               37.907                1.0             1.0000E+00         0.0                           
 
@@ -88,32 +87,32 @@ dataset_number  physics_short                                                 cr
 344782          Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV140_280_h30h20         17.0637               0.9751          0.26126            0.0                           
 364100          Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV0_70_CVetoBVeto          1982.3                0.9751          8.2179E-01         0.0                           
 364101          Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV0_70_CFilterBVeto        1982.1                0.9751          1.1356E-01         0.0                           
-364102          Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV0_70_BFilter             1981.6                0.9751          6.5740E-02         0.0                           
+364102          Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV0_70_BFilter             1981.5                0.9751          6.5797E-02         0.0                           
 364103          Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV70_140_CVetoBVeto        109.07                0.9751          6.8978E-01         0.0                           
 364104          Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV70_140_CFilterBVeto      108.94                0.9751          1.9588E-01         0.0                           
-364105          Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV70_140_BFilter           109.01                0.9751          1.2172E-01         0.0                           
+364105          Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV70_140_BFilter           108.98                0.9751          1.1768E-01         0.0                           
 364106          Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV140_280_CVetoBVeto       39.884                0.9751          6.0179E-01         0.0                           
 364107          Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV140_280_CFilterBVeto     39.857                0.9751          2.3545E-01         0.0                           
-364108          Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV140_280_BFilter          39.892                0.9751          1.5628E-01         0.0                           
+364108          Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV140_280_BFilter          39.891                0.9751          1.5622E-01         0.0                           
 364109          Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV280_500_CVetoBVeto       8.526                 0.9751          5.6012E-01         0.0                           
 364110          Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV280_500_CFilterBVeto     8.5261                0.9751          2.6632E-01         0.0                           
-364111          Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV280_500_BFilter          8.5276                0.9751          1.7657E-01         0.0                           
-364112          Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV500_1000                 1.7871                0.9751          1.0000E+00         0.0                           
-364113          Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV1000_E_CMS               0.14758               0.9751          1.0000E+00         0.0                           
+364111          Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV280_500_BFilter          8.5273                0.9751          1.7660E-01         0.0                           
+364112          Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV500_1000                 1.7876                0.9751          1.0000E+00         0.0                           
+364113          Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV1000_E_CMS               0.1476                0.9751          1.0000E+00         0.0                           
 364114          Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV0_70_CVetoBVeto            1981.5                0.9751          8.2141E-01         0.0                           
 364115          Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV0_70_CFilterBVeto          1981.7                0.9751          1.1405E-01         0.0                           
-364116          Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV0_70_BFilter               1981.7                0.9751          6.5750E-02         0.0                           
+364116          Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV0_70_BFilter               1981.8                0.9751          6.5759E-02         0.0                           
 364117          Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV70_140_CVetoBVeto          110.73                0.9751          6.9441E-01         0.0                           
 364118          Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV70_140_CFilterBVeto        110.47                0.9751          1.9092E-01         0.0                           
-364119          Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV70_140_BFilter             110.48                0.9751          1.1943E-01         0.0                           
+364119          Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV70_140_BFilter             110.5                 0.9751          1.1942E-01         0.0                           
 364120          Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV140_280_CVetoBVeto         40.67                 0.9751          6.1612E-01         0.0                           
 364121          Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV140_280_CFilterBVeto       40.674                0.9751          2.3287E-01         0.0                           
-364122          Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV140_280_BFilter            40.674                0.9751          1.5335E-01         0.0                           
+364122          Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV140_280_BFilter            40.679                0.9751          1.5337E-01         0.0                           
 364123          Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV280_500_CVetoBVeto         8.6718                0.9751          5.6351E-01         0.0                           
 364124          Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV280_500_CFilterBVeto       8.6661                0.9751          2.6616E-01         0.0                           
-364125          Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV280_500_BFilter            8.6838                0.9751          1.7654E-01         0.0                           
-364126          Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV500_1000                   1.8098                0.9751          1.0000E+00         0.0                           
-364127          Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV1000_E_CMS                 0.1487                0.9751          1.0000E+00         0.0                           
+364125          Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV280_500_BFilter            8.6809                0.9751          1.7631E-01         0.0                           
+364126          Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV500_1000                   1.8092                0.9751          1.0000E+00         0.0                           
+364127          Sherpa_221_NNPDF30NNLO_Zee_MAXHTPTV1000_E_CMS                 0.14881               0.9751          1.0000E+00         0.0                           
 364128          Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV0_70_CVetoBVeto        1982.3                0.9751          8.4173E-01         0.0                           
 364129          Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV0_70_CFilterBVeto      1981.6                0.9751          1.0907E-01         0.0                           
 364130          Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV0_70_BFilter           1982.1                0.9751          6.5759E-02         0.0                           
@@ -142,28 +141,28 @@ dataset_number  physics_short                                                 cr
 364153          Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV280_500_BFilter          47.416                0.9728          1.8044E-01         0.0                           
 364154          Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV500_1000                 9.9061                0.9728          1.0000E+00         0.0                           
 364155          Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV1000_E_CMS               0.81804               0.9728          1.0000E+00         0.0                           
-364216          Sherpa_221_NNPDF30NNLO_Zmumu_PTV500_1000                      0.059234              1.0             1.0000E+00         0.0                           
+364216          Sherpa_221_NNPDF30NNLO_Zmumu_PTV500_1000                      0.059241              1.0             1.0000E+00         0.0                           
 364217          Sherpa_221_NNPDF30NNLO_Zmumu_PTV1000_E_CMS                    0.0011855             1.0             1.0000E+00         0.0                           
-364218          Sherpa_221_NNPDF30NNLO_Zee_PTV500_1000                        0.059166              1.0             1.0000E+00         0.0                           
-364219          Sherpa_221_NNPDF30NNLO_Zee_PTV1000_E_CMS                      0.0011826             1.0             1.0000E+00         0.0                           
+364218          Sherpa_221_NNPDF30NNLO_Zee_PTV500_1000                        0.059179              1.0             1.0000E+00         0.0                           
+364219          Sherpa_221_NNPDF30NNLO_Zee_PTV1000_E_CMS                      0.001188              1.0             1.0000E+00         0.0                           
 364220          Sherpa_221_NNPDF30NNLO_Ztautau_PTV500_1000                    0.058868              1.0             1.0000E+00         0.0                           
-364221          Sherpa_221_NNPDF30NNLO_Ztautau_PTV1000_E_CMS                  0.0011863             1.0             1.0000E+00         0.0                           
-364222          Sherpa_221_NNPDF30NNLO_Znunu_PTV500_1000                      0.30464               1.0             1.0000E+00         0.0                           
-364223          Sherpa_221_NNPDF30NNLO_Znunu_PTV1000_E_CMS                    0.0058389             1.0             1.0000E+00         0.0                           
+364221          Sherpa_221_NNPDF30NNLO_Ztautau_PTV1000_E_CMS                  0.001186              1.0             1.0000E+00         0.0                           
+364222          Sherpa_221_NNPDF30NNLO_Znunu_PTV500_1000                      0.30438               1.0             1.0000E+00         0.0                           
+364223          Sherpa_221_NNPDF30NNLO_Znunu_PTV1000_E_CMS                    0.005852              1.0             1.0000E+00         0.0                           
 
 ##########################################################################################################################
 # madgraph+pythia8 Z+jets
 
-361515          MadGraphPythia8EvtGen_A14NNPDF23LO_Znunu_Np0                  7520.7                1.2283          1.0000E+00         0.0                           
-361516          MadGraphPythia8EvtGen_A14NNPDF23LO_Znunu_Np1                  1199.9                1.2283          1.0000E+00         0.0                           
+361515          MadGraphPythia8EvtGen_A14NNPDF23LO_Znunu_Np0                  7520.9                1.2283          1.0000E+00         0.0                           
+361516          MadGraphPythia8EvtGen_A14NNPDF23LO_Znunu_Np1                  1200.0                1.2283          1.0000E+00         0.0                           
 361517          MadGraphPythia8EvtGen_A14NNPDF23LO_Znunu_Np2                  387.08                1.2283          1.0000E+00         0.0                           
 361518          MadGraphPythia8EvtGen_A14NNPDF23LO_Znunu_Np3                  110.09                1.2283          1.0000E+00         0.0                           
 361519          MadGraphPythia8EvtGen_A14NNPDF23LO_Znunu_Np4                  43.469                1.2283          1.0000E+00         0.0                           
 363123          MGPy8EG_N30NLO_Zmumu_Ht0_70_CVetoBVeto                        1715.0                1.141           8.3177E-01         0.0                           
 363124          MGPy8EG_N30NLO_Zmumu_Ht0_70_CFilterBVeto                      1715.3                1.141           1.0869E-01         0.0                           
 363125          MGPy8EG_N30NLO_Zmumu_Ht0_70_BFilter                           1715.7                1.141           5.9337E-02         0.0                           
-363126          MGPy8EG_N30NLO_Zmumu_Ht70_140_CVetoBVeto                      84.555                1.141           7.1885E-01         0.0                           
-363127          MGPy8EG_N30NLO_Zmumu_Ht70_140_CFilterBVeto                    84.577                1.141           1.7433E-01         0.0                           
+363126          MGPy8EG_N30NLO_Zmumu_Ht70_140_CVetoBVeto                      84.555                1.141           7.1854E-01         0.0                           
+363127          MGPy8EG_N30NLO_Zmumu_Ht70_140_CFilterBVeto                    84.59                 1.141           1.7433E-01         0.0                           
 363128          MGPy8EG_N30NLO_Zmumu_Ht70_140_BFilter                         84.741                1.141           1.0825E-01         0.0                           
 363129          MGPy8EG_N30NLO_Zmumu_Ht140_280_CVetoBVeto                     35.885                1.141           6.7462E-01         0.0                           
 363130          MGPy8EG_N30NLO_Zmumu_Ht140_280_CFilterBVeto                   35.879                1.141           2.0020E-01         0.0                           
@@ -175,7 +174,7 @@ dataset_number  physics_short                                                 cr
 363136          MGPy8EG_N30NLO_Zmumu_Ht500_700_CFilterBVeto                   1.2666                1.141           2.4952E-01         0.0                           
 363137          MGPy8EG_N30NLO_Zmumu_Ht500_700_BFilter                        1.2671                1.141           1.5348E-01         0.0                           
 363138          MGPy8EG_N30NLO_Zmumu_Ht700_1000_CVetoBVeto                    0.44243               1.141           5.7283E-01         0.0                           
-363139          MGPy8EG_N30NLO_Zmumu_Ht700_1000_CFilterBVeto                  0.44508               1.141           2.6215E-01         0.0                           
+363139          MGPy8EG_N30NLO_Zmumu_Ht700_1000_CFilterBVeto                  0.44507               1.141           2.6215E-01         0.0                           
 363140          MGPy8EG_N30NLO_Zmumu_Ht700_1000_BFilter                       0.44414               1.141           1.6216E-01         0.0                           
 363141          MGPy8EG_N30NLO_Zmumu_Ht1000_2000_CVetoBVeto                   0.14712               1.141           5.5323E-01         0.0                           
 363142          MGPy8EG_N30NLO_Zmumu_Ht1000_2000_CFilterBVeto                 0.14718               1.141           2.7808E-01         0.0                           
@@ -188,7 +187,7 @@ dataset_number  physics_short                                                 cr
 363149          MGPy8EG_N30NLO_Zee_Ht0_70_BFilter                             1719.2                1.141           6.0290E-02         0.0                           
 363150          MGPy8EG_N30NLO_Zee_Ht70_140_CVetoBVeto                        85.071                1.141           7.1880E-01         0.0                           
 363151          MGPy8EG_N30NLO_Zee_Ht70_140_CFilterBVeto                      85.046                1.141           1.7684E-01         0.0                           
-363152          MGPy8EG_N30NLO_Zee_Ht70_140_BFilter                           85.186                1.141           1.1320E-01         0.0                           
+363152          MGPy8EG_N30NLO_Zee_Ht70_140_BFilter                           85.174                1.141           1.1322E-01         0.0                           
 363153          MGPy8EG_N30NLO_Zee_Ht140_280_CVetoBVeto                       36.005                1.141           6.7415E-01         0.0                           
 363154          MGPy8EG_N30NLO_Zee_Ht140_280_CFilterBVeto                     36.022                1.141           2.0371E-01         0.0                           
 363155          MGPy8EG_N30NLO_Zee_Ht140_280_BFilter                          36.058                1.141           1.3200E-01         0.0                           
@@ -197,7 +196,7 @@ dataset_number  physics_short                                                 cr
 363158          MGPy8EG_N30NLO_Zee_Ht280_500_BFilter                          8.2435                1.141           1.5016E-01         0.0                           
 363159          MGPy8EG_N30NLO_Zee_Ht500_700_CVetoBVeto                       1.275                 1.141           5.9916E-01         0.0                           
 363160          MGPy8EG_N30NLO_Zee_Ht500_700_CFilterBVeto                     1.2745                1.141           2.5294E-01         0.0                           
-363161          MGPy8EG_N30NLO_Zee_Ht500_700_BFilter                          1.2736                1.141           1.6106E-01         0.0                           
+363161          MGPy8EG_N30NLO_Zee_Ht500_700_BFilter                          1.2712                1.141           1.6103E-01         0.0                           
 363162          MGPy8EG_N30NLO_Zee_Ht700_1000_CVetoBVeto                      0.44469               1.141           5.7798E-01         0.0                           
 363163          MGPy8EG_N30NLO_Zee_Ht700_1000_CFilterBVeto                    0.44613               1.141           2.6649E-01         0.0                           
 363164          MGPy8EG_N30NLO_Zee_Ht700_1000_BFilter                         0.44615               1.141           1.6965E-01         0.0                           
@@ -220,42 +219,42 @@ dataset_number  physics_short                                                 cr
 308096          Sherpa_221_NNPDF30NNLO_Wenu2jets_Min_N_TChannel               6.803                 1.0             1.0000E+00         0.0                           
 308097          Sherpa_221_NNPDF30NNLO_Wmunu2jets_Min_N_TChannel              6.8008                1.0             1.0000E+00         0.0                           
 308098          Sherpa_221_NNPDF30NNLO_Wtaunu2jets_Min_N_TChannel             6.7983                1.0             1.0000E+00         0.0                           
-364156          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV0_70_CVetoBVeto          19150.0               0.9702          8.2450E-01         0.0                           
-364157          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV0_70_CFilterBVeto        19142.0               0.9702          1.3088E-01         0.0                           
-364158          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV0_70_BFilter             19140.0               0.9702          4.4627E-02         0.0                           
-364159          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV70_140_CVetoBVeto        945.4                 0.9702          6.7391E-01         0.0                           
+364156          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV0_70_CVetoBVeto          19150.0               0.9702          8.2442E-01         0.0                           
+364157          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV0_70_CFilterBVeto        19142.0               0.9702          1.3091E-01         0.0                           
+364158          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV0_70_BFilter             19140.0               0.9702          4.4614E-02         0.0                           
+364159          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV70_140_CVetoBVeto        945.66                0.9702          6.7285E-01         0.0                           
 364160          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV70_140_CFilterBVeto      945.82                0.9702          2.4374E-01         0.0                           
 364161          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV70_140_BFilter           944.71                0.9702          8.4821E-02         0.0                           
 364162          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV140_280_CVetoBVeto       339.7                 0.9702          6.0015E-01         0.0                           
-364163          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV140_280_CFilterBVeto     339.8                 0.9702          2.9188E-01         0.0                           
+364163          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV140_280_CFilterBVeto     339.81                0.9702          2.9170E-01         0.0                           
 364164          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV140_280_BFilter          339.65                0.9702          0.110298           0.0                           
 364165          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV280_500_CVetoBVeto       72.072                0.9702          5.4755E-01         0.0                           
 364166          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV280_500_CFilterBVeto     72.093                0.9702          3.2013E-01         0.0                           
-364167          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV280_500_BFilter          72.057                0.9702          1.2405E-01         0.0                           
-364168          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV500_1000                 15.007                0.9702          1.0000E+00         0.0                           
-364169          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV1000_E_CMS               1.2349                0.9702          1.0000E+00         0.0                           
+364167          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV280_500_BFilter          72.058                0.9702          1.2542E-01         0.0                           
+364168          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV500_1000                 15.006                0.9702          1.0000E+00         0.0                           
+364169          Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV1000_E_CMS               1.2348                0.9702          1.0000E+00         0.0                           
 364170          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV0_70_CVetoBVeto           19152.0               0.9702          8.2467E-01         0.0                           
 364171          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV0_70_CFilterBVeto         19146.0               0.9702          1.3087E-01         0.0                           
-364172          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV0_70_BFilter              19138.0               0.9702          4.4838E-02         0.0                           
-364173          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV70_140_CVetoBVeto         944.67                0.9702          6.7486E-01         0.0                           
+364172          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV0_70_BFilter              19138.0               0.9702          4.4820E-02         0.0                           
+364173          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV70_140_CVetoBVeto         944.68                0.9702          6.7487E-01         0.0                           
 364174          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV70_140_CFilterBVeto       945.56                0.9702          2.4378E-01         0.0                           
-364175          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV70_140_BFilter            945.37                0.9702          0.10341            0.0                           
-364176          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV140_280_CVetoBVeto        339.69                0.9702          5.9880E-01         0.0                           
-364177          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV140_280_CFilterBVeto      339.92                0.9702          2.9187E-01         0.0                           
+364175          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV70_140_BFilter            945.69                0.9702          0.10341            0.0                           
+364176          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV140_280_CVetoBVeto        339.63                0.9702          5.9852E-01         0.0                           
+364177          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV140_280_CFilterBVeto      339.87                0.9702          2.9164E-01         0.0                           
 364178          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV140_280_BFilter           339.67                0.9702          0.10898            0.0                           
 364179          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV280_500_CVetoBVeto        72.069                0.9702          5.4825E-01         0.0                           
 364180          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV280_500_CFilterBVeto      72.112                0.9702          3.1974E-01         0.0                           
-364181          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV280_500_BFilter           72.1                  0.9702          1.3706E-01         0.0                           
+364181          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV280_500_BFilter           72.091                0.9702          1.3706E-01         0.0                           
 364182          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV500_1000                  15.047                0.9702          1.0000E+00         0.0                           
-364183          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV1000_E_CMS                1.2343                0.9702          1.0000E+00         0.0                           
+364183          Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV1000_E_CMS                1.2344                0.9702          1.0000E+00         0.0                           
 364184          Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV0_70_CVetoBVeto         19156.0               0.9702          8.2465E-01         0.0                           
 364185          Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV0_70_CFilterBVeto       19149.0               0.9702          1.3157E-01         0.0                           
 364186          Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV0_70_BFilter            19145.0               0.9702          4.5091E-02         0.0                           
 364187          Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV70_140_CVetoBVeto       944.97                0.9702          6.7644E-01         0.0                           
 364188          Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV70_140_CFilterBVeto     946.19                0.9702          2.4253E-01         0.0                           
-364189          Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV70_140_BFilter          945.89                0.9702          0.10391            0.0                           
-364190          Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV140_280_CVetoBVeto      339.79                0.9702          5.9869E-01         0.0                           
-364191          Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV140_280_CFilterBVeto    339.68                0.9702          2.8465E-01         0.0                           
+364189          Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV70_140_BFilter          945.8                 0.9702          0.10391            0.0                           
+364190          Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV140_280_CVetoBVeto      339.68                0.9702          5.9873E-01         0.0                           
+364191          Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV140_280_CFilterBVeto    339.74                0.9702          2.7971E-01         0.0                           
 364192          Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV140_280_BFilter         339.2                 0.9702          1.0409E-01         0.0                           
 364193          Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV280_500_CVetoBVeto      72.085                0.9702          5.4830E-01         0.0                           
 364194          Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV280_500_CFilterBVeto    71.995                0.9702          3.1883E-01         0.0                           
@@ -268,13 +267,13 @@ dataset_number  physics_short                                                 cr
 
 # mc16_13TeV.363600.MGPy8EG_N30NLO_Wenu_Ht0_70_CVetoBVeto.merge.EVNT.e4944_e5984
 363601          MGPy8EG_N30NLO_Wenu_Ht0_70_CFilterBVeto                       16720.0               1.12            1.3891E-01         0.0                           
-363602          MGPy8EG_N30NLO_Wenu_Ht0_70_BFilter                            16718.0               1.12            2.4682E-02         0.0                           
+363602          MGPy8EG_N30NLO_Wenu_Ht0_70_BFilter                            16718.0               1.12            2.4680E-02         0.0                           
 # mc16_13TeV.363603.MGPy8EG_N30NLO_Wenu_Ht70_140_CVetoBVeto.merge.EVNT.e4944_e5984
 # mc16_13TeV.363604.MGPy8EG_N30NLO_Wenu_Ht70_140_CFilterBVeto.merge.EVNT.e4944_e5984
-363605          MGPy8EG_N30NLO_Wenu_Ht70_140_BFilter                          755.62                1.12            5.0395E-02         0.0                           
+363605          MGPy8EG_N30NLO_Wenu_Ht70_140_BFilter                          755.65                1.12            5.0390E-02         0.0                           
 363606          MGPy8EG_N30NLO_Wenu_Ht140_280_CVetoBVeto                      318.93                1.12            6.6586E-01         0.0                           
 363607          MGPy8EG_N30NLO_Wenu_Ht140_280_CFilterBVeto                    319.97                1.12            2.6811E-01         0.0                           
-363608          MGPy8EG_N30NLO_Wenu_Ht140_280_BFilter                         319.44                1.12            7.3307E-02         0.0                           
+363608          MGPy8EG_N30NLO_Wenu_Ht140_280_BFilter                         319.45                1.12            7.3318E-02         0.0                           
 363609          MGPy8EG_N30NLO_Wenu_Ht280_500_CVetoBVeto                      73.538                1.12            6.1954E-01         0.0                           
 # mc16_13TeV.363610.MGPy8EG_N30NLO_Wenu_Ht280_500_CFilterBVeto.merge.EVNT.e4944_e5984
 363611          MGPy8EG_N30NLO_Wenu_Ht280_500_BFilter                         73.565                1.12            9.7287E-02         0.0                           
@@ -291,9 +290,9 @@ dataset_number  physics_short                                                 cr
 363626          MGPy8EG_N30NLO_Wmunu_Ht0_70_BFilter                           16706.0               1.12            2.4676E-02         0.0                           
 363627          MGPy8EG_N30NLO_Wmunu_Ht70_140_CVetoBVeto                      755.22                1.12            7.1225E-01         0.0                           
 363628          MGPy8EG_N30NLO_Wmunu_Ht70_140_CFilterBVeto                    755.76                1.12            2.4175E-01         0.0                           
-363629          MGPy8EG_N30NLO_Wmunu_Ht70_140_BFilter                         755.78                1.12            5.0404E-02         0.0                           
+363629          MGPy8EG_N30NLO_Wmunu_Ht70_140_BFilter                         755.79                1.12            5.0402E-02         0.0                           
 363631          MGPy8EG_N30NLO_Wmunu_Ht140_280_CFilterBVeto                   320.02                1.12            2.6828E-01         0.0                           
-363632          MGPy8EG_N30NLO_Wmunu_Ht140_280_BFilter                        319.46                1.12            7.3336E-02         0.0                           
+363632          MGPy8EG_N30NLO_Wmunu_Ht140_280_BFilter                        319.46                1.12            7.3347E-02         0.0                           
 363633          MGPy8EG_N30NLO_Wmunu_Ht280_500_CVetoBVeto                     73.576                1.12            6.1927E-01         0.0                           
 363634          MGPy8EG_N30NLO_Wmunu_Ht280_500_CFilterBVeto                   73.557                1.12            2.8649E-01         0.0                           
 363635          MGPy8EG_N30NLO_Wmunu_Ht280_500_BFilter                        73.603                1.12            9.7336E-02         0.0                           
@@ -303,7 +302,7 @@ dataset_number  physics_short                                                 cr
 # mc16_13TeV.363640.MGPy8EG_N30NLO_Wmunu_Ht700_1000_CFilterBVeto.merge.EVNT.e4944_e5984
 # mc16_13TeV.363641.MGPy8EG_N30NLO_Wmunu_Ht700_1000_BFilter.merge.EVNT.e4944_e5984
 363642          MGPy8EG_N30NLO_Wmunu_Ht1000_2000_CVetoBVeto                   1.3262                1.12            5.4585E-01         0.0                           
-363644          MGPy8EG_N30NLO_Wmunu_Ht1000_2000_BFilter                      1.3281                1.12            1.4482E-01         0.0                           
+363644          MGPy8EG_N30NLO_Wmunu_Ht1000_2000_BFilter                      1.3287                1.12            1.4496E-01         0.0                           
 # mc16_13TeV.363645.MGPy8EG_N30NLO_Wmunu_Ht2000_E_CMS_CVetoBVeto.merge.EVNT.e5136_e5984
 # mc16_13TeV.363646.MGPy8EG_N30NLO_Wmunu_Ht2000_E_CMS_CFilterBVeto.merge.EVNT.e5136_e5984
 # mc16_13TeV.363647.MGPy8EG_N30NLO_Wmunu_Ht2000_E_CMS_BFilter.merge.EVNT.e5136_e5984
@@ -311,13 +310,13 @@ dataset_number  physics_short                                                 cr
 # mc16_13TeV.363649.MGPy8EG_N30NLO_Wtaunu_Ht0_70_CFilterBVeto.merge.EVNT.e4944_e5984
 # mc16_13TeV.363650.MGPy8EG_N30NLO_Wtaunu_Ht0_70_BFilter.merge.EVNT.e4944_e5984
 363651          MGPy8EG_N30NLO_Wtaunu_Ht70_140_CVetoBVeto                     755.04                1.12            7.1286E-01         0.0                           
-363652          MGPy8EG_N30NLO_Wtaunu_Ht70_140_CFilterBVeto                   755.17                1.12            2.4121E-01         0.0                           
-363653          MGPy8EG_N30NLO_Wtaunu_Ht70_140_BFilter                        755.13                1.12            5.0531E-02         0.0                           
-363655          MGPy8EG_N30NLO_Wtaunu_Ht140_280_CFilterBVeto                  315.99                1.12            2.6839E-01         0.0                           
-363656          MGPy8EG_N30NLO_Wtaunu_Ht140_280_BFilter                       315.66                1.12            7.3239E-02         0.0                           
-363657          MGPy8EG_N30NLO_Wtaunu_Ht280_500_CVetoBVeto                    72.227                1.12            6.2265E-01         0.0                           
+363652          MGPy8EG_N30NLO_Wtaunu_Ht70_140_CFilterBVeto                   755.19                1.12            2.4121E-01         0.0                           
+363653          MGPy8EG_N30NLO_Wtaunu_Ht70_140_BFilter                        755.13                1.12            5.0525E-02         0.0                           
+363655          MGPy8EG_N30NLO_Wtaunu_Ht140_280_CFilterBVeto                  316.0                 1.12            2.6836E-01         0.0                           
+363656          MGPy8EG_N30NLO_Wtaunu_Ht140_280_BFilter                       315.64                1.12            7.3155E-02         0.0                           
+363657          MGPy8EG_N30NLO_Wtaunu_Ht280_500_CVetoBVeto                    72.275                1.12            6.2265E-01         0.0                           
 # mc16_13TeV.363658.MGPy8EG_N30NLO_Wtaunu_Ht280_500_CFilterBVeto.merge.EVNT.e4944_e5984
-363659          MGPy8EG_N30NLO_Wtaunu_Ht280_500_BFilter                       72.231                1.12            9.7439E-02         0.0                           
+363659          MGPy8EG_N30NLO_Wtaunu_Ht280_500_BFilter                       72.226                1.12            9.7291E-02         0.0                           
 # mc16_13TeV.363660.MGPy8EG_N30NLO_Wtaunu_Ht500_700_CVetoBVeto.merge.EVNT.e4944_e5984
 363661          MGPy8EG_N30NLO_Wtaunu_Ht500_700_CFilterBVeto                  11.463                1.12            2.9836E-01         0.0                           
 363662          MGPy8EG_N30NLO_Wtaunu_Ht500_700_BFilter                       11.459                1.12            1.1746E-01         0.0                           
@@ -352,35 +351,35 @@ dataset_number  physics_short                                                 cr
 ##########################################################################################################################
 # sherpa 2.2.2 diboson (VV and VVV)
 
-345705          Sherpa_222_NNPDF30NNLO_ggllll_0M4l130                         0.0099556             1.0             1.0000E+00         0.0                           
-345706          Sherpa_222_NNPDF30NNLO_ggllll_130M4l                          0.010088              1.0             1.0000E+00         0.0                           
+345705          Sherpa_222_NNPDF30NNLO_ggllll_0M4l130                         0.0099598             1.0             1.0000E+00         0.0                           
+345706          Sherpa_222_NNPDF30NNLO_ggllll_130M4l                          0.010089              1.0             1.0000E+00         0.0                           
 345715          Sherpa_222_NNPDF30NNLO_ggllvvInt                              0.26837               1.0             1.0000E+00         0.0                           
 345718          Sherpa_222_NNPDF30NNLO_ggllvvWW                               0.48242               1.0             1.0000E+00         0.0                           
 345723          Sherpa_222_NNPDF30NNLO_ggllvvZZ                               0.0071034             1.0             1.0000E+00         0.0                           
 363507          Sherpa_222_NNPDF30NNLO_WWZ_3l1v2j_EW6                         0.017047              1.0             4.3938E-01         0.0                           
-363508          Sherpa_222_NNPDF30NNLO_WZZ_4l2j_EW6                           0.00039               1.0             1.0000E+00         0.0                           
+363508          Sherpa_222_NNPDF30NNLO_WZZ_4l2j_EW6                           0.00038998            1.0             1.0000E+00         0.0                           
 363509          Sherpa_222_NNPDF30NNLO_WZZ_3l1v2j_EW6                         0.011815              1.0             2.2058E-01         0.0                           
-364242          Sherpa_222_NNPDF30NNLO_WWW_3l3v_EW6                           0.0071986             1.0             1.0000E+00         0.0                           
-364243          Sherpa_222_NNPDF30NNLO_WWZ_4l2v_EW6                           0.0017964             1.0             1.0000E+00         0.0                           
-364244          Sherpa_222_NNPDF30NNLO_WWZ_2l4v_EW6                           0.0035507             1.0             1.0000E+00         0.0                           
-364245          Sherpa_222_NNPDF30NNLO_WZZ_5l1v_EW6                           0.0001881             1.0             1.0000E+00         0.0                           
-364246          Sherpa_222_NNPDF30NNLO_WZZ_3l3v_EW6                           0.001667              1.0             4.4607E-01         0.0                           
-364247          Sherpa_222_NNPDF30NNLO_ZZZ_6l0v_EW6                           1.45e-05              1.0             1.0000E+00         0.0                           
-364248          Sherpa_222_NNPDF30NNLO_ZZZ_4l2v_EW6                           0.0003855             1.0             2.2480E-01         0.0                           
-364249          Sherpa_222_NNPDF30NNLO_ZZZ_2l4v_EW6                           0.0003852             1.0             4.4470E-01         0.0                           
-364250          Sherpa_222_NNPDF30NNLO_llll                                   1.2523                1.0             1.0000E+00         0.0                           
-364251          Sherpa_222_NNPDF30NNLO_llll_m4l100_300_filt100_150            0.35356               1.0             1.2798E-01         0.0                           
+364242          Sherpa_222_NNPDF30NNLO_WWW_3l3v_EW6                           0.0071979             1.0             1.0000E+00         0.0                           
+364243          Sherpa_222_NNPDF30NNLO_WWZ_4l2v_EW6                           0.0017966             1.0             1.0000E+00         0.0                           
+364244          Sherpa_222_NNPDF30NNLO_WWZ_2l4v_EW6                           0.0035467             1.0             1.0000E+00         0.0                           
+364245          Sherpa_222_NNPDF30NNLO_WZZ_5l1v_EW6                           0.00018807            1.0             1.0000E+00         0.0                           
+364246          Sherpa_222_NNPDF30NNLO_WZZ_3l3v_EW6                           0.001668              1.0             4.4626E-01         0.0                           
+364247          Sherpa_222_NNPDF30NNLO_ZZZ_6l0v_EW6                           1.4508e-05            1.0             1.0000E+00         0.0                           
+364248          Sherpa_222_NNPDF30NNLO_ZZZ_4l2v_EW6                           0.00038533            1.0             2.2453E-01         0.0                           
+364249          Sherpa_222_NNPDF30NNLO_ZZZ_2l4v_EW6                           0.00038545            1.0             4.4467E-01         0.0                           
+364250          Sherpa_222_NNPDF30NNLO_llll                                   1.2519                1.0             1.0000E+00         0.0                           
+364251          Sherpa_222_NNPDF30NNLO_llll_m4l100_300_filt100_150            0.35276               1.0             1.2785E-01         0.0                           
 364252          Sherpa_222_NNPDF30NNLO_llll_m4l300                            0.061774              1.0             1.0                0.0                           
-364253          Sherpa_222_NNPDF30NNLO_lllv                                   4.5781                1.0             1.0000E+00         0.0                           
-364254          Sherpa_222_NNPDF30NNLO_llvv                                   12.505                1.0             1.0                0.0                           
+364253          Sherpa_222_NNPDF30NNLO_lllv                                   4.5786                1.0             1.0000E+00         0.0                           
+364254          Sherpa_222_NNPDF30NNLO_llvv                                   12.5                  1.0             1.0                0.0                           
 364255          Sherpa_222_NNPDF30NNLO_lvvv                                   3.235                 1.0             1.0                0.0                           
 364261          Sherpa_222_NNPDF30NNLO_lllv_3lepfilter                        1.5763                1.0             2.0370E-01         0.0                           
 364283          Sherpa_222_NNPDF30NNLO_lllljj_EW6                             0.36586               1.0             1.0000E+00         0.0                           
-364284          Sherpa_222_NNPDF30NNLO_lllvjj_EW6                             0.046701              1.0             1.0000E+00         0.0                           
+364284          Sherpa_222_NNPDF30NNLO_lllvjj_EW6                             0.046921              1.0             1.0000E+00         0.0                           
 364285          Sherpa_222_NNPDF30NNLO_llvvjj_EW6                             0.11629               1.0             1.0000E+00         0.0                           
 364286          Sherpa_222_NNPDF30NNLO_llvvjj_ss_EW4                          0.02521               1.0             1.0000E+00         0.0                           
-364287          Sherpa_222_NNPDF30NNLO_llvvjj_ss_EW6                          0.040864              1.0             1.0000E+00         0.0                           
-364288          Sherpa_222_NNPDF30NNLO_llll_lowMllPtComplement                1.4484                1.0             1.0000E+00         0.0                           
+364287          Sherpa_222_NNPDF30NNLO_llvvjj_ss_EW6                          0.040847              1.0             1.0000E+00         0.0                           
+364288          Sherpa_222_NNPDF30NNLO_llll_lowMllPtComplement                1.4555                1.0             1.0000E+00         0.0                           
 364289          Sherpa_222_NNPDF30NNLO_lllv_lowMllPtComplement                2.9553                1.0             1.0000E+00         0.0                           
 364290          Sherpa_222_NNPDF30NNLO_llvv_lowMllPtComplement                0.17219               1.0             1.0000E+00         0.0                           
 364302          Sherpa_222_NNPDF30NNLO_ggZllZqq                               0.923                 1.0             1.4177E-01         0.0                           
@@ -391,16 +390,16 @@ dataset_number  physics_short                                                 cr
 ##########################################################################################################################
 # sherpa 2.2.1 diboson (VV and VVV)
 
-363355          Sherpa_221_NNPDF30NNLO_ZqqZvv                                 15.565                1.0             2.7963E-01         0.0                           
+363355          Sherpa_221_NNPDF30NNLO_ZqqZvv                                 15.567                1.0             2.7978E-01         0.0                           
 363356          Sherpa_221_NNPDF30NNLO_ZqqZll                                 15.555                1.0             1.4116E-01         0.0                           
 363357          Sherpa_221_NNPDF30NNLO_WqqZvv                                 6.7952                1.0             1.0000E+00         0.0                           
 363358          Sherpa_221_NNPDF30NNLO_WqqZll                                 3.4332                1.0             1.0000E+00         0.0                           
 363359          Sherpa_221_NNPDF30NNLO_WpqqWmlv                               24.705                1.0             1.0000E+00         0.0                           
 363360          Sherpa_221_NNPDF30NNLO_WplvWmqq                               24.728                1.0             1.0000E+00         0.0                           
 363489          Sherpa_221_NNPDF30NNLO_WlvZqq                                 11.418                1.0             1.0000E+00         0.0                           
-363494          Sherpa_221_NNPDF30NNLO_vvvv                                   0.60322               1.0             1.0000E+00         0.0                           
+363494          Sherpa_221_NNPDF30NNLO_vvvv                                   0.60334               1.0             1.0000E+00         0.0                           
 407311          Sherpa_221_NNPDF30NNLO_6l0v_EW6                               0.0001025             1.0             1.0000E+00         0.0                           
-407312          Sherpa_221_NNPDF30NNLO_5l1v_EW6                               0.0005676             1.0             1.0000E+00         0.0                           
+407312          Sherpa_221_NNPDF30NNLO_5l1v_EW6                               0.00056863            1.0             1.0000E+00         0.0                           
 407313          Sherpa_221_NNPDF30NNLO_4l2v_EW6                               0.0043651             1.0             1.0000E+00         0.0                           
 407314          Sherpa_221_NNPDF30NNLO_3l3v_EW6                               0.015773              1.0             1.0000E+00         0.0                           
 407315          Sherpa_221_NNPDF30NNLO_2l4v_EW6                               0.0058087             1.0             1.0000E+00         0.0                           
@@ -408,11 +407,11 @@ dataset_number  physics_short                                                 cr
 ##########################################################################################################################
 # powheg+pythia8 diboson
 
-342556          PowhegPy8EG_CT10nloME_AZNLOCTEQ6L1_ZZllll_mll4_m4l_100_150    1.2791                1.0             3.2542E-02         0.0                           
+342556          PowhegPy8EG_CT10nloME_AZNLOCTEQ6L1_ZZllll_mll4_m4l_100_150    1.2791                1.0             3.2548E-02         0.0                           
 343212          Powheggg2vvPythia8EvtGen_gg_ZZ_bkg_2e2mu_13TeV                0.002749987           1.0             1.0000E+00         0.0                           
 343213          Powheggg2vvPythia8EvtGen_gg_ZZ_bkg_4l_noTau_13TeV             0.002701973           1.0             1.0000E+00         0.0                           
 361601          PowhegPy8EG_CT10nloME_AZNLOCTEQ6L1_WZlvll_mll4                4.5105                1.0             1.0000E+00         0.0                           
-361603          PowhegPy8EG_CT10nloME_AZNLOCTEQ6L1_ZZllll_mll4                1.2692                1.0             1.0000E+00         0.0                           
+361603          PowhegPy8EG_CT10nloME_AZNLOCTEQ6L1_ZZllll_mll4                1.2668                1.0             1.0000E+00         0.0                           
 361604          PowhegPy8EG_CT10nloME_AZNLOCTEQ6L1_ZZvvll_mll4                0.92328               1.0             1.0000E+00         0.0                           
 361605          PowhegPy8EG_CT10nloME_AZNLOCTEQ6L1_ZZvvvv_mll4                0.54527               1.0             1.0000E+00         0.0                           
 361608          PowhegPy8EG_CT10nloME_AZNLOCTEQ6L1_WZqqvv                     5.7748                1.0             1.0000E+00         0.0                           
@@ -427,7 +426,7 @@ dataset_number  physics_short                                                 cr
 410084          MadGraphPythia8EvtGen_A14NNPDF23LO_ttgamma80_noallhad         2.979                 1.47            1.1273E-01         0.0                           
 410087          MadGraphPythia8EvtGen_A14NNPDF23LO_ttgamma_allhad             2.2287                1.47            1.0000E+00         0.0                           
 410088          MadGraphPythia8EvtGen_A14NNPDF23LO_ttgamma4080_allhad         2.2287                1.47            3.0389E-01         0.0                           
-410089          MadGraphPythia8EvtGen_A14NNPDF23LO_ttgamma80_allhad           2.2285                1.47            1.2420E-01         0.0                           
+410089          MadGraphPythia8EvtGen_A14NNPDF23LO_ttgamma80_allhad           2.2295                1.47            1.2492E-01         0.0                           
 
 ##########################################################################################################################
 # aMC@NLO/madgraph ttbar+V
@@ -459,8 +458,8 @@ dataset_number  physics_short                                                 cr
 # madgraph tZ, ttbar_wbxx, 3top, 4top, ttbarWll
 
 304014          MadGraphPythia8EvtGen_A14NNPDF23_3top_SM                      0.0016396             1.0             1.0000E+00         0.0                           
-407321          MadGraphPythia8EvtGen_A14NNPDF23LO_ttbarWll                   0.0002665             1.0             1.0000E+00         0.0                           
-410080          MadGraphPythia8EvtGen_A14NNPDF23_4topSM                       0.0091628             1.00413615479   1.0000E+00         0.0                           
+407321          MadGraphPythia8EvtGen_A14NNPDF23LO_ttbarWll                   0.00026641            1.0             1.0000E+00         0.0                           
+410080          MadGraphPythia8EvtGen_A14NNPDF23_4topSM                       0.0091631             1.00413615479   1.0000E+00         0.0                           
 410081          MadGraphPythia8EvtGen_A14NNPDF23_ttbarWW                      0.0080952             1.22342593851   1.0000E+00         0.0                           
 410550          MadGraphPythia8EvtGen_A14_tZ_4fl_tchan_trilepton              0.020733              1.0             1.0000E+00         0.0                           
 410560          MadGraphPythia8EvtGen_A14_tZ_4fl_tchan_noAllHad               0.24037               1.0             1.0000E+00         0.0                           
@@ -481,15 +480,15 @@ dataset_number  physics_short                                                 cr
 301547          Pythia8EvtGen_A14NNPDF23LO_DYee_1000M1250                     0.0033088             1.0             1.0000E+00         0.0                           
 301548          Pythia8EvtGen_A14NNPDF23LO_DYee_1250M1500                     0.0010952             1.0             1.0000E+00         0.0                           
 301549          Pythia8EvtGen_A14NNPDF23LO_DYee_1500M1750                     0.0004181             1.0             1.0000E+00         0.0                           
-301550          Pythia8EvtGen_A14NNPDF23LO_DYee_1750M2000                     0.0001761             1.0             1.0000E+00         0.0                           
+301550          Pythia8EvtGen_A14NNPDF23LO_DYee_1750M2000                     0.00017612            1.0             1.0000E+00         0.0                           
 301551          Pythia8EvtGen_A14NNPDF23LO_DYee_2000M2250                     7.99e-05              1.0             1.0000E+00         0.0                           
 301552          Pythia8EvtGen_A14NNPDF23LO_DYee_2250M2500                     3.82e-05              1.0             1.0000E+00         0.0                           
-301553          Pythia8EvtGen_A14NNPDF23LO_DYee_2500M2750                     1.91e-05              1.0             1.0000E+00         0.0                           
-301554          Pythia8EvtGen_A14NNPDF23LO_DYee_2750M3000                     9.9e-06               1.0             1.0000E+00         0.0                           
+301553          Pythia8EvtGen_A14NNPDF23LO_DYee_2500M2750                     1.9093e-05            1.0             1.0000E+00         0.0                           
+301554          Pythia8EvtGen_A14NNPDF23LO_DYee_2750M3000                     9.8577e-06            1.0             1.0000E+00         0.0                           
 301555          Pythia8EvtGen_A14NNPDF23LO_DYee_3000M3500                     8.1e-06               1.0             1.0000E+00         0.0                           
-301556          Pythia8EvtGen_A14NNPDF23LO_DYee_3500M4000                     2.4e-06               1.0             1.0000E+00         0.0                           
+301556          Pythia8EvtGen_A14NNPDF23LO_DYee_3500M4000                     2.4154e-06            1.0             1.0000E+00         0.0                           
 301557          Pythia8EvtGen_A14NNPDF23LO_DYee_4000M4500                     8e-07                 1.0             1.0000E+00         0.0                           
-301558          Pythia8EvtGen_A14NNPDF23LO_DYee_4500M5000                     2e-07                 1.0             1.0000E+00         0.0                           
+301558          Pythia8EvtGen_A14NNPDF23LO_DYee_4500M5000                     2.429e-07             1.0             1.0000E+00         0.0                           
 301559          Pythia8EvtGen_A14NNPDF23LO_DYee_5000M                         1e-07                 1.0             1.0000E+00         0.0                           
 301560          Pythia8EvtGen_A14NNPDF23LO_DYmumu_70M120                      1429.4                1.0             1.0000E+00         0.0                           
 301561          Pythia8EvtGen_A14NNPDF23LO_DYmumu_120M180                     13.844                1.0             1.0000E+00         0.0                           
@@ -503,14 +502,14 @@ dataset_number  physics_short                                                 cr
 301569          Pythia8EvtGen_A14NNPDF23LO_DYmumu_1500M1750                   0.0004181             1.0             1.0000E+00         0.0                           
 301570          Pythia8EvtGen_A14NNPDF23LO_DYmumu_1750M2000                   0.0001761             1.0             1.0000E+00         0.0                           
 301571          Pythia8EvtGen_A14NNPDF23LO_DYmumu_2000M2250                   7.98e-05              1.0             1.0000E+00         0.0                           
-301572          Pythia8EvtGen_A14NNPDF23LO_DYmumu_2250M2500                   3.82e-05              1.0             1.0000E+00         0.0                           
+301572          Pythia8EvtGen_A14NNPDF23LO_DYmumu_2250M2500                   3.8236e-05            1.0             1.0000E+00         0.0                           
 301573          Pythia8EvtGen_A14NNPDF23LO_DYmumu_2500M2750                   1.91e-05              1.0             1.0000E+00         0.0                           
 301574          Pythia8EvtGen_A14NNPDF23LO_DYmumu_2750M3000                   9.9e-06               1.0             1.0000E+00         0.0                           
 301575          Pythia8EvtGen_A14NNPDF23LO_DYmumu_3000M3500                   8.1e-06               1.0             1.0000E+00         0.0                           
-301576          Pythia8EvtGen_A14NNPDF23LO_DYmumu_3500M4000                   2.4e-06               1.0             1.0000E+00         0.0                           
+301576          Pythia8EvtGen_A14NNPDF23LO_DYmumu_3500M4000                   2.4159e-06            1.0             1.0000E+00         0.0                           
 301577          Pythia8EvtGen_A14NNPDF23LO_DYmumu_4000M4500                   8e-07                 1.0             1.0000E+00         0.0                           
-301578          Pythia8EvtGen_A14NNPDF23LO_DYmumu_4500M5000                   2e-07                 1.0             1.0000E+00         0.0                           
-301579          Pythia8EvtGen_A14NNPDF23LO_DYmumu_5000M                       1e-07                 1.0             1.0000E+00         0.0                           
+301578          Pythia8EvtGen_A14NNPDF23LO_DYmumu_4500M5000                   2.4274e-07            1.0             1.0000E+00         0.0                           
+301579          Pythia8EvtGen_A14NNPDF23LO_DYmumu_5000M                       1.1664e-07            1.0             1.0000E+00         0.0                           
 303437          Pythia8EvtGen_A14NNPDF23LO_DYtautau_120M180                   13.834                1.0             1.0000E+00         0.0                           
 303438          Pythia8EvtGen_A14NNPDF23LO_DYtautau_180M250                   2.3348                1.0             1.0000E+00         0.0                           
 303439          Pythia8EvtGen_A14NNPDF23LO_DYtautau_250M400                   0.86571               1.0             1.0000E+00         0.0                           
@@ -519,15 +518,15 @@ dataset_number  physics_short                                                 cr
 303442          Pythia8EvtGen_A14NNPDF23LO_DYtautau_800M1000                  0.0083165             1.0             1.0000E+00         0.0                           
 303443          Pythia8EvtGen_A14NNPDF23LO_DYtautau_1000M1250                 0.0033069             1.0             1.0000E+00         0.0                           
 303444          Pythia8EvtGen_A14NNPDF23LO_DYtautau_1250M1500                 0.0010953             1.0             1.0000E+00         0.0                           
-303445          Pythia8EvtGen_A14NNPDF23LO_DYtautau_1500M1750                 0.0004179             1.0             1.0000E+00         0.0                           
+303445          Pythia8EvtGen_A14NNPDF23LO_DYtautau_1500M1750                 0.00041786            1.0             1.0000E+00         0.0                           
 303446          Pythia8EvtGen_A14NNPDF23LO_DYtautau_1750M2000                 0.0001761             1.0             1.0000E+00         0.0                           
-303447          Pythia8EvtGen_A14NNPDF23LO_DYtautau_2000M2250                 7.99e-05              1.0             1.0000E+00         0.0                           
+303447          Pythia8EvtGen_A14NNPDF23LO_DYtautau_2000M2250                 7.9868e-05            1.0             1.0000E+00         0.0                           
 303448          Pythia8EvtGen_A14NNPDF23LO_DYtautau_2250M2500                 3.82e-05              1.0             1.0000E+00         0.0                           
-303449          Pythia8EvtGen_A14NNPDF23LO_DYtautau_2500M2750                 1.91e-05              1.0             1.0000E+00         0.0                           
+303449          Pythia8EvtGen_A14NNPDF23LO_DYtautau_2500M2750                 1.9097e-05            1.0             1.0000E+00         0.0                           
 303450          Pythia8EvtGen_A14NNPDF23LO_DYtautau_2750M3000                 9.9e-06               1.0             1.0000E+00         0.0                           
-303451          Pythia8EvtGen_A14NNPDF23LO_DYtautau_3000M3500                 8.1e-06               1.0             1.0000E+00         0.0                           
-303452          Pythia8EvtGen_A14NNPDF23LO_DYtautau_3500M4000                 2.4e-06               1.0             1.0000E+00         0.0                           
-303453          Pythia8EvtGen_A14NNPDF23LO_DYtautau_4000M4500                 8e-07                 1.0             1.0000E+00         0.0                           
+303451          Pythia8EvtGen_A14NNPDF23LO_DYtautau_3000M3500                 8.0606e-06            1.0             1.0000E+00         0.0                           
+303452          Pythia8EvtGen_A14NNPDF23LO_DYtautau_3500M4000                 2.4181e-06            1.0             1.0000E+00         0.0                           
+303453          Pythia8EvtGen_A14NNPDF23LO_DYtautau_4000M4500                 7.5656e-07            1.0             1.0000E+00         0.0                           
 303454          Pythia8EvtGen_A14NNPDF23LO_DYtautau_4500M5000                 2e-07                 1.0             1.0000E+00         0.0                           
 303455          Pythia8EvtGen_A14NNPDF23LO_DYtautau_5000M                     1e-07                 1.0             1.0000E+00         0.0                           
 305785          Pythia8EvtGen_A14NNPDF23LO_DYtautau_70M120                    1427.0                1.0             1.0000E+00         0.0                           
@@ -543,23 +542,23 @@ dataset_number  physics_short                                                 cr
 301025          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_800M1000              0.010607              1.0             1.0000E+00         0.0                           
 301026          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_1000M1250             0.0042586             1.0             1.0000E+00         0.0                           
 301027          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_1250M1500             0.001422              1.0             1.0000E+00         0.0                           
-301028          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_1500M1750             0.0005452             1.0             1.0000E+00         0.0                           
+301028          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_1500M1750             0.00054526            1.0             1.0000E+00         0.0                           
 301029          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_1750M2000             0.0002299             1.0             1.0000E+00         0.0                           
-301030          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_2000M2250             0.0001039             1.0             1.0000E+00         0.0                           
+301030          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_2000M2250             0.00010386            1.0             1.0000E+00         0.0                           
 301031          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_2250M2500             4.94e-05              1.0             1.0000E+00         0.0                           
 301032          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_2500M2750             2.45e-05              1.0             1.0000E+00         0.0                           
 301033          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_2750M3000             1.25e-05              1.0             1.0000E+00         0.0                           
 301034          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_3000M3500             1e-05                 1.0             1.0000E+00         0.0                           
 301035          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_3500M4000             2.9e-06               1.0             1.0000E+00         0.0                           
 301036          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_4000M4500             9e-07                 1.0             1.0000E+00         0.0                           
-301037          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_4500M5000             3e-07                 1.0             1.0000E+00         0.0                           
-301038          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_5000M                 1e-07                 1.0             1.0000E+00         0.0                           
+301037          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_4500M5000             2.8071e-07            1.0             1.0000E+00         0.0                           
+301038          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_5000M                 1.2648e-07            1.0             1.0000E+00         0.0                           
 361664          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYee_6M10                    13960.0               1.0             5.1407E-02         0.0                           
 361665          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYee_10M60                   6621.5                1.0             2.6644E-01         0.0                           
 361666          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_6M10                  13960.0               1.0             5.4491E-02         0.0                           
 361667          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYmumu_10M60                 6621.4                1.0             2.7369E-01         0.0                           
 361668          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYtautau_6M10                13960.0               1.0             5.9234E-04         0.0                           
-361669          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYtautau_10M60               6621.8                1.0             1.5151E-02         0.0                           
+361669          PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYtautau_10M60               6621.8                1.0             1.5147E-02         0.0                           
 
 ##########################################################################################################################
 # Sherpa low-mass DY
@@ -596,6 +595,8 @@ dataset_number  physics_short                                                 cr
 # Higgs
 
 309450          PowhegPy8EG_NNLOPS_nnlo_30_ggH125_bb_kt200                    0.4763                1.0             1.0000E+00         0.0                           
+309451          Pythia8EvtGen_A14NNPDF23LO_WH125_bb_fj350                     0.63487               1.0             1.3060E-02         0.0                           
+309452          Pythia8EvtGen_A14NNPDF23LO_ZH125_bb_fj350                     0.34656               1.0             1.3036E-02         0.0                           
 341069          Pythia8EvtGen_A14NNPDF23LO_ttH125_gamgam                      0.00091822            1.26263858335   1.0                0.0                           
 341079          PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_WWlvlv_EF_15_5   0.990209              1.0             0.4915             0.0                           
 341080          PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_WWlvlv_EF_15_5  0.084843              1.0             0.51025            0.0                           
@@ -619,17 +620,17 @@ dataset_number  physics_short                                                 cr
 341434          PowhegPythia8EvtGen_CT10_AZNLO_WpH125J_MINLO_qqWWlvqq         0.11404024            1.0             0.43909            0.0                           
 341435          PowhegPythia8EvtGen_CT10_AZNLO_WpH125J_MINLO_tauvtauWWlvlv    0.00192665752         1.0             1.0                0.0                           
 341436          PowhegPythia8EvtGen_CT10_AZNLO_WpH125J_MINLO_tauvtauWWlvqq    0.01829757            1.0             0.43823            0.0                           
-341449          PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_eeWWlvlv_VpT      0.025043              1.0             1.0000E+00         0.0                           
-341450          PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_eeWWlvqq_VpT      0.024955              1.0             4.3800E-01         0.0                           
-341451          PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_mumuWWlvlv_VpT    0.025037              1.0             1.0000E+00         0.0                           
-341452          PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_mumuWWlvqq_VpT    0.026258              1.0             4.3700E-01         0.0                           
-341453          PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_tautauWWlvlv_VpT  0.025302              1.0             1.0000E+00         0.0                           
-341454          PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_tautauWWlvqq_VpT  0.025214              1.0             4.3633E-01         0.0                           
-341455          PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_veveWWlvlv_VpT    0.047757              1.0             1.0000E+00         0.0                           
-341456          PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_veveWWlvqq_VpT    0.049273              1.0             4.3696E-01         0.0                           
-341457          PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_vmuvmuWWlvlv_VpT  0.049228              1.0             1.0000E+00         0.0                           
-341458          PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_vmuvmuWWlvqq_VpT  0.049375              1.0             4.3798E-01         0.0                           
-341459          PowhegPy8EG_CT10_AZNLO_ZH125J_MINLO_vtauvtauWWlvlv_VpT        0.050774              1.0             1.0000E+00         0.0                           
+341449          PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_eeWWlvlv_VpT      0.00057647            1.0             1.0000E+00         0.0                           
+341450          PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_eeWWlvqq_VpT      0.025166              1.0             4.3738E-01         0.0                           
+341451          PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_mumuWWlvlv_VpT    0.00057645            1.0             1.0000E+00         0.0                           
+341452          PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_mumuWWlvqq_VpT    0.026475              1.0             4.3769E-01         0.0                           
+341453          PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_tautauWWlvlv_VpT  0.00058263            1.0             1.0000E+00         0.0                           
+341454          PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_tautauWWlvqq_VpT  0.025395              1.0             4.3717E-01         0.0                           
+341455          PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_veveWWlvlv_VpT    0.049676              1.0             1.0000E+00         0.0                           
+341456          PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_veveWWlvqq_VpT    0.049674              1.0             4.3807E-01         0.0                           
+341457          PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_vmuvmuWWlvlv_VpT  0.049654              1.0             1.0000E+00         0.0                           
+341458          PowhegPythia8EvtGen_CT10_AZNLO_ZH125J_MINLO_vmuvmuWWlvqq_VpT  0.049803              1.0             4.3750E-01         0.0                           
+341459          PowhegPy8EG_CT10_AZNLO_ZH125J_MINLO_vtauvtauWWlvlv_VpT        0.050856              1.0             1.0000E+00         0.0                           
 341471          PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_ZZ4lep           0.013335              1.0             1.0                0.0                           
 341488          PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_ZZ4lep          0.00046872            0.978615629651  1.0000E+00         0.0                           
 341505          PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_ZZ4lep_noTau     0.0060239             1.0             1.0                0.0                           
@@ -648,28 +649,29 @@ dataset_number  physics_short                                                 cr
 343366          aMcAtNloPythia8EvtGen_A14_NNPDF23_NNPDF30ME_ttH125_semilep    0.22276               1.0             1.0                0.0                           
 343367          aMcAtNloPythia8EvtGen_A14_NNPDF23_NNPDF30ME_ttH125_allhad     0.23082               1.0             1.0                0.0                           
 345053          PowhegPythia8EvtGen_NNPDF3_AZNLO_WmH125J_MINLO_lvbb_VpT       0.17545               1.0             1.0000E+00         0.0                           
-345054          PowhegPythia8EvtGen_NNPDF3_AZNLO_WpH125J_MINLO_lvbb_VpT       0.27868               1.0             1.0000E+00         0.0                           
-345055          PowhegPythia8EvtGen_NNPDF3_AZNLO_ZH125J_MINLO_llbb_VpT        0.076098              1.0             1.0000E+00         0.0                           
-345056          PowhegPythia8EvtGen_NNPDF3_AZNLO_ZH125J_MINLO_vvbb_VpT        0.15021               1.0             1.0000E+00         0.0                           
-345057          PowhegPythia8EvtGen_NNPDF3_AZNLO_ggZH125_llbb                 0.0057769             1.0             1.0000E+00         0.0                           
+345054          PowhegPythia8EvtGen_NNPDF3_AZNLO_WpH125J_MINLO_lvbb_VpT       0.27865               1.0             1.0000E+00         0.0                           
+345055          PowhegPythia8EvtGen_NNPDF3_AZNLO_ZH125J_MINLO_llbb_VpT        0.076107              1.0             1.0000E+00         0.0                           
+345056          PowhegPythia8EvtGen_NNPDF3_AZNLO_ZH125J_MINLO_vvbb_VpT        0.15024               1.0             1.0000E+00         0.0                           
+345057          PowhegPythia8EvtGen_NNPDF3_AZNLO_ggZH125_llbb                 0.0057708             1.0             1.0000E+00         0.0                           
 345058          PowhegPythia8EvtGen_NNPDF3_AZNLO_ggZH125_vvbb                 0.01139               1.0             1.0000E+00         0.0                           
 345073          PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_tautaul13l7          3.7366                1.0             4.6656E-01         0.0                           
 345074          PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_tautaulm15hp20       3.7365                1.0             1.7685E-01         0.0                           
 345075          PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_tautaulp15hm20       3.7365                1.0             1.7679E-01         0.0                           
 345076          PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_tautauh30h20         3.7366                1.0             4.7293E-01         0.0                           
 # mc16_13TeV.345097.PowhegPythia8EvtGen_NNLOPS_nnlo_30_ggH125_mumu.merge.EVNT.e5732_e5984
-345106          PowhegPythia8EvtGen_NNPDF30_AZNLOCTEQ6L1_VBFH125_mumu         3.7363                1.0             1.0000E+00         0.0                           
-345120          PowhegPy8EG_NNLOPS_nnlo_30_ggH125_tautaul13l7                 28.303                1.0             4.3345E-01         0.0                           
-345121          PowhegPy8EG_NNLOPS_nnlo_30_ggH125_tautaulm15hp20              28.303                1.0             1.6607E-01         0.0                           
-345122          PowhegPy8EG_NNLOPS_nnlo_30_ggH125_tautaulp15hm20              28.302                1.0             1.6617E-01         0.0                           
+345106          PowhegPythia8EvtGen_NNPDF30_AZNLOCTEQ6L1_VBFH125_mumu         3.7361                1.0             1.0000E+00         0.0                           
+345120          PowhegPy8EG_NNLOPS_nnlo_30_ggH125_tautaul13l7                 28.302                1.0             4.3346E-01         0.0                           
+345121          PowhegPy8EG_NNLOPS_nnlo_30_ggH125_tautaulm15hp20              28.302                1.0             1.6609E-01         0.0                           
+345122          PowhegPy8EG_NNLOPS_nnlo_30_ggH125_tautaulp15hm20              28.302                1.0             1.6615E-01         0.0                           
 345123          PowhegPy8EG_NNLOPS_nnlo_30_ggH125_tautauh30h20                28.302                1.0             4.5052E-01         0.0                           
-345317          PowhegPythia8EvtGen_NNPDF30_AZNLO_WmH125J_Hyy_Wincl_MINLO     0.54007               1.0             1.0000E+00         0.0                           
-345318          PowhegPythia8EvtGen_NNPDF30_AZNLO_WpH125J_Hyy_Wincl_MINLO     0.86189               1.0             1.0000E+00         0.0                           
-345319          PowhegPythia8EvtGen_NNPDF30_AZNLO_ZH125J_Hyy_Zincl_MINLO      0.76089               1.0             1.0000E+00         0.0                           
+345317          PowhegPythia8EvtGen_NNPDF30_AZNLO_WmH125J_Hyy_Wincl_MINLO     0.54016               1.0             1.0000E+00         0.0                           
+345318          PowhegPythia8EvtGen_NNPDF30_AZNLO_WpH125J_Hyy_Wincl_MINLO     0.86204               1.0             1.0000E+00         0.0                           
+345319          PowhegPythia8EvtGen_NNPDF30_AZNLO_ZH125J_Hyy_Zincl_MINLO      0.76087               1.0             1.0000E+00         0.0                           
 345323          PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_WWlvlv               3.7365                1.0             5.1007E-01         0.0                           
-345324          PowhegPythia8EvtGen_NNLOPS_NN30_ggH125_WWlvlv_EF_15_5         28.303                1.0             4.9365E-01         0.0                           
+345324          PowhegPythia8EvtGen_NNLOPS_NN30_ggH125_WWlvlv_EF_15_5         28.302                1.0             4.9373E-01         0.0                           
 345338          PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_bb                   3.7363                1.0             1.0000E+00         0.0                           
 345342          PowhegPy8EG_NNLOPS_nnlo_30_ggH125_bb                          28.301                1.0             1.0000E+00         0.0                           
+345931          PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_bb                   3.7296                1.0             2.6877E-02         0.0                           
 
 ##########################################################################################################################
 # sherpa 2.2.2 W+gamma and Z+gamma
@@ -742,25 +744,25 @@ dataset_number  physics_short                                                 cr
 343279          Sherpa_CT10_SinglePhotonPt15_35_QCUT5_CVetoBVeto              519600.0              1.0             4.4131E-01         0.0                           
 343281          Sherpa_CT10_SinglePhotonPt15_35_QCUT5_CFilterBVeto            519430.0              1.0             4.8275E-01         0.0                           
 343283          Sherpa_CT10_SinglePhotonPt15_35_QCUT5_BFilter                 519460.0              1.0             7.5945E-02         0.0                           
-364543          Sherpa_222_NNPDF30NNLO_SinglePhoton_pty_70_140                4528.8                1.0             1.0000E+00         0.0                           
-364544          Sherpa_222_NNPDF30NNLO_SinglePhoton_pty_140_280               376.2                 1.0             1.0000E+00         0.0                           
-364545          Sherpa_222_NNPDF30NNLO_SinglePhoton_pty_280_500               21.889                1.0             1.0000E+00         0.0                           
+364543          Sherpa_222_NNPDF30NNLO_SinglePhoton_pty_70_140                4527.2                1.0             1.0000E+00         0.0                           
+364544          Sherpa_222_NNPDF30NNLO_SinglePhoton_pty_140_280               376.34                1.0             1.0000E+00         0.0                           
+364545          Sherpa_222_NNPDF30NNLO_SinglePhoton_pty_280_500               21.879                1.0             1.0000E+00         0.0                           
 # mc16_13TeV.364546.Sherpa_222_NNPDF30NNLO_SinglePhoton_pty_500_1000.merge.EVNT.e5938_e5984
-364547          Sherpa_222_NNPDF30NNLO_SinglePhoton_pty_1000_E_CMS            0.029868              1.0             1.0000E+00         0.0                           
+364547          Sherpa_222_NNPDF30NNLO_SinglePhoton_pty_1000_E_CMS            0.029794              1.0             1.0000E+00         0.0                           
 
 ##########################################################################################################################
 # pythia8 gamma+jets
 
 423099          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP8_17                    1.7234e+11            1.0             3.2056E-05         0.0                           
-423100          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP17_35                   16715000000.0         1.0             2.8747E-05         0.0                           
-423101          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP35_50                   1396500000.0          1.0             2.5123E-05         0.0                           
+423100          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP17_35                   16715000000.0         1.0             2.8776E-05         0.0                           
+423101          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP35_50                   1396500000.0          1.0             2.5260E-05         0.0                           
 423102          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP50_70                   379540000.0           1.0             2.67056938015e-05  0.0                           
-423103          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP70_140                  106210000.0           1.0             3.9382E-05         0.0                           
-423104          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP140_280                 6704500.0             1.0             4.9528E-05         0.0                           
-423105          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP280_500                 344260.0              1.0             5.5913E-05         0.0                           
-423106          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP500_800                 23729.0               1.0             5.2916E-05         0.0                           
-423107          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP800_1000                2286.9                1.0             3.5343E-05         0.0                           
-423111          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP2500_3000               0.32495               1.0             3.0235E-05         0.0                           
+423103          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP70_140                  106210000.0           1.0             3.9381E-05         0.0                           
+423104          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP140_280                 6704600.0             1.0             4.9497E-05         0.0                           
+423105          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP280_500                 344260.0              1.0             5.5924E-05         0.0                           
+423106          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP500_800                 23729.0               1.0             5.2926E-05         0.0                           
+423107          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP800_1000                2286.9                1.0             3.5270E-05         0.0                           
+423111          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP2500_3000               0.32495               1.0             3.0277E-05         0.0                           
 
 ##########################################################################################################################
 # sherpa 2.1 diphoton
@@ -776,10 +778,10 @@ dataset_number  physics_short                                                 cr
 303735          Sherpa_CT10_2DP20_myy_1500_2000                               0.012404              1.0             1.1079E-01         0.0                           
 303736          Sherpa_CT10_2DP20_myy_2000_2500                               0.0033589             1.0             8.0448E-02         0.0                           
 303737          Sherpa_CT10_2DP20_myy_2500_3000                               0.0010473             1.0             6.2483E-02         0.0                           
-303738          Sherpa_CT10_2DP20_myy_3000_3500                               0.00035293            1.0             5.0695E-02         0.0                           
-303739          Sherpa_CT10_2DP20_myy_3500_4000                               0.00012408            1.0             4.2072E-02         0.0                           
-303740          Sherpa_CT10_2DP20_myy_4000_4500                               4.4471e-05            1.0             3.5709E-02         0.0                           
-303741          Sherpa_CT10_2DP20_myy_4500_5000                               1.6e-05               1.0             3.0898E-02         0.0                           
+303738          Sherpa_CT10_2DP20_myy_3000_3500                               0.00035274            1.0             5.0695E-02         0.0                           
+303739          Sherpa_CT10_2DP20_myy_3500_4000                               0.00012402            1.0             4.2072E-02         0.0                           
+303740          Sherpa_CT10_2DP20_myy_4000_4500                               4.4472e-05            1.0             3.5709E-02         0.0                           
+303741          Sherpa_CT10_2DP20_myy_4500_5000                               1.6017e-05            1.0             3.0898E-02         0.0                           
 303742          Sherpa_CT10_2DP20_myy_5000_inf                                8.6813e-06            1.0             2.5161E-02         0.0                           
 
 ##########################################################################################################################

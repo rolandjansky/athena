@@ -595,6 +595,8 @@ mc16_13TeV.364363.Sherpa_221_NNPDF30NNLO_Ztautau_Mll2Ml_MAXHTPTV140_280.merge.EV
 # Higgs
 
 mc16_13TeV.309450.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_bb_kt200.merge.EVNT.e6281_e5984
+mc16_13TeV.309451.Pythia8EvtGen_A14NNPDF23LO_WH125_bb_fj350.merge.EVNT.e6282_e5984
+mc16_13TeV.309452.Pythia8EvtGen_A14NNPDF23LO_ZH125_bb_fj350.merge.EVNT.e6282_e5984
 mc16_13TeV.341069.Pythia8EvtGen_A14NNPDF23LO_ttH125_gamgam.merge.EVNT.e4397_e5984
 mc16_13TeV.341079.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_WWlvlv_EF_15_5.merge.EVNT.e3871_e5984
 mc16_13TeV.341080.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_WWlvlv_EF_15_5.merge.EVNT.e3871_e5984
@@ -669,6 +671,7 @@ mc16_13TeV.345323.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_WWlvlv.merge.EVNT.e59
 mc16_13TeV.345324.PowhegPythia8EvtGen_NNLOPS_NN30_ggH125_WWlvlv_EF_15_5.merge.EVNT.e5769_e5984
 mc16_13TeV.345338.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_bb.merge.EVNT.e5684_e5984
 mc16_13TeV.345342.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_bb.merge.EVNT.e5739_e5984
+mc16_13TeV.345931.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_bb.merge.EVNT.e6597_e5984
 
 ##########################################################################################################################
 # sherpa 2.2.2 W+gamma and Z+gamma
