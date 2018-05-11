@@ -94,7 +94,7 @@ StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pO
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
-StatusCode AthenaPoolConverter::createRep(DataObject* pObj, IOpaqueAddress*&/* pAddr*/) {
+StatusCode AthenaPoolConverter::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
    std::lock_guard<CallMutex> lock(m_conv_mut);
    const SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>(pObj->registry());
    if (proxy == nullptr) {
@@ -111,6 +111,9 @@ StatusCode AthenaPoolConverter::createRep(DataObject* pObj, IOpaqueAddress*&/* p
       ATH_MSG_ERROR("createRep - caught exception: " << e.what());
       return(StatusCode::FAILURE);
    }
+   const CLID clid = proxy->clID();
+   // Create a IOpaqueAddress for this object.
+   pAddr = new TokenAddress(POOL_StorageType, clid, "", "", 0, 0);
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
