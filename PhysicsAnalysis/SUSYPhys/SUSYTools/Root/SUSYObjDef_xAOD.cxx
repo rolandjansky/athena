@@ -124,9 +124,9 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_autoconfigPRW(false),
     m_mcCampaign(""),
     m_muUncert(-99.),
-    m_prwDataSF(1./1.03), // default for mc16, see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ExtendedPileupReweighting#Tool_Properties
-    m_prwDataSF_UP(1.), // old value for mc15 (mc16 uncertainties still missing)
-    m_prwDataSF_DW(1./1.18), // old value for mc15 (mc16 uncertainties still missing)
+    m_prwDataSF(-99.),
+    m_prwDataSF_UP(-99.),
+    m_prwDataSF_DW(-99.),
     m_electronTriggerSFStringSingle(""),
     m_eleId(""),
     m_eleIdBaseline(""),
@@ -158,7 +158,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_eled0sig(-99.),
     m_elez0(-99.),
     m_elebaselined0sig(-99.),
-    m_elebaselinez0(0.5),
+    m_elebaselinez0(-99),
     //
     m_muBaselinePt(-99.),
     m_muBaselineEta(-99.),
@@ -167,7 +167,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_mud0sig(-99.),
     m_muz0(-99.),
     m_mubaselined0sig(-99.),
-    m_mubaselinez0(0.5),
+    m_mubaselinez0(-99),
     m_murequirepassedHighPtCuts(false),
     m_muCosmicz0(-99.),
     m_muCosmicd0(-99.),
@@ -476,7 +476,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "PRWConfigFiles",       m_prwConfFiles );
   declareProperty( "PRWLumiCalcFiles",     m_prwLcalcFiles );
   declareProperty( "PRWActualMuFile",      m_prwActualMuFile );
-  declareProperty( "PRWMuUncertainty",     m_muUncert); // = 0.2);
+  declareProperty( "PRWMuUncertainty",     m_muUncert);
   declareProperty( "PRWDataScaleFactor",   m_prwDataSF);
   declareProperty( "PRWDataScaleFactorUP", m_prwDataSF_UP);
   declareProperty( "PRWDataScaleFactorDOWN", m_prwDataSF_DW);
@@ -1178,6 +1178,9 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   //
   configFromFile(m_prwActualMuFile, "PRW.ActualMuFile", rEnv, "GoodRunsLists/data17_13TeV/20180309/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root");
   configFromFile(m_muUncert, "PRW.MuUncertainty", rEnv, 0.2);
+  configFromFile(m_prwDataSF, "PRW.DataSF", rEnv, 1./1.03); // default for mc16, see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ExtendedPileupReweighting#Tool_Properties
+  configFromFile(m_prwDataSF_UP, "PRW.DataSF_UP", rEnv, 1.); // old value for mc15 (mc16 uncertainties still missing)
+  configFromFile(m_prwDataSF_DW, "PRW.DataSF_DW", rEnv, 1./1.18); // old value for mc15 (mc16 uncertainties still missing)
   //
   configFromFile(m_strictConfigCheck, "StrictConfigCheck", rEnv, false);
 
