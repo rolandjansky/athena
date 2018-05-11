@@ -77,49 +77,7 @@ def recurse(rdir, dqregion, ignorepath, refs=None, displaystring='Draw=PE', disp
 
             drawstrs.append('DataName=%s' % options.title)
             dqpar.addAnnotation('display', ','.join(drawstrs))
-
-        # elif rcl.InheritsFrom('TEfficiency'):
-        #     if '/' in key.GetName(): # no slashes allowed in name
-        #         print 'WARNING: cannot have slashes in histogram names, encountered in directory %s, histogram %s' % (rdir.GetPath(), key.GetName())
-        #         continue
-        #     if key.GetName() == 'summary': # 'summary' keyword not allowed
-        #         print 'WARNING: cannot have histogram named summary, encountered in %s' % rdir.GetPath()
-        #         continue
-        #     # path of histogram in output directory
-        #     fpath = rdir.GetPath().replace(ignorepath, '')
-        #     name = (fpath + '/' + key.GetName()).lstrip('/')
-        #     # search for name match in reference file
-        #     if hists:
-        #         match = False
-        #         for hist in hists:
-        #             if hist.match(name):
-        #                 match = True
-        #         if not match: continue
-        #     # 
-        #     elif regex:
-        #         if not regex.match(name): continue
-        #     dqpargs = { 'id' : ('' if fpath else 'top_level/') + name,
-        #                 'algorithm': repeatalgorithm,
-        #                 'inputdatasource': (startpath + '/' if startpath else '') + name,
-        #                 'algorithmparameters': algorithmparameters,
-        #                 #'thresholds': chi2thresh,
-        #                 'thresholds': thresh,
-        #                 }
-        #     if refs:
-        #         dqpargs['references'] = refs
-        #     dqpar = dqregion.newDQParameter( **dqpargs)
-        #     drawstrs = []
-        #     if not options.normalize: drawstrs.append('NoNorm')
-        #     if options.logy and (cl.startswith('TH1') or cl.startswith('TProfile')): drawstrs.append('LogY')
-        #     if options.logy and cl.startswith('TH2'): drawstrs.append('LogZ')
-        #     if options.scaleref != 1: drawstrs.append('ScaleRef=%f' % options.scaleref)
-        #     if options.ratio: drawstrs.append('RatioPad')
-        #     #if options.ratio: drawstrs.append('Ref2DSignif')
-        #     if options.ratio2D: drawstrs.append('Ref2DRatio')
-
-        #     drawstrs.append('DataName=%s' % options.title)
-        #     dqpar.addAnnotation('display', ','.join(drawstrs))
-
+            
         elif rcl.InheritsFrom('TDirectory'):
             newregion = dqregion.newDQRegion( key.GetName(), algorithm=worst )
             recurse(key.ReadObj(), newregion, ignorepath, refs, displaystring, displaystring2D, regex, startpath, hists)
