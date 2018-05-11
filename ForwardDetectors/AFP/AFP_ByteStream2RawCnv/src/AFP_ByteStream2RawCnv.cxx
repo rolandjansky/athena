@@ -95,17 +95,18 @@ StatusCode AFP_ByteStream2RawCnv::fillCollection(const OFFLINE_FRAGMENTS_NAMESPA
 
   const eformat::FullEventFragment<const uint32_t*> *event = m_robDataProvider->getEvent();
 
-  if (!event) {
-    ATH_MSG_WARNING("NULL event retrived from m_robDataProvider");
-    return StatusCode::SUCCESS;
+  // this information will be present only in offline reconstruction
+  // not be at HLT; however the remaining AFP information will be
+  // present both online and offline
+  if (event) {
+    // set information about event in the RawContainer
+    rawContainer->setTimeStamp(event->bc_time_seconds());
+    rawContainer->setTimeStampNS(event->bc_time_nanoseconds());
+    rawContainer->setBCId(event->bc_id());
+    rawContainer->setLumiBlock(event->lumi_block());
+    rawContainer->setLvl1Id(event->lvl1_id());
   }
 
-  // set information about event in the RawContainer
-  rawContainer->setTimeStamp(event->bc_time_seconds());
-  rawContainer->setTimeStampNS(event->bc_time_nanoseconds());
-  rawContainer->setBCId(event->bc_id());
-  rawContainer->setLumiBlock(event->lumi_block());
-  rawContainer->setLvl1Id(event->lvl1_id());
 
   // fill container with collections
   AFP_SiRawCollection *collectionSi = nullptr;
