@@ -47,7 +47,7 @@ atlas_depends_on_subdirs(
 # find_package( lwtnn )
 
 # Build a shared library:
-atlas_add_library( FlavorTagDiscriminantsLib
+atlas_add_library( FlavorTagDiscriminants
   BTagJetAugmenter.cxx
   PUBLIC_HEADERS FlavorTagDiscriminants
    # INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
