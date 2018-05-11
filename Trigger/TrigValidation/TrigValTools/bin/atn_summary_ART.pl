@@ -203,7 +203,7 @@ function highlightDiffs(clear) {
 
 function setDiffCount(diffs) {
   if (diffs>0) {        
-    document.getElementById('nDiffs').innerHTML = '<a href="https://gitlab.cern.ch/atlas/athena/compare/nightly%2F21.1%2F'+document.DiffForm.rel.value+'...nightly%2F21.1%2F'+thisRelease+'">'+diffs+' differences! click here for GitLab diff</a>';
+    document.getElementById('nDiffs').innerHTML = '<a href=\"https://gitlab.cern.ch/atlas/athena/compare/nightly%2F21.1%2F'+document.DiffForm.rel.value+'...nightly%2F21.1%2F'+thisRelease+'\">'+diffs+' differences! click here for GitLab diff</a>';
   }
   else {
     document.getElementById('nDiffs').textContent = '';
