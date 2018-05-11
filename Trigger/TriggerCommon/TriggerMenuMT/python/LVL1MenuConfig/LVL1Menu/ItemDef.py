@@ -7,14 +7,14 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 import re
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('TriggerMenu.Lvl1.py')
+log = logging.getLogger('TriggerMenuMT.Lvl1.py')
 
 # The trigger types
-from TriggerMenu.l1.TriggerTypeDef import TT
-from TriggerMenu.l1.Limits import Limits
-from TriggerMenu.l1.Logic import Logic,Not
-from TriggerMenu.l1.Lvl1MenuItems import LVL1MenuItem
-from TriggerMenu.l1.Lvl1Condition import ThrCondition, Lvl1InternalTrigger
+from TriggerMenuMT.LVL1MenuConfig.LVL1.TriggerTypeDef import TT
+from TriggerMenuMT.LVL1MenuConfig.LVL1.Limits import Limits
+from TriggerMenuMT.LVL1MenuConfig.LVL1.Logic import Logic,Not
+from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1MenuItems import LVL1MenuItem
+from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Condition import ThrCondition, Lvl1InternalTrigger
 
 
 class ItemDef:

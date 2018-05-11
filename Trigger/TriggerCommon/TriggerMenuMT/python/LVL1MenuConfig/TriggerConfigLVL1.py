@@ -2,7 +2,7 @@
 
 import re
 
-from .TriggerConfigL1Topo import TriggerConfigL1Topo
+from TriggerMenuMT.LVL1MenuConfig.TriggerConfigL1Topo import TriggerConfigL1Topo
 from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Menu import Lvl1Menu
 from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags import Lvl1Flags
 
@@ -202,7 +202,7 @@ class TriggerConfigLVL1:
             menuName = TriggerFlags.triggerMenuSetup()
 
         menuName=TriggerConfigL1Topo.getMenuBaseName(menuName)
-        menumodule = __import__('LVL1menu.Menu_%s' % menuName, globals(), locals(), ['defineMenu'], -1)
+        menumodule = __import__('LVL1Menu.Menu_%s' % menuName, globals(), locals(), ['defineMenu'], -1)
         menumodule.defineMenu()
         log.info("menu %s contains %i items and %i thresholds" % ( menuName, len(Lvl1Flags.items()), len(Lvl1Flags.thresholds()) ) )
 
@@ -219,7 +219,7 @@ class TriggerConfigLVL1:
 
         run1 = Lvl1Flags.CTPVersion()<=3
 
-        itemdefmodule = __import__('LVL1menu.ItemDef%s' % ('Run1' if run1 else ''), globals(), locals(), ['ItemDef'], -1)
+        itemdefmodule = __import__('LVL1Menu.ItemDef%s' % ('Run1' if run1 else ''), globals(), locals(), ['ItemDef'], -1)
 
         itemdefmodule.ItemDef.registerItems(self)
         log.info("registered %i items and %i thresholds (%s)" % ( len(self.registeredItems), len(self.registeredThresholds), ('Run 1' if run1 else 'Run 2') ) )
@@ -243,8 +243,8 @@ class TriggerConfigLVL1:
         for itemName in Lvl1Flags.items():
             registeredItem = self.getRegisteredItem(itemName)
             if registeredItem == None:
-                log.fatal("LVL1 item '%s' has not been registered in LVL1menu/ItemDef.py" % itemName)
-                raise RuntimeError("LVL1 item %s has not been registered in LVL1menu/ItemDef.py" % itemName)
+                log.fatal("LVL1 item '%s' has not been registered in LVL1Menu/ItemDef.py" % itemName)
+                raise RuntimeError("LVL1 item %s has not been registered in LVL1Menu/ItemDef.py" % itemName)
 
             if itemName in Lvl1Flags.CtpIdMap():
                 newCTPID = Lvl1Flags.CtpIdMap()[itemName]
