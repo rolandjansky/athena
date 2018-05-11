@@ -16,7 +16,8 @@
 #include "AIDA/IHistogram1D.h"
 #include "GaudiKernel/SmartDataPtr.h" 
 #include "GaudiKernel/NTuple.h"
-#include "GaudiKernel/INTupleSvc.h" 
+#include "GaudiKernel/INTupleSvc.h"
+#include <cmath>
 
 ////namespace InDetSurveyConstraintTool {
 
@@ -24,8 +25,17 @@
 
 SurveyConstraintTestAlg::SurveyConstraintTestAlg(const std::string& name, ISvcLocator* pSvcLocator) :
 AthAlgorithm(name, pSvcLocator),
- m_NLoop(1)
-{
+  m_toolsvc{},            //!< Pointer to tool service
+  m_SurvConstr{},
+  m_pixelManager{},
+  m_SCT_Manager{},
+  m_pixid{},
+  m_sctid{},
+  m_h_PixEC_Align_Disk{},
+  m_h_PixEC_Align_first{},
+  m_h_PixEC_Align{},
+  m_AlignResults_nModules{},
+  m_NLoop(1){
 
 // Part 2: Properties go here
   declareProperty("NLoop"                   ,     m_NLoop);
@@ -38,45 +48,27 @@ AthAlgorithm(name, pSvcLocator),
 StatusCode SurveyConstraintTestAlg::initialize(){
 
   // Part 1: Get the messaging service, print where you are
-  msg(MSG::INFO) << "initialize()" << endmsg;
+  ATH_MSG_DEBUG( "initialize()" );
   
   // Get The ToolSvc
-  StatusCode sc = service("ToolSvc",m_toolsvc);
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not find ToolSvc. Exiting." << endmsg;
-    return sc;
-  }
+  ATH_CHECK( service("ToolSvc",m_toolsvc));
+ 
   
   // Get SurveyConstraint from ToolService
-  sc = m_toolsvc->retrieveTool("SurveyConstraint",m_SurvConstr);
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) <<"Could not find SurveyConstraint Tool. Exiting."<<endmsg;
-    return sc;
-  }
-
+  ATH_CHECK( m_toolsvc->retrieveTool("SurveyConstraint",m_SurvConstr));
+ 
   // get PixelManager
-  sc = detStore()->retrieve(m_pixelManager, "Pixel");
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get PixelManager !" << endmsg;
-    return sc;
-  }
-  msg(MSG::INFO) << "got m_pixelManager" << endmsg;
+  ATH_CHECK(detStore()->retrieve(m_pixelManager, "Pixel"));
+  
   
   // get SCTManager
-  sc = detStore()->retrieve(m_SCT_Manager, "SCT");
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get SCT_Manager !" << endmsg;
-    return sc;
-  }
-  msg(MSG::INFO) << "got m_SCT_Manager" << endmsg;
+  ATH_CHECK(detStore()->retrieve(m_SCT_Manager, "SCT"));
+ 
 
   // get ID helpers from detector store (relying on GeoModel to put them)
-  if ((StatusCode::SUCCESS!=detStore()->retrieve(m_pixid)) ||
-      (StatusCode::SUCCESS!=detStore()->retrieve(m_sctid))) {
-    msg(MSG::FATAL) << "Problem retrieving ID helpers" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  msg(MSG::INFO) << "got ID helpers from detector store (relying on GeoModel to put them)" << endmsg;
+  ATH_CHECK(detStore()->retrieve(m_pixid));
+  ATH_CHECK(detStore()->retrieve(m_sctid));
+  ATH_MSG_DEBUG( "got ID helpers from detector store (relying on GeoModel to put them)" );
 
   // book histograms
   BookHist();
@@ -95,7 +87,7 @@ return StatusCode::SUCCESS;
     if ( !nt )    {    // Check if already booked
       nt = ntupleSvc()->book("/NTUPLES/FILE1/InitialAlignment", CLID_ColumnWiseTuple, "InitialAlignment");
       if ( nt )    {
-  msg(MSG::INFO) << "InitialAlignment ntuple booked." << endmsg;
+  ATH_MSG_INFO( "InitialAlignment ntuple booked." );
   
   sc = nt->addItem("x"         , m_AlignResults_x);
   sc = nt->addItem("y"         , m_AlignResults_y);
@@ -111,7 +103,7 @@ return StatusCode::SUCCESS;
   sc = nt->addItem("Eta"       , m_AlignResults_Identifier_Eta);
   
       } else {   // did not manage to book the N tuple....
-  msg(MSG::ERROR) << "Failed to book InitialAlignment ntuple." << endmsg;
+  ATH_MSG_ERROR( "Failed to book InitialAlignment ntuple." );
       }
     }
     
@@ -156,7 +148,7 @@ return StatusCode::SUCCESS;
       // Write out AlignResults ntuple
       sc = ntupleSvc()->writeRecord("NTUPLES/FILE1/InitialAlignment");
       if (sc.isFailure()) {
-        msg(MSG::ERROR)  << "Could not write InitialAlignment ntuple." << endmsg;
+        ATH_MSG_ERROR( "Could not write InitialAlignment ntuple." );
       }
       
     } // end of module loop
@@ -167,7 +159,7 @@ return StatusCode::SUCCESS;
 StatusCode SurveyConstraintTestAlg::execute() {
 
 // Part 1: Get the messaging service, print where you are
-msg(MSG::INFO) << "execute()" << endmsg;
+ATH_MSG_INFO( "execute()" );
 
  float multipl=1.E3;
 
@@ -184,7 +176,7 @@ msg(MSG::INFO) << "execute()" << endmsg;
    if(i!=0){m_SurvConstr -> finalize();m_SurvConstr -> setup_SurveyConstraintModules();}
    for (iter = m_pixelManager->getDetectorElementBegin(); iter != m_pixelManager->getDetectorElementEnd(); ++iter) {
      const Identifier Pixel_ModuleID = (*iter)->identify(); 
-     if(abs(m_pixid->barrel_ec(Pixel_ModuleID)) == 2){
+     if(std::abs(m_pixid->barrel_ec(Pixel_ModuleID)) == 2){
        m_SurvConstr -> computeConstraint(Pixel_ModuleID,
                                        dparams,        
                                        deltachisq,
@@ -205,27 +197,13 @@ msg(MSG::INFO) << "execute()" << endmsg;
        previous_disk = m_pixid->layer_disk(Pixel_ModuleID);
        previous_sector = m_SurvConstr->SectorNumber(m_pixid->phi_module(Pixel_ModuleID)); 
 
-       if (msgLvl(MSG::DEBUG)) msg() 
-     << "Pixel_ModuleID = " <<  Pixel_ModuleID
-     << endmsg;
-       if (msgLvl(MSG::DEBUG)) msg() 
-     << "alignment parameters = (" << dparams[0] << "," << dparams[1] << "," << dparams[2] << "," << dparams[3] << "," << dparams[4] << "," << dparams[5] << ")"
-     << endmsg;
-       if (msgLvl(MSG::DEBUG)) msg() 
-     << "chi^2 = " << deltachisq
-     << endmsg;
-       if (msgLvl(MSG::DEBUG)) msg() 
-     << "DOCA_Vector = (" << DOCA_Vector[0] << "," << DOCA_Vector[1] << "," << DOCA_Vector[2] << "," << DOCA_Vector[3] << "," << DOCA_Vector[4] << "," << DOCA_Vector[5] << ")"
-     << endmsg;
-       if (msgLvl(MSG::DEBUG)) msg() 
-     << "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,0) << "," << DOCA_Matrix(2,0) << "," << DOCA_Matrix(3,0) << "," << DOCA_Matrix(4,0) << "," << DOCA_Matrix(5,0) << ")"
-     << endmsg;
-       if (msgLvl(MSG::DEBUG)) msg() 
-     << "DOCA_Matrix = (" <<DOCA_Matrix(0,1) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,1) << "," << DOCA_Matrix(3,1) << "," << DOCA_Matrix(4,1) << "," << DOCA_Matrix(5,1) << ")"
-     << endmsg;
-       if (msgLvl(MSG::DEBUG)) msg() 
-     << "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,2) << "," << DOCA_Matrix(3,2) << "," << DOCA_Matrix(4,4) << "," << DOCA_Matrix(5,5) << ")"
-     << endmsg;
+       ATH_MSG_DEBUG( "Pixel_ModuleID = " <<  Pixel_ModuleID);
+       ATH_MSG_DEBUG( "alignment parameters = (" << dparams[0] << "," << dparams[1] << "," << dparams[2] << "," << dparams[3] << "," << dparams[4] << "," << dparams[5] << ")");
+       ATH_MSG_DEBUG( "chi^2 = " << deltachisq);
+       ATH_MSG_DEBUG( "DOCA_Vector = (" << DOCA_Vector[0] << "," << DOCA_Vector[1] << "," << DOCA_Vector[2] << "," << DOCA_Vector[3] << "," << DOCA_Vector[4] << "," << DOCA_Vector[5] << ")");
+       ATH_MSG_DEBUG( "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,0) << "," << DOCA_Matrix(2,0) << "," << DOCA_Matrix(3,0) << "," << DOCA_Matrix(4,0) << "," << DOCA_Matrix(5,0) << ")");
+       ATH_MSG_DEBUG( "DOCA_Matrix = (" <<DOCA_Matrix(0,1) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,1) << "," << DOCA_Matrix(3,1) << "," << DOCA_Matrix(4,1) << "," << DOCA_Matrix(5,1) << ")");
+       ATH_MSG_DEBUG( "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,2) << "," << DOCA_Matrix(3,2) << "," << DOCA_Matrix(4,4) << "," << DOCA_Matrix(5,5) << ")");
        //break;
      }
    }
@@ -240,27 +218,13 @@ msg(MSG::INFO) << "execute()" << endmsg;
              deltachisq,
              DOCA_Vector,  
              DOCA_Matrix); 
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "Pixel Barrel ModuleID = " <<  Pixel_ModuleID
-   << endmsg;
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "alignment parameters = (" << dparams[0] << "," << dparams[1] << "," << dparams[2] << "," << dparams[3] << "," << dparams[4] << "," << dparams[5] << ")"
-   << endmsg;
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "chi^2 = " << deltachisq
-   << endmsg;
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "DOCA_Vector = (" << DOCA_Vector[0] << "," << DOCA_Vector[1] << "," << DOCA_Vector[2] << "," << DOCA_Vector[3] << "," << DOCA_Vector[4] << "," << DOCA_Vector[5] << ")"
-   << endmsg;
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,0) << "," << DOCA_Matrix(2,0) << "," << DOCA_Matrix(3,0) << "," << DOCA_Matrix(4,0) << "," << DOCA_Matrix(5,0) << ")"
-   << endmsg;
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "DOCA_Matrix = (" <<DOCA_Matrix(0,1) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,1) << "," << DOCA_Matrix(3,1) << "," << DOCA_Matrix(4,1) << "," << DOCA_Matrix(5,1) << ")"
-   << endmsg;
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,2) << "," << DOCA_Matrix(3,2) << "," << DOCA_Matrix(4,4) << "," << DOCA_Matrix(5,5) << ")"
-   << endmsg;
+     ATH_MSG_DEBUG( "Pixel Barrel ModuleID = " <<  Pixel_ModuleID);
+     ATH_MSG_DEBUG( "alignment parameters = (" << dparams[0] << "," << dparams[1] << "," << dparams[2] << "," << dparams[3] << "," << dparams[4] << "," << dparams[5] << ")");
+     ATH_MSG_DEBUG( "chi^2 = " << deltachisq);
+     ATH_MSG_DEBUG( "DOCA_Vector = (" << DOCA_Vector[0] << "," << DOCA_Vector[1] << "," << DOCA_Vector[2] << "," << DOCA_Vector[3] << "," << DOCA_Vector[4] << "," << DOCA_Vector[5] << ")");
+     ATH_MSG_DEBUG( "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,0) << "," << DOCA_Matrix(2,0) << "," << DOCA_Matrix(3,0) << "," << DOCA_Matrix(4,0) << "," << DOCA_Matrix(5,0) << ")");
+     ATH_MSG_DEBUG( "DOCA_Matrix = (" <<DOCA_Matrix(0,1) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,1) << "," << DOCA_Matrix(3,1) << "," << DOCA_Matrix(4,1) << "," << DOCA_Matrix(5,1) << ")");
+     ATH_MSG_DEBUG( "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,2) << "," << DOCA_Matrix(3,2) << "," << DOCA_Matrix(4,4) << "," << DOCA_Matrix(5,5) << ")");
      break;
    }
  }
@@ -268,33 +232,19 @@ msg(MSG::INFO) << "execute()" << endmsg;
  // SCT EC
  for (iter = m_SCT_Manager->getDetectorElementBegin(); iter != m_SCT_Manager->getDetectorElementEnd(); ++iter) {
    const Identifier SCT_ModuleID = (*iter)->identify(); 
-   if(abs(m_sctid->barrel_ec(SCT_ModuleID)) == 2){
+   if(std::abs(m_sctid->barrel_ec(SCT_ModuleID)) == 2){
      m_SurvConstr -> computeConstraint(SCT_ModuleID,
              dparams,        
              deltachisq,
              DOCA_Vector,  
              DOCA_Matrix); 
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "SCT_ModuleID = " <<  SCT_ModuleID
-   << endmsg;
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "alignment parameters = (" << dparams[0] << "," << dparams[1] << "," << dparams[2] << "," << dparams[3] << "," << dparams[4] << "," << dparams[5] << ")"
-   << endmsg;
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "chi^2 = " << deltachisq
-   << endmsg;
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "DOCA_Vector = (" << DOCA_Vector[0] << "," << DOCA_Vector[1] << "," << DOCA_Vector[2] << "," << DOCA_Vector[3] << "," << DOCA_Vector[4] << "," << DOCA_Vector[5] << ")"
-   << endmsg;
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,0) << "," << DOCA_Matrix(2,0) << "," << DOCA_Matrix(3,0) << "," << DOCA_Matrix(4,0) << "," << DOCA_Matrix(5,0) << ")"
-   << endmsg;
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "DOCA_Matrix = (" <<DOCA_Matrix(0,1) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,1) << "," << DOCA_Matrix(3,1) << "," << DOCA_Matrix(4,1) << "," << DOCA_Matrix(5,1) << ")"
-   << endmsg;
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,2) << "," << DOCA_Matrix(3,2) << "," << DOCA_Matrix(4,4) << "," << DOCA_Matrix(5,5) << ")"
-   << endmsg;
+     ATH_MSG_DEBUG( "SCT_ModuleID = " <<  SCT_ModuleID);
+     ATH_MSG_DEBUG( "alignment parameters = (" << dparams[0] << "," << dparams[1] << "," << dparams[2] << "," << dparams[3] << "," << dparams[4] << "," << dparams[5] << ")");
+     ATH_MSG_DEBUG( "chi^2 = " << deltachisq);
+     ATH_MSG_DEBUG( "DOCA_Vector = (" << DOCA_Vector[0] << "," << DOCA_Vector[1] << "," << DOCA_Vector[2] << "," << DOCA_Vector[3] << "," << DOCA_Vector[4] << "," << DOCA_Vector[5] << ")");
+     ATH_MSG_DEBUG( "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,0) << "," << DOCA_Matrix(2,0) << "," << DOCA_Matrix(3,0) << "," << DOCA_Matrix(4,0) << "," << DOCA_Matrix(5,0) << ")");
+     ATH_MSG_DEBUG( "DOCA_Matrix = (" <<DOCA_Matrix(0,1) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,1) << "," << DOCA_Matrix(3,1) << "," << DOCA_Matrix(4,1) << "," << DOCA_Matrix(5,1) << ")");
+     ATH_MSG_DEBUG( "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,2) << "," << DOCA_Matrix(3,2) << "," << DOCA_Matrix(4,4) << "," << DOCA_Matrix(5,5) << ")");
      break;
    }
  }
@@ -309,27 +259,13 @@ msg(MSG::INFO) << "execute()" << endmsg;
              deltachisq,
              DOCA_Vector,  
              DOCA_Matrix); 
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "SCT Barrel ModuleID = " <<  SCT_ModuleID
-   << endmsg;
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "alignment parameters = (" << dparams[0] << "," << dparams[1] << "," << dparams[2] << "," << dparams[3] << "," << dparams[4] << "," << dparams[5] << ")"
-   << endmsg;
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "chi^2 = " << deltachisq
-   << endmsg;
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "DOCA_Vector = (" << DOCA_Vector[0] << "," << DOCA_Vector[1] << "," << DOCA_Vector[2] << "," << DOCA_Vector[3] << "," << DOCA_Vector[4] << "," << DOCA_Vector[5] << ")"
-   << endmsg;
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,0) << "," << DOCA_Matrix(2,0) << "," << DOCA_Matrix(3,0) << "," << DOCA_Matrix(4,0) << "," << DOCA_Matrix(5,0) << ")"
-   << endmsg;
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "DOCA_Matrix = (" <<DOCA_Matrix(0,1) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,1) << "," << DOCA_Matrix(3,1) << "," << DOCA_Matrix(4,1) << "," << DOCA_Matrix(5,1) << ")"
-   << endmsg;
-     if (msgLvl(MSG::DEBUG)) msg() 
-   << "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,2) << "," << DOCA_Matrix(3,2) << "," << DOCA_Matrix(4,4) << "," << DOCA_Matrix(5,5) << ")"
-   << endmsg;
+     ATH_MSG_DEBUG( "SCT Barrel ModuleID = " <<  SCT_ModuleID);
+     ATH_MSG_DEBUG( "alignment parameters = (" << dparams[0] << "," << dparams[1] << "," << dparams[2] << "," << dparams[3] << "," << dparams[4] << "," << dparams[5] << ")");
+     ATH_MSG_DEBUG( "chi^2 = " << deltachisq);
+     ATH_MSG_DEBUG( "DOCA_Vector = (" << DOCA_Vector[0] << "," << DOCA_Vector[1] << "," << DOCA_Vector[2] << "," << DOCA_Vector[3] << "," << DOCA_Vector[4] << "," << DOCA_Vector[5] << ")");
+     ATH_MSG_DEBUG( "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,0) << "," << DOCA_Matrix(2,0) << "," << DOCA_Matrix(3,0) << "," << DOCA_Matrix(4,0) << "," << DOCA_Matrix(5,0) << ")");
+     ATH_MSG_DEBUG( "DOCA_Matrix = (" <<DOCA_Matrix(0,1) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,1) << "," << DOCA_Matrix(3,1) << "," << DOCA_Matrix(4,1) << "," << DOCA_Matrix(5,1) << ")");
+     ATH_MSG_DEBUG( "DOCA_Matrix = (" <<DOCA_Matrix(0,0) << "," << DOCA_Matrix(1,1) << "," << DOCA_Matrix(2,2) << "," << DOCA_Matrix(3,2) << "," << DOCA_Matrix(4,4) << "," << DOCA_Matrix(5,5) << ")");
      break;
    }
  }
@@ -342,13 +278,12 @@ msg(MSG::INFO) << "execute()" << endmsg;
 StatusCode SurveyConstraintTestAlg::finalize() {
 
   // Part 1: Get the messaging service, print where you are
-  msg(MSG::INFO) << "finalize()" << endmsg;
+  ATH_MSG_INFO( "finalize()" );
 
-  msg(MSG::INFO) << "mm = " << CLHEP::mm 
+  ATH_MSG_INFO( "mm = " << CLHEP::mm 
      << ", mrad = " << CLHEP::mrad 
      << ", micrometer = " << CLHEP::micrometer 
-     << ", deg = " << CLHEP::deg         
-     << endmsg;
+     << ", deg = " << CLHEP::deg);
 
   return StatusCode::SUCCESS;
 }
