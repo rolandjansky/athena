@@ -347,8 +347,16 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
       } else {
          written.insert(*doIter);
          // Write object
-         IOpaqueAddress* addr(0);
-         if (!m_conversionSvc->createRep(*doIter, addr).isSuccess()) {
+         IOpaqueAddress* addr(nullptr);
+         if (m_conversionSvc->createRep(*doIter, addr).isSuccess()) {
+            SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>((*doIter)->registry());
+            if (proxy != nullptr) {
+               proxy->setAddress(addr);
+            } else {
+               ATH_MSG_WARNING("Could cast DataObject " << (*doIter)->clID() << " " << (*doIter)->name());
+               delete addr; addr = nullptr;
+            }
+         } else {
             ATH_MSG_ERROR("Could not create Rep for DataObject (clid/key):" << (*doIter)->clID() << " " << (*doIter)->name());
             return(StatusCode::FAILURE);
          }
@@ -356,8 +364,17 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
    }
    if (m_conversionSvc.type() == "AthenaPoolCnvSvc") {
       // End of loop over DataObjects, write DataHeader
-      IOpaqueAddress* addr(0);
-      if (!m_conversionSvc->createRep(dataHeaderObj, addr).isSuccess()) {
+      IOpaqueAddress* addr(nullptr);
+      if (m_conversionSvc->createRep(dataHeaderObj, addr).isSuccess()) {
+         SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>(dataHeaderObj->registry());
+         if (proxy != nullptr) {
+            proxy->setAddress(addr);
+         } else {
+            ATH_MSG_ERROR("Could cast DataHeader");
+            delete addr; addr = nullptr;
+            return(StatusCode::FAILURE);
+         }
+      } else {
          ATH_MSG_ERROR("Could not create Rep for DataHeader");
          return(StatusCode::FAILURE);
       }
@@ -383,13 +400,13 @@ StatusCode AthenaOutputStreamTool::fillObjectRefs(const DataObjectVec& dataObjec
       // call fillRepRefs of persistency service
       SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>((*doIter)->registry());
       if (proxy != 0) {
-         TokenAddress addr(POOL_StorageType, (*doIter)->clID(), "", "", 0, 0);
-         if ((m_conversionSvc->fillRepRefs(&addr, *doIter)).isSuccess()) {
-            if ((*doIter)->clID() != 1 || addr.par()[0] != "\n") {
+         IOpaqueAddress* addr(proxy->address());
+         if ((m_conversionSvc->fillRepRefs(addr, *doIter)).isSuccess()) {
+            if ((*doIter)->clID() != 1 || addr->par()[0] != "\n") {
                if ((*doIter)->clID() != ClassID_traits<DataHeader>::ID()) {
-                  m_dataHeader->insert(proxy, &addr);
+                  m_dataHeader->insert(proxy, addr);
                } else {
-                  m_dataHeader->insert(proxy, &addr, m_processTag);
+                  m_dataHeader->insert(proxy, addr, m_processTag);
                }
             }
          } else {

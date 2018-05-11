@@ -101,32 +101,8 @@ StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::poolToObject(const Token*& token, P
 template <class TRANS, class PERS>
 StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::DataObjectToPers(DataObject* pObj, const std::string&/* key*/) {
    const std::string className = ClassName<TRANS>::name();
-   TRANS* obj = nullptr;
+   ATH_MSG_DEBUG("Called DataObjectToPers for " << pObj << ": " << className << ", with key " << pObj->name() << ", map size = " << m_persMap.size());
    PERS* persObj = nullptr;
-   SG::fromStorable(pObj, obj);
-   if (obj == nullptr) {
-      if (pObj->clID() == 1) {
-         if (pObj->registry() != nullptr && pObj->registry()->address() != nullptr) {
-            ATH_MSG_DEBUG("Failed to cast DataObject to transient type, doing pers to pers");
-            if (!this->compareClassGuid(pool::DbReflex::guid(this->m_classDesc))) {
-               ATH_MSG_ERROR("Can not evolve schema in pers to pers copy");
-               return(StatusCode::FAILURE);
-            }
-            if (!poolToObject<PERS>(this->m_i_poolToken, persObj).isSuccess()) {
-               ATH_MSG_ERROR("Failed to read persistent DataType");
-               return(StatusCode::FAILURE);
-            }
-         }
-      } else {
-         ATH_MSG_ERROR("failed to cast to T for class (type/key) " << className << "/" << pObj->name());
-         return(StatusCode::FAILURE);
-      }
-   } else {
-      if (!transToPers(obj, persObj).isSuccess()) {
-         ATH_MSG_ERROR("Failed to convert to persistent DataType for class (type/key) " << className << "/" << pObj->name());
-         return(StatusCode::FAILURE);
-      }
-   }
    m_persMap.insert(std::pair<DataObject*, PERS*>(pObj, persObj));
    return(StatusCode::SUCCESS);
 }
@@ -134,6 +110,7 @@ StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::DataObjectToPers(DataObject* pObj, 
 template <class TRANS, class PERS>
 StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::DataObjectToPool(DataObject* pObj, const std::string& key) {
    const std::string className = ClassName<TRANS>::name();
+   ATH_MSG_DEBUG("Called DataObjectToPool for " << pObj << ": " << className << ", with key " << pObj->name() << ", map size = " << m_persMap.size());
    bool skipDHE = false;
    PERS* persObj = nullptr;
    typename std::map<DataObject*, PERS*>::iterator it = m_persMap.find(pObj);
