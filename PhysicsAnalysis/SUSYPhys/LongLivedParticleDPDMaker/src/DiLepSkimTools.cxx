@@ -87,7 +87,7 @@ bool DerivationFramework::DiLepSkim::eventPassesFilter() const
   {
     for(const xAOD::Muon* mu: *muc)
     {
-      if(m_dlf->PassSiMu(*mu)) return true;
+      if(m_dlf->PassSiMuBa(*mu)) return true;
     }
   }
   else if(m_filter == Filters::DiEl)
