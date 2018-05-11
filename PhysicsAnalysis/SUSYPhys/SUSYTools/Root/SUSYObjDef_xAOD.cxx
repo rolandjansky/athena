@@ -733,7 +733,7 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
     if ( inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData") && inputMetaStore()->retrieve(fmd,"FileMetaData").isSuccess() ) {
       fmd->value(xAOD::FileMetaData::mcProcID, dsid);
       fmd->value(xAOD::FileMetaData::amiTag, amiTag);
-      simType = ( amiTag.find("a875")!=string::npos ? "AFII" : "FS" );
+      simType = (isAtlfast() ? "AFII" : "FS"); 
       if ( amiTag.find("r9364")!=string::npos ) mcCampaignMD = "mc16a";
       else if ( amiTag.find("r9781")!=string::npos ) mcCampaignMD = "mc16c";
       else if ( amiTag.find("r10201")!=string::npos ) mcCampaignMD = "mc16d";
@@ -764,7 +764,6 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
         return StatusCode::FAILURE;
       }
 
-      simType = (isAtlfast() ? "AFII" : "FS"); 
 #endif
     }
 
