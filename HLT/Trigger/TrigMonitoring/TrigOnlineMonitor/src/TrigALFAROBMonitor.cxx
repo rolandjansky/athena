@@ -1057,8 +1057,8 @@ void TrigALFAROBMonitor::decodeRealPMT (uint32_t dataWord, uint32_t quarter, uin
 
   // save input stream flags
 
-    int layerNb = pmf2layer[pmf];
-    int RPNumber = mbNb2RP[mbNb];
+    int layerNb = m_pmf2layer[pmf];
+    int RPNumber = m_mbNb2RP[mbNb];
         RPNumber = RPNumber - 1;  // to access data from array in C - which starts with index 0
 	
     int mask = 0x1;
@@ -1071,10 +1071,10 @@ void TrigALFAROBMonitor::decodeRealPMT (uint32_t dataWord, uint32_t quarter, uin
 
            if (layerNb >= 0) {
 
-		//std::cout <<"mbNb " << mbNb << " layerNb: " << layerNb << " channel: " << channel << " maroc2fib: " << maroc2fiber[channel] << std::endl;
+		//std::cout <<"mbNb " << mbNb << " layerNb: " << layerNb << " channel: " << channel << " maroc2fib: " << m_maroc2fiber[channel] << std::endl;
 
-	   	ATH_MSG_DEBUG( "ROD data "<< "mbNb [counts from 0]: " << mbNb << " layerNb: " << layerNb << " channel: " << channel << " maroc2fib: " << maroc2fiber[channel] );
-		Float_t data = mm_a_f[mbNb][layerNb][maroc2fiber[channel]];
+	   	ATH_MSG_DEBUG( "ROD data "<< "mbNb [counts from 0]: " << mbNb << " layerNb: " << layerNb << " channel: " << channel << " maroc2fib: " << m_maroc2fiber[channel] );
+		Float_t data = m_mm_a_f[mbNb][layerNb][m_maroc2fiber[channel]];
 
 	   	if (layerNb &0x1) {
 	   		m_pV[mbNb][layerNb>>1].push_back(data);
@@ -1083,17 +1083,17 @@ void TrigALFAROBMonitor::decodeRealPMT (uint32_t dataWord, uint32_t quarter, uin
 	   	}
            } else {
                // OD data
-               int od_offset = (4 - pmf) * 64 + maroc2mapmt[channel];
-               int side = od_channel2side[RPNumber][od_offset];
+               int od_offset = (4 - pmf) * 64 + m_maroc2mapmt[channel];
+               int side = m_od_channel2side[RPNumber][od_offset];
 
-               if (od_channel2fiber[RPNumber][od_offset]<35) {
+               if (m_od_channel2fiber[RPNumber][od_offset]<35) {
                   if (side==1) {
-                          m_FiberHitsODPos[mbNb][od_channel2layer[RPNumber][od_offset]-1][od_channel2fiber[RPNumber][od_offset]-1] = true;
+                          m_FiberHitsODPos[mbNb][m_od_channel2layer[RPNumber][od_offset]-1][m_od_channel2fiber[RPNumber][od_offset]-1] = true;
                    } else { 
-                          m_FiberHitsODNeg[mbNb][od_channel2layer[RPNumber][od_offset]-1][od_channel2fiber[RPNumber][od_offset]-1] = true;
+                          m_FiberHitsODNeg[mbNb][m_od_channel2layer[RPNumber][od_offset]-1][m_od_channel2fiber[RPNumber][od_offset]-1] = true;
                   }
-	   	  //ATH_MSG_INFO( "OD hit "<< "mbNb [counts from 0]: " << mbNb << "side: "<< side << " RPNumber: " << RPNumber << " od_offset: " << od_offset << " chan2layer: " << od_channel2layer[RPNumber][od_offset]-1  << 
-                                            //"chan2fiber: "<<od_channel2fiber[RPNumber][od_offset]-1) ;
+	   	  //ATH_MSG_INFO( "OD hit "<< "mbNb [counts from 0]: " << mbNb << "side: "<< side << " RPNumber: " << RPNumber << " od_offset: " << od_offset << " chan2layer: " << m_od_channel2layer[RPNumber][od_offset]-1  << 
+                                            //"chan2fiber: "<<m_od_channel2fiber[RPNumber][od_offset]-1) ;
             }
 
            }
@@ -1529,28 +1529,28 @@ void TrigALFAROBMonitor::findODTracks( ) {
                                 if (m_FiberHitsODPos[iStation*2+iUL][(iLay+1)%3][iFib1] && m_FiberHitsODPos[iStation*2+iUL][(iLay+2)%3][iFib2]){
                                     if (iFib1<29 && m_FiberHitsODPos[iStation*2+iUL][(iLay+1)%3][iFib1+1]){
                                         if (iFib2<29 && m_FiberHitsODPos[iStation*2+iUL][(iLay+2)%3][iFib2+1]){
-                                            Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+3*7+Index];
+                                            Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+3*7+Index];
                                             if (Pos[iUL]>-10){
-                                                Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+2*7+Index];
+                                                Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+2*7+Index];
                                                 if (Pos[iUL]>-10){
-                                                    Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+1*7+Index];
+                                                    Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+1*7+Index];
                                                     if (Pos[iUL]>-10){
-                                                        Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                                        Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
                                                     }
                                                 }
                                             }
                                         }
                                         else{
-                                            Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+1*7+Index];
-                                            if (Pos[iUL]>-10) Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                            Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+1*7+Index];
+                                            if (Pos[iUL]>-10) Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
                                         }
                                     }
                                     else{
                                         if (iFib2<29 && m_FiberHitsODPos[iStation*2+iUL][(iLay+2)%3][iFib2+1]){
-                                            Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+2*7+Index];
-                                            if (Pos[iUL]>-10) Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                            Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+2*7+Index];
+                                            if (Pos[iUL]>-10) Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
                                         }
-                                        else Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                        else Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
                                     }
                                 }
                                 if (Pos[iUL]<-10) { 
@@ -1607,28 +1607,28 @@ void TrigALFAROBMonitor::findODTracks( ) {
                                 if (m_FiberHitsODNeg[iStation*2+iUL][(iLay+1)%3][iFib1] && m_FiberHitsODNeg[iStation*2+iUL][(iLay+2)%3][iFib2]){
                                     if (iFib1<29 && m_FiberHitsODNeg[iStation*2+iUL][(iLay+1)%3][iFib1+1]){
                                         if (iFib2<29 && m_FiberHitsODNeg[iStation*2+iUL][(iLay+2)%3][iFib2+1]){
-                                            Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+3*7+Index];
+                                            Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+3*7+Index];
                                             if (Pos[iUL]>-10){
-                                                Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+2*7+Index];
+                                                Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+2*7+Index];
                                                 if (Pos[iUL]>-10){
-                                                    Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+1*7+Index];
+                                                    Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+1*7+Index];
                                                     if (Pos[iUL]>-10){
-                                                        Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                                        Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
                                                     }
                                                 }
                                             }
                                         }
                                         else{
-                                            Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+1*7+Index];
-                                            if (Pos[iUL]>-10) Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                            Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+1*7+Index];
+                                            if (Pos[iUL]>-10) Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
                                         }
                                     }
                                     else{
                                         if (iFib2<29 && m_FiberHitsODNeg[iStation*2+iUL][(iLay+2)%3][iFib2+1]){
-                                            Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+2*7+Index];
-                                            if (Pos[iUL]>-10) Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                            Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+2*7+Index];
+                                            if (Pos[iUL]>-10) Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
                                         }
-                                        else Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                        else Pos[iUL] = m_LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
                                     }
                                 }
                                 if (Pos[iUL]<-10) {
@@ -1658,7 +1658,7 @@ void TrigALFAROBMonitor::findODTracks( ) {
             }
             //if (FoundTrack[0] && FoundTrack[1]){
             if( (m_ODtracks[iStation*2][iSide] < 0) && (m_ODtracks[iStation*2+1][iSide] < 0) ) {
-                 m_hist_DistStation[2*iStation][iSide]->Fill(-m_ODtracks[iStation*2][iSide] - m_ODtracks[iStation*2+1][iSide] + alfa_edge[iStation*2] + alfa_edge[iStation*2+1]);
+                 m_hist_DistStation[2*iStation][iSide]->Fill(-m_ODtracks[iStation*2][iSide] - m_ODtracks[iStation*2+1][iSide] + m_alfa_edge[iStation*2] + m_alfa_edge[iStation*2+1]);
             }
 
         }//end of iSide-loop
