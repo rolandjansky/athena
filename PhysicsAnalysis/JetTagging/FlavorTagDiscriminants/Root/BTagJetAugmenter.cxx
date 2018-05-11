@@ -1,5 +1,5 @@
 #include <cmath>
-#include "BTagJetAugmenter.hh"
+#include "FlavorTagDiscriminants/BTagJetAugmenter.hh"
 
 BTagJetAugmenter::BTagJetAugmenter():
   pt_uncalib("pt_uncalib"),
