@@ -24,8 +24,8 @@ class EMTopoRejectionTool :
   
   EMTopoRejectionTool(const std::string& name);
   virtual ~EMTopoRejectionTool() override {}
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   virtual bool operator()(const xAOD::IParticle*) override;
   virtual std::size_t tested() const override;
