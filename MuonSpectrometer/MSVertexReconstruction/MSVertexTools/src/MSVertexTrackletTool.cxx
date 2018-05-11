@@ -3,7 +3,7 @@
 */
 
 #include "MSVertexTrackletTool.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "TrkParameters/TrackParameters.h"
 #include "xAODTracking/TrackParticle.h"
