@@ -28,7 +28,7 @@ public:
   JetFromPseudojetMT(std::string name);
 
   // Initialization.
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // Construct jet from pseudojet and input type and add to a container.
   // Return a pointer to the new jet or null for failure.
@@ -50,7 +50,7 @@ public:
                          const xAOD::Jet* pparent) const override;
 
   // Dump to log.
-  void print() const;
+  virtual void print() const override;
 
 
 protected:
