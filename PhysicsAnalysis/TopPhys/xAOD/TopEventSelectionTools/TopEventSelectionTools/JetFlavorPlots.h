@@ -62,12 +62,24 @@ class JetFlavorPlots : public EventSelectorBase {
   // Easy access to histograms.
   std::shared_ptr<PlotManager> m_hists = nullptr;
   std::shared_ptr<PlotManager> m_hists_Loose = nullptr;
+  std::shared_ptr<PlotManager> m_hists_RadHigh = nullptr;
+  std::shared_ptr<PlotManager> m_hists_RadLow = nullptr;
 
   // Nominal hash value
   std::size_t m_nominalHashValue;
 
   // for detailed plots (e.g. vs. Njets)
   bool m_detailed;
+  
+  // to choose between radiation varied and nominal plots 
+  bool m_doNominal;
+  bool m_doRadHigh;
+  bool m_doRadLow;
+  //For ISFR, we need weights positions
+  mutable bool m_isweightsread;
+  mutable unsigned int m_w_Nominal_pos;
+  mutable std::vector<unsigned int> m_w_RadHigh_pos;
+  mutable std::vector<unsigned int> m_w_RadLow_pos;
 
   // pT and eta bin edges, separated by colons
   std::string m_ptBins;
@@ -84,6 +96,12 @@ class JetFlavorPlots : public EventSelectorBase {
 
   // function to translate the binnings into vector of bin edges
   void formatBinning(const std::string& str, std::vector<double>& binEdges );
+  //helper function to book histograms
+  void BookHistograms(std::shared_ptr<PlotManager> h_ptr, std::vector<double> ptBins, std::vector<double> etaBins);
+  //helper function to fill histograms
+  void FillHistograms(std::shared_ptr<PlotManager> h_ptr, double w_event, const top::Event& event) const;
+  
+
 };
 
 }  // namespace top
