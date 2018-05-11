@@ -17,7 +17,7 @@ dqconfig.config         = "TEST"
 #    print "DataQualityConfigurations data directory not found, using $PWD instead."
 #print "Looking for collisions_*.hcfg files in %s" % (hcfg_dir)
 
-hcfg_dir                = '/afs/cern.ch/user/f/fasohns/work/private/dq_level/athena/DataQuality/DataQualityConfigurations/config'
+hcfg_dir                = "/afs/cern.ch/user/f/fasohns/work/private/dq_level/athena/DataQuality/DataQualityConfigurations/config"
 
 dqconfig.hcfg           = "%s/collisions_run.hcfg"       % (hcfg_dir)
 #dqconfig.hcfg_min10     = "%s/collisions_minutes10.hcfg" % (hcfg_dir)
