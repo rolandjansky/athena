@@ -34,14 +34,14 @@ def getSCT_Amp(name="SCT_Amp", **kwargs):
 ######################################################################################
 def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs):
     ## Set up services used by SCT_SurfaceChargesGenerator
-    # Set up SCT_DCSConditiosnSvc
-    from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import SCT_DCSConditionsSvcSetup
-    sct_DCSConditionsSvcSetup = SCT_DCSConditionsSvcSetup()
-    sct_DCSConditionsSvcSetup.setup()
+    # Set up SCT_DCSConditiosnTool
+    from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+    sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+    sct_DCSConditionsToolSetup.setup()
     # Set up SCT_SiliconConditionsTool
     from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
     sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
-    sct_SiliconConditionsToolSetup.setDcsTool(sct_DCSConditionsSvcSetup.getTool())
+    sct_SiliconConditionsToolSetup.setDcsTool(sct_DCSConditionsToolSetup.getTool())
     sct_SiliconConditionsToolSetup.setup()
     # Set up SCT_SiPropertiesTool
     from SiPropertiesSvc.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup

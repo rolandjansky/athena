@@ -54,7 +54,7 @@ namespace InDet {
  *    @class SCT_Clusterization
  *    @brief Form clusters from SCT Raw Data Objects
  *    The class loops over an RDO grouping strips and creating collections of clusters, subsequently recorded in StoreGate
- *    Uses SCT_ConditionsServices to determine which strips to include.
+ *    Uses SCT_ConditionsTools to determine which strips to include.
  */
 class SCT_Clusterization : public AthAlgorithm {
 public:

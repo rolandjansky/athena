@@ -7,9 +7,12 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "SiPropertiesSvc/ISiPropertiesTool.h"
+#include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
 
 #include <vector>
 
@@ -53,6 +56,9 @@ public:
   ServiceHandle<ISiLorentzAngleSvc> m_siLorentzAngleSvc;
   ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
   ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc;
+  bool m_useConditionsTools;
+  ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Silicon conditions tool"};
+  ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "SiPropertiesTool", "Silicon properties tool"};
 
   // Other
   const InDetDD::SiDetectorManager * m_manager;
