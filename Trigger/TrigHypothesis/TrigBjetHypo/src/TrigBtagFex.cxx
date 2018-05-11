@@ -301,7 +301,7 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
   } else {
     const xAOD::JetContainer* Splitjets = nullptr;
     if (getFeature(inputTE, Splitjets, "SplitJet") != HLT::OK || Splitjets == nullptr) {
-      ATH_MSG_INFO( "INPUT - No xAOD::JetContainer SplitJet for ALLTE TrigBtagFex" );
+      ATH_MSG_ERROR( "INPUT - No xAOD::JetContainer SplitJet for ALLTE TrigBtagFex" );
       return HLT::MISSING_FEATURE;
     }
 
