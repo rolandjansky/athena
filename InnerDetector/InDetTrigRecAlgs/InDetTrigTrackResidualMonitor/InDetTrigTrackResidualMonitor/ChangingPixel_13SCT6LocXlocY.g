@@ -13,7 +13,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "GaudiKernel/ITHistSvc.h"
 
 
