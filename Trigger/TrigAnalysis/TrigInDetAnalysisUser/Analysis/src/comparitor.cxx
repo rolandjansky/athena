@@ -875,7 +875,7 @@ int main(int argc, char** argv) {
     std::string atlaslabel = atlaslabel_tmp;
     
     if ( multipanel ) { 
-      tc->Divide( ncolsp, nrowsp );
+      tc->Divide( ncolsp, nrowsp, 0.0003, 0.0003 );
       atlaslabel = "     " + atlaslabel_tmp;
     }
 
