@@ -72,8 +72,8 @@ namespace hltca {
 
       void updateHLTCounters(Content& c, HLTCounter::TriggerLevel level);
 
-      std::vector<Content> fCountStore[2];     // one store for each level
-      std::vector<int>     fChainCounters[2];  // bin index for chain_counter
+      std::vector<Content> m_countStore[2];     // one store for each level
+      std::vector<int>     m_chainCounters[2];  // bin index for chain_counter
 
 
    }; //end class HLTCountOHReceiver
