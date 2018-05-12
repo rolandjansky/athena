@@ -11,19 +11,7 @@
 //<doc><file>	$Id: SimpleVolAction.cxx,v 1.3 2006-04-10 17:12:17 stefspa Exp $
 //<version>	$Name: not supported by cvs2svn $
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "MuonGeoModel/SimpleVolAction.h"
-
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 namespace MuonGM {
 
@@ -38,7 +26,6 @@ SimpleVolAction::~SimpleVolAction ()
 
 void SimpleVolAction::handleVPhysVol (const GeoVPhysVol *pv) 
 {
-    //// here comes my job
     //   std::cout<<" MY VOL Action is handlying a GeoVPhysVol "<<std::endl;
     const GeoLogVol* lv = pv->getLogVol();
     std::string name = lv->getName();
