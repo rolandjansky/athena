@@ -68,7 +68,6 @@ int usage(const std::string& name, int status) {
   s << "    -d,  --dir          value \t creates output files into directory, \"value\" \n\n";
   s << "         --ncols        value \t creates panels with \"value\" columns\n\n";
 
-
   s << "    -e,  --efficiencies       \t make test efficiencies with respect to reference \n";
   s << "    -es, --effscale     value \t scale efficiencies to value\n";
   s << "    -er, --effscaleref  value \t scale reference efficiencies to value\n";
@@ -109,7 +108,6 @@ int usage(const std::string& name, int status) {
   s << "         --nopng              \t do not print png files\n"; 
   s << "         --nopdf              \t do not print pdf files\n"; 
   s << "         --deleteref          \t delete unused reference histograms\n\n";
-
 
 
   s << "    -h,  --help              \t this help\n";
@@ -538,10 +536,7 @@ int main(int argc, char** argv) {
 
   if ( usrlabels.size()>0 && usrlabels.size()==chains.size() ) uselabels = true;
 
-
   /// get release data
-
-  
 
   TTree*   dataTree = 0;
   TString* releaseData = new TString("");
@@ -564,7 +559,6 @@ int main(int argc, char** argv) {
     if ( release_data.size()>0 ) { 
       if ( release_data.size()>1 ) std::cerr << "main() more than one release - using only the first" << std::endl;  
       
-      //    std::cout << "release: " << chop(release_data[0], " " ) << std::endl;
       //    std::cout << "release: " << chop(release_data[0], " " ) << std::endl;
       
       std::string nightly = chop(release_data[0], " " );
@@ -593,10 +587,7 @@ int main(int argc, char** argv) {
   }
 
   TFile& ftest = *_ftest;
-
-
   TFile& fref  = *_fref;
-
 
   std::string testrun = findrun( &ftest );
 
@@ -1104,7 +1095,7 @@ int main(int argc, char** argv) {
 	  }
 
 	  if ( bsigma ) { htest = (TH1F*)rtest.Sigma()->Clone("rtest_sigma"); htest->SetDirectory(0); }
-	  if ( bmean ) {  htest = (TH1F*)rtest.Mean()->Clone("rtest_mean"); htest->SetDirectory(0); }
+	  if ( bmean  ) {  htest = (TH1F*)rtest.Mean()->Clone("rtest_mean");  htest->SetDirectory(0); }
 
 	  if ( htest==0 ) { 
 	    std::cerr << "missing histogram: " << (refchain+" / "+histo.name()) << " " << htest << std::endl; 
@@ -1441,7 +1432,7 @@ int main(int argc, char** argv) {
 	if ( c.find("xAODCnv")!=std::string::npos )     c.erase( c.find("xAODCnv"), 7 );
 	if ( c.find("Tracking")!=std::string::npos ) c.replace( c.find("Tracking"), 8, "Trk" );    
 
-	replace( c, "_Tr", " :  " );
+	if ( c.find("FTK_Track")==std::string::npos ) replace( c, "_Tr", " :  " );
 	replace( c, "_In", " :  " );
 
 	c = "  " + c;
@@ -1625,7 +1616,6 @@ int main(int argc, char** argv) {
 	plots.sortx( xinfo );
 
 	if ( fulldbg ) std::cout << __LINE__ << std::endl;
-
 
 	double  yminset = 0;
 	double  ymaxset = 0;
