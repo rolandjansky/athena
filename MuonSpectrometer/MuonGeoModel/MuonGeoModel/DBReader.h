@@ -344,22 +344,10 @@ namespace MuonGM {
                 if (RPCprint) std::cout<<"ProcessRPC:: s_pitch, z_pitch "
                                        <<rpc->stripPitchS <<" "<<rpc->stripPitchZ<<std::endl;
             
-                //// this if has to disappear .... everything has to go back to
-                //// what happens "else"
-//                 if ((mysql->getGeometryVersion()).substr(0,1) == "Q" && (!mysql->amdb_from_RDB()))
-//                 {
-//                     rpc->NstripPanels_in_s = wrpc[i].nsrost;
-//                     rpc->NstripPanels_in_z = 1;
-//                     rpc->NGasGaps_in_s = wrpc[i].nzrost;
-//                     rpc->NGasGaps_in_z = 1;
-//                 }
-//                 else 
-//                 {
-                    rpc->NstripPanels_in_s = wrpc[i].nsrest;
-                    rpc->NstripPanels_in_z = 1;
-                    rpc->NGasGaps_in_s = wrpc[i].nzrest;
-                    rpc->NGasGaps_in_z = 1; 
-//                 }
+                rpc->NstripPanels_in_s = wrpc[i].nsrest;
+                rpc->NstripPanels_in_z = 1;
+                rpc->NGasGaps_in_s = wrpc[i].nzrest;
+                rpc->NGasGaps_in_z = 1;
                 
                 if (RPCprint)
                     std::cout<<"ProcessRPC:: ngg, nsp, nzp "<<rpc->NGasGaps_in_s<<" "<<rpc->NstripPanels_in_s
