@@ -189,9 +189,9 @@ def EgammaCaloMod( flags ):
     acc.addEventAlgo( filterL1RoIsAlg, sequence='L2CaloEgamma' )
     inViewAlgsSeqName = 'fastCaloInViewAlgs'
 
-    from ViewAlgs.ViewAlgsConf import TestEventViewCreatorAlgorithm
+    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
     from AthenaCommon.Constants import DEBUG
-    fastCaloViewsMaker                 = TestEventViewCreatorAlgorithm('fastCaloViewsMaker', OutputLevel=DEBUG)
+    fastCaloViewsMaker                 = EventViewCreatorAlgorithm('fastCaloViewsMaker', OutputLevel=DEBUG)
     fastCaloViewsMaker.ViewFallThrough = True
     fastCaloViewsMaker.InputMakerInputDecisions  = ['FilteredEMRoIDecisions'] # from EMRoIsUnpackingTool
     fastCaloViewsMaker.RoIsLink        = 'initialRoI' # -||-
