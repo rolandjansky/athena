@@ -1432,8 +1432,6 @@ int main(int argc, char** argv) {
 	if ( c.find("xAODCnv")!=std::string::npos )     c.erase( c.find("xAODCnv"), 7 );
 	if ( c.find("Tracking")!=std::string::npos ) c.replace( c.find("Tracking"), 8, "Trk" );    
 
-	//      if ( c.find("_EFID")!=std::string::npos )     c.erase( c.find("_EFID"), 5 );
-
 	replace( c, "_Tr", " :  " );
 	replace( c, "_In", " :  " );
 
