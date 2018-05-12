@@ -269,7 +269,7 @@ int main(int argc, char** argv) {
   bool addingrefchains = false;
 
 
-  int ncols = 0;
+  int ncols = 3;
 
   std::cout << "ncols " << ncols << std::endl;
 
@@ -511,9 +511,14 @@ int main(int argc, char** argv) {
     std::cout << "usr label[" << il << "] : " << usrlabels[il] << std::endl;
   } 
 
+  std::cout << "atlas style : " << atlasstyle << std::endl;
+
   if ( atlasstyle ) { 
     SetAtlasStyle();
-    
+    gStyle = AtlasStyle();
+
+    gStyle->cd();
+
     gStyle->SetPadLeftMargin(0.14);
     gStyle->SetPadBottomMargin(0.15);
     
@@ -767,6 +772,23 @@ int main(int argc, char** argv) {
     
       ReadCards rc(configfile);
 
+
+      /// read the histos - 1 panel per histo
+      
+      if ( rc.isTagDefined( "histos" ) ) { 
+	
+	std::vector<std::string> raw_input = rc.GetStringVector( "histos" );
+	
+	for ( size_t iraw=0 ; iraw<raw_input.size() ; iraw += 6) {
+	  HistDetails h( &(raw_input[iraw]) );	
+	  Panel p( h.name(), 1 ); 
+	  p.push_back( h );
+	  panels.push_back( p );
+	}
+	
+      }
+      
+
       /// read in the panel descriptions
 
       if ( rc.isTagDefined( "panels" ) ) { 
@@ -787,22 +809,6 @@ int main(int argc, char** argv) {
 	}
 
       }	  
-      
-
-      /// read the histos - 1 panel per histo
-      
-      if ( rc.isTagDefined( "histos" ) ) { 
-	
-	std::vector<std::string> raw_input = rc.GetStringVector( "histos" );
-	
-	for ( size_t iraw=0 ; iraw<raw_input.size() ; iraw += 6) {
-	  HistDetails h( &(raw_input[iraw]) );	
-	  Panel p( h.name(), 1 ); 
-	  p.push_back( h );
-	  panels.push_back( p );
-	}
-	
-      }
       
     }
     else { 
@@ -850,7 +856,7 @@ int main(int argc, char** argv) {
   gStyle->SetPadRightMargin(rightmargin); 
     
 
-  gStyle->SetLineScalePS(1);
+  // gStyle->SetLineScalePS(1);
 
   for ( size_t ipanel=0 ; ipanel<panels.size() ; ipanel++ ) { 
 
@@ -867,9 +873,10 @@ int main(int argc, char** argv) {
 
     bool multipanel = ( panel.size() > 1 );
 
+    gStyle->cd();
+    
     if ( multipanel ) gStyle->SetLineScalePS(1);
-    else               gStyle->SetLineScalePS(0);
-
+ 
     TCanvas* tc = new TCanvas( "tc", "", ncolsp*800, nrowsp*600 );
 
     tc->cd();
@@ -898,6 +905,8 @@ int main(int argc, char** argv) {
       std::cout << "panel: panel: " << panel.name() << "\tsubpanel: " << npanel << std::endl;
 
       if ( multipanel ) tc->cd( npanel );
+
+      SetAtlasStyle();
 
       noreftmp = noref;
 

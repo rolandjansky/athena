@@ -368,7 +368,7 @@ public:
       gStyle->SetOptStat(0);
       if ( href() ) { 
 	href()->SetLineColor(colours[i%6]);
-	href()->SetLineStyle(1);
+	href()->SetLineStyle(2);
 	href()->SetMarkerStyle(0);
         href()->GetYaxis()->SetMoreLogLabels(true);
       }
