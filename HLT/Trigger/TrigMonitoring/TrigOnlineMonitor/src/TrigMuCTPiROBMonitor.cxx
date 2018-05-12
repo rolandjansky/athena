@@ -26,6 +26,9 @@
 #include <TH2F.h>
 #include <TProfile2D.h>
 
+const uint32_t TrigMuCTPiROBMonitor::NUMBER_OF_ENDCAP_UNITS;
+const uint32_t TrigMuCTPiROBMonitor::NUMBER_OF_FORWARD_UNITS;
+const uint32_t TrigMuCTPiROBMonitor::NUMBER_OF_BARREL_UNITS;
 
 /////////////////////////////////////////////////////////////////////////////
 
