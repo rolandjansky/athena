@@ -464,29 +464,11 @@ def fillInMissingLbs(allBSResultsInNt, lbSize):
           for scan in scanTimes:
             scanRunStart = scan[0] >> 32 
             scanLbStart = scan[0] & 0xFFFFFFFF
-            scanRunEnd = scan[1] >> 32 
+            scanRunEnd = scan[1] >> 32
             scanLbEnd = scan[1] & 0xFFFFFFFF 
-            print 'Scan Start ', scanRunStart, scanLbStart, ' Scan End ', scanRunEnd, scanLbEnd 
-            if allBSResultsInNt[lastValidEntry].run == scanRunStart : 
-               print 'True'
-            else: 
-              print 'False'
-            if abs( allBSResultsInNt[lastValidEntry].lbEnd - scanLbStart) < 4 :
-              print 'True'
-            else: 
-              print 'False'
-            if allBSResultsInNt[nextValidEntry].run != scanRunEnd :
-              print 'True'
-            else: 
-              print 'False ', allBSResultsInNt[nextValidEntry].run 
-            if abs( allBSResultsInNt[nextValidEntry].lbStart - scanLbEnd) < 4:
-              print 'True'
-            else: 
-              print 'False'
- 
             if allBSResultsInNt[lastValidEntry].run == scanRunStart \
                and abs( allBSResultsInNt[lastValidEntry].lbEnd - scanLbStart) < 4 \
-               and allBSResultsInNt[nextValidEntry].run != scanRunEnd \
+               and allBSResultsInNt[nextValidEntry].run == scanRunEnd \
                and abs( allBSResultsInNt[nextValidEntry].lbStart - scanLbEnd) < 4 :
               isScan = True
 
@@ -536,18 +518,18 @@ def fillInMissingLbs(allBSResultsInNt, lbSize):
 
       lastValidEntry = nextValidEntry
       i += 1  
-    return
+   
     # Ensure all scans are covered by a valid beamspot entry
     for scan in scanTimes:
       scanRunStart = scan[0] >> 32      
       scanLbStart = scan[0] & 0xFFFFFFFF
-      scanRunEnd = scan[0] >> 32       
-      scanLbEnd = scan[0] & 0xFFFFFFFF
+      scanRunEnd = scan[1] >> 32       
+      scanLbEnd = scan[1] & 0xFFFFFFFF
       if scanRunStart != scanRunEnd:
         print 'Error: Scan runs dont match'
         continue
       scanLb = list(range(scanLbStart, scanLbEnd+1))
-     
+      print ' All scan lbs ', scanLb  
       i=0
       while  i < len( allBSResultsInNt ):
         if(len(scanLb) == 0):
@@ -583,12 +565,16 @@ def fillInMissingLbs(allBSResultsInNt, lbSize):
              bcopy.nValid    = 1    
              bcopy.nVtxAll   = 1   
              bcopy.nVtxPrim  = 1  
-             bcopy.lbStart   =  scanLb[0]    
+             bcopy.lbStart   =  scanLb[0]+1   
              bcopy.lbEnd     =  allBSResultsInNt[i].lbStart-1
+             print 'Inserting front', scanLb[0]+1, allBSResultsInNt[i].lbStart-1
              #Insert it back in 
              allBSResultsInNt.insert(i, bcopy) 
              break
-          elif( allBSResultsInNt[i].lbEnd < scanLb[-1] ):
+          elif( allBSResultsInNt[i].lbEnd < scanLb[-1]  ):
+             if i+1 < len(allBSResultsInNt) and  allBSResultsInNt[i+1].lbEnd < scanLb[-1]:
+               i+=1
+               continue
              #copy beamspot tuple
              bcopy = copy.deepcopy(allBSResultsInNt[i])
              bcopy.status    = 59
@@ -598,12 +584,15 @@ def fillInMissingLbs(allBSResultsInNt, lbSize):
              bcopy.nValid    = 1    
              bcopy.nVtxAll   = 1   
              bcopy.nVtxPrim  = 1  
-             bcopy.lbStart   =  allBSResultsInNt[i].lbEnd   
+             bcopy.lbStart   =  allBSResultsInNt[i].lbEnd+1   
              bcopy.lbEnd     =  scanLb[-1]
              #Insert it back in 
+             print "Inserting  back " , allBSResultsInNt[i].lbEnd+1, scanLb[-1]
              allBSResultsInNt.insert(i+1, bcopy) 
              break
           i+=1
+      else:
+        print 'All scan lbs have a valid BS'
 
 class Plots(ROOTUtils.PlotLibrary):
 
