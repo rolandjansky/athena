@@ -726,14 +726,13 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
     float dsid = -999;
     std::string amiTag("");
     std::string mcCampaignMD("");
-    std::string simType("");
+    std::string simType = (isAtlfast() ? "AFII" : "FS");
     const xAOD::FileMetaData* fmd = 0;
 
     // let's use MetaData to extract sample information
     if ( inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData") && inputMetaStore()->retrieve(fmd,"FileMetaData").isSuccess() ) {
       fmd->value(xAOD::FileMetaData::mcProcID, dsid);
       fmd->value(xAOD::FileMetaData::amiTag, amiTag);
-      simType = (isAtlfast() ? "AFII" : "FS"); 
       if ( amiTag.find("r9364")!=string::npos ) mcCampaignMD = "mc16a";
       else if ( amiTag.find("r9781")!=string::npos ) mcCampaignMD = "mc16c";
       else if ( amiTag.find("r10201")!=string::npos ) mcCampaignMD = "mc16d";
@@ -1178,8 +1177,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_prwActualMuFile, "PRW.ActualMuFile", rEnv, "GoodRunsLists/data17_13TeV/20180309/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root");
   configFromFile(m_muUncert, "PRW.MuUncertainty", rEnv, 0.2);
   configFromFile(m_prwDataSF, "PRW.DataSF", rEnv, 1./1.03); // default for mc16, see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ExtendedPileupReweighting#Tool_Properties
-  configFromFile(m_prwDataSF_UP, "PRW.DataSF_UP", rEnv, 1.); // old value for mc15 (mc16 uncertainties still missing)
-  configFromFile(m_prwDataSF_DW, "PRW.DataSF_DW", rEnv, 1./1.18); // old value for mc15 (mc16 uncertainties still missing)
+  configFromFile(m_prwDataSF_UP, "PRW.DataSF_UP", rEnv, 1./0.99); // mc16 uncertainty? defaulting to the value in PRWtool
+  configFromFile(m_prwDataSF_DW, "PRW.DataSF_DW", rEnv, 1./1.07); // mc16 uncertainty? defaulting to the value in PRWtool
   //
   configFromFile(m_strictConfigCheck, "StrictConfigCheck", rEnv, false);
 
