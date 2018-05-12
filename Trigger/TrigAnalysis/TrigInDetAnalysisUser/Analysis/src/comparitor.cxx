@@ -66,6 +66,8 @@ int usage(const std::string& name, int status) {
   s << "    -t,  --tag          value \t appends tag 'value' to the end of output plot names, \n";
   s << "    -k,  --key          value \t prepends key 'value' to the from of output plots name, \n";
   s << "    -d,  --dir          value \t creates output files into directory, \"value\" \n\n";
+  s << "         --ncols        value \t creates panels with \"value\" columns\n\n";
+
 
   s << "    -e,  --efficiencies       \t make test efficiencies with respect to reference \n";
   s << "    -es, --effscale     value \t scale efficiencies to value\n";
@@ -132,7 +134,7 @@ void ascale( TH1F* h, double s_ ) {
     h->SetBinError( i, h->GetBinError(i)*s_ );
   }
 }
-
+ 
 
 
 // replace from a string
@@ -267,11 +269,9 @@ int main(int argc, char** argv) {
   bool addingrefchains = false;
 
 
-  int nrows = 0;
   int ncols = 0;
 
-  std::cout << "nrows " << nrows << "\tncols " << ncols << std::endl;
-
+  std::cout << "ncols " << ncols << std::endl;
 
   for(int i=1; i<argc; i++){
     std::string arg  = argv[i];
@@ -382,6 +382,10 @@ int main(int argc, char** argv) {
     } 
     else if ( arg=="-er" || arg=="--effscaleref" ) { 
       if ( ++i<argc ) scale_eff_ref=std::atof(argv[i]);
+      else return usage(argv[0], -1);
+    } 
+    else if (               arg=="--ncols" ) { 
+      if ( ++i<argc ) ncols=std::atof(argv[i]);
       else return usage(argv[0], -1);
     } 
     else if ( arg=="-np" || arg=="--noplots" ) { 
@@ -773,7 +777,7 @@ int main(int argc, char** argv) {
 	  
 	  std::vector<std::string> raw_input = rc.GetStringVector( panel_config[ipanel] );
 	  
-	  Panel p( panel_config[ipanel], 3 );
+	  Panel p( panel_config[ipanel], ncols );
 	  
 	  if ( raw_input.empty() ) throw std::exception();
 	  for ( size_t iraw=0 ; iraw<raw_input.size() ; iraw += 6 ) p.push_back( HistDetails( &(raw_input[iraw]) ) );
@@ -856,23 +860,26 @@ int main(int argc, char** argv) {
 
     std::cout << panel << "\n" << std::endl;
 
-    ncols = panel.ncols();
-    nrows = panel.nrows();
+    int ncolsp = panel.ncols();
+    int nrowsp = panel.nrows();
 
-    std::cout << "\nncols: " << ncols << "\tnrows: " << nrows << std::endl;
+    std::cout << "\nncols: " << ncolsp << "\tnrows: " << nrowsp << std::endl;
 
-    TCanvas* tc = new TCanvas( "tc", "", ncols*800, nrows*600 );
-
-    tc->cd();
-    
     bool multipanel = ( panel.size() > 1 );
 
-    if ( multipanel ) tc->Divide( ncols, nrows );
-	 
+    if ( multipanel ) gStyle->SetLineScalePS(1);
+    else               gStyle->SetLineScalePS(0);
+
+    TCanvas* tc = new TCanvas( "tc", "", ncolsp*800, nrowsp*600 );
+
+    tc->cd();
+
     std::string atlaslabel = atlaslabel_tmp;
-
-    if ( multipanel ) atlaslabel = "     " + atlaslabel_tmp;
-
+    
+    if ( multipanel ) { 
+      tc->Divide( ncolsp, nrowsp );
+      atlaslabel = "     " + atlaslabel_tmp;
+    }
 
     /// histos within the panel
 
@@ -886,7 +893,7 @@ int main(int argc, char** argv) {
       AxisInfo xinfo = histo.xaxis(); 
       AxisInfo yinfo = histo.yaxis(); 
 
-      int npanel = nrows*(i/nrows) + i%nrows + 1 ;
+      int npanel = nrowsp*(i/nrowsp) + i%nrowsp + 1 ;
       
       std::cout << "panel: panel: " << panel.name() << "\tsubpanel: " << npanel << std::endl;
 
@@ -1831,7 +1838,7 @@ int main(int argc, char** argv) {
 	std::string printbase = dir+panel.name()+tag;
 
 	if ( !nopdf ) print_pad( printbase+".pdf" );
-	if ( !nopdf ) print_pad( printbase+".png" );
+	if ( !nopng ) print_pad( printbase+".png" );
 	
 	std::cout << std::endl;
       }
