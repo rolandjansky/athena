@@ -881,7 +881,7 @@ int main(int argc, char** argv) {
 
     /// histos within the panel
 
-    for ( int i=0 ; i<panel.size() ; i++ ) {
+    for ( size_t i=0 ; i<panel.size() ; i++ ) {
       
       HistDetails histo = panel[i];
 
@@ -1836,6 +1836,7 @@ int main(int argc, char** argv) {
 
 	if ( !nopdf ) print_pad( printbase+".pdf" );
 	if ( !nopng ) print_pad( printbase+".png" );
+	if ( Cfile  )  print_pad( printbase+".C" );
 	
 	std::cout << std::endl;
       }
