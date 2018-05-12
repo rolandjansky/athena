@@ -24,8 +24,8 @@ formatList = ['PHYSVAL',
               'FTAG1', 'FTAG2', 'FTAG3', 'FTAG4', 'FTAG5',
               'BPHY1', 'BPHY2', 'BPHY3', 'BPHY4', 'BPHY5', 'BPHY6', 'BPHY7', 'BPHY8', 'BPHY9', 'BPHY10', 'BPHY11', 'BPHY12',
               'MUON0', 'MUON1', 'MUON2', 'MUON3', 'MUON4',
-              'TCAL1',
-              'HION1', 'HION2', 'HION3', 'HION4', 'HION5', 'HION6', 'HION7', 'HION8', 'HION9', 'HION10'
+              'TCAL1'
+              #'HION1', 'HION2', 'HION3', 'HION4', 'HION5', 'HION6', 'HION7', 'HION8', 'HION9', 'HION10'
 ]
 
 truthFormatList = ['TRUTH0', 'TRUTH1', 'TRUTH3']
