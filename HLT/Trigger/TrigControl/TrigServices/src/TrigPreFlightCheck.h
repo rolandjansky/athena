@@ -63,8 +63,8 @@ private:
 
 inline const InterfaceID& TrigPreFlightCheck::interfaceID()
 {
-  static const InterfaceID _IID("TrigPreFlightCheck", 1, 0);
-  return _IID;
+  static const InterfaceID IID("TrigPreFlightCheck", 1, 0);
+  return IID;
 }
 
 #endif
