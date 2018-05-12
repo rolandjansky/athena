@@ -526,7 +526,7 @@ int main(int argc, char** argv) {
     gStyle->SetPadBottomMargin(0.105);
   }
 
-  gStyle->SetPadRightMargin(0.03);
+  gStyle->SetPadRightMargin(0.01);
   gStyle->SetPadTopMargin(0.05);
 
   std::cout << "Chains: " << std::endl;
@@ -859,6 +859,8 @@ int main(int argc, char** argv) {
 
     int ncolsp = panel.ncols();
     int nrowsp = panel.nrows();
+    
+    double extraw = 1;
 
     std::cout << "\nncols: " << ncolsp << "\tnrows: " << nrowsp << std::endl;
 
@@ -868,14 +870,16 @@ int main(int argc, char** argv) {
     
     if ( multipanel ) gStyle->SetLineScalePS(1);
  
-    TCanvas* tc = new TCanvas( "tc", "", ncolsp*800, nrowsp*600 );
+    if ( multipanel ) extraw = 1.05;
+
+    TCanvas* tc = new TCanvas( "tc", "", extraw*ncolsp*800, nrowsp*600 );
 
     tc->cd();
 
     std::string atlaslabel = atlaslabel_tmp;
     
     if ( multipanel ) { 
-      tc->Divide( ncolsp, nrowsp, 0.0003, 0.0003 );
+      tc->Divide( ncolsp, nrowsp, 0.0001, 0.0003 );
       atlaslabel = "     " + atlaslabel_tmp;
     }
 
