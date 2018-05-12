@@ -22,16 +22,6 @@
 #include "sTGC_Digitization/sTgcVMMSim.h"
 #include "sTGC_Digitization/sTgcSimDigitData.h"
 
-//Gaudi - Core
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/SystemOfUnits.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "PathResolver/PathResolver.h"
-#include "AIDA/IHistogram1D.h"
-#include "EventInfo/TagInfo.h"
-#include "EventInfoMgt/ITagInfoMgr.h"
-
 //Geometry
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
@@ -55,11 +45,9 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
-#include <string>
 #include <sstream>
 #include <iostream>
 #include <fstream>
-#include <vector>
 
 #include <TFile.h>
 #include <TH2.h>
@@ -146,7 +134,7 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
     m_timeJitterElectronicsStrip(0),
     m_timeJitterElectronicsPad(0),
     m_hitTimeMergeThreshold(0),
-    m_energyDepositThreshold(300.0*Gaudi::Units::eV)
+    m_energyDepositThreshold(300.0*CLHEP::eV)
 
     //m_file(0),
     //m_SimHitOrg(0),

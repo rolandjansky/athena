@@ -60,7 +60,6 @@ class RpcDigitContainer;
 class RpcIdHelper;
 class PileUpMergeSvc;
 class IAtRndmGenSvc;
-class MsgStream;
 class ITagInfoMgr;
  
 class IRPCConditionsSvc;

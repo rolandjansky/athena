@@ -8,32 +8,25 @@
     Based on CscClusterBuilder by Ketevi A. Assamagan
 */
 
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
-
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonIdHelpers/RpcIdHelper.h"
 
 #include "RpcClusterization/RpcClusterBuilderPRD.h"
 
-#include  <algorithm>
-#include  <cmath>
-#include  <cassert>
+#include <cmath>
+#include <cassert>
 #include <fstream>
 #include <strstream>
 
 //#include "TrkEventPrimitives/ErrorMatrix.h"
 //#include "TrkEventPrimitives/CovarianceMatrix.h"
 
-
-using namespace std;
-
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 
 RpcClusterBuilderPRD::RpcClusterBuilderPRD(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator), m_temp_coll(NULL), m_rpcClusterContainer(NULL),
-  m_activeStore(NULL), m_EvtStore(NULL), m_muonMgr(NULL), m_rpcId(NULL)
+  m_muonMgr(NULL), m_rpcId(NULL)
 {
 
   // Declare the properties
@@ -45,64 +38,26 @@ RpcClusterBuilderPRD::RpcClusterBuilderPRD(const std::string& name, ISvcLocator*
 
 StatusCode RpcClusterBuilderPRD::initialize(){
 
-  StatusCode sc;
-
-  // Store Gate active store
-  sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if (sc != StatusCode::SUCCESS ) {
-    ATH_MSG_ERROR(" Cannot get ActiveStoreSvc ");
-    return sc ;
-  }
-
-  // Store Gate transient event store
-  sc = serviceLocator()->service("StoreGateSvc", m_EvtStore);
-  if (sc != StatusCode::SUCCESS ) {
-    ATH_MSG_ERROR(" Cannot get StoreGateSvc ");
-    return sc ;
-  }
-
-  // initialize the detectore store service and GeoModel
-  StoreGateSvc* detStore=0;
-  sc = serviceLocator()->service("DetectorStore", detStore);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("DetectorStore service not found !");
-    return sc;
-  } 
-  
-  sc = detStore->retrieve( m_muonMgr );
-  if (sc.isFailure()) {
-      ATH_MSG_ERROR(" Cannot retrieve MuonGeoModel ");
-      return sc;
-  }
+  ATH_CHECK( detStore()->retrieve( m_muonMgr ) );
   
   m_rpcId = m_muonMgr->rpcIdHelper();
-   
-  
 
   // Create an empty cluster container
   //  m_rpcClusterContainer = new  Muon::RpcPrepDataContainer(m_rpcId->module_hash_max()); 
   //  m_rpcClusterContainer->addRef();
-  
 
-  return sc;
+  return StatusCode::SUCCESS;
 
 }
 
 StatusCode RpcClusterBuilderPRD::execute() {
  
-  StatusCode sc;
-
   m_rpcClusterContainer = new  Muon::RpcPrepDataContainer(m_rpcId->module_hash_max()); 
 
   //  m_rpcClusterContainer->cleanup();
-  sc = m_EvtStore->record(m_rpcClusterContainer,m_colKey);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR(" Cannot record RPC Cluster Container ");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( evtStore()->record(m_rpcClusterContainer,m_colKey) );
 
-
-  sc=fill_rpcClusterContainer();
+  StatusCode sc=fill_rpcClusterContainer();
 
   if(sc.isFailure()) ATH_MSG_WARNING("couldn't build clusters for this event");
 
@@ -124,10 +79,8 @@ StatusCode RpcClusterBuilderPRD::finalize() {
 
 StatusCode RpcClusterBuilderPRD::fill_rpcClusterContainer() {
 
-  StatusCode sc;
-
   const Muon::RpcPrepDataContainer* container;
-  sc = m_EvtStore->retrieve(container,m_colKeyIn);
+  StatusCode sc = evtStore()->retrieve(container,m_colKeyIn);
   if (sc.isFailure()) {
     ATH_MSG_WARNING(" Cannot retrieve RPC Digit Container with key " << m_colKeyIn.c_str() );
     return StatusCode::SUCCESS;
@@ -136,7 +89,7 @@ StatusCode RpcClusterBuilderPRD::fill_rpcClusterContainer() {
   Muon::RpcPrepDataContainer::const_iterator rpcCollection=container->begin();
   Muon::RpcPrepDataContainer::const_iterator lastCollection=container->end();
 
-  //  sc = m_EvtStore->retrieve(rpcCollection, lastCollection);
+  //  sc = evtStore()->retrieve(rpcCollection, lastCollection);
   //  if (sc.isFailure()) {
   //  ATH_MSG_ERROR(" Cannot retrieve RPC Digit collections ");
   //  return StatusCode::SUCCESS;
@@ -209,7 +162,7 @@ int RpcClusterBuilderPRD::buildPatterns(const Muon::RpcPrepDataCollection* rpcCo
 
   //const  Muon::RpcPrepDataCollection rpcCollection = *iter; 
 
-  vector<Muon::RpcPrepData*> theDigits= rpcCollection->stdcont();
+  std::vector<Muon::RpcPrepData*> theDigits= rpcCollection->stdcont();
     
   Identifier eleId=rpcCollection->identify();
 
@@ -263,7 +216,7 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId) {
 
   // loop over existing patterns
 
-  map<Identifier, pattern >::iterator patt_it=m_digits.begin();
+  std::map<Identifier, pattern >::iterator patt_it=m_digits.begin();
 
   for(;patt_it!=m_digits.end();++patt_it){ 
 
@@ -275,17 +228,17 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId) {
     
     //const RpcReadoutElement* descriptor=m_muonMgr->getRpcReadoutElement(elementId);
     
-    map<int, Muon::RpcPrepData*, less<int> >::iterator dig_it=m_digits[panelId].begin();
+    std::map<int, Muon::RpcPrepData*, std::less<int> >::iterator dig_it=m_digits[panelId].begin();
 
-    vector<Identifier> theIDs;
-    vector<int> theAmbFlags;
+    std::vector<Identifier> theIDs;
+    std::vector<int> theAmbFlags;
     int lastStrip=-999;
     float lastTime=-999;
     float mintime=0;
     Amg::Vector3D localPosition(0,0,0);
     Amg::Vector3D globalPosition(0,0,0);
     unsigned int count=0;
-    //    vector<Trk::PrepRawData*> digitsInCluster;
+    //    std::vector<Trk::PrepRawData*> digitsInCluster;
     
     // get the ID from the first digit in collection
     
@@ -331,7 +284,7 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId) {
 
 	//	std::cout<<"deciding amb flag"<<std::endl;
 	for(unsigned int k=0;k<theAmbFlags.size();++k){
-	  clusAmbFlag=max(clusAmbFlag,theAmbFlags[k]);
+	  clusAmbFlag=std::max(clusAmbFlag,theAmbFlags[k]);
 	  //	  std::cout<<theAmbFlags[k]<< " "<<clusAmbFlag<<std::endl;
 	  if(theAmbFlags[k]==1) hasGoldenStrip=true;
 	}
@@ -408,7 +361,7 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId) {
 
 	//	std::cout<<"deciding amb flag"<<std::endl;
 	for(unsigned int k=0;k<theAmbFlags.size();++k){
-	  clusAmbFlag=max(clusAmbFlag,theAmbFlags[k]);
+	  clusAmbFlag=std::max(clusAmbFlag,theAmbFlags[k]);
 	  //	  std::cout<<theAmbFlags[k]<< " "<<clusAmbFlag<<std::endl;
 	  if(theAmbFlags[k]==1) hasGoldenStrip=true;
 	}
@@ -475,7 +428,7 @@ void RpcClusterBuilderPRD::push_back(Muon::RpcPrepData *& newCluster){
   // IdContext rpcContext = m_rpcId->module_context();
  //  Muon::RpcPrepDataContainer::KEY key = m_rpcClusterContainer->key(elementId);
 
-//    if (!m_EvtStore->contains<Muon::RpcPrepDataCollection>(key)) {
+//    if (!evtStore()->contains<Muon::RpcPrepDataCollection>(key)) {
 //       IdentifierHash rpcHashId;
 //       if (m_rpcId->get_hash(elementId, rpcHashId, &rpcContext)) {
 //          ATH_MSG_ERROR("Unable to get RPC hash id from RPC PreDataCollection collection id" 
@@ -493,7 +446,7 @@ void RpcClusterBuilderPRD::push_back(Muon::RpcPrepData *& newCluster){
 // 	     << " in StoreGate!");
 //    } else {  
 //       Muon::RpcPrepDataCollection * oldCollection;
-//       status = m_EvtStore->retrieve(oldCollection, key);
+//       status = evtStore()->retrieve(oldCollection, key);
 //       if (status.isFailure())
 // 	   ATH_MSG_ERROR("Couldn't retrieve RpcDigitCollection with key=" 
 // 	     << key << " from StoreGate!");
@@ -503,16 +456,10 @@ void RpcClusterBuilderPRD::push_back(Muon::RpcPrepData *& newCluster){
 
 StatusCode RpcClusterBuilderPRD::retrieve_rpcClusterContainer() const {
 
-  StatusCode sc;
-
   typedef Muon::RpcPrepDataCollection::const_iterator cluster_iterator;
 
   const Muon::RpcPrepDataContainer* PRDcontainer;
-  sc = m_EvtStore->retrieve(PRDcontainer,m_colKey);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR(" Cannot retrieve RPC PrepData Cluster Container ");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( evtStore()->retrieve(PRDcontainer,m_colKey) );
 
  for (Muon::RpcPrepDataContainer::const_iterator container_iterator=PRDcontainer->begin();
                                  container_iterator != PRDcontainer->end();
@@ -529,11 +476,11 @@ StatusCode RpcClusterBuilderPRD::retrieve_rpcClusterContainer() const {
           Amg::Vector3D position = cluster->globalPosition();
           ATH_MSG_INFO("RPC Cluster ID, Position (mm), size = " 
 	      << m_rpcId->show_to_string(cluster->identify()) << " ["
-	      << setiosflags(ios::fixed) << setprecision(3) << setw(12) << position.x() 
-	      << setiosflags(ios::fixed) << setprecision(3) << setw(12) << position.y() 
-	      << setiosflags(ios::fixed) << setprecision(3) << setw(12) << position.z() 
-	    //  << setiosflags(ios::fixed) << setprecision(3) << setw(12) << cluster->width()
-	      << setiosflags(ios::fixed) << setprecision(3) << setw(12) << cluster->rdoList().size()
+	      << setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << position.x()
+	      << setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << position.y()
+	      << setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << position.z()
+	    //  << setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << cluster->width()
+	      << setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << cluster->rdoList().size()
 	      << " ]"); 
        }
        ATH_MSG_INFO("Number of Clusters in the collection is " << collection->size() );
