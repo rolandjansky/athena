@@ -12,10 +12,6 @@
 #include "MuonTGRecTools/MuonTGMeasurementTool.h"
 
 // Gaudi includes
-#include "StoreGate/StoreGate.h"
-#include "GaudiKernel/ListItem.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/IToolSvc.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
@@ -66,7 +62,6 @@ Muon::MuonTGMeasurementTool::MuonTGMeasurementTool(const std::string &type, cons
   m_trackingGeometryName("AtlasTrackingGeometry"),
   m_ExtrapolatorName(" "),
   //m_assocMeasName("MuonTGMeasAssocAlg"),
-  m_StoreGate(0),
   m_alignedMode(true)
 {  
   declareInterface<Muon::IMuonTGMeasTool>(this);
@@ -84,62 +79,11 @@ StatusCode Muon::MuonTGMeasurementTool::initialize()
   // Get the messaging service, print where you are
   ATH_MSG_INFO("MuonTGMeasurementTool::initialize()");
 
-  StatusCode sc;
-
-  // Get an Identifier helper object
-  StoreGateSvc* detStore(0);
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("Detector service not found !");
-    return StatusCode::FAILURE;
-  } 
-
-  sc=service("StoreGateSvc",m_StoreGate);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("StoreGate service not found !");
-    return StatusCode::FAILURE;
-  } 
-  // Store Gate active store
-  sc = service("ActiveStoreSvc", m_activeStore);
-  if (sc != StatusCode::SUCCESS ) {
-    ATH_MSG_ERROR(" Cannot get ActiveStoreSvc ");
-    return sc ;
-  }
- 
-  sc = detStore->retrieve(m_mdtIdHelper,"MDTIDHELPER");
-  if (sc.isFailure())
-  {
-	  ATH_MSG_ERROR("Cannot retrieve MdtIdHelper");
-	  return sc;
-  }
-
-  sc = detStore->retrieve(m_rpcIdHelper,"RPCIDHELPER");
-  if (sc.isFailure())
-  {
-	  ATH_MSG_ERROR("Cannot retrieve RpcIdHelper");
-	  return sc;
-  }
-
-  sc = detStore->retrieve(m_cscIdHelper,"CSCIDHELPER");
-  if (sc.isFailure())
-  {
-	  ATH_MSG_ERROR("Cannot retrieve RpcIdHelper");
-	  return sc;
-  }
-
-  sc = detStore->retrieve(m_tgcIdHelper,"TGCIDHELPER");
-  if (sc.isFailure())
-  {
-	  ATH_MSG_ERROR("Cannot retrieve RpcIdHelper");
-	  return sc;
-  }
-  
-  sc = detStore->retrieve(m_muonMgr);
-  if (sc.isFailure())
-  {
-	  ATH_MSG_ERROR("Cannot retrieve MuonDetectorManager...");
-	  return sc;
-  }
+  ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
+  ATH_CHECK( detStore()->retrieve(m_rpcIdHelper,"RPCIDHELPER") );
+  ATH_CHECK( detStore()->retrieve(m_cscIdHelper,"CSCIDHELPER") );
+  ATH_CHECK( detStore()->retrieve(m_tgcIdHelper,"TGCIDHELPER") );
+  ATH_CHECK( detStore()->retrieve(m_muonMgr) );
 
   // define projection matrices
   m_tgcProjEta = new AmgMatrix(5,5);
@@ -164,8 +108,6 @@ StatusCode Muon::MuonTGMeasurementTool::initialize()
   //std::cout << "dump projection matrix rpc,eta:" << (*m_rpcProjEta) << std::endl;
 
   //std::cout << "dump projection matrix rpc,phi:" << (*m_rpcProjPhi) << std::endl;
-
-
  
   return StatusCode::SUCCESS;
 }
@@ -1541,5 +1483,4 @@ double Muon::MuonTGMeasurementTool::residual( const Trk::Layer* layer, const Trk
   delete detElPar;
   return res;
 }
-
 

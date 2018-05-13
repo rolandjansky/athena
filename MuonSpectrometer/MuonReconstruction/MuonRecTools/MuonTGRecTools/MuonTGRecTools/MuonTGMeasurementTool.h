@@ -13,8 +13,6 @@
 #include "MuonTGRecTools/IMuonTGMeasTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "StoreGate/DataHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "TrkTrack/Track.h"
 #include "TrkExInterfaces/INavigator.h"
 #include "TrkExInterfaces/IExtrapolator.h"
@@ -100,8 +98,6 @@ private:
   const MuonGM::MuonDetectorManager* m_muonMgr;
   
   // -- algorithm members
-  StoreGateSvc                    *m_StoreGate;         
-  ActiveStoreSvc*                  m_activeStore;
   mutable MuonTGHits*              m_hits; 
   mutable MuonTGSegments*          m_segments;
 

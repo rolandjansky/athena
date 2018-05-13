@@ -66,58 +66,31 @@ MuonSegmentFinderAlg::~MuonSegmentFinderAlg()
 
 StatusCode MuonSegmentFinderAlg::initialize()
 {
-  if (AthAlgorithm::initialize().isFailure()) {
-    return StatusCode::FAILURE;
-  }
-  if(m_idHelperTool.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Could not get " << m_idHelperTool );
-    return StatusCode::FAILURE;
-  }   
-  if(m_printer.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Could not get " << m_printer );
-    return StatusCode::FAILURE;
-  }   
-  if(m_patternCalibration.retrieve().isFailure()) {
-    ATH_MSG_FATAL( "Could not get " << m_patternCalibration ); 
-    return StatusCode::FAILURE; 
-  }
-  if(m_patternSegmentMaker.retrieve().isFailure()) {
-    ATH_MSG_FATAL( "Could not get " << m_patternSegmentMaker ); 
-    return StatusCode::FAILURE; 
-  }
-  ATH_CHECK(m_segmentOverlapRemovalTool.retrieve());
+  ATH_CHECK( m_idHelperTool.retrieve() );
+  ATH_CHECK( m_printer.retrieve() );
+  ATH_CHECK( m_patternCalibration.retrieve() );
+  ATH_CHECK( m_patternSegmentMaker.retrieve() ); 
+  ATH_CHECK( m_segmentOverlapRemovalTool.retrieve() );
+  ATH_CHECK( m_segmentMaker.retrieve() );
+  ATH_CHECK( m_clusterSegMaker.retrieve() );
 
- 
-  if( m_segmentMaker.retrieve().isFailure() ){
-    ATH_MSG_FATAL( "Could not get " << m_segmentMaker );
-    return StatusCode::FAILURE;
-  }
-  if( m_clusterSegMaker.retrieve().isFailure() ){
-    ATH_MSG_FATAL("Could not get " << m_clusterSegMaker);
-    return StatusCode::FAILURE;
-  }  
-  if( !m_truthSummaryTool.empty() && m_truthSummaryTool.retrieve().isFailure() ){
-    ATH_MSG_FATAL( "Could not get " << m_truthSummaryTool );
-    return StatusCode::FAILURE;
-  }  
-  if( m_clusterCreator.retrieve().isFailure() ){
-    ATH_MSG_FATAL( "Could not get " << m_clusterCreator );
-    return StatusCode::FAILURE;
-  }
-  if( m_clusterSegMakerNSW.retrieve().isFailure() ){
-    ATH_MSG_FATAL( "Could not get " << m_clusterSegMakerNSW );
-    return StatusCode::FAILURE;
-  }
+  if( !m_truthSummaryTool.empty() )
+    ATH_CHECK( m_truthSummaryTool.retrieve() );
+  else
+    m_truthSummaryTool.disable();
+  
+  ATH_CHECK( m_clusterCreator.retrieve() );
+  ATH_CHECK( m_clusterSegMakerNSW.retrieve() );
 
-  if (!m_csc2dSegmentFinder.empty() && m_csc2dSegmentFinder.retrieve().isFailure()){
-    ATH_MSG_FATAL("Could not get " << m_csc2dSegmentFinder); 
-    return StatusCode::FAILURE;
-  }
+  if ( !m_csc2dSegmentFinder.empty() )
+    ATH_CHECK( m_csc2dSegmentFinder.retrieve() ); 
+  else
+    m_csc2dSegmentFinder.disable();
       
-  if (!m_csc4dSegmentFinder.empty()&&m_csc4dSegmentFinder.retrieve().isFailure()){
-    ATH_MSG_FATAL("Could not get " << m_csc4dSegmentFinder); 
-    return StatusCode::FAILURE;
-  }
+  if ( !m_csc4dSegmentFinder.empty() )
+    ATH_CHECK( m_csc4dSegmentFinder.retrieve() ); 
+  else
+    m_csc4dSegmentFinder.disable();
 
   ATH_CHECK( m_segmentCollectionKey.initialize() );
   ATH_CHECK( m_cscPrdsKey.initialize() );
@@ -127,7 +100,6 @@ StatusCode MuonSegmentFinderAlg::initialize()
   ATH_CHECK( m_patternCollKey.initialize() );
   ATH_CHECK( m_tgcTruth.initialize(m_doClusterTruth) );
   ATH_CHECK( m_rpcTruth.initialize(m_doClusterTruth) );
-
 
   return StatusCode::SUCCESS; 
 }
@@ -267,10 +239,7 @@ StatusCode MuonSegmentFinderAlg::execute()
   SG::WriteHandle<Trk::SegmentCollection> handle(m_segmentCollectionKey);
   
   //Add the segments to store gate
-  if(handle.record(std::move(segmentCollection)).isFailure()) {
-    ATH_MSG_FATAL( "Could not add the Trk::SegmentCollection to StoreGate" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( handle.record(std::move(segmentCollection)) );
 
   return StatusCode::SUCCESS;
 } // execute
