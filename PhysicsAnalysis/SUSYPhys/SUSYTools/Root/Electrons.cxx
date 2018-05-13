@@ -176,7 +176,7 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
 
   std::string eleIdBaseline = "DFCommonElectronsLH";
   eleIdBaseline += TString(m_eleIdBaseline).ReplaceAll("LooseAndBLayer","LooseBL").ReplaceAll("LLH","").Data();
-  static SG::AuxElement::ConstAccessor<char> eleIdBaselineAcc(eleIdBaseline);
+  SG::AuxElement::ConstAccessor<char> eleIdBaselineAcc(eleIdBaseline);
 
   bool passBaseID = false;
   if (m_eleIdExpert) {
@@ -252,7 +252,7 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
   
   std::string eleId = "DFCommonElectronsLH";
   eleId += TString(m_eleId).ReplaceAll("LooseAndBLayer","LooseBL").ReplaceAll("LLH","").Data();
-  static SG::AuxElement::ConstAccessor<char> eleIdAcc(eleId);
+  SG::AuxElement::ConstAccessor<char> eleIdAcc(eleId);
   
   if (m_eleIdExpert) {
     if ( !m_elecSelLikelihood.empty() && m_elecSelLikelihood->accept(&input) ) dec_passSignalID(input) = true;
@@ -325,9 +325,9 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     ATH_MSG_WARNING ("Charge mis-ID SF is not provided in R21 yet.");
 
   //shortcut keys for trigger SF config
-  static std::string singleLepStr = "singleLepton";
-  static std::string diLepStr     = "diLepton";
-  static std::string multiLepStr  = "multiLepton";
+  std::string singleLepStr = "singleLepton";
+  std::string diLepStr     = "diLepton";
+  std::string multiLepStr  = "multiLepton";
 
   float sf(1.);
 

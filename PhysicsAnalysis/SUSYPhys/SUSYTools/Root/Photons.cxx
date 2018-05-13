@@ -135,8 +135,8 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
 
   //Photon quality as in https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EGammaIdentificationRun2#Photon_cleaning
   bool passPhCleaning = false;
-  static SG::AuxElement::ConstAccessor<char> passPhCleaningAcc("DFCommonPhotonsCleaning");
-  static SG::AuxElement::ConstAccessor<char> passPhCleaningNoTimeAcc("DFCommonPhotonsCleaningNoTime");
+  SG::AuxElement::ConstAccessor<char> passPhCleaningAcc("DFCommonPhotonsCleaning");
+  SG::AuxElement::ConstAccessor<char> passPhCleaningNoTimeAcc("DFCommonPhotonsCleaningNoTime");
   if (passPhCleaningAcc.isAvailable(input) && passPhCleaningNoTimeAcc.isAvailable(input)) {
     if ( (!m_photonAllowLate && passPhCleaningAcc(input)) || (m_photonAllowLate && passPhCleaningNoTimeAcc(input)) ) passPhCleaning = true;
   } else {
@@ -153,7 +153,7 @@ StatusCode SUSYObjDef_xAOD::FillPhoton(xAOD::Photon& input, float ptcut, float e
 
   std::string photonIdBaseline = "DFCommonPhotonsIsEM";
   photonIdBaseline += TString(m_photonIdBaseline).Data();
-  static SG::AuxElement::ConstAccessor<char> photonIdBaselineAcc(photonIdBaseline);
+  SG::AuxElement::ConstAccessor<char> photonIdBaselineAcc(photonIdBaseline);
 
   bool passBaseID = false;
   if (photonIdBaselineAcc.isAvailable(input)) {
@@ -201,7 +201,7 @@ bool SUSYObjDef_xAOD::IsSignalPhoton(const xAOD::Photon& input, float ptcut, flo
 
   std::string photonId = "DFCommonPhotonsIsEM";
   photonId += TString(m_photonIdBaseline).Data();
-  static SG::AuxElement::ConstAccessor<char> photonIdAcc(photonId);
+  SG::AuxElement::ConstAccessor<char> photonIdAcc(photonId);
 
   bool passID = false;
   if (photonIdAcc.isAvailable(input)) {
