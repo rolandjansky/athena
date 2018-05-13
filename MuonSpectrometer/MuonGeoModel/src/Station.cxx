@@ -203,7 +203,6 @@ std::string Station::GetName() const
 double Station::GetThickness() const
 {
   MsgStream log(m_msgSvc, "MuonGeoModel");
-  std::string geov = MYSQL::GetPointer()->getGeometryVersion();
   //    log << MSG::DEBUG<<" station thickness for stat = "<<m_name<<endmsg;
     
   if (m_thickness) {
@@ -243,13 +242,11 @@ double Station::GetThickness() const
 	      //                          <<m_name<<" zstart = "
 	      //                          <<zstart
 	      //                          <<std::endl;
-	      if (geov.substr(0,3) != "P03" ) {
-                  // std::cout<<"station "<<m_name<<" zstart "<<zstart<<" redefining thick "<<thick<<" "<< thick - zstart<<std::endl;
-                  thick = thick - zstart;
-                  m_amdbOrigine_along_thickness = -zstart;
-                  if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"Station "<<m_name<<" redefining Thinkness = "<<thick<<" because zstart = "<<zstart
-                     <<"; then amdbOrigine_along_thickness = "<<m_amdbOrigine_along_thickness<<endmsg;
-              }                
+              // std::cout<<"station "<<m_name<<" zstart "<<zstart<<" redefining thick "<<thick<<" "<< thick - zstart<<std::endl;
+              thick = thick - zstart;
+              m_amdbOrigine_along_thickness = -zstart;
+              if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"Station "<<m_name<<" redefining Thinkness = "<<thick<<" because zstart = "<<zstart
+                 <<"; then amdbOrigine_along_thickness = "<<m_amdbOrigine_along_thickness<<endmsg;
             }
         }
       m_thickness=thick;
@@ -360,7 +357,6 @@ double Station::GetExtraBottomThickness() const
 double Station::GetLength() const 
 {
     MsgStream log(m_msgSvc, "MuonGeoModel-GetLength");
-    MYSQL *mysql=MYSQL::GetPointer();
     if (m_length) {
         return m_length;
     }
@@ -406,14 +402,12 @@ double Station::GetLength() const
 //                          <<m_name<<" ystart = "
 //                          <<ystart
 //                          <<std::endl;
-                if (mysql->getGeometryVersion().substr(0,3) != "P03" ) {
-                    // std::cout<<"station "<<m_name<<" ystart "<<ystart<<" redefining len "<<len<<" "<< len - ystart<<std::endl;
-                    len = len - ystart;
-		    m_amdbOrigine_along_length = -ystart;
-                    //if (m_name == "EIL8" || m_name == "EIL9")
-                    if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"Station "<<m_name<<" redefining len = "<<len<<" because ystart = "
-                       <<ystart<<endmsg;
-                }
+                // std::cout<<"station "<<m_name<<" ystart "<<ystart<<" redefining len "<<len<<" "<< len - ystart<<std::endl;
+                len = len - ystart;
+		m_amdbOrigine_along_length = -ystart;
+                //if (m_name == "EIL8" || m_name == "EIL9")
+                if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"Station "<<m_name<<" redefining len = "<<len<<" because ystart = "
+                   <<ystart<<endmsg;
             }
         }
 //    else
@@ -432,31 +426,22 @@ double Station::GetLength() const
 //            else
 //            {
 //                
-//                if (mysql->getGeometryVersion().substr(0,3) == "P03" )
-//                {
-//                    // this is the P03 implementation which is wrong in general,
-//                    // due to the fact that sometimes  cc->posy can be <0 !!!
-//                    if ((m_components[i]->dy+cc->posy) > len) len = m_components[i]->dy+cc->posy;
-//                }
-//                else
-//                {
-//                    if ((m_components[i]->dy+fabs(cc->posy)) > len) len = m_components[i]->dy+cc->posy;
-//                    if (m_name.substr(0,2)=="CS") std::cout<<" station "<<m_name<<" comp. "<<m_components[i]->m_name
+//                if ((m_components[i]->dy+fabs(cc->posy)) > len) len = m_components[i]->dy+cc->posy;
+//                if (m_name.substr(0,2)=="CS") std::cout<<" station "<<m_name<<" comp. "<<m_components[i]->m_name
+//                                                     <<" len, m_components[i]->dy, cc->posy "
+//                                                     <<len<<" "
+//                                                     <<m_components[i]->dy<<" "
+//                                                     <<cc->posy<<std::endl;
+//                if (cc->posy < 0.) {
+//                    len = len + fabs(cc->posy);
+//                    std::cout<<" This is happening for station "<<m_name
+//                             <<" comp. "<<m_components[i]->m_name
+//                             <<" offset "<<cc->posy<<std::endl;
+//                    if (m_name.substr(0,2)=="CS") std::cout<<"CORRECT station "<<m_name<<" comp. "<<m_components[i]->m_name
 //                                                         <<" len, m_components[i]->dy, cc->posy "
 //                                                         <<len<<" "
 //                                                         <<m_components[i]->dy<<" "
 //                                                         <<cc->posy<<std::endl;
-//                    if (cc->posy < 0.) {
-//                        len = len + fabs(cc->posy);
-//                        std::cout<<" This is happening for station "<<m_name
-//                                 <<" comp. "<<m_components[i]->m_name
-//                                 <<" offset "<<cc->posy<<std::endl;
-//                        if (m_name.substr(0,2)=="CS") std::cout<<"CORRECT station "<<m_name<<" comp. "<<m_components[i]->m_name
-//                                                             <<" len, m_components[i]->dy, cc->posy "
-//                                                             <<len<<" "
-//                                                             <<m_components[i]->dy<<" "
-//                                                             <<cc->posy<<std::endl;
-//                    }
 //                }
 //            }            
 //        }
@@ -689,7 +674,6 @@ HepGeom::Transform3D Station::native_to_tsz_frame( const Position & p ) const {
     MsgStream log(m_msgSvc, "MGM-native_to_tsz");
 	const bool dLvl = log.level()<=MSG::DEBUG;
 	const bool vLvl = log.level()<=MSG::VERBOSE;
-    std::string geov = MYSQL::GetPointer()->getGeometryVersion();
     int amdbVersion = MYSQL::GetPointer()->getNovaReadVersion();
     if (amdbVersion > 0 && amdbVersion < 7 && m_name[0]!='B')
       if (dLvl)
@@ -754,16 +738,8 @@ HepGeom::Transform3D Station::native_to_tsz_frame( const Position & p ) const {
     // HepGeom::Rotate3D ralpha = HepGeom::RotateX3D(p.alpha*CLHEP::deg);
     // HepGeom::Rotate3D rbeta  = HepGeom::RotateZ3D(p.beta*CLHEP::deg);
     // HepGeom::Rotate3D rgamma;
-    // if (m_name[0]=='B' || p.isBarrelLike  || geov != "CTB2004") // pay attention here !!!!!!!!!
-    // {
-    //     rgamma = HepGeom::RotateY3D(p.gamma*CLHEP::deg);
-    //     log<<MSG::VERBOSE<<" gamma is not changing sign - original "<<p.gamma<<" new one "<<p.gamma<<endmsg;
-    // }
-    // else
-    // {
-    //     log<<MSG::VERBOSE<<" gamma is changing sign - original "<<p.gamma<<" new one "<<-p.gamma<<endmsg;
-    //     rgamma = HepGeom::RotateY3D(-p.gamma*CLHEP::deg);  //WHY???
-    // }
+    // rgamma = HepGeom::RotateY3D(p.gamma*CLHEP::deg);
+    // log<<MSG::VERBOSE<<" gamma is not changing sign - original "<<p.gamma<<" new one "<<p.gamma<<endmsg;
     // log<<MSG::VERBOSE<<" alpha / beta "<<p.alpha<<" "<<p.beta<<endmsg;
 
     // // apply all transform in sequence 
@@ -786,7 +762,6 @@ HepGeom::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
     
     HepGeom::Transform3D nominalTransf= HepGeom::Transform3D::Identity;
     
-    std::string geov = MYSQL::GetPointer()->getGeometryVersion();
     CLHEP::Hep3Vector vec;
     double RAD;
     if (m_name[0]=='T')
@@ -805,11 +780,7 @@ HepGeom::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
         if ( (p.isBarrelLike) || (m_name[0]=='B') )
         {
             // correct the z location (=-p.z-m_length) for possible m_amdbOrigine_along_length
-            if (geov.substr(0,1) != "P")
-            {
-                vec.setZ(p.z + getAmdbOrigine_along_length());
-            }
-            else vec.setZ(p.z);
+            vec.setZ(p.z + getAmdbOrigine_along_length());
 //             std::cout<<" tsz_to_global for station "<<m_name<<" at fi/zi "<<p.phiindex+1<<"/"<<p.zindex<<" isMirr. "<<p.isMirrored
 //                      <<" transl. to "<<vec<<" p.z = "<<p.z<<" length "<<GetLength()<<" AmdbOrigine_along_length "<<getAmdbOrigine_along_length()<<std::endl;
         }
@@ -904,7 +875,6 @@ HepGeom::Transform3D Station::getAlignedTransform(const AlignPos & ap, const Pos
 HepGeom::Transform3D Station::getDeltaTransform_tszFrame(const AlignPos & ap) const
 {
   MsgStream log(m_msgSvc, "MGM getDeltaTransform_tszFrame");
-  std::string geov = MYSQL::GetPointer()->getGeometryVersion();
   if (ap.tras!=0 ||ap.trat!= 0 ||ap.traz!=0 ||
       ap.rots!=0 || ap.rott!=0||ap.rotz!=0)
     {
@@ -984,13 +954,6 @@ double Station::getAmdbOrigine_along_thickness() const
 //   MsgStream log(m_msgSvc, "MuonGeoModel");
 //   HepGeom::Translate3D theTranslation, AMDBorgTranslation;
 //   HepGeom::Transform3D theRotation;
-//   std::string geov = MYSQL::GetPointer()->getGeometryVersion();
-//   if (geov == "CTB2004")
-//     {
-//       log << MSG::INFO << "Calling obsolete getTransform(AlignPos) for "
-// 		<< m_name << "...  Better switch to getDeltaTransform!"
-// 		<< endmsg;
-//     }
 //   float tras=0, traz=0, trat=0, rots=0, rotz=0, rott=0;
 //   bool isBarrel = false;
 //   isBarrel = ap.isBarrel;
@@ -1073,226 +1036,91 @@ double Station::getAmdbOrigine_along_thickness() const
 // 17/06/2008 not needed anywhere
 // HepGeom::Transform3D Station::getTransform( const Position & p) const {
 //   MsgStream log(m_msgSvc, "MuonGeoModel");
-//     std::string geov = MYSQL::GetPointer()->getGeometryVersion();
-//     if (geov == "CTB2004") 
-//     {
-//       /* IMT - replace this whole section with call to getNominalTransform
-//         HepGeom::Transform3D nominalTransf;
-//         HepGeom::Translate3D AMDBorgTranslation;
-//         static CLHEP::Hep3Vector vec;
-//         static CLHEP::Hep3Vector vecRot;
-//         if (m_name[0]=='B' || p.isBarrelLike) {
-//             // The chamber orientation is given by the direction of the
-//             //  R-axis (T-axis), NOT by a vector pointing to the centre
-//             //  of the chamber or even to the AMDB origin!
-//             vecRot.setX(cos(p.phi*CLHEP::deg));
-//             vecRot.setY(sin(p.phi*CLHEP::deg));
-//             vecRot.setZ(1.);
-//             if (p.isBarrelLike)  // EC chamber treated as barrel, be careful!
-//             {
-//                 // defining the position of the centre of any station
-//                 vec.setX((p.radius+GetLength()/2.)*cos(p.phi*CLHEP::deg));
-//                 vec.setX(vec.x()-p.shift*sin((p.phi)*CLHEP::deg));
-//                 vec.setY((p.radius+GetLength()/2.)*sin(p.phi*CLHEP::deg));
-//                 vec.setY(vec.y()+p.shift*cos((p.phi)*CLHEP::deg));
-//                 vec.setZ(p.z+GetThickness()/2.);
-//                 AMDBorgTranslation =HepGeom::Translate3D(GetLength()/2.,0.,GetThickness()/2.);
-//             }
-//             else  // normal barrel case:
-//             {
-//                 // defining the position of the centre of any station
-//                 // here using the stations in DBSC (described in amdb + the ones at z<0)
-//                 vec.setX((p.radius+GetThickness()/2.)*cos(p.phi*CLHEP::deg));
-//                 vec.setX(vec.x()-p.shift*sin((p.phi)*CLHEP::deg));
-//                 vec.setY((p.radius+GetThickness()/2.)*sin(p.phi*CLHEP::deg));
-//                 vec.setY(vec.y()+p.shift*cos((p.phi)*CLHEP::deg));
-//                 vec.setZ(p.z+GetLength()/2.);
-//                 AMDBorgTranslation =HepGeom::Translate3D(GetThickness()/2.,0.,GetLength()/2.);
-//             }
-//         }
-//         else {      // if (m_name[0]=='T') 
-//             // defining the position of the centre of stations at z><0
-//             double RAD;
-//             // IMT this should be version dependent, bad for CTB geom...
-//             //if (m_name[0]=='T') RAD=((TgcComponent *)GetComponent(0))->posy;
-//             //else
+//     HepGeom::Transform3D nominalTransf;
+//     HepGeom::Transform3D AMDBorgTranslation = HepGeom::Transform3D::Identity;
+//     static CLHEP::Hep3Vector vec;
+//     if (m_name[0]=='B') {
+//         // defining the position of the centre of any station
+//         // here using the stations in DBSC (described in amdb + the ones at z<0)
+//         vec.setX((p.radius+GetThickness()/2.)*cos(p.phi*CLHEP::deg));
+//         vec.setX(vec.x()-p.shift*sin((p.phi)*CLHEP::deg));
+//         vec.setY((p.radius+GetThickness()/2.)*sin(p.phi*CLHEP::deg));
+//         vec.setY(vec.y()+p.shift*cos((p.phi)*CLHEP::deg));
+//         vec.setZ(p.z+GetLength()/2.);
+//         AMDBorgTranslation = HepGeom::Translate3D(GetThickness()*cos(p.phi*CLHEP::deg)/2.,
+//                                             GetThickness()*sin(p.phi*CLHEP::deg)/2.,
+//                                             GetLength()/2.);
+//     }
+//     else {      // if (m_name[0]=='T')
+//         // defining the position of the centre of stations at z><0
+//         double RAD;
+//         // IMT this should be version dependent, bad for CTB geom...
+//         if (m_name[0]=='T')
+//             RAD=((TgcComponent *)GetComponent(0))->posy;
+//         else
 //             RAD=p.radius;
-//             //        vec.setX((RAD+GetLength()/2.)*cos(p.phi*CLHEP::deg));
-//             vec.setX((RAD+GetThickness()/2.)*cos(p.phi*CLHEP::deg));
+//         if (m_name[0]!='C')
+//         {
+//             vec.setX((RAD+GetLength()/2.)*cos(p.phi*CLHEP::deg));
 //             vec.setX(vec.x()-p.shift*sin((p.phi)*CLHEP::deg));
-//             //        vec.setY((RAD+GetLength()/2.)*sin(p.phi*CLHEP::deg));
-//             vec.setY((RAD+GetThickness()/2.)*sin(p.phi*CLHEP::deg));
+//             vec.setY((RAD+GetLength()/2.)*sin(p.phi*CLHEP::deg));
 //             vec.setY(vec.y()+p.shift*cos((p.phi)*CLHEP::deg));
-//             if (p.z<0) {
-//                 //            vec.setZ(p.z+GetThickness()/2.);
-//                 vec.setZ(p.z+GetLength()/2.);
-//             }
-//             else { 
-//                 //            vec.setZ(p.z+GetThickness()/2.);
-//                 vec.setZ(p.z+GetLength()/2.);
-//             }
-//             // The chamber orientation is given by the direction of the
-//             //  R-axis (T-axis), NOT by a vector pointing to the centre
-//             //  of the chamber or even to the AMDB origin!
-//             vecRot.setX(cos(p.phi*CLHEP::deg));
-//             vecRot.setY(sin(p.phi*CLHEP::deg));
-//             vecRot.setZ(1.);
-//             AMDBorgTranslation =
-//                 //	  HepGeom::Translate3D(GetLength()/2.,0.,GetThickness()/2.);
-//                 HepGeom::Translate3D(GetThickness()/2.,0.,GetLength()/2.);
-//         }
-//           //log << MSG::DEBUG << "AMDB org is (" << GetLength()/2. << ", " << 0
-//           //<< ", " << GetThickness()/2.
-//           //<< ") which is (m_length/2, 0, m_thickness/2)" << endmsg;
-//         const HepVector3D zaxis   = HepVector3D(0.,0.,1.);
-//         //const HepVector3D raxis   = HepVector3D(vec.x(), vec.y(), 0.);
-//         // imt redefine these to use vectors given by phi-direction only...
-//         const HepVector3D raxis   = HepVector3D(vecRot.x(), vecRot.y(), 0.);
-//         const HepVector3D phiaxis = HepVector3D(-raxis.y(), raxis.x(), 0.); // phi = z cross r
-//         // order of extra rotations is alpha(r), then beta(z), then gamma(phi)
-//         // imt alpha is rotation about station T-axis and beta about Z-axis.
-//         //     these are swapped around for the EC chambers.
-//           //HepGeom::Rotate3D ralpha(p.alpha*CLHEP::deg, raxis);
-//           //HepGeom::Rotate3D rbeta (p.beta*CLHEP::deg,  zaxis);
-//           ////  the minus is here temporary
-//           //HepGeom::Rotate3D rgamma(-p.gamma*CLHEP::deg, phiaxis);
-//         HepGeom::Rotate3D ralpha, rbeta, rgamma;
-//         if (m_name[0]=='B' || p.isBarrelLike)
-//         {
-//             ralpha=HepGeom::Rotate3D(p.alpha*CLHEP::deg, raxis);
-//             rbeta=HepGeom::Rotate3D(p.beta*CLHEP::deg,  zaxis);
-//             rgamma=HepGeom::Rotate3D(p.gamma*CLHEP::deg, phiaxis);
+//             vec.setZ(p.z+GetThickness()/2.);
 //         }
 //         else
 //         {
-//              // ralpha=HepGeom::Rotate3D(p.beta*CLHEP::deg, raxis);
-//              // rbeta=HepGeom::Rotate3D(p.alpha*CLHEP::deg,  zaxis);
-//             ralpha=HepGeom::Rotate3D(p.alpha*CLHEP::deg,  zaxis);// which is really T-axis
-//             rbeta=HepGeom::Rotate3D(p.beta*CLHEP::deg, raxis);   // which is really Z-axis
-//             rgamma=HepGeom::Rotate3D(p.gamma*CLHEP::deg, phiaxis);
+//             vec.setX(RAD*cos(p.phi*CLHEP::deg));
+//             vec.setX(vec.x()-p.shift*sin((p.phi)*CLHEP::deg));
+//             vec.setY(RAD*sin(p.phi*CLHEP::deg));
+//             vec.setY(vec.y()+p.shift*cos((p.phi)*CLHEP::deg));
+//             if (p.z>0) vec.setZ(p.z);
+//             else vec.setZ(p.z+GetThickness());
 //         }
-//         if (m_name[0]=='B' || p.isBarrelLike)
-//         {    
-//             // here all Barrel chambers 
-//             if (p.isMirrored) nominalTransf = HepGeom::RotateZ3D(p.phi*CLHEP::deg)*HepGeom::RotateX3D(180.*CLHEP::deg);
-//             else nominalTransf =  HepGeom::RotateZ3D(p.phi*CLHEP::deg);
-//         }
-//           //else if (p.isBarrelLike)
-//           //{
-//           //// here all encap chambers positioned like barrel chambers
-//           //// initial 180 CLHEP::deg Y-flip is because of intrinsic GeoTrap orientation
-//           //if (p.isMirrored) nominalTransf =
-// 	  //HepGeom::RotateZ3D(p.phi*CLHEP::deg)*HepGeom::RotateX3D(180.*CLHEP::deg)*
-// 	  //HepGeom::RotateY3D(180.*CLHEP::deg);
-//           //else nominalTransf =  HepGeom::RotateZ3D(p.phi*CLHEP::deg)*HepGeom::RotateY3D(180.*CLHEP::deg);
-//           //}
-//         else
-//         {	
-//             if ( p.z>=0 || ( p.z<0 && !(p.isMirrored) ) ){
-//                 nominalTransf =  HepGeom::Transform3D(HepGeom::RotateY3D(-90*CLHEP::deg)*HepGeom::RotateX3D(p.phi*CLHEP::deg-180*CLHEP::deg));
-//             }
-//             else if (p.z<0 && p.isMirrored){
-//                 nominalTransf =  HepGeom::Transform3D(HepGeom::RotateY3D(-90*CLHEP::deg)*
-//                                                 HepGeom::RotateX3D(p.phi*CLHEP::deg-180*CLHEP::deg)*
-//                                                 HepGeom::RotateZ3D(180*CLHEP::deg));
-//             }
-//             else log << MSG::WARNING <<" AAAAAA problem here p.z, mirrored "
-// 	    <<p.z<<" "<<p.isMirrored<<endmsg;
-//         }
-//         HepGeom::Transform3D transf = HepGeom::Translate3D(vec)*AMDBorgTranslation.inverse()*rgamma*rbeta*ralpha*AMDBorgTranslation*nominalTransf;
-//         HepGeom::Transform3D dummyRot = rgamma*rbeta*ralpha;
-//         return transf;
-//       */
-//       return getNominalTransform(p); // works for barrel & barrel-like
+//     }
+// //     HepGeom::Transform3D AMDBorgTranslation = HepGeom::Transform3D::Identity;
+// //     AMDBorgTranslation = HepGeom::Translate3D(GetThickness()/2.,
+// //                                         0.,
+// //                                         GetLength()/2.);
+//     const HepVector3D zaxis   = HepVector3D(0.,0.,1.);
+//     const HepVector3D raxis   = HepVector3D(vec.x(), vec.y(), 0.);
+//     const HepVector3D phiaxis = HepVector3D(-raxis.y(), raxis.x(), 0.); // phi = z cross r
+//     // order of extra rotations is alpha(r), then beta(z), then gamma(phi)
+//     HepGeom::Rotate3D ralpha, rbeta, rgamma;
+//     ralpha = HepGeom::Rotate3D(p.alpha*CLHEP::deg, raxis);
+//     rbeta  = HepGeom::Rotate3D(p.beta*CLHEP::deg,  zaxis);
+//     if ( p.zindex<0 && !(m_name[0] == 'B') ) {
+//         rgamma = HepGeom::Rotate3D(p.gamma*CLHEP::deg, phiaxis);
+//         //            if (m_name[0]=='C') log << MSG::DEBUG <<"zi,fi  gamma applied "<<m_name<<" "<<p.zindex<<" "<<p.phiindex<<" "<<p.gamma<<endmsg;
+//     }
+//     else {
+//         rgamma = HepGeom::Rotate3D(-p.gamma*CLHEP::deg, phiaxis);
+//         //            if (m_name[0]=='C') log << MSG::DEBUG<<"zi,fi  gamma applied "<<m_name<<" "<<p.zindex<<" "<<p.phiindex<<" "<<-p.gamma<<endmsg;
+//     }
+//     if (m_name[0]=='B' || p.isBarrelLike)
+//     {
+//         // here all Barrel chambers
+//         if (p.isMirrored) nominalTransf = HepGeom::RotateZ3D(p.phi*CLHEP::deg)*HepGeom::RotateX3D(180.*CLHEP::deg);
+//         else nominalTransf =  HepGeom::RotateZ3D(p.phi*CLHEP::deg);
 //     }
 //     else
 //     {
-//         HepGeom::Transform3D nominalTransf;
-//         HepGeom::Transform3D AMDBorgTranslation = HepGeom::Transform3D::Identity;    
-//         static CLHEP::Hep3Vector vec;
-//         if (m_name[0]=='B') {
-//             // defining the position of the centre of any station
-//             // here using the stations in DBSC (described in amdb + the ones at z<0)
-//             vec.setX((p.radius+GetThickness()/2.)*cos(p.phi*CLHEP::deg));
-//             vec.setX(vec.x()-p.shift*sin((p.phi)*CLHEP::deg));
-//             vec.setY((p.radius+GetThickness()/2.)*sin(p.phi*CLHEP::deg));
-//             vec.setY(vec.y()+p.shift*cos((p.phi)*CLHEP::deg));
-//             vec.setZ(p.z+GetLength()/2.);
-//             AMDBorgTranslation = HepGeom::Translate3D(GetThickness()*cos(p.phi*CLHEP::deg)/2.,
-//                                                 GetThickness()*sin(p.phi*CLHEP::deg)/2.,
-//                                                 GetLength()/2.);
+//         if ( p.z>=0 || ( p.z<0 && !(p.isMirrored) ) ){
+//             nominalTransf =  HepGeom::Transform3D(HepGeom::RotateY3D(-90*CLHEP::deg)*HepGeom::RotateX3D(p.phi*CLHEP::deg-180*CLHEP::deg));
 //         }
-//         else {      // if (m_name[0]=='T') 
-//             // defining the position of the centre of stations at z><0
-//             double RAD;
-//             // IMT this should be version dependent, bad for CTB geom...
-//             if (m_name[0]=='T')
-//                 RAD=((TgcComponent *)GetComponent(0))->posy;
-//             else
-//                 RAD=p.radius;
-//             if (m_name[0]!='C') 
-//             {
-//                 vec.setX((RAD+GetLength()/2.)*cos(p.phi*CLHEP::deg));
-//                 vec.setX(vec.x()-p.shift*sin((p.phi)*CLHEP::deg));
-//                 vec.setY((RAD+GetLength()/2.)*sin(p.phi*CLHEP::deg));
-//                 vec.setY(vec.y()+p.shift*cos((p.phi)*CLHEP::deg));
-//                 vec.setZ(p.z+GetThickness()/2.);
-//             }
-//             else 
-//             {
-//                 vec.setX(RAD*cos(p.phi*CLHEP::deg));
-//                 vec.setX(vec.x()-p.shift*sin((p.phi)*CLHEP::deg));
-//                 vec.setY(RAD*sin(p.phi*CLHEP::deg));
-//                 vec.setY(vec.y()+p.shift*cos((p.phi)*CLHEP::deg));
-//                 if (p.z>0) vec.setZ(p.z);
-//                 else vec.setZ(p.z+GetThickness());
-//             }
+//         else if (p.z<0 && p.isMirrored){
+//             nominalTransf =  HepGeom::Transform3D(HepGeom::RotateY3D(-90*CLHEP::deg)*
+//                                             HepGeom::RotateX3D(p.phi*CLHEP::deg-180*CLHEP::deg)*
+//                                             HepGeom::RotateZ3D(180*CLHEP::deg));
 //         }
-// //         HepGeom::Transform3D AMDBorgTranslation = HepGeom::Transform3D::Identity;
-// //         AMDBorgTranslation = HepGeom::Translate3D(GetThickness()/2.,
-// //                                             0.,
-// //                                             GetLength()/2.);        
-//         const HepVector3D zaxis   = HepVector3D(0.,0.,1.);
-//         const HepVector3D raxis   = HepVector3D(vec.x(), vec.y(), 0.);
-//         const HepVector3D phiaxis = HepVector3D(-raxis.y(), raxis.x(), 0.); // phi = z cross r
-//         // order of extra rotations is alpha(r), then beta(z), then gamma(phi)
-//         HepGeom::Rotate3D ralpha, rbeta, rgamma;
-//         ralpha = HepGeom::Rotate3D(p.alpha*CLHEP::deg, raxis);
-//         rbeta  = HepGeom::Rotate3D(p.beta*CLHEP::deg,  zaxis);
-//         if ( p.zindex<0 && !(m_name[0] == 'B') ) {
-//             rgamma = HepGeom::Rotate3D(p.gamma*CLHEP::deg, phiaxis);
-//             //            if (m_name[0]=='C') log << MSG::DEBUG <<"zi,fi  gamma applied "<<m_name<<" "<<p.zindex<<" "<<p.phiindex<<" "<<p.gamma<<endmsg;
-//         }
-//         else {
-//             rgamma = HepGeom::Rotate3D(-p.gamma*CLHEP::deg, phiaxis);        
-//             //            if (m_name[0]=='C') log << MSG::DEBUG<<"zi,fi  gamma applied "<<m_name<<" "<<p.zindex<<" "<<p.phiindex<<" "<<-p.gamma<<endmsg;
-//         }        
-//         if (m_name[0]=='B' || p.isBarrelLike)
-//         {    
-//             // here all Barrel chambers 
-//             if (p.isMirrored) nominalTransf = HepGeom::RotateZ3D(p.phi*CLHEP::deg)*HepGeom::RotateX3D(180.*CLHEP::deg);
-//             else nominalTransf =  HepGeom::RotateZ3D(p.phi*CLHEP::deg);
-//         }
-//         else
-//         {	
-//             if ( p.z>=0 || ( p.z<0 && !(p.isMirrored) ) ){
-//                 nominalTransf =  HepGeom::Transform3D(HepGeom::RotateY3D(-90*CLHEP::deg)*HepGeom::RotateX3D(p.phi*CLHEP::deg-180*CLHEP::deg));
-//             }
-//             else if (p.z<0 && p.isMirrored){
-//                 nominalTransf =  HepGeom::Transform3D(HepGeom::RotateY3D(-90*CLHEP::deg)*
-//                                                 HepGeom::RotateX3D(p.phi*CLHEP::deg-180*CLHEP::deg)*
-//                                                 HepGeom::RotateZ3D(180*CLHEP::deg));
-//             }
-//             else log << MSG::WARNING<<" AAAAAA problem here p.z, mirrored "
-// 		     <<p.z<<" "<<p.isMirrored<<endmsg;
-//         }
-//         HepGeom::Transform3D transf;
-//         if (m_name[0]!='C') transf = HepGeom::Translate3D(vec)*rgamma*rbeta*ralpha*nominalTransf;
-//         else transf = HepGeom::Translate3D(vec)*nominalTransf*
-//                       HepGeom::RotateY3D(p.gamma*CLHEP::deg)*
-//                       HepGeom::Translate3D(GetThickness()/2.,0.,GetLength()/2.);
-//         return transf;
+//         else log << MSG::WARNING<<" AAAAAA problem here p.z, mirrored "
+// 	        <<p.z<<" "<<p.isMirrored<<endmsg;
 //     }
+//     HepGeom::Transform3D transf;
+//     if (m_name[0]!='C') transf = HepGeom::Translate3D(vec)*rgamma*rbeta*ralpha*nominalTransf;
+//     else transf = HepGeom::Translate3D(vec)*nominalTransf*
+//                   HepGeom::RotateY3D(p.gamma*CLHEP::deg)*
+//                   HepGeom::Translate3D(GetThickness()/2.,0.,GetLength()/2.);
+//     return transf;
 // }
 
 } // namespace MuonGM

@@ -31,7 +31,7 @@ using namespace MuonGM;
  **/
 MuonDetectorTool::MuonDetectorTool( const std::string& type, const std::string& name, const IInterface* parent )
     : GeoModelTool( type, name, parent ),  
-      m_layout("P03"),
+      m_layout("R.08"),
       m_accessCondDb(1),
       m_asciiCondData(0),
       m_nova(0),
