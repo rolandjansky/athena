@@ -44,7 +44,6 @@ MDT_MapConversion::MDT_MapConversion (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
   : AthAlgTool(type, name, parent),
-    m_detStore(0),
     m_mdtIdHelper(0),
     m_chronoSvc(0)
 {
@@ -57,19 +56,8 @@ MDT_MapConversion::MDT_MapConversion (const std::string& type,
 StatusCode MDT_MapConversion::initialize()
 {
   MsgStream log(msgSvc(), name());
- 
-   
-  StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
-  if ( sc.isSuccess() ) {
-    log << MSG::DEBUG << "Retrieved DetectorStore" << endmsg;
-  }else{
-    log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
-    return sc;
-  }
-  
 
-
-  sc = m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
+  StatusCode sc = detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
   if (sc.isFailure())
     {
       log << MSG::FATAL << " Cannot retrieve MdtIdHelper " << endmsg;

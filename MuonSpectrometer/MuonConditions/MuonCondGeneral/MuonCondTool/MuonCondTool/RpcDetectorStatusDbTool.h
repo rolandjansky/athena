@@ -39,10 +39,9 @@ private:
   bool m_FirstCall ;
   StatusCode initialize();
   
-  virtual StatusCode loadParameterStatus(IOVSVC_CALLBACK_ARGS);
-  virtual StatusCode loadRpcDqStatus(IOVSVC_CALLBACK_ARGS);
-  virtual std::string FolderName() const {return m_FolderName;}
-  StoreGateSvc* m_detStore;
+  virtual StatusCode loadParameterStatus(IOVSVC_CALLBACK_ARGS) override;
+  virtual StatusCode loadRpcDqStatus(IOVSVC_CALLBACK_ARGS) override;
+  virtual std::string FolderName() const  override {return m_FolderName;}
   IIOVSvc* m_IOVSvc;
 
   virtual const std::vector<Identifier>&  EffPanelId(){ return  m_effPanelId;}

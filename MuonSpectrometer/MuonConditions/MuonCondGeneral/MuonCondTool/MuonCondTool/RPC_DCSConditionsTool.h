@@ -56,9 +56,6 @@ public:
   virtual StatusCode loadPanelOff(IOVSVC_CALLBACK_ARGS);
   virtual StatusCode loadPanelDead(IOVSVC_CALLBACK_ARGS);
 
-
-       
-  StoreGateSvc* m_detStore;
   IIOVSvc* m_IOVSvc;
 
 

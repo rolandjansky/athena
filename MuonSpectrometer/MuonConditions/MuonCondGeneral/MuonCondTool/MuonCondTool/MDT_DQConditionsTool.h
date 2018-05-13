@@ -64,8 +64,6 @@ public:
   virtual StatusCode loadDeadChamber(IOVSVC_CALLBACK_ARGS);
   virtual StatusCode loadNoisyChamber(IOVSVC_CALLBACK_ARGS);
 
-       
-  StoreGateSvc* m_detStore;
   IIOVSvc* m_IOVSvc;
 
   std::map<std::string, Identifier> m_Chamber_Map;
