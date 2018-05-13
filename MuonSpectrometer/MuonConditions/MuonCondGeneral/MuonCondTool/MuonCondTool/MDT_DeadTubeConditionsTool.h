@@ -62,7 +62,6 @@ public:
   { return m_Tube_Map;}      
   virtual const std::vector<Identifier>& List_Chambers_with_deadTube() const override
   { return m_Chamber_with_deadTube;}
-  StoreGateSvc* m_detStore;
   IIOVSvc* m_IOVSvc;
 
   //  mutable MdtDeadTubeStatusContainer * m_tubeStatusData;
