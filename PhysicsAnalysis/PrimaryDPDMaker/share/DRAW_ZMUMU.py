@@ -36,10 +36,16 @@ dimuonMassSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "DRA
 ToolSvc += dimuonMassSkimmingTool
 
 # Tightening by requiring at least one tight muon and either a single-muon or dimuon trigger to have passed
-mediumMuonString = 'count(MuonCollection.Medium == 1) >= 1'
-mediumMuonSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "DRAW_ZMUMU_MediumMuon_SkimmingTool",
-                                                                     expression = dimuonMassString)
-ToolSvc += mediumMuonSkimmingTool
+#mediumMuonString = 'count(MuonCollection.Medium == 1) >= 1'
+#mediumMuonSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "DRAW_ZMUMU_MediumMuon_SkimmingTool",
+#                                                                     expression = dimuonMassString)
+#ToolSvc += mediumMuonSkimmingTool
+
+from DerivationFrameworkMuons.MuonsCommon import *
+goodMuonString = 'count((Muons.DFCommonGoodMuon) && (Muons.pt > 10*GeV)) >= 1'
+goodMuonSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "DRAW_ZMUMU_GoodMuon_SkimmingTool",
+                                                                   expression = goodMuonString)
+ToolSvc += goodMuonSkimmingTool
 
 periods = TriggerPeriod.future | TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017
 allUnprescaledTriggers = TriggerAPI.getLowestUnprescaledAnyPeriod(periods, TriggerType.mu)
@@ -54,7 +60,7 @@ ToolSvc += triggerSkimmingTool
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
 DRAW_ZMUMU_SkimmingTool = DerivationFramework__FilterCombinationAND( name = "DRAW_ZMUMU_FinalFilter",
                                                                      FilterList=[dimuonMassSkimmingTool, 
-                                                                                 mediumMuonString, 
+                                                                                 goodMuonSkimmingTool, 
                                                                                  triggerSkimmingTool] )
 ToolSvc += DRAW_ZMUMU_SkimmingTool
 print DRAW_ZMUMU_SkimmingTool
