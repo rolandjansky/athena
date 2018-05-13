@@ -651,6 +651,8 @@ int main(int argc, char** argv) {
                     std::exit(1);
                 }
             }
+            //Setting names for uses in other algorithms
+            topConfig->setLHE3Names(names_LHE3);
             ///-- End of Truth events -- start of reconstruction level events --///
             if (topConfig->isTruthDxAOD())
               continue;
