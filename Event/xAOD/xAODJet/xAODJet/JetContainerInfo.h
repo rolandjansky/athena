@@ -57,6 +57,8 @@ namespace xAOD {
       Tower,
       Truth,        // Truth jets -- normally no muons or neutrinos
       TruthWZ,      // Truth jets without prompt e/mu/gamma
+      TruthDressedWZ, // Truth jets without prompt e/mu (or dressed photons) or prompt gammas
+      TruthCharged, // Truth jets with only charged particles
       Track,
       PFlow,      
       LCPFlow,      // LC PFlow
@@ -66,7 +68,6 @@ namespace xAOD {
       LCTopoOrigin,
       EMTopoOrigin,
       TrackCaloCluster,
-      TruthDressedWZ, // Truth jets without prompt e/mu (or dressed photons) or prompt gammas
       EMTopoOriginSK,
       EMTopoOriginCS,
       EMTopoOriginVor,

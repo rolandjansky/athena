@@ -42,6 +42,7 @@ CopyTruthJetParticles::CopyTruthJetParticles(const std::string& name)
   // -- added for dark jet clustering -- //
   declareProperty("IncludeSMParts", m_includeSM=true, "Include SM particles in the output collection");
   declareProperty("IncludeDarkHads", m_includeDark=false, "Include dark hadrons in the output collection");
+  declareProperty("ChargedParticlesOnly", m_chargedOnly=false, "Include only charged particles in the output collection");
   // ----------------------------------- //
   
   declareProperty("MaxAbsEta", m_maxAbsEta);
@@ -67,6 +68,9 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp,
   if (tp->barcode()>=m_barcodeOffset) return false; // Particle is from G4
   int pdgid = tp->pdgId();
   if (pdgid==21 && tp->e()==0) return false; // Work around for an old generator bug
+
+  // Keep only charged particles if so requested
+  if (m_chargedOnly && !MC::PID::isCharged(pdgid)) return false;
 
   // -- changed for dark jet clustering -- //
   //if ( tp->status() %1000 !=1 ) return false; // Stable!
