@@ -35,21 +35,16 @@ dimuonMassSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "DRA
                                                                      expression = dimuonMassString)
 ToolSvc += dimuonMassSkimmingTool
 
-# Tightening by requiring at least one tight muon and either a single-muon or dimuon trigger to have passed
-#mediumMuonString = 'count(MuonCollection.Medium == 1) >= 1'
-#mediumMuonSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "DRAW_ZMUMU_MediumMuon_SkimmingTool",
-#                                                                     expression = dimuonMassString)
-#ToolSvc += mediumMuonSkimmingTool
-
+# Tightening by requiring at least one good (i.e. preselected) muon and either a single-muon or dimuon trigger to have passed
 from DerivationFrameworkMuons.MuonsCommon import *
-goodMuonString = 'count((Muons.DFCommonGoodMuon) && (Muons.pt > 10*GeV)) >= 1'
+goodMuonString = 'count((Muons.DFCommonGoodMuon) && (Muons.pt > 20*GeV)) >= 1'
 goodMuonSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "DRAW_ZMUMU_GoodMuon_SkimmingTool",
                                                                    expression = goodMuonString)
 ToolSvc += goodMuonSkimmingTool
 
 periods = TriggerPeriod.future | TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017
 allUnprescaledTriggers = TriggerAPI.getLowestUnprescaledAnyPeriod(periods, TriggerType.mu)
-print "CO: This is the list of trigger that will be used for the DRAW_ZMUMU filter"
+print "DRAW_ZMUMU: will skim on an OR of the following muon triggers (list provided at run-time by the TriggerAPI):"
 print allUnprescaledTriggers
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 triggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "DRAWZMUMUTriggerSkimmingTool", 
