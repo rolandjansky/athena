@@ -9,7 +9,6 @@
 //   $Id: comparitor.cxx, v0.0   Fri 12 Oct 2012 13:39:05 BST sutt $
 
 
-// #include <stdlib.h>
 #include <cstdio>
 #include <cstdlib>
 #include <sys/time.h>
@@ -50,11 +49,13 @@
 #include "AtlasStyle.h"
 #include "AtlasLabels.h"
 
+#include "default_panels.h"
 
 bool fulldbg = false;
 
 
-int usage(const std::string& name, int status) { 
+int usage(const std::string& name, int status, const std::string& err_msg="" ) { 
+  if ( err_msg != "" ) std::cerr << err_msg << "\n" << std::endl;
   std::ostream& s = std::cout;
   s << "Usage: " << name << "\t [OPTIONS]  test.root reference.root    chain1 chain2 chain2 ...\n\n"; 
   s << "\t" << " plots comparison histograms"; 
@@ -189,7 +190,7 @@ double chi2( TH1* h0, TH1* h1 ) {
 
 int main(int argc, char** argv) { 
 
-  if ( argc<4 ) return usage(argv[0], -1);
+  if ( argc<4 ) return usage(argv[0], -1, "too few arguments");
 
   /// control stuff
   
@@ -267,7 +268,7 @@ int main(int argc, char** argv) {
   bool addingrefchains = false;
 
 
-  int ncols = 3;
+  int ncols = 2;
 
   std::cout << "ncols " << ncols << std::endl;
 
@@ -297,22 +298,22 @@ int main(int argc, char** argv) {
     }
     else if ( arg=="-c" || arg=="--config" ) { 
       if ( ++i<argc ) configfile=argv[i];
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no config file provided");
     }
     else if ( arg=="-t" || arg=="--tag" ) { 
       if ( ++i<argc ) tag=std::string("-")+argv[i];
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no tag provided");
     }
     else if ( arg=="-l" || arg=="--labels" ) { 
       addinglabels = true;
     }
     else if ( arg=="-k" || arg=="--key" ) { 
       if ( ++i<argc ) key=argv[i];
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no key provided");
     }
     else if ( arg=="-d" || arg=="--dir" ) { 
       if ( ++i<argc ) dir=argv[i];
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no directory provided");
     }
     else if ( arg=="--taglabels" ) { 
       addingtags = true;
@@ -326,9 +327,9 @@ int main(int argc, char** argv) {
     else if ( arg=="-yrange" ) { 
       effset = true;
       if ( ++i<argc ) effmin=std::atof(argv[i]);
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no range specified");
       if ( ++i<argc ) effmax=std::atof(argv[i]);
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no upper y limit specified");
     }
     else if ( arg=="-e" || arg=="--efficiencies" ) { 
       make_ref_efficiencies = true;
@@ -376,15 +377,15 @@ int main(int argc, char** argv) {
     }
     else if ( arg=="-es" || arg=="--effscale" ) { 
       if ( ++i<argc ) scale_eff=std::atof(argv[i]);
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no efficiency scale provided");
     } 
     else if ( arg=="-er" || arg=="--effscaleref" ) { 
       if ( ++i<argc ) scale_eff_ref=std::atof(argv[i]);
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no efficiency scale for the reference histograms provided");
     } 
     else if (               arg=="--ncols" ) { 
       if ( ++i<argc ) ncols=std::atof(argv[i]);
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no number of columns provided");
     } 
     else if ( arg=="-np" || arg=="--noplots" ) { 
       noplots = true;
@@ -409,25 +410,25 @@ int main(int argc, char** argv) {
     } 
     else if ( arg=="-al" || arg=="--atlaslabel" ) { 
       if ( ++i<argc ) atlaslabel_tmp=argv[i];
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no label provided");
     }
     else if ( arg=="-xo" || arg=="--xoffset" ) { 
       if ( ++i<argc ) xoffset=std::atof(argv[i]);
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no xoffset provided");
     }
     else if ( arg=="-yp" || arg=="--ypos" ) { 
       if ( ++i<argc ) _ypos=std::atof(argv[i]);
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no y position provided");
     }
     else if ( arg=="-xe" || arg=="--xerror" ) { 
       if ( ++i<argc ) xerror=std::atof(argv[i]);
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no x error provided");
     }
     else if ( arg=="-s" || arg=="--swap" ) { 
       if ( ++i<argc ) pattern=argv[i];
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no patterns provided");
       if ( ++i<argc ) regex=argv[i];
-      else return usage(argv[0], -1);
+      else return usage(argv[0], -1, "no target pattern provided");
     }
     else if ( arg.find("-")==0 ) {
       std::cerr << "unknown option: " << arg << "\n" << std::endl;
@@ -444,8 +445,6 @@ int main(int argc, char** argv) {
       }
     }
   }
-
-  gStyle->SetErrorX(xerror);
 
   if ( ftestname=="" )  { 
     std::cerr << "main(): test file not specified " << std::endl;
@@ -485,7 +484,7 @@ int main(int argc, char** argv) {
 
   bool noreftmp = noref;
 
-  if ( refchains.size()>0 && refchains.size()!=chains.size() ) return usage(argv[0], -1);
+  if ( refchains.size()>0 && refchains.size()!=chains.size() ) return usage(argv[0], -1, "not enough chains specified");
   
   if ( refchains.size()==0 ) refchains = chains;
   
@@ -525,6 +524,8 @@ int main(int argc, char** argv) {
     gStyle->SetPadLeftMargin(0.105);
     gStyle->SetPadBottomMargin(0.105);
   }
+
+  gStyle->SetErrorX(xerror);
 
   gStyle->SetPadRightMargin(0.01);
   gStyle->SetPadTopMargin(0.05);
@@ -673,84 +674,6 @@ int main(int argc, char** argv) {
   }
 
 
-
-  const int Nhistos = 48;
-  std::string histos_default[Nhistos][6] = { 
-
-    /// distributions - 4
-    { "pT",      "p_{T}",     "xaxis:lin:auto:1:100",   "Offline p_{T} [GeV]", "yaxis:log:auto",  ""  },
-    { "pT_rec",  "p_{T} rec", "xaxis:lin:auto:1:100",   "Trigger p_{T} [GeV]", "yaxis:log:auto",  ""  },
-    { "a0",      "a0",        "xaxis:lin:-3:3",         "Offline a_{0} [mm]",  "yaxis:log:auto",  ""  },
-    { "a0_rec",  "a0 rec",    "xaxis:lin:-3:3",         "Trigger a_{0} [mm]",  "yaxis:log:auto",  ""  },
-    { "z0",      "z0",        "xaxis:lin:-250:250",     "z_{0} [mm]",          "yaxis:log:auto",  ""  },
-
-    /// efficiencies - 10 
-    { "pT_eff",       "Efficiency p_{T}", "xaxis:log:auto:1:100",  "Offline track p_{T} [GeV]",    "yaxis:lin:auto:90:102",  "Efficiency [%]" },       
-    { "eta_eff",      "Efficiency #eta",  "xaxis:lin",             "Offline track #eta",           "yaxis:lin:auto:90:102",  "Efficiency [%]" },       
-    { "phi_eff",      "Efficiency #phi",  "xaxis:lin",             "Offline track #phi",           "yaxis:lin:auto:90:102",  "Efficiency [%]" },       
-    { "d0_eff",       "Efficiency d0",    "xaxis:lin:autosym",     "Offline track d_{0} [mm]",     "yaxis:lin:auto:90:102",  "Efficiency [%]" },       
-    { "a0_eff",       "Efficiency a0",    "xaxis:lin:autosym",     "Offline track d_{0} [mm]",     "yaxis:lin:auto:90:102",  "Efficiency [%]" },      
-    { "z0_eff",       "Efficiency z0",    "xaxis:lin:-250:250",    "Offline track z_{0} [mm]",     "yaxis:lin:auto:90:102",  "Efficiency [%]" },        
- 
-    { "eff_vs_mu",    "Efficiency <#mu>",            "xaxis:lin:auto",       "<#mu>",              "yaxis:lin:90:102",       "Efficiency [%]" },       
-    { "roi_dphi_eff", "Efficiency #Delta#phi(RoI)",  "xaxis:lin:-0.6:0.6",   "#Delta#phi (RoI)",   "yaxis:lin:90:102",       "Efficiency [%]" },
-    { "roi_deta_eff", "Efficiency #Delta#eta(RoI)",  "xaxis:lin:-0.6:0.6",   "#Delta#eta (RoI)",   "yaxis:lin:90:102",       "Efficiency [%]" },       
-    { "roi_dR_eff",   "Efficiency #DeltaR(RoI)",     "xaxis:lin:0:0.6",      "#Delta R (RoI)",     "yaxis:lin:90:102",       "Efficiency [%]" },       
-
-    /// standard residuals - 5 
-    { "ipT_res",    "Residual 1/p_{T}",  "xaxis:lin:-0.15:0.2",     "#Delta 1/p_{T} [GeV^{-1}]",    "yaxis:log:auto",    "Normalised entries" },       
-    { "eta_res",    "Residual #eta",     "xaxis:lin:-0.05:0.05",    "#Delta#eta",                   "yaxis:log:auto",    "Normalised entries" },       
-    { "phi_res",    "Residual #phi",     "xaxis:lin:-0.05:0.05",    "#Delta#phi",                   "yaxis:log:auto",    "Normalised entries" },
-    { "z0_res",     "Residual z0",       "xaxis:lin:-10:10",        "#Delta z_{0} [mm]",            "yaxis:log:auto",    "Normalised entries" },
-    { "a0_res",     "Residual a0",       "xaxis:lin:-1:1",          "#Delta d_{0} [mm]",            "yaxis:log:auto",    "Normalised entries" },       
- 
-    /// residuals vs track parameters - 17
-    { "rd0_vs_pt/sigma",          "Residual d vs p_{T}",          "xaxis:lin:auto",      "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "d_{0} resolution [mm]" },
-    { "rd0_vs_signed_pt/sigma",   "Residual d vs signed p_{T}",   "xaxis:lin:-100:100",  "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "d_{0} resolution [mm]" },    
-    { "rd0_vs_eta/sigma",         "Residual d vs #eta",           "xaxis:lin",           "Offline #eta",          "yaxis:lin:auto",  "d_{0} resolution [mm]" },                    
-    { "rd0_vs_ipt/sigma",         "Residual d vs 1/p_{T}",        "xaxis:lin",           "1/p_{T} [GeV^{-1}]",    "yaxis:lin:auto",  "d_{0} resolution [mm]" },                       
-
-    { "ript_vs_pt/sigma",         "Residual 1/p_{T} vs p_{T}",    "xaxis:lin:auto",     "Offline p_{T} [GeV]",   "yaxis:log:auto",  "1/p_{T} resolution [GeV^{-1}]" },
-    { "ript_vs_eta/sigma",        "Residual 1/p_{T} vs #eta",     "xaxis:lin",          "Offline #eta",          "yaxis:lin:auto",  "1/p_{T} resolution [GeV^{-1}]" },
-    { "ript_vs_ipt/sigma",        "Residual 1/p_{T} vs 1/p_{T}",  "xaxis:lin",          "1/p_{T} [GeV^{-1}]",    "yaxis:lin:auto",  "1/p_{T} resolution [GeV^{-1}]" },
-
-    { "reta_vs_pt/sigma",         "Residual #eta p_{T}",          "xaxis:log:auto",     "Offline p_{T} [GeV]",   "yaxis:lin:auto",  "#eta resolution" },            
-    { "reta_vs_eta/sigma",        "Residual #eta vs #eta",        "xaxis:lin",          "Offline #eta",          "yaxis:lin:auto",  "#eta resolution" },            
-    { "reta_vs_ipt/sigma",        "Residual #eta vs 1/p_{T}",     "xaxis:lin",          "1/p_{T} [GeV^{-1}]",    "yaxis:lin:auto",  "#eta resolution" },            
-
-    { "rphi_vs_pt/sigma",         "Residual #phi vs p_{T}",       "xaxis:lin:1:100",    "p_{T} [GeV]",           "yaxis:lin:auto", "#phi resolution" },
-    { "rphi_vs_ipt/sigma",        "Residual #phi vs 1/p_{T}",     "xaxis:lin",          "1/p_{T} [GeV^{-1}]",    "yaxis:lin:auto", "#phi resolution" },
-
-    { "rzed_vs_eta/sigma",        "Residual z vs #eta",           "xaxis:lin",          "Offline #eta",          "yaxis:lin:auto", "z_{0} resolution [mm]" },
-    { "rzed_vs_pt/sigma",         "Residual z vs p_{T}",          "xaxis:log:auto",     "Offline p_{T} [GeV]",   "yaxis:lin:auto", "z_{0} resolution [mm]" },
-    { "rzed_vs_signed_pt/sigma",  "Residual z vs signed p_{T}",   "xaxis:lin:-100:100", "Offline p_{T} [GeV]",   "yaxis:lin:auto", "z_{0} resolution [mm]" },
-    { "rzed_vs_zed/sigma",        "Residual z vs z",              "xaxis:lin:-250:250", "Offline z [mm]",        "yaxis:lin:auto", "z_{0} resolution [mm]" },
-    { "rzed_vs_ipt/sigma",        "Residual z vs 1/p_{T}",        "xaxis:lin",          "1/p_{T} [GeV^{-1}]",    "yaxis:lin:auto", "z_{0} resolution [mm]" },
-
-    /// track multiplicity - 1
-    { "ntracks_rec",             "number of reconstructed tracks", "xaxis:lin:auto",   "N trigger tracks",     "yaxis:log:auto", "Entries"  },
-
-    /// hit multiplicity - 6
-    { "npix_eta/mean",           "mean number of pixel hits",  "xaxis:lin",   "Offline #eta",   "yaxis:lin:3:6",  "Pixel hits"    },
-    { "nsct_eta/mean",           "mean number of SCT hits",    "xaxis:lin",   "Offline #eta",   "yaxis:lin:7:10", "SCT clusters"  },
-
-    { "npix_pt/mean",           "mean number of pixel hits",  "xaxis:lin:auto",   "Offline p_{T} [GeV]",   "yaxis:lin:3:6",  "Pixel hits"    },
-    { "nsct_pt/mean",           "mean number of SCT hits",    "xaxis:lin:auto",   "Offline p_{T} [GeV]",   "yaxis:lin:7:10", "SCT clusters"  },
-
-    { "npixh_pt/mean",           "mean number of pixel holes",  "xaxis:lin:auto",   "Offline p_{T} [GeV]",   "yaxis:lin:-1:6",  "Pixel holes"    },
-    { "nscth_pt/mean",           "mean number of SCT holes",    "xaxis:lin:auto",   "Offline p_{T} [GeV]",   "yaxis:lin:-1:10", "SCT holes"  },
-
-
-    /// chi2 and chi2 probability - 3
-    { "Chi2prob/1d",           "Chi2 probability",       "xaxis:lin",         "track #chi^{2} Probability",   "yaxis:lin:auto",  "Entries"  },
-    { "Chi2dof/1d",            "Chi2 per dof",           "xaxis:lin",         "track #chi^{2} per dof",       "yaxis:log:auto",  "Entries"  },
-    { "Chi2/1d",               "Chi2",                   "xaxis:lin",         "Offline track #chi^{2}",       "yaxis:lin",       "Entries"  },
-
-    { "Chi2prob/mean",         "Chi2 probability vs pT", "xaxis:log:auto",    "Offline p_{T} [GeV]",          "yaxis:lin",  "mean track #Chi^{2} Probability"  }
-
-  };
-  
-
   std::vector<Panel> panels;
 
   /// read config in from a file if requested ...
@@ -796,7 +719,7 @@ int main(int argc, char** argv) {
 	  for ( size_t iraw=0 ; iraw<raw_input.size() ; iraw += 6 ) p.push_back( HistDetails( &(raw_input[iraw]) ) );
 	  	  
 	  panels.push_back( p ); 
-	  
+
 	}
 
       }	  
@@ -809,18 +732,39 @@ int main(int argc, char** argv) {
 
   }
   else { 
-    /// use the default values
-    for ( size_t iraw=0 ; iraw<Nhistos ; iraw++ ) { 
-      Panel p( histos_default[iraw][0], 1 );
-      p.push_back( histos_default[iraw] );
+
+
+    /// use the default values as single histogram panels
+
+    // for ( size_t iraw=0 ; iraw<Nhistos ; iraw++ ) { 
+    //    Panel p( histos_default[iraw][0], 1 );
+    //    p.push_back( histos_default[iraw] );
+    //    panels.push_back( p );
+    // }
+
+
+    /// use the default panels
+
+    std::string ((*inpanels[3])[6]) = { eff_panel, res_panel, diff_panel };
+
+    int nphist[3] = { 4, 4, 10 }; 
+
+    std::string pnames[3] = { "eff", "res", "diff" };
+
+    for ( size_t ip=0 ; ip<3 ; ip++ ) { 
+      Panel p( pnames[ip]+"_panel", 2 );
+      for ( size_t iraw=0 ; iraw<nphist[ip] ; iraw++ ) p.push_back( HistDetails( inpanels[ip][iraw] ) );
       panels.push_back( p );
     }
-  }
 
+  }
 
   std::cout << "\npanels: " << panels.size() << std::endl; 
 
-  if ( panels.size()==0 ) return usage(argv[0], -1);
+  if ( panels.size()==0 ) return usage(argv[0], -1, "no panels to plot");
+
+  for ( size_t ip=0 ; ip<panels.size() ; ip++ ) std::cout << panels[ip] << std::endl;
+
 
   /// a better colour palette than the egregious root default
   if ( true ) { 
@@ -846,7 +790,6 @@ int main(int argc, char** argv) {
 
   gStyle->SetPadRightMargin(rightmargin); 
     
-
   // gStyle->SetLineScalePS(1);
 
   for ( size_t ipanel=0 ; ipanel<panels.size() ; ipanel++ ) { 
@@ -866,9 +809,14 @@ int main(int argc, char** argv) {
 
     bool multipanel = ( panel.size() > 1 );
 
+    if ( panel.size()==0 ) { 
+      std::cout << "panel empty: " << panel.name() << std::endl;
+      continue;
+    }
+
     gStyle->cd();
     
-    if ( multipanel ) gStyle->SetLineScalePS(1);
+    if ( panel.size()>4 ) gStyle->SetLineScalePS(0.5);
  
     if ( multipanel ) extraw = 1.05;
 
@@ -877,10 +825,28 @@ int main(int argc, char** argv) {
     tc->cd();
 
     std::string atlaslabel = atlaslabel_tmp;
+
     
     if ( multipanel ) { 
+
+      gStyle->SetLineScalePS(1);
+
+      /// words can not express the sheer unpleasantness in trying to 
+      /// do anything serious with subpanels
+
+      /// - if any margins between pads are set to 0, root messes 
+      ///   up the *pad* margins so they are 0 with seemingly no way 
+      ///   to prevent it - have to use a very small (but non 0) value, 
+      ///   but then the margins don't size properly. 
+      /// - Once you cd() to one of the child pads, if you 
+      ///   ask for the child GetWh() or GetWw() you *don't* get the 
+      ///   parameters of the child pad, but the *main* pad etc
+
+      /// How are you supposed to get the paremeters of the *actual* 
+      /// pad ? It is insane.
+      
       tc->Divide( ncolsp, nrowsp, 0.0001, 0.0003 );
-      atlaslabel = "     " + atlaslabel_tmp;
+      //  atlaslabel = "     " + atlaslabel_tmp;
     }
 
     /// histos within the panel
@@ -1834,9 +1800,12 @@ int main(int argc, char** argv) {
     if ( !noplots ) { 
 
       if ( !quiet ) { 
+
 	tc->cd();
 	
 	std::string printbase = dir+panel.name()+tag;
+
+	tc->Update();
 
 	if ( !nopdf ) print_pad( printbase+".pdf" );
 	if ( !nopng ) print_pad( printbase+".png" );
@@ -1848,7 +1817,6 @@ int main(int argc, char** argv) {
     }
 
     if ( tc ) delete tc;
-
 
   } /// loop over panels
 
