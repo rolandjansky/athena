@@ -66,8 +66,6 @@ public:
   virtual StatusCode loadLV(IOVSVC_CALLBACK_ARGS) override;
   virtual StatusCode loadJTAG(IOVSVC_CALLBACK_ARGS) override;
 
-       
-  StoreGateSvc* m_detStore;
   IIOVSvc* m_IOVSvc;
 
   std::map<std::string, Identifier> m_Chamber_Map;
