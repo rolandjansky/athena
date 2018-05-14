@@ -1072,13 +1072,12 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
     if (corruptionError) {
       //Set EventInfo error
-      const xAOD::EventInfo* ei_cst=nullptr;
-      ATH_CHECK(evtStore()->retrieve(ei_cst));
-      xAOD::EventInfo* eventInfo=const_cast< xAOD::EventInfo* >(ei_cst);
-      if (!eventInfo->setErrorState(xAOD::EventInfo::Pixel,xAOD::EventInfo::Error)) {
+      const xAOD::EventInfo* eventInfo=nullptr;
+      ATH_CHECK(evtStore()->retrieve(eventInfo));
+      if (!eventInfo->updateErrorState(xAOD::EventInfo::Pixel,xAOD::EventInfo::Error)) {
 	ATH_MSG_WARNING(" cannot set EventInfo error state for Pixel " );
       }
-      if (!eventInfo->setEventFlagBit(xAOD::EventInfo::Pixel,0x1)) { //FIXME an enum at some appropriate place to indicating 0x1 as 
+      if (!eventInfo->updateEventFlagBit(xAOD::EventInfo::Pixel,0x1)) { //FIXME an enum at some appropriate place to indicating 0x1 as 
 	ATH_MSG_WARNING(" cannot set flag bit for Pixel " );
       }
     } // end if corruption error 
