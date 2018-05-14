@@ -3,6 +3,7 @@
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import *
 
 
 def CaloLUMIBCIDTool( flags, name='CaloLumiBCIDToolDefault' ):
@@ -157,7 +158,6 @@ def TrigCaloDataAccessConfig(flags):
 def EgammaCaloMod( flags ):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaCommon.CFElements import parOR, seqOR, seqAND
-    from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import *
 
     from AthenaCommon.Constants import DEBUG
     acc = ComponentAccumulator()
@@ -189,9 +189,9 @@ def EgammaCaloMod( flags ):
     acc.addEventAlgo( filterL1RoIsAlg, sequence='L2CaloEgamma' )
     inViewAlgsSeqName = 'fastCaloInViewAlgs'
 
-    from ViewAlgs.ViewAlgsConf import TestEventViewCreatorAlgorithm
+    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
     from AthenaCommon.Constants import DEBUG
-    fastCaloViewsMaker                 = TestEventViewCreatorAlgorithm('fastCaloViewsMaker', OutputLevel=DEBUG)
+    fastCaloViewsMaker                 = EventViewCreatorAlgorithm('fastCaloViewsMaker', OutputLevel=DEBUG)
     fastCaloViewsMaker.ViewFallThrough = True
     fastCaloViewsMaker.InputMakerInputDecisions  = ['FilteredEMRoIDecisions'] # from EMRoIsUnpackingTool
     fastCaloViewsMaker.RoIsLink        = 'initialRoI' # -||-
