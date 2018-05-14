@@ -90,7 +90,7 @@ BPHY5_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
   VtxMassHypo           = 3096.916,
   MassMin               = 2000.0,
   MassMax               = 3600.0,
-  Chi2Max               = 200, Do3d = True,
+  Chi2Max               = 200, Do3d = False,
   DoVertexType =1)
 
   
@@ -178,7 +178,7 @@ BPHY5BsKKSelectAndWrite = DerivationFramework__Reco_dimuTrkTrk(name             
                                                            OutputVtxContainerName   = "BsJpsiKKCandidates",
                                                            PVContainerName          = "PrimaryVertices",
                                                            RefPVContainerName       = "BPHY5RefittedPrimaryVertices",
-                                                           RefitPV                  = True, Do3d = True,
+                                                           RefitPV                  = True, Do3d = False,
                                                            MaxPVrefit               = 10000, DoVertexType = 7)
 ToolSvc += BPHY5BsKKSelectAndWrite 
 print      BPHY5BsKKSelectAndWrite
@@ -203,7 +203,7 @@ BPHY5_Select_Bs2JpsiKK = DerivationFramework__Select_onia2mumu(
   TrkMasses                  = [105.658, 105.658, 493.677, 493.677],
   VtxMassHypo                = 5366.3,
   MassMin                    = 5000.0,
-  MassMax                    = 5800.0, Do3d = True,
+  MassMax                    = 5800.0, Do3d = False,
   Chi2Max                    = 200)
 
 ToolSvc += BPHY5_Select_Bs2JpsiKK
@@ -215,7 +215,7 @@ BPHY5_Select_Bpl2JpsiKpl     = DerivationFramework__Select_onia2mumu(
   InputVtxContainerName      = "BpmJpsiKpmCandidates",
   TrkMasses                  = [105.658, 105.658, 493.677],
   VtxMassHypo                = 5279.26,
-  MassMin                    = 5279.26 - 500, Do3d = True,
+  MassMin                    = 5279.26 - 500, Do3d = False,
   MassMax                    = 5279.26 + 500,
   Chi2Max                    = BPHY5BplJpsiKpl.Chi2Cut)
 
@@ -227,7 +227,7 @@ BPHY5_Select_Bpl2JpsiPi      = DerivationFramework__Select_onia2mumu(
   HypothesisName             = "Bc",
   InputVtxContainerName      = "BpmJpsiKpmCandidates",
   TrkMasses                  = [105.658, 105.658, 139.570],
-  VtxMassHypo                = 6275.1, Do3d = True,
+  VtxMassHypo                = 6275.1, Do3d = False,
   MassMin                    = 6275.1 - 500,
   MassMax                    = 6275.1 + 500,
   Chi2Max                    = BPHY5BplJpsiKpl.Chi2Cut)
