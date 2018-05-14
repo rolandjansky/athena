@@ -52,9 +52,9 @@ private:
     
     typedef std::pair<double, std::unique_ptr<TH2> > m_pair_t;
     
-    std::vector<m_pair_t>* m_hists0P; //!
-    std::vector<m_pair_t>* m_hists1P; //!
-    std::vector<m_pair_t>* m_hists3P; //!
+    std::unique_ptr<std::vector<m_pair_t>> m_hists0P; //!
+    std::unique_ptr<std::vector<m_pair_t>> m_hists1P; //!
+    std::unique_ptr<std::vector<m_pair_t>> m_hists3P; //!
 
     // Limits, probably not needed
     std::map<int, double> m_xmin;
@@ -78,8 +78,8 @@ private:
     std::string m_scoreName;
     std::string m_newScoreName;
 
-    SG::AuxElement::ConstAccessor<float>* acc_score;
-    SG::AuxElement::Accessor<float>* acc_newScore;
+    std::unique_ptr<SG::AuxElement::ConstAccessor<float>> acc_score;
+    std::unique_ptr<SG::AuxElement::Accessor<float>> acc_newScore;
 
     float m_mu;
 

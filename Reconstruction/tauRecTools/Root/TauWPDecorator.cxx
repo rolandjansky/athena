@@ -12,12 +12,7 @@
 
 /********************************************************************/
 TauWPDecorator::TauWPDecorator(const std::string& name) :
-  TauRecToolBase(name),
-  m_hists0P(0),
-  m_hists1P(0),
-  m_hists3P(0),
-  acc_score(0),
-  acc_newScore(0)
+  TauRecToolBase(name)
 {
   declareProperty("flatteningFile0Prong", m_file0P);
   declareProperty("flatteningFile1Prong", m_file1P);
@@ -42,12 +37,6 @@ TauWPDecorator::TauWPDecorator(const std::string& name) :
 
 /********************************************************************/
 TauWPDecorator::~TauWPDecorator() {
-  
-  if(m_hists0P) delete m_hists0P;
-  delete m_hists1P;
-  delete m_hists3P;
-  delete acc_score;
-  delete acc_newScore;
 }
  
 StatusCode TauWPDecorator::retrieveHistos(int nProng) {
@@ -56,15 +45,15 @@ StatusCode TauWPDecorator::retrieveHistos(int nProng) {
   std::vector<m_pair_t>* histArray = 0;
   if (nProng == 0) { 
     fileName = m_file0P;
-    histArray = m_hists0P;
+    histArray = m_hists0P.get();
   }
   else if (nProng == 1) {
     fileName = m_file1P;
-    histArray = m_hists1P;
+    histArray = m_hists1P.get();
   }
   else {
     fileName = m_file3P;
-    histArray = m_hists3P;
+    histArray = m_hists3P.get();
   }
 
   std::string fullPath = find_file(fileName);
@@ -99,9 +88,9 @@ StatusCode TauWPDecorator::retrieveHistos(int nProng) {
 StatusCode TauWPDecorator::storeLimits(int nProng) {
 
   std::vector<m_pair_t> *histArray = 0;
-  if (nProng == 0) histArray = m_hists0P ;
-  else if (nProng == 1) histArray = m_hists1P ;
-  else histArray = m_hists3P ;
+  if (nProng == 0) histArray = m_hists0P.get() ;
+  else if (nProng == 1) histArray = m_hists1P.get() ;
+  else histArray = m_hists3P.get() ;
   
   // Default values
   m_xmin[nProng] = 1E9;
@@ -136,24 +125,24 @@ StatusCode TauWPDecorator::initialize() {
 
   // 0p is for trigger only
   if(!m_file0P.empty()) {
-    m_hists0P = new std::vector<m_pair_t>;
+    m_hists0P = std::make_unique<std::vector<m_pair_t>>();
     ATH_CHECK( retrieveHistos(0) );
     ATH_CHECK( storeLimits(0) );
   }
-  
-  m_hists1P = new std::vector<m_pair_t>;
+
+  m_hists1P = std::make_unique<std::vector<m_pair_t>>();
   ATH_CHECK( retrieveHistos(1) );
   ATH_CHECK( storeLimits(1) );
   
-  m_hists3P = new std::vector<m_pair_t>;
+  m_hists3P = std::make_unique<std::vector<m_pair_t>>();
   ATH_CHECK( retrieveHistos(3) );  
   ATH_CHECK( storeLimits(3) );
   
   std::string scoreName = m_scoreName;
   std::string newScoreName = m_newScoreName;
   
-  acc_score = new SG::AuxElement::ConstAccessor<float>(scoreName);
-  acc_newScore = new SG::AuxElement::Accessor<float>(newScoreName);
+  acc_score = std::make_unique<SG::AuxElement::ConstAccessor<float>>(scoreName);
+  acc_newScore = std::make_unique<SG::AuxElement::Accessor<float>>(newScoreName);
   
   return StatusCode::SUCCESS;
 }
@@ -183,9 +172,9 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
   
   // histograms
   std::vector<m_pair_t> *histArray = 0;
-  if (nProng == 0) histArray = m_hists0P ;
-  else if (nProng == 1) histArray = m_hists1P ;
-  else histArray = m_hists3P ;
+  if (nProng == 0) histArray = m_hists0P.get() ;
+  else if (nProng == 1) histArray = m_hists1P.get() ;
+  else histArray = m_hists3P.get() ;
   
   // Retrieve tau properties
   double score = (*acc_score)(pTau);
