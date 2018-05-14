@@ -3,7 +3,7 @@
 */
 
 #include "sTGCRDOVariables.h"
-#include "AthenaKernel/errorcheck.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "MuonSimData/MuonSimDataCollection.h"
 
@@ -20,12 +20,12 @@ StatusCode sTGCRDOVariables::fillVariables()
   ATH_MSG_DEBUG("do fillNSWsTGCRDOVariables()");
 
   // clear variables
-  CHECK( this->clearVariables() );
+  ATH_CHECK( this->clearVariables() );
 
   ATH_MSG_DEBUG("Retrieve RDO container with name " << m_ContainerName);
   // get the rdo (a container corresponds to a multilayer of a module)
   const STGC_RawDataContainer* rdo_container = nullptr;
-  CHECK( m_evtStore->retrieve(rdo_container, m_ContainerName.c_str()) );
+  ATH_CHECK( m_evtStore->retrieve(rdo_container, m_ContainerName.c_str()) );
 
   if(rdo_container->size()==0) ATH_MSG_WARNING(" sTGC RDO Container empty ");
   
