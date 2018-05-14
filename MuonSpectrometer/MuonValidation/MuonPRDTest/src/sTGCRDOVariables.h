@@ -36,17 +36,14 @@ class sTGCRDOVariables : public ValAlgVariables
     setHelper(idhelper);
   }
 
-  ~sTGCRDOVariables()
-  {
-    deleteVariables();
-  }
+  ~sTGCRDOVariables() override final { deleteVariables(); }
 
-  StatusCode initializeVariables();
-  StatusCode fillVariables();
+  StatusCode initializeVariables() override final;
+  StatusCode fillVariables() override final;
 
  private:
 
-  void setHelper(const MuonIdHelper* idhelper){
+  void setHelper(const MuonIdHelper* idhelper) override final{
     m_sTgcIdHelper = dynamic_cast<const sTgcIdHelper*>(idhelper);
     if(m_sTgcIdHelper == 0) {
        ATH_MSG_ERROR("casting IdHelper to sTgcIdHelper failed");
@@ -54,8 +51,8 @@ class sTGCRDOVariables : public ValAlgVariables
     }
   }
 
-  void deleteVariables();
-  StatusCode clearVariables();
+  void deleteVariables() override final;
+  StatusCode clearVariables() override final;
 
   const sTgcIdHelper* m_sTgcIdHelper;
 
