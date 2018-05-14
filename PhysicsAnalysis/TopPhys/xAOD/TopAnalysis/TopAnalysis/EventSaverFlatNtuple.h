@@ -156,7 +156,8 @@ protected:
     * which allows us to easily access the SF decorations
     * @returns A shared pointer to the top::ScaleFactorRetriever object
     */
-    std::shared_ptr<top::ScaleFactorRetriever> scaleFactorRetriever();
+    //std::shared_ptr<top::ScaleFactorRetriever> scaleFactorRetriever();
+    top::ScaleFactorRetriever* scaleFactorRetriever();
 
     /*!
      * @brief Function to access the branch filters - cf ANALYSISTO-61
@@ -220,7 +221,8 @@ private:
     std::shared_ptr<top::TopConfig> m_config;
 
     ///Scale factors
-    std::shared_ptr<top::ScaleFactorRetriever> m_sfRetriever;
+    //std::shared_ptr<top::ScaleFactorRetriever> m_sfRetriever;
+    top::ScaleFactorRetriever* m_sfRetriever;
 
     ///The file where everything goes
     TFile* m_outputFile;

@@ -177,7 +177,8 @@ namespace top {
         return m_particleLevelTreeManager;
     }
 
-    std::shared_ptr<top::ScaleFactorRetriever> EventSaverFlatNtuple::scaleFactorRetriever()
+  //std::shared_ptr<top::ScaleFactorRetriever> EventSaverFlatNtuple::scaleFactorRetriever()
+    top::ScaleFactorRetriever* EventSaverFlatNtuple::scaleFactorRetriever()
     {
         return m_sfRetriever;
     }
@@ -255,7 +256,15 @@ namespace top {
         // Truth tree
         if (m_config->isMC()) {
 
-            m_sfRetriever = std::unique_ptr<top::ScaleFactorRetriever> ( new top::ScaleFactorRetriever( m_config ) );
+	    if(asg::ToolStore::contains<ScaleFactorRetriever>("top::ScaleFactorRetriever")){
+	      m_sfRetriever = asg::ToolStore::get<ScaleFactorRetriever>("top::ScaleFactorRetriever");
+	    }
+	    else{
+	      top::ScaleFactorRetriever* topSFR = new top::ScaleFactorRetriever("top::ScaleFactorRetriever");
+	      top::check(asg::setProperty(topSFR, "config", m_config), "Failed to set config");
+	      top::check(topSFR->initialize(), "Failed to initalialise");
+	      m_sfRetriever = topSFR;
+	    }
 
             m_truthTreeManager = std::shared_ptr<top::TreeManager>( new top::TreeManager( "truth" , file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector() ) );
             m_truthTreeManager->branchFilters() = branchFilters();

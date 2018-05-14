@@ -85,13 +85,15 @@ class ScaleFactorRetriever final : public asg::AsgTool{
   // Specify that we will overload print with top::Event later on
   using asg::AsgTool::print;
  public:
-  explicit ScaleFactorRetriever(std::shared_ptr<top::TopConfig> config);
+  explicit ScaleFactorRetriever(const std::string& name);
   virtual ~ScaleFactorRetriever() {}
 
   // Delete Standard constructors
   ScaleFactorRetriever(const ScaleFactorRetriever& rhs) = delete;
   ScaleFactorRetriever(ScaleFactorRetriever&& rhs) = delete;
   ScaleFactorRetriever& operator=(const ScaleFactorRetriever& rhs) = delete;
+
+  StatusCode initialize();
 
   // Pile up SF
   static bool hasPileupSF(const top::Event& event);
