@@ -32,7 +32,6 @@
 //STL includes
 #include <iostream>
 #include <fstream>
-#include <limits>
 
 //Constants at file scope
 static const std::string atlasTableSignature{"Rod Fibre Bec LayerDisk Eta Phi Side RobId Sn"};
@@ -178,6 +177,13 @@ SCT_FillCablingFromText::readDataFromFile(ISCT_CablingSvc* cabling) {
                       <<", it may be badly formatted in the following line: \n"<<inString);
         continue;
       } 
+      // Check Link variable looks OK
+      // The maximum value of an int is 2147483647 in decimal and 0x7fffffff in hexadecimal.
+      if (Link.size()==0 or Link.size()>10) {
+        ATH_MSG_ERROR("An error occurred while reading the cabling file "<<m_source
+                      <<", Link ("<<Link<<") cannot be converted to an integer");
+        continue;
+      }
       // Let's Get the Online Id From the link and the ROD
       try {
         link = SCT_Cabling::stringToInt(Link);
@@ -186,7 +192,7 @@ SCT_FillCablingFromText::readDataFromFile(ISCT_CablingSvc* cabling) {
                       <<", Link ("<<Link<<") cannot be converted to an integer");
         continue;
       }
-      if (link<0 or link==std::numeric_limits<int>::max()) {
+      if (link<0) {
         ATH_MSG_ERROR("link " << link << " seems invalid. This was obtained from Link " << Link << ". Will not be used.");
         continue;
       }
