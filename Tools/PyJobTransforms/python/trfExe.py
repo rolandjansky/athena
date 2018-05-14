@@ -658,7 +658,6 @@ class scriptExecutor(transformExecutor):
 
         try:
             p = subprocess.Popen(self._cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
-            
             if self._memMonitor:
                 try:
                     self._memSummaryFile = 'mem.summary.' + self._name + '.json'
@@ -1888,12 +1887,23 @@ class archiveExecutor(scriptExecutor):
                 elif self.conf.argdict['compressionType'] == 'none':
                     pass
         elif self._exe == 'zip':
-            self._cmd = [self._exe]
-            if 'compressionLevel' in self.conf.argdict:
-                self._cmd.append(self.conf.argdict['compressionLevel'])
-            self._cmd.extend([self.conf.argdict['outputArchFile'].value[0]])
-            if '.' not in self.conf.argdict['outputArchFile'].value[0]:
-                errmsg = 'Output filename must end in ".", ".zip" or ".anyname" '
-                raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'), errmsg)
-        self._cmd.extend(self.conf.argdict['inputDataFile'].value)
+            self._cmd = ['python']
+            try:
+                with open('zip_wrapper.py', 'w') as zip_wrapper:
+                    print >> zip_wrapper, "import zipfile"
+                    print >> zip_wrapper, "zf = zipfile.ZipFile('{}', mode='w', allowZip64=True)".format(self.conf.argdict['outputArchFile'].value[0])
+                    print >> zip_wrapper, "for f in {}:".format(self.conf.argdict['inputDataFile'].value)
+                    print >> zip_wrapper, "   print 'Zipping file {}'.format(f)"
+                    print >> zip_wrapper, "   zf.write(f, compress_type=zipfile.ZIP_STORED)"
+                    print >> zip_wrapper, "zf.close()"
+                os.chmod('zip_wrapper.py', 0755)
+            except (IOError, OSError) as e:
+                errMsg = 'error writing zip wrapper {fileName}: {error}'.format(fileName = 'zip_wrapper.py',
+                    error = e
+                )
+                msg.error(errMsg)
+                raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_SETUP_WRAPPER'),
+                    errMsg
+                )
+        self._cmd.append('zip_wrapper.py')
         super(archiveExecutor, self).preExecute(input=input, output=output)
