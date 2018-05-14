@@ -11,11 +11,6 @@
 
 #include "MuonTGRecTools/MuonHolesOnTrackTool.h"
 
-// Gaudi includes
-#include "StoreGate/StoreGate.h"
-#include "GaudiKernel/ListItem.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/IToolSvc.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 //#include "TrkEventPrimitives/LocalPosition.h"
@@ -56,7 +51,6 @@ Muon::MuonHolesOnTrackTool::MuonHolesOnTrackTool(const std::string &type, const 
   m_measTool("Muon::MuonTGMeasurementTool/MuonTGMeasurementTool"),
   m_extrapolator("Trk::Extrapolator/Extrapolator"),
   m_rotCreator("Trk::RIO_OnTrackCreator/RIO_OnTrackCreator"),
-  m_StoreGate(0),
   m_msEntrance(0),
   m_parUpdate(false)
 {  
@@ -85,58 +79,15 @@ StatusCode Muon::MuonHolesOnTrackTool::initialize()
 
   // Get the messaging service, print where you are
   ATH_MSG_INFO("MuonHolesOnTrackTool::initialize()");
-
-  StatusCode sc;
-
-  sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("Detector service not found !");
-    return StatusCode::FAILURE;
-  } 
-
-  sc=service("StoreGateSvc",m_StoreGate);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("StoreGate service not found !");
-    return StatusCode::FAILURE;
-  } 
  
-  sc = m_detStore->retrieve(m_mdtIdHelper,"MDTIDHELPER");
-  if (sc.isFailure())
-  {
-	  ATH_MSG_ERROR("Cannot retrieve MdtIdHelper");
-	  return sc;
-  }
-
-  sc = m_detStore->retrieve(m_rpcIdHelper,"RPCIDHELPER");
-  if (sc.isFailure())
-  {
-	  ATH_MSG_ERROR("Cannot retrieve RpcIdHelper");
-	  return sc;
-  }
-
-  sc = m_detStore->retrieve(m_cscIdHelper,"CSCIDHELPER");
-  if (sc.isFailure())
-  {
-	  ATH_MSG_ERROR("Cannot retrieve CscIdHelper");
-	  return sc;
-  }
-
-  sc = m_detStore->retrieve(m_tgcIdHelper,"TGCIDHELPER");
-  if (sc.isFailure())
-  {
-	  ATH_MSG_ERROR("Cannot retrieve TgcIdHelper");
-	  return sc;
-  }
-  
-  sc = m_detStore->retrieve(m_muonMgr);
-  if (sc.isFailure())
-  {
-	  ATH_MSG_ERROR("Cannot retrieve MuonDetectorManager...");
-	  return sc;
-  }
+  ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
+  ATH_CHECK( detStore()->retrieve(m_rpcIdHelper,"RPCIDHELPER") );
+  ATH_CHECK( detStore()->retrieve(m_cscIdHelper,"CSCIDHELPER") );
+  ATH_CHECK( detStore()->retrieve(m_tgcIdHelper,"TGCIDHELPER") );
+  ATH_CHECK( detStore()->retrieve(m_muonMgr) );
 
   // get measurement tool
-  sc = m_measTool.retrieve();
+  StatusCode sc = m_measTool.retrieve();
   if (sc.isFailure()) {
     ATH_MSG_ERROR("Could not find TG measurement tool ");
   } else {

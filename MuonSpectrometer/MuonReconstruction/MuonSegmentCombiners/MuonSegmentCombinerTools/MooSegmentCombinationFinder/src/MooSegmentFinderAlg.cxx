@@ -61,19 +61,9 @@ MooSegmentFinderAlg::~MooSegmentFinderAlg()
 
 StatusCode MooSegmentFinderAlg::initialize()
 {
-  if (AthAlgorithm::initialize().isFailure()) {
-    return StatusCode::FAILURE;
-  }
   
-  if( m_segmentFinder.retrieve().isFailure() ){
-    ATH_MSG_FATAL("Could not get " << m_segmentFinder); 
-    return StatusCode::FAILURE;
-  }
-  
-  if( m_clusterSegMaker.retrieve().isFailure() ){
-    ATH_MSG_FATAL("Could not get " << m_clusterSegMaker);
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_segmentFinder.retrieve() ); 
+  ATH_CHECK( m_clusterSegMaker.retrieve() );
 
   ATH_CHECK( m_keyMdt.initialize(m_useMdt) ); //Nullify key from scheduler if not needed
   ATH_CHECK( m_keyCsc.initialize(m_useCsc) );
@@ -91,9 +81,6 @@ StatusCode MooSegmentFinderAlg::initialize()
   
   return StatusCode::SUCCESS; 
 }
-
-
-
 
 StatusCode MooSegmentFinderAlg::execute()
 {
@@ -179,9 +166,5 @@ StatusCode MooSegmentFinderAlg::execute()
 
 StatusCode MooSegmentFinderAlg::finalize()
 {
-  
-  return AthAlgorithm::finalize();
+  return StatusCode::SUCCESS;
 }
-
-
-

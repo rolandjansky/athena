@@ -34,9 +34,6 @@
 #include "MuonSimEvent/TGCSimHitCollection.h"
 #include "MuonSimEvent/TGCSimHit.h"
 
-// Tool service 
-#include "GaudiKernel/IToolSvc.h"
-
 // HepPDT
 #include "HepPDT/ParticleDataTable.hh"
 #include "HepPDT/ParticleData.hh"
@@ -56,7 +53,6 @@ Muon::MuonTGHitNtuple::MuonTGHitNtuple(const std::string &name, ISvcLocator *pSv
   m_measTool("Muon::MuonTGMeasurementTool/MuonTGMeasurementTool"),
   m_trackingGeometry(0),
   m_trackingGeometryName("MuonStandaloneTrackingGeometry"),
-  m_detStore(0),
   m_activeStore(0),
   m_StoreGate(0),
   m_inputTracks(0),
@@ -168,79 +164,27 @@ StatusCode Muon::MuonTGHitNtuple::initialize()
   m_ptree->Branch("fhit_station_phi",  m_fhit_station_phi,   "fhit_station_phi[nFHit]/I");
   m_ptree->Branch("fhit_residual",  m_fhit_residual,   "fhit_residual[nFHit]");
 
-  sc = service( "THistSvc", m_THistSvc, true );
-  if( !sc.isSuccess() ) {
-    ATH_MSG_ERROR("!! Unable to locate the THistSvc service !!");
-     return sc;
-  }
+  ATH_CHECK( service( "THistSvc", m_THistSvc, true ) );
  
   m_THistSvc->regTree(m_treeLocation, m_ptree);
 
   // Store Gate active store
-  sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if (sc != StatusCode::SUCCESS ) {
-    ATH_MSG_ERROR(" Cannot get ActiveStoreSvc ");
-    return sc ;
-  }
-
-  // Initialize the IdHelper
-  //StoreGateSvc* detStore = 0;
-  sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure())   {
-    ATH_MSG_ERROR("Can't locate the DetectorStore"); 
-    return sc;
-  }
-
-  sc=service("StoreGateSvc",m_StoreGate);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("StoreGate service not found !");
-    return StatusCode::FAILURE;
-  } 
+  ATH_CHECK( serviceLocator()->service("ActiveStoreSvc", m_activeStore) );
+  ATH_CHECK( service("StoreGateSvc",m_StoreGate) );
 
   // retrieve the id helper
-  sc = m_detStore->retrieve(m_mdtIdHelper,"MDTIDHELPER");
-  if (sc.isFailure())
-    {
-      ATH_MSG_ERROR("Cannot retrieve MdtIdHelper");
-      return sc;
-    }
+  ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
+  ATH_CHECK( detStore()->retrieve(m_rpcIdHelper,"RPCIDHELPER") );
+  ATH_CHECK( detStore()->retrieve(m_tgcIdHelper,"TGCIDHELPER") );
+  ATH_CHECK( detStore()->retrieve(m_cscIdHelper,"CSCIDHELPER") );
+
   //simulation identifier helper
   m_mdtHelper = MdtHitIdHelper::GetHelper();
-
-  // retrieve the id helper
-  sc = m_detStore->retrieve(m_rpcIdHelper,"RPCIDHELPER");
-  if (sc.isFailure())
-    {
-      ATH_MSG_ERROR("Cannot retrieve RpcIdHelper");
-      return sc;
-    }
-  //simulation identifier helper
   m_rpcHelper = RpcHitIdHelper::GetHelper();
   m_cscHelper = CscHitIdHelper::GetHelper();
   m_tgcHelper = TgcHitIdHelper::GetHelper();
 
-  // retrieve the id helper
-  sc = m_detStore->retrieve(m_tgcIdHelper,"TGCIDHELPER");
-  if (sc.isFailure())
-    {
-      ATH_MSG_ERROR("Cannot retrieve TgcIdHelper");
-      return sc;
-    }
-
-  // retrieve the id helper
-  sc = m_detStore->retrieve(m_cscIdHelper,"CSCIDHELPER");
-  if (sc.isFailure())
-    {
-      ATH_MSG_ERROR("Cannot retrieve CscIdHelper");
-      return sc;
-    }
-
-  sc = m_detStore->retrieve(m_muonMgr);
-  if (sc.isFailure())
-    {
-      ATH_MSG_ERROR("Cannot retrieve MuonDetectorManager...");
-      return sc;
-    }
+  ATH_CHECK( detStore()->retrieve(m_muonMgr) );
 
   // get holes-on-track tool
   if (m_processHoles) {
@@ -270,11 +214,8 @@ StatusCode Muon::MuonTGHitNtuple::initialize()
   }
 
   //  get the ParticleProperties 
-  if (m_particlePropSvc.retrieve().isFailure())
-    {
-      ATH_MSG_FATAL("Can not retrieve " << m_particlePropSvc );
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK( m_particlePropSvc.retrieve() );
+
   // and the particle data table 
   m_particleDataTable = m_particlePropSvc->PDT();
   if( !m_particleDataTable )   {
@@ -363,7 +304,6 @@ StatusCode Muon::MuonTGHitNtuple::finalize()
 
 void Muon::MuonTGHitNtuple::fillFatras() const 
 {
-  MsgStream log(msgSvc(), name());
   //  
   Trk::Perigee* peri = 0;
 
@@ -606,7 +546,6 @@ void Muon::MuonTGHitNtuple::fillFatras() const
 
 void Muon::MuonTGHitNtuple::fillRecNtuple(const TrackCollection* tracks ) const 
 {
-  MsgStream log(msgSvc(), name());
 
   m_nRec = 0;
   m_nHit   = 0;
@@ -1055,7 +994,6 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
  
 void Muon::MuonTGHitNtuple::fillHoles(const TrackCollection* tracks) const
 {
-  MsgStream log(msgSvc(), name());
 
   if (!tracks) return;
 
@@ -1158,12 +1096,11 @@ void Muon::MuonTGHitNtuple::fillHoles(const TrackCollection* tracks) const
 
 const TrackCollection* Muon::MuonTGHitNtuple::holesFromSim() const
 {
-  MsgStream log(msgSvc(), name());
 
   TrackCollection* htracks = 0;
 
   if ( !m_trackingGeometry ) {
-    StatusCode sc = m_detStore->retrieve(m_trackingGeometry, m_trackingGeometryName);
+    StatusCode sc = detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName);
     if (sc.isFailure()) {
       ATH_MSG_FATAL("Could not find geometry "<< m_trackingGeometryName<<". Exiting.");
       return 0;

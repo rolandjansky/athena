@@ -58,30 +58,20 @@ namespace Muon {
 
   MuonLayerHoughTool::~MuonLayerHoughTool()
   {
-
   }
 
   StatusCode MuonLayerHoughTool::initialize() {
 
-    if (m_idHelper.retrieve().isFailure()){
-      ATH_MSG_ERROR("Failed to initialize " << m_idHelper );
-      return StatusCode::FAILURE;
-    }
-    if (m_printer.retrieve().isFailure()){
-      ATH_MSG_ERROR("Failed to initialize " << m_printer );
-      return StatusCode::FAILURE;
-    }
-    if( m_doTruth && !m_truthSummaryTool.empty() && m_truthSummaryTool.retrieve().isFailure()){
-      ATH_MSG_ERROR("Failed to initialize " << m_truthSummaryTool );
-      return StatusCode::FAILURE;
+    ATH_CHECK( m_idHelper.retrieve() );
+    ATH_CHECK( m_printer.retrieve() );
+
+    if( m_doTruth && !m_truthSummaryTool.empty() ){
+      ATH_CHECK( m_truthSummaryTool.retrieve() );
     }
     else{
       m_truthSummaryTool.disable();
     }
-    if( detStore()->retrieve( m_detMgr ).isFailure() || !m_detMgr ){
-      ATH_MSG_ERROR("Failed to initialize detector manager" );
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( detStore()->retrieve( m_detMgr ) );
 
     if( m_doNtuple ){
       TDirectory* cdir = gDirectory;
@@ -158,12 +148,8 @@ namespace Muon {
 
 
     // call handle in case of EndEvent
-    if( m_incidentSvc.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Could not get " << m_incidentSvc);
-      return StatusCode::FAILURE;     
-    }
+    ATH_CHECK( m_incidentSvc.retrieve() );
     m_incidentSvc->addListener( this, IncidentType::EndEvent );
-
 
     // /// test layerhash 
     // for( int reg = 0;reg<MuonStationIndex::DetectorRegionIndexMax;++reg ){   
@@ -194,7 +180,7 @@ namespace Muon {
       delete m_ntuple;
       gDirectory = cdir;
     }
-    return AthAlgTool::finalize();
+    return StatusCode::SUCCESS;
   }
 
   void MuonLayerHoughTool::getTruth() const {
