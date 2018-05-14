@@ -93,10 +93,10 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
 
   template<typename T>
   struct HandlesGroup {
-    HandlesGroup(SG::WriteHandleKeyArray<T>& _out,
-		 SG::ReadHandleKeyArray<T>& _in,
-		 SG::ReadHandleKeyArray< std::vector< SG::View* > >& _views)
-      : out(_out), in(_in), views(_views) {}
+    HandlesGroup(SG::WriteHandleKeyArray<T>& out_,
+		 SG::ReadHandleKeyArray<T>& in_,
+		 SG::ReadHandleKeyArray< std::vector< SG::View* > >& views_)
+      : out(out_), in(in_), views(views_) {}
 
     SG::WriteHandleKeyArray<T>& out;
     SG::ReadHandleKeyArray<T>& in;
@@ -115,10 +115,10 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
 
   template<typename T>
   struct ConstHandlesGroup {
-    ConstHandlesGroup(const SG::WriteHandleKeyArray<T>& _out,
-		      const SG::ReadHandleKeyArray<T>& _in,
-		      const SG::ReadHandleKeyArray< std::vector< SG::View* > >& _views)
-      : out(_out), in(_in), views(_views) {}
+    ConstHandlesGroup(const SG::WriteHandleKeyArray<T>& out_,
+		      const SG::ReadHandleKeyArray<T>& in_,
+		      const SG::ReadHandleKeyArray< std::vector< SG::View* > >& views_)
+      : out(out_), in(in_), views(views_) {}
 
     const SG::WriteHandleKeyArray<T>& out;
     const SG::ReadHandleKeyArray<T>& in;
