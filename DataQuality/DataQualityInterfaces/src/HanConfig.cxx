@@ -51,9 +51,6 @@
 
 ClassImp(dqi::HanConfig)
 
-static TBox _box;
-static TLine _line;
-
 namespace dqi {
 
 // *********************************************************************
