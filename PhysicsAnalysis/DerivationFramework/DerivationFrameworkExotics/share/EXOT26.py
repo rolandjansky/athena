@@ -52,10 +52,10 @@ thinningTools.append( HIGG5Common.getPhotonTrackParticleThinning(       'EXOT26'
 thinningTools.append( HIGG5Common.getTauTrackParticleThinning(          'EXOT26',EXOT26ThinningHelper) )
 thinningTools.append( HIGG5Common.getTauCaloClusterThinning(            'EXOT26',EXOT26ThinningHelper) )
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoCaloClusterThinning( 'EXOT26',EXOT26ThinningHelper) )
-thinningTools.append( HIGG5Common.getTCCTrackParticleThinning(          'EXOT26',EXOT26ThinningHelper) )
+#thinningTools.append( HIGG5Common.getTCCTrackParticleThinning(          'EXOT26',EXOT26ThinningHelper) )
 
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('EXOT26',EXOT26ThinningHelper) )
-thinningTools.append( HIGG5Common.getAntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Thinning('EXOT26',EXOT26ThinningHelper) )
+#thinningTools.append( HIGG5Common.getAntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Thinning('EXOT26',EXOT26ThinningHelper) )
 
 # Truth particles
 if DerivationFrameworkIsMonteCarlo:
@@ -244,14 +244,14 @@ if not "EXOT26Jets" in OutputJets:
     #=======================================
     # TCC JETS
     #=======================================
-    from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+#    from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
     # Set up geometry and BField
-    import AthenaCommon.AtlasUnixStandardJob
+#    import AthenaCommon.AtlasUnixStandardJob
 
-    include("RecExCond/AllDet_detDescr.py")
-    runTCCReconstruction(exot26Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
-    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
-    addTCCTrimmedJets(exot26Seq, "EXOT26Jets")
+#    include("RecExCond/AllDet_detDescr.py")
+#    runTCCReconstruction(exot26Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+#    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
+#    addTCCTrimmedJets(exot26Seq, "EXOT26Jets")
 
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
