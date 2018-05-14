@@ -46,7 +46,6 @@ def addMyArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)
     parser.defineArgGroup('Archive_tf', 'Archive transform options')
     parser.defineArgGroup('Tar archiver', 'Options')
-    parser.defineArgGroup('Zip archiver', 'Options')
     parser.add_argument('--exe', group='Archive_tf',
                         help='Archiving command. Default is zip', choices=['zip', 'tar'],
                         default='zip')
@@ -59,9 +58,6 @@ def addMyArgs(parser):
     parser.add_argument('--compressionType', group='Tar archiver',
                         help='Underlying compression type of tar. Default is none', choices=['gzip', 'bzip2', 'none'],
                         default='none')
-    parser.add_argument('--compressionLevel', group='Zip archiver',
-                        help='Compression level of zip. Default is -0', choices=['-0', '-1', '-2', '-3',  '-4',  '-5', '-6', '-7', '-8', '-9'],
-                        default='-0')
 
 if __name__ == '__main__':
     main()
