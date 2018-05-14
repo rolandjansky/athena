@@ -82,6 +82,8 @@ enum topSFSyst{nominal = 0,
 enum topSFComp{ALL = 0, TRIGGER, RECO, ID, ISOLATION, CHARGEID, CHARGEMISID, TTVA};
 
 class ScaleFactorRetriever final : public asg::AsgTool{
+  // Specify that we will overload print with top::Event later on
+  using asg::AsgTool::print;
  public:
   explicit ScaleFactorRetriever(std::shared_ptr<top::TopConfig> config);
   virtual ~ScaleFactorRetriever() {}
