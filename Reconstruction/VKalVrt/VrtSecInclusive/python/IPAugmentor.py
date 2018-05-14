@@ -3,14 +3,14 @@
 from AthenaCommon.Logging import logging
 from AthenaCommon.AppMgr import ToolSvc
 #
-from VrtSecInclusiveConf import VKalVrtAthena__VrtSecInclusive
+from VrtSecInclusiveConf import VKalVrtAthena__IPAugmentor
 
-class VrtSecInclusive ( VKalVrtAthena__VrtSecInclusive )  :
+class IPAugmentor ( VKalVrtAthena__IPAugmentor )  :
 
-    def __init__(self, name="VrtSecInclusive"):        
+    def __init__(self, name="IPAugmentor"):        
 
         from __main__ import ToolSvc
-        mlog = logging.getLogger( 'VrtSecInclusive::__init__ ' )
+        mlog = logging.getLogger( 'IPAugmentor::__init__ ' )
         mlog.info("entering")
 
 
@@ -22,9 +22,9 @@ class VrtSecInclusive ( VKalVrtAthena__VrtSecInclusive )  :
         from TrkTrackSummaryTool.AtlasTrackSummaryTool import AtlasTrackSummaryTool
         AtlasTrackSummaryTool = AtlasTrackSummaryTool()
 #        print AtlasTrackSummaryTool
-        mlog.info("AtlasTrackSummaryTool for VrtSecInclusive created")
+        mlog.info("AtlasTrackSummaryTool for IPAugmentor created")
         ToolSvc += AtlasTrackSummaryTool
 
 
-        VKalVrtAthena__VrtSecInclusive.__init__( self, name )
+        VKalVrtAthena__IPAugmentor.__init__( self, name )
 
