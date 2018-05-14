@@ -15,7 +15,7 @@
 
 // AthenaPython includes
 #include "AthenaPython/PyAthenaUtils.h"
-#include "PyAthenaGILStateEnsure.h"
+#include "AthenaPython/PyAthenaGILStateEnsure.h"
 
 // Framework includes
 #include "GaudiKernel/IInterface.h"

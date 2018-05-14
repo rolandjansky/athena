@@ -20,7 +20,7 @@ SG_BASES1(PyObject, SG::NoBase);
 
 // AthenaPython includes
 #include "PyComponentMgr.h"
-#include "PyAthenaGILStateEnsure.h"
+#include "AthenaPython/PyAthenaGILStateEnsure.h"
 
 // STL includes
 
