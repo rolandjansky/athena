@@ -98,6 +98,7 @@ LArSCL1Maker::LArSCL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   , m_noiseKey("LArNoiseSC")
   , m_pedestalKey("LArPedestalSC")
   , m_sem_mgr(nullptr)
+  , m_timeShift(0)
 // + -------------------------------------------------------------------- +
 // + Author ........: Denis O. Damazio                                    +
 // + Creation date .: 18/11/2013                                          +
@@ -153,7 +154,8 @@ LArSCL1Maker::LArSCL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
 
   declareProperty("ChronoTest",m_chronoTest);
 
-   declareProperty("TruthHitsContainer",m_saveHitsContainer="","Specify to save hits");
+  declareProperty("TruthHitsContainer",m_saveHitsContainer="","Specify to save hits");
+  declareProperty("PulseTimeShift",m_timeShift);
 //
 return;
 }
@@ -413,7 +415,7 @@ StatusCode LArSCL1Maker::execute()
 
          if(m_saveHitsContainer.size()>0) {
             for(auto itr = timeE->begin(); itr!= timeE->end(); ++itr) {
-               if(fabs(itr->second) > 12.5) continue; //out of time energy deposit
+               if(fabs(itr->second+m_timeShift) > 12.5) continue; //out of time energy deposit
                truthE[scHWHash] += itr->first/m_fracS->FSAMPL(hwSC);
             }
          }
@@ -610,7 +612,7 @@ void LArSCL1Maker::ConvertHits2Samples(const HWIdentifier & hwSC, CaloGain::Calo
   while (first != last)
   {
    energy = (*first).first;
-   time   = (*first).second;
+   time   = (*first).second+m_timeShift;
 
  // Atlas like mode where we use 25ns binned pulse shape and derivative to deal with time offsets
 // shift between reference shape and this time

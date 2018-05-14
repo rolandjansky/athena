@@ -70,16 +70,20 @@ class LArSCL1Getter ( Configured )  :
         # now add algorithm to topSequence
         # this should always come at the end
         from IOVDbSvc.CondDB import conddb
-        if ( conddb.isMC and not conddb.folderRequested('/LAR/IdentifierOfl/OnOffIdMap_SC') ) :
-            conddb.addFolder("LAR_OFL","<tag>LARIdentifierOflOnOffIdMap_SC-000</tag>/LAR/IdentifierOfl/OnOffIdMap_SC")
         if ( conddb.isMC and not conddb.folderRequested('/LAR/ElecCalibMCSC/fSampl') ) :
-            conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCfSampl-000</tag>/LAR/ElecCalibMCSC/fSampl")
+            #conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCfSampl-000</tag>/LAR/ElecCalibMCSC/fSampl")
+            conddb.addFolder("LAR_OFL","/LAR/ElecCalibMCSC/fSampl")
         if ( conddb.isMC and not conddb.folderRequested('/LAR/ElecCalibMCSC/Pedestal') ) :
-            conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCPedestal-000</tag>/LAR/ElecCalibMCSC/Pedestal")
+            #conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCPedestal-000</tag>/LAR/ElecCalibMCSC/Pedestal")
+            conddb.addFolder("LAR_OFL","/LAR/ElecCalibMCSC/Pedestal")
         if ( conddb.isMC and not conddb.folderRequested('/LAR/ElecCalibMCSC/Noise') ) :
-            conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCNoise-000</tag>/LAR/ElecCalibMCSC/Noise")
+            #conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCNoise-000</tag>/LAR/ElecCalibMCSC/Noise")
+            conddb.addFolder("LAR_OFL","/LAR/ElecCalibMCSC/Noise")
         if ( conddb.isMC and not conddb.folderRequested('/LAR/ElecCalibMCSC/Shape') ) :
-            conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCShape-000</tag>/LAR/ElecCalibMCSC/Shape")
+            #conddb.addFolder("LAR_OFL","<tag>LARElecCalibMCSCShape-000</tag>/LAR/ElecCalibMCSC/Shape")
+            conddb.addFolder("LAR_OFL","/LAR/ElecCalibMCSC/Shape")
+        from AthenaCommon.Include import include
+        include("LArROD/LArConfigureCablingSCFolder.py")
 
         from LArRecUtils.LArRecUtilsConf import LArFlatConditionSvc
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
