@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**   @file SCT_Clusterization.cxx
@@ -170,10 +170,10 @@ namespace InDet{
             std::unique_ptr<SCT_ClusterCollection> clusterCollection ( m_clusteringTool->clusterize(*rd,*m_manager,*m_idHelper));
             if (clusterCollection) { 
               if (not clusterCollection->empty()) {
+                const IdentifierHash hash(clusterCollection->identifyHash());
                 //Using get because I'm unsure of move semantec status
-                ATH_CHECK(clusterContainer->addOrDelete(std::move(clusterCollection), clusterCollection->identifyHash()));
-
-                 ATH_MSG_DEBUG("Clusters with key '" << clusterCollection->identifyHash() << "' added to Container\n");
+                ATH_CHECK(clusterContainer->addOrDelete(std::move(clusterCollection), hash));
+                ATH_MSG_DEBUG("Clusters with key '" << hash << "' added to Container\n");
               } else { 
                 ATH_MSG_DEBUG("Don't write empty collections\n");
               }
@@ -211,7 +211,8 @@ namespace InDet{
             if (clusterCollection && !clusterCollection->empty()){
               ATH_MSG_VERBOSE( "REGTEST: SCT : clusterCollection contains " 
                 << clusterCollection->size() << " clusters" );
-              ATH_CHECK(clusterContainer->addOrDelete( std::move(clusterCollection), clusterCollection->identifyHash() ));
+              const IdentifierHash hash(clusterCollection->identifyHash());
+              ATH_CHECK(clusterContainer->addOrDelete( std::move(clusterCollection), hash ));
           }else{
               ATH_MSG_DEBUG("No SCTClusterCollection to write");
           }
