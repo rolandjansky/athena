@@ -106,8 +106,11 @@ OutputJets["FTAG1"] = ["AntiKtVR30Rmax4Rmin02TrackJets",
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
                   "AntiKt10LCTopoJets",
-                  "AntiKt4TruthJets"] 
-replaceAODReducedJets(reducedJetList,FTAG1Seq,"FTAG1")
+                  "AntiKt4TruthJets"]
+
+extendedFlag = 1 # --- = 0 for Standard Taggers & =1 for ExpertTaggers
+ 
+replaceAODReducedJets(reducedJetList,FTAG1Seq,"FTAG1", extendedFlag)
 
 addDefaultTrimmedJets(FTAG1Seq,"FTAG1",dotruth=True)
 

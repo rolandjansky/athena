@@ -56,10 +56,16 @@ def addAntiKt10LCTopoJets(sequence, outputlist):
 def addAntiKt10TrackCaloClusterJets(sequence, outputlist):
     addStandardJets("AntiKt", 1.0, "TrackCaloCluster", ptmin=40000, ptminFilter=50000, mods="tcc_ungroomed", algseq=sequence, outputGroup=outputlist)
 
-def addAntiKt2PV0TrackJets(sequence, outputlist):
+def addAntiKt2PV0TrackJets(sequence, outputlist, extendedFlag):
     if not "akt2track" in jtm.modifiersMap.keys():
         from AthenaCommon.AppMgr import ToolSvc
         from BTagging.BTaggingFlags import BTaggingFlags
+
+        if(extendedFlag == 0) : 
+           Full_TaggerList = BTaggingFlags.StandardTaggers
+        if(extendedFlag == 1) :
+           Full_TaggerList = BTaggingFlags.ExpertTaggers
+
         btag_akt2trk = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt2Track", AddToToolSvc=True,
                                                     Verbose=True,
                                                     options={"name"         : "btagging_antikt2track",
@@ -68,7 +74,7 @@ def addAntiKt2PV0TrackJets(sequence, outputlist):
                                                              "BTagSVName"   : "SecVtx",
                                                              },
                                                     SetupScheme = "",
-                                                    TaggerList = BTaggingFlags.StandardTaggers
+                                                    TaggerList = Full_TaggerList
                                                     )
 
         from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
@@ -77,10 +83,16 @@ def addAntiKt2PV0TrackJets(sequence, outputlist):
     addStandardJets("AntiKt", 0.2, "PV0Track", ptmin=2000, mods="akt2track",
                     algseq=sequence, outputGroup=outputlist)
 
-def addAntiKt4PV0TrackJets(sequence, outputlist):
+def addAntiKt4PV0TrackJets(sequence, outputlist, extendedFlag):
     if not "akt4track" in jtm.modifiersMap.keys():
         from AthenaCommon.AppMgr import ToolSvc
         from BTagging.BTaggingFlags import BTaggingFlags
+
+        if(extendedFlag == 0) :
+           Full_TaggerList = BTaggingFlags.StandardTaggers
+        if(extendedFlag == 1) :
+           Full_TaggerList = BTaggingFlags.ExpertTaggers
+ 
         btag_akt4trk = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt4Track", AddToToolSvc=True,
                                                     Verbose=True,
                                                     options={"name"         : "btagging_antikt4track",
@@ -89,7 +101,7 @@ def addAntiKt4PV0TrackJets(sequence, outputlist):
                                                              "BTagSVName"   : "SecVtx",
                                                              },
                                                     SetupScheme = "",
-                                                    TaggerList = BTaggingFlags.StandardTaggers
+                                                    TaggerList = Full_TaggerList
                                                     )
 
         from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
@@ -120,12 +132,12 @@ def addAntiKt4TruthDressedWZJets(sequence,outputlist):
     if DerivationFrameworkIsMonteCarlo:
         addStandardJets("AntiKt", 0.4, "TruthDressedWZ", ptmin=5000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
 
-def replaceAODReducedJets(jetlist,sequence,outputlist):
+def replaceAODReducedJets(jetlist,sequence,outputlist, extendedFlag = 0):
     extjetlog.info( "Replacing AOD-reduced jet collections: {0}".format(",".join(jetlist)))
     if "AntiKt2PV0TrackJets" in jetlist:
-        addAntiKt2PV0TrackJets(sequence,outputlist)
+        addAntiKt2PV0TrackJets(sequence,outputlist, extendedFlag)
     if "AntiKt4PV0TrackJets" in jetlist:
-        addAntiKt4PV0TrackJets(sequence,outputlist)
+        addAntiKt4PV0TrackJets(sequence,outputlist, extendedFlag)
     if "AntiKt10PV0TrackJets" in jetlist:
         addAntiKt10PV0TrackJets(sequence,outputlist)
     if "AntiKt4TruthJets" in jetlist:
