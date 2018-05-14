@@ -326,7 +326,12 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_orToolbox("ORToolbox",this),
     //
     m_pmgSHnjetWeighter(""),
-    m_pmgSHnjetWeighterWZ("")
+    m_pmgSHnjetWeighterWZ(""),
+    // 
+    m_acc_eleIdBaseline(""),
+    m_acc_eleId(""),
+    m_acc_photonIdBaseline(""),
+    m_acc_photonId("")
 {
   //General settings
   declareProperty( "DataSource", m_dataSource = Undefined );
@@ -703,6 +708,22 @@ StatusCode SUSYObjDef_xAOD::initialize() {
   m_inputMETCore = "MET_Core_" + m_inputMETSuffix;
   m_inputMETMap = "METAssoc_" + m_inputMETSuffix;
   ATH_MSG_INFO("Build MET with map: " << m_inputMETMap);
+
+  m_eleIdBaselineDFName = "DFCommonElectronsLH";
+  m_eleIdBaselineDFName += TString(m_eleIdBaseline).ReplaceAll("LooseAndBLayer","LooseBL").ReplaceAll("LLH","").Data();
+  m_acc_eleIdBaseline = m_eleIdBaselineDFName;
+
+  m_eleIdDFName = "DFCommonElectronsLH";
+  m_eleIdDFName += TString(m_eleId).ReplaceAll("LooseAndBLayer","LooseBL").ReplaceAll("LLH","").Data();
+  m_acc_eleId = m_eleIdDFName;
+ 
+  m_photonIdBaselineDFName = "DFCommonPhotonsIsEM";
+  m_photonIdBaselineDFName += TString(m_photonIdBaseline).Data();
+  m_acc_photonIdBaseline = m_photonIdBaselineDFName;
+
+  m_photonIdDFName = "DFCommonPhotonsIsEM";
+  m_photonIdDFName += TString(m_photonId).Data();
+  m_acc_photonId = m_photonIdDFName;
 
   // autoconfigure PRW tool if m_autoconfigPRW==true
   ATH_CHECK( autoconfigurePileupRWTool() );
@@ -1116,7 +1137,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-05-04_v1.root");
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
   //
-  configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, false);
+  configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, true);
   configFromFile(m_orBoostedElectronC1, "OR.BoostedElectronC1", rEnv, -999.); // set to positive number to override default
   configFromFile(m_orBoostedElectronC2, "OR.BoostedElectronC2", rEnv, -999.); // set to positive number to override default - specify in MeV (i.e. "10*GeV" will nor work in the config file)
   configFromFile(m_orBoostedElectronMaxConeSize, "OR.BoostedElectronMaxConeSize", rEnv, -999.); // set to positive number to override default
@@ -1129,10 +1150,10 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orDoPhoton, "OR.DoPhoton", rEnv, false);
   configFromFile(m_orDoEleJet, "OR.EleJet", rEnv, true);
   configFromFile(m_orDoMuonJet, "OR.MuonJet", rEnv, true);
-  configFromFile(m_orDoBjet, "OR.Bjet", rEnv, true);
-  configFromFile(m_orDoElBjet, "OR.ElBjet", rEnv, true);
-  configFromFile(m_orDoMuBjet, "OR.MuBjet", rEnv, true);
-  configFromFile(m_orDoTauBjet, "OR.TauBjet", rEnv, true);
+  configFromFile(m_orDoBjet, "OR.Bjet", rEnv, false);
+  configFromFile(m_orDoElBjet, "OR.ElBjet", rEnv, false);
+  configFromFile(m_orDoMuBjet, "OR.MuBjet", rEnv, false);
+  configFromFile(m_orDoTauBjet, "OR.TauBjet", rEnv, false);
   configFromFile(m_orApplyRelPt, "OR.MuJetApplyRelPt", rEnv, false);
   configFromFile(m_orMuJetPtRatio, "OR.MuJetPtRatio", rEnv, -999.);
   configFromFile(m_orMuJetTrkPtRatio, "OR.MuJetTrkPtRatio", rEnv, -999.);

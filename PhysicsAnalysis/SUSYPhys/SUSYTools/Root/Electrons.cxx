@@ -174,16 +174,12 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
     return StatusCode::FAILURE;
   }
 
-  std::string eleIdBaseline = "DFCommonElectronsLH";
-  eleIdBaseline += TString(m_eleIdBaseline).ReplaceAll("LooseAndBLayer","LooseBL").ReplaceAll("LLH","").Data();
-  SG::AuxElement::ConstAccessor<char> eleIdBaselineAcc(eleIdBaseline);
-
   bool passBaseID = false;
   if (m_eleIdExpert) {
     passBaseID = m_elecSelLikelihoodBaseline->accept(&input); 
   } else {
-    if (eleIdBaselineAcc.isAvailable(input)) {
-      passBaseID = eleIdBaselineAcc(input);
+    if (m_acc_eleIdBaseline.isAvailable(input)) {
+      passBaseID = m_acc_eleIdBaseline(input);
     } else {
       ATH_MSG_VERBOSE ("DFCommonElectronsLHxxx variables are not found. Calculating the ID from LH tool..");
       passBaseID = m_elecSelLikelihoodBaseline->accept(&input); 
@@ -250,15 +246,11 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
 {
   dec_passSignalID(input) = false;
   
-  std::string eleId = "DFCommonElectronsLH";
-  eleId += TString(m_eleId).ReplaceAll("LooseAndBLayer","LooseBL").ReplaceAll("LLH","").Data();
-  SG::AuxElement::ConstAccessor<char> eleIdAcc(eleId);
-  
   if (m_eleIdExpert) {
     if ( !m_elecSelLikelihood.empty() && m_elecSelLikelihood->accept(&input) ) dec_passSignalID(input) = true;
   } else {
-    if (eleIdAcc.isAvailable(input)) {
-      if ( eleIdAcc(input) ) dec_passSignalID(input) = true;
+    if (m_acc_eleId.isAvailable(input)) {
+      dec_passSignalID(input) = m_acc_eleId(input);
     } else {
       ATH_MSG_VERBOSE ("DFCommonElectronsLHxxx variables are not found. Calculating the ID from LH tool..");
       if ( !m_elecSelLikelihood.empty() && m_elecSelLikelihood->accept(&input) ) dec_passSignalID(input) = true; 

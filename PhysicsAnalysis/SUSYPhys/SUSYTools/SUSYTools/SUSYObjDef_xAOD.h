@@ -750,6 +750,15 @@ namespace ST {
     asg::AnaToolHandle<IWeightTool> m_pmgSHnjetWeighter;
     asg::AnaToolHandle<IWeightTool> m_pmgSHnjetWeighterWZ;
     //
+    std::string m_eleIdBaselineDFName;
+    std::string m_eleIdDFName;
+    std::string m_photonIdBaselineDFName;
+    std::string m_photonIdDFName;
+    //
+    SG::AuxElement::ConstAccessor<char> m_acc_eleIdBaseline;
+    SG::AuxElement::ConstAccessor<char> m_acc_eleId;
+    SG::AuxElement::ConstAccessor<char> m_acc_photonIdBaseline;
+    SG::AuxElement::ConstAccessor<char> m_acc_photonId;
 
   }; // Class SUSYObjDef_xAOD
 
@@ -776,7 +785,10 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<int> acc_truthType("truthType");
   const static SG::AuxElement::ConstAccessor<int> acc_truthOrigin("truthOrigin");
   const static SG::AuxElement::ConstAccessor<int> acc_bkgTruthOrigin("bkgTruthOrigin");
+  const static SG::AuxElement::ConstAccessor<char> acc_passPhCleaning("DFCommonPhotonsCleaning");
+  const static SG::AuxElement::ConstAccessor<char> acc_passPhCleaningNoTime("DFCommonPhotonsCleaningNoTime");
   const static SG::AuxElement::ConstAccessor<unsigned int> randomrunnumber("RandomRunNumber");
+
 
 } // namespace ST
 
