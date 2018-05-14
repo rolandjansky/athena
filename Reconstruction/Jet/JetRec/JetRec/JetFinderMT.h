@@ -74,8 +74,8 @@ public:
 
 private:  //data
   SG::ReadHandleKey<xAOD::EventInfo> m_eventinfokey;
-  SG::ReadHandleKey<fastjet::ClusterSequence> cnameRKey;
-  SG::WriteHandleKey<fastjet::ClusterSequence> cnameWKey;
+  SG::ReadHandleKey<fastjet::ClusterSequence> m_cnameRKey;
+  SG::WriteHandleKey<fastjet::ClusterSequence> m_cnameWKey;
 
   // Job options.
   std::string m_jetalg;            // Kt, AntiKt, CamKt

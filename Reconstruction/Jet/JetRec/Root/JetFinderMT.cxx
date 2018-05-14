@@ -104,10 +104,10 @@ StatusCode JetFinderMT::initialize() {
   if ( ipos != std::string::npos ) myname.replace(ipos, sdrop.size(), "");
   std::string cname = "ClusterSequence_JetFinderMT_" + myname;
 
-  cnameRKey = cname;
-  cnameWKey = cname;
-  ATH_CHECK( cnameRKey.initialize() );
-  ATH_CHECK( cnameWKey.initialize() );
+  m_cnameRKey = cname;
+  m_cnameWKey = cname;
+  ATH_CHECK( m_cnameRKey.initialize() );
+  ATH_CHECK( m_cnameWKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -260,13 +260,13 @@ int JetFinderMT::_find(const PseudoJetContainer& pjContainer,
 
 void JetFinderMT::save(fastjet::ClusterSequence* pcs) const {
 
-  auto handle_out = SG::makeHandle(cnameWKey);
+  auto handle_out = SG::makeHandle(m_cnameWKey);
   if ( ! handle_out.record( std::unique_ptr<fastjet::ClusterSequence>(pcs)) ) {
-    ATH_MSG_WARNING("Unable to record " << cnameWKey.key());
+    ATH_MSG_WARNING("Unable to record " << m_cnameWKey.key());
   } else {
-    ATH_MSG_DEBUG("Recorded " << cnameWKey.key() << "   " << pcs );
+    ATH_MSG_DEBUG("Recorded " << m_cnameWKey.key() << "   " << pcs );
   }
-  auto handle_in = SG::makeHandle(cnameRKey);
+  auto handle_in = SG::makeHandle(m_cnameRKey);
   bool present = false;
   if ( handle_in.isValid()) {
     present = true;
