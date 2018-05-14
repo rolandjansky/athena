@@ -368,6 +368,15 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
       }	
       if( pars->associatedSurface().associatedDetectorElement() ){
         Identifier id = pars->associatedSurface().associatedDetectorElement()->identify();
+        bool issTgc = m_idHelperTool->issTgc(id);
+        if(issTgc) {
+// get the identifier for phi or eta holes 
+          Identifier idh = pars->associatedSurface().associatedDetectorElementIdentifier();
+          if(idh.is_valid()) {
+            id = idh;
+//            ATH_MSG_VERBOSE(" For sTGC hole use associatedDetectorElementIdentifier ");
+          }
+        }
         if( !id.is_valid() || !m_idHelperTool->isMuon(id) ) continue;
         Identifier chId = m_idHelperTool->chamberId(id);
         //Identifier layId = m_idHelperTool->layerId(id);
@@ -400,9 +409,22 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
 	  currentChamberSummary = &trackSummary.m_chamberHitSummary.back();
 	  currentChamberPars = pars;
 	}
-	Trk::MuonTrackSummary::ChamberHitSummary::Projection& proj = 
-	  isFirst ? currentChamberSummary->m_first : currentChamberSummary->m_second;
-	++proj.nholes;
+        if(!issTgc) { 
+	  Trk::MuonTrackSummary::ChamberHitSummary::Projection& proj = 
+	    isFirst ? currentChamberSummary->m_first : currentChamberSummary->m_second;
+ 	    ++proj.nholes;
+        } else {
+// sTgc holes keep track of phi and eta
+          if( m_idHelperTool->measuresPhi(id) ) {
+            ATH_MSG_VERBOSE(" counting sTGC phi hole ");
+            Trk::MuonTrackSummary::ChamberHitSummary::Projection& proj = currentChamberSummary->m_second; 
+             ++proj.nholes;
+          } else {
+            ATH_MSG_VERBOSE(" counting sTGC eta hole ");
+            Trk::MuonTrackSummary::ChamberHitSummary::Projection& proj = currentChamberSummary->m_first;
+            ++proj.nholes;
+          }
+        }
       }
       continue;
     }
@@ -562,9 +584,20 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
 }
 
 void Muon::MuonTrackSummaryHelperTool::updateHoleContent( Trk::MuonTrackSummary::ChamberHitSummary& chamberHitSummary ) const {
-//   ATH_MSG_INFO("updateHoleContent " << m_idHelperTool->toString(chamberHitSummary.chamberId())
+//   ATH_MSG_DEBUG("updateHoleContent " << m_idHelperTool->toString(chamberHitSummary.chamberId())
 // 	       << " nphi " << chamberHitSummary.phiProjection().nhits << " holes " << chamberHitSummary.phiProjection().nholes 
 // 	       << " neta " << chamberHitSummary.etaProjection().nhits << " holes " << chamberHitSummary.etaProjection().nholes );
+
+  if( m_idHelperTool->issTgc(chamberHitSummary.chamberId()) ){
+    ATH_MSG_DEBUG(" holes eta " << chamberHitSummary.etaProjection().nholes
+      << " phi " << chamberHitSummary.phiProjection().nholes );
+  }
+
+  if( m_idHelperTool->issTgc(chamberHitSummary.chamberId())
+      || m_idHelperTool->isMM(chamberHitSummary.chamberId()) ){
+    return;
+  }
+
   bool isCsc = m_idHelperTool->isCsc(chamberHitSummary.chamberId());
   int neta = isCsc ? 4 : 2;
   int nphi = isCsc ? 4 : 2;

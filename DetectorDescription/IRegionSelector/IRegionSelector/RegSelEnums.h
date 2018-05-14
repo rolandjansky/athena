@@ -32,6 +32,8 @@ enum DETID{
   RPC, 
   TGC,
   CSC,
+  STGC,
+  MM,
   FCALEM,
   FCALHAD,
   FTK
