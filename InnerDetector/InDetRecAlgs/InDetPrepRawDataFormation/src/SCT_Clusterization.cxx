@@ -157,7 +157,7 @@ namespace InDet{
             continue;
           }
 
-          bool goodModule = (m_checkBadModules and m_pSummaryTool) ? m_pSummaryTool->isGood(rd->identifyHash()) : true;
+          bool goodModule = m_checkBadModules ? m_pSummaryTool->isGood(rd->identifyHash()) : true;
           // Check the RDO is not empty and that the wafer is good according to the conditions
           if ((not rd->empty()) and goodModule){
             // If more than a certain number of RDOs set module to bad
