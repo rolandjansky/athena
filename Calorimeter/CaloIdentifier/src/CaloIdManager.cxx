@@ -2,12 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/***************************************************************************
- Calorimeter identifier package
- -----------------------------------------
- Copyright (C) 2003 by ATLAS Collaboration
- ***************************************************************************/
-
 //<doc><file>	$Id: CaloIdManager.cxx,v 1.3 2007-02-08 16:18:23 prieur Exp $
 //<version>	$Name: not supported by cvs2svn $
 
@@ -27,6 +21,8 @@
 #include "CaloIdentifier/LArHEC_SuperCell_ID.h"
 #include "CaloIdentifier/LArFCAL_SuperCell_ID.h"
 #include "CaloIdentifier/Tile_SuperCell_ID.h"
+#include "CaloIdentifier/JTower_ID.h"
+#include "CaloIdentifier/GTower_ID.h"
 
 // Athena/Gaudi includes
 #include "GaudiKernel/Bootstrap.h"
@@ -52,7 +48,9 @@ CaloIdManager::CaloIdManager(void)
     m_em_supercell_id(0),
     m_hec_supercell_id(0),
     m_fcal_supercell_id(0),
-    m_tile_supercell_id(0)
+    m_tile_supercell_id(0),
+    m_jTower_id(0),
+    m_gTower_id(0)
 {
 }
 
@@ -204,6 +202,16 @@ CaloIdManager::getTile_SuperCell_ID      (void) const
 {
     return (m_tile_supercell_id);
 }
+const JTower_ID*
+CaloIdManager::getJTower_ID              (void) const
+{
+    return (m_jTower_id);
+}
+const GTower_ID*
+CaloIdManager::getGTower_ID              (void) const
+{
+    return (m_gTower_id);
+}
 
 
 void
@@ -261,6 +269,7 @@ CaloIdManager::set_helper              (const LArHEC_ID* idHelper)
     m_hec_id = idHelper;
 }
 
+
 void
 CaloIdManager::set_helper              (const TileID*     idHelper)
 {
@@ -305,4 +314,17 @@ void
 CaloIdManager::set_helper              (const Tile_SuperCell_ID* idHelper)
 {
     m_tile_supercell_id = idHelper;
+}
+
+void
+CaloIdManager::set_helper              (const JTower_ID*     idHelper)
+{
+    m_jTower_id = idHelper;
+}
+
+
+void
+CaloIdManager::set_helper              (const GTower_ID*     idHelper)
+{
+    m_gTower_id = idHelper;
 }

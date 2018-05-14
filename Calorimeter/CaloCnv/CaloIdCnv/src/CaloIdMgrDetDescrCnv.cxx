@@ -2,11 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/***************************************************************************
- Calo Det Descr converter package
- -----------------------------------------
- Copyright (C) 2003 by ATLAS Collaboration
- ***************************************************************************/
+/***************************************************************************/
 
 //<doc><file>	$Id: CaloIdMgrDetDescrCnv.cxx,v 1.7 2009-02-10 14:09:21 fledroit Exp $
 //<version>	$Name: not supported by cvs2svn $
@@ -39,6 +35,8 @@
 #include "CaloIdentifier/LArEM_SuperCell_ID.h"
 #include "CaloIdentifier/LArHEC_SuperCell_ID.h"
 #include "CaloIdentifier/LArFCAL_SuperCell_ID.h"
+#include "CaloIdentifier/JTower_ID.h"
+#include "CaloIdentifier/GTower_ID.h"
 
 
 long int
@@ -155,6 +153,8 @@ CaloIdMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     SET_HELPER (LArMiniFCAL_ID);
     SET_HELPER (TileID);
     SET_HELPER (TTOnlineID);
+    SET_HELPER (JTower_ID);
+    SET_HELPER (GTower_ID);
 
     if (!is_test_beam) {
       SET_HELPER (CaloCell_SuperCell_ID);
