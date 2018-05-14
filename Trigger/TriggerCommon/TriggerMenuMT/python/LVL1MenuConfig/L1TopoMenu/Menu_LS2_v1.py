@@ -8,8 +8,8 @@ def defineMenu():
 
     """
     
-    from TriggerMenu.l1topo.L1TopoFlags import L1TopoFlags
-    from TriggerMenu.l1topo.TopoOutput import TopoOutput
+    from TriggerMenuMT.LVL1MenuConfig.L1Topo.L1TopoFlags import L1TopoFlags
+    from TriggerMenuMT.LVL1MenuConfig.L1Topo.TopoOutput import TopoOutput
     from TriggerJobOpts.TriggerFlags import TriggerFlags
 
     # if this flag is True for mc v7: produce xml with full v7 menu

@@ -8,9 +8,9 @@ class CaloDef:
     def defineGlobalSettings(tc, tag=None):
 
         
-        from TriggerMenu.l1.CaloInfo import MinimumTOBPt, CaloInfo
-        from TriggerMenu.l1.Limits import CaloLimits, Limits
-        from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
+        from TriggerMenuMT.LVL1MenuConfig.LVL1.CaloInfo import MinimumTOBPt, CaloInfo
+        from TriggerMenuMT.LVL1MenuConfig.LVL1.Limits import CaloLimits, Limits
+        from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags import Lvl1Flags
 
 
         run1 = Lvl1Flags.CTPVersion()<=3

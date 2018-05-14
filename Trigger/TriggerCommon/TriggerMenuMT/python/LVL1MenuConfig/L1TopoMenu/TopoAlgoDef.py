@@ -3,7 +3,7 @@
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TriggerMenu.L1Topo.py')
 
-from TriggerMenu.l1topo.TopoAlgos import SortingAlgo, DecisionAlgo
+from TriggerMenuMT.LVL1MenuConfig.L1Topo.TopoAlgos import SortingAlgo, DecisionAlgo
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 # algorithm python base classes generated from C++ code

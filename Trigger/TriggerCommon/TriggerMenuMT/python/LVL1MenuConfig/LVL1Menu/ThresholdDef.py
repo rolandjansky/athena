@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenu.l1.Lvl1Thresholds import LVL1Threshold, ThresholdValue
-from TriggerMenu.l1.Limits import CaloLimits as CL
+from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Thresholds import LVL1Threshold, ThresholdValue
+from TriggerMenuMT.LVL1MenuConfig.LVL1.Limits import CaloLimits as CL
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 ClusterOff   = CL.ClusterOff

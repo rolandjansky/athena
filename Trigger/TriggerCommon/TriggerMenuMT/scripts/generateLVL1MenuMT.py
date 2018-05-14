@@ -5,15 +5,15 @@
 import sys,os
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
-from TriggerMenu.TriggerConfigLVL1 import TriggerConfigLVL1
-from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
+from TriggerMenuMT.LVL1MenuConfig.TriggerConfigLVL1 import TriggerConfigLVL1
+from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags import Lvl1Flags
 
 def generateL1Menu(menu, doFTK="False",useTopoMenu="MATCH"):    
 
     from AthenaCommon.Logging import logging
     log = logging.getLogger("TriggerConfigLVL1")
     log.setLevel(logging.INFO)
-    logging.getLogger("TriggerMenu.l1.Lvl1Menu").setLevel(logging.INFO)
+    logging.getLogger("TriggerMenuMT.LVL1.Lvl1Menu").setLevel(logging.INFO)
 
     TF.doFTK=doFTK
     log.info("doFTK: %s " % TF.doFTK)
@@ -203,7 +203,7 @@ def main():
         return 0
 
     if sys.argv[1].lower().startswith("ls"):
-        menu = generateL1Menu(menu="LS1_v1")
+        menu = generateL1Menu(menu="LS2_v1")
         menu.printCabling()
         return 0
 

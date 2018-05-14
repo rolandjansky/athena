@@ -3,7 +3,7 @@
 """ Muon slice specific flags  """
 
 from AthenaCommon.JobProperties         import JobProperty, JobPropertyContainer, jobproperties
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
+from TriggerJobOpts.CommonSignatureHelper import CommonSignatureHelper
 
 
 __author__  = 'T. Bold, B.Demirkoz'
@@ -46,7 +46,7 @@ _flags.append(signatures)
 
 # create container
 
-class MuonSlice(JobPropertyContainer, CommonSliceHelper):
+class MuonSlice(JobPropertyContainer, CommonSignatureHelper):
     """ Muon Slice Flags """
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags

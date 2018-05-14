@@ -5,7 +5,7 @@ L1Topo specific flags
 """
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-from TriggerMenu.menu.CommonSliceHelper import AllowedList
+from TriggerJobOpts.CommonSignatureHelper import AllowedList
 from AthenaCommon.Logging import logging
 
 log = logging.getLogger('TriggerMenu.L1TopoFlags.py')
