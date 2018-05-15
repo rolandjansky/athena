@@ -1000,7 +1000,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
 	  if (outsideDigitizationWindow)
 	    {
 	      ATH_MSG_VERBOSE ( "hit outside digitization window - do not produce digits" );
-	      ATH_MSG_DEBUG   ( "Hit ouside time window!!" << " hit time (ns) = " << time << " timeWindow  = " << m_timeWindowLowerOffset << " / " << m_timeWindowUpperOffset  );
+	      ATH_MSG_DEBUG   ( "Hit ouside time window!!" << " hit time (ns) = " << newDigit_time << " timeWindow  = " << m_timeWindowLowerOffset << " / " << m_timeWindowUpperOffset );
 
 	      continue;
 	    }

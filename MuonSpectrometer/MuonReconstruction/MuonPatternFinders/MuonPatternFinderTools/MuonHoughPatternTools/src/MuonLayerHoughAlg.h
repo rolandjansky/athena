@@ -6,12 +6,7 @@
 #define MUONLAYERHOUGHALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "MuonHoughPatternTools/MuonLayerHoughTool.h"
-
-
-class MsgStream;
-class StoreGateSvc;
 
 class MuonLayerHoughAlg : public AthAlgorithm
 {
