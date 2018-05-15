@@ -25,7 +25,6 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
-#include <iostream>
 
 using namespace InDetDD;
 
@@ -36,6 +35,7 @@ namespace InDet {
                                      const std::string& name,
                                      const IInterface * parent)
     : AthAlgTool(type,name,parent)
+    , m_etaCorrection{}
     , m_detManager(0)
     , m_idHelper()
     , m_alignModuleTool("Trk::AlignModuleTool/AlignModuleTool")
@@ -110,14 +110,14 @@ namespace InDet {
 
     m_hashCounter = 0;
     m_logStream = 0;
+    
   }
 
   //________________________________________________________________________
   PixelGeometryManagerTool::~PixelGeometryManagerTool()
   {
     ATH_MSG_DEBUG("deleting alignModuleList");
-    for (int i=0;i<(int)m_alignModuleList.size();i++)
-      delete m_alignModuleList[i];
+    for (const auto & p:m_alignModuleList) delete p;
     m_alignModuleList.clear();
 
     ATH_MSG_DEBUG("deleting fullAlignParList");
@@ -132,50 +132,27 @@ namespace InDet {
     ATH_MSG_DEBUG("initialize() of PixelGeometryManagerTool");
 
     // retrieve AlignModuleTool
-    if ( m_alignModuleTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL)<<"Could not get " << m_alignModuleTool << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else
-      ATH_MSG_INFO("Retrieved " << m_alignModuleTool);
+    ATH_CHECK( m_alignModuleTool.retrieve() );
 
     // retrieve Pixel helper
-    if ( detStore()->retrieve(m_idHelper).isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve Pixel Helper " << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else
-      ATH_MSG_INFO("retrieved Pixel Helper");
+    ATH_CHECK( detStore()->retrieve(m_idHelper) );
 
     // retrieve PIX detector manager
-    if ( detStore()->retrieve(m_detManager, "Pixel").isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve PIX Detector Manager " << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else
-      ATH_MSG_INFO("retrieved PIX Detector Manager");
+    ATH_CHECK( detStore()->retrieve(m_detManager, "Pixel") );
 
     // retrieve geomodel service
-    StatusCode sc = m_geoModelSvc.retrieve();
-    if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Cannot retrieve GeoModelSvc" << endmsg;
-      return (StatusCode::FAILURE); 
-    }  
-    else ATH_MSG_INFO("retrieved GeoModelSvc");
+    ATH_CHECK( m_geoModelSvc.retrieve());
+    
 
     // retrieve geometry DB access service
-    sc = m_rdbAccessSvc.retrieve();
-    if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Cannot retrieve RDBAccessSvc" << endmsg;
-      return (StatusCode::FAILURE); 
-    }  
-    else ATH_MSG_INFO("retrieved RDBAccessSvc");
+    ATH_CHECK( m_rdbAccessSvc.retrieve());
     
     // dump module selection
     if(m_doModuleSelection && msgLvl(MSG::INFO)) {
-      msg(MSG::INFO)<<"Creating geometry for selected "<<m_moduleSelection.size()<<" modules:"<<endmsg;
-      for(unsigned int i=0;i<m_moduleSelection.size();i++)
-        msg(MSG::INFO)<<"   "<<i<<".  "<<m_moduleSelection.at(i)<<endmsg;
+    int idx{};
+    ATH_MSG_INFO("Creating geometry for selected "<<m_moduleSelection.size()<<" modules:");
+    for(const auto mod:m_moduleSelection)
+        ATH_MSG_INFO("   "<<idx++<<".  "<<mod);
     }
 
     // check the allowed geometry levels
@@ -246,8 +223,8 @@ namespace InDet {
         return true;
       case 15:
         if(m_detManager->numerology().numLayers() > 3){
-          msg(MSG::FATAL)<<"This level is not supported with the configured geometry"<<endmsg;
-          msg(MSG::FATAL)<<"The pixel barrel has "<<m_detManager->numerology().numLayers()<<" layers; Only 3 layer geometries supported"<<endmsg;
+          ATH_MSG_FATAL("This level is not supported with the configured geometry");
+          ATH_MSG_FATAL("The pixel barrel has "<<m_detManager->numerology().numLayers()<<" layers; Only 3 layer geometries supported");
           return false;
         }
         else {
@@ -256,8 +233,8 @@ namespace InDet {
         }
       case 22:
         if(m_detManager->numerology().numLayers() > 3){
-          msg(MSG::FATAL)<<"This level is not supported with the configured geometry"<<endmsg;
-          msg(MSG::FATAL)<<"The pixel barrel has "<<m_detManager->numerology().numLayers()<<" layers; Only 3 layer geometries supported"<<endmsg;
+          ATH_MSG_FATAL("This level is not supported with the configured geometry");
+          ATH_MSG_FATAL("The pixel barrel has "<<m_detManager->numerology().numLayers()<<" layers; Only 3 layer geometries supported");
           return false;
         }
         else {
@@ -265,7 +242,7 @@ namespace InDet {
           return true;
         }
       default:
-        msg(MSG::FATAL)<<"Alignment level "<<m_alignLevelBarrel<<" does not exist for Pixel Barrel"<<endmsg;
+        ATH_MSG_FATAL("Alignment level "<<m_alignLevelBarrel<<" does not exist for Pixel Barrel");
         return false;
     }
   }
@@ -279,7 +256,7 @@ namespace InDet {
         ATH_MSG_INFO("Alignment level for Pixel Endcaps is "<<m_alignLevelEndcaps);
         return true;
       default:
-        msg(MSG::FATAL)<<"Alignment level "<<m_alignLevelEndcaps<<" does not exist for Pixel Endcaps"<<endmsg;
+        ATH_MSG_FATAL("Alignment level "<<m_alignLevelEndcaps<<" does not exist for Pixel Endcaps");
         return false;
     }
   }
@@ -302,10 +279,10 @@ namespace InDet {
     m_fullAlignParList = new DataVector< DataVector<Trk::AlignPar> >(SG::OWN_ELEMENTS);
     // loop over modules
     ATH_MSG_DEBUG("Adding module parameters to modules");
-    std::vector<Trk::AlignModule *>::const_iterator imod = m_alignModuleList.begin();
-    std::vector<Trk::AlignModule *>::const_iterator imod_end = m_alignModuleList.end();
-    for( ; imod!=imod_end ; ++imod)
-      addModuleParameters(*imod,m_fullAlignParList,m_alignParList);
+    //std::vector<Trk::AlignModule *>::const_iterator imod = m_alignModuleList.begin();
+    //std::vector<Trk::AlignModule *>::const_iterator imod_end = m_alignModuleList.end();
+    for( const auto & imod:m_alignModuleList)
+      addModuleParameters(imod,m_fullAlignParList,m_alignParList);
 
     // set alignModuleList and hash table in the alignModuleTool
     m_alignModuleTool->setAlignModules(&m_alignModuleList, &m_idHashToAlignModuleMaps);
@@ -786,12 +763,8 @@ namespace InDet {
       mod->setIdHash(getNextIDHash());
       mod->setIdentifier(m_idHelper->wafer_id(iSide,0,0,0));
 
-      std::stringstream name;
-      if(iEndcapIndex == 0)
-        name <<"Pixel/EndcapA";
-      else
-        name <<"Pixel/EndcapC";
-      mod->setName(name.str());
+      const std::string name = (iEndcapIndex == 0)? "Pixel/EndcapA":"Pixel/EndcapC";
+      mod->setName(name);
 
       if(!moduleSelected(mod)) {
         ATH_MSG_DEBUG("Module "<<mod->name()<<" NOT selected");
@@ -927,9 +900,8 @@ namespace InDet {
           // we use identifier of 0th eta module in the stave
           mod->setIdentifier(m_idHelper->wafer_id(0, iLayer, iPhi, 0));
 
-          std::stringstream name;
-          name <<"Pixel/Barrel/Layer_"<<iLayer<<"/PhiStave_"<<iPhi;
-          mod->setName(name.str());
+          std::string name="Pixel/Barrel/Layer_"+std::to_string(iLayer)+"/PhiStave_"+std::to_string(iPhi);
+          mod->setName(name);
 
           if(!moduleSelected(mod)) {
             ATH_MSG_DEBUG("Module "<<mod->name()<<" NOT selected");
@@ -1021,9 +993,8 @@ namespace InDet {
       mod->setIdHash(getNextIDHash());
       mod->setIdentifier(m_idHelper->wafer_id(0, iLayer, 0, 0));
 
-      std::stringstream name;
-      name <<"Pixel/Barrel/Layer_" << iLayer;
-      mod->setName(name.str());
+      std::string name="Pixel/Barrel/Layer_" +std::to_string( iLayer);
+      mod->setName(name);
 
       if(!moduleSelected(mod)) {
         ATH_MSG_DEBUG("Module "<<mod->name()<<" NOT selected");
@@ -1107,13 +1078,11 @@ namespace InDet {
       unsigned int phi_bottom = iLayer ? 30 : 20;
       bottom->setIdentifier(m_idHelper->wafer_id(0, iLayer, phi_bottom, 0));
 
-      std::stringstream nametop;
-      nametop <<"Pixel/Barrel/Layer_"<<iLayer<<"_top";
-      top->setName(nametop.str());
+      std::string nametop="Pixel/Barrel/Layer_"+std::to_string(iLayer)+"_top";
+      top->setName(nametop);
 
-      std::stringstream namebottom;
-      namebottom <<"Pixel/Barrel/Layer_"<<iLayer<<"_bottom";
-      bottom->setName(namebottom.str());
+      std::string namebottom="Pixel/Barrel/Layer_"+std::to_string(iLayer)+"_bottom";
+      bottom->setName(namebottom);
 
       ATH_MSG_DEBUG("Building module "<<top->name());
       ATH_MSG_DEBUG("Building module "<<bottom->name());
@@ -1204,9 +1173,8 @@ namespace InDet {
         mod->setIdHash(getNextIDHash());
         mod->setIdentifier(m_idHelper->wafer_id(0, iLayer, 0, 0));
 
-        std::stringstream name;
-        name <<"Pixel/Barrel/Layer_" << iLayer;
-        mod->setName(name.str());
+        std::string name="Pixel/Barrel/Layer_" +std::to_string( iLayer);
+        mod->setName(name);
 
         if(!moduleSelected(mod)) {
           ATH_MSG_DEBUG("Module "<<mod->name()<<" NOT selected");
@@ -1252,9 +1220,8 @@ namespace InDet {
           // we use identifier of 0th eta module in the stave
           mod->setIdentifier(m_idHelper->wafer_id(0, iLayer, iPhi, 0));
 
-          std::stringstream name;
-          name <<"Pixel/Barrel/Layer_"<<iLayer<<"/PhiStave_"<<iPhi;
-          mod->setName(name.str());
+          std::string name="Pixel/Barrel/Layer_"+std::to_string(iLayer)+"/PhiStave_"+std::to_string(iPhi);
+          mod->setName(name);
 
           if(!moduleSelected(mod)) {
             ATH_MSG_DEBUG("Module "<<mod->name()<<" NOT selected");
@@ -1342,9 +1309,8 @@ namespace InDet {
         // we use identifier of 0th eta module in the stave
         mod->setIdentifier(m_idHelper->wafer_id(0, iLayer, iPhi, 0));
 
-        std::stringstream name;
-        name <<"Pixel/Barrel/Layer_"<<iLayer<<"/PhiStave_"<<iPhi;
-        mod->setName(name.str());
+        std::string name="Pixel/Barrel/Layer_"+std::to_string(iLayer)+"/PhiStave_"+std::to_string(iPhi);
+        mod->setName(name);
 
         if(!moduleSelected(mod)) {
           ATH_MSG_DEBUG("Module "<<mod->name()<<" NOT selected");
@@ -1421,13 +1387,9 @@ namespace InDet {
         Trk::AlignModule * mod = new Trk::AlignModule(this);
         mod->setIdHash(getNextIDHash());
         mod->setIdentifier(m_idHelper->wafer_id(iSide,iWheel,0,0));
-
-        std::stringstream name;
-        if(iEndcapIndex == 0)
-          name <<"Pixel/EndcapA/Disk_" << iWheel;
-        else
-          name <<"Pixel/EndcapC/Disk_" << iWheel;
-        mod->setName(name.str());
+        const std::string iWheelStr{std::to_string(iWheel)};
+        std::string name= (iEndcapIndex == 0) ? "Pixel/EndcapA/Disk_" + iWheelStr :"Pixel/EndcapC/Disk_" + iWheelStr;
+        mod->setName(name);
 
         if(!moduleSelected(mod)) {
           ATH_MSG_DEBUG("Module "<<mod->name()<<" NOT selected");
@@ -1517,9 +1479,8 @@ namespace InDet {
           mod->setIdHash(getNextIDHash());
           mod->setIdentifier(m_idHelper->wafer_id(0, iLayer, iPhi, iEta));
 
-          std::stringstream name;
-          name <<"Pixel/Barrel/Layer_"<<iLayer<<"/Phi_"<<iPhi<<"/Eta_"<<iEta;
-          mod->setName(name.str());
+          std::string name="Pixel/Barrel/Layer_"+std::to_string(iLayer)+"/Phi_"+std::to_string(iPhi)+"/Eta_"+std::to_string(iEta);
+          mod->setName(name);
 
           if(!moduleSelected(mod)) {
             ATH_MSG_DEBUG("Module "<<mod->name()<<" NOT selected");
@@ -1605,13 +1566,10 @@ namespace InDet {
             mod->setIdHash(getNextIDHash());
             mod->setIdentifier(m_idHelper->wafer_id(iSide,iWheel,iPhi,iEta));
 
-            std::stringstream name;
-            if(iEndcapIndex == 0)
-              name <<"Pixel/EndcapA";
-            else
-              name <<"Pixel/EndcapC";
-            name<<"/Disk_"<<iWheel<<"/Phi_"<<iPhi;
-            mod->setName(name.str());
+            std::string name = (iEndcapIndex == 0)? "Pixel/EndcapA" : "Pixel/EndcapC";
+           
+            name+="/Disk_"+std::to_string(iWheel)+"/Phi_"+std::to_string(iPhi);
+            mod->setName(name);
 
             if(!moduleSelected(mod)) {
               ATH_MSG_DEBUG("Module "<<mod->name()<<" NOT selected");
@@ -1715,11 +1673,14 @@ namespace InDet {
       SiDetectorElement * element2 = m_detManager->getDetectorElement(id);
       if (element2) {
         const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
-        
-        // add element to the AlignModule
-        mod->addDetElement(Trk::AlignModule::Pixel,element,transform);
-        // and fill the corresponding map
-        (*pixelIdHashMap)[element->identifyHash()] = mod;
+        if (mod){
+          // add element to the AlignModule
+          mod->addDetElement(Trk::AlignModule::Pixel,element,transform);
+          // and fill the corresponding map
+          (*pixelIdHashMap)[element->identifyHash()] = mod;
+        }else{
+          ATH_MSG_WARNING("Module pointer is null in buildL1DBM()");
+        }
       }
       else
       ATH_MSG_DEBUG("No Pixel detector with id:" << id);
@@ -1780,16 +1741,8 @@ namespace InDet {
       
       Trk::AlignModule * mod = new Trk::AlignModule(this);
       mod->setIdHash(getNextIDHash());
-      std::stringstream name;
-      if(i < 4){
-        name <<"Pixel/ECDBM";
-        name <<i;
-      }
-      else {
-        name <<"Pixel/EADBM";
-        name <<i-4;
-      }
-      mod->setName(name.str());
+      std::string name = (i<4) ? "Pixel/ECDBM"+std::to_string(i) : "Pixel/EADBM"+std::to_string(i-4);
+      mod->setName(name);
       if(i<4) mod->setIdentifier(m_idHelper->wafer_id(-4, 0, i, 0));
       else    mod->setIdentifier(m_idHelper->wafer_id(4, 0, i-4, 0));
       
@@ -1898,15 +1851,9 @@ namespace InDet {
       
       Trk::AlignModule * mod = new Trk::AlignModule(this);
       mod->setIdHash(getNextIDHash());
-      std::stringstream name;
-      if(m_idHelper->barrel_ec(id)==-4){
-        name <<"Pixel/ECDBM";
-      }
-      else {
-        name <<"Pixel/EADBM";
-      }
-      name << "/Disk_"<<m_idHelper->layer_disk(id)<<"/Sector_"<<m_idHelper->phi_module(id);
-      mod->setName(name.str());
+      std::string name = (m_idHelper->barrel_ec(id)==-4) ? "Pixel/ECDBM" : "Pixel/EADBM";
+      name += "/Disk_"+std::to_string(m_idHelper->layer_disk(id))+"/Sector_"+std::to_string(m_idHelper->phi_module(id));
+      mod->setName(name);
       mod->setIdentifier(m_idHelper->wafer_id(m_idHelper->barrel_ec(id), m_idHelper->layer_disk(id), m_idHelper->phi_module(id), 0));
       
       
