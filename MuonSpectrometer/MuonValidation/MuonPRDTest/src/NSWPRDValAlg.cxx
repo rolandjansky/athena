@@ -12,6 +12,7 @@
 
 #include "sTGCDigitVariables.h"
 #include "sTGCSimHitVariables.h"
+#include "sTGCRDOVariables.h"
 #include "sTGCFastDigitVariables.h"
 #include "sTGCPRDVariables.h"
 
@@ -37,6 +38,7 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
     m_TruthVar(nullptr),
     m_MuEntryVar(nullptr),
     m_sTgcSimHitVar(nullptr),
+    m_sTgcRdoVar(nullptr),
     m_sTgcFastDigitVar(nullptr),
     m_sTgcDigitVar(nullptr),
     m_sTgcPrdVar(nullptr),
@@ -58,6 +60,7 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("Truth_ContainerName", m_Truth_ContainerName="TruthEvent");
   declareProperty("MuonEntryLayer_ContainerName", m_MuEntry_ContainerName="MuonEntryLayer");
   declareProperty("NSWsTGC_ContainerName", m_NSWsTGC_ContainerName="sTGCSensitiveDetector");
+  declareProperty("NSWsTGC_RDOContainerName", m_NSWsTGC_RDOContainerName="sTGCRDO");
   declareProperty("NSWsTGC_FastDigitContainerName", m_NSWsTGC_FastDigitContainerName="STGC_Measurements");
   declareProperty("NSWsTGC_DigitContainerName", m_NSWsTGC_DigitContainerName="sTGC_DIGITS");
   declareProperty("NSWsTGC_PRDContainerName", m_NSWsTGC_PRDContainerName="STGC_Measurements");
@@ -71,6 +74,7 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("doTruth",         m_doTruth=false);
   declareProperty("doMuEntry",       m_doMuEntry=false);
   declareProperty("doSTGCHit",       m_doSTGCHit=false);
+  declareProperty("doSTGCRDO",       m_doSTGCRDO=false);
   declareProperty("doSTGCFastDigit", m_doSTGCFastDigit=false);
   declareProperty("doSTGCDigit",     m_doSTGCDigit=false);
   declareProperty("doSTGCPRD",       m_doSTGCPRD=false);
@@ -119,6 +123,18 @@ StatusCode NSWPRDValAlg::initialize() {
                                                 m_sTgcIdHelper, m_tree, m_NSWsTGC_ContainerName);
      ATH_CHECK( m_sTgcSimHitVar->initializeVariables() );
   }
+  
+  if (m_doSTGCDigit){
+     m_sTgcDigitVar = new sTGCDigitVariables(&(*(evtStore())), m_detManager,
+                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_DigitContainerName);
+     ATH_CHECK( m_sTgcDigitVar->initializeVariables() );
+  }
+
+  if (m_doSTGCRDO){
+     m_sTgcRdoVar = new sTGCRDOVariables(&(*(evtStore())), m_detManager,
+                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_RDOContainerName);
+     ATH_CHECK( m_sTgcRdoVar->initializeVariables() );
+  }
 
   if (m_doSTGCFastDigit){
      m_sTgcFastDigitVar = new sTGCFastDigitVariables(&(*(evtStore())), m_detManager,
@@ -130,12 +146,6 @@ StatusCode NSWPRDValAlg::initialize() {
      m_sTgcPrdVar = new sTGCPRDVariables(&(*(evtStore())), m_detManager,
                                                 m_sTgcIdHelper, m_tree, m_NSWsTGC_PRDContainerName);
      ATH_CHECK( m_sTgcPrdVar->initializeVariables() );
-  }
-
-  if (m_doSTGCDigit){
-     m_sTgcDigitVar = new sTGCDigitVariables(&(*(evtStore())), m_detManager,
-                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_DigitContainerName);
-     ATH_CHECK( m_sTgcDigitVar->initializeVariables() );
   }
 
   if (m_doMMHit) {
@@ -185,6 +195,7 @@ StatusCode NSWPRDValAlg::finalize()
   if (m_TruthVar) { delete m_TruthVar; m_TruthVar=0;}
   if (m_doMuEntry) { delete m_MuEntryVar; m_MuEntryVar=0;}
   if (m_sTgcSimHitVar) { delete m_sTgcSimHitVar; m_sTgcSimHitVar=0;}
+  if (m_sTgcRdoVar) { delete m_sTgcRdoVar; m_sTgcRdoVar=0;}
   if (m_sTgcFastDigitVar) { delete m_sTgcFastDigitVar; m_sTgcFastDigitVar=0;}
   if (m_sTgcDigitVar) { delete m_sTgcDigitVar; m_sTgcDigitVar=0;}
   if (m_sTgcPrdVar) { delete m_sTgcPrdVar; m_sTgcPrdVar=0;}
@@ -223,6 +234,8 @@ StatusCode NSWPRDValAlg::execute()
   if (m_doSTGCFastDigit) ATH_CHECK( m_sTgcFastDigitVar->fillVariables() );
 
   if (m_doSTGCDigit) ATH_CHECK( m_sTgcDigitVar->fillVariables() );
+
+  if (m_doSTGCRDO) ATH_CHECK( m_sTgcRdoVar->fillVariables() );
 
   if (m_doSTGCPRD) ATH_CHECK( m_sTgcPrdVar->fillVariables() );
 
