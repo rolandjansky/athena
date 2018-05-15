@@ -24,6 +24,7 @@ atlas_depends_on_subdirs(
   Reconstruction/Jet/JetEDM
   Reconstruction/Jet/JetInterface
   PRIVATE
+  Control/CxxUtils
   Event/xAOD/xAODBase
   Event/xAOD/xAODCore
   Event/xAOD/xAODEventInfo
@@ -45,7 +46,7 @@ atlas_add_library( JetRecLib
   LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AthLinks AsgTools
   xAODCaloEvent xAODJet xAODMuon EventShapeInterface JetEDM
   JetInterface
-  PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} xAODBase xAODCore
+  PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} CxxUtils xAODBase xAODCore
   xAODEventInfo xAODTracking )
 
 if( NOT XAOD_STANDALONE )
