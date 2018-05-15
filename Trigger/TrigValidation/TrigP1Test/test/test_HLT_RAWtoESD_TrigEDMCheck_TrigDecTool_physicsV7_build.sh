@@ -23,7 +23,7 @@ echo "art-result: ${ATH_RETURN} ${NAME}"
 export NAME=RAWtoESD_physicsV7
 export JOB_LOG="${NAME}.log"
 
-timeout 30m trigtest_ART.pl --cleardir  --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
+timeout 100m trigtest_ART.pl --cleardir  --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
 
 ATH_RETURN=${PIPESTATUS[0]}
 echo "art-result: ${ATH_RETURN} ${NAME}"
@@ -31,7 +31,7 @@ echo "art-result: ${ATH_RETURN} ${NAME}"
 export NAME=TrigEDMCheck_physicsV7
 export JOB_LOG="${NAME}.log"
 
-timeout 10m trigtest_ART.pl --cleardir  --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
+timeout 50m trigtest_ART.pl --cleardir  --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
 
 ATH_RETURN=${PIPESTATUS[0]}
 echo "art-result: ${ATH_RETURN} ${NAME}"
@@ -39,7 +39,7 @@ echo "art-result: ${ATH_RETURN} ${NAME}"
 export NAME=TrigDecTool_physicsV7
 export JOB_LOG="${NAME}.log"
 
-timeout 10m trigtest_ART.pl --cleardir  --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
+timeout 50m trigtest_ART.pl --cleardir  --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
 
 ATH_RETURN=${PIPESTATUS[0]}
 echo "art-result: ${ATH_RETURN} ${NAME}"
