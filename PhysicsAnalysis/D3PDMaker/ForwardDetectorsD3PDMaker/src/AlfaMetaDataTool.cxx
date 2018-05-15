@@ -5,7 +5,6 @@
 
 // Athena/Gaudi include(s):
 #include "AthenaKernel/errorcheck.h"
-#include "SGTools/crc64.h"
 
 
 // D3PDMaker include(s):
