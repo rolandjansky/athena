@@ -5,7 +5,6 @@
 // System include(s):
 #include <cstdlib>
 #include <cmath>
-#include <iostream>
 #include <memory>
 
 // Infrastructure include(s):
@@ -26,7 +25,7 @@
 
 /// Function generating a random number in a specific range
 double randomInRange( double min, double max ) {
-   return static_cast< double >( rand() - RAND_MAX ) * ( max - min ) + min;
+   return static_cast< double >( rand() ) / RAND_MAX * ( max - min ) + min;
 }
 
 int main() {
