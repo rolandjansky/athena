@@ -48,6 +48,7 @@ private:
   // -- added for dark jet clustering -- //
   bool m_includeSM; //!< Include SM particles
   bool m_includeDark; //!< Include dark hadrons
+  bool m_chargedOnly; //!< Include only charged particles
 
   bool isPrompt( const xAOD::TruthParticle* tp,
                  std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const;

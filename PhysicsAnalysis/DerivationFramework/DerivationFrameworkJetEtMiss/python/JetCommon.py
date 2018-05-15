@@ -171,8 +171,8 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
     
     # map the input to the jtm code for PseudoJetGetter
     getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow',             EMCPFlow = 'emcpflow', 
-                      Truth='truth',     TruthWZ='truthwz', TruthDressedWZ='truthdressedwz', PV0Track='pv0track', 
-                      TrackCaloCluster='tcc')
+                      Truth='truth',     TruthWZ='truthwz', TruthDressedWZ='truthdressedwz', TruthCharged='truthcharged', 
+                      PV0Track='pv0track', TrackCaloCluster='tcc')
 
     # create the finder for the temporary collection.
     tmpFinderTool= jtm.addJetFinder(tmpName, jetalg, rsize, getterMap[inputtype] ,
@@ -375,7 +375,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
     
         # map the input to the jtm code for PseudoJetGetter
         getterMap = dict( LCTopo = 'lctopo', EMTopo = 'emtopo', EMPFlow = 'empflow', EMCPFlow = 'emcpflow',
-                          Truth = 'truth',  TruthWZ = 'truthwz', TruthDressedWZ = 'truthdressedwz', 
+                          Truth = 'truth',  TruthWZ = 'truthwz', TruthDressedWZ = 'truthdressedwz', TruthCharged = 'truthcharged', 
                           PV0Track = 'pv0track', TrackCaloCluster = 'tcc' )
 
         # set input pseudojet getter -- allows for custom getters
