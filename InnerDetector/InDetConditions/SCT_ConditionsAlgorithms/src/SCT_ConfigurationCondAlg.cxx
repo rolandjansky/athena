@@ -27,19 +27,11 @@ const std::string SCT_ConfigurationCondAlg::s_coolMurFolderName2{"/SCT/DAQ/Confi
 
 SCT_ConfigurationCondAlg::SCT_ConfigurationCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKeyChannel{"/SCT/DAQ/Config/Chip"}
-  , m_readKeyModule{"/SCT/DAQ/Config/Module"}
-  , m_readKeyMur{"/SCT/DAQ/Config/MUR"}
-  , m_writeKey{"SCT_ConfigurationCondData"}
   , m_condSvc{"CondSvc", name}
   , m_cablingSvc{"SCT_CablingSvc", name}
   , m_pHelper{nullptr}
   , m_pManager{nullptr}
 {
-  declareProperty("ReadKeyChannel", m_readKeyChannel, "Key of input (raw) conditions folder of chips");
-  declareProperty("ReadKeyModule", m_readKeyModule, "Key of input (raw) conditions folder of modules");
-  declareProperty("ReadKeyMur", m_readKeyMur, "Key of input (raw) conditions folder of Murs");
-  declareProperty("WriteKey", m_writeKey, "Key of output (derived) conditions folder");
 }
 
 StatusCode SCT_ConfigurationCondAlg::initialize() {

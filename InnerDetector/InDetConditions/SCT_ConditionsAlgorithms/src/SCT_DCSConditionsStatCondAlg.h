@@ -26,9 +26,9 @@ class SCT_DCSConditionsStatCondAlg : public AthAlgorithm
   StatusCode finalize() override;
 
  private:
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyHV;
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyState;
-  SG::WriteCondHandleKey<SCT_DCSStatCondData> m_writeKeyState;
+  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyHV{this, "ReadKeyHV", "/SCT/DCS/HV", "Key of input (raw) HV conditions folder"};
+  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyState{this, "ReadKeyState", "/SCT/DCS/CHANSTAT", "Key of input (raw) State conditions folder"};
+  SG::WriteCondHandleKey<SCT_DCSStatCondData> m_writeKeyState{this, "WriteKeyState", "SCT_DCSStatCondData", "Key of output (derived) State conditions data"};
 
   ServiceHandle<ICondSvc> m_condSvc;
 

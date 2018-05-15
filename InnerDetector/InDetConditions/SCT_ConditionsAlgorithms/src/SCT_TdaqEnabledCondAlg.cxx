@@ -14,13 +14,9 @@
 
 SCT_TdaqEnabledCondAlg::SCT_TdaqEnabledCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKey{"/TDAQ/Resources/ATLAS/SCT/Robins"}
-  , m_writeKey{"SCT_TdaqEnabledCondData", "SCT_TdaqEnabledCondData"}
   , m_condSvc{"CondSvc", name}
   , m_cablingSvc{"SCT_CablingSvc", name}
 {
-  declareProperty("ReadKey", m_readKey, "Key of input (raw) conditions folder");
-  declareProperty("WriteKey", m_writeKey, "Key of output (derived) conditions folder");
   declareProperty("EventInfoKey", m_eventInfoKey=std::string{"ByteStreamEventInfo"}, "Key of non-xAOD EventInfo");
 }
 

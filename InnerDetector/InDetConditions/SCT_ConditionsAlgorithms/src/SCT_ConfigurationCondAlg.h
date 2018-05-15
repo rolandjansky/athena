@@ -55,10 +55,10 @@ class SCT_ConfigurationCondAlg : public AthAlgorithm
   static const std::string s_coolMurFolderName;
   static const std::string s_coolMurFolderName2;
 
-  SG::ReadCondHandleKey<CondAttrListVec> m_readKeyChannel;
-  SG::ReadCondHandleKey<CondAttrListVec> m_readKeyModule;
-  SG::ReadCondHandleKey<CondAttrListVec> m_readKeyMur;
-  SG::WriteCondHandleKey<SCT_ConfigurationCondData> m_writeKey;
+  SG::ReadCondHandleKey<CondAttrListVec> m_readKeyChannel{this, "ReadKeyChannel", "/SCT/DAQ/Configuration/Chip", "Key of input (raw) conditions folder of chips"};
+  SG::ReadCondHandleKey<CondAttrListVec> m_readKeyModule{this, "ReadKeyModule", "/SCT/DAQ/Config/Module", "Key of input (raw) conditions folder of modules"};
+  SG::ReadCondHandleKey<CondAttrListVec> m_readKeyMur{this, "ReadKeyMur", "/SCT/DAQ/Config/MUR", "Key of input (raw) conditions folder of Murs"};
+  SG::WriteCondHandleKey<SCT_ConfigurationCondData> m_writeKey{this, "WriteKey", "SCT_ConfigurationCondData", "Key of output (derived) conditions data"};
   ServiceHandle<ICondSvc> m_condSvc;
   ServiceHandle<ISCT_CablingSvc> m_cablingSvc; //!< Handle on SCT cabling service
   const SCT_ID* m_pHelper; //!< ID helper for SCT
