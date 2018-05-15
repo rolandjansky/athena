@@ -654,11 +654,14 @@ StatusCode sTgcFastDigitizer::execute() {
 
       m_ntuple->Fill();
       // create SDO 
-      MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(hitOnSurface.x(),hitOnSurface.y()));
+      MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(hit.depositEnergy(),ttof));
       //Record the SDO collection in StoreGate
       std::vector<MuonSimData::Deposit> deposits;
       deposits.push_back(deposit);
-      h_sdoContainer->insert ( std::make_pair ( id, MuonSimData(deposits,0) ) );
+      MuonSimData simData(deposits, hit.particleEncoding());
+      simData.setPosition(hit.globalPosition());
+      simData.setTime(globalHitTime);
+      h_sdoContainer->insert ( std::make_pair ( id, simData ) );
 
       previousHit = &hit;
 
