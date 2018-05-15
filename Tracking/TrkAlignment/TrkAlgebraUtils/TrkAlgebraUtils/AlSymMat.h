@@ -83,7 +83,7 @@ class AlSymMat : public AlSymMatBase {
   virtual void copy(const AlSpaMat&  m);
   virtual void copy(const AlMat&  m);
 
-  double*     ptr_data;
+  double*     m_ptr_data;
 
   std::string m_pathbin;
   std::string m_pathtxt;
@@ -108,7 +108,7 @@ inline long int AlSymMat::elem(long int i,long int j) const {
 }
 
 inline double* AlSymMat::ptrData() const {
-  return ptr_data;
+  return m_ptr_data;
 }
 
 inline std::string AlSymMat::pathBin() const {

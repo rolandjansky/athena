@@ -24,11 +24,11 @@ class IntVec {
   IntVec& operator-=(const IntVec&);
 
   void reSize(int);
-  int n_elem() const  { return Nele; }
+  int n_elem() const  { return m_Nele; }
 
  private:
-  int Nele;
-  int* ptr_data;
+  int m_Nele;
+  int* m_ptr_data;
 };
 
 } // end namespace Trk
