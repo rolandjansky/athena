@@ -1721,12 +1721,10 @@ namespace top {
                   static SG::AuxElement::Accessor<int> acc_mcto("truthOrigin");
                   m_mu_true_type[i]=0;
                   m_mu_true_origin[i]=0;
-                  const xAOD::TrackParticle* mutrack = muPtr->primaryTrackParticle();
-                  if (mutrack!=nullptr) {
-                      if (acc_mctt.isAvailable(*mutrack)) m_mu_true_type[i] = acc_mctt(*mutrack);
-                      if (acc_mcto.isAvailable(*mutrack)) m_mu_true_origin[i] = acc_mcto(*mutrack);
-		      m_mu_true_isPrompt[i] = isPromptMuon(m_mu_true_type[i], m_mu_true_origin[i]);
-                  }
+		  if (acc_mctt.isAvailable(*muPtr)) m_mu_true_type[i] = acc_mctt(*muPtr);
+		  if (acc_mcto.isAvailable(*muPtr)) m_mu_true_origin[i] = acc_mcto(*muPtr);
+		  m_mu_true_isPrompt[i] = isPromptMuon(m_mu_true_type[i], m_mu_true_origin[i]);
+
                 }
                 ++i;
             }
