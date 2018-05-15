@@ -315,6 +315,7 @@ namespace TrigCostRootAnalysis {
     kWriteDummyPSXML,
     kNoMsgSuppression,
     kIgnoreRerun,
+    kHLTPass,
     kHistBins,
     kHistBinMin,
     kHistBinMax,
