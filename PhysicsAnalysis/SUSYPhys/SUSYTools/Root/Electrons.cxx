@@ -174,10 +174,19 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
     return StatusCode::FAILURE;
   }
 
-  if ( !m_elecSelLikelihoodBaseline->accept(&input) )
-    if( !m_force_noElId )
-      return StatusCode::SUCCESS;
-  
+  bool passBaseID = false;
+  if (m_eleIdExpert) {
+    passBaseID = m_elecSelLikelihoodBaseline->accept(&input); 
+  } else {
+    if (m_acc_eleIdBaseline.isAvailable(input)) {
+      passBaseID = m_acc_eleIdBaseline(input);
+    } else {
+      ATH_MSG_VERBOSE ("DFCommonElectronsLHxxx variables are not found. Calculating the ID from LH tool..");
+      passBaseID = m_elecSelLikelihoodBaseline->accept(&input); 
+    }
+  }
+  if ( !passBaseID && !m_force_noElId ) return StatusCode::SUCCESS;
+
   //baseline ID decoration for TauEl OR
   //dec_passBaseID(input) = true;
 
@@ -212,6 +221,7 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
 
   //ChargeIDSelector
   if( m_runECIS ){
+    ATH_MSG_WARNING( "ChargeIDSelector tool is not available in R21 yet.");
     dec_passChID(input) = m_elecChargeIDSelectorTool->accept(&input);
     double bdt = m_elecChargeIDSelectorTool->calculate(&input).getResult("bdt");
     dec_ecisBDT(input) = bdt;
@@ -236,7 +246,16 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
 {
   dec_passSignalID(input) = false;
   
-  if ( !m_elecSelLikelihood.empty() && m_elecSelLikelihood->accept(&input) ) dec_passSignalID(input) = true;
+  if (m_eleIdExpert) {
+    if ( !m_elecSelLikelihood.empty() && m_elecSelLikelihood->accept(&input) ) dec_passSignalID(input) = true;
+  } else {
+    if (m_acc_eleId.isAvailable(input)) {
+      dec_passSignalID(input) = m_acc_eleId(input);
+    } else {
+      ATH_MSG_VERBOSE ("DFCommonElectronsLHxxx variables are not found. Calculating the ID from LH tool..");
+      if ( !m_elecSelLikelihood.empty() && m_elecSelLikelihood->accept(&input) ) dec_passSignalID(input) = true; 
+    }
+  }
 
   //overwrite ID selection if forced by user
   if(m_force_noElId) dec_passSignalID(input) = true;
@@ -294,10 +313,13 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     ATH_MSG_ERROR("I will now die messily.");
   }
 
+  if (chfSF) 
+    ATH_MSG_WARNING ("Charge mis-ID SF is not provided in R21 yet.");
+
   //shortcut keys for trigger SF config
-  static std::string singleLepStr = "singleLepton";
-  static std::string diLepStr     = "diLepton";
-  static std::string multiLepStr  = "multiLepton";
+  std::string singleLepStr = "singleLepton";
+  std::string diLepStr     = "diLepton";
+  std::string multiLepStr  = "multiLepton";
 
   float sf(1.);
 

@@ -116,6 +116,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_metUseGhostMuons(false),
     m_metDoMuonEloss(false),
     m_metGreedyPhotons(false),
+    m_metVeryGreedyPhotons(false),
     m_metsysConfigPrefix(""),
     m_softTermParam(met::Random),
     m_treatPUJets(true),
@@ -123,12 +124,13 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_autoconfigPRW(false),
     m_mcCampaign(""),
     m_muUncert(-99.),
-    m_prwDataSF(1./1.03), // default for mc16, see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ExtendedPileupReweighting#Tool_Properties
-    m_prwDataSF_UP(1.), // old value for mc15 (mc16 uncertainties still missing)
-    m_prwDataSF_DW(1./1.18), // old value for mc15 (mc16 uncertainties still missing)
+    m_prwDataSF(-99.),
+    m_prwDataSF_UP(-99.),
+    m_prwDataSF_DW(-99.),
     m_electronTriggerSFStringSingle(""),
     m_eleId(""),
     m_eleIdBaseline(""),
+    m_eleIdExpert(false),
     m_muId(static_cast<int>(xAOD::Muon::Quality(xAOD::Muon::VeryLoose))),
     m_muIdBaseline(static_cast<int>(xAOD::Muon::Quality(xAOD::Muon::VeryLoose))),
     m_photonId(""),
@@ -156,7 +158,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_eled0sig(-99.),
     m_elez0(-99.),
     m_elebaselined0sig(-99.),
-    m_elebaselinez0(0.5),
+    m_elebaselinez0(-99),
     //
     m_muBaselinePt(-99.),
     m_muBaselineEta(-99.),
@@ -165,7 +167,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_mud0sig(-99.),
     m_muz0(-99.),
     m_mubaselined0sig(-99.),
-    m_mubaselinez0(0.5),
+    m_mubaselinez0(-99),
     m_murequirepassedHighPtCuts(false),
     m_muCosmicz0(-99.),
     m_muCosmicd0(-99.),
@@ -324,7 +326,12 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_orToolbox("ORToolbox",this),
     //
     m_pmgSHnjetWeighter(""),
-    m_pmgSHnjetWeighterWZ("")
+    m_pmgSHnjetWeighterWZ(""),
+    // 
+    m_acc_eleIdBaseline(""),
+    m_acc_eleId(""),
+    m_acc_photonIdBaseline(""),
+    m_acc_photonId("")
 {
   //General settings
   declareProperty( "DataSource", m_dataSource = Undefined );
@@ -381,6 +388,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "METUseGhostMuons",  m_metUseGhostMuons );
   declareProperty( "METDoMuonEloss",  m_metDoMuonEloss );
   declareProperty( "METDoGreedyPhotons",  m_metGreedyPhotons );
+  declareProperty( "METDoVeryGreedyPhotons",  m_metVeryGreedyPhotons );
 
 
   declareProperty( "SoftTermParam",  m_softTermParam);
@@ -473,7 +481,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "PRWConfigFiles",       m_prwConfFiles );
   declareProperty( "PRWLumiCalcFiles",     m_prwLcalcFiles );
   declareProperty( "PRWActualMuFile",      m_prwActualMuFile );
-  declareProperty( "PRWMuUncertainty",     m_muUncert); // = 0.2);
+  declareProperty( "PRWMuUncertainty",     m_muUncert);
   declareProperty( "PRWDataScaleFactor",   m_prwDataSF);
   declareProperty( "PRWDataScaleFactorUP", m_prwDataSF_UP);
   declareProperty( "PRWDataScaleFactorDOWN", m_prwDataSF_DW);
@@ -701,6 +709,22 @@ StatusCode SUSYObjDef_xAOD::initialize() {
   m_inputMETMap = "METAssoc_" + m_inputMETSuffix;
   ATH_MSG_INFO("Build MET with map: " << m_inputMETMap);
 
+  m_eleIdBaselineDFName = "DFCommonElectronsLH";
+  m_eleIdBaselineDFName += TString(m_eleIdBaseline).ReplaceAll("LooseAndBLayer","LooseBL").ReplaceAll("LLH","").Data();
+  m_acc_eleIdBaseline = m_eleIdBaselineDFName;
+
+  m_eleIdDFName = "DFCommonElectronsLH";
+  m_eleIdDFName += TString(m_eleId).ReplaceAll("LooseAndBLayer","LooseBL").ReplaceAll("LLH","").Data();
+  m_acc_eleId = m_eleIdDFName;
+ 
+  m_photonIdBaselineDFName = "DFCommonPhotonsIsEM";
+  m_photonIdBaselineDFName += TString(m_photonIdBaseline).Data();
+  m_acc_photonIdBaseline = m_photonIdBaselineDFName;
+
+  m_photonIdDFName = "DFCommonPhotonsIsEM";
+  m_photonIdDFName += TString(m_photonId).Data();
+  m_acc_photonId = m_photonIdDFName;
+
   // autoconfigure PRW tool if m_autoconfigPRW==true
   ATH_CHECK( autoconfigurePileupRWTool() );
 
@@ -723,14 +747,13 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
     float dsid = -999;
     std::string amiTag("");
     std::string mcCampaignMD("");
-    std::string simType("");
+    std::string simType = (isAtlfast() ? "AFII" : "FS");
     const xAOD::FileMetaData* fmd = 0;
 
     // let's use MetaData to extract sample information
     if ( inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData") && inputMetaStore()->retrieve(fmd,"FileMetaData").isSuccess() ) {
       fmd->value(xAOD::FileMetaData::mcProcID, dsid);
       fmd->value(xAOD::FileMetaData::amiTag, amiTag);
-      simType = ( amiTag.find("a875")!=string::npos ? "AFII" : "FS" );
       if ( amiTag.find("r9364")!=string::npos ) mcCampaignMD = "mc16a";
       else if ( amiTag.find("r9781")!=string::npos ) mcCampaignMD = "mc16c";
       else if ( amiTag.find("r10201")!=string::npos ) mcCampaignMD = "mc16d";
@@ -761,7 +784,6 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
         return StatusCode::FAILURE;
       }
 
-      simType = (isAtlfast() ? "AFII" : "FS"); 
 #endif
     }
 
@@ -1020,6 +1042,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_elez0, "Ele.z0", rEnv, 0.5);
   configFromFile(m_elebaselined0sig, "EleBaseline.d0sig", rEnv, -99.);
   configFromFile(m_elebaselinez0, "EleBaseline.z0", rEnv, 0.5);
+  configFromFile(m_eleIdExpert, "Ele.IdExpert", rEnv, false);
   configFromFile(m_EG_corrModel, "Ele.EffNPcorrModel", rEnv, "TOTAL");
   configFromFile(m_electronTriggerSFStringSingle, "Ele.TriggerSFStringSingle", rEnv, "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0");
   configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v1/map1.txt"); 
@@ -1114,7 +1137,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-05-04_v1.root");
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
   //
-  configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, false);
+  configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, true);
   configFromFile(m_orBoostedElectronC1, "OR.BoostedElectronC1", rEnv, -999.); // set to positive number to override default
   configFromFile(m_orBoostedElectronC2, "OR.BoostedElectronC2", rEnv, -999.); // set to positive number to override default - specify in MeV (i.e. "10*GeV" will nor work in the config file)
   configFromFile(m_orBoostedElectronMaxConeSize, "OR.BoostedElectronMaxConeSize", rEnv, -999.); // set to positive number to override default
@@ -1127,10 +1150,10 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orDoPhoton, "OR.DoPhoton", rEnv, false);
   configFromFile(m_orDoEleJet, "OR.EleJet", rEnv, true);
   configFromFile(m_orDoMuonJet, "OR.MuonJet", rEnv, true);
-  configFromFile(m_orDoBjet, "OR.Bjet", rEnv, true);
-  configFromFile(m_orDoElBjet, "OR.ElBjet", rEnv, true);
-  configFromFile(m_orDoMuBjet, "OR.MuBjet", rEnv, true);
-  configFromFile(m_orDoTauBjet, "OR.TauBjet", rEnv, true);
+  configFromFile(m_orDoBjet, "OR.Bjet", rEnv, false);
+  configFromFile(m_orDoElBjet, "OR.ElBjet", rEnv, false);
+  configFromFile(m_orDoMuBjet, "OR.MuBjet", rEnv, false);
+  configFromFile(m_orDoTauBjet, "OR.TauBjet", rEnv, false);
   configFromFile(m_orApplyRelPt, "OR.MuJetApplyRelPt", rEnv, false);
   configFromFile(m_orMuJetPtRatio, "OR.MuJetPtRatio", rEnv, -999.);
   configFromFile(m_orMuJetTrkPtRatio, "OR.MuJetTrkPtRatio", rEnv, -999.);
@@ -1161,6 +1184,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_metUseGhostMuons, "MET.UseGhostMuons", rEnv, false);
   configFromFile(m_metDoMuonEloss, "MET.DoMuonEloss", rEnv, false);
   configFromFile(m_metGreedyPhotons, "MET.DoGreedyPhotons", rEnv, false);
+  configFromFile(m_metVeryGreedyPhotons, "MET.DoVeryGreedyPhotons", rEnv, false);
 
   configFromFile(m_trkMETsyst, "MET.DoTrkSyst", rEnv, true);
   configFromFile(m_caloMETsyst, "MET.DoCaloSyst", rEnv, false);
@@ -1173,6 +1197,9 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   //
   configFromFile(m_prwActualMuFile, "PRW.ActualMuFile", rEnv, "GoodRunsLists/data17_13TeV/20180309/physics_25ns_Triggerno17e33prim.actualMu.OflLumi-13TeV-010.root");
   configFromFile(m_muUncert, "PRW.MuUncertainty", rEnv, 0.2);
+  configFromFile(m_prwDataSF, "PRW.DataSF", rEnv, 1./1.03); // default for mc16, see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ExtendedPileupReweighting#Tool_Properties
+  configFromFile(m_prwDataSF_UP, "PRW.DataSF_UP", rEnv, 1./0.99); // mc16 uncertainty? defaulting to the value in PRWtool
+  configFromFile(m_prwDataSF_DW, "PRW.DataSF_DW", rEnv, 1./1.07); // mc16 uncertainty? defaulting to the value in PRWtool
   //
   configFromFile(m_strictConfigCheck, "StrictConfigCheck", rEnv, false);
 

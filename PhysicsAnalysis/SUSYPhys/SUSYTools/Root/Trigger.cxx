@@ -376,23 +376,6 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::ElectronContain
 
   unsigned runNumber = (unsigned) this->GetRandomRunNumber();
 
-  std::vector<std::string> trigMChains={};
-  if (trigExpr=="diLepton") {
-    if (this->treatAsYear()==2015) 
-      std::set_difference(v_trigs15_cache_diLep.begin(), v_trigs15_cache_diLep.end(), v_trigs15_cache_singleLep.begin(), v_trigs15_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton triggers 
-    else if (this->treatAsYear()==2016) 
-      std::set_difference(v_trigs16_cache_diLep.begin(), v_trigs16_cache_diLep.end(), v_trigs16_cache_singleLep.begin(), v_trigs16_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton triggers
-    else 
-      std::set_difference(v_trigs17_cache_diLep.begin(), v_trigs17_cache_diLep.end(), v_trigs17_cache_singleLep.begin(), v_trigs17_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton triggers
-  } else if (trigExpr=="multiLepton") {
-    if (this->treatAsYear()==2015) 
-      std::set_difference(v_trigs15_cache_multiLep.begin(), v_trigs15_cache_multiLep.end(), v_trigs15_cache_singleLep.begin(), v_trigs15_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton and trilepton triggers
-    else if (this->treatAsYear()==2016) 
-      std::set_difference(v_trigs16_cache_multiLep.begin(), v_trigs16_cache_multiLep.end(), v_trigs16_cache_singleLep.begin(), v_trigs16_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton and trilepton triggers
-    else 
-      std::set_difference(v_trigs17_cache_multiLep.begin(), v_trigs17_cache_multiLep.end(), v_trigs17_cache_singleLep.begin(), v_trigs17_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton and trilepton triggers
-  }
-
   std::vector<const xAOD::Electron*> elec_trig;
   elec_trig.clear();
   for (const auto& electron : electrons) {
@@ -409,12 +392,24 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::ElectronContain
     muon_trig.push_back(muon);
   }
 
+  bool matched = false;
+  if ((elec_trig.size()+muon_trig.size())>1 && trigExpr=="diLepton") {
+    if ( m_trigGlobalEffCorrTool_diLep->checkTriggerMatching( matched, elec_trig, muon_trig) != CP::CorrectionCode::Ok ) { 
+      ATH_MSG_ERROR ("trigGlobEffCorrTool::Trigger matching could not be checked, interrupting execution.");
+    }
+  } else if ((elec_trig.size()+muon_trig.size())>2 && trigExpr=="multiLepton") {
+    if ( m_trigGlobalEffCorrTool_multiLep->checkTriggerMatching( matched, elec_trig, muon_trig) != CP::CorrectionCode::Ok ) { 
+      ATH_MSG_ERROR ("trigGlobEffCorrTool::Trigger matching could not be checked, interrupting execution.");
+    }
+  }
+
   CP::CorrectionCode result;
-  // important caveat: the tool still requires as argument a list of leptons before trigger matching!
-  if ((elec_trig.size()+muon_trig.size())>1 && trigExpr=="diLepton") 
+  if ((elec_trig.size()+muon_trig.size())>1 && trigExpr=="diLepton" && matched) {
     result = m_trigGlobalEffCorrTool_diLep->getEfficiencyScaleFactor( runNumber, elec_trig, muon_trig, trig_sf);
-  else if ((elec_trig.size()+muon_trig.size())>2 && trigExpr=="multiLepton") 
+  }
+  else if ((elec_trig.size()+muon_trig.size())>2 && trigExpr=="multiLepton" && matched) {
     result = m_trigGlobalEffCorrTool_multiLep->getEfficiencyScaleFactor( runNumber, elec_trig, muon_trig, trig_sf);
+  }
  
   switch (result) {
   case CP::CorrectionCode::Error:
@@ -443,23 +438,6 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::ElectronContainer
 
   unsigned runNumber = (unsigned) this->GetRandomRunNumber();
 
-  std::vector<std::string> trigMChains={};
-  if (trigExpr=="diLepton") {
-    if (this->treatAsYear()==2015) 
-      std::set_difference(v_trigs15_cache_diLep.begin(), v_trigs15_cache_diLep.end(), v_trigs15_cache_singleLep.begin(), v_trigs15_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton triggers 
-    else if (this->treatAsYear()==2016) 
-      std::set_difference(v_trigs16_cache_diLep.begin(), v_trigs16_cache_diLep.end(), v_trigs16_cache_singleLep.begin(), v_trigs16_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton triggers
-    else 
-      std::set_difference(v_trigs17_cache_diLep.begin(), v_trigs17_cache_diLep.end(), v_trigs17_cache_singleLep.begin(), v_trigs17_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton triggers
-  } else if (trigExpr=="multiLepton") {
-    if (this->treatAsYear()==2015) 
-      std::set_difference(v_trigs15_cache_multiLep.begin(), v_trigs15_cache_multiLep.end(), v_trigs15_cache_singleLep.begin(), v_trigs15_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton and trilepton triggers
-    else if (this->treatAsYear()==2016) 
-      std::set_difference(v_trigs16_cache_multiLep.begin(), v_trigs16_cache_multiLep.end(), v_trigs16_cache_singleLep.begin(), v_trigs16_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton and trilepton triggers
-    else 
-      std::set_difference(v_trigs17_cache_multiLep.begin(), v_trigs17_cache_multiLep.end(), v_trigs17_cache_singleLep.begin(), v_trigs17_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton and trilepton triggers
-  }
-
   std::vector<const xAOD::Electron*> elec_trig;
   elec_trig.clear();
   for (const auto& electron : electrons) {
@@ -476,12 +454,25 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::ElectronContainer
     muon_trig.push_back(muon);
   }
 
-  CP::CorrectionCode result;
-  if ((elec_trig.size()+muon_trig.size())>1 && trigExpr=="diLepton") 
-    result = m_trigGlobalEffCorrTool_diLep->getEfficiency( runNumber, elec_trig, muon_trig, trig_eff_data, trig_eff);
-  else if ((elec_trig.size()+muon_trig.size())>2 && trigExpr=="multiLepton") 
-    result = m_trigGlobalEffCorrTool_multiLep->getEfficiency( runNumber, elec_trig, muon_trig, trig_eff_data, trig_eff);
+  bool matched = false;
+  if ((elec_trig.size()+muon_trig.size())>1 && trigExpr=="diLepton") {
+    if ( m_trigGlobalEffCorrTool_diLep->checkTriggerMatching( matched, elec_trig, muon_trig) != CP::CorrectionCode::Ok ) { 
+      ATH_MSG_ERROR ("trigGlobEffCorrTool::Trigger matching could not be checked, interrupting execution.");
+    }
+  } else if ((elec_trig.size()+muon_trig.size())>2 && trigExpr=="multiLepton") {
+    if ( m_trigGlobalEffCorrTool_multiLep->checkTriggerMatching( matched, elec_trig, muon_trig) != CP::CorrectionCode::Ok ) { 
+      ATH_MSG_ERROR ("trigGlobEffCorrTool::Trigger matching could not be checked, interrupting execution.");
+    }
+  }
 
+  CP::CorrectionCode result;
+  if ((elec_trig.size()+muon_trig.size())>1 && trigExpr=="diLepton" && matched) {
+    result = m_trigGlobalEffCorrTool_diLep->getEfficiency( runNumber, elec_trig, muon_trig, trig_eff_data, trig_eff);
+  }
+  else if ((elec_trig.size()+muon_trig.size())>2 && trigExpr=="multiLepton" && matched) {
+    result = m_trigGlobalEffCorrTool_multiLep->getEfficiency( runNumber, elec_trig, muon_trig, trig_eff_data, trig_eff);
+  }
+ 
   switch (result) {
   case CP::CorrectionCode::Error:
     ATH_MSG_ERROR( "Failed to retrieve signal lepton trigger efficiency");
