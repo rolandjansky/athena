@@ -96,7 +96,7 @@ protected:
   IdentifiableCacheBase (IdentifierHash maxHash, const IMaker* maker);
   ~IdentifiableCacheBase();
   void clear (deleter_f* deleter);
-  void cleanUp(deleter_f* deleter);//Call once before delection
+  void cleanUp(deleter_f* deleter);//Call once before destruction
   
 private:
   std::vector<std::atomic<const void*> > m_vec;
