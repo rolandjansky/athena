@@ -2,7 +2,6 @@ Tue May 24 20:06:17 CEST 2016
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO using release [WorkDir-21.0.0] [x86_64-slc6-gcc49-opt] [private/private] -- built on [2016-05-24 20:03]
-Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Warning in <TInterpreter::ReadRootmapFile>: class  Event found in libG4AtlasControlDict.so  is already in libtest_GPyTestDict.so 
 Warning in <TInterpreter::ReadRootmapFile>: class  UCharDbArray found in libStorageSvcDict.so  is already in libRootCnvDict.so 

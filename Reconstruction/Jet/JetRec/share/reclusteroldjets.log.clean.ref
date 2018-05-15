@@ -2,7 +2,6 @@ Fri Jul 24 11:10:51 CEST 2015
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO using release [AtlasOffline-20.9.0] [x86_64-slc6-gcc48-opt] [20.X.Y-VAL/rel_5] -- built on [2015-07-23 22:00]
-Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 [?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"

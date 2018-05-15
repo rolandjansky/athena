@@ -1,7 +1,6 @@
 Py:Athena            INFO including file "AthenaCommon/Compat.py"
 Py:PropertyProxy     INFO Read module info for 1816 configurables from 6 genConfDb files
 Py:PropertyProxy     INFO No duplicates have been found: that's good !
-Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr $Revision: 1.5 $

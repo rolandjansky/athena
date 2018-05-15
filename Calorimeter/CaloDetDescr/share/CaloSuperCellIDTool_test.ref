@@ -2,7 +2,6 @@ Thu Mar 20 17:36:09 CET 2014
 WARNING: TCMALLOCDIR not defined, will use libc malloc
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO using release [?-?] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
-Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "/home/sss/atlas/rootaccess/../share/CaloSuperCellIDTool_test.py"

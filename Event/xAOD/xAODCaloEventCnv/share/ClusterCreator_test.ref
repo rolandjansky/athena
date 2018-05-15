@@ -2,7 +2,6 @@ Thu Oct 29 11:50:53 EDT 2015
 WARNING: TCMALLOCDIR not defined, will use libc malloc
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO using release [?-?] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
-Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Warning in <TInterpreter::ReadRootmapFile>: class  Event found in libG4AtlasControlDict.so  is already in libzzllqq_matelemDict.so 
 Warning in <TInterpreter::ReadRootmapFile>: class  CLHEP::Hep3Vector found in libAtlasSealCLHEPDict.so  is already in libhitfitDict.so 

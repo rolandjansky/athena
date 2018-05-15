@@ -2,7 +2,6 @@ Wed Aug  5 09:50:05 CEST 2009
 Preloading tcmalloc.so
 Py:ConfigurableDb    INFO Read module info for 4198 configurables from 10 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing CLI (-c) command: "exRun=3;exTime=55"
 Py:Athena            INFO including file "AllWriteCool.py"

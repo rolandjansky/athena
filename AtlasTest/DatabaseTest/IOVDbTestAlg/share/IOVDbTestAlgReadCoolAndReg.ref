@@ -1,6 +1,5 @@
 Py:ConfigurableDb    INFO Read module info for 2861 configurables from 10 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO including file "IOVDbTestAlg/IOVDbTestAlgReadCoolAndReg.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
