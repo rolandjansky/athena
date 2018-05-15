@@ -133,7 +133,6 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
 
     double regionLength = 0.;
     double low = 0.;
-    double tol = 6.0;     // Extra length to avoid trucation of tubes
     int fullLengthCounter = 0;
     int tubeCounter = 0;
     for (int i = 0; i < Nsteps; i++) {
