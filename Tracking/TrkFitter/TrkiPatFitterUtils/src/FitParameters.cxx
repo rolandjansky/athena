@@ -31,7 +31,7 @@ FitParameters::FitParameters (const Perigee& perigee)
       m_cosTheta1			(0.),
       m_d0         	       		(perigee.parameters()[Trk::d0]),
       m_differences			(0),
-      m_differences***REMOVED*** 		(0),
+      m_differencesAlSpaMat 		(0),
       m_eigen				(true),
       m_extremeMomentum 		(false),
       m_finalCovariance 		(0),
@@ -81,7 +81,7 @@ FitParameters::FitParameters (double			d0,
       m_cotTheta        		(cotTheta),
       m_d0         	       		(d0),
       m_differences			(0),
-      m_differences***REMOVED*** 		(0),
+      m_differencesAlSpaMat 		(0),
       m_eigen				(true),
       m_extremeMomentum 		(false),
       m_finalCovariance 		(0),
@@ -127,7 +127,7 @@ FitParameters::FitParameters (const FitParameters&	parameters)
       m_cotTheta			(parameters.m_cotTheta),
       m_d0				(parameters.m_d0),
       m_differences			(0),
-      m_differences***REMOVED*** 		(0),
+      m_differencesAlSpaMat 		(0),
       m_eigen				(parameters.m_eigen),
       m_extremeMomentum 		(parameters.m_extremeMomentum),
       m_finalCovariance 		(parameters.m_finalCovariance),
@@ -161,16 +161,16 @@ FitParameters::FitParameters (const FitParameters&	parameters)
     {
 	if (parameters.m_differences) m_differences = new Amg::VectorX(*(parameters.m_differences));
     }
-    else if (parameters.m_differences***REMOVED***) 
+    else if (parameters.m_differencesAlSpaMat) 
     {
-	m_differences***REMOVED*** = new AlVec(*parameters.m_differences***REMOVED***);
+	m_differencesAlSpaMat = new AlVec(*parameters.m_differencesAlSpaMat);
     }
 }
 
 FitParameters::~FitParameters (void)
 {
     delete m_differences;
-    delete m_differences***REMOVED***;
+    delete m_differencesAlSpaMat;
 }
 
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
@@ -318,22 +318,22 @@ FitParameters::performCutStep (double cutStep)
     }
     else
     {
-	AlVec cutDifferences(*m_differences***REMOVED***);
+	AlVec cutDifferences(*m_differencesAlSpaMat);
 	cutDifferences	*= (cutStep - 1.);
-	AlVec oldDifferences(*m_differences***REMOVED***);
+	AlVec oldDifferences(*m_differencesAlSpaMat);
 	oldDifferences	*= cutStep;
 
 	// leave phi alone when unstable
 	if (m_phiInstability)
 	{
 	    cutDifferences[2] = 0.;
-	    oldDifferences[2] = (*m_differences***REMOVED***)[2];
+	    oldDifferences[2] = (*m_differencesAlSpaMat)[2];
 	}
 
 	// apply cut
 	update(cutDifferences);
-	delete m_differences***REMOVED***;
-	m_differences***REMOVED***	= new AlVec(oldDifferences);
+	delete m_differencesAlSpaMat;
+	m_differencesAlSpaMat	= new AlVec(oldDifferences);
     }
     
     m_numberOscillations	= 0;
@@ -490,9 +490,9 @@ FitParameters::printVerbose (MsgStream& log) const
 	}
     }
 
-    if (m_differences***REMOVED*** && m_differences***REMOVED***->size())
+    if (m_differencesAlSpaMat && m_differencesAlSpaMat->size())
     {
-	const AlVec& differences = *m_differences***REMOVED***;
+	const AlVec& differences = *m_differencesAlSpaMat;
 	log << "      dParams ===="
 	    << std::setiosflags(std::ios::fixed)
 	    << std::setw(10) << std::setprecision(4) << differences[0]
@@ -682,14 +682,14 @@ FitParameters::reset (const FitParameters& parameters)
     }
     else
     {
-	delete m_differences***REMOVED***;
-	if (parameters.m_differences***REMOVED***)
+	delete m_differencesAlSpaMat;
+	if (parameters.m_differencesAlSpaMat)
 	{
-	    m_differences***REMOVED***	= new AlVec(*parameters.m_differences***REMOVED***);
+	    m_differencesAlSpaMat	= new AlVec(*parameters.m_differencesAlSpaMat);
 	}
 	else
 	{
-	    m_differences***REMOVED***	= new AlVec(m_numberParameters);
+	    m_differencesAlSpaMat	= new AlVec(m_numberParameters);
 	}
     }
 
@@ -933,7 +933,7 @@ FitParameters::trackParameters (MsgStream&		log,
 void
 FitParameters::update (const AlVec& differences)
 {
-    // this is the ***REMOVED*** version
+    // this is the AlSpaMat version
     m_eigen		= false;
     
     // keep update values in case of cutStep procedure
@@ -945,8 +945,8 @@ FitParameters::update (const AlVec& differences)
     {
 	m_numberOscillations = 1;
     }
-    delete m_differences***REMOVED***;
-    m_differences***REMOVED*** 	= new AlVec(differences);
+    delete m_differencesAlSpaMat;
+    m_differencesAlSpaMat 	= new AlVec(differences);
     m_oldDifference	= differences[4];
 
     // misalignment parameters
