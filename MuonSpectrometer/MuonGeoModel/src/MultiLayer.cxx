@@ -20,7 +20,6 @@
 #include "GeoModelKernel/GeoIdentifierTag.h"
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/GenericFunctions/AbsFunction.hh"
 #include "CLHEP/GenericFunctions/Variable.hh"
 // for cutouts
 #include "GeoModelKernel/GeoShape.h"
@@ -28,7 +27,6 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoTube.h"
-
 
 #include <vector>
 #include <cassert>
