@@ -49,7 +49,10 @@ atlas_depends_on_subdirs( PUBLIC
                           InDetTrackSystematicsTools
                           BoostedJetTaggers 
 			  FTagAnalysisInterfaces 
-			  MuonAnalysisInterfaces )
+			  MuonAnalysisInterfaces 
+			  TriggerAnalysisInterface
+			  TrigGlobalEfficiencyCorrection
+			  PMGAnalysisInterfaces)
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
@@ -107,6 +110,9 @@ atlas_add_library( TopCPTools Root/*.cxx Root/*.h Root/*.icc
                                   BoostedJetTaggersLib
 				  FTagAnalysisInterfacesLib
 				  MuonAnalysisInterfacesLib
+				  TriggerAnalysisInterfacesLib
+				  TrigGlobalEfficiencyCorrectionLib
+				  PMGAnalysisInterfacesLib
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
 

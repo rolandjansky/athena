@@ -885,6 +885,22 @@ class TopConfig final {
   inline void setLHE3Names(const std::vector<std::string> s){m_names_LHE3 = s;}
   inline std::vector<std::string> getLHE3Names() const { return m_names_LHE3;}
     
+  // Function to set the options for global trigger tool
+  void setGlobalTriggerConfiguration(std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>);
+  inline bool useGlobalTrigger() const { return m_trigGlobalConfiguration.isActivated; } // Was this requested by the user
+  inline std::string getGlobalTriggerElectronTriggerString()      const { return m_trigGlobalConfiguration.electron_trigger; } // Trigger string to be parsed
+  inline std::string getGlobalTriggerElectronTriggerLooseString() const { return m_trigGlobalConfiguration.electron_trigger_loose;} // Trigger string to be parsed  
+  inline std::string getGlobalTriggerMuonTriggerString()          const { return m_trigGlobalConfiguration.muon_trigger; } // Trigger string to be parsed  
+  inline std::string getGlobalTriggerMuonTriggerLooseString()     const { return m_trigGlobalConfiguration.muon_trigger_loose; } // Trigger string to be parsed  
+  inline bool useGlobalTriggerConfiguration() const { return m_trigGlobalConfiguration.isConfigured; } // Was this subsequently configured
+  inline std::vector<std::string> getGlobalTriggerElectronSystematics() const { return m_trigGlobalConfiguration.electron_trigger_systematics; }
+  inline std::vector<std::string> getGlobalTriggerMuonSystematics()     const { return m_trigGlobalConfiguration.muon_trigger_systematics; }
+  inline std::vector<std::string> getGlobalTriggerElectronTools()       const { return m_trigGlobalConfiguration.electron_trigger_tool_names; }
+  inline std::vector<std::string> getGlobalTriggerMuonTools()           const { return m_trigGlobalConfiguration.muon_trigger_tool_names; }
+
+
+
+
  private:
   // Prevent any more configuration
   bool m_configFixed;
@@ -1300,6 +1316,32 @@ class TopConfig final {
     std::vector<double> custom_SF = {};
 
   } m_pileup_reweighting;
+
+  // Struct for holding TrigGlobalEfficiencyCorrectionTool settings in order to 
+  // manage systematic variations through this tool
+
+  struct{
+    // -- Set from cutfile --//
+    // Boolean to be set to true if the user activates a flag
+    bool isActivated  = false;
+    // Trigger strings formatted as PERIOD1@trigger1,trigger2 PERIOD2@trigger3,trigger4
+    std::string electron_trigger;
+    std::string electron_trigger_loose;
+    std::string muon_trigger;
+    std::string muon_trigger_loose;
+
+    // -- Set from TopCPTools  --//
+    // Boolean to be set to true if we set this information
+    bool isConfigured = false;
+    // Names of CP::SystematicSet from electron trigger tools
+    std::vector<std::string> electron_trigger_systematics;
+    // Names of CP::SystematicSet from muon trigger tools
+    std::vector<std::string> muon_trigger_systematics;
+    // Name of the underlying electron tools, to be accessed and passes CP::SystematicSet
+    std::vector<std::string> electron_trigger_tool_names;
+    // Name of the underlying muon tools, to be accessed and passes CP::SystematicSet  
+    std::vector<std::string> muon_trigger_tool_names;
+  } m_trigGlobalConfiguration;
 
   // Muon Trigger SF configuration
   std::string m_muon_trigger_SF;

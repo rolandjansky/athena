@@ -69,6 +69,14 @@ namespace top {
         m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN(0.),
         m_weight_leptonSF_MU_SF_TTVA_SYST_UP(0.),
         m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN(0.),
+	// Special global lepton trigger SF + systematics
+	m_weight_globalLeptonTriggerSF(0.),
+	m_weight_globalLeptonTriggerSF_EL_Trigger_UP(0.),
+	m_weight_globalLeptonTriggerSF_EL_Trigger_DOWN(0.),
+	m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP(0.),
+	m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN(0.),
+	m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP(0.),
+	m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN(0.),
 
         // individual components electrons
         m_weight_indiv_SF_EL_Trigger(0.),
@@ -169,7 +177,8 @@ namespace top {
         return m_particleLevelTreeManager;
     }
 
-    std::shared_ptr<top::ScaleFactorRetriever> EventSaverFlatNtuple::scaleFactorRetriever()
+  //std::shared_ptr<top::ScaleFactorRetriever> EventSaverFlatNtuple::scaleFactorRetriever()
+    top::ScaleFactorRetriever* EventSaverFlatNtuple::scaleFactorRetriever()
     {
         return m_sfRetriever;
     }
@@ -247,7 +256,15 @@ namespace top {
         // Truth tree
         if (m_config->isMC()) {
 
-            m_sfRetriever = std::unique_ptr<top::ScaleFactorRetriever> ( new top::ScaleFactorRetriever( m_config ) );
+	    if(asg::ToolStore::contains<ScaleFactorRetriever>("top::ScaleFactorRetriever")){
+	      m_sfRetriever = asg::ToolStore::get<ScaleFactorRetriever>("top::ScaleFactorRetriever");
+	    }
+	    else{
+	      top::ScaleFactorRetriever* topSFR = new top::ScaleFactorRetriever("top::ScaleFactorRetriever");
+	      top::check(asg::setProperty(topSFR, "config", m_config), "Failed to set config");
+	      top::check(topSFR->initialize(), "Failed to initalialise");
+	      m_sfRetriever = topSFR;
+	    }
 
             m_truthTreeManager = std::shared_ptr<top::TreeManager>( new top::TreeManager( "truth" , file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector() ) );
             m_truthTreeManager->branchFilters() = branchFilters();
@@ -346,6 +363,9 @@ namespace top {
                   systematicTree->makeOutputVariable(m_weight_tauSF,
                                                      "weight_tauSF");
 
+		if(m_config->useGlobalTriggerConfiguration())
+		  systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF,                      "weight_globalLeptonTriggerSF");
+
                 // nominal b-tagging SFs
                 for( auto& tagWP : m_config -> bTagWP_available()){
                   // skip uncalibrated though available WPs
@@ -405,8 +425,16 @@ namespace top {
                     systematicTree->makeOutputVariable(m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN,    "weight_leptonSF_MU_SF_TTVA_STAT_DOWN");
                     systematicTree->makeOutputVariable(m_weight_leptonSF_MU_SF_TTVA_SYST_UP,      "weight_leptonSF_MU_SF_TTVA_SYST_UP");
                     systematicTree->makeOutputVariable(m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN,    "weight_leptonSF_MU_SF_TTVA_SYST_DOWN");
-
-
+		    // Special global lepton trigger SF when requested
+		    if(m_config->useGlobalTriggerConfiguration()){
+		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_EL_Trigger_UP,        "weight_globalLeptonTriggerSF_EL_Trigger_UP");
+		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_EL_Trigger_DOWN,      "weight_globalLeptonTriggerSF_EL_Trigger_DOWN");
+		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP,   "weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP");
+		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN, "weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN");
+		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP,   "weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP");
+		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN, "weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN");
+		    }
+		    
                     // write also out the individual components:
 
                     systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Trigger,         "weight_indiv_SF_EL_Trigger");
@@ -1296,6 +1324,9 @@ namespace top {
             if (m_config->usePhotons())
               m_weight_photonSF = m_sfRetriever->photonSF(event, top::topSFSyst::nominal);
 
+	    if(m_config->useGlobalTriggerConfiguration())
+	      m_weight_globalLeptonTriggerSF = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::nominal);
+
             for( auto& tagWP : m_config -> bTagWP_available()) {
 	      if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
               m_weight_bTagSF[tagWP] = m_sfRetriever->btagSF(event, top::topSFSyst::nominal, tagWP);
@@ -1353,8 +1384,16 @@ namespace top {
                 m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN = m_sfRetriever->leptonSF(event,top::topSFSyst::MU_SF_TTVA_STAT_DOWN);
                 m_weight_leptonSF_MU_SF_TTVA_SYST_UP   = m_sfRetriever->leptonSF(event,top::topSFSyst::MU_SF_TTVA_SYST_UP);
                 m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN = m_sfRetriever->leptonSF(event,top::topSFSyst::MU_SF_TTVA_SYST_DOWN);
-
-
+		// Special global lepton trigger SF systematics if requested
+		if(m_config->useGlobalTriggerConfiguration()){
+		  m_weight_globalLeptonTriggerSF_EL_Trigger_UP        = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::EL_SF_Trigger_UP);
+		  m_weight_globalLeptonTriggerSF_EL_Trigger_DOWN      = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::EL_SF_Trigger_DOWN);
+		  m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP   = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::MU_SF_Trigger_STAT_UP);
+		  m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::MU_SF_Trigger_STAT_DOWN);
+		  m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP   = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::MU_SF_Trigger_SYST_UP);
+		  m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::MU_SF_Trigger_SYST_DOWN);
+		}
+		
                 m_weight_indiv_SF_EL_Trigger      = m_sfRetriever -> triggerSF(event,top::topSFSyst::nominal);
                 m_weight_indiv_SF_EL_Trigger_UP   = m_sfRetriever -> triggerSF(event,top::topSFSyst::EL_SF_Trigger_UP);
                 m_weight_indiv_SF_EL_Trigger_DOWN = m_sfRetriever -> triggerSF(event,top::topSFSyst::EL_SF_Trigger_DOWN);

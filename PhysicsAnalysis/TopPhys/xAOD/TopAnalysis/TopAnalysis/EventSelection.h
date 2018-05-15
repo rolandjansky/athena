@@ -233,7 +233,9 @@ private:
     std::shared_ptr<TopConfig> m_config;
 
     ///Scale factors                                                                                                                                                 
-    std::unique_ptr<ScaleFactorRetriever> m_sfRetriever;
+    ScaleFactorRetriever* m_sfRetriever;
+    /// Function to setup the tool in one place
+    void initialiseTopScaleFactorRetriever(std::shared_ptr<TopConfig> config);
 
     // Nominal hash value
     std::size_t m_nominalHashValue;   

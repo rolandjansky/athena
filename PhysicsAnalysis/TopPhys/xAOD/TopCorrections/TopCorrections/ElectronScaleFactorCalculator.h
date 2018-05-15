@@ -29,7 +29,7 @@
 #include "PATInterfaces/SystematicSet.h"
 
 // CP Tool include(s):
-#include "ElectronEfficiencyCorrection/IAsgElectronEfficiencyCorrectionTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 #include "ElectronEfficiencyCorrection/ElectronChargeEfficiencyCorrectionTool.h"
 
 // Forward declaration(s):

@@ -29,7 +29,7 @@
 #include "PATInterfaces/SystematicSet.h"
 
 // CP Tool include(s):
-#include "PhotonEfficiencyCorrection/IAsgPhotonEfficiencyCorrectionTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 
 namespace top {
 // Forward declaration(s):

@@ -23,6 +23,7 @@
 
 // PMG Tools
 #include "PMGTools/PMGSherpa22VJetsWeightTool.h"
+#include "PMGAnalysisInterfaces/IPMGTruthWeightTool.h"
 
 namespace top {
 
@@ -43,6 +44,7 @@ class OtherCPTools final : public asg::AsgTool {
   ToolHandle<IGoodRunsListSelectionTool> m_grlTool;
   ToolHandle<CP::IPileupReweightingTool> m_pileupReweightingTool;
   ToolHandle<PMGTools::PMGSherpa22VJetsWeightTool> m_pmg_sherpa22_vjets_tool;
+  ToolHandle<PMGTools::IPMGTruthWeightTool> m_pmg_weightTool;
 
   StatusCode setupGRL();
   StatusCode setupPileupReweighting();

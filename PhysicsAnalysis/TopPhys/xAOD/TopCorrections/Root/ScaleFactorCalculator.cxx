@@ -25,7 +25,9 @@ ScaleFactorCalculator::ScaleFactorCalculator(const std::string& name) :
   m_jetSF(nullptr),
   m_btagSF(nullptr),
   m_pileupSF(nullptr),
-  m_sherpa_22_reweight_tool("PMGSherpa22VJetsWeightTool") {
+  m_sherpa_22_reweight_tool("PMGSherpa22VJetsWeightTool"),
+  m_globalLeptonTriggerSF(nullptr),
+  m_pmg_truth_weight_tool("PMGTruthWeightTool"){
   declareProperty("config", m_config);
 }
 
@@ -39,6 +41,7 @@ StatusCode ScaleFactorCalculator::initialize() {
   m_jetSF = std::make_unique<top::JetScaleFactorCalculator>("top::JetScaleFactorCalculator");
   m_btagSF = std::make_unique<top::BTagScaleFactorCalculator>("top::BTagScaleFactorCalculator");
   m_pileupSF = std::make_unique<top::PileupScaleFactorCalculator>("top::PileupScaleFactorCalculator");
+  m_globalLeptonTriggerSF = std::make_unique<top::GlobalLeptonTriggerCalculator>("top::GlobalLeptonTriggerCalculator");
 
   if (m_config->isMC()) {
     if (m_config->usePhotons()) {
@@ -74,6 +77,15 @@ StatusCode ScaleFactorCalculator::initialize() {
     if (m_config->isSherpa22Vjets())
       top::check(m_sherpa_22_reweight_tool.retrieve(),
                  "Failed to retrieve PMGSherpa22VJetsWeightTool");
+    
+    if ( (m_config->useElectrons() || m_config->useMuons()) && m_config->useGlobalTrigger() ){
+      top::check(m_globalLeptonTriggerSF->setProperty("config", m_config), "Failed to setProperty");
+      // m_globalLeptonTriggerSF->msg().setLevel(MSG::DEBUG); 
+      top::check(m_globalLeptonTriggerSF->initialize(), "Failed to initalize");
+    }
+    
+    top::check(m_pmg_truth_weight_tool.retrieve(), "Failed to retrieve PMGTruthWeightTool");
+
   }
 
   if (m_config->doPileupReweighting()) {
@@ -109,6 +121,9 @@ StatusCode ScaleFactorCalculator::execute() {
       double sherpa_weight = m_sherpa_22_reweight_tool->getWeight();
       eventInfo->auxdecor<double>("Sherpa22VJetsWeight") = sherpa_weight;
     }
+    if ( (m_config->useElectrons() || m_config->useMuons()) && m_config->useGlobalTrigger() ){
+      top::check(m_globalLeptonTriggerSF->execute(), "Failed to exectute global trigger SF");
+    }
   }
   return StatusCode::SUCCESS;
 }
@@ -139,16 +154,28 @@ float ScaleFactorCalculator::mcEventWeight() const {
   float sf(1.);
   if (!m_config->isMC()) {
     return sf;
+  } 
+
+  ///-- Start using the PMG tool to get the nominal event weights --///
+  const std::string nominal_weight_name = " nominal ";
+  ///-- Check whether this weight name does exist --///
+  if(m_pmg_truth_weight_tool->hasWeight(nominal_weight_name)){
+    sf = m_pmg_truth_weight_tool->getWeight( nominal_weight_name );
+  } 
+  ///-- If not, we can default to retrieving the nominal weight assuming it is in the 0th position --///
+  else {
+    const xAOD::EventInfo* eventInfo(nullptr);
+    top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()),
+	       "Failed to retrieve EventInfo");
+    const xAOD::TruthEventContainer* truthEventContainer(nullptr);
+    top::check( evtStore()->retrieve(truthEventContainer, m_config->sgKeyTruthEvent()) , "Failed to retrieve truth PDF info" );
+    
+    // Old method which was buggy due to issues in metadata
+    // sf = eventInfo->mcEventWeight();
+
+    // Temporary bug fix due to the above problem
+    sf = truthEventContainer->at(0)->weights()[0];
   }
-
-  const xAOD::EventInfo* eventInfo(nullptr);
-  top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()),
-             "Failed to retrieve EventInfo");
-  const xAOD::TruthEventContainer* truthEventContainer(nullptr);
-  top::check( evtStore()->retrieve(truthEventContainer, m_config->sgKeyTruthEvent()) , "Failed to retrieve truth PDF info" );
-
-//   sf = eventInfo->mcEventWeight();
-  sf = truthEventContainer->at(0)->weights()[0];// FIXME temporary bugfix
 
   return sf;
 }

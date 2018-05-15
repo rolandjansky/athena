@@ -12,18 +12,27 @@
 #include "TopEvent/EventTools.h"
 #include "TopConfiguration/TopConfig.h"
 #include "AthContainers/AuxElement.h"
+#include "xAODRootAccess/TStore.h"
+#include "xAODEventInfo/EventInfo.h"
 
 namespace top {
 
-  ScaleFactorRetriever::ScaleFactorRetriever(std::shared_ptr<top::TopConfig> config) :
-    m_config(config) {
-    std::shared_ptr<std::vector<std::string>> selectors = config ->  allSelectionNames();
+  ScaleFactorRetriever::ScaleFactorRetriever(const std::string& name):
+    asg::AsgTool(name),
+    m_config(nullptr) {
+    declareProperty("config", m_config);
+  }
+
+  StatusCode ScaleFactorRetriever::initialize() {
+    ATH_MSG_INFO("Initialising " << this->name());
+
+    std::shared_ptr<std::vector<std::string>> selectors = m_config ->  allSelectionNames();
 
     for (std::string selPtr : *selectors) {
-      std::vector<std::string> muonTrig_Tight     = config -> muonTriggers_Tight(selPtr);
-      std::vector<std::string> electronTrig_Tight = config -> electronTriggers_Tight(selPtr);
-      std::vector<std::string> muonTrig_Loose     = config -> muonTriggers_Loose(selPtr);
-      std::vector<std::string> electronTrig_Loose = config -> electronTriggers_Loose(selPtr);
+      std::vector<std::string> muonTrig_Tight     = m_config -> muonTriggers_Tight(selPtr);
+      std::vector<std::string> electronTrig_Tight = m_config -> electronTriggers_Tight(selPtr);
+      std::vector<std::string> muonTrig_Loose     = m_config -> muonTriggers_Loose(selPtr);
+      std::vector<std::string> electronTrig_Loose = m_config -> electronTriggers_Loose(selPtr);
 
       for (auto trig : muonTrig_Tight)
         m_muonTriggers_Tight.push_back(trig);
@@ -35,6 +44,8 @@ namespace top {
       for (auto trig : electronTrig_Loose)
         m_electronTriggers_Loose.push_back(trig);
     }
+
+    return StatusCode::SUCCESS;
   }
 
   // Pile up SF
@@ -60,6 +71,7 @@ namespace top {
     return sf;
   }
 
+  
   // Obtain the lepton SF
   float ScaleFactorRetriever::leptonSF(const top::Event& event, const top::topSFSyst SFSyst) const {
     return
@@ -67,6 +79,55 @@ namespace top {
       * muonSF(event, SFSyst, top::topSFComp::ALL)
       * triggerSF(event, SFSyst);
   }
+
+  float ScaleFactorRetriever::globalTriggerSF(const top::Event& event, const top::topSFSyst SFSyst) const {
+    // SF
+    float sf(1.0);
+    // We need to retrieve the systematic according to top::Event
+    std::string systematicName = m_config->systematicName(event.m_hashValue);
+    
+    // We need to check if this is a loose event
+    bool isLoose = event.m_isLoose;
+    std::string prefix = "AnalysisTop_Trigger_SF_";
+    if(isLoose) prefix += "Loose_";
+
+    if(systematicName != "nominal") prefix += systematicName;
+    
+    const xAOD::EventInfo* eventInfo = nullptr;
+    top::check( evtStore()->retrieve( eventInfo, m_config->sgKeyEventInfo() ), "Failed to retrieve EventInfo");
+
+    // Create a hard-coded map linking top::topSFSyst <-> EventInfo decoration
+    switch(SFSyst){
+    case top::topSFSyst::EL_SF_Trigger_UP:
+      sf = eventInfo->auxdecor<float>(prefix+"EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR__1up");
+      break;
+    case top::topSFSyst::EL_SF_Trigger_DOWN:
+      sf = eventInfo->auxdecor<float>(prefix+"EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR__1down");
+      break;
+    case top::topSFSyst::MU_SF_Trigger_STAT_UP:
+      sf = eventInfo->auxdecor<float>(prefix+"MUON_EFF_TrigStatUncertainty__1up");
+      break;
+    case top::topSFSyst::MU_SF_Trigger_STAT_DOWN:
+      sf = eventInfo->auxdecor<float>(prefix+"MUON_EFF_TrigStatUncertainty__1down");
+      break;
+    case top::topSFSyst::MU_SF_Trigger_SYST_UP:
+      sf = eventInfo->auxdecor<float>(prefix+"MUON_EFF_TrigSystUncertainty__1up");
+      break;
+    case top::topSFSyst::MU_SF_Trigger_SYST_DOWN:
+      sf = eventInfo->auxdecor<float>(prefix+"MUON_EFF_TrigSystUncertainty__1down");
+      break;
+    case top::topSFSyst::nominal:
+      // Nominal weight
+      sf = eventInfo->auxdecor<float>(prefix);
+      break;
+    default:
+      ATH_MSG_INFO("Failed to retrieve a weight");
+      break;
+    
+    }
+    return sf;
+  }
+
 
   float ScaleFactorRetriever::triggerSF(const top::Event& event,
                                         const top::topSFSyst SFSyst) const {
@@ -679,8 +740,7 @@ namespace top {
     }
 
     if (!(x.isAvailable<float>(decoration))) {
-      std::cout << "Muon is not decorated with requested "
-                << "TTVA SF. 1.0 will be returned." << std::endl;
+      ATH_MSG_INFO("Muon is not decorated with requested TTVA SF. 1.0 will be returned.");
       return 1.0;
     }
 
@@ -892,14 +952,14 @@ namespace top {
       break;
     case top::topSFSyst::BTAG_SF_NAMED_UP :
       if (uncert_name=="") {
-        std::cout << "Named b-tagging systematics should have a name. Please provide one." << std::endl;
+        ATH_MSG_INFO("Named b-tagging systematics should have a name. Please provide one.");
         return 0;
       }
       decoration = "btag_SF_"+WP+"_"+uncert_name+"__1up";
       break;
     case top::topSFSyst::BTAG_SF_NAMED_DOWN :
       if (uncert_name=="") {
-        std::cout << "Named b-tagging systematics should have a name. Please provide one." << std::endl;
+        ATH_MSG_INFO("Named b-tagging systematics should have a name. Please provide one.");
         return 0;
       }
       decoration = "btag_SF_"+WP+"_"+uncert_name+"__1down";
@@ -907,12 +967,11 @@ namespace top {
     case top::topSFSyst::BTAG_SF_EIGEN_B :
     case top::topSFSyst::BTAG_SF_EIGEN_C :
     case top::topSFSyst::BTAG_SF_EIGEN_LIGHT :
-      std::cout << "For Eigenvectors please use ScaleFactorRetriever::btagSF_eigen_vars" << std::endl;
+      ATH_MSG_INFO("For Eigenvectors please use ScaleFactorRetriever::btagSF_eigen_vars");
       return 0;
       break;
     default :
-      std::cout << "Not the right function: "
-                << __PRETTY_FUNCTION__ << std::endl;
+      ATH_MSG_INFO("Not the right function: " << __PRETTY_FUNCTION__ );
       return 0;
       break;
     }
@@ -962,8 +1021,7 @@ namespace top {
       flav = "Light_";
       break;
     default :
-      std::cout << "Not the right function: "
-                << __PRETTY_FUNCTION__ << std::endl;
+      ATH_MSG_INFO("Not the right function: " << __PRETTY_FUNCTION__ );
       return;
     }
     vec_btagSF_up.resize(n_eigen);
@@ -1009,11 +1067,11 @@ namespace top {
   * @brief Print all the SF values to cout
   */
   void ScaleFactorRetriever::print(const top::Event& event) {
-    std::cout << "ScaleFactors" << "\n";
-    std::cout << "    MCEventWeight      : " << event.m_info->mcEventWeight() << "\n";
-    std::cout << "    Pileup             : " << pileupSF(event) << "\n";
-    std::cout << "    LeptonEventWeight  : " << leptonSF(event, top::topSFSyst::nominal) << "\n";
-    std::cout << "    B-TagEventWeight   : " << btagSF(event, top::topSFSyst::nominal) << "\n";
+    ATH_MSG_INFO("ScaleFactors");
+    ATH_MSG_INFO("    MCEventWeight      : " << std::to_string( event.m_info->mcEventWeight() ) );
+    ATH_MSG_INFO("    Pileup             : " << std::to_string( pileupSF(event) ) );
+    ATH_MSG_INFO("    LeptonEventWeight  : " << std::to_string( leptonSF(event, top::topSFSyst::nominal) ) );
+    ATH_MSG_INFO("    B-TagEventWeight   : " << std::to_string( btagSF(event, top::topSFSyst::nominal) ) );
   }
 
 

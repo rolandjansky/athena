@@ -988,9 +988,15 @@ namespace top{
     if (settings->value( "KLFitterSaveAllPermutations" ) == "False")
         m_KLFitterSaveAllPermutations = false;
 
+    //--- Check for configuration on the global lepton triggers ---//
+    if (settings->value( "UseGlobalLeptonTriggerSF" ) == "True"){
+      m_trigGlobalConfiguration.isActivated = true;
+      m_trigGlobalConfiguration.electron_trigger       = settings->value( "ElectronTriggers" );
+      m_trigGlobalConfiguration.electron_trigger_loose = settings->value( "ElectronTriggersLoose" );
+      m_trigGlobalConfiguration.muon_trigger           = settings->value( "MuonTriggers" );
+      m_trigGlobalConfiguration.muon_trigger_loose     = settings->value( "MuonTriggersLoose" );
+    }
     
-
-
   }
 
   void TopConfig::setGrlDir( const std::string& s )
@@ -2637,7 +2643,15 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     return "ERROR";
   }
 
-
+  void TopConfig::setGlobalTriggerConfiguration(std::vector<std::string> electron_trigger_systematics, std::vector<std::string> muon_trigger_systematics, std::vector<std::string> electron_tool_names, std::vector<std::string> muon_tool_names){
+    m_trigGlobalConfiguration.electron_trigger_systematics = electron_trigger_systematics;
+    m_trigGlobalConfiguration.muon_trigger_systematics     = muon_trigger_systematics;
+    m_trigGlobalConfiguration.electron_trigger_tool_names  = electron_tool_names;
+    m_trigGlobalConfiguration.muon_trigger_tool_names      = muon_tool_names;
+    m_trigGlobalConfiguration.isConfigured                 = true;
+    return;
+  }
+  
 }
 
 std::ostream& operator<<(std::ostream& os, const top::TopConfig& config)
