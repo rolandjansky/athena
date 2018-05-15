@@ -35,41 +35,21 @@ namespace Trk{
  {
   
 //uploading the corresponding tools
+
 //updator 
-  if ( m_Updator.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_Updator << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_Updator << endmsg;
-  }
+  ATH_CHECK( m_Updator.retrieve() ); 
   
 //smoother
-  if(m_doSmoothing)
-  {
-    if ( m_Smoother.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_Smoother << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_Smoother << endmsg;
-    }
-  } else msg(MSG::DEBUG) << "Smoothing turned off" << endmsg;
+  ATH_CHECK( m_Smoother.retrieve( EnableTool {m_doSmoothing} ) );
 
 //Linearized Track Factory 
-  if ( m_LinTrkFactory.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_LinTrkFactory << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_LinTrkFactory << endmsg;
-  }
-  
-  msg(MSG::INFO)<<"Initialization successfull"<<endmsg;
+  ATH_CHECK( m_LinTrkFactory.retrieve() );
   return StatusCode::SUCCESS;
  }//end of initialize method
 
 
  StatusCode SequentialVertexFitter::finalize()
  {
-  msg(MSG::INFO)  << "Finalize successful" << endmsg;
   return StatusCode::SUCCESS;
  }
 
@@ -130,9 +110,9 @@ namespace Trk{
   xAOD::Vertex * SequentialVertexFitter::fit(const std::vector<const Trk::Track*>& vectorTrk,
                               const xAOD::Vertex& constraint) 
   {
-    if(vectorTrk.size() == 0)
+    if(vectorTrk.empty())
     {
-     msg(MSG::INFO)<<"Empty vector of tracks passed"<<endmsg;
+     ATH_MSG_INFO( "Empty vector of tracks passed" );
      return 0;
     }
    
@@ -148,7 +128,7 @@ namespace Trk{
       bool foundDuplicate(false);
       for (std::vector<const Trk::Track*>::const_iterator j = vectorTrk.begin(); j!= i; ++j) {
         if (*i == *j) {
-  	  ATH_MSG_WARNING("Duplicate track given as input to the fitter. Ignored.");
+  	  ATH_MSG_WARNING( "Duplicate track given as input to the fitter. Ignored." );
 	  foundDuplicate = true;
 	  break;
         }
@@ -161,7 +141,7 @@ namespace Trk{
         trkToFit.push_back(*i);
         measuredPerigees.push_back(tmpMeasPer);
       } else  {
-        msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endmsg; //TODO: Failed to implicit cast the perigee parameters to track parameters?
+        ATH_MSG_INFO( "Failed to dynamic_cast this track parameters to perigee" ); //TODO: Failed to implicit cast the perigee parameters to track parameters?
       }
     }
 
@@ -214,9 +194,9 @@ namespace Trk{
   xAOD::Vertex * SequentialVertexFitter::fit(const std::vector<const Trk::TrackParticleBase*>& vectorTrk,
                              const xAOD::Vertex& constraint) 
   {
-    if(vectorTrk.size() == 0)
+    if(vectorTrk.empty())
     {
-     msg(MSG::INFO)<<"Empty vector of tracks passed"<<endmsg;
+     ATH_MSG_INFO( "Empty vector of tracks passed" );
      return 0;
     }
 
@@ -232,7 +212,7 @@ namespace Trk{
       bool foundDuplicate(false);
       for (std::vector<const Trk::TrackParticleBase*>::const_iterator j = vectorTrk.begin(); j!= i; ++j) {
         if (*i == *j) {
-	  ATH_MSG_WARNING("Duplicate track given as input to the fitter. Ignored.");
+	  ATH_MSG_WARNING( "Duplicate track given as input to the fitter. Ignored." );
 	  foundDuplicate = true;
 	  break;
         }
@@ -245,7 +225,7 @@ namespace Trk{
         trkToFit.push_back(*i);
         measuredPerigees.push_back(tmpMeasPer);
       } else  {
-        msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endmsg; //TODO: Failed to implicit cast the perigee parameters to track parameters?
+        ATH_MSG_INFO( "Failed to dynamic_cast this track parameters to perigee" ); //TODO: Failed to implicit cast the perigee parameters to track parameters?
       }
     }
 
@@ -356,9 +336,9 @@ namespace Trk{
   {
 
     //security check
-    if( perigeeList.size() == 0 )
+    if(perigeeList.empty())
     {
-      msg() << "Empty vector of tracks passed, returning 0" << endmsg;
+      ATH_MSG_INFO( "Empty vector of tracks passed, returning 0" );
       return 0;
     }
 
@@ -397,7 +377,7 @@ namespace Trk{
     //   std::cout <<  "STARTING FIT" << std::endl;
 
     // creating an initial vertex to update
-    xAOD::Vertex* returnVertex = new xAOD::Vertex();
+    std::unique_ptr<xAOD::Vertex> returnVertex = std::make_unique<xAOD::Vertex>();	
     returnVertex->makePrivateStore(); // xAOD::VertexContainer will take ownership of AuxStore when returnVertex is added to it
     returnVertex->setPosition( priorVertexPosition );
     returnVertex->setCovariancePosition( priorErrorMatrix );
@@ -446,7 +426,7 @@ namespace Trk{
       }
 
       //optional relinearization
-      if(n_iter !=0 && returnVertex != 0) {
+      if(n_iter !=0) {
         //std::cout << " relinearization " << std::endl;
         reLinearizeTracks(tracks_to_fit, returnVertex->position());
       }
@@ -457,8 +437,12 @@ namespace Trk{
       int cnt = 0;
 
       for(std::vector<Trk::VxTrackAtVertex>::iterator i = tracksBegin; i != tracksEnd;++i)
-      {   
-        returnVertex = m_Updator->add(*returnVertex, *i);
+      {           
+        ////returnVertex.reset( m_Updator->add(*returnVertex, *i) );
+        xAOD::Vertex *new_vertex = m_Updator->add(*returnVertex, *i);
+        if (new_vertex != returnVertex.get()) {
+            returnVertex.reset( new_vertex );
+           }
         //std::cout << " Vertex after add of track: " << *returnVertex << std::endl; //TODO: operator << not defined for xAOD::Vertex
         //std::cout << " Adding track " << cnt << std::endl;
         ++cnt;
@@ -487,8 +471,12 @@ namespace Trk{
               ( ( (previousPosition - newPosition).perp() > m_maxShift && m_useLooseConvergence == true )
                 || ( m_useLooseConvergence == false && fabs((newChi2-previousChi2)*2./(newChi2+previousChi2+2.)) > m_maxDeltaChi2 ) ) );
 
-    if (n_iter==m_maxStep) msg(MSG::DEBUG) << " Fit didn't converge after " << m_maxStep << " steps. Deltachi2: " <<
-                                           fabs((newChi2-previousChi2)*2./(newChi2+previousChi2+2.)) << " DeltaR " << (previousPosition - newPosition).perp() << endmsg;
+    if (n_iter==m_maxStep) 
+    {    
+      ATH_MSG_DEBUG( " Fit didn't converge after " << m_maxStep );
+      ATH_MSG_DEBUG( " steps. Deltachi2: " << fabs((newChi2-previousChi2)*2./(newChi2+previousChi2+2.)) ); 	         
+      ATH_MSG_DEBUG( " DeltaR "  << (previousPosition - newPosition).perp() ); 
+    }
 
     /*
     if (n_iter!=m_maxStep)
@@ -516,9 +504,8 @@ namespace Trk{
     //FIT FAILED
     if (n_iter==m_maxStep)
     {
-      msg(MSG::DEBUG) << " Fit failed. " << endmsg;
-      delete returnVertex;
-      returnVertex=0;
+      ATH_MSG_DEBUG( " Fit failed. " );
+      returnVertex.reset();
       return 0;
     }
 
@@ -527,7 +514,7 @@ namespace Trk{
     {
       if(m_doSmoothing)m_Smoother->smooth(*returnVertex);
       //std::cout << " after smoothing: " << *returnVertex << std::endl; //TODO: operator << not defined for xAOD::Vertex
-    } else msg(MSG::INFO)<<"Sequential vertex fit fails:: zero pointer returned"<<endmsg;
+    } else ATH_MSG_INFO( "Sequential vertex fit fails:: zero pointer returned" );
 
     //here the vertex is returned. It is foreseen that a vertex is _always_
     //returned (initial guess in worst case) unless there is a runtime crash
@@ -553,7 +540,7 @@ namespace Trk{
     }
     */
 
-    return returnVertex;
+    return returnVertex.release();
 
   }//end of the actual fit method
  
@@ -587,7 +574,7 @@ namespace Trk{
         // Added the following line during EDM Migration
         delete vTrack; //TODO: is this ok? 
       } else {
-        msg(MSG::WARNING) << "Cannot linearize tracks; treatment of neutrals not yet supported" << endmsg;
+        ATH_MSG_WARNING( "Cannot linearize tracks; treatment of neutrals not yet supported" );
       }
     }//end of loop over all the perigee states
 
@@ -613,7 +600,7 @@ namespace Trk{
         // Added the following line during EDM Migration
         delete vTrack; //TODO: is this ok?
       } else {
-        msg(MSG::WARNING) << "Cannot linearize tracks; treatment of neutrals not yet supported" << endmsg;
+        ATH_MSG_WARNING( "Cannot linearize tracks; treatment of neutrals not yet supported" );
       }
     }//end of loop over all the neutral perigee states
 
@@ -627,7 +614,7 @@ namespace Trk{
    Amg::Vector3D linVertexPos = vrt;
    if ( linVertexPos.perp() > m_maxR || fabs(linVertexPos.z()) > m_maxZ )
    {
-     msg(MSG::DEBUG) << " Linearization position outside ID. Setting back to (0,0,0) " << endmsg;
+     ATH_MSG_DEBUG( " Linearization position outside ID. Setting back to (0,0,0) " );
      linVertexPos.x()=0;
      linVertexPos.y()=0;
      linVertexPos.z()=0;
@@ -658,15 +645,15 @@ namespace Trk{
  xAOD::Vertex * SequentialVertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, const std::vector<const xAOD::NeutralParticle*>& vectorNeut, const xAOD::Vertex& constraint)
  {
 
-   if(vectorTrk.size() == 0)
+   if(vectorTrk.empty())
    {
-     msg(MSG::INFO)<<"Empty vector of tracks passed"<<endmsg;
+     ATH_MSG_INFO( "Empty vector of tracks passed" );
      return 0;
    }
 
-   if(vectorNeut.size() == 0)
+   if(vectorNeut.empty())
    {
-     msg(MSG::INFO)<<"Empty vector of neutrals passed"<<endmsg;
+     ATH_MSG_INFO( "Empty vector of neutrals passed" );
    }
    
    //making a list of perigee out of the vector of tracks
@@ -682,7 +669,7 @@ namespace Trk{
      bool foundDuplicate(false);
      for (std::vector<const xAOD::TrackParticle*>::const_iterator j = vectorTrk.begin(); j!= i; ++j) {
        if (*i == *j) {
-	 ATH_MSG_WARNING("Duplicate track given as input to the fitter. Ignored.");
+	 ATH_MSG_WARNING( "Duplicate track given as input to the fitter. Ignored." );
 	 foundDuplicate = true;
 	 break;
        }
@@ -695,7 +682,7 @@ namespace Trk{
        trkToFit.push_back(*i);
        measuredPerigees.push_back(tmpMeasPer);
      } else {
-       msg(MSG::INFO)<<"Failed to dynamic_cast this track parameters to perigee"<<endmsg; //TODO: Failed to implicit cast the perigee parameters to track parameters?
+       ATH_MSG_INFO( "Failed to dynamic_cast this track parameters to perigee" ); //TODO: Failed to implicit cast the perigee parameters to track parameters?
      }
    }
 
@@ -708,7 +695,7 @@ namespace Trk{
      bool foundDuplicate(false);
      for (std::vector<const xAOD::NeutralParticle*>::const_iterator j = vectorNeut.begin(); j!= i; ++j) {
        if (*i == *j) {
-	 ATH_MSG_WARNING("Duplicate neutral given as input to the fitter. Ignored.");
+	 ATH_MSG_WARNING( "Duplicate neutral given as input to the fitter. Ignored." );
 	 foundDuplicate = true;
 	 break;
        }
@@ -721,7 +708,7 @@ namespace Trk{
        neutToFit.push_back(*i);
        measuredNeutralPerigees.push_back(tmpMeasPer);
      } else {
-       msg(MSG::INFO)<<"Failed to dynamic_cast this neutral parameters to perigee"<<endmsg; //TODO: Failed to implicit cast the perigee parameters to neutral parameters?
+       ATH_MSG_INFO( "Failed to dynamic_cast this neutral parameters to perigee" ); //TODO: Failed to implicit cast the perigee parameters to neutral parameters?
      }
    }
 
@@ -745,10 +732,10 @@ namespace Trk{
            {
              if( ! linkTT->toIndexedElement( *cont, trkToFit[ i ]->index() ) )
       	     {
-	       msg(MSG::WARNING)<<"Failed to set the EL for this particle correctly"<<endmsg;
+	       ATH_MSG_WARNING( "Failed to set the EL for this particle correctly" );
 	     }
            } else{
-             msg(MSG::WARNING)<<"Failed to identify a  container for this TP"<<endmsg;
+             ATH_MSG_WARNING( "Failed to identify a  container for this TP" );
            }//end of the dynamic cast check 
 
 
@@ -764,10 +751,10 @@ namespace Trk{
            {
              if( ! linkTT->toIndexedElement( *cont, neutToFit[ i ]->index() ) )
              {
-               msg(MSG::WARNING)<<"Failed to set the EL for this particle correctly"<<endmsg;
+               ATH_MSG_WARNING( "Failed to set the EL for this particle correctly" );
              }
            } else{
-             msg(MSG::WARNING)<<"Failed to identify a  container for this NP"<<endmsg;
+             ATH_MSG_WARNING( "Failed to identify a  container for this NP" );
            }//end of the dynamic cast check 
 
            // vxtrackatvertex takes ownership!
@@ -786,7 +773,7 @@ namespace Trk{
      Trk::VxTrackAtVertex* VTAV = &( fittedVertex->vxTrackAtVertex().at(i) );
      //TODO: Will this pointer really hold 0 if no VxTrackAtVertex is found?
      if (not VTAV){
-       ATH_MSG_WARNING (" Trying to set link to xAOD::TrackParticle. The VxTrackAtVertex is not found");
+       ATH_MSG_WARNING( "Trying to set link to xAOD::TrackParticle. The VxTrackAtVertex is not found" );
        continue;
      }
 
@@ -805,7 +792,7 @@ namespace Trk{
        // See if the trklink is to an xAOD::NeutralParticle
        Trk::LinkToXAODNeutralParticle* linkToXAODTPneutral = dynamic_cast<Trk::LinkToXAODNeutralParticle*>(trklink);
        if (!linkToXAODTPneutral) {
-         ATH_MSG_WARNING ("Skipping track. Trying to set link to something else than xAOD::TrackParticle or xAOD::NeutralParticle.");
+         ATH_MSG_WARNING( "Skipping track. Trying to set link to something else than xAOD::TrackParticle or xAOD::NeutralParticle." );
        } else {
          //Now set the new link to the new xAOD vertex
          fittedVertex->addNeutralAtVertex(*linkToXAODTPneutral, VTAV->weight());
