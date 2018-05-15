@@ -80,8 +80,8 @@ ISF::FastCaloSimSvcPU::FastCaloSimSvcPU(const std::string& name,ISvcLocator* svc
   declareProperty("BatchProcessMcTruth",m_batchProcessMcTruth=false,"Run the FastShowerCellBuilders on the McTruth at the end of the event" );
   
   //declareProperty("PUWeights", m_puEnergyWeights,"Weights for energy weighting for Out-of-time PU");
-  
-  declareProperty("PUWeights_lar_bapre",  m_puEnergyWeights_lar_bapre,"Weights for energy weighting for Out-of-time PU: LAr Barrel Presample");
+  declareProperty("PUmu_multipliers",     m_puMu_multipliers,          "Mu multipliers for Out-of-time PU: particle generation");
+  declareProperty("PUWeights_lar_bapre",  m_puEnergyWeights_lar_bapre, "Weights for energy weighting for Out-of-time PU: LAr Barrel Presample");
   declareProperty("PUWeights_lar_hec",    m_puEnergyWeights_lar_hec,   "Weights for energy weighting for Out-of-time PU: LAr HEC");
   declareProperty("PUWeights_lar_em",     m_puEnergyWeights_lar_em,    "Weights for energy weighting for Out-of-time PU: LAr EM");
   declareProperty("PUWeights_tile",       m_puEnergyWeights_tile,      "Weights for energy weighting for Out-of-time PU: Tile");
