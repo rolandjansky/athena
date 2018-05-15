@@ -168,6 +168,33 @@ namespace PseudoJetCreatorFunctions{
   std::vector<PseudoJet> 
   IParticlesToPseudoJets(const xAOD::IParticleContainer* ips,
                          // std::unique_ptr<IRejecter> rejecter,
+                         Rejecter&& rejecter,
+                         std::unique_ptr<IMomentumGetter> momentumGetter
+                         ){ 
+    std::vector<PseudoJet> vpj;
+    int index = -1;
+
+      
+    // loop over the input iparticles, select and  convert to pseudojets
+    for(const xAOD::IParticle* ip: *ips) {
+      if((*rejecter)(ip)){continue;}
+      
+      // Create a Pseudojet with the momentum of the selected IParticles.
+      fastjet::PseudoJet psj((*momentumGetter)(ip));
+
+      // user index is used to identify the xAOD object used for the PseudoJet
+      psj.set_user_index(++index); 
+      vpj.push_back(psj);
+      
+    }
+    return vpj;
+  }
+
+#if 0
+  template<typename Rejecter>
+  std::vector<PseudoJet> 
+  IParticlesToPseudoJets(const xAOD::IParticleContainer* ips,
+                         // std::unique_ptr<IRejecter> rejecter,
                          const Rejecter& rejecter,
                          std::unique_ptr<IMomentumGetter> momentumGetter
                          ){ 
@@ -189,6 +216,7 @@ namespace PseudoJetCreatorFunctions{
     }
     return vpj;
   }
+#endif
   
   ////////////////////////////////////////////
 
@@ -211,7 +239,7 @@ namespace PseudoJetCreatorFunctions{
   std::vector<PseudoJet> 
   createPseudoJets(const xAOD::IParticleContainer* ips,
                    xAOD::JetInput::Type iptype,
-                   const ToolHandle<IIParticleRejectionTool>& rejecter){
+                   ToolHandle<IIParticleRejectionTool>& rejecter){
 
     
     auto momentumGetter = make_momentumGetter(iptype);
