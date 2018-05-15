@@ -102,10 +102,10 @@ namespace Trk
      void			addPerigeeMeasurement (void);
      // fix for momentum singularity
      void			avoidMomentumSingularity (void);  // using Eigen    
-     void			avoidMomentumSingularity***REMOVED*** (void); // using alignment matrix pkg ***REMOVED***     
+     void			avoidMomentumSingularityAlSpaMat (void); // using alignment matrix pkg     
      // implementation of matrix equation solution
      bool			solveEquationsEigen (void);	// using Eigen
-     bool			solveEquations***REMOVED*** (void);	// using alignment matrix pkg ***REMOVED***
+     bool			solveEquationsAlSpaMat (void);	// using alignment matrix pkg
     
      int		       		m_columnsDM;
      bool				m_constrainedAlignmentEffects;
@@ -128,9 +128,9 @@ namespace Trk
      int				m_rowsDM;
      bool       			m_usePerigee;
      Amg::MatrixX*			m_weight;
-     AlSpaMat*				m_weight***REMOVED***;
+     AlSpaMat*				m_weightAlSpaMat;
      Amg::VectorX*			m_weightedDifference;
-     AlVec*	       			m_weightedDifference***REMOVED***;
+     AlVec*	       			m_weightedDifferenceAlSpaMat;
      
 };   
 
