@@ -180,10 +180,6 @@ StatusCode PixelMainMon::fillTrackMon(void) {
 
       if (!m_idHelper->is_pixel(surfaceID)) continue;
       int pixlayer = getPixLayerID(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_doIBL);
-      int pixlayeribl2d3d = pixlayer;
-      if (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL) {
-        pixlayeribl2d3d = getPixLayerIDIBL2D3D(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_pixelid->eta_module(surfaceID), m_doIBL);
-      }
       if (pixlayer == 99) continue;
 
       float nOutlier = 0.;
@@ -290,14 +286,14 @@ StatusCode PixelMainMon::fillTrackMon(void) {
 
 StatusCode PixelMainMon::procTrackMon(void) {
   if (m_doOnline) {
-    unsigned int lastlb = m_manager->lumiBlockNumber()-1; //remove -1 for testing
+    int lastlb = m_manager->lumiBlockNumber()-1; //remove -1 for testing
     double cont(0.0);
     int entr(0), entries(0);
     for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
       if (m_hiteff_incl_mod[i] && m_hiteff_lastXlb_mod[i]) {
-	unsigned int bing = m_hiteff_incl_mod[i]->GetXaxis()->FindBin(lastlb);
+	int bing = m_hiteff_incl_mod[i]->GetXaxis()->FindBin(lastlb);
 
-	unsigned int nXbins = m_hiteff_lastXlb_mod[i]->GetNbinsX();
+	int nXbins = m_hiteff_lastXlb_mod[i]->GetNbinsX();
 	m_hiteff_lastXlb_mod[i]->GetXaxis()->Set(nXbins, lastlb-nXbins+0.5, lastlb+0.5);
 	m_hiteff_lastXlb_mod[i]->Reset();
 
@@ -321,16 +317,16 @@ StatusCode PixelMainMon::procTrackMon(void) {
       }
     }
     if (m_npixhits_per_track_lumi && m_npixhits_per_track_lastXlb) {
-      unsigned int bingx = m_npixhits_per_track_lumi->GetXaxis()->FindBin(lastlb);
-      unsigned int nbingy = m_npixhits_per_track_lumi->GetNbinsY();
+      int bingx = m_npixhits_per_track_lumi->GetXaxis()->FindBin(lastlb);
+      int nbingy = m_npixhits_per_track_lumi->GetNbinsY();
 
-      unsigned int nXbins = m_npixhits_per_track_lastXlb->GetNbinsX();
+      int nXbins = m_npixhits_per_track_lastXlb->GetNbinsX();
       m_npixhits_per_track_lastXlb->GetXaxis()->Set(nXbins, lastlb-nXbins+0.5, lastlb+0.5);
       m_npixhits_per_track_lastXlb->Reset();
 
       for (int binfx=m_npixhits_per_track_lastXlb->GetNbinsX(); binfx>0; binfx--) {
 	if (bingx>0) {
-	  for (unsigned int bingy = 1; bingy <= nbingy; bingy++) {
+	  for (int bingy = 1; bingy <= nbingy; bingy++) {
 	    cont = m_npixhits_per_track_lumi->GetBinContent(bingx, bingy);
 	    if (cont!=0) {
 	      m_npixhits_per_track_lastXlb->SetBinContent(binfx, bingy, cont);

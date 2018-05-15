@@ -123,7 +123,7 @@ void AFP_Raw2DigiTool::newXAODHitToF (xAOD::AFPToFHitContainer* tofHitContainer,
   xAODToFHit->setHptdcChannel(data.channel());
 
   // set station ID
-  if (robID == AFP_ROBID::sideC)
+  if (robID == AFP_ROBID::sideC) // no AFP_ROBID::sideC_2016 because there was no ToF in 2016
     xAODToFHit->setStationID(xAOD::AFPStationID::farC);
   else if (robID == AFP_ROBID::sideA)
     xAODToFHit->setStationID(xAOD::AFPStationID::farA);
@@ -154,7 +154,7 @@ void AFP_Raw2DigiTool::newXAODHitSi (xAOD::AFPSiHitContainer* siHitContainer, co
     // set near station ID selecting side based on ROB
     if (robID == AFP_ROBID::sideA)
       xAODSiHit->setStationID(xAOD::AFPStationID::nearA);
-    else if (robID == AFP_ROBID::sideC)
+    else if (robID == AFP_ROBID::sideC || robID == AFP_ROBID::sideC_2016)
       xAODSiHit->setStationID(xAOD::AFPStationID::nearC);
     else  {
       ATH_MSG_WARNING("Unrecognised robID: in dec="<<std::dec<<robID<<",  in hex=0x"<<std::hex<<robID<<std::dec);
@@ -164,7 +164,7 @@ void AFP_Raw2DigiTool::newXAODHitSi (xAOD::AFPSiHitContainer* siHitContainer, co
     // set far station ID selecting side based on ROB
     if (robID == AFP_ROBID::sideA)
       xAODSiHit->setStationID(xAOD::AFPStationID::farA);
-    else if (robID == AFP_ROBID::sideC)
+    else if (robID == AFP_ROBID::sideC || robID == AFP_ROBID::sideC_2016)
       xAODSiHit->setStationID(xAOD::AFPStationID::farC);
     else  {
       ATH_MSG_WARNING("Unrecognised robID: in dec="<<std::dec<<robID<<",  in hex=0x"<<std::hex<<robID<<std::dec);

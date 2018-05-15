@@ -31,12 +31,11 @@ void basic_print_id (const LArFCAL_Base_ID& idhelper, const Identifier& id)
 }
 
 
-class LArFCAL_ID_Test
-  : public LArFCAL_Base_ID
+class ILArFCAL_ID_Test
 {
 public:
-  using LArFCAL_Base_ID::lar_field_value;
-  using LArFCAL_Base_ID::lar_fcal_field_value;
+  virtual int get_lar_field_value() const = 0;
+  virtual int get_lar_fcal_field_value() const = 0;
 };
 
 
@@ -135,9 +134,9 @@ test_connected (const LArFCAL_Base_ID& fcal_id, bool supercell = false)
     counts.count (mod);
 
     ExpandedIdentifier exp_id;
-    LArFCAL_ID_Test* fcal_id_test = (LArFCAL_ID_Test*)&fcal_id;
-    exp_id << fcal_id_test->lar_field_value()
-      	   << fcal_id_test->lar_fcal_field_value()
+    const ILArFCAL_ID_Test& fcal_id_test = dynamic_cast<const ILArFCAL_ID_Test&>(fcal_id);
+    exp_id << fcal_id_test.get_lar_field_value()
+      	   << fcal_id_test.get_lar_fcal_field_value()
 	   << fcal_id.pos_neg(ch_id)
 	   << fcal_id.module(ch_id)
            << fcal_id.eta(ch_id)
@@ -196,9 +195,9 @@ test_connected (const LArFCAL_Base_ID& fcal_id, bool supercell = false)
     hashvec[modHash] = true;
 
     ExpandedIdentifier exp_id;
-    LArFCAL_ID_Test* fcal_id_test = (LArFCAL_ID_Test*)&fcal_id;
-    exp_id << fcal_id_test->lar_field_value()
-      	   << fcal_id_test->lar_fcal_field_value()
+    const ILArFCAL_ID_Test& fcal_id_test = dynamic_cast<const ILArFCAL_ID_Test&>(fcal_id);
+    exp_id << fcal_id_test.get_lar_field_value()
+      	   << fcal_id_test.get_lar_fcal_field_value()
 	   << fcal_id.pos_neg(mod_id)
 	   << fcal_id.module(mod_id);
     assert (fcal_id.module_id (exp_id) == mod_id);

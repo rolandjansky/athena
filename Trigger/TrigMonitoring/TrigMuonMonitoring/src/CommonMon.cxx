@@ -1417,8 +1417,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	vs_ESstd.push_back("HLT_noalg_L1MU10"); 
 	//vs_ESstd.push_back("HLT_noalg_L1MU11"); 
       }else{
-	vs_ESstd.push_back("HLT_mu18"); // for release
-	vs_ESstd.push_back("HLT_mu24_imedium"); // increasing stat for muZTP, which requests now ES bits
+	vs_ESstd.push_back("HLT_mu26_ivarmedium"); // increasing stat for muZTP, which requests now ES bits
       }
       // vs_ESstd.push_back("HLT_mu18i4_tight"); // for test
       // vs_ESstd.push_back("HLT_mu22_medium"); // for test

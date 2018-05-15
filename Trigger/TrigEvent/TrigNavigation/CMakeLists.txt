@@ -9,6 +9,7 @@ atlas_subdir( TrigNavigation )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
+   Control/CxxUtils
    Control/AthContainers
    Control/AthLinks
    Control/AthToolSupport/AsgTools
