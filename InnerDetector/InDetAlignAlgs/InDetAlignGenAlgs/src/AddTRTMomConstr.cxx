@@ -27,6 +27,7 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "IdDictDetDescr/IdDictManager.h"
 #include "AthContainers/ConstDataVector.h"
+#include <cmath>
 
 
 
@@ -82,66 +83,13 @@ AddTRTMomConstr::~AddTRTMomConstr() {}
 
 StatusCode AddTRTMomConstr::initialize() {
   //retrieve the DetectorStore service
-  StatusCode status=detStore().retrieve() ;
-  if( status.isFailure() ) {
-    msg(MSG::ERROR) << "DetectorStore service not found !" << endmsg;
-    return status;
-  }else{ 
-    ATH_MSG_DEBUG( "DetectorStore retrieved!" );
-  }
-
-  if( detStore()->retrieve(m_trtid).isFailure() ) {
-    msg (MSG::FATAL) << "Problem retrieving TRTID helper" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-
-//   m_idHelper = new AtlasDetectorID ;
-
-//   // Get the dictionary manager from the detector store
-//   const IdDictManager*  idDictMgr = 0;
-//   status = detStore()->retrieve(idDictMgr, "IdDict");
-//   if( status.isFailure() ) {
-//     msg(MSG::ERROR) << "Could not get IdDictManager !" << endmsg;
-//     return status;
-//   }
-
-//   // Initialize the helper with the dictionary information.
-//   if (idDictMgr) {
-//     if (idDictMgr->initializeHelper(*m_idHelper)) { // Returns 1 if there is a problem
-//       msg(MSG::ERROR) << "Unable to initialize ID helper." << endmsg;
-//       return StatusCode::FAILURE;
-//     }
-//   } else {
-//     msg(MSG::ERROR) << "IdDictManager pointer is zero. "
-//           << "Unable to initialize id helper. " << endmsg;
-//     return StatusCode::FAILURE;
-//   }
-
-
-
+  ATH_CHECK(detStore().retrieve()) ;
+  ATH_CHECK(detStore()->retrieve(m_trtid));
+  ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
   // get TrackSummaryTool
-  StatusCode sc= m_trackSummaryTool.retrieve();
-  if (sc.isFailure()) {
-    msg (MSG::FATAL) << "Cannot get TrackSummaryTool" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK(m_trackSummaryTool.retrieve());
   // Set up fitter
-  status = m_trackFitter.retrieve();
-  if (status.isFailure()) {
-    msg (MSG::FATAL) << "Could not find tool " << m_trackFitter
-          << ". Exiting." << endmsg ;
-    return status ;
-  } else {
-    ATH_MSG_DEBUG( " Got " << m_trackFitter << " as TrackFitter. " ) ;
-  }
-
+  ATH_CHECK(m_trackFitter.retrieve());
   // Print input properties
   if( m_applyTrkSel ) {
     ATH_MSG_DEBUG(
@@ -169,16 +117,10 @@ StatusCode AddTRTMomConstr::finalize() {
 StatusCode AddTRTMomConstr::execute() {
   if( !m_trackListOutput.empty() && !m_trackListInput.empty() ) {
     const TrackCollection* inputtracks ;
-    if( (sgSvc()->retrieve( inputtracks, m_trackListInput) ).isFailure() ) {
-      msg (MSG::FATAL) << "could not find input track list with name " << m_trackListInput << endmsg ;
-      return StatusCode::FAILURE ;
-    }
+    ATH_CHECK(sgSvc()->retrieve( inputtracks, m_trackListInput) );
     auto outputtracks = std::make_unique<ConstDataVector<TrackCollection> >( SG::VIEW_ELEMENTS ) ;
-
-    TrackCollection::const_iterator it  = inputtracks->begin() ;
-    TrackCollection::const_iterator itE = inputtracks->end() ;
-    for( ; it != itE ; ++it ) {
-      const Trk::Track *track = (*it) ;
+    for (const auto & it : *inputtracks){
+      auto track=it;
       if( m_applyTrkSel && !accept( *track ) ) {
         ATH_MSG_DEBUG( "kinematic requirements not passed, skip track") ;
         continue ;
@@ -198,7 +140,7 @@ StatusCode AddTRTMomConstr::execute() {
     m_nTracksAccepted += outputtracks->size() ;
 
     if( sgSvc()->record( std::move(outputtracks), m_trackListOutput ).isFailure() ) {
-      msg(MSG::ERROR) << "Failed to record trackcollection with name " << m_trackListOutput << endmsg ;
+      ATH_MSG_ERROR( "Failed to record trackcollection with name " << m_trackListOutput );
     }
   }
   return StatusCode::SUCCESS;
@@ -219,24 +161,23 @@ bool AddTRTMomConstr::accept( const Trk::Track& track ) {
   float theta = mesp->parameters()[Trk::theta] ;
   float pt = 0. ;
   if( theta != 0 ){
-    float ptInv = fabs( mesp->parameters()[Trk::qOverP] ) / sin( theta ) ;
+    float ptInv = std::fabs( mesp->parameters()[Trk::qOverP] ) / std::sin( theta ) ;
     if( ptInv != 0 ) {
-      pt = 1/ptInv ;
+      pt = 1./ptInv ;
       if( m_selPtMin > 0 && pt < m_selPtMin ) rc = false ;
     }
   } else {
-    msg (MSG::WARNING) << "theta = 0, q/p conversion to p_T failed!" << endmsg ;
+    ATH_MSG_WARNING( "theta = 0, q/p conversion to p_T failed!" );
     return false ;
   }
 
-  float eta = -log( tan( theta/2 ) ) ;
+  float eta = -std::log( std::tan( theta/2. ) ) ;
   if( m_selEtaMin < m_selEtaMax && (eta < m_selEtaMin || eta > m_selEtaMax ) ) {
     rc = false ;
   }
 
   float chisqpdof = track.fitQuality()->chiSquared() / track.fitQuality()->numberDoF() ;
   if( m_selChiSqPerDOFMin > 0 && chisqpdof > m_selChiSqPerDOFMin ) rc = false ;
-
   const Trk::TrackSummary* summary = m_trackSummaryTool->createSummary( *pTrack ) ;
   if( summary->get(Trk::numberOfPixelHits) < m_selNHitPIXMin ) {
     ++m_nRejectPIX ;
@@ -247,7 +188,7 @@ bool AddTRTMomConstr::accept( const Trk::Track& track ) {
     rc = false ;
   }
   // different treatment for TRT in transition region
-  bool isInTransitionRegion = fabs(eta) > m_selEtaCrackMin && fabs(eta) < m_selEtaCrackMax ;
+  bool isInTransitionRegion = std::fabs(eta) > m_selEtaCrackMin && std::fabs(eta) < m_selEtaCrackMax ;
   if( isInTransitionRegion ) {
     if( int(summary->get(Trk::numberOfTRTHits)) < m_selNHitTRTMinCrack ) {
       ++m_nRejectTRT ;
@@ -271,6 +212,7 @@ bool AddTRTMomConstr::accept( const Trk::Track& track ) {
         << "\n\t nTRT   = " << summary->get(Trk::numberOfTRTHits)
                ) ;
   ATH_MSG_DEBUG( "leaving accept(.)" ) ;
+  delete summary;
   return rc ;
 } // accept(.)
 
@@ -287,7 +229,7 @@ const Trk::TrackStateOnSurface* AddTRTMomConstr::findouterscthit( const Trk::Tra
       if(sctclus) {
         ATH_MSG_VERBOSE ( "Found SCT_ClusterOnTrack");
         const Amg::Vector3D& pos = sctclus->globalPosition() ;
-        double r = sqrt(pos.x()*pos.x() + pos.y()*pos.y()) ;
+        double r = std::sqrt(pos.x()*pos.x() + pos.y()*pos.y()) ;
         if(rc==0 || r>rmax) {
           rc = tsos ;
           rmax = r ;
@@ -302,7 +244,7 @@ const Trk::TrackStateOnSurface* AddTRTMomConstr::findouterscthit( const Trk::Tra
 const Trk::TrackStateOnSurface* AddTRTMomConstr::findinnertrthit( const Trk::Track* track ) {
   ATH_MSG_VERBOSE ( "Inside findinnerscthit: " << track->trackStateOnSurfaces()->size() );
   double rmin=9999999. ;
-  const Trk::TrackStateOnSurface* rc=0 ;
+  const Trk::TrackStateOnSurface* rc=nullptr ;
   for (const Trk::TrackStateOnSurface* tsos : *track->trackStateOnSurfaces()) {
     if( !tsos->type(Trk::TrackStateOnSurface::Outlier) && 
          tsos->measurementOnTrack() &&
@@ -330,7 +272,7 @@ const Trk::PseudoMeasurementOnTrack* AddTRTMomConstr::createPMfromSi ( const Trk
   std::vector<Trk::DefinedParameter> defPar ;
   defPar.push_back( z0    ) ;
   defPar.push_back( theta ) ;
-  if( !mp->covariance() )  return 0;
+  if( !mp->covariance() )  return nullptr;
   Trk::LocalParameters  parFromSi( defPar ) ;
   AmgSymMatrix(2) covFromSi;
   
@@ -351,7 +293,7 @@ const Trk::PseudoMeasurementOnTrack* AddTRTMomConstr::createPMfromSi ( const Trk
 const Trk::PseudoMeasurementOnTrack* AddTRTMomConstr::createPMfromTRT( const Trk::Perigee* mpSi
                                                                      , const Trk::Perigee* mpTRT ) {
   
-  if( !mpSi->covariance() || !mpTRT->covariance() )  return 0;
+  if( !mpSi->covariance() || !mpTRT->covariance() )  return nullptr;
   
   // since z0, theta not measured by TRT, take back initial Si values with blown up errors.
   Trk::DefinedParameter z0TRT    ( mpSi->parameters()[Trk::z0],                 Trk::z0     ) ; //!< from Si
@@ -401,22 +343,15 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
   Trk::MeasurementSet setSi ;
   Trk::MeasurementSet setTRT ;
   //store all silicon measurements into the measurementset
-  DataVector<const Trk::MeasurementBase>::const_iterator it      = track->measurementsOnTrack()->begin();
-  DataVector<const Trk::MeasurementBase>::const_iterator itEnd   = track->measurementsOnTrack()->end(); 
-  for ( ; it!=itEnd; ++it){ 
-    if( !(*it) ) {
-      //      log (MSG::WARNING) << "The MeasurementBase set has a void"
-      //    << "  member! Skip it.." << endmsg;
-    } else {
-      const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>(*it);
-      if (rio != 0) {
-        const Identifier& surfaceID = (rio->identify()) ;
-        if( m_idHelper->is_sct(surfaceID) || m_idHelper->is_pixel(surfaceID) ) {
-          setSi.push_back ( *it ) ;
-        }
-        if( m_idHelper->is_trt(surfaceID) ) {
-          setTRT.push_back ( *it ) ;
-        }
+  for (const auto & it:*(track->measurementsOnTrack())){
+    const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>(it);
+    if (rio) {
+      const Identifier& surfaceID = (rio->identify()) ;
+      if( m_idHelper->is_sct(surfaceID) || m_idHelper->is_pixel(surfaceID) ) {
+        setSi.push_back ( it ) ;
+      }
+      if( m_idHelper->is_trt(surfaceID) ) {
+        setTRT.push_back ( it ) ;
       }
     }
   }
@@ -425,7 +360,7 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
   if( int(setTRT.size()) < m_selNHitTRTMin ) {
     ATH_MSG_DEBUG( "TRTMomConstr() : fewer TRT measurements than required: "
                << setTRT.size() << " < " << m_selNHitTRTMin << ", skip track" ) ;
-    return NULL ;
+    return nullptr ;
   }
 
   ATH_MSG_DEBUG( std::setiosflags( std::ios::scientific )) ;
@@ -435,22 +370,14 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
   const Trk::Perigee* perTrk = track->perigeeParameters();
   if( !perTrk ) {
     ATH_MSG_WARNING("TRTMomConstr() : No Perigee parameter on track!");
-    return NULL ;
+    return nullptr ;
   }
-//   ATH_MSG_DEBUG( "TRTMomConstr() : perTrk     : " << *perTrk) ;
-//   ATH_MSG_VERBOSE ( "TRTMomConstr() : theta(ext. trk)  : " << perTrk->parameters()[Trk::theta] 
-//         << " +/- " << sqrt( perTrk->localErrorMatrix().covValue(Trk::theta) )) ;
-//   ATH_MSG_VERBOSE( "TRTMomConstr() : z0(ext. trk)     : " << perTrk->parameters()[Trk::z0] 
-//       << " +/- " << sqrt( perTrk->localErrorMatrix().covValue(Trk::z0) ));
-//        
-//   ATH_MSG_DEBUG( "TRTMomConstr() : q/p(ext. trk)    : " << perTrk->parameters()[Trk::qOverP] 
-//         << " +/- " << sqrt( perTrk->localErrorMatrix().covValue(Trk::qOverP) ));
-// 
+
   // now add z_0 and theta from original track as PseudoMeas to the TRT MeasurementSet
   const Trk::PseudoMeasurementOnTrack *pmFromSi = createPMfromSi( perTrk ) ;
   if( !pmFromSi ) {
-    msg(MSG::ERROR) << "TRTMomConstr() : PseudoMeasurementOnTrack creation failed! " << endmsg ;
-    return NULL ;
+    ATH_MSG_ERROR( "TRTMomConstr() : PseudoMeasurementOnTrack creation failed! " );
+    return nullptr ;
   }
   ATH_MSG_DEBUG( "TRTMomConstr() : pmFromSi " << *pmFromSi) ;
   Trk::MeasurementSet setTRTPM = addPM( setTRT, pmFromSi ) ;
@@ -472,31 +399,20 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
                                        ) ;
   if( !trkTRT ) {
     ATH_MSG_DEBUG( "TRTMomConstr() : Fit of TRT part of the track failed! " ) ;
-    return NULL ;
+    return nullptr ;
   }
   const Trk::Perigee* perTRT = trkTRT->perigeeParameters();
   ATH_MSG_DEBUG( "TRTMomConstr() : perTRT " << *perTRT) ;
   // the theta value after TRT+PM fit can be different from the initial one by < o(10e-4). Correct q/p optionally
-  if( m_useThetaCorrection ) m_thetaCorr = sin( perTrk->parameters()[Trk::theta] ) 
-                                         / sin( perTRT->parameters()[Trk::theta] ) ;
+  if( m_useThetaCorrection ) m_thetaCorr = std::sin( perTrk->parameters()[Trk::theta] ) 
+                                         / std::sin( perTRT->parameters()[Trk::theta] ) ;
   ATH_MSG_DEBUG( "TRTMomConstr() : Scalefactor to correct q/p: " << m_thetaCorr) ;
-//   ATH_MSG_VERBOSE  ( "TRTMomConstr() : q/p(TRT+theta+z0): " << perTRT->parameters()[Trk::qOverP] 
-//        << " +/- " << sqrt( perTRT->localErrorMatrix().covValue(Trk::qOverP) )) ;
-//   ATH_MSG_VERBOSE ( "TRTMomConstr() : Momentum constraint from TRT:    z0 : " 
-//        << perTRT->parameters()[Trk::z0]
-//        << " +/- " << sqrt( perTRT->localErrorMatrix().covValue(Trk::z0) ));
-//   ATH_MSG_VERBOSE( "TRTMomConstr() : Momentum constraint from TRT: theta : " 
-//        << perTRT->parameters()[Trk::theta] * m_thetaCorr
-//        << " +/- " << sqrt( perTRT->localErrorMatrix().covValue(Trk::theta) * m_thetaCorr * m_thetaCorr ));
-//   ATH_MSG_DEBUG( "TRTMomConstr() : Momentum constraint from TRT:   q/p : " 
-//        << perTRT->parameters()[Trk::qOverP] * m_thetaCorr
-//        << " +/- " << sqrt( perTRT->localErrorMatrix().covValue(Trk::qOverP) * m_thetaCorr * m_thetaCorr ));
-//   
+
   // define new PM with the momentum constraint from the TRT to pass to Si
   const Trk::PseudoMeasurementOnTrack *pmFromTRT = createPMfromTRT( perTrk, perTRT ) ;
   if( !pmFromTRT ) {
-    msg(MSG::ERROR) << "TRTMomConstr() : PseudoMeasurementOnTrack creation failed! " << endmsg ;
-    return NULL ;
+    ATH_MSG_ERROR( "TRTMomConstr() : PseudoMeasurementOnTrack creation failed! " );
+    return nullptr ;
   }
   ATH_MSG_DEBUG("TRTMomConstr() : pmFromTRT " << *pmFromTRT ) ;
   Trk::MeasurementSet setSiPM = addPM( setSi, pmFromTRT ) ;
@@ -513,8 +429,7 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
     ATH_MSG_DEBUG( "TRTMomConstr() : Si+TRT-p_T Track fit failed !" ) ;
   } else {
     const Trk::Perigee* perSi = fittedTrack->perigeeParameters();
-//     ATH_MSG_DEBUG( "TRTMomConstr() : Si+TRT constr. q/p: " << perSi->parameters()[Trk::qOverP]
-//           << " +/- " << sqrt( perSi->localErrorMatrix().covValue(Trk::qOverP) ));
+
     ATH_MSG_DEBUG( "TRTMomConstr() : Si+PM(TRT) track parameteres @ perigee: " << *perSi ) ;
   }
 
@@ -526,42 +441,35 @@ MsgStream& operator<<( MsgStream& outst, const AddTRTMomConstr& alg ) {
 }
 
 MsgStream& AddTRTMomConstr::dump( MsgStream& outst ) const {
-  outst << std::endl ;
-  outst << "|-------------------------------------------------------------------";
-  outst << "-----------------------------|" << std::endl ;
+  outst << "\n|-------------------------------------------------------------------";
+  outst << "-----------------------------|\n" ;
   outst << "|  processed                      : " 
         << std::setw(7) << m_nTracksProcessed 
-        << " tracks                                               |"
-        << std::endl ;
+        << " tracks                                               |\n";
   outst << "|  accepted by track presel.      : " 
         << std::setw(7) << m_nTracksPresel 
-        << " tracks                                               |"
-        << std::endl ;
+        << " tracks                                               |\n";
   outst << "|  accepted by track presel. + PM : " 
         << std::setw(7) << m_nTracksAccepted 
-        << " tracks                                               |"
-        << std::endl ;
+        << " tracks                                               |\n";
   outst << "| ------------------------------------------------------------------";
-  outst << "---------------------------- |" << std::endl ;
+  outst << "---------------------------- |\n" ;
   outst << "|  reject by # PIX hits           : " 
         << std::setw(7) << m_nRejectPIX 
-        << " tracks                                               |"
-        << std::endl ;
+        << " tracks                                               |\n";
   outst << "|  reject by # SCT hits           : " 
         << std::setw(7) << m_nRejectSCT 
-        << " tracks                                               |"
-        << std::endl ;
+        << " tracks                                               |\n";
   outst << "|  reject by # TRT hits           : " 
         << std::setw(7) << m_nRejectTRT 
-        << " tracks                                               |"
-        << std::endl ;
+        << " tracks                                               |\n";
   outst << "| ------------------------------------------------------------------";
-  outst << "---------------------------- |" << std::endl ;
+  outst << "---------------------------- |\n" ;
   outst << "|  reject by exist. PM(TRT)       : " 
         << std::setw(7) << m_nRejectPM 
-        << " tracks                                               |"
-        << std::endl ;
+        << " tracks                                               |\n";
+
   outst << "|-------------------------------------------------------------------";
-  outst << "-----------------------------|" << std::endl ;
+  outst << "-----------------------------|\n" ;
   return outst ;
 }
