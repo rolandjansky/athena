@@ -75,7 +75,16 @@ namespace CP
               // Get the pointer to the "owning container" from the first
               // element.
               const T* originContainer =
-                 dynamic_cast< const T* >( inputObject->at( 0 )->container() );
+                 dynamic_cast< const T* >( ( *inputObject )[ 0 ]->container() );
+              // Make sure that every element in the view container has the same
+              // parent.
+              for( size_t i = 1; i < inputObject->size(); ++i ) {
+                 if( ( *inputObject )[ i ]->container() != originContainer ) {
+                    ANA_MSG_ERROR( "Not all elements of the received view "
+                                   "container come from the same container!" );
+                    return StatusCode::FAILURE;
+                 }
+              }
               // Postfix for the shallow-copy container of the origin container.
               static const char* ORIGIN_POSTFIX = "_ShallowCopyOrigin";
               // Make a shallow copy of the origin container.
