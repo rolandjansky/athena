@@ -21,12 +21,8 @@ string2Vector(const std::string& s) {
 
 SCT_ModuleVetoCondAlg::SCT_ModuleVetoCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKey{"/SCT/Manual/BadModules"}
-  , m_writeKey{"SCT_ModuleVetoCondData"}
   , m_condSvc{"CondSvc", name}
 {
-  declareProperty("ReadKey", m_readKey, "Key of input (raw) bad module conditions folder");
-  declareProperty("WriteKey", m_writeKey, "Key of output (derived) bad module conditions folder");
 }
 
 StatusCode SCT_ModuleVetoCondAlg::initialize() {

@@ -39,11 +39,11 @@ class SCT_ReadCalibDataCondAlg : public AthAlgorithm
   // Flag to set true to be able to use all methods not just isGood
   bool m_recoOnly;
 
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyGain;
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyNoise;
-  SG::WriteCondHandleKey<SCT_CalibDefectData> m_writeKeyGain;
-  SG::WriteCondHandleKey<SCT_CalibDefectData> m_writeKeyNoise;
-  SG::WriteCondHandleKey<SCT_AllGoodStripInfo> m_writeKeyInfo;
+  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyGain{this, "ReadKeyGain", "/SCT/DAQ/Calibration/NPtGainDefects", "Key of input (raw) gain defect conditions folder"};
+  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyNoise{this, "ReadKeyNoise", "/SCT/DAQ/Calibration/NoiseOccupancyDefects", "Key of input (raw) noise defect conditions folder"};
+  SG::WriteCondHandleKey<SCT_CalibDefectData> m_writeKeyGain{this, "WriteKeyGain", "SCT_CalibDefectNPtGain", "Key of output (derived) gain defect conditions data"};
+  SG::WriteCondHandleKey<SCT_CalibDefectData> m_writeKeyNoise{this, "WriteKeyNoise", "SCT_CalibDefectNPtNoise", "Key of output (derived) noise defect conditions data"};
+  SG::WriteCondHandleKey<SCT_AllGoodStripInfo> m_writeKeyInfo{this, "WriteKeyInfo", "SCT_AllGoodStripInfo", "Key of output (derived) good strip information conditions data"};
 
   // Defect type map, contains Fit, NPtGain and No defects for now
   std::map<int, std::string> m_defectMapIntToString;

@@ -27,8 +27,8 @@ class SCT_TdaqEnabledCondAlg : public AthAlgorithm
  private:
   bool unfilledRun() const;
 
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKey;
-  SG::WriteCondHandleKey<SCT_TdaqEnabledCondData> m_writeKey;
+  SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/TDAQ/Resources/ATLAS/SCT/Robins", "Key of input (raw) conditions folder"};
+  SG::WriteCondHandleKey<SCT_TdaqEnabledCondData> m_writeKey{this, "WriteKey", "SCT_TdaqEnabledCondData", "Key of output (derived) conditions data"};
   SG::ReadHandleKey<EventInfo> m_eventInfoKey;
   ServiceHandle<ICondSvc> m_condSvc; 
   ServiceHandle<ISCT_CablingSvc> m_cablingSvc; //!< Handle on SCT cabling service

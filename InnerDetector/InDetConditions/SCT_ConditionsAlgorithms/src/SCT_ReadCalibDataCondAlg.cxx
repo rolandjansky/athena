@@ -52,11 +52,6 @@ namespace {
 SCT_ReadCalibDataCondAlg::SCT_ReadCalibDataCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
   , m_recoOnly{true}
-  , m_readKeyGain{"/SCT/DAQ/Calibration/NPtGainDefects"}
-  , m_readKeyNoise{"/SCT/DAQ/Calibration/NoiseOccupancyDefects"}
-  , m_writeKeyGain{"SCT_CalibDefectNPtGain"}
-  , m_writeKeyNoise{"SCT_CalibDefectNPtNoise"}
-  , m_writeKeyInfo{"SCT_AllGoodStripInfo"}
   , m_defectMapIntToString{}
   , m_ignoreDefects{}
   , m_ignoreDefectParameters{}
@@ -65,11 +60,6 @@ SCT_ReadCalibDataCondAlg::SCT_ReadCalibDataCondAlg(const std::string& name, ISvc
   , m_SCTdetMgr{nullptr}
 {
   declareProperty("RecoOnly", m_recoOnly, "Use new improved isGood method, all other methods defunct"); 
-  declareProperty("ReadKeyGain", m_readKeyGain, "Key of input (raw) gain defect conditions folder");
-  declareProperty("ReadKeyNoise", m_readKeyNoise, "Key of input (raw) noise defect conditions folder");
-  declareProperty("WriteKeyGain", m_writeKeyGain, "Key of output (derived) gain defect conditions folder");
-  declareProperty("WriteKeyNoise", m_writeKeyNoise, "Key of output (derived) noise defect conditions folder");
-  declareProperty("WriteKeyInfo", m_writeKeyInfo, "Key of output (derived) good strip information conditions folder");
   declareProperty("IgnoreDefects", m_ignoreDefects, "Defects to ignore");
   declareProperty("IgnoreDefectsParameters", m_ignoreDefectParameters, "Limit on defect to ignore parameters");
 

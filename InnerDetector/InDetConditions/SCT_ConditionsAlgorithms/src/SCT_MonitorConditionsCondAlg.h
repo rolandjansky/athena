@@ -22,8 +22,8 @@ class SCT_MonitorConditionsCondAlg : public AthAlgorithm
   StatusCode finalize() override;
 
  private:
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKey;
-  SG::WriteCondHandleKey<SCT_MonitorConditionsCondData> m_writeKey;
+  SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/SCT/Derived/Monitoring", "Key of input (raw) noisy strip conditions folder"};
+  SG::WriteCondHandleKey<SCT_MonitorConditionsCondData> m_writeKey{this, "WriteKey", "SCT_MonitorConditionsCondData", "Key of output (derived) noisy strip conditions data"};
   ServiceHandle<ICondSvc> m_condSvc; 
 };
 
