@@ -54,10 +54,10 @@ thinningTools.append( HIGG5Common.getPhotonTrackParticleThinning(       'EXOT25'
 thinningTools.append( HIGG5Common.getTauTrackParticleThinning(          'EXOT25',EXOT25ThinningHelper) )
 thinningTools.append( HIGG5Common.getTauCaloClusterThinning(            'EXOT25',EXOT25ThinningHelper) )
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoCaloClusterThinning( 'EXOT25',EXOT25ThinningHelper) )
-thinningTools.append( HIGG5Common.getTCCTrackParticleThinning(          'EXOT25',EXOT25ThinningHelper) )
+#thinningTools.append( HIGG5Common.getTCCTrackParticleThinning(          'EXOT25',EXOT25ThinningHelper) )
 
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('EXOT25',EXOT25ThinningHelper) )
-thinningTools.append( HIGG5Common.getAntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Thinning('EXOT25',EXOT25ThinningHelper) )
+#thinningTools.append( HIGG5Common.getAntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Thinning('EXOT25',EXOT25ThinningHelper) )
 
 # MC truth thinning (not for data)
 if DerivationFrameworkIsMonteCarlo :
@@ -75,7 +75,7 @@ jetSel = '(( count( (AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 15.*GeV) && (abs(
 jetSel += '|| (( count( (AntiKt4EMTopoJets.pt > 100.0*GeV) && (abs(AntiKt4EMTopoJets.eta) < 2.6) ) ) > 0)'
 jetSel += '|| (( count( (AntiKt10LCTopoJets.pt > 100.0*GeV) && (abs(AntiKt10LCTopoJets.eta) < 2.6) ) ) > 0)'
 jetSel += '|| (( count( (AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 100.0*GeV) && (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta) < 2.6) ) ) > 0)'
-jetSel += '|| (( count( (AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt > 100.0*GeV) && (abs(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.eta) < 2.6) ) ) > 0)'
+#jetSel += '|| (( count( (AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt > 100.0*GeV) && (abs(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.eta) < 2.6) ) ) > 0)'
 
 
 #====================================================================
@@ -278,14 +278,14 @@ if not "EXOT25Jets" in OutputJets:
     #=======================================
     # TCC JETS
     #=======================================
-    from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+#    from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
     # Set up geometry and BField
-    import AthenaCommon.AtlasUnixStandardJob
+#    import AthenaCommon.AtlasUnixStandardJob
 
-    include("RecExCond/AllDet_detDescr.py")
-    runTCCReconstruction(exot25Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
-    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
-    addTCCTrimmedJets(exot25Seq, "EXOT25Jets")
+#    include("RecExCond/AllDet_detDescr.py")
+#    runTCCReconstruction(exot25Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+#    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
+#    addTCCTrimmedJets(exot25Seq, "EXOT25Jets")
 
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
