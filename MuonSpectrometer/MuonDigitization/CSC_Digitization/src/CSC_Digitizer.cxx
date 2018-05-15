@@ -34,9 +34,6 @@ CSC_Digitizer::CSC_Digitizer(CscHitIdHelper * cscHitHelper,
   m_cscHitHelper        = cscHitHelper;
   m_muonMgr             = muonMgr;
   m_sprob               = 0;
-  std::string  gVersion = m_muonMgr->geometryVersion();
-  std::cout << "CSC_Digitiser::initialize() : geometeryVersion = " << gVersion << std::endl;
-  m_pointingPhiStrips   = (gVersion == "P03");
   m_pcalib              = pcalib;
   m_debug =0;
 
@@ -91,18 +88,10 @@ StatusCode CSC_Digitizer::initialize() {
   }
 
   //intialize hash offsets
-  if (m_pointingPhiStrips) {
-    m_hashOffset[0][0] = 0;
-    m_hashOffset[0][1] = 27392;
-    m_hashOffset[1][0] = m_hashOffset[0][1]+3584;
-    m_hashOffset[1][1] = m_hashOffset[0][1]+m_hashOffset[1][0];    
-  } else {
-    std::string  gVersion = m_muonMgr->geometryVersion();
-    m_hashOffset[0][0] = 0;
-    m_hashOffset[0][1] = 24576;
-    m_hashOffset[1][0] = m_hashOffset[0][1]+6144;
-    m_hashOffset[1][1] = m_hashOffset[0][1]+m_hashOffset[1][0];
-  } 
+  m_hashOffset[0][0] = 0;
+  m_hashOffset[0][1] = 24576;
+  m_hashOffset[1][0] = m_hashOffset[0][1]+6144;
+  m_hashOffset[1][1] = m_hashOffset[0][1]+m_hashOffset[1][0];
   return StatusCode::SUCCESS;
 }
 
@@ -350,18 +339,9 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
 	double yy   = 0.0;
 	int strip = 0;
 
-	if (m_pointingPhiStrips) { // pointing phi-strips or not
-	  //double z0 = shortLength*shortWidth/(longWidth-shortWidth);
-	  double z0 = descriptor->z0();
-	  yy = (z0+length/2)*yc/(z0+length/2+zc) // center of phi-strip assuming zero offset
-	    + maxStrip*stripWidth/2; //trasnsform for strip counting to start at 1
-	  //+ shortWidth*(z0+shortLength/2)/(2*z0); //trasnsform for strip counting to start at 1
-	  strip = int (yy/stripWidth)+1;
-	} else {
-	  yy = yc+maxStrip*stripWidth/2;               // non-pointing phi-strips :: assuming zero offset
-	  if (eta > 0) yy = -yc+maxStrip*stripWidth/2; // non-pointing phi-strips :: assuming zero offset
-	  strip = int (yy/stripWidth)+1;
-	}
+	yy = yc+maxStrip*stripWidth/2;               // non-pointing phi-strips :: assuming zero offset
+	if (eta > 0) yy = -yc+maxStrip*stripWidth/2; // non-pointing phi-strips :: assuming zero offset
+	strip = int (yy/stripWidth)+1;
 
 	// find the charges induced on the phi strips
 	for (int j=strip-1; j<=strip+1; j++) {
@@ -648,18 +628,9 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
 	double yy   = 0.0;
 	int strip = 0;
 
-	if (m_pointingPhiStrips) { // pointing phi-strips or not
-	  //double z0 = shortLength*shortWidth/(longWidth-shortWidth);
-	  double z0 = descriptor->z0();
-	  yy = (z0+length/2)*yc/(z0+length/2+zc) // center of phi-strip assuming zero offset
-	    + maxStrip*stripWidth/2; //trasnsform for strip counting to start at 1
-	  //+ shortWidth*(z0+shortLength/2)/(2*z0); //trasnsform for strip counting to start at 1
-	  strip = int (yy/stripWidth)+1;
-	} else {
-	  yy = yc+maxStrip*stripWidth/2;               // non-pointing phi-strips :: assuming zero offset
-	  if (eta > 0) yy = -yc+maxStrip*stripWidth/2; // non-pointing phi-strips :: assuming zero offset
-	  strip = int (yy/stripWidth)+1;
-	}
+	yy = yc+maxStrip*stripWidth/2;               // non-pointing phi-strips :: assuming zero offset
+	if (eta > 0) yy = -yc+maxStrip*stripWidth/2; // non-pointing phi-strips :: assuming zero offset
+	strip = int (yy/stripWidth)+1;
 
 	// find the charges induced on the phi strips
 	for (int j=strip-1; j<=strip+1; j++) {
@@ -959,18 +930,9 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
 	double yy   = 0.0;
 	int strip = 0;
 
-	if (m_pointingPhiStrips) { // pointing phi-strips or not
-	  //double z0 = shortLength*shortWidth/(longWidth-shortWidth);
-	  double z0 = descriptor->z0();
-	  yy = (z0+length/2)*yc/(z0+length/2+zc) // center of phi-strip assuming zero offset
-	    + maxStrip*stripWidth/2; //trasnsform for strip counting to start at 1
-	  //+ shortWidth*(z0+shortLength/2)/(2*z0); //trasnsform for strip counting to start at 1
-	  strip = int (yy/stripWidth)+1;
-	} else {
-	  yy = yc+maxStrip*stripWidth/2;               // non-pointing phi-strips :: assuming zero offset
-	  if (eta > 0) yy = -yc+maxStrip*stripWidth/2; // non-pointing phi-strips :: assuming zero offset
-	  strip = int (yy/stripWidth)+1;
-	}
+	yy = yc+maxStrip*stripWidth/2;               // non-pointing phi-strips :: assuming zero offset
+	if (eta > 0) yy = -yc+maxStrip*stripWidth/2; // non-pointing phi-strips :: assuming zero offset
+	strip = int (yy/stripWidth)+1;
 
 	// find the charges induced on the phi strips
 	for (int j=strip-1; j<=strip+1; j++) {
