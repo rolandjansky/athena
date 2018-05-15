@@ -51,6 +51,7 @@ namespace DerivationFramework {
       int         m_PV_max;
       int         m_DoVertexType;
       size_t      m_PV_minNTracks;
+      bool        m_do3d;
   }; 
 }
 

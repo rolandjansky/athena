@@ -34,17 +34,18 @@ namespace DerivationFramework {
        /// beamspot cache
        mutable Amg::Vector3D m_beamspot;
        mutable bool          m_BScached;
+       bool m_3dCalc;
        
   public:
   
        BPhysPVTools(Trk::V0Tools *v0Tools);
        BPhysPVTools(Trk::V0Tools *v0Tools,
 		    const ServiceHandle<IBeamCondSvc> *beamSpotSvc);
-         
+       void SetSave3d(bool v) { m_3dCalc =v; }
        StatusCode FillCandExistingVertices(xAOD::VertexContainer* vtxContainer, const xAOD::VertexContainer* pvContainer, int DoVertexType);
        
        static void FillBPhysHelperNULL(xAOD::BPhysHelper &vtx, const xAOD::VertexContainer* PvContainer,
-           xAOD::BPhysHelper::pv_type pvtype);
+           xAOD::BPhysHelper::pv_type pvtype, bool do3d = false);
        
        StatusCode FillCandwithRefittedVertices(xAOD::VertexContainer* vtxContainer, const xAOD::VertexContainer* pvContainer,xAOD::VertexContainer* refPvContainer, Analysis::PrimaryVertexRefitter* , size_t in_PV_max, int DoVertexType);
        

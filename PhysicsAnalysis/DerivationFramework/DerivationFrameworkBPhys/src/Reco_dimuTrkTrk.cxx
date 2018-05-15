@@ -47,6 +47,7 @@ namespace DerivationFramework {
     declareProperty("DoVertexType"          , m_DoVertexType           = 7);
     // minimum number of tracks for PV to be considered for PV association
     declareProperty("MinNTracksInPV"        , m_PV_minNTracks          = 0);
+    declareProperty("Do3d"        , m_do3d          = false);
   }
 
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -125,6 +126,7 @@ namespace DerivationFramework {
     // Give the helper class the ptr to v0tools and beamSpotsSvc to use
     BPhysPVTools helper(&(*m_v0Tools), &m_beamSpotSvc);
     helper.SetMinNTracksInPV(m_PV_minNTracks);
+    helper.SetSave3d(m_do3d);
 
     if(m_refitPV){ 
        if(jpsi2TrackContainer->size() >0){

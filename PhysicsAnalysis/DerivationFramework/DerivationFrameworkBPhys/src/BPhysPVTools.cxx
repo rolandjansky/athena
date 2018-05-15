@@ -16,7 +16,7 @@ using namespace std;
 
 DerivationFramework::BPhysPVTools::BPhysPVTools(Trk::V0Tools *v0Tools) :
   m_v0Tools(v0Tools), m_beamSpotSvc(NULL), m_PV_minNTracks(0),
-  m_BScached(false)
+  m_BScached(false), m_3dCalc(false)
 {
 }
 
@@ -24,7 +24,7 @@ DerivationFramework::BPhysPVTools::BPhysPVTools(Trk::V0Tools *v0Tools,
 						const ServiceHandle<IBeamCondSvc>
 						*beamSpotSvc) :
   m_v0Tools(v0Tools), m_beamSpotSvc(beamSpotSvc), m_PV_minNTracks(0),
-  m_BScached(false)
+  m_BScached(false), m_3dCalc(false)
 {
 }
 
@@ -37,6 +37,10 @@ void DerivationFramework::BPhysPVTools::FillBPhysHelper(xAOD::BPhysHelper &vtx,
   // cout << "BPhysPVTools::FillBPhysHelper for pvtype = " << pvtype << endl;
   
   // set variables calculated from PV
+  if(m_3dCalc){
+    BPHYS_CHECK( vtx.setLxyz    ( m_v0Tools->lxyz       (vtx.vtx(), PV), pvtype ) );
+    BPHYS_CHECK( vtx.setLxyzErr ( m_v0Tools->lxyzError  (vtx.vtx(), PV), pvtype ) );
+  }
   BPHYS_CHECK( vtx.setLxy    ( m_v0Tools->lxy       (vtx.vtx(), PV), pvtype ) );
   BPHYS_CHECK( vtx.setLxyErr ( m_v0Tools->lxyError  (vtx.vtx(), PV), pvtype ) );
   BPHYS_CHECK( vtx.setA0     ( m_v0Tools->a0        (vtx.vtx(), PV), pvtype ) );
@@ -51,11 +55,15 @@ void DerivationFramework::BPhysPVTools::FillBPhysHelper(xAOD::BPhysHelper &vtx,
 
 void DerivationFramework::BPhysPVTools::FillBPhysHelperNULL(xAOD::BPhysHelper &vtx,
 							    const xAOD::VertexContainer* PvContainer,
-							    xAOD::BPhysHelper::pv_type pvtype) {
+							    xAOD::BPhysHelper::pv_type pvtype, bool do3d) {
   const xAOD::Vertex* PV = NULL;
   BPHYS_CHECK( vtx.setPv      ( PV, PvContainer, pvtype ) );
-  const float errConst = std::numeric_limits<float>::lowest();
+  constexpr float errConst = std::numeric_limits<float>::lowest();
   // set variables claculated from PV
+  if(do3d){
+    BPHYS_CHECK( vtx.setLxyz    ( errConst, pvtype ) );
+    BPHYS_CHECK( vtx.setLxyzErr ( errConst, pvtype ) );
+  }
   BPHYS_CHECK( vtx.setLxy    ( errConst, pvtype ) );
   BPHYS_CHECK( vtx.setLxyErr ( errConst, pvtype ) );
   BPHYS_CHECK( vtx.setA0     ( errConst, pvtype ) );
@@ -143,19 +151,19 @@ void DerivationFramework::BPhysPVTools::DecorateWithNULL(xAOD::VertexContainer* 
     BPHYS_CHECK( vtx.setPtErr(ptErr) );
     if(doPt) {
       // 2.a) the first PV with the largest sum pT.
-      FillBPhysHelperNULL(vtx, pvContainer, xAOD::BPhysHelper::PV_MAX_SUM_PT2);
+      FillBPhysHelperNULL(vtx, pvContainer, xAOD::BPhysHelper::PV_MAX_SUM_PT2, m_3dCalc);
     }
 
     if(doA0) {
       // 2.b) the closest in 3D:
-      FillBPhysHelperNULL(vtx, pvContainer, xAOD::BPhysHelper::PV_MIN_A0);
+      FillBPhysHelperNULL(vtx, pvContainer, xAOD::BPhysHelper::PV_MIN_A0, m_3dCalc);
     }
 
     if(doZ0) {
-      FillBPhysHelperNULL(vtx, pvContainer, xAOD::BPhysHelper::PV_MIN_Z0);
+      FillBPhysHelperNULL(vtx, pvContainer, xAOD::BPhysHelper::PV_MIN_Z0, m_3dCalc);
     }
     if(doZ0BA) {
-      FillBPhysHelperNULL(vtx, pvContainer, xAOD::BPhysHelper::PV_MIN_Z0_BA);
+      FillBPhysHelperNULL(vtx, pvContainer, xAOD::BPhysHelper::PV_MIN_Z0_BA, m_3dCalc);
     }
   }
 }
@@ -213,7 +221,7 @@ StatusCode DerivationFramework::BPhysPVTools::FillCandExistingVertices(xAOD::Ver
 	  FillBPhysHelper(vtx, GoodPVs[lowZBA], pvContainer, xAOD::BPhysHelper::PV_MIN_Z0_BA, 0);
 	} else {
 	  // nothing found -- fill NULL
-	  FillBPhysHelperNULL(vtx, pvContainer, xAOD::BPhysHelper::PV_MIN_Z0_BA);
+	  FillBPhysHelperNULL(vtx, pvContainer, xAOD::BPhysHelper::PV_MIN_Z0_BA, m_3dCalc);
 	}
       }
 
@@ -368,7 +376,7 @@ StatusCode DerivationFramework::BPhysPVTools::FillCandwithRefittedVertices(xAOD:
 			      xAOD::BPhysHelper::PV_MIN_Z0_BA);
 	      } else {
 		// nothing found -- fill NULL
-		FillBPhysHelperNULL(vtx, pvContainer, xAOD::BPhysHelper::PV_MIN_Z0_BA);
+		FillBPhysHelperNULL(vtx, pvContainer, xAOD::BPhysHelper::PV_MIN_Z0_BA, m_3dCalc);
 		// nothing found -- fill dummy vertex (type-0 vertex)
 		// if(pvContainer->empty()) return StatusCode::FAILURE;
  	        // const xAOD::Vertex* dummy = pvContainer->at(pvContainer->size()-1);  //No good vertices so last vertex must be dummy
