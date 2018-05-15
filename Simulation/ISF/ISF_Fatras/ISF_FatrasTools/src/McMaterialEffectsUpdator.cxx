@@ -523,11 +523,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
 
       m_particleBroker->push(regisp, m_isp);
     }
-    if (isp!=m_isp) {
-      delete isp;
-      delete parm;
-      return 0;
-    }
+    if (isp!=m_isp) { delete isp; delete parm; }
     return parm; 
   } else {
     if ( pathLim.x0Max>0 && pathLim.process<100 && pathLim.x0Collected+dX0>= pathLim.x0Max) {      // elmg. interaction
