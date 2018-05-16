@@ -154,18 +154,8 @@ namespace TrigCostRootAnalysis {
     if (m_costData->getNChains()) m_dataStore.store(kVarHLTEvents, 1., weight);
 
     //Did HLT pass?
-    Bool_t hltPass = kFALSE;
-    for (UInt_t i = 0; i < m_costData->getNChains(); ++i) {
-      if (m_costData->getIsChainPassed(i) == kFALSE) continue;
-      const std::string chainName = TrigConfInterface::getHLTNameFromChainID(m_costData->getChainID(i));
-      if (chainName.find("costmonitor") != std::string::npos) continue;                                                                              
-      // This always passes!
-      if (checkPatternNameMonitor(chainName, invertFilter, m_costData->getIsChainResurrected(i)) == kFALSE) continue;
-
-      m_dataStore.store(kVarHLTPassEvents, 1., weight);
-      hltPass = kTRUE;
-      break;
-    }
+    const Bool_t hltPass = (Bool_t) Config::config().getInt(kHLTPass);
+    if (hltPass) m_dataStore.store(kVarHLTPassEvents, 1., weight);
 
     // Look at all algs in this event
     Int_t havePatterns = Config::config().getVecSize(kPatternsMonitor);
