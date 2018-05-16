@@ -2,16 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
-
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/ActiveStoreSvc.h"
-
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/System.h"
-
 #include "MuonDigitContainer/MdtDigitContainer.h"
 #include "MuonDigitContainer/MdtDigitCollection.h"
 #include "MuonDigitContainer/MdtDigit.h"
@@ -38,9 +28,6 @@
 
 #include <algorithm>
 #include <cmath>
-
-using namespace std;
-
 
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
@@ -115,12 +102,11 @@ StatusCode TestMuonIdHelpers::finalize() {
  
   ATH_MSG_DEBUG( "in finalize()"  );
 
-   std::cout << "ntries, user, kernel, elapsed "
+   ATH_MSG_INFO( "ntries, user, kernel, elapsed "
              << m_nTries << " "
 	     << m_deltaUser << " "
 	     << m_deltaKernel << " "
-	     << m_deltaElapsed << " "
-	     << std::endl;
+	     << m_deltaElapsed );
 
    return StatusCode::SUCCESS;
 
@@ -140,7 +126,7 @@ StatusCode TestMuonIdHelpers::testMdtIdHelper() {
   typedef MdtDigitContainer::const_iterator collection_iterator;
   typedef MdtDigitCollection::const_iterator digit_iterator;
   
-  string key = "MDT_DIGITS";
+  std::string key = "MDT_DIGITS";
   const DataHandle <MdtDigitContainer> container;
   ATH_CHECK( (*m_activeStore)->retrieve(container,key) );
   collection_iterator it1_coll= container->begin(); 
@@ -194,7 +180,7 @@ StatusCode TestMuonIdHelpers::testCscIdHelper() {
   typedef CscDigitContainer::const_iterator collection_iterator;
   typedef CscDigitCollection::const_iterator digit_iterator;
   
-  string key = "CSC_DIGITS";
+  std::string key = "CSC_DIGITS";
   const DataHandle <CscDigitContainer> container;
   ATH_CHECK( (*m_activeStore)->retrieve(container,key) );
   collection_iterator it1_coll= container->begin(); 
@@ -247,7 +233,7 @@ StatusCode TestMuonIdHelpers::testRpcIdHelper() {
   typedef RpcDigitContainer::const_iterator collection_iterator;
   typedef RpcDigitCollection::const_iterator digit_iterator;
   
-  string key = "RPC_DIGITS";
+  std::string key = "RPC_DIGITS";
   const DataHandle <RpcDigitContainer> container;
   ATH_CHECK( (*m_activeStore)->retrieve(container,key) );
   collection_iterator it1_coll= container->begin(); 
@@ -300,7 +286,7 @@ StatusCode TestMuonIdHelpers::testTgcIdHelper() {
   typedef TgcDigitContainer::const_iterator collection_iterator;
   typedef TgcDigitCollection::const_iterator digit_iterator;
   
-  string key = "TGC_DIGITS";
+  std::string key = "TGC_DIGITS";
   const DataHandle <TgcDigitContainer> container;
   ATH_CHECK( (*m_activeStore)->retrieve(container,key) );
   collection_iterator it1_coll= container->begin(); 
