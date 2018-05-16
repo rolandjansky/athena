@@ -268,7 +268,7 @@ StatusCode RpcDigitizationTool::initialize() {
       if(configVal=="RUN1" || MSgeoVersion=="R.06"){ 
         m_run1 = true; 
       } 
-      else if(configVal=="RUN2" || MSgeoVersion=="R.07") { 
+      else if(configVal=="RUN2" || configVal=="RUN3" || MSgeoVersion=="R.07") { 
         m_run1 = false; 
       } 
       else { 
