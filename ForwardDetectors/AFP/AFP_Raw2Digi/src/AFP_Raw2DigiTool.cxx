@@ -20,11 +20,9 @@
 AFP_Raw2DigiTool::AFP_Raw2DigiTool(const std::string &type,
 				   const std::string &name,
 				   const IInterface *parent)
-  : AthAlgTool(type, name, parent),
+  : base_class(type, name, parent),
     m_totToChargeTransformation ("totToChargeTransformation", "1909 + x*363 + x*x*141")
 {
-  declareInterface<IAFP_Raw2DigiTool>(this);
-
   declareProperty( "rawDataContainerName", m_rawDataContainerName = "AFP_RawData");
   declareProperty( "AFPSiHitsContainerName", m_AFPSiHitsContainerName = "AFPSiHitContainer" );
   declareProperty( "AFPHitsContainerNameToF", m_AFPHitsContainerNameToF = "AFPToFHitContainer" );

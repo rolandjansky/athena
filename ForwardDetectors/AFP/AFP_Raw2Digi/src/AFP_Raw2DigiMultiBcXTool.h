@@ -15,9 +15,8 @@
 #include <vector>
 #include "TF1.h"
 
-class AFP_Raw2DigiMultiBcXTool
-  : virtual public ::IAFP_Raw2DigiTool,
-    public ::AthAlgTool {
+class AFP_Raw2DigiMultiBcXTool : public extends<AthAlgTool, IAFP_Raw2DigiTool>
+{
 public:
   AFP_Raw2DigiMultiBcXTool(const std::string &type, const std::string &name, const IInterface *parent);
 
@@ -35,7 +34,6 @@ public:
 
   virtual StatusCode recoAll() override;
 
-  
   /// Does nothing
   virtual StatusCode finalize() override;
 
