@@ -1778,7 +1778,19 @@ namespace xAOD {
         }
       }
 
-     // If neither, then something went wrong...
+      // As a final effort, try to compare the names of the types. This can
+      // end up being needed in some situations... I'm checking for the vector
+      // type first on purpose, as it's a slow check, and it's more likely
+      // that we're looking at a vector type.
+      if( Utils::getTypeName( *root_ti ) ==
+          Utils::getTypeName( *aux_vec_ti ) ) {
+         return kTRUE;
+      } else if( Utils::getTypeName( *root_ti ) ==
+                 Utils::getTypeName( *aux_obj_ti ) ) {
+         return kFALSE;
+      }
+
+      // If neither, then something went wrong...
       ::Error( "xAOD::TAuxStore::isContainerBranch",
                XAOD_MESSAGE( "Couldn't determine if branch describes a single "
                              "object or a container" ) );
