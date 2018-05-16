@@ -287,6 +287,8 @@ void AFP_Raw2DigiMultiBcXTool::setBarAndTrainID(xAOD::AFPToFHit* tofHit) const
       tofHit->setTrainID(1);
       tofHit->setBarInTrainID(3);
       break;
+    default:
+      ATH_MSG_WARNING("Unrecognised hptdcChannel: "<<hptdcChannel);
     }
   }
   else if (hptdcID == 2) {
@@ -323,6 +325,8 @@ void AFP_Raw2DigiMultiBcXTool::setBarAndTrainID(xAOD::AFPToFHit* tofHit) const
       tofHit->setTrainID(3);
       tofHit->setBarInTrainID(3);
       break;
+    default:
+      ATH_MSG_WARNING("Unrecognised hptdcChannel: "<<hptdcChannel);
     }
   }
 }
