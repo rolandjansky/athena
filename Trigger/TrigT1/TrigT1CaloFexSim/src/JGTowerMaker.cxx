@@ -36,7 +36,7 @@ JGTowerMaker::~JGTowerMaker() {
      delete jT.at(iJT);
   }
   for(unsigned iGT=0; iGT<gT.size(); iGT++){
-     delete jT.at(iGT);
+     delete gT.at(iGT);
   }
 }
 
