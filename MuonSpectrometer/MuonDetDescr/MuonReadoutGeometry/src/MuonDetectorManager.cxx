@@ -661,6 +661,9 @@ const MuonClusterReadoutElement* MuonDetectorManager::getMuonClusterReadoutEleme
   if( m_tgcIdHelper->is_tgc(id) ) return getTgcReadoutElement(id);
   if( m_rpcIdHelper->is_rpc(id) ) return getRpcReadoutElement(id);
   if( m_cscIdHelper->is_csc(id) ) return getCscReadoutElement(id);
+  // New Small Wheel
+  if( m_mmIdHelper->is_mm(id) ) return getMMReadoutElement(id);
+  if( m_stgcIdHelper->is_stgc(id) ) return getsTgcReadoutElement(id);
   return 0;
 }
 

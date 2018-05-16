@@ -26,6 +26,9 @@
 #include "MuonPrepRawData/MdtPrepData.h"
 #include "MuonPrepRawData/RpcPrepData.h"
 #include "MuonPrepRawData/TgcPrepData.h"
+// New Small Wheel
+#include "MuonPrepRawData/MMPrepData.h"
+#include "MuonPrepRawData/sTgcPrepData.h"
 
 #include "MuonPrepRawData/MuonPrepDataCollection.h"
 
@@ -93,7 +96,7 @@ private:
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
 /////////////////////////////////////////////////////////////////// 
- 
+
 typedef MuonPrepDataCollection< MdtPrepData > MdtPrepDataCollection;
 typedef MuonPrepDataContainer< MdtPrepDataCollection > MdtPrepDataContainer;
  
@@ -102,6 +105,13 @@ typedef MuonPrepDataContainer< RpcPrepDataCollection > RpcPrepDataContainer;
  
 typedef MuonPrepDataCollection< TgcPrepData > TgcPrepDataCollection;
 typedef MuonPrepDataContainer< TgcPrepDataCollection > TgcPrepDataContainer;
+
+// New Small Wheel
+typedef MuonPrepDataCollection< sTgcPrepData > sTgcPrepDataCollection;
+typedef MuonPrepDataContainer< sTgcPrepDataCollection > sTgcPrepDataContainer;
+
+typedef MuonPrepDataCollection< MMPrepData > MMPrepDataCollection;
+typedef MuonPrepDataContainer< MMPrepDataCollection > MMPrepDataContainer;
 
 // member functions that use Collection T
 #include "MuonPrepRawData/MuonPrepDataContainer.icc"
@@ -113,6 +123,9 @@ typedef MuonPrepDataContainer< TgcPrepDataCollection > TgcPrepDataContainer;
 #include "MuonPrepRawData/RpcPrepDataContainer.h"
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
 #include "MuonPrepRawData/MdtPrepDataContainer.h"
+// New Small Wheel
+#include "MuonPrepRawData/sTgcPrepDataContainer.h"
+#include "MuonPrepRawData/MMPrepDataContainer.h"
 
 #endif // TRKPREPRAWDATA_PREPRAWDATACONTAINER_H
 
