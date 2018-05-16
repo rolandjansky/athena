@@ -54,6 +54,17 @@ def findSubSequence( start, nameToLookFor ):
                 return found
     return None
 
+def findOwningSequence( start, nameToLookFor ):
+    """ find sequence that owns the sequence nameTooLookFor"""
+    for c in start.getChildren():
+        if  c.name() == nameToLookFor:
+            return start
+        if isSequence( c ):
+            found = findOwningSequence( c, nameToLookFor )
+            if found:
+                return found
+    return None
+
 def findAlgorithm( startSequence, nameToLookFor, depth = 1000000 ):
     """ Traverse sequences tree to find the algorithm of given name. The first encountered is returned. 
 
@@ -132,6 +143,22 @@ if __name__ == "__main__":
     # no on demand creation
     inexistent = findSubSequence(top, "not_there")
     assert inexistent == None, "ERROR, found sub sequence that does not relay exist %s" % inexistent.name()
+    
+    # owner finding
+    inexistent = findOwningSequence(top, "not_there")
+    assert inexistent == None, "ERROR, found owner of inexistent sequence %s"% inexistent.name()
+
+    owner = findOwningSequence(top, "deep_nest1")
+    assert owner.name() == "nest2", "Wrong owner %s" % owner.name()
+
+    owner = findOwningSequence(top, "deep_nest2")
+    assert owner.name() == "nest2", "Wrong owner %s" % owner.name()
+
+    owner = findOwningSequence(top, "SomeAlg1")
+    assert owner.name() == "nest2", "Wrong owner %s" % owner.name()
+
+    owner = findOwningSequence(top, "SomeAlg0")
+    assert owner.name() == "top", "Wrong owner %s" % owner.name()
 
     flat = flatAlgorithmSequences( top )
     expected = [ "top", "nest1", "nest2", "deep_nest1", "deep_nest2" ]
