@@ -16,6 +16,7 @@
 #include <xAODEgamma/ElectronContainer.h>
 #include <xAODJet/JetContainer.h>
 #include <xAODMuon/MuonContainer.h>
+#include <xAODTau/TauJetContainer.h>
 
 //
 // method implementations
@@ -64,6 +65,8 @@ namespace CP
       m_function = &AsgViewFromSelectionAlg::executeTemplate<xAOD::JetContainer>;
     else if (dynamic_cast<const xAOD::MuonContainer*> (input))
       m_function = &AsgViewFromSelectionAlg::executeTemplate<xAOD::MuonContainer>;
+    else if (dynamic_cast<const xAOD::TauJetContainer*> (input))
+      m_function = &AsgViewFromSelectionAlg::executeTemplate<xAOD::TauJetContainer>;
     else
     {
       ANA_MSG_ERROR ("unknown type contained in AsgViewFromSelectionAlg, please extend it");
