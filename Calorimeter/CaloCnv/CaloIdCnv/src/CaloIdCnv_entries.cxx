@@ -26,6 +26,8 @@
 #include "CaloIdCnv/Tile_SuperCell_IDDetDescrCnv.h"
 #include "CaloIdCnv/TileTBIDDetDescrCnv.h"
 #include "CaloIdCnv/TTOnlineIDDetDescrCnv.h"
+#include "CaloIdCnv/JTower_IDDetDescrCnv.h"
+#include "CaloIdCnv/GTower_IDDetDescrCnv.h"
 
 DECLARE_CONVERTER_FACTORY(CaloCell_IDDetDescrCnv)
 DECLARE_CONVERTER_FACTORY(CaloCell_SuperCell_IDDetDescrCnv)
@@ -44,6 +46,8 @@ DECLARE_CONVERTER_FACTORY(TileIDDetDescrCnv)
 DECLARE_CONVERTER_FACTORY(Tile_SuperCell_IDDetDescrCnv)
 DECLARE_CONVERTER_FACTORY(TileTBIDDetDescrCnv)
 DECLARE_CONVERTER_FACTORY(TTOnlineIDDetDescrCnv)
+DECLARE_CONVERTER_FACTORY(JTower_IDDetDescrCnv)
+DECLARE_CONVERTER_FACTORY(GTower_IDDetDescrCnv)
 
 DECLARE_FACTORY_ENTRIES	( CaloIdCnv ) {
     DECLARE_CONVERTER	( CaloIdMgrDetDescrCnv );
@@ -63,4 +67,6 @@ DECLARE_FACTORY_ENTRIES	( CaloIdCnv ) {
     DECLARE_CONVERTER	( Tile_SuperCell_IDDetDescrCnv );
     DECLARE_CONVERTER	( TileTBIDDetDescrCnv );
     DECLARE_CONVERTER	( TTOnlineIDDetDescrCnv );
+    DECLARE_CONVERTER   ( JTower_IDDetDescrCnv );
+    DECLARE_CONVERTER   ( GTower_IDDetDescrCnv );
 }

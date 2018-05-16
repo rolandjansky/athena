@@ -5,9 +5,11 @@
 <field name="DetZside" >
   <label name="negative_DMTile_side" value="-5" />
   <label name="negative_DMLar_side" value="-4" />
+  <label name="negative_eta_side" value="-2" />
   <label name="negative_lvl1_side" value="-1" />
   <label name="no_side" value="0" />
   <label name="positive_lvl1_side" value="+1" />
+  <label name="positive_eta_side" value="+2" />
   <label name="positive_DMLar_side" value="+4" />
   <label name="positive_DMTile_side" value="+5" />
 </field>
@@ -579,7 +581,7 @@
   </field>
 
   <subregion name="LVL1" >
-     <range field="DetZside" values="negative_lvl1_side positive_lvl1_side" />
+     <range field="DetZside" values="negative_lvl1_side positive_lvl1_side" /> 
     <range field="LVL1sampling" values="EM Hadronic" />
   </subregion>
 
@@ -877,7 +879,7 @@
         <reference subregion="PPM_64Channels" />
     </region>
 
-<!-- CRATE 05 -->>
+<!-- CRATE 05 -->
     <region group="PPM_Modules" name="PPM_Crate-05_64ChannelsModules" >
         <reference subregion="Crate-05" />
         <range field="module"        values="7 8 11 12 15 16 19 20"/>
@@ -914,19 +916,101 @@
         <reference subregion="PPM_64Channels" />
     </region>
 
-<!-- CRATE 06 -->>
+<!-- CRATE 06 -->
     <region group="PPM_Modules" name="PPM_Crate-06" >
         <reference subregion="Crate-06" />
         <range field="module"        minvalue="5" maxvalue="20"/>
         <reference subregion="PPM_64Channels" />
     </region>
 
-<!-- CRATE 07 -->>
+<!-- CRATE 07 -->
     <region group="PPM_Modules" name="PPM_Crate-07" >
         <reference subregion="Crate-07" />
         <range field="module"        minvalue="5" maxvalue="20"/>
         <reference subregion="PPM_64Channels" />
     </region>
+
+
+  <!--       jTower part   -->
+  <!-- xxxxxxxxxxxxxxxxx -->
+  
+    <field name="JTsampling" >
+      <label name="EM"       value="0" />
+      <label name="Hadronic" value="1" />
+    </field>
+  
+    <subregion name="JTower" >
+      <range field="DetZside" values="negative_lvl1_side positive_lvl1_side" />
+      <range field="JTsampling" values="EM Hadronic" />
+    </subregion>
+  
+   <!-- Up to eta=2.5 -->
+    <region group="Reg_JTower" name="JTower_0"
+            eta0="0.0" deta="0.1" phi0="0.0" dphi="0.1">
+      <reference subregion="JTower" />
+      <range field="JTregion" value="0" />
+      <range field="JTeta" minvalue="0" maxvalue="24" />
+      <range field="JTphi" minvalue="0" maxvalue="63" wraparound="TRUE" />
+    </region>
+    <!-- From 2.5<eta<3.1 the granularity of SC's (and thus jTowers) is 0.2-->
+    <region group="Reg_JTower" name="JTower_1"
+            eta0="2.5" deta="0.2" phi0="0.0" dphi="0.2" >
+      <reference subregion="JTower" />
+      <range field="JTregion" value="1" />
+      <range field="JTeta" minvalue="0" maxvalue="2" />
+      <range field="JTphi" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    </region>
+  <!-- From 3.1<eta<3.2 the granularity is 0.1x0.2 (eta x phi) -->
+  <!-- This region has overlap with FCAL that is not begin considered -->
+    <region group="Reg_JTower" name="JTower_2"
+            eta0="3.1" deta="0.1" phi0="0.0" dphi="0.2" >
+      <reference subregion="JTower" />
+      <range field="JTregion" value="2" />
+      <range field="JTeta" minvalue="0" maxvalue="0"/>
+      <range field="JTphi" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    </region>
+  
+ <!-- FCAL region, NEEDS WORK/FIXING -\-> -->
+   <region group="Reg_JTower" name="JTower_3"  
+      eta0="3.2" deta="0.425" phi0="0.0" dphi="0.4"> 
+     <reference subregion="JTower" /> 
+     <range field="JTregion" value="3" /> 
+     <range field="JTeta" minvalue="0" maxvalue="3"/> 
+     <range field="JTphi" minvalue="0" maxvalue="15" wraparound="TRUE" /> 
+   </region>  
+ 
+  
+  <!--       gTower part   -->
+  <!-- xxxxxxxxxxxxxxxxx -->
+  
+    <field name="GTsampling" >
+      <label name="EM"       value="0" />
+      <label name="Hadronic" value="1" />
+    </field>
+  
+    <subregion name="GTower" >
+      <range field="DetZside" values="negative_lvl1_side positive_lvl1_side" />
+      <range field="GTsampling" values="EM Hadronic" />
+    </subregion>
+  
+   <!-- Up to eta=3.2 -->
+  <!-- This region has overlap with FCAL that is not begin considered -->
+    <region group="Reg_GTower" name="GTower_0" 
+            eta0="0.0" deta="0.2" phi0="0.0" dphi="0.2">
+      <reference subregion="GTower" />
+      <range field="GTregion" value="0" />
+      <range field="GTeta" minvalue="0" maxvalue="15" />
+      <range field="GTphi" minvalue="0" maxvalue="31" wraparound="TRUE" />
+    </region>
+
+<!-- FCAL region, NEEDS WORK/FIXING -\-> -->
+   <region group="Reg_GTower" name="GTower_1" 
+      eta0="3.2" deta="0.425" phi0="0.0" dphi="0.4" > 
+     <reference subregion="GTower" /> 
+     <range field="GTregion" value="1" /> 
+     <range field="GTeta" minvalue="0" maxvalue="3"/> 
+     <range field="GTphi" minvalue="0" maxvalue="15" wraparound="TRUE" /> 
+   </region>  
 
 
 

@@ -2,11 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/***************************************************************************
- Calo Identifier Manager converter package
- -----------------------------------------
- Copyright (C) 2003 by ATLAS Collaboration
- ***************************************************************************/
 
 //<doc><file>	$Id: CaloIdMgrDetDescrCnv.h,v 1.7 2009-02-10 14:09:21 fledroit Exp $
 //<version>	$Name: not supported by cvs2svn $
