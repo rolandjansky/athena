@@ -4,6 +4,13 @@ include.block ("RecExCommon/RecExCommon_topOptions.py")
 ## Common job preparation ##
 ############################
 
+#This supresses the following WARNING message
+#HistogramPersistencySvc WARNING Histograms saving not required.
+#Note we do not use HistogramPersistencySvc in reconstruction jobs, so this warning is not relevant
+#Further discussion can be found in ATLASRECTS-4469
+from GaudiCommonSvc.GaudiCommonSvcConf import HistogramPersistencySvc
+svcMgr += HistogramPersistencySvc(Warnings=False)
+
 # gbl.AthenaServices.SetFatalHandler(438)
 svcMgr.CoreDumpSvc.FatalHandler = 438
 import traceback
