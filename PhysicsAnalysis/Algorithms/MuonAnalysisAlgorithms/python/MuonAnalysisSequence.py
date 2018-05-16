@@ -15,6 +15,13 @@ def makeMuonAnalysisSequence (dataType) :
                        "sys" : "(^MUON_ID$)|(^MUON_MS$)|(^MUON_SAGITTA_.*)|(^MUON_SCALE$)"} )
 
 
+    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'MuonKinSelectionAlg' )
+    addPrivateTool (alg, "selectionTool", "CP::AsgPtEtaSelectionTool")
+    alg.selectionTool.minPt = 20e3
+    alg.selectionTool.maxEta = 2.4
+    alg.selectionDecoration = "kin_select"
+    sequence.append ( {"alg" : alg, "in" : "particles", "out" : "particlesOut" } )
+
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'MuonSelectionAlg' )
     addPrivateTool (alg, "selectionTool", "CP::MuonSelectionTool")
     alg.selectionDecoration = "good_muon"
@@ -25,6 +32,22 @@ def makeMuonAnalysisSequence (dataType) :
     alg.isolationDecoration = "isolated_muon"
     sequence.append ( {"alg" : alg, "in" : "muons", "out" : "muonsOut" } )
 
+
+
+    alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'MuonCutFlowDumperAlg' )
+    alg.histPattern = "muon_cflow_%SYS%"
+    alg.selection = ['kin_select', 'good_muon', 'isolated_muon']
+    alg.selectionNCuts = [2,4,1]
+    sequence.append ( {"alg" : alg, "in" : "input"} )
+
+
+
+    alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'MuonViewFromSelectionAlg' )
+    alg.selection = ['kin_select', 'good_muon', 'isolated_muon']
+    sequence.append ( {"alg" : alg, "in" : "input", "out" : "output", "needOut" : True} )
+
+
+
     alg = createAlgorithm( 'CP::MuonEfficiencyScaleFactorAlg', 'MuonEfficiencyScaleFactorAlg' )
     addPrivateTool (alg, "efficiencyScaleFactorTool", "CP::MuonEfficiencyScaleFactors")
     if dataType == "data" :
@@ -34,24 +57,11 @@ def makeMuonAnalysisSequence (dataType) :
         alg.isData = 0
         pass
     alg.efficiencyDecoration = "muon_eff"
-    alg.outOfValidity = 2 #silent
-    alg.outOfValidityDeco = "bad_eff"
+    # these have to be put back in if we want to pass bad muons in
+    # alg.outOfValidity = 2 #silent
+    # alg.outOfValidityDeco = "bad_eff"
     sequence.append ( {"alg" : alg, "in" : "muons", "out" : "muonsOut",
                        "sys" : "(^MUON_EFF_.*)"} )
-
-
-
-    alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'MuonCutFlowDumperAlg' )
-    alg.histPattern = "muon_cflow_%SYS%"
-    alg.selection = ['good_muon', 'isolated_muon']
-    alg.selectionNCuts = [4,1]
-    sequence.append ( {"alg" : alg, "in" : "input"} )
-
-
-
-    alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'MuonViewFromSelectionAlg' )
-    alg.selection = ['good_muon', 'isolated_muon']
-    sequence.append ( {"alg" : alg, "in" : "input", "out" : "output", "needOut" : True} )
 
 
 
