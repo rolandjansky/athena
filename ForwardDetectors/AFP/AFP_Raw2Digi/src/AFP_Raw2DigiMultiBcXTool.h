@@ -28,12 +28,12 @@ public:
   virtual StatusCode initialize() override;
 
   /// Creates xAOD for silicon detector
-  StatusCode recoSiHits() override;
+  virtual StatusCode recoSiHits() override;
 
   /// Creates xAOD for time-of-flight detector
-  StatusCode recoToFHits() override;
+  virtual StatusCode recoToFHits() override;
 
-  StatusCode recoAll() override;
+  virtual StatusCode recoAll() override;
 
   
   /// Does nothing
