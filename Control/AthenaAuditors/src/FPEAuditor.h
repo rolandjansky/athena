@@ -15,6 +15,7 @@
 #include <string>
 #include <list>
 #include <utility> // for std::pair
+#include <atomic>
 
 // FrameWork includes
 #include "GaudiKernel/Auditor.h"
@@ -122,11 +123,11 @@ class FPEAuditor : virtual public Auditor, public AthMessaging
   typedef std::list<FpeNode_t> FpeStack_t;
   /** a stack of FPE exceptions which have been raised
    */
-  FpeStack_t m_fpe_stack;
+  static thread_local FpeStack_t s_fpe_stack;
   
   enum { FPEAUDITOR_OVERFLOW=0, FPEAUDITOR_INVALID=1, FPEAUDITOR_DIVBYZERO=2, FPEAUDITOR_ARRAYSIZE=3 };
   
-  unsigned int m_CountFPEs[FPEAUDITOR_ARRAYSIZE];
+  std::atomic<unsigned int> m_CountFPEs[FPEAUDITOR_ARRAYSIZE];
   
   unsigned int m_NstacktracesOnFPE;
   

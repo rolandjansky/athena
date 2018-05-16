@@ -42,13 +42,14 @@ extern "C" {
 // Public methods: 
 /////////////////////////////////////////////////////////////////// 
 
+thread_local FPEAuditor::FpeStack_t FPEAuditor::s_fpe_stack;
+
 // Constructors
 ////////////////
 FPEAuditor::FPEAuditor( const std::string& name, 
 			ISvcLocator* pSvcLocator ) : 
   Auditor     ( name, pSvcLocator  ),
   AthMessaging(msgSvc(), name),
-  m_fpe_stack(),
   m_CountFPEs(),
   m_NstacktracesOnFPE(0),
   m_SigHandInstalled(false),
@@ -340,7 +341,7 @@ FPEAuditor::add_fpe_node()
 {
   // get current list of FPE flags so far
   int raised = fetestexcept(FE_OVERFLOW | FE_INVALID | FE_DIVBYZERO);
-  m_fpe_stack.push_back(std::make_pair(raised, 0));
+  s_fpe_stack.push_back(std::make_pair(raised, 0));
 
   // clear FPE status word
   feclearexcept(FE_ALL_EXCEPT);
@@ -349,18 +350,18 @@ FPEAuditor::add_fpe_node()
 void
 FPEAuditor::pop_fpe_node()
 {
-  if (m_fpe_stack.empty()) {
+  if (s_fpe_stack.empty()) {
     ATH_MSG_ERROR("inconsistent fpe-stack !");
     throw std::runtime_error("inconsistent fpe-stack");
   }
 
   // restore fpe stack info
-  int raised = m_fpe_stack.back().first;
-  m_fpe_stack.pop_back();
+  int raised = s_fpe_stack.back().first;
+  s_fpe_stack.pop_back();
   
   // consolidate
-  if (!m_fpe_stack.empty()) {
-    m_fpe_stack.back().second |= raised;
+  if (!s_fpe_stack.empty()) {
+    s_fpe_stack.back().second |= raised;
   }
   if ( m_SigHandInstalled )
     FPEAudit::unmask_fpe();
