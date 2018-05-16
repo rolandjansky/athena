@@ -34,8 +34,7 @@ atlas_depends_on_subdirs(
    GaudiKernel
    PhysicsAnalysis/CommonTools/ExpressionEvaluation
    PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
-   Tracking/TrkTools/TrkToolInterfaces	
-   PhysicsAnalysis/MCTruthClassifier	
+   PhysicsAnalysis/MCTruthClassifier
    ${extra_deps} )
 
 # Component(s) in the package:
@@ -43,7 +42,7 @@ atlas_add_component(ThinningUtils
    src/*.h src/*.cxx src/components/*.cxx
    LINK_LIBRARIES AthLinks AthenaBaseComps AthenaKernel EventInfo xAODBase
    xAODCaloEvent xAODEgamma xAODJet xAODMuon xAODParticleEvent xAODTau
-   xAODTracking xAODTruth GaudiKernel ExpressionEvaluationLib TrkToolInterfaces MCTruthClassifierLib ${extra_libs})
+   xAODTracking xAODTruth GaudiKernel ExpressionEvaluationLib MCTruthClassifierLib ${extra_libs})
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
