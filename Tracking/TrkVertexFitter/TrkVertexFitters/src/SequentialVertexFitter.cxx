@@ -437,12 +437,14 @@ namespace Trk{
       int cnt = 0;
 
       for(std::vector<Trk::VxTrackAtVertex>::iterator i = tracksBegin; i != tracksEnd;++i)
-      {           
-        ////returnVertex.reset( m_Updator->add(*returnVertex, *i) );
+      {                  
+        
         xAOD::Vertex *new_vertex = m_Updator->add(*returnVertex, *i);
+
         if (new_vertex != returnVertex.get()) {
             returnVertex.reset( new_vertex );
            }
+
         //std::cout << " Vertex after add of track: " << *returnVertex << std::endl; //TODO: operator << not defined for xAOD::Vertex
         //std::cout << " Adding track " << cnt << std::endl;
         ++cnt;
