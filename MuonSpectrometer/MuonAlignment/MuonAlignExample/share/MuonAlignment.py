@@ -1,14 +1,8 @@
 import os
 
 from TrkAlignGenTools.AlignmentFlags import AlignmentFlags as align
-from MuonAlignGenTools.MuonAlignmentFlags import MuonAlignmentFlags as mualign
 from AthenaCommon.Constants import *
 from AthenaCommon.AppMgr import ToolSvc
-
-# configure muon alignment
-from MuonAlignGenTools.ConfigureMuonAlignment import ConfigureMuonAlignment
-config = ConfigureMuonAlignment()
-config.configureAlignment(mualign.useAlternateASZT(),align.isMC())
 
 if align.readEventList() :
 
@@ -19,7 +13,6 @@ if align.readEventList() :
     selectEvtNumber.EventList = align.eventList()
     #selectEvtNumber.EventList = "goodEvts.txt"
 
-#if mualign.doLocalErrorScaling:
 if 'errorScaleDb' in dir() and errorScaleDb!='':
     
     errScaleDbName=errorScaleDb
