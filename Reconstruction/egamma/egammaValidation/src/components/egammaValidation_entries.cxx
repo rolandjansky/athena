@@ -4,7 +4,7 @@
 
 #include <GaudiKernel/DeclareFactoryEntries.h>
 
-#include "../../egammaValidation/EgammaMonitoring.h"
+#include "../EgammaMonitoring.h"
 
 DECLARE_COMPONENT( EgammaMonitoring )
 

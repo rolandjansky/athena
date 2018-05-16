@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "egammaValidation/ParticlePlots.h"
+#include "ParticlePlots.h"
 #include <typeinfo>
 
 namespace egammaMonitoring {
@@ -12,8 +12,8 @@ namespace egammaMonitoring {
   void ParticlePlots::initializePlots() {
     
     pT_prtcl   = new TH1D("pT_prtcl"  , ";p_{T} [GeV]; Track p_{T} Events",  200,            0,         200);
-    eta_prtcl  = new TH1D("eta_prtcl" , ";#eta; Track #eta Events"        ,  200,           -3,           3);
-    phi_prtcl  = new TH1D("phi_prtcl" , ";#phi; Track #phi Events"        ,  100, -TMath::Pi(), TMath::Pi());
+    eta_prtcl  = new TH1D("eta_prtcl" , ";#eta; Track #eta Events"        ,  120,           -3,           3);
+    phi_prtcl  = new TH1D("phi_prtcl" , ";#phi; Track #phi Events"        ,  50, -TMath::Pi(), TMath::Pi());
     
   } // initializePlots
   
