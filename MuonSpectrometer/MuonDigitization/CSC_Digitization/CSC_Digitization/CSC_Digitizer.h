@@ -132,7 +132,6 @@ private:
   const   MuonDetectorManager * m_muonMgr;
   ICscCalibTool* m_pcalib;
   // Calibration tool.
-  bool    m_pointingPhiStrips;
   //  double m_FlatDist;
   //  double m_GaussDist;  
   //  double m_PoissonDist;  
