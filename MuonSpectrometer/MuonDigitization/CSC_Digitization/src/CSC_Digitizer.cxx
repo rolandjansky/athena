@@ -166,8 +166,8 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
   // float shortLength      = descriptor->lengthUpToMaxWidth(); // not used anywhere
   // float shortWidth       = descriptor->shortWidth(); // not used anywhere
   // float longWidth        = descriptor->longWidth(); // not used anywhere
-  float length           = descriptor->length();
-  float roxacellWidth    = descriptor->roxacellWidth();
+  // float length           = descriptor->length();
+  // float roxacellWidth    = descriptor->roxacellWidth();
 
   /*
     std::cout << "CSC_Digitizer::digitize_hit : Chamber parameters " 
@@ -184,7 +184,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
   //                      /(2.*descriptor->lengthUpToMaxWidth()) ); // not used anywhere
   // shortWidth = descriptor->shortWidth() - 2*roxacellWidth * (1-sin(beta))/cos(beta); // not used anywhere
   // longWidth =  descriptor->longWidth() - 2*roxacellWidth * (1+sin(beta))/cos(beta); // not used anywhere
-  length = descriptor->length() - 2*roxacellWidth;
+  // length = descriptor->length() - 2*roxacellWidth;
 
   // if (chamberType == 0) {
   //   shortLength = descriptor->lengthUpToMaxWidth()-2*roxacellWidth; // not used anywhere
@@ -447,8 +447,8 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
   // float shortLength      = descriptor->lengthUpToMaxWidth();    // not used anywhere
   // float shortWidth       = descriptor->shortWidth(); // not used anywhere
   // float longWidth        = descriptor->longWidth();  // not used anywhere
-  float length           = descriptor->length();
-  float roxacellWidth    = descriptor->roxacellWidth();
+  // float length           = descriptor->length();
+  // float roxacellWidth    = descriptor->roxacellWidth();
 
   /*
     std::cout << "CSC_Digitizer::digitize_hit : Chamber parameters " 
@@ -465,7 +465,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
   //                      /(2.*descriptor->lengthUpToMaxWidth()) ); // not used anywhere
   // shortWidth = descriptor->shortWidth() - 2*roxacellWidth * (1-sin(beta))/cos(beta); // not used anywhere
   // longWidth =  descriptor->longWidth() - 2*roxacellWidth * (1+sin(beta))/cos(beta); // not used anywhere
-  length = descriptor->length() - 2*roxacellWidth;
+  // length = descriptor->length() - 2*roxacellWidth;
 
   // if (chamberType == 0) {
   //   shortLength = descriptor->lengthUpToMaxWidth()-2*roxacellWidth;// not used anywhere
@@ -743,8 +743,8 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
   // float shortLength      = descriptor->lengthUpToMaxWidth();    // not used anywhere
   // float shortWidth       = descriptor->shortWidth(); // not used anywhere
   // float longWidth        = descriptor->longWidth();  // not used anywhere
-  float length           = descriptor->length();
-  float roxacellWidth    = descriptor->roxacellWidth();
+  // float length           = descriptor->length();
+  // float roxacellWidth    = descriptor->roxacellWidth();
 
   /*
     std::cout << "CSC_Digitizer::digitize_hit : Chamber parameters " 
@@ -761,7 +761,7 @@ StatusCode CSC_Digitizer::digitize_hit (const CSCSimHit * cscHit,
   //                      /(2.*descriptor->lengthUpToMaxWidth()) ); // not used anywhere
   // shortWidth = descriptor->shortWidth() - 2*roxacellWidth * (1-sin(beta))/cos(beta); // not used anywhere
   // longWidth =  descriptor->longWidth() - 2*roxacellWidth * (1+sin(beta))/cos(beta); // not used anywhere
-  length = descriptor->length() - 2*roxacellWidth;
+  // length = descriptor->length() - 2*roxacellWidth;
 
   // if (chamberType == 0) {
   //   shortLength = descriptor->lengthUpToMaxWidth()-2*roxacellWidth;// not used anywhere
