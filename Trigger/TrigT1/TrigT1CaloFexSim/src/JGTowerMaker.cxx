@@ -243,12 +243,6 @@ StatusCode JGTowerMaker::execute() {
   CHECK( JFexAlg(jTContainer));
   CHECK( GFexAlg(gTContainer));
 
-  const xAOD::TriggerTowerContainer* TTs;
-  if(evtStore()->retrieve(TTs,"xAODTriggerTowers").isFailure() ) {
-    ATH_MSG_INFO("ERROR loading trigger tower");
-    return StatusCode::FAILURE;
-  }
-
 
   CHECK(evtStore()->record( gTContainer, "GTower" ) );
   CHECK(evtStore()->record( gTAuxContainer, "GTowerAux." )) ;
