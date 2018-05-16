@@ -39,8 +39,8 @@ StatusCode AFP_Raw2DigiTool::initialize()
 
 StatusCode AFP_Raw2DigiTool::recoAll()
 {
-  CHECK( recoSiHits() );
-  CHECK( recoToFHits() );
+  ATH_CHECK( recoSiHits() );
+  ATH_CHECK( recoToFHits() );
 
   return StatusCode::SUCCESS;
 }
@@ -51,9 +51,9 @@ StatusCode AFP_Raw2DigiTool::recoSiHits()
 
   // create output containers
   xAOD::AFPSiHitContainer* siHitContainer = new xAOD::AFPSiHitContainer();
-  CHECK( evtStore()->record(siHitContainer, m_AFPSiHitsContainerName) );
+  ATH_CHECK( evtStore()->record(siHitContainer, m_AFPSiHitsContainerName) );
   xAOD::AFPSiHitAuxContainer* siHitAuxContainer = new xAOD::AFPSiHitAuxContainer();
-  CHECK( evtStore()->record(siHitAuxContainer, m_AFPSiHitsContainerName + "Aux.") );
+  ATH_CHECK( evtStore()->record(siHitAuxContainer, m_AFPSiHitsContainerName + "Aux.") );
   siHitContainer->setStore(siHitAuxContainer);
 
   // retrieve raw data
@@ -78,9 +78,9 @@ StatusCode AFP_Raw2DigiTool::recoToFHits()
 
   // create output containers
   xAOD::AFPToFHitContainer* tofHitContainer = new xAOD::AFPToFHitContainer();
-  CHECK( evtStore()->record(tofHitContainer, m_AFPHitsContainerNameToF) );
+  ATH_CHECK( evtStore()->record(tofHitContainer, m_AFPHitsContainerNameToF) );
   xAOD::AFPToFHitAuxContainer* tofHitAuxContainer = new xAOD::AFPToFHitAuxContainer();
-  CHECK( evtStore()->record(tofHitAuxContainer, m_AFPHitsContainerNameToF + "Aux.") );
+  ATH_CHECK( evtStore()->record(tofHitAuxContainer, m_AFPHitsContainerNameToF + "Aux.") );
   tofHitContainer->setStore(tofHitAuxContainer);
 
   // retrieve raw data

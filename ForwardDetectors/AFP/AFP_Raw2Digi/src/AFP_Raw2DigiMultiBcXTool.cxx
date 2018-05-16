@@ -45,8 +45,8 @@ StatusCode AFP_Raw2DigiMultiBcXTool::initialize()
 
 StatusCode AFP_Raw2DigiMultiBcXTool::recoAll()
 {
-  CHECK( recoSiHits() );
-  CHECK( recoToFHits() );
+  ATH_CHECK( recoSiHits() );
+  ATH_CHECK( recoToFHits() );
   
   return StatusCode::SUCCESS;
 }
@@ -72,9 +72,9 @@ StatusCode AFP_Raw2DigiMultiBcXTool::recoSiHits()
   hitContainers.reserve(m_containersNameSi.size());
   for (const std::string& name : m_containersNameSi) {
     xAOD::AFPSiHitContainer* container = new xAOD::AFPSiHitContainer();
-    CHECK( evtStore()->record(container, name) );
+    ATH_CHECK( evtStore()->record(container, name) );
     xAOD::AFPSiHitAuxContainer* auxContainer = new xAOD::AFPSiHitAuxContainer();
-    CHECK( evtStore()->record(auxContainer, name + "Aux.") );
+    ATH_CHECK( evtStore()->record(auxContainer, name + "Aux.") );
     container->setStore(auxContainer);
     hitContainers.push_back(container);
   }
@@ -126,9 +126,9 @@ StatusCode AFP_Raw2DigiMultiBcXTool::recoToFHits()
   hitContainers.reserve(m_containersNameToF.size());
   for (const std::string& name : m_containersNameToF) {
     xAOD::AFPToFHitContainer* container = new xAOD::AFPToFHitContainer();
-    CHECK( evtStore()->record(container, name) );
+    ATH_CHECK( evtStore()->record(container, name) );
     xAOD::AFPToFHitAuxContainer* auxContainer = new xAOD::AFPToFHitAuxContainer();
-    CHECK( evtStore()->record(auxContainer, name + "Aux.") );
+    ATH_CHECK( evtStore()->record(auxContainer, name + "Aux.") );
     container->setStore(auxContainer);
     hitContainers.push_back(container);
   }
