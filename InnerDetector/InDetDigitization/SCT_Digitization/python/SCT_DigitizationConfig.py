@@ -177,7 +177,6 @@ def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
         kwargs.setdefault("DataCompressionMode", 1) 
     else: 
         kwargs.setdefault("DataCompressionMode", 3) 
-        kwargs.setdefault("NoiseExpandedMode", True)
     # DataReadOutMode: 0 is condensed mode and 1 is expanded mode
     if globalflags.isOverlay() and globalflags.DataSource == 'geant4':
         kwargs.setdefault("DataReadOutMode", 0)

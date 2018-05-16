@@ -328,7 +328,7 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
 	float ftkTrkPt=1.e10;
 	if (fabs((ftkRawTrack)->getInvPt()) >= 1e-10) ftkTrkPt=1./(ftkRawTrack)->getInvPt();
 	
-	ATH_MSG_VERBOSE(" FTK     Track " << ftkTrackMatch.second << " pT " << ftkTrkPt << " eta " << ftkTrkEta << 
+	ATH_MSG_VERBOSE(" FTK     Track " << ftkTrackMatch.first << " pT " << ftkTrkPt << " eta " << ftkTrkEta << 
 			" phi0 " << (ftkRawTrack)->getPhi() << " d0 " << (ftkRawTrack)->getD0() << " z0 " << (ftkRawTrack)->getZ0());
 	
 	//	ATH_MSG_VERBOSE( " nPix: " << (ftkRawTrack)->getPixelClusters().size() << " nSCT: "<< (ftkRawTrack)->getSCTClusters().size()<< " barCode: "<<(ftkRawTrack)->getBarcode()  );
@@ -798,14 +798,15 @@ void FTK_RDO_MonitorAlgo::fillMaps(const FTK_RawTrackContainer* rawTracks, std::
     unsigned int tower = (*pTrack)->getTower();
     unsigned int sector = (*pTrack)->getSectorID();
 
-    if (m_towerID!=0) tower=m_towerID;
+    if (m_towerID!=0) {
+      ATH_MSG_VERBOSE( " Tower ID read from track " << tower << " set to " <<  m_towerID );
+      tower=m_towerID;
+    }
       
     ATH_MSG_VERBOSE( itr << std::hex <<
 		     ": Tower 0x" << tower << "     SectorID 0x" << (*pTrack)->getSectorID()   <<   
 		     "  RoadID 0x"  << (*pTrack)->getRoadID() << " LayerMap 0x" << (*pTrack)->getLayerMap() << std::dec <<
 		     " nPix: " << (*pTrack)->getPixelClusters().size() << " nSCT: "<< (*pTrack)->getSCTClusters().size());
-    
-    
 
     unsigned int iPlane=0,ihist=0;
     if (m_Nlayers==8) iPlane=1;
@@ -821,34 +822,53 @@ void FTK_RDO_MonitorAlgo::fillMaps(const FTK_RawTrackContainer* rawTracks, std::
             
       
       IdentifierHash hash=0xffffffff;
+      IdentifierHash hashfromTrack=0xffffffff;
+      IdentifierHash hashfromConstants =0xffffffff;
 
-      if (m_getHashFromTrack) hash = (*pTrack)->getPixelClusters()[iPlane].getModuleID();
-      
-      if (m_getHashFromConstants) {
-      
-	IdentifierHash hashfromConstants = this->getHash(40, sector, iPlane);
-	if (hashfromConstants > pixMaxHash) {
-	  if ((*m_moduleFromSector[tower]).size()>0)ATH_MSG_WARNING(" invalid pixel HashID 0x" << std::hex << hash << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
+      bool trackHashValid=false;
+      bool constHashValid=false;
+
+      if (m_getHashFromTrack) {
+	hashfromTrack = (*pTrack)->getPixelClusters()[iPlane].getModuleID();
+	if (hashfromTrack<pixMaxHash) {
+	  trackHashValid=true;
+	  ATH_MSG_VERBOSE(" pixel HashID from track 0x" << std::hex << hashfromTrack << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
 	} else {
-	
-	  if (m_getHashFromTrack) { 
-	    if (hashfromConstants != hash) {
-	    
-	      ATH_MSG_WARNING(" Pixel HashID missmatch: hash from Track 0x" << std::hex << hash  << " hash from Constants 0x" << hashfromConstants << std::dec <<" tower " << tower << " sector " << sector << " plane " << iPlane);
-	      unsigned int track_tower=tower, track_sector=sector, track_plane=iPlane;
-	      bool found = this->findHash(hash, false, track_tower, track_sector, track_plane);
-	      if (found) ATH_MSG_WARNING(" track hash found at tower " << track_tower << " sector " << track_sector  << " plane " << track_plane);   
-	      ATH_MSG_WARNING(m_id_helper->print_to_string(m_pixelId->wafer_id(hash)));
-	      ATH_MSG_WARNING(m_id_helper->print_to_string(m_pixelId->wafer_id(hashfromConstants)));
-	      
-	    } else {
-	      ATH_MSG_VERBOSE(" Pixel HashID successful match: hash from Track 0x" << std::hex << hash  << " hash from Constants 0x" << hashfromConstants << std::dec <<" tower " << tower << " sector " << sector << " plane " << iPlane);
-	    }
-	  }
-	}	    
-	if (!m_getHashFromTrack)hash =  hashfromConstants;
+	  ATH_MSG_WARNING(" invalid pixel HashID from track 0x" << std::hex << hashfromTrack << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
+	}
       }
       
+      if (m_getHashFromConstants) {
+	hashfromConstants = this->getHash(tower, sector, iPlane);
+	if (hashfromConstants < pixMaxHash) {
+	  constHashValid=true;
+	  ATH_MSG_VERBOSE(" pixel HashID from constants 0x" << std::hex << hashfromConstants << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
+	} else {
+	  ATH_MSG_WARNING(" invalid pixel HashID from constants 0x" << std::hex << hashfromConstants << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
+	}
+      }
+
+      if (constHashValid && trackHashValid) {
+	if (hashfromTrack != hashfromConstants) { 
+	  
+	  ATH_MSG_WARNING(" Pixel HashID missmatch: hash from Track 0x" << std::hex << hashfromTrack  << " hash from Constants 0x" << hashfromConstants << std::dec <<" tower " << tower << " sector " << sector << " plane " << iPlane);
+	  
+	} else {
+	  ATH_MSG_VERBOSE(" Pixel HashID successful match: hash from Track 0x" << std::hex << hashfromTrack  << " hash from Constants 0x" << hashfromConstants << std::dec <<" tower " << tower << " sector " << sector << " plane " << iPlane);
+	}
+      }
+      
+      if (m_getHashFromConstants && constHashValid) {
+	hash = hashfromConstants;
+	ATH_MSG_VERBOSE("Using Pixel hash from constants");
+      } else if (m_getHashFromTrack && trackHashValid) {
+	hash = hashfromTrack;
+	ATH_MSG_VERBOSE("Using Pixel hash from track");
+      } else {
+	ATH_MSG_VERBOSE("No valid Pixel hash, skipping this hit - hashfromTrack " << hashfromTrack << " hash from Constants " << hashfromConstants);
+	continue;
+      }
+
       
       h_pix_row[ihist]->Fill((*pTrack)->getPixelClusters()[iPlane].getRowCoord());
       h_pix_rowW[ihist]->Fill((*pTrack)->getPixelClusters()[iPlane].getRowWidth());
@@ -888,35 +908,51 @@ void FTK_RDO_MonitorAlgo::fillMaps(const FTK_RawTrackContainer* rawTracks, std::
       
 
       IdentifierHash hash=0xffffffff;
+      IdentifierHash hashfromTrack=0xffffffff;
+      IdentifierHash hashfromConstants=0xffffffff;
 
-      if (m_getHashFromTrack) hash = (*pTrack)->getSCTClusters()[isct].getModuleID();
-      
-      if (m_getHashFromConstants) {
-        IdentifierHash hashfromConstants = this->getHash(tower, sector, iPlane);
-	if (hashfromConstants > sctMaxHash) {
-	  if ((*m_moduleFromSector[tower]).size()>0)ATH_MSG_WARNING(" invalid SCT HashID 0x" << std::hex << hash << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
+      bool trackHashValid=false;
+      bool constHashValid=false;
+
+      if (m_getHashFromTrack) {
+	hashfromTrack = (*pTrack)->getSCTClusters()[isct].getModuleID();
+	if (hashfromConstants < sctMaxHash) {
+	  trackHashValid=true;
+	  ATH_MSG_WARNING(" SCT HashID from track 0x" << std::hex << hashfromTrack << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
 	} else {
-	  
-	  if (m_getHashFromTrack) {
-	    if (hashfromConstants != hash) {
-	    
-	      ATH_MSG_WARNING(" SCT HashID missmatch: hash from Track 0x" << std::hex << hash << " hash from Constants 0x" << hashfromConstants << std::dec <<" tower " << tower << " sector " << sector << " plane " << iPlane);
-
-	      unsigned int track_tower, track_sector, track_plane;
-
-	      bool found = this->findHash(hash, true, track_tower, track_sector, track_plane);
-		
-	      if (found) ATH_MSG_WARNING(" track hash found at tower " << track_tower << " sector " << track_sector  << " plane " << track_plane);   
-	      ATH_MSG_WARNING(m_id_helper->print_to_string(m_sctId->wafer_id(hash)));
-	      ATH_MSG_WARNING(m_id_helper->print_to_string(m_sctId->wafer_id(hashfromConstants)));
-
-	    
-	    } else {
-	      ATH_MSG_VERBOSE(" SCT HashID successful match: hash from Track 0x" << std::hex << hash << " hash from Constants 0x" << hashfromConstants << std::dec <<" tower " << tower << " sector " << sector << " plane " << iPlane);
-	    }
-	  }
+	  ATH_MSG_WARNING(" invalid SCT HashID from track 0x" << std::hex << hashfromTrack << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
+      
 	}
-	if (!m_getHashFromTrack) hash =  hashfromConstants;
+      }
+      if (m_getHashFromConstants) {
+        hashfromConstants = this->getHash(tower, sector, iPlane);
+	if (hashfromConstants < sctMaxHash) {
+	  ATH_MSG_WARNING(" SCT HashID from constants 0x" << std::hex << hashfromConstants << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
+	  constHashValid=true;
+	} else {
+	  ATH_MSG_WARNING(" invalid SCT HashID from constants 0x" << std::hex << hashfromConstants << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
+	} 
+      }
+	  
+      if ( trackHashValid && constHashValid) {
+	if(hashfromTrack != hashfromConstants) {
+	  
+	  ATH_MSG_WARNING(" SCT HashID missmatch: hash from Track 0x" << std::hex << hashfromTrack << " hash from Constants 0x" << hashfromConstants << std::dec <<" tower " << tower << " sector " << sector << " plane " << iPlane);
+	  
+	} else {
+	  ATH_MSG_VERBOSE(" SCT HashID successful match: hash from Track 0x" << std::hex << hashfromTrack << " hash from Constants 0x" << hashfromConstants << std::dec <<" tower " << tower << " sector " << sector << " plane " << iPlane);
+	}
+      }
+
+      if (m_getHashFromConstants && constHashValid) {
+	hash = hashfromConstants;
+	ATH_MSG_VERBOSE("Using SCT hash from constants");
+      } else if (m_getHashFromTrack && trackHashValid) {
+	hash = hashfromTrack;
+	ATH_MSG_VERBOSE("Using SCT hash from track");
+      } else {
+	ATH_MSG_VERBOSE("No valid SCT hash, skipping this hit - hashfromTrack " << hashfromTrack << " hash from Constants " << hashfromConstants );
+	continue;
       }
 
       ATH_MSG_VERBOSE(" FTK_RawSCT_Cluster " << isct << " FTK plane 0x" << iPlane << std::hex <<
@@ -1028,13 +1064,14 @@ const std::pair<unsigned int, unsigned int> FTK_RDO_MonitorAlgo::matchTrack(cons
 
       
       if (m_id_helper->is_pixel(hitId)) {
-	const std::pair<double, double>  locXlocY(locX,locY);
-	offlinetrackPixLocxLocy.insert({hash,locXlocY});
 	
 
 	if (hash < pixMaxHash) {
+	  const std::pair<double, double>  locXlocY(locX,locY);
+	  offlinetrackPixLocxLocy.insert({hash,locXlocY});
 	  if (pixList[hash]) {
-	    ATH_MSG_VERBOSE(" Pixel module " << hash << " is on the following FTK tracks:");
+	    ATH_MSG_VERBOSE("Pixel Hit on Offline track: hash 0x"<<std::hex<<hash<<": "<<  m_id_helper->print_to_string(m_pixelId->wafer_id(hash))<< std::dec);
+	    ATH_MSG_VERBOSE(" is on the following FTK tracks:");
 	    
 	    for (auto& ipixtr:*pixList[hash]) {
 	      ATH_MSG_VERBOSE(ipixtr);
@@ -1051,7 +1088,8 @@ const std::pair<unsigned int, unsigned int> FTK_RDO_MonitorAlgo::matchTrack(cons
 	
 	if (hash < sctMaxHash) {
 	  if (sctList[hash]) {
-	    ATH_MSG_VERBOSE(" SCT module " << hash << " is on the following FTK tracks:");
+	    ATH_MSG_VERBOSE("SCT Hit on Offline track: hash 0x"<<std::hex<<hash<<": "<<  m_id_helper->print_to_string(m_sctId->wafer_id(hash))<< std::dec);
+	    ATH_MSG_VERBOSE(" is on the following FTK tracks:");
 	    
 	    for (auto& iscttr:*sctList[hash]) {
 	      ATH_MSG_VERBOSE(iscttr);
@@ -1065,16 +1103,7 @@ const std::pair<unsigned int, unsigned int> FTK_RDO_MonitorAlgo::matchTrack(cons
       
     }
   }
-  
-  
-  
-  
-  ATH_MSG_VERBOSE(" Offline Track is matched to the following FTK tracks");
-  
-  for ( auto& i:ftkTrackIndexList) {
-    ATH_MSG_VERBOSE(i);
-  }
-  
+    
 
   if (ftkTrackIndexList.size()==0) return index_freq;
 
@@ -1126,7 +1155,10 @@ void FTK_RDO_MonitorAlgo::compareTracks(const FTK_RawTrack* ftkTrack,
 					) {
 
   unsigned int iPlane = 0;
+  unsigned int pixMaxHash = m_pixelId->wafer_hash_max();
+  unsigned int sctMaxHash = m_sctId->wafer_hash_max();
   
+
   for( unsigned int i = 0; i < 4; ++i,iPlane++){
     
 	
@@ -1148,6 +1180,9 @@ void FTK_RDO_MonitorAlgo::compareTracks(const FTK_RawTrack* ftkTrack,
     h_ftk_pix_etaClusWidth->Fill((double) etaWidth);
   
     const IdentifierHash hash = (ftkTrack)->getPixelClusters()[i].getModuleID();
+
+    if (hash > pixMaxHash) continue;
+
     Identifier wafer_id = m_pixelId->wafer_id(hash); // Need to set up this tool
     unsigned int layer = m_pixelId->layer_disk(wafer_id);
     bool isBarrel = (m_pixelId->barrel_ec(wafer_id)==0);
@@ -1235,6 +1270,9 @@ void FTK_RDO_MonitorAlgo::compareTracks(const FTK_RawTrack* ftkTrack,
     
     int strip = (int) stripCoord;
     IdentifierHash scthash = (ftkTrack)->getSCTClusters()[isct].getModuleID();
+
+    if (scthash > sctMaxHash) continue;
+
     unsigned int clusterWidth=(ftkTrack)->getSCTClusters()[isct].getHitWidth();
 
 
@@ -1447,7 +1485,6 @@ void FTK_RDO_MonitorAlgo::compareTracks(const Trk::Track* ftkTrack,
 
 const std::pair<double,double> FTK_RDO_MonitorAlgo::getPixLocXlocY(const IdentifierHash hash, const float rawLocalPhiCoord, const float rawLocalEtaCoord) {
 	
-  
   const InDetDD::SiDetectorElement* pixelDetectorElement = m_pixelManager->getDetectorElement(hash);
   const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&pixelDetectorElement->design());
   

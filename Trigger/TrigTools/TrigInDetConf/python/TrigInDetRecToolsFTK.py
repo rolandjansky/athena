@@ -161,3 +161,19 @@ TrigFTK_RawVertexFinderTool=  FTK_VertexFinderTool(name="FTK_RawVertexFinderTool
 ToolSvc+=TrigFTK_RawVertexFinderTool
 if (InDetTrigFlags.doPrintConfigurables()):
   print TrigFTK_RawVertexFinderTool
+
+from TrkVertexWeightCalculators.TrkVertexWeightCalculatorsConf import Trk__SumPtVertexWeightCalculator
+TrigFTK_VertexWeightCalculator = Trk__SumPtVertexWeightCalculator(name = "TrigFTK_SumPtVertexWeightCalculator",
+                                                                  DoSumPt2Selection = True)
+if (InDetTrigFlags.doPrintConfigurables()):
+  print TrigFTK_VertexWeightCalculator 
+ 
+
+ToolSvc += TrigFTK_VertexWeightCalculator 
+
+from TrkVertexTools.TrkVertexToolsConf import Trk__VertexCollectionSortingTool
+TrigFTK_VertexCollectionSortingTool = Trk__VertexCollectionSortingTool(name                   = "TrigFTK_VertexCollectionSortingTool",
+                                                                       VertexWeightCalculator = TrigFTK_VertexWeightCalculator)
+ToolSvc += TrigFTK_VertexCollectionSortingTool
+if (InDetTrigFlags.doPrintConfigurables()):
+  print TrigFTK_VertexCollectionSortingTool

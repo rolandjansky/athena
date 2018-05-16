@@ -160,7 +160,8 @@ runArgsFromTrfOptionalTF = {
     'ITkMode': False,
     'Chi2Cut': 17,
     'Chi2Cut_Maj': 14,
-    'Chi2DofCut': 4, # if >0 the previous values are ignored
+    'Chi2DofCutAux': 4, # if >0 the previous values are ignored
+    'Chi2DofCutSSB': 4, # if >0 the previous values are ignored
     'Chi2Cut_VetoMaj': -1, # no majority veto by default
     'HitWarrior': 2,
     'KeepRejected': 0,
@@ -756,7 +757,8 @@ FTKTagOptions['FitITk'] = {
     'UseCompressedBank': False,
     'SecondStageFit': False,
     'TRACKFITTER_MODE': 1,
-    'Chi2DofCut': 1000000,
+    'Chi2DofCutAux': 1000000,
+    'Chi2DofCutSSB': 1000000,
     'FixEndCapL0': False, 'IBLMode': 0,
     'ITkMode': True,
     'PixelClusteringMode': 1,
@@ -772,7 +774,8 @@ FTKTagOptions['FitITkSaP'] = {
     'UseCompressedBank': False,
     'SecondStageFit': False,
     'TRACKFITTER_MODE': 1,
-    'Chi2DofCut': 1000000,
+    'Chi2DofCutAux': 1000000,
+    'Chi2DofCutSSB': 1000000,
     'IBLMode': 0,
     'ITkMode': True,
     'PixelClusteringMode': 1,
@@ -789,7 +792,8 @@ FTKTagOptions['FitITkDC'] = {
     'CachedBank': True,
     'SecondStageFit': False,
     'TRACKFITTER_MODE': 1,
-    'Chi2DofCut': 1000000,
+    'Chi2DofCutAux': 1000000,
+    'Chi2DofCutSSB': 1000000,
     'IBLMode': 0,
     'ITkMode': True,
     'PixelClusteringMode': 1,

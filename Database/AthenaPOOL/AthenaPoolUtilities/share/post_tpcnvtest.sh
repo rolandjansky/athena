@@ -218,7 +218,7 @@ PP="$PP"'|WARNING Unable to register callback|WARNING Unable to locate catalog'
 PP="$PP"'|^ImplicitCollection Info|^GeoModelSvc +WARNING.*does not match|^RootCollection Info|^RootCollectionSchemaEditor (Info|Warning)'
 PP="$PP"'|^Warning in material CabCoolEcD3'
 PP="$PP"'|has no streamer or dictionary'
-PP="$PP"'|^RootDatabase.open Always'
+PP="$PP"'|^RootDatabase.open (Info|Always)'
 PP="$PP"'|No valid proxy for object /Generation/Parameters'
 
 # Messages that differ between tests run in AtlasCore vs AtlasEvent.
