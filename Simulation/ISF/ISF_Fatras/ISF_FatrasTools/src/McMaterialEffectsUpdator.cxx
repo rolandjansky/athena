@@ -614,16 +614,8 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
       double mom = childs[ic]->momentum().mag();
 
       if (mom<m_minimumMomentum) continue;
-      Trk::ParticleHypothesis pHypothesis = m_pdgToParticleHypothesis.convert(childs[ic]->pdgCode(),childs[ic]->charge());
-      const Trk::CurvilinearParameters*  cparm=new Trk::CurvilinearParameters(childs[ic]->position(),childs[ic]->momentum(),childs[ic]->charge());
-      Trk::PathLimit pLim = m_samplingTool->sampleProcess(mom,childs[ic]->charge(),pHypothesis);
-
+      
       // TODO sample decays and save the material collection & path limits at the exit from the layer (ISFFatrasParticle ?)
-
-      // material fraction : flip if direction of propagation changed
-      double ci = m_layer->surfaceRepresentation().normal().dot( parm->momentum().unit() );
-      double co = m_layer->surfaceRepresentation().normal().dot( childs[ic]->momentum().unit() );
-      double remMat =  ci*co <0 ? (1-matFraction)    : matFraction;
 
       // in the validation mode, add process info
       if (m_validationMode) {
