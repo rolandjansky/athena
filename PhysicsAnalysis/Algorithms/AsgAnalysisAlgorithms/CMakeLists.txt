@@ -25,7 +25,7 @@ atlas_add_library( AsgAnalysisAlgorithmsLib
    AsgAnalysisAlgorithms/*.h AsgAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS AsgAnalysisAlgorithms
    LINK_LIBRARIES xAODBase SelectionHelpersLib SystematicsHandlesLib
-     PATInterfaces AnaAlgorithmLib AsgAnalysisInterfaces
+     PATInterfaces AnaAlgorithmLib AsgAnalysisInterfaces PATCoreLib
    PRIVATE_LINK_LIBRARIES AsgTools RootCoreUtils
      xAODJet xAODMuon xAODEgamma )
 

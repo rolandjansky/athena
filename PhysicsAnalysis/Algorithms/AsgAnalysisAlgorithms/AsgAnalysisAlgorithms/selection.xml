@@ -1,5 +1,6 @@
 <lcgdict>
 
+   <class name="CP::AsgPtEtaSelectionTool" />
    <class name="CP::AsgSelectionAlg" />
    <class name="CP::AsgViewSelectionAlg" />
    <class name="CP::KinematicHistAlg" />
