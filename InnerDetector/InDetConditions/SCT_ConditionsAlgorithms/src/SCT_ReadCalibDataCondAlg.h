@@ -36,9 +36,6 @@ class SCT_ReadCalibDataCondAlg : public AthAlgorithm
  private:
   enum Feature {GAIN=0, NOISE=1, NFEATURES=2};
 
-  // Flag to set true to be able to use all methods not just isGood
-  bool m_recoOnly;
-
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyGain{this, "ReadKeyGain", "/SCT/DAQ/Calibration/NPtGainDefects", "Key of input (raw) gain defect conditions folder"};
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyNoise{this, "ReadKeyNoise", "/SCT/DAQ/Calibration/NoiseOccupancyDefects", "Key of input (raw) noise defect conditions folder"};
   SG::WriteCondHandleKey<SCT_CalibDefectData> m_writeKeyGain{this, "WriteKeyGain", "SCT_CalibDefectNPtGain", "Key of output (derived) gain defect conditions data"};

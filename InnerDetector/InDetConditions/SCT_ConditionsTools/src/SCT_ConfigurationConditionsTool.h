@@ -81,7 +81,7 @@ private:
   mutable std::vector<EventContext::ContextEvt_t> m_cache;
   // Pointer of SCT_MonitorConditionsCondData
   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_ConfigurationCondData> m_condData;
-  SG::ReadCondHandleKey<SCT_ConfigurationCondData> m_condKey;
+  SG::ReadCondHandleKey<SCT_ConfigurationCondData> m_condKey{this, "CondKey", "SCT_ConfigurationCondData", "SCT DAQ configuration"};
 
   const SCT_ID*                         m_pHelper;                  //!< ID helper for SCT
   const InDetDD::SCT_DetectorManager*   m_pManager;                 //!< SCT detector manager
