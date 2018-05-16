@@ -95,6 +95,22 @@ class ComponentAccumulator(object):
         seq += newseq
         return newseq 
 
+    def moveSequence(self, sequence, destination ):
+        """ moves seqeunce from one sub-sequence to another, primary use case HLT Control Flow """
+        seq = findSubSequence(seq, sequence )
+        if seq == None:
+            raise ConfigurationError("Can not find sequence to move %s " % sequence )
+
+        dest = findSubSequence(seq, destination )
+        if dest == None:
+            raise ConfigurationError("Can not find destination sequence %s to move to " % destination )
+
+        removeSubSequence( seq )
+
+
+        dest += seq
+        return seq
+
     def addEventAlgo(self, algo,sequence=None):                
         if not isinstance(algo, ConfigurableAlgorithm):
             raise TypeError("Attempt to add wrong type: %s as event algorithm" % type( algo ).__name__)
