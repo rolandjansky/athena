@@ -345,22 +345,10 @@ namespace MuonGM {
                 if (RPCprint) std::cout<<"ProcessRPC:: s_pitch, z_pitch "
                                        <<rpc->stripPitchS <<" "<<rpc->stripPitchZ<<std::endl;
             
-                //// this if has to disappear .... everything has to go back to
-                //// what happens "else"
-//                 if ((mysql->getGeometryVersion()).substr(0,1) == "Q" && (!mysql->amdb_from_RDB()))
-//                 {
-//                     rpc->NstripPanels_in_s = wrpc[i].nsrost;
-//                     rpc->NstripPanels_in_z = 1;
-//                     rpc->NGasGaps_in_s = wrpc[i].nzrost;
-//                     rpc->NGasGaps_in_z = 1;
-//                 }
-//                 else 
-//                 {
-                    rpc->NstripPanels_in_s = wrpc[i].nsrest;
-                    rpc->NstripPanels_in_z = 1;
-                    rpc->NGasGaps_in_s = wrpc[i].nzrest;
-                    rpc->NGasGaps_in_z = 1; 
-//                 }
+                rpc->NstripPanels_in_s = wrpc[i].nsrest;
+                rpc->NstripPanels_in_z = 1;
+                rpc->NGasGaps_in_s = wrpc[i].nzrest;
+                rpc->NGasGaps_in_z = 1;
                 
                 if (RPCprint)
                     std::cout<<"ProcessRPC:: ngg, nsp, nzp "<<rpc->NGasGaps_in_s<<" "<<rpc->NstripPanels_in_s
@@ -497,7 +485,6 @@ namespace MuonGM {
                     csc->cathreadoutpitch=wcsc[i].pcatre*CLHEP::cm; // it was not used before but set by hand in CscReadoutEl.
                     // Azimuthal strip pitch
                     if ((mysql->getGeometryVersion()).substr(0,3)       == "P03")         csc->phireadoutpitch=20.*CLHEP::mm;
-                    else if ((mysql->getGeometryVersion()).substr(0,3)  == "Q02")         csc->phireadoutpitch=12.92*CLHEP::mm;
                     else  {
                         //csc->phireadoutpitch = wcsc[i].psndco*CLHEP::cm;
                         csc->phireadoutpitch = wcsc[i].azcat*CLHEP::cm;
@@ -968,9 +955,6 @@ namespace MuonGM {
                 if (p.zindex<0 && name.substr(0,1) == "B" && hasMdts) p.z = p.z-halfpitch;
             
                 if (name == "BOG1" && (mysql->getGeometryVersion()).substr(0,3) == "P03") p.z=p.z+165.0*CLHEP::mm;
-                if ( (name == "BOG1" || name == "BOG2" || name == "BOG4" || name == "BOG5") &&
-                     (mysql->getGeometryVersion()) == "Q02_initial" && mysql->getCutoutsBogFlag()==0)
-                    p.z=p.z+165.0*CLHEP::mm;
                 
                 if (name == "CSS1" && (mysql->getGeometryVersion()).substr(0,10) == "P03-DC2v01") {
                     log<<MSG::INFO<<" CSS original z Position is "<<p.z<<std::endl;
@@ -1274,8 +1258,7 @@ namespace MuonGM {
         std::string name = "XXX0", type_name="XXX";
 
         double default_halfpitch = 1.55*CLHEP::cm;
-        if ((mysql->getGeometryVersion()).substr(0,1) == "Q" ||
-            (mysql->getGeometryVersion()).substr(0,1) == "R" )
+        if ((mysql->getGeometryVersion()).substr(0,1) == "R" )
         {
             default_halfpitch = 15.0175*CLHEP::mm;
         }
@@ -1418,12 +1401,6 @@ namespace MuonGM {
             {
                 c->posy = c->posy-165.0*CLHEP::mm;
             }
-            if ( (name == "BOG1" || name == "BOG2" || name == "BOG4" || name == "BOG5") &&
-                 (mysql->getGeometryVersion()) == "Q02_initial" && mysql->getCutoutsBogFlag()==0) {
-                if (cartec != "MDT" && cartec != "CHV" && cartec != "CMI" && cartec != "CRO")
-                    c->posy = c->posy-165.0*CLHEP::mm;
-            }
-            
         
             //std::cout<<" This component of station "<<name<<" is a "<<c->name<<std::endl;
             if (cartec == "CSC")
@@ -1488,12 +1465,6 @@ namespace MuonGM {
                         // <<" posy   redefined = "<<derc->posy<<std::endl;
                     }
                 }
-                if ( (name == "BOG1" || name == "BOG2" || name == "BOG4" || name == "BOG5") &&
-                     mysql->getGeometryVersion() == "Q02_initial" && mysql->getCutoutsBogFlag()==0) 
-                {
-                    derc->dy = derc->dy - 12*2.*halfpitch; // remove 6 tubes on each side
-                    derc->posy = derc->posy+14.51*CLHEP::mm;
-                }
                 //ProcessMDT(derc->name, c->deadx);
             }
             else if (cartec=="RPC"){
@@ -1521,14 +1492,6 @@ namespace MuonGM {
                            <<derc->name<<" ---- A problem in primary NUMBERS ? ---- resetting to LB01"<<endmsg;
                         derc->name="LB01";
                     }
-                }
-                // these are standard components: do nothing
-                if ( (name == "BOG1" || name == "BOG2" || name == "BOG4" || name == "BOG5") &&
-                     (mysql->getGeometryVersion()) == "Q02_initial" && mysql->getCutoutsBogFlag()==0 && 
-                     (cartec=="CHV" || cartec=="CRO" || cartec=="CMI") ) 
-                {
-                    c->dy = c->dy - 12*2.*halfpitch; // remove 6 tubes on each side
-                    c->posy = c->posy+14.51*CLHEP::mm;
                 }
             }
             else
