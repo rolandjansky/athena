@@ -126,7 +126,9 @@ SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash) const {
       SCT_ByteStreamErrors::MaskedLink,
       SCT_ByteStreamErrors::ROBFragmentError,
       SCT_ByteStreamErrors::MissingLinkHeaderError,
-      SCT_ByteStreamErrors::MaskedROD};
+      SCT_ByteStreamErrors::HeaderTrailerLimitError,
+      SCT_ByteStreamErrors::MaskedROD,
+      SCT_ByteStreamErrors::TruncatedROD};
   for (unsigned int i{0}; i<errorsToBeChecked.size(); i++) {
     const std::set<IdentifierHash>& errorSet{getErrorSet(errorsToBeChecked[i], ctx)};
     result = (std::find(errorSet.begin(), errorSet.end(), elementIdHash) == errorSet.end());

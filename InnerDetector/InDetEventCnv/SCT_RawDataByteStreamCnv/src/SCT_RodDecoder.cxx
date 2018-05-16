@@ -674,7 +674,10 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
         }
   
         if (d[n]&0x800) {
-          //ErrorTrailer = true;/** no data should appear between header and trailer */
+          //ErrorTrailer = true;
+          /** no data should appear between header and trailer
+              See 1.2.2 Formatter FPGA - Serial Data Decoding and Formatting of
+              http://www-eng.lbl.gov/~jmjoseph/Atlas-SiROD/Manuals/usersManual-v164.pdf */
           ATH_MSG_DEBUG("    Trailer: xxx Header-Trailer limit ERROR " << std::hex << d[n]);
           m_trail_error_limit++;
           addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::HeaderTrailerLimitError, errs);
