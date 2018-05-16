@@ -17,12 +17,10 @@ from ROOT import kTeal
 from ROOT import gStyle,gROOT,gPad
 
 
-sys.path.append("../Misc")
+sys.path.append("/afs/cern.ch/user/l/larmon/public/prod/Misc")
 from DeMoLib import strLumi, initialize
 
 from gb import MakeTH1,SetXLabel,MakeLegend
-
-import runList
 
 global debug
 debug = False
@@ -36,16 +34,15 @@ import os,sys
 from argparse import RawTextHelpFormatter,ArgumentParser
 
 from DQDefects import DefectsDB
-gROOT.LoadMacro("../Misc/AtlasLabels.C")
 
 parser = ArgumentParser(description='',formatter_class=RawTextHelpFormatter)
 parser.add_argument('-r','--run',type=int,dest='parser_run',help='Run or run range (relevant only for lossPerRun)',nargs='*',action='store')
 parser.add_argument('-y','--year',dest='parser_year',default = ["2018"],nargs='*',help='Year [Default: 2018]',action='store')
 parser.add_argument('-t','--tag',dest='parser_tag',default = ["Tier0_2018"],nargs='*',help='Defect tag [Default: "Tier0_2018"]',action='store')
-parser.add_argument('-d','--defect',type=str,dest='parser_defect',default="",help='Defect to consider (if not specified: all)',action='store')
 parser.add_argument('-v','--veto',type=str,dest='parser_veto',default="",help='Veto to consider (if not specified: all)',action='store')
 parser.add_argument('-s','--system',dest='parser_system',default="LAr",help='System: LAr, CaloCP [Default: "LAr"]',action='store')
-parser.add_argument('-d','--directory',dest='parser_directory',default="/afs/cern.ch/user/l/larmon/public/prod/LADIeS",help='Directory to display',action='store')
+parser.add_argument('-d','--directory',dest='parser_directory',default=".",help='Directory to display',action='store')
+parser.add_argument('--defect',type=str,dest='parser_defect',default="",help='Defect to consider (if not specified: all)',action='store')
 parser.add_argument('--noRecovPlot',dest='parser_noRecovPlot',help='Do not plot the recoverable histograms',action='store_false')
 parser.add_argument('--lossPerRun',dest='parser_plotLPR',help='Plot the loss run and per type',action='store_true')
 parser.add_argument('--diffTwoTags',dest='parser_diff2tags',help='Compare run by run the data losses for two tags (same year necessary)',action='store_true')
@@ -82,7 +79,14 @@ for iYear in args.parser_year:
       yearTagList.append(yearTag)
       yearTagDir[yearTag] = directory
       yearTagTag[yearTag] = iTag # Used only to retrieve comments
-      runGRL[yearTag] = runList.runlist["%s_grl"%iYear] # used only to determine if a run belongs to GRL in recap defects - Data in loss*.txt file NOT reliable
+
+      RunListDat = "RunList/grl-%s.dat"%(iYear)
+      if os.path.exists(RunListDat):
+        fRunList = open(RunListDat,'r')
+        runGRL[yearTag] = []
+        for iRun in fRunList.readlines():
+          runGRL[yearTag].append(int(iRun)) # used only to determine if a run belongs to GRL in recap defects - Data in loss*.txt file NOT reliable
+        fRunList.close()
 
 if len(args.parser_year) == 1:
   singleYear = True
@@ -187,6 +191,10 @@ for iYT in yearTagList:
   stackResults[iYT] = {}
 
   yearStatsArchiveFilename = '%s/TProfiles.root'%(yearTagDir[iYT])
+  if not (os.path.exists(yearStatsArchiveFilename)):
+    print "No %s found - > Skipping"%yearStatsArchiveFilename
+    continue
+    
   file[iYT] = TFile(yearStatsArchiveFilename)
   h1Period_IntLuminosity[iYT] = file[iYT].Get("h1Period_IntLuminosity_archive")
   subperiodNb[iYT] = h1Period_IntLuminosity[iYT].GetNbinsX()

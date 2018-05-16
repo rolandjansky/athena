@@ -375,7 +375,7 @@ def getKernel_ATLFASTIIF_PileUp(name="ISF_Kernel_ATLFASTIIF_PileUp", **kwargs):
     kwargs.setdefault("IDSimulationSelectors"      , [ #'ISF_FatrasRandomSelector',
                                                        #'ISF_FatrasPileupSelector_noHits',
                                                        'ISF_FatrasPileupSelector',
-                                                       'ISF_DefaultFatrasNewExtrapolationSelector' ]            )
+                                                       'ISF_DefaultFatrasSelector' ]            )
     kwargs.setdefault("CaloSimulationSelectors"    , [ 'ISF_MuonFatrasSelector',
                                                        'ISF_EtaGreater5ParticleKillerSimSelector',
                                                        #'ISF_FastCaloSimPileupSelector',
