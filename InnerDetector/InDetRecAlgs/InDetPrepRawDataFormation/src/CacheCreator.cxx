@@ -46,16 +46,7 @@ namespace InDet{
         ATH_CHECK( m_SCTSpacePointCacheKey.initialize(!m_SCTSpacePointCacheKey.key().empty()) );
         ATH_CHECK( m_SCTRDOCacheKey.initialize(!m_SCTRDOCacheKey.key().empty()) );
         ATH_CHECK( m_PixRDOCacheKey.initialize(!m_PixRDOCacheKey.key().empty()) );
-        ATH_CHECK( m_condKey.initialize() );
-        ATH_CHECK( m_condKey2.initialize() );
-        ATH_CHECK( m_condKey3.initialize() );
-        ATH_CHECK( m_condKey4.initialize() );
         ATH_CHECK( m_condKey5.initialize() );
-        ATH_CHECK( m_condKey6.initialize() );
-        ATH_CHECK( m_condKey7.initialize() );
-        ATH_CHECK( m_condKey8.initialize() );
-        ATH_CHECK( m_condKey9.initialize() );
-        ATH_CHECK( m_condKey10.initialize() );
         ATH_CHECK( m_condKey11.initialize() );
         if(!m_disableTRT) ATH_CHECK(detStore()->retrieve(m_pTRTHelper  , "TRT_ID"));
         ATH_CHECK(detStore()->retrieve(m_sct_idHelper, "SCT_ID"));

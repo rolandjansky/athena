@@ -15,7 +15,6 @@ SCT_ConfigurationConditionsTool::SCT_ConfigurationConditionsTool(const std::stri
   m_mutex{},
   m_cache{},
   m_condData{},
-  m_condKey{std::string{"SCT_ConfigurationCondData"}},
   m_pHelper{nullptr},
   m_pManager{nullptr},
   m_checkStripsInsideModules{true}

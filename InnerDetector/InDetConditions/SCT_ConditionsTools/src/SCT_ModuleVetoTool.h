@@ -71,7 +71,7 @@ class SCT_ModuleVetoTool: public extends<AthAlgTool, ISCT_ConditionsTool> {
   // Pointer of SCT_ModuleVetoCondData
   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_ModuleVetoCondData> m_condData;
   // ReadCondHandleKey
-  SG::ReadCondHandleKey<SCT_ModuleVetoCondData> m_condKey;
+  SG::ReadCondHandleKey<SCT_ModuleVetoCondData> m_condKey{this, "CondKey", "SCT_ModuleVetoCondData", "SCT modules to be vetoed"};
   // Fill data from m_badElements
   StatusCode fillData();
   // Provides SCT_ModuleVetoCondData pointer

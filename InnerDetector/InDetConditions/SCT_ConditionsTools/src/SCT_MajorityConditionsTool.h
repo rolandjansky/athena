@@ -64,7 +64,7 @@ class SCT_MajorityConditionsTool: public extends<AthAlgTool, ISCT_DetectorLevelC
   // Pointer of SCT_MajorityCondData
   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_MajorityCondData> m_condData;
 
-  SG::ReadCondHandleKey<SCT_MajorityCondData> m_condKey;
+  SG::ReadCondHandleKey<SCT_MajorityCondData> m_condKey{this, "CondKey", "SCT_MajorityCondData", "Majority of SCT status"};
   const SCT_MajorityCondData* getCondData(const EventContext& ctx) const;
 };
 

@@ -16,6 +16,7 @@ SCT_SensorsTool::SCT_SensorsTool(const std::string& type, const std::string& nam
   m_cache{},
   m_condData{},
   m_condKey{"SCT_SensorsCondData"} {
+    declareProperty("CondKey", m_condKey);
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode SCT_SensorsTool::initialize() {
