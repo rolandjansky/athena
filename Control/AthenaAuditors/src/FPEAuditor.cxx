@@ -274,9 +274,9 @@ FPEAuditor::report_fpe(const std::string& step,
   if (raised) {
     std::stringstream evStr;
     //try to get the event number:
-    StoreGateSvc* m_evtStore=nullptr; 
-    if (service("StoreGateSvc",m_evtStore).isSuccess()) {
-      const xAOD::EventInfo* ei=m_evtStore->tryConstRetrieve<xAOD::EventInfo>(m_evtInfoKey);
+    StoreGateSvc* evtStore=nullptr; 
+    if (service("StoreGateSvc",evtStore).isSuccess()) {
+      const xAOD::EventInfo* ei=evtStore->tryConstRetrieve<xAOD::EventInfo>(m_evtInfoKey);
       if (ei) {
 	evStr << " on event " << ei->eventNumber();
       }
