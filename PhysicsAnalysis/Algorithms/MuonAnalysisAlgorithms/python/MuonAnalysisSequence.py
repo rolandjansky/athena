@@ -57,9 +57,8 @@ def makeMuonAnalysisSequence (dataType) :
         alg.isData = 0
         pass
     alg.efficiencyDecoration = "muon_eff"
-    # these have to be put back in if we want to pass bad muons in
-    # alg.outOfValidity = 2 #silent
-    # alg.outOfValidityDeco = "bad_eff"
+    alg.outOfValidity = 2 #silent
+    alg.outOfValidityDeco = "bad_eff"
     sequence.append ( {"alg" : alg, "in" : "muons", "out" : "muonsOut",
                        "sys" : "(^MUON_EFF_.*)"} )
 
