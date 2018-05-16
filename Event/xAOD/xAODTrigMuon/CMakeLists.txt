@@ -22,7 +22,7 @@ atlas_add_library( xAODTrigMuon
                    Root/*.cxx
                    PUBLIC_HEADERS xAODTrigMuon
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthContainers xAODBase xAODCore xAODTracking
+                   LINK_LIBRARIES AthContainers xAODBase xAODCore xAODTracking AthenaBaseComps
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks )
 
 atlas_add_dictionary( xAODTrigMuonDict
