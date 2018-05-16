@@ -531,7 +531,10 @@ StatusCode MM_FastDigitizer::execute() {
     //Record the SDO collection in StoreGate
     std::vector<MuonSimData::Deposit> deposits;
     deposits.push_back(deposit);
-    h_sdoContainer->insert ( std::make_pair ( id, MuonSimData(deposits,0) ) );
+    MuonSimData simData(deposits, 0);
+    simData.setPosition(hitOnSurfaceGlobal);
+    simData.setTime(globalHitTime);
+    h_sdoContainer->insert ( std::make_pair ( id, simData ) );
     // OLD CODE ENDS HERE
 
     previousHit = &hit;
