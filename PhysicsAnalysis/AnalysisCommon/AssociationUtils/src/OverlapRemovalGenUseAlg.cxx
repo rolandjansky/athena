@@ -28,7 +28,7 @@ OverlapRemovalGenUseAlg::OverlapRemovalGenUseAlg(const std::string& name,
 			"Input label for the OverlapRemovalTool");
 	declareProperty("OverlapLabel", m_overlapLabel="overlaps",
 			"Output label for the OverlapRemovalTool");
-	declareProperty("BJetLabel", m_bJetLabel="isBJet",
+	declareProperty("BJetLabel", m_bJetLabel="",
 			"Input label for b-tagged jets");
 	declareProperty("ElectronLabel", m_electronLabel="DFCommonElectronsLHLoose",
 			"Input label for passing electrons");
@@ -156,9 +156,9 @@ template<>
 bool OverlapRemovalGenUseAlg::selectObject<xAOD::Jet>(const xAOD::Jet& obj)
 {
   // Label bjets
-  const static SG::AuxElement::ConstAccessor<float> acc_applyBTag("DFCommonJets_FixedCutBEff_85_MV2c10");
-  static ort::inputDecorator_t bJetDec(m_bJetLabel);
-  bJetDec(obj) = acc_applyBTag(obj);
+  //const static SG::AuxElement::ConstAccessor<float> acc_applyBTag("DFCommonJets_FixedCutBEff_85_MV2c10");
+  //static ort::inputDecorator_t bJetDec(m_bJetLabel);
+  //bJetDec(obj) = acc_applyBTag(obj);
   // Selection
   if(obj.pt() < m_ptCut*GeV || std::abs(obj.eta()) > m_etaCut) return false;
   return true;
