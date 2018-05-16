@@ -122,6 +122,7 @@ class LumiBlockCollection:
             self.l1_match_rulebook = []
             self.lumi_match_rulebook = []
             log.info ("Now performing closest TimeStamp matching for master point set...")
+            self.write_out_count -= 2
             try:
                 for i in range (self.write_out_count) :
                     for j, lumi_time in enumerate(self.lumi_iovs) :
