@@ -882,6 +882,12 @@ xAODEventSelector::createMetaDataRootBranchAddresses() const
       const void* value_ptr = m_tevent;
       const std::string type_name = leaf->GetTypeName();
       const std::string br_name = branch->GetName();
+      // Skip if type_name does contain xAOD, ie. is not an xAOD container
+      const std::string toCheck = "xAOD::";
+      if (type_name.find(toCheck) == std::string::npos) {
+	ATH_MSG_DEBUG("** Skip type-name = " << type_name << ", br_name = " << br_name );
+	continue;
+      }
       const std::string sg_key = br_name;//m_tupleName.value()+"/"+br_name;
       TClass *cls = TClass::GetClass(type_name.c_str());
       const std::type_info *ti = 0;
@@ -911,12 +917,7 @@ xAODEventSelector::createMetaDataRootBranchAddresses() const
 	  continue;
 	}
 
-	// Skip if type_name does contain xAOD, ie. is not an xAOD container
-	const std::string toCheck = "xAOD::";
-	if (type_name.find(toCheck) == std::string::npos) {
-	  ATH_MSG_DEBUG("** Skip type-name = " << type_name << ", br_name = " << br_name );
-	  continue;
-	}
+	
 
 	ATH_MSG_DEBUG("id = " << id << ", m_metadataName.value() = " << m_metadataName.value() << ", br_name = " << br_name << ", value_ptr = " << value_ptr);
 	Athena::xAODBranchAddress* addr = new Athena::xAODBranchAddress
