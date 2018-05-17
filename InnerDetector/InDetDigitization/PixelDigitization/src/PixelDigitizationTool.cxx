@@ -104,7 +104,8 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   m_eventCounter(0),
   m_eventNextUpdate(0),
   m_inputObjectName(""),
-  m_createNoiseSDO(false)
+  m_createNoiseSDO(false),
+  m_doSpecialPixels(true)
 {
 
   declareInterface<PixelDigitizationTool>(this);
@@ -148,6 +149,7 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   declareProperty("RDOforSPM",          m_doRDOforSPM,          "Create RDOs for special pixels");
   declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode, "Control pileup & signal splitting" );
   declareProperty("ParticleBarcodeVeto",m_vetoThisBarcode=crazyParticleBarcode, "Barcode of particle to ignore");
+  declareProperty("EnableSpecialPixels",m_doSpecialPixels);
 }
 
 
@@ -208,7 +210,7 @@ StatusCode PixelDigitizationTool::processAllSubEvents()
 
   ATH_MSG_DEBUG("Digitized Elements without Hits");
   // create RDOs for Special Pixels TODO: Implement!
-  createRDOforSPM();
+  if(m_doSpecialPixels) createRDOforSPM();
 
   // increment event counter (for simulated IOV)
   m_eventCounter++;
@@ -680,6 +682,7 @@ StatusCode PixelDigitizationTool::initServices() {
 // initialize tools
 StatusCode PixelDigitizationTool::initTools() {
 
+  bool hasSPG = false;
   CHECK(m_diodesProcsTool.retrieve());
   for (unsigned int itool=0; itool<m_diodesProcsTool.size(); itool++) {
     ATH_MSG_INFO("Tool " << m_diodesProcsTool[itool].name() << " retrieved");
@@ -694,6 +697,7 @@ StatusCode PixelDigitizationTool::initTools() {
     if (m_diodesProcsTool[itool].name()=="SpecialPixelGenerator") {
       m_specialPixelGenerator = dynamic_cast<SpecialPixelGenerator*>(m_diodesProcsTool[itool].operator->());
       if (m_specialPixelGenerator) {
+	hasSPG = true;
         m_specialPixelGenerator->setnPixTot(m_detID->pixel_hash_max());
         m_specialPixelGenerator->setnModTot(m_detID->wafer_hash_max());
       }
@@ -701,7 +705,11 @@ StatusCode PixelDigitizationTool::initTools() {
 
   }
 
-
+  if(!hasSPG && m_doSpecialPixels){
+    ATH_MSG_WARNING("DoSpecialPixels is true, but no generator available - check your configuration... carrying on without special pixels");
+    m_doSpecialPixels = false;
+  }
+  
   CHECK(m_SurfaceChargesTool.retrieve());
   ATH_MSG_DEBUG("Tool SurfaceChargesTool retrieved");
 
@@ -1106,14 +1114,14 @@ StatusCode PixelDigitizationTool::prepareEvent(unsigned int) {
   // update special pixel map
   /////////////////////////////////////////////////
   if (m_pixelConditionsSvc.empty()) {
-    if (doUpdate()) {
+    if (doUpdate() && m_doSpecialPixels) {
       ATH_MSG_DEBUG ( "will update generated special pixel map this event" );
       m_specialPixelGenerator->setUpdate(); // set update flag
     }
     setNextUpdate(); // set next event for update
   }
 
-  m_specialPixelGenerator->updatePixelMap();
+  if(m_doSpecialPixels) m_specialPixelGenerator->updatePixelMap();
 
   //Create Output Containers
   ATH_MSG_DEBUG("Going to create output containers");
@@ -1152,7 +1160,7 @@ StatusCode PixelDigitizationTool::mergeEvent() {
 
   digitizeNonHits();
 
-  createRDOforSPM();
+  if(m_doSpecialPixels) createRDOforSPM();
   // increment event counter (for simulated IOV)
   m_eventCounter++;
   for (std::vector<SiHitCollection*>::iterator it = hitCollPtrs.begin();it!=hitCollPtrs.end();it++) {

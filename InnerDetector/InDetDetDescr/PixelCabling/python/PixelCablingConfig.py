@@ -48,15 +48,19 @@ def getPixelCablingSvc(name="PixelCablingSvc", **kwargs):
             
             # ITk:
             if geoFlags.isSLHC():
-                IdMappingDat = "ITk_Atlas_IdMapping.dat"
+                IdMappingDat = "PixelCabling/ITk_Atlas_IdMapping.dat"
                 if "BrlIncl4.0_ref" == commonGeoFlags.GeoType():
-                    IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
+                    IdMappingDat = "PixelCabling/ITk_Atlas_IdMapping_InclBrl4.dat"
                 elif "IBrlExt4.0ref" == commonGeoFlags.GeoType():
-                    IdMappingDat = "ITk_Atlas_IdMapping_IExtBrl4.dat"
+                    IdMappingDat = "PixelCabling/ITk_Atlas_IdMapping_IExtBrl4.dat"
                 elif "BrlExt4.0_ref" == commonGeoFlags.GeoType():
-                    IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
+                    IdMappingDat = "PixelCabling/ITk_Atlas_IdMapping_ExtBrl4.dat"
                 elif "BrlExt3.2_ref" == commonGeoFlags.GeoType():
-                    IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
+                    IdMappingDat = "PixelCabling/ITk_Atlas_IdMapping_ExtBrl32.dat"
+                elif "Inclined_Duals" == commonGeoFlags.GeoType():
+                    IdMappingDat = "PixelCabling/ITk_Atlas_IdMapping_InclBrl4_InclinedDuals_step2p2.dat"
+                elif "Inclined_Quads"== commonGeoFlags.GeoType():
+                    IdMappingDat = "PixelCabling/ITk_Atlas_IdMapping_InclBrl4_InclinedQuads_step2p2.dat"
                 logger.info("Using ITk pixel mapping: %s" % IdMappingDat)
                 kwargs.setdefault("MappingFile", IdMappingDat)
 
