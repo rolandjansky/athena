@@ -92,18 +92,19 @@ void TFCSParametrizationBinnedChain::Print(Option_t *option) const
 
   TString prefix="- ";
   for(unsigned int ichain=0;ichain<size();++ichain) {
-    if(ichain==0) {
-      prefix="- ";
+    if(ichain==0 && ichain!=m_bin_start.front()) {
+      prefix="> ";
       if(longprint) ATH_MSG_INFO(optprint<<prefix<<"Run for all bins");
     }  
     for(unsigned int ibin=0;ibin<get_number_of_bins();++ibin) {
       if(ichain==m_bin_start[ibin]) {
+        if(ibin<get_number_of_bins()-1) if(ichain==m_bin_start[ibin+1]) continue;
         prefix=Form("%-2d",ibin);
         if(longprint) ATH_MSG_INFO(optprint<<prefix<<"Run for "<<get_bin_text(ibin));
       }  
     }  
     if(ichain==m_bin_start.back()) {
-      prefix="- ";
+      prefix="< ";
       if(longprint) ATH_MSG_INFO(optprint<<prefix<<"Run for all bins");
     }  
     chain()[ichain]->Print(opt+prefix);

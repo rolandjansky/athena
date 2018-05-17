@@ -36,6 +36,8 @@
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
+#include "PathResolver/PathResolver.h"
+
 #include "TFile.h"
 #include <fstream>
 
@@ -80,9 +82,11 @@ StatusCode ISF::FastCaloSimSvcV2::initialize()
   TString path_to_fcal_geo_files = "/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/";
   m_caloGeo->LoadFCalGeometryFromFiles(path_to_fcal_geo_files + "FCal1-electrodes.sorted.HV.09Nov2007.dat", path_to_fcal_geo_files + "FCal2-electrodes.sorted.HV.April2011.dat", path_to_fcal_geo_files + "FCal3-electrodes.sorted.HV.09Nov2007.dat");
   
-  std::unique_ptr<TFile> paramsFile(TFile::Open( m_paramsFilename.c_str(), "READ" ));
+  const std::string fileName = m_paramsFilename;
+  std::string inputFile=PathResolverFindCalibFile(fileName);
+  std::unique_ptr<TFile> paramsFile(TFile::Open( inputFile.c_str(), "READ" ));
   if (paramsFile == nullptr) {
-    ATH_MSG_WARNING("file = "<<m_paramsFilename<< " not found");
+    ATH_MSG_ERROR("file = "<<m_paramsFilename<< " not found");
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("Opened parametrization file = "<<m_paramsFilename);

@@ -10,8 +10,17 @@
 
 class TFCSParametrizationEkinSelectChain:public TFCSParametrizationFloatSelectChain {
 public:
-  TFCSParametrizationEkinSelectChain(const char* name=nullptr, const char* title=nullptr):TFCSParametrizationFloatSelectChain(name,title) {};
-  TFCSParametrizationEkinSelectChain(const TFCSParametrizationEkinSelectChain& ref):TFCSParametrizationFloatSelectChain(ref) {};
+  TFCSParametrizationEkinSelectChain(const char* name=nullptr, const char* title=nullptr):TFCSParametrizationFloatSelectChain(name,title) {reset_DoRandomInterpolation();};
+  TFCSParametrizationEkinSelectChain(const TFCSParametrizationEkinSelectChain& ref):TFCSParametrizationFloatSelectChain(ref) {reset_DoRandomInterpolation();};
+
+  ///Status bit for Ekin Selection
+  enum FCSEkinStatusBits {
+     kDoRandomInterpolation = BIT(15) ///< Set this bit in the TObject bit field if a random selection between neighbouring Ekin bins should be done
+  };
+
+  bool DoRandomInterpolation() const {return TestBit(kDoRandomInterpolation);};
+  void set_DoRandomInterpolation() {SetBit(kDoRandomInterpolation);};
+  void reset_DoRandomInterpolation() {ResetBit(kDoRandomInterpolation);};
 
   using TFCSParametrizationFloatSelectChain::push_back_in_bin;
   virtual void push_back_in_bin(TFCSParametrizationBase* param);
