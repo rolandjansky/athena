@@ -21,6 +21,15 @@
 #include "larhec_id_test_common.cxx"
 
 
+class LArHEC_ID_Test
+  : public LArHEC_ID, public ILArHEC_ID_Test
+{
+public:
+  virtual int get_lar_field_value() const override { return lar_field_value(); }
+  virtual int get_lar_hec_field_value() const override { return lar_hec_field_value(); }
+};
+
+
 void test_basic (const LArHEC_ID& idhelper)
 {
   std::cout << "test_basic\n";
@@ -67,8 +76,8 @@ void test_neighbors (const LArHEC_ID& idhelper)
 
 int main()
 {
-  std::unique_ptr<LArHEC_ID> idhelper = make_helper<LArHEC_ID>();
-  std::unique_ptr<LArHEC_ID> idhelper_n = make_helper<LArHEC_ID>(true);
+  std::unique_ptr<LArHEC_ID> idhelper = make_helper<LArHEC_ID_Test>();
+  std::unique_ptr<LArHEC_ID> idhelper_n = make_helper<LArHEC_ID_Test>(true);
   try {
     test_basic (*idhelper);
     test_connected (*idhelper, false);
