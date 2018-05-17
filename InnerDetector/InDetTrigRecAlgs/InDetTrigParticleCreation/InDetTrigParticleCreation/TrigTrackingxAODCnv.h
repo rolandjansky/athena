@@ -82,6 +82,7 @@ namespace InDet
     float                        m_mon_ptmin;
     //Common Variables
     std::vector<float>          m_dqm_d0;
+    std::vector<float>          m_dqm_d0sig;
     std::vector<float>          m_dqm_z0;
     std::vector<float>          m_dqm_phi;
     std::vector<float>          m_dqm_eta;
