@@ -65,7 +65,8 @@ int usage(const std::string& name, int status, const std::string& err_msg="" ) {
   s << "Options: \n";
   s << "    -c,  --config       value \t configure which histograms to plot from config file,\n\n";
   s << "    -t,  --tag          value \t appends tag 'value' to the end of output plot names, \n";
-  s << "    -k,  --key          value \t prepends key 'value' to the from of output plots name, \n";
+  s << "    -k,  --key          value \t prepends key 'value' to the front of output plots name, \n";
+  s << "    -t,  --tag          value \t post pend tag 'value' to the end of output plots name, \n";
   s << "    -d,  --dir          value \t creates output files into directory, \"value\" \n\n";
   s << "         --ncols        value \t creates panels with \"value\" columns\n\n";
 
@@ -79,8 +80,8 @@ int usage(const std::string& name, int status, const std::string& err_msg="" ) {
   s << "         --oldrms             \t use fast rms95 when refitting resplots\n\n";
 
   s << "    -as, --atlasstyle         \t use ATLAS style\n";
-  s << "    -l,  --labels             \t use specified labels for key\n";
-  s << "         --taglabels          \t use specified additional labels \n";
+  s << "    -l,  --labels       values\t use specified labels for key\n";
+  s << "         --taglabels    values\t use specified additional labels \n";
   s << "    -al, --atlaslable   value \t set value for atlas label\n";
   s << "    -ac, --addchains          \t if possible, add chain names histogram labels \n\n";   
 
@@ -513,19 +514,19 @@ int main(int argc, char** argv) {
   if ( atlasstyle ) { 
     SetAtlasStyle();
     gStyle = AtlasStyle();
-
     gStyle->cd();
-
-    gStyle->SetPadLeftMargin(0.14);
-    gStyle->SetPadBottomMargin(0.15);
-    
   }
-  else {
-    gStyle->SetPadLeftMargin(0.105);
-    gStyle->SetPadBottomMargin(0.105);
+  else { 
+    gROOT->SetStyle("Plain");
+    gStyle->cd();
+    gStyle->SetLineScalePS(1);
+    xoffset += 0.02;
   }
 
   gStyle->SetErrorX(xerror);
+
+  gStyle->SetPadLeftMargin(0.14);
+  gStyle->SetPadBottomMargin(0.15);
 
   gStyle->SetPadRightMargin(0.01);
   gStyle->SetPadTopMargin(0.05);
@@ -709,7 +710,7 @@ int main(int argc, char** argv) {
 	
 	std::vector<std::string> panel_config = rc.GetStringVector( "panels" );
 	
-	for ( size_t ipanel=0 ; ipanel<panel_config.size() ; ipanel++ ) { 
+	for ( size_t ipanel=panel_config.size() ; ipanel-- ;  ) { 
 	  
 	  std::vector<std::string> raw_input = rc.GetStringVector( panel_config[ipanel] );
 	  
@@ -742,12 +743,17 @@ int main(int argc, char** argv) {
     //    panels.push_back( p );
     // }
 
+    // default panel efficiencies plotted from 0 to 100, 
+    // so scale efficiencies no matter what
+
+    scale_eff     = 100;
+    scale_eff_ref = 100;
 
     /// use the default panels
 
     std::string ((*inpanels[3])[6]) = { eff_panel, res_panel, diff_panel };
 
-    int nphist[3] = { 4, 4, 10 }; 
+    size_t nphist[3] = { 4, 4, 10 }; 
 
     std::string pnames[3] = { "eff", "res", "diff" };
 
@@ -851,6 +857,8 @@ int main(int argc, char** argv) {
 
     /// histos within the panel
 
+    std::string plotname = ""; 
+
     for ( size_t i=0 ; i<panel.size() ; i++ ) {
       
       HistDetails histo = panel[i];
@@ -888,12 +896,7 @@ int main(int argc, char** argv) {
       //      c1->cd();
       
       
-      /// legends ....
-      Legend legend;
-      Legend legend_eff;
-      
-      
-      double xpos  = 0.15;
+      double xpos  = 0.18;
       double ypos  = 0.93;
       
       if ( contains(histo.name(),"eff") || contains(histo.name(),"Eff_") ) ypos = 0.15;
@@ -927,17 +930,18 @@ int main(int argc, char** argv) {
       for ( int ilines=0 ; ilines<Nlines ; ilines++ ) { 
 	ypositions.push_back( yhi - deltay*(ilines+0.5) );
       }
-      
-      bool residual = false;
 
-      if ( contains(histo.name(),"_res") ||  contains(histo.name(),"residual_") || contains(histo.name(),"1d") ) residual = true; 
+      //      bool residual = false;
+
+      //      if ( contains(histo.name(),"_res") ||  contains(histo.name(),"residual_") || contains(histo.name(),"1d") ) residual = true; 
       
-      if ( residual ) xpos = xpos_original;
+      //      if ( residual ) xpos = xpos_original;
       
       // specify different legends for efficiencies or residuals?
       
-      legend     = Legend( xpos, xpos+0.1, ylo, ylo+chains.size()*0.06-0.005 );
-      legend_eff = Legend( xpos, xpos+0.1, ylo, ylo+chains.size()*0.06-0.005 );
+      /// legends ....
+      Legend legend( xpos, xpos+0.1, ylo, ylo+chains.size()*0.06-0.005 );
+      Legend legend_eff( xpos, xpos+0.1, ylo, ylo+chains.size()*0.06-0.005 );
             
       
       std::vector<std::string> Mean;
@@ -955,9 +959,6 @@ int main(int argc, char** argv) {
       Chi2.clear();
       MeanRef.clear();
       RMSRef.clear();
-      
-      std::string plotname = ""; 
-      
       
       int mean_power = 0;
       int rms_power  = 0;
@@ -1384,7 +1385,7 @@ int main(int argc, char** argv) {
 	  /// replace the "/" in the filename so we don't try to 
 	  /// make plots in subdirectories by accident  
 	  replace(plotname, "/", "_"); 
-	
+
 	}
 
 
@@ -1735,6 +1736,7 @@ int main(int argc, char** argv) {
 	for ( unsigned it=0 ; it<taglabels.size() ; it++ ) { 
 	  //      std::cout << "\ttaglabel " << ypositions[it] << "\t(" << histo.name() << ")" << std::endl;
 	  DrawLabel( xpos, ypositions[it], taglabels[it], kBlack, 0.04 );
+
 	}
       }
     
@@ -1754,7 +1756,7 @@ int main(int argc, char** argv) {
 	      if ( !noreftmp ) { 
 		if ( j<MeanRef.size() ) {
 		  if ( !nomeans ) DrawLabel( xpos_original-0.02, (0.57-j*0.035), MeanRef[j], colours[j%6] );
-		  DrawLabel( xpos_original-0.02, (0.57-0.035*chains.size()-j*0.035)-0.01, RMSRef[j],  colours[j%6] );
+		  DrawLabel( xpos_original-0.01, (0.57-0.035*chains.size()-j*0.035)-0.01, RMSRef[j],  colours[j%6] );
 		}
 	      }
 	      if ( j<Mean.size() ) {
@@ -1802,14 +1804,25 @@ int main(int argc, char** argv) {
       if ( !quiet ) { 
 
 	tc->cd();
-	
-	std::string printbase = dir+panel.name()+tag;
+
+	std::string useplotname;
+
+        if ( panel.size()>1 ) {
+	  useplotname = panel.name();
+	  replace( useplotname, "/", "_" );
+	}	
+	else { 
+	  useplotname = plotname;
+	}
+
+	// std::string printbase = dir+"HLT_"+ppanelname+tag;
+	std::string printbase = dir + useplotname + tag;
 
 	tc->Update();
 
 	if ( !nopdf ) print_pad( printbase+".pdf" );
 	if ( !nopng ) print_pad( printbase+".png" );
-	if ( Cfile  )  print_pad( printbase+".C" );
+	if ( Cfile  ) print_pad( printbase+".C" );
 	
 	std::cout << std::endl;
       }
