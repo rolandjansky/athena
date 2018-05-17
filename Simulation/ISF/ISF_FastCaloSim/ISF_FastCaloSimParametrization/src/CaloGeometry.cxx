@@ -554,7 +554,7 @@ const CaloDetDescrElement* CaloGeometry::getFCalDDE(int sampling,float x,float y
 		int iphi,ieta;
 		Long64_t mask1[]{0x34,0x34,0x35};
 		Long64_t mask2[]{0x36,0x36,0x37};
-		if(!m_FCal_ChannelMap.getTileID(isam, x, y, ieta, iphi)) return 0;
+		if(!m_FCal_ChannelMap.getTileID(isam, x, y, ieta, iphi)) return nullptr;
 		//cout << ieta << ""
 		Long64_t id = (ieta << 5) + 2*iphi;
 		if(isam==2)id+= (8<<8);
