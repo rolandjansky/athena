@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TEventProxyDict.cxx 788447 2016-12-07 15:16:39Z krasznaa $
 //
 // File holding the implementation of the xAOD::TEvent functions that implement
-// the IProxyDictWithPool interface. Just to make TEvent.cxx a little smaller.
+// the IProxyDict interface. Just to make TEvent.cxx a little smaller.
 //
 
 // System include(s):
@@ -267,7 +266,7 @@ namespace xAOD {
       SG::TransientAddress* taddr =
          new SG::TransientAddress( CLID_NULL, efe->branchName() );
       taddr->setSGKey( sgkey );
-      bi.m_proxy.reset( new SG::DataProxy( taddr, 0 ) );
+      bi.m_proxy.reset( new SG::DataProxy( taddr, nullptr ) );
 #endif // not XAOD_STANDALONE
 
       // Add the branch info to our list:

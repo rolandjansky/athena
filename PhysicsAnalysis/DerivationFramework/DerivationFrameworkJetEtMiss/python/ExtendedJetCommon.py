@@ -55,7 +55,7 @@ def addAntiKt10LCTopoJets(sequence, outputlist):
 def addAntiKt10TrackCaloClusterJets(sequence, outputlist):
     addStandardJets("AntiKt", 1.0, "TrackCaloCluster", ptmin=40000, ptminFilter=50000, mods="tcc_ungroomed", algseq=sequence, outputGroup=outputlist)
 
-def addAntiKt2PV0TrackJets(sequence, outputlist, extendedFlag):
+def addAntiKt2PV0TrackJets(sequence, outputlist, extendedFlag = 0):
     if not "akt2track" in jtm.modifiersMap.keys():
         from AthenaCommon.AppMgr import ToolSvc
         from BTagging.BTaggingFlags import BTaggingFlags
@@ -82,7 +82,7 @@ def addAntiKt2PV0TrackJets(sequence, outputlist, extendedFlag):
     addStandardJets("AntiKt", 0.2, "PV0Track", ptmin=2000, mods="akt2track",
                     algseq=sequence, outputGroup=outputlist)
 
-def addAntiKt4PV0TrackJets(sequence, outputlist, extendedFlag):
+def addAntiKt4PV0TrackJets(sequence, outputlist, extendedFlag = 0):
     if not "akt4track" in jtm.modifiersMap.keys():
         from AthenaCommon.AppMgr import ToolSvc
         from BTagging.BTaggingFlags import BTaggingFlags

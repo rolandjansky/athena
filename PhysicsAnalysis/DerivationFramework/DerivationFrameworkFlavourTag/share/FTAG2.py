@@ -99,7 +99,7 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt10LCTopoJets",
                   "AntiKt4TruthJets"]
 
-extendedFlag = 0 # --- = 0 for Standard Taggers & =1 for ExpertTaggers
+extendedFlag = 1 # --- = 0 for Standard Taggers & =1 for ExpertTaggers
 replaceAODReducedJets(reducedJetList,FTAG2Seq,"FTAG2", extendedFlag)
 
 addDefaultTrimmedJets(FTAG2Seq,"FTAG2",dotruth=True)

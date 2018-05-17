@@ -1,18 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MakeTopConfig.h 681944 2015-07-09 21:59:27Z morrisj $
 #ifndef ANALYSISTOP_NEXTGEN_MAKETOPCONFIG_H
-#define ANALYSISTOP_NEXTGEN_MAKTOPCONFIG_H
+#define ANALYSISTOP_NEXTGEN_MAKETOPCONFIG_H
 
 /**
  * @author John Morris <john.morris@cern.ch>
  *
  * @brief MakeTopConfig - it makes a top::TopConfig from the metadata
- *
- * $Revision: 681944 $
- * $Date: 2015-07-09 22:59:27 +0100 (Thu, 09 Jul 2015) $
  *
  *
  **/

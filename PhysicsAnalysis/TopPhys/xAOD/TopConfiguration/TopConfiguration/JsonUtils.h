@@ -78,8 +78,6 @@ public:
     */
    boost::optional<std::string> operator()(Property * prop) const;
 
-protected:
-
    class ISpecializedDumper {
 
    public:
@@ -89,6 +87,7 @@ protected:
 
    };
 
+protected:
    std::vector<std::pair<Property::Type, std::unique_ptr<ISpecializedDumper>>> m_dispatch;
 
 };
