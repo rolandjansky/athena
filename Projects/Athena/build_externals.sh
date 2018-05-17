@@ -5,13 +5,14 @@
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c] [-d]"
+    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c] [-d] [-e]"
     echo " -f: Force rebuild of externals from scratch, otherwise if script"
     echo "     finds an external build present it will only do an incremental"
     echo "     build"
     echo " -c: Build the externals for the continuous integration (CI) system,"
     echo "     skipping the build of the externals RPMs."
     echo " -d: For debugging the CMake configuration: run 'cmake' with the '--trace' option (very verbose output!)" 
+    echo " -e: To pass arbitrary extra arguments to the CMake configuration"
     echo "If a build_dir is not given the default is '../build'"
     echo "relative to the athena checkout"
 }
@@ -22,7 +23,8 @@ BUILDTYPE="RelWithDebInfo"
 FORCE=""
 CI=""
 DEBUG_CMAKE_CONFIG=""
-while getopts ":t:b:fchd" opt; do
+EXTRACMAKE=""
+while getopts ":t:b:fchdx:" opt; do
     case $opt in
         t)
             BUILDTYPE=$OPTARG
@@ -38,6 +40,9 @@ while getopts ":t:b:fchd" opt; do
             ;;
         d)
             DEBUG_CMAKE_CONFIG="-d"
+            ;;
+        x)
+            EXTRACMAKE="-x $OPTARG"
             ;;
         h)
             usage
@@ -153,7 +158,8 @@ ${scriptsdir}/checkout_atlasexternals.sh \
  } || true
 }
 
-# Build AthenaExternals:
+
+## Build AthenaExternals:
 export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthenaExternals
 ${scriptsdir}/build_atlasexternals.sh \
     -s ${BUILDDIR}/src/AthenaExternals \
@@ -161,7 +167,8 @@ ${scriptsdir}/build_atlasexternals.sh \
     -i ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION} \
     -p AthenaExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
     -v ${NICOS_PROJECT_VERSION} \
-    ${DEBUG_CMAKE_CONFIG}
+    ${DEBUG_CMAKE_CONFIG} \
+    ${EXTRACMAKE}
 
 {
  test "X${NIGHTLY_STATUS}" != "X" && {
@@ -199,7 +206,7 @@ ${scriptsdir}/build_Gaudi.sh \
     -b ${BUILDDIR}/build/GAUDI \
     -i ${BUILDDIR}/install/GAUDI/${NICOS_PROJECT_VERSION} \
     -e ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION}/InstallArea/${platform} \
-    -p AthenaExternals -f ${platform} ${RPMOPTIONS} -t ${BUILDTYPE}
+    -p AthenaExternals -f ${platform} ${RPMOPTIONS} -t ${BUILDTYPE} ${EXTRACMAKE}
 
 {
  test "X${NIGHTLY_STATUS}" != "X" && {
