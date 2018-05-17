@@ -52,7 +52,14 @@ namespace Analysis {
         } else {
             ATH_MSG_INFO("Retrieved tool " << m_vertexEstimator);
         }
-        
+        if(!m_manualMassHypo.empty() && m_manualMassHypo.size() !=4){
+            ATH_MSG_FATAL("Invalid number of elements given for manualMass hypothesis - needs 4");
+            return StatusCode::FAILURE;
+        }
+        if(!m_manualMassHypo.empty()){
+            ATH_MSG_DEBUG("manual mass hypo " << m_manualMassHypo[0] <<
+                 ',' << m_manualMassHypo[1] << ',' << m_manualMassHypo[2] << ',' << m_manualMassHypo[3]);
+        }
         ATH_MSG_INFO("Initialize successful");
         
         return StatusCode::SUCCESS;
@@ -137,6 +144,7 @@ namespace Analysis {
         declareProperty("FinalDiTrackMassLower" ,m_finalDiTrackMassLower );
         declareProperty("FinalDiTrackPt"        ,m_finalDiTrackPt        );
         declareProperty("TrkDeltaZ"             ,m_trkDeltaZ             );
+        declareProperty("ManualMassHypo",        m_manualMassHypo);
     }
     
     JpsiPlus2Tracks::~JpsiPlus2Tracks() {}
@@ -349,6 +357,7 @@ namespace Analysis {
 			   massCuts.push_back(getInvariantMass(*trkItr1,kMass,*trkItr2,piMass));
 			   massCuts.push_back(getInvariantMass(*trkItr1,piMass,*trkItr2,kMass));
                         }
+                        if(!m_manualMassHypo.empty()) massCuts.push_back(getInvariantMass(*trkItr1, m_manualMassHypo[2], *trkItr2, m_manualMassHypo[3]));
                         passesDiTrack = JpsiUpsilonCommon::cutRangeOR(massCuts, m_diTrackMassLower, m_diTrackMassUpper);
 
                     }
@@ -368,6 +377,8 @@ namespace Analysis {
                            massCuts.push_back(getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, *trkItr1,kMass, *trkItr2, pMass));
                            massCuts.push_back(getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, *trkItr1,pMass, *trkItr2, kMass));
                         }
+                        if(!m_manualMassHypo.empty()) massCuts.push_back(getInvariantMass(jpsiTP1, m_manualMassHypo[0], jpsiTP2,
+                                                        m_manualMassHypo[1], *trkItr1,m_manualMassHypo[2], *trkItr2, m_manualMassHypo[3]));
                         passes4TrackMass = JpsiUpsilonCommon::cutRangeOR(massCuts, m_trkQuadrupletMassLower, m_trkQuadrupletMassUpper);
                     }
                     if (!passes4TrackMass) continue;
@@ -391,7 +402,8 @@ namespace Analysis {
                                       (m_kpiMassHyp && (passCuts(bHelper, mumukpiMasses, "K pi") ||
                                                         passCuts(bHelper, mumupikMasses, "pi K"))) ||
                                       (m_kpMassHyp && (passCuts(bHelper, mumukpMasses, "K p") ||
-                                                       passCuts(bHelper, mumupkMasses, "p K")));
+                                                       passCuts(bHelper, mumupkMasses, "p K"))) ||
+                                       (!m_manualMassHypo.empty()  && passCuts(bHelper, m_manualMassHypo, "manual"));
                      
                         // Saving successful candidates
                         if (passesCuts) {
