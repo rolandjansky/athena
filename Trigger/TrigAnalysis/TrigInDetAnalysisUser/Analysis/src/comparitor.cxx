@@ -931,9 +931,9 @@ int main(int argc, char** argv) {
 	ypositions.push_back( yhi - deltay*(ilines+0.5) );
       }
 
-      bool residual = false;
+      //      bool residual = false;
 
-      if ( contains(histo.name(),"_res") ||  contains(histo.name(),"residual_") || contains(histo.name(),"1d") ) residual = true; 
+      //      if ( contains(histo.name(),"_res") ||  contains(histo.name(),"residual_") || contains(histo.name(),"1d") ) residual = true; 
       
       //      if ( residual ) xpos = xpos_original;
       
