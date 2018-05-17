@@ -29,8 +29,8 @@ TileCalCellMonTool::TileCalCellMonTool(const std::string& type, const std::strin
    m_useElectronicNoiseOnly(false),
    m_useTwoGaus(true),
    m_noiseTool("CaloNoiseTool"),
-   m_tile_id(nullptr),
-   m_calo_id(nullptr){    
+   m_tile_id(nullptr)
+{
   declareInterface<IMonitorToolBase>(this);
 
   // CaloCellContainer name 
