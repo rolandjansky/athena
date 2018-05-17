@@ -29,7 +29,7 @@ class STGC_RawData {
 
  public:
    STGC_RawData (const Identifier id);
-   STGC_RawData (); //!< TODO remove this. Currently have problems with convertor if I do though.
+   STGC_RawData () {} //!< TODO remove this. Currently have problems with convertor if I do though.
 
    STGC_RawData (const Identifier id, const uint16_t bcTag, const float time, const float charge, 
 		 const bool isDead );
