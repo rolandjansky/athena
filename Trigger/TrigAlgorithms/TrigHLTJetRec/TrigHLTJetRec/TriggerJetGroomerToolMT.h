@@ -27,8 +27,8 @@ class TriggerJetGroomerToolMT :
   
   TriggerJetGroomerToolMT(const std::string& name);
   virtual ~TriggerJetGroomerToolMT() override {}
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   //
   virtual xAOD::JetContainer* groom(const xAOD::JetContainer* in,
