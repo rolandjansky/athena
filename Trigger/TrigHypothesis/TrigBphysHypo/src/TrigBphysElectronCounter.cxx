@@ -99,21 +99,19 @@ HLT::ErrorCode TrigBphysElectronCounter::hltInitialize()
   if (m_athElectronLHIDSelectorToolName=="") {
       ATH_MSG_DEBUG("Electron LH PID is disabled, no tool specified  "); 
        m_athElectronLHIDSelectorTool=ToolHandle<IAsgElectronLikelihoodTool>();
-
-       // For now, just try to retrieve the lumi tool, It is used only in LH, so retrieve only if needed
-       if (m_lumiBlockMuTool.retrieve().isFailure()) {
-	 ATH_MSG_WARNING("Unable to retrieve Luminosity Tool");
-       } else {
-	 ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
-       }
-
-
   }
   else {
       m_athElectronLHIDSelectorTool=ToolHandle<IAsgElectronLikelihoodTool>(m_athElectronLHIDSelectorToolName);
       if(m_athElectronLHIDSelectorTool.retrieve().isFailure()) {
 	  ATH_MSG_ERROR("Unable to retrieve " << m_athElectronLHIDSelectorTool);
 	  return HLT::BAD_JOB_SETUP; 
+
+	  // For now, just try to retrieve the lumi tool, It is used only in LH, so retrieve only if needed
+	  if (m_lumiBlockMuTool.retrieve().isFailure()) {
+	    ATH_MSG_WARNING("Unable to retrieve Luminosity Tool");
+	  } else {
+	    ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
+	  }
       } 
       else{
           ATH_MSG_DEBUG("Tool " << m_athElectronLHIDSelectorTool << " retrieved");
