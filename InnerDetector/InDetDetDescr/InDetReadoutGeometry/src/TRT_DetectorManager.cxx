@@ -540,6 +540,10 @@ namespace InDetDD {
 
         } else { // Other frame
             // if child or frame is zero it will have been set to local or global above
+            if (!child) { // CID 113112
+              // shouldn't be happening, if child is null then something is terribly wrong
+              ATH_MSG_ERROR("Child can't be null if frame is 'other'");
+            }
             const HepGeom::Transform3D & xfChild = child->getDefAbsoluteTransform();
             const HepGeom::Transform3D & xfFrame = frameVol->getDefAbsoluteTransform();
             extXF->alignableTransform()->setDelta(xfChild.inverse() * xfFrame * Amg::EigenTransformToCLHEP(delta) * xfFrame.inverse() * xfChild);

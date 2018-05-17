@@ -29,6 +29,19 @@
 
 using eformat::helper::SourceIdentifier; 
 
+// Utility namespace for file input sanitation
+namespace {
+	bool inRange(const int var, const int lo, const int hi) {
+		return not ((lo > var) or (hi < var));
+	}
+
+	const int invalidInput{-1};
+	const int maxPossiblePhiModule{9};
+	const int maxPossibleModule{3};
+	const int maxPossibleStrawNumber{999};
+	const int maxPossibleBufferLocation{2000};
+}
+
 static const InterfaceID IID_ITRT_FillCablingData_TB04
                             ("TRT_FillCablingData_TB04", 1, 0);
 
@@ -192,29 +205,40 @@ void TRT_FillCablingData_TB04::defineTables()
 	inputFile >> phiModuleId >> moduleId >> strawNumberInModule
 		  >> BufferLocation;
 
+	// Sanitize input from file
+	const bool validPhi = inRange(phiModuleId, invalidInput, maxPossiblePhiModule);
+	const bool validModule = inRange(moduleId, invalidInput, maxPossibleModule);
+	const bool validStrawNumber = inRange(strawNumberInModule, invalidInput, m_StrawsByModule[moduleId]);
+	const bool validBuffer = inRange(BufferLocation, invalidInput, maxPossibleBufferLocation);
+	if (not (validPhi and validModule and validStrawNumber and validBuffer)) {
+		ATH_MSG_WARNING("One of the following is out of range: " << phiModuleId << ", " << moduleId
+		                << ", " << strawNumberInModule << ", " << BufferLocation);
+		continue;
+	}
+
 	/*
 	 * Hack, because we do not detect EOF properly
 	 */
-	if ( -1 == phiModuleId && -1 == moduleId && 
-	     -1 == strawNumberInModule && -1 == BufferLocation )
-	{
-	   continue;
-	}
+	// if ( -1 == phiModuleId && -1 == moduleId && 
+	//      -1 == strawNumberInModule && -1 == BufferLocation )
+	// {
+	//    continue;
+	// }
 
-	if ( !(moduleId == 0 || moduleId == 1 || moduleId ==2) )
-	   continue;
+	// if ( !(moduleId == 0 || moduleId == 1 || moduleId == 2) )
+	//    continue;
 
-	if ( strawNumberInModule > m_StrawsByModule[moduleId] )
-	   continue;
+	// if ( strawNumberInModule > m_StrawsByModule[moduleId] ||
+	//      strawNumberInModule < 0)
+	//    continue;
 
-         // Swap of phi sectors for ROD 0: 3S1, 3S2
-        if (rod == 0)
-        {
-          if (phiModuleId == 0)
-            phiModuleId = 1;
-          else
-            phiModuleId = 0;
-        }        
+	// Swap of phi sectors for ROD 0: 3S1, 3S2
+	if (rod == 0) {
+		if (phiModuleId == 0)
+			phiModuleId = 1;
+		else
+			phiModuleId = 0;
+	}        
 
 
 	int rodSourceId=0;
@@ -235,6 +259,10 @@ void TRT_FillCablingData_TB04::defineTables()
 	 * go from 0, so we'll just fix this:
 	 */
 	strawNumberInModule--;
+	if (strawNumberInModule < 0) {
+		ATH_MSG_WARNING("Straw number in module became negative: " << strawNumberInModule);
+		continue;
+	}
 
 	//Need to retrieve strawLayerId & strawInLayerId from ncols...
 	strawLayerId=0;

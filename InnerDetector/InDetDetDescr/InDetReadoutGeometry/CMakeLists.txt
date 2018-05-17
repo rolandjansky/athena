@@ -7,6 +7,7 @@ atlas_subdir( InDetReadoutGeometry )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
+                          Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/CLIDSvc
                           Control/SGTools
@@ -37,6 +38,6 @@ atlas_add_library( InDetReadoutGeometry
                    PUBLIC_HEADERS InDetReadoutGeometry
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel SGTools AtlasDetDescr GeoModelKernel GeoPrimitives Identifier GaudiKernel InDetCondServices InDetIdentifier TrkDetElementBase TrkSurfaces TrkEventPrimitives StoreGateLib SGtests
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel SGTools AtlasDetDescr GeoModelKernel GeoPrimitives Identifier GaudiKernel InDetCondServices InDetIdentifier TrkDetElementBase TrkSurfaces TrkEventPrimitives StoreGateLib SGtests AthenaBaseComps
                    PRIVATE_LINK_LIBRARIES AthenaPoolUtilities DetDescrConditions IdDictDetDescr TRT_ConditionsData )
 
