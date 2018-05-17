@@ -205,6 +205,27 @@ RCUObject<T>::updater (const EventContext& ctx)
 
 
 /**
+ * @brief Queue an object for later deletion.
+ * @param p The object to delete.
+ *
+ * The object @c p will be queued for deletion once a grace period
+ * has passed for all slots.  In contrast to using @c updater,
+ * this does not change the current object.  It also does not mark
+ * the current slot as having completed the grace period (so this can
+ * be called by a thread running outside of a slot context).
+ */
+template <class T>
+void RCUObject<T>::discard (std::unique_ptr<T> p)
+{
+  lock_t g (mutex());
+  // This doesn't become the current object, so push to the _back_,
+  // not the front.
+  m_objs.push_back (std::move (p));
+  setGrace (g);
+}
+
+
+/**
  * @brief Delete all old objects.
  * @param Lock object (external locking).
  *

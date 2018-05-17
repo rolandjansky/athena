@@ -82,6 +82,16 @@ void test1()
     assert (vec.size() == 2);
     u.quiescent (Updater_t::defaultContext());
     assert (vec.size() == 1);
+
+    u.discard (std::make_unique<Payload> (vec, 30));
+    assert (u.get().m_x == 20);
+    assert (vec.size() == 2);
+
+    u.quiescent (c0);
+    assert (vec.size() == 2);
+    u.quiescent (c1);
+    assert (vec.size() == 1);
+    assert (u.get().m_x == 20);
   }
   assert (vec.size() == 0);
 }
