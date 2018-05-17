@@ -514,7 +514,6 @@ int main(int argc, char** argv) {
   if ( atlasstyle ) { 
     SetAtlasStyle();
     gStyle = AtlasStyle();
-    gStyle->SetErrorX(xerror);
     gStyle->cd();
   }
   else { 
@@ -523,6 +522,8 @@ int main(int argc, char** argv) {
     gStyle->SetLineScalePS(1);
     xoffset += 0.02;
   }
+
+  gStyle->SetErrorX(xerror);
 
   gStyle->SetPadLeftMargin(0.14);
   gStyle->SetPadBottomMargin(0.15);
@@ -1805,8 +1806,6 @@ int main(int argc, char** argv) {
 	tc->cd();
 
 	std::string useplotname;
-
-	std::cout << "key: " << key << "panel size:" << panel.size() << std::endl;
 
         if ( panel.size()>1 ) {
 	  useplotname = panel.name();
