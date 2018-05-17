@@ -334,6 +334,7 @@ def addWbosonsAndDownstreamParticles(kernel=None, generations=1):
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonWbosonsAndDecaysKernel",
                                                              AugmentationTools = [DFCommonWbosonsAndDecaysTool] )
 
+# Add W/Z/H bosons and their downstream particles (notice "boson" here does not include photons and gluons)
 def addBosonsAndDownstreamParticles(kernel=None, generations=1):
     # Ensure that we are adding it to something
     if kernel is None:
