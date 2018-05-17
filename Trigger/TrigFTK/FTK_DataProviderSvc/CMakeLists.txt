@@ -38,7 +38,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTrackSummary
                           Tracking/TrkEvent/TrkTruthData
                           Tracking/TrkFitter/TrkFitterInterfaces
-			  Tracking/TrkFitter/TrkVertexFitterInterfaces 
+			  Tracking/TrkVertexFitter/TrkVertexFitterInterfaces 
                           Tracking/TrkFitter/TrkFitterUtils
                           Tracking/TrkTools/TrkToolInterfaces
                           Trigger/TrigFTK/FTK_RecToolInterfaces )
