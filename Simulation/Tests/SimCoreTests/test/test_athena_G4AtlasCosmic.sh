@@ -11,7 +11,9 @@ athena --preloadlib=${ATLASMKLLIBDIR_PRELOAD}/libintlc.so.5:${ATLASMKLLIBDIR_PRE
 
 echo  "art-result: $? simulation"
 
-# TODO This is a regression test I think. 
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
+# TODO This is a regression test I think.
+ArtPackage=$1
+ArtJobName=$2
+art.py compare grid ${ArtPackage} ${ArtJobName}
 
 echo  "art-result: $? regression"
