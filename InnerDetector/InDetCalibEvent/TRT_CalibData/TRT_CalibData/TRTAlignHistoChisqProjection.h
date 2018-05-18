@@ -10,7 +10,6 @@
 // useful, sometimes.
 
 #include <vector>
-#include <iostream>
 #include "CLHEP/Matrix/SymMatrix.h"
 #include "CLHEP/Matrix/Vector.h"
 
