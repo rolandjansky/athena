@@ -62,6 +62,8 @@ public:
 		_yCutout=v[4];
 		_stripPitch=v[5];
 		_wirePitch=v[6];
+		_stripWidth=v[7];
+		_yCutoutCathode=v[8];
 	}
 	
 	double sWidth() {return small_x();}
@@ -77,6 +79,12 @@ public:
 	
 	void wirePitch(double y) {_wirePitch=y;}
 	double wirePitch() {return _wirePitch;}
+	
+	void stripWidth(double y) {_stripWidth=y;}
+	double stripWidth() {return _stripWidth;}
+	
+	void yCutoutCathode(double y) {_yCutoutCathode=y;}
+	double yCutoutCathode() {return _yCutoutCathode;}
 	
 	void xFrame(double y) {_xFrame=y;}
 	double xFrame() {return _xFrame;}
@@ -100,6 +108,8 @@ protected:
 	double _yCutout;
 	double _stripPitch;
 	double _wirePitch;
+	double _stripWidth;
+	double _yCutoutCathode;
 	
 	double _xFrame;
 	double _ysFrame;
