@@ -16,18 +16,18 @@ atlas_depends_on_subdirs( PRIVATE
 	Event/xAOD/xAODTracking
         PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
 	TestPolicy 
-	Tracking/TrkValidation/TrkValHistUtils) 
+	Tracking/TrkValidation/TrkValHistUtils ) 
 
 # add the Module/component library :
-atlas_add_component (egammmaValidation
+atlas_add_component ( egammmaValidation
 	src/*.cxx 
 	src/components/*.cxx 
 	INCLUDE_DIRS 
-	LINK_LIBRARIES  GaudiKernel AthenaBaseComps AsgTools xAODEventInfo 
+	LINK_LIBRARIES GaudiKernel AthenaBaseComps AsgTools xAODEventInfo 
 	xAODEgamma xAODTracking TrkValHistUtils AsgAnalysisInterfaces )
 
-# Install JO/python files from the package:
+# Install JO files from the package:
 atlas_install_joboptions( share/*.py )
 # ART shell executable scripts :
-atlas_install_scripts( scripts/*py )
+atlas_install_scripts( test/*.sh scripts/*py )
 
