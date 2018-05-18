@@ -25,11 +25,20 @@ from AthenaCommon.JobProperties import jobproperties
 
 
 class FastChainBCID(JobProperty):
-    """Steering of FastChain: Setting the BCID for Out-of-Time PU events"""
+    """Steering of FastChain: Setting the BCID for PU events"""
+    """0 represents the in-time events"""
+    """If left empty all BCIDs are accepted"""
     statusOn     = True
     allowedTypes = ['list']
     #StoredValue  = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
     StoredValue  = [0]
+
+class FastChainPUmu_multipliers(JobProperty):
+    """Steering of FastChain: Setting the mu multipliers for Out-of-Time PU events"""
+    statusOn     = True
+    allowedTypes = ['list']
+    #StoredValue  = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+    StoredValue  = [1]
 
 class FastChainPUWeights_lar_em(JobProperty):
     """Steering of FastChain: LAr EM weights for Out-of-Time PU events"""
@@ -88,6 +97,7 @@ jobproperties.add_Container(FastChain_jobProperties)
 
 jobproperties.FastChain_jobProperties.add_JobProperty(FastChainBCID)
 #jobproperties.FastChain_jobProperties.add_JobProperty(FastChainPUWeights)
+jobproperties.FastChain_jobProperties.add_JobProperty(FastChainPUmu_multipliers)
 jobproperties.FastChain_jobProperties.add_JobProperty(FastChainPUWeights_lar_em)
 jobproperties.FastChain_jobProperties.add_JobProperty(FastChainPUWeights_lar_hec)
 jobproperties.FastChain_jobProperties.add_JobProperty(FastChainPUWeights_lar_bapre)

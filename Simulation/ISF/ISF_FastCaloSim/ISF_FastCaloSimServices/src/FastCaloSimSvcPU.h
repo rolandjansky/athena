@@ -126,7 +126,7 @@ namespace ISF
       //->PU Development:
       std::vector<CaloCellContainer*> m_puCellContainer;
       //std::vector<float> m_puEnergyWeights;
-      
+      std::vector<float> m_puMu_multipliers;
       std::vector<float> m_puEnergyWeights_lar_bapre;
       std::vector<float> m_puEnergyWeights_lar_hec;
       std::vector<float> m_puEnergyWeights_lar_em;
