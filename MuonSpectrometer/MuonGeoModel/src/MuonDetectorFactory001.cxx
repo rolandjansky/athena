@@ -157,12 +157,6 @@ namespace MuonGM {
     // check consistency of flags coming from the tool
     if (m_layout.substr(0,1) != "P" && m_layout.substr(0,3) != "CTB") 
       {
-	//         if (m_rdb == 0) 
-	//         {
-	//             log<<MSG::WARNING<<"Muon Layouts of type Q and following are available only via Oracle"<<endmsg;
-	//             log<<MSG::WARNING<<"                       => overwriting UseRDB flag"<<endmsg;
-	//             m_rdb = 1;
-	//         }
         if (m_layout.substr(0,1) == "R") 
 	  {
             m_includeCutouts = 1;
