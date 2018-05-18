@@ -281,12 +281,10 @@ LArNoiseCorrelationMon::fillHistograms()
   LArDigitContainer::const_iterator itDig = pLArDigitContainer->begin(); 
   LArDigitContainer::const_iterator itDig_2;
   LArDigitContainer::const_iterator itDig_e= pLArDigitContainer->end(); 
-  const LArDigit* pLArDigit;
-  const LArDigit* pLArDigit2;  
   
   /** Loop over digits*/
   for ( ; itDig!=itDig_e;++itDig) {
-    pLArDigit = *itDig;
+    const LArDigit* pLArDigit = *itDig;
     
     /** Retrieve pedestals */
     HWIdentifier id = pLArDigit->hardwareID();
@@ -314,7 +312,7 @@ LArNoiseCorrelationMon::fillHistograms()
     bool av_set=false;
     for(itDig_2 = itDig; itDig_2!=itDig_e;++itDig_2)
       {
-	pLArDigit2 = *itDig_2;
+	const LArDigit* pLArDigit2 = *itDig_2;
 	HWIdentifier id2 = pLArDigit2->hardwareID();
 	if(m_LArOnlineIDHelper->feb_Id(id2)!=m_febID) continue;
 
