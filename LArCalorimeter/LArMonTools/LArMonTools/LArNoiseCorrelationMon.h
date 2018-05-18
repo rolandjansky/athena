@@ -49,11 +49,11 @@ public:
   
   
    
-  StatusCode initialize();
-  StatusCode finalize();
-  StatusCode bookHistograms();
-  StatusCode fillHistograms();
-  StatusCode procHistograms();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
+  virtual StatusCode bookHistograms() override;
+  virtual StatusCode fillHistograms() override;
+  virtual StatusCode procHistograms() override;
   
 protected:
   
