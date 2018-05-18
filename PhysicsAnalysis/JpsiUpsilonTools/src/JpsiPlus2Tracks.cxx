@@ -224,7 +224,8 @@ namespace Analysis {
 
         TrackBag muonTracks;
         for(auto muon : *importedMuonCollection){
-            auto track = muon->inDetTrackParticleLink().cachedElement();
+            if(!muon->inDetTrackParticleLink().isValid()) continue;
+            auto track = *muon->inDetTrackParticleLink().cptr();
             if(track==nullptr) continue;
             if(!JpsiUpsilonCommon::isContainedIn(track, theIDTracksAfterSelection)) continue;
             muonTracks.push_back(track);
