@@ -55,8 +55,6 @@ public:
    virtual StatusCode loadHV(IOVSVC_CALLBACK_ARGS);
    virtual StatusCode loadchamber(IOVSVC_CALLBACK_ARGS);
    
-       
-  StoreGateSvc* m_detStore;
   IIOVSvc* m_IOVSvc;
 
   std::map<Identifier, int> m_CSC_LayerMap;

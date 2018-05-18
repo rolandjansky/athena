@@ -43,7 +43,6 @@ MDT_DeadTubeConditionsTool::MDT_DeadTubeConditionsTool (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
   : AthAlgTool(type, name, parent),
-    m_detStore(0),
     m_IOVSvc(0),
     m_mdtIdHelper(0),
     m_chronoSvc(0),
@@ -86,19 +85,10 @@ StatusCode MDT_DeadTubeConditionsTool::initialize()
 
   m_log << MSG::INFO << "Initializing - folders names are: ChamberDropped "<<m_deadtubeFolder << endmsg;
    
-  StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
-  if ( sc.isSuccess() ) {
-     if( m_debug ) m_log << MSG::DEBUG << "Retrieved DetectorStore" << endmsg;
-  }else{
-    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
-    return sc;
-  }
-  
-  
   // Get interface to IOVSvc
   m_IOVSvc = 0;
   bool CREATEIF(true);
-  sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
+  StatusCode sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
   if ( sc.isFailure() )
     {
       m_log << MSG::ERROR << "Unable to get the IOVSvc" << endmsg;
@@ -119,7 +109,7 @@ StatusCode MDT_DeadTubeConditionsTool::initialize()
     	 
   if(sc.isFailure()) return StatusCode::FAILURE;
 
-  sc = m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
+  sc = detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
   if (sc.isFailure())
     {
       m_log << MSG::FATAL << " Cannot retrieve MdtIdHelper " << endmsg;
@@ -188,7 +178,7 @@ StatusCode MDT_DeadTubeConditionsTool::loadDeadTube(IOVSVC_CALLBACK_ARGS_P(I,key
   const CondAttrListCollection * atrc;
   m_log << MSG::INFO << "Try to read from folder <"<<m_deadtubeFolder<<">"<<endmsg;
   
-   sc=m_detStore->retrieve(atrc,m_deadtubeFolder);
+   sc=detStore()->retrieve(atrc,m_deadtubeFolder);
    if(sc.isFailure())  {
      m_log << MSG::ERROR
  	<< "could not retreive the CondAttrListCollection from DB folder " 

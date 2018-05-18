@@ -52,11 +52,10 @@ public:
 
   virtual StatusCode loadDeadTube(IOVSVC_CALLBACK_ARGS);
 
-  virtual const std::vector<std::string>& deadTubes(){ return m_cachedDeadTubes;}      
-  virtual const std::vector<Identifier>& deadTubesId(){ return m_cachedDeadTubesId;}      
-  virtual const std::map<Identifier,std::string>& Tube_MapId(){ return m_Tube_Map;}      
+  virtual const std::vector<std::string>& deadTubes(){ return m_cachedDeadTubes;}
+  virtual const std::vector<Identifier>& deadTubesId(){ return m_cachedDeadTubesId;}
+  virtual const std::map<Identifier,std::string>& Tube_MapId(){ return m_Tube_Map;}
   virtual const std::vector<Identifier>& List_Chambers_with_deadTube(){ return m_Chamber_with_deadTube;}
-  StoreGateSvc* m_detStore;
   IIOVSvc* m_IOVSvc;
 
   //  mutable MdtDeadTubeStatusContainer * m_tubeStatusData;

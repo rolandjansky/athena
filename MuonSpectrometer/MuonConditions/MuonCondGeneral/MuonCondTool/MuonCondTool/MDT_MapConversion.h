@@ -39,9 +39,6 @@ public:
 
  private:
 
-  StoreGateSvc* m_detStore;
-  
-
   std::map<std::string, Identifier> m_Chamber_Map;
 
   const MdtIdHelper* m_mdtIdHelper;

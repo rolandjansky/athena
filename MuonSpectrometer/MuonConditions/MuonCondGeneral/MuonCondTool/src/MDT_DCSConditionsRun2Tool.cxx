@@ -40,7 +40,6 @@ MDT_DCSConditionsRun2Tool::MDT_DCSConditionsRun2Tool (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
 	  : AthAlgTool(type, name, parent),
-	    m_detStore(0),
 	    m_IOVSvc(0),
 	    m_mdtIdHelper(0),
 	    m_chronoSvc(0),
@@ -89,17 +88,7 @@ StatusCode MDT_DCSConditionsRun2Tool::initialize()
 
   m_log << MSG::VERBOSE << "Initializing - folders names are: LV "<<m_lvFolder<< " / HV "<<m_hvFolder<< endmsg;
    
-  StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
-  if ( sc.isSuccess() ) {
-    if( m_debug ) m_log << MSG::DEBUG << "Retrieved DetectorStore" << endmsg;
-  }else{
-    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
-    return sc;
-  }
-  
-
-
-  sc = m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
+  StatusCode sc = detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
   if (sc.isFailure())
     {
       m_log << MSG::FATAL << " Cannot retrieve MdtIdHelper " << endmsg;
@@ -210,7 +199,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
   if( m_debug ) m_log << MSG::DEBUG << endmsg;
   
 
-  sc=m_detStore->retrieve(atrc,m_hvFolder);
+  sc=detStore()->retrieve(atrc,m_hvFolder);
   
   if(sc.isFailure())  {
     m_log << MSG::ERROR
@@ -358,7 +347,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadLV(IOVSVC_CALLBACK_ARGS_P(I,keys))
   for (; keyIt != keys.end(); ++ keyIt) if( m_debug ) m_log << MSG::DEBUG << *keyIt << " ";
   if( m_debug ) m_log << MSG::DEBUG << endmsg;
 
-  sc=m_detStore->retrieve(atrc,m_lvFolder);
+  sc=detStore()->retrieve(atrc,m_lvFolder);
 
   if(sc.isFailure())  {
     m_log << MSG::ERROR
@@ -474,7 +463,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadJTAG(IOVSVC_CALLBACK_ARGS_P(I,keys))
   for (; keyIt != keys.end(); ++ keyIt)  if( m_debug ) m_log << MSG::DEBUG << *keyIt << " ";
   if( m_debug ) m_log << MSG::DEBUG << endmsg;
   
-  sc=m_detStore->retrieve(atrc,m_jtagFolder);
+  sc=detStore()->retrieve(atrc,m_jtagFolder);
   
   if(sc.isFailure())  {
     m_log << MSG::ERROR
