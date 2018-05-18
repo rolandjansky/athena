@@ -60,6 +60,11 @@ namespace Analysis {
             ATH_MSG_DEBUG("manual mass hypo " << m_manualMassHypo[0] <<
                  ',' << m_manualMassHypo[1] << ',' << m_manualMassHypo[2] << ',' << m_manualMassHypo[3]);
         }
+        if(m_requiredNMuons > 0 && !m_excludeJpsiMuonsOnly) {
+            ATH_MSG_FATAL("Invalid configuration");
+            return StatusCode::FAILURE;
+        }
+
         ATH_MSG_INFO("Initialize successful");
         
         return StatusCode::SUCCESS;
@@ -74,7 +79,6 @@ namespace Analysis {
     }
     
     JpsiPlus2Tracks::JpsiPlus2Tracks(const std::string& t, const std::string& n, const IInterface* p)  : AthAlgTool(t,n,p),
-    //    m_particleDataTable(0),
     m_pipiMassHyp(true),
     m_kkMassHyp(true),
     m_kpiMassHyp(true),
@@ -107,7 +111,8 @@ namespace Analysis {
     m_finalDiTrackMassUpper(-1.0),
     m_finalDiTrackMassLower(-1.0),
     m_finalDiTrackPt(-1.0),
-    m_trkDeltaZ(-1.0)
+    m_trkDeltaZ(-1.0),
+    m_requiredNMuons(0)
     {
         declareInterface<JpsiPlus2Tracks>(this);
         declareProperty("pionpionHypothesis",m_pipiMassHyp);
@@ -145,6 +150,7 @@ namespace Analysis {
         declareProperty("FinalDiTrackPt"        ,m_finalDiTrackPt        );
         declareProperty("TrkDeltaZ"             ,m_trkDeltaZ             );
         declareProperty("ManualMassHypo",        m_manualMassHypo);
+        declareProperty("RequireNMuonTracks",   m_requiredNMuons);
     }
     
     JpsiPlus2Tracks::~JpsiPlus2Tracks() {}
@@ -163,11 +169,7 @@ namespace Analysis {
         
         // Get the ToolSvc
         IToolSvc* toolsvc;
-        StatusCode sc1=service("ToolSvc",toolsvc);
-        if (sc1.isFailure() ) {
-            ATH_MSG_ERROR("Problem loading tool service. BContainer will be EMPTY!");
-            return StatusCode::FAILURE;
-        };
+        ATH_CHECK(service("ToolSvc",toolsvc));
         
         // Set masses
         constexpr double muMass = 105.658;
@@ -200,16 +202,9 @@ namespace Analysis {
         // Get the muon collection used to build the J/psis
         const xAOD::MuonContainer* importedMuonCollection(0);
         if (m_MuonsUsedInJpsi!="NONE") {
-            sc = evtStore()->retrieve(importedMuonCollection,m_MuonsUsedInJpsi);
-            if (sc.isFailure()){
-                ATH_MSG_ERROR("No muon collection with name " << m_MuonsUsedInJpsi << " found in StoreGate!");
-                return StatusCode::FAILURE;
-            } else {
-                ATH_MSG_DEBUG("Found muon collection " << m_MuonsUsedInJpsi << " in StoreGate!");
-            }
+            ATH_CHECK(evtStore()->retrieve(importedMuonCollection,m_MuonsUsedInJpsi));
             ATH_MSG_DEBUG("Muon container size "<< importedMuonCollection->size());
         }
-
         // Typedef for vectors of tracks and VxCandidates
         typedef std::vector<const xAOD::TrackParticle*> TrackBag;
         
@@ -218,7 +213,7 @@ namespace Analysis {
         for (auto trkPBItr=importedTrackCollection->cbegin(); trkPBItr!=importedTrackCollection->cend(); ++trkPBItr) {
             const xAOD::TrackParticle* tp (*trkPBItr);
             if ( tp->pt()<m_trkThresholdPt ) continue;
-            if ( fabs(tp->eta())>m_trkMaxEta ) continue;
+            if ( std::abs(tp->eta())>m_trkMaxEta ) continue;
             if (importedMuonCollection!=NULL && !m_excludeJpsiMuonsOnly) {
                 if (JpsiUpsilonCommon::isContainedIn(tp,importedMuonCollection)) continue;
             }
@@ -226,7 +221,14 @@ namespace Analysis {
         }
         if (theIDTracksAfterSelection.size() == 0) return StatusCode::SUCCESS;
         ATH_MSG_DEBUG("Number of tracks after ID trkSelector: " << theIDTracksAfterSelection.size());
-        
+
+        TrackBag muonTracks;
+        for(auto muon : *importedMuonCollection){
+            auto track = muon->inDetTrackParticleLink().cachedElement();
+            if(track==nullptr) continue;
+            if(!JpsiUpsilonCommon::isContainedIn(track, theIDTracksAfterSelection)) continue;
+            muonTracks.push_back(track);
+        }
         // Set vector of muon masses
         const std::vector<double> muonMasses(2, muMass);
         
@@ -270,6 +272,8 @@ namespace Analysis {
         std::vector<const xAOD::TrackParticle*> QuadletTracks(4, nullptr);//Initialise as 4 nulls
         
         std::vector<double> massCuts;
+        if(!m_excludeCrossJpsiTracks) jpsiTracks.resize(2);
+
 
         for(auto jpsiItr=selectedJpsiCandidates.begin(); jpsiItr!=selectedJpsiCandidates.end(); ++jpsiItr) {
 
@@ -281,7 +285,6 @@ namespace Analysis {
 
 	    //If requested, only exclude duplicates in the same tripplet
             if(!m_excludeCrossJpsiTracks){
-                jpsiTracks.resize(2);
                 jpsiTracks[0] = jpsiTP1;
                 jpsiTracks[1] = jpsiTP2;
             }
@@ -290,11 +293,9 @@ namespace Analysis {
             for (TrackBag::iterator trkItr1=theIDTracksAfterSelection.begin(); trkItr1<theIDTracksAfterSelection.end(); ++trkItr1) { // outer loop
                 if (!m_excludeJpsiMuonsOnly && JpsiUpsilonCommon::isContainedIn(*trkItr1,jpsiTracks)) continue; // remove tracks which were used to build J/psi
 
+                bool linkedMuonTrk1 = false;
                 if (m_excludeJpsiMuonsOnly) {
-                  bool linkedMuonTrk1 = false;
-                  for(auto muon : *importedMuonCollection){
-                    if(muon->inDetTrackParticleLink().cachedElement() == *trkItr1) linkedMuonTrk1 = true;
-                  }
+                  linkedMuonTrk1 = JpsiUpsilonCommon::isContainedIn(*trkItr1, muonTracks);
                   if (linkedMuonTrk1) ATH_MSG_DEBUG("This id track 1 is muon track!");
    
                   if (JpsiUpsilonCommon::isContainedIn(*trkItr1,jpsiTracks)) {
@@ -305,27 +306,29 @@ namespace Analysis {
                 
                 // Daniel Scheirich: remove track too far from the Jpsi vertex (DeltaZ cut)
                 if(m_trkDeltaZ>0 &&
-                   fabs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z()) > m_trkDeltaZ )
+                   std::abs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z()) > m_trkDeltaZ )
                     continue;
-                
+
                 for (TrackBag::iterator trkItr2=trkItr1+1; trkItr2!=theIDTracksAfterSelection.end(); ++trkItr2) { // inner loop
                     if (!m_excludeJpsiMuonsOnly && JpsiUpsilonCommon::isContainedIn(*trkItr2,jpsiTracks)) continue; // remove tracks which were used to build J/psi
 
                     if (m_excludeJpsiMuonsOnly) {
                       bool linkedMuonTrk2 = false;
-                      for(auto muon : *importedMuonCollection){
-                        if(muon->inDetTrackParticleLink().cachedElement() == *trkItr2) linkedMuonTrk2 = true;
-                      }
+                      linkedMuonTrk2  = JpsiUpsilonCommon::isContainedIn(*trkItr2, muonTracks);
                       if (linkedMuonTrk2) ATH_MSG_DEBUG("This id track 2 is muon track!"); 
                       if (JpsiUpsilonCommon::isContainedIn(*trkItr2,jpsiTracks)) {
                         if (linkedMuonTrk2) ATH_MSG_DEBUG("ID track 2 removed: id track is selected to build Jpsi Vtx!"); 
                         continue; // remove tracks which were used to build J/psi
                       }
+                      if(linkedMuonTrk1 + linkedMuonTrk2 < m_requiredNMuons) {
+                        ATH_MSG_DEBUG("Skipping Tracks with Muons " << linkedMuonTrk1 + linkedMuonTrk2 << " Limited to " << m_requiredNMuons);
+                        continue;
+                      }
                     }
                     
                     // Daniel Scheirich: remove track too far from the Jpsi vertex (DeltaZ cut)
                     if(m_trkDeltaZ>0 &&
-                       fabs((*trkItr2)->z0() + (*trkItr2)->vz() - (*jpsiItr)->z()) > m_trkDeltaZ )
+                       std::abs((*trkItr2)->z0() + (*trkItr2)->vz() - (*jpsiItr)->z()) > m_trkDeltaZ )
                         continue;
                     
 		    if (m_oppChargesOnly && !oppositeCharges(*trkItr1,*trkItr2)) continue; //enforce opposite charges

@@ -103,10 +103,11 @@ print      BPHY16VertexFit
 from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiPlus2Tracks
 BPHY16Plus2Tracks = Analysis__JpsiPlus2Tracks(name = "BPHY16Plus2Tracks",
                                         OutputLevel = INFO,
-kaonkaonHypothesis			= True,
+kaonkaonHypothesis			= False,
 pionpionHypothesis                      = False,
 kaonpionHypothesis                      = False,
-trkThresholdPt			        = 800.0,
+ManualMassHypo                          = [ 105.658, 105.658, 105.658, 105.658 ],
+trkThresholdPt			        = 8.0,
 trkMaxEta				= 3.0,
 BMassUpper		                = 50000.0,
 BMassLower			        = 0,
@@ -114,10 +115,12 @@ BMassLower			        = 0,
 #DiTrackMassLower = 1019.445 - 100.,
 Chi2Cut                             = 8.0,
 TrkQuadrupletMassUpper      = 60000.0,
-TrkQuadrupletMassLower      = 0.0,
+TrkQuadrupletMassLower      = 0.01,
 JpsiContainerKey                    = "BPHY16OniaCandidates",
 TrackParticleCollection             = "InDetTrackParticles",
 MuonsUsedInJpsi			    = "Muons",
+ExcludeJpsiMuonsOnly                = True,
+RequireNMuonTracks                  = 1,
 TrkVertexFitterTool		    = BPHY16VertexFit,
 TrackSelectorTool		    = BPHY16_VertexTools.InDetTrackSelectorTool,
 UseMassConstraint		    = False)
@@ -138,20 +141,20 @@ ToolSvc += BPHY16FourTrackSelectAndWrite
 print      BPHY16FourTrackSelectAndWrite
 
 
-BPHY16_Select_Bpl2JpsiPi      = DerivationFramework__Select_onia2mumu(
+BPHY16_Select_FourTrack      = DerivationFramework__Select_onia2mumu(
   name                       = "BPHY16_Select_FourTracks",
   HypothesisName             = "FourTracks",
   InputVtxContainerName      = "BPHY16FourTrack",
   TrkMasses                  = [105.658, 105.658, 105.658, 105.658],
   VtxMassHypo                = 6275.1,
   MassMin                    = 0,
-  MassMax                    = 50000,
+  MassMax                    = 500000,
   Chi2Max                    = BPHY16Plus2Tracks.Chi2Cut)
 
-ToolSvc += BPHY16_Select_Bpl2JpsiPi
-print      BPHY16_Select_Bpl2JpsiPi
+ToolSvc += BPHY16_Select_FourTrack
+print      BPHY16_Select_FourTrack
 
-expression = "count(BPHY16OniaCandidates.passed_FourTracks) > 0"
+expression = "count(BPHY16FourTrack.passed_FourTracks) > 0"
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 BPHY16_SelectEvent = DerivationFramework__xAODStringSkimmingTool(name = "BPHY16_SelectEvent",
@@ -172,16 +175,6 @@ print BPHY16_SelectEvent
 ##    contains all pass flags for Select_* tools that must be satisfied. The vertex is kept is it 
 ##    satisfy any of the listed selections.
 
-from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Thin_vtxTrk
-BPHY16Thin_vtxTrk = DerivationFramework__Thin_vtxTrk(
-  name                       = "BPHY16Thin_vtxTrk",
-  ThinningService            = "BPHY16ThinningSvc",
-  TrackParticleContainerName = "InDetTrackParticles",
-  VertexContainerNames       = ["BPHY16OniaCandidates"],
-  PassFlags                  = ["passed_FourTracks"] )
-
-ToolSvc += BPHY16Thin_vtxTrk
-
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
@@ -194,7 +187,7 @@ ToolSvc += BPHY16Thin_vtxTrk
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
   "BPHY16Kernel",
-   AugmentationTools = [BPHY16_Reco_mumu, BPHY16_Select_Upsi, BPHY16_Select_Bpl2JpsiPi, BPHY16Thin_vtxTrk],
+   AugmentationTools = [BPHY16_Reco_mumu, BPHY16_Select_Upsi, BPHY16FourTrackSelectAndWrite, BPHY16_Select_FourTrack],
    SkimmingTools     = [BPHY16_SelectEvent]
    )
 
