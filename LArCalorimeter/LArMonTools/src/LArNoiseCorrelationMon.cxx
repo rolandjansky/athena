@@ -418,7 +418,7 @@ StatusCode LArNoiseCorrelationMon::procHistograms()
 
 /*---------------------------------------------------------*/
 /** check if channel is ok for monitoring */
- bool LArNoiseCorrelationMon::isGoodChannel(HWIdentifier ID,float ped)
+ bool LArNoiseCorrelationMon::isGoodChannel(const HWIdentifier ID,const float ped) const
  {
     /** Remove problematic channels*/
    if (m_ignoreKnownBadChannels && m_badChannelMask->cellShouldBeMasked(ID))
