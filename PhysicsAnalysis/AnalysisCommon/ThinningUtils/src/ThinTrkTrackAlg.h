@@ -4,10 +4,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// AthAnalysisBase doesn't know about calo cells (geometry would be needed)
-#ifndef XAOD_ANALYSIS
-
-
 #ifndef THINNINGUTILS_ThinTrkTrackAlg_H
 #define THINNINGUTILS_ThinTrkTrackAlg_H
 /**
@@ -72,7 +68,5 @@ public:
 
 };
 
-
-#endif
 
 #endif

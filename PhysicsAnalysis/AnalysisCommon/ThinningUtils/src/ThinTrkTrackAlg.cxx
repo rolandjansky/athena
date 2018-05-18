@@ -9,10 +9,6 @@
 // Lets see if we can write Trk::Tracks in xAOD
 ///////////////////////////////////////////////////////////////////
 
-// AthAnalysisBase doesn't know about calo cells (geometry would be needed)
-#ifndef XAOD_ANALYSIS
-
-
 #include "ThinTrkTrackAlg.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
@@ -296,5 +292,3 @@ StatusCode ThinTrkTrackAlg::doMuons(){
   CHECK( m_thinningSvc->filter( *trackPC, keptTracks,IThinningSvc::Operator::Or) );
   return StatusCode::SUCCESS;
 }
-
-#endif

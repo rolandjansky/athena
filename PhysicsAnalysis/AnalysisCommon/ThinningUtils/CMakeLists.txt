@@ -7,12 +7,15 @@
 atlas_subdir( ThinningUtils )
 
 # Extra dependencies, based on the build environment:
+set( extra_src )
 set( extra_deps )
 set( extra_libs )
 if( NOT XAOD_ANALYSIS )
-   set( extra_deps Calorimeter/CaloEvent
-      Trigger/TrigAnalysis/TrigDecisionTool )
-   set( extra_libs CaloEvent TrigDecisionToolLib )
+  set( extra_src  src/ThinCaloCellsTool.h src/ThinCaloCellsTool.cxx
+                  src/ThinCaloCellsAlg.h  src/ThinCaloCellsAlg.cxx
+                  src/ThinTrkTrackAlg.h   src/ThinTrkTrackAlg.cxx )
+  set( extra_deps Calorimeter/CaloEvent Trigger/TrigAnalysis/TrigDecisionTool )
+  set( extra_libs CaloEvent TrigDecisionToolLib )
 endif()
 
 # Declare the package's dependencies:
@@ -39,10 +42,21 @@ atlas_depends_on_subdirs(
 
 # Component(s) in the package:
 atlas_add_component(ThinningUtils
-   src/*.h src/*.cxx src/components/*.cxx
-   LINK_LIBRARIES AthLinks AthenaBaseComps AthenaKernel EventInfo xAODBase
-   xAODCaloEvent xAODEgamma xAODJet xAODMuon xAODParticleEvent xAODTau
-   xAODTracking xAODTruth GaudiKernel ExpressionEvaluationLib MCTruthClassifierLib ${extra_libs})
+  src/ReducePileUpEventInfoAlg.h           src/ReducePileUpEventInfoAlg.cxx
+  src/ThinCaloClustersAlg.h                src/ThinCaloClustersAlg.cxx
+  src/ThinCaloClustersTool.h               src/ThinCaloClustersTool.cxx
+  src/ThinGeantTruthAlg.h                  src/ThinGeantTruthAlg.cxx
+  src/ThinIParticlesAlg.h                  src/ThinIParticlesAlg.cxx
+  src/ThinIParticlesTool.h                 src/ThinIParticlesTool.cxx
+  src/ThinInDetForwardTrackParticlesAlg.h  src/ThinInDetForwardTrackParticlesAlg.cxx
+  src/ThinNegativeEnergyCaloClustersAlg.h  src/ThinNegativeEnergyCaloClustersAlg.cxx
+  src/ThinNegativeEnergyNeutralPFOsAlg.h   src/ThinNegativeEnergyNeutralPFOsAlg.cxx
+  src/ThinTrackParticlesAlg.h              src/ThinTrackParticlesAlg.cxx
+  src/ThinTrackParticlesTool.cxx           src/ThinTrackParticlesTool.h
+  src/components/*.cxx ${extra_src}
+  LINK_LIBRARIES AthLinks AthenaBaseComps AthenaKernel EventInfo xAODBase
+  xAODCaloEvent xAODEgamma xAODJet xAODMuon xAODParticleEvent xAODTau
+  xAODTracking xAODTruth GaudiKernel ExpressionEvaluationLib MCTruthClassifierLib ${extra_libs})
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

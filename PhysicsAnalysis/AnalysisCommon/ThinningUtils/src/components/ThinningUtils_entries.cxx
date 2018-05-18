@@ -3,13 +3,13 @@
 #include "../ReducePileUpEventInfoAlg.h"
 #include "../ThinIParticlesAlg.h"
 #include "../ThinIParticlesTool.h"
-#include "../ThinCaloCellsAlg.h"
 #include "../ThinGeantTruthAlg.h"
 #include "../ThinNegativeEnergyCaloClustersAlg.h"
 #include "../ThinNegativeEnergyNeutralPFOsAlg.h"
 #include "../ThinInDetForwardTrackParticlesAlg.h"
 // AthAnalysisBase doesn't know about calo cells (geometry would be needed)
 #ifndef XAOD_ANALYSIS
+#include "../ThinCaloCellsAlg.h"
 #include "../ThinCaloCellsTool.h"
 #include "../ThinTrkTrackAlg.h"
 #endif
@@ -25,9 +25,9 @@ DECLARE_ALGORITHM_FACTORY( ThinNegativeEnergyNeutralPFOsAlg )
 DECLARE_ALGORITHM_FACTORY( ReducePileUpEventInfoAlg )
 DECLARE_ALGORITHM_FACTORY( ThinIParticlesAlg )
 DECLARE_TOOL_FACTORY( ThinIParticlesTool )
-DECLARE_ALGORITHM_FACTORY( ThinCaloCellsAlg )
 // AthAnalysisBase doesn't know about calo cells (geometry would be needed)
 #ifndef XAOD_ANALYSIS
+DECLARE_ALGORITHM_FACTORY( ThinCaloCellsAlg )
 DECLARE_TOOL_FACTORY( ThinCaloCellsTool )
 DECLARE_ALGORITHM_FACTORY( ThinTrkTrackAlg )
 #endif
@@ -45,9 +45,9 @@ DECLARE_FACTORY_ENTRIES( ThinningUtils )
   DECLARE_ALGORITHM( ReducePileUpEventInfoAlg );
   DECLARE_ALGORITHM( ThinIParticlesAlg );
   DECLARE_TOOL( ThinIParticlesTool );
-  DECLARE_ALGORITHM( ThinCaloCellsAlg );
 // AthAnalysisBase doesn't know about calo cells (geometry would be needed)
 #ifndef XAOD_ANALYSIS
+  DECLARE_ALGORITHM( ThinCaloCellsAlg );
   DECLARE_TOOL( ThinCaloCellsTool );
   DECLARE_ALGORITHM ( ThinTrkTrackAlg );
 #endif

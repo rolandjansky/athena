@@ -4,10 +4,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-// AthAnalysisBase doesn't know about calo cells (geometry would be needed)
-#ifndef XAOD_ANALYSIS
-
 #ifndef THINNINGUTILS_THINCALOCELLSTOOL_H
 #define THINNINGUTILS_THINCALOCELLSTOOL_H
 
@@ -57,7 +53,7 @@ class ThinCaloCellsTool
 public:
   /// Standard constructor
   ThinCaloCellsTool( const std::string& type,
-                	   const std::string& name,
+                     const std::string& name,
                      const IInterface* parent );
 
   /// Standard destructor
@@ -150,7 +146,5 @@ private:
   mutable unsigned long m_nEventsProcessed;
 
 };
-
-#endif
 
 #endif
