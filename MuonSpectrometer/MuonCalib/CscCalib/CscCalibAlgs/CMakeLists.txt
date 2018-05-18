@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           TestPolicy
                           PRIVATE
                           Control/AthenaBaseComps
-                          Control/DataModel
+                          Control/AthContainers
                           Control/StoreGate
                           GaudiKernel
                           MuonSpectrometer/MuonCalib/CscCalib/CscCalibData
@@ -30,7 +30,7 @@ atlas_add_component( CscCalibAlgs
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps DataModel StoreGateLib SGtests GaudiKernel CscCalibData MuonCondInterface MuonReadoutGeometry MuonIdHelpersLib MuonRDO )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthContainers StoreGateLib SGtests GaudiKernel CscCalibData MuonCondInterface MuonReadoutGeometry MuonIdHelpersLib MuonRDO )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
