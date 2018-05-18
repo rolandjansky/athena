@@ -17,7 +17,7 @@ include details about the calibration process, as opposed to the
 CscCalibResults which contain just the simple results of the calibration.
  ****************************************************************************/
 #include "CscCalibData/CscCalibReportBase.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TH1.h"
 #include "TH2.h"
 
