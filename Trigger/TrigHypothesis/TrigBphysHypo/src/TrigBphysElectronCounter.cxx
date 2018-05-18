@@ -39,6 +39,7 @@ TrigBphysElectronCounter::TrigBphysElectronCounter(const std::string & name, ISv
   , m_electronCollectionKey()
   , m_IsEMrequiredBits(0xF2)
   , m_applyIsEM(true)
+  , m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
   //counters
   , m_countTotalEvents(0)
   , m_countPassedEvents(0)  
@@ -54,7 +55,9 @@ TrigBphysElectronCounter::TrigBphysElectronCounter(const std::string & name, ISv
   declareProperty("IsEMrequiredBits",      m_IsEMrequiredBits = 0xF2);
 
   declareProperty("egammaElectronCutIDToolName",m_egammaElectronCutIDToolName="");
-
+  declareProperty("AthenaElectronLHIDSelectorToolName", m_athElectronLHIDSelectorToolName="");
+  declareProperty("UseAthenaElectronLHIDSelectorTool", m_useAthElectronLHIDSelector=false);
+  declareProperty("LuminosityTool", m_lumiBlockMuTool, "Luminosity Tool");
 
   declareMonitoredStdContainer("Acceptance" , m_mon_Acceptance   , AutoClear);
   declareMonitoredVariable(    "nEFElectrons",  m_mon_nEFElectrons);
@@ -75,6 +78,8 @@ HLT::ErrorCode TrigBphysElectronCounter::hltInitialize()
     //std::sort(IsEMrequiredBits.begin(), IsEMrequiredBits.end(), [&m_ptElectronMin](size_t i, size_t j) {return m_ptElectronMin[i] > m_ptElectronMin[j];});
     std::sort(m_ptElectronMin.begin(), m_ptElectronMin.end(), std::greater<float>());
 
+
+    
      if (m_egammaElectronCutIDToolName=="") {
        ATH_MSG_DEBUG("Electron IsEM PID is disabled, no tool specified "); 
        m_egammaElectronCutIDTool=ToolHandle<IAsgElectronIsEMSelector>();
@@ -90,6 +95,29 @@ HLT::ErrorCode TrigBphysElectronCounter::hltInitialize()
 	     ATH_MSG_DEBUG("Tool " << m_egammaElectronCutIDTool << " retrieved");
        }
      }
+
+  if (m_athElectronLHIDSelectorToolName=="") {
+      ATH_MSG_DEBUG("Electron LH PID is disabled, no tool specified  "); 
+       m_athElectronLHIDSelectorTool=ToolHandle<IAsgElectronLikelihoodTool>();
+  }
+  else {
+      m_athElectronLHIDSelectorTool=ToolHandle<IAsgElectronLikelihoodTool>(m_athElectronLHIDSelectorToolName);
+      if(m_athElectronLHIDSelectorTool.retrieve().isFailure()) {
+	  ATH_MSG_ERROR("Unable to retrieve " << m_athElectronLHIDSelectorTool);
+	  return HLT::BAD_JOB_SETUP; 
+
+	  // For now, just try to retrieve the lumi tool, It is used only in LH, so retrieve only if needed
+	  if (m_lumiBlockMuTool.retrieve().isFailure()) {
+	    ATH_MSG_WARNING("Unable to retrieve Luminosity Tool");
+	  } else {
+	    ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
+	  }
+      } 
+      else{
+          ATH_MSG_DEBUG("Tool " << m_athElectronLHIDSelectorTool << " retrieved");
+      }
+  }
+     
      
      ATH_MSG_INFO("require at least "<< m_nEfElectron <<" EF Electrons from collection " << m_electronCollectionKey  << ", with pts: ");
      if(msgLvl() <= MSG::INFO){	
