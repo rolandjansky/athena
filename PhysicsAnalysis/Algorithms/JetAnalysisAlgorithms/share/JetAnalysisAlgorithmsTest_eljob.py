@@ -75,7 +75,7 @@ job.algsAdd( config )
 
 from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
 
-sequence = makeJetAnalysisSequence (jetContainer=jetContainer,dataType=dataType,
+sequence = makeJetAnalysisSequence (job=job, jetContainer=jetContainer,dataType=dataType,
                                     runJvtUpdate=runJvtUpdate,runJvtEfficiency=runJvtEfficiency)
 
 

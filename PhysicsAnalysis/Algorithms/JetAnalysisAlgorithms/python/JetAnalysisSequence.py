@@ -2,7 +2,7 @@
 
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
-def makeJetAnalysisSequence (jetContainer,dataType,runJvtUpdate=True,runJvtEfficiency=True,runJetSmearing=True) :
+def makeJetAnalysisSequence (job, jetContainer,dataType,runJvtUpdate=True,runJvtEfficiency=True,runJetSmearing=True) :
     if not dataType in ["data", "mc", "afii"] :
         raise Exception ("invalid data type: " + dataType)
 
@@ -60,7 +60,10 @@ def makeJetAnalysisSequence (jetContainer,dataType,runJvtUpdate=True,runJvtEffic
 
         alg = createAlgorithm( 'CP::JetSmearingAlg', 'JetSmearingAlg' )
         addPrivateTool (alg, "smearingTool", "JERSmearingTool")
-        addPrivateTool (alg, "smearingTool.JERTool", "JERTool")
+        JERTool = createPublicTool (alg, "JERTool", "JERTool")
+        JERTool.PlotFileName = jerFile
+        JERTool.CollectionName = jetContainer
+        alg.smearingTool.JERTool = JERTool.name()
         if dataType == "data" :
             alg.smearingTool.isMC = 0
             pass
@@ -69,8 +72,6 @@ def makeJetAnalysisSequence (jetContainer,dataType,runJvtUpdate=True,runJvtEffic
             pass
         alg.smearingTool.ApplyNominalSmearing = 0
         alg.smearingTool.SystematicMode = "Simple"
-        alg.smearingTool.JERTool.PlotFileName = jerFile
-        alg.smearingTool.JERTool.CollectionName = jetContainer
         sequence.append ( {"alg" : alg, "in" : "jets", "out" : "jetsOut",
                            "sys" : "(^JET_JER_.*)"} )
         pass
