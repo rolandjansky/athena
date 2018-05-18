@@ -43,6 +43,7 @@
 #include "G4Deuteron.hh"
 #include "G4Triton.hh"
 #include "G4He3.hh"
+#include "G4Geantino.hh"
 #include "TGraph.h"
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
@@ -81,6 +82,14 @@ namespace G4UA{
       m_full_rz_h20 [i] += maps.m_full_rz_h20 [i];
     }
 
+    for(unsigned int i=0;i<maps.m_rz_vol.size();i++) {
+      // need volume fraction only if particular material is selected
+      m_rz_vol [i] += maps.m_rz_vol [i];
+      m_rz_norm[i] += maps.m_rz_norm[i];
+      m_full_rz_vol [i] += maps.m_full_rz_vol [i];
+      m_full_rz_norm[i] += maps.m_full_rz_norm[i];
+    }
+
     // all zoom 3d vectors have same size 
     for(unsigned int i=0;i<maps.m_3d_tid.size();i++) {
       // zoom 3d
@@ -88,6 +97,12 @@ namespace G4UA{
       m_3d_eion[i] += maps.m_3d_eion[i];
       m_3d_niel[i] += maps.m_3d_niel[i];
       m_3d_h20 [i] += maps.m_3d_h20 [i];
+    }
+
+    for(unsigned int i=0;i<maps.m_3d_vol.size();i++) {
+      // need volume fraction only if particular material is selected
+      m_3d_vol [i] += maps.m_3d_vol [i];
+      m_3d_norm[i] += maps.m_3d_norm[i];
     }
   }
 
@@ -99,16 +114,26 @@ namespace G4UA{
     m_maps.m_rz_eion.resize(0);
     m_maps.m_rz_niel.resize(0);
     m_maps.m_rz_h20 .resize(0);
-    
+
     m_maps.m_full_rz_tid .resize(0);
     m_maps.m_full_rz_eion.resize(0);
     m_maps.m_full_rz_niel.resize(0);
     m_maps.m_full_rz_h20 .resize(0);
-    
+
     m_maps.m_3d_tid .resize(0);
     m_maps.m_3d_eion.resize(0);
     m_maps.m_3d_niel.resize(0);
     m_maps.m_3d_h20 .resize(0);
+
+    if (!m_config.material.empty()) {
+      // need volume fraction only if particular material is selected
+      m_maps.m_rz_vol .resize(0);
+      m_maps.m_rz_norm.resize(0);
+      m_maps.m_full_rz_vol .resize(0);
+      m_maps.m_full_rz_norm.resize(0);
+      m_maps.m_3d_vol .resize(0);
+      m_maps.m_3d_norm.resize(0);
+    }
 
     // then resize to proper size and initialize with 0's 
 
@@ -116,16 +141,29 @@ namespace G4UA{
     m_maps.m_rz_eion.resize(m_config.nBinsz*m_config.nBinsr,0.0);
     m_maps.m_rz_niel.resize(m_config.nBinsz*m_config.nBinsr,0.0);
     m_maps.m_rz_h20 .resize(m_config.nBinsz*m_config.nBinsr,0.0);
-    
+
     m_maps.m_full_rz_tid .resize(m_config.nBinsz*m_config.nBinsr,0.0);
     m_maps.m_full_rz_eion.resize(m_config.nBinsz*m_config.nBinsr,0.0);
     m_maps.m_full_rz_niel.resize(m_config.nBinsz*m_config.nBinsr,0.0);
     m_maps.m_full_rz_h20 .resize(m_config.nBinsz*m_config.nBinsr,0.0);
-    
+
     m_maps.m_3d_tid .resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
     m_maps.m_3d_eion.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
     m_maps.m_3d_niel.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
     m_maps.m_3d_h20 .resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
+
+    if (!m_config.material.empty()) {
+      // need volume fraction only if particular material is selected
+      // 2d zoom
+      m_maps.m_rz_vol .resize(m_config.nBinsz*m_config.nBinsr,0.0);
+      m_maps.m_rz_norm.resize(m_config.nBinsz*m_config.nBinsr,0.0);
+      // 2d full
+      m_maps.m_full_rz_vol .resize(m_config.nBinsz*m_config.nBinsr,0.0);
+      m_maps.m_full_rz_norm.resize(m_config.nBinsz*m_config.nBinsr,0.0);
+      // 3d
+      m_maps.m_3d_vol .resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
+      m_maps.m_3d_norm.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
+    }
 
     /// data files for NIEL damage factors in Si
     ///
@@ -133,25 +171,25 @@ namespace G4UA{
     /// changed. To prevent modification of the damage factors by accident
     /// the file names are not configurable
     ///
-    std::string fpSiA = PathResolver::find_file("protons_Si_Gunnar_Summers.dat"   ,"DATAPATH");//E_kin < 15 MeV
-    std::string fpSiB = PathResolver::find_file("protons_Si_Gunnar_Huhtinen.dat"  ,"DATAPATH");//E_kin > 15 MeV
-    std::string fnSiA = PathResolver::find_file("neutrons_Si_Gunnar_Griffin.dat"  ,"DATAPATH");//E_kin < 20 MeV
-    std::string fnSiB = PathResolver::find_file("neutrons_Si_Gunnar_Konobeyev.dat","DATAPATH");//E_kin > 20 MeV
-    std::string fpiSi = PathResolver::find_file("pions_Si_Gunnar_Huhtinen.dat"    ,"DATAPATH");//E_kin > 15 MeV
-    std::string feSi  = PathResolver::find_file("electrons_Si_Summers.dat"    ,"DATAPATH");    //E_kin > 0.1 MeV 
+    std::string fpSiA = PathResolver::find_file("protons_Si_Gunnar_Summers.dat"   ,"DATAPATH");//E_kin < 15   MeV
+    std::string fpSiB = PathResolver::find_file("protons_Si_Gunnar_Huhtinen.dat"  ,"DATAPATH");//E_kin > 15   MeV
+    std::string fnSiA = PathResolver::find_file("neutrons_Si_Gunnar_Griffin.dat"  ,"DATAPATH");//E_kin < 20   MeV
+    std::string fnSiB = PathResolver::find_file("neutrons_Si_Gunnar_Konobeyev.dat","DATAPATH");//E_kin > 20   MeV
+    std::string fpiSi = PathResolver::find_file("pions_Si_Gunnar_Huhtinen.dat"    ,"DATAPATH");//E_kin > 15   MeV
+    std::string feSi  = PathResolver::find_file("electrons_Si_Summers.dat"        ,"DATAPATH");//E_kin >  0.1 MeV 
 
     if ( !m_tgpSiA ) 
-      m_tgpSiA = new TGraph(fpSiA.c_str()); //E_kin < 15 MeV
+      m_tgpSiA = new TGraph(fpSiA.c_str()); //E_kin < 15   MeV
     if ( !m_tgpSiB ) 
-      m_tgpSiB = new TGraph(fpSiB.c_str()); //E_kin > 15 MeV
+      m_tgpSiB = new TGraph(fpSiB.c_str()); //E_kin > 15   MeV
     if ( !m_tgnSiA ) 
-      m_tgnSiA = new TGraph(fnSiA.c_str()); //E_kin < 20 MeV
+      m_tgnSiA = new TGraph(fnSiA.c_str()); //E_kin < 20   MeV
     if ( !m_tgnSiB ) 
-      m_tgnSiB = new TGraph(fnSiB.c_str()); //E_kin > 20 MeV
+      m_tgnSiB = new TGraph(fnSiB.c_str()); //E_kin > 20   MeV
     if ( !m_tgpiSi ) 
-      m_tgpiSi = new TGraph(fpiSi.c_str()); //E_kin > 15 MeV
+      m_tgpiSi = new TGraph(fpiSi.c_str()); //E_kin > 15   MeV
     if ( !m_tgeSi ) 
-      m_tgeSi = new TGraph(feSi.c_str());   //E_kin > 0.1 MeV
+      m_tgeSi = new TGraph(feSi.c_str());   //E_kin >  0.1 MeV
   }
   
   void RadiationMapsMaker::UserSteppingAction(const G4Step* aStep){
@@ -211,6 +249,8 @@ namespace G4UA{
 	       aStep->GetTrack()->GetDefinition()==G4He3::Definition()){
       pdgid=9; // particles not protons treated as protons for NIEL 
 
+    } else if (aStep->GetTrack()->GetDefinition()==G4Geantino::Definition()) {
+      pdgid = 999; // geantinos are used for volume calculation
     } else if (!aStep->GetTrack()->GetDefinition()->GetPDGCharge()) return; // Not one of those and not a primary?
 
     if ( pdgid == 10 && aStep->GetTrack()->GetKineticEnergy() > 10 ) {
@@ -222,10 +262,23 @@ namespace G4UA{
     // process NIEL, h20 and Edep particles only
 
     if ( pdgid == 1 || pdgid == 2 || pdgid == 4 || pdgid == 5 || pdgid == 6 || pdgid == 7 || pdgid == 8 || pdgid == 9 || /* NIEL & h20*/
-	 aStep->GetTotalEnergyDeposit() > 0 ) {
+	 aStep->GetTotalEnergyDeposit() > 0 || pdgid == 999) {
       
     
       double rho = aStep->GetTrack()->GetMaterial()->GetDensity()/CLHEP::g*CLHEP::cm3; 
+
+      bool goodMaterial(false);
+
+      if (m_config.material.empty()) {
+	// if no material is specified maps are made for all materials
+	goodMaterial = true;
+      } 
+      else {
+	// if a material is specified maps are made just for that one.
+	// Note that still all steps need to be treated to calculate the
+	// volume fraction of the target material in each bin!
+	goodMaterial = (m_config.material.compare(aStep->GetTrack()->GetMaterial()->GetName()) == 0);
+      } 
 
       // fluence dN/da = dl/dV 
       double x0 = aStep->GetPreStepPoint()->GetPosition().x()*0.1;
@@ -280,7 +333,7 @@ namespace G4UA{
       double dE_NIEL = aStep->GetNonIonizingEnergyDeposit()/nStep;
       double dE_ION = dE_TOT-dE_NIEL;
       
-      if ( weight > 0 || eKin > 20 || dE_TOT > 0 ) {
+      if ( weight > 0 || eKin > 20 || dE_TOT > 0 || pdgid == 999) {
 
 	for(unsigned int i=0;i<nStep;i++) {
 	  double absz = fabs(z0+dz*(i+0.5));
@@ -342,20 +395,20 @@ namespace G4UA{
 	    }
 	  }
 	  
-	  if ( vBinZoom >=0 ) {
+	  if ( goodMaterial && vBinZoom >=0 ) {
 	    m_maps.m_rz_tid [vBinZoom] += dE_ION/rho;
 	    m_maps.m_rz_eion[vBinZoom] += dE_ION;
 	  }
-	  if ( vBinFull >=0 ) {
+	  if ( goodMaterial && vBinFull >=0 ) {
 	    m_maps.m_full_rz_tid [vBinFull] += dE_ION/rho;
 	    m_maps.m_full_rz_eion[vBinFull] += dE_ION;
 	  }
-	  if ( vBin3d >=0 ) {
+	  if ( goodMaterial && vBin3d >=0 ) {
 	    m_maps.m_3d_tid [vBin3d] += dE_ION/rho;
 	    m_maps.m_3d_eion[vBin3d] += dE_ION;
 	  }
 	    
-	  if ( pdgid == 1 || pdgid == 2 || pdgid == 4 || pdgid == 5 || pdgid == 6 || pdgid == 7 || pdgid == 8 || pdgid == 9 ) {
+	  if ( goodMaterial && (pdgid == 1 || pdgid == 2 || pdgid == 4 || pdgid == 5 || pdgid == 6 || pdgid == 7 || pdgid == 8 || pdgid == 9 )) {
 	    
 	    if ( weight > 0 ) {
 	      if ( vBinZoom >=0 ) {
@@ -377,6 +430,47 @@ namespace G4UA{
 	      }
 	      if ( vBin3d >=0 ) {
 		m_maps.m_3d_h20 [vBin3d] += dl;
+	      }
+	    }
+	  }
+	  if (!m_config.material.empty()) {
+	    // need volume fraction only if particular material is selected
+	    if ( (eKin > 1 && (pdgid == 6 || pdgid == 7)) || pdgid == 999) {
+	      // count all neutron > 1 MeV track lengths weighted by r
+	      // to get norm for volume per bin. High energetic
+	      // neutrons are used because they travel far enough to
+	      // map entire bins and are not bent by magnetic fields.
+	      // dl is a measure of length inside the current bin.
+	      // The multiplication by r accounts for the larger
+	      // volume corresponding to larger r assuming that the
+	      // neutron flux is locally mainly from inside to
+	      // outside. In regions where the neutron flux differs
+	      // substantially from this cylindrical assumption a
+	      // cylindrical Geantino scan (vertex: flat in z, x=y=0;
+	      // momentum: pz=0, flat in phi) should be used to get
+	      // the correct volume fraction.
+	      if ( vBinZoom >=0 ) {
+		m_maps.m_rz_norm[vBinZoom] += rr*dl;
+	      }
+	      if ( vBinFull >=0 ) {
+		m_maps.m_full_rz_norm[vBinFull] += rr*dl;
+	      }
+	      if ( vBin3d >=0 ) {
+		m_maps.m_3d_norm[vBin3d] += rr*dl;
+	      }
+	      if ( goodMaterial ) {
+		// same but only inside the material of interest. 
+		// The ratio vol/norm gives the volume fraction of the desired
+		// material inside the current bin
+		if ( vBinZoom >=0 ) {
+		  m_maps.m_rz_vol [vBinZoom] += rr*dl;
+		}
+		if ( vBinFull >=0 ) {
+		  m_maps.m_full_rz_vol [vBinFull] += rr*dl;
+		}
+		if ( vBin3d >=0 ) {
+		  m_maps.m_3d_vol [vBin3d] += rr*dl;
+		}
 	      }
 	    }
 	  }

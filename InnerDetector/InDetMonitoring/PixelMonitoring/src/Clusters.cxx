@@ -230,7 +230,7 @@ StatusCode PixelMainMon::bookClustersMon(void) {
 
     tmp = "Cluster_LVL1A_Mod";
     tmp2 = "Average cluster Level 1 Accept";
-    m_cluster_LVL1A_mod = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true));
+    m_cluster_LVL1A_mod = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D));
     sc = m_cluster_LVL1A_mod->regHist(timeShift);
 
     tmp = "Clus_Occ_SizeCut";
@@ -240,7 +240,7 @@ StatusCode PixelMainMon::bookClustersMon(void) {
 
     tmp = "Clus_LVL1A_SizeCut";
     tmp2 = "Average Size>1 Cluster Level 1 Accept";
-    m_clus_LVL1A_sizenot1 = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true));
+    m_clus_LVL1A_sizenot1 = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D));
     sc = m_clus_LVL1A_sizenot1->regHist(timeShift);
 
     if (m_doOnline) {
@@ -257,17 +257,17 @@ StatusCode PixelMainMon::bookClustersMon(void) {
     if (!m_doOnline) {
       tmp = "Cluster_Size_Map";
       tmp2 = "Average cluster size map";
-      m_clussize_map = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true));
+      m_clussize_map = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D));
       sc = m_clussize_map->regHist(clusterExpert);
 
       tmp = "Cluster_Charge_Map";
       tmp2 = "Average cluster charge map";
-      m_cluscharge_map = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true));
+      m_cluscharge_map = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D));
       sc = m_cluscharge_map->regHist(clusterExpert);
 
       tmp = "Cluster_ToT_Map";
       tmp2 = "Average cluster ToT map";
-      m_clusToT_map = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true));
+      m_clusToT_map = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D));
       sc = m_clusToT_map->regHist(clusterExpert);
     }
   }
@@ -289,32 +289,32 @@ StatusCode PixelMainMon::bookClustersMon(void) {
     if (m_doOnTrack) {
       if (m_doIBL) {
 	hname = makeHistname("Cluster_Occupancy_PP0_IBLA", false);
-	htitles = makeHisttitle("Average per FE cluster occupancy, IBL A-side", ";stave ;average # clusters per FE per event", false);
+	htitles = makeHisttitle("Average per FE cluster occupancy reset every 5 min, IBL A-side", ";stave ;average # clusters per FE per event", false);
 	sc = clusterExpert.regHist(m_cluster_occupancy_PP0_IBLA = TProfile_LW::create(hname.c_str(), htitles.c_str(), 
 									  PixMon::kNumStavesIBL, 0.5, 0.5 + PixMon::kNumStavesIBL));
 	hname = makeHistname("Cluster_Occupancy_PP0_IBLC", false);
-	htitles = makeHisttitle("Average per FE cluster occupancy, IBL C-side", ";stave ;average # clusters per FE per event", false);
+	htitles = makeHisttitle("Average per FE cluster occupancy reset every 5 min, IBL C-side", ";stave ;average # clusters per FE per event", false);
 	sc = clusterExpert.regHist(m_cluster_occupancy_PP0_IBLC = TProfile_LW::create(hname.c_str(), htitles.c_str(), 
 									  PixMon::kNumStavesIBL, 0.5, 0.5 + PixMon::kNumStavesIBL));
       }
       hname = makeHistname("Cluster_Occupancy_PP0_B0", false);
-      htitles = makeHisttitle("Average per module cluster occupancy, B0", ";stave ;average # clusters per module per event", false);
+      htitles = makeHisttitle("Average per module cluster occupancy reset every 5 min, B0", ";stave ;average # clusters per module per event", false);
       sc = clusterExpert.regHist(m_cluster_occupancy_PP0_B0 = TProfile_LW::create(hname.c_str(), htitles.c_str(),
 								      PixMon::kNumStavesL0, 0.5, 0.5 + PixMon::kNumStavesL0));
       hname = makeHistname("Cluster_Occupancy_PP0_B1", false);
-      htitles = makeHisttitle("Average per module cluster occupancy, B1", ";stave ;average # clusters per module per event", false);
+      htitles = makeHisttitle("Average per module cluster occupancy reset every 5 min, B1", ";stave ;average # clusters per module per event", false);
       sc = clusterExpert.regHist(m_cluster_occupancy_PP0_B1 = TProfile_LW::create(hname.c_str(), htitles.c_str(),
 								      PixMon::kNumStavesL1, 0.5, 0.5 + PixMon::kNumStavesL1));
       hname = makeHistname("Cluster_Occupancy_PP0_B2", false);
-      htitles = makeHisttitle("Average per module cluster occupancy, B2", ";stave ;average # clusters per module per event", false);
+      htitles = makeHisttitle("Average per module cluster occupancy reset every 5 min, B2", ";stave ;average # clusters per module per event", false);
       sc = clusterExpert.regHist(m_cluster_occupancy_PP0_B2 = TProfile_LW::create(hname.c_str(), htitles.c_str(),
 								      PixMon::kNumStavesL2, 0.5, 0.5 + PixMon::kNumStavesL2));
       hname = makeHistname("Cluster_Occupancy_PP0_ECA", false);
-      htitles = makeHisttitle("Average per module cluster occupancy, ECA", ";sector ;average # clusters per module per event", false);
+      htitles = makeHisttitle("Average per module cluster occupancy reset every 5 min, ECA", ";sector ;average # clusters per module per event", false);
       sc = clusterExpert.regHist(m_cluster_occupancy_PP0_ECA = TProfile_LW::create(hname.c_str(), htitles.c_str(),
 								       PixMon::kNumPP0sEC, 0.5, 0.5 + PixMon::kNumPP0sEC));
       hname = makeHistname("Cluster_Occupancy_PP0_ECC", false);
-      htitles = makeHisttitle("Average per module cluster occupancy, ECC", ";sector ;average # clusters per module per event", false);
+      htitles = makeHisttitle("Average per module cluster occupancy reset every 5 min, ECC", ";sector ;average # clusters per module per event", false);
       sc = clusterExpert.regHist(m_cluster_occupancy_PP0_ECC = TProfile_LW::create(hname.c_str(), htitles.c_str(),
 								       PixMon::kNumPP0sEC, 0.5, 0.5 + PixMon::kNumPP0sEC));
       formatPP0Histos(m_cluster_occupancy_PP0_ECA, m_cluster_occupancy_PP0_ECC,

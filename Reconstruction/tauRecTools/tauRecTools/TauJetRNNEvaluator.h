@@ -36,6 +36,7 @@ public:
     StatusCode execute(xAOD::TauJet &tau);
 
     // Getter for the underlying RNN implementation
+    TauJetRNN *get_rnn_0p();
     TauJetRNN *get_rnn_1p();
     TauJetRNN *get_rnn_3p();
 
@@ -50,6 +51,7 @@ private:
 
 private:
     std::string m_output_varname;
+    std::string m_weightfile_0p;
     std::string m_weightfile_1p;
     std::string m_weightfile_3p;
     std::size_t m_min_charged_tracks;
@@ -65,6 +67,7 @@ private:
     std::string m_output_node;
 
     // Wrappers for lwtnn
+    std::unique_ptr<TauJetRNN> m_net_0p; //!
     std::unique_ptr<TauJetRNN> m_net_1p; //!
     std::unique_ptr<TauJetRNN> m_net_3p; //!
 };

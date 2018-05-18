@@ -918,10 +918,11 @@ bool InDet::SiCombinatorialTrackFinder_xk::spacePointsToClusters
 ///////////////////////////////////////////////////////////////////
 
 void InDet::SiCombinatorialTrackFinder_xk::detectorElementLinks
-(std::vector<const InDetDD::SiDetectorElement*>        & DE,
+(const std::vector<const InDetDD::SiDetectorElement*>        & DE,
  std::vector<const InDet::SiDetElementBoundaryLink_xk*>& DEL)
 {
-  std::vector<const InDetDD::SiDetectorElement*>::iterator d = DE.begin(),de = DE.end();
+  DEL.reserve(DE.size());
+  std::vector<const InDetDD::SiDetectorElement*>::const_iterator d = DE.begin(),de = DE.end();
  
   for(; d!=de; ++d) {
  

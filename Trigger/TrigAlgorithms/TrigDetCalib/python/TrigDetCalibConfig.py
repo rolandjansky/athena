@@ -579,6 +579,8 @@ class TrigCheckForMuons_peb075(TrigCheckForMuons):
     self.MaxRoIsPerEvent = -1
     self.muonLabels = ["MuonEFInfo",""]
     self.PEBInfoLabel = "peb075"
+
+    #self.ROBSelector.Subdetectors = "All"  # this allows to modify list of subdetectors to include
     
     from TrigDetCalib.TrigDetCalibMonitoring import TrigROBListWriterValidationMonitoring
     from TrigDetCalib.TrigDetCalibMonitoring import TrigROBListWriterOnlineMonitoring
