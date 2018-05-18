@@ -159,7 +159,7 @@
  *  <https://www.nayuki.io/page/barett-reduction-algorithm>
  *
  * If we want to compute C = M mod P, where C < M^2, then we can precompute
- * s = 1/P and then C = M - floor(M s)P.  In the cae of fixed-point arithmetic,
+ * s = 1/P and then C = M - floor(M s)P.  In the case of fixed-point arithmetic,
  * it is convenient to scale s by a power of 2 so that it is not less than one.
  * We precompute mu = floor(2^128 / P).  Then
  *
@@ -657,7 +657,7 @@ uint64_t crc64 (const CRCTable& table,
     // Handle a partial block at the end of less than 128 bits.
     if (ATH_LIKELY (n < data_len)) {
       v2di remainder = load_aligned (data + n);
-      // Number of remaining bits.
+      // Number of remaining bytes.
       size_t nrem = data_len - n;
       v2di A, B, C, D;
       byteshift_l256 (fold, 16-nrem, B, A);
