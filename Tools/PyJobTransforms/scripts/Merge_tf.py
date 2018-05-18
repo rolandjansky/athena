@@ -21,8 +21,6 @@ from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTra
 from RecJobTransforms.recTransformUtils import addCommonRecTrfArgs
 from PyJobTransforms.trfExe import DQMergeExecutor
 from PyJobTransforms.trfExe import tagMergeExecutor
-from SimuJobTransforms.simTrfArgs import addForwardDetTrfArgs
-from SimuJobTransforms.SimTransformUtils import addHITSMergeArguments
 from PyJobTransforms.trfExe import bsMergeExecutor
 from PyJobTransforms.trfExe import NTUPMergeExecutor
 from PyJobTransforms.trfArgs import addD3PDArguments, addExtraDPDTypes
@@ -59,8 +57,6 @@ def getTransform():
                                    inData = ['RDO'], outData = ['RDO_MRG']))
     executorSet.add(bsMergeExecutor(name = 'RAWFileMerge', exe = 'file_merging', inData = set(['BS']), outData = set(['BS_MRG'])))
     executorSet.add(athenaExecutor(name = 'EVNTMerge', skeletonFile = 'PyJobTransforms/skeleton.EVNTMerge.py',inData = ['EVNT'], outData = ['EVNT_MRG']))
-    executorSet.add(athenaExecutor(name = 'HITSMerge', substep="hitsmerge", skeletonFile = 'SimuJobTransforms/skeleton.HITSMerge.py',
-                                   tryDropAndReload = False, inData = ['HITS'], outData = ['HITS_MRG']))
 
     addDAODMergerSubsteps(executorSet)
     addNTUPMergeSubsteps(executorSet)
@@ -72,11 +68,23 @@ def getTransform():
     addCommonRecTrfArgs(trf.parser)
     addMyArgs(trf.parser)
 
-    addHITSMergeArguments(trf.parser)
     addDAODArguments(trf.parser)
     addPhysValidationMergeFiles(trf.parser)
     addD3PDArguments(trf.parser, transform=trf, addD3PDMRGtypes=True)
     addExtraDPDTypes(trf.parser, transform=trf, NTUPMergerArgs = True)
+
+    # Add HITSMerge only if SimuJobTransforms is available
+    try:
+        from SimuJobTransforms.simTrfArgs import addForwardDetTrfArgs
+        from SimuJobTransforms.SimTransformUtils import addHITSMergeArguments
+        addHITSMergeArguments(trf.parser)
+        simStepSet = set()
+        simStepSet.add(athenaExecutor(name = 'HITSMerge', substep="hitsmerge", skeletonFile = 'SimuJobTransforms/skeleton.HITSMerge.py',
+                                   tryDropAndReload = False, inData = ['HITS'], outData = ['HITS_MRG']))
+        trf.appendToExecutorSet(list(simStepSet)[0])
+    except ImportError, e:
+        msg.warning('Failed to import simulation arguments ({0}). HITSMerge will not be available.'.format(e))
+
 
     return trf
 

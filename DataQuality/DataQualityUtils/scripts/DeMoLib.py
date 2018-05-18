@@ -197,6 +197,15 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
   if system == "TRT":
     yearTag["veto"] = {}
 
+    # Tags below are derived from the regular ones. 
+    # They have the same defect/veto tags but have different options/GRL
+    # The defect/veto tags are derived from the ones defined in the standard tags given before "."
+    similarTags = {"Tier0_2018.onlDelivNorm":"/Tier0 (onl. deliv. lumi.)"}
+    for iSimilar in similarTags.keys():
+      baseTag = iSimilar.split(".")[0]
+      yearTag["description"][iSimilar] = similarTags[iSimilar]
+      yearTag["defect"][iSimilar] = yearTag["defect"][baseTag] 
+
     partitions["color"] = {}
     partitions["list"] = partitions["color"].keys()
 
@@ -211,7 +220,7 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
 
     # Some defects may not exist in past years. Remove them to avoid crashes
     # WARNING: this fix does not work with multiple year plot
-    defectVeto["description"] = {"BADGAS":"Bad gas mixture", # First per partition Tile defects
+    defectVeto["description"] = {"BADGAS":"Bad gas mixture", # First per partition TRT defects
                                  "NODATA_06":"Large part of TRT off"}
 
     defectVeto["color"]= {"BADGAS":kBlue-4, # First per partition LAr defects
@@ -240,13 +249,14 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
 
     # Tags below are derived from the regular ones. 
     # They have the same defect/veto tags but have different options/GRL
-    similarTags = {"Tier0_2015.onlDelivNorm":"/Tier0 (deliv lumi)",
-                   "Reproc_2016.onlDelivNorm":"/2016 reproc. (deliv lumi)",
-                   "Tier0_2016.onlDelivNorm":"/Tier0 (deliv lumi)",
-                   "Reproc_2017.onlDelivNorm":"/2017 reproc. (deliv lumi)",
-                   "Tier0_2017.onlDelivNorm":"/Tier0 (deliv lumi)",
-                   "Reproc_2018.onlDelivNorm":"/2016 reproc. (deliv lumi)"}
-
+    # The defect/veto tags are derived from the ones defined in the standard tags given before "."
+    similarTags = {"Tier0_2015.onlDelivNorm":"/Tier0 (onl. deliv. lumi.)",
+                   "Reproc_2016.onlDelivNorm":"/2016 reproc. (onl. deliv. lumi.)",
+                   "Tier0_2016.onlDelivNorm":"/Tier0 (onl. deliv. lumi.)",
+                   "Reproc_2017.onlDelivNorm":"/2017 reproc. (onl. deliv. lumi.)",
+                   "Tier0_2017.onlDelivNorm":"/Tier0 (onl. deliv. lumi.)",
+                   "Reproc_2018.onlDelivNorm":"/2016 reproc. (onl. deliv. lumi.)",
+                   "Tier0_2018.onlDelivNorm":"/Tier0 (onl. deliv. lumi.)"}
     for iSimilar in similarTags.keys():
       baseTag = iSimilar.split(".")[0]
       yearTag["description"][iSimilar] = similarTags[iSimilar]
@@ -319,6 +329,15 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
   if system == "Tile":
     yearTag["veto"] = {}
 
+    # Tags below are derived from the regular ones. 
+    # They have the same defect/veto tags but have different options/GRL
+    # The defect/veto tags are derived from the ones defined in the standard tags given before "."
+    similarTags = {"Tier0_2018.onlDelivNorm":"/Tier0 (onl. deliv. lumi.)"}
+    for iSimilar in similarTags.keys():
+      baseTag = iSimilar.split(".")[0]
+      yearTag["description"][iSimilar] = similarTags[iSimilar]
+      yearTag["defect"][iSimilar] = yearTag["defect"][baseTag] 
+
     partitions["color"] = { 'EBA':kYellow-9,'EBC':kYellow,'LBA':kOrange,'LBC':kOrange-3}
     partitions["list"] = partitions["color"].keys()
 
@@ -343,12 +362,21 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
     veto["COOL"] = {} # Veto name as defined in the COOL database
 
     signOff["EXPR."] = ["TILE_UNCHECKED"]
-    signOff["BULK"] = ["TILE_BULK_UNCHECKED"]
+    signOff["BULK"] = ["TILE_UNCHECKED"]
     signOff["FINAL"] = []
 
 ################################# Jet/MET/EGamma/Tau/CaloGlobal defects
   if system == "CaloCP":
     yearTag["veto"] = {}
+
+    # Tags below are derived from the regular ones. 
+    # They have the same defect/veto tags but have different options/GRL
+    # The defect/veto tags are derived from the ones defined in the standard tags given before "."
+    similarTags = {"Tier0_2018.onlDelivNorm":"/Tier0 (onl. deliv. lumi.)"}
+    for iSimilar in similarTags.keys():
+      baseTag = iSimilar.split(".")[0]
+      yearTag["description"][iSimilar] = similarTags[iSimilar]
+      yearTag["defect"][iSimilar] = yearTag["defect"][baseTag] 
 
     partitions["color"] = { 'BARREL':kYellow-9,'CRACK':kRed-3,'ENDCAP':kBlue-3, # EGamma partitions
                             'B':kYellow-9,'CR':kRed-3,'E':kBlue-3, # Tau partitions
@@ -402,6 +430,15 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
 ################################# Jet/MET/EGamma/Tau/CaloGlobal defects
   if system == "BTag":
     yearTag["veto"] = {}
+
+    # Tags below are derived from the regular ones. 
+    # They have the same defect/veto tags but have different options/GRL
+    # The defect/veto tags are derived from the ones defined in the standard tags given before "."
+    similarTags = {"Tier0_2018.onlDelivNorm":"/Tier0 (onl. deliv. lumi.)"}
+    for iSimilar in similarTags.keys():
+      baseTag = iSimilar.split(".")[0]
+      yearTag["description"][iSimilar] = similarTags[iSimilar]
+      yearTag["defect"][iSimilar] = yearTag["defect"][baseTag] 
 
     partitions["color"] = { } # No partition needed
                             
