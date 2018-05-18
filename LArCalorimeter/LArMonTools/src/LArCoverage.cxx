@@ -73,6 +73,7 @@ LArCoverage::LArCoverage(const std::string& type,
   declareProperty("LArRawChannelKey",m_channelKey="LArRawChannels");
   declareProperty("LArBadChannelMask",m_badChannelMask);
   declareProperty("LArBadChannelTool",m_badChannelTool);
+  declareProperty("LArKnownMNBFEBsTool", m_badMNBFEBsTool);
   declareProperty("LArCaloNoiseTool",m_caloNoiseTool);
   declareProperty("Nevents",m_nevents = 50);
   declareProperty("Nsigma",m_nsigma = 3);
@@ -92,6 +93,10 @@ LArCoverage::LArCoverage(const std::string& type,
   m_hBadChannelsBarrelC = NULL;
   m_hBadChannelsEndcapA = NULL;
   m_hBadChannelsEndcapC = NULL;
+  m_hSuspiciousMNBFEBsBarrelA = NULL;
+  m_hSuspiciousMNBFEBsBarrelC = NULL;
+  m_hSuspiciousMNBFEBsEndcapA = NULL;
+  m_hSuspiciousMNBFEBsEndcapC = NULL;
   m_strHelper		= NULL;
   m_rootStore		= NULL;
  }
@@ -150,6 +155,9 @@ LArCoverage::initialize()
     ATH_MSG_ERROR( "Could not retrieve BadChannelMask" << m_badChannelMask);
     return StatusCode::FAILURE;
   }
+
+  // Get suspicious MNBs FEB tool
+  if(m_badMNBFEBsTool.name() != "ILArBadChanTool") ATH_CHECK( m_badMNBFEBsTool.retrieve() );
    
   // Get LAr Cabling Service
   sc=m_larCablingService.retrieve();
@@ -589,6 +597,26 @@ LArCoverage::bookHistograms()
     m_strHelper->definePartitionSummProp2(m_hBadChannelsEndcapC).ignore();
     SetBadChannelZaxisLabels(m_hBadChannelsEndcapC);
     BadChannelsGroupShift.regHist(m_hBadChannelsEndcapC).ignore();
+  
+    m_hSuspiciousMNBFEBsBarrelA = TH2I_LW::create("DBSuspiciousMNBFEBsBarrelA",Form("MNB suspicious FEBs - Barrel A - LB %4d",lb1),
+						  14,0.5,14.5,32,-0.5,31.5);
+    m_strHelper->definePartitionSummProp(m_hSuspiciousMNBFEBsBarrelA).ignore();
+    BadChannelsGroupShift.regHist(m_hSuspiciousMNBFEBsBarrelA).ignore();
+        
+    m_hSuspiciousMNBFEBsBarrelC = TH2I_LW::create("DBSuspiciousMNBFEBsBarrelC",Form("MNB suspicious FEBs - Barrel C - LB %4d",lb1),
+						  14,0.5,14.5,32,-0.5,31.5);
+    m_strHelper->definePartitionSummProp(m_hSuspiciousMNBFEBsBarrelC).ignore();
+    BadChannelsGroupShift.regHist(m_hSuspiciousMNBFEBsBarrelC).ignore();
+    
+    m_hSuspiciousMNBFEBsEndcapA = TH2I_LW::create("DBSuspiciousMNBFEBsEndcapA",Form("MNB suspicious FEBs - Endcap A - LB %4d",lb1),
+						  15,0.5,15.5,25,-0.5,24.5);
+    m_strHelper->definePartitionSummProp(m_hSuspiciousMNBFEBsEndcapA).ignore();
+    BadChannelsGroupShift.regHist(m_hSuspiciousMNBFEBsEndcapA).ignore();
+    
+    m_hSuspiciousMNBFEBsEndcapC = TH2I_LW::create("DBSuspiciousMNBFEBsEndcapC",Form("MNB suspicious FEBs - Endcap C - LB %4d",lb1),
+						  15,0.5,15.5,25,-0.5,24.5);
+    m_strHelper->definePartitionSummProp(m_hSuspiciousMNBFEBsEndcapC).ignore();
+    BadChannelsGroupShift.regHist(m_hSuspiciousMNBFEBsEndcapC).ignore();
   
     return StatusCode::SUCCESS;
     
@@ -1151,6 +1179,18 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	}
       }
     } // end missing FEB
+    if(m_badMNBFEBsTool->febMissing(febid)){
+
+      int barrel_ec = m_LArOnlineIDHelper->barrel_ec(febid);
+      int pos_neg   = m_LArOnlineIDHelper->pos_neg(febid);
+      int ft        = m_LArOnlineIDHelper->feedthrough(febid);
+      int slot      = m_LArOnlineIDHelper->slot(febid);   
+      //std::cout << barrel_ec << " " << " " << pos_neg << " " << ft << " " << slot << std::endl;
+      if (barrel_ec == 0 && pos_neg == 0) m_hSuspiciousMNBFEBsBarrelC->SetBinContent(slot,ft+1,1.);
+      if (barrel_ec == 0 && pos_neg == 1) m_hSuspiciousMNBFEBsBarrelA->SetBinContent(slot,ft+1,1.);
+      if (barrel_ec == 1 && pos_neg == 0) m_hSuspiciousMNBFEBsEndcapC->SetBinContent(slot,ft+1,1.);
+      if (barrel_ec == 1 && pos_neg == 1) m_hSuspiciousMNBFEBsEndcapA->SetBinContent(slot,ft+1,1.);
+    } // End MNB suspicious
   } // end FEB loop
 
   return;
