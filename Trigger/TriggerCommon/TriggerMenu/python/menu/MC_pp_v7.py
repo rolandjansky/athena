@@ -1435,6 +1435,11 @@ def setupMenu():
         ['mu11_2mu4btrk_bTauTight_L1MU11_2MU6', 'L1_MU11_2MU6', ['L1_MU11','L2_mu11'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11','2mu4btrk']]],
         ['mu11_2mu3btrk_bTauTight_L1MU11_2MU6', 'L1_MU11_2MU6', ['L1_MU11','L2_mu11'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11','2mu3btrk']]],
 
+        #ATR-18139 backup chains in case of changed primaries
+        ['mu6_2mu4_bPhi', 'L1_MU6_3MU4', ['L1_MU6','L1_3MU4'], [BPhysicsStream], [RATE_BphysTag, BW_BphysTag], -1,['serial',-1,['mu6','2mu4_bPhi']]],
+        ['mu11_mu6noL1_bNocut_L1LFV-MU11', 'L1_LFV-MU11', ['L1_MU11','L2_mu6'], [BPhysicsStream], [RATE_BphysTag, BW_BphysTag], -1,['serial',-1,['mu11','mu6noL1_bNocut']]],
+        ['mu11_mu6noL1_bPhi_L1LFV-MU11', 'L1_LFV-MU11', ['L1_MU11','L2_mu6'], [BPhysicsStream], [RATE_BphysTag, BW_BphysTag], -1,['serial',-1,['mu11','mu6noL1_bPhi']]],
+
         ]
 
     if TriggerFlags.doFTK():
