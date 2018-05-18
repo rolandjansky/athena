@@ -37,8 +37,11 @@ class CfgFlag(object):
 
 
 class AthConfigFlags(object):
-    def __init__(self,flagdict=dict()):
-        self._flagdict=flagdict
+    def __init__(self,inputflags=None):
+        if inputflags:
+            self._flagdict=inputflags
+        else:
+            self._flagdict=dict()
         self._locked=False
 
 
@@ -144,7 +147,7 @@ class AthConfigFlags(object):
     def join(self,other):
          if (self._locked):
             raise RuntimeError("Attempt to join with and already-locked container")
-         for (name,flag) in other._flagdict:
+         for (name,flag) in other._flagdict.iteritems():
              if name in self._flagdict:
                  raise KeyError("Duplicated flag name: %s" % name)
              self._flagdict[name]=flag
@@ -152,8 +155,8 @@ class AthConfigFlags(object):
 
     def dump(self):
         print  "%40.40s : %s" % ("Flag Name","Value")
-        for name,flag in self._flagdict.iteritems():
-            print "%40.40s : %s" % (name,repr(flag))
+        for name in sorted(self._flagdict):
+            print "%40.40s : %s" % (name,repr(self._flagdict[name]))
 
     def initAll(self): #Mostly a self-test method
         for n,f in self._flagdict.items():

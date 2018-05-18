@@ -106,7 +106,13 @@ std::vector<RoIsUnpackingEmulationTool::FakeRoI> RoIsUnpackingEmulationTool::par
   std::string roi;
   
   while (getline(inputLine, roi, ';'))  {
-    result.push_back(parseInputRoI(roi, lineNumber, ++roiNumber));
+    // FIXME: If there aren't as many input fields in roi as parseInputRoI expects,
+    // it'll return uninitialized data (which can lead to a practically infinite
+    // loop when we try to normalize the phi).  Add an elementary check here to
+    // fix such a loop observed from creatingEVTest in ViewAlgsTest.
+    if (roi.find (',') != std::string::npos) {
+      result.push_back(parseInputRoI(roi, lineNumber, ++roiNumber));
+    }
   }
   return result;
 }

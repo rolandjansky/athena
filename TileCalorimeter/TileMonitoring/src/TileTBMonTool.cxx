@@ -184,7 +184,7 @@ StatusCode TileTBMonTool::fillHistograms() {
     if (onlyLBC04 && chan1 > 0 && drawerIdx1 != 87) onlyLBC04 = false;
     
     if (hash2 == TileHWID::NOT_VALID_HASH) {
-      if (!(m_maskedChannels[drawerIdx1][chan1] >> gain1) & 1U) {
+      if (!((m_maskedChannels[drawerIdx1][chan1] >> gain1) & 1U)) {
 	energy = cell->energy(); 
       }
     } else { 
@@ -198,11 +198,11 @@ StatusCode TileTBMonTool::fillHistograms() {
       int drawerIdx2 = TileCalibUtils::getDrawerIdx(ros2, drawer2);
 
       if ((m_maskedChannels[drawerIdx1][chan1] >> gain1) & 1U) {
-	if (!(m_maskedChannels[drawerIdx2][chan2] >> gain2) & 1U) {
+	if (!((m_maskedChannels[drawerIdx2][chan2] >> gain2) & 1U)) {
 	  energy = tile_cell->ene2() * 2; 
 	}
       } else if ((m_maskedChannels[drawerIdx2][chan2] >> gain2) & 1U) {
-	if (!(m_maskedChannels[drawerIdx1][chan1] >> gain1) & 1U) {
+	if (!((m_maskedChannels[drawerIdx1][chan1] >> gain1) & 1U)) {
 	  energy =tile_cell->ene1() * 2; 
 	}
       } else {

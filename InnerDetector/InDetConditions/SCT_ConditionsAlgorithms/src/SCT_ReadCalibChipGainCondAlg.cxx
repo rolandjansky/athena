@@ -19,13 +19,9 @@ using namespace SCT_ReadCalibChipUtilities;
 
 SCT_ReadCalibChipGainCondAlg::SCT_ReadCalibChipGainCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKey{"/SCT/DAQ/Calibration/ChipGain"}
-  , m_writeKey{"SCT_GainCalibData"}
   , m_condSvc{"CondSvc", name}
   , m_id_sct{nullptr}
 {
-  declareProperty("ReadKey", m_readKey, "Key of input (raw) gain conditions folder");
-  declareProperty("WriteKey", m_writeKey, "Key of output (derived) gain conditions folder");
 }
 
 StatusCode SCT_ReadCalibChipGainCondAlg::initialize() {

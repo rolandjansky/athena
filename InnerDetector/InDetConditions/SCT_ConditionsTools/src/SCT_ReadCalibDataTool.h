@@ -78,9 +78,9 @@ class SCT_ReadCalibDataTool: public extends<AthAlgTool, ISCT_ReadCalibDataTool> 
   // Pointer of SCT_AllGoodStripInfo
   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_AllGoodStripInfo> m_condDataInfo;
   // Read Cond Handles
-  SG::ReadCondHandleKey<SCT_CalibDefectData> m_condKeyGain;
-  SG::ReadCondHandleKey<SCT_CalibDefectData> m_condKeyNoise;
-  SG::ReadCondHandleKey<SCT_AllGoodStripInfo> m_condKeyInfo;
+  SG::ReadCondHandleKey<SCT_CalibDefectData> m_condKeyGain{this, "CondKeyGain", "SCT_CalibDefectNPtGain", "SCT defects due to NPtGain calibration"};
+  SG::ReadCondHandleKey<SCT_CalibDefectData> m_condKeyNoise{this, "CondKeyNoise", "SCT_CalibDefectNPtNoise", "SCT defects due to NPtNoise calibration"};
+  SG::ReadCondHandleKey<SCT_AllGoodStripInfo> m_condKeyInfo{this, "CondKeyInfo", "SCT_AllGoodStripInfo", "SCT good strips based on calibration defects"};
 
   const SCT_CalibDefectData* getCondDataGain(const EventContext& ctx) const;
   const SCT_CalibDefectData* getCondDataNoise(const EventContext& ctx) const;
@@ -90,9 +90,6 @@ class SCT_ReadCalibDataTool: public extends<AthAlgTool, ISCT_ReadCalibDataTool> 
   ServiceHandle<ISCT_CablingSvc>      m_cabling;     //!< Handle to SCT cabling service
   const InDetDD::SCT_DetectorManager* m_SCTdetMgr;   //!< Handle to SCT detector manager
   const SCT_ID*                       m_id_sct;      //!< Handle to SCT ID helper
-  
-  // Flag to set true to be able to use all methods not just isGood
-  bool m_recoOnly;
 };
 
 //---------------------------------------------------------------------- 

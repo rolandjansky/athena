@@ -95,6 +95,8 @@ private:
   // Cache to store events for slots
   mutable std::vector<EventContext::ContextEvt_t> m_cache;
 
+  mutable unsigned int m_nRetrievalFailure;
+
   StatusCode fillData(const EventContext& ctx) const;
 
   void addError(IdentifierHash id, int errorType, const EventContext& ctx) const;

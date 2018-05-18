@@ -10,12 +10,8 @@
 
 SCT_SensorsCondAlg::SCT_SensorsCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKey{"/SCT/Sensors"}
-  , m_writeKey{"SCT_SensorsCondData"}
   , m_condSvc{"CondSvc", name}
 {
-  declareProperty("ReadKey", m_readKey, "Key of input (raw) conditions folder");
-  declareProperty("WriteKey", m_writeKey, "Key of output (derived) conditions folder");
 }
 
 StatusCode SCT_SensorsCondAlg::initialize()

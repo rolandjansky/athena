@@ -14,7 +14,7 @@ set -o pipefail
 usage() {
     echo "Usage: build_Gaudi.sh <-s source dir> <-b build dir> " \
         "<-i install dir> <-e externals dir> <-p externals project name> " \
-        "<-f platform name> [-r RPM dir] [-t build type]"
+        "<-f platform name> [-r RPM dir] [-t build type] [-x extra CMake arguments]"
 }
 
 # Parse the command line arguments:
@@ -26,7 +26,8 @@ EXTPROJECT=""
 PLATFORM=""
 RPMDIR=""
 BUILDTYPE="Release"
-while getopts ":s:b:i:e:p:f:r:t:h" opt; do
+EXTRACMAKE=""
+while getopts ":s:b:i:e:p:f:r:t:x:h" opt; do
     case $opt in
         s)
             SOURCEDIR=$OPTARG
@@ -51,6 +52,9 @@ while getopts ":s:b:i:e:p:f:r:t:h" opt; do
             ;;
         t)
             BUILDTYPE=$OPTARG
+            ;;
+        x)
+            EXTRACMAKE=$OPTARG
             ;;
         h)
             usage
@@ -94,7 +98,7 @@ rm -f CMakeCache.txt
 rm -rf * # Remove the full build temporarily, to fix GAUDI-1315
 cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
     -DGAUDI_ATLAS:BOOL=TRUE -DGAUDI_ATLAS_BASE_PROJECT:STRING=${EXTPROJECT} \
-    -DCMAKE_INSTALL_PREFIX:PATH=/InstallArea/${PLATFORM} \
+    -DCMAKE_INSTALL_PREFIX:PATH=/InstallArea/${PLATFORM} ${EXTRACMAKE} \
     ${SOURCEDIR} || touch $error_stamp
 } 2>&1 | tee cmake_config.log 
 test -f $error_stamp && ((ERROR_COUNT++))

@@ -27,8 +27,7 @@ SCT_TdaqEnabledTool::SCT_TdaqEnabledTool(const std::string& type, const std::str
   m_cache{},
   m_condData{},
   m_pHelper{nullptr},
-  m_useDatabase{true},
-  m_condKey{std::string{"SCT_TdaqEnabledCondData"}}
+  m_useDatabase{true}
 {
   declareProperty("EventInfoKey", m_eventInfoKey=std::string{"ByteStreamEventInfo"});
 }

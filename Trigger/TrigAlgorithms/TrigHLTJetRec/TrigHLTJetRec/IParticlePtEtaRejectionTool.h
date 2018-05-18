@@ -24,8 +24,8 @@ class IParticlePtEtaRejectionTool :
   
   IParticlePtEtaRejectionTool(const std::string& name);
   virtual ~IParticlePtEtaRejectionTool() override {}
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   virtual bool operator()(const xAOD::IParticle*) override;
 

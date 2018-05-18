@@ -63,7 +63,7 @@ private:
   // Pointer of SCT_ModuleVetoCondData
   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_ModuleVetoCondData> m_condData;
   // ReadCondHandleKey
-  SG::ReadCondHandleKey<SCT_ModuleVetoCondData> m_condKey;
+  SG::ReadCondHandleKey<SCT_ModuleVetoCondData> m_condKey{this, "CondKey", "SCT_LinkMaskingCondData", "SCT Front End olinks to be masked"};
   // Provides SCT_ModuleVetoCondData pointer
   const SCT_ModuleVetoCondData* getCondData(const EventContext& ctx) const;
   

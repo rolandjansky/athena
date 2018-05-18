@@ -14,13 +14,14 @@ def _createCfgFlags():
     acf.addFlag('global.isOnline',False)
     acf.addFlag('global.GeoLayout',"atlas")
     acf.addFlag('global.ProjectName',lambda prevFlags : GetFileMD(prevFlags.get("global.InputFiles")).get("Project","data17_13TeV"))
-    acf.addFlag('global.isMC',True)
+    acf.addFlag('global.isMC',lambda prevFlags : GetFileMD(prevFlags.get("global.InputFiles")).get("isMC",None))
     acf.addFlag('global.BunchSpacing',25) # Bunch spacing in ns
     acf.addFlag("global.NumberOfCollisions",0) #"Number of collisions per beam crossing. Should be 2.3*(L/10**33)*(bunchSpacing/25 ns)
     acf.addFlag("global.BeamType",'collisions') # "Specify data taking type: 'collisions' (default), 'singlebeam','cosmics'")
     acf.addFlag("global.BeamEnergy",lambda prevFlags : GetFileMD(prevFlags.get("global.InputFiles")).get("BeamEnergy",7*TeV))
     acf.addFlag("global.estimatedLuminosity",lambda prevFlags : 1E33*(prevFlags.get("global.NumberOfCollisions")/2.3)* \
                     (25./prevFlags.get("global.BunchSpacing")))
+    acf.addFlag("global.RunNumber",lambda prevFlags : list(GetFileMD(prevFlags.get("global.InputFiles")).get("RunNumber",None)))
     
 #Geo Model Flags:
     acf.addFlag("GeoModel.AtlasVersion",lambda prevFlags : GetFileMD(prevFlags.get("global.InputFiles")).get("Geometry","ATLAS-R2-2016-01-00-01"))
@@ -33,10 +34,9 @@ def _createCfgFlags():
 
 
 #LAr Flags:
-    acf.addFlag("LAr.doAlign",lambda prevFlags : prevFlags.get("global.GeoLayout")=="atlas")
-    acf.addFlag("LAr.doHVCorr",lambda prevFlags : not prevFlags.get("global.isMC"))
-    acf.addFlag("LAr.doCellEmMisCalib",lambda prevFlags : prevFlags.get("global.isMC"))
-    
+    from LArCellRec.LArConfigFlags import createLArConfigFlags
+    lcf=createLArConfigFlags()
+    acf.join(lcf)
 
 #CaloNoise Flags
     acf.addFlag("Calo.Noise.fixedLumiForNoise",-1)

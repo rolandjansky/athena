@@ -24,14 +24,9 @@ SCT_ReadCalibDataTool::SCT_ReadCalibDataTool(const std::string& type, const std:
   m_condDataGain{},
   m_condDataNoise{},
   m_condDataInfo{},
-  m_condKeyGain{"SCT_CalibDefectNPtGain"},
-  m_condKeyNoise{"SCT_CalibDefectNPtNoise"},
-  m_condKeyInfo{"SCT_AllGoodStripInfo"},
   m_cabling{"SCT_CablingSvc", name},
   m_SCTdetMgr{nullptr},
-  m_id_sct{nullptr},
-  m_recoOnly{true} {
-    declareProperty("RecoOnly", m_recoOnly, "Use new improved isGood method, all other methods defunct"); 
+  m_id_sct{nullptr} {
   }
 
 //----------------------------------------------------------------------
@@ -64,10 +59,8 @@ StatusCode SCT_ReadCalibDataTool::initialize() {
   }
 
   // Read Cond Handle Key
-  if (not m_recoOnly) {
-    ATH_CHECK(m_condKeyGain.initialize());
-    ATH_CHECK(m_condKeyNoise.initialize());
-  }
+  ATH_CHECK(m_condKeyGain.initialize());
+  ATH_CHECK(m_condKeyNoise.initialize());
   ATH_CHECK(m_condKeyInfo.initialize());
 
   return StatusCode::SUCCESS;

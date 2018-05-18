@@ -193,12 +193,12 @@ namespace TrigCostRootAnalysis {
                                              kVarHLTEvents, kSavePerCall, 0));
     } else {
       // If not weighting, then just count events where a chain passes
-      toSave.push_back(TableColumnFormatter(std::string("# ") + getLevelStr() + std::string(" Passes"),
-                                             "Total number of events seen at this which have at least one chain passing raw.",
+      toSave.push_back(TableColumnFormatter(std::string("# ") + getLevelStr() + std::string(" Physics Passes"),
+                                             "Total number of events seen at this which have at least one physics chain passing raw.",
                                              kVarHLTPassEvents, kSavePerCall, 0));
 
-      toSave.push_back(TableColumnFormatter(getLevelStr() + std::string(" Pass Fraction [%]"),
-                                             "What percentage of L1 events are kept",
+      toSave.push_back(TableColumnFormatter(getLevelStr() + std::string(" Physics Pass [%]"),
+                                             "What percentage of events are kept in the Main stream",
                                              kVarHLTPassEvents, kSavePerCall, kVarL1PassEvents, kSavePerCall, 2,
                                              kFormatOptionToPercentage));
 

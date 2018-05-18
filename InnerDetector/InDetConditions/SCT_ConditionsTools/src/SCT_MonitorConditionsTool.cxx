@@ -41,8 +41,7 @@ SCT_MonitorConditionsTool::SCT_MonitorConditionsTool(const std::string& type, co
   m_pHelper{nullptr},
   m_mutex{},
   m_cache{},
-  m_condData{},
-  m_condKey{std::string{"SCT_MonitorConditionsCondData"}}
+  m_condData{}
 {
   declareProperty("Nnoisychip",    m_nhits_noisychip);
   declareProperty("Nnoisywafer",   m_nhits_noisywafer);

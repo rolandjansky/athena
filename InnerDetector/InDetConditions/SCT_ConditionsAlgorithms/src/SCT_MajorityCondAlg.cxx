@@ -10,12 +10,8 @@
 
 SCT_MajorityCondAlg::SCT_MajorityCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKey{"/SCT/DCS/MAJ"}
-  , m_writeKey{"SCT_MajorityCondData"}
   , m_condSvc{"CondSvc", name}
 {
-  declareProperty("ReadKey", m_readKey, "Key of input (raw) conditions folder");
-  declareProperty("WriteKey", m_writeKey, "Key of output (derived) conditions folder");
 }
 
 StatusCode SCT_MajorityCondAlg::initialize()

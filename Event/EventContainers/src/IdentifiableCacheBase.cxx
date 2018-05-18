@@ -52,12 +52,15 @@ void IdentifiableCacheBase::clear (deleter_f* deleter)
   for(auto& h : m_vec) h.store(nullptr, std::memory_order_relaxed); //This should not be being called in a thread contensious situation
 }
 
+
+//Does not lock or clear atomics to allow faster destruction
 void IdentifiableCacheBase::cleanUp (deleter_f* deleter)
 {
-  clear(deleter);
-  m_vec.clear();
-  m_owns.clear();
-  
+  for (IdentifierHash hash : m_ids) {
+    if (m_owns[hash])
+      deleter (m_vec[hash]);
+  }
+  m_ids.clear();
 }
 
 

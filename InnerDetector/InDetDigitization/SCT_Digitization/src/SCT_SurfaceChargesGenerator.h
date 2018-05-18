@@ -127,7 +127,6 @@ private:
   bool   m_doTrapping ;   //!< Flag to set Charge Trapping
   bool   m_doHistoTrap;   //!< Flag that allows to fill the histograms
   bool   m_doRamo;        //!< Flag to use Ramo potential dor charge trapping 
-  mutable bool   m_doCTrap;       //!< Flag that allows to get the quantities from ChargeTrappingSvc
 
   // -- Histograms
   ITHistSvc *m_thistSvc; 
