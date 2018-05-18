@@ -10,7 +10,6 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 import DerivationFrameworkEGamma.EGammaCommon
 import DerivationFrameworkMuons.MuonsCommon
 import DerivationFrameworkTau.TauCommon
-from DerivationFrameworkFlavourTag.FlavourTagCommon import applyBTagging_xAODColl
 from JetRec.JetRecFlags import jetFlags
 
 from AthenaCommon import Logging
@@ -378,7 +377,7 @@ def applyOverlapRemoval(sequence=DerivationFrameworkJob):
     from AssociationUtils.config import recommended_tools
     from AssociationUtils.AssociationUtilsConf import OverlapRemovalGenUseAlg
     outputLabel = 'DFCommonJets_passOR'
-    bJetLabel = 'isBJet'
+    bJetLabel = '' #default 
     orTool = recommended_tools(outputLabel=outputLabel,bJetLabel=bJetLabel)
     algOR = OverlapRemovalGenUseAlg('OverlapRemovalGenUseAlg',
 			    OverlapLabel=outputLabel,
@@ -487,7 +486,6 @@ def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,
 ##################################################################
 applyJetCalibration_xAODColl("AntiKt4EMTopo")
 updateJVT_xAODColl("AntiKt4EMTopo")
-applyBTagging_xAODColl("AntiKt4EMTopo")
 applyOverlapRemoval()
 eventCleanLoose_xAODColl("AntiKt4EMTopo")
 eventCleanTight_xAODColl("AntiKt4EMTopo")
