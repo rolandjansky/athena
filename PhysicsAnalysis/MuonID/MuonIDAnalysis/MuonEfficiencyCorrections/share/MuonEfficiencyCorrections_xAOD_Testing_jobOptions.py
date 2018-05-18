@@ -38,7 +38,7 @@ WPs = [
 
 for WP in WPs: 
     alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release = "170916_Rel21PreRec")]
-    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="CaloTest", CustomInput = "/afs/cern.ch/user/j/jojungge/public/MCP/ScaleFactorFiles/180312_TriggerUpdate")]
+    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="CaloTest", CustomInput = "/afs/cern.ch/user/j/jojungge/public/MCP/ScaleFactorFiles/180516_HighEtaUpdate")]
 theJob += alg
 
 # Do some additional tweaking:
