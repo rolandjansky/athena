@@ -42,7 +42,6 @@ public:
   
   virtual const std::vector<Identifier>& deadStationsId(){ return m_cachedDeadStationsId;}
            
-  StoreGateSvc* m_detStore;
   IIOVSvc* m_IOVSvc;
 
  

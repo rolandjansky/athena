@@ -72,8 +72,6 @@ private:
   long int getLastIOVforThisFolder(std::string& folderName);
   void setLastIOVforThisFolder(std::string& folderName, long int iov);
     
-
-  StoreGateSvc* m_detStore;
   IIOVSvc* m_IOVSvc;
   const MdtIdHelper* m_mdtIdHelper;
   const CscIdHelper* m_cscIdHelper;

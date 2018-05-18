@@ -48,9 +48,6 @@ public:
   virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS);
   virtual StatusCode loadAlignmentError(IOVSVC_CALLBACK_ARGS);
   
-
-       
-  StoreGateSvc* m_detStore;
   IIOVSvc* m_IOVSvc;
 
 
