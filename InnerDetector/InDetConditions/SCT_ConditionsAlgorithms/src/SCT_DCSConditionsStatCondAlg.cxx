@@ -12,9 +12,6 @@
 
 SCT_DCSConditionsStatCondAlg::SCT_DCSConditionsStatCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKeyHV{"/SCT/DCS/HV"}
-  , m_readKeyState{"/SCT/DCS/CHANSTAT"}
-  , m_writeKeyState{"SCT_DCSStatCondData"}
   , m_condSvc{"CondSvc", name}
   , m_readAllDBFolders{true}
   , m_returnHVTemp{true}
@@ -36,10 +33,6 @@ SCT_DCSConditionsStatCondAlg::SCT_DCSConditionsStatCondAlg(const std::string& na
   declareProperty("useHVLow", m_useHVLowLimit);
   declareProperty("useHVUp", m_useHVUpLimit);
   declareProperty("useHVChan", m_useHVChanCut);
-  
-  declareProperty("ReadKeyHV", m_readKeyHV, "Key of input (raw) HV conditions folder");
-  declareProperty("ReadKeyState", m_readKeyState, "Key of input (raw) State conditions folder");
-  declareProperty("WriteKeyState", m_writeKeyState, "Key of output (derived) State conditions folder");
 }
 
 StatusCode SCT_DCSConditionsStatCondAlg::initialize() {

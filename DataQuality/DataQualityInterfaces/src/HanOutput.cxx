@@ -112,7 +112,6 @@ HanOutput::
 void
 HanOutput::
 addListener( const std::string& name, dqm_core::OutputListener* listener )
-  throw (dqm_core::Exception)
 {
   dqm_core::Region* region = dynamic_cast<dqm_core::Region*>( listener );
   if( region == 0 )
@@ -148,7 +147,6 @@ addListener( const dqm_core::Parameter& parameter, dqm_core::OutputListener* lis
 void
 HanOutput::
 publishResult( const std::string& name, const dqm_core::Result& result )
-  throw (dqm_core::Exception)
 {
 //  std::cout << "Publish " << name << std::endl;
   delete m_dqResults[name];
@@ -503,7 +501,7 @@ copyString( char* to, const std::string& from )
 
 bool
 HanOutput::RegionNameComp::
-operator()( const dqm_core::Region* a, const dqm_core::Region* b )
+operator()( const dqm_core::Region* a, const dqm_core::Region* b ) const
 {
   return (a->getName() < b->getName());
 }

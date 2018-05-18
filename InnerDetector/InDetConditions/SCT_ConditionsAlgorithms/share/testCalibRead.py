@@ -3,6 +3,16 @@
 ################################################################################
 
 #--------------------------------------------------------------
+# Thread-specific setup
+#--------------------------------------------------------------
+from AthenaCommon.ConcurrencyFlags import jobproperties
+if jobproperties.ConcurrencyFlags.NumThreads() > 0:
+    from AthenaCommon.AlgScheduler import AlgScheduler
+    AlgScheduler.CheckDependencies( True )
+    AlgScheduler.ShowControlFlow( True )
+    AlgScheduler.ShowDataDependencies( True )
+
+#--------------------------------------------------------------
 # Set some basic options
 #--------------------------------------------------------------
 DoTestmyConditionsSummary             = True  # Test return bool conditionsSummary?
@@ -28,11 +38,12 @@ theApp.AuditAlgorithms=True
 
 
 #--------------------------------------------------------------
-# PerfMon Setup
+# PerfMon Setup (crash in finalize of AthenaMT)
 #--------------------------------------------------------------
-from PerfMonComps.PerfMonFlags import jobproperties
-jobproperties.PerfMonFlags.doMonitoring = True
-jobproperties.PerfMonFlags.OutputFile = "perfmon.root"
+if jobproperties.ConcurrencyFlags.NumThreads() == 0:
+    from PerfMonComps.PerfMonFlags import jobproperties
+    jobproperties.PerfMonFlags.doMonitoring = True
+    jobproperties.PerfMonFlags.OutputFile = "perfmon.root"
 
 #--------------------------------------------------------------
 # Load Geometry
@@ -102,7 +113,6 @@ SCT_ReadCalibDataTool = sct_ReadCalibDataToolSetup.getTool()
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ReadCalibDataTestAlg
 topSequence+= SCT_ReadCalibDataTestAlg()
 
-#SCT_ReadCalibDataTool.RecoOnly = False
 # <-999 setting ignores the defect, otherwise it will be checked against the set value
 SCT_ReadCalibDataCondAlg.IgnoreDefects = ["NOISE_SLOPE","OFFSET_SLOPE","GAIN_SLOPE","BAD_OPE"]
 SCT_ReadCalibDataCondAlg.IgnoreDefectsParameters = [-1000,-1000,-1000,-1000]

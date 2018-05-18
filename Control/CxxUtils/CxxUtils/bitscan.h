@@ -17,6 +17,7 @@
 #ifndef CXXUTILS_BITSCAN_H
 #define CXXUTILS_BITSCAN_H
 
+#include "CxxUtils/features.h"
 #include <climits>
 #include <cstdint>
 #include <type_traits>
@@ -69,7 +70,7 @@ namespace CxxUtils {
    * @return Number of trailing zeros, 0 if x==0
    */
   inline unsigned count_trailing_zeros(unsigned x) {
-#if defined (__GNUC__) || defined(__clang__)
+#if HAVE_BITCOUNT_INTRINSICS
     return (x!=0 ? __builtin_ctz(x) : 0);
 #else
     return detail::ctz_portable(x);
@@ -77,7 +78,7 @@ namespace CxxUtils {
   }
 
   inline unsigned count_trailing_zeros(unsigned long x) {
-#if defined (__GNUC__) || defined(__clang__)
+#if HAVE_BITCOUNT_INTRINSICS
     return (x!=0 ? __builtin_ctzl(x) : 0);
 #else
     return detail::ctz_portable(x);
@@ -85,7 +86,7 @@ namespace CxxUtils {
   }
 
   inline unsigned count_trailing_zeros(unsigned long long x) {
-#if defined (__GNUC__) || defined(__clang__)
+#if HAVE_BITCOUNT_INTRINSICS
     return (x!=0 ? __builtin_ctzll(x) : 0);
 #else
     return detail::ctz_portable(x);
@@ -99,7 +100,7 @@ namespace CxxUtils {
    * @return Number of leading zeros, input size in bits if x==0
    */
   inline unsigned count_leading_zeros(unsigned x) {
-#if defined (__GNUC__) || defined(__clang__)
+#if HAVE_BITCOUNT_INTRINSICS
     return (x!=0 ? __builtin_clz(x) : sizeof(x)*CHAR_BIT);
 #else
     return detail::clz_portable(x);
@@ -107,7 +108,7 @@ namespace CxxUtils {
   }
 
   inline unsigned count_leading_zeros(unsigned long x) {
-#if defined (__GNUC__) || defined(__clang__)
+#if HAVE_BITCOUNT_INTRINSICS
     return (x!=0 ? __builtin_clzl(x) : sizeof(x)*CHAR_BIT);
 #else
     return detail::clz_portable(x);
@@ -115,12 +116,41 @@ namespace CxxUtils {
   }
 
   inline unsigned count_leading_zeros(unsigned long long x) {
-#if defined (__GNUC__) || defined(__clang__)
+#if HAVE_BITCOUNT_INTRINSICS
     return (x!=0 ? __builtin_clzll(x) : sizeof(x)*CHAR_BIT);
 #else
     return detail::clz_portable(x);
 #endif
   }
+
+
+  // We want to use the popcnt instruction for this if it's available.
+  // However, we're still compiling for a Model-T x86_64 by default.
+  // Use the target attribute and function multiversioning to use
+  // this instruction if it is in fact available.
+#if defined(__x86_64__) && HAVE_BITCOUNT_INTRINSICS && HAVE_FUNCTION_MULTIVERSIONING
+  /**
+   * Count number of set bits.
+   *
+   * @param x Number to check
+   * @return Number of bits set in x.
+   */
+  __attribute__ ((target ("popcnt")))
+  inline unsigned count_ones(unsigned x) {
+    return __builtin_popcount(x);
+  }
+
+  __attribute__ ((target ("popcnt")))
+  inline unsigned count_ones(unsigned long x) {
+    return __builtin_popcountl(x);
+  }
+
+
+  __attribute__ ((target ("popcnt")))
+  inline unsigned count_ones(unsigned long long x) {
+    return __builtin_popcountll(x);
+  }
+#endif // defined(__x86_64__) && HAVE_BITCOUNT_INTRINSICS && HAVE_FUNCTION_MULTIVERSIONING
 
 
   /**
@@ -129,24 +159,34 @@ namespace CxxUtils {
    * @param x Number to check
    * @return Number of bits set in x.
    */
+#if defined(__x86_64__) && HAVE_BITCOUNT_INTRINSICS && HAVE_FUNCTION_MULTIVERSIONING
+  __attribute__ ((target ("default")))
+#endif
   inline unsigned count_ones(unsigned x) {
-#if defined (__GNUC__) || defined(__clang__)
+#if HAVE_BITCOUNT_INTRINSICS
     return __builtin_popcount(x);
 #else
     return detail::popcount_portable(x);
 #endif
   }
 
+#if defined(__x86_64__) && HAVE_BITCOUNT_INTRINSICS && HAVE_FUNCTION_MULTIVERSIONING
+  __attribute__ ((target ("default")))
+#endif
   inline unsigned count_ones(unsigned long x) {
-#if defined (__GNUC__) || defined(__clang__)
+#if HAVE_BITCOUNT_INTRINSICS
     return __builtin_popcountl(x);
 #else
     return detail::popcount_portable(x);
 #endif
   }
 
+
+#if defined(__x86_64__) && HAVE_BITCOUNT_INTRINSICS && HAVE_FUNCTION_MULTIVERSIONING
+  __attribute__ ((target ("default")))
+#endif
   inline unsigned count_ones(unsigned long long x) {
-#if defined (__GNUC__) || defined(__clang__)
+#if HAVE_BITCOUNT_INTRINSICS
     return __builtin_popcountll(x);
 #else
     return detail::popcount_portable(x);

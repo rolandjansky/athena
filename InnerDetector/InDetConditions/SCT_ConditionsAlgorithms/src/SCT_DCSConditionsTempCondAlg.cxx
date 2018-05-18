@@ -12,15 +12,10 @@
 
 SCT_DCSConditionsTempCondAlg::SCT_DCSConditionsTempCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_readKey{"/SCT/DCS/MODTEMP"}
-  , m_writeKey{"SCT_DCSTemp0CondData"}
   , m_condSvc{"CondSvc", name}
   , m_returnHVTemp{true}
 {
   declareProperty("ReturnHVTemp", m_returnHVTemp);
-  
-  declareProperty("ReadKey", m_readKey, "Key of input (raw) temperature conditions folder");
-  declareProperty("WriteKey", m_writeKey, "Key of output (derived) temperature conditions folder");
 }
 
 StatusCode SCT_DCSConditionsTempCondAlg::initialize() {

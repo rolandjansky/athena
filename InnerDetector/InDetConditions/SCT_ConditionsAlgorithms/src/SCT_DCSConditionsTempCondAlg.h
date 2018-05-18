@@ -26,8 +26,8 @@ class SCT_DCSConditionsTempCondAlg : public AthAlgorithm
   StatusCode finalize() override;
 
  private:
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKey;
-  SG::WriteCondHandleKey<SCT_DCSFloatCondData> m_writeKey;
+  SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/SCT/DCS/MODTEMP", "Key of input (raw) temperature conditions folder"};
+  SG::WriteCondHandleKey<SCT_DCSFloatCondData> m_writeKey{this, "WriteKey", "SCT_DCSTemp0CondData", "Key of output (derived) temperature conditions data"};
 
   ServiceHandle<ICondSvc> m_condSvc;
 

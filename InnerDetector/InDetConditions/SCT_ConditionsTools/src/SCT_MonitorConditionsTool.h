@@ -110,7 +110,7 @@ private:
   // Pointer of SCT_MonitorConditionsCondData
   mutable Gaudi::Hive::ContextSpecificPtr<const SCT_MonitorConditionsCondData> m_condData;
 
-  SG::ReadCondHandleKey<SCT_MonitorConditionsCondData> m_condKey;
+  SG::ReadCondHandleKey<SCT_MonitorConditionsCondData> m_condKey{this, "CondKey", "SCT_MonitorConditionsCondData", "SCT noisy strips"};
   const SCT_MonitorConditionsCondData* getCondData(const EventContext& ctx) const;
 };
 

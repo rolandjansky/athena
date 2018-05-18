@@ -39,7 +39,8 @@ namespace InDetAlignment {
     AthAlgTool(type,name,parent),
     m_ITrkFitter("Trk::KalmanFitter"),
     m_comPar(0),
-    m_ParticleHypothesis(Trk::nonInteracting)
+    m_ParticleHypothesis(Trk::nonInteracting),
+    m_trkindex{}
   {
     declareInterface<ICollectionProcessor>(this);
     declareProperty("OutlierRemoval" , m_OutlierRemoval = true);

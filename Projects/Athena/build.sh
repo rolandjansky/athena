@@ -6,12 +6,13 @@
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: build.sh [-t build type] [-b build dir] [-c] [-m] [-i] [-p] [-a]"
+    echo "Usage: build.sh [-t build type] [-b build dir] [-c] [-m] [-i] [-p] [-a] [-e] [-N]"
     echo " -c: Execute CMake step"
     echo " -m: Execute make step"
     echo " -i: Execute install step"
     echo " -p: Execute CPack step"
     echo " -a: Abort on error"
+    echo " -e: Add extra CMake argument"
     echo " -N: Use Ninja"
 
     echo "If none of the c, m, i or p options are set then the script will do"
@@ -30,7 +31,7 @@ NIGHTLY=true
 BUILDTOOLTYPE=""
 BUILDTOOL="make -k"
 INSTALLRULE="install/fast"
-while getopts ":t:b:hcmipaN" opt; do
+while getopts ":t:b:hcmipax:N" opt; do
     case $opt in
         t)
             BUILDTYPE=$OPTARG
@@ -52,6 +53,9 @@ while getopts ":t:b:hcmipaN" opt; do
             ;;
         a)
             NIGHTLY=false
+            ;;
+        x)
+            EXTRACMAKE=$OPTARG
             ;;
         N)
             BUILDTOOL="ninja -k 0"
@@ -124,6 +128,7 @@ if [ -n "$EXE_CMAKE" ]; then
     rm -f CMakeCache.txt
     # Now run the actual CMake configuration:
     { time cmake ${BUILDTOOLTYPE} -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} \
+        ${EXTRACMAKE} \
         -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
         ${AthenaSrcDir}; } 2>&1 | tee cmake_config.log
 fi

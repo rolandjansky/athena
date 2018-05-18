@@ -22,14 +22,11 @@ public:
   HanInputRootFile( std::string& rootFileName, std::string path = "" );
   ~HanInputRootFile();
 
-  virtual void addListener( const boost::regex& regex, dqm_core::InputListener* listener )
-    throw (dqm_core::Exception);
+  virtual void addListener( const boost::regex& regex, dqm_core::InputListener* listener );
 
-  virtual void addListener( const std::vector<std::string>& names, dqm_core::InputListener* listener )
-    throw (dqm_core::Exception);
+  virtual void addListener( const std::vector<std::string>& names, dqm_core::InputListener* listener );
 
-  virtual void addListener( const std::string& name, dqm_core::InputListener *listener )
-    throw (dqm_core::Exception);
+  virtual void addListener( const std::string& name, dqm_core::InputListener *listener );
 
   virtual TFile* file() const;
 

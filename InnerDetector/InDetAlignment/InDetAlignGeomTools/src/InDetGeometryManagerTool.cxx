@@ -21,9 +21,10 @@
 #include "TrkAlignEvent/AlignPar.h"
 
 #include "InDetAlignGeomTools/InDetGeometryManagerTool.h"
+#include <ostream>
+#include <algorithm>
 
 
-#include <iostream>
 
 using namespace InDetDD;
 
@@ -36,6 +37,7 @@ namespace InDet {
     : AthAlgTool(type,name,parent)
     , m_pixelDetManager(0)
     , m_sctDetManager(0)
+    , m_siDetManager{}
     , m_trtDetManager(0)
     , m_pixHelper()
     , m_sctHelper()
@@ -92,8 +94,9 @@ namespace InDet {
   InDetGeometryManagerTool::~InDetGeometryManagerTool() 
   {
     ATH_MSG_DEBUG("deleting alignModuleList");
-    for (int i=0;i<(int)m_alignModuleList.size();i++)
-      delete m_alignModuleList[i];
+    for (const auto & i:m_alignModuleList){
+      delete i;
+    }
     m_alignModuleList.clear();
 
     ATH_MSG_DEBUG("deleting fullAlignParList");
@@ -108,104 +111,55 @@ namespace InDet {
     ATH_MSG_DEBUG("initialize() of InDetGeometryManagerTool");
 
     // retrieve AlignModuleTool
-    if ( m_alignModuleTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL)<<"Could not get " << m_alignModuleTool << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else
-      ATH_MSG_INFO("Retrieved " << m_alignModuleTool);
+    ATH_CHECK( m_alignModuleTool.retrieve() );
 
     // retrieve Pixel helper
-    if ( detStore()->retrieve(m_pixHelper).isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve Pixel Helper " << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else
-      ATH_MSG_INFO("retrieved Pixel Helper");
+    ATH_CHECK( detStore()->retrieve(m_pixHelper) );
 
     // retrieve SCT helper
-    if ( detStore()->retrieve(m_sctHelper).isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve SCT Helper " << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else
-      ATH_MSG_INFO("retrieved Silicon SCT Helper");
+    ATH_CHECK( detStore()->retrieve(m_sctHelper) );
 
     // retrieve silicon helper
-    if ( detStore()->retrieve(m_siHelper).isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve Silicon Helper " << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else
-      ATH_MSG_INFO("retrieved Silicon Helper");
+    ATH_CHECK( detStore()->retrieve(m_siHelper) );
       
     // retrieve TRT helper
-    if ( detStore()->retrieve(m_trtHelper).isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve TRT Helper " << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else
-      ATH_MSG_INFO("retrieved Silicon TRT Helper");
+    ATH_CHECK( detStore()->retrieve(m_trtHelper) );
 
     // retrieve PIX detector manager
-    if ( detStore()->retrieve(m_pixelDetManager, "Pixel").isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve PIX Detector Manager " << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else
-      ATH_MSG_INFO("retrieved PIX Detector Manager");
+    ATH_CHECK ( detStore()->retrieve(m_pixelDetManager, "Pixel"));
 
     // retrieve SCT detector manager
-    if ( detStore()->retrieve(m_sctDetManager, "SCT").isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve SCT Detector Manager " << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else
-      ATH_MSG_INFO("retrieved SCT Detector Manager");
+    ATH_CHECK( detStore()->retrieve(m_sctDetManager, "SCT"));
 
     // retrieve SCT detector manager
-    if ( detStore()->retrieve(m_trtDetManager, "TRT").isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve TRT Detector Manager " << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else
-      ATH_MSG_INFO("retrieved TRT Detector Manager");
+    ATH_CHECK ( detStore()->retrieve(m_trtDetManager, "TRT") );
 
     // dump module selection
     if(m_doModuleSelection && msgLvl(MSG::INFO)) {
-      msg(MSG::INFO)<<"Creating geometry for selected "<<m_moduleSelection.size()<<" modules:"<<endmsg;
-      for(unsigned int i=0;i<m_moduleSelection.size();i++)
-        msg(MSG::INFO)<<"   "<<i<<".  "<<m_moduleSelection.at(i)<<endmsg;
+      unsigned int idx{0};
+      ATH_MSG_INFO("Creating geometry for selected "<<m_moduleSelection.size()<<" modules:");
+      for(const auto & i:m_moduleSelection)
+        ATH_MSG_INFO("   "<<idx++<<".  "<<i);
     }
 
     // retrieve SiGeometryManagerTool
     if ( !m_siGeoManager.empty() ) {
-      if ( m_siGeoManager.retrieve().isFailure() ) {
-        msg(MSG::FATAL)<<"Could not get " << m_siGeoManager << endmsg;
-        return StatusCode::FAILURE;
-      }
-      else
-        ATH_MSG_INFO("Retrieved " << m_siGeoManager);
+      ATH_CHECK ( m_siGeoManager.retrieve() );
     }
 
     // retrieve TRTGeometryManagerTool
     if ( !m_trtGeoManager.empty() ) {
-      if ( m_trtGeoManager.retrieve().isFailure() ) {
-        msg(MSG::FATAL)<<"Could not get " << m_trtGeoManager << endmsg;
-        return StatusCode::FAILURE;
-      }
-      else
-        ATH_MSG_INFO("Retrieved " << m_trtGeoManager);
+      ATH_CHECK ( m_trtGeoManager.retrieve() );
     }
 
     if(!m_alignSi && !m_alignTRT && m_alignLevel!=0) {
-      msg(MSG::FATAL)<<"Alignment of both Silicon and TRT turned off. Aborting."<<endmsg;
+      ATH_MSG_FATAL("Alignment of both Silicon and TRT turned off. Aborting.");
       return StatusCode::FAILURE;
     }
 
     // check allowed alignment level
     if(!checkAlignLevel()) {
-      msg(MSG::FATAL)<<"Wrong alignment level."<<endmsg;
+      ATH_MSG_FATAL("Wrong alignment level.");
       return StatusCode::FAILURE;
     }
 
@@ -234,8 +188,8 @@ namespace InDet {
         // for levels 1,2,3 we need the managers and we have to
         // set the levels in them
         if( (m_siGeoManager.empty() && m_alignSi) || (m_trtGeoManager.empty() && m_alignTRT) ) {
-          msg(MSG::ERROR)<<"SiliconGeometryManagerTool and/or TRTGeometryManagerTool not available"<<endmsg;
-          msg(MSG::ERROR)<<"Can't set alignment geometry. "<<endmsg;
+          ATH_MSG_ERROR("SiliconGeometryManagerTool and/or TRTGeometryManagerTool not available");
+          ATH_MSG_ERROR("Can't set alignment geometry. ");
           return false;
         }
 
@@ -252,14 +206,14 @@ namespace InDet {
         // if level is not set here (=-1) we need the Silicon and TRT
         // managers but we trust their setup, we don't need to check it
         if( (m_siGeoManager.empty() && m_alignSi) || (m_trtGeoManager.empty() && m_alignTRT) ) {
-          msg(MSG::ERROR)<<"SiGeometryManagerTool and/or TRTGeometryManagerTool not available"<<endmsg;
-          msg(MSG::ERROR)<<"Can't set alignment geometry. "<<endmsg;
+          ATH_MSG_ERROR("SiGeometryManagerTool and/or TRTGeometryManagerTool not available");
+          ATH_MSG_ERROR("Can't set alignment geometry. ");
           return false;
         }
         break;
 
       default:
-        msg(MSG::ERROR)<<"Unknown alignment level "<<m_alignLevel<<". Can't set alignment geometry."<<endmsg;
+        ATH_MSG_ERROR("Unknown alignment level "<<m_alignLevel<<". Can't set alignment geometry.");
         return false;
 
     }
@@ -295,11 +249,9 @@ namespace InDet {
     m_fullAlignParList = new DataVector< DataVector<Trk::AlignPar> >(SG::OWN_ELEMENTS);
     // loop over modules
     ATH_MSG_DEBUG("Adding module parameters to modules");
-    std::vector<Trk::AlignModule *>::const_iterator imod = m_alignModuleList.begin();
-    std::vector<Trk::AlignModule *>::const_iterator imod_end = m_alignModuleList.end();
-    for( ; imod!=imod_end ; ++imod) {
-      ATH_MSG_DEBUG("Module "<<(*imod)->name());
-      addModuleParameters(*imod,m_fullAlignParList,m_alignParList);
+    for( const auto & imod:m_alignModuleList) {
+      ATH_MSG_DEBUG("Module "<<imod->name());
+      addModuleParameters(imod,m_fullAlignParList,m_alignParList);
     }
 
     // set alignModuleList and hash table in the alignModuleTool
@@ -610,15 +562,9 @@ namespace InDet {
   //________________________________________________________________________
   bool InDetGeometryManagerTool::moduleSelected(unsigned long long id)
   {
-    if(!m_doModuleSelection)
-      return true;
-
-    int nsel = m_moduleSelection.size();
-    for(int i=0;i<nsel;++i)
-      if(m_moduleSelection.at(i) == id)
-        return true;
-
-    return false;
+    if(!m_doModuleSelection) return true;
+    const bool found = (std::find(m_moduleSelection.begin(), m_moduleSelection.end(),id) != m_moduleSelection.end());
+    return found;
   }
 
   //________________________________________________________________________

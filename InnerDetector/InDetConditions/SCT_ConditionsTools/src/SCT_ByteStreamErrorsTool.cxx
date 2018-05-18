@@ -29,7 +29,8 @@ SCT_ByteStreamErrorsTool::SCT_ByteStreamErrorsTool(const std::string& type, cons
   m_tempMaskedChips{},
   m_abcdErrorChips{},
   m_mutex{},
-  m_cache{}
+  m_cache{},
+  m_nRetrievalFailure{0}
 {
   declareProperty("ContainerName", m_bsErrContainerName=std::string{"SCT_ByteStreamErrs"});
   declareProperty("FracContainerName", m_bsFracContainerName=std::string{"SCT_ByteStreamFrac"});
@@ -125,7 +126,9 @@ SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash) const {
       SCT_ByteStreamErrors::MaskedLink,
       SCT_ByteStreamErrors::ROBFragmentError,
       SCT_ByteStreamErrors::MissingLinkHeaderError,
-      SCT_ByteStreamErrors::MaskedROD};
+      SCT_ByteStreamErrors::HeaderTrailerLimitError,
+      SCT_ByteStreamErrors::MaskedROD,
+      SCT_ByteStreamErrors::TruncatedROD};
   for (unsigned int i{0}; i<errorsToBeChecked.size(); i++) {
     const std::set<IdentifierHash>& errorSet{getErrorSet(errorsToBeChecked[i], ctx)};
     result = (std::find(errorSet.begin(), errorSet.end(), elementIdHash) == errorSet.end());
@@ -321,9 +324,15 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
    * of empty sets, and keep quiet.
    */
   if (not errCont.isValid()) {
-    ATH_MSG_INFO("Failed to retrieve BS error container "
-                 << m_bsErrContainerName.key()
-                 << " from StoreGate.  ");
+    m_nRetrievalFailure++;
+    if (m_nRetrievalFailure<=3) {
+      ATH_MSG_INFO("Failed to retrieve BS error container "
+                   << m_bsErrContainerName.key()
+                   << " from StoreGate.");
+      if (m_nRetrievalFailure==3) {
+        ATH_MSG_INFO("This message on retrieval failure of " << m_bsErrContainerName.key() << " is suppressed.");
+      }
+    }
     return StatusCode::SUCCESS;
   }
 

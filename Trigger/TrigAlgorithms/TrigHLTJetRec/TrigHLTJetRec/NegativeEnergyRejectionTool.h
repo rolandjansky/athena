@@ -24,8 +24,8 @@ class NegativeEnergyRejectionTool :
   
   NegativeEnergyRejectionTool(const std::string& name);
   virtual ~NegativeEnergyRejectionTool() override {}
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   virtual bool operator()(const xAOD::IParticle*) override;
 

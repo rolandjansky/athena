@@ -270,7 +270,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 
     registerParameter("MuonTriggerSF", "Muon trigger SFs to calculate", "HLT_mu20_iloose_L1MU15_OR_HLT_mu50");
     
-    registerParameter("KLFitterTransferFunctionsPath","Select the transfer functions to use","8TeV/ttbar/mc12_LCJets_v1");
+    registerParameter("KLFitterTransferFunctionsPath","Select the transfer functions to use","mc12a/akt4_LCtopo_PP6");
     registerParameter("KLFitterJetSelectionMode","kLeadingFour , kLeadingFive , kBtagPriorityFourJets , kBtagPriorityFiveJets","kBtagPriorityFourJets");
     registerParameter("KLFitterBTaggingMethod","Recommend use kNotag or kVetoNoFit - see KLFitter TWiki","kNotag");
     registerParameter("KLFitterLH", "Select likelihood depending on signal, ttbar or ttH.", "ttbar");

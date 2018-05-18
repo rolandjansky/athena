@@ -42,6 +42,7 @@ namespace TrigCostRootAnalysis {
   DBKey TrigConfInterface::m_key(0, 0, 0);
   std::set<DBKey> TrigConfInterface::m_seenKeys;
   std::map<UInt_t, DBKey> TrigConfInterface::m_lumiToKeyMap;
+  std::map<std::string, Bool_t> TrigConfInterface::m_mainChains;
 
   /**
    * Link tool to trigger meta data. Call once per chain.
@@ -730,6 +731,24 @@ namespace TrigCostRootAnalysis {
       streams.push_back(streamName.str());
     }
     return streams;
+  }
+
+  Bool_t TrigConfInterface::getChainIsMainStream(const std::string& name) {
+    if (TrigConfInterface::m_mainChains.size() == 0) { // Buffer on first call
+      for (UInt_t i = 0; i < TrigConfInterface::getChainN(); ++i) {
+        TrigConfInterface::m_mainChains[ TrigConfInterface::getChainName(i) ] = TrigConfInterface::getChainIsMainStream( i );
+        if (Config::config().debug()) {
+          Info("TrigConfInterface::getChainIsMainStream", "Debug: %s is main? -> %i", TrigConfInterface::getChainName(i).c_str(),
+             TrigConfInterface::getChainIsMainStream( i ));
+        }
+      }
+    }
+    std::map<std::string, Bool_t>::const_iterator it = TrigConfInterface::m_mainChains.find(name);
+    if (it == TrigConfInterface::m_mainChains.end()) {
+      Warning("TrigConfInterface::getChainIsMainStream", "Cannot find chain %s.", name.c_str());
+      return kFALSE;
+    }
+    return (*it).second;
   }
 
   Bool_t TrigConfInterface::getChainIsMainStream(UInt_t c) {

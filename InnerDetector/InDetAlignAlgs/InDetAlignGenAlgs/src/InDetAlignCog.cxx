@@ -27,6 +27,7 @@
 #include "AthenaBaseComps/AthCheckMacros.h"
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
+#include <limits>
 
 namespace {
   inline
@@ -124,7 +125,8 @@ InDetAlignCog::InDetAlignCog(const std::string& name, ISvcLocator* pSvcLocator)
     m_traZ(0.0),
     m_rotX(0.0),
     m_rotY(0.0),
-    m_rotZ(0.0)
+    m_rotZ(0.0),
+    m_counter{}
 {  
 
  
@@ -258,7 +260,12 @@ StatusCode InDetAlignCog::execute() {
 
 
       // normalization of m_cog
-      for( int i=0; i<6; i++){m_cog[i]/=(double) m_counter;} 
+      if (m_counter !=0.){
+        for( int i=0; i<6; i++){m_cog[i]/=(double) m_counter;} 
+      } else {
+        ATH_MSG_WARNING("m_counter is zero, giving undefined behaviour");
+        for( int i=0; i<6; i++){m_cog[i]=std::numeric_limits<double>::infinity();}
+      }
 
 
       // convert to HepGeom::Transform3D:

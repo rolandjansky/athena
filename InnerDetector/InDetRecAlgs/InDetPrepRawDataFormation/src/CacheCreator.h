@@ -17,12 +17,6 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "PixelConditionsData/PixelOfflineCalibData.h"
-#include "SCT_ConditionsData/SCT_MonitorConditionsCondData.h"
-#include "SCT_ConditionsData/SCT_TdaqEnabledCondData.h"
-#include "SCT_ConditionsData/SCT_ConfigurationCondData.h"
-#include "SCT_ConditionsData/SCT_AllGoodStripInfo.h"
-#include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
-#include "SCT_ConditionsData/SCT_DCSStatCondData.h"
 #include "SiLorentzAngleSvc/SiLorentzAngleCondData.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/PixelRDO_Container.h"
@@ -59,16 +53,7 @@ namespace InDet{
         SG::WriteHandleKey<PixelRDO_Cache>     m_PixRDOCacheKey;
         bool m_disableTRT;
 	//Temporary workarounds for problem in scheduler - remove later
-        SG::ReadCondHandleKey<SCT_MonitorConditionsCondData> m_condKey{ this, "SCT_MonitorConditionsCondData", "SCT_MonitorConditionsCondData", "" };
-        SG::ReadCondHandleKey<SCT_TdaqEnabledCondData> m_condKey2{ this, "SCT_TdaqEnabledCondData", "SCT_TdaqEnabledCondData", "" };
-        SG::ReadCondHandleKey<SCT_ConfigurationCondData> m_condKey3{ this, "SCT_ConfigurationCondData", "SCT_ConfigurationCondData", "" };
-        SG::ReadCondHandleKey<SCT_AllGoodStripInfo> m_condKey4{ this, "SCT_AllGoodStripInfo", "SCT_AllGoodStripInfo", "" };
         SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_condKey5{ this, "PixelOfflineCalibData", "PixelOfflineCalibData", "" };
-        SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKey6{ this, "SCT_DCSFloatCondData_DCSHV", "SCT_DCSHVCondData", "" };
-        SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKey7{ this, "SCT_DCSFloatCondData_DCSTemp", "SCT_DCSTemp0CondData", "" };
-        SG::ReadCondHandleKey<SCT_DCSStatCondData> m_condKey8{ this, "SCT_DCSStatCondData", "SCT_DCSStatCondData", "" };
-        SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKey9{ this, "SCT_DCSFloatCondData_SiHV", "SCT_SiliconBiasVoltCondData", "" };
-        SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKey10{ this, "SCT_DCSFloatCondData_SiTemp", "SCT_SiliconTempCondData", "" };
         SG::ReadCondHandleKey<SiLorentzAngleCondData> m_condKey11{ this, "SiLorentzAngleCondData", "SCTSiLorentzAngleCondData", "" };
         SG::ReadCondHandleKey<DetectorSpecialPixelMap> m_condKey12{ this, "SpecialPixelMap", "SpecialPixelMap", "" };
         template<typename T>

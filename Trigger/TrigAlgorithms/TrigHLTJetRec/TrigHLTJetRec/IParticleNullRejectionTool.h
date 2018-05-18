@@ -24,8 +24,8 @@ class IParticleNullRejectionTool :
   
   IParticleNullRejectionTool(const std::string& name);
   virtual ~IParticleNullRejectionTool() override {}
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   virtual bool operator()(const xAOD::IParticle*) override;
 
@@ -34,7 +34,6 @@ class IParticleNullRejectionTool :
   
 private:
   std::size_t m_tested{0};
-  std::size_t m_rejected{0};
 
 
 };

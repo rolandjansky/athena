@@ -31,9 +31,6 @@ SCT_DCSConditionsTool::SCT_DCSConditionsTool(const std::string& type, const std:
   m_pBadModules{},
   m_pModulesHV{},
   m_pModulesTemp0{},
-  m_condKeyState{"SCT_DCSStatCondData"},
-  m_condKeyHV{"SCT_DCSHVCondData"},
-  m_condKeyTemp0{"SCT_DCSTemp0CondData"},
   m_pHelper{nullptr}
 { 
     //declare variables which will be filled by jobOptions

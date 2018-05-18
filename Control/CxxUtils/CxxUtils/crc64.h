@@ -14,13 +14,14 @@
 #define CXXUTILS_CRC64_H
 
 
+#include "CxxUtils/features.h"
 #include <memory>
 #include <cstdint>
 #include <string>
 
 
 // Use the vectorized version if we're compiling with gcc on x86_64.
-#if defined(__GNUC__) && defined(__x86_64__) && !defined(__clang__) && !defined(__ICC)
+#if defined(__x86_64__) && HAVE_FUNCTION_MULTIVERSIONING
 # define ATH_CRC64_VEC 1
 #else
 # define ATH_CRC64_VEC 0

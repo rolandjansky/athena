@@ -14,16 +14,10 @@
 SCT_SiliconTempCondAlg::SCT_SiliconTempCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
   , m_useState{true}
-  , m_readKeyState{"SCT_DCSStatCondData"}
-  , m_readKeyTemp0{"SCT_DCSTemp0CondData"}
-  , m_writeKey{"SCT_SiliconTempCondData"}
   , m_condSvc{"CondSvc", name}
   , m_pHelper{nullptr}
 {
   declareProperty("UseState", m_useState, "Flag to use state conditions folder");
-  declareProperty("ReadKeyState", m_readKeyState, "Key of input state conditions folder");
-  declareProperty("ReadKeyTemp", m_readKeyTemp0, "Key of input (hybrid) temperature conditions folder");
-  declareProperty("WriteKey", m_writeKey, "Key of output (sensor) temperature conditions folder");
 }
 
 StatusCode SCT_SiliconTempCondAlg::initialize() {
