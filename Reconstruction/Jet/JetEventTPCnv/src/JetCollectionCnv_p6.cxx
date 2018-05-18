@@ -59,8 +59,6 @@ JetCollectionCnv_p6::persToTrans( const JetCollection_p6* pers,
   // make sure to first read the JetKeyDescriptor
   DataLinkCnv_p2<DataLink<JetKeyDescriptor> > JetKeyStoreCnv;
   JetKeyStoreCnv.persToTrans( &pers->m_keyStore, &trans->m_keyStore, msg );
-  // attach the map to the instance 
-  (trans->m_keyStore)->access();
   // link the JetKeyDescriptorInstance to the store:
   if( trans->m_keyStore.isValid() ){
     trans->m_keyDescInstance.m_Stores  = trans->m_keyStore.getDataNonConstPtr();
