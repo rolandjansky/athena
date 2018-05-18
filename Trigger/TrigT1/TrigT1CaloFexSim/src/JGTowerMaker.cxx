@@ -36,7 +36,7 @@ JGTowerMaker::~JGTowerMaker() {
      delete jT.at(iJT);
   }
   for(unsigned iGT=0; iGT<gT.size(); iGT++){
-     delete jT.at(iGT);
+     delete gT.at(iGT);
   }
 }
 
@@ -242,12 +242,6 @@ StatusCode JGTowerMaker::execute() {
 
   CHECK( JFexAlg(jTContainer));
   CHECK( GFexAlg(gTContainer));
-
-  const xAOD::TriggerTowerContainer* TTs;
-  if(evtStore()->retrieve(TTs,"xAODTriggerTowers").isFailure() ) {
-    ATH_MSG_INFO("ERROR loading trigger tower");
-    return StatusCode::FAILURE;
-  }
 
 
   CHECK(evtStore()->record( gTContainer, "GTower" ) );
