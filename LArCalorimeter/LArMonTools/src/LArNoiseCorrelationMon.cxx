@@ -50,8 +50,6 @@
 //Events infos:
 #include "xAODEventInfo/EventInfo.h"
 
-//#include "LArTrigStreamMatching.h"
-
 //for looping on FEBs
 #include "LArRawEvent/LArFebHeaderContainer.h"
 
