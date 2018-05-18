@@ -201,6 +201,20 @@ StatusCode xAODEventSelector::initialize()
    m_tevent = new xAOD::xAODTEvent(); //our special class inheriting from xAOD::TEvent
   }
 
+  //use the first file to decide if reading metadata with POOL is ok 
+  if(m_readMetadataWithPool) {
+    std::unique_ptr<TFile> f( TFile::Open( m_inputCollectionsName.value()[0].c_str() ) );
+    if(!f) {
+      ATH_MSG_ERROR("Failed to open first input file: " << m_inputCollectionsName.value()[0]);
+      return StatusCode::FAILURE;
+    }
+    if(!f->Get("##Shapes")) {
+      ATH_MSG_INFO("First file is not POOL file (e.g. is CxAOD), so reading metadata with xAOD::TEvent instead");
+      m_readMetadataWithPool = false;
+    }
+    f->Close();
+  }
+
 
   {
     // register this service for 'I/O' events
@@ -278,7 +292,6 @@ StatusCode xAODEventSelector::initialize()
     CHECK( epSvc->setProperty("CnvServices", Gaudi::Utils::toString( propVal ) ));
   }
 
-
   //we should also add ourself as a proxy provider
   CHECK( m_ppSvc.retrieve() );
 
@@ -294,6 +307,11 @@ StatusCode xAODEventSelector::initialize()
       propVal.push_back("MetaDataSvc");
       CHECK( dynamic_cast<IProperty*>(&*m_ppSvc)->setProperty("ProviderNames", Gaudi::Utils::toString( propVal ) ));
     }
+  } else {
+    //ensure no MetaDataContainer is specified in the MetaDataSvc. If it is, then we get some ERROR printout from MetaDataSvc
+    ServiceHandle<IProperty> mdSvc("MetaDataSvc",name());
+    CHECK( mdSvc->setProperty("MetaDataContainer","''") );
+    CHECK( mdSvc.release() );
   }
 
   //now we add ourself as a provider
@@ -313,6 +331,9 @@ StatusCode xAODEventSelector::initialize()
   //load the first file .. this is so metadata can be read even if no events present
   //checked above that there's at least one file
   CHECK( setFile(m_inputCollectionsName.value()[0]) );
+
+  //first FirstInputFile incident so that input metadata store is populated by MetaDataSvc
+  m_incsvc->fireIncident(FileIncident(name(), "FirstInputFile", m_inputCollectionsName.value()[0])); 
 
   if(m_printPerfStats) xAOD::PerfStats::instance().start();
 
@@ -379,6 +400,11 @@ xAODEventSelector::next( IEvtSelector::Context& ctx ) const
   
 
   TFile *file = rctx->file();
+  if(file && m_nbrEvts==0) {
+    //fire the BeginInputFile incident for the first file
+    m_incsvc->fireIncident(FileIncident(name(), "BeginInputFile", file->GetName())); 
+  }
+
   if (!file) { //must be starting another file ...
     auto& fnames = rctx->files();
     //std::size_t fidx = rctx->fileIndex();
@@ -393,6 +419,8 @@ xAODEventSelector::next( IEvtSelector::Context& ctx ) const
 	   throw GaudiException("xAODEventSelector::next() - Fatal error when trying to setFile('" + fname + "')","xAODEventSelector",StatusCode::FAILURE);
 	 }
          ATH_MSG_DEBUG("TEvent entries = " << m_tevent_entries);
+	 //fire incident for this file ..
+	 m_incsvc->fireIncident(FileIncident(name(), "BeginInputFile", rctx->file()->GetName())); 
       } else {
          // end of collections
 	return StatusCode::FAILURE; //this is a valid failure ... athena will interpret as 'finished looping'
@@ -982,8 +1010,8 @@ StatusCode xAODEventSelector::setFile(const std::string& fname) {
 
   if(m_tfile && m_tfile != newFile) {
     const std::string currFile = m_tfile->GetName();
-    //disconnect pool if necessary
-    if(m_readMetadataWithPool) m_poolSvc->disconnectDb("PFN:"+currFile).ignore();
+    //disconnect pool if necessary ... always fire this, hopefully it is safe even if not needed
+    m_poolSvc->disconnectDb("PFN:"+currFile).ignore();
     //close existing file
     m_tfile->Close();
     //we should also cleanup after pool, in case it has left open files dangling
@@ -1019,8 +1047,7 @@ StatusCode xAODEventSelector::setFile(const std::string& fname) {
       }
    }
 
-  //must trigger a beginInputFile event here
-  m_incsvc->fireIncident(FileIncident(name(), "BeginInputFile", m_tfile->GetName())); 
+  
 
   return StatusCode::SUCCESS;
 
