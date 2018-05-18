@@ -69,8 +69,8 @@ LArNoiseCorrelationMon::LArNoiseCorrelationMon(const std::string& type,
 			 const std::string& name,
 			 const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent), 
-    m_strHelper(0),
-    m_LArOnlineIDHelper(0),
+    m_strHelper(nullptr),
+    m_LArOnlineIDHelper(nullptr),
     m_badChannelMask("BadLArRawChannelMask")//,
 {
   /** FEBs to be monitored. If empty, all FEBs will be monitored*/
@@ -110,12 +110,12 @@ LArNoiseCorrelationMon::finalize()
 	  if(m_histos.second.first)
 	    {
 	      LWHist::safeDelete(m_histos.second.first);
-	      m_histos.second.first=0;
+	      m_histos.second.first=nullptr;
 	    }
 	  if(m_histos.second.second)
 	    {
 	      LWHist::safeDelete(m_histos.second.second);
-	      m_histos.second.second=0;
+	      m_histos.second.second=nullptr;
 	    }
 	}
     }
@@ -268,7 +268,7 @@ LArNoiseCorrelationMon::fillHistograms()
 
 
   /** retrieve LArDigitContainer*/
-  const LArDigitContainer* pLArDigitContainer;
+  const LArDigitContainer* pLArDigitContainer=nullptr;
   StatusCode sc = evtStore()->retrieve(pLArDigitContainer, m_LArDigitContainerKey);
   if (sc.isFailure()) {
     ATH_MSG_WARNING( "Can\'t retrieve LArDigitContainer with key " 
