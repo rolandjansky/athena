@@ -17,28 +17,28 @@ theJob = AlgSequence()
 from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonEfficiencyCorrections_TestAlg
 alg = CP__MuonEfficiencyCorrections_TestAlg("EffiTestAlg")
 alg.PileupReweightingTool = GetPRWTool()
-alg.DefaultRelease="cMoriond18"
+alg.DefaultRelease="cPreRecs"
 alg.ValidationRelease="cCaloFix"
 
 WPs = [
          # reconstruction WPs
         # "LowPt",
-         "Loose", 
-         "Medium", 
-         "Tight", 
-         "HighPt",
+        # "Loose", 
+        # "Medium", 
+        # "Tight", 
+        # "HighPt",
          # track-to-vertex-association WPs
          "TTVA",
          # BadMuon veto SFs
-         "BadMuonVeto_HighPt",
+        # "BadMuonVeto_HighPt",
          # isolation WPs
-         "FixedCutLooseIso", "LooseTrackOnlyIso", "LooseIso", "GradientIso", "GradientLooseIso",
-         "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso", "FixedCutTightIso"
+        # "FixedCutLooseIso", "LooseTrackOnlyIso", "LooseIso", "GradientIso", "GradientLooseIso",
+        # "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso", "FixedCutTightIso"
         ]
 
 for WP in WPs: 
-    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP)]
-    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="CaloTest", CustomInput = "/afs/cern.ch/user/j/jojungge/public/MCP/ScaleFactorFiles/180312_TriggerUpdate")]
+    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release = "170916_Rel21PreRec")]
+    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="CaloTest", CustomInput = "/afs/cern.ch/user/j/jojungge/public/MCP/ScaleFactorFiles/180516_HighEtaUpdate")]
 theJob += alg
 
 # Do some additional tweaking:
