@@ -58,7 +58,6 @@ private:
   float m_tileThreshold;
 
   const TileID* m_tile_id;
-  const CaloCell_ID* m_calo_id;
   
  //   Tile histograms parameters 
   std::vector<double> m_b_Ncells;

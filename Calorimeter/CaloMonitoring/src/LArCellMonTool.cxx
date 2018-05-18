@@ -454,7 +454,7 @@ StatusCode LArCellMonTool::bookLarNonThreHists(){
   //Book non-threshold energy histograms:
   std::array<double,55> logEnergyBins;
   if (m_useLogarithmicEnergyBinning) {
-    constexpr double step = std::pow(10,0.1);
+    const static double step = std::pow(10,0.1);
     logEnergyBins[0]=10;
     for(size_t i = 1; i<logEnergyBins.size(); i++){  //Cover full range of energy specification, 10 MeV to 3 TeV
       logEnergyBins[i] = step * logEnergyBins[i-1];
