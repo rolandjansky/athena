@@ -2400,8 +2400,6 @@ ps_calibmon_list=[
     'lumipeb_vdm_L1RD0_FILLED',
     'lumipeb_vdm_L1RD0_UNPAIRED_ISO',
     'mu0_muoncalib',
-    'mu0_muoncalib_ds3',
-    'mu0_muoncalib_ds3_L1MU4_EMPTY',
     'mu0_muoncalib_L1MU4_EMPTY',
     'noalg_bkg_L1Bkg',
     'noalg_bkg_L1J12',

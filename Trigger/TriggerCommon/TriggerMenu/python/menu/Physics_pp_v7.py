@@ -151,10 +151,6 @@ def setupMenu():
         ['mu0_muoncalib',             'L1_MU20MU21', ['L1_MU20'],['Muon_Calibration'],["RATE:Calibration","BW:Muon"],-1],
         ['mu0_muoncalib_L1MU4_EMPTY', 'L1_MU4_EMPTY',[],['Muon_Calibration'],["RATE:Calibration","BW:Muon"],-1],
 
-        # muon calibration, data scouting
-        ['mu0_muoncalib_ds3',             'L1_MU20MU21', ['L1_MU20'],['DataScouting_03_CosmicMuons'],["RATE:Calibration","BW:Muon"],-1],        
-        ['mu0_muoncalib_ds3_L1MU4_EMPTY', 'L1_MU4_EMPTY',[],['DataScouting_03_CosmicMuons'],["RATE:Calibration","BW:Muon"],-1],   
-
         ## LFV topo based nscan (ATR-14352)
         ['mu11_nomucomb_2mu4noL1_nscan03_L1LFV-MU', 'L1_LFV-MU', ['L1_MU10','L2_mu11_nomucomb'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11_nomucomb','2mu4noL1_nscan03']]], #OI need to discuss what to do here
 	# -----------------------------------------------------
