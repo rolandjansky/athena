@@ -89,6 +89,8 @@ def GetPRWTool(
        	],
         PRWMCConfigFiles = [
             "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/prwConfigFiles/mc16_FULLSIM_r9364_r9315_NTUP_PILEUP.root",
+            "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/prwConfigFiles/mc16_FULLSIM_r10201_r10210_NTUP_PILEUP.root",
+        
             ]):
     from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon import CfgMgr, GlobalFlags
