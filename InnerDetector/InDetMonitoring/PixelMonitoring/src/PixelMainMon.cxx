@@ -154,6 +154,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_nhits_mod, 0, sizeof(m_nhits_mod));
   memset(m_hits_per_lumi_mod, 0, sizeof(m_hits_per_lumi_mod));
   memset(m_avgocc_ratio_lastXlb_mod, 0, sizeof(m_avgocc_ratio_lastXlb_mod));
+  memset(m_avgocc_ratio_lastXlb_mod_prof, 0, sizeof(m_avgocc_ratio_lastXlb_mod_prof));
   memset(m_totalhits_per_bcid_mod, 0, sizeof(m_totalhits_per_bcid_mod));
 
   // hit occupancy
@@ -277,7 +278,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_errhist_errcat_LB, 0, sizeof(m_errhist_errcat_LB));
   memset(m_errhist_errtype_LB, 0, sizeof(m_errhist_errtype_LB));
   memset(m_errhist_expert_LB, 0, sizeof(m_errhist_expert_LB));
-  memset(m_errhist_expert_IBL_LB, 0, sizeof(m_errhist_expert_IBL_LB));
+  memset(m_errhist_expert_DBMIBL_LB, 0, sizeof(m_errhist_expert_DBMIBL_LB));
   memset(m_errhist_per_bit_LB, 0, sizeof(m_errhist_per_bit_LB));
   memset(m_errhist_per_type_LB, 0, sizeof(m_errhist_per_type_LB));
   memset(m_errhist_expert_fe_trunc_err_3d, 0, sizeof(m_errhist_expert_fe_trunc_err_3d));
@@ -732,7 +733,7 @@ StatusCode PixelMainMon::fillHistograms() {
   PixelID::const_id_iterator idIt = m_pixelid->wafer_begin();
   PixelID::const_id_iterator idItEnd = m_pixelid->wafer_end();
 
-  for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
+  for (int i = 0; i < PixLayerIBL2D3DDBM::COUNT; i++) {
     m_nGood_mod[i] = 0;
     m_nActive_mod[i] = 0;
   }
@@ -741,20 +742,20 @@ StatusCode PixelMainMon::fillHistograms() {
     Identifier WaferID = *idIt;
     IdentifierHash id_hash = m_pixelid->wafer_hash(WaferID);
 
-    int pixlayeribl2d3d = getPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
-    if (pixlayeribl2d3d == PixLayer::kIBL) {
-      pixlayeribl2d3d = getPixLayerIDIBL2D3D(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_pixelid->eta_module(WaferID), m_doIBL);
+    int pixlayeribl2d3ddbm = getPixLayerIDDBM(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
+    if (pixlayeribl2d3ddbm == PixLayerDBM::kIBL) {
+      pixlayeribl2d3ddbm = getPixLayerIDIBL2D3DDBM(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_pixelid->eta_module(WaferID), m_doIBL);
     }
-    if (pixlayeribl2d3d == 99) continue;
+    if (pixlayeribl2d3ddbm == 99) continue;
     if (m_pixelCondSummarySvc->isActive(id_hash) == true) {
-      m_nActive_mod[pixlayeribl2d3d]++;
+      m_nActive_mod[pixlayeribl2d3ddbm]++;
     }
     if (m_pixelCondSummarySvc->isActive(id_hash) == true && m_pixelCondSummarySvc->isGood(id_hash) == true) {
-      m_nGood_mod[pixlayeribl2d3d]++;
+      m_nGood_mod[pixlayeribl2d3ddbm]++;
     }
   }
-  m_nActive_mod[PixLayerIBL2D3D::kIBL] = 2 * m_nActive_mod[PixLayerIBL2D3D::kIBL2D] + m_nActive_mod[PixLayerIBL2D3D::kIBL3D];
-  m_nGood_mod[PixLayerIBL2D3D::kIBL] = 2 * m_nGood_mod[PixLayerIBL2D3D::kIBL2D] + m_nGood_mod[PixLayerIBL2D3D::kIBL3D];
+  m_nActive_mod[PixLayerIBL2D3DDBM::kIBL] = 2 * m_nActive_mod[PixLayerIBL2D3DDBM::kIBL2D] + m_nActive_mod[PixLayerIBL2D3DDBM::kIBL3D];
+  m_nGood_mod[PixLayerIBL2D3DDBM::kIBL] = 2 * m_nGood_mod[PixLayerIBL2D3DDBM::kIBL2D] + m_nGood_mod[PixLayerIBL2D3DDBM::kIBL3D];
 
   // event info
   if (m_doRDO) {
