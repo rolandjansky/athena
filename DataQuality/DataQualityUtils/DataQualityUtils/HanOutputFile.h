@@ -20,6 +20,7 @@ class TH2;
 class TStyle;
 class TGraph;
 class TImage;
+class TEfficiency;
 
 namespace dqutils {
 
@@ -106,6 +107,7 @@ public:
   virtual void formatTH1( TCanvas* c, TH1* h ) const;
   virtual void formatTH2( TCanvas* c, TH2* h ) const;
   virtual void formatTGraph( TCanvas* c, TGraph* g ) const;
+  virtual void formatTEfficiency( TCanvas* c, TEfficiency* e ) const;
 
   virtual double  getNEntries( std::string location, std::string histname );
   virtual double  getNEntries( const TObject* obj );
