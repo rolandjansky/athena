@@ -82,7 +82,8 @@ genSeq.Pythia8.McEventsRW=gen_pu
 
 genSeq.Pythia8.NCollPerEvent=-1
 genSeq.Pythia8.PileupProfile=pileUpProfile
-genSeq.Pythia8.MultBCID=[1.]
+#genSeq.Pythia8.MultBCID=[1.]
+genSeq.Pythia8.MultBCID=FastChain_Flags.FastChainPUmu_multipliers.get_Value()
 # genSeq.Pythia8.HistFile='profile.root'
 
 fast_chain_log.info("Check FastChainBCID Value");
