@@ -4,25 +4,6 @@
 
 #include "EgammaMonitoring.h"
 
-#include "xAODEventInfo/EventInfo.h"
-#include "xAODTracking/VertexContainer.h"
-#include "xAODTracking/TrackParticle.h"
-
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/PhotonContainer.h"
-#include "xAODEgamma/PhotonAuxContainer.h"
-#include "xAODEgamma/Egamma.h"
-#include "xAODEgamma/Photon.h"
-#include "xAODEgamma/Electron.h"
-#include "xAODEgamma/EgammaxAODHelpers.h"
-#include <AsgTools/AnaToolHandle.h>
-#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
-#include "PATCore/AcceptData.h"
-
-#include <vector>
-#include <cmath>
-
-
 EgammaMonitoring :: EgammaMonitoring (const std::string& name, ISvcLocator *pSvcLocator) : 
   AthAlgorithm (name, pSvcLocator),
   m_LooseLH ("AsgElectronLikelihoodTool/LooseLH"),
