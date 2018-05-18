@@ -51,20 +51,23 @@ dqm_algorithms::BinHeightThreshold::execute(	const std::string &  name,
   }
   const double minstat = 1;
   if (histogram->GetEntries() < minstat ) {
+    ERS_INFO( "Too few entries: " << histogram->GetEntries() );
     dqm_core::Result *result = new dqm_core::Result(dqm_core::Result::Undefined);
     result->tags_["InsufficientEntries"] = histogram->GetEntries();
     return result;
   }
 
-  double bin_threshold_red;
-  double bin_threshold_yellow; 
+  int start_from_last;
+  int n_bins;
+  int window_size; 
   double gthreshold;
   double rthreshold;
   try {
-    bin_threshold_yellow = dqm_algorithms::tools::GetFirstFromMap( "NBins", config.getParameters() );
-    bin_threshold_red = dqm_algorithms::tools::GetFirstFromMap( "NRedBins", config.getParameters() ,bin_threshold_yellow); //with this method, bin_threshold_red should be set ==bin_threshold_yellow if a 'NRedBins' option is not provided
-    rthreshold = dqm_algorithms::tools::GetFromMap( "RedThreshold", config.getRedThresholds() );
-    gthreshold = dqm_algorithms::tools::GetFromMap( "GreenThreshold", config.getGreenThresholds() );
+    n_bins = dqm_algorithms::tools::GetFirstFromMap( "NBins", config.getParameters() ,1);
+    window_size = dqm_algorithms::tools::GetFirstFromMap( "WindowSize", config.getParameters() ,1); 
+    start_from_last = dqm_algorithms::tools::GetFirstFromMap( "StartFromLast", config.getParameters() ,-1); 
+    gthreshold = dqm_algorithms::tools::GetFromMap( "HeightThreshold", config.getGreenThresholds() );
+    rthreshold = dqm_algorithms::tools::GetFromMap( "HeightThreshold", config.getRedThresholds() );
   }
   catch ( dqm_core::Exception & ex ) {
     throw dqm_core::BadConfig( ERS_HERE, name, ex.what(), ex );
@@ -82,59 +85,60 @@ dqm_algorithms::BinHeightThreshold::execute(	const std::string &  name,
  
   resulthisto->Reset();
 
-  int countConsec=0;
-  //first, look for the last filled LB, i.e. the bin with nonzero content of largest x
+
+  //first, look for the last filled LB, i.e. the bin with nonzero content of largest x if start_from_last<0, if start_from_last>=0, then starts from last but N-th bin, where N=start_from_last
   int i_currentLB=histogram->GetNbinsX();
-  while(i_currentLB>=1)
+  if(start_from_last>=0)
+    i_currentLB-=start_from_last;
+  else
     {
-      if(histogram->GetBinContent(i_currentLB)!=0) break;
-      i_currentLB--;
+      while(i_currentLB>=1)
+	{
+	  if(histogram->GetBinContent(i_currentLB)!=0) break;
+	  i_currentLB--;
+	}
     }
-  //if the histogram is just empty, do nothing (check already done, in principle should not happen)
+  //if the histogram is just empty, or still has too few bins, do nothing (check already done, in principle should not happen)
    if(i_currentLB<=0)
     {
-     ERS_DEBUG(1,"Histogram is empty");
+     ERS_DEBUG(1,"start_from_last parameter >= total number of bins, I just cannot di the check. Do nothing.");
      return result;
     }
-   //check current LB
-   double currentLBcont= histogram -> GetBinContent(i_currentLB);
-   dqm_algorithms::BinHeightThreshold::binStatus currentLBstatus=CompareBinHeightThreshold(currentLBcont, gthreshold , rthreshold);
-//if current LB is not green, check the number of consecutive non-green bins
-   if(currentLBstatus==dqm_algorithms::BinHeightThreshold::binStatus::aYellowBin || currentLBstatus==dqm_algorithms::BinHeightThreshold::binStatus::aRedBin) 
-    {
+
+   //now loop over an x window of size 'window_size'
     int iLB=i_currentLB;
-    double content;
-    dqm_algorithms::BinHeightThreshold::binStatus LBstatus;
-    while(iLB>=1)
+    int countYellow=0;
+    int countRed=0;
+    while(iLB>=1 && (i_currentLB-iLB)<window_size)
        {
-	content=histogram->GetBinContent(iLB);
-	LBstatus=CompareBinHeightThreshold(content, gthreshold , rthreshold);
-	if(LBstatus==currentLBstatus) 
+	double content=histogram->GetBinContent(iLB);
+	dqm_algorithms::BinHeightThreshold::binStatus LBstatus=CompareBinHeightThreshold(content, gthreshold , rthreshold);
+	if(LBstatus==dqm_algorithms::BinHeightThreshold::binStatus::aYellowBin) 
 	{
-	  countConsec++;
- 	//fill result histogram
-          resulthisto->SetBinContent(iLB,content);
+	  countYellow++;
    	}
-	else break;
+	if(LBstatus==dqm_algorithms::BinHeightThreshold::binStatus::aRedBin) 
+	{
+	  countRed++;
+   	}
+ 	//fill result histogram
+	resulthisto->SetBinContent(iLB,content);
 	iLB--;
        }
-    }
+
        
-    std::string thrName="RED/YELLOW";
-    if(currentLBstatus==dqm_algorithms::BinHeightThreshold::binStatus::aYellowBin) thrName="YELLOW";
-    if(currentLBstatus==dqm_algorithms::BinHeightThreshold::binStatus::aRedBin) thrName="RED";
-    ERS_DEBUG(1,"Found " << countConsec << " consecutive " << thrName << " bins");
-    ERS_DEBUG(1,"Min. # of consecutive red bins for returning Red: " << bin_threshold_red);
-    ERS_DEBUG(1,"Min. # of consecutive yellow bins for returning Yellow: " << bin_threshold_yellow);
+    ERS_DEBUG(1,"Found " << countRed << " red bins and " << countYellow << " red bins. In a window of size " << window_size << " bins, starting at bin " << i_currentLB);
+    ERS_DEBUG(1,"To be compared with: " << n_bins);
     ERS_DEBUG(1,"Green treshold=" << gthreshold << " Red threshold=" << rthreshold );
 
-  result->tags_["NBins"] = countConsec;
+  result->tags_["NRedBins"] = countRed;
+  result->tags_["NYellowBins"] = countYellow;
   result->object_ =  (std::auto_ptr<TObject>)(TObject*)(resulthisto);
-  if(currentLBstatus==dqm_algorithms::BinHeightThreshold::binStatus::aRedBin && countConsec>=bin_threshold_red) 
+  if(countRed>=n_bins)
     {
       result->status_ = dqm_core::Result::Red;
     } 
-  else if(currentLBstatus==dqm_algorithms::BinHeightThreshold::binStatus::aYellowBin && countConsec>=bin_threshold_yellow) 
+  else if(countRed+countYellow>=n_bins)
     {
       result->status_ = dqm_core::Result::Yellow;
     } 
