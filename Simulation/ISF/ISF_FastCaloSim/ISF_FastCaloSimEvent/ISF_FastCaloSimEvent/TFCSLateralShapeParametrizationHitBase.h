@@ -21,13 +21,15 @@ public:
     public:
     Hit():m_eta(0),m_phi(0),m_E(0) {}; // for hits with the same energy, m_E should normalized to E(layer)/nhit
     Hit(float eta, float phi, float E):m_eta(eta),m_phi(phi),m_E(E) {};
+    Hit(float eta, float phi, float z, float E):m_eta(eta),m_phi(phi),m_z(z),m_E(E) {};
 
     float& eta() {return m_eta;};
     float& phi() {return m_phi;};
     float& E() {return m_E;};
+    float& z() {return m_z;}
 
     private:
-    float m_eta,m_phi,m_E;
+    float m_eta,m_phi,m_z,m_E;
   };
 
   /// simulated one hit position with some energy. As last step in TFCSLateralShapeParametrizationHitChain::simulate, 
