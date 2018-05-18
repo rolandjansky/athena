@@ -23,8 +23,9 @@ timeout 1m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${J
 
 echo "art-result: ${PIPESTATUS[0]} CheckLog"
 
-# this is RTT and will need some moving
-#timeout 1m PerfMonRunner.py --fileName=ntuple.pmon.gz --options="-f 0.90"
+# Run perfmon
+timeout 1m perfmon.py -f 0.90 ntuple.pmon.gz
+timeout 1m convert -density 300 -trim ntuple.perfmon.pdf -quality 100 -resize 50% ntuple.perfmon.png
 
 echo $(date "+%FT%H:%M %Z")"     Running chainDump"
 timeout 1m chainDump.py -S --rootFile=expert-monitoring.root
@@ -94,5 +95,8 @@ if [ -f AOD.pool.root ]; then
 else 
   echo $(date "+%FT%H:%M %Z")"     No AOD.pool.root to check"
 fi
+
+echo  $(date "+%FT%H:%M %Z")"     Files in directory:"
+ls -lh
 
 echo  $(date "+%FT%H:%M %Z")"     Finished TriggerTest post processing for test ${NAME}"

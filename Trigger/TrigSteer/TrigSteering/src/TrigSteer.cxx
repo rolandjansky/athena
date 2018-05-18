@@ -133,7 +133,7 @@ TrigSteer::TrigSteer(const std::string& name, ISvcLocator* pSvcLocator)
    declareProperty("cachingMode", m_cachingMode = HLT::RoICacheHelper::HistoryBased,
                    "Caching mode: 0 - off, 1 - RoI based, 2 - RoI +features, 3 - as 2 +check only used features, default is 3(most advanced)");
    declareProperty("enableCoherentPrescaling", m_enableCoherentPrescaling=false, "Enables coherent prescaling (so chains from one prescaling group fire in the same event)");
-   declareProperty("enableRobRequestPreparation", m_enableRobRequestPreparation=false, "Enables ROB-request-preparation step");
+   declareProperty("enableRobRequestPreparation", m_enableRobRequestPreparation=true, "Enables ROB-request-preparation step");
    declareProperty("enableRerun", m_enableRerun=true, "Enables rerun of prescaled chains");
    declareProperty("EBstrategy", m_strategyEB = 0, "EB strategy: 0 = call by chains, 1 = call at the end of chains ");
    declareProperty("doL1TopoSimulation",m_doL1TopoSimulation=true,"Turns on L1Topo Sim");

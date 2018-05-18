@@ -7,6 +7,7 @@
 # art-include: 21.0/AthenaP1
 # art-include: 21.0-TrigMC/AthenaP1
 # art-include: master/AthenaP1
+# art-include: master/Athena
 
 export NAME="athenaHLT_LatestRun_MCV7_build"
 
