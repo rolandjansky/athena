@@ -52,6 +52,7 @@ namespace Analysis {
         } else {
             ATH_MSG_INFO("Retrieved tool " << m_vertexEstimator);
         }
+
         if(!m_manualMassHypo.empty() && m_manualMassHypo.size() !=4){
             ATH_MSG_FATAL("Invalid number of elements given for manualMass hypothesis - needs 4");
             return StatusCode::FAILURE;
@@ -65,6 +66,7 @@ namespace Analysis {
             return StatusCode::FAILURE;
         }
 
+        
         ATH_MSG_INFO("Initialize successful");
         
         return StatusCode::SUCCESS;
@@ -79,6 +81,7 @@ namespace Analysis {
     }
     
     JpsiPlus2Tracks::JpsiPlus2Tracks(const std::string& t, const std::string& n, const IInterface* p)  : AthAlgTool(t,n,p),
+    //    m_particleDataTable(0),
     m_pipiMassHyp(true),
     m_kkMassHyp(true),
     m_kpiMassHyp(true),
@@ -111,8 +114,7 @@ namespace Analysis {
     m_finalDiTrackMassUpper(-1.0),
     m_finalDiTrackMassLower(-1.0),
     m_finalDiTrackPt(-1.0),
-    m_trkDeltaZ(-1.0),
-    m_requiredNMuons(0)
+    m_trkDeltaZ(-1.0),m_requiredNMuons(0)
     {
         declareInterface<JpsiPlus2Tracks>(this);
         declareProperty("pionpionHypothesis",m_pipiMassHyp);
@@ -151,6 +153,7 @@ namespace Analysis {
         declareProperty("TrkDeltaZ"             ,m_trkDeltaZ             );
         declareProperty("ManualMassHypo",        m_manualMassHypo);
         declareProperty("RequireNMuonTracks",   m_requiredNMuons);
+
     }
     
     JpsiPlus2Tracks::~JpsiPlus2Tracks() {}
@@ -169,7 +172,11 @@ namespace Analysis {
         
         // Get the ToolSvc
         IToolSvc* toolsvc;
-        ATH_CHECK(service("ToolSvc",toolsvc));
+        StatusCode sc1=service("ToolSvc",toolsvc);
+        if (sc1.isFailure() ) {
+            ATH_MSG_ERROR("Problem loading tool service. BContainer will be EMPTY!");
+            return StatusCode::FAILURE;
+        };
         
         // Set masses
         constexpr double muMass = 105.658;
@@ -202,9 +209,16 @@ namespace Analysis {
         // Get the muon collection used to build the J/psis
         const xAOD::MuonContainer* importedMuonCollection(0);
         if (m_MuonsUsedInJpsi!="NONE") {
-            ATH_CHECK(evtStore()->retrieve(importedMuonCollection,m_MuonsUsedInJpsi));
+            sc = evtStore()->retrieve(importedMuonCollection,m_MuonsUsedInJpsi);
+            if (sc.isFailure()){
+                ATH_MSG_ERROR("No muon collection with name " << m_MuonsUsedInJpsi << " found in StoreGate!");
+                return StatusCode::FAILURE;
+            } else {
+                ATH_MSG_DEBUG("Found muon collection " << m_MuonsUsedInJpsi << " in StoreGate!");
+            }
             ATH_MSG_DEBUG("Muon container size "<< importedMuonCollection->size());
         }
+
         // Typedef for vectors of tracks and VxCandidates
         typedef std::vector<const xAOD::TrackParticle*> TrackBag;
         
@@ -221,15 +235,7 @@ namespace Analysis {
         }
         if (theIDTracksAfterSelection.size() == 0) return StatusCode::SUCCESS;
         ATH_MSG_DEBUG("Number of tracks after ID trkSelector: " << theIDTracksAfterSelection.size());
-
-        TrackBag muonTracks;
-        for(auto muon : *importedMuonCollection){
-            if(!muon->inDetTrackParticleLink().isValid()) continue;
-            auto track = *muon->inDetTrackParticleLink().cptr();
-            if(track==nullptr) continue;
-            if(!JpsiUpsilonCommon::isContainedIn(track, theIDTracksAfterSelection)) continue;
-            muonTracks.push_back(track);
-        }
+        
         // Set vector of muon masses
         const std::vector<double> muonMasses(2, muMass);
         
@@ -273,8 +279,17 @@ namespace Analysis {
         std::vector<const xAOD::TrackParticle*> QuadletTracks(4, nullptr);//Initialise as 4 nulls
         
         std::vector<double> massCuts;
-        if(!m_excludeCrossJpsiTracks) jpsiTracks.resize(2);
 
+        TrackBag muonTracks;
+        if (m_excludeJpsiMuonsOnly) {
+          for(auto muon : *importedMuonCollection){
+            if(!muon->inDetTrackParticleLink().isValid()) continue;
+            auto track = muon->inDetTrackParticleLink().cachedElement();
+            if(track==nullptr) continue;
+            if(!JpsiUpsilonCommon::isContainedIn(track, theIDTracksAfterSelection)) continue;
+            muonTracks.push_back(track);
+          }
+        }
 
         for(auto jpsiItr=selectedJpsiCandidates.begin(); jpsiItr!=selectedJpsiCandidates.end(); ++jpsiItr) {
 
@@ -286,6 +301,7 @@ namespace Analysis {
 
 	    //If requested, only exclude duplicates in the same tripplet
             if(!m_excludeCrossJpsiTracks){
+                jpsiTracks.resize(2);
                 jpsiTracks[0] = jpsiTP1;
                 jpsiTracks[1] = jpsiTP2;
             }
@@ -293,8 +309,7 @@ namespace Analysis {
             // Loop over ID tracks, call vertexing
             for (TrackBag::iterator trkItr1=theIDTracksAfterSelection.begin(); trkItr1<theIDTracksAfterSelection.end(); ++trkItr1) { // outer loop
                 if (!m_excludeJpsiMuonsOnly && JpsiUpsilonCommon::isContainedIn(*trkItr1,jpsiTracks)) continue; // remove tracks which were used to build J/psi
-
-                bool linkedMuonTrk1 = false;
+                int linkedMuonTrk1 = 0;
                 if (m_excludeJpsiMuonsOnly) {
                   linkedMuonTrk1 = JpsiUpsilonCommon::isContainedIn(*trkItr1, muonTracks);
                   if (linkedMuonTrk1) ATH_MSG_DEBUG("This id track 1 is muon track!");
@@ -309,19 +324,18 @@ namespace Analysis {
                 if(m_trkDeltaZ>0 &&
                    std::abs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z()) > m_trkDeltaZ )
                     continue;
-
+                
                 for (TrackBag::iterator trkItr2=trkItr1+1; trkItr2!=theIDTracksAfterSelection.end(); ++trkItr2) { // inner loop
                     if (!m_excludeJpsiMuonsOnly && JpsiUpsilonCommon::isContainedIn(*trkItr2,jpsiTracks)) continue; // remove tracks which were used to build J/psi
 
                     if (m_excludeJpsiMuonsOnly) {
-                      bool linkedMuonTrk2 = false;
-                      linkedMuonTrk2  = JpsiUpsilonCommon::isContainedIn(*trkItr2, muonTracks);
+                      int linkedMuonTrk2 = JpsiUpsilonCommon::isContainedIn(*trkItr2, muonTracks);
                       if (linkedMuonTrk2) ATH_MSG_DEBUG("This id track 2 is muon track!"); 
                       if (JpsiUpsilonCommon::isContainedIn(*trkItr2,jpsiTracks)) {
                         if (linkedMuonTrk2) ATH_MSG_DEBUG("ID track 2 removed: id track is selected to build Jpsi Vtx!"); 
                         continue; // remove tracks which were used to build J/psi
                       }
-                      if(linkedMuonTrk1 + linkedMuonTrk2 < m_requiredNMuons) {
+                      if( (linkedMuonTrk1+ linkedMuonTrk2) < m_requiredNMuons) {
                         ATH_MSG_DEBUG("Skipping Tracks with Muons " << linkedMuonTrk1 + linkedMuonTrk2 << " Limited to " << m_requiredNMuons);
                         continue;
                       }
@@ -381,8 +395,8 @@ namespace Analysis {
                            massCuts.push_back(getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, *trkItr1,kMass, *trkItr2, pMass));
                            massCuts.push_back(getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, *trkItr1,pMass, *trkItr2, kMass));
                         }
-                        if(!m_manualMassHypo.empty()) massCuts.push_back(getInvariantMass(jpsiTP1, m_manualMassHypo[0], jpsiTP2,
-                                                        m_manualMassHypo[1], *trkItr1,m_manualMassHypo[2], *trkItr2, m_manualMassHypo[3]));
+                        if(!m_manualMassHypo.empty()) massCuts.push_back(getInvariantMass(jpsiTP1, m_manualMassHypo[0], jpsiTP2,m_manualMassHypo[1], *trkItr1,m_manualMassHypo[2], *trkItr2, m_manualMassHypo[3]));
+
                         passes4TrackMass = JpsiUpsilonCommon::cutRangeOR(massCuts, m_trkQuadrupletMassLower, m_trkQuadrupletMassUpper);
                     }
                     if (!passes4TrackMass) continue;
@@ -407,7 +421,7 @@ namespace Analysis {
                                                         passCuts(bHelper, mumupikMasses, "pi K"))) ||
                                       (m_kpMassHyp && (passCuts(bHelper, mumukpMasses, "K p") ||
                                                        passCuts(bHelper, mumupkMasses, "p K"))) ||
-                                       (!m_manualMassHypo.empty()  && passCuts(bHelper, m_manualMassHypo, "manual"));
+                                      (!m_manualMassHypo.empty()  && passCuts(bHelper, m_manualMassHypo, "manual"));
                      
                         // Saving successful candidates
                         if (passesCuts) {
