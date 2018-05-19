@@ -18,8 +18,8 @@ it a datavector gives us good future flexibility.
 *******************************************************************/
 
 #include "CscCalibData/CscCalibReportBase.h"
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 class CscCalibReportContainer : public DataVector<CscCalibReportBase> 
 {

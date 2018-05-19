@@ -7,9 +7,8 @@ atlas_subdir( CscCalibData )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools )
+                          Control/AthenaKernel
+                          Control/AthContainers )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Hist Core Tree MathCore RIO pthread )
@@ -19,5 +18,5 @@ atlas_add_library( CscCalibData
                    src/*.cxx
                    PUBLIC_HEADERS CscCalibData
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers )
 

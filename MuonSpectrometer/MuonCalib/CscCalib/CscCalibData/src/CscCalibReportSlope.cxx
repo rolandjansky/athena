@@ -7,7 +7,7 @@
 
 
 #include "CscCalibData/CscCalibReportSlope.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include <string>
 #include <map>
 #include <set>
