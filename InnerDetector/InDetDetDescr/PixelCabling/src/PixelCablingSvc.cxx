@@ -35,9 +35,6 @@
 
 //#define PIXEL_DEBUG
 
-static const unsigned int defaultNumLayers = 4;      // number of barrel layers, incl IBL
-static const unsigned int defaultNumDisks = 3;       // number of disk layers
-
 ////////////////////////
 // constructor
 ////////////////////////
