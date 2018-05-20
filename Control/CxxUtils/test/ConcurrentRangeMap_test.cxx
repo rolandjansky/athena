@@ -45,6 +45,9 @@ struct RangeCompare
   { return t < r.m_begin; }
   bool operator() (const Range& r1, const Range& r2) const
   { return r1.m_begin < r2.m_begin; }
+  bool inRange (const Time t, const Range& r) const
+  { return t >= r.m_begin && t < r.m_end; }
+    
 };
 
 
@@ -99,6 +102,12 @@ public:
     m_inGrace = (~(1<<slot)) & ((1<<nslots)-1);
   }
 
+  void discard (std::unique_ptr<T> p)
+  {
+    m_garbage.push_back (p.release());
+    m_inGrace = ((1<<nslots)-1);
+  }
+
   const T& get() const { return *m_p; }
 
   void quiescent (int slot)
@@ -129,9 +138,9 @@ typedef CxxUtils::ConcurrentRangeMap<Range, Time, Payload, RangeCompare,
   TestMap;
 
 
-void test1()
+void test1a()
 {
-  std::cout << "test1\n";
+  std::cout << "test1a\n";
   Payload::Hist phist;
   {
     TestMap map (TestMap::Updater_t(), 3);
@@ -416,6 +425,62 @@ void test1()
 }
 
 
+// Testing trim().
+void test1b()
+{
+  std::cout << "test1b\n";
+
+  Payload::Hist phist;
+  TestMap map (TestMap::Updater_t(), 100);
+  assert (map.emplace (Range (10, 20), std::make_unique<Payload> (100, &phist)));
+  assert (map.emplace (Range (25, 30), std::make_unique<Payload> (200, &phist)));
+  assert (map.emplace (Range (30, 40), std::make_unique<Payload> (300, &phist)));
+  assert (map.emplace (Range (50, 60), std::make_unique<Payload> (400, &phist)));
+  assert (map.emplace (Range (40, 45), std::make_unique<Payload> (500, &phist)));
+  // 10..20->100 25..30->200 30..40->300 40..45->500 50..60->400
+
+  assert (map.size() == 5);
+
+  std::vector<TestMap::key_query_type> keys;
+  keys.push_back (15);
+  assert (map.trim (keys) == 0);
+  assert (map.size() == 5);
+
+  keys.clear();
+  keys.push_back (12);
+  keys.push_back (35);
+  assert (map.trim (keys) == 0);
+  assert (map.size() == 5);
+  assert (phist.size() == 5);
+
+  keys.clear();
+  keys.push_back (35);
+  assert (map.trim (keys) == 2);
+  assert (map.size() == 3);
+  assert (phist.size() == 5);
+
+  for (int i=0; i < nslots; i++) {
+    map.quiescent (i);
+  }
+  assert (phist.size() == 3);
+
+  keys.clear();
+  assert (map.trim (keys) == 2);
+  assert (map.size() == 1);
+  assert (phist.size() == 3);
+
+  for (int i=0; i < nslots; i++) {
+    map.quiescent (i);
+  }
+  assert (phist.size() == 1);
+}
+
+
+//***************************************************************************
+// Threaded test.
+//
+
+
 std::shared_timed_mutex start_mutex;
 
 
@@ -472,7 +537,13 @@ void test2_Writer::operator()()
   for (int i=0; i < nwrites; i++) {
     if (i >= ninflight) {
       Range rr = makeRange(i-ninflight);
-      m_map.erase (rr.m_begin, ctx());
+      if ((i%128) == 0) {
+        std::vector<Time> keys = {rr.m_end};
+        assert (m_map.trim (keys) == 1);
+      }
+      else {
+        m_map.erase (rr.m_begin, ctx());
+      }
     }
     Range r = makeRange(i);
     assert (m_map.emplace (r, std::make_unique<Payload> (i), ctx()));
@@ -620,7 +691,8 @@ void test2()
 
 int main()
 {
-  test1();
+  test1a();
+  test1b();
   test2();
   return 0;
 }
