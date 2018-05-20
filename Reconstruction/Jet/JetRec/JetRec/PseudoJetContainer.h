@@ -41,11 +41,11 @@
 #include <string>
 #include <set>
 
-using fastjet::PseudoJet;
-typedef std::vector<PseudoJet> PseudoJetVector;
+typedef std::vector<fastjet::PseudoJet> PseudoJetVector;
 
 class PseudoJetContainer {
 public:
+  typedef fastjet::PseudoJet PseudoJet;
 
   PseudoJetContainer();
 

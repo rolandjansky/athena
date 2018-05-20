@@ -18,7 +18,6 @@
 #include <vector>
 #include <ostream>
 
-using fastjet::PseudoJet;
 
 class IConstituentExtractor {
 

@@ -185,7 +185,7 @@ void TriggerJetBuildTool::prime(const xAOD::IParticleContainer* inputs){
                                                 );
   */
   
-  std::vector<PseudoJet> vpj = 
+  std::vector<fastjet::PseudoJet> vpj = 
     PseudoJetCreatorFunctions::createPseudoJets(inputs, 
                                                 m_concreteType,
                                                 m_iParticleRejecter

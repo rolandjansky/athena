@@ -15,6 +15,8 @@
 #include <exception>
 #include <map>
 
+using fastjet::PseudoJet;
+
 PseudoJetContainer::PseudoJetContainer() {
   checkInvariants("PseudoJetContainer()");
 }

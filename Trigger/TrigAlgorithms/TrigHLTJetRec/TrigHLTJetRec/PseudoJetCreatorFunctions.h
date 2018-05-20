@@ -15,13 +15,12 @@
 #include "xAODBase/IParticleContainer.h"
 #include "xAODJet/JetContainerInfo.h"
 
-using fastjet::PseudoJet;
 
 template<class T> class ToolHandle;
 class IIParticleRejectionTool;
 
 namespace PseudoJetCreatorFunctions{
-
+  using fastjet::PseudoJet;
 
   // noRejection set true for Trigger -  no longer true for jet from jet...
   std::vector<PseudoJet> 
