@@ -229,10 +229,6 @@ ISF::InputConverter::convertParticle(HepMC::GenParticle* genPartPtr, EBC_EVCOLL 
   if (!genPartPtr) { return nullptr; }
   auto& genPart = *genPartPtr;
 
-  // @FIXME: set the bunch-crossing identifier for pile-up dynamically
-  // rather than a constant '0' (e.g. could use GenEvent index for that?)
-  const int bcid = 0;
-
   HepMC::GenVertex* pVertex = genPart.production_vertex();
   if (!pVertex) {
     ATH_MSG_ERROR("Unable to convert following generator particle due to missing "
@@ -258,6 +254,7 @@ ISF::InputConverter::convertParticle(HepMC::GenParticle* genPartPtr, EBC_EVCOLL 
     ATH_MSG_ERROR("Cannot convert a GenParticle without a parent GenEvent into an ISFParticle!!!");
     return nullptr;
   }
+  const int bcid = (kindOfCollection==EBC_MAINEVCOLL) ? 0 : parentEvent->signal_process_id()/10000;
   auto hmpl = std::make_unique<HepMcParticleLink>(&genPart, parentEvent->event_number(), kindOfCollection);
   auto sParticle = std::make_unique<ISF::ISFParticle>( std::move(pos),
                                                        std::move(mom),
