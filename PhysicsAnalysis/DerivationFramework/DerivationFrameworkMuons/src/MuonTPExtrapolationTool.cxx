@@ -14,9 +14,9 @@
 //**********************************************************************
 
 MuonTPExtrapolationTool::MuonTPExtrapolationTool(std::string myname) :
-#ifndef XAOD_ANALYSIS
             AsgTool(myname),
-            m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
+#ifndef XAOD_ANALYSIS
+        m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
 #endif
          m_endcapPivotPlaneZ(15525.),
          m_endcapPivotPlaneMinimumRadius(0.),
@@ -53,20 +53,15 @@ StatusCode MuonTPExtrapolationTool::initialize() {
 bool MuonTPExtrapolationTool::extrapolateAndDecorateTrackParticle(const xAOD::TrackParticle* particle, float & eta, float & phi) {
 
     // decorators used to access or store the information
-    static SG::AuxElement::Decorator<char> Decorated("DecoratedPivotEtaPhi");
-    static SG::AuxElement::Decorator<std::string> DecoOutcome("DecorationOutcome");
-    static SG::AuxElement::Decorator<float> Eta("EtaTriggerPivot");
-    static SG::AuxElement::Decorator<float> Phi("PhiTriggerPivot");
+    static SG::AuxElement::Decorator<char> dec_Decorated("DecoratedPivotEtaPhi");
+    static SG::AuxElement::Decorator<float> dec_Eta("EtaTriggerPivot");
+    static SG::AuxElement::Decorator<float> dec_Phi("PhiTriggerPivot");
 
-    static SG::AuxElement::Accessor<char> AccDecorated("DecoratedPivotEtaPhi");
-    //static SG::AuxElement::Accessor< std::string > AccDecoOutcome ("DecorationOutcome");
-    static SG::AuxElement::Accessor<float> AccEta("EtaTriggerPivot");
-    static SG::AuxElement::Accessor<float> AccPhi("PhiTriggerPivot");
-
-    bool hasDeco = true;
-    try {
-        hasDeco = AccDecorated(*particle);
-    } catch (SG::ExcBadAuxVar &) {
+    static SG::AuxElement::Accessor<char> acc_Decorated("DecoratedPivotEtaPhi");
+    static SG::AuxElement::Accessor<float> acc_Eta("EtaTriggerPivot");
+    static SG::AuxElement::Accessor<float> acc_Phi("PhiTriggerPivot");
+    
+    if (!acc_Decorated.isAvailable(*particle) || !acc_Decorated(*particle)) {
 #ifndef XAOD_ANALYSIS
         if (!m_is_on_DAOD) {
             // in the athena release, we can run the extrapolation if needed
@@ -74,14 +69,12 @@ bool MuonTPExtrapolationTool::extrapolateAndDecorateTrackParticle(const xAOD::Tr
             if (!pTag) {
                 // complain only if the particle has sufficient pt to actually make it to the MS...
                 if (particle->pt() > 3500) ATH_MSG_WARNING("Warning - Pivot plane extrapolation failed for a track particle with IP pt " << particle->pt() << ", eta " << particle->eta() << ", phi " << particle->phi());
-                Decorated(*particle) = false;
-                DecoOutcome(*particle) = "Extrapolation Failed";
+                dec_Decorated(*particle) = 2;
                 return false;
             }
-            Eta(*particle) = pTag->position().eta();
-            Phi(*particle) = pTag->position().phi();
-            DecoOutcome(*particle) = "Extrapolation Success";
-            Decorated(*particle) = true;
+            dec_Eta(*particle) = pTag->position().eta();
+            dec_Phi(*particle) = pTag->position().phi();
+            dec_Decorated(*particle) = 1;
             delete pTag;
         }
         // if running in Athena on DAOD then the decorations should be there
@@ -96,22 +89,24 @@ bool MuonTPExtrapolationTool::extrapolateAndDecorateTrackParticle(const xAOD::Tr
         return false;
 #endif
     }
-    if (hasDeco) {
-        eta = AccEta(*particle);
-        phi = AccPhi(*particle);
-    } else if (particle->pt() > 3500) ATH_MSG_WARNING("Warning - Pivot plane extrapolation failed for a track particle with IP pt " << particle->pt() << ", eta " << particle->eta() << ", phi " << particle->phi());
+    
+    if (acc_Decorated.isAvailable(*particle) && acc_Decorated(*particle) == 1) {
+        eta = acc_Eta(*particle);
+        phi = acc_Phi(*particle);
+    } else if (particle->pt() > 3500) ATH_MSG_WARNING("Warning - Pivot plane extrapolation failed for track with pt " << particle->pt() << ", eta " << particle->eta() << ", phi " << particle->phi());
+    
     return true;
 }
 
 //**********************************************************************
 
-const xAOD::TrackParticle* MuonTPExtrapolationTool::getPreferredTrackParticle(const xAOD::IParticle* probe) {
-    if (dynamic_cast<const xAOD::TruthParticle*>(probe)) {
+const xAOD::TrackParticle* MuonTPExtrapolationTool::getPreferredTrackParticle(const xAOD::IParticle* probe) const {
+    const xAOD::TrackParticle* probeTrack = nullptr;
+    if (probe->type() == xAOD::Type::ObjectType::TruthParticle){
         ATH_MSG_WARNING("Pivot plane extrapolation not supported for Truth probes!");
-        return 0;
-    }
-    const xAOD::TrackParticle* probeTrack = dynamic_cast<const xAOD::TrackParticle*>(probe);
-    if (!probeTrack && dynamic_cast<const xAOD::Muon*>(probe)) {
+    } else if (probe->type() == xAOD::Type::ObjectType::TrackParticle){
+        probeTrack = dynamic_cast<const xAOD::TrackParticle*>(probe);
+    } else if (probe->type() == xAOD::Type::ObjectType::Muon) {
         const xAOD::Muon* probeMuon = dynamic_cast<const xAOD::Muon*>(probe);
         probeTrack = probeMuon->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);
         if (!probeTrack) {
@@ -134,9 +129,8 @@ StatusCode MuonTPExtrapolationTool::decoratePivotPlaneCoords(const xAOD::IPartic
     float eta, phi = 0;
     if (!extrapolateAndDecorateTrackParticle(track, eta, phi)) {
         return StatusCode::FAILURE;
-    } else {
-        return StatusCode::SUCCESS;
-    }
+    }        
+    return StatusCode::SUCCESS;
 }
 
 // **********************************************************************
@@ -148,23 +142,21 @@ double MuonTPExtrapolationTool::dROnTriggerPivotPlane(const xAOD::Muon& tag, con
         return 0;
     }
     const xAOD::EventInfo* info = 0;
-    ATH_MSG_DEBUG("" << evtStore());
     if (evtStore()->retrieve(info, "EventInfo").isFailure()) {
         ATH_MSG_FATAL("Unable to retrieve Event Info");
     }
     int run = info->runNumber();
     int evt = info->eventNumber();
-// static bool isMC = info->eventType(xAOD::EventInfo::IS_SIMULATION);
 
-// starting values: Track direction @ IP
+    // starting values: Track direction @ IP
     float tag_eta = tag.eta();
     float tag_phi = tag.phi();
     float probe_eta = probe->eta();
     float probe_phi = probe->phi();
 
-// Try to replace the starting values by the extrapolated pivot plane coordinates
-//
-// First, we need to pick the TrackParticle to extrapolate.
+    // Try to replace the starting values by the extrapolated pivot plane coordinates
+    //
+    // First, we need to pick the TrackParticle to extrapolate.
     const xAOD::TrackParticle* tagTrack = getPreferredTrackParticle(&tag);
     if (tagTrack) {
         // If we have the track particle, we load the existing decorations for the
@@ -187,7 +179,7 @@ double MuonTPExtrapolationTool::dROnTriggerPivotPlane(const xAOD::Muon& tag, con
     bool IDProbeMissesMS = false;
 
     const xAOD::TrackParticle* probeTrack = getPreferredTrackParticle(probe);
-// std::cout << "     ===> Checking the probe"<< std::endl;
+    // std::cout << "     ===> Checking the probe"<< std::endl;
     if (probeTrack) {
         if (!extrapolateAndDecorateTrackParticle(probeTrack, probe_eta, probe_phi)) {
             // if an ID probe does not make it into the MS, we kick it out by returning an unphysical delta R of -100.
@@ -222,11 +214,8 @@ double MuonTPExtrapolationTool::dROnTriggerPivotPlane(const xAOD::Muon& tag, con
 
 // special unphysical values to signify an ID probe not reaching the pivot plane
     if (IDProbeMissesMS) {
-        deta = -10;
-        dphi = -10;
+        deta = dphi = probe_phi = probe_eta = -10;
         dr = -1;
-        probe_eta = -10;
-        probe_phi = -10;
     }
 
 // note that here we only decorate the tag muon with the properties of the TP pair.
