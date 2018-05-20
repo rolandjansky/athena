@@ -43,7 +43,6 @@ MuonAlignmentErrorDbTool::MuonAlignmentErrorDbTool (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
 	  : AthAlgTool(type, name, parent),
-	    m_detStore(0),
             m_IOVSvc(0),
             m_mdtIdHelper(0),
             m_chronoSvc(0),
@@ -80,17 +79,7 @@ StatusCode MuonAlignmentErrorDbTool::initialize()
 
   m_log << MSG::INFO << "Initializing - folders names are: Error "<<m_errorFolder << endmsg;
    
-  StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
-  if ( sc.isSuccess() ) {
-    if( m_debug ) m_log << MSG::DEBUG << "Retrieved DetectorStore" << endmsg;
-  }else{
-    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
-    return sc;
-  }
-  
-
-
-  sc = m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
+  StatusCode sc = detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
   if (sc.isFailure())
     {
       m_log << MSG::FATAL << " Cannot retrieve MdtIdHelper " << endmsg;
@@ -163,7 +152,7 @@ StatusCode MuonAlignmentErrorDbTool::loadAlignmentError(IOVSVC_CALLBACK_ARGS_P(I
   const CondAttrListCollection * atrc;
   m_log << MSG::INFO << "Try to read from folder <"<<m_errorFolder<<">"<<endmsg;
   
-  sc=m_detStore->retrieve(atrc,m_errorFolder);
+  sc=detStore()->retrieve(atrc,m_errorFolder);
   if(sc.isFailure())  {
     m_log << MSG::ERROR
 	<< "could not retrieve the CondAttrListCollection from DB folder " 

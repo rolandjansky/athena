@@ -37,7 +37,6 @@ CSC_DCSConditionsTool::CSC_DCSConditionsTool (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
 	  : AthAlgTool(type, name, parent), 
-	    m_detStore(0),
 	    m_IOVSvc(0),
 	    m_cscIdHelper(0),
 	    m_chronoSvc(0),
@@ -72,17 +71,7 @@ StatusCode CSC_DCSConditionsTool::initialize()
   
   m_log << MSG::INFO << "Initializing - folders names are: ChamberDropped "<<m_chamberFolder << " Hv " << m_hvFolder<< endmsg;
    
-  StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
-  if ( sc.isSuccess() ) {
-     if( m_debug ) m_log << MSG::DEBUG << "Retrieved DetectorStore" << endmsg;
-  }else{
-    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
-    return sc;
-  }
-  
-
-
-  sc = m_detStore->retrieve(m_cscIdHelper, "CSCIDHELPER" );
+  StatusCode sc = detStore()->retrieve(m_cscIdHelper, "CSCIDHELPER" );
   if (sc.isFailure())
     {
       m_log << MSG::FATAL << " Cannot retrieve CscIdHelper " << endmsg;
@@ -168,7 +157,7 @@ StatusCode CSC_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
    if( m_debug ) m_log << MSG::DEBUG << endmsg;
   
 
-  sc=m_detStore->retrieve(atrc,m_hvFolder);
+  sc=detStore()->retrieve(atrc,m_hvFolder);
   
   if(sc.isFailure())  {
     m_log << MSG::ERROR
@@ -319,7 +308,7 @@ StatusCode CSC_DCSConditionsTool::loadchamber(IOVSVC_CALLBACK_ARGS_P(I,keys))
   const CondAttrListCollection * atrc;
   m_log << MSG::INFO << "Try to read from folder <"<<m_chamberFolder<<">"<<endmsg;
 
-  sc=m_detStore->retrieve(atrc,m_chamberFolder);
+  sc=detStore()->retrieve(atrc,m_chamberFolder);
   
   if(sc.isFailure())  {
     m_log << MSG::ERROR
