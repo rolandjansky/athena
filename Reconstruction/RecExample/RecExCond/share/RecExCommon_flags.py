@@ -758,7 +758,7 @@ if globalflags.InputFormat.is_bytestream():
 
 import os
 # edm monitor (so far only id)
-if os.environ['CMTCONFIG'].endswith('-dbg'):
+if os.environ.get('CMTCONFIG','').endswith('-dbg'):
   rec.doEdmMonitor=True 
 else:
   rec.doEdmMonitor=False 
