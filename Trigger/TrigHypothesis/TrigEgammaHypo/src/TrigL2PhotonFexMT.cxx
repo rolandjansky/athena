@@ -21,7 +21,7 @@
  **   Created:      Thu Jun 06 16:01:12 BST 2006
  **************************************************************************/ 
 
-#include "TrigEgammaHypo/TrigL2PhotonFexMT.h"
+#include "TrigL2PhotonFexMT.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
 #include "xAODTrigEgamma/TrigPhotonAuxContainer.h"
@@ -63,16 +63,24 @@ StatusCode TrigL2PhotonFexMT::execute()
  using namespace xAOD;
  auto ctx = getContext();
 
-  xAOD::TrigPhotonAuxContainer trigPhotonAuxContainer;
+ //  xAOD::TrigPhotonAuxContainer trigPhotonAuxContainer;
+
+
+  auto trigPhotoColl =   SG::makeHandle (m_outputPhotonsKey, ctx);  
+  ATH_CHECK( trigPhotoColl.record (std::make_unique<xAOD::TrigPhotonContainer>(),
+				  std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );
+
+  ATH_MSG_DEBUG( "Made WriteHandle " << m_outputPhotonsKey );
+  ATH_MSG_INFO( name() << " running with store " <<  getContext().getExtension<Atlas::ExtendedEventContext>()->proxy()->name() );
 
   // always create a TrigPhotonContainer, even if it will be empty
-  if(!m_trigPhotonContainer) {
-    m_trigPhotonContainer = new xAOD::TrigPhotonContainer();
-    m_trigPhotonContainer->setStore(&trigPhotonAuxContainer);
-  }
-  else {
-    m_trigPhotonContainer->clear();
-  }
+  //  if(!m_trigPhotonContainer) {
+  //  m_trigPhotonContainer = new xAOD::TrigPhotonContainer();
+  //  m_trigPhotonContainer->setStore(&trigPhotonAuxContainer);
+  // }
+  // else {
+  //  m_trigPhotonContainer->clear();
+  //}
   
 
  auto roiCollection = SG::makeHandle(m_roiCollectionKey, ctx);

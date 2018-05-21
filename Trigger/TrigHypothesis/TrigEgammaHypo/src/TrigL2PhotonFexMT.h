@@ -84,6 +84,11 @@ class TrigL2PhotonFexMT : public AthAlgorithm {
       "clusters",                                                // default value of StoreGate key
       "input TrigEMCluster Container name"};
 
+  SG::WriteHandleKey<xAOD::TrigPhotonContainer> m_outputPhotonsKey{ this,
+       "PhotonsName",                  // property name
+       "Photons",                                             // default value of StoreGate key
+       "output Photon container name "};
+
 
 };
 
