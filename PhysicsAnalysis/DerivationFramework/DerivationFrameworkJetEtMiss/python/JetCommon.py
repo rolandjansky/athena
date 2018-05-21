@@ -187,8 +187,6 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
       pjg = ConstModHelpers.getPseudoJetGetter(label,pjname)
       getterbase = inputtype.lower()
       getters = [pjg]+list(jtm.gettersMap[getterbase])[1:]
-      finderArgs['ptmin'] = 50000
-      finderArgs['ptminFilter'] = 50000
 
 
     # create the finder for the temporary collection.
