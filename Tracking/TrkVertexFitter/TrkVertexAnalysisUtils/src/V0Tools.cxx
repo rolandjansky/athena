@@ -2954,7 +2954,7 @@ namespace Trk
   Amg::MatrixX * V0Tools::convertCovMatrix(const xAOD::Vertex * vxCandidate) const
   {
     unsigned int NTrk = vxCandidate->nTrackParticles();
-    std::vector<float> matrix = vxCandidate->covariance();
+    const std::vector<float> &matrix = vxCandidate->covariance();
 
     int ndim = 0;
 
