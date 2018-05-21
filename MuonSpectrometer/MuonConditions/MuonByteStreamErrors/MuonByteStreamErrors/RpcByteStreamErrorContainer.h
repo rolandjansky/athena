@@ -14,8 +14,8 @@
 
 
 #include "Identifier/IdentifierHash.h"
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 
 namespace Muon {
