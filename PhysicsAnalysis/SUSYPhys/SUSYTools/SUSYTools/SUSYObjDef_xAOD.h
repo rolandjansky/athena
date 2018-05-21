@@ -699,7 +699,7 @@ namespace ST {
     asg::AnaToolHandle<IElectronPhotonShowerShapeFudgeTool> m_electronPhotonShowerShapeFudgeTool;
     asg::AnaToolHandle<IEGammaAmbiguityTool> m_egammaAmbiguityTool;
     asg::AnaToolHandle<IAsgElectronLikelihoodTool> m_elecChargeIDSelectorTool;
-    asg::AnaToolHandle<CP::IEfficiencyScaleFactorTool>      m_elecChargeEffCorrTool;
+    asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool>      m_elecChargeEffCorrTool;
     //
     asg::AnaToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelTool;
     asg::AnaToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelToolBaseline;
