@@ -9,8 +9,8 @@
 #define MUONCONDDATA_MDTDEADTUBESTATUS_H
 
 #include <vector>
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 //#include "MuonCondCool/MdtDeadTubeStatusContainer.h"
 
 class MdtDeadTubeStatus{
