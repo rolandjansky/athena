@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include<vector>
@@ -21,7 +21,6 @@
 #include "PixelConditionsData/SpecialPixelMap.h"
 
 std::vector< std::pair< std::string, std::vector<int> > > pixelMapping;
-//std::vector< std::pair< int, std::vector<int> > > m_moduleHashMapping;
 std::vector< std::pair< int, std::vector<int> > > hashMapping;
 std::string getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta);
 int getHashFromPosition (int barrel_ec, int layer, int module_phi, int module_eta);
@@ -122,7 +121,6 @@ int main(int argc, char* argv[]){
 
     std::string lbdepDirName = std::string("LBdep_endcap") + (*hemisphere);
 
-    //TDirectory* lbdepDir = 0;
 
     for(int k = 1; k <= 3; k ++){
 
@@ -131,11 +129,6 @@ int main(int argc, char* argv[]){
       component << "Disk" << k << (*hemisphere);
       lbdepPath << lbdepDirName << "/Disk" << k;
 
-      //TDirectory* lbdepSubDir = 0;
-
-      //if( !optionOnline ){
-      //  lbdepSubDir = lbdepDir->mkdir(component.str().substr(0,5).c_str());
-      //}
 
       for(int phi = 0; phi < 48; phi++){
         std::string name((static_cast<TKey*>((static_cast<TDirectory*>(hitMapFile->Get(lbdepPath.str().c_str())))
@@ -146,7 +139,6 @@ int main(int argc, char* argv[]){
                     ->GetListOfKeys())->At(phi)))->ReadObj());
 
         lbdep[name]->SetName(name.c_str());
-        //lbdep[name]->SetDirectory(lbdepSubDir);
 
         lbdep[name]->Divide(nEventsLBHistogram);
 
@@ -189,16 +181,10 @@ int main(int argc, char* argv[]){
 
     lbdepPath << "LBdep_barrel/" << layers[layer];
 
-    //TDirectory* lbdepSubDir = 0;
-    //
-    // if( !optionOnline ){
-    //   lbdepSubDir = lbdepDir->mkdir(layers[layer].c_str());
-    // }
 
     int nModulesPerStave = 13;
     if (isIBL && layer == 0) nModulesPerStave = 20; // --- IBL --- //
     for(int module = 0; module < staves[layer] * nModulesPerStave; module++) // loop on modules
-      //for(int j = 0; j < (staves[layer] * 13); j++)
     {
 
       std::string name((static_cast<TKey*>((static_cast<TDirectory*>(hitMapFile->Get(lbdepPath.str().c_str())))
@@ -223,20 +209,19 @@ int main(int argc, char* argv[]){
 
 
       lbdep[name]->SetName(name.c_str());
-      //lbdep[name]->SetDirectory(lbdepSubDir);
 
       lbdep[name]->Divide(nEventsLBHistogram);
     }
   }
 
 
-  //std::string testarea = std::getenv("TestArea");
-  //ifstream ifs;
   char* tmppath = std::getenv("DATAPATH");
-  if(tmppath == nullptr){
+  const unsigned int maxPathStringLength{3000};
+  if((not tmppath) or (strlen(tmppath) > maxPathStringLength) ){
       std::cout << "FATAL: Unable to retrieve environmental DATAPATH" << std::endl;
       exit(EXIT_FAILURE);
   }
+  tmppath=strdup(tmppath);
   std::string cmtpath(tmppath);
   std::vector<std::string> paths = splitter(cmtpath, ':');
   std::ifstream ifs;
@@ -253,7 +238,6 @@ int main(int argc, char* argv[]){
       int tmp_barrel_ec; int tmp_layer; int tmp_module_phi; int tmp_module_eta; std::string tmp_module_name;
       std::vector<int> tmp_position;
       tmp_position.resize(4);
-      //int counter = 0; // debug
       while(ifs >> tmp_barrel_ec >> tmp_layer >> tmp_module_phi >> tmp_module_eta >> tmp_module_name) {
         tmp_position[0] = tmp_barrel_ec;
         tmp_position[1] = tmp_layer;
@@ -284,7 +268,6 @@ int main(int argc, char* argv[]){
   for (int LB = 1; LB < 2000; LB++) {
     if(nEventsLBHistogram->GetBinContent(LB + 1) < 10.) continue; // nEventsLBHistogram starts from 0 // #events in LB >= 10
     tmp_list.clear();
-    //for(std::map<unsigned int, TH2D*>::const_iterator module = lbdep.begin(); module != lbdep.end(); ++module)
     for(std::map<std::string, TH1D*>::const_iterator module = lbdep.begin(); module != lbdep.end(); ++module)
     {
 
@@ -293,13 +276,6 @@ int main(int argc, char* argv[]){
       if(lbdep[moduleID]->GetBinContent(LB + 1) < 1.) { // (#module hits in LB) / (#events in LB) < 1
         tmp_list.push_back(moduleID);
       }
-
-      //std::vector<int> position = getPositionFromDCSID(moduleID);
-      //int barrel = position[0];
-      //int layer = position[1];
-      //int module_phi = position[2];
-      //int module_eta = position[3];
-      //unsigned int component_index = 0;
 
     } // end loop over all modules
     if (deadModuleList[lastLB] != tmp_list) {
@@ -365,22 +341,13 @@ int main(int argc, char* argv[]){
       int layer = position[1];
       int module_phi = position[2];
       int module_eta = position[3];
-      //pyFile[LB] << "job.PixMapOverlayWriter.Modules += [ \"" << getHashFromPosition(barrel, layer, module_phi, module_eta) << "\" ] # " << moduleID << std::endl;
-      //pyFile[LB] << "job.PixMapOverlayWriter.Modules += [ " << getHashFromPosition(barrel, layer, module_phi, module_eta) << " ] # " << moduleID << std::endl;
       pyFile << getHashFromPosition(barrel, layer, module_phi, module_eta) << ", ";
     }
     pyFile << "])" << std::endl;;
   }
 
-  //pyFile << "runLumiList=[[290000, 0], " << std::endl;
-  //pyFile << "             [290000, 10], " << std::endl;
-  //pyFile << "             [290000, 20], " << std::endl;
-  //pyFile << "             [2147483647,4294967295]] " << std::endl;
   pyFile << "runLumiList.append([2147483647,4294967295])" << std::endl;
-  //pyFile << "# Bad Pixel moduleID" << std::endl;
-  //pyFile << "badModulesList=[[1, 2, 3], " << std::endl;
-  //pyFile << "                [1, 2, 4]," << std::endl;
-  //pyFile << "                [1, 4]]" << std::endl;
+  
   pyFile << "" << std::endl;
   pyFile << "nIOVs = len(runLumiList)-1" << std::endl;
   pyFile << "if nIOVs != len(badModulesList):" << std::endl;
@@ -528,7 +495,6 @@ int main(int argc, char* argv[]){
   pyFile[LB] << "MessageSvc.errorLimit       = 1000" << std::endl;
   pyFile[LB] << "" << std::endl;
 
-  //std::cout << "Dead module: "  << iter->second->GetTitle() << std::endl;
   std::vector<std::string>::const_iterator module_iter;
   for(module_iter = (iter->second).begin(); module_iter != (iter->second).end(); module_iter++){
     std::string moduleID = *module_iter;
@@ -537,7 +503,6 @@ int main(int argc, char* argv[]){
     int layer = position[1];
     int module_phi = position[2];
     int module_eta = position[3];
-    //pyFile[LB] << "job.PixMapOverlayWriter.Modules += [ \"" << getHashFromPosition(barrel, layer, module_phi, module_eta) << "\" ] # " << moduleID << std::endl;
     pyFile[LB] << "job.PixMapOverlayWriter.Modules += [ " << getHashFromPosition(barrel, layer, module_phi, module_eta) << " ] # " << moduleID << std::endl;
   }
   pyFile[LB].close();
