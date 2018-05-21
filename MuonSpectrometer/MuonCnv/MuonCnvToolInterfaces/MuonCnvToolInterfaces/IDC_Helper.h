@@ -9,9 +9,9 @@
 #include "Identifier/Identifier.h"
 #include "Identifier/Identifiable.h"
 #include "Identifier/IdentifierHash.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 namespace Muon{
 
