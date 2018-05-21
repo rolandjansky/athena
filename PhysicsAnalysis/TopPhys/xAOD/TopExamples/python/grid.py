@@ -64,6 +64,9 @@ def AvailableDatasets():
 def Samples(names):
     samples = []
     for n in names:
+        #removing whitespaces from concatenated lines - ANALYSISTO-553
+        for ds in range(0,len(availableDatasets[n].datasets)):
+            availableDatasets[n].datasets[ds]=availableDatasets[n].datasets[ds].replace(' ','')
         samples.append(availableDatasets[n])
     return samples
 
