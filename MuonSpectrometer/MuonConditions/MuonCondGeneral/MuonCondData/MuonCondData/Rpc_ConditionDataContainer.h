@@ -5,7 +5,7 @@
 #ifndef RPC_CONDITIONDATACONTAINER_H
 #define RPC_CONDITIONDATACONTAINER_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include <map>
 #include <vector>
