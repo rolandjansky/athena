@@ -4,35 +4,6 @@
 
 include("TrigUpgradeTest/testHLT_MT.py")
 
-#workaround to prevent online trigger folders to be enabled
-from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-InDetTrigFlags.useConditionsClasses.set_Value_and_Lock(False)
-
-
-from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.doCaloSeededBrem = False
-
-
-from InDetRecExample.InDetJobProperties import InDetFlags
-InDetFlags.InDet25nsec = True 
-InDetFlags.doPrimaryVertex3DFinding = False 
-InDetFlags.doPrintConfigurables = False
-InDetFlags.doResolveBackTracks = True 
-InDetFlags.doSiSPSeededTrackFinder = True
-InDetFlags.doTRTPhaseCalculation = True
-InDetFlags.doTRTSeededTrackFinder = True
-InDetFlags.doTruth = False
-InDetFlags.init()
-
-# PixelLorentzAngleSvc and SCTLorentzAngleSvc
-include("InDetRecExample/InDetRecConditionsAccess.py")
-
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
-
-
-from InDetRecExample.InDetKeys import InDetKeys
-
 # provide a minimal menu information
 if globalflags.InputFormat.is_bytestream():
    topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
