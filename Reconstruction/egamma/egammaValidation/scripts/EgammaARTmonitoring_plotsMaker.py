@@ -50,18 +50,20 @@ for folder in GetKeyNames(f1):
         c1.Update()
 
         h_Base = f1.Get(folder+'/'+histo)
-        h_Base.SetMarkerStyle(3)
-        h_Base.SetMarkerSize(2)       
-        h_Base.SetMarkerColor(2)
+        h_Base.SetLineColor(4)
+        h_Base.SetLineWidth(2)
         h_Base.GetXaxis().SetLabelOffset(1.20)
+        h_Base.GetYaxis().SetTitleSize(0.045)
+        h_Base.GetYaxis().SetTitleOffset(0.95)
         
         h_Night = f2.Get(folder+'/'+histo)
-        h_Night.SetLineColor(4)
+        h_Night.SetMarkerStyle(8)
+        h_Night.SetMarkerSize(0.5)
  
         mainPad.cd()
         
-        h_Base.Draw("hist p")
-        h_Night.Draw("same")
+        h_Base.Draw()
+        h_Night.Draw("same p")
 
         c1.Update()
         
@@ -70,8 +72,8 @@ for folder in GetKeyNames(f1):
         leg.SetNColumns(2)
         leg.SetFillStyle(0)
         leg.SetBorderSize(0)
-        leg.AddEntry(h_Base , "Baseline", "p")
-        leg.AddEntry(h_Night, "Nightly" , "l")
+        leg.AddEntry(h_Base , "Baseline", "l")
+        leg.AddEntry(h_Night, "Nightly" , "p")
         leg.Draw()
         
         c1.Update()
@@ -85,19 +87,18 @@ for folder in GetKeyNames(f1):
         h1clone.SetMarkerColor(1)
         h1clone.SetMarkerStyle(20)
         h1clone.GetXaxis().SetLabelSize(0.10)
-        h1clone.GetXaxis().SetTitleSize(0.13)
-        h1clone.GetYaxis().SetLabelSize(0.09)
+        h1clone.GetXaxis().SetTitleSize(0.17)
+        h1clone.GetYaxis().SetLabelSize(0.10)
         h1clone.GetYaxis().SetRangeUser(0.75, 1.25)
         h1clone.GetYaxis().SetTitle("Ratio")
         h1clone.GetYaxis().CenterTitle(1)
-        h1clone.GetYaxis().SetTitleSize(0.09)
+        h1clone.GetYaxis().SetTitleSize(0.15)
         h1clone.GetYaxis().SetTitleOffset(0.3)
         h1clone.GetYaxis().SetNdivisions(505)
 
         h1clone.Draw("p")
         c1.Update()
         
-        c1.SaveAs(folder+'_'+histo+".pdf" )
         c1.SaveAs(folder+'_'+histo+".png" )
         
         fO.cd()

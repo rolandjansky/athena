@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "egammaValidation/ElectronPlots.h"
+#include "ElectronPlots.h"
 #include <typeinfo>
 
 using namespace egammaMonitoring;
