@@ -6,7 +6,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
-
+#include "AthLinks/ElementLink.h"
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "TrigMuonHypo/TrigMufastHypoAlg.h"
 

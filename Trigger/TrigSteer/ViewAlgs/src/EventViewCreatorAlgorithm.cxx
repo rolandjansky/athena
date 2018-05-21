@@ -5,6 +5,7 @@
 */
 
 #include "EventViewCreatorAlgorithm.h"
+#include "AthLinks/ElementLink.h"
 #include "AthViews/ViewHelper.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "DecisionHandling/HLTIdentifier.h"
