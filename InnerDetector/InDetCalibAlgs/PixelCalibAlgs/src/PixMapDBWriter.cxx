@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // PixelCalibAlgs
@@ -9,7 +9,6 @@
 // PixelConditions
 #include "PixelConditionsServices/ISpecialPixelMapSvc.h"
 #include "PixelConditionsData/SpecialPixelMap.h"
-//#include "PixelCoralClientUtils/SpecialPixelMap.hh" // kazuki
 
 // geometry
 #include "InDetIdentifier/PixelID.h"
@@ -17,7 +16,6 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h" // kazuki
 #include "InDetReadoutGeometry/PixelModuleDesign.h" // kazuki
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h" // kazuki
-//#include "PixelGeoModel/IBLParameterSvc.h" // kazuki // this may not be necessary
 
 // ROOT
 #include "TFile.h"
@@ -105,12 +103,9 @@ StatusCode PixMapDBWriter::finalize(){
   ATH_MSG_DEBUG( "Reading map of special pixels from file" );
 
   TFile pixMapFile(m_pixMapFileName.c_str(), "READ");
-  //std::map<std::string, std::map<unsigned int, TH2C*> > specialPixelHistograms;
-  //std::map<std::string, std::map<unsigned int, TH2D*> > hitMaps;
-  //std::map<std::string, std::map<std::string, TH2C*> > specialPixelHistograms; // kazuki
+
   std::map<std::string, TH2C*> specialPixelHistograms; // kazuki
   std::map<std::string, TH2D*> hitMaps; // kazuki
-  //std::map<std::string, std::map<std::string, TH2D*> > hitMaps; // kazuki
   std::map<int, std::map<int, int> > ModulePixelidStatus; // kazuki
 
   // endcaps
@@ -125,7 +120,6 @@ StatusCode PixMapDBWriter::finalize(){
 
     std::string specialPixelHistogramsDirName = m_pixelPropertyName + std::string("Maps_endcap") + (*direction);
 
-    //for(int k = 1; k <= 3; k ++)
     for(int layer = 1; layer <= 3; layer++)
     {
 
@@ -134,7 +128,6 @@ StatusCode PixMapDBWriter::finalize(){
       component << "Disk" << layer << (*direction);
       specialPixelHistogramsPath << m_pixelPropertyName + "Maps_endcap" << (*direction) << "/Disk" << layer;
 
-      //for(int j = 0; j < 48; j++)
       for(int index = 0; index < 48; index++) // loop in TDirectory
       {
         // get DCS ID
@@ -143,18 +136,12 @@ StatusCode PixMapDBWriter::finalize(){
                 (pixMapFile.Get(specialPixelHistogramsPath.str().c_str())))->
                GetListOfKeys()->At(index)))->GetName());
 
-        //int i = PixelConvert::HashID(PixelConvert::OnlineIDfromDCSID(name)); // kazuki comment out
-
-        //specialPixelHistograms[component.str()][i] =
-        //specialPixelHistograms[component.str()][name] = /////////////////////////////////////////////////////////////////
         specialPixelHistograms[name] = /////////////////////////////////////////////////////////////////
           static_cast<TH2C*>
           ((static_cast<TKey*>
             ((static_cast<TDirectory*>
               (pixMapFile.Get(specialPixelHistogramsPath.str().c_str())))
              ->GetListOfKeys()->At(index)))->ReadObj());
-        //std::cout << "DEBUG: " << specialPixelHistograms[component.str()][index]->GetName() << std::endl;
-        //std::cout << "DEBUG: " << specialPixelHistograms[name]->GetName() << std::endl;
       }
 
       if( m_calculateOccupancy ){
@@ -163,7 +150,6 @@ StatusCode PixMapDBWriter::finalize(){
 
         hitMapsPath << "hitMaps_endcap" << (*direction) << "/Disk" << layer;
 
-        //for(int j = 0; j < 48; j++)
         for(int index = 0; index < 48; index++) // loop in TDirectory
         {
           std::string name((static_cast<TKey*>
@@ -171,17 +157,12 @@ StatusCode PixMapDBWriter::finalize(){
                   (pixMapFile.Get(hitMapsPath.str().c_str())))->
                  GetListOfKeys()->At(index)))->GetName());
 
-          //int i = PixelConvert::HashID(PixelConvert::OnlineIDfromDCSID(name)); // kazuki comment out
-
-          //hitMaps[component.str()][i] =
-          //hitMaps[component.str()][name] =
           hitMaps[name] =
             static_cast<TH2D*>
             ((static_cast<TKey*>
               ((static_cast<TDirectory*>
                 (pixMapFile.Get(hitMapsPath.str().c_str())))
                ->GetListOfKeys()->At(index)))->ReadObj());
-        //std::cout << "DEBUG: " << specialPixelHistograms[component.str()][index]->GetName() << std::endl;
         }
       } // end if (m_calculateOccupancy)
     } // end loop on layer
@@ -205,9 +186,7 @@ StatusCode PixMapDBWriter::finalize(){
 
   for(unsigned int layer = 0; layer < layers.size(); layer++)
   {
-    //for(unsigned int k = 0; k < staves.size(); k++)
-    //for(unsigned int stave = 0; stave < staves.size(); stave++)
-    //{
+    
 
       std::ostringstream specialPixelHistogramsPath;
 
@@ -222,20 +201,14 @@ StatusCode PixMapDBWriter::finalize(){
                 (pixMapFile.Get(specialPixelHistogramsPath.str().c_str())))->
                GetListOfKeys()->At(module)))->GetName());
 
-        //int i = PixelConvert::HashID(PixelConvert::OnlineIDfromDCSID(name));
-
-        //specialPixelHistograms[ layers[layer] ][module] = ////////////////////////////
-        //specialPixelHistograms[ layers[layer] ][i] =
-        //specialPixelHistograms[ layers[layer] ][name] =
+       
         specialPixelHistograms[name] =
           static_cast<TH2C*>
           ((static_cast<TKey*>
             ((static_cast<TDirectory*>
               (pixMapFile.Get(specialPixelHistogramsPath.str().c_str())))
              ->GetListOfKeys()->At(module)))->ReadObj());
-        //std::cout << specialPixelHistograms[ layers[layer] ][module]->GetName()  << std::endl;
-        //std::cout << specialPixelHistograms[module]->GetName()  << std::endl;
-        //std::cout << "DEBUG: " << specialPixelHistograms[name]->GetName()  << std::endl;
+        
       }
 
       if( m_calculateOccupancy ){
@@ -244,7 +217,6 @@ StatusCode PixMapDBWriter::finalize(){
 
         hitMapsPath << "hitMaps_barrel/" << layers[layer];
 
-        //for(int j = 0; j < (staves[k] * 13); j++)
         for(int module = 0; module < staves[layer] * nModulesPerStave; module++) // loop on modules
         {
 
@@ -253,10 +225,7 @@ StatusCode PixMapDBWriter::finalize(){
                   (pixMapFile.Get(hitMapsPath.str().c_str())))->
                  GetListOfKeys()->At(module)))->GetName());
 
-          //int i = PixelConvert::HashID(PixelConvert::OnlineIDfromDCSID(name));
 
-          //hitMaps[ layers[layer] ][module] =
-          //hitMaps[ layers[layer] ][name] =
           hitMaps[name] =
             static_cast<TH2D*>
             ((static_cast<TKey*>
@@ -272,13 +241,14 @@ StatusCode PixMapDBWriter::finalize(){
   // temporary repairs of PixelConvert::DCSID
   ////////////////////////////////////////////////////////////////////////////////////////////
 
-//  std::string testarea = std::getenv("TestArea");
-//  ifstream ifs(testarea + "/InstallArea/share/PixelMapping_Run2.dat");
-  char* tmppath = std::getenv("DATAPATH");
-  if(tmppath == NULL){
-      ATH_MSG_FATAL( "Unable to retrieve environmental DATAPATH" );
-      return StatusCode::FAILURE; 
+
+ char* tmppath = std::getenv("DATAPATH");
+  const unsigned int maxPathStringLength{3000};
+  if((not tmppath) or (strlen(tmppath) > maxPathStringLength) ){
+      ATH_MSG_ERROR( "FATAL: Unable to retrieve environmental DATAPATH" );
+      return StatusCode::FAILURE;
   }
+  tmppath=strdup(tmppath);
   std::string cmtpath(tmppath); 
   std::vector<std::string> paths = splitter(cmtpath, ':');
   std::ifstream ifs;
@@ -292,7 +262,6 @@ StatusCode PixMapDBWriter::finalize(){
       int tmp_barrel_ec; int tmp_layer; int tmp_module_phi; int tmp_module_eta; std::string tmp_module_name;
       std::vector<int> tmp_position;
       tmp_position.resize(4);
-      //int counter = 0; // debug
       while(ifs >> tmp_barrel_ec >> tmp_layer >> tmp_module_phi >> tmp_module_eta >> tmp_module_name) {
         tmp_position[0] = tmp_barrel_ec;
         tmp_position[1] = tmp_layer;
@@ -304,100 +273,16 @@ StatusCode PixMapDBWriter::finalize(){
     }
   }
 
-  //std::map<int, int> phi2M_ECA;
-  //phi2M_ECA[0] = 1;
-  //phi2M_ECA[1] = 6;
-  //phi2M_ECA[2] = 2;
-  //phi2M_ECA[3] = 5;
-  //phi2M_ECA[4] = 3;
-  //phi2M_ECA[5] = 4;
-  //std::map<int, TString> phi2moduleID_ECA;
-  //for(int phi = 0; phi < 48; phi++){
-  //  phi = phi + 6;
-  //  if (phi >= 48) phi = phi % 6;
-  //  phi2moduleID_ECA[phi] = Form("B%02d_S%d_M%d",(phi / 12) + 1, (phi % 12 < 6) ? 1 : 2, phi2M_ECA[phi % 6]);
-  //}
-  //std::map<int, int> phi2M_ECC;
-  //phi2M_ECC[0] = 4;
-  //phi2M_ECC[1] = 3;
-  //phi2M_ECC[2] = 5;
-  //phi2M_ECC[3] = 2;
-  //phi2M_ECC[4] = 6;
-  //phi2M_ECC[5] = 1;
-  //std::map<int, TString> phi2moduleID_ECC;
-  //for(int phi = 0; phi < 48; phi++){
-  //  phi = phi + 6;
-  //  if (phi >= 48) phi = phi % 6;
-  //  phi2moduleID_ECC[phi] = Form("B%02d_S%d_M%d",(phi / 12) + 1, (phi % 12 < 6) ? 1 : 2, phi2M_ECC[phi % 6]);
-  //}
-  //std::map<int, TString> eta2moduleID_IBL;
-  //eta2moduleID_IBL[9] = TString("A_M4_A8_2");
-  //eta2moduleID_IBL[8] = TString("A_M4_A8_1");
-  //eta2moduleID_IBL[7] = TString("A_M4_A7_2");
-  //eta2moduleID_IBL[6] = TString("A_M4_A7_1");
-  //eta2moduleID_IBL[5] = TString("A_M3_A6");
-  //eta2moduleID_IBL[4] = TString("A_M3_A5");
-  //eta2moduleID_IBL[3] = TString("A_M2_A4");
-  //eta2moduleID_IBL[2] = TString("A_M2_A3");
-  //eta2moduleID_IBL[1] = TString("A_M1_A2");
-  //eta2moduleID_IBL[0] = TString("A_M1_A1");
-  //eta2moduleID_IBL[-1] = TString("C_M1_C1");
-  //eta2moduleID_IBL[-2] = TString("C_M1_C2");
-  //eta2moduleID_IBL[-3] = TString("C_M2_C3");
-  //eta2moduleID_IBL[-4] = TString("C_M2_C4");
-  //eta2moduleID_IBL[-5] = TString("C_M3_C5");
-  //eta2moduleID_IBL[-6] = TString("C_M3_C6");
-  //eta2moduleID_IBL[-7] = TString("C_M4_C7_1");
-  //eta2moduleID_IBL[-8] = TString("C_M4_C7_2");
-  //eta2moduleID_IBL[-9] = TString("C_M4_C8_1");
-  //eta2moduleID_IBL[-10] = TString("C_M4_C8_2");
-  ////
-  //std::map<int, TString> eta2moduleID_PixelBarrel;
-  //eta2moduleID_PixelBarrel[6] = TString("_M6A");
-  //eta2moduleID_PixelBarrel[5] = TString("_M5A");
-  //eta2moduleID_PixelBarrel[4] = TString("_M4A");
-  //eta2moduleID_PixelBarrel[3] = TString("_M3A");
-  //eta2moduleID_PixelBarrel[2] = TString("_M2A");
-  //eta2moduleID_PixelBarrel[1] = TString("_M1A");
-  //eta2moduleID_PixelBarrel[0] = TString("_M0");
-  //eta2moduleID_PixelBarrel[-1] = TString("_M1C");
-  //eta2moduleID_PixelBarrel[-2] = TString("_M2C");
-  //eta2moduleID_PixelBarrel[-3] = TString("_M3C");
-  //eta2moduleID_PixelBarrel[-4] = TString("_M4C");
-  //eta2moduleID_PixelBarrel[-5] = TString("_M5C");
-  //eta2moduleID_PixelBarrel[-6] = TString("_M6C");
-  ////
-  //std::map<int, TString> phi2moduleID_BLayer;
-  //for(int phi = 0; phi < 22; phi++){
-  //  if(phi == 0) {
-  //    phi2moduleID_BLayer[phi] = TString("B11_S2");
-  //  } else {
-  //    phi2moduleID_BLayer[phi] = Form("B%02d_S%d",(phi + 1) / 2, (phi % 2) ? 1 : 2);
-  //  }
-  //}
-  ////
-  //std::map<int, TString> phi2moduleID_Layer1;
-  //std::map<int, TString> phi2moduleID_Layer2;
-  //for(int phi = 0; phi < 52; phi++){
-  //  phi2moduleID_Layer1[phi] = Form("B%02d_S%d", (phi / 2) + 1, (phi % 2) ? 2 : 1);
-  //  if (phi == 51) phi2moduleID_Layer2[phi] = TString("B01_S1");
-  //  else phi2moduleID_Layer2[phi] = Form("B%02d_S%d", (phi + 1) / 2 + 1, (phi % 2) ? 1 : 2);
-  //}
 
   ////////////////////////////////////////////////////////////////////////////////////////////
   // temporary repairs of PixelConvert::DCSID
   ////////////////////////////////////////////////////////////////////////////////////////////
 
-  //DetectorSpecialPixelMap* spm = new DetectorSpecialPixelMap();
   auto spm = std::make_unique<DetectorSpecialPixelMap>();
   double nHitsBeforeMask = 0.;
   double nHitsAfterMask = 0.;
 
   spm->resize(m_pixelID->wafer_hash_max());
-
-  //for(unsigned int i = 0; i < m_pixelID->wafer_hash_max(); i++){
-  //  (*spm)[i] = new ModuleSpecialPixelMap();
-  //}
 
   // kazuki
   InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax;
@@ -405,7 +290,6 @@ StatusCode PixMapDBWriter::finalize(){
   itermax = m_pixman->getDetectorElementEnd();
   int niterators=0; // kazuki
   if(m_pixelID->wafer_hash_max() > 1744) m_isIBL = true; // #modules only Pixel is 1744
-  //std::cout << "DEBUG: wafer_hash_max = " << m_pixelID->wafer_hash_max() << std::endl;
 
   for( iter = itermin; iter != itermax; ++iter) {
     niterators++; // kazuki
@@ -434,29 +318,13 @@ StatusCode PixMapDBWriter::finalize(){
     TString onlineID;
     if (m_isIBL) { // --- IBL --- //
       onlineID = TString( PixMapDBWriter::getDCSIDFromPosition(barrel,layer,module_phi,module_eta ) );
-      //if ( nspecial != 0 && m_listSpecialPixels ){ }
-      //if ( barrel == 0 ) { // barrel
-      //  if (layer == 0) {
-      //    onlineID = Form("LI_S%02d_",module_phi + 1) + eta2moduleID_IBL[module_eta];
-      //  } else if (layer == 1) {
-      //    onlineID = Form("L%d_",layer - 1) + phi2moduleID_BLayer[module_phi] + eta2moduleID_PixelBarrel[module_eta];
-      //  } else if (layer == 2) {
-      //    onlineID = Form("L%d_",layer - 1) + phi2moduleID_Layer1[module_phi] + eta2moduleID_PixelBarrel[module_eta];
-      //  } else if (layer == 3) {
-      //    onlineID = Form("L%d_",layer - 1) + phi2moduleID_Layer2[module_phi] + eta2moduleID_PixelBarrel[module_eta];
-      //  }
-      //} else if ( barrel == 2 ) { // ECA
-      //  onlineID = Form("D%dA_",layer + 1) + phi2moduleID_ECA[module_phi];
-      //} else if ( barrel == -2) { // ECC
-      //  onlineID = Form("D%dC_",layer + 1) + phi2moduleID_ECC[module_phi];
-      //}
+   
     }
     if ( specialPixelHistograms.find(std::string(onlineID)) == specialPixelHistograms.end() ) {
       std::cout << "DEBUG: onlineID " << onlineID << " is not found in the specialPixelHistograms" << std::endl;
       continue;
     }
     TH2C* specialPixelHistogram = specialPixelHistograms[std::string(onlineID)];
-    //int nspecial = static_cast<int>( specialPixelHistogram->second->GetEntries() ); // #noisy pixels
     int nspecial = static_cast<int>( specialPixelHistogram->GetEntries() ); // #noisy pixels
     if( !m_calculateOccupancy ){
       if ( nspecial == 0 ) continue; // no noise hits
@@ -473,16 +341,13 @@ StatusCode PixMapDBWriter::finalize(){
 
     double nHitsAfterMaskThisModule = 0.;
 
-    //for(int pixel_eta = 0; pixel_eta <= m_pixelID->eta_index_max(moduleID); pixel_eta++)
     for(int pixel_eta = 0; pixel_eta <= m_pixelID->eta_index_max(ident); pixel_eta++)
     {
-      //for(int pixel_phi = 0; pixel_phi <= m_pixelID->phi_index_max(moduleID); pixel_phi++)
       for(int pixel_phi = 0; pixel_phi <= m_pixelID->phi_index_max(ident); pixel_phi++)
       {
 
         bool special = false;
 
-        //if( nspecial != 0 && specialPixelHistogram->second->GetBinContent(pixel_eta + 1, pixel_phi + 1) != 0 )
         if( nspecial != 0 && specialPixelHistogram->GetBinContent(pixel_eta + 1, pixel_phi + 1) != 0 )
         {
           special = true;
@@ -491,12 +356,7 @@ StatusCode PixMapDBWriter::finalize(){
         if( special ){ // noisy/dead pixel
 
           unsigned int pixelID =
-            ModuleSpecialPixelMap::encodePixelID(barrel, module_phi, pixel_eta, pixel_phi, chipsPerModule); // m_chipPermodule=mchip*10+chip type
-            //ModuleSpecialPixelMap::encodePixelID(barrel, module_phi, pixel_eta, pixel_phi, mchips); // mchips := #chips on module
-            //ModuleSpecialPixelMap::encodePixelID(barrel, module_phi, pixel_eta, pixel_phi);
-
-          //std::cout << "DEBUG: moduleHash = " << moduleHash << ", Identifier = " << ident << std::endl;
-          //std::cout << "DEBUG: onlineID = " << onlineID << ", pixelID = " << pixelID << ", m_pixelStatus = " << m_pixelStatus << std::endl;
+            ModuleSpecialPixelMap::encodePixelID(barrel, module_phi, pixel_eta, pixel_phi, chipsPerModule); 
           (*spm)[moduleHash]->setPixelStatus(pixelID, m_pixelStatus);
           ModulePixelidStatus[moduleHash][pixelID] = m_pixelStatus;
 
@@ -518,7 +378,6 @@ StatusCode PixMapDBWriter::finalize(){
       nHitsBeforeMask += hitMap->GetEntries();
       nHitsAfterMask += nHitsAfterMaskThisModule;
     }
-    //std::cout << "#iterators = " << niterators << std::endl;
   } // end loop on element
 
   ATH_MSG_INFO( "Total of " << npixels << " masked pixels on " << nmodules << " modules" );
@@ -579,15 +438,6 @@ StatusCode PixMapDBWriter::finalize(){
 
       int nCommonMaskedPixelsThis = 0;
 
-      //int moduleHash = m_pixelID->wafer_hash(ident);
-      //std::cout << "DEBUG2: moduleHash = " << moduleHash << std::endl;
-
-      //Identifier moduleID = m_pixelID->wafer_id(IdentifierHash(moduleHash));
-
-      //int barrel     = m_pixelID->barrel_ec(moduleID);
-      //int module_phi = m_pixelID->phi_module(moduleID);
-
-      //for(int pixel_eta = 0; pixel_eta <= m_pixelID->eta_index_max(moduleID); pixel_eta++)
       for(int pixel_eta = 0; pixel_eta <= m_pixelID->eta_index_max(ident); pixel_eta++)
       {
         //for(int pixel_phi = 0; pixel_phi <= m_pixelID->phi_index_max(moduleID); pixel_phi++)
@@ -596,24 +446,13 @@ StatusCode PixMapDBWriter::finalize(){
 
           unsigned int pixelID =
             ModuleSpecialPixelMap::encodePixelID(barrel, module_phi, pixel_eta, pixel_phi, chipsPerModule);
-            //ModuleSpecialPixelMap::encodePixelID(barrel, module_phi, pixel_eta, pixel_phi, mchips);
-            //ModuleSpecialPixelMap::encodePixelID(barrel, module_phi, pixel_eta, pixel_phi);
 
-
-          //unsigned int pixelStatus1 = (*spm)[moduleHash]->pixelStatus(pixelID);
-          //unsigned int pixelStatus2 = (*spmFromDB)[moduleHash]->pixelStatus(pixelID);
-          //PixelCoralClientUtils::ModuleSpecialPixelMap* mspm1 = (*spm)[moduleHash];
-          //PixelCoralClientUtils::ModuleSpecialPixelMap* mspm2 = (*spmFromDB)[moduleHash];
-          //unsigned int pixelStatus1 = (*mspm1)[pixelID];
-          //unsigned int pixelStatus2 = (*mspm2)[pixelID];
           unsigned int pixelStatus1 = ModulePixelidStatus[moduleHash][pixelID];
           unsigned int pixelStatus2 = (*spmFromDB)[moduleHash]->pixelStatus(pixelID);
 
-          //if (!(moduleHash%100) && !(pixel_eta%10) && !(pixel_phi%100))
           if (pixelStatus1 != 0)
           {
-            //std::cout << "DEBUG: moduleHash = " << moduleHash << ", Identifier = " << ident << std::endl;
-            //std::cout << "DEBUG: onlineID = " << onlineID << std::endl;
+
             std::cout << "barrel, layer, module_phi, module_eta, pixel_eta, pixel_phi, mchips, pixelID\n"
                       << " = " << barrel << ", " << layer << ", " << module_phi << ", " << module_eta
                       << ", " << pixel_eta << ", " << pixel_phi << ", " << mchips << ", " << pixelID << std::endl;
@@ -710,21 +549,7 @@ StatusCode PixMapDBWriter::finalize(){
         int module_eta = m_pixelID->eta_module(results[i].second); // kazuki
         TString tmp_onlineID;
         tmp_onlineID = TString( PixMapDBWriter::getDCSIDFromPosition(barrel,layer,module_phi,module_eta ) );
-        //if ( barrel == 0 ) { // barrel
-        //  if (layer == 0) {
-        //    tmp_onlineID = Form("LI_S%02d_",module_phi + 1) + eta2moduleID_IBL[module_eta];
-        //  } else if (layer == 1) {
-        //    tmp_onlineID = Form("L%d_",layer - 1) + phi2moduleID_BLayer[module_phi] + eta2moduleID_PixelBarrel[module_eta];
-        //  } else if (layer == 2) {
-        //    tmp_onlineID = Form("L%d_",layer - 1) + phi2moduleID_Layer1[module_phi] + eta2moduleID_PixelBarrel[module_eta];
-        //  } else if (layer == 3) {
-        //    tmp_onlineID = Form("L%d_",layer - 1) + phi2moduleID_Layer2[module_phi] + eta2moduleID_PixelBarrel[module_eta];
-        //  }
-        //} else if ( barrel == 2 ) { // ECA
-        //  tmp_onlineID = Form("D%dA_",layer + 1) + phi2moduleID_ECA[module_phi];
-        //} else if ( barrel == -2) { // ECC
-        //  tmp_onlineID = Form("D%dC_",layer + 1) + phi2moduleID_ECC[module_phi];
-        //}
+
         ATH_MSG_INFO( results[i].first << " pixels differing on module   \t" << results[i].second
             << " \t" << tmp_onlineID );
       } else {
@@ -753,21 +578,7 @@ StatusCode PixMapDBWriter::finalize(){
         int module_eta = m_pixelID->eta_module(results_absnum[i].second); // kazuki
         TString tmp_onlineID;
         tmp_onlineID = TString( PixMapDBWriter::getDCSIDFromPosition(barrel,layer,module_phi,module_eta ) );
-        //if ( barrel == 0 ) { // barrel
-        //  if (layer == 0) {
-        //    tmp_onlineID = Form("LI_S%02d_",module_phi + 1) + eta2moduleID_IBL[module_eta];
-        //  } else if (layer == 1) {
-        //    tmp_onlineID = Form("L%d_",layer - 1) + phi2moduleID_BLayer[module_phi] + eta2moduleID_PixelBarrel[module_eta];
-        //  } else if (layer == 2) {
-        //    tmp_onlineID = Form("L%d_",layer - 1) + phi2moduleID_Layer1[module_phi] + eta2moduleID_PixelBarrel[module_eta];
-        //  } else if (layer == 3) {
-        //    tmp_onlineID = Form("L%d_",layer - 1) + phi2moduleID_Layer2[module_phi] + eta2moduleID_PixelBarrel[module_eta];
-        //  }
-        //} else if ( barrel == 2 ) { // ECA
-        //  tmp_onlineID = Form("D%dA_",layer + 1) + phi2moduleID_ECA[module_phi];
-        //} else if ( barrel == -2) { // ECC
-        //  tmp_onlineID = Form("D%dC_",layer + 1) + phi2moduleID_ECC[module_phi];
-        //}
+
         ATH_MSG_INFO( results_absnum[i].first << " noisy pixels on module   \t" << results_absnum[i].second
             << " \t" << tmp_onlineID );
       } else {
