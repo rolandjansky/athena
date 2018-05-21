@@ -5,14 +5,14 @@
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c] [-d] [-e]"
+    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c] [-d] [-x]"
     echo " -f: Force rebuild of externals from scratch, otherwise if script"
     echo "     finds an external build present it will only do an incremental"
     echo "     build"
     echo " -c: Build the externals for the continuous integration (CI) system,"
     echo "     skipping the build of the externals RPMs."
     echo " -d: For debugging the CMake configuration: run 'cmake' with the '--trace' option (very verbose output!)" 
-    echo " -e: To pass arbitrary extra arguments to the CMake configuration"
+    echo " -x: To pass arbitrary extra arguments to the CMake configuration"
     echo "If a build_dir is not given the default is '../build'"
     echo "relative to the athena checkout"
 }

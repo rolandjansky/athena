@@ -6,13 +6,13 @@
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: build.sh [-t build type] [-b build dir] [-c] [-m] [-i] [-p] [-a] [-e] [-N]"
+    echo "Usage: build.sh [-t build type] [-b build dir] [-c] [-m] [-i] [-p] [-a] [-x] [-N]"
     echo " -c: Execute CMake step"
     echo " -m: Execute make step"
     echo " -i: Execute install step"
     echo " -p: Execute CPack step"
     echo " -a: Abort on error"
-    echo " -e: Add extra CMake argument"
+    echo " -x: Add extra CMake argument"
     echo " -N: Use Ninja"
 
     echo "If none of the c, m, i or p options are set then the script will do"
