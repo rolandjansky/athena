@@ -1966,17 +1966,17 @@ namespace CP {
 
   }
 
-  double MuonCalibrationAndSmearingTool::expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc ) const {
+  double MuonCalibrationAndSmearingTool::expectedResolution( const std::string& DetType, const xAOD::Muon& mu, const bool mc ) const {
     // Expected resolution in data (or unsmeared MC if second argument is true)
     return ExpectedResolution(DetType, mu, mc);
   }
 
-  double MuonCalibrationAndSmearingTool::expectedResolution( const int& DetType, xAOD::Muon& mu, const bool mc ) const {
+  double MuonCalibrationAndSmearingTool::expectedResolution( const int& DetType, const xAOD::Muon& mu, const bool mc ) const {
     // Expected resolution in data (or unsmeared MC if second argument is true)
     return ExpectedResolution(DetType, mu, mc);
   }
 
-  double MuonCalibrationAndSmearingTool::ExpectedResolution( const std::string &DetType, xAOD::Muon& mu, const bool mc ) const {
+  double MuonCalibrationAndSmearingTool::ExpectedResolution( const std::string &DetType, const xAOD::Muon& mu, const bool mc ) const {
     // Expected resolution in data (or unsmeared MC if second argument is true)
     if( DetType == "MS" ) {
       return ExpectedResolution( MCAST::DetectorType::MS, mu, mc );
@@ -1993,7 +1993,7 @@ namespace CP {
     }
   }
 
-  double MuonCalibrationAndSmearingTool::ExpectedResolution( const int DetType,xAOD::Muon& mu, const bool mc ) const {
+  double MuonCalibrationAndSmearingTool::ExpectedResolution( const int DetType,const xAOD::Muon& mu, const bool mc ) const {
 
     // get the pt measurements from the xAOD::Muon object
 
