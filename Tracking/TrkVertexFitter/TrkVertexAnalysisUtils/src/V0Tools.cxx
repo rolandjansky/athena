@@ -183,7 +183,7 @@ namespace Trk
     if (fullCov == 0) return -999999.;
     unsigned int ndim = fullCov->rows();
     double E=0., Px=0., Py=0., Pz=0.; 
-    std::vector<double>d0(NTrk), z0(NTrk), phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
+    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
     std::vector<double>dm2dphi(NTrk), dm2dtheta(NTrk), dm2dqOverP(NTrk);
     for( unsigned int it=0; it<NTrk; it++) {
       if (masses[it] >= 0.) {
@@ -191,8 +191,6 @@ namespace Trk
         double trkCharge = 1.;
         if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
         charge[it] = trkCharge;
-        d0[it]     = bPer->parameters()[Trk::d0];
-        z0[it]     = bPer->parameters()[Trk::z0];
         phi[it]    = bPer->parameters()[Trk::phi];
         theta[it]  = bPer->parameters()[Trk::theta];
         qOverP[it] = bPer->parameters()[Trk::qOverP];
@@ -254,13 +252,12 @@ namespace Trk
     Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
     if (fullCov == 0) return -999999.;
  
-    double phi=0.,theta=0.,invP=0.;
     for( unsigned int it=0; it<NTrk; it++){
       if (masses[it] >= 0.) {
         const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
-        phi   =  bPer->parameters()[Trk::phi];
-        theta =  bPer->parameters()[Trk::theta];
-        invP  =  bPer->parameters()[Trk::qOverP];
+        double phi   =  bPer->parameters()[Trk::phi];
+        double theta =  bPer->parameters()[Trk::theta];
+        double invP  =  bPer->parameters()[Trk::qOverP];
         double px = cos(phi)*sin(theta)/fabs(invP);
         double py = sin(phi)*sin(theta)/fabs(invP);
         double pz = cos(theta)/fabs(invP);
@@ -285,17 +282,16 @@ namespace Trk
       }
     }
   
-    double dMdPx=0., dMdPy=0., dMdPz=0., dMdPhi=0., dMdTheta=0., dMdInvP=0.;
     std::vector<double> Deriv(3*NTrk+3, 0.);
     for(unsigned int it=0; it<NTrk; it++){
       if (masses[it] >= 0.) {
-        dMdPx = ( totalMom.E() * particleMom[it].Px()/particleMom[it].E() - totalMom.Px() ) / totalMom.M();
-        dMdPy = ( totalMom.E() * particleMom[it].Py()/particleMom[it].E() - totalMom.Py() ) / totalMom.M();
-        dMdPz = ( totalMom.E() * particleMom[it].Pz()/particleMom[it].E() - totalMom.Pz() ) / totalMom.M();
+        double dMdPx = ( totalMom.E() * particleMom[it].Px()/particleMom[it].E() - totalMom.Px() ) / totalMom.M();
+        double dMdPy = ( totalMom.E() * particleMom[it].Py()/particleMom[it].E() - totalMom.Py() ) / totalMom.M();
+        double dMdPz = ( totalMom.E() * particleMom[it].Pz()/particleMom[it].E() - totalMom.Pz() ) / totalMom.M();
   
-        dMdPhi   = dMdPx*particleDeriv[it](0,0) + dMdPy*particleDeriv[it](1,0) + dMdPz*particleDeriv[it](2,0);
-        dMdTheta = dMdPx*particleDeriv[it](0,1) + dMdPy*particleDeriv[it](1,1) + dMdPz*particleDeriv[it](2,1);
-        dMdInvP  = dMdPx*particleDeriv[it](0,2) + dMdPy*particleDeriv[it](1,2) + dMdPz*particleDeriv[it](2,2);
+        double dMdPhi   = dMdPx*particleDeriv[it](0,0) + dMdPy*particleDeriv[it](1,0) + dMdPz*particleDeriv[it](2,0);
+        double dMdTheta = dMdPx*particleDeriv[it](0,1) + dMdPy*particleDeriv[it](1,1) + dMdPz*particleDeriv[it](2,1);
+        double dMdInvP  = dMdPx*particleDeriv[it](0,2) + dMdPy*particleDeriv[it](1,2) + dMdPz*particleDeriv[it](2,2);
   
         Deriv[3*it + 3 + 0] = dMdPhi;    Deriv[3*it + 3 + 1] = dMdTheta; Deriv[3*it + 3 + 2] = dMdInvP;
       }
@@ -327,7 +323,7 @@ namespace Trk
       return -999999.;
     }
     double E=0., Px=0., Py=0., Pz=0.; 
-    std::vector<double>d0(NTrk), z0(NTrk), phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
+    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
     std::vector<double>dm2dphi(NTrk), dm2dtheta(NTrk), dm2dqOverP(NTrk);
     Amg::MatrixX V0_cor(5*NTrk,5*NTrk); V0_cor.setZero();
     for( unsigned int it=0; it<NTrk; it++) {
@@ -346,8 +342,6 @@ namespace Trk
         double trkCharge = 1.;
         if (bPer->parameters()(Trk::qOverP) < 0.) trkCharge = -1.;
         charge[it] = trkCharge;
-        d0[it]     = bPer->parameters()(Trk::d0);
-        z0[it]     = bPer->parameters()(Trk::z0);
         phi[it]    = bPer->parameters()(Trk::phi);
         theta[it]  = bPer->parameters()(Trk::theta);
         qOverP[it] = bPer->parameters()(Trk::qOverP);
@@ -634,7 +628,6 @@ namespace Trk
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero(); // no full covariance
     double Px=0., Py=0.; 
-    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk);
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dPTdqOverP(NTrk), dPTdtheta(NTrk), dPTdphi(NTrk);
@@ -644,16 +637,15 @@ namespace Trk
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
       if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
-      charge[it] = trkCharge;
-      phi[it]    = bPer->parameters()[Trk::phi];
-      theta[it]  = bPer->parameters()[Trk::theta];
-      qOverP[it] = bPer->parameters()[Trk::qOverP];
-      dpxdqOverP[it] = -(sin(theta[it])*cos(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpxdtheta[it]  =  (cos(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
-      dpxdphi[it]    = -(sin(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydqOverP[it] = -(sin(theta[it])*sin(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpydtheta[it]  =  (cos(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydphi[it]    =  (sin(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
+      double phi    = bPer->parameters()[Trk::phi];
+      double theta  = bPer->parameters()[Trk::theta];
+      double qOverP = bPer->parameters()[Trk::qOverP];
+      dpxdqOverP[it] = -(sin(theta)*cos(phi)*trkCharge)/(qOverP*qOverP);
+      dpxdtheta[it]  =  (cos(theta)*cos(phi)*trkCharge)/qOverP;
+      dpxdphi[it]    = -(sin(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydqOverP[it] = -(sin(theta)*sin(phi)*trkCharge)/(qOverP*qOverP);
+      dpydtheta[it]  =  (cos(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydphi[it]    =  (sin(theta)*cos(phi)*trkCharge)/qOverP;
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
@@ -795,11 +787,9 @@ namespace Trk
     double dz = vert.z();
     Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double Px=0., Py=0., Pz=0.;
-    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk);
-    std::vector<double>dP2dqOverP(NTrk), dP2dtheta(NTrk), dP2dphi(NTrk);
     std::vector<double>da0dqOverP(NTrk), da0dtheta(NTrk), da0dphi(NTrk);
 
     Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
@@ -807,18 +797,17 @@ namespace Trk
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
       if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
-      charge[it] = trkCharge;
-      phi[it]    = bPer->parameters()[Trk::phi];
-      theta[it]  = bPer->parameters()[Trk::theta];
-      qOverP[it] = bPer->parameters()[Trk::qOverP];
-      dpxdqOverP[it] = -(sin(theta[it])*cos(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpxdtheta[it]  =  (cos(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
-      dpxdphi[it]    = -(sin(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydqOverP[it] = -(sin(theta[it])*sin(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpydtheta[it]  =  (cos(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydphi[it]    =  (sin(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
-      dpzdqOverP[it] = -(cos(theta[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpzdtheta[it]  = -(sin(theta[it])*charge[it])/qOverP[it];
+      double phi    = bPer->parameters()[Trk::phi];
+      double theta  = bPer->parameters()[Trk::theta];
+      double qOverP = bPer->parameters()[Trk::qOverP];
+      dpxdqOverP[it] = -(sin(theta)*cos(phi)*trkCharge)/(qOverP*qOverP);
+      dpxdtheta[it]  =  (cos(theta)*cos(phi)*trkCharge)/qOverP;
+      dpxdphi[it]    = -(sin(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydqOverP[it] = -(sin(theta)*sin(phi)*trkCharge)/(qOverP*qOverP);
+      dpydtheta[it]  =  (cos(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydphi[it]    =  (sin(theta)*cos(phi)*trkCharge)/qOverP;
+      dpzdqOverP[it] = -(cos(theta)*trkCharge)/(qOverP*qOverP);
+      dpzdtheta[it]  = -(sin(theta)*trkCharge)/qOverP;
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
@@ -846,14 +835,14 @@ namespace Trk
     double da0dy0 = -da0dy;
     double da0dz0 = -da0dz;
     for( unsigned int it=0; it<NTrk; it++) {
-      dP2dqOverP[it] = 2.*(Px*dpxdqOverP[it]+Py*dpydqOverP[it]+Pz*dpzdqOverP[it]);
-      dP2dtheta[it]  = 2.*(Px*dpxdtheta[it]+Py*dpydtheta[it]+Pz*dpzdtheta[it]);
-      dP2dphi[it]    = 2.*(Px*dpxdphi[it]+Py*dpydphi[it]);
-      da0dqOverP[it] =  (B*(P2*dpzdqOverP[it]-Pz*dP2dqOverP[it]) +
+      double dP2dqOverP = 2.*(Px*dpxdqOverP[it]+Py*dpydqOverP[it]+Pz*dpzdqOverP[it]);
+      double dP2dtheta  = 2.*(Px*dpxdtheta[it]+Py*dpydtheta[it]+Pz*dpzdtheta[it]);
+      double dP2dphi    = 2.*(Px*dpxdphi[it]+Py*dpydphi[it]);
+      da0dqOverP[it] =  (B*(P2*dpzdqOverP[it]-Pz*dP2dqOverP) +
                          Pz*P2*(dx*dpxdqOverP[it]+dy*dpydqOverP[it]+dz*dpzdqOverP[it]))/(P2*P2);
-      da0dtheta[it]  =  (B*(P2*dpzdtheta[it]-Pz*dP2dtheta[it]) +
+      da0dtheta[it]  =  (B*(P2*dpzdtheta[it]-Pz*dP2dtheta) +
                          Pz*P2*(dx*dpxdtheta[it]+dy*dpydtheta[it]+dz*dpzdtheta[it]))/(P2*P2);
-      da0dphi[it]    = -(B*Pz*dP2dphi[it] -
+      da0dphi[it]    = -(B*Pz*dP2dphi -
                          Pz*P2*(dx*dpxdphi[it]+dy*dpydphi[it]))/(P2*P2);
     }
 
@@ -931,7 +920,6 @@ namespace Trk
     double dz = vert.z();
     Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double Px=0., Py=0., Pz=0.;
-    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk);
@@ -942,19 +930,18 @@ namespace Trk
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
       if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
-      charge[it] = trkCharge;
-      phi[it]    = bPer->parameters()[Trk::phi];
-      theta[it]  = bPer->parameters()[Trk::theta];
-      qOverP[it] = bPer->parameters()[Trk::qOverP];
-      dpxdqOverP[it] = -(sin(theta[it])*cos(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpxdtheta[it]  =  (cos(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
-      dpxdphi[it]    = -(sin(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydqOverP[it] = -(sin(theta[it])*sin(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpydtheta[it]  =  (cos(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydphi[it]    =  (sin(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
+      double phi    = bPer->parameters()[Trk::phi];
+      double theta  = bPer->parameters()[Trk::theta];
+      double qOverP = bPer->parameters()[Trk::qOverP];
+      dpxdqOverP[it] = -(sin(theta)*cos(phi)*trkCharge)/(qOverP*qOverP);
+      dpxdtheta[it]  =  (cos(theta)*cos(phi)*trkCharge)/qOverP;
+      dpxdphi[it]    = -(sin(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydqOverP[it] = -(sin(theta)*sin(phi)*trkCharge)/(qOverP*qOverP);
+      dpydtheta[it]  =  (cos(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydphi[it]    =  (sin(theta)*cos(phi)*trkCharge)/qOverP;
       if ( in3D ) {
-        dpzdqOverP[it] = -(cos(theta[it])*charge[it])/(qOverP[it]*qOverP[it]);
-        dpzdtheta[it]  = -(sin(theta[it])*charge[it])/qOverP[it];
+        dpzdqOverP[it] = -(cos(theta)*trkCharge)/(qOverP*qOverP);
+        dpzdtheta[it]  = -(sin(theta)*trkCharge)/qOverP;
       }
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
@@ -1077,10 +1064,8 @@ namespace Trk
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double Px=0., Py=0.; 
-    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk);
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
-    std::vector<double>dPTdqOverP(NTrk), dPTdtheta(NTrk), dPTdphi(NTrk);
     std::vector<double>dLxydqOverP(NTrk), dLxydtheta(NTrk), dLxydphi(NTrk);
 
     Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
@@ -1088,16 +1073,15 @@ namespace Trk
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
       if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
-      charge[it] = trkCharge;
-      phi[it]    = bPer->parameters()[Trk::phi];
-      theta[it]  = bPer->parameters()[Trk::theta];
-      qOverP[it] = bPer->parameters()[Trk::qOverP];
-      dpxdqOverP[it] = -(sin(theta[it])*cos(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpxdtheta[it]  =  (cos(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
-      dpxdphi[it]    = -(sin(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydqOverP[it] = -(sin(theta[it])*sin(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpydtheta[it]  =  (cos(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydphi[it]    =  (sin(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
+      double phi    = bPer->parameters()[Trk::phi];
+      double theta  = bPer->parameters()[Trk::theta];
+      double qOverP = bPer->parameters()[Trk::qOverP];
+      dpxdqOverP[it] = -(sin(theta)*cos(phi)*trkCharge)/(qOverP*qOverP);
+      dpxdtheta[it]  =  (cos(theta)*cos(phi)*trkCharge)/qOverP;
+      dpxdphi[it]    = -(sin(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydqOverP[it] = -(sin(theta)*sin(phi)*trkCharge)/(qOverP*qOverP);
+      dpydtheta[it]  =  (cos(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydphi[it]    =  (sin(theta)*cos(phi)*trkCharge)/qOverP;
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       if (fullCov == 0) {
@@ -1119,12 +1103,12 @@ namespace Trk
     double LXYoverPT = (Px*dx+Py*dy)/PTsq;
 
     for( unsigned int it=0; it<NTrk; it++) {
-      dPTdqOverP[it]  = (Px*dpxdqOverP[it]+Py*dpydqOverP[it])/PT;
-      dPTdtheta[it]   = (Px*dpxdtheta[it]+Py*dpydtheta[it])/PT;
-      dPTdphi[it]     = (Px*dpxdphi[it]+Py*dpydphi[it])/PT;
-      dLxydqOverP[it] = (dx*dpxdqOverP[it]+dy*dpydqOverP[it])/PT-LXYoverPT*dPTdqOverP[it];
-      dLxydtheta[it]  = (dx*dpxdtheta[it]+dy*dpydtheta[it])/PT-LXYoverPT*dPTdtheta[it];
-      dLxydphi[it]    = (dx*dpxdphi[it]+dy*dpydphi[it])/PT-LXYoverPT*dPTdphi[it];
+      double dPTdqOverP  = (Px*dpxdqOverP[it]+Py*dpydqOverP[it])/PT;
+      double dPTdtheta   = (Px*dpxdtheta[it]+Py*dpydtheta[it])/PT;
+      double dPTdphi     = (Px*dpxdphi[it]+Py*dpydphi[it])/PT;
+      dLxydqOverP[it] = (dx*dpxdqOverP[it]+dy*dpydqOverP[it])/PT-LXYoverPT*dPTdqOverP;
+      dLxydtheta[it]  = (dx*dpxdtheta[it]+dy*dpydtheta[it])/PT-LXYoverPT*dPTdtheta;
+      dLxydphi[it]    = (dx*dpxdphi[it]+dy*dpydphi[it])/PT-LXYoverPT*dPTdphi;
     }
     double dLxydx = Px/PT;
     double dLxydy = Py/PT;
@@ -1210,11 +1194,9 @@ namespace Trk
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double Px=0., Py=0., Pz=0.; 
-    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk);
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk);
-    std::vector<double>dPdqOverP(NTrk), dPdtheta(NTrk), dPdphi(NTrk);
     std::vector<double>dLxyzdqOverP(NTrk), dLxyzdtheta(NTrk), dLxyzdphi(NTrk);
 
     Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
@@ -1222,18 +1204,17 @@ namespace Trk
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
       if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
-      charge[it] = trkCharge;
-      phi[it]    = bPer->parameters()[Trk::phi];
-      theta[it]  = bPer->parameters()[Trk::theta];
-      qOverP[it] = bPer->parameters()[Trk::qOverP];
-      dpxdqOverP[it] = -(sin(theta[it])*cos(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpxdtheta[it]  =  (cos(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
-      dpxdphi[it]    = -(sin(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydqOverP[it] = -(sin(theta[it])*sin(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpydtheta[it]  =  (cos(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydphi[it]    =  (sin(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
-      dpzdqOverP[it] = -(cos(theta[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpzdtheta[it]  = -(sin(theta[it])*charge[it])/qOverP[it];
+      double phi    = bPer->parameters()[Trk::phi];
+      double theta  = bPer->parameters()[Trk::theta];
+      double qOverP = bPer->parameters()[Trk::qOverP];
+      dpxdqOverP[it] = -(sin(theta)*cos(phi)*trkCharge)/(qOverP*qOverP);
+      dpxdtheta[it]  =  (cos(theta)*cos(phi)*trkCharge)/qOverP;
+      dpxdphi[it]    = -(sin(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydqOverP[it] = -(sin(theta)*sin(phi)*trkCharge)/(qOverP*qOverP);
+      dpydtheta[it]  =  (cos(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydphi[it]    =  (sin(theta)*cos(phi)*trkCharge)/qOverP;
+      dpzdqOverP[it] = -(cos(theta)*trkCharge)/(qOverP*qOverP);
+      dpzdtheta[it]  = -(sin(theta)*trkCharge)/qOverP;
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
@@ -1256,12 +1237,12 @@ namespace Trk
     double LXYZoverP = (Px*dx+Py*dy+Pz*dz)/Psq;
 
     for( unsigned int it=0; it<NTrk; it++) {
-      dPdqOverP[it]  = (Px*dpxdqOverP[it]+Py*dpydqOverP[it]+Pz*dpzdqOverP[it])/P;
-      dPdtheta[it]   = (Px*dpxdtheta[it]+Py*dpydtheta[it]+Pz*dpzdtheta[it])/P;
-      dPdphi[it]     = (Px*dpxdphi[it]+Py*dpydphi[it])/P;
-      dLxyzdqOverP[it] = (dx*dpxdqOverP[it]+dy*dpydqOverP[it]+dz*dpzdqOverP[it])/P-LXYZoverP*dPdqOverP[it];
-      dLxyzdtheta[it]  = (dx*dpxdtheta[it]+dy*dpydtheta[it]+dz*dpzdtheta[it])/P-LXYZoverP*dPdtheta[it];
-      dLxyzdphi[it]    = (dx*dpxdphi[it]+dy*dpydphi[it])/P-LXYZoverP*dPdphi[it];
+      double dPdqOverP  = (Px*dpxdqOverP[it]+Py*dpydqOverP[it]+Pz*dpzdqOverP[it])/P;
+      double dPdtheta   = (Px*dpxdtheta[it]+Py*dpydtheta[it]+Pz*dpzdtheta[it])/P;
+      double dPdphi     = (Px*dpxdphi[it]+Py*dpydphi[it])/P;
+      dLxyzdqOverP[it] = (dx*dpxdqOverP[it]+dy*dpydqOverP[it]+dz*dpzdqOverP[it])/P-LXYZoverP*dPdqOverP;
+      dLxyzdtheta[it]  = (dx*dpxdtheta[it]+dy*dpydtheta[it]+dz*dpzdtheta[it])/P-LXYZoverP*dPdtheta;
+      dLxyzdphi[it]    = (dx*dpxdphi[it]+dy*dpydphi[it])/P-LXYZoverP*dPdphi;
     }
     double dLxyzdx = Px/P;
     double dLxyzdy = Py/P;
@@ -1409,13 +1390,9 @@ namespace Trk
     double M = invariantMass(vxCandidate, masses);
     Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double E=0., Px=0., Py=0., Pz=0.; 
-    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk), dedqOverP(NTrk);
-    std::vector<double>dMdqOverP(NTrk), dMdtheta(NTrk), dMdphi(NTrk);
-    std::vector<double>dPTdqOverP(NTrk), dPTdtheta(NTrk), dPTdphi(NTrk);
-    std::vector<double>dLXYdqOverP(NTrk), dLXYdtheta(NTrk), dLXYdphi(NTrk);
     std::vector<double>dTaudqOverP(NTrk), dTaudtheta(NTrk), dTaudphi(NTrk);
 
     Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
@@ -1423,23 +1400,21 @@ namespace Trk
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
       if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
-      charge[it] = trkCharge;
-      phi[it]    = bPer->parameters()[Trk::phi];
-      theta[it]  = bPer->parameters()[Trk::theta];
-      qOverP[it] = bPer->parameters()[Trk::qOverP];
-      double tmp = 1./(qOverP[it]*qOverP[it]) + masses[it]*masses[it];
+      double phi    = bPer->parameters()[Trk::phi];
+      double theta  = bPer->parameters()[Trk::theta];
+      double qOverP = bPer->parameters()[Trk::qOverP];
+      double tmp = 1./(qOverP*qOverP) + masses[it]*masses[it];
       double pe = (tmp>0.) ? sqrt(tmp) : 0.;
-      e[it] = pe;
-      dedqOverP[it]  = -1./(qOverP[it]*qOverP[it]*qOverP[it]*e[it]);
-      dpxdqOverP[it] = -(sin(theta[it])*cos(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpxdtheta[it]  =  (cos(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
-      dpxdphi[it]    = -(sin(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydqOverP[it] = -(sin(theta[it])*sin(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpydtheta[it]  =  (cos(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydphi[it]    =  (sin(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
-      dpzdqOverP[it] = -(cos(theta[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpzdtheta[it]  = -(sin(theta[it])*charge[it])/qOverP[it];
-      E  += e[it];
+      dedqOverP[it]  = -1./(qOverP*qOverP*qOverP*pe);
+      dpxdqOverP[it] = -(sin(theta)*cos(phi)*trkCharge)/(qOverP*qOverP);
+      dpxdtheta[it]  =  (cos(theta)*cos(phi)*trkCharge)/qOverP;
+      dpxdphi[it]    = -(sin(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydqOverP[it] = -(sin(theta)*sin(phi)*trkCharge)/(qOverP*qOverP);
+      dpydtheta[it]  =  (cos(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydphi[it]    =  (sin(theta)*cos(phi)*trkCharge)/qOverP;
+      dpzdqOverP[it] = -(cos(theta)*trkCharge)/(qOverP*qOverP);
+      dpzdtheta[it]  = -(sin(theta)*trkCharge)/qOverP;
+      E  += pe;
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
@@ -1460,18 +1435,18 @@ namespace Trk
     double LXY = Px*dx+Py*dy;
 
     for( unsigned int it=0; it<NTrk; it++) {
-      dMdqOverP[it]   = -(Px*dpxdqOverP[it]+Py*dpydqOverP[it]+Pz*dpzdqOverP[it]-E*dedqOverP[it])/M;
-      dMdtheta[it]    = -(Px*dpxdtheta[it]+Py*dpydtheta[it]+Pz*dpzdtheta[it])/M;
-      dMdphi[it]      = -(Px*dpxdphi[it]+Py*dpydphi[it])/M;
-      dPTdqOverP[it]  =  (Px*dpxdqOverP[it]+Py*dpydqOverP[it])/PT;
-      dPTdtheta[it]   =  (Px*dpxdtheta[it]+Py*dpydtheta[it])/PT;
-      dPTdphi[it]     =  (Px*dpxdphi[it]+Py*dpydphi[it])/PT;
-      dLXYdqOverP[it] =  dx*dpxdqOverP[it]+dy*dpydqOverP[it];
-      dLXYdtheta[it]  =  dx*dpxdtheta[it]+dy*dpydtheta[it];
-      dLXYdphi[it]    =  dx*dpxdphi[it]+dy*dpydphi[it];
-      dTaudqOverP[it] =  (LXY*dMdqOverP[it]+M*dLXYdqOverP[it])/(PT*PT)-(2.*LXY*M*dPTdqOverP[it])/(PT*PT*PT);
-      dTaudtheta[it]  =  (LXY*dMdtheta[it]+M*dLXYdtheta[it])/(PT*PT)-(2.*LXY*M*dPTdtheta[it])/(PT*PT*PT);
-      dTaudphi[it]    =  (LXY*dMdphi[it]+M*dLXYdphi[it])/(PT*PT)-(2.*LXY*M*dPTdphi[it])/(PT*PT*PT);
+      double dMdqOverP   = -(Px*dpxdqOverP[it]+Py*dpydqOverP[it]+Pz*dpzdqOverP[it]-E*dedqOverP[it])/M;
+      double dMdtheta    = -(Px*dpxdtheta[it]+Py*dpydtheta[it]+Pz*dpzdtheta[it])/M;
+      double dMdphi      = -(Px*dpxdphi[it]+Py*dpydphi[it])/M;
+      double dPTdqOverP  =  (Px*dpxdqOverP[it]+Py*dpydqOverP[it])/PT;
+      double dPTdtheta   =  (Px*dpxdtheta[it]+Py*dpydtheta[it])/PT;
+      double dPTdphi     =  (Px*dpxdphi[it]+Py*dpydphi[it])/PT;
+      double dLXYdqOverP =  dx*dpxdqOverP[it]+dy*dpydqOverP[it];
+      double dLXYdtheta  =  dx*dpxdtheta[it]+dy*dpydtheta[it];
+      double dLXYdphi    =  dx*dpxdphi[it]+dy*dpydphi[it];
+      dTaudqOverP[it] =  (LXY*dMdqOverP+M*dLXYdqOverP)/(PT*PT)-(2.*LXY*M*dPTdqOverP)/(PT*PT*PT);
+      dTaudtheta[it]  =  (LXY*dMdtheta+M*dLXYdtheta)/(PT*PT)-(2.*LXY*M*dPTdtheta)/(PT*PT*PT);
+      dTaudphi[it]    =  (LXY*dMdphi+M*dLXYdphi)/(PT*PT)-(2.*LXY*M*dPTdphi)/(PT*PT*PT);
     }
     double dTaudx = (M*Px)/(PT*PT);
     double dTaudy = (M*Py)/(PT*PT);
@@ -1572,11 +1547,10 @@ namespace Trk
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     Amg::MatrixX V0_cov(5*NTrk,1); V0_cov.setZero();
     double Px=0., Py=0.; 
-    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk);
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
-    std::vector<double>dPTdqOverP(NTrk), dPTdtheta(NTrk), dPTdphi(NTrk);
-    std::vector<double>dLXYdqOverP(NTrk), dLXYdtheta(NTrk), dLXYdphi(NTrk);
+    std::vector<double>dPTdtheta(NTrk), dPTdphi(NTrk);
+    std::vector<double>dLXYdqOverP(NTrk);
     std::vector<double>dTaudqOverP(NTrk), dTaudtheta(NTrk), dTaudphi(NTrk);
 
     Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
@@ -1584,16 +1558,15 @@ namespace Trk
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
       if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
-      charge[it] = trkCharge;
-      phi[it]    = bPer->parameters()[Trk::phi];
-      theta[it]  = bPer->parameters()[Trk::theta];
-      qOverP[it] = bPer->parameters()[Trk::qOverP];
-      dpxdqOverP[it] = -(sin(theta[it])*cos(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpxdtheta[it]  =  (cos(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
-      dpxdphi[it]    = -(sin(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydqOverP[it] = -(sin(theta[it])*sin(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpydtheta[it]  =  (cos(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydphi[it]    =  (sin(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
+      double phi = bPer->parameters()[Trk::phi];
+      double theta  = bPer->parameters()[Trk::theta];
+      double qOverP = bPer->parameters()[Trk::qOverP];
+      dpxdqOverP[it] = -(sin(theta)*cos(phi)*trkCharge)/(qOverP*qOverP);
+      dpxdtheta[it]  =  (cos(theta)*cos(phi)*trkCharge)/qOverP;
+      dpxdphi[it]    = -(sin(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydqOverP[it] = -(sin(theta)*sin(phi)*trkCharge)/(qOverP*qOverP);
+      dpydtheta[it]  =  (cos(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydphi[it]    =  (sin(theta)*cos(phi)*trkCharge)/qOverP;
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       if (fullCov == 0) {
@@ -1613,15 +1586,15 @@ namespace Trk
     double LXY = Px*dx+Py*dy;
 
     for( unsigned int it=0; it<NTrk; it++) {
-      dPTdqOverP[it]  = (Px*dpxdqOverP[it]+Py*dpydqOverP[it])/PT;
-      dPTdtheta[it]   = (Px*dpxdtheta[it]+Py*dpydtheta[it])/PT;
-      dPTdphi[it]     = (Px*dpxdphi[it]+Py*dpydphi[it])/PT;
-      dLXYdqOverP[it] = dx*dpxdqOverP[it]+dy*dpydqOverP[it];
-      dLXYdtheta[it]  = dx*dpxdtheta[it]+dy*dpydtheta[it];
-      dLXYdphi[it]    = dx*dpxdphi[it]+dy*dpydphi[it];
-      dTaudqOverP[it] = M*dLXYdqOverP[it]/(PT*PT)-(2.*LXY*M*dPTdqOverP[it])/(PT*PT*PT);
-      dTaudtheta[it]  = M*dLXYdtheta[it]/(PT*PT)-(2.*LXY*M*dPTdtheta[it])/(PT*PT*PT);
-      dTaudphi[it]    = M*dLXYdphi[it]/(PT*PT)-(2.*LXY*M*dPTdphi[it])/(PT*PT*PT);
+      double dPTdqOverP  = (Px*dpxdqOverP[it]+Py*dpydqOverP[it])/PT;
+      double dPTdtheta   = (Px*dpxdtheta[it]+Py*dpydtheta[it])/PT;
+      double dPTdphi     = (Px*dpxdphi[it]+Py*dpydphi[it])/PT;
+      double dLXYdqOverP = dx*dpxdqOverP[it]+dy*dpydqOverP[it];
+      double dLXYdtheta  = dx*dpxdtheta[it]+dy*dpydtheta[it];
+      double dLXYdphi = dx*dpxdphi[it]+dy*dpydphi[it];
+      dTaudqOverP[it] = M*dLXYdqOverP/(PT*PT)-(2.*LXY*M*dPTdqOverP)/(PT*PT*PT);
+      dTaudtheta[it]  = M*dLXYdtheta/(PT*PT)-(2.*LXY*M*dPTdtheta)/(PT*PT*PT);
+      dTaudphi[it]    = M*dLXYdphi/(PT*PT)-(2.*LXY*M*dPTdphi)/(PT*PT*PT);
     }
     double dTaudx = (M*Px)/(PT*PT);
     double dTaudy = (M*Py)/(PT*PT);
@@ -1730,13 +1703,9 @@ namespace Trk
     double M = invariantMass(vxCandidate, masses);
     Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double E=0., Px=0., Py=0., Pz=0.; 
-    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk), dedqOverP(NTrk);
-    std::vector<double>dMdqOverP(NTrk), dMdtheta(NTrk), dMdphi(NTrk);
-    std::vector<double>dPdqOverP(NTrk), dPdtheta(NTrk), dPdphi(NTrk);
-    std::vector<double>dLXYZdqOverP(NTrk), dLXYZdtheta(NTrk), dLXYZdphi(NTrk);
     std::vector<double>dTaudqOverP(NTrk), dTaudtheta(NTrk), dTaudphi(NTrk);
 
     Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
@@ -1744,23 +1713,21 @@ namespace Trk
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
       if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
-      charge[it] = trkCharge;
-      phi[it]    = bPer->parameters()[Trk::phi];
-      theta[it]  = bPer->parameters()[Trk::theta];
-      qOverP[it] = bPer->parameters()[Trk::qOverP];
-      double tmp = 1./(qOverP[it]*qOverP[it]) + masses[it]*masses[it];
+      double phi    = bPer->parameters()[Trk::phi];
+      double theta  = bPer->parameters()[Trk::theta];
+      double qOverP = bPer->parameters()[Trk::qOverP];
+      double tmp = 1./(qOverP*qOverP) + masses[it]*masses[it];
       double pe = (tmp>0.) ? sqrt(tmp) : 0.;
-      e[it] = pe;
-      dedqOverP[it]  = -1./(qOverP[it]*qOverP[it]*qOverP[it]*e[it]);
-      dpxdqOverP[it] = -(sin(theta[it])*cos(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpxdtheta[it]  =  (cos(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
-      dpxdphi[it]    = -(sin(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydqOverP[it] = -(sin(theta[it])*sin(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpydtheta[it]  =  (cos(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydphi[it]    =  (sin(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
-      dpzdqOverP[it] = -(cos(theta[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpzdtheta[it]  = -(sin(theta[it])*charge[it])/qOverP[it];
-      E  += e[it];
+      dedqOverP[it]  = -1./(qOverP*qOverP*qOverP*pe);
+      dpxdqOverP[it] = -(sin(theta)*cos(phi)*trkCharge)/(qOverP*qOverP);
+      dpxdtheta[it]  =  (cos(theta)*cos(phi)*trkCharge)/qOverP;
+      dpxdphi[it]    = -(sin(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydqOverP[it] = -(sin(theta)*sin(phi)*trkCharge)/(qOverP*qOverP);
+      dpydtheta[it]  =  (cos(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydphi[it]    =  (sin(theta)*cos(phi)*trkCharge)/qOverP;
+      dpzdqOverP[it] = -(cos(theta)*trkCharge)/(qOverP*qOverP);
+      dpzdtheta[it]  = -(sin(theta)*trkCharge)/qOverP;
+      E  += pe;
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
@@ -1781,18 +1748,18 @@ namespace Trk
     double LXYZ = Px*dx+Py*dy+Pz*dz;
 
     for( unsigned int it=0; it<NTrk; it++) {
-      dMdqOverP[it]    = -(Px*dpxdqOverP[it]+Py*dpydqOverP[it]+Pz*dpzdqOverP[it]-E*dedqOverP[it])/M;
-      dMdtheta[it]     = -(Px*dpxdtheta[it]+Py*dpydtheta[it]+Pz*dpzdtheta[it])/M;
-      dMdphi[it]       = -(Px*dpxdphi[it]+Py*dpydphi[it])/M;
-      dPdqOverP[it]    =  (Px*dpxdqOverP[it]+Py*dpydqOverP[it]+Pz*dpzdqOverP[it])/P;
-      dPdtheta[it]     =  (Px*dpxdtheta[it]+Py*dpydtheta[it]+Pz*dpzdtheta[it])/P;
-      dPdphi[it]       =  (Px*dpxdphi[it]+Py*dpydphi[it])/P;
-      dLXYZdqOverP[it] =  dx*dpxdqOverP[it]+dy*dpydqOverP[it]+dz*dpzdqOverP[it];
-      dLXYZdtheta[it]  =  dx*dpxdtheta[it]+dy*dpydtheta[it]+dz*dpzdtheta[it];
-      dLXYZdphi[it]    =  dx*dpxdphi[it]+dy*dpydphi[it];
-      dTaudqOverP[it]  =  (LXYZ*dMdqOverP[it]+M*dLXYZdqOverP[it])/(P*P)-(2.*LXYZ*M*dPdqOverP[it])/(P*P*P);
-      dTaudtheta[it]   =  (LXYZ*dMdtheta[it]+M*dLXYZdtheta[it])/(P*P)-(2.*LXYZ*M*dPdtheta[it])/(P*P*P);
-      dTaudphi[it]     =  (LXYZ*dMdphi[it]+M*dLXYZdphi[it])/(P*P)-(2.*LXYZ*M*dPdphi[it])/(P*P*P);
+      double dMdqOverP    = -(Px*dpxdqOverP[it]+Py*dpydqOverP[it]+Pz*dpzdqOverP[it]-E*dedqOverP[it])/M;
+      double dMdtheta     = -(Px*dpxdtheta[it]+Py*dpydtheta[it]+Pz*dpzdtheta[it])/M;
+      double dMdphi       = -(Px*dpxdphi[it]+Py*dpydphi[it])/M;
+      double dPdqOverP    =  (Px*dpxdqOverP[it]+Py*dpydqOverP[it]+Pz*dpzdqOverP[it])/P;
+      double dPdtheta     =  (Px*dpxdtheta[it]+Py*dpydtheta[it]+Pz*dpzdtheta[it])/P;
+      double dPdphi       =  (Px*dpxdphi[it]+Py*dpydphi[it])/P;
+      double dLXYZdqOverP =  dx*dpxdqOverP[it]+dy*dpydqOverP[it]+dz*dpzdqOverP[it];
+      double dLXYZdtheta  =  dx*dpxdtheta[it]+dy*dpydtheta[it]+dz*dpzdtheta[it];
+      double dLXYZdphi    =  dx*dpxdphi[it]+dy*dpydphi[it];
+      dTaudqOverP[it]  =  (LXYZ*dMdqOverP+M*dLXYZdqOverP)/(P*P)-(2.*LXYZ*M*dPdqOverP)/(P*P*P);
+      dTaudtheta[it]   =  (LXYZ*dMdtheta+M*dLXYZdtheta)/(P*P)-(2.*LXYZ*M*dPdtheta)/(P*P*P);
+      dTaudphi[it]     =  (LXYZ*dMdphi+M*dLXYZdphi)/(P*P)-(2.*LXYZ*M*dPdphi)/(P*P*P);
     }
     double dTaudx = (M*Px)/(P*P);
     double dTaudy = (M*Py)/(P*P);
@@ -1874,12 +1841,9 @@ namespace Trk
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
     Amg::MatrixX V0_cov(5*NTrk,1); V0_cov.setZero();
     double Px=0., Py=0., Pz=0.; 
-    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk);
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk);
-    std::vector<double>dPdqOverP(NTrk), dPdtheta(NTrk), dPdphi(NTrk);
-    std::vector<double>dLXYZdqOverP(NTrk), dLXYZdtheta(NTrk), dLXYZdphi(NTrk);
     std::vector<double>dTaudqOverP(NTrk), dTaudtheta(NTrk), dTaudphi(NTrk);
 
     Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
@@ -1887,18 +1851,17 @@ namespace Trk
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
       if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
-      charge[it] = trkCharge;
-      phi[it]    = bPer->parameters()[Trk::phi];
-      theta[it]  = bPer->parameters()[Trk::theta];
-      qOverP[it] = bPer->parameters()[Trk::qOverP];
-      dpxdqOverP[it] = -(sin(theta[it])*cos(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpxdtheta[it]  =  (cos(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
-      dpxdphi[it]    = -(sin(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydqOverP[it] = -(sin(theta[it])*sin(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpydtheta[it]  =  (cos(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydphi[it]    =  (sin(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
-      dpzdqOverP[it] = -(cos(theta[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpzdtheta[it]  = -(sin(theta[it])*charge[it])/qOverP[it];
+      double phi    = bPer->parameters()[Trk::phi];
+      double theta  = bPer->parameters()[Trk::theta];
+      double qOverP = bPer->parameters()[Trk::qOverP];
+      dpxdqOverP[it] = -(sin(theta)*cos(phi)*trkCharge)/(qOverP*qOverP);
+      dpxdtheta[it]  =  (cos(theta)*cos(phi)*trkCharge)/qOverP;
+      dpxdphi[it]    = -(sin(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydqOverP[it] = -(sin(theta)*sin(phi)*trkCharge)/(qOverP*qOverP);
+      dpydtheta[it]  =  (cos(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydphi[it]    =  (sin(theta)*cos(phi)*trkCharge)/qOverP;
+      dpzdqOverP[it] = -(cos(theta)*trkCharge)/(qOverP*qOverP);
+      dpzdtheta[it]  = -(sin(theta)*trkCharge)/qOverP;
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
@@ -1919,15 +1882,15 @@ namespace Trk
     double LXYZ = Px*dx+Py*dy+Pz*dz;
 
     for( unsigned int it=0; it<NTrk; it++) {
-      dPdqOverP[it]    = (Px*dpxdqOverP[it]+Py*dpydqOverP[it]+Pz*dpzdqOverP[it])/P;
-      dPdtheta[it]     = (Px*dpxdtheta[it]+Py*dpydtheta[it]+Pz*dpzdtheta[it])/P;
-      dPdphi[it]       = (Px*dpxdphi[it]+Py*dpydphi[it])/P;
-      dLXYZdqOverP[it] = dx*dpxdqOverP[it]+dy*dpydqOverP[it]+dz*dpzdqOverP[it];
-      dLXYZdtheta[it]  = dx*dpxdtheta[it]+dy*dpydtheta[it]+dz*dpzdtheta[it];
-      dLXYZdphi[it]    = dx*dpxdphi[it]+dy*dpydphi[it];
-      dTaudqOverP[it]  = M*dLXYZdqOverP[it]/(P*P)-(2.*LXYZ*M*dPdqOverP[it])/(P*P*P);
-      dTaudtheta[it]   = M*dLXYZdtheta[it]/(P*P)-(2.*LXYZ*M*dPdtheta[it])/(P*P*P);
-      dTaudphi[it]     = M*dLXYZdphi[it]/(P*P)-(2.*LXYZ*M*dPdphi[it])/(P*P*P);
+      double dPdqOverP    = (Px*dpxdqOverP[it]+Py*dpydqOverP[it]+Pz*dpzdqOverP[it])/P;
+      double dPdtheta     = (Px*dpxdtheta[it]+Py*dpydtheta[it]+Pz*dpzdtheta[it])/P;
+      double dPdphi       = (Px*dpxdphi[it]+Py*dpydphi[it])/P;
+      double dLXYZdqOverP = dx*dpxdqOverP[it]+dy*dpydqOverP[it]+dz*dpzdqOverP[it];
+      double dLXYZdtheta  = dx*dpxdtheta[it]+dy*dpydtheta[it]+dz*dpzdtheta[it];
+      double dLXYZdphi    = dx*dpxdphi[it]+dy*dpydphi[it];
+      dTaudqOverP[it]  = M*dLXYZdqOverP/(P*P)-(2.*LXYZ*M*dPdqOverP)/(P*P*P);
+      dTaudtheta[it]   = M*dLXYZdtheta/(P*P)-(2.*LXYZ*M*dPdtheta)/(P*P*P);
+      dTaudphi[it]     = M*dLXYZdphi/(P*P)-(2.*LXYZ*M*dPdphi)/(P*P*P);
     }
     double dTaudx = (M*Px)/(P*P);
     double dTaudy = (M*Py)/(P*P);
@@ -2493,7 +2456,7 @@ namespace Trk
     }
     double mass = invariantMassBeforeFitIP(vxCandidate, masses);
     double E=0., Px=0., Py=0., Pz=0.; 
-    std::vector<double>d0(NTrk), z0(NTrk), phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
+    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
     std::vector<double>dm2dphi(NTrk), dm2dtheta(NTrk), dm2dqOverP(NTrk);
     Amg::MatrixX V0_cor(5*NTrk,5*NTrk); V0_cor.setZero();
     for( unsigned int it=0; it<NTrk; it++) {
@@ -2511,8 +2474,6 @@ namespace Trk
         V0_cor(5*it+4,5*it+2) = cov_tmp(2,4);
         V0_cor(5*it+4,5*it+3) = cov_tmp(3,4);
         charge[it] = TP->charge();
-        d0[it]     = TP->d0();
-        z0[it]     = TP->z0();
         phi[it]    = TP->phi();
         theta[it]  = TP->theta();
         qOverP[it] = TP->qOverP();
@@ -2585,7 +2546,7 @@ namespace Trk
     }
     Trk::PerigeeSurface perigeeSurface(vertex);
     double E=0., Px=0., Py=0., Pz=0.; 
-    std::vector<double>d0(NTrk), z0(NTrk), phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
+    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
     std::vector<double>dm2dphi(NTrk), dm2dtheta(NTrk), dm2dqOverP(NTrk);
     Amg::MatrixX V0_cor(5*NTrk,5*NTrk); V0_cor.setZero();
     for( unsigned int it=0; it<NTrk; it++) {
@@ -2605,8 +2566,6 @@ namespace Trk
         V0_cor(5*it+4,5*it+2) = (*cov_tmp)(2,4);
         V0_cor(5*it+4,5*it+3) = (*cov_tmp)(3,4);
         charge[it] = TP->charge();
-        d0[it]     = extrPer->parameters()[Trk::d0];
-        z0[it]     = extrPer->parameters()[Trk::z0];
         phi[it]    = extrPer->parameters()[Trk::phi];
         theta[it]  = extrPer->parameters()[Trk::theta];
         qOverP[it] = extrPer->parameters()[Trk::qOverP];
@@ -2672,13 +2631,10 @@ namespace Trk
     double M = invariantMass(vxCandidate, masses);
     Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double E=0., Px=0., Py=0., Pz=0.; 
-    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk), dedqOverP(NTrk);
     std::vector<double>dMdqOverP(NTrk), dMdtheta(NTrk), dMdphi(NTrk);
-    std::vector<double>dPTdqOverP(NTrk), dPTdtheta(NTrk), dPTdphi(NTrk);
-    std::vector<double>dLXYdqOverP(NTrk), dLXYdtheta(NTrk), dLXYdphi(NTrk);
     std::vector<double>dTaudqOverP(NTrk), dTaudtheta(NTrk), dTaudphi(NTrk);
 
     Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
@@ -2686,23 +2642,21 @@ namespace Trk
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
       if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
-      charge[it] = trkCharge;
-      phi[it]    = bPer->parameters()[Trk::phi];
-      theta[it]  = bPer->parameters()[Trk::theta];
-      qOverP[it] = bPer->parameters()[Trk::qOverP];
-      double tmp = 1./(qOverP[it]*qOverP[it]) + masses[it]*masses[it];
+      double phi    = bPer->parameters()[Trk::phi];
+      double theta  = bPer->parameters()[Trk::theta];
+      double qOverP = bPer->parameters()[Trk::qOverP];
+      double tmp = 1./(qOverP*qOverP) + masses[it]*masses[it];
       double pe = (tmp>0.) ? sqrt(tmp) : 0.;
-      e[it] = pe;
-      dedqOverP[it]  = -1./(qOverP[it]*qOverP[it]*qOverP[it]*e[it]);
-      dpxdqOverP[it] = -(sin(theta[it])*cos(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpxdtheta[it]  =  (cos(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
-      dpxdphi[it]    = -(sin(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydqOverP[it] = -(sin(theta[it])*sin(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpydtheta[it]  =  (cos(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydphi[it]    =  (sin(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
-      dpzdqOverP[it] = -(cos(theta[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpzdtheta[it]  = -(sin(theta[it])*charge[it])/qOverP[it];
-      E  += e[it];
+      dedqOverP[it]  = -1./(qOverP*qOverP*qOverP*pe);
+      dpxdqOverP[it] = -(sin(theta)*cos(phi)*trkCharge)/(qOverP*qOverP);
+      dpxdtheta[it]  =  (cos(theta)*cos(phi)*trkCharge)/qOverP;
+      dpxdphi[it]    = -(sin(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydqOverP[it] = -(sin(theta)*sin(phi)*trkCharge)/(qOverP*qOverP);
+      dpydtheta[it]  =  (cos(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydphi[it]    =  (sin(theta)*cos(phi)*trkCharge)/qOverP;
+      dpzdqOverP[it] = -(cos(theta)*trkCharge)/(qOverP*qOverP);
+      dpzdtheta[it]  = -(sin(theta)*trkCharge)/qOverP;
+      E  += pe;
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
@@ -2726,15 +2680,15 @@ namespace Trk
       dMdqOverP[it]   = -(Px*dpxdqOverP[it]+Py*dpydqOverP[it]+Pz*dpzdqOverP[it]-E*dedqOverP[it])/M;
       dMdtheta[it]    = -(Px*dpxdtheta[it]+Py*dpydtheta[it]+Pz*dpzdtheta[it])/M;
       dMdphi[it]      = -(Px*dpxdphi[it]+Py*dpydphi[it])/M;
-      dPTdqOverP[it]  =  (Px*dpxdqOverP[it]+Py*dpydqOverP[it])/PT;
-      dPTdtheta[it]   =  (Px*dpxdtheta[it]+Py*dpydtheta[it])/PT;
-      dPTdphi[it]     =  (Px*dpxdphi[it]+Py*dpydphi[it])/PT;
-      dLXYdqOverP[it] =  dx*dpxdqOverP[it]+dy*dpydqOverP[it];
-      dLXYdtheta[it]  =  dx*dpxdtheta[it]+dy*dpydtheta[it];
-      dLXYdphi[it]    =  dx*dpxdphi[it]+dy*dpydphi[it];
-      dTaudqOverP[it] =  (LXY*dMdqOverP[it]+M*dLXYdqOverP[it])/(PT*PT)-(2.*LXY*M*dPTdqOverP[it])/(PT*PT*PT);
-      dTaudtheta[it]  =  (LXY*dMdtheta[it]+M*dLXYdtheta[it])/(PT*PT)-(2.*LXY*M*dPTdtheta[it])/(PT*PT*PT);
-      dTaudphi[it]    =  (LXY*dMdphi[it]+M*dLXYdphi[it])/(PT*PT)-(2.*LXY*M*dPTdphi[it])/(PT*PT*PT);
+      double dPTdqOverP  =  (Px*dpxdqOverP[it]+Py*dpydqOverP[it])/PT;
+      double dPTdtheta  =  (Px*dpxdtheta[it]+Py*dpydtheta[it])/PT;
+      double dPTdphi     =  (Px*dpxdphi[it]+Py*dpydphi[it])/PT;
+      double dLXYdqOverP =  dx*dpxdqOverP[it]+dy*dpydqOverP[it];
+      double dLXYdtheta  =  dx*dpxdtheta[it]+dy*dpydtheta[it];
+      double dLXYdphi    =  dx*dpxdphi[it]+dy*dpydphi[it];
+      dTaudqOverP[it] =  (LXY*dMdqOverP[it]+M*dLXYdqOverP)/(PT*PT)-(2.*LXY*M*dPTdqOverP)/(PT*PT*PT);
+      dTaudtheta[it]  =  (LXY*dMdtheta[it]+M*dLXYdtheta)/(PT*PT)-(2.*LXY*M*dPTdtheta)/(PT*PT*PT);
+      dTaudphi[it]    =  (LXY*dMdphi[it]+M*dLXYdphi)/(PT*PT)-(2.*LXY*M*dPTdphi)/(PT*PT*PT);
     }
     double dTaudx = (M*Px)/(PT*PT);
     double dTaudy = (M*Py)/(PT*PT);
@@ -2821,13 +2775,10 @@ namespace Trk
     double M = invariantMass(vxCandidate, masses);
     Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double E=0., Px=0., Py=0., Pz=0.; 
-    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk), dedqOverP(NTrk);
     std::vector<double>dMdqOverP(NTrk), dMdtheta(NTrk), dMdphi(NTrk);
-    std::vector<double>dPTdqOverP(NTrk), dPTdtheta(NTrk), dPTdphi(NTrk);
-    std::vector<double>dLXYdqOverP(NTrk), dLXYdtheta(NTrk), dLXYdphi(NTrk);
     std::vector<double>dTaudqOverP(NTrk), dTaudtheta(NTrk), dTaudphi(NTrk);
 
     Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
@@ -2835,23 +2786,21 @@ namespace Trk
       const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
       double trkCharge = 1.;
       if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
-      charge[it] = trkCharge;
-      phi[it]    = bPer->parameters()[Trk::phi];
-      theta[it]  = bPer->parameters()[Trk::theta];
-      qOverP[it] = bPer->parameters()[Trk::qOverP];
-      double tmp = 1./(qOverP[it]*qOverP[it]) + masses[it]*masses[it];
+      double phi    = bPer->parameters()[Trk::phi];
+      double theta  = bPer->parameters()[Trk::theta];
+      double qOverP = bPer->parameters()[Trk::qOverP];
+      double tmp = 1./(qOverP*qOverP) + masses[it]*masses[it];
       double pe = (tmp>0.) ? sqrt(tmp) : 0.;
-      e[it] = pe;
-      dedqOverP[it]  = -1./(qOverP[it]*qOverP[it]*qOverP[it]*e[it]);
-      dpxdqOverP[it] = -(sin(theta[it])*cos(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpxdtheta[it]  =  (cos(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
-      dpxdphi[it]    = -(sin(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydqOverP[it] = -(sin(theta[it])*sin(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpydtheta[it]  =  (cos(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
-      dpydphi[it]    =  (sin(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
-      dpzdqOverP[it] = -(cos(theta[it])*charge[it])/(qOverP[it]*qOverP[it]);
-      dpzdtheta[it]  = -(sin(theta[it])*charge[it])/qOverP[it];
-      E  += e[it];
+      dedqOverP[it]  = -1./(qOverP*qOverP*qOverP*pe);
+      dpxdqOverP[it] = -(sin(theta)*cos(phi)*trkCharge)/(qOverP*qOverP);
+      dpxdtheta[it]  =  (cos(theta)*cos(phi)*trkCharge)/qOverP;
+      dpxdphi[it]    = -(sin(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydqOverP[it] = -(sin(theta)*sin(phi)*trkCharge)/(qOverP*qOverP);
+      dpydtheta[it]  =  (cos(theta)*sin(phi)*trkCharge)/qOverP;
+      dpydphi[it]    =  (sin(theta)*cos(phi)*trkCharge)/qOverP;
+      dpzdqOverP[it] = -(cos(theta)*trkCharge)/(qOverP*qOverP);
+      dpzdtheta[it]  = -(sin(theta)*trkCharge)/qOverP;
+      E  += pe;
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
@@ -2875,15 +2824,15 @@ namespace Trk
       dMdqOverP[it]   = -(Px*dpxdqOverP[it]+Py*dpydqOverP[it]+Pz*dpzdqOverP[it]-E*dedqOverP[it])/M;
       dMdtheta[it]    = -(Px*dpxdtheta[it]+Py*dpydtheta[it]+Pz*dpzdtheta[it])/M;
       dMdphi[it]      = -(Px*dpxdphi[it]+Py*dpydphi[it])/M;
-      dPTdqOverP[it]  =  (Px*dpxdqOverP[it]+Py*dpydqOverP[it])/PT;
-      dPTdtheta[it]   =  (Px*dpxdtheta[it]+Py*dpydtheta[it])/PT;
-      dPTdphi[it]     =  (Px*dpxdphi[it]+Py*dpydphi[it])/PT;
-      dLXYdqOverP[it] =  dx*dpxdqOverP[it]+dy*dpydqOverP[it];
-      dLXYdtheta[it]  =  dx*dpxdtheta[it]+dy*dpydtheta[it];
-      dLXYdphi[it]    =  dx*dpxdphi[it]+dy*dpydphi[it];
-      dTaudqOverP[it] =  (LXY*dMdqOverP[it]+M*dLXYdqOverP[it])/(PT*PT)-(2.*LXY*M*dPTdqOverP[it])/(PT*PT*PT);
-      dTaudtheta[it]  =  (LXY*dMdtheta[it]+M*dLXYdtheta[it])/(PT*PT)-(2.*LXY*M*dPTdtheta[it])/(PT*PT*PT);
-      dTaudphi[it]    =  (LXY*dMdphi[it]+M*dLXYdphi[it])/(PT*PT)-(2.*LXY*M*dPTdphi[it])/(PT*PT*PT);
+      double dPTdqOverP  =  (Px*dpxdqOverP[it]+Py*dpydqOverP[it])/PT;
+      double dPTdtheta   =  (Px*dpxdtheta[it]+Py*dpydtheta[it])/PT;
+      double dPTdphi     =  (Px*dpxdphi[it]+Py*dpydphi[it])/PT;
+      double dLXYdqOverP =  dx*dpxdqOverP[it]+dy*dpydqOverP[it];
+      double dLXYdtheta  =  dx*dpxdtheta[it]+dy*dpydtheta[it];
+      double dLXYdphi    =  dx*dpxdphi[it]+dy*dpydphi[it];
+      dTaudqOverP[it] =  (LXY*dMdqOverP[it]+M*dLXYdqOverP)/(PT*PT)-(2.*LXY*M*dPTdqOverP)/(PT*PT*PT);
+      dTaudtheta[it]  =  (LXY*dMdtheta[it]+M*dLXYdtheta)/(PT*PT)-(2.*LXY*M*dPTdtheta)/(PT*PT*PT);
+      dTaudphi[it]    =  (LXY*dMdphi[it]+M*dLXYdphi)/(PT*PT)-(2.*LXY*M*dPTdphi)/(PT*PT*PT);
     }
     double dTaudx = (M*Px)/(PT*PT);
     double dTaudy = (M*Py)/(PT*PT);
