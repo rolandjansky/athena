@@ -2,7 +2,7 @@
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
-from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers
+from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence
 from AthenaCommon.AlgSequence import AlgSequence
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
@@ -94,6 +94,25 @@ class ComponentAccumulator(object):
             raise ConfigurationError("Sequence %s already present" % newseq.name() )
         seq += newseq
         return newseq 
+
+    def moveSequence(self, sequence, destination ):
+        """ moves seqeunce from one sub-sequence to another, primary use case HLT Control Flow """
+        start =  CurrentSequence.get()
+        seq = findSubSequence(start, sequence )
+        if seq is None:
+            raise ConfigurationError("Can not find sequence to move %s " % sequence )
+
+        owner = findOwningSequence(start, sequence)
+        if owner is None:
+            raise ConfigurationError("Can not find the sequence owning the %s " % sequence )
+
+        dest = findSubSequence(start, destination )
+        if dest is None:
+            raise ConfigurationError("Can not find destination sequence %s to move to " % destination )
+
+        owner.remove( seq )
+        dest += seq
+        return seq
 
     def addEventAlgo(self, algo,sequence=None):                
         if not isinstance(algo, ConfigurableAlgorithm):
@@ -550,6 +569,7 @@ if __name__ == "__main__":
     acc.addSequence( parOR("hltStep_1"), sequence="hltSteps" )
     acc.addSequence( seqAND("L2CaloEgammaSeq"), "hltStep_1" )
     acc.addSequence( parOR("hltStep_2"), sequence="hltSteps" )
+    acc.moveSequence( "L2CaloEgammaSeq", "hltStep_2" )
     acc.printConfig()
     
     acc.store(open("testFile2.pkl", "w"))
