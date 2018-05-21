@@ -320,6 +320,77 @@ CONCURRENTRANGEMAP::erase (const key_query_type& key,
 
 
 /**
+ * @brief Remove unused entries from the front of the list.
+ * @param keys List of keys that may still be in use.
+ *             (Must be sorted.)
+ *
+ * We examine the objects in the container, starting with the earliest one.
+ * If none of the keys in @c keys match the range for this object, then
+ * it is removed from the container.  We stop when we either find
+ * an object with a range matching a key in @c keys or when there
+ * is only one object left.
+ *
+ * Removed objects are queued for deletion once all slots have been
+ * marked as quiescent.
+ *
+ * The list @c keys MUST be sorted.
+ *
+ * Returns the number of objects that were removed.
+ */
+T_CONCURRENTRANGEMAP
+size_t
+CONCURRENTRANGEMAP::trim (const std::vector<key_query_type>& keys)
+{
+  size_t ndel = 0;
+
+  lock_t lock (m_mutex);
+
+  // Return immediately if the container is empty.
+  value_type* last = m_last;
+  if (last == nullptr) return ndel;
+  
+  value_type* pos = m_begin;
+
+  // If we remove objects, stick them in a dummy Impl object, and then
+  // discard that.  FIXME: It's a bit funny to have to allocate an object
+  // in order to delete stuff.  Maybe RCUObject could be taught to manage
+  // objects of multiple types?
+  std::unique_ptr<Impl> garbage;
+
+  // Compare with last rather than end=last+1; we don't want to consider
+  // the last elt.
+  while (pos < last) {
+    // FIXME: Can use the position where we found the last one as a hint?
+    if (anyInRange (pos->first, keys)) {
+      // One of the keys matched the range of this object.  Stop here.
+      break;
+    }
+
+    // We're deleting the object now.
+
+    if (!garbage) {
+      // Allocate a dummy impl object if we haven't done so yet.
+      garbage = std::make_unique<Impl> (0);
+    }
+
+    // Add it to the garbage list.
+    garbage->discard (pos->second);
+    ++ndel;
+    ++pos;
+  }
+
+  // If we've deleted any object, then queue the dummy impl object
+  // for destruction, and update the begin pointer.
+  if (ndel > 0) {
+    m_updater.discard (std::move (garbage));
+    m_begin = pos;
+  }
+
+  return ndel;
+}
+
+
+/**
  * @brief Return the current number of elements in the map.
  */
 T_CONCURRENTRANGEMAP
@@ -443,6 +514,21 @@ CONCURRENTRANGEMAP::updatePointers (value_type* new_begin, value_type* new_end)
   }
   // Then set the begin pointer.
   m_begin = new_begin;
+}
+
+
+/**
+ * @brief Test to see if any keys within @c keys match @c r.
+ * @brief r Range to test.
+ * @break keys List of keys to test.  MUST be sorted.
+ */
+T_CONCURRENTRANGEMAP
+bool
+CONCURRENTRANGEMAP::anyInRange (const key_type& r,
+                                const std::vector<key_query_type>& keys) const
+{
+  auto pos = std::lower_bound (keys.begin(), keys.end(), r, m_compare);
+  return pos != keys.end() && m_compare.inRange (*pos, r);
 }
 
 
