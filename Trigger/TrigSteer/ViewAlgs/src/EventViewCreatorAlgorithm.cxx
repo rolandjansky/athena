@@ -49,7 +49,7 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
 
    
     // make the views
-  auto viewVector = std::make_unique<std::vector<SG::View*>>();
+  auto viewVector = std::make_unique< ViewContainer >();
   auto contexts = std::vector<EventContext>( );
   unsigned int viewCounter = 0;
   unsigned int conditionsRun = getContext().getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
@@ -122,11 +122,11 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
       contexts.back().setExtension( Atlas::ExtendedEventContext( viewVector->back(), conditionsRun ) );
       
       // link decision to this view
-      newd->setObjectLink( "view", ElementLink<std::vector<SG::View*> >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
+      newd->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
       
       // see if there is a view linked to the decision object, if so link it to the view that is just made
       if ( Idecision->hasObjectLink( "view" ) ) {
-	auto viewEL = Idecision->objectLink< std::vector<SG::View*> >( "view" );
+	auto viewEL = Idecision->objectLink< ViewContainer >( "view" );
 	CHECK( viewEL.isValid() );
 	auto parentView = *viewEL;
 	viewVector->back()->linkParent( parentView );

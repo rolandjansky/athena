@@ -35,7 +35,7 @@ StatusCode TestViewDriver::execute( ) {
 
   //  this code is to be replaced by set of tools which can customize what is placed in the view
   auto contexts = std::vector<EventContext>( );
-  auto viewVector = std::make_unique<std::vector<SG::View*>>( );
+  auto viewVector = std::make_unique< ViewContainer >( );
   unsigned int viewCounter = 0;
   unsigned int conditionsRun = getContext().getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
   for ( const auto roi: *roisContainer.cptr( ) ) {

@@ -29,7 +29,7 @@ public:
   //  StatusCode execute_r( const EventContext& ctx ) const;
 
 private:
-  SG::ReadHandleKey< std::vector<SG::View*> > m_viewsKey; // will be used in evt context
+  SG::ReadHandleKey< ViewContainer > m_viewsKey; // will be used in evt context
   SG::ReadHandleKey< TestClusterContainer > m_clustersViewInputKey; // vill be used in each view, needs to be renounced
   SG::WriteHandleKey< TestClusterContainer > m_clustersOutputKey;
 };
