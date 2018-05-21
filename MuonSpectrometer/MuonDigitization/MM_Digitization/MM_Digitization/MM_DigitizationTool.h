@@ -234,10 +234,10 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 
 		int m_exitcode;
 
-		float  tofCorrection;
-		float bunchTime;
-		float globalHitTime;
-		float eventTime;
+		float  m_tofCorrection;
+		float m_bunchTime;
+		float m_globalHitTime;
+		float m_eventTime;
 		std::vector<int> m_n_StrRespID;
 		std::vector<float> m_n_StrRespCharge;
 		std::vector<float> m_n_StrRespTime;

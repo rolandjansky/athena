@@ -167,10 +167,10 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
 	m_exitcode(0),
 
 	// Timings
-	tofCorrection(-99999999.),
-	bunchTime(-99999999.),
-	globalHitTime(-99999999.),
-	eventTime(-99999999.)
+	m_tofCorrection(-99999999.),
+	m_bunchTime(-99999999.),
+	m_globalHitTime(-99999999.),
+	m_eventTime(-99999999.)
 {
 
 	declareInterface<IMuonDigitizationTool>(this);
@@ -317,10 +317,10 @@ StatusCode MM_DigitizationTool::initialize() {
 		m_ntuple->Branch("StrRespTrg_Time",&m_n_StrRespTrg_Time);
 		m_ntuple->Branch("Strip_Multiplicity_byDiffer",&m_n_strip_multiplicity);
 		m_ntuple->Branch("Strip_Multiplicity_2",&m_n_strip_multiplicity_2);
-		m_ntuple->Branch("tofCorrection",&tofCorrection);
-		m_ntuple->Branch("bunchTime",&bunchTime);
-		m_ntuple->Branch("globalHitTime",&globalHitTime);
-		m_ntuple->Branch("eventTime",&eventTime);
+		m_ntuple->Branch("tofCorrection",&m_tofCorrection);
+		m_ntuple->Branch("bunchTime",&m_bunchTime);
+		m_ntuple->Branch("globalHitTime",&m_globalHitTime);
+		m_ntuple->Branch("eventTime",&m_eventTime);
 	}
 
 	// StripsResponseSimulation Creation
@@ -609,7 +609,7 @@ StatusCode MM_DigitizationTool::doDigitization() {
 
 
 			TimedHitPtr<GenericMuonSimHit> phit = *i++;
-			eventTime = phit.eventTime();
+			m_eventTime = phit.eventTime();
 			const GenericMuonSimHit& hit(*phit);
 
 			if( previousHit && abs(hit.particleEncoding())==13 && abs(previousHit->particleEncoding())==13 ) {
@@ -629,9 +629,9 @@ StatusCode MM_DigitizationTool::doDigitization() {
 
 			const Amg::Vector3D globalHitPosition = hit.globalPosition();
 
-			globalHitTime = hit.globalpreTime();
-			tofCorrection = globalHitPosition.mag()/CLHEP::c_light;
-			bunchTime = globalHitTime - tofCorrection + eventTime;
+			m_globalHitTime = hit.globalpreTime();
+			m_tofCorrection = globalHitPosition.mag()/CLHEP::c_light;
+			m_bunchTime = m_globalHitTime - m_tofCorrection + m_eventTime;
 
 			m_n_Station_side=-999;
 			m_n_Station_eta=-999;
@@ -668,9 +668,9 @@ StatusCode MM_DigitizationTool::doDigitization() {
 			ATH_MSG_DEBUG ( "> hitID  "
 							<<     hitID
 							<< " Hit bunch time  "
-							<<     bunchTime
+							<<     m_bunchTime
 							<< " tot "
-							<<     globalHitTime
+							<<     m_globalHitTime
 							<< " tof/G4 time "
 							<<     hit.globalTime()
 							<< " globalHitPosition "
@@ -692,8 +692,8 @@ StatusCode MM_DigitizationTool::doDigitization() {
 			// For collection of inputs to throw back in SG
 
 			GenericMuonSimHit* copyHit = new GenericMuonSimHit( hitID,
-																globalHitTime+eventTime,
-																eventTime,
+																m_globalHitTime+m_eventTime,
+																m_eventTime,
 																globalHitPosition,
 																hit.localPosition(),
 																hit.globalPrePosition(),
@@ -872,7 +872,7 @@ StatusCode MM_DigitizationTool::doDigitization() {
 			Amg::Vector2D positionOnSurface (hitOnSurface.x(), hitOnSurface.y());
 
 			// Account For Time Offset
-			double shiftTimeOffset = (globalHitTime - tofCorrection)* m_driftVelocity;
+			double shiftTimeOffset = (m_globalHitTime - m_tofCorrection)* m_driftVelocity;
 			Amg::Vector3D hitAfterTimeShift(hitOnSurface.x(),hitOnSurface.y(),shiftTimeOffset);
 			Amg::Vector3D hitAfterTimeShiftOnSurface = hitAfterTimeShift - (shiftTimeOffset/localDirectionTime.z())*localDirectionTime;
 
@@ -985,7 +985,7 @@ StatusCode MM_DigitizationTool::doDigitization() {
 													localMagneticField,
 													detectorReadoutElement->numberOfStrips(layerID),
 													m_idHelper->gasGap(layerID),
-													eventTime+globalHitTime
+													m_eventTime+m_globalHitTime
 													);
 
 
