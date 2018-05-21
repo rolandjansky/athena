@@ -29,45 +29,210 @@ namespace EL
 {
   namespace
   {
-    /// \brief set a property on an algorithm or sub-tool
+    /// \brief count the number of separators in a tool name
     /// \par Guarantee
-    ///   basic
-    /// \par Failures
-    ///   could not set property\n
-    ///   property not found\n
-    ///   sub-tool not found
+    ///   no-fail
+    std::size_t countSeparators (const std::string& name)
+    {
+      std::size_t result {!name.empty()};
+      for (char ch : name)
+      {
+        if (ch == '.')
+          result += 1;
+      }
+      return result;
+    }
 
-    StatusCode doSetProperty (EL::AnaAlgorithm& alg,
-                              const std::map<std::string,std::shared_ptr<asg::AsgTool> >& tools,
-                              const std::string& name,
-                              const std::string& value)
+
+
+    /// \brief the information about a single component (algorithm or
+    /// tool)
+    struct Component final
+    {
+      AnaAlgorithm *m_algorithm {};
+      asg::AsgTool *m_tool {};
+
+      Component () = default;
+      explicit Component (AnaAlgorithm *val_algorithm)
+        : m_algorithm (val_algorithm) {}
+      explicit Component (asg::AsgTool *val_tool)
+        : m_tool (val_tool) {}
+
+      const std::string& name () const
+      {
+        if (m_tool)
+          return m_tool->name();
+        assert (m_algorithm != nullptr);
+        return m_algorithm->name();
+      }
+
+      StatusCode initialize () const
+      {
+        if (m_tool)
+          return m_tool->initialize();
+        assert (m_algorithm != nullptr);
+        return m_algorithm->sysInitialize();
+      }
+
+
+
+      StatusCode setProperty (const std::string& propertyName,
+                              const std::string& value) const
+      {
+        using namespace msgAlgorithmConfig;
+
+        if (m_tool)
+        {
+          if (!m_tool->setProperty (propertyName, value).isSuccess())
+          {
+            ANA_MSG_ERROR ("failed to set property \"" << propertyName << "\" with value \"" << value << "\" on tool \"" << name() << "\"");
+            return StatusCode::FAILURE;
+          }
+          return StatusCode::SUCCESS;
+        }
+        assert (m_algorithm != nullptr);
+        if (!m_algorithm->setProperty (propertyName, value).isSuccess())
+        {
+          ANA_MSG_ERROR ("failed to set property \"" << propertyName << "\" with value \"" << value << "\" on algorithm \"" << name() << "\"");
+          return StatusCode::FAILURE;
+        }
+        return StatusCode::SUCCESS;
+      }
+    };
+
+
+
+    /// \brief the map of all known components
+    struct ComponentMap final
+    {
+      /// \brief the list of tools we created/know about
+      std::map<std::string,Component> m_components;
+
+      /// \brief the tool cleanup list
+      std::list<std::shared_ptr<void> > m_cleanup;
+
+
+      /// \brief set a property on an algorithm or sub-tool
+      /// \par Guarantee
+      ///   basic
+      /// \par Failures
+      ///   could not set property\n
+      ///   property not found\n
+      ///   sub-tool not found
+
+      StatusCode setProperty (const std::string& name,
+                                const std::string& value)
+      {
+        using namespace msgAlgorithmConfig;
+
+        std::string componentName;
+        std::string propertyName;
+
+        const auto split = name.rfind (".");
+        if (split == std::string::npos)
+        {
+          propertyName = name;
+        } else
+        {
+          componentName = name.substr (0, split);
+          propertyName = name.substr (split+1);
+        }
+
+        const auto component = m_components.find (componentName);
+        if (component == m_components.end())
+        {
+          ANA_MSG_ERROR ("trying to set property \"" << propertyName << "\" on component \"" << componentName << "\" which has not been configured");
+          return StatusCode::FAILURE;
+        }
+
+        return component->second.setProperty (propertyName, value);
+      }
+
+
+
+      /// \brief initialize all the tools
+      ///
+      /// need to initialize the tools inside out, i.e. sub-sub-tools
+      /// before sub-tools, etc. and then set them as properties on
+      /// their parents
+      /// \par Guarantee
+      ///   basic
+      /// \par Failures
+      ///   out of memory II\n
+      ///   tool initialization failures
+      StatusCode initializeTools ()
+      {
+        using namespace msgAlgorithmConfig;
+
+        std::vector<std::pair<std::string,Component> > sortedTools;
+        for (auto& component : m_components)
+        {
+          if (component.second.m_tool)
+            sortedTools.push_back (component);
+        }
+        std::sort (sortedTools.begin(), sortedTools.end(), [] (auto& a, auto& b) {
+            const std::size_t levela = countSeparators (a.first);
+            const std::size_t levelb = countSeparators (b.first);
+            if (levela > levelb) return true;
+            if (levela < levelb) return false;
+            return a.first < b.first;});
+        for (const auto& tool : sortedTools)
+        {
+          ANA_CHECK (tool.second.initialize());
+
+          // using that a ToolHandle initialized with a tool name will
+          // retrieve that tool, not sure if that is the best strategy
+          ANA_CHECK (setProperty (tool.first, tool.second.name()));
+        }
+        return StatusCode::SUCCESS;
+      }
+    };
+
+
+
+    StatusCode createAlgorithm (const std::string& type,
+                                const std::string& name,
+                                std::unique_ptr<AnaAlgorithm>& algorithm)
     {
       using namespace msgAlgorithmConfig;
 
-      const auto split = name.rfind (".");
-      if (split == std::string::npos)
+      // Load the ROOT dictionary, this is needed to be able to
+      // instantiate the algorithm below, i.e. the code below won't load
+      // dictionaries not already loaded
+      TClass* algorithmClass = TClass::GetClass (type.c_str());
+      if (!algorithmClass)
       {
-        if (!alg.setProperty (name, value).isSuccess())
-        {
-          ANA_MSG_ERROR ("failed to set property \"" << name << "\" with value \"" << value << "\"");
-          return StatusCode::FAILURE;
-        }
-      } else
-      {
-        const std::string toolName = name.substr (0, split);
-        const std::string propertyName = name.substr (split+1);
-        const auto tool = tools.find (toolName);
-        if (tool == tools.end())
-        {
-          ANA_MSG_ERROR ("trying to set property \"" << propertyName << "\" on tool \"" << toolName << "\" which has not been configured");
-          return StatusCode::FAILURE;
-        }
-        if (!tool->second->setProperty (propertyName, value).isSuccess())
-        {
-          ANA_MSG_ERROR ("failed to set property \"" << propertyName << "\" with value \"" << value << "\" on tool \"" << toolName << "\"");
-          return StatusCode::FAILURE;
-        }
+        ATH_MSG_ERROR ("Unable to load class dictionary for type " << type);
+        return StatusCode::FAILURE;
       }
+
+      EL::AnaAlgorithm *alg = (EL::AnaAlgorithm*)
+        (gInterpreter->Calc(("dynamic_cast<EL::AnaAlgorithm*>(new " + type + " (\"" + name + "\", nullptr))").c_str()));
+      if (alg == nullptr)
+      {
+        ANA_MSG_ERROR ("failed to create algorithm of type " << type);
+        ANA_MSG_ERROR ("make sure you created a dictionary for your algorithm");
+        return StatusCode::FAILURE;
+      }
+      algorithm.reset (alg);
+
+      return StatusCode::SUCCESS;
+    }
+
+
+
+    StatusCode createTool (const std::string& type,
+                           const std::string& name,
+                           std::shared_ptr<asg::AsgTool>& tool)
+    {
+      using namespace msgAlgorithmConfig;
+
+      // ideally we move the makeToolRootCore out of the detail
+      // namespace, but for now I just want to make this work.
+      asg::AsgTool *rawTool = nullptr;
+      if (!asg::detail::makeToolRootCore (type, name, rawTool).isSuccess())
+        return StatusCode::FAILURE;
+      tool.reset (rawTool);
       return StatusCode::SUCCESS;
     }
   }
@@ -172,6 +337,24 @@ namespace EL
 
 
 
+  bool AnaAlgorithmConfig ::
+  isPublicTool () const noexcept
+  {
+    RCU_READ_INVARIANT (this);
+    return m_isPublicTool;
+  }
+
+
+
+  void AnaAlgorithmConfig ::
+  setIsPublicTool (bool val_isPublicTool) noexcept
+  {
+    RCU_CHANGE_INVARIANT (this);
+    m_isPublicTool = val_isPublicTool;
+  }
+
+
+
   void AnaAlgorithmConfig ::
   setPropertyFromString (const std::string& name,
                          const std::string& value)
@@ -211,65 +394,54 @@ namespace EL
       ANA_MSG_ERROR ("name \"" << m_name << "\" does not match format expression");
       return StatusCode::FAILURE;
     }
- 
-    ANA_MSG_DEBUG ("Creating tool of type " << m_type);
 
-    // Load the ROOT dictionary, this is needed to be able to
-    // instantiate the algorithm below, i.e. the code below won't load
-    // dictionaries not already loaded
-    TClass* algorithmClass = TClass::GetClass (m_type.c_str());
-    if (!algorithmClass)
+    ComponentMap componentMap;
+
+    if (m_isPublicTool == false)
     {
-      ATH_MSG_ERROR ("Unable to load class dictionary for type " << m_type);
-      return StatusCode::FAILURE;
+      if (!createAlgorithm (m_type, m_name, algorithm).isSuccess())
+        return StatusCode::FAILURE;
+      componentMap.m_components.insert (std::make_pair ("", Component (algorithm.get())));
+    } else
+    {
+      std::shared_ptr<asg::AsgTool> tool;
+      if (!createTool (m_type, m_name, tool).isSuccess())
+        return StatusCode::FAILURE;
+      componentMap.m_cleanup.push_front (tool);
+      componentMap.m_components.insert (std::make_pair ("", Component (tool.get())));
     }
 
-    EL::AnaAlgorithm *alg = (EL::AnaAlgorithm*)
-      (gInterpreter->Calc(("dynamic_cast<EL::AnaAlgorithm*>(new " + m_type + " (\"" + m_name + "\", nullptr))").c_str()));
-    if (alg == nullptr)
-    {
-      ANA_MSG_ERROR ("failed to create algorithm of type " << m_type);
-      ANA_MSG_ERROR ("make sure you created a dictionary for your algorithm");
-      return StatusCode::FAILURE;
-    }
-    algorithm.reset (alg);
-
-    std::map<std::string,std::shared_ptr<asg::AsgTool> > tools;
     for (auto& toolInfo : m_privateTools)
     {
-      // ideally we move the makeToolRootCore out of the detail
-      // namespace, but for now I just want to make this work.
-      asg::AsgTool *rawTool = nullptr;
-      ANA_CHECK (asg::detail::makeToolRootCore
-                 (toolInfo.second, m_name + "." + toolInfo.first, rawTool));
-      std::shared_ptr<asg::AsgTool> managedTool (rawTool);
-      tools.insert (std::make_pair (toolInfo.first, managedTool));
-      alg->addCleanup (managedTool);
+      std::shared_ptr<asg::AsgTool> tool;
+      if (!createTool (toolInfo.second, m_name + "." + toolInfo.first, tool).isSuccess())
+        return StatusCode::FAILURE;
+      componentMap.m_cleanup.push_front (tool);
+      componentMap.m_components.insert (std::make_pair (toolInfo.first, tool.get()));
     }
 
     for (auto& property : m_propertyValues)
     {
-      ANA_CHECK (doSetProperty (*alg, tools, property.first, property.second));
+      ANA_CHECK (componentMap.setProperty (property.first, property.second));
     }
 
-    // need to create the tools inside out, i.e. sub-sub-tools before
-    // sub-tools, etc.  the general assumption is that the longer the
-    // name of the tool the more nested it is...
-    std::vector<std::pair<std::string,std::shared_ptr<asg::AsgTool> > >
-      sortedTools (tools.begin(), tools.end());
-    std::sort (sortedTools.begin(), sortedTools.end(), [] (auto& a, auto& b) {
-        return a.first.size() > b.first.size();});
-    for (const auto& tool : sortedTools)
+    if (!componentMap.initializeTools ().isSuccess())
+      return StatusCode::FAILURE;
+
+    if (m_isPublicTool == true)
     {
-      ANA_CHECK (tool.second->initialize());
-
-      // using that a ToolHandle initialized with a tool name will
-      // retrieve that tool, not sure if that is the best strategy
-      ANA_CHECK (doSetProperty (*alg, tools, tool.first, tool.second->name()));
+      assert (algorithm == nullptr);
+      if (!createAlgorithm ("EL::AnaAlgorithm", "DummyAlg." + m_name, algorithm).isSuccess())
+      {
+        ANA_MSG_ERROR ("failed to create dummy algorithm to hold public tool " + m_name);
+        return StatusCode::FAILURE;
+      }
     }
-    
 
-    ANA_MSG_DEBUG ("Created algorithm of type " << m_type);
+    for (auto& cleanup : componentMap.m_cleanup)
+      algorithm->addCleanup (cleanup);
+
+    ANA_MSG_DEBUG ("Created component of type " << m_type);
     return StatusCode::SUCCESS;
   }
 }
