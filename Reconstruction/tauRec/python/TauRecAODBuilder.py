@@ -234,12 +234,15 @@ class TauRecAODProcessor_RNN_ID ( TauRecConfigured ) :
             # Calculate the RNN scores
             tools.append(taualgs.getTauJetRNNEvaluator(
                 suffix="TauJetRNN",
-                NetworkFile1P="rnnid_prelim_config_deep_1p.json",
-                NetworkFile3P="rnnid_prelim_config_deep_3p.json",
+                NetworkFile1P="rnnid_mc16d_config_1p.json",
+                NetworkFile3P="rnnid_mc16d_config_3p.json",
                 OutputVarname="RNNJetScore", MaxTracks=10, MaxClusters=6))
 
             # Decorate working points
-            tools.append(taualgs.getTauWPDecoratorJetRNN())
+            tools.append(taualgs.getTauWPDecoratorJetRNN(
+                flatteningFile1Prong="rnnid_mc16d_flat_1p.root",
+                flatteningFile3Prong="rnnid_mc16d_flat_3p.root"
+            ))
 
             TauRecConfigured.AddToolsToToolSvc(self, tools)
             self.TauProcessorHandle().Tools = tools
