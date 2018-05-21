@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/DataModelRoot
                           Control/SGTools
                           Control/StoreGate
+                          Control/RootUtils
                           GaudiKernel )
 
 # External dependencies:
@@ -22,7 +23,7 @@ atlas_add_library( StoreGateBindings
                    src/*.cxx
                    PUBLIC_HEADERS StoreGateBindings
                    PRIVATE_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES StoreGateLib SGtests
+                   LINK_LIBRARIES StoreGateLib SGtests RootUtils
                    PRIVATE_LINK_LIBRARIES ${PYTHON_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel DataModelRoot SGTools GaudiKernel )
 
 atlas_add_dictionary( StoreGateBindingsDict
