@@ -2,7 +2,6 @@ Mon Mar  5 17:12:03 EST 2018
 WARNING: TCMALLOCDIR not defined, will use libc malloc
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
-Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
