@@ -105,6 +105,7 @@ namespace met {
     declareProperty("DoPFlow",            m_doPFlow            = false               );
     declareProperty("DoSoftTruth",        m_doSoftTruth        = false               );
     declareProperty("DoJetTruth",         m_doConstJet         = false               );
+    declareProperty("StoreSoftLinks",     m_storeSoftLinks     = false               );
 
     declareProperty("JetSelection",       m_jetSelection       = "Tight"             );//Loose, Tight, PFlow or Expert
     declareProperty("CustomCentralJetPt", m_customCenJetPtCut  = 20e3                );
@@ -299,6 +300,7 @@ namespace met {
     if(!collection->empty()) {
       bool originalInputs = !acc_originalObject.isAvailable(*collection->front());
       bool isShallowCopy = dynamic_cast<const xAOD::ShallowAuxContainer*>(collection->front()->container()->getConstStore());
+      SG::sgkey_t objkey = iplink_t(*static_cast<const xAOD::IParticleContainer*>(collection->front()->container()),0).key();
       ATH_MSG_VERBOSE("const store = " << collection->front()->container()->getConstStore());
       if(isShallowCopy && originalInputs) {
 	ATH_MSG_WARNING("Shallow copy provided without \"originalObjectLinks\" decoration! "
@@ -319,7 +321,7 @@ namespace met {
 	  ATH_MSG_WARNING("If not, Please apply xAOD::setOriginalObjectLinks() from xAODBase/IParticleHelpers.h");
 	  // if this is an uncalibrated electron below the threshold, then we put it into the soft term
 	  if(orig->type()==xAOD::Type::Electron){
-	    uniqueLinks.emplace_back( iplink_t(*static_cast<const IParticleContainer*>(obj->container()),obj->index()) );
+	    uniqueLinks.emplace_back( iplink_t(objkey,obj->index()) );
 	    uniqueWeights.emplace_back( 0. );
 	    ATH_MSG_WARNING("Missing an electron from the MET map. Included as a track in the soft term. pT: " << obj->pt());
 	    continue;
@@ -385,7 +387,7 @@ namespace met {
 	  }
 	}
         if(selected) {
-	  uniqueLinks.emplace_back( iplink_t(*static_cast<const IParticleContainer*>(obj->container()),obj->index()) );
+	  uniqueLinks.emplace_back( iplink_t(objkey,obj->index()) );
 	  uniqueWeights.emplace_back( 1. );
         }
       }
@@ -616,6 +618,8 @@ namespace met {
     std::vector<iplink_t> softJetLinks;
     std::vector<float> softJetWeights;
     bool originalInputs = jets->empty() ? false : !acc_originalObject.isAvailable(*jets->front());
+
+    SG::sgkey_t jetkey = jets->empty() ? 0 : iplink_t(*static_cast<const xAOD::JetContainer*>(jets->front()->container()),0).key();
 
     for(const auto& jet : *jets) {
       const MissingETAssociation* assoc = 0;
@@ -917,15 +921,15 @@ namespace met {
 
 	  if(hardJet){
 	    ATH_MSG_VERBOSE("Jet added at full scale");
-	    uniqueLinks.emplace_back( iplink_t(*static_cast<const IParticleContainer*>(jet->container()),jet->index()) );
+	    uniqueLinks.emplace_back( iplink_t(jetkey,jet->index()) );
 	    uniqueWeights.emplace_back( uniquefrac );
 	  } else {
 	    if(metSoftClus && !JVT_reject) {
 	      // add fractional contribution
 	      ATH_MSG_VERBOSE("Jet added at const scale");
 	      if (fabs(jet->eta())<2.5 || !(coreSoftClus->source()&MissingETBase::Source::Central)) {
-		softJetLinks.emplace_back( iplink_t(*static_cast<const xAOD::JetContainer*>(jet->container()),jet->index()) );
-		softJetWeights.emplace_back( uniquefrac );
+		if (m_storeSoftLinks) softJetLinks.emplace_back( iplink_t(jetkey,jet->index()) );
+		if (m_storeSoftLinks) softJetWeights.emplace_back( uniquefrac );
 		metSoftClus->add(opx,opy,opt);
 	      }
 
@@ -967,8 +971,8 @@ namespace met {
 	      metSoftTrk->add(opx,opy,opt);
 	      // Don't need to add if already done for softclus.
 	      if(!metSoftClus) {
-		softJetLinks.emplace_back( iplink_t(*static_cast<const xAOD::JetContainer*>(jet->container()),jet->index()) );
-		softJetWeights.emplace_back( uniquefrac );
+		if (m_storeSoftLinks) softJetLinks.emplace_back( iplink_t(jetkey,jet->index()) );
+		if (m_storeSoftLinks) softJetWeights.emplace_back( uniquefrac );
 	      }
 
 	      // Fill a vector with the soft constituents, if one was provided.

@@ -170,6 +170,7 @@ namespace met {
     bool m_doPFlow;
     bool m_doSoftTruth;
     bool m_doConstJet;
+    bool m_storeSoftLinks;
 
     bool m_useGhostMuons;
     bool m_doRemoveMuonJets;
