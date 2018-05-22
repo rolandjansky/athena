@@ -1,8 +1,9 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGEGAMMAHYPO_L2TRIGL2PHOTONHYPOALG_H
-#define TRIGEGAMMAHYPO_L2TRIGL2PHOTONHYPOALG_H 1
+
+#ifndef TRIGEGAMMAHYPO_TRIGL2PHOTONHYPOALGMT_H
+#define TRIGEGAMMAHYPO_TRIGL2PHOTONHYPOALGMT_H 1
 
 #include <string>
 
@@ -50,4 +51,5 @@ class TrigL2PhotonHypoAlgMT  :  public ::HypoBase
 
 }; 
 
-#endif //> !TRIGEGAMMAHYPO_TRIGL2PHOTONHYPOALG_H
+#endif //> !TRIGEGAMMAHYPO_TRIGL2PHOTONHYPOALGMT_H                                                                                                                                                           
+
