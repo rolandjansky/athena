@@ -746,25 +746,13 @@ StatusCode HltEventLoopMgr::reinitialize()
 
 StatusCode HltEventLoopMgr::executeAlgorithms()
 {
-  // Call the resetExecuted() method of ALL "known" algorithms
-  // (before we were reseting only the topalgs)
-  SmartIF<IAlgManager> algMan(serviceLocator());
-  if ( algMan.isValid() ) {
-    const auto& allAlgs = algMan->getAlgorithms() ;
-    for( auto ialg = allAlgs.begin() ; allAlgs.end() != ialg ; ++ialg ) {
-      if ( 0 != *ialg ) (*ialg)->resetExecuted();
-    }
-  }
+  // Reset all algorithms
+  m_aess->reset(m_eventContext);
 
   // Call the execute() method of all top algorithms
-
   StatusCode sc;
   for(auto alg : m_topAlgList) {
-#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
     sc = alg->sysExecute(m_eventContext);
-#else
-    sc = alg->sysExecute();
-#endif
     if(sc.isFailure()) {
       msgStream() << MSG::ERROR << "Execution of algorithm " << alg->name()
                   << " failed" << endmsg;
@@ -959,7 +947,6 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
   if (sc.isSuccess()) {
     // Call the execute() method of all output streams
     for (auto o : m_outStreamList ) {
-      o->resetExecuted();
       sc = o->sysExecute(m_eventContext);
       if(sc.isFailure())  {
         msgStream() << MSG::WARNING << "Execution of output stream " << o->name() << " failed" << endmsg;
