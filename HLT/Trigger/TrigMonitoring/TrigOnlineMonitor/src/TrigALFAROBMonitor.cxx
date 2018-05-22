@@ -546,7 +546,7 @@ StatusCode TrigALFAROBMonitor::beginRun() {
   //}
 
   // *-- booking path
-  m_pathHisto = std::string("/EXPERT/");
+  m_pathHisto = std::string("/EXPERT/") + name() + "/";
 
   // Specific source identifiers
   //eformat::helper::SourceIdentifier srcID_ALFA( eformat::FORWARD_ALPHA ,0);

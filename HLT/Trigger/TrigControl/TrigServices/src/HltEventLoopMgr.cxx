@@ -1959,7 +1959,7 @@ void HltEventLoopMgr::bookHistograms()
   regHistsTProfile.reserve(4);
 
   // monitoring information root directory
-  const std::string histPath = std::string("/EXPERT/");
+  const std::string histPath = std::string("/EXPERT/") + name() + "/";
 
   //     +--------------------+
   // *-- | Event accept flags |
@@ -2252,7 +2252,7 @@ void HltEventLoopMgr::HltBookHistograms()
   if ( !m_doMonitoring.value() ) { return; }
 
   // monitoring information root directory
-  std::string path = std::string("/EXPERT/");
+  std::string path = std::string("/EXPERT/") + name() + "/";
 
   // *-- SubDetectors from l1 ROBs
   auto nbins = L1R_BINS.size() + 2;
