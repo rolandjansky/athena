@@ -813,7 +813,7 @@ bool psc::Psc::hltUserCommand(const ptree& args)
 
 void psc::Psc::doEventLoop()
 {
-  ERS_DEBUG(1, "psc::Psc::doEventLoop: start of doEventLoop()");
+  ERS_LOG("psc::Psc::doEventLoop: start of doEventLoop()");
   StatusCode sc;
   try
   {
@@ -840,7 +840,7 @@ void psc::Psc::doEventLoop()
   if (sc.isFailure()) {
     ERS_PSC_ERROR("psc::Psc::doEventLoop failed");
   }
-  ERS_DEBUG(1, "psc::Psc::doEventLoop: end of doEventLoop()");
+  ERS_LOG("psc::Psc::doEventLoop: end of doEventLoop()");
 }
 
 bool psc::Psc::process(const vector<ROBFragment<const uint32_t*> >& l1r,

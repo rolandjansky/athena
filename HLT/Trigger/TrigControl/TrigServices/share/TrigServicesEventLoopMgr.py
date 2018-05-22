@@ -10,8 +10,8 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 # ==============================================================================
 # Set up for multithreading
 # ==============================================================================
-nThreads = 2
-numStores = 2
+nThreads = 1
+numStores = 1
 numAlgsInFlight = nThreads
 
 from StoreGate.StoreGateConf import SG__HiveMgrSvc
