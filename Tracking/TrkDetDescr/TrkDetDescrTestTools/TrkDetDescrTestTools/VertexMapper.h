@@ -67,14 +67,14 @@ namespace Trk {
         StatusCode  updateTrackingGeometry() const;                                       //!< update the tracking geometry
         
         //!< return and retrieve
-        const TrackingGeometry& trackingGeometry() const throw (GaudiException);          //!< retrieve the tracking geometry
+        const TrackingGeometry& trackingGeometry() const;          //!< retrieve the tracking geometry
 
         mutable const TrackingGeometry*                      m_trackingGeometry;          //!< the tracking geometry owned by the navigator
         std::string                                          m_trackingGeometryName;      //!< Name of the TrackingGeometry as given in Detector Store
 
     };
     
-    inline const Trk::TrackingGeometry& VertexMapper::trackingGeometry() const throw (GaudiException) {
+    inline const Trk::TrackingGeometry& VertexMapper::trackingGeometry() const {
         if (!m_trackingGeometry && updateTrackingGeometry().isFailure()){
             ATH_MSG_FATAL("Could not load TrackingGeometry with name '" << m_trackingGeometryName << "'. Aborting." );
             throw GaudiException("VertexMapper", "Problem with TrackingGeometry loading.", StatusCode::FAILURE);
