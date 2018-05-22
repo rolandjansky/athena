@@ -106,7 +106,7 @@ StatusCode DigiDemoSetupAlg::execute()
   }
 
   //Schedule the algorithms in views
-  CHECK( ViewHelper::ScheduleViews( *viewVector.get(), //View vector
+  CHECK( ViewHelper::ScheduleViews( viewVector.get(), //View vector
         m_viewNodeName,                         //Name of node to attach views to
         ctx,                                    //Context to attach the views to
         m_scheduler.get() ) );                  //ServiceHandle for the scheduler

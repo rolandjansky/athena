@@ -118,32 +118,41 @@ private:
 #include "SGTools/CLASS_DEF.h"
 
 // Do we need to do this?
-// class ViewContainer {
-//   typedef std::vector<SG::View*> T;
-//   T m_data;
-// public:
-//   typedef T::const_iterator const_iterator;
-//   typedef T::iterator iterator;
-//   typedef T::const_reference const_reference;
-//   typedef T::reference reference;
-//   typedef T::value_type value_type;
+class ViewContainer {
+  typedef std::vector<SG::View*> T;
+  T m_data;
+public:
+
+  typedef T::const_iterator const_iterator;
+  typedef T::iterator iterator;
+  typedef T::const_reference const_reference;
+  typedef T::reference reference;
+  typedef T::value_type value_type;
 
 
-//   ~ViewContainer() { std::for_each(m_data.begin(), m_data.end(), [](SG::View* v){ delete v; } ); }
-//   void push_back( SG::View* ptr ) { m_data.push_back( ptr ); }
-//   size_t size() const { return m_data.size(); }
-//   void clear() { m_data.clear(); }
-//   const_iterator begin() const { return m_data.begin(); }
-//   const_iterator end() const { return m_data.end(); }
-//   iterator begin() { return m_data.begin(); }
-//   iterator end() { return m_data.end(); }
-//   const_reference at(size_t pos) const { return m_data.at(pos); }
-//   reference at(size_t pos) { return m_data.at(pos); }
-//   const_reference back() const { return m_data.back(); }
-//   reference back() { return m_data.back(); }
-// };
+  ~ViewContainer() { 
+    std::cerr << "Deleting ViewContainer\n";
+    std::for_each(m_data.begin(), m_data.end(), [](SG::View* v){ delete v; } ); 
+  }
+  void push_back( SG::View* ptr ) { m_data.push_back( ptr ); }
+  size_t size() const { return m_data.size(); }
+  bool empty() const { return m_data.empty(); }
+  void clear() {     
+    std::cerr << "Clearing ViewContainer\n";
+    std::for_each(m_data.begin(), m_data.end(), [](SG::View* v){ delete v; } );   m_data.clear(); 
+  }
+  const_iterator begin() const { return m_data.begin(); }
+  const_iterator end() const { return m_data.end(); }
+  iterator begin() { return m_data.begin(); }
+  iterator end() { return m_data.end(); }
+  const_reference at(size_t pos) const { return m_data.at(pos); }
+  reference at(size_t pos) { return m_data.at(pos); }
+  const_reference back() const { return m_data.back(); }
+  reference back() { return m_data.back(); }
+};
 
-
+#include "AthLinks/DeclareIndexingPolicy.h"
+CONTAINER_IS_SEQUENCE(ViewContainer)
 
 // struct ownalloc {
 // public:                                                                           
@@ -172,7 +181,7 @@ private:
 // };
 // typedef std::vector< SG::View*, ownalloc > ViewContainer;
 
-typedef std::vector< SG::View* > ViewContainer;
+//typedef std::vector< SG::View* > ViewContainer;
 CLASS_DEF( ViewContainer , 1160627009 , 1 )
 
 

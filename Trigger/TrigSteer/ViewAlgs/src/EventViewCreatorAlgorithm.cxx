@@ -148,7 +148,7 @@ StatusCode EventViewCreatorAlgorithm::execute_r( const EventContext& context ) c
 
   
   ATH_MSG_DEBUG( "Launching execution in " << viewVector->size() << " views" );
-  CHECK( ViewHelper::ScheduleViews( *viewVector,           // Vector containing views
+  CHECK( ViewHelper::ScheduleViews( viewVector.get(),           // Vector containing views
          m_viewNodeName,                                   // CF node to attach views to
          ctx,                                              // Source context
          m_scheduler.get() ) );
