@@ -36,6 +36,7 @@
 // Forward declarations
 class IIncidentSvc;
 class IAlgContextSvc;
+class IAlgExecStateSvc;
 class StoreGateSvc;
 class IROBDataProviderSvc;
 class ITHistSvc;
@@ -291,6 +292,9 @@ private:
   // check whether a subdetector is in the run, according to the current detmask
   bool isSubDetectorIn(eformat::SubDetector sd) const;
 
+  // Helper to create EventContext
+  StatusCode installEventContext (const EventInfo* pEvent, EventID::number_type run);
+
   /** Handles to required services/tools **/
   typedef ServiceHandle<IIncidentSvc> IIncidentSvc_t;
   IIncidentSvc_t         m_incidentSvc;
@@ -305,6 +309,8 @@ private:
 
   typedef ServiceHandle<ITHistSvc> ITHistSvc_t;
   ITHistSvc_t            m_THistSvc;
+
+  ServiceHandle<IAlgExecStateSvc> m_aess;
 
   ToolHandle<TrigISHelper>            m_isHelper;
   ToolHandle<TrigCOOLUpdateHelper>    m_coolHelper;
@@ -443,7 +449,7 @@ private:
   /// we need this maintain the data
   uint32_t                  m_status_words[3] = {0};
 
-  EventContext* m_eventContext;
+  EventContext m_eventContext;
 };
 
 //=========================================================================

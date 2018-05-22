@@ -11,12 +11,15 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/Timing.h"
 #include "GaudiKernel/IAlgContextSvc.h"
+#include "GaudiKernel/IAlgExecStateSvc.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/ServiceLocatorHelper.h"
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/EventContext.h"
 
 // Athena includes
+#include "AthenaKernel/ExtendedEventContext.h"
+#include "AthenaKernel/EventContextClid.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "EventInfo/EventIncident.h"
 #include "EventInfo/EventInfo.h"
@@ -272,6 +275,7 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   m_inputMetaDataStore( "StoreGateSvc/InputMetaDataStore", nam ),
   m_robDataProviderSvc( "ROBDataProviderSvc",nam ),
   m_THistSvc( "THistSvc", nam ),
+  m_aess( "AlgExecStateSvc", nam),
   m_isHelper( "TrigISHelper", this),
   m_coolHelper( "TrigCOOLUpdateHelper", this),
   m_sorTime_stamp(2,0),
@@ -284,8 +288,7 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   m_histProp_numStreamTags(Gaudi::Histo1DDef("NumberOfStreamTags",-.5,19.5,20)),
   m_histProp_streamTagNames(Gaudi::Histo1DDef("StreamTagNames",-.5,.5,1)),
   m_histProp_num_partial_eb_robs(Gaudi::Histo1DDef("NumberROBsPartialEB",-.5,199.5,200)),
-  m_histProp_Hlt_Edm_Sizes(Gaudi::Histo1DDef("HltEDMSizes",0.,10000.,100)),
-  m_eventContext(nullptr)
+  m_histProp_Hlt_Edm_Sizes(Gaudi::Histo1DDef("HltEDMSizes",0.,10000.,100))
 {
   m_mandatoryL1ROBs.value() = {begin(L1R_MANDATORY_ROBS), end(L1R_MANDATORY_ROBS)};
 
@@ -504,8 +507,6 @@ StatusCode HltEventLoopMgr::initialize()
   msgStream() << MSG::INFO << " ---> Debug stream name for events with truncated HLT result  = " << m_HltTruncationDebugStreamName << endmsg;
   msgStream() << MSG::INFO << " ---> Stream names of events with a truncated HLT result which will not be send to the debug stream  = " << m_excludeFromHltTruncationDebugStream << endmsg;
 
-  m_eventContext = new EventContext();
-
   //-------------------------------------------------------------------------
   // Setup the StoreGateSvc
   //-------------------------------------------------------------------------
@@ -566,6 +567,8 @@ StatusCode HltEventLoopMgr::initialize()
     return sc;
   }
 
+  ATH_CHECK(m_aess.retrieve());
+
   //--------------------------------------------------------------------------
   // Setup the TrigISHelper
   //--------------------------------------------------------------------------
@@ -602,6 +605,7 @@ StatusCode HltEventLoopMgr::initialize()
   //--------------------------------------------------------------------------
   // Pre flight check
   //--------------------------------------------------------------------------
+  /*
   ToolHandle<TrigPreFlightCheck> preFlightCheck;
   if (preFlightCheck.retrieve().isFailure()) {
     msgStream() << MSG::FATAL << "Error retrieving TrigPreFlightCheck "+preFlightCheck << endmsg;
@@ -620,7 +624,7 @@ StatusCode HltEventLoopMgr::initialize()
       msgStream() << MSG::WARNING << "Pre-flight check for HLT failed." << endmsg;
   }    
   preFlightCheck->release();
-
+  */
   // The remainder of this method used to be in the L2/EF specialization
 
   // fill CTP ROB id vector
@@ -712,7 +716,6 @@ StatusCode HltEventLoopMgr::finalize()
     msgStream() << MSG::ERROR << "Error in MinimalEventLoopMgr Finalize" << endmsg;
   }
 
-  delete m_eventContext; m_eventContext = nullptr;
 
   // Release all interfaces
   m_incidentSvc.release().ignore();
@@ -782,7 +785,7 @@ StatusCode HltEventLoopMgr::executeAlgorithms()
   StatusCode sc;
   for(auto alg : m_topAlgList) {
 #ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
-    sc = alg->sysExecute(*m_eventContext);
+    sc = alg->sysExecute(m_eventContext);
 #else
     sc = alg->sysExecute();
 #endif
@@ -826,8 +829,11 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
                   << *(m_currentEvent->event_ID()) << endmsg;
   }
   
-  m_eventContext->setEventID( *((EventIDBase*) m_currentEvent->event_ID()) );
-  
+  //-----------------------------------------------------------------------
+  // Create EventContext
+  //-----------------------------------------------------------------------
+  ATH_CHECK(installEventContext(m_currentEvent, m_currentRun));
+
   //-----------------------------------------------------------------------
   // obtain the HLT conditions update counters from the CTP fragment
   //-----------------------------------------------------------------------
@@ -978,7 +984,7 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
     // Call the execute() method of all output streams
     for (auto o : m_outStreamList ) {
       o->resetExecuted();
-      sc = o->sysExecute(*m_eventContext);
+      sc = o->sysExecute(m_eventContext);
       if(sc.isFailure())  {
         msgStream() << MSG::WARNING << "Execution of output stream " << o->name() << " failed" << endmsg;
         eventFailed = true;
@@ -994,6 +1000,7 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
 
   return eventFailed ? StatusCode::FAILURE : StatusCode::SUCCESS;
 }
+
 
 //=========================================================================
 // prepare for run step
@@ -1049,6 +1056,21 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree & pt)
 
   return StatusCode::FAILURE;
 }
+
+StatusCode HltEventLoopMgr::installEventContext(const EventInfo* pEvent, EventID::number_type run)
+{
+  if (pEvent) m_eventContext.setEventID( *((EventIDBase*) pEvent->event_ID()) );
+  m_eventContext.set(m_total_evt ,0);
+
+  m_eventContext.setExtension( Atlas::ExtendedEventContext( m_evtStore->hiveProxyDict(), run) );
+  Gaudi::Hive::setCurrentContext( m_eventContext );
+
+  m_aess->reset(m_eventContext);
+  ATH_CHECK(m_evtStore->record(std::make_unique<EventContext> (m_eventContext), "EventContext"));
+
+  return StatusCode::SUCCESS;
+}
+
 
 //=========================================================================
 // allow for updates after forking the workers and issue an incident
@@ -2469,9 +2491,11 @@ const SOR * HltEventLoopMgr::processRunParams(const ptree & pt)
   // update the run number
   m_currentRun = pt.get<uint32_t>("RunParams.run_number");
 
+  ATH_CHECK(installEventContext(nullptr, m_currentRun), nullptr);
+
   // Fill SOR parameters from the ptree
   TrigSORFromPtreeHelper sorhelp{msgStream()};
-  auto sor = sorhelp.fillSOR(pt.get_child("RunParams"), *m_eventContext);
+  auto sor = sorhelp.fillSOR(pt.get_child("RunParams"), m_eventContext);
   if(!sor)
     msgStream() << MSG::ERROR << ST_WHERE
                 << "setup of SOR from ptree failed" << endmsg;
