@@ -1,5 +1,6 @@
 #include "TrigEgammaHypo/TrigL2CaloHypo.h"
 #include "TrigEgammaHypo/TrigL2ElectronFex.h"
+#include "TrigEgammaHypo/TrigL2PhotonFex.h"
 #include "TrigEgammaHypo/TrigL2ElectronHypo.h"
 #include "../TrigL2PhotonFexMT.h"
 #include "TrigEgammaHypo/TrigL2PhotonHypo.h"
@@ -24,6 +25,7 @@
 
 DECLARE_COMPONENT( TrigL2CaloHypo )
 DECLARE_COMPONENT( TrigL2ElectronFex )
+DECLARE_COMPONENT( TrigL2PhotonFex )
 DECLARE_COMPONENT( TrigL2ElectronHypo )
 DECLARE_COMPONENT( TrigL2PhotonFexMT )
 DECLARE_COMPONENT( TrigL2PhotonHypo )
