@@ -753,8 +753,10 @@ class CaloCellGetter (Configured)  :
 
         # register output in objKeyStore
         from RecExConfig.ObjKeyStore import objKeyStore
-
         objKeyStore.addStreamESD(self.outputType(),self.outputKey())
+
+        # Also note that we produce it as a transient output.
+        objKeyStore.addTransient (self.outputType(),self.outputKey())
 
 
         

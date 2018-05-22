@@ -64,13 +64,13 @@ class CaloClusterTopoGetter ( Configured )  :
     if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib() or jobproperties.CaloTopoClusterFlags.doCellWeightCalib():
         _outputKey = "CaloCalTopoClusters" # the main (AOD) object key
         _output = { _outputType : ["CaloCalTopoClusters","CaloTopoCluster"],
-                    "CaloClusterAuxContainer" : ["CaloTopoClusterAux.","CaloCalTopoClustersAux."],
+                    "xAOD::CaloClusterAuxContainer" : ["CaloTopoClusterAux.","CaloCalTopoClustersAux."],
                     "CaloClusterCellLinkContainer" : ["CaloCalTopoClusters_links","CaloTopoCluster_links"]
                     }
     else:
         _outputKey = "CaloTopoCluster" # the main (AOD) object key
         _output = { _outputType : "CaloTopoCluster",
-                    "CaloClusterAuxContainer" : "CaloTopoClusterAux.",
+                    "xAOD::CaloClusterAuxContainer" : "CaloTopoClusterAux.",
                     "CaloClusterCellLinkContainer" : "CaloTopoCluster_links"
                     }
 
