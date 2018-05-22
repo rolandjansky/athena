@@ -102,9 +102,49 @@ namespace DerivationFramework {
     SG::AuxElement::Decorator<vector<int>>* dec_count;
     SG::AuxElement::Decorator<int>* dec_NTracks_Null;
     SG::AuxElement::Decorator<vector<float>>* dec_Track_pt;
+    SG::AuxElement::Decorator<vector<float>>* dec_Track_eta;
+    SG::AuxElement::Decorator<vector<float>>* dec_Track_phi;
+    SG::AuxElement::Decorator<vector<float>>* dec_Track_E;
     SG::AuxElement::Decorator<vector<int>>* dec_Track_passCount1;
     SG::AuxElement::Decorator<vector<int>>* dec_Track_passCount2;
     SG::AuxElement::Decorator<vector<int>>* dec_Track_passCount3;
+
+    SG::AuxElement::Decorator<vector<int>>* dec_Track_EqualVertices;
+    SG::AuxElement::Decorator<vector<int>>* dec_Track_HasVertex;
+    SG::AuxElement::Decorator<vector<float>>* dec_Track_PVdist;
+
+
+    // InDet info
+    SG::AuxElement::Decorator<vector<unsigned char>>* dec_Track_NInnermostPixelLayerHits;
+    SG::AuxElement::Decorator<vector<unsigned char>>* dec_Track_NNextToInnermostPixelLayerHits;
+    SG::AuxElement::Decorator<vector<unsigned char>>* dec_Track_NPixelHits;
+    SG::AuxElement::Decorator<vector<unsigned char>>* dec_Track_NSCTHits;
+    SG::AuxElement::Decorator<vector<unsigned char>>* dec_Track_NTRTHits;
+
+    SG::AuxElement::Decorator<vector<unsigned char>>* dec_Track_NPixelDeadSensors;
+    SG::AuxElement::Decorator<vector<unsigned char>>* dec_Track_NSCTDeadSensors;
+    SG::AuxElement::Decorator<vector<unsigned char>>* dec_Track_NTRTDeadSensors;
+
+    SG::AuxElement::Decorator<vector<unsigned char>>* dec_Track_NInnermostPixelLayerSharedHits;
+    SG::AuxElement::Decorator<vector<unsigned char>>* dec_Track_NNextToInnermostPixelLayerSharedHits;
+    SG::AuxElement::Decorator<vector<unsigned char>>* dec_Track_NPixelSharedHits;
+    SG::AuxElement::Decorator<vector<unsigned char>>* dec_Track_NSCTSharedHits;
+    SG::AuxElement::Decorator<vector<unsigned char>>* dec_Track_NTRTSharedHits;
+
+    SG::AuxElement::Decorator<vector<unsigned char>>* dec_Track_NPixelHoles;
+    SG::AuxElement::Decorator<vector<unsigned char>>* dec_Track_NSCTHoles;
+    SG::AuxElement::Decorator<vector<unsigned char>>* dec_Track_NTRTHoles;
+
+    SG::AuxElement::Decorator<vector<unsigned char>>* dec_Track_NTRTOutliers;
+
+    SG::AuxElement::Decorator<vector<float>>* dec_Track_chiSquared;
+    SG::AuxElement::Decorator<vector<float>>* dec_Track_numberDoF;
+
+    SG::AuxElement::Decorator<vector<float>>* dec_Track_d0;
+    SG::AuxElement::Decorator<vector<float>>* dec_Track_z0;
+    SG::AuxElement::Decorator<float>* dec_Event_z0;
+
+
 
   };
 }
