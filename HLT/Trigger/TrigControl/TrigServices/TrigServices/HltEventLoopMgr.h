@@ -11,6 +11,8 @@
 #include "GaudiKernel/MinimalEventLoopMgr.h"
 #include "GaudiKernel/SmartIF.h"
 
+#include "AthenaKernel/Timeout.h"
+
 #include "TrigKernel/IHltTHistSvc.h"
 #include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
 
@@ -34,7 +36,8 @@ class IAlgExecStateSvc;
 
 
 class HltEventLoopMgr : public MinimalEventLoopMgr,
-                        virtual public ITrigEventLoopMgr
+                        virtual public ITrigEventLoopMgr,
+                        virtual public Athena::TimeoutMaster
 {
 
 public:
@@ -90,17 +93,20 @@ private:
   /// Do whatever is necessary with RunParams (prepare) ptree
   const CondAttrListCollection* processRunParams(const boost::property_tree::ptree& pt);
   
+  // Update internally kept data from new sor
+  void updInternal(const coral::AttributeList & sor_attrlist);
+
   /// Clear per-event stores
   StatusCode clearTemporaryStores();
-  
+
+  /// Update the detector mask
+  void updDetMask(const std::pair<uint64_t, uint64_t>& dm);
+
   /// Extract the single attr list off the SOR CondAttrListCollection
   const coral::AttributeList& getSorAttrList(const CondAttrListCollection* sor) const;
   
   /// Print the SOR record
   void printSORAttrList(const coral::AttributeList& atr, MsgStream& log) const;
-
-  /// Drain the scheduler from all actions that may be queued
-  int drainScheduler() const;
 
   // ------------------------- Handles to required services/tools --------------
   typedef ServiceHandle<IIncidentSvc> IIncidentSvc_t;
@@ -144,22 +150,36 @@ private:
   Uint32ArrayProperty m_enabledSubDetectors;
 
   // ------------------------- Other private members ---------------------------
+  /// detector mask0,1,2,3 - bit field indicating which TTC zones have been built into the event, one bit per zone,
+  /// 128 bit total, significance increases from first to last
+  typedef EventID::number_type numt;
+  std::tuple<numt, numt, numt, numt> m_detector_mask;
+
   /// Current run number
   EventID::number_type m_currentRun{0};
+  /// Number of events which started processing
+  size_t m_nevt;
 
 protected:
+  // ------------------------- Reimplemented AthenaHiveEventLoopMgr helpers ----
+  /// Create event context
+  StatusCode createEventContext(EventContext*& eventContext) const;
+
+  /// Drain the scheduler from all actions that may be queued
+  int drainScheduler() const;
+
   // ------------------------- Hive stuff from AthenaHiveEventLoopMgr ----------
   /// Reference to the Whiteboard interface
-  SmartIF<IHiveWhiteBoard>  m_whiteboard;
+  SmartIF<IHiveWhiteBoard> m_whiteboard;
 
   /// Reference to the Algorithm resource pool
-  SmartIF<IAlgResourcePool>  m_algResourcePool;
+  SmartIF<IAlgResourcePool> m_algResourcePool;
   
   /// Reference to the Algorithm Execution State Svc
-  SmartIF<IAlgExecStateSvc>  m_aess;
+  SmartIF<IAlgExecStateSvc> m_aess;
 
   /// Property interface of ApplicationMgr
-  SmartIF<IProperty>        m_appMgrProperty;
+  SmartIF<IProperty> m_appMgrProperty;
 
   /// A shortcut for the scheduler
   SmartIF<IScheduler> m_schedulerSvc;

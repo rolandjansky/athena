@@ -12,10 +12,16 @@
 #include "GaudiKernel/IHiveWhiteBoard.h"
 #include "GaudiKernel/IScheduler.h"
 #include "GaudiKernel/IAlgExecStateSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 // Athena includes
+#include "AthenaKernel/EventContextClid.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
+#include "EventInfo/EventType.h"
+#include "EventInfo/TriggerInfo.h"
 
 // Trigger includes
 #include "TrigServices/HltEventLoopMgr.h"
@@ -46,7 +52,9 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   m_inputMetaDataStore("StoreGateSvc/InputMetaDataStore", name),
   m_robDataProviderSvc("ROBDataProviderSvc", name),
   m_THistSvc("THistSvc", name ),
-  m_coolHelper("TrigCOOLUpdateHelper", this)
+  m_coolHelper("TrigCOOLUpdateHelper", this),
+  m_detector_mask(0xffffffff, 0xffffffff, 0, 0),
+  m_nevt(0)
 {
   verbose() << "start of " << __FUNCTION__ << endmsg;
   
@@ -326,8 +334,8 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree & pt)
       
     auto& soral = getSorAttrList(sor);
     
-    /*
     updInternal(soral);     // update internally kept info
+    /*
     updMetadaStore(soral);  // update metadata store
     
     const EventInfo * evinfo;
@@ -431,7 +439,10 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
   while (!loop_ended) {
     if (m_schedulerSvc->freeSlots()>0 && events_available) {
       debug() << "Free slots = " << m_schedulerSvc->freeSlots() << ". Reading the next event." << endmsg;
-      // get the next event
+      
+      //-----------------------------------------------------------------------
+      // Get the next event
+      //-----------------------------------------------------------------------
       eformat::write::FullEventFragment l1r; // can we allocate new each time?
       // should the getNext call be protected by try{} and catch()?
       hltinterface::DataCollector::Status status = hltinterface::DataCollector::instance()->getNext(l1r);
@@ -443,6 +454,68 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
         error() << "Unhandled return Status " << static_cast<int>(status) << " from DataCollector::getNext" << endmsg;
         // continue running?
       }
+
+      //-----------------------------------------------------------------------
+      // Start processing the new event
+      //-----------------------------------------------------------------------
+      ++m_nevt;
+      EventContext* evtContext(nullptr);
+      if (createEventContext(evtContext).isFailure()){
+        error() << "Failed to create event context" << endmsg;
+        // needs careful handling, make a framework error, send event to debug
+        continue;
+      }
+
+      // do we need this duplication? it's selected already in createEventContext
+      if (m_whiteboard->selectStore(evtContext->slot()).isFailure()){
+        error() << "Slot " << evtContext->slot() << " could not be selected for the WhiteBoard" << endmsg;
+        // needs careful handling, make a framework error, send event to debug
+        continue;
+      }
+
+      EventID* eventID = new EventID(l1r.run_no(),
+                                     l1r.global_id(),
+                                     l1r.bc_time_seconds(),
+                                     l1r.bc_time_nanoseconds(),
+                                     l1r.lumi_block(),
+                                     l1r.bc_id(),
+                                     std::get<0>(m_detector_mask),
+                                     std::get<1>(m_detector_mask),
+                                     std::get<2>(m_detector_mask),
+                                     std::get<3>(m_detector_mask));
+      TriggerInfo* triggerInfo = new TriggerInfo(0, // FIXME
+                                                 l1r.lvl1_id(),
+                                                 l1r.lvl1_trigger_type(),
+                                                 std::vector<uint32_t>(
+                                                   l1r.lvl1_trigger_info(),
+                                                   l1r.lvl1_trigger_info()+l1r.nlvl1_trigger_info())
+                                                );
+      EventInfo* eventInfo = new EventInfo(eventID, new EventType(), triggerInfo);
+
+      debug() << "recording EventInfo " << *eventID << " in " << m_evtStore->name() << endmsg;
+      
+      if(m_evtStore->record(eventInfo, "EventInfo").isFailure()) {
+        error() << "Error recording EventInfo object in SG" << endmsg;
+        // needs careful handling, make a framework error, send event to debug
+        continue;
+      }
+
+      evtContext->setEventID( *static_cast<EventIDBase*>(eventID) );
+      evtContext->template getExtension<Atlas::ExtendedEventContext>()->setConditionsRun(m_currentRun);
+      Gaudi::Hive::setCurrentContext(*evtContext);
+      // Record EventContext in current whiteboard
+      if (m_evtStore->record(std::make_unique<EventContext> (*evtContext), "EventContext").isFailure()) {
+        error() << "Error recording event context object" << endmsg;
+        // needs careful handling, make a framework error, send event to debug
+        continue;
+      }
+
+      if (executeEvent(evtContext).isFailure()) {
+        error() << "Error processing event" << endmsg;
+        // needs careful handling, make a framework error, send event to debug
+        continue;
+      }
+
     }
     else {
       int nPopped = drainScheduler();
@@ -460,12 +533,28 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
 // =============================================================================
 // Implementation of IEventProcessor::executeEvent
 // =============================================================================
-StatusCode HltEventLoopMgr::executeEvent(void* createdEvts_IntPtr)
+StatusCode HltEventLoopMgr::executeEvent(void* pEvtContext)
 {
   verbose() << "start of " << __FUNCTION__ << endmsg;
+
+  EventContext* evtContext = static_cast<EventContext*>(pEvtContext);
+  if (!evtContext) {
+    error() << "Failed to cast the call parameter to EventContext*" << endmsg;
+    return StatusCode::FAILURE;
+  }
   
-  // Capture the reference to createdEvts passed from nextEvent()
-  // int& createdEvts = *((int*)createdEvts_IntPtr);
+  resetTimeout(Athena::Timeout::instance(*evtContext));
+
+  // Now add event to the scheduler
+  debug() << "Adding event " << evtContext->evt() << ", slot " << evtContext->slot() << " to the scheduler" << endmsg;
+  StatusCode addEventStatus = m_schedulerSvc->pushNewEvent(evtContext);
+
+  // If this fails, we need to wait for something to complete
+  if (!addEventStatus.isSuccess()){
+    error() << "Failed adding event " << evtContext->evt() << ", slot " << evtContext->slot()
+            << " to the scheduler" << endmsg;
+    return StatusCode::FAILURE;
+  }
   
   verbose() << "end of " << __FUNCTION__ << endmsg;
   return StatusCode::SUCCESS;
@@ -543,6 +632,34 @@ const SOR* HltEventLoopMgr::processRunParams(const ptree & pt)
   return sor;
 }
 
+//=============================================================================
+void HltEventLoopMgr::updInternal(const coral::AttributeList & sor_attrlist)
+{
+  auto detMaskFst = sor_attrlist["DetectorMaskFst"].data<unsigned long long>();
+  auto detMaskSnd = sor_attrlist["DetectorMaskSnd"].data<unsigned long long>();
+  updDetMask({detMaskFst, detMaskSnd});
+
+  // auto sorTime = sor_attrlist["SORTime"].data<unsigned long long>();
+  // updSorTime(sorTime);
+
+  if(msgLevel() <= MSG::DEBUG)
+  {
+    // save current stream flags for later reset
+    // cast needed (stream thing returns long, but doesn't take it back)
+    auto previous_stream_flags = static_cast<std::ios::fmtflags>(msgStream().flags());
+    debug() << ST_WHERE
+            << "Full detector mask (128 bits) = 0x"
+            << MSG::hex << std::setfill('0')
+            << std::setw(8) << std::get<3>(m_detector_mask)
+            << std::setw(8) << std::get<2>(m_detector_mask)
+            << std::setw(8) << std::get<1>(m_detector_mask)
+            << std::setw(8) << std::get<0>(m_detector_mask) << endmsg;
+    msgStream().flags(previous_stream_flags);
+
+    // debug() << ST_WHERE << "sorTimeStamp[0] [sec] = " << m_sorTime_stamp[0] << endmsg;
+    // debug() << ST_WHERE << "sorTimeStamp[1] [ns]  = " << m_sorTime_stamp[1] << endmsg;
+  }
+}
 
 //==============================================================================
 StatusCode HltEventLoopMgr::clearTemporaryStores()
@@ -568,6 +685,20 @@ StatusCode HltEventLoopMgr::clearTemporaryStores()
   return sc;
 }
 
+//=============================================================================
+void HltEventLoopMgr::updDetMask(const std::pair<uint64_t, uint64_t>& dm)
+{
+  m_detector_mask = std::make_tuple(
+                      // least significant 4 bytes
+                      static_cast<EventID::number_type>(dm.second),
+                      // next least significant 4 bytes
+                      static_cast<EventID::number_type>(dm.second >> 32),
+                      // next least significant 4 bytes
+                      static_cast<EventID::number_type>(dm.first),
+                      // most significant 4 bytes
+                      static_cast<EventID::number_type>(dm.first >> 32)
+                    );
+}
 
 //==============================================================================
 const coral::AttributeList& HltEventLoopMgr::getSorAttrList(const SOR* sor) const
@@ -619,6 +750,23 @@ void HltEventLoopMgr::printSORAttrList(const coral::AttributeList& atr, MsgStrea
       << atr["RunType"].data<std::string>() << endmsg;
   log << "   RecordingEnabled = "
       << (atr["RecordingEnabled"].data<bool>() ? "true" : "false") << endmsg;
+}
+
+//==============================================================================
+StatusCode HltEventLoopMgr::createEventContext(EventContext*& evtContext) const
+{
+  evtContext = new EventContext(m_nevt, m_whiteboard->allocateStore(m_nevt));
+  
+  m_aess->reset(*evtContext);
+
+  StatusCode sc = m_whiteboard->selectStore(evtContext->slot());
+  if (sc.isFailure()){
+    warning() << "Slot " << evtContext->slot() << " could not be selected for the WhiteBoard" << endmsg;
+  } else {
+    evtContext->setExtension( Atlas::ExtendedEventContext( m_evtStore->hiveProxyDict() ) );
+    debug() << "created EventContext, num: " << evtContext->evt()  << "  in slot: " << evtContext->slot() << endmsg;
+  }
+  return sc;
 }
 
 //==============================================================================
