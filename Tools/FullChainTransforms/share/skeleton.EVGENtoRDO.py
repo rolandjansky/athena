@@ -140,6 +140,15 @@ try:
     configureFlags = getattr(FlagSetters, ISF_Flags.Simulator.configFlagsMethodName(), None)
     if configureFlags is not None:
         configureFlags()
+    possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']
+    for subdet in possibleSubDetectors:
+        simattr = "simulate."+subdet+"_on"
+        simcheck = getattr(DetFlags, simattr, None)
+        if simcheck is not None and simcheck():
+            attrname = subdet+"_setOn"
+            checkfn = getattr(DetFlags, attrname, None)
+            if checkfn is not None:
+                checkfn()
 except:
     ## Select detectors
     if 'DetFlags' not in dir():
@@ -148,10 +157,14 @@ except:
         DetFlags.all_setOn()
     DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
     DetFlags.Truth_setOn()
-    DetFlags.Forward_setOff() # Forward dets are off by default
-    checkHGTDOff = getattr(DetFlags, 'HGTD_setOff', None)
-    if checkHGTDOff is not None:
-        checkHGTDOff() #Default for now
+
+DetFlags.Forward_setOff() # Forward dets are off by default
+DetFlags.Micromegas_setOff()
+DetFlags.sTGC_setOff()
+DetFlags.FTK_setOff()
+checkHGTDOff = getattr(DetFlags, 'HGTD_setOff', None)
+if checkHGTDOff is not None:
+    checkHGTDOff() #Default for now
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Print()

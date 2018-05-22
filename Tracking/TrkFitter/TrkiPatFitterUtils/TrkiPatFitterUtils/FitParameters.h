@@ -16,8 +16,6 @@
 #include <vector>
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "TrkAlgebraUtils/AlSymMat.h"
-#include "TrkAlgebraUtils/AlVec.h"
 #include "TrkParameters/TrackParameters.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
@@ -64,7 +62,6 @@ public:
     void			d0 (double value);
     double			difference (int param) const;
     const Amg::VectorX&  	differences (void) const;
-    const AlVec&		differencesAlSpaMat (void) const;
     Amg::Vector3D		direction (void) const;
     bool			extremeMomentum (void) const;
     void			extremeMomentum (bool value);
@@ -112,7 +109,6 @@ public:
     const TrackParameters*	trackParameters (MsgStream&		log,
 						 const FitMeasurement&	measurement,
 						 bool			withCovariance=false) const;
-    void			update (const AlVec&			differences);
     void			update (const Amg::VectorX&		differences);
     void			update (Amg::Vector3D			position,
 					Amg::Vector3D			direction,
@@ -136,7 +132,6 @@ private:
     double			m_cotTheta;
     double			m_d0;
     Amg::VectorX*		m_differences;
-    AlVec*			m_differencesAlSpaMat;
     bool			m_eigen;
     bool			m_extremeMomentum;
     Amg::MatrixX*		m_finalCovariance;
@@ -205,25 +200,13 @@ FitParameters::d0 (void) const
 inline double
 FitParameters::difference (int param) const
 {
-    if (m_eigen)
-    {
-	// if (! m_differences)  return 0.;   // surely unnecessary?
-	return (*m_differences)(param);
-    }
-    else
-    {
-	// if (! m_differencesAlSpaMat)  return 0.;
-	return (*m_differencesAlSpaMat)[param];
-    }	
+    // if (! m_differences)  return 0.;   // surely unnecessary?
+    return (*m_differences)(param);
 }
 
 inline const Amg::VectorX&
 FitParameters::differences (void) const
 { return *m_differences; }
-
-inline const AlVec&
-FitParameters::differencesAlSpaMat (void) const
-{ return *m_differencesAlSpaMat; }
 
 inline Amg::Vector3D
 FitParameters::direction (void) const

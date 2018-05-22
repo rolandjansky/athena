@@ -12,7 +12,7 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 
 #include "TH1.h"
 
