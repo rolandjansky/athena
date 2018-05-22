@@ -173,29 +173,30 @@ class AODFix_r210(AODFix_base):
     if tauAODFlags.doTauIDAODFix():
         def tauid_postSystemRec(self, topSequence):
             from AthenaCommon.AppMgr import ToolSvc
+            from RecExConfig.AutoConfiguration import IsInInputFile
             from JetRec.JetRecConf import JetAlgorithm
             from JetRecTools.JetRecToolsConf import CaloClusterConstituentsOrigin
             from JetRecTools.JetRecToolsConf import JetConstituentModSequence
 
-            # Rebuild LCOriginTopoClusters container
-            xAOD_Type_CaloCluster = 1
+            # Rebuild LCOriginTopoClusters container if not present in input
+            if not IsInInputFile("xAOD::CaloClusterContainer", "LCOriginTopoClusters"):
+                xAOD_Type_CaloCluster = 1
+                clusterOrigin = CaloClusterConstituentsOrigin(
+                    "CaloClusterConstitOrigin_tau_AODFix",
+                    InputType=xAOD_Type_CaloCluster)
+                ToolSvc += clusterOrigin
 
-            clusterOrigin = CaloClusterConstituentsOrigin(
-                "CaloClusterConstitOrigin_tau_AODFix",
-                InputType=xAOD_Type_CaloCluster)
-            ToolSvc += clusterOrigin
+                jetConstitModSeq = JetConstituentModSequence(
+                    "JetConstitModSeq_tau_AODFix",
+                    InputContainer="CaloCalTopoClusters",
+                    OutputContainer="LCOriginTopoClusters",
+                    InputType=xAOD_Type_CaloCluster,
+                    Modifiers=[clusterOrigin]
+                )
+                ToolSvc += jetConstitModSeq
 
-            jetConstitModSeq = JetConstituentModSequence(
-                "JetConstitModSeq_tau_AODFix",
-                InputContainer="CaloCalTopoClusters",
-                OutputContainer="LCOriginTopoClusters",
-                InputType=xAOD_Type_CaloCluster,
-                Modifiers=[clusterOrigin]
-            )
-            ToolSvc += jetConstitModSeq
-
-            jetAlg = JetAlgorithm("jetalgTCOriginLC", Tools=[jetConstitModSeq])
-            topSequence += jetAlg
+                jetAlg = JetAlgorithm("jetalgTCOriginLC", Tools=[jetConstitModSeq])
+                topSequence += jetAlg
 
             # Calculate RNN-ID and set working points
             from tauRec.TauRecAODBuilder import TauRecAODProcessor_RNN_ID
