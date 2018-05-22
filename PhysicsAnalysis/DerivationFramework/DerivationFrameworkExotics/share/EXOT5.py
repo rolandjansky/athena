@@ -11,6 +11,7 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
 scheduleTauTruthTools()
 from DerivationFrameworkCore.WeightMetadata import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import * 
 
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
@@ -242,6 +243,7 @@ if DerivationFrameworkIsMonteCarlo:
 #====================================================================
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__SkimmingToolEXOT5
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
 
 triggers = [
     # MET
@@ -376,8 +378,8 @@ if not DerivationFrameworkIsMonteCarlo:
     ToolSvc += EXOT5StringSkimmingTool
     skimmingTools.append(EXOT5StringSkimmingTool)
 
-EXOT5SkimmingTool = DerivationFramework__SkimmingToolEXOT5(
-    name                = 'EXOT5SkimmingTool',
+EXOT5SkimmingTool_EMTopo = DerivationFramework__SkimmingToolEXOT5(
+    name                = 'EXOT5SkimmingTool_EMTopo',
     JetContainer        = 'AntiKt4EMTopoJets',
     UncalibMonoJetPtCut = 100000.,
     MonoJetPtCut        = 100000.,
@@ -387,12 +389,28 @@ EXOT5SkimmingTool = DerivationFramework__SkimmingToolEXOT5(
     VBFJetThresh        = 40000.,
     DiJetMassMaxCut     = 150000.,
     DiJetDEtaCut        = 2.5)
+ToolSvc += EXOT5SkimmingTool_EMTopo
+
+EXOT5SkimmingTool_PFlow = DerivationFramework__SkimmingToolEXOT5(
+    name                = 'EXOT5SkimmingTool_PFlow',
+    JetContainer        = 'AntiKt4EMPFlowJets',
+    LeadingJetPtCut     = 40000.,
+    SubleadingJetPtCut  = 40000.,
+    VBFJetThresh        = 40000.,
+    DiJetMassMaxCut     = 150000.,
+    DiJetDEtaCut        = 2.5)
+ToolSvc += EXOT5SkimmingTool_PFlow
+
+EXOT5SkimmingTool=DerivationFramework__FilterCombinationOR(name="EXOT5SkimmingTool", FilterList=[EXOT5SkimmingTool_EMTopo,EXOT5SkimmingTool_PFlow] )
 ToolSvc += EXOT5SkimmingTool
 skimmingTools.append(EXOT5SkimmingTool)
 
 #=======================================
 # JETS
 #=======================================
+
+#re-tag PFlow jets so they have b-tagging info.
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = exot5Seq)
 
 #restore AOD-reduced jet collections
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
@@ -443,7 +461,7 @@ EXOT5SlimmingHelper.ExtraVariables = [
     'Muons.ptcone20.ptcone30.ptcone40.etcone20.etcone30.etcone40',
     'Photons.author.Loose.Tight',
     'TauJets.TruthCharge.TruthProng.IsTruthMatched.TruthPtVis.truthOrigin.truthType.truthParticleLink.truthJetLink',
-    'AntiKt4EMPFlowJets.btaggingLink.GhostTruthAssociationLink.HadronConeExclTruthLabelID.PartonTruthLabelID.Timing.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt',
+    'AntiKt4EMPFlowJets.btagging.btaggingLink.GhostTruthAssociationLink.HadronConeExclTruthLabelID.PartonTruthLabelID.Timing.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt,TruthLabelID.constituentLinks.GhostBHadronsFinal.GhostBHadronsInitial.GhostBQuarksFinal.GhostCHadronsFinal.GhostCHadronsInitial.GhostCQuarksFinal.GhostHBosons.GhostPartons.GhostTQuarksFinal.GhostTausFinal.GhostWBosons.GhostZBosons.GhostTruth.OriginVertex.GhostAntiKt3TrackJet.GhostAntiKt4TrackJet.GhostMuonSegment.HighestJVFVtx.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.HighestJVFLooseVtx.GhostAntiKt2TrackJet.JvtJvfcorr.SumPtTrkPt1000.TrackWidthPt500.NegativeE,BTagging_AntiKt4EMPFlow.MV1_discriminant.MV1c_discriminant.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu.MV2c00_discriminant.MV2c10_discriminant.MV2c20_discriminant.MVb_discriminant.MSV_vertices.SV0_badTracksIP.SV0_vertices.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP.MV2c100_discriminant.MV2m_pu.MV2m_pc.MV2m_pb'
     'LVL1EmTauRoIs.eta.phi.roiWord.etScale.emIsol.hadIsol',
     'LVL1EnergySumRoI.energyX.energyY',
     'LVL1JetRoIs.eta.phi.et8x8',
