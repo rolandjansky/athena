@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 /////////////////////////////////////////////////////////////////
 // JpsiPlusDsCascade.cxx, (c) ATLAS Detector software
@@ -62,38 +62,19 @@ namespace DerivationFramework {
     StatusCode JpsiPlusDsCascade::initialize() {
 
         // retrieving vertex Fitter
-        if ( m_iVertexFitter.retrieve().isFailure() ) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_iVertexFitter);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_DEBUG("Retrieved tool " << m_iVertexFitter);
-        }
+        ATH_CHECK( m_iVertexFitter.retrieve());
         
         // retrieving the V0 tools
-        if ( m_V0Tools.retrieve().isFailure() ) {
-          ATH_MSG_FATAL("Failed to retrieve tool " << m_V0Tools);
-          return StatusCode::FAILURE;
-        } else {
-          ATH_MSG_INFO("Retrieved tool " << m_V0Tools);
-        }
+        ATH_CHECK( m_V0Tools.retrieve());
 
         // retrieving the Cascade tools
-        if ( m_CascadeTools.retrieve().isFailure() ) {
-          ATH_MSG_FATAL("Failed to retrieve tool " << m_CascadeTools);
-          return StatusCode::FAILURE;
-        } else {
-          ATH_MSG_INFO("Retrieved tool " << m_CascadeTools);
-        }
+        ATH_CHECK( m_CascadeTools.retrieve());
 
         // Get the beam spot service
-        CHECK( m_beamSpotSvc.retrieve() );
+        ATH_CHECK( m_beamSpotSvc.retrieve() );
 
-        IPartPropSvc* partPropSvc = 0;
-        StatusCode sc = service("PartPropSvc", partPropSvc, true);
-        if (sc.isFailure()) {
-          msg(MSG::ERROR) << "Could not initialize Particle Properties Service" << endmsg;
-          return StatusCode::FAILURE;
-        }
+        IPartPropSvc* partPropSvc = nullptr;
+        ATH_CHECK( service("PartPropSvc", partPropSvc, true) );
         m_particleDataTable = partPropSvc->PDT();
 
         // retrieve particle masses
@@ -121,8 +102,8 @@ namespace DerivationFramework {
          Vtxwritehandles[i] = new xAOD::VertexContainer();
          Vtxwritehandlesaux[i] = new xAOD::VertexAuxContainer();
          Vtxwritehandles[i]->setStore(Vtxwritehandlesaux[i]);
-         CHECK(evtStore()->record(Vtxwritehandles[i]   , m_cascadeOutputsKeys[i]       ));
-         CHECK(evtStore()->record(Vtxwritehandlesaux[i], m_cascadeOutputsKeys[i] + "Aux."));
+         ATH_CHECK(evtStore()->record(Vtxwritehandles[i]   , m_cascadeOutputsKeys[i]       ));
+         ATH_CHECK(evtStore()->record(Vtxwritehandlesaux[i], m_cascadeOutputsKeys[i] + "Aux."));
       }
 
       //----------------------------------------------------
@@ -130,7 +111,7 @@ namespace DerivationFramework {
       //----------------------------------------------------
       const xAOD::Vertex * primaryVertex(nullptr);
       const xAOD::VertexContainer *pvContainer(nullptr);
-      CHECK(evtStore()->retrieve(pvContainer, m_VxPrimaryCandidateName));
+      ATH_CHECK(evtStore()->retrieve(pvContainer, m_VxPrimaryCandidateName));
       ATH_MSG_DEBUG("Found " << m_VxPrimaryCandidateName << " in StoreGate!");
 
       if (pvContainer->size()==0){
@@ -143,20 +124,20 @@ namespace DerivationFramework {
       //----------------------------------------------------
       // Try to retrieve refitted primary vertices
       //----------------------------------------------------
-      xAOD::VertexContainer*    refPvContainer    = NULL;
-      xAOD::VertexAuxContainer* refPvAuxContainer = NULL;
+      xAOD::VertexContainer*    refPvContainer    = nullptr;
+      xAOD::VertexAuxContainer* refPvAuxContainer = nullptr;
       if (m_refitPV) {
         if (evtStore()->contains<xAOD::VertexContainer>(m_refPVContainerName)) {
           // refitted PV container exists. Get it from the store gate
-          CHECK(evtStore()->retrieve(refPvContainer   , m_refPVContainerName       ));
-          CHECK(evtStore()->retrieve(refPvAuxContainer, m_refPVContainerName + "Aux."));
+          ATH_CHECK(evtStore()->retrieve(refPvContainer   , m_refPVContainerName       ));
+          ATH_CHECK(evtStore()->retrieve(refPvAuxContainer, m_refPVContainerName + "Aux."));
         } else {
           // refitted PV container does not exist. Create a new one.
           refPvContainer = new xAOD::VertexContainer;
           refPvAuxContainer = new xAOD::VertexAuxContainer;
           refPvContainer->setStore(refPvAuxContainer);
-          CHECK(evtStore()->record(refPvContainer   , m_refPVContainerName));
-          CHECK(evtStore()->record(refPvAuxContainer, m_refPVContainerName+"Aux."));
+          ATH_CHECK(evtStore()->record(refPvContainer   , m_refPVContainerName));
+          ATH_CHECK(evtStore()->record(refPvAuxContainer, m_refPVContainerName+"Aux."));
         }
       }
 
@@ -190,9 +171,9 @@ namespace DerivationFramework {
 
       // Get Jpsi container and identify the input Jpsi
       const xAOD::VertexContainer  *jpsiContainer(nullptr);
-      CHECK(evtStore()->retrieve(jpsiContainer   , m_vertexContainerKey       ));
+      ATH_CHECK(evtStore()->retrieve(jpsiContainer   , m_vertexContainerKey       ));
       const xAOD::VertexContainer  *dxContainer(nullptr);
-      CHECK(evtStore()->retrieve(dxContainer   , m_vertexDxContainerKey       ));
+      ATH_CHECK(evtStore()->retrieve(dxContainer   , m_vertexDxContainerKey       ));
 
       for (Trk::VxCascadeInfo* x : cascadeinfoContainer) {
         if(x==nullptr) ATH_MSG_ERROR("cascadeinfoContainer is null");
@@ -224,7 +205,6 @@ namespace DerivationFramework {
         
         x->getSVOwnership(false); // Prevent Container from deleting vertices
         const auto mainVertex = cascadeVertices[1];   // this is the B_c+/- vertex
-        //const auto v0Vertex = cascadeVertices[0];   // this is the D_(s)+/- vertex
         const std::vector< std::vector<TLorentzVector> > &moms = x->getParticleMoms();
 
         // Set links to cascade vertices
@@ -240,11 +220,6 @@ namespace DerivationFramework {
         if (jpsiVertex) ATH_MSG_DEBUG("2 pt Jpsi tracks " << jpsiVertex->trackParticle(0)->pt() << ", " << jpsiVertex->trackParticle(1)->pt());
 
         // Identify the input D_(s)+
-/*
-        xAOD::Vertex* v0Vertex = BPhysPVCascadeTools::FindVertex<2>(v0Container, cascadeVertices[0]);;
-        ATH_MSG_DEBUG("1 pt V0 tracks " << cascadeVertices[0]->trackParticle(0)->pt() << ", " << cascadeVertices[0]->trackParticle(1)->pt());
-        if (v0Vertex) ATH_MSG_DEBUG("2 pt V0 tracks " << v0Vertex->trackParticle(0)->pt() << ", " << v0Vertex->trackParticle(1)->pt()); 
-*/
         xAOD::Vertex* dxVertex = BPhysPVCascadeTools::FindVertex<3>(dxContainer, cascadeVertices[0]);;
         ATH_MSG_DEBUG("1 pt D_(s)+ tracks " << cascadeVertices[0]->trackParticle(0)->pt() << ", " << cascadeVertices[0]->trackParticle(1)->pt() << ", " << cascadeVertices[0]->trackParticle(2)->pt());
         if (dxVertex) ATH_MSG_DEBUG("2 pt D_(s)+ tracks " << dxVertex->trackParticle(0)->pt() << ", " << dxVertex->trackParticle(1)->pt() << ", " << dxVertex->trackParticle(2)->pt());
@@ -267,7 +242,6 @@ namespace DerivationFramework {
         for( unsigned int jt=0; jt<cascadeVertices.size(); jt++) {
           for( unsigned int it=0; it<cascadeVertices[jt]->vxTrackAtVertex().size(); it++) {
             ATH_MSG_DEBUG("track to exclude " << cascadeVertices[jt]->trackParticle(it) << " pt " << cascadeVertices[jt]->trackParticle(it)->pt() << " charge " << cascadeVertices[jt]->trackParticle(it)->charge() << " from vertex " << jt << " track number " << it);
-           //if(cascadeVertices[jt]->trackParticle(it)->charge() != 0) exclTrk.push_back(m_V0Tools->origTrack(cascadeVertices[jt],it));
            if(cascadeVertices[jt]->trackParticle(it)->charge() != 0) exclTrk.push_back(cascadeVertices[jt]->trackParticle(it));
           }
         }
@@ -294,6 +268,19 @@ namespace DerivationFramework {
            massesDx.push_back(m_mass_pion);
            Masses.push_back(m_mass_Dp);
            mass_d = m_mass_Dp;
+        } else if (m_trkMasses.size() == 6) { // Assign track masses using user's input. The order of particles in m_trkMasses vector is given as e.g.mu+, mu-, D_s+, K+, K-, pi+ 
+           massesJpsi.clear();
+           massesDx.clear();
+           Masses.clear();
+           massesJpsi.push_back(m_trkMasses[0]);
+           massesJpsi.push_back(m_trkMasses[1]);
+           Masses.push_back(m_trkMasses[0]);
+           Masses.push_back(m_trkMasses[1]);
+           Masses.push_back(m_trkMasses[2]);
+           mass_d = m_trkMasses[2];
+           massesDx.push_back(m_trkMasses[3]);
+           massesDx.push_back(m_trkMasses[4]);
+           massesDx.push_back(m_trkMasses[5]);
         }
 
         // reset beamspot cache
@@ -620,12 +607,6 @@ namespace DerivationFramework {
         ATH_MSG_DEBUG("Rxy0 wrt PV " << m_V0Tools->rxy(cascadeVertices[0],primaryVertex) << " RxyErr0 wrt PV " << m_V0Tools->rxyError(cascadeVertices[0],primaryVertex));
         ATH_MSG_DEBUG("Rxy1 wrt PV " << m_V0Tools->rxy(cascadeVertices[1],primaryVertex) << " RxyErr1 wrt PV " << m_V0Tools->rxyError(cascadeVertices[1],primaryVertex));
         ATH_MSG_DEBUG("number of covariance matrices " << (x->getCovariance()).size());
-        //const Amg::MatrixX& cov30 = (cascadeVertices[0])->covariancePosition();
-        //const Amg::MatrixX& cov31 = (cascadeVertices[1])->covariancePosition();
-        //ATH_MSG_DEBUG("cov30 " << cov30);
-        //ATH_MSG_DEBUG("cov31 " << cov31);
-
-
       } // loop over cascadeinfoContainer
 
       // Deleting cascadeinfo since this won't be stored.
@@ -675,6 +656,7 @@ namespace DerivationFramework {
        declareProperty("MassLowerCut", m_MassLower);
        declareProperty("MassUpperCut", m_MassUpper);
        declareProperty("HypothesisName",            m_hypoName               = "Bc");
+       declareProperty("TrkMasses",                 m_trkMasses              = std::vector<double>(2, 105.658) );
        declareProperty("DxHypothesis",              m_Dx_pid);
        declareProperty("ApplyDxMassConstraint",     m_constrDx);
        declareProperty("ApplyJpsiMassConstraint",   m_constrJpsi);
@@ -698,15 +680,15 @@ namespace DerivationFramework {
 
         // Get TrackParticle container (for setting links to the original tracks)
         const xAOD::TrackParticleContainer  *trackContainer(nullptr);
-        CHECK(evtStore()->retrieve(trackContainer   , "InDetTrackParticles"      ));
+        ATH_CHECK(evtStore()->retrieve(trackContainer   , "InDetTrackParticles"      ));
 
         // Get Jpsi container
         const xAOD::VertexContainer  *jpsiContainer(nullptr);
-        CHECK(evtStore()->retrieve(jpsiContainer   , m_vertexContainerKey       ));
+        ATH_CHECK(evtStore()->retrieve(jpsiContainer   , m_vertexContainerKey       ));
 
         // Get V0 container
         const xAOD::VertexContainer  *dxContainer(nullptr);
-        CHECK(evtStore()->retrieve(dxContainer   , m_vertexDxContainerKey       ));
+        ATH_CHECK(evtStore()->retrieve(dxContainer   , m_vertexDxContainerKey       ));
 
         double mass_d = m_mass_Ds; 
         std::vector<const xAOD::TrackParticle*> tracksJpsi;
@@ -732,6 +714,19 @@ namespace DerivationFramework {
            massesDx.push_back(m_mass_pion);
            mass_d = m_mass_Dp;
            Masses.push_back(m_mass_Dp);
+        } else if (m_trkMasses.size() == 6) { // Assign track masses using user's input. The order of particles in m_trkMasses vector is given as e.g.mu+, mu-, D_s+, K+, K-, pi+ 
+           massesJpsi.clear();
+           massesDx.clear();
+           Masses.clear();
+           massesJpsi.push_back(m_trkMasses[0]);
+           massesJpsi.push_back(m_trkMasses[1]);
+           Masses.push_back(m_trkMasses[0]);
+           Masses.push_back(m_trkMasses[1]);
+           Masses.push_back(m_trkMasses[2]);
+           mass_d = m_trkMasses[2];
+           massesDx.push_back(m_trkMasses[3]);
+           massesDx.push_back(m_trkMasses[4]);
+           massesDx.push_back(m_trkMasses[5]);
         }
 
         for(auto jpsi : *jpsiContainer) { //Iterate over Jpsi vertices
@@ -793,12 +788,6 @@ namespace DerivationFramework {
                 continue;
               }
 
-              //if (std::find(trackContainer->begin(), trackContainer->end(), tracksJpsi[0]) == trackContainer->end()) {
-              //   ATH_MSG_ERROR("Track is not in standard container");
-              //} else {
-              //   ATH_MSG_DEBUG("Track " << tracksJpsi[0] << " is at position " << std::distance(trackContainer->begin(), std::find(trackContainer->begin(), trackContainer->end(), tracksJpsi[0])) );
-              //}
-              //ATH_MSG_DEBUG("using tracks " << tracksJpsi[0] << ", " << tracksJpsi[1] << ", " << tracksDx[0] << ", " << tracksDx[1]);
 
               // Apply the user's settings to the fitter
               // Reset
@@ -830,7 +819,7 @@ namespace DerivationFramework {
               // Do the work
               std::unique_ptr<Trk::VxCascadeInfo> result(m_iVertexFitter->fitCascade());
 
-              if (result != NULL) {
+              if (result != nullptr) {
                 // reset links to original tracks
                 for(auto v : result->vertices()){
                   std::vector<ElementLink<DataVector<xAOD::TrackParticle> > > newLinkVector;

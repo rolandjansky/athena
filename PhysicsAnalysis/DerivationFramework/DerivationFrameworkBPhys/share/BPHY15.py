@@ -19,8 +19,6 @@ print isSimulation
 # AUGMENTATION TOOLS 
 #====================================================================
 ## 1/ setup vertexing tools and services
-#include( "JpsiUpsilonTools/configureServices.py" )
-
 include("DerivationFrameworkBPhys/configureVertexing.py")
 BPHY15_VertexTools = BPHYVertexTools("BPHY15")
 
@@ -127,7 +125,7 @@ BPHY15BcJpsipi = Analysis__JpsiPlus1Track(
     trkMaxEta               = 2.5,
     BThresholdPt            = 100.0,
     BMassUpper	            = 7000.0,
-    BMassLower	            = 2000.0,
+    BMassLower	            = 2500.0,
     JpsiContainerKey        = "BPHY15JpsiCandidates",
     TrackParticleCollection = "InDetTrackParticles",
     MuonsUsedInJpsi         = "Muons",
@@ -136,7 +134,7 @@ BPHY15BcJpsipi = Analysis__JpsiPlus1Track(
     UseMassConstraint       = True, 
     Chi2Cut 	            = 10,
     TrkTrippletMassUpper    = 7000,
-    TrkTrippletMassLower    = 2000)
+    TrkTrippletMassLower    = 2500)
         
 ToolSvc += BPHY15BcJpsipi
 print      BPHY15BcJpsipi    
@@ -164,8 +162,8 @@ BPHY15_Select_Bc2Jpsipi = DerivationFramework__Select_onia2mumu(
     InputVtxContainerName = "BPHY15JpsipiCandidates",
     TrkMasses             = [105.658, 105.658, 139.571],
     VtxMassHypo           = 6274.9,
-    MassMin               = 4000.0,
-    MassMax               = 8000.0,
+    MassMin               = 5400.0,
+    MassMax               = 7000.0,
     Chi2Max               = 200)
 
 ToolSvc += BPHY15_Select_Bc2Jpsipi
@@ -225,8 +223,8 @@ BPHY15DiTrkFinder = Analysis__JpsiFinder(
     muAndTrack                 = False,
     TrackAndTrack              = True,
     assumeDiMuons              = False,    # If true, will assume dimu hypothesis and use PDG value for mu mass
-    invMassUpper               = 3000.0,
-    invMassLower               = 0.0,
+    invMassUpper               = 2500.0,
+    invMassLower               = 300.0,
     Chi2Cut                    = 100.,
     oppChargesOnly	       = True,
     atLeastOneComb             = False,
@@ -285,8 +283,8 @@ BPHY15Dh3Finder = Analysis__JpsiPlus1Track(
     trkThresholdPt	    = 500.0,
     trkMaxEta	            = 3.0, # is this value fine?? default would be 102.5
     BThresholdPt            = 100.0,
-    BMassUpper              = 5000.0, # What is this??
-    BMassLower       	    = 0.0,
+    BMassUpper              = 3000.0, # What is this??
+    BMassLower       	    = 500.0,
     JpsiContainerKey        = "BPHY15DiTrkCandidates",
     TrackParticleCollection = "InDetTrackParticles",
     MuonsUsedInJpsi         = "NONE", # ?
