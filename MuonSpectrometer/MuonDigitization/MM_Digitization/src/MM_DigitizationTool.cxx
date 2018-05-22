@@ -1020,7 +1020,7 @@ StatusCode MM_DigitizationTool::doDigitization() {
 			deposits.push_back(deposit);
                         MuonSimData simData(deposits,0);
                         simData.setPosition(hitOnSurfaceGlobal);
-                        simData.setTime(globalHitTime);
+                        simData.setTime(m_globalHitTime);
                         m_sdoContainer->insert ( std::make_pair ( digitID, simData ) );
 			ATH_MSG_DEBUG(" added MM SDO " <<  m_sdoContainer->size());
 
