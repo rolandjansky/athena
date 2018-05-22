@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -46,6 +46,7 @@ namespace DerivationFramework {
     declareProperty("DoVertexType"          , m_DoVertexType           = 1);
     // minimum number of tracks for PV to be considered for PV association
     declareProperty("MinNTracksInPV"        , m_PV_minNTracks          = 0);
+    declareProperty("Do3d"                  , m_do3d                   = false);
   }
 
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -124,6 +125,7 @@ namespace DerivationFramework {
     // Give the helper class the ptr to v0tools and beamSpotsSvc to use
     BPhysPVTools helper(&(*m_v0Tools), &m_beamSpotSvc);
     helper.SetMinNTracksInPV(m_PV_minNTracks);
+    helper.SetSave3d(m_do3d);
 
     if(m_refitPV){ 
        if(vtxContainer->size() >0){
