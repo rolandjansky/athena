@@ -39,7 +39,6 @@ static std::string CMT_PACKAGE_VERSION = PACKAGE_VERSION;
 #include "TrigServices/HltEventLoopMgr.h"
 #include "TrigServices/TrigISHelper.h"
 #include "TrigServices/TrigHLTIssues.h"
-#include "TrigPreFlightCheck.h"
 #include "TrigCOOLUpdateHelper.h"
 #include "TrigSORFromPtreeHelper.h"
 #include "TrigConfInterfaces/IHLTConfigSvc.h"
@@ -602,29 +601,6 @@ StatusCode HltEventLoopMgr::initialize()
     msgStream() << MSG::DEBUG << "No AlgContextSvc available" << endmsg;
   }
 
-  //--------------------------------------------------------------------------
-  // Pre flight check
-  //--------------------------------------------------------------------------
-  /*
-  ToolHandle<TrigPreFlightCheck> preFlightCheck;
-  if (preFlightCheck.retrieve().isFailure()) {
-    msgStream() << MSG::FATAL << "Error retrieving TrigPreFlightCheck "+preFlightCheck << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  // A failed pre-flight check is fatal in a partition
-  if ( validPartition() ) {
-    if ( preFlightCheck->check(MSG::ERROR).isFailure() ) {
-      msgStream() << MSG::FATAL << "Pre-flight check for HLT failed." << endmsg;
-      return StatusCode::FAILURE;
-    }
-  }
-  else {
-    if ( preFlightCheck->check(MSG::WARNING).isFailure() )
-      msgStream() << MSG::WARNING << "Pre-flight check for HLT failed." << endmsg;
-  }    
-  preFlightCheck->release();
-  */
   // The remainder of this method used to be in the L2/EF specialization
 
   // fill CTP ROB id vector
