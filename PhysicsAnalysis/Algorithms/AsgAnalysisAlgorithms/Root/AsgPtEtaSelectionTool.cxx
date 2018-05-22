@@ -14,6 +14,8 @@
 
 #include <xAODBase/IParticle.h>
 
+#include <cmath>
+
 //
 // method implementations
 //
@@ -35,22 +37,22 @@ namespace CP
   StatusCode AsgPtEtaSelectionTool ::
   initialize ()
   {
-    if (m_minPt < 0 || !isfinite (m_minPt))
+    if (m_minPt < 0 || !std::isfinite (m_minPt))
     {
       ATH_MSG_ERROR ("invalid value of minPt: " << m_minPt);
       return StatusCode::FAILURE;
     }
-    if (m_maxEta < 0 || !isfinite (m_maxEta))
+    if (m_maxEta < 0 || !std::isfinite (m_maxEta))
     {
       ATH_MSG_ERROR ("invalid value of maxEta: " << m_maxEta);
       return StatusCode::FAILURE;
     }
-    if (m_etaGapLow < 0 || !isfinite (m_etaGapLow))
+    if (m_etaGapLow < 0 || !std::isfinite (m_etaGapLow))
     {
       ATH_MSG_ERROR ("invalid value of etaGapLow: " << m_etaGapLow);
       return StatusCode::FAILURE;
     }
-    if (m_etaGapHigh < 0 || !isfinite (m_etaGapHigh))
+    if (m_etaGapHigh < 0 || !std::isfinite (m_etaGapHigh))
     {
       ATH_MSG_ERROR ("invalid value of etaGapHigh: " << m_etaGapHigh);
       return StatusCode::FAILURE;
