@@ -77,11 +77,11 @@ private:
 
 
 PropertyValueJsonDumper::PropertyValueJsonDumper() {
-   m_dispatch.emplace_back(Property::BOOL, new TPropertyValueJsonDumper<bool>);
-   m_dispatch.emplace_back(Property::INT, new TPropertyValueJsonDumper<int>);
-   m_dispatch.emplace_back(Property::FLOAT, new TPropertyValueJsonDumper<float>);
-   m_dispatch.emplace_back(Property::DOUBLE, new TPropertyValueJsonDumper<double>);
-   m_dispatch.emplace_back(Property::STRING, new TPropertyValueJsonDumper<std::string>);
+   m_dispatch.emplace_back(Property::BOOL, std::make_unique<TPropertyValueJsonDumper<bool> >());
+   m_dispatch.emplace_back(Property::INT, std::make_unique<TPropertyValueJsonDumper<int> >());
+   m_dispatch.emplace_back(Property::FLOAT, std::make_unique<TPropertyValueJsonDumper<float> >());
+   m_dispatch.emplace_back(Property::DOUBLE, std::make_unique<TPropertyValueJsonDumper<double> >());
+   m_dispatch.emplace_back(Property::STRING, std::make_unique<TPropertyValueJsonDumper<std::string> >());
 }
 
 
