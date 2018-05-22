@@ -99,6 +99,9 @@ private:
   /// Print the SOR record
   void printSORAttrList(const coral::AttributeList& atr, MsgStream& log) const;
 
+  /// Drain the scheduler from all actions that may be queued
+  int drainScheduler() const;
+
   // ------------------------- Handles to required services/tools --------------
   typedef ServiceHandle<IIncidentSvc> IIncidentSvc_t;
   IIncidentSvc_t m_incidentSvc;

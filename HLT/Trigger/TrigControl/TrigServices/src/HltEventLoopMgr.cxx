@@ -13,7 +13,6 @@
 #include "GaudiKernel/IScheduler.h"
 #include "GaudiKernel/IAlgExecStateSvc.h"
 
-
 // Athena includes
 #include "StoreGate/StoreGateSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
@@ -23,6 +22,10 @@
 #include "TrigSORFromPtreeHelper.h"
 #include "TrigCOOLUpdateHelper.h"
 #include "TrigPreFlightCheck.h"
+
+// TDAQ includes
+#include "hltinterface/DataCollector.h"
+#include "eformat/write/FullEventFragment.h"
 
 #include "owl/time.h"
 
@@ -420,7 +423,36 @@ StatusCode HltEventLoopMgr::executeRun(int maxevt)
 StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
 {
   verbose() << "start of " << __FUNCTION__ << endmsg;
-  // nothing happens here yet
+  
+  info() << "Starting loop on events" << endmsg;
+  bool loop_ended = false;
+  bool events_available = true; // DataCollector has more events
+  
+  while (!loop_ended) {
+    if (m_schedulerSvc->freeSlots()>0 && events_available) {
+      debug() << "Free slots = " << m_schedulerSvc->freeSlots() << ". Reading the next event." << endmsg;
+      // get the next event
+      eformat::write::FullEventFragment l1r; // can we allocate new each time?
+      // should the getNext call be protected by try{} and catch()?
+      hltinterface::DataCollector::Status status = hltinterface::DataCollector::instance()->getNext(l1r);
+      if (status == hltinterface::DataCollector::Status::STOP) {
+        debug() << "No more events available, the loop will finish when all events on the fly are processed" << endmsg;
+        events_available = false;
+      }
+      else if (status != hltinterface::DataCollector::Status::OK) {
+        error() << "Unhandled return Status " << static_cast<int>(status) << " from DataCollector::getNext" << endmsg;
+        // continue running?
+      }
+    }
+    else {
+      int nPopped = drainScheduler();
+      if (nPopped==0 && !events_available) {
+        info() << "All events processed, finalising the event loop" << endmsg;
+        loop_ended = true;
+      }
+    }
+  }
+
   verbose() << "end of " << __FUNCTION__ << endmsg;
   return StatusCode::SUCCESS;
 }
@@ -587,4 +619,11 @@ void HltEventLoopMgr::printSORAttrList(const coral::AttributeList& atr, MsgStrea
       << atr["RunType"].data<std::string>() << endmsg;
   log << "   RecordingEnabled = "
       << (atr["RecordingEnabled"].data<bool>() ? "true" : "false") << endmsg;
+}
+
+//==============================================================================
+int HltEventLoopMgr::drainScheduler() const
+{
+  // if all events processed, return 0
+  return 0;
 }
