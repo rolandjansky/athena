@@ -1,18 +1,15 @@
 #**************************************************************
 #
-# TrigL1TopoROBMonitor.py
+# TrigL1TopoWriteValData.py
 #
 #==============================================================
-#from AthenaCommon.Constants import *
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('TrigL1TopoROBMonitor.py')
+log = logging.getLogger('TrigL1TopoWriteValData.py')
 
-from AthenaCommon.AlgSequence import AlgSequence 
+from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-# StoreGate key of simulated topo decision output for CTP
-#sgkey="L1TopoCTPSimForMonitoring"
 
 # Add simulation algorithm which provided input to monitoring: 
 # new instance with non-default output location and prescale
@@ -26,9 +23,12 @@ if 'doL1TopoSimMon' not in dir():
 log.info ('doL1TopoSimMon=%s' % doL1TopoSimMon)
 if doL1TopoSimMon:
     topSequenceAlgNames=[alg.getName() for alg in topSequence.getChildren()]
+    steerIndex=topSequenceAlgNames.index('TrigSteer_HLT')
+
     if 'L1TopoSimulation' not in topSequenceAlgNames:
         from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
-        topSequence += L1TopoSimulation()
+        topSequence.insert(steerIndex,L1TopoSimulation())
+        #topSequence += L1TopoSimulation()
         log.info( "adding L1TopoSimulation() to topSequence" )
 
         from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
@@ -53,17 +53,13 @@ if doL1TopoSimMon:
 else:
     log.info("did not check and add L1TopoSimulation to topSequence")
 
-#--------------------------------------------------------------
-# Add the ROB monitoring algorithm to the topSequence
-# (in HLT it should be running after steering, so that the ROB
-#  cache is already filled)
-#--------------------------------------------------------------
+
+# Add an instance of TrigL1TopoWriteValData to the sequence
 from AthenaCommon import CfgMgr
-L1TopoROBMonitor = CfgMgr.TrigL1TopoROBMonitor("L1TopoROBMonitor")
-topSequence += L1TopoROBMonitor
-log.debug("added L1TopoROBMonitor to topSequence")
-#L1TopoROBMonitor.OutputLevel=1
-#L1TopoROBMonitor.SimTopoCTPLocation=sgkey
+l1topoWriteValData = CfgMgr.TrigL1TopoWriteValData("l1topoWriteValData")
+topSequence += l1topoWriteValData
+log.debug("added l1topoWriteValData to topSequence")
+#l1topoWriteValData.OutputLevel=1
 
 #--------------------------------------------------------------
 # Private Application Configuration options
@@ -72,6 +68,6 @@ log.debug("added L1TopoROBMonitor to topSequence")
 #
 #==============================================================
 #
-# End of TrigROBMonitor.py
+# End of TrigL1TopoWriteValData.py
 #
 #**************************************************************
