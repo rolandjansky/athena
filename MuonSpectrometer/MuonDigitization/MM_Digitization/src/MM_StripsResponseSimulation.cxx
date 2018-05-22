@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /// PROJECTS
 #include "MM_Digitization/MM_StripsResponseSimulation.h"
-#include "GaudiKernel/MsgStream.h"
 #include "MM_Digitization/MM_IonizationCluster.h"
 #include "MM_Digitization/MM_StripResponse.h"
 #include "PathResolver/PathResolver.h"
@@ -116,8 +115,7 @@ void MM_StripsResponseSimulation::initFunctions()
 
 	m_random = new TRandom3(0);
 
-	Athena::MsgStreamMember log("MM_StripsResponseSimulation::initFunctions");
-	log << MSG::DEBUG << "MM_StripsResponseSimulation::initFunctions DONE" << endmsg;
+	ATH_MSG_DEBUG("MM_StripsResponseSimulation::initFunctions DONE");
 
 }
 /*******************************************************************************/
@@ -132,8 +130,7 @@ void MM_StripsResponseSimulation::initialize()
 	initHistos ();
 	initFunctions();
 
-	Athena::MsgStreamMember log("MM_StripsResponseSimulation::initializationFrom");
-	log << MSG::DEBUG << "MM_StripsResponseSimulation::initializationFrom set values" << endmsg;
+	ATH_MSG_DEBUG("MM_StripsResponseSimulation::initializationFrom set values");
 
 }
 
@@ -141,13 +138,12 @@ void MM_StripsResponseSimulation::initialize()
 MM_StripToolOutput MM_StripsResponseSimulation::GetResponseFrom(const MM_DigitToolInput & digiInput)
 {
 
-	Athena::MsgStreamMember log("MM_StripsResponseSimulation::GetResponseFrom");
-	log << MSG::DEBUG << "\t \t MM_StripsResponseSimulation::GetResponseFrom start " << endmsg;
+    ATH_MSG_DEBUG("Starting to get response from strips");
 
 	m_IonizationClusters.clear();
-	finalNumberofStrip.clear();
-	finalqStrip.clear();
-	finaltStrip.clear();
+	m_finalNumberofStrip.clear();
+	m_finalqStrip.clear();
+	m_finaltStrip.clear();
 
 	whichStrips(digiInput.positionWithinStrip(),
 		digiInput.stripIDLocal(),
@@ -157,9 +153,9 @@ MM_StripToolOutput MM_StripsResponseSimulation::GetResponseFrom(const MM_DigitTo
 		digiInput
 		);
 
-	log << MSG::DEBUG << "\t \t MM_StripsResponseSimulation::GetResponseFrom creating MmDigitToolOutput object " << endmsg;
+	ATH_MSG_DEBUG("Creating MmDigitToolOutput object");
 
-	MM_StripToolOutput tmpStripToolOutput(finalNumberofStrip, finalqStrip, finaltStrip);
+	MM_StripToolOutput tmpStripToolOutput(m_finalNumberofStrip, m_finalqStrip, m_finaltStrip);
 
 	return tmpStripToolOutput;
 
@@ -177,8 +173,7 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 											const MM_DigitToolInput & digiInput)
 {
 
-	Athena::MsgStreamMember msglog("MM_StripsResponseSimulation::whichStrips");
-	msglog << MSG::DEBUG << "\t \t MM_StripsResponseSimulation::whichStrips start " << endmsg;
+	ATH_MSG_DEBUG("Starting to calculate strips that got fired");
 
 	float eventTime = digiInput.eventTime();
 	float theta = incidentAngleXZ * M_PI/180.0; // Important for path length and strip distribution
@@ -199,8 +194,8 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 	m_mapOf2DHistograms["lorentzAngleVsBy"]->Fill(lorentzAngle,b.y());
 
 
-	msglog << MSG::DEBUG << "MM_StripsResponseSimulation::lorentzAngle vs theta: " << lorentzAngle << " " << theta << endmsg;
-	msglog << MSG::DEBUG << "MM_StripsResponseSimulation::function pointer points to " << m_interactionDensityFunction << endmsg;
+	ATH_MSG_DEBUG("LorentzAngle vs theta: " <<lorentzAngle <<" " <<theta);
+    ATH_MSG_DEBUG("Function pointer points to " << m_interactionDensityFunction);
 
 	float pathLengthTraveled = ( 1. / m_interactionDensityFunction->GetRandom() ) * -1. * log( m_random->Uniform() );
 
@@ -221,14 +216,13 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 		TVector2 initialPosition = IonizationCluster.getIonizationStart();
 
-		msglog << MSG::DEBUG
-			<< "MM_StripsResponseSimulation:: New interaction starting at x,y, pathLengthTraveled: "
+		ATH_MSG_DEBUG("New interaction starting at x,y, pathLengthTraveled: "
 			<< initialPosition.X()
 			<< " "
 			<< initialPosition.Y()
 			<< " "
 			<< pathLengthTraveled
-			<< endmsg;
+			);
 
 		for (auto& Electron : IonizationCluster.getElectrons()){
 
@@ -259,10 +253,7 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 			Electron->setCharge( effectiveCharge );
 
-			msglog << MSG::DEBUG
-				<< "MM_StripsResponseSimulation::Electron's effective charge is  "
-				<< effectiveCharge
-				<< endmsg;
+			ATH_MSG_DEBUG("Electron's effective charge is  "<< effectiveCharge);
 
 			m_mapOfHistograms["effectiveCharge"]->Fill( effectiveCharge );
 
@@ -281,7 +272,7 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 		pathLengthTraveled +=  (1. / m_interactionDensityFunction->GetRandom() ) * -1. * log( m_random->Uniform() );
 
-		msglog << MSG::DEBUG << "MM_StripsResponseSimulation:: path length traveled: " << pathLengthTraveled << endmsg;
+		ATH_MSG_DEBUG("Path length traveled: " << pathLengthTraveled);
 
 		nPrimaryIons++;
 		if (nPrimaryIons >= m_maxPrimaryIons) break; //don't create more than "MaxPrimaryIons" along a track....
@@ -298,11 +289,11 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 	//Connect the output with the rest of the existing code
 	//
-	finalNumberofStrip     = stripResponseObject.getStripVec();
-	finalqStrip            = stripResponseObject.getTotalChargeVec();
-	finaltStrip            = stripResponseObject.getTimeThresholdVec();
-	tStripElectronicsAbThr = stripResponseObject.getTimeMaxChargeVec();
-	qStripElectronics      = stripResponseObject.getMaxChargeVec();
+	m_finalNumberofStrip     = stripResponseObject.getStripVec();
+	m_finalqStrip            = stripResponseObject.getTotalChargeVec();
+	m_finaltStrip            = stripResponseObject.getTimeThresholdVec();
+	m_tStripElectronicsAbThr = stripResponseObject.getTimeMaxChargeVec();
+	m_qStripElectronics      = stripResponseObject.getMaxChargeVec();
 
 
 

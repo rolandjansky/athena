@@ -57,16 +57,9 @@ class MM_NelectronProb {
 
 class MM_IonizationCluster {
 
-
-  // Members supplied by user
-  std::vector<MM_Electron*> m_Electrons;
-  float m_HitX;
-  TVector2 m_IonizationStart;
-
   static MM_NelectronProb s_NelectronProb;
 
  public:
-
 
   MM_IonizationCluster ();
   MM_IonizationCluster (float HitX, float IonizationX, float IonizationY);
@@ -76,6 +69,14 @@ class MM_IonizationCluster {
   std::vector<MM_Electron*> getElectrons() const;
   float getHitX() const { return m_HitX; }
   TVector2 getIonizationStart() const { return m_IonizationStart; }
+
+ private:
+
+  // Members supplied by user
+  std::vector<MM_Electron*> m_Electrons;
+  float m_HitX;
+  TVector2 m_IonizationStart;
+
 };
 
 #endif

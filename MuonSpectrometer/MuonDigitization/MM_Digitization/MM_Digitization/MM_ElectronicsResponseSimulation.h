@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATION_MM_ELECTRONICSRESPONSESIMULATION_H
@@ -54,7 +54,6 @@
 #include "MM_Digitization/MM_ElectronicsToolInput.h"
 #include "MM_Digitization/MM_ElectronicsToolTriggerOutput.h"
 #include "MM_Digitization/MM_DigitToolOutput.h"
-// #include "MM_Digitization/StripsResponseSimulation.h"
 
 //VMM Mapping
 #include "MM_Digitization/MM_StripVmmMappingTool.h"
@@ -71,32 +70,11 @@ class TH2F;
 
 class MM_ElectronicsResponseSimulation {
 
-private:
-  /** power of responce function */
-  float m_peakTime;
-  float m_alpha;
-  float m_timeWindowLowerOffset;
-  float m_timeWindowUpperOffset;
-  float m_electronicsThreshold;
-  float m_stripDeadTime;
-  float m_artDeadTime;
-  float m_stripResponseQThreshold;
-  float m_stripResponseDriftGapWidth;
-  float m_stripResponseDriftVelocity;
-
-  int  m_decoupleShaperFunctionParamaters;
-
-  vector <float> m_tStripElectronicsAbThr;
-  vector <float> m_qStripElectronics;
-  vector <int>   m_nStripElectronics;
-
-  TF1 *m_h_intFn;
-  // StripsResponseSimulation* m_stripObject ;
-  MM_ElectronicsResponseSimulation & operator=(const MM_ElectronicsResponseSimulation &right);
-  MM_ElectronicsResponseSimulation(const MM_ElectronicsResponseSimulation&);
 public :
 
   MM_ElectronicsResponseSimulation();
+  MM_ElectronicsResponseSimulation(const MM_ElectronicsResponseSimulation&);
+  MM_ElectronicsResponseSimulation & operator=(const MM_ElectronicsResponseSimulation &right);
   virtual ~MM_ElectronicsResponseSimulation();
 
   void initialize();
@@ -140,6 +118,27 @@ public :
   vector <float>  getQStripElectronics      () const { return m_qStripElectronics;};
   vector <int>    getNStripElectronics      () const { return m_nStripElectronics;};
 
+private:
+
+  /** power of responce function */
+  float m_peakTime;
+  float m_alpha;
+  float m_timeWindowLowerOffset;
+  float m_timeWindowUpperOffset;
+  float m_electronicsThreshold;
+  float m_stripDeadTime;
+  float m_artDeadTime;
+  float m_stripResponseQThreshold;
+  float m_stripResponseDriftGapWidth;
+  float m_stripResponseDriftVelocity;
+
+  int  m_decoupleShaperFunctionParamaters;
+
+  vector <float> m_tStripElectronicsAbThr;
+  vector <float> m_qStripElectronics;
+  vector <int>   m_nStripElectronics;
+
+  TF1 *m_h_intFn;
 
 };
 

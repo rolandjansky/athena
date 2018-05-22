@@ -19,29 +19,6 @@
 
 class MM_StripResponse {
 
-  float m_timeResolution;
-  float m_stripPitch;
-  int m_stripID;
-  int m_maxstripID;
-
-  std::vector<MM_Electron*> m_Electrons;
-
-  // First argument is time bin, second argument is strip ID
-  std::map< int, std::map<int,float> > m_stripCharges;
-
-  // Useful info for clustering later
-  std::map<int, int> m_stripTimeThreshold;
-  std::map<int, float> m_stripTotalCharge;
-  std::map<int, float> m_stripMaxCharge;
-  std::map<int, int> m_stripTimeMaxCharge;
-
-  //using vector for the moment -- hopefully this has better access and is not so expensive on the memory
-  std::vector<int> m_v_strip;
-  std::vector < std::vector <float> > m_v_stripTimeThreshold;
-  std::vector < std::vector <float> > m_v_stripTotalCharge;
-  std::vector<float> m_v_stripMaxCharge;
-  std::vector<float> m_v_stripTimeMaxCharge;
-
  public:
 
   MM_StripResponse();
@@ -65,6 +42,30 @@ class MM_StripResponse {
   int getNElectrons();
   std::vector<MM_Electron*> getElectrons();
 
+ private:
+
+  float m_timeResolution;
+  float m_stripPitch;
+  int m_stripID;
+  int m_maxstripID;
+
+  std::vector<MM_Electron*> m_Electrons;
+
+  // First argument is time bin, second argument is strip ID
+  std::map< int, std::map<int,float> > m_stripCharges;
+
+  // Useful info for clustering later
+  std::map<int, int> m_stripTimeThreshold;
+  std::map<int, float> m_stripTotalCharge;
+  std::map<int, float> m_stripMaxCharge;
+  std::map<int, int> m_stripTimeMaxCharge;
+
+  //using vector for the moment -- hopefully this has better access and is not so expensive on the memory
+  std::vector<int> m_v_strip;
+  std::vector < std::vector <float> > m_v_stripTimeThreshold;
+  std::vector < std::vector <float> > m_v_stripTotalCharge;
+  std::vector<float> m_v_stripMaxCharge;
+  std::vector<float> m_v_stripTimeMaxCharge;
 };
 
 #endif
