@@ -134,25 +134,11 @@ LArNoiseCorrelationMon::initialize()
   
   /** Get LAr Online Id Helper*/
   ATH_CHECK(detStore()->retrieve( m_LArOnlineIDHelper, "LArOnlineID" ));
-  /*  if ( detStore()->retrieve( m_LArOnlineIDHelper, "LArOnlineID" ).isSuccess() ) {
-    
-    ATH_MSG_DEBUG("connected non-tool: LArOnlineID" );
-    
-  } else {
-    
-    ATH_MSG_FATAL( "unable to connect non-tool: LArOnlineID" );
-    return StatusCode::FAILURE;
-    
-    }*/
 
     
   /** Get LAr Calbling Service*/
   ATH_CHECK(m_LArCablingService.retrieve());
-  /*  sc=m_LArCablingService.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not retrieve LArCablingService" );
-    return StatusCode::FAILURE;
-    }*/
+
   
   /** Get bad-channel mask (only if jO IgnoreBadChannels is true)*/
   if (m_ignoreKnownBadChannels) { 
@@ -273,12 +259,6 @@ LArNoiseCorrelationMon::fillHistograms()
   /** retrieve LArDigitContainer*/
   const LArDigitContainer* pLArDigitContainer=nullptr;
   ATH_CHECK(evtStore()->retrieve(pLArDigitContainer, m_LArDigitContainerKey));
-  /*  StatusCode sc = evtStore()->retrieve(pLArDigitContainer, m_LArDigitContainerKey);
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING( "Can\'t retrieve LArDigitContainer with key " 
-		      << m_LArDigitContainerKey );
-    return StatusCode::SUCCESS;
-    }*/
   
   
   /** Define iterators to loop over Digits containers*/
