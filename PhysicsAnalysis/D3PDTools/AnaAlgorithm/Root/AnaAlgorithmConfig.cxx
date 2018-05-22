@@ -417,7 +417,7 @@ namespace EL
       if (!createTool (toolInfo.second, m_name + "." + toolInfo.first, tool).isSuccess())
         return StatusCode::FAILURE;
       componentMap.m_cleanup.push_front (tool);
-      componentMap.m_components.insert (std::make_pair (toolInfo.first, tool.get()));
+      componentMap.m_components.insert (std::make_pair (toolInfo.first, Component (tool.get())));
     }
 
     for (auto& property : m_propertyValues)
