@@ -288,7 +288,7 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
       Acts::BinUtility materialBinUtil(
           binsPhi, -M_PI, M_PI, Acts::closed, Acts::binPhi);
       materialBinUtil += Acts::BinUtility(
-            binsR, -pl.minR, pl.maxR, Acts::open, Acts::binR, transformNominal);
+            binsR, pl.minR, pl.maxR, Acts::open, Acts::binR, transformNominal);
       
       materialProxy
         = std::make_shared<const SurfaceMaterialProxy>(materialBinUtil);
