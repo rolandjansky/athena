@@ -1,5 +1,4 @@
 <lcgdict>
-  <function name="PathResolverFindCalibFile" />
-  <function name="PathResolverFindCalibDirectory" />
-  <function name="PathResolverSetOutputLevel" />
+  <class name="PathResolver"/>
+
 </lcgdict>

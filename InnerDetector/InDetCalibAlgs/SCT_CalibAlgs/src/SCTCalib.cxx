@@ -211,7 +211,8 @@ SCTCalib::SCTCalib( const std::string& name, ISvcLocator* pSvcLocator ) :
    declareProperty( "DoLorentzAngle",            m_doLorentzAngle             = false );
    declareProperty( "WriteToCool",               m_writeToCool                = true );
    //reinstated 21 May
-   declareProperty( "NoisyUpdate",                m_noisyUpdate               = true );
+   declareProperty( "NoisyWriteAllModules",       m_noisyWriteAllModules      = true );
+   declareProperty( "NoisyUpdate",                m_noisyUpdate               = false );
    declareProperty( "NoisyUploadTest",            m_noisyUploadTest           = true );
    declareProperty( "NoisyModuleAverageInDB",     m_noisyModuleAverageInDB    = -1. );
    declareProperty( "NoisyStripLastRunInDB",      m_noisyStripLastRunInDB     = -999 );
@@ -716,7 +717,7 @@ StatusCode SCTCalib::getNoisyStrip() {
       std::pair<int, bool> noisy=getNumNoisyStrips(waferId);
       const int  numNoisyStripsInWafer=noisy.first;
       const bool isNoisyWafer=noisy.second;
-      if (numNoisyStripsInWafer!=0) {
+      if (numNoisyStripsInWafer!=0 || m_noisyWriteAllModules) {
          if ( m_noisyWaferFinder && isNoisyWafer ) { //in noisy wafer
             ++numNoisyWafers;
             if (not m_noisyWaferWrite) break;
@@ -2851,7 +2852,7 @@ SCTCalib::writeModuleListToCool( const std::map< Identifier, std::set<Identifier
             } else msg( MSG::DEBUG ) << "Module "<< moduleId  <<" is identical to the reference output" << endmsg;
          } else {
             if ( m_noisyStripAll ) { //--- ALL noisy strips
-               if ( !defectStripsAll.empty() ) {
+               if ( !defectStripsAll.empty() || m_noisyWriteAllModules) {
                   if (m_pCalibWriteSvc->createCondObjects( moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsAll ).isFailure()) {
                      msg( MSG::ERROR ) << "Could not create defect strip entry in the CalibWriteSvc." << endmsg;
                   };

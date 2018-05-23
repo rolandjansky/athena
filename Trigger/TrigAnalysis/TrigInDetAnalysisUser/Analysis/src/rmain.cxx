@@ -659,11 +659,12 @@ int main(int argc, char** argv)
   std::vector<double> _lumiblocks;
   lumiParser  goodrunslist;
 
-  
+
   if ( inputdata.isTagDefined("GRL") )  { 
     /// read the (xml?) GRL 
-    std::cout << "Reading GRL from: " <<  inputdata.GetString("GRL") << std::endl;
-    goodrunslist.read( inputdata.GetString("GRL") );
+    std::vector<std::string> grlvector = inputdata.GetStringVector("GRL");
+    std::cout << "Reading GRL from: " << grlvector << std::endl;
+    for ( size_t igrl=0 ; igrl<grlvector.size() ; igrl++ ) goodrunslist.read( grlvector[igrl] );
     //    std::cout << goodrunslist << std::endl;
   }
   else if ( inputdata.isTagDefined("LumiBlocks") )  { 
@@ -932,10 +933,11 @@ int main(int argc, char** argv)
   }
   else { 
     if      ( refChain=="Offline" )             refFilter = &filter_off;
-    else if ( contains( refChain,"Electrons") ) refFilter = &filter_off;
-    else if ( contains( refChain, "Muons" ) )   refFilter = &filter_muon;
-    else if ( contains( refChain,"1Prong" ) )   refFilter = &filter_off;  // tau ref chains
-    else if ( contains( refChain,"3Prong" ) )   refFilter = &filter_off;  // tau ref chains
+    else if ( contains( refChain, "Electrons") ) refFilter = &filter_off;
+    else if ( contains( refChain, "Muons"  ) )   refFilter = &filter_muon;
+    else if ( contains( refChain, "Taus"   ) )   refFilter = &filter_off;  // tau ref chains
+    else if ( contains( refChain, "1Prong" ) )   refFilter = &filter_off;  // tau ref chains
+    else if ( contains( refChain, "3Prong" ) )   refFilter = &filter_off;  // tau ref chains
     else if ( refChain=="Truth" && pdgId!=0 )   refFilter = &filter_truth;
     else if ( refChain=="Truth" && pdgId==0 )   refFilter = &filter_off;
     else { 

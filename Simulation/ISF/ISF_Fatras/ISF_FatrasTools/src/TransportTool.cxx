@@ -45,8 +45,8 @@ iFatras::TransportTool::TransportTool( const std::string& t,
                                       const std::string& n,
                                       const IInterface*  p )
  : base_class(t,n,p),
-   m_rndGenSvc("AtDSFMTGenSvc", n), 
-   m_randomEngine(0),
+   m_rndGenSvc("AtDSFMTGenSvc", n),
+   m_randomEngine(nullptr),
    m_randomEngineName("FatrasRnd"),
    m_validationOutput(false),
    m_validationTool(""),
@@ -91,7 +91,6 @@ iFatras::TransportTool::TransportTool( const std::string& t,
  *=======================================================================*/
 iFatras::TransportTool::~TransportTool()
 {
-  delete m_randomEngine;
 }
 
 /*=========================================================================

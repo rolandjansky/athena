@@ -32,7 +32,7 @@ class TFCS1DFunction:public TFCSFunction
 
   private:
 
-  ClassDef(TFCS1DFunction,1)  //TFCS1DFunction
+  ClassDef(TFCS1DFunction,2)  //TFCS1DFunction
 
 };
 

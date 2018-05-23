@@ -1346,8 +1346,8 @@ SCTErrMonTool::bookConfMapsGen() {
           m_ConfRN[reg]->GetXaxis()->SetBinLabel(bin + 1, m_SummaryBinNames[bin].c_str());
         }
 
-        m_ConfOutModules[reg] = TProfile_LW::create("SCTConf"+regLabel[reg]+"OutM", "Num of Out Links in "+regTitle[reg], 1, -0.5, 0.5);
-        m_ConfNew[reg] = TProfile_LW::create("SCTConf"+regLabel[reg]+"New", "Num of Problematic Module in "+regTitle[reg],
+        m_ConfOutModules[reg] = TProfile_LW::create("SCTConf"+regLabel[reg]+"OutM", "Num of Out Modules in "+regTitle[reg], 1, -0.5, 0.5);
+        m_ConfNew[reg] = TProfile_LW::create("SCTConf"+regLabel[reg]+"New", "Num of Problematic Modules in "+regTitle[reg],
 					     ConfbinsSummary-1, -0.5, ConfbinsSummary-1-0.5);
 	m_ConfOutModules[reg]->GetXaxis()->SetBinLabel(1, "Mod Out");
         for (int bin = 1; bin < ConfbinsSummary; bin++) {

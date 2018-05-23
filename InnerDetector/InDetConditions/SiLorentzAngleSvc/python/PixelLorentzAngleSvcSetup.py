@@ -40,9 +40,8 @@ class PixelLorentzAngleSvcSetup:
         if hasattr(svcMgr,'PixelLorentzAngleSvc'):
             pixelLorentzAngleSvc = svcMgr.PixelLorentzAngleSvc
         else :
-            pixelLorentzAngleSvc = SiLorentzAngleSvc(name="PixelLorentzAngleSvc",
-                                                     DetectorName="Pixel")
-            svcMgr+=pixelLorentzAngleSvc     
+            pixelLorentzAngleSvc = SiLorentzAngleSvc(name="PixelLorentzAngleSvc",DetectorName="Pixel")
+            svcMgr+=pixelLorentzAngleSvc
 
         # Init PixelSiliconConditionsSvc
         if hasattr(svcMgr,'PixelSiliconConditionsSvc'):
@@ -54,11 +53,16 @@ class PixelLorentzAngleSvcSetup:
 
         pixelSiliconConditionsSvc.DepletionVoltage=10.0
 
+        from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
+        pixelSiPropertiesSvc=SiPropertiesSvc(name="PixelSiPropertiesSvc",DetectorName="Pixel",SiConditionsServices=pixelSiliconConditionsSvc)
+        svcMgr+=pixelSiPropertiesSvc
+
         # Pass the silicon conditions services to the Lorentz angle service
         # Also make sure UseMagFieldTool is True as AtlasGeoModel sets this to False
         # if loaded first.
         pixelLorentzAngleSvc.UseMagFieldSvc = True
         pixelLorentzAngleSvc.SiConditionsServices = pixelSiliconConditionsSvc
+        pixelLorentzAngleSvc.SiPropertiesSvc = pixelSiPropertiesSvc
         #pixelLorentzAngleSvc.CorrectionFactor = 0.900
         #Load Correction factor from database
         from IOVDbSvc.CondDB import conddb
@@ -75,7 +79,10 @@ class PixelLorentzAngleSvcSetup:
         self.PixelLorentzAngleSvc = pixelLorentzAngleSvc
         self.pixelSiliconConditionsSvc = pixelSiliconConditionsSvc
         self.PixelSiliconConditionsSvc = pixelSiliconConditionsSvc
+        self.pixelSiPropertiesSvc      = pixelSiPropertiesSvc
+        self.PixelSiPropertiesSvc      = pixelSiPropertiesSvc
 
+        self.PixelSiPropertiesSvc.UseConditionsDB = True
 
     # Force the Lorentz angle sercive to use SiliconConditions service (which are assumed to use the DB)
     # Default is to decide based on GeoModel.

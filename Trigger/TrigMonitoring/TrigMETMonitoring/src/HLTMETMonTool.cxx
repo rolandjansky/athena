@@ -46,9 +46,11 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   declareProperty("monitoring_alg_expert", m_monitoring_alg_expert);
   declareProperty("prescaled_met", m_prescaled_met);
 
+  // Jet keys
+  declareProperty("l1_jet_key", m_lvl1_jet_roi_key="LVL1JetRoIs");
+
   // Met keys
   declareProperty("l1_key", m_lvl1_roi_key="LVL1EnergySumRoI");
-  //declareProperty("hlt_main_key", m_hlt_main_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC");
   declareProperty("hlt_cell_key", m_hlt_cell_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET");
   declareProperty("hlt_mht_key", m_hlt_mht_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht");
   declareProperty("hlt_mhtem_key", m_hlt_mhtem_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht_em");
@@ -79,7 +81,7 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   // et
   declareProperty("et_bins", m_et_bins=205,  "Number of bins Et");
   declareProperty("et_min",  m_et_min=-13.5, "Minimum Et");
-  declareProperty("et_max",  m_et_max=601.5, "Maximum Et");
+  declareProperty("et_max",  m_et_max=401.5, "Maximum Et");
   // Ex, Ey, Ez
   declareProperty("ec_bins", m_ec_bins=199,  "Number of bins Ex, Ey, Ez");
   declareProperty("ec_min",  m_ec_min=-298.5, "Minimum Ex, Ey, Ez");
@@ -87,11 +89,11 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   // sumet
   declareProperty("sumet_bins", m_sumet_bins=305,  "Number of bins SumEt");
   declareProperty("sumet_min",  m_sumet_min=-27.,  "Minimum SumEt");
-  declareProperty("sumet_max",  m_sumet_max=1803., "Maximum SumEt");
+  declareProperty("sumet_max",  m_sumet_max=4203., "Maximum SumEt");
   // sume
   declareProperty("sume_bins", m_sume_bins=153,  "Number of bins SumE");
   declareProperty("sume_min",  m_sume_min=-27.,  "Minimum SumE");
-  declareProperty("sume_max",  m_sume_max=18003., "Maximum SumE");
+  declareProperty("sume_max",  m_sume_max=24003., "Maximum SumE");
   // phi, dphi
   declareProperty("phi_bins", m_phi_bins=32,     "Number of bins Phi, dPhi");
   declareProperty("phi_min",  m_phi_min=-3.1416, "Minimum Phi");
@@ -231,6 +233,12 @@ StatusCode HLTMETMonTool::book() {
   met_signatures_tolook = m_hlt_met_signatures_tolook_shifter;
   addHLTProfileHistograms(met_signatures_tolook);
 
+  // mu50 histograms
+  monFolderName = monGroupName + "/mu50";
+  addMonGroup(new MonGroup(this, monFolderName, run));
+  setCurrentMonGroup(monFolderName);
+  addHLTBasicHistograms();
+
   // Signal like electron histograms
   monFolderName = monGroupName + "/SignalEl";
   addMonGroup(new MonGroup(this, monFolderName, run));
@@ -271,6 +279,12 @@ StatusCode HLTMETMonTool::book() {
   // Book Expert L1 histograms ***************
   monGroupName = m_expert_path + "/L1";
   addMonGroup(new MonGroup(this, monGroupName.c_str(), run));
+
+  // Jets Expert L1 histograms 
+  monFolderName = monGroupName + "/Jets";
+  addMonGroup(new MonGroup(this, monFolderName, run));
+  setCurrentMonGroup(monFolderName);
+  addL1JetHistograms();
 
   // Efficiencies Expert L1 histograms 
   monFolderName = monGroupName + "/Efficiency";
@@ -428,14 +442,21 @@ StatusCode HLTMETMonTool::fillMETHist() {
   }
 
 
- // retrieve EventInfo 
+  // retrieve EventInfo 
   const xAOD::EventInfo *eventInfo = nullptr;
   sc = evtStore()->retrieve(eventInfo, "EventInfo");
   if(sc.isFailure() || !eventInfo) {
-    ATH_MSG_WARNING("Could not retrieve LVL1_RoIs with key \"EventInfo\" from TDS"  );
+    ATH_MSG_WARNING("Could not retrieve EventInfo with key \"EventInfo\" from TDS"  );
   }
 
- // retrieve xAOD L1 ROI 
+  // retrieve L1 Jet ROI 
+  const xAOD::JetRoIContainer *m_l1_jet_roi_cont = 0;
+  sc = evtStore()->retrieve(m_l1_jet_roi_cont, m_lvl1_jet_roi_key);
+  if(sc.isFailure() || !m_l1_jet_roi_cont) {
+    ATH_MSG_WARNING("Could not retrieve LVL1_Jet_RoIs with key \"" << m_lvl1_jet_roi_key << "\" from TDS"  );
+  }
+
+  // retrieve xAOD L1 ROI 
   const xAOD::EnergySumRoI *m_l1_roi_cont = 0;
   sc = evtStore()->retrieve(m_l1_roi_cont, m_lvl1_roi_key);
   if(sc.isFailure() || !m_l1_roi_cont) {
@@ -619,6 +640,13 @@ StatusCode HLTMETMonTool::fillMETHist() {
   //####################
   const xAOD::TrigMissingET *m_hlt_met = 0;
   const xAOD::MissingET     *m_off_met = 0;
+ 
+  //***********
+  /// L1 JET
+  //***********
+  float l1_jet_pt = -9e9;
+  float l1_jet_eta = -9e9;
+
  
   //***********
   /// L1 MET
@@ -820,6 +848,16 @@ StatusCode HLTMETMonTool::fillMETHist() {
   fillHLTProfileHistograms(off_met,met_signatures_tolook);
 
 
+  // HLT mu50
+  monFolderName = monGroupName + "/mu50";
+  setCurrentMonGroup(monFolderName);
+  if (hlt_met > 0 && eventInfo) { // remove MET=0 events
+    if (eventInfo->actualInteractionsPerCrossing()>47. && eventInfo->actualInteractionsPerCrossing()<53.) {
+      fillHLTBasicHistograms(hlt_ex,hlt_ex_log,hlt_ey,hlt_ey_log,hlt_ez,hlt_ez_log,hlt_met,hlt_met_log,hlt_sumet,hlt_sumet_log,hlt_sume,hlt_sume_log,hlt_phi,hlt_eta,hlt_significance);
+    }
+  }
+
+
   // HLT signal-like electron
   monFolderName = monGroupName + "/SignalEl";
   setCurrentMonGroup(monFolderName);
@@ -855,6 +893,9 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
     // Lumi Block histogram
     if ((h = hist("HLT_limiBlock")) && eventInfo)    h->Fill(eventInfo->lumiBlock());
+
+    // <mju> histogram
+    if ((h = hist("HLT_mu")) && eventInfo)    h->Fill(eventInfo->actualInteractionsPerCrossing());
 
     // status histogram
     TH1F *h1i(0);
@@ -1000,6 +1041,17 @@ StatusCode HLTMETMonTool::fillMETHist() {
   /// Expert L1
   /////////////
   monGroupName = m_expert_path + "/L1";
+
+  // L1 Jets                                                           
+  monFolderName = monGroupName + "/Jets";
+  setCurrentMonGroup(monFolderName);
+  if (l1_met > 50) {
+    for (auto l1_jet : *m_l1_jet_roi_cont) {
+      l1_jet_pt = l1_jet->et8x8()/CLHEP::GeV;
+      l1_jet_eta = l1_jet->eta();
+      fillL1JetHistograms(l1_jet_pt,l1_jet_eta);
+    }
+  }
 
   // L1 efficiency                                                           
   monFolderName = monGroupName + "/Efficiency";
@@ -1323,7 +1375,6 @@ void HLTMETMonTool::addL1BasicHistograms() {
   addHistogram(new TH1F("L1_MET_phi",  "L1 MET #phi (rad);MET #phi (rad)", m_phi_bins, m_phi_min, m_phi_max));
   addHistogram(new TH1F("L1_MET_phi_etweight",  "L1 MET #phi (|Missing E_{T}|);MET #phi (rad)", m_phi_bins, m_phi_min, m_phi_max));
 
-
 }
 
 //___________________________________________________________________________________________________________
@@ -1340,6 +1391,23 @@ void HLTMETMonTool::fillL1BasicHistograms(float l1_mex,float l1_mex_log,float l1
   if ((h = hist("L1_SumEt_log"))) h->Fill(l1_sumet_log);
   if ((h = hist("L1_MET_phi")) && l1_met>0 && !saturated)   h->Fill(l1_phi);
   if ((h = hist("L1_MET_phi_etweight")) && l1_met>0 && !saturated)  h->Fill(l1_phi, l1_met);
+  
+}
+
+//___________________________________________________________________________________________________________
+void HLTMETMonTool::addL1JetHistograms() {
+
+  const int nBins = 13;
+  double edges[nBins + 1] = {-4.9,-3.1,-2.5,-1.9,-1.3,-0.75,-0.25,0.25,0.75,1.3,1.9,2.5,3.1,4.9};
+  addHistogram(new TH2F("L1_Jet_eta_pt", "L1 Jet #eta/p_{T};#eta;p_{T} [GeV]", nBins, edges, 80, 10, 90));
+}
+
+
+//___________________________________________________________________________________________________________
+void HLTMETMonTool::fillL1JetHistograms(float l1_jet_pt,float l1_jet_eta) {
+
+  TH2 *h2(0);
+  if ((h2 = hist2("L1_Jet_eta_pt")) && l1_jet_pt>0)  h2->Fill(l1_jet_eta, l1_jet_pt);
   
 }
 
@@ -1491,6 +1559,9 @@ void HLTMETMonTool::addHLTStatusHistograms() {
   // Lumiblock histogram
   addHistogram(new TH1F("HLT_limiBlock", "HLT Lumi Block", 1000, 0, 1000));  
 
+  // <mu> histogram
+  addHistogram(new TH1F("HLT_mu", "HLT mu", 100, 0, 100));  
+
   // status in 1d
   TH1F *h1i = new TH1F("HLT_MET_status", "HLT MET Status", 32, -0.5, 31.5);
   for (size_t j = 0; j < m_bitNames.size(); j++) {
@@ -1569,8 +1640,8 @@ void HLTMETMonTool::addHLTCompHistograms() {
 void HLTMETMonTool::addOffMETHistograms() {
 
   addHistogram(new TH1F("Offline_MET", "Offline MET;Et", m_et_bins, m_et_min, m_et_max));
-  addHistogram(new TH1F("Offline_METx", "Offline METx;Et", m_ec_bins, m_ec_min, m_ec_max));
-  addHistogram(new TH1F("Offline_METy", "Offline METy;Et", m_ec_bins, m_ec_min, m_ec_max));
+  addHistogram(new TH1F("Offline_METx", "Offline METx;Ex", m_ec_bins, m_ec_min, m_ec_max));
+  addHistogram(new TH1F("Offline_METy", "Offline METy;Ey", m_ec_bins, m_ec_min, m_ec_max));
   addHistogram(new TH1F("Offline_SumEt", "Offline SumEt;sumEt", m_sumet_bins, m_sumet_min, m_sumet_max));
   addHistogram(new TH1F("Offline_MET_phi", "Offline MET phi;Phi", m_phi_bins, m_phi_min, m_phi_max));
 
