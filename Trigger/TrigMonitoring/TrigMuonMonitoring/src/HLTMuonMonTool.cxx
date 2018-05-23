@@ -239,7 +239,7 @@ StatusCode HLTMuonMonTool::init()
     m_FS_pre_trigger = "HLT_mu4";
     m_FS_pre_trigger = "HLT_mu10";
   }else{
-    m_FS_pre_trigger = "HLT_mu20";
+    m_FS_pre_trigger = "HLT_mu24_ivarmedium";
   }
   m_FS_pre_trigger_second = "HLT_mu26_ivarmedium";
   for(unsigned int ich = 0; ich < m_chainsEFFS.size(); ich++){
