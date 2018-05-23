@@ -541,7 +541,7 @@ def merge_lhe_files(listOfFiles,outputFile):
              if(len(holdHeader)<1):
                 holdHeader = header
                 output.write(header)
-          output.write(line)
+             output.write(line)
 ##        each input file ends with "</LesHouchesEvents>".  We don't want to write this out until all
 ##        the files have been read.  The elif below writes out all the events.
           elif(not inHeader and not ("</LesHouchesEvents>" in line)):
@@ -672,7 +672,8 @@ if _checkattr("generators", required=True):
        genera = item.upper()
        generat = genera+"VER"
        if (generat in os.environ):
-           gennamesvers.append(item+"."+os.environ[generat])
+#           gennamesvers.append(item+"."+os.environ[generat])
+           gennamesvers.append(item+"(v."+os.environ[generat]+")")
        else:
            gennamesvers.append(item)
     print "MetaData: %s = %s" % ("generatorName", "+".join(gennamesvers))    
