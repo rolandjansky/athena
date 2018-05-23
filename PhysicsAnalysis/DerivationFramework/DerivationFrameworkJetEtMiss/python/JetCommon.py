@@ -369,7 +369,7 @@ def addSoftDropJets(jetalg, rsize, inputtype, beta=0, zcut=0.1, mods="groomed",
 def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
                     mods="default", calibOpt="none", ghostArea=0.01,
                     algseq=None, namesuffix="",
-                    outputGroup="CustomJets", customGetters=None, pretools = [], constmods=[]):
+                    outputGroup="CustomJets", customGetters=None, pretools = []):
     jetnamebase = "{0}{1}{2}{3}".format(jetalg,int(rsize*10),inputtype,namesuffix)
     jetname = jetnamebase+"Jets"
     algname = "jetalg"+jetnamebase
@@ -425,17 +425,6 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
             inGetter = getterMap[inputtype]
         else:
             inGetter = customGetters
-
-        getters = getterMap[inputtype]
-
-        if len(constmods) > 0:
-          finderArgs['modifiersin'] = []
-          pjname = label.lower().replace("topo","")
-          # Get the PseudoJetGetter
-          from JetRecTools import ConstModHelpers
-          pjg = ConstModHelpers.getPseudoJetGetter(label,pjname)
-          getterbase = inputtype.lower()
-          getters = [pjg]+list(jtm.gettersMap[getterbase])[1:]
 
         # create the finder for the temporary collection
         finderTool = jtm.addJetFinder(jetname, jetalg, rsize, inGetter,
