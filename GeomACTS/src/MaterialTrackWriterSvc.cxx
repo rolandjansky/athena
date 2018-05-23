@@ -45,8 +45,9 @@ Acts::MaterialTrackWriterSvc::initialize()
   p_tree->Branch("step_dInL0", &m_treeStepdInL0);
 
   ATH_MSG_INFO("Starting writer thread");
+  ATH_MSG_DEBUG("Maximum queue size is set to:" << m_maxQueueSize);
   m_doEnd = false;
-  m_writeThread = std::thread(&MaterialTrackWriterSvc::doWrite, this);
+  m_writeThread = std::thread(&MaterialTrackWriterSvc::writerThread, this);
 
   return StatusCode::SUCCESS;
 }
@@ -76,12 +77,12 @@ Acts::MaterialTrackWriterSvc::write(const Acts::MaterialTrack& mTrack)
 {
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
-  ATH_MSG_DEBUG("Appending material track to write queue");
+  ATH_MSG_VERBOSE("Appending material track to write queue");
   m_mTracks.push_back(mTrack);
 }
 
 void
-Acts::MaterialTrackWriterSvc::doWrite()
+Acts::MaterialTrackWriterSvc::writerThread()
 {
   using namespace std::chrono_literals;
   // wait until we have events
@@ -92,14 +93,14 @@ Acts::MaterialTrackWriterSvc::doWrite()
 
   ATH_MSG_DEBUG("Begin regular write loop");
   while(true) {
-    ATH_MSG_DEBUG("Obtaining write lock");
+    ATH_MSG_VERBOSE("Obtaining write lock");
     std::unique_lock<std::mutex> lock(m_writeMutex);
     
     if (m_mTracks.empty()) {
       lock.unlock();
       if (!m_doEnd) {
-        ATH_MSG_DEBUG("Queue was empty, delay next execution");
-        std::this_thread::sleep_for(0.5s);
+        ATH_MSG_VERBOSE("Queue was empty, delay next execution");
+        std::this_thread::sleep_for(0.1s);
         continue;
       } else {
         ATH_MSG_INFO("Writer thread caught termination signal. Shutting down.");
@@ -108,62 +109,88 @@ Acts::MaterialTrackWriterSvc::doWrite()
       }
     }
 
-    ATH_MSG_DEBUG("Pop entry and write");
-    MaterialTrack mTrack = std::move(m_mTracks.front());
-    m_mTracks.pop_front();
 
-    // writing can now happen without lock
-    lock.unlock();
-    size_t nSteps = mTrack.materialSteps().size();
-    //m_treeStepPos.clear();
-    //m_treeStepPos.reserve(nSteps);
-    m_treeStepX0.clear();
-    m_treeStepX0.reserve(nSteps);
-    m_treeStepL0.clear();
-    m_treeStepL0.reserve(nSteps);
-    m_treeStepA.clear();
-    m_treeStepA.reserve(nSteps);
-    m_treeStepZ.clear();
-    m_treeStepZ.reserve(nSteps);
-    m_treeStepRho.clear();
-    m_treeStepRho.reserve(nSteps);
-    m_treeStepT.clear();
-    m_treeStepT.reserve(nSteps);
-    m_treeStepdInX0.clear();
-    m_treeStepdInX0.reserve(nSteps);
-    m_treeStepdInL0.clear();
-    m_treeStepdInL0.reserve(nSteps);
-
-    m_treeX0 = mTrack.thicknessInX0(); // name?
-    m_treeL0 = mTrack.thicknessInL0(); // name?
-    m_treeTheta = mTrack.theta();
-    m_treePhi = mTrack.phi();
-    m_treeT = 0;
-    m_treedInX0 = 0;
-    m_treedInL0 = 0;
-
-    for(const auto& step : mTrack.materialSteps()) {
-      const MaterialProperties& matProp = step.materialProperties();
-      const Material& mat = matProp.material();
-
-      m_treeStepX0.push_back(mat.X0());
-      m_treeStepL0.push_back(mat.L0());
-      m_treeStepA.push_back(mat.A());
-      m_treeStepZ.push_back(mat.Z());
-      m_treeStepRho.push_back(mat.rho());
-      m_treeStepT.push_back(matProp.thickness());
-      m_treeStepdInX0.push_back(matProp.thicknessInX0());
-      m_treeStepdInX0.push_back(matProp.thicknessInL0());
-
-      m_treeT += matProp.thickness();
-      m_treedInX0 += matProp.thicknessInX0();
-      m_treedInL0 += matProp.thicknessInL0();
+    if(m_mTracks.size() < m_maxQueueSize) {
+      // just pop one
+      ATH_MSG_VERBOSE("Queue at " << m_mTracks.size() << "/" << m_maxQueueSize 
+          << ": Pop entry and write");
+      MaterialTrack mTrack = std::move(m_mTracks.front());
+      m_mTracks.pop_front();
+      // writing can now happen without lock
+      lock.unlock();
+      doWrite(std::move(mTrack));
+    }
+    else {
+      ATH_MSG_DEBUG("Queue at " << m_mTracks.size() << "/" << m_maxQueueSize 
+          << ": Lock and write until empty");
+      while(!m_mTracks.empty()) {
+        ATH_MSG_VERBOSE("Pop entry and write");
+        // keep the lock!
+        MaterialTrack mTrack = std::move(m_mTracks.front());
+        m_mTracks.pop_front();
+        doWrite(std::move(mTrack));
+      }
+      ATH_MSG_DEBUG("Queue is empty, continue");
 
     }
 
-    p_tree->Fill();
-    //m_treeTTot = 0;
 
-    ATH_MSG_DEBUG("Write complete");
   }
+}
+
+void
+Acts::MaterialTrackWriterSvc::doWrite(Acts::MaterialTrack mTrack)
+{
+  ATH_MSG_VERBOSE("Write to tree");
+  size_t nSteps = mTrack.materialSteps().size();
+  //m_treeStepPos.clear();
+  //m_treeStepPos.reserve(nSteps);
+  m_treeStepX0.clear();
+  m_treeStepX0.reserve(nSteps);
+  m_treeStepL0.clear();
+  m_treeStepL0.reserve(nSteps);
+  m_treeStepA.clear();
+  m_treeStepA.reserve(nSteps);
+  m_treeStepZ.clear();
+  m_treeStepZ.reserve(nSteps);
+  m_treeStepRho.clear();
+  m_treeStepRho.reserve(nSteps);
+  m_treeStepT.clear();
+  m_treeStepT.reserve(nSteps);
+  m_treeStepdInX0.clear();
+  m_treeStepdInX0.reserve(nSteps);
+  m_treeStepdInL0.clear();
+  m_treeStepdInL0.reserve(nSteps);
+
+  m_treeX0 = mTrack.thicknessInX0(); // name?
+  m_treeL0 = mTrack.thicknessInL0(); // name?
+  m_treeTheta = mTrack.theta();
+  m_treePhi = mTrack.phi();
+  m_treeT = 0;
+  m_treedInX0 = 0;
+  m_treedInL0 = 0;
+
+  for(const auto& step : mTrack.materialSteps()) {
+    const MaterialProperties& matProp = step.materialProperties();
+    const Material& mat = matProp.material();
+
+    m_treeStepX0.push_back(mat.X0());
+    m_treeStepL0.push_back(mat.L0());
+    m_treeStepA.push_back(mat.A());
+    m_treeStepZ.push_back(mat.Z());
+    m_treeStepRho.push_back(mat.rho());
+    m_treeStepT.push_back(matProp.thickness());
+    m_treeStepdInX0.push_back(matProp.thicknessInX0());
+    m_treeStepdInX0.push_back(matProp.thicknessInL0());
+
+    m_treeT += matProp.thickness();
+    m_treedInX0 += matProp.thicknessInX0();
+    m_treedInL0 += matProp.thicknessInL0();
+
+  }
+
+  p_tree->Fill();
+  //m_treeTTot = 0;
+
+  ATH_MSG_VERBOSE("Write complete");
 }

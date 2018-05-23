@@ -65,11 +65,13 @@ private:
   std::vector<double> m_treeStepdInL0;
 
 
-  void doWrite();
+  void writerThread();
+  void doWrite( MaterialTrack mTrack);
 
   // jobOptions properties
   Gaudi::Property<std::string> m_filePath{this, "FilePath", "MaterialTracks.root", "Output root file for charged particle"};
   Gaudi::Property<std::string> m_treeName{this, "TreeName", "MaterialTracks", ""};
+  Gaudi::Property<size_t> m_maxQueueSize{this, "MaxQueueSize", 5000, "Limit the write queue to this size"};
 
 };
 
