@@ -65,13 +65,24 @@ exCellWriterSvc.FilePath = "excells_charged.root"
 ServiceMgr += exCellWriterSvc
 
 mTrackWriterSvc = CfgMgr.Acts__MaterialTrackWriterSvc("MaterialTrackWriterSvc")
-mTrackWriterSvc.OutputLevel = INFO
+mTrackWriterSvc.OutputLevel = DEBUG
+# mTrackWriterSvc.MaxQueueSize = 10
 ServiceMgr += mTrackWriterSvc
 
 
 # Set up algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
+
+eventPrintFrequency = 1000
+
+if hasattr(ServiceMgr,"AthenaEventLoopMgr"):
+    ServiceMgr.AthenaEventLoopMgr.EventPrintoutInterval = eventPrintFrequency
+if hasattr(ServiceMgr,"AthenaHiveEventLoopMgr"):
+    ServiceMgr.AthenaHiveEventLoopMgr.EventPrintoutInterval = eventPrintFrequency
+
+# from GaudiAlg.GaudiAlgConf import EventCounter
+# job += EventCounter(Frequency=1000)
 
 # Set up material mapping algorithm
 from GeomACTS.GeomACTSConf import ActsMaterialMapping
@@ -85,6 +96,6 @@ alg.ExtrapolationTool.ConstantFieldVector = [0, 0, 0]
 alg.ExtrapolationTool.OutputLevel = INFO
 
 
-alg.OutputLevel = VERBOSE
+alg.OutputLevel = INFO
 job += alg
 
