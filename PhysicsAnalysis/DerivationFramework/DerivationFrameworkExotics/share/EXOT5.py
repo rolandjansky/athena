@@ -11,7 +11,7 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
 scheduleTauTruthTools()
 from DerivationFrameworkCore.WeightMetadata import *
-from DerivationFrameworkFlavourTag.FlavourTagCommon import * 
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
@@ -313,6 +313,9 @@ triggers = [
     'HLT_e300_etcut',
     'HLT_g300_etcut',
     'HLT_mu60_0eta105_msonly',
+    # new triggers for 2018
+    'HLT_xe110_pufit_xe65_L1XE50',
+    'HLT_xe110_pufit_xe70_L1XE5',
     ]
 lepton_triggers = [
    # el - y2015
