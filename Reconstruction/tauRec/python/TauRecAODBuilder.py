@@ -188,8 +188,8 @@ class TauRecAODPi0Processor ( TauRecConfigured ) :
 
 
 class TauRecAODProcessor_RNN_ID ( TauRecConfigured ) :
-    """Calculate remaining Tau variables and properties. Use informations available also in AODs, so no cell level is needed."""
-
+    """Recalculate the RNN-based Tau-ID using information only available on AOD.
+    Sets the RNNJetScore, RNNJetScoreSigTrans, and all four working points."""
     _outputType = "xAOD::TauJetContainer"
     _outputKey = "TauJets"
     _outputDetailsType = "xAOD::TauJetAuxContainer"
@@ -208,7 +208,6 @@ class TauRecAODProcessor_RNN_ID ( TauRecConfigured ) :
         ########################################################################
         try:
             from tauRecTools.tauRecToolsConf import TauProcessorTool
-            #TauProcessor.OutputLevel = 2
             self._TauProcessorHandle = TauProcessorTool(
                 name = self.name,
                 TauContainer                 = self._outputKey,
@@ -227,9 +226,6 @@ class TauRecAODProcessor_RNN_ID ( TauRecConfigured ) :
         tools = []
         try:
             taualgs.setAODmode(True)
-            ## ATTENTION ##################################################################################
-            # running these tau tools on AODs will lead to inconsistency with standard tau reconstruction
-            ###############################################################################################
 
             # Calculate the RNN scores
             tools.append(taualgs.getTauJetRNNEvaluator(

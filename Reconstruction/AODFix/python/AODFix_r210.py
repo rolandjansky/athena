@@ -172,6 +172,11 @@ class AODFix_r210(AODFix_base):
     from tauRec.tauRecFlags import tauAODFlags
     if tauAODFlags.doTauIDAODFix():
         def tauid_postSystemRec(self, topSequence):
+            """
+            This fix recalculates the RNN-based tau identification algorithm.
+            Currently it is disabled by default and has to be enabled via a
+            pre-exec by setting the 'doTauIDAODFix' flag.
+            """
             from AthenaCommon.AppMgr import ToolSvc
             from RecExConfig.AutoConfiguration import IsInInputFile
             from JetRec.JetRecConf import JetAlgorithm
@@ -179,7 +184,8 @@ class AODFix_r210(AODFix_base):
             from JetRecTools.JetRecToolsConf import JetConstituentModSequence
 
             # Rebuild LCOriginTopoClusters container if not present in input
-            if not IsInInputFile("xAOD::CaloClusterContainer", "LCOriginTopoClusters"):
+            if not IsInInputFile("xAOD::CaloClusterContainer",
+                                 "LCOriginTopoClusters"):
                 xAOD_Type_CaloCluster = 1
                 clusterOrigin = CaloClusterConstituentsOrigin(
                     "CaloClusterConstitOrigin_tau_AODFix",
@@ -195,6 +201,7 @@ class AODFix_r210(AODFix_base):
                 )
                 ToolSvc += jetConstitModSeq
 
+                # See also: ATLJETMET-958
                 jetAlg = JetAlgorithm("jetalgTCOriginLC", Tools=[jetConstitModSeq])
                 topSequence += jetAlg
 
