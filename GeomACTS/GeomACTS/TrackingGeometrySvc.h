@@ -35,16 +35,19 @@ public:
 
 
 private:
-std::shared_ptr<const Acts::ITrackingVolumeBuilder> 
-makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager, std::shared_ptr<const Acts::CylinderVolumeHelper> cvh, bool toBeamline = false);
+  std::shared_ptr<const Acts::ITrackingVolumeBuilder> 
+  makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager, std::shared_ptr<const Acts::CylinderVolumeHelper> cvh, bool toBeamline = false);
 
-ServiceHandle<StoreGateSvc> m_detStore;
-const InDetDD::SiDetectorManager* p_pixelManager;
-const InDetDD::SiDetectorManager* p_SCTManager;
-const InDetDD::TRT_DetectorManager* p_TRTManager;
-  
-std::shared_ptr<std::vector<std::shared_ptr<const Acts::GeoModelDetectorElement>>> m_elementStore;
-std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeometry;
+  ServiceHandle<StoreGateSvc> m_detStore;
+  const InDetDD::SiDetectorManager* p_pixelManager;
+  const InDetDD::SiDetectorManager* p_SCTManager;
+  const InDetDD::TRT_DetectorManager* p_TRTManager;
+    
+  std::shared_ptr<std::vector<std::shared_ptr<const Acts::GeoModelDetectorElement>>> m_elementStore;
+  std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeometry;
+    
+  Gaudi::Property<bool> m_useMaterialMap{this, "UseMaterialMap", false, ""};
+  Gaudi::Property<std::string> m_materialMapInputFile{this, "MaterialMapInputFile", "", ""};
 
 
 };

@@ -44,6 +44,8 @@ from AthenaCommon.AppMgr import ServiceMgr
 from GeomACTS.GeomACTSConfig import TrackingGeometrySvc
 
 trkGeomSvc = TrackingGeometrySvc()
+trkGeomSvc.UseMaterialMap = True
+trkGeomSvc.MaterialMapInputFile = "MaterialMaps.pb"
 trkGeomSvc.OutputLevel = INFO
 ServiceMgr += trkGeomSvc
 
@@ -77,6 +79,7 @@ alg.FATRAS = True
 alg.nParticles = 1
 alg.Cardinality = 0
 
+
 exTool = CfgMgr.Acts__ExtrapolationTool("ExtrapolationTool")
 exTool.OutputLevel = INFO
 alg.ExtrapolationTool = exTool
@@ -93,6 +96,6 @@ job += alg
 # athena -l DEBUG
 
 # Number of events to be processed (default is 10)
-theApp.EvtMax = 123400
+theApp.EvtMax = 1234
 
 ###############################################################

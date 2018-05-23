@@ -36,6 +36,9 @@ Acts::TrackingGeometrySvc::initialize()
   ATH_CHECK ( m_detStore->retrieve(p_SCTManager, "SCT") );
   ATH_CHECK ( m_detStore->retrieve(p_TRTManager, "TRT") );
 
+  if(m_useMaterialMap) {
+    ATH_MSG_INFO("Configured to use material map from " << m_materialMapInputFile);
+  }
   
   std::list<std::shared_ptr<const Acts::ITrackingVolumeBuilder>> volumeBuilders;
 
