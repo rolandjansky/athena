@@ -11,6 +11,8 @@
 #include "ACTS/Material/MaterialProperties.hpp"
 #include "ACTS/Utilities/GeometryID.hpp"
 
+#include "ACTS/Plugins/ProtobufPlugin/ProtobufMaterialMapWriter.hpp"
+
 // ROOT
 #include "TTree.h"
 #include "TFile.h"
@@ -160,6 +162,13 @@ StatusCode ActsMaterialMapping::finalize() {
   }
 
   
+  ATH_MSG_DEBUG("Writing to protobuf file");
+  Acts::ProtobufMaterialMapWriter::Config matMapWriterCfg;
+  matMapWriterCfg.outfile = "MaterialMaps.pb";
+  Acts::ProtobufMaterialMapWriter matMapWriter(std::move(matMapWriterCfg));
+  matMapWriter.write(sMaterialMaps);
+
+
 
   return StatusCode::SUCCESS;
 }

@@ -41,7 +41,7 @@ atlas_add_component( GeomACTS
                      src/components/*.cxx
                      PUBLIC_HEADERS GeomACTS
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GeoPrimitives Identifier RegionSelectorLib GaudiKernel InDetCondServices SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry MagFieldInterfaces Acts::Core Acts::Legacy Acts::MaterialPlugin)
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GeoPrimitives Identifier RegionSelectorLib GaudiKernel InDetCondServices SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry MagFieldInterfaces Acts::Core Acts::Legacy Acts::MaterialPlugin Acts::ProtobufPlugin)
 
 # Install files from the package:
 atlas_install_headers( GeomACTS )
