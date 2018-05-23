@@ -7,6 +7,8 @@
 
 #include "GeoModelUtilities/GeoModelTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 
 class ISiLorentzAngleSvc;
 class IGeoDbTagSvc;
@@ -33,6 +35,8 @@ public:
   virtual StatusCode create() override final;
   virtual StatusCode clear() override final;
 
+  virtual StatusCode initialize() override final;
+
   // Register callback function on ConDB object
   virtual StatusCode registerCallback() override final;
 
@@ -53,7 +57,7 @@ private:
   ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
   ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;
   ServiceHandle< IGeometryDBSvc > m_geometryDBSvc;
-  ServiceHandle< ISiLorentzAngleSvc > m_lorentzAngleSvc;
+  ToolHandle< ISiLorentzAngleTool > m_lorentzAngleTool{this, "LorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
 };
 
