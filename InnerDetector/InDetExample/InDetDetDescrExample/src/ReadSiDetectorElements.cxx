@@ -102,14 +102,16 @@ StatusCode ReadSiDetectorElements::initialize(){
     // If common pixel/SCT code can copy to pointer to AtlasDetectorID
     m_idHelper = m_sctIdHelper;
   }
-  StatusCode sc = m_siLorentzAngleSvc.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not retrieve Lorentz Angle Svc: " << m_siLorentzAngleSvc.name() );
-  }
+
   if (m_useConditionsTools) {
+    ATH_CHECK(m_siLorentzAngleTool.retrieve());
     ATH_CHECK(m_siConditionsTool.retrieve());
     ATH_CHECK(m_siPropertiesTool.retrieve());
   } else {
+    StatusCode sc = m_siLorentzAngleSvc.retrieve();
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR( "Could not retrieve Lorentz Angle Svc: " << m_siLorentzAngleSvc.name() );
+    }
     sc = m_siPropertiesSvc.retrieve();
     if (sc.isFailure()) {
       ATH_MSG_ERROR( "Could not retrieve silicon properties svc: " << m_siPropertiesSvc.name() );
@@ -118,6 +120,7 @@ StatusCode ReadSiDetectorElements::initialize(){
     if (sc.isFailure()) {
       ATH_MSG_ERROR( "Could not retrieve silicon conditions service: " << m_siConditionsSvc.name() );
     }
+    m_siLorentzAngleTool.disable();
     m_siConditionsTool.disable();
     m_siPropertiesTool.disable();
   }

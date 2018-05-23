@@ -106,12 +106,12 @@ sct_SiPropertiesToolSetup.setSiliconTool(sctSiliconConditionsTool)
 sct_SiPropertiesToolSetup.setup()
 sctSiPropertiesTool = sct_SiPropertiesToolSetup.getTool()
 
-ReadSCTElements.SiLorentzAngleSvc = lorentzAngleSvc.sct
 ReadSCTElements.UseConditionsTools = True
+ReadSCTElements.SiLorentzAngleTool = lorentzAngleSvc.sct
 ReadSCTElements.SiPropertiesTool = sctSiPropertiesTool
 ReadSCTElements.SiConditionsTool = sctSiliconConditionsTool
 
-ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=lorentzAngleSvc.sct
+ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleTool=lorentzAngleSvc.sct
 
 print ReadPixelElements
 print lorentzAngleSvc.pixel

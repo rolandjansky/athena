@@ -92,7 +92,7 @@ import AtlasGeoModel.GeoModelInit
 
 # Disable SiLorentzAngleSvc to remove
 # ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
-ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
+ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleTool=""
 
 #--------------------------------------------------------------
 # Load ReadCalibData Alg and Service

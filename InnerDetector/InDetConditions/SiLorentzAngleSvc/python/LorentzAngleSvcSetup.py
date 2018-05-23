@@ -63,13 +63,13 @@ class LorentzAngleSvcSetup:
         ## SCT 
         ##
         if ( DetFlags.detdescr.SCT_on() ):
-            # Init SCTLorentzAngleSvc
+            # Init SCTLorentzAngleTool
 
-            from SCTLorentzAngleSvcSetup import SCTLorentzAngleSvcSetup
-            sctLorentzAngleSvcSetup = SCTLorentzAngleSvcSetup()
-            self.sct   = sctLorentzAngleSvcSetup.SCTLorentzAngleSvc
-            self.sctSiliconConditionsTool  = sctLorentzAngleSvcSetup.SCT_SiliconConditionsTool
-            self.SCT_SiliconConditionsTool = sctLorentzAngleSvcSetup.SCT_SiliconConditionsTool
+            from SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+            sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+            self.sct = sctLorentzAngleToolSetup.SCTLorentzAngleTool
+            self.sctSiliconConditionsTool  = sctLorentzAngleToolSetup.SCT_SiliconConditionsTool
+            self.SCT_SiliconConditionsTool = sctLorentzAngleToolSetup.SCT_SiliconConditionsTool
 
     # Force the Lorentz angle sercive to use SiliconConditions service (which are assumed to use the DB)
     # Default is to decide based on GeoModel.
@@ -118,6 +118,6 @@ from AthenaCommon.DetFlags      import DetFlags
 if ( DetFlags.detdescr.pixel_on() ):
    from PixelLorentzAngleSvcSetup import PixelLorentzAngleSvc
 if ( DetFlags.detdescr.SCT_on() ):
-   from SCTLorentzAngleSvcSetup import SCTLorentzAngleSvcSetup
-   sctLorentzAngleSvcSetup = SCTLorentzAngleSvcSetup()
-   SCTLorentzAngleSvc = sctLorentzAngleSvcSetup.SCTLorentzAngleSvc
+   from SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+   sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+   SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool

@@ -39,7 +39,7 @@ SCTSiLorentzAngleCondAlg::SCTSiLorentzAngleCondAlg(const std::string& name, ISvc
   declareProperty("ReadKeyHV", m_readKeyHV, "Key of input SCT HV");
   declareProperty("ReadKeyBFieldSensor", m_readKeyBFieldSensor, "Key of input B-field sensor");
   declareProperty("WriteKey", m_writeKey, "Key of output SiLorentzAngleCondData");
-  // YOU NEED TO USE THE SAME PROPERTIES AS USED IN SCT_LorentzAngleSvc!!!
+  // YOU NEED TO USE THE SAME PROPERTIES AS USED IN SCTLorentzAngleTool!!!
   declareProperty("MagFieldSvc", m_magFieldSvc);
   declareProperty("Temperature", m_temperature = -7., "Default temperature in Celcius.");
   declareProperty("DepletionVoltage", m_deplVoltage = 70., "Default depletion voltage in Volt.");
@@ -221,6 +221,7 @@ StatusCode SCTSiLorentzAngleCondAlg::execute()
     // the detector is not fully depleted and we need to take this into account.
     // We take absolute values just in case voltages are signed.
     const InDetDD::SiDetectorElement* element{m_detManager->getDetectorElement(elementHash)};
+    element->invalidateConditions(); // Invalidate cache of conditions which keep Lorentz angle of SiDetectorElement
     double depletionDepth{element->thickness()};
     if (deplVoltage==0.0) {
       ATH_MSG_WARNING("Depletion voltage in "<<__FILE__<<" is zero, which might be a bug.");
