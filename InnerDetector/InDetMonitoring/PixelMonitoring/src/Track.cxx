@@ -119,9 +119,8 @@ StatusCode PixelMainMon::bookTrackMon(void) {
 StatusCode PixelMainMon::fillTrackMon(void) {
   ATH_MSG_DEBUG("Filling Track Monitoring Histograms");
 
-  StatusCode sc;
-  sc = evtStore()->retrieve(m_tracks, m_TracksName);
-  if (sc.isFailure()) {
+  auto tracks = SG::makeHandle(m_TracksName);
+  if (!(tracks.isValid())) {
     ATH_MSG_INFO("No tracks in StoreGate found");
     if (m_storegate_errors) m_storegate_errors->Fill(4., 3.);
     return StatusCode::SUCCESS;
@@ -136,8 +135,8 @@ StatusCode PixelMainMon::fillTrackMon(void) {
     m_ClusterIDs.clear();
   }
 
-  TrackCollection::const_iterator itrack = m_tracks->begin();
-  TrackCollection::const_iterator itrack_end = m_tracks->end();
+  TrackCollection::const_iterator itrack = tracks->begin();
+  TrackCollection::const_iterator itrack_end = tracks->end();
   for (; itrack != itrack_end; ++itrack) {
     const Trk::Track *track0 = (*itrack);
     if (track0 == 0 || track0->perigeeParameters() == 0 || track0->trackSummary() == 0 || track0->trackSummary()->get(Trk::numberOfPixelHits) == 0) {

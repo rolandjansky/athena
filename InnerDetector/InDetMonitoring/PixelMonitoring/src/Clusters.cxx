@@ -409,8 +409,8 @@ StatusCode PixelMainMon::bookClustersLumiBlockMon(void) {
 }
 
 StatusCode PixelMainMon::fillClustersMon(void) {
-  StatusCode sc = evtStore()->retrieve(m_Pixel_clcontainer, m_Pixel_SiClustersName);
-  if (sc.isFailure() || !m_Pixel_clcontainer) {
+  auto pixel_clcontainer = SG::makeHandle(m_Pixel_SiClustersName);
+  if (!(pixel_clcontainer.isValid())) {
     if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Pixel Cluster container for Pixels not found" << endmsg;
     if (m_storegate_errors) m_storegate_errors->Fill(3., 3.);
     return StatusCode::SUCCESS;
@@ -451,8 +451,8 @@ StatusCode PixelMainMon::fillClustersMon(void) {
   }
 
   Identifier clusID;
-  InDet::PixelClusterContainer::const_iterator colNext = m_Pixel_clcontainer->begin();
-  InDet::PixelClusterContainer::const_iterator lastCol = m_Pixel_clcontainer->end();
+  InDet::PixelClusterContainer::const_iterator colNext = pixel_clcontainer->begin();
+  InDet::PixelClusterContainer::const_iterator lastCol = pixel_clcontainer->end();
   DataVector<PixelCluster>::const_iterator p_clus;
 
   for (; colNext != lastCol; ++colNext) {

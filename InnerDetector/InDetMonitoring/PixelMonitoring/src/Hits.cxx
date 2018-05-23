@@ -32,8 +32,6 @@
 #include "PixelMonitoring/PixelMon2DProfilesLW.h"
 #include "PixelMonitoring/PixelMonModules.h"
 
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
 #include "EventInfo/TriggerInfo.h"
 #include "PixelCabling/IPixelCablingSvc.h"
 
@@ -449,42 +447,44 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
     nGoodChannels_total += nGoodChannels_layer[i];
   }
 
-  StatusCode sc;
-
-  const InDetTimeCollection* Pixel_BCIDColl = 0;
-  if (evtStore()->contains<InDetTimeCollection>("PixelBCID")) sc = evtStore()->retrieve(Pixel_BCIDColl, "PixelBCID");
+  if (!(evtStore()->contains<InDetTimeCollection>(m_PixelBCIDName.key()))) {
+    ATH_MSG_DEBUG("Pixel BCID collection " <<m_PixelBCIDName.key() << " is not in event store!");
+    return StatusCode::SUCCESS;
+  }
+  auto Pixel_BCIDColl = SG::makeHandle(m_PixelBCIDName);
   int pix_rod_bcid = 0;
-  if (!sc.isFailure() && Pixel_BCIDColl != 0) {
+  if (Pixel_BCIDColl.isValid()) {
     ATH_MSG_DEBUG("Found Pixel BCID collection");
     for (InDetTimeCollection::const_iterator ipix_bcid = Pixel_BCIDColl->begin(); ipix_bcid != Pixel_BCIDColl->end(); ++ipix_bcid) {
       if (!(*ipix_bcid)) continue;
       const unsigned int pix_bcid = (*ipix_bcid)->second;
       pix_rod_bcid = pix_bcid;
     }
+  } else {
+    ATH_MSG_WARNING("Could not find the data object PixelBCID !");
+    return StatusCode::SUCCESS;
   }
-  if (sc.isFailure()) ATH_MSG_WARNING("Could not find the data object PixelBCID !");
 
   int lvl1idATLAS(-1);
-  const EventInfo* thisEventInfo;
-  sc = evtStore()->retrieve(thisEventInfo);
-  if (sc != StatusCode::SUCCESS) {
+  auto thisEventInfo = SG::makeHandle(m_eventInfoKey);
+  if(!(thisEventInfo.isValid())) {
     ATH_MSG_WARNING("No EventInfo object found");
   } else {
     lvl1idATLAS = (int)((thisEventInfo->trigger_info()->extendedLevel1ID()) & 0xf);
   }
 
   // retrieve Pixel RDO container from storegate
-  sc = evtStore()->retrieve(m_rdocontainer, m_Pixel_RDOName);
-  if (sc.isFailure() || !m_rdocontainer) {
+  auto rdocontainer = SG::makeHandle(m_Pixel_RDOName);
+  if (!(rdocontainer.isValid())) {
     ATH_MSG_WARNING("Could not retrieve Pixel RDO container !");
     if (m_storegate_errors) m_storegate_errors->Fill(1., 3.);  // first entry is for RDO, second is for retrieve problem
     return StatusCode::SUCCESS;                                // fail gracefully and keep going in the next tool
   } else {
-    ATH_MSG_DEBUG("Pixel RDO container " << m_Pixel_RDOName << " found");
+    ATH_MSG_DEBUG("Pixel RDO container " << m_Pixel_RDOName.key() << " found");
   }
 
-  PixelRDO_Container::const_iterator colNext = m_rdocontainer->begin();
-  PixelRDO_Container::const_iterator lastCol = m_rdocontainer->end();
+  PixelRDO_Container::const_iterator colNext = rdocontainer->begin();
+  PixelRDO_Container::const_iterator lastCol = rdocontainer->end();
   DataVector<PixelRDORawData>::const_iterator p_rdo;
 
   for (; colNext != lastCol; ++colNext) {
