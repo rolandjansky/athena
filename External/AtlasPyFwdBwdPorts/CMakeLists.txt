@@ -202,11 +202,5 @@ _setup_python_package( scandir
    0180ddb97c96cbb2d4f25d2ae11c64ac
    )
 
-# Install scandir:
-_setup_python_package( scandir
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/scandir-1.6.tar.gz
-   0180ddb97c96cbb2d4f25d2ae11c64ac
-   )
-
 # Clean up:
 unset( _setup_python_package )
