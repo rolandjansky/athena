@@ -120,6 +120,7 @@ private:
   std::string m_DiTauContainerNameAux;
   bool m_bCalcCluserVariables;
   bool m_bMuonTrackRemoval;
+  bool m_bRecalcStandardID;
   std::string m_sTruthTauContainerName;
   std::string m_sDecayChannel;
   enum DecayChannel{ HadHad, HadEl, HadMu, Default };

@@ -20,6 +20,8 @@
 #include "xAODTau/DiTauJetAuxContainer.h"
 #include "xAODTau/TauJetContainer.h"
 
+#include "xAODEventInfo/EventInfo.h"
+
 #include "xAODEgamma/ElectronContainer.h"
 
 #include "xAODMuon/MuonContainer.h"
@@ -100,6 +102,7 @@ DiTauIDVarCalculator::DiTauIDVarCalculator( const std::string& name )
   declareProperty( "doCalcCluserVariables", m_bCalcCluserVariables = false);
   declareProperty( "DiTauDecayChannel", m_sDecayChannel = "HadHad");
   declareProperty( "MuonTrackRemoval", m_bMuonTrackRemoval = true);
+  declareProperty( "RecalcStandardID", m_bRecalcStandardID = false);
 }
 
 //______________________________________________________________________________
@@ -385,15 +388,33 @@ StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet&
     pTauCopy->makePrivateStore(*pTau);
     m_data.clear();
     ATH_CHECK(m_muonTrackRemoval->execute(*pTauCopy));
+
+    // set variables to default values, if last track of tau was removed
+    if (pTauCopy->nTracks() == 0) {
+      pTauCopy->setDetail( xAOD::TauJetParameters::etOverPtLeadTrk, static_cast<float>( -1111 ) );
+      pTauCopy->setDetail( xAOD::TauJetParameters::dRmax, static_cast<float>( -1111 ) );
+      pTauCopy->setDetail( xAOD::TauJetParameters::massTrkSys, static_cast<float>( -1111 ) );
+      pTauCopy->setDetail( xAOD::TauJetParameters::innerTrkAvgDist, static_cast<float>( -1111 ) );
+    }
+    
     ATH_CHECK(m_tauSubstructureVariables->execute(*pTauCopy));
     ATH_CHECK(m_tauCommonCalcVars->execute(*pTauCopy));
 
-    //recalculate and decorate output of standard Tau ID after muon track removal:
-    
-    ATH_CHECK(m_tauIDVarCalculator->execute(*pTauCopy));
-    ATH_CHECK(m_tauJetBDTEvaluator_1P->execute(*pTauCopy));
-    ATH_CHECK(m_tauJetBDTEvaluator_3P->execute(*pTauCopy));
-    ATH_CHECK(m_tauWPDecorator->execute(*pTauCopy));
+    if(m_bRecalcStandardID){
+      // recalculate and decorate output of standard Tau ID after muon track removal:
+      // set some input variables for standard Tau ID:
+      
+      static const SG::AuxElement::Accessor<int> acc_numTrack("NUMTRACK");
+      acc_numTrack(*pTauCopy) = pTauCopy->nTracks();
+      const xAOD::EventInfo* xEventInfo;
+      static const SG::AuxElement::Accessor<float> acc_mu("MU");
+      ATH_CHECK( evtStore()->retrieve(xEventInfo,"EventInfo") );
+      acc_mu(*pTauCopy) = xEventInfo->averageInteractionsPerCrossing();
+      
+      ATH_CHECK(m_tauJetBDTEvaluator_1P->execute(*pTauCopy));
+      ATH_CHECK(m_tauJetBDTEvaluator_3P->execute(*pTauCopy));
+      ATH_CHECK(m_tauWPDecorator->execute(*pTauCopy));
+    }
     
     dec_BDTScoreRecalc    (xDiTau) = acc_BDTScoreRecalc    (*pTauCopy);
     dec_BDTScoreFlatRecalc(xDiTau) = acc_BDTScoreFlatRecalc(*pTauCopy);
