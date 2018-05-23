@@ -184,7 +184,7 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
     m_upsilon_cluster = acc_UpsilonCluster(xTau);
     m_lead_cluster_frac = acc_LeadClusterFrac(xTau);
 
-    float ptMVA = float( m_ptDetectorAxis * reader->GetResponse() );
+    float ptMVA = float( m_ptDetectorAxis * m_reader->GetResponse() );
     if(ptMVA<1) ptMVA=1;
 
     // this may have to be changed if we apply a calo-only MVA calibration first, followed by a calo+track MVA calibration
