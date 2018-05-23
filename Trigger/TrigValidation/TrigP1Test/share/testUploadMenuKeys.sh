@@ -168,28 +168,58 @@ cmd="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuE
 # create script to upload keys
 echo "# setup release" >> uploadSMK_"$stump"_tight.sh
 echo "asetup AthenaP1,21.1,r${rel}" >> uploadSMK_"$stump"_tight.sh
-echo "# create SMK" >> uploadSMK_"$stump"_tight.sh
-echo "rm MenusKeys.txt" >> uploadSMK_"$stump"_tight.sh
+echo "# creating SMK" >> uploadSMK_"$stump"_tight.sh
+echo "if [ -f MenusKeys.txt ]; then" >> uploadSMK_"$stump"_tight.sh
+echo "   rm MenusKeys.txt" >> uploadSMK_"$stump"_tight.sh
+echo "fi" >> uploadSMK_"$stump"_tight.sh
+echo "Uploading SMK. It may take a while..." >> uploadSMK_"$stump"_tight.sh
 echo "$cmd &> SMK_upload.log" >> uploadSMK_"$stump"_tight.sh
+echo "if grep --quiet SEVERE SMK_upload.log; then" >> uploadSMK_"$stump"_tight.sh
+echo "  echo 'SEVERE error occured, maybe existing write lock. Please check SMK_upload.log' " >> uploadSMK_"$stump"_tight.sh
+echo "  return " >> uploadSMK_"$stump"_tight.sh
+echo "elif [ ! -f MenusKeys.txt ]; then" >> uploadSMK_"$stump"_tight.sh
+echo "  echo 'MenusKeys.txt does not exist. Something went wrong. Please check SMK_upload.log' " >> uploadSMK_"$stump"_tight.sh
+echo "  return " >> uploadSMK_"$stump"_tight.sh
+echo "fi" >> uploadSMK_"$stump"_tight.sh
 echo "smk=\`grep SM MenusKeys.txt | awk '{print \$3}' | sed 's#:##'\`" >> uploadSMK_"$stump"_tight.sh
 echo "echo 'Created SMK ' \$smk" >> uploadSMK_"$stump"_tight.sh
 echo "# upload prescaled" >> uploadSMK_"$stump"_tight.sh
-echo "/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup PS_tight -smk \${smk} -w_n 50 -w_t 60" >> uploadSMK_"$stump"_tight.sh
-echo "l1psk=\`grep 'L1 PS' MenusKeys.txt | awk '{print \$4}' | sed 's#:##'\`" >> uploadSMK_"$stump"_tight.sh
-echo "hltpsk=\`grep 'HLT PS' MenusKeys.txt | awk '{print \$4}' | sed 's#:##'\`" >> uploadSMK_"$stump"_tight.sh
+echo "Uploading prescale keys. It may take another while..." >> uploadSMK_"$stump"_tight.sh
+echo "/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup PS_tight -smk \${smk} -w_n 50 -w_t 60 &> PS_upload.log" >> uploadSMK_"$stump"_tight.sh
+echo "if grep -v 'LVL1config.dtd' PS_upload.log | grep --quiet SEVERE ; then" >> uploadSMK_"$stump"_tight.sh
+echo "  echo 'SEVERE error occured, maybe existing write lock. Please check PS_upload.log' " >> uploadSMK_"$stump"_tight.sh
+echo "  return " >> uploadSMK_"$stump"_tight.sh
+echo "fi" >> uploadSMK_"$stump"_tight.sh
+echo "l1psk=\`grep  'INFO: Prescale set saved with id' PS_upload.log | awk '{print \$7}' | sed 's/\.//g'\`" >> uploadSMK_"$stump"_tight.sh
+echo "hltpsk=\`grep 'INFO: HLT Prescale set saved with id' PS_upload.log | awk '{print \$8}' | sed 's/\.//g'\`" >> uploadSMK_"$stump"_tight.sh
 echo "echo 'L1 PSK ' \$l1psk ', HLT PSK ' \$hltpsk" >> uploadSMK_"$stump"_tight.sh
 
 echo "# setup release" >> uploadSMK_"$stump"_tightperf.sh
 echo "asetup AthenaP1,21.1,r${rel}" >> uploadSMK_"$stump"_tightperf.sh
-echo "# create SMK" >> uploadSMK_"$stump"_tightperf.sh
-echo "rm MenusKeys.txt" >> uploadSMK_"$stump"_tightperf.sh
+echo "# creating SMK" >> uploadSMK_"$stump"_tightperf.sh
+echo "if [ -f MenusKeys.txt ]; then" >> uploadSMK_"$stump"_tightperf.sh
+echo "   rm MenusKeys.txt" >> uploadSMK_"$stump"_tightperf.sh
+echo "fi" >> uploadSMK_"$stump"_tightperf.sh
+echo "Uploading SMK. It may take a while..." >> uploadSMK_"$stump"_tightperf.sh
 echo "$cmd &> SMK_upload.log" >> uploadSMK_"$stump"_tightperf.sh
+echo "if grep --quiet SEVERE SMK_upload.log; then" >> uploadSMK_"$stump"_tightperf.sh
+echo "  echo 'SEVERE error occured, maybe existing write lock. Please check SMK_upload.log' " >> uploadSMK_"$stump"_tightperf.sh
+echo "  return " >> uploadSMK_"$stump"_tightperf.sh
+echo "elif [ ! -f MenusKeys.txt ]; then" >> uploadSMK_"$stump"_tightperf.sh
+echo "  echo 'MenusKeys.txt does not exist. Something went wrong. Please check SMK_upload.log' " >> uploadSMK_"$stump"_tightperf.sh
+echo "  return " >> uploadSMK_"$stump"_tightperf.sh
+echo "fi" >> uploadSMK_"$stump"_tightperf.sh
 echo "smk=\`grep SM MenusKeys.txt | awk '{print \$3}' | sed 's#:##'\`" >> uploadSMK_"$stump"_tightperf.sh
 echo "echo 'Created SMK ' \$smk" >> uploadSMK_"$stump"_tightperf.sh
 echo "# upload prescaled" >> uploadSMK_"$stump"_tightperf.sh
-echo "/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup PS_tightperf -smk \${smk} -w_n 50 -w_t 60" >> uploadSMK_"$stump"_tightperf.sh
-echo "l1psk=\`grep 'L1 PS' MenusKeys.txt | awk '{print \$4}' | sed 's#:##'\`" >> uploadSMK_"$stump"_tightperf.sh
-echo "hltpsk=\`grep 'HLT PS' MenusKeys.txt | awk '{print \$4}' | sed 's#:##'\`" >> uploadSMK_"$stump"_tightperf.sh
+echo "Uploading prescale keys. It may take another while..." >> uploadSMK_"$stump"_tightperf.sh
+echo "/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup PS_tightperf -smk \${smk} -w_n 50 -w_t 60 &> PS_upload.log" >> uploadSMK_"$stump"_tightperf.sh
+echo "if grep -v 'LVL1config.dtd' PS_upload.log | grep --quiet SEVERE ; then" >> uploadSMK_"$stump"_tightperf.sh
+echo "  echo 'SEVERE error occured, maybe existing write lock. Please check PS_upload.log' " >> uploadSMK_"$stump"_tightperf.sh
+echo "  return " >> uploadSMK_"$stump"_tightperf.sh
+echo "fi" >> uploadSMK_"$stump"_tightperf.sh
+echo "l1psk=\`grep  'INFO: Prescale set saved with id' PS_upload.log | awk '{print \$7}' | sed 's/\.//g'\`" >> uploadSMK_"$stump"_tightperf.sh
+echo "hltpsk=\`grep 'INFO: HLT Prescale set saved with id' PS_upload.log | awk '{print \$8}' | sed 's/\.//g'\`" >> uploadSMK_"$stump"_tightperf.sh
 echo "echo 'L1 PSK ' \$l1psk ', HLT PSK ' \$hltpsk" >> uploadSMK_"$stump"_tightperf.sh
 
 if [ $noUpload -eq 1 ]; then
