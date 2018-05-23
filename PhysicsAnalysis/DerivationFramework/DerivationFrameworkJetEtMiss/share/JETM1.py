@@ -106,6 +106,13 @@ jetm1Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM1Kernel" ,
 # Special jets
 #====================================================================
 
+# Create TCC objects
+from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+# Set up geometry and BField
+import AthenaCommon.AtlasUnixStandardJob
+include("RecExCond/AllDet_detDescr.py")
+runTCCReconstruction(jetm1Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+
 OutputJets["JETM1"] = []
 
 #=======================================
@@ -118,6 +125,7 @@ replaceAODReducedJets(reducedJetList,jetm1Seq,"JETM1")
 
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm1Seq,"JETM1")
+addTCCTrimmedJets(jetm1Seq,"JETM1")
 
 # Add jets with constituent-level pileup suppression
 addConstModJets("AntiKt",0.4,"EMTopo",["CS","SK"],jetm1Seq,"JETM1",
@@ -149,6 +157,7 @@ JETM1SlimmingHelper = SlimmingHelper("JETM1SlimmingHelper")
 JETM1SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "PrimaryVertices",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                        "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
                                         "BTagging_AntiKt4EMTopo",
                                         "BTagging_AntiKt2Track",
                                         ]
