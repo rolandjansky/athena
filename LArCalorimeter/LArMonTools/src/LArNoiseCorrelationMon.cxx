@@ -141,12 +141,8 @@ LArNoiseCorrelationMon::initialize()
 
   
   /** Get bad-channel mask (only if jO IgnoreBadChannels is true)*/
-  if (m_ignoreKnownBadChannels) { 
-    sc=m_badChannelMask.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Could not retrieve BadChannelMask" << m_badChannelMask);
-      return StatusCode::FAILURE;
-    }
+  if (m_ignoreKnownBadChannels) {
+    ATH_CHECK(m_badChannelMask.retrieve());
   }
   
   /** Retrieve pedestals container*/
@@ -227,10 +223,7 @@ LArNoiseCorrelationMon::fillHistograms()
 
   /**EventID is a part of EventInfo, search event informations:*/
   const xAOD::EventInfo* thisEvent;
-  if (evtStore()->retrieve(thisEvent).isFailure()) {
-    ATH_MSG_ERROR( "Failed to retrieve EventInfo object" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(evtStore()->retrieve(thisEvent));
   
   m_evtId = thisEvent->eventNumber();
   ATH_MSG_DEBUG("Event nb " << m_evtId );  
