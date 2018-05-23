@@ -31,14 +31,13 @@ JetFlavorPlots::JetFlavorPlots(const std::string& name,
     m_doNominal(false),
     m_doRadHigh(false),
     m_doRadLow(false),
-    m_isweightsread(false),
-    m_w_Nominal_pos(-1),
     // default pT and eta binning, and default max number of Jets
     m_ptBins ("15:20:30:45:60:80:110:160:210:260:310:400:500:600:800:1000:1200:1500:1800:2500"),
     m_etaBins ("0.:0.3:0.8:1.2:2.1:2.8:3.6:4.5"),
     m_nJetsMax(15),
     m_jetCollection(""),
-    m_config (config) {
+    m_config (config),
+    m_PMGTruthWeights(nullptr) {
 
     CP::SystematicSet nominal;
     m_nominalHashValue = nominal.hash();
@@ -46,7 +45,14 @@ JetFlavorPlots::JetFlavorPlots(const std::string& name,
     // retrieve jet collection and remove the "Jets" at the end of it
     m_jetCollection = m_config->sgKeyJets();
     m_jetCollection.erase(m_jetCollection.length() - 4);
-
+    //retrieve PMGTruthWeights
+    const std::string truthWeightToolName = "PMGTruthWeightTool";
+    if(asg::ToolStore::contains<PMGTools::PMGTruthWeightTool>(truthWeightToolName))
+       m_PMGTruthWeights = asg::ToolStore::get<PMGTools::PMGTruthWeightTool>(truthWeightToolName);
+    else {
+       m_PMGTruthWeights = new PMGTools::PMGTruthWeightTool(truthWeightToolName);
+       top::check(m_PMGTruthWeights->initialize(), "Failed to initialize "+truthWeightToolName);
+    }
     //decoding arguments
     std::istringstream stream(params);
     std::string s;
@@ -71,23 +77,20 @@ JetFlavorPlots::JetFlavorPlots(const std::string& name,
       }
     }
     //If neither nominal or radiation has been selected, assume it's nominal
-    if((m_doNominal+m_doRadHigh+m_doRadLow)==false){
+    if((m_doNominal+m_doRadHigh+m_doRadLow)==false)
        m_doNominal = true;
-       m_w_Nominal_pos = 0;
-    }
 
-    if((m_doRadHigh+m_doRadLow)&&(!m_config->doMCGeneratorWeights())){
-       std::cout << "ERROR: You have requested Radiation Variation JETFLAVORPLOTS, but MCGeneratorWeights is set to False! Please enable it and run again!";
-       exit(1);
-    }
     // create the JetFlavorPlots and JetFlavorPlots_Loose directories only if needed
     if (m_config->doTightEvents()){
-       if(m_doNominal) m_hists = std::make_shared<PlotManager>(name+"/JetFlavorPlots", outputFile, wk);
+       if(m_doNominal) m_hists         = std::make_shared<PlotManager>(name+"/JetFlavorPlots", outputFile, wk);
        if(m_doRadHigh) m_hists_RadHigh = std::make_shared<PlotManager>(name+"/JetFlavorPlots_RadHigh", outputFile, wk);
        if(m_doRadLow)  m_hists_RadLow  = std::make_shared<PlotManager>(name+"/JetFlavorPlots_RadLow", outputFile, wk);
     }
-    if (m_config->doLooseEvents() && m_doNominal) m_hists_Loose = std::make_shared<PlotManager>(name+"/JetFlavorPlots_Loose", outputFile, wk);
-
+    if (m_config->doLooseEvents()){
+       if(m_doNominal) m_hists_Loose         = std::make_shared<PlotManager>(name+"/JetFlavorPlots_Loose", outputFile, wk);
+       if(m_doRadHigh) m_hists_RadHigh_Loose = std::make_shared<PlotManager>(name+"/JetFlavorPlots_Loose_RadHigh", outputFile, wk);
+       if(m_doRadLow)  m_hists_RadLow_Loose  = std::make_shared<PlotManager>(name+"/JetFlavorPlots_Loose_RadLow", outputFile, wk);
+    }
     //handle binning
     std::vector<double> ptBinning;
     std::vector<double> etaBinning;
@@ -102,11 +105,15 @@ JetFlavorPlots::JetFlavorPlots(const std::string& name,
     std::cout<<std::endl;
 
     if (m_config->doTightEvents()){
-      if(m_doNominal) BookHistograms(m_hists, ptBinning, etaBinning);
+      if(m_doNominal) BookHistograms(m_hists,         ptBinning, etaBinning);
       if(m_doRadHigh) BookHistograms(m_hists_RadHigh, ptBinning, etaBinning);
-      if(m_doRadLow)  BookHistograms(m_hists_RadLow, ptBinning, etaBinning);
+      if(m_doRadLow)  BookHistograms(m_hists_RadLow,  ptBinning, etaBinning);
     }
-    if (m_config->doLooseEvents()) BookHistograms(m_hists_Loose, ptBinning, etaBinning);
+    if (m_config->doLooseEvents()){
+      if(m_doNominal) BookHistograms(m_hists_Loose,         ptBinning, etaBinning);
+      if(m_doRadHigh) BookHistograms(m_hists_RadHigh_Loose, ptBinning, etaBinning);
+      if(m_doRadLow)  BookHistograms(m_hists_RadLow_Loose,  ptBinning, etaBinning);
+    }
 }
 
 
@@ -137,47 +144,34 @@ void JetFlavorPlots::BookHistograms(std::shared_ptr<PlotManager> h_ptr, std::vec
 
 bool JetFlavorPlots::apply(const top::Event& event) const {
     //only MC
-    if (!top::isSimulation(event)) return true;
+    if(!top::isSimulation(event)) return true;
     // only nominal
-    if (event.m_hashValue != m_nominalHashValue) return true;
+    if(event.m_hashValue != m_nominalHashValue) return true;
     // do loose or tight events only if requested
-    if (event.m_isLoose && !m_config->doLooseEvents()) return true;
-    if (!event.m_isLoose && !m_config->doTightEvents()) return true;
-
-    //Only the first time the apply method is called, retrieve the weights positions. This is not done in constructor since the names are not known before reading the first event
-    if((m_doRadHigh+m_doRadLow)&&(!m_isweightsread)){
-       m_isweightsread=true;
-       std::vector<std::string> w_names = m_config->getLHE3Names();
-       for(unsigned int n=0; n<w_names.size(); ++n){
-          if(w_names.at(n)=="nominal")       m_w_Nominal_pos = n;
-          if(w_names.at(n)=="muR=05,muF=05") m_w_RadHigh_pos.push_back(n);
-          if(w_names.at(n)=="muR=20,muF=20") m_w_RadLow_pos.push_back(n);
-          if(w_names.at(n)=="Var3cUp")       m_w_RadHigh_pos.push_back(n);
-          if(w_names.at(n)=="Var3cDown")     m_w_RadLow_pos.push_back(n);
-       }
+    if( event.m_isLoose && !m_config->doLooseEvents()) return true;
+    if(!event.m_isLoose && !m_config->doTightEvents()) return true;
+    if(m_doNominal){
+       top::check(m_PMGTruthWeights->hasWeight(" nominal "),"JetFlavorPlots::apply(): Weight nominal not found. Please report this message!");
+       double eventWeight = m_PMGTruthWeights->getWeight(" nominal ");
+       if(event.m_isLoose) FillHistograms(m_hists_Loose, eventWeight, event);
+       else                FillHistograms(m_hists, eventWeight, event);
     }
-    double eventWeight = 1.;
-//       eventWeight = event.m_info->mcEventWeight();
-//      eventWeight = event.m_truthEvent->at(0)->weights()[0];// FIXME temporary bugfix
-    if(event.m_isLoose){
-       eventWeight = event.m_truthEvent->at(0)->weights()[m_w_Nominal_pos];
-       FillHistograms(m_hists_Loose, eventWeight, event);
+    if(m_doRadHigh){
+       top::check(m_PMGTruthWeights->hasWeight(" nominal "),"JetFlavorPlots::apply(): Weight nominal not found. Please report this message!");
+       top::check(m_PMGTruthWeights->hasWeight(" muR = 0.5, muF = 0.5 "),"JetFlavorPlots::apply(): Weight muR = 0.5, muF = 0.5 not found. Please report this message!");
+       top::check(m_PMGTruthWeights->hasWeight("Var3cUp"),"JetFlavorPlots::apply(): Weight Var3cUp not found. Please report this message!");
+       double eventWeight = m_PMGTruthWeights->getWeight(" muR = 0.5, muF = 0.5 ") * m_PMGTruthWeights->getWeight("Var3cUp") / m_PMGTruthWeights->getWeight(" nominal ");
+       if(event.m_isLoose) FillHistograms(m_hists_RadHigh_Loose, eventWeight, event);
+       else                FillHistograms(m_hists_RadHigh, eventWeight, event);
     }
-    else{
-       if(m_doNominal){
-          eventWeight = event.m_truthEvent->at(0)->weights()[m_w_Nominal_pos];
-          FillHistograms(m_hists, eventWeight, event);
-       }
-       if(m_doRadHigh){
-          eventWeight = event.m_truthEvent->at(0)->weights()[m_w_RadHigh_pos.at(0)] * event.m_truthEvent->at(0)->weights()[m_w_RadHigh_pos.at(1)] / event.m_truthEvent->at(0)->weights()[m_w_Nominal_pos];
-          FillHistograms(m_hists_RadHigh, eventWeight, event);
-       }
-       if(m_doRadLow){
-          eventWeight = event.m_truthEvent->at(0)->weights()[m_w_RadLow_pos.at(0)] * event.m_truthEvent->at(0)->weights()[m_w_RadLow_pos.at(1)] / event.m_truthEvent->at(0)->weights()[m_w_Nominal_pos];
-          FillHistograms(m_hists_RadLow, eventWeight, event);
-       }
+    if(m_doRadLow){
+       top::check(m_PMGTruthWeights->hasWeight(" nominal "),"JetFlavorPlots::apply(): Weight nominal not found. Please report this message!");
+       top::check(m_PMGTruthWeights->hasWeight(" muR = 2.0, muF = 2.0 "),"JetFlavorPlots::apply(): Weight muR = 2.0, muF = 2.0 not found. Please report this message!");
+       top::check(m_PMGTruthWeights->hasWeight("Var3cDown"),"JetFlavorPlots::apply(): Weight Var3cDown not found. Please report this message!");
+       double eventWeight = m_PMGTruthWeights->getWeight(" muR = 2.0, muF = 2.0 ") * m_PMGTruthWeights->getWeight("Var3cDown") / m_PMGTruthWeights->getWeight(" nominal ");
+       if(event.m_isLoose) FillHistograms(m_hists_RadLow_Loose, eventWeight, event);
+       else                FillHistograms(m_hists_RadLow, eventWeight, event);
     }
-
     return true;
 }
 
@@ -238,6 +232,8 @@ void JetFlavorPlots::FillHistograms(std::shared_ptr<PlotManager> h_ptr, double w
         if (jet_flavor == 21) sprintf(name,"gluon_jets_%s", m_jetCollection.c_str());
         // PDG ID for d,u,s is 1,2,3
         else if (jet_flavor >= 1 && jet_flavor <=4 ) sprintf(name,"quark_jets_%s", m_jetCollection.c_str());
+        // We are not interested in other PDG IDs
+        else continue;
         
         static_cast<TH2D*>(h_ptr->hist(name))->Fill(jetPtr->pt()*toGeV,
                                                          jetPtr->eta(),
