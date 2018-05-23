@@ -78,8 +78,8 @@ private:
     std::string m_scoreName;
     std::string m_newScoreName;
 
-    std::unique_ptr<SG::AuxElement::ConstAccessor<float>> acc_score;
-    std::unique_ptr<SG::AuxElement::Accessor<float>> acc_newScore;
+    std::unique_ptr<SG::AuxElement::ConstAccessor<float>> m_acc_score;
+    std::unique_ptr<SG::AuxElement::Accessor<float>> m_acc_newScore;
 
     float m_mu;
 

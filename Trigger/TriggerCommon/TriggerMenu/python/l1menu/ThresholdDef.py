@@ -124,9 +124,9 @@ class ThresholdDef:
 
         # new egamma v7 menu (ATR-16089)
         if not '_v6' in TriggerFlags.triggerMenuSetup() and not '_HI' in TriggerFlags.triggerMenuSetup():
-           ThresholdValue.setDefaults('EM', {'isobits' : '01000', 'use_relIso' : True })
 
-           tc.registerThr( 'EM22VHIM', type='EM').addThrValue(24, priority=1)\
+           ThresholdValue.setDefaults('EM', {'isobits' : '00001', 'use_relIso' : True })
+           tc.registerThr( 'EM22VH', type='EM').addThrValue(24, priority=1)\
             .addThrValue(24, -7, 0, priority=2).addThrValue(24, 0, 7, priority=2)\
             .addThrValue(23, -8, -7, priority=2).addThrValue(23, 7, 8, priority=2)\
             .addThrValue(22, -11, -8, priority=2).addThrValue(22, 8, 11, priority=2)\
@@ -136,6 +136,7 @@ class ThresholdDef:
             .addThrValue(21, -17, -15, priority=2).addThrValue(21, 15, 17, priority=2)\
             .addThrValue(23, -25, -17, priority=2).addThrValue(23, 17, 25, priority=2)
 
+           ThresholdValue.setDefaults('EM', {'isobits' : '01000', 'use_relIso' : True })
            tc.registerThr( 'EM24VHIM', type='EM').addThrValue(24, priority=1)\
             .addThrValue(26, -7, 0, priority=2).addThrValue(26, 0, 7, priority=2)\
             .addThrValue(25, -8, -7, priority=2).addThrValue(25, 7, 8, priority=2)\
@@ -300,7 +301,7 @@ class ThresholdDef:
         
 
         # Central jet
-        for (thrV, etamax) in [(15,25), (17,22), (20,28), (25,23), (35,23), (20,49), (30,49), (40,25)]:
+        for (thrV, etamax) in [(12,23), (15,25), (17,22), (20,28), (25,23), (35,23), (20,49), (30,49), (40,25)]:
             tc.registerThr('J%i.0ETA%i'  % (thrV, etamax), 'JET').addThrValue(JetOff).addThrValue( thrV, etamin = -etamax,  etamax = etamax, priority=1)  
 
         # Standard forward jet
@@ -387,15 +388,12 @@ class ThresholdDef:
         thresholdC=[ 55.42, 31.98, 32.81, 49.48, 98.44, 32.11, 32.62, 29.90, 24.06, 25.81, 25.52, 35.00, 27.71, 36.46, 26.25, 30.63]
 
         # run 2 above MBTS_A08 only the even numbers are used
-        thresholdA=[ 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 0.0, 100.0, 0.0, 100.0, 0.0, 100.0, 0.0]
-        thresholdC=[ 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 0.0, 100.0, 0.0, 100.0, 0.0, 100.0, 0.0]
+        thresholdA=[ 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0]
+        thresholdC=[ 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0]
 
         for i, (vA, vC) in enumerate(zip(thresholdA, thresholdC)):
-            #if(thresholdA[i]!=0):
-            tc.registerThr('MBTS_A%i' % i, 'MBTSSI').addThrValue(thresholdA[i])
-            #if(thresholdC[i]!=0):
-            tc.registerThr('MBTS_C%i' % i, 'MBTSSI').addThrValue(thresholdC[i])
-
+            tc.registerThr('MBTS_A%i' % i, 'MBTSSI').addThrValue(vA)
+            tc.registerThr('MBTS_C%i' % i, 'MBTSSI').addThrValue(vC)
 
         thr_mbtsA = tc.registerThr('MBTS_A', 'MBTS', mapping=0)
         thr_mbtsC = tc.registerThr('MBTS_C', 'MBTS', mapping=1)

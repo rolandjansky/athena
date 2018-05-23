@@ -25,7 +25,7 @@
 
 #include <mutex>
 
-static std::mutex _workerInitMutex;
+static std::mutex workerInitMutex;
 
 G4AtlasWorkerRunManager::G4AtlasWorkerRunManager()
   : G4WorkerRunManager()
@@ -50,7 +50,7 @@ G4AtlasWorkerRunManager* G4AtlasWorkerRunManager::GetG4AtlasWorkerRunManager()
 void G4AtlasWorkerRunManager::Initialize()
 {
   // Locking this initialization to protect currently thread-unsafe services
-  std::lock_guard<std::mutex> lock(_workerInitMutex);
+  std::lock_guard<std::mutex> lock(workerInitMutex);
 
   const std::string methodName = "G4AtlasWorkerRunManager::Initialize";
 

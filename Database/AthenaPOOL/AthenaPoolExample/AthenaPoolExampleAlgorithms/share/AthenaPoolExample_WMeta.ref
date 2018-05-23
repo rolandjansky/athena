@@ -1,4 +1,4 @@
-Thu Apr 19 04:13:23 CEST 2018
+Thu Apr 19 04:24:48 CEST 2018
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
@@ -6,14 +6,14 @@ Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_WMetaJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 1954 configurables from 5 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5276 configurables from 4 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
-[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v4r1)
-                                          running on lxplus036.cern.ch on Thu Apr 19 04:13:29 2018
+                                          running on lxplus034.cern.ch on Thu Apr 19 04:25:00 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -42,8 +42,8 @@ PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:Catalog2.xml) [ok
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/21.2/2018-04-18T0328/AthDerivation/21.2.24.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus036.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/21.0/2018-04-17T2156/Athena/21.0.69/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus034.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 2
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -51,6 +51,7 @@ PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:Catalog2.xml
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info Xerces-c initialization Number 0
 PoolXMLFileCatalog Info File Catalog2.xml does not exist, a new one is created
+PoolSvc              INFO Re-initializing PoolSvc
 ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-00-00
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 ClassIDSvc           INFO  getRegistryEntries: read 2130 CLIDRegistry entries for module ALL
@@ -714,10 +715,10 @@ ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
 fRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 83
-commitOutput         INFO Time User   : Tot=    4 [ms] Ave/Min/Max= 0.19(+-0.393)/    0/    1 [ms] #= 21
-cRepR_ALL            INFO Time User   : Tot=   22 [ms] Ave/Min/Max=0.177(+- 1.06)/    0/    9 [ms] #=124
-cRep_ALL             INFO Time User   : Tot=   97 [ms] Ave/Min/Max= 1.17(+- 5.62)/    0/   37 [ms] #= 83
-ChronoStatSvc        INFO Time User   : Tot=0.773  [s]                                             #=  1
+commitOutput         INFO Time User   : Tot=    2 [ms] Ave/Min/Max=0.0952(+-0.293)/    0/    1 [ms] #= 21
+cRepR_ALL            INFO Time User   : Tot=   35 [ms] Ave/Min/Max=0.282(+-  1.9)/    0/   20 [ms] #=124
+cRep_ALL             INFO Time User   : Tot=  124 [ms] Ave/Min/Max= 1.49(+- 8.06)/    0/   65 [ms] #= 83
+ChronoStatSvc        INFO Time User   : Tot= 1.01  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

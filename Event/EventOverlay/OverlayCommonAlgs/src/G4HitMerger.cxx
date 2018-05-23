@@ -32,7 +32,7 @@ operator<<(std::ostream& o, const McEventCollection& in)
     count++;
     o << " GenEvent " << count << ": signal_process_vertex " << (*evt)->signal_process_vertex() << " # tracks: " << (*evt)->particles_size() << " # vertices: " << (*evt)->vertices_size() << '\n';
     int iTrk(0);
-    for ( HepMC::GenEvent::particle_iterator p = (*evt)->particles_begin(); p != (*evt)->particles_end(); ++p ) {
+    for ( HepMC::GenEvent::particle_const_iterator p = (*evt)->particles_begin(); p != (*evt)->particles_end(); ++p ) {
       iTrk++;
       const HepMC::FourVector fv((*p)->momentum().px(),
                                  (*p)->momentum().py(),

@@ -11,7 +11,7 @@
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
 #include "TrigFTK_RawData/FTK_RawPixelCluster.h"
 #include "TrigFTK_RawData/FTK_RawSCT_Cluster.h"
-
+#include "TrigFTKByteStream/IFTKByteStreamDecoderEncoderTool.h"
 
 namespace FTKByteStreamDecoderEncoder {
   const uint32_t headerMarker = 0xee1234ee; 
@@ -23,35 +23,22 @@ namespace FTKByteStreamDecoderEncoder {
   const size_t NPixLayers=4;
   const size_t NSCTLayers=8;
 
-
-  /*
-  StatusCode decode(uint32_t nTracks, OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, FTK_RawTrackContainer* result,
-  		    MsgStream& msg);
-
-  size_t decodeNumberOfTracks(OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData);
-
-  StatusCode encode(const FTK_RawTrackContainer* result, std::vector<uint32_t>& payload,
-  		    MsgStream& msg);
-  */
-
 }
 
 namespace FTK {
 
-  class FTKByteStreamDecoderEncoderTool : public AthAlgTool {
+  class FTKByteStreamDecoderEncoderTool : public AthAlgTool, virtual public IFTKByteStreamDecoderEncoderTool {
     
   public:
     FTKByteStreamDecoderEncoderTool(const std::string& name, const std::string& type,
 				    const IInterface* parent);
     virtual ~FTKByteStreamDecoderEncoderTool();
     
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize();
+    virtual StatusCode finalize();
     
-    StatusCode decode(uint32_t nTracks, OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, FTK_RawTrackContainer* result);
+    StatusCode decode(uint32_t nDataWords, OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData, FTK_RawTrackContainer* result);
     StatusCode encode(const FTK_RawTrackContainer* result, std::vector<uint32_t>& payload);
-    
-    static const InterfaceID& interfaceID( ) ; 
     
   private:
     //to be removed

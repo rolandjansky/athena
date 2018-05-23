@@ -25,7 +25,7 @@ MultiParticleGunPileup::MultiParticleGunPileup(const std::string& name, ISvcLoca
   m_htgPileupProfile(NULL),
   m_htgPileupMu(NULL),
   m_htgPileupEvents(NULL),
-  partSampler(NULL)
+  m_partSampler(NULL)
 {
   declareProperty("NCollPerEvent",m_ncollevent=20,"Collisons per event (-1 to use profile)");
   declareProperty("PileupProfile",m_pileupProfile,"Pileup profile array");
@@ -76,7 +76,7 @@ StatusCode MultiParticleGunPileup::genInitialize() {
   }
 
   //Initialize the ParticleGun generator
-  partSampler = new ParticleSampler(new CyclicSeqSampler("-11,11,"), new PtEtaMPhiSampler(10000.,10000.,-3,3),1);
+  m_partSampler = new ParticleSampler(new CyclicSeqSampler("-11,11,"), new PtEtaMPhiSampler(10000.,10000.,-3,3),1);
 
   // exit via the base class initialisation
   return StatusCode::SUCCESS;
@@ -112,7 +112,7 @@ StatusCode MultiParticleGunPileup::callGenerator() {
       evt->weights().push_back(1.0);
       //evt->set_event_number(ievt); //Maybe dangerous to do this since the first event gets stacked last
       // Make and fill particles
-      std::vector<SampledParticle> particles = partSampler->shoot();
+      std::vector<SampledParticle> particles = m_partSampler->shoot();
       for (auto p : particles){
 	// Debug printout of particle properties
 	std::cout << ievt << " DEBUG0," <<  p.m_pid << ", " << p.m_mom.E()<< ", " << p.m_mom.Pt()<< ", " << p.m_mom.M() << std::endl;

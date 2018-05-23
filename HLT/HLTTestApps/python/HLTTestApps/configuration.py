@@ -10,7 +10,7 @@ Created on Jun 14, 2013
 from pausable_istream import pausable_istream
 from HLTTestApps import ptree, ers_debug_level, get_ers_debug_level
 from HLTTestApps import tdaq_time_str_from_microsec
-from HLTTestApps import set_ros2rob_map as set_dc_ros2rob, set_l1r_robs
+from HLTTestApps import set_ros2rob_map as set_dc_ros2rob, set_l1r_robs, set_dcm_strategy
 from eformat import EventStorage as ES
 from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil as CoolUtil
 from CoolConvUtilities import AtlCoolLib
@@ -330,6 +330,7 @@ class configuration(dict):
       self['ros2rob'] = literal_eval(self['ros2rob'])
     except ValueError: # not a proper dict -> must be a module
       self['ros2rob'] = __import__(self['ros2rob']).ros2rob
+    set_dcm_strategy([self['dcm-prefetch-strategy']])
     set_dc_ros2rob(self['ros2rob'])
     set_l1r_robs(self['extra-l1r-robs'])
       

@@ -13,6 +13,12 @@ namespace G4UA{
   TestActionTimerTool::TestActionTimerTool(const std::string& type, const std::string& name,const IInterface* parent):
     ActionToolBaseReport<TestActionTimer>(type, name, parent),m_histSvc("THistSvc",name){
   }
+
+  StatusCode TestActionTimerTool::initialize(){
+    ATH_CHECK(m_histSvc.retrieve());
+    return StatusCode::SUCCESS;
+  }
+
   std::unique_ptr<TestActionTimer>  TestActionTimerTool::makeAction(){
     ATH_MSG_DEBUG("makeAction");
     auto action = CxxUtils::make_unique<TestActionTimer>();

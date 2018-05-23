@@ -357,7 +357,7 @@ topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 ## Populate alg sequence
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
-#ServiceMgr.AthenaOutputStream.StreamHITS.ItemList                  = ['EventInfo#*']
+#AlgSequence("Streams").StreamHITS.ItemList                  = ['EventInfo#*']
 
 from AthenaCommon.AppMgr import AppMgr
 AppMgr.EvtMax =  myMaxEvent
