@@ -28,6 +28,8 @@
 #include "GaudiKernel/Property.h"   /*StringArrayProperty*/
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/DataObjID.h"
+#include "GaudiKernel/IAlgContextSvc.h"
 
 #include <cstddef>                     // for size_t
 #include <list>
@@ -36,6 +38,7 @@
 #include <string>
 #include <sys/types.h>                  // for off_t
 #include <vector>                       
+#include <type_traits>
 
 #include "AthenaKernel/StoreID.h"
 #include "AthenaKernel/IProxyDict.h"
@@ -878,6 +881,7 @@ private:
   ServiceHandle<IIncidentSvc> m_incSvc; ///< property
   ServiceHandle<ActiveStoreSvc> m_activeStoreSvc; ///< property
 
+
   friend class SG::TestHiveStoreSvc;
   static SG::HiveEventSlot* currentSlot();
 
@@ -995,7 +999,68 @@ private:
 
   /// Cache store type in the facade class.
   StoreID::type m_storeID;
-  
+
+  /// Algorithm context, for tracking bad calls.
+  ServiceHandle<IAlgContextSvc> m_algContextSvc;
+
+  struct BadListItem
+    : public DataObjID
+  {
+  public:
+    BadListItem (CLID clid, const std::string& key, const std::string& algo)
+      : DataObjID (clid, key), m_algo (algo)
+    {}
+    std::string m_algo;
+  };
+  typedef std::unordered_set<BadListItem, DataObjID_Hasher> BadItemList;
+
+  /// Remember calls to retrieve and record for a MT store, so we can
+  /// warn about them during finalize().
+  mutable BadItemList m_badRetrieves;
+  mutable BadItemList m_badRecords;
+
+  /// Protect access to m_bad* members.
+  typedef std::mutex mutex_t;
+  typedef std::lock_guard<mutex_t> lock_t;
+  mutable mutex_t m_badMutex;
+
+
+  /**
+   * @brief Remember that retrieve() was called for a MT store.
+   * @param clid CLID of the operation.
+   * @param key Key of the operation.
+   */
+  void rememberBadRetrieve (CLID clid, const std::string& key) const;
+
+
+  /**
+   * @brief Remember that retrieve() was called for a MT store.
+   * @param clid CLID of the operation.
+   * @param key Key of the operation.
+   */
+  void rememberBadRecord (CLID clid, const std::string& key) const;
+
+
+  /**
+   * @brief Remember that retrieve or record was called for a MT store.
+   * @param bad The list on which to store the operation.
+   * @param clid CLID of the operation.
+   * @param key Key of the operation.
+   */
+  void rememberBad (BadItemList& bad,
+                    CLID clid,
+                    const std::string& key) const;
+
+
+  /** 
+   * @brief Print out a list of bad calls during finalization.
+   * @param bad List of bad calls.
+   * @param what Description of the operation.
+   */
+  void printBadList (const BadItemList& bad,
+                     const std::string& what) const;
+
+
 
 public:
   ///////////////////////////////////////////////////////////////////////
