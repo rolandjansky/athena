@@ -19,16 +19,16 @@ NAME:     LArFebSummaryMaker
 
 #include "LArRawEvent/LArFebHeaderContainer.h"
 #include "LArRawEvent/LArFebErrorSummary.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include <vector>
 #include <set>
 
-class LArOnlineID       ; 
-class StoreGateSvc ; 
-class ILArBadChanTool;
+class LArOnlineID; 
 
 class LArFebErrorSummaryMaker : public AthAlgorithm
 {
@@ -65,9 +65,9 @@ class LArFebErrorSummaryMaker : public AthAlgorithm
   Gaudi::Property<std::vector<unsigned int> > m_knownZeroSample{ this, "MaskFebZeroSample", {}, "ignore these FEBs for ZeroSample" };
 
   const LArOnlineID* m_onlineHelper;
-  ToolHandle<ILArBadChanTool> m_badChannelTool;
 
-  //SG::ReadHandleKey<LArFebHeaderContainer> m_readKey;  // read handle migration preparation
+  SG::ReadCondHandleKey<LArBadFebCont> m_bfKey;
+  SG::ReadHandleKey<LArFebHeaderContainer> m_readKey;  
   SG::WriteHandleKey<LArFebErrorSummary> m_writeKey;
 
   // methods:
