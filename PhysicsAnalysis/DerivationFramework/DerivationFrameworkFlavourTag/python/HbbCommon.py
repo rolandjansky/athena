@@ -75,52 +75,121 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
 #===================================================================
 # Build ExKt Subjets
 #===================================================================
-def addExKt(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, doTrackSubJet):
+def addExKt(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJet):
     ExKtJetCollection__SubJet = []
     for JetCollectionExKt in ExKtJetCollection__FatJet:
         # build ExKtbbTagTool instance
-        (ExKtbbTagToolInstance, SubjetContainerName) = buildExclusiveSubjets(ToolSvc, JetCollectionExKt, "Kt", 2, doTrackSubJet)
+        (ExKtbbTagToolInstance, SubjetContainerName) = buildExclusiveSubjets(ToolSvc, JetCollectionExKt, "Kt", nSubjets, doTrackSubJet)
         ExKtJetCollection__SubJet += [SubjetContainerName]
+
+        exktAlgName = "jfind_%s" % (SubjetContainerName)
+        exktJetRecToolName = "%s" % (SubjetContainerName)
+        exktBTagName = "BTagging_%s" % (SubjetContainerName.replace("Jets", ""))
+
+        #make the btagging tool for exkt jets
+        from BTagging.BTaggingFlags import BTaggingFlags
+        btag_exkt = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection=exktJetRecToolName.replace("Jets", ""), AddToToolSvc=True, Verbose=True,
+                     options={"name"         : exktBTagName.lower(), 
+                              "BTagName"     : exktBTagName, 
+                              "BTagJFVtxName": "JFVtx",                  
+                              "BTagSVName"   : "SecVtx",                 
+                              },
+                     SetupScheme = "",
+                     TaggerList = BTaggingFlags.StandardTaggers,
+                     )
+
+        
 
         # build subjet collection through JetRecTool
         from JetRec.JetRecConf import JetRecTool
         jetrec = JetRecTool(
-                             name = "JetRecTool_ExKtbb_%s" % (JetCollectionExKt),
+                             name = exktJetRecToolName,
                              OutputContainer = JetCollectionExKt,
                              InputContainer = JetCollectionExKt,
                              JetModifiers = [ExKtbbTagToolInstance],
                            )
-
         ToolSvc += jetrec
-        FTAG5Seq += JetAlgorithm(
-                                 name = "JetAlgorithm_ExKtbb_%s" % (JetCollectionExKt),
-                                 Tools = [jetrec],
+
+        # running association + b-tagging on subjets now
+        from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
+        mods = [defaultTrackAssoc, defaultMuonAssoc, btag_exkt]
+        jetrec_btagging = JetRecTool( name = "%s_sub"%exktJetRecToolName,
+                                  InputContainer  = SubjetContainerName,
+                                  OutputContainer = SubjetContainerName,
+                                  JetModifiers    = mods)
+        ToolSvc += jetrec_btagging
+
+        jetalg_exkt = JetAlgorithm(
+                                 name = exktAlgName,
+                                 Tools = [jetrec,jetrec_btagging],
                                 )
+        sequence += jetalg_exkt
     return ExKtJetCollection__SubJet
+
 
 #===================================================================
 # Build CoM Subjets
 #===================================================================
-def addExCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, doTrackSubJet):
+def addExCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJet):
     ExCoMJetCollection__SubJet = []
     for JetCollectionExCoM in ExKtJetCollection__FatJet:
-        (ExCoMbbTagToolInstance, SubjetContainerName) = buildExclusiveSubjets(ToolSvc, JetCollectionExCoM, "CoM", 2, doTrackSubJet)
+        (ExCoMbbTagToolInstance, SubjetContainerName) = buildExclusiveSubjets(ToolSvc, JetCollectionExCoM, "CoM", nSubjets, doTrackSubJet)
         ExCoMJetCollection__SubJet += [SubjetContainerName]
+
+
+        excomELresetName = "ELreset_subjet_%s" % (SubjetContainerName.replace("Jets", ""))
+        excomAlgName = "jfind_%s" % (SubjetContainerName)
+        excomJetRecToolName = "%s" % (SubjetContainerName)
+        excomBTagName = "BTagging_%s" % (SubjetContainerName.replace("Jets", ""))
+
+        #make the btagging tool for excom jets
+        from BTagging.BTaggingFlags import BTaggingFlags
+        btag_excom = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection=excomJetRecToolName.replace("Jets", ""), AddToToolSvc=True, Verbose=True,
+                     options={"name"         : excomBTagName.lower(), 
+                              "BTagName"     : excomBTagName, 
+                              "BTagJFVtxName": "JFVtx",                  
+                              "BTagSVName"   : "SecVtx",                 
+                              },
+                     SetupScheme = "",
+                     TaggerList = BTaggingFlags.StandardTaggers,
+                     )
 
         from JetRec.JetRecConf import JetRecTool
         jetrec = JetRecTool(
-                             name = "JetRecTool_ExCoMbb_%s" % (JetCollectionExCoM),
+                             name = excomJetRecToolName,
                              OutputContainer = JetCollectionExCoM,
                              InputContainer = JetCollectionExCoM,
                              JetModifiers = [ExCoMbbTagToolInstance],
                            )
 
         ToolSvc += jetrec
-        FTAG5Seq += JetAlgorithm(
-                                 name = "JetAlgorithm_ExCoMbb_%s" % (JetCollectionExCoM),
+
+        # running association + b-tagging on subjets now
+        from BTagging.BTaggingConfiguration import comTrackAssoc, comMuonAssoc
+        mods = [comTrackAssoc, comMuonAssoc, btag_excom]
+        jetrec_btagging = JetRecTool( name = "%s_sub"%excomJetRecToolName,
+                                  InputContainer  = SubjetContainerName,
+                                  OutputContainer = SubjetContainerName,
+                                  JetModifiers    = mods)
+        ToolSvc += jetrec_btagging
+
+        jetalg_excom = JetAlgorithm(
+                                 name = excomAlgName,
                                  Tools = [jetrec],
                                 )
+        sequence += jetalg_excom
+
+        # Reset EL for ExCoM subjets after all of them are built
+        # Otherwise crashing for CoM during TrackToJetAssociation due to failure of finding the large-R parent jet.
+        sequence += CfgMgr.xAODMaker__ElementLinkResetAlg(excomELresetName, SGKeys=[SubjetContainerName+"Aux."])
+
+        jetalg_excom_btag = JetAlgorithm(
+                                 name = excomAlgName+"_btag",
+                                 Tools = [jetrec_btagging],
+                                )
+        sequence += jetalg_excom_btag
     return ExCoMJetCollection__SubJet
+
 
 ##################################################################
 # Build variable-R subjets, recluster AntiKt10LCTopojet with ghost VR and copy ghost link to AntiKt10LCTopo 

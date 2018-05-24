@@ -1956,7 +1956,7 @@ for tool in dir():
 
 
 from AthenaCommon.AppMgr import ToolSvc
-from ParticleJetTools.ParticleJetToolsConf import JetParticleShrinkingConeAssociation, JetParticleFixedConeAssociation
+from ParticleJetTools.ParticleJetToolsConf import JetParticleShrinkingConeAssociation, JetParticleFixedConeAssociation, JetParticleCenterOfMassAssociation
 
 defaultTrackAssoc = \
     JetParticleShrinkingConeAssociation(
@@ -1976,6 +1976,24 @@ defaultMuonAssoc = \
         coneSize=0.4,
     )
 
+comTrackAssoc = JetParticleCenterOfMassAssociation(
+        "CoMBTaggingTrackAssoc",
+        inputTrackCollectionName="InDetTrackParticles",
+        partMatchCone = 0.8,
+        parentJetCone = 1.0,
+        OutputCollectionName="MatchedTracks",
+    )   
+
+comMuonAssoc = JetParticleCenterOfMassAssociation(
+        "CoMBTaggingMuonAssoc",
+        inputTrackCollectionName="Muons",
+        partMatchCone = 0.8,
+        parentJetCone = 1.0,
+        OutputCollectionName="MatchedMuons",
+    )   
+
 
 ToolSvc += defaultTrackAssoc
 ToolSvc += defaultMuonAssoc
+ToolSvc += comTrackAssoc
+ToolSvc += comMuonAssoc
