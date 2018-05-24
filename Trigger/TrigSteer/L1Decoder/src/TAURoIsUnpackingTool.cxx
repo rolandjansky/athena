@@ -18,8 +18,7 @@ TAURoIsUnpackingTool::TAURoIsUnpackingTool( const std::string& type,
 					    const std::string& name, 
 					    const IInterface* parent ) 
   : RoIsUnpackingToolBase(type, name, parent),
-    m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name )
-{
+    m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name ){
 }
 
 
@@ -36,28 +35,8 @@ StatusCode TAURoIsUnpackingTool::initialize() {
 StatusCode TAURoIsUnpackingTool::updateConfiguration() {
   using namespace TrigConf;
 
-  m_emThresholds.clear();
-
-  const ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
-  auto filteredThresholds= thresholdConfig->getThresholdVector( L1DataDef::TAU );
-  ATH_MSG_DEBUG( "Number of filtered thresholds " << filteredThresholds.size() );
-  for ( auto th :  filteredThresholds ) {
-    if ( th != nullptr ) {
-      ATH_MSG_INFO( "Found threshold in the configuration: " << th->name() << " of ID: " << HLT::Identifier( th->name() ).numeric() ); 
-      m_emThresholds.push_back( th );
-    } else {
-      ATH_MSG_DEBUG( "Nullptr to the threshold" ); 
-    }
-  }
-  
-  if ( m_emThresholds.empty() ) {
-    ATH_MSG_WARNING( "No TAU thresholds configured" );
-  } else {
-    ATH_MSG_INFO( "Configured " << m_emThresholds.size() << " thresholds" );
-  }
-
-  
-
+  m_tauThresholds.clear();
+  ATH_CHECK( copyThresholds(m_configSvc->thresholdConfig()->getThresholdVector( L1DataDef::TAU ), m_tauThresholds ) );
   return StatusCode::SUCCESS;
 }
 
@@ -87,7 +66,7 @@ StatusCode TAURoIsUnpackingTool::unpack( const EventContext& ctx,
 	continue;
       }
       
-      auto recRoI = new LVL1::RecEmTauRoI( roIWord, &m_emThresholds );
+      auto recRoI = new LVL1::RecEmTauRoI( roIWord, &m_tauThresholds );
       recRoIs->push_back( recRoI );
       
       auto trigRoI = new TrigRoiDescriptor( roIWord, 0u ,0u,
@@ -99,7 +78,7 @@ StatusCode TAURoIsUnpackingTool::unpack( const EventContext& ctx,
 
       auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.get() );
       
-      for ( auto th: m_emThresholds ) {
+      for ( auto th: m_tauThresholds ) {
 	ATH_MSG_VERBOSE( "Checking if the threshold " << th->name() << " passed" );
 	if ( recRoI->passedThreshold( th->thresholdNumber() ) ) {
 	  ATH_MSG_DEBUG( "Passed Threshold name " << th->name() );
