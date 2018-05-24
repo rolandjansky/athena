@@ -13,6 +13,13 @@ def CscDigitToCscRDOTool(name,**kwargs):
 
     digitizationFlags.rndmSeedList.addSeed("CscDigitToCscRDOTool", 49261510, 105132394 )
     
+    from AthenaCommon.GlobalFlags import globalflags
+    if globalflags.isOverlay():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("InputObjectName",overlayFlags.dataStore()+"+CSC_DIGITS")
+        kwargs.setdefault("OutputObjectName",overlayFlags.dataStore()+"+CSCRDO")
+        kwargs.setdefault("EvtStore", overlayFlags.dataStore())
+
     from AthenaCommon import CfgMgr
     return CfgMgr.CscDigitToCscRDOTool(name,**kwargs)
 
