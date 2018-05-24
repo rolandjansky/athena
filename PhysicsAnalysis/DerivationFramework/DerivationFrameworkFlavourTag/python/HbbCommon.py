@@ -37,8 +37,12 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
     algj = "Kt"
     if subjet_mode == "CoM" :
       doCoM = True
-#      algj = "cambridge" # or CamKt if "cambridge" doesn't work
-      algj = "FastJetPlugin" # for EECambridge plugin  #and EEKt or ee_kt
+      #
+      #supported algorithms: Reconstruction/Jet/JetSubStructureUtils/Root/SubjetFinder.cxx
+      #algorithms:"ee_kt" or "EEKt" for EE_Kt
+      #           "cambridge" or "CamKt" for Cambridge
+      #           "FastJetPlugin" for EECambridge plugin 
+      algj = "ee_kt"
 
     subjetrecorder.SubjetLabel = subjetlabel
     subjetrecorder.SubjetContainerName = SubjetContainerName
