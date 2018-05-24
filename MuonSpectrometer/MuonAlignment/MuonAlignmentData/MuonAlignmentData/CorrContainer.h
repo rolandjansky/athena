@@ -5,7 +5,7 @@
 #ifndef MUONALIGNMENTDATA_CORRCONTAINER_H
 #define MUONALIGNMENTDATA_CORRCONTAINER_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonAlignmentData/ALinePar.h"
 #include "MuonAlignmentData/BLinePar.h"
