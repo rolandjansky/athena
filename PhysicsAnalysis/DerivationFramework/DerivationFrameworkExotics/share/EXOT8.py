@@ -289,7 +289,8 @@ replaceAODReducedJets(reducedJetList,exot8Seq,"EXOT8")
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
 addDefaultTrimmedJets(exot8Seq,"EXOT8")
 
-addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=0.5, zcut=0.1, algseq=exot8Seq, outputGroup="EXOT8", writeUngroomed=True,constmods=["CS", "SK"])
+# Adds a new jet collection for SoftDrop with constituent modifiers CS and SK applied
+addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=0.5, zcut=0.1, algseq=exot8Seq, outputGroup="EXOT8", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
 
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 

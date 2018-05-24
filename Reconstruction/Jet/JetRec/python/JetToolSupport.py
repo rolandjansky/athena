@@ -543,7 +543,7 @@ class JetToolManager:
     jetrec.JetGroomer = groomer
     jetrec.InputContainer = input
     jetrec.OutputContainer = output
-    jetrec.JetModifiers = self.getModifiers(modifiersin, altname=input.lower())
+    jetrec.JetModifiers = self.getModifiers(modifiersin)
     jetrec.Trigger = isTrigger or useTriggerStore
     jetrec.Timer = jetFlags.timeJetRecTool()
     self += jetrec
