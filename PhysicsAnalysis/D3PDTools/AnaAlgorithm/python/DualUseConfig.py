@@ -1,50 +1,126 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-import sys
+def createAlgorithm( typeName, instanceName ):
+    """Create an algorithm configurable
 
-this = sys.modules[__name__]
-this.CfgMgr = None
+    This function is used to create an algorithm "configurable" in a dual-use
+    way, either returning an actual Athena configurable, or an appropriately
+    configured EL::AnaAlgorithmConfig instance.
 
-def setCfgMgr (val_CfgMgr) :
-    this = sys.modules[__name__]
-    this.CfgMgr = val_CfgMgr
+    Keyword arguments:
+      typeNype     -- The C++ type name of the algorithm
+      instanceName -- The instance name of the algorithm to create
+    """
+
+    try:
+        # Try to get a configurable for this C++ class "from Athena".
+        # If this succeeds, we're obviously in an Athena environment.
+
+        # First off, construct a "python type name" for the class, replacing the
+        # '::' namespace delimeters with '__'.
+        pythonTypeName = typeName.replace( '::', '__' )
+
+        # Now look up the Athena configurable of this algorithm:
+        from AthenaCommon import CfgMgr
+        algClass = getattr( CfgMgr, pythonTypeName )
+
+        # Return the object:
+        return algClass( instanceName )
+
+    except ImportError:
+        # If that didn't work, then apparently we're in an EventLoop
+        # environment, so we need to use AnaAlgorithmConfig as the base class
+        # for the user's class.
+        from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
+        return AnaAlgorithmConfig( '%s/%s' % ( typeName, instanceName ) )
+
     pass
 
-def createAlgorithm (type, name) :
-    this = sys.modules[__name__]
-    if this.CfgMgr :
-        type = "__".join (type.split ("::"))
-        return this.CfgMgr.__getattr__ (type) (name)
-    else :
-        from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
-        return AnaAlgorithmConfig( type + "/" + name )
 
-def createPublicTool (job, type, name) :
-    this = sys.modules[__name__]
-    if this.CfgMgr :
-        type = "__".join (type.split ("::"))
-        tool = this.CfgMgr.__getattr__ (type) (name)
-        job += tool
-        return tool
-    else :
-        from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
-        tool = AnaAlgorithmConfig( type + "/" + name )
-        tool.setIsPublicTool (True)
-        job.algsAdd (tool)
-        return tool
+def createPublicTool( alg, toolName, typeName ):
+    """Helper function for setting up a public tool for a dual-use algorithm
 
-def addPrivateTool (alg, name, type) :
-    this = sys.modules[__name__]
-    if this.CfgMgr :
-        parent = alg
-        path = name.split (".")
-        for x in path[0:-1] :
-            print path, x
-            parent = parent.__getattr__ (x)
+    This function is meant to be used in the analysis algorithm sequence
+    configurations for setting up public tools on the analysis algorithms.
+    Public tools that could then be configured with a syntax shared between
+    Athena and EventLoop.
+
+    Keyword arguments:
+      alg      -- The algorithm to set up the private tool on
+      toolName -- The property name with which the tool handle was declared on
+                  the algorithm. Also the instance name of the tool.
+      typeName -- The C++ type name of the private tool
+    """
+
+    try:
+        # Try to set up a public tool of this type for Athena. If this succeeds,
+        # we're obviously in an Athena environment.
+
+        # First off, construct a "python type name" for the class, replacing the
+        # '::' namespace delimeters with '__'.
+        pythonTypeName = typeName.replace( '::', '__' )
+
+        # Now look up the Athena configurable of this tool:
+        from AthenaCommon import CfgMgr
+        toolClass = getattr( CfgMgr, pythonTypeName )
+
+        # Add an instance of the tool to the ToolSvc:
+        from AthenaCommon.AppMgr import ToolSvc
+        if not hasattr( ToolSvc, toolName ):
+            ToolSvc += toolClass( toolName )
             pass
-        type = "__".join (type.split ("::"))
-        parent.__setattr__ (path[-1], type + "/" + path[-1])
+
+        # Return the member on the ToolSvc:
+        return getattr( ToolSvc, toolName )
+
+    except ImportError:
+        # If that didn't work, then apparently we're in an EventLoop
+        # environment, so let's use the EventLoop specific formalism.
+        from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
+        tool = AnaAlgorithmConfig( '%s/%s' % ( typeName, toolName ) )
+        tool.setIsPublicTool( True )
+        job.algsAdd( tool )
+        return tool
+
+
+def addPrivateTool( alg, toolName, typeName ):
+    """Helper function for declaring a private tool for a dual-use algorithm
+
+    This function is meant to be used in the analysis algorithm sequence
+    configurations for setting up private tools on the analysis algorithms.
+    Private tools that could then be configured with a syntax shared between
+    Athena and EventLoop.
+
+    Keyword arguments:
+      alg      -- The algorithm to set up the private tool on
+      toolName -- The property name with which the tool handle was declared on
+                  the algorithm. Also the instance name of the tool.
+      typeName -- The C++ type name of the private tool
+    """
+
+    # Check if the algorithm object already has a member variable with this
+    # name.
+    if hasattr( alg, toolName ):
+
+        # If yes, then let's assume that we're in an Athena environment,
+        # and set up the tool handle property using the tool's configurable.
+
+        # First off, let's replace all '::' namespace delimeters in the type
+        # name with '__'. Just because that's how the Athena code behaves...
+        pythonTypeName = typeName.replace( '::', '__' )
+
+        # Now look up the Athena configurable describing this tool:
+        from AthenaCommon import CfgMgr
+        toolClass = getattr( CfgMgr, pythonTypeName )
+
+        # Finally, set up the tool handle property:
+        setattr( alg, toolName, toolClass( toolName ) )
+
+    else:
+
+        # If not, then we should be in an EventLoop environment. So let's rely
+        # on the standalone specific formalism for setting up the private tool.
+        alg.addPrivateTool( toolName, typeName )
         pass
-    else :
-        alg.addPrivateTool (name, type)
-        pass
+
+    return
