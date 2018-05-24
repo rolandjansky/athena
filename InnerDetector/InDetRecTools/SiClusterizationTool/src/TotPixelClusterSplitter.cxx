@@ -209,18 +209,6 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
   const std::vector<int> OrigTots = OrigCluster.totList();
   const int Lvl1a = OrigCluster.LVL1A();
   
-  const AtlasDetectorID* aid = Element->getIdHelper();
-  if (aid==0)
-  {
-    ATH_MSG_ERROR("Could not get ATLASDetectorID");
-  }
-  const PixelID* pixelIDp=dynamic_cast<const PixelID*>(aid);
-  if (!pixelIDp){
-    ATH_MSG_ERROR("Could not get PixelID pointer");
-  } 
-  const PixelID& pixelID = *pixelIDp;
-
-  
   for (unsigned int i = 0; i < NumPixels; i++)
   {
     Idx = (CellIds[i].*IndexFunc)() - LowIdx;
