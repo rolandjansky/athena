@@ -92,10 +92,21 @@ class AnaAlgSequence( AlgSequence ):
 
         # Set the output name of the last algorithm (that provides output)
         # to the requested value:
-        for alg, outName in reversed( zip( self, self._outputPropNames ) ):
+        for alg, inName, outName in reversed( zip( self, self._inputPropNames,
+                                                   self._outputPropNames ) ):
+
+            # If we found the last algorithm in the sequence producing an
+            # output, just set its output to the right value, and we're done.
             if outName:
                 setattr( alg, outName, outputName )
                 break
+
+            # But if this algorithm is not producing an output, then it's
+            # reading the output of a previous algorithm. Which apparently
+            # produces the last object/container. So this algorithm needs to
+            # use the user specified name as its input.
+            setattr( alg, inName, outputName )
+
             pass
 
         return
