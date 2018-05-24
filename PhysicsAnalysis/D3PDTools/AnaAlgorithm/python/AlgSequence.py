@@ -8,7 +8,7 @@ except ImportError:
     # If not, then we implement a standalone version of it...
 
     # Import(s):
-    from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
+    from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig, indentBy
 
     class AlgSequence( object ):
         """Standalone algorithm sequence
@@ -20,12 +20,12 @@ except ImportError:
         def __init__( self, name = "AlgSequence" ):
             """Algorithm sequence constructor
 
-            Note that the name parameter is completely ignored, it is only here
-            to emulate the user interface of Athena's AthSequencer class.
+            Keyword arguments:
+              name -- The name of the algorithm sequence (for debugging)
             """
 
-            # Set up the variable that will hold the algorithms of this
-            # sequence:
+            # Set up the member variables:
+            self._name = name
             self._algs = []
 
             return
@@ -108,10 +108,14 @@ except ImportError:
             algorithm in the sequence.
             """
 
-            result = ""
+            result = AnaAlgorithmConfig._printHeader( 'AlgSequence/%s' %
+                                                      self._name )
+            result += '\n'
             for alg in self._algs:
-                result += "%s\n" % str( alg )
+                result += '| %s\n' % indentBy( str( alg ), '| ' )
                 pass
+            result += AnaAlgorithmConfig._printFooter( 'AlgSequence/%s' %
+                                                       self._name )
             return result
 
         def __len__( self ):
