@@ -24,7 +24,7 @@ namespace CP
   MuonEfficiencyScaleFactorAlg (const std::string& name, 
                      ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)
-    , m_efficiencyScaleFactorTool ("CP::MuonEfficiencyScaleFactorTool", this)
+    , m_efficiencyScaleFactorTool ("CP::MuonEfficiencyScaleFactors", this)
   {
     declareProperty ("efficiencyScaleFactorTool", m_efficiencyScaleFactorTool, "the calibration and smearing tool we apply");
     declareProperty ("efficiencyDecoration", m_efficiencyDecoration, "the decoration for the muon efficiency");
