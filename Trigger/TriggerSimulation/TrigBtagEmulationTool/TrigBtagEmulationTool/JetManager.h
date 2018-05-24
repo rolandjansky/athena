@@ -68,6 +68,7 @@ namespace Trig {
     StatusCode retagOnline();
 
     JetManager& merge(const std::unique_ptr< JetManager >&);
+    JetManager& merge(const std::unique_ptr< JetManager >&,double minPt,double maxPt = 0);
     JetManager& merge(std::unique_ptr< xAOD::JetContainer >&, double minPt = 0, double maxPt = 0);
 
     void use4x4( bool set4x4 = true );
@@ -136,6 +137,9 @@ namespace Trig {
     static ToolHandle< Analysis::IBTagSecVertexing >* m_bTagSecVtxTool;
 #endif
   };
+
+  template<typename T,typename U> static T retrieveAuxData(const U *,const std::string&,T defaultValue = T() );
+  template<typename T,typename U> static const T retrieveAuxDataConst( const U * ,const std::string&, const T defaultValue = T() );
 
 }//namespace
 

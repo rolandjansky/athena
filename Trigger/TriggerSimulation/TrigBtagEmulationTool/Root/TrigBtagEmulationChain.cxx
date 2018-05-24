@@ -27,11 +27,12 @@ using namespace Trig;
 
 //**********************************************************************
 
-TrigBtagEmulationChain::TrigBtagEmulationChain(const std::vector<std::string>& chainDefinition, ToolHandle<Trig::TrigDecisionTool>& trigDec) 
+TrigBtagEmulationChain::TrigBtagEmulationChain(MsgStream &msg,const std::vector<std::string>& chainDefinition, ToolHandle<Trig::TrigDecisionTool>& trigDec) 
   : m_name( chainDefinition.size() != 0 ? chainDefinition.at(0) : "NoTriggerName" ),
     m_trigDec(trigDec),
     m_correctlyConfigured(true),
-    m_autoConfigured(false) {
+    m_autoConfigured(false),
+    m_msg( msg ) {
 
   // Parser if only trigger name is specified, w/o sub-triggers
   std::vector< std::string > m_chains( chainDefinition.begin(),chainDefinition.end() );
@@ -62,14 +63,14 @@ TrigBtagEmulationChain::TrigBtagEmulationChain(const std::vector<std::string>& c
       addDecisionIngredient(*name);
     // Handle emulated L1
     else if ( name->find("-JJ")!=std::string::npos )
-      addDecisionIngredient( std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient >( new TrigBtagEmulationChainJetIngredient_L1_JJ(*name) ) );
+      addDecisionIngredient( std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient >( new TrigBtagEmulationChainJetIngredient_L1_JJ(this->msg(),*name) ) );
     else if ( name->find("EMUL_L1")!=std::string::npos ) 
-      addDecisionIngredient( std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient >( new TrigBtagEmulationChainJetIngredient_L1(*name) ) );
+      addDecisionIngredient( std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient >( new TrigBtagEmulationChainJetIngredient_L1(this->msg(),*name) ) );
     // Handle emulated HLT
     else if ( name->find("gsc")!=std::string::npos )
-      addDecisionIngredient( std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient >( new TrigBtagEmulationChainJetIngredient_GSC(*name) ) );
+      addDecisionIngredient( std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient >( new TrigBtagEmulationChainJetIngredient_GSC(this->msg(),*name) ) );
     else if ( name->find("EMUL_HLT")!=std::string::npos )
-      addDecisionIngredient( std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient >( new TrigBtagEmulationChainJetIngredient_HLT(*name) ) );
+      addDecisionIngredient( std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient >( new TrigBtagEmulationChainJetIngredient_HLT(this->msg(),*name) ) );
     // Handle not recognized cases
     else 
       m_correctlyConfigured = false;
@@ -78,6 +79,9 @@ TrigBtagEmulationChain::TrigBtagEmulationChain(const std::vector<std::string>& c
   for (unsigned int i = 0; i < m_ingredientsJet.size(); i++)
     m_ingredientsJet.at(i)->initialize();
 }
+
+MsgStream& TrigBtagEmulationChain::msg() const { return m_msg; }
+MsgStream& TrigBtagEmulationChain::msg( const MSG::Level lvl ) const { return msg() << lvl; }
 
 void TrigBtagEmulationChain::addDecisionIngredient(const std::string& decision) { m_ingredientsDecision.push_back(decision); }
 void TrigBtagEmulationChain::addDecisionIngredient(std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient > decision) { m_ingredientsJet.push_back( std::move( decision ) ); }
@@ -120,9 +124,9 @@ std::vector< std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient > > TrigBt
     if (subString == "L1") continue;
     else if (subString.find("MJJ")==std::string::npos &&
 	     subString.find("JJ")!=std::string::npos) 
-      output.push_back( std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient >( new TrigBtagEmulationChainJetIngredient_L1_JJ("EMUL_L1_" + subString) ) ); 
+      output.push_back( std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient >( new TrigBtagEmulationChainJetIngredient_L1_JJ(msg(),"EMUL_L1_" + subString) ) ); 
     else 
-      output.push_back( std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient >( new TrigBtagEmulationChainJetIngredient_L1("EMUL_L1_" + subString) ) );
+      output.push_back( std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient >( new TrigBtagEmulationChainJetIngredient_L1(msg(),"EMUL_L1_" + subString) ) );
 
     output.at( output.size() - 1)->initialize();
   }
@@ -167,9 +171,9 @@ std::vector< std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient > > TrigBt
   std::vector< std::unique_ptr< TrigBtagEmulationChainJetIngredient_HLT > > triggers_HLT;
   for (unsigned int i(0); i<outputHLT_string.size(); i++) {
     if (outputHLT_string.at(i).find("gsc")!=std::string::npos) 
-      triggers_HLT.push_back( std::unique_ptr< TrigBtagEmulationChainJetIngredient_HLT >( new TrigBtagEmulationChainJetIngredient_GSC( outputHLT_string.at(i) ) ) );
+      triggers_HLT.push_back( std::unique_ptr< TrigBtagEmulationChainJetIngredient_HLT >( new TrigBtagEmulationChainJetIngredient_GSC( msg(),outputHLT_string.at(i) ) ) );
     else 
-      triggers_HLT.push_back( std::unique_ptr< TrigBtagEmulationChainJetIngredient_HLT >( new TrigBtagEmulationChainJetIngredient_HLT( outputHLT_string.at(i) ) ) );
+      triggers_HLT.push_back( std::unique_ptr< TrigBtagEmulationChainJetIngredient_HLT >( new TrigBtagEmulationChainJetIngredient_HLT( msg(),outputHLT_string.at(i) ) ) );
   }
   for (unsigned int i(0); i<triggers_HLT.size(); i++)
     triggers_HLT.at(i)->initialize();
@@ -215,10 +219,11 @@ bool TrigBtagEmulationChain::isPassed() {
   return true;
 }
 
-void TrigBtagEmulationChain::Print() {
-  std::cout<<std::endl<<"### TRIGGER EMULATION ###"<<std::endl;
+void TrigBtagEmulationChain::print() {
+  ATH_MSG_INFO( "" );
+  ATH_MSG_INFO( "### TRIGGER EMULATION ###" );
   for (unsigned int i=0; i<m_ingredientsJet.size();i++)
-    m_ingredientsJet.at(i)->Print();
+    m_ingredientsJet.at(i)->print();
 }
 
 bool TrigBtagEmulationChain::hasFeature(const std::string& feature) {

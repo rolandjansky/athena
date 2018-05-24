@@ -289,13 +289,10 @@ replaceAODReducedJets(reducedJetList,exot8Seq,"EXOT8")
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
 addDefaultTrimmedJets(exot8Seq,"EXOT8")
 
-# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
-# A wrapper function which does all the necessary steps
-addVRJets(exot8Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet", 
-          VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", 
-          ghostArea = 0 , ptmin = 2000, ptminFilter = 7000, 
-          variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
-
+# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
+addVRJets(exot8Seq)
+# Also add Hbb Tagger
+addHbbTagger(exot8Seq, ToolSvc)
 
 #b-tagging
 
@@ -391,6 +388,8 @@ EXOT8SlimmingHelper.ExtraVariables += [
     "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.MSV_vertices",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP",
 ]
+EXOT8SlimmingHelper.ExtraVariables.append(
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore")
 
 
 if globalflags.DataSource()=="geant4":

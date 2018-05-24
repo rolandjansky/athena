@@ -20,14 +20,17 @@ bool Trig::sortJetTupleByPt(const std::tuple<double,double,double>& a, const std
 
 //**********************************************************************
 
-TriggerFeature::TriggerFeature(int type, std::string name) : m_type(type), m_name(name) {}
-TriggerFeature::TriggerFeature(const TriggerFeature& other) : m_type(other.m_type), m_name(other.m_name) {}
+TriggerFeature::TriggerFeature(MsgStream& msg,int type, std::string name) : m_type(type), m_name(name), m_msg( msg ) {}
+TriggerFeature::TriggerFeature(const TriggerFeature& other) : m_type(other.m_type), m_name(other.m_name), m_msg( other.m_msg ) {}
 TriggerFeature::~TriggerFeature() {}
+
+MsgStream& TriggerFeature::msg() const { return m_msg; }
+MsgStream& TriggerFeature::msg( const MSG::Level lvl ) const { return msg() << lvl; }
 
 const std::string& TriggerFeature::name() const { return m_name; }
 
-TriggerFeatureBtag::TriggerFeatureBtag(std::string name,float weight)
-  : TriggerFeature(TriggerFeature::THRESHOLD,name), m_weight(weight) {}
+TriggerFeatureBtag::TriggerFeatureBtag(MsgStream& msg,std::string name,float weight)
+  : TriggerFeature(msg,TriggerFeature::THRESHOLD,name), m_weight(weight) {}
 TriggerFeatureBtag::TriggerFeatureBtag(const TriggerFeatureBtag& other)
   : TriggerFeature(other), m_weight(other.m_weight) {}
 TriggerFeatureBtag::~TriggerFeatureBtag() {}
@@ -42,8 +45,8 @@ std::unique_ptr< TriggerFeature > TriggerFeatureBtag::uniqueClone() const { retu
 
 // ***
 
-TriggerFeatureAntiBtag::TriggerFeatureAntiBtag(std::string name,float weight)
-  : TriggerFeatureBtag(name,weight) {}
+TriggerFeatureAntiBtag::TriggerFeatureAntiBtag(MsgStream& msg,std::string name,float weight)
+  : TriggerFeatureBtag(msg,name,weight) {}
 TriggerFeatureAntiBtag::TriggerFeatureAntiBtag(const TriggerFeatureAntiBtag& other)
   : TriggerFeatureBtag(other) {}
 TriggerFeatureAntiBtag::~TriggerFeatureAntiBtag() {}
@@ -52,8 +55,8 @@ bool TriggerFeatureAntiBtag::evaluateJet(const TrigBtagEmulationJet& jet) { retu
 
 // ***
 
-TriggerFeatureHt::TriggerFeatureHt(std::string triggerLevel,std::string name, float ht)
-  : TriggerFeature(TriggerFeature::SELECTION,name), m_trigLevel(triggerLevel), m_min_ht(ht), m_count_ht(0),
+TriggerFeatureHt::TriggerFeatureHt(MsgStream& msg,std::string triggerLevel,std::string name, float ht)
+  : TriggerFeature(msg,TriggerFeature::SELECTION,name), m_trigLevel(triggerLevel), m_min_ht(ht), m_count_ht(0),
     m_cut_pt(0), m_cut_min_eta(0), m_cut_max_eta(9.0) {}
 TriggerFeatureHt::TriggerFeatureHt(const TriggerFeatureHt& other)
   : TriggerFeature(other), m_trigLevel(other.m_trigLevel), m_min_ht(other.m_min_ht), m_count_ht(other.m_count_ht), 
@@ -102,8 +105,8 @@ void TriggerFeatureHt::clear() { m_count_ht = 0; }
 std::unique_ptr< TriggerFeature > TriggerFeatureHt::uniqueClone() const { return std::unique_ptr< TriggerFeatureHt >( new TriggerFeatureHt( *this ) ); }
 // ***
 
-TriggerFeatureHtTop::TriggerFeatureHtTop(std::string triggerLevel,std::string name, float ht, unsigned int topEt)
-  : TriggerFeatureHt(triggerLevel,name,ht),
+TriggerFeatureHtTop::TriggerFeatureHtTop(MsgStream& msg,std::string triggerLevel,std::string name, float ht, unsigned int topEt)
+  : TriggerFeatureHt(msg,triggerLevel,name,ht),
     m_topEt(topEt) {}
 TriggerFeatureHtTop::TriggerFeatureHtTop(const TriggerFeatureHtTop& other)
   : TriggerFeatureHt(other),
@@ -138,8 +141,8 @@ std::unique_ptr< TriggerFeature > TriggerFeatureHtTop::uniqueClone() const { ret
 
 // ***
 
-TriggerFeatureInvm::TriggerFeatureInvm(std::string triggerLevel,std::string name,float min_invm) 
-  : TriggerFeature(TriggerFeature::SELECTION,name), 
+TriggerFeatureInvm::TriggerFeatureInvm(MsgStream& msg,std::string triggerLevel,std::string name,float min_invm) 
+  : TriggerFeature(msg,TriggerFeature::SELECTION,name), 
     m_trigLevel(triggerLevel), 
     m_min_invm(min_invm),
     m_count_invm(0),
@@ -311,7 +314,8 @@ double TriggerFeatureInvm::calculateINVM(const std::tuple<double,double,double>&
 std::unique_ptr< TriggerFeature > TriggerFeatureInvm::uniqueClone() const { return std::unique_ptr< TriggerFeatureInvm >( new TriggerFeatureInvm( *this ) ); }
 
 // ***
-TriggerFeatureInvmCF::TriggerFeatureInvmCF(std::string triggerLevel,std::string name, float min_invm) : TriggerFeatureInvm(triggerLevel,name,min_invm) {}
+TriggerFeatureInvmCF::TriggerFeatureInvmCF(MsgStream& msg,std::string triggerLevel,std::string name, float min_invm)
+  : TriggerFeatureInvm(msg,triggerLevel,name,min_invm) {}
 TriggerFeatureInvmCF::TriggerFeatureInvmCF(const TriggerFeatureInvmCF& other) : TriggerFeatureInvm(other) {}
 TriggerFeatureInvmCF::~TriggerFeatureInvmCF() {}
 
@@ -343,12 +347,16 @@ bool TriggerFeatureInvmCF::evaluateJet_L1(const TrigBtagEmulationJet& jet) {
 
 //**********************************************************************
 
-void TriggerFeatureBtag::Print() { std::cout<<"BTAG [tagger="<<this->m_name<<"] : "<< this->m_weight; }
-void TriggerFeatureAntiBtag::Print() { std::cout<<"ANTI-BTAG [tagger="<<this->m_name<<"] : "<< this->m_weight; }
-void TriggerFeatureHt::Print() { std::cout<<"HT: "<< this->m_count_ht  <<"/"<< this->m_min_ht ; }
-void TriggerFeatureHtTop::Print() { TriggerFeatureHt::Print(); if (this->m_topEt!=0) std::cout<<" [top "<<this->m_topEt<<"]"; }
-void TriggerFeatureInvm::Print() { std::cout << "MJJ: " << this->m_count_invm << "/" << this->m_min_invm ; }
-void TriggerFeatureInvmCF::Print() { std::cout << "MJJ-CF: " << this->m_count_invm << "/" << this->m_min_invm ; }
+void TriggerFeatureBtag::print() { ATH_MSG_INFO( "      BTAG [tagger="<<this->m_name<<"] : "<< this->m_weight ); }
+void TriggerFeatureAntiBtag::print() { ATH_MSG_INFO( "      ANTI-BTAG [tagger="<<this->m_name<<"] : "<< this->m_weight ); }
+void TriggerFeatureHt::print() { ATH_MSG_INFO( "      HT: "<< this->m_count_ht  <<"/"<< this->m_min_ht ); }
+void TriggerFeatureHtTop::print() { 
+  std::string message = Form( "      HT: %f/%f",this->m_count_ht,this->m_min_ht );
+  if (this->m_topEt!=0) message += Form(" [top %d",this->m_topEt);
+  ATH_MSG_INFO( message );
+}
+void TriggerFeatureInvm::print() { ATH_MSG_INFO( "      MJJ: " << this->m_count_invm << "/" << this->m_min_invm ); }
+void TriggerFeatureInvmCF::print() { ATH_MSG_INFO( "      MJJ-CF: " << this->m_count_invm << "/" << this->m_min_invm ); }
 
 //**********************************************************************
 

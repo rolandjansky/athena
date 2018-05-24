@@ -97,11 +97,11 @@ mc16_13TeV.410472.PhPy8EG_A14_ttbar_hdamp258p75_dil.merge.EVNT.e6348_e5984
 
 mc15_13TeV.410424.Sherpa_224_NNPDF30NNLO_ttbar_dilepton_MEPS_NLO.evgen.EVNT.e6404
 
+mc16_13TeV.407342.PhPy8EG_A14_ttbarHT1k5_hdamp258p75_nonallhad.merge.EVNT.e6414_e5984
 mc16_13TeV.407343.PhPy8EG_A14_ttbarHT1k_1k5_hdamp258p75_nonallhad.merge.EVNT.e6414_e5984
 mc16_13TeV.407344.PhPy8EG_A14_ttbarHT6c_1k_hdamp258p75_nonallhad.merge.EVNT.e6414_e5984
 mc16_13TeV.407345.PhPy8EG_A14_ttbarMET200_300_hdamp258p75_nonallhad.merge.EVNT.e6414_e5984
 mc16_13TeV.407346.PhPy8EG_A14_ttbarMET300_400_hdamp258p75_nonallhad.merge.EVNT.e6414_e5984
-mc16_13TeV.407342.PhPy8EG_A14_ttbarHT1k5_hdamp258p75_nonallhad.merge.EVNT.e6414_e5984
 mc16_13TeV.407347.PhPy8EG_A14_ttbarMET400_hdamp258p75_nonallhad.merge.EVNT.e6414_e5984 
 
 ################################################################################################################
@@ -2618,7 +2618,9 @@ mc15_13TeV.426009.PowhegPythia8EvtGen_A14_NNPDF23LO_CT10ME_jetjet_JZ9.evgen.EVNT
 ################################################################################################################
 # Higgs
 
-mc16_13TeV.309450.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_bb_kt200.merge.EVNT.e6281_e5984
+mc15_13TeV.309450.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_bb_kt200.evgen.EVNT.e6281
+mc15_13TeV.309451.Pythia8EvtGen_A14NNPDF23LO_WH125_bb_fj350.evgen.EVNT.e6282
+mc15_13TeV.309452.Pythia8EvtGen_A14NNPDF23LO_ZH125_bb_fj350.evgen.EVNT.e6282
 mc15_13TeV.341000.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_gamgam.evgen.EVNT.e3806
 mc15_13TeV.341001.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_gamgam.evgen.EVNT.e3806
 mc15_13TeV.341067.Pythia8EvtGen_A14NNPDF23LO_WH125_gamgam.evgen.EVNT.e3796
@@ -2739,6 +2741,7 @@ mc16_13TeV.345323.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_WWlvlv.merge.EVNT.e59
 mc16_13TeV.345324.PowhegPythia8EvtGen_NNLOPS_NN30_ggH125_WWlvlv_EF_15_5.merge.EVNT.e5769_e5984
 mc16_13TeV.345338.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_bb.merge.EVNT.e5684_e5984
 mc16_13TeV.345342.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_bb.merge.EVNT.e5739_e5984
+mc15_13TeV.345931.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_bb.evgen.EVNT.e6597
 
 ################################################################################################################
 # Madgraph ttbar+X

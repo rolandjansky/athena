@@ -123,7 +123,7 @@ StatusCode HbbTaggerDNN::initialize(){
   m_output_value_name = out_names.at(0);
   for (const auto& node: config.inputs) {
     m_var_cleaners.emplace_back(
-      node.name, new lwt::NanReplacer(node.defaults, lwt::rep::all));
+      node.name, std::make_unique<lwt::NanReplacer>(node.defaults, lwt::rep::all));
   }
   try {
     m_lwnn.reset(new lwt::LightweightGraph(config, output_node_name));

@@ -10,7 +10,6 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 import DerivationFrameworkEGamma.EGammaCommon
 import DerivationFrameworkMuons.MuonsCommon
 import DerivationFrameworkTau.TauCommon
-from DerivationFrameworkFlavourTag.FlavourTagCommon import applyBTagging_xAODColl
 from JetRec.JetRecFlags import jetFlags
 
 from AthenaCommon import Logging
@@ -43,6 +42,8 @@ BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4TopoEM->AntiKt4EMTopo" ]
 BTaggingFlags.Jets=[]
 from BTagging.BTaggingConfiguration import getConfiguration
 
+from ParticleJetTools.ParticleJetToolsConf import JetParticleShrinkingConeAssociation
+
 ConfInst=getConfiguration()
 ConfInst.doNotCheckForTaggerObstacles()
 
@@ -54,10 +55,16 @@ def addAntiKt10LCTopoJets(sequence, outputlist):
 def addAntiKt10TrackCaloClusterJets(sequence, outputlist):
     addStandardJets("AntiKt", 1.0, "TrackCaloCluster", ptmin=40000, ptminFilter=50000, mods="tcc_ungroomed", algseq=sequence, outputGroup=outputlist)
 
-def addAntiKt2PV0TrackJets(sequence, outputlist):
+def addAntiKt2PV0TrackJets(sequence, outputlist, extendedFlag = 0):
     if not "akt2track" in jtm.modifiersMap.keys():
         from AthenaCommon.AppMgr import ToolSvc
         from BTagging.BTaggingFlags import BTaggingFlags
+
+        if(extendedFlag == 0) : 
+           Full_TaggerList = BTaggingFlags.StandardTaggers
+        if(extendedFlag == 1) :
+           Full_TaggerList = BTaggingFlags.ExpertTaggers
+
         btag_akt2trk = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt2Track", AddToToolSvc=True,
                                                     Verbose=True,
                                                     options={"name"         : "btagging_antikt2track",
@@ -66,16 +73,25 @@ def addAntiKt2PV0TrackJets(sequence, outputlist):
                                                              "BTagSVName"   : "SecVtx",
                                                              },
                                                     SetupScheme = "",
-                                                    TaggerList = BTaggingFlags.StandardTaggers
+                                                    TaggerList = Full_TaggerList
                                                     )
-        jtm.modifiersMap["akt2track"] = jtm.modifiersMap["track_ungroomed"] + [btag_akt2trk]
-    addStandardJets("AntiKt", 0.2, "PV0Track", ptmin=5000, mods="akt2track",
+
+        from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
+        jtm.modifiersMap["akt2track"] = jtm.modifiersMap["track_ungroomed"] + [defaultTrackAssoc, defaultMuonAssoc, btag_akt2trk]
+
+    addStandardJets("AntiKt", 0.2, "PV0Track", ptmin=2000, mods="akt2track",
                     algseq=sequence, outputGroup=outputlist)
 
-def addAntiKt4PV0TrackJets(sequence, outputlist):
+def addAntiKt4PV0TrackJets(sequence, outputlist, extendedFlag = 0):
     if not "akt4track" in jtm.modifiersMap.keys():
         from AthenaCommon.AppMgr import ToolSvc
         from BTagging.BTaggingFlags import BTaggingFlags
+
+        if(extendedFlag == 0) :
+           Full_TaggerList = BTaggingFlags.StandardTaggers
+        if(extendedFlag == 1) :
+           Full_TaggerList = BTaggingFlags.ExpertTaggers
+ 
         btag_akt4trk = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt4Track", AddToToolSvc=True,
                                                     Verbose=True,
                                                     options={"name"         : "btagging_antikt4track",
@@ -84,9 +100,12 @@ def addAntiKt4PV0TrackJets(sequence, outputlist):
                                                              "BTagSVName"   : "SecVtx",
                                                              },
                                                     SetupScheme = "",
-                                                    TaggerList = BTaggingFlags.StandardTaggers
+                                                    TaggerList = Full_TaggerList
                                                     )
-        jtm.modifiersMap["akt4track"] = jtm.modifiersMap["track_ungroomed"] + [btag_akt4trk]
+
+        from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
+        jtm.modifiersMap["akt4track"] = jtm.modifiersMap["track_ungroomed"] + [defaultTrackAssoc, defaultMuonAssoc, btag_akt4trk]
+
     addStandardJets("AntiKt", 0.4, "PV0Track", ptmin=2000, mods="akt4track", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt10PV0TrackJets(sequence, outputlist):
@@ -112,12 +131,12 @@ def addAntiKt4TruthDressedWZJets(sequence,outputlist):
     if DerivationFrameworkIsMonteCarlo:
         addStandardJets("AntiKt", 0.4, "TruthDressedWZ", ptmin=5000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
 
-def replaceAODReducedJets(jetlist,sequence,outputlist):
+def replaceAODReducedJets(jetlist,sequence,outputlist, extendedFlag = 0):
     extjetlog.info( "Replacing AOD-reduced jet collections: {0}".format(",".join(jetlist)))
     if "AntiKt2PV0TrackJets" in jetlist:
-        addAntiKt2PV0TrackJets(sequence,outputlist)
+        addAntiKt2PV0TrackJets(sequence,outputlist, extendedFlag)
     if "AntiKt4PV0TrackJets" in jetlist:
-        addAntiKt4PV0TrackJets(sequence,outputlist)
+        addAntiKt4PV0TrackJets(sequence,outputlist, extendedFlag)
     if "AntiKt10PV0TrackJets" in jetlist:
         addAntiKt10PV0TrackJets(sequence,outputlist)
     if "AntiKt4TruthJets" in jetlist:
@@ -358,7 +377,7 @@ def applyOverlapRemoval(sequence=DerivationFrameworkJob):
     from AssociationUtils.config import recommended_tools
     from AssociationUtils.AssociationUtilsConf import OverlapRemovalGenUseAlg
     outputLabel = 'DFCommonJets_passOR'
-    bJetLabel = 'isBJet'
+    bJetLabel = '' #default 
     orTool = recommended_tools(outputLabel=outputLabel,bJetLabel=bJetLabel)
     algOR = OverlapRemovalGenUseAlg('OverlapRemovalGenUseAlg',
 			    OverlapLabel=outputLabel,
@@ -467,7 +486,6 @@ def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,
 ##################################################################
 applyJetCalibration_xAODColl("AntiKt4EMTopo")
 updateJVT_xAODColl("AntiKt4EMTopo")
-applyBTagging_xAODColl("AntiKt4EMTopo")
 applyOverlapRemoval()
 eventCleanLoose_xAODColl("AntiKt4EMTopo")
 eventCleanTight_xAODColl("AntiKt4EMTopo")

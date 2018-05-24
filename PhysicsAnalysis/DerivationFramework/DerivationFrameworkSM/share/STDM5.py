@@ -259,6 +259,9 @@ STDM5SlimmingHelper.IncludeMuonTriggerContent = True
 STDM5SlimmingHelper.ExtraVariables = ExtraContentAll
 STDM5SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+STDM5SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
+
 # # btagging variables
 from  DerivationFrameworkFlavourTag.BTaggingContent import *
 

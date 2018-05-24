@@ -58,7 +58,7 @@ class MuonTPExtrapolationTool: public asg::AsgTool, virtual public IMuonTPExtrap
 
         // utility method: Obtains the track particle which we want to extrapolate into the MS.
         // Works for all kinds of probes.
-        const xAOD::TrackParticle* getPreferredTrackParticle(const xAOD::IParticle* probe);
+        const xAOD::TrackParticle* getPreferredTrackParticle(const xAOD::IParticle* probe) const;
 
         // these define the surfaces that we extrapolate to.
         // We approximate the pivot plane in the form of a cylinder surface and two disks

@@ -42,7 +42,10 @@ namespace top{
     }
     m_config->setKLFitter();
     m_LHType = m_config -> KLFitterLH();
-    m_transferFunctionsPathPrefix = PathResolverFindCalibDirectory( "KLFitter/transferfunctions/" );
+
+    // Find KLFitter ATLAS transfer functions. As of May '18, stored in
+    // AnalysisTop group data area on cvmfs.
+    m_transferFunctionsPathPrefix = PathResolverFindCalibDirectory( "dev/AnalysisTop/KLFitterTFs/" );
     m_transferFunctionsPath = m_config->KLFitterTransferFunctionsPath();
     
     std::string transferFunctionAbsPath = m_transferFunctionsPathPrefix + m_transferFunctionsPath + "/";
@@ -356,7 +359,7 @@ namespace top{
           for (unsigned int i = 0; i < 3; ++i) {
             const auto& electron = event.m_electrons.at(i);
             el.SetPtEtaPhiE(electron->pt() / 1.e3, electron->eta(), electron->phi(), electron->e() / 1.e3);
-            myParticles->AddParticle(&el, el.Eta(), KLFitter::Particles::kElectron, "", i);
+            myParticles->AddParticle(&el, electron->caloCluster()->etaBE(2), KLFitter::Particles::kElectron, "", i);
           }
         } else {
           // Trivial case of mixed lepton flavours. Use ttbar->l+jets likelihood and only add the single lepton.

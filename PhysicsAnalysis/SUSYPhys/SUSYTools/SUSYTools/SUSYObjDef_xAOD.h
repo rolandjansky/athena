@@ -383,15 +383,18 @@ namespace ST {
     bool m_isTrigInTDT(const std::string& triggerName) const;
 
     //book trigger chains for matching
-    std::vector<std::string> v_trigs15_cache_single;
-    std::vector<std::string> v_trigs16_cache_single;
-    std::vector<std::string> v_trigs17_cache_single;
-    std::vector<std::string> v_trigs15_cache_dilep;
-    std::vector<std::string> v_trigs16_cache_dilep;
-    std::vector<std::string> v_trigs17_cache_dilep;
-    std::vector<std::string> v_trigs15_cache_mixlep;
-    std::vector<std::string> v_trigs16_cache_mixlep;
-    std::vector<std::string> v_trigs17_cache_mixlep;
+    std::vector<std::string> v_trigs15_cache_singleEle;
+    std::vector<std::string> v_trigs16_cache_singleEle;
+    std::vector<std::string> v_trigs17_cache_singleEle;
+    std::vector<std::string> v_trigs15_cache_singleLep;
+    std::vector<std::string> v_trigs16_cache_singleLep;
+    std::vector<std::string> v_trigs17_cache_singleLep;
+    std::vector<std::string> v_trigs15_cache_diLep;
+    std::vector<std::string> v_trigs16_cache_diLep;
+    std::vector<std::string> v_trigs17_cache_diLep;
+    std::vector<std::string> v_trigs15_cache_multiLep;
+    std::vector<std::string> v_trigs16_cache_multiLep;
+    std::vector<std::string> v_trigs17_cache_multiLep;
 
   protected:
 
@@ -421,9 +424,6 @@ namespace ST {
     std::string EG_WP(const std::string& wp) const; //translate our WPs to make egamma selectors happy
 
     std::vector<std::string> getElSFkeys(const std::string& mapFile) const;
-
-    bool m_autoconfigPRW;
-    std::string m_mcCampaign;
 
 #ifdef XAOD_STANDALONE // more convenient for property setting
     DataSource m_dataSource;
@@ -469,17 +469,25 @@ namespace ST {
     bool m_metDoRemoveMuonJets;
     bool m_metUseGhostMuons;
     bool m_metDoMuonEloss;
+    bool m_metGreedyPhotons;
+    bool m_metVeryGreedyPhotons;
     std::string m_metsysConfigPrefix;
 
     bool m_trkMETsyst;
     bool m_caloMETsyst;
+    bool m_trkJetsyst;
 
     int m_softTermParam;
     bool m_treatPUJets;
     bool m_doPhiReso;
 
+    bool m_autoconfigPRW;
+    std::string m_mcCampaign;
+
     std::vector<std::string> m_prwConfFiles;
     std::vector<std::string> m_prwLcalcFiles;
+    std::string m_prwActualMuFile;
+
     double m_muUncert;
     double m_prwDataSF;
     double m_prwDataSF_UP;
@@ -498,6 +506,7 @@ namespace ST {
 
     std::string m_eleId;
     std::string m_eleIdBaseline;
+    bool        m_eleIdExpert;
     int         m_muId;
     int         m_muIdBaseline;
     std::string m_photonId;
@@ -645,11 +654,13 @@ namespace ST {
     std::string m_jesConfigJMS;
     std::string m_jesConfigAFII;
     std::string m_jesConfigEMPFlow;
+    std::string m_jesConfigEMPFlowAFII;
     std::string m_jesConfigFat;
     std::string m_jesCalibSeq;
     std::string m_jesCalibSeqJMS;
     std::string m_jesCalibSeqAFII;
     std::string m_jesCalibSeqEMPFlow;
+    std::string m_jesCalibSeqEMPFlowAFII;
     std::string m_jesCalibSeqFat;
 
     //
@@ -688,7 +699,7 @@ namespace ST {
     asg::AnaToolHandle<IElectronPhotonShowerShapeFudgeTool> m_electronPhotonShowerShapeFudgeTool;
     asg::AnaToolHandle<IEGammaAmbiguityTool> m_egammaAmbiguityTool;
     asg::AnaToolHandle<IAsgElectronLikelihoodTool> m_elecChargeIDSelectorTool;
-    asg::AnaToolHandle<CP::IEfficiencyScaleFactorTool>      m_elecChargeEffCorrTool;
+    asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool>      m_elecChargeEffCorrTool;
     //
     asg::AnaToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelTool;
     asg::AnaToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelToolBaseline;
@@ -711,6 +722,9 @@ namespace ST {
     asg::AnaToolHandle<IMETSystematicsTool> m_metSystTool;
     asg::AnaToolHandle<IMETSignificance> m_metSignif;
     //
+    std::string m_trig2015combination_singleLep;
+    std::string m_trig2016combination_singleLep;
+    std::string m_trig2017combination_singleLep;
     std::string m_trig2015combination_diLep;
     std::string m_trig2016combination_diLep;
     std::string m_trig2017combination_diLep;
@@ -736,6 +750,15 @@ namespace ST {
     asg::AnaToolHandle<IWeightTool> m_pmgSHnjetWeighter;
     asg::AnaToolHandle<IWeightTool> m_pmgSHnjetWeighterWZ;
     //
+    std::string m_eleIdBaselineDFName;
+    std::string m_eleIdDFName;
+    std::string m_photonIdBaselineDFName;
+    std::string m_photonIdDFName;
+    //
+    SG::AuxElement::ConstAccessor<char> m_acc_eleIdBaseline;
+    SG::AuxElement::ConstAccessor<char> m_acc_eleId;
+    SG::AuxElement::ConstAccessor<char> m_acc_photonIdBaseline;
+    SG::AuxElement::ConstAccessor<char> m_acc_photonId;
 
   }; // Class SUSYObjDef_xAOD
 
@@ -762,7 +785,10 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<int> acc_truthType("truthType");
   const static SG::AuxElement::ConstAccessor<int> acc_truthOrigin("truthOrigin");
   const static SG::AuxElement::ConstAccessor<int> acc_bkgTruthOrigin("bkgTruthOrigin");
+  const static SG::AuxElement::ConstAccessor<char> acc_passPhCleaning("DFCommonPhotonsCleaning");
+  const static SG::AuxElement::ConstAccessor<char> acc_passPhCleaningNoTime("DFCommonPhotonsCleaningNoTime");
   const static SG::AuxElement::ConstAccessor<unsigned int> randomrunnumber("RandomRunNumber");
+
 
 } // namespace ST
 

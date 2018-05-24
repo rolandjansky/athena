@@ -36,19 +36,14 @@ UpgradeObjectLoader::UpgradeObjectLoader( const std::shared_ptr<top::TopConfig> 
 
   if ( m_active ){
     std::cout << "Upgrade level reconstruction is enabled; telling you how I am configured:" << '\n';
-    m_upgrade.reset(new UpgradePerformanceFunctionsxAOD("TopHLUpgradeFunctions", UpgradePerformanceFunctions::gold, 200.0)); //layout & mu hard coded for now
-    m_upgrade->setElectronWorkingPoint(UpgradePerformanceFunctions::looseElectron);
-    m_upgrade->setElectronRandomSeed(171);
-    m_upgrade->setMuonWorkingPoint(UpgradePerformanceFunctions::tightMuon);
-    m_upgrade->setMETRandomSeed(986);
-    m_upgrade->loadMETHistograms("UpgradePerformanceFunctions/sumetPU_mu200_ttbar_gold.root");
-    m_upgrade->setPileupRandomSeed(121);
-    m_upgrade->setPileupRandomSeed(771);
-    m_upgrade->setPileupJetPtThresholdMeV(30000.);
-    m_upgrade->setPileupEfficiencyScheme(UpgradePerformanceFunctions::PileupEff::HS);
-    m_upgrade->setPileupEff(0.9);
-    m_upgrade->setPileupTemplatesPath("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/UpgradePerformanceFunctions/");
-    m_upgrade->setFlavourTaggingCalibrationFilename("UpgradePerformanceFunctions/flavor_tags_v1.1.root");
+    m_upgrade.reset(new UpgradePerformanceFunctionsxAOD("TopHLUpgradeFunctions")); //FM: switching to ASG constructor
+    m_upgrade->setProperty("ElectronWorkingPoint", Upgrade::UpgradePerformanceFunctions::looseElectron);
+    m_upgrade->setProperty("ElectronRadomSeed", 171);
+    m_upgrade->setProperty("MuonWorkingPoint", Upgrade::UpgradePerformanceFunctions::tightMuon);
+    m_upgrade->setProperty("METRadomSeed", 986);
+    m_upgrade->setProperty("PileupRandomSeed", 771);
+    m_upgrade->setProperty("PileupJetThresholdMeV", 30000.);
+    m_upgrade->setProperty("PileupEfficiency", 0.9);
 
     // configure muon selector
     auto optMu = UpgradeLeptonObjectSelector::Options{
@@ -275,7 +270,7 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
   const xAOD::MissingET* origmet = (*origmetcont)["NonInt"];
 
   // the MET type is just std::pair<double,double>, representing the smeared METx and METy
-  UpgradePerformanceFunctions::MET smearedMET = m_upgrade->getMETSmeared(origmet->sumet(), origmet->mpx(), origmet->mpy());
+  Upgrade::UpgradePerformanceFunctions::MET smearedMET = m_upgrade->getMETSmeared(origmet->sumet(), origmet->mpx(), origmet->mpy());
   
   // Shallow copy 
   std::pair< xAOD::MissingETContainer*, xAOD::ShallowAuxContainer* > metcont_shallowCopy = xAOD::shallowCopyContainer( *origmetcont );

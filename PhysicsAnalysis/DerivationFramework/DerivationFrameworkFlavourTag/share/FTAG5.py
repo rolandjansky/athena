@@ -128,7 +128,9 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets", # <- Crashes without this,
                   "AntiKt10LCTopoJets", # <- while building this collection
                   "AntiKt4TruthJets"]
-replaceAODReducedJets(reducedJetList,FTAG5Seq,"FTAG5")
+
+extendedFlag = 0 # --- = 0 for Standard Taggers & =1 for ExpertTaggers
+replaceAODReducedJets(reducedJetList,FTAG5Seq,"FTAG5", extendedFlag)
 
 addDefaultTrimmedJets(FTAG5Seq,"FTAG5",dotruth=True)
 
@@ -139,14 +141,7 @@ addDefaultTrimmedJets(FTAG5Seq,"FTAG5",dotruth=True)
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
 # Note that the ghost association to the 'AntiKt10LCTopo' jets is
 # hardcoded within this function "for now".
-addVRJets(FTAG5Seq,
-          VRJetName="AntiKtVR30Rmax4Rmin02Track",
-          VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet",
-          VRJetAlg="AntiKt", VRJetRadius=0.4,
-          VRJetInputs='pv0track',
-          ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
-          variableRMinRadius = 0.02, variableRMassScale = 30000,
-          calibOpt = "none")
+addVRJets(FTAG5Seq, logger=ftag5_log)
 
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
@@ -208,11 +203,22 @@ FTAG5SlimmingHelper.ExtraVariables += [
     "InDetTrackParticles.numberOfContribPixelLayers.numberOfTRTHits.numberOfInnermostPixelLayerSharedHits.numberOfNextToInnermostPixelLayerSharedHits",
     "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits",
     "InDetTrackParticles.hitPattern.radiusOfFirstHit",
-    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount.GhostHBosonsCount",
+    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet",
     "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore"
 ]
 
+# add some more extra variables for ghost associated particles
+ghost_particles = [
+    'HBosons',
+    'WBosons',
+    'ZBosons',
+    'TQuarksFinal',
+]
+ghost_counts = ['Ghost' + gp + 'Count' for gp in ghost_particles]
+ghost_pts = ['Ghost' + gp + 'Pt' for gp in ghost_particles]
+FTAG5SlimmingHelper.ExtraVariables.append(
+    '.'.join(['AntiKt10LCTopoJets'] + ghost_counts + ghost_pts))
 
 
 FTAG5SlimmingHelper.IncludeMuonTriggerContent = False

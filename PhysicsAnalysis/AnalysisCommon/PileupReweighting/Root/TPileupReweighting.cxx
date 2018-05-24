@@ -871,6 +871,9 @@ Int_t CP::TPileupReweighting::AddLumiCalcFile(const TString& fileName, const TSt
             Info("AddLumiCalcFile","Adding LumiMetaData for DataWeight (trigger=%s) (scale factor=%f)...",trigger.Data(),m_dataScaleFactorX);
          }
          
+      } else {
+        Error("AddLumiCalcFile","No LumiMetaData found in file %s. not a LumiCalcFile?", fileName.Data());
+        throw std::runtime_error("No LumiMetaData found in file, not a LumiCalcFile?");
       }
    }
 
@@ -1596,8 +1599,8 @@ Float_t CP::TPileupReweighting::GetPrimaryWeight(Int_t periodNumber, Int_t chann
    double l = p->primaryHists[-1]->GetBinContent(bin);
 
    if (l==0 && n==0){
-      Error("GetPrimaryWeight","No events expected with this mu.  Incorrect PRW profile?  Returning weight of zero.");
-      return 0.;
+      Error("GetPrimaryWeight","No events expected with this mu.  Incorrect PRW profile?  Throwing exception ...");
+      throw std::runtime_error(Form("Incorrect PRW profile detected. x=%g is not in the config file profile for channel %d, period %d", x, channelNumber, periodNumber ));
    }
 
    return l/n;

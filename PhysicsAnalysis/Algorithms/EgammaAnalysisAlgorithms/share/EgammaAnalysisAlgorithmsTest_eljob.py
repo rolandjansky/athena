@@ -27,6 +27,7 @@ dataType = "data"
 #dataType = "mc"
 #dataType = "afii"
 electronContainer = "Electrons"
+photonContainer = "Photons"
 
 if not dataType in ["data", "mc", "afii"] :
     raise Exception ("invalid data type: " + dataType)
@@ -85,6 +86,22 @@ from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import makeElectronAnalys
 sequence = makeElectronAnalysisSequence (electronContainer=electronContainer,dataType=dataType)
 
 sequencePostConfiguration (sequence, electronContainer)
+
+for alg in sequence :
+    config = alg["alg"]
+
+    # set everything to debug output
+    config.OutputLevel = 1
+
+    job.algsAdd( config )
+    pass
+
+
+from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import makePhotonAnalysisSequence
+
+sequence = makePhotonAnalysisSequence (photonContainer=photonContainer,dataType=dataType)
+
+sequencePostConfiguration (sequence, photonContainer)
 
 for alg in sequence :
     config = alg["alg"]

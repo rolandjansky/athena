@@ -23,28 +23,25 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
                           Reconstruction/Jet/JetInterface
                           Reconstruction/Jet/BoostedJetTaggers
+                          Reconstruction/Jet/JetCalibTools
                           Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           )
 
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
-
 # Component(s) in the package:
-atlas_add_library( DerivationFrameworkFlavourTagLib
-                   src/*.cxx
-                   NO_PUBLIC_HEADERS
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger xAODTruth JetInterface TrkExInterfaces BoostedJetTaggersLib)
+atlas_add_library(   DerivationFrameworkFlavourTagLib
+                     src/*.cxx
+                     LINK_LIBRARIES GaudiKernel AthenaBaseComps xAODCore xAODJet xAODPFlow
+                     xAODTracking xAODTrigger xAODTruth JetInterface TrkExInterfaces
+                     BoostedJetTaggersLib JetCalibToolsLib )
 
 atlas_add_component( DerivationFrameworkFlavourTag
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger JetInterface BoostedJetTaggersLib DerivationFrameworkFlavourTagLib )
+                     LINK_LIBRARIES GaudiKernel AthenaBaseComps xAODCore xAODJet xAODPFlow
+                     xAODTracking xAODTrigger xAODTruth JetInterface TrkExInterfaces
+                     BoostedJetTaggersLib JetCalibToolsLib DerivationFrameworkFlavourTagLib )
 
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-

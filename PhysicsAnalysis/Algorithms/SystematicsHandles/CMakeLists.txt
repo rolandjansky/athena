@@ -13,6 +13,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODBase
    Event/xAOD/xAODCore
    PRIVATE
+   Control/xAODRootAccess
    Event/xAOD/xAODJet
    Event/xAOD/xAODMuon
    Event/xAOD/xAODEgamma
@@ -33,6 +34,13 @@ atlas_add_test( cc_SysCopyHandle
    SOURCES test/cc_SysCopyHandle.cxx
    LINK_LIBRARIES AsgTools AnaAlgorithmLib xAODEventInfo xAODJet
    SystematicsHandlesLib )
+
+if( XAOD_STANDALONE )
+   atlas_add_test( ut_CopyHelpers
+      SOURCES test/ut_CopyHelpers.cxx
+      LINK_LIBRARIES xAODRootAccess AsgTools xAODBase xAODJet
+      SystematicsHandlesLib )
+endif()
 
 atlas_add_test( cc_SysWriteHandle
    SOURCES test/cc_SysWriteHandle.cxx

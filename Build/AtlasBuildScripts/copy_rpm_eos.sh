@@ -58,6 +58,7 @@ if [ "$WEEKDAY" = "" ]; then
 else 
    DDAY=${WEEKDAY}
 fi
+
 echo "====================================================="
 echo "=== STARTING RPMs copy to /eos at `date`"
 echo "====================================================="
@@ -80,12 +81,17 @@ _retry_() {
     return 0
 }
 
-
 if [ ! -d ${DESTDIR} ] ; then 
    echo "mkdir -p ${DESTDIR}"
    _retry_ mkdir -p ${DESTDIR} 
    if [ ! -d ${DESTDIR} ] ; then ((ERROR_COUNT++)) ; fi  #avoid false positive eos error if the directory was actually created
 fi
+
+echo "====================================================="
+echo "=== Create repodata on local machine"
+echo "====================================================="
+echo "nicos_rpm::::::: createrepo --workers 8 --update ${SOURCEDIR} :::::::" `date`
+createrepo --workers 8 --update ${SOURCEDIR} || ((ERROR_COUNT++))
 
 arr_rpm=(`(shopt -s nocaseglob; ls ${SOURCEDIR}/*.rpm)`)
 if [ "${#arr_rpm[@]}" -le 0 ]; then
@@ -98,10 +104,11 @@ if [ "${#arr_rpm[@]}" -le 0 ]; then
       _retry_ cp -a $ele ${DESTDIR} || ((ERROR_COUNT++))
    done
 fi 
+
 echo "====================================================="
-echo "=== Update http RPMs location"
+echo "=== Copy repodata to nightly eos location"
 echo "====================================================="
-echo "nicos_rpm::::::: createrepo --workers 8 --update ${DESTDIR} :::::::" `date`
-createrepo --workers 8 --update ${DESTDIR} || ((ERROR_COUNT++))
+echo "Info: copying ${SOURCEDIR}/repodata to ${DESTDIR}" 
+_retry_ cp -a -rf ${SOURCEDIR}/repodata ${DESTDIR} || ((ERROR_COUNT++))
 
 exit ${ERROR_COUNT}

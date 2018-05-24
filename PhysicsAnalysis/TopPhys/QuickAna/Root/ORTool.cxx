@@ -175,6 +175,7 @@ namespace ana
     //
     SG::AuxElement::Accessor<SelectType> selectAcc(m_anaSelectionName);
     SG::AuxElement::ConstAccessor<SelectType> overlapAcc(m_orFlags.outputLabel);
+    SG::AuxElement::Accessor<SelectType> orPassAcc("OR_pass");
 
     // List of containers to process.
     std::vector< xAOD::IParticleContainer* > containers {
@@ -188,7 +189,9 @@ namespace ana
         for (auto par : *contPtr) {
           if (overlapAcc(*par)) {
             selectAcc(*par) = false;
-          }
+            orPassAcc(*par) = false;
+          }else
+            orPassAcc(*par) = true;
         }
       }
     }

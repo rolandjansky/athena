@@ -118,11 +118,9 @@ def daz(f):
 
 
 # For root 6.08, need to use __cppname__ rather than __name__
-# for the name of a type.
-if hasattr(ROOT.TH1, '__cppname__'):
-    def typename(t): return t.__cppname__
-else:
-    def typename(t): return t.__name__
+# for the name of a type if it's there.
+def typename(t):
+    return getattr (t, '__cppname__', t.__name__)
 
 ### library methods ------------------------------------------------------------
 
@@ -4927,6 +4925,7 @@ dumpspecs = [
     ['DataVector<xAOD::TrigRNNOutput_v2>',   dump_xAOD],
     ['xAOD::TrigRNNOutputContainer',         dump_xAOD],
     ['DataVector<xAOD::TrigRingerRings_v1>', dump_xAOD],
+    ['DataVector<xAOD::TrigRingerRings_v2>', dump_xAOD],
     ['xAOD::TrigRingerRingsContainer',       dump_xAOD],
     ['DataVector<xAOD::TrigSpacePointCounts_v1>',dump_xAOD],
     ['xAOD::TrigSpacePointCountsContainer',  dump_xAOD],
@@ -4963,6 +4962,12 @@ dumpspecs = [
     ['xAOD::CaloRingsContainer',             dump_xAOD],
     ['DataVector<xAOD::RingSet_v1>',         dump_xAOD],
     ['xAOD::RingSetContainer',               dump_xAOD],
+    ['DataVector<xAOD::ForwardEventInfo_v1>',dump_xAOD],
+    ['xAOD::ForwardEventInfoContainer',      dump_xAOD],
+    ['DataVector<xAOD::MBTSModule_v1>',      dump_xAOD],
+    ['xAOD::MBTSModuleContainer',            dump_xAOD],
+    ['DataVector<xAOD::ZdcModule_v1>',       dump_xAOD],
+    ['xAOD::ZdcModuleContainer',             dump_xAOD],
     ['xAOD::MissingETContainer_v1',          dump_xAOD],
     ['xAOD::MissingETContainer',             dump_xAOD],
     ['xAOD::MissingETComponentMap_v1',       dump_xAOD],

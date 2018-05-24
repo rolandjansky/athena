@@ -7,6 +7,8 @@
 
 #include "UpgradePerformanceFunctions/UpgradePerformanceFunctions.h"
 
+namespace Upgrade {
+
 float UpgradePerformanceFunctions::getSingleElectronTriggerEfficiency(float ptMeV, float eta) {
   float minPt = 22000.;
   float minPtHighEta = 35000;
@@ -223,6 +225,8 @@ float UpgradePerformanceFunctions::getJetEtmissTriggerEfficiency(float smearedJe
   } else {
     return 0.95;
   }
+}
+
 }
 
 #endif

@@ -106,8 +106,11 @@ OutputJets["FTAG1"] = ["AntiKtVR30Rmax4Rmin02TrackJets",
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
                   "AntiKt10LCTopoJets",
-                  "AntiKt4TruthJets"] 
-replaceAODReducedJets(reducedJetList,FTAG1Seq,"FTAG1")
+                  "AntiKt4TruthJets"]
+
+extendedFlag = 1 # --- = 0 for Standard Taggers & =1 for ExpertTaggers
+ 
+replaceAODReducedJets(reducedJetList,FTAG1Seq,"FTAG1", extendedFlag)
 
 addDefaultTrimmedJets(FTAG1Seq,"FTAG1",dotruth=True)
 
@@ -116,10 +119,9 @@ addDefaultTrimmedJets(FTAG1Seq,"FTAG1",dotruth=True)
 #===================================================================
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
-addVRJets(FTAG1Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
-          VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", #or should this be lctopo?
-          ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
-          variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+addVRJets(FTAG1Seq)
+# Also add Hbb Tagger
+addHbbTagger(FTAG1Seq, ToolSvc)
 
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]

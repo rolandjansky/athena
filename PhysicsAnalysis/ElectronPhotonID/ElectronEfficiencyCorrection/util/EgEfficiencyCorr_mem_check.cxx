@@ -16,7 +16,6 @@ http://valgrind.org/docs/manual/faq.html#faq.deflost
 #include <string>
 #include <vector>
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
-#include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
 #include "AsgTools/AsgMessaging.h"
 #include "AsgTools/AnaToolHandle.h"
 #ifdef ASGTOOL_STANDALONE
@@ -39,7 +38,7 @@ int main( ) {
             tool.setProperty("IdKey", "Medium") &&
             tool.retrieve());
 
-    asg::AnaToolHandle<CP::IEfficiencyScaleFactorTool> eccTool;
+    asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> eccTool;
     eccTool.setTypeAndName("CP::ElectronChargeEfficiencyCorrectionTool/ElectronChargeCorrection");
     ANA_CHECK(eccTool.setProperty( "CorrectionFileName", 
                 "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v1/charge_misID/ChargeCorrectionSF.Medium_FixedCutTight.root" )&&

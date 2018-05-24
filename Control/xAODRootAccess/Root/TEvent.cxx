@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: TEvent.cxx 784654 2016-11-16 17:17:32Z krasznaa $
 
 // System include(s):
 #include <cassert>
@@ -1273,7 +1271,7 @@ namespace xAOD {
       }
 
       // In order to make the tree cache work:
-      if( m_inTree->LoadTree( m_entry ) < 0 ) {
+      if( m_inTree && m_inTree->LoadTree( m_entry ) < 0 ) {
          ::Error( "xAOD::TEvent::getEntry",
                   XAOD_MESSAGE( "Failure in loading entry %i from the input "
                                 "file" ), static_cast< int >( m_entry ) );
@@ -1416,9 +1414,17 @@ namespace xAOD {
       // delete its transient (decoration) variables. Otherwise it does.
       // (As it's supposed to, when moving to a new event.)
       if( m_inChain ) {
-         getEntry( m_inChain->GetReadEntry(), 99 );
+         if (getEntry( m_inChain->GetReadEntry(), 99 ) < 0) {
+           ::Error( "xAOD::TEvent::fill",
+                    XAOD_MESSAGE( "getEntry failed!" ) );
+           return 0;
+         }
       } else if( m_inTree ) {
-         getEntry( m_entry, 99 );
+         if (getEntry( m_entry, 99 ) < 0) {
+           ::Error( "xAOD::TEvent::fill",
+                    XAOD_MESSAGE( "getEntry failed!" ) );
+           return 0;
+         }
       }
 
       // Prepare the objects for writing:
@@ -3130,6 +3136,12 @@ namespace xAOD {
 
             // Construct the full type name of the variable:
             const std::type_info* brType = aux->getIOType( id );
+            if( ! brType ) {
+               ::Error( "xAOD::TEvent::putAux",
+                        XAOD_MESSAGE( "No I/O type found for variable %s" ),
+                        brName.c_str() );
+               return TReturnCode::kFailure;
+            }
             const std::string brTypeName =
                Utils::getTypeName( *brType );
             std::string brProperTypeName = "<unknown>";
@@ -3209,6 +3221,9 @@ namespace xAOD {
                TAuxBranchManager* auxmgr =
                   new TAuxBranchManager( id, 0, hldr );
                objects[ brName ] = auxmgr;
+
+               if (!cl->CanSplit() && strncmp (cl->GetName(), "SG::PackedContainer<", 20) == 0)
+                 splitLevel = 0;
 
                // ... and let's add it to the output TTree:
                *( auxmgr->branchPtr() ) =

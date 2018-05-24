@@ -155,14 +155,19 @@ namespace DerivationFramework {
     for (const auto& el: subjet_links) {
       const auto* jet = dynamic_cast<const Jet*>(*el);
       if (!jet) throw std::logic_error("subjet is invalid");
-      if (subjets.size() < m_nLeadingSubjets &&
-          jet->pt() >= m_smallJetPtCut) {
+      if (jet->pt() >= m_smallJetPtCut) {
         subjets.push_back(jet);
       }
     }
     std::sort(subjets.begin(), subjets.end(),
               [](const Jet* j1, const Jet* j2){return j1->pt() > j2->pt();});
+    size_t n_subjets = 0;
     for (const Jet* jet: subjets) {
+
+      // only take the leading few jets
+      n_subjets++;
+      if (n_subjets > m_nLeadingSubjets) break;
+
       // get tracks
       // start with b-tagging cone association
       const xAOD::BTagging *bjet = jet->btagging();

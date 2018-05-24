@@ -7,9 +7,7 @@
 
 #include "UpgradePerformanceFunctions/UpgradePerformanceFunctions.h"
 
-void UpgradePerformanceFunctions::setTauRandomSeed(unsigned seed) {
-  m_tauRandom.SetSeed(seed);
-}
+namespace Upgrade {
 
 float UpgradePerformanceFunctions::getTauEfficiency(float etMeV, float eta_in, short prong, short wp) {
   // prong variable must be 1 or 3
@@ -26,23 +24,48 @@ float UpgradePerformanceFunctions::getTauEfficiency(float etMeV, float eta_in, s
   a = 0;
   b = 0;
 
-  float eta = abs(eta_in);
-  float eta1 = 0.9;
-  float eta2 = 4.0;
+  float eta = fabs(eta_in);
+  float eta1 = 1.2;
+  float eta2 = 2.5;
+  float eta3 = 4.0;
+
+  float pt = etMeV;
+  float pt1 = 50000.;
+  float pt2 = 100000.;
 
   if (wp == 0) {
-    //loose working point (reco eff of 85% for 1-prong and 75% for 3-prong)
+    //loose working point (ID eff of 85% for 1-prong and 75% for 3-prong)
     if (prong == 1) {
-      if (eta < eta1) {  a = 0.72;     b = 0; }
-      else if (eta >= eta1 && eta < eta2) {  a = 0.86;     b = -0.19; }
-      else {
+      if (eta < eta1) {
+	if (pt < pt1) {a = 0.80;     b = -0.019; }
+	else if (pt>= pt1 && pt<pt2) {a = 0.85; b = -0.025;}
+	else {a = 0.90; b = -0.024;}
+      } else if (eta >= eta1 && eta < eta2) {
+      	if (pt < pt1) {a = 0.84;     b = -0.040; }
+	else if (pt>= pt1 && pt<pt2) {a = 0.96; b = -0.082;}
+	else {a = 1.16; b = -0.168;}
+      } else if (eta >= eta2 && eta < eta3) {
+	if (pt < pt1) {a = 1.11;     b = -0.153; }
+	else if (pt>= pt1 && pt<pt2) {a = 1.17; b = -0.170;}
+	else {a = 1.07; b = -0.182;}
+      } else {
         ATH_MSG_WARNING("getTauEfficiency: no efficiency available for eta=" << eta);
         return 0;
       }
     } else if (prong == 3) {
-      if (eta < eta1) {  a = 0.67;     b = 0; }
-      else if (eta >= eta1 && eta < eta2) {  a = 0.75;     b = -0.13; }
-      else {
+      if (eta < eta1) {
+	if (pt < pt1) {a = 0.78;     b = -0.057; }
+	else if (pt>= pt1 && pt<pt2) {a = 0.80; b = -0.022;}
+	else {a = 0.84; b = 0;}
+      } else if (eta >= eta1 && eta < eta2) {
+      	if (pt < pt1) {a = 0.80;     b = -0.084; }
+	else if (pt>= pt1 && pt<pt2) {a = 0.84; b = -0.064;}
+	else {a = 0.97; b = -0.149;}
+      } else if (eta >= eta2 && eta < eta3) {
+	if (pt < pt1) {a = 1.04;     b = -0.165; }
+	else if (pt>= pt1 && pt<pt2) {a = 1.15; b = -0.197;}
+	else {a = 1.15; b = -0.238;}
+    } else {
         ATH_MSG_WARNING("getTauEfficiency: no efficiency available for eta=" << eta);
         return 0;
       }
@@ -52,18 +75,39 @@ float UpgradePerformanceFunctions::getTauEfficiency(float etMeV, float eta_in, s
     }
 
   } else if (wp == 1) {
-    //medium working point (reco eff of 75% for 1-prong and 60% for 3-prong)
+    //medium working point (ID eff of 75% for 1-prong and 60% for 3-prong)
+
     if (prong == 1) {
-      if (eta < eta1) {  a = 0.63;     b = 0; }
-      else if (eta >= eta1 && eta < eta2) {  a = 0.77;     b = -0.18; }
-      else {
+      if (eta < eta1) {
+        if (pt < pt1) {a = 0.72;     b = -0.017; }
+        else if (pt>= pt1 && pt<pt2) {a = 0.78; b = -0.032;}
+        else {a = 0.82; b = -0.042;}
+      } else if (eta >= eta1 && eta < eta2) {
+        if (pt < pt1) {a = 0.76;     b = -0.048; }
+        else if (pt>= pt1 && pt<pt2) {a = 0.91; b = -0.094;}
+        else {a = 1.18; b = -0.227;}
+      } else if (eta >= eta2 && eta < eta3) {
+        if (pt < pt1) {a = 1.09;     b = -0.185; }
+        else if (pt>= pt1 && pt<pt2) {a = 1.25; b = -0.244;}
+        else {a = 1.03; b = -0.229;}
+      } else {
         ATH_MSG_WARNING("getTauEfficiency: no efficiency available for eta=" << eta);
         return 0;
       }
     } else if (prong == 3) {
-      if (eta < eta1) {  a = 0.58;     b = 0; }
-      else if (eta >= eta1 && eta < eta2) {  a = 0.66;     b = -0.13; }
-      else {
+      if (eta < eta1) {
+        if (pt < pt1) {a = 0.63;     b = -0.036; }
+        else if (pt>= pt1 && pt<pt2) {a = 0.67; b = -0.044;}
+        else {a = 0.67; b = 0;}
+      } else if (eta >= eta1 && eta < eta2) {
+        if (pt < pt1) {a = 0.66;     b = -0.090; }
+        else if (pt>= pt1 && pt<pt2) {a = 0.72; b = -0.085;}
+        else {a = 0.89; b = -0.179;}
+      } else if (eta >= eta2 && eta < eta3) {
+        if (pt < pt1) {a = 1.21;     b = -0.275; }
+        else if (pt>= pt1 && pt<pt2) {a = 1.05; b = 0.221;}
+        else {a = 0.93; b = -0.219;}
+    } else {
         ATH_MSG_WARNING("getTauEfficiency: no efficiency available for eta=" << eta);
         return 0;
       }
@@ -71,21 +115,41 @@ float UpgradePerformanceFunctions::getTauEfficiency(float etMeV, float eta_in, s
       ATH_MSG_WARNING("getTauEfficiency: no efficiency available for prong=" << prong);
       return 0;
     }
-
+ 
   } else if (wp == 2) {
-    //tight working point (reco eff of 60% for 1-prong and 45% for 3-prong)
+    //tight working point (ID eff of 60% for 1-prong and 45% for 3-prong)
 
     if (prong == 1) {
-      if (eta < eta1) {  a = 0.53;     b = 0; }
-      else if (eta >= eta1 && eta < eta2) {  a = 0.63;     b = -0.16; }
-      else {
+      if (eta < eta1) {
+        if (pt < pt1) {a = 0.59;     b = -0.019; }
+        else if (pt>= pt1 && pt<pt2) {a = 0.65; b = -0.039;}
+        else {a = 0.71; b = -0.071;}
+      } else if (eta >= eta1 && eta < eta2) {
+        if (pt < pt1) {a = 0.62;     b = -0.046; }
+        else if (pt>= pt1 && pt<pt2) {a = 0.80; b = -0.109;}
+        else {a = 1.10; b = -0.259;}
+      } else if (eta >= eta2 && eta < eta3) {
+        if (pt < pt1) {a = 1.02;     b = -0.204; }
+        else if (pt>= pt1 && pt<pt2) {a = 1.10; b = -0.251;}
+        else {a = 0.68; b = -0.166;}
+    } else {
         ATH_MSG_WARNING("getTauEfficiency: no efficiency available for eta=" << eta);
         return 0;
       }
     } else if (prong == 3) {
-      if (eta < eta1) {  a = 0.48;     b = 0; }
-      else if (eta >= eta1 && eta < eta2) {  a = 0.55;     b = -0.12; }
-      else {
+      if (eta < eta1) {
+        if (pt < pt1) {a = 0.49;     b = -0.039; }
+        else if (pt>= pt1 && pt<pt2) {a = 0.53; b = -0.038;}
+        else {a = 0.57; b = -0.011;}
+      } else if (eta >= eta1 && eta < eta2) {
+        if (pt < pt1) {a = 0.50;     b = -0.079; }
+        else if (pt>= pt1 && pt<pt2) {a = 0.59; b = -0.088;}
+        else {a = 0.85; b = -0.218;}
+      } else if (eta >= eta2 && eta < eta3) {
+        if (pt < pt1) {a = 0.68;     b = -0.145; }
+        else if (pt>= pt1 && pt<pt2) {a = 0.84; b = -0.198;}
+        else {a = 0.62; b = -0.152;}
+    } else {
         ATH_MSG_WARNING("getTauEfficiency: no efficiency available for eta=" << eta);
         return 0;
       }
@@ -117,110 +181,139 @@ float UpgradePerformanceFunctions::getTauFakeRate(float etMeV, float eta_in, sho
     return 0;
   }
 
-  float eta = abs(eta_in);
+  float eta = fabs(eta_in);
+  float eta1 = 2.5;
+  float eta2 = 4.0;
 
-  float pt1 = 20000.;
-  float pt2 = 30000.;
-  float pt3 = 50000.;
-  float pt4 = 80000.;
-  float pt5 = 120000.;
+  float a,b;
+  a = 0;
+  b = 0;
+
+  float pt = etMeV;
+  float pt1 = 50000.;
+  float pt2 = 100000.;
 
   // Fake SFs are binned in pT (1-5), working point (L,M,T)
   //  and an overall SF is added to account for the jet efficiency
   //  of the 1- and 3-prong selections
 
-  float Fake_SF_1, Fake_SF_2, Fake_SF_3, Fake_SF_4, Fake_SF_5;
-  float Fake_SF_M, Fake_SF_T;
   float Fake_SF_eff;
 
-  if (prong == 1) {
-    Fake_SF_M = 0.5;
-    Fake_SF_T = 0.2;
-    Fake_SF_eff = 0.142;
+  if(prong == 1) Fake_SF_eff = 0.278;
+  if(prong == 3) Fake_SF_eff = 0.091;
 
-    if (eta >= 0 && eta < 1.2) {
-      Fake_SF_1 = 0.02;
-      Fake_SF_2 = 0.03;
-      Fake_SF_3 = 0.05;
-      Fake_SF_4 = 0.08;
-      Fake_SF_5 = 0.10;
-    } else if (eta >= 1.2 && eta < 2.5) {
-      Fake_SF_1 = 0.02;
-      Fake_SF_2 = 0.04;
-      Fake_SF_3 = 0.07;
-      Fake_SF_4 = 0.08;
-      Fake_SF_5 = 0.09;
-    } else if (eta >= 2.5 && eta < 4.0) {
-      Fake_SF_1 = 0.03;
-      Fake_SF_2 = 0.05;
-      Fake_SF_3 = 0.07;
-      Fake_SF_4 = 0.10;
-      Fake_SF_5 = 0.14;
+  if (wp == 0) {
+    //loose working point (ID eff of 85% for 1-prong and 75% for 3-prong)
+    if (prong == 1) {
+      if (eta < eta1) {
+	if (pt < pt1) {a = 0.090;     b = 0; }
+	else if (pt>= pt1 && pt<pt2) {a = 0.059; b = 0;}
+	else {a = 0.022; b = 0;}
+      } else if (eta >= eta1 && eta < eta2) {
+      	if (pt < pt1) {a = 0.031;     b = 0.015; }
+	else if (pt>= pt1 && pt<pt2) {a = -0.167; b = 0.096;}
+	else {a = -0.049; b = 0.029;}
+      } else {
+        ATH_MSG_WARNING("getTauEfficiency: no efficiency available for eta=" << eta);
+        return 0;
+      }
+    } else if (prong == 3) {
+      if (eta < eta1) {
+	if (pt < pt1) {a = 0.017;     b = 0; }
+	else if (pt>= pt1 && pt<pt2) {a = 0.009; b = 0;}
+	else {a = 0.0008; b = 0;}
+      } else if (eta >= eta1 && eta < eta2) {
+      	if (pt < pt1) {a = 0.010;     b = 0.006; }
+	else if (pt>= pt1 && pt<pt2) {a = 0.024; b = -0.003;}
+	else {a = -0.004; b = 0.002;}
     } else {
-      ATH_MSG_WARNING("getTauFakeRate: no fake rate available for prong=" << prong << ", eta=" << eta);
+        ATH_MSG_WARNING("getTauEfficiency: no efficiency available for eta=" << eta);
+        return 0;
+      }
+    } else {
+      ATH_MSG_WARNING("getTauEfficiency: no efficiency available for prong=" << prong);
       return 0;
     }
 
-  } else if (prong == 3) {
-    Fake_SF_M = 0.35;
-    Fake_SF_T = 0.13;
-    Fake_SF_eff = 0.138;
+  } else if (wp == 1) {
+    //medium working point (ID eff of 75% for 1-prong and 60% for 3-prong)
 
-    if (eta >= 0 && eta < 1.2) {
-      Fake_SF_1 = 0.018;
-      Fake_SF_2 = 0.024;
-      Fake_SF_3 = 0.021;
-      Fake_SF_4 = 0.017;
-      Fake_SF_5 = 0.007;
-    } else if (eta >= 1.2 && eta < 2.5) {
-      Fake_SF_1 = 0.018;
-      Fake_SF_2 = 0.029;
-      Fake_SF_3 = 0.028;
-      Fake_SF_4 = 0.023;
-      Fake_SF_5 = 0.010;
-    } else if (eta >= 2.5 && eta < 4.0) {
-      Fake_SF_1 = 0.035;
-      Fake_SF_2 = 0.049;
-      Fake_SF_3 = 0.056;
-      Fake_SF_4 = 0.030;
-      Fake_SF_5 = 0.015;
+    if (prong == 1) {
+      if (eta < eta1) {
+        if (pt < pt1) {a = 0.049;     b = 0; }
+        else if (pt>= pt1 && pt<pt2) {a = 0.032; b = 0;}
+        else {a = 0.010; b = 0;}
+      } else if (eta >= eta1 && eta < eta2) {
+        if (pt < pt1) {a = 0.027;     b = 0.0047; }
+        else if (pt>= pt1 && pt<pt2) {a = -0.023; b = 0.028;}
+        else {a = 0.002; b = 0.004;}
+      } else {
+        ATH_MSG_WARNING("getTauEfficiency: no efficiency available for eta=" << eta);
+        return 0;
+      }
+    } else if (prong == 3) {
+      if (eta < eta1) {
+        if (pt < pt1) {a = 0.006;     b = 0; }
+        else if (pt>= pt1 && pt<pt2) {a = 0.003; b = 0;}
+        else {a = 0.0001; b = 0;}
+      } else if (eta >= eta1 && eta < eta2) {
+        if (pt < pt1) {a = 0.006;     b = 0.0007; }
+        else if (pt>= pt1 && pt<pt2) {a = 0.01; b = -0.003;}
+        else {a = -0.003; b = 0.001;}
     } else {
-      ATH_MSG_WARNING("getTauFakeRate: no fake rate available for prong=" << prong << ", eta" << eta);
+        ATH_MSG_WARNING("getTauEfficiency: no efficiency available for eta=" << eta);
+        return 0;
+      }
+    } else {
+      ATH_MSG_WARNING("getTauEfficiency: no efficiency available for prong=" << prong);
       return 0;
     }
+ 
+  } else if (wp == 2) {
+    //tight working point (ID eff of 60% for 1-prong and 45% for 3-prong)
+
+    if (prong == 1) {
+      if (eta < eta1) {
+        if (pt < pt1) {a = 0.023;     b = 0; }
+        else if (pt>= pt1 && pt<pt2) {a = 0.014; b = 0;}
+        else {a = 0.004; b = 0;}
+      } else if (eta >= eta1 && eta < eta2) {
+        if (pt < pt1) {a = 0.021;     b = 0; }
+        else if (pt>= pt1 && pt<pt2) {a = 0.028; b = -0.001;}
+        else {a = 0.009; b = -0.002;}
+    } else {
+        ATH_MSG_WARNING("getTauEfficiency: no efficiency available for eta=" << eta);
+        return 0;
+      }
+    } else if (prong == 3) {
+      if (eta < eta1) {
+        if (pt < pt1) {a = 0.002;     b = 0; }
+        else if (pt>= pt1 && pt<pt2) {a = 0.001; b = 0;}
+        else {a = 0.0001; b = 0;}
+      } else if (eta >= eta1 && eta < eta2) {
+        if (pt < pt1) {a = 0.004;     b = 0; }
+        else if (pt>= pt1 && pt<pt2) {a = 0.005; b = -0.001;}
+        else {a = 0.0001; b = 0;}
+    } else {
+        ATH_MSG_WARNING("getTauEfficiency: no efficiency available for eta=" << eta);
+        return 0;
+      }
+    } else {
+      ATH_MSG_WARNING("getTauEfficiency: no efficiency available for prong=" << prong);
+      return 0;
+    }
+
   } else {
-    ATH_MSG_WARNING("getTauFakeRate: no fake rate available for prong=" << prong);
+    ATH_MSG_WARNING("getTauEfficiency: no efficiency available for this working point =" << wp);
     return 0;
   }
 
-  //loose working point (reco eff of 85% for 1-prong and 75% for 3-prong)
-  //medium working point (reco eff of 75% for 1-prong and 60% for 3-prong)
-  //tight working point (reco eff of 60% for 1-prong and 45% for 3-prong)
+  float rate = (a + b*eta) * Fake_SF_eff;
+  return rate;
 
-  if (etMeV >= pt1 && etMeV < pt2) {
-    if (wp == 0) return Fake_SF_eff * Fake_SF_1;
-    if (wp == 1) return Fake_SF_eff * Fake_SF_M * Fake_SF_1;
-    if (wp == 2) return Fake_SF_eff * Fake_SF_T * Fake_SF_1;
-  } else if (etMeV >= pt2 && etMeV < pt3) {
-    if (wp == 0) return Fake_SF_eff * Fake_SF_2;
-    if (wp == 1) return Fake_SF_eff * Fake_SF_M * Fake_SF_2;
-    if (wp == 2) return Fake_SF_eff * Fake_SF_T * Fake_SF_2;
-  } else if (etMeV >= pt3 && etMeV < pt4) {
-    if (wp == 0) return Fake_SF_eff * Fake_SF_3;
-    if (wp == 1) return Fake_SF_eff * Fake_SF_M * Fake_SF_3;
-    if (wp == 2) return Fake_SF_eff * Fake_SF_T * Fake_SF_3;
-  } else if (etMeV >= pt4 && etMeV < pt5) {
-    if (wp == 0) return Fake_SF_eff * Fake_SF_4;
-    if (wp == 1) return Fake_SF_eff * Fake_SF_M * Fake_SF_4;
-    if (wp == 2) return Fake_SF_eff * Fake_SF_T * Fake_SF_4;
-  } else if (etMeV >= pt5) {
-    if (wp == 0) return Fake_SF_eff * Fake_SF_5;
-    if (wp == 1) return Fake_SF_eff * Fake_SF_M * Fake_SF_5;
-    if (wp == 2) return Fake_SF_eff * Fake_SF_T * Fake_SF_5;
-  }
   ATH_MSG_WARNING("getTauFakeRate: no fake rate available for this tau");
   return 0.;
-}
+  }
 
 
 float UpgradePerformanceFunctions::getTauEnergyResolution(float eMeV, float eta_in, short prong) {
@@ -228,7 +321,7 @@ float UpgradePerformanceFunctions::getTauEnergyResolution(float eMeV, float eta_
   a = 0;
   b = 0;
   c = 0;
-  float eta = abs(eta_in);
+  float eta = fabs(eta_in);
 
   if (prong == 1) {
     if (eta >= 0 && eta < 0.3) {  a = 0.037;     b = 0.70;     c = 6.21; }
@@ -266,4 +359,5 @@ float UpgradePerformanceFunctions::getTauSmearedEnergy(float eMeV, float eta, sh
   return (eMeV + m_tauRandom.Gaus(0., getTauEnergyResolution(eMeV, eta, prong)));
 }
 
+}
 #endif

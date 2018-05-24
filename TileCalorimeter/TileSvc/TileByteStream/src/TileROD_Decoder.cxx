@@ -4308,7 +4308,9 @@ void TileROD_Decoder::unpack_frag40(uint32_t collid, uint32_t version, const uin
                     << " version: " << version << endmsg;
 
     int pos = coll.size() - nchan;
-    const char * strchannel[5] = { " d5L ", " d5R ", " d6L ", " d6R ", " xxx " };
+    const char * strchannel[13] = { " d5L ", " d5R ", " d6L ", " d6R ",
+                                    " xxx ", " d0x ", " d1L ", " d1R ", " d2L ", " d2R ", " d3L ", " d3R ", " xxx " };
+    int nchmax = (ros > 2) ? 4 : 8;
     for (int i = 0; i < nchan; ++i) {
       const std::vector<float> & sample = coll.at(pos + i)->samples();
       std::stringstream ss;
@@ -4317,7 +4319,7 @@ void TileROD_Decoder::unpack_frag40(uint32_t collid, uint32_t version, const uin
       }
       msg(MSG::DEBUG) << " ros:" << ros
                       << " drawer:" << drawer
-                      << " ch:" << i << strchannel[std::min(i, 4)] << ss.str() << endmsg;
+                      << " ch:" << i << strchannel[std::min(i, nchmax)+nchmax-4] << ss.str() << endmsg;
     }
   }
 
@@ -4383,11 +4385,13 @@ void TileROD_Decoder::unpack_frag41( uint32_t collid, uint32_t version, const ui
     int nbits = (version == 0) ? 32 : 16;
     msg(MSG::DEBUG) << " position of " << nbits << "-bit word inside sub-fragment 0x41: " << wpos << endmsg;
     int pos = coll.size() - nchan;
-    const char * strchannel[5] = { " d5L ", " d5R ", " d6L ", " d6R ", " xxx " };
+    const char * strchannel[13] = { " d5L ", " d5R ", " d6L ", " d6R ",
+                                    " xxx ", " d0x ", " d1L ", " d1R ", " d2L ", " d2R ", " d3L ", " d3R ", " xxx " };
+    int nchmax = (ros > 2) ? 4 : 8;
     for (int i = 0; i < nchan; ++i) {
       msg(MSG::DEBUG) << " ros:" << ros
                       << " drawer:" << drawer
-                      << " ch:" << i << strchannel[std::min(i, 4)] << coll.at(pos + i)->amplitude() << endmsg;
+                      << " ch:" << i << strchannel[std::min(i, nchmax)+nchmax-4] << coll.at(pos + i)->amplitude() << endmsg;
     }
   }
 

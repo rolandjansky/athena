@@ -3,6 +3,9 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigBtagEmulationTool/JetManager.h"
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/ElementLinkVector.h"
+
 
 using namespace Trig;
 
@@ -32,7 +35,7 @@ JetManager::JetManager(std::string name,ToolHandle<Trig::TrigDecisionTool>& trig
   std::unique_ptr< xAOD::AuxContainerBase > btagging_Containers_Aux( new xAOD::AuxContainerBase() );
   m_btagging_Containers->setStore( btagging_Containers_Aux.release() );
 
-  m_primaryVertex_Containers = std::unique_ptr< xAOD::VertexContainer >( new xAOD::VertexContainer );
+  m_primaryVertex_Containers = std::unique_ptr< xAOD::VertexContainer >( new xAOD::VertexContainer() );
   std::unique_ptr< xAOD::AuxContainerBase > primaryVertex_Containers_Aux( new xAOD::AuxContainerBase() );
   m_primaryVertex_Containers->setStore( primaryVertex_Containers_Aux.release() );
 }
@@ -124,11 +127,11 @@ bool JetManager::getTPfromCombo(std::vector< std::unique_ptr< xAOD::TrackParticl
 
 void JetManager::jetCopy( std::unique_ptr< xAOD::JetContainer >& container ) {
   for ( const xAOD::Jet *theJet : *container.get() ) 
-    m_outputJets.push_back( std::unique_ptr< TrigBtagEmulationJet >( new TrigBtagEmulationJet( theJet ) ) );
+    m_outputJets.push_back( std::unique_ptr< TrigBtagEmulationJet >( new TrigBtagEmulationJet( msg(),theJet ) ) );
 }
 void JetManager::jetCopy( std::unique_ptr< xAOD::JetRoIContainer >& container ) {
   for ( const xAOD::JetRoI *theJetRoI : *container.get() ) 
-    m_outputJets.push_back( std::unique_ptr< TrigBtagEmulationJet >( new TrigBtagEmulationJet( theJetRoI,m_uses4x4 ) ) );
+    m_outputJets.push_back( std::unique_ptr< TrigBtagEmulationJet >( new TrigBtagEmulationJet( msg(),theJetRoI,m_uses4x4 ) ) );
 }
 
 StatusCode JetManager::retagCopy(bool useNavigation,bool tagOffline,bool tagOnline) {
@@ -138,8 +141,8 @@ StatusCode JetManager::retagCopy(bool useNavigation,bool tagOffline,bool tagOnli
     std::unique_ptr< TrigBtagEmulationJet >& out = m_outputJets.at(i);
     const xAOD::BTagging *btag = m_btagging_Containers->at(i);
 
-    const double mv2c10 = btag->isAvailable<double>("MV2c10_discriminant") ? btag->auxdataConst<double>("MV2c10_discriminant") : -99 ;
-    const double mv2c20 = btag->isAvailable<double>("MV2c20_discriminant") ? btag->auxdataConst<double>("MV2c20_discriminant") : -99 ;
+    const double mv2c10 = Trig::retrieveAuxDataConst< double >( btag,"MV2c10_discriminant",-99. );
+    const double mv2c20 = Trig::retrieveAuxDataConst< double >( btag,"MV2c20_discriminant",-99. );
 
     double ip3dsv1 = btag->SV1plusIP3D_discriminant();
     double combw = (btag->IP3D_pb()/btag->IP3D_pu()) * (btag->SV1_pb()/btag->SV1_pu());
@@ -175,31 +178,31 @@ StatusCode JetManager::retagOffline() {
   if ( m_jet_Containers->size() == 0 ) return StatusCode::SUCCESS;
 
 #if !defined( XAOD_STANDALONE ) && !defined( XAOD_ANALYSIS )
-  auto pv  = m_primaryVertex_Containers->begin();
-  auto tp  = m_trackParticle_Containers.begin();
-  auto out = m_outputJets.begin();
+
+  xAOD::VertexContainer::iterator pv  = m_primaryVertex_Containers->begin();
+  std::vector<std::unique_ptr<DataVector<xAOD::TrackParticle_v1> > >::iterator tp = m_trackParticle_Containers.begin();
+  std::vector< std::unique_ptr< TrigBtagEmulationJet > >::iterator out = m_outputJets.begin();
 
   for ( xAOD::Jet *jet : *m_jet_Containers.get() ) {
-
     // Create container for copied jets
-    xAOD::JetContainer* output_jets = new xAOD::JetContainer(SG::OWN_ELEMENTS);
-    xAOD::JetAuxContainer* output_jetsAux = new xAOD::JetAuxContainer;
-    output_jets->setStore(output_jetsAux);
-
-    // Create container for SV results
-    xAOD::VertexContainer* output_svs = new xAOD::VertexContainer(SG::OWN_ELEMENTS);
-    xAOD::VertexAuxContainer* output_svsAux = new xAOD::VertexAuxContainer;
-    output_svs->setStore(output_svsAux);
-
-    // Create container for JF results
-    xAOD::BTagVertexContainer* output_jfs = new xAOD::BTagVertexContainer(SG::OWN_ELEMENTS);
-    xAOD::BTagVertexAuxContainer* output_jfsAux = new xAOD::BTagVertexAuxContainer;
-    output_jfs->setStore(output_jfsAux);
+    std::unique_ptr< xAOD::JetContainer > output_jets( new xAOD::JetContainer(SG::OWN_ELEMENTS) );
+    std::unique_ptr< xAOD::JetAuxContainer > output_jetsAux( new xAOD::JetAuxContainer );
+    output_jets->setStore( output_jetsAux.release() );
 
     // Create container for new BTagging info
-    xAOD::BTaggingContainer* output_btags = new xAOD::BTaggingContainer(SG::OWN_ELEMENTS);
-    xAOD::BTaggingAuxContainer* output_btagsAux = new xAOD::BTaggingAuxContainer;
-    output_btags->setStore(output_btagsAux);
+    std::unique_ptr< xAOD::BTaggingContainer > output_btags( new xAOD::BTaggingContainer(SG::OWN_ELEMENTS) );
+    std::unique_ptr< xAOD::BTaggingAuxContainer > output_btagsAux( new xAOD::BTaggingAuxContainer() );
+    output_btags->setStore( output_btagsAux.release() );
+
+    // Create container for SV results
+    std::unique_ptr< xAOD::VertexContainer > output_svs( new xAOD::VertexContainer(SG::OWN_ELEMENTS) );
+    std::unique_ptr< xAOD::VertexAuxContainer > output_svsAux( new xAOD::VertexAuxContainer() );
+    output_svs->setStore( output_svsAux.release() );
+
+    // Create container for JF results
+    std::unique_ptr< xAOD::BTagVertexContainer > output_jfs( new xAOD::BTagVertexContainer(SG::OWN_ELEMENTS) );
+    std::unique_ptr< xAOD::BTagVertexAuxContainer > output_jfsAux( new xAOD::BTagVertexAuxContainer() );
+    output_jfs->setStore( output_jfsAux.release() );
 
     // Create jet copy
     xAOD::Jet* output_jet = new xAOD::Jet;
@@ -212,8 +215,8 @@ StatusCode JetManager::retagOffline() {
 
     // Link the BTagging objects to the corresponding Jet
     ElementLink<xAOD::BTaggingContainer> linkBTagger;
-    linkBTagger.toContainedElement(*output_btags, output_btag);
-    output_jet->setBTaggingLink(linkBTagger);
+    linkBTagger.toContainedElement( *output_btags.get(), output_btag );
+    output_jet->setBTaggingLink( linkBTagger );
 
     // Get PV
     const xAOD::Vertex* primaryVertex = *pv;
@@ -223,7 +226,39 @@ StatusCode JetManager::retagOffline() {
     if (!m_bTagTrackAssocTool->empty()) {
       std::vector<xAOD::Jet*> jetsList;
       jetsList.push_back(output_jet);
-      sc = (*m_bTagTrackAssocTool)->BTagTrackAssociation_exec( &jetsList, tp->get() ); 
+
+      // ==========================================
+      // There is need of some work in order to accomodate the new track to jet associator interface
+      // Make a copy container
+      std::unique_ptr< xAOD::TrackParticleContainer > toBeSaved( new xAOD::TrackParticleContainer() );
+      std::unique_ptr< xAOD::AuxContainerBase > toBeSavedAux( new xAOD::AuxContainerBase() );
+      toBeSaved->setStore( toBeSavedAux.release() );
+
+      for ( const xAOD::TrackParticle *particle : *tp->get() ) {
+	xAOD::TrackParticle *newParticle = new xAOD::TrackParticle();
+	toBeSaved->push_back(newParticle);
+	*newParticle = *particle;
+      }
+
+      // Create Element Link
+      std::vector< ElementLink< xAOD::IParticleContainer > > toBeUsed;  
+      for ( const auto& particle : *toBeSaved.get() ) { 
+	ElementLink< xAOD::IParticleContainer > cellLink; 
+	cellLink.toContainedElement( *toBeSaved.get(),particle ); 
+	toBeUsed.push_back( cellLink );   
+      }
+
+      // Save this copy
+      if ( evtStore()->contains< xAOD::TrackParticleContainer >("TrigBtagEmulationTool_RetaggingTracks") )
+	CHECK( evtStore()->overwrite( toBeSaved.release(),"TrigBtagEmulationTool_RetaggingTracks" ) );
+      else 
+	CHECK( evtStore()->record( toBeSaved.release(),"TrigBtagEmulationTool_RetaggingTracks" ) );
+
+      output_jet->auxdata< std::vector< ElementLink< xAOD::IParticleContainer > > >("MatchedTracks") = toBeUsed;      
+      // ==========================================
+
+      sc = (*m_bTagTrackAssocTool)->BTagTrackAssociation_exec(&jetsList);
+
     }
     else {
       ATH_MSG_WARNING( "#BTAG# Empty track association tool" );
@@ -234,7 +269,7 @@ StatusCode JetManager::retagOffline() {
     }
 
     // Execute secondary vertexing
-    sc = (*m_bTagSecVtxTool)->BTagSecVtx_exec(*output_jet, output_btag, output_svs, output_jfs, primaryVertex);
+    sc = (*m_bTagSecVtxTool)->BTagSecVtx_exec(*output_jet, output_btag, output_svs.get(), output_jfs.get(), primaryVertex);
     if (sc.isFailure()) {
       ATH_MSG_ERROR( "#BTAG# Failed to reconstruct sec vtx" );
       return sc;
@@ -257,16 +292,11 @@ StatusCode JetManager::retagOffline() {
     (*out)->weights( "MV2c10",mv2c10 );    
     (*out)->weights( "MV2c20",mv2c20 );
 
-    // Delete new objects
-    delete output_jets; delete output_jetsAux;
-    delete output_svs; delete output_svsAux;
-    delete output_jfs; delete output_jfsAux;
-    delete output_btags; delete output_btagsAux;
-
     // Increment
-    pv++; tp++; out++;
+    pv++; tp++; out++; 
   }
 #endif
+
   return StatusCode::SUCCESS;
 }
 
@@ -282,9 +312,10 @@ std::vector< std::unique_ptr< TrigBtagEmulationJet > > JetManager::getJets() {
 
 
 JetManager& JetManager::merge(const std::unique_ptr< JetManager >& other) { return merge( other->m_jet_Containers ); }
+JetManager& JetManager::merge(const std::unique_ptr< JetManager >& other,double minPt,double maxPt) { return merge( other->m_jet_Containers,minPt,maxPt ); }
 JetManager& JetManager::merge( std::unique_ptr< xAOD::JetContainer >& jets, double minPt, double maxPt) {
   for ( const xAOD::Jet* jet : *jets.get() ) {
-    std::unique_ptr< TrigBtagEmulationJet > backupJet( new TrigBtagEmulationJet( jet ) );
+    std::unique_ptr< TrigBtagEmulationJet > backupJet( new TrigBtagEmulationJet( msg(),jet ) );
     backupJet->weights( "MV2c10" ,-1 );
     backupJet->weights( "MV2c20" ,-1 );
     backupJet->weights( "IP3DSV1",-1000 );
@@ -412,8 +443,8 @@ StatusCode JetManager::retrieveByContainer() {
   for (const xAOD::BTagging *bjet : *theBTaggingContainer) {
     // Check if BTagging object is of the required type 
     bool selectOffline  = (m_chain.find("off")!=std::string::npos);
-    const double mv2c10 = bjet->isAvailable<double>("MV2c10_discriminant") ? bjet->auxdataConst<double>("MV2c10_discriminant") : 0;
-    const double mv2c20 = bjet->isAvailable<double>("MV2c20_discriminant") ? bjet->auxdataConst<double>("MV2c20_discriminant") : 0;
+    const double mv2c10 = Trig::retrieveAuxDataConst< double >( bjet,"MV2c10_discriminant",0. );
+    const double mv2c20 = Trig::retrieveAuxDataConst< double >( bjet,"MV2c20_discriminant",0. );
     if ((selectOffline && mv2c20==0 && mv2c10==0) || (!selectOffline && (mv2c20!=0 || mv2c10!=0)) ) continue;
 
     // Get address of linked Jet and type of link  
@@ -422,7 +453,7 @@ StatusCode JetManager::retrieveByContainer() {
     // First Method for retrieving jet-btag link 
     try {
       if ( bjet->isAvailable<std::vector<ElementLink<xAOD::JetContainer> > >("BTagBtagToJetAssociator") ) {
-	const auto &jetLink = bjet->auxdataConst<std::vector<ElementLink<xAOD::JetContainer> > >("BTagBtagToJetAssociator");
+	const auto &jetLink = Trig::retrieveAuxDataConst< std::vector< ElementLink< xAOD::JetContainer > > >( bjet,"BTagBtagToJetAssociator" );
 	if ( jetLink.size() > 0 && jetLink.at(0).isValid() ) {
 	    btaggedJet = *jetLink.at(0);
 	    goodLink=true;
@@ -432,7 +463,7 @@ StatusCode JetManager::retrieveByContainer() {
     // Second Method for retrieving jet-btag link 
     try {
       if ( bjet->isAvailable<std::vector<ElementLink<xAOD::IParticleContainer> > >("BTagBtagToJetAssociator")) {
-	const auto &jetLink = bjet->auxdataConst<std::vector<ElementLink<xAOD::IParticleContainer> > >("BTagBtagToJetAssociator");
+	const auto &jetLink = Trig::retrieveAuxDataConst< std::vector< ElementLink< xAOD::IParticleContainer > > >( bjet,"BTagBtagToJetAssociator" );
 	if ( jetLink.size() > 0 && jetLink.at(0).isValid() ) {
 	    btaggedJet = static_cast<const xAOD::Jet*>( *jetLink.at(0) );
 	    goodLink=true;
@@ -496,3 +527,20 @@ bool JetManager::matchedSPLITjet(const xAOD::Jet* splitJet,const xAOD::Jet* gscJ
 }
 
 //**********************************************************************
+
+template<typename T,typename U>
+T Trig::retrieveAuxData( const U * storable,const std::string& name, T defaultValue ) {
+  if ( storable->template isAvailable<T>( name.c_str() ) )
+    return storable->template auxdata<T>( name.c_str() );
+  return defaultValue;
+}
+
+template<typename T,typename U>
+const T Trig::retrieveAuxDataConst( const U * storable,const std::string& name, const T defaultValue ) {
+  if ( storable->template isAvailable<T>( name.c_str() ) )
+    return storable->template auxdataConst<T>( name.c_str() );
+  return defaultValue;
+}
+
+//**********************************************************************   
+

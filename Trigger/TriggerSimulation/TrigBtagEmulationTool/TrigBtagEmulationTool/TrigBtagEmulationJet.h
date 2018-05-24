@@ -11,13 +11,16 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #include "xAODJet/JetContainer.h"
 #include "xAODTrigger/JetRoIContainer.h"
 
+#include "AsgTools/MsgStream.h"
+#include "AsgTools/MsgStreamMacros.h"
+
 namespace Trig {
 
   class TrigBtagEmulationJet {
   public:
-    TrigBtagEmulationJet();
-    TrigBtagEmulationJet(const xAOD::Jet*);
-    TrigBtagEmulationJet(const xAOD::JetRoI*,bool isJJ = false);
+    TrigBtagEmulationJet(MsgStream&);
+    TrigBtagEmulationJet(MsgStream&,const xAOD::Jet*);
+    TrigBtagEmulationJet(MsgStream&,const xAOD::JetRoI*,bool isJJ = false);
     TrigBtagEmulationJet(const TrigBtagEmulationJet&);
     ~TrigBtagEmulationJet();
 
@@ -32,6 +35,10 @@ namespace Trig {
     xAOD::Jet* jet() const;
 
   protected:
+    MsgStream& msg() const;
+    MsgStream& msg( const MSG::Level lvl ) const;
+
+  protected:
     std::unique_ptr< xAOD::Jet > m_jet;
     std::unique_ptr< xAOD::JetRoI > m_jetRoI;
 
@@ -40,6 +47,8 @@ namespace Trig {
     double m_phi;
 
     std::map< std::string , double > m_weights;
+
+    MsgStream &m_msg;
   };
 
 } //namespace

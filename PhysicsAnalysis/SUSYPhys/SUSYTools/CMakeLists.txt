@@ -105,6 +105,7 @@ atlas_add_library( SUSYToolsLib
 if( NOT XAOD_STANDALONE )
    atlas_add_component( SUSYTools
       src/*.h src/*.cxx src/components/*.cxx
+      NOCLID
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel
       AthenaKernel AthAnalysisBaseCompsLib xAODEventInfo xAODMuon xAODPrimitives

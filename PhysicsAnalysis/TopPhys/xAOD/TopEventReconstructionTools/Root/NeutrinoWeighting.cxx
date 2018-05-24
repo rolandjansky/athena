@@ -1,10 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TopEventReconstructionTools/NeutrinoWeighting.h"
 
 #include "TopEvent/Event.h"
+
+#include <cmath>
 
 namespace top {
 
@@ -15,8 +17,8 @@ NeutrinoWeighting::NeutrinoWeighting() : sigmax(10), sigmay(10) {
     int index = 0;
     for (double eta = -5.0; eta < 5.0001; eta += etaStep) {
         neutrinos[index][0] = eta;
-        neutrinos[index][1] = sinh(eta);
-        neutrinos[index][2] = cosh(eta);
+        neutrinos[index][1] = std::sinh(eta);
+        neutrinos[index][2] = std::cosh(eta);
         ++index;
     }
 
@@ -52,7 +54,7 @@ bool NeutrinoWeighting::apply(const top::Event& event) const {
                  const double sol3 = neutrino_weight(ans1.getv2(), ans2.getv1(), met_ex, met_ey);
                  const double sol4 = neutrino_weight(ans1.getv2(), ans2.getv2(), met_ex, met_ey);
 
-                 if (isnan(sol1) || isnan(sol2) || isnan(sol3) || isnan(sol4))
+                 if (std::isnan(sol1) || std::isnan(sol2) || std::isnan(sol3) || std::isnan(sol4))
                      std::cout << "One of the quadratic ans is NaN!" << std::endl;
              }
 
@@ -65,7 +67,7 @@ bool NeutrinoWeighting::apply(const top::Event& event) const {
                  const double sol3 = neutrino_weight(ans1.getv2(), ans2.getv1(), met_ex, met_ey);
                  const double sol4 = neutrino_weight(ans1.getv2(), ans2.getv2(), met_ex, met_ey);
 
-                 if (isnan(sol1) || isnan(sol2) || isnan(sol3) || isnan(sol4))
+                 if (std::isnan(sol1) || std::isnan(sol2) || std::isnan(sol3) || std::isnan(sol4))
                      std::cout << "One of the quadratic ans is NaN!" << std::endl;
              }
          }
@@ -97,15 +99,15 @@ NWSolution NeutrinoWeighting::solveForNeutrinoEta(const TLorentzVector& lepton, 
     sol.setSolutions(0);
 
     if (det > 0.) {
-        double tmp = sqrt(det) / (2. * C);
+        double tmp = std::sqrt(det) / (2. * C);
         double py1 = -D / (2. * C) + tmp;
         double py2 = -D / (2. * C) - tmp;
         double px1 = A * py1 + B;
         double px2 = A * py2 + B;
         double pT2_1 = px1 * px1 + py1 * py1;
         double pT2_2 = px2 * px2 + py2 * py2;
-        double pz1 = sqrt(pT2_1) * neutrinos[index][1];
-        double pz2 = sqrt(pT2_2) * neutrinos[index][1];
+        double pz1 = std::sqrt(pT2_1) * neutrinos[index][1];
+        double pz2 = std::sqrt(pT2_2) * neutrinos[index][1];
 
         TLorentzVector a1(px1, py1, pz1, sqrt(pT2_1 + pz1 * pz1));
         TLorentzVector a2(px2, py2, pz2, sqrt(pT2_2 + pz2 * pz2));

@@ -229,7 +229,7 @@ StatusCode TrigBtagEmulationTool::initialize() {
 	chainDefinition.push_back( Form("EMUL_%s",token.c_str()) );
     }
 
-    TrigBtagEmulationChain chain(TrigBtagEmulationChain(chainDefinition,m_trigDec));
+    TrigBtagEmulationChain chain( TrigBtagEmulationChain(msg(),chainDefinition,m_trigDec) );
 
     if ( chain.isAutoConfigured() ) {
       ATH_MSG_INFO( "AUTOMATIC PARSER has been activated for trigger chain : " << chain.getName() );
@@ -343,10 +343,10 @@ StatusCode TrigBtagEmulationTool::execute() {
   // BACKUP NON-CENTRAL JET INFO FOR SPLIT CHAINS  
   m_manager_ef->merge( m_manager_split );
   m_manager_split->merge( m_manager_ef );
-  m_manager_ef->merge( m_manager_HT ); 
-  m_manager_split->merge( m_manager_HT ); 
+  m_manager_ef->merge( m_manager_HT,15 * 1e3 );
+  m_manager_split->merge( m_manager_HT,15 * 1e3 ); 
 
-  if ( this->hasGSC() ) m_manager_split_gsc->merge( m_manager_HT ); 
+  if ( this->hasGSC() ) m_manager_split_gsc->merge( m_manager_HT,15 * 1e3 ); 
 
 
   // Clearing jets
@@ -362,7 +362,6 @@ StatusCode TrigBtagEmulationTool::execute() {
   // EVALUATE EMULATED CHAINS
   for (auto & emulatedChain : m_emulatedChains) 
     emulatedChain.second.evaluate();
-
 
   if (m_verbosity > 0) {
     // DUMP L1 JETS
@@ -404,7 +403,7 @@ StatusCode TrigBtagEmulationTool::execute() {
     // DUMP EMULATED DECISIONS
     ATH_MSG_INFO ("Emulated decisions");
     for (auto& emulatedChain : m_emulatedChains) {
-      if (m_verbosity > 1) emulatedChain.second.Print();
+      if (m_verbosity > 1) emulatedChain.second.print();
       ATH_MSG_INFO ("  Chain --- name=" << emulatedChain.first << " result=" << (int)emulatedChain.second.isPassed());
     }
     
@@ -428,7 +427,7 @@ StatusCode TrigBtagEmulationTool::addEmulatedChain(const std::vector<std::string
   checkTriggerChain(chainDescription);
 
   // Create chain and add it to the list
-  TrigBtagEmulationChain chain(TrigBtagEmulationChain(chainDescription,m_trigDec));
+  TrigBtagEmulationChain chain( TrigBtagEmulationChain(msg(),chainDescription,m_trigDec) );
   // Check it has been auto configured
 
   if ( chain.isAutoConfigured() ) {

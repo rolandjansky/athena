@@ -121,8 +121,8 @@ StatusCode SUSYObjDef_xAOD::FillMuon(xAOD::Muon& input, float ptcut, float etacu
   dec_passSignalID(input) = false;
        
   // don't bother calibrating or computing WP
-  if ( input.pt() < 4e3 ) return StatusCode::SUCCESS;
-  
+  if ( input.pt() < 3e3 ) return StatusCode::SUCCESS;
+
   ATH_MSG_VERBOSE( "MUON pt before calibration " << input.pt() );
 
   ATH_MSG_VERBOSE( "MUON eta  = " << input.eta() );
@@ -272,8 +272,8 @@ bool SUSYObjDef_xAOD::IsHighPtMuon(const xAOD::Muon& input) const
 //     https://indico.cern.ch/event/397325/contribution/19/material/slides/0.pdf and 
 //     https://twiki.cern.ch/twiki/bin/view/Atlas/MuonSelectionTool
 {
-  if (input.pt() < 4e3){
-    ATH_MSG_DEBUG("No HighPt check supported for muons below 4GeV! False.");
+  if (input.pt() < 3e3){
+    ATH_MSG_DEBUG("No HighPt check supported for muons below 3GeV! False.");
     dec_passedHighPtCuts(input) = false;
     return false;
   }
@@ -387,6 +387,10 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
 
   if (isoSF) {
     float sf_iso(1.);
+    if ( mu.pt() < 4e3 ) {
+      ATH_MSG_WARNING( "Muon pt: " << mu.pt()/1000. << "! Isolation SF is not available for Muon pt < 4GeV. Falling back to SF = 1." );
+      return 1;
+    } 
     if (m_muonIsolationSFTool.empty()) {
       ATH_MSG_WARNING(" GetSignalMuonSF: Attempt to retrieve isolation SF for unsupported working point " << m_muIso_WP);
     } else {
@@ -406,6 +410,11 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
 double SUSYObjDef_xAOD::GetMuonTriggerEfficiency(const xAOD::Muon& mu, const std::string& trigExpr, const bool isdata) {
 
   double eff(1.);
+
+  if ( mu.pt() < 4e3 ) {
+    ATH_MSG_WARNING( "Muon pt: " << mu.pt()/1000. << "! Trigger Eff is not available for Muon pt < 4GeV. Falling back to Eff = 1." );
+    return 1;
+  } 
   if (m_muonTriggerSFTool->getTriggerEfficiency(mu, eff, trigExpr, isdata) != CP::CorrectionCode::Ok) {
     ATH_MSG_WARNING("Problem retrieving signal muon trigger efficiency for " << trigExpr );
   }

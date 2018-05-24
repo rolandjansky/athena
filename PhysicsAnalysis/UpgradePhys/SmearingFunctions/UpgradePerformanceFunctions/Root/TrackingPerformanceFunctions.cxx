@@ -17,6 +17,8 @@ double ITKPercentageresol_ExtBrl(double ptMeV, double eta);
 double ITKPercentageresol_InclBrl(double ptMeV, double eta);
 }
 
+namespace Upgrade {
+
 float UpgradePerformanceFunctions::getTrackPtResolution(float ptMeV, float eta) {
   using namespace UpgradePerformance;
 
@@ -102,6 +104,7 @@ float UpgradePerformanceFunctions::getTrackPtRelativeResolution(float ptMeV, flo
   return 0.;
 }
 
+}
 
 // Fractional resolution in %
 double UpgradePerformance::ITKPercentageresol_LoIVFfix(double ptMeV, double eta) {

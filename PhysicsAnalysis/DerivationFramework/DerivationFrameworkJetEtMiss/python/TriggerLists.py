@@ -35,8 +35,7 @@ def multi_mu_Trig():
 
 # xe triggers (prescaled and unprescaled)
 def MET_Trig():
-	MET_Triggers = TriggerAPI.getAllHLT(TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.future, TriggerType.xe)
-	API_MET_Triggers = list(MET_Triggers.keys())
+	API_MET_Triggers = TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2015, TriggerType.xe) + TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2016, TriggerType.xe) + TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017, TriggerType.xe) + TriggerAPI.getLowestUnprescaled(TriggerPeriod.future, TriggerType.xe)
 	return API_MET_Triggers
 
 # photon triggers (prescaled and unprescaled)

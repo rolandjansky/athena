@@ -41,8 +41,8 @@ StatusCode HadElBuilder::execute()
   xAOD::DiTauJetAuxContainer* xDiTauJetAuxContainerHadEl  = new xAOD::DiTauJetAuxContainer();
   xDiTauJetContainerHadEl->setStore(xDiTauJetAuxContainerHadEl);
   
-  CHECK(evtStore()->record(xDiTauJetContainerHadEl, m_sDiTauHadElContainerName));
-  CHECK(evtStore()->record(xDiTauJetAuxContainerHadEl, m_sDiTauHadElAuxContainerName));
+  ATH_CHECK(evtStore()->record(xDiTauJetContainerHadEl, m_sDiTauHadElContainerName));
+  ATH_CHECK(evtStore()->record(xDiTauJetAuxContainerHadEl, m_sDiTauHadElAuxContainerName));
     
   const xAOD::ElectronContainer* electronContainer = evtStore()->retrieve<const xAOD::ElectronContainer>(m_sElectronContainerName);
   const xAOD::DiTauJetContainer* xDiTauContainer = evtStore()->retrieve<const xAOD::DiTauJetContainer>(m_sHadHadDiTauContainerName);

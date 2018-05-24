@@ -260,13 +260,15 @@ namespace DerivationFramework {
 					   usedVtxTracks.push_back( *muon->inDetTrackParticleLink() );
 					   extrVtxMuons.push_back(muonref);
 				   }else{
-					   //If working with the cluster failed, try extrapolating the track
-					   if(extrapolateTrack(muonref, *muon)){ //This does not use the muonic cluster, but uses both its tracks to determine a precise position
-						   vtxMuonCluster.push_back(clus); //Note clus can also be NULL (for if it's not in the cone there is no point to fret)
-						   vtxMuons.push_back(muon);
-					   	   usedVtxTracks.push_back( *muon->inDetTrackParticleLink() );
-						   extrVtxMuons.push_back(muonref);
-					   }
+				     ATH_MSG_DEBUG("Cannot find clusters. Would need a consistent set of Trk::Tracks to run extrapolation.");
+
+					   // //If working with the cluster failed, try extrapolating the track
+					   // if(extrapolateTrack(muonref, *muon)){ //This does not use the muonic cluster, but uses both its tracks to determine a precise position
+					   // 	   vtxMuonCluster.push_back(clus); //Note clus can also be NULL (for if it's not in the cone there is no point to fret)
+					   // 	   vtxMuons.push_back(muon);
+					   // 	   usedVtxTracks.push_back( *muon->inDetTrackParticleLink() );
+					   // 	   extrVtxMuons.push_back(muonref);
+					   //}
 				   }
 	    	}
 	    }

@@ -291,10 +291,10 @@ if not "HIGG5D2Jets" in OutputJets:
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 #====================================================================
 
-addVRJets(higg5d2Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet", 
-          VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", 
-          ghostArea = 0 , ptmin = 2000, ptminFilter = 7000, 
-          variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
+addVRJets(higg5d2Seq)
+# Also add Hbb Tagger
+addHbbTagger(higg5d2Seq, ToolSvc)
 
 #===================================================================
 # Run b-tagging
@@ -379,6 +379,8 @@ if DerivationFrameworkIsMonteCarlo :
 
 
 HIGG5D2SlimmingHelper.ExtraVariables = ExtraContent
+HIGG5D2SlimmingHelper.ExtraVariables.append(
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore")
 HIGG5D2SlimmingHelper.AllVariables = ExtraContainers
 # HIGG5D2SlimmingHelper.AllVariables += ["AntiKtVR30Rmax4Rmin02TrackJets", "BTagging_AntiKtVR30Rmax4Rmin02Track"]
 if DerivationFrameworkIsMonteCarlo :

@@ -9,13 +9,7 @@
 #include "PathResolver/PathResolver.h"
 #include "TSystem.h"
 
-
-void UpgradePerformanceFunctions::setMuonWorkingPoint(MuonCutLevel cutLevel) {
-  m_muonCutLevel = cutLevel;
-}
-void UpgradePerformanceFunctions::setMuonHighEtaTagger(bool useIt){
-  m_useMuonHighEta = useIt;
-}
+namespace Upgrade {
 
 float UpgradePerformanceFunctions::getMuonEfficiency(float ptMeV, float eta, float phi){
 
@@ -163,7 +157,7 @@ bool UpgradePerformanceFunctions::setupMuonEffProvider(){
     std::string inputPath = PathResolverFindCalibFile( inputfile );
     const std::string inDir = gSystem->DirName(inputPath.c_str());
     const std::string inFile = gSystem->BaseName(inputPath.c_str());
-    m_muonEff = std::unique_ptr<MuonEffProvider>(new MuonEffProvider());
+    m_muonEff = std::unique_ptr<MuonEffProvider>(new MuonEffProvider("UpgradeMuonEfficiencyProvider"));
     if (!m_muonEff->initialize(inDir,inFile, m_useMuonHighEta)){
       ATH_MSG_ERROR("Trouble initializing the efficiency provider for our muons ");
       return false;
@@ -171,5 +165,6 @@ bool UpgradePerformanceFunctions::setupMuonEffProvider(){
     return true;
 }
 
+}
 
 #endif

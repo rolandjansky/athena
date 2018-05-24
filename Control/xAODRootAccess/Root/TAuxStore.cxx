@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: TAuxStore.cxx 797214 2017-02-14 19:51:39Z ssnyder $
 
 // System include(s):
 #include <string.h>
@@ -15,6 +13,7 @@
 #include <TBranch.h>
 #include <TString.h>
 #include <TClass.h>
+#include <TROOT.h>
 #include <TVirtualCollectionProxy.h>
 
 // EDM include(s):
@@ -32,6 +31,23 @@
 #include "xAODRootAccess/tools/Message.h"
 #include "xAODRootAccess/tools/TAuxVectorFactory.h"
 #include "xAODRootAccess/tools/ReturnCheck.h"
+
+namespace {
+
+
+TClass* lookupVectorType (TClass *cl)
+{
+  std::string tname = cl->GetName();
+  tname += "::vector_type";
+  TDataType* typ = gROOT->GetType (tname.c_str());
+  if (typ)
+    return TClass::GetClass (typ->GetFullTypeName());
+  return nullptr;
+}
+
+
+}
+
 
 namespace xAOD {
 
@@ -973,6 +989,17 @@ namespace xAOD {
          if( ! containerBranch ) {
             m_vecs[ auxid ]->resize( 1 );
          }
+         if (clDummy && strncmp (clDummy->GetName(), "SG::PackedContainer<", 20) == 0) {
+           SG::IAuxTypeVector* packed = m_vecs[ auxid ]->toPacked();
+           if( ! packed ) {
+              ::Error( "xAOD::TAuxStore::setupInputData",
+                       XAOD_MESSAGE( "No packed vector object available for "
+                                     "type %s" ), clDummy->GetName() );
+              return TReturnCode::kFailure;
+           }
+           std::swap (m_vecs[ auxid ], packed);
+           delete packed;
+         }
       } else {
          ::Error( "xAOD::TAuxStore::setupInputData",
                   XAOD_MESSAGE( "Couldn't create in-memory vector for "
@@ -984,7 +1011,10 @@ namespace xAOD {
 
       // Create a new branch handle:
       m_branches[ auxid ] = new TBranchHandle( staticBranch, primitiveBranch,
-                                               brType,
+                                               ( ( containerBranch &&
+                                                   m_vecs[ auxid ]->objType() ) ?
+                                                 m_vecs[ auxid ]->objType() :
+                                                 brType ),
                                                ( containerBranch ?
                                                  m_vecs[ auxid ]->toVector() :
                                                  m_vecs[ auxid ]->toPtr() ),
@@ -1190,9 +1220,13 @@ namespace xAOD {
               SG::AuxTypeRegistry::instance().getVecType( auxid ) :
               SG::AuxTypeRegistry::instance().getType( auxid ) );
          // Create the handle object:
+         bool primitiveBranch = (strlen( brType->name() ) == 1);
          m_branches[ auxid ] =
             new TBranchHandle( kFALSE, ( strlen( brType->name() ) == 1 ),
-                               brType,
+                               ( ( primitiveBranch ||
+                                   ! m_vecs[ auxid ]->objType() ) ?
+                                 brType :
+                                 m_vecs[ auxid ]->objType() ),
                                ( m_structMode == kObjectStore ?
                                  m_vecs[ auxid ]->toPtr() :
                                  m_vecs[ auxid ]->toVector() ),
@@ -1475,7 +1509,14 @@ namespace xAOD {
          } else {
             ::TVirtualCollectionProxy* prox =
                expectedClass->GetCollectionProxy();
-            if( ! prox ) {
+
+           if (!prox) {
+             TClass* cl2 = lookupVectorType (expectedClass);
+             if (cl2)
+               prox = cl2->GetCollectionProxy();
+           }
+
+           if( ! prox ) {
                if( ( ! staticBranch ) ||
                    ( strncmp( auxName, "m_", 2 ) != 0 ) ) {
                   ::Warning( "xAOD::TAuxStore::setupAuxBranch",
@@ -1727,6 +1768,26 @@ namespace xAOD {
       if( cl->GetCollectionProxy() &&
           ( *aux_vec_ti == typeid( std::vector< int > ) ) ) {
          return kTRUE;
+      }
+
+      if (cl) {
+        TClass* cl2 = lookupVectorType (cl);
+        if (cl2) {
+          if (*cl2->GetTypeInfo() == *aux_vec_ti)
+            return kTRUE;
+        }
+      }
+
+      // As a final effort, try to compare the names of the types. This can
+      // end up being needed in some situations... I'm checking for the vector
+      // type first on purpose, as it's a slow check, and it's more likely
+      // that we're looking at a vector type.
+      if( Utils::getTypeName( *root_ti ) ==
+          Utils::getTypeName( *aux_vec_ti ) ) {
+         return kTRUE;
+      } else if( Utils::getTypeName( *root_ti ) ==
+                 Utils::getTypeName( *aux_obj_ti ) ) {
+         return kFALSE;
       }
 
       // If neither, then something went wrong...

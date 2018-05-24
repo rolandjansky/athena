@@ -16,11 +16,14 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #include <tuple>
 #include <queue>
 
+#include "AsgTools/MsgStream.h"
+#include "AsgTools/MsgStreamMacros.h"
+
 namespace Trig {
 
   class TriggerFeature {
   public:
-    TriggerFeature(int type = TriggerFeature::UNKNOWN,std::string name = "NONE");
+    TriggerFeature(MsgStream&,int type = TriggerFeature::UNKNOWN,std::string name = "NONE");
     TriggerFeature(const TriggerFeature&);
     virtual ~TriggerFeature();
 
@@ -28,12 +31,16 @@ namespace Trig {
     virtual bool isPassed() const = 0;
     virtual bool evaluateJet(const TrigBtagEmulationJet&) = 0;
     virtual void clear() = 0;
-    virtual void Print() = 0;
+    virtual void print() = 0;
     virtual void setCuts(float,float,float) {}
 
     virtual float getCut() const = 0;
 
     virtual std::unique_ptr< TriggerFeature > uniqueClone() const = 0;
+
+  protected:
+    MsgStream& msg() const;
+    MsgStream& msg( const MSG::Level lvl ) const;
 
   protected:
     enum JetElement {PT,ETA,PHI};
@@ -45,20 +52,23 @@ namespace Trig {
     static const int UNKNOWN    = -1;
     static const int THRESHOLD  =  0;
     static const int SELECTION  =  1;
+
+  protected:
+    MsgStream &m_msg;
   };
 
   // *** B-TAG
 
   class TriggerFeatureBtag : public TriggerFeature {
   public:
-    TriggerFeatureBtag(std::string name = "NONE",float weight = -1000);
+    TriggerFeatureBtag(MsgStream&,std::string name = "NONE",float weight = -1000);
     TriggerFeatureBtag(const TriggerFeatureBtag&);
     virtual ~TriggerFeatureBtag();
 
     virtual bool isPassed() const;
     virtual bool evaluateJet(const TrigBtagEmulationJet&);
     virtual void clear();
-    virtual void Print();
+    virtual void print();
 
     virtual float getCut() const;
 
@@ -95,12 +105,12 @@ namespace Trig {
 
   class TriggerFeatureAntiBtag : public TriggerFeatureBtag {
   public:
-    TriggerFeatureAntiBtag(std::string name = "NONE",float weight = 1000);
+    TriggerFeatureAntiBtag(MsgStream&,std::string name = "NONE",float weight = 1000);
     TriggerFeatureAntiBtag(const TriggerFeatureAntiBtag&);
     virtual ~TriggerFeatureAntiBtag();
 
     virtual bool evaluateJet(const TrigBtagEmulationJet&);
-    virtual void Print();
+    virtual void print();
   };
 
 
@@ -108,14 +118,14 @@ namespace Trig {
  
   class TriggerFeatureHt : public TriggerFeature {
   public:
-    TriggerFeatureHt(std::string triggerLevel = "L1",std::string name = "NONE", float ht = 0);
+    TriggerFeatureHt(MsgStream&,std::string triggerLevel = "L1",std::string name = "NONE", float ht = 0);
     TriggerFeatureHt(const TriggerFeatureHt&);
     virtual ~TriggerFeatureHt();
 
     virtual bool isPassed() const;
     virtual bool evaluateJet(const TrigBtagEmulationJet&);
     virtual void clear();
-    virtual void Print();
+    virtual void print();
     virtual void setCuts(float,float,float);
     virtual float getCut() const;
 
@@ -147,12 +157,12 @@ namespace Trig {
 
   class TriggerFeatureHtTop : public TriggerFeatureHt {
   public:
-    TriggerFeatureHtTop(std::string triggerLevel = "L1",std::string name = "NONE", float ht = 0, unsigned int topEt = 0);
+    TriggerFeatureHtTop(MsgStream&,std::string triggerLevel = "L1",std::string name = "NONE", float ht = 0, unsigned int topEt = 0);
     TriggerFeatureHtTop(const TriggerFeatureHtTop&);
     virtual ~TriggerFeatureHtTop();
     
     virtual void clear();
-    virtual void Print();
+    virtual void print();
 
     virtual std::unique_ptr< TriggerFeature > uniqueClone() const;
 
@@ -170,14 +180,14 @@ namespace Trig {
   // *** INVM
   class TriggerFeatureInvm : public TriggerFeature {
   public:
-    TriggerFeatureInvm(std::string triggerLevel = "L1",std::string name = "NONE", float min_invm = 0);
+    TriggerFeatureInvm(MsgStream&,std::string triggerLevel = "L1",std::string name = "NONE", float min_invm = 0);
     TriggerFeatureInvm(const TriggerFeatureInvm&);
     virtual ~TriggerFeatureInvm();
 
     virtual bool isPassed() const;
     virtual bool evaluateJet(const TrigBtagEmulationJet&);
     virtual void clear();
-    virtual void Print();
+    virtual void print();
     virtual void setCuts(float,float,float);
     virtual float getCut() const;
 
@@ -218,11 +228,11 @@ namespace Trig {
   // *** INVM CF
   class TriggerFeatureInvmCF : public TriggerFeatureInvm {
   public:
-    TriggerFeatureInvmCF(std::string triggerLevel = "L1",std::string name = "NONE", float min_invm = 0);
+    TriggerFeatureInvmCF(MsgStream&,std::string triggerLevel = "L1",std::string name = "NONE", float min_invm = 0);
     TriggerFeatureInvmCF(const TriggerFeatureInvmCF&);
     virtual ~TriggerFeatureInvmCF();
 
-    virtual void Print();
+    virtual void print();
 
   private:
     virtual bool evaluateJet_L1(const TrigBtagEmulationJet&);    

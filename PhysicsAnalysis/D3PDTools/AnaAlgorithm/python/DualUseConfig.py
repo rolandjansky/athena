@@ -19,6 +19,20 @@ def createAlgorithm (type, name) :
         from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
         return AnaAlgorithmConfig( type + "/" + name )
 
+def createPublicTool (job, type, name) :
+    this = sys.modules[__name__]
+    if this.CfgMgr :
+        type = "__".join (type.split ("::"))
+        tool = this.CfgMgr.__getattr__ (type) (name)
+        job += tool
+        return tool
+    else :
+        from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
+        tool = AnaAlgorithmConfig( type + "/" + name )
+        tool.setIsPublicTool (True)
+        job.algsAdd (tool)
+        return tool
+
 def addPrivateTool (alg, name, type) :
     this = sys.modules[__name__]
     if this.CfgMgr :

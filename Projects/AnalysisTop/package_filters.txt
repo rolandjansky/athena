@@ -100,7 +100,6 @@
 # Packages to build as part of AnalysisTop:
 #
 + PhysicsAnalysis/UpgradePhys/SmearingFunctions/UpgradePerformanceFunctions
-+ PhysicsAnalysis/TopPhys/KLFitter
 + PhysicsAnalysis/TopPhys/TopPhysUtils/TopDataPreparation
 + PhysicsAnalysis/TopPhys/xAOD/TopAnalysis
 + PhysicsAnalysis/TopPhys/xAOD/TopCPTools

@@ -20,7 +20,7 @@ from TrigBjetHypo.TrigBjetFexTuning_NVTX import *
 rec.readAOD=True
 acf.EvtMax=10
 
-lista = glob.glob('/eos/atlas/user/c/cvarni/TrigBtagEmulationToolValidator/CheckCompilationAndRunning/r21/mc16_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.AOD.e5602_s3126_r9703_r9728/*')
+lista = glob.glob('/eos/atlas/atlascerngroupdisk/trig-bjet/Year-2018/TrigBtagEmulationTool/mc16_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.AOD.e5602_s3126_r9703_r9728/*')
 acf.FilesInput.set_Value_and_Lock(lista) 
 
 rec.doCBNT=False
@@ -89,9 +89,15 @@ toBeEmulatedTriggers = [
 # ONLINE EMULATOR
 from TrigBtagEmulationTool.TrigBtagEmulationToolConf import Trig__TrigBtagEmulationTool
 emulator = Trig__TrigBtagEmulationTool()
-emulator.BTagTrackAssocTool = BTagConfig.getJetCollectionMainAssociatorTool("AntiKt4EMTopo")
+
+trackAssocTool = BTagConfig.getJetCollectionMainAssociatorTool("AntiKt4EMTopo")
+trackAssocTool.TrackContainerName = "TrigBtagEmulationTool_RetaggingTracks" # Necessary for new track associator in 21.2
+trackAssocTool.MuonContainerName  = "" # Necessary for new track associator in 21.2  
+
+emulator.BTagTrackAssocTool = trackAssocTool
 emulator.BTagTool           = BTagConfig.getJetCollectionTool("AntiKt4EMTopo")
 emulator.BTagSecVertexing   = BTagConfig.getJetCollectionSecVertexingTool("AntiKt4EMTopo")
+emulator.TagOfflineWeights = True
 emulator.Verbosity = 2
 emulator.EmulatedChainDefinitions = toBeEmulatedTriggers
 ToolSvc += emulator
@@ -101,7 +107,7 @@ from TrigBtagEmulationTool.TrigBtagEmulationToolConf import Trig__TrigBtagValida
 test = Trig__TrigBtagValidationTest()
 test.TrigBtagEmulationTool = emulator
 test.ToBeEmulatedTriggers = [x[0] for x in toBeEmulatedTriggers]
-test.RetrieveRetaggedJets = True
+test.RetrieveRetaggedJets = False #True
 test.OutputLevel = 0
 theJob += test
 

@@ -18,6 +18,7 @@ from JetRec.JetRecStandard import jtm
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__TrackToVertexIPEstimator
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+from DerivationFrameworkCore.LHE3WeightMetadata import *
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
@@ -97,7 +98,9 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
                   "AntiKt10LCTopoJets",
                   "AntiKt4TruthJets"]
-replaceAODReducedJets(reducedJetList,FTAG2Seq,"FTAG2")
+
+extendedFlag = 1 # --- = 0 for Standard Taggers & =1 for ExpertTaggers
+replaceAODReducedJets(reducedJetList,FTAG2Seq,"FTAG2", extendedFlag)
 
 addDefaultTrimmedJets(FTAG2Seq,"FTAG2",dotruth=True)
 
@@ -106,10 +109,9 @@ addDefaultTrimmedJets(FTAG2Seq,"FTAG2",dotruth=True)
 #===================================================================
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
-addVRJets(FTAG2Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
-          VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", #or should this be lctopo?
-          ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
-          variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+addVRJets(FTAG2Seq)
+# Also add Hbb Tagger
+addHbbTagger(FTAG2Seq, ToolSvc)
 
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]

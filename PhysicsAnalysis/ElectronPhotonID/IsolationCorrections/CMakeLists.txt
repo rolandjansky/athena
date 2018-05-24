@@ -29,7 +29,7 @@ atlas_depends_on_subdirs(
    ${extra_deps} )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Hist RIO )
+find_package( ROOT COMPONENTS Core Hist RIO Matrix)
 find_package( Boost )
 
 atlas_add_library( IsolationCorrectionsLib

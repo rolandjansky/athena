@@ -21,6 +21,7 @@ dataType = "data"
 #dataType = "mc"
 #dataType = "afii"
 electronContainer = "Electrons"
+photonContainer = "Photons"
 
 
 
@@ -49,6 +50,23 @@ sequence = makeElectronAnalysisSequence (electronContainer=electronContainer,dat
 
 
 sequencePostConfiguration (sequence, electronContainer)
+
+for alg in sequence :
+    config = alg["alg"]
+
+    # set everything to debug output
+    config.OutputLevel = 1
+
+    algSeq += config
+    pass
+
+
+from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import makePhotonAnalysisSequence
+
+sequence = makePhotonAnalysisSequence (photonContainer=photonContainer,dataType=dataType)
+
+
+sequencePostConfiguration (sequence, photonContainer)
 
 for alg in sequence :
     config = alg["alg"]
