@@ -1,3 +1,7 @@
+/*
+ * This is a copy of GaudiSvc/src/THistSvc with THistSvc renamed to THistSvcHLT
+ * to allow inheritance of this class by TrigMonTHistSvc.
+ */
 // system headers
 #include <cstdio>
 #include <sstream>
