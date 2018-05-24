@@ -666,13 +666,11 @@ if _checkattr("description", required=True):
         msg += " " + evgenConfig.notes
     print "MetaData: %s = %s" % ("physicsComment", msg)
 if _checkattr("generators", required=True):
-#    print "MetaData: %s = %s" % ("generatorName", "+".join(gennames))
     gennamesvers=[]
     for item in gennames:
        genera = item.upper()
        generat = genera+"VER"
        if (generat in os.environ):
-#           gennamesvers.append(item+"."+os.environ[generat])
            gennamesvers.append(item+"(v."+os.environ[generat]+")")
        else:
            gennamesvers.append(item)
