@@ -273,41 +273,6 @@ std::vector<Trk::HitInfo>* FastCaloSimCaloExtrapolation::caloHits(const TFCSTrut
     }
 
   std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
-  /*
-  ATH_MSG_DEBUG("CHECK BEFORE");
-  while(it < hitVector->end() ) {
-    Amg::Vector3D hitPos = (*it).trackParms->position();
-    int sample=(*it).detID;
-    ATH_MSG_INFO(" HIT: layer="<<sample<<" sample="<<sample-3000<<" eta="<<hitPos.eta()<<" phi="<<hitPos.phi()<<" r="<<hitPos.perp()<<" z="<<hitPos[Amg::z]);
-    it++;
-  }
-  */
-
-  /*
-  int again=1;
-  while(again)
-    {
-      again=0;
-      std::vector<Trk::HitInfo>::iterator it = hitVector->begin();
-      int ele=0;
-      while(it < hitVector->end())
-        {
-          int sample=(*it).detID;
-          //Amg::Vector3D hitPos = (*it).trackParms->position();
-          //std::cout<<" HIT: layer="<<sample<<" sample="<<sample-3000<<" eta="<<hitPos.eta()<<" phi="<<hitPos.phi()<<" d="<<hitPos.mag()<<std::endl;
-          //delete the entry from the hit vector if sample is<3000:
-          if(sample<3000)
-            {
-              //std::cout<<"deleting element "<<ele<<std::endl;
-              hitVector->erase(it);
-              again=1;
-              it=hitVector->end();
-            }
-          ele++;
-          it++;
-        }
-    }
-  */  
 
   std::vector<Trk::HitInfo>::iterator it2 = hitVector->begin();
   while(it2 < hitVector->end() )
@@ -763,8 +728,11 @@ bool FastCaloSimCaloExtrapolation::rz_cylinder_get_calo_etaphi(std::vector<Trk::
 
       double dist=hitPos.mag();
       bool inside=false;
-      if(t>=-0.001 && t<=1.001) {
-        if(hitPos.perp()<=cylR*1.001 && fabs(hitPos[Amg::z])<=cylZ*1.001) inside=true;
+      
+      const float down_frac=-0.001;
+      const float up_frac=1.001;
+      if(t>=down_frac && t<=up_frac) {
+        if(hitPos.perp()<=cylR*up_frac && fabs(hitPos[Amg::z])<=cylZ*up_frac) inside=true;
       }  
 
       if(!best_found || inside) {

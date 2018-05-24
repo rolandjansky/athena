@@ -167,6 +167,8 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
    , m_calo_tb_coord(0)
    , m_sample_calo_surf(CaloCell_ID_FCS::noSample)
    , m_particleDataTable(0)
+   , m_CaloBoundaryR(1148)
+   , m_CaloBoundaryZ(3550)
 
    ,m_MC_DIGI_PARAM("/Digitization/Parameters")
    ,m_MC_SIM_PARAM("/Simulation/Parameters")
@@ -945,12 +947,13 @@ StatusCode ISF_HitAnalysis::execute()
          TVector3 direction=moment.Unit();
 
          //does it hit the barrel or the EC?
-         if(abs(direction.Z())/3550.<direction.Perp()/1148.) {
+
+         if(abs(direction.Z())/m_CaloBoundaryZ < direction.Perp()/m_CaloBoundaryR) {
            //BARREL
-           direction*=1148./direction.Perp();
+           direction*=m_CaloBoundaryR/direction.Perp();
          } else {
            //EC
-           direction*=3550./abs(direction.Z());
+           direction*=m_CaloBoundaryZ/abs(direction.Z());
          }  
 
          if((*it)->production_vertex()) {
