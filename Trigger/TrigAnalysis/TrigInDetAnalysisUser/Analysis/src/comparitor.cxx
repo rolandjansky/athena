@@ -53,6 +53,29 @@
 
 bool fulldbg = false;
 
+template<typename T=TH1F>
+T* Get( TFile& f, const std::string& name, const std::string& dir, std::vector<std::string>* saved=0  ) { 
+
+  T* h = (T*)f.Get( name.c_str() );
+  if ( h ) {
+    std::cout << "Get() name " << name << std::endl;
+    if ( saved ) saved->push_back( name );
+  }
+  else { 
+    if ( dir=="" ) return h;
+    std::cout << "Get() name " << (dir+"/"+name) << std::endl;
+    h = (T*)f.Get( (dir+"/"+name).c_str() );
+    if ( h ) { 
+      if ( saved ) saved->push_back( dir+"/"+name );
+    }
+    else { 
+      if ( saved ) saved->push_back( name );
+    }
+  }     
+  return h;
+}
+
+
 
 int usage(const std::string& name, int status, const std::string& err_msg="" ) { 
   if ( err_msg != "" ) std::cerr << err_msg << "\n" << std::endl;
@@ -111,6 +134,7 @@ int usage(const std::string& name, int status, const std::string& err_msg="" ) {
   s << "         --nopdf              \t do not print pdf files\n"; 
   s << "         --deleteref          \t delete unused reference histograms\n\n";
 
+  s << "         --printconfig        \t print the configuration being used in the form useable as an input file\n\n";
 
   s << "    -h,  --help              \t this help\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
@@ -248,8 +272,6 @@ int main(int argc, char** argv) {
   std::string atlaslabel_tmp = "Internal";
 
 
-  std::string chainref = ""; 
-
   double scale_eff     = -1;
   double scale_eff_ref = -1;
   
@@ -271,13 +293,13 @@ int main(int argc, char** argv) {
 
   int ncols = 2;
 
-  std::cout << "ncols " << ncols << std::endl;
-
   for(int i=1; i<argc; i++){
     std::string arg  = argv[i];
 
-    if ( arg.find("-")!=0 && addinglabels ) { 
-      usrlabels.push_back( arg );
+    if ( arg.find("-")!=0 && addinglabels ) {
+      std::string label = arg;
+      replace( label, "#", " " );
+      usrlabels.push_back( label );
       continue;
     }
     else addinglabels = false;
@@ -485,10 +507,18 @@ int main(int argc, char** argv) {
 
   bool noreftmp = noref;
 
+  if ( chains.size()==0 ) return usage(argv[0], -1, "no chains specified");
+
   if ( refchains.size()>0 && refchains.size()!=chains.size() ) return usage(argv[0], -1, "not enough chains specified");
   
   if ( refchains.size()==0 ) refchains = chains;
   
+  std::vector<std::string> chainref(chains.size(),"");
+  std::vector<std::string> chain_name(chains.size(),"");
+
+  std::vector<std::string> refchain(chainref.size(),"");
+	
+
 
   std::cout << argv[0] << " options:" << std::endl;
   std::cout << "\tATLAS style:                 " << ( atlasstyle ? "true" : "false" ) << std::endl; 
@@ -500,9 +530,10 @@ int main(int argc, char** argv) {
   std::cout << "\tsuppress pdf output:         " << ( nopdf ? "true" : "false" ) << std::endl;  
   std::cout << "\tsuppress reference output:   " << ( noref ? "true" : "false" ) << std::endl;  
   std::cout << "\tuse chain references:        " << ( usechainref ? "true" : "false" ) << std::endl;
+  std::cout << "\tpanel ncols:                 " << ncols << std::endl;
 
-  if ( usrlabels.size()>0 )  std::cout << "\tlabels:                 " << usrlabels.size() << std::endl;        
-  if ( taglabels.size()>0 )  std::cout << "\textra text:             " << taglabels << std::endl;  
+  if ( usrlabels.size()>0 )  std::cout << "\tlabels:                      " << usrlabels.size() << std::endl;        
+  if ( taglabels.size()>0 )  std::cout << "\textra text:                  " << taglabels << std::endl;  
   
 
   for ( size_t il=0 ; il<usrlabels.size() ; il++ ) { 
@@ -593,9 +624,10 @@ int main(int argc, char** argv) {
 
   std::string testrun = findrun( &ftest );
 
+  std::string  rawrefrun = "";
   std::string  refrun = "";
 
-  if ( _fref ) refrun = findrun( &fref  );
+  if ( _fref ) refrun = rawrefrun = findrun( &fref  );
 
   std::cout << "testrun: " << testrun << "\nrefrun:  " << refrun << std::endl;
 
@@ -641,11 +673,10 @@ int main(int argc, char** argv) {
 
   } 
   
-  std::vector<std::string> chainnames;
+  //  std::vector<std::string> chainnames;
 
-
-  chainnames.resize(chains.size());
-  chainnames.clear();
+  //  chainnames.resize(chains.size(),"");
+  //  chainnames.clear();
 
   /// we divide the resolutions by these
   /// values if we have an "entries" histogram
@@ -674,6 +705,70 @@ int main(int argc, char** argv) {
     NeventRef  = 1; 
   }
 
+
+  /// set up the correct reference chain names ...
+
+  std::cout << "\ncreating chain and reference information ..." << std::endl;
+
+  for ( size_t j=0; j<chains.size(); j++)  {
+	
+    /// get the actual chain name and track collection from 
+
+    /// the Chain histogram if present
+    std::cout << "chain:        " << chains[j] << "\taddchains: " << addchains << std::endl;
+    //    std::cout << "chainref:     " << chainref[j] << " - original" << std::endl;
+    
+    if ( addchains && ( contains(chains[j],"Shifter") || !contains(chains[j],"HLT_") ) ) { 
+      
+      TH1F* hchain = Get( ftest, chains[j]+"/Chain", testrun );
+      
+      if ( hchain ) { 
+	
+	std::string name = hchain->GetTitle();
+	
+	if ( usechainref && !contains(chains[j],"Purity") ) { 
+	
+	  chainref[j] = name;
+	  
+	  std::cout << "new chainref:   " << chainref[j] << std::endl;
+
+	  std::string::size_type pos = chainref[j].find(":for");
+	  if ( pos!=std::string::npos ) chainref[j].replace( pos, 4, "_for" );
+	  std::replace( chainref[j].begin(), chainref[j].end(), ':', '/');	    
+	  std::string newchain = dirname( dirname( chains[j]) ) + "/Expert/" + chainref[j];
+	  chainref[j] = newchain;
+
+	  std::cout << "final chainref: " << chainref[j] << std::endl;
+
+	}
+
+	std::cout << "chainref:     " << chainref[j] << std::endl;
+	
+	while ( contains( name, "HLT_" ) ) name = name.erase( name.find("HLT_"), 4 );
+
+	std::cout << "name:         " << name << std::endl;
+
+	if ( contains( name, ":" ) )  chain_name[j] = name.substr( 0, name.find(":") ) + " : ";
+	else                           chain_name[j] = name;
+
+	if  ( chain_name[j] == " : "  )  chain_name[j] = "";
+	
+
+	std::cout << "chain_name: " << chain_name[j] << std::endl;
+      }
+    }
+  }
+
+
+  for ( size_t j=0 ; j<chainref.size() ; j++ ) { 
+    std::cout << "chainref: " << chainref[j] << " :: " << refchains[j] << std::endl;
+    if ( chainref[j]!="" ) refchain[j] = fullreplace( chainref[j], pattern, regex );
+    else                   refchain[j] = fullreplace( refchains[j], pattern, regex );
+    std::cout << "refchain: " << refchain[j] << std::endl;
+  }
+
+
+  /// set up the plot panels 
 
   std::vector<Panel> panels;
 
@@ -974,31 +1069,9 @@ int main(int argc, char** argv) {
 	/// get the actual chain name and track collection from 
 	/// the Chain histogram if present
 	
-	std::string chain_name = "";
-	
-	std::cout << "chain: " << chains[j] << std::endl;
+	std::cout << "chain:    " << chains[j] << "\taddchains: " << addchains << std::endl;
+	std::cout << "chainref: " << chainref[j] << std::endl;
 
-	//	if ( addchains && ( contains(chains[j],"Shifter") || !contains(chains[j],"HLT_") ) ) { 
-	if ( addchains && contains(chains[j],"Shifter") ) { 
-	  TH1F* hchain = (TH1F*)ftest.Get((chains[j]+"/Chain").c_str()) ;
-	  if ( hchain ) { 
-	    std::string name = hchain->GetTitle();
-	    if ( usechainref && !contains(chains[j],"Purity") ) { 
-	      chainref = name;
-	      std::string::size_type pos = chainref.find(":for");
-	      if ( pos!=std::string::npos ) chainref.replace( pos, 4, "_for" );
-	      std::replace( chainref.begin(), chainref.end(), ':', '/');	    
-	      std::string newchain = dirname( dirname( chains[j]) ) + "/Expert/" + chainref;
-	      chainref = newchain;
-	    }
-	    
-	    while ( contains( name, "HLT_" ) ) name = name.erase( name.find("HLT_"), 4 );
-	    if ( contains( name, ":" ) )  chain_name = name.substr( 0, name.find(":") ) + " : ";
-	    else                          chain_name = name;
-	  }
-	}
-	
-	
 	noreftmp = noref;
 	Plotter::setplotref(!noreftmp);
 	
@@ -1012,12 +1085,7 @@ int main(int argc, char** argv) {
 	TGraphAsymmErrors* tgtest = 0;
 	
 	
-	std::string refchain = "";
-	
-	std::cout << "refchain: " << chainref << " :: " << refchains[j] << std::endl;
-
-	if ( chainref!="" ) refchain = fullreplace( chainref, pattern, regex );
-	else                refchain = fullreplace( refchains[j], pattern, regex );
+	std::cout << "refchain: " << refchain[j] << std::endl;
 	
 	/// refit the resplots - get the 2d histogram and refit
 	
@@ -1040,12 +1108,14 @@ int main(int argc, char** argv) {
 	  if ( bsigma ) base = chop( tmp_, "/sigma" );
 	  if ( bmean )  base = chop( tmp_, "/mean" );
 	    
-	  TH2D* _htest2d = (TH2D*)ftest.Get((chains[j]+"/"+base+"/2d").c_str()) ;
-	  TH2D* _href2d  = (TH2D*)ftest.Get((refchain+"/"+base+"/2d").c_str()) ;
+	  //	  TH2D* _htest2d = (TH2D*)ftest.Get((chains[j]+"/"+base+"/2d").c_str()) ;
+	  //	  TH2D* _href2d  = (TH2D*)ftest.Get((refchain[j]+"/"+base+"/2d").c_str()) ;
 	    
-	  savedhistos.push_back( chains[j]+"/"+base+"/2d" );
-	    
-	    
+	  //	  savedhistos.push_back( chains[j]+"/"+base+"/2d" );	    
+
+	  TH2D* _htest2d = Get<TH2D>( ftest, chains[j]+"/"+base+"/2d", testrun, &savedhistos );
+	  TH2D* _href2d  = Get<TH2D>( ftest, refchain[j]+"/"+base+"/2d", testrun  );
+
 	  if ( _htest2d==0 ) continue;
 	  if ( !noreftmp && _href2d==0 )  noreftmp = true;
 	  Plotter::setplotref(!noreftmp);
@@ -1066,10 +1136,10 @@ int main(int argc, char** argv) {
 	  }
 
 	  if ( bsigma ) { htest = (TH1F*)rtest.Sigma()->Clone("rtest_sigma"); htest->SetDirectory(0); }
-	  if ( bmean  ) {  htest = (TH1F*)rtest.Mean()->Clone("rtest_mean");  htest->SetDirectory(0); }
+	  if ( bmean  ) { htest =  (TH1F*)rtest.Mean()->Clone("rtest_mean");  htest->SetDirectory(0); }
 
 	  if ( htest==0 ) { 
-	    std::cerr << "missing histogram: " << (refchain+" / "+histo.name()) << " " << htest << std::endl; 
+	    std::cerr << "missing histogram: " << (refchain[j]+" / "+histo.name()) << " " << htest << "(test)" << std::endl; 
 	    continue;
 	  }
 
@@ -1088,7 +1158,8 @@ int main(int argc, char** argv) {
 
 	  //	    href  = (TH1F*)fref.Get((chains[j]+"/"+histos[i]).c_str()) ;
 
-	  //	    TH1F* hreft  = (TH1F*)fref.Get( (refchain+"/"+histos[i]).c_str() );
+	  //	    TH1F* hreft  = (TH1F*)fref.Get( (refchain[j]+"/"+histos[i]).c_str() );
+	
 	  TH1F* hreft  = 0;
 
 	  if ( !noreftmp ) {
@@ -1110,12 +1181,12 @@ int main(int argc, char** argv) {
 		
 	    }
 	    else { 
-	      hreft  = (TH1F*)fref.Get( (refchain+"/"+histo.name()).c_str() );
+	      hreft = Get( fref, refchain[j]+"/"+histo.name(), rawrefrun );
 	    }
 	  }
 	      
 	  if ( !noreftmp && hreft==0 ) { 
-	    std::cerr << "missing histogram: " << (refchain+" / "+histo.name()) << " " << htest << std::endl; 
+	    std::cerr << "missing histogram: " << (refchain[j]+" / "+histo.name()) << " " << htest << "(ref)" << std::endl; 
 	    noreftmp = true; 
 	    Plotter::setplotref(!noreftmp);
 	  }
@@ -1125,9 +1196,9 @@ int main(int argc, char** argv) {
 	    href->SetDirectory(0);
 	  }
 	    	      
-	  //	    std::cout << "\tget " << (refchain+"/"+histos[i]) << "\t" << href << std::endl;
+	  //	    std::cout << "\tget " << (refchain[j]+"/"+histos[i]) << "\t" << href << std::endl;
 	    
-	  savedhistos.push_back( refchain+"/"+histo.name() );
+	  savedhistos.push_back( refchain[j]+"/"+histo.name() );
    	   
 	}
 	else { 
@@ -1138,20 +1209,28 @@ int main(int argc, char** argv) {
        	
 	  std::string reghist = histo.name();
 
-	  std::cout << "chains: " << (chains[j]+"/"+reghist) << std::endl;
+	  std::cout << "hist:  " << (chains[j]+"/"+reghist) << std::endl;
 
-	  htest = (TH1F*)ftest.Get((chains[j]+"/"+reghist).c_str()) ;
+	  htest = Get( ftest, chains[j]+"/"+reghist, testrun, &savedhistos );
 
-	  savedhistos.push_back( chains[j]+"/"+reghist );
+	  //	  htest = (TH1F*)ftest.Get((chains[j]+"/"+reghist).c_str(), &savedhistos ) ;
+	  //	  savedhistos.push_back( chains[j]+"/"+reghist );
 
-	  TH1F* hreft  = (TH1F*)fref.Get((refchain+"/"+reghist).c_str()) ;
+	  //	  if ( htest==0 ) { 
+	  //	    htest = (TH1F*)ftest.Get((testrun+"/"+chains[j]+"/"+reghist).c_str()) ;
+	  //	    savedhistos.push_back( testrun+"/"+chains[j]+"/"+reghist );
+	  //	  }
 
 	  if ( htest==0 ) { 
 	    if ( htest==0 ) std::cerr << "missing histogram: " << (chains[j]+" / "+reghist) << " " << htest<< std::endl; 
 	    continue;
 	  }
 
-	
+
+	  TH1F* hreft = Get( fref, refchain[j]+"/"+reghist, rawrefrun );
+
+	  //	  TH1F* hreft  = Get( fref, refchain+"/"+reghist, rawrefrun );
+	  //	  TH1F* hreft  = (TH1F*)fref.Get((refchain+"/"+reghist).c_str()) ;
 	
 	  if ( std::string(htest->ClassName()).find("TH2")!=std::string::npos ) { 
 	    std::cout << "Class TH2: " << htest->GetName() << std::endl;
@@ -1168,7 +1247,7 @@ int main(int argc, char** argv) {
 
 
 	  if ( !noreftmp && hreft==0 ) { 
-	    if ( hreft==0 ) std::cerr << "missing histogram: " << (refchain+" / "+reghist)  << " " << hreft << std::endl; 
+	    if ( hreft==0 ) std::cerr << "missing histogram: " << (refchain[j]+" / "+reghist)  << " " << hreft << std::endl; 
 	    noreftmp = true;
 	    Plotter::setplotref(false);
 	  }
@@ -1181,8 +1260,8 @@ int main(int argc, char** argv) {
 	    href->SetDirectory(0);
 	  }
 
-	  std::cout << "\tget " << ( refchain+"/"+reghist) << "\thref  " << href << std::endl;
-	  std::cout << "\tget " << (chains[j]+"/"+reghist) << "\thtest " << htest << std::endl;
+	  std::cout << " \tget " << (chains[j]+"/"+reghist)    << "\thtest " << htest << std::endl;
+	  std::cout << " \tget " << (refchain[j]+"/"+reghist)  << "\thref  " << href << std::endl;
 
 	  if ( htest==0 || ( !noreftmp && href==0 ) ) continue;
 
@@ -1226,16 +1305,20 @@ int main(int argc, char** argv) {
 
 	    if ( contains( std::string(htest->GetName()), "_eff" ) ) {
 
-	      htestnum = (TH1F*)ftest.Get((chains[j]+"/"+histo.name()+"_n").c_str()) ;
+	      htestnum = Get( ftest, chains[j]+"/"+histo.name()+"_n", testrun );
+	      //	      htestnum = (TH1F*)ftest.Get((chains[j]+"/"+histo.name()+"_n").c_str()) ;
 
-	      TH1F* hrefnumt  = (TH1F*)fref.Get((refchain+"/"+histo.name()+"_n").c_str()) ;
+	      TH1F* hrefnumt  = Get( fref, refchain[j]+"/"+histo.name()+"_n", rawrefrun, &savedhistos );
+
+	      //      TH1F* hrefnumt  = (TH1F*)fref.Get((refchain+"/"+histo.name()+"_n").c_str()) ;
+	      //      savedhistos.push_back( refchain+"/"+histo.name()+"_n" );
+	   
 
 	      if ( !noreftmp && hrefnumt!=0 ) { 
 		hrefnum = (TH1F*)hrefnumt->Clone();
 		hrefnum->SetDirectory(0);
 	      }
 
-	      savedhistos.push_back( refchain+"/"+histo.name()+"_n" );
 	    
 	      //	    std::cout << "numerator histos " << htestnum << " " << hrefnum << std::endl;
 
@@ -1250,11 +1333,15 @@ int main(int argc, char** argv) {
 
 	    //	  delete htest;
 
-	    htestnum = (TH1F*)ftest.Get((chains[j]+"/"+histo.name()+"_n").c_str()) ;
-	    htestden = (TH1F*)ftest.Get((chains[j]+"/"+histo.name()+"_d").c_str()) ;
+	    //	    htestnum = (TH1F*)ftest.Get((chains[j]+"/"+histo.name()+"_n").c_str()) ;
+	    //	    htestden = (TH1F*)ftest.Get((chains[j]+"/"+histo.name()+"_d").c_str()) ;
 
-	    savedhistos.push_back( chains[j]+"/"+histo.name()+"_n" );
-	    savedhistos.push_back( chains[j]+"/"+histo.name()+"_d" );
+	    //	    savedhistos.push_back( chains[j]+"/"+histo.name()+"_n" );
+	    //	    savedhistos.push_back( chains[j]+"/"+histo.name()+"_d" );
+
+
+	    htestnum = Get( ftest, chains[j]+"/"+histo.name()+"_n", testrun, &savedhistos ) ;
+	    htestden = Get( ftest, chains[j]+"/"+histo.name()+"_d", testrun, &savedhistos ) ;
 
 	    std::cout << "Bayesian error calculation " << htestnum << " " << htestden << "\tscale " << scale_eff << std::endl;
 
@@ -1291,8 +1378,10 @@ int main(int argc, char** argv) {
 
 	      std::cout << "doin ..." << std::endl; 
 
-	      TH1F* hrefnum = (TH1F*)fref.Get((refchain+"/"+histo.name()+"_n").c_str()) ;
-	      TH1F* hrefden = (TH1F*)fref.Get((refchain+"/"+histo.name()+"_d").c_str()) ;
+	      //	      TH1F* hrefnum = (TH1F*)fref.Get((refchain+"/"+histo.name()+"_n").c_str()) ;
+	      //	      TH1F* hrefden = (TH1F*)fref.Get((refchain+"/"+histo.name()+"_d").c_str()) ;
+	      TH1F* hrefnum = Get( fref, refchain[j]+"/"+histo.name()+"_n", rawrefrun );
+	      TH1F* hrefden = Get( fref, refchain[j]+"/"+histo.name()+"_d", rawrefrun );
 
 	      std::cout << "Bayesian error calculation " << htestnum << " " << htestden << "\tscale " << scale_eff     << std::endl;
 	      std::cout << "Bayesian error calculation " << hrefnum  << " " << hrefden  << "\tscale " << scale_eff_ref << std::endl;
@@ -1395,15 +1484,25 @@ int main(int argc, char** argv) {
       
 	if ( contains(histo.name(),"_res") ||  contains(histo.name(),"residual_") || contains(histo.name(),"1d") ) residual = true; 
 
-	std::string c = chains[j];
 
-	if ( c.find("_IDTrkNoCut")!=std::string::npos ) c.erase( c.find("_IDTrkNoCut"), 11 );
-	if ( c.find("_idperf")!=std::string::npos )     c.erase( c.find("_idperf"), 7 );
-	if ( c.find("_bperf")!=std::string::npos )      c.erase( c.find("_bperf"), 6 );
-	if ( c.find("xAODCnv")!=std::string::npos )     c.erase( c.find("xAODCnv"), 7 );
-	if ( c.find("Tracking")!=std::string::npos ) c.replace( c.find("Tracking"), 8, "Trk" );    
+	std::string collection = basename( chains[j] );
 
-	if ( c.find("FTK_Track")==std::string::npos ) replace( c, "_Tr", " :  " );
+	std::string actual_chain = basename( dirname( chains[j] ) );
+
+	std::cout << "track collection: " << collection << std::endl;
+	std::cout << "actual chain:     " << actual_chain     << std::endl;
+
+	if ( actual_chain.find("_idperf")!=std::string::npos )    actual_chain.erase( actual_chain.find("_idperf"), 7 );
+	if ( actual_chain.find("_bperf")!=std::string::npos )     actual_chain.erase( actual_chain.find("_bperf"), 6 );
+	if ( collection.find("_IDTrkNoCut")!=std::string::npos )  collection.erase( collection.find("_IDTrkNoCut"), 11 );
+	if ( collection.find("xAODCnv")!=std::string::npos )      collection.erase( collection.find("xAODCnv"), 7 );
+	if ( collection.find("Tracking")!=std::string::npos )     collection.replace( collection.find("Tracking"), 8, "Trk" );    
+	if ( collection.find("InDetTrigTrk_")!=std::string::npos ) collection.replace( collection.find("InDetTrigTrk_"), 13, "" );    
+
+	if ( collection.find("FTK_Track")==std::string::npos ) replace( collection, "_Tr", " :  " );
+
+	std::string c = actual_chain + " : " + collection;
+
 	replace( c, "_In", " :  " );
 
 	c = "  " + c;
@@ -1414,9 +1513,14 @@ int main(int argc, char** argv) {
 
 	if ( fulldbg ) std::cout << __LINE__ << std::endl;
       
+	
+
 	//      if ( uselabels )  plots.push_back( Plotter( htest, href, chain_name+usrlabels[j], tgtest ) );
-	if ( uselabels )  plots.push_back( Plotter( htest, href, " " + usrlabels[j], tgtest ) );
-	else              plots.push_back( Plotter( htest, href, c, tgtest ) );
+	if ( uselabels )  plots.push_back( Plotter( htest, href, " " + chain_name[j] + usrlabels[j], tgtest ) );
+	else {
+	  std::cout << "using label: " << c << std::endl;
+	  plots.push_back( Plotter( htest, href, c, tgtest ) );
+	}
 
 	if ( fulldbg ) std::cout << __LINE__ << std::endl;
 
