@@ -4,8 +4,6 @@
 
 include("TrigUpgradeTest/testHLT_MT.py")
 
-
-# provide a minimal menu information
 if globalflags.InputFormat.is_bytestream():
    topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
    topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
@@ -102,26 +100,36 @@ filterCaloRoIsAlg.OutputLevel = DEBUG
 
 
 
+l2PhotonViewsMaker = EventViewCreatorAlgorithm("l2PhotonViewsMaker", OutputLevel=DEBUG)
+l2PhotonViewsMaker.InputMakerInputDecisions = [ filterCaloRoIsAlg.Output[0] ]  # output of L2CaloHypo
+l2PhotonViewsMaker.RoIsLink = "roi" # -||-
+l2PhotonViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
+l2PhotonViewsMaker.Views = "EMPhotonViews"
+l2PhotonViewsMaker.ViewFallThrough = True
+l2PhotonViewsMaker.InputMakerOutputDecisions = ["L2PhotonLinks"]
+
+photonInViewAlgs = parOR("photonInViewAlgs",  [thePhotonFex ])
+l2PhotonViewsMaker.ViewNodeName = "photonInViewAlgs"
+
+
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2PhotonHypoAlgMT
 from TrigEgammaHypo.TrigL2PhotonHypoTool import TrigL2PhotonHypoToolFromName
 thePhotonHypo = TrigL2PhotonHypoAlgMT()
 thePhotonHypo.RunInView=True
 thePhotonHypo.Photons = thePhotonFex.PhotonsName
-
 thePhotonHypo.OutputLevel = VERBOSE
-
 thePhotonHypo.HypoTools = [ TrigL2PhotonHypoToolFromName( c ) for c in testChains ]
+
 
 for t in thePhotonHypo.HypoTools:
   t.OutputLevel = VERBOSE
 # topSequence += thePhotonHypo
 # InDetCacheCreatorTrigViews,
-photonSequence = seqAND("photonSequence", [ thePhotonHypo ] )
+photonSequence = seqAND("photonSequence", [ l2PhotonViewsMaker , photonInViewAlgs, thePhotonHypo ] )
 
 egammaIDStep = stepSeq("egammaIDStep", filterCaloRoIsAlg, [ photonSequence ] )
 
 # CF construction
-
 from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
 summaryStep0 = TriggerSummaryAlg( "TriggerSummaryStep1" )
 summaryStep0.InputDecision = "HLTChains"
@@ -140,13 +148,21 @@ step0r = parOR("step0r", [ egammaCaloStepRR ])
 
 summary = TriggerSummaryAlg( "TriggerSummaryAlg" )
 summary.InputDecision = "HLTChains"
-summary.FinalDecisions = [ "PhotonL2Decisions" ]
+summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
 from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
 edmCreator = HLTEDMCreator()
-edmCreator.TrigCompositeContainer = [ "EgammaCaloDecisions", "PhotonL2Decisions", "EMRoIDecisions", "HLTChainsResult" ]
+edmCreator.TrigCompositeContainer = [ "EgammaCaloDecisions", "PhotonL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "HLTChainsResult" ]
+
 
 
 egammaViewsMerger = HLTEDMCreator("egammaViewsMerger")
+
+egammaViewsMerger.TrigPhotonContainerViews = [ l2PhotonViewsMaker.Views ]
+egammaViewsMerger.TrigPhotonContainerInViews = [ thePhotonFex.PhotonsName ]
+egammaViewsMerger.TrigPhotonContainer = ["HLT_photons"]
+
+
+
 
 summary.OutputTools = [ edmCreator, egammaViewsMerger ]
 
@@ -161,31 +177,6 @@ mon.FinalDecisions = [ "PhotonL2Decisions", "MuonL2Decisions", "WhateverElse" ]
 from TrigUpgradeTest.TestUtils import MenuTest
 mon.ChainsList = [ x.split(":")[1] for x in  MenuTest.CTPToChainMapping ]
 mon.OutputLevel = DEBUG
-
-import AthenaPoolCnvSvc.WriteAthenaPool
-from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
-StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
-StreamESD.OutputLevel=VERBOSE
-topSequence.remove( StreamESD )
-
-def addTC(name):
-   StreamESD.ItemList += [ "xAOD::TrigCompositeContainer#"+name, "xAOD::TrigCompositeAuxContainer#"+name+"Aux." ]
-
-for tc in edmCreator.TrigCompositeContainer:
-   addTC( tc )
-
-addTC("HLTSummary")
-
-StreamESD.ItemList += [ "xAOD::TrigPhotonContainer#HLT_photons"]
-
-print "ESD file content "
-print StreamESD.ItemList
-
-
-hltTop = seqOR( "hltTop", [ steps, mon, summary, StreamESD ] )
-topSequence += hltTop
-
-
 
 
 

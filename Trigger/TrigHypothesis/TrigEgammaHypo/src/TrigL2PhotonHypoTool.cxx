@@ -110,7 +110,7 @@ bool TrigL2PhotonHypoTool::decideOnSingleObject( const xAOD::TrigPhoton* photon,
   cutCounter++;
 
   // Determine which eta bin to apply the cuts                                                                                                                                                              
-  float absEta = fabs( photon->eta() );
+  double absEta = fabs( photon->eta() );
   int etaBin = -1;
   for (std::size_t iBin = 0; iBin < m_etabin.size()-1; iBin++)
     if ( absEta > m_etabin[iBin] && absEta < m_etabin[iBin+1] ) etaBin = iBin;

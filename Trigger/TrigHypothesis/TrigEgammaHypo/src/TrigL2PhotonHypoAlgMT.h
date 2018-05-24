@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGEGAMMAHYPO_L2TRIGL2PHOTONHYPOALG_H
-#define TRIGEGAMMAHYPO_L2TRIGL2PHOTONHYPOALG_H 1
+#ifndef TRIGEGAMMAHYPO_TRIGL2PHOTONHYPOALGMT_H
+#define TRIGEGAMMAHYPO_TRIGL2PHOTONHYPOALGMT_H 1
 
 #include <string>
 
@@ -16,6 +16,8 @@
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "DecisionHandling/HypoBase.h"
 #include "ITrigL2CaloHypoTool.h"
+
+
 
 
 /**
@@ -40,7 +42,7 @@ class TrigL2PhotonHypoAlgMT  :  public ::HypoBase
  private: 
   TrigL2PhotonHypoAlgMT();
   ToolHandleArray< TrigL2PhotonHypoTool > m_hypoTools {this, "HypoTools", {}, "Tools to perfrom selection"};
-  Gaudi::Property< bool > m_runInView { this, "RunInView", false , "Set input DH for running in views" };
+   Gaudi::Property< bool > m_runInView { this, "RunInView", false , "Set input DH for running in views" };
   // internally used to getch from views
   SG::ReadHandleKey< xAOD::TrigPhotonContainer > m_photonsKey {this, "Photons", "L2PhotonContainer", "Input"};
 
@@ -50,4 +52,4 @@ class TrigL2PhotonHypoAlgMT  :  public ::HypoBase
 
 }; 
 
-#endif //> !TRIGEGAMMAHYPO_TRIGL2PHOTONHYPOALG_H
+#endif //> !TRIGEGAMMAHYPO_TRIGL2PHOTONHYPOALGMT_H

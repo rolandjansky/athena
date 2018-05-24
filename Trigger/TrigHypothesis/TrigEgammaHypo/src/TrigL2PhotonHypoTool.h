@@ -61,17 +61,17 @@ class TrigL2PhotonHypoTool : virtual public ::AthAlgTool
   Gaudi::Property<bool>  m_respectPreviousDecision{ this, "RespectPreviousDecision", false, "If false, ( do not even check ), the decision made for the cluster" };
   Gaudi::Property<bool>  m_acceptAll{ this, "AcceptAll", false, "Ignore selection" };
   Gaudi::Property<bool>  m_etCutOnly{ this, "EtCutOnly", false, "" };
-  Gaudi::Property< std::vector<float> >  m_etabin{ this,  "EtaBins", {0}, "Eta bins" };
+  Gaudi::Property< std::vector<double> >  m_etabin{ this,  "EtaBins", {}, "Eta bins" };
 
-  Gaudi::Property< std::vector<float> >   m_detacluster{ this,  "dETACLUSTERthr", {0.2}, "Delta Eta to Cluster" };
-  Gaudi::Property< std::vector<float> >    m_dphicluster{ this,  "dPHICLUSTERthr", {0.2}, "Delta Phi to Cluster" };
-  Gaudi::Property< std::vector<float> >  m_F1thr{ this,  "F1thr", {0}, "F1 Threshold" };
-  std::vector<std::vector <double> >  m_eTthr;
-  std::vector<std::vector <double> >  m_eT2thr;
-  std::vector<std::vector <double> >  m_hadeTthr;
-  std::vector<std::vector <double> >  m_hadeT2thr;
-  std::vector<std::vector <double> >  m_carcorethr;
-  std::vector<std::vector <double> >  m_caeratiothr;
+  Gaudi::Property< std::vector<double> >  m_detacluster{ this,  "dETACLUSTERthr", {0.2}, "Delta Eta to Cluster" };
+  Gaudi::Property< std::vector<double> >  m_dphicluster{ this,  "dPHICLUSTERthr", {0.2}, "Delta Phi to Cluster" };
+  Gaudi::Property< std::vector<double> >  m_F1thr{ this,  "F1thr", {}, "F1 Threshold" };
+  Gaudi::Property< std::vector<std::vector<double>> > m_eTthr{this, "m_eTthr", {{}}, "et threshold"};
+  Gaudi::Property< std::vector<std::vector<double>> >  m_eT2thr{this, "m_eT2thr", {{}}, "eT2 threshold"};
+  Gaudi::Property< std::vector<std::vector<double>> >  m_hadeTthr{this, "m_hadeTthr", {{}}, "hadet threshold"};
+  Gaudi::Property< std::vector<std::vector<double>> >  m_hadeT2thr{this, "m_hadeT2thr", {{}}, "hadet2 threshold"};
+  Gaudi::Property< std::vector<std::vector<double>> >  m_carcorethr{this, "m_carcorethr", {{}}, "car core threshold"};
+  Gaudi::Property< std::vector<std::vector<double>> >  m_caeratiothr{this, "m_caeratiothr", {{}}, " cera ratio threshold"};
 
   
   size_t m_multiplicity = 1;
