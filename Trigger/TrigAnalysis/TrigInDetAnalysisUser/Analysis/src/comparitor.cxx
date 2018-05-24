@@ -718,7 +718,7 @@ int main(int argc, char** argv) {
     std::cout << "chain:        " << chains[j] << "\taddchains: " << addchains << std::endl;
     //    std::cout << "chainref:     " << chainref[j] << " - original" << std::endl;
     
-    if ( addchains && ( contains(chains[j],"Shifter") || !contains(chains[j],"HLT_") ) ) { 
+    if ( addchains && ( contains(chains[j],"Shifter") || ( !contains(chains[j],"HLT_") && !contains(chains[j], "Fullscan" ) ) ) ) { 
       
       TH1F* hchain = Get( ftest, chains[j]+"/Chain", testrun );
       
@@ -753,7 +753,6 @@ int main(int argc, char** argv) {
 
 	if  ( chain_name[j] == " : "  )  chain_name[j] = "";
 	
-
 	std::cout << "chain_name: " << chain_name[j] << std::endl;
       }
     }
