@@ -29,12 +29,11 @@ class JGTowerMaker: public ::AthAlgorithm {
   virtual StatusCode  initialize();
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
-  virtual StatusCode  JFexAlg(xAOD::JGTowerContainer*towerContainer);   
-  virtual StatusCode  GFexAlg(xAOD::JGTowerContainer*towerContainer);
+  virtual StatusCode  FexAlg(std::vector<JGTower*> jgT, xAOD::JGTowerContainer*towerContainer);   
   virtual StatusCode  beginInputFile();
   virtual StatusCode  SCTowerMapping();
-
-  virtual StatusCode  AllCaloMapping(); //temporary solution
+  virtual StatusCode  ForwardMapping();
+  virtual StatusCode  TileMapping(); 
 
   std::vector<JGTower*> jT;
   std::vector<JGTower*> gT;
