@@ -1,6 +1,6 @@
-Analysis - 21.2 Branch - 2017 Analysis Software
-===============================================
+Analysis - 21.2-CoM-ExKt-Tagger Branch
+======================================
 
-This branch is currently used for:
-  - CP/Physics derivations for 2017
-  - Analysis software for 2017
+This branch is used to integrate the Exclusive kt and center-of-mass taggers into regular Athena code,
+so that these (sub)jets can be reconstructed and tagged in production code.
+The base branch used for this development is 21.2.
