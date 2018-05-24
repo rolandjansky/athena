@@ -131,14 +131,12 @@ public:
 
 
   ~ViewContainer() { 
-    std::cerr << "Deleting ViewContainer\n";
     std::for_each(m_data.begin(), m_data.end(), [](SG::View* v){ delete v; } ); 
   }
   void push_back( SG::View* ptr ) { m_data.push_back( ptr ); }
   size_t size() const { return m_data.size(); }
   bool empty() const { return m_data.empty(); }
   void clear() {     
-    std::cerr << "Clearing ViewContainer\n";
     std::for_each(m_data.begin(), m_data.end(), [](SG::View* v){ delete v; } );   m_data.clear(); 
   }
   const_iterator begin() const { return m_data.begin(); }
@@ -154,34 +152,6 @@ public:
 #include "AthLinks/DeclareIndexingPolicy.h"
 CONTAINER_IS_SEQUENCE(ViewContainer)
 
-// struct ownalloc {
-// public:                                                                           
-//   typedef std::allocator<SG::View*> default_allocator;
-//   default_allocator allocator;
-  
-//   typedef default_allocator::pointer pointer;                                                               
-//   typedef default_allocator::const_pointer const_pointer;                                                    
-//   typedef default_allocator::value_type value_type;                                                               
-//   //  template <class U> struct rebind { typedef allocator<U> other; };
-//   pointer allocate (size_t n, std::allocator<void>::const_pointer hint=0){
-//     return allocator.allocate( n, hint );
-//   }
-//   void deallocate (pointer p, size_t n){
-//     return allocator.deallocate( p, n );
-//   }
-//   template <class U, class... Args>
-//   void construct (U* p, Args&&... args) {    
-//     allocator.construct(p, std::forward<Args>(args)... );
-//   }
-
-//   void destroy (pointer p){     
-//     (*p)->~View();
-//   }                                       
-
-// };
-// typedef std::vector< SG::View*, ownalloc > ViewContainer;
-
-//typedef std::vector< SG::View* > ViewContainer;
 CLASS_DEF( ViewContainer , 1160627009 , 1 )
 
 
