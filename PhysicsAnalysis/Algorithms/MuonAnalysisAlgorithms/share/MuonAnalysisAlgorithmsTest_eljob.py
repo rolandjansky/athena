@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+#
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
@@ -53,31 +53,27 @@ job = ROOT.EL.Job()
 job.sampleHandler( sh )
 job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 
-# Create the algorithm's configuration. Note that we'll be able to add
-# algorithm property settings here later on.
-config = AnaAlgorithmConfig( 'CP::SysListLoaderAlg/SysLoaderAlg' )
-config.sigmaRecommended = 1
-job.algsAdd( config )
+# Set up the systematics loader/handler algorithm:
+sysLoader = AnaAlgorithmConfig( 'CP::SysListLoaderAlg/SysLoaderAlg' )
+sysLoader.sigmaRecommended = 1
+job.algsAdd( sysLoader )
 
-
+# Include, and then set up the muon analysis algorithm sequence:
 from MuonAnalysisAlgorithms.MuonAnalysisSequence import makeMuonAnalysisSequence
+muonSequence = makeMuonAnalysisSequence( dataType )
+muonSequence.configure( inputName = 'Muons', outputName = 'AnalysisMuons' )
 
-sequence = makeMuonAnalysisSequence (dataType)
+# Set all algorithms in the sequence to debug output:
+for alg in muonSequence:
+    alg.OutputLevel = 1
 
+# Print the job configuration for debugging:
+print( str( muonSequence ) )
 
-from AsgAnalysisAlgorithms.SequencePostConfiguration import sequencePostConfiguration
-
-sequencePostConfiguration (sequence, "Muons")
-
-for alg in sequence :
-    config = alg["alg"]
-
-    # set everything to debug output
-    config.OutputLevel = 1
-
-    job.algsAdd( config )
+# Add all algorithms to the job:
+for alg in muonSequence:
+    job.algsAdd( alg )
     pass
-
 
 # Run the job using the direct driver.
 driver = ROOT.EL.DirectDriver()
