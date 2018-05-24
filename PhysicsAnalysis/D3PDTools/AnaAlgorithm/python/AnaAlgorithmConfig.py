@@ -28,6 +28,10 @@ class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
     analysis job.
     """
 
+    # Class/static variable(s):
+    printHeaderWidth = 80
+    printHeaderPre   = 3
+
     def __init__( self, typeAndName, **kwargs ):
         """Constructor for an algorithm configuration object
 
@@ -147,12 +151,15 @@ class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
         the user to get a nice printout of their job configuration.
         """
 
-        result = "=== %s/%s ===\n" % ( self.type(), self.name() )
-        for key, value in self._props.iteritems():
-            result += "-  %s: %s\n" % \
-                ( key, indentBy( value, "-" + " " * ( 4 + len( key ) ) ) )
+        result = AnaAlgorithmConfig._printHeader( '%s/%s' % ( self.type(),
+                                                              self.name() ) )
+        result += '\n'
+        for key, value in sorted( self._props.iteritems() ):
+            result += "|- %s: %s\n" % \
+                ( key, indentBy( value, "|" + " " * ( 4 + len( key ) ) ) )
             pass
-        result += "-" * ( 9 + len( self.type() ) + len( self.name() ) )
+        result += AnaAlgorithmConfig._printFooter( '%s/%s' % ( self.type(),
+                                                               self.name() ) )
         return result
 
     def addPrivateTool (self, name, type) :
@@ -161,8 +168,42 @@ class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
         self._props[name] = PrivateToolConfig (self, name, type)
         pass
 
-    pass
+    @staticmethod
+    def _printHeader( title ):
+        """Produce a nice header when printing the configuration
 
+        This function is used for printing the header of both algorithms
+        and tools.
+
+        Keyword arguments:
+          indentString -- String used as indentation
+          title        -- The title of the algorithm/tool
+        """
+
+        preLength = AnaAlgorithmConfig.printHeaderPre
+        postLength = AnaAlgorithmConfig.printHeaderWidth - 3 - preLength - \
+            len( title )
+        return '/%s %s %s' % ( preLength * '*', title, postLength * '*' )
+
+    @staticmethod
+    def _printFooter( title ):
+        """Produce a nice footer when printing the configuration
+
+        This function is used for printing the footer of both algorithms
+        and tools.
+
+        Keyword arguments:
+          indentString -- String used as indentation
+          title        -- The title of the algorithm/tool
+        """
+
+        preLength = AnaAlgorithmConfig.printHeaderPre
+        postLength = AnaAlgorithmConfig.printHeaderWidth - 12 - preLength - \
+            len( title )
+        return '\\%s (End of %s) %s' % ( preLength * '-', title,
+                                         postLength * '-' )
+
+    pass
 
 
 class PrivateToolConfig( object ):
@@ -240,12 +281,15 @@ class PrivateToolConfig( object ):
         the user to get a nice printout of their job configuration.
         """
 
-        result = "=== %s/%s ===\n" % ( self._type, self._prefix )
-        for key, value in self._props.iteritems():
-            result += "-  %s: %s\n" % \
-                ( key, indentBy( value, "-" + " " * ( 4 + len( key ) ) ) )
+        result = AnaAlgorithmConfig._printHeader( '%s/%s' % ( self._type,
+                                                              self._prefix ) )
+        result += '\n'
+        for key, value in sorted( self._props.iteritems() ):
+            result += "|- %s: %s\n" % \
+                ( key, indentBy( value, "|" + " " * ( 4 + len( key ) ) ) )
             pass
-        result += "-" * ( 9 + len( self._type ) + len( self._prefix ) )
+        result += AnaAlgorithmConfig._printFooter( '%s/%s' % ( self._type,
+                                                               self._prefix ) )
         return result
 
     pass
