@@ -119,9 +119,9 @@ replaceAODReducedJets(reducedJetList,jetm1Seq,"JETM1")
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm1Seq,"JETM1")
 
-addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=0.0, zcut=0.1, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True,constmods=["CS", "SK"])
-addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=0.5, zcut=0.1, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True,constmods=["CS", "SK"])
-addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True,constmods=["CS", "SK"])
+addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=0.0, zcut=0.1, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
+addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=0.5, zcut=0.1, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
+addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
 
 
 # Add jets with constituent-level pileup suppression
@@ -177,7 +177,6 @@ JETM1SlimmingHelper.AllVariables = [ "MuonTruthParticles", "egammaTruthParticles
                                      "MuonSegments",
                                      "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                      ]
-#JETM1SlimmingHelper.ExtraVariables = []
 
 # Trigger content
 JETM1SlimmingHelper.IncludeJetTriggerContent = True
