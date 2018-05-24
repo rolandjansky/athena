@@ -22,10 +22,10 @@
 #include "HitManagement/TimedHitCollection.h"
 #include "MuonSimEvent/TGCSimHit.h"
 #include "MuonSimEvent/TGCSimHitCollection.h"
+#include "MuonDigitContainer/TgcDigitContainer.h"
+#include "MuonSimData/MuonSimDataCollection.h"
 
-class MuonSimDataCollection;
 class PileUpMergeSvc;
-class TgcDigitContainer;
 class TgcDigitMaker;
 class TgcHitIdHelper;
 class TgcIdHelper;
@@ -82,8 +82,6 @@ public:
 private:
   /** Get next event and extract collection of hit collections */
   StatusCode getNextEvent();
-  /** Record TgcDigitContainer and MuonSimDataCollection */
-  StatusCode recordDigitAndSdoContainers();
   /** Core part of digitization use by mergeEvent (IPileUpTool) and digitize (IMuonDigitizationTool) */
   StatusCode digitizeCore();
 
@@ -95,17 +93,17 @@ protected:
 
 private:
   TgcHitIdHelper*                    m_hitIdHelper;
-  TgcDigitContainer*                 m_digitContainer;
+  //TgcDigitContainer*                 m_digitContainer;
   const TgcIdHelper*                 m_idHelper;
   const MuonGM::MuonDetectorManager* m_mdManager;
   TgcDigitMaker*                     m_digitizer;
   TimedHitCollection<TGCSimHit>*     m_thpcTGC;
-  MuonSimDataCollection*             m_sdoContainer;
+  //MuonSimDataCollection*             m_sdoContainer;
   std::list<TGCSimHitCollection*>    m_TGCHitCollList;
 
   std::string m_inputHitCollectionName; // name of the input objects
-  std::string m_outputDigitCollectionName; // name of the output digits
-  std::string m_outputSDO_CollectionName; // name of the output SDOs
+  SG::WriteHandleKey<TgcDigitContainer> m_outputDigitCollectionKey{this,"OutputObjectName","TGC_DIGITS","WriteHandleKey for Output TgcDigitContainer"}; // name of the output digits
+  SG::WriteHandleKey<MuonSimDataCollection> m_outputSDO_CollectionKey{this,"OutputSDOsName","TGC_SDO","WriteHandleKey for Output MuonSimDataCollection"}; // name of the output SDOs
 
   //pileup truth veto
   bool m_includePileUpTruth;
