@@ -29,11 +29,11 @@ if [ -z ${TESTOPTION} ]; then
 fi
 
 if [ -z ${ATHENAHLTOPT} ]; then
-export ATHENAHLTOPT=""
+  export ATHENAHLTOPT=""
 fi
 
 if [ -z ${ATHENAHLTCMD} ]; then
-export ATHENAHLTCMD="athenaHLT.py"
+  export ATHENAHLTCMD="athenaHLT.py"
 fi
 
 ######################################
@@ -42,12 +42,13 @@ ${ATHENAHLTCMD} ${ATHENAHLTOPT} \
 -n ${EVENTS} \
 -f "${FILE}" \
 -c "${TESTOPTION}" \
-${JOBOPTION} | tee ${JOB_LOG}
+${JOBOPTION} &> ${JOB_LOG}
 
 ######################################
-COMMAND=$PREVIOUS_COMMAND 
-ATH_RETURN=${PIPESTATUS[0]}
-echo "Command to reproduce: ${COMMAND}"
+COMMAND=$PREVIOUS_COMMAND ATH_RETURN=$?
+echo ${COMMAND} > command.txt
+echo "Command to reproduce:"
+envsubst < command.txt
 echo "art-result: ${ATH_RETURN} ${JOB_LOG%%.*}"
 echo  $(date "+%FT%H:%M %Z")"     Done executing AthenaHLT test ${NAME}"
 
