@@ -15,6 +15,8 @@
 #include "Acts/Tools/TrackingGeometryBuilder.hpp"
 #include "Acts/Tools/CylinderVolumeBuilder.hpp"
 
+#include "ACTS/Plugins/ProtobufPlugin/ProtobufMaterialMapReader.hpp"
+
 // PACKAGE
 #include "GeomACTS/GeoModelLayerBuilder.hpp"
 #include "GeomACTS/GeoModelStrawLayerBuilder.hpp"
@@ -36,9 +38,6 @@ Acts::TrackingGeometrySvc::initialize()
   ATH_CHECK ( m_detStore->retrieve(p_SCTManager, "SCT") );
   ATH_CHECK ( m_detStore->retrieve(p_TRTManager, "TRT") );
 
-  if(m_useMaterialMap) {
-    ATH_MSG_INFO("Configured to use material map from " << m_materialMapInputFile);
-  }
   
   std::list<std::shared_ptr<const Acts::ITrackingVolumeBuilder>> volumeBuilders;
 
@@ -72,6 +71,18 @@ Acts::TrackingGeometrySvc::initialize()
   Acts::TrackingGeometryBuilder::Config tgbConfig;
   tgbConfig.trackingVolumeHelper   = cylinderVolumeHelper;
   tgbConfig.trackingVolumeBuilders = volumeBuilders;
+
+  if(m_useMaterialMap) {
+    ATH_MSG_INFO("Configured to use material map from " << std::string(m_materialMapInputFile));
+    Acts::ProtobufMaterialMapReader::Config cfg;
+    cfg.infile = m_materialMapInputFile;
+    Acts::ProtobufMaterialMapReader reader(std::move(cfg));
+
+    tgbConfig.inputMaterialMap = reader.read();
+  }
+
+
+
   auto trackingGeometryBuilder
       = std::make_shared<const Acts::TrackingGeometryBuilder>(tgbConfig,
           ACTS_ATH_LOGGER("TrkGeomBldr"));
@@ -194,6 +205,7 @@ Acts::TrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager
     // use class member element store
     cfg.elementStore = m_elementStore;
     cfg.layerCreator = layerCreator;
+
     gmLayerBuilder = std::make_shared<const GMLB>(cfg,
       ACTS_ATH_LOGGER("GMLayBldr"));
   }

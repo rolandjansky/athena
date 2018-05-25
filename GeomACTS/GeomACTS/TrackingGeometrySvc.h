@@ -8,6 +8,8 @@
 
 #include "GeomACTS/ITrackingGeometrySvc.h"
 
+#include <map>
+
 namespace InDetDD {
   class InDetDetectorManager;
   class SiDetectorManager;
@@ -20,6 +22,9 @@ class TrackingGeometry;
 class CylinderVolumeHelper;
 class ITrackingVolumeBuilder;
 class GeoModelDetectorElement;
+
+class GeometryID;
+class BinnedSurfaceMaterial;
 
 class TrackingGeometrySvc : public extends<AthService, ITrackingGeometrySvc> {
 public:
