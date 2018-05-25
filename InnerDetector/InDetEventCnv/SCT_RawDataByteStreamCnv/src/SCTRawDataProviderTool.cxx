@@ -1,12 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTRawDataProviderTool.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "InDetRawData/SCT_RDO_Container.h"
-#include "ByteStreamData/RawEvent.h" 
-#include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "StoreGate/ReadHandle.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
@@ -16,11 +12,10 @@ using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 SCTRawDataProviderTool::SCTRawDataProviderTool
 (const std::string& type, const std::string& name, const IInterface* parent)
-  :  AthAlgTool(type, name, parent),
-     m_robIdSet()
-     {
-       declareInterface<ISCTRawDataProviderTool>(this);   
-     }
+  : base_class(type, name, parent),
+    m_robIdSet()
+{
+}
 
 /// -------------------------------------------------------
 /// initialize
