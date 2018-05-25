@@ -407,7 +407,7 @@ int main(int argc, char** argv) {
       else return usage(argv[0], -1, "no efficiency scale for the reference histograms provided");
     } 
     else if (               arg=="--ncols" ) { 
-      if ( ++i<argc ) ncols=std::atof(argv[i]);
+      if ( ++i<argc ) ncols=std::atoi(argv[i]);
       else return usage(argv[0], -1, "no number of columns provided");
     } 
     else if ( arg=="-np" || arg=="--noplots" ) { 
@@ -1832,7 +1832,7 @@ int main(int argc, char** argv) {
 
 	//      if ( atlasstyle ) ATLASLabel( xpos, ypositions[0]+deltay, atlaslabel.c_str() );
 
-	if ( atlasstyle ) ATLASLabel( xpos, ypositions[0]+deltay, atlaslabel.c_str() );
+	if ( atlasstyle ) ATLASLabel( xpos, ypositions[0]+deltay, atlaslabel.c_str(), kBlack, ncolsp, nrowsp );
 
 	if ( fulldbg ) if ( fulldbg ) std::cout << __LINE__ << std::endl;
           
