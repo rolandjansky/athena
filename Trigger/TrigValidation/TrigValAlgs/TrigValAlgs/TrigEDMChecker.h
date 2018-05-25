@@ -163,6 +163,9 @@ class TrigEDMChecker : public AthAlgorithm  {
    void dumpTrigVertexCounts();
    void dumpTrigTrackCounts();
 
+
+   std::vector<std::string> m_dumpTrigCompositeContainers;
+   StatusCode dumpTrigComposite();
    ToolHandle<Rec::IMuonPrintingTool>            m_muonPrinter;
 
 };
