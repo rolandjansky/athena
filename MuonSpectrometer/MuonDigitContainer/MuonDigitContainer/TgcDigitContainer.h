@@ -44,7 +44,7 @@
 #include <vector>
 #include <string>
 #include "MuonDigitContainer/TgcDigitCollection.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "EventContainers/IdentifiableContainer.h" 
 
 
