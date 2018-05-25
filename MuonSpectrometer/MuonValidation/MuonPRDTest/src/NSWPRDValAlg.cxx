@@ -6,14 +6,14 @@
 
 #include "MMDigitVariables.h"
 #include "MMSimHitVariables.h"
-#include "MMFastDigitVariables.h"
+#include "MMSDOVariables.h"
 #include "MMRDOVariables.h"
 #include "MMPRDVariables.h"
 
 #include "sTGCDigitVariables.h"
 #include "sTGCSimHitVariables.h"
 #include "sTGCRDOVariables.h"
-#include "sTGCFastDigitVariables.h"
+#include "sTGCSDOVariables.h"
 #include "sTGCPRDVariables.h"
 
 #include "CSCDigitVariables.h"
@@ -39,11 +39,13 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
     m_MuEntryVar(nullptr),
     m_sTgcSimHitVar(nullptr),
     m_sTgcRdoVar(nullptr),
-    m_sTgcFastDigitVar(nullptr),
+    m_sTgcSdoVar(nullptr),
+    m_sTgcFastSdoVar(nullptr),
     m_sTgcDigitVar(nullptr),
     m_sTgcPrdVar(nullptr),
     m_MmSimHitVar(nullptr),
-    m_MmFastDigitVar(nullptr),
+    m_MmSdoVar(nullptr),
+	 m_MmFastSdoVar(nullptr),
     m_MmDigitVar(nullptr),
     m_MmRdoVar(nullptr),
     m_MmPrdVar(nullptr),
@@ -57,30 +59,30 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
     m_runNumber(0),
     m_eventNumber(0)
 {
-  declareProperty("Truth_ContainerName", m_Truth_ContainerName="TruthEvent");
-  declareProperty("MuonEntryLayer_ContainerName", m_MuEntry_ContainerName="MuonEntryLayer");
-  declareProperty("NSWsTGC_ContainerName", m_NSWsTGC_ContainerName="sTGCSensitiveDetector");
-  declareProperty("NSWsTGC_RDOContainerName", m_NSWsTGC_RDOContainerName="sTGCRDO");
-  declareProperty("NSWsTGC_FastDigitContainerName", m_NSWsTGC_FastDigitContainerName="STGC_Measurements");
-  declareProperty("NSWsTGC_DigitContainerName", m_NSWsTGC_DigitContainerName="sTGC_DIGITS");
-  declareProperty("NSWsTGC_PRDContainerName", m_NSWsTGC_PRDContainerName="STGC_Measurements");
-  declareProperty("NSWMM_ContainerName", m_NSWMM_ContainerName="MicromegasSensitiveDetector");
-  declareProperty("NSWMM_FastDigitContainerName", m_NSWMM_FastDigitContainerName="MM_Measurements");
-  declareProperty("NSWMM_DigitContainerName", m_NSWMM_DigitContainerName="MM_DIGITS");
-  declareProperty("NSWMM_RDOContainerName", m_NSWMM_RDOContainerName="MMRDO");
-  declareProperty("NSWMM_PRDContainerName", m_NSWMM_PRDContainerName="MM_Measurements");
-  declareProperty("CSC_DigitContainerName", m_CSC_DigitContainerName="CSC_DIGITS");
+  declareProperty("Truth_ContainerName",            m_Truth_ContainerName="TruthEvent");
+  declareProperty("MuonEntryLayer_ContainerName",   m_MuEntry_ContainerName="MuonEntryLayer");
+  declareProperty("NSWsTGC_ContainerName",          m_NSWsTGC_ContainerName="sTGCSensitiveDetector");
+  declareProperty("NSWsTGC_DigitContainerName",     m_NSWsTGC_DigitContainerName="sTGC_DIGITS");
+  declareProperty("NSWsTGC_SDOContainerName",       m_NSWsTGC_SDOContainerName="sTGC_SDO");
+  declareProperty("NSWsTGC_RDOContainerName",       m_NSWsTGC_RDOContainerName="sTGCRDO");
+  declareProperty("NSWsTGC_PRDContainerName",       m_NSWsTGC_PRDContainerName="STGC_Measurements");
+  declareProperty("NSWMM_ContainerName",            m_NSWMM_ContainerName="MicromegasSensitiveDetector");
+  declareProperty("NSWMM_DigitContainerName",       m_NSWMM_DigitContainerName="MM_DIGITS");
+  declareProperty("NSWMM_SDOContainerName",         m_NSWMM_SDOContainerName="MM_SDO");
+  declareProperty("NSWMM_RDOContainerName",         m_NSWMM_RDOContainerName="MMRDO");
+  declareProperty("NSWMM_PRDContainerName",         m_NSWMM_PRDContainerName="MM_Measurements");
+  declareProperty("CSC_DigitContainerName",         m_CSC_DigitContainerName="CSC_DIGITS");
 
   declareProperty("doTruth",         m_doTruth=false);
   declareProperty("doMuEntry",       m_doMuEntry=false);
   declareProperty("doSTGCHit",       m_doSTGCHit=false);
-  declareProperty("doSTGCRDO",       m_doSTGCRDO=false);
-  declareProperty("doSTGCFastDigit", m_doSTGCFastDigit=false);
   declareProperty("doSTGCDigit",     m_doSTGCDigit=false);
+  declareProperty("doSTGCFastDigit", m_doSTGCFastDigit=false);
+  declareProperty("doSTGCRDO",       m_doSTGCRDO=false);
   declareProperty("doSTGCPRD",       m_doSTGCPRD=false);
   declareProperty("doMMHit",         m_doMMHit=false);
-  declareProperty("doMMFastDigit",   m_doMMFastDigit=false);
   declareProperty("doMMDigit",       m_doMMDigit=false);
+  declareProperty("doMMFastDigit",   m_doMMFastDigit=false);
   declareProperty("doMMRDO",         m_doMMRDO=false);
   declareProperty("doMMPRD",         m_doMMPRD=false);
   declareProperty("doCSCDigit",      m_doCSCDigit=false);
@@ -128,18 +130,27 @@ StatusCode NSWPRDValAlg::initialize() {
      m_sTgcDigitVar = new sTGCDigitVariables(&(*(evtStore())), m_detManager,
                                                 m_sTgcIdHelper, m_tree, m_NSWsTGC_DigitContainerName);
      ATH_CHECK( m_sTgcDigitVar->initializeVariables() );
+
+  	  // Take SDO conainer
+     m_sTgcSdoVar = new sTGCSDOVariables(&(*(evtStore())), m_detManager,
+                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_SDOContainerName);
+     ATH_CHECK( m_sTgcSdoVar->initializeVariables() );
+  }
+
+  if (m_doSTGCFastDigit){
+  	  // Take the "fast_SDO" instead of the SDOs from full sim
+     m_sTgcFastSdoVar = new sTGCSDOVariables(&(*(evtStore())), m_detManager,
+                                                m_sTgcIdHelper, m_tree, "sTGCfast_SDO");
+     ATH_CHECK( m_sTgcFastSdoVar->initializeVariables() );
+
+     // Fast digits = PRD
+     m_doSTGCPRD = true;
   }
 
   if (m_doSTGCRDO){
      m_sTgcRdoVar = new sTGCRDOVariables(&(*(evtStore())), m_detManager,
                                                 m_sTgcIdHelper, m_tree, m_NSWsTGC_RDOContainerName);
      ATH_CHECK( m_sTgcRdoVar->initializeVariables() );
-  }
-
-  if (m_doSTGCFastDigit){
-     m_sTgcFastDigitVar = new sTGCFastDigitVariables(&(*(evtStore())), m_detManager,
-                                                m_sTgcIdHelper, m_tree, m_NSWsTGC_FastDigitContainerName);
-     ATH_CHECK( m_sTgcFastDigitVar->initializeVariables() );
   }
 
   if (m_doSTGCPRD){
@@ -158,6 +169,21 @@ StatusCode NSWPRDValAlg::initialize() {
      m_MmDigitVar = new MMDigitVariables(&(*(evtStore())), m_detManager,
                                                 m_MmIdHelper, m_tree, m_NSWMM_DigitContainerName);
      ATH_CHECK( m_MmDigitVar->initializeVariables() );
+
+     // Take SDO conainer
+     m_MmSdoVar = new MMSDOVariables(&(*(evtStore())), m_detManager,
+                                                m_MmIdHelper, m_tree, m_NSWMM_SDOContainerName);
+     ATH_CHECK( m_MmSdoVar->initializeVariables() );
+  }
+
+  if (m_doMMFastDigit){
+  	  // Take the "fast_SDO" instead of the SDOs from full sim
+     m_MmFastSdoVar = new MMSDOVariables(&(*(evtStore())), m_detManager,
+                                                m_MmIdHelper, m_tree, "MMfast_SDO");
+     ATH_CHECK( m_MmFastSdoVar->initializeVariables() );
+
+     // Fast digits = PRD
+     m_doMMPRD = true;
   }
 
   if (m_doMMRDO) {
@@ -165,12 +191,6 @@ StatusCode NSWPRDValAlg::initialize() {
     m_MmRdoVar = new MMRDOVariables(&(*(evtStore())), m_detManager,
                                                 m_MmIdHelper, m_tree, m_NSWMM_RDOContainerName);
     ATH_CHECK( m_MmRdoVar->initializeVariables() );
-  }
-
-  if (m_doMMFastDigit){
-     m_MmFastDigitVar = new MMFastDigitVariables(&(*(evtStore())), m_detManager,
-                                                m_MmIdHelper, m_tree, m_NSWMM_FastDigitContainerName);
-     ATH_CHECK( m_MmFastDigitVar->initializeVariables() );
   }
 
  if (m_doMMPRD){
@@ -196,11 +216,13 @@ StatusCode NSWPRDValAlg::finalize()
   if (m_doMuEntry) { delete m_MuEntryVar; m_MuEntryVar=0;}
   if (m_sTgcSimHitVar) { delete m_sTgcSimHitVar; m_sTgcSimHitVar=0;}
   if (m_sTgcRdoVar) { delete m_sTgcRdoVar; m_sTgcRdoVar=0;}
-  if (m_sTgcFastDigitVar) { delete m_sTgcFastDigitVar; m_sTgcFastDigitVar=0;}
+  if (m_sTgcSdoVar) { delete m_sTgcSdoVar; m_sTgcSdoVar=0;}
+  if (m_sTgcFastSdoVar) { delete m_sTgcSdoVar; m_sTgcSdoVar=0;}
   if (m_sTgcDigitVar) { delete m_sTgcDigitVar; m_sTgcDigitVar=0;}
   if (m_sTgcPrdVar) { delete m_sTgcPrdVar; m_sTgcPrdVar=0;}
   if (m_MmSimHitVar) { delete m_MmSimHitVar; m_MmSimHitVar=0;}
-  if (m_MmFastDigitVar) { delete m_MmFastDigitVar; m_MmFastDigitVar=0;}
+  if (m_MmSdoVar) { delete m_MmSdoVar; m_MmSdoVar=0;}
+  if (m_MmFastSdoVar) { delete m_MmSdoVar; m_MmSdoVar=0;}
   if (m_MmDigitVar) { delete m_MmDigitVar; m_MmDigitVar=0;}
   if (m_MmRdoVar) { delete m_MmRdoVar; m_MmRdoVar=0;}
   if (m_MmPrdVar) { delete m_MmPrdVar; m_MmPrdVar=0;}
@@ -231,9 +253,9 @@ StatusCode NSWPRDValAlg::execute()
 
   if (m_doSTGCHit) ATH_CHECK( m_sTgcSimHitVar->fillVariables() );
 
-  if (m_doSTGCFastDigit) ATH_CHECK( m_sTgcFastDigitVar->fillVariables() );
+  if (m_doSTGCDigit) { ATH_CHECK( m_sTgcDigitVar->fillVariables() ); ATH_CHECK( m_sTgcSdoVar->fillVariables() ); }
 
-  if (m_doSTGCDigit) ATH_CHECK( m_sTgcDigitVar->fillVariables() );
+  if (m_doSTGCFastDigit) ATH_CHECK( m_sTgcFastSdoVar->fillVariables() );
 
   if (m_doSTGCRDO) ATH_CHECK( m_sTgcRdoVar->fillVariables() );
 
@@ -241,9 +263,9 @@ StatusCode NSWPRDValAlg::execute()
 
   if (m_doMMHit) ATH_CHECK( m_MmSimHitVar->fillVariables() );
 
-  if (m_doMMFastDigit) ATH_CHECK( m_MmFastDigitVar->fillVariables() );
+  if (m_doMMDigit) { ATH_CHECK( m_MmDigitVar->fillVariables() ); ATH_CHECK( m_MmSdoVar->fillVariables() ); }
 
-  if (m_doMMDigit) ATH_CHECK( m_MmDigitVar->fillVariables() );
+  if (m_doMMFastDigit) ATH_CHECK( m_MmFastSdoVar->fillVariables() );
 
   if (m_doMMRDO) ATH_CHECK( m_MmRdoVar->fillVariables() );
 
