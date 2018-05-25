@@ -222,12 +222,17 @@ edmCreator.TrigCompositeContainer = [ "EgammaCaloDecisions", "ElectronL2Decision
 egammaViewsMerger = HLTEDMCreator("egammaViewsMerger")
 
 egammaViewsMerger.TrackParticleContainerViews = [ l2ElectronViewsMaker.Views ]
-egammaViewsMerger.TrackParticleContainerInViews = [ theElectronFex.TrackParticlesName ]
-egammaViewsMerger.TrackParticleContainer = ["HLT_electron_tracks"]
+egammaViewsMerger.TrackParticleContainerInViews = [ "xAODTracks" ]
+egammaViewsMerger.TrackParticleContainer = ["HLT_xAOD_TrackParticleContainer_L2ElectronTracks"]
 
 egammaViewsMerger.TrigElectronContainerViews = [ l2ElectronViewsMaker.Views ]
 egammaViewsMerger.TrigElectronContainerInViews = [ theElectronFex.ElectronsName ]
-egammaViewsMerger.TrigElectronContainer = ["HLT_electrons"]
+egammaViewsMerger.TrigElectronContainer = ["HLT_xAOD__TrigElectronContainer_L2ElectronFex"]
+
+egammaViewsMerger.TrigEMClusterContainerViews = [ "EMCaloViews" ]
+egammaViewsMerger.TrigEMClusterContainerInViews = [ "L2CaloClusters" ]
+egammaViewsMerger.TrigEMClusterContainer = ["HLT_xAOD__TrigEMClusterContainer_L2CaloClusters"]
+
 
 
 
@@ -260,7 +265,13 @@ for tc in edmCreator.TrigCompositeContainer:
 
 addTC("HLTSummary")
 
-StreamESD.ItemList += [ "xAOD::TrigElectronContainer#HLT_electrons", "xAOD::TrackParticleContainer#HLT_electron_tracks"]
+StreamESD.ItemList += [ "xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex", 
+                        "xAOD::TrackParticleContainer#HLT_xAOD_TrackParticleContainer_L2ElectronTracks",
+                        "xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters"]
+
+StreamESD.ItemList += [ "xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux.", 
+                        "xAOD::TrackParticleAuxContainer#HLT_xAOD_TrackParticleContainer_L2ElectronTracksAux.", 
+                        "xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux."]
 
 print "ESD file content " 
 print StreamESD.ItemList
