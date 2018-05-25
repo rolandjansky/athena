@@ -1,8 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_ConditionsData/FloatArrayStore.h"
+#include <iostream>
+
 
 void FloatArrayStore::cleanUp(){
   std::multimap<int,Identifier> indexmap;
@@ -15,7 +17,6 @@ void FloatArrayStore::cleanUp(){
   this->clear();
   int i(-tmp.size());
   for (;i<(int)tmp.size();i++){
-    //std::cout << indexmap.count(i) << " " << i << std::endl;
     bool first(true);
     Identifier shared_id;
     std::multimap<int,Identifier>::iterator pos;
@@ -30,8 +31,12 @@ void FloatArrayStore::cleanUp(){
   }
 }
 
-std::ostream& operator<<(std::ostream& os, const FloatArrayStore& store)
-{
+void FloatArrayStore::dbg() const {
+  std::cout << "dbg:" << m_bufmap.size() << "  " << m_buf.size() << std::endl;
+}
+
+
+std::ostream& operator<<(std::ostream& os, const FloatArrayStore& store){
   os << store.tag() << std::endl ;
   // it is a bit of a heck, but the FloatArrayStore doesn't allow for more.
   // first make an inverse map
@@ -58,21 +63,22 @@ std::ostream& operator<<(std::ostream& os, const FloatArrayStore& store)
   return os ;
 }
 
-std::istream& operator>>(std::istream& is, FloatArrayStore& store)
-{
+std::istream& operator>>(std::istream& is, FloatArrayStore& store){
   store.clear() ;
   std::string tag ;
   is >> tag ;
   store = FloatArrayStore(tag) ;
   std::vector<int> identifiers(0) ;
   std::vector<float> data(0) ;
+  constexpr int maxLines=2000000;//max 2 million lines
+  constexpr int maxSize=2000000; //max size 2 million
   int nlines ;
   is >> nlines ;
-  if (nlines>=0) {
+  if ((nlines>=0) and (nlines<maxLines)) {
   	for(int iline = 0; iline <nlines; ++iline) {
     		int size ;
     		is >> size ;
-                if (size>=0){
+                if ((size>=0) and (size<maxSize)){
     			identifiers.resize(size) ;
     			for(int i=0; i<size; ++i) is >> (identifiers[i]) ;
 			}
