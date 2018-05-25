@@ -29,6 +29,10 @@ class CurrentSequence:
         return CurrentSequence.sequence
 
 
+_propsToConcatinate=frozenset(("GeoModelSvc.DetectorTools","CondInputLoader.Load","IOVDbSvc.Folders","EvtPersistencySvc.CnvServices",
+                               "PoolSvc.ReadCatalog","ProxyProviderSvc.ProviderNames" ))
+
+
 class ComponentAccumulator(object): 
 
     def __init__(self):        
@@ -202,8 +206,13 @@ class ComponentAccumulator(object):
                         if (oldprop!=newprop):
                             #found property mismatch
                             if isinstance(oldprop,list): #if properties are concatinable, do that!
+                                propid="%s.%s" % (comp.getType(),str(prop))
+                                if propid not in _propsToConcatinate:
+                                    raise DeduplicationFailed("List property %s defined multiple times with conflicting values.\n " % propid \
+                                                              +"If this property should be concatinated, consider adding it to the _propsToConcatinate set")
+                  
                                 oldprop+=newprop
-                                #print "concatenating list-property",comp.getJobOptname(),prop
+
                                 setattr(comp,prop,oldprop)
                             else:
                                 #self._msg.error("component '%s' defined multiple times with mismatching configuration", svcs[i].getJobOptName())
