@@ -1,12 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** Implementation of SCT_RodEncoder class */
 #include "SCT_RodEncoder.h" 
-
-///SCT
-#include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 
 ///InDet
 #include "InDetIdentifier/SCT_ID.h"
@@ -15,9 +12,6 @@
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetRawData/SCT_RDORawData.h"
-
-///STL
-#include <set>
 
 namespace {
   int rodLinkFromOnlineId(const uint32_t id) {
@@ -32,11 +26,11 @@ namespace {
     return bool(someNumber & 1); 
   }
  
-  bool isEven(const int someNumber){
+  bool isEven(const int someNumber) {
     return !isOdd(someNumber);
   }
  
-  bool swappedCable(const int moduleSide, const int linkNumber){
+  bool swappedCable(const int moduleSide, const int linkNumber) {
     return isOdd(linkNumber) ? (moduleSide==0) : (moduleSide==1);
   }
 }//end of anon namespace
@@ -44,7 +38,7 @@ namespace {
 
 SCT_RodEncoder::SCT_RodEncoder
 (const std::string& type, const std::string& name,const IInterface* parent) : 
-  AthAlgTool(type, name, parent),
+  base_class(type, name, parent),
   m_cabling{"SCT_CablingSvc", name},
   m_sct_id{nullptr},
   m_condensed{false},
@@ -56,16 +50,8 @@ SCT_RodEncoder::SCT_RodEncoder
   m_lastExpHitNumber{0},
   m_headerNumber{0},
   m_trailerNumber{0} {
-    declareInterface<ISCT_RodEncoder>(this);
     declareProperty("CondensedMode", m_condensed=true);
   }
-
-
-/** destructor  */
-SCT_RodEncoder::~SCT_RodEncoder() {
-  //nop
-}
-
 
 StatusCode SCT_RodEncoder::initialize() {
   //prob. dont need this next line now:

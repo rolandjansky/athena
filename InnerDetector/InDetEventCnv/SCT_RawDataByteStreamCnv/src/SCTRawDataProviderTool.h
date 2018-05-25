@@ -1,36 +1,29 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDERTOOL_H
 #define SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDERTOOL_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "ByteStreamData/RawEvent.h"
-#include "InDetRawData/SCT_RDO_Container.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
 
+#include "GaudiKernel/ToolHandle.h"
+
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "ByteStreamData/RawEvent.h"
+#include "InDetRawData/SCT_RDO_Container.h"
+#include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
+
 #include <set>
-#include <string>
 
-
-class ISCT_RodDecoder;
-
-class SCTRawDataProviderTool : virtual public ISCTRawDataProviderTool, 
-  virtual public AthAlgTool
+class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderTool>
 {
 
  public:
    
-  //! AlgTool InterfaceID
-  //  static const InterfaceID& interfaceID( ) ;
-  
   //! constructor
   SCTRawDataProviderTool(const std::string& type, const std::string& name,
-                         const IInterface* parent ) ;
+                         const IInterface* parent);
 
   //! destructor 
   virtual ~SCTRawDataProviderTool() = default;
