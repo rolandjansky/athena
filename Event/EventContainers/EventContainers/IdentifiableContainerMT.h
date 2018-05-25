@@ -400,8 +400,8 @@ IdentifiableContainerMT<T>::addOrDelete(std::unique_ptr<T> ptr, IdentifierHash h
 {
     if(hashId >= m_mask.size()) return StatusCode::FAILURE;
     bool added = m_cacheLink->add(hashId, std::move(ptr));
+    m_mask[hashId] = true;
     if(added) {
-       m_mask[hashId] = true;
        return StatusCode::SUCCESS;
     }
     ptr.reset();//Explicity delete my ptr - should not be necessary maybe remove this line for optimization
@@ -414,12 +414,11 @@ IdentifiableContainerMT<T>::addOrDelete(std::unique_ptr<T> ptr, IdentifierHash h
 {
     if(hashId >= m_mask.size()) return StatusCode::FAILURE;
     bool added = m_cacheLink->add(hashId, std::move(ptr));
+    m_mask[hashId] = true;
+    deleted = !added;
     if(added) {
-       deleted = false;
-       m_mask[hashId] = true;
        return StatusCode::SUCCESS;
     }
-    deleted = true;
     ptr.reset();//Explicity delete my ptr - should not be necessary maybe remove this line for optimization
     return StatusCode::SUCCESS;
 }
