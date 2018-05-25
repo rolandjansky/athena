@@ -596,8 +596,11 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection &collection, const
 
     // Calculate the number of "free strips"
     int nEmptyStrips = 0;
+    std::vector<int> emptyStrips;
+    emptyStrips.reserve(m_strip_max);
     for (int i = 0; i < m_strip_max; i++) {
         if (m_StripHitsOnWafer[i] == 0) {
+            emptyStrips.push_back(i);
             ++nEmptyStrips;
         }
     }
@@ -627,18 +630,14 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection &collection, const
 
         // Find random strips to get noise hits
         for (int i = 0; i < nNoisyStrips; i++) {
-            int strip = CLHEP::RandFlat::shootInt(m_rndmEngine, nEmptyStrips -
+            int index = CLHEP::RandFlat::shootInt(m_rndmEngine, nEmptyStrips -
                                                   i); // strip == 10, 12 free
                                                       // strips
             // have vector [10000100100200211001] 20 strips
-            while (strip < m_strip_max) {
-                if (m_StripHitsOnWafer[strip] == 0) { // random strip free ok,
-                                                      // does not mean its the
-                                                      // 10th free strip though!
-                    break;                            // otherwise find the
-                                                      // first free one above
-                }
-                ++strip;
+            int strip = emptyStrips.at(index);
+            emptyStrips.erase(emptyStrips.begin()+index); // Erase it not to use it again
+            if (m_StripHitsOnWafer[strip]!=0) {
+                ATH_MSG_ERROR(index << "-th empty strip, strip " << strip << " should be empty but is not empty! Something is wrong!");
             }
             m_StripHitsOnWafer[strip] = 3;                                    //
                                                                               // !<
@@ -740,8 +739,11 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection &collection, const
 
         // Calculate the number of "free strips" on this chip
         int nEmptyStripsOnChip = 0;
+        std::vector<int> emptyStripsOnChip;
+        emptyStripsOnChip.reserve(chipStripmax);
         for (int i = 0; i < chipStripmax; i++) {
             if (m_StripHitsOnWafer[i + chip_strip_offset] == 0) {
+                emptyStripsOnChip.push_back(i);
                 ++nEmptyStripsOnChip;
             }
         }
@@ -756,17 +758,15 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection &collection, const
 
             // Find random strips to get noise hits
             for (int i = 0; i < nNoisyStrips[chip_index]; i++) {
-                int strip_on_chip = CLHEP::RandFlat::shootInt(m_rndmEngine,
+                int index = CLHEP::RandFlat::shootInt(m_rndmEngine,
                                                               nEmptyStripsOnChip
                                                               - i);
-                while (strip_on_chip < chipStripmax) {
-                    if (m_StripHitsOnWafer[strip_on_chip + chip_strip_offset] ==
-                        0) { // random strip free ok
-                        break;
-                    }
-                    ++strip_on_chip;
-                }
+                int strip_on_chip = emptyStripsOnChip.at(index);
+                emptyStripsOnChip.erase(emptyStripsOnChip.begin()+index); // Erase it not to use it again
                 int strip = strip_on_chip + chip_strip_offset;
+                if (m_StripHitsOnWafer[strip]!=0) {
+                    ATH_MSG_ERROR(index << "-th empty strip, strip " << strip << " should be empty but is not empty! Something is wrong!");
+                }
                 m_StripHitsOnWafer[strip] = 3;                                    //
                                                                                   // !<
                                                                                   // Random
