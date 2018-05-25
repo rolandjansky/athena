@@ -104,17 +104,20 @@ def addGhostAssociation(DerivationFrameworkJob):
 
 ##################################################################
 
-def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variableRMinRadius=-1.0):
+def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variableRMinRadius=-1.0, constmods=[]):
     """Return a list of tools (possibly empty) to be run in a jetalg. These tools will make sure PseudoJets will be associated
     to the container specified by the input arguments.    
     """
     
     from JetRec.JetRecStandard import jtm
     from JetRec.JetRecUtils import buildJetContName
-    jetContName = buildJetContName(jetalg, rsize, inputtype, variableRMassScale, variableRMinRadius)
+    constmodstr = "".join(constmods)
+    inputname = inputtype+constmodstr
+    label = inputtype + constmodstr
+    jetContName = buildJetContName(jetalg, rsize, inputname, variableRMassScale, variableRMinRadius)
 
     # Set default for the arguments to be passd to addJetFinder
-    finderArgs = dict( modifiersin= [], consumers = [], ghostArea= 0.01 , ptmin=40000, )
+    finderArgs = dict( modifiersin= [], consumers = [], ghostArea= 0.01 , ptmin=40000, constmods=constmods, )
     
     # We do things differently if the container already exists in the input
     from RecExConfig.AutoConfiguration import IsInInputFile
@@ -174,15 +177,27 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
                       Truth='truth',     TruthWZ='truthwz', TruthDressedWZ='truthdressedwz', TruthCharged='truthcharged', 
                       PV0Track='pv0track', TrackCaloCluster='tcc')
 
+    getters = getterMap[inputtype]
+
+    if len(constmods) > 0:
+      finderArgs['modifiersin'] = []
+      pjname = label.lower().replace("topo","")
+      # Get the PseudoJetGetter
+      from JetRecTools import ConstModHelpers
+      pjg = ConstModHelpers.getPseudoJetGetter(label,pjname)
+      getterbase = inputtype.lower()
+      getters = [pjg]+list(jtm.gettersMap[getterbase])[1:]
+
+
     # create the finder for the temporary collection.
-    tmpFinderTool= jtm.addJetFinder(tmpName, jetalg, rsize, getterMap[inputtype] ,
+    tmpFinderTool= jtm.addJetFinder(tmpName, jetalg, rsize, getters ,
                                     **finderArgs   # pass the prepared arguments
                                     )
     return [tmpFinderTool]
 
 def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
                          includePreTools=False, algseq=None, outputGroup="CustomJets",
-                         writeUngroomed=False, variableRMassScale=-1.0, variableRMinRadius=-1.0):
+                         writeUngroomed=False, variableRMassScale=-1.0, variableRMinRadius=-1.0, constmods=[]):
     algname = "jetalg"+groomedName[:-4]
 
     from RecExConfig.AutoConfiguration import IsInInputFile
@@ -194,7 +209,10 @@ def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
         return
 
     from JetRec.JetRecUtils import buildJetContName
-    ungroomedName = buildJetContName(jetalg, rsize, inputtype, variableRMassScale, variableRMinRadius)
+    constmodstr = "".join(constmods)
+    inputname = inputtype+constmodstr
+    label = inputtype + constmodstr
+    ungroomedName = buildJetContName(jetalg, rsize, inputname, variableRMassScale, variableRMinRadius)
     ungroomedalgname = "jetalg"+ungroomedName[:-4] # Remove "Jets" from name
 
     # add these groomed jets to the output (use setdefault() to constuct the list if not existing yet)
@@ -214,7 +232,27 @@ def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
     else:
         # 1. make sure we have pseudo-jet in our original container
         # this returns a list of the needed tools to do so.
-        jetalgTools = reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale, variableRMinRadius)
+        jetalgTools = reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale, variableRMinRadius, constmods=constmods)
+
+        if(len(constmods) > 0):
+          from JetRecTools import ConstModHelpers
+          constmodseq = ConstModHelpers.getConstModSeq(constmods,inputtype)
+
+          # Add the const mod sequence to the input preparation jetalg instance
+          # Could add the event shape computation here
+          from AthenaCommon.AlgSequence import AlgSequence
+          from JetRec.JetRecStandard import jtm
+          if not hasattr(jtm,"jetconstit"+label):
+            from JetRec.JetRecConf import JetToolRunner
+            jetrun = JetToolRunner("jetconstit"+label,
+                               EventShapeTools=[],
+                               Tools=[constmodseq])
+            jtm += jetrun
+            from AthenaCommon.AlgSequence import AlgSequence
+            job = AlgSequence()
+            job.jetalg.Tools.append(jetrun)
+            jetalgTools += jetrun
+
         if includePreTools and jetFlags.useTracks() and not "Truth" in inputtype:
             # enable track ghost association and JVF
             jetalgTools =  [jtm.tracksel, jtm.tvassoc] + jetalgTools 
@@ -246,10 +284,11 @@ def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
 ##################################################################
 def addTrimmedJets(jetalg, rsize, inputtype, rclus=0.3, ptfrac=0.05, mods="groomed",
                    includePreTools=False, algseq=None, outputGroup="Trimmed",
-                   writeUngroomed=False, variableRMassScale=-1.0, variableRMinRadius=-1.0):
+                   writeUngroomed=False, variableRMassScale=-1.0, variableRMinRadius=-1.0, constmods=[]):
     from JetRec.JetRecUtils import buildJetContName
     from JetRec.JetRecUtils import buildJetAlgName
-    trimmedName = "{0}{1}TrimmedPtFrac{2}SmallR{3}Jets".format(buildJetAlgName(jetalg, rsize, variableRMassScale, variableRMinRadius),inputtype,int(ptfrac*100),int(rclus*100))
+    inputname = inputtype + "".join(constmods)
+    trimmedName = "{0}{1}TrimmedPtFrac{2}SmallR{3}Jets".format(buildJetAlgName(jetalg, rsize, variableRMassScale, variableRMinRadius),inputname,int(ptfrac*100),int(rclus*100))
 
     # a function dedicated to build Trimmed jet :
     def trimToolBuilder( name, inputJetCont):
@@ -262,14 +301,15 @@ def addTrimmedJets(jetalg, rsize, inputtype, rclus=0.3, ptfrac=0.05, mods="groom
     return buildGenericGroomAlg(jetalg, rsize, inputtype, trimmedName, trimToolBuilder,
                                 includePreTools, algseq, outputGroup,
                                 writeUngroomed=writeUngroomed,
-                                variableRMassScale=variableRMassScale, variableRMinRadius=variableRMinRadius)
+                                variableRMassScale=variableRMassScale, variableRMinRadius=variableRMinRadius, constmods=constmods)
 
 
 ##################################################################
 def addPrunedJets(jetalg, rsize, inputtype, rcut=0.50, zcut=0.15, mods="groomed",
                   includePreTools=False, algseq=None, outputGroup="Pruned",
-                  writeUngroomed=False):
-    prunedName = "{0}{1}{2}PrunedR{3}Z{4}Jets".format(jetalg,str(int(rsize*10)),inputtype,int(rcut*100),int(zcut*100))
+                  writeUngroomed=False, constmods=[]):
+    inputname = inputtype + "".join(constmods)
+    prunedName = "{0}{1}{2}PrunedR{3}Z{4}Jets".format(jetalg,str(int(rsize*10)),inputname,int(rcut*100),int(zcut*100))
 
     # a function dedicated to build Pruned jet :
     def pruneToolBuilder( name, inputJetCont):
@@ -281,14 +321,15 @@ def addPrunedJets(jetalg, rsize, inputtype, rcut=0.50, zcut=0.15, mods="groomed"
     # pass the trimmedName and our specific trimming tool builder to the generic function :
     return buildGenericGroomAlg(jetalg, rsize, inputtype, prunedName, pruneToolBuilder,
                                 includePreTools, algseq, outputGroup,
-                                writeUngroomed=writeUngroomed)
+                                writeUngroomed=writeUngroomed, constmods=constmods)
 
 
 ##################################################################
 def addFilteredJets(jetalg, rsize, inputtype, mumax=1.0, ymin=0.15, mods="groomed",
                     includePreTools=False, algseq=None, outputGroup="Filtered",
-                    writeUngroomed=False):
-    filteredName = "{0}{1}{2}BDRSFilteredMU{3}Y{4}Jets".format(jetalg,int(rsize*10),inputtype,int(mumax*100),int(ymin*100))
+                    writeUngroomed=False, constmods=[]):
+    inputname = inputtype + "".join(constmods)
+    filteredName = "{0}{1}{2}BDRSFilteredMU{3}Y{4}Jets".format(jetalg,int(rsize*10),inputname,int(mumax*100),int(ymin*100))
 
     # a function dedicated to build Filtered jet :
     def filterToolBuilder( name, inputJetCont):
@@ -300,26 +341,27 @@ def addFilteredJets(jetalg, rsize, inputtype, mumax=1.0, ymin=0.15, mods="groome
     # pass the trimmedName and our specific trimming tool builder to the generic function :
     return buildGenericGroomAlg(jetalg, rsize, inputtype, filteredName, filterToolBuilder,
                                 includePreTools, algseq, outputGroup,
-                                writeUngroomed=writeUngroomed)
+                                writeUngroomed=writeUngroomed, constmods=constmods)
 
 
 ##################################################################
 def addSoftDropJets(jetalg, rsize, inputtype, beta=0, zcut=0.1, mods="groomed",
                     includePreTools=False, algseq=None, outputGroup="SoftDrop",
-                    writeUngroomed=False):
-    softDropName = "{0}{1}{2}SoftDropBeta{3}Zcut{4}Jets".format(jetalg,int(rsize*10),inputtype,int(beta*100),int(zcut*100))
+                    writeUngroomed=False, constmods=[]):
+    inputname = inputtype + "".join(constmods)
+    softDropName = "{0}{1}{2}SoftDropBeta{3}Zcut{4}Jets".format(jetalg,int(rsize*10),inputname,int(beta*100),int(zcut*100))
 
     # a function dedicated to build SoftDrop jet:
     def softDropToolBuilder( name, inputJetCont):
         from JetRec.JetRecStandard import jtm
         if name in jtm.tools: return jtm.tools[name]
-        else: return jtm.addJetSoftDrop( name, beta=beta, zcut=zcut, input=inputJetCont, modifiersin=mods )
+        else: return jtm.addJetSoftDrop( name, beta=beta, zcut=zcut, r0=rsize, input=inputJetCont, modifiersin=mods )
 
     dfjetlog.info( "Configuring soft drop jets :  "+softDropName )
     #pass the softDropName and our specific soft drop tool to the generic function:
     return buildGenericGroomAlg(jetalg, rsize, inputtype, softDropName, softDropToolBuilder,
                                 includePreTools, algseq, outputGroup,
-                                writeUngroomed=writeUngroomed)
+                                writeUngroomed=writeUngroomed, constmods=constmods)
 
 
 ##################################################################
@@ -383,7 +425,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
             inGetter = getterMap[inputtype]
         else:
             inGetter = customGetters
-            
+
         # create the finder for the temporary collection
         finderTool = jtm.addJetFinder(jetname, jetalg, rsize, inGetter,
                                       **finderArgs   # pass the prepared arguments

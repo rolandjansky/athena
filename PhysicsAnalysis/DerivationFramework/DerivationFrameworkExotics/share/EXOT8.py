@@ -289,6 +289,10 @@ replaceAODReducedJets(reducedJetList,exot8Seq,"EXOT8")
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
 addDefaultTrimmedJets(exot8Seq,"EXOT8")
 
+# Adds a new jet collection for SoftDrop with constituent modifiers CS and SK applied
+addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=0.5, zcut=0.1, algseq=exot8Seq, outputGroup="EXOT8", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
+
+
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(exot8Seq)
 # Also add Hbb Tagger
@@ -371,14 +375,17 @@ EXOT8SlimmingHelper.StaticContent = [
 
 # Add VR track-jet collection and its b-tagging container to output stream
 EXOT8SlimmingHelper.AppendToDictionary = {
-    "AntiKtVR30Rmax4Rmin02TrackJets"            :   "xAOD::JetContainer"        ,
-    "AntiKtVR30Rmax4Rmin02TrackJetsAux"         :   "xAOD::JetAuxContainer"     ,
-    "BTagging_AntiKtVR30Rmax4Rmin02Track"       :   "xAOD::BTaggingContainer"   ,
-    "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"    :   "xAOD::BTaggingAuxContainer",
+    "AntiKtVR30Rmax4Rmin02TrackJets"                :   "xAOD::JetContainer"        ,
+    "AntiKtVR30Rmax4Rmin02TrackJetsAux"             :   "xAOD::JetAuxContainer"     ,
+    "AntiKt10LCTopoCSSKSoftDropBeta50Zcut10Jets"   :   "xAOD::JetContainer"        ,
+    "AntiKt10LCTopoCSSKSoftDropBeta50Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+    "BTagging_AntiKtVR30Rmax4Rmin02Track"           :   "xAOD::BTaggingContainer"   ,
+    "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"        :   "xAOD::BTaggingAuxContainer",
 }
                                
 # Add all variabless for VR track-jets
 EXOT8SlimmingHelper.AllVariables  += ["AntiKtVR30Rmax4Rmin02TrackJets"]
+EXOT8SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta50Zcut10Jets"]
 EXOT8SlimmingHelper.SmartCollections  += ["BTagging_AntiKtVR30Rmax4Rmin02Track"]
 
 # Save certain b-tagging variables for VR track-jet
