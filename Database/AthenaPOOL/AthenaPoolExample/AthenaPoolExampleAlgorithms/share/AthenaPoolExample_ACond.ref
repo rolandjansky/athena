@@ -44,7 +44,6 @@ PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is file:Catalog1.xml
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info Xerces-c initialization Number 0
-PoolSvc              INFO Re-initializing PoolSvc
 Stream1             DEBUG input handles: 0
 Stream1             DEBUG output handles: 0
 Stream1             DEBUG Data Deps for Stream1

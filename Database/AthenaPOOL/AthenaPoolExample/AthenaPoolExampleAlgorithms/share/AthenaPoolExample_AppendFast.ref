@@ -58,7 +58,6 @@ PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:Catalog1.xml
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info Xerces-c initialization Number 0
-PoolSvc              INFO Re-initializing PoolSvc
 ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-00-00
 Stream2             DEBUG Found StoreGateSvc store.
 Stream2             DEBUG Found MetaDataStore store.
