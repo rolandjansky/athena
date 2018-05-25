@@ -41,7 +41,7 @@ ServiceMgr.THistSvc.Output += [
     ]
 
 # Print the job configuration for debugging:
-print( str( muonSequence ) )
+print( muonSequence )
 
 # Add the sequence to the job:
 algSeq += muonSequence

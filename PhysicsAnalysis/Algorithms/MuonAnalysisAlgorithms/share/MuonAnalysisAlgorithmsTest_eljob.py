@@ -68,7 +68,7 @@ for alg in muonSequence:
     alg.OutputLevel = 1
 
 # Print the job configuration for debugging:
-print( str( muonSequence ) )
+print( muonSequence )
 
 # Add all algorithms to the job:
 for alg in muonSequence:
