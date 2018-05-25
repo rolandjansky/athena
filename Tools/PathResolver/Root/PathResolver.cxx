@@ -309,7 +309,7 @@ std::string PathResolverFindDataFile (const std::string& logical_file_name)
 std::string PathResolver::find_calib_file (const std::string& logical_file_name)
 {
   msg(MSG::DEBUG) << "Trying to locate " << logical_file_name << endmsg;
-  if(logical_file_name.find("dev/")==0) msg(MSG::WARNING) << "Locating dev file " << logical_file_name << ". Do not let this propagate to a release" << endmsg;
+  if(logical_file_name.find("dev/")==0) msg(MSG::ERROR) << "Locating dev file " << logical_file_name << ". Do not let this propagate to a release" << endmsg;
   //expand filename before finding .. 
   TString tmpString(logical_file_name);
   gSystem->ExpandPathName(tmpString);
@@ -324,7 +324,7 @@ std::string PathResolver::find_calib_file (const std::string& logical_file_name)
 std::string PathResolver::find_calib_directory (const std::string& logical_file_name)
 {
   msg(MSG::DEBUG) <<"Trying to locate " << logical_file_name << endmsg;
-  if(logical_file_name.find("dev/")==0) msg(MSG::WARNING) << "Locating dev directory " << logical_file_name << ". Do not let this propagate to a release" << endmsg;
+  if(logical_file_name.find("dev/")==0) msg(MSG::ERROR) << "Locating dev directory " << logical_file_name << ". Do not let this propagate to a release" << endmsg;
   //expand filename before finding 
   TString tmpString(logical_file_name);
   gSystem->ExpandPathName(tmpString);
