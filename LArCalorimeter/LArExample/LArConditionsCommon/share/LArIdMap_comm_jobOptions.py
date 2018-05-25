@@ -7,6 +7,8 @@ include.block ( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
 #==================================================================
 
 from LArConditionsCommon.LArCondFlags import larCondFlags 
+from LArRecUtils.LArRecUtilsConf import LArOnOffMappingAlg, LArFebRodMappingAlg, LArCalibLineMappingAlg
+from AthenaCommon.AlgSequence import AthSequencer
 
 LArDBConnection = ""
 LArDB = "LAR"
@@ -17,8 +19,14 @@ if larCondFlags.LArDBConnection.statusOn  :
 
 from IOVDbSvc.CondDB import conddb
 
-conddb.addFolder(LArDB,"/LAR/Identifier/OnOffIdMap"+LArDBConnection)
-conddb.addFolder(LArDB,"/LAR/Identifier/CalibIdMap"+LArDBConnection)
-conddb.addFolder(LArDB,"/LAR/Identifier/FebRodMap"+LArDBConnection)
+condSeq = AthSequencer("AthCondSeq")
 
+conddb.addFolder(LArDB,"/LAR/Identifier/OnOffIdMap"+LArDBConnection,className="AthenaAttributeList")
+condSeq+=LArOnOffMappingAlg(ReadKey="/LAR/Identifier/OnOffIdMap")
+
+conddb.addFolder(LArDB,"/LAR/Identifier/CalibIdMap"+LArDBConnection,className="AthenaAttributeList")
+condSeq+=LArCalibLineMappingAlg(ReadKey="/LAR/Identifier/CalibIdMap")
+
+conddb.addFolder(LArDB,"/LAR/Identifier/FebRodMap"+LArDBConnection,className="AthenaAttributeList")
+condSeq+=LArFebRodMappingAlg(ReadKey="/LAR/Identifier/FebRodMap")
     
