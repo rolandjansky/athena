@@ -28,12 +28,12 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Chain counter constructor. Sets values of internal variables and sets up data store.
-   * @param _name Const ref to chain's name
-   * @param _ID Chain's HLT ID number.
+   * @param name Const ref to chain's name
+   * @param ID Chain's HLT ID number.
    */
-  CounterChain::CounterChain(const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel,
-                             MonitorBase* _parent)
-    : CounterBase(_costData, _name, _ID, _detailLevel, _parent),
+  CounterChain::CounterChain(const TrigCostData* costData, const std::string& name, Int_t ID, UInt_t detailLevel,
+                             MonitorBase* parent)
+    : CounterBase(costData, name, ID, detailLevel, parent),
     m_prescaleWeight(1.) {
     // Register variables to study.
     if (m_detailLevel == 0) {
@@ -86,51 +86,50 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Perform monitoring of a chain within an event.
-   * @param _e Chain index in D3PD.
-   * @param _f Unused by this counter.
-   * @param _weight Event weight.
+   * @param e Chain index in D3PD.
+   * @param f Unused by this counter.
+   * @param weight Event weight.
    */
-  void CounterChain::processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight) {
+  void CounterChain::processEventCounter(UInt_t e, UInt_t /*f*/, Float_t weight) {
     ++m_calls;
-    UNUSED(_f);
 
-    if (Config::config().debug()) debug(_e);
+    if (Config::config().debug()) debug(e);
 
-    _weight *= getPrescaleFactor();
-    if (isZero(_weight) == kTRUE) return;
+    weight *= getPrescaleFactor();
+    if (isZero(weight) == kTRUE) return;
 
     // Increase total time
-    Float_t _chainTime = m_costData->getChainTimerFromSequences(_e);
+    Float_t chainTime = m_costData->getChainTimerFromSequences(e);
 
-    //m_dataStore.store(kVarTotalPrescale, TrigConfInterface::getPrescale( m_name ), _weight);
-    m_dataStore.store(kVarEventsActive, 1., _weight);
-    m_dataStore.store(kVarEventsPassed, (Int_t) m_costData->getIsChainPassed(_e), _weight);
-    m_dataStore.store(kVarTime, _chainTime, _weight);
+    //m_dataStore.store(kVarTotalPrescale, TrigConfInterface::getPrescale( m_name ), weight);
+    m_dataStore.store(kVarEventsActive, 1., weight);
+    m_dataStore.store(kVarEventsPassed, (Int_t) m_costData->getIsChainPassed(e), weight);
+    m_dataStore.store(kVarTime, chainTime, weight);
 
-    if (m_costData->getIsChainResurrected(_e)) {
-      m_dataStore.store(kVarRerunTime, _chainTime, _weight);
+    if (m_costData->getIsChainResurrected(e)) {
+      m_dataStore.store(kVarRerunTime, chainTime, weight);
     }
 
-    s_eventTimeExecute += _chainTime * _weight; // Tabulate over all chains in event
+    s_eventTimeExecute += chainTime * weight; // Tabulate over all chains in event
 
-    if (_chainTime > Config::config().getInt(kSlowThreshold)) {
-      m_dataStore.store(kVarEventsSlow, 1., _weight);
+    if (chainTime > Config::config().getInt(kSlowThreshold)) {
+      m_dataStore.store(kVarEventsSlow, 1., weight);
     }
 
-    m_dataStore.store(kVarAlgCalls, m_costData->getChainAlgCalls(_e), _weight);
-    m_dataStore.store(kVarAlgCaches, m_costData->getChainAlgCaches(_e), _weight);
+    m_dataStore.store(kVarAlgCalls, m_costData->getChainAlgCalls(e), weight);
+    m_dataStore.store(kVarAlgCaches, m_costData->getChainAlgCaches(e), weight);
 
-    if (m_costData->getChainROBRetrievals(_e) != 0) {
-      m_dataStore.store(kVarROBRets, m_costData->getChainROBRetrievals(_e), _weight);
-      m_dataStore.store(kVarROBRetSize, m_costData->getChainROBRetrievalSize(_e), _weight);
+    if (m_costData->getChainROBRetrievals(e) != 0) {
+      m_dataStore.store(kVarROBRets, m_costData->getChainROBRetrievals(e), weight);
+      m_dataStore.store(kVarROBRetSize, m_costData->getChainROBRetrievalSize(e), weight);
     }
-    if (m_costData->getChainROBRequests(_e) != 0) {
-      m_dataStore.store(kVarROBReqs, m_costData->getChainROBRequests(_e), _weight);
-      m_dataStore.store(kVarROBReqSize, m_costData->getChainROBRequestSize(_e), _weight);
+    if (m_costData->getChainROBRequests(e) != 0) {
+      m_dataStore.store(kVarROBReqs, m_costData->getChainROBRequests(e), weight);
+      m_dataStore.store(kVarROBReqSize, m_costData->getChainROBRequestSize(e), weight);
     }
 
     // We should have as many algs here as we recorded as "called" and "cached"
-    assert(m_costData->getChainAlgs(_e).size() == m_costData->getChainAlgCalls(_e) + m_costData->getChainAlgCaches(_e));
+    assert(m_costData->getChainAlgs(e).size() == m_costData->getChainAlgCalls(e) + m_costData->getChainAlgCaches(e));
   }
 
   /**
@@ -140,16 +139,14 @@ namespace TrigCostRootAnalysis {
    * Note that this is 0 if either level has PS < 0
    * @return Multiplicitive weighting factor
    */
-  Double_t CounterChain::getPrescaleFactor(UInt_t _e) {
-    UNUSED(_e);
+  Double_t CounterChain::getPrescaleFactor(UInt_t /*e*/) {
     return m_prescaleWeight;
   }
 
   /**
    * Perform end-of-event monitoring on the DataStore.
    */
-  void CounterChain::endEvent(Float_t _weight) {
-    UNUSED(_weight);
+  void CounterChain::endEvent(Float_t /*weight*/) {
     m_dataStore.setVariableDenominator(kVarTime, s_eventTimeExecute);
     m_dataStore.endEvent();
   }
@@ -157,22 +154,22 @@ namespace TrigCostRootAnalysis {
   /**
    * Output debug information on this call to the console
    */
-  void CounterChain::debug(UInt_t _e) {
+  void CounterChain::debug(UInt_t e) {
     Info("CounterChain::debug", "Counter Name:%s ID:%i Event:%i ChainTime:%.2f ChainTimeFromSeq:%.2f "
                                 "PS:%.2f LB:%i Pass:%i PassRaw:%i PT:%i SeqCalls:%i AlgCall:%i AlgCache:%i",
          m_name.c_str(),
          getID(),
          m_costData->getEventNumber(),
-         m_costData->getChainTimer(_e),
-         m_costData->getChainTimerFromSequences(_e),
+         m_costData->getChainTimer(e),
+         m_costData->getChainTimerFromSequences(e),
          TrigConfInterface::getPrescale(m_name),
          m_costData->getLumi(),
-         m_costData->getIsChainPassed(_e),
-         m_costData->getIsChainPassedRaw(_e),
-         m_costData->getIsChainPassthrough(_e),
-         m_costData->getChainSeqCalls(_e),
-         m_costData->getChainAlgCalls(_e),
-         m_costData->getChainAlgCaches(_e)
+         m_costData->getIsChainPassed(e),
+         m_costData->getIsChainPassedRaw(e),
+         m_costData->getIsChainPassthrough(e),
+         m_costData->getChainSeqCalls(e),
+         m_costData->getChainAlgCalls(e),
+         m_costData->getChainAlgCaches(e)
          );
   }
 } // namespace TrigCostRootAnalysis
