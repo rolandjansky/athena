@@ -5,7 +5,7 @@
 /*
   TrigMuonEFTagandProbe
   Package: Trigger/TrigAlgorithms/TrigMuSuperEF
-  Authors: Jonathan Jamieson, University of Glasgow, Created 09/10/2017, Last edit: 23/02/18
+  Authors: Jonathan Jamieson, University of Glasgow, Created 09/10/2017, Last edit: 24/05/18
 */
 
 #ifndef TRIGMUONEFTAGANDPROBE_TRIGMUONEFTAGANDPROBE_H
@@ -15,7 +15,9 @@
 #include <vector>
 
 #include "TrigInterfaces/Algo.h"
-#include "TrigInterfaces/FexAlgo.h"
+//#include "TrigInterfaces/FexAlgo.h"
+#include "TrigInterfaces/AllTEAlgo.h"
+//#include "TrigInterfaces/ComboAlgo.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
 //Structure for holding sets of useful Tag and Probe muon information
@@ -58,7 +60,8 @@ class MonitoringObject {
 
 class TriggerElement;
 
-class TrigMuonEFTagandProbe: public virtual HLT::FexAlgo { //TaP algorithm will inherit from HLT::FexAlgo
+class TrigMuonEFTagandProbe: public virtual HLT::AllTEAlgo { //TaP algorithm will inherit from HLT::AllTEAlgo
+
  public:
 
   TrigMuonEFTagandProbe (const std::string &name, ISvcLocator *pSvcLocator); 
@@ -66,7 +69,10 @@ class TrigMuonEFTagandProbe: public virtual HLT::FexAlgo { //TaP algorithm will 
   virtual ~TrigMuonEFTagandProbe(); //destructor
 
   virtual HLT::ErrorCode hltInitialize();
-  virtual HLT::ErrorCode hltExecute(const HLT::TriggerElement*, HLT::TriggerElement*);
+
+  virtual HLT::ErrorCode hltExecute(std::vector< std::vector<HLT::TriggerElement*> >&, unsigned int);
+  //ALLTEAlgo input takes vector of all input TEs passed from the chain which themselves contain a vector of TE instances corresponding to each RoI, unsigned int is used to create dummy outputTE
+
   virtual HLT::ErrorCode hltFinalize();
 
  private:
@@ -171,9 +177,6 @@ class TrigMuonEFTagandProbe: public virtual HLT::FexAlgo { //TaP algorithm will 
   //Sets up instance of MonitoringObject public to TrigMuonEFTagandProbe
   MonitoringObject Thresh_Mon;                                                              
                                 
-  //To access Storegate need to use DataVector pointer which always assumes pointer elements
-  const DataVector<LVL1::RecMuonRoI>* m_l1_muon_RoIs; 
-  
   bool m_debug; //Flag for conditional DEBUG output
   bool m_verbose; //Flag for conditional VEROSE output
   
