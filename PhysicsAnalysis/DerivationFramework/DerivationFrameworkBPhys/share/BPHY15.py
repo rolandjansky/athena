@@ -552,7 +552,7 @@ if not isSimulation: #Only Skim Data
    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
    BPHY15_SelectBcJpsipiEvent = DerivationFramework__xAODStringSkimmingTool(
      name = "BPHY15_SelectBcJpsipiEvent",
-     expression = "(count(BPHY15JpsipiCandidates.passed_Bc > 0) + count(BcJpsiDsCascadeSV1.x > -999) + count(BcJpsiDpCascadeSV1.x > -999) + count(BcJpsiDmCascadeSV1.x > -999) + count(BcJpsiDpstCascadeSV1.x > -999) + count(BcJpsiDmstCascadeSV1.x > -999) + count(BcJpsiDps1CascadeSV1.x > -999) + count(BcJpsiDms1CascadeSV1.x > -999) > 0")
+     expression = "(count(BPHY15JpsipiCandidates.passed_Bc > 0) + count(BcJpsiDsCascadeSV1.x > -999) + count(BcJpsiDpCascadeSV1.x > -999) + count(BcJpsiDmCascadeSV1.x > -999) + count(BcJpsiDpstCascadeSV1.x > -999) + count(BcJpsiDmstCascadeSV1.x > -999) + count(BcJpsiDps1CascadeSV1.x > -999) + count(BcJpsiDms1CascadeSV1.x > -999) ) > 0")
    
    ToolSvc += BPHY15_SelectBcJpsipiEvent
    print      BPHY15_SelectBcJpsipiEvent

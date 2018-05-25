@@ -58,6 +58,8 @@ namespace DerivationFramework {
         double m_DxMassUpper;
         double m_MassLower;
         double m_MassUpper;
+        double m_vtx0MassHypo; // 1st vertex mass hypothesis
+        double m_vtx1MassHypo; // 2nd vertex mass hypothesis
 
         const HepPDT::ParticleDataTable* m_particleDataTable;
         double m_mass_muon;

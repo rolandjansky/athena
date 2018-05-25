@@ -248,6 +248,8 @@ namespace DerivationFramework {
 
         double mass_d = m_mass_Ds; 
         double mass_b = m_mass_Bc;
+        if(m_hypoName != "Bc") 
+           mass_b = m_vtx0MassHypo;
         std::vector<double> massesJpsi(2, m_mass_muon);
         std::vector<double> massesDx;
         std::vector<double> Masses(2, m_mass_muon);
@@ -268,19 +270,19 @@ namespace DerivationFramework {
            massesDx.push_back(m_mass_pion);
            Masses.push_back(m_mass_Dp);
            mass_d = m_mass_Dp;
-        } else if (m_trkMasses.size() == 6) { // Assign track masses using user's input. The order of particles in m_trkMasses vector is given as e.g.mu+, mu-, D_s+, K+, K-, pi+ 
+        } else { // Assign track masses using user's input. The order of particles in m_trkMasses vector is given as e.g.mu+, mu-, K+, K-, pi+ 
            massesJpsi.clear();
            massesDx.clear();
            Masses.clear();
            massesJpsi.push_back(m_trkMasses[0]);
            massesJpsi.push_back(m_trkMasses[1]);
-           Masses.push_back(m_trkMasses[0]);
-           Masses.push_back(m_trkMasses[1]);
-           Masses.push_back(m_trkMasses[2]);
-           mass_d = m_trkMasses[2];
+           massesDx.push_back(m_trkMasses[2]);
            massesDx.push_back(m_trkMasses[3]);
            massesDx.push_back(m_trkMasses[4]);
-           massesDx.push_back(m_trkMasses[5]);
+           Masses.push_back(m_trkMasses[0]);
+           Masses.push_back(m_trkMasses[1]);
+           Masses.push_back(m_vtx1MassHypo);
+           mass_d = m_vtx1MassHypo;
         }
 
         // reset beamspot cache
@@ -628,6 +630,8 @@ namespace DerivationFramework {
     m_DxMassUpper(10000.0),
     m_MassLower(0.0),
     m_MassUpper(20000.0),
+    m_vtx0MassHypo(6274.90),
+    m_vtx1MassHypo(1968.28),
     m_particleDataTable(nullptr),
     m_mass_muon   ( 0 ),
     m_mass_pion   ( 0 ),
@@ -656,7 +660,9 @@ namespace DerivationFramework {
        declareProperty("MassLowerCut", m_MassLower);
        declareProperty("MassUpperCut", m_MassUpper);
        declareProperty("HypothesisName",            m_hypoName               = "Bc");
-       declareProperty("TrkMasses",                 m_trkMasses              = std::vector<double>(2, 105.658) );
+       declareProperty("Vtx0MassHypo",              m_vtx0MassHypo);
+       declareProperty("Vtx1MassHypo",              m_vtx1MassHypo);
+       declareProperty("TrkMasses",                 m_trkMasses              = std::vector<double>(5, 105.658) );
        declareProperty("DxHypothesis",              m_Dx_pid);
        declareProperty("ApplyDxMassConstraint",     m_constrDx);
        declareProperty("ApplyJpsiMassConstraint",   m_constrJpsi);
@@ -714,19 +720,19 @@ namespace DerivationFramework {
            massesDx.push_back(m_mass_pion);
            mass_d = m_mass_Dp;
            Masses.push_back(m_mass_Dp);
-        } else if (m_trkMasses.size() == 6) { // Assign track masses using user's input. The order of particles in m_trkMasses vector is given as e.g.mu+, mu-, D_s+, K+, K-, pi+ 
+        } else { // Assign track masses using user's input. The order of particles in m_trkMasses vector is given as e.g.mu+, mu-, K+, K-, pi+ 
            massesJpsi.clear();
            massesDx.clear();
            Masses.clear();
            massesJpsi.push_back(m_trkMasses[0]);
            massesJpsi.push_back(m_trkMasses[1]);
-           Masses.push_back(m_trkMasses[0]);
-           Masses.push_back(m_trkMasses[1]);
-           Masses.push_back(m_trkMasses[2]);
-           mass_d = m_trkMasses[2];
+           massesDx.push_back(m_trkMasses[2]);
            massesDx.push_back(m_trkMasses[3]);
            massesDx.push_back(m_trkMasses[4]);
-           massesDx.push_back(m_trkMasses[5]);
+           Masses.push_back(m_trkMasses[0]);
+           Masses.push_back(m_trkMasses[1]);
+           Masses.push_back(m_vtx1MassHypo);
+           mass_d = m_vtx1MassHypo;
         }
 
         for(auto jpsi : *jpsiContainer) { //Iterate over Jpsi vertices
