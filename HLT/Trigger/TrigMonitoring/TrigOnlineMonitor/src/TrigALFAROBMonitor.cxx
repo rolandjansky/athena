@@ -546,7 +546,7 @@ StatusCode TrigALFAROBMonitor::beginRun() {
   //}
 
   // *-- booking path
-  m_pathHisto = std::string("/EXPERT/");
+  m_pathHisto = std::string("/EXPERT/") + name() + "/";
 
   // Specific source identifiers
   //eformat::helper::SourceIdentifier srcID_ALFA( eformat::FORWARD_ALPHA ,0);
@@ -1658,7 +1658,7 @@ void TrigALFAROBMonitor::findODTracks( ) {
             }
             //if (FoundTrack[0] && FoundTrack[1]){
             if( (m_ODtracks[iStation*2][iSide] < 0) && (m_ODtracks[iStation*2+1][iSide] < 0) ) {
-                 m_hist_DistStation[2*iStation][iSide]->Fill(-m_ODtracks[iStation*2][iSide] - m_ODtracks[iStation*2+1][iSide] + m_alfa_edge[iStation*2] + m_alfa_edge[iStation*2+1]);
+              m_hist_DistStation[2*iStation][iSide]->Fill(-m_ODtracks[iStation*2][iSide] - m_ODtracks[iStation*2+1][iSide] + m_alfa_edge[iStation*2] + m_alfa_edge[iStation*2+1]);
             }
 
         }//end of iSide-loop
