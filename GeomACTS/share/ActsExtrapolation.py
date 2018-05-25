@@ -79,9 +79,20 @@ alg.FATRAS = True
 alg.nParticles = 1
 alg.Cardinality = 0
 
+alg.WriteMaterialTracks = True
+# we only need this if the extrap alg is set up to write mat tracks
+mTrackWriterSvc = CfgMgr.Acts__MaterialTrackWriterSvc("MaterialTrackWriterSvc")
+mTrackWriterSvc.OutputLevel = DEBUG
+mTrackWriterSvc.FilePath = "MaterialTracks_mapped.root"
+ServiceMgr += mTrackWriterSvc
+
 
 exTool = CfgMgr.Acts__ExtrapolationTool("ExtrapolationTool")
 exTool.OutputLevel = INFO
+exTool.FieldMode = "Constant"
+exTool.ConstantFieldVector = [0, 0, 0]
+exTool.MatEngineDoELossCorrection = False
+
 alg.ExtrapolationTool = exTool
 
 

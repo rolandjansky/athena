@@ -13,6 +13,12 @@
 // ACTS
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Utilities/BFieldMapUtils.hpp"
+#include "Acts/Extrapolation/ExtrapolationCell.hpp"
+#include "Acts/Utilities/GeometryID.hpp"
+#include "Acts/Plugins/MaterialPlugins/MaterialStep.hpp"
+#include "Acts/Plugins/MaterialPlugins/MaterialTrack.hpp"
+#include "Acts/Material/MaterialProperties.hpp"
+#include "Acts/Plugins/MaterialPlugins/MaterialTrack.hpp"
 
 // PACKAGE
 #include "GeomACTS/ObjWriterTool.h"
@@ -28,6 +34,8 @@ namespace Acts {
   class TrackingGeometry;
   class ITrackingGeometrySvc;
   class IExtrapolationTool;
+  
+  class IMaterialTrackWriterSvc;
   
   template<typename>
   class ExtrapolationCell;
@@ -78,6 +86,44 @@ private:
   Gaudi::Property<bool> m_stopAtBoundary{this, "StopAtBoundary", true, ""};
   Gaudi::Property<bool> m_FATRAS{this, "FATRAS", true, ""};
   Gaudi::Property<size_t> m_nParticles{this, "nParticles", 1, ""};
+
+  Gaudi::Property<bool> m_writeMaterialTracks{this, "WriteMaterialTracks", false, ""};
+  ServiceHandle<Acts::IMaterialTrackWriterSvc> m_materialTrackWriterSvc;
+
+  template <class T>
+  Acts::MaterialTrack
+  makeMaterialTrack(const T& ecell) const
+  {
+
+    double totDInX0 = 0;
+    double totDInL0 = 0;
+
+    std::vector<Acts::MaterialStep> mSteps;
+    for (const auto &es : ecell.extrapolationSteps) {
+      if (es.configuration.checkMode(Acts::ExtrapolationMode::CollectMaterial)) {
+        // this is a material step
+        const Acts::GeometryID& geoID = es.surface->geoID();
+        const Acts::MaterialProperties& matProp = *es.material;
+        totDInX0 += matProp.thicknessInX0();
+        totDInL0 += matProp.thicknessInL0();
+        Acts::MaterialStep::Position pos(es.position);
+        mSteps.emplace_back(matProp, pos, geoID.value());
+      }
+    }
+
+    const Acts::Vector3D& mom = ecell.startParameters->momentum();
+    double theta = mom.theta();
+    double phi = mom.phi();
+    Acts::MaterialTrack mTrack(ecell.startParameters->position(),
+                         theta,
+                         phi,
+                         mSteps,
+                         totDInX0,
+                         totDInL0);
+
+    return mTrack;
+
+  }
 
 };
 

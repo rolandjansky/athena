@@ -11,12 +11,16 @@
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ISvcLocator.h"
 
+// ACTS
+#include "ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp"
+
 // PACKAGE
 #include "GeomACTS/Extrapolation/ParticleGun.hpp"
 #include "GeomACTS/ITrackingGeometrySvc.h"
 #include "GeomACTS/IExtrapolationTool.h"
 #include "GeomACTS/IExCellWriterSvc.h"
 #include "GeomACTS/Logger.h"
+#include "GeomACTS/IMaterialTrackWriterSvc.h"
 //#include "GeomACTS/Extrapolation/ObjExCellWriter.hpp"
 
 // STL
@@ -33,7 +37,8 @@ ActsExtrapolation::ActsExtrapolation(const std::string& name,
       m_firstEvent(true),
       m_trackingGeometrySvc("TrackingGeometrySvc", name),
       m_exCellWriterSvc("ExCellWriterSvc", name),
-      m_rndmGenSvc("AthRNGSvc", name)
+      m_rndmGenSvc("AthRNGSvc", name),
+      m_materialTrackWriterSvc("MaterialTrackWriterSvc", name)
 {
 }
 
@@ -50,13 +55,17 @@ StatusCode ActsExtrapolation::initialize() {
   ATH_CHECK( m_extrapolationTool.retrieve() );
 
   m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
+        
+  if (m_writeMaterialTracks) {
+    ATH_CHECK( m_materialTrackWriterSvc.retrieve() );
+  }
 
   ParticleGun::Config pgCfg;
   pgCfg.nParticles = m_nParticles;
   pgCfg.pID = 11;
   pgCfg.mass = 0.51099891 * Acts::units::_MeV;
   pgCfg.charge = -1.;
-  pgCfg.etaRange = {-3, 3};
+  pgCfg.etaRange = {-6, 6};
 
   m_particleGun = std::make_unique<ParticleGun>(
       pgCfg, ACTS_ATH_LOGGER("ParticleGun"));
@@ -152,6 +161,11 @@ StatusCode ActsExtrapolation::execute_r(const EventContext& ctx) const
         }
 
         m_extrapolationTool->extrapolate(ecc);
+
+        if (m_writeMaterialTracks) {
+          Acts::MaterialTrack mTrack = makeMaterialTrack(ecc);
+          m_materialTrackWriterSvc->write(std::move(mTrack));
+        }
 
         ecells.push_back(std::move(ecc));
       }

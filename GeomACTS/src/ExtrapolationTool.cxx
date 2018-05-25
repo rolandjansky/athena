@@ -77,6 +77,7 @@ Acts::ExtrapolationTool::initialize()
 
   // (b) MaterialEffectsEngine
   Acts::MaterialEffectsEngine::Config matConfig;
+  matConfig.eLossCorrection = m_matEngineDoELossCorrection;
   auto                                materialEngine
     = std::make_shared<Acts::MaterialEffectsEngine>(matConfig);
   materialEngine->setLogger(

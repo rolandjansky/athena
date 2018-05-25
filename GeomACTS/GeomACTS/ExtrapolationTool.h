@@ -54,6 +54,7 @@ private:
 
   Gaudi::Property<std::string> m_fieldMode{this, "FieldMode", "ATLAS"};
   Gaudi::Property<std::vector<double>> m_constantFieldVector{this, "ConstantFieldVector", {0, 0, 0}};
+  Gaudi::Property<bool> m_matEngineDoELossCorrection{this, "MatEngineDoELossCorrection", true};
 
 };
 
