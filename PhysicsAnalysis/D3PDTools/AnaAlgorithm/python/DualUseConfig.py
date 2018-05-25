@@ -37,7 +37,7 @@ def createAlgorithm( typeName, instanceName ):
     pass
 
 
-def createPublicTool( alg, toolName, typeName ):
+def createPublicTool( toolName, typeName ):
     """Helper function for setting up a public tool for a dual-use algorithm
 
     This function is meant to be used in the analysis algorithm sequence
@@ -46,7 +46,6 @@ def createPublicTool( alg, toolName, typeName ):
     Athena and EventLoop.
 
     Keyword arguments:
-      alg      -- The algorithm to set up the private tool on
       toolName -- The property name with which the tool handle was declared on
                   the algorithm. Also the instance name of the tool.
       typeName -- The C++ type name of the private tool
@@ -79,7 +78,6 @@ def createPublicTool( alg, toolName, typeName ):
         from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
         tool = AnaAlgorithmConfig( '%s/%s' % ( typeName, toolName ) )
         tool.setIsPublicTool( True )
-        job.algsAdd( tool )
         return tool
 
 

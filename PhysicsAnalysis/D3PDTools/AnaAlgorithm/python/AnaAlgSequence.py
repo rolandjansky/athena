@@ -65,10 +65,16 @@ class AnaAlgSequence( AlgSequence ):
                                                self._outputPropNames,
                                                self._affectingSystematics ):
 
-            # Set the input name(s)
+            # If there is no input defined for the algorithm (because it may
+            # be a public tool), then skip doing anything with it:
+            if not inName:
+                continue
+
+            # Set the input name(s):
             setattr( alg, inName, currentInput )
             setattr( alg, inName + 'Regex', inputRegex )
 
+            # Set up the output name(s):
             if outName:
                 currentInput = '%s_tmp%i_%%SYS%%' % ( inputName, tmpIndex )
                 tmpIndex += 1
@@ -78,6 +84,7 @@ class AnaAlgSequence( AlgSequence ):
                     pass
                 pass
 
+            # Set up the systematic behaviour of the algorithm:
             if syst:
                 alg.systematicsRegex = syst
                 pass
@@ -137,6 +144,29 @@ class AnaAlgSequence( AlgSequence ):
         self._outputPropNames.append( outputPropName )
         self._affectingSystematics.append( affectingSystematics )
 
+        return
+
+    def addPublicTool( self, tool ):
+        """Add a public tool to the job
+
+        This function is here to provide a uniform interface with which
+        analysis algorithm sequences can declare the public tools that they
+        need. In Athena mode the function doesn't do anything. But in EventLoop
+        mode it remembers the EL::AnaAlgorithmConfig object that it receives,
+        which describes the public tool.
+
+        Keyword arguments:
+           tool -- The tool object to add to the sequence/job
+        """
+
+        try:
+            # Try to access the ToolSvc, to see whethet we're in Athena mode:
+            from AthenaCommon.AppMgr import ToolSvc
+        except ImportError:
+
+            # We're not, so let's remember this as a "normal" algorithm:
+            self.append( tool, inputPropName = None )
+            pass
         return
 
     pass
