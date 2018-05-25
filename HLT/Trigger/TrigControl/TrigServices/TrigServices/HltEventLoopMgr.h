@@ -20,6 +20,7 @@
 // Forward declarations
 class IIncidentSvc;
 class IAlgContextSvc;
+class IThreadPoolSvc;
 class StoreGateSvc;
 class ITHistSvc;
 class IROBDataProviderSvc;
@@ -127,6 +128,7 @@ private:
   
   // ------------------------- Optional services/tools -------------------------
   IAlgContextSvc* m_algContextSvc{0};
+  IThreadPoolSvc* m_threadPoolSvc{0};
   
   /// Reference to a THistSvc which implements also the Hlt additions
   SmartIF<IHltTHistSvc> m_hltTHistSvc;
@@ -159,6 +161,8 @@ private:
   EventID::number_type m_currentRun{0};
   /// Number of events which started processing
   size_t m_nevt;
+  /// Current run number
+  int m_threadPoolSize;
 
 protected:
   // ------------------------- Reimplemented AthenaHiveEventLoopMgr helpers ----
@@ -167,6 +171,9 @@ protected:
 
   /// Drain the scheduler from all actions that may be queued
   int drainScheduler() const;
+
+  /// Clear an event slot in the whiteboard
+  StatusCode clearWBSlot(int evtSlot) const;
 
   // ------------------------- Hive stuff from AthenaHiveEventLoopMgr ----------
   /// Reference to the Whiteboard interface

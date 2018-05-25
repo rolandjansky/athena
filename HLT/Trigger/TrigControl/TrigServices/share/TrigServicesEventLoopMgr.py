@@ -8,15 +8,24 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 # from AthenaCommon.Constants import *
 
 # ==============================================================================
-# Set up for multithreading
+# Set up from StoreGateHiveExample.py and AthExHiveOpts.py and AtlasThreadedJob.py
 # ==============================================================================
 nThreads = 1
 numStores = 1
 numAlgsInFlight = nThreads
 
+from AthenaCommon.ConcurrencyFlags import jobproperties as jps
+jps.ConcurrencyFlags.NumThreads = nThreads
+jps.ConcurrencyFlags.NumConcurrentEvents = numStores
+
+# from GaudiCommonSvc.GaudiCommonSvcConf import AlgContextSvc
+# svcMgr += AlgContextSvc("AlgContextSvc")
+# svcMgr.AlgContextSvc.Check = True
+
 from StoreGate.StoreGateConf import SG__HiveMgrSvc
 svcMgr += SG__HiveMgrSvc("EventDataSvc")
 svcMgr.EventDataSvc.NSlots = numStores
+svcMgr.EventDataSvc.OutputLevel = VERBOSE
 
 from GaudiHive.GaudiHiveConf import AlgResourcePool
 arp=AlgResourcePool( OutputLevel = INFO );
@@ -27,6 +36,99 @@ from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.setThreadPoolSize(nThreads)
 AlgScheduler.ShowDataDependencies(True)
 AlgScheduler.ShowControlFlow(True)
+AlgScheduler.OutputLevel=VERBOSE
+
+from StoreGate.StoreGateConf import StoreGateSvc
+svcMgr += StoreGateSvc()
+svcMgr.StoreGateSvc.OutputLevel = VERBOSE
+svcMgr.StoreGateSvc.Dump = True
+
+from StoreGate.StoreGateConf import SGImplSvc
+svcMgr += SGImplSvc("SGImplSvc")
+svcMgr.SGImplSvc.OutputLevel = VERBOSE
+
+# ThreadPoolService thread local initialization
+from GaudiHive.GaudiHiveConf import ThreadPoolSvc
+svcMgr += ThreadPoolSvc("ThreadPoolSvc")
+svcMgr.ThreadPoolSvc.ThreadInitTools = ["ThreadInitTool"]
+
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+algCardinality = nThreads
+
+if (algCardinality != 1):
+    for alg in topSequence:
+       name = alg.name()
+       alg.Cardinality = algCardinality
+
+from SGComps.SGCompsConf import SGInputLoader
+topSequence += SGInputLoader( FailIfNoProxy=False )
+
+theAuditorSvc = svcMgr.AuditorSvc
+theApp.AuditAlgorithms=True
+from SGComps.SGCompsConf import SGCommitAuditor
+theAuditorSvc += SGCommitAuditor()
+
+# for easier browsing of verbose logs
+ClassIDSvc = Service("ClassIDSvc")
+ClassIDSvc.OutputLevel = DEBUG
+
+# ==============================================================================
+# Some extra services
+# ==============================================================================
+
+from AthenaCommon import CfgMgr
+from AthenaCommon.AppMgr import theApp
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+from AthenaCommon.AppMgr import ToolSvc
+
+## basic Gaudi services from AtlasUnixStandardJob.py
+import GaudiSvc.GaudiSvcConf as GaudiSvcConf
+svcMgr += GaudiSvcConf.IncidentSvc()
+svcMgr += GaudiSvcConf.EvtPersistencySvc( "EventPersistencySvc" )
+svcMgr += GaudiSvcConf.HistogramSvc( "HistogramDataSvc" )
+svcMgr += GaudiSvcConf.NTupleSvc()
+svcMgr += GaudiSvcConf.ToolSvc()
+svcMgr += GaudiSvcConf.RndmGenSvc()
+svcMgr += GaudiSvcConf.ChronoStatSvc()
+
+#####
+
+from StoreGate.StoreGateConf import StoreGateSvc
+svcMgr += StoreGateSvc("DetectorStore")
+
+# ProxyProviderSvc services configuration
+svcMgr += CfgMgr.ProxyProviderSvc()
+
+# --- ByteStreamAddressProviderSvc configuration
+svcMgr += CfgMgr.ByteStreamAddressProviderSvc()
+svcMgr.ProxyProviderSvc.ProviderNames += [ "ByteStreamAddressProviderSvc" ]
+theApp.CreateSvc += [ svcMgr.ByteStreamAddressProviderSvc.getFullName() ]
+
+# Initialization of DetDescrCnvSvc
+svcMgr += CfgMgr.DetDescrCnvSvc(
+    # specify primary Identifier dictionary to be used
+    IdDictName = "IdDictParser/ATLAS_IDS.xml"
+    )
+theApp.CreateSvc += [ svcMgr.DetDescrCnvSvc.getFullName() ]
+svcMgr.EventPersistencySvc.CnvServices += [ "DetDescrCnvSvc" ]
+
+# --- ByteStreamCnvSvc configuration
+svcMgr += CfgMgr.ByteStreamCnvSvc("ByteStreamCnvSvc")
+svcMgr.EventPersistencySvc.CnvServices += [ "ByteStreamCnvSvc" ]
+
+# dictionary services from AtlasUnixStandardJob.py
+# the dict loader
+import AthenaServices.AthenaServicesConf as AthenaServicesConf
+if not hasattr(svcMgr, 'AthDictLoaderSvc'):
+    svcMgr += AthenaServicesConf.AthDictLoaderSvc()
+theApp.CreateSvc += [svcMgr.AthDictLoaderSvc.getFullJobOptName()]
+
+# the dict checker
+if not hasattr(svcMgr, 'AthenaSealSvc'):
+    svcMgr += AthenaServicesConf.AthenaSealSvc()
+theApp.CreateSvc += [svcMgr.AthenaSealSvc.getFullJobOptName()]
+
 
 # ==============================================================================
 # General setup

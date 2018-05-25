@@ -6,6 +6,7 @@
 // Gaudi includes
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IAlgContextSvc.h"
+#include "GaudiKernel/IThreadPoolSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IAlgResourcePool.h"
 #include "GaudiKernel/IEvtSelector.h"
@@ -54,7 +55,8 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   m_THistSvc("THistSvc", name ),
   m_coolHelper("TrigCOOLUpdateHelper", this),
   m_detector_mask(0xffffffff, 0xffffffff, 0, 0),
-  m_nevt(0)
+  m_nevt(0),
+  m_threadPoolSize(-1)
 {
   verbose() << "start of " << __FUNCTION__ << endmsg;
   
@@ -167,14 +169,16 @@ StatusCode HltEventLoopMgr::initialize()
     return StatusCode::FAILURE;
   }
   debug() << "initialised " << m_whiteboardName << " interface IHiveWhiteBoard." << endmsg;
-  
+
+  debug() << "commented out scheduler initialisation was here, now it's moved to hltUpdateAfterFork" << endmsg;
+  /*
   m_schedulerSvc = serviceLocator()->service(m_schedulerName);
   if ( !m_schedulerSvc.isValid()){
     fatal() << "Error retrieving " << m_schedulerName << " interface ISchedulerSvc." << endmsg;
     return StatusCode::FAILURE;    
   }
   debug() << "initialised " << m_schedulerName << " interface ISchedulerSvc." << endmsg;
-  
+  */
   m_algResourcePool = serviceLocator()->service("AlgResourcePool");
   if( !m_algResourcePool.isValid() ) {
     fatal() << "Error retrieving AlgResourcePool" << endmsg;
@@ -255,9 +259,21 @@ StatusCode HltEventLoopMgr::initialize()
   //----------------------------------------------------------------------------
   // Setup the AlgContextSvc (optional)
   //----------------------------------------------------------------------------
-  if (service("AlgContextSvc", m_algContextSvc, /*createIf=*/ false).isFailure()) {
+  if (service("AlgContextSvc", m_algContextSvc, /*createIf=*/ true).isFailure()) {
     m_algContextSvc = 0;
     debug() << "No AlgContextSvc available" << endmsg;
+  }
+
+  //----------------------------------------------------------------------------
+  // Setup the ThreadPoolSvc (optional)
+  //----------------------------------------------------------------------------
+  if (service("ThreadPoolSvc", m_threadPoolSvc, /*createIf=*/ false).isFailure()) {
+    m_threadPoolSvc = 0;
+    debug() << "No ThreadPoolSvc available" << endmsg;
+  }
+  else {
+    m_threadPoolSize = m_threadPoolSvc->poolSize();
+    debug() << "ThreadPoolSvc available with pool size " << m_threadPoolSize << endmsg;
   }
   
   //----------------------------------------------------------------------------
@@ -352,6 +368,15 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree & pt)
     if(prepareAlgs(*evinfo).isSuccess())
       return StatusCode::SUCCESS;
     */
+    
+    //-------------------------------------------------------------------------
+    // Shut down the hive pool thread
+    //-------------------------------------------------------------------------
+    // if (m_threadPoolSvc) {
+    //   debug() << "Terminating thread pool" << endmsg;
+    //   m_threadPoolSvc->terminatePool();
+    // }
+
     verbose() << "end of " << __FUNCTION__ << endmsg;
     return StatusCode::SUCCESS;
   }
@@ -381,7 +406,24 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree & pt)
 // =============================================================================
 StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree & pt)
 {
-  verbose() << "dummy implementation of " << __FUNCTION__ << endmsg;
+  verbose() << "start of " << __FUNCTION__ << endmsg;
+
+  debug() << "trying to initialise the scheduler after forking" << endmsg;
+  m_schedulerSvc = serviceLocator()->service(m_schedulerName);
+  if ( !m_schedulerSvc.isValid()){
+    fatal() << "Error retrieving " << m_schedulerName << " interface ISchedulerSvc." << endmsg;
+    return StatusCode::FAILURE;    
+  }
+  debug() << "initialised " << m_schedulerName << " interface ISchedulerSvc." << endmsg;
+
+  //-------------------------------------------------------------------------
+  // Reopen the hive pool thread
+  //-------------------------------------------------------------------------
+  // if (m_threadPoolSvc) {
+  //   debug() << "Reopening thread pool with size " << m_threadPoolSize << " after fork" << endmsg;
+  //   m_threadPoolSvc->initPool(m_threadPoolSize);
+  // }
+  verbose() << "end of " << __FUNCTION__ << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -437,6 +479,7 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
   bool events_available = true; // DataCollector has more events
   
   while (!loop_ended) {
+    debug() << "Free slots = " << m_schedulerSvc->freeSlots() << endmsg;
     if (m_schedulerSvc->freeSlots()>0 && events_available) {
       debug() << "Free slots = " << m_schedulerSvc->freeSlots() << ". Reading the next event." << endmsg;
       
@@ -445,7 +488,7 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       //-----------------------------------------------------------------------
       eformat::write::FullEventFragment l1r; // can we allocate new each time?
       // should the getNext call be protected by try{} and catch()?
-      hltinterface::DataCollector::Status status = hltinterface::DataCollector::instance()->getNext(l1r);
+      /* hltinterface::DataCollector::Status status = hltinterface::DataCollector::instance()->getNext(l1r);
       if (status == hltinterface::DataCollector::Status::STOP) {
         debug() << "No more events available, the loop will finish when all events on the fly are processed" << endmsg;
         events_available = false;
@@ -453,7 +496,7 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       else if (status != hltinterface::DataCollector::Status::OK) {
         error() << "Unhandled return Status " << static_cast<int>(status) << " from DataCollector::getNext" << endmsg;
         // continue running?
-      }
+      } */
 
       //-----------------------------------------------------------------------
       // Start processing the new event
@@ -473,7 +516,7 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
         continue;
       }
 
-      EventID* eventID = new EventID(l1r.run_no(),
+      EventID* eventID = new EventID(m_currentRun, // l1r.run_no(),
                                      l1r.global_id(),
                                      l1r.bc_time_seconds(),
                                      l1r.bc_time_nanoseconds(),
@@ -518,8 +561,13 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
 
     }
     else {
-      int nPopped = drainScheduler();
-      if (nPopped==0 && !events_available) {
+      debug() << "No free slots or no more events to process - draining the scheduler" << endmsg;
+      int ir = drainScheduler();
+      if (ir<0) {
+        error() << "Error draining scheduler" << endmsg;
+        continue;
+      }
+      else if (ir==0 && !events_available) {
         info() << "All events processed, finalising the event loop" << endmsg;
         loop_ended = true;
       }
@@ -772,6 +820,141 @@ StatusCode HltEventLoopMgr::createEventContext(EventContext*& evtContext) const
 //==============================================================================
 int HltEventLoopMgr::drainScheduler() const
 {
-  // if all events processed, return 0
-  return 0;
+  verbose() << "start of " << __FUNCTION__ << endmsg;
+
+  // method copied from AthenaHiveEventLoopMgr
+
+  StatusCode sc(StatusCode::SUCCESS);
+    
+  // maybe we can do better
+  std::vector<EventContext*> finishedEvtContexts;
+
+  EventContext* finishedEvtContext(nullptr);
+
+  // Here we wait not to loose cpu resources
+  // debug() << "drainScheduler: [" << finishedEvts << "] Waiting for a context" << endmsg;
+  debug() << "drainScheduler: Waiting for a context" << endmsg;
+  sc = m_schedulerSvc->popFinishedEvent(finishedEvtContext);
+
+  // We got past it: cache the pointer
+  if (sc.isSuccess()){
+    debug() << "drainScheduler: scheduler not empty: Context " 
+	    << finishedEvtContext << endmsg;
+    finishedEvtContexts.push_back(finishedEvtContext);
+  } else{
+    // no more events left in scheduler to be drained
+    debug() << "drainScheduler: scheduler empty" << endmsg;
+    return 0;
+  }
+
+  // Let's see if we can pop other event contexts
+  while (m_schedulerSvc->tryPopFinishedEvent(finishedEvtContext).isSuccess()){
+    finishedEvtContexts.push_back(finishedEvtContext);
+  }
+
+  // Now we flush them
+  bool fail(false);
+  for (auto& thisFinishedEvtContext : finishedEvtContexts) {
+    if (!thisFinishedEvtContext) {
+      fatal() << "Detected nullptr ctxt while clearing WB!"<< endmsg;
+      fail = true;
+      continue;
+    }
+
+    if (m_aess->eventStatus(*thisFinishedEvtContext) != EventStatus::Success) {
+      fatal() << "Failed event detected on " << thisFinishedEvtContext 
+              << " w/ fail mode: "
+              << m_aess->eventStatus(*thisFinishedEvtContext) << endmsg;
+      delete thisFinishedEvtContext;
+      fail = true;
+      continue;
+    }
+    
+    EventID::number_type n_run(0);
+    EventID::number_type n_evt(0);
+
+    const EventInfo* pEvent(0);
+    if (m_whiteboard->selectStore(thisFinishedEvtContext->slot()).isSuccess()) {
+      if (m_evtStore->retrieve(pEvent).isFailure()) {
+        error() << "DrainSched: unable to get EventInfo obj" << endmsg;
+        delete thisFinishedEvtContext;
+        fail = true;
+        continue;
+      } else {
+        n_run = pEvent->event_ID()->run_number();
+        n_evt = pEvent->event_ID()->event_number();
+      }
+    } else {
+      error() << "DrainSched: unable to select store " << thisFinishedEvtContext->slot() << endmsg;
+      delete thisFinishedEvtContext;
+      fail = true;
+      continue;
+    }
+
+    // m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndEvent,
+    // 					 *thisFinishedEvtContext ));
+
+    debug() << "Clearing slot " << thisFinishedEvtContext->slot() 
+            << " (event " << thisFinishedEvtContext->evt()
+            << ") of the whiteboard" << endmsg;
+    
+    StatusCode sc = clearWBSlot(thisFinishedEvtContext->slot());
+    if (!sc.isSuccess()) {
+      error() << "Whiteboard slot " << thisFinishedEvtContext->slot() 
+	      << " could not be properly cleared";
+      fail = true;
+      delete thisFinishedEvtContext;
+      continue;
+    }
+/*
+    finishedEvts++;
+
+    writeHistograms().ignore();
+    ++m_proc;
+
+    if (m_doEvtHeartbeat) {
+      if(!m_useTools) 
+        info() << "  ===>>>  done processing event #" << n_evt << ", run #" << n_run 
+               << " on slot " << thisFinishedEvtContext->slot() << ",  "
+               << m_proc << " events processed so far  <<<===" << endmsg;
+      else 
+	info() << "  ===>>>  done processing event #" << n_evt << ", run #" << n_run 
+	       << " on slot " << thisFinishedEvtContext->slot() << ",  "          
+	       << m_nev << " events read and " << m_proc 
+	       << " events processed so far <<<===" << endmsg;
+      std::ofstream outfile( "eventLoopHeartBeat.txt");
+      if ( !outfile ) {
+	error() << " unable to open: eventLoopHeartBeat.txt" << endmsg;
+	fail = true;
+	delete thisFinishedEvtContext;
+	continue;
+      } else {
+	outfile << "  done processing event #" << n_evt << ", run #" << n_run 
+		<< " " << m_nev << " events read so far  <<<===" << std::endl;
+	outfile.close();
+      }  
+    }
+*/
+    debug() << "drainScheduler thisFinishedEvtContext: " << thisFinishedEvtContext << endmsg;
+    
+    
+    m_incidentSvc->fireIncident(Incident(name(),
+                                         IncidentType::EndProcessing,
+                                         *thisFinishedEvtContext));
+
+    delete thisFinishedEvtContext;
+
+  }
+
+  verbose() << "end of " << __FUNCTION__ << endmsg;
+  return (  fail ? -1 : 1 );
+}
+
+//==============================================================================
+StatusCode HltEventLoopMgr::clearWBSlot(int evtSlot) const {
+  StatusCode sc = m_whiteboard->clearStore(evtSlot);
+  if( !sc.isSuccess() )  {
+    warning() << "Clear of Event data store failed" << endmsg;    
+  }
+  return m_whiteboard->freeStore(evtSlot);
 }
