@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+#
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
@@ -26,11 +26,9 @@ from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
 dataType = "data"
 #dataType = "mc"
 #dataType = "afii"
-electronContainer = "Electrons"
-photonContainer = "Photons"
 
 if not dataType in ["data", "mc", "afii"] :
-    raise Exception ("invalid data type: " + dataType)
+    raise ValueError ("invalid data type: " + dataType)
 
 # Set up the sample handler object. See comments from the C++ macro
 # for the details about these lines.
@@ -61,57 +59,43 @@ config = AnaAlgorithmConfig( 'CP::SysListLoaderAlg/SysLoaderAlg' )
 config.sigmaRecommended = 1
 job.algsAdd( config )
 
+# Include, and then set up the pileup analysis sequence:
+from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
+    makePileupAnalysisSequence
+pileupSequence = makePileupAnalysisSequence( dataType )
+pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo' )
+print( pileupSequence ) # For debugging
 
-from AsgAnalysisAlgorithms.PileupAnalysisSequence import makePileupAnalysisSequence
-
-sequence = makePileupAnalysisSequence (dataType=dataType)
-
-
-from AsgAnalysisAlgorithms.SequencePostConfiguration import sequencePostConfiguration
-
-sequencePostConfiguration (sequence, "EventInfo")
-
-for alg in sequence :
-    config = alg["alg"]
-
-    # set everything to debug output
-    config.OutputLevel = 1
-
-    job.algsAdd( config )
+# Add the pileup algorithm(s) to the job:
+for alg in pileupSequence:
+    job.algsAdd( alg )
     pass
 
+# Include, and then set up the electron analysis sequence:
+from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import \
+    makeElectronAnalysisSequence
+electronSequence = makeElectronAnalysisSequence( dataType )
+electronSequence.configure( inputName = 'Electrons',
+                            outputName = 'AnalysisElextrons' )
+print( electronSequence ) # For debugging
 
-from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import makeElectronAnalysisSequence
-
-sequence = makeElectronAnalysisSequence (electronContainer=electronContainer,dataType=dataType)
-
-sequencePostConfiguration (sequence, electronContainer)
-
-for alg in sequence :
-    config = alg["alg"]
-
-    # set everything to debug output
-    config.OutputLevel = 1
-
-    job.algsAdd( config )
+# Add the electron algorithm(s) to the job:
+for alg in electronSequence:
+    job.algsAdd( alg )
     pass
 
+# Include, and then set up the photon analysis sequence:
+from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import \
+    makePhotonAnalysisSequence
+photonSequence = makePhotonAnalysisSequence( dataType )
+photonSequence.configure( inputName = 'Photons',
+                          outputName = 'AnalysisPhotons' )
+print( photonSequence ) # For debugging
 
-from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import makePhotonAnalysisSequence
-
-sequence = makePhotonAnalysisSequence (photonContainer=photonContainer,dataType=dataType)
-
-sequencePostConfiguration (sequence, photonContainer)
-
-for alg in sequence :
-    config = alg["alg"]
-
-    # set everything to debug output
-    config.OutputLevel = 1
-
-    job.algsAdd( config )
+# Add the photon algorithm(s) to the job:
+for alg in photonSequence:
+    job.algsAdd( alg )
     pass
-
 
 # Run the job using the direct driver.
 driver = ROOT.EL.DirectDriver()

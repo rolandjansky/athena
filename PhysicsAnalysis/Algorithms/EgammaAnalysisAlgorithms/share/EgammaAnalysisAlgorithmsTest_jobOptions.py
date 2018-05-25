@@ -2,81 +2,76 @@
 #
 # @author Nils Krumnack
 
-
+# Set up the reading of the input file:
 import AthenaRootComps.ReadAthenaxAODHybrid
-
 theApp.EvtMax = 500
 testFile = os.getenv ('ASG_TEST_FILE_DATA')
 svcMgr.EventSelector.InputCollections = [testFile]
 
-algSeq = CfgMgr.AthSequencer("AthAlgSeq")
-
-from AnaAlgorithm.DualUseConfig import setCfgMgr
-
-setCfgMgr (CfgMgr)
+# Access the main algorithm sequence of the job:
+from AthenaCommon.AlgSequence import AlgSequence
+algSeq = AlgSequence()
 
 # ideally we'd run over all of them, but we don't have a mechanism to
 # configure per-sample right now
 dataType = "data"
 #dataType = "mc"
 #dataType = "afii"
-electronContainer = "Electrons"
-photonContainer = "Photons"
 
+# Set up the systematics loader/handler algorithm:
+sysLoader = CfgMgr.CP__SysListLoaderAlg( 'SysLoaderAlg' )
+sysLoader.sigmaRecommended = 1
+algSeq += sysLoader
 
+# Include, and then set up the pileup analysis sequence:
+from AsgAnalysisAlgorithms.PileupAnalysisSequence import \
+    makePileupAnalysisSequence
+pileupSequence = makePileupAnalysisSequence( dataType )
+pileupSequence.configure( inputName = 'EventInfo', outputName = 'EventInfo' )
+print( pileupSequence ) # For debugging
 
-from AsgAnalysisAlgorithms.PileupAnalysisSequence import makePileupAnalysisSequence
+# Add the pileup sequence to the job:
+algSeq += pileupSequence
 
-sequence = makePileupAnalysisSequence (dataType=dataType)
+# Include, and then set up the electron analysis sequence:
+from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import \
+    makeElectronAnalysisSequence
+electronSequence = makeElectronAnalysisSequence( dataType )
+electronSequence.configure( inputName = 'Electrons',
+                            outputName = 'AnalysisElextrons' )
 
+# Allow the histogram writer algorithm(s) to work correctly:
+electronSequence.ElectronCutFlowDumperAlg.RootStreamName = '/EGAMMATEST'
+electronSequence.ElectronKinematicDumperAlg.RootStreamName = '/EGAMMATEST'
 
-from AsgAnalysisAlgorithms.SequencePostConfiguration import sequencePostConfiguration
+# For debugging:
+print( electronSequence )
 
-sequencePostConfiguration (sequence, "EventInfo")
+# Add the electron sequence to the job:
+algSeq += electronSequence
 
-for alg in sequence :
-    config = alg["alg"]
+# Include, and then set up the photon analysis sequence:
+from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import \
+    makePhotonAnalysisSequence
+photonSequence = makePhotonAnalysisSequence( dataType )
+photonSequence.configure( inputName = 'Photons',
+                          outputName = 'AnalysisPhotons' )
 
-    # set everything to debug output
-    config.OutputLevel = 1
+# Allow the histogram writer algorithm(s) to work correctly:
+photonSequence.PhotonCutFlowDumperAlg.RootStreamName = '/EGAMMATEST'
+photonSequence.PhotonKinematicDumperAlg.RootStreamName = '/EGAMMATEST'
 
-    algSeq += config
-    pass
+# For debugging:
+print( photonSequence )
 
+# Add the photon sequence to the job:
+algSeq += photonSequence
 
-from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import makeElectronAnalysisSequence
+# Set up THistSvc:
+ServiceMgr += CfgMgr.THistSvc()
+ServiceMgr.THistSvc.Output += [
+    "EGAMMATEST DATAFILE='EgammaAnalysisAlgorithmsTest.hist.root' OPT='RECREATE'"
+    ]
 
-sequence = makeElectronAnalysisSequence (electronContainer=electronContainer,dataType=dataType)
-
-
-sequencePostConfiguration (sequence, electronContainer)
-
-for alg in sequence :
-    config = alg["alg"]
-
-    # set everything to debug output
-    config.OutputLevel = 1
-
-    algSeq += config
-    pass
-
-
-from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import makePhotonAnalysisSequence
-
-sequence = makePhotonAnalysisSequence (photonContainer=photonContainer,dataType=dataType)
-
-
-sequencePostConfiguration (sequence, photonContainer)
-
-for alg in sequence :
-    config = alg["alg"]
-
-    # set everything to debug output
-    config.OutputLevel = 1
-
-    algSeq += config
-    pass
-
-
-# optional include for reducing printout from athena
-include("AthAnalysisBaseComps/SuppressLogging.py")
+# Reduce the printout from Athena:
+include( "AthAnalysisBaseComps/SuppressLogging.py" )
