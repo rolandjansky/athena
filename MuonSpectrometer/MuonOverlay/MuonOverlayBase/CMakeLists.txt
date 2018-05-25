@@ -8,7 +8,7 @@ atlas_subdir( MuonOverlayBase )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          Control/DataModel
+                          Control/AthContainers
                           Control/StoreGate
                           DetectorDescription/Identifier
                           Event/EventOverlay/IDC_OverlayBase
@@ -18,5 +18,5 @@ atlas_depends_on_subdirs( PUBLIC
 # Component(s) in the package:
 atlas_add_library( MuonOverlayBase
                    PUBLIC_HEADERS MuonOverlayBase
-                   LINK_LIBRARIES AthenaBaseComps DataModel Identifier IDC_OverlayBase OverlayAlgBase GaudiKernel StoreGateLib SGtests )
+                   LINK_LIBRARIES AthenaBaseComps AthContainers Identifier IDC_OverlayBase OverlayAlgBase GaudiKernel StoreGateLib SGtests )
 
