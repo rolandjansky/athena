@@ -109,6 +109,10 @@ Trk::DiscLayer& Trk::DiscLayer::operator=(const DiscLayer& dlay)
    }
   return(*this);
 }
+
+Trk::DiscLayer::~DiscLayer() {
+  delete m_approachDescriptor;
+}
     
 const Trk::DiscSurface& Trk::DiscLayer::surfaceRepresentation() const
 {
