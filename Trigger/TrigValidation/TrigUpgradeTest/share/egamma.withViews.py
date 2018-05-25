@@ -249,7 +249,6 @@ mon.OutputLevel = DEBUG
 import AthenaPoolCnvSvc.WriteAthenaPool
 from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
 StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
-StreamESD.OutputLevel=VERBOSE
 topSequence.remove( StreamESD )
 
 def addTC(name):   
