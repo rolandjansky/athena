@@ -144,7 +144,6 @@ private:
   asg::AnaToolHandle<ITauToolBase> m_muonTrackRemoval;
   asg::AnaToolHandle<ITauToolBase> m_tauSubstructureVariables;
   asg::AnaToolHandle<ITauToolBase> m_tauCommonCalcVars;
-  asg::AnaToolHandle<ITauToolBase> m_tauIDVarCalculator;
   asg::AnaToolHandle<ITauToolBase> m_tauJetBDTEvaluator_1P;
   asg::AnaToolHandle<ITauToolBase> m_tauJetBDTEvaluator_3P;
   asg::AnaToolHandle<ITauToolBase> m_tauWPDecorator;

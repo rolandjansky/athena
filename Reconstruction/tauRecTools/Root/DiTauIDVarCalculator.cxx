@@ -42,7 +42,6 @@
 #include "tauRecTools/TauCommonCalcVars.h"
 #include "tauRecTools/TauJetBDTEvaluator.h"
 #include "tauRecTools/TauWPDecorator.h"
-#include "tauRecTools/TauIDVarCalculator.h"
 
 #include "PATCore/TResult.h"
 // fastjet
@@ -178,9 +177,6 @@ StatusCode DiTauIDVarCalculator::initialize()
 
         ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tauCommonCalcVars, TauCommonCalcVars));
         ATH_CHECK(m_tauCommonCalcVars.initialize());
-
-        ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tauIDVarCalculator, TauIDVarCalculator));
-        ATH_CHECK(m_tauIDVarCalculator.initialize());
 
         ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tauJetBDTEvaluator_1P, TauJetBDTEvaluator));
         ATH_CHECK(m_tauJetBDTEvaluator_1P.setProperty("weightsFile", "tauRecTools/00-02-00/vars2016_pt_gamma_1p_isofix.root"));
@@ -409,16 +405,23 @@ StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet&
       const xAOD::EventInfo* xEventInfo;
       static const SG::AuxElement::Accessor<float> acc_mu("MU");
       ATH_CHECK( evtStore()->retrieve(xEventInfo,"EventInfo") );
+
+      static SG::AuxElement::Accessor<float> acc_absEtaLead("ABS_ETA_LEAD_TRACK");
+      
+      if(pTauCopy->nTracks()>0)
+        acc_absEtaLead(*pTauCopy) = pTauCopy->track(0)->eta();
+      else
+        acc_absEtaLead(*pTauCopy) = 0;
+      
       acc_mu(*pTauCopy) = xEventInfo->averageInteractionsPerCrossing();
       
       ATH_CHECK(m_tauJetBDTEvaluator_1P->execute(*pTauCopy));
       ATH_CHECK(m_tauJetBDTEvaluator_3P->execute(*pTauCopy));
       ATH_CHECK(m_tauWPDecorator->execute(*pTauCopy));
+    
+      dec_BDTScoreRecalc    (xDiTau) = acc_BDTScoreRecalc    (*pTauCopy);
+      dec_BDTScoreFlatRecalc(xDiTau) = acc_BDTScoreFlatRecalc(*pTauCopy);
     }
-    
-    dec_BDTScoreRecalc    (xDiTau) = acc_BDTScoreRecalc    (*pTauCopy);
-    dec_BDTScoreFlatRecalc(xDiTau) = acc_BDTScoreFlatRecalc(*pTauCopy);
-    
     pTau = &*pTauCopy;
   }
     
