@@ -15,9 +15,12 @@
 #include "AthAllocators/ArenaAllocatorBase.h"
 #include "AthAllocators/ArenaAllocatorCreator.h"
 #include "AthAllocators/ArenaAllocatorRegistry.h"
-#include <ostream>
+#include <iostream>
 #include <sstream>
 #include <atomic>
+#include <thread>
+#include <mutex>
+#include <shared_mutex>
 #include <cassert>
 
 
@@ -65,6 +68,7 @@ private:
 
 void test1()
 {
+  std::cout << "test1\n";
   SG::ArenaBase a ("a");
 
   assert (a.name() == "a");
@@ -96,9 +100,94 @@ void test1()
 }
 
 
+//**************************************************************************
+
+std::shared_timed_mutex start_mutex;
+
+
+
+class TestThread
+{
+public:
+  TestThread (int iworker,
+              SG::ArenaBase& b,
+              size_t ialloc1,
+              size_t ialloc2);
+  void operator()();
+
+
+private:
+  int m_iworker;
+  SG::ArenaBase& m_b;
+  size_t m_ialloc1;
+  size_t m_ialloc2;
+};
+
+
+TestThread::TestThread (int iworker,
+                        SG::ArenaBase& b,
+                        size_t ialloc1,
+                        size_t ialloc2)
+  : m_iworker (iworker),
+    m_b (b),
+    m_ialloc1 (ialloc1),
+    m_ialloc2 (ialloc2)
+{
+}
+
+
+void TestThread::operator()()
+{
+  std::shared_lock<std::shared_timed_mutex> lock (start_mutex);
+
+  for (int i=0; i < 1000; i++) {
+    SG::LockedAllocator a1 = m_b.allocator (m_ialloc1);
+    SG::LockedAllocator a2 = m_b.allocator (m_ialloc2);
+  }
+}
+
+
+void test_threading1 (SG::ArenaBase& b, size_t ialloc1, size_t ialloc2)
+{
+  const int nthreads = 4;
+  std::thread threads[nthreads];
+  start_mutex.lock();
+
+  for (int i=0; i < nthreads; i++) {
+    threads[i] = std::thread (TestThread (i, b, ialloc1, ialloc2));
+  }
+
+  // Try to get the threads starting as much at the same time as possible.
+  start_mutex.unlock();
+  for (int i=0; i < nthreads; i++) {
+    threads[i].join();
+  }
+}
+
+
+// Test for a deadlock.
+void test_threading()
+{
+  std::cout << "test_threading\n";
+
+  SG::ArenaBase b ("b");
+
+  SG::ArenaAllocatorRegistry* reg =
+    SG::ArenaAllocatorRegistry::instance();
+  size_t ialloc1 = reg->registerCreator ("11", std::make_unique<Creator>(11));
+  size_t ialloc2 = reg->registerCreator ("12", std::make_unique<Creator>(12));
+
+  for (int i=0; i < 1000; i++) {
+    test_threading1 (b, ialloc1, ialloc2);
+  }
+}
+
+
 int main()
 {
+  std::cout << "ArenaBase_test\n";
   test1();
+  test_threading();
   return 0;
 }
 
