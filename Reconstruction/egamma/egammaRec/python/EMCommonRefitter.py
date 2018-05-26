@@ -107,7 +107,7 @@ else :
 
 # Extrapolator to be used for tracking inside egamma i.e for GSF and  Conversions
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-AtlasTrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc
+from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
 # get Rk propagator
 from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as Propagator
