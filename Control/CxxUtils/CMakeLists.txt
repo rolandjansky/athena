@@ -106,6 +106,7 @@ foreach( test sincos_test copyif_test ArrayScanner_test Arrayrep_test
       MurmurHash2_test bitmask_test crc64_test Ring_test )
    atlas_add_test( ${test}
       SOURCES test/${test}.cxx
+      EXTRA_PATTERNS "no version information available"
       LINK_LIBRARIES CxxUtils )
 endforeach()
 # Needed because this executable directly uses multiversioned functions.
