@@ -78,7 +78,7 @@ namespace DerivationFramework {
         m_particleDataTable = partPropSvc->PDT();
 
         // retrieve particle masses
-        m_mass_jpsi     = getParticleMass(PDG::J_psi);
+        if(m_mass_jpsi < 0. ) m_mass_jpsi = getParticleMass(PDG::J_psi);
         if(m_vtx0MassHypo < 0.) m_vtx0MassHypo = getParticleMass(PDG::B_c_plus);
         if(m_vtx1MassHypo < 0.) m_vtx1MassHypo = getParticleMass(PDG::D0);
 
@@ -608,7 +608,7 @@ namespace DerivationFramework {
     m_vtx1Daug1MassHypo(-1),
     m_vtx1Daug2MassHypo(-1),
     m_particleDataTable(nullptr),
-    m_mass_jpsi   ( 0 ),
+    m_mass_jpsi(-1),
     m_Dx_pid(421),
     m_constrD0(true),
     m_constrJpsi(true),
@@ -640,6 +640,7 @@ namespace DerivationFramework {
        declareProperty("Vtx0Daug3MassHypo",         m_vtx0Daug3MassHypo);
        declareProperty("Vtx1Daug1MassHypo",         m_vtx1Daug1MassHypo);
        declareProperty("Vtx1Daug2MassHypo",         m_vtx1Daug2MassHypo);
+       declareProperty("JpsiMass",                  m_mass_jpsi);
        declareProperty("DxHypothesis",              m_Dx_pid);
        declareProperty("ApplyD0MassConstraint",     m_constrD0);
        declareProperty("ApplyJpsiMassConstraint",   m_constrJpsi);
