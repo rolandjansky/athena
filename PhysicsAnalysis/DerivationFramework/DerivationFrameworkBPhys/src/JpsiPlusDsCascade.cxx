@@ -78,13 +78,25 @@ namespace DerivationFramework {
         m_particleDataTable = partPropSvc->PDT();
 
         // retrieve particle masses
-        m_mass_muon     = getParticleMass(PDG::mu_minus);
-        m_mass_pion     = getParticleMass(PDG::pi_plus);
         m_mass_jpsi     = getParticleMass(PDG::J_psi);
-        m_mass_kaon     = getParticleMass(PDG::K_plus);
-        m_mass_Dp       = getParticleMass(PDG::D_plus);
-        m_mass_Ds       = getParticleMass(PDG::D_s_plus);
-        m_mass_Bc       = getParticleMass(PDG::B_c_plus);
+        if(m_vtx0MassHypo < 0.) 
+          m_vtx0MassHypo = getParticleMass(PDG::B_c_plus);
+        if(m_vtx1MassHypo < 0.) {
+          if(abs(m_Dx_pid) == 411) m_vtx1MassHypo = getParticleMass(PDG::D_plus);
+          else m_vtx1MassHypo = getParticleMass(PDG::D_s_plus);
+        }
+
+        if(m_vtx0Daug1MassHypo < 0.) m_vtx0Daug1MassHypo = getParticleMass(PDG::mu_minus);
+        if(m_vtx0Daug2MassHypo < 0.) m_vtx0Daug2MassHypo = getParticleMass(PDG::mu_minus);
+        if(m_vtx1Daug1MassHypo < 0.) {
+           if(m_Dx_pid == 411) m_vtx1Daug1MassHypo = getParticleMass(PDG::pi_plus);
+           else m_vtx1Daug1MassHypo = getParticleMass(PDG::K_plus);
+        }
+        if(m_vtx1Daug2MassHypo < 0.) {
+           if(m_Dx_pid ==-411) m_vtx1Daug2MassHypo = getParticleMass(PDG::pi_plus);
+           else m_vtx1Daug2MassHypo = getParticleMass(PDG::K_plus);
+        }
+        if(m_vtx1Daug3MassHypo < 0.) m_vtx1Daug3MassHypo = getParticleMass(PDG::pi_plus);
 
         return StatusCode::SUCCESS;
     }
@@ -246,44 +258,19 @@ namespace DerivationFramework {
           }
         }
 
-        double mass_d = m_mass_Ds; 
-        double mass_b = m_mass_Bc;
-        if(m_hypoName != "Bc") 
-           mass_b = m_vtx0MassHypo;
-        std::vector<double> massesJpsi(2, m_mass_muon);
+        double mass_b = m_vtx0MassHypo;
+        double mass_d = m_vtx1MassHypo;
+        std::vector<double> massesJpsi;
+        massesJpsi.push_back(m_vtx0Daug1MassHypo);
+        massesJpsi.push_back(m_vtx0Daug2MassHypo);
         std::vector<double> massesDx;
-        std::vector<double> Masses(2, m_mass_muon);
-        if (m_Dx_pid == 431) { // D_s+/-
-           massesDx.push_back(m_mass_kaon);
-           massesDx.push_back(m_mass_kaon);
-           massesDx.push_back(m_mass_pion);
-           Masses.push_back(m_mass_Ds);
-        } else if (m_Dx_pid == 411) { // D+
-           massesDx.push_back(m_mass_pion);
-           massesDx.push_back(m_mass_kaon);
-           massesDx.push_back(m_mass_pion);
-           Masses.push_back(m_mass_Dp);
-           mass_d = m_mass_Dp;
-        } else if (m_Dx_pid == -411) { // D-
-           massesDx.push_back(m_mass_kaon);
-           massesDx.push_back(m_mass_pion);
-           massesDx.push_back(m_mass_pion);
-           Masses.push_back(m_mass_Dp);
-           mass_d = m_mass_Dp;
-        } else { // Assign track masses using user's input. The order of particles in m_trkMasses vector is given as e.g.mu+, mu-, K+, K-, pi+ 
-           massesJpsi.clear();
-           massesDx.clear();
-           Masses.clear();
-           massesJpsi.push_back(m_trkMasses[0]);
-           massesJpsi.push_back(m_trkMasses[1]);
-           massesDx.push_back(m_trkMasses[2]);
-           massesDx.push_back(m_trkMasses[3]);
-           massesDx.push_back(m_trkMasses[4]);
-           Masses.push_back(m_trkMasses[0]);
-           Masses.push_back(m_trkMasses[1]);
-           Masses.push_back(m_vtx1MassHypo);
-           mass_d = m_vtx1MassHypo;
-        }
+        massesDx.push_back(m_vtx1Daug1MassHypo);
+        massesDx.push_back(m_vtx1Daug2MassHypo);
+        massesDx.push_back(m_vtx1Daug3MassHypo);
+        std::vector<double> Masses;
+        Masses.push_back(m_vtx0Daug1MassHypo);
+        Masses.push_back(m_vtx0Daug2MassHypo);
+        Masses.push_back(m_vtx1MassHypo);
 
         // reset beamspot cache
         helper.GetBeamSpot(true);
@@ -331,10 +318,10 @@ namespace DerivationFramework {
           TLorentzVector  p4_mu1, p4_mu2;
           p4_mu1.SetPtEtaPhiM(jpsiVertex->trackParticle(0)->pt(), 
                               jpsiVertex->trackParticle(0)->eta(),
-                              jpsiVertex->trackParticle(0)->phi(), m_mass_muon); 
+                              jpsiVertex->trackParticle(0)->phi(), m_vtx0Daug1MassHypo); 
           p4_mu2.SetPtEtaPhiM(jpsiVertex->trackParticle(1)->pt(), 
                               jpsiVertex->trackParticle(1)->eta(),
-                              jpsiVertex->trackParticle(1)->phi(), m_mass_muon); 
+                              jpsiVertex->trackParticle(1)->phi(), m_vtx0Daug2MassHypo); 
           massMumu = (p4_mu1 + p4_mu2).M();
         }
         MassMumu_decor(*mainVertex) = massMumu;
@@ -342,31 +329,15 @@ namespace DerivationFramework {
         float massKX = 0., massKXpi = 0.;
         if (dxVertex) {
           TLorentzVector  p4_h1, p4_h2, p4_h3;
-          if(m_Dx_pid == 431) {
-             p4_h1.SetPtEtaPhiM(dxVertex->trackParticle(0)->pt(), 
-                                dxVertex->trackParticle(0)->eta(),
-                                dxVertex->trackParticle(0)->phi(), m_mass_kaon); 
-             p4_h2.SetPtEtaPhiM(dxVertex->trackParticle(1)->pt(), 
-                                dxVertex->trackParticle(1)->eta(),
-                                dxVertex->trackParticle(1)->phi(), m_mass_kaon); 
-          } else if(m_Dx_pid == 411) {
-             p4_h1.SetPtEtaPhiM(dxVertex->trackParticle(0)->pt(), 
-                                dxVertex->trackParticle(0)->eta(),
-                                dxVertex->trackParticle(0)->phi(), m_mass_pion); 
-             p4_h2.SetPtEtaPhiM(dxVertex->trackParticle(1)->pt(), 
-                                dxVertex->trackParticle(1)->eta(),
-                                dxVertex->trackParticle(1)->phi(), m_mass_kaon); 
-          } else {
-             p4_h1.SetPtEtaPhiM(dxVertex->trackParticle(0)->pt(), 
-                                dxVertex->trackParticle(0)->eta(),
-                                dxVertex->trackParticle(0)->phi(), m_mass_kaon); 
-             p4_h2.SetPtEtaPhiM(dxVertex->trackParticle(1)->pt(), 
-                                dxVertex->trackParticle(1)->eta(),
-                                dxVertex->trackParticle(1)->phi(), m_mass_pion); 
-          }
+          p4_h1.SetPtEtaPhiM(dxVertex->trackParticle(0)->pt(), 
+                             dxVertex->trackParticle(0)->eta(),
+                             dxVertex->trackParticle(0)->phi(), m_vtx1Daug1MassHypo); 
+          p4_h2.SetPtEtaPhiM(dxVertex->trackParticle(1)->pt(), 
+                             dxVertex->trackParticle(1)->eta(),
+                             dxVertex->trackParticle(1)->phi(), m_vtx1Daug2MassHypo); 
           p4_h3.SetPtEtaPhiM(dxVertex->trackParticle(2)->pt(), 
-                                 dxVertex->trackParticle(2)->eta(),
-                                 dxVertex->trackParticle(2)->phi(), m_mass_pion); 
+                             dxVertex->trackParticle(2)->eta(),
+                             dxVertex->trackParticle(2)->phi(), m_vtx1Daug3MassHypo); 
           massKX = (p4_h1 + p4_h2).M();
           massKXpi = (p4_h1 + p4_h2 + p4_h3).M();
         }
@@ -630,16 +601,15 @@ namespace DerivationFramework {
     m_DxMassUpper(10000.0),
     m_MassLower(0.0),
     m_MassUpper(20000.0),
-    m_vtx0MassHypo(6274.90),
-    m_vtx1MassHypo(1968.28),
+    m_vtx0MassHypo(-1),
+    m_vtx1MassHypo(-1),
+    m_vtx0Daug1MassHypo(-1),
+    m_vtx0Daug2MassHypo(-1),
+    m_vtx1Daug1MassHypo(-1),
+    m_vtx1Daug2MassHypo(-1),
+    m_vtx1Daug3MassHypo(-1),
     m_particleDataTable(nullptr),
-    m_mass_muon   ( 0 ),
-    m_mass_pion   ( 0 ),
     m_mass_jpsi   ( 0 ),
-    m_mass_kaon   ( 0 ),
-    m_mass_Ds     ( 0 ),
-    m_mass_Dp     ( 0 ),
-    m_mass_Bc     ( 0 ),
     m_Dx_pid(431),
     m_constrDx(true),
     m_constrJpsi(true),
@@ -662,7 +632,11 @@ namespace DerivationFramework {
        declareProperty("HypothesisName",            m_hypoName               = "Bc");
        declareProperty("Vtx0MassHypo",              m_vtx0MassHypo);
        declareProperty("Vtx1MassHypo",              m_vtx1MassHypo);
-       declareProperty("TrkMasses",                 m_trkMasses              = std::vector<double>(5, 105.658) );
+       declareProperty("Vtx0Daug1MassHypo",         m_vtx0Daug1MassHypo);
+       declareProperty("Vtx0Daug2MassHypo",         m_vtx0Daug2MassHypo);
+       declareProperty("Vtx1Daug1MassHypo",         m_vtx1Daug1MassHypo);
+       declareProperty("Vtx1Daug2MassHypo",         m_vtx1Daug2MassHypo);
+       declareProperty("Vtx1Daug3MassHypo",         m_vtx1Daug3MassHypo);
        declareProperty("DxHypothesis",              m_Dx_pid);
        declareProperty("ApplyDxMassConstraint",     m_constrDx);
        declareProperty("ApplyJpsiMassConstraint",   m_constrJpsi);
@@ -696,44 +670,21 @@ namespace DerivationFramework {
         const xAOD::VertexContainer  *dxContainer(nullptr);
         ATH_CHECK(evtStore()->retrieve(dxContainer   , m_vertexDxContainerKey       ));
 
-        double mass_d = m_mass_Ds; 
+        double mass_d = m_vtx1MassHypo; 
         std::vector<const xAOD::TrackParticle*> tracksJpsi;
         std::vector<const xAOD::TrackParticle*> tracksDx;
         std::vector<const xAOD::TrackParticle*> tracksBc;
-        std::vector<double> massesJpsi(2, m_mass_muon);
+        std::vector<double> massesJpsi;
+        massesJpsi.push_back(m_vtx0Daug1MassHypo);
+        massesJpsi.push_back(m_vtx0Daug2MassHypo);
         std::vector<double> massesDx;
-        std::vector<double> Masses(2, m_mass_muon);
-        if (m_Dx_pid == 431) {
-           massesDx.push_back(m_mass_kaon);
-           massesDx.push_back(m_mass_kaon);
-           massesDx.push_back(m_mass_pion);
-           Masses.push_back(m_mass_Ds);
-        } else if (m_Dx_pid == 411) {
-           massesDx.push_back(m_mass_pion);
-           massesDx.push_back(m_mass_kaon);
-           massesDx.push_back(m_mass_pion);
-           mass_d = m_mass_Dp;
-           Masses.push_back(m_mass_Dp);
-        } else if (m_Dx_pid == -411) {
-           massesDx.push_back(m_mass_kaon);
-           massesDx.push_back(m_mass_pion);
-           massesDx.push_back(m_mass_pion);
-           mass_d = m_mass_Dp;
-           Masses.push_back(m_mass_Dp);
-        } else { // Assign track masses using user's input. The order of particles in m_trkMasses vector is given as e.g.mu+, mu-, K+, K-, pi+ 
-           massesJpsi.clear();
-           massesDx.clear();
-           Masses.clear();
-           massesJpsi.push_back(m_trkMasses[0]);
-           massesJpsi.push_back(m_trkMasses[1]);
-           massesDx.push_back(m_trkMasses[2]);
-           massesDx.push_back(m_trkMasses[3]);
-           massesDx.push_back(m_trkMasses[4]);
-           Masses.push_back(m_trkMasses[0]);
-           Masses.push_back(m_trkMasses[1]);
-           Masses.push_back(m_vtx1MassHypo);
-           mass_d = m_vtx1MassHypo;
-        }
+        massesDx.push_back(m_vtx1Daug1MassHypo);
+        massesDx.push_back(m_vtx1Daug2MassHypo);
+        massesDx.push_back(m_vtx1Daug3MassHypo);
+        std::vector<double> Masses;
+        Masses.push_back(m_vtx0Daug1MassHypo);
+        Masses.push_back(m_vtx0Daug2MassHypo);
+        Masses.push_back(m_vtx1MassHypo);
 
         for(auto jpsi : *jpsiContainer) { //Iterate over Jpsi vertices
 

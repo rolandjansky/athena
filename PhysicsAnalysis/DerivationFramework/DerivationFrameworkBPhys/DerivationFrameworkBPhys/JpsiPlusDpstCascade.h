@@ -62,16 +62,17 @@ namespace DerivationFramework {
         double m_DstMassUpper;
         double m_MassLower;
         double m_MassUpper;
-        double m_vtx0MassHypo; // 1st vertex mass hypothesis
-        double m_vtx1MassHypo; // 2nd vertex mass hypothesis
+        double m_vtx0MassHypo;      // mass hypothesis of vertex 0
+        double m_vtx1MassHypo;      // mass hypothesis of vertex 1
+        double m_vtx0Daug1MassHypo; // mass hypothesis of 1st daughter from vertex 0
+        double m_vtx0Daug2MassHypo; // mass hypothesis of 2nd daughter from vertex 0
+        double m_vtx0Daug3MassHypo; // mass hypothesis of 3rd daughter from vertex 0
+        double m_vtx1Daug1MassHypo; // mass hypothesis of 1st daughter from vertex 1
+        double m_vtx1Daug2MassHypo; // mass hypothesis of 2nd daughter from vertex 1
+
 
         const HepPDT::ParticleDataTable* m_particleDataTable;
-        double m_mass_muon;
-        double m_mass_pion;
         double m_mass_jpsi;
-        double m_mass_kaon;
-        double m_mass_D0;
-        double m_mass_Bc;
         int    m_Dx_pid;
         bool   m_constrD0;
         bool   m_constrJpsi;
@@ -90,7 +91,6 @@ namespace DerivationFramework {
         int         m_PV_max;
         int         m_DoVertexType;
         size_t      m_PV_minNTracks;
-        std::vector<double> m_trkMasses;      //!< track mass hypotheses
 
         double getParticleMass(int particlecode) const;
     };
