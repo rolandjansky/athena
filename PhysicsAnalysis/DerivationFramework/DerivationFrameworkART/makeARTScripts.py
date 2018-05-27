@@ -1,9 +1,9 @@
 import os
 
-makeDataDAODs=True
-makeMCDAODs=True
+makeDataDAODs=False
+makeMCDAODs=False
 makeTruthDAODs=False
-makeTrains=False
+makeTrains=True
 
 formatList = ['PHYSVAL',
               'TOPQ1', 'TOPQ2', 'TOPQ4', 'TOPQ5',
@@ -30,29 +30,21 @@ formatList = ['PHYSVAL',
 
 truthFormatList = ['TRUTH0', 'TRUTH1', 'TRUTH3']
 
-trainList = [ ["TCAL1","HIGG2D5","EXOT10"], # 0.02-0.03%
-              ["EGAM3","JETM12","EGAM4"], # 0.08-0.12%
-              ["STDM5","EXOT12","EGAM2","EXOT9"], # 0.17-0.23%
-              ["BPHY5","HIGG4D4","SUSY9","EXOT17"], # 0.3-0.32%
-              ["EXOT0","SUSY12","JETM7","HIGG1D2"], # 0.35-0.38%
-              ["MUON2","EGAM7","EGAM9","BPHY1"], # 0.39-0.46%
-              ["BPHY4","EXOT6","HIGG4D1","SUSY2","SUSY11"], # 0.5-0.53%
-              ["STDM3","EXOT19","TOPQ5","TOPQ2","JETM4","JETM3" ], # 0.69-0.76%
-              ["EXOT15","SUSY7","SUSY16","HIGG4D6"], # 0.8-0.9%
-              ["STDM2","SUSY18","EXOT7","EGAM1","HIGG4D5"], # 0.98-10.8%
-              ["EXOT3","SUSY3","HIGG4D3","EXOT22"], # 1.1-1.2%
-              ["HIGG6D1","SUSY1","TAUP1","SUSY4"], # 1.28-1.41%
-              ["EXOT2","JETM11","STDM7","EXOT21"], # 1.45-1.58%
-              ["JETM1","JETM9","EXOT5"], # 1.62-1.65%
-              ["SUSY10","SUSY8","SUSY5"], # 1.7-1.75%
-              ["EXOT13","EGAM5","EXOT8","EXOT4"], # 2.09.2.4%
-              ["HIGG4D2","HIGG8D1","JETM6"], #2.7-2.9%
-              ["SUSY6","HIGG2D1"], # 3.3-3.7%
-              ["MUON1","TOPQ1"], # 3.9-4.5%
-              ["STDM4","MUON0"], # 5.2-5.9%
-              ["HIGG6D2","TOPQ4","TAUP3"], # 7.1-8.4%
-              ["FTAG2","FTAG4"] # FTAG train
-              # Following run as singletons: FTAG1, FTAG3, JETM10, HIGG1D1 
+trainList = [ 
+              ["TCAL1","EXOT10","HIGG2D5"],
+              ["JETM12","EGAM3","JETM10"],
+              ["STDM5","EGAM4","EGAM2","EXOT12","SUSY9","EXOT9"],
+              ["MUON2","HIGG4D4","JETM7","BPHY7","EXOT17","BPHY5","EGAM7","HIGG1D2"],
+              ["EGAM9","EXOT02","SUSY11","EXOT6","SUSY2","HIGG4D1","BPHY1","BPHY4"],
+              ["SUSY12","STDM3","EXOT15","JETM3","EXOT19","HIGG4D6","HIGG6D1","HIGG1D1"],
+              ["TAUP1","HIGG4D5","JETM4","TOPQ2","TOPQ5","HIGG4D3","SUSY16","EXOT7"],
+              ["STDM2","SUSY18","EXOT3","EGAM1","EGAM5","EXOT2","SUSY3","EXOT5"],
+              ["EXOT22","SUSY4","JETM11","EXOT21","SUSY1","STDM7","SUSY8","SUSY10"],
+              ["EXOT13","SUSY5","SUSY7","EXOT8","EXOT4","HIGG4D2"],
+              ["HIGG8D1","JETM6","MUON1","SUSY6","HIGG2D1","JETM1","MUON0","TOPQ1"],
+              ["JETM9","STDM4","TOPQ4","FTAG4"],
+              ["HIGG6D2","TAUP3"]
+              # All FTAG run as singletons
               # Special streams (BLS/ZB) not run as trains
             ]
 
@@ -79,6 +71,7 @@ def generateText(formatName,label,inputFile,isTruth,isMC,nEvents):
    outputFile = open(outputFileName,"w")
    outputFile.write("#!/bin/sh"+"\n")
    outputFile.write("\n")
+   outputFile.write("# art-include"+"\n")
    outputFile.write("# art-description: DAOD building "+formatName+" "+label+"\n")
    outputFile.write("# art-type: grid"+"\n")
    outputFile.write("# art-output: *.pool.root"+"\n")
@@ -114,6 +107,7 @@ def generateTrains(formatList,label,inputFile,isMC):
    outputFile = open(outputFileName,"w")
    outputFile.write("#!/bin/sh"+"\n")
    outputFile.write("\n")
+   outputFile.write("# art-include"+"\n")
    outputFile.write("# art-description: DAOD building "+" ".join(formatList)+" "+label+"\n")
    outputFile.write("# art-type: grid"+"\n")
    outputFile.write("# art-output: *.pool.root"+"\n")

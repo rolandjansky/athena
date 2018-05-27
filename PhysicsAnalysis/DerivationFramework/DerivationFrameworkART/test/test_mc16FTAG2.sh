@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# art-include
 # art-description: DAOD building FTAG2 mc16
 # art-type: grid
 # art-output: *.pool.root

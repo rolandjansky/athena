@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# art-include
 # art-description: DAOD building TRUTH3 mc15
 # art-type: grid
 # art-output: *.pool.root
