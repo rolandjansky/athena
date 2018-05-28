@@ -11,7 +11,20 @@
 # art-output: comparison.root
 # art-output: comparison.ps
 
-Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC15aPlus' --simulator 'FullG4'  --postInclude 'G4AtlasTests/postInclude.DCubeTest_CaloCalibHits.py' --preExec 'simFlags.ReleaseGeoModel=False;' --preInclude 'SimulationJobOptions/preInclude.CalHits.py,SimulationJobOptions/preInclude.ParticleID.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00' --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/pi_E50_eta0-60.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --imf False
+Sim_tf.py \
+--conditionsTag 'default:OFLCOND-RUN12-SDR-19' \
+--physicsList 'FTFP_BERT' \
+--truthStrategy 'MC15aPlus' \
+--simulator 'FullG4'  \
+--postInclude 'G4AtlasTests/postInclude.DCubeTest_CaloCalibHits.py' \
+--preExec 'simFlags.ReleaseGeoModel=False;' \
+--preInclude 'SimulationJobOptions/preInclude.CalHits.py,SimulationJobOptions/preInclude.ParticleID.py' \
+--DataRunNumber '222525' \
+--geometryVersion 'default:ATLAS-R2-2015-03-01-00' \
+--inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/pi_E50_eta0-60.evgen.pool.root' \
+--outputHITSFile 'test.HITS.pool.root' \
+--maxEvents '10' \
+--imf False
 
 echo  "art-result: $? simulation"
 
