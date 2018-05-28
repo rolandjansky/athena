@@ -14,7 +14,10 @@
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationBase.h"
 #include "ISF_FastCaloSimEvent/TFCSParametrization.h"
+#include "ISF_FastCaloSimEvent/TFCSInvisibleParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSInitWithEkin.h"
+#include "ISF_FastCaloSimEvent/TFCSEnergyInterpolationLinear.h"
+#include "ISF_FastCaloSimEvent/TFCSEnergyInterpolationSpline.h"
 #include "ISF_FastCaloSimEvent/TFCSParametrizationChain.h"
 #include "ISF_FastCaloSimEvent/TFCSParametrizationBinnedChain.h"
 #include "ISF_FastCaloSimEvent/TFCSParametrizationFloatSelectChain.h"
@@ -50,10 +53,12 @@
 #pragma link C++ class TFCS1DFunctionRegressionTF+;
 #pragma link C++ class TFCS2DFunction+;
 #pragma link C++ class TFCS2DFunctionHistogram+;
-
 #pragma link C++ class TFCSParametrizationBase+;
 #pragma link C++ class TFCSParametrization+;
+#pragma link C++ class TFCSInvisibleParametrization+;
 #pragma link C++ class TFCSInitWithEkin+;
+#pragma link C++ class TFCSEnergyInterpolationLinear+;
+#pragma link C++ class TFCSEnergyInterpolationSpline+;
 #pragma link C++ class TFCSParametrizationChain+;
 #pragma link C++ class TFCSParametrizationBinnedChain+;
 #pragma link C++ class TFCSParametrizationFloatSelectChain+;

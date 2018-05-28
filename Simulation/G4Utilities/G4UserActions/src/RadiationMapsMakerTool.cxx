@@ -12,13 +12,15 @@ namespace G4UA{
 						 const std::string& name,
 						 const IInterface* parent)
     : ActionToolBaseReport<RadiationMapsMaker>(type, name, parent),
-      m_radMapsFileName("RadMaps.root")  
+      m_radMapsFileName("RadMaps.root")
   {
     declareInterface<IG4RunActionTool>(this);
     declareInterface<IG4SteppingActionTool>(this);
 
     /// Output Filename for the Radiation Maps
     declareProperty("RadMapsFileName", m_radMapsFileName);
+    /// Name of the material to make radiation maps for (take all if empty) 
+    declareProperty("Material"  , m_config.material);
     /// map granularities 
     /// number of bins in r and z for all 2D maps
     declareProperty("NBinsR"    , m_config.nBinsr);
@@ -50,6 +52,7 @@ namespace G4UA{
   {
     ATH_MSG_INFO( "Initializing  " << name() << "\n" <<
                   "OutputFile:   " << m_radMapsFileName   << "\n"                << 
+                  "Material:     " << m_config.material   << "\n"                << 
                   "2D Maps:      " << m_config.nBinsz     << " |z|-bins, "       << 
                                       m_config.nBinsr     << " r-bins"           << "\n"                << 
                   "Zoom:         " << m_config.zMinZoom   << " < |z|/cm < "      << m_config.zMaxZoom   << ", " << 
@@ -79,16 +82,29 @@ namespace G4UA{
     m_report.m_rz_eion.resize(0);
     m_report.m_rz_niel.resize(0);
     m_report.m_rz_h20 .resize(0);
-    
+
     m_report.m_full_rz_tid .resize(0);
     m_report.m_full_rz_eion.resize(0);
     m_report.m_full_rz_niel.resize(0);
     m_report.m_full_rz_h20 .resize(0);
-    
+
     m_report.m_3d_tid .resize(0);
     m_report.m_3d_eion.resize(0);
     m_report.m_3d_niel.resize(0);
     m_report.m_3d_h20 .resize(0);
+
+    if (!m_config.material.empty()) {
+      // need volume fraction only if particular material is selected
+      // 2d zoom
+      m_report.m_rz_vol .resize(0);
+      m_report.m_rz_norm.resize(0);
+      // 2d full
+      m_report.m_full_rz_vol.resize(0);
+      m_report.m_full_rz_norm.resize(0);
+      // 3d
+      m_report.m_3d_vol .resize(0);
+      m_report.m_3d_norm.resize(0);
+    }
 
     // then resize to proper size and initialize with 0's 
 
@@ -96,7 +112,7 @@ namespace G4UA{
     m_report.m_rz_eion.resize(m_config.nBinsz*m_config.nBinsr,0.0);
     m_report.m_rz_niel.resize(m_config.nBinsz*m_config.nBinsr,0.0);
     m_report.m_rz_h20 .resize(m_config.nBinsz*m_config.nBinsr,0.0);
-    
+
     m_report.m_full_rz_tid .resize(m_config.nBinsz*m_config.nBinsr,0.0);
     m_report.m_full_rz_eion.resize(m_config.nBinsz*m_config.nBinsr,0.0);
     m_report.m_full_rz_niel.resize(m_config.nBinsz*m_config.nBinsr,0.0);
@@ -106,6 +122,19 @@ namespace G4UA{
     m_report.m_3d_eion.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
     m_report.m_3d_niel.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
     m_report.m_3d_h20 .resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
+
+    if (!m_config.material.empty()) {
+      // need volume fraction only if particular material is selected
+      // 2d zoom
+      m_report.m_rz_vol .resize(m_config.nBinsz*m_config.nBinsr,0.0);
+      m_report.m_rz_norm.resize(m_config.nBinsz*m_config.nBinsr,0.0);
+      // 2d full
+      m_report.m_full_rz_vol .resize(m_config.nBinsz*m_config.nBinsr,0.0);
+      m_report.m_full_rz_norm.resize(m_config.nBinsz*m_config.nBinsr,0.0);
+      // 3d
+      m_report.m_3d_vol .resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
+      m_report.m_3d_norm.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
+    }
 
     // merge radiation map vectors from threads
     mergeReports();
@@ -177,6 +206,53 @@ namespace G4UA{
     h_3d_niel ->SetTitle("NIEL [n_{eq}/cm^{2}]");
     h_3d_h20  ->SetTitle("SEE [h_{>20 MeV}/cm^{2}]");
 
+    TH2D * h_rz_vol  = 0;
+    TH2D * h_rz_norm = 0;
+    TH2D * h_full_rz_vol  = 0;
+    TH2D * h_full_rz_norm = 0;
+    TH3D * h_3d_vol  = 0;
+    TH3D * h_3d_norm = 0;
+    if (!m_config.material.empty()) {
+      // need volume fraction only if particular material is selected
+      //
+      // the maps for TID, NIEL and SEE need to be divided by the ratio of (vol/norm) in order to get
+      // the proper estimate per volume bin for the selected material. 
+      // This is *not* done in the tool directly and left to the user after having summed the histograms
+      // from many individual jobs.
+      // 
+      h_rz_vol  = new TH2D("rz_vol" ,"rz_vol" ,m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom);
+      h_rz_norm = new TH2D("rz_norm","rz_norm",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom);
+      h_full_rz_vol  = new TH2D("full_rz_vol" ,"full_rz_vol" ,m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull);
+      h_full_rz_norm = new TH2D("full_rz_norm","full_rz_norm",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull);
+      h_3d_vol  = new TH3D("h3d_vol" ,"h3d_vol" ,m_config.nBinsz3d,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr3d,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinsphi3d,m_config.phiMinZoom,m_config.phiMaxZoom);
+      h_3d_norm = new TH3D("h3d_norm","h3d_norm",m_config.nBinsz3d,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr3d,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinsphi3d,m_config.phiMinZoom,m_config.phiMaxZoom);
+
+      h_rz_vol  ->SetXTitle("|z| [cm]");
+      h_rz_norm ->SetXTitle("|z| [cm]");
+      h_rz_vol  ->SetYTitle("r [cm]");
+      h_rz_norm ->SetYTitle("r [cm]");
+      std::string hname("Volume fraction of ");
+      hname += m_config.material;
+      h_rz_vol  ->SetZTitle(hname.data());
+      h_rz_norm ->SetZTitle("Volume norm");
+
+      h_full_rz_vol  ->SetXTitle("|z| [cm]");
+      h_full_rz_norm ->SetXTitle("|z| [cm]");
+      h_full_rz_vol  ->SetYTitle("r [cm]");
+      h_full_rz_norm ->SetYTitle("r [cm]");
+      h_full_rz_vol  ->SetZTitle(hname.data());
+      h_full_rz_norm ->SetZTitle("Volume norm");
+
+      h_3d_vol  ->SetXTitle("|z| [cm]");
+      h_3d_norm ->SetXTitle("|z| [cm]");
+      h_3d_vol  ->SetYTitle("r [cm]");
+      h_3d_norm ->SetYTitle("r [cm]");
+      h_3d_vol  ->SetZTitle("#phi [#circ]");
+      h_3d_norm ->SetZTitle("#phi [#circ]");
+      h_3d_vol  ->SetTitle(hname.data());
+      h_3d_norm ->SetTitle("Volume norm");
+    }
+
 
     // normalize to volume element per bin
     for(int i=0;i<h_rz_tid->GetNbinsX();i++) { 
@@ -201,6 +277,15 @@ namespace G4UA{
 	// SEE
 	val =m_report.m_rz_h20[vBin];
 	h_rz_h20->SetBinContent(iBin,val/vol);
+	if (!m_config.material.empty()) {
+	  // need volume fraction only if particular material is selected
+	  // VOL
+	  val =m_report.m_rz_vol[vBin];
+	  h_rz_vol->SetBinContent(iBin,val/vol);
+	  // NORM
+	  val =m_report.m_rz_norm[vBin];
+	  h_rz_norm->SetBinContent(iBin,val/vol);
+	}
       }
     }
     h_rz_tid->Write();
@@ -231,6 +316,15 @@ namespace G4UA{
 	// SEE
 	val =m_report.m_full_rz_h20[vBin];
 	h_full_rz_h20->SetBinContent(iBin,val/vol);
+	if (!m_config.material.empty()) {
+	  // need volume fraction only if particular material is selected
+	  // VOL
+	  val =m_report.m_full_rz_vol[vBin];
+	  h_full_rz_vol->SetBinContent(iBin,val/vol);
+	  // NORM
+	  val =m_report.m_full_rz_norm[vBin];
+	  h_full_rz_norm->SetBinContent(iBin,val/vol);
+	}
       }
     }
     h_full_rz_tid->Write();
@@ -269,6 +363,15 @@ namespace G4UA{
 	  // SEE
 	  val =m_report.m_3d_h20[vBin];
 	  h_3d_h20->SetBinContent(iBin,val/vol);
+	  if (!m_config.material.empty()) {
+	    // need volume fraction only if particular material is selected
+	    // VOL
+	    val =m_report.m_3d_vol[vBin];
+	    h_3d_vol->SetBinContent(iBin,val/vol);
+	    // NORM
+	    val =m_report.m_3d_norm[vBin];
+	    h_3d_norm->SetBinContent(iBin,val/vol);
+	  }
 	}
       }
     }
@@ -276,6 +379,16 @@ namespace G4UA{
     h_3d_eion->Write();
     h_3d_niel->Write();
     h_3d_h20->Write();
+
+    if (!m_config.material.empty()) {
+      // need volume fraction only if particular material is selected
+      h_rz_vol->Write();
+      h_rz_norm->Write();
+      h_full_rz_vol->Write();
+      h_full_rz_norm->Write();
+      h_3d_vol->Write();
+      h_3d_norm->Write();
+    }
 
     f->Close();
 

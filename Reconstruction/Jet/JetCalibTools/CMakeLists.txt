@@ -65,6 +65,6 @@ else()
       util/JetCalibTools_Example.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
-      xAODEventShape xAODCore POOLRootAccess xAODRootAccess JetCalibToolsLib )
+      xAODEventShape xAODCore POOLRootAccessLib xAODRootAccess JetCalibToolsLib )
 endif()
 

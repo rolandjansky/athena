@@ -82,9 +82,9 @@ SCT_FastDigitizationTool::SCT_FastDigitizationTool(const std::string& type,
   m_sctErrorStrategy(2),
   m_sctRotateEC(true),
   m_mergeCluster(true),
-  m_sctMinimalPathCut(90.),
   m_DiffusionShiftX(7),
-  m_DiffusionShiftY(7)
+  m_DiffusionShiftY(7),
+  m_sctMinimalPathCut(90.)
 {
   declareInterface<ISCT_FastDigitizationTool>(this);
   declareProperty("InputObjectName"               , m_inputObjectName,          "Input Object name" );
@@ -370,8 +370,6 @@ StatusCode SCT_FastDigitizationTool::digitize()
       
       HepGeom::Point3D<double> localStartPosition = hitSiDetElement->hitLocalToLocal3D(currentSiHit->localStartPosition());
       HepGeom::Point3D<double> localEndPosition = hitSiDetElement->hitLocalToLocal3D(currentSiHit->localEndPosition());
-      
-      bool diffusion = Diffuse(localStartPosition,localEndPosition, m_DiffusionShiftX * Gaudi::Units::micrometer, m_DiffusionShiftY * Gaudi::Units::micrometer);
       
       const double localEntryX = localStartPosition.x();
       const double localEntryY = localStartPosition.y();

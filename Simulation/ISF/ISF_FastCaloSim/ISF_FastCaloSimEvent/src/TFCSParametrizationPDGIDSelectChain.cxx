@@ -3,6 +3,7 @@
 */
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationPDGIDSelectChain.h"
+#include "ISF_FastCaloSimEvent/TFCSInvisibleParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 #include "ISF_FastCaloSimEvent/TFCSTruthState.h"
 #include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
@@ -27,8 +28,9 @@ void TFCSParametrizationPDGIDSelectChain::simulate(TFCSSimulationState& simulsta
 {
   for(auto param: chain()) {
     if(param->is_match_pdgid(truth->pdgid())) {
-      ATH_MSG_DEBUG("pdgid="<<truth->pdgid()<<", now run: "<<param->GetName());
+      ATH_MSG_DEBUG("pdgid="<<truth->pdgid()<<", now run: "<<param->GetName()<< ((SimulateOnlyOnePDGID()==true) ? ", abort PDGID loop afterwards" : ", continue PDGID loop afterwards"));
       param->simulate(simulstate,truth,extrapol);
+      if(SimulateOnlyOnePDGID()) break;
     }  
   }
 }
@@ -43,33 +45,33 @@ void TFCSParametrizationPDGIDSelectChain::unit_test(TFCSSimulationState* simulst
   chain.setLevel(MSG::DEBUG);
 
   TFCSParametrization* param;
-  param=new TFCSParametrization("A begin all","A begin all");
+  param=new TFCSInvisibleParametrization("A begin all","A begin all");
   param->setLevel(MSG::DEBUG);
   param->set_pdgid(0);
   chain.push_back(param);
-  param=new TFCSParametrization("A end all","A end all");
+  param=new TFCSInvisibleParametrization("A end all","A end all");
   param->setLevel(MSG::DEBUG);
   param->set_pdgid(0);
   chain.push_back(param);
 
   for(int i=0;i<3;++i) {
-    param=new TFCSParametrization(Form("A%d",i),Form("A %d",i));
+    param=new TFCSInvisibleParametrization(Form("A%d",i),Form("A %d",i));
     param->setLevel(MSG::DEBUG);
     param->set_pdgid(i);
     chain.push_back(param);
   }
 
   for(int i=3;i>0;--i) {
-    param=new TFCSParametrization(Form("B%d",i),Form("B %d",i));
+    param=new TFCSInvisibleParametrization(Form("B%d",i),Form("B %d",i));
     param->setLevel(MSG::DEBUG);
     param->set_pdgid(i);
     chain.push_back(param);
   }
-  param=new TFCSParametrization("B end all","B end all");
+  param=new TFCSInvisibleParametrization("B end all","B end all");
   param->setLevel(MSG::DEBUG);
-  param->set_pdgid(1);
+  param->set_match_all_pdgid();
   chain.push_back(param);
-  param=new TFCSParametrization("B begin all","B begin all");
+  param=new TFCSInvisibleParametrization("B begin all","B begin all");
   param->setLevel(MSG::DEBUG);
   param->set_pdgid(1);
   chain.push_back(param);
@@ -85,6 +87,21 @@ void TFCSParametrizationPDGIDSelectChain::unit_test(TFCSSimulationState* simulst
   std::cout<<"==== Simulate with pdgid=2      ===="<<std::endl;
   truth->set_pdgid(2);
   chain.simulate(*simulstate,truth,extrapol);
-  std::cout<<"==================================="<<std::endl<<std::endl;
+  std::cout<<"====================================="<<std::endl<<std::endl;
+
+  std::cout<<"====================================="<<std::endl;
+  std::cout<<"= Now only one simul for each PDGID ="<<std::endl;
+  std::cout<<"====================================="<<std::endl;
+  chain.set_SimulateOnlyOnePDGID();
+  std::cout<<"==== Simulate with pdgid=0      ===="<<std::endl;
+  truth->set_pdgid(0);
+  chain.simulate(*simulstate,truth,extrapol);
+  std::cout<<"==== Simulate with pdgid=1      ===="<<std::endl;
+  truth->set_pdgid(1);
+  chain.simulate(*simulstate,truth,extrapol);
+  std::cout<<"==== Simulate with pdgid=2      ===="<<std::endl;
+  truth->set_pdgid(2);
+  chain.simulate(*simulstate,truth,extrapol);
+  
 }
 

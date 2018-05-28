@@ -7,7 +7,6 @@
 ///////////////////////////////////////////////////////////////////
 #ifndef CALOCELLISOLATIONTOOLS_ICALOCELLISOLATIONTOOL_H
 #define CALOCELLISOLATIONTOOLS_ICALOCELLISOLATIONTOOL_H
-
 // #include "GaudiKernel/IAlgTool.h"
 #include "AsgTools/AsgTool.h"
 #include "xAODPrimitives/IsolationType.h"
@@ -20,7 +19,6 @@ namespace xAOD {
 
   /** @class ICaloCellIsolationTool
       @brief interface for tools calculating track isolation
- 
       @author Niels van Eldik, Sandrine Laplace
    */
   class ICaloCellIsolationTool : virtual public asg::IAsgTool {
@@ -40,7 +38,7 @@ namespace xAOD {
     virtual bool caloCellIsolation( CaloIsolation& result, const IParticle& tp, 
 				    const std::vector<Iso::IsolationType>& cones, 
 				    CaloCorrection corrections, 
-				    const CaloCellContainer* container = 0 ) = 0; 
+				    const CaloCellContainer* container = 0 ) const = 0; 
 
     /**ICaloCellIsolationTool interface for calculating the cell isolation variables and decorating the particle: 
        The tool expects the cones to be order in decreasing order (etcone40 -> etcone20)

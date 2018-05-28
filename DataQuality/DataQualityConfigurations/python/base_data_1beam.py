@@ -2,23 +2,34 @@
 
 from DataQualityUtils.DQWebDisplayConfig import DQWebDisplayConfig
 import os
+from ._resolve_data_path import resolve_data_path
+
+hcfg_dir = resolve_data_path('DataQualityConfigurations')
+if hcfg_dir:
+    print "Found DataQualityConfigurations data directory %s, using it" % hcfg_dir
+else:
+    hcfg_dir = os.getcwd()
+    print "DataQualityConfigurations data directory not found, attempting to use $PWD instead."
+print "Looking for collisions_*.hcfg files in %s" % (hcfg_dir)
+
+isprod = os.environ.get('DQPRODUCTION') == '1'
 
 dqconfig = DQWebDisplayConfig()
 dqconfig.config         = "Beam"
-dqconfig.hcfg           = os.environ.get('DQC_HCFG_COLLISIONS_RUN', "/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Collisions/collisions_run.current.hcfg")
-dqconfig.hcfg_min10     = os.environ.get('DQC_HCFG_COLLISIONS_MINUTES10', "/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Collisions/collisions_minutes10.current.hcfg")
-dqconfig.hcfg_min30     = os.environ.get('DQC_HCFG_COLLISIONS_MINUTES30', "/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Collisions/collisions_minutes30.current.hcfg")
-dqconfig.server         = ["aiatlas039.cern.ch", "aiatlas035.cern.ch", "aiatlas133.cern.ch"]
-dqconfig.eosResultsDir  = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/data-dqm/han_results/tier0/collisions/"
-dqconfig.histogramCache = "/afs/cern.ch/user/a/atlasdqm/w1/histogram_web_display_cache"
-dqconfig.hanResultsDir  = "/dqmdisk0/han_results/tier0/Cosmics08"
+dqconfig.hcfg           = os.environ.get('DQC_HCFG_COLLISIONS_RUN', "%s/collisions_run.hcfg" % hcfg_dir)
+dqconfig.hcfg_min10     = os.environ.get('DQC_HCFG_COLLISIONS_MINUTES10', "%s/collisions_minutes10.hcfg" % hcfg_dir)
+dqconfig.hcfg_min30     = os.environ.get('DQC_HCFG_COLLISIONS_MINUTES30', "%s/collisions_minutes30.hcfg" % hcfg_dir)
+dqconfig.server         = ["aiatlas039.cern.ch", "aiatlas035.cern.ch", "aiatlas133.cern.ch"] if isprod else []
+dqconfig.eosResultsDir  = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/data-dqm/han_results/tier0/collisions/" if isprod else ""
+dqconfig.histogramCache = "/afs/cern.ch/user/a/atlasdqm/w1/histogram_web_display_cache" if isprod else ''
+dqconfig.hanResultsDir  = "/dqmdisk0/han_results/tier0/Cosmics08" if isprod else '/afs/cern.ch/user/a/atlasdqm/dqmdisk/han_results/test'
 dqconfig.doHandi        = False
-dqconfig.htmlDir        = "/dqmdisk0/www/tier0/Cosmics08"
+dqconfig.htmlDir        = "/dqmdisk0/www/tier0/Cosmics08" if isprod else '/afs/cern.ch/user/a/atlasdqm/dqmdisk/www/test'
 dqconfig.htmlWeb        = "http://atlasdqm.cern.ch/tier0/Cosmics08"
 dqconfig.runlist        = "runlist_Cosmics08.xml"
 dqconfig.indexFile      = "results_Cosmics08.html"
 dqconfig.lockFile       = "DQWebDisplay_Cosmics08.lock"
-dqconfig.webHandoffDir  = '/afs/cern.ch/user/a/atlasdqm/maxidisk/webHandoff'
+dqconfig.webHandoffDir  = '/afs/cern.ch/user/a/atlasdqm/maxidisk/webHandoff' if isprod else ''
 
 dqconfig.filemap        = { 'RPCDQMFOFFLINE.db': '/afs/cern.ch/user/m/muoncali/w0/RPC/DQAresults',
                             'RPCConditionDB.db': '/afs/cern.ch/user/m/muoncali/w0/RPC/DQAresults',

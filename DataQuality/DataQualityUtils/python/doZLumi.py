@@ -29,10 +29,9 @@ def copyPlot(infname, outfname):
     fin.Close(); fout.Close()
             
 def makeGRL(run, defect, fname):
-    from ROOT import Root, TString
+    from ROOT import TString
     import DQUtils, DQDefects
     import os
-    tgrl = Root.TGoodRunsList(defect)
 
     tag = 'HEAD'
     runs = [run]
@@ -61,30 +60,10 @@ def makeGRL(run, defect, fname):
     okiovs = eor.logical_and(eor, defectiovs.logical_not())
     print 'done'
 
-    dibr = okiovs.by_run
-
     print 'Generating GRL...',
-    for run, iovs in dibr.items():
-        if run not in runs: continue
-        tgr = Root.TGoodRun(run)
-        for iov in iovs:
-            #print iov.since.run, iov.since.lumi, iov.until.run, iov.until.lumi
-            tgr.push_back(Root.TLumiBlockRange(iov.since.lumi, iov.until.lumi-1))
-        tgrl[run] = tgr
-
-    tgrl.AddMetaData(TString('Query'), TString('dummy'))
-    tgrl.AddMetaData(TString('ARQEquivalentQuery'), TString('dummy'))
-    tgrl.SetVersion(TString('2.1'))
-    tgrl.AddMetaData(TString('RunList'), TString(','.join(map(str, tgrl.GetRunlist()))))
-    tgrl.Summary()
-    tgrlw = Root.TGoodRunsListWriter(tgrl, TString(''))
-    rv = tgrlw.GetXMLString()
-    if not rv:
-        print 'Looks like we have an empty string'
-        return ""
-    print 'done'
+    data = DQUtils.grl.make_grl(okiovs, '', '2.1')
     with open(fname, 'w') as outf:
-        outf.write(rv.Data()[:])
+        outf.write(data)
 
 def go(fname):
     import subprocess, os, shutil
@@ -103,9 +82,9 @@ def go(fname):
         print 'Run number', runno, 'not 2017 data'
 
     subprocess.call(['dqt_zlumi_compute_lumi.py', fname, '--out', 'zlumiraw.root', '--dblivetime', '--plotdir', ''] + grlcmd)
-    subprocess.call(['dqt_zlumi_alleff_HIST.py', fname, '--out', 'zlumieff.root'])
+    subprocess.call(['dqt_zlumi_alleff_HIST.py', fname, '--out', 'zlumieff.root', '--plotdir', ''])
     subprocess.call(['dqt_zlumi_combine_lumi.py', 'zlumiraw.root', 'zlumieff.root', 'zlumi.root'])
-    subprocess.call(['dqt_zlumi_display_z_rate.py', 'zlumi.root'])
+    subprocess.call(['dqt_zlumi_display_z_rate.py', 'zlumi.root', '--plotdir', ''])
     copyPlot('zlumi.root', fname)
     if os.path.isfile('zlumi.root_zrate.csv'):
         shutil.move('zlumi.root_zrate.csv', 'zrate.csv')

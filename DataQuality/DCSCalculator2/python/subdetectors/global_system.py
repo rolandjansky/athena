@@ -48,6 +48,7 @@ class TDAQ_Busy(DCSC_Defect_Global_Variable):
 	counter=0
 
         for since, until, (state,) in events:
+            if state.Run == 0: continue
 	    #print state
             if state is not None:
                 deadfrac = 1-state.LiveFraction
@@ -79,6 +80,37 @@ class TDAQ_Busy(DCSC_Defect_Global_Variable):
     def quantize(self, lbtime, iovs):
         return iovs
 
+class LUMI_EmittanceScan(DCSC_Defect_Global_Variable):
+    """
+    Overloads calculate_good_iovs & quantize
+    Latter because this is a strange COOL folder that is timewise but already quantized
+    as run-LB
+    """
+    input_db = 'COOLONL_TDAQ/CONDBR2'
+    
+    def make_good_iovs(self, iovs):
+        return IOVSet(list(connect_adjacent_iovs_defect(self.emittance_generator(iovs))))
+
+    def emittance_generator(self, iovs):
+        events = process_iovs(iovs)
+	counter=0
+
+        for since, until, (state,) in events:
+	    #print state, state.RunLB & 0xffffffff if state.RunLB else 0
+            if state is not None and state.RunLB is not None:
+                thisrun = state.RunLB >>32
+                # pseudo-LB and not to be trusted
+                if thisrun == 0: continue
+                thisLB = state.RunLB & 0xffffffff
+                yield DefectIOV(RunLumi(thisrun, thisLB), 
+                                RunLumi(thisrun, thisLB+1), 
+                                'LUMI_EMITTANCESCAN', True,
+                                comment='Emittance scan'
+                                )
+
+    def quantize(self, lbtime, iovs):
+        return iovs
+
 class Global(DCSC_Subdetector_DefectsOnly):
     #__DISABLED__ = True
     folder_base = ''
@@ -87,6 +119,7 @@ class Global(DCSC_Subdetector_DefectsOnly):
         TDAQ_Ready('/TDAQ/RunCtrl/DataTakingMode', lambda x: True),
         #TDAQ_Busy('/TRIGGER/LUMI/PerBcidDeadtime', lambda x: True),
         TDAQ_Busy('/TRIGGER/OFLLUMI/LumiAccounting', lambda x: True),
+        LUMI_EmittanceScan('/TDAQ/OLC/LHC/SCANDATA', lambda x: True),
     ]
 
     def __init__(self, tolerance=2):

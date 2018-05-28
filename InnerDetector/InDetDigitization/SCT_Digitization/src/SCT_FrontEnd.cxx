@@ -58,6 +58,8 @@ SCT_FrontEnd::SCT_FrontEnd(const std::string &type, const std::string &name,
     declareProperty("NOOuters", m_NOOuters = 3.5e-5, "NoiseOccupancyOuters");
     declareProperty("NoiseOn", m_NoiseOn = true,
                     "To know if noise is on or off when using calibration data");
+    declareProperty("AnalogueNoiseOn", m_analogueNoiseOn = true,
+                    "To know if analogue noise is on or off");
     declareProperty("GainRMS", m_GainRMS = 0.031,
                     "Gain spread parameter within the strips for a given Chip gain");
     declareProperty("Ospread", m_Ospread = 0.0001,
@@ -73,8 +75,6 @@ SCT_FrontEnd::SCT_FrontEnd(const std::string &type, const std::string &name,
                     "Front End Data Compression Mode");
     declareProperty("DataReadOutMode", m_data_readout_mode = 0,
                     "Front End Data Read out mode Mode");
-    declareProperty("NoiseExpandedMode", m_noise_expanded_mode = false,
-                    "Front End Noise Expanded Mode");
     declareProperty("UseCalibData", m_useCalibData = true,
                     "Flag to use Calib Data");
     declareProperty("MaxStripsPerSide", m_strip_max = 768, "For SLHC studies");
@@ -90,6 +90,11 @@ SCT_FrontEnd::~SCT_FrontEnd() {
 // Initialize
 // ----------------------------------------------------------------------
 StatusCode SCT_FrontEnd::initialize() {
+    if (m_NoiseOn and (not m_analogueNoiseOn)) {
+        ATH_MSG_FATAL("AnalogueNoiseOn/m_analogueNoiseOn should be true if NoiseOn/m_NoiseOn is true.");
+        return StatusCode::FAILURE;
+    }
+
     // should not neec this?
     m_sc = AthAlgTool::initialize();
     if (m_sc.isFailure()) {
@@ -214,7 +219,7 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(
     // To set noise values for different module types, barrel, EC, inners,
     // middles,
     // short middles, and outers
-    if (m_NoiseOn) {
+    if (m_analogueNoiseOn) {
         if (m_sct_id->barrel_ec(moduleId) == 0) { // barrel_ec=0 corresponds to
                                                   // barrel
             if (m_sct_id->layer_disk(moduleId) == 3) { // outer barrel layer 10
@@ -359,7 +364,7 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(
                                                "OffsetRMSByChip");
     std::vector<float> noiseByChipVect(6, 0.0);
 
-    if (m_NoiseOn) { // Check if noise should be on or off
+    if (m_analogueNoiseOn) { // Check if noise should be on or off
         noiseByChipVect = m_ReadCalibChipDataSvc->getNPtGainData(moduleId, side,
                                                                  "NoiseByChip");
     }
@@ -528,9 +533,11 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection &collection, const
     int nNoisyStrips = 0;
     double mode = 1.;
 
+    const bool noise_expanded_mode = (m_data_compression_mode == 3 and m_data_readout_mode == 1);
+
     // Will give 3 times as much noise occupancy if running in any hit expanded
     // mode
-    if (m_noise_expanded_mode) {
+    if (noise_expanded_mode) {
         mode = 3.;
     }
 
@@ -642,28 +649,11 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection &collection, const
                                                                               // Noise
                                                                               // hit
             // Add tbin info to noise diode
-            if (m_data_compression_mode == 3 and m_data_readout_mode == 1) { // !<
-                                                                             // if
-                                                                             // any
-                                                                             // hit
-                                                                             // mode
-                                                                             // any
-                                                                             // time
-                                                                             // bin
-                                                                             // otherwise
-                                                                             // fixed
-                                                                             // tbin=2
-                int noise_tbin = CLHEP::RandFlat::shootInt(m_rndmEngine, 2);           //
-                                                                                       // !<
-                                                                                       // random
-                                                                                       // number
-                                                                                       // 0,
-                                                                                       // 1
-                                                                                       // or
-                                                                                       // 2
+            if (noise_expanded_mode) { // !< if any hit mode, any time bin otherwise fixed tbin=2
+                int noise_tbin = CLHEP::RandFlat::shootInt(m_rndmEngine, 3);
+                // !< random number 0, 1 or 2
                 if (noise_tbin == 0) {
-                    noise_tbin = 4;                            // !< now 1,2 or
-                                                               // 4
+                    noise_tbin = 4; // !< now 1,2 or 4
                 }
                 if (StatusCode::SUCCESS != addNoiseDiode(collection, strip,
                                                          noise_tbin)) {
@@ -695,9 +685,11 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection &collection, const
     std::vector<int> nNoisyStrips(n_chips, 0);
     double mode = 1.;
 
+    const bool noise_expanded_mode = (m_data_compression_mode == 3 and m_data_readout_mode == 1);
+
     // Will give 3 times as much noise occupancy if running in any hit expanded
     // mode
-    if (m_noise_expanded_mode) {
+    if (noise_expanded_mode) {
         mode = 3.;
     }
 
@@ -784,29 +776,12 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection &collection, const
                                                                                   // Noise
                                                                                   // hit
                 // Add tbin info to noise diode
-                if (m_data_compression_mode == 3 and m_data_readout_mode == 1) { //
-                                                                                 // !<
-                                                                                 // if
-                                                                                 // any
-                                                                                 // hit
-                                                                                 // mode
-                                                                                 // any
-                                                                                 // time
-                                                                                 // bin
-                                                                                 // otherwise
-                                                                                 // fixed
-                                                                                 // tbin=2
-                    int noise_tbin = CLHEP::RandFlat::shootInt(m_rndmEngine, 2);           //
-                                                                                           // !<
-                                                                                           // random
-                                                                                           // number
-                                                                                           // 0,
-                                                                                           // 1
-                                                                                           // or
-                                                                                           // 2
+                if (noise_expanded_mode) { // !< if any hit mode, any time bin
+                  // !< otherwise fixed tbin=2
+                    int noise_tbin = CLHEP::RandFlat::shootInt(m_rndmEngine, 3);
+                    // !< random number 0, 1 or 2
                     if (noise_tbin == 0) {
-                        noise_tbin = 4;                            // !< now 1,2
-                                                                   // or 4
+                        noise_tbin = 4; // !< now 1, 2 or 4
                     }
                     if (StatusCode::SUCCESS != addNoiseDiode(collection, strip,
                                                              noise_tbin)) {

@@ -83,7 +83,9 @@ void TFCSLateralShapeParametrizationHitChain::Print(Option_t *option) const
     m_number_of_hits_simul->Print(opt+"#:");
   }
   if(longprint) ATH_MSG_INFO(optprint <<"- Simulation chain:");
+  char count='A';
   for(TFCSLateralShapeParametrizationHitBase* hitsim : m_chain) {
-    hitsim->Print(opt+"- ");
+    hitsim->Print(opt+count+" ");
+    count++;
   } 
 }

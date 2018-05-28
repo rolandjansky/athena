@@ -1,0 +1,33 @@
+#!/bin/bash
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Author : Benjamin Trocme (LPSC - Grenoble) - 2017
+# Daemon job to update daily the DQ stats
+##################################################################
+
+date
+
+cd $1
+
+export AtlasSetup=/afs/cern.ch/atlas/software/dist/AtlasSetup
+source $AtlasSetup/scripts/asetup.sh 21.0.66,Athena,gcc62
+
+
+echo "First, looking for new runs..."
+python DeMoUpdate.py --runListUpdate
+
+systems='TRT LAr Tile CaloCP'
+
+for system in $systems
+do
+echo "====================================================================================="
+echo "====================================================================================="
+echo "Processing "$system
+echo "====================================================================================="
+echo "====================================================================================="
+
+python DeMoUpdate.py -b --onlineLumiNorm -t $2.onlDelivNorm -s $system --weekly --vetoLumiEvol 
+python DeMoUpdate.py -b --onlineLumiNorm -t $2.onlDelivNorm -s $system --grlUpdate
+python DeMoScan.py -t $2.onlDelivNorm -s $system --recapDefects
+done
+
+
