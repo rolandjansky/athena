@@ -59,7 +59,7 @@ AsgPhotonEfficiencyCorrectionTool::AsgPhotonEfficiencyCorrectionTool( std::strin
   m_rootTool_con = new Root::TPhotonEfficiencyCorrectionTool();
 
   // Declare the needed properties
-  declareProperty("MapFilePath", m_mapFile = "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/map0.txt" ,
+  declareProperty("MapFilePath", m_mapFile = "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v2/map2.txt" ,
                   "Full path to the map file");  
 				  
   declareProperty( "ForceDataType", m_dataTypeOverwrite=-1,
@@ -145,18 +145,25 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
   m_rootTool_con->msg().setLevel(this->msg().level());
   m_rootTool_unc->msg().setLevel(this->msg().level());
 
-  
-  // Check if ForceDataType is set up properly (should be 3 for AtlFast2)
-  if(TString(m_corrFileNameList[0]).Contains("AFII") && m_dataTypeOverwrite!=3)
-  {
-      ATH_MSG_ERROR("Property ForceDataType is set to "<< m_dataTypeOverwrite << ", while it should be 3 for FastSim");
-      return StatusCode::FAILURE;
+  // Isolation SF are same for both AF2 and FullSim:
+  // https://indico.cern.ch/event/722325/contributions/2969819/attachments/1633161/2613213/slides.pdf
+  if( (m_sysSubstring.find("ISO_") != std::string::npos) && m_dataTypeOverwrite==3){
+    // Setting  back to FullSim, since the current inputs have FullSim structure, but are valid for both types of simulations.
+	ATH_MSG_INFO("Setting ForceDataType to 1 (FullSIM), since ISO_SF are valid for both types of simulations");
+	m_dataTypeOverwrite=1; 
   }
-  if(!TString(m_corrFileNameList[0]).Contains("AFII") && m_dataTypeOverwrite!=1)
-  {
-      ATH_MSG_ERROR("Property ForceDataType is set to "<< m_dataTypeOverwrite << ", while it should be 1 for FullSim");
-      return StatusCode::FAILURE;
-  }  
+  
+  // Check if ForceDataType set properly
+  if(m_dataTypeOverwrite==static_cast<int> (PATCore::ParticleDataType::Data))
+    {
+	  ATH_MSG_DEBUG("Applying SF corrections to data while they make sense only for MC");
+	}
+  else if( m_dataTypeOverwrite!=static_cast<int> (PATCore::ParticleDataType::Full) 
+       &&  m_dataTypeOverwrite!=static_cast<int> (PATCore::ParticleDataType::Fast) )
+    {
+        ATH_MSG_ERROR("Property ForceDataType is set to "<< m_dataTypeOverwrite << ", while it should be 1 for FullSim or 3 for FastSim");
+        return StatusCode::FAILURE;
+    }
   
   // We need to initialize the underlying ROOT TSelectorTool
   if ( (0 == m_rootTool_con->initialize()) || (0 == m_rootTool_unc->initialize()) )
