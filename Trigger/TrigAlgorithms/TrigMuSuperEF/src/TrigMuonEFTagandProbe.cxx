@@ -329,11 +329,34 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(std::vector< std::vector<HLT::T
   //AllTE combiner algorithms earlier in chain remove regular access back to seeding RoIs, use MU4 TE as second input to get event specific RoI info
   //Check for LVL1 muon RoI information in current event first, if there is no info then we shouldn't bother calculating anything else and should move to next event 
   
-  const LVL1::RecMuonRoI* m_l1_muon_RoI;
+
   std::vector<const LVL1::RecMuonRoI*> m_l1_muon_RoItemp;
   const std::vector<const LVL1::RecMuonRoI*>* m_l1_muon_RoIs = &m_l1_muon_RoItemp; //Lazy solution to avoid changing lots of -> to .
-  
+
+  //Navigation Test
+  HLT::Navigation* nav = config()->getNavigation();
+  HLT::TriggerElement* initial = nav->getInitialNode();
+  //HLT::TriggerElement* initial = getInitialNode();
+  const std::vector<HLT::TriggerElement*>& inputTE_RoIs_nav = nav->getDirectSuccessors(initial);
+
+  for (auto TERoI : inputTE_RoIs_nav) {
+    const LVL1::RecMuonRoI* m_l1_muon_RoI;
+    if(getFeature(TERoI, m_l1_muon_RoI)!=HLT::OK) {  //If getfeature fails
+      ATH_MSG_DEBUG("No LVL1::RecMuonRoI Feature found in initial RoI Node");
+      return HLT::MISSING_FEATURE;
+    }
+    if (!m_l1_muon_RoI) { // if Muon RoI entry is null
+      ATH_MSG_DEBUG("Null LVL1::RecMuonRoI feature found, ignoring and moving on");
+    }
+    else{
+      m_l1_muon_RoItemp.push_back(m_l1_muon_RoI);
+    }
+  }
+
+
+  /*
   for (auto TERoI : inputTE_RoIs) {
+  const LVL1::RecMuonRoI* m_l1_muon_RoI;
     if(getFeature(TERoI, m_l1_muon_RoI)!=HLT::OK) {  //If getfeature fails
       ATH_MSG_DEBUG("No LVL1::RecMuonRoI Feature found in RoI Trigger Element");
       return HLT::MISSING_FEATURE;
@@ -345,6 +368,7 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(std::vector< std::vector<HLT::T
       m_l1_muon_RoItemp.push_back(m_l1_muon_RoI);
     }
   }
+  */
 
   if(m_l1_muon_RoIs->size() == 0){ //Save compute by killing if there is no L1 information
     ATH_MSG_DEBUG("L1 RoI vector size = 0, moving to next event");
