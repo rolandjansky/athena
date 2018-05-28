@@ -4,7 +4,7 @@
 #
 # art-type: grid
 # art-input: mc16_13TeV.423001.ParticleGun_single_photon_egammaET.recon.RDO.e3566_s3113_r9388
-# art-input-nfiles: 50
+# art-input-nfiles: 40
 # art-cores: 4
 # art-include: 21.0/Athena
 # art-include: master/Athena
@@ -45,7 +45,7 @@ case $ArtProcess in
 
 	echo  "art-result: $? athena_job"
 
-	plotsMaker.py /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/egammaValidation/Baseline_Files/rootFiles/Baseline-monitoring_gamma.hist.root Nightly-monitoring_gamma.hist.root gamma
+	EgammaARTmonitoring_plotsMaker.py /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/egammaValidation/Baseline_Files/rootFiles/Baseline-monitoring_gamma.hist.root Nightly-monitoring_gamma.hist.root gamma
 
 	echo  "art-result: $? final_comparison"
 
