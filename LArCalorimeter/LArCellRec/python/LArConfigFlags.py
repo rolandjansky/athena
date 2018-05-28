@@ -15,6 +15,8 @@ def createLArConfigFlags():
                 #                   "calculated": re-computed by the offline LArRawChannelBuilder
                 #                   "both": overwrite the digits computed 
 
+    lcf.addFlag("LAr.doCellNoiseMasking",True)
+    lcf.addFlag("LAr.doCellSporadicNoiseMasking",True)
     return lcf
 
 
