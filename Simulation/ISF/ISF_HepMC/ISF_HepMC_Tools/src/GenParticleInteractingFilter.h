@@ -29,7 +29,7 @@ namespace ISF {
  
        @author ZLMarshall -at- lbl.gov
       */
-  class GenParticleInteractingFilter : public extends<AthAlgTool, IGenParticleFilter> {
+  class GenParticleInteractingFilter final : public extends<AthAlgTool, IGenParticleFilter> {
 
     public:
       //** Constructor with parameters */
@@ -38,9 +38,14 @@ namespace ISF {
       /** Destructor */
       ~GenParticleInteractingFilter(){}
 
-      /** passes through to the private version */
-      bool pass(const HepMC::GenParticle& particle ) const;
+      /** Framework methods */
+      virtual StatusCode initialize() override;
 
+      /** passes through to the private version */
+      virtual bool pass(const HepMC::GenParticle& particle ) const override;
+
+      /** Additional PDG codes to classify as interacting */
+      std::vector<int> m_additionalInteractingParticleTypes;
   };
 
 }

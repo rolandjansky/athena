@@ -64,7 +64,9 @@ def generateChainDefs(chainDict, thisIsBphysChain=False):
             Muon = L2EFChain_mu_IdTest(subChainDict, asymDiMuonChain)
         else:
             #If FS muon, needs total counts of muons in chain
-            if 'noL1' in subChainDict["chainParts"]["extra"]:
+            if 'noL1' in subChainDict["chainParts"]["extra"]   :
+                AllMuons=GetAllMuonThresholds(chainDict)
+            elif  subChainDict["chainParts"]["reccalibInfo"] == "btrk" or 'btrk' in subChainDict["chainParts"]["extra"] :
                 AllMuons=GetAllMuonThresholds(chainDict)
             else:
                 AllMuons=[]

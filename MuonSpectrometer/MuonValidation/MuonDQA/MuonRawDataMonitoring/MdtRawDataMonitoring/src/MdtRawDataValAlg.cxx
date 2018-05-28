@@ -174,7 +174,7 @@ MdtRawDataValAlg::MdtRawDataValAlg( const std::string & type, const std::string 
   declareProperty("do_mdt_DRvsSegD",         m_do_mdt_DRvsSegD = true);
   declareProperty("do_mdttubenoise",         m_do_mdttubenoise = false); 
   declareProperty("do_mdttdctube",           m_do_mdttdctube = false);   
-  declareProperty("nHits_NoiseThreshold",    m_HighOccThreshold = 10000.);
+  declareProperty("nHits_NoiseThreshold",    m_HighOccThreshold = 16000.);
   declareProperty("RpcPrepDataContainer",    m_key_rpc="RPC_Measurements");
 }
 
@@ -2100,7 +2100,8 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
               int statphi = chamber->GetStationPhi();
               int ibarrel_endcap = chamber->GetBarrelEndcapEnum();
 
-              if(overalladc_segm_PR_Lumi[iregion] && adc > m_ADCCut) overalladc_segm_PR_Lumi[iregion]->Fill(adc);        
+	      //hard cut to adc only to present this histogram
+              if(overalladc_segm_PR_Lumi[iregion] && adc > 50.) overalladc_segm_PR_Lumi[iregion]->Fill(adc);        
               if(adc > m_ADCCut) { // This is somewhat redundant because this is usual cut for segment-reconstruction, but that's OK
                 if(statphi > 15) {
                   ATH_MSG_ERROR( "MDT StationPhi: " << statphi << " Is too high.  Chamber name: " << chamber->getName() );

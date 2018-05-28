@@ -38,6 +38,7 @@ TRT_DetectorTool::TRT_DetectorTool( const std::string& type, const std::string& 
     m_sumSvc("TRT_StrawStatusSummarySvc", name),
     m_doArgonMixture(0),
     m_doKryptonMixture(0),
+    m_useDynamicAlignFolders(false),
     m_manager(0),
     m_athenaComps(0)
 {
@@ -51,6 +52,8 @@ TRT_DetectorTool::TRT_DetectorTool( const std::string& type, const std::string& 
   declareProperty("InDetTRTStrawStatusSummarySvc", m_sumSvc);  // need for Argon
   declareProperty("DoXenonArgonMixture", m_doArgonMixture); // Set to 1 to use argon. DEFAULT VALUE is 0. Overridden by DOARGONMIXTURE switch
   declareProperty("DoKryptonMixture", m_doKryptonMixture); // Set to 1 to use krypton. DEFAULT VALUE is 0. Overridden by DOKRYPTONMIXTURE switch
+  declareProperty("useDynamicAlignFolders", m_useDynamicAlignFolders);
+
 }
 
 
@@ -209,7 +212,8 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
 					  m_overridedigversion,
 					  m_alignable,
 					  m_doArgonMixture,
-					  m_doKryptonMixture
+					  m_doKryptonMixture,
+					  m_useDynamicAlignFolders
     );
     theTRTFactory.create(world);
     m_manager=theTRTFactory.getDetectorManager();
@@ -244,59 +248,59 @@ TRT_DetectorTool::registerCallback( StoreGateSvc* detStore)
 
   if (m_alignable) {
 
-    // Regular alignment new shema   
+    
     {
-      std::string folderName = "/TRT/AlignL1/TRT";
-      if (detStore->contains<CondAttrListCollection>(folderName)) {
-        msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endreq;
-        const DataHandle<CondAttrListCollection> calc;
-        StatusCode trttmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
-        // We don't expect this to fail as we have already checked that the detstore contains the object. 
-        if (trttmp.isFailure()) {
-          msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endreq;
-        } else {
-          sc =  StatusCode::SUCCESS;
-        }
-      } else {
-        msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endreq;
-        //return StatusCode::FAILURE;
-      }
 
-      folderName = "/TRT/AlignL2";
-      if (detStore->contains<AlignableTransformContainer>(folderName)) {
-        if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
-        const DataHandle<AlignableTransformContainer> atc;
-        StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
-        if(sctmp.isFailure()) {
-          msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
-        } else {
-          sc =  StatusCode::SUCCESS;
-        }
-      }
-      else {
-	msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder "
-                          << folderName <<  endreq;
-        //return StatusCode::FAILURE;
-      }
-    }
-
-
-    // Regular alignment
-    {
-      std::string folderName = "/TRT/Align";
-      if (detStore->contains<AlignableTransformContainer>(folderName)) {
-	msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
-	const DataHandle<AlignableTransformContainer> atc;
-	StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
-	// We don't expect this to fail as we have already checked that the detstore contains the object.
-	if (sctmp.isFailure()) {
-	  msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
+      if (m_useDynamicAlignFolders){ // Regular alignment new shema   
+	std::string folderName = "/TRT/AlignL1/TRT";
+	if (detStore->contains<CondAttrListCollection>(folderName)) {
+	  msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endreq;
+	  const DataHandle<CondAttrListCollection> calc;
+	  StatusCode trttmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool*>(this), calc, folderName);
+	  // We don't expect this to fail as we have already checked that the detstore contains the object. 
+	  if (trttmp.isFailure()) {
+	    msg(MSG::ERROR) << "Problem when register callback on global Container with folder " << folderName <<endreq;
+	  } else {
+	    sc =  StatusCode::SUCCESS;
+	  }
 	} else {
-	  sc =  StatusCode::SUCCESS;
+	  msg(MSG::WARNING) << "Unable to register callback on global Container with folder " << folderName <<endreq;
+	  //return StatusCode::FAILURE;
 	}
-      } else {
-	msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder "
-			  << folderName << ", Alignments disabled! (Only if no Run2 schema is loaded)" << endreq;
+	
+	folderName = "/TRT/AlignL2";
+	if (detStore->contains<AlignableTransformContainer>(folderName)) {
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
+	  const DataHandle<AlignableTransformContainer> atc;
+	  StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
+	  if(sctmp.isFailure()) {
+	    msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
+	  } else {
+	    sc =  StatusCode::SUCCESS;
+	  }
+	}
+	else {
+	  msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder "
+			    << folderName <<  endreq;
+	  //return StatusCode::FAILURE;
+	}
+      }
+      else {  // Regular alignment old schema
+	std::string folderName = "/TRT/Align";
+	if (detStore->contains<AlignableTransformContainer>(folderName)) {
+	  msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
+	  const DataHandle<AlignableTransformContainer> atc;
+	  StatusCode sctmp = detStore->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
+	  // We don't expect this to fail as we have already checked that the detstore contains the object.
+	  if (sctmp.isFailure()) {
+	    msg(MSG::ERROR) << "Problem when register callback on AlignableTransformContainer with folder " << folderName <<endreq;
+	  } else {
+	    sc =  StatusCode::SUCCESS;
+	  }
+	} else {
+	  msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder "
+			    << folderName << ", Alignments disabled! (Only if no Run2 schema is loaded)" << endreq;
+	}
       }
     }
 

@@ -727,6 +727,9 @@ StatusCode LVL1::Run2TriggerTowerMaker::preProcessTower(xAOD::TriggerTower *towe
     etResultVectorCp[0] = 0;
     etResultVectorJep[0] = 0;
   }
+  
+  // Overlay protection
+  if (m_inputTTLocation == "NoneForOverlay") return StatusCode::SUCCESS;
 
   tower->setLut_cp(std::move(etResultVectorCp));
   tower->setLut_jep(std::move(etResultVectorJep));

@@ -79,6 +79,11 @@ const std::array<std::string, kNumModulesDisk> ModulesECC = {{
 
 const std::array<std::string, kNumModulesDBM> ModulesDBM = {{"M3", "M4", "M1", "M2"}};
 
+const std::array<std::string, kNumPP0sEC> PP0sEC = {{
+    "D1_B01_S2", "D1_B02_S1", "D1_B02_S2", "D1_B03_S1", "D1_B03_S2", "D1_B04_S1", "D1_B04_S2", "D1_B01_S1",
+    "D2_B01_S2", "D2_B02_S1", "D2_B02_S2", "D2_B03_S1", "D2_B03_S2", "D2_B04_S1", "D2_B04_S2", "D2_B01_S1",
+    "D3_B01_S2", "D3_B02_S1", "D3_B02_S2", "D3_B03_S1", "D3_B03_S2", "D3_B04_S1", "D3_B04_S2", "D3_B01_S1"}};
+
 bool HasComponent(const HistConf& config, const LayerIBL2D3DDBM& component) {
   if (component >= LayerIBL2D3DDBM::COUNT) {
     // return here if we are out of scope

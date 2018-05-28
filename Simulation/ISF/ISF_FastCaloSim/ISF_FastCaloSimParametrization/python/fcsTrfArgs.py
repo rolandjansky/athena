@@ -20,3 +20,9 @@ def addFCS_NtupArgs(parser):
     parser.add_argument('--outputGeoFileName',
                         type=argFactory(argString),
                         help='Optional geometry file', group='FCS_Ntup_tf')
+    parser.add_argument('--doG4Hits',
+                        type=argFactory(argBool),
+                        help='Flag to turn on the writing of G4 hits', group='FCS_Ntup_tf')
+    parser.add_argument('--saveAllBranches',
+                        type=argFactory(argBool),
+                        help='Flag to turn on extra branches for Hits and G4hits', group='FCS_Ntup_tf')

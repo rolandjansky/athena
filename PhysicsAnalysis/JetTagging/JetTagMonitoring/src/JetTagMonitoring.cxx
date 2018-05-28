@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-//#include "ITrackToVertex/ITrackToVertex.h"
 #include "xAODJet/JetContainer.h"   
 #include "xAODJet/JetAttributes.h"
 #include "xAODBTagging/BTagging.h"
@@ -18,7 +17,7 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 
-#include "TrigDecisionTool/TrigDecisionTool.h" // added by SARA
+#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 #include "VxSecVertex/VxSecVKalVertexInfo.h"
@@ -29,9 +28,11 @@
 #include "LWHists/LWHist.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
+#include "LWHists/TProfile_LW.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TProfile.h"
 #include "TMath.h"
 #include "TEfficiency.h"
 
@@ -68,17 +69,19 @@ JetTagMonitoring::JetTagMonitoring(const std::string & type, const std::string &
   m_storeGate( "StoreGateSvc", name ),
   m_trackSelectorTool("Analysis::TrackSelector"),
   m_trackToVertexTool("Reco::TrackToVertex"),
-  m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool"), // added by SARA
+  m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_histogramsCreated(false),
   m_switch_off(false),
   m_pixelCondSummarySvc("PixelConditionsSummarySvc",name)
 {
 
+  // Properties already defined in the jobOptions
+  //START
   declareProperty("JetContainer",           m_jetName           = "AntiKt4EMTopoJets");
   declareProperty("TrackParticleContainer", m_trackParticleName = "InDetTrackParticles");
   declareProperty("PrimaryVertexContainer", m_primaryVertexName = "PrimaryVertices");
-  declareProperty("ElectronContainer",      m_electronName      = "Electrons"); // added by SARA
-  declareProperty("MuonContainer",          m_muonName          = "Muons" ); // added by SARA
+  declareProperty("ElectronContainer",      m_electronName      = "Electrons");
+  declareProperty("MuonContainer",          m_muonName          = "Muons" );
 
   declareProperty("DQcuts", m_do_cuts = true);
 
@@ -88,52 +91,56 @@ JetTagMonitoring::JetTagMonitoring(const std::string & type, const std::string &
   declareProperty("JetPt_cuts", m_jet_pt_cut = 15.0); // in GeV
   declareProperty("JetEta_cuts", m_jet_eta_cut = 2.5);
   declareProperty("nTrk_cuts", m_trk_n = 1);
+
+  declareProperty("MV_algorithmName", m_mv_algorithmName="MV2c10");
+  declareProperty("MV_nBins", m_mv_nBins=100);
+  declareProperty("MV_rangeStart", m_mv_rangeStart=-1.);
+  declareProperty("MV_rangeStop", m_mv_rangeStop=1.);
+  declareProperty("MV_cFraction", m_mv_cFrac=0.08);//DL1
+  declareProperty("MV_60_cut", m_mv_60_weight_cut=0.94);
+  declareProperty("MV_70_cut", m_mv_70_weight_cut=0.83);
+  declareProperty("MV_77_cut", m_mv_77_weight_cut=0.64);
+  declareProperty("MV_85_cut", m_mv_85_weight_cut=0.11);
+
   declareProperty("SV1IP3D_weight_cut", m_sv1ip3d_weight_cut=0.);
-  declareProperty("MV_60_cut", m_mv_60_weight_cut=0.934906);
-  declareProperty("MV_70_cut", m_mv_70_weight_cut=0.8244273);
-  declareProperty("MV_77_cut", m_mv_77_weight_cut=0.645925);
-  declareProperty("MV_85_cut", m_mv_85_weight_cut=0.1758475);
-  declareProperty("MV_algorithmName", m_mv_algorithmName="MV2c10"); // added by SARA
+  //END
 
   declareProperty("UseTrackSelector", m_use_trackselector = true);
   declareProperty("UseTrigDecisionTool", m_use_trigdectool = true);
   declareProperty("doLumiBlock",     m_doLumiBlock=false);
   declareProperty("doStatus",        m_doStatus = false);
 
-  declareProperty( "ElectronPtCut", m_ElectronPtCut = 25.0 ); // added by SARA - in GeV
-  declareProperty( "MuonPtCut", m_MuonPtCut = 25.0 ); // added by SARA - in GeV
-  declareProperty( "ElectronEtaCut", m_ElectronEtaCut = 2.47 ); // added by SARA
-  declareProperty( "MuonEtaCut", m_MuonEtaCut = 2.4 ); // added by SARA
-  declareProperty( "ElectronEtaCrackLowCut", m_ElectronEtaCrackLowCut = 1.37 ); // added by SARA
-  declareProperty( "ElectronEtaCrackHighCut", m_ElectronEtaCrackHighCut = 1.52 ); // added by SARA
+  declareProperty( "JetEtaCut", m_JetEtaCut = 2.5 );
+  declareProperty( "JetPtCut", m_JetPtCut = 25.0 );
+  declareProperty( "SoftMuonPtCut", m_softMuonPtCut = 4.0 );
 
-  declareProperty( "ElectronTopoEtCone20Cut", m_ElectronTopoEtCone20Cut = 0.06 ); // added by SARA -0.06 corresponds to the FixedTightCut working point
-  declareProperty( "MuonTopoEtCone20Cut", m_MuonTopoEtCone20Cut = 0.06 ); // added by SARA -0.06 corresponds to the FixedTightCut working point
-  declareProperty( "ElectronPtVarCone20Cut", m_ElectronPtVarCone20Cut = 0.06 ); // added by SARA -0.06 corresponds to the FixedTightCut working point
-  declareProperty( "MuonPtVarCone20Cut", m_MuonPtVarCone20Cut = 0.06 ); // added by SARA -0.06 corresponds to the FixedTightCut working point
-  
-  declareProperty( "ElectronTrigger_2016", m_ElectronTrigger_2016 = "HLT_e26_lhtight_nod0_ivarloose" ); // added by SARA
-  declareProperty( "MuonTrigger_2016", m_MuonTrigger_2016 = "HLT_mu26_ivarmedium" ); // added by SARA
-  declareProperty( "JetTrigger_2016", m_JetTrigger_2016 = "HLT_j15" ); // added by SARA
-  declareProperty( "ElectronTrigger_2017", m_ElectronTrigger_2017 = "HLT_e28_lhtight_nod0_ivarloose" ); // added by SARA
-  declareProperty( "MuonTrigger_2017", m_MuonTrigger_2017 = "HLT_mu26_ivarmedium" ); // added by SARA
-  declareProperty( "JetTrigger_2017", m_JetTrigger_2017 = "HLT_j15" ); // added by SARA
+  declareProperty( "ElectronPtCut", m_ElectronPtCut = 25.0 );
+  declareProperty( "MuonPtCut", m_MuonPtCut = 25.0 );
+  declareProperty( "ElectronEtaCut", m_ElectronEtaCut = 2.47 );
+  declareProperty( "MuonEtaCut", m_MuonEtaCut = 2.5 );
+  declareProperty( "ElectronEtaCrackLowCut", m_ElectronEtaCrackLowCut = 1.37 );
+  declareProperty( "ElectronEtaCrackHighCut", m_ElectronEtaCrackHighCut = 1.52 );
+
+  declareProperty( "ElectronTopoEtCone20Cut", m_ElectronTopoEtCone20Cut = 0.06 );// corresponds to the FixedTightCut working point
+  declareProperty( "MuonTopoEtCone20Cut", m_MuonTopoEtCone20Cut = 0.06 );// corresponds to the FixedTightCut working point
+  declareProperty( "ElectronPtVarCone20Cut", m_ElectronPtVarCone20Cut = 0.06 );// corresponds to the FixedTightCut working point
+  declareProperty( "MuonPtVarCone30Cut", m_MuonPtVarCone30Cut = 0.06 );// corresponds to the FixedTightCut working point  
+
+  declareProperty( "ElectronTrigger_201X", m_ElectronTrigger_201X = "HLT_e[2-9][0-9]_.*" ); // e20-e99 triggers
+  declareProperty( "MuonTrigger_201X", m_MuonTrigger_201X = "HLT_mu.*" ); // all mu triggers (including mu4 for Special Runs)
+  //declareProperty( "JetTrigger_201X", m_JetTrigger_201X = "HLT_j15" ); //extra
 
   m_isNewLumiBlock = false;
 }
 
 //** --------------------------------------------------------------------------------------------------------------- **//
 
-
 JetTagMonitoring::~JetTagMonitoring() {}
-
 
 //** --------------------------------------------------------------------------------------------------------------- **//
 
-
 StatusCode JetTagMonitoring::registerHist(MonGroup& theGroup, TH1* h1) {
 
-  // msg(MSG::VERBOSE) << "in JetTagMonitoring::registerHist " << h1->GetName() << endmsg;
   ATH_MSG_VERBOSE("in JetTagMonitoring::registerHist " << h1->GetName());
 
   StatusCode sc = theGroup.regHist(h1);
@@ -144,7 +151,6 @@ StatusCode JetTagMonitoring::registerHist(MonGroup& theGroup, TH1* h1) {
 }
 
 //** --------------------------------------------------------------------------------------------------------------- **//
-
 
 StatusCode JetTagMonitoring::registerHist(MonGroup& theGroup, LWHist* h1) {
 
@@ -157,17 +163,7 @@ StatusCode JetTagMonitoring::registerHist(MonGroup& theGroup, LWHist* h1) {
   return sc;
 }
 
-
 //** --------------------------------------------------------------------------------------------------------------- **//
-
-
-
-
-
-//** --------------------------------------------------------------------------------------------------------------- **//
-
-
-
 
 StatusCode JetTagMonitoring::initialize() {
 
@@ -202,9 +198,7 @@ StatusCode JetTagMonitoring::initialize() {
   return StatusCode::SUCCESS;
 }
 
-
 //** --------------------------------------------------------------------------------------------------------------- **//
-
 
 StatusCode JetTagMonitoring::bookHistograms() {
 
@@ -240,7 +234,7 @@ StatusCode JetTagMonitoring::bookHistograms() {
   // General histograms //
   ////////////////////////
 
-  registerHist(*m_monGr_shift, m_jet_n = TH1F_LW::create("jet_n","Number of Jets; Number of jets",20,0.,20.));
+  registerHist(*m_monGr_shift, m_jet_n = TH1F_LW::create("jet_n","Number of Jets; Number of jets",50,0.,50.));
   registerHist(*m_monGr_shift, m_jet_et  = TH1F_LW::create("jet_et","Jet pT; pT [GeV]",100,0.,500.)); // this is actually filled with pT although called et...
   registerHist(*m_monGr_shift, m_jet_eta = TH1F_LW::create("jet_eta","Jet #eta; #eta",100,-5.,5.));
   registerHist(*m_monGr_shift, m_jet_phi = TH1F_LW::create("jet_phi","Jet #phi; #phi",100,-3.15,3.15));
@@ -249,11 +243,10 @@ StatusCode JetTagMonitoring::bookHistograms() {
   registerHist(*m_monGr_shift, m_global_xPrimVtx = TH1F_LW::create("global_xPrimVtx","Primary Vertex x Position; PV x [mm]",100,-5.0,5.0));
   registerHist(*m_monGr_shift, m_global_yPrimVtx = TH1F_LW::create("global_yPrimVtx","Primary Vertex y Position; PV y [mm]",100,-5.0,5.0));
   registerHist(*m_monGr_shift, m_global_zPrimVtx = TH1F_LW::create("global_zPrimVtx","Primary Vetex z Position; PV z [mm]",100,-250.,250.));
-  registerHist(*m_monGr_shift, m_priVtx_trks = TH1F_LW::create("priVtx_trks","Number of Tracks in PV; Number of tracks",100,-0.5,99.5));
-  //m_priVtx_trks->GetXaxis()->SetTitle("Primary Vertex #trks"); // removed by SARA (put correct title above instead)
+  registerHist(*m_monGr_shift, m_priVtx_trks = TH1F_LW::create("priVtx_trks","Number of Tracks in PV; Number of tracks",150,-0.5,149.5));
 
   registerHist(*m_monGr_shift, m_trackParticle_n = TH1F_LW::create("NTrackParticle","Number of TrackParticles; Number of tracks",100,0.,1000.));
-  registerHist(*m_monGr_shift, m_global_BLayerHits = TH1F_LW::create("global_BLayerHits","Number of IBL Hits on TrackParticle; Number of IBL hits",5,0.,5.)); // updated by SARA // IBL hits in Run-2, old b-layer in Run-1
+  registerHist(*m_monGr_shift, m_global_BLayerHits = TH1F_LW::create("global_BLayerHits","Number of IBL Hits on TrackParticle; Number of IBL hits",5,0.,5.));
   registerHist(*m_monGr_shift, m_global_PixelHits = TH1F_LW::create("global_PixelHits","Number of PIX Hits on TrackParticle; Number of PIX hits",10,0.,10.));
   registerHist(*m_monGr_shift, m_global_SCTHits = TH1F_LW::create("global_SCTHits","Number of SCT Hits on TrackParticle; Number of SCT hits",15,0.,15.));
   registerHist(*m_monGr_shift, m_global_SiHits = TH1F_LW::create("global_SiHits","Number of PIX+SCT Hits on TrackParticle; Number of PIX+SCT hits",25,0.,25.));
@@ -265,7 +258,7 @@ StatusCode JetTagMonitoring::bookHistograms() {
   registerHist(*m_monGr_shift, m_jet_tracks_phi = TH1F_LW::create("jet_tracks_phi","#phi of Tracks in Jets; #phi",100,-TMath::Pi(),TMath::Pi()));
   registerHist(*m_monGr_shift, m_jet_tracks_d0 = TH1F_LW::create("jet_tracks_d0","d0 of Tracks in Jets; d0 [mm]",100,-5.,5.));
   registerHist(*m_monGr_shift, m_jet_tracks_z0 = TH1F_LW::create("jet_tracks_z0","z0 of Tracks in Jets; z0 [mm]",100,-300.,300.));
-  registerHist(*m_monGr_shift, m_jet_tracks_BLayerHits = TH1F_LW::create("jet_tracks_hits_BLayer","Number of IBL Hits on Tracks in Jets; Number of IBL hits",5,0.,5.)); // updatedby SARA // IBL hits in Run-2, old b-layer in Run-1
+  registerHist(*m_monGr_shift, m_jet_tracks_BLayerHits = TH1F_LW::create("jet_tracks_hits_BLayer","Number of IBL Hits on Tracks in Jets; Number of IBL hits",5,0.,5.));
   registerHist(*m_monGr_shift, m_jet_tracks_PixelHits = TH1F_LW::create("jet_tracks_hits_Pixel","Number of PIX Hits on Tracks in Jets; Number of PIX hits",10,0.,10.));
   registerHist(*m_monGr_shift, m_jet_tracks_SCTHits = TH1F_LW::create("jet_tracks_hits_SCT","Number of SCT Hits on Tracks in Jets; Number of SCT hits",15,0.,15.));
 
@@ -273,22 +266,16 @@ StatusCode JetTagMonitoring::bookHistograms() {
   // Trigger histograms //
   ////////////////////////
 
-  //registerHist(*m_monGr_shift, m_trigPassed = TH1F_LW::create("trigPassed","Number of events passed trigger chains",40,-0.5,39.5));
-  registerHist(*m_monGr_shift, m_trigPassed = TH1F_LW::create("trigPassed","Number of events passed trigger chains",10,-0.5,9.5));
+  registerHist(*m_monGr_shift, m_trigPassed = TH1F_LW::create("trigPassed","Number of events passing trigger chains",5,-0.5,4.5));
   
   m_trigPassed->GetXaxis()->SetBinLabel(1,"All") ;
 
-  // 2016 menu
-  m_trigPassed->GetXaxis()->SetBinLabel(2,m_ElectronTrigger_2016.c_str());
-  m_trigPassed->GetXaxis()->SetBinLabel(3,m_MuonTrigger_2016.c_str());
-  m_trigPassed->GetXaxis()->SetBinLabel(4,(m_ElectronTrigger_2016+"_OR_"+m_MuonTrigger_2016).c_str());
-  m_trigPassed->GetXaxis()->SetBinLabel(5,m_JetTrigger_2016.c_str());
-  
-  // 2017 menu
-  m_trigPassed->GetXaxis()->SetBinLabel(6,m_ElectronTrigger_2017.c_str());
-  m_trigPassed->GetXaxis()->SetBinLabel(7,m_MuonTrigger_2017.c_str());
-  m_trigPassed->GetXaxis()->SetBinLabel(8,(m_ElectronTrigger_2017+"_OR_"+m_MuonTrigger_2017).c_str());
-  m_trigPassed->GetXaxis()->SetBinLabel(9,m_JetTrigger_2017.c_str());
+  // 201X menu triggers
+  m_trigPassed->GetXaxis()->SetBinLabel(2,m_ElectronTrigger_201X.c_str());
+  m_trigPassed->GetXaxis()->SetBinLabel(3,m_MuonTrigger_201X.c_str());
+  m_trigPassed->GetXaxis()->SetBinLabel(4,(m_ElectronTrigger_201X+"_OR_"+m_MuonTrigger_201X).c_str());
+  m_trigPassed->GetXaxis()->SetBinLabel(5,(m_ElectronTrigger_201X+"_AND_"+m_MuonTrigger_201X).c_str());
+  //m_trigPassed->GetXaxis()->SetBinLabel(6,m_JetTrigger_201X.c_str());
 
   ///////////////////////
   // Cutflow hitograms //
@@ -307,35 +294,74 @@ StatusCode JetTagMonitoring::bookHistograms() {
   m_cutflow_jet->GetXaxis()->SetBinLabel(1,"All");
   m_cutflow_jet->GetXaxis()->SetBinLabel(2,"Quality Cuts");
   m_cutflow_jet->GetXaxis()->SetBinLabel(3,"Kinematic Cuts");
-  m_cutflow_jet->GetXaxis()->SetBinLabel(4,"Taggable");
-  m_cutflow_jet->GetXaxis()->SetBinLabel(5,"Taggable Good");
-  m_cutflow_jet->GetXaxis()->SetBinLabel(6,"Taggable Suspect");
+  m_cutflow_jet->GetXaxis()->SetBinLabel(4,"Pass JVT cut");
+  m_cutflow_jet->GetXaxis()->SetBinLabel(5,"Taggable");
+  m_cutflow_jet->GetXaxis()->SetBinLabel(6,"Taggable Good");
+  m_cutflow_jet->GetXaxis()->SetBinLabel(7,"Taggable Suspect");
 
   ////////////////////////////
   // Taggability histograms //
   ////////////////////////////
 
   registerHist(*m_monGr_shift, m_track_selector_eff = TH2F_LW::create("track_selector_eff", "Fraction of Taggable Jets;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
-  registerHist(*m_monGr_shift, m_track_selector_all = TH2F_LW::create("track_selector_all", "Number of Jets;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi())); // changed by SARA
+  registerHist(*m_monGr_shift, m_track_selector_all = TH2F_LW::create("track_selector_all", "Number of Jets;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
   registerHist(*m_monGr_shift, m_track_selector_suspect = TH2F_LW::create("track_selector_suspect", "Number of Taggable Suspect Jets;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
 
+  //////////////////////
+  //  JVT histograms  //
+  //////////////////////
 
+  registerHist(*m_monGr_shift, m_jvt =  TH1F_LW::create("jvt_jet","JVT distribution for Jets; JVT",100,-1.,1.));
+  registerHist(*m_monGr_shift, m_mv_pre_jvt_cut =  TH1F_LW::create("jet_MV_pre_jvt_cut",(m_mv_algorithmName+" Tag Weight (Jets before JVT); "+m_mv_algorithmName+" tag weight").c_str(),m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));
+  registerHist(*m_monGr_shift, m_mv_post_jvt_cut =  TH1F_LW::create("jet_MV_post_jvt_cut",(m_mv_algorithmName+" Tag Weight (Jets after JVT); "+m_mv_algorithmName+" tag weight").c_str(),m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));
+  
+  ////////////////////
+  // SMT histograms //
+  ////////////////////
+  
+  registerHist(*m_monGr_shift, m_n_soft_mu =  TH1F_LW::create("n_soft_mu","Number of Soft Muons per Jet; Number of muons",3,-0.5,2.5));
+  registerHist(*m_monGr_shift, m_n_smt_jet =  TH1F_LW::create("n_smt_jet","Number of Jets with 1 Soft Muon per event; Number of jets",3,-0.5,2.5));
+
+  registerHist(*m_monGr_shift, m_smt_dr =  TH1F_LW::create("smt_dr","DeltaR between Jet and Soft Muon; DR",40,0.,0.4));
+  registerHist(*m_monGr_shift, m_smt_mu_pt =  TH1F_LW::create("smt_mu_pt","pT of Soft Muons; pT [GeV]",50,0.,100.));
+  registerHist(*m_monGr_shift, m_smt_jet_pt =  TH1F_LW::create("smt_jet_pt","pT of SMT Jets (with 1 Soft Muon); pT [GeV]",50,0.,150.));
+  registerHist(*m_monGr_shift, m_smt_jet_pt_ratio =  TH1F_LW::create("smt_jet_pt_ratio","pT ratio of SMT / Jet; pT ratio",50,0.,1.));
+  registerHist(*m_monGr_shift, m_smt_jet_pt_rel =  TH1F_LW::create("smt_jet_pt_rel","pT rel of SMT vs Jet; pT rel",50,0.,5.));
+  registerHist(*m_monGr_shift, m_smt_jet_mv_w =  TH1F_LW::create("smt_jet_MV_w",(m_mv_algorithmName+" Tag Weight (SMT Jets); "+m_mv_algorithmName+" tag weight").c_str(),m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));
+
+  ///////////////////////
+  // Pileup histograms //
+  ///////////////////////
+
+  registerHist(*m_monGr_shift, m_n_mu =  TH1F_LW::create("n_mu","Number of pile up interactions; <#mu>",100,-0.5,99.5));
+
+  registerHist(*m_monGr_shift, m_tag_mv_w_mu0_30   = TH1F_LW::create("tag_MV_w_mu0_30"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, mu = [0,30]); "+m_mv_algorithmName+" tag weight").c_str(),m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));
+  registerHist(*m_monGr_shift, m_tag_mv_w_mu30_50   = TH1F_LW::create("tag_MV_w_mu30_50"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, mu = [30,50]); "+m_mv_algorithmName+" tag weight").c_str(),m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));
+  registerHist(*m_monGr_shift, m_tag_mv_w_mu50_70   = TH1F_LW::create("tag_MV_w_mu50_70"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, mu = [50,70]); "+m_mv_algorithmName+" tag weight").c_str(),m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));
+	       
+  registerHist(*m_monGr_shift, m_tag_mv_w_tracks0_10   = TH1F_LW::create("tag_MV_w_tracks0_10"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, tracks = [0,10]); "+m_mv_algorithmName+" tag weight").c_str(),m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));
+  registerHist(*m_monGr_shift, m_tag_mv_w_tracks10_20   = TH1F_LW::create("tag_MV_w_tracks10_20"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, tracks = [10,20]); "+m_mv_algorithmName+" tag weight").c_str(),m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));
+  registerHist(*m_monGr_shift, m_tag_mv_w_tracks20_50   = TH1F_LW::create("tag_MV_w_tracks20_50"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, tracks = [20,50]); "+m_mv_algorithmName+" tag weight").c_str(),m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));
+
+  registerHist(*m_monGr_shift, m_mu_vs_n_tracks   = TH2F_LW::create("m_mu_vs_n_tracks"  ,"2D mu vs jet n tracks; Number of tracks; <#mu>",50,-0.5,49.5,100,-0.5,99.5));
+  registerHist(*m_monGr_shift, m_prof_n_tracks_vs_mu   = TProfile_LW::create("m_prof_n_tracks_vs_mu"  ,"Profile n tracks vs mu; <#mu>; Number of tracks",100,-0.5,99.5,-0.5,49.5));
+	       
   ////////////////////
   // Top histograms //
   ////////////////////
 
-  registerHist(*m_monGr_shift, m_n_iso_el =  TH1F_LW::create("n_iso_el","Number of Isolated Electrons; Number of electrons",10,-0.5,9.5)); // added by SARA (just for testing)
-  registerHist(*m_monGr_shift, m_n_iso_mu =  TH1F_LW::create("n_iso_mu","Number of Isolated Muons; Number of muons",10,-0.5,9.5)); // added by SARA (just for testing)
+  registerHist(*m_monGr_shift, m_n_iso_el =  TH1F_LW::create("n_iso_el","Number of Isolated Electrons; Number of electrons",3,-0.5,2.5));
+  registerHist(*m_monGr_shift, m_n_iso_mu =  TH1F_LW::create("n_iso_mu","Number of Isolated Muons; Number of muons",3,-0.5,2.5));
 
-  registerHist(*m_monGr_shift, m_jet_top = TH1F_LW::create("jet_top","Number of Jets in Top Events; Number of jets",1,-0.5,0.5)); // added by SARA
-  registerHist(*m_monGr_shift, m_jet_pt_top = TH1F_LW::create("jet_pt_top","pT of Jets in Top Events, pT [GeV]; pT",10,0.,200.)); // added by SARA
-  registerHist(*m_monGr_shift, m_jet_mv_w_top = TH1F_LW::create("jet_mv_top",(m_mv_algorithmName+" Tag Weight of Jets in Top Events; "+m_mv_algorithmName+" tag weight; "+m_mv_algorithmName+" tag weight").c_str(),100,-1.,1.)); // added by SARA
+  registerHist(*m_monGr_shift, m_jet_top = TH1F_LW::create("jet_top","Number of Jets in Top Events; Number of jets",1,-0.5,0.5));
+  registerHist(*m_monGr_shift, m_jet_pt_top = TH1F_LW::create("jet_pt_top","pT of Jets in Top Events, pT [GeV]; pT",10,0.,200.));
+  registerHist(*m_monGr_shift, m_jet_mv_w_top = TH1F_LW::create("jet_MV_top",(m_mv_algorithmName+" Tag Weight of Jets in Top Events; "+m_mv_algorithmName+" tag weight").c_str(),m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));
 
-  registerHist(*m_monGr_shift, m_jet_top_tagged = TH1F_LW::create("jet_top_tagged","Number of b-tagged Jets in Top Events",1,-0.5,0.5)); // added by SARA
-  registerHist(*m_monGr_shift, m_jet_pt_top_tagged = TH1F_LW::create("jet_pt_top_tagged","pT of b-tagged Jets in Top Events; pT [GeV]",10,0.,200.)); // added by SARA
+  registerHist(*m_monGr_shift, m_jet_top_tagged = TH1F_LW::create("jet_top_tagged","Number of b-tagged Jets in Top Events",1,-0.5,0.5));
+  registerHist(*m_monGr_shift, m_jet_pt_top_tagged = TH1F_LW::create("jet_pt_top_tagged","pT of b-tagged Jets in Top Events; pT [GeV]",10,0.,200.));
 
-  registerHist(*m_monGr_shift, m_jet_top_eff = TH1F_LW::create("jet_top_eff","Fraction of b-tagged Jets in Top Events",1,-0.5,0.5)); // added by SARA
-  registerHist(*m_monGr_shift, m_jet_pt_top_eff = TH1F_LW::create("jet_pt_top_eff","Fraction of b-tagged Jets in Top Events vs pT; pT [GeV]",10,0.,200.)); // added by SARA
+  registerHist(*m_monGr_shift, m_jet_top_eff = TH1F_LW::create("jet_top_eff","Fraction of b-tagged Jets in Top Events",1,-0.5,0.5));
+  registerHist(*m_monGr_shift, m_jet_pt_top_eff = TH1F_LW::create("jet_pt_top_eff","Fraction of b-tagged Jets in Top Events vs pT; pT [GeV]",10,0.,200.));
 
   //////////////////////
   // 2D jet hisograms //
@@ -344,6 +370,7 @@ StatusCode JetTagMonitoring::bookHistograms() {
   registerHist(*m_monGr_shift, m_jet_2D_all = TH2F_LW::create("jet_2D_all", "Number of Jets (No Cuts);#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
   registerHist(*m_monGr_shift, m_jet_2D_good = TH2F_LW::create("jet_2D_good", "Number of Jets (Quality Cuts);#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
   registerHist(*m_monGr_shift, m_jet_2D_kinematic = TH2F_LW::create("jet_2D_kinematic", "Number of Jets (Kinematic Cuts);#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
+  registerHist(*m_monGr_shift, m_jet_2D_jvt = TH2F_LW::create("jet_2D_jvt", "Number of Jets (JVT Cuts);#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
   registerHist(*m_monGr_shift, m_jet_2D_quality = TH2F_LW::create("jet_2D_quality", "Number of Jets (Taggable Good);#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
   registerHist(*m_monGr_shift, m_jet_2D_suspect = TH2F_LW::create("jet_2D_suspect", "Number of Jets (Taggable Suspect);#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
   registerHist(*m_monGr_shift, m_jet_2D_bad = TH2F_LW::create("jet_2D_bad", "Number of Jets (Non-Taggable);#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
@@ -352,27 +379,27 @@ StatusCode JetTagMonitoring::bookHistograms() {
   // Tag weight histograms //
   ///////////////////////////
 
-  // MV Tagger
+  // High level tagger: MV2/DL1
 
-  registerHist(*m_monGr_shift, m_tag_mv_w  = TH1F_LW::create("tag_MV_w",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets); "+m_mv_algorithmName+" tag weight").c_str(),100,-1.,1.));    
+  registerHist(*m_monGr_shift, m_tag_mv_w  = TH1F_LW::create("tag_MV_w",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets); "+m_mv_algorithmName+" tag weight").c_str(),m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
   
-  registerHist(*m_monGr_shift, m_tag_mv_w_pT10_20   = TH1F_LW::create("tag_MV_w_pT10_20"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT = [10,20] GeV); "+m_mv_algorithmName+" tag weight").c_str()  ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_pT20_50   = TH1F_LW::create("tag_MV_w_pT20_50"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT = [20,50] GeV); "+m_mv_algorithmName+" tag weight").c_str()  ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_pT50_100  = TH1F_LW::create("tag_MV_w_pT50_100" ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT = [50,100] GeV); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_pT100_200 = TH1F_LW::create("tag_MV_w_pT100_200",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT = [100,200] GeV); "+m_mv_algorithmName+" tag weight").c_str(),100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_pT200     = TH1F_LW::create("tag_MV_w_pT200"    ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT > 200 GeV); "+m_mv_algorithmName+" tag weight").c_str()      ,100,-1.,1.));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_pT10_20   = TH1F_LW::create("tag_MV_w_pT10_20"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT = [10,20] GeV); "+m_mv_algorithmName+" tag weight").c_str()  ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_pT20_50   = TH1F_LW::create("tag_MV_w_pT20_50"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT = [20,50] GeV); "+m_mv_algorithmName+" tag weight").c_str()  ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_pT50_100  = TH1F_LW::create("tag_MV_w_pT50_100" ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT = [50,100] GeV); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_pT100_200 = TH1F_LW::create("tag_MV_w_pT100_200",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT = [100,200] GeV); "+m_mv_algorithmName+" tag weight").c_str(),m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_pT200     = TH1F_LW::create("tag_MV_w_pT200"    ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT > 200 GeV); "+m_mv_algorithmName+" tag weight").c_str()      ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
 	       
-  registerHist(*m_monGr_shift, m_tag_mv_w_eta0_05  = TH1F_LW::create("tag_MV_w_eta0_05" ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, |#eta| = [0.0,0.5]); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_eta05_10 = TH1F_LW::create("tag_MV_w_eta05_10",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, |#eta| = [0.5,1.0]); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_eta10_15 = TH1F_LW::create("tag_MV_w_eta10_15",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, |#eta| = [1.0,1.5]); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_eta15_20 = TH1F_LW::create("tag_MV_w_eta15_20",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, |#eta| = [1.5,2.0]); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_eta20_25 = TH1F_LW::create("tag_MV_w_eta20_25",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, |#eta| = [2.0,2.5]); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_eta0_05  = TH1F_LW::create("tag_MV_w_eta0_05" ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, |#eta| = [0.0,0.5]); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_eta05_10 = TH1F_LW::create("tag_MV_w_eta05_10",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, |#eta| = [0.5,1.0]); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_eta10_15 = TH1F_LW::create("tag_MV_w_eta10_15",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, |#eta| = [1.0,1.5]); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_eta15_20 = TH1F_LW::create("tag_MV_w_eta15_20",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, |#eta| = [1.5,2.0]); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_eta20_25 = TH1F_LW::create("tag_MV_w_eta20_25",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, |#eta| = [2.0,2.5]); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
   
-  registerHist(*m_monGr_shift, m_tag_mv_w_phi0_07  = TH1F_LW::create("tag_MV_w_phi0_07" ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, |#phi| = [0.0,0.7]); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_phi07_14 = TH1F_LW::create("tag_MV_w_phi07_14",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, |#phi| = [0.7,1.4]); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_phi14_21 = TH1F_LW::create("tag_MV_w_phi14_21",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, |#phi| = [1.4,2.1]); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_phi21_28 = TH1F_LW::create("tag_MV_w_phi21_28",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, |#phi| = [2.1,2.8]); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_phi28    = TH1F_LW::create("tag_MV_w_phi28",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, |#phi| > 2.8); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));
+  registerHist(*m_monGr_shift, m_tag_mv_w_phi0_07  = TH1F_LW::create("tag_MV_w_phi0_07" ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, |#phi| = [0.0,0.7]); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_phi07_14 = TH1F_LW::create("tag_MV_w_phi07_14",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, |#phi| = [0.7,1.4]); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_phi14_21 = TH1F_LW::create("tag_MV_w_phi14_21",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, |#phi| = [1.4,2.1]); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_phi21_28 = TH1F_LW::create("tag_MV_w_phi21_28",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, |#phi| = [2.1,2.8]); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_phi28    = TH1F_LW::create("tag_MV_w_phi28",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, |#phi| > 2.8); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));
 
   registerHist(*m_monGr_shift, m_mv_tag_60_2D = TH2F_LW::create("mv_tag_60_rate_2D", ("Number of Tagged Jets vs #eta and #phi ("+m_mv_algorithmName+" @ 60% WP);#eta;#phi").c_str(), 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
   registerHist(*m_monGr_shift, m_mv_tag_70_2D = TH2F_LW::create("mv_tag_70_rate_2D", ("Number of Tagged Jets vs #eta and #phi ("+m_mv_algorithmName+" @ 70% WP);#eta;#phi").c_str(), 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
@@ -398,25 +425,25 @@ StatusCode JetTagMonitoring::bookHistograms() {
   registerHist(*m_monGr_shift, m_tag_mv_w_eta_frac70OP = TH1F_LW::create("tag_MV_w_eta_frac70OP",("Fraction of Tagged Jets vs #eta ("+m_mv_algorithmName+" @ 70% WP, Taggable Good Jets); #eta").c_str() ,20,-2.5,2.5));
   registerHist(*m_monGr_shift, m_tag_mv_w_eta_frac60OP = TH1F_LW::create("tag_MV_w_eta_frac60OP",("Fraction of Tagged Jets vs #eta ("+m_mv_algorithmName+" @ 60% WP, Taggable Good Jets); #eta").c_str() ,20,-2.5,2.5));
   
-  registerHist(*m_monGr_shift, m_tag_mv_w_sj  = TH1F_LW::create("tag_MV_w_sj",(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets); "+m_mv_algorithmName+" tag weight").c_str(),100,-1.,1.));   
+  registerHist(*m_monGr_shift, m_tag_mv_w_sj  = TH1F_LW::create("tag_MV_w_sj",(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets); "+m_mv_algorithmName+" tag weight").c_str(),m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));   
   
-  registerHist(*m_monGr_shift, m_tag_mv_w_sj_pT10_20   = TH1F_LW::create("tag_MV_w_sj_pT10_20"  ,(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, pT = [10,20] GeV); "+m_mv_algorithmName+" tag weight").c_str()  ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_sj_pT20_50   = TH1F_LW::create("tag_MV_w_sj_pT20_50"  ,(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, pT = [20,50] GeV); "+m_mv_algorithmName+" tag weight").c_str()  ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_sj_pT50_100  = TH1F_LW::create("tag_MV_w_sj_pT50_100" ,(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, pT = [50,100] GeV); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_sj_pT100_200 = TH1F_LW::create("tag_MV_w_sj_pT100_200",(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, pT = [100,200] GeV); "+m_mv_algorithmName+" tag weight").c_str(),100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_sj_pT200     = TH1F_LW::create("tag_MV_w_sj_pT200"    ,(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, pT > 200 GeV); "+m_mv_algorithmName+" tag weight").c_str()      ,100,-1.,1.));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_sj_pT10_20   = TH1F_LW::create("tag_MV_w_sj_pT10_20"  ,(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, pT = [10,20] GeV); "+m_mv_algorithmName+" tag weight").c_str()  ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_sj_pT20_50   = TH1F_LW::create("tag_MV_w_sj_pT20_50"  ,(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, pT = [20,50] GeV); "+m_mv_algorithmName+" tag weight").c_str()  ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_sj_pT50_100  = TH1F_LW::create("tag_MV_w_sj_pT50_100" ,(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, pT = [50,100] GeV); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_sj_pT100_200 = TH1F_LW::create("tag_MV_w_sj_pT100_200",(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, pT = [100,200] GeV); "+m_mv_algorithmName+" tag weight").c_str(),m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_sj_pT200     = TH1F_LW::create("tag_MV_w_sj_pT200"    ,(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, pT > 200 GeV); "+m_mv_algorithmName+" tag weight").c_str()      ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
   
-  registerHist(*m_monGr_shift, m_tag_mv_w_sj_eta0_05  = TH1F_LW::create("tag_MV_w_sj_eta0_05" ,(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, |#eta| = [0.0,0.5]); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_sj_eta05_10 = TH1F_LW::create("tag_MV_w_sj_eta05_10",(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, |#eta| = [0.5,1.0]); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_sj_eta10_15 = TH1F_LW::create("tag_MV_w_sj_eta10_15",(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, |#eta| = [1.0,1.5]); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_sj_eta15_20 = TH1F_LW::create("tag_MV_w_sj_eta15_20",(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, |#eta| = [1.5,2.0]); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_sj_eta20_25 = TH1F_LW::create("tag_MV_w_sj_eta20_25",(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, |#eta| = [2.0,2.5]); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));  
+  registerHist(*m_monGr_shift, m_tag_mv_w_sj_eta0_05  = TH1F_LW::create("tag_MV_w_sj_eta0_05" ,(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, |#eta| = [0.0,0.5]); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_sj_eta05_10 = TH1F_LW::create("tag_MV_w_sj_eta05_10",(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, |#eta| = [0.5,1.0]); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_sj_eta10_15 = TH1F_LW::create("tag_MV_w_sj_eta10_15",(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, |#eta| = [1.0,1.5]); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_sj_eta15_20 = TH1F_LW::create("tag_MV_w_sj_eta15_20",(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, |#eta| = [1.5,2.0]); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_sj_eta20_25 = TH1F_LW::create("tag_MV_w_sj_eta20_25",(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, |#eta| = [2.0,2.5]); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));  
   
-  registerHist(*m_monGr_shift, m_tag_mv_w_sj_phi0_07  = TH1F_LW::create("tag_MV_w_sj_phi0_07" ,(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, |#phi| = [0.0,0.7]); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_sj_phi07_14 = TH1F_LW::create("tag_MV_w_sj_phi07_14",(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, |#phi| = [0.7,1.4]); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_sj_phi14_21 = TH1F_LW::create("tag_MV_w_sj_phi14_21",(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, |#phi| = [1.4,2.1]); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_sj_phi21_28 = TH1F_LW::create("tag_MV_w_sj_phi21_28",(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, |#phi| = [2.1,2.8]); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
-  registerHist(*m_monGr_shift, m_tag_mv_w_sj_phi28    = TH1F_LW::create("tag_MV_w_sj_phi28",(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, |#phi| > 2.8); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));  
+  registerHist(*m_monGr_shift, m_tag_mv_w_sj_phi0_07  = TH1F_LW::create("tag_MV_w_sj_phi0_07" ,(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, |#phi| = [0.0,0.7]); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_sj_phi07_14 = TH1F_LW::create("tag_MV_w_sj_phi07_14",(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, |#phi| = [0.7,1.4]); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_sj_phi14_21 = TH1F_LW::create("tag_MV_w_sj_phi14_21",(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, |#phi| = [1.4,2.1]); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_sj_phi21_28 = TH1F_LW::create("tag_MV_w_sj_phi21_28",(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, |#phi| = [2.1,2.8]); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+  registerHist(*m_monGr_shift, m_tag_mv_w_sj_phi28    = TH1F_LW::create("tag_MV_w_sj_phi28",(m_mv_algorithmName+" Tag Weight (Taggable Suspect Jets, |#phi| > 2.8); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));  
     
   registerHist(*m_monGr_shift, m_tag_mv_w_sj_phi_sum85OP = TH1F_LW::create("tag_MV_w_sj_phi_sum85OP",("Number of Tagged Jets vs #phi ("+m_mv_algorithmName+" @ 85% WP, Taggable Suspect Jets); #phi").c_str() ,14,-TMath::Pi(),TMath::Pi()));
   registerHist(*m_monGr_shift, m_tag_mv_w_sj_phi_sum77OP = TH1F_LW::create("tag_MV_w_sj_phi_sum77OP",("Number of Tagged Jets vs #phi ("+m_mv_algorithmName+" @ 77% WP, Taggable Suspect Jets); #phi").c_str() ,14,-TMath::Pi(),TMath::Pi()));
@@ -438,7 +465,7 @@ StatusCode JetTagMonitoring::bookHistograms() {
   registerHist(*m_monGr_shift, m_tag_mv_w_sj_eta_frac70OP = TH1F_LW::create("tag_MV_w_sj_eta_frac70OP",("Fraction of Tagged Jets vs #eta ("+m_mv_algorithmName+" @ 70% WP, Taggable Suspect Jets); #eta").c_str() ,20,-2.5,2.5));
   registerHist(*m_monGr_shift, m_tag_mv_w_sj_eta_frac60OP = TH1F_LW::create("tag_MV_w_sj_eta_frac60OP",("Fraction of Tagged Jets vs #eta ("+m_mv_algorithmName+" @ 60% WP, Taggable Suspect Jets); #eta").c_str() ,20,-2.5,2.5));
 
-  // SV1+IP3D, IP2D and IP3D Taggers
+  // Low level taggers: SV1+IP3D, IP2D and IP3D Taggers
 
   registerHist(*m_monGr_shift, m_tag_sv1ip3d_w = TH1F_LW::create("tag_SV1IP3D_w","SV1+IP3D Tag Weight (Taggable Good Jets); SV1+IP3D tag weight",100,-10.,10.));
   registerHist(*m_monGr_shift, m_sv1ip3d_tag_pos_rate_2D = TH2F_LW::create("sv1ip3d_tag_pos_rate_2D", "SV1+IP3D Positive Tag Rate;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
@@ -470,7 +497,7 @@ StatusCode JetTagMonitoring::bookHistograms() {
   registerHist(*m_monGr_shift, m_tag_ip3d_c_sj    = TH1F_LW::create("tag_IP3D_c_sj","IP3D Pc (Taggable Suspect Jets); IP3D Pc",100,0.,1.)); 
   registerHist(*m_monGr_shift, m_tag_ip3d_llr_sj  = TH1F_LW::create("tag_IP3D_llr_sj","IP3D llr (Taggable Suspect Jets); IP3D llr",160,-40.,40.));  
     
-  // SV0 and SV1 Taggers
+  // Low level taggers: SV0 and SV1 Taggers
 
   registerHist(*m_monGr_shift, m_tag_sv0_sig3d  = TH1F_LW::create("tag_SV0_sig3d","SV1 sig3d; SV1 sig3d",100, 0.,100.));     
      
@@ -484,7 +511,7 @@ StatusCode JetTagMonitoring::bookHistograms() {
   registerHist(*m_monGr_shift, m_tag_sv1_c_sj    = TH1F_LW::create("tag_SV1_c_sj","SV1 Pc (Taggable Suspect Jets); SV1 Pc",100,0.,1.));
   registerHist(*m_monGr_shift, m_tag_sv1_llr_sj  = TH1F_LW::create("tag_SV1_llr_sj","SV1 llr (Taggable Suspect Jets); SV1 llr",160,-40.,40.));
     
-  // JetFitter Taggers
+  // Low level taggers:  JetFitter Taggers
 
   registerHist(*m_monGr_shift, m_tag_jetfitter_llr = TH1F_LW::create("tag_JetFitter_llr","JetFitter llr (Taggable Good Jets); JetFitter llr",160,-40.,40.));
   registerHist(*m_monGr_shift, m_tag_jfcnn_llr   = TH1F_LW::create("tag_JFCNN_llr","JetFitterCOMBNN Tag Weight (Taggable Good Jets); JetFitterCOMBNN tag weight",160,-40.,40.));
@@ -503,8 +530,8 @@ StatusCode JetTagMonitoring::bookHistograms() {
   registerHist(*m_monGr_shift, m_tracks_sigd0Max_2D = TH2F_LW::create("tracks_sigd0Max_2D", "Number of Tracks Failing sigd0Max Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
   registerHist(*m_monGr_shift, m_tracks_sigz0Max_2D = TH2F_LW::create("tracks_sigz0Max_2D", "Number of Tracks Failing sigz0Max Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
   registerHist(*m_monGr_shift, m_tracks_etaMax_2D = TH2F_LW::create("tracks_etaMax_2D", "Number of Tracks Failing etaMax Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
-  registerHist(*m_monGr_shift, m_tracks_nHitBLayer_2D = TH2F_LW::create("tracks_nHitBLayer_2D", "Number of Tracks Failing IBL Hits Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi())); // IBL hits in Run-2, old b-layer in Run-1
-  registerHist(*m_monGr_shift, m_tracks_deadBLayer_2D = TH2F_LW::create("tracks_deadBLayer_2D", "Number of Tracks Failing Dead IBL Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi())); // IBL hits in Run-2, old b-layer in Run-1
+  registerHist(*m_monGr_shift, m_tracks_nHitBLayer_2D = TH2F_LW::create("tracks_nHitBLayer_2D", "Number of Tracks Failing IBL Hits Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
+  registerHist(*m_monGr_shift, m_tracks_deadBLayer_2D = TH2F_LW::create("tracks_deadBLayer_2D", "Number of Tracks Failing Dead IBL Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
   registerHist(*m_monGr_shift, m_tracks_nHitPix_2D = TH2F_LW::create("tracks_nHitPix_2D", "Number of Tracks Failing PIX Hits Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
   registerHist(*m_monGr_shift, m_tracks_nHitSct_2D = TH2F_LW::create("tracks_nHitSct_2D", "Number of Tracks Failing SCT Hits Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
   registerHist(*m_monGr_shift, m_tracks_nHitSi_2D = TH2F_LW::create("tracks_nHitSi_2D", "Number of Tracks Failing Silicon Hits Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
@@ -527,8 +554,8 @@ StatusCode JetTagMonitoring::bookHistograms() {
     registerHist(*m_monGr_LowStat, m_tracks_sigd0Max_2D_LS = TH2F_LW::create("tracks_sigd0Max_2D_LS", "Number of Tracks Failing sigd0Max Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
     registerHist(*m_monGr_LowStat, m_tracks_sigz0Max_2D_LS = TH2F_LW::create("tracks_sigz0Max_2D_LS", "Number of Tracks Failing sigz0Max Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
     registerHist(*m_monGr_LowStat, m_tracks_etaMax_2D_LS = TH2F_LW::create("tracks_etaMax_2D_LS", "Number of Tracks Failing etaMax Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
-    registerHist(*m_monGr_LowStat, m_tracks_nHitBLayer_2D_LS = TH2F_LW::create("tracks_nHitBLayer_2D_LS", "Number of Tracks Failing IBL Hits Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi())); // IBL hits in Run-2, old b-layer in Run-1
-    registerHist(*m_monGr_LowStat, m_tracks_deadBLayer_2D_LS = TH2F_LW::create("tracks_deadBLayer_2D_LS", "Number of Tracks Failing Dead IBL Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi())); // IBL hits in Run-2, old b-layer in Run-1
+    registerHist(*m_monGr_LowStat, m_tracks_nHitBLayer_2D_LS = TH2F_LW::create("tracks_nHitBLayer_2D_LS", "Number of Tracks Failing IBL Hits Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
+    registerHist(*m_monGr_LowStat, m_tracks_deadBLayer_2D_LS = TH2F_LW::create("tracks_deadBLayer_2D_LS", "Number of Tracks Failing Dead IBL Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
     registerHist(*m_monGr_LowStat, m_tracks_nHitPix_2D_LS = TH2F_LW::create("tracks_nHitPix_2D_LS", "Number of Tracks Failing PIX Hits Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
     registerHist(*m_monGr_LowStat, m_tracks_nHitSct_2D_LS = TH2F_LW::create("tracks_nHitSct_2D_LS", "Number of Tracks Failing SCT Hits Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
     registerHist(*m_monGr_LowStat, m_tracks_nHitSi_2D_LS = TH2F_LW::create("tracks_nHitSi_2D_LS", "Number of Tracks Failing Silicon Hits Cut;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
@@ -541,13 +568,12 @@ StatusCode JetTagMonitoring::bookHistograms() {
     registerHist(*m_monGr_LowStat, m_jet_tracks_d0_LS = TH1F_LW::create("jet_tracks_d0_LS","d0 of Tracks in Jets; d0 [mm]",100,-5.,5.));
     registerHist(*m_monGr_LowStat, m_jet_tracks_z0_LS = TH1F_LW::create("jet_tracks_z0_LS","z0 of Tracks in Jets; z0 [mm]",100,-300.,300.));
 
-    // registerHist(*m_monGr_LowStat, m_mv_tag_77_2D_LS = TH2F_LW::create("mv_tag_77_2D_LS", (m_mv_algorithmName+" Tag 77%").c_str(), 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
-    registerHist(*m_monGr_LowStat, m_tag_mv_w_LS  = TH1F_LW::create("tag_MV_w_LS",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets); "+m_mv_algorithmName+" tag weight").c_str(),100,-1.,1.));  
-    registerHist(*m_monGr_LowStat, m_tag_mv_w_pT10_20_LS   = TH1F_LW::create("tag_MV_w_pT10_20_LS"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT = [10,20] GeV); "+m_mv_algorithmName+" tag weight").c_str()  ,100,-1.,1.));    
-    registerHist(*m_monGr_LowStat, m_tag_mv_w_pT20_50_LS   = TH1F_LW::create("tag_MV_w_pT20_50_LS"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT = [20,50] GeV); "+m_mv_algorithmName+" tag weight").c_str()  ,100,-1.,1.));    
-    registerHist(*m_monGr_LowStat, m_tag_mv_w_pT50_100_LS  = TH1F_LW::create("tag_MV_w_pT50_100_LS" ,(m_mv_algorithmName+" Tag Weight Taggable Good Jets, pT = [50,100] GeV); "+m_mv_algorithmName+" tag weight").c_str() ,100,-1.,1.));    
-    registerHist(*m_monGr_LowStat, m_tag_mv_w_pT100_200_LS = TH1F_LW::create("tag_MV_w_pT100_200_LS",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT = [100,200] GeV); "+m_mv_algorithmName+" tag weight").c_str(),100,-1.,1.));    
-    registerHist(*m_monGr_LowStat, m_tag_mv_w_pT200_LS     = TH1F_LW::create("tag_MV_w_pT200_LS"    ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT > 200 GeV); "+m_mv_algorithmName+" tag weight").c_str()      ,100,-1.,1.));   
+    registerHist(*m_monGr_LowStat, m_tag_mv_w_LS  = TH1F_LW::create("tag_MV_w_LS",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets); "+m_mv_algorithmName+" tag weight").c_str(),m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));  
+    registerHist(*m_monGr_LowStat, m_tag_mv_w_pT10_20_LS   = TH1F_LW::create("tag_MV_w_pT10_20_LS"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT = [10,20] GeV); "+m_mv_algorithmName+" tag weight").c_str()  ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+    registerHist(*m_monGr_LowStat, m_tag_mv_w_pT20_50_LS   = TH1F_LW::create("tag_MV_w_pT20_50_LS"  ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT = [20,50] GeV); "+m_mv_algorithmName+" tag weight").c_str()  ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+    registerHist(*m_monGr_LowStat, m_tag_mv_w_pT50_100_LS  = TH1F_LW::create("tag_MV_w_pT50_100_LS" ,(m_mv_algorithmName+" Tag Weight Taggable Good Jets, pT = [50,100] GeV); "+m_mv_algorithmName+" tag weight").c_str() ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+    registerHist(*m_monGr_LowStat, m_tag_mv_w_pT100_200_LS = TH1F_LW::create("tag_MV_w_pT100_200_LS",(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT = [100,200] GeV); "+m_mv_algorithmName+" tag weight").c_str(),m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));    
+    registerHist(*m_monGr_LowStat, m_tag_mv_w_pT200_LS     = TH1F_LW::create("tag_MV_w_pT200_LS"    ,(m_mv_algorithmName+" Tag Weight (Taggable Good Jets, pT > 200 GeV); "+m_mv_algorithmName+" tag weight").c_str()      ,m_mv_nBins,m_mv_rangeStart,m_mv_rangeStop));   
     
     registerHist(*m_monGr_LowStat, m_jet_2D_kinematic_LS     = TH2F_LW::create("jet_2D_kinematic_LS", "Number of Jets (Kinematic Cuts);#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
     registerHist(*m_monGr_LowStat, m_track_selector_eff_LS   = TH2F_LW::create("track_selector_eff_LS", "Fraction of Taggable Jets;#eta;#phi", 25, -2.5, 2.5, 25, -TMath::Pi(), TMath::Pi()));
@@ -563,9 +589,7 @@ StatusCode JetTagMonitoring::bookHistograms() {
   return StatusCode::SUCCESS;
 }
 
-
 //** --------------------------------------------------------------------------------------------------------------- **//
-
 
 StatusCode JetTagMonitoring::fillHistograms() {
 
@@ -600,6 +624,13 @@ StatusCode JetTagMonitoring::fillHistograms() {
     
   m_cutflow->Fill(1.);
 
+  //////////////////////
+  //* Get Pileup     *//
+  //////////////////////
+
+  m_mu = thisEventInfo->actualInteractionsPerCrossing();
+  m_n_mu->Fill(m_mu); 
+
   ///////////////////////////////
   //* Trigger container       *//
   ///////////////////////////////
@@ -608,15 +639,10 @@ StatusCode JetTagMonitoring::fillHistograms() {
 
     ATH_MSG_DEBUG("TrigDecTool: " << m_trigDecTool);
     
-    ATH_MSG_DEBUG("m_use_trigdectool: " << m_use_trigdectool << ", (m_trigDecTool->isPassed(" << m_ElectronTrigger_2016 << "): " << m_trigDecTool->isPassed(m_ElectronTrigger_2016));
-    ATH_MSG_DEBUG("m_use_trigdectool: " << m_use_trigdectool << ", (m_trigDecTool->isPassed(" << m_MuonTrigger_2016 << "): " << m_trigDecTool->isPassed(m_MuonTrigger_2016));
-    ATH_MSG_DEBUG("m_use_trigdectool: " << m_use_trigdectool << ", (m_trigDecTool->isPassed(" << m_JetTrigger_2016 << "): " << m_trigDecTool->isPassed(m_JetTrigger_2016));
-    
-    ATH_MSG_DEBUG("m_use_trigdectool: " << m_use_trigdectool << ", (m_trigDecTool->isPassed(" << m_ElectronTrigger_2016 << "): " << m_trigDecTool->isPassed(m_ElectronTrigger_2016));
-    ATH_MSG_DEBUG("m_use_trigdectool: " << m_use_trigdectool << ", (m_trigDecTool->isPassed(" << m_MuonTrigger_2016 << "): " << m_trigDecTool->isPassed(m_MuonTrigger_2016));
-    ATH_MSG_DEBUG("m_use_trigdectool: " << m_use_trigdectool << ", (m_trigDecTool->isPassed(" << m_JetTrigger_2016 << "): " << m_trigDecTool->isPassed(m_JetTrigger_2016));
-  
- 
+    // ATH_MSG_DEBUG("m_use_trigdectool: " << m_use_trigdectool << ", (m_trigDecTool->isPassed(" << m_ElectronTrigger_201X << "): " << m_trigDecTool->isPassed(m_ElectronTrigger_201X));
+    // ATH_MSG_DEBUG("m_use_trigdectool: " << m_use_trigdectool << ", (m_trigDecTool->isPassed(" << m_MuonTrigger_201X << "): " << m_trigDecTool->isPassed(m_MuonTrigger_201X));
+    // ATH_MSG_DEBUG("m_use_trigdectool: " << m_use_trigdectool << ", (m_trigDecTool->isPassed(" << m_JetTrigger_201X << "): " << m_trigDecTool->isPassed(m_JetTrigger_201X));
+
     auto chainGroup = m_trigDecTool->getChainGroup(".*");
     for (auto & trig : chainGroup->getListOfTriggers()) {
       ATH_MSG_DEBUG("Found trigger " << trig);
@@ -624,17 +650,12 @@ StatusCode JetTagMonitoring::fillHistograms() {
     
     m_trigPassed->Fill(0.);
 
-    // 2016 menu
-    if (m_trigDecTool->isPassed(m_ElectronTrigger_2016)) m_trigPassed->Fill(1.);
-    if (m_trigDecTool->isPassed(m_MuonTrigger_2016)) m_trigPassed->Fill(2.);
-    if (m_trigDecTool->isPassed(m_ElectronTrigger_2016) && m_trigDecTool->isPassed(m_MuonTrigger_2016)) m_trigPassed->Fill(3.);
-    if (m_trigDecTool->isPassed(m_JetTrigger_2016)) m_trigPassed->Fill(4.);
-
-    // 2017 menu
-    if (m_trigDecTool->isPassed(m_ElectronTrigger_2017)) m_trigPassed->Fill(5.);
-    if (m_trigDecTool->isPassed(m_MuonTrigger_2017)) m_trigPassed->Fill(6.);
-    if (m_trigDecTool->isPassed(m_ElectronTrigger_2017) && m_trigDecTool->isPassed(m_MuonTrigger_2017)) m_trigPassed->Fill(7.);
-    if (m_trigDecTool->isPassed(m_JetTrigger_2017)) m_trigPassed->Fill(8.);
+    // 201X menu triggers
+    if (m_trigDecTool->isPassed(m_ElectronTrigger_201X)) m_trigPassed->Fill(1.);
+    if (m_trigDecTool->isPassed(m_MuonTrigger_201X)) m_trigPassed->Fill(2.);
+    if (m_trigDecTool->isPassed(m_ElectronTrigger_201X) || m_trigDecTool->isPassed(m_MuonTrigger_201X)) m_trigPassed->Fill(3.);
+    if (m_trigDecTool->isPassed(m_ElectronTrigger_201X) && m_trigDecTool->isPassed(m_MuonTrigger_201X)) m_trigPassed->Fill(4.);
+    // if (m_trigDecTool->isPassed(m_JetTrigger_201X)) m_trigPassed->Fill(5.);
 
   }
 
@@ -646,7 +667,6 @@ StatusCode JetTagMonitoring::fillHistograms() {
   double xpv = 0., ypv = 0., zpv = 0.;
 
   const xAOD::VertexContainer* vxContainer(0);
-  // const DataHandle<VxContainer> vxContainer;
   bool foundPrimaryVtx = evtStore()->retrieve(vxContainer, m_primaryVertexName);
 
   if (!foundPrimaryVtx) {
@@ -712,10 +732,9 @@ StatusCode JetTagMonitoring::fillHistograms() {
 
   //     double vtxProb  = vtxChiSq / vtxNDoF;
 
-  if (m_use_trigdectool && m_trigDecTool != 0) { // only require trigger if m_use_trigdectool is true (will be false eg for express stream) and trigDecTool is ok
+  if (m_use_trigdectool && m_trigDecTool != 0) { // only require trigger if m_use_trigdectool is true (false for express stream) and trigDecTool is ok
     // Require emu tigger to have unbiased sample of jets (and larger fraction of b-jets since many of these are ttbar events)
-    if (!m_trigDecTool->isPassed(m_ElectronTrigger_2016) && !m_trigDecTool->isPassed(m_MuonTrigger_2016) && // 2016 menu
-	!m_trigDecTool->isPassed(m_ElectronTrigger_2017) && !m_trigDecTool->isPassed(m_MuonTrigger_2017)) // 2017 menu
+    if (!m_trigDecTool->isPassed(m_ElectronTrigger_201X) && !m_trigDecTool->isPassed(m_MuonTrigger_201X)) // 201X menu triggers
       return StatusCode::SUCCESS;
   }
   
@@ -727,8 +746,7 @@ StatusCode JetTagMonitoring::fillHistograms() {
   ///////////////////////////////
   //* TrackParticle container *//
   ///////////////////////////////
-    
-    
+        
   const DataHandle<xAOD::TrackParticleContainer> trackParticles;
   bool foundTrackPartColl = retrieveCollection(m_storeGate, trackParticles, m_trackParticleName);
 
@@ -745,25 +763,22 @@ StatusCode JetTagMonitoring::fillHistograms() {
   xAOD::TrackParticleContainer::const_iterator trackParticleItr = trackParticles->begin();
   xAOD::TrackParticleContainer::const_iterator trackParticleEnd = trackParticles->end();
 
-  // New for Release 19: summary information is filled by reference, with a boolean Pass/Fail check...
-
   uint8_t nPixHits    = 0;
   uint8_t nSCTHits    = 0;
   uint8_t nSiHits     = 0;
-  uint8_t nBLayerHits = 0; // IBL hits in Run-2, old b-layer in Run-1
+  uint8_t nBLayerHits = 0;
   uint8_t nTRTHits    = 0;
 
   for ( ; trackParticleItr != trackParticleEnd; trackParticleItr++) { 
       
-    if ((*trackParticleItr)->summaryValue(nBLayerHits, xAOD::numberOfBLayerHits)) { m_global_BLayerHits->Fill((float) nBLayerHits); } // IBL hits in Run-2, old b-layer in Run-1
+    if ((*trackParticleItr)->summaryValue(nBLayerHits, xAOD::numberOfBLayerHits)) { m_global_BLayerHits->Fill((float) nBLayerHits); }
     if ((*trackParticleItr)->summaryValue(nPixHits, xAOD::numberOfPixelHits))     { m_global_PixelHits->Fill((float) nPixHits); }
     if ((*trackParticleItr)->summaryValue(nSCTHits, xAOD::numberOfSCTHits))       { m_global_SCTHits->Fill((float) nSCTHits); }
     if ((*trackParticleItr)->summaryValue(nTRTHits, xAOD::numberOfTRTHits))       { m_global_TRTHits->Fill((float) nTRTHits); }
       
-    // too complicated to set up a check at this point... thank you framework!
     nSiHits = nPixHits + nSCTHits;
     m_global_SiHits->Fill((float)nSiHits);
-    nSiHits = 0; // clean up value for next round...
+    nSiHits = 0;
   }
 
   m_trackParticle_n->Fill((*trackParticles).size());	    
@@ -772,7 +787,6 @@ StatusCode JetTagMonitoring::fillHistograms() {
 
   return StatusCode::SUCCESS;
 }
-
 
 bool JetTagMonitoring::passKinematicCuts(const xAOD::Jet *jet) {
   
@@ -785,7 +799,6 @@ bool JetTagMonitoring::passKinematicCuts(const xAOD::Jet *jet) {
 
   ATH_MSG_DEBUG("Jet kinematics: eta = " << jet->eta() << ", phi= " << jet->phi() << ", pT= " << jet->pt() / CLHEP::GeV);
 
-
   // kinematic cuts defined as properties
   if ( jet->pt()  / CLHEP::GeV < m_jet_pt_cut || fabs(jet->eta()) > m_jet_eta_cut )
     return false;
@@ -793,6 +806,35 @@ bool JetTagMonitoring::passKinematicCuts(const xAOD::Jet *jet) {
   return true;
 }
 
+
+bool JetTagMonitoring::passJVTCuts(const xAOD::Jet *jet) {
+
+  ATH_MSG_DEBUG("passJVTCuts()");
+  
+  static SG::AuxElement::Accessor<float> JVT( "Jvt" ); //JVT > 0.59 (60 GeV)
+  double jvt = JVT(*jet);
+
+  if( !( ((jet->pt()<60000)&&(abs(jet->eta())<2.4)&&(jvt > 0.59))||((jet->pt()<60000)&&(abs(jet->eta())>2.4))||(jet->pt()>60000) ) ) return false;
+
+  return true;
+}
+  
+double JetTagMonitoring::getMVweight(const xAOD::Jet *jet) {
+
+  ATH_MSG_DEBUG("retrieving MV2c10/DL1* weight");
+  
+  const xAOD::BTagging* btag = jet->btagging();
+  
+  double mv = 0, mv_pu = 0, mv_pb = 0, mv_pc = 0;
+  if(m_mv_algorithmName!="MV2c10" && m_mv_algorithmName!="MV2c10mu" && m_mv_algorithmName!="MV2c10rnn"){
+    btag->pu(m_mv_algorithmName,mv_pu); 
+    btag->pb(m_mv_algorithmName,mv_pb); 
+    btag->pc(m_mv_algorithmName,mv_pc); 
+    mv = log(mv_pb/(mv_pu*(1-m_mv_cFrac)+m_mv_cFrac*mv_pc));} //DL1* formula      
+  else { btag->MVx_discriminant(m_mv_algorithmName,mv); }
+  
+  return mv;
+}
 
 JetTagMonitoring::Jet_t JetTagMonitoring::getTaggabilityLabel(const xAOD::Jet *jet) {
   
@@ -812,11 +854,8 @@ JetTagMonitoring::Jet_t JetTagMonitoring::getTaggabilityLabel(const xAOD::Jet *j
   
   unsigned int nTrk = 0;
 
-  // std::vector<InDet::TrackStateOnBLayerInfo> bInfo;
   m_track_selector_all->Fill(jet->eta(), jet->phi(), 1.);
   m_track_selector_all_LS->Fill(jet->eta(), jet->phi(), 1.);
-  //Work around, but compared to _all not needed.
-  //   m_track_selector_eff->Fill(jet->eta(), jet->phi(), 1.);
 
   m_trackSelectorTool->primaryVertex(m_priVtx->position());
   m_trackSelectorTool->prepare();
@@ -844,7 +883,7 @@ JetTagMonitoring::Jet_t JetTagMonitoring::getTaggabilityLabel(const xAOD::Jet *j
       nTrk++;
 
     } else {
-      const std::bitset<17> passedCuts = m_trackSelectorTool->currentTrackpassedCuts(); // SARA: changed the variable from "failedCuts" to "passedCuts" since it actually contains a bitmap of passedCuts (to avoid future confusion)
+      const std::bitset<17> passedCuts = m_trackSelectorTool->currentTrackpassedCuts();
       fillBadTrackBits(passedCuts, trk_eta, trk_phi);
 
       if ( !passedCuts[deadBLayer] || !passedCuts[nHitBLayer] || !passedCuts[nHitSi] ) // if at least one associated track does not pass the deadBLayer, nHitBLayer or nSiHit requirement the jet will be labeled suspectJet
@@ -856,18 +895,17 @@ JetTagMonitoring::Jet_t JetTagMonitoring::getTaggabilityLabel(const xAOD::Jet *j
 
   if ( nTrk < m_trk_n ) return badJet;
 
-  m_track_selector_eff->Fill(jet->eta(), jet->phi(), 1.); // added by SARA
+  m_track_selector_eff->Fill(jet->eta(), jet->phi(), 1.);
   m_track_selector_eff_LS->Fill(jet->eta(), jet->phi(), 1.);
 
   if ( isSuspectJet ) return suspectJet;
-
+  
   return goodJet;
-
 }
   
-bool JetTagMonitoring::isTopEvent() { // added by SARA for 2017 data taking
+bool JetTagMonitoring::isTopEvent() {
   
-  // DO TOP SELECTION
+  // DO TOP-PAIRS SELECTION
   // == 1 isolated electron with pT > m_ElectronPtCut (normally 25 GeV)
   // == 1 isolated muon with pT > m_MuonPtCut (normally 25 GeV)
   // electron and muon of opposite charge
@@ -913,7 +951,6 @@ bool JetTagMonitoring::isTopEvent() { // added by SARA for 2017 data taking
     bool lhmedium = false;
     (*electronItr)->passSelection(lhmedium, "LHMedium");
     if (!lhmedium) continue;
-    //if ( electron -> isGoodOQ (xAOD::EgammaParameters::BADCLUSELECTRON) ) oq = true;
     float topoetcone20_value = -999.;
     float ptvarcone20_value = -999.;
     (*electronItr)-> isolationValue(topoetcone20_value, xAOD::Iso::topoetcone20);
@@ -935,13 +972,13 @@ bool JetTagMonitoring::isTopEvent() { // added by SARA for 2017 data taking
     bool inAcceptance = TMath::Abs((*muonItr) -> eta()) < m_MuonEtaCut;
     if (!inAcceptance) continue;
     // medium muons
-    if ((*muonItr)->quality() != 1) continue; // 1 = medium muon
+    if ((*muonItr)->quality() > 1) continue; // 0 tight, 1 medium, medium <= 1 (includes 0)
     float topoetcone20_value = -999.;
-    float ptvarcone20_value = -999.;
+    float ptvarcone30_value = -999.;
     (*muonItr)-> isolation(topoetcone20_value, xAOD::Iso::topoetcone20);
-    (*muonItr)-> isolation(ptvarcone20_value, xAOD::Iso::ptvarcone20);
+    (*muonItr)-> isolation(ptvarcone30_value, xAOD::Iso::ptvarcone30);
     if (topoetcone20_value/(*muonItr)->pt() > m_MuonTopoEtCone20Cut) continue;
-    if (ptvarcone20_value/(*muonItr)->pt() > m_MuonPtVarCone20Cut) continue;
+    if (ptvarcone30_value/(*muonItr)->pt() > m_MuonPtVarCone30Cut) continue;
     isoMuonItr = muonItr;
     ++n_isoMuons;
   }
@@ -949,14 +986,129 @@ bool JetTagMonitoring::isTopEvent() { // added by SARA for 2017 data taking
   ATH_MSG_DEBUG("Number of isolated muons is \"" << n_isoMuons);
   m_n_iso_mu->Fill(n_isoMuons);
   
-  // trying to understand what is going wrong
   // require == 1 electron, == 1 muon and opposite charge
   if (n_isoElectrons != 1) return false;
   if (n_isoMuons != 1) return false;
   if ((*isoElectronItr)->charge()*(*isoMuonItr)->charge() != -1.) return false;
 
   return true;
+}
 
+
+bool JetTagMonitoring::isSoftMuonEvent() {
+  
+  // DO SOFT MUON SELECTION
+  // >= 1 jet with eta & pT & quality cuts (20 GeV) or kinematic cuts (15 GeV)
+  // == 1 soft muon (per jet) with pT > m_softMuonPtCut (4 GeV) or dynamic pT cut (5-6-9 GeV)
+  // tight muons
+  // DR(jet,muon) < 0.4  
+  // Plot Muon PT (1-100 GeV)
+  // Plot DR (0-0.4)
+    
+  const DataHandle<xAOD::JetContainer> jets;
+  bool foundJetColl = retrieveCollection(m_storeGate, jets, m_jetName);
+
+  if (!foundJetColl) {
+    ATH_MSG_WARNING("Unable to retrieve \"" << m_jetName << "\" from StoreGate");
+    return false;
+  }
+  
+  ATH_MSG_DEBUG("JetContainer \"" << m_jetName << "\" found with " << jets->size() << " entries");
+  
+  xAOD::JetContainer::const_iterator jetItr = jets->begin();
+  xAOD::JetContainer::const_iterator jetEnd = jets->end();
+  xAOD::JetContainer::const_iterator ismtJetItr = jets->end();
+  
+  const DataHandle<xAOD::MuonContainer> muons;
+  bool foundMuonColl = retrieveCollection(m_storeGate, muons, m_muonName);
+  
+  if (!foundMuonColl) {
+    ATH_MSG_WARNING("Unable to retrieve \"" << m_muonName << "\" from StoreGate");
+    return false;
+  }
+  
+  ATH_MSG_DEBUG("MuonContainer \"" << m_muonName << "\" found with " << muons->size() << " entries");
+  
+  xAOD::MuonContainer::const_iterator softMuonItr = muons->begin();
+  xAOD::MuonContainer::const_iterator softMuonEnd = muons->end();
+  xAOD::MuonContainer::const_iterator isoftMuonItr = muons->end();
+
+  // loop over jet container
+  int n_goodJets = 0;
+  int n_softMuons = 0;
+  int n_smtJets = 0;
+  float dr_smt = 0;
+  float pt_smt_mu = 0;
+  float pt_smt_jet = 0;
+  float pt_smt_mu_dynCut = 0;
+  TLorentzVector smt_jet, smt_mu;
+  double mv = 0; // mv_pu = 0, mv_pb = 0, mv_pc = 0;
+  for ( ; jetItr != jetEnd; jetItr++) {
+
+    // Jets quality cuts
+    if( !passJetQualityCuts(*jetItr) ) continue;
+    if( !passKinematicCuts(*jetItr) ) continue;  //15 GeV, eta < 2.5
+    if( !passJVTCuts(*jetItr) )  continue; // Jets passing JVT cuts
+    Jet_t taggabilityLabel = getTaggabilityLabel(*jetItr); // check if jet is taggable (defined as goodJet or suspectJet)
+    if ( taggabilityLabel != goodJet && taggabilityLabel != suspectJet ) continue;
+
+    if ((*jetItr) -> pt() / CLHEP::GeV < m_JetPtCut) continue; // stronger Jet pT cut (25 GeV, eta < 2.5)
+    bool inAcceptance = TMath::Abs((*jetItr) -> eta()) < m_JetEtaCut; // usual eta cut
+    if (!inAcceptance) continue;
+
+    //Dynamic cut of muon pT threshold, based on jet pT
+    pt_smt_mu_dynCut = 5; //GeV of mu pT  (jet pT < 40 GeV)
+    if((*jetItr) -> pt() / CLHEP::GeV > 40) pt_smt_mu_dynCut = 6; //GeV of mu pT
+    if((*jetItr) -> pt() / CLHEP::GeV > 90) pt_smt_mu_dynCut = 8; //GeV of mu pT
+
+    ++n_goodJets;
+    
+    n_softMuons=0;
+    // loop over muon container  
+    for ( ; softMuonItr != softMuonEnd; softMuonItr++) {
+      //select soft muons which pass eta and pT cut
+      //eta cut
+      bool inAcceptance = TMath::Abs((*softMuonItr) -> eta()) < m_MuonEtaCut;
+      if (!inAcceptance) continue;
+      //if ((*softMuonItr) -> pt() / CLHEP::GeV < m_softMuonPtCut) continue; //fixed pT cut 4 GeV
+      if((*softMuonItr) -> pt() / CLHEP::GeV < pt_smt_mu_dynCut) continue;  //dynamic pT cut
+      // tight muons
+      if ((*softMuonItr)->quality() > 0) continue; // 0 tight, 1 medium, 1 & 0 tight & medium
+      dr_smt = ((*jetItr)->p4()).DeltaR((*softMuonItr)->p4());
+      if ( dr_smt > 0.4) continue; //jet muon DR < 0.4
+      pt_smt_mu = (*softMuonItr) -> pt() / CLHEP::GeV;
+      smt_mu.SetPtEtaPhiE((*softMuonItr)->pt(),(*softMuonItr)->eta(),(*softMuonItr)->phi(),(*softMuonItr)->e());
+      ++n_softMuons;
+    }//end loop on muons
+
+    ATH_MSG_DEBUG("Number of soft muons per jet is \"" << n_softMuons);
+    m_n_soft_mu->Fill(n_softMuons);
+
+    if( n_softMuons != 1) continue;
+
+    pt_smt_jet = (*jetItr) -> pt() / CLHEP::GeV;
+    smt_jet.SetPtEtaPhiE((*jetItr)->pt(),(*jetItr)->eta(),(*jetItr)->phi(),(*jetItr)->e());
+    ++n_smtJets;
+
+    mv = getMVweight(*jetItr); // get MV weight (MV2c10/DL1*)
+    
+  }//end loop on jets
+  
+  ATH_MSG_DEBUG("Number of jets with == 1 soft muon per event is \"" << n_smtJets);
+  m_n_smt_jet->Fill(n_smtJets);
+
+  if (n_smtJets != 1) return false;
+
+  if(n_smtJets == 1){ //Fill SMT plots 
+    m_smt_dr->Fill(dr_smt);
+    m_smt_mu_pt->Fill(pt_smt_mu);
+    m_smt_jet_pt->Fill(pt_smt_jet);
+    m_smt_jet_pt_ratio->Fill(pt_smt_mu/pt_smt_jet);
+    m_smt_jet_pt_rel->Fill(smt_mu.Perp((smt_jet+smt_mu).Vect()) / CLHEP::GeV);
+    m_smt_jet_mv_w->Fill(mv);   
+  }
+
+  return true;
 }
 
 void JetTagMonitoring::fillEffHist(TH1 * h_passed, TH1 * h_all, TH1F_LW * effHist) {
@@ -984,12 +1136,11 @@ StatusCode JetTagMonitoring::procHistograms() {
   /* Finalize the histograms */
   if ( m_histogramsCreated && (endOfRunFlag() || AthenaMonManager::environment() == AthenaMonManager::online) ) {
       
-    //m_track_selector_eff->getROOTHist()->Divide(m_track_selector_all->getROOTHist(),m_tracks_all_2D->getROOTHist()); // removed by SARA
-    m_track_selector_eff->getROOTHist()->Divide(m_track_selector_all->getROOTHist()); // added by SARA
-    m_track_selector_eff_LS->getROOTHist()->Divide(m_track_selector_all_LS->getROOTHist()); // added by SARA
+    m_track_selector_eff->getROOTHist()->Divide(m_track_selector_all->getROOTHist());
+    m_track_selector_eff_LS->getROOTHist()->Divide(m_track_selector_all_LS->getROOTHist());
 
-    m_jet_pt_top_eff->getROOTHist()->Divide(m_jet_pt_top_tagged->getROOTHist(),m_jet_pt_top->getROOTHist()); // added by SARA
-    m_jet_top_eff->getROOTHist()->Divide(m_jet_top_tagged->getROOTHist(),m_jet_top->getROOTHist()); // added by SARA
+    m_jet_pt_top_eff->getROOTHist()->Divide(m_jet_pt_top_tagged->getROOTHist(),m_jet_pt_top->getROOTHist());
+    m_jet_top_eff->getROOTHist()->Divide(m_jet_top_tagged->getROOTHist(),m_jet_top->getROOTHist());
      
     {
       TH1 * qualityJets_sum85OP = m_tag_mv_w_phi_sum85OP->getROOTHistBase();     
@@ -1070,13 +1221,17 @@ void JetTagMonitoring::fillJetHistograms() {
   xAOD::JetContainer::const_iterator jetItr = jets->begin();
   xAOD::JetContainer::const_iterator jetEnd = jets->end();
   
-  // Do top selection
-  bool is_top_event = isTopEvent(); // added by SARA
-
+  // Do top-pairs selection
+  bool is_top_event = isTopEvent();
+  
+  // Do SMT selection and fill SMT plots
+  bool is_smt_event = isSoftMuonEvent();
+  if(is_smt_event) ATH_MSG_DEBUG("found SMT jet event");
+  
   m_jet_n->Fill((*jets).size());
   
-  int n_jets_kinematic = 0; // added by SARA
-  xAOD::JetContainer::const_iterator firstKinematicjetItr = jets->end(); // added by SARA
+  int n_jets_kinematic = 0;
+  xAOD::JetContainer::const_iterator firstKinematicjetItr = jets->end();
   
   // Loop over jets
   for ( ; jetItr != jetEnd; jetItr++) {
@@ -1096,56 +1251,72 @@ void JetTagMonitoring::fillJetHistograms() {
     m_jet_2D_good->Fill((*jetItr)->eta(), (*jetItr)->phi(), 1.);
 
     if ( !passKinematicCuts(*jetItr) ) continue; 
-
+    
     // Jets passing kinemtic cuts
 
     m_cutflow_jet->Fill(2.); // jets passing kinematic cuts
-    if (n_jets_kinematic == 0) firstKinematicjetItr = jetItr; // added by SARA - save this iterator since I will need to fill top histograms also for this 1st one if I find a 2nd kinematic jet later
-    ++n_jets_kinematic; // added by SARA
 
     m_jet_2D_kinematic->Fill((*jetItr)->eta(), (*jetItr)->phi(), 1.);
     m_jet_2D_kinematic_LS->Fill((*jetItr)->eta(), (*jetItr)->phi(), 1.);
 
     fillTrackInJetHistograms(*jetItr); // fill histograms with properties of associated tracks
 
-    if (is_top_event && n_jets_kinematic >= 2) { // added by SARA - I have at least 2 kinematic jets, so want to fill top histograms
-      m_jet_top->Fill(0., 1.); // added by SARA
-      m_jet_pt_top->Fill((*jetItr)->pt() / CLHEP::GeV, 1.); // added by SARA
-      if (n_jets_kinematic == 2) { // added by SARA - now I know I have (at least) two kinematic jets, so I want to fill also for 1st kinematic jet
-	m_jet_top->Fill(0., 1.); // added by SARA
-	m_jet_pt_top->Fill((*firstKinematicjetItr)->pt() / CLHEP::GeV, 1.); // added by SARA
-      }
-    }
+    double mv = getMVweight(*jetItr); // get MV weight (MV2c10/DL1*)
 
-    fillBtagHistograms(*jetItr, false); // added by SARA; fill non-top histograms with b-tagging information (tag weights etc)
-    if (is_top_event && n_jets_kinematic >= 2) { // added by SARA - I have at least 2 kinematic jets, so want to fill top histograms
-      fillBtagHistograms(*jetItr, true); // added by SARA; fill histograms with b-tagging information (tag weights etc)
-      if (n_jets_kinematic == 2) { // added by SARA - now I know I have (at least) two kinematic jets, so I want to fill also for 1st kinematic jet
-	fillBtagHistograms(*firstKinematicjetItr, true); // added by SARA; fill histograms with b-tagging information (tag weights etc)
-      }
-    }
+    // Plots with and without JVT
+    static SG::AuxElement::Accessor<float> JVT( "Jvt" ); //JVT > 0.59 (60 GeV)
+    double jvt = JVT(*(*jetItr));
+    m_jvt->Fill(jvt);
+    m_mv_pre_jvt_cut->Fill(mv);
     
+    if ( !passJVTCuts(*jetItr) ) continue; 
+
+    // Jets passing JVT cuts
+        
+    m_mv_post_jvt_cut->Fill(mv);
+  
+    m_cutflow_jet->Fill(3.); // passing JVT cuts (Jet Vertex Tagger, against pile-up jets)
+
+    m_jet_2D_jvt->Fill((*jetItr)->eta(), (*jetItr)->phi(), 1.);
+
+    if (n_jets_kinematic == 0) firstKinematicjetItr = jetItr; //1st jet iterator needed to fill top histograms (if a 2nd kinematic jet is found later)
+    ++n_jets_kinematic; //actually the cut now is after JVT selection, but called kinematic jet...
+
     Jet_t taggabilityLabel = getTaggabilityLabel(*jetItr); // check if jet is taggable (defined as goodJet or suspectJet)
     
-    //if ( m_do_cuts && quality == badJet ) continue; // removed by SARA (otherwise we never fill the badJet histograms below)
-    
     if ( taggabilityLabel == goodJet || taggabilityLabel == suspectJet ) {
-      m_cutflow_jet->Fill(3.); // added by SARA
-      fillDetailedHistograms(*jetItr, taggabilityLabel); // SARA: added if statement to make sure we don't fill the detailed histograms for bad jets (since I removed the continue statement above)	
+      m_cutflow_jet->Fill(4.);
+      fillDetailedHistograms(*jetItr, taggabilityLabel);
     }
     
     if ( taggabilityLabel == goodJet ) {
-      m_cutflow_jet->Fill(4.); // added by SARA
+      m_cutflow_jet->Fill(5.);
       m_jet_2D_quality->Fill((*jetItr)->eta(), (*jetItr)->phi(), 1.);
       fillGoodJetHistos(*jetItr);
+
+      fillBtagHistograms(*jetItr, false); // fill non-top histograms with b-tagging information
+    
+      // Looking for ttbar events
+      if (is_top_event && n_jets_kinematic >= 2) { //at least 2 kinematic jets --> fill top histograms
+	m_jet_top->Fill(0., 1.);
+	m_jet_pt_top->Fill((*jetItr)->pt() / CLHEP::GeV, 1.);
+	fillBtagHistograms(*jetItr, true); // fill histograms with b-tagging information
+	if (n_jets_kinematic == 2) { //(at least) two kinematic jets --> fill also for 1st kinematic jet
+	  m_jet_top->Fill(0., 1.);
+	  m_jet_pt_top->Fill((*firstKinematicjetItr)->pt() / CLHEP::GeV, 1.);
+	  fillBtagHistograms(*firstKinematicjetItr, true); // fill histograms with b-tagging information
+	}
+      }
+      
     }
     else if ( taggabilityLabel == suspectJet ) {
-      m_cutflow_jet->Fill(5.); // added by SARA
+      m_cutflow_jet->Fill(6.);
       m_jet_2D_suspect->Fill((*jetItr)->eta(), (*jetItr)->phi(), 1.);
       fillSuspectJetHistos(*jetItr);
     }
     else if ( taggabilityLabel == badJet ) {
-      fillBadJetHistos(*jetItr);
+      m_jet_2D_bad->Fill((*jetItr)->eta(), (*jetItr)->phi(), 1.);
+      //fillBadJetHistos(*jetItr); //nothing to fill
     }
     
   }
@@ -1174,7 +1345,7 @@ void JetTagMonitoring::fillTrackInJetHistograms(const xAOD::Jet *jet) {
     const xAOD::TrackParticle* trackPart = dynamic_cast<const xAOD::TrackParticle*>(*trkItr);
     if ( ! trackPart ) continue;
 
-    uint8_t nBLayerHits = 0; // IBL hits in Run-2, old b-layer in Run-1
+    uint8_t nBLayerHits = 0;
     uint8_t nPixHits    = 0;
     uint8_t nSCTHits    = 0;
 
@@ -1186,7 +1357,7 @@ void JetTagMonitoring::fillTrackInJetHistograms(const xAOD::Jet *jet) {
     m_jet_tracks_d0_LS->Fill(trackPart->d0());
     m_jet_tracks_z0_LS->Fill(trackPart->z0());
 
-    if (trackPart->summaryValue(nBLayerHits, xAOD::numberOfBLayerHits)) { m_jet_tracks_BLayerHits->Fill((float) nBLayerHits); } // IBL hits in Run-2, old b-layer in Run-1
+    if (trackPart->summaryValue(nBLayerHits, xAOD::numberOfBLayerHits)) { m_jet_tracks_BLayerHits->Fill((float) nBLayerHits); }
     if (trackPart->summaryValue(nPixHits, xAOD::numberOfPixelHits))     { m_jet_tracks_PixelHits->Fill((float)  nPixHits); }
     if (trackPart->summaryValue(nSCTHits, xAOD::numberOfSCTHits))       { m_jet_tracks_SCTHits->Fill((float)    nSCTHits); }
     
@@ -1197,28 +1368,25 @@ void JetTagMonitoring::fillTrackInJetHistograms(const xAOD::Jet *jet) {
   return;
 }
 
-void JetTagMonitoring::fillBtagHistograms(const xAOD::Jet *jet, bool fill_top_histos) { // added by SARA (just moved already existing code into this function for better readibility)
+void JetTagMonitoring::fillBtagHistograms(const xAOD::Jet *jet, bool fill_top_histos) {
   
   const xAOD::BTagging* btag = jet->btagging();
   
   if (!btag) return; 
   
   double sv1ip3d = btag->SV1plusIP3D_discriminant();
-  double mv_tmp = 0;
-  btag->MVx_discriminant(m_mv_algorithmName,mv_tmp);
-  double mv = mv_tmp;
-  
+  double mv = getMVweight(jet); // get MV weight (MV2c10/DL1*)
+
   ATH_MSG_DEBUG("btagging weights: " << "SV1IP3D: " << sv1ip3d << ", MV: "  << mv);
   
-  if (fill_top_histos) { // added by SARA - fill top histograms
-    m_jet_mv_w_top->Fill(mv); // added by SARA
+  if (fill_top_histos) { //fill top histograms
+    m_jet_mv_w_top->Fill(mv);
     if (mv > m_mv_70_weight_cut) {
-      m_jet_top_tagged->Fill(0., 1.); // added by SARA
-      m_jet_pt_top_tagged->Fill(jet->pt() / CLHEP::GeV, 1.); // added by SARA
+      m_jet_top_tagged->Fill(0., 1.);
+      m_jet_pt_top_tagged->Fill(jet->pt() / CLHEP::GeV, 1.);
     }
   }
-  else { // added by SARA - fill non-top histograms
-    /* fill the 2D SV1IP3D rate */
+  else { //fill non-top histograms
     if ( sv1ip3d > m_sv1ip3d_weight_cut ) {
       m_sv1ip3d_tag_pos_rate_2D->Fill(jet->eta(), jet->phi(), 1.);
     } 
@@ -1226,7 +1394,6 @@ void JetTagMonitoring::fillBtagHistograms(const xAOD::Jet *jet, bool fill_top_hi
       m_sv1ip3d_tag_neg_rate_2D->Fill(jet->eta(), jet->phi(), 1.);
     }
     
-    /* fill the 2D MV histos */
     if ( mv > m_mv_60_weight_cut ) m_mv_tag_60_2D->Fill(jet->eta(), jet->phi(), 1.);
     if ( mv > m_mv_70_weight_cut ) m_mv_tag_70_2D->Fill(jet->eta(), jet->phi(), 1.);
     if ( mv > m_mv_77_weight_cut ) m_mv_tag_77_2D->Fill(jet->eta(), jet->phi(), 1.);	
@@ -1242,7 +1409,6 @@ void JetTagMonitoring::fillDetailedHistograms(const xAOD::Jet *jet, Jet_t taggab
 
   //* get detailed information *//
   const xAOD::BTagging* btag = jet->btagging(); 
-
 
   //* detailed information for impact parameter-based informations *//
   unsigned int ntrk  = btag->nIP3D_TrackParticles();                  // number of tracks used for tagging in the jet
@@ -1325,8 +1491,7 @@ void JetTagMonitoring::fillDetailedHistograms(const xAOD::Jet *jet, Jet_t taggab
     m_tag_jetfitter_llr_sj->Fill(llr);
   }
  
-  // log likelihood ratio
-  llr = btag->JetFitter_loglikelihoodratio();
+  llr = btag->JetFitter_loglikelihoodratio();  // log likelihood ratio
  
   if ( taggabilityLabel == goodJet ) {
     m_tag_jfcnn_llr->Fill(llr);
@@ -1347,8 +1512,8 @@ void JetTagMonitoring::fillBadTrackBits(const std::bitset<17> failedCuts, double
   if ( failedCuts[sigd0Max]        == 0 ) m_tracks_sigd0Max_2D->Fill(eta, phi, 1.);
   if ( failedCuts[sigz0Max]        == 0 ) m_tracks_sigz0Max_2D->Fill(eta, phi, 1.);
   if ( failedCuts[etaMax]          == 0 ) m_tracks_etaMax_2D->Fill(eta, phi, 1.);
-  if ( failedCuts[nHitBLayer]      == 0 ) m_tracks_nHitBLayer_2D->Fill(eta, phi, 1.); // IBL hits in Run-2, old b-layer in Run-1
-  if ( failedCuts[deadBLayer]      == 0 ) m_tracks_deadBLayer_2D->Fill(eta, phi, 1.); // IBL hits in Run-2, old b-layer in Run-1
+  if ( failedCuts[nHitBLayer]      == 0 ) m_tracks_nHitBLayer_2D->Fill(eta, phi, 1.);
+  if ( failedCuts[deadBLayer]      == 0 ) m_tracks_deadBLayer_2D->Fill(eta, phi, 1.);
   if ( failedCuts[nHitPix]         == 0 ) m_tracks_nHitPix_2D->Fill(eta, phi, 1.);
   if ( failedCuts[nHitSct]         == 0 ) m_tracks_nHitSct_2D->Fill(eta, phi, 1.);
   if ( failedCuts[nHitSi]          == 0 ) m_tracks_nHitSi_2D->Fill(eta, phi, 1.);
@@ -1358,15 +1523,14 @@ void JetTagMonitoring::fillBadTrackBits(const std::bitset<17> failedCuts, double
   if ( failedCuts[fitProb]         == 0 ) m_tracks_fitProb_2D->Fill(eta, phi, 1.);
   if ( failedCuts[fitChi2OnNdfMax] == 0 ) m_tracks_fitChi2OnNdfMax_2D->Fill(eta, phi, 1.);
 
-
   if ( failedCuts[pTMin]           == 0 ) m_tracks_pTMin_2D_LS->Fill(eta, phi, 1.);
   if ( failedCuts[d0Max]           == 0 ) m_tracks_d0Max_2D_LS->Fill(eta, phi, 1.);
   if ( failedCuts[z0Max]           == 0 ) m_tracks_z0Max_2D_LS->Fill(eta, phi, 1.);
   if ( failedCuts[sigd0Max]        == 0 ) m_tracks_sigd0Max_2D_LS->Fill(eta, phi, 1.);
   if ( failedCuts[sigz0Max]        == 0 ) m_tracks_sigz0Max_2D_LS->Fill(eta, phi, 1.);
   if ( failedCuts[etaMax]          == 0 ) m_tracks_etaMax_2D_LS->Fill(eta, phi, 1.);
-  if ( failedCuts[nHitBLayer]      == 0 ) m_tracks_nHitBLayer_2D_LS->Fill(eta, phi, 1.); // IBL hits in Run-2, old b-layer in Run-1
-  if ( failedCuts[deadBLayer]      == 0 ) m_tracks_deadBLayer_2D_LS->Fill(eta, phi, 1.); // IBL hits in Run-2, old b-layer in Run-1
+  if ( failedCuts[nHitBLayer]      == 0 ) m_tracks_nHitBLayer_2D_LS->Fill(eta, phi, 1.);
+  if ( failedCuts[deadBLayer]      == 0 ) m_tracks_deadBLayer_2D_LS->Fill(eta, phi, 1.);
   if ( failedCuts[nHitPix]         == 0 ) m_tracks_nHitPix_2D_LS->Fill(eta, phi, 1.);
   if ( failedCuts[nHitSct]         == 0 ) m_tracks_nHitSct_2D_LS->Fill(eta, phi, 1.);
   if ( failedCuts[nHitSi]          == 0 ) m_tracks_nHitSi_2D_LS->Fill(eta, phi, 1.);
@@ -1376,23 +1540,45 @@ void JetTagMonitoring::fillBadTrackBits(const std::bitset<17> failedCuts, double
   if ( failedCuts[fitProb]         == 0 ) m_tracks_fitProb_2D_LS->Fill(eta, phi, 1.);
   if ( failedCuts[fitChi2OnNdfMax] == 0 ) m_tracks_fitChi2OnNdfMax_2D_LS->Fill(eta, phi, 1.);
 
-
   return;
 
 }
 
+
+
 void JetTagMonitoring::fillGoodJetHistos(const xAOD::Jet *jet) {
 
   const xAOD::BTagging* btag = jet->btagging();
-
-  double sv1ip3d = btag->SV1plusIP3D_discriminant();
-  double mv_tmp = 0;
-  btag->MVx_discriminant(m_mv_algorithmName,mv_tmp);
-  double mv = mv_tmp;
   
+  if (!btag) return; 
+  
+  double sv1ip3d = btag->SV1plusIP3D_discriminant();
+  double mv = getMVweight(jet); // get MV weight (MV2c10/DL1*)
+
   m_tag_sv1ip3d_w->Fill(sv1ip3d);
   m_tag_mv_w->Fill(mv);   
   m_tag_mv_w_LS->Fill(mv);   
+
+  // Plots Tagger in pile up bins
+  double mu = m_mu; 
+
+  if ( mu > 0. && mu < 30. ) m_tag_mv_w_mu0_30->Fill(mv);
+  else if ( mu > 30. && mu < 50. ) m_tag_mv_w_mu30_50->Fill(mv);
+  else if ( mu > 50. && mu < 70. ) m_tag_mv_w_mu50_70->Fill(mv);
+
+  // Plots Tagger in n_tracks in jet bins
+  int nTrkInJet = 0;
+  std::vector<const xAOD::IParticle*> trackVector = jet->getAssociatedObjects<xAOD::IParticle>(xAOD::JetAttribute::GhostTrack);
+  nTrkInJet = trackVector.size();
+
+  if ( nTrkInJet > 0 && nTrkInJet < 10 ) m_tag_mv_w_tracks0_10->Fill(mv); 
+  else if ( nTrkInJet > 10 && nTrkInJet < 20 ) m_tag_mv_w_tracks10_20->Fill(mv);
+  else if ( nTrkInJet > 20 && nTrkInJet < 50 ) m_tag_mv_w_tracks20_50->Fill(mv);
+
+  m_mu_vs_n_tracks->Fill(nTrkInJet,mu);
+  m_prof_n_tracks_vs_mu->Fill(mu,nTrkInJet,1);
+
+  // Fill general jet kinematic plots vs High level tagger
 
   if      ( jet->pt() / CLHEP::GeV > 200. ) m_tag_mv_w_pT200->Fill(mv);   
   else if ( jet->pt() / CLHEP::GeV > 100. ) m_tag_mv_w_pT100_200->Fill(mv);   
@@ -1419,22 +1605,18 @@ void JetTagMonitoring::fillGoodJetHistos(const xAOD::Jet *jet) {
   else if ( fabs(jet->phi()) > 0.7 ) m_tag_mv_w_phi07_14->Fill(mv);   
   else                               m_tag_mv_w_phi0_07->Fill(mv);   
 
-  //  if ( mv > -0.7887 ) {
   if ( mv > m_mv_85_weight_cut ) {
     m_tag_mv_w_phi_sum85OP->Fill(jet->phi());
     m_tag_mv_w_eta_sum85OP->Fill(jet->eta());
   }
-  //  if ( mv > -0.4434 ) {
   if ( mv > m_mv_77_weight_cut ) {
     m_tag_mv_w_phi_sum77OP->Fill(jet->phi());
     m_tag_mv_w_eta_sum77OP->Fill(jet->eta());
   }
-  //  if ( mv > -0.0436 ) {
   if ( mv > m_mv_70_weight_cut ) {
     m_tag_mv_w_phi_sum70OP->Fill(jet->phi());
     m_tag_mv_w_eta_sum70OP->Fill(jet->eta());
   }
-  //  if ( mv >  0.7535 ) {
   if ( mv >  m_mv_60_weight_cut ) {
     m_tag_mv_w_phi_sum60OP->Fill(jet->phi());
     m_tag_mv_w_eta_sum60OP->Fill(jet->eta());
@@ -1445,8 +1627,6 @@ void JetTagMonitoring::fillGoodJetHistos(const xAOD::Jet *jet) {
   return;
 
 }
-
-/* should mimick as close as possible the same function from Reconstruction/Jet/JetMonitoring/src/JetRecMonToolBase.cxx */
 
 bool JetTagMonitoring::passJetQualityCuts(const xAOD::Jet *jet){
 
@@ -1464,14 +1644,12 @@ bool JetTagMonitoring::passJetQualityCuts(const xAOD::Jet *jet){
   float chf             = SumPtTrkPt1000.size() > 0 ? SumPtTrkPt1000.at(0)/jet->pt() : -1;
   float emf             = jet->getAttribute<float>(xAOD::JetAttribute::EMFrac);
   float hecf            = jet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
-  //int   SamplingMax     = CaloSampling::Unknown; 
   float fracSamplingMax = jet->getAttribute<float>(xAOD::JetAttribute::FracSamplingMax); 
  	
   if ( 
       !(
 	(hecf>0.5 && fabs(hecq)>0.5) || (fabs(negE) > 60*CLHEP::GeV) ||
 	(emf>0.95 && fabs(jetQuality)>0.8 && fabs(jet->eta()) < 2.8) || 
-	//(n90<=5 && hecf>0.8) || (hecf>0.5 && fabs(jetQuality)>0.5) || (emf<0.05) ||
 	(fabs(jetTime)>25) ||
 	(emf<0.05 && chf<0.05 && fabs(jet->eta())<2) ||
 	(emf<0.05 && fabs(jet->eta())>= 2) ||
@@ -1491,12 +1669,12 @@ void JetTagMonitoring::fillSuspectJetHistos(const xAOD::Jet *jet) {
   m_track_selector_suspect->Fill(jet->eta(), jet->phi(), 1.);
   
   const xAOD::BTagging* btag = jet->btagging();
+  
+  if (!btag) return; 
+  
+  double sv1ip3d = btag->SV1plusIP3D_discriminant();
+  double mv = getMVweight(jet); // get MV weight (MV2c10/DL1*)
 
-  double sv1ip3d = btag->SV1plusIP3D_discriminant(); 
-  double mv_tmp = 0;
-  btag->MVx_discriminant(m_mv_algorithmName,mv_tmp);
-  double mv = mv_tmp;
- 
   m_tag_sv1ip3d_w_sj->Fill(sv1ip3d);
   m_tag_mv_w_sj->Fill(mv);   
 
@@ -1518,22 +1696,18 @@ void JetTagMonitoring::fillSuspectJetHistos(const xAOD::Jet *jet) {
   else if ( fabs(jet->phi()) > 0.7 ) m_tag_mv_w_sj_phi07_14->Fill(mv);   
   else                               m_tag_mv_w_sj_phi0_07->Fill(mv); 
 
-  //  if ( mv > -0.7887 ) {
   if ( mv > m_mv_85_weight_cut ) {
     m_tag_mv_w_sj_phi_sum85OP->Fill(jet->phi());
     m_tag_mv_w_sj_eta_sum85OP->Fill(jet->eta());
   }
-  //  if ( mv > -0.4434 ) {
   if ( mv > m_mv_77_weight_cut ) {
     m_tag_mv_w_sj_phi_sum77OP->Fill(jet->phi());
     m_tag_mv_w_sj_eta_sum77OP->Fill(jet->eta());
   }
-  //  if ( mv > -0.0436 ) {
   if ( mv > m_mv_70_weight_cut ) {
     m_tag_mv_w_sj_phi_sum70OP->Fill(jet->phi());
     m_tag_mv_w_sj_eta_sum70OP->Fill(jet->eta());
   }
-  //  if ( mv >  0.7535 ) {
   if ( mv >  m_mv_60_weight_cut ) {
     m_tag_mv_w_sj_phi_sum60OP->Fill(jet->phi());
     m_tag_mv_w_sj_eta_sum60OP->Fill(jet->eta());
@@ -1542,62 +1716,4 @@ void JetTagMonitoring::fillSuspectJetHistos(const xAOD::Jet *jet) {
   m_tag_mv_w_sj_eta_sumAll->Fill(jet->eta());
 
   return;
-
 }
-
-
-void JetTagMonitoring::fillBadJetHistos(const xAOD::Jet *jet) {
-
-  m_jet_2D_bad->Fill(jet->eta(), jet->phi(), 1.);
-
-  return;
-
-}
-
-/*
-  void JetTagMonitoring::fillBadZone(int zone, double ip3d) {
-
-  if( zone == 1 ) {
-  m_tag_ip3d_w_DMZ2_x1->Fill(ip3d, 1.);
-  m_tag_ip3d_w_DMZ2_x2->Fill(ip3d, 1.);
-  m_tag_ip3d_w_DMZ2_x4->Fill(ip3d, 1.);
-  m_tag_ip3d_w_DMZ2_x8->Fill(ip3d, 1.);
-
-  m_tag_ip3d_w_DMZ3_x1->Fill(ip3d, 1.);
-  m_tag_ip3d_w_DMZ3_x2->Fill(ip3d, 1.);
-  m_tag_ip3d_w_DMZ3_x4->Fill(ip3d, 1.);
-  m_tag_ip3d_w_DMZ3_x8->Fill(ip3d, 1.);
-  }
-  else if ( zone == 2 ) {
-  m_tag_ip3d_w_DMZ2_x1->Fill(ip3d, 1.);
-  m_tag_ip3d_w_DMZ2_x2->Fill(ip3d, 2.);
-  m_tag_ip3d_w_DMZ2_x4->Fill(ip3d, 4.);
-  m_tag_ip3d_w_DMZ2_x8->Fill(ip3d, 8.);
-
-  m_tag_ip3d_w_DMZ3_x1->Fill(ip3d, 1.);
-  m_tag_ip3d_w_DMZ3_x2->Fill(ip3d, 1.);
-  m_tag_ip3d_w_DMZ3_x4->Fill(ip3d, 1.);
-  m_tag_ip3d_w_DMZ3_x8->Fill(ip3d, 1.);
-  }
-  else if ( zone == 3 ) {
-  m_tag_ip3d_w_DMZ2_x1->Fill(ip3d, 1.);
-  m_tag_ip3d_w_DMZ2_x2->Fill(ip3d, 1.);
-  m_tag_ip3d_w_DMZ2_x4->Fill(ip3d, 1.);
-  m_tag_ip3d_w_DMZ2_x8->Fill(ip3d, 1.);
-
-  m_tag_ip3d_w_DMZ3_x1->Fill(ip3d, 1.);
-  m_tag_ip3d_w_DMZ3_x2->Fill(ip3d, 2.);
-  m_tag_ip3d_w_DMZ3_x4->Fill(ip3d, 4.);
-  m_tag_ip3d_w_DMZ3_x8->Fill(ip3d, 8.);
-  }
-
-  return;
-
-  }
-*/
-
-//void JetTagMonitoring::fillTopHistograms() {
-
-//return;
-
-//}

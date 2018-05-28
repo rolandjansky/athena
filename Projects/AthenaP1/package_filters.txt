@@ -11,6 +11,9 @@
 + External/AtlasPyFwdBwdPorts
 - External/.*
 
+# DQ config is not needed at P1 
+- DataQuality/DataQualityConfigurations
+
 # Offload service has build problems
 - Offloading/.*
 

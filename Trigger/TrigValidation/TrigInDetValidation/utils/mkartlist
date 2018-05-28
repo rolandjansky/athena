@@ -1,0 +1,89 @@
+#!/bin/bash
+
+cd ..
+
+files=
+
+i=0
+
+
+PROCESS=0
+BGPROCS=
+NJOBS=8
+WAITING=2
+
+# count how many jobs are running ...
+
+function running {
+     local IRUNNING=0
+     for BGPROC in $BGPROCS; do ( ps -p $BGPROC &> /dev/null ) && ((IRUNNING++)) ; done
+     echo $IRUNNING
+}
+
+
+
+# wait for a free sloy processes to finish ...
+
+function waitonproc   {
+#   echo "waitonproc waiting ..."
+    local IRUNNING=$(running)
+    while [ $IRUNNING -ge $NJOBS ]; do sleep $WAITING ; IRUNNING=$(running) ; done
+}
+
+
+# wait for all processes to finish ...
+
+function waitonallproc   {
+    echo "waitonallproc waiting ..."
+    local IRUNNING=$(running)
+    while [ $IRUNNING -gt 0 ]; do sleep $WAITING ; IRUNNING=$(running) ; done
+}
+
+
+
+
+for job in $(grep include TIDAbuild/TrigInDetValidation_TestConfiguration_main.xml  | grep -v \! | awk '{print $3}' | sed 's|\"||g') ; do 
+
+    waitonproc
+
+    file=$(echo $job | tr '[:upper:]' '[:lower:]' | sed 's|\.xml|\.sh|g')
+
+
+    [ -e test/$file ] && continue
+
+    file=test_$file
+
+    BUILD=1
+
+    [ -e test/$file -a test/$file -nt TIDAbuild/$job ] && BUILD=0
+   	
+    if [ $BUILD -eq 1 ]; then
+	files="$files $job"
+ 	echo "TIDAbuild/$job -> test/$file"
+	utils/mkart-template -c TIDAbuild/$job -o test &
+	PID=$!
+        BGPROCS="$BGPROCS $PID"
+
+#	ls -l TIDAbuild/$job test/$file
+#	echo
+    fi
+
+    ((i++))
+
+done
+
+[ -z "$files" ] && exit 
+
+echo "waiting for jobs to finish ..."
+
+waitonallproc
+
+# 
+
+
+# echo 
+# echo "rebuilt art scripts:"
+# echo $files
+
+
+

@@ -131,6 +131,7 @@ public:
 
   bool m_requireDecision;
   
+  bool m_containTracks;
 };
 
 

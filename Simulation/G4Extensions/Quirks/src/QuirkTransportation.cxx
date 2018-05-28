@@ -77,29 +77,29 @@ class G4VSensitiveDetector;
 
 QuirkTransportation::QuirkTransportation( G4int verboseLevel )
   : G4VProcess( G4String("QuirkTransportation"), fTransportation ),
-    fParticleIsLooping( false ),
-    fPreviousSftOrigin (0.,0.,0.),
-    fPreviousSafety    ( 0.0 ),
-    fThreshold_Warning_Energy( 100 * CLHEP::MeV ),  
-    fThreshold_Important_Energy( 250 * CLHEP::MeV ), 
-    fThresholdTrials( 10 ), 
-    fUnimportant_Energy( 1 * CLHEP::MeV ),  // Not used
-    fNoLooperTrials(0),
-    fSumEnergyKilled( 0.0 ), fMaxEnergyKilled( 0.0 ), 
-    fShortStepOptimisation(false),    // Old default: true (=fast short steps)
-    fVerboseLevel( verboseLevel )
+    m_particleIsLooping( false ),
+    m_previousSftOrigin (0.,0.,0.),
+    m_previousSafety    ( 0.0 ),
+    m_threshold_Warning_Energy( 100 * CLHEP::MeV ),  
+    m_threshold_Important_Energy( 250 * CLHEP::MeV ), 
+    m_thresholdTrials( 10 ), 
+    m_unimportant_Energy( 1 * CLHEP::MeV ),  // Not used
+    m_noLooperTrials(0),
+    m_sumEnergyKilled( 0.0 ), m_maxEnergyKilled( 0.0 ), 
+    m_shortStepOptimisation(false),    // Old default: true (=fast short steps)
+    m_verboseLevel( verboseLevel )
 {
   G4TransportationManager* transportMgr ; 
 
   transportMgr = G4TransportationManager::GetTransportationManager() ; 
 
-  fLinearNavigator = transportMgr->GetNavigatorForTracking() ; 
+  m_linearNavigator = transportMgr->GetNavigatorForTracking() ; 
 
   // fGlobalFieldMgr = transportMgr->GetFieldManager() ;
 
-  fFieldPropagator = transportMgr->GetPropagatorInField() ;
+  m_fieldPropagator = transportMgr->GetPropagatorInField() ;
 
-  fpSafetyHelper =   transportMgr->GetSafetyHelper();  // New 
+  m_safetyHelper =   transportMgr->GetSafetyHelper();  // New 
 
   // Cannot determine whether a field exists here, as it would 
   //  depend on the relative order of creating the detector's 
@@ -107,19 +107,19 @@ QuirkTransportation::QuirkTransportation( G4int verboseLevel )
   // Instead later the method DoesGlobalFieldExist() is called
 
   static G4TouchableHandle nullTouchableHandle;  // Points to (G4VTouchable*) 0
-  fCurrentTouchableHandle = nullTouchableHandle; 
+  m_currentTouchableHandle = nullTouchableHandle; 
 
-  fCandidateEndGlobalTime = 0;
+  m_candidateEndGlobalTime = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 QuirkTransportation::~QuirkTransportation()
 {
-  if( (fVerboseLevel > 0) && (fSumEnergyKilled > 0.0 ) ){ 
+  if( (m_verboseLevel > 0) && (m_sumEnergyKilled > 0.0 ) ){ 
     G4cout << " QuirkTransportation: Statistics for looping particles " << G4endl;
-    G4cout << "   Sum of energy of loopers killed: " <<  fSumEnergyKilled << G4endl;
-    G4cout << "   Max energy of loopers killed: " <<  fMaxEnergyKilled << G4endl;
+    G4cout << "   Sum of energy of loopers killed: " <<  m_sumEnergyKilled << G4endl;
+    G4cout << "   Max energy of loopers killed: " <<  m_maxEnergyKilled << G4endl;
   } 
 }
 
@@ -138,13 +138,13 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
                                              G4GPILSelection* selection )
 {
   G4double geometryStepLength; 
-  fParticleIsLooping = false ;
+  m_particleIsLooping = false ;
 
   // Initial actions moved to  StartTrack()   
   // --------------------------------------
   // Note: in case another process changes touchable handle
   //    it will be necessary to add here (for all steps)   
-  // fCurrentTouchableHandle = aTrack->GetTouchableHandle();
+  // m_currentTouchableHandle = aTrack->GetTouchableHandle();
 
   // GPILSelection is set to defaule value of CandidateForSelection
   // It is a return value
@@ -164,15 +164,15 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
   // assumptions of any process - it's not always the geometrical safety.
   // We calculate the starting point's isotropic safety here.
   //
-  G4ThreeVector OriginShift = startPosition - fPreviousSftOrigin ;
+  G4ThreeVector OriginShift = startPosition - m_previousSftOrigin ;
   G4double      MagSqShift  = OriginShift.mag2() ;
-  if( MagSqShift >= sqr(fPreviousSafety) )
+  if( MagSqShift >= sqr(m_previousSafety) )
   {
      currentSafety = 0.0 ;
   }
   else
   {
-     currentSafety = fPreviousSafety - std::sqrt(MagSqShift) ;
+     currentSafety = m_previousSafety - std::sqrt(MagSqShift) ;
   }
 
   // Is the particle charged ?
@@ -184,7 +184,7 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
   //   By the tracking, after all AlongStepDoIts, in "Relocation"
 
   // Set up field manager
-  G4FieldManager* fieldMgr = fFieldPropagator->FindAndSetFieldManager( track.GetVolume() ); 
+  G4FieldManager* fieldMgr = m_fieldPropagator->FindAndSetFieldManager( track.GetVolume() ); 
   if (fieldMgr != 0) {
      // Message the field Manager, to configure it for this track
      fieldMgr->ConfigureForTrack( &track );
@@ -221,12 +221,12 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
                             0,
                             0,
                             0); //no magnetic charge?
-  G4EquationOfMotion* equationOfMotion = (fFieldPropagator->GetChordFinder()->GetIntegrationDriver()->GetStepper())->GetEquationOfMotion();
+  G4EquationOfMotion* equationOfMotion = (m_fieldPropagator->GetChordFinder()->GetIntegrationDriver()->GetStepper())->GetEquationOfMotion();
   equationOfMotion->SetChargeMomentumMass( chargeState,
                                            momentumMagnitude, // in Mev/c 
                                            restMass           ) ;  
 #else
-  fFieldPropagator->SetChargeMomentumMass( particleCharge,    // in e+ units
+  m_fieldPropagator->SetChargeMomentumMass( particleCharge,    // in e+ units
                                            momentumMagnitude, // in Mev/c 
                                            restMass           ) ;  
 #endif
@@ -261,81 +261,81 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
   if( currentMinimumStep > 0 )
   {
      // Call field propagator to handle boundary crossings
-     G4double lengthAlongCurve = fFieldPropagator->ComputeStep( aFieldTrack,
+     G4double lengthAlongCurve = m_fieldPropagator->ComputeStep( aFieldTrack,
                                                                 currentMinimumStep, 
                                                                 currentSafety,
                                                                 track.GetVolume() ) ;
      if (dbg) G4cout << "QuirkTransportation: moved " << lengthAlongCurve << G4endl;
-     fGeometryLimitedStep = lengthAlongCurve < currentMinimumStep;
-     if( fGeometryLimitedStep ) {
+     m_geometryLimitedStep = lengthAlongCurve < currentMinimumStep;
+     if( m_geometryLimitedStep ) {
         geometryStepLength   = lengthAlongCurve ;
      } else {
         geometryStepLength   = currentMinimumStep ;
      }
      // Update stepper, string vectors with step length from field propagator
-     quirkStepper.Update(aFieldTrack, aFieldTrack.GetCurveLength() == 0 && !fGeometryLimitedStep);
+     quirkStepper.Update(aFieldTrack, aFieldTrack.GetCurveLength() == 0 && !m_geometryLimitedStep);
   }
   else
   {
      geometryStepLength   = 0.0 ;
-     fGeometryLimitedStep = false ;
+     m_geometryLimitedStep = false ;
   }
   if (dbg) G4cout << "QuirkTransportation: moved " << aFieldTrack.GetCurveLength() << G4endl;
   if (dbg) G4cout << "QuirkTransportation: end = " << aFieldTrack.GetPosition() << " [" << aFieldTrack.GetProperTimeOfFlight() << "]" << G4endl;
 
   // Remember last safety origin & value.
   //
-  fPreviousSftOrigin = startPosition ;
-  fPreviousSafety    = currentSafety ;         
-  // fpSafetyHelper->SetCurrentSafety( newSafety, startPosition);
+  m_previousSftOrigin = startPosition ;
+  m_previousSafety    = currentSafety ;         
+  // m_safetyHelper->SetCurrentSafety( newSafety, startPosition);
 
   // Get end-of-step quantities
   geometryStepLength = aFieldTrack.GetCurveLength();
-  fTransportEndPosition = aFieldTrack.GetPosition() ;
-  fMomentumChanged         = true ; 
-  fTransportEndMomentumDir = aFieldTrack.GetMomentumDir() ;
-  fTransportEndKineticEnergy  = aFieldTrack.GetKineticEnergy() ; 
-  fCandidateEndGlobalTime   = aFieldTrack.GetLabTimeOfFlight();
-  fTransportEndSpin  = aFieldTrack.GetSpin();
-  fParticleIsLooping = fFieldPropagator->IsParticleLooping() ;
-  endpointDistance   = (fTransportEndPosition - startPosition).mag() ;
+  m_transportEndPosition = aFieldTrack.GetPosition() ;
+  m_momentumChanged         = true ; 
+  m_transportEndMomentumDir = aFieldTrack.GetMomentumDir() ;
+  m_transportEndKineticEnergy  = aFieldTrack.GetKineticEnergy() ; 
+  m_candidateEndGlobalTime   = aFieldTrack.GetLabTimeOfFlight();
+  m_transportEndSpin  = aFieldTrack.GetSpin();
+  m_particleIsLooping = m_fieldPropagator->IsParticleLooping() ;
+  m_endpointDistance   = (m_transportEndPosition - startPosition).mag() ;
 
   // If we are asked to go a step length of 0, and we are on a boundary
   // then a boundary will also limit the step -> we must flag this.
   //
   if( currentMinimumStep == 0.0 ) 
   {
-      if( currentSafety == 0.0 )  fGeometryLimitedStep = true ;
+      if( currentSafety == 0.0 )  m_geometryLimitedStep = true ;
   }
 
   // Update the safety starting from the end-point,
   // if it will become negative at the end-point.
   //
-  if( currentSafety < endpointDistance ) 
+  if( currentSafety < m_endpointDistance ) 
   {
        G4double endSafety =
-            fLinearNavigator->ComputeSafety( fTransportEndPosition) ;
+            m_linearNavigator->ComputeSafety( m_transportEndPosition) ;
        currentSafety      = endSafety ;
-       fPreviousSftOrigin = fTransportEndPosition ;
-       fPreviousSafety    = currentSafety ; 
-       fpSafetyHelper->SetCurrentSafety( currentSafety, fTransportEndPosition);
+       m_previousSftOrigin = m_transportEndPosition ;
+       m_previousSafety    = currentSafety ; 
+       m_safetyHelper->SetCurrentSafety( currentSafety, m_transportEndPosition);
 
        // Because the Stepping Manager assumes it is from the start point, 
        //  add the StepLength
        //
-       currentSafety     += endpointDistance ;
+       currentSafety     += m_endpointDistance ;
 
 #ifdef G4DEBUG_TRANSPORT 
        G4cout.precision(12) ;
        G4cout << "***QuirkTransportation::AlongStepGPIL ** " << G4endl  ;
-       G4cout << "  Called Navigator->ComputeSafety at " << fTransportEndPosition
+       G4cout << "  Called Navigator->ComputeSafety at " << m_transportEndPosition
               << "    and it returned safety= " << endSafety << G4endl ; 
-       G4cout << "  Adding endpoint distance " << endpointDistance 
+       G4cout << "  Adding endpoint distance " << m_endpointDistance 
               << "   to obtain pseudo-safety= " << currentSafety << G4endl ; 
 #endif
   }            
 
-  fParticleChange.ProposeTrueStepLength(geometryStepLength) ;
+  m_particleChange.ProposeTrueStepLength(geometryStepLength) ;
 
   // Restore original stepper
   fieldMgr->SetChordFinder(oldChordFinder);
@@ -355,78 +355,78 @@ G4VParticleChange* QuirkTransportation::AlongStepDoIt( const G4Track& track,
 
   noCalls++;
 
-  fParticleChange.Initialize(track) ;
+  m_particleChange.Initialize(track) ;
 
   //  Code for specific process 
   //
-  fParticleChange.ProposePosition(fTransportEndPosition) ;
-  fParticleChange.ProposeMomentumDirection(fTransportEndMomentumDir) ;
-  fParticleChange.ProposeEnergy(fTransportEndKineticEnergy) ;
-  fParticleChange.SetMomentumChanged(fMomentumChanged) ;
+  m_particleChange.ProposePosition(m_transportEndPosition) ;
+  m_particleChange.ProposeMomentumDirection(m_transportEndMomentumDir) ;
+  m_particleChange.ProposeEnergy(m_transportEndKineticEnergy) ;
+  m_particleChange.SetMomentumChanged(m_momentumChanged) ;
 
-  fParticleChange.ProposePolarization(fTransportEndSpin);
+  m_particleChange.ProposePolarization(m_transportEndSpin);
   
   // Calculate  Lab Time of Flight (ONLY if field Equations used it!)
-     // G4double endTime   = fCandidateEndGlobalTime;
+     // G4double endTime   = m_candidateEndGlobalTime;
      // G4double delta_time = endTime - startTime;
 
   G4double startTime = track.GetGlobalTime() ;
-  G4double deltaTime = fCandidateEndGlobalTime - startTime ;
-  fParticleChange.ProposeGlobalTime( fCandidateEndGlobalTime ) ;
+  G4double deltaTime = m_candidateEndGlobalTime - startTime ;
+  m_particleChange.ProposeGlobalTime( m_candidateEndGlobalTime ) ;
 
   // Now Correct by Lorentz factor to get "proper" deltaTime
   
   G4double  restMass       = track.GetDynamicParticle()->GetMass() ;
   G4double deltaProperTime = deltaTime*( restMass/track.GetTotalEnergy() ) ;
 
-  fParticleChange.ProposeProperTime(track.GetProperTime() + deltaProperTime) ;
-  //fParticleChange. ProposeTrueStepLength( track.GetStepLength() ) ;
+  m_particleChange.ProposeProperTime(track.GetProperTime() + deltaProperTime) ;
+  //m_particleChange. ProposeTrueStepLength( track.GetStepLength() ) ;
 
   // If the particle is caught looping or is stuck (in very difficult
   // boundaries) in a magnetic field (doing many steps) 
   //   THEN this kills it ...
   //
-  if ( fParticleIsLooping )
+  if ( m_particleIsLooping )
   {
-      G4double endEnergy= fTransportEndKineticEnergy;
+      G4double endEnergy= m_transportEndKineticEnergy;
 
-      if( (endEnergy < fThreshold_Important_Energy) 
-	  || (fNoLooperTrials >= fThresholdTrials ) ){
+      if( (endEnergy < m_threshold_Important_Energy) 
+	  || (m_noLooperTrials >= m_thresholdTrials ) ){
 	// Kill the looping particle 
 	//
-	fParticleChange.ProposeTrackStatus( fStopAndKill )  ;
+	m_particleChange.ProposeTrackStatus( fStopAndKill )  ;
 
         // 'Bare' statistics
-        fSumEnergyKilled += endEnergy; 
-	if( endEnergy > fMaxEnergyKilled) { fMaxEnergyKilled= endEnergy; }
+        m_sumEnergyKilled += endEnergy; 
+	if( endEnergy > m_maxEnergyKilled) { m_maxEnergyKilled= endEnergy; }
 
 #ifdef G4VERBOSE
-	if( (fVerboseLevel > 1) || 
-	    ( endEnergy > fThreshold_Warning_Energy )  ) { 
+	if( (m_verboseLevel > 1) || 
+	    ( endEnergy > m_threshold_Warning_Energy )  ) { 
 	  G4cout << " QuirkTransportation is killing track that is looping or stuck "
 		 << G4endl
 		 << "   This track has " << track.GetKineticEnergy() / CLHEP::MeV
 		 << " MeV energy." << G4endl;
-	  G4cout << "   Number of trials = " << fNoLooperTrials 
+	  G4cout << "   Number of trials = " << m_noLooperTrials 
 		 << "   No of calls to AlongStepDoIt = " << noCalls 
 		 << G4endl;
 	}
 #endif
-	fNoLooperTrials=0; 
+	m_noLooperTrials=0; 
       }
       else{
-	fNoLooperTrials ++; 
+	m_noLooperTrials ++; 
 #ifdef G4VERBOSE
-	if( (fVerboseLevel > 2) ){
+	if( (m_verboseLevel > 2) ){
 	  G4cout << "   QuirkTransportation::AlongStepDoIt(): Particle looping -  "
-		 << "   Number of trials = " << fNoLooperTrials 
+		 << "   Number of trials = " << m_noLooperTrials 
 		 << "   No of calls to  = " << noCalls 
 		 << G4endl;
 	}
 #endif
       }
   }else{
-      fNoLooperTrials=0; 
+      m_noLooperTrials=0; 
   }
 
   // Another (sometimes better way) is to use a user-limit maximum Step size
@@ -434,10 +434,10 @@ G4VParticleChange* QuirkTransportation::AlongStepDoIt( const G4Track& track,
 
   // Introduce smooth curved trajectories to particle-change
   //
-  fParticleChange.SetPointerToVectorOfAuxiliaryPoints
-    (fFieldPropagator->GimmeTrajectoryVectorAndForgetIt() );
+  m_particleChange.SetPointerToVectorOfAuxiliaryPoints
+    (m_fieldPropagator->GimmeTrajectoryVectorAndForgetIt() );
 
-  return &fParticleChange ;
+  return &m_particleChange ;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -466,64 +466,64 @@ G4VParticleChange* QuirkTransportation::PostStepDoIt( const G4Track& track,
 
   // Initialize ParticleChange  (by setting all its members equal
   //                             to corresponding members in G4Track)
-  // fParticleChange.Initialize(track) ;  // To initialise TouchableChange
+  // m_particleChange.Initialize(track) ;  // To initialise TouchableChange
 
-  fParticleChange.ProposeTrackStatus(track.GetTrackStatus()) ;
+  m_particleChange.ProposeTrackStatus(track.GetTrackStatus()) ;
 
   // If the Step was determined by the volume boundary,
   // logically relocate the particle
 
-  if(fGeometryLimitedStep)
+  if(m_geometryLimitedStep)
   {  
     // fCurrentTouchable will now become the previous touchable, 
     // and what was the previous will be freed.
     // (Needed because the preStepPoint can point to the previous touchable)
 
-    fLinearNavigator->SetGeometricallyLimitedStep() ;
-    fLinearNavigator->
+    m_linearNavigator->SetGeometricallyLimitedStep() ;
+    m_linearNavigator->
     LocateGlobalPointAndUpdateTouchableHandle( track.GetPosition(),
                                                track.GetMomentumDirection(),
-                                               fCurrentTouchableHandle,
+                                               m_currentTouchableHandle,
                                                true                      ) ;
     // Check whether the particle is out of the world volume 
     // If so it has exited and must be killed.
     //
-    if( fCurrentTouchableHandle->GetVolume() == 0 )
+    if( m_currentTouchableHandle->GetVolume() == 0 )
     {
-       fParticleChange.ProposeTrackStatus( fStopAndKill ) ;
+       m_particleChange.ProposeTrackStatus( fStopAndKill ) ;
        G4cout << "QuirkTransportation: number of steps = " << track.GetCurrentStepNumber() << G4endl;
     }
-    retCurrentTouchable = fCurrentTouchableHandle ;
-    fParticleChange.SetTouchableHandle( fCurrentTouchableHandle ) ;
+    retCurrentTouchable = m_currentTouchableHandle ;
+    m_particleChange.SetTouchableHandle( m_currentTouchableHandle ) ;
 
     // Update the Step flag which identifies the Last Step in a volume
-    isLastStep =  fLinearNavigator->ExitedMotherVolume() 
-                       | fLinearNavigator->EnteredDaughterVolume() ;
+    isLastStep =  m_linearNavigator->ExitedMotherVolume() 
+                       | m_linearNavigator->EnteredDaughterVolume() ;
 
 #ifdef G4DEBUG_TRANSPORT
     //  Checking first implementation of flagging Last Step in Volume
-    G4bool exiting =  fLinearNavigator->ExitedMotherVolume();
-    G4bool entering = fLinearNavigator->EnteredDaughterVolume();
+    G4bool exiting =  m_linearNavigator->ExitedMotherVolume();
+    G4bool entering = m_linearNavigator->EnteredDaughterVolume();
     if( ! (exiting || entering) ) { 
     G4cout << " Transport> :  Proposed isLastStep= " << isLastStep 
-           << " Exiting "  << fLinearNavigator->ExitedMotherVolume()          
-	   << " Entering " << fLinearNavigator->EnteredDaughterVolume() 
+           << " Exiting "  << m_linearNavigator->ExitedMotherVolume()          
+	   << " Entering " << m_linearNavigator->EnteredDaughterVolume() 
 	   << G4endl;
     } 
 #endif
   }
-  else                 // fGeometryLimitedStep  is false
+  else                 // m_geometryLimitedStep  is false
   {                    
     // This serves only to move the Navigator's location
     //
-    fLinearNavigator->LocateGlobalPointWithinVolume( track.GetPosition() ) ;
+    m_linearNavigator->LocateGlobalPointWithinVolume( track.GetPosition() ) ;
 
     // The value of the track's current Touchable is retained. 
     // (and it must be correct because we must use it below to
     // overwrite the (unset) one in particle change)
     //  It must be fCurrentTouchable too ??
     //
-    fParticleChange.SetTouchableHandle( track.GetTouchableHandle() ) ;
+    m_particleChange.SetTouchableHandle( track.GetTouchableHandle() ) ;
     retCurrentTouchable = track.GetTouchableHandle() ;
 
     isLastStep= false;
@@ -532,9 +532,9 @@ G4VParticleChange* QuirkTransportation::PostStepDoIt( const G4Track& track,
     G4cout << " Transport> Proposed isLastStep= " << isLastStep
 	   << " Geometry did not limit step. " << G4endl;
 #endif
-  }         // endif ( fGeometryLimitedStep ) 
+  }         // endif ( m_geometryLimitedStep ) 
 
-  fParticleChange.ProposeLastStepInVolume(isLastStep);    
+  m_particleChange.ProposeLastStepInVolume(isLastStep);    
 
   const G4VPhysicalVolume* pNewVol = retCurrentTouchable->GetVolume() ;
   const G4Material* pNewMaterial   = 0 ;
@@ -549,8 +549,8 @@ G4VParticleChange* QuirkTransportation::PostStepDoIt( const G4Track& track,
   // ( <const_cast> pNewMaterial ) ;
   // ( <const_cast> pNewSensitiveDetector) ;
 
-  fParticleChange.SetMaterialInTouchable( (G4Material *) pNewMaterial ) ;
-  fParticleChange.SetSensitiveDetectorInTouchable( (G4VSensitiveDetector *) pNewSensitiveDetector ) ;
+  m_particleChange.SetMaterialInTouchable( (G4Material *) pNewMaterial ) ;
+  m_particleChange.SetSensitiveDetectorInTouchable( (G4VSensitiveDetector *) pNewSensitiveDetector ) ;
 
   const G4MaterialCutsCouple* pNewMaterialCutsCouple = 0;
   if( pNewVol != 0 )
@@ -567,7 +567,7 @@ G4VParticleChange* QuirkTransportation::PostStepDoIt( const G4Track& track,
                              ->GetMaterialCutsCouple(pNewMaterial,
                                pNewMaterialCutsCouple->GetProductionCuts());
   }
-  fParticleChange.SetMaterialCutsCoupleInTouchable( pNewMaterialCutsCouple );
+  m_particleChange.SetMaterialCutsCoupleInTouchable( pNewMaterialCutsCouple );
 
   // temporarily until Get/Set Material of ParticleChange, 
   // and StepPoint can be made const. 
@@ -575,9 +575,9 @@ G4VParticleChange* QuirkTransportation::PostStepDoIt( const G4Track& track,
   // this must always be done because the particle change always
   // uses this value to overwrite the current touchable pointer.
   //
-  fParticleChange.SetTouchableHandle(retCurrentTouchable) ;
+  m_particleChange.SetTouchableHandle(retCurrentTouchable) ;
 
-  return &fParticleChange ;
+  return &m_particleChange ;
 }
 
 // New method takes over the responsibility to reset the state of QuirkTransportation
@@ -593,22 +593,22 @@ QuirkTransportation::StartTracking(G4Track* aTrack)
 
   // reset safety value and center
   //
-  fPreviousSafety    = 0.0 ; 
-  fPreviousSftOrigin = G4ThreeVector(0.,0.,0.) ;
+  m_previousSafety    = 0.0 ; 
+  m_previousSftOrigin = G4ThreeVector(0.,0.,0.) ;
   
   // reset looping counter -- for motion in field
-  fNoLooperTrials= 0; 
+  m_noLooperTrials= 0; 
   // Must clear this state .. else it depends on last track's value
   //  --> a better solution would set this from state of suspended track TODO ? 
   // Was if( aTrack->GetCurrentStepNumber()==1 ) { .. }
 
   // ChordFinder reset internal state
   //
-  fFieldPropagator->ClearPropagatorState();   
+  m_fieldPropagator->ClearPropagatorState();   
     // Resets all state of field propagator class (ONLY)
     //  including safety values (in case of overlaps and to wipe for first track).
 
-  // G4ChordFinder* chordF= fFieldPropagator->GetChordFinder();
+  // G4ChordFinder* chordF= m_fieldPropagator->GetChordFinder();
   // if( chordF ) chordF->ResetStepEstimate();
 
   // Make sure to clear the chord finders of all fields (ie managers)
@@ -617,7 +617,7 @@ QuirkTransportation::StartTracking(G4Track* aTrack)
 
   // Update the current touchable handle  (from the track's)
   //
-  fCurrentTouchableHandle = aTrack->GetTouchableHandle();
+  m_currentTouchableHandle = aTrack->GetTouchableHandle();
 
   // Initialize infracolor string
   const Quirk* quirkDef = dynamic_cast<const Quirk*>(aTrack->GetParticleDefinition());

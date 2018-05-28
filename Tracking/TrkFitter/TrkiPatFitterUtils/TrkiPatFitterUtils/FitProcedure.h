@@ -17,11 +17,11 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRKIPATFITTERUTILS_FITPROCEDURE_H
-# define TRKIPATFITTERUTILS_FITPROCEDURE_H
+#define TRKIPATFITTERUTILS_FITPROCEDURE_H
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include <list>
+#include <vector>
 #include "DataModel/DataVector.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
@@ -49,7 +49,6 @@ class FitProcedure
 public:
     FitProcedure (bool					constrainedAlignmentEffects,
 		  bool					extendedDebug,
-		  bool					eigenMatrixTreatment,
 		  bool					lineFit,
 		  ToolHandle<IIntersector>&		rungeKuttaIntersector,
 		  ToolHandle<IIntersector>&		solenoidalIntersector,
@@ -63,8 +62,11 @@ public:
     // forbidden copy constructor
     // forbidden assignment operator
 
+    // clean up memory (after fit completion)
+    void	clear (void);
+    
     // retrieve result
-    Track*	constructTrack (const std::list<FitMeasurement*>&		measurements,
+    Track*	constructTrack (const std::vector<FitMeasurement*>&		measurements,
 				const FitParameters&				parameters,
 				const TrackInfo&				trackInfo,
 				const DataVector<const TrackStateOnSurface>*	leadingTSOS = 0);
@@ -72,13 +74,13 @@ public:
     // perform fit procedure
     const FitProcedureQuality&	execute (bool					asymmetricCaloEnergy,
 					 MsgStream&				log,
-					 std::list<FitMeasurement*>&		measurements,
+					 std::vector<FitMeasurement*>&		measurements,
 					 FitParameters*&			parameters,
 					 const FitQuality*			perigeeQuality = 0,
 					 bool					for_iPatTrack = false);
 
     // for IGlobalTrackFit interface
-    Amg::MatrixX*		fullCovariance () const;
+    Amg::MatrixX*		fullCovariance (void) const;
     
     // set minimum number of iterations to perform (IGlobalTrackFit friends)
     void			setMinIterations (int minIter);
@@ -88,10 +90,10 @@ private:
     FitProcedure (const FitProcedure&);
     FitProcedure &operator= (const FitProcedure&);
     
-    void				calculateChiSq(std::list<FitMeasurement*>&	measurements);
-    ToolHandle<IIntersector>&		chooseIntersector(std::list<FitMeasurement*>&	measurements,
+    void				calculateChiSq(std::vector<FitMeasurement*>&	measurements);
+    ToolHandle<IIntersector>&		chooseIntersector(std::vector<FitMeasurement*>&	measurements,
 							  const FitParameters&	parameters) const;
-    void				reportQuality(const std::list<FitMeasurement*>&	measurements,
+    void				reportQuality(const std::vector<FitMeasurement*>& measurements,
 						      const FitParameters&	parameters) const;
 
     double				m_chRatio1;
