@@ -9,7 +9,18 @@
 # art-output: test.HITS.pool.root
 
 # FIXME need an AFP-specific single particle generator configuration
-AtlasG4_tf.py --preInclude 'G4AtlasTests/preInclude.ALFA_SingleParticle.py' --outputHITSFile 'test.HITS.pool.root' --maxEvents '3' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --AFPOn 'True' --postInclude 'PyJobTransforms/UseFrontier.py' --imf False
+AtlasG4_tf.py \
+--preInclude 'G4AtlasTests/preInclude.ALFA_SingleParticle.py' \
+--outputHITSFile 'test.HITS.pool.root' \
+--maxEvents '3' \
+--randomSeed '10' \
+--geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' \
+--conditionsTag 'OFLCOND-RUN12-SDR-19' \
+--DataRunNumber '222525' \
+--physicsList 'FTFP_BERT' \
+--AFPOn 'True' \
+--postInclude 'PyJobTransforms/UseFrontier.py' \
+--imf False
 
 echo  "art-result: $? simulation"
 
