@@ -129,9 +129,6 @@ StatusCode LArFebErrorSummaryMaker::execute()
 
   ATH_MSG_DEBUG( " LArFebHeaderContainer Size = "<< hdrCont->size()   );
 
-  //LArFebHeaderContainer::const_iterator it = hdrCont->begin(); 
-  //LArFebHeaderContainer::const_iterator it_e = hdrCont->end(); 
-
   std::set<unsigned int> all_febs;
   if(m_checkAllFeb || m_isHec || m_isFcal || m_isEmb || m_isEmec || m_isEmPS){
 
@@ -140,7 +137,6 @@ StatusCode LArFebErrorSummaryMaker::execute()
   }
     
 
-  //for ( ; it!=it_e;++it) {
   for (const auto& it : *hdrCont) {
       HWIdentifier febid= it->FEBId();
       unsigned int int_id =  febid.get_identifier32().get_compact();
@@ -199,15 +195,12 @@ StatusCode LArFebErrorSummaryMaker::execute()
 	  int expSize1 = 0;
 	  if ((it->FormatVersion()&0xF)<=11) expSize1 = it->NbSweetCells1() + 83 + (int) ceilf((it->NbSamples()+1)/2.0); // Old DSP version
 	  if ((it->FormatVersion()&0xF)>=12) expSize1 = it->NbSweetCells1() + 84 + (int) ceilf((it->NbSamples()+1)/2.0); // New DSP version after 07/11 with new extra word SumE
-	  //	  log << MSG::ERROR << "Version  " << (it->FormatVersion()&0xF) << " Expected size " << expSize1 << " " << it->RodResults1Size() << endmsg; 
 	  if (expSize1 != it->RodResults1Size()) {
 		checkSumErr = true; 
-	//	log << MSG::ERROR << "Version 1  " << (it->FormatVersion()&0xF) << " Expected size " << expSize1 << " " << it->RodResults1Size() << endmsg;
 	  }
 	  int nbOf32bits = (it->NbSweetCells2() * it->NbSamples() +1) / 2.0;
 	  if ( nbOf32bits != it->RodResults2Size()) {
 		checkSumErr = true; 
-	//	log << MSG::ERROR << "Version 2  " << nbOf32bits << " " << it->RodResults2Size() << endmsg;
 	  }
 	}
       }
