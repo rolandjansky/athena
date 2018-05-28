@@ -1597,15 +1597,7 @@ void Trk::GsfExtrapolator::initialiseNavigation ( const Trk::IPropagator& propag
     resetRecallInformation();
     currentVolume = m_navigator->volume( combinedState->position() );
     currentLayer = (currentVolume) ? currentVolume->associatedLayer(combinedState->position()) : nullptr;
-  
-    // ---------------------------------- ASSOCIATED STATIC VOLUME --------------------------------------
-    // this is not necessary for ( association & recall )
-    // const Trk::TrackingVolume* lowestStaticVol = 
-    //                  m_navigator->trackingGeometry()->lowestStaticTrackingVolume(combinedState->position()); 
-  
-    // if (lowestStaticVol && lowestStaticVol != currentVolume ) currentVolume = lowestStaticVol;
-    // --------------------------------------------------------------------------------------------------
-  
+ 
   }
 
   /* =============================================
