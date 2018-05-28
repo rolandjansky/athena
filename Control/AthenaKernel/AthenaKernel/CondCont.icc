@@ -211,9 +211,37 @@ void CondCont<T>::list (std::ostream& ost) const
  * @brief Return the number of conditions objects in the container.
  */
 template <typename T>
-int CondCont<T>::entries() const
+size_t CondCont<T>::entries() const
 {
   return m_condSet_RE.size() + m_condSet_clock.size();
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Return the number of run+LBN conditions objects
+ *        in the container.
+ */
+template <typename T>
+size_t CondCont<T>::entriesRunLBN() const
+{
+  return m_condSet_RE.size();
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Return the number of timestamp-based conditions objects
+ *        in the container.
+ */
+template <typename T>
+size_t CondCont<T>::entriesTimestamp() const
+{
+  return m_condSet_clock.size();
 }
 
 
@@ -389,6 +417,64 @@ CondCont<T>::range(const EventIDBase& t, EventIDRange& r) const
     return true;
   }
   return false;
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Remove unused run+LBN entries from the front of the list.
+ * @param keys List of keys that may still be in use.
+ *             (Must be sorted.)
+ *
+ * We examine the objects in the container, starting with the earliest one.
+ * If none of the keys in @c keys match the range for this object, then
+ * it is removed from the container.  We stop when we either find
+ * an object with a range matching a key in @c keys or when there
+ * is only one object left.
+ *
+ * The list @c keys should contain keys as computed by keyFromRunLBN.
+ * The list must be sorted.
+ *
+ * Removed objects are queued for deletion once all slots have been
+ * marked as quiescent.
+ *
+ * Returns the number of objects that were removed.
+ */
+template <typename T>
+size_t CondCont<T>::trimRunLBN (const std::vector<key_type>& keys)
+{
+  return m_condSet_RE.trim (keys);
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Remove unused timestamp entries from the front of the list.
+ * @param keys List of keys that may still be in use.
+ *             (Must be sorted.)
+ *
+ * We examine the objects in the container, starting with the earliest one.
+ * If none of the keys in @c keys match the range for this object, then
+ * it is removed from the container.  We stop when we either find
+ * an object with a range matching a key in @c keys or when there
+ * is only one object left.
+ *
+ * The list @c keys should contain keys as computed by keyFromRunLBN.
+ * The list must be sorted.
+ *
+ * Removed objects are queued for deletion once all slots have been
+ * marked as quiescent.
+ *
+ * Returns the number of objects that were removed.
+ */
+template <typename T>
+size_t CondCont<T>::trimTimestamp (const std::vector<key_type>& keys)
+{
+  return m_condSet_clock.trim (keys);
 }
 
 
