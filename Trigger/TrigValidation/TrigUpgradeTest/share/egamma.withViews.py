@@ -225,6 +225,7 @@ egammaViewsMerger.TrackParticleContainerViews = [ l2ElectronViewsMaker.Views ]
 egammaViewsMerger.TrackParticleContainerInViews = [ "xAODTracks" ]
 egammaViewsMerger.TrackParticleContainer = ["HLT_xAOD_TrackParticleContainer_L2ElectronTracks"]
 
+# this merging directive causes the issue
 egammaViewsMerger.TrigElectronContainerViews = [ l2ElectronViewsMaker.Views ]
 egammaViewsMerger.TrigElectronContainerInViews = [ theElectronFex.ElectronsName ]
 egammaViewsMerger.TrigElectronContainer = ["HLT_xAOD__TrigElectronContainer_L2ElectronFex"]
@@ -233,16 +234,16 @@ egammaViewsMerger.TrigEMClusterContainerViews = [ "EMCaloViews" ]
 egammaViewsMerger.TrigEMClusterContainerInViews = [ "L2CaloClusters" ]
 egammaViewsMerger.TrigEMClusterContainer = ["HLT_xAOD__TrigEMClusterContainer_L2CaloClusters"]
 
+egammaViewsMerger.OutputLevel = VERBOSE
 
-
-
+svcMgr.StoreGateSvc.OutputLevel = VERBOSE
 
 summary.OutputTools = [ edmCreator, egammaViewsMerger ]
 
 
 summary.OutputLevel = DEBUG
 
-steps = seqAND("HLTSteps", [ step0, step1, step0r, summary ]  )
+steps = seqAND("HLTSteps", [ step0, step1, step0r ]  )
 
 from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT
 mon = TrigSignatureMoniMT()
@@ -254,7 +255,6 @@ mon.OutputLevel = DEBUG
 import AthenaPoolCnvSvc.WriteAthenaPool
 from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
 StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
-StreamESD.OutputLevel=VERBOSE
 topSequence.remove( StreamESD )
 
 def addTC(name):   
