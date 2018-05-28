@@ -297,6 +297,7 @@ def addTrimmedJets(jetalg, rsize, inputtype, rclus=0.3, ptfrac=0.05, mods="groom
         else: return jtm.addJetTrimmer( name, rclus=rclus, ptfrac=ptfrac, input=inputJetCont, modifiersin=mods )
 
     dfjetlog.info( "Configuring trimmed jets : "+ trimmedName )
+    dfjetlog.info("MLB\tmods\t :"+mods)
     # pass the trimmedName and our specific trimming tool builder to the generic function :
     return buildGenericGroomAlg(jetalg, rsize, inputtype, trimmedName, trimToolBuilder,
                                 includePreTools, algseq, outputGroup,

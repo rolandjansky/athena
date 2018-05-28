@@ -10,6 +10,7 @@ from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import Dipolarity
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import PlanarFlowTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KtMassDropTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorTool
+from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorGeneralizedRatiosTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import CenterOfMassShapesTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetPullTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetChargeTool
@@ -68,6 +69,8 @@ def declareDefaultTools():
 
   # Jet charge
   jtm += JetChargeTool("charge", K=1.0)
+
+  jtm += EnergyCorrelatorGeneralizedRatiosTool("energycorrelatorgeneralizedratios")
 
   # Shower deconstruction.
   if jtm.haveShowerDeconstructionTool:
