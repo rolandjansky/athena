@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# art-include
 # art-description: DAOD building STDM9 data18
 # art-type: grid
 # art-output: *.pool.root

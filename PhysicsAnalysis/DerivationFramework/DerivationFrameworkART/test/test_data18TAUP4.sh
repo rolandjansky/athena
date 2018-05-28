@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# art-include
 # art-description: DAOD building TAUP4 data18
 # art-type: grid
 # art-output: *.pool.root

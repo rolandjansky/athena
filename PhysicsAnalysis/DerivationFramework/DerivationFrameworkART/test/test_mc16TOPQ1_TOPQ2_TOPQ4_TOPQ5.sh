@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# art-include
 # art-description: DAOD building TOPQ1 TOPQ2 TOPQ4 TOPQ5 mc16
 # art-type: grid
 # art-output: *.pool.root

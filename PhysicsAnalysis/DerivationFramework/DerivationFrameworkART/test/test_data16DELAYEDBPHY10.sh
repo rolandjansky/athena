@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# art-include
 # art-description: DAOD building BPHY10 data16DELAYED
 # art-type: grid
 # art-output: *.pool.root
