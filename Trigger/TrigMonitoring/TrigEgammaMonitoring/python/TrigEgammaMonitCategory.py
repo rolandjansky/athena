@@ -36,9 +36,16 @@ plots_distribution = ["et","eta","Reta","Rphi","Rhad","f1","f3","eratio","deta2"
 plots_resolution = ["res_et","res_Rphi","res_Reta","res_Rhad","res_ptvarcone20","res_deta2"]
 
 # Define triggers for tagging 
-monitoring_tags = ['HLT_e24_lhtight_nod0_ivarloose',
+monitoring_tags = ['HLT_e5_lhloose',
+                   'HLT_e17_lhvloose_nod0',
+                   'HLT_e24_lhtight_nod0_ivarloose',
                    'HLT_e26_lhtight_nod0_ivarloose',
-                   'HLT_e28_lhtight_nod0_ivarloose']
+                   'HLT_e28_lhtight_nod0_ivarloose',
+                   'HLT_e60_lhmedium_nod0_L1EM24VHI',
+                   'HLT_e5_lhloose_gsf',
+                   'HLT_e17_lhvloose_nod0_gsf',
+                   'HLT_e28_lhtight_nod0_gsf_ivarloose',
+                   'HLT_e60_lhmedium_nod0_gsf_L1EM24VHI']
 
 monitoring_jpsitags = [
     'HLT_e5_lhtight_nod0_e4_etcut',
@@ -65,13 +72,20 @@ monitoring_electron = ['HLT_e60_lhmedium_nod0_L1EM24VHI',
 # monitoring_electron += commission_electron
 
 # 2018 single electrons triggers to monitor from Zee TP, includes rerun
-commissionTP_electron = [
-                         'HLT_e28_lhtight_nod0_sc_ivarloose',
+commissionTP_electron = ['HLT_e28_lhtight_nod0_sc_ivarloose',
                          'HLT_e28_lhtight_nod0_gsf_ivarloose',
                          'HLT_e28_lhtight_nod0_sc_gsf_ivarloose',
                          'HLT_e24_lhvloose_nod0_gsf',
                          'HLT_e24_lhvloose_nod0_sc',
-                         'HLT_e24_lhvloose_nod0_sc_gsf']
+                         'HLT_e24_lhvloose_nod0_sc_gsf',
+                         'HLT_e5_lhloose',
+                         'HLT_e17_lhvloose_nod0',
+                         'HLT_e28_lhtight_nod0_ivarloose',
+                         'HLT_e60_lhmedium_nod0_L1EM24VHI',
+                         'HLT_e5_lhloose_gsf',
+                         'HLT_e17_lhvloose_nod0_gsf',
+                         'HLT_e28_lhtight_nod0_gsf_ivarloose',
+                         'HLT_e60_lhmedium_nod0_gsf_L1EM24VHI']
 
 monitoringTP_electron = ['HLT_e17_lhvloose_nod0_L1EM15VHI',
                          'HLT_e28_lhtight_nod0_ivarloose',                        
