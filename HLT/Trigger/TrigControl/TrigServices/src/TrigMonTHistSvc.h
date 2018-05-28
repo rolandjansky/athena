@@ -33,10 +33,14 @@ class TTree;
 
 #include <boost/regex.hpp>
 
-class TrigMonTHistSvc: public THistSvcHLT
+class TrigMonTHistSvc: virtual public THistSvcHLT,
+                       public AthMessaging
 { 
 public:
   
+  TrigMonTHistSvc(const std::string& name, ISvcLocator *svc );
+  virtual ~TrigMonTHistSvc();
+
   TrigMonTHistSvc(const std::string& name, ISvcLocator *svc );
   virtual ~TrigMonTHistSvc();
 

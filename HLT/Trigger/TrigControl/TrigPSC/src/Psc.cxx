@@ -132,11 +132,11 @@ bool psc::Psc::configure(const ptree& config)
        */
       void* libHandle = 0;
       auto retval = System::loadDynamicLib(dllname, &libHandle);
-      if (retval == 0) {
+      if (retval == 1) {
         ERS_DEBUG(1,"Successfully pre-loaded " << dllname << "library");
       }
       else {
-        ERS_DEBUG(1,"Failed pre-loading " << dllname << "library with error code " << retval);
+        ERS_DEBUG(1,"Failed pre-loading " << dllname << "library, returned code " << retval);
       }
     }
 
@@ -532,7 +532,6 @@ bool psc::Psc::prepareForRun (const ptree& args)
     return false;
   }
 
-  /* commenting out as shutdown() is private in master branch
   // Cleanup of dangling database connections from RDBAccessSvc
   ServiceHandle<IRDBAccessSvc> p_rdbAccessSvc("RDBAccessSvc","psc::Psc");
   if(p_rdbAccessSvc->shutdown("*Everything*")) {
@@ -542,7 +541,6 @@ bool psc::Psc::prepareForRun (const ptree& args)
     p_rdbAccessSvc->release();
     return false;
   }
-  */
 
   // sleep some time to allow the closing of DB connections;
   // actual timeout depends on connection parameters, we seem to have 5 seconds
@@ -997,6 +995,7 @@ template <typename T>
 StatusCode psc::Psc::callOnEventLoopMgr(std::function<StatusCode (T*)> func,
                                         const std::string& name) const
 {
+  // FIXME static variables are dangerous when forking
   static T* processingMgr = 0;
   StatusCode sc;
   if(!processingMgr) // if we already got it, no need to find it again

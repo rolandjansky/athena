@@ -17,7 +17,7 @@
 #include "hltinterface/HLTInterface.h"
 #include "hltinterface/EventId.h"
 
-// to be removed
+// to be removed together with the Psc::process method
 #include "hltinterface/HLTResult.h"
 
 // Gaudi Includes
@@ -39,13 +39,13 @@ namespace psc {
 
   // Fwd decl
   class Config;
-  
+
   /**
    * Common base class for HLT Pesa Steering Controller.
    */
   class Psc: public hltinterface::HLTInterface
   {
-  public:    
+  public:
     /**
      * C'tor. (Nothing happens here...)
      */
@@ -103,9 +103,7 @@ namespace psc {
     virtual bool hltUserCommand (const boost::property_tree::ptree& args);
 
     /**
-     * Start the event loop
-     *
-     * The HLT will start requesting events only after this has been called.
+     * Starts the HLT event loop. The HLT framework will start requesting and processing events.
      */
     virtual void doEventLoop ();
 
@@ -144,11 +142,11 @@ namespace psc {
     IAppMgrUI*          m_pesaAppMgr;         ///< Application Manager
     std::string         m_nameEventLoopMgr;   ///< name of the event loop manager
     bool                m_interactive;        ///< Running in interactive mode (athenaMT/PT)
-    
+
     // User command handling
     bool           m_failNextUsrCmd;
     unsigned int   m_sleepNextUsrCmd;
-    psc::Config * m_config;    
+    psc::Config * m_config;
 
 // =========================== DEPRECATED METHODS ==============================
 
@@ -167,8 +165,7 @@ namespace psc {
             hltinterface::HLTResult& hltr,
             const hltinterface::EventId& evId);
 
-    
   };
 }
-  
+
 #endif /* TRIGPSC_PSC_H */

@@ -935,7 +935,7 @@ void HltROBDataProviderSvc::handle(const Incident& incident) {
   }
 
   // *-- booking path
-  std::string path = std::string("/EXPERT/");
+  std::string path = std::string("/EXPERT/") + name() + "/";
 
   // *-- number of bins for sub detector plots (55 SubDet max.)
   uint32_t n_bins_partEBSubDet = eformat::helper::SubDetectorDictionary.size();

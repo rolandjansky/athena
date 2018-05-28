@@ -28,7 +28,6 @@
 #include "TrigServices/HltEventLoopMgr.h"
 #include "TrigSORFromPtreeHelper.h"
 #include "TrigCOOLUpdateHelper.h"
-#include "TrigPreFlightCheck.h"
 
 // TDAQ includes
 #include "hltinterface/DataCollector.h"
@@ -275,28 +274,6 @@ StatusCode HltEventLoopMgr::initialize()
     m_threadPoolSize = m_threadPoolSvc->poolSize();
     debug() << "ThreadPoolSvc available with pool size " << m_threadPoolSize << endmsg;
   }
-  
-  //----------------------------------------------------------------------------
-  // Pre-flight check
-  //----------------------------------------------------------------------------
-  ToolHandle<TrigPreFlightCheck> preFlightCheck("TrigPreFlightCheck");
-  if (preFlightCheck.retrieve().isFailure()) {
-    fatal() << "Error retrieving TrigPreFlightCheck " + preFlightCheck << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  // A failed pre-flight check is fatal in a partition
-  if (validPartition()) {
-    if (preFlightCheck->check(MSG::ERROR).isFailure()) {
-      fatal() << "Pre-flight check for HLT failed." << endmsg;
-      return StatusCode::FAILURE;
-    }
-  }
-  else {
-    if (preFlightCheck->check(MSG::WARNING).isFailure())
-      warning() << "Pre-flight check for HLT failed." << endmsg;
-  }
-  preFlightCheck->release();
 
   //----------------------------------------------------------------------------
   // Setup the HLT Histogram Service when configured
@@ -670,11 +647,16 @@ const SOR* HltEventLoopMgr::processRunParams(const ptree & pt)
   // update the run number
   m_currentRun = pt.get<uint32_t>("RunParams.run_number");
 
+  // need to provide an event context extended with a run number, down the line passed to IOVDBSvc::signalBeginRun
+  EventContext runStartEventContext = {}; // with invalid evt number and slot number
+  runStartEventContext.setExtension(Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(), m_currentRun));
+    
   // Fill SOR parameters from the ptree
   TrigSORFromPtreeHelper sorhelp{msgStream()};
-  const SOR* sor = sorhelp.fillSOR(pt.get_child("RunParams"));
-  if(!sor)
-   error() << ST_WHERE << "setup of SOR from ptree failed" << endmsg;
+  const SOR* sor = sorhelp.fillSOR(pt.get_child("RunParams"),runStartEventContext);
+  if(!sor) {
+    error() << ST_WHERE << "setup of SOR from ptree failed" << endmsg;
+  }
 
   verbose() << "end of " << __FUNCTION__ << endmsg;
   return sor;
