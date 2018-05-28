@@ -18,17 +18,17 @@
 
 class MM_Electron {
 
-  TVector2 initialPosition;
-  TVector2 offsetPosition;
+  TVector2 m_initialPosition;
+  TVector2 m_offsetPosition;
 
-  float time;
-  float charge;
+  float m_time;
+  float m_charge;
 
  public:
 
   MM_Electron();
-  MM_Electron(float _x, float _y);
-  MM_Electron(const MM_Electron& _MM_Electron);
+  MM_Electron(float x, float y);
+  MM_Electron(const MM_Electron& MM_Electron);
 
   void diffuseElectron(float LongitudinalSigma, float TransverseSigma, TRandom3* rndm);
   void setOffsetPosition(float x, float y);
