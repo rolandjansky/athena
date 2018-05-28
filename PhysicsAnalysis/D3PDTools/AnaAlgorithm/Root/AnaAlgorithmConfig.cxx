@@ -180,6 +180,10 @@ namespace EL
         {
           ANA_CHECK (tool.second.initialize());
 
+          // Skip the next step if tool.first is empty. Which is the case for
+          // public tools for instance.
+          if( ! tool.first.size() ) continue;
+
           // using that a ToolHandle initialized with a tool name will
           // retrieve that tool, not sure if that is the best strategy
           ANA_CHECK (setProperty (tool.first, tool.second.name()));
