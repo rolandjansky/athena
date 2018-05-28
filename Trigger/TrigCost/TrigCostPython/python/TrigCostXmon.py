@@ -88,7 +88,7 @@ class LumiBlockCollection:
             self.master_list = "LUMI"
         if self.write_out_count == len(self.l1_iovs) :
             log.info ("Using LVL1 as List")
-            self.master_list = "L1"
+            self.master_list = "LVL1"
         if self.write_out_count == len(self.hlt_iovs) :
             log.info ("Using HLT as List")
             self.master_list = "HLT"
@@ -121,7 +121,7 @@ class LumiBlockCollection:
             self.hlt_match_rulebook = []
             self.l1_match_rulebook = []
             self.lumi_match_rulebook = []
-            log.info ("Now performing closest TimeStamp matching for master point set...")
+            log.info ("Now performing closest TimeStamp matching for master point set <<HLT>>...")
             self.write_out_count -= 2
             try:
                 for i in range (self.write_out_count) :
@@ -140,18 +140,42 @@ class LumiBlockCollection:
             except:
                 log.error("Unexpected error, aborting lumi-block (putting block in the trash)")
                 return
-            # Validate
-            log.info ("Now validating DB rulebooks...")
-            if len(self.hlt_match_rulebook) != len(self.l1_match_rulebook) or len(self.l1_match_rulebook) != len(self.lumi_match_rulebook) :
-                log.warning (len(self.lumi_match_rulebook))
-                log.warning (len(self.l1_match_rulebook))
-                log.warning (len(self.hlt_match_rulebook))
-                raise  RuntimeWarning ("I missed an IOV, this will cause matching problems, aboring lumi-block")
+        if self.master_list == "LVL1":
+            # Generate 3 arrays
+            self.hlt_match_rulebook = []
+            self.l1_match_rulebook = []
+            self.lumi_match_rulebook = []
+            log.info ("Now performing closest TimeStamp matching for master point set <<LVL1>>...")
+            self.write_out_count -= 2
+            try:
+                for i in range (self.write_out_count) :
+                    for j, lumi_time in enumerate(self.lumi_iovs) :
+                        if (lumi_time >= self.l1_iovs[i]) :
+                            self.lumi_match_rulebook.append(j)
+                            break;
+                    for j, l1_time in enumerate(self.l1_iovs) :
+                        if (l1_time >= self.l1_iovs[i]) :
+                            self.l1_match_rulebook.append(j)
+                            break;
+                    for j, hlt_time in enumerate(self.hlt_iovs) :
+                        if (hlt_time >= self.l1_iovs[i]) :
+                            self.hlt_match_rulebook.append(j)
+                            break;
+            except:
+                log.error("Unexpected error, aborting lumi-block (putting block in the trash)")
                 return
-            self.match_success = True # If we got here, things are probably OK
-            log.info ("Rulebooks are valid, matching was a success!!!")
-            #for i, val in enumerate(self.hlt_match_rulebook) :
-            #    print ("Match rules set for [master,lumi,l1,hlt] --> [%d,%d,%d,%d]" % (i, self.lumi_match_rulebook[i], self.l1_match_rulebook[i], self.hlt_match_rulebook[i]))
+        # Validate
+        log.info ("Now validating DB rulebooks...")
+        if len(self.hlt_match_rulebook) != len(self.l1_match_rulebook) or len(self.l1_match_rulebook) != len(self.lumi_match_rulebook) :
+            log.warning (len(self.lumi_match_rulebook))
+            log.warning (len(self.l1_match_rulebook))
+            log.warning (len(self.hlt_match_rulebook))
+            raise  RuntimeWarning ("I missed an IOV, this will cause matching problems, aboring lumi-block")
+            return
+        self.match_success = True # If we got here, things are probably OK
+        log.info ("Rulebooks are valid, matching was a success!!!")
+        #for i, val in enumerate(self.hlt_match_rulebook) :
+        #    print ("Match rules set for [master,lumi,l1,hlt] --> [%d,%d,%d,%d]" % (i, self.lumi_match_rulebook[i], self.l1_match_rulebook[i], self.hlt_match_rulebook[i]))
         return
 
     def WriteOutRules(self, output_path) :
