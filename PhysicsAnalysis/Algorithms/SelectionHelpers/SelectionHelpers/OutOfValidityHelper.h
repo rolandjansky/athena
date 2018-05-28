@@ -109,9 +109,7 @@ namespace CP
     /// fault.  Otherwise it is too easy for users to forget to
     /// initialize this object.
   private:
-#ifndef NDEBUG
     bool m_isInitialized = false;
-#endif
 
     /// \brief helper for message macros
   private:
