@@ -27,11 +27,11 @@ class TileTowerBuilderTool: public CaloTowerBuilderTool {
     virtual ~TileTowerBuilderTool();
 
   protected:
-
-    virtual StatusCode initializeTool();
-
-  private:
-    bool m_dumpTowers;
-    bool m_dumpWeightMap;
+  /**
+   * @brief Convert calorimeter strings to enums.
+   * @param includedCalos Property with calorimeter strings.
+   */
+  virtual std::vector<CaloCell_ID::SUBCALO> parseCalos
+    (const std::vector<std::string>& includedCalos) const override;
 };
 #endif // not TILERECUTILS_TILETOWERBUILDERTOOL_H

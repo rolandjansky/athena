@@ -37,6 +37,8 @@ class LArFCAL_ID;
 class LArFCalTowerBuilderTool : public CaloTowerBuilderToolBase
 {
  public:
+  LArFCalTowerBuilderTool (const LArFCalTowerBuilderTool&) = delete;
+  LArFCalTowerBuilderTool& operator= (const LArFCalTowerBuilderTool&) = delete;
 
   /// AlgTool constructor 
   LArFCalTowerBuilderTool(const std::string& name, const std::string& type,
@@ -46,16 +48,15 @@ class LArFCalTowerBuilderTool : public CaloTowerBuilderToolBase
 
   virtual StatusCode execute(CaloTowerContainer* theContainer,
                              const CaloCellContainer* theCell=0,
-                             const CaloTowerSeg::SubSeg* subseg = 0);
-  virtual void handle(const Incident&);
+                             const CaloTowerSeg::SubSeg* subseg = 0) override;
+  virtual void handle(const Incident&) override;
 
- protected:
+private:
 
   double m_minEt;
 
-  virtual StatusCode initializeTool();
+  virtual StatusCode initializeTool() override;
 
- private:
   typedef LArFCalTowerStore::tower_iterator tower_iterator;
 
   void addTower (const tower_iterator& t,
@@ -67,16 +68,20 @@ class LArFCalTowerBuilderTool : public CaloTowerBuilderToolBase
                       const CaloCellContainer* cells,
                       const CaloTowerSeg::SubSeg* subseg);
 
-  bool m_firstEvent;
+  /**
+   * @brief Mark that cached data are invalid.
+   *
+   * Called when calibrations are updated.
+   */
+  virtual void invalidateCache() override;
+
+  bool m_cacheValid;
 
   // FCal only
   static CaloCell_ID::SUBCALO m_caloIndex;
 
   const LArFCAL_ID* m_larFCalId;
 
-  LArFCalTowerStore* m_cellStore;
-
-  LArFCalTowerBuilderTool (const LArFCalTowerBuilderTool&);
-  LArFCalTowerBuilderTool& operator= (const LArFCalTowerBuilderTool&);
+  LArFCalTowerStore m_cellStore;
 };
 #endif

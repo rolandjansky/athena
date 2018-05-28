@@ -17,7 +17,7 @@
 #include "CaloEvent/CaloTowerContainer.h"
 
 #include "LArRecUtils/LArFCalTowerStore.h"
-#include "LArRecUtils/LArFCalTowerBuilderTool.h"
+#include "LArFCalTowerBuilderTool.h"
 
 #include <string>
 #include <cmath>
@@ -30,17 +30,15 @@ LArFCalTowerBuilderTool::LArFCalTowerBuilderTool(const std::string& name,
 						 const IInterface* parent)
   : CaloTowerBuilderToolBase(name,type,parent)
     , m_minEt(0.)
-    , m_firstEvent(true)
+    , m_cacheValid(false)
 {
   // Et cut for minicells
   declareProperty("MinimumEt",m_minEt);
   m_larFCalId = (CaloIdManager::instance())->getFCAL_ID();
   // initialize intermediate store
-  m_cellStore = new LArFCalTowerStore();
 }
 
 LArFCalTowerBuilderTool::~LArFCalTowerBuilderTool(){
-  delete m_cellStore; 
 }
 
 /////////////////////////////
@@ -65,10 +63,10 @@ LArFCalTowerBuilderTool::addTower (const tower_iterator& t,
                                    const CaloCellContainer* cells,
                                    CaloTower* tower)
 {
-  LArFCalTowerStore::cell_iterator firstC = m_cellStore->firstCellofTower(t);
-  LArFCalTowerStore::cell_iterator lastC = m_cellStore->lastCellofTower(t);
+  LArFCalTowerStore::cell_iterator firstC = m_cellStore.firstCellofTower(t);
+  LArFCalTowerStore::cell_iterator lastC = m_cellStore.lastCellofTower(t);
   // here get needed size of this vector and use it to reserve tower size.
-  int ts=  m_cellStore->towerSize(t);
+  int ts=  m_cellStore.towerSize(t);
   double wsumE = tower->getBasicEnergy(); // this is not 0 since some towers already have cells from other calos.
   for (; firstC != lastC; ++firstC) {
 
@@ -94,8 +92,8 @@ LArFCalTowerBuilderTool::iterateFull (CaloTowerContainer* towers,
                                       const CaloCellContainer* cells)
 {
   size_t sz = towers->size();
-  assert(m_cellStore->size() ==  sz);
-  tower_iterator tower_it = m_cellStore->towers();
+  assert(m_cellStore.size() ==  sz);
+  tower_iterator tower_it = m_cellStore.towers();
 
   for (unsigned int t = 0; t < sz; ++t, ++tower_it) {
     CaloTower* aTower = towers->getTower(t);
@@ -112,7 +110,7 @@ LArFCalTowerBuilderTool::iterateSubSeg (CaloTowerContainer* towers,
 {
   size_t sz = towers->size();
   assert(subseg->size() ==  sz);
-  LArFCalTowerStore::tower_subseg_iterator tower_it = m_cellStore->towers(*subseg);
+  LArFCalTowerStore::tower_subseg_iterator tower_it = m_cellStore.towers(*subseg);
 
   for (unsigned int t = 0; t < sz; ++t, ++tower_it) {
     CaloTower* aTower = towers->getTower(tower_it.itower());
@@ -138,7 +136,7 @@ LArFCalTowerBuilderTool::execute(CaloTowerContainer* theTowers,
   if (!m_cacheValid )
     {
       ATH_MSG_DEBUG( " m_cacheValid false, initializing Fcal lookup in first event "  );
-      if ( ! m_cellStore->buildLookUp(theTowers) ){
+      if ( ! m_cellStore.buildLookUp(theTowers) ){
         ATH_MSG_ERROR( "cannot construct cell fragment lookup, fatal!"  );
         return StatusCode::FAILURE;
       }
@@ -147,10 +145,8 @@ LArFCalTowerBuilderTool::execute(CaloTowerContainer* theTowers,
 
   // retrieve cells
   if (!theCells) {
-    StatusCode checkOut = m_storeGate->retrieve(theCells,m_cellContainerName);
-    if ( checkOut.isFailure() ){
-      ATH_MSG_WARNING( "cannot allocate CaloCellContainer with key <"
-                       << m_cellContainerName<< ">, skip tool!" );
+    theCells = getCells();
+    if (!theCells) {
       return StatusCode::SUCCESS;
     }
   }
@@ -184,9 +180,9 @@ void  LArFCalTowerBuilderTool::handle(const Incident&)
     ATH_MSG_DEBUG( "Cached data already computed."  );
     return; 
   }
-  CaloTowerContainer* theTowers = new CaloTowerContainer(m_theTowerSeg);
+  CaloTowerContainer theTowers (towerSeg());
 
-  if ( ! m_cellStore->buildLookUp(theTowers) ){
+  if ( ! m_cellStore.buildLookUp(&theTowers) ){
     ATH_MSG_ERROR( "cannot construct cell fragment lookup, fatal!"  );
     m_cacheValid=false;
   }
@@ -194,6 +190,16 @@ void  LArFCalTowerBuilderTool::handle(const Incident&)
     m_cacheValid=true;
   }
   ATH_MSG_DEBUG( " built Fcal tower lookup " << m_cacheValid  );
-  delete theTowers;
-
 }
+
+
+/**
+ * @brief Mark that cached data are invalid.
+ *
+ * Called when calibrations are updated.
+ */
+void LArFCalTowerBuilderTool::invalidateCache()
+{
+  m_cacheValid = false;
+}
+
