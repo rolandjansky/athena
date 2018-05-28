@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 ## @file TriggerUnixStandardSetup.py
 ## @brief py-module to configure the Athena AppMgr for trigger
@@ -80,12 +80,6 @@ def _setupCommonServices():
     # Configure TrigISHelper
     from TrigServices.TrigServicesConf import TrigISHelper
     ToolSvc += TrigISHelper("TrigISHelper")
-
-    # Configure TrigPreFlightCheck
-    from TrigServices.TrigServicesConf import TrigPreFlightCheck
-    ToolSvc += TrigPreFlightCheck("TrigPreFlightCheck",
-                                  ReleaseDirs = ["AtlasP1HLT","AtlasHLT"]
-                                  )
 
     # Configure CoreDumpSvc
     if not hasattr(svcMgr,"CoreDumpSvc"):
