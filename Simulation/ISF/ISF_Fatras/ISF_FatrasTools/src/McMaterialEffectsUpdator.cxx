@@ -1307,7 +1307,8 @@ void iFatras::McMaterialEffectsUpdator::multipleScatteringUpdate(const Trk::Trac
     double z = 0.;
     // if it runs along the z axis - no good ==> take the x axis
     if (newDirectionHep.z()*newDirectionHep.z() > 0.999999) {
-        x = 1.; y=0.;
+      x = 1.;
+      y = 0.;
     }
     // deflector direction
     CLHEP::Hep3Vector deflector(x,y,z);
