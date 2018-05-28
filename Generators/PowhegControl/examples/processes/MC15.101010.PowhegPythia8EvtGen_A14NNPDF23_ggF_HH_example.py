@@ -3,14 +3,14 @@
 #--------------------------------------------------------------
 # EVGEN configuration
 #--------------------------------------------------------------
-evgenConfig.description = "POWHEG+Pythia8 top pair production (NLO decays) with A14 NNPDF2.3 tune."
-evgenConfig.keywords = ["SM", "top"]
+evgenConfig.description = "POWHEG+Pythia8 gluon-fusion di-Higgs production with A14 NNPDF2.3 tune."
+evgenConfig.keywords = ["Higgs", "SMHiggs"]
 evgenConfig.contact = ["james.robinson@cern.ch"]
 
 # --------------------------------------------------------------
-# Load ATLAS defaults for the Powheg ttb_NLO_dec process
+# Load ATLAS defaults for the Powheg ggF_H process
 # --------------------------------------------------------------
-include("PowhegControl/PowhegControl_tt_NLOdecays_Common.py")
+include("PowhegControl/PowhegControl_ggF_HH_Common.py")
 
 # --------------------------------------------------------------
 # Generate events
