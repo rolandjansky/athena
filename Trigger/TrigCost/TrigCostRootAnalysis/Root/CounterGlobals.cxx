@@ -87,27 +87,12 @@ namespace TrigCostRootAnalysis {
     
 
     TrigXMLService::trigXMLService().parseHLTFarmXML();
-    const IntStringMap_t comp = TrigXMLService::trigXMLService().getComputerTypeToNameMap();
-    if (comp.size() >= 4) {
-      m_dataStore.newVariable(kVarSteeringTimeCPUType1).setSavePerEvent(std::string("Steering Time Per Event by " +
-                                                                                    comp.at(1) +
+    for (int i = 0; i <= 90; ++i) {
+      m_dataStore.newVariable(ConfKey_t(kVarSteeringTimeCPUType + 8192 + i)).setSavePerEvent(std::string("Steering Time Per Event by Rack " +
+                                                                                    (i == 0 ? "UNKNOWN" : intToString(i)) +
                                                                                     ";Steering Time [ms];Events"));
-      m_dataStore.newVariable(kVarSteeringTimeCPUType2).setSavePerEvent(std::string("Steering Time Per Event by " +
-                                                                                    comp.at(2) +
-                                                                                    ";Steering Time [ms];Events"));
-      m_dataStore.newVariable(kVarSteeringTimeCPUType3).setSavePerEvent(std::string("Steering Time Per Event by " +
-                                                                                    comp.at(3) +
-                                                                                    ";Steering Time [ms];Events"));
-      m_dataStore.newVariable(kVarSteeringTimeCPUType4).setSavePerEvent(std::string("Steering Time Per Event by " +
-                                                                                    comp.at(4) +
-                                                                                    ";Steering Time [ms];Events"));
-      m_dataStore.newVariable(kVarEventsCPUType1).setSavePerCall();
-      m_dataStore.newVariable(kVarEventsCPUType2).setSavePerCall();
-      m_dataStore.newVariable(kVarEventsCPUType3).setSavePerCall();
-      m_dataStore.newVariable(kVarEventsCPUType4).setSavePerCall();
+      m_dataStore.newVariable(ConfKey_t(kVarEventsCPUType + 16384 + i)).setSavePerCall();
       m_CPUBreakDown = kTRUE;
-    } else {
-      m_CPUBreakDown = kFALSE;
     }
 
     decorate(kDecLBMuValue, TrigXMLService::trigXMLService().getLBMuValue(ID));
@@ -230,25 +215,10 @@ namespace TrigCostRootAnalysis {
     m_processingUnits[ m_costData->getAppId() ] += 1;
 
     if (m_CPUBreakDown == kTRUE) {
-      Int_t computerType = TrigXMLService::trigXMLService().getComputerType(((UInt_t) m_costData->getAppId()));
-      switch (computerType) {
-      case 1: m_dataStore.store(kVarSteeringTimeCPUType1, m_steeringTime, weight);
-        m_dataStore.store(kVarEventsCPUType1, 1., weight);
-        break;
-
-      case 2: m_dataStore.store(kVarSteeringTimeCPUType2, m_steeringTime, weight);
-        m_dataStore.store(kVarEventsCPUType2, 1., weight);
-        break;
-
-      case 3: m_dataStore.store(kVarSteeringTimeCPUType3, m_steeringTime, weight);
-        m_dataStore.store(kVarEventsCPUType3, 1., weight);
-        break;
-
-      case 4: m_dataStore.store(kVarSteeringTimeCPUType4, m_steeringTime, weight);
-        m_dataStore.store(kVarEventsCPUType4, 1., weight);
-        break;
-
-      default: Error("CounterGlobals::processEventCounter", "Unknown computer type ID %i", computerType);
+      Int_t computerRack = TrigXMLService::trigXMLService().getComputerType(((UInt_t) m_costData->getAppId()));
+      if (computerRack >= 0 && computerRack <= 90) {
+        m_dataStore.store(ConfKey_t(kVarSteeringTimeCPUType + 8192 + computerRack), m_steeringTime, weight);
+        m_dataStore.store(ConfKey_t(kVarEventsCPUType + 16384 + computerRack), 1., weight);
       }
     }
 
