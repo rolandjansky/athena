@@ -7,9 +7,8 @@ atlas_subdir( MdtCalibData )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           Event/EventPrimitives
                           MuonSpectrometer/MuonCalib/MuonCalibUtils/MuonCalibMath
                           PRIVATE
@@ -24,6 +23,6 @@ atlas_add_library( MdtCalibData
                    src/*.cxx
                    PUBLIC_HEADERS MdtCalibData
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES DataModel SGTools EventPrimitives MuonCalibMath
+                   LINK_LIBRARIES AthContainers EventPrimitives MuonCalibMath
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel GaudiKernel )
 
