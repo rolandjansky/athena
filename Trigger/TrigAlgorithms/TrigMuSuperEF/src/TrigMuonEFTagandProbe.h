@@ -5,7 +5,7 @@
 /*
   TrigMuonEFTagandProbe
   Package: Trigger/TrigAlgorithms/TrigMuSuperEF
-  Authors: Jonathan Jamieson, University of Glasgow, Created 09/10/2017, Last edit: 24/05/18
+  Authors: Jonathan Jamieson, University of Glasgow, Created 09/10/2017, Last edit: 28/05/18
 */
 
 #ifndef TRIGMUONEFTAGANDPROBE_TRIGMUONEFTAGANDPROBE_H
@@ -15,9 +15,7 @@
 #include <vector>
 
 #include "TrigInterfaces/Algo.h"
-//#include "TrigInterfaces/FexAlgo.h"
-#include "TrigInterfaces/AllTEAlgo.h"
-//#include "TrigInterfaces/ComboAlgo.h"
+#include "TrigInterfaces/FexAlgo.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
 //Structure for holding sets of useful Tag and Probe muon information
@@ -60,8 +58,7 @@ class MonitoringObject {
 
 class TriggerElement;
 
-class TrigMuonEFTagandProbe: public virtual HLT::AllTEAlgo { //TaP algorithm will inherit from HLT::AllTEAlgo
-
+class TrigMuonEFTagandProbe: public virtual HLT::FexAlgo { //TaP algorithm will inherit from HLT::FexAlgo
  public:
 
   TrigMuonEFTagandProbe (const std::string &name, ISvcLocator *pSvcLocator); 
@@ -69,10 +66,7 @@ class TrigMuonEFTagandProbe: public virtual HLT::AllTEAlgo { //TaP algorithm wil
   virtual ~TrigMuonEFTagandProbe(); //destructor
 
   virtual HLT::ErrorCode hltInitialize();
-
-  virtual HLT::ErrorCode hltExecute(std::vector< std::vector<HLT::TriggerElement*> >&, unsigned int);
-  //ALLTEAlgo input takes vector of all input TEs passed from the chain which themselves contain a vector of TE instances corresponding to each RoI, unsigned int is used to create dummy outputTE
-
+  virtual HLT::ErrorCode hltExecute(const HLT::TriggerElement*, HLT::TriggerElement*);
   virtual HLT::ErrorCode hltFinalize();
 
  private:

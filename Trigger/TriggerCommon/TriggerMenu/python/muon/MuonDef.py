@@ -1256,7 +1256,7 @@ class L2EFChain_mu(L2EFChainDef):
 
       if 'TagandProbe' in self.chainPart['FSinfo']:
         TrigMuonEFTagandProbeInstance = TrigMuonEFTagandProbeConfig()
-        self.EFsequenceList += [[['EF_CB_FS','MU4'],
+        self.EFsequenceList += [['EF_CB_FS',
                                  [TrigMuonEFTagandProbeInstance],
                                  'EF_CB_FSTaP']]      
 

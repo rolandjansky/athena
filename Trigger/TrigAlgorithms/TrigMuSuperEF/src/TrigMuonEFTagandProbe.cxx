@@ -4,7 +4,7 @@
 
 /*--------------------------------------------------------------------------------------
   Event Filter Z_mu+mu- Online Tag and Probe algorithm
-  Authors: Jonathan Jamieson, University of Glasgow, Created: 09/10/2017, Last edit: 24/05/2018
+  Authors: Jonathan Jamieson, University of Glasgow, Created: 09/10/2017, Last edit: 28/05/2018
   
   Summary:-----------------------------------------------------------------------------------------  
   
@@ -14,7 +14,7 @@
   
   >2 muon events are then trimmed to exact pairs by matching all the avaliable opposite charge muons and picking the best fit to the Z mass, applying a default +-10 GeV threshold cut around the Z mass to match the eventual pair requirement. 
   
-  LVL 1 trigger information is then accessed for the event via MU4 Trigger Elements (TEs) and Delta R values are calculated for each RoI and muon pair 
+  LVL 1 trigger information is then accessed for the event and Delta R values are calculated for each RoI and muon pair 
   
   Tag and probe selection: 
   A tag muon is defined as any good muon with pt > 10GeV that can be associated with a LVL 1 RoI (DeltaR <0.1) belonging to LVL1 threshold >= threshold 5 (MU20))
@@ -55,9 +55,6 @@
 #include "TrigConfHLTData/HLTTriggerElement.h"
 #include "FourMomUtils/xAODP4Helpers.h"
 
-//#include "src/ProxyProviderSvc.h"
-//#include "SGTools/TransientAddress.h"
-
 //Monitoring object constructor
 MonitoringObject::MonitoringObject() {
   
@@ -72,10 +69,10 @@ MonitoringObject::MonitoringObject() {
 }
 
 
-//Constructor for new algorithm class inheriting from base ALLTEAlgo class
+//Constructor for new algorithm class inheriting from base FexAlgo class
 //ISvcLocator is service locator for shared global services between algorithms (e.g. magnetic field information etc)
 TrigMuonEFTagandProbe::TrigMuonEFTagandProbe(const std::string &name, ISvcLocator *pSvcLocator) : 
-  HLT::AllTEAlgo(name, pSvcLocator),
+  FexAlgo(name, pSvcLocator),
   m_debug(false),
   m_verbose(false)
 
@@ -173,7 +170,7 @@ TrigMuonEFTagandProbe::TrigMuonEFTagandProbe(const std::string &name, ISvcLocato
 
 }
 
-TrigMuonEFTagandProbe::~TrigMuonEFTagandProbe(){} //Empty destructor
+TrigMuonEFTagandProbe::~TrigMuonEFTagandProbe(){} //Destructor
 
 
 HLT::ErrorCode TrigMuonEFTagandProbe::hltInitialize()
@@ -291,32 +288,9 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltFinalize()
   return HLT::OK;
 }
 
-HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(std::vector< std::vector<HLT::TriggerElement*> >& inputTEs, unsigned int TEout) 
+
+HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout) 
 {
-
-  beforeExecMonitors().ignore(); //Need to manually deal with monitored variables because this is an ALLTEAlgo 
-  
-  if (inputTEs.size() != 2) {
-    ATH_MSG_ERROR("Found " << inputTEs.size() << "sets of inputTE collections, expected 2, aborting");
-    return HLT::BAD_JOB_SETUP;
-  }
-
-  //Split the inputs
-  std::vector<HLT::TriggerElement*>& inputTE_Event = inputTEs[0];
-  ATH_MSG_DEBUG( "Number of input Event TEs: " << inputTE_Event.size() );
-  
-  std::vector<HLT::TriggerElement*>& inputTE_RoIs = inputTEs[1];
-  ATH_MSG_DEBUG( "Number of input RoI TEs: " << inputTE_RoIs.size() );
-
-  //DEBUG to check if Trigger events are being properly passed to algorithm  
-  if (m_debug){    
-    std::string teInEventLabel;
-    TrigConf::HLTTriggerElement::getLabel( inputTE_Event[0]->getId(), teInEventLabel );
-    ATH_MSG_DEBUG("TrigMuonEFTagandProbeExecute() chain Trigger Event input ID=" << inputTE_Event[0]->getId() << " Event input Label=" << teInEventLabel);
-    ATH_MSG_DEBUG("TrigMuonEFTagandProbeExecute() chain Trigger RoI input ID=" << inputTE_RoIs[0]->getId()); //all RoI IDs should be the same
-  }
-  
-
 
   //Reset temporary containers
   m_good_muons.clear(); //holds all combined muons
@@ -324,74 +298,69 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(std::vector< std::vector<HLT::T
   ATH_MSG_DEBUG("TrigMuonEFTagandProbe::hltExecute()"); 
 
 
+  //DEBUG to check if Trigger events are being passed to algorithm
+  if (m_debug){
+    std::string teInLabel;
+    std::string teOutLabel;
+    TrigConf::HLTTriggerElement::getLabel( inputTE->getId(), teInLabel );
+    TrigConf::HLTTriggerElement::getLabel( TEout->getId(), teOutLabel );
+    
+    ATH_MSG_DEBUG("TrigMuonEFTagandProbeExecute() chain Trigger Event input ID=" << inputTE->getId() << " Trigger Event output ID=" << TEout->getId() << " Input Label=" << teInLabel << " Output Label=" << teOutLabel);
+  }
+
+
   //-----------------Access LVL1 trigger ROI information--------------------------------------------------
 
-  //AllTE combiner algorithms earlier in chain remove regular access back to seeding RoIs, use MU4 TE as second input to get event specific RoI info
+  
+  //Have to access from initialNode as AllTE combiner algorithms earlier in chain remove regular access back to seeding RoIs through getFeature
   //Check for LVL1 muon RoI information in current event first, if there is no info then we shouldn't bother calculating anything else and should move to next event 
   
-
-  std::vector<const LVL1::RecMuonRoI*> m_l1_muon_RoItemp;
-  const std::vector<const LVL1::RecMuonRoI*>* m_l1_muon_RoIs = &m_l1_muon_RoItemp; //Lazy solution to avoid changing lots of -> to .
+  std::vector<const LVL1::RecMuonRoI*> l1_muon_RoIs;
 
   //Navigation Test
   HLT::Navigation* nav = config()->getNavigation();
-  HLT::TriggerElement* initial = nav->getInitialNode();
-  //HLT::TriggerElement* initial = getInitialNode();
-  const std::vector<HLT::TriggerElement*>& inputTE_RoIs_nav = nav->getDirectSuccessors(initial);
+  HLT::TriggerElement* initialTE = nav->getInitialNode();
+  const std::vector<HLT::TriggerElement*>& inputTE_RoIs_nav = nav->getDirectSuccessors(initialTE);
 
   for (auto TERoI : inputTE_RoIs_nav) {
-    const LVL1::RecMuonRoI* m_l1_muon_RoI;
-    if(getFeature(TERoI, m_l1_muon_RoI)!=HLT::OK) {  //If getfeature fails
+    const LVL1::RecMuonRoI* RoI;
+    if(getFeature(TERoI, RoI)!=HLT::OK) {  //If getfeature fails
       ATH_MSG_DEBUG("No LVL1::RecMuonRoI Feature found in initial RoI Node");
       return HLT::MISSING_FEATURE;
     }
-    if (!m_l1_muon_RoI) { // if Muon RoI entry is null
-      ATH_MSG_DEBUG("Null LVL1::RecMuonRoI feature found, ignoring and moving on");
+    if (!RoI) { // if Muon RoI entry is null
+      ATH_MSG_DEBUG("Null LVL1::RecMuonRoI feature found, trying another Trigger Element");
     }
     else{
-      m_l1_muon_RoItemp.push_back(m_l1_muon_RoI);
+      l1_muon_RoIs.push_back(RoI);
     }
   }
 
-
-  /*
-  for (auto TERoI : inputTE_RoIs) {
-  const LVL1::RecMuonRoI* m_l1_muon_RoI;
-    if(getFeature(TERoI, m_l1_muon_RoI)!=HLT::OK) {  //If getfeature fails
-      ATH_MSG_DEBUG("No LVL1::RecMuonRoI Feature found in RoI Trigger Element");
-      return HLT::MISSING_FEATURE;
-    }
-    if (!m_l1_muon_RoI) { // if Muon RoI entry is null
-      ATH_MSG_DEBUG("Null LVL1::RecMuonRoI feature found, ignoring and moving on");
-    }
-    else{
-      m_l1_muon_RoItemp.push_back(m_l1_muon_RoI);
-    }
-  }
-  */
-
-  if(m_l1_muon_RoIs->size() == 0){ //Save compute by killing if there is no L1 information
-    ATH_MSG_DEBUG("L1 RoI vector size = 0, moving to next event");
+  if(l1_muon_RoIs.empty()){ //Save compute by killing if there is no L1 information
+    ATH_MSG_DEBUG("L1 RoI size = 0, moving to next event");
     return HLT::OK; 
   }
   
-   ATH_MSG_DEBUG("Number of L1 RoIs found = "<<m_l1_muon_RoIs->size());    
+  ATH_MSG_DEBUG("Number of L1 RoIs found = "<<l1_muon_RoIs.size());    
 
 
-  //---------------------Get muonContainer linked to event inputTE---------------------------------------------
+
+  //---------------------Get muonContainer linked to inputTE---------------------------------------------
 
   const xAOD::MuonContainer*  muonContainer=0; 
 
   // getFeature takes a trigger element (inputTE) and a target feature (MuonContainer) and fills the target with the feature found in the trigger element, Output is a HLT::code, but OK does NOT mean a matching, non zero feature was found just that the feature exists within the trigger element
  
-  if(getFeature(inputTE_Event[0], muonContainer)!=HLT::OK) {  //If getfeature fails
-    ATH_MSG_DEBUG("no xAOD::MuonContainer feature found");
+  if(getFeature(inputTE, muonContainer)!=HLT::OK) {  //If getfeature fails
+    ATH_MSG_DEBUG("no xAOD::MuonContainer Feature found");
     return HLT::MISSING_FEATURE;
   } 
 
+
+
   else { //If get feature succeeds
     if (!muonContainer) { // if muonContainer entry is null
-      ATH_MSG_DEBUG("null xAOD::MuonContainer feature found");
+      ATH_MSG_DEBUG("null xAOD::MuonContainer Feature found");
       return HLT::MISSING_FEATURE;
     } 
     
@@ -497,7 +466,7 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(std::vector< std::vector<HLT::T
   for (unsigned int i=0;i<m_good_muons.size();i++){ //loop over good muons
 
     //For each muon calculate all Delta R values in scope
-    for (auto roi : *m_l1_muon_RoIs){
+    for (auto roi : l1_muon_RoIs){
       
       //xAOD::P4Helpers class required for DeltaR calculation as RoI objects don't have 4 momenta
       deltaR = xAOD::P4Helpers::deltaR((*(m_good_muons)[i]), roi->eta(), roi->phi(), false); //UseRapidity=false
@@ -543,14 +512,14 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(std::vector< std::vector<HLT::T
     }
 
     //If probe isn't a tag then loop over RoIs and look for a L1 match that is different from the Tag L1
-    for (unsigned int j=0;j<m_l1_muon_RoIs->size();j++){
+    for (unsigned int j=0;j<l1_muon_RoIs.size();j++){
 
       //xAOD::P4Helpers class required for DeltaR calculation as RoI objects don't have 4 momenta
-      deltaR = xAOD::P4Helpers::deltaR((*(TaP[i].second)), (*m_l1_muon_RoIs)[j]->eta(), (*m_l1_muon_RoIs)[j]->phi(), false);
+      deltaR = xAOD::P4Helpers::deltaR((*(TaP[i].second)), l1_muon_RoIs[j]->eta(), l1_muon_RoIs[j]->phi(), false);
 
-      if (deltaR<0.1 && (*m_l1_muon_RoIs)[j]!=(TaP[1-i].first).RoI){ //If probe passes LVL1 match criteria
+      if (deltaR<0.1 && l1_muon_RoIs[j]!=(TaP[1-i].first).RoI){ //If probe passes LVL1 match criteria
 
-	probe_thresh=(*m_l1_muon_RoIs)[j]->getThresholdNumber();
+	probe_thresh=l1_muon_RoIs[j]->getThresholdNumber();
 
 	ATH_MSG_DEBUG("Threshold_Probe value = " << probe_thresh);
 
@@ -563,17 +532,14 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(std::vector< std::vector<HLT::T
       } 
 
       //If Probe muon cannot be L1 matched
-      if (j==(m_l1_muon_RoIs->size()-1)){
+      if (j==(l1_muon_RoIs.size()-1)){
 
 	match_thresh(TaP[i].second,Thresh_Mon); //Fill monitoring variables for unmatched probe (probe muon, MonitoringObject)
 	
       }
     }
   }
-  HLT::TriggerElement* te = addRoI(TEout); //Create dummy output with no features
-  te->setActiveState(true);
-  afterExecMonitors().ignore(); //Again need deal with monitored variables explicitly
- 
+
   return HLT::OK;
   
 }
