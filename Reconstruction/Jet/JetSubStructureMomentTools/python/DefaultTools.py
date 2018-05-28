@@ -70,6 +70,10 @@ def declareDefaultTools():
   # Jet charge
   jtm += JetChargeTool("charge", K=1.0)
 
+  # generalized ECFs
+  jtm += EnergyCorrelatorGeneralizedTool("energycorrelatorgeneralized")
+
+  # ... & their ratios
   jtm += EnergyCorrelatorGeneralizedRatiosTool("energycorrelatorgeneralizedratios")
 
   # Shower deconstruction.

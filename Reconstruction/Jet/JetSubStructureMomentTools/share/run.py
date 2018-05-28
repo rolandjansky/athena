@@ -187,12 +187,15 @@ if 1:
   #energycorrelatorratios.IncludeBeta2 = True
   #energycorrelatorratios.IncludeECF4 = True
   jetrec2.JetModifiers += [energycorrelatorratios]
+  
+  from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorGeneralizedTool
+  ToolSvc += EnergyCorrelatorGeneralizedTool("energycorrelatorgeneralized")
+  energycorrelatorgeneralized = ToolSvc.energycorrelatorgeneralized
+  jetrec2.JetModifiers += [energycorrelatorgeneralized]
 
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorGeneralizedRatiosTool
   ToolSvc += EnergyCorrelatorGeneralizedRatiosTool("energycorrelatorgeneralizedratios")
   energycorrelatorgeneralizedratios = ToolSvc.energycorrelatorgeneralizedratios
-  #energycorrelatorratios.IncludeBeta2 = True
-  #energycorrelatorratios.IncludeECF4 = True
   jetrec2.JetModifiers += [energycorrelatorgeneralizedratios]
 
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetPullTool
