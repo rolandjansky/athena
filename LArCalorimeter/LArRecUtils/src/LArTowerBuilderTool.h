@@ -32,7 +32,11 @@ class LArTowerBuilderTool : public CaloTowerBuilderTool
   virtual ~LArTowerBuilderTool();
 
  protected:
-
-  virtual StatusCode initializeTool();
+  /**
+   * @brief Convert calorimeter strings to enums.
+   * @param includedCalos Property with calorimeter strings.
+   */
+  virtual std::vector<CaloCell_ID::SUBCALO> parseCalos
+    (const std::vector<std::string>& includedCalos) const override;
 };
 #endif

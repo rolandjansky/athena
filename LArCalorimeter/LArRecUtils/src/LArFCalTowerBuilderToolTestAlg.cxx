@@ -13,9 +13,9 @@
 #undef NDEBUG
 
 #include "LArFCalTowerBuilderToolTestAlg.h"
-#include "LArRecUtils/LArFCalTowerBuilderTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloTowerContainer.h"
+#include "CaloInterface/ICaloTowerBuilderToolBase.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CLHEP/Units/SystemOfUnits.h"

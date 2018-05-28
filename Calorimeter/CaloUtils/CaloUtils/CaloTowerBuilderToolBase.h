@@ -19,7 +19,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloInterface/ICaloTowerBuilderToolBase.h"
 #include "CaloEvent/CaloTowerSeg.h"
-#include "StoreGate/StoreGate.h"
+#include "CaloEvent/CaloCellContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include <string>
 
@@ -71,24 +72,40 @@ class CaloTowerBuilderToolBase: public AthAlgTool,
 
   protected:
 
+    /**
+     * @brief Mark that cached data are invalid.
+     *
+     * Called when calibrations are updated.
+     */
+    virtual void invalidateCache() = 0;
+
+
+    /**
+     * @brief Return the tower segmentation.
+     */
+    const CaloTowerSeg& towerSeg() const;
+
+
+    /**
+     * @brief Retrieve cells from StoreGate.
+     */
+    const CaloCellContainer* getCells() const;
+
+
     ////////////////
     // Properties //
     ////////////////
 
-    // works only with big CaloCellContainer!
-    std::string m_cellContainerName;
+    SG::ReadHandleKey<CaloCellContainer> m_cellContainerName;
 
+
+private:
     ////////////////////////
     // Store and Services //
     ////////////////////////
 
-    // Warning: m_storeGate is deprecated !!!
-    // Method evtStore() from AthAlgTool should be used instead!
-    ServiceHandle<StoreGateSvc> m_storeGate;
     CaloTowerSeg m_theTowerSeg;
-    bool m_cacheValid;
 
-    //StringProperty m_caloAlignTool;
     ToolHandle<IGeoAlignTool> m_caloAlignTool;
 
     /////////////////////////////
