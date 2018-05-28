@@ -151,10 +151,6 @@ def setupMenu():
         ['mu0_muoncalib',             'L1_MU20MU21', ['L1_MU20'],['Muon_Calibration'],["RATE:Calibration","BW:Muon"],-1],
         ['mu0_muoncalib_L1MU4_EMPTY', 'L1_MU4_EMPTY',[],['Muon_Calibration'],["RATE:Calibration","BW:Muon"],-1],
 
-        # muon calibration, data scouting
-        ['mu0_muoncalib_ds3',             'L1_MU20MU21', ['L1_MU20'],['DataScouting_03_CosmicMuons'],["RATE:Calibration","BW:Muon"],-1],        
-        ['mu0_muoncalib_ds3_L1MU4_EMPTY', 'L1_MU4_EMPTY',[],['DataScouting_03_CosmicMuons'],["RATE:Calibration","BW:Muon"],-1],   
-
         ## LFV topo based nscan (ATR-14352)
         ['mu11_nomucomb_2mu4noL1_nscan03_L1LFV-MU', 'L1_LFV-MU', ['L1_MU10','L2_mu11_nomucomb'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11_nomucomb','2mu4noL1_nscan03']]], #OI need to discuss what to do here
 	# -----------------------------------------------------
@@ -1647,6 +1643,14 @@ def setupMenu():
         ['tau25_looseRNN_tracktwo',             'L1_TAU12IM', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_mediumRNN_tracktwo',            'L1_TAU12IM', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_tightRNN_tracktwo',             'L1_TAU12IM', [], [PhysicsStream, 'express'], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau35_medium1_tracktwoMVA_L1TAU12IM',                        'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau35_medium1_tracktwoMVA',                        'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau60_medium1_tracktwoMVA',                        'L1_TAU40', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau80_medium1_tracktwoMVA_L1TAU60',                        'L1_TAU60', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau35_mediumRNN_tracktwoMVA_L1TAU12IM',                        'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau35_mediumRNN_tracktwoMVA',                        'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau60_mediumRNN_tracktwoMVA',                        'L1_TAU40', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+        ['tau80_mediumRNN_tracktwoMVA_L1TAU60',                        'L1_TAU60', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
 
         # Run-II - High-pT variations
         ['tau35_loose1_tracktwo',                  'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
@@ -1802,6 +1806,7 @@ def setupMenu():
         ['2g3_loose_dPhi15_L12EM3_VTE50', 'L1_2EM3_VTE50', [], [PhysicsStream],['RATE:MultiPhoton','BW:Egamma'],-1],
         ['2g3_loose_L12EM3_VTE50', 'L1_2EM3_VTE50', [], [PhysicsStream],['RATE:MultiPhoton','BW:Egamma'],-1],
         ['2g3_medium_dPhi15_L12EM3_VTE50', 'L1_2EM3_VTE50', [], [PhysicsStream],['RATE:MultiPhoton','BW:Egamma'],-1],
+
 
         ['g0_perf_L1EM3_EMPTY',                  'L1_EM3_EMPTY', [], [PhysicsStream], ['RATE:SinglePhoton',   'BW:Egamma'], -1],        
         ['e0_perf_L1EM3_EMPTY',                  'L1_EM3_EMPTY', [], [PhysicsStream], ['RATE:SinglePhoton',   'BW:Egamma'], -1],        
@@ -3317,6 +3322,19 @@ def setupMenu():
         # photon + mulit-jets ATR-17502
         ['g45_loose_6j45_0eta240', 'L1_4J15.0ETA25', ['L1_EM15VH','L1_4J15.0ETA25'], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g45_loose","6j45_0eta240"]]],
         ['g45_loose_5j45_0eta240', 'L1_4J15.0ETA25', ['L1_EM15VH','L1_4J15.0ETA25'], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g45_loose","5j45_0eta240"]]],
+
+        #ATR-17860 L1Topo low Et di-photon triggers
+        ['2g3_loose_L1DPHI-2EM3_VTE5.24ETA49', 'L1_DPHI-2EM3_VTE5.24ETA49', ['L1_2EM3'], [PhysicsStream],['RATE:SinglePhoton','BW:Egamma'],-1],
+        ['2g3_loose_L1DPHI-2EM3_VTE10', 'L1_DPHI-2EM3_VTE10', ['L1_2EM3'], [PhysicsStream],['RATE:SinglePhoton','BW:Egamma'],-1],
+        ['2g3_loose_L1DPHI-2EM7_VTE50', 'L1_DPHI-2EM7_VTE50', ['L1_2EM7'], [PhysicsStream],['RATE:SinglePhoton','BW:Egamma'],-1],
+
+        #ATR-17836 W T&P for low-mu
+        ['e15_etcut_trkcut_xe30noL1', 'L1_EM12', ['L1_EM12',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1, ['serial',-1,["e15_etcut_trkcut","xe30noL1"]]],
+        ['e18_etcut_trkcut_xe30noL1', 'L1_EM12', ['L1_EM12',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1, ['serial',-1,["e18_etcut_trkcut","xe30noL1"]]],
+        ['e15_etcut_trkcut_xe30noL1_mt35', 'L1_EM12', ['L1_EM12',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1, ['serial',-1,["e15_etcut_trkcut","xe30noL1"]]],
+        ['e18_etcut_trkcut_xe30noL1_mt35', 'L1_EM12', ['L1_EM12',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1, ['serial',-1,["e18_etcut_trkcut","xe30noL1"]]],
+        ['e15_etcut_trkcut_xs30_xe30noL1_mt35', 'L1_EM12', ['L1_EM12','',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1, ['serial',-1,["e15_etcut_trkcut","xs30","xe30noL1"]]],
+        ['e18_etcut_trkcut_xs30_xe30noL1_mt35', 'L1_EM12', ['L1_EM12','',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1, ['serial',-1,["e18_etcut_trkcut","xs30","xe30noL1"]]],
 			 
 			 ]
 
