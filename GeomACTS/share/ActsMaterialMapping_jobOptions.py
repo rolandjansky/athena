@@ -30,6 +30,9 @@ globalflags.DetDescrVersion = 'ATLAS-R2-2016-00-00-00'
 # print "HERE"
 # print globalflags.DetDescrVersion
 
+# LorentzAngle Svc needs field now
+import MagFieldServices.SetupField
+
 # Initialize geometry
 # THIS ACTUALLY DOES STUFF!!
 from AtlasGeoModel import GeoModelInit
