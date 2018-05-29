@@ -3,17 +3,15 @@
 # @author Nils Krumnack
 
 
+# Set up the reading of the input file:
 import AthenaRootComps.ReadAthenaxAODHybrid
-
 theApp.EvtMax = 500
 testFile = os.getenv ('ASG_TEST_FILE_DATA')
 svcMgr.EventSelector.InputCollections = [testFile]
 
-algSeq = CfgMgr.AthSequencer("AthAlgSeq")
-
-from AnaAlgorithm.DualUseConfig import setCfgMgr
-
-setCfgMgr (CfgMgr)
+# Access the main algorithm sequence of the job:
+from AthenaCommon.AlgSequence import AlgSequence
+algSeq = AlgSequence()
 
 # ideally we'd run over all of them, but we don't have a mechanism to
 # configure per-sample right now
@@ -22,40 +20,25 @@ dataType = "data"
 #dataType = "afii"
 jetContainer = "AntiKt4EMTopoJets"
 
-#turning this off, it doesn't seem to work on MacOS
-runJvtUpdate = False
-runJvtEfficiency = False
+# Set up the systematics loader/handler algorithm:
+sysLoader = CfgMgr.CP__SysListLoaderAlg( 'SysLoaderAlg' )
+sysLoader.sigmaRecommended = 1
+algSeq += sysLoader
 
-# have trouble with nested tools
-runJetSmearing = False
-
-
+# Include, and then set up the jet analysis algorithm sequence:
 from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
+jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
+jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
+print( jetSequence ) # For debugging
 
-sequence = makeJetAnalysisSequence (jetContainer=jetContainer,dataType=dataType,
-                                    runJvtUpdate=runJvtUpdate,runJvtEfficiency=runJvtEfficiency,
-                                    runJetSmearing=runJetSmearing)
+# Add the sequence to the job:
+algSeq += jetSequence
 
+# Set up a histogram output file for the job:
+ServiceMgr += CfgMgr.THistSvc()
+ServiceMgr.THistSvc.Output += [
+    "ANALYSIS DATAFILE='JetAnalysisAlgorithmsTest.hist.root' OPT='RECREATE'"
+    ]
 
-from AsgAnalysisAlgorithms.SequencePostConfiguration import sequencePostConfiguration
-
-sequencePostConfiguration (sequence, jetContainer)
-
-for alg in sequence :
-    config = alg["alg"]
-
-    # set everything to debug output
-    config.OutputLevel = 1
-
-    algSeq += config
-    pass
-
-# create our algorithm with teh given name
-#alg = CfgMgr.MyxAODAnalysis()
-
-# later on we'll add some configuration options for our algorithm that go here
-
-#algSeq += alg
-
-# optional include for reducing printout from athena
-include("AthAnalysisBaseComps/SuppressLogging.py")
+# Reduce the printout from Athena:
+include( "AthAnalysisBaseComps/SuppressLogging.py" )

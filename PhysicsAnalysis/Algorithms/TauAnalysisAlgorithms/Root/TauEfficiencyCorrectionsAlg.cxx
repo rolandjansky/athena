@@ -22,7 +22,7 @@ namespace CP
   TauEfficiencyCorrectionsAlg (const std::string& name, 
                      ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)
-    , m_efficiencyCorrectionsTool ("TauEfficiencyCorrectionsTool", this)
+    , m_efficiencyCorrectionsTool ("TauAnalysisTools::TauEfficiencyCorrectionsTool", this)
   {
     declareProperty ("efficiencyCorrectionsTool", m_efficiencyCorrectionsTool, "the calibration and smearing tool we apply");
     declareProperty ("efficiencyDecoration", m_efficiencyDecoration, "the decoration for the tau efficiency");
