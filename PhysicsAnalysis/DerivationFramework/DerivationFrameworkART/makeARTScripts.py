@@ -35,7 +35,7 @@ trainList = [
               ["JETM12","EGAM3","JETM10"],
               ["STDM5","EGAM4","EGAM2","EXOT12","SUSY9","EXOT9"],
               ["MUON2","HIGG4D4","JETM7","BPHY7","EXOT17","BPHY5","EGAM7","HIGG1D2"],
-              ["EGAM9","EXOT02","SUSY11","EXOT6","SUSY2","HIGG4D1","BPHY1","BPHY4"],
+              ["EGAM9","EXOT20","SUSY11","EXOT6","SUSY2","HIGG4D1","BPHY1","BPHY4"],
               ["SUSY12","STDM3","EXOT15","JETM3","EXOT19","HIGG4D6","HIGG6D1","HIGG1D1"],
               ["TAUP1","HIGG4D5","JETM4","TOPQ2","TOPQ5","HIGG4D3","SUSY16","EXOT7"],
               ["STDM2","SUSY18","EXOT3","EGAM1","EGAM5","EXOT2","SUSY3","EXOT5"],
