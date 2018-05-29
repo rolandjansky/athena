@@ -14,10 +14,17 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/DataHandle.h"
+#include "GaudiKernel/ContextSpecificPtr.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+#include "GaudiKernel/ICondSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/DataHandle.h"
 //#include "InDetIdentifier/TRT_ID.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h" 
 #include "TRT_ConditionsServices/ITRT_ConditionsSvc.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "InDetIdentifier/TRT_ID.h"
+#include "InDetReadoutGeometry/TRT_BaseElement.h"
 
 
 class TRT_ID;
@@ -94,20 +101,18 @@ class TRT_StrawStatusSummarySvc: public AthService,
   bool get_track_status(Identifier offlineID);
 
   StatusCode readFromTextFile(const std::string& filename) ;
-  StatusCode writeToTextFile(const std::string& filename) const ;
+  StatusCode writeToTextFile(const std::string& filename) ;
 
   StatusCode streamOutStrawStatObjects () const ;
   StatusCode registerObjects(std::string tag, int run1, int event1, int run2, int event2) const;
   
-  StatusCode IOVCallBack(IOVSVC_CALLBACK_ARGS);
-  
-  StatusCode ComputeAliveStraws() ;
 
-  StrawStatusContainer* getStrawStatusContainer() const ;
-  StrawStatusContainer* getStrawStatusPermanentContainer() const ;
-  StrawStatusContainer* getStrawStatusHTContainer() const ;
+  const StrawStatusContainer* getStrawStatusContainer() ;// const ;
+  const StrawStatusContainer* getStrawStatusPermanentContainer() ; //const ;
+  const StrawStatusContainer* getStrawStatusHTContainer() ; //const ;
 
 
+  void ComputeAliveStraws() ;
   int  *getStwTotal()		;	 
   int **getStwLocal() 		;
   int **getStwWheel()   	;
@@ -125,25 +130,36 @@ class TRT_StrawStatusSummarySvc: public AthService,
   std::string m_par_strawstatusHTcontainerkey;
 
   std::string m_par_stattextfile;           //input text file
-
-  //std::string m_par_strawstatuspermanentcontainerkey;
-  std::string m_par_stattextfilepermanent;           //input text file: permanent
-  std::string m_par_stattextfileHT;           //input text file
+  std::string m_par_stattextfilepermanent;  //input text file: permanent
+  std::string m_par_stattextfileHT;         //input text file HT
 
   std::string m_par_statstream;            //output stream
-  std::string m_inputFile;
   const TRT_ID* m_trtid;
   const InDetDD::TRT_DetectorManager* m_trtDetMgr; // TRT detector manager (to get ID helper)
-  TRTCond::StrawStatusMultChanContainer m_deadstraws ;
   
-  bool m_strawstatuscontainerexists;
-  bool m_strawstatuspermanentcontainerexists;
-  bool m_strawstatusHTcontainerexists;
 
+  ServiceHandle<ICondSvc> m_condSvc;
+  //  ReadHandle  keys
+  SG::ReadCondHandleKey<StrawStatusContainer> m_statReadKey{this,"StatReadKeyName","in","StrawStatus in-key"};
+  SG::ReadCondHandleKey<StrawStatusContainer> m_permReadKey{this,"PermReadKeyName","in","StrawStatusPermanent in-key"};
+  SG::ReadCondHandleKey<StrawStatusContainer> m_statHTReadKey{this,"StatHTReadKeyName","in","StrawStatusHT in-key"};
 
-  const DataHandle<TRTCond::StrawStatusMultChanContainer> m_strawstatuscontainer ; //Same name as in getStrawStatusContainer!
-  const DataHandle<TRTCond::StrawStatusMultChanContainer> m_strawstatuspermanentcontainer ; //Same name as in getStrawStatusContainer!
-  const DataHandle<TRTCond::StrawStatusMultChanContainer> m_strawstatusHTcontainer ; //Same name as in getStrawStatusContainer!
+  // Caches
+  mutable std::vector<const StrawStatusContainer*> m_strawstatuscontainer;
+  mutable std::vector<const StrawStatusContainer*> m_strawstatuspermanentcontainer;
+  mutable std::vector<const StrawStatusContainer*> m_strawstatusHTcontainer;
+  mutable std::mutex m_cacheMutex;
+  mutable std::vector<EventContext::ContextEvt_t> m_evtstat;
+  mutable std::vector<EventContext::ContextEvt_t> m_evtperm;
+  mutable std::vector<EventContext::ContextEvt_t> m_evtstatHT;
+  // Used in simulation (GEANT4) jobs
+  bool m_isGEANT4;
+  const DataHandle<StrawStatusContainer> m_strawstatusG4;
+  const DataHandle<StrawStatusContainer> m_strawstatuspermanentG4;
+  const DataHandle<StrawStatusContainer> m_strawstatusHTG4;
+
+  bool m_setup;
+
 
 
       int  *m_stw_total;
@@ -165,41 +181,84 @@ class TRT_StrawStatusSummarySvc: public AthService,
 //  inline methods
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-inline int*  TRT_StrawStatusSummarySvc::getStwTotal()
-{
-	return m_stw_total;
-}
-
-inline int**  TRT_StrawStatusSummarySvc::getStwLocal()
-{
-	return m_stw_local;
-}
-
-inline int**  TRT_StrawStatusSummarySvc::getStwWheel()
-{
-	return m_stw_wheel;
-}
-
 
 
 inline void TRT_StrawStatusSummarySvc::setStatus( const TRTCond::ExpandedIdentifier& id, unsigned int status ) 
 {
-  getStrawStatusContainer()->set( id, status) ;//, lt_occ, ht_occ); 
+  const_cast<StrawStatusContainer*>(getStrawStatusContainer())->set( id, status) ;
 }
 
 
-inline TRT_StrawStatusSummarySvc::StrawStatusContainer* TRT_StrawStatusSummarySvc::getStrawStatusContainer() const {
-  const StrawStatusContainer* rcesben = &(*m_strawstatuscontainer) ;
-  return const_cast<StrawStatusContainer*>(rcesben) ; 
+inline const TRT_StrawStatusSummarySvc::StrawStatusContainer* TRT_StrawStatusSummarySvc::getStrawStatusContainer() {
+  if(m_isGEANT4) {
+    return &(*m_strawstatusG4);
+  }
+  const EventContext& event_context=Gaudi::Hive::currentContext();
+  EventContext::ContextID_t slot=event_context.slot();
+  EventContext::ContextEvt_t event_id=event_context.evt();
+  std::lock_guard<std::mutex> lock(m_cacheMutex);
+  if(slot>=m_evtstat.size()) {
+     m_evtstat.resize(slot+1);
+     m_strawstatuscontainer.resize(slot+1);
+  }
+
+  if(m_evtstat[slot]!=event_id) {
+    SG::ReadCondHandle<StrawStatusContainer> rst(m_statReadKey,event_context);
+    m_strawstatuscontainer[slot]=(*rst);
+    m_evtstat[slot]=event_id;
+  }
+
+  return m_strawstatuscontainer[slot];
+
 }
-inline TRT_StrawStatusSummarySvc::StrawStatusContainer* TRT_StrawStatusSummarySvc::getStrawStatusPermanentContainer() const {
-  const StrawStatusContainer* rcesben = &(*m_strawstatuspermanentcontainer) ;
-  return const_cast<StrawStatusContainer*>(rcesben) ; 
+inline const TRT_StrawStatusSummarySvc::StrawStatusContainer* TRT_StrawStatusSummarySvc::getStrawStatusPermanentContainer() {
+
+  if(m_isGEANT4) {
+    return &(*m_strawstatuspermanentG4);
+  }
+  const EventContext& event_context=Gaudi::Hive::currentContext();
+  EventContext::ContextID_t slot=event_context.slot();
+  EventContext::ContextEvt_t event_id=event_context.evt();
+  std::lock_guard<std::mutex> lock(m_cacheMutex);
+  if(slot>=m_evtperm.size()) {
+     m_evtperm.resize(slot+1);
+     m_strawstatuspermanentcontainer.resize(slot+1);
+  }
+
+  if(m_evtperm[slot]!=event_id) {
+    SG::ReadCondHandle<StrawStatusContainer> rp(m_permReadKey,event_context);
+    m_strawstatuspermanentcontainer[slot]=(*rp);
+    m_evtperm[slot]=event_id;
+  }
+
+  return m_strawstatuspermanentcontainer[slot];
+
 }
-inline TRT_StrawStatusSummarySvc::StrawStatusContainer* TRT_StrawStatusSummarySvc::getStrawStatusHTContainer() const {
-  const StrawStatusContainer* rcesben = &(*m_strawstatusHTcontainer) ;
-  return const_cast<StrawStatusContainer*>(rcesben) ; 
+inline const TRT_StrawStatusSummarySvc::StrawStatusContainer* TRT_StrawStatusSummarySvc::getStrawStatusHTContainer() {
+
+  if(m_isGEANT4) {
+    return &(*m_strawstatusHTG4);
+  }
+  const EventContext& event_context=Gaudi::Hive::currentContext();
+  EventContext::ContextID_t slot=event_context.slot();
+  EventContext::ContextEvt_t event_id=event_context.evt();
+  std::lock_guard<std::mutex> lock(m_cacheMutex);
+  if(slot>=m_evtstatHT.size()) {
+    m_evtstatHT.resize(slot+1);
+    m_strawstatusHTcontainer.resize(slot+1);
+  }
+
+  if(m_evtstatHT[slot]!=event_id) {
+    SG::ReadCondHandle<StrawStatusContainer> rht(m_statHTReadKey,event_context);
+    m_strawstatusHTcontainer[slot]=(*rht);
+    m_evtstatHT[slot]=event_id;
+  }
+
+  return m_strawstatusHTcontainer[slot];
 }
+
+
+
 
 inline StatusCode TRT_StrawStatusSummarySvc::queryInterface( const InterfaceID& riid, void** ppvIf )
 {

@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 ////////////////////////////// 
 //TRTStrawStatusWrite.cxx  
 ////////////////////////////
@@ -14,10 +10,9 @@ TRTStrawStatusWrite::TRTStrawStatusWrite( const std::string &name, ISvcLocator *
   AthAlgorithm( name, pSvcLocator ),
   m_trtStrawStatusIF("TRT_StrawStatusSummarySvc",name),
   m_trtStrawStatus("TRT_StrawStatusSummarySvc",name),
-  //m_par_statusfile("/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/AprilRepro/listHotStraws.collisions2010.athenaFormat.txt"),
-  m_par_statusfile("dummyNonExisting_TRT_StrawStatus_InputFile"), //  /afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/2010_09_10_sasa/listNoisyStraws.0162690.athenaFormat.txt"), 
+  m_par_statusfile(""), 
   m_par_statusfilepermanent(""),
-  m_par_statusfileHT("HTtest.t"),
+  m_par_statusfileHT(""),
   m_setup(false)
 { 
   declareProperty("StatusTool",m_trtStrawStatusIF);
@@ -32,26 +27,13 @@ TRTStrawStatusWrite::~TRTStrawStatusWrite( )
 
 StatusCode TRTStrawStatusWrite::initialize()
 {
-
-//	m_par_statusfile= "/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/AprilRepro/listHotStraws.collisions2010.athenaFormat.txt";
-//  m_par_statusfile="/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/2010_09_10_sasa/listNoisyStraws.0162690.athenaFormat.txt";
-//"/afs/cern.ch/user/a/attrtcal/TRT_Calibration/uploadedDB/Status/2010_06_30/listNoisyStraws.0158269.athenaFormat.txt";
-
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRTStrawStatusWrite initialise" << endmsg;
-  StatusCode sc;
 
   if(StatusCode::SUCCESS != m_trtStrawStatusIF.retrieve()){
-    msg(MSG::ERROR) << " Can't get TRTStrawtatusTool" << endmsg;
+    msg(MSG::ERROR) << " Can't get TRTStrawstatusTool" << endmsg;
     return StatusCode::FAILURE;
   }
 
-  /*
-  m_trtStrawStatus=dynamic_cast<TRTStrawStatusSummaryTool *>(&(* m_trtStrawStatusIF));
-  if(!m_trtStrawStatus){
-    msg(MSG::ERROR) << " Can't do a dynamic cast to TRTStrawStatusSummaryTool" << endmsg;
-    return StatusCode::FAILURE;
-  }
-*/
 
   if( m_trtStrawStatus.retrieve().isFailure() ) {
     msg(MSG::ERROR) << " Can't do a dynamic cast to TRTStrawStatusSummaryTool" << endmsg;
@@ -64,50 +46,30 @@ StatusCode TRTStrawStatusWrite::initialize()
 
 StatusCode TRTStrawStatusWrite::execute()
 {
+  StatusCode sc = StatusCode::SUCCESS;
 
-//  static bool first_event = true;
-
-//  if ( !first_event )  return StatusCode::SUCCESS;
-
-  StatusCode sc;
-
-  //m_par_statusfile= "/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/AprilRepro/listHotStraws.collisions2010.athenaFormat.txt";
-//  m_par_statusfile="/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/2010_09_10_sasa/listNoisyStraws.0162690.athenaFormat.txt";
-// "/afs/cern.ch/user/a/attrtcal/TRT_Calibration/uploadedDB/Status/2010_06_30/listNoisyStraws.0158269.athenaFormat.txt";
-
-  msg(MSG::INFO) << "TRTStrawStatusWrite::execute write DB tag for straw status file " << m_par_statusfile << endmsg;
-
-  //
-  // at first event:
-//  if (!m_setup) {
-//    m_setup=true;
-
-//    if ( (m_par_statusfile!="") ||  (m_par_statusfilepermanent!="") ) {
-      // read status constants from text file
-//      if (m_par_statusfile!="") 
-sc=m_trtStrawStatus->readFromTextFile(m_par_statusfile);
-//      if (m_par_statusfilepermanent!="") sc=m_trtStrawStatus->readFromTextFile(m_par_statusfilepermanent);
-//      if (m_par_statusfileHT!="") sc=m_trtStrawStatus->readFromTextFile(m_par_statusfileHT);
-
+  msg(MSG::INFO) << "TRTStrawStatusWrite::execute write DB tag for files "
+      << m_par_statusfile << " " << m_par_statusfilepermanent << " " << m_par_statusfileHT << endmsg;
+  if (m_par_statusfile		!="")	sc=m_trtStrawStatus->readFromTextFile(m_par_statusfile);
+  if (m_par_statusfilepermanent !="") 	sc=m_trtStrawStatus->readFromTextFile(m_par_statusfilepermanent);
+  if (m_par_statusfileHT        !="")   sc=m_trtStrawStatus->readFromTextFile(m_par_statusfileHT);
+ 
       if(sc!=StatusCode::SUCCESS) {
-        msg(MSG::ERROR) << " Could not read TRT StrawStatusSummary objects from "
-              << m_par_statusfile << endmsg;
+        msg(MSG::ERROR) << " Could not read TRT StrawStatusSummary objects " << endmsg;
         return StatusCode::FAILURE;
       }
-//
-//    } else {
-//
-//      sc=m_trtStrawStatus->writeToTextFile("strawstatussummary.txt");
-//
-//    }
-//  }
- // first_event=false;
-  return StatusCode::SUCCESS;
+  return sc;
 
 }
 
 StatusCode TRTStrawStatusWrite::finalize()
 {
-  
+ 
+  StatusCode sc ;
+  msg(MSG::INFO) << " Dump the Straw Status:  " << endmsg;
+  sc =   m_trtStrawStatus->writeToTextFile("StrawStatusDump_Writer.txt");
+  if (sc.isFailure()) {
+    msg(MSG::ERROR) <<" Error writing the file out" <<endmsg;
+  }
   return StatusCode::SUCCESS;
 }
