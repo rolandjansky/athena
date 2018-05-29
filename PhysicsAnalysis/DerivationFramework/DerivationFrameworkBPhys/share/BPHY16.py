@@ -154,6 +154,19 @@ BPHY16_Select_FourTrack      = DerivationFramework__Select_onia2mumu(
 ToolSvc += BPHY16_Select_FourTrack
 print      BPHY16_Select_FourTrack
 
+
+BPHY16_Revertex      = DerivationFramework__ReVertex(
+  name                       = "BPHY16_ReVertex",
+  HypothesisName             = "trackx2",
+  InputVtxContainerName      = "BPHY16FourTrack",
+  TrackIndices               = [ 2, 3 ],
+  OutputVtxContainerName     = "BPHY16TwoTrack"
+)
+
+ToolSvc += BPHY16_Select_FourTrack
+print      BPHY16_Select_FourTrack
+
+
 expression = "count(BPHY16FourTrack.passed_FourTracks) > 0"
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
