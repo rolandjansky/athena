@@ -403,10 +403,10 @@ if usePythia8:
   simFlags.PhysicsOptions += ["RHadronsPythia8PhysicsTool"]
 
   rhlog.info("Doing Pythia8")
-  load_files_for_rhadrons_scenario(simdict["CASE"], simdict["MASS"], "generic", MASSX)
 
   # In case we want to use Pythia8 for decays during simulation
   if simdict.has_key("LIFETIME"):
+
       if float(simdict["LIFETIME"])<1. and hasattr(runArgs,'outputEVNT_TRFile'):
           rhlog.warning('Lifetime specified at <1ns, but you are writing stopped particle positions.')
           rhlog.warning('Assuming that you mean to use infinite lifetimes, and ignoring the setting')
@@ -414,6 +414,8 @@ if usePythia8:
           addLineToPhysicsConfiguration("DoDecays","1")
           addLineToPhysicsConfiguration("HadronLifeTime", simdict["LIFETIME"])
 
+      # Set up the job options if they're going to be needed
+      if float(simdict["LIFETIME"])>=1. or not hasattr(runArgs,'outputEVNT_TRFile') or not 'CASE' in simdict:
           # From the run number, load up the configuration.  Not the most beautiful thing, but this works.
           from glob import glob
           # Default position: look in cvmfs for job options
@@ -475,6 +477,55 @@ if usePythia8:
           # Build the param card, aka SLHA file
           from MadGraphControl.MadGraphUtils import build_param_card
           build_param_card(param_card_old='param_card.SM.%s.%s.dat'%(gentype,decaytype),param_card_new='SLHA_INPUT.DAT',masses=masses,decays=decays)
+
+          # In case the CASE wasn't set, figure it out now
+          if not 'CASE' in simdict:
+              # Pop open the param card and figure out what's what.  Should be short, so we can stupid-read it
+              my_param_card = open('SLHA_INPUT.DAT','r')
+              masses = False
+              my_case = None
+              for l in my_param_card.readlines():
+                  if 'BLOCK' in l.split('#')[0].split() and 'MASS' in l.split('#')[0].split():
+                      masses = True
+                      continue
+                  elif 'BLOCK' in l.split('#')[0].split() and masses:
+                      break
+                  elif masses and len(l.split('#')[0].split())>1:
+                      my_id = l.split('#')[0].split()[0]
+                      my_m  = float(l.split('#')[0].split()[1])
+                      # Mass cases for non-SUSY particles
+                      if float(my_id)<1000000: continue
+                      # Heavy; not what we're looking for
+                      if my_m>4000.: continue
+                      # Sleptons -- not what we're looking for
+                      if my_id in ['1000011','1000012','1000013','1000014','1000015','1000016']: continue
+                      if my_id in ['2000011','2000013','2000015']: continue
+                      # Electroweakinos -- not what we're looking for
+                      if my_id in ['1000022','1000023','1000024','1000025','1000035','1000037','1000039']: continue
+                      # Squarks -- should not get here, so warn
+                      if my_id in ['1000001','2000001','1000002','2000002','1000003','2000003','1000004','2000004']:
+                          rhlog.warning('Encountered light squark.  Skipping, but this may indicate a problem.')
+                          continue
+                      if my_id in ['1000021']: # Gluino
+                          my_case = 'gluino'
+                      elif my_id in ['1000006','2000006']: # Stop
+                          my_case = 'stop'
+                      elif my_id in ['1000005','2000005']: # Sbottom
+                          my_case = 'sbottom'
+                      else:
+                          raise RuntimeError('Uncertain how to deal with case for ID '+str(my_id))
+                      # All the cases I handle so far
+                      rhlog.info('Auto-detected case: '+my_case)
+                  # Done with line handling
+              my_param_card.close()
+              if my_case is not None:
+                  simdict['CASE'] = my_case
+              else:
+                  raise RuntimeError('No CASE in EVNT metadata and could not decode one from the param card')
+          # Done handling case specification
+
+  # Last step, load up the files
+  load_files_for_rhadrons_scenario(simdict["CASE"], simdict["MASS"], "generic", MASSX)
   # Done with the Pythia8 setup
 
 else:
