@@ -184,13 +184,15 @@ StatusCode AthenaOutputStreamTool::connectOutput(const std::string& outputName) 
    m_store->keys<DataHeader>(dhKeys);
    for (std::vector<std::string>::const_iterator dhKey = dhKeys.begin(), dhKeyEnd = dhKeys.end();
 	   dhKey != dhKeyEnd; dhKey++) {
-      if (!m_store->transientContains<DataHeader>(*dhKey)) { // Do not retrieve BackNavigation DataHeader
-         continue;
+      bool primaryDH = false;
+      if (!m_store->transientContains<DataHeader>(*dhKey)) {
+         if (*dhKey == "EventSelector") primaryDH = true;
+         ATH_MSG_DEBUG("No transientContains DataHeader with key " << *dhKey);
       }
       if (m_store->retrieve(dh, *dhKey).isFailure()) {
          ATH_MSG_DEBUG("Unable to retrieve the DataHeader with key " << *dhKey);
       }
-      if (dh->checkStatus(DataHeader::Primary)) {
+      if (dh->checkStatus(DataHeader::Primary) || primaryDH) {
          // Add DataHeader token to new DataHeader
          if (m_extendProvenanceRecord) {
             std::string pTag;
