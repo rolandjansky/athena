@@ -550,13 +550,25 @@ const CaloDetDescrElement* CaloGeometry::getDDE(int sampling,float eta,float phi
 
 const CaloDetDescrElement* CaloGeometry::getFCalDDE(int sampling,float x,float y,float z){
 		int isam = sampling - 20;
-		int iphi,ieta;
+		int iphi(-100000),ieta(-100000);
 		Long64_t mask1[]{0x34,0x34,0x35};
 		Long64_t mask2[]{0x36,0x36,0x37};
-		m_FCal_ChannelMap.getTileID(isam, x, y, ieta, iphi);
-		//cout << ieta << ""
+		bool found = m_FCal_ChannelMap.getTileID(isam, x, y, ieta, iphi);
+		if(!found) {
+		  cout << "Warning: Hit is not matched with any FCal cell! Looking for the closest cell" << endl;
+		  found = getClosestFCalCellIndex(sampling, x, y, ieta, iphi);
+		}
+		if(!found) {
+		  cout << "Error: Unable to find the closest FCal cell!" << endl;
+		  return 0;
+		}
+		
+		
+		//cout << "CaloGeometry::getFCalDDE: x:" << x << " y: " << y << " ieta: " << ieta << " iphi: " << iphi << " cmap->x(): " << m_FCal_ChannelMap.x(isam,ieta,iphi) << " cmap->y(): " << m_FCal_ChannelMap.y(isam,ieta,iphi) << endl;
 		Long64_t id = (ieta << 5) + 2*iphi;
 		if(isam==2)id+= (8<<8);
+		
+		
 		
 		if(z>0) id+=(mask2[isam-1] << 12);
 		else id+=(mask1[isam-1] << 12);
@@ -567,6 +579,41 @@ const CaloDetDescrElement* CaloGeometry::getFCalDDE(int sampling,float x,float y
 		//return m_cells_in_sampling[sampling][id << 12];
 }
 
+
+bool CaloGeometry::getClosestFCalCellIndex(int sampling,float x,float y,int& ieta, int& iphi){
+  
+  double rmin = m_FCal_rmin[sampling-21];
+  double rmax = m_FCal_rmax[sampling-21];
+  int isam=sampling-20;
+  double a=1.;
+  const double b=0.01;
+  const int nmax=100;
+  int i=0;
+  
+  double r = sqrt(x*x +y*y);
+  if(r==0.) return false;
+  
+  if((r/rmax)>(rmin/r)){
+    x=x*rmax/r;
+    y=y*rmax/r;
+    while((!m_FCal_ChannelMap.getTileID(isam, a*x, a*y, ieta, iphi)) && i<nmax){
+      //cout << "rmax: " << rmax << " r: " << a*sqrt(x*x+y*y) << " ieta: " << ieta << " iphi: " << iphi << endl;
+      a-=b;
+      i++;
+    }
+  }
+  else {
+    x=x*rmin/r;
+    y=y*rmin/r;
+    while((!m_FCal_ChannelMap.getTileID(isam, a*x, a*y, ieta, iphi)) && i<nmax){
+      cout << "rmin: " << rmin << " r: " << a*sqrt(x*x+y*y) << " ieta: " << ieta << " iphi: " << iphi << endl;
+      a+=b;
+      i++;
+    }
+    
+  }
+  return i<nmax ? true : false;
+}
 
 bool CaloGeometry::PostProcessGeometry()
 {
@@ -877,7 +924,81 @@ void CaloGeometry::LoadFCalGeometryFromFiles(TString filename1,TString filename2
   
   
   m_FCal_ChannelMap.finish(); // Creates maps
-	
-	
+  
+  for(int imodule=1;imodule<=3;imodule++) delete electrodes[imodule-1];
+  electrodes.clear();
+  
+  unsigned long long phi_index,eta_index;
+  float x,y,dx,dy;
+  long id;
+  //auto it =m_cells_in_sampling[20].rbegin();
+  //it--;
+  //unsigned long long identify=it->first;
+  //for(auto it=m_cells_in_sampling[i].begin(); it!=m_cells_in_sampling[i].end();it++){
+  //	
+  //}
+  long mask1[]{0x34,0x34,0x35};
+  long mask2[]{0x36,0x36,0x37};
+  
+  m_FCal_rmin.resize(3,FLT_MAX);
+  m_FCal_rmax.resize(3,0.);
+  
+  
+  for(int imap=1;imap<=3;imap++){
+    
+    int sampling = imap+20;
+    
+    if((int)m_cells_in_sampling[sampling].size() != 2*std::distance(m_FCal_ChannelMap.begin(imap), m_FCal_ChannelMap.end(imap))){
+      cout << "Error: Incompatibility between FCalChannel map and GEO file: Different number of cells in m_cells_in_sampling and FCal_ChannelMap" << endl;
+      cout << "m_cells_in_sampling: " << m_cells_in_sampling[sampling].size() << endl;
+      cout << "FCal_ChannelMap: " << 2*std::distance(m_FCal_ChannelMap.begin(imap), m_FCal_ChannelMap.end(imap)) << endl;
+    }
+      
+    
+    for(auto it=m_FCal_ChannelMap.begin(imap);it!=m_FCal_ChannelMap.end(imap);it++){
+      
+      
+     
+      
+      phi_index = it->first & 0xffff;
+      eta_index = it->first >> 16;
+      x=it->second.x();
+      y=it->second.y();
+      m_FCal_ChannelMap.tileSize(imap, eta_index, phi_index,dx,dy);
+      
+      double r=sqrt(x*x+y*y);
+      
+      if(r<m_FCal_rmin[imap-1])m_FCal_rmin[imap-1]=r;
+      if(r>m_FCal_rmax[imap-1])m_FCal_rmax[imap-1]=r;
+      
+      
+      id=(mask1[imap-1]<<12) + (eta_index << 5) +2*phi_index;
+      
+      if(imap==2) id+= (8<<8);
+      
+      //cout << phi_index << " " << eta_index << " " << (id<<44) << " " << hex << (id<<44) << dec << endl ;
+      
+      const CaloDetDescrElement *DDE1 =getDDE(id<<44);
+      
+      id=(mask2[imap-1]<<12) + (eta_index << 5) +2*phi_index;
+      if(imap==2) id+= (8<<8);
+      const CaloDetDescrElement *DDE2=getDDE(id << 44);
+      
+      if(!TMath::AreEqualRel(x, DDE1->m_x,1.E-8) || !TMath::AreEqualRel(y, DDE1->m_y,1.E-8) || 
+	!TMath::AreEqualRel(x, DDE2->m_x,1.E-8) || !TMath::AreEqualRel(y, DDE2->m_y,1.E-8)
+       ){
+	cout << "Error: Incompatibility between FCalChannel map and GEO file \n" 
+	<< x << " " << DDE1->m_x << " " << DDE2->m_x
+	<< y << " " << DDE1->m_y << " " << DDE2->m_y << endl;
+      
+      }
+    }
+  
+    cout << "Sampling: " << sampling << " rmin: " << m_FCal_rmin[imap-1] << " rmax: " << m_FCal_rmax[imap-1] << endl;
+  
+  }
+  
+  
+  
 }
 

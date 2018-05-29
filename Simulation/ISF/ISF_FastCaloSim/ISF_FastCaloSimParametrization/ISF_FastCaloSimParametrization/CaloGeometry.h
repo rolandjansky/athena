@@ -39,7 +39,8 @@ class CaloGeometry : virtual public ICaloGeometry {
     virtual const CaloDetDescrElement* getDDE(int sampling, Identifier identify);
 
     virtual const CaloDetDescrElement* getDDE(int sampling,float eta,float phi,float* distance=0,int* steps=0);
-    virtual const CaloDetDescrElement* getFCalDDE(int sampling,float eta,float phi,float z);
+    virtual const CaloDetDescrElement* getFCalDDE(int sampling,float x,float y,float z);
+    bool getClosestFCalCellIndex(int sampling,float x,float y,int& ieta, int& iphi);
 
     double deta(int sample,double eta) const;
     void   minmaxeta(int sample,double eta,double& mineta,double& maxeta) const;
@@ -94,6 +95,8 @@ class CaloGeometry : virtual public ICaloGeometry {
     bool m_dographs;
     std::vector< TGraphErrors* > m_graph_layers;
     FCAL_ChannelMap m_FCal_ChannelMap; // for hit-to-cell assignment in FCal
+    std::vector<double> m_FCal_rmin,m_FCal_rmax;
+    
     
     /*
        double  m_min_eta_sample[2][MAX_SAMPLING]; //[side][calosample]
