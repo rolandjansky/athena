@@ -244,6 +244,8 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
 
 bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut, float d0sigcut, float z0cut, float etacut) const
 {
+  if (!acc_baseline(input)) return false;
+
   dec_passSignalID(input) = false;
   
   if (m_eleIdExpert) {
@@ -262,7 +264,6 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
 
   if (!acc_passSignalID(input)) return false;
 
-  if (!acc_baseline(input)) return false;
   if (input.p4().Perp2() <= etcut * etcut || input.p4().Perp2() == 0) return false; // eT cut (might be necessary for leading electron to pass trigger)
   if ( etacut==DUMMYDEF ){
     if(fabs(input.eta()) > m_eleEta ) return false;
@@ -271,7 +272,7 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
 
   if (m_eleCrackVeto){
     if  ( fabs( input.caloCluster()->etaBE(2) ) >1.37 &&  fabs( input.caloCluster()->etaBE(2) ) <1.52) {
-      return StatusCode::SUCCESS; 
+      return false;
     }
   }
 
