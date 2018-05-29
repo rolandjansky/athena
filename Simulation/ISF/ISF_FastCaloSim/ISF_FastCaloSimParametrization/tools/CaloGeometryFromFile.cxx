@@ -115,7 +115,6 @@ bool CaloGeometryFromFile::LoadGeometryFromFile(TString filename,TString treenam
     int sampling = pcell->getSampling();
     
     
-    //if(sampling >20) continue;
     this->addcell(pcell);
 		
     if(jentry%25000==0) {

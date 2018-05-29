@@ -19,6 +19,7 @@
 
 class CaloDetDescrElement;
 class TCanvas;
+class TGraph;
 class TGraphErrors;
 
 class CaloGeometry : virtual public ICaloGeometry {
@@ -33,7 +34,7 @@ class CaloGeometry : virtual public ICaloGeometry {
 
     virtual bool PostProcessGeometry();
 
-    virtual void Validate();
+    virtual void Validate(int nrnd=100);
 
     virtual const CaloDetDescrElement* getDDE(Identifier identify);
     virtual const CaloDetDescrElement* getDDE(int sampling, Identifier identify);
@@ -63,6 +64,7 @@ class CaloGeometry : virtual public ICaloGeometry {
     void SetDoGraphs(bool dographs=true) {m_dographs=dographs;};
     bool DoGraphs() const {return m_dographs;};
 
+    TGraph*  DrawGeoSampleForPhi0(int sample, int calocol, bool print=false);
     TCanvas* DrawGeoForPhi0();
     FCAL_ChannelMap* GetFCAL_ChannelMap(){return &m_FCal_ChannelMap;}
     virtual void LoadFCalGeometryFromFiles(TString filename1,TString filename2,TString filename3); // Initialize m_FCal_ChannelMap

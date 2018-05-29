@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
 #ifndef XAOD_ANALYSIS
 
 #include "EvgenProdTools/TestHepMC.h"
@@ -32,6 +31,21 @@ TestHepMC::TestHepMC(const string& name, ISvcLocator* pSvcLocator)
   declareProperty( "G4ExtraWhiteFile", m_paramFile       = "g4_extrawhite.param" );
 
   declareProperty("NoDecayVertexStatuses", m_vertexStatuses );
+
+  declareProperty("BeamEnergyTest",           m_beamEnergyTest = true); //switching off inactive
+  declareProperty("VtxNaNTest",               m_vtxNaNTest = true);
+  declareProperty("VtxDisplacedTest",         m_vtxDisplacedTest = true);
+  declareProperty("MomNaNTest",               m_momNaNTest = true);
+  declareProperty("LifeTimeTest",             m_lifeTimeTest = true);
+  declareProperty("EnergyG4Test",             m_energyG4Test = true);
+  declareProperty("EnergyImbalanceTest",      m_energyImbalanceTest = true);
+  declareProperty("MomImbalanceTest",         m_momImbalanceTest = true);
+  declareProperty("NegativeEnergyTest",       m_negativeEnergyTest = true);
+  declareProperty("TachyonsTest",             m_tachyonsTest = true);
+  declareProperty("UnstableNoVtxTest",        m_unstableNoVtxTest = true);
+  declareProperty("Pi0NoVtxTest",             m_pi0NoVtxTest = true);
+  declareProperty("UndisplacedDaughtersTest", m_undisplacedDaughtersTest = true);
+
   m_vertexStatuses.push_back( 1 );
   m_vertexStatuses.push_back( 3 );
   m_vertexStatuses.push_back( 4 );
@@ -298,10 +312,13 @@ StatusCode TestHepMC::execute() {
            std::isnan(pos.y()) || std::isinf(pos.y()) ||
            std::isnan(pos.z()) || std::isinf(pos.z()) ) {
         ATH_MSG_WARNING("NaN (Not A Number) or inf found in the event record vertex positions");
-        ++m_nFail;
+        
         ++m_vtxNANandINFCheckRate;
         if (m_dumpEvent) (*itr)->print();
-        setFilterPassed(false);
+        if (m_vtxNaNTest) {
+           ++m_nFail;
+           setFilterPassed(false);
+        }
         return StatusCode::SUCCESS;
       }
 
@@ -314,8 +331,11 @@ StatusCode TestHepMC::execute() {
       if (dist2 > m_max_dist*m_max_dist) {
         ATH_MSG_WARNING("Found vertex position displaced by more than " << m_max_dist << "mm: " << dist << "mm");
         ++m_vtxDisplacedMoreThan_1m_CheckRateCnt;
-        ++m_nFail;
-        setFilterPassed(false);
+        
+        if (m_vtxDisplacedTest) {
+            setFilterPassed(false);
+            ++m_nFail;
+            }
         return StatusCode::SUCCESS;
       }
       if (dist_trans2 > m_max_dist_trans*m_max_dist_trans) {
@@ -396,9 +416,12 @@ StatusCode TestHepMC::execute() {
            std::isnan(pmom.e())  || std::isinf(pmom.e()) ) {
         ATH_MSG_WARNING("NaN (Not A Number) or inf found in the event record momenta");
         ++m_partMomentumNANandINFCheckRate;
-        ++m_nFail;
+        
         if (m_dumpEvent) (*pitr)->print();
-        setFilterPassed(false);
+        if (m_momNaNTest) {
+           setFilterPassed(false);
+           ++m_nFail;
+        }
         return StatusCode::SUCCESS;
       }
 
@@ -420,8 +443,11 @@ StatusCode TestHepMC::execute() {
 	    if (m_dumpEvent) (*pitr)->print();
 
             ++m_Status1ShortLifetime;
-            ++m_nFail;
-            setFilterPassed(false);
+            
+            if (m_lifeTimeTest) {
+               setFilterPassed(false);
+               ++m_nFail;
+               }
             return StatusCode::SUCCESS;
           }
         }
@@ -466,11 +492,10 @@ StatusCode TestHepMC::execute() {
             }
       }
 
-      // Check for unstables with no end vertex, such as undecayed gluons, Ws, Zs, and h [not status 3 to avoid probles with photos]
-      if (!(*pitr)->end_vertex() &&
-          ( ( std::find( m_vertexStatuses.begin(), m_vertexStatuses.end(), pstatus ) == m_vertexStatuses.end() ) 
-	    || 
-	    ((abs(ppdgid) == 23 || ppdgid == 24 || ppdgid == 25) && pstatus != 3))) {
+      // Check for unstables with no end vertex, 
+	    
+      if (!(*pitr)->end_vertex() && pstatus == 2) { 
+
         unstNoEnd.push_back(pbarcode);
         ++m_unstableNoEndVtxCheckRate;
       }
@@ -564,9 +589,12 @@ StatusCode TestHepMC::execute() {
     // Energy of interacting particles not known by Geant4
     if(nonG4_energy > m_nonG4_energy_threshold) {
       ATH_MSG_WARNING("The energy of interacting particles not known by Geant4 is = " << nonG4_energy << " MeV");
-      setFilterPassed(false);
+      if (m_energyG4Test) {
+         setFilterPassed(false);
+         ++m_nFail;
+         }
       ++m_nonG4_energyCheckRate;
-      ++m_nFail;
+      
       return StatusCode::SUCCESS;      
     }
 
@@ -583,9 +611,12 @@ StatusCode TestHepMC::execute() {
       //     std::cout << "hidt filled " << std::endl;
      }
       if (m_dumpEvent) (*itr)->print();
-      setFilterPassed(false);
+      if (m_energyImbalanceTest) {
+         setFilterPassed(false);
+         ++m_nFail;
+         }
       ++m_energyBalanceCheckRate;
-      ++m_nFail;
+      
       return StatusCode::SUCCESS;
     }
 
@@ -599,9 +630,12 @@ StatusCode TestHepMC::execute() {
       m_h_momentumImbalance_pz->Fill(fabs(totalPz)*1.E-03);
     }
       if (m_dumpEvent) (*itr)->print();
-      setFilterPassed(false);
+      if (m_momImbalanceTest) {
+         setFilterPassed(false);
+         ++m_nFail;
+         }
       ++m_momentumBalanceCheckRate;
-      ++m_nFail;
+      
       return StatusCode::SUCCESS;
     }
 
@@ -613,9 +647,12 @@ StatusCode TestHepMC::execute() {
         ss << " " << *b;
       ATH_MSG_WARNING(ss.str());
       if (m_dumpEvent) (*itr)->print();
-      setFilterPassed(false);
+      if (m_negativeEnergyTest) {
+         setFilterPassed(false);
+         ++m_nFail;
+         }
       ++m_negativeEnergyCheckRate;
-      ++m_nFail;
+      
       return StatusCode::SUCCESS;
     }
 
@@ -627,9 +664,12 @@ StatusCode TestHepMC::execute() {
         ss << " " << *b;
       ATH_MSG_WARNING(ss.str());
       if (m_dumpEvent) (*itr)->print();
-      setFilterPassed(false);
+      if (m_tachyonsTest) {
+         setFilterPassed(false);
+         ++m_nFail;
+         }
       ++m_energyBalanceCheckRate;
-      ++m_nFail;
+      
       return StatusCode::SUCCESS;
     }
 
@@ -641,9 +681,12 @@ StatusCode TestHepMC::execute() {
         ss << " " << *b;
       ATH_MSG_WARNING(ss.str());
       if (m_dumpEvent) (*itr)->print();
-      setFilterPassed(false);
+      if (m_unstableNoVtxTest) {
+         setFilterPassed(false);
+         ++m_nFail;
+         }
       ++m_unstablePartNoDecayVtxCheckRate;
-      ++m_nFail;
+      
       return StatusCode::SUCCESS;
     }
 
@@ -655,9 +698,12 @@ StatusCode TestHepMC::execute() {
         ss << " " << *b;
       ATH_MSG_WARNING(ss.str());
       if (m_dumpEvent) (*itr)->print();
-      setFilterPassed(false);
+      if (m_pi0NoVtxTest) {
+         setFilterPassed(false);
+         ++m_nFail;
+         }
       ++m_undecayedPi0CheckRate;
-      ++m_nFail;
+      
       return StatusCode::SUCCESS;
     }
 
@@ -669,9 +715,12 @@ StatusCode TestHepMC::execute() {
         ss << " " << *b;
       ATH_MSG_WARNING(ss.str());
       if (m_dumpEvent) (*itr)->print();
-      setFilterPassed(false);
+      if(m_undisplacedDaughtersTest) {
+         setFilterPassed(false);
+         ++m_nFail;
+         }
       ++m_undisplacedDecayDaughtersOfDisplacedVtxCheckRate;
-      ++m_nFail;
+      
       return StatusCode::SUCCESS;
     }
 
@@ -692,10 +741,12 @@ StatusCode TestHepMC::finalize() {
   ATH_MSG_INFO(" Event rate with beam particles and status not equal to 4 = " << m_beamParticleswithStatusNotFourCheckRate*100.0/double(m_nPass + m_nFail) << "% (not included in test efficiency)");
   ATH_MSG_INFO(" Event rate with incorrect beam particle energies = " << m_beamEnergyCheckRate*100.0/double(m_nPass + m_nFail) << "% (not included in test efficiency)");
   ATH_MSG_INFO(" Event rate with NaN (Not A Number) or inf found in the event record vertex positions = " << m_vtxNANandINFCheckRate*100.0/double(m_nPass + m_nFail) << "%");
-  ATH_MSG_INFO(" Event rate with vertices displaced more than " << m_max_dist_trans << "~mm in transverse direction for particles with status codes 1 and 2 = " << m_vtxDisplacedstatuscode12CheckRate*100.0/double(m_nPass + m_nFail) << "% (not included in test efficiency)");
+  if (!m_vtxNaNTest) ATH_MSG_INFO(" The check for NaN or inf in vtx. record is switched off, so is not included in the final TestHepMC efficiency ");
   ATH_MSG_INFO(" Event rate with vertices displaced more than " << m_max_dist_trans << "~mm in transverse direction for particles with status code other than 1 and 2 = " << m_vtxDisplacedstatuscodenot12CheckRate*100.0/double(m_nPass + m_nFail) << "% (not included in test efficiency)");
   ATH_MSG_INFO(" Event rate with vertices displaced more than " << m_max_dist << "~mm = " << m_vtxDisplacedMoreThan_1m_CheckRateCnt*100.0/double(m_nPass + m_nFail) << "%");
+  if (!m_vtxDisplacedTest) ATH_MSG_INFO(" The check for displaced vertices is switched off, so is not included in the final TestHepMC efficiency ");
   ATH_MSG_INFO(" Event rate with NAN (Not A Number) or inf found in particle momentum values = " << m_partMomentumNANandINFCheckRate*100.0/double(m_nPass + m_nFail) << "%");
+  if (!m_momNaNTest) ATH_MSG_INFO(" The check for NaN/inf in momentum record is switched off, so is not included in the final TestHepMC efficiency ");
   ATH_MSG_INFO(" Event rate with undecayed pi0's with status 1 or 2 = " << m_undecayedPi0statuscode12CheckRate*100.0/double(m_nPass + m_nFail) << "% (not included in test efficiency)");
   ATH_MSG_INFO(" Event rate with unstable particles with no end vertex = " << m_unstableNoEndVtxCheckRate*100.0/double(m_nPass + m_nFail) << "% (not included in test efficiency)");
   ATH_MSG_INFO(" Event rate with negative total energy like for tachyonic particles = " << m_negativeEnergyTachyonicCheckRate*100.0/double(m_nPass + m_nFail) << "% (not included in test efficiency)");
@@ -703,16 +754,25 @@ StatusCode TestHepMC::finalize() {
   ATH_MSG_INFO(" Event rate with undisplaced daughters of long lived hadrons = " << m_undisplacedLLHdaughtersCheckRate*100.0/double(m_nPass + m_nFail) << "% (not included in test efficiency)");
   ATH_MSG_INFO(" Event rate with non zero photon mass = " << m_nonZeroPhotonMassCheckRate*100.0/double(m_nPass + m_nFail) << "% (not included in test efficiency)");
   ATH_MSG_INFO(" Event rate with no energy balance = " << m_energyBalanceCheckRate*100.0/double(m_nPass + m_nFail) << "%");
+  if (!m_energyImbalanceTest) ATH_MSG_INFO(" The check for energy imbalance is switched off, so is not included in the final TestHepMC efficiency ");
   ATH_MSG_INFO(" Event rate with no momentum balance = " << m_momentumBalanceCheckRate*100.0/double(m_nPass + m_nFail) << "%");
+  if (!m_momImbalanceTest) ATH_MSG_INFO(" The check for momentum imbalance is switched off, so is not included in the final TestHepMC efficiency ");
   ATH_MSG_INFO(" Event rate with negative energy particles = " << m_negativeEnergyCheckRate*100.0/double(m_nPass + m_nFail) << "%");
+  if (!m_negativeEnergyTest) ATH_MSG_INFO(" The check for particles with negative energy is switched off, so is not included in the final TestHepMC efficiency ");
   ATH_MSG_INFO(" Event rate with tachyons = " << m_tachyonCheckRate*100.0/double(m_nPass + m_nFail) << "%");
+  if (!m_tachyonsTest) ATH_MSG_INFO(" The check for tachyons is switched off, so is not included in the final TestHepMC efficiency ");
   ATH_MSG_INFO(" Event rate with stable or unstable particles with no parents = " << m_stableUnstableNoParentCheckRate*100.0/double(m_nPass + m_nFail) << "%");
   ATH_MSG_INFO(" Event rate with unstable particle with no decay vertex = " << m_unstablePartNoDecayVtxCheckRate*100.0/double(m_nPass + m_nFail) << "%");
+  if (!m_unstableNoVtxTest) ATH_MSG_INFO(" The check for unstable part. without end vertex is switched off, so is not included in the final TestHepMC efficiency ");
   ATH_MSG_INFO(" Event rate with undecayed Pi0's = " << m_undecayedPi0CheckRate*100.0/double(m_nPass + m_nFail) << "%");
+  if (!m_pi0NoVtxTest) ATH_MSG_INFO(" The check for undecayed pi0's is switched off, so is not included in the final TestHepMC efficiency ");
   ATH_MSG_INFO(" Event rate with undisplaced decay daughters of displaced vertices = " << m_undisplacedDecayDaughtersOfDisplacedVtxCheckRate*100.0/double(m_nPass + m_nFail) << "%");
+  if (!m_undisplacedDaughtersTest) ATH_MSG_INFO(" The check for  undisplaced daughters is switched off, so is not included in the final TestHepMC efficiency ");
   ATH_MSG_INFO(" Event rate with particles with status 1 but lifetime < " << m_min_tau << "~ns = " << m_Status1ShortLifetime*100.0/double(m_nPass + m_nFail) << "%");
+  if (!m_lifeTimeTest) ATH_MSG_INFO(" The check for status 1 particles with too short lifetime is switched off, so is not included in the final TestHepMC efficiency ");
   ATH_MSG_INFO(" Event rate with energy sum of interacting particles non known by Geant4 above " << m_nonG4_energy_threshold << " MeV = " << m_nonG4_energyCheckRate*100.0/double(m_nPass + m_nFail) << "%");
- 
+  if (!m_energyG4Test) ATH_MSG_INFO(" The check for energy not known by G4 is switched off, so is not included in the final TestHepMC efficiency "); 
+
   const double tau_fastDrate = double(m_FastDecayedTau) / double(m_TotalTaus);
   if(tau_fastDrate > m_tau_eff_threshold){
     ATH_MSG_FATAL("MORE THAN " << 100.*m_tau_eff_threshold << "% OF TAUS DECAYING IMMEDIATELY! " << m_FastDecayedTau << " found, out of: " << m_TotalTaus);

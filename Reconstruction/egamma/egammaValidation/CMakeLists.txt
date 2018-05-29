@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PRIVATE
 	Event/xAOD/xAODEventInfo
 	Event/xAOD/xAODTracking
         PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
+        PhysicsAnalysis/AnalysisCommon/PATCore
 	TestPolicy 
 	Tracking/TrkValidation/TrkValHistUtils ) 
 
@@ -23,7 +24,7 @@ atlas_add_component ( egammmaValidation
 	src/*.cxx 
 	src/components/*.cxx 
 	INCLUDE_DIRS 
-	LINK_LIBRARIES GaudiKernel AthenaBaseComps AsgTools xAODEventInfo 
+	LINK_LIBRARIES GaudiKernel AthenaBaseComps AsgTools xAODEventInfo PATCoreLib
 	xAODEgamma xAODTracking TrkValHistUtils AsgAnalysisInterfaces )
 
 # Install JO files from the package:
