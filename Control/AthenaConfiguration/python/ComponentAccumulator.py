@@ -8,6 +8,7 @@ from AthenaCommon.AlgSequence import AlgSequence
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 import GaudiKernel.GaudiHandles as GaudiHandles
 import ast
+import collections
 
 class DeduplicationFailed(RuntimeError):
     pass
@@ -43,8 +44,6 @@ class ComponentAccumulator(object):
 
 
         self._theAppProps=dict()        #Properties of the ApplicationMgr
-
-        self._privateTools=[]           #Private tools are not merged! Belong to parent algo
 
         #Backward compatiblity hack: Allow also public tools:
         self._publicTools=[]
@@ -161,16 +160,6 @@ class ComponentAccumulator(object):
         self._deduplicate(newSvc,self._services)  #will raise on conflict
         return newSvc
 
-    def addAlgTool(self,newTool):
-        if not isinstance(newTool,ConfigurableAlgTool):
-            raise TypeError("Attempt to add wrong type as AlgTool")
-        self._privateTools.append(newTool)
-        return newTool
-
-
-    def clearAlgTools(self):
-        self._privateTools=[]
-
 
     def addPublicTool(self,newTool):
         if not isinstance(newTool,ConfigurableAlgTool):
@@ -232,9 +221,6 @@ class ComponentAccumulator(object):
                 return svc
         raise KeyError("No service with name %s known" % name)
 
-    def getAlgTools(self):
-        return self._privateTools
-    
     def getAlgTool(self,name):
         for tool in self._privateTools:
             if tool.getName()==name:
@@ -361,16 +347,20 @@ class ComponentAccumulator(object):
         retval=fct(configFlags,*args,**kwargs)
         CurrentSequence.set( currentSeq )
 
-        self.__merge(retval)
-        
-        #Get private tools if there are any
-        #Those are not merged and not passed through the call-chain,
-        #instead we overwrite whatever was there before
-        #The client is supposed to grab the private tools and attach 
-        #them to their parent component
-        self._privateTools=retval._privateTools
-        return self._privateTools
 
+        if isinstance(retval,collections.Sequence) and len(retval)>0:
+            toMerge=retval[0]
+            toReturn=list(retval[1:])
+        elif isinstance(retval,ComponentAccumulator):
+            toMerge=retval
+            toReturn=[]
+        else:
+            print retval
+            raise ConfigurationError("Return value of configuration methods must be instaces of ComponentAccumulator or tuples starting with an instance of ComponentAccumulator")     
+            
+            
+        self.__merge(toMerge)
+        return toReturn
 
     def appendConfigurable(self,confElem):
         name=confElem.getJobOptName() # to be FIXED
