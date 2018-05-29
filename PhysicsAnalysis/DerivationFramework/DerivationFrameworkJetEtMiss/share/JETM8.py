@@ -232,6 +232,10 @@ addTrimmedJets("AntiKt", 1.0, "EMPFlow", rclus=0.2, ptfrac=0.05, algseq=jetm8Seq
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm8Seq,"JETM8")
 
+# AntiKtVR600Rmax10Rmin2*PtFrac5Rclus20
+from DerivationFrameworkFlavourTag.HbbCommon import *
+addVRCaloJets(jetm8Seq,"JETM8")
+
 #AntiKt4PV0TrackJets
 addAntiKt2PV0TrackJets(jetm8Seq, "JETM8")
 addAntiKt4PV0TrackJets(jetm8Seq, "JETM8")
