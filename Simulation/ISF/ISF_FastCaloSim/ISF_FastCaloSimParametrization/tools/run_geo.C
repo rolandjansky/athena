@@ -166,10 +166,10 @@ void run_geo()
   Long64_t eta_index64,phi_index64;
   //double x=423.755;
   //double y=123.41;
-  //double x=431.821;
-  //double y=116.694;
-  double x=21;
-  double y=27;
+  double x=431.821;
+  double y=116.694;
+  //double x=21;
+  //double y=27;
   
   
   //double x=436.892; 
@@ -181,6 +181,9 @@ void run_geo()
   
   cout << endl;
   cout << "Looking for tile corresponding to [x,y] = [" <<  x << "," << y << "]" << endl;
+  
+  float* distance = new float(-99.);
+  int* steps = new int(-99);
   
   for(int imap=1;imap<=3;imap++){
   
@@ -197,11 +200,15 @@ void run_geo()
 	    cmap->tileSize(imap, eta_index, phi_index, dx, dy);
 	    cout << "Tile position: [x,y] = [" <<  cmap->x(imap,eta_index,phi_index) << "," << cmap->y(imap,eta_index,phi_index) << "]" << " [dx,dy] = [" << dx << "," << dy << "] " << endl;
 	  }
-	  mcell=geo->getFCalDDE(imap+20,x,y,+1);
+	  mcell=geo->getFCalDDE(imap+20,x,y,+1,distance,steps);
 	  cout << "Original hit position: [x,y] = [" <<  x << "," << y << "]" << endl;
 	  cout << "Tile position from CaloGeometry: [x,y] = [" <<  mcell->x() << "," << mcell->y() << "]" << " [dx,dy] = [" << mcell->dx() << "," << mcell->dy() << "] " << " Identifier: " << mcell->identify() << endl;
+	  cout << "Distance: " << *distance << endl;
+	  cout << "Steps: " << *steps << endl;
 		
 	  Identifier identifier= mcell->identify();
+	  
+	
 		/*eta_index64=eta_index;
 		phi_index64=phi_index;
 		if (imap==2) eta_index64+=100;
@@ -217,6 +224,9 @@ void run_geo()
 	
 	}
 
+  delete distance;
+  delete steps;
+  
   bool makeFCalCellPlots=false;
 
   if(makeFCalCellPlots){

@@ -40,8 +40,8 @@ class CaloGeometry : virtual public ICaloGeometry {
     virtual const CaloDetDescrElement* getDDE(int sampling, Identifier identify);
 
     virtual const CaloDetDescrElement* getDDE(int sampling,float eta,float phi,float* distance=0,int* steps=0);
-    virtual const CaloDetDescrElement* getFCalDDE(int sampling,float x,float y,float z);
-    bool getClosestFCalCellIndex(int sampling,float x,float y,int& ieta, int& iphi);
+    virtual const CaloDetDescrElement* getFCalDDE(int sampling,float x,float y,float z,float* distance=0,int* steps=0);
+    bool getClosestFCalCellIndex(int sampling,float x,float y,int& ieta, int& iphi,int* steps=0);
 
     double deta(int sample,double eta) const;
     void   minmaxeta(int sample,double eta,double& mineta,double& maxeta) const;

@@ -549,41 +549,45 @@ const CaloDetDescrElement* CaloGeometry::getDDE(int sampling,float eta,float phi
   return bestDDE;
 }
 
-const CaloDetDescrElement* CaloGeometry::getFCalDDE(int sampling,float x,float y,float z){
-		int isam = sampling - 20;
-		int iphi(-100000),ieta(-100000);
-		Long64_t mask1[]{0x34,0x34,0x35};
-		Long64_t mask2[]{0x36,0x36,0x37};
-		bool found = m_FCal_ChannelMap.getTileID(isam, x, y, ieta, iphi);
-		if(!found) {
-		  cout << "Warning: Hit is not matched with any FCal cell! Looking for the closest cell" << endl;
-		  found = getClosestFCalCellIndex(sampling, x, y, ieta, iphi);
-		}
-		if(!found) {
-		  cout << "Error: Unable to find the closest FCal cell!" << endl;
-		  return nullptr;
-		}
-		
-		
-		//cout << "CaloGeometry::getFCalDDE: x:" << x << " y: " << y << " ieta: " << ieta << " iphi: " << iphi << " cmap->x(): " << m_FCal_ChannelMap.x(isam,ieta,iphi) << " cmap->y(): " << m_FCal_ChannelMap.y(isam,ieta,iphi) << endl;
-		Long64_t id = (ieta << 5) + 2*iphi;
-		if(isam==2)id+= (8<<8);
-		
-		
-		
-		if(z>0) id+=(mask2[isam-1] << 12);
-		else id+=(mask1[isam-1] << 12);
-		
-		id = id << 44; 
-		Identifier identify((unsigned long long)id);
-		
-		const CaloDetDescrElement* foundcell=m_cells[identify];
-
-		return foundcell;
+const CaloDetDescrElement* CaloGeometry::getFCalDDE(int sampling,float x,float y,float z,float* distance,int* steps){
+  int isam = sampling - 20;
+  int iphi(-100000),ieta(-100000);
+  Long64_t mask1[]{0x34,0x34,0x35};
+  Long64_t mask2[]{0x36,0x36,0x37};
+  bool found = m_FCal_ChannelMap.getTileID(isam, x, y, ieta, iphi);
+  if(steps && found) *steps=0;
+  if(!found) {
+    cout << "Warning: Hit is not matched with any FCal cell! Looking for the closest cell" << endl;
+    found = getClosestFCalCellIndex(sampling, x, y, ieta, iphi,steps);
+  }
+  if(!found) {
+    cout << "Error: Unable to find the closest FCal cell!" << endl;
+    return nullptr;
+  }
+  
+  
+  //cout << "CaloGeometry::getFCalDDE: x:" << x << " y: " << y << " ieta: " << ieta << " iphi: " << iphi << " cmap->x(): " << m_FCal_ChannelMap.x(isam,ieta,iphi) << " cmap->y(): " << m_FCal_ChannelMap.y(isam,ieta,iphi) << endl;
+  Long64_t id = (ieta << 5) + 2*iphi;
+  if(isam==2)id+= (8<<8);
+  
+  
+  
+  if(z>0) id+=(mask2[isam-1] << 12);
+  else id+=(mask1[isam-1] << 12);
+  
+  id = id << 44; 
+  Identifier identify((unsigned long long)id);
+  
+  const CaloDetDescrElement* foundcell=m_cells[identify];
+  if(distance) {
+    *distance=sqrt(pow(foundcell->x() - x,2) +  pow(foundcell->y() - y,2)  );
+  }
+  
+  return foundcell;
 }
 
 
-bool CaloGeometry::getClosestFCalCellIndex(int sampling,float x,float y,int& ieta, int& iphi){
+bool CaloGeometry::getClosestFCalCellIndex(int sampling,float x,float y,int& ieta, int& iphi,int* steps){
   
   double rmin = m_FCal_rmin[sampling-21];
   double rmax = m_FCal_rmax[sampling-21];
@@ -615,6 +619,7 @@ bool CaloGeometry::getClosestFCalCellIndex(int sampling,float x,float y,int& iet
     }
     
   }
+  if(steps)*steps=i+1;
   return i<nmax ? true : false;
 }
 
