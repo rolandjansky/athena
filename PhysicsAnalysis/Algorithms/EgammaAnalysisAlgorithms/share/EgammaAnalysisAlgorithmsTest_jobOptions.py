@@ -39,13 +39,7 @@ from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import \
 electronSequence = makeElectronAnalysisSequence( dataType )
 electronSequence.configure( inputName = 'Electrons',
                             outputName = 'AnalysisElextrons' )
-
-# Allow the histogram writer algorithm(s) to work correctly:
-electronSequence.ElectronCutFlowDumperAlg.RootStreamName = '/EGAMMATEST'
-electronSequence.ElectronKinematicDumperAlg.RootStreamName = '/EGAMMATEST'
-
-# For debugging:
-print( electronSequence )
+print( electronSequence ) # For debugging
 
 # Add the electron sequence to the job:
 algSeq += electronSequence
@@ -56,21 +50,15 @@ from EgammaAnalysisAlgorithms.PhotonAnalysisSequence import \
 photonSequence = makePhotonAnalysisSequence( dataType )
 photonSequence.configure( inputName = 'Photons',
                           outputName = 'AnalysisPhotons' )
-
-# Allow the histogram writer algorithm(s) to work correctly:
-photonSequence.PhotonCutFlowDumperAlg.RootStreamName = '/EGAMMATEST'
-photonSequence.PhotonKinematicDumperAlg.RootStreamName = '/EGAMMATEST'
-
-# For debugging:
-print( photonSequence )
+print( photonSequence ) # For debugging
 
 # Add the photon sequence to the job:
 algSeq += photonSequence
 
-# Set up THistSvc:
+# Set up a histogram output file for the job:
 ServiceMgr += CfgMgr.THistSvc()
 ServiceMgr.THistSvc.Output += [
-    "EGAMMATEST DATAFILE='EgammaAnalysisAlgorithmsTest.hist.root' OPT='RECREATE'"
+    "ANALYSIS DATAFILE='EgammaAnalysisAlgorithmsTest.hist.root' OPT='RECREATE'"
     ]
 
 # Reduce the printout from Athena:

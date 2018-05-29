@@ -27,24 +27,16 @@ algSeq += sysLoader
 from MuonAnalysisAlgorithms.MuonAnalysisSequence import makeMuonAnalysisSequence
 muonSequence = makeMuonAnalysisSequence( dataType )
 muonSequence.configure( inputName = 'Muons', outputName = 'AnalysisMuons' )
-
-# Set all algorithms in the sequence to debug output:
-for alg in muonSequence:
-    alg.OutputLevel = 1
-
-# Allow the histogram writer algorithm to work correctly:
-muonSequence.MuonCutFlowDumperAlg.RootStreamName = "/MUONTEST"
-muonSequence.MuonKinematicDumperAlg.RootStreamName = "/MUONTEST"
-ServiceMgr += CfgMgr.THistSvc()
-ServiceMgr.THistSvc.Output += [
-    "MUONTEST DATAFILE='MuonAnalysisAlgorithmsTest.hist.root' OPT='RECREATE'"
-    ]
-
-# Print the job configuration for debugging:
-print( muonSequence )
+print( muonSequence ) # For debugging
 
 # Add the sequence to the job:
 algSeq += muonSequence
+
+# Set up a histogram output file for the job:
+ServiceMgr += CfgMgr.THistSvc()
+ServiceMgr.THistSvc.Output += [
+    "ANALYSIS DATAFILE='MuonAnalysisAlgorithmsTest.hist.root' OPT='RECREATE'"
+    ]
 
 # Reduce the printout from Athena:
 include( "AthAnalysisBaseComps/SuppressLogging.py" )

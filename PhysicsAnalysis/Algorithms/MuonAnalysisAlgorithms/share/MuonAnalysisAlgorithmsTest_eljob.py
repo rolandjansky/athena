@@ -62,13 +62,7 @@ job.algsAdd( sysLoader )
 from MuonAnalysisAlgorithms.MuonAnalysisSequence import makeMuonAnalysisSequence
 muonSequence = makeMuonAnalysisSequence( dataType )
 muonSequence.configure( inputName = 'Muons', outputName = 'AnalysisMuons' )
-
-# Set all algorithms in the sequence to debug output:
-for alg in muonSequence:
-    alg.OutputLevel = 1
-
-# Print the job configuration for debugging:
-print( muonSequence )
+print( muonSequence ) # For debugging
 
 # Add all algorithms to the job:
 for alg in muonSequence:
