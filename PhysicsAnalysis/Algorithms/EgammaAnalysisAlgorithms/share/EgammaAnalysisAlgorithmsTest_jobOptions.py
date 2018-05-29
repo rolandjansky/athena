@@ -38,7 +38,7 @@ from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import \
     makeElectronAnalysisSequence
 electronSequence = makeElectronAnalysisSequence( dataType )
 electronSequence.configure( inputName = 'Electrons',
-                            outputName = 'AnalysisElextrons' )
+                            outputName = 'AnalysisElectrons' )
 print( electronSequence ) # For debugging
 
 # Add the electron sequence to the job:
