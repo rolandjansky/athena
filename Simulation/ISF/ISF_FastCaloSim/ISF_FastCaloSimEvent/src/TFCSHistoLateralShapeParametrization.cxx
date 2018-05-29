@@ -20,6 +20,7 @@
 TFCSHistoLateralShapeParametrization::TFCSHistoLateralShapeParametrization(const char* name, const char* title) :
   TFCSLateralShapeParametrizationHitBase(name,title),m_nhits(0)
 {
+  reset_phi_symmetric();
 }
 
 TFCSHistoLateralShapeParametrization::~TFCSHistoLateralShapeParametrization()
@@ -49,7 +50,19 @@ void TFCSHistoLateralShapeParametrization::simulate_hit(Hit& hit,TFCSSimulationS
   //CLHEP should generate random numbers in (0,1), so this fudge is no longer needed after migrating to CLHEP random numbers
   rnd1=1-gRandom->Rndm(); 
   rnd2=1-gRandom->Rndm();
-  m_hist.rnd_to_fct(alpha,r,rnd1,rnd2);
+  if(is_phi_symmetric()) {
+    if(rnd2>=0.5) { //Fill negative phi half of shape
+      rnd2-=0.5;
+      rnd2*=2;
+      m_hist.rnd_to_fct(alpha,r,rnd1,rnd2);
+      alpha=-alpha;
+    } else { //Fill positive phi half of shape
+      rnd2*=2;
+      m_hist.rnd_to_fct(alpha,r,rnd1,rnd2);
+    }
+  } else {
+    m_hist.rnd_to_fct(alpha,r,rnd1,rnd2);
+  }
   if(TMath::IsNaN(alpha) || TMath::IsNaN(r)) {
     ATH_MSG_ERROR("  Histogram: "<<m_hist.get_HistoBordersx().size()-1<<"*"<<m_hist.get_HistoBordersy().size()-1<<" bins, #hits="<<m_nhits<<" alpha="<<alpha<<" r="<<r<<" rnd1="<<rnd1<<" rnd2="<<rnd2);
     alpha=0;
