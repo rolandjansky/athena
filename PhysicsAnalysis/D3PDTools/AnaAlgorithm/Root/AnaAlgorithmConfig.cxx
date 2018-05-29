@@ -182,7 +182,7 @@ namespace EL
 
           // Skip the next step if tool.first is empty. Which is the case for
           // public tools for instance.
-          if( ! tool.first.size() ) continue;
+          if( tool.first.empty() ) continue;
 
           // using that a ToolHandle initialized with a tool name will
           // retrieve that tool, not sure if that is the best strategy
