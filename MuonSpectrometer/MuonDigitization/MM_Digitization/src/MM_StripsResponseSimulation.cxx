@@ -144,7 +144,7 @@ MM_StripToolOutput MM_StripsResponseSimulation::GetResponseFrom(const MM_DigitTo
 	Athena::MsgStreamMember log("MM_StripsResponseSimulation::GetResponseFrom");
 	log << MSG::DEBUG << "\t \t MM_StripsResponseSimulation::GetResponseFrom start " << endmsg;
 
-	IonizationClusters.clear();
+	m_IonizationClusters.clear();
 	finalNumberofStrip.clear();
 	finalqStrip.clear();
 	finaltStrip.clear();
@@ -277,7 +277,7 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 		m_mapOfHistograms["effectiveNElectrons"]->Fill( tmpEffectiveNElectrons*1e-4 );
 
 		//---
-		IonizationClusters.push_back(IonizationCluster);
+		m_IonizationClusters.push_back(IonizationCluster);
 
 		pathLengthTraveled +=  (1. / m_interactionDensityFunction->GetRandom() ) * -1. * log( m_random->Uniform() );
 
@@ -290,7 +290,7 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 	float timeresolution = 0.01; //ns
 
-	MM_StripResponse stripResponseObject(IonizationClusters, timeresolution, m_pitch, stripID, stripMaxID);
+	MM_StripResponse stripResponseObject(m_IonizationClusters, timeresolution, m_pitch, stripID, stripMaxID);
 	stripResponseObject.timeOrderElectrons();
 	stripResponseObject.calculateTimeSeries(incidentAngleXZ, digiInput.gasgap());
 	stripResponseObject.simulateCrossTalk( m_crossTalk1,  m_crossTalk2);
@@ -314,9 +314,9 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 	if(m_writeEventDisplays){
 		if(m_outputFile) m_outputFile->cd();
-		TGraph grIonizationXZ( IonizationClusters.size() );
-		for (int iIonization=0; iIonization <  (int) IonizationClusters.size(); iIonization++) {
-			TVector2 ionizationPosition( IonizationClusters.at(iIonization).getIonizationStart() );
+		TGraph grIonizationXZ( m_IonizationClusters.size() );
+		for (int iIonization=0; iIonization <  (int) m_IonizationClusters.size(); iIonization++) {
+			TVector2 ionizationPosition( m_IonizationClusters.at(iIonization).getIonizationStart() );
 			grIonizationXZ.SetPoint( iIonization, ionizationPosition.X(), ionizationPosition.Y() );
 		}
 		grIonizationXZ.Write("ionizationXZ");
