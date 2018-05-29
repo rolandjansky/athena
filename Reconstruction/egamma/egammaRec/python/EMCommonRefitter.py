@@ -36,7 +36,8 @@ else :
     # --- since a correction is needed to fix biases when running on new run 2 compatible calibation
     from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory    
       
-    if not "R2" in globalflags.DetDescrVersion() and not "IBL3D25" in globalflags.DetDescrVersion():
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
+    if ( not geoFlags.Run() in ["RUN2", "RUN3"] ) :
       egNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "egNnClusterizationFactory",
                                                                   NetworkToHistoTool   = egNeuralNetworkToHistoTool,
                                                                   doRunI = True,
