@@ -84,24 +84,23 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
                                                      const IInterface* parent):
 
   PileUpToolBase(type, name, parent),
-  m_thpcsi(NULL),
+  m_thpcsi(nullptr),
   m_rndmSvc("AtRndmGenSvc",name),
-  m_randomEngine(0),
+  m_randomEngine(nullptr),
   m_randomEngineName("FastPixelDigitization"),
-  m_manager(NULL),
-  m_pixel_ID(NULL),
+  m_manager(nullptr),
+  m_pixel_ID(nullptr),
   m_clusterMaker("InDet::ClusterMakerTool/FatrasClusterMaker"),
   m_pixUseClusterMaker(true),
-  m_pixelClusterContainer(0),
+  m_pixelClusterContainer(nullptr),
   m_pixel_SiClustersName("PixelClusters"),
-  m_pixelCalibSvc("PixelCalibSvc", name),
   m_mergeSvc("PileUpMergeSvc",name),
   m_HardScatterSplittingMode(0),
   m_HardScatterSplittingSkipper(false),
   m_vetoThisBarcode(crazyParticleBarcode),
-  m_pixelClusterMap(0),
+  m_pixelClusterMap(nullptr),
   m_prdTruthNamePixel("PRD_MultiTruthPixel"),
-  m_pixPrdTruth(0),
+  m_pixPrdTruth(nullptr),
   //  m_pixelCondSummarySvc("PixelConditionsSummarySvc", name),
   m_gangedAmbiguitiesFinder("InDet::PixelGangedAmbiguitiesFinder"),
   m_inputObjectName("PixelHits"),
@@ -117,15 +116,16 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   m_pixModuleDistortion(true), // default: false
   m_pixDistortionTool("PixelDistortionsTool/PixelDistortionsTool"),
   m_pixErrorStrategy(2),
+  m_DiffusionShiftX(0.003),
+  m_DiffusionShiftY(0.003),
+  m_ThrConverted(45000),
   m_mergeCluster(true),
   m_splitClusters(0),
-  m_acceptDiagonalClusters(1),
+  m_acceptDiagonalClusters(true),
   m_pixelClusterAmbiguitiesMapName("PixelClusterAmbiguitiesMap"),
-  m_ambiguitiesMap(0),
-  m_digitizationStepper("Trk::PlanarModuleStepper"),
-  m_DiffusionShiftY(0.003),
-  m_DiffusionShiftX(0.003),
-  m_ThrConverted(45000)
+  m_ambiguitiesMap(nullptr),
+  m_pixelCalibSvc("PixelCalibSvc", name),
+  m_digitizationStepper("Trk::PlanarModuleStepper")
 {
   declareInterface<IPixelFastDigitizationTool>(this);
   declareProperty("RndmSvc"                        , m_rndmSvc,                  "Random Number Service used in Pixel digitization" );
@@ -252,7 +252,7 @@ StatusCode PixelFastDigitizationTool::prepareEvent(unsigned int)
 }
 
 
-StatusCode PixelFastDigitizationTool::processBunchXing(int bunchXing,
+StatusCode PixelFastDigitizationTool::processBunchXing(int /*bunchXing*/,
                                                        SubEventIterator bSubEvents,
                                                        SubEventIterator eSubEvents)
 {
@@ -265,7 +265,7 @@ StatusCode PixelFastDigitizationTool::processBunchXing(int bunchXing,
   while (iEvt != eSubEvents) {
     StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
     PileUpTimeEventIndex thisEventIndex(PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index()));
-    const SiHitCollection* seHitColl(NULL);
+    const SiHitCollection* seHitColl(nullptr);
     if (!seStore.retrieve(seHitColl,m_inputObjectName).isSuccess()) {
       ATH_MSG_ERROR ( "SubEvent SiHitCollection not found in StoreGate " << seStore.name() );
       return StatusCode::FAILURE;
@@ -507,8 +507,6 @@ StatusCode PixelFastDigitizationTool::digitize()
 
 
   TimedHitCollection<SiHit>::const_iterator i, e;
-  int old_th = 0;
-  //bool Ganged = false;
 
   if(!m_pixelClusterMap) { m_pixelClusterMap = new Pixel_detElement_RIO_map; }
   else { m_pixelClusterMap->clear(); }
@@ -566,20 +564,11 @@ StatusCode PixelFastDigitizationTool::digitize()
       trkNo.push_back(trkn);
       detEl.push_back(hitId);
 
-      const double hitDepth  = hitSiDetElement->hitDepthDirection();
       HepGeom::Point3D<double> localStartPosition = hit->localStartPosition();
       HepGeom::Point3D<double> localEndPosition = hit->localEndPosition();
 
       localStartPosition = hitSiDetElement->hitLocalToLocal3D(localStartPosition);
       localEndPosition = hitSiDetElement->hitLocalToLocal3D(localEndPosition);
-      
-      double shiftX = m_DiffusionShiftX;
-      double shiftY = m_DiffusionShiftY;
-
-          
-          
-      //New function to tune the cluster size
-      bool diffusion = Diffuse(localStartPosition, localEndPosition, shiftX, shiftY);
 
       const Amg::Vector3D localDirection(localEndPosition.x()-localStartPosition.x(), localEndPosition.y()-localStartPosition.y(), localEndPosition.z()-localStartPosition.z());
       
@@ -670,8 +659,6 @@ StatusCode PixelFastDigitizationTool::digitize()
       int lvl1a = 0;
       
       double m_accumulatedPathLength=0.;
-      double m_clusterRecoX = 0.;
-      double m_clusterRecoY = 0.;
       std::vector < double > paths;
      
        //ATTENTION index max e min da rdo + manager

@@ -24,7 +24,7 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include <AsgTools/AnaToolHandle.h>
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 
 #include "ElectronPlots.h"
 #include "PhotonPlots.h"
@@ -38,8 +38,6 @@
 #include <string>
 #include <vector>
 #include <cmath>
-
-using namespace std;
 
 class EgammaMonitoring : public AthAlgorithm
 {

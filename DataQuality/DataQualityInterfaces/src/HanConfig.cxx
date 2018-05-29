@@ -25,6 +25,7 @@
 #include <TBox.h>
 #include <TLine.h>
 #include <TROOT.h>
+#include <TEfficiency.h>
 
 #include "dqm_core/LibraryManager.h"
 #include "dqm_core/Parameter.h"
@@ -909,7 +910,8 @@ Visit( const MiniConfigTreeNode* node ) const
         TObject* tmpobj = key->ReadObj();
         TH1* tmph = dynamic_cast<TH1*>(tmpobj);
         TGraph* tmpg = dynamic_cast<TGraph*>(tmpobj);
-        if( tmph == 0 && tmpg == 0 )
+        TEfficiency* tmpe = dynamic_cast<TEfficiency*>(tmpobj);
+        if( tmph == 0 && tmpg == 0 && tmpe == 0 )
           continue;
         
         objName = objPath;

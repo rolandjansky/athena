@@ -147,6 +147,10 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
         'HLT_xe110_pufit_L1XE50',
         'HLT_xe110_pufit_L1XE55',
         'HLT_xe110_pufit_L1XE60',
+        'HLT_xe100_pufit_xe75_L1XE60',
+        'HLT_xe110_pufit_xe70_L1XE50',
+        'HLT_xe110_pufit_xe65_L1XE55',
+        'HLT_xe110_pufit_xe65_L1XE60',
         'HLT_xe110_L1XE60',
         'HLT_xe110_mht_L1XE60',
         'HLT_xe110_mht_L1XE50',
@@ -165,6 +169,9 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
         'HLT_xe120_pufit_wEFMu',
         'HLT_xe120_tc_em_wEFMu',
         'HLT_xe120_tc_lcw_wEFMu',
+        'HLT_xe120_pufit_L1XE50',
+        'HLT_xe120_pufit_L1XE55',
+        'HLT_xe120_pufit_L1XE60',
         'HLT_xe130_mht_L1XE50'        
         ]
     triggerNames += apitriggers.getKinkedTrackJetMetTriggers() ## TriggerAPI

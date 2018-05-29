@@ -8,7 +8,13 @@
 # art-type: grid
 # art-output: test.HITS.pool.root
 
-TestBeam_tf.py --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --Eta '0.35' --testBeamConfig 'tbtile' --postInclude 'PyJobTransforms/UseFrontier.py'
+TestBeam_tf.py \
+--outputHITSFile 'test.HITS.pool.root' \
+--maxEvents '10' \
+--Eta '0.35' \
+--testBeamConfig 'tbtile' \
+--postInclude 'PyJobTransforms/UseFrontier.py' \
+--imf False
 
 echo  "art-result: $? simulation"
 
