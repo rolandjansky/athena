@@ -121,5 +121,11 @@ void TFCSHistoLateralShapeParametrization::Print(Option_t *option) const
   TString optprint=opt;optprint.ReplaceAll("short","");
   TFCSLateralShapeParametrizationHitBase::Print(option);
 
-  if(longprint) ATH_MSG_INFO(optprint <<"  Histo: "<<m_hist.get_HistoBordersx().size()-1<<"*"<<m_hist.get_HistoBordersy().size()-1<<" bins, #hits="<<m_nhits);
+  if(longprint) {
+    if(is_phi_symmetric()) {
+      ATH_MSG_INFO(optprint <<"  Histo: "<<m_hist.get_HistoBordersx().size()-1<<"*"<<m_hist.get_HistoBordersy().size()-1<<" bins, #hits="<<m_nhits<<" (phi symmetric)");
+    } else {
+      ATH_MSG_INFO(optprint <<"  Histo: "<<m_hist.get_HistoBordersx().size()-1<<"*"<<m_hist.get_HistoBordersy().size()-1<<" bins, #hits="<<m_nhits<<" (not phi symmetric)");
+    }
+  }  
 }
