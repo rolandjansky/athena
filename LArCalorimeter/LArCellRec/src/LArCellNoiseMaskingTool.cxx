@@ -34,8 +34,8 @@ LArCellNoiseMaskingTool::LArCellNoiseMaskingTool(
 			     const std::string& name, 
 			     const IInterface* parent)
   :AthAlgTool(type, name, parent),
-   m_maskingTool(""),
-   m_maskingSporadicTool(""),
+   m_maskingTool(this),
+   m_maskingSporadicTool(this),
    m_qualityCut(65536),
    m_maskNoise(true),
    m_maskSporadic(true)
