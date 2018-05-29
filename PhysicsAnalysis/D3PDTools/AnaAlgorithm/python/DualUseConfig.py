@@ -8,7 +8,7 @@ def createAlgorithm( typeName, instanceName ):
     configured EL::AnaAlgorithmConfig instance.
 
     Keyword arguments:
-      typeNype     -- The C++ type name of the algorithm
+      typeName     -- The C++ type name of the algorithm
       instanceName -- The instance name of the algorithm to create
     """
 
