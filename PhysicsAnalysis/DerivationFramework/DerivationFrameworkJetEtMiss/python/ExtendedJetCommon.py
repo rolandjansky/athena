@@ -10,6 +10,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 import DerivationFrameworkEGamma.EGammaCommon
 import DerivationFrameworkMuons.MuonsCommon
 import DerivationFrameworkTau.TauCommon
+from DerivationFrameworkFlavourTag.FlavourTagCommon import applyBTagging_xAODColl
 from JetRec.JetRecFlags import jetFlags
 
 from AthenaCommon import Logging
@@ -486,6 +487,7 @@ def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,
 ##################################################################
 applyJetCalibration_xAODColl("AntiKt4EMTopo")
 updateJVT_xAODColl("AntiKt4EMTopo")
+applyBTagging_xAODColl("AntiKt4EMTopo")
 applyOverlapRemoval()
 eventCleanLoose_xAODColl("AntiKt4EMTopo")
 eventCleanTight_xAODColl("AntiKt4EMTopo")
