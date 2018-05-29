@@ -139,7 +139,6 @@ class RPVLLTriggers:
     # KinkedTrack:JetMet
     def getKinkedTrackJetMetTriggers(self):
         #KinkedTrack_singleJetMetFilterFlags.triggerNames
-        #KinkedTrackJetMetList = getTriggerList( TriggerType.xe, "", ["mht_xe", "pufit_xe"] )
         KinkedTrackJetMetList = getTriggerList( TriggerType.xe, "" )
         return KinkedTrackJetMetList
 
