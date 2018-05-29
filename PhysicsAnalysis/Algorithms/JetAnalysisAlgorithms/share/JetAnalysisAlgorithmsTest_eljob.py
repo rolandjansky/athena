@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+#
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
@@ -24,8 +24,6 @@ ROOT.xAOD.Init().ignore()
 # don't understand.
 ROOT.CP.JetCalibrationAlg ("dummy", None)
 
-from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
-
 # ideally we'd run over all of them, but we don't have a mechanism to
 # configure per-sample right now
 dataType = "data"
@@ -33,15 +31,8 @@ dataType = "data"
 #dataType = "afii"
 jetContainer = "AntiKt4EMTopoJets"
 
-#turning this off, it doesn't seem to work on MacOS
-runJvtUpdate = True
-runJvtEfficiency = False
-if os.getenv ("AnalysisBase_PLATFORM").find ("mac") != -1 :
-    runJvtUpdate = False
-    pass
-
 if not dataType in ["data", "mc", "afii"] :
-    raise Exception ("invalid data type: " + dataType)
+    raise ValueError ("invalid data type: " + dataType)
 
 # Set up the sample handler object. See comments from the C++ macro
 # for the details about these lines.
@@ -66,32 +57,22 @@ job = ROOT.EL.Job()
 job.sampleHandler( sh )
 job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 
-# Create the algorithm's configuration. Note that we'll be able to add
-# algorithm property settings here later on.
+# Set up the systematics loader/handler algorithm:
+from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
 config = AnaAlgorithmConfig( 'CP::SysListLoaderAlg/SysLoaderAlg' )
 config.sigmaRecommended = 1
 job.algsAdd( config )
 
-
+# Include, and then set up the jet analysis algorithm sequence:
 from JetAnalysisAlgorithms.JetAnalysisSequence import makeJetAnalysisSequence
+jetSequence = makeJetAnalysisSequence( dataType, jetContainer )
+jetSequence.configure( inputName = jetContainer, outputName = 'AnalysisJets' )
+print( jetSequence ) # For debugging
 
-sequence = makeJetAnalysisSequence (job=job, jetContainer=jetContainer,dataType=dataType,
-                                    runJvtUpdate=runJvtUpdate,runJvtEfficiency=runJvtEfficiency)
-
-
-from AsgAnalysisAlgorithms.SequencePostConfiguration import sequencePostConfiguration
-
-sequencePostConfiguration (sequence, jetContainer)
-
-for alg in sequence :
-    config = alg["alg"]
-
-    # set everything to debug output
-    config.OutputLevel = 1
-
-    job.algsAdd( config )
+# Add all algorithms to the job:
+for alg in jetSequence:
+    job.algsAdd( alg )
     pass
-
 
 # Run the job using the direct driver.
 driver = ROOT.EL.DirectDriver()
