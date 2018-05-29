@@ -225,7 +225,7 @@ namespace Trk{
         void setCovVrtForConstraint(double,double,double,
                                   double,double,double);
 				  
-        void setMassInputParticles( std::vector<double>& );
+        void setMassInputParticles( const std::vector<double>& );
         void setMomCovCalc(int);
         void setDefault();
         void setZeroCharge(int);
