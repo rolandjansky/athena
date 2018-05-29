@@ -11,7 +11,7 @@
 
 #include "xAODTracking/TrackParticle.h"
 
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 
 #include "ParticlePlots.h"
 

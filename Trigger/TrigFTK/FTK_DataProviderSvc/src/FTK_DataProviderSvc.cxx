@@ -810,53 +810,67 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getFastVertices(const ftk::FTK_Track
 bool FTK_DataProviderSvc::fillVertexContainerCache(bool withRefit, xAOD::TrackParticleContainer* tps) {
 
   bool gotVertices = false;
+
+  xAOD::VertexContainer* myVertexContainer = nullptr;
+  xAOD::VertexAuxContainer* myVertexAuxContainer = nullptr;
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> myVxContainers = std::make_pair( myVertexContainer, myVertexAuxContainer );
+  
   if (tps->size() > 1) {
     ATH_MSG_DEBUG( "fillVertexContainerCache: finding vertices from " << tps->size() << " TrackParticles ");
-
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> theXAODContainers = m_VertexFinderTool->findVertex(tps);
-
-    ATH_MSG_DEBUG( "fillVertexContainerCache: got "<< theXAODContainers.first->size() << " vertices");
-    if (theXAODContainers.first == nullptr) return gotVertices;
-
-    xAOD::VertexContainer* myVertexContainer = 0;
-    xAOD::VertexAuxContainer* myVertexAuxContainer = 0;
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> myVxContainers = std::make_pair( myVertexContainer, myVertexAuxContainer );
     
-    if (theXAODContainers.first->size() >1 && m_doVertexSorting) {
-      myVxContainers = m_VertexCollectionSortingTool->sortVertexContainer(*theXAODContainers.first);
-      delete theXAODContainers.first; 
-      delete theXAODContainers.second; 
-    } else {
-      myVxContainers.first = theXAODContainers.first;
-      myVxContainers.second = theXAODContainers.second;
-    }
-    if (myVxContainers.first == nullptr) return gotVertices;
-    if (not myVxContainers.first->hasStore()) return gotVertices;
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> theXAODContainers = m_VertexFinderTool->findVertex(tps);
+    
+    if (theXAODContainers.first != nullptr) {
+      
+      if (theXAODContainers.first->size() >1 && m_doVertexSorting) {
+	ATH_MSG_DEBUG( "doing vertex sorting");
+	myVxContainers = m_VertexCollectionSortingTool->sortVertexContainer(*theXAODContainers.first);
+	delete theXAODContainers.first; 
+	delete theXAODContainers.second; 
+      } else {
+	ATH_MSG_DEBUG( "NOT doing vertex sorting");
 
-    std::string cacheName= m_vertexCacheName;
-    if (withRefit) cacheName+="Refit";
-
-    StatusCode sc = m_storeGate->record(myVxContainers.first, cacheName);
-    if (sc.isFailure()) {
-      ATH_MSG_DEBUG( "fillVertexContainerCache: Failed to record VertexCollection " << cacheName );
-      delete(myVxContainers.first);
-      delete(myVxContainers.second);
-      return gotVertices;
+	myVxContainers.first = theXAODContainers.first;
+	myVxContainers.second = theXAODContainers.second;
+      }
+      if (myVxContainers.first != nullptr && myVxContainers.first->hasStore()) gotVertices=true;
     }
+  }
+  if (!gotVertices) {
+    ATH_MSG_DEBUG( "failed to make vertices, creating empty collection");
+    myVxContainers.first = new  xAOD::VertexContainer();
+    myVxContainers.second = new  xAOD::VertexAuxContainer();
+    myVxContainers.first->setStore( myVxContainers.second);
+  }
+  
+  std::string cacheName= m_vertexCacheName;
+  if (withRefit) cacheName+="Refit";
+  
+  StatusCode sc = m_storeGate->record(myVxContainers.first, cacheName);
+  if (sc.isFailure()) {
+    ATH_MSG_DEBUG( "fillVertexContainerCache: Failed to record VertexCollection " << cacheName );
+    delete(myVxContainers.first);
+    delete(myVxContainers.second);
+    gotVertices=false;
+  } else {
     sc = m_storeGate->record(myVxContainers.second, cacheName+"Aux.");
     if (sc.isFailure()) {
       ATH_MSG_DEBUG( "fillVertexContainerCache: Failed to record VertexAuxCollection " << cacheName );
       delete(myVxContainers.second);
-      return gotVertices;
+      gotVertices=false;
     }
+  }
+  
+  if (gotVertices) {
     if (withRefit) {
       m_refit_vertex = myVxContainers.first;
     } else {
       m_conv_vertex = myVxContainers.first;
     }
-    gotVertices=true;
+    
+    ATH_MSG_DEBUG( "fillVertexContainerCache: got "<< myVxContainers.first->size() << " vertices");
   }
-
+    
   return gotVertices;
 }
 
@@ -868,17 +882,23 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getVertexContainer(const bool withRe
    xAOD::VertexContainer* userVertex = new xAOD::VertexContainer(SG::VIEW_ELEMENTS);
 #endif
 
+   bool doVertexing = m_doVertexing;
+   if (doVertexing) {
+     if (fillTrackParticleCache(withRefit).isSuccess()) {
+       if (withRefit && m_refit_tp->size()<2) doVertexing=false;
+       if ((!withRefit) && m_conv_tp->size()<2) doVertexing=false;
+     }
+   }
+   if (!doVertexing) {
 
-   if ((!m_doVertexing) || fillTrackParticleCache(withRefit).isFailure()) {
-
-    // must always create a VertexContainer in StroreGate
-
-    std::string cacheName= m_vertexCacheName;
-    if (withRefit) cacheName+="Refit";
-    if (!m_storeGate->contains<xAOD::VertexContainer>(cacheName)) {
-      xAOD::VertexContainer* vertex = new xAOD::VertexContainer();
-      xAOD::VertexAuxContainer* vertexAux =new xAOD::VertexAuxContainer();
-      vertex->setStore(vertexAux);
+     // must always create a VertexContainer in StroreGate
+     
+     std::string cacheName= m_vertexCacheName;
+     if (withRefit) cacheName+="Refit";
+     if (!m_storeGate->contains<xAOD::VertexContainer>(cacheName)) {
+       xAOD::VertexContainer* vertex = new xAOD::VertexContainer();
+       xAOD::VertexAuxContainer* vertexAux =new xAOD::VertexAuxContainer();
+       vertex->setStore(vertexAux);
       StatusCode sc = m_storeGate->record(vertex, cacheName);
       if (sc.isFailure()) {
 	ATH_MSG_DEBUG( "fillVertexContainerCache: Failed to record VertexCollection " << cacheName );
@@ -889,39 +909,40 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getVertexContainer(const bool withRe
 	if (sc.isFailure()) {
 	  ATH_MSG_DEBUG( "fillVertexContainerCache: Failed to record VertexAuxCollection " << cacheName );
 	  delete(vertexAux);
+	} else {
+	  ATH_MSG_DEBUG( "recorded empty VertexContainer in storegate");
 	}
       }
-    }
- 	  
-    return userVertex;
-  }
+     }	  
+     return userVertex;
+   }
 
-  if (withRefit) { // get vertex from refitted tracks
-    if (!m_got_refit_vertex) {
-      ATH_MSG_DEBUG( "getVertexContainer: filling VertexContainer from refitted tracks ");
+   if (withRefit) { // get vertex from refitted tracks
+     if (!m_got_refit_vertex) {
+       ATH_MSG_DEBUG( "getVertexContainer: filling VertexContainer from refitted tracks ");
       m_got_refit_vertex = fillVertexContainerCache(withRefit, m_refit_tp);
-    }
-    if (m_got_refit_vertex) {
-      ATH_MSG_DEBUG( "getVertexContainer: cache contains " << m_refit_vertex->size() <<  " vertices from refitted tracks");
-      for (auto pv = m_refit_vertex->begin(); pv != m_refit_vertex->end(); ++pv) {
-        userVertex->push_back(*pv);
-      }
-    }
-  } else {   // get vertex from converted tracks
-    if (!m_got_conv_vertex) {
-      ATH_MSG_DEBUG( "getVertexContainer: filling VertexContainer from converted tracks ");
-      m_got_conv_vertex = fillVertexContainerCache(withRefit, m_conv_tp);
-    }
-    if (m_got_conv_vertex) {
-      ATH_MSG_DEBUG( "getVertexContainer: cache contains " << m_conv_vertex->size() <<  " vertices from converted tracks");
-      for (auto pv = m_conv_vertex->begin(); pv != m_conv_vertex->end(); ++pv) {
-        userVertex->push_back(*pv);
-      }
-    }
-  }
-  return userVertex;
-
+     }
+     if (m_got_refit_vertex) {
+       ATH_MSG_DEBUG( "getVertexContainer: cache contains " << m_refit_vertex->size() <<  " vertices from refitted tracks");
+       for (auto pv = m_refit_vertex->begin(); pv != m_refit_vertex->end(); ++pv) {
+	 userVertex->push_back(*pv);
+       }
+     }
+   } else {   // get vertex from converted tracks
+     if (!m_got_conv_vertex) {
+       ATH_MSG_DEBUG( "getVertexContainer: filling VertexContainer from converted tracks ");
+       m_got_conv_vertex = fillVertexContainerCache(withRefit, m_conv_tp);
+     }
+     if (m_got_conv_vertex) {
+       ATH_MSG_DEBUG( "getVertexContainer: cache contains " << m_conv_vertex->size() <<  " vertices from converted tracks");
+       for (auto pv = m_conv_vertex->begin(); pv != m_conv_vertex->end(); ++pv) {
+	 userVertex->push_back(*pv);
+       }
+     }
+   }
+   return userVertex;
 }
+  
 
 StatusCode FTK_DataProviderSvc::getVertexContainer(xAOD::VertexContainer* userVertex, const bool withRefit){
 
