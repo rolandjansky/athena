@@ -205,9 +205,8 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
       Acts::CylinderSurface* centralSurface 
         = new Acts::CylinderSurface(transform, (pl.minR + pl.maxR)/2., layerHalfZ);
       
-      // @TODO: needs to be configurable
-      size_t binsZ = 10;
-      size_t binsPhi = 10;
+      size_t binsPhi = m_cfg.barrelMaterialBins.first;
+      size_t binsZ = m_cfg.barrelMaterialBins.second;
 
       Acts::BinUtility materialBinUtil(
           binsPhi, -M_PI, M_PI, Acts::closed, Acts::binPhi);
@@ -282,8 +281,8 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
       Acts::DiscSurface* outerBoundary 
         = new Acts::DiscSurface(transformOuter, pl.minR, pl.maxR);
 
-      size_t binsPhi = 20;
-      size_t binsR = 5;
+      size_t binsPhi = m_cfg.endcapMaterialBins.first;
+      size_t binsR = m_cfg.endcapMaterialBins.second;
 
       Acts::BinUtility materialBinUtil(
           binsPhi, -M_PI, M_PI, Acts::closed, Acts::binPhi);

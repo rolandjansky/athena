@@ -56,6 +56,9 @@ public:
     /// (equidistant/arbitrary)
     BinningType                    bTypeZ = equidistant;
     std::shared_ptr<ElementVector> elementStore;
+
+    std::pair<size_t, size_t> endcapMaterialBins = {20, 5};
+    std::pair<size_t, size_t> barrelMaterialBins = {10, 10};
   };
 
   /// Constructor

@@ -56,16 +56,22 @@ Acts::TrackingGeometrySvc::initialize()
     = std::make_shared<const Acts::CylinderVolumeHelper>(
         cvhConfig, ACTS_ATH_LOGGER("CylVolHelper"));
 
-  // PIXEL
-  volumeBuilders.push_back(
-        makeVolumeBuilder(p_pixelManager, cylinderVolumeHelper, true));
-  
-  // SCT
-  volumeBuilders.push_back(
-        makeVolumeBuilder(p_SCTManager, cylinderVolumeHelper));
+  try {
+    // PIXEL
+    volumeBuilders.push_back(
+          makeVolumeBuilder(p_pixelManager, cylinderVolumeHelper, true));
+    
+    // SCT
+    volumeBuilders.push_back(
+          makeVolumeBuilder(p_SCTManager, cylinderVolumeHelper));
 
-  // TRT
-  volumeBuilders.push_back(makeVolumeBuilder(p_TRTManager, cylinderVolumeHelper));
+    // TRT
+    volumeBuilders.push_back(makeVolumeBuilder(p_TRTManager, cylinderVolumeHelper));
+  }
+  catch (const std::invalid_argument& e) {
+    ATH_MSG_ERROR(e.what());
+    return StatusCode::FAILURE;
+  }
 
 
   Acts::TrackingGeometryBuilder::Config tgbConfig;
@@ -200,6 +206,21 @@ Acts::TrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager
     else {
       cfg.subdetector = Acts::GeoModelDetectorElement::Subdetector::SCT;
     }
+
+    // set bins from configuration
+    if (m_barrelMaterialBins.size() != 2) {
+      throw std::invalid_argument("Number of barrel material bin counts != 2");
+    }
+    std::vector<size_t> brlBins(m_barrelMaterialBins);
+    cfg.barrelMaterialBins = {brlBins.at(0), 
+                              brlBins.at(1)};
+
+    if (m_endcapMaterialBins.size() != 2) {
+      throw std::invalid_argument("Number of endcap material bin counts != 2");
+    }
+    std::vector<size_t> ecBins(m_endcapMaterialBins);
+    cfg.endcapMaterialBins = {ecBins.at(0), 
+                              ecBins.at(1)};
 
     cfg.mng = static_cast<const InDetDD::SiDetectorManager*>(manager);
     // use class member element store

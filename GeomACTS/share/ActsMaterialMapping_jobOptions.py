@@ -47,7 +47,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 
 # Read material step file
 import AthenaPoolCnvSvc.ReadAthenaPool 
-ServiceMgr.EventSelector.InputCollections =  ["MaterialStepFile.root"]
+ServiceMgr.EventSelector.InputCollections =  ["MaterialStepFile_1e6.root"]
 
 # ServiceMgr += CfgMgr.THistSvc()
 # ServiceMgr.THistSvc.Output += ["MATTRACKVAL DATAFILE='MaterialTracks.root' OPT='RECREATE'"]
@@ -57,15 +57,18 @@ ServiceMgr.EventSelector.InputCollections =  ["MaterialStepFile.root"]
 from GeomACTS.GeomACTSConfig import TrackingGeometrySvc
 trkGeomSvc = TrackingGeometrySvc()
 trkGeomSvc.OutputLevel = INFO
+trkGeomSvc.BarrelMaterialBins = [40, 60] # phi z
+trkGeomSvc.EndcapMaterialBins = [50, 20] # phi r
 ServiceMgr += trkGeomSvc
 
 # Set up ACTS extrapolation cell writer service
 exCellWriterSvc = CfgMgr.Acts__ExCellWriterSvc("ExCellWriterSvc")
-exCellWriterSvc.FilePath = "excells_charged.root"
+exCellWriterSvc.FilePath = "excells_charged_mapping.root"
 ServiceMgr += exCellWriterSvc
 
 mTrackWriterSvc = CfgMgr.Acts__MaterialTrackWriterSvc("MaterialTrackWriterSvc")
 mTrackWriterSvc.OutputLevel = DEBUG
+mTrackWriterSvc.FilePath = "MaterialTracks_mapping.root"
 # mTrackWriterSvc.MaxQueueSize = 10
 ServiceMgr += mTrackWriterSvc
 
@@ -89,8 +92,7 @@ from GeomACTS.GeomACTSConf import ActsMaterialMapping
 
 alg = ActsMaterialMapping()
 alg.Cardinality = 0#nThreads
-# exTool = CfgMgr.Acts__ExtrapolationTool("ExtrapolationTool")
-# exTool.OutputLevel = INFO
+alg.OutputLevel = VERBOSE
 alg.ExtrapolationTool.FieldMode = "Constant"
 alg.ExtrapolationTool.ConstantFieldVector = [0, 0, 0]
 alg.ExtrapolationTool.OutputLevel = INFO

@@ -54,6 +54,9 @@ private:
   Gaudi::Property<bool> m_useMaterialMap{this, "UseMaterialMap", false, ""};
   Gaudi::Property<std::string> m_materialMapInputFile{this, "MaterialMapInputFile", "", ""};
 
+  Gaudi::Property<std::vector<size_t>> m_barrelMaterialBins{this, "BarrelMaterialBins", {10, 10}};
+  Gaudi::Property<std::vector<size_t>> m_endcapMaterialBins{this, "EndcapMaterialBins", {5, 20}};
+
 
 };
 

@@ -165,7 +165,8 @@ StatusCode ActsMaterialMapping::finalize() {
   ATH_MSG_DEBUG("Writing to protobuf file");
   Acts::ProtobufMaterialMapWriter::Config matMapWriterCfg;
   matMapWriterCfg.outfile = "MaterialMaps.pb";
-  Acts::ProtobufMaterialMapWriter matMapWriter(std::move(matMapWriterCfg));
+  Acts::ProtobufMaterialMapWriter matMapWriter(std::move(matMapWriterCfg), 
+                                               ACTS_ATH_LOGGER("ProtobufMaterialMapWriter"));
   matMapWriter.write(sMaterialMaps);
 
 

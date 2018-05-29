@@ -17,7 +17,6 @@
 #include "ACTS/Utilities/BFieldMapUtils.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp"
 #include "ACTS/Plugins/MaterialPlugins/MaterialMapper.hpp"
-#include "ACTS/Plugins/MaterialPlugins/MaterialTrack.hpp"
 
 // ROOT
 #include "TTree.h"
