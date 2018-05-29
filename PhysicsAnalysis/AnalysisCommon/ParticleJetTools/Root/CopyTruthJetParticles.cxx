@@ -32,7 +32,7 @@ CopyTruthJetParticles::CopyTruthJetParticles(const std::string& name)
   , m_photonCone(0.1)
   , m_classif("")
 {
-  declareProperty("IncludeNonInteracting",  m_includeNonInt=false, "Include noninteracting particles (including neutrinos) in the output collection");
+  declareProperty("IncludeBSMNonInteracting",  m_includeBSMNonInt=false, "Include noninteracting BSM particles (excluding neutrinos) in the output collection");
   declareProperty("IncludeNeutrinos",  m_includeNu=false, "Include neutrinos in the output collection (implied if using NonInt)");
   declareProperty("IncludeMuons",      m_includeMu=false, "Include muons in the output collection");
   declareProperty("IncludePromptLeptons",  m_includePromptLeptons=true,  "Include leptons (including neutrinos) from prompt decays (i.e. not from hadron decays) in the output collection");
@@ -78,8 +78,11 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp,
   // ----------------------------------- //
   
   // Easy classifiers by PDG ID
-  if (!m_includeNu && MCUtils::PID::isNeutrino(pdgid)) return false;
-  else if (!m_includeNonInt && MC::isNonInteracting(pdgid)) return false;
+  if(MCUtils::PID::isNeutrino(pdgid)) {
+    if (!m_includeNu) return false;
+  } else {
+    if (!m_includeBSMNonInt && MC::isNonInteracting(pdgid)) return false;
+  }
   if (!m_includeMu && abs(pdgid)==13) return false;
 
   // Already built a list of prompt leptons, just use it here
