@@ -22,7 +22,7 @@ namespace CP
   TauTruthMatchingAlg (const std::string& name, 
                      ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)
-    , m_matchingTool ("TauTruthMatchingTool", this)
+    , m_matchingTool ("TauAnalysisTools::TauTruthMatchingTool", this)
   {
     declareProperty ("matchingTool", m_matchingTool, "the matching tool we apply");
   }
