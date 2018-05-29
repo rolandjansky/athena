@@ -38,3 +38,12 @@ endif()
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*_jobOptions.py )
 atlas_install_scripts( share/*_eljob.py )
+
+if( XAOD_STANDALONE )
+   atlas_add_test( testJob
+      SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py )
+else()
+   atlas_add_test( testJob
+      SCRIPT athena.py
+      EgammaAnalysisAlgorithms/EgammaAnalysisAlgorithmsTest_jobOptions.py )
+endif()
