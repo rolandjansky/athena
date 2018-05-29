@@ -122,13 +122,6 @@ class doLArDigitMon(JobProperty):
     StoredValue=True
 list+=[doLArDigitMon]
 
-class doLArNoiseCorrelationMon(JobProperty):
-    """ Global switch for doLArNoiseCorrelationMon """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=True
-list+=[doLArNoiseCorrelationMon]
-
 class doLArNoisyROMon(JobProperty):
     """ Global switch for doLArNoisyROMon """
     statusOn=True
