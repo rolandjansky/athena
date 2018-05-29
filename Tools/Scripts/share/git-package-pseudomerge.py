@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 
+
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 # @file:    git-package-pseudomerge.py
 # @author:  Tim Martin
 #
 
 """
-Merge individual Athena packages between git branches. Commit the resulting diff as a cherry-pick. 
-"""              
+Merge individual Athena packages between git branches. Commit the resulting diff as a cherry-pick.
+"""
 
 __author__  = "Tim Martin"
 __version__ = "$Revision: 1.0 $"
@@ -103,7 +104,7 @@ except NameError:
 if args.stage == 1:
   print(bcolors.HEADER + 'Updating from upstream' + bcolors.ENDC)
   print(bcolors.OKBLUE + 'git fetch upstream ' + bcolors.ENDC)
-  call(["git", "fetch", "upstream"]) 
+  call(["git", "fetch", "upstream"])
 
   # Check we're not going to trample on work
   localChanges = check_output(["git", "status", "--porcelain"])
@@ -164,7 +165,7 @@ if args.stage == 1:
         pathSplit = path.rstrip('/').split('/') # Explode path
         if level == len(pathSplit) and path == responsibleRule:
           doKeep = True  # The previous operation matched the final path segment. Keep this file
-        elif level < len(pathSplit) and fileSplit[level] == pathSplit[level]: 
+        elif level < len(pathSplit) and fileSplit[level] == pathSplit[level]:
           doProgress = True # We match the current level - check next level of directory
           responsibleRule = path # Record which package rule is allowing us to progress
 
