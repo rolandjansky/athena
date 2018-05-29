@@ -96,15 +96,22 @@ def addPrivateTool( alg, toolName, typeName ):
       typeName -- The C++ type name of the private tool
     """
 
-    # Check if the algorithm object already has a member variable with this
-    # name.
-    if hasattr( alg, toolName ):
+    try:
 
-        # If yes, then let's assume that we're in an Athena environment,
-        # and set up the tool handle property using the tool's configurable.
+        # First try to set up the private tool in an "Athena way".
 
-        # First off, let's replace all '::' namespace delimeters in the type
-        # name with '__'. Just because that's how the Athena code behaves...
+        # Tokenize the tool's name. In case it is a subtool of a tool, or
+        # something possibly even deeper.
+        toolNames = toolName.split( '.' )
+
+        # Look up the component that we need to set up the private tool on:
+        component = alg
+        for tname in toolNames[ 0 : -1 ]:
+            component = getattr( component, tname )
+            pass
+
+        # Let's replace all '::' namespace delimeters in the type name
+        # with '__'. Just because that's how the Athena code behaves...
         pythonTypeName = typeName.replace( '::', '__' )
 
         # Now look up the Athena configurable describing this tool:
@@ -112,12 +119,13 @@ def addPrivateTool( alg, toolName, typeName ):
         toolClass = getattr( CfgMgr, pythonTypeName )
 
         # Finally, set up the tool handle property:
-        setattr( alg, toolName, toolClass( toolName ) )
+        setattr( component, toolNames[ -1 ], toolClass( toolNames[ -1 ] ) )
 
-    else:
+    except ( ImportError, AttributeError ) as e:
 
-        # If not, then we should be in an EventLoop environment. So let's rely
-        # on the standalone specific formalism for setting up the private tool.
+        # If that failed, then we should be in an EventLoop environment. So
+        # let's rely on the standalone specific formalism for setting up the
+        # private tool.
         alg.addPrivateTool( toolName, typeName )
         pass
 
