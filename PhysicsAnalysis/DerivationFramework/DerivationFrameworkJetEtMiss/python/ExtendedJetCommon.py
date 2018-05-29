@@ -10,6 +10,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 import DerivationFrameworkEGamma.EGammaCommon
 import DerivationFrameworkMuons.MuonsCommon
 import DerivationFrameworkTau.TauCommon
+from DerivationFrameworkFlavourTag.FlavourTagCommon import applyBTagging_xAODColl
 from JetRec.JetRecFlags import jetFlags
 
 from AthenaCommon import Logging
