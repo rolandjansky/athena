@@ -168,11 +168,17 @@ StatusCode JGTowerMaker::execute() {
 StatusCode JGTowerMaker::ForwardMapping(){
 
   unsigned sc_hashMax = m_scid-> calo_cell_hash_max();
-  for (unsigned sc_hs=0;sc_hs<sc_hashMax;++sc_hs) {
-      const Identifier scid=m_scid->cell_id(sc_hs);
-      const Identifier tid=m_tid->cell_id(scid);
+  for(unsigned sc_hs=0;sc_hs<sc_hashMax;++sc_hs) {
+     const Identifier scid=m_scid->cell_id(sc_hs);
+     const Identifier tid=m_tid->cell_id(scid);
 
-      if((m_scid->is_tile(scid)&&m_scid->sampling(scid)!=2)) continue; //skip all tile SCs
+     if((m_scid->is_tile(scid)&&m_scid->sampling(scid)!=2)) continue; //skip all tile SCs
+
+     if(m_sem_mgr->get_element(scid)==nullptr) {
+       ATH_MSG_INFO("ERROR loading CaloDetDescrElement");
+       return StatusCode::FAILURE;
+     }
+
 
      const CaloDetDescrElement* dde = m_sem_mgr->get_element(scid);
 
@@ -259,6 +265,10 @@ StatusCode JGTowerMaker::SCTowerMapping(){
           //const IdentifierHash sc_hash = m_scid->calo_cell_hash(scid);
           
           if( (m_scid->is_tile(scid)&&m_scid->sampling(scid)!=2)) continue; //skip all tile SCs
+          if(m_sem_mgr->get_element(scid)==nullptr) {
+            ATH_MSG_INFO("ERROR loading CaloDetDescrElement");
+            return StatusCode::FAILURE;
+          }
           const CaloDetDescrElement* dde = m_sem_mgr->get_element(scid);
           int det = m_scid->sub_calo(scid);
         
@@ -339,6 +349,12 @@ StatusCode JGTowerMaker::SCTowerMapping(){
           const Identifier tid=m_tid->cell_id(scid);
 
           if(m_scid->is_tile(scid)&&m_scid->sampling(scid)!=2) continue;
+
+          if(m_sem_mgr->get_element(scid)==nullptr) {
+            ATH_MSG_INFO("ERROR loading CaloDetDescrElement");
+            return StatusCode::FAILURE;
+          }
+
           const CaloDetDescrElement* dde = m_sem_mgr->get_element(scid);
           int det = m_scid->sub_calo(scid);
 
