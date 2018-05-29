@@ -99,11 +99,6 @@ void testDataInView( StoreGateSvc* /*sg*/ , MsgStream& log ) {
   }
 
 
-  {
-    SG::ReadHandle<TestClass> rh( "test1" );
-    rh.setProxyDict( childView );
-    EXPECT_EXCEPTION( std::runtime_error,  rh.isValid() );  
-  }
   log << MSG::INFO << "Hiding works as expected " << endmsg;
 
 
