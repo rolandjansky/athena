@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Control/StoreGate
                           Event/ByteStreamCnvSvcBase
+                          Event/ByteStreamCnvSvc
                           Event/ByteStreamData
                           Event/EventInfo
                           Event/xAOD/xAODEventInfo

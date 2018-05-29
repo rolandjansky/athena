@@ -8,6 +8,7 @@
 #include "GaudiKernel/IAlgContextSvc.h"
 #include "GaudiKernel/IThreadPoolSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IAlgResourcePool.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IHiveWhiteBoard.h"
@@ -51,7 +52,8 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   m_detectorStore("DetectorStore", name),
   m_inputMetaDataStore("StoreGateSvc/InputMetaDataStore", name),
   m_robDataProviderSvc("ROBDataProviderSvc", name),
-  m_THistSvc("THistSvc", name ),
+  m_THistSvc("THistSvc", name),
+  m_evtSelector("EvtSel", name),
   m_coolHelper("TrigCOOLUpdateHelper", this),
   m_detector_mask(0xffffffff, 0xffffffff, 0, 0),
   m_nevt(0),
@@ -64,6 +66,7 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   declareProperty("PartitionName",            m_partitionName="None");
   declareProperty("enabledROBs",              m_enabledROBs);
   declareProperty("enabledSubDetectors",      m_enabledSubDetectors);
+  declareProperty("EvtSel",                   m_evtSelector);
   declareProperty("CoolUpdateTool",           m_coolHelper);
   declareProperty("SchedulerSvc",             m_schedulerName="ForwardSchedulerSvc",
                   "Name of the scheduler to be used");
@@ -244,6 +247,15 @@ StatusCode HltEventLoopMgr::initialize()
   sc = m_THistSvc.retrieve();
   if(sc.isFailure()) {
     fatal() << "Error retrieving THistSvc " + m_THistSvc << endmsg;
+    return sc;
+  }
+
+  //----------------------------------------------------------------------------
+  // Setup the Event Selector
+  //----------------------------------------------------------------------------
+  sc = m_evtSelector.retrieve();
+  if(sc.isFailure()) {
+    fatal() << "Error retrieving EvtSel " + m_THistSvc << endmsg;
     return sc;
   }
 

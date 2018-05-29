@@ -23,6 +23,7 @@ class IAlgContextSvc;
 class IThreadPoolSvc;
 class StoreGateSvc;
 class ITHistSvc;
+class IEvtSelector;
 class IROBDataProviderSvc;
 class CondAttrListCollection;
 class TrigCOOLUpdateHelper;
@@ -110,20 +111,14 @@ private:
   void printSORAttrList(const coral::AttributeList& atr, MsgStream& log) const;
 
   // ------------------------- Handles to required services/tools --------------
-  typedef ServiceHandle<IIncidentSvc> IIncidentSvc_t;
-  IIncidentSvc_t m_incidentSvc;
-  
-  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-  StoreGateSvc_t m_evtStore;
-  StoreGateSvc_t m_detectorStore;
-  StoreGateSvc_t m_inputMetaDataStore;
+  ServiceHandle<IIncidentSvc>        m_incidentSvc;
+  ServiceHandle<StoreGateSvc>        m_evtStore;
+  ServiceHandle<StoreGateSvc>        m_detectorStore;
+  ServiceHandle<StoreGateSvc>        m_inputMetaDataStore;
+  ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc;
+  ServiceHandle<ITHistSvc>           m_THistSvc;
+  ServiceHandle<IEvtSelector>        m_evtSelector;
 
-  typedef ServiceHandle<IROBDataProviderSvc> IIROBDataProviderSvc_t;
-  IIROBDataProviderSvc_t m_robDataProviderSvc;
-
-  typedef ServiceHandle<ITHistSvc> ITHistSvc_t;
-  ITHistSvc_t m_THistSvc;
-  
   ToolHandle<TrigCOOLUpdateHelper> m_coolHelper;
   
   // ------------------------- Optional services/tools -------------------------
