@@ -65,7 +65,11 @@ namespace Trk {
         {}
         
        // Virtual destructor
-        virtual ~IApproachDescriptor() {}
+        virtual ~IApproachDescriptor() {
+            delete m_approachSurfaces;
+            delete m_approachSurfaceArraySurface;
+            delete m_approachSurfaceArray;
+        }
 
         // register Layer
         void registerLayer(const Layer& lay);
