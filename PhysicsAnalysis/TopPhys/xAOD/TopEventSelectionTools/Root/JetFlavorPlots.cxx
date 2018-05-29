@@ -161,7 +161,7 @@ bool JetFlavorPlots::apply(const top::Event& event) const {
           eventWeight = m_PMGTruthWeights->getWeight(" nominal ");
        else{
           std::vector< std::string > w_names = m_PMGTruthWeights->getWeightNames();
-          if(m_throwwarningPMG){
+          if(m_throwwarningPMG.load()){
              std::cout<<"WARNING:JetFlavorPlots::apply(): \" nominal \" weight not found! It seems like you are not using a PowegPythia8 sample. ISFR shifted QuarkGluonFraction histograms will be disabled! If you need them to be enables, please report this message to hn-atlas-top-reconstruction@cern.ch and the sample you are running on!\n";
              std::cout<<"JetFlavorPlots::apply(): Assuming that the nominal weight is \""<<w_names.at(0)<<"\"\n";
              m_throwwarningPMG = false;
