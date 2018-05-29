@@ -1003,6 +1003,12 @@ void CaloGeometry::LoadFCalGeometryFromFiles(TString filename1,TString filename2
       y=it->second.y();
       m_FCal_ChannelMap.tileSize(imap, eta_index, phi_index,dx,dy);
 
+
+      double r=sqrt(x*x+y*y);
+      
+      if(r<m_FCal_rmin[imap-1])m_FCal_rmin[imap-1]=r;
+      if(r>m_FCal_rmax[imap-1])m_FCal_rmax[imap-1]=r;
+
       id=(mask1[imap-1]<<12) + (eta_index << 5) +2*phi_index;
 
       if(imap==2) id+= (8<<8);
@@ -1030,6 +1036,7 @@ void CaloGeometry::LoadFCalGeometryFromFiles(TString filename1,TString filename2
 
 
   }
+
 
 }
 
