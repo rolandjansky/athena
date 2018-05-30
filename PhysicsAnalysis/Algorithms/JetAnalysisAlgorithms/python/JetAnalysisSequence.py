@@ -101,18 +101,17 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
         seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
         pass
 
-    # Set up the jet efficiency scale factor calculation algorithm:
-    alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'JvtEfficiencyAlg' )
-    addPrivateTool( alg, 'efficiencyTool', 'CP::JetJvtEfficiency' )
-    alg.selection = "jvt_selection"
-    if runJvtEfficiency:
+    # Set up the jet efficiency scale factor calculation algorithm
+    # Should only be needed in the case of running on MC
+    # Change the truthJetCollection property to AntiKt4TruthWZJets if preferred
+    if dataType != 'data' and runJvtEfficiency:
+        alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'JvtEfficiencyAlg' )
+        addPrivateTool( alg, 'efficiencyTool', 'CP::JetJvtEfficiency' )
+        alg.selection = "jvt_selection"
         alg.efficiency = 'jvt_efficiency'
         alg.outOfValidity = 2
         alg.outOfValidityDeco = 'no_jvt'
         alg.skipBadEfficiency = 0
-        if dataType == 'data':
-            alg.efficiencyTool.TruthLabel = ''
-            pass
         pass
     seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
                 affectingSystematics = '(^JET_JvtEfficiency$)|(^JET_fJvtEfficiency$)' )

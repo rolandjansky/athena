@@ -49,6 +49,10 @@ namespace CP
     SysCopyHandle<xAOD::JetContainer> m_jetHandle {
       this, "jets", "AntiKt4EMTopoJets", "the jet collection to run on"};
 
+    /// \brief the truth jet collection to use
+  private:
+    std::string m_truthJetsName;
+
     /// \brief the decoration for the JVT selection
   private:
     std::string m_selection;

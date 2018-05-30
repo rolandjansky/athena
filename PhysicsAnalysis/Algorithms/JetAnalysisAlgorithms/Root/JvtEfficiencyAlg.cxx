@@ -24,11 +24,13 @@ namespace CP
                      ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)
     , m_efficiencyTool ("", this)
+    , m_truthJetsName("AntiKt4TruthJets")
   {
     declareProperty ("efficiencyTool", m_efficiencyTool, "the efficiency tool we apply");
     declareProperty ("selection", m_selection, "the decoration for the JVT selection");
     declareProperty ("efficiency", m_efficiency, "the decoration for the JVT efficiency");
     declareProperty ("skipBadEfficiency", m_skipBadEfficiency, "whether to skip efficiency calculation if the selection failed");
+    declareProperty ("truthJetCollection", m_truthJetsName, "the truth jet collection to use for truth tagging");
   }
 
 
@@ -60,6 +62,11 @@ namespace CP
         ANA_CHECK (m_efficiencyTool->applySystematicVariation (sys));
         xAOD::JetContainer *jets = nullptr;
         ANA_CHECK (m_jetHandle.getCopy (jets, sys));
+
+        const xAOD::JetContainer *truthjets = nullptr;
+        ANA_CHECK(evtStore()->retrieve(truthjets,m_truthJetsName));
+        ANA_CHECK(m_efficiencyTool->tagTruth(jets,truthjets));
+
         for (xAOD::Jet *jet : *jets)
         {
           bool goodJet = true;
