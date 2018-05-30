@@ -5,7 +5,7 @@
 #ifndef JETJVTEFFICIENCYSCALEFACTORS_H_
 #define JETJVTEFFICIENCYSCALEFACTORS_H_
 
-#include "JetJvtEfficiency/IJetJvtEfficiency.h"
+#include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 #include "PATInterfaces/SystematicsTool.h"
 #include "AsgTools/AsgTool.h"
 #include "TRandom3.h"
