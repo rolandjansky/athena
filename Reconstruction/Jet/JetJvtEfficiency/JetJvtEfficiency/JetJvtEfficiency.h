@@ -66,6 +66,7 @@ private:
     std::string m_file;
     SG::AuxElement::Decorator< float >* m_sfDec;
     SG::AuxElement::Decorator< char >* m_dropDec;
+    SG::AuxElement::ConstAccessor< char >* m_dropAcc;
     TH2 *h_JvtHist;
     TH2 *h_EffHist;
     std::string m_sf_decoration_name;
@@ -76,7 +77,6 @@ private:
     std::string m_jetEtaName;
     float m_maxPtForJvt;
     TRandom3 m_rand;
-    std::string m_truthLabel;
     bool m_dofJVT;
     bool m_doTruthRequirement;
     std::string m_ORdec;

@@ -6,7 +6,7 @@
 #define IJETJVTEFFICIENCY_H_
 
 // EDM include(s):
-#include "xAODJet/Jet.h"
+#include "xAODJet/JetContainer.h"
 
 // Local include(s):
 #include "PATInterfaces/CorrectionCode.h"
@@ -73,6 +73,9 @@ public:
 
     //Sets random seed for random generator, for debugging
     virtual void setRandomSeed(int seed) = 0;
+
+    //Applies truth matching decoration to determine appropriate scale factor type -- call before extracting SFs
+    virtual StatusCode tagTruth(const xAOD::IParticleContainer *jets,const xAOD::IParticleContainer *truthJets) = 0;
 
 }; // class IJetJvtEfficiencyTool
 

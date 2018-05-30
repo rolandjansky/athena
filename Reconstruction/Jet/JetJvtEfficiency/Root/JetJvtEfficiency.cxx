@@ -12,8 +12,9 @@
 
 namespace CP {
 
-static SG::AuxElement::Decorator<char>  isHS("isJvtHS");
-static SG::AuxElement::Decorator<char>  isPU("isJvtPU");
+static SG::AuxElement::Decorator<char>  isHSDec("isJvtHS");
+static SG::AuxElement::Decorator<char>  isPUDec("isJvtPU");
+static SG::AuxElement::ConstAccessor<char>  isHSAcc("isJvtHS");
 
 JetJvtEfficiency::JetJvtEfficiency( const std::string& name): asg::AsgTool( name ),
   m_appliedSystEnum(NONE),
@@ -32,16 +33,16 @@ JetJvtEfficiency::JetJvtEfficiency( const std::string& name): asg::AsgTool( name
     declareProperty("OverlapDecorator", m_ORdec = ""                        );
     declareProperty( "JetEtaName",   m_jetEtaName   = "DetectorEta"               );
     declareProperty( "MaxPtForJvt",   m_maxPtForJvt   = 60e3                      );
-    declareProperty( "TruthLabel",   m_truthLabel   = "isJvtHS"                      );
+    declareProperty( "DoTruthReq",   m_doTruthRequirement   = true );
     applySystematicVariation(CP::SystematicSet()).ignore();
 }
 
 StatusCode JetJvtEfficiency::initialize(){
   m_sfDec = new SG::AuxElement::Decorator< float>(m_sf_decoration_name);
   m_dropDec = new SG::AuxElement::Decorator<char>(m_drop_decoration_name);
+  m_dropAcc = new SG::AuxElement::ConstAccessor<char>(m_drop_decoration_name);
   m_dofJVT = (m_file.find("fJvt") != std::string::npos);
   m_doOR = (!m_ORdec.empty());
-  m_doTruthRequirement = !(m_truthLabel.empty());
   if (!m_doTruthRequirement) ATH_MSG_WARNING ( "No truth requirement will be performed, which is not recommended.");
 
   bool ispflow = (m_file.find("EMPFlow") != std::string::npos);
@@ -108,7 +109,14 @@ CorrectionCode JetJvtEfficiency::getEfficiencyScaleFactor( const xAOD::Jet& jet,
     else if (!m_dofJVT && m_appliedSystEnum==JVT_EFFICIENCY_DOWN) baseFactor -= errorTerm;
     else if (m_dofJVT && m_appliedSystEnum==FJVT_EFFICIENCY_UP) baseFactor += errorTerm;
     else if (m_dofJVT && m_appliedSystEnum==FJVT_EFFICIENCY_DOWN) baseFactor -= errorTerm;
-    if (m_doTruthRequirement && !jet.auxdata<char>(m_truthLabel)) sf = 1;
+    if (m_doTruthRequirement) {
+        if(!isHSAcc.isAvailable(jet)) {
+            ATH_MSG_ERROR("Truth tagging required but decoration not available. Please call JetJvtEfficiency::truthTag(...) first.");
+            return CorrectionCode::Error;
+        } else {
+            if (!isHSAcc(jet)) sf = 1;
+        }
+    }
     else sf = baseFactor;
     return CorrectionCode::Ok;
 }
@@ -131,7 +139,14 @@ CorrectionCode JetJvtEfficiency::getInefficiencyScaleFactor( const xAOD::Jet& je
     else if (!m_dofJVT && m_appliedSystEnum==JVT_EFFICIENCY_DOWN) effFactor -= errorEffTerm;
     else if (m_dofJVT && m_appliedSystEnum==FJVT_EFFICIENCY_UP) effFactor += errorEffTerm;
     else if (m_dofJVT && m_appliedSystEnum==FJVT_EFFICIENCY_DOWN) effFactor -= errorEffTerm;
-    if (m_doTruthRequirement && !jet.auxdata<char>(m_truthLabel)) sf = 1;
+    if (m_doTruthRequirement) {
+        if(!isHSAcc.isAvailable(jet)) {
+        ATH_MSG_ERROR("Truth tagging required but decoration not available. Please call JetJvtEfficiency::truthTag(...) first.");
+        return CorrectionCode::Error;
+        } else {
+            if(!isHSAcc(jet)) sf = 1;
+        }
+    }
     else sf = (1-baseFactor*effFactor)/(1-effFactor);
     return CorrectionCode::Ok;
 }
@@ -184,7 +199,7 @@ CorrectionCode JetJvtEfficiency::applyRandomDropping( const xAOD::Jet& jet ) {
     ATH_MSG_WARNING("Inexplicably failed JVT calibration" );
     return result;
   }
-  if (!isInRange(jet) || jet.getAttribute<float>(m_jetJvtMomentName)<m_jvtCut || (m_doTruthRequirement && !jet.auxdata<char>(m_truthLabel))) (*m_dropDec)(jet) = 0;
+  if (!isInRange(jet) || jet.getAttribute<float>(m_jetJvtMomentName)<m_jvtCut || (m_doTruthRequirement && !isHSAcc(jet))) (*m_dropDec)(jet) = 0;
   else (*m_dropDec)(jet) = m_rand.Rndm()>sf?1:0;
   return result;
 }
@@ -206,7 +221,7 @@ CorrectionCode JetJvtEfficiency::applyAllRandomDropping(const xAOD::IParticleCon
 }
 
 bool JetJvtEfficiency::passesJvtCut(const xAOD::Jet& jet) {
-  if (jet.isAvailable<char>(m_drop_decoration_name) && jet.auxdata<char>(m_drop_decoration_name)) return false;
+  if (jet.isAvailable<char>(m_drop_decoration_name) && (*m_dropAcc)(jet)) return false;
   if (!isInRange(jet)) return true;
   return jet.getAttribute<float>(m_jetJvtMomentName)>m_jvtCut;
 }
@@ -254,8 +269,8 @@ StatusCode JetJvtEfficiency::tagTruth(const xAOD::IParticleContainer *jets,const
         if (tjet->p4().DeltaR(jet->p4())<0.3 && tjet->pt()>10e3) ishs = true;
         if (tjet->p4().DeltaR(jet->p4())<0.6) ispu = false;
       }
-      isHS(*jet)=ishs;
-      isPU(*jet)=ispu;
+      isHSDec(*jet)=ishs;
+      isPUDec(*jet)=ispu;
     }
     return StatusCode::SUCCESS;
   }
