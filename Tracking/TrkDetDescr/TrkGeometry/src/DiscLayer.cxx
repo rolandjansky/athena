@@ -3,7 +3,7 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// DiscLayer.cxx, (c) ATLAS Detector software
+// DiscLayer.cxx
 ///////////////////////////////////////////////////////////////////
 
 // Trk
@@ -108,6 +108,10 @@ Trk::DiscLayer& Trk::DiscLayer::operator=(const DiscLayer& dlay)
         DiscSurface::associateLayer(*this);
    }
   return(*this);
+}
+
+Trk::DiscLayer::~DiscLayer() {
+  delete m_approachDescriptor;
 }
     
 const Trk::DiscSurface& Trk::DiscLayer::surfaceRepresentation() const
