@@ -477,7 +477,7 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       //-----------------------------------------------------------------------
       eformat::write::FullEventFragment l1r; // can we allocate new each time?
       // should the getNext call be protected by try{} and catch()?
-      /* hltinterface::DataCollector::Status status = hltinterface::DataCollector::instance()->getNext(l1r);
+      hltinterface::DataCollector::Status status = hltinterface::DataCollector::instance()->getNext(l1r);
       if (status == hltinterface::DataCollector::Status::STOP) {
         debug() << "No more events available, the loop will finish when all events on the fly are processed" << endmsg;
         events_available = false;
@@ -485,7 +485,7 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       else if (status != hltinterface::DataCollector::Status::OK) {
         error() << "Unhandled return Status " << static_cast<int>(status) << " from DataCollector::getNext" << endmsg;
         // continue running?
-      } */
+      }
 
       //-----------------------------------------------------------------------
       // Start processing the new event
@@ -887,6 +887,31 @@ int HltEventLoopMgr::drainScheduler() const
 
     // m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndEvent,
     // 					 *thisFinishedEvtContext ));
+
+    // create a dummy HLT result and call eventDone
+
+    debug() << "Creating a dummy HLT Result" << endmsg;
+    eformat::write::FullEventFragment hltrFragment;
+    hltrFragment.global_id(pEvent->event_ID()->event_number());
+    hltrFragment.bc_time_seconds(pEvent->event_ID()->time_stamp());
+    hltrFragment.bc_time_nanoseconds(pEvent->event_ID()->time_stamp_ns_offset());
+    hltrFragment.run_no(pEvent->event_ID()->run_number());
+    hltrFragment.bc_id(pEvent->event_ID()->bunch_crossing_id());
+    hltrFragment.lvl1_id(pEvent->trigger_info()->extendedLevel1ID());
+    hltrFragment.lvl1_trigger_type(pEvent->trigger_info()->level1TriggerType());
+    hltrFragment.lvl1_trigger_info(pEvent->trigger_info()->level1TriggerInfo().size(),
+                                   pEvent->trigger_info()->level1TriggerInfo().data());
+
+    const eformat::write::node_t* top = hltrFragment.bind();
+    auto hltrFragmentSize = hltrFragment.size_word();
+    auto hltrPtr = std::make_unique<uint32_t[]>(hltrFragmentSize);
+    auto copiedSize = eformat::write::copy(*top,hltrPtr.get(),hltrFragmentSize);
+    if(copiedSize!=hltrFragmentSize){
+      error() << "Event serialization failed" << endmsg;
+      // missing error handling
+    }
+    debug() << "Sending the HLT result to DataCollector" << endmsg;
+    hltinterface::DataCollector::instance()->eventDone(std::move(hltrPtr));
 
     debug() << "Clearing slot " << thisFinishedEvtContext->slot() 
             << " (event " << thisFinishedEvtContext->evt()
