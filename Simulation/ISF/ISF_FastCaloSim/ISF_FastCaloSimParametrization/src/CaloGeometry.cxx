@@ -549,27 +549,78 @@ const CaloDetDescrElement* CaloGeometry::getDDE(int sampling,float eta,float phi
   return bestDDE;
 }
 
-const CaloDetDescrElement* CaloGeometry::getFCalDDE(int sampling,float x,float y,float z){
-		int isam = sampling - 20;
-		int iphi,ieta;
-		Long64_t mask1[]{0x34,0x34,0x35};
-		Long64_t mask2[]{0x36,0x36,0x37};
-		if(!m_FCal_ChannelMap.getTileID(isam, x, y, ieta, iphi)) return nullptr;
-		//cout << ieta << ""
-		Long64_t id = (ieta << 5) + 2*iphi;
-		if(isam==2)id+= (8<<8);
-		
-		if(z>0) id+=(mask2[isam-1] << 12);
-		else id+=(mask1[isam-1] << 12);
-		
-		id = id << 44; 
-		Identifier identify((unsigned long long)id);
-		
-		const CaloDetDescrElement* foundcell=m_cells[identify];
-
-		return foundcell;
+const CaloDetDescrElement* CaloGeometry::getFCalDDE(int sampling,float x,float y,float z,float* distance,int* steps){
+  int isam = sampling - 20;
+  int iphi(-100000),ieta(-100000);
+  Long64_t mask1[]{0x34,0x34,0x35};
+  Long64_t mask2[]{0x36,0x36,0x37};
+  bool found = m_FCal_ChannelMap.getTileID(isam, x, y, ieta, iphi);
+  if(steps && found) *steps=0;
+  if(!found) {
+    //cout << "Warning: Hit is not matched with any FCal cell! Looking for the closest cell" << endl;
+    found = getClosestFCalCellIndex(sampling, x, y, ieta, iphi,steps);
+  }
+  if(!found) {
+    cout << "Error: Unable to find the closest FCal cell!" << endl;
+    return nullptr;
+  }
+  
+  
+  //cout << "CaloGeometry::getFCalDDE: x:" << x << " y: " << y << " ieta: " << ieta << " iphi: " << iphi << " cmap->x(): " << m_FCal_ChannelMap.x(isam,ieta,iphi) << " cmap->y(): " << m_FCal_ChannelMap.y(isam,ieta,iphi) << endl;
+  Long64_t id = (ieta << 5) + 2*iphi;
+  if(isam==2)id+= (8<<8);
+  
+  
+  
+  if(z>0) id+=(mask2[isam-1] << 12);
+  else id+=(mask1[isam-1] << 12);
+  
+  id = id << 44; 
+  Identifier identify((unsigned long long)id);
+  
+  const CaloDetDescrElement* foundcell=m_cells[identify];
+  if(distance) {
+    *distance=sqrt(pow(foundcell->x() - x,2) +  pow(foundcell->y() - y,2)  );
+  }
+  
+  return foundcell;
 }
 
+
+bool CaloGeometry::getClosestFCalCellIndex(int sampling,float x,float y,int& ieta, int& iphi,int* steps){
+  
+  double rmin = m_FCal_rmin[sampling-21];
+  double rmax = m_FCal_rmax[sampling-21];
+  int isam=sampling-20;
+  double a=1.;
+  const double b=0.01;
+  const int nmax=100;
+  int i=0;
+  
+  const double r = sqrt(x*x +y*y);
+  if(r==0.) return false;
+  const double r_inverse=1./r;
+  
+  if((r/rmax)>(rmin*r_inverse)){
+    x=x*rmax*r_inverse;
+    y=y*rmax*r_inverse;
+    while((!m_FCal_ChannelMap.getTileID(isam, a*x, a*y, ieta, iphi)) && i<nmax){
+      a-=b;
+      i++;
+    }
+  }
+  else {
+    x=x*rmin*r_inverse;
+    y=y*rmin*r_inverse;
+    while((!m_FCal_ChannelMap.getTileID(isam, a*x, a*y, ieta, iphi)) && i<nmax){
+      a+=b;
+      i++;
+    }
+    
+  }
+  if(steps)*steps=i+1;
+  return i<nmax ? true : false;
+}
 
 bool CaloGeometry::PostProcessGeometry()
 {
@@ -879,10 +930,8 @@ void CaloGeometry::LoadFCalGeometryFromFiles(TString filename1,TString filename2
   for(int imodule=1;imodule<=3;imodule++){
 
     i=0;
-    //while(i<50){
     while(1){
 
-      //cout << electrodes[imodule-1]->eof() << endl;
       (*electrodes[imodule-1]) >> tubeName;
       if(electrodes[imodule-1]->eof())break;
       (*electrodes[imodule-1]) >> thisTubeId; // ?????
@@ -905,17 +954,11 @@ void CaloGeometry::LoadFCalGeometryFromFiles(TString filename1,TString filename2
       if (tileStream2) tileStream2 >> a2;
       if (tileStream3) tileStream3 >> a3;
 
-      //unsigned int tileName= (a3 << 16) + a2;
       stringstream s;
 
 
       m_FCal_ChannelMap.add_tube(tubeNamestring, imodule, thisTubeId, thisTubeI,thisTubeJ, thisTubeX, thisTubeY,seventh_column);
-
-
-
-      //cout << "FCal electrodes: " << tubeName << " " << second_column << " " << thisTubeI << " " << thisTubeJ << " " << thisTubeX << " " << thisTubeY << " " << seventh_column << " " << eight_column << " " << ninth_column << endl;
-      //cout << tileStream1.str() << " " << tileStream2.str() << " " << tileStream3.str() << endl;
-      //cout << a1 << " " << a2 << " " << a3 << " " << tileName << endl;
+      
       i++;
     }
   }
