@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "MuonDigitContainer/MdtDigitContainer.h"
 #include "MuonDigitContainer/MdtDigitCollection.h"
 #include "MuonDigitContainer/MdtDigit.h"
@@ -29,9 +27,8 @@ using namespace std;
 
 MdtDigitToMdtRDO::MdtDigitToMdtRDO(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_activeStore("ActiveStoreSvc", name), 
   m_cabling("MuonMDT_CablingSvc", name),
-  m_csmContainer(0), m_mdtIdHelper(0),
+  m_mdtIdHelper(0),
   m_BMEpresent(false)
 {
 }
@@ -41,17 +38,14 @@ MdtDigitToMdtRDO::MdtDigitToMdtRDO(const std::string& name, ISvcLocator* pSvcLoc
 StatusCode MdtDigitToMdtRDO::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
-  ATH_CHECK( m_activeStore.retrieve() );
+  ATH_CHECK( m_csmContainerKey.initialize() );
+  ATH_CHECK( m_digitContainerKey.initialize() );
   ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
   ATH_CHECK( m_cabling.retrieve() );
 
   if ( fillTagInfo().isFailure() ) {
     ATH_MSG_WARNING( "Could not fill the tagInfo for MDT cabling"  );
   }
-
-  // create an empty pad container and record it
-  m_csmContainer = new MdtCsmContainer();
-  m_csmContainer->addRef();
 
   // check if the layout includes elevator chambers
   m_BMEpresent = m_mdtIdHelper->stationNameIndex("BME") != -1;
@@ -71,23 +65,8 @@ StatusCode MdtDigitToMdtRDO::execute() {
 
   ATH_MSG_DEBUG( "in execute()"  );
 
-  m_csmContainer->cleanup();
-  std::string key = "MDTCSM";
-  m_activeStore->setStore( &*evtStore() );
-  StatusCode sc = evtStore()->record(m_csmContainer,key);
-  if (sc.isFailure()) ATH_MSG_ERROR( "Fail to record MDT CSM container in TDS"  );
+  ATH_CHECK(fill_MDTdata());
 
-  sc = fill_MDTdata();
-  if (sc.isFailure()) ATH_MSG_ERROR( "MdtDigitiToMdtRDO fail to execute"  );
-
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode MdtDigitToMdtRDO::finalize() {
- 
-  ATH_MSG_DEBUG( "in finalize()"  );
-  if(m_csmContainer) m_csmContainer->release();
   return StatusCode::SUCCESS;
 }
 
@@ -95,18 +74,16 @@ StatusCode MdtDigitToMdtRDO::finalize() {
 StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 
   ATH_MSG_DEBUG( "in execute() : fill_MDTdata"  );
+  // create an empty pad container and record it
+  SG::WriteHandle<MdtCsmContainer> csmContainer(m_csmContainerKey);
+  ATH_CHECK(csmContainer.record(std::make_unique<MdtCsmContainer>()));
 
   IdContext mdtContext = m_mdtIdHelper->module_context();
 
-  m_activeStore->setStore( &*evtStore() );
+  SG::ReadHandle<MdtDigitContainer> container (m_digitContainerKey);
 
   typedef MdtDigitContainer::const_iterator collection_iterator;
   typedef MdtDigitCollection::const_iterator digit_iterator;
-
-  // Retrieve the digit container
-  std::string key = "MDT_DIGITS";
-  const MdtDigitContainer* container;
-  ATH_CHECK( evtStore()->retrieve(container,key) );
 
   MdtCsmIdHash hashF;
 
@@ -263,14 +240,11 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 	}
 
       // Add the CSM to the CsmContainer
-      m_activeStore->setStore( &*evtStore() );
-      StatusCode sc = m_csmContainer->addCollection(mdtCsm, elementHash);
-      if (sc.isFailure())
+      if (csmContainer->addCollection(mdtCsm, elementHash).isFailure())
 	ATH_MSG_WARNING( "Unable to record MDT CSM in IDC"  );
         //delete mdtCsm;
       if ( name == 53 && m_BMEpresent) {
-	sc = m_csmContainer->addCollection(mdtCsm_2nd, elementHash_2nd);
-	if (sc.isFailure()) 
+	if (csmContainer->addCollection(mdtCsm_2nd, elementHash_2nd).isFailure())
 	  ATH_MSG_WARNING( "Unable to record MDT CSM in IDC 2nd"  );
       }
     }

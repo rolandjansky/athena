@@ -11,6 +11,7 @@
 
 #include "MuonRDO/TgcRdoContainer.h"
 #include "MuonRDO/TgcRdo.h"
+#include "MuonDigitContainer/TgcDigitContainer.h"
 
 class TgcIdHelper;
 class ITGCcablingServerSvc;
@@ -24,9 +25,8 @@ class TgcDigitToTgcRDO : public AthAlgorithm
 public:
 
   TgcDigitToTgcRDO (const std::string& name, ISvcLocator* pSvcLocator);
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
 
 private:
 
@@ -43,16 +43,15 @@ private:
 
 protected:
 
-  ServiceHandle<ActiveStoreSvc>    m_activeStore;
   ServiceHandle<ITGCcablingServerSvc> m_tgc_cabling_server; 
 
-  TgcRdoContainer      * m_rdoContainer;
+  SG::WriteHandleKey<TgcRdoContainer> m_rdoContainerKey{this,"OutputObjectName","TGCRDO","WriteHandleKey for Output TgcRdoContainer"};
+  SG::ReadHandleKey<TgcDigitContainer> m_digitContainerKey{this,"InputObjectName","TGC_DIGITS","ReadHandleKey for Input TgcDigitContainer"};
   const ITGCcablingSvc * m_cabling;
   const TgcIdHelper    * m_tgcIdHelper;
 
   std::string  m_cablingType;
 
-  std::string m_rdoContainerName;
 };
 
 #endif

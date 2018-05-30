@@ -10,7 +10,6 @@
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
 #include "TGCcablingInterface/ITGCcablingSvc.h"
 
-#include "MuonDigitContainer/TgcDigitContainer.h"
 #include "MuonDigitContainer/TgcDigitCollection.h"
 #include "MuonDigitContainer/TgcDigit.h"
 
@@ -23,12 +22,10 @@
 
 TgcDigitToTgcRDO::TgcDigitToTgcRDO(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    m_activeStore("ActiveStoreSvc", name),
-    m_tgc_cabling_server("TGCcablingServerSvc", name),m_rdoContainer(0),m_cabling(0), 
+    m_tgc_cabling_server("TGCcablingServerSvc", name),m_cabling(0), 
     m_tgcIdHelper(0)
 {
   declareProperty ( "isNewTgcDigit", m_isNewTgcDigit = true );
-  declareProperty ( "RDOContainerName", m_rdoContainerName = "TGCRDO" );
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -36,7 +33,6 @@ TgcDigitToTgcRDO::TgcDigitToTgcRDO(const std::string& name, ISvcLocator* pSvcLoc
 StatusCode TgcDigitToTgcRDO::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
-  ATH_CHECK( m_activeStore.retrieve() );
   ATH_CHECK( detStore()->retrieve( m_tgcIdHelper, "TGCIDHELPER") );
   ATH_CHECK( m_tgc_cabling_server.retrieve() );
 
@@ -48,6 +44,9 @@ StatusCode TgcDigitToTgcRDO::initialize()
     ATH_MSG_DEBUG( "TGCcablingServerSvc not yet configured; postpone the " 
                    << "ITGCcablingSvc and the TgcRdocontainer initialization at first event" );
   }
+
+  ATH_CHECK( m_rdoContainerKey.initialize() );
+  ATH_CHECK( m_digitContainerKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -64,25 +63,11 @@ StatusCode TgcDigitToTgcRDO::execute()
   
   ATH_MSG_DEBUG( "in execute()"  );
 
-  m_rdoContainer->cleanup();
-  m_activeStore->setStore( &*evtStore() );
-  StatusCode sc = evtStore()->record(m_rdoContainer, m_rdoContainerName);
-  if (sc.isFailure())
-    ATH_MSG_WARNING( "Fail to record TGC RDO container in TDS"  );
-
-  sc = fill_TGCdata();
-  if (sc.isFailure())
-    ATH_MSG_WARNING( "Fail to create TGC RDO"  );
+  if(fill_TGCdata().isFailure()) {
+    ATH_MSG_WARNING( "Fail to create TGC RDO" );
+  }
 
   ATH_MSG_DEBUG( "done execute()"  );
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode TgcDigitToTgcRDO::finalize() {
-
-  ATH_MSG_INFO( "in finalize()"  );
-  if(m_rdoContainer) m_rdoContainer->release();
   return StatusCode::SUCCESS;
 }
 
@@ -91,17 +76,15 @@ StatusCode TgcDigitToTgcRDO::fill_TGCdata()
 {
   ATH_MSG_DEBUG( "fill_TGCdata"  );
 
-  // init
+  SG::WriteHandle<TgcRdoContainer> rdoContainer (m_rdoContainerKey);
+  SG::ReadHandle<TgcDigitContainer> container (m_digitContainerKey);
+  ATH_CHECK(rdoContainer.record((std::make_unique<TgcRdoContainer>())));
+
+ // init
   m_tgcRdoMap.clear();
 
   typedef TgcDigitContainer::const_iterator collection_iterator;
   typedef TgcDigitCollection::const_iterator digit_iterator;
-
-  // Retrieve the digit container
-  std::string key = "TGC_DIGITS";
-  m_activeStore->setStore( &*evtStore() );
-  const TgcDigitContainer* container;
-  ATH_CHECK( evtStore()->retrieve(container,key) );
 
   // loop over collections
   collection_iterator it_coll   = container->begin();
@@ -206,10 +189,9 @@ StatusCode TgcDigitToTgcRDO::fill_TGCdata()
   std::map<uint16_t, TgcRdo *>::iterator itM_e=m_tgcRdoMap.end();
   for (; itM != itM_e; ++itM)
     {
-      m_activeStore->setStore( &*evtStore() );
       unsigned int elementHash = hashF( (itM->second)->identify() );
       //const TgcRdo* rdo = itM->second;
-      StatusCode sc = m_rdoContainer->addCollection(itM->second, elementHash);
+      StatusCode sc = rdoContainer->addCollection(itM->second, elementHash);
       if (sc.isFailure())
 	ATH_MSG_WARNING( "Unable to record TGC RDO in IDC"  );
     }
@@ -280,10 +262,6 @@ StatusCode TgcDigitToTgcRDO::getCabling() {
 
   // Fill Tag Info  
   ATH_CHECK( fillTagInfo() );
-
-  // create an empty Rdo container and record it
-  m_rdoContainer = new TgcRdoContainer();
-  m_rdoContainer->addRef();
 
   return StatusCode::SUCCESS;
 }
