@@ -64,8 +64,10 @@ namespace CP
         ANA_CHECK (m_jetHandle.getCopy (jets, sys));
 
         const xAOD::JetContainer *truthjets = nullptr;
-        ANA_CHECK(evtStore()->retrieve(truthjets,m_truthJetsName));
-        ANA_CHECK(m_efficiencyTool->tagTruth(jets,truthjets));
+	if(!m_truthJetsName.empty()) {
+	  ANA_CHECK(evtStore()->retrieve(truthjets,m_truthJetsName));
+	  ANA_CHECK(m_efficiencyTool->tagTruth(jets,truthjets));
+	}
 
         for (xAOD::Jet *jet : *jets)
         {
