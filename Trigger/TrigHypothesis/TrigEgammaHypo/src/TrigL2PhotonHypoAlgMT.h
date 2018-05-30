@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
+
 #ifndef TRIGEGAMMAHYPO_TRIGL2PHOTONHYPOALGMT_H
 #define TRIGEGAMMAHYPO_TRIGL2PHOTONHYPOALGMT_H 1
 
@@ -16,8 +17,6 @@
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "DecisionHandling/HypoBase.h"
 #include "ITrigL2CaloHypoTool.h"
-
-
 
 
 /**
@@ -42,14 +41,14 @@ class TrigL2PhotonHypoAlgMT  :  public ::HypoBase
  private: 
   TrigL2PhotonHypoAlgMT();
   ToolHandleArray< TrigL2PhotonHypoTool > m_hypoTools {this, "HypoTools", {}, "Tools to perfrom selection"};
-   Gaudi::Property< bool > m_runInView { this, "RunInView", false , "Set input DH for running in views" };
+  Gaudi::Property< bool > m_runInView { this, "RunInView", false , "Set input DH for running in views" };
   // internally used to getch from views
   SG::ReadHandleKey< xAOD::TrigPhotonContainer > m_photonsKey {this, "Photons", "L2PhotonContainer", "Input"};
 
   
- bool  recursivelyFindFeature( const TrigCompositeUtils::Decision* d, ElementLink<xAOD::TrigEMClusterContainer>& clusterlink) const;
+  bool  recursivelyFindFeature( const TrigCompositeUtils::Decision* d, ElementLink<xAOD::TrigEMClusterContainer>& clusterlink) const;
   
 
 }; 
 
-#endif //> !TRIGEGAMMAHYPO_TRIGL2PHOTONHYPOALGMT_H
+#endif //> !TRIGEGAMMAHYPO_TRIGL2PHOTONHYPOALGMT_H                                                                                                                                                          
