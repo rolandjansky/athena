@@ -19,7 +19,7 @@ TrigL2PhotonHypoTool::TrigL2PhotonHypoTool( const std::string& type,
 
 StatusCode TrigL2PhotonHypoTool::initialize()  {
   
-  //  if ( !m_monTool.empty() ) CHECK( m_monTool.retrieve() );
+  //  if ( !m_monTool.empty() ) CHECK( m_monTool.rerthrieve() );
 
   ATH_MSG_DEBUG( "Initialization completed successfully:" );
   ATH_MSG_DEBUG( "AcceptAll            = "
@@ -34,38 +34,12 @@ StatusCode TrigL2PhotonHypoTool::initialize()  {
   ATH_MSG_DEBUG( "dPHICLUSTERthr = " << m_dphicluster );
   ATH_MSG_DEBUG( "dETACLUSTERthr = " << m_detacluster );
 
-  unsigned int nEtaBin=m_etabin.size();
-  if ( m_eTthr.size() != nEtaBin-1 ) {
-    ATH_MSG_ERROR( " etThr size is " <<  m_eTthr.size() << " but needs " << nEtaBin-1 );
-    return StatusCode::FAILURE;
-  }
 
+  std::vector<size_t> sizes( {m_eTthr.size(), m_eT2thr.size(), m_hadeTthr.size(), m_hadeT2thr.size(), m_carcorethr.size(), m_caeratiothr.size() } );   
 
-  if ( m_eT2thr.size() != nEtaBin-1 ) {
-    ATH_MSG_ERROR( " et2Thr size is " <<  m_eT2thr.size() << " but needs " << nEtaBin-1 );
-    return StatusCode::FAILURE;
-  }
-
-  if ( m_hadeTthr.size() != nEtaBin-1 ) {
-    ATH_MSG_ERROR( " hadetThr size is " <<  m_hadeTthr.size() << " but needs " << nEtaBin-1 );
-    return StatusCode::FAILURE;
-  }
-
-  if ( m_hadeT2thr.size() != nEtaBin-1 ) {
-    ATH_MSG_ERROR( " hadet2Thr size is " <<  m_hadeT2thr.size() << " but needs " << nEtaBin-1 );
-    return StatusCode::FAILURE;
-  }
-
-  if ( m_carcorethr.size() != nEtaBin-1 ) {
-    ATH_MSG_ERROR( " carcore size is " <<  m_carcorethr.size() << " but needs " << nEtaBin-1 );
-    return StatusCode::FAILURE;
-  }
-
-  if ( m_caeratiothr.size() != nEtaBin-1 ) {
-    ATH_MSG_ERROR( " caeratio size is " <<  m_caeratiothr.size() << " but needs " << nEtaBin-1 );
-    return StatusCode::FAILURE;
-  }
-
+if ( *std::min_element( sizes.begin(), sizes.end() ) != *std::max_element( sizes.begin(), sizes.end() )  ) {     
+  ATH_MSG_ERROR( "Missconfiguration, cut properties listed above ( when DEBUG ) have different dimensions shortest: " <<  *std::min_element( sizes.begin(), sizes.end() ) << " longest " << *std::max_element( sizes.begin(), sizes.end() ) );     
+  return StatusCode::FAILURE;   }
 
   return StatusCode::SUCCESS;
 }

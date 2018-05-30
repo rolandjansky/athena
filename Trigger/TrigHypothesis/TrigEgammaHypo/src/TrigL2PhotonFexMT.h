@@ -4,8 +4,8 @@
 
 
 
-#ifndef TRIG_PHOTON_FEXMT_H 
-#define TRIG_PHOTON_FEXMT_H
+#ifndef TRIG_TrigL2PhotonFexMT_H 
+#define TRIG_TrigL2PhotonFexMT_H
 
 // athena stuff
 #include "GaudiKernel/IToolSvc.h"

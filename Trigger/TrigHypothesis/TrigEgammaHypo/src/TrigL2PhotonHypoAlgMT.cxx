@@ -4,12 +4,15 @@
 
 #include "GaudiKernel/Property.h"
 #include "TrigL2PhotonHypoAlgMT.h"
-#include "DecisionHandling/HLTIdentifier.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
-#include "TrigL2PhotonHypoTool.h"
 
 
-using namespace TrigCompositeUtils;
+
+using TrigCompositeUtils::DecisionContainer;
+using TrigCompositeUtils::DecisionAuxContainer; 
+using TrigCompositeUtils::DecisionIDContainer; 
+using TrigCompositeUtils::decisionIDs; 
+using TrigCompositeUtils::newDecisionIn; 
+using TrigCompositeUtils::linkToPrevious;
 
 TrigL2PhotonHypoAlgMT::TrigL2PhotonHypoAlgMT( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) :
