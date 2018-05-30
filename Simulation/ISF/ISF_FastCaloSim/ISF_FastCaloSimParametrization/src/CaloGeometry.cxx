@@ -557,7 +557,7 @@ const CaloDetDescrElement* CaloGeometry::getFCalDDE(int sampling,float x,float y
   bool found = m_FCal_ChannelMap.getTileID(isam, x, y, ieta, iphi);
   if(steps && found) *steps=0;
   if(!found) {
-    cout << "Warning: Hit is not matched with any FCal cell! Looking for the closest cell" << endl;
+    //cout << "Warning: Hit is not matched with any FCal cell! Looking for the closest cell" << endl;
     found = getClosestFCalCellIndex(sampling, x, y, ieta, iphi,steps);
   }
   if(!found) {
@@ -597,23 +597,22 @@ bool CaloGeometry::getClosestFCalCellIndex(int sampling,float x,float y,int& iet
   const int nmax=100;
   int i=0;
   
-  double r = sqrt(x*x +y*y);
+  const double r = sqrt(x*x +y*y);
   if(r==0.) return false;
+  const double r_inverse=1./r;
   
-  if((r/rmax)>(rmin/r)){
-    x=x*rmax/r;
-    y=y*rmax/r;
+  if((r/rmax)>(rmin*r_inverse)){
+    x=x*rmax*r_inverse;
+    y=y*rmax*r_inverse;
     while((!m_FCal_ChannelMap.getTileID(isam, a*x, a*y, ieta, iphi)) && i<nmax){
-      //cout << "rmax: " << rmax << " r: " << a*sqrt(x*x+y*y) << " ieta: " << ieta << " iphi: " << iphi << endl;
       a-=b;
       i++;
     }
   }
   else {
-    x=x*rmin/r;
-    y=y*rmin/r;
+    x=x*rmin*r_inverse;
+    y=y*rmin*r_inverse;
     while((!m_FCal_ChannelMap.getTileID(isam, a*x, a*y, ieta, iphi)) && i<nmax){
-      cout << "rmin: " << rmin << " r: " << a*sqrt(x*x+y*y) << " ieta: " << ieta << " iphi: " << iphi << endl;
       a+=b;
       i++;
     }
@@ -931,10 +930,8 @@ void CaloGeometry::LoadFCalGeometryFromFiles(TString filename1,TString filename2
   for(int imodule=1;imodule<=3;imodule++){
 
     i=0;
-    //while(i<50){
     while(1){
 
-      //cout << electrodes[imodule-1]->eof() << endl;
       (*electrodes[imodule-1]) >> tubeName;
       if(electrodes[imodule-1]->eof())break;
       (*electrodes[imodule-1]) >> thisTubeId; // ?????
@@ -957,17 +954,11 @@ void CaloGeometry::LoadFCalGeometryFromFiles(TString filename1,TString filename2
       if (tileStream2) tileStream2 >> a2;
       if (tileStream3) tileStream3 >> a3;
 
-      //unsigned int tileName= (a3 << 16) + a2;
       stringstream s;
 
 
       m_FCal_ChannelMap.add_tube(tubeNamestring, imodule, thisTubeId, thisTubeI,thisTubeJ, thisTubeX, thisTubeY,seventh_column);
-
-
-
-      //cout << "FCal electrodes: " << tubeName << " " << second_column << " " << thisTubeI << " " << thisTubeJ << " " << thisTubeX << " " << thisTubeY << " " << seventh_column << " " << eight_column << " " << ninth_column << endl;
-      //cout << tileStream1.str() << " " << tileStream2.str() << " " << tileStream3.str() << endl;
-      //cout << a1 << " " << a2 << " " << a3 << " " << tileName << endl;
+      
       i++;
     }
   }
