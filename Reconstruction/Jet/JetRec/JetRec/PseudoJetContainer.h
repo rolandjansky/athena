@@ -73,6 +73,8 @@ public:
   std::size_t size() const;
   std::string dumpPseudoJets() const;
 
+  bool  debug() const;
+  void  debug(bool b) const;
   friend std::ostream& operator<<(std::ostream&, const PseudoJetContainer&);  
 
 private:
@@ -150,7 +152,7 @@ private:
   // into the jets.
   std::set<const IConstituentExtractor*> m_emptyExtractors;
 
-  bool m_debug{false};
+  mutable bool m_debug{false};
 };
 
 std::ostream& operator << (std::ostream&, const PseudoJetContainer&);

@@ -37,8 +37,8 @@ public TrigHLTJetRecBase<xAOD::CaloClusterContainer>{
                                jet::PseudoJetVector& pjv);
   */
   
-  const xAOD::JetContainer* build() const override; 
 
+  HLT::ErrorCode build(ClusterSequence*&, JetContainer*&) const override;
  
  private:
  /* A secondary PseudojetGetter shared by this algorithm and the IJetBuildTool for tracks

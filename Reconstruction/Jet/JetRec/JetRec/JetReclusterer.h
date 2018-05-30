@@ -37,13 +37,15 @@ public:
   ~JetReclusterer();
 
   // Initilization.
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // Groom a jet and add result to a container.
-  int groom(const xAOD::Jet& jin, xAOD::JetContainer& jout) const;
+  virtual int groom(const xAOD::Jet& jin,
+                    const PseudoJetContainer&,
+                    xAOD::JetContainer& jout) const override;
 
   // Dump to log.
-  void print() const;
+  virtual void print() const override;
 
 private:  // data
 

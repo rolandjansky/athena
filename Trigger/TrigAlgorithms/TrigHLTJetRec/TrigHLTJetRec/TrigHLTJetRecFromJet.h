@@ -15,7 +15,7 @@ class TrigHLTJetRecFromJet: public TrigHLTJetRecBase<xAOD::JetContainer>{
   ~TrigHLTJetRecFromJet();
 
  protected:
-  const xAOD::JetContainer* build() const override;
+  HLT::ErrorCode build(ClusterSequence*&, JetContainer*&) const override;
 
 }; 
 #endif

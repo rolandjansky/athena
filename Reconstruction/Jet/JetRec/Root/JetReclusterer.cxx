@@ -38,7 +38,9 @@ StatusCode JetReclusterer::initialize() {
 
 //**********************************************************************
 
-int JetReclusterer::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) const {
+int JetReclusterer::groom(const xAOD::Jet& jin,
+                          const PseudoJetContainer&,
+                          xAOD::JetContainer& jets) const {
   if ( m_hcr.empty() ) {
     ATH_MSG_WARNING("Jet does not have a jet constituent retriever.");
     return 2;
@@ -51,8 +53,13 @@ int JetReclusterer::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) const 
     return 3;
   }
   // Cluster.
-  xAOD::JetInput::Type intype = jin.getInputType();
-  m_finder->find(inps, jets, intype, ghostlabs);
+  // PS 31/10/2017 Removinving the next line as compiler
+  // rightfully complains of an unused variable
+  // xAOD::JetInput::Type intype = jin.getInputType();
+
+  //m_finder->find(inps, jets, intype, ghostlabs);
+  // FIXME
+  ATH_MSG_WARNING("JetReclusterer::groom(): Jet finding has been disabled in transition to PseudoJetContainer usage!");
   ATH_MSG_DEBUG("Jet count after reclustering: " << jets.size());
   return 0;
 }

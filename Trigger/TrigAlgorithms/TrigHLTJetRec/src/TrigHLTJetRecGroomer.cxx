@@ -45,29 +45,37 @@ HLT::ErrorCode TrigHLTJetRecGroomer::hltInitialize()
 
 
 
-const xAOD::JetContainer* TrigHLTJetRecGroomer::build() const
-{
-    ATH_MSG_VERBOSE("Preparing to groom jets...");
-
-    // get the ungroomed jet collection
-    ATH_MSG_VERBOSE("Building ungroomed input jet container");
-    auto ungroomedJets = TrigHLTJetRecBase<xAOD::CaloClusterContainer>::defaultBuild();
+//const xAOD::JetContainer* TrigHLTJetRecGroomer::build() const
+HLT::ErrorCode
+TrigHLTJetRecGroomer::build(ClusterSequence*& cs,
+                            JetContainer*& trimmedJets) const{
+  
+  ATH_MSG_VERBOSE("Preparing to groom jets...");
+  
+  // get the ungroomed jet collection
+  ATH_MSG_VERBOSE("Building ungroomed input jet container");
+  JetContainer* ungroomedJets = new JetContainer;
+  // auto ungroomedJets =
+  HLT::ErrorCode status =
+    TrigHLTJetRecBase<xAOD::CaloClusterContainer>::defaultBuild(cs,
+                                                                ungroomedJets);
+  if (status != HLT::OK){return status;}
     
-    // Convert the trimming tool from a ToolHandle<IJetRecTool> to a JetRecTool so we can skip StoreGate
-    // JetRecTool* trimmerTool = const_cast<JetRecTool*>(dynamic_cast<const JetRecTool*>(&*m_jetTrimTool));
-    // Set the input jet container to be trimmed
-    // trimmerTool->setInputJetContainer(ungroomedJets);
-
-    const PseudoJetContainer* pseudojets = getPseudoJetContainer();
-    // Now trim it
-    ATH_MSG_VERBOSE("Applying jet trimming");
-    auto trimmedJets = m_jetTrimTool->groom(ungroomedJets, *pseudojets);
-    ATH_MSG_VERBOSE("Done trimming jets");
-
-    
-
-    // DEBUGGING
-    /*
+  // Convert the trimming tool from a ToolHandle<IJetRecTool> to a JetRecTool so we can skip StoreGate
+  // JetRecTool* trimmerTool = const_cast<JetRecTool*>(dynamic_cast<const JetRecTool*>(&*m_jetTrimTool));
+  // Set the input jet container to be trimmed
+  // trimmerTool->setInputJetContainer(ungroomedJets);
+  
+  const PseudoJetContainer* pseudojets = getPseudoJetContainer();
+  // Now trim it
+  ATH_MSG_VERBOSE("Applying jet trimming");
+  trimmedJets = m_jetTrimTool->groom(ungroomedJets, *pseudojets);
+  ATH_MSG_VERBOSE("Done trimming jets");
+  
+  
+  
+  // DEBUGGING
+  /*
     for (size_t iJet = 0; iJet < trimmedJets->size(); ++iJet)
     {
         const float orig_pt = ungroomedJets->at(iJet)->pt();
@@ -81,16 +89,16 @@ const xAOD::JetContainer* TrigHLTJetRecGroomer::build() const
         const float ratio_em = trim_em_pt != 0 ? orig_em_pt / trim_em_pt : -1;
         
         ATH_MSG_DEBUG("Ungroomed/groomed jet number " << iJet << " has constituents of " << ungroomedJets->at(iJet)->numConstituents() << "/" << trimmedJets->at(iJet)->numConstituents() << ", pT ratio is " << orig_pt << "/" << trim_pt << " = " << ratio << " , constscale ratio is " << orig_const_pt << "/" << trim_const_pt << " = " << ratio_const << " , emscale ratio is " << orig_em_pt << "/" << trim_em_pt << " = " << ratio_em);
-    }
-    */
+        }
+  */
 
-    // Get rid of the intermediate (ungroomed) jets
-    auto ungroomedStore = ungroomedJets->getStore();
-    delete ungroomedStore;
-    delete ungroomedJets;
+  // Get rid of the intermediate (ungroomed) jets
+  auto ungroomedStore = ungroomedJets->getStore();
+  delete ungroomedStore;
+  delete ungroomedJets;
     
-    // Done, return the trimmed jets
-    return trimmedJets;
+  // return trimmedJets;
+  return HLT::OK;
 }
 
 

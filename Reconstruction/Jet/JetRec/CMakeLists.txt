@@ -60,6 +60,38 @@ atlas_add_dictionary( JetRecDict
    JetRec/selection.xml
    LINK_LIBRARIES JetRecLib )
 
+# Test(s) in the package:
+atlas_add_test( TestTests
+ SOURCES
+ # test/all_tests.cx
+ test/TestTest.cxx
+ INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+ LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools JetRecLib )
+
+atlas_add_test(JetTests
+  SOURCES
+  test/JetTest.cxx
+  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+  LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools JetRecLib )
+
+atlas_add_test(PseudoJetContainerOffline
+  SOURCES
+  test/PseudoJetContainerOfflineTest.cxx
+  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+  LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools JetRecLib )
+
+atlas_add_test(PseudoJetContainerTrigger
+  SOURCES
+  test/PseudoJetContainerTriggerTest.cxx
+  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+  LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools JetRecLib )
+
+atlas_add_test(ExtractorUnitTests
+  SOURCES
+    test/ExtractorTest.cxx
+    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+`   LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools JetRecLib )
+  
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )

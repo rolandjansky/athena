@@ -170,6 +170,8 @@ TrigHLTJetRecFromCluster::~TrigHLTJetRecFromCluster(){}
 //PS 3/4/18        return HLT::OK;
 //PS 3/4/18}
 
-const xAOD::JetContainer* TrigHLTJetRecFromCluster::build() const{
-    return TrigHLTJetRecBase<xAOD::CaloClusterContainer>::defaultBuild();
+HLT::ErrorCode
+TrigHLTJetRecFromCluster::build(ClusterSequence*& cs,
+                                JetContainer*& jc) const{
+  return TrigHLTJetRecBase<xAOD::CaloClusterContainer>::defaultBuild(cs, jc);
 }
