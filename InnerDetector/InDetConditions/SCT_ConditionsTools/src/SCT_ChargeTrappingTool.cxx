@@ -343,7 +343,7 @@ void SCT_ChargeTrappingTool::holeTransport(double& x0, double& y0, double& xfin,
     case  0: Q_00 += dq ; break;
     case +1: Q_p1 += dq ; break;
     case +2: Q_p2 += dq ; break;
-    default: break;
+      //    default: break; // Coverity complains the default is deadcode.
     }
   }  
   ATH_MSG_DEBUG("h:qstrip=" << qstrip[0] << " " << qstrip[1] << " " << qstrip[2] << " " << qstrip[3] << " " << qstrip[4]);
