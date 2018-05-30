@@ -1,5 +1,8 @@
 /** -*- C++ -*-
  * @file TrigT1CaloTools/L1DynamicPedestalProviderTxt.h
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
  * @author V. Scharf <vscharf@kip.uni-heidelberg.de>
  * @date June 2014
  * @brief Tool to retrieve dynamic pedestal values from a text file.
