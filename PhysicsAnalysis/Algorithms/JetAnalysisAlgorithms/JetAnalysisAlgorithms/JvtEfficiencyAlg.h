@@ -9,7 +9,7 @@
 #define JET_ANALYSIS_ALGORITHMS__JVT_EFFICIENCY_ALG_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
-#include <JetJvtEfficiency/IJetJvtEfficiency.h>
+#include <JetAnalysisInterfaces/IJetJvtEfficiency.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SelectionHelpers/SelectionHelpers.h>
 #include <SystematicsHandles/SysCopyHandle.h>
