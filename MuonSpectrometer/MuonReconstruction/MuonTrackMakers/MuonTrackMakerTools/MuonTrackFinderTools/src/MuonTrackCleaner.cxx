@@ -938,17 +938,18 @@ namespace Muon {
         bool remove = hit->chId == chId && ( (removePhi && measuresPhi) || (removeEta && !measuresPhi) );
         // hits that are flagged as outlier or hits in the chamber to be removed are added as Outlier
         if( !hit->useInFit || remove ){
-          hit->useInFit = 0;
           if( msgLvl(MSG::DEBUG) && remove ) msg() << MSG::DEBUG << "   removing hit " << m_idHelper->toString(hit->id) 
 						   << " pull " << hit->resPull->pull().front() << endmsg;
           // add as outlier
           if( hit->inBounds ) tsos->push_back( MuonTSOSHelper::cloneTSOSWithUpdate( *hit->originalState,
-                                                                                    *hit->meas,
-                                                                                    *hit->pars,
-                                                                                    Trk::TrackStateOnSurface::Outlier) );
+										    *hit->meas,
+										    *hit->pars,
+										    Trk::TrackStateOnSurface::Outlier) );
           
           // if removed, add hit to vector of hits 
-          if( remove ) result.removedHits.push_back(&*hit);
+	  //but only if the hit was not already an outlier to be skipped!
+          if( remove && hit->useInFit) result.removedHits.push_back(&*hit);
+          hit->useInFit = 0;
           continue;
         }
       }
@@ -967,12 +968,12 @@ namespace Muon {
     
     // fit new track
     if ( msgLvl(MSG::DEBUG) ) {
-      const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
+      const DataVector<const Trk::TrackStateOnSurface>* states = cleanedTrack->trackStateOnSurfaces();
       int nStates = 0;
       if ( states ) nStates = states->size();
       msg() << MSG::DEBUG << "removeChamber: Calling fit with hits: " << nStates;
       if ( msgLvl(MSG::VERBOSE) ) {
-	msg() << MSG::VERBOSE << std::endl << m_printer->printMeasurements( track );
+	msg() << MSG::VERBOSE << std::endl << m_printer->printMeasurements( *cleanedTrack );
       }
       msg() << endmsg;
       if( !cleanedTrack->perigeeParameters() ){
