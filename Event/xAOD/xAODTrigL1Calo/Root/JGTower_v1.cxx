@@ -126,6 +126,19 @@ namespace xAOD{
     acc( *this ) = Id;
   }
 
+  int JGTower_v1::sampling() const
+  {
+    static Accessor< int > acc( "sampling" );
+    return acc( *this );
+  }
+
+  void JGTower_v1::setSampling(int sampling)
+  {
+    static Accessor< int > acc( "sampling" );
+    acc( *this ) = sampling;
+  }
+
+
   double JGTower_v1::et() const
   {
     static Accessor< float > acc( "et" );
