@@ -36,7 +36,7 @@ namespace ViewHelper
 
   //Function to create a vector of views, each populated with one data object
   template< typename T >
-  inline StatusCode MakeAndPopulate( std::string const& ViewNameRoot, ViewContainer & ViewVector,
+  inline StatusCode MakeAndPopulate( std::string const& ViewNameRoot, ViewContainer* ViewVector,
 				     SG::WriteHandleKey< T > const& PopulateKey, EventContext const& SourceContext, std::vector< T > const& InputData, bool const allowFallThrough=true )
   {
     //Make a WriteHandle to use
@@ -49,13 +49,13 @@ namespace ViewHelper
 	//Create view
 	std::string viewName = ViewNameRoot + std::to_string( viewIndex );
 	SG::View * outputView = new SG::View( viewName, allowFallThrough );
-	ViewVector.push_back( outputView );
+	ViewVector->push_back( outputView );
 
 	//Attach a handle to the view
 	StatusCode sc = populateHandle.setProxyDict( outputView );
 	if ( !sc.isSuccess() )
 	  {
-	    ViewVector.clear();
+	    ViewVector->clear();
 	    return sc;
 	  }
 
@@ -63,7 +63,7 @@ namespace ViewHelper
 	sc = populateHandle.record( CxxUtils::make_unique< T >( InputData[ viewIndex ] ) );
 	if ( !sc.isSuccess() )
 	  {
-	    ViewVector.clear();
+	    ViewVector->clear();
 	    return sc;
 	  }
       }
@@ -105,7 +105,7 @@ namespace ViewHelper
   }
 
   //Function to attach a set of views to a graph node
-  inline StatusCode ScheduleViews( ViewContainer & ViewVector, std::string const& NodeName,
+  inline StatusCode ScheduleViews( ViewContainer * ViewVector, std::string const& NodeName,
 				   EventContext const& SourceContext, IScheduler * Scheduler )
   {
     //Prevent view nesting - test if source context has view attached
@@ -121,9 +121,9 @@ namespace ViewHelper
 	return StatusCode::FAILURE;
       }
 
-    if ( ViewVector.size() )
+    if ( not ViewVector->empty() )
       {
-	for ( SG::View* view : ViewVector )
+	for ( SG::View* view : *ViewVector )
 	  {
 	    //Make a context with the view attached
 	    EventContext * viewContext = new EventContext( SourceContext );

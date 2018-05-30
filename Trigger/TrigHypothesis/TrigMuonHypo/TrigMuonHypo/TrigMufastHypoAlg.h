@@ -43,7 +43,7 @@ class TrigMufastHypoAlg
     SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_decisionsKey{
 	this, "Decisions", "L2MuonFastDecisions", "Name of the decisions object attached by TrigMufastHypo"};
 
-    SG::ReadHandleKey<std::vector< SG::View*>> m_viewsKey{
+    SG::ReadHandleKey< ViewContainer > m_viewsKey{
 	this, "ViewRoIs", "MUViewRoIs", "Name of the input data on Views produced by EventCreatorAlgorithms"};
 
     SG::ReadHandleKey<xAOD::L2StandAloneMuonContainer> m_muFastKey{

@@ -47,7 +47,7 @@ class TrigmuCombHypoAlg
     SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_muonDecisionsKey{
 	this, "L2MuonFastDecisions", "L2MuonFastDecisions", "Name of the decisions objects to input from TrigMufastHypo"};
 
-    SG::ReadHandleKey<std::vector< SG::View*>> m_viewsKey{
+    SG::ReadHandleKey< ViewContainer > m_viewsKey{
 	this, "ViewRoIs", "MUTrkViewRoIs", "Name of the views produced by EVCA"};
 
     SG::ReadHandleKey<xAOD::L2CombinedMuonContainer> m_combinedKey{
