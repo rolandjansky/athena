@@ -19,6 +19,8 @@
 #include "xAODJet/JetContainerInfo.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"     // Needed for ElementLink
+#include "JetRec/PseudoJetContainer.h"
+#include "fastjet/ClusterSequence.hh"
 
 using std::string;
 using xAOD::Jet;
@@ -27,6 +29,7 @@ using xAOD::Vertex;
 using xAOD::VertexContainer;
 using jet::IConstituentUserInfo;
 using jet::VertexIndexedConstituentUserInfo;
+using fastjet::PseudoJet;
 
 //**********************************************************************
 
@@ -55,20 +58,44 @@ StatusCode JetByVertexFinder::initialize() {
 
 //**********************************************************************
 
-int JetByVertexFinder::
-find(const PseudoJetVector& inps, xAOD::JetContainer& jets,
-     xAOD::JetInput::Type inputtype, const NameList& ghostlabs) const {
+int JetByVertexFinder::find(const PseudoJetContainer& cont, 
+                            xAOD::JetContainer & finalJets, 
+                            xAOD::JetInput::Type inputtype ) const {
+  fastjet::ClusterSequence* pcs{nullptr};
+  return find_(cont, finalJets, inputtype, pcs);
+}
+
+
+int JetByVertexFinder::findNoSave(const PseudoJetContainer& cont, 
+                            xAOD::JetContainer & finalJets, 
+                                  xAOD::JetInput::Type inputtype,
+                                  fastjet::ClusterSequence*& pcs) const {
+  return find_(cont, finalJets, inputtype, pcs);
+}
+
+
+int JetByVertexFinder::find_(const PseudoJetContainer& cont, 
+                             xAOD::JetContainer & finalJets, 
+                             xAOD::JetInput::Type inputtype,
+                             fastjet::ClusterSequence*&) const {
+
   ATH_MSG_DEBUG("Begin finding.");
   string sinp0 = xAOD::JetInput::typeName(inputtype);
   ATH_MSG_DEBUG("  Input type: " << sinp0);
+
+  // FIXME - bypass const of cont parameter
+  PseudoJetContainer content = cont;
+  const std::vector<PseudoJet>* vpj = content.casVectorPseudoJet();
+
   std::vector<PseudoJetVector> psjvectors;
   std::vector<const Vertex*> vertices;
   PseudoJetVector gpsjvector;
-  ATH_MSG_VERBOSE("  Loop over " << inps.size() << " input pseudojets:");
+
+  ATH_MSG_VERBOSE("  Loop over " << vpj->size() << " input pseudojets:");
 #ifdef USE_BOOST_FOREACH
-  BOOST_FOREACH(const fastjet::PseudoJet& psj, inps) {
+  BOOST_FOREACH(const fastjet::PseudoJet& psj, *vpj) {
 #else
-  for (const auto& psj : inps) {
+  for (const auto& psj : *vpj) {
 #endif
     int ivtx = -11;
     if ( psj.has_user_info<IConstituentUserInfo>() ) {
@@ -99,6 +126,10 @@ find(const PseudoJetVector& inps, xAOD::JetContainer& jets,
   }
   // Loop over vertices and find jets.
   ATH_MSG_VERBOSE("  Loop over " << psjvectors.size() << " vertices.");
+  // FIXME JE
+  NameList ghostlabs;
+  ghostlabs.push_back("");
+
   for ( unsigned int ivtx=0; ivtx<psjvectors.size(); ++ivtx ) {
     if ( m_ivtx < 0 || int(ivtx) == m_ivtx ) {
 #ifdef USE_BOOST_AUTO
@@ -109,17 +140,18 @@ find(const PseudoJetVector& inps, xAOD::JetContainer& jets,
       if ( psjvector.size() ) {
         ATH_MSG_VERBOSE("    Adding jets from vertex " << ivtx);
         psjvector.insert(psjvector.end(), gpsjvector.begin(), gpsjvector.end());
-        unsigned int ijet0 = jets.size();
-        m_finder->find(psjvector, jets, inputtype, ghostlabs);
+        unsigned int ijet0 = finalJets.size();
+        ATH_MSG_WARNING("JetByVertexFinder::find(): Jet finding has been disabled in transition to PseudoJetContainer usage!");
+
 #ifdef USE_BOOST_AUTO
-        for (BOOST_AUTO(ijet, ijet0); ijet<jets.size(); ++ijet) {
+        for (BOOST_AUTO(ijet, ijet0); ijet<finalJets.size(); ++ijet) {
 #else
-        for (auto ijet = ijet0; ijet<jets.size(); ++ijet) {
+        for (auto ijet = ijet0; ijet<finalJets.size(); ++ijet) {
 #endif
-          Jet* pjet = jets[ijet];
+          Jet* pjet = finalJets[ijet];
           pjet->setAssociatedObject("OriginVertex", vertices[ivtx]);
         }
-        ATH_MSG_VERBOSE("    Jet count after vertex " << ivtx << ": " << jets.size());
+        ATH_MSG_VERBOSE("    Jet count after vertex " << ivtx << ": " << finalJets.size());
       } else {
         ATH_MSG_VERBOSE("    Skipping no-track vertex " << ivtx);
       }
@@ -127,8 +159,9 @@ find(const PseudoJetVector& inps, xAOD::JetContainer& jets,
       ATH_MSG_VERBOSE("    Skipping wrong vertex " << ivtx);
     }
   }
-  ATH_MSG_DEBUG("End finding. Jet count: " << jets.size());
+  ATH_MSG_DEBUG("End finding. Jet count: " << finalJets.size());
   return 0;
+
 }
 
 //**********************************************************************

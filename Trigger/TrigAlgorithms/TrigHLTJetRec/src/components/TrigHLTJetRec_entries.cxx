@@ -1,4 +1,3 @@
-//#include "TrigHLTJetRec/TrigHLTJetRec.h"
 #include "TrigHLTJetRec/TrigHLTJetRecFromCluster.h"
 #include "TrigHLTJetRec/TrigHLTJetRecFromJet.h"
 #include "TrigHLTJetRec/TrigHLTJetRecFromTriggerTower.h"
@@ -20,11 +19,9 @@
 #include "TrigHLTJetRec/TrigHLTJetDSSelector.h"
 #include "TrigHLTJetRec/TrigHLTJetRecGroomer.h"
 #include "TrigHLTJetRec/TrigJetFromPseudojet.h"
-#include "TrigHLTJetRec/TrigJetFromPseudojetMT.h"
 #include "TrigHLTJetRec/TrigHLTTrackMomentHelpers.h"
 #include "TrigHLTJetRec/TriggerJetBuildTool.h"
 #include "TrigHLTJetRec/TriggerJetGroomerTool.h"
-#include "TrigHLTJetRec/TriggerJetGroomerToolMT.h"
 
 
 #include "TrigHLTJetRec/IParticleNullRejectionTool.h"
@@ -39,7 +36,6 @@ DECLARE_COMPONENT(EMTopoRejectionTool)
 DECLARE_COMPONENT(PFlowRejectionTool)
 DECLARE_COMPONENT(NegativeEnergyRejectionTool)
 
-//DECLARE_COMPONENT( TrigHLTJetRec )
 DECLARE_COMPONENT( TrigHLTJetRecFromCluster )
 DECLARE_COMPONENT( TrigHLTJetRecFromJet )
 DECLARE_COMPONENT( TrigHLTJetRecFromTriggerTower )
@@ -63,8 +59,6 @@ DECLARE_COMPONENT( PseudoJetSelectorEtaPt )
 DECLARE_COMPONENT( IParticleSelectorAll )
 DECLARE_COMPONENT( IParticleSelectorEtaPt )
 DECLARE_COMPONENT( TrigJetFromPseudojet )
-DECLARE_COMPONENT( TrigJetFromPseudojetMT )
 
 DECLARE_COMPONENT( TriggerJetBuildTool )
 DECLARE_COMPONENT( TriggerJetGroomerTool )
-DECLARE_COMPONENT( TriggerJetGroomerToolMT )
