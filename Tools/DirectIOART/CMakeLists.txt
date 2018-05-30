@@ -12,5 +12,5 @@ atlas_depends_on_subdirs( PRIVATE
 # Install files from the package:
 atlas_install_scripts( test/*.sh test/*.py )
 
-### # Install joboptions
-### atlas_install_joboptions( share/*.py )
+# Install joboptions
+atlas_install_joboptions( share/*.py )

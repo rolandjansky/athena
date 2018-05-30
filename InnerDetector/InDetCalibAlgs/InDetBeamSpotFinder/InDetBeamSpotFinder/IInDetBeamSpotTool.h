@@ -12,9 +12,10 @@
 ////////////////////////////////////////////////////////////
 
 #include "GaudiKernel/IAlgTool.h"
-#include "CLHEP/Matrix/SymMatrix.h"
-#include "xAODTracking/TrackingPrimitives.h"
-
+#include "xAODTracking/TrackingPrimitives.h" //for xAOD::VxType
+#include <vector>
+#include <map>
+#include <string>
 static const InterfaceID IID_IInDetBeamSpotTool("IInDetBeamSpotTool", 1 , 0); 
 
 namespace BeamSpot {
@@ -43,10 +44,8 @@ namespace InDet {
       from this class. */ 
   class IInDetBeamSpotTool : virtual public IAlgTool {
   public:
-    IInDetBeamSpotTool() {} //!< Default Constructor
-    IInDetBeamSpotTool( const IInDetBeamSpotTool&  ){}//Copy constructor
-
-    /** Internaly used enum for fit status. Useful for quick checks.*/
+    virtual ~IInDetBeamSpotTool(){}
+    /** Internally used enum for fit status. Useful for quick checks.*/
     enum FitStatus {unsolved=0, problems, failed, successful};
     /** Beamspot determination type.*/
     enum FitID {trackChi2=1, trackChi2Widths=2, vertexLL=3, vertexChi2=4, RooFitLL = 6, unknown = 99};

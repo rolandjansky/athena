@@ -100,6 +100,9 @@ const std::string TFCSParametrizationEkinSelectChain::get_bin_text(int bin) cons
 {
   if(bin==-1 || bin>=(int)get_number_of_bins()) {
     return std::string(Form("bin=%d not in [%1.1f<=Ekin<%1.1f)",bin,m_bin_low_edge[0],m_bin_low_edge[get_number_of_bins()]));
+  } 
+  if(DoRandomInterpolation()) {
+    return std::string(Form("bin=%d, %1.1f<=Ekin(+random)<%1.1f",bin,m_bin_low_edge[bin],m_bin_low_edge[bin+1]));
   }  
   return std::string(Form("bin=%d, %1.1f<=Ekin<%1.1f",bin,m_bin_low_edge[bin],m_bin_low_edge[bin+1]));
 }
