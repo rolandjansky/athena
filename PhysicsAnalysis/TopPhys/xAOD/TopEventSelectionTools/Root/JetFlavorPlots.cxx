@@ -184,9 +184,13 @@ bool JetFlavorPlots::apply(const top::Event& event) const {
     if(m_doRadHigh){
        //FIXME PMG: comment from here
        top::check(m_PMGTruthWeights->hasWeight(" nominal "),"JetFlavorPlots::apply(): Weight \" nominal \" not found. Please report this message!");
-       top::check(m_PMGTruthWeights->hasWeight(" muR = 0.5, muF = 0.5 "),"JetFlavorPlots::apply(): Weight \" muR = 0.5, muF = 0.5 \" not found. Please report this message!");
+       //2 different names are acceptable
+       double scaleWeight = 1.;
+       if(m_PMGTruthWeights->hasWeight(" muR = 0.5, muF = 0.5 ")) scaleWeight = m_PMGTruthWeights->getWeight(" muR = 0.5, muF = 0.5 ");
+       else if(m_PMGTruthWeights->hasWeight(" muR = 0.50, muF = 0.50 ")) scaleWeight = m_PMGTruthWeights->getWeight(" muR = 0.50, muF = 0.50 ");
+       else top::check(m_PMGTruthWeights->hasWeight(" muR = 0.5, muF = 0.5 "),"JetFlavorPlots::apply(): Weight \" muR = 0.5, muF = 0.5 \" not found. Please report this message!");
        top::check(m_PMGTruthWeights->hasWeight("Var3cUp"),"JetFlavorPlots::apply(): Weight \"Var3cUp\" not found. Please report this message!");
-       double eventWeight = m_PMGTruthWeights->getWeight(" muR = 0.5, muF = 0.5 ") * m_PMGTruthWeights->getWeight("Var3cUp") / m_PMGTruthWeights->getWeight(" nominal ");
+       double eventWeight = scaleWeight * m_PMGTruthWeights->getWeight("Var3cUp") / m_PMGTruthWeights->getWeight(" nominal ");
        //FIXME PMG: comment till here
        //FIXME PMG: WARNING! Check if the numbers are ok! Add this line: double eventWeight = event.m_truthEvent->at(0)->weights()[5]*event.m_truthEvent->at(0)->weights()[193]/event.m_truthEvent->at(0)->weights()[0];
        if(event.m_isLoose) FillHistograms(m_hists_RadHigh_Loose, eventWeight, event);
@@ -195,9 +199,14 @@ bool JetFlavorPlots::apply(const top::Event& event) const {
     if(m_doRadLow){
        //FIXME PMG: comment from here
        top::check(m_PMGTruthWeights->hasWeight(" nominal "),"JetFlavorPlots::apply(): Weight \" nominal \" not found. Please report this message!");
-       top::check(m_PMGTruthWeights->hasWeight(" muR = 2.0, muF = 2.0 "),"JetFlavorPlots::apply(): Weight \" muR = 2.0, muF = 2.0 \" not found. Please report this message!");
+       //2 different names are acceptable
+       double scaleWeight = 1.;
+       if(m_PMGTruthWeights->hasWeight(" muR = 2.0, muF = 2.0 ")) scaleWeight = m_PMGTruthWeights->getWeight(" muR = 2.0, muF = 2.0 ");
+       else if(m_PMGTruthWeights->hasWeight(" muR = 2.00, muF = 2.00 ")) scaleWeight = m_PMGTruthWeights->getWeight(" muR = 2.00, muF = 2.00 ");
+       else top::check(m_PMGTruthWeights->hasWeight(" muR = 2.0, muF = 2.0 "),"JetFlavorPlots::apply(): Weight \" muR = 2.0, muF = 2.0 \" not found. Please report this message!");
+       top::check(m_PMGTruthWeights->hasWeight("Var3cUp"),"JetFlavorPlots::apply(): Weight \"Var3cUp\" not found. Please report this message!");
        top::check(m_PMGTruthWeights->hasWeight("Var3cDown"),"JetFlavorPlots::apply(): Weight \"Var3cDown\" not found. Please report this message!");
-       double eventWeight = m_PMGTruthWeights->getWeight(" muR = 2.0, muF = 2.0 ") * m_PMGTruthWeights->getWeight("Var3cDown") / m_PMGTruthWeights->getWeight(" nominal ");
+       double eventWeight = scaleWeight * m_PMGTruthWeights->getWeight("Var3cDown") / m_PMGTruthWeights->getWeight(" nominal ");
        //FIXME PMG: comment till here
        //FIXME PMG: WARNING! Check if the numbers are ok! Add this line: double eventWeight = event.m_truthEvent->at(0)->weights()[6]*event.m_truthEvent->at(0)->weights()[194]/event.m_truthEvent->at(0)->weights()[0];
        if(event.m_isLoose) FillHistograms(m_hists_RadLow_Loose, eventWeight, event);
