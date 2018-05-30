@@ -35,6 +35,8 @@ UpgradePerformanceFunctions::UpgradePerformanceFunctions( const std::string& nam
     // HGTD properties
     m_bUseHGTD0(true),
     m_bUseHGTD1(false),
+    // Warm toroid
+    m_useWarmToroid(false),
     // Random seeds
     m_electronRandomSeed(123),
     m_photonRandomSeed(1234),
@@ -45,6 +47,7 @@ UpgradePerformanceFunctions::UpgradePerformanceFunctions( const std::string& nam
     // Smearing root files
     m_flavourTaggingCalibrationFilename("UpgradePerformanceFunctions/CalibArea-00-01/flavor_tags_v2.0.root"),
     m_electronEnergyResolutionFilename("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_electron_run2_pre.root"),
+    m_muonEnergyResolutionFilename("MuonMomentumResolutions_Step1p9_171002.dat"),
     m_photonFakeFilename("UpgradePerformanceFunctions/CalibArea-00-01/PhotonFakes.root"),
     m_chargeFlipRateFilename("UpgradePerformanceFunctions/CalibArea-00-01/ChargeFlipRates.root"),
     m_METFilename("UpgradePerformanceFunctions/CalibArea-00-01/sumetPU_mu200_ttbar_gold.root"),
@@ -71,6 +74,8 @@ UpgradePerformanceFunctions::UpgradePerformanceFunctions( const std::string& nam
   //HGTD
   declareProperty( "UseHGTD0", m_bUseHGTD0 = true);
   declareProperty( "UseHGTD1", m_bUseHGTD1 = false);
+  //Warm Toroid
+  declareProperty( "UseWarmToroid", m_useWarmToroid = false);
   // Declare properties for random seeds
   declareProperty( "ElectronRadomSeed", m_electronRandomSeed = 123 );
   declareProperty( "PhotonRandomSeed", m_photonRandomSeed = 1234 );
@@ -81,6 +86,7 @@ UpgradePerformanceFunctions::UpgradePerformanceFunctions( const std::string& nam
   // Inital values for track confirmation and PU jet overlay
   declareProperty( "FlavourTaggingCalibrationFile", m_flavourTaggingCalibrationFilename = "UpgradePerformanceFunctions/CalibArea-00-01/flavor_tags_v2.0.root" );
   declareProperty( "ElectronEnergyResolutionFile", m_electronEnergyResolutionFilename = "ElectronPhotonFourMomentumCorrection/v5/resolutionFit_electron_run2_pre.root" );
+  declareProperty( "MuonEnergyResolutionFile", m_muonEnergyResolutionFilename = "MuonMomentumResolutions_Step1p9_171002.dat" );
   declareProperty( "PhotonFakeFile", m_photonFakeFilename = "UpgradePerformanceFunctions/CalibArea-00-01/PhotonFakes.root" );
   declareProperty( "ChargeFlipRateFile", m_chargeFlipRateFilename = "UpgradePerformanceFunctions/CalibArea-00-01/ChargeFlipRates.root" );
   declareProperty( "METFile", m_METFilename = "UpgradePerformanceFunctions/CalibArea-00-01/sumetPU_mu200_ttbar_gold.root" );  
@@ -111,6 +117,8 @@ UpgradePerformanceFunctions::UpgradePerformanceFunctions( const std::string& nam
     // HGTD properties
     m_bUseHGTD0(true),
     m_bUseHGTD1(false),
+    // Warm toroid
+    m_useWarmToroid(false),
     // Random seeds
     m_electronRandomSeed(123),
     m_photonRandomSeed(1234),
@@ -121,6 +129,7 @@ UpgradePerformanceFunctions::UpgradePerformanceFunctions( const std::string& nam
     // Smearing root files
     m_flavourTaggingCalibrationFilename("UpgradePerformanceFunctions/CalibArea-00-01/flavor_tags_v2.0.root"),
     m_electronEnergyResolutionFilename("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_electron_run2_pre.root"),
+    m_muonEnergyResolutionFilename("MuonMomentumResolutions_Step1p9_171002.dat"),
     m_photonFakeFilename("UpgradePerformanceFunctions/CalibArea-00-01/PhotonFakes.root"),
     m_chargeFlipRateFilename("UpgradePerformanceFunctions/CalibArea-00-01/ChargeFlipRates.root"),
     m_METFilename("UpgradePerformanceFunctions/CalibArea-00-01/sumetPU_mu200_ttbar_gold.root"),
@@ -152,6 +161,8 @@ UpgradePerformanceFunctions::UpgradePerformanceFunctions( const std::string& nam
   //HGTD
   declareProperty( "UseHGTD0", m_bUseHGTD0 = true);
   declareProperty( "UseHGTD1", m_bUseHGTD1 = false);
+  //Warm Toroid
+  declareProperty( "UseWarmToroid", m_useWarmToroid = false);
   // Declare properties for random seeds
   declareProperty( "ElectronRadomSeed", m_electronRandomSeed = 123 );
   declareProperty( "PhotonRandomSeed", m_photonRandomSeed = 1234 );
@@ -162,6 +173,7 @@ UpgradePerformanceFunctions::UpgradePerformanceFunctions( const std::string& nam
   // Inital values for track confirmation and PU jet overlay
   declareProperty( "FlavourTaggingCalibrationFile", m_flavourTaggingCalibrationFilename = "UpgradePerformanceFunctions/CalibArea-00-01/flavor_tags_v2.0.root" );
   declareProperty( "ElectronEnergyResolutionFile", m_electronEnergyResolutionFilename = "ElectronPhotonFourMomentumCorrection/v5/resolutionFit_electron_run2_pre.root" );
+  declareProperty( "MuonEnergyResolutionFile", m_muonEnergyResolutionFilename = "MuonMomentumResolutions_Step1p9_171002.dat" );
   declareProperty( "PhotonFakeFile", m_photonFakeFilename = "UpgradePerformanceFunctions/CalibArea-00-01/PhotonFakes.root" );
   declareProperty( "ChargeFlipRateFile", m_chargeFlipRateFilename = "UpgradePerformanceFunctions/CalibArea-00-01/ChargeFlipRates.root" );
   declareProperty( "METFile", m_METFilename = "UpgradePerformanceFunctions/CalibArea-00-01/sumetPU_mu200_ttbar_gold.root" );  
