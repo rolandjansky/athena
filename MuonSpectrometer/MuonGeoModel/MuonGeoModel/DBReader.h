@@ -100,23 +100,16 @@
 #include "MuonGeoModel/CMI_Technology.h"
 #include "MuonGeoModel/LBI_Technology.h"
 
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
+
 #define verbose_posmap false
 #define verbose_alimap false
 #define RPCprint       false
 
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 class StatusCode;
 class IMessageSvc;
 namespace MuonGM {
     class MuonDetectorManager;
 }
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 namespace MuonGM {
 
@@ -191,11 +184,7 @@ namespace MuonGM {
                 mdt->tubeDeadLength = 0; // cannot be defined here (it depends on chamber size)
                 //mdt->endPlugLength  is not OK in p03
                 //mdt->endPlugLength = wmdt[i].tubdea*CLHEP::cm;
-                if (mysql->getGeometryVersion().substr(0,1) == "P" || mysql->getGeometryVersion().substr(0,3) == "CTB") 
-                {
-                    mdt->tubeEndPlugLength = 27.0*CLHEP::mm;
-                }
-                else mdt->tubeEndPlugLength = wmdt[i].tubdea*CLHEP::cm;
+                mdt->tubeEndPlugLength = wmdt[i].tubdea*CLHEP::cm;
                                 
                 mdt->tubeWallThickness = wmdt[i].tubwal*CLHEP::cm;
                 
@@ -470,9 +459,7 @@ namespace MuonGM {
                     csc->thickness=csc->totalThickness;
                     csc->honeycombthick=wcsc[i].tnomex*CLHEP::cm;
                     
-                    //csc->g10thick=wcsc->tlag10*CLHEP::cm; this number is wrong in the current P03 database
-                    if ((mysql->getGeometryVersion()).substr(0,3) == "P03") csc->g10thick=0.0813*CLHEP::cm;
-                    else csc->g10thick=wcsc[i].tlag10*CLHEP::cm;  //csc->g10thick=0.0820*CLHEP::cm;
+                    csc->g10thick=wcsc[i].tlag10*CLHEP::cm;  //csc->g10thick=0.0820*CLHEP::cm;
 
                     // wire spacing 
                     csc->wirespacing =wcsc[i].wispa*CLHEP::cm;
@@ -484,45 +471,29 @@ namespace MuonGM {
                     // precision (Radial) strip pitch
                     csc->cathreadoutpitch=wcsc[i].pcatre*CLHEP::cm; // it was not used before but set by hand in CscReadoutEl.
                     // Azimuthal strip pitch
-                    if ((mysql->getGeometryVersion()).substr(0,3)       == "P03")         csc->phireadoutpitch=20.*CLHEP::mm;
-                    else  {
-                        //csc->phireadoutpitch = wcsc[i].psndco*CLHEP::cm;
-                        csc->phireadoutpitch = wcsc[i].azcat*CLHEP::cm;
-                        //std::cerr<<" do we come here ??? csc->phireadoutpitch = "<<csc->phireadoutpitch<<std::endl;
-                    }
+
+                    //csc->phireadoutpitch = wcsc[i].psndco*CLHEP::cm;
+                    csc->phireadoutpitch = wcsc[i].azcat*CLHEP::cm;
+                    //std::cerr<<" do we come here ??? csc->phireadoutpitch = "<<csc->phireadoutpitch<<std::endl;
+
                     //std::cerr<<" csc->phireadoutpitch = "<<csc->phireadoutpitch<<"  csc->cathreadoutpitch "<< csc->cathreadoutpitch<<std::endl;
                     if (csc->phireadoutpitch == 0.)
                         log<<MSG::WARNING<<" csc->phireadoutpitch == 0 in layout "
                            <<mysql->getGeometryVersion()<<endmsg;
                     // number of strips / layer / view
-                    if ((mysql->getGeometryVersion()).substr(0,3) == "P03") 
-                    {
-                        csc->nEtastrips = 214;
-                        csc->nPhistrips = 0; // must depend on CSS (28) or CSL (44)
-                    }
-                    else
-                    {
-                        csc->nEtastrips = 192;
-                        csc->nPhistrips = 48;
-                    }
+
+                    csc->nEtastrips = 192;
+                    csc->nPhistrips = 48;
+
                     // precision (Radial) strip width
                     csc->readoutstripswidth=wcsc[i].wrestr*CLHEP::cm;
                     // Azimuthal strip width
-                    if ((mysql->getGeometryVersion()).substr(0,3)=="P03")
-                        csc->floatingstripswidth = wcsc[i].wflstr*CLHEP::cm; // layout P interpretation
-                    else
-                        csc->floatingstripswidth =0.;
-                    if ((mysql->getGeometryVersion()).substr(0,3)!="P03")
-                        csc->phistripwidth      = wcsc[i].wflstr*CLHEP::cm; // CTB and layout Q interpretation
-                    else
-                        csc->phistripwidth = 0.;
+                    csc->floatingstripswidth =0.;
+                    csc->phistripwidth      = wcsc[i].wflstr*CLHEP::cm; // CTB and layout Q interpretation
 
                     // dead materials 
                     csc->rectwasherthick=wcsc[i].trrwas*CLHEP::cm;
-                    if ((mysql->getGeometryVersion()).substr(0,3)=="P03")
-                        csc->roxacellwith =wcsc[i].wroxa*CLHEP::cm; //  layout P interpretation
-                    else
-                        csc->roxacellwith = 54.96*CLHEP::mm; //  CTB, layout Q, R, etc: must be computed
+                    csc->roxacellwith = 54.96*CLHEP::mm; //  CTB, layout Q, R, etc: must be computed
                     csc->roxwirebargap=wcsc[i].groxwi*CLHEP::cm;
                     csc->fullgasgapwirewidth=wcsc[i].wgasba*CLHEP::cm;
                     csc->fullwirefixbarwidth=wcsc[i].wfixwi*CLHEP::cm;
@@ -731,9 +702,7 @@ namespace MuonGM {
             if( s.substr(3,s.size()-3) == MuonGM::buildString(wded[i].jsta,2) )
             {
 //                 ded->AlThickness=(wded[i].tckded)*CLHEP::cm;
-//                 if (mysql->getGeometryVersion().substr(0,1) == "P")
-//                     ded->AlThickness=10.*ded->AlThickness; the number in AMDBNova is wrong
-//                 else ded->AlThickness = ded->AlThickness * CLHEP::cm;
+//                 ded->AlThickness = ded->AlThickness * CLHEP::cm;
 // a lot of confusion in the various versions of the geometry in nova
                 ded->AlThickness=0.3*CLHEP::mm;
                 ded->thickness=(wded[i].auphcb)*CLHEP::cm;
@@ -954,20 +923,6 @@ namespace MuonGM {
                 p.z        = aptp[ipos].z*CLHEP::cm;
                 if (p.zindex<0 && name.substr(0,1) == "B" && hasMdts) p.z = p.z-halfpitch;
             
-                if (name == "BOG1" && (mysql->getGeometryVersion()).substr(0,3) == "P03") p.z=p.z+165.0*CLHEP::mm;
-                
-                if (name == "CSS1" && (mysql->getGeometryVersion()).substr(0,10) == "P03-DC2v01") {
-                    log<<MSG::INFO<<" CSS original z Position is "<<p.z<<std::endl;
-                    p.z=7202.26*CLHEP::mm;
-                    log<<MSG::INFO<<" reset to z = "<<p.z<<" to (apply the same conventions and) avoid clashes with shielding"<<std::endl;
-                }
-                
-                if (name == "CSL1" && (mysql->getGeometryVersion()).substr(0,10) == "P03-DC2v01") {
-                    log<<MSG::INFO<<" CSL original z Position is "<<p.z<<std::endl;
-                    p.z=7560.06*CLHEP::mm;
-                    log<<MSG::INFO<<" reset to z = "<<p.z<<" to (apply the same conventions and) avoid clashes with shielding"<<std::endl;
-                }
-                
                 //std::cout<<"  z  is "<<p.z<<std::endl;
                 p.shift    = aptp[ipos].s*CLHEP::cm;
                 if (verbose_posmap) std::cout<<"p.zindex,p.phi "<<p.zindex<<" "<<p.phiindex<<" shift is "<<p.shift<<std::endl;
@@ -1244,9 +1199,6 @@ namespace MuonGM {
     {
         MsgStream log(Athena::getMessageSvc(), "MuGM:ProcStations");
         log<<MSG::INFO<<" Processing Stations and Components"<<endmsg;
-
-        
-        MYSQL* mysql = MYSQL::GetPointer();
     
         std::string cartyp, cartec;
         Station *stat=NULL, *previous_stat=NULL, *previous_stored=NULL;
@@ -1257,16 +1209,9 @@ namespace MuonGM {
         int nstat = 0;
         std::string name = "XXX0", type_name="XXX";
 
-        double default_halfpitch = 1.55*CLHEP::cm;
-        if ((mysql->getGeometryVersion()).substr(0,1) == "R" )
-        {
-            default_halfpitch = 15.0175*CLHEP::mm;
-        }
-        else if ((mysql->getGeometryVersion()).substr(0,3) == "P03")
-        {
-            default_halfpitch = 15.0*CLHEP::mm;
-        }
-        
+        // that doesn't seem right for BME/BMG chambers - no idea if has an impact at the end
+        // in any case it was wrong since every and would have been wrong also in previous code
+        double default_halfpitch = 15.0175*CLHEP::mm;
 	double halfpitch = default_halfpitch;
 	
         // loop over the banks of station components: ALMN
@@ -1394,13 +1339,6 @@ namespace MuonGM {
             c->deadx=almn[icomp].dead1*CLHEP::cm;
             c->deady=almn[icomp].dead2*CLHEP::cm;
             c->dead3=almn[icomp].dead3*CLHEP::cm;
-
-            //if (cartec == "CRO") std::cerr<<" station "<<name<<" comp. CRO "
-            //<< c->dx1<<" "<<c->dx2<<" "<<c->dy<<std::endl;
-            if ((mysql->getGeometryVersion()).substr(0,3) == "P03" && name == "BOG1") 
-            {
-                c->posy = c->posy-165.0*CLHEP::mm;
-            }
         
             //std::cout<<" This component of station "<<name<<" is a "<<c->name<<std::endl;
             if (cartec == "CSC")
@@ -1409,8 +1347,7 @@ namespace MuonGM {
                 if (derc == NULL) std::cout<<" There is a problem"<<std::endl;
                 if (name[2] == 'L'){
                     //std::cout<<" here is a CSL ..."<<std::endl;
-                    if ((mysql->getGeometryVersion()).substr(0,3) == "P03") derc->dy = 1149.60*CLHEP::mm;
-                    else derc->dy = 1129.20*CLHEP::mm;  // AMDB-Q and CTB
+                    derc->dy = 1129.20*CLHEP::mm;  // AMDB-Q and CTB
                     // DHW: fix values from AMDB
                     //else derc->dy = 1111.5*CLHEP::mm;
                     derc->maxwdy = almn[icomp].length_y*CLHEP::cm;
@@ -1423,20 +1360,7 @@ namespace MuonGM {
                 derc->maxwdy = derc->dy;
                 if (jtech == 6 && name.substr(0,3) == "CSL") 
                 {
-                    if ((mysql->getGeometryVersion()).substr(0,3) == "P03") derc->dy     = 1149.60*CLHEP::mm;
-                    else derc->dy     = 1129.20*CLHEP::mm; // AMDB-Q and CTB
-                }
-                if ((mysql->getGeometryVersion()).substr(0,3) == "P03") 
-                {
-                    if (jtech == 4 && name == "BOG1")
-                    {
-                        derc->dy = derc->dy - 2*180.2*CLHEP::mm; // this is the number in the H cutout section !
-                        derc->posy = derc->posy+15.2*CLHEP::mm;
-                        // std::cerr<<"ProcessStations::ProcessFile BOG1 SPA4 length redefined = "
-                        // <<derc->dy<<std::endl;
-                        // std::cerr<<"ProcessStations::ProcessFile BOG1 SPA4 posy   redefined = "<<
-                        // derc->posy<<std::endl;
-                    }
+                    derc->dy     = 1129.20*CLHEP::mm; // AMDB-Q and CTB
                 }
                 //ProcessSPA(derc->name);
             }
@@ -1453,18 +1377,6 @@ namespace MuonGM {
                 // length for MDTs is the length of a tube layer;
                 // length of a trapezoid enclosing the multilayer must be larger by halfpitch
                 derc->dy = derc->dy + halfpitch; 
-                if ((mysql->getGeometryVersion()).substr(0,3) == "P03") 
-                {
-                    if (name == "BOG1")
-                    {
-                        derc->dy = derc->dy - 2*180.*CLHEP::mm; // remove 6 tubes on each side
-                        derc->posy = derc->posy+15.2*CLHEP::mm;
-                        // std::cerr<<"ProcessStations::ProcessFile BOG1 "<<c->name
-                        // <<" length redefined = "<<derc->dy<<std::endl;
-                        // std::cerr<<"ProcessStations::ProcessFile BOG1 "<<c->name
-                        // <<" posy   redefined = "<<derc->posy<<std::endl;
-                    }
-                }
                 //ProcessMDT(derc->name, c->deadx);
             }
             else if (cartec=="RPC"){
