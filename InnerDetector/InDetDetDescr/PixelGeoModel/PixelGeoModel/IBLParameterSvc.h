@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -87,28 +87,28 @@ public:
 protected:
            
 private:
-bool m_IBLpresent,m_DBMpresent;
-int m_LayerColumnsPerFE,m_LayerRowsPerFE,m_LayerFEsPerHalfModule_planar,m_LayerFEsPerHalfModule_3d,m_layout;
-std::vector<int> m_LayerFEsPerHalfModule;
+  bool m_IBLpresent,m_DBMpresent;
+  int m_LayerColumnsPerFE,m_LayerRowsPerFE,m_LayerFEsPerHalfModule_planar,m_LayerFEsPerHalfModule_3d,m_layout;
+  std::vector<int> m_LayerFEsPerHalfModule;
 
-ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
-ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;  
-bool m_disablePixMapCondDB;
-bool m_disableSpecialPixels;
-bool m_disableCalibCondDB;
-bool m_disableAlignable;
-bool m_disableAllClusterSplitting;
-bool m_disableClusterMakerOfflineCalib;
-bool m_disableDCS;
+  ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
+  ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;  
+  bool m_disablePixMapCondDB;
+  bool m_disableSpecialPixels;
+  bool m_disableCalibCondDB;
+  bool m_disableAlignable;
+  bool m_disableAllClusterSplitting;
+  bool m_disableClusterMakerOfflineCalib;
+  bool m_disableDCS;
 
-StatusCode setIblParameters(); 
-};
+  StatusCode setIblParameters(); 
+  };
 
-inline bool IBLParameterSvc::containsIBL() {return m_IBLpresent;}
-inline bool IBLParameterSvc::contains3D() {return m_LayerFEsPerHalfModule_3d>0;}
-inline bool IBLParameterSvc::containsDBM() {return m_DBMpresent;}
+  inline bool IBLParameterSvc::containsIBL() {return m_IBLpresent;}
+  inline bool IBLParameterSvc::contains3D() {return m_LayerFEsPerHalfModule_3d>0;}
+  inline bool IBLParameterSvc::containsDBM() {return m_DBMpresent;}
 
-inline const InterfaceID& IBLParameterSvc::interfaceID(){
-       return IID_IIBLParameterSvc;
+  inline const InterfaceID& IBLParameterSvc::interfaceID(){
+         return IID_IIBLParameterSvc;
 }
 #endif
