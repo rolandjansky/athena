@@ -65,8 +65,9 @@ private:
     bool        m_do3d;
     bool        m_AddPVData;
     bool        m_refitPV;
-    bool m_doMassConst;
-    bool m_startingpoint0;
+    bool        m_doMassConst;
+    bool        m_startingpoint0;
+    
 };
 }
 

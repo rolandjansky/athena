@@ -49,6 +49,8 @@ ReVertex::ReVertex(const std::string& t,
     declareProperty("Do3d"        , m_do3d          = false);
     declareProperty("AddPVData"        , m_AddPVData          = true);
     declareProperty("StartingPoint0"        , m_startingpoint0     = false);
+    
+    
 }
 
 StatusCode ReVertex::initialize() {
@@ -73,14 +75,14 @@ StatusCode ReVertex::addBranches() const {
 
     const size_t Ntracks = m_TrackIndices.size();
 
-    const xAOD::VertexContainer    *InTrackContainer = nullptr;
-    ATH_CHECK(evtStore()->retrieve(InTrackContainer, m_inputContainerName ));
+    const xAOD::VertexContainer    *InVtxContainer = nullptr;
+    ATH_CHECK(evtStore()->retrieve(InVtxContainer, m_inputContainerName ));
 
     const xAOD::TrackParticleContainer* importedTrackCollection = nullptr;
     ATH_CHECK(evtStore()->retrieve(importedTrackCollection, m_trackContainer ));
 
     std::vector<const xAOD::TrackParticle*> fitpair(Ntracks);
-    for(const xAOD::Vertex* v : *InTrackContainer)
+    for(const xAOD::Vertex* v : *InVtxContainer)
     {
 
         for(size_t i =0; i<Ntracks; i++)
@@ -118,10 +120,14 @@ StatusCode ReVertex::addBranches() const {
             startingPoint(2) = 0.0;
         }
         std::unique_ptr<xAOD::Vertex> ptr(m_VKVFitter->fit(fitpair, startingPoint));
-        if (ptr){
-          DerivationFramework::BPhysPVTools::PrepareVertexLinks( ptr.get(), importedTrackCollection );
-          vtxContainer->push_back(ptr.release());
-        }
+        if(!ptr) continue;
+        
+        DerivationFramework::BPhysPVTools::PrepareVertexLinks( ptr.get(), importedTrackCollection );
+        std::vector<const xAOD::Vertex*> thePreceding;
+        thePreceding.push_back(v);
+        xAOD::BPhysHelper bHelper(ptr.get());
+        bHelper.setPrecedingVertices(thePreceding, InVtxContainer);
+        vtxContainer->push_back(ptr.release());
 
     }
 
@@ -137,38 +143,31 @@ StatusCode ReVertex::addBranches() const {
     const xAOD::VertexContainer* pvContainer = nullptr;
     CHECK(evtStore()->retrieve(pvContainer, m_pvContainerName));
 
+    if(m_refitPV) {
+        //----------------------------------------------------
+        // Try to retrieve refitted primary vertices
+        //----------------------------------------------------
+        xAOD::VertexContainer*    refPvContainer    = nullptr;
+        xAOD::VertexAuxContainer* refPvAuxContainer = nullptr;
+        if(evtStore()->contains<xAOD::VertexContainer>(m_refPVContainerName)) {
+          // refitted PV container exists. Get it from the store gate
+          CHECK(evtStore()->retrieve(refPvContainer   , m_refPVContainerName       ));
+          CHECK(evtStore()->retrieve(refPvAuxContainer, m_refPVContainerName + "Aux."));
+        } else {
+          // refitted PV container does not exist. Create a new one.
+          refPvContainer = new xAOD::VertexContainer;
+          refPvAuxContainer = new xAOD::VertexAuxContainer;
+          refPvContainer->setStore(refPvAuxContainer);
+          CHECK(evtStore()->record(refPvContainer   , m_refPVContainerName));
+          CHECK(evtStore()->record(refPvAuxContainer, m_refPVContainerName+"Aux."));
+        }
 
-     //----------------------------------------------------
-     // Try to retrieve refitted primary vertices
-     //----------------------------------------------------
-     xAOD::VertexContainer*    refPvContainer    = nullptr;
-     xAOD::VertexAuxContainer* refPvAuxContainer = nullptr;
-     if(m_refitPV) {
-       if(evtStore()->contains<xAOD::VertexContainer>(m_refPVContainerName)) {
-         // refitted PV container exists. Get it from the store gate
-         CHECK(evtStore()->retrieve(refPvContainer   , m_refPVContainerName       ));
-         CHECK(evtStore()->retrieve(refPvAuxContainer, m_refPVContainerName + "Aux."));
-       } else {
-         // refitted PV container does not exist. Create a new one.
-         refPvContainer = new xAOD::VertexContainer;
-         refPvAuxContainer = new xAOD::VertexAuxContainer;
-         refPvContainer->setStore(refPvAuxContainer);
-         CHECK(evtStore()->record(refPvContainer   , m_refPVContainerName));
-         CHECK(evtStore()->record(refPvAuxContainer, m_refPVContainerName+"Aux."));
-       }
-     }
-
-     if(m_refitPV){
         if(vtxContainer->size() >0){
-         ATH_CHECK(helper.FillCandwithRefittedVertices(vtxContainer, pvContainer, refPvContainer, &(*m_pvRefitter) ,  m_PV_max, m_DoVertexType));
+          ATH_CHECK(helper.FillCandwithRefittedVertices(vtxContainer, pvContainer, refPvContainer, &(*m_pvRefitter) ,  m_PV_max, m_DoVertexType));
         }
      }else{
-         refPvContainer = const_cast<xAOD::VertexContainer*>(pvContainer);
-         if(vtxContainer->size() >0) CHECK(helper.FillCandExistingVertices(vtxContainer, refPvContainer, m_DoVertexType));
+         if(vtxContainer->size() >0) ATH_CHECK(helper.FillCandExistingVertices(vtxContainer, pvContainer, m_DoVertexType));
      }
-
-    // save in the StoreGate
-
     }
 
     return StatusCode::SUCCESS;

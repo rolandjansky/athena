@@ -154,18 +154,29 @@ BPHY16_Select_FourTrack      = DerivationFramework__Select_onia2mumu(
 ToolSvc += BPHY16_Select_FourTrack
 print      BPHY16_Select_FourTrack
 
-
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__ReVertex
 BPHY16_Revertex      = DerivationFramework__ReVertex(
   name                       = "BPHY16_ReVertex",
-  HypothesisName             = "trackx2",
   InputVtxContainerName      = "BPHY16FourTrack",
   TrackIndices               = [ 2, 3 ],
   OutputVtxContainerName     = "BPHY16TwoTrack"
 )
 
-ToolSvc += BPHY16_Select_FourTrack
-print      BPHY16_Select_FourTrack
+ToolSvc += BPHY16_Revertex
+print      BPHY16_Revertex
 
+#BPHY16_Select_TwoTrack      = DerivationFramework__Select_onia2mumu(
+#  name                       = "BPHY16_Select_TwoTracks",
+#  HypothesisName             = "TwoTracks",
+#  InputVtxContainerName      = "BPHY16TwoTrack",
+#  TrkMasses                  = [105.658, 105.658],
+#  VtxMassHypo                = 6275.1,#EVA SHOULD SET THIS
+#  MassMin                    = 1,
+#  MassMax                    = 500000,
+#  Chi2Max                    = 50)
+
+#ToolSvc += BPHY16_Select_TwoTrack
+#print      BPHY16_Select_TwoTrack
 
 expression = "count(BPHY16FourTrack.passed_FourTracks) > 0"
 
@@ -200,7 +211,7 @@ print BPHY16_SelectEvent
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
   "BPHY16Kernel",
-   AugmentationTools = [BPHY16_Reco_mumu, BPHY16_Select_Upsi, BPHY16FourTrackSelectAndWrite, BPHY16_Select_FourTrack],
+   AugmentationTools = [BPHY16_Reco_mumu, BPHY16_Select_Upsi, BPHY16FourTrackSelectAndWrite, BPHY16_Select_FourTrack, BPHY16_Revertex],
    SkimmingTools     = [BPHY16_SelectEvent]
    )
 
@@ -259,6 +270,11 @@ StaticContent += ["xAOD::VertexContainer#%s"        % BPHY16FourTrackSelectAndWr
 StaticContent += ["xAOD::VertexAuxContainer#%sAux." % BPHY16FourTrackSelectAndWrite.OutputVtxContainerName]
 ## we have to disable vxTrackAtVertex branch since it is not xAOD compatible
 StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY16FourTrackSelectAndWrite.OutputVtxContainerName]
+
+StaticContent += ["xAOD::VertexContainer#%s"        % BPHY16_Revertex.OutputVtxContainerName]
+StaticContent += ["xAOD::VertexAuxContainer#%sAux." % BPHY16_Revertex.OutputVtxContainerName]
+## we have to disable vxTrackAtVertex branch since it is not xAOD compatible
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY16_Revertex.OutputVtxContainerName]
 
 
 # Truth information for MC only
