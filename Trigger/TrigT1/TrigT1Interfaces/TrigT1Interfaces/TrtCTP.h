@@ -1,8 +1,8 @@
 // Dear emacs, this is -*- c++ -*-
-#ifndef TRIGT1INTERFACES_TRT_CTP_H
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
+#ifndef TRIGT1INTERFACES_TRT_CTP_H
 #define TRIGT1INTERFACES_TRT_CTP_H
 
 // std include(s):
