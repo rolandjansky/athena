@@ -37,7 +37,8 @@ JetFlavorPlots::JetFlavorPlots(const std::string& name,
     m_nJetsMax(15),
     m_jetCollection(""),
     m_config (config),
-    m_PMGTruthWeights(nullptr) {
+    m_PMGTruthWeights(nullptr),
+    m_throwwarningPMG(true) {
 
     CP::SystematicSet nominal;
     m_nominalHashValue = nominal.hash();
@@ -45,6 +46,8 @@ JetFlavorPlots::JetFlavorPlots(const std::string& name,
     // retrieve jet collection and remove the "Jets" at the end of it
     m_jetCollection = m_config->sgKeyJets();
     m_jetCollection.erase(m_jetCollection.length() - 4);
+    //FIXME: If no metadata is available, the PMGTool will crash. Providing here a "manual" workaround.
+    //FIXME PMG: comment from here
     //retrieve PMGTruthWeights
     const std::string truthWeightToolName = "PMGTruthWeightTool";
     if(asg::ToolStore::contains<PMGTools::PMGTruthWeightTool>(truthWeightToolName))
@@ -53,6 +56,7 @@ JetFlavorPlots::JetFlavorPlots(const std::string& name,
        m_PMGTruthWeights = new PMGTools::PMGTruthWeightTool(truthWeightToolName);
        top::check(m_PMGTruthWeights->initialize(), "Failed to initialize "+truthWeightToolName);
     }
+    //FIXME PMG: comment till here
     //decoding arguments
     std::istringstream stream(params);
     std::string s;
@@ -79,7 +83,6 @@ JetFlavorPlots::JetFlavorPlots(const std::string& name,
     //If neither nominal or radiation has been selected, assume it's nominal
     if((m_doNominal+m_doRadHigh+m_doRadLow)==false)
        m_doNominal = true;
-
     // create the JetFlavorPlots and JetFlavorPlots_Loose directories only if needed
     if (m_config->doTightEvents()){
        if(m_doNominal) m_hists         = std::make_shared<PlotManager>(name+"/JetFlavorPlots", outputFile, wk);
@@ -150,25 +153,62 @@ bool JetFlavorPlots::apply(const top::Event& event) const {
     // do loose or tight events only if requested
     if( event.m_isLoose && !m_config->doLooseEvents()) return true;
     if(!event.m_isLoose && !m_config->doTightEvents()) return true;
+
     if(m_doNominal){
-       top::check(m_PMGTruthWeights->hasWeight(" nominal "),"JetFlavorPlots::apply(): Weight nominal not found. Please report this message!");
-       double eventWeight = m_PMGTruthWeights->getWeight(" nominal ");
+       double eventWeight = 1.0;
+       //FIXME PMG: comment from here
+       if(m_PMGTruthWeights->hasWeight(" nominal "))
+          eventWeight = m_PMGTruthWeights->getWeight(" nominal ");
+       else{
+          std::vector< std::string > w_names = m_PMGTruthWeights->getWeightNames();
+          if(m_throwwarningPMG.load()){
+             std::cout<<"WARNING:JetFlavorPlots::apply(): \" nominal \" weight not found! It seems like you are not using a PowegPythia8 sample. ISFR shifted QuarkGluonFraction histograms will be disabled! If you need them to be enables, please report this message to hn-atlas-top-reconstruction@cern.ch and the sample you are running on!\n";
+             std::cout<<"JetFlavorPlots::apply(): Assuming that the nominal weight is \""<<w_names.at(0)<<"\"\n";
+             m_throwwarningPMG = false;
+          }
+          top::check(m_PMGTruthWeights->hasWeight(w_names.at(0)),"JetFlavorPlots::apply(): There was a problem with the PMGTruthWeights Tool. Weight at position 0 is invalid. Please report this message.");
+          eventWeight = m_PMGTruthWeights->getWeight(w_names.at(0));
+       }
+       //FIXME PMG: comment till here
+       //FIXME PMG: add this line: eventWeight = event.m_truthEvent->at(0)->weights()[0];
        if(event.m_isLoose) FillHistograms(m_hists_Loose, eventWeight, event);
        else                FillHistograms(m_hists, eventWeight, event);
     }
+    //FIXME PMG: comment from here
+    //FIXME The actual implementation olny allows IFSR variation for PowhegPythia8 samples
+    if(!m_PMGTruthWeights->hasWeight(" nominal ")){
+       return true;
+    }
+    //FIXME PMG: comment till here
+
     if(m_doRadHigh){
-       top::check(m_PMGTruthWeights->hasWeight(" nominal "),"JetFlavorPlots::apply(): Weight nominal not found. Please report this message!");
-       top::check(m_PMGTruthWeights->hasWeight(" muR = 0.5, muF = 0.5 "),"JetFlavorPlots::apply(): Weight muR = 0.5, muF = 0.5 not found. Please report this message!");
-       top::check(m_PMGTruthWeights->hasWeight("Var3cUp"),"JetFlavorPlots::apply(): Weight Var3cUp not found. Please report this message!");
-       double eventWeight = m_PMGTruthWeights->getWeight(" muR = 0.5, muF = 0.5 ") * m_PMGTruthWeights->getWeight("Var3cUp") / m_PMGTruthWeights->getWeight(" nominal ");
+       //FIXME PMG: comment from here
+       top::check(m_PMGTruthWeights->hasWeight(" nominal "),"JetFlavorPlots::apply(): Weight \" nominal \" not found. Please report this message!");
+       //2 different names are acceptable
+       double scaleWeight = 1.;
+       if(m_PMGTruthWeights->hasWeight(" muR = 0.5, muF = 0.5 ")) scaleWeight = m_PMGTruthWeights->getWeight(" muR = 0.5, muF = 0.5 ");
+       else if(m_PMGTruthWeights->hasWeight(" muR = 0.50, muF = 0.50 ")) scaleWeight = m_PMGTruthWeights->getWeight(" muR = 0.50, muF = 0.50 ");
+       else top::check(m_PMGTruthWeights->hasWeight(" muR = 0.5, muF = 0.5 "),"JetFlavorPlots::apply(): Weight \" muR = 0.5, muF = 0.5 \" not found. Please report this message!");
+       top::check(m_PMGTruthWeights->hasWeight("Var3cUp"),"JetFlavorPlots::apply(): Weight \"Var3cUp\" not found. Please report this message!");
+       double eventWeight = scaleWeight * m_PMGTruthWeights->getWeight("Var3cUp") / m_PMGTruthWeights->getWeight(" nominal ");
+       //FIXME PMG: comment till here
+       //FIXME PMG: WARNING! Check if the numbers are ok! Add this line: double eventWeight = event.m_truthEvent->at(0)->weights()[5]*event.m_truthEvent->at(0)->weights()[193]/event.m_truthEvent->at(0)->weights()[0];
        if(event.m_isLoose) FillHistograms(m_hists_RadHigh_Loose, eventWeight, event);
        else                FillHistograms(m_hists_RadHigh, eventWeight, event);
     }
     if(m_doRadLow){
-       top::check(m_PMGTruthWeights->hasWeight(" nominal "),"JetFlavorPlots::apply(): Weight nominal not found. Please report this message!");
-       top::check(m_PMGTruthWeights->hasWeight(" muR = 2.0, muF = 2.0 "),"JetFlavorPlots::apply(): Weight muR = 2.0, muF = 2.0 not found. Please report this message!");
-       top::check(m_PMGTruthWeights->hasWeight("Var3cDown"),"JetFlavorPlots::apply(): Weight Var3cDown not found. Please report this message!");
-       double eventWeight = m_PMGTruthWeights->getWeight(" muR = 2.0, muF = 2.0 ") * m_PMGTruthWeights->getWeight("Var3cDown") / m_PMGTruthWeights->getWeight(" nominal ");
+       //FIXME PMG: comment from here
+       top::check(m_PMGTruthWeights->hasWeight(" nominal "),"JetFlavorPlots::apply(): Weight \" nominal \" not found. Please report this message!");
+       //2 different names are acceptable
+       double scaleWeight = 1.;
+       if(m_PMGTruthWeights->hasWeight(" muR = 2.0, muF = 2.0 ")) scaleWeight = m_PMGTruthWeights->getWeight(" muR = 2.0, muF = 2.0 ");
+       else if(m_PMGTruthWeights->hasWeight(" muR = 2.00, muF = 2.00 ")) scaleWeight = m_PMGTruthWeights->getWeight(" muR = 2.00, muF = 2.00 ");
+       else top::check(m_PMGTruthWeights->hasWeight(" muR = 2.0, muF = 2.0 "),"JetFlavorPlots::apply(): Weight \" muR = 2.0, muF = 2.0 \" not found. Please report this message!");
+       top::check(m_PMGTruthWeights->hasWeight("Var3cUp"),"JetFlavorPlots::apply(): Weight \"Var3cUp\" not found. Please report this message!");
+       top::check(m_PMGTruthWeights->hasWeight("Var3cDown"),"JetFlavorPlots::apply(): Weight \"Var3cDown\" not found. Please report this message!");
+       double eventWeight = scaleWeight * m_PMGTruthWeights->getWeight("Var3cDown") / m_PMGTruthWeights->getWeight(" nominal ");
+       //FIXME PMG: comment till here
+       //FIXME PMG: WARNING! Check if the numbers are ok! Add this line: double eventWeight = event.m_truthEvent->at(0)->weights()[6]*event.m_truthEvent->at(0)->weights()[194]/event.m_truthEvent->at(0)->weights()[0];
        if(event.m_isLoose) FillHistograms(m_hists_RadLow_Loose, eventWeight, event);
        else                FillHistograms(m_hists_RadLow, eventWeight, event);
     }

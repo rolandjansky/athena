@@ -101,6 +101,8 @@ class JetFlavorPlots : public EventSelectorBase {
   void BookHistograms(std::shared_ptr<PlotManager> h_ptr, std::vector<double> ptBins, std::vector<double> etaBins);
   //helper function to fill histograms
   void FillHistograms(std::shared_ptr<PlotManager> h_ptr, double w_event, const top::Event& event) const;
+  //This is to suppress excessive printout
+  mutable std::atomic<bool> m_throwwarningPMG;
   
 
 };
