@@ -8,6 +8,16 @@ if( NOT XAOD_STANDALONE )
    set( extra_deps GaudiKernel )
 endif()
 
+# Declare the package's dependencies:
+atlas_depends_on_subdirs(
+    PUBLIC
+    Control/AthToolSupport/AsgTools
+    Event/xAOD/xAODJet
+    PhysicsAnalysis/AnalysisCommon/PATInterfaces
+    PRIVATE
+    Tools/PathResolver
+    ${extra_deps} )
+
 # External(s):
 find_package( ROOT COMPONENTS Core Hist RIO )
 

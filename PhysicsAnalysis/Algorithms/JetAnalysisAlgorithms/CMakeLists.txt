@@ -6,6 +6,18 @@
 # The name of the package:
 atlas_subdir( JetAnalysisAlgorithms )
 
+atlas_depends_on_subdirs(
+    PUBLIC
+    Event/xAOD/xAODJet
+    PhysicsAnalysis/Algorithms/SelectionHelpers
+    PhysicsAnalysis/Algorithms/SystematicsHandles
+    PhysicsAnalysis/D3PDTools/AnaAlgorithm
+    Reconstruction/Jet/JetCalibTools
+    Reconstruction/Jet/JetCPInterfaces
+    Reconstruction/Jet/JetInterface
+    Reconstruction/Jet/JetJvtEfficiency
+    Reconstruction/Jet/JetResolution )
+
 atlas_add_library( JetAnalysisAlgorithmsLib
    JetAnalysisAlgorithms/*.h JetAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS JetAnalysisAlgorithms
