@@ -102,31 +102,33 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
         pass
 
     # Set up the jet efficiency scale factor calculation algorithm
-    # Should only be needed in the case of running on MC
     # Change the truthJetCollection property to AntiKt4TruthWZJets if preferred
-    if dataType != 'data' and runJvtEfficiency:
+    if runJvtEfficiency:
         alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'JvtEfficiencyAlg' )
         addPrivateTool( alg, 'efficiencyTool', 'CP::JetJvtEfficiency' )
-        alg.selection = "jvt_selection"
+        alg.selection = 'jvt_selection'
         alg.efficiency = 'jvt_efficiency'
+        # Disable efficiency decorations if running on data
+        # We still want to run the JVT selection
+        if dataType == 'data': alg.efficiency = ''
         alg.outOfValidity = 2
         alg.outOfValidityDeco = 'no_jvt'
         alg.skipBadEfficiency = 0
+        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
+                    affectingSystematics = '(^JET_JvtEfficiency$)|(^JET_fJvtEfficiency$)' )
         pass
-    seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
-                affectingSystematics = '(^JET_JvtEfficiency$)|(^JET_fJvtEfficiency$)' )
 
     # Set up an algorithm used for debugging the jet selection:
     alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'JetCutFlowDumperAlg' )
     alg.histPattern = 'jet_cflow_%SYS%'
-    alg.selection = [ 'clean_jet', 'jvt_selection' ]
+    alg.selection = [ 'clean_jet' ] + ([ 'jvt_selection' ] if runJvtEfficiency else [])
     alg.selectionNCuts = [ 1, 1 ]
     seq.append( alg, inputPropName = 'input' )
 
     # Set up an algorithm that makes a view container using the selections
     # performed previously:
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'JetViewFromSelectionAlg' )
-    alg.selection = [ 'clean_jet', 'jvt_selection' ]
+    alg.selection = [ 'clean_jet' ] + ([ 'jvt_selection' ] if runJvtEfficiency else [])
     seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
 
     # Set up an algorithm dumping the properties of the jets, for debugging:
