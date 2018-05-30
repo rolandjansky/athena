@@ -57,14 +57,14 @@ LArCoverage::LArCoverage(const std::string& type,
     m_hCoverageHECC(),
     m_hCoverageFCALA(),
     m_hCoverageFCALC(),
-    m_hCoverageHWEMBA(NULL),
-    m_hCoverageHWEMBC(NULL),
-    m_hCoverageHWEMECA(NULL),
-    m_hCoverageHWEMECC(NULL),
-    m_hCoverageHWHECA(NULL),
-    m_hCoverageHWHECC(NULL),
-    m_hCoverageHWFCALA(NULL),
-    m_hCoverageHWFCALC(NULL),
+    m_hCoverageHWEMBA(nullptr),
+    m_hCoverageHWEMBC(nullptr),
+    m_hCoverageHWEMECA(nullptr),
+    m_hCoverageHWEMECC(nullptr),
+    m_hCoverageHWHECA(nullptr),
+    m_hCoverageHWHECC(nullptr),
+    m_hCoverageHWFCALA(nullptr),
+    m_hCoverageHWFCALC(nullptr),
     m_hCaloNoiseToolEM(),
     m_hCaloNoiseToolHEC(),
     m_hCaloNoiseToolFCAL()
@@ -73,32 +73,33 @@ LArCoverage::LArCoverage(const std::string& type,
   declareProperty("LArRawChannelKey",m_channelKey="LArRawChannels");
   declareProperty("LArBadChannelMask",m_badChannelMask);
   declareProperty("LArBadChannelTool",m_badChannelTool);
-  declareProperty("LArKnownMNBFEBsTool", m_badMNBFEBsTool);
+  declareProperty("LArKnownMNBFEBsTool",m_badMNBFEBsTool);
   declareProperty("LArCaloNoiseTool",m_caloNoiseTool);
   declareProperty("Nevents",m_nevents = 50);
   declareProperty("Nsigma",m_nsigma = 3);
 
   m_eventsCounter = 0;
+  m_monitorMNBFEBs = false;
   m_noisycells.clear();
   m_FCALBins = 0;
 
-  m_LArOnlineIDHelper	= NULL;
-  m_LArEM_IDHelper	= NULL;
-  m_LArFCAL_IDHelper	= NULL;
-  m_LArHEC_IDHelper	= NULL;
-  m_caloIdMgr		= NULL;
-  m_CaloDetDescrMgr	= NULL;
-  m_FCALBins		= NULL;
-  m_hBadChannelsBarrelA = NULL;
-  m_hBadChannelsBarrelC = NULL;
-  m_hBadChannelsEndcapA = NULL;
-  m_hBadChannelsEndcapC = NULL;
-  m_hSuspiciousMNBFEBsBarrelA = NULL;
-  m_hSuspiciousMNBFEBsBarrelC = NULL;
-  m_hSuspiciousMNBFEBsEndcapA = NULL;
-  m_hSuspiciousMNBFEBsEndcapC = NULL;
-  m_strHelper		= NULL;
-  m_rootStore		= NULL;
+  m_LArOnlineIDHelper	= nullptr;
+  m_LArEM_IDHelper	= nullptr;
+  m_LArFCAL_IDHelper	= nullptr;
+  m_LArHEC_IDHelper	= nullptr;
+  m_caloIdMgr		= nullptr;
+  m_CaloDetDescrMgr	= nullptr;
+  m_FCALBins		= nullptr;
+  m_hBadChannelsBarrelA = nullptr;
+  m_hBadChannelsBarrelC = nullptr;
+  m_hBadChannelsEndcapA = nullptr;
+  m_hBadChannelsEndcapC = nullptr;
+  m_hSuspiciousMNBFEBsBarrelA = nullptr;
+  m_hSuspiciousMNBFEBsBarrelC = nullptr;
+  m_hSuspiciousMNBFEBsEndcapA = nullptr;
+  m_hSuspiciousMNBFEBsEndcapC = nullptr;
+  m_strHelper		= nullptr;
+  m_rootStore		= nullptr;
  }
 
 /*---------------------------------------------------------*/
@@ -157,8 +158,11 @@ LArCoverage::initialize()
   }
 
   // Get suspicious MNBs FEB tool
-  if(m_badMNBFEBsTool.name() != "ILArBadChanTool") ATH_CHECK( m_badMNBFEBsTool.retrieve() );
-   
+  if(m_badMNBFEBsTool.name() != "ILArBadChanTool") {
+    m_monitorMNBFEBs = true;
+    ATH_CHECK( m_badMNBFEBsTool.retrieve() );
+  }   
+
   // Get LAr Cabling Service
   sc=m_larCablingService.retrieve();
   if (sc.isFailure()) {
@@ -598,25 +602,27 @@ LArCoverage::bookHistograms()
     SetBadChannelZaxisLabels(m_hBadChannelsEndcapC);
     BadChannelsGroupShift.regHist(m_hBadChannelsEndcapC).ignore();
   
-    m_hSuspiciousMNBFEBsBarrelA = TH2I_LW::create("DBSuspiciousMNBFEBsBarrelA",Form("MNB suspicious FEBs - Barrel A - LB %4d",lb1),
+    if (m_monitorMNBFEBs){
+      m_hSuspiciousMNBFEBsBarrelA = TH2I_LW::create("DBSuspiciousMNBFEBsBarrelA",Form("MNB suspicious FEBs - Barrel A - LB %4d",lb1),
 						  14,0.5,14.5,32,-0.5,31.5);
-    m_strHelper->definePartitionSummProp(m_hSuspiciousMNBFEBsBarrelA).ignore();
-    BadChannelsGroupShift.regHist(m_hSuspiciousMNBFEBsBarrelA).ignore();
+      m_strHelper->definePartitionSummProp(m_hSuspiciousMNBFEBsBarrelA).ignore();
+      BadChannelsGroupShift.regHist(m_hSuspiciousMNBFEBsBarrelA).ignore();
         
-    m_hSuspiciousMNBFEBsBarrelC = TH2I_LW::create("DBSuspiciousMNBFEBsBarrelC",Form("MNB suspicious FEBs - Barrel C - LB %4d",lb1),
+      m_hSuspiciousMNBFEBsBarrelC = TH2I_LW::create("DBSuspiciousMNBFEBsBarrelC",Form("MNB suspicious FEBs - Barrel C - LB %4d",lb1),
 						  14,0.5,14.5,32,-0.5,31.5);
-    m_strHelper->definePartitionSummProp(m_hSuspiciousMNBFEBsBarrelC).ignore();
-    BadChannelsGroupShift.regHist(m_hSuspiciousMNBFEBsBarrelC).ignore();
-    
-    m_hSuspiciousMNBFEBsEndcapA = TH2I_LW::create("DBSuspiciousMNBFEBsEndcapA",Form("MNB suspicious FEBs - Endcap A - LB %4d",lb1),
+      m_strHelper->definePartitionSummProp(m_hSuspiciousMNBFEBsBarrelC).ignore();
+      BadChannelsGroupShift.regHist(m_hSuspiciousMNBFEBsBarrelC).ignore();
+      
+      m_hSuspiciousMNBFEBsEndcapA = TH2I_LW::create("DBSuspiciousMNBFEBsEndcapA",Form("MNB suspicious FEBs - Endcap A - LB %4d",lb1),
 						  15,0.5,15.5,25,-0.5,24.5);
-    m_strHelper->definePartitionSummProp(m_hSuspiciousMNBFEBsEndcapA).ignore();
-    BadChannelsGroupShift.regHist(m_hSuspiciousMNBFEBsEndcapA).ignore();
+      m_strHelper->definePartitionSummProp(m_hSuspiciousMNBFEBsEndcapA).ignore();
+      BadChannelsGroupShift.regHist(m_hSuspiciousMNBFEBsEndcapA).ignore();
     
-    m_hSuspiciousMNBFEBsEndcapC = TH2I_LW::create("DBSuspiciousMNBFEBsEndcapC",Form("MNB suspicious FEBs - Endcap C - LB %4d",lb1),
+      m_hSuspiciousMNBFEBsEndcapC = TH2I_LW::create("DBSuspiciousMNBFEBsEndcapC",Form("MNB suspicious FEBs - Endcap C - LB %4d",lb1),
 						  15,0.5,15.5,25,-0.5,24.5);
-    m_strHelper->definePartitionSummProp(m_hSuspiciousMNBFEBsEndcapC).ignore();
-    BadChannelsGroupShift.regHist(m_hSuspiciousMNBFEBsEndcapC).ignore();
+      m_strHelper->definePartitionSummProp(m_hSuspiciousMNBFEBsEndcapC).ignore();
+      BadChannelsGroupShift.regHist(m_hSuspiciousMNBFEBsEndcapC).ignore();
+    }
   
     return StatusCode::SUCCESS;
     
@@ -1179,7 +1185,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMg
 	}
       }
     } // end missing FEB
-    if(m_badMNBFEBsTool->febMissing(febid)){
+    if(m_monitorMNBFEBs && m_badMNBFEBsTool->febMissing(febid)){
 
       int barrel_ec = m_LArOnlineIDHelper->barrel_ec(febid);
       int pos_neg   = m_LArOnlineIDHelper->pos_neg(febid);
