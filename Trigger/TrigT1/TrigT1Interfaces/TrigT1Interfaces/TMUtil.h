@@ -1,5 +1,8 @@
 // Dear emacs, this is -*- c++ -*-
 #ifndef TRIGT1INTERFACES_TMUTIL_H
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #define TRIGT1INTERFACES_TMUTIL_H
 
 // WARNING This is a legacy class used by many of the old configuration classes.
