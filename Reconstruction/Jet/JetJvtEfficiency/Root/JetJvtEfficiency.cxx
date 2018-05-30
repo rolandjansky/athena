@@ -111,7 +111,7 @@ CorrectionCode JetJvtEfficiency::getEfficiencyScaleFactor( const xAOD::Jet& jet,
     else if (m_dofJVT && m_appliedSystEnum==FJVT_EFFICIENCY_DOWN) baseFactor -= errorTerm;
     if (m_doTruthRequirement) {
         if(!isHSAcc.isAvailable(jet)) {
-            ATH_MSG_ERROR("Truth tagging required but decoration not available. Please call JetJvtEfficiency::truthTag(...) first.");
+            ATH_MSG_ERROR("Truth tagging required but decoration not available. Please call JetJvtEfficiency::tagTruth(...) first.");
             return CorrectionCode::Error;
         } else {
             if (!isHSAcc(jet)) sf = 1;
@@ -141,7 +141,7 @@ CorrectionCode JetJvtEfficiency::getInefficiencyScaleFactor( const xAOD::Jet& je
     else if (m_dofJVT && m_appliedSystEnum==FJVT_EFFICIENCY_DOWN) effFactor -= errorEffTerm;
     if (m_doTruthRequirement) {
         if(!isHSAcc.isAvailable(jet)) {
-        ATH_MSG_ERROR("Truth tagging required but decoration not available. Please call JetJvtEfficiency::truthTag(...) first.");
+        ATH_MSG_ERROR("Truth tagging required but decoration not available. Please call JetJvtEfficiency::tagTruth(...) first.");
         return CorrectionCode::Error;
         } else {
             if(!isHSAcc(jet)) sf = 1;
