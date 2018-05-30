@@ -65,8 +65,8 @@ class AODFix_r210(AODFix_base):
 
             from tauRec.tauRecFlags import tauAODFlags
             if tauAODFlags.doTauIDAODFix():
-                if "tauid" not in oldMetadataList:
-                    self.tauid_postSystemRec(topSequence)
+                if "tauidtest" not in oldMetadataList:
+                    self.tauidtest_postSystemRec(topSequence)
                     pass
 
             # Reset all of the ElementLinks. To be safe.
@@ -171,7 +171,7 @@ class AODFix_r210(AODFix_base):
 
     from tauRec.tauRecFlags import tauAODFlags
     if tauAODFlags.doTauIDAODFix():
-        def tauid_postSystemRec(self, topSequence):
+        def tauidtest_postSystemRec(self, topSequence):
             """
             This fix recalculates the RNN-based tau identification algorithm.
             Currently it is disabled by default and has to be enabled via a
