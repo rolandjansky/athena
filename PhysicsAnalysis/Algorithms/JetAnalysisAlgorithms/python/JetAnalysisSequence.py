@@ -110,7 +110,9 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
         alg.efficiency = 'jvt_efficiency'
         # Disable efficiency decorations if running on data
         # We still want to run the JVT selection
-        if dataType == 'data': alg.efficiency = ''
+        if dataType == 'data':
+            alg.efficiency = ''
+            alg.truthJetCollection = ''
         alg.outOfValidity = 2
         alg.outOfValidityDeco = 'no_jvt'
         alg.skipBadEfficiency = 0
