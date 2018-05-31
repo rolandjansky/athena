@@ -13,8 +13,8 @@
 VertexDecoratorAlg::VertexDecoratorAlg(const std::string& name, ISvcLocator* pSvcLocator) :
             AthAlgorithm(name, pSvcLocator),
             m_VertexContainer("PrimaryVertices"),
-            m_decorationPrefix(),
-            m_trkselTool(),
+            m_decorationPrefix(""),
+            m_trkselTool(""),
             m_filterTracks(true),
             m_dec_sum_pt(nullptr),
             m_dec_n_trks(nullptr) {
@@ -32,11 +32,11 @@ VertexDecoratorAlg::~VertexDecoratorAlg() {
 //**********************************************************************
 
 StatusCode VertexDecoratorAlg::initialize() {
-    m_filterTracks = !m_trkselTool.empty();
+    m_filterTracks = m_trkselTool.isSet();
     if (m_filterTracks) ATH_CHECK(m_trkselTool.retrieve());
     ATH_MSG_DEBUG("in initialize - retrieving tools");
     m_dec_sum_pt = std::make_unique< SG::AuxElement::Decorator<float>> (std::string("Trk_SumPt") + std::string(m_decorationPrefix.empty()? "" : "_") + m_decorationPrefix);
-    m_dec_n_trks = std::make_unique< SG::AuxElement::Decorator<unsigned int>> (std::string("nTrks") + std::string(m_decorationPrefix.empty()? "" : "_") + m_decorationPrefix);
+    m_dec_n_trks = std::make_unique< SG::AuxElement::Decorator<unsigned int>> (std::string("nTracks") + std::string(m_decorationPrefix.empty()? "" : "_") + m_decorationPrefix);
     return StatusCode::SUCCESS;
 }
 
