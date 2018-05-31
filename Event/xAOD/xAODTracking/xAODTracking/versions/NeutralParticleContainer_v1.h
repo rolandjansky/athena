@@ -12,10 +12,6 @@
  
 // Local include(s):
 #include "xAODTracking/versions/NeutralParticle_v1.h"
-#include "xAODTracking/NeutralParticleContainerFwd.h"
-
-// To complete the DATAVECTOR_BASE macro:
-template struct DataVector_detail::DVLEltBaseInit< xAOD::NeutralParticle_v1 >;
 
 namespace xAOD {
    /// The container is a simple typedef for now
