@@ -292,7 +292,7 @@ namespace EL
   outputBegin ()
   {
     RCU_READ_INVARIANT (this);
-    return &m_output[0];
+    return ( m_output.size() ? &m_output[0] : nullptr );
   }
 
 
@@ -301,7 +301,7 @@ namespace EL
   outputBegin () const
   {
     RCU_READ_INVARIANT (this);
-    return &m_output[0];
+    return ( m_output.size() ? &m_output[0] : nullptr );
   }
 
 
@@ -310,7 +310,7 @@ namespace EL
   outputEnd ()
   {
     RCU_READ_INVARIANT (this);
-    return &m_output[m_output.size()];
+    return ( m_output.size() ? &m_output[m_output.size()] : nullptr );
   }
 
 
@@ -319,7 +319,7 @@ namespace EL
   outputEnd () const
   {
     RCU_READ_INVARIANT (this);
-    return &m_output[m_output.size()];
+    return ( m_output.size() ? &m_output[m_output.size()] : nullptr );
   }
 
 
