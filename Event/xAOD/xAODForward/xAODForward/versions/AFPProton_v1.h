@@ -1,3 +1,4 @@
+// Dear emacs, this is -*- c++ -*-
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
@@ -15,32 +16,35 @@
 #define XAODFORWARD_VERSIONS_AFPPROTON_V1_H
 
 // EDM include(s):
-#include "AthContainers/AuxElement.h"
 #include "AthLinks/ElementLink.h"
 
 // IParticle include:
 #include "xAODBase/IParticle.h"
 
 // Local includes(s):
-#include "xAODForward/versions/AFPTrack_v2.h"
-#include "xAODForward/versions/AFPTrackContainer_v2.h"
+#include "xAODForward/AFPTrack.h"
+#include "xAODForward/AFPTrackContainer.h"
 
 namespace xAOD {
 
-  /**
-   * @brief Class representing a proton reconstructed in AFP.
-   * 
-   * This class provides information about a reconstucted proton measured in AFP detectors.
-   */
-  class AFPProton_v1 : public IParticle {
-  public:
-    /// Default constructor
-    AFPProton_v1();
+   /**
+    * @brief Class representing a proton reconstructed in AFP.
+    *
+    * This class provides information about a reconstucted proton measured in AFP
+    * detectors.
+    */
+   class AFPProton_v1 : public IParticle {
 
-    typedef ElementLink< AFPTrackContainer_v2 > AFPTrackLink_t;
+   public:
+      /// Default constructor
+      AFPProton_v1();
 
-    /// @name IParticle functions
-    /// @{
+      /// Type of the track links
+      typedef ElementLink< AFPTrackContainer > AFPTrackLink_t;
+
+      /// @name IParticle functions
+      /// @{
+
       /// The transverse momentum (\f$p_T\f$) of the particle
       virtual double           pt() const;
       /// The pseudorapidity (\f$\eta\f$) of the particle
@@ -62,64 +66,78 @@ namespace xAOD {
 
       /// The type of the object as a simple enumeration
       virtual Type::ObjectType type() const;
-    /// @}
 
+      /// @}
 
-    /// Get the x-component of the momentum
-    double px() const;
-    /// Get the y-component of the momentum
-    double py() const;
-    /// Get the z-component of the momentum
-    double pz() const;
+      /// @name 4-momentum functions
+      /// @{
 
-    /// Set the 4-momentum.
-    void setPxPyPzE(double px, double py, double pz, double e);
-    /// Set the x-component of the momentum
-    void setPx(double px);
-    /// Set the y-component of the momentum
-    void setPy(double py);
-    /// Set the z-component of the momentum
-    void setPz(double pz);
-    /// Set the energy.
-    void setE(double e);
+      /// Get the x-component of the momentum
+      float px() const;
+      /// Get the y-component of the momentum
+      float py() const;
+      /// Get the z-component of the momentum
+      float pz() const;
 
-    /// Get the value of @f$\chi^2@f$ function
-    float chi2() const;
-    /// Set the value of @f$\chi^2@f$ function
-    void setChi2(float chi2);
+      /// Set the 4-momentum.
+      void setPxPyPzE( float px, float py, float pz, float e );
+      /// Set the x-component of the momentum
+      void setPx( float px );
+      /// Set the y-component of the momentum
+      void setPy( float py );
+      /// Set the z-component of the momentum
+      void setPz( float pz );
+      /// Set the energy.
+      void setE( float e );
 
-    /// Get the ATLAS side on which the proton was measured
-    int side() const;
-    /// Set the ATLAS side on which the proton was measured
-    void setSide(int side);
+      /// @}
 
-    /// Get the ID of method used to reconstruct the proton
-    int methodID() const;
-    /// Set the ID of method used to reconstruct the proton
-    void setMethodID(int methodID);
+      /// Get the value of @f$\chi^2@f$ function
+      float chi2() const;
+      /// Set the value of @f$\chi^2@f$ function
+      void setChi2( float chi2 );
 
-    /// Get vector of links to tracks that were used to reconstruct the proton
-    const std::vector<AFPTrackLink_t>& tracks() const;
-    /// Set vector of links to tracks used for proton reconstruction
-    void setTracks(const std::vector<AFPTrackLink_t>& newTracksVector);
-    /// Add a link to a tracks used to reconstruct the proton
-    void addTrack(const AFPTrackLink_t& newTrack);
+      /// Get the ATLAS side on which the proton was measured
+      int side() const;
+      /// Set the ATLAS side on which the proton was measured
+      void setSide( int side );
 
-    /// Function making sure that the object is ready for persistification i.e. saving
-    void toPersistent();
+      /// Get the ID of method used to reconstruct the proton
+      int methodID() const;
+      /// Set the ID of method used to reconstruct the proton
+      void setMethodID( int methodID );
 
-  private:
-    /// Cached 4-momentum object
-    mutable FourMom_t m_p4;
-    /// Cache state of the internal 4-momentum (reset from the streamer)
-    mutable bool m_p4Cached;
-  
-  }; // class AFPProton_v1
+      /// @name Associated track handling functions
+      /// @{
+
+      /// Get vector of links to tracks that were used to reconstruct the proton
+      const std::vector< AFPTrackLink_t >& afpTrackLinks() const;
+      /// Set vector of links to tracks used for proton reconstruction
+      void setAFPTrackLinks( const std::vector< AFPTrackLink_t >& newTracksVector );
+      /// Add a link to a tracks used to reconstruct the proton
+      void addAFPTrackLink( const AFPTrackLink_t& newTrack );
+
+      /// Get the number of tracks that were used to reconstruct the proton
+      size_t nTracks() const;
+      /// Get one of the tracks that was used to reconstruct the proton
+      const AFPTrack* track( size_t index ) const;
+
+      /// @}
+
+   private:
+      /// Cached 4-momentum object
+      mutable FourMom_t m_p4;
+      /// Cache state of the internal 4-momentum (reset from the streamer)
+      mutable bool m_p4Cached;
+
+   }; // class AFPProton_v1
 
 } // namespace xAOD
 
-// Declare the inheritance of the type to StoreGate:
+// Declare the inheritance of the type to StoreGate and DataVector:
 #include "xAODCore/BaseInfo.h"
-SG_BASE( xAOD::AFPProton_v1, SG::AuxElement );
+SG_BASE( xAOD::AFPProton_v1, xAOD::IParticle );
+#include "AthContainers/DataVector.h"
+DATAVECTOR_BASE( xAOD::AFPProton_v1, xAOD::IParticle );
 
-#endif
+#endif // XAODFORWARD_VERSIONS_AFPPROTON_V1_H
