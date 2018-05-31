@@ -348,6 +348,12 @@ AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIDHelper_ID...   INFO in createObj: creating a TTOnlineID helper object in the detector store
 TTOnlineID           INFO initialize_from_dictionary
 AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIDHelper_ID...   INFO in createObj: creating a JTower_ID helper object in the detector store
+JGTowerBase_ID       INFO initialize_from_dictionary
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIDHelper_ID...   INFO in createObj: creating a GTower_ID helper object in the detector store
+JGTowerBase_ID       INFO initialize_from_dictionary
+AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIDHelper_ID...   INFO in createObj: creating a CaloCell_SuperCell_ID helper object in the detector store
 CaloIDHelper_ID...   INFO in createObj: creating a LArEM_SuperCell_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
