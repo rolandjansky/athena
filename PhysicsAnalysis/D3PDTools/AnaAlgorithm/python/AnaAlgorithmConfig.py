@@ -151,15 +151,18 @@ class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
         the user to get a nice printout of their job configuration.
         """
 
-        result = AnaAlgorithmConfig._printHeader( '%s/%s' % ( self.type(),
-                                                              self.name() ) )
+        name = ''
+        if self.isPublicTool():
+            name = 'Public Tool %s/%s' % ( self.type(), self.name() )
+        else:
+            name = 'Algorithm %s/%s' % ( self.type(), self.name() )
+            pass
+        result = AnaAlgorithmConfig._printHeader( name )
         result += '\n'
         for key, value in sorted( self._props.iteritems() ):
-            result += "|- %s: %s\n" % \
-                ( key, indentBy( value, "|" + " " * ( 4 + len( key ) ) ) )
+            result += "|- %s: %s\n" % ( key, indentBy( value, "| " ) )
             pass
-        result += AnaAlgorithmConfig._printFooter( '%s/%s' % ( self.type(),
-                                                               self.name() ) )
+        result += AnaAlgorithmConfig._printFooter( name )
         return result
 
     def addPrivateTool (self, name, type) :
@@ -281,15 +284,14 @@ class PrivateToolConfig( object ):
         the user to get a nice printout of their job configuration.
         """
 
-        result = AnaAlgorithmConfig._printHeader( '%s/%s' % ( self._type,
-                                                              self._prefix ) )
+        name = 'Private Tool %s/%s' % ( self._type, self._prefix )
+        result = ' \n'
+        result += AnaAlgorithmConfig._printHeader( name )
         result += '\n'
         for key, value in sorted( self._props.iteritems() ):
-            result += "|- %s: %s\n" % \
-                ( key, indentBy( value, "|" + " " * ( 4 + len( key ) ) ) )
+            result += "|- %s: %s\n" % ( key, indentBy( value, "| " ) )
             pass
-        result += AnaAlgorithmConfig._printFooter( '%s/%s' % ( self._type,
-                                                               self._prefix ) )
+        result += AnaAlgorithmConfig._printFooter( name )
         return result
 
     pass
