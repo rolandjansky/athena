@@ -138,11 +138,7 @@ class HypoAlgNode(AlgNode):
 
         tools = self.Alg.HypoTools
         ## HypoTools are private, so need to be created when added to the Alg
-        try:
-            self.Alg.HypoTools = tools+[createHypoTool(hypoToolClassName, hypoToolName)]
-        except:
-            print "Error in creating HypoTool " + hypoToolName + " of type " + hypoToolClassName
-
+        self.Alg.HypoTools = tools+[createHypoTool(hypoToolClassName, hypoToolName)]
         self.tools.append(hypoToolName)            
         return True
            
@@ -266,7 +262,10 @@ class InputMakerNode(AlgNode):
 #########################################################
 
 def isHypoBase(alg):
-    return  ('HypoInputDecisions'  in alg.__class__.__dict__)
+    if  'HypoInputDecisions'  in alg.__class__.__dict__:
+        return True
+    prop = alg.__class__.__dict__.get('_properties')
+    return  ('HypoInputDecisions'  in prop)
 
 def isInputMakerBase(alg):
     return  ('InputMakerInputDecisions'  in alg.__class__.__dict__)

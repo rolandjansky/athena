@@ -119,10 +119,10 @@ def decisionTree_From_Chains(HLTNode, chains):
             chain_step_name= "%s:%s"%(stepCF_name, chain.name)
             log.debug("\n*******Filling step %s for chain  %s", stepCF_name, chain.name)
       
-            sequenceHypoTools=chain_step.sequences
+            #sequenceHypoTools=chain_step.sequences
             hypotool=chain.hypoToolName
             countseq=0
-            for sequence in sequenceHypoTools:
+            for sequence in chain_step.sequences:
                 cfseq_name= sequence.name
                 log.debug("Going through sequence %s with threshold %s", sequence.name, hypotool)
 
