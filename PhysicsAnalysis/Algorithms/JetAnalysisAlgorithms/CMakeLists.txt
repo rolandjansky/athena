@@ -43,7 +43,7 @@ atlas_install_scripts( share/*_eljob.py )
 
 if( XAOD_STANDALONE )
    atlas_add_test( testJob
-      SCRIPT JetAnalysisAlgorithmsTest_eljob.py )
+      SCRIPT JetAnalysisAlgorithmsTest_eljob.py --unit-test )
 else()
    atlas_add_test( testJob
       SCRIPT athena.py
