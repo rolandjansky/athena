@@ -66,6 +66,7 @@ using namespace Muon;
   declareProperty("CheckIds", m_checkIds = false,  "Turn on validity checking of Identifiers"  );
   declareProperty("MaskMultiplet", m_maskMultiplet = 0,  "0: all, 1: first, 2: second, 3: both"  );
   declareProperty("SDOname", m_sdoName = "MMfast_SDO"  );
+  declareProperty("MicroTPC", m_microTPC = true,  "Turn on microTPC mode"  );
 }
 /*******************************************************************************/ 
 MM_FastDigitizer::~MM_FastDigitizer()  {
@@ -339,7 +340,8 @@ StatusCode MM_FastDigitizer::execute() {
     double scale;//, scaletop;
 //    double gasgap = 5.;
     
-    scale = -slpos.z()/ldir.z();
+    if (m_microTPC) scale = 0;
+    else scale = -slpos.z()/ldir.z();
 //    scaletop = (gasgap+slpos.z())/ldir.z();
 
     Amg::Vector3D hitOnSurface = slpos + scale*ldir;
@@ -351,6 +353,8 @@ StatusCode MM_FastDigitizer::execute() {
     double shiftTimeOffset = MMDigitTime*vdrift;
     Amg::Vector3D hitAfterTimeShift(hitOnSurface.x(),hitOnSurface.y(),shiftTimeOffset);
     Amg::Vector3D hitAfterTimeShiftOnSurface = hitAfterTimeShift - (shiftTimeOffset/ldirTime.z())*ldirTime;
+
+    double tdrift = 0;
 
     // resolution = -.01/3 * angle + .64/3.
     double resolution;
@@ -373,7 +377,7 @@ StatusCode MM_FastDigitizer::execute() {
       posOnSurf[0]=(slpos.x()+sp);
 //      digiMode = 1;
       // if using timing information use hit position after shift
-    }else if( m_useTimeShift ){
+    }else if( m_useTimeShift && !m_microTPC ){
       posOnSurf[0]=(hitAfterTimeShiftOnSurface.x()+sp);
 //      digiMode = 2;
     }
@@ -497,23 +501,83 @@ StatusCode MM_FastDigitizer::execute() {
 
     std::vector<Identifier> rdoList;
     rdoList.push_back(id);
-    Amg::MatrixX* cov = new Amg::MatrixX(1,1);
-    cov->setIdentity();
-    (*cov)(0,0) = resolution*resolution;
-    MMPrepData* prd = new MMPrepData( id,hash,posOnSurf,rdoList,cov,detEl);
-    prd->setHashAndIndex(col->identifyHash(), col->size()); // <<< add this line to the MM code as well
-    col->push_back(prd);
+
     ATH_MSG_VERBOSE("Global hit: r " << hit.globalPosition().perp() << " phi " << hit.globalPosition().phi() << " z " << hit.globalPosition().z());
-    ATH_MSG_VERBOSE(" Prd: r " << prd->globalPosition().perp() << "  phi " << prd->globalPosition().phi() << " z " << prd->globalPosition().z());
     ATH_MSG_VERBOSE(" Calculated truth hitOnSurfaceGlobal: r " << hitOnSurfaceGlobal.perp() << " phi " << hitOnSurfaceGlobal.phi() << " z " << hitOnSurfaceGlobal.z());
     ATH_MSG_VERBOSE(" detEl: r " << repos.perp() << " phi " << repos.phi() << " z " << repos.z());
     ATH_MSG_VERBOSE(" Surface center: r " << surf.center().perp() << " phi " << surf.center().phi() << " z " << surf.center().z());
-
     ATH_MSG_VERBOSE("Local hit in Det Element Frame: x " << hit.localPosition().x() << " y " << hit.localPosition().y() << " z " << hit.localPosition().z());
-    ATH_MSG_VERBOSE(" Prd: local posOnSurf.x() " << posOnSurf.x() << " posOnSurf.y() " << posOnSurf.y() );
-    // 		    << " detEl: x " << lpos.x() << " y " << lpos.y() << " z " << lpos.z() << " strip " << stripNumber);
     ATH_MSG_DEBUG(" hit:  " << m_idHelperTool->toString(id) << " hitx " << posOnSurf.x() << " hitOnSurface.x() " << hitOnSurface.x() << " residual " << posOnSurf.x() - hitOnSurface.x()
 		  << " pull " << (posOnSurf.x() - hitOnSurface.x())/resolution );
+    Amg::Vector3D CurrentHitInDriftGap = slpos;
+    // emulating micro track in the drift volume for microTPC
+    if (!m_microTPC) {
+      Amg::MatrixX* cov = new Amg::MatrixX(1,1);
+      cov->setIdentity();
+      (*cov)(0,0) = resolution*resolution;
+      MMPrepData* prd = new MMPrepData( id,hash,Amg::Vector2D(posOnSurf.x(),0.),rdoList,cov,detEl,(int)tdrift,0);
+      prd->setHashAndIndex(col->identifyHash(), col->size()); // <<< add this line to the MM code as well
+      col->push_back(prd);
+
+      std::vector<MuonSimData::Deposit> deposits;
+      MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(hitOnSurface.x(),hitOnSurface.y()));
+      deposits.push_back(deposit);
+
+      MuonSimData simdata(deposits,0);
+      simdata.setPosition(hitOnSurfaceGlobal);
+      simdata.setTime(globalHitTime);
+      h_sdoContainer->insert ( std::make_pair ( id, simdata ) );
+
+      ATH_MSG_VERBOSE(" Prd: local x " << posOnSurf.x() << " y " << 0 );
+      ATH_MSG_VERBOSE(" Prd: r " << prd->globalPosition().perp() << "  phi " << prd->globalPosition().phi() << " z " << prd->globalPosition().z());
+    } else {
+      for (int loop_direction = -1; loop_direction <=1; loop_direction+=2) {
+        Amg::Vector3D stepInDriftGap = loop_direction * ldir * (roParam.stripPitch/std::cos(roParam.stereoAngel.at(m_idHelper->gasGap(layid)-1) ))/abs(ldir.x());
+        if (loop_direction == 1) CurrentHitInDriftGap = slpos + stepInDriftGap;
+        while (std::abs(CurrentHitInDriftGap.z()) <= roParam.gasThickness) {
+          Amg::MatrixX* cov = new Amg::MatrixX(1,1);
+          cov->setIdentity();
+          (*cov)(0,0) = resolution*resolution;
+
+          tdrift = CurrentHitInDriftGap.z() / vdrift + CLHEP::RandGauss::shoot(m_rndmEngine, 0., 5.);
+          Amg::Vector2D CurrenPosOnSurf(CurrentHitInDriftGap.x(),CurrentHitInDriftGap.y());
+
+          stripNumber = detEl->stripNumber(CurrenPosOnSurf,layid);
+          if( (stripNumber >= detEl->numberOfStrips(layid)) || (stripNumber == -1) ) {
+            CurrentHitInDriftGap += stepInDriftGap;
+            continue;
+          }
+          id = m_idHelper->channelID(parentID, m_idHelper->multilayer(layid), m_idHelper->gasGap(layid),stripNumber,m_checkIds);
+          if( stripNumber != m_idHelper->channel(id) ) {
+            CurrentHitInDriftGap += stepInDriftGap;
+            continue;
+          }
+        
+          MMPrepData* prd = new MMPrepData( id,hash,Amg::Vector2D(CurrenPosOnSurf.x(),0.),rdoList,cov,detEl,(int)tdrift,0);
+          prd->setHashAndIndex(col->identifyHash(), col->size()); // <<< add this line to the MM code as well
+          col->push_back(prd);
+
+          std::vector<MuonSimData::Deposit> deposits;
+          MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(CurrenPosOnSurf.x(),CurrenPosOnSurf.y()));
+          deposits.push_back(deposit);
+
+          MuonSimData simdata(deposits,0);
+          Amg::Vector3D SDO_GP = surf.transform()*CurrentHitInDriftGap;
+          simdata.setPosition(SDO_GP);
+          simdata.setTime(globalHitTime);
+          h_sdoContainer->insert ( std::make_pair ( id, simdata ) );
+
+          ATH_MSG_VERBOSE(" Local CurrentHitInDriftGap.x() " << CurrentHitInDriftGap.x() << " CurrentHitInDriftGap.y() " << CurrentHitInDriftGap.y() << " CurrentHitInDriftGap.z() " << CurrentHitInDriftGap.z() << " drift time " << (int)tdrift );
+          ATH_MSG_VERBOSE(" Prd: local x " << CurrentHitInDriftGap.x() << " y " << 0 << " drift time " << (int)tdrift << " identifier " << id );
+          ATH_MSG_VERBOSE(" Prd: r " << prd->globalPosition().perp() << "  phi " << prd->globalPosition().phi() << " z " << prd->globalPosition().z());
+          ATH_MSG_VERBOSE(" SDO: True Global position: x  " << SDO_GP.x() << "  y " << SDO_GP.y() << " z " << SDO_GP.z());
+
+          CurrentHitInDriftGap += stepInDriftGap;
+        }
+      }
+    }
+
+
     err = resolution;
     ich = m_idHelper->channel(id);
     istr  = stripNumber;
@@ -526,15 +590,6 @@ StatusCode MM_FastDigitizer::execute() {
 //     }
 
     m_ntuple->Fill();
-    // create SDO 
-    MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(hitOnSurface.x(),hitOnSurface.y()));
-    //Record the SDO collection in StoreGate
-    std::vector<MuonSimData::Deposit> deposits;
-    deposits.push_back(deposit);
-    MuonSimData simData(deposits, 0);
-    simData.setPosition(hitOnSurfaceGlobal);
-    simData.setTime(globalHitTime);
-    h_sdoContainer->insert ( std::make_pair ( id, simData ) );
     // OLD CODE ENDS HERE
 
     previousHit = &hit;

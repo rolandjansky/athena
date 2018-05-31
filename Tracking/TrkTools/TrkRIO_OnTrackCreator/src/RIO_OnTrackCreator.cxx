@@ -202,8 +202,8 @@ Trk::RIO_OnTrackCreator::correct(const Trk::PrepRawData& rio,
       return m_MuonDriftCircleCor->correct(rio, trk);
     }
   }
-  if ( (m_idHelper->is_csc(id)) || (m_idHelper->is_rpc(id)) 
-       || (m_idHelper->is_tgc(id)) ) {
+  if ( (m_idHelper->is_csc(id)) || (m_idHelper->is_rpc(id))
+       || (m_idHelper->is_tgc(id)) || (m_idHelper->is_mm(id)) || (m_idHelper->is_stgc(id)) ) {
     if (m_mode == "indet") {
       msg(MSG::WARNING)<<"I have no tool to correct a CSC/RPC/TGC hit! - Giving back nil."<<endreq;
       return 0;
