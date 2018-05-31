@@ -21,8 +21,7 @@ namespace egGain{
 class GainUncertainty : public asg::AsgMessaging {
 public:
 
-    GainUncertainty(std::string filename);
-    void Init(std::string filename);
+    GainUncertainty(const std::string& filename);
     ~GainUncertainty();
 
  // return relative uncertainty on energy from gain uncertainty

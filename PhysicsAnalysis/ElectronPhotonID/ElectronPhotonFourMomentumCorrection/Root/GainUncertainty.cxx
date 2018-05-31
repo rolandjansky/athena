@@ -3,11 +3,8 @@
 */
 
 #include <ElectronPhotonFourMomentumCorrection/GainUncertainty.h>
-#include "CxxUtils/make_unique.h"
-#include "PathResolver/PathResolver.h"
 #include <TH1.h>
 #include <TFile.h>
-#include <iostream>
 
 
 namespace egGain {
@@ -15,7 +12,7 @@ namespace egGain {
 
 //--------------------------------------
 
-  GainUncertainty::GainUncertainty(std::string filename) : asg::AsgMessaging("GainUncertainty") {
+  GainUncertainty::GainUncertainty(const std::string& filename) : asg::AsgMessaging("GainUncertainty") {
 
     ATH_MSG_INFO("opening file " << filename);
     m_gainFile.reset( TFile::Open( filename.c_str(), "READ" ) );
