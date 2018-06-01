@@ -55,7 +55,7 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
     alg.uncertaintiesTool.JetDefinition = jetCollection[ 0 : -4 ]
     alg.uncertaintiesTool.ConfigFile = \
         'rel21/Moriond2018/R4_StrongReduction_Scenario1.config'
-    alg.uncertaintiesTool.CalibArea = "CalibArea-03"
+    alg.uncertaintiesTool.CalibArea = "CalibArea-04"
     if dataType == 'afii':
         alg.uncertaintiesTool.MCType = "AFII"
     else:

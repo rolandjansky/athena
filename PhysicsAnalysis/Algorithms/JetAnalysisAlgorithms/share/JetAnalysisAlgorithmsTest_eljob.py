@@ -12,6 +12,9 @@ parser = optparse.OptionParser()
 parser.add_option( '-s', '--submission-dir', dest = 'submission_dir',
                    action = 'store', type = 'string', default = 'submitDir',
                    help = 'Submission directory for EventLoop' )
+parser.add_option( '-u', '--unit-test', dest='unit_test',
+                   action = 'store_true', default = False,
+                   help = 'Run the job in "unit test mode"' )
 ( options, args ) = parser.parse_args()
 
 # Set up (Py)ROOT.
@@ -70,6 +73,15 @@ for alg in jetSequence:
     job.algsAdd( alg )
     pass
 
+# Find the right output directory:
+submitDir = options.submission_dir
+if options.unit_test:
+    import os
+    import tempfile
+    submitDir = tempfile.mkdtemp( prefix = 'jetTest_', dir = os.getcwd() )
+    os.rmdir( submitDir )
+    pass
+
 # Run the job using the direct driver.
 driver = ROOT.EL.DirectDriver()
-driver.submit( job, options.submission_dir )
+driver.submit( job, submitDir )
