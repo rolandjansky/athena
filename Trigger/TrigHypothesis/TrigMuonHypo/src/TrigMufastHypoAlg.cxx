@@ -80,8 +80,9 @@ StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
     const TrigRoiDescriptor* roi = *roiEL;
 
     // get View
-    auto viewEL = previousDecision->objectLink<std::vector<SG::View*>>( "view" );
+    auto viewEL = previousDecision->objectLink< ViewContainer >( "view" );
     CHECK( viewEL.isValid() );
+
     const SG::View* view_const = *viewEL;
     SG::View* view = const_cast<SG::View*>(view_const); // CHECK THIS!
 
@@ -96,7 +97,6 @@ StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
     auto d = newDecisionIn( decisions.get() );
 
     // push_back to toolInput
-
     toolInput.emplace_back( d, roi, fast, previousDecision );
     
     {
