@@ -1,15 +1,18 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
+from IOVSvc.IOVSvcConf import CondInputLoader
 import os
 
 def IOVDbSvcCfg(configFlags):
 
     result=ComponentAccumulator()
 
+    #Add the conditions loader, must be the first in the sequence
+    result.addCondAlgo(CondInputLoader())
+
     from IOVDbSvc.IOVDbSvcConf import IOVDbSvc
     from IOVSvc.IOVSvcConf import CondSvc
-    from IOVSvc.IOVSvcConf import CondInputLoader
     from SGComps.SGCompsConf import ProxyProviderSvc
 
     #Properties of IOVDbSvc to be set here:
@@ -50,6 +53,7 @@ def IOVDbSvcCfg(configFlags):
     
     from PoolSvc.PoolSvcConf import PoolSvc
     poolSvc=PoolSvc()
+    poolSvc.MaxFilesOpen=0
     poolSvc.ReadCatalog=["apcfile:poolcond/PoolFileCatalog.xml",
                          "prfile:poolcond/PoolCat_oflcond.xml",
                          "apcfile:poolcond/PoolCat_oflcond.xml",
@@ -63,7 +67,6 @@ def IOVDbSvcCfg(configFlags):
     result.addService(CondSvc())
     result.addService(ProxyProviderSvc(ProviderNames=["IOVDbSvc",]))
 
-
     from DBReplicaSvc.DBReplicaSvcConf import DBReplicaSvc
     if not isMC:
         result.addService(DBReplicaSvc(COOLSQLiteVetoPattern="/DBRelease/"))
@@ -74,12 +77,24 @@ def IOVDbSvcCfg(configFlags):
 
 #Convenience method to add folders:
 
-def addFolders(configFlags,folderstrings,detDb=None):
+def addFolders(configFlags,folderstrings,detDb=None,className=None):
+
+    #Convenince hack: Allow a single string as parameter:
+    if isinstance(folderstrings,str):
+        folderstrings=[folderstrings,]
+
     result=ComponentAccumulator()
     result.addConfig(IOVDbSvcCfg,configFlags)
 
-    
-    
+    #Add class-name to CondInputLoader (if reqired)
+    if className is not None:
+        loadFolders=[]
+        for fs in folderstrings:
+            loadFolders.append((className, _extractFolder(fs)));
+        result.getCondAlgo("CondInputLoader").Load+=loadFolders
+        #result.addCondAlgo(CondInputLoader(Load=loadFolders))
+ 
+
     iovDbSvc=result.getService("IOVDbSvc")
     
     if detDb is not None:
@@ -90,17 +105,12 @@ def addFolders(configFlags,folderstrings,detDb=None):
     else:
         dbstr=""
     
-    #Convenince hack: Allow a single string as parameter:
-    if isinstance(folderstrings,str):
-        folderstrings=[folderstrings,]
-
     
     for fs in folderstrings:
         if fs.find("<db>")==-1:
             iovDbSvc.Folders.append(fs+dbstr)
         else:
             iovDbSvc.Folders.append(fs)
-
 
     return result
 
@@ -162,3 +172,28 @@ _dblist={
 
 
 
+def _extractFolder(folderstr):
+    "Extract the folder name (non-XML text) from a IOVDbSvc.Folders entry"
+    fname=""
+    xmltag=""
+    ix=0
+    while ix<len(folderstr):
+        if (folderstr[ix]=='<' and xmltag==""):
+            ix2=folderstr.find('>',ix)
+            if (ix2!=-1):
+                xmltag=(folderstr[ix+1:ix2]).strip()
+                ix=ix2+1
+        elif (folderstr[ix:ix+2]=='</' and xmltag!=""):
+            ix2=folderstr.find('>',ix)
+            if (ix2!=-1):
+                xmltag=""
+                ix=ix2+1
+        else:
+            ix2=folderstr.find('<',ix)
+            if ix2==-1: ix2=len(folderstr)
+            if (xmltag==""): fname=fname+folderstr[ix:ix2]
+            ix=ix2
+    return fname.strip()
+
+    
+        

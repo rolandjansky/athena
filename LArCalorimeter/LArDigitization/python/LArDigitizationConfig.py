@@ -131,7 +131,6 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     ToolSvc+=theLArBadChannelTool
     from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
     theLArRCBMasker=LArBadChannelMasker("LArRCBMasker")
-    theLArRCBMasker.TheLArBadChanTool = theLArBadChannelTool
     theLArRCBMasker.DoMasking=True
     theLArRCBMasker.ProblemsToMask=[
          "deadReadout","deadPhys"]

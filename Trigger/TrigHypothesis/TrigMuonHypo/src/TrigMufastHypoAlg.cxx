@@ -6,7 +6,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
-
+#include "AthLinks/ElementLink.h"
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "TrigMuonHypo/TrigMufastHypoAlg.h"
 
@@ -74,7 +74,7 @@ StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
   for ( auto previousDecision: *previousDecisionsHandle ) { 
     auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
     if (!roiEL.isValid()) {
-      ATH_MSG_ERROR("ReadHandle for std::vector<SG::View*> key:" << m_viewsKey.key() << " is failed");
+      ATH_MSG_ERROR("ReadHandle for ViewContainer key:" << m_viewsKey.key() << " is failed");
       return StatusCode::FAILURE;
     }
     const TrigRoiDescriptor* roi = *roiEL;
@@ -111,9 +111,9 @@ StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
     toolInput.emplace_back( d, roi, fast, roiToDecision[roi] );
 
     { // retrieve MUViewRoIs
-      auto element = ElementLink< std::vector<SG::View*> >( m_viewsKey.key(), counter );
+      auto element = ElementLink< ViewContainer >( m_viewsKey.key(), counter );
       if(!element.isValid()) {
-        ATH_MSG_ERROR("ReadHandle for std::vector<SG::View*> key:" << m_viewsKey.key() << " isn't Valid");
+        ATH_MSG_ERROR("ReadHandle for ViewContainer key:" << m_viewsKey.key() << " isn't Valid");
         return StatusCode::FAILURE;
       } else {
         d->setObjectLink( "view", element );

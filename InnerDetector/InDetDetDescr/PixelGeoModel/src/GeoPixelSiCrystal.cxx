@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -27,24 +27,21 @@
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 
 #include <vector>
+#include <algorithm> //for std::min, std::max
 
 using namespace InDetDD;
 
 GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer, bool isModule3D) 
-  : m_logVolume(0)
 {
   // 
   //Builds the design for this crystal
   m_isBLayer = isBLayer;
   m_isModule3D = isModule3D;
-  //SiDetectorDesign::Axis etaAxis   = SiDetectorDesign::zAxis;
-  //SiDetectorDesign::Axis phiAxis   = SiDetectorDesign::yAxis;
-  //SiDetectorDesign::Axis depthAxis = SiDetectorDesign::xAxis;
-
+ 
   // Dimensions
-  double thickness = m_gmt_mgr->PixelBoardThickness(m_isModule3D);
-  double length = m_gmt_mgr->PixelBoardLength(m_isModule3D);
-  double width = m_gmt_mgr->PixelBoardWidth(m_isModule3D);
+  const double thickness = m_gmt_mgr->PixelBoardThickness(m_isModule3D);
+  const double length = m_gmt_mgr->PixelBoardLength(m_isModule3D);
+  const double width = m_gmt_mgr->PixelBoardWidth(m_isModule3D);
 
   int circuitsPhi = m_gmt_mgr->DesignCircuitsPhi(m_isModule3D); // Warning col/row naming opposite to chip
   int circuitsEta = m_gmt_mgr->DesignCircuitsEta(m_isModule3D); // Warning col/row naming opposite to chip
@@ -59,23 +56,6 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer, bool isModule3D)
   double phiPitch = m_gmt_mgr->DesignPitchRP(m_isModule3D);
   double etaPitch = m_gmt_mgr->DesignPitchZ(m_isModule3D);
 
-
-//   std::cout<<"thickness = "<<thickness<<std::endl;
-//   std::cout<<"length = "<<length<<std::endl;
-//     std::cout<<"width = "<<width<<std::endl;
-
-//   std::cout<<"circuitsPhi = "<<circuitsPhi<<std::endl;
-//   std::cout<<"circuitsEta = "<<circuitsEta<<std::endl;
-//   std::cout<<"cellRowPerCirc = "<<cellRowPerCirc<<std::endl;
-//   std::cout<<"cellColPerCirc = "<<cellColPerCirc<<std::endl;
-//   std::cout<<"diodeRowPerCirc = "<<diodeRowPerCirc<<std::endl;
-//   std::cout<<"diodeColPerCirc = "<<diodeColPerCirc<<std::endl;
-//   std::cout<<"readoutSide = "<<readoutSide<<std::endl;
-  
-//   std::cout<<"etaPitchLongEnd = "<<etaPitchLongEnd<<std::endl;
-//   std::cout<<"etaPitchLong =  "<<etaPitchLong<<std::endl;
-//   std::cout<<"phiPitch = "<<phiPitch<<std::endl;
-//   std::cout<<"etaPitch = "<<etaPitch<<std::endl;
 
   PixelDiodeMatrix * fullMatrix = makeMatrix(phiPitch, etaPitch, etaPitchLong, etaPitchLongEnd,
 					     circuitsPhi, circuitsEta, diodeRowPerCirc, diodeColPerCirc);
@@ -95,8 +75,6 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer, bool isModule3D)
   if (m_gmt_mgr->NumberOfEmptyRows() > 0) {
     int minRow = m_gmt_mgr->EmptyRows(0);
     int maxRow = minRow;
- 
-
     for (int iConnect = 0; iConnect < m_gmt_mgr->NumberOfEmptyRows(); iConnect++){
       minRow = std::min(minRow, m_gmt_mgr->EmptyRows(iConnect));
       minRow = std::min(minRow, m_gmt_mgr->EmptyRowConnections(iConnect));
@@ -115,13 +93,7 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer, bool isModule3D)
     for (int iConnect = 0; iConnect < m_gmt_mgr->NumberOfEmptyRows(); iConnect++){
       connections[m_gmt_mgr->EmptyRows(iConnect)-minRow] = m_gmt_mgr->EmptyRowConnections(iConnect);
     }
-    
-    //std::cout << "MinRow = " << minRow << std::endl;
-    //std::cout << "MaxRow = " << maxRow << std::endl;
-    //for (unsigned int iRow = 0; iRow < connections.size(); iRow++){
-    //  std::cout << iRow << " " << connections[iRow] << std::endl;
-    //}
-
+   
     p_barrelDesign2->addMultipleRowConnection(minRow, connections);
 
   } else {
@@ -134,10 +106,7 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer, bool isModule3D)
   }
   
   // Check that the active area seems reasonable
-//   std::cout<< "GeoPixelSiCrystal: Active area vs sensor size. Sensor: " 
-// 	   << width/CLHEP::mm << " x " << length/CLHEP::mm << ", Active: " 
-// 	   << m_gmt_mgr->DesignRPActiveArea(m_isModule3D)/CLHEP::mm << " x " << m_gmt_mgr->DesignZActiveArea(m_isModule3D)/CLHEP::mm 
-// 	   << std::endl;
+
   if ( (m_gmt_mgr->DesignRPActiveArea(m_isModule3D) > width) ||
        (m_gmt_mgr->DesignZActiveArea(m_isModule3D) >  length) || 
        (width - m_gmt_mgr->DesignRPActiveArea(m_isModule3D) > 4 * CLHEP::mm) || 
@@ -159,20 +128,25 @@ GeoPixelSiCrystal::GeoPixelSiCrystal(bool isBLayer, bool isModule3D)
 
   m_DDmgr->addDesign(m_design);
   
-  std::string matName = m_gmt_mgr->getMaterialName("Sensor");
-  const GeoMaterial* siMat = m_mat_mgr->getMaterial(matName);
-  const GeoBox* siBox = new GeoBox(thickness/2.,width/2.,length/2.);
-  std::string logname;
-  // There is not a strong need to give the blayer a different name but leave it for now. 
-  if(m_isBLayer) logname = "siBLayLog";
-  else logname = "siLog";
-  m_logVolume = new GeoLogVol(logname,siBox,siMat);
-
+  
 }
 GeoVPhysVol* GeoPixelSiCrystal::Build() {
+  //(sar) code moved from c'tor..
+  const double thickness = m_gmt_mgr->PixelBoardThickness(m_isModule3D);
+  const double length = m_gmt_mgr->PixelBoardLength(m_isModule3D);
+  const double width = m_gmt_mgr->PixelBoardWidth(m_isModule3D);
+  //
+  std::string matName = m_gmt_mgr->getMaterialName("Sensor");
+  const GeoMaterial* siMat = m_mat_mgr->getMaterial(matName);
+  const GeoBox* siBox = new GeoBox(thickness*0.5,width*0.5,length*0.5);
+  std::string logname{"siLog"};
+  // There is not a strong need to give the blayer a different name but leave it for now. 
+  if(m_isBLayer) logname = "siBLayLog";
+  auto logVolume = new GeoLogVol(logname,siBox,siMat);
+  //(sar) ...to here
 
 
-  GeoFullPhysVol* siPhys = new GeoFullPhysVol(m_logVolume);
+  GeoFullPhysVol* siPhys = new GeoFullPhysVol(logVolume);
 
   //
   // Add this to the list of detector elements:

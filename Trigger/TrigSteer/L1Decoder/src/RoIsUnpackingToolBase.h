@@ -10,7 +10,7 @@
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "DecisionHandling/HLTIdentifier.h"
-
+#include "TrigConfL1Data/TriggerThreshold.h"
 
 namespace ROIB {
   class RoIBResult;
@@ -58,6 +58,11 @@ protected:
   void addChainsToDecision( HLT::Identifier thresholdId,
                             TrigCompositeUtils::Decision* d,
                             const HLT::IDSet& activeChains ) const;
+
+  //!< copies thresholds from src to dest filtering nulls and making verbose messages
+  StatusCode copyThresholds( const std::vector<TrigConf::TriggerThreshold*>& src, 
+			     std::vector<TrigConf::TriggerThreshold*>& dest ) const;
+  
 }; 
 
 

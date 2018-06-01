@@ -33,13 +33,12 @@ SCT_SLHC_DetectorTool::SCT_SLHC_DetectorTool( const std::string& type,
     m_detectorName("SCT"),
     m_alignable(false),
     m_forceBuild(false),
-    m_manager(0), 
-    m_athenaComps(0),
+    m_manager(nullptr), 
+    m_athenaComps(nullptr),
     m_serviceBuilderTool("", this),
     m_geoDbTagSvc("GeoDbTagSvc",name),
     m_rdbAccessSvc("RDBAccessSvc",name),
-    m_geometryDBSvc("InDetGeometryDBSvc",name),
-    m_lorentzAngleSvc("SCTLorentzAngleSvc", name)
+    m_geometryDBSvc("InDetGeometryDBSvc",name)
 {
     // Get parameter values from jobOptions file
     declareProperty("ForceBuild", m_forceBuild);
@@ -49,7 +48,6 @@ SCT_SLHC_DetectorTool::SCT_SLHC_DetectorTool( const std::string& type,
     declareProperty("RDBAccessSvc", m_rdbAccessSvc);
     declareProperty("GeometryDBSvc", m_geometryDBSvc);
     declareProperty("GeoDbTagSvc", m_geoDbTagSvc);
-    declareProperty("LorentzAngleSvc", m_lorentzAngleSvc);
 }
 
 SCT_SLHC_DetectorTool::~SCT_SLHC_DetectorTool()
@@ -57,54 +55,56 @@ SCT_SLHC_DetectorTool::~SCT_SLHC_DetectorTool()
   delete m_athenaComps;
 }
 
+// Initialize
+StatusCode SCT_SLHC_DetectorTool::initialize(){
+  // LorentzAngleTool
+  if (not m_lorentzAngleTool.empty()) {
+    ATH_CHECK(m_lorentzAngleTool.retrieve());
+  } else {
+    m_lorentzAngleTool.disable();
+  }
+
+  return StatusCode::SUCCESS;
+}
+
 // Create the Geometry via the factory corresponding to this tool
 StatusCode SCT_SLHC_DetectorTool::create(){ 
 
-  StatusCode result = StatusCode::SUCCESS;
-
   // Get the detector configuration.
-  StatusCode sc = m_geoDbTagSvc.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoDbTagSvc" << endmsg;
-    return (StatusCode::FAILURE);
-  }
+  ATH_CHECK(m_geoDbTagSvc.retrieve());
 
   DecodeVersionKey versionKey(&*m_geoDbTagSvc, "SCT");
  
   // Issue error if AUTO.
   if (versionKey.tag() == "AUTO"){
-    msg(MSG::ERROR) << "AUTO Atlas version. Please select a version." << endmsg;
+    ATH_MSG_ERROR("AUTO Atlas version. Please select a version.");
   }
 
-  msg(MSG::INFO) << "Building SCT SLHC with Version Tag: "<< versionKey.tag() << " at Node: " << versionKey.node() << endmsg;
+  ATH_MSG_INFO("Building SCT SLHC with Version Tag: "<< versionKey.tag() << " at Node: " << versionKey.node());
 
-  sc = m_rdbAccessSvc.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endmsg;
-    return (StatusCode::FAILURE); 
-  }  
+  ATH_CHECK(m_rdbAccessSvc.retrieve());
 
   // Print the SCT version tag:
   std::string sctVersionTag;
   sctVersionTag = m_rdbAccessSvc->getChildTag("SCT", versionKey.tag(), versionKey.node());
-  msg(MSG::INFO) << "SCT Version: " << sctVersionTag <<  "  Package Version: " << PACKAGE_VERSION << endmsg;
+  ATH_MSG_INFO("SCT Version: " << sctVersionTag <<  "  Package Version: " << PACKAGE_VERSION);
 
   // Check if version is empty. If so, then the SCT cannot be built. 
   //This may or may not be intentional. We just issue an INFO message. 
-  if (sctVersionTag.empty()){ 
-     msg(MSG::INFO) <<  "No SCT Version. SCT_SLHC will not be built." << endmsg;
-  }else{
+  if (sctVersionTag.empty()) { 
+    ATH_MSG_INFO("No SCT Version. SCT_SLHC will not be built.");
+  } else {
     std::string versionName;
     std::string descrName="noDescr";
 
-    if(versionKey.custom()){
-      msg(MSG::WARNING) << "SCT_SLHC_DetectorTool:  Detector Information coming "
-	  <<"from a custom configuration!!" << endmsg;    
-    }else{
-      msg(MSG::DEBUG) <<"SCT_SLHC_DetectorTool:  Detector Information coming from the"
-		      <<" database and job options IGNORED." << endmsg;
-      msg(MSG::DEBUG) << "Keys for SCT Switches are "  << versionKey.tag()  
-		      << "  " << versionKey.node() << endmsg;
+    if (versionKey.custom()){
+      ATH_MSG_WARNING("SCT_SLHC_DetectorTool:  Detector Information coming "
+                      <<"from a custom configuration!!");
+    } else {
+      ATH_MSG_DEBUG("SCT_SLHC_DetectorTool:  Detector Information coming from the"
+                    <<" database and job options IGNORED.");
+      ATH_MSG_DEBUG("Keys for SCT Switches are "  << versionKey.tag()  
+                    << "  " << versionKey.node());
       IRDBRecordset_ptr switchSet = m_rdbAccessSvc->getRecordsetPtr("SctSwitches", versionKey.tag(), versionKey.node());
       const IRDBRecord    *switches   = (*switchSet)[0];
         
@@ -119,36 +119,26 @@ StatusCode SCT_SLHC_DetectorTool::create(){
   
     }
   
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "VersioName = " << versionName  << endmsg;
-   
+    ATH_MSG_DEBUG("VersioName = " << versionName);
 
     // Only build if versionName is "SLHC" or ForceBuild is true
 
     if (!m_forceBuild && versionName != "SLHC") {
 
-       msg(MSG::INFO) << "Not SLHC version. SCT_SLHC will not be built." << endmsg;
+      ATH_MSG_INFO("Not SLHC version. SCT_SLHC will not be built.");
 
     } else { // SLHC version requested.
       
-      msg(MSG::DEBUG) << "Creating the SCT (SLHC version)" << endmsg;
+      ATH_MSG_DEBUG("Creating the SCT (SLHC version)");
 
       // Create the SCT_DetectorFactory
       m_manager = 0;
       // Locate the top level experiment node  
-      GeoModelExperiment * theExpt; 
-      if (StatusCode::SUCCESS != detStore()->retrieve(theExpt, "ATLAS")){ 
-	msg(MSG::ERROR) 
-	  << "Could not find GeoModelExperiment ATLAS" 
-	  << endmsg; 
-	return (StatusCode::FAILURE); 
-      } 
+      GeoModelExperiment * theExpt = nullptr; 
+      ATH_CHECK(detStore()->retrieve(theExpt, "ATLAS")); 
 
       // Retrieve the Geometry DB Interface
-      sc = m_geometryDBSvc.retrieve();
-      if (sc.isFailure()) {
-	msg(MSG::FATAL) << "Could not locate Geometry DB Interface: " << m_geometryDBSvc.name() << endmsg;
-	return (StatusCode::FAILURE); 
-      }  
+      ATH_CHECK(m_geometryDBSvc.retrieve());
 
       // Pass athena services to factory, etc
       m_athenaComps = new InDetDDSLHC::SCT_GeoModelAthenaComps;
@@ -156,36 +146,31 @@ StatusCode SCT_SLHC_DetectorTool::create(){
       m_athenaComps->setGeoDbTagSvc(&*m_geoDbTagSvc);
       m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
       m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
-      m_athenaComps->setLorentzAngleSvc(m_lorentzAngleSvc);
+      m_athenaComps->setLorentzAngleTool(m_lorentzAngleTool.get());
 
-      const SCT_ID* idHelper;
-      if (detStore()->retrieve(idHelper, "SCT_ID").isFailure()) {
-	msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
-	return StatusCode::FAILURE;
-      } else {
-	m_athenaComps->setIdHelper(idHelper);
-      }
+      const SCT_ID* idHelper = nullptr;
+      ATH_CHECK(detStore()->retrieve(idHelper, "SCT_ID"));
+      m_athenaComps->setIdHelper(idHelper);
     
       //
       // LorentzAngleService
       //
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) 
-	<< "Lorentz angle service passed to InDetReadoutGeometry with name: " << m_lorentzAngleSvc.name() << endmsg;
+      ATH_MSG_DEBUG("Lorentz angle tool passed to InDetReadoutGeometry with name: " << m_lorentzAngleTool.name());
     
 
       // Service builder tool
       if (!m_serviceBuilderTool.empty()) {
-	sc = m_serviceBuilderTool.retrieve(); 
+	StatusCode sc = m_serviceBuilderTool.retrieve(); 
 	if (!sc.isFailure()) {
-	  msg(MSG::INFO) << "Service builder tool retrieved: " << m_serviceBuilderTool << endmsg;
+	  ATH_MSG_INFO("Service builder tool retrieved: " << m_serviceBuilderTool);
 	  m_athenaComps->setServiceBuilderTool(&*m_serviceBuilderTool);
 	} else {
-	  msg(MSG::ERROR) << "Could not retrieve " <<  m_serviceBuilderTool << ",  some services will not be built." << endmsg;
+	  ATH_MSG_ERROR("Could not retrieve " <<  m_serviceBuilderTool << ",  some services will not be built.");
 	}
       } else {
 	// This will become an error once the tool is ready.
-	//msg(MSG::ERROR) << "Service builder tool not specified. Some services will not be built" << endmsg;
-	msg(MSG::INFO) << "Service builder tool not specified." << endmsg; 
+	// ATH_MSG_ERROR("Service builder tool not specified. Some services will not be built");
+	ATH_MSG_INFO("Service builder tool not specified.");
       } 
 
 
@@ -195,52 +180,31 @@ StatusCode SCT_SLHC_DetectorTool::create(){
       InDetDDSLHC::SCT_Options options;
       options.setAlignable(m_alignable);
       InDetDDSLHC::SCT_DetectorFactory theSCT(m_athenaComps, options);
-      if(descrName.compare("TrackingGeometry")!=0)
-	theSCT.create(world);
-      else
-	msg(MSG::INFO) << "SCT_SLHC - TrackingGeometry tag - no geometry built" << endmsg; 
+      if(descrName.compare("TrackingGeometry")!=0) theSCT.create(world);
+      else ATH_MSG_INFO("SCT_SLHC - TrackingGeometry tag - no geometry built"); 
       m_manager = theSCT.getDetectorManager();
     
-      if (!m_manager) {
-	msg(MSG::ERROR) << "SCT_DetectorManager not created" << endmsg;
-	return( StatusCode::FAILURE );
+      if (m_manager==nullptr) {
+	ATH_MSG_ERROR("SCT_DetectorManager not created");
+	return StatusCode::FAILURE;
       }
     
       // Get the manager from the factory and store it in the detector store.
-      msg(MSG::DEBUG) << "Registering SCT_DetectorManager. " << endmsg;
-      result = detStore()->record(m_manager, m_manager->getName());
-      if (result.isFailure() ) {
-	msg(MSG::ERROR) << "Could not register SCT_DetectorManager" << endmsg;
-	return( StatusCode::FAILURE );
-      }
+      ATH_MSG_DEBUG("Registering SCT_DetectorManager. ");
+      ATH_CHECK(detStore()->record(m_manager, m_manager->getName()));
       theExpt->addManager(m_manager);
       // Create a symLink to the SiDetectorManager base class
       const SiDetectorManager * siDetManager = m_manager;
-      result = detStore()->symLink(m_manager, siDetManager);
-      if(result.isFailure()){
-	msg(MSG::ERROR) << "Could not make link between SCT_DetectorManager and "
-			<<"SiDetectorManager" << endmsg;
-	return( StatusCode::FAILURE );
-      } 
+      ATH_CHECK(detStore()->symLink(m_manager, siDetManager));
    
-
-      //
-      // LorentzAngleService
-      // We retrieve it to make sure it is initialized during geometry initialization.
-      //
-      if (!m_lorentzAngleSvc.empty()) {
-	sc = m_lorentzAngleSvc.retrieve();
-	if (!sc.isFailure()) {
-	  msg(MSG::INFO) << "Lorentz angle service retrieved: " << m_lorentzAngleSvc << endmsg;
-	} else {
-	  msg(MSG::INFO) << "Could not retrieve Lorentz angle service:" <<  m_lorentzAngleSvc << endmsg;
-	}
-      } else {
-	msg(MSG::INFO) << "Lorentz angle service not requested." << endmsg;
-      } 
+      // LorentzAngleTool
+      if (m_lorentzAngleTool.get()) {
+        // SCT_DetectorManager is not available at initialize of m_lorentzAngleTool
+        ATH_CHECK(m_lorentzAngleTool->retrieveDetectorManager());
+      }
     }  
   }
-  return result;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode 
@@ -249,7 +213,7 @@ SCT_SLHC_DetectorTool::clear()
   SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<InDetDD::SCT_DetectorManager>::ID(),m_manager->getName());
   if(proxy) {
     proxy->reset();
-    m_manager = 0;
+    m_manager = nullptr;
   }
   return StatusCode::SUCCESS;
 }

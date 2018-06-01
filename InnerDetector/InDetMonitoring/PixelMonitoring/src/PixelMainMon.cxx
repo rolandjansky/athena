@@ -34,8 +34,6 @@
 #include <sstream>
 #include <vector>
 
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
 #include "GaudiKernel/StatusCode.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
@@ -84,6 +82,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   declareProperty("SpacePointName", m_Pixel_SpacePointsName = "PixelSpacePoints");
   declareProperty("ClusterName", m_Pixel_SiClustersName = "PixelClusters");
   declareProperty("TrackName", m_TracksName = "Pixel_Cosmic_Tracks");
+  declareProperty("PixelBCIDName", m_PixelBCIDName = "PixelBCID");
 
   declareProperty("onTrack", m_doOnTrack = false);  // use inner detector tracks
   declareProperty("do2DMaps", m_do2DMaps = false);
@@ -136,10 +135,8 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_currentTime = 0;
   m_runNum = 0;
   m_idHelper = 0;
-  m_Pixel_clcontainer = 0;
-  m_Pixel_spcontainer = 0;
-  m_tracks = 0;
-
+  m_eventInfoKey = "ByteStreamEventInfo";
+  m_eventxAODInfoKey = "EventInfo";
   // Initalize all pointers for histograms
 
   // Event info
@@ -389,6 +386,13 @@ StatusCode PixelMainMon::initialize() {
   ATH_CHECK(ManagedMonitorToolBase::initialize());
   time(&m_startTime);  // mark time for start of run
 
+  ATH_CHECK(m_Pixel_RDOName.initialize());
+  ATH_CHECK(m_Pixel_SpacePointsName.initialize());
+  ATH_CHECK(m_Pixel_SiClustersName.initialize());
+  ATH_CHECK(m_TracksName.initialize());
+  ATH_CHECK(m_PixelBCIDName.initialize());
+  ATH_CHECK(m_eventInfoKey.initialize());
+  ATH_CHECK(m_eventxAODInfoKey.initialize());
   // Retrieve tools
   if (detStore()->retrieve(m_pixelid, "PixelID").isFailure()) {
     msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
@@ -561,14 +565,14 @@ StatusCode PixelMainMon::initialize() {
 }
 
 StatusCode PixelMainMon::bookHistograms() {
-  const EventInfo* thisEventInfo;
-  if (evtStore()->retrieve(thisEventInfo) != StatusCode::SUCCESS) {
+  auto thisEventInfo = SG::makeHandle(m_eventxAODInfoKey);
+  if(!(thisEventInfo.isValid())) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No EventInfo object found" << endmsg;
   } else {
-    m_lumiBlockNum = thisEventInfo->event_ID()->lumi_block();
+    m_lumiBlockNum = thisEventInfo->lumiBlock();
 
     if (m_doOnline) {
-      m_runNum = thisEventInfo->event_ID()->run_number();
+      m_runNum = thisEventInfo->runNumber();
       std::stringstream runNumStr;
       runNumStr << m_runNum;
       m_histTitleExt = " (Run " + runNumStr.str() + ")";
@@ -576,7 +580,7 @@ StatusCode PixelMainMon::bookHistograms() {
       m_histTitleExt = "";
     }
     if (!m_isFirstBook) {
-      m_firstBookTime = thisEventInfo->event_ID()->time_stamp();
+      m_firstBookTime = thisEventInfo->timeStamp();
       m_isFirstBook = true;
     }
   }
@@ -712,12 +716,12 @@ StatusCode PixelMainMon::fillHistograms() {
   m_event++;
   m_majorityDisabled = false;
 
-  const EventInfo* thisEventInfo;
-  if (evtStore()->retrieve(thisEventInfo) != StatusCode::SUCCESS) {
+  auto thisEventInfo = SG::makeHandle(m_eventxAODInfoKey);
+  if(!(thisEventInfo.isValid())) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No EventInfo object found" << endmsg;
   } else {
-    m_currentTime = thisEventInfo->event_ID()->time_stamp();
-    m_currentBCID = thisEventInfo->event_ID()->bunch_crossing_id();
+    m_currentTime = thisEventInfo->timeStamp();
+    m_currentBCID = thisEventInfo->bcid();
     unsigned int currentdiff = (m_currentTime - m_firstBookTime) / 100;
     unsigned int currentdiff5min = (m_currentTime - m_firstBookTime) / 300;
     // for 100 sec
@@ -779,7 +783,7 @@ StatusCode PixelMainMon::fillHistograms() {
 
   // track
   if (m_doTrack) {
-    if (evtStore()->contains<TrackCollection>(m_TracksName)) {
+    if (evtStore()->contains<TrackCollection>(m_TracksName.key())) {
       if (fillTrackMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
       }
@@ -792,7 +796,7 @@ StatusCode PixelMainMon::fillHistograms() {
 
   // hits
   if (m_doRDO) {
-    if (evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName)) {
+    if (evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName.key())) {
       if (fillHitsMon().isFailure()) {
         if (msgLvl(MSG::INFO)) {
           msg(MSG::INFO) << "Could not fill histograms" << endmsg;
@@ -817,7 +821,7 @@ StatusCode PixelMainMon::fillHistograms() {
 
   // cluster
   if (m_doCluster) {
-    if (evtStore()->contains<InDet::PixelClusterContainer>(m_Pixel_SiClustersName)) {
+    if (evtStore()->contains<InDet::PixelClusterContainer>(m_Pixel_SiClustersName.key())) {
       if (fillClustersMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
       }
@@ -830,7 +834,7 @@ StatusCode PixelMainMon::fillHistograms() {
 
   // space point
   if (m_doSpacePoint) {
-    if (evtStore()->contains<SpacePointContainer>(m_Pixel_SpacePointsName)) {
+    if (evtStore()->contains<SpacePointContainer>(m_Pixel_SpacePointsName.key())) {
       if (fillSpacePointMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
       }

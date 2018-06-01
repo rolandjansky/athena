@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoModel/GeoPixelRingSLHC.h"
@@ -18,28 +18,16 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include <string>
+//#include <string>
 #include <sstream>
-using std::string;
+//using std::string;
 
-#include <iostream>
-using std::cout;
-using std::cerr;
-using std::endl;
-using std::abs;
+//#include <iostream>
 
 GeoPixelRingSLHC::GeoPixelRingSLHC(GeoPixelSiCrystal& sensor)
   : m_sensor(sensor)
 {
-  //   
-  // Dimensions from class methods
-  //
-  double rmin = m_gmt_mgr->PixelRingRMin(); // Default is 0.01 CLHEP::mm saftey added
-  double rmax = m_gmt_mgr->PixelRingRMax(); // Default is 0.01 CLHEP::mm saftey added
-  double halflength = m_gmt_mgr->PixelRingThickness()/2.;
-  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
-  const GeoTube* ringTube = new GeoTube(rmin,rmax,halflength);
-  m_ringLog = new GeoLogVol("ringLog",ringTube,air);
+  //nop, code moved to build to prevent leak (coverity 115114)
 }
 
 
@@ -51,11 +39,19 @@ GeoPixelRingSLHC::GeoPixelRingSLHC(GeoPixelSiCrystal& sensor)
 // Place the ring sectors (on both sides)
 //
 GeoVPhysVol* GeoPixelRingSLHC::Build() {
-
+  //(sar) Original block was in c'tor...
+  // Dimensions from class methods
+  //
+  double rmin = m_gmt_mgr->PixelRingRMin(); // Default is 0.01 CLHEP::mm safety added
+  double rmax = m_gmt_mgr->PixelRingRMax(); // Default is 0.01 CLHEP::mm safety added
+  double halflength = m_gmt_mgr->PixelRingThickness()/2.;
+  const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
+  const GeoTube* ringTube = new GeoTube(rmin,rmax,halflength);
+  GeoLogVol * ringLog = new GeoLogVol("ringLog",ringTube,air);
+  //(sar)... until here
+  
   GeoPixelModule gpmod(m_sensor);
-
-  GeoFullPhysVol* ringPhys = new GeoFullPhysVol(m_ringLog);
-
+  GeoFullPhysVol* ringPhys = new GeoFullPhysVol(ringLog);
   int idisk = m_gmt_mgr->GetLD();
   int iring = m_gmt_mgr->Eta();
   int nmodules = m_gmt_mgr->PixelDiskRingNModules();
@@ -69,7 +65,7 @@ GeoVPhysVol* GeoPixelRingSLHC::Build() {
   // This is the start angle of the even modules
   // Start angle could eventually come from the database...
   // double startAngle = m_gmt_mgr->PixelECStartPhi();
-  double startAngle = deltaPhi/2.;
+  double startAngle = deltaPhi*0.5;
 
   // This is the radius of the center of the active sensor (also center of the module)
   double moduleRadius = m_gmt_mgr->PixelRingRcenter();
@@ -103,12 +99,6 @@ GeoVPhysVol* GeoPixelRingSLHC::Build() {
 
     double angle = imod*deltaPhi+startAngle;
 
-//     cout<<"GPRing: disk="<< idisk<<" ring="<< iring <<" nmods="<< nmodules
-// 	<<", imod="<< imod <<", phiId="<< phiId
-// 	<<", angle="<< angle
-// 	<<" diskSide="<< (m_gmt_mgr->isAside() ? 'A' : 'C')
-// 	<<" diskFace="<< (m_gmt_mgr->isDiskFront()?"front":"back")
-// 	<< endl;
 
     CLHEP::HepRotation rm;
     rm.rotateY(90*CLHEP::deg);
@@ -128,7 +118,6 @@ GeoVPhysVol* GeoPixelRingSLHC::Build() {
 
     // Now store the xform by identifier:
     Identifier id = m_sensor.getID();
-//     PixelID* ppp = m_DDmgr->getIdHelper();
     m_DDmgr->addAlignableTransform(0,id,xform,modulePhys);
   }
 

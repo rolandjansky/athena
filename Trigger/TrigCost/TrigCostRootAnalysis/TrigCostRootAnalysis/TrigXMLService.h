@@ -69,7 +69,6 @@ namespace TrigCostRootAnalysis {
     Int_t getOnlineEventsInLB(Int_t lb);
 
     void parseHLTFarmXML();
-    const IntStringMap_t& getComputerTypeToNameMap() {return m_computerTypeToNameMap;}
     UInt_t getComputerType(UInt_t hash);
   private:
     void parseRunXML(const Int_t runNumber, const Bool_t primaryRun);
@@ -161,7 +160,6 @@ namespace TrigCostRootAnalysis {
 
     // For decoding a PUs location in the farm
     UIntUIntMap_t m_PUHashToPUType; //!< Map of a PU's HASH to it's processor type
-    IntStringMap_t m_computerTypeToNameMap; //!< Map of a processor type to its name
     UInt_t m_computerUnknownID; //!< ID of the "UNKNOWN" type
 
     Float_t m_loadedDeadtime; //!< Currently loaded deadtime from run XML (will change with time if doing MultiRun)

@@ -18,8 +18,6 @@
 
 #include "TrigHLTJetRec/ITriggerPseudoJetGetter2.h"
 #include "JetRec/PseudoJetContainer.h"
-// #include "JetRec/PseudoJetGetter.h"
-// #include "JetEDM/PseudoJetVector.h"
 #include "xAODJet/JetContainerInfo.h"
 #include "AsgTools/AsgTool.h"
 #include <string>
@@ -49,7 +47,7 @@ class TriggerPseudoJetGetter2: virtual public ITriggerPseudoJetGetter2,
   virtual std::string label() const override;
 
   // methods not relevant for the trigger - use will give a runtime error.
-  // virtual StatusCode createAndRecord() const override;
+  virtual StatusCode createAndRecord() const override;
 
   virtual int 
     outputContainerNames(std::vector<std::string>& connames) override;

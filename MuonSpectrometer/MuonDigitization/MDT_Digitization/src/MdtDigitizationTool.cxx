@@ -29,13 +29,6 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-//Inputs
-#include "MuonSimData/MuonSimDataCollection.h"
-#include "MuonSimData/MuonSimData.h"
-
-//Outputs
-#include "MuonDigitContainer/MdtDigitContainer.h"
-
 //MDT digitization includes
 #include "MDT_Digitization/MdtDigitizationTool.h"
 #include "MDT_Digitization/IMDT_DigitizationTool.h"
@@ -76,8 +69,6 @@ static constexpr unsigned int crazyParticleBarcode(
 
 MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID)
   : PileUpToolBase(type, name, pIID)
-  , m_digitContainer(0)
-  , m_sdoContainer(0)
   , m_idHelper(0)
   , m_muonHelper(0)
   , m_MuonGeoMgr(0)
@@ -89,7 +80,6 @@ MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::stri
   , m_BMGid(-1)
   , m_mergeSvc(0)
   , m_inputObjectName("")
-  , m_outputObjectName("")
   , m_rndmSvc("AtRndmGenSvc", name )
   , m_rndmEngine(0)
   , m_rndmEngineName("MuonDigitization")
@@ -118,8 +108,6 @@ MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::stri
   declareProperty("SignalSpeed",         m_signalSpeed         =  299.792458, "Light speed" );
   //Object names		          
   declareProperty("InputObjectName",     m_inputObjectName     =  "MDT_Hits");
-  declareProperty("OutputObjectName",    m_outputObjectName    =  "MDT_DIGITS");
-  declareProperty("OutputSDOName",       m_outputSDOName       =  "MDT_SDO");
   //Corrections		          
   declareProperty("UseAttenuation",      m_useAttenuation      =  false);
   declareProperty("UseTof",              m_useTof              =  true,       "Option for the tof calculation");
@@ -176,8 +164,8 @@ StatusCode MdtDigitizationTool::initialize() {
   ATH_MSG_INFO ( "ResolutionTDC          " << m_resTDC              );
   ATH_MSG_INFO ( "SignalSpeed            " << m_signalSpeed         );
   ATH_MSG_INFO ( "InputObjectName        " << m_inputObjectName     );
-  ATH_MSG_INFO ( "OutputObjectName       " << m_outputObjectName    );
-  ATH_MSG_INFO ( "OutputSDOName          " << m_outputSDOName       );
+  ATH_MSG_INFO ( "OutputObjectName       " << m_outputObjectKey.key());
+  ATH_MSG_INFO ( "OutputSDOName          " << m_outputSDOKey.key()  );
   ATH_MSG_INFO ( "UseAttenuation         " << m_useAttenuation      );
   ATH_MSG_INFO ( "UseTof                 " << m_useTof              );
   ATH_MSG_INFO ( "UseProp                " << m_useProp             );
@@ -237,26 +225,12 @@ StatusCode MdtDigitizationTool::initialize() {
   else {
     ATH_MSG_DEBUG ( "Input objects: '" << m_inputObjectName << "'" );
   }
-  
-  // check the output object name
-  if (m_outputObjectName=="") {
-    ATH_MSG_FATAL ( "Property OutputObjectName not set !" );
-    return StatusCode::FAILURE;
-  } 
-  else {
-    ATH_MSG_DEBUG ( "Output digits: '" << m_outputObjectName << "'" );
-  }
-  
-  //initialize the digit container  
-  try{
-    m_digitContainer = new MdtDigitContainer(m_idHelper->module_hash_max());
-  } 
-  catch(const std::bad_alloc&){
-    ATH_MSG_FATAL ( "Could not create a new MdtDigitContainer!" );
-    return StatusCode::FAILURE;
-  }
-  m_digitContainer->addRef();
-  
+
+  //initialize the output WriteHandleKeys
+  ATH_CHECK(m_outputObjectKey.initialize());
+  ATH_CHECK(m_outputSDOKey.initialize());
+  ATH_MSG_DEBUG ( "Output Digits: '" << m_outputObjectKey.key() << "'" );
+
   //simulation identifier helper	
   m_muonHelper = MdtHitIdHelper::GetHelper();
   
@@ -449,33 +423,24 @@ StatusCode MdtDigitizationTool::getNextEvent()
 
 StatusCode MdtDigitizationTool::mergeEvent() {
 
-  StatusCode status = StatusCode::SUCCESS;
-
   ATH_MSG_DEBUG ( "MdtDigitizationTool::in mergeEvent()" );
 
-  // Cleanup and record the Digit container in StoreGate
-  m_digitContainer->cleanup();
-  status = evtStore()->record(m_digitContainer,m_outputObjectName);
-  if (status.isFailure())  {
-    ATH_MSG_ERROR ( "Unable to record MDT digit container in StoreGate" );
-    return status;
-  }
+  // create and record the Digit container in StoreGate
+  SG::WriteHandle<MdtDigitContainer> digitContainer(m_outputObjectKey);
+  ATH_CHECK(digitContainer.record(std::make_unique<MdtDigitContainer>(m_idHelper->module_hash_max())));
   ATH_MSG_DEBUG ( "MdtDigitContainer recorded in StoreGate." );
-  
-  // Create and record the SDO container in StoreGate
-  m_sdoContainer = new MuonSimDataCollection();
-  status = evtStore()->record(m_sdoContainer,m_outputSDOName);
-  if (status.isFailure())  {
-    ATH_MSG_ERROR ( "Unable to record MDT SDO collection in StoreGate" );
-    return status;
-  }
+
+  // create and record the SDO container in StoreGate
+  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDOKey);
+  ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
   ATH_MSG_DEBUG ( "MdtSDOCollection recorded in StoreGate." );
-  
-  status = doDigitization();
+
+  StatusCode status = doDigitization(digitContainer.ptr(), sdoContainer.ptr());
   if (status.isFailure())  {
     ATH_MSG_ERROR ( "doDigitization Failed" );
   }
 
+  // Clean-up
   std::list<MDTSimHitCollection*>::iterator MDTHitColl = m_MDTHitCollList.begin();
   std::list<MDTSimHitCollection*>::iterator MDTHitCollEnd = m_MDTHitCollList.end();
   while(MDTHitColl!=MDTHitCollEnd) {
@@ -494,29 +459,20 @@ StatusCode MdtDigitizationTool::digitize() {
 
 
 StatusCode MdtDigitizationTool::processAllSubEvents() {
-    
-  StatusCode status = StatusCode::SUCCESS;
-  
+
   ATH_MSG_DEBUG ( "MdtDigitizationTool::processAllSubEvents()" );
 
-  // Cleanup and record the Digit container in StoreGate
-  m_digitContainer->cleanup();
-  status = evtStore()->record(m_digitContainer, m_outputObjectName);
-  if (status.isFailure())  {
-    ATH_MSG_ERROR ( "Unable to record MDT digit container in StoreGate" );
-    return status;
-  }
+  // create and record the Digit container in StoreGate
+  SG::WriteHandle<MdtDigitContainer> digitContainer(m_outputObjectKey);
+  ATH_CHECK(digitContainer.record(std::make_unique<MdtDigitContainer>(m_idHelper->module_hash_max())));
   ATH_MSG_DEBUG ( "MdtDigitContainer recorded in StoreGate." );
 
-  // Create and record the SDO container in StoreGate
-  m_sdoContainer = new MuonSimDataCollection();
-  status = evtStore()->record(m_sdoContainer,m_outputSDOName);
-  if (status.isFailure())  {
-    ATH_MSG_ERROR ( "Unable to record MDT SDO collection in StoreGate" );
-    return status;
-  }
+  // create and record the SDO container in StoreGate
+  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDOKey);
+  ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
   ATH_MSG_DEBUG ( "MdtSDOCollection recorded in StoreGate." );
 
+  StatusCode status = StatusCode::SUCCESS;
   if (0 == m_thpcMDT ) {
     status = getNextEvent();
     if (StatusCode::FAILURE == status) {
@@ -525,16 +481,13 @@ StatusCode MdtDigitizationTool::processAllSubEvents() {
     }
   }
 
-  status = doDigitization();
-  if (status.isFailure())  {
-    ATH_MSG_ERROR ( "doDigitization Failed" );
-  }
+  ATH_CHECK(doDigitization(digitContainer.ptr(), sdoContainer.ptr()));
 
   return status;
 }
 
 
-StatusCode MdtDigitizationTool::doDigitization() {
+StatusCode MdtDigitizationTool::doDigitization(MdtDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer) {
   
   //Get the list of dead/missing chambers and cache it
   if ( m_UseDeadChamberSvc ) { 
@@ -568,7 +521,7 @@ StatusCode MdtDigitizationTool::doDigitization() {
   }
 
   //loop over drift time map entries, convert to tdc value and construct/store the digit
-  createDigits();
+  createDigits(digitContainer, sdoContainer);
   
   // reset hits
   m_hits.clear();
@@ -942,7 +895,7 @@ bool MdtDigitizationTool::checkMDTSimHit(const MDTSimHit& hit) const {
 }
 
 
-bool MdtDigitizationTool::createDigits(){
+bool MdtDigitizationTool::createDigits(MdtDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer) {
 
   Identifier currentDigitId;
   Identifier currentElementId;
@@ -975,7 +928,7 @@ bool MdtDigitizationTool::createDigits(){
     //Check if we are in a new chamber, if so get the DigitCollection
     if(elementId != currentElementId) {
       currentElementId = elementId;
-      digitCollection = getDigitCollection(elementId);
+      digitCollection = getDigitCollection(elementId, digitContainer);
       
       //+ForCosmics
       //this offset emulates the time jitter of cosmic ray muons w.r.t LVL1 accept 
@@ -1077,7 +1030,7 @@ bool MdtDigitizationTool::createDigits(){
       Amg::Vector3D p = geo->localToGlobalCoords(tempLocPos,idDigit);
       tempSDO.setPosition(p); 
       tempSDO.setTime( hitTime(phit) );
-      m_sdoContainer->insert ( std::make_pair ( idDigit, tempSDO ) );
+      sdoContainer->insert ( std::make_pair ( idDigit, tempSDO ) );
 	
     } else {
       ATH_MSG_DEBUG( "  >> OUTSIDE TIME WINDOWS << "<< " Digit Id = " << m_idHelper->show_to_string(idDigit) << " driftTime " << driftTime << " --> hit ignored");
@@ -1088,7 +1041,7 @@ bool MdtDigitizationTool::createDigits(){
 }
 
 
-MdtDigitCollection* MdtDigitizationTool::getDigitCollection(Identifier elementId){
+MdtDigitCollection* MdtDigitizationTool::getDigitCollection(Identifier elementId, MdtDigitContainer* digitContainer){
   MdtDigitCollection*      digitCollection;
   
   IdContext mdtContext = m_idHelper->module_context();
@@ -1103,10 +1056,10 @@ MdtDigitCollection* MdtDigitizationTool::getDigitCollection(Identifier elementId
   
   StatusCode status;
   // Get the messaging service, print where you are
-  MdtDigitContainer::const_iterator it_coll = m_digitContainer->indexFind(coll_hash);
-  if (m_digitContainer->end() ==  it_coll) {
+  MdtDigitContainer::const_iterator it_coll = digitContainer->indexFind(coll_hash);
+  if (digitContainer->end() ==  it_coll) {
     digitCollection = new MdtDigitCollection(elementId, coll_hash);
-    status = m_digitContainer->addCollection(digitCollection, coll_hash);
+    status = digitContainer->addCollection(digitCollection, coll_hash);
     if (status.isFailure())
       ATH_MSG_ERROR ( "Couldn't record MdtDigitCollection with key=" << coll_hash  << " in StoreGate!" );
     else
@@ -1276,13 +1229,4 @@ MdtDigitizationTool::GeoCorOut MdtDigitizationTool::correctGeometricalWireSag( c
   double sign = lpos.dot(lgravDir) < 0 ? -1. : 1.;
   
   return GeoCorOut( sign, trackingSign, lpos , localSag);
-}
-
-
-StatusCode MdtDigitizationTool::finalize() {
-  
-  ATH_MSG_DEBUG ( "Finalize.");
-  m_digitContainer->release();
-  
-  return StatusCode::SUCCESS;
 }

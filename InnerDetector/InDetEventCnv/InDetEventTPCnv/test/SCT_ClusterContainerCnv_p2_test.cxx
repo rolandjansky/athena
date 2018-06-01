@@ -86,10 +86,11 @@ void compare (const InDet::SCT_ClusterContainer& p1,
 }
 
 
-void testit (const InDet::SCT_ClusterContainer& trans1)
+void testit (const InDet::SCT_ClusterContainer& trans1, const SCT_ID& sct_id)
 {
   MsgStream log (0, "test");
   SCT_ClusterContainerCnv_p2 cnv;
+  cnv.setIdHelper(&sct_id);
   InDet::SCT_ClusterContainer_p2 pers;
   cnv.transToPers (&trans1, &pers, log);
   std::unique_ptr<InDet::SCT_ClusterContainer> trans2
@@ -148,13 +149,13 @@ void test1(const SCT_ID& sct_id)
   {
     // Do it once without leak checking to get services initialized.
     std::unique_ptr<const InDet::SCT_ClusterContainer> cont = makeclusts(sct_id);
-    testit (*cont);
+    testit (*cont, sct_id);
   }
 
   // And again with leak checking.
   Athena_test::Leakcheck check;
   std::unique_ptr<const InDet::SCT_ClusterContainer> cont = makeclusts(sct_id);
-  testit (*cont);
+  testit (*cont, sct_id);
 }
 
 

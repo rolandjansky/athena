@@ -28,7 +28,10 @@ class TriggerJetGroomerTool :
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 
-  virtual xAOD::JetContainer* groom(const xAOD::JetContainer*) const override;
+  virtual xAOD::JetContainer* groom(const xAOD::JetContainer*,
+                                    const PseudoJetContainer& pjContainer
+                                    ) const override;
+
 private:
   
   ToolHandle<IJetGroomer> m_groomer;

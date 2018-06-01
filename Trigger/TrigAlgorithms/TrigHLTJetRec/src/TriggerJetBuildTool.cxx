@@ -8,17 +8,15 @@
 // string->inputtype
 #include "xAODJet/JetContainerInfo.h"
 
-// #include "xAODJet/JetAuxContainer.h"
 #include "xAODJet/JetTrigAuxContainer.h"
 #include "JetRec/PseudoJetContainer.h"
 #include "TrigHLTJetRec/PseudoJetCreatorFunctions.h"
 #include "JetRec/IParticleExtractor.h"
-// #include "JetRec/constituentsDEBUG.h"  // DEBUG REMOVE ME
+#include "fastjet/PseudoJet.hh"
 #include <string>
 #include <sstream>
 
-#include "JetEDM/JetConstituentFiller.h"  // DEBUG FIXME
-
+using fastjet::PseudoJet;
 using xAOD::JetContainer;
 
 //**********************************************************************
@@ -27,7 +25,6 @@ TriggerJetBuildTool::TriggerJetBuildTool(const std::string& name):
   declareProperty("JetFinder", m_finder);
   declareProperty("JetModifiers", m_modifiers);
   declareProperty("NoNegE", m_noNegE);
-  // declareProperty("label", m_label);
   declareProperty("concrete_type", m_concreteTypeStr);
   declareProperty("iParticleRejecter", m_iParticleRejecter);
 }
@@ -38,13 +35,8 @@ StatusCode TriggerJetBuildTool::initialize() {
   ATH_MSG_INFO("Initializing TriggerJetBuildTool " << name() << ".");
 
   bool modsOK{true};
-  // m_inputType = xAOD::JetInput::inputType(m_label); 
   m_concreteType = xAOD::JetInput::inputType(m_concreteTypeStr); 
   
-  // PS Modifiers: need to undrestand if modifiers are needed.
-  // if so - how to handle calls to inputContainerNames and
-  // setPseudojetRetriever
-
   // Fetch the IParticleRejecter tool.
   if (m_iParticleRejecter.retrieve().isSuccess()) {
     ATH_MSG_INFO("Retrieved IParticle rejecter "
@@ -67,10 +59,6 @@ StatusCode TriggerJetBuildTool::initialize() {
       modsOK = false;
     }
 
-    // note - no calls to inPutContainer or setPseudoJetRetriever
-    // use dummy defaults
-    // hmod->inputContainerNames(m_incolls);
-    // hmod->setPseudojetRetriever(m_ppjr);
   }
 
   return modsOK ? StatusCode::SUCCESS : StatusCode::FAILURE;
@@ -85,13 +73,13 @@ StatusCode TriggerJetBuildTool::finalize() {
 
 //**********************************************************************
 
-const JetContainer* TriggerJetBuildTool::build() const {
+int TriggerJetBuildTool::build(ClusterSequence*& pcs,
+                               JetContainer*& pjets) const {
   ATH_MSG_DEBUG("Entering build...");
 
   // Make a new empty jet collection to write to.
-  JetContainer* pjets = new JetContainer;
+  pjets = new JetContainer;
   pjets->setStore(new xAOD::JetTrigAuxContainer);
-  // pjets->setStore(new xAOD::JetAuxContainer);
 
   ATH_MSG_DEBUG("Created jet container, set aux container...");
 
@@ -101,8 +89,13 @@ const JetContainer* TriggerJetBuildTool::build() const {
   ATH_MSG_DEBUG("Obtained PseudojetContainer with "
                 << (ppseudoJetContainer->casVectorPseudoJet())->size()
                 << " pseudojets");
-  
-  m_finder->findNoSave(*ppseudoJetContainer, *pjets, m_concreteType);
+
+  // fastjet::ClusterSequence* pcs = nullptr;
+  int ret = m_finder->findNoSave(*ppseudoJetContainer,
+                                 *pjets,
+                                 m_concreteType,
+                                 pcs);
+  if(ret != 0){return ret;}
 
   ATH_MSG_DEBUG(pjets->size() 
                 << " jets reonstructed from " 
@@ -110,19 +103,9 @@ const JetContainer* TriggerJetBuildTool::build() const {
                 <<" inputs");
 
 
-  for(const xAOD::Jet* j : *pjets){
-    ATH_MSG_DEBUG("no of constituents "
-                  << (j->getConstituents()).size()
-                  << " " << j->numConstituents()
-                  << " no of pseudojet constituents "
-                  << (jet::JetConstituentFiller::constituentPseudoJets(*j)).size()
-                  <<'\n');
-  }
-  
-
-  ATH_MSG_DEBUG(ppseudoJetContainer->toString(1, 1));
+  ATH_MSG_DEBUG(ppseudoJetContainer->toString(2, 1));
  
-  if (pjets->empty()) {return pjets;}
+  if (pjets->empty()) {return 0;}
 
   
   ATH_MSG_DEBUG("Executing " << m_modifiers.size() << " jet modifiers.");
@@ -144,7 +127,7 @@ const JetContainer* TriggerJetBuildTool::build() const {
   }
 
   ATH_MSG_DEBUG("Exiting build...");
-  return pjets;
+  return 0;
 
 }
 
@@ -167,7 +150,7 @@ void TriggerJetBuildTool::prime(const xAOD::IParticleContainer* inputs){
   
   ATH_MSG_DEBUG("No of IParticle inputs: " << inputs->size());
   for(const auto& ip : *inputs){
-    ATH_MSG_VERBOSE("PseudoJetInputDump " 
+    ATH_MSG_VERBOSE("prime() PseudoJetInputDump" 
                     << ip->e() 
                     << " "
                     <<xAOD::JetInput::typeName(m_concreteType)
@@ -175,17 +158,7 @@ void TriggerJetBuildTool::prime(const xAOD::IParticleContainer* inputs){
                     << m_concreteTypeStr);
   }
   
-  /*  DEBUG FIXEME remove the following commented out code
-  constexpr bool noRejection = true;
   std::vector<PseudoJet> vpj = 
-    PseudoJetCreatorFunctions::createPseudoJets(inputs, 
-                                                m_concreteType, 
-                                                m_noNegE,
-                                                noRejection
-                                                );
-  */
-  
-  std::vector<fastjet::PseudoJet> vpj = 
     PseudoJetCreatorFunctions::createPseudoJets(inputs, 
                                                 m_concreteType,
                                                 m_iParticleRejecter
@@ -193,8 +166,8 @@ void TriggerJetBuildTool::prime(const xAOD::IParticleContainer* inputs){
   
   ATH_MSG_DEBUG("No of pseudojets: " << vpj.size());
   for(const auto& pj : vpj){
-    ATH_MSG_VERBOSE("PseudoJetDump " 
-                    << pj.Et() 
+    ATH_MSG_VERBOSE("prime() PseudoJetDump. index" << " " << pj.user_index()
+                    << " E " << pj.E() 
                     << " "
                     <<xAOD::JetInput::typeName(m_concreteType));
   }

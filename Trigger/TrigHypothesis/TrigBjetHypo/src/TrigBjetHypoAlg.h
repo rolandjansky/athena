@@ -37,14 +37,13 @@ class TrigBjetHypoAlg
  
  private: 
   TrigBjetHypoAlg();
-  ToolHandleArray< TrigBjetHypoTool > m_hypoTools;
+  ToolHandleArray< TrigBjetHypoTool > m_hypoTools {this,"HypoTools",{},"Hypo Tools"};
 
-  // ----->>>>>>>
-  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roisKey;
-  SG::ReadHandleKey< xAOD::BTaggingContainer> m_bTagKey;
-  SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_decisionsKey;
- 
+ private:
+  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roisKey {this,"RoIsKey","RoIs","Key for RoIs"};
+  SG::ReadHandleKey< xAOD::BTaggingContainer> m_bTagKey {this,"BTaggingKey","BTagging","Key for BTagging"};
+
+  SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_decisionsKey {this,"DecisionsKey","BjetHypoDecisions","Output key for Btag Kypo Decisions"};
 }; 
-
 
 #endif //> !TRIGBJETHYPO_TRIGBJETHYPOALG_H

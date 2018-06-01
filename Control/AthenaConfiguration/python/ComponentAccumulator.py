@@ -208,7 +208,7 @@ class ComponentAccumulator(object):
                             else:
                                 #self._msg.error("component '%s' defined multiple times with mismatching configuration", svcs[i].getJobOptName())
                                 raise DeduplicationFailed("component '%s' defined multiple times with mismatching property %s" % \
-                                                                  comp.getJobOptName(),prop)
+                                                                  (comp.getJobOptName(),str(prop)))
                             pass 
                             #end if prop-mismatch
                         pass
@@ -369,7 +369,7 @@ class ComponentAccumulator(object):
         #The client is supposed to grab the private tools and attach 
         #them to their parent component
         self._privateTools=retval._privateTools
-        return
+        return self._privateTools
 
 
     def appendConfigurable(self,confElem):

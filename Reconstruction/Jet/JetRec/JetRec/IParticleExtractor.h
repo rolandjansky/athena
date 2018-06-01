@@ -36,7 +36,7 @@ private:
   const xAOD::IParticleContainer* m_iParticles;
   std::string m_label;
   bool m_isGhost; 
-  bool m_debug{true};
+  bool m_debug{false};
   bool m_isTrigger{false};
 };
 

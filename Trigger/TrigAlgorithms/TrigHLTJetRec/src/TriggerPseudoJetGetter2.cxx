@@ -9,8 +9,6 @@
 //
 //
 // ********************************************************************
-// #include "GaudiKernel/StatusCode.h"
-// #include "GaudiKernel/ToolFactory.h"
 #include "TrigHLTJetRec/TriggerPseudoJetGetter2.h"
 #include "TrigHLTJetRec/PseudoJetCreatorFunctions.h"
 #include "JetRec/IParticleExtractor.h"
@@ -72,11 +70,13 @@ void TriggerPseudoJetGetter2::print() const {
 std::string TriggerPseudoJetGetter2::label() const { return m_label;}
 
 
-// StatusCode TriggerPseudoJetGetter2::createAndRecord() const{
-//   return StatusCode::FAILURE;
-// }
+StatusCode TriggerPseudoJetGetter2::createAndRecord() const{
+  ATH_MSG_WARNING("Trigger: createAndRecord() does nothing");
+  return StatusCode::SUCCESS;
+}
 
 int TriggerPseudoJetGetter2::outputContainerNames(std::vector<std::string>&) {
+
   return 1;
 }
 

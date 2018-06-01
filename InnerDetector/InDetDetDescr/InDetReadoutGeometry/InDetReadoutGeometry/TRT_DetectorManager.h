@@ -20,6 +20,7 @@
 #include "InDetIdentifier/TRT_ID.h"
 #include "GeoModelKernel/GeoXF.h"
 #include "AthenaKernel/IIOVSvc.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "CLHEP/Geometry/Transform3D.h"
 

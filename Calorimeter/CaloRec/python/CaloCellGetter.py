@@ -100,9 +100,6 @@ class CaloCellGetter (Configured)  :
 
                 if jobproperties.CaloCellFlags.doLArCreateMissingCells():
                     theLArCellBuilder.addDeadOTX = True
-                    from LArBadChannelTool.LArBadFebAccess import LArBadFebAccess
-                    LArBadFebAccess()
-                    #theLArCellBuilder.MissingFebKey = 
 
                 # add the tool to list of tool ( should use ToolHandle eventually) 
                 theCaloCellMaker += theLArCellBuilder
@@ -352,7 +349,6 @@ class CaloCellGetter (Configured)  :
                     mlog.error("could not access bad channel tool Quit")
                     print traceback.format_exc()
                     return False
-                theLArSporadicNoiseMasker.TheLArBadChanTool = theLArBadChannelTool
                 theLArSporadicNoiseMasker.DoMasking = True
                 theLArSporadicNoiseMasker.ProblemsToMask = ["sporadicBurstNoise"]
                 ToolSvc += theLArSporadicNoiseMasker
@@ -366,7 +362,6 @@ class CaloCellGetter (Configured)  :
                     mlog.error("could not access bad channel tool Quit")
                     print traceback.format_exc()
                     return False
-                theLArNoiseMasker.TheLArBadChanTool = theLArBadChannelTool
                 theLArNoiseMasker.DoMasking=True
                 theLArNoiseMasker.ProblemsToMask= ["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"]
                 ToolSvc+=theLArNoiseMasker
@@ -753,8 +748,10 @@ class CaloCellGetter (Configured)  :
 
         # register output in objKeyStore
         from RecExConfig.ObjKeyStore import objKeyStore
-
         objKeyStore.addStreamESD(self.outputType(),self.outputKey())
+
+        # Also note that we produce it as a transient output.
+        objKeyStore.addTransient (self.outputType(),self.outputKey())
 
 
         

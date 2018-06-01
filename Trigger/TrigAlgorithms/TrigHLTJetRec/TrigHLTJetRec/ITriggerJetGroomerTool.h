@@ -13,12 +13,17 @@
 /// ITriggerJetGroomerTool is a dual-use tool interface for a tool
 /// that grooms a jet collection in the trigger environment
 
+
+class PseudoJetContainer;
+
 class ITriggerJetGroomerTool: virtual public asg::IAsgTool {
   ASG_TOOL_INTERFACE(ITriggerJetGroomerTool)
 
  public:
   virtual ~ITriggerJetGroomerTool() {};
-  virtual xAOD::JetContainer* groom(const xAOD::JetContainer* in) const = 0;
+  virtual xAOD::JetContainer* groom(const xAOD::JetContainer* in,
+                                    const PseudoJetContainer& pjContainer
+                                    ) const = 0;
 };
 
 #endif

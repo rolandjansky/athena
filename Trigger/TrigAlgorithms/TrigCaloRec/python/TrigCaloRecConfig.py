@@ -503,8 +503,6 @@ class TrigCaloTowerMaker_jet (TrigCaloTowerMakerBase):
 
         tilecmbtwrbldr = TileTowerBuilderTool("TileCmbTwrBldr",
                                               CellContainerName = "RoIEMCalo",
-                                              DumpTowers        = FALSE,
-                                              DumpWeightMap     = FALSE
                                               )
         #tilecmbtwrbldr.CellContainerName = "RoIEMCalo"
         #tilecmbtwrbldr.DumpTowers        = FALSE

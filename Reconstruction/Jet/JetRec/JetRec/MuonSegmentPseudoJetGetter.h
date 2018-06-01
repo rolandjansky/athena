@@ -35,7 +35,9 @@
 #include "fastjet/PseudoJet.hh"
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "JetEDM/PseudoJetVector.h"
-#include "JetEDM/LabelIndex.h"
+#include "JetRec/PseudoJetContainer.h"
+
+using fastjet::PseudoJet;
 
 class MuonSegmentPseudoJetGetter
 :  public asg::AsgTool,
@@ -44,7 +46,6 @@ class MuonSegmentPseudoJetGetter
 
 public:
 
-  typedef jet::LabelIndex LabelIndex;
   typedef jet::PseudoJetVector PseudoJetVector;
 
   /// Constructor from tool name.
@@ -54,19 +55,14 @@ public:
   /// Can be skipped.
   virtual StatusCode initialize();
 
+  /// Method to construct the PseudoJetVector and record in StoreGate
+  StatusCode createAndRecord() const;
+
   /// Returns the pseudojet collection.
   /// If already existing, the collection in the event store is returned.
   /// If not, an new collection is created and filled by calling @c appendTo.
   /// Returns null if the collection cannot be created.
-  const PseudoJetVector* get() const;
-
-  /// Find the input collection in the event store and call @c append
-  /// to fill the psedojet vector.
-  virtual int appendTo(PseudoJetVector& psjs, const LabelIndex* pli) const;
-
-  /// Construct pseudojets from the the inputs using the supplied label index
-  /// and append them to the pseudojet vector.
-  int append(const xAOD::MuonSegmentContainer& inputs, PseudoJetVector& psjs, const LabelIndex* pli) const;
+  const PseudoJetContainer* getC() const;
 
   /// Return the label for these pseudojets.
   std::string label() const;
@@ -77,10 +73,19 @@ public:
 protected:  //data
 
   // Job options.
-  std::string m_incoll;             /// Input collection name.
-  std::string m_outcoll;            /// Output collection name.
+  SG::ReadHandleKey<xAOD::MuonSegmentContainer> m_incoll;        /// Input collection name.
+  SG::ReadHandleKey<PseudoJetContainer> m_outcollRead;        /// Output collection for reading
+  SG::ReadHandleKey<PseudoJetContainer> m_outcollReadGhost;        /// Output ghost collection for reading
+  SG::WriteHandleKey<PseudoJetContainer> m_outcoll;      /// Output collection name.
+  SG::WriteHandleKey<PseudoJetContainer> m_outcollGhost;      /// Output ghost collection name.
+
   std::string m_label;              /// Label for the collection.
   double m_pt;                      /// PT assiged to the pseudojets.
+
+
+ private:
+  std::vector<PseudoJet> 
+    createPseudoJets(const xAOD::MuonSegmentContainer*) const; 
 
 };
 

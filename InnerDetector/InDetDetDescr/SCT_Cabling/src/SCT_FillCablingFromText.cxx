@@ -185,13 +185,7 @@ SCT_FillCablingFromText::readDataFromFile(ISCT_CablingSvc* cabling) {
         continue;
       }
       // Let's Get the Online Id From the link and the ROD
-      try {
-        link = SCT_Cabling::stringToInt(Link);
-      } catch (const std::ios_base::failure&) {
-        ATH_MSG_ERROR("An error occurred while reading the cabling file "<<m_source
-                      <<", Link ("<<Link<<") cannot be converted to an integer");
-        continue;
-      }
+      link = std::stoi(Link, nullptr, 0); // 0 means the base used in deterimed by the format in the sequence
       if (link<0) {
         ATH_MSG_ERROR("link " << link << " seems invalid. This was obtained from Link " << Link << ". Will not be used.");
         continue;

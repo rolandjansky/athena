@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -14,7 +14,6 @@
 //STL
 #include <vector>
 
-//#include "eformat/Version.h"
 #include "GaudiKernel/IAlgTool.h"
 //Cannot fwd declare SCT_RDO_Container due to typedef in that file 
 #include "InDetRawData/SCT_RDO_Container.h"
@@ -23,8 +22,6 @@
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
 #include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
 
-class IInterface;
-class InterfaceID;
 class StatusCode;
 
 class IdentifierHash;
@@ -33,10 +30,10 @@ class ISCT_RodDecoder : virtual public IAlgTool {
  public: 
 
   /** destructor  */
-  virtual ~ISCT_RodDecoder(){}; 
+  virtual ~ISCT_RodDecoder() = default;
 
-  /** AlgTool InterfaceID */
-  static const InterfaceID& interfaceID() ;
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(ISCT_RodDecoder, 1, 0);
 
   /** @brief Decode the rob data fragment and fill the collection SCT_RDO_Collection 
    *  with the RDO built by the makeRDO(..) method
@@ -47,10 +44,5 @@ class ISCT_RodDecoder : virtual public IAlgTool {
                                     SCT_ByteStreamFractionContainer* bsFracCont,
                                     std::vector<IdentifierHash>* vec=0) = 0;
 };
-
-inline const InterfaceID& ISCT_RodDecoder::interfaceID() {
-  static const InterfaceID ISCT_RodDecoderIID("ISCT_RodDecoder",1,0);
-  return ISCT_RodDecoderIID;
-}
 
 #endif //SCT_RAWDATABYTESTREAM_ISCT_RODDECODER_H

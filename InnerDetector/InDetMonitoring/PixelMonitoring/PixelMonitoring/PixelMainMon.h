@@ -16,10 +16,14 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 #include "InDetRawData/InDetRawDataContainer.h"
+#include "InDetRawData/InDetTimeCollection.h"
 #include "TrkTrack/TrackCollection.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "LumiBlockComps/ILuminosityTool.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
+#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class PixelMonModules1D;
 class PixelMonModulesProf;
@@ -198,17 +202,15 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::vector<Identifier> m_RDOIDs;
   std::vector<std::pair<Identifier, double> > m_ClusterIDs;
 
-  const DataHandle<PixelRDO_Container> m_rdocontainer;
-  const InDet::PixelClusterContainer* m_Pixel_clcontainer;
-  const SpacePointContainer* m_Pixel_spcontainer;
-  const TrackCollection* m_tracks;
+  SG::ReadHandleKey<PixelRDO_Container> m_Pixel_RDOName;
+  SG::ReadHandleKey<InDet::PixelClusterContainer> m_Pixel_SiClustersName;
+  SG::ReadHandleKey<SpacePointContainer> m_Pixel_SpacePointsName;
+  SG::ReadHandleKey<TrackCollection> m_TracksName;
+  SG::ReadHandleKey<InDetTimeCollection> m_PixelBCIDName;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventxAODInfoKey;
+  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
 
-  std::string m_Pixel_RDOName;
   std::string m_detector_error_name;
-  std::string m_Pixel_SpacePointsName;
-  std::string m_Pixel_SiClustersName;
-  std::string m_TracksName;
-
   std::string m_histTitleExt;
 
   std::string m_modLabel_PixLayerIBL2D3D[PixLayerIBL2D3D::COUNT] = {

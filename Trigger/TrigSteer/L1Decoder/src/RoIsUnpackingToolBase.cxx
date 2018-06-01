@@ -63,7 +63,18 @@ void RoIsUnpackingToolBase::addChainsToDecision( HLT::Identifier thresholdId,
   }
 }
 
+StatusCode RoIsUnpackingToolBase::copyThresholds( const std::vector<TrigConf::TriggerThreshold*>& src, std::vector<TrigConf::TriggerThreshold*>& dest ) const {
+  for ( auto th: src ) {
+    if ( th == nullptr ) {
+      ATH_MSG_INFO( "Nullptr TrigConf::TriggerThreshold" ); 
+    } else {
+      ATH_MSG_INFO( "Found threshold in the configuration: " << th->name() << " of ID: " << HLT::Identifier( th->name() ).numeric() ); 
+      dest.push_back( th );      
+    }
+  }
 
+  return StatusCode::SUCCESS;
+}
 
 
 

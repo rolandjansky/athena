@@ -63,7 +63,10 @@ StatusCode TriggerJetGroomerTool::finalize() {
 
 //**********************************************************************
 
-JetContainer*  TriggerJetGroomerTool::groom(const JetContainer* in ) const {
+JetContainer*
+TriggerJetGroomerTool::groom(const JetContainer* in,
+                             const PseudoJetContainer& pjContainer
+                             ) const {
   ATH_MSG_DEBUG("groom() starts");
 
   // create a container pointer to be managed by yhe evnt store.
@@ -73,7 +76,7 @@ JetContainer*  TriggerJetGroomerTool::groom(const JetContainer* in ) const {
   // return a nullptr on grooming error, groomed jet container otherwise.
   ATH_MSG_DEBUG("grooming starts");
   for(const auto j : *in) {
-    if (m_groomer->groom(*j, *out) < 0) {
+    if (m_groomer->groom(*j, pjContainer, *out) < 0) {
       ATH_MSG_DEBUG("Grooming failed for jet with energy " 
                     << j->e() 
                     << ", skipping");

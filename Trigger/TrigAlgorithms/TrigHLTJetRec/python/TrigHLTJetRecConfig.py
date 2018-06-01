@@ -15,7 +15,7 @@ from TrigHLTJetRec.TrigHLTJetRecConf import (IParticleNullRejectionTool,
                                              IParticlePtEtaRejectionTool,)
 
 # from JetRec.JetRecConf import JetRecTool
-from JetRec.JetRecConf import (JetFromPseudojetMT,)
+# from JetRec.JetRecConf import (JetFromPseudojetMT,)
 #                               JetFinder,
 #                               JetToolRunner)
 import sys

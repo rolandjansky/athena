@@ -11,13 +11,11 @@
 #include "GeneratorObjects/HepMcParticleLink.h"
 
 //TGC includes
-#include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 
 #include "MuonIdHelpers/TgcIdHelper.h"
 #include "MuonSimEvent/TgcHitIdHelper.h"
-#include "MuonDigitContainer/TgcDigitContainer.h"
 #include "TGC_Digitization/TgcDigitMaker.h"
 
 // for the tool
@@ -46,15 +44,11 @@ TgcDigitizationTool::TgcDigitizationTool(const std::string& type,
   m_rndmSvc("AtRndmGenSvc", name),
   m_rndmEngineName("MuonDigitization"),
   m_hitIdHelper(0), 
-  m_digitContainer(0),
   m_idHelper(0),
   m_mdManager(0),
   m_digitizer(0),
   m_thpcTGC(0),
-  m_sdoContainer(0), 
   m_inputHitCollectionName("TGC_Hits"),
-  m_outputDigitCollectionName("TGC_DIGITS"),
-  m_outputSDO_CollectionName("TGC_SDO"),
   m_vetoThisBarcode(crazyParticleBarcode) 
 {
   declareInterface<IMuonDigitizationTool>(this);
@@ -62,8 +56,6 @@ TgcDigitizationTool::TgcDigitizationTool(const std::string& type,
   declareProperty("RndmSvc",          m_rndmSvc,                                  "Random Number Service used in Muon digitization");
   declareProperty("RndmEngine",       m_rndmEngineName,                           "Random engine name");
   declareProperty("InputObjectName",  m_inputHitCollectionName    = "TGC_Hits",   "name of the input object");
-  declareProperty("OutputObjectName", m_outputDigitCollectionName = "TGC_DIGITS", "name of the output object");
-  declareProperty("OutputSDOsName",   m_outputSDO_CollectionName  = "TGC_SDO",    "name of the output object");
   declareProperty("IncludePileUpTruth",  m_includePileUpTruth     =  true,        "Include pile-up truth info");
   declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode        =  crazyParticleBarcode, "Barcode of particle to ignore");
 }
@@ -106,13 +98,10 @@ StatusCode TgcDigitizationTool::initialize()
     ATH_MSG_INFO("Input objects: '" << m_inputHitCollectionName << "'");
   }
 
-  // check the output object name
-  if(m_outputDigitCollectionName=="") {
-    ATH_MSG_FATAL("Property OutputObjectName not set !");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("Output digits: '" << m_outputDigitCollectionName << "'");
-  }
+  //initialize the output WriteHandleKeys
+  ATH_CHECK(m_outputDigitCollectionKey.initialize());
+  ATH_CHECK(m_outputSDO_CollectionKey.initialize());
+  ATH_MSG_DEBUG("Output Digits: '"<<m_outputDigitCollectionKey.key()<<"'");
 
   ATH_MSG_DEBUG("IncludePileUpTruth: " << m_includePileUpTruth);
   ATH_MSG_DEBUG("ParticleBarcodeVeto: " << m_vetoThisBarcode);
@@ -161,10 +150,6 @@ StatusCode TgcDigitizationTool::initialize()
     ATH_MSG_FATAL("Fail to initialize TgcDigitMaker");
     return StatusCode::FAILURE;
   }
-
-  // initialize digit container
-  m_digitContainer = new TgcDigitContainer(m_idHelper->module_hash_max());
-  m_digitContainer->addRef();
 
   return StatusCode::SUCCESS;
 }
@@ -224,22 +209,11 @@ StatusCode TgcDigitizationTool::processBunchXing(int bunchXing,
 StatusCode TgcDigitizationTool::mergeEvent() {
   ATH_MSG_DEBUG("TgcDigitizationTool::mergeEvent()");
 
-  StatusCode status = recordDigitAndSdoContainers();
-  if(!status.isSuccess()) {
-    ATH_MSG_FATAL("TgcDigitizationTool::recordDigitAndSdoContainers failed.");
-    return StatusCode::FAILURE; 
-  }
-  
-  status = digitizeCore();
-  if(!status.isSuccess()) {
-    ATH_MSG_FATAL("TgcDigitizationTool::digitizeCore() failed.");
-    return StatusCode::FAILURE;
-  }
-  
+  ATH_CHECK(digitizeCore());
   // reset the pointer (delete null pointer should be safe)
-  delete m_thpcTGC; 
+  delete m_thpcTGC;
   m_thpcTGC = 0;
-  
+
   std::list<TGCSimHitCollection*>::iterator TGCHitColl    = m_TGCHitCollList.begin();
   std::list<TGCSimHitCollection*>::iterator TGCHitCollEnd = m_TGCHitCollList.end();
   while(TGCHitColl!=TGCHitCollEnd) {
@@ -256,49 +230,31 @@ StatusCode TgcDigitizationTool::digitize() {
   return this->processAllSubEvents();
 }
 
+//_____________________________________________________________________________
 StatusCode TgcDigitizationTool::processAllSubEvents() {
-    
   ATH_MSG_DEBUG("TgcDigitizationTool::processAllSubEvents()");
-
-  StatusCode status = recordDigitAndSdoContainers();
-  if(!status.isSuccess()) {
-    ATH_MSG_FATAL("TgcDigitizationTool::recordDigitAndSdoContainers failed.");
-    return StatusCode::FAILURE;
-  }
-  
-  //merging of the hit collection in getNextEvent method    
+  //merging of the hit collection in getNextEvent method
   if(!m_thpcTGC) {
-    status = getNextEvent();
-    if(status.isFailure()) {
-      ATH_MSG_INFO("There are no TGC hits in this event"); 
-      return status; // there are no hits in this event
-    }
+    ATH_CHECK(getNextEvent());
   }
-  
-  status = digitizeCore(); 
-  if(!status.isSuccess()) { 
-    ATH_MSG_FATAL("TgcDigitizationTool::digitizeCore() failed.");
-    return StatusCode::FAILURE; 
-  }
-  
+  ATH_CHECK(digitizeCore());
   // reset the pointer (delete null pointer should be safe)
-  delete m_thpcTGC; 
+  delete m_thpcTGC;
   m_thpcTGC = 0;
-  
   return StatusCode::SUCCESS;
 }
 
 //_____________________________________________________________________________
 StatusCode TgcDigitizationTool::finalize() {
   ATH_MSG_DEBUG("finalize.");
-  m_digitContainer->release();
-  
-  delete m_digitizer; 
-  m_digitizer = 0; 
+
+  delete m_digitizer;
+  m_digitizer = 0;
 
   return StatusCode::SUCCESS;
 }
 
+//_____________________________________________________________________________
 // Get next event and extract collection of hit collections:
 StatusCode TgcDigitizationTool::getNextEvent()
 {
@@ -350,34 +306,17 @@ StatusCode TgcDigitizationTool::getNextEvent()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TgcDigitizationTool::recordDigitAndSdoContainers() { 
-  //
-  // cleanup digit container
-  //
-  m_digitContainer->cleanup();
-  
-  // record the digit container in StoreGate
-  StatusCode status = evtStore()->record(m_digitContainer, m_outputDigitCollectionName);
-  if(status.isFailure()) {
-    ATH_MSG_FATAL("Unable to record TGC digit container in StoreGate");
-    return status;
-  }
-  ATH_MSG_DEBUG("TgcDigitContainer recorded in StoreGate.");
-  
-  // create and record the SDO container in StoreGate
-  m_sdoContainer = new MuonSimDataCollection();
-  status = evtStore()->record(m_sdoContainer, m_outputSDO_CollectionName);
-  if(status.isFailure())  {
-    ATH_MSG_FATAL("Unable to record TGC SDO collection in StoreGate");
-    return status;
-  } else {
-    ATH_MSG_DEBUG("TgcSDOCollection recorded in StoreGate.");
-  }
-  
-  return status;
-}
-
 StatusCode TgcDigitizationTool::digitizeCore() { 
+  // create and record the Digit container in StoreGate
+  SG::WriteHandle<TgcDigitContainer> digitContainer(m_outputDigitCollectionKey);
+  ATH_CHECK(digitContainer.record(std::make_unique<TgcDigitContainer>(m_idHelper->module_hash_max())));
+  ATH_MSG_DEBUG ( "TgcDigitContainer recorded in StoreGate." );
+
+  // Create and record the SDO container in StoreGate
+  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey);
+  ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
+  ATH_MSG_DEBUG ( "TgcSDOCollection recorded in StoreGate." );
+
   // get the iterator pairs for this DetEl
   //iterate over hits and fill id-keyed drift time map
   IdContext tgcContext = m_idHelper->module_context();
@@ -428,13 +367,13 @@ StatusCode TgcDigitizationTool::digitizeCore() {
   
 	// record the digit container in StoreGate
 	bool duplicate = false;
-	TgcDigitContainer::const_iterator it_coll = m_digitContainer->indexFind(coll_hash);
-	if(m_digitContainer->end() ==  it_coll) {
+	TgcDigitContainer::const_iterator it_coll = digitContainer->indexFind(coll_hash);
+	if(digitContainer->end() ==  it_coll) {
 	  digitCollection = new TgcDigitCollection(elemId, coll_hash);
 	  ATH_MSG_DEBUG("Digit Id(1st) = " << m_idHelper->show_to_string(newDigiId)
 			<< " BC tag = " << newBcTag << " Coll. key = " << coll_hash); 
 	  digitCollection->push_back(newDigit);
-	  StatusCode status = m_digitContainer->addCollection(digitCollection, coll_hash);
+	  StatusCode status = digitContainer->addCollection(digitCollection, coll_hash);
 	  if(status.isFailure()) {
 	    ATH_MSG_WARNING("Couldn't record TgcDigitCollection with key=" << coll_hash << " in StoreGate!"); 
 	  } else {
@@ -489,7 +428,7 @@ StatusCode TgcDigitizationTool::digitizeCore() {
           MuonSimData simData(deposits,0);
           simData.setPosition(gpos);
           simData.setTime(hitTime(phit));
-	  m_sdoContainer->insert(std::make_pair(newDigiId, simData));
+	  sdoContainer->insert(std::make_pair(newDigiId, simData));
 	}
 	
       }
