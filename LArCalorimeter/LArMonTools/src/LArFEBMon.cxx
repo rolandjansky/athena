@@ -777,7 +777,7 @@ void LArFEBMon::fillErrorsSummary(int partitNb_2,int ft,int slot,int rodcrate,in
 
   if (m_currentFebStatus){
     (m_partHistos[partitNb_2].LArAllErrors)->Fill(slot,ft);
-    (m_partHistos[partitNb_2].LArAllErrors_ROD)->Fill(rodcrate,rodslot);
+    (m_partHistos[partitNb_2].LArAllErrors_ROD)->Fill(rodslot,rodcrate);
     (m_partHistos[partitNb_2].LArAllErrors_ROS)->Fill(rosid);
     if (lar_inerror) {// LArinError
        if (m_isOnline) (m_partHistos[partitNb_2].m_rejectedLBProfilePart)->Fill(0.5,100);
@@ -952,26 +952,28 @@ StatusCode LArFEBMon::bookNewPartitionSumm(int partNb)
   hName = "LArFEBMonErrorsAbsolute"+partName+"_ROD";
   hTitle = "Nb of events with at least one error - " + partName;
   m_partHistos[partNb].LArAllErrors_ROD = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfRodSlot,0.5,rodSlotMax,nbOfRodCrate,0.5,rodCrateMax);
-  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].LArAllErrors_ROD);
+  m_partHistos[partNb].LArAllErrors_ROD->GetXaxis()->SetTitle("ROD slot");
+  m_partHistos[partNb].LArAllErrors_ROD->GetYaxis()->SetTitle("ROD crate");
   sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].LArAllErrors_ROD);
   
   hName = "LArFEBMonErrors"+partName+"_ROD";
   hTitle = "% of events with at least one error - " + partName;
   m_partHistos[partNb].LArAllErrors_RODYield = TH2F_LW::create(hName.c_str(),hTitle.c_str(),nbOfRodSlot,0.5,rodSlotMax,nbOfRodCrate,0.5,rodCrateMax);
-  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].LArAllErrors_RODYield);
+  m_partHistos[partNb].LArAllErrors_RODYield->GetXaxis()->SetTitle("ROD slot");
+  m_partHistos[partNb].LArAllErrors_RODYield->GetYaxis()->SetTitle("ROD crate");
   sc = sc && perPartitionYieldGroup.regHist(m_partHistos[partNb].LArAllErrors_RODYield);
   
   // ROS histograms - 
   hName = "LArFEBMonErrorsAbsolute"+partName+"_ROS";
   hTitle = "Nb of events with at least one error - " + partName;
   m_partHistos[partNb].LArAllErrors_ROS = TH1I_LW::create(hName.c_str(),hTitle.c_str(),nbOfRosLink,0.5,rosLinkMax);
-  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].LArAllErrors_ROS);
+  m_partHistos[partNb].LArAllErrors_ROS->GetXaxis()->SetTitle("ROS link");
   sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].LArAllErrors_ROS);
   
   hName = "LArFEBMonErrors"+partName+"_ROS";
   hTitle = "% of events with at least one error - " + partName;
   m_partHistos[partNb].LArAllErrors_ROSYield = TH1F_LW::create(hName.c_str(),hTitle.c_str(),nbOfRosLink,0.5,rosLinkMax);
-  sc = sc && m_strHelper->definePartitionSummProp(m_partHistos[partNb].LArAllErrors_ROSYield);
+  m_partHistos[partNb].LArAllErrors_ROSYield->GetXaxis()->SetTitle("ROS link");
   sc = sc && perPartitionYieldGroup.regHist(m_partHistos[partNb].LArAllErrors_ROSYield);  
   
   // These are misc histograms-This may be changed in error histograms if needed
