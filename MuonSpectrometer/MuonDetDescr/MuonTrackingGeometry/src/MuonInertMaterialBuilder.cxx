@@ -425,7 +425,7 @@ const Trk::TrackingVolume* Muon::MuonInertMaterialBuilder::simplifyShape(const T
   // resolve composed volumes (returns constituents with material fraction accounting for subtractions & overlaps)
   std::vector<std::pair<const Trk::Volume*,std::pair<float,float> > > constituents = splitComposedVolume(trVol,m_simplify||blend);
 
-  ATH_MSG_VERBOSE( "simplifying shape for:"<<trVol->volumeName()<<","<< constituents[0].second.first<<","<<constituents[0].second.second);
+  ATH_MSG_VERBOSE( "simplifying shape for:"<<trVol->volumeName()<<","<< constituents[0].second.first<<","<<constituents[0].second.second << " nr constituents " << constituents.size());
   for (unsigned int i=0;i<constituents.size(); i++) ATH_MSG_VERBOSE("constituent:"<< calculateVolume(constituents[i].first)<<","<< constituents[i].second.first<<","<< constituents[i].second.second);   
   
   int simpleMode = 0;
@@ -547,13 +547,20 @@ double  Muon::MuonInertMaterialBuilder::calculateVolume( const Trk::Volume* enve
                +v[0].first*v[0].first+v[0].second*v[0].second
 	       -v[0].first*v[1].first-v[0].second*v[1].second
 	       -v[0].first*v[2].first-v[0].second*v[2].second;
-    double vv = sqrt(c2-ca*ca/a2);
-    envVol = vv*sqrt(a2)*prism->halflengthZ();
+
+    double vv2 = (a2*c2-ca*ca);
+    double vv = 0.;
+    // fix nans
+    if(vv2>0.) vv = sqrt(vv2);
+    envVol = vv*prism->halflengthZ();
+    ATH_MSG_VERBOSE( " prism " << envVol << " vv " << vv << " a2*c2-ca*ca " <<  a2*c2-ca*ca << " v size " << v.size());
   }
   if ( spb ) {
     envVol = calculateVolume(spb->combinedVolume());    // exceptional use of combined volume (no intersections)
+    ATH_MSG_VERBOSE( " spb volume " << envVol << " halflengthZ " <<  spb->halflengthZ());
   }   
   if ( comb ) {
+    ATH_MSG_VERBOSE( " comb volume first " << calculateVolume(comb->first())  << " second " << calculateVolume(comb->second()) );
     envVol = calculateVolume(comb->first()) + calculateVolume(comb->second());
   }
   if ( sub ) {
