@@ -11,8 +11,8 @@
 // K. Assamagan 07/12/02
 
 #include "MuonRDO/RpcCoinMatrix.h"
-#include "DataModel/DataVector.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 
