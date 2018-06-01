@@ -23,8 +23,6 @@
 // EventKernel includes
 #include "EventKernel/PdtPdg.h"
 
-// DataModel includes
-
 // Gaudi includes
 
 // Forward declaration
