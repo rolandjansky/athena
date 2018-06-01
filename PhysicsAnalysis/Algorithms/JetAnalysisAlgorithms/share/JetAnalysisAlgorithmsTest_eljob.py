@@ -29,6 +29,10 @@ ROOT.CP.JetCalibrationAlg ("dummy", None)
 dataType = "data"
 #dataType = "mc"
 #dataType = "afii"
+inputfile = {"data": 'ASG_TEST_FILE_DATA',
+             "mc":   'ASG_TEST_FILE_MC',
+             "afii": 'ASG_TEST_FILE_MC_AFII'}
+
 jetContainer = "AntiKt4EMTopoJets"
 
 if not dataType in ["data", "mc", "afii"] :
@@ -40,15 +44,7 @@ import os
 sh = ROOT.SH.SampleHandler()
 sh.setMetaString( 'nc_tree', 'CollectionTree' )
 sample = ROOT.SH.SampleLocal (dataType)
-if dataType == "data" :
-    sample.add (os.getenv ('ASG_TEST_FILE_DATA'))
-    pass
-if dataType == "mc" :
-    sample.add (os.getenv ('ASG_TEST_FILE_MC'))
-    pass
-if dataType == "afii" :
-    sample.add (os.getenv ('ASG_TEST_FILE_MC_AFII'))
-    pass
+sample.add (os.getenv (inputfile[dataType]))
 sh.add (sample)
 sh.printContent()
 

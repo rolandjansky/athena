@@ -86,12 +86,19 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
                     affectingSystematics = '(^JET_JER_.*)' )
         pass
 
+    # Define a list of cuts to apply later on and the
+    # number of bits in the corresponding TAccept
+    cutlist = []
+    cutlength = []
+
     # Set up the jet selection algorithm:
     alg = createAlgorithm( 'CP::JetSelectionAlg', 'JetCleaningAlg' )
     addPrivateTool( alg, 'selectionTool', 'JetCleaningTool' )
     alg.selectionTool.CutLevel = "LooseBad"
     alg.selectionTool.DoUgly = 0
     seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
+    cutlist.append('clean_jet')
+    cutlength.append(1)
 
     # Set up the JVT update algorithm:
     if runJvtUpdate :
@@ -101,33 +108,38 @@ def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
         seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
         pass
 
-    # Set up the jet efficiency scale factor calculation algorithm:
-    alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'JvtEfficiencyAlg' )
-    addPrivateTool( alg, 'efficiencyTool', 'CP::JetJvtEfficiency' )
-    alg.selection = "jvt_selection"
+    # Set up the jet efficiency scale factor calculation algorithm
+    # Change the truthJetCollection property to AntiKt4TruthWZJets if preferred
     if runJvtEfficiency:
+        alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'JvtEfficiencyAlg' )
+        addPrivateTool( alg, 'efficiencyTool', 'CP::JetJvtEfficiency' )
+        alg.selection = 'jvt_selection'
         alg.efficiency = 'jvt_efficiency'
+        # Disable efficiency decorations if running on data
+        # We still want to run the JVT selection
+        if dataType == 'data':
+            alg.efficiency = ''
+            alg.truthJetCollection = ''
         alg.outOfValidity = 2
         alg.outOfValidityDeco = 'no_jvt'
         alg.skipBadEfficiency = 0
-        if dataType == 'data':
-            alg.efficiencyTool.TruthLabel = ''
-            pass
+        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
+                    affectingSystematics = '(^JET_JvtEfficiency$)|(^JET_fJvtEfficiency$)' )
+        cutlist.append('jvt_selection')
+        cutlength.append(1)
         pass
-    seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
-                affectingSystematics = '(^JET_JvtEfficiency$)|(^JET_fJvtEfficiency$)' )
 
     # Set up an algorithm used for debugging the jet selection:
     alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'JetCutFlowDumperAlg' )
     alg.histPattern = 'jet_cflow_%SYS%'
-    alg.selection = [ 'clean_jet', 'jvt_selection' ]
-    alg.selectionNCuts = [ 1, 1 ]
+    alg.selection = cutlist
+    alg.selectionNCuts = cutlength
     seq.append( alg, inputPropName = 'input' )
 
     # Set up an algorithm that makes a view container using the selections
     # performed previously:
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'JetViewFromSelectionAlg' )
-    alg.selection = [ 'clean_jet', 'jvt_selection' ]
+    alg.selection = cutlist
     seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
 
     # Set up an algorithm dumping the properties of the jets, for debugging:

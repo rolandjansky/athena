@@ -6,25 +6,24 @@
 # The name of the package:
 atlas_subdir( JetAnalysisAlgorithms )
 
-# The package's dependencies:
 atlas_depends_on_subdirs(
-   PUBLIC
-   Event/xAOD/xAODJet
-   PhysicsAnalysis/Algorithms/SelectionHelpers
-   PhysicsAnalysis/Algorithms/SystematicsHandles
-   PhysicsAnalysis/D3PDTools/AnaAlgorithm
-   Reconstruction/Jet/JetCalibTools
-   Reconstruction/Jet/JetCPInterfaces
-   Reconstruction/Jet/JetInterface
-   Reconstruction/Jet/JetJvtEfficiency
-   Reconstruction/Jet/JetResolution )
+    PUBLIC
+    Event/xAOD/xAODJet
+    PhysicsAnalysis/Algorithms/SelectionHelpers
+    PhysicsAnalysis/Algorithms/SystematicsHandles
+    PhysicsAnalysis/D3PDTools/AnaAlgorithm
+    Reconstruction/Jet/JetCalibTools
+    Reconstruction/Jet/JetCPInterfaces
+    Reconstruction/Jet/JetInterface
+    Reconstruction/Jet/JetJvtEfficiency
+    Reconstruction/Jet/JetResolution )
 
 atlas_add_library( JetAnalysisAlgorithmsLib
    JetAnalysisAlgorithms/*.h JetAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS JetAnalysisAlgorithms
    LINK_LIBRARIES xAODJet SelectionHelpersLib SystematicsHandlesLib
    AnaAlgorithmLib JetCalibToolsLib JetInterface JetResolutionLib
-   JetCPInterfaces JetJvtEfficiencyLib )
+   JetCPInterfaces JetJvtEfficiencyLib JetAnalysisInterfacesLib )
 
 atlas_add_dictionary( JetAnalysisAlgorithmsDict
    JetAnalysisAlgorithms/JetAnalysisAlgorithmsDict.h
