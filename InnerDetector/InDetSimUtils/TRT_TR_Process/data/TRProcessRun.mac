@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-
 /control/ReadXML trtmaterials.xml
 /load TRT_TR_Process
 #/control/ReadXML TRgeomodelgeometry.xml

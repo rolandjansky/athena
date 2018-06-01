@@ -1,6 +1,3 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
 rm -rf testdb.sql
 export CAN_CALIB_DB="sqlite_file:testdb.sql"
 CORAL-fill 1 "tag:mytag revision:1234 sources:Offline:0 file:pixelcalibsvc_dump.txt"

@@ -1,6 +1,3 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
 # echo "setup SCTExtension SCTExtension-r652903 in /afs/cern.ch/user/v/vcairo/WorkVMM/Material/testPackage_20/InnerDetector/InDetPerformance"
 
 if ( $?CMTROOT == 0 ) then
