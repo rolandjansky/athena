@@ -7,9 +7,8 @@ atlas_subdir( MuidEvent )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           Tracking/TrkEvent/TrkParameters
                           PRIVATE
                           Reconstruction/Particle
@@ -30,6 +29,6 @@ atlas_add_library( MuidEvent
                    PUBLIC_HEADERS MuidEvent
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES DataModel SGTools TrkParameters
+                   LINK_LIBRARIES AthContainers TrkParameters
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} Particle TrkSurfaces TrkTrack VxVertex )
 
