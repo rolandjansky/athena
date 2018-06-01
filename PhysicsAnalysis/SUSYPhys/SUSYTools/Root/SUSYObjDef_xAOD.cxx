@@ -331,7 +331,9 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_acc_eleIdBaseline(""),
     m_acc_eleId(""),
     m_acc_photonIdBaseline(""),
-    m_acc_photonId("")
+    m_acc_photonId(""),
+    //
+    m_acc_jetClean("")
 {
   //General settings
   declareProperty( "DataSource", m_dataSource = Undefined );
@@ -708,6 +710,9 @@ StatusCode SUSYObjDef_xAOD::initialize() {
   m_inputMETCore = "MET_Core_" + m_inputMETSuffix;
   m_inputMETMap = "METAssoc_" + m_inputMETSuffix;
   ATH_MSG_INFO("Build MET with map: " << m_inputMETMap);
+
+  m_jetCleanDFName = TString::Format("DFCommonJets_jetClean_%s", m_badJetCut.c_str());
+  m_acc_jetClean = m_jetCleanDFName;
 
   m_eleIdBaselineDFName = "DFCommonElectronsLH";
   m_eleIdBaselineDFName += TString(m_eleIdBaseline).ReplaceAll("LooseAndBLayer","LooseBL").ReplaceAll("LLH","").Data();
