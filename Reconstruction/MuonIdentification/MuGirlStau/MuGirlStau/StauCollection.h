@@ -5,10 +5,10 @@
 #ifndef STAUCOLLECTION_H
 #define STAUCOLLECTION_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "MuGirlStau/StauContainer.h"
-#include "CLIDSvc/CLASS_DEF.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/BaseInfo.h"
 
 /**This typedef represents a collection of Trk::Track objects. 
  It is a DataVector. It can be saved
