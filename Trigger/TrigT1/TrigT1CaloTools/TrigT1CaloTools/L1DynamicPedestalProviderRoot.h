@@ -1,8 +1,9 @@
-/** -*- C++ -*-
- * @file TrigT1CaloTools/L1DynamicPedestalProviderRoot.h
+/** -*- C++ -*- */
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
+/**
+ * @file TrigT1CaloTools/L1DynamicPedestalProviderRoot.h
  * @author V. Scharf <vscharf@kip.uni-heidelberg.de>
  * @date June 2014
  * @brief Tool to retrieve dynamic pedestal values from an external root-file.

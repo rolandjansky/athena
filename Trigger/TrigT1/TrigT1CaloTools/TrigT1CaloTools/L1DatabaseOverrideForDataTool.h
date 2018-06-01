@@ -1,8 +1,8 @@
 // -*- C++ -*-
-/**
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
+/**
  * @file L1DatabaseOverrideForData.h
  * @author Veit Scharf <veit.scharf@cern.ch>
  * @date Feb, 2016
