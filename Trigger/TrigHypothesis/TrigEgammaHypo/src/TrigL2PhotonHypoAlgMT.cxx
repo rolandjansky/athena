@@ -7,6 +7,7 @@
 
 
 
+
 using TrigCompositeUtils::DecisionContainer;
 using TrigCompositeUtils::DecisionAuxContainer; 
 using TrigCompositeUtils::DecisionIDContainer; 
@@ -69,12 +70,15 @@ StatusCode TrigL2PhotonHypoAlgMT::execute_r( const EventContext& context ) const
   std::vector<TrigL2PhotonHypoTool::PhotonInfo> hypoToolInput;
  
   for ( auto previousDecision: *previousDecisionsHandle ) {
-    // get View
-    auto viewEL = previousDecision->objectLink<std::vector<SG::View*>>( "view" );
+
+    auto viewEL = previousDecision->objectLink< ViewContainer >( "view" );
     CHECK( viewEL.isValid() );
     const SG::View* view_const = *viewEL;
     SG::View* view = const_cast<SG::View*>(view_const); // CHECK THIS!
+    // get View
 
+
+    
     // get electron from that view:
     size_t photonCounter = 0;
     auto photonsHandle = SG::makeHandle( m_photonsKey, context );  
