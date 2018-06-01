@@ -53,6 +53,10 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     if not hasattr(ToolSvc, "InDetSCT_RadDamageSummaryTool"):
         from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_RadDamageSummaryTool
         ToolSvc += SCT_RadDamageSummaryTool(name = "InDetSCT_RadDamageSummaryTool")
+    ## SiLorentzAngleTool for SCT_SurfaceChargesGenerator
+    if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
     kwargs.setdefault("FixedTime", -999)
     kwargs.setdefault("SubtractTime", -999)
@@ -62,6 +66,7 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     kwargs.setdefault("DepletionVoltage", 70)
     kwargs.setdefault("BiasVoltage", 150)
     kwargs.setdefault("SiPropertiesTool", sct_SiPropertiesToolSetup.getTool())
+    kwargs.setdefault("LorentzAngleTool", ToolSvc.SCTLorentzAngleTool)
     from AthenaCommon.GlobalFlags import globalflags
     kwargs.setdefault("isOverlay", globalflags.isOverlay())
 

@@ -18,7 +18,6 @@ if DetFlags.digitize.pixel_on():
                              ( 'InDetSimDataCollection' , 'StoreGateSvc+PixelSDO_Map' )]
 
 if DetFlags.digitize.SCT_on():
-    digiExtraInputs += [('SiLorentzAngleCondData' , 'ConditionStore+SCTSiLorentzAngleCondData')]
     StreamRDOExtraInputs += [( 'SCT_RDO_Container' , 'StoreGateSvc+SCT_RDOs' ),
                              ( 'InDetSimDataCollection' , 'StoreGateSvc+SCT_SDO_Map' )]
 
