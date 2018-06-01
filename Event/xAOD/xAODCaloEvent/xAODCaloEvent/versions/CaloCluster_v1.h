@@ -4,7 +4,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloCluster_v1.h 753412 2016-06-07 16:25:07Z ssnyder $
 #ifndef XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 #define XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 
@@ -37,6 +36,11 @@ typedef unsigned CaloRecoStatus;
 #endif // defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
 
 class CaloClusterChangeSignalState;
+
+//Already include the DataVector BASE specialization for this type
+#include "xAODCaloEvent/CaloClusterContainerFwd.h"
+//Complete the Datavector Fwd Declaration
+template struct DataVector_detail::DVLEltBaseInit< xAOD::CaloCluster_v1>;
 
 namespace xAOD {
 

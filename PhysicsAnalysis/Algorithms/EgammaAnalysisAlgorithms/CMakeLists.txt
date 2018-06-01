@@ -41,7 +41,7 @@ atlas_install_scripts( share/*_eljob.py )
 
 if( XAOD_STANDALONE )
    atlas_add_test( testJob
-      SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py )
+      SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py --unit-test )
 else()
    atlas_add_test( testJob
       SCRIPT athena.py

@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOEVENT_CALOTOWER_V1_H
@@ -86,6 +86,9 @@ namespace xAOD {
     /// @}
   };
 }
+
+#include "AthContainers/DataVector.h"
+DATAVECTOR_BASE( xAOD::CaloTower_v1, xAOD::IParticle );
 
 inline float& xAOD::CaloTower_v1::f_ref_e()    { static Accessor<float> acc("towerE");      return acc(*this); }
 

@@ -139,7 +139,7 @@ int Root::TElectronEfficiencyCorrectionTool::initialize() {
 
     // Check if the first file can be opened (needed for auto-setting of the seed based on the md5-sum of the file)
     const std::unique_ptr<char> fname(gSystem->ExpandPathName(m_corrFileNameList[0].c_str()));
-    std::unique_ptr<TFile> rootFile_tmp = CxxUtils::make_unique<TFile> (fname.get(), "READ");
+    std::unique_ptr<TFile> rootFile_tmp( TFile::Open(fname.get(), "READ") );
     if (!rootFile_tmp) {
         ATH_MSG_ERROR(
                 " (file: " << __FILE__ << ", line: " << __LINE__ << ") " 
@@ -414,7 +414,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
         if (currentVector_itr->second.at(runnumberIndex).GetEntriesFast()> 0) {
             //itr at the location of the vector, .second get the vector, at(runnumberIndex is the TObjectArray 
             // for the period , finaly get the hist at index (from above).
-            const TH1D *eig = static_cast<const TH1D*>(currentVector_itr->second.at(runnumberIndex).At(index)); 
+            const TH1 *eig = static_cast<const TH1*>(currentVector_itr->second.at(runnumberIndex).At(index)); 
             int nSys{};
             calcDetailLevels(eig, sLevel,nSys);
             nSys-=sLevel[m_detailLevel];
@@ -492,7 +492,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
  */
 void
 Root::TElectronEfficiencyCorrectionTool::calcDetailLevels(
-        const TH1D *eig, 
+        const TH1 *eig, 
         std::array<int,detailLevelEnd>& sLevel,
         int& nSys) const {
 
@@ -517,21 +517,21 @@ Root::TElectronEfficiencyCorrectionTool::calcDetailLevels(
  * Ownership should be tranfered to the map of the tables
  * and the proper delete happens in the dtor
  */
-std::vector<TH2D *>
+std::vector<TH2 *>
 Root::TElectronEfficiencyCorrectionTool::buildSingleToyMC(
-        const TH2D *sf, 
-        const TH2D *stat, 
-        const TH2D *uncorr, 
+        const TH2 *sf, 
+        const TH2 *stat, 
+        const TH2 *uncorr, 
         const TObjArray& corr,
         const std::array<int,detailLevelEnd> sLevel,
         int& randomCounter) {
 
     ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ")! " 
             << "entering function buildSingleToyMC");
-    std::vector<TH2D*> tmpHists;
+    std::vector<TH2*> tmpHists;
     int nBins = (stat->GetNbinsX() + 2) * (stat->GetNbinsY() + 2);
     for (int toy = 0; toy < m_nToyMC; toy++) {
-        tmpHists.push_back((TH2D *) corr.At(0)->Clone());
+        tmpHists.push_back((TH2 *) corr.At(0)->Clone());
     }
     // Loop over all bins
     for (int bin = 0; bin < nBins; bin++) {
@@ -545,7 +545,7 @@ Root::TElectronEfficiencyCorrectionTool::buildSingleToyMC(
         // Add smaller correlated systematics as uncorrelated
         for (int i = 0; i < sLevel[m_detailLevel]; ++i) {
             if (corr.At(i) != 0) {
-                double valAdd = ((TH2D *) corr.At(i))->GetBinContent(bin);
+                double valAdd = ((TH2 *) corr.At(i))->GetBinContent(bin);
                 val = sqrt(val * val + valAdd * valAdd);
             }
         }
@@ -562,11 +562,11 @@ Root::TElectronEfficiencyCorrectionTool::buildSingleToyMC(
  * Ownership should be tranfered to the map of the tables
  * and the proper delete happens in the dtor
  */
-TH2D*
+TH2*
 Root::TElectronEfficiencyCorrectionTool::buildSingleCombToyMC(
-        const TH2D *sf, 
-        const TH2D *stat, 
-        const TH2D *uncorr, 
+        const TH2 *sf, 
+        const TH2 *stat, 
+        const TH2 *uncorr, 
         const TObjArray& corr,
         const std::array<int,detailLevelEnd> sLevel,
         const int nSys,
@@ -575,9 +575,9 @@ Root::TElectronEfficiencyCorrectionTool::buildSingleCombToyMC(
     ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " 
             << "entering function buildSingleCombToyMC");
 
-    TH2D *tmpHist;
+    TH2 *tmpHist;
     const int nBins = (stat->GetNbinsX() + 2) * (stat->GetNbinsY() + 2);
-    tmpHist = (TH2D *) corr.At(0)->Clone();
+    tmpHist = (TH2 *) corr.At(0)->Clone();
     // Create random numbers for the corr. uncertainties
     std::vector<double> rnd (nSys,0);
     for (int s = 0; s < nSys; ++s) {
@@ -596,7 +596,7 @@ Root::TElectronEfficiencyCorrectionTool::buildSingleCombToyMC(
         // Add smaller correlated systematics as uncorrelated
         for (int s = 0; s < sLevel[m_detailLevel]; ++s) {
             if (corr.At(s) != 0) {
-                double valAdd = ((TH2D *) corr.At(s))->GetBinContent(bin);
+                double valAdd = ((TH2 *) corr.At(s))->GetBinContent(bin);
                 val = sqrt(val * val + valAdd * valAdd);
             }
         }
@@ -605,7 +605,7 @@ Root::TElectronEfficiencyCorrectionTool::buildSingleCombToyMC(
         // Add larger correlated systematics
         for (int s = sLevel[m_detailLevel]; s < nSys; ++s) {
             if (corr.At(s) != 0) {
-                val += ((TH2D *) corr.At(s))->GetBinContent(bin) * rnd[s];
+                val += ((TH2 *) corr.At(s))->GetBinContent(bin) * rnd[s];
             }
         }
         tmpHist->SetBinContent(bin, val + sf->GetBinContent(bin));
@@ -639,17 +639,17 @@ Root::TElectronEfficiencyCorrectionTool::buildToyMCTable(const TObjArray& sf,
                 if (eig.GetEntriesFast()>0 && uncorr.GetEntriesFast()>0) {
                     std::array<int,detailLevelEnd> sLevel{};    
                     int nSys{};
-                    calcDetailLevels((TH1D *) eig.At(i), sLevel,nSys);
-                    tmpArray.Add(buildSingleCombToyMC((TH2D *) sf.At(i), 
-                                (TH2D *) stat.At(i), 
-                                (TH2D *) uncorr.At(i), 
+                    calcDetailLevels((TH1 *) eig.At(i), sLevel,nSys);
+                    tmpArray.Add(buildSingleCombToyMC((TH2 *) sf.At(i), 
+                                (TH2 *) stat.At(i), 
+                                (TH2 *) uncorr.At(i), 
                                 corr.at(i),
                                 sLevel,
                                 nSys,
                                 randomCounter));
                 }else {
-                    tmpArray.Add(buildSingleCombToyMC((TH2D *) sf.At(i), 
-                                (TH2D *) stat.At(i), 
+                    tmpArray.Add(buildSingleCombToyMC((TH2 *) sf.At(i), 
+                                (TH2 *) stat.At(i), 
                                 0, 
                                 corr.at(i) ,
                                 sLevel,
@@ -660,12 +660,12 @@ Root::TElectronEfficiencyCorrectionTool::buildToyMCTable(const TObjArray& sf,
             tmpVec.push_back(tmpArray);
         }
     }else {
-        std::vector< std::vector<TH2D*> > tmpVec2 ;
+        std::vector< std::vector<TH2*> > tmpVec2 ;
         for (int i = 0; i < stat_entries; ++i) {
-            calcDetailLevels((TH1D *) eig.At(i),sLevel,nSys);
-            tmpVec2.push_back(buildSingleToyMC((TH2D *) sf.At(i), 
-                        (TH2D *) stat.At(i), 
-                        (TH2D *) uncorr.At(i),
+            calcDetailLevels((TH1 *) eig.At(i),sLevel,nSys);
+            tmpVec2.push_back(buildSingleToyMC((TH2 *) sf.At(i), 
+                        (TH2 *) stat.At(i), 
+                        (TH2 *) uncorr.At(i),
                         corr.at(i),
                         sLevel,
                         randomCounter));
@@ -702,7 +702,7 @@ Root::TElectronEfficiencyCorrectionTool::getNbins(std::map<float, std::vector<fl
         for (int entries = 0; entries < (tmpVec.at(ikey)).GetEntries(); ++entries) {
             eta1.clear();
             //Get number of bins
-            TH2D *h_tmp = ((TH2D * ) (tmpVec.at(ikey)).At(entries));
+            TH2 *h_tmp = ((TH2 * ) (tmpVec.at(ikey)).At(entries));
             int nbinsX = h_tmp->GetNbinsX();
             int nbinsY = h_tmp->GetNbinsY();
             //fill in the eta pushing back
@@ -754,7 +754,7 @@ int Root::TElectronEfficiencyCorrectionTool::getHistograms() {
     for (unsigned int i = 0; i < m_corrFileNameList.size(); ++i) {
         // Load the ROOT file
         const std::unique_ptr<char> fname (gSystem->ExpandPathName(m_corrFileNameList[i].c_str()));
-        std::unique_ptr<TFile> rootFile = CxxUtils::make_unique<TFile> (fname.get(), "READ");
+        std::unique_ptr<TFile> rootFile( TFile::Open(fname.get(), "READ") );
         if (!rootFile) {
             ATH_MSG_ERROR(
                     " (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "No ROOT file found here: " <<
@@ -1067,9 +1067,9 @@ Root::TElectronEfficiencyCorrectionTool::setup(const TObjArray& hists,
                 << "! Could NOT find histogram with name *_sf in folder");
         return 0;
     }
-    TH2 *tmpHist(0);
+    TH1 *tmpHist(0);
     for (int i = 0; i < hists.GetEntries(); ++i) {
-        tmpHist = (TH2 *) hists.At(i);
+        tmpHist = (TH1 *) hists.At(i);
         tmpHist->SetDirectory(0);
     }
     // Now, we have all the needed info. Fill the vectors accordingly

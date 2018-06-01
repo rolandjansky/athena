@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TruthPileupEvent_v1.h 622193 2014-10-16 16:08:34Z krasznaa $
 #ifndef XAODTRUTH_VERSIONS_TRUTHPILEUPEVENT_V1_H
 #define XAODTRUTH_VERSIONS_TRUTHPILEUPEVENT_V1_H
 
@@ -39,5 +38,7 @@ namespace xAOD {
 // Declare the base class of TruthPileupEvent_v1 to StoreGate:
 #include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::TruthPileupEvent_v1, xAOD::TruthEventBase_v1 );
+
+DATAVECTOR_BASE( xAOD::TruthPileupEvent_v1, xAOD::TruthEventBase_v1 );
 
 #endif // XAODTRUTH_VERSIONS_TRUTHPILEUPEVENT_V1_H
