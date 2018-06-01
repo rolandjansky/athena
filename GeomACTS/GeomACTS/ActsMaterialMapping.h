@@ -66,6 +66,9 @@ public:
 private:
 
   Acts::MaterialTrack makeInputTrack(const Trk::MaterialStepCollection& materialStepCollection) const;
+  bool
+  stepFilter(const Acts::MaterialStep& mStep) const;
+
 
   // thread-local state object
   //Acts::MaterialMapper::Cache m_mapCache;

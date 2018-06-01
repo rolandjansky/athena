@@ -53,6 +53,24 @@ ActsMaterialMapping::ActsMaterialMapping(const std::string& name,
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+bool
+ActsMaterialMapping::stepFilter(const Acts::MaterialStep& mStep) const
+{
+    const Acts::Vector3D& pos = mStep.position();
+    if (abs(pos.z()) > 800) {
+      if (pos.perp() > 620) {
+        return false;
+      }
+    }
+    else {
+      if (pos.perp() > 540) {
+        return false;
+      }
+    }
+    
+    return true;
+}
+
 StatusCode ActsMaterialMapping::initialize() {
 
   ATH_MSG_INFO("ACTS material mapping is initializing");
@@ -70,6 +88,12 @@ StatusCode ActsMaterialMapping::initialize() {
   Acts::MaterialMapper::Config matMapCfg;
   matMapCfg.etaCutoff = 6;
   matMapCfg.extrapolationEngine = m_extrapolationTool->extrapolationEngine();
+
+  // attempt to cut out TRT material
+  // @TODO: remove this
+  matMapCfg.stepFilter = [this](const Acts::MaterialStep& mStep) -> bool {
+    return stepFilter(mStep);
+  };
 
   m_materialMapper = std::make_unique<Acts::MaterialMapper>(matMapCfg);
   m_materialMapper->setLogger(ACTS_ATH_LOGGER("MaterialMapper"));
@@ -220,10 +244,15 @@ ActsMaterialMapping::makeInputTrack(const Trk::MaterialStepCollection& materialS
       double dInX0 = (X0 * X0 > 10e-10) ? thickness / X0 : 0.;
       double dInL0 = (L0 * L0 > 10e-10) ? thickness / L0 : 0.;
 
-      totDInX0 += dInX0;
-      totDInL0 += dInL0;
+      Acts::MaterialStep mStep(mat, pos);
 
-      materialSteps.emplace_back(mat, pos);
+      if (stepFilter(mStep)) {
+        totDInX0 += dInX0;
+        totDInL0 += dInL0;
+
+        //materialSteps.emplace_back(mat, pos);
+        materialSteps.push_back(std::move(mStep));
+      }
     }
 
     Acts::MaterialTrack inputTrack(startPos, theta, phi, materialSteps, totDInX0, totDInL0);
