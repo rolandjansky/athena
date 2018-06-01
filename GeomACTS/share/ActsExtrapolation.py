@@ -46,6 +46,8 @@ from GeomACTS.GeomACTSConfig import TrackingGeometrySvc
 trkGeomSvc = TrackingGeometrySvc()
 trkGeomSvc.UseMaterialMap = True
 trkGeomSvc.MaterialMapInputFile = "MaterialMaps.pb"
+trkGeomSvc.BarrelMaterialBins = [40, 60] # phi z
+trkGeomSvc.EndcapMaterialBins = [50, 20] # phi r
 trkGeomSvc.OutputLevel = INFO
 ServiceMgr += trkGeomSvc
 
