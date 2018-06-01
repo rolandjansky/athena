@@ -29,9 +29,15 @@ class CurrentSequence:
         return CurrentSequence.sequence
 
 
-_propsToConcatinate=frozenset(("GeoModelSvc.DetectorTools","CondInputLoader.Load","IOVDbSvc.Folders","EvtPersistencySvc.CnvServices",
-                               "PoolSvc.ReadCatalog","ProxyProviderSvc.ProviderNames" ))
+_propsToUnify=frozenset(("GeoModelSvc.DetectorTools","CondInputLoader.Load","IOVDbSvc.Folders","EvtPersistencySvc.CnvServices",
+                         "PoolSvc.ReadCatalog","ProxyProviderSvc.ProviderNames" ))
 
+def unifyProp(prop1,prop2):
+    #May want to strip whitespace in case the params are lists of strings
+    s1=set(prop1)
+    s2=set(prop2)
+    su=s1 | s2
+    return list(su)
 
 class ComponentAccumulator(object): 
 
@@ -207,13 +213,12 @@ class ComponentAccumulator(object):
                             #found property mismatch
                             if isinstance(oldprop,list): #if properties are concatinable, do that!
                                 propid="%s.%s" % (comp.getType(),str(prop))
-                                if propid not in _propsToConcatinate:
+                                if propid not in _propsToUnify:
                                     raise DeduplicationFailed("List property %s defined multiple times with conflicting values.\n " % propid \
-                                                              +"If this property should be concatinated, consider adding it to the _propsToConcatinate set")
-                  
-                                oldprop+=newprop
-
-                                setattr(comp,prop,oldprop)
+                                                              +"If this property should be concatinated, consider adding it to the _propsToUnify set")
+                                
+                                mergeprop=unifyProp(oldprop,newprop)
+                                setattr(comp,prop,mergeprop)
                             else:
                                 #self._msg.error("component '%s' defined multiple times with mismatching configuration", svcs[i].getJobOptName())
                                 raise DeduplicationFailed("component '%s' defined multiple times with mismatching property %s" % \
