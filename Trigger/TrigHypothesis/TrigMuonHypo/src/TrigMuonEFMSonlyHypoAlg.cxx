@@ -72,7 +72,7 @@ StatusCode TrigMuonEFMSonlyHypoAlg::execute_r( const EventContext& context ) con
   for ( auto previousDecision: *previousDecisionsHandle ) { 
     auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
     if (!roiEL.isValid()) {
-      ATH_MSG_ERROR("ReadHandle for std::vector<SG::View*> key:" << m_viewsKey.key() << " is failed");
+      ATH_MSG_ERROR("ReadHandle for ViewContainer key:" << m_viewsKey.key() << " is failed");
       return StatusCode::FAILURE;
     }
     const TrigRoiDescriptor* roi = *roiEL;
@@ -105,9 +105,9 @@ StatusCode TrigMuonEFMSonlyHypoAlg::execute_r( const EventContext& context ) con
     toolInput.emplace_back( d, roi, muons, roiToDecision[roi] );
 
     // retrieve ViewRoIs
-    auto viewlink = ElementLink< std::vector<SG::View*> >( m_viewsKey.key(), counter );
+    auto viewlink = ElementLink< ViewContainer >( m_viewsKey.key(), counter );
     if(!viewlink.isValid()) {
-      ATH_MSG_ERROR("ReadHandle for std::vector<SG::View*> key:" << m_viewsKey.key() << " isn't Valid");
+      ATH_MSG_ERROR("ReadHandle for ViewContainer key:" << m_viewsKey.key() << " isn't Valid");
       return StatusCode::FAILURE;
     } else {
       d->setObjectLink( "view", viewlink );

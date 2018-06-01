@@ -73,7 +73,7 @@ StatusCode xAODGenerator( SG::WriteHandle<T>& h ) {
 } 
 
 template<typename T>
-StatusCode  HLTEDMCreator::noMerge( std::vector< SG::View* > const&, const SG::ReadHandleKey<T>&,
+StatusCode  HLTEDMCreator::noMerge( ViewContainer const&, const SG::ReadHandleKey<T>&,
 				    EventContext const&, T &  ) const {
   //  if we are called it means views merging is requested but Type T does not support it (i.e. missing copy c'tor)
   return StatusCode::FAILURE;
@@ -81,7 +81,7 @@ StatusCode  HLTEDMCreator::noMerge( std::vector< SG::View* > const&, const SG::R
 }
 
 template<typename T>
-StatusCode  HLTEDMCreator::viewsMerge( std::vector< SG::View* > const& views, const SG::ReadHandleKey<T>& inViewKey,
+StatusCode  HLTEDMCreator::viewsMerge( ViewContainer const& views, const SG::ReadHandleKey<T>& inViewKey,
 				       EventContext const& context, T & output ) const {
   
   typedef typename T::base_value_type type_in_container;

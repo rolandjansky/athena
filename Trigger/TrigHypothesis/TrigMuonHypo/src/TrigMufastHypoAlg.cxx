@@ -6,7 +6,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
-
+#include "AthLinks/ElementLink.h"
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "TrigMuonHypo/TrigMufastHypoAlg.h"
 
@@ -96,6 +96,7 @@ StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
     auto d = newDecisionIn( decisions.get() );
 
     // push_back to toolInput
+
     toolInput.emplace_back( d, roi, fast, previousDecision );
     
     {

@@ -679,7 +679,7 @@ TEST_F( ViewCollectionMerge_test, mergeHelperTest ) {
   auto viewVector = std::make_unique< ViewContainer >();
   SG::WriteHandleKey< DataVector< DummyData > > outputDataHandleKey( DATA_NAME );
   outputDataHandleKey.initialize();
-  ASSERT_TRUE( ViewHelper::MakeAndPopulate( "testView", *viewVector, outputDataHandleKey, dummyContext, viewData ).isSuccess() );
+  ASSERT_TRUE( ViewHelper::MakeAndPopulate( "testView", viewVector.get(), outputDataHandleKey, dummyContext, viewData ).isSuccess() );
 
   // Store the view vector
   SG::WriteHandle< ViewContainer > outputViewsHandle( VIEWS_NAME );

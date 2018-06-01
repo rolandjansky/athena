@@ -35,7 +35,7 @@ StatusCode TestViewDriver::execute( ) {
 
   //  this code is to be replaced by set of tools which can customize what is placed in the view
   auto contexts = std::vector<EventContext>( );
-  auto viewVector = std::make_unique<std::vector<SG::View*>>( );
+  auto viewVector = std::make_unique< ViewContainer >( );
   unsigned int viewCounter = 0;
   unsigned int conditionsRun = getContext().getExtension<Atlas::ExtendedEventContext>()->conditionsRun();
   for ( const auto roi: *roisContainer.cptr( ) ) {
@@ -57,37 +57,13 @@ StatusCode TestViewDriver::execute( ) {
 
 
   // Run the views
-  CHECK( ViewHelper::ScheduleViews( *viewVector,
+  CHECK( ViewHelper::ScheduleViews( viewVector.get(),
                                     m_viewNodeName,
                                     getContext(),
                                     m_scheduler.get() ) );
 
   ATH_MSG_DEBUG( "Execution in " << viewVector->size( ) << " Views performed" );
   
-  // Harvest the results into a merged collection - currently impossible due to issue with TrigComposite
-  //  auto outputClusterContainer = std::make_unique< TestClusterContainer >( );
-  //  auto outputClusterContainerAux = std::make_unique< TestClusterAuxContainer>( );
-  //  outputClusterContainer->setStore( outputClusterContainerAux.get( ) );
-
-  // This won't work because the views are now scheduled, not run immediately
-  /*for ( auto& viewCtx: contexts ) {
-    auto handle = SG::makeHandle( m_clustersViewInputHandle, viewCtx );
-    if ( not handle.isValid( ) ) {
-      ATH_MSG_ERROR( "Can not bind handle to a view context" );
-      return StatusCode::FAILURE;
-    }
-    for ( auto cluster: *handle.get( ) ) {
-      ATH_MSG_DEBUG( "Cluster of ET " << TestEDM::getClusterEt( cluster ) );
-      //outputClusterContainer->push_back(cluster);  // FIXME this is not as simple, we need some trick to do copy
-    }
-  }*/
-
-  // for now we are not outputting
-  //  {
-  //    auto handle = SG::makeHandle( m_outputClusterContainer );
-  //    CHECK( handle.record( std::move( outputClusterContainer ), std::move( outputClusterContainerAux ) ) );
-  //  }
-  // Store the views for re-use/book-keeping
   {
     auto handle = SG::makeHandle( m_views );
     CHECK( handle.record( std::move( viewVector ) ) );

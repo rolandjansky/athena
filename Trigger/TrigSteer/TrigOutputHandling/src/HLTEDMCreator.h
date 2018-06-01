@@ -60,11 +60,9 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
 
   HLTEDMCreator();
 
-  //  SG::ReadHandleKey< std::vector< SG::View* > > m_viewsKey{ this, "Views", "", "If specified read objects from views" };
-  //  Gaudi::Property< std::string > m_inViewKey{ this, "InViewKey", "", "Key used for obects in views" };
 
 #define DEF_VIEWS(__TYPE) \
-  SG::ReadHandleKeyArray< std::vector< SG::View* > > m_##__TYPE##Views{ this, #__TYPE"Views", {}, "Name  views from where the "#__TYPE" will be read"}
+  SG::ReadHandleKeyArray< ViewContainer > m_##__TYPE##Views{ this, #__TYPE"Views", {}, "Name  views from where the "#__TYPE" will be read"}
 
 
 
@@ -95,12 +93,12 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   struct HandlesGroup {
     HandlesGroup(SG::WriteHandleKeyArray<T>& out_,
 		 SG::ReadHandleKeyArray<T>& in_,
-		 SG::ReadHandleKeyArray< std::vector< SG::View* > >& views_)
+		 SG::ReadHandleKeyArray< ViewContainer >& views_)
       : out(out_), in(in_), views(views_) {}
 
     SG::WriteHandleKeyArray<T>& out;
     SG::ReadHandleKeyArray<T>& in;
-    SG::ReadHandleKeyArray< std::vector< SG::View* > >& views;
+    SG::ReadHandleKeyArray< ViewContainer >& views;
   };
   /**
    * Init related handles
@@ -117,12 +115,12 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   struct ConstHandlesGroup {
     ConstHandlesGroup(const SG::WriteHandleKeyArray<T>& out_,
 		      const SG::ReadHandleKeyArray<T>& in_,
-		      const SG::ReadHandleKeyArray< std::vector< SG::View* > >& views_)
+		      const SG::ReadHandleKeyArray< ViewContainer >& views_)
       : out(out_), in(in_), views(views_) {}
 
     const SG::WriteHandleKeyArray<T>& out;
     const SG::ReadHandleKeyArray<T>& in;
-    const SG::ReadHandleKeyArray< std::vector< SG::View* > >& views;
+    const SG::ReadHandleKeyArray< ViewContainer >& views;
   };
 
   
@@ -132,11 +130,11 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
 
 
   template<typename T>
-  StatusCode  viewsMerge( std::vector< SG::View* > const& views, const SG::ReadHandleKey<T>& inViewKey,
+  StatusCode  viewsMerge( ViewContainer const& views, const SG::ReadHandleKey<T>& inViewKey,
 			  EventContext const& context, T & output ) const;
   
   template<typename T>
-  StatusCode  noMerge( std::vector< SG::View* > const& views, const SG::ReadHandleKey<T>& inViewKey,
+  StatusCode  noMerge( ViewContainer const& views, const SG::ReadHandleKey<T>& inViewKey,
 		       EventContext const& context, T & output ) const;
   
 }; 

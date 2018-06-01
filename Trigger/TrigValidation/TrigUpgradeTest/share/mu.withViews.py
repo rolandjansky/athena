@@ -326,7 +326,7 @@ if TriggerFlags.doMuon:
  
   if doL2SA:
 
-      svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
+    svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
 
     ### set up L1RoIsFilter ###
     filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
