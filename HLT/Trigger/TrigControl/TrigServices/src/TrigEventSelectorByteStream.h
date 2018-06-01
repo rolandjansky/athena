@@ -14,14 +14,30 @@ class ByteStreamInputSvc;
 /**
  * @class  TrigEventSelectorByteStream
  * @brief  online implementation of IEvtSelector for ByteStream
- * 
- * Unlike the offline EventSelectorByteStream, this implementation does not use a ByteStreamInputSvc,
- * but directly requests events from the TDAQ infrastructure throught the hltinterface::DataCollector interface
  */
 
 class TrigEventSelectorByteStream : public Service,
                                     virtual public IEvtSelector {
 public:
+  /**
+   * @class TrigEventSelectorByteStream::Context
+   * @brief Event Selector context for TrigEventSelectorByteStream
+   */
+  class Context : public IEvtSelector::Context {
+  public:
+    /// Constructor from a selector
+    Context(const IEvtSelector* selector);
+    /// Copy constructor
+    Context(const TrigEventSelectorByteStream::Context& other);
+    /// Default destructor
+    virtual ~Context();
+    /// Implementation of IEvtSelector::Context::identifier
+    virtual void* identifier() const override;
+  private:
+    /// pointer to the event selector
+    const IEvtSelector* m_evtSelector;
+  };
+
   /// Standard constructor
   TrigEventSelectorByteStream(const std::string& name, ISvcLocator* svcLoc);
   /// Standard destructor

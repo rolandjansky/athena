@@ -54,6 +54,7 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   m_robDataProviderSvc("ROBDataProviderSvc", name),
   m_THistSvc("THistSvc", name),
   m_evtSelector("EvtSel", name),
+  m_evtSelContext(0),
   m_coolHelper("TrigCOOLUpdateHelper", this),
   m_detector_mask(0xffffffff, 0xffffffff, 0, 0),
   m_nevt(0),
@@ -255,7 +256,12 @@ StatusCode HltEventLoopMgr::initialize()
   //----------------------------------------------------------------------------
   sc = m_evtSelector.retrieve();
   if(sc.isFailure()) {
-    fatal() << "Error retrieving EvtSel " + m_THistSvc << endmsg;
+    fatal() << "Error retrieving EvtSel" << endmsg;
+    return sc;
+  }
+  sc = m_evtSelector->createContext(m_evtSelContext);
+  if(sc.isFailure()) {
+    fatal() << "Cannot create event selector context" << endmsg;
     return sc;
   }
 
@@ -471,24 +477,11 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
     debug() << "Free slots = " << m_schedulerSvc->freeSlots() << endmsg;
     if (m_schedulerSvc->freeSlots()>0 && events_available) {
       debug() << "Free slots = " << m_schedulerSvc->freeSlots() << ". Reading the next event." << endmsg;
-      
-      //-----------------------------------------------------------------------
-      // Get the next event
-      //-----------------------------------------------------------------------
-      eformat::write::FullEventFragment l1r; // can we allocate new each time?
-      // should the getNext call be protected by try{} and catch()?
-      hltinterface::DataCollector::Status status = hltinterface::DataCollector::instance()->getNext(l1r);
-      if (status == hltinterface::DataCollector::Status::STOP) {
-        debug() << "No more events available, the loop will finish when all events on the fly are processed" << endmsg;
-        events_available = false;
-      }
-      else if (status != hltinterface::DataCollector::Status::OK) {
-        error() << "Unhandled return Status " << static_cast<int>(status) << " from DataCollector::getNext" << endmsg;
-        // continue running?
-      }
+
+      eformat::write::FullEventFragment l1r; // to be removed
 
       //-----------------------------------------------------------------------
-      // Start processing the new event
+      // Create new EventContext
       //-----------------------------------------------------------------------
       ++m_nevt;
       EventContext* evtContext(nullptr);
@@ -504,6 +497,15 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
         // needs careful handling, make a framework error, send event to debug
         continue;
       }
+
+      // Not so nice behind-the-scenes way to inform the InputSvc / ROBDataProvider about the slot for the new event
+      // to be read. This is likely also used by other services.
+      Gaudi::Hive::setCurrentContext(*evtContext);
+
+      //-----------------------------------------------------------------------
+      // Get the next event
+      //-----------------------------------------------------------------------
+      m_evtSelector->next(*m_evtSelContext);
 
       EventID* eventID = new EventID(m_currentRun, // l1r.run_no(),
                                      l1r.global_id(),
@@ -534,7 +536,9 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
 
       evtContext->setEventID( *static_cast<EventIDBase*>(eventID) );
       evtContext->template getExtension<Atlas::ExtendedEventContext>()->setConditionsRun(m_currentRun);
+      // not sure if needed again
       Gaudi::Hive::setCurrentContext(*evtContext);
+
       // Record EventContext in current whiteboard
       if (m_evtStore->record(std::make_unique<EventContext> (*evtContext), "EventContext").isFailure()) {
         error() << "Error recording event context object" << endmsg;
@@ -674,7 +678,7 @@ const SOR* HltEventLoopMgr::processRunParams(const ptree & pt)
   return sor;
 }
 
-//=============================================================================
+// =============================================================================
 void HltEventLoopMgr::updInternal(const coral::AttributeList & sor_attrlist)
 {
   auto detMaskFst = sor_attrlist["DetectorMaskFst"].data<unsigned long long>();
@@ -703,7 +707,7 @@ void HltEventLoopMgr::updInternal(const coral::AttributeList & sor_attrlist)
   }
 }
 
-//==============================================================================
+// ==============================================================================
 StatusCode HltEventLoopMgr::clearTemporaryStores()
 {
   //----------------------------------------------------------------------------
@@ -727,7 +731,7 @@ StatusCode HltEventLoopMgr::clearTemporaryStores()
   return sc;
 }
 
-//=============================================================================
+// =============================================================================
 void HltEventLoopMgr::updDetMask(const std::pair<uint64_t, uint64_t>& dm)
 {
   m_detector_mask = std::make_tuple(
@@ -742,7 +746,7 @@ void HltEventLoopMgr::updDetMask(const std::pair<uint64_t, uint64_t>& dm)
                     );
 }
 
-//==============================================================================
+// ==============================================================================
 const coral::AttributeList& HltEventLoopMgr::getSorAttrList(const SOR* sor) const
 {
   if(sor->size() != 1)
@@ -760,7 +764,7 @@ const coral::AttributeList& HltEventLoopMgr::getSorAttrList(const SOR* sor) cons
   return soral;
 }
 
-//==============================================================================
+// ==============================================================================
 void HltEventLoopMgr::printSORAttrList(const coral::AttributeList& atr, MsgStream& log) const
 {
   unsigned long long sorTime_ns(atr["SORTime"].data<unsigned long long>());
@@ -794,7 +798,7 @@ void HltEventLoopMgr::printSORAttrList(const coral::AttributeList& atr, MsgStrea
       << (atr["RecordingEnabled"].data<bool>() ? "true" : "false") << endmsg;
 }
 
-//==============================================================================
+// ==============================================================================
 StatusCode HltEventLoopMgr::createEventContext(EventContext*& evtContext) const
 {
   evtContext = new EventContext(m_nevt, m_whiteboard->allocateStore(m_nevt));
@@ -811,7 +815,7 @@ StatusCode HltEventLoopMgr::createEventContext(EventContext*& evtContext) const
   return sc;
 }
 
-//==============================================================================
+// ==============================================================================
 int HltEventLoopMgr::drainScheduler() const
 {
   verbose() << "start of " << __FUNCTION__ << endmsg;
@@ -969,7 +973,7 @@ int HltEventLoopMgr::drainScheduler() const
   return (  fail ? -1 : 1 );
 }
 
-//==============================================================================
+// ==============================================================================
 StatusCode HltEventLoopMgr::clearWBSlot(int evtSlot) const {
   StatusCode sc = m_whiteboard->clearStore(evtSlot);
   if( !sc.isSuccess() )  {

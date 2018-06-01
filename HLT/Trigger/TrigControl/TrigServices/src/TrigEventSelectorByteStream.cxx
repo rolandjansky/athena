@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigEventSelectorByteStream.h"
@@ -9,25 +9,25 @@
 
 #include "hltinterface/DataCollector.h"
 
-// ============================================================================
+// =============================================================================
 // Standard constructor
-// ============================================================================
+// =============================================================================
 TrigEventSelectorByteStream::TrigEventSelectorByteStream(const std::string& name, ISvcLocator* svcLoc)
 : Service(name, svcLoc),
 	m_eventSource("ByteStreamInputSvc", name) {
   declareProperty("ByteStreamInputSvc", m_eventSource);
 }
-// ============================================================================
-// Standard destructor
-// ============================================================================
-TrigEventSelectorByteStream::~TrigEventSelectorByteStream()
-{
-}
 
-// ============================================================================
+// =============================================================================
+// Standard destructor
+// =============================================================================
+TrigEventSelectorByteStream::~TrigEventSelectorByteStream() {}
+
+// =============================================================================
 // Implementation of IInterface::queryInterface
-// ============================================================================
-StatusCode TrigEventSelectorByteStream::queryInterface(const InterfaceID& riid, void** ppvInterface) {
+// =============================================================================
+StatusCode TrigEventSelectorByteStream::queryInterface(const InterfaceID& riid, void** ppvInterface)
+{
   verbose() << "start of " << __FUNCTION__ << endmsg;
 
   if(IEvtSelector::interfaceID().versionMatch(riid))
@@ -40,10 +40,11 @@ StatusCode TrigEventSelectorByteStream::queryInterface(const InterfaceID& riid, 
   return StatusCode::SUCCESS;
 }
 
-// ============================================================================
+// =============================================================================
 // Implementation of Service::initialize
-// ============================================================================
-StatusCode TrigEventSelectorByteStream::initialize() {
+// =============================================================================
+StatusCode TrigEventSelectorByteStream::initialize()
+{
   StatusCode sc = StatusCode::SUCCESS;
 
   sc = m_eventSource.retrieve();
@@ -55,19 +56,22 @@ StatusCode TrigEventSelectorByteStream::initialize() {
   return sc;
 }
 
-// ============================================================================
+// =============================================================================
 // Implementation of Service::finalize
-// ============================================================================
-StatusCode TrigEventSelectorByteStream::finalize() {
-  m_eventSource.release().ignore();
+// =============================================================================
+StatusCode TrigEventSelectorByteStream::finalize()
+{
+  if (m_eventSource.release().isFailure()) {
+    warning() << "Cannot release the event source service" << endmsg;
+  }
   return StatusCode::SUCCESS;
 }
 
-// ============================================================================
+// =============================================================================
 // Implementation of IEvtSelector::next(Context&)
 // There is actually no event selection here, we process all events online
-// ============================================================================
-StatusCode TrigEventSelectorByteStream::next(IEvtSelector::Context& c) const
+// =============================================================================
+StatusCode TrigEventSelectorByteStream::next(IEvtSelector::Context& /*c*/) const
 {
   verbose() << "start of " << __FUNCTION__ << endmsg;
 
@@ -93,17 +97,30 @@ StatusCode TrigEventSelectorByteStream::next(IEvtSelector::Context& c) const
   return StatusCode::SUCCESS;
 }
 
-// ============================================================================
+// =============================================================================
+// Implementation of IEvtSelector::createContext(Context*&)
+// =============================================================================
+StatusCode TrigEventSelectorByteStream::createContext(IEvtSelector::Context*& c) const
+{
+  c = new TrigEventSelectorByteStream::Context(this);
+  return StatusCode::SUCCESS;
+}
+
+// =============================================================================
+// Implementation of IEvtSelector::releaseContext(Context*&)
+// =============================================================================
+StatusCode TrigEventSelectorByteStream::releaseContext(IEvtSelector::Context*& /*c*/) const
+{
+  // this does nothing
+  return StatusCode::SUCCESS;
+}
+
+// =============================================================================
 // Unimplemented methods of IEvtSelector
-// ============================================================================
+// =============================================================================
 #define TRIGEVENTSELECTORBYTESTREAM_UNIMPL \
   fatal() << "Misconfiguration - the method " << __FUNCTION__ << " cannot be used online" << endmsg; \
   return StatusCode::FAILURE;
-
-StatusCode TrigEventSelectorByteStream::createContext(IEvtSelector::Context*& c) const
-{
-  TRIGEVENTSELECTORBYTESTREAM_UNIMPL
-}
 
 StatusCode TrigEventSelectorByteStream::next(IEvtSelector::Context& c, int jump) const
 {
@@ -135,12 +152,23 @@ StatusCode TrigEventSelectorByteStream::createAddress(const IEvtSelector::Contex
   TRIGEVENTSELECTORBYTESTREAM_UNIMPL
 }
 
-StatusCode TrigEventSelectorByteStream::releaseContext(IEvtSelector::Context*& c) const
+StatusCode TrigEventSelectorByteStream::resetCriteria(const std::string& cr, IEvtSelector::Context& c) const
 {
   TRIGEVENTSELECTORBYTESTREAM_UNIMPL
 }
 
-StatusCode TrigEventSelectorByteStream::resetCriteria(const std::string& cr, IEvtSelector::Context& c) const
+// =============================================================================
+// Context implementation
+// =============================================================================
+TrigEventSelectorByteStream::Context::Context(const IEvtSelector* selector)
+: m_evtSelector(selector) {}
+
+TrigEventSelectorByteStream::Context::Context(const TrigEventSelectorByteStream::Context& other)
+: m_evtSelector(other.m_evtSelector) {}
+
+TrigEventSelectorByteStream::Context::~Context() {}
+
+void* TrigEventSelectorByteStream::Context::identifier() const
 {
-  TRIGEVENTSELECTORBYTESTREAM_UNIMPL
+  return (void*)(m_evtSelector);
 }

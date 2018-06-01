@@ -10,6 +10,7 @@
 
 #include "GaudiKernel/MinimalEventLoopMgr.h"
 #include "GaudiKernel/SmartIF.h"
+#include "GaudiKernel/IEvtSelector.h"
 
 #include "AthenaKernel/Timeout.h"
 
@@ -23,7 +24,6 @@ class IAlgContextSvc;
 class IThreadPoolSvc;
 class StoreGateSvc;
 class ITHistSvc;
-class IEvtSelector;
 class IROBDataProviderSvc;
 class CondAttrListCollection;
 class TrigCOOLUpdateHelper;
@@ -158,6 +158,9 @@ private:
   size_t m_nevt;
   /// Current run number
   int m_threadPoolSize;
+
+  /// Event selector context
+  IEvtSelector::Context* m_evtSelContext;
 
 protected:
   // ------------------------- Reimplemented AthenaHiveEventLoopMgr helpers ----

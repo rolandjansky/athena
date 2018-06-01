@@ -3,8 +3,11 @@
 # TrigServicesEventLoopMgr configuration file
 #
 #==============================================================
+from AthenaCommon import CfgMgr
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+from AthenaCommon.AppMgr import ToolSvc
+
 # from AthenaCommon.Constants import *
 
 # ==============================================================================
@@ -74,14 +77,21 @@ ClassIDSvc = Service("ClassIDSvc")
 ClassIDSvc.OutputLevel = DEBUG
 
 # ==============================================================================
+# Event selector and input service
+# ==============================================================================
+from TrigServices.TrigServicesConf import TrigByteStreamInputSvc
+inputSvc = TrigByteStreamInputSvc("ByteStreamInputSvc")
+svcMgr += inputSvc
+
+from TrigServices.TrigServicesConf import TrigEventSelectorByteStream
+evtSel = TrigEventSelectorByteStream("EventSelector")
+evtSel.ByteStreamInputSvc = inputSvc
+svcMgr += evtSel
+theApp.EvtSel = "EventSelector"
+
+# ==============================================================================
 # Some extra services
 # ==============================================================================
-
-from AthenaCommon import CfgMgr
-from AthenaCommon.AppMgr import theApp
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-from AthenaCommon.AppMgr import ToolSvc
-
 ## basic Gaudi services from AtlasUnixStandardJob.py
 import GaudiSvc.GaudiSvcConf as GaudiSvcConf
 svcMgr += GaudiSvcConf.IncidentSvc()
@@ -139,6 +149,7 @@ svcMgr.HltEventLoopMgr = theApp.service( "HltEventLoopMgr" )     # already insta
 HltEventLoopMgr = svcMgr.HltEventLoopMgr
 HltEventLoopMgr.WhiteboardSvc = "EventDataSvc"
 HltEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
+HltEventLoopMgr.EvtSel = evtSel
 
 
 # configure here Level-1 CTP ROB identifier which is used in HLT
