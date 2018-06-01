@@ -31,3 +31,8 @@ foreach( _external ${_externals} )
 endforeach()
 unset( _external )
 unset( _externals )
+
+# Use the -pthread flag for the build instead of the -lpthread linker option,
+# whenever possible:
+set( THREADS_PREFER_PTHREAD_FLAG TRUE CACHE BOOL
+   "Prefer using the -pthread compiler flag over -lpthread" )
