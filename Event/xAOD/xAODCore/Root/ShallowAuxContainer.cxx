@@ -312,6 +312,8 @@ namespace xAOD {
       // Create the variable in the dynamic store:
       void* ptr = m_store->getData( auxid, size, capacity );
 
+      remakeAuxIDs();
+
       // If the parent doesn't have this variable, then we're done already:
       if( ! m_parentLink.isValid() ) {
          return ptr;
@@ -352,8 +354,6 @@ namespace xAOD {
       for( size_t i = 0; i < size; ++i ) {
          factory->copy( ptr, i, pptr, i );
       }
-
-      remakeAuxIDs();
 
       // Now we're done:
       return ptr;
