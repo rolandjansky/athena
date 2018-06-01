@@ -151,56 +151,179 @@ def main():
     mapped_tree = mapped_file.Get("MaterialTracks")
     
     
-    color_groups = [
+    colors = [
         ROOT.kOrange,
-        ROOT.kRed,
-        ROOT.kPink,
-        ROOT.kMagenta,
-        ROOT.kViolet,
-        ROOT.kBlue,
         ROOT.kAzure,
+        ROOT.kRed,
+        ROOT.kViolet,
+        ROOT.kGreen,
+        ROOT.kPink,
+        ROOT.kBlue,
+        ROOT.kMagenta,
         ROOT.kCyan,
         ROOT.kTeal,
-        ROOT.kGreen,
-        ROOT.kSpring
+        ROOT.kSpring,
     ]
+    # colors = [
+        # "#e6194b",
+        # "#3cb44b",
+        # "#ffe119",
+        # "#0082c8",
+        # "#f58231",
+        # "#911eb4",
+        # "#46f0f0",
+        # "#f032e6",
+        # "#d2f53c",
+        # "#fabebe",
+        # "#008080",
+        # "#e6beff",
+        # "#aa6e28",
+        # "#fffac8",
+        # "#800000",
+        # "#aaffc3",
+        # "#808000",
+        # "#ffd8b1",
+        # "#000080"
+    # ]
+
+    vol_lay_col_map = {}
+    vol_6_lay_idxs = range(2, 12+2, 2)
+    vol_7_lay_idxs = range(2, 8+2, 2)
+    vol_11_lay_idxs = range(2, 18+2, 2)
+    vol_12_lay_idxs = range(2, 8+2, 2)
+
+    for i, l in enumerate(vol_6_lay_idxs):
+        vol_lay_col_map[(6, l)] = colors[i%len(colors)]
+
+    for l1, l2 in zip(vol_6_lay_idxs, reversed(vol_6_lay_idxs)):
+        vol_lay_col_map[(8, l1)] = vol_lay_col_map[(6, l2)]
+    
+    for i, l in enumerate(vol_11_lay_idxs):
+        vol_lay_col_map[(11, l)] = colors[i%len(colors)]
+
+    for l1, l2 in zip(vol_11_lay_idxs, reversed(vol_11_lay_idxs)):
+        vol_lay_col_map[(13, l1)] = vol_lay_col_map[(11, l2)]
+
+    for i, l in enumerate(vol_7_lay_idxs):
+        vol_lay_col_map[(7, l)] = colors[i%len(colors)]
+    for i, l in enumerate(vol_12_lay_idxs):
+        vol_lay_col_map[(12, l)] = colors[i%len(colors)]
 
 
-    layers_geant = do_step(c, geant_tree, os.path.join(args.outdir, "geant"), args.events)
-    layers_mapped = do_step(c, mapped_tree, os.path.join(args.outdir, "mapped"), args.events)
+    # vol_lay_col_map[(6, 2)] = colors[0]
+    # vol_lay_col_map[(6, 4)] = colors[1]
+    # vol_lay_col_map[(6, 6)] = colors[2]
+    # vol_lay_col_map[(6, 8)] = colors[3]
+    # vol_lay_col_map[(6, 10)] = colors[4]
+    # vol_lay_col_map[(6, 12)] = colors[5]
 
+    # vol_lay_col_map[(8, 2)] = col_lay_col_map[(6, 12)]
+    # vol_lay_col_map[(8, 4)] = col_lay_col_map[(6, 10)]
+    # vol_lay_col_map[(8, 6)] = col_lay_col_map[(6, 8)]
+    # vol_lay_col_map[(8, 8)] = col_lay_col_map[(6, 6)]
+    # vol_lay_col_map[(8, 10)] = col_lay_col_map[(6, 4)]
+    # vol_lay_col_map[(8, 12)] = col_lay_col_map[(6, 2)]
+
+    def hex2rgb(h):
+        h = h[1:]
+        return tuple(int(h[i:i+2], 16) for i in (0, 2 ,4))
+
+
+    layers_geant = do_step(c, geant_tree, os.path.join(args.outdir, "geant"), args.events, geom_graph)
+    layers_mapped = do_step(c, mapped_tree, os.path.join(args.outdir, "mapped"), args.events, geom_graph)
+
+    # c.SetWindowSize(1000, 600)
+    c_all = ROOT.TCanvas("c_all", "c_all", 1000, 600)
 
     keys_geant = set(layers_geant.keys())
     keys_mapped = set(layers_mapped.keys())
     keys = keys_geant & keys_mapped
 
-    for key in keys:
+    for idx, key in enumerate(keys):
         geo_id = GeometryID(key)
         print(geo_id)
 
-        g_geant = layers_geant[key]
-        g_mapped = layers_mapped[key]
+        h2_geant = layers_geant[key]
+        h2_mapped = layers_mapped[key]
 
-        g_geant.Draw("AP")
-        g_mapped.Draw("P+same")
+        def clip(h, val):
+            for bx in range(h.GetNbinsX()):
+                for by in range(h.GetNbinsY()):
+                    bc = h.GetBinContent(bx, by)
+                    if bc > 0:
+                        h.SetBinContent(bx, by, val)
 
-        for g in (g_geant, g_mapped):
-            g.SetMarkerSize(0.5)
+        clip(h2_geant, 1)
+        clip(h2_mapped, 2)
 
-        g_geant.SetMarkerColor(ROOT.kGreen)
-        g_mapped.SetMarkerColor(ROOT.kRed)
+        # for g in (g_geant, g_mapped):
+            # g.SetMarkerSize(0.5)
+        
+        # color_idx = geo_id.lay_id / 2
+        # print("col_idx:", color_idx)
+
+        # color_a = colors[color_idx%len(colors)]
+
+        color_a = vol_lay_col_map[(geo_id.vol_id, geo_id.lay_id)]
+
+        # r, g, b = hex2rgb(colors[idx%len(colors)])
+        # color_a = ROOT.TColor(r, g, b, 1.0)
+        # color_b = ROOT.TColor(r, g, b, 0.6)
+
+        # basecolnum, _ = colors[idx%len(colors)]
+        # basecol = ROOT.gROOT.GetColor(basecolnum)
+        # r, g, b = hex2rgb(basecol.AsHexString())
+
+
+
+        # color_a = ROOT.TColor.GetColor(r, g, b)
+        color_b = ROOT.TColor.GetColorTransparent(color_a, 0.6)
+
+        # color_a = ROOT.TColor(r, g, b, 1.0)
+        # color_b = ROOT.TColor(r, g, b, 0.6)
+
+
+
+        # h2_geant.SetLineColor(color_b)
+        h2_geant.SetLineColor(color_a)
+        h2_mapped.SetLineColor(color_a)
+        h2_mapped.SetLineStyle(2)
+        h2_mapped.SetFillColor(color_a)
+
+        for h in (h2_geant, h2_mapped):
+            h.SetLineWidth(1)
+        
+        opt = "BOX"
+        
+        c.cd()
+        h2_geant.Draw(opt)
+        h2_mapped.Draw(opt+" sames")
+
+        c_all.cd()
+
+        if idx == 0:
+            h2_geant.Draw(opt)
+            h2_mapped.Draw(opt+" sames")
+        else:
+            opt = "BOX sames"
+            h2_geant.Draw(opt)
+            h2_mapped.Draw(opt)
         
 
-        lay_str = "vol_{:03d}_lay_{:03d}_app_{:03d}.png".format(geo_id.vol_id, geo_id.lay_id, geo_id.app_id)
-        path = os.path.join(args.outdir, "scatter", "lay_str", lay_str)
+        lay_str = "vol_{:03d}_lay_{:03d}_app_{:03d}.pdf".format(geo_id.vol_id, geo_id.lay_id, geo_id.app_id)
+        path = os.path.join(args.outdir, "assoc", "{}.pdf".format(lay_str))
         mkdir(os.path.dirname(path))
         c.SaveAs(path)
+
+    path = os.path.join(args.outdir, "assoc.pdf")
+    mkdir(os.path.dirname(path))
+    c_all.SaveAs(path)
 
    
 
 
 
-def do_step(c, tree, outdir, events=None):
+def do_step(c, tree, outdir, events, geom_graph):
     hm = HistManager()
 
     hists = {}
@@ -277,15 +400,17 @@ def do_step(c, tree, outdir, events=None):
             # if geo_id.value() not in layers:
                 # layers.append(geo_id.value())
 
+            lay_str = "vol_{}_lay_{}_app_{}".format(geo_id.vol_id, geo_id.lay_id, geo_id.app_id)
             if _geo_id not in layers:
-                layers[_geo_id] = ROOT.TGraph()
+                hname = lay_str+"_"+outdir+"_z_r"
+                layers[_geo_id] = ROOT.TH2D(hname, hname, nBinsZ/2, -3000, 3000, nBinsR/2, 0, 1200)
 
-            g = layers[_geo_id]
-            g.SetPoint(g.GetN(), z, r)
+            h2 = layers[_geo_id]
+            # g.SetPoint(g.GetN(), z, r)
+            h2.Fill(z, r)
 
             hm.fillHist2D("z_r/z_r_x0", z, r, x0)
             
-            # lay_str = "vol_{}_lay_{}_app_{}".format(geo_id.vol_id, geo_id.lay_id, geo_id.app_id)
             # hname = "z_r/lay/z_r_"+lay_str+"_x0"
             # if not hm.hist2DExist(hname):
                 # hm.hist2D
@@ -323,15 +448,28 @@ def do_step(c, tree, outdir, events=None):
     c.SetTopMargin(0.1)
 
     for name, h2 in hm.hist2Diter():
-        h2.Draw("colz")
 
-        parts = name.split(os.pathsep)
+        parts = name.split("/")
+        print(parts)
         if "z_r" in parts:
-            draw_eta_lines(c)
+            h2.Draw("colz")
+            draw_eta_lines(h2)
+            filename = "{}.pdf".format(os.path.join(outdir, name))
+            mkdir(os.path.dirname(filename))
+            c.SaveAs(filename)
+            
+            h2.Draw("colz")
+            geom_graph.Draw("p+same")
+            draw_eta_lines(h2)
+            filename = "{}_geom.pdf".format(os.path.join(outdir, name))
+            mkdir(os.path.dirname(filename))
+            c.SaveAs(filename)
 
-        filename = "{}.pdf".format(os.path.join(outdir, name))
-        mkdir(os.path.dirname(filename))
-        c.SaveAs(filename)
+        else:
+            h2.Draw("colz")
+            filename = "{}.pdf".format(os.path.join(outdir, name))
+            mkdir(os.path.dirname(filename))
+            c.SaveAs(filename)
 
     # for h2 in hist2D_zr:
         # h2.Divide(hist2D_zr_count)
