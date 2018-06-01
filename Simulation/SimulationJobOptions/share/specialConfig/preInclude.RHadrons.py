@@ -421,13 +421,6 @@ if usePythia8:
   # In case we want to use Pythia8 for decays during simulation
   if simdict.has_key("LIFETIME"):
 
-      if float(simdict["LIFETIME"])<1. and hasattr(runArgs,'outputEVNT_TRFile'):
-          rhlog.warning('Lifetime specified at <1ns, but you are writing stopped particle positions.')
-          rhlog.warning('Assuming that you mean to use infinite lifetimes, and ignoring the setting')
-      else:
-          addLineToPhysicsConfiguration("DoDecays","1")
-          addLineToPhysicsConfiguration("HadronLifeTime", simdict["LIFETIME"])
-
       # Set up the job options if they're going to be needed
       if float(simdict["LIFETIME"])>=1. or not hasattr(runArgs,'outputEVNT_TRFile') or not 'CASE' in simdict:
           # From the run number, load up the configuration.  Not the most beautiful thing, but this works.
@@ -540,6 +533,20 @@ if usePythia8:
 
   # Last step, load up the files
   load_files_for_rhadrons_scenario(simdict["CASE"], simdict["MASS"], "generic", MASSX)
+  # Add any lines that were missing
+  # In case we want to use Pythia8 for decays during simulation
+  if simdict.has_key("LIFETIME"):
+
+      if float(simdict["LIFETIME"])<1. and hasattr(runArgs,'outputEVNT_TRFile'):
+          rhlog.warning('Lifetime specified at <1ns, but you are writing stopped particle positions.')
+          rhlog.warning('Assuming that you mean to use infinite lifetimes, and ignoring the setting')
+      else:
+          addLineToPhysicsConfiguration("DoDecays","1")
+          addLineToPhysicsConfiguration("HadronLifeTime", simdict["LIFETIME"])
+      # If we reading particle records, and the lifetime is short, stop them as well
+      if float(simdict['LIFETIME'])<1. and hasattr(runArgs,'inputEVNT_TRFile'):
+          addLineToPhysicsConfiguration("DoDecays","1")
+          addLineToPhysicsConfiguration("HadronLifeTime", 0.000001)
   # Done with the Pythia8 setup
 
 else:
