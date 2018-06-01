@@ -18,6 +18,11 @@ set( TDAQ-COMMON_ROOT
 # Find the ATLAS CMake code:
 find_package( AtlasCMake QUIET )
 
+# Use the -pthread flag for the build instead of the -lpthread linker option,
+# whenever possible:
+set( THREADS_PREFER_PTHREAD_FLAG TRUE CACHE BOOL
+   "Prefer using the -pthread compiler flag over -lpthread" )
+
 # Find the base project(s):
 find_package( AthDerivationExternals REQUIRED )
 find_package( Gaudi REQUIRED )

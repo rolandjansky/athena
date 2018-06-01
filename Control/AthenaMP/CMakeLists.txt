@@ -35,7 +35,7 @@ atlas_add_executable( getSharedMemory
 
 atlas_add_executable( MemoryMonitor
                       src/memory-monitor/MemoryMonitor.cxx
-                      LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT} )
+                      LINK_LIBRARIES Threads::Threads )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py python/tests/*.py )
