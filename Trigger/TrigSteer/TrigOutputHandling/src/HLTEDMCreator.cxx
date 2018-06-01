@@ -25,8 +25,12 @@ StatusCode HLTEDMCreator::initHandles( const HandlesGroup<T>&  handles ) {
     CHECK( handles.in.size() == 0 );
   } else {
     // the case with views, we want to store from many views into a single output container
-    CHECK( handles.in.size() == handles.views.size() );
-    CHECK( handles.out.size() == 1 );
+    CHECK( handles.out.size() == 1 ); // one output collection
+    CHECK( handles.in.size() == handles.views.size() ); 
+    for ( int i = 0; i < handles.in.size(); ++i ) {
+      CHECK( handles.in.at(i).key() == handles.out.at(i).key() );
+    }
+
   }
   return StatusCode::SUCCESS;
 }
