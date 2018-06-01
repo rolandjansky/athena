@@ -17,6 +17,7 @@
 //class CascadeTools;
 namespace Trk {
   class V0Tools;
+  class VxCascadeInfo;
 }
 
 namespace Analysis{
@@ -107,7 +108,15 @@ namespace DerivationFramework {
        /// along the B candidate's momentum direction. 
        Amg::Vector3D DocaExtrapToBeamSpot(const std::vector<TLorentzVector> &mom, const xAOD::BPhysHelper &obj) const;
 
+       static void PrepareVertexLinks(Trk::VxCascadeInfo *result,  const xAOD::TrackParticleContainer* importedTrackCollection);
 
+       StatusCode FillCandwithRefittedVertices( bool refitPV,
+					      const xAOD::VertexContainer* pvContainer, xAOD::VertexContainer* refPvContainer,
+					      Analysis::PrimaryVertexRefitter *pvRefitter, size_t in_PV_max, int DoVertexType,
+                                              Trk::VxCascadeInfo* casc, int index,
+                                              double mass, xAOD::BPhysHypoHelper &vtx);
+
+       static std::vector<const xAOD::TrackParticle*> CollectAllChargedTracks(const std::vector<xAOD::Vertex*> &cascadeVertices);
   }; // class BPhysPVCascadeTools
 
 } // namespace DerivationFramework
