@@ -31,7 +31,8 @@ if DetFlags.haveRIO.pixel_on():
     InDetPixelConditionsSummarySvc = PixelConditionsSummarySvc()
   
     #Tool version for athenaMT
-    from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummaryTool
+#    from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummaryTool
+    from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
     InDetPixelConditionsSummaryTool = PixelConditionsSummaryTool()
 
     # Load pixel calibration service
@@ -72,7 +73,8 @@ if DetFlags.haveRIO.pixel_on():
 
         InDetPixelConditionsSummarySvc.DisableCallback = False
         #Alg is suppose to replace service, sync withh service for now
-        from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapCondAlg
+#        from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapCondAlg
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import SpecialPixelMapCondAlg
         InDetSpecialPixelMapCondAlg = SpecialPixelMapCondAlg(name="InDetSpecialPixelMapCondAlg",
                DBFolders  = InDetSpecialPixelMapSvc.DBFolders,
                SpecialPixelMapKeys = InDetSpecialPixelMapSvc.SpecialPixelMapKeys ,
