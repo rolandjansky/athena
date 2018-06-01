@@ -63,10 +63,18 @@ private:
   std::vector<double> m_treeStepT;
   std::vector<double> m_treeStepdInX0;
   std::vector<double> m_treeStepdInL0;
+  
+  std::vector<double> m_treeStepPosX;
+  std::vector<double> m_treeStepPosY;
+  std::vector<double> m_treeStepPosZ;
+  std::vector<double> m_treeStepPosR;
+  std::vector<double> m_treeStepPosPhi;
+
+  std::vector<ULong64_t> m_treeStepGeoID;
 
 
   void writerThread();
-  void doWrite( MaterialTrack mTrack);
+  void doWrite(const MaterialTrack &mTrack);
 
   // jobOptions properties
   Gaudi::Property<std::string> m_filePath{this, "FilePath", "MaterialTracks.root", "Output root file for charged particle"};
