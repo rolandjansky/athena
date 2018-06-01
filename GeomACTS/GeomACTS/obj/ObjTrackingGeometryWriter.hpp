@@ -14,9 +14,9 @@
 #include <fstream>
 #include <iostream>
 #include "GeomACTS/obj/ObjSurfaceWriter.hpp"
-#include "ACTS/Detector/TrackingGeometry.hpp"
-#include "ACTS/Surfaces/Surface.hpp"
-#include "ACTS/Utilities/Logger.hpp"
+#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Surfaces/Surface.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 namespace Acts {
 class TrackingVolume;

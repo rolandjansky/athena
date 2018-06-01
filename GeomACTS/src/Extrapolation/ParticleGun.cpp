@@ -11,7 +11,7 @@
 #include <random>
 
 #include "GeomACTS/Extrapolation/ParticleGun.hpp"
-#include "ACTS/Utilities/Units.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 #include "CLHEP/Random/RandomEngine.h"
 

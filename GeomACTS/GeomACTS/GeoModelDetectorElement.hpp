@@ -26,10 +26,10 @@
 
 #define ACTS_CORE_IDENTIFIER_PLUGIN "Identifier/Identifier.h"
 // ACTS
-#include "ACTS/Detector/DetectorElementBase.hpp"
-#include "ACTS/Surfaces/PlaneSurface.hpp"
-#include "ACTS/Surfaces/RectangleBounds.hpp"
-#include "ACTS/Surfaces/TrapezoidBounds.hpp"
+#include "Acts/Detector/DetectorElementBase.hpp"
+#include "Acts/Surfaces/PlaneSurface.hpp"
+#include "Acts/Surfaces/RectangleBounds.hpp"
+#include "Acts/Surfaces/TrapezoidBounds.hpp"
 
 
 namespace Acts {

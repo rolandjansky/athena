@@ -10,8 +10,8 @@
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
-#include "ACTS/Extrapolation/ExtrapolationCell.hpp"
-#include "ACTS/Extrapolation/IExtrapolationEngine.hpp"
+#include "Acts/Extrapolation/ExtrapolationCell.hpp"
+#include "Acts/Extrapolation/IExtrapolationEngine.hpp"
 
 #include "GeomACTS/IExtrapolationTool.h"
 

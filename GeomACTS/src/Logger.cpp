@@ -12,7 +12,7 @@
 #include "AthenaBaseComps/AthMessaging.h"
 #include "GaudiKernel/SmartIF.h"
 
-#include "ACTS/Utilities/Logger.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 #include <iostream>
 #include <string>

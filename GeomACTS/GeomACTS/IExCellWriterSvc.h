@@ -2,7 +2,7 @@
 #define GEOMACTS_IEXCELLWRITER_SERVICE
 
 #include "GaudiKernel/IInterface.h"
-#include "ACTS/EventData/TrackParameters.hpp"
+#include "Acts/EventData/TrackParameters.hpp"
 
 namespace Acts {
 

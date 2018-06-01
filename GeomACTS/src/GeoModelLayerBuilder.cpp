@@ -3,13 +3,13 @@
 #include "GeomACTS/IdentityHelper.hpp"
 
 // ACTS
-#include "ACTS/Tools/ILayerBuilder.hpp"
-#include "ACTS/Material/SurfaceMaterialProxy.hpp"
-#include "ACTS/Surfaces/CylinderSurface.hpp"
-#include "ACTS/Surfaces/DiscSurface.hpp"
-#include "ACTS/Layers/GenericApproachDescriptor.hpp"
-#include "ACTS/Layers/GenericApproachDescriptor.hpp"
-#include "ACTS/Utilities/ApproachDescriptor.hpp"
+#include "Acts/Tools/ILayerBuilder.hpp"
+#include "Acts/Material/SurfaceMaterialProxy.hpp"
+#include "Acts/Surfaces/CylinderSurface.hpp"
+#include "Acts/Surfaces/DiscSurface.hpp"
+#include "Acts/Layers/GenericApproachDescriptor.hpp"
+#include "Acts/Layers/GenericApproachDescriptor.hpp"
+#include "Acts/Utilities/ApproachDescriptor.hpp"
 
 const Acts::LayerVector
 Acts::GeoModelLayerBuilder::negativeLayers() const

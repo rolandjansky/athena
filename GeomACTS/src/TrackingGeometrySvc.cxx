@@ -6,14 +6,14 @@
 #include "StoreGate/StoreGateSvc.h"
 
 // ACTS
-#include "ACTS/Detector/TrackingGeometry.hpp"
-#include "ACTS/Tools/ITrackingVolumeBuilder.hpp"
-#include "ACTS/Tools/LayerArrayCreator.hpp"
-#include "ACTS/Utilities/Logger.hpp"
-#include "ACTS/Tools/TrackingVolumeArrayCreator.hpp"
-#include "ACTS/Tools/CylinderVolumeHelper.hpp"
-#include "ACTS/Tools/TrackingGeometryBuilder.hpp"
-#include "ACTS/Tools/CylinderVolumeBuilder.hpp"
+#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Tools/ITrackingVolumeBuilder.hpp"
+#include "Acts/Tools/LayerArrayCreator.hpp"
+#include "Acts/Utilities/Logger.hpp"
+#include "Acts/Tools/TrackingVolumeArrayCreator.hpp"
+#include "Acts/Tools/CylinderVolumeHelper.hpp"
+#include "Acts/Tools/TrackingGeometryBuilder.hpp"
+#include "Acts/Tools/CylinderVolumeBuilder.hpp"
 
 // PACKAGE
 #include "GeomACTS/GeoModelLayerBuilder.hpp"

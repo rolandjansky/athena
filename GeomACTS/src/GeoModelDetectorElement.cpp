@@ -16,8 +16,8 @@
 #include "GeomACTS/GeoModelDetectorElement.hpp"
 #include "GeomACTS/IdentityHelper.hpp"
 
-#include "ACTS/Surfaces/StrawSurface.hpp"
-#include "ACTS/Surfaces/LineBounds.hpp"
+#include "Acts/Surfaces/StrawSurface.hpp"
+#include "Acts/Surfaces/LineBounds.hpp"
 
 
 

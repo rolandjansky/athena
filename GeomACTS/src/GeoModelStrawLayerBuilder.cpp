@@ -5,10 +5,10 @@
 #include "InDetReadoutGeometry/TRT_Numerology.h"
 
 // ACTS
-#include "ACTS/Tools/ILayerBuilder.hpp"
-#include "ACTS/Surfaces/CylinderSurface.hpp"
-#include "ACTS/Surfaces/StrawSurface.hpp"
-#include "ACTS/Surfaces/DiscSurface.hpp"
+#include "Acts/Tools/ILayerBuilder.hpp"
+#include "Acts/Surfaces/CylinderSurface.hpp"
+#include "Acts/Surfaces/StrawSurface.hpp"
+#include "Acts/Surfaces/DiscSurface.hpp"
 
 // STL
 #include <iostream>

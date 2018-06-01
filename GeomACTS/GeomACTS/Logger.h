@@ -1,7 +1,7 @@
 #ifndef GEOMACTS_LOGGER_H
 #define GEOMACTS_LOGGER_H
 
-#include "ACTS/Utilities/Logger.hpp"
+#include "Acts/Utilities/Logger.hpp"
 #include "GaudiKernel/MsgStream.h"
 
 #include <memory>

@@ -2,8 +2,8 @@
 #define GeomACTS_ATLASMagneticFieldWrapper_h
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
-#include "ACTS/Utilities/Definitions.hpp"
-#include "ACTS/MagneticField/concept/AnyFieldLookup.hpp"
+#include "Acts/Utilities/Definitions.hpp"
+#include "Acts/MagneticField/concept/AnyFieldLookup.hpp"
 
 class ATLASMagneticFieldWrapper
 {

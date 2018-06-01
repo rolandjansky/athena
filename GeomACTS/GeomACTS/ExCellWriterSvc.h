@@ -8,7 +8,7 @@
 #include "GeomACTS/IExCellWriterSvc.h"
 #include "GeomACTS/Extrapolation/RootExCellWriter.hpp"
 
-#include "ACTS/EventData/TrackParameters.hpp"
+#include "Acts/EventData/TrackParameters.hpp"
 
 #include <vector>
 #include <deque>

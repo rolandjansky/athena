@@ -5,7 +5,7 @@
 
 // ATHENA
 #include "AthenaKernel/RNGWrapper.h"
-#include "ACTS/Utilities/Logger.hpp"
+#include "Acts/Utilities/Logger.hpp"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ISvcLocator.h"
 

@@ -6,8 +6,8 @@
 // ATHENA
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "AthenaKernel/RNGWrapper.h"
-#include "ACTS/Utilities/Logger.hpp"
-#include "ACTS/Surfaces/PerigeeSurface.hpp"
+#include "Acts/Utilities/Logger.hpp"
+#include "Acts/Surfaces/PerigeeSurface.hpp"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ISvcLocator.h"
 

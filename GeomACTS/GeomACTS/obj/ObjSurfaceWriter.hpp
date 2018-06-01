@@ -13,8 +13,8 @@
 #include <iostream>
 #include <mutex>
 #include "GeomACTS/obj/ObjHelper.hpp"
-#include "ACTS/Surfaces/Surface.hpp"
-#include "ACTS/Utilities/Logger.hpp"
+#include "Acts/Surfaces/Surface.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 namespace Acts {
 

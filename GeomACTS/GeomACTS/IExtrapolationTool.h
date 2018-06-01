@@ -4,8 +4,8 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IInterface.h"
-#include "ACTS/Extrapolation/ExtrapolationCell.hpp"
-#include "ACTS/Extrapolation/IExtrapolationEngine.hpp"
+#include "Acts/Extrapolation/ExtrapolationCell.hpp"
+#include "Acts/Extrapolation/IExtrapolationEngine.hpp"
 #include <memory>
 
 namespace Acts {

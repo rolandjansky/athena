@@ -11,8 +11,8 @@
 #include "GaudiKernel/ISvcLocator.h"
 
 // ACTS
-#include "ACTS/EventData/TrackParameters.hpp"
-#include "ACTS/Utilities/BFieldMapUtils.hpp"
+#include "Acts/EventData/TrackParameters.hpp"
+#include "Acts/Utilities/BFieldMapUtils.hpp"
 
 // PACKAGE
 #include "GeomACTS/ObjWriterTool.h"

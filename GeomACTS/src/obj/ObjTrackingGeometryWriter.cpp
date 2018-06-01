@@ -8,8 +8,8 @@
 
 #include "GeomACTS/obj/ObjTrackingGeometryWriter.hpp"
 #include <iostream>
-#include "ACTS/Detector/TrackingVolume.hpp"
-#include "ACTS/Surfaces/Surface.hpp"
+#include "Acts/Detector/TrackingVolume.hpp"
+#include "Acts/Surfaces/Surface.hpp"
 
 Acts::ObjTrackingGeometryWriter::ObjTrackingGeometryWriter(
     const ObjTrackingGeometryWriter::Config& cfg)

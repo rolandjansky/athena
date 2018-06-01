@@ -21,6 +21,8 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( CLHEP )
 find_package( Eigen )
 
+find_package( Acts REQUIRED COMPONENTS Core Legacy )
+
 find_package(OpenMP)
 if (OPENMP_FOUND)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
@@ -37,7 +39,7 @@ atlas_add_component( GeomACTS
                      src/components/*.cxx
                      PUBLIC_HEADERS GeomACTS
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GeoPrimitives Identifier RegionSelectorLib GaudiKernel InDetCondServices SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry MagFieldInterfaces ACTSCore ACTSLegacy)
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GeoPrimitives Identifier RegionSelectorLib GaudiKernel InDetCondServices SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry MagFieldInterfaces Acts::Core Acts::Legacy)
 
 # Install files from the package:
 atlas_install_headers( GeomACTS )

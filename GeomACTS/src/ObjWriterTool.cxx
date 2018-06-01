@@ -8,7 +8,7 @@
 #include "GaudiKernel/IInterface.h"
 
 // ACTS
-#include "ACTS/Detector/TrackingGeometry.hpp"
+#include "Acts/Detector/TrackingGeometry.hpp"
 
 // Package
 #include "GeomACTS/obj/ObjSurfaceWriter.hpp"

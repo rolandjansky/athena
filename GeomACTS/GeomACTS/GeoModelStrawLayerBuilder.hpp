@@ -17,12 +17,12 @@
 #include "GeomACTS/GeoModelDetectorElement.hpp"
 
 // ACTS
-#include "ACTS/Layers/Layer.hpp"
-#include "ACTS/Layers/ProtoLayer.hpp"
-#include "ACTS/Tools/ILayerBuilder.hpp"
-#include "ACTS/Tools/LayerCreator.hpp"
-#include "ACTS/Utilities/Definitions.hpp"
-#include "ACTS/Utilities/Logger.hpp"
+#include "Acts/Layers/Layer.hpp"
+#include "Acts/Layers/ProtoLayer.hpp"
+#include "Acts/Tools/ILayerBuilder.hpp"
+#include "Acts/Tools/LayerCreator.hpp"
+#include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Utilities/Logger.hpp"
 
 
 namespace Acts {
