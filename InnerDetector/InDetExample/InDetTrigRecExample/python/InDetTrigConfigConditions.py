@@ -542,18 +542,14 @@ class TRTConditionsServicesSetup:
       if not (conddb.folderRequested('/TRT/Onl/ROD/Compress')):
         conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress")
 
-    if not conddb.folderRequested('/TRT/Calib/RT'):
-      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT",className='TRTCond::RtRelationMultChanContainer')
+    if not (conddb.folderRequested('/TRT/Calib/RT') or conddb.folderRequested('/TRT/Onl/Calib/RT')):
+      conddb.addFolderSplitOnline('TRT','/TRT/Onl/Calib/RT','/TRT/Calib/RT',className='TRTCond::RtRelationMultChanContainer')
+    if not (conddb.folderRequested('/TRT/Calib/T0') or conddb.folderRequested('/TRT/Onl/Calib/T0')):
+      conddb.addFolderSplitOnline('TRT','/TRT/Onl/Calib/T0','/TRT/Calib/T0',className='TRTCond::StrawT0MultChanContainer')
 
-    if not conddb.folderRequested('/TRT/Calib/T0'):
-      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/T0","/TRT/Calib/T0",className='TRTCond::StrawT0MultChanContainer')
-
-    if not conddb.folderRequested('/TRT/Calib/errors2d'):
-      TRTErrorsFolder = conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors2d","/TRT/Calib/errors2d",className='TRTCond::RtRelationMultChanContainer')
-
-    if not conddb.folderRequested('/TRT/Calib/slopes'):
-      TRTSlopesFolder = conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/slopes","/TRT/Calib/slopes",className='TRTCond::RtRelationMultChanContainer')
-
+    if not (conddb.folderRequested('/TRT/Calib/errors') or conddb.folderRequested('/TRT/Onl/Calib/errors')):
+      conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors","/TRT/Calib/errors",className='TRTCond::RtRelationMultChanContainer')
+      # not needed anymore conddb.addOverride('/TRT/Onl/Calib/errors','TrtCalibErrorsOnl-ErrorVal-00-00')
 
     if not (conddb.folderRequested('/TRT/Calib/ToTCalib') or conddb.folderRequested('/TRT/Onl/Calib/ToTCalib')):
       conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib")
@@ -564,12 +560,11 @@ class TRTConditionsServicesSetup:
     # Calibration DB Service
     from AthenaCommon.AppMgr import ServiceMgr
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-
+    #InDetTRTCalDbSvc = TRT_CalDbSvc(self.instanceName('TRT_CalDbSvc'))    #
     InDetTRTCalDbSvc = TRT_CalDbSvc('TRT_CalDbSvc')
     ServiceMgr += InDetTRTCalDbSvc
     if self._print:
         print InDetTRTCalDbSvc
-
 
     # Dead/Noisy Straw Lists
     if not conddb.folderRequested('/TRT/Cond/Status'):

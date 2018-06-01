@@ -409,8 +409,6 @@ if DetFlags.haveRIO.TRT_on():
     # Calibration DB Service
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
     InDetTRTCalDbSvc = TRT_CalDbSvc()
-    InDetTRTCalDbSvc.ErrorReadKeyName = TRTErrorsFolder
-    InDetTRTCalDbSvc.SlopeReadKeyName = TRTSlopesFolder
     ServiceMgr += InDetTRTCalDbSvc
     if(InDetFlags.doPrintConfigurables()):
         print InDetTRTCalDbSvc
