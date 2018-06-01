@@ -26,17 +26,28 @@ if (type(ss) != type(None)):
         msg.warning("Old geometry tag detected %s - will not use COOL DB for TileCal calibration" % gbltg)
         TileUseCOOL = False
         TileFrameLength = 9
-    if (version=='GEO') and (not 'TileCablingType' in dir()):
-        if rn is None:
+
+if (not 'TileCablingType' in dir()):
+    if rn is None:
+        try:
+            from G4AtlasApps.SimFlags import simFlags
+            if simFlags.RunNumber.statusOn:
+                rn = simFlags.RunNumber()
+        except:
+            msg.info("No SimFlags available - looks like HLT job")
+    if rn is None:
+        try:
             from RecExConfig.AutoConfiguration import GetRunNumber
             rn=GetRunNumber()
+        except:
+            msg.info("No Run Number available - assume latest cabling")
+
+    from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
+    if geoFlags.Run()=="RUN1":
         if rn>219651: # choose RUN2 cabling for old geometry tags starting from 26-MAR-2013 
             TileCablingType = 4 
             msg.warning("Forcing RUN2 cabling for run %s with geometry %s" % (rn,gbltg) )
-    if (version=='R2') and (not 'TileCablingType' in dir()):
-        if rn is None:
-            from RecExConfig.AutoConfiguration import GetRunNumber
-            rn=GetRunNumber()
+    elif geoFlags.Run()=="RUN2":
         if (globalflags.DataSource()!='data' and rn>=310000) or rn>=343000 or rn<1: # choose RUN2a cabling for R2 geometry tags starting from 31-Jan-2018
             TileCablingType = 5
             msg.info("Forcing RUN2a (2018) cabling for run %s with geometry %s" % (rn,gbltg) )
