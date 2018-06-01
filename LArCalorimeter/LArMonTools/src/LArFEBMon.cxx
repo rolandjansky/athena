@@ -966,13 +966,13 @@ StatusCode LArFEBMon::bookNewPartitionSumm(int partNb)
   // ROS histograms - 
   hName = "LArFEBMonErrorsAbsolute"+partName+"_ROS";
   hTitle = "Nb of events with at least one error - " + partName;
-  m_partHistos[partNb].LArAllErrors_ROS = TH1I_LW::create(hName.c_str(),hTitle.c_str(),nbOfRosLink,0.5,rosLinkMax);
+  m_partHistos[partNb].LArAllErrors_ROS = TH1I_LW::create(hName.c_str(),hTitle.c_str(),nbOfRosLink,-0.5,rosLinkMax);
   m_partHistos[partNb].LArAllErrors_ROS->GetXaxis()->SetTitle("ROS link");
   sc = sc && perPartitionGroup.regHist(m_partHistos[partNb].LArAllErrors_ROS);
   
   hName = "LArFEBMonErrors"+partName+"_ROS";
   hTitle = "% of events with at least one error - " + partName;
-  m_partHistos[partNb].LArAllErrors_ROSYield = TH1F_LW::create(hName.c_str(),hTitle.c_str(),nbOfRosLink,0.5,rosLinkMax);
+  m_partHistos[partNb].LArAllErrors_ROSYield = TH1F_LW::create(hName.c_str(),hTitle.c_str(),nbOfRosLink,-0.5,rosLinkMax);
   m_partHistos[partNb].LArAllErrors_ROSYield->GetXaxis()->SetTitle("ROS link");
   sc = sc && perPartitionYieldGroup.regHist(m_partHistos[partNb].LArAllErrors_ROSYield);  
   
