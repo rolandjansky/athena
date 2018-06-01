@@ -68,6 +68,12 @@ atlas_add_test( AthenaEventLoopMgr_test
    EXTRA_PATTERNS "^JobOptionsSvc +INFO|^//GP:="
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
+atlas_add_test( ConditionsCleanerSvc_test
+  SOURCES test/ConditionsCleanerSvc_test.cxx
+  LINK_LIBRARIES TestTools AthenaKernel GaudiKernel AthenaBaseComps
+  EXTRA_PATTERNS "^JobOptionsSvc +INFO|^//GP:="
+  ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
 atlas_add_test( RCUSvc_test
    SOURCES test/RCUSvc_test.cxx
    LINK_LIBRARIES TestTools AsgTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps
