@@ -71,14 +71,14 @@ HbbTaggerDNN::HbbTaggerDNN( const std::string& name ) :
   m_lwnn(nullptr),
   m_input_builder(nullptr),
   m_tag_threshold(1000000000.),
-  m_output_value_name(""),
-  m_decoration_name(""),
-  m_decorator("")
+  m_output_value_names(),
+  m_decoration_names(),
+  m_decorators()
 {
   declareProperty( "neuralNetworkFile",   m_neuralNetworkFile);
   declareProperty( "configurationFile",   m_configurationFile);
   declareProperty( "tagThreshold", m_tag_threshold);
-  declareProperty( "decorationName", m_decoration_name);
+  declareProperty( "decorationNames", m_decoration_names);
 }
 
 HbbTaggerDNN::~HbbTaggerDNN() {}
@@ -102,7 +102,8 @@ StatusCode HbbTaggerDNN::initialize(){
     ATH_MSG_ERROR("NN file is garbage");
     return StatusCode::FAILURE;
   }
-  std::map<std::string, double> dummy_inputs;
+
+  // setup inputs
   ATH_MSG_DEBUG("Hbb inputs:");
   for (auto& input_node: config.inputs) {
     ATH_MSG_DEBUG(" input node: " << input_node.name);
@@ -110,21 +111,21 @@ StatusCode HbbTaggerDNN::initialize(){
       ATH_MSG_DEBUG("  " << input);
     }
   }
+  for (const auto& node: config.inputs) {
+    m_var_cleaners.emplace_back(
+      node.name, std::make_unique<lwt::NanReplacer>(node.defaults, lwt::rep::all));
+  }
+
+  // setup outputs
   if (config.outputs.size() != 1) {
     ATH_MSG_ERROR("Graph needs one output node");
     return StatusCode::FAILURE;
   }
   auto output_node_name = config.outputs.begin()->first;
   auto out_names = config.outputs.at(output_node_name).labels;
-  if (out_names.size() != 1) {
-    ATH_MSG_ERROR("Graph needs one output value");
-    return StatusCode::FAILURE;
-  }
-  m_output_value_name = out_names.at(0);
-  for (const auto& node: config.inputs) {
-    m_var_cleaners.emplace_back(
-      node.name, std::make_unique<lwt::NanReplacer>(node.defaults, lwt::rep::all));
-  }
+  m_output_value_names = out_names;
+
+  // build the network
   try {
     m_lwnn.reset(new lwt::LightweightGraph(config, output_node_name));
   } catch (lwt::NNConfigurationException& exc) {
@@ -144,10 +145,19 @@ StatusCode HbbTaggerDNN::initialize(){
   }
 
   // set up the output decorators
-  if (m_decoration_name.size() == 0) {
-    m_decoration_name = m_output_value_name;
+  for (const std::string& name: out_names) {
+    std::string dec_name = name;
+    // if we've given custom decoration names, insist that this output
+    // has one
+    if (m_decoration_names.size() > 0) {
+      if (!m_decoration_names.count(name)) {
+        ATH_MSG_ERROR("NN output " + name + " has no decoration name");
+        return StatusCode::FAILURE;
+      }
+      dec_name = m_decoration_names.at(name);
+    }
+    m_decorators.emplace_back(SG::AuxElement::Decorator<float>(dec_name));
   }
-  m_decorator = SG::AuxElement::Decorator<float>(m_decoration_name);
 
   return StatusCode::SUCCESS;
 }
@@ -161,7 +171,8 @@ int HbbTaggerDNN::keep(const xAOD::Jet& jet) const {
 }
 
 
-double HbbTaggerDNN::getScore(const xAOD::Jet& jet) const {
+std::map<std::string, double> HbbTaggerDNN::getScores(const xAOD::Jet& jet)
+  const {
 
   using namespace BoostedJetTaggers;
 
@@ -186,12 +197,26 @@ double HbbTaggerDNN::getScore(const xAOD::Jet& jet) const {
   }
 
   auto nn_output = m_lwnn->compute(cleaned);
-  ATH_MSG_DEBUG("Hbb score " << nn_output.at(m_output_value_name));
-  return nn_output.at(m_output_value_name);
+  return nn_output;
+}
+
+double HbbTaggerDNN::getScore(const xAOD::Jet& jet) const {
+  if (m_output_value_names.size() > 1) {
+    throw std::logic_error(
+      "asked for a single tagger score from a multi-class tagger");
+  }
+  auto nn_output = getScores(jet);
+  ATH_MSG_DEBUG("Hbb score " << nn_output.at(m_output_value_names.at(0)));
+  return nn_output.at(m_output_value_names.at(0));
 }
 
 void HbbTaggerDNN::decorate(const xAOD::Jet& jet) const {
-  m_decorator(jet) = getScore(jet);
+  std::map<std::string, double> scores = getScores(jet);
+  size_t dec_num = 0;
+  for (const auto& dec: m_decorators) {
+    dec(jet) = scores.at(m_output_value_names.at(dec_num));
+    dec_num++;
+  }
 }
 
 size_t HbbTaggerDNN::n_subjets(const xAOD::Jet& jet) const {

@@ -34,8 +34,11 @@ public:
   // property.
   virtual int keep(const xAOD::Jet& jet) const;
 
-  // get the tagger output.
+  // get the tagger output (only defined for single output networks)
   double getScore(const xAOD::Jet& jet) const;
+
+  // get the output in the multi-output case
+  std::map<std::string, double> getScores(const xAOD::Jet& jet) const;
 
   // this (and only this) method will add a decorator to the jet. The
   // name is set with the decorationName property.
@@ -62,12 +65,12 @@ protected:
   double m_tag_threshold;
 
   // internal stuff to keep track of the output node for the NN
-  std::string m_output_value_name;
+  std::vector<std::string> m_output_value_names;
 
   // if no decoration name is given we look it up from the
   // configuration output name
-  std::string m_decoration_name;
-  SG::AuxElement::Decorator<float> m_decorator;
+  std::map<std::string, std::string> m_decoration_names;
+  std::vector<SG::AuxElement::Decorator<float> > m_decorators;
 
 };
 
