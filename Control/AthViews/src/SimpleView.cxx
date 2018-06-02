@@ -68,25 +68,30 @@ SG::DataProxy * SimpleView::proxy_exact( SG::sgkey_t sgkey ) const
  */
 SG::DataProxy * SimpleView::proxy( const CLID& id, const std::string& key ) const
 {
-	const std::string viewKey = m_name + "_" + key;
-	auto localProxy =  m_store->proxy( id, viewKey );
-	if ( localProxy ) 
-	  return localProxy;
-
-	for ( auto parent: m_parents ) {
-	  auto proxyInParent = parent->proxy( id, key );
-	  if ( proxyInParent != nullptr ) {
-	    return proxyInParent;
-	  } // else look further
-	}
-	
-	//Look in the default store if cound not find in any view - for instance for event-wise IDCs
-	if ( m_allowFallThrough ) {
-	  auto mainStoreProxy = m_store->proxy( id, key );
-	  return mainStoreProxy;
-	}
-	
-	return localProxy; // can be the nullptr still
+  auto isValid = [](const SG::DataProxy* p) { return p != nullptr and p->isValid(); };
+  const std::string viewKey = m_name + "_" + key;
+  auto localProxy =  m_store->proxy( id, viewKey );
+  
+  //  std::cout << " while looking for object " << key << " in  view " << name() << " found proxy in this view store with validity " << isValid( localProxy ) << std::endl;
+  for ( auto parent: m_parents ) {
+    auto inParentProxy = parent->proxy( id, key ); 
+    //    std::cout << " while looking for object " << key << " in  view " << name() << " found proxy in parent view store with validity " << isValid( inParentProxy ) << std::endl;
+    if ( isValid( inParentProxy ) ) {
+      if ( isValid( localProxy ) ) {
+	throw std::runtime_error("Duplicate object CLID:"+ std::to_string(id) + " key: " + key + " found in views: " + name()+ " and parent " + parent->name() );
+      }
+      localProxy = inParentProxy;
+      break;
+    }
+  }
+  
+  //Look in the default store if cound not find in any view - for instance for event-wise IDCs
+  if ( (not isValid( localProxy ))  and  m_allowFallThrough ) {
+    auto mainStoreProxy = m_store->proxy( id, key );
+    //    std::cout << " while looking for object " << key << " in  view " << name() << " found proxy in the main store with validity " << isValid( mainStoreProxy ) << std::endl;
+    return mainStoreProxy;
+  }	
+  return localProxy; // can be the nullptr still
 }
 
 
