@@ -88,10 +88,12 @@ namespace xAOD {
       virtual double Tile_et() const ATH_FINAL;
       void setTileEt(float);
 
-
       /// get coolId
       virtual int Id() const ATH_FINAL;
       void setId(int);
+      virtual int sampling() const ATH_FINAL;
+      void setSampling(int);
+
 
       virtual double tileFrac() const ATH_FINAL;
       void setTileFrac(float);

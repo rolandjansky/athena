@@ -25,6 +25,7 @@ namespace xAOD {
     AUX_VARIABLE( SCIndex );
     AUX_VARIABLE( TileIndex );
     AUX_VARIABLE( tileFrac );
+    AUX_VARIABLE( sampling);
   }
 
 } // namespace xAOD

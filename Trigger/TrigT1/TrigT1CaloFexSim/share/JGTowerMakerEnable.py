@@ -41,16 +41,8 @@ if ( "streamAOD" in dir() ):
   topSequence += StreamAOD
 
 
-  #algseq = CfgMgr.AthSequencer("AthAlgSeq")                #gets the main AthSequencer
-  #algseq += CfgMgr.JGTowerMaker(
-  #  useSCQuality = True
-#)
-
-
-
-
-#  topSequence  = CfgMgr.AthSequencer("AthAlgSeq")                #gets the main AthSequencer
-#  topSequence += CfgMgr.JGTowerMaker(
-#  useSCQuality = True,
-#    )          
-
+  algseq = CfgMgr.AthSequencer("AthAlgSeq")                #gets the main AthSequencer
+  algseq += CfgMgr.JGTowerMaker(
+    useSCQuality = True,
+    useAllCalo = False
+)
