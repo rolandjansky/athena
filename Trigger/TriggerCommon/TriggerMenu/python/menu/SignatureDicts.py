@@ -286,7 +286,7 @@ TauChainParts = {
     'chainPartName': '',
     'threshold'    : '',
     'preselection' : ['r1', 'FTK', 'FTKRefit', 'FTKNoPrec', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'tracktwoEF', 'tracktwoEFmvaTES', 'trackcalo', 'tracktwocalo','tracktwo2015', 'tracktwoMVA', 'tracktwoMVA0p'],
-    'selection'    : ['medium0','loose1', 'medium1', 'medium1NoPt', 'tight1', 'perf', 'perf0', 'r1medium1', 'r1perf', 'cosmic', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion1loose', 'dipion2', 'dipion3', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN', 'RNN4','RNN5','RNN6','RNN7','RNN8','RNN9','RNN10','RNN11','RNN12','RNN13','RNN14'],
+    'selection'    : ['medium0','loose1', 'medium1', 'medium1NoPt', 'tight1', 'perf', 'perf0', 'r1medium1', 'r1perf', 'cosmic', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion1loose', 'dipion2', 'dipion3', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN', 'RNNmedium3loose0', 'RNNmedium4loose0', 'RNNmedium5loose0', 'RNNmedium6loose0', 'RNNmedium7loose0', 'RNNmedium8loose0', 'RNNmedium9loose0', 'RNNmedium3loose1', 'RNNmedium4loose1', 'RNNmedium5loose1', 'RNNmedium6loose1', 'RNNmedium7loose1', 'RNNmedium8loose1', 'RNNmedium9loose1', 'RNNmedium3loose2', 'RNNmedium4loose2', 'RNNmedium5loose2', 'RNNmedium6loose2', 'RNNmedium7loose2', 'RNNmedium8loose2', 'RNNmedium9loose2' ],
     'multiplicity' : '',
     'trigType'     : ['tau'],   
     'trkInfo'      : ['idperf'],
