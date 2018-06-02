@@ -27,7 +27,7 @@ StatusCode HLTEDMCreator::initHandles( const HandlesGroup<T>&  handles ) {
     // the case with views, we want to store from many views into a single output container
     CHECK( handles.out.size() == 1 ); // one output collection
     CHECK( handles.in.size() == handles.views.size() ); 
-    for ( int i = 0; i < handles.in.size(); ++i ) {
+    for ( size_t i = 0; i < handles.in.size(); ++i ) {
       CHECK( handles.in.at(i).key() == handles.out.at(i).key() );
     }
 
@@ -59,22 +59,31 @@ StatusCode HLTEDMCreator::initialize()
 }
 
 template<class T>
-StatusCode plainGenerator( SG::WriteHandle<T>& h ) {
-
-  return h.record( std::move( std::make_unique<T>() ) );
-
-} 
-
+struct plainGenerator {
+  std::unique_ptr<T> data;
+  void create() {
+    data = std::make_unique<T>();
+  }
+  StatusCode record( SG::WriteHandle<T>& h ) {    
+    return h.record( std::move( data ) );
+  } 
+};
 
 template<class T, class STORE>
-StatusCode xAODGenerator( SG::WriteHandle<T>& h ) {
+struct xAODGenerator {
+  std::unique_ptr<T> data;
+  std::unique_ptr<STORE> store;
 
-  auto coll = std::make_unique<T>();
-  auto store = std::make_unique<STORE>();
-  coll->setStore( store.get() );      
+  void create() {
+    data  = std::make_unique<T>();
+    store = std::make_unique<STORE>();
+    data->setStore( store.get() );      
+  }
 
-  return h.record( std::move( coll ), std::move( store ) );
-} 
+  StatusCode record ( SG::WriteHandle<T>& h ) {
+    return h.record( std::move( data ), std::move( store ) );
+  } 
+};
 
 template<typename T>
 StatusCode  HLTEDMCreator::noMerge( ViewContainer const&, const SG::ReadHandleKey<T>&,
@@ -98,24 +107,20 @@ StatusCode  HLTEDMCreator::viewsMerge( ViewContainer const& views, const SG::Rea
 }
 
 
+
 template<typename T, typename G, typename M>
-StatusCode HLTEDMCreator::createIfMissing(  const EventContext& context, const  ConstHandlesGroup<T>& handles, G createAndRecord, M merger) const {
+StatusCode HLTEDMCreator::createIfMissing(  const EventContext& context, const  ConstHandlesGroup<T>& handles, G& generator, M merger) const {
 
   for ( auto writeHandleKey : handles.out ) {
     SG::ReadHandle<T> readHandle( writeHandleKey.key() );
 
     if ( readHandle.isValid() ) {
       ATH_MSG_DEBUG( "The " << writeHandleKey.key() << " already present" );
-      
-    } else {
-
-      SG::WriteHandle<T> writeHandle = SG::makeHandle( writeHandleKey );
-      CHECK( createAndRecord( writeHandle ) );
-      
-      ATH_MSG_DEBUG( "The " << writeHandleKey.key() << " was absent, created empty one" );
-      
+    } else {      
+      ATH_MSG_DEBUG( "The " << writeHandleKey.key() << " was absent, creating it, possibly filling with content from views" );
+      generator.create();      
       if ( handles.views.size() != 0 ) {
-	
+
 	ATH_MSG_DEBUG("Will be merging from " << handles.views.size() << " view containers into that output");
 	auto viewCollKeyIter = handles.views.begin();
 	auto inViewCollKeyIter = handles.in.begin();
@@ -125,11 +130,13 @@ StatusCode HLTEDMCreator::createIfMissing(  const EventContext& context, const  
 	  ATH_MSG_DEBUG("Will be merging from " << viewCollKeyIter->key() << " view container using key " << inViewCollKeyIter->key() );
 	  auto viewsHandle = SG::makeHandle( *viewCollKeyIter );
 	  if ( viewsHandle.isValid() ) {	    
-	    CHECK( (this->*merger)( *viewsHandle, *inViewCollKeyIter , context, *writeHandle ) );
+	    CHECK( (this->*merger)( *viewsHandle, *inViewCollKeyIter , context, *generator.data.get() ) );
 	  }
 	}      
-      }  
-    }
+      }
+      auto writeHandle = SG::makeHandle( writeHandleKey );
+      CHECK( generator.record( writeHandle ) );
+    }     
   }
   return StatusCode::SUCCESS;
 }
@@ -139,25 +146,34 @@ StatusCode HLTEDMCreator::createIfMissing(  const EventContext& context, const  
 StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
 
 #define CREATE(__TYPE) \
-  CHECK( createIfMissing<__TYPE>( context, ConstHandlesGroup<__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), plainGenerator<__TYPE>, &HLTEDMCreator::noMerge<__TYPE> ) )							
+    {									\
+      plainGenerator<__TYPE> generator;					\
+      CHECK( createIfMissing<__TYPE>( context, ConstHandlesGroup<__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), generator, &HLTEDMCreator::noMerge<__TYPE> ) ); \
+    }
 
-  CREATE( TrigRoiDescriptorCollection );
+  CREATE( TrigRoiDescriptorCollection )
 
 #undef CREATE
 
 #define CREATE_XAOD(__TYPE, __STORE_TYPE) \
-  CHECK( createIfMissing<xAOD::__TYPE>( context, ConstHandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), xAODGenerator<xAOD::__TYPE, xAOD::__STORE_TYPE>, &HLTEDMCreator::viewsMerge<xAOD::__TYPE> )  )
+  { \
+    xAODGenerator<xAOD::__TYPE, xAOD::__STORE_TYPE> generator; \
+    CHECK( createIfMissing<xAOD::__TYPE>( context, ConstHandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), generator, &HLTEDMCreator::viewsMerge<xAOD::__TYPE> )  ); \
+  }
 
 
 #define CREATE_XAOD_NO_MERGE(__TYPE, __STORE_TYPE)			\
-  CHECK( createIfMissing<xAOD::__TYPE>( context, ConstHandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), xAODGenerator<xAOD::__TYPE, xAOD::__STORE_TYPE>, &HLTEDMCreator::noMerge<xAOD::__TYPE> )  )
+  { \
+    xAODGenerator<xAOD::__TYPE, xAOD::__STORE_TYPE> generator; \
+    CHECK( createIfMissing<xAOD::__TYPE>( context, ConstHandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), generator, &HLTEDMCreator::noMerge<xAOD::__TYPE> )  ); \
+  }
   
-  CREATE_XAOD_NO_MERGE( TrigCompositeContainer, TrigCompositeAuxContainer );
-  CREATE_XAOD( TrigElectronContainer, TrigElectronAuxContainer );
-  CREATE_XAOD( TrigPhotonContainer, TrigPhotonAuxContainer );
-  CREATE_XAOD( TrigEMClusterContainer, TrigEMClusterAuxContainer );
-  CREATE_XAOD( TrigCaloClusterContainer, TrigCaloClusterAuxContainer );
-  CREATE_XAOD( TrackParticleContainer, TrackParticleAuxContainer );
+  CREATE_XAOD_NO_MERGE( TrigCompositeContainer, TrigCompositeAuxContainer )
+  CREATE_XAOD( TrigElectronContainer, TrigElectronAuxContainer )
+  CREATE_XAOD( TrigPhotonContainer, TrigPhotonAuxContainer )
+  CREATE_XAOD( TrigEMClusterContainer, TrigEMClusterAuxContainer )
+  CREATE_XAOD( TrigCaloClusterContainer, TrigCaloClusterAuxContainer )
+  CREATE_XAOD( TrackParticleContainer, TrackParticleAuxContainer )
 
 #undef CREATE_XAOD
 #undef CREATE_XAOD_NO_MERGE
