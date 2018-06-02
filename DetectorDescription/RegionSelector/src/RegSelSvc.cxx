@@ -73,10 +73,15 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
     m_initMDT(true),
     m_initTGC(true),
     m_initCSC(true),
+    m_initMM(true),
+    m_initsTGC(true),
     m_lutCreatorToolRPC  ("RPC_RegionSelectorTable"),
     m_lutCreatorToolMDT  ("MDT_RegionSelectorTable"),
     m_lutCreatorToolTGC  ("TGC_RegionSelectorTable"),
     m_lutCreatorToolCSC  ("CSC_RegionSelectorTable"),
+    m_lutCreatorToolMM   ("MM_RegionSelectorTable"),
+    m_lutCreatorToolsTGC ("sTGC_RegionSelectorTable"),
+
     m_initFTK(false),
     m_lutCreatorToolFTK  ("FTK_RegionSelectorTable/FTK_RegionSelectorTable"),
     m_ftklut(nullptr),
@@ -95,6 +100,8 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
   declareProperty( "enableMDT",   m_initMDT,      "enable MDT map" );
   declareProperty( "enableTGC",   m_initTGC,      "enable TGC map" );
   declareProperty( "enableCSC",   m_initCSC,      "enable CSC map" );
+  declareProperty( "enableMM",    m_initMM,       "enable MM map" );
+  declareProperty( "enablesTGC",  m_initsTGC,     "enable sTGC map" );
   declareProperty( "enableFTK",   m_initFTK,      "enable FTK map" );
   declareProperty( "WriteTables", m_dumpTable,    "write out maps to files for debugging" );
   declareProperty( "OutputFile",  m_roiFileName,  "base filename used to write maps to" );
@@ -187,11 +194,16 @@ StatusCode RegSelSvc::initialize() {
   std::string tgcflag("enabled");
   std::string cscflag("enabled");
 
+  std::string mmflag("enabled");
+  std::string stgcflag("enabled");
+
   if( m_initOnlyMuon.value() ){
-    if ( !m_initRPC.value() )  rpcflag = "disabled"; 
-    if ( !m_initMDT.value() )  mdtflag = "disabled"; 
-    if ( !m_initTGC.value() )  tgcflag = "disabled"; 
-    if ( !m_initTGC.value() )  cscflag = "disabled"; 
+    if ( !m_initRPC.value()  )  rpcflag = "disabled"; 
+    if ( !m_initMDT.value()  )  mdtflag = "disabled"; 
+    if ( !m_initTGC.value()  )  tgcflag = "disabled"; 
+    if ( !m_initCSC.value()  )  cscflag = "disabled"; 
+    if ( !m_initMM.value()   )   mmflag = "disabled"; 
+    if ( !m_initsTGC.value() ) stgcflag = "disabled"; 
   }
   
   
@@ -204,7 +216,8 @@ StatusCode RegSelSvc::initialize() {
         << " muon="  << (m_initOnlyMuon.value() ? "enabled":"disabled");
 
   if( m_initOnlyMuon.value() )
-    msg() << " ( rpc=" << rpcflag << " mdt=" << mdtflag << " tgc=" << tgcflag << " csc=" << cscflag << " )";
+    msg() << " ( rpc=" << rpcflag << " mdt=" << mdtflag << " tgc=" << tgcflag << " csc=" << cscflag
+	  << " mm=" << mmflag << " stgc=" << stgcflag << " )";
   msg() << endmsg;
   
      
@@ -603,6 +616,48 @@ bool RegSelSvc::handleMuon() {
       }
     }    
   }      
+
+
+  //! Read MM data from Detector Store
+  
+  if ( m_initMM.value() ) {  
+   
+    StatusCode sc = readFromSG(m_lutCreatorToolMM, m_newmm);
+    if (sc.isFailure()){
+      ATH_MSG_WARNING( "Failed to initialize MM data" );
+      errorFlag = true;
+    }
+    else { 
+      if ( m_newmm ) 
+	ATH_MSG_INFO( "retrieved new mm RegSelSiLUT map " << m_newmm->getName() );
+      else {  
+	ATH_MSG_ERROR( "retrieved new mm RegSelSiLUT is NULL" );
+	errorFlag = true;
+      }
+    }    
+  }      
+
+
+  //! Read TGC data from Detector Store
+  
+  if ( m_initsTGC.value() ) {  
+   
+    StatusCode sc = readFromSG(m_lutCreatorToolsTGC, m_newstgc);
+    if (sc.isFailure()){
+      ATH_MSG_WARNING( "Failed to initialize sTGC data" );
+      errorFlag = true;
+    }
+    else { 
+      if ( m_newstgc ) 
+	ATH_MSG_INFO( "retrieved new stgc RegSelSiLUT map " << m_newstgc->getName() );
+      else {  
+	ATH_MSG_ERROR( "retrieved new stgc RegSelSiLUT is NULL" );
+	errorFlag = true;
+      }
+    }    
+  }      
+
+
   
   m_enabledDetectors.push_back("Muon");
 
@@ -810,6 +865,14 @@ void RegSelSvc::getRoIData(DETID detectorID,
     if ( m_newcsc ) m_newcsc->getRoIData(selroi, modules); 
     break;
   }
+  case MM: { // MM (obviously)
+    if ( m_newmm ) m_newmm->getRoIData(selroi, modules); 
+    break;
+  }
+  case STGC: { // STGC (obviously)
+    if ( m_newstgc ) m_newstgc->getRoIData(selroi, modules); 
+    break;
+  }
   default:
     break;
   }  
@@ -889,6 +952,16 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
   case CSC: { 
     RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
     if ( m_newcsc ) m_newcsc->getHashList(selroi, IDList); 
+    break;
+  }
+  case MM: { 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newmm ) m_newmm->getHashList(selroi, IDList); 
+    break;
+  }
+  case STGC: { 
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newstgc ) m_newstgc->getHashList(selroi, IDList); 
     break;
   }
   case FTK: { // FTK    
@@ -997,6 +1070,16 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
     if ( m_newcsc ) m_newcsc->getHashList(selroi, layer, IDList); 
     break;
   }
+  case MM: {
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newmm ) m_newmm->getHashList(selroi, layer, IDList); 
+    break;
+  }
+  case STGC: {
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newstgc ) m_newstgc->getHashList(selroi, layer, IDList); 
+    break;
+  }
   case FTK: { // FTK    
     RegSelRoI roi2( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
     if ( m_ftklut ) m_ftklut->getHashList(roi2, layer, IDList); 
@@ -1076,6 +1159,14 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
   }
   case CSC: { 
     if ( m_newcsc ) m_newcsc->getHashList(IDList); 
+    break;
+  }
+  case MM: {
+    if ( m_newmm ) m_newmm->getHashList(IDList); 
+    break;
+  }
+  case STGC: {
+    if ( m_newstgc ) m_newstgc->getHashList(IDList); 
     break;
   }
   case FTK: { // FTK    
@@ -1162,6 +1253,14 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
   }
   case CSC: { 
     if ( m_newcsc ) m_newcsc->getHashList( layer, IDList); 
+    break;
+  }
+  case MM: {
+    if ( m_newmm ) m_newmm->getHashList( layer, IDList); 
+    break;
+  }
+  case STGC: {
+    if ( m_newstgc ) m_newstgc->getHashList( layer, IDList); 
     break;
   }
   case FTK: { // FTK    
@@ -1275,6 +1374,16 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
     if ( m_newcsc ) m_newcsc->getRobList(selroi, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
+  case MM: {
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newmm ) m_newmm->getRobList(selroi, outputROBIDList, m_duplicateRemoval ); 
+    break;
+  }
+  case STGC: {
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newstgc ) m_newstgc->getRobList(selroi, outputROBIDList, m_duplicateRemoval ); 
+    break;
+  }
   case FTK: { 
     RegSelRoI roi2( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
     if ( m_ftklut ) m_ftklut->getRobList(roi2, outputROBIDList, m_duplicateRemoval ); 
@@ -1371,7 +1480,7 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
     RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
     if ( m_newrpc ) m_newrpc->getRobList(selroi, layer, outputROBIDList, m_duplicateRemoval ); 
     break;
-  }
+  } 
   case TGC: {
     RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
     if ( m_newtgc ) m_newtgc->getRobList(selroi, layer, outputROBIDList, m_duplicateRemoval ); 
@@ -1380,6 +1489,16 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
   case CSC: { 
     RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
     if ( m_newcsc ) m_newcsc->getRobList(selroi, layer, outputROBIDList, m_duplicateRemoval ); 
+    break;
+  }
+  case MM: {
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newmm ) m_newmm->getRobList(selroi, layer, outputROBIDList, m_duplicateRemoval ); 
+    break;
+  }
+  case STGC: {
+    RegSelRoI selroi( roi.zedMinus(), roi.zedPlus(), roi.phiMinus(), roi.phiPlus(), roi.etaMinus(), roi.etaPlus() );
+    if ( m_newstgc ) m_newstgc->getRobList(selroi, layer, outputROBIDList, m_duplicateRemoval ); 
     break;
   }
   case FTK: { 
@@ -1692,6 +1811,8 @@ std::string RegSelSvc::returnKeyString(DETID type){
   case RPC: rsKey = "RpcRegionSelectorLUT"; break;
   case TGC: rsKey = "TgcRegionSelectorLUT"; break;
   case CSC: rsKey = "CscRegionSelectorLUT"; break;
+  case MM:  rsKey = "MmRegionSelectorLUT"; break;
+  case STGC: rsKey = "sTgcRegionSelectorLUT"; break;
   default: break;  
   }
 
@@ -1809,20 +1930,6 @@ void RegSelSvc::GetEtaPhi(DETID detectorID,
   case TILE: // Tile Calorimeters
     m_tileData.getEtaPhi(hashId, etaMin, etaMax, phiMin, phiMax);
     break;
-#if 0
-  case MDT: // MDT Calorimeter
-    m_mdtData.getEtaPhi(hashId, etaMin, etaMax, phiMin, phiMax);
-    break;
-  case RPC: // RPC Calorimeters
-    m_rpcData.getEtaPhi(hashId, etaMin, etaMax, phiMin, phiMax);
-    break;
-  case TGC: // TGC Calorimeters
-    m_tgcData.getEtaPhi(hashId, etaMin, etaMax, phiMin, phiMax);
-    break;
-  case CSC: // CSC Calorimeters
-    m_cscData.getEtaPhi(hashId, etaMin, etaMax, phiMin, phiMax);
-    break;
-#endif
   default:
     break;
   }
@@ -1853,6 +1960,8 @@ void RegSelSvc::openDataStatus(StatusCode &sc, DETID type,
   case RPC: strcpy(strtmp,"RPC"); break;
   case TGC: strcpy(strtmp,"TGC"); break;
   case CSC: strcpy(strtmp,"CSC"); break;
+  case MM: strcpy(strtmp,"MM"); break;
+  case STGC: strcpy(strtmp,"sTGC"); break;
   case FTK: strcpy(strtmp,"FTK"); break;
   default: break;
   }
@@ -1890,6 +1999,8 @@ void RegSelSvc::openDataStatus(StatusCode &sc, DETID type,
   case RPC: strcpy(strtmp,"RPC"); break;
   case TGC: strcpy(strtmp,"TGC"); break;
   case CSC: strcpy(strtmp,"CSC"); break;
+  case MM:  strcpy(strtmp,"MM"); break;
+  case STGC: strcpy(strtmp,"sTGC"); break;
   case FTK: strcpy(strtmp,"FTK"); break;
   default: break;
   }
@@ -2019,6 +2130,9 @@ void RegSelSvc::getDetname(const std::string& detTypeStr, std::vector<std::strin
     detName.push_back("MDT");
     detName.push_back("RPC");
     detName.push_back("TGC");
+    detName.push_back("CSC");
+    detName.push_back("MM");
+    detName.push_back("sTGC");
   }
 }
 

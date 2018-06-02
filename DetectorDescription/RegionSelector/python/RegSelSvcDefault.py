@@ -35,6 +35,8 @@ class RegSelSvcDefault ( RegSelSvc )  :
         mdtTable  = None
         tgcTable  = None
         cscTable  = None
+        mmTable   = None
+        stgcTable = None
         ftkTable  = None       
       
 
@@ -125,6 +127,20 @@ class RegSelSvcDefault ( RegSelSvc )  :
                 ToolSvc += cscTable
                 mlog.debug(cscTable)
 
+            if DetFlags.detdescr.Micromegas_on():
+                from MuonRegionSelector.MuonRegionSelectorConf import MM_RegionSelectorTable
+                mmTable = MM_RegionSelectorTable(name = "MM_RegionSelectorTable")
+
+                ToolSvc += mmTable
+                mlog.debug(mmTable)
+
+            if DetFlags.detdescr.sTGC_on():
+                from MuonRegionSelector.MuonRegionSelectorConf import sTGC_RegionSelectorTable
+                stgcTable = sTGC_RegionSelectorTable(name = "sTGC_RegionSelectorTable")
+
+                ToolSvc += stgcTable
+                mlog.debug(stgcTable)
+
 
         self.PixelRegionLUT_CreatorTool  = pixTable
         self.SCT_RegionLUT_CreatorTool   = sctTable
@@ -138,6 +154,8 @@ class RegSelSvcDefault ( RegSelSvc )  :
         self.MDT_RegionLUT_CreatorTool   = mdtTable
         self.TGC_RegionLUT_CreatorTool   = tgcTable
         self.CSC_RegionLUT_CreatorTool   = cscTable
+        self.MM_RegionLUT_CreatorTool    = mmTable
+        self.sTGC_RegionLUT_CreatorTool  = stgcTable
 
         # have some job options to *disable* robs and modules
         # but also have an *enable* list from OKS, so, first, 
@@ -200,6 +218,14 @@ class RegSelSvcDefault ( RegSelSvc )  :
                 self.enableCSC = True
             else:
                 self.enableCSC = False
+            if DetFlags.detdescr.sTGC_on():
+                self.enablesTGC = True
+            else:
+                self.enablesTGC = False
+            if DetFlags.detdescr.Micromegas_on():
+                self.enableMM = True
+            else:
+                self.enableMM = False
         else:
             self.enableMuon = False
 

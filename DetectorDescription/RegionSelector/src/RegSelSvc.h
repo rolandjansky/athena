@@ -484,16 +484,27 @@ private:
   BooleanProperty  m_initTGC;
   BooleanProperty  m_initCSC;
 
+  BooleanProperty  m_initMM;
+  BooleanProperty  m_initsTGC;
+
+
   ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolRPC;
   ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolMDT;
   ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolTGC;
   ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolCSC;
+
+  ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolMM;
+  ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolsTGC;
 
 
   RegSelSiLUT* m_newrpc;
   RegSelSiLUT* m_newmdt;
   RegSelSiLUT* m_newtgc;
   RegSelSiLUT* m_newcsc;
+
+  RegSelSiLUT* m_newmm;
+  RegSelSiLUT* m_newstgc;
+
   
   StringProperty m_PixConditionsSvc;
   StringProperty m_SCTConditionsSvc;
