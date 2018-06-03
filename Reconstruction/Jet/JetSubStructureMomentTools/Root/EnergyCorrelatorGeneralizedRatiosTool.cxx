@@ -80,8 +80,8 @@ int EnergyCorrelatorGeneralizedRatiosTool::modifyJet(xAOD::Jet &jet) const {
 
   if(fabs(ecfg_2_3_1) > 1e-8)
     {  
-      jet.setAttribute("L3", ecfg_1_3_2 / pow(ecfg_2_3_1, (2) )/100. );
-      jet.setAttribute("L4", ecfg_0_3_1 / (pow(ecfg_2_3_1, (1) ))/100. );
+      jet.setAttribute("L3", ecfg_0_3_1 / (pow(ecfg_2_3_1, (1) ))/100. );
+      jet.setAttribute("L4", ecfg_1_3_2 / (pow(ecfg_2_3_1, (2) ))/100. );
     }
   else
     {
