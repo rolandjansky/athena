@@ -54,6 +54,8 @@ class EFTauMVHypo : public HLT::HypoAlgo {
 
   int m_level;
   int m_method;
+  int m_RNNmedium;
+  int m_RNNloose;
 
   bool m_highpt;
   double m_highpttrkthr;

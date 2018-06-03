@@ -329,7 +329,9 @@ class L2EFChain_tau(L2EFChainDef):
         # MVA TES for preselection and precision steps
         MVATES = preselection in needsCaloMVAPre
         # track counting based on EF tracks + BDT classification for core tracks
-        TrackBDT = preselection in ['tracktwoMVA','tracktwoMVA0p']
+        #TrackBDT = preselection in ['tracktwoMVA','tracktwoMVA0p']
+        # can't afford to use track BDT, rates too high
+        TrackBDT = preselection in ['tracktwoMVA']
 
         # evaluate RNN for triggers using RNN ID, and 2018 support triggers (even those using BDT ID, to avoid too many different precision sequences)
         #RNN = selection in ['verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN'] or preselection in preselection2018

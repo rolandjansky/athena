@@ -99,16 +99,25 @@ class TauHypoProvider:
                         theThresh.extend([3])
                         currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
 
-                    # test RNN WP combinations
                     elif 'RNN' in criteria:
-                        from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo
                         # EtCalibMin useless until we have MVA TES with track variables
-                        # arbitrary set level to 2 (i.e. "medium"), to fallback to looser ID above 330 GeV
-                        # since Method exists up to 3, start at criteria='RNN4' such that Method starts at 4
-                        theVars = ['NTrackMin','NTrackMax','EtCalibMin','Level','Method']
-                        theThresh = [0, 3, int(threshold)*self.GeV, 2, int(criteria.replace('RNN',''))]
-                        currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
+                        # arbitrary set level to 2 (i.e. "medium"), the Hypo code will fallback to 1 (loose) above 330 GeV
+                        # the expected syntax is RNNmediumXlooseY, where X and Y refer to the medium and loose WPs 
+                        import re
+                        try:
+                            RNNmedium = re.search('RNNmedium(.+?)loose', criteria).group(1)
+                        except AttributeError:
+                            raise
+                        try:
+                            RNNloose = re.split('loose', criteria)[1]
+                        except AttributeError:
+                            raise
 
+                        from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo
+                        theVars = ['NTrackMin','NTrackMax','EtCalibMin','Level','Method','RNNmedium','RNNloose']
+                        theThresh = [0, 3, int(threshold)*self.GeV, 2, 4, int(RNNmedium), int(RNNloose)]
+                        currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
+                    
                     else:
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo
                         theVars = ['NTrackMax', 'EtCalibMin', 'Level']

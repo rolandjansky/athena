@@ -451,7 +451,8 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             tools.append(taualgs.getTauAxis())
 
             # Count tracks with deltaZ0 cut of 1mm
-            tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=1))
+            # WARNING! tightened to 0.75 mm
+            tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=0.75, prefix='TrigTauTight_'))
             
             if doTrackBDT:                
                 # BDT track classification
@@ -487,9 +488,9 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
 
             if doRNN:
                 # RNN tau ID
-                tools.append(taualgs.getTauJetRNNEvaluator(NetworkFile0P="rnnid_config_0p_v1_tmp.json",
-                                                           NetworkFile1P="rnnid_config_1p_v1_tmp.json",
-                                                           NetworkFile3P="rnnid_config_mp_v1_tmp.json",
+                tools.append(taualgs.getTauJetRNNEvaluator(NetworkFile0P="rnnid_config_0p_v3.json",
+                                                           NetworkFile1P="rnnid_config_1p_v3.json",
+                                                           NetworkFile3P="rnnid_config_mp_v3.json",
                                                            MaxTracks=10, 
                                                            MaxClusters=6,
                                                            MaxClusterDR=1.0))

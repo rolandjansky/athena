@@ -45,6 +45,8 @@ EFTauMVHypo::EFTauMVHypo(const std::string& name,
   declareProperty("EtCalibMin",    m_EtCalibMin        = -10000.);
   declareProperty("Level",         m_level             = -1);
   declareProperty("Method",        m_method            = 0);
+  declareProperty("RNNmedium",     m_RNNmedium         = -1);
+  declareProperty("RNNloose",      m_RNNloose          = -1);
   declareProperty("Highpt",        m_highpt            = true);
   declareProperty("HighptTrkThr",  m_highpttrkthr      = 200000.);
   declareProperty("HighptIDThr",   m_highptidthr       = 330000.);
@@ -94,11 +96,12 @@ HLT::ErrorCode EFTauMVHypo::hltInitialize()
   msg() << MSG::INFO << " REGTEST: param EtCalib " << m_EtCalibMin <<endmsg;
   msg() << MSG::INFO << " REGTEST: param Level " << m_level <<endmsg;
   msg() << MSG::INFO << " REGTEST: param Method " << m_method <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param RNNmedium " << m_RNNmedium << " RNNloose " << m_RNNloose << endmsg;
   msg() << MSG::INFO << " REGTEST: param Highpt with thrs " << m_highpt << " " << m_highpttrkthr <<  " " << m_highptidthr << " " << m_highptjetthr <<endmsg;
   msg() << MSG::INFO << " REGTEST: param ApplyIDon0p " << m_applyIDon0p <<endmsg;
   msg() << MSG::INFO << " REGTEST: ------ "<<endmsg;
   
-  if( (m_numTrackMin >  m_numTrackMax) || m_level == -1 || (m_highptidthr > m_highptjetthr) )
+  if( (m_numTrackMin >  m_numTrackMax) || m_level == -1 || (m_highptidthr > m_highptjetthr) || (m_method==4 && (m_RNNmedium<0 || m_RNNloose<0)) )
     {
       msg() << MSG::ERROR << "EFTauMVHypo is uninitialized! " << endmsg;
       return HLT::BAD_JOB_SETUP;
@@ -377,24 +380,32 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
 	m_cutCounter++;
       }
     // test new RNN WPs!
-    else if(m_method >= 4)
+    else if(m_method == 4)
       {
-	if(!(*tauIt)->isAvailable<char>(Form("RNN%i",m_method))) {
-	  msg() << MSG::WARNING << Form("RNN%i",m_method) << " not available. Make sure TauWPDecorator is run for RNN!"<<endmsg;
-	  continue;
-	}
-
 	if(local_level == -1111)
 	  { //noCut, accept this TE
 	    pass = true;
 	    m_cutCounter++;
 	    continue;
 	  }
-	// WARNING !!! CHOOSE MEANINGFUL RNN4 WP, since it will be used for all RNNXX triggers above 330 GeV
-	else if (local_level == 1 && !(*tauIt)->auxdata<char>("RNN4"))
+	else if (local_level == 1) {
+	  if( !(*tauIt)->isAvailable<char>(Form("RNNWP%i",m_RNNloose)) ) {
+	    msg() << MSG::ERROR << " RNNWP" << m_RNNloose << " not found, check TauWPDecoratorJetRNN setup!" << endmsg;	
+	    continue;
+	  }
+	  if( !(*tauIt)->auxdata<char>(Form("RNNWP%i",m_RNNloose)) ) continue;
+	}
+	else if (local_level == 2) {
+	  if( !(*tauIt)->isAvailable<char>(Form("RNNWP%i",m_RNNmedium)) ) {
+	    msg() << MSG::ERROR << " RNNWP" << m_RNNmedium << " not found, check TauWPDecoratorJetRNN setup!" << endmsg;	
+	    continue;
+	  }
+	  if( !(*tauIt)->auxdata<char>(Form("RNNWP%i",m_RNNmedium)) ) continue;
+	}
+	else {
+	  msg() << MSG::WARNING << " unexpected level "<< local_level << endmsg;	
 	  continue;
-	else if (local_level == 2 && !(*tauIt)->auxdata<char>(Form("RNN%i",m_method)))
-	  continue;
+	}
 	
 	m_cutCounter++;
       }
