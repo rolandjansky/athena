@@ -965,34 +965,33 @@ void CaloGeometry::LoadFCalGeometryFromFiles(TString filename1,TString filename2
 
 
   m_FCal_ChannelMap.finish(); // Creates maps
-
+  
   for(int imodule=1;imodule<=3;imodule++) delete electrodes[imodule-1];
   electrodes.clear();
 
   unsigned long long phi_index,eta_index;
   float x,y,dx,dy;
   long id;
-  //auto it =m_cells_in_sampling[20].rbegin();
-  //it--;
-  //unsigned long long identify=it->first;
-  //for(auto it=m_cells_in_sampling[i].begin(); it!=m_cells_in_sampling[i].end();it++){
-  //
-  //}
+  
   long mask1[]{0x34,0x34,0x35};
   long mask2[]{0x36,0x36,0x37};
-
+  
+  m_FCal_rmin.resize(3,FLT_MAX);
+  m_FCal_rmax.resize(3,0.);
+  
+  
   for(int imap=1;imap<=3;imap++){
-
+    
     int sampling = imap+20;
-
+    
     if((int)m_cells_in_sampling[sampling].size() != 2*std::distance(m_FCal_ChannelMap.begin(imap), m_FCal_ChannelMap.end(imap))){
       cout << "Error: Incompatibility between FCalChannel map and GEO file: Different number of cells in m_cells_in_sampling and FCal_ChannelMap" << endl;
       cout << "m_cells_in_sampling: " << m_cells_in_sampling[sampling].size() << endl;
       cout << "FCal_ChannelMap: " << 2*std::distance(m_FCal_ChannelMap.begin(imap), m_FCal_ChannelMap.end(imap)) << endl;
     }
 
-
     for(auto it=m_FCal_ChannelMap.begin(imap);it!=m_FCal_ChannelMap.end(imap);it++){
+
 
       phi_index = it->first & 0xffff;
       eta_index = it->first >> 16;
@@ -1000,6 +999,11 @@ void CaloGeometry::LoadFCalGeometryFromFiles(TString filename1,TString filename2
       y=it->second.y();
       m_FCal_ChannelMap.tileSize(imap, eta_index, phi_index,dx,dy);
 
+
+      double r=sqrt(x*x+y*y);
+      
+      if(r<m_FCal_rmin[imap-1])m_FCal_rmin[imap-1]=r;
+      if(r>m_FCal_rmax[imap-1])m_FCal_rmax[imap-1]=r;
 
       id=(mask1[imap-1]<<12) + (eta_index << 5) +2*phi_index;
 
@@ -1028,7 +1032,6 @@ void CaloGeometry::LoadFCalGeometryFromFiles(TString filename1,TString filename2
 
 
   }
-
 
 
 }
