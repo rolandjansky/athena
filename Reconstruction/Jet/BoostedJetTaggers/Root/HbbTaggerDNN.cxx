@@ -45,6 +45,7 @@ namespace BoostedJetTaggers {
     SG::AuxElement::ConstAccessor<JetLink> m_acc_parent;
     typedef std::vector<ElementLink<xAOD::IParticleContainer> > ParticleLinks;
     SG::AuxElement::ConstAccessor<ParticleLinks> m_acc_subjets;
+    double m_subjet_pt_threshold;
     std::string m_fat_jet_node_name;
     std::string m_jss_node_name;
     std::vector<std::string> m_subjet_node_names;
@@ -312,6 +313,7 @@ namespace BoostedJetTaggers {
     m_jss_node_name = pt.get<std::string>("fatjet.substructure_node_name");
 
     auto sjets = pt.get<std::string>("subjet.collection");
+    m_subjet_pt_threshold = pt.get<double>("subjet.pt_threshold");
     m_acc_subjets = SG::AuxElement::ConstAccessor<ParticleLinks>(sjets);
 
     // build regexes to figure out variable types
@@ -413,7 +415,7 @@ namespace BoostedJetTaggers {
     for (size_t subjet_n = 0; subjet_n < n_subjets; subjet_n++) {
       bool have_jet = subjet_n < subjets.size();
       std::map<std::string, double> subjet_inputs;
-      if (have_jet) {
+      if (have_jet && subjets.at(subjet_n)->pt() > m_subjet_pt_threshold) {
         const xAOD::Jet* subjet = subjets.at(subjet_n);
         subjet_inputs["pt"] = subjet->pt();
         subjet_inputs["eta"] = subjet->eta();

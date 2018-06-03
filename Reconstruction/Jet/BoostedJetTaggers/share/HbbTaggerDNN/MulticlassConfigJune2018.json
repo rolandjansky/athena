@@ -5,7 +5,7 @@
     },
     "subjet": {
         "collection": "GhostVR30Rmax4Rmin02TrackJet",
-        "pt_threshold": 0.0,
+        "pt_threshold": 7e3,
         "node_names": ["subjet1", "subjet2", "subjet3", "subjet4"]
     },
     "types": {
