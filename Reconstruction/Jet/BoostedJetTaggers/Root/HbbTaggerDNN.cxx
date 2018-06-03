@@ -30,6 +30,8 @@
 namespace BoostedJetTaggers {
 // internal class to read a jet and build an std::map of intputs that
 // will be passed to lwtnn.
+  struct SubstructureAccessors;
+
   class HbbInputBuilder
   {
   public:
@@ -44,6 +46,7 @@ namespace BoostedJetTaggers {
     typedef std::vector<ElementLink<xAOD::IParticleContainer> > ParticleLinks;
     SG::AuxElement::ConstAccessor<ParticleLinks> m_acc_subjets;
     std::string m_fat_jet_node_name;
+    std::string m_jss_node_name;
     std::vector<std::string> m_subjet_node_names;
     typedef SG::AuxElement::ConstAccessor<float> FloatAcc;
     typedef SG::AuxElement::ConstAccessor<double> DoubleAcc;
@@ -54,7 +57,39 @@ namespace BoostedJetTaggers {
     std::vector<std::string> m_float_subjet_inputs;
     std::vector<std::string> m_int_subjet_inputs;
     std::map<std::string, double> m_dummy_values;
+
+    // grab substructure info
+    std::unique_ptr<SubstructureAccessors> m_ssa;
   };
+
+  // set of accessors for JSS input variables
+  struct SubstructureAccessors {
+    typedef SG::AuxElement AE;
+    SubstructureAccessors();
+    std::map<std::string, double> get_map(const xAOD::Jet&) const;
+  private:
+    float c2(const xAOD::Jet&) const;
+    float d2(const xAOD::Jet&) const;
+    float e3(const xAOD::Jet&) const;
+    float tau21(const xAOD::Jet&) const;
+    float tau32(const xAOD::Jet&) const;
+    float fw20(const xAOD::Jet&) const;
+
+    AE::ConstAccessor<float> ecf1;
+    AE::ConstAccessor<float> ecf2;
+    AE::ConstAccessor<float> ecf3;
+
+    AE::ConstAccessor<float> tau1wta;
+    AE::ConstAccessor<float> tau2wta;
+    AE::ConstAccessor<float> tau3wta;
+
+    AE::ConstAccessor<float> fw2;
+    AE::ConstAccessor<float> fw0;
+
+    // other accessors used by get_map
+    std::vector<std::pair<std::string, AE::ConstAccessor<float> > > m_acc;
+  };
+
 }
 
 namespace {
@@ -178,7 +213,6 @@ std::map<std::string, double> HbbTaggerDNN::getScores(const xAOD::Jet& jet)
 
   // build the jet properties into a map
   HbbInputBuilder::VMap inputs = m_input_builder->get_map(jet);
-  // if we have any NaN or infinite values, replace them with defaults
 
   if (msgLvl(MSG::DEBUG)) {
     ATH_MSG_DEBUG("Hbb inputs:");
@@ -190,6 +224,7 @@ std::map<std::string, double> HbbTaggerDNN::getScores(const xAOD::Jet& jet)
     }
   }
 
+  // if we have any NaN or infinite values, replace them with defaults
   HbbInputBuilder::VMap cleaned;
   for (const auto& cleaner: m_var_cleaners) {
     cleaned.emplace(
@@ -217,6 +252,14 @@ void HbbTaggerDNN::decorate(const xAOD::Jet& jet) const {
     dec(jet) = scores.at(m_output_value_names.at(dec_num));
     dec_num++;
   }
+}
+
+std::set<std::string> HbbTaggerDNN::decorationNames() const {
+  std::set<std::string> out;
+  for (const auto& pair: m_decoration_names) {
+    out.insert(pair.second);
+  }
+  return out;
 }
 
 size_t HbbTaggerDNN::n_subjets(const xAOD::Jet& jet) const {
@@ -259,11 +302,15 @@ namespace BoostedJetTaggers {
     const std::string& input_file,
     const lwt::GraphConfig& network_config):
     m_acc_parent("Parent"),
-    m_acc_subjets("catKittyCat")
+    m_acc_subjets("catKittyCat"),
+    m_ssa(nullptr)
   {
     boost::property_tree::ptree pt;
     boost::property_tree::read_json(input_file, pt);
+
     m_fat_jet_node_name = pt.get<std::string>("fatjet.node_name");
+    m_jss_node_name = pt.get<std::string>("fatjet.substructure_node_name");
+
     auto sjets = pt.get<std::string>("subjet.collection");
     m_acc_subjets = SG::AuxElement::ConstAccessor<ParticleLinks>(sjets);
 
@@ -292,6 +339,8 @@ namespace BoostedJetTaggers {
             throw std::logic_error("don't know how to access " + input.name);
           }
         }
+      } else if (node_config.name == m_jss_node_name) {
+        m_ssa.reset(new SubstructureAccessors);
       } else if (valid_subjet_nodes.count(node_config.name)) {
         for (const lwt::Input input: node_config.variables) {
           if (NON_STRING_ACCESSOR.count(input.name)) {
@@ -391,6 +440,10 @@ namespace BoostedJetTaggers {
       }
       inputs[m_subjet_node_names.at(subjet_n)] = subjet_inputs;
     }
+
+    // add jss stuff
+    if (m_ssa) inputs[m_jss_node_name] = m_ssa->get_map(jet);
+
     return inputs;
   }
 
@@ -400,5 +453,54 @@ namespace BoostedJetTaggers {
     auto subjet_links = m_acc_subjets(*parent_jet);
     return subjet_links.size();
   }
+
+
+  // definitions for substructure accessors
+  SubstructureAccessors::SubstructureAccessors():
+    ecf1("ECF1"), ecf2("ECF2"), ecf3("ECF3"),
+    tau1wta("Tau1_wta"), tau2wta("Tau2_wta"), tau3wta("Tau3_wta"),
+    fw2("FoxWolfram2"), fw0("FoxWolfram0")
+  {
+    for (const std::string& name: {"Split12", "Split23",
+          "Qw", "PlanarFlow", "Angularity", "Aplanarity", "ZCut12", "KtDR"}) {
+      m_acc.emplace_back(std::make_pair(name, name));
+    }
+  }
+  std::map<std::string, double>
+  SubstructureAccessors::get_map(const xAOD::Jet& j) const {
+    std::map<std::string, double> map {
+      {"pt", j.pt()}, {"eta", j.eta()}, {"mass", j.m()},
+      {"C2", c2(j)},
+      {"D2", d2(j)},
+      {"e3", e3(j)},
+      {"Tau21_wta", tau21(j)},
+      {"Tau32_wta", tau32(j)},
+      {"FoxWolfram20", fw20(j)},
+    };
+    for (const auto& pair: m_acc) {
+      map[pair.first] = pair.second(j);
+    }
+    return map;
+  }
+
+  float SubstructureAccessors::c2(const xAOD::Jet& j) const {
+    return ecf3(j) * ecf1(j) / pow(ecf2(j), 2.0);
+  }
+  float SubstructureAccessors::d2(const xAOD::Jet& j) const {
+    return ecf3(j) * pow(ecf1(j), 3.0) / pow(ecf2(j), 3.0);
+  }
+  float SubstructureAccessors::e3(const xAOD::Jet& j) const {
+    return ecf3(j)/pow(ecf1(j),3.0);
+  }
+  float SubstructureAccessors::tau21(const xAOD::Jet& j) const {
+    return tau2wta(j) / tau1wta(j);
+  }
+  float SubstructureAccessors::tau32(const xAOD::Jet& j) const {
+    return tau3wta(j) / tau2wta(j);
+  }
+  float SubstructureAccessors::fw20(const xAOD::Jet& j) const {
+    return fw2(j) / fw0(j);
+  }
+
 
 }

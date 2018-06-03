@@ -43,6 +43,7 @@ public:
   // this (and only this) method will add a decorator to the jet. The
   // name is set with the decorationName property.
   void decorate(const xAOD::Jet& jet) const;
+  std::set<std::string> decorationNames() const;
 
   // check how many subjets there are
   size_t n_subjets(const xAOD::Jet& jet) const;
