@@ -20,7 +20,7 @@ job = CfgMgr.AthSequencer("AthAlgSeq")
 job += CfgMgr.EgammaMonitoring('MonitoringAlg', sampleType = particleType)
 
 
-theApp.EvtMax = 10000
+theApp.EvtMax = 100000
 
 
 outputFile = 'Nightly-monitoring_'+particleType+'.hist.root'

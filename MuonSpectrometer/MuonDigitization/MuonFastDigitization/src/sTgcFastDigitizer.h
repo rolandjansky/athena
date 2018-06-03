@@ -53,68 +53,68 @@ class sTgcFastDigitizer : public AthAlgorithm {
   TFile* m_file;
   //TTree* m_ntuple_SimHit;
   TTree* m_ntuple;
-  float  slx; // local position simhit in G4
-  float  sly;
-  float  slz;
-  float  dlx;  //  local position simhit in GeoModel frame
-  float  dly;
-  float  dlz;
-  float  sulx; // local position from REin tracking surface frame
-  float  suly;
-  float  tsulx; // local position simhit in tracking surface frame
-  float  tsuly;
-  float  tsulz;
-  float  resx; // residuals in local G4 - GeoModel
-  float  resy;
-  float  resz;
-  float  suresx; // residuals g4 - RE stripPosition in tracking frame
-  float  suresy;
-  float  errx;   // error on x and y
-  float  erry;
-  float  res;    // residual + pull
-  float  pull;
-  int    is;   // simulation Identifier: issmall 
-  int    seta; // eta
-  int    sphi; // phi 
-  int    sml; // multi layer
-  int    sl; // layer
-  int    ss;  // side
-  int    stype;  // channel type
-  int    ieta; // offline id fields
-  int    iphi;
-  int    iml;
-  int    il;
-  int    ich;  // strip number of Id
-  int    istr; // strip number from RE
-  int    itype; // channel type
-  int    ipadeta; // channel type
-  int    ipadphi; // channel type
-  int    exitcode; // flag reason why prd not made
-  int    mode; // flag digitization mode
-  int    pdg; // pdg ID
-  int    trkid; // track number in G4
-  int    bct; // bc tag
-  float  tb; // bunchTime
-  float  tj; // time jitter
-  float  tg4; // globalHitTime in G4
-  float  ttof; // tofCorrection assuming IP;
-  float  gpx; // global position of the simhit
-  float  gpy;
-  float  gpz;
-  float  gpr; // radial position pos.perp()
-  float  gpp; // phi position  pos.phi()
-  float  dgpx; // same for readout element center
-  float  dgpy;
-  float  dgpz;
-  float  dgpr;
-  float  dgpp;
-  float  edep;
-  float  e;
-  float  as;
-  float  at;
-  float  surfcentx;
-  float  surfcenty;
-  float  surfcentz;
+  float  m_slx; // local position simhit in G4
+  float  m_sly;
+  float  m_slz;
+  float  m_dlx;  //  local position simhit in GeoModel frame
+  float  m_dly;
+  float  m_dlz;
+  float  m_sulx; // local position from REin tracking surface frame
+  float  m_suly;
+  float  m_tsulx; // local position simhit in tracking surface frame
+  float  m_tsuly;
+  float  m_tsulz;
+  float  m_resx; // residuals in local G4 - GeoModel
+  float  m_resy;
+  float  m_resz;
+  float  m_suresx; // residuals g4 - RE stripPosition in tracking frame
+  float  m_suresy;
+  float  m_errx;   // error on x and y
+  float  m_erry;
+  float  m_res;    // residual + pull
+  float  m_pull;
+  int    m_is;   // simulation Identifier: issmall 
+  int    m_seta; // eta
+  int    m_sphi; // phi 
+  int    m_sml; // multi layer
+  int    m_sl; // layer
+  int    m_ss;  // side
+  int    m_stype;  // channel type
+  int    m_ieta; // offline id fields
+  int    m_iphi;
+  int    m_iml;
+  int    m_il;
+  int    m_ich;  // strip number of Id
+  int    m_istr; // strip number from RE
+  int    m_itype; // channel type
+  int    m_ipadeta; // channel type
+  int    m_ipadphi; // channel type
+  int    m_exitcode; // flag reason why prd not made
+  int    m_mode; // flag digitization m_mode
+  int    m_pdg; // m_pdg ID
+  int    m_trkid; // track number in G4
+  int    m_bct; // bc tag
+  float  m_tb; // bunchTime
+  float  m_tj; // time jitter
+  float  m_tg4; // globalHitTime in G4
+  float  m_ttof; // tofCorrection assuming IP;
+  float  m_gpx; // global position of the simhit
+  float  m_gpy;
+  float  m_gpz;
+  float  m_gpr; // radial position pos.perp()
+  float  m_gpp; // phi position  pos.phi()
+  float  m_dgpx; // same for readout element center
+  float  m_dgpy;
+  float  m_dgpz;
+  float  m_dgpr;
+  float  m_dgpp;
+  float  m_edep;
+  float  m_e;
+  float  m_as;
+  float  m_at;
+  float  m_surfcentx;
+  float  m_surfcenty;
+  float  m_surfcentz;
 
   double getResolution(float inAngle_space) const;
   uint16_t bcTagging(float digittime, int channelType) const;

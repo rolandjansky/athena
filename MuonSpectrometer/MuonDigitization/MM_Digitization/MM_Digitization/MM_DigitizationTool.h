@@ -89,9 +89,6 @@ class MsgStream;
 class IMM_DigitizationTool;
 class MuonSimDataCollection;
 
-// class StripsResponse;
-// class ElectronicsResponse;
-
 class TTree;
 class TFile;
 
@@ -189,10 +186,6 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 		double m_timeWindowUpperOffset;
 		double m_DiffMagSecondMuonHit;
 
-		//TDC ELECTRONICS
-		// double m_ns2TDC;
-		// double m_resTDC;
-
 		// StripsResponse stuff...
 		MM_StripsResponseSimulation *m_StripsResponseSimulation;
 		float m_qThreshold;
@@ -235,10 +228,10 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 
 		int m_exitcode;
 
-		float  tofCorrection;
-		float bunchTime;
-		float globalHitTime;
-		float eventTime;
+		float  m_tofCorrection;
+		float m_bunchTime;
+		float m_globalHitTime;
+		float m_eventTime;
 		std::vector<int> m_n_StrRespID;
 		std::vector<float> m_n_StrRespCharge;
 		std::vector<float> m_n_StrRespTime;

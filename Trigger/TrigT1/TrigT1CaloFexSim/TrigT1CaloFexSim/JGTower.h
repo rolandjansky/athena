@@ -37,18 +37,19 @@ class JGTower{
   float Phi() const {return m_phi;};
   float dEta() const {return m_deta;};
   float dPhi() const {return m_dphi;};
-
+  float sampling() const {return m_sampling;};
   std::vector<int> GetSCIndices() const {return m_scellIndices;};
   std::vector<int> GetTileIndices() const {return m_tileIndices;};
   void SetSCIndices(int sc_id)  {m_scellIndices.push_back(sc_id);};
   void SetTileIndices(int tile_id)  {m_tileIndices.push_back(tile_id);};
-
+  void SetSampling(int sampling) {m_sampling=sampling;};
  private:
 
   float m_eta;
   float m_deta;
   float m_phi;
   float m_dphi;
+  int m_sampling;
   std::vector<int> m_scellIndices;
   std::vector<int> m_tileIndices;
   void Initialize(float eta, float deta, float phi, float dphi);

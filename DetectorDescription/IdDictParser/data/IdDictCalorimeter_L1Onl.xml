@@ -971,13 +971,13 @@
     </region>
   
  <!-- FCAL region, NEEDS WORK/FIXING -\-> -->
-   <region group="Reg_JTower" name="JTower_3"  
+<!--   <region group="Reg_JTower" name="JTower_3"  
       eta0="3.2" deta="0.425" phi0="0.0" dphi="0.4"> 
      <reference subregion="JTower" /> 
      <range field="JTregion" value="3" /> 
      <range field="JTeta" minvalue="0" maxvalue="3"/> 
      <range field="JTphi" minvalue="0" maxvalue="15" wraparound="TRUE" /> 
-   </region>  
+   </region>  -->
  
   
   <!--       gTower part   -->
@@ -1004,14 +1004,14 @@
     </region>
 
 <!-- FCAL region, NEEDS WORK/FIXING -\-> -->
-   <region group="Reg_GTower" name="GTower_1" 
+<!--   <region group="Reg_GTower" name="GTower_1" 
       eta0="3.2" deta="0.425" phi0="0.0" dphi="0.4" > 
      <reference subregion="GTower" /> 
      <range field="GTregion" value="1" /> 
      <range field="GTeta" minvalue="0" maxvalue="3"/> 
      <range field="GTphi" minvalue="0" maxvalue="15" wraparound="TRUE" /> 
    </region>  
-
+-->
 
 
 </IdDictionary>

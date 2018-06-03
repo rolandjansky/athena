@@ -35,7 +35,7 @@ def recurse(rdir, dqregion, ignorepath, refs=None, displaystring='Draw=PE', disp
         if ' ' in key.GetName():
             print 'WARNING: cannot have spaces in histogram names for han config; not including %s %s' % (cl, key.GetName())
             continue
-        if rcl.InheritsFrom('TH1'):
+        if rcl.InheritsFrom('TH1') or rcl.InheritsFrom('TGraph') or rcl.InheritsFrom('TEfficiency'):
             if '/' in key.GetName():
                 print 'WARNING: cannot have slashes in histogram names, encountered in directory %s, histogram %s' % (rdir.GetPath(), key.GetName())
                 continue
