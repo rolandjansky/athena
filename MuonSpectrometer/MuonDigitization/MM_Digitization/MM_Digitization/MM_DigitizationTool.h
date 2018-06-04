@@ -89,9 +89,6 @@ class MsgStream;
 class IMM_DigitizationTool;
 class MuonSimDataCollection;
 
-// class StripsResponse;
-// class ElectronicsResponse;
-
 class TTree;
 class TFile;
 
@@ -188,10 +185,6 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 		double m_timeWindowLowerOffset;
 		double m_timeWindowUpperOffset;
 		double m_DiffMagSecondMuonHit;
-
-		//TDC ELECTRONICS
-		// double m_ns2TDC;
-		// double m_resTDC;
 
 		// StripsResponse stuff...
 		MM_StripsResponseSimulation *m_StripsResponseSimulation;
