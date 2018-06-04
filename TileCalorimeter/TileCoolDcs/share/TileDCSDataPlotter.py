@@ -13,10 +13,10 @@ from TileCoolDcs import ProgressBar
 class TileDCSDataPlotter:
 
     #_______________________________________________________________________________________
-    def __init__( self, argv, useCool, useTestBeam, verbose, dbstring=None, putDuplicates=False ):
+    def __init__( self, argv, useCool, useTestBeam, verbose, dbstring=None, putDuplicates=False, hvonly=False ):
 
         dbSource = "ORACLE"
-        self.useCool = useCool
+        self.useCool = useCool or hvonly
         if useCool:
             dbSource = "COOL"
         self.useTestBeam = useTestBeam
@@ -661,12 +661,17 @@ if callName=="TileDCSDataPlotter.py":
         useCool=True
         sys.argv.remove("--cool")
 
-    #=== check if we are in Oracle mode
+    #=== check if we are in testbeam mode
     useTestBeam = False
     if "--testbeam" in sys.argv:
         useTestBeam=True
         sys.argv.remove("--testbeam")
 
+    #=== check if we are in hvonly mode
+    hvonly = False
+    if "--hvonly" in sys.argv:
+        hvonly=True
+        sys.argv.remove("--hvonly")
 
     #=== check if we are in verbose mode
     verbose = False
@@ -682,7 +687,7 @@ if callName=="TileDCSDataPlotter.py":
 
     #=== command is recognized, we go on....
     ROOT.gROOT.SetBatch()
-    dp = TileDCSDataPlotter(sys.argv, useCool, useTestBeam, verbose, putDuplicates=(cmd =="mean" or cmd =="dist"))
+    dp = TileDCSDataPlotter(sys.argv, useCool, useTestBeam, verbose, putDuplicates=(cmd =="mean" or cmd =="dist"), hvonly=hvonly)
 
     #=== no graphics if only get tree
     if cmd == "tree":
