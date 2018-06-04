@@ -37,7 +37,7 @@ SCT_FwdCoolingBlock::getParameters()
 
   if (m_coolingBlockIndex < 0){
     std::cout << "SCT_FwdRing: ERROR. Cooling block type is missing. HiLo = " << m_hiLo 
-	      << ", MainSecondary = " << m_mainSec << std::endl;
+              << ", MainSecondary = " << m_mainSec << std::endl;
     // Will crash or give unpredictable results
   } 
 
