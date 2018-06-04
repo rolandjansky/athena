@@ -53,25 +53,26 @@
 
 bool fulldbg = false;
 
+/// get a histogram given a path, and an optional initial directory
+/// if histogram is not found, then check for dir/name
+
 template<typename T=TH1F>
-T* Get( TFile& f, const std::string& name, const std::string& dir, std::vector<std::string>* saved=0  ) { 
+T* Get( TFile& f, const std::string& name, const std::string& dir="", std::vector<std::string>* saved=0  ) { 
 
   T* h = (T*)f.Get( name.c_str() );
-  if ( h ) {
-    std::cout << "Get() name " << name << std::endl;
+  if ( h || dir=="" || name.find(dir)!=std::string::npos ) { 
+    std::cout << "Get() name " << name << " :: " << h << std::endl;
     if ( saved ) saved->push_back( name );
   }
   else { 
-    if ( dir=="" ) return h;
-    std::cout << "Get() name " << (dir+"/"+name) << std::endl;
     h = (T*)f.Get( (dir+"/"+name).c_str() );
-    if ( h ) { 
-      if ( saved ) saved->push_back( dir+"/"+name );
+    std::cout << "Get() name " << (dir+"/"+name) << " :: " << h << std::endl;
+    if ( saved ) { 
+      if ( h ) saved->push_back( dir+"/"+name );
+      else     saved->push_back( name );
     }
-    else { 
-      if ( saved ) saved->push_back( name );
-    }
-  }     
+  }
+
   return h;
 }
 
