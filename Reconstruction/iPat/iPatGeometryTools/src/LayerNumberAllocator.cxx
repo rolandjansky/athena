@@ -6,7 +6,6 @@
  AlgTool describing arrangement of silicon layers wrt vertex region. 
  Allocates layer number to a SpacePoint according to TrackFinder requirements.
  -----------------------------------------------------------------------------
-  Copyright (C) 2001 by ATLAS Collaboration
  ***************************************************************************/
 
 //<<<<<< INCLUDES                                                       >>>>>>
