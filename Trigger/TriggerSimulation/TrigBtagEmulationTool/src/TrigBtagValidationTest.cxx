@@ -11,10 +11,15 @@ using std::string;
 namespace Trig{
 
   TrigBtagValidationTest::TrigBtagValidationTest(const std::string& name, 
-					       ISvcLocator* pSvcLocator )
-    : ::AthAlgorithm( name, pSvcLocator ),
+					       ISvcLocator* pSvcLocator ) : 
+#ifndef XAOD_ANALYSIS
+    ::AthAlgorithm( name, pSvcLocator ),
+#else
+::AthAnalysisAlgorithm( name, pSvcLocator ),
+#endif
       m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool"),
       m_emulationTool("Trig::TrigBtagEmulationTool/TrigBtagEmulationTool",this),
+      m_errorAtMismatch(false),
       m_retrieveRetaggedJets(false),
       m_chain("HLT_j15_gsc35_boffperf_split"),
       m_eventCount(0),
@@ -23,6 +28,7 @@ namespace Trig{
   {
     declareProperty("TrigBtagEmulationTool",m_emulationTool        );
     declareProperty("ToBeEmulatedTriggers" ,m_toBeEmulatedTriggers );
+    declareProperty("ErrorAtMismatch"      ,m_errorAtMismatch      );
     declareProperty("RetrieveRetaggedJets" ,m_retrieveRetaggedJets );
     declareProperty("InputChain"           ,m_chain                );
     declareProperty("MinEvent"             ,m_min_eventCount       );
@@ -44,10 +50,6 @@ namespace Trig{
       ATH_MSG_ERROR("Could not retrieve Trigger Decision Tool! Can't work");
       return StatusCode::FAILURE;
     }
-    if ( (m_emulationTool.retrieve()).isFailure() ){
-      ATH_MSG_ERROR("Could not retrieve Emulation Tool! Can't work");
-      return StatusCode::FAILURE;
-    }
     StatusCode sc = service("StoreGateSvc", m_storeGate);
     if(sc.isFailure()) {
       ATH_MSG_ERROR( "Unable to locate Service StoreGateSvc" );
@@ -59,11 +61,10 @@ namespace Trig{
     // CHAIN CONFIGURATION IN ATHENA IS PERFORMED VIA JOB OPTION
 
     ATH_MSG_INFO("Initializing TrigBtagEmulationTool ...");
-    if( m_emulationTool->initialize().isFailure() ) {
-      ATH_MSG_ERROR( "Unable to initialize TrigBtagEmulationTool" );
+    if( m_emulationTool.retrieve().isFailure() ) {
+      ATH_MSG_ERROR( "Unable to retrieve TrigBtagEmulationTool" );
       return StatusCode::FAILURE;
     }
-
 
     for (unsigned int index(0); index < m_toBeEmulatedTriggers.size(); index++) {
       std::string triggerName = m_toBeEmulatedTriggers.at(index);
@@ -95,7 +96,8 @@ namespace Trig{
       TotalMismatches += std::get<mismatchesTOT>( m_counters[ triggerName.c_str() ] );
     }
     ATH_MSG_INFO("Total Mismatches : " << TotalMismatches);
-    
+
+    if ( m_errorAtMismatch && TotalMismatches != 0) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
   }
   
@@ -125,6 +127,11 @@ namespace Trig{
        
       message += Form("TDT=%d EMUL=%d MISMATCH=%d",passTDT?1:0,passEmul?1:0,passTDT != passEmul?1:0);
       ATH_MSG_INFO( message.c_str() );
+
+      if (m_errorAtMismatch && passTDT != passEmul) {
+	ATH_MSG_ERROR( "Observed Mismatch for trigger chain ['" << triggerName << "']" );
+	return StatusCode::FAILURE;
+      }
     }
     
     ATH_MSG_INFO( "" );
@@ -153,6 +160,11 @@ namespace Trig{
     ATH_MSG_INFO( "Retrieved " << originalJets.size() << " original GSC jets and "<< retaggedJets->size() << " retagged GSC jets" );
     if (originalJets.size() != retaggedJets->size()) {
       ATH_MSG_ERROR( "Original and Retagged jets have different sizes." );
+      if (retaggedJets->size() == 0) {
+	ATH_MSG_ERROR("Size of Retagged jets is " << retaggedJets->size() << "."); 
+	ATH_MSG_ERROR("For optimization purposes GSC jets are not retrieved by the emulation tool if there is no gsc chain to be emulated.");
+	ATH_MSG_ERROR("Did you forget to emulate a gsc chain ?");
+      }
       delete retaggedJets;
       return StatusCode::FAILURE;
     }
@@ -217,7 +229,7 @@ namespace Trig{
       itJet++;
       itBtagging++;
 
-      if ( !passes ) {
+      if ( m_errorAtMismatch and not passes ) {
 	ATH_MSG_ERROR( "RETAGGED and ORIGINAL GSC jets are dissimilar." );
 	delete retaggedJets;
 	return StatusCode::FAILURE;

@@ -91,8 +91,9 @@ namespace Trig {
 
     // *** Attributes ** //
   private:
-    enum TriggerMenu { YEAR_2015=0, YEAR_2016=1, YEAR_2017=2 };
+    enum TriggerMenu { YEAR_2015=0, YEAR_2016=1, YEAR_2017=2, YEAR_2018=3 };
     std::tuple< 
+      std::map< const std::string,const std::string >, 
       std::map< const std::string,const std::string >, 
       std::map< const std::string,const std::string >, 
       std::map< const std::string,const std::string > > m_triggerMenus;
