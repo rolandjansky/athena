@@ -55,7 +55,8 @@ SCT_FwdHybrid::getParameters()
   m_materialName  = parameters->fwdHybridMaterial();
 
   //double CLHEP::radlength;
-  //CLHEP::radlength = 18.8 * CLHEP::cm;	// [CLHEP::cm] for carbon (Partickle Physics Booklet)	
+  //CLHEP::radlength = 18.8 * CLHEP::cm;
+  // [CLHEP::cm] for carbon (Partickle Physics Booklet)
 
   m_thickness  = parameters->fwdHybridThickness();
   m_thickness2 = m_thickness;
@@ -85,8 +86,8 @@ GeoVPhysVol * SCT_FwdHybrid::build()
 
   // Make a hybrid. This is a TRD + BOX 
   const GeoTrd * hybridShape1 = new GeoTrd(0.5 * m_thickness, 0.5 * m_thickness, 
-					   0.5 * m_innerWidth, 0.5 * m_outerWidth, 
-					   0.5 * m_length1);
+                                           0.5 * m_innerWidth, 0.5 * m_outerWidth, 
+                                           0.5 * m_length1);
 
   const GeoBox * hybridShape2 = new GeoBox(0.5 * m_thickness2, 0.5 * m_width2, 0.5 * m_length2);
   
@@ -101,13 +102,13 @@ GeoVPhysVol * SCT_FwdHybrid::build()
     + m_length - 0.5 * parameters->fwdHybridLengthToCorner();
   //  position = zsmi[m_ringType].mountd - zhyb->hybysh + zhyb->hyby - zhyb->hybycor / 2.;
   if (m_ringType == 0) {  // outer module, hybrid in inner side
-	                position = -1 * position;  };
+    position = -1 * position;  };
   
   double rotation = 0.;
   if (m_ringType == 0)  rotation = 180. * CLHEP::deg;  
   
   const GeoShape & hybridPos2 = (*hybridShape1 << HepGeom::RotateX3D(rotation)
-						<< HepGeom::TranslateZ3D(position) );
+                      << HepGeom::TranslateZ3D(position) );
   
 
   SCT_MaterialManager materials;

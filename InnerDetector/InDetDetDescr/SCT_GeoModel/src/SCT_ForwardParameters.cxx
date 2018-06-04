@@ -109,7 +109,7 @@ SCT_ForwardParameters::fwdWheelRingMapIndex(int iWheel, int iRing, int ec) const
   index = fwdWheelRingMapIndexDB(iWheelDB, iRing);
   if (index < 0) {
     std::cout << "Wheel (numbering from 1)" << iWheelDB << ", Ring " << iRing 
-	      << " not in table SctFwdWheelRingMap" << std::endl;
+              << " not in table SctFwdWheelRingMap" << std::endl;
   }
   return index;
 }

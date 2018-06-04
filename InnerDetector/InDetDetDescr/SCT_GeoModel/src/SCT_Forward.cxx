@@ -74,7 +74,7 @@ SCT_Forward::getParameters()
   if(m_cylinderServicesPresent) {
     for (int iElement = 0; iElement < m_numThermalShieldElements; iElement++){
       if(parameters->fwdThermalShieldMaterial(iElement) == "sct::FwdOTE") {
-	m_outerRadiusCylinderServices = parameters->fwdThermalShieldInnerRadius(iElement);
+        m_outerRadiusCylinderServices = parameters->fwdThermalShieldInnerRadius(iElement);
       }
     }
   }
@@ -137,7 +137,7 @@ SCT_Forward::build(SCT_Identifier id) const
     std::ostringstream wheelName; wheelName << "Wheel#" << iWheel;
     double zpos = wheel->zPosition() - zCenter();
     //    std::cout << "Adding wheel " << iWheel << ", z = " << m_wheels[iWheel]->zPosition()
-    //   	      << " at " << zpos << ", thickness = " << wheel->thickness() << std::endl;
+    //          << " at " << zpos << ", thickness = " << wheel->thickness() << std::endl;
     forward->add(new GeoNameTag(wheelName.str()));
     forward->add(new GeoIdentifierTag(iWheel));
     GeoAlignableTransform * transform = new GeoAlignableTransform(HepGeom::TranslateZ3D(zpos));
@@ -164,96 +164,96 @@ SCT_Forward::build(SCT_Identifier id) const
 
     // New phi-dependent services
     SCT_FwdCylinderServices cylinderServices("CylinderServices",
-					     supportFrame.outerRadius(),
-					     m_outerRadiusCylinderServices,
-					     supportFrame.length());
+                                             supportFrame.outerRadius(),
+                                             m_outerRadiusCylinderServices,
+                                             supportFrame.length());
     forward->add(new GeoTransform(HepGeom::TranslateZ3D(supportFrameZPos)));
     forward->add(cylinderServices.getVolume());
 
   } else {
 
     // Old cylindrical services
-  //
-  // Make cooling pipes. These extend from the wheel to the TRT Gap.
-  //
-  {
-    // End position of the pipes.
-    double endPos = m_trtGapPos;
+    //
+    // Make cooling pipes. These extend from the wheel to the TRT Gap.
+    //
+    {
+      // End position of the pipes.
+      double endPos = m_trtGapPos;
 
-    // Calculate radius to start placing cooling pipes. This is equal to the
-    // outer radius of the support frame + the pipe radius (The pipe radius is to just 
-    // give a small gap - it is not really necessary)
-    double innerRadiusCooling = supportFrame.outerRadius() + m_coolingPipeRadius; 
+      // Calculate radius to start placing cooling pipes. This is equal to the
+      // outer radius of the support frame + the pipe radius (The pipe radius is to just 
+      // give a small gap - it is not really necessary)
+      double innerRadiusCooling = supportFrame.outerRadius() + m_coolingPipeRadius; 
 
-    // Inner radius of cylinder representing pipes. Gets incremented for each wheel.
-    double rStart = innerRadiusCooling;
+      // Inner radius of cylinder representing pipes. Gets incremented for each wheel.
+      double rStart = innerRadiusCooling;
 
-    for (int iWheel = 0; iWheel < m_numWheels; iWheel++){
-      // Start position of the pipes.
-      double startPos = m_wheels[iWheel]->zPosition();
+      for (int iWheel = 0; iWheel < m_numWheels; iWheel++){
+        // Start position of the pipes.
+        double startPos = m_wheels[iWheel]->zPosition();
        
-      // Assume one cooling circuit per quadrant of each ring. ie 8 pipes per ring.
-      int numPipes = 8 * m_wheels[iWheel]->numRings();
+        // Assume one cooling circuit per quadrant of each ring. ie 8 pipes per ring.
+        int numPipes = 8 * m_wheels[iWheel]->numRings();
     
-      // Label Cooling pipe with W# at end of string  
-      // std::ostringstream label; label << "CoolingPipeW" << iWheel + 1;       
-      //SCT_FwdCoolingPipe * coolingPipe = new SCT_FwdCoolingPipe(label.str(), numPipes, rStart, startPos, endPos);
-      SCT_FwdCoolingPipe coolingPipe("OffDiskCoolingPipeW"+intToString(iWheel),
-				   numPipes, rStart, startPos, endPos);  
-      //std::cout << "Cooling pipe rmin,rmax: " << coolingPipe.innerRadius() << ", " << coolingPipe.outerRadius()  << std::endl;
+        // Label Cooling pipe with W# at end of string  
+        // std::ostringstream label; label << "CoolingPipeW" << iWheel + 1;       
+        //SCT_FwdCoolingPipe * coolingPipe = new SCT_FwdCoolingPipe(label.str(), numPipes, rStart, startPos, endPos);
+        SCT_FwdCoolingPipe coolingPipe("OffDiskCoolingPipeW"+intToString(iWheel),
+                                       numPipes, rStart, startPos, endPos);  
+        //std::cout << "Cooling pipe rmin,rmax: " << coolingPipe.innerRadius() << ", " << coolingPipe.outerRadius()  << std::endl;
       
-      // Place the cooling pipes
-      double coolingPipeZPos = coolingPipe.zPosition() - zCenter();
-      forward->add(new GeoTransform(HepGeom::TranslateZ3D(coolingPipeZPos)));
-      forward->add(coolingPipe.getVolume());
+        // Place the cooling pipes
+        double coolingPipeZPos = coolingPipe.zPosition() - zCenter();
+        forward->add(new GeoTransform(HepGeom::TranslateZ3D(coolingPipeZPos)));
+        forward->add(coolingPipe.getVolume());
 
-      // Set rStart for next cooling pipe equal to outer radius of this cooling pipe.
-      rStart = coolingPipe.outerRadius();
+        // Set rStart for next cooling pipe equal to outer radius of this cooling pipe.
+        rStart = coolingPipe.outerRadius();
       
+      }
     }
-  }
 
-  //
-  // Make Power Tapes. These extend from the wheel to the TRT Gap.
-  //
-  {
+    //
+    // Make Power Tapes. These extend from the wheel to the TRT Gap.
+    //
+    {
       
-    // End position of the power tapes.
-    double endPos = m_trtGapPos;
+      // End position of the power tapes.
+      double endPos = m_trtGapPos;
     
-    // Calculate radius to start placing power tapes. This is half way bewteen outer radius
-    // of support fram and outer radius of forward envelope.
-    // The -1 mm is to avoid a clash with the thermal shield.
-    double innerRadiusPowerTapes = 0.5*(supportFrame.outerRadius() + m_outerRadius) - 1*CLHEP::mm;
+      // Calculate radius to start placing power tapes. This is half way bewteen outer radius
+      // of support fram and outer radius of forward envelope.
+      // The -1 mm is to avoid a clash with the thermal shield.
+      double innerRadiusPowerTapes = 0.5*(supportFrame.outerRadius() + m_outerRadius) - 1*CLHEP::mm;
 
-    // Inner radius of cylinder representing power tapes. Gets incremented for each wheel.
-    double rStart = innerRadiusPowerTapes;
+      // Inner radius of cylinder representing power tapes. Gets incremented for each wheel.
+      double rStart = innerRadiusPowerTapes;
     
-    for (int iWheel = 0; iWheel < m_numWheels; iWheel++){
+      for (int iWheel = 0; iWheel < m_numWheels; iWheel++){
       
-      // Start position of the power tapes.
-      double startPos = m_wheels[iWheel]->zPosition();
+        // Start position of the power tapes.
+        double startPos = m_wheels[iWheel]->zPosition();
       
-      // Get total number of modules in wheel
-      int numModules = m_wheels[iWheel]->totalModules();
+        // Get total number of modules in wheel
+        int numModules = m_wheels[iWheel]->totalModules();
 
-      // Label power tape with W# at end of string  
-      //std::ostringstream label; label << "PowerTapeW" << iWheel + 1;       
-      //SCT_FwdPowerTape * powerTape = new SCT_FwdPowerTape(label.str(), numModules, rStart, startPos, endPos);
-      SCT_FwdPowerTape powerTape("OffDiskPowerTapeW"+intToString(iWheel),
-				 numModules, rStart, startPos, endPos);
-      //std::cout << "PowerTape rmin,rmax: " << powerTape.innerRadius() << ", " << powerTape.outerRadius()  << std::endl;
+        // Label power tape with W# at end of string  
+        //std::ostringstream label; label << "PowerTapeW" << iWheel + 1;       
+        //SCT_FwdPowerTape * powerTape = new SCT_FwdPowerTape(label.str(), numModules, rStart, startPos, endPos);
+        SCT_FwdPowerTape powerTape("OffDiskPowerTapeW"+intToString(iWheel),
+                                   numModules, rStart, startPos, endPos);
+        //std::cout << "PowerTape rmin,rmax: " << powerTape.innerRadius() << ", " << powerTape.outerRadius()  << std::endl;
 
 
-      // Place Power Tapes
-      double powerTapeZPos = powerTape.zPosition() - zCenter();
-      forward->add(new GeoTransform(HepGeom::TranslateZ3D(powerTapeZPos)));
-      forward->add(powerTape.getVolume());
+        // Place Power Tapes
+        double powerTapeZPos = powerTape.zPosition() - zCenter();
+        forward->add(new GeoTransform(HepGeom::TranslateZ3D(powerTapeZPos)));
+        forward->add(powerTape.getVolume());
             
-      // Set rStart for next power tape equal to outer radius of this power tape.
-      rStart = powerTape.outerRadius();
-    } // end loop over wheels
-  }
+        // Set rStart for next power tape equal to outer radius of this power tape.
+        rStart = powerTape.outerRadius();
+      } // end loop over wheels
+    }
   }
 
   //
@@ -261,7 +261,7 @@ SCT_Forward::build(SCT_Identifier id) const
   //
   for (int iElement = 0; iElement < m_numThermalShieldElements; iElement++){
     SCT_FwdThermalShieldElement thermalShieldElement("FwdThermalShieldElement"+intToString(iElement),
-						     iElement);
+                                                     iElement);
     double elementZPos = thermalShieldElement.zPosition() - zCenter();
     forward->add(new GeoTransform(HepGeom::TranslateZ3D(elementZPos)));
     forward->add(thermalShieldElement.getVolume());
@@ -279,5 +279,3 @@ SCT_Forward::build(SCT_Identifier id) const
 
   return forward;
 }
-
-

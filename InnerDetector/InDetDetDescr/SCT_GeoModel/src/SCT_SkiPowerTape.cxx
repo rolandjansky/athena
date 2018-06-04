@@ -38,8 +38,8 @@
 
 
 SCT_SkiPowerTape::SCT_SkiPowerTape(const std::string & name,
-				   const SCT_Ski * ski,
-				   double length) :
+                                   const SCT_Ski * ski,
+                                   double length) :
   SCT_SharedComponentFactory(name), m_length(length), m_ski(ski)
 {
   getParameters();
@@ -139,8 +139,8 @@ SCT_SkiPowerTape::build()
     // Checking that nPos is >= 0 is equivalent to this.
     if (nPos < 0) {  
       std::cout << "SCT_SkiPowerTape: Module position inconsistent with assumption that\n" 
-		<< "                        first half has z < 0 and second half has z > 0" 
-		<< std::endl;
+                << "                        first half has z < 0 and second half has z > 0" 
+                << std::endl;
     }
 
     // Create the tape

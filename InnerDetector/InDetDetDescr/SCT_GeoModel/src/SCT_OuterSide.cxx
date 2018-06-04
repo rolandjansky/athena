@@ -161,18 +161,18 @@ SCT_OuterSide::preBuild()
   // Make an envelope for the whole module.
   //
   const GeoBox * ose1Shape = new GeoBox(0.5 * t_ose1,
-					0.5 * w_ose1,
-					0.5 * l_ose1);
+                                        0.5 * w_ose1,
+                                        0.5 * l_ose1);
   const GeoBox * ose2Shape = new GeoBox(0.5 * t_ose2,
-					0.5 * w_ose2,
-					0.5 * l_ose2);
+                                        0.5 * w_ose2,
+                                        0.5 * l_ose2);
 
   const GeoShape & OuterSideEnvelopeShape = (*ose1Shape).
     add(*ose2Shape << HepGeom::Translate3D(ose2PosX, ose2PosY, ose2PosZ));
 
   const GeoLogVol * OuterSideEnvelopeLog = new GeoLogVol("OuterSideEnvelope",
-							       &OuterSideEnvelopeShape,
-							       materials.gasMaterial());
+                                                         &OuterSideEnvelopeShape,
+                                                         materials.gasMaterial());
 
   // 28th Mar S.Mima modified.
   // *** 16:30 Wed 15th Jun 2005 D.Naito modified. (03)*********************************
