@@ -216,12 +216,7 @@ namespace MuonGM {
     double ysFrame = stgc->ysFrame(); //Frame thickness on short parallel edge
     double ylFrame = stgc->ylFrame(); //Frame thickness on long parallel edge
     double xFrame  = stgc->xFrame(); //Frame thickness of non parallel edges
-    double yCutout = stgc->yCutout();// y of cutout of trapezoid (only in outermost detectors)
-    /* yCutout in the xml is 6mm too large for Readout geometry.
-     * The xml value includes a 6mm cover which is needed within GeoModel, but not here.
-     * As such, we take 6mm off this value if it is non 0, in order to get the proper value.
-     * As of now, xml = 545.3 whereas yCutout should be 539.3 */
-    if (yCutout) yCutout -= 6. ;
+    double yCutout = stgc->yCutoutCathode();// y of cutout of trapezoid (only in outermost detectors)
     sTGCReadoutParameters roParam = stgc->GetReadoutParameters();
 
     // AGDDParameterBagsTGCTech* parameterBagTech = dynamic_cast<AGDDParameterBagsTGCTech*> (AGDDParameterStore::GetParameterStore()->GetParameterBag(stgc->GetName()));
@@ -277,9 +272,9 @@ namespace MuonGM {
       m_etaDesign[il].deadI = 0.;
       m_etaDesign[il].deadS = 0.;
 
-      m_etaDesign[il].inputPitch = stgc->stripPitch(); // parameterBagTech->stripPitch;
+      m_etaDesign[il].inputPitch = stgc->stripPitch();
       m_etaDesign[il].inputLength = m_etaDesign[il].minYSize;
-      m_etaDesign[il].inputWidth = stgc->stripPitch() - .5; // parameterBagTech->stripWidth;
+      m_etaDesign[il].inputWidth = stgc->stripWidth();
       if (!tech){
 	reLog()<<MSG::ERROR <<"Failed To get Technology for stgc element :" << stgc->GetName() << endmsg;      
 	m_etaDesign[il].thickness = 0;
@@ -318,9 +313,9 @@ namespace MuonGM {
       m_phiDesign[il].deadI = 0.;
       m_phiDesign[il].deadS = 0.;
 
-      m_phiDesign[il].inputPitch = stgc->wirePitch(); // parameterBagTech->wirePitch;
+      m_phiDesign[il].inputPitch = stgc->wirePitch();
       m_phiDesign[il].inputLength = m_phiDesign[il].xSize;
-      m_phiDesign[il].inputWidth = 0.015; // parameterBagTech->wireWidth;
+      m_phiDesign[il].inputWidth = 0.015;
       m_phiDesign[il].thickness = stgc->Tck();
       	
       m_phiDesign[il].firstPos = roParam.firstWire[il]; // Position of 1st wire, accounts for staggering
