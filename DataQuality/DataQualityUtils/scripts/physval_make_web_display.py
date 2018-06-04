@@ -296,7 +296,7 @@ if __name__=="__main__":
                       help='Draw 2D histograms with ratio plots')
     parser.add_option('--jsRoot',action='store_true', default=False,
                       help="make interactive jsRoot displays")
-    parser.add_option('--ratiorange', default=1.0, type=float,
+    parser.add_option('--ratiorange', default=None, type=float,
                       help='set range for ratio plots (as delta to 1.0)')
 
     options, args = parser.parse_args()
