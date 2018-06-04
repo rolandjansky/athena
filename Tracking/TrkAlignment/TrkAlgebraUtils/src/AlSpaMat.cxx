@@ -25,6 +25,8 @@
 
 #include <Eigen/Core>
 #include <Eigen/IterativeLinearSolvers>
+#include <Eigen/SparseCholesky>
+
 
 namespace Trk {
 
@@ -465,7 +467,8 @@ int AlSpaMat::SolveWithEigen(AlVec& RHS){
   // BiCGSTAB was the fastest iterative solver in Eigen from a quick test
   // SimplicialLDLT was the fastest direct solver in Eigen (x2 slower than BiCGSTAB ) 
 
-  Eigen::BiCGSTAB<Eigen::SparseMatrix<double> > solver;
+  // Eigen::BiCGSTAB<Eigen::SparseMatrix<double> > solver;
+  Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > solver;
 
   solver.compute(eigenBigMatrix);
   if(solver.info()!=Eigen::Success) {
@@ -495,6 +498,7 @@ int AlSpaMat::SolveWithEigen(AlVec& RHS){
   for( int i=0; i<residual.size(); ++i){
     sumresidual += fabs(residual[i]);
   }
+  sumresidual /= (double) residual.size();
   
   std::cout << "AlSpaMat::SolveWithEigen: residual of solution is " <<  sumresidual << std::endl;
   if( sumresidual > 1e-10 ){
