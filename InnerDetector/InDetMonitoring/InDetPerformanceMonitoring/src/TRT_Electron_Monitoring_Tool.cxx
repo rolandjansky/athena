@@ -529,8 +529,8 @@ bool
 TRT_Electron_Monitoring_Tool::
 muonQualityCuts(const xAOD::Muon *muon)
 {
-  const xAOD::TrackParticle* trkM = muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
   if(!muon) return false;
+  const xAOD::TrackParticle* trkM = muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
   if(!trkM) return false;
   uint8_t dummy(-1);
   int nTRT = trkM->summaryValue(  dummy , xAOD::numberOfTRTHits  )? dummy :-1;
