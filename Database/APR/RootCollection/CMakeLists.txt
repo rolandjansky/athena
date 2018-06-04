@@ -18,8 +18,8 @@ atlas_depends_on_subdirs( PRIVATE
                           GaudiKernel )
 
 # External dependencies:
-find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
-find_package( ROOT COMPONENTS MathCore Hist Tree TreePlayer Net RIO Cint Core pthread )
+find_package( CORAL COMPONENTS CoralBase )
+find_package( ROOT COMPONENTS MathCore Tree TreePlayer Net RIO Graf Graf3d Hist Matrix )
 
 # Component(s) in the package:
 atlas_add_root_dictionary( RootCollection
