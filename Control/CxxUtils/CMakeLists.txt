@@ -11,7 +11,7 @@ atlas_depends_on_subdirs(
    PRIVATE AtlasTest/TestTools )
 
 # External dependencies:
-find_package( Boost COMPONENTS program_options regex filesystem thread system )
+find_package( Boost COMPONENTS program_options regex filesystem thread system timer )
 
 # The main library of the package:
 atlas_add_library( CxxUtils
@@ -66,12 +66,18 @@ atlas_add_test( stacktrace_test
    SOURCES test/stacktrace_test.cxx
    LINK_LIBRARIES CxxUtils dl )
 
+atlas_add_test( ConcurrentBitset_test
+  SOURCES test/ConcurrentBitset_test.cxx
+  INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+  LINK_LIBRARIES CxxUtils ${Boost_LIBRARIES} )
+
 # Set up the "simple" tests:
 foreach( test sincos_test copyif_test ArrayScanner_test Arrayrep_test
       Array_test PackedArray_test pointer_list_test FloatPacker_test
       hashtable_test fpcompare_test StrFormat_test
       prefetch_test ClassName_test make_unique_test ones_test
-      exctrace1_test exctrace2_test bitscan_test )
+      exctrace1_test exctrace2_test bitscan_test
+      atomic_fetch_minmax_test )
    atlas_add_test( ${test}
       SOURCES test/${test}.cxx
       LINK_LIBRARIES CxxUtils )
