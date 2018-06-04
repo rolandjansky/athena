@@ -7,8 +7,11 @@
 #include "ISF_FastCaloSimEvent/TFCSFunction.h"
 #include "ISF_FastCaloSimEvent/TFCS1DFunction.h"
 #include "ISF_FastCaloSimEvent/TFCS1DFunctionHistogram.h"
+#include "ISF_FastCaloSimEvent/TFCS1DFunctionInt16Histogram.h"
+#include "ISF_FastCaloSimEvent/TFCS1DFunctionInt32Histogram.h"
 #include "ISF_FastCaloSimEvent/TFCS1DFunctionRegression.h"
 #include "ISF_FastCaloSimEvent/TFCS1DFunctionRegressionTF.h"
+#include "ISF_FastCaloSimEvent/TFCS1DFunctionSpline.h"
 #include "ISF_FastCaloSimEvent/TFCS2DFunction.h"
 #include "ISF_FastCaloSimEvent/TFCS2DFunctionHistogram.h"
 
@@ -37,6 +40,7 @@
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitNumberFromE.h"
 #include "ISF_FastCaloSimEvent/TFCSHitCellMapping.h"
+#include "ISF_FastCaloSimEvent/TFCSHitCellMappingWiggle.h"
 #include "ISF_FastCaloSimEvent/TFCSHitCellMappingWiggleEMB.h"
 
 #include "ISF_FastCaloSimEvent/TFCSTruthState.h"
@@ -49,8 +53,11 @@
 #pragma link C++ class TFCSFunction+;
 #pragma link C++ class TFCS1DFunction+;
 #pragma link C++ class TFCS1DFunctionHistogram+;
+#pragma link C++ class TFCS1DFunctionInt16Histogram+;
+#pragma link C++ class TFCS1DFunctionInt32Histogram+;
 #pragma link C++ class TFCS1DFunctionRegression+;
 #pragma link C++ class TFCS1DFunctionRegressionTF+;
+#pragma link C++ class TFCS1DFunctionSpline+;
 #pragma link C++ class TFCS2DFunction+;
 #pragma link C++ class TFCS2DFunctionHistogram+;
 #pragma link C++ class TFCSParametrizationBase+;
@@ -78,6 +85,7 @@
 #pragma link C++ class TFCSHistoLateralShapeParametrization+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitNumberFromE+;
 #pragma link C++ class TFCSHitCellMapping+;
+#pragma link C++ class TFCSHitCellMappingWiggle+;
 #pragma link C++ class TFCSHitCellMappingWiggleEMB+;
 
 #pragma link C++ class TFCSTruthState+;

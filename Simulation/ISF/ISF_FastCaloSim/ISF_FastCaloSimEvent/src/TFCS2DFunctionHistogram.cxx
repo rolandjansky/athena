@@ -105,7 +105,7 @@ void TFCS2DFunctionHistogram::unit_test(TH2* hist)
   }
   TFCS2DFunctionHistogram rtof(hist);
   nbinsx=hist->GetNbinsX();
-  nbinsy=hist->GetNbinsX();
+  nbinsy=hist->GetNbinsY();
   
   float value[2];
   float rnd[2];
