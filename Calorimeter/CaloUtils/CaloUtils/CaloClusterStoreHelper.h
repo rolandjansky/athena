@@ -61,8 +61,8 @@ public:
    * @return status code indicating sucess or failure
    */ 
   static StatusCode AddContainerWriteHandle(StoreGateSvc* pStoreGate,
-						           SG::WriteHandle<xAOD::CaloClusterContainer> &clusColl,
-							   MsgStream& msg);
+                                            SG::WriteHandle<xAOD::CaloClusterContainer> &clusColl,
+                                            MsgStream& msg);
 
   /** 
    * @brief Creates a new \a xAOD::CaloClusterContainer + \a CaloClusterAuxContainer and records them to SG
@@ -79,10 +79,17 @@ public:
   ////////////////////
 	 
   /*! \brief Finalize clusters (move CaloClusterCellLink to separate container*/
+  /* (Backwards-compatible version.) */
   static StatusCode finalizeClusters(StoreGateSvc* pStoreGate,
 				     xAOD::CaloClusterContainer* pClusterColl,
 				     const std::string& clusCollKey,
 				     MsgStream& msgStream );
+
+  /*! \brief Finalize clusters (move CaloClusterCellLink to separate container*/
+  /* (Modern version.) */
+  static StatusCode finalizeClusters(SG::WriteHandle<CaloClusterCellLinkContainer>& h,
+				     xAOD::CaloClusterContainer* pClusterColl);
+
 
 
 
