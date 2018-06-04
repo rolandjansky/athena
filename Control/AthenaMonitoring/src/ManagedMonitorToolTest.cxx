@@ -19,6 +19,7 @@
 #include "TH2.h"
 #include "TGraph.h"
 #include "TTree.h"
+#include "TMath.h"
 #include "LWHists/TH1D_LW.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
@@ -61,6 +62,10 @@ ManagedMonitorToolTest( const std::string & type, const std::string & name,
    , m_hlw_2F(0)
    , m_offset(0)
    , m_gen(65539)
+   , m_efficiency(0)
+   , m_managedEfficiency(0)
+   , m_managedEfficiencyXLB(0)
+   , m_managedGraphXLB(0)
 {
    declareProperty( "GeneratorSeed", m_generatorSeedProp );
 }
@@ -149,6 +154,12 @@ bookHistogramsRecurrent( )
          m_ntuple->Branch("var1",&m_variable1,"var1/I"); 
          m_ntuple->Branch("var2",&m_variable2,"var2/I");
          group_ntuple.regTree( m_ntuple ).ignore();
+
+         // Example for TEfficiency
+         MonGroup efficiency( this, "Efficiency", run, ATTRIB_UNMANAGED );
+         m_efficiency = new TEfficiency("Efficiency","Efficiency (Unmanaged)",10,0,10);
+         efficiency.regEfficiency( m_efficiency ).ignore();
+
    }   
 
    return StatusCode::SUCCESS;
@@ -239,6 +250,22 @@ bookHistograms( )
    m_managedNtuple->Branch("var2",&m_variable2,"var2/I");
    managed_group_ntuple.regTree( m_managedNtuple ).ignore();
 
+   // Example for the managed TEffficiency
+   MonGroup managed_efficiency( this, "Managed/Efficiency", lumiBlock );
+   m_managedEfficiency = new TEfficiency("ManagedEfficiency","Efficiency (Managed)",10,0,10);
+   managed_efficiency.regEfficiency( m_managedEfficiency ).ignore();
+
+   // Example for the managed TEfficiency across lumiblocks
+   MonGroup managed_efficiency_xlb( this, "Managed/EfficiencyXLB", run, ATTRIB_X_VS_LB, "", "merge");
+   m_managedEfficiencyXLB = new TEfficiency("ManagedEfficiencyXLB","EfficiencyXLB (Managed)",1200,0,1200);
+   managed_efficiency_xlb.regEfficiency( m_managedEfficiencyXLB ).ignore();
+
+   // Example for the managed TGraph across lumiblocks
+   MonGroup managed_graph_xlb( this, "Managed/GraphXLB", run, ATTRIB_X_VS_LB, "", "merge");
+   m_managedGraphXLB = new TGraph();
+   m_managedGraphXLB->SetNameTitle("ManagedGraphXLB","GraphXLB (Managed)");
+   managed_graph_xlb.regGraph( m_managedGraphXLB ).ignore();
+   
    return StatusCode::SUCCESS;
 }
 
@@ -303,7 +330,17 @@ fillHistograms()
       float y = m_gen.Gaus( 100., 10. );
       m_hlw_1D->Fill( x );      
       m_hlw_1F->Fill( m_offset );      
-      m_hlw_2F->Fill( x, y );     
+      m_hlw_2F->Fill( x, y );    
+
+      double a = m_gen.Uniform(10);
+      bool b = m_gen.Rndm() < TMath::Gaus(a,5,4);
+      m_efficiency->Fill(b,a);
+      m_managedEfficiency->Fill(b,a);
+
+      double lb = AthenaMonManager::lumiBlockNumber();
+      m_managedEfficiencyXLB->Fill(b,lb);
+
+      m_managedGraphXLB->SetPoint(m_managedGraphXLB->GetN(), lb, lb);
 
    return StatusCode::SUCCESS;
 }

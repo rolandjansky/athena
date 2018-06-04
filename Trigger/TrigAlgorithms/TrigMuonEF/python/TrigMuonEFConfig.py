@@ -739,6 +739,7 @@ def InDetTrkRoiMaker_Muon(name="InDetTrkRoiMaker_Muon",**kwargs):
     kwargs.setdefault("SeedsPtMin", 2.0) # GeV
     kwargs.setdefault("FullEtaRange", 3.0) # MS goes up to 2.7
     kwargs.setdefault("AthenaMonTools", [ InDetTrkRoiMakerMonitoring("Monitoring"),
+                                          InDetTrkRoiMakerValidationMonitoring("MonitoringVal"),
                                           TrigTimeHistToolConfig("Time")] )
 
     return CfgMgr.InDetTrkRoiMaker(name,**kwargs)

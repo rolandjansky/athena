@@ -18,8 +18,9 @@ shift
 DIRECTORY=$1
 shift
 
-export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
-source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh
+export ATLAS_LOCAL_ROOT_BASE="${ATLAS_LOCAL_ROOT_BASE:-/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase}"
+# shellcheck source=/dev/null
+source "${ATLAS_LOCAL_ROOT_BASE}"/user/atlasLocalSetup.sh --quiet
 
 unset ALRB_noGridMW
 
@@ -31,4 +32,4 @@ echo "Directory: ${DIRECTORY}"
 # Do not use: rucio delivers warnings as exit code 127
 #set -e
 
-rucio download --dir ${DIRECTORY} ${NAME}
+rucio download --dir "${DIRECTORY}" "${NAME}"

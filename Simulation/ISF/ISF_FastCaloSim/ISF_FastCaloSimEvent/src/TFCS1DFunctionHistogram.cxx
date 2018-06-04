@@ -113,7 +113,7 @@ void TFCS1DFunctionHistogram::smart_rebin_loop(TH1* hist, double cut_maxdev)
     
     maxdev=get_maxdev(hist,h_out);
     maxdev*=100.0;
-        
+    
     if(i%100==0) cout<<"Iteration nr. "<<i<<" -----> change "<<change<<" bins "<<h_out->GetNbinsX()<<" -> maxdev="<<maxdev<<endl;
     
     if(maxdev<cut_maxdev && h_out->GetNbinsX()>5 && i<1000)
@@ -136,14 +136,14 @@ void TFCS1DFunctionHistogram::smart_rebin_loop(TH1* hist, double cut_maxdev)
   cout<<"Info: Rebinned histogram has "<<h_output->GetNbinsX()<<" bins."<<endl;
   
   //store:
-  for(int b=1;b<=h_output->GetNbinsX();b++)
-    m_HistoContents.push_back(h_output->GetBinContent(b));
   
   for(int b=1;b<=h_output->GetNbinsX();b++)
     m_HistoBorders.push_back((float)h_output->GetBinLowEdge(b));
-  
   m_HistoBorders.push_back((float)h_output->GetXaxis()->GetXmax());
   
+  for(int b=1;b<h_output->GetNbinsX();b++)
+    m_HistoContents.push_back(h_output->GetBinContent(b));
+  m_HistoContents.push_back(1);
   
 }
 
@@ -244,6 +244,7 @@ double TFCS1DFunctionHistogram::rnd_to_fct(double rnd)
 {
   
   double value2=get_inverse(rnd);
+  
   return value2;
 
 }
@@ -261,7 +262,21 @@ double TFCS1DFunctionHistogram::linear(double y1,double y2,double x1,double x2,d
     double n=y1-m*x1;
     x=(y-n)/m;
   }
+  
+  return x;
+}
 
+double TFCS1DFunctionHistogram::non_linear(double y1,double y2,double x1,double x2,double y)
+{
+  double x=-1;
+  double eps=0.0000000001;
+  if((y2-y1)<eps) x=x1;
+  else
+  {
+    double b=(x1-x2)/(sqrt(y1)-sqrt(y2));
+    double a=x1-b*sqrt(y1);
+    x=a+b*sqrt(y);
+  }
   return x;
 }
 
@@ -271,39 +286,34 @@ double TFCS1DFunctionHistogram::get_inverse(double rnd)
   
   double value = 0.;
   
-  if(rnd<m_HistoContents[0]+(m_HistoContents[1]-m_HistoContents[0])/2.0)
+  if(rnd<m_HistoContents[0])
   {
    double x1=m_HistoBorders[0];
    double x2=m_HistoBorders[1];
    double y1=0;
-   double y2=m_HistoContents[0]+(m_HistoContents[1]-m_HistoContents[0])/2.0;
-   double x=linear(y1,y2,x1,x2,rnd);
+   double y2=m_HistoContents[0];
+   double x=non_linear(y1,y2,x1,x2,rnd);
    value=x;
   }
   else
   {
-   for(unsigned int b=0;b<m_HistoContents.size()-1;b++)
+   //find the first HistoContent element that is larger than rnd:
+   vector<float>::iterator larger_element = std::upper_bound(m_HistoContents.begin(), m_HistoContents.end(), rnd);
+   int index=larger_element-m_HistoContents.begin();
+   double y=m_HistoContents[index];
+   double x1=m_HistoBorders[index];
+   double x2=m_HistoBorders[index+1];
+   double y1=m_HistoContents[index-1];
+   double y2=y;
+   if((index+1)==((int)m_HistoContents.size()-1))
    {
-    double y=m_HistoContents[b]+(m_HistoContents[b+1]-m_HistoContents[b])/2.0;
-    if(y>rnd)
-    {
-     double x1=m_HistoBorders[b];
-     double x2=m_HistoBorders[b+1];
-     double y1=m_HistoContents[b-1]+(m_HistoContents[b]-m_HistoContents[b-1])/2.0;
-     double y2=y;
-     if((b+1)==m_HistoContents.size()-1)
-     {
-      x2=m_HistoBorders[m_HistoBorders.size()-1];
-      y2=1;
-     }
-     double x=linear(y1,y2,x1,x2,rnd);
-     value=x;
-     break;
-    }
+    x2=m_HistoBorders[m_HistoBorders.size()-1];
+    y2=m_HistoContents[m_HistoContents.size()-1];
    }
+   double x=non_linear(y1,y2,x1,x2,rnd);
+   value=x;
   }
   
   return value;
   
 }
-

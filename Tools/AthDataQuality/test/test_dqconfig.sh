@@ -46,17 +46,17 @@ run_test()
     cd $hcfg_dir
     echo $hcfg_dir
 
-    hcfg_files=(collisions_run.hcfg collisions_minutes10.hcfg heavyions_run.hcfg heavyions_minutes10.hcfg) #cosmics_run.hcfg cosmics_minutes10.hcfg
+    hcfg_files=(collisions_run.hcfg collisions_minutes10.hcfg heavyions_run.hcfg heavyions_minutes10.hcfg ) #cosmics_run.hcfg cosmics_minutes10.hcfg)
     for f in "${hcfg_files[@]}"
     do
-    han-config-print.exe $f | grep -q "Hash = $"
+    han-config-print.exe $f | egrep "Hash = +"
     if ! [ $? -eq 0 ]; then
             echo git hash missing from $f
 	    echo Tests failed
             return 1
 	fi
     han-config-print.exe $f | grep -q "BEGIN ASSESSMENTS of \"top_level\""
-    if ! [ $? -eq 0 ]; then
+    if  [ $? -eq 0 ]; then
             echo "Histograms found under \"Overall Status\" for $f (output was likely specified incorrectly)"
             echo Tests failed
             return 1
@@ -67,14 +67,7 @@ run_test()
     if ! [ $? -eq 0 ]; then
 	echo Web display failed
 	echo update failed
-	return 0
-    fi
-    
-    check_for_git
-    if ! [ $? -eq 0 ]; then
-	echo git hash missing from webdisplays
-	echo update failed
-	return 0
+	return 1
     fi
     
     echo Tests passed

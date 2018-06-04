@@ -21,7 +21,7 @@ class ttj(PowhegV1):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, "ttJ", **kwargs)
+        super(ttj, self).__init__(base_directory, "ttJ", **kwargs)
 
         # Add parameter validation functions
         self.validation_functions.append("validate_decays")
@@ -53,7 +53,7 @@ class ttj(PowhegV1):
         self.add_keyword("colltest")
         self.add_keyword("compute_rwgt")
         self.add_keyword("elbranching")
-        self.add_keyword("facscfact")
+        self.add_keyword("facscfact", self.default_scales[0])
         self.add_keyword("ffltest")
         self.add_keyword("flg_debug")
         self.add_keyword("foldcsi", 2)
@@ -73,8 +73,8 @@ class ttj(PowhegV1):
         self.add_keyword("iymax", 3)
         self.add_keyword("jacsing")
         self.add_keyword("largecorrfact")
-        self.add_keyword("lhans1")
-        self.add_keyword("lhans2")
+        self.add_keyword("lhans1", self.default_PDFs)
+        self.add_keyword("lhans2", self.default_PDFs)
         self.add_keyword("lhfm/bmass")
         self.add_keyword("lhfm/cmass")
         self.add_keyword("lhfm/emass")
@@ -106,7 +106,7 @@ class ttj(PowhegV1):
         self.add_keyword("radregion")
         self.add_keyword("rand1")
         self.add_keyword("rand2")
-        self.add_keyword("renscfact")
+        self.add_keyword("renscfact", self.default_scales[1])
         self.add_keyword("runningscale")
         self.add_keyword("semileptonic", hidden=True)
         self.add_keyword("smartsig")

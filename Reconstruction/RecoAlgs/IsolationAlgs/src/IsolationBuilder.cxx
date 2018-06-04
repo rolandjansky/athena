@@ -489,7 +489,7 @@ StatusCode IsolationBuilder::IsolateEgamma(std::string egType) {
 	ATH_MSG_WARNING("Call to CaloIsolationTool failed for flavour " << xAOD::Iso::toString(flav));
     }
     if (egType == "fwdelectron")
-      return StatusCode::SUCCESS;
+      continue;
     // 
     // Track Isolation types
     //

@@ -18,7 +18,7 @@ class ExternalVBFNLO(ExternalBase):
 
         @param process  VBFNLO process
         """
-        super(self.__class__, self).__init__("VBFNLO")
+        super(ExternalVBFNLO, self).__init__("VBFNLO")
 
         ## List of allowed decay modes
         self.allowed_decay_modes = allowed_decay_modes

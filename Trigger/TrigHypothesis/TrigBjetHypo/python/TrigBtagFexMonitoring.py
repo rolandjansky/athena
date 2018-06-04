@@ -36,6 +36,8 @@ class TrigBtagFexMonitoring(TrigGenericMonitoringToolConfig):
         #                                        xbins=200, xmin=-1., xmax=1.) ]
         self.Histograms += [ defineHistogram('tag_MV2c10', type='TH1F', title="BtagFex MV2c10 Discriminant",
                                              xbins=200, xmin=-1., xmax=1.) ]
+        self.Histograms += [ defineHistogram('tag_MV2c10_hybrid', type='TH1F', title="BtagFex MV2c10_hybrid Discriminant",
+                                             xbins=200, xmin=-1., xmax=1.) ]
         self.Histograms += [ defineHistogram('tag_MV2c20', type='TH1F', title="BtagFex MV2c20 Discriminant",
                                              xbins=200, xmin=-1., xmax=1.) ]  
         self.Histograms += [ defineHistogram('tag_IP2_c', type='TH1F', title="BtagFex IP2D Likelihood Ratio between b- and c-jet",

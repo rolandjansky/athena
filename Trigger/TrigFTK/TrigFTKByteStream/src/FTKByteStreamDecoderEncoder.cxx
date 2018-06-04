@@ -117,7 +117,8 @@ namespace FTK {
   }
 
   FTK_RawTrack* FTKByteStreamDecoderEncoderTool::unpackFTTrack( OFFLINE_FRAGMENTS_NAMESPACE::PointerType data){
-    FTK_RawTrack* track = new FTK_RawTrack(data[0], data[1], data[2], data[3], data[4], data[5]); // first six words are track params
+    uint32_t data2 = (data[2] & 0xffffff) | ((FTK_RAWTRACK_VERSION)<<24); // force to latest version
+    FTK_RawTrack* track = new FTK_RawTrack(data[0], data[1], data2, data[3], data[4], data[5]); // first six words are track params
     ATH_MSG_DEBUG("[Track: " << track->getInvPt() << " " << track->getPhi() << " " 
 		  << track->getCotTh() << " " << track->getD0() << "]");
     data += TrackParamsBlobSize;

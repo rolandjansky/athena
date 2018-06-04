@@ -18,7 +18,7 @@ import re
 
 
 
-dijet_re = re.compile(r'^invm(?P<massmin>\d{0,3})j(?P<etmin>\d{0,3})(dphi(?P<dphimax>\d{0,2}))?(deta(?P<detamin>\d{0,2}))?$')
+dijet_re = re.compile(r'^invm(?P<massmin>\d{0,4})j(?P<etmin>\d{0,4})(dphi(?P<dphimax>\d{0,2}))?(deta(?P<detamin>\d{0,2}))?$')
 
 def _dj_parse(s):
     """Parse the incoming string to find the variable names and the optional

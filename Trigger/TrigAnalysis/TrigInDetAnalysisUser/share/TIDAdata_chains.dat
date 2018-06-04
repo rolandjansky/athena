@@ -194,6 +194,9 @@ testChains = {
     "HLT_beamspot_allTE_FTK:InDetTrigTrackingxAODCnv_BeamSpot_FTK",
     "HLT_beamspot_allTE_FTKRefit:InDetTrigTrackingxAODCnv_BeamSpot_FTKRefit",
     "HLT_beamspot_idperf_FTK:InDetTrigTrackingxAODCnv_BeamSpot_FTKMon",
-    "HLT_beamspot_idperf_FTK:InDetTrigTrackingxAODCnv_BeamSpot_FTF"
+    "HLT_beamspot_idperf_FTK:InDetTrigTrackingxAODCnv_BeamSpot_FTF",
+    "FTK_TrackParticleContainer",
+    "FTKRefit_TrackParticleContainer"
+
 
 }; 

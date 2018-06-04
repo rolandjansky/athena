@@ -10,6 +10,11 @@
 + DataQuality/DCSCalculator2
 + DataQuality/ZLumiScripts
 + Database/CoraCool
++ Database/CoolRunQuery
++ Database/ConnectionManagement/AtlasAuthentication
 + Tools/ART
 + Tools/AthDataQuality
++ AtlasTest/TestTools
++ TileCalorimeter/TileCalib/TileCalibBlobObjs
++ External/pyAMI
 - .*

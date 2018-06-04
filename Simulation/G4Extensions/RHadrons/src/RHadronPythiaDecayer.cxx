@@ -16,8 +16,8 @@
 #include "G4DecayProducts.hh"
 
 RHadronPythiaDecayer::RHadronPythiaDecayer( const std::string s , bool usePythia8 )
- : G4VExtDecayer(s)
- , m_usePythia8(usePythia8)
+ : G4VExtDecayer(s),
+   m_usePythia8(usePythia8)
 {
   // In the constructor, make a decayer instance, so that it's initialized here and not in the event loop
   if (m_usePythia8) Pythia8ForDecays::Instance();
@@ -57,7 +57,6 @@ G4DecayProducts* RHadronPythiaDecayer::ImportDecayProducts(const G4Track& aTrack
   double totalE=0.0;
   for (unsigned int i=0; i<particles.size(); ++i){
     if (particles[i]) {
-      G4cout<<i<<" ";
       dp->PushProducts(particles[i]);
       totalE += particles[i]->GetTotalEnergy();
     }
@@ -65,11 +64,10 @@ G4DecayProducts* RHadronPythiaDecayer::ImportDecayProducts(const G4Track& aTrack
       G4cout << i << " null pointer!" << G4endl;
     }
   }
-  G4cout << G4endl;
-  //G4cout <<"\nSummary:" << G4endl;
-  G4cout<<" total energy in was "<<etot<<G4endl;
-  G4cout<<" total energy out is "<<totalE<<G4endl;
-  //G4cout << G4endl;
+
+  G4cout << "Total energy in was "<<etot   << G4endl;
+  G4cout << "Total energy out is "<<totalE << G4endl;
+
   dp->DumpInfo();
 
   return dp;

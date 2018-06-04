@@ -9,6 +9,8 @@
 #include "TrigMissingEtEvent/TrigMissingET.h"
 #include "MissingETEvent/MissingET.h"
 
+#include "xAODTrigger/JetRoI.h"
+#include "xAODTrigger/JetRoIContainer.h"
 #include "xAODTrigger/EnergySumRoI.h"
 #include "xAODTrigMissingET/TrigMissingET.h"
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
@@ -45,6 +47,7 @@ private:
   
   /** methods to make booking easier */
   void addL1BasicHistograms();
+  void addL1JetHistograms();
   void addL1ProfileHistograms(std::map<std::string, int> met_signatures_tolook);
   void addL1ProfileShifterHistograms();
   void addL1ProfileExpertHistograms();
@@ -59,6 +62,7 @@ private:
   void addElMuHistograms();
   // methods to make filling easier
   void fillL1BasicHistograms(float l1_mex,float l1_mex_log,float l1_mey,float l1_mey_log,float l1_met,float l1_met_log,float l1_sumet,float l1_sumet_log,float l1_phi,float saturated);
+  void fillL1JetHistograms(float l1_jet_pt,float l1_jet_eta);
   void fillL1ProfileHistograms(float off_met,float pT_mumu,bool METMuonFilled,std::map<std::string, int> met_signatures_tolook);
   void fillHLTBasicHistograms(float hlt_ex,float hlt_ex_log,float hlt_ey,float hlt_ey_log,float hlt_ez,float hlt_ez_log,float hlt_met,float hlt_met_log,float hlt_sumet,float hlt_sumet_log,float hlt_sume,float hlt_sume_log,float hlt_phi,float hlt_eta,float hlt_significance);
   void fillHLTProfileHistograms(float off_met,std::map<std::string, int> met_signatures_tolook);
@@ -116,6 +120,7 @@ private:
   std::string m_shifter_path;
   std::string m_expert_path;
   
+  std::string m_lvl1_jet_roi_key;
   std::string m_lvl1_roi_key;
   std::string m_hlt_cell_met_key; 
   std::string m_hlt_mht_met_key; 

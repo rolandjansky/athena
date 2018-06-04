@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           graphics/JiveXML )
 
 # External dependencies:
-find_package( tdaq COMPONENTS ipc cmdline owl)
+find_package( tdaq COMPONENTS ipc cmdline owl omniORB4 omnithread)
 find_package( tdaq-common COMPONENTS ers)
 
 # Component(s) in the package:

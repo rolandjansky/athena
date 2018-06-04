@@ -218,13 +218,13 @@ class TrigBtagFex: public HLT::FexAlgo {
   float m_mon_tag_MV2c10;
   float m_mon_tag_MV2c10_hybrid;
   float m_mon_tag_MV2c20;
-  //2017 variables - Nghia
+  //2017 variables
   float m_mon_tag_IP2_c;
   float m_mon_tag_IP2_cu;
   float m_mon_tag_IP3_c;
   float m_mon_tag_IP3_cu;
 
-  //JetFitter variables - Nghia
+  //JetFitter variables
   int   m_mon_jf_n2tv;
   int   m_mon_jf_ntrkv; 
   int   m_mon_jf_nvtx; 
@@ -233,17 +233,10 @@ class TrigBtagFex: public HLT::FexAlgo {
   float m_mon_jf_efrc; 
   float m_mon_jf_dR; 
   float m_mon_jf_sig3;
-  /// @brief JetFitter : Delta eta between jet and momentum sum of all tracks associated with displaced vertices reconstructed by JetFitter
-  float m_mon_jf_deta; 
-  /// @brief JetFitter : Delta phi between jet and momentum sum of all tracks associated with displaced vertices reconstructed by JetFitter
-  float m_mon_jf_dphi;  
 
-  //jet variables - Nghia
+  //jet variables
   float m_mon_jet_pt;
   float m_mon_jet_eta;
-  float sv_check;
-  float sv_mass_check ;
-  float jf_check;
   int   m_mon_sv_bool; 
   int   m_mon_jf_bool; 
 

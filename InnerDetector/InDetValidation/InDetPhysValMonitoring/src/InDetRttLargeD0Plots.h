@@ -1,7 +1,6 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
 #ifndef INDETPHYSVALMONITORING_InDetRttLargeD0Plots
 #define INDETPHYSVALMONITORING_InDetRttLargeD0Plots
 /**
@@ -54,8 +53,11 @@ public:
   // void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle); // not used. SC
   ///fill for things needing track only
   void fill(const xAOD::TrackParticle& particle);
-  void fill(const xAOD::TrackParticle& particle, const int barcode, const xAOD::EventInfo& ei,
-            const xAOD::VertexContainer& pv);
+  void fill(const xAOD::TrackParticle& particle,		\
+	    const int barcode,					\
+	    const xAOD::EventInfo& ei,				\
+            const xAOD::VertexContainer& pv,			\
+	    const bool isSignal = false);
   ///fill for things needing truth only
   void fill(const xAOD::TruthParticle& particle);
   ///fill for things needing all truth - not just the ones from the reco tracks
@@ -105,6 +107,7 @@ private:
 
   // Testing track categories/authors for TRT studies
   InDetPerfPlot_TrtTest m_trtTesting_st_matched;
+  InDetPerfPlot_TrtTest m_trtTesting_st_matched_signal;
   InDetPerfPlot_TrtTest m_trtTesting_st_matched_primary;
   InDetPerfPlot_TrtTest m_trtTesting_st_matched_secondary;
   InDetPerfPlot_TrtTest m_trtTesting_st_matched_noTruthLink;
@@ -114,6 +117,7 @@ private:
   InDetPerfPlot_TrtTest m_trtTesting_st_fake_noTruthLink;
 
   InDetPerfPlot_TrtTest m_trtTesting_ld0_matched;
+  InDetPerfPlot_TrtTest m_trtTesting_ld0_matched_signal;
   InDetPerfPlot_TrtTest m_trtTesting_ld0_matched_primary;
   InDetPerfPlot_TrtTest m_trtTesting_ld0_matched_secondary;
   InDetPerfPlot_TrtTest m_trtTesting_ld0_matched_noTruthLink;
@@ -124,6 +128,7 @@ private:
 
   // hit plots
   Trk::IDHitPlots m_hitsPlots_st_matched;
+  Trk::IDHitPlots m_hitsPlots_st_matched_signal;
   Trk::IDHitPlots m_hitsPlots_st_matched_primary;
   Trk::IDHitPlots m_hitsPlots_st_matched_secondary;
   Trk::IDHitPlots m_hitsPlots_st_matched_noTruthLink;
@@ -133,6 +138,7 @@ private:
   Trk::IDHitPlots m_hitsPlots_st_fake_noTruthLink;
 
   Trk::IDHitPlots m_hitsPlots_ld0_matched;
+  Trk::IDHitPlots m_hitsPlots_ld0_matched_signal;
   Trk::IDHitPlots m_hitsPlots_ld0_matched_primary;
   Trk::IDHitPlots m_hitsPlots_ld0_matched_secondary;
   Trk::IDHitPlots m_hitsPlots_ld0_matched_noTruthLink;

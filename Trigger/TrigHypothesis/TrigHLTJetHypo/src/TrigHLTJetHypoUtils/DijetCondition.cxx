@@ -56,8 +56,8 @@ bool DijetCondition::isSatisfied(const HypoJetVector& ips) const{
 
 bool DijetCondition::passJetCuts(pHypoJet j0, pHypoJet j1) const {
 
-  auto et0 = j0->et();
-  auto et1 = j1->et();
+  auto et0 = 0.001 * j0->et();
+  auto et1 = 0.001 * j1->et();
 
   auto eta0 =  j0->eta();
   auto eta1 =  j1->eta();
@@ -79,21 +79,21 @@ bool DijetCondition::passJetCuts(pHypoJet j0, pHypoJet j1) const {
 bool DijetCondition::passDijetCuts(pHypoJet j0, pHypoJet j1) const {
 
 
-  auto rj0 = j0 -> p4();
-  auto rj1 = j1 -> p4();
+  auto rj0 = 0.001 * (j0 -> p4());
+  auto rj1 = 0.001 * (j1 -> p4());
 
   auto mass = (rj0 + rj1).M();
-  if (m_massMin < mass or mass >= m_massMax){return false;}
+  if (m_massMin > mass or mass >= m_massMax){return false;}
 
   
   auto eta0 =  j0->eta();
   auto eta1 =  j1->eta();
   auto adeta = std::abs(eta0 -eta1);
-  if (m_detaMin < adeta or adeta >= m_detaMax){return false;}
+  if (m_detaMin > adeta or adeta >= m_detaMax){return false;}
 
 
-  auto dphi = rj0.DeltaPhi(rj1);
-  if (m_dphiMin < dphi or dphi >= m_dphiMax){return false;}
+  auto dphi = std::abs(rj0.DeltaPhi(rj1));
+  if (m_dphiMin > dphi or dphi >= m_dphiMax){return false;}
 
   return true;
 

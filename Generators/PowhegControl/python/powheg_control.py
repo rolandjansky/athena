@@ -1,12 +1,12 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+import collections
+import os
+import processes
 from AthenaCommon import Logging
 from decorators import timed
 from algorithms import Scheduler
 from utility import HeartbeatTimer
-import collections
-import processes
-import os
 
 ## Get handle to Athena logging
 logger = Logging.logging.getLogger("PowhegControl")
@@ -134,20 +134,25 @@ class PowhegControl(object):
             logger.info("Preparing to parallelise: running with {} jobs".format(self.process.cores))
             self.process.prepare_to_parallelise(self.process.cores)
 
-        # Print list of configurable parameters for users
-        parameters_by_name = [x[1] for x in sorted(dict((p.name.lower(), p) for p in self.process.parameters).items(), key=lambda x: x[0])]
+        # Construct sorted list of configurable parameters for users - including those from external processes
+        parameters_unsorted = list(self.process.parameters)
+        for external in self.process.externals.values():
+            parameters_unsorted.extend(external.parameters)
+        parameters_sorted = [x[1] for x in sorted(dict((p.name.lower(), p) for p in parameters_unsorted).items(), key=lambda x: x[0])]
+
+        # Print sorted list of configurable parameters
         logger.info("===================================================================================================")
         logger.info("|                          User configurable parameters for this process                          |")
         logger.info("===================================================================================================")
         logger.info("|     Option name     |    ATLAS default    |                     Description                     |")
         logger.info("===================================================================================================")
-        for parameter in [p for p in parameters_by_name if p.is_visible]:
+        for parameter in [p for p in parameters_sorted if p.is_visible]:
             logger.info("| {:<19} | {:>19} | {}".format(parameter.name, parameter.default_value, parameter.description))
         logger.info("==================================================================================================")
 
         # Print list of parameters that have been changed by the user
-        parameters_changed = [p for p in parameters_by_name if p.value != p.default_value]
-        logger.info("In these jobOptions {} parameters have been changed from their default value:".format(len(parameters_changed)))
+        parameters_changed = [p for p in parameters_sorted if p.value != p.default_value]
+        logger.info("In these jobOptions {} parameter(s) have been changed from their default value:".format(len(parameters_changed)))
         for idx, parameter in enumerate(parameters_changed):
             logger.info("  {:<3} {:<19} {:>15} => {}".format("{})".format(idx + 1), "{}:".format(parameter.name), parameter.default_value, parameter.value))
 
@@ -203,7 +208,8 @@ class PowhegControl(object):
             for __key in ["scale_variation", "PDF_variation"]:
                 if __key in self.__event_weight_groups.keys():
                     __ordered_event_weight_groups_list.append((__key, self.__event_weight_groups.pop(__key)))
-            [__ordered_event_weight_groups_list.append(__item) for __item in self.__event_weight_groups.items()]
+            for __item in self.__event_weight_groups.items():
+                __ordered_event_weight_groups_list.append(__item)
             self.__event_weight_groups = collections.OrderedDict(__ordered_event_weight_groups_list)
             for group_name, event_weight_group in self.__event_weight_groups.items():
                 _n_weights = len(event_weight_group) - 3 # there are always three entries: parameter_names, combination_method and keywords
