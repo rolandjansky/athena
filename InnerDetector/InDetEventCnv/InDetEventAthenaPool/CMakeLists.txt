@@ -22,6 +22,7 @@ atlas_depends_on_subdirs(
    Database/AthenaPOOL/AthenaPoolUtilities
    Database/AtlasSealCLHEP
    GaudiKernel
+   InnerDetector/InDetConditions/SCT_ConditionsData
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    InnerDetector/InDetEventCnv/InDetEventTPCnv
