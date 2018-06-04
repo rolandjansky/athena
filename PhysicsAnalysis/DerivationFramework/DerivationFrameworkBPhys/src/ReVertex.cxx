@@ -126,6 +126,7 @@ StatusCode ReVertex::addBranches() const {
         std::vector<const xAOD::Vertex*> thePreceding;
         thePreceding.push_back(v);
         xAOD::BPhysHelper bHelper(ptr.get());
+        bHelper.setRefTrks();
         bHelper.setPrecedingVertices(thePreceding, InVtxContainer);
         vtxContainer->push_back(ptr.release());
 
