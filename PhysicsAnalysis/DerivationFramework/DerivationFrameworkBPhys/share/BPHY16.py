@@ -130,7 +130,7 @@ print      BPHY16Plus2Tracks
 
 ## 6/ setup the combined augmentation/skimming tool for the Bpm
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_dimuTrkTrk	
-BPHY16FourTrackSelectAndWrite = DerivationFramework__Reco_dimuTrkTrk(name                 = "BPHY16FourTrackSelectAndWrite",
+BPHY16FourTrackSelectAndWrite = DerivationFramework__Reco_dimuTrkTrk(name           = "BPHY16FourTrackSelectAndWrite",
                                                            Jpsi2PlusTrackName       = BPHY16Plus2Tracks,
                                                            OutputVtxContainerName   = "BPHY16FourTrack",
                                                            PVContainerName          = "PrimaryVertices",
@@ -146,7 +146,7 @@ BPHY16_Select_FourTrack      = DerivationFramework__Select_onia2mumu(
   HypothesisName             = "FourTracks",
   InputVtxContainerName      = "BPHY16FourTrack",
   TrkMasses                  = [105.658, 105.658, 105.658, 105.658],
-  VtxMassHypo                = 6275.1,
+  VtxMassHypo                = 18100.0,
   MassMin                    = 0,
   MassMax                    = 500000,
   Chi2Max                    = BPHY16Plus2Tracks.Chi2Cut)
@@ -165,18 +165,18 @@ BPHY16_Revertex      = DerivationFramework__ReVertex(
 ToolSvc += BPHY16_Revertex
 print      BPHY16_Revertex
 
-#BPHY16_Select_TwoTrack      = DerivationFramework__Select_onia2mumu(
-#  name                       = "BPHY16_Select_TwoTracks",
-#  HypothesisName             = "TwoTracks",
-#  InputVtxContainerName      = "BPHY16TwoTrack",
-#  TrkMasses                  = [105.658, 105.658],
-#  VtxMassHypo                = 6275.1,#EVA SHOULD SET THIS
-#  MassMin                    = 1,
-#  MassMax                    = 500000,
-#  Chi2Max                    = 50)
+BPHY16_Select_TwoTrack      = DerivationFramework__Select_onia2mumu(
+  name                       = "BPHY16_Select_TwoTracks",
+  HypothesisName             = "TwoTracks",
+  InputVtxContainerName      = "BPHY16TwoTrack",
+  TrkMasses                  = [105.658, 105.658],
+  VtxMassHypo                = 18100.0,
+  MassMin                    = 1,
+  MassMax                    = 500000,
+  Chi2Max                    = 90)
 
-#ToolSvc += BPHY16_Select_TwoTrack
-#print      BPHY16_Select_TwoTrack
+ToolSvc += BPHY16_Select_TwoTrack
+print      BPHY16_Select_TwoTrack
 
 expression = "count(BPHY16FourTrack.passed_FourTracks) > 0"
 
@@ -211,7 +211,7 @@ print BPHY16_SelectEvent
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
   "BPHY16Kernel",
-   AugmentationTools = [BPHY16_Reco_mumu, BPHY16_Select_Upsi, BPHY16FourTrackSelectAndWrite, BPHY16_Select_FourTrack, BPHY16_Revertex],
+   AugmentationTools = [BPHY16_Reco_mumu, BPHY16_Select_Upsi, BPHY16FourTrackSelectAndWrite, BPHY16_Select_FourTrack, BPHY16_Revertex, BPHY16_Select_TwoTrack],
    SkimmingTools     = [BPHY16_SelectEvent]
    )
 
