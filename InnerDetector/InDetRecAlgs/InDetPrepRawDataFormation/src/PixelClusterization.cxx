@@ -151,8 +151,9 @@ namespace InDet{
         if (clusterCollection && !clusterCollection->empty()){
 
           m_gangedAmbiguitiesFinder->execute(clusterCollection.get(),*m_manager,*ambiguitiesMap);
-          
-          ATH_CHECK(clusterContainer->addOrDelete( std::move(clusterCollection), clusterCollection->identifyHash() ));
+
+          IdentifierHash hash = clusterCollection->identifyHash();
+          ATH_CHECK(clusterContainer->addOrDelete( std::move(clusterCollection), hash ));
         }else{
           ATH_MSG_DEBUG("No PixelClusterCollection to write");
         }
@@ -187,7 +188,8 @@ namespace InDet{
             ATH_MSG_VERBOSE( "REGTEST: Pixel : clusterCollection contains " 
                 << clusterCollection->size() << " clusters" );
             m_gangedAmbiguitiesFinder->execute(clusterCollection.get(),*m_manager,*ambiguitiesMap);
-            ATH_CHECK(clusterContainer->addOrDelete( std::move(clusterCollection), clusterCollection->identifyHash() ));
+            IdentifierHash hash = clusterCollection->identifyHash();
+            ATH_CHECK(clusterContainer->addOrDelete( std::move(clusterCollection), hash ));
 
           }else{
             ATH_MSG_DEBUG("No PixelClusterCollection to write");
