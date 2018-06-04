@@ -39,6 +39,6 @@ def getTgcRange(name="TgcRange", **kwargs):
 def Tgc_OverlayDigitizationTool(name="Tgc_OverlayDigitizationTool", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+TGC_DIGITS")
-    kwargs.setdefault("OutputSDOName",overlayFlags.evtStore()+"+TGC_SDO")
+    kwargs.setdefault("OutputSDOsName",overlayFlags.evtStore()+"+TGC_SDO")
     kwargs.setdefault("EvtStore", overlayFlags.evtStore())
     return TgcDigitizationTool(name,**kwargs)
