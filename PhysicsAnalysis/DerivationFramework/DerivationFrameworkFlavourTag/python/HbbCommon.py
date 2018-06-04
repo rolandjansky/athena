@@ -29,6 +29,7 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
       #           "FastJetPlugin" for EECambridge plugin 
       algj = "ee_kt"
 
+    SubjetContainerName = "%sEx%s%iSubJets" % (JetCollectionName.replace("Jets", ""), subjet_mode, nsubjet)
     ExKtbbTagToolName = str( "Ex%sbbTagTool%i_%s" % (subjet_mode, nsubjet, JetCollectionName) )
     if hasattr(jtm, ExKtbbTagToolName):
         ExKtbbTagToolInstance = jtm[ ExKtbbTagToolName ]
@@ -46,7 +47,6 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
             if "Track" not in JetCollectionName:
               ExGhostLabels += ["GhostTrack"]
 
-        SubjetContainerName = "%sEx%s%iSubJets" % (JetCollectionName.replace("Jets", ""), subjet_mode, nsubjet)
 
         subjetrecorder = SubjetRecorderTool("subjetrecorder_%s%i_%s" % (subjet_mode, nsubjet, JetCollectionName))
         ToolSvc += subjetrecorder
