@@ -979,15 +979,7 @@ namespace DerivationFramework {
              
                  if (result != nullptr) {
                    // reset links to original tracks
-                   for(auto v : result->vertices()){
-                     std::vector<ElementLink<DataVector<xAOD::TrackParticle> > > newLinkVector;
-                     for(unsigned int i=0; i< v->trackParticleLinks().size(); i++)
-                     { ElementLink<DataVector<xAOD::TrackParticle> > mylink=v->trackParticleLinks()[i]; // makes a copy (non-const) 
-                     mylink.setStorableObject(*trackContainer, true);
-                     newLinkVector.push_back( mylink ); }
-                     v->clearTracks();
-                     v->setTrackParticleLinks( newLinkVector );
-                   }
+                   BPhysPVCascadeTools::PrepareVertexLinks(result.get(), trackContainer);
                    ATH_MSG_DEBUG("storing tracks " << ((result->vertices())[0])->trackParticle(0) << ", "
                                                    << ((result->vertices())[0])->trackParticle(1) << ", "
                                                    << ((result->vertices())[1])->trackParticle(0) << ", "
@@ -997,7 +989,7 @@ namespace DerivationFramework {
                                                    << ((result->vertices())[2])->trackParticle(2));
                    // necessary to prevent memory leak
                    result->getSVOwnership(true);
-                   const std::vector< std::vector<TLorentzVector> > moms = result->getParticleMoms();
+                   const std::vector< std::vector<TLorentzVector> > &moms = result->getParticleMoms();
                    double mass = m_CascadeTools->invariantMass(moms[2]);
                    if (mass >= m_MassLower && mass <= m_MassUpper) {
                      cascadeinfoContainer->push_back(result.release());
