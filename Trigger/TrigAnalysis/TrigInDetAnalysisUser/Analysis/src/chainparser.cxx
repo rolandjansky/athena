@@ -237,6 +237,7 @@ int main( int argc, char** argv ) {
   chains.insert( chain_map::value_type( "MuonPurity",     "_mu" ) );
   chains.insert( chain_map::value_type( "TauPurity",      "_tau" ) );
   chains.insert( chain_map::value_type( "BjetPurity",     "_j" ) );
+  chains.insert( chain_map::value_type( "FTKPurity",      "" ) );
 
   if ( sig != "" ) chains.insert( chain_map::value_type( sig, pat ) );
 
@@ -284,6 +285,7 @@ int main( int argc, char** argv ) {
     else if ( expl[index] == "TRIDT" ) { 
       if      ( expl[index+2] == "Expert"  && !purity ) expected_size = 7-diff;
       else if ( expl[index+2] == "Shifter" && contains(expl[3],"etVtx") ) expected_size = 7-diff;
+      else if ( expl[index+3] == "Fullscan" &&  purity ) expected_size = 7-diff;
       else if ( expl[index+2] == "Shifter" ||  purity ) expected_size = 6-diff;
       else { 
 	std::cerr << "unknown HIST type " << expl[index+2] << std::endl;
@@ -298,6 +300,9 @@ int main( int argc, char** argv ) {
     if ( expl.size() > expected_size ) { 
 
       int counts = std::atof(expl[expected_size].c_str());
+
+      //      for ( size_t ie=0 ; ie<expl.size() ; ie++ ) std::cout << ie << " " << expl[ie] << " / ";
+      //      std::cout << "counts: " << counts << " (" << expected_size << ")" << std::endl;
 
       /// ignore chains with no entries ( could print out as problem chains if required)
       if ( counts >= userthreshold ) { 
