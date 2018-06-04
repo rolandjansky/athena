@@ -36,41 +36,41 @@ int EnergyCorrelatorGeneralizedTool::modifyJet(xAOD::Jet &jet) const {
 
   // these ones for t/H discrimination
 
-  // 232
-  JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_2_3_2(2, 3, 2, JetSubStructureUtils::EnergyCorrelator::pt_R);
-  jet.setAttribute("ECFG_2_3_2", ECFG_2_3_2.result(jet));
+  // 332
+  JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_3_3_2(3, 3, 2, JetSubStructureUtils::EnergyCorrelator::pt_R);
+  jet.setAttribute("ECFG_3_3_2", ECFG_3_3_2.result(jet));
  
-  // 541
-  JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_5_4_1(5, 4, 1, JetSubStructureUtils::EnergyCorrelator::pt_R);
-  jet.setAttribute("ECFG_5_4_1", ECFG_5_4_1.result(jet));
+  // 461
+  JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_4_6_1(6, 4, 1, JetSubStructureUtils::EnergyCorrelator::pt_R);
+  jet.setAttribute("ECFG_4_6_1", ECFG_4_6_1.result(jet));
 
-  // 132
-  JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_1_3_2(1, 3, 2, JetSubStructureUtils::EnergyCorrelator::pt_R);
-  jet.setAttribute("ECFG_1_3_2", ECFG_1_3_2.result(jet));
+  // 322
+  JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_3_2_2(2, 3, 2, JetSubStructureUtils::EnergyCorrelator::pt_R);
+  jet.setAttribute("ECFG_3_2_2", ECFG_3_2_2.result(jet));
 
-  // 231
-  JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_2_3_1(2, 3, 1, JetSubStructureUtils::EnergyCorrelator::pt_R);
-  jet.setAttribute("ECFG_2_3_1", ECFG_2_3_1.result(jet));
+  // 331
+  JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_3_3_1(3, 3, 1, JetSubStructureUtils::EnergyCorrelator::pt_R);
+  jet.setAttribute("ECFG_3_3_1", ECFG_3_3_1.result(jet));
 
-  // 142
-  JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_1_4_2(1, 4, 2, JetSubStructureUtils::EnergyCorrelator::pt_R);
-  jet.setAttribute("ECFG_1_4_2", ECFG_1_4_2.result(jet));
+  // 422
+  JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_4_2_2(2, 4, 2, JetSubStructureUtils::EnergyCorrelator::pt_R);
+  jet.setAttribute("ECFG_4_2_2", ECFG_4_2_2.result(jet));
 
-  // 341
-  JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_3_4_1(3, 4, 1, JetSubStructureUtils::EnergyCorrelator::pt_R);
-  jet.setAttribute("ECFG_3_4_1", ECFG_3_4_1.result(jet));
+  // 441
+  JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_4_4_1(4, 4, 1, JetSubStructureUtils::EnergyCorrelator::pt_R);
+  jet.setAttribute("ECFG_4_4_1", ECFG_4_4_1.result(jet));
 
-  // 022
-  JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_0_2_2(0, 2, 2, JetSubStructureUtils::EnergyCorrelator::pt_R);
-  jet.setAttribute("ECFG_0_2_2", ECFG_0_2_2.result(jet));
+  // 212
+  JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_2_1_2(1, 2, 2, JetSubStructureUtils::EnergyCorrelator::pt_R);
+  jet.setAttribute("ECFG_2_1_2", ECFG_2_1_2.result(jet));
 
-  // 131
-  JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_1_3_1(1, 3, 1, JetSubStructureUtils::EnergyCorrelator::pt_R);
-  jet.setAttribute("ECFG_1_3_1", ECFG_1_3_1.result(jet));
+  // 321
+  JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_3_2_1(2, 3, 1, JetSubStructureUtils::EnergyCorrelator::pt_R);
+  jet.setAttribute("ECFG_3_2_1", ECFG_3_2_1.result(jet));
 
-  // 031
-  JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_0_3_1(0, 3, 1, JetSubStructureUtils::EnergyCorrelator::pt_R);
-  jet.setAttribute("ECFG_0_3_1", ECFG_0_3_1.result(jet));
-
+  // 311
+  JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_3_1_1(1, 3, 1, JetSubStructureUtils::EnergyCorrelator::pt_R);
+  jet.setAttribute("ECFG_3_1_1", ECFG_3_1_1.result(jet));
+  
   return 0;
 }
