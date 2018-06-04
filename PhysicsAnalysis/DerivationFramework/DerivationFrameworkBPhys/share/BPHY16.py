@@ -159,6 +159,7 @@ BPHY16_Revertex      = DerivationFramework__ReVertex(
   name                       = "BPHY16_ReVertex",
   InputVtxContainerName      = "BPHY16FourTrack",
   TrackIndices               = [ 2, 3 ],
+  TrkVertexFitterTool		    = BPHY16VertexFit,
   OutputVtxContainerName     = "BPHY16TwoTrack"
 )
 
