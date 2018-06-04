@@ -297,7 +297,7 @@ int main( int argc, char** argv ) {
       
     if ( expl.size() > expected_size ) { 
 
-      int counts = std::atoi(expl[expected_size].c_str());
+      int counts = std::atof(expl[expected_size].c_str());
 
       /// ignore chains with no entries ( could print out as problem chains if required)
       if ( counts >= userthreshold ) { 
