@@ -36,13 +36,14 @@ topSequence += cellMakerAlgo
 
 from TrigEFMissingET.TrigEFMissingETConf import EFMissingETAlgMT, EFMissingETFromCellsMT
 
-cellTool = EFMissingETFromCellsMT( name="METFromCellsTool" )
-cellTool.CellsCollection = "cells"
 
-metAlg = EFMissingETAlgMT( name="EFMET" )
-metAlg.METTools=[ cellTool ]
-metAlg += cellTool
-topSequence += metAlg
+# cellTool = EFMissingETFromCellsMT( name="METFromCellsTool", CaloNoiseTool=ToolSvc.CaloNoiseToolDefault )
+# cellTool.CellsCollection = "cells"
+
+# metAlg = EFMissingETAlgMT( name="EFMET" )
+# metAlg.METTools=[ cellTool ]
+# metAlg += cellTool
+# topSequence += metAlg
 
 #   from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMakerMT_topo
   

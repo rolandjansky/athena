@@ -24,6 +24,8 @@ StatusCode EFMissingETFromCellsMT::initialize()
   m_maxThreshold = m_rmsOneSided;
   if ( m_rmsOneSided < fabsf( m_rmsTwoSided ) ) m_maxThreshold = fabsf( m_rmsTwoSided );
 
+  CHECK( m_noiseTool.retrieve() );
+
   return StatusCode::SUCCESS;
 }
 
