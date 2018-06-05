@@ -51,7 +51,7 @@ class EFMissingETFromCellsMT: public extends<AthAlgTool, IMissingETTool> {
 
   SG::ReadHandleKey<CaloCellContainer> m_cellsKey      { this, "CellsCollection", "CaloCells", "Collection containg all cels" };
   
-  PublicToolHandle<ICalorimeterNoiseTool>  m_noiseTool { this, "CaloNoiseTool", "CaloNoiseTool/CaloNoiseToolDefault", "Tool Handle for noise tool" };
+  //PublicToolHandle<ICalorimeterNoiseTool>  m_noiseTool { this, "CaloNoiseTool", "CaloNoiseTool/CaloNoiseToolDefault", "Tool Handle for noise tool" };
 
 }; 
 

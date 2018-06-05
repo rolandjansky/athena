@@ -43,8 +43,8 @@ double toLinGeV( double x, double fallback = 0, double epsilon = 1e-6 ) {
 StatusCode EFMissingETAlgMT::execute_r( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   using namespace Monitored;
-  auto totalTimer = MonitoredTimer::declare( "Total" );
-  auto loopTimer = MonitoredTimer::declare( "Loop" );
+  auto totalTimer = MonitoredTimer::declare( "TIME_Total" );
+  auto loopTimer = MonitoredTimer::declare( "TIME_Loop" );
 
   auto metContainer = std::make_unique<xAOD::TrigMissingETContainer>();
   auto metAuxContainer = std::make_unique<xAOD::TrigMissingETAuxContainer>();

@@ -24,7 +24,8 @@ StatusCode EFMissingETFromCellsMT::initialize()
   m_maxThreshold = m_rmsOneSided;
   if ( m_rmsOneSided < fabsf( m_rmsTwoSided ) ) m_maxThreshold = fabsf( m_rmsTwoSided );
 
-  CHECK( m_noiseTool.retrieve() );
+
+  //CHECK( m_noiseTool.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -32,11 +33,11 @@ StatusCode EFMissingETFromCellsMT::initialize()
 StatusCode EFMissingETFromCellsMT::update( xAOD::TrigMissingET */*met*/,
 					   TrigEFMissingEtHelper *metHelper ) const {
   using namespace Monitored;
-  auto totalTimer = MonitoredTimer::declare( "Total" );  
+  auto totalTimer = MonitoredTimer::declare( "TIME_Total" );  
   const EventContext context{ Gaudi::Hive::currentContext() };
   auto caloCellsHandle = SG::makeHandle( m_cellsKey );
 
-  auto loopTimer = MonitoredTimer::declare( "Loop" );  
+  auto loopTimer = MonitoredTimer::declare( "TIME_Loop" );  
   auto countUsedCells = MonitoredScalar::declare<unsigned>( "UsedCells", 0 );  
 
   // now it is time to iterate over the cells
@@ -56,11 +57,11 @@ StatusCode EFMissingETFromCellsMT::update( xAOD::TrigMissingET */*met*/,
     //TB not sure about skipping logic, looks incorrect in the original code
     // 
 
-    if ( m_noiseTool ) { // == noise suppression required
-      const bool  noiseCutPassed = true; //  noiseCut( cell  ); 
-      if ( not noiseCutPassed )
-	continue;
-    }
+    // if ( m_noiseTool ) { // == noise suppression required
+    //   const bool  noiseCutPassed = true; //  noiseCut( cell  ); 
+    //   if ( not noiseCutPassed )
+    // 	continue;
+    // }
 
     countUsedCells = countUsedCells + 1;
     
@@ -84,9 +85,9 @@ StatusCode EFMissingETFromCellsMT::update( xAOD::TrigMissingET */*met*/,
     if ( not m_makeRobustness) continue;
     if ( not m_doCellNoiseSupp || (m_doCellNoiseSupp &&
 				   m_MinCellSNratio[cDDE->getSampling()] > m_maxThreshold)) {
-       if (fabs(E) < m_MinCellSNratio[cDDE->getSampling()] *
-           m_noiseTool->getNoise( cell, ICalorimeterNoiseTool::TOTALNOISE))
-          continue;
+      //       if (fabs(E) < m_MinCellSNratio[cDDE->getSampling()] *
+      //           m_noiseTool->getNoise( cell, ICalorimeterNoiseTool::TOTALNOISE))
+      continue;
     }
 
     float time = cell->time() * 1e-3;  // ns
