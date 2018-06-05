@@ -23,6 +23,7 @@
 // PACKAGE
 #include "ActsGeometry/ObjWriterTool.h"
 #include "ActsGeometry/IExCellWriterSvc.h"
+#include "ActsGeometry/IExtrapolationTool.h"
 
 // STL
 #include <memory>
@@ -33,7 +34,7 @@
 namespace Acts {
   class TrackingGeometry;
   class ITrackingGeometrySvc;
-  class IExtrapolationTool;
+  //class IExtrapolationTool;
   
   class IMaterialTrackWriterSvc;
   

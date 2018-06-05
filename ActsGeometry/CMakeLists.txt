@@ -4,7 +4,7 @@ atlas_subdir( ActsGeometry )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
+                          Control/AtenaBaseComps
                           Control/StoreGate
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/GeoPrimitives
@@ -27,6 +27,16 @@ if(NOT ATH_ACTS_BUILD_SUBDIR)
 endif()
 
 # Component(s) in the package:
+
+atlas_add_library( ActsGeometryLib
+                     src/*.cxx
+                     src/*.cpp
+                     src/obj/*.cpp
+                     src/Extrapolation/*.cpp
+                     PUBLIC_HEADERS ActsGeometry
+                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GeoPrimitives Identifier RegionSelectorLib GaudiKernel InDetCondServices SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry MagFieldInterfaces TrkGeometry ActsInteropLib Acts::Core Acts::Legacy Acts::MaterialPlugin Acts::ProtobufPlugin)
+
 atlas_add_component( ActsGeometry
                      src/*.cxx
                      src/*.cpp

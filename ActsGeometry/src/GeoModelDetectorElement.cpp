@@ -19,6 +19,10 @@
 #include "Acts/Surfaces/StrawSurface.hpp"
 #include "Acts/Surfaces/LineBounds.hpp"
 
+#include "GaudiKernel/Kernel.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+
 
 
 Acts::GeoModelDetectorElement::GeoModelDetectorElement(const InDetDD::SiDetectorElement* detElem)
@@ -123,6 +127,11 @@ Acts::GeoModelDetectorElement::assignIdentifier(const Identifier& /*identifier*/
 const Acts::Transform3D&
 Acts::GeoModelDetectorElement::transform(const Identifier&) const
 {
+  
+  auto ctx = Gaudi::Hive::currentContext();
+  std::cout << __FUNCTION__ << ": eventID = " << ctx.eventID() << std::endl;
+
+
   size_t which = m_detElement.which();
   if (which == 0) {
     return boost::get<const InDetDD::SiDetectorElement*>(m_detElement)->transform();
