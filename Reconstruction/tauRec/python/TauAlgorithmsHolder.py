@@ -877,7 +877,8 @@ def getTauWPDecoratorEleBDT():
 
 
 #                                                                                                                                                                                  
-def getTauWPDecoratorJetRNN():
+def getTauWPDecoratorJetRNN(flatteningFile1Prong="rnnid_prelim_flat_deep_1p_binfix.root",
+                            flatteningFile3Prong="rnnid_prelim_flat_deep_3p_binfix.root"):
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
     import cppyy
@@ -886,8 +887,8 @@ def getTauWPDecoratorJetRNN():
     _name = sPrefix + 'TauWPDecoratorJetRNN'
     from tauRecTools.tauRecToolsConf import TauWPDecorator
     myTauWPDecorator = TauWPDecorator( name=_name,
-                                       flatteningFile1Prong = "rnnid_prelim_flat_deep_1p_binfix.root",
-                                       flatteningFile3Prong = "rnnid_prelim_flat_deep_3p_binfix.root",
+                                       flatteningFile1Prong = flatteningFile1Prong,
+                                       flatteningFile3Prong = flatteningFile3Prong,
                                        CutEnumVals =
                                        [ ROOT.xAOD.TauJetParameters.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.JetRNNSigLoose,
                                          ROOT.xAOD.TauJetParameters.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.JetRNNSigTight ],
