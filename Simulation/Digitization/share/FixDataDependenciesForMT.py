@@ -34,7 +34,6 @@ if DetFlags.digitize.LAr_on():
 
 if DetFlags.digitize.Tile_on():
     digiExtraOutputs += [('TileHitContainer', 'TileHitCnt')]
-    topSequence.TileRawChannelToL2.ExtraInputs = [('TileRawChannelContainer' , 'TileRawChannelCnt')]
     StreamRDOExtraInputs += [('TileRawChannelContainer' , 'TileRawChannelCnt'),
                              ('TileRawChannelContainer' , 'TileRawChannelFit'),
                              ('TileL2Container' , 'TileL2Cnt')]
