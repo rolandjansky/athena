@@ -153,7 +153,7 @@ SiDetectorElement::updateCache() const
   bool firstTimeTmp = m_firstTime;
   m_firstTime = false;
   
-  const HepGeom::Transform3D & geoTransform = transformHit();
+  const HepGeom::Transform3D &geoTransform = getMaterialGeom()->getAbsoluteTransform();
 
   double radialShift = 0.;
   //TO:
@@ -300,7 +300,7 @@ SiDetectorElement::updateCache() const
   } // end if (m_firstTime)
   
 
-
+  m_transformHit   = geoTransform * m_design->SiHitToGeoModel();
   m_transformCLHEP = geoTransform * recoToHitTransform();
   //m_transform = m_commonItems->solenoidFrame() * geoTransform * recoToHitTransform();
   m_transform = Amg::CLHEPTransformToEigen(m_transformCLHEP);
@@ -391,7 +391,10 @@ SiDetectorElement::updateConditionsCache() const
 const HepGeom::Transform3D &
 SiDetectorElement::transformHit() const
 {
-  return getMaterialGeom()->getAbsoluteTransform();
+  if (!m_cacheValid) {
+      updateCache();
+  }
+  return m_transformHit;
 }
 
 const Amg::Transform3D &

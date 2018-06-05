@@ -34,6 +34,7 @@
 #include <stdexcept> // For throw stuff
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "CLHEP/Geometry/Vector3D.h" // For unused phiMeasureSegment
+#include "CLHEP/Geometry/Transform3D.h"
 
 namespace Trk {
 class AnnulusBounds;
@@ -150,6 +151,9 @@ public:
 
     /** Shape of element */
     virtual DetectorShape shape() const;
+
+   // Transform from SiHit to GeoModel frame
+   const HepGeom::Transform3D SiHitToGeoModel() const;
 
     // ------------------------------------------------------------------------------------------
 

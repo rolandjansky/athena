@@ -259,4 +259,9 @@ double StripAnnulusDesign::maxWidth() const { // DEPRECATED
 double StripAnnulusDesign::etaPitch() const { // DEPRECATED
     return length();
 }
+
+const HepGeom::Transform3D StripAnnulusDesign::SiHitToGeoModel() const {
+   return HepGeom::RotateY3D(90.*CLHEP::deg) ;
+}
+
 } // namespace InDetDD

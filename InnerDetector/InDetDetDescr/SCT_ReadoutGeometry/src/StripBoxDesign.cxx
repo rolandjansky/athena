@@ -248,4 +248,8 @@ void StripBoxDesign::distanceToDetectorEdge(SiLocalPosition const & pos,
 
 }
 
+const HepGeom::Transform3D StripBoxDesign::SiHitToGeoModel() const {
+   return HepGeom::RotateY3D(90.*CLHEP::deg) ;
+}
+
 } // namespace InDetDD

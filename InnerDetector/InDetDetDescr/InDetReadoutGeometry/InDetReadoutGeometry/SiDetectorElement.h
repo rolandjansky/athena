@@ -655,7 +655,7 @@ namespace InDetDD {
     
       mutable Amg::Transform3D m_transform; 
       mutable HepGeom::Transform3D m_transformCLHEP; 
-    
+      mutable HepGeom::Transform3D m_transformHit;
     
       mutable Amg::Vector3D m_normal;
       mutable HepGeom::Vector3D<double> m_normalCLHEP;

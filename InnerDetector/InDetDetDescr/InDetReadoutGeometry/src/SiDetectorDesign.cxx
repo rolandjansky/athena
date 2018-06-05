@@ -124,4 +124,9 @@ DetectorShape SiDetectorDesign::shape() const {
     // Default is Box.
     return InDetDD::Box;
 }
+
+const HepGeom::Transform3D SiDetectorDesign::SiHitToGeoModel() const {
+   return HepGeom::Transform3D();
+}
+
 } // namespace InDetDD

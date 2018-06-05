@@ -16,6 +16,7 @@
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Vector3D.h"
+#include "CLHEP/Geometry/Transform3D.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "GeoModelKernel/RCBase.h"
 #include "InDetDD_Defs.h"
@@ -216,6 +217,8 @@ public:
     /**  Element boundary */
     virtual const Trk::SurfaceBounds &bounds() const = 0;
 
+    /** Transform from SiHit to GeoModel frame */
+    virtual const HepGeom::Transform3D SiHitToGeoModel() const; 
 
     ///////////////////////////////////////////////////////////
     //
