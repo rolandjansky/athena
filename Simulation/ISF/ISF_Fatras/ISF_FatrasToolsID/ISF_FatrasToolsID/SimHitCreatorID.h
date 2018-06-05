@@ -15,7 +15,7 @@
 #include "GaudiKernel/RndmGenerators.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 // Fatras
 #include "ISF_FatrasInterfaces/ISimHitCreator.h"
