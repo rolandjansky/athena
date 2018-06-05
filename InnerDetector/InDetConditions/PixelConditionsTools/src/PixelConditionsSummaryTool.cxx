@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef SIMULATIONBASE
 #include "PixelConditionsSummaryTool.h"
 
 #include "StoreGate/StoreGate.h"
@@ -591,3 +592,4 @@ void PixelConditionsSummaryTool::getID(const Identifier& id, unsigned int& pixID
 
   pixID = ModuleSpecialPixelMap::encodePixelID( endcap, phimod, etapix, phipix, mchips );
 }
+#endif // not SIMULATIONBASE

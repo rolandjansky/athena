@@ -5,6 +5,14 @@
 # Declare the package name:
 atlas_subdir( PixelConditionsTools )
 
+# Possible extra dependencies:
+set( extra_dep )
+set( extra_lib )
+if( NOT SIMULATIONBASE )
+   set( extra_dep InnerDetector/InDetConditions/InDetConditionsSummaryService InnerDetector/InDetConditions/PixelConditionsServices InnerDetector/InDetDetDescr/PixelGeoModel )
+set( extra_lib PixelGeoModelLib )
+endif()
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
   Control/AthenaKernel
@@ -21,13 +29,11 @@ atlas_depends_on_subdirs( PUBLIC
   DetectorDescription/GeoModel/GeoModelUtilities
   InnerDetector/InDetConditions/PixelConditionsData
   InnerDetector/InDetConditions/PixelCoralClientUtils
-  InnerDetector/InDetConditions/InDetConditionsSummaryService
-  InnerDetector/InDetConditions/PixelConditionsServices
   InnerDetector/InDetDetDescr/InDetIdentifier
   InnerDetector/InDetDetDescr/InDetReadoutGeometry
-  InnerDetector/InDetDetDescr/PixelGeoModel
   TestPolicy
-  Tools/PathResolver )
+  Tools/PathResolver
+  ${extra_dep} )
 
 # External dependencies:
 find_package( CLHEP )
@@ -39,7 +45,7 @@ atlas_add_component( PixelConditionsTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel GeoPrimitives GaudiKernel AthenaBaseComps SGTools AthenaPoolUtilities DetDescrConditions Identifier PixelConditionsData PixelCoralClientUtils InDetIdentifier GeoModelUtilities InDetReadoutGeometry PathResolver PixelGeoModelLib )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel GeoPrimitives GaudiKernel AthenaBaseComps SGTools AthenaPoolUtilities DetDescrConditions Identifier PixelConditionsData PixelCoralClientUtils InDetIdentifier GeoModelUtilities InDetReadoutGeometry PathResolver ${extra_lib} )
 
 # Install files from the package:
 atlas_install_headers( PixelConditionsTools )

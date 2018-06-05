@@ -2,6 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef SIMULATIONBASE
 #include "PixelDCSCondTool.h"
 
 #include "GaudiKernel/ThreadLocalContext.h"
@@ -193,3 +194,4 @@ const PixelDCSCondData* PixelDCSCondTool::getCondDataTemp0(const EventContext& c
   }
   return m_pModulesTemp0.get();
 }
+#endif // not SIMULATIONBASE
