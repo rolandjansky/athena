@@ -73,7 +73,6 @@ if DetFlags.haveRIO.pixel_on():
 
         InDetPixelConditionsSummarySvc.DisableCallback = False
         #Alg is suppose to replace service, sync withh service for now
-#        from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapCondAlg
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import SpecialPixelMapCondAlg
         InDetSpecialPixelMapCondAlg = SpecialPixelMapCondAlg(name="InDetSpecialPixelMapCondAlg",
                DBFolders  = InDetSpecialPixelMapSvc.DBFolders,
@@ -145,7 +144,9 @@ if DetFlags.haveRIO.pixel_on():
         InDetPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
         InDetPixelConditionsSummaryTool.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
     else:
-        pixelLorentzAngleSvcSetup.useDefault()
+        pixelLorentzAngleSvcSetup.usePixelDefaults = True
+        from PixelConditionsServices.PixelConditionsServicesConf import PixelSiliconConditionsSvc
+        PixelSiliconConditionsSvc.UseDB = False
 
     # Load Pixel BS errors service
     if ( globalflags.DataSource == 'geant4' ) :
