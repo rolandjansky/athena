@@ -476,11 +476,11 @@ StatusCode RpcClusterBuilderPRD::retrieve_rpcClusterContainer() const {
           Amg::Vector3D position = cluster->globalPosition();
           ATH_MSG_INFO("RPC Cluster ID, Position (mm), size = " 
 	      << m_rpcId->show_to_string(cluster->identify()) << " ["
-	      << setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << position.x()
-	      << setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << position.y()
-	      << setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << position.z()
-	    //  << setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << cluster->width()
-	      << setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << cluster->rdoList().size()
+	      << std::setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << position.x()
+	      << std::setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << position.y()
+	      << std::setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << position.z()
+	    //  << std::setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << cluster->width()
+	      << std::setiosflags(std::ios::fixed) << std::setprecision(3) << std::setw(12) << cluster->rdoList().size()
 	      << " ]"); 
        }
        ATH_MSG_INFO("Number of Clusters in the collection is " << collection->size() );
