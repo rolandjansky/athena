@@ -191,6 +191,29 @@ run2_fileListMu3TeV = [
 "root://eosatlas//eos/atlas/atlasgroupdisk/det-muon/dq2/rucio/user/zhidong/bc/f1/user.zhidong.12100448.EXT0._000010.RDO.pool.root"
 ]
 
+run2_fileListLate = [
+"root://eosatlas//eos/atlas/atlasgroupdisk/perf-muons/dq2/rucio/valid1/c5/56/RDO.11801749._000002.pool.root.1",
+"root://eosatlas//eos/atlas/atlasgroupdisk/perf-muons/dq2/rucio/valid1/48/d7/RDO.11801749._000015.pool.root.1",
+"root://eosatlas//eos/atlas/atlasgroupdisk/perf-muons/dq2/rucio/valid1/e6/33/RDO.11801749._000016.pool.root.1",
+"root://eosatlas//eos/atlas/atlasgroupdisk/perf-muons/dq2/rucio/valid1/08/8a/RDO.11801749._000020.pool.root.1",
+"root://eosatlas//eos/atlas/atlasgroupdisk/perf-muons/dq2/rucio/valid1/5b/a5/RDO.11801749._000021.pool.root.1",
+"root://eosatlas//eos/atlas/atlasgroupdisk/perf-muons/dq2/rucio/valid1/82/3a/RDO.11801749._000022.pool.root.1",
+"root://eosatlas//eos/atlas/atlasgroupdisk/perf-muons/dq2/rucio/valid1/97/3e/RDO.11801749._000023.pool.root.1",
+"root://eosatlas//eos/atlas/atlasgroupdisk/perf-muons/dq2/rucio/valid1/ac/5c/RDO.11801749._000024.pool.root.1",
+"root://eosatlas//eos/atlas/atlasgroupdisk/perf-muons/dq2/rucio/valid1/16/90/RDO.11801749._000025.pool.root.1",
+"root://eosatlas//eos/atlas/atlasgroupdisk/perf-muons/dq2/rucio/valid1/1c/72/RDO.11801749._000026.pool.root.1",
+"root://eosatlas//eos/atlas/atlasgroupdisk/perf-muons/dq2/rucio/valid1/1d/3b/RDO.11801749._000028.pool.root.1",
+"root://eosatlas//eos/atlas/atlasgroupdisk/perf-muons/dq2/rucio/valid1/29/38/RDO.11801749._000029.pool.root.1",
+"root://eosatlas//eos/atlas/atlasgroupdisk/perf-muons/dq2/rucio/valid1/35/19/RDO.11801749._000030.pool.root.1",
+"root://eosatlas//eos/atlas/atlasgroupdisk/perf-muons/dq2/rucio/valid1/b8/13/RDO.11801749._000031.pool.root.1",
+"root://eosatlas//eos/atlas/atlasgroupdisk/perf-muons/dq2/rucio/valid1/be/e0/RDO.11801749._000032.pool.root.1",
+"root://eosatlas//eos/atlas/atlasgroupdisk/perf-muons/dq2/rucio/valid1/a7/37/RDO.11801749._000033.pool.root.1",
+"root://eosatlas//eos/atlas/atlasgroupdisk/perf-muons/dq2/rucio/valid1/37/43/RDO.11801749._000035.pool.root.1",
+"root://eosatlas//eos/atlas/atlasgroupdisk/perf-muons/dq2/rucio/valid1/2d/29/RDO.11801749._000036.pool.root.1",
+"root://eosatlas//eos/atlas/atlasgroupdisk/perf-muons/dq2/rucio/valid1/2d/9e/RDO.11801749._000037.pool.root.1",
+"root://eosatlas//eos/atlas/atlasgroupdisk/perf-muons/dq2/rucio/valid1/5f/f3/RDO.11801749._000038.pool.root.1"
+]
+
 # old RUN-1 samples
 ###################
 # Zmumu
@@ -214,6 +237,7 @@ athenaCommonFlags.FilesInput = run2_fileListDiMu300to1000GeVpileup
 #athenaCommonFlags.FilesInput = run2_fileListMu1TeV
 #athenaCommonFlags.FilesInput = run2_fileListMu2TeV
 #athenaCommonFlags.FilesInput = run2_fileListMu3TeV
+#athenaCommonFlags.FilesInput = run2_fileListLate
 
 #--------------------------------------------------------------------------------
 # Reco setup
@@ -253,6 +277,7 @@ muonCombinedRecFlags.doMuonSegmentTagger = True
 #muonCombinedRecFlags.doxAOD = True
 muonCombinedRecFlags.doAOD = False
 muonCombinedRecFlags.doCaloTrkMuId = True
+muonCombinedRecFlags.doMuGirlLowBeta = False
 
 muonRecFlags.doCreateClusters = False 
 muonRecFlags.prdToxAOD = False
@@ -264,7 +289,6 @@ muonStandaloneFlags.printSummary = True
 muonRecFlags.doTrackPerformance = True
 muonRecFlags.TrackPerfSummaryLevel = 2
 muonRecFlags.TrackPerfDebugLevel = 5
-
 
 muonCombinedRecFlags.printSummary = True
 muonCombinedRecFlags.doTrackPerformance = True
@@ -365,6 +389,15 @@ try:
             topSequence.CombinedMuonPerformanceAlg.ProduceEventListMissedTracks = 2
     
     #include("MuonTestEDM/MuonTestEDM_jobOptions.py")
+
+    if muonCombinedRecFlags.doMuGirlLowBeta():
+        ToolSvc.MuonTrackTruthTool.ConsideredPDGs=[13,-13,1000015,-1000015]
+        topSequence.ExtrapolatedMuonPerformanceAlg.ConsideredPDGs=[13,-13,1000015,-1000015]
+        topSequence.CombinedMuonPerformanceAlg.ConsideredPDGs=[13,-13,1000015,-1000015]
+        topSequence.MSOnlyExtrapolatedMuonPerformanceAlg.ConsideredPDGs=[13,-13,1000015,-1000015]
+        topSequence.CombinedStauPerformanceAlg.ConsideredPDGs=[13,-13,1000015,-1000015]
+        topSequence.ExtrapolatedStauPerformanceAlg.ConsideredPDGs=[13,-13,1000015,-1000015]
+        topSequence.MuonPerformanceAlg.ConsideredPDGs=[13,-13,1000015,-1000015]
 
     doMon = False
     if( doMon ):
