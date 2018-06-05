@@ -42,7 +42,7 @@ class AlgNode(Node):
 
     def addDefaultOutput(self):
         if self.outputProp is not '':
-            self.setOutput(("%s_%s_out"%(self.algname,self.outputProp)))
+            self.setOutput(("%s_%s"%(self.algname,self.outputProp)))
         
     def setPar(self, prop, name):
         cval = self.Alg.getProperties()[prop]
@@ -285,9 +285,8 @@ class HLTRecoSequence():
         print "Making sequence %s"%(name)
         self.name = name
         self.seed = Seed
-        self.sequence =    Node( Alg=Sequence, inputProp='%s_in'%(Sequence.name()), outputProp='%s_out'%(Sequence.name()))
-        self.maker =    InputMakerNode( Alg=Maker)
-        #self.maker =    AlgNode( Alg=Maker, inputProp='InputMakerInputDecisions',    outputProp='InputMakerOutputDecisions')
+        self.sequence =  Node( Alg=Sequence, inputProp='%s_in'%(Sequence.name()), outputProp='%s_out'%(Sequence.name()))
+        self.maker =     InputMakerNode( Alg=Maker)
         self.reuse = False     
 
     def getOutputList(self):
@@ -300,9 +299,9 @@ class HLTRecoSequence():
         print "adding input to sequence: %s to %s"%(theinput, self.maker.algname )
         self.maker.addInput(theinput)
 
-    def addOutputDecision(self,theinput):
-        print "adding output decisions (%s) to sequence %s  (output of alg %s)"%(theinput, self.name, self.maker.algname )
-        self.maker.addOutput(theinput)
+   # def addOutputDecision(self,theinput):
+   #     print "adding output decisions (%s) to sequence %s  (output of alg %s)"%(theinput, self.name, self.maker.algname )
+   #     self.maker.addOutput(theinput)
         
     def __str__(self):
         return "HLTRecoSequence::%s with \n Seed::%s \n Maker::%s  \n Sequence::%s"%(self.name, self.seed, self.maker, self.sequence)
@@ -350,13 +349,7 @@ class CFSequence():
             self.filter, \
             self.menuSeq)
 
-
-class SequenceHypoTool:
-    def __init__(self, MenuSequence, HypoTool):
-        self.sequence = MenuSequence
-        self.hypotool = HypoTool
         
-
 class ChainStep:
      def __init__(self, name,  Sequences=[]):
         self.name = name        

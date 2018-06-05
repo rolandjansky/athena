@@ -96,6 +96,12 @@ atlas_add_test( muMenu
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muMenu
               )
 
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMuMenu )
+atlas_add_test( egammaMuMenu
+		SCRIPT test/test_egamma_mu_menu.sh	
+                PROPERTIES TIMEOUT 500 
+		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMuMenu
+              )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_idCaloRunData )
 atlas_add_test( idCaloRunData

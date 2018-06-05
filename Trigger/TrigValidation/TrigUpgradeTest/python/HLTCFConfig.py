@@ -1,5 +1,5 @@
 # Classes to configure the CF graph, via Nodes
-from AthenaCommon.CFElements import parOR, seqAND
+from AthenaCommon.CFElements import parOR, seqAND, seqOR
 from AthenaCommon.Logging import logging
 from AthenaCommon.AlgSequence import dumpSequence
 from TrigUpgradeTest.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
@@ -16,9 +16,43 @@ def makeSummary(name, decisions):
     summary.InputDecision = "HLTChains"
     summary.FinalDecisions = decisions
     summary.HLTSummary = "MonitoringSummary"+name
+    from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
+    edmCreator = HLTEDMCreator()
+    edmCreator.TrigCompositeContainer = decisions
+    summary.OutputTools = [ edmCreator ]    
     return summary
 
+def makeMonitor(name, decisions, EnabledChainNames):
+    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT
+    mon = TrigSignatureMoniMT(name, OutputLevel = 2)
+    mon.FinalDecisions = decisions
+    mon.L1Decisions = "HLTChainsResult" # connection with L1Decoder
+    from TrigUpgradeTest.TestUtils import MenuTest
+    mon.ChainsList = EnabledChainNames
+    #[ x.split(":")[1] for x in  MenuTest.CTPToChainMapping ]
+    print mon
+    return mon
 
+def makeStreamESD(name, decisions):
+    import AthenaPoolCnvSvc.WriteAthenaPool
+    from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
+    StreamESD=createOutputStream(name,"myESD.pool.root",True)
+    StreamESD.OutputLevel=3
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+    topSequence.remove( StreamESD )
+    def addTC(name):   
+        StreamESD.ItemList += [ "xAOD::TrigCompositeContainer#"+name, "xAOD::TrigCompositeAuxContainer#"+name+"Aux." ]
+        
+    for tc in decisions:
+        #edmCreator.TrigCompositeContainer:
+        addTC( tc )
+
+    addTC("HLTSummary")
+
+    print "ESD file content " 
+    print StreamESD.ItemList
+    return StreamESD
 
 def create_step_reco_node(name, seq_list, dump=False):
     """ elementary HLT reco step, contianing all sequences of the step """
@@ -90,6 +124,41 @@ def addChainToHypoAlg(hypoAlg, chain):
 ## CORE of Decision Handling
 #######################################
 
+
+
+def makeHLTTree(HLTChains):
+    """ creates the full HLT tree"""
+   
+#    TopHLTRootSeq = seqAND("TopHLTRoot") # Root
+
+    #add the L1Upcacking
+#    TopHLTRootSeq += L1UnpackingSeq
+
+    # add the HLT steps Node
+    steps = seqAND("HLTAllSteps")
+    # make CF tree
+    finalDecisions = decisionTree_From_Chains(steps, HLTChains)
+    EnabledChainNames = [c.name for c in HLTChains]
+#    TopHLTRootSeq += HLTAllStepsSeq
+
+    ## from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
+    ## edmCreator = HLTEDMCreator()
+    ## edmCreator.TrigCompositeContainer = finalDecisions
+    
+    summary   = makeSummary("TriggerSummaryFinal", finalDecisions)
+    mon       = makeMonitor("TriggerMonitorFinal", finalDecisions, EnabledChainNames)
+    StreamESD = makeStreamESD("StreamESD", finalDecisions)
+    
+    # main HLT top sequence
+    hltTop = seqOR( "hltTop", [ steps, mon, summary, StreamESD ] )
+
+    
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+    topSequence += hltTop
+
+        
+
 def decisionTree_From_Chains(HLTNode, chains):
     """ creates the decision tree, given the starting node and the chains containing the sequences  """
     log.debug("Run decisionTree_From_Chains on %s", HLTNode.name())
@@ -106,7 +175,8 @@ def decisionTree_From_Chains(HLTNode, chains):
     from TrigUpgradeTest.MenuComponents import CFSequence, RoRSequenceFilterNode
     #loop over chains to configure
     count_steps=0
-#    finalDecisions = [] # needed for monitor
+    finalDecisions = [] # needed for monitor
+    step_decisions = []
     allSeq_list = []
     for nstep in range(0, NSTEPS):
         stepCF_name =  "Step%i"%(nstep+1)
@@ -114,21 +184,20 @@ def decisionTree_From_Chains(HLTNode, chains):
         step_decisions = []
         for chain in chains:
             if len(chain.steps) <= count_steps:
+                for seq in chain.steps[count_steps-1].sequences:
+                    finalDecisions.extend(seq.outputs)
                 continue
             chain_step=chain.steps[count_steps]
-            chain_step_name= "%s:%s"%(stepCF_name, chain.name)
-            log.debug("\n*******Filling step %s for chain  %s", stepCF_name, chain.name)
-      
-            #sequenceHypoTools=chain_step.sequences
+            log.debug("\n*******Filling step %s for chain  %s", stepCF_name, chain.name)    
             hypotool=chain.hypoToolName
             countseq=0
+            # loop over menuSequences of this step chain
             for sequence in chain_step.sequences:
-                cfseq_name= sequence.name
                 log.debug("Going through sequence %s with threshold %s", sequence.name, hypotool)
 
+                #### define sequence input
                 seeds= [recoSeq.seed for recoSeq in sequence.recoSeqList]
-                log.debug("Found these seeds form the sequence: %s", seeds)
-                #define sequence input
+                log.debug("Found these seeds from the sequence: %s", seeds)
                 if count_steps == 0: # L1 seeding                   
                     filter_input= seeds
                     log.debug("Seeds from this chain: %s", filter_input)
@@ -146,7 +215,7 @@ def decisionTree_From_Chains(HLTNode, chains):
                         log.error("found %d filter inputs and %d seeds", len(filter_input), len(previous_seeds))
                         sys.exit("ERROR, in size") 
 
-               
+                #### attach HypoTools
                 hypoAlg= sequence.hypo
                 hypoToolClassName= sequence.hypoToolClassName
                 log.debug("Adding HypoTool::%s with name %s to %s", 
@@ -160,28 +229,31 @@ def decisionTree_From_Chains(HLTNode, chains):
                 # if the previous hypo has more than one output, try to get all of them
                 # one filter per previous sequence: 1 input/previous seq, 1 output/next seq 
                 filter_name="Filter%s_on_%s"%(stepCF_name,previous_sequence)
-                filter_already_exists=False
-                findFilter= [cfseq.filter for cfseq in CFseq_list if filter_name in cfseq.filter.algname]        
-                if len(findFilter):
+                findFilter= [cfseq.filter for cfseq in CFseq_list if filter_name in cfseq.filter.algname]
+                n_filters = len(findFilter)
+                if n_filters == 1:
                     log.debug("Filter %s already exists", filter_name)
-                    filter_already_exists=True
                     sfilter=findFilter[0]
                     log.debug("Adding chain %s to %s", chain.name,sfilter.algname)
                     sfilter.setChains(chain.name)
                     log.debug(sfilter.getChains())
                     continue
-                else:
+                elif n_filters == 0:
                     sfilter = RoRSequenceFilterNode(name=filter_name)
                     log.debug("Adding these seeds to filter: %s", previous_seeds)
                     for i in previous_seeds: sfilter.addSeed(i)
                     for i in filter_input: sfilter.addInput(i)                        
                     filter_out=["%s_from_%s_out"%(filter_name,i) for i in filter_input]
                     for o in filter_out: sfilter.setOutput(o)            
-
                     sfilter.setChains(chain.name)
                     log.debug("Filter Done: %s", sfilter.name)
+                else:
+                    log.error("found %d filters  with name %s", n_filters, filter_name)
+                    sys.exit("ERROR, in filter configuration")
+
+
                     
-                # Connect the InputMaker
+                #### Connect the InputMaker
                 #loop over RecoSequences of this sequence to add inputs to InputMaker and send decisions to HypoAlg
                 for recoSeq in sequence.recoSeqList:
                     seed=recoSeq.seed
@@ -194,24 +266,26 @@ def decisionTree_From_Chains(HLTNode, chains):
                     if len(input_maker_input) == 0:
                         sys.exit("ERROR, no inputs to sequence are set!") 
                     for i in input_maker_input: recoSeq.addInput(i)
-                    input_maker_output=["%s_from_%s_output"%(recoSeq.maker.algname,i)  for i in input_maker_input  ]
 
+                    input_maker_output=["%s_from_%s"%(recoSeq.maker.algname,i)  for i in input_maker_input  ]
                     if len(input_maker_output) == 0:
-                        sys.exit("ERROR, no outputs to sequence are set!") 
+                        sys.exit("ERROR, no outputs to sequence are set!")
+                    for out in input_maker_output:
+                        recoSeq.maker.addOutput(out) 
+                        sequence.hypo.setPreviousDecision(out)
+                          
                     if log.isEnabledFor(logging.DEBUG):
                         log.debug("connecting InputMaker to HypoAlg")
                         log.debug("Adding %d output to InputMaker::%s and sending to HypoAlg::%s",
                                   len(input_maker_output), recoSeq.maker.algname, sequence.hypo.algname)
                         for i in input_maker_output: log.debug(i)
                    
-                    for out in input_maker_output:
-                          recoSeq.addOutputDecision(out) 
-                          sequence.hypo.setPreviousDecision(out)
+                   
 
                 #needed for the summary
                 step_decisions.extend(sequence.outputs)                
                                     
-                CF_seq = CFSequence( cfseq_name, FilterAlg=sfilter, MenuSequence=sequence)
+                CF_seq = CFSequence( sequence.name, FilterAlg=sfilter, MenuSequence=sequence)
                 log.debug(CF_seq)
                 CFseq_list.append(CF_seq)
                 countseq+=1
@@ -233,9 +307,11 @@ def decisionTree_From_Chains(HLTNode, chains):
         # then the monitor summary
         summary=makeSummary("TriggerSummary"+ stepCF_name, step_decisions)
         HLTNode += summary
+
+      
         
         # update final decisions
-#        finalDecisions=step_decisions
+
 
         log.debug("Now Draw...")
         stepCF_DataFlow_to_dot("%s_%s"%(HLTNodeName,stepCF_name), CFseq_list)
@@ -247,8 +323,10 @@ def decisionTree_From_Chains(HLTNode, chains):
 
 
 
-   # summary=makeSummary("TriggerSummaryFinal", finalDecisions)
-   # HLTNode += summary
+  
 #    dumpSequence (HLTNode, indent=0)
+    finalDecisions.extend(step_decisions)
+    print "finalDecisions"
+    print finalDecisions
     all_DataFlow_to_dot(HLTNodeName, allSeq_list)
-    return
+    return finalDecisions
