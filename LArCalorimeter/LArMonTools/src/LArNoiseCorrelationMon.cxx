@@ -141,7 +141,7 @@ LArNoiseCorrelationMon::initialize()
 
   
   /** Get bad-channel mask (only if jO IgnoreBadChannels is true)*/
-  if (m_ignoreKnownBadChannels) {
+  if(m_ignoreKnownBadChannels) {
     ATH_CHECK(m_badChannelMask.retrieve());
   }
   
