@@ -522,6 +522,34 @@ CondCont<T>::quiescent (const EventContext& ctx /*= Gaudi::Hive::currentContext(
 
 
 /**
+ * @brief Return the number times an item was inserted into the map.
+ */
+template <typename T>
+inline
+size_t CondCont<T>::nInserts() const
+{
+  return m_condSet_clock.nInserts() + m_condSet_RE.nInserts();
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
+ * @brief Return the maximum size of the map.
+ */
+template <typename T>
+inline
+size_t CondCont<T>::maxSize() const
+{
+  return m_condSet_clock.maxSize() + m_condSet_RE.maxSize();
+}
+
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+
+/**
  * @brief Internal constructor.
  * @param rcusvc RCU service instance.
  * @param CLID of the most-derived @c CondCont.

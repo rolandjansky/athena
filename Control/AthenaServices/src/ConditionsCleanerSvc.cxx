@@ -75,4 +75,18 @@ StatusCode ConditionsCleanerSvc::condObjAdded (const EventContext& ctx,
 }
 
 
+/**
+ * @brief Print some statistics about the garbage collection.
+ *        Would generally be called in finalize(), but broken out
+ *        as a separate interface for testing/debugging purposes.
+ */
+StatusCode ConditionsCleanerSvc::printStats() const
+{
+  if (!m_cleanerSvc.empty()) {
+    return m_cleanerSvc->printStats();
+  }
+  return StatusCode::SUCCESS;
+}
+
+
 } // namespace Athena

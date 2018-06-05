@@ -67,6 +67,14 @@ public:
                                    CondContBase& cc) override;
 
 
+  /**
+   * @brief Print some statistics about the garbage collection.
+   *        Would generally be called in finalize(), but broken out
+   *        as a separate interface for testing/debugging purposes.
+   */
+  virtual StatusCode printStats() const override;
+
+
 private:
   ServiceHandle<Athena::IConditionsCleanerSvc> m_cleanerSvc;
 };

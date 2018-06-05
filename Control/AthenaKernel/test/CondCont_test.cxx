@@ -214,6 +214,9 @@ void test1 (TestRCUSvc& rcusvc)
   fillit (cc, bptrs);
   checkit (cc, bptrs);
 
+  assert (cc.nInserts() == 3);
+  assert (cc.maxSize() == 3);
+
   const EventIDRange r4 (timestamp (800), timestamp (899));
   assert( cc.typelessInsert (r4, new B(4)).isSuccess() );
   assert (cc.entriesTimestamp() == 2);

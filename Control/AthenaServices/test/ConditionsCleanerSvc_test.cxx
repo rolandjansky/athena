@@ -66,7 +66,8 @@ public:
   virtual const void* findByCLID (CLID,
                                   const EventIDBase&,
                                   EventIDRange const**) const override { std::abort(); }
-
+  virtual size_t nInserts() const override { std::abort(); }
+  virtual size_t maxSize() const override { std::abort(); }
 
 private:
   RCUTest m_rcu;
@@ -87,6 +88,8 @@ public:
                             bool allowAsync) override;
   virtual StatusCode condObjAdded (const EventContext& ctx,
                                    CondContBase& cc) override;
+
+  virtual StatusCode printStats() const override;
 };
 
 
@@ -108,6 +111,13 @@ StatusCode ConditionsCleanerTest::condObjAdded (const EventContext& ctx,
 }
 
 
+StatusCode ConditionsCleanerTest::printStats() const
+{
+  std::cout << "ConditionsCleanerTest::printStats\n";
+  return StatusCode::SUCCESS;
+}
+
+
 DECLARE_COMPONENT( ConditionsCleanerTest )
 
 
@@ -122,6 +132,7 @@ void testit (IService* mgr)
   CondContTest cc;
 
   assert( ccs->condObjAdded (EventContext(0,0), cc).isSuccess() );
+  assert( ccs->printStats().isSuccess() );
 }
 
 
