@@ -39,11 +39,13 @@ StatusCode TrigSignatureMoniMT::initialize() {
     m_histSvc->regHist( fullName, std::move( hist ) );
     m_outputHistogram = m_histSvc.getHist( fullName );
     */
+
     m_outputHistogram = new TH2I( "SignatureAcceptance", "Raw acceptance of signatures in;chain;step",
 				  x, 1, x + 1,
 				  y, 1, y + 1 ); // Fill and GetBinContent use the same indexing then
-    m_histSvc->regHist( m_bookingPath + "/SignatureAcceptance", m_outputHistogram );
-    
+    const std::string fullName = m_bookingPath + "/SignatureAcceptance";
+    m_histSvc->regHist( fullName, m_outputHistogram );
+    ATH_MSG_DEBUG( "Registerd under " << fullName );
   }
   CHECK( initHist() );
   
