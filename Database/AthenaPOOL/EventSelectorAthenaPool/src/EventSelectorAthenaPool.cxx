@@ -48,6 +48,7 @@ EventSelectorAthenaPool::EventSelectorAthenaPool(const std::string& name, ISvcLo
 	m_beginIter(0),
 	m_endIter(0),
 	m_activeStoreSvc("ActiveStoreSvc", name),
+	m_tagDataStore("StoreGateSvc/TagMetaDataStore", name),
 	m_poolCollectionConverter(0),
 	m_headerIterator(0),
 	m_guid(),
@@ -153,6 +154,11 @@ StatusCode EventSelectorAthenaPool::initialize() {
    // Get AthenaPoolCnvSvc
    if (!m_athenaPoolCnvSvc.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Cannot get " << m_athenaPoolCnvSvc.typeAndName() << ".");
+      return(StatusCode::FAILURE);
+   }
+   // Get TagMetaDataStore
+   if (!m_tagDataStore.retrieve().isSuccess()) {
+      ATH_MSG_FATAL("Cannot get " << m_tagDataStore.typeAndName() << ".");
       return(StatusCode::FAILURE);
    }
    // Get CounterTool (if configured)
@@ -463,6 +469,10 @@ StatusCode EventSelectorAthenaPool::finalize() {
    // Release HelperTools
    if (!m_helperTools.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release " << m_helperTools);
+   }
+   // Release TagMetaDataStore
+   if (!m_tagDataStore.release().isSuccess()) {
+      ATH_MSG_WARNING("Cannot release " << m_tagDataStore.typeAndName() << ".");
    }
    // Release AthenaPoolCnvSvc
    if (!m_athenaPoolCnvSvc.release().isSuccess()) {
