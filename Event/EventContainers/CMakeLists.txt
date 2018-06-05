@@ -33,5 +33,5 @@ atlas_add_test( IdMTCont SOURCES test/IDMT_ContainerTest.cxx
 atlas_add_test( IDStressTest SOURCES test/IDC_Realistic_Test.cxx
                 INCLUDE_DIRS src test EventContainers
                 LINK_LIBRARIES Identifier GaudiKernel SGTools EventContainers
-                EXTRA_PATTERNS "elapsed"
+                EXTRA_PATTERNS "elapsed|^no lock time|^deleted|^countHit"
               )
