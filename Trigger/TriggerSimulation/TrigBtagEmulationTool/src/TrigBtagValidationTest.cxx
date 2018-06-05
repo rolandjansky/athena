@@ -11,12 +11,8 @@ using std::string;
 namespace Trig{
 
   TrigBtagValidationTest::TrigBtagValidationTest(const std::string& name, 
-					       ISvcLocator* pSvcLocator ) : 
-#ifndef XAOD_ANALYSIS
-    ::AthAlgorithm( name, pSvcLocator ),
-#else
-::AthAnalysisAlgorithm( name, pSvcLocator ),
-#endif
+					       ISvcLocator* pSvcLocator )
+    : ::AthAlgorithm( name, pSvcLocator ),
       m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool"),
       m_emulationTool("Trig::TrigBtagEmulationTool/TrigBtagEmulationTool",this),
       m_errorAtMismatch(false),

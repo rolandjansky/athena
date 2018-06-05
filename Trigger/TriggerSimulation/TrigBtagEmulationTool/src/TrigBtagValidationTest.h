@@ -27,13 +27,8 @@ class IExecuteTool;
 
 namespace Trig{
 
-  class TrigBtagValidationTest : 
-#ifndef XAOD_ANALYSIS
-  public AthAlgorithm 
-#else
-  public AthAnalysisAlgorithm
-#endif
-{ 
+  class TrigBtagValidationTest : public AthAlgorithm {
+
         public: 
             /// Constructor with parameters: 
             TrigBtagValidationTest(const std::string& name, ISvcLocator* pSvcLocator);
