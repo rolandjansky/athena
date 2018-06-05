@@ -157,10 +157,8 @@ if InDetFlags.loadRotCreator():
             if InDetFlags.doDBM():
                 print PixelClusterOnTrackToolDBM
 
-        if False :
-          # TODO: use PixelClusterOnTrackToolDigital during ROT creation to save CPU, one the GlobalChi2Fitter
-          #       correctly handles brem fits when starting from PrepRawData rather than ROTs.
-          PixelClusterOnTrackToolDigital = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackToolDigital",
+  
+        PixelClusterOnTrackToolDigital = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackToolDigital",
                                                                  DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
                                                                  applyNNcorrection = False,
                                                                  NNIBLcorrection = False,
@@ -170,9 +168,8 @@ if InDetFlags.loadRotCreator():
                                                                  PositionStrategy = 1 
                                                                  )
 
-          ToolSvc += PixelClusterOnTrackToolDigital
-        else :
-          PixelClusterOnTrackToolDigital=None
+        ToolSvc += PixelClusterOnTrackToolDigital
+
     else:
         PixelClusterOnTrackTool = None
         PixelClusterOnTrackToolDigital = None
@@ -219,7 +216,16 @@ if InDetFlags.loadRotCreator():
         InDet_SeedToTrackConversion = InDet__SeedToTrackConversionTool( name = "InDet_SeedToTrackConversion")
         ToolSvc += InDet_SeedToTrackConversion
 
-    if PixelClusterOnTrackToolDigital != None :
+################################################################################
+# Note here: We *could* use the flag below in a smarter way for the current    #
+# configuration (e.g. to set up an 'all digital' path for ITK or a 'no digital'#
+# path for ID) but there is a case for using the digital ROT creator prior to  #
+# the final fit since to save some CPU. This didn't work previously due to some#
+# particular features of the Global Chi^2 Fitter energy loss treatment for     #
+# electron candidates, but in principle we may want to revist for r22...       #
+################################################################################
+
+    if InDetFlags.doPixelDigitalClustering == True :
        InDetRotCreatorDigital = Trk__RIO_OnTrackCreator(name             = 'InDetRotCreatorDigital',
                                                         ToolPixelCluster = PixelClusterOnTrackToolDigital,
                                                         ToolSCT_Cluster  = SCT_ClusterOnTrackTool,

@@ -1199,6 +1199,17 @@ class checkDeadElementsOnTrack(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = True
 
+class doPixelDigitalClustering(InDetFlagsJobProperty): 
+  """use 'simple' errors without position corrections for pixel clusters on track""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = False
+
+class doSCT_DigitalClustering(InDetFlagsJobProperty): 
+  """use 'simple' errors without position corrections for pixel clusters on track""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = False
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -2827,7 +2838,9 @@ _list_InDetJobProperties = [Enabled,
                             doStoreTrackSeeds,
                             doStoreTrackCandidates,
                             doHIP300,
-                            checkDeadElementsOnTrack
+                            checkDeadElementsOnTrack,
+                            doPixelDigitalClustering,
+                            doSCT_DigitalClustering
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

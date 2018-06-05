@@ -49,6 +49,10 @@ namespace InDet{
   bool adjacent(const unsigned int strip1, const unsigned int strip2){
     return ((1 == (strip2-strip1)) or (1 == (strip1-strip2))); 
   }
+  //version for when using rows
+  bool adjacent(const unsigned int strip1, const int row1, const unsigned int strip2, const int row2){
+    return ((row1==row2) and ((1 == (strip2-strip1)) or (1 == (strip1-strip2)))); 
+  }
   
   // Constructor with parameters:
   SCT_ClusteringTool::SCT_ClusteringTool(const std::string &type, const std::string &name, const IInterface *parent) :
@@ -57,7 +61,8 @@ namespace InDet{
     m_checkBadChannels(true),
     m_conditionsSvc("SCT_ConditionsSummarySvc",name),
     m_clusterMaker("InDet::ClusterMakerTool"),
-    m_timeBinStr("")
+    m_timeBinStr(""),
+    m_useRowInformation(false)
   {
     declareInterface<ISCT_ClusteringTool>(this);
     declareProperty("globalPosAlg" , m_clusterMaker);
@@ -65,6 +70,7 @@ namespace InDet{
     declareProperty("checkBadChannels",m_checkBadChannels);
     declareProperty("conditionsService" , m_conditionsSvc);
     declareProperty("timeBins" , m_timeBinStr);
+    declareProperty("useRowInformation", m_useRowInformation);
   }
   
   StatusCode SCT_ClusteringTool::decodeTimeBins() {
@@ -189,6 +195,41 @@ namespace InDet{
       // After this, the cluster vector is either empty or has the last good cluster
     }
   }
+
+  void SCT_ClusteringTool::addStripsToClusterInclRows(const Identifier & firstStripId, const unsigned int nStrips, std::vector<Identifier> & clusterVector,
+						      std::vector<std::vector<Identifier> > & idGroups, const SCT_ID& idHelper) const{
+    
+    unsigned int firstStripNumber(idHelper.strip(firstStripId));
+    unsigned int firstRowNumber(idHelper.row(firstStripId));
+    unsigned int endStripNumber(firstStripNumber + nStrips); // one-past-the-end
+    Identifier   waferId(idHelper.wafer_id(firstStripId));
+    unsigned int stripNumber(firstStripNumber);
+    unsigned int nBadStrips(0);
+    clusterVector.reserve(clusterVector.size() + nStrips);
+    const Identifier badId;
+    for (; stripNumber not_eq endStripNumber; ++stripNumber){
+      Identifier stripId(idHelper.strip_id(waferId,firstRowNumber,stripNumber));
+      if (isBad(stripId)) {
+	++nBadStrips;
+	stripId = badId;
+      }
+      clusterVector.push_back(stripId);
+    }
+    
+    // Maybe all the strips are bad, clear the cluster vector
+    if (clusterVector.size() == nBadStrips){
+      clusterVector.clear();
+      // No need to recluster if vector is empty (same true if empty for other reasons)
+      return;
+    }
+    
+    // Now we have one vector of stripIds, some of which may be 'bad'
+    if (nBadStrips != 0) {
+      
+      clusterVector=recluster(clusterVector, idGroups);
+      // After this, the cluster vector is either empty or has the last good cluster
+    }
+  } 
   
   /**
    * recluster starts with a vector of Ids, some of which may be invalid due to them being bad strips,
@@ -248,14 +289,28 @@ namespace InDet{
     unsigned int previousStrip(0); // Should be ok?
     uint16_t hitsInThirdTimeBin = 0;
     int stripCount=0;
+    int thisRow = -1;
+    int previousRow = -1;
     for(; pRdo != end; ++pRdo){
       const SCT_RDORawData* pRawData = *pRdo;
       Identifier            firstStripId(pRawData->identify());
       unsigned int          nStrips(pRawData->getGroupSize());
       int                   thisStrip(idHelper.strip(firstStripId));
+      
+      if(m_useRowInformation){
+	thisRow = idHelper.row(firstStripId);
+	if (not adjacent(thisStrip, thisRow, previousStrip, previousRow) and not(currentVector.empty())){
+	  // Add this group to existing groups (and flush)
+	  idGroups.push_back(currentVector);
+	  currentVector.clear();
+	  tbinGroups.push_back(hitsInThirdTimeBin);
+	  hitsInThirdTimeBin =0;
+	  stripCount = 0;
+	}
+      }
 
       // Flushes the vector every time a non-adjacent strip is found
-      if (not adjacent(thisStrip, previousStrip) and not(currentVector.empty())){
+      else if (not adjacent(thisStrip, previousStrip) and not(currentVector.empty())){
 	      // Add this group to existing groups (and flush)
         idGroups.push_back(currentVector);
         currentVector.clear();
@@ -279,19 +334,25 @@ namespace InDet{
       // Now we are either (a) pushing more contiguous strips onto an existing vector
       //                or (b) pushing a new set of ids onto an empty vector
       if (passTiming) {
-	      if (not m_checkBadChannels){
-	        addStripsToCluster(firstStripId, nStrips, currentVector, idHelper);                    // Note this takes the current vector only
-	        if (stripCount < 16) hitsInThirdTimeBin = hitsInThirdTimeBin | (timePattern.test(0) << stripCount);
-	        stripCount++;
-	      } else {
-	        addStripsToClusterWithChecks(firstStripId, nStrips, currentVector,idGroups, idHelper); // This one includes the groups of vectors as well
-	        if (stripCount < 16) hitsInThirdTimeBin = hitsInThirdTimeBin | (timePattern.test(0) << stripCount);
-	        stripCount++;
-	      }
+	if(m_useRowInformation){
+	  addStripsToClusterInclRows(firstStripId, nStrips, currentVector,idGroups, idHelper);                    // Note this takes the current vector only
+	  if (stripCount < 16) hitsInThirdTimeBin = hitsInThirdTimeBin | (timePattern.test(0) << stripCount);
+	  stripCount++;
+	}
+	else if (not m_checkBadChannels){
+	  addStripsToCluster(firstStripId, nStrips, currentVector, idHelper);                    // Note this takes the current vector only
+	  if (stripCount < 16) hitsInThirdTimeBin = hitsInThirdTimeBin | (timePattern.test(0) << stripCount);
+	  stripCount++;
+	} else {
+	  addStripsToClusterWithChecks(firstStripId, nStrips, currentVector,idGroups, idHelper); // This one includes the groups of vectors as well
+	  if (stripCount < 16) hitsInThirdTimeBin = hitsInThirdTimeBin | (timePattern.test(0) << stripCount);
+	  stripCount++;
+	}
       }
       if (not currentVector.empty()) {
 	      // Gives the last strip number in the cluster
 	      previousStrip = idHelper.strip(currentVector.back());
+	      if(m_useRowInformation) previousRow   = idHelper.row(currentVector.back());
       }
     } 
     
@@ -307,12 +368,8 @@ namespace InDet{
     const  InDetDD::SiDetectorElement* element = manager.getDetectorElement(elementID);
     if (!element) return msg(MSG::WARNING) << "Element not in the element map, ID = "<< elementID << endreq, nullResult;
 
-    const InDetDD::SCT_ModuleSideDesign* design;
-    if (idHelper.is_barrel(elementID)){
-      design = (static_cast<const InDetDD::SCT_BarrelModuleSideDesign*>(&element->design()));
-    } else {
-      design = (static_cast<const InDetDD::SCT_ForwardModuleSideDesign*>(&element->design()));
-    }    
+    const InDetDD::SCT_ModuleSideDesign* design = (dynamic_cast<const InDetDD::SCT_ModuleSideDesign*>(&element->design()));
+    if(!design) ATH_MSG_ERROR("Unable to cast to SCT_ModuleSideDesign! This is not an SCT detector element.");      
 
     IdentifierHash idHash(collection.identifyHash());
     SCT_ClusterCollection* clusterCollection = new SCT_ClusterCollection(idHash);
@@ -334,9 +391,13 @@ namespace InDet{
       const IdVec_t& stripGroup(*pGroup);
       const int      nStrips(pGroup->size());
       if (nStrips == 0) continue;
-      //
-      DimensionAndPosition    clusterDim = clusterDimensions(idHelper.strip(pGroup->front()), idHelper.strip(pGroup->back()), element, idHelper);
-      Amg::Vector2D localPos(clusterDim.centre.xPhi(),clusterDim.centre.xEta()); 
+      
+      const InDetDD::SiLocalPosition dummyPos(1,0);
+      DimensionAndPosition clusterDim(dummyPos,1.0);//just initialize with arbitrary values, will be set properly in the next two lines...
+      if(m_useRowInformation) clusterDim = clusterDimensionsInclRow(idHelper.strip(pGroup->front()), idHelper.strip(pGroup->back()), idHelper.row(pGroup->front()), element, design);
+      else clusterDim = clusterDimensions(idHelper.strip(pGroup->front()), idHelper.strip(pGroup->back()), element, idHelper);
+      Amg::Vector2D localPos(clusterDim.centre.xPhi(),clusterDim.centre.xEta());
+
       // Since clusterId is arbitary (it only needs to be unique) just use ID of first strip
       //const Identifier clusterId = element->identifierOfPosition(clusterDim.centre);
       const Identifier clusterId(pGroup->front());
@@ -382,6 +443,23 @@ namespace InDet{
     const InDetDD::SiLocalPosition centre((firstStripPos+lastStripPos)/2.0);
     return SCT_ClusteringTool::DimensionAndPosition(centre, width);
   }
+
+  SCT_ClusteringTool::DimensionAndPosition 
+  SCT_ClusteringTool::clusterDimensionsInclRow(const int firstStrip, const int  lastStrip, const int row,
+					       const InDetDD::SiDetectorElement* pElement, const InDetDD::SCT_ModuleSideDesign* design) const{
+    const int                      nStrips(lastStrip - firstStrip + 1);
+    const int firstStrip1D = design->strip1Dim(firstStrip,row);
+    const int lastStrip1D = design->strip1Dim(lastStrip, row);
+    const double stripPitch =  design->stripPitch();
+    const InDetDD::SiCellId        cell1(firstStrip1D);
+    const InDetDD::SiCellId        cell2(lastStrip1D); 
+    const InDetDD::SiLocalPosition firstStripPos(pElement->rawLocalPositionOfCell(cell1));
+    const InDetDD::SiLocalPosition lastStripPos(pElement->rawLocalPositionOfCell(cell2));
+    const double                   width(nStrips*stripPitch);
+    const InDetDD::SiLocalPosition centre((firstStripPos+lastStripPos)/2.0);
+    return SCT_ClusteringTool::DimensionAndPosition(centre, width);
+  } 
+  
   
   bool SCT_ClusteringTool::isBad(const Identifier & stripId) const{
     return (not m_conditionsSvc->isGood(stripId, InDetConditions::SCT_STRIP));

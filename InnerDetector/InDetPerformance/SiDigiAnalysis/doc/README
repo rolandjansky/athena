@@ -1,0 +1,19 @@
+Simple analysis of G4 Silicon Digitization output.
+
+Derived from SiHitAnal and Jason's SiHitMapper
+
+Prepare a digits file with athena jobOptions_digitazation_SLHC.py which writes the results of digitization into a  root file.
+
+Run athena with jobOptions_SiDigAnal to read this file in.
+
+This writes out a new root tree, simpler to analyse.
+
+Analyse this by running root:
+$ root
+root> .x stripDig.C
+
+...produces a bunch of histograms in pdf files summarising digitization results.
+
+Nigel Hessey
+25 Feb 2015
+

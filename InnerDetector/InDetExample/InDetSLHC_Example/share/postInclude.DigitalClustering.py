@@ -1,4 +1,4 @@
-ToolSvc.InDetPixelClusterOnTrackTool.CorrectDigitalCentroid=True
+#ToolSvc.InDetPixelClusterOnTrackTool.CorrectDigitalCentroid=True Is this still needed? Will need to be re-implemented
 ToolSvc.InDetPixelClusterOnTrackTool.PositionStrategy=0
 ToolSvc.InDetPixelClusterOnTrackTool.ErrorStrategy=1
 ToolSvc.InDetPixelClusterOnTrackToolDigital.PositionStrategy=0

@@ -557,8 +557,8 @@ SCT_Cluster* ClusterMakerTool::sctCluster(
 	  break;
 	}
 
-	// rotation for endcap SCT
-	if(element->design().shape() == InDetDD::Trapezoid) {
+	// rotation for endcap SCT/ITK Strip - NB this will no longer be needed once we go to disk surfaces and therefore true 1D measurements
+	if(element->design().shape() == InDetDD::Trapezoid || element->design().shape() == InDetDD::Annulus) {
           double sn      = element->sinStereoLocal(localPos); 
           double sn2     = sn*sn;
           double cs2     = 1.-sn2;

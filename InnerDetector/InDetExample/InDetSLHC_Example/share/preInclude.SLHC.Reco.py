@@ -37,8 +37,8 @@ if TrkDetFlags.MaterialDatabaseLocal():
 
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doSLHC=True
-if not InDetFlags.useInDetDynamicCuts(): # because InDetDynamicCuts covers whole eta region
-    InDetFlags.doForwardTracks=True
+#if not InDetFlags.useInDetDynamicCuts(): # because InDetDynamicCuts covers whole eta region
+InDetFlags.doForwardTracks=True
 
 InDetFlags.doSlimming=False
 InDetFlags.doBeamHalo=False
@@ -55,8 +55,8 @@ InDetFlags.doLowBetaFinder=False # This should be False.
 if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
     InDetFlags.writeRDOs = True
     InDetFlags.doSLHCConversionFinding = False
-    if not InDetFlags.useInDetDynamicCuts(): # because InDetDynamicCuts covers whole eta region
-        InDetFlags.doSLHCVeryForward = True
+    #if not InDetFlags.useInDetDynamicCuts(): # because InDetDynamicCuts covers whole eta region
+    InDetFlags.doSLHCVeryForward = True
 
 # if rec.OutputFileNameForRecoStep() == 'ESDtoAOD': 
 #     InDetFlags.doNewTracking=False
