@@ -12,7 +12,7 @@ atlas_depends_on_subdirs(
    Control/AthenaBaseComps
    Control/CoWTools
    Control/StoreGate
-   Event/xAOD/EventInfo
+   Event/xAOD/xAODEventInfo
    GaudiKernel )
 
 # External dependencies:
