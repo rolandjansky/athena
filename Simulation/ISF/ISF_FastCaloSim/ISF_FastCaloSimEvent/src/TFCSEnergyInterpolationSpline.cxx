@@ -41,7 +41,11 @@ void TFCSEnergyInterpolationSpline::simulate(TFCSSimulationState& simulstate,con
   if(logEkin<m_spline.GetXmin()) {
     Emean=m_spline.Eval(m_spline.GetXmin())*truth->Ekin();
   } else {
-    Emean=m_spline.Eval(logEkin)*truth->Ekin();
+    if(logEkin>m_spline.GetXmax()) {
+      Emean=( m_spline.Eval(m_spline.GetXmax()) + m_spline.Derivative(m_spline.GetXmax()) * (logEkin-m_spline.GetXmax()) )*truth->Ekin();
+    } else {
+      Emean=m_spline.Eval(logEkin)*truth->Ekin();
+    }  
   }  
 
   ATH_MSG_DEBUG("set E="<<Emean<<" for true Ekin="<<truth->Ekin());
@@ -61,36 +65,38 @@ void TFCSEnergyInterpolationSpline::Print(Option_t *option) const
                            <<" "<<TMath::Exp(m_spline.GetXmin())<<"<=Ekin<="<<TMath::Exp(m_spline.GetXmax()));
 }
 
-void TFCSEnergyInterpolationSpline::unit_test(TFCSSimulationState* simulstate,TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+void TFCSEnergyInterpolationSpline::unit_test(TFCSSimulationState* simulstate,TFCSTruthState* truth, const TFCSExtrapolationState* extrapol,TGraph* grspline)
 {
   if(!simulstate) simulstate=new TFCSSimulationState();
   if(!truth) truth=new TFCSTruthState();
   if(!extrapol) extrapol=new TFCSExtrapolationState();
+  
+  if(!grspline) {
+    const int Graph0_n=9;
+    Double_t Graph0_fx1001[Graph0_n] = {
+    1.024,
+    2.048,
+    4.094,
+    8.192,
+    16.384,
+    32.768,
+    65.536,
+    131.072,
+    262.144};
+    for(int i=0;i<Graph0_n;++i) Graph0_fx1001[i]*=1000;
 
-  const int Graph0_n=9;
-  Double_t Graph0_fx1001[Graph0_n] = {
-  1.024,
-  2.048,
-  4.094,
-  8.192,
-  16.384,
-  32.768,
-  65.536,
-  131.072,
-  262.144};
-  for(int i=0;i<Graph0_n;++i) Graph0_fx1001[i]*=1000;
-
-  Double_t Graph0_fy1001[Graph0_n] = {
-  0.6535402,
-  0.6571529,
-  0.6843001,
-  0.7172835,
-  0.7708416,
-  0.798819,
-  0.8187628,
-  0.8332745,
-  0.8443931};
-  TGraph* grspline = new TGraph(Graph0_n,Graph0_fx1001,Graph0_fy1001);
+    Double_t Graph0_fy1001[Graph0_n] = {
+    0.6535402,
+    0.6571529,
+    0.6843001,
+    0.7172835,
+    0.7708416,
+    0.798819,
+    0.8187628,
+    0.8332745,
+    0.8443931};
+    grspline = new TGraph(Graph0_n,Graph0_fx1001,Graph0_fy1001);
+  }  
   
   /*
   TFile* file=TFile::Open("Example.root");
@@ -109,8 +115,9 @@ void TFCSEnergyInterpolationSpline::unit_test(TFCSSimulationState* simulstate,TF
   test.set_eta_nominal(0.225);
   test.set_eta_min(0.2);
   test.set_eta_max(0.25);
-  test.InitFromArrayInEkin(Graph0_n,grspline->GetX(),grspline->GetY(),"b2e2",0,0);
+  test.InitFromArrayInEkin(grspline->GetN(),grspline->GetX(),grspline->GetY(),"b2e2",0,0);
   test.Print();
+  test.spline().Dump();
   
   truth->set_pdgid(22);
   

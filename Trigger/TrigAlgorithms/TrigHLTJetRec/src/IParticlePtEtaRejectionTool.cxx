@@ -32,10 +32,6 @@ bool  IParticlePtEtaRejectionTool::operator()(const xAOD::IParticle* pj) {
   ATH_MSG_DEBUG("Entering operator()()...");
 
   ++m_tested;
-  std::cout << "IParticlePtEtaRejectionTool::operator() "
-            << " abs eta " << std::abs(pj->eta())
-            << " pt " <<  pj -> pt()
-            << '\n';
   if (std::abs(pj->eta()) > m_absEtaMax){
     ATH_MSG_DEBUG("rejecting ip with eta "<<  pj->eta() <<
                   " max linit: " << m_absEtaMax);

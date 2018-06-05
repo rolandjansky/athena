@@ -102,7 +102,8 @@ addJetRecoToAlgSequence()
 #--------------------------------------------------------------
 # save event shapes set with the JetAlgorithm
 #--------------------------------------------------------------
-for esTool in jtm.jetrun.EventShapeTools :
+estoollist = jtm.jetevs.EventShapeTools if jetFlags.separateJetAlgs() else jtm.jetrun.EventShapeTools
+for esTool in estoollist:
     t = getattr(ToolSvc, esTool.getName() )
     jetFlags.jetAODList += [ "xAOD::EventShape#"+t.OutputContainer,
                              "xAOD::EventShapeAuxInfo#"+t.OutputContainer+'Aux.' ]

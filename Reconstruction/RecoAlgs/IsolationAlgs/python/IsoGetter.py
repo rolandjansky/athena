@@ -36,10 +36,8 @@ if recAlgs.doEFlow() :
                                        name = "PFlowObjectsInConeTool")
 
   from JetRec.JetRecStandard import jtm
-  #from JetRec.JetRecConf import PseudoJetGetter
-  from JetRecTools.JetRecToolsConf import PFlowPseudoJetGetter
-
-  jtm += PFlowPseudoJetGetter(
+  from JetRec.JetRecConf import PseudoJetGetter
+  jtm += PseudoJetGetter(
     name               = "emnpflowget",
     Label              = "EMNPFlow",
     InputContainer = "CHSNeutralParticleFlowObjects",

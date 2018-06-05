@@ -35,7 +35,6 @@ private:
   SG::WriteHandle< DataVector<LVL1::RecEmTauRoI> > m_recEMTauRoIs;  
   SG::WriteHandle< xAOD::TrigCompositeContainer > m_decisions;
   SG::WriteHandle< xAOD::TrigCompositeAuxContainer > m_decisionsAux;
-  //  SG::WriteHandle< std::vector<SG::View*> > m_view;
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc; //!< access to trigger menu
   ///@}
   

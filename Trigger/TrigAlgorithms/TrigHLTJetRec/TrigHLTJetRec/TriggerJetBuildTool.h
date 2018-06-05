@@ -25,7 +25,7 @@
 #include "TrigHLTJetRec/ITriggerJetBuildTool.h"
 #include "JetInterface/IJetExecuteTool.h"
 #include "AsgTools/AsgTool.h"
-#include "JetInterface/IJetFinderMT.h"
+#include "JetInterface/IJetFinder.h"
 #include "JetInterface/IJetModifier.h"
 #include "xAODJet/JetContainerInfo.h"
 
@@ -42,11 +42,11 @@ class TriggerJetBuildTool :
 
   // Set EDM inputs for jet finding
   virtual void prime(const xAOD::IParticleContainer*) override;
- 
+
+  virtual int build(ClusterSequence*&, JetContainer*&) const override;
+  
   virtual std::string toString(int verbosity) const override;
   void print() const override;
-
-  virtual const xAOD::JetContainer* build() const override;
 
   //remove input PseudoJets
   virtual void resetInputs() override;
@@ -58,15 +58,18 @@ private:
   
 
 
-  ToolHandle<IJetFinderMT> m_finder;
+  //IParticles 
+  const xAOD::IParticleContainer* m_jetFinderInputs{nullptr};
+
+  ToolHandle<IJetFinder> m_finder;
   ToolHandleArray<IJetModifier> m_modifiers;
 
 
-  // std::string m_label; // labels Extractors, determines m_inputType
   std::string m_concreteTypeStr; // determines m_concreteType
 
-  // m_inputType - updated from m_label, used 
-  //xAOD::JetInput::Type m_inputType{xAOD::JetInput::Uncategorized};
+  // m_inputType - updated from m_concreteTypeStr
+  xAOD::JetInput::Type m_inputType{xAOD::JetInput::Uncategorized};
+
   // m_concreteType -  affects IParticle->PseudoJet 
   xAOD::JetInput::Type m_concreteType{xAOD::JetInput::Uncategorized};
 

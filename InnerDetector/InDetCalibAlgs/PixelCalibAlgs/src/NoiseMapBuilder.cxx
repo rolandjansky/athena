@@ -19,7 +19,6 @@
 #include "InDetRawData/PixelRDO_Container.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h" 
-//#include "InDetReadoutGeometry/PixelModuleDesign.h" 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h" 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -219,9 +218,16 @@ StatusCode NoiseMapBuilder::initialize(){
 
 StatusCode NoiseMapBuilder::registerHistograms(){
 
-  const std::string mapFile = "PixelMapping_Run2.dat";
+ const std::string mapFile = "PixelMapping_Run2.dat";
+ char * tmppath= std::getenv("DATAPATH");
+ const unsigned int maxPathStringLength{3000};
+  if((not tmppath) or (strlen(tmppath) > maxPathStringLength) ){
+      ATH_MSG_ERROR( "FATAL: Unable to retrieve environmental DATAPATH" );
+      return StatusCode::FAILURE;
+  }
+  tmppath=strdup(tmppath);
  
-  std::vector<std::string> paths = splitter(std::getenv("DATAPATH"), ':'); 
+  std::vector<std::string> paths = splitter(tmppath, ':'); 
   bool found(false);  
   for(const auto& x : paths){
     std::ifstream infile( (x+"/"+mapFile).c_str() );
@@ -407,11 +413,7 @@ StatusCode NoiseMapBuilder::execute(){
 
         int TOT = (*rdo)->getToT(); // it returns a 8 bits "word"
         int BCID = (*rdo)->getBCID();
-        //int LVL1ID = (*rdo)->getLVL1ID();
-        //int LVL1A = (*rdo)->getLVL1A();
 
-        //if( std::find(m_moduleHashList.begin(), m_moduleHashList.end(), moduleHash ) == m_moduleHashList.end() ) continue;
-        //if ( std::binary_search(m_moduleHashList.begin(), m_moduleHashList.end(), moduleHash) == false ) continue;
         m_hitMaps[modHash]->Fill(pixel_eta, pixel_phi);
         m_LBdependence[modHash]->Fill(LB);
         m_BCIDdependence[modHash]->Fill(BCID);
@@ -605,21 +607,6 @@ StatusCode NoiseMapBuilder::finalize() {
     int phi_max = m_pixelID->phi_index_max(ident);
     int eta_max = m_pixelID->eta_index_max(ident);
 
-    /*
-    Identifier moduleID = m_pixelID->wafer_id(IdentifierHash(moduleHash));
-    int barrel     = m_pixelID->barrel_ec(moduleID); // -2=ECC, 0=Barrel, 2=ECA
-    int layer      = m_pixelID->layer_disk(moduleID);
-    int module_phi = m_pixelID->phi_module(moduleID);
-    int module_eta = m_pixelID->eta_module(moduleID);
-    int phi_max    = m_pixelID->phi_index_max(moduleID);
-    int eta_max    = m_pixelID->eta_index_max(moduleID);
-    */
-
-    //const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
-    //    if(!design) continue;
-    //unsigned int mchips = design->numberOfCircuits();
-
-   
     TH2F* nhitsNoNoisePlot=0; 
     std::string comp;
     double cut = 0.;
@@ -691,7 +678,6 @@ StatusCode NoiseMapBuilder::finalize() {
           if( !isIBL3D && (pixel_eta_on_chip == 0 || pixel_eta_on_chip == 80 - 1) ){
             pixelType = 1; // long
           }
-          //else if(pixel_eta_on_chip > 0 && pixel_eta_on_chip < 80 - 1) // pixel size = 50x250 um2
           else { // pixel size = 50x250 um2
             pixelType = 0; // normal
           }
@@ -730,12 +716,7 @@ StatusCode NoiseMapBuilder::finalize() {
         // to here
 
         std::string type;
-         // kazuki commented out
-        //int pixel_eta_on_chip = (m_isIBL && bec == 0 && layer == 0) ? pixel_eta % 80 : pixel_eta % 18; // column
-        //int pixel_phi_on_chip = (pixel_phi <= 163) ? pixel_phi : 327 - pixel_phi; // eta
-        //if (m_isIBL && bec == 0 && layer == 0) pixel_phi_on_chip = pixel_phi;
-         //  unsigned int pixelType = ModuleSpecialPixelMap::
-          // pixelType( pixel_eta_on_chip, pixel_phi_on_chip, mchips );
+
 
         switch(pixelType) {
           case 0:

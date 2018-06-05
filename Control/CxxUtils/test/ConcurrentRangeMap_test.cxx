@@ -45,6 +45,9 @@ struct RangeCompare
   { return t < r.m_begin; }
   bool operator() (const Range& r1, const Range& r2) const
   { return r1.m_begin < r2.m_begin; }
+  bool inRange (const Time t, const Range& r) const
+  { return t >= r.m_begin && t < r.m_end; }
+    
 };
 
 
@@ -99,6 +102,12 @@ public:
     m_inGrace = (~(1<<slot)) & ((1<<nslots)-1);
   }
 
+  void discard (std::unique_ptr<T> p)
+  {
+    m_garbage.push_back (p.release());
+    m_inGrace = ((1<<nslots)-1);
+  }
+
   const T& get() const { return *m_p; }
 
   void quiescent (int slot)
@@ -129,9 +138,9 @@ typedef CxxUtils::ConcurrentRangeMap<Range, Time, Payload, RangeCompare,
   TestMap;
 
 
-void test1()
+void test1a()
 {
-  std::cout << "test1\n";
+  std::cout << "test1a\n";
   Payload::Hist phist;
   {
     TestMap map (TestMap::Updater_t(), 3);
@@ -140,6 +149,8 @@ void test1()
     assert (map.empty());
     assert (map.range().empty());
     assert (map.capacity() == 3);
+    assert (map.nInserts() == 0);
+    assert (map.maxSize()  == 0);
 
     //======
 
@@ -161,6 +172,9 @@ void test1()
 
     assert (!map.emplace (Range (10, 20), std::make_unique<Payload> (100)));
 
+    assert (map.nInserts() == 1);
+    assert (map.maxSize()  == 1);
+
     //======
 
     assert (map.emplace (Range (25, 30), std::make_unique<Payload> (200, &phist)));
@@ -178,6 +192,9 @@ void test1()
     assert (map.find (20)->second->m_x == 100);
     assert (map.find (25)->second->m_x == 200);
     assert (map.find (30)->second->m_x == 200);
+
+    assert (map.nInserts() == 2);
+    assert (map.maxSize()  == 2);
 
     //======
 
@@ -198,6 +215,9 @@ void test1()
     assert (map.find (25)->second->m_x == 200);
     assert (map.find (30)->second->m_x == 300);
     assert (map.find (35)->second->m_x == 300);
+
+    assert (map.nInserts() == 3);
+    assert (map.maxSize()  == 3);
 
     //======
 
@@ -220,6 +240,9 @@ void test1()
     assert (map.find (30)->second->m_x == 300);
     assert (map.find (35)->second->m_x == 300);
     assert (map.find (55)->second->m_x == 400);
+
+    assert (map.nInserts() == 4);
+    assert (map.maxSize()  == 4);
 
     //======
 
@@ -247,6 +270,9 @@ void test1()
 
     assert (!map.emplace (Range (30, 35), std::make_unique<Payload> (501)));
 
+    assert (map.nInserts() == 5);
+    assert (map.maxSize()  == 5);
+
     //======
 
     map.erase (15);
@@ -270,6 +296,9 @@ void test1()
     assert (map.find (40)->second->m_x == 500);
     assert (map.find (55)->second->m_x == 400);
 
+    assert (map.nInserts() == 5);
+    assert (map.maxSize()  == 5);
+
     //======
 
     map.erase (25);
@@ -292,6 +321,9 @@ void test1()
     assert (map.find (40)->second->m_x == 500);
     assert (map.find (55)->second->m_x == 400);
 
+    assert (map.nInserts() == 5);
+    assert (map.maxSize()  == 5);
+
     //======
 
     map.erase (40);
@@ -313,6 +345,9 @@ void test1()
     assert (map.find (40)->second->m_x == 300);
     assert (map.find (55)->second->m_x == 400);
 
+    assert (map.nInserts() == 5);
+    assert (map.maxSize()  == 5);
+
     //======
 
     map.erase (35);
@@ -326,6 +361,9 @@ void test1()
     assert (map.find (40) == nullptr);
     assert (map.find (55)->second->m_x == 400);
 
+    assert (map.nInserts() == 5);
+    assert (map.maxSize()  == 5);
+
     //======
 
     map.erase (50);
@@ -336,6 +374,9 @@ void test1()
     assert (r.size() == 0);
 
     assert (map.find (55) == nullptr);
+
+    assert (map.nInserts() == 5);
+    assert (map.maxSize()  == 5);
 
     //======
 
@@ -348,6 +389,9 @@ void test1()
     assert (r.begin()->second->m_x == 600);
     assert (map.find (55) == nullptr);
     assert (map.find (75)->second->m_x == 600);
+
+    assert (map.nInserts() == 6);
+    assert (map.maxSize()  == 5);
 
     //======
 
@@ -377,6 +421,9 @@ void test1()
     assert (map.find (94)->second->m_x == 650);
     assert (map.find (99)->second->m_x == 650);
 
+    assert (map.nInserts() == 11);
+    assert (map.maxSize()  == 6);
+
     //======
 
     map.erase (70);
@@ -395,6 +442,9 @@ void test1()
     assert (map.find (94)->second->m_x == 650);
     assert (map.find (99)->second->m_x == 650);
 
+    assert (map.nInserts() == 11);
+    assert (map.maxSize()  == 6);
+
     //======
 
     assert (map.emplace (Range (97, 99), std::make_unique<Payload> (660, &phist)));
@@ -410,10 +460,69 @@ void test1()
     assert (map.find (99)->second->m_x == 660);
 
     assert (!phist.empty());
+
+    assert (map.nInserts() == 12);
+    assert (map.maxSize()  == 6);
   }
 
   assert (phist.empty());
 }
+
+
+// Testing trim().
+void test1b()
+{
+  std::cout << "test1b\n";
+
+  Payload::Hist phist;
+  TestMap map (TestMap::Updater_t(), 100);
+  assert (map.emplace (Range (10, 20), std::make_unique<Payload> (100, &phist)));
+  assert (map.emplace (Range (25, 30), std::make_unique<Payload> (200, &phist)));
+  assert (map.emplace (Range (30, 40), std::make_unique<Payload> (300, &phist)));
+  assert (map.emplace (Range (50, 60), std::make_unique<Payload> (400, &phist)));
+  assert (map.emplace (Range (40, 45), std::make_unique<Payload> (500, &phist)));
+  // 10..20->100 25..30->200 30..40->300 40..45->500 50..60->400
+
+  assert (map.size() == 5);
+
+  std::vector<TestMap::key_query_type> keys;
+  keys.push_back (15);
+  assert (map.trim (keys) == 0);
+  assert (map.size() == 5);
+
+  keys.clear();
+  keys.push_back (12);
+  keys.push_back (35);
+  assert (map.trim (keys) == 0);
+  assert (map.size() == 5);
+  assert (phist.size() == 5);
+
+  keys.clear();
+  keys.push_back (35);
+  assert (map.trim (keys) == 2);
+  assert (map.size() == 3);
+  assert (phist.size() == 5);
+
+  for (int i=0; i < nslots; i++) {
+    map.quiescent (i);
+  }
+  assert (phist.size() == 3);
+
+  keys.clear();
+  assert (map.trim (keys) == 2);
+  assert (map.size() == 1);
+  assert (phist.size() == 3);
+
+  for (int i=0; i < nslots; i++) {
+    map.quiescent (i);
+  }
+  assert (phist.size() == 1);
+}
+
+
+//***************************************************************************
+// Threaded test.
+//
 
 
 std::shared_timed_mutex start_mutex;
@@ -472,7 +581,13 @@ void test2_Writer::operator()()
   for (int i=0; i < nwrites; i++) {
     if (i >= ninflight) {
       Range rr = makeRange(i-ninflight);
-      m_map.erase (rr.m_begin, ctx());
+      if ((i%128) == 0) {
+        std::vector<Time> keys = {rr.m_end};
+        assert (m_map.trim (keys) == 1);
+      }
+      else {
+        m_map.erase (rr.m_begin, ctx());
+      }
     }
     Range r = makeRange(i);
     assert (m_map.emplace (r, std::make_unique<Payload> (i), ctx()));
@@ -620,7 +735,8 @@ void test2()
 
 int main()
 {
-  test1();
+  test1a();
+  test1b();
   test2();
   return 0;
 }

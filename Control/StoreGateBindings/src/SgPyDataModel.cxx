@@ -5,6 +5,7 @@
 
 #include "SgPyDataModel.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "RootUtils/PyAthenaGILStateEnsure.h"
 
 CLID PyCLID = 72785480;
 
@@ -56,6 +57,7 @@ namespace SG {
                             IRegisterTransient* /*itr*/,
                             bool /*isConst*/ )
   {
+    RootUtils::PyGILStateEnsure gil;
     // if requested type is same than myself ==> no conversion needed
     if ( clid == m_clid ) {
       return clid == PyCLID 
@@ -103,6 +105,7 @@ namespace SG {
                             IRegisterTransient* /*itr*/,
                             bool /*isConst*/)
   {
+    RootUtils::PyGILStateEnsure gil;
     // if regular PyObject, meaningless
     if ( m_clid == PyCLID ) {
       return 0;
@@ -154,6 +157,7 @@ namespace SG {
 
   void PyDataBucket::lock()
   {
+    RootUtils::PyGILStateEnsure gil;
     if (!m_pyObj) return;
     if (!PyObject_HasAttrString (m_pyObj, "lock"))
       return;

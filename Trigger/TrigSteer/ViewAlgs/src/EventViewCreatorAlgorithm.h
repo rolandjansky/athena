@@ -40,7 +40,7 @@ class EventViewCreatorAlgorithm : public ::InputMakerBase
     EventViewCreatorAlgorithm();
        
     //Output views for merging
-    SG::WriteHandleKey< std::vector< SG::View* > > m_viewsKey{ this, "Views", "Unspecified", "The key of views collection produced" };
+    SG::WriteHandleKey< ViewContainer > m_viewsKey{ this, "Views", "Unspecified", "The key of views collection produced" };
 
     // auxiliary handles
     SG::WriteHandleKey< ConstDataVector<TrigRoiDescriptorCollection> > m_inViewRoIs{ this, "InViewRoIs", "Unspecified", "Name with which the RoIs shoudl be inserted into the views" };

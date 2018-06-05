@@ -30,7 +30,9 @@ class MsgStream;
 
 class CaloTowerBuilderTool : public CaloTowerBuilderToolBase
 {
- public:
+public:
+  CaloTowerBuilderTool (const CaloTowerBuilderTool&) = delete;
+  CaloTowerBuilderTool& operator= (const CaloTowerBuilderTool&) = delete;
   
   /// AlgTool constructor
   CaloTowerBuilderTool(const std::string& name, const std::string& type,
@@ -54,15 +56,25 @@ class CaloTowerBuilderTool : public CaloTowerBuilderToolBase
    */
   virtual StatusCode execute(CaloTowerContainer* theContainer,
                              const CaloCellContainer* theCell=0,
-                             const CaloTowerSeg::SubSeg* subseg = 0);
+                             const CaloTowerSeg::SubSeg* subseg = 0) override;
 
   virtual void setCalos( const std::vector<CaloCell_ID::SUBCALO>& v);
 
-  virtual StatusCode initializeTool();
+  virtual StatusCode initializeTool() override;
 
-  virtual void handle(const Incident&);
+  virtual void handle(const Incident&) override;
 
- protected:
+
+protected:
+  /**
+   * @brief Convert calorimeter strings to enums.
+   * @param includedCalos Property with calorimeter strings.
+   */
+  virtual std::vector<CaloCell_ID::SUBCALO> parseCalos
+    (const std::vector<std::string>& includedCalos) const;
+
+
+private:
 
   ////////////////
   // Properties //
@@ -74,15 +86,14 @@ class CaloTowerBuilderTool : public CaloTowerBuilderToolBase
   // Store and Services //
   ////////////////////////
 
-  //  unsigned int m_errorCounter;
   std::vector<CaloCell_ID::SUBCALO> m_caloIndices;
 
   /////////////////////////////
   // Specific Initialization //
   /////////////////////////////
 
-  bool m_firstEvent;
-  CaloTowerStore* m_cellStore;
+  bool m_cacheValid;
+  CaloTowerStore m_cellStore;
 
   virtual StatusCode checkSetup(MsgStream& log);
   void addTower (const CaloTowerStore::tower_iterator tower_it,
@@ -97,7 +108,11 @@ class CaloTowerBuilderTool : public CaloTowerBuilderToolBase
                       IProxyDict* sg,
                       const CaloTowerSeg::SubSeg* subseg);
 
-  CaloTowerBuilderTool (const CaloTowerBuilderTool&);
-  CaloTowerBuilderTool& operator= (const CaloTowerBuilderTool&);
+  /**
+   * @brief Mark that cached data are invalid.
+   *
+   * Called when calibrations are updated.
+   */
+  virtual void invalidateCache() override;
 };
 #endif

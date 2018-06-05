@@ -14,6 +14,7 @@ atlas_depends_on_subdirs(
    Control/AthContainersInterfaces
    Control/AthenaBaseComps
    Control/AthenaKernel
+   Control/RootUtils
    Control/CxxUtils
    Control/AthContainers
    Control/DataModelRoot
@@ -37,7 +38,7 @@ atlas_add_component( AthenaServices src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS}
    ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} 
-   ${CLHEP_LIBRARIES} z TestTools AsgTools AthenaBaseComps AthenaKernel CxxUtils
+   ${CLHEP_LIBRARIES} z TestTools AsgTools AthenaBaseComps AthenaKernel RootUtils CxxUtils
    AthContainers DataModelRoot Navigation PerfMonEvent PerfMonKernel SGTools
    StoreGateLib SGtests PersistentDataModel EventInfo GaudiKernel )
 
@@ -66,6 +67,12 @@ atlas_add_test( AthenaEventLoopMgr_test
    LINK_LIBRARIES TestTools AsgTools AthenaKernel GaudiKernel EventInfo AthenaBaseComps
    EXTRA_PATTERNS "^JobOptionsSvc +INFO|^//GP:="
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
+atlas_add_test( ConditionsCleanerSvc_test
+  SOURCES test/ConditionsCleanerSvc_test.cxx
+  LINK_LIBRARIES TestTools AthenaKernel GaudiKernel AthenaBaseComps
+  EXTRA_PATTERNS "^JobOptionsSvc +INFO|^//GP:="
+  ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
 atlas_add_test( RCUSvc_test
    SOURCES test/RCUSvc_test.cxx

@@ -228,7 +228,14 @@ namespace TrigCostRootAnalysis {
     for (ChainItemSetIt_t L2TestIt = m_L2s.begin(); L2TestIt != m_L2s.end(); ++L2TestIt) {
       RatesChainItem* L2Test = (*L2TestIt);
       // Check that I have exactly one seed
-      if (L2Test->getLower().size() != 1) {
+      if (L2Test->getLower().size() == 2) { // TODO this is temporary for July 2017
+        for (ChainItemSetIt_t L1Hack = L2Test->getLower().begin(); L1Hack != L2Test->getLower().end(); ++L1Hack) {
+          if ((*L1Hack)->getName() == "L1_MU20") continue;
+          else if ((*L1Hack)->getName() == "L1_MU21") continue;
+          allOneToMany = kFALSE;
+          break; 
+        }
+      } else if (L2Test->getLower().size() != 1) {
         allOneToMany = kFALSE;
         break;
       }
@@ -239,7 +246,15 @@ namespace TrigCostRootAnalysis {
       for (ChainItemSetIt_t L2It = cpsGroup->getChainStart(); L2It != cpsGroup->getChainEnd(); ++L2It) {
         if (m_myCPSChains.count((*L2It)->getName()) == 0) continue;
         //This CPS group member is not in this rates group
-        if ((*L2It)->getLower().size() != 1) {
+        RatesChainItem* L2Test = (*L2It);
+        if (L2Test->getLower().size() == 2) { // TODO this is temporary for July 2017
+          for (ChainItemSetIt_t L1Hack = L2Test->getLower().begin(); L1Hack != L2Test->getLower().end(); ++L1Hack) {
+            if ((*L1Hack)->getName() == "L1_MU20") continue;
+            else if ((*L1Hack)->getName() == "L1_MU21") continue;
+            allOneToMany = kFALSE;
+            break; 
+          }
+        } else if (L2Test->getLower().size() != 1) {
           allOneToMany = kFALSE;
           break;
         }

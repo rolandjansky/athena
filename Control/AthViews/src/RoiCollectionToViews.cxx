@@ -83,23 +83,23 @@ StatusCode RoiCollectionToViews::execute()
   }
 
   //Create the views and populate them
-  ViewContainer viewVector;
+  auto viewVector =  std::make_unique<ViewContainer>();
   CHECK( ViewHelper::MakeAndPopulate( m_viewBaseName, //Base name for all views to use
-          viewVector,                                 //Vector to store views
-          m_viewRoIs,                                 //A writehandlekey to use to access the views
-          ctx,                                        //The context of this algorithm
-          outputRoICollectionVector,                  //Data to initialise each view - one view will be made per entry
-          m_viewFallThrough ) );                      //Allow fall through from view to storegate
+				      viewVector.get(),                                 //Vector to store views
+				      m_viewRoIs,                                 //A writehandlekey to use to access the views
+				      ctx,                                        //The context of this algorithm
+				      outputRoICollectionVector,                  //Data to initialise each view - one view will be made per entry
+				      m_viewFallThrough ) );                      //Allow fall through from view to storegate
 
   //Run the algorithms in views
-  CHECK( ViewHelper::ScheduleViews( viewVector, //View vector
-          m_viewNodeName,                       //CF node to attach views to
-          ctx,                                  //Context to attach the views to
-          m_scheduler.get() ) );                //Scheduler
+  CHECK( ViewHelper::ScheduleViews( viewVector.get(), //View vector
+				    m_viewNodeName,                       //CF node to attach views to
+				    ctx,                                  //Context to attach the views to
+				    m_scheduler.get() ) );                //Scheduler
 
   //Store the collection of views
   SG::WriteHandle< ViewContainer > outputViewHandle( m_w_views, ctx );
-  outputViewHandle.record( CxxUtils::make_unique< ViewContainer >( viewVector ) );
+  outputViewHandle.record( std::move( viewVector ) );
 
   return StatusCode::SUCCESS;
 }

@@ -75,7 +75,7 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
         GSFBuildTestBLayerTool = None
         if DetFlags.haveRIO.pixel_on() :
             from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
-            from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummaryTool
+            from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
             ToolSvc += PixelConditionsSummaryTool()            
             GSFBuildTestBLayerTool = InDet__InDetTestBLayerTool(name            = "GSFBuildTestBLayerTool",
                                                                 PixelSummaryTool = ToolSvc.PixelConditionsSummaryTool,

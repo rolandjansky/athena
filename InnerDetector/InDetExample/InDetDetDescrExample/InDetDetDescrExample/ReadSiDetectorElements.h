@@ -13,6 +13,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "SiPropertiesSvc/ISiPropertiesTool.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 
 #include <vector>
 
@@ -23,10 +24,9 @@ namespace InDetDD{
   class SiDetectorElement;
 }
 
-class ISiLorentzAngleSvc;
 class ISiliconConditionsSvc;
 class ISiPropertiesSvc;
-class AtlasDetectorID;
+class ISiLorentzAngleSvc;
 class AtlasDetectorID;
 class PixelID;
 class SCT_ID;
@@ -59,6 +59,7 @@ public:
   bool m_useConditionsTools;
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Silicon conditions tool"};
   ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "SiPropertiesTool", "Silicon properties tool"};
+  ToolHandle<ISiLorentzAngleTool> m_siLorentzAngleTool{this, "SiLorentzAngleTool", "SiLorentzAngleTool", "Silicon Lorentz anglet tool"};
 
   // Other
   const InDetDD::SiDetectorManager * m_manager;

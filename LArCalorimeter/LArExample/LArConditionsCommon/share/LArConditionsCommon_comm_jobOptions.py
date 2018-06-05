@@ -11,6 +11,8 @@ from RecExConfig.RecFlags import rec
 from LArConditionsCommon.LArCondFlags import larCondFlags 
 
 from IOVDbSvc.CondDB import conddb
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
 
 if rec.projectName().startswith("data09") :
     larCondFlags.LArCoolChannelSelection="3:238,306,313,319,325,331,338,344,350,1001:1012,1021,1022"
@@ -42,11 +44,16 @@ if larCondFlags.LArForceIOVRunNumber.statusOn and larCondFlags.LArForceIOVRunNum
 #Offline applications read from COOLOFL_LAR/COMP200, folder /LAR/BadChannelsOfl/BadChannels
 #But SG key(=Folder name) is expected to be the same in both cases (default set in LArBadChanTool.cxx)
 #Solution: Re-key the object when reading from offline DB
-
+include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" ) #Needed by BC cond alog
 rekeyBC="<key>/LAR/BadChannels/BadChannels</key>"
 rekeyMF="<key>/LAR/BadChannels/MissingFEBs</key>"
 conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/BadChannels","/LAR/BadChannelsOfl/BadChannels"+forceRN+rekeyBC,className="CondAttrListCollection")
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg
+condSeq+=LArBadChannelCondAlg(ReadKey="/LAR/BadChannels/BadChannels")
+
 conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/MissingFEBs","/LAR/BadChannelsOfl/MissingFEBs"+forceRN+rekeyMF,className='AthenaAttributeList')
+from LArBadChannelTool.LArBadChannelToolConf import LArBadFebCondAlg
+condSeq+=LArBadFebCondAlg(ReadKey="/LAR/BadChannels/MissingFEBs")
 
 
 if not larCondFlags.LoadElecCalib.is_locked():

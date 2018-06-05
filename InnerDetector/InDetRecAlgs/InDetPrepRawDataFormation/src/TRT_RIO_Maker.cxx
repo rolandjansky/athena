@@ -97,7 +97,8 @@ namespace InDet {
         std::unique_ptr<TRT_DriftCircleCollection> p_rio(m_driftcircle_tool->convert(m_mode_rio_production,
           currentCollection , m_trtBadChannels));
         if(p_rio && !p_rio->empty()) {
-           ATH_CHECK(rioContainer->addOrDelete(std::move(p_rio), p_rio->identifyHash()));
+           IdentifierHash hash = p_rio->identifyHash();
+           ATH_CHECK(rioContainer->addOrDelete(std::move(p_rio), hash));
         }
      }
     }else{
@@ -125,7 +126,8 @@ namespace InDet {
                  ATH_MSG_VERBOSE( "REGTEST: TRT : DriftCircleCollection contains "
                  << p_rio->size() << " clusters" );
 #endif
-                 ATH_CHECK(rioContainer->addOrDelete(std::move(p_rio), p_rio->identifyHash()));
+                 IdentifierHash hash = p_rio->identifyHash();
+                 ATH_CHECK(rioContainer->addOrDelete(std::move(p_rio), hash));
 
             }
          }

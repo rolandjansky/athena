@@ -85,14 +85,14 @@ namespace Trk {
         /** initialization method */                                      
         template <class T>  ExtrapolationCode initNavigation(ExtrapolationCell<T>& eCell,
                                                              const Surface* sf = 0,
-                                                             PropDirection dir=alongMomentum) const throw (GaudiException);
+                                                             PropDirection dir=alongMomentum) const;
                 
                 
         //!< retrieve TrackingGeometry
         StatusCode  updateTrackingGeometry() const; 
 
         //!< return and retrieve
-        const TrackingGeometry& trackingGeometry() const throw (GaudiException);
+        const TrackingGeometry& trackingGeometry() const;
 
         mutable const TrackingGeometry*                     m_trackingGeometry;          //!< the tracking geometry owned by the navigator
         ServiceHandle<ITrackingGeometrySvc>                 m_trackingGeometrySvc;       //!< ToolHandle to the TrackingGeometrySvc
@@ -114,7 +114,7 @@ namespace Trk {
       { return Trk::Master; }
 
 
-  inline const Trk::TrackingGeometry& ExtrapolationEngine::trackingGeometry() const throw (GaudiException) {
+  inline const Trk::TrackingGeometry& ExtrapolationEngine::trackingGeometry() const {
       if (!m_trackingGeometry && updateTrackingGeometry().isFailure()){
           EX_MSG_FATAL("", "updateGeo", "", "Could not load TrackingGeometry with name '" << m_trackingGeometryName << "'. Aborting." );
           throw GaudiException("ExtrapolationEngine", "Problem with TrackingGeometry loading.", StatusCode::FAILURE);

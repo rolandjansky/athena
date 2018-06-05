@@ -8,7 +8,7 @@
 #ifndef JetRecTool_H
 #define JetRecTool_H
 
-/// \class JetREcTool
+/// \class JetRecTool
 /// \author David Adams.
 /// \date January 2014
 ///
@@ -24,13 +24,13 @@
 ///     is taked from the output collection name of that tool. The
 ///     configured value of this property should be identical to that
 ///     or blank.
+///   InputPseudoJets: Array of ReadHandleKeys for the pseudojet collections
+///   to be retrieved and passed to JetFinder. These collections are merged
+///     and used as input for jet finding.
 ///   InputTool: Handle for the JetRecTool called to create the input
 ///     collection if it is not already found in the event store.
 ///   JetPseudojetRetriever: Tool used to retrieve the pseudojet cluster
 ///     sequence associated with a jet. If undefined, one is created.
-///   PseudoJetGetters: Array of handles for the tools used to
-///     retrieve pseudojet collections. These collections are merged
-///     and used as input for jet finding.
 ///   JetFinder: Handle for the tool used to find jets.
 ///   JetGroomer: Handle for the tool used to groom jets.
 ///   JetModifiers: Array of handles of tools used to modify the jet
@@ -52,14 +52,15 @@
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/IJetBuildTool.h"
 #include "JetInterface/IJetExecuteTool.h"
-#include "JetInterface/IPseudoJetGetter.h"
 #include "JetInterface/IJetFinder.h"
 #include "JetInterface/IJetGroomer.h"
 #include "JetInterface/IJetModifier.h"
 #include "JetInterface/IJetPseudojetRetriever.h"
 #include "JetInterface/IJetConsumer.h"
-#include "fastjet/PseudoJet.hh"
 #include "TStopwatch.h"
+#include "StoreGate/ReadHandleKeyArray.h"
+#include "JetEDM/PseudoJetVector.h"
+#include "JetRec/PseudoJetContainer.h"
 
 class JetRecTool
 : public asg::AsgTool,
@@ -72,61 +73,71 @@ public:
   JetRecTool(std::string myname);
 
   /// Initialization. Check all tools here.
-  StatusCode initialize();
+  StatusCode initialize() override;
 
   /// Finalization. Write summary report.
-  StatusCode finalize();
+  StatusCode finalize() override;
 
   /// Retrieve inputs with tools and construct new
   /// jet collection.
-  const xAOD::JetContainer* build() const;
+  virtual const xAOD::JetContainer* build() const override;
 
   /// Call build and put jets in event store.
-  int execute() const;
+  int execute() const override;
 
   /// Display the configuration.
-  void print() const;
+  void print() const override;
 
   /// Method to return the list of input containers.
   /// The names of required input containers are appended to connames.
   /// Returns nonzero for error.
   /// Default returns 0 and adds no names.
-  int inputContainerNames(std::vector<std::string>& connames);
+  int inputContainerNames(std::vector<std::string>& connames) override;
 
   /// Method to return the list of output containers.
   /// The names of produced output containers are appended to connames.
   /// Returns nonzero for error.
   /// Default returns 0 and adds no names.
-  int outputContainerNames(std::vector<std::string>& connames);
+  int outputContainerNames(std::vector<std::string>& connames) override;
 
   
   /// For trigger usage in grooming mode only : give the input ungroomed jet container.
-  void setInputJetContainer(const xAOD::JetContainer* cont) ;
+  void setInputJetContainer(const xAOD::JetContainer* cont);
 
 private:
 
   /// Record the container and Aux container in the event store.
   /// TAux is the type of the Aux container.
   template <typename TAux>
-  int record(const xAOD::JetContainer* pjets) const;
+  int record(std::unique_ptr<const xAOD::JetContainer> pjets) const;
 
 private:
 
+  std::unique_ptr<xAOD::JetContainer> fillOutputContainer() const;
+  // Collect all input PseudoJetContainers into a single container
+  std::unique_ptr<PseudoJetContainer> collectPseudoJets() const;
+  const xAOD::JetContainer* getOldJets() const;
+  std::unique_ptr<xAOD::JetContainer> makeOutputContainer() const;
+
+  std::unique_ptr<xAOD::JetContainer> findJets() const;
+  std::unique_ptr<xAOD::JetContainer> groomJets() const;
+  std::unique_ptr<xAOD::JetContainer> copyJets() const;
+
+  
   // Properties.
-  std::string m_outcoll;
-  std::string m_incoll;
+  SG::WriteHandleKey<xAOD::JetContainer> m_outcoll;
+  SG::ReadHandleKey<xAOD::JetContainer> m_incoll;
+  // The template argument should become PseudoJetContainer
+  SG::ReadHandleKeyArray<PseudoJetContainer> m_psjsin;
+
   ToolHandle<IJetExecuteTool> m_intool;
   ToolHandle<IJetPseudojetRetriever> m_hpjr;
-  ToolHandleArray<IPseudoJetGetter> m_pjgetters;
   ToolHandle<IJetFinder> m_finder;
   ToolHandle<IJetGroomer> m_groomer;
   ToolHandleArray<IJetModifier> m_modifiers;
   ToolHandleArray<IJetConsumer> m_consumers;
   bool m_trigger;
   int m_timer;
-  bool m_shallowCopy;
-  bool m_warnIfDuplicate;
-  bool m_overwrite;
 
   // Cached state.
   int m_initCount;
@@ -139,7 +150,6 @@ private:
   std::vector<std::string> m_outcolls;
   const IJetPseudojetRetriever* m_ppjr;
 
-
   // trigger hacks
   const xAOD::JetContainer* m_trigInputJetsForGrooming; // used in trigger context only
 
@@ -151,9 +161,9 @@ private:
   mutable TStopwatch m_modclock;
   mutable TStopwatch m_conclock;
   mutable TStopwatch m_pjcclock;
-  mutable std::vector<TStopwatch> m_getclocks;
   mutable std::vector<TStopwatch> m_modclocks;
   mutable std::vector<TStopwatch> m_conclocks;
+
 };
 
 #endif

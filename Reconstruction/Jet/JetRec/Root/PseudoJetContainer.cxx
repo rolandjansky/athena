@@ -12,6 +12,7 @@
 #include "JetRec/LineFormatter.h" // helper class for debug printing
 #include <sstream>
 #include <ios>
+#include <iostream>
 #include <exception>
 #include <map>
 
@@ -32,6 +33,7 @@ PseudoJetContainer::PseudoJetContainer(const IConstituentExtractor* c,
     return;
   }
 
+  if (m_debug){checkInConstituents(vecPJ, "constuctor");}
   m_allConstituents = vecPJ;
 
   // the limits of the Extractor index range correposnd to the 
@@ -111,10 +113,10 @@ bool PseudoJetContainer::extractConstituents(xAOD::Jet& jet,
 
 // returns the list of input constituents
 // typically to give to a fastjet::ClusterSequence 
-std::vector<PseudoJet> PseudoJetContainer::asVectorPseudoJet() const {
-  if (m_debug){checkInvariants("asVectorPseudoJet()");}
-  return m_allConstituents;
-}
+// std::vector<PseudoJet> PseudoJetContainer::asVectorPseudoJet() const {
+//   if (m_debug){checkInvariants("asVectorPseudoJet()");}
+//   return m_allConstituents;
+// }
 
 const std::vector<PseudoJet>* PseudoJetContainer::casVectorPseudoJet() const {
   if (m_debug){checkInvariants("asVectorPseudoJet()");}
@@ -135,6 +137,7 @@ void PseudoJetContainer::append(const PseudoJetContainer* other) {
   // copy over the pseudojets for the extractor being processed,
   // and set the user index to match th extractorRange limits.
 
+  
   std::transform(other->m_allConstituents.begin(),
                  other->m_allConstituents.end(),
                  std::back_inserter(m_allConstituents),
@@ -178,7 +181,8 @@ std::string PseudoJetContainer::dumpPseudoJets() const {
   std::ostringstream oss{"PseudoJetContainer at: ", std::ios::ate};
   oss <<"\n PseudoJet energies\n";
   for(auto& p : m_allConstituents){
-    oss << "pseudojet  E " << p.e() << " " <<  std::hex << p.eta() << '\n';
+    oss << "pseudojet user ind " << p.user_index()
+        << " E " << p.e() << " " << p.eta() << '\n';
   }
   
   return oss.str();
@@ -371,24 +375,30 @@ PseudoJetContainer::checkInConstituents(const std::vector<PseudoJet>& v,
   oss << formatter(indices);
 
 
-  int lo = m_extractorRanges[0].m_lo;
-  int hi = m_extractorRanges.back().m_hi;
-  
   std::map<int, int> counter;
-  for (auto ind : indices){
-    // ind = -1 pseudojets can be produced by fastjet.
-    // if (ind == -1){continue;}
-    if (ind < lo or ind >= hi){++(counter[ind]);}
+  if(!m_extractorRanges.empty()) {
+    int lo = m_extractorRanges[0].m_lo;
+    int hi = m_extractorRanges.back().m_hi;
+    
+    for (auto ind : indices){
+      // ind = -1 pseudojets can be produced by fastjet.
+      if (ind == -1){continue;}
+      if (ind < lo or ind > hi){++(counter[ind]);}
+    }
   }
   
   bool bad = !counter.empty();
   
   if(bad){
     oss <<"Out of range values[counts]: ";
-    for(auto ent: counter){oss << ent.first << "/" << ent.second << '\n';} 
+
+    for(auto ent: counter){oss << ent.first << "/" << ent.second << '\n';}
+    oss << "Extractor ranges: \n";
+    for(const auto& er: m_extractorRanges){
+      oss << er.m_lo << " " << er.m_hi << '\n';
+    }
+
     bad_invariants_exit(oss);
-  } else {
-    oss << " ok\n";
   }
   
   
@@ -399,9 +409,11 @@ bool
 PseudoJetContainer::bad_invariants_exit(const std::ostringstream& oss) const {
 
   auto errMsg = oss.str();
-    if (m_debug) {
-      throw std::runtime_error(errMsg);
-    }
+
+  if (m_debug) {
+    std::cerr << errMsg << '\n';
+    throw std::runtime_error(errMsg);
+  }
 
   return false;
 }
@@ -410,6 +422,8 @@ std::size_t PseudoJetContainer::size() const {
   return m_allConstituents.size();
 }
 
+bool  PseudoJetContainer::debug() const{ return m_debug;}
+void  PseudoJetContainer::debug(bool b) const {m_debug  = b;}
 std::ostream& operator << (std::ostream& os, const PseudoJetContainer& c){
   os <<  c.toString(0);
   return os;

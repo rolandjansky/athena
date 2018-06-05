@@ -34,8 +34,6 @@
 #include <sstream>
 #include <vector>
 
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
 #include "GaudiKernel/StatusCode.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
@@ -84,6 +82,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   declareProperty("SpacePointName", m_Pixel_SpacePointsName = "PixelSpacePoints");
   declareProperty("ClusterName", m_Pixel_SiClustersName = "PixelClusters");
   declareProperty("TrackName", m_TracksName = "Pixel_Cosmic_Tracks");
+  declareProperty("PixelBCIDName", m_PixelBCIDName = "PixelBCID");
 
   declareProperty("onTrack", m_doOnTrack = false);  // use inner detector tracks
   declareProperty("do2DMaps", m_do2DMaps = false);
@@ -136,10 +135,8 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_currentTime = 0;
   m_runNum = 0;
   m_idHelper = 0;
-  m_Pixel_clcontainer = 0;
-  m_Pixel_spcontainer = 0;
-  m_tracks = 0;
-
+  m_eventInfoKey = "ByteStreamEventInfo";
+  m_eventxAODInfoKey = "EventInfo";
   // Initalize all pointers for histograms
 
   // Event info
@@ -154,6 +151,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_nhits_mod, 0, sizeof(m_nhits_mod));
   memset(m_hits_per_lumi_mod, 0, sizeof(m_hits_per_lumi_mod));
   memset(m_avgocc_ratio_lastXlb_mod, 0, sizeof(m_avgocc_ratio_lastXlb_mod));
+  memset(m_avgocc_ratio_lastXlb_mod_prof, 0, sizeof(m_avgocc_ratio_lastXlb_mod_prof));
   memset(m_totalhits_per_bcid_mod, 0, sizeof(m_totalhits_per_bcid_mod));
 
   // hit occupancy
@@ -277,7 +275,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_errhist_errcat_LB, 0, sizeof(m_errhist_errcat_LB));
   memset(m_errhist_errtype_LB, 0, sizeof(m_errhist_errtype_LB));
   memset(m_errhist_expert_LB, 0, sizeof(m_errhist_expert_LB));
-  memset(m_errhist_expert_IBL_LB, 0, sizeof(m_errhist_expert_IBL_LB));
+  memset(m_errhist_expert_DBMIBL_LB, 0, sizeof(m_errhist_expert_DBMIBL_LB));
   memset(m_errhist_per_bit_LB, 0, sizeof(m_errhist_per_bit_LB));
   memset(m_errhist_per_type_LB, 0, sizeof(m_errhist_per_type_LB));
   memset(m_errhist_expert_fe_trunc_err_3d, 0, sizeof(m_errhist_expert_fe_trunc_err_3d));
@@ -389,6 +387,13 @@ StatusCode PixelMainMon::initialize() {
   ATH_CHECK(ManagedMonitorToolBase::initialize());
   time(&m_startTime);  // mark time for start of run
 
+  ATH_CHECK(m_Pixel_RDOName.initialize());
+  ATH_CHECK(m_Pixel_SpacePointsName.initialize());
+  ATH_CHECK(m_Pixel_SiClustersName.initialize());
+  ATH_CHECK(m_TracksName.initialize());
+  ATH_CHECK(m_PixelBCIDName.initialize());
+  ATH_CHECK(m_eventInfoKey.initialize());
+  ATH_CHECK(m_eventxAODInfoKey.initialize());
   // Retrieve tools
   if (detStore()->retrieve(m_pixelid, "PixelID").isFailure()) {
     msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
@@ -561,14 +566,14 @@ StatusCode PixelMainMon::initialize() {
 }
 
 StatusCode PixelMainMon::bookHistograms() {
-  const EventInfo* thisEventInfo;
-  if (evtStore()->retrieve(thisEventInfo) != StatusCode::SUCCESS) {
+  auto thisEventInfo = SG::makeHandle(m_eventxAODInfoKey);
+  if(!(thisEventInfo.isValid())) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No EventInfo object found" << endmsg;
   } else {
-    m_lumiBlockNum = thisEventInfo->event_ID()->lumi_block();
+    m_lumiBlockNum = thisEventInfo->lumiBlock();
 
     if (m_doOnline) {
-      m_runNum = thisEventInfo->event_ID()->run_number();
+      m_runNum = thisEventInfo->runNumber();
       std::stringstream runNumStr;
       runNumStr << m_runNum;
       m_histTitleExt = " (Run " + runNumStr.str() + ")";
@@ -576,7 +581,7 @@ StatusCode PixelMainMon::bookHistograms() {
       m_histTitleExt = "";
     }
     if (!m_isFirstBook) {
-      m_firstBookTime = thisEventInfo->event_ID()->time_stamp();
+      m_firstBookTime = thisEventInfo->timeStamp();
       m_isFirstBook = true;
     }
   }
@@ -712,12 +717,12 @@ StatusCode PixelMainMon::fillHistograms() {
   m_event++;
   m_majorityDisabled = false;
 
-  const EventInfo* thisEventInfo;
-  if (evtStore()->retrieve(thisEventInfo) != StatusCode::SUCCESS) {
+  auto thisEventInfo = SG::makeHandle(m_eventxAODInfoKey);
+  if(!(thisEventInfo.isValid())) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No EventInfo object found" << endmsg;
   } else {
-    m_currentTime = thisEventInfo->event_ID()->time_stamp();
-    m_currentBCID = thisEventInfo->event_ID()->bunch_crossing_id();
+    m_currentTime = thisEventInfo->timeStamp();
+    m_currentBCID = thisEventInfo->bcid();
     unsigned int currentdiff = (m_currentTime - m_firstBookTime) / 100;
     unsigned int currentdiff5min = (m_currentTime - m_firstBookTime) / 300;
     // for 100 sec
@@ -739,7 +744,7 @@ StatusCode PixelMainMon::fillHistograms() {
   PixelID::const_id_iterator idIt = m_pixelid->wafer_begin();
   PixelID::const_id_iterator idItEnd = m_pixelid->wafer_end();
 
-  for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
+  for (int i = 0; i < PixLayerIBL2D3DDBM::COUNT; i++) {
     m_nGood_mod[i] = 0;
     m_nActive_mod[i] = 0;
   }
@@ -748,20 +753,20 @@ StatusCode PixelMainMon::fillHistograms() {
     Identifier WaferID = *idIt;
     IdentifierHash id_hash = m_pixelid->wafer_hash(WaferID);
 
-    int pixlayeribl2d3d = getPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
-    if (pixlayeribl2d3d == PixLayer::kIBL) {
-      pixlayeribl2d3d = getPixLayerIDIBL2D3D(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_pixelid->eta_module(WaferID), m_doIBL);
+    int pixlayeribl2d3ddbm = getPixLayerIDDBM(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
+    if (pixlayeribl2d3ddbm == PixLayerDBM::kIBL) {
+      pixlayeribl2d3ddbm = getPixLayerIDIBL2D3DDBM(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_pixelid->eta_module(WaferID), m_doIBL);
     }
-    if (pixlayeribl2d3d == 99) continue;
+    if (pixlayeribl2d3ddbm == 99) continue;
     if (m_pixelCondSummarySvc->isActive(id_hash) == true) {
-      m_nActive_mod[pixlayeribl2d3d]++;
+      m_nActive_mod[pixlayeribl2d3ddbm]++;
     }
     if (m_pixelCondSummarySvc->isActive(id_hash) == true && m_pixelCondSummarySvc->isGood(id_hash) == true) {
-      m_nGood_mod[pixlayeribl2d3d]++;
+      m_nGood_mod[pixlayeribl2d3ddbm]++;
     }
   }
-  m_nActive_mod[PixLayerIBL2D3D::kIBL] = 2 * m_nActive_mod[PixLayerIBL2D3D::kIBL2D] + m_nActive_mod[PixLayerIBL2D3D::kIBL3D];
-  m_nGood_mod[PixLayerIBL2D3D::kIBL] = 2 * m_nGood_mod[PixLayerIBL2D3D::kIBL2D] + m_nGood_mod[PixLayerIBL2D3D::kIBL3D];
+  m_nActive_mod[PixLayerIBL2D3DDBM::kIBL] = 2 * m_nActive_mod[PixLayerIBL2D3DDBM::kIBL2D] + m_nActive_mod[PixLayerIBL2D3DDBM::kIBL3D];
+  m_nGood_mod[PixLayerIBL2D3DDBM::kIBL] = 2 * m_nGood_mod[PixLayerIBL2D3DDBM::kIBL2D] + m_nGood_mod[PixLayerIBL2D3DDBM::kIBL3D];
 
   // event info
   if (m_doRDO) {
@@ -779,7 +784,7 @@ StatusCode PixelMainMon::fillHistograms() {
 
   // track
   if (m_doTrack) {
-    if (evtStore()->contains<TrackCollection>(m_TracksName)) {
+    if (evtStore()->contains<TrackCollection>(m_TracksName.key())) {
       if (fillTrackMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
       }
@@ -792,7 +797,7 @@ StatusCode PixelMainMon::fillHistograms() {
 
   // hits
   if (m_doRDO) {
-    if (evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName)) {
+    if (evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName.key())) {
       if (fillHitsMon().isFailure()) {
         if (msgLvl(MSG::INFO)) {
           msg(MSG::INFO) << "Could not fill histograms" << endmsg;
@@ -817,7 +822,7 @@ StatusCode PixelMainMon::fillHistograms() {
 
   // cluster
   if (m_doCluster) {
-    if (evtStore()->contains<InDet::PixelClusterContainer>(m_Pixel_SiClustersName)) {
+    if (evtStore()->contains<InDet::PixelClusterContainer>(m_Pixel_SiClustersName.key())) {
       if (fillClustersMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
       }
@@ -830,7 +835,7 @@ StatusCode PixelMainMon::fillHistograms() {
 
   // space point
   if (m_doSpacePoint) {
-    if (evtStore()->contains<SpacePointContainer>(m_Pixel_SpacePointsName)) {
+    if (evtStore()->contains<SpacePointContainer>(m_Pixel_SpacePointsName.key())) {
       if (fillSpacePointMon().isFailure()) {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
       }

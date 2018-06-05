@@ -169,6 +169,22 @@ class AthReentrantAlgorithm
   virtual StatusCode execute_r (const EventContext& ctx) const = 0;
 #endif
 
+
+  /** Specify if the algorithm is clonable
+   *
+   * Reentrant algorithms are clonable.
+   */
+  virtual bool isClonable() const override;
+
+
+  /** Cardinality (Maximum number of clones that can exist)
+   *  special value 0 means that algorithm is reentrant
+   *
+   * Override this to return 0 for reentrant algorithms.
+   */
+  virtual unsigned int cardinality() const override;
+
+
 private:  
   // to keep track of VarHandleKeyArrays for data dep registration
 

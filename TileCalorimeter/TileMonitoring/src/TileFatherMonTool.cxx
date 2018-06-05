@@ -205,6 +205,8 @@ void TileFatherMonTool::fillEvtInfo()
     m_lumiBlock = 0;
     m_evtBCID = 0;
     m_runNum = 0;
+    m_tileFlag = 0;
+    m_tileError_error = 0;
 
   } else {
 
@@ -213,6 +215,9 @@ void TileFatherMonTool::fillEvtInfo()
     m_lumiBlock = eventInfo->lumiBlock();
     m_evtBCID = eventInfo->bcid();
     m_runNum = eventInfo->runNumber();
+
+    m_tileFlag = eventInfo->eventFlags(xAOD::EventInfo::Tile);
+    m_tileError_error = eventInfo->errorState(xAOD::EventInfo::Tile) == xAOD::EventInfo::Error;
 
 //    const std::vector< xAOD::EventInfo::StreamTag >& evtStreamTags = eventInfo->streamTags();
 //    for (const auto& evtStreamTag : evtStreamTags) {

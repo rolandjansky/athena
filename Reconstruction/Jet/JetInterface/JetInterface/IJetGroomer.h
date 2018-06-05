@@ -18,6 +18,8 @@
 #include "xAODJet/JetContainer.h"
 #include "JetInterface/IJetPseudojetRetriever.h"
 
+class PseudoJetContainer;
+
 class IJetGroomer : virtual public asg::IAsgTool {
 ASG_TOOL_INTERFACE(IJetGroomer)
 
@@ -34,7 +36,9 @@ public:
   ///  -  0 for success.
   ///  - >0 if jet is rejected
   ///  - <0 for error
-  virtual int groom(const xAOD::Jet& jin, xAOD::JetContainer& jout) const =0;
+  virtual int groom(const xAOD::Jet& jin,
+                    const PseudoJetContainer&,
+                    xAOD::JetContainer& jout) const =0;
 
   /// Return the pseudojet retriever associated with this tool.
   virtual const IJetPseudojetRetriever* pseudojetRetriever() const;

@@ -1,3 +1,4 @@
+
 # block include of file, this is used by many packages
 include.block ("InDetRecExample/InDetRecConditionsAccess.py")
 
@@ -30,7 +31,8 @@ if DetFlags.haveRIO.pixel_on():
     InDetPixelConditionsSummarySvc = PixelConditionsSummarySvc()
   
     #Tool version for athenaMT
-    from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummaryTool
+#    from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummaryTool
+    from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
     InDetPixelConditionsSummaryTool = PixelConditionsSummaryTool()
 
     # Load pixel calibration service
@@ -71,7 +73,8 @@ if DetFlags.haveRIO.pixel_on():
 
         InDetPixelConditionsSummarySvc.DisableCallback = False
         #Alg is suppose to replace service, sync withh service for now
-        from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapCondAlg
+#        from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapCondAlg
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import SpecialPixelMapCondAlg
         InDetSpecialPixelMapCondAlg = SpecialPixelMapCondAlg(name="InDetSpecialPixelMapCondAlg",
                DBFolders  = InDetSpecialPixelMapSvc.DBFolders,
                SpecialPixelMapKeys = InDetSpecialPixelMapSvc.SpecialPixelMapKeys ,
@@ -356,8 +359,8 @@ if DetFlags.haveRIO.SCT_on():
                 condTools.append(condTool)
     InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools = condTools
         
-    # Setup Lorentz angle service.
-    from SiLorentzAngleSvc.SCTLorentzAngleSvcSetup import SCTLorentzAngleSvcSetup
+    # Setup Lorentz angle tool.
+    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
 
     forceUseDB = False
     forceUseGeoModel = False
@@ -369,8 +372,8 @@ if DetFlags.haveRIO.SCT_on():
     else:
         forceUseGeoModel = True
 
-    sctLorentzAngleSvcSetup = SCTLorentzAngleSvcSetup(forceUseDB=forceUseDB, forceUseGeoModel=forceUseGeoModel)
-    SCTLorentzAngleSvc = sctLorentzAngleSvcSetup.SCTLorentzAngleSvc
+    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup(forceUseDB=forceUseDB, forceUseGeoModel=forceUseGeoModel)
+    SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool
             
 #
 # --- Load necessary TRT conditions folders

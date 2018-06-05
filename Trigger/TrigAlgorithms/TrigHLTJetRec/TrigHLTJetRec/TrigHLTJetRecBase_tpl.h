@@ -18,6 +18,8 @@
 #include "TrigHLTJetRec/AnyToPseudoJet.h"
 #include "TrigHLTJetRec/IPseudoJetSelector.h"
 #include "TrigHLTJetRec/ITriggerPseudoJetGetter.h"
+#include "fastjet/ClusterSequence.hh"
+
 
 template<typename InputContainer>
 TrigHLTJetRecBase<InputContainer>::TrigHLTJetRecBase(const std::string& name, 
@@ -200,7 +202,11 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
 
   ATH_MSG_DEBUG("Executing tool " << m_jetBuildTool->name());
   ATH_MSG_DEBUG(m_jetBuildTool->toString(1));
-  auto j_container = build();
+
+  ClusterSequence* clusterSequence{nullptr};
+  JetContainer* j_container{nullptr};
+  status = build(clusterSequence, j_container);
+  if(status != HLT::OK){return HLT::ERROR;}
   
 
   if (j_container == nullptr){
@@ -230,7 +236,7 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
 
   // delete indexMap;
 
-  status = attachJetCollection(outputTE, j_container);
+  status = attachJetCollection(outputTE, j_container, clusterSequence);
   return status;
 }
 
@@ -240,7 +246,9 @@ HLT::ErrorCode
 TrigHLTJetRecBase<InputContainer>::attachJetCollection(HLT::TriggerElement*
                                                        outputTE,
                                                        const xAOD::JetContainer*
-                                                       j_container){
+                                                       j_container,
+                                                       const ClusterSequence*
+                                                       cs){
   
   // We have to explicitly delete the aux store, so get a pointer to it.
   auto auxStore = j_container->getStore();
@@ -249,13 +257,29 @@ TrigHLTJetRecBase<InputContainer>::attachJetCollection(HLT::TriggerElement*
   // label the jet collection according to the sequence.
   // This results in a container name like:
   // xAOD::JetContainer_v1#HLT_a4tcemFS
+
+  /*
   HLT::ErrorCode hltStatus = 
     recordAndAttachFeature(outputTE,
-                           j_container,
+                           cs,
                            key,
-                           m_outputCollectionLabel);
+                           m_outputCollectionLabel+"clusterseq");
+
+  if (hltStatus != HLT::OK) {
+    // this is unrecoverable. report error, and do not try to clean up.
+    ATH_MSG_ERROR("Failed to attach fastjet::ClusterSequence to outputTE "
+                  << " - status" << hltStatus);
+    return hltStatus;
+  }
+  */
+
+  delete cs;
+  HLT::ErrorCode hltStatus =  recordAndAttachFeature(outputTE,
+                                                     j_container,
+                                                     key,
+                                                     m_outputCollectionLabel);
   
-  // cleanup
+  // cleanup if success - leave mess otherwise
   if (hltStatus != HLT::OK) {
     // this is unrecoverable. report error, and do not try to clean up.
     ATH_MSG_ERROR("Failed to attach xAOD::JetContainer into outputTE- status"
@@ -334,10 +358,15 @@ TrigHLTJetRecBase<InputContainer>::getInputContainer(const HLT::TriggerElement*
 //PS 3/4/18}
 
 template<typename InputContainer>
-const xAOD::JetContainer*
-TrigHLTJetRecBase<InputContainer>::defaultBuild() const{
-  return m_jetBuildTool->build();
-
+HLT::ErrorCode
+TrigHLTJetRecBase<InputContainer>::defaultBuild(ClusterSequence*& cs,
+                                                JetContainer*& jc) const{
+  int rc =  m_jetBuildTool->build(cs, jc);
+  if(rc != 0){
+    ATH_MSG_ERROR("Error building jets. Build tool error code "<< rc);
+    return HLT::ERROR;
+  }
+  return HLT::OK;
 }
 
 template<typename InputContainer>

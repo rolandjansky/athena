@@ -23,7 +23,6 @@
 
 
 #include "CxxUtils/stall.h"
-#include <algorithm>
 #include <atomic>
 
 
@@ -44,10 +43,8 @@ T atomic_fetch_max (std::atomic<T>* a, T v,
                     std::memory_order memorder = std::memory_order_seq_cst)
 {
   T orig = a->load (memorder);
-  T max = std::max (orig, v);
-  while (!a->compare_exchange_strong (orig, max, memorder)) {
+  while (v > orig && !a->compare_exchange_strong (orig, v, memorder)) {
     CxxUtils::stall();
-    max = std::max (orig, v);
   }
   return orig;
 }
@@ -67,10 +64,8 @@ T atomic_fetch_min (std::atomic<T>* a, T v,
                     std::memory_order memorder = std::memory_order_seq_cst)
 {
   T orig = a->load (memorder);
-  T min = std::min (orig, v);
-  while (!a->compare_exchange_strong (orig, min, memorder)) {
+  while (v < orig && !a->compare_exchange_strong (orig, v, memorder)) {
     CxxUtils::stall();
-    min = std::min (orig, v);
   }
   return orig;
 }

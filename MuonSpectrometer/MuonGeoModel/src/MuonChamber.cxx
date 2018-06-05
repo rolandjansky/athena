@@ -99,9 +99,9 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
   bool debug   = log.level() <= MSG::DEBUG;
   bool verbose = log.level() <= MSG::VERBOSE;
   if (verbose) log<<MSG::VERBOSE << " Building a MuonChamber for m_station "
-                           << m_station->GetName() << " at zi, fi "
-                           << zi << " " << fi+1 << " is_mirrored " << is_mirrored
-                           << " is assembly = " << isAssembly << endmsg;
+                  << m_station->GetName() << " at zi, fi "
+                  << zi << " " << fi+1 << " is_mirrored " << is_mirrored
+                  << " is assembly = " << isAssembly << endmsg;
   std::string stname(m_station->GetName(), 0, 3);
   MYSQL* mysql=MYSQL::GetPointer();
   //MDT* mdtobj = (MDT*)mysql->GetATechnology("MDT0");
@@ -239,7 +239,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           comp = (StandardComponent*)m_station->GetComponent(mdt_index[i]);
           mdt_half_thick = comp->GetThickness()/2.;
           mdt_pos = -totthick/2. + comp->posz + mdt_half_thick;
-          if (geometry_version.substr(0,1) != "P") mdt_pos += amdbOrigine_along_thickness;
+          mdt_pos += amdbOrigine_along_thickness;
           xtube1 = sign*(mdt_half_thick - (root3 + 1.)*halfpitch);
           xtube2 = sign*(mdt_half_thick - (3*root3 + 1.)*halfpitch);
           strd = &(strd->add( (*frontcyl) << HepGeom::Translate3D(mdt_pos+xtube1, 0., length/2.-halfpitch) ) );
@@ -312,35 +312,33 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
             // if this is a BOG in layout Q, set the CP param:
             //   (both cuts have same length so ok to reset it)
             // std::cout<<"Loop over m_station cutouts "<<ii<<std::endl;
-            if (geometry_version.substr(0,1) != "P") {
-              // lengthShiftCP = cut->lengthY;
-                            // also do here some tweaking to prevent undershoot
-                            //  of the cutouts wrt mother volume:
-                            if ( fabs(cut->dx-600.7)<0.1 ) 
-                            {
-                                cut->dx      = cut->dx + 10.*CLHEP::mm;
-                                cut->widthXs = cut->widthXs + 20.*CLHEP::mm;
-                                cut->widthXl = cut->widthXl + 20.*CLHEP::mm;
-                                //std::cout<<" redefining par.s for BOG1 cutouts "
-                                //<<std::endl;
-                            }
-                            if ( fabs(cut->dx+600.7)<0.1 ) 
-                            {
-                                cut->dx      = cut->dx - 10.*CLHEP::mm;
-                                cut->widthXs = cut->widthXs + 20.*CLHEP::mm;
-                                cut->widthXl = cut->widthXl + 20.*CLHEP::mm;
-                            }
-                            if (fabs(cut->lengthY-180.2)<0.001)
-                            {
-                                cut->lengthY = cut->lengthY+(0.010)*CLHEP::mm;
-                                //imt	    std::cout<<"Redefining "<<stName<<" cut lengthY to "
-                                //imt		     <<cut->lengthY
-                                //imt		     <<std::endl;
-                            }
-                            if (fabs(cut->dy-1019.8)<0.001)
-                            {
-                                cut->dy = 1216.4185-cut->lengthY;
-                            }
+            // lengthShiftCP = cut->lengthY;
+            // also do here some tweaking to prevent undershoot
+            //  of the cutouts wrt mother volume:
+            if ( fabs(cut->dx-600.7)<0.1 )
+            {
+                cut->dx      = cut->dx + 10.*CLHEP::mm;
+                cut->widthXs = cut->widthXs + 20.*CLHEP::mm;
+                cut->widthXl = cut->widthXl + 20.*CLHEP::mm;
+                //std::cout<<" redefining par.s for BOG1 cutouts "
+                //<<std::endl;
+            }
+            if ( fabs(cut->dx+600.7)<0.1 )
+            {
+                cut->dx      = cut->dx - 10.*CLHEP::mm;
+                cut->widthXs = cut->widthXs + 20.*CLHEP::mm;
+                cut->widthXl = cut->widthXl + 20.*CLHEP::mm;
+            }
+            if (fabs(cut->lengthY-180.2)<0.001)
+            {
+                cut->lengthY = cut->lengthY+(0.010)*CLHEP::mm;
+                //imt	    std::cout<<"Redefining "<<stName<<" cut lengthY to "
+                //imt		     <<cut->lengthY
+                //imt		     <<std::endl;
+            }
+            if (fabs(cut->dy-1019.8)<0.001)
+            {
+                cut->dy = 1216.4185-cut->lengthY;
             }
             // create the cutout with the full thickness of the STATION
             cut->setThickness(totthick*1.01);// extra to be sure
@@ -402,9 +400,12 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       double depth = -thickness/2.+d->posz+d->GetThickness()/2.;
       // std::cerr << " nRpc, nDoubletR, depth " << nRpc << " " << nDoubletR 
       //           << " " << depth;
-      if ( nDoubletR == 1 &&  nRpc>1 && depth*previous_depth < 0) nDoubletR++;
+      // BI RPC Chambers have one one doubletR
+      if (!(stname.substr(0,2)=="BI") && nDoubletR == 1 &&  nRpc>1 && depth*previous_depth < 0) nDoubletR++; 
       // std::cerr<<" updated to "<<nDoubletR<<std::endl;
+      
       previous_depth = depth;
+      
     }
     if (cn == "CSC") {nCsc++;}
     if (cn == "TGC") {nTgc++;}        
@@ -512,11 +513,9 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
     zpos = 0.;
     xpos = 0.;
 
-    if (geometry_version.substr(0,1) != "P") {
-      ypos = -thickness/2. + (c->posz+amdbOrigine_along_thickness)+c->GetThickness()/2.;
-      zpos = -length/2. + amdbOrigine_along_length + c->posy + c->dy/2.;
-      xpos = c->posx;
-    }
+    ypos = -thickness/2. + (c->posz+amdbOrigine_along_thickness)+c->GetThickness()/2.;
+    zpos = -length/2. + amdbOrigine_along_length + c->posy + c->dy/2.;
+    xpos = c->posx;
 	
     std::string techname = c->name;
     std::string type = techname.substr(0,3);
@@ -551,7 +550,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         double templengthY = cut->lengthY;
         cut->dx = 0.;
         cut->dy = 0.;
-        if (geometry_version.substr(0,1) != "P" && stName.substr(0,3)=="BOG")
+        if (stName.substr(0,3)=="BOG")
         { // make the cutouts a bit longer
           cut->lengthY=templengthY+31.;
         }
@@ -567,7 +566,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 // not needed (DHW)  double xposcut = 0.;  // rel. to component thickness
 //        double yposcut = -xpos+cut->dx; // rel. to component width
 //        double zposcut = -zpos+cut->dy; // rel. to component length
-//        if (geometry_version.substr(0,1) != "P" && stName.substr(0,3)=="BOG")
+//        if (stName.substr(0,3)=="BOG")
 //        {
           // move the extended cut region out a little
 //          if (cut->dy < 10.) zposcut = -zpos+cut->dy - 15.5;
@@ -689,8 +688,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       if (zi < 0 && !is_mirrored && stName[0] == 'B') { 
         // this (rotation +  shift of halfpitch) will mirror the tube structure w.r.t. the chamber at z>0
          htcomponent = htcomponent*HepGeom::RotateX3D(180.*CLHEP::deg);
-         if (geometry_version.substr(0,3) != "P03" )
-                htcomponent = htcomponent*HepGeom::TranslateZ3D(halfpitch);
+         htcomponent = htcomponent*HepGeom::TranslateZ3D(halfpitch);
       }
           
       // ss - 24-05-2006 I don't really understand if this is needed at all
@@ -801,8 +799,6 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       SpacerBeam* r = new SpacerBeam(c);
       BeamHeight = r->height;
       ypos = c->posx; 
-      double zpos1 = c->posy - length/2. + c->dy/2.;
-      if (geometry_version.substr(0,1) == "P") zpos = zpos1;
       double xpos = (c->posz+amdbOrigine_along_thickness) - thickness/2. + BeamHeight/2.;
       if (type.substr(0,2)=="LB") xpos -=LByShift;
       double angle = 0.;
@@ -914,8 +910,6 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         if (ndivz != 1 || ndivy != 1) log << MSG::ERROR << " RPC segmentation z,y "
                                           << ndivz << " " << ndivy << std::endl;
         double xpos = c->posx;
-        double zpos1 = -length/2. + c->posy+c->dy/2.;
-        if (geometry_version.substr(0,1) == "P") zpos = zpos1; // Preserve layout P03
         // implement really the mirror symmetry
         if (is_mirrored) xpos = -xpos;
 
@@ -988,8 +982,6 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
     } else if (type=="DED" && manager->MinimalGeoFlag() == 0) {
       double xpos = c->posx;
       if (is_mirrored) xpos = -xpos;
-      double zpos1 = -length/2.+c->posy+c->dy/2.;
-      if (geometry_version.substr(0,1) == "P") zpos = zpos1; // Preserve layout P03
       htcomponent = HepGeom::TranslateX3D(ypos)*HepGeom::TranslateY3D(xpos)*HepGeom::TranslateZ3D(zpos);
       //if (stname == "BMS" && (zi == -2 || zi == -4) && c->name == "DED03") 
       //   htcomponent = htcomponent*HepGeom::RotateY3D(180*CLHEP::deg);
@@ -1181,8 +1173,10 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       int ml = 1;
       int tubel = 1;
       int tube = 1;
-      if (ypos > 0.) ml = 2;
+      if (ypos > 5.) ml = 2;// Need >5 instead of >0 because BIS78 is not perfectly centered 
       std::string stag = "ml["+MuonGM::buildString(ml,0)+"]"+techname+"component";
+
+
       GeoNameTag* nm = new GeoNameTag(stag);
       ptrd->add(new GeoIdentifierTag(c->index));
       ptrd->add(nm);
@@ -1348,21 +1342,8 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         int stationEta = 0;
         stationEta = tg->index;
         if (zi<0) stationEta = -stationEta;
-        int nch = 0;
-        int fioff = 0;
         int stationPhi = 0;
-        if (geometry_version.substr(0,1) == "P" || geometry_version.substr(0,3) == "CTB") 
-        {
-          nch = 3;
-          if ( (stName).substr(2,1) == "E"  &&
-               (stName).substr(1,1) != "4" ) nch = 6;
-          fioff = abs(zi);
-          if (fioff>3 && (stName).substr(2,1) == "F")  fioff = fioff-3;
-          stationPhi = fi*nch + fioff;
-        } else 
-	{
-	    stationPhi = MuonGM::stationPhiTGC(stName,fi+1,zi, geometry_version);
-        }
+        stationPhi = MuonGM::stationPhiTGC(stName,fi+1,zi, geometry_version);
         int ttag = 1000*stationPhi+tg->index;
         std::string stag = "stPhiJob["+MuonGM::buildString(ttag,0)
                             +"]"+techname+"tgccomponent";
@@ -1438,16 +1419,17 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           // implement really the mirror symmetry
           if (is_mirrored) xpos = -xpos;
 
-		// ... putting back to here!
-                //                log<<MSG::DEBUG<<" In station "<<stName<<" with "
-                //		   <<nDoubletR<<" doubletR," 
-                //                   <<" RPC "<<(c->name).substr(3,2)
-                //                   <<" has swap flag = "<<rp->iswap
-                //                   <<" ypos, yd, zpos, zd "
-                //                   <<ypos<<" "<<yd<<" "<<zpos<<" "<<zd<<endmsg;
-                //                    htcomponent = HepGeom::TranslateX3D(ypos)*HepGeom::TranslateY3D(xpos)
-                //		      *HepGeom::TranslateZ3D(zpos);
-                //		    xfcomponent = new GeoTransform(htcomponent);
+          // ... putting back to here!
+          //log<<MSG::DEBUG<<" In station "<<stName<<" with "
+          //   <<nDoubletR<<" doubletR," 
+          //   <<" RPC "<<(c->name).substr(3,2)
+           //  <<" has swap flag = "<<rp->iswap
+           //  <<"ypos, zpos, ndivz, ndivy "
+           //  <<ypos<<" "<<zpos<<" "
+           //  <<ndivz << " " << ndivy <<endmsg;
+          //htcomponent = HepGeom::TranslateX3D(ypos)*HepGeom::TranslateY3D(xpos)
+          //		      *HepGeom::TranslateZ3D(zpos);
+          //		    xfcomponent = new GeoTransform(htcomponent);
 
           const RpcIdHelper* rpc_id = manager->rpcIdHelper();
           int stationEta = zi;
@@ -1459,19 +1441,22 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           if (nRpc > 1 && nDoubletR == 2 && ypos>0.) doubletR=2;
           ndbz[doubletR-1]++;
 
-          if (zi <= 0 && !is_mirrored) {
+
+          float zdivision=100.;// point between doubletZ=1 and 2;          
+          if (stname=="BIS"&&std::abs(zi)==7)  zdivision=400.;//BIS78 : RPC8 is smaller than other RPCs
+
+          if    (zi <= 0 && !is_mirrored) {
             // the special cases 
             doubletZ = 1;
-            if (zpos<-100.*CLHEP::mm)    doubletZ=2;
+            if (zpos<-zdivision*CLHEP::mm)    doubletZ=2;
             if (fabs(xpos) > 100.*CLHEP::mm && ndbz[doubletR-1] > 2) {
               doubletZ = 3;
               nfields++;
             }
             if (fabs(xpos) > 100.*CLHEP::mm ) ndbz[doubletR-1]--;
-
           } else {
             doubletZ = 1;
-            if (zpos > 100.*CLHEP::mm) doubletZ=2;
+            if (zpos > zdivision*CLHEP::mm) doubletZ=2;
             if (fabs(xpos) > 100.*CLHEP::mm && ndbz[doubletR-1] > 2) {
               doubletZ = 3;
               nfields++;
@@ -1496,8 +1481,6 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
             doubletPhi++;
             if (doubletPhi>2) doubletPhi=1;
           }
-	  //std::cout<<" doubletPhi = "<<doubletPhi<<std::endl;
-                    
           // never defined fields: set to the lower limit 
           int gasGap      = 1;
           int measuresPhi = 0;
@@ -1682,8 +1665,8 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 
 
 void MuonChamber::setCscReadoutGeom(CscReadoutElement* re, const CscComponent* cc, 
-                                    const Position& ip, std::string gVersion, 
-                                    std::string stName)
+                                    const Position& ip, std::string /*gVersion*/,
+                                    std::string /*stName*/)
 {
   re->m_Ssize = cc->dx1;
   re->m_LongSsize = cc->dx2;
@@ -1719,11 +1702,6 @@ void MuonChamber::setCscReadoutGeom(CscReadoutElement* re, const CscComponent* c
   re->m_Etastripwidth = re->m_Etastrippitch ;
   re->m_Phistripwidth = re->m_Phistrippitch ;
     
-  if (gVersion.substr(0,3) == "P03") {
-    if (stName.substr(0,3) == "CSS") re->m_nPhistripsperlayer = 28;
-    else re->m_nPhistripsperlayer = 44;
-  }
-  
 }
 
 
@@ -1795,7 +1773,7 @@ void MuonChamber::setMdtReadoutGeom(MdtReadoutElement* re, const MdtComponent* c
 
 
 void MuonChamber::setRpcReadoutGeom(RpcReadoutElement* re, const RpcComponent* cc,
-                                    const Position& ip, std::string gVersion,
+                                    const Position& ip, std::string /*gVersion*/,
                                     MuonDetectorManager* manager)
 {
 
@@ -1870,7 +1848,6 @@ void MuonChamber::setRpcReadoutGeom(RpcReadoutElement* re, const RpcComponent* c
      re->m_first_phistrip_s[1] = re->m_phipaneldead + re->m_phistripwidth/2.;
 
   double offset = 0.;
-  if (gVersion.substr(0,3) == "P03") offset = rc->frontendBoardWidth;
 
   for (int is = 0; is < re->m_netastrippanels; ++is) re->m_phistrip_z[is] = -999999.;
   re->m_phistrip_z[0] = -re->m_Zsize/2. + offset + re->m_phistriplength/2.;
@@ -1891,7 +1868,7 @@ void MuonChamber::setRpcReadoutGeom(RpcReadoutElement* re, const RpcComponent* c
 
 void 
 MuonChamber::setTgcReadoutGeom(TgcReadoutElement* re, const TgcComponent* cc,
-                               const Position& ip, std::string gVersion,
+                               const Position& ip, std::string /*gVersion*/,
                                std::string stName)
 {
   re->m_Ssize = cc->dx1;
@@ -1913,19 +1890,11 @@ MuonChamber::setTgcReadoutGeom(TgcReadoutElement* re, const TgcComponent* cc,
   }
 
   MYSQL* mysql = MYSQL::GetPointer();
-  if (gVersion.substr(0,1) == "P" || gVersion.substr(0,3) == "CTB")
-  {
-    char index[2];
-    sprintf(index,"%i", cc->index);
-    re->m_readout_name = stName.substr(0,3) + index;
-    re->m_readoutParams = mysql->GetTgcRPars(re->m_readout_name);
-  } else {
-    char index[2];
-    sprintf(index,"%i", cc->index);
-    //std::cout<<" cc->index = <"<<cc->index<<">"<<std::endl;
-    re->m_readout_name = stName.substr(0,4) + "_" + index;
-    re->m_readoutParams = mysql->GetTgcRPars(tname_index);
-  }
+  char index[2];
+  sprintf(index,"%i", cc->index);
+  //std::cout<<" cc->index = <"<<cc->index<<">"<<std::endl;
+  re->m_readout_name = stName.substr(0,4) + "_" + index;
+  re->m_readoutParams = mysql->GetTgcRPars(tname_index);
 
   if (re->m_readoutParams == 0)
     std::cout << " MuonChamber::setTgcReadoutGeometry: no readoutParams found for key <"

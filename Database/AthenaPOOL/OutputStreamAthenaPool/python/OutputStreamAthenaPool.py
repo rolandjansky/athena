@@ -10,6 +10,7 @@ from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaServices.AthenaServicesConf import AthenaOutputStream
 from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
+from RecExConfig.ObjKeyStore import objKeyStore
 
 def createOutputStream( streamName, fileName = "", asAlg = False, noTag = True ):
    # define athena output stream
@@ -54,6 +55,12 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = True )
       streamInfoTool = MakeEventStreamInfo( streamName + "_MakeEventStreamInfo" )
       streamInfoTool.Key = streamName
       outputStream.HelperTools = [ streamInfoTool ]
+
+   tlist = []
+   for typ, klist in objKeyStore['transient'].getProperties().items():
+      for k in klist:
+         tlist.append (typ + '#' + k)
+   outputStream.TransientItems += tlist
 
    return outputStream
 

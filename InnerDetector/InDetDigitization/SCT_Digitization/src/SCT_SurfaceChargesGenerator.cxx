@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_SurfaceChargesGenerator.h"
@@ -255,6 +255,8 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
     } else {
       m_distortionsTool.disable();
     }
+
+    ATH_CHECK(m_lorentzAngleTool.retrieve());
 
     return StatusCode::SUCCESS;
 }
@@ -830,7 +832,7 @@ void SCT_SurfaceChargesGenerator::setVariables() {
 
   m_center = m_element->center().mag();
 
-  m_tanLorentz = m_element->getTanLorentzAnglePhi();
+  m_tanLorentz = m_lorentzAngleTool->getTanLorentzAngle(m_hashId);
 
   m_isBarrel = m_element->isBarrel();
 }

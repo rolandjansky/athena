@@ -115,7 +115,7 @@ private:
   MM_StripsResponseSimulation & operator=(const MM_StripsResponseSimulation &right);
   MM_StripsResponseSimulation(const MM_StripsResponseSimulation&);
 
-  std::vector<MM_IonizationCluster> IonizationClusters;
+  std::vector<MM_IonizationCluster> m_IonizationClusters;
 
 public :
 

@@ -112,6 +112,8 @@ template <class T>
 void fillit (CondCont<T>& cc, std::vector<T*> & ptrs)
 {
   assert (cc.entries() == 0);
+  assert (cc.entriesTimestamp() == 0);
+  assert (cc.entriesRunLBN() == 0);
   assert (cc.ranges().empty());
   cc.setProxy (nullptr);
   assert (cc.proxy() == nullptr);
@@ -136,6 +138,8 @@ RE: [0]\n");
     assert (CondContBase::Category::isDuplicate (sc));
   }
   assert (cc.entries() == 3);
+  assert (cc.entriesTimestamp() == 1);
+  assert (cc.entriesRunLBN() == 2);
   std::ostringstream ss2;
   cc.list (ss2);
   std::ostringstream exp2;
@@ -209,6 +213,26 @@ void test1 (TestRCUSvc& rcusvc)
   std::vector<B*> bptrs;
   fillit (cc, bptrs);
   checkit (cc, bptrs);
+
+  assert (cc.nInserts() == 3);
+  assert (cc.maxSize() == 3);
+
+  const EventIDRange r4 (timestamp (800), timestamp (899));
+  assert( cc.typelessInsert (r4, new B(4)).isSuccess() );
+  assert (cc.entriesTimestamp() == 2);
+  assert (cc.entriesRunLBN() == 2);
+
+  std::vector<CondCont<B>::key_type> keys1 =
+    { CondContBase::keyFromRunLBN (r2.start()) };
+  std::vector<CondCont<B>::key_type> keys2 =
+    { CondContBase::keyFromTimestamp (r4.start()) };
+  assert (cc.trimRunLBN (keys1) == 1);
+  assert (cc.trimTimestamp (keys2) == 1);
+  assert (cc.entriesTimestamp() == 1);
+  assert (cc.entriesRunLBN() == 1);
+
+  assert (cc.trimRunLBN (keys1) == 0);
+  assert (cc.trimTimestamp (keys2) == 0);
 }
 
 

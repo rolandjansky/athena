@@ -89,7 +89,7 @@ private:
   vector <float> m_qStripElectronics;
   vector <int>   m_nStripElectronics;
 
-  TF1 *h_intFn;
+  TF1 *m_h_intFn;
   // StripsResponseSimulation* m_stripObject ;
   MM_ElectronicsResponseSimulation & operator=(const MM_ElectronicsResponseSimulation &right);
   MM_ElectronicsResponseSimulation(const MM_ElectronicsResponseSimulation&);

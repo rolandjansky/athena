@@ -36,47 +36,48 @@ namespace InDetDD {
  * Concrete class for service providing silicon properties (mobility, etc).
  * for each detector element. These depend on conditions such as temperature.
 **/
-class SiPropertiesSvc:  public AthService, virtual public ISiPropertiesSvc 
-{
-public:
-  SiPropertiesSvc(const std::string& name, ISvcLocator* sl);
-  virtual ~SiPropertiesSvc();
- 
-  virtual StatusCode initialize();          //!< Service init
-  virtual StatusCode finalize();            //!< Service finalize
-  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+class SiPropertiesSvc:  public AthService, virtual public ISiPropertiesSvc {
+  public:
+    SiPropertiesSvc(const std::string& name, ISvcLocator* sl);
+    virtual ~SiPropertiesSvc();
 
-  static const InterfaceID & interfaceID();
+    virtual StatusCode initialize();          //!< Service init
+    virtual StatusCode finalize();            //!< Service finalize
+    virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+
+    static const InterfaceID & interfaceID();
 
 
-  /// Get properties for the detector element.
-  virtual const InDet::SiliconProperties & getSiProperties(const IdentifierHash & elementHash);
+    /// Get properties for the detector element.
+    virtual const InDet::SiliconProperties & getSiProperties(const IdentifierHash & elementHash);
 
-  /// IOV CallBack
-  virtual StatusCode callBack(IOVSVC_CALLBACK_ARGS);
+    /// IOV CallBack
+    virtual StatusCode callBack(IOVSVC_CALLBACK_ARGS);
 
-private:
+  private:
 
-  void updateCache(const IdentifierHash & elementHash);
-  void invalidateCache();
-  bool valid(const IdentifierHash & elementHash);
-  
-private:
+    void updateCache(const IdentifierHash & elementHash);
+    void invalidateCache();
+    bool valid(const IdentifierHash & elementHash);
 
-  // Properties
-  double m_temperatureMin;
-  double m_temperatureMax;
-  std::string m_detectorName;
-  ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
-  ServiceHandle<StoreGateSvc> m_detStore;
+  private:
 
-  bool m_conditionsSvcValid;
+    // Properties
+    double m_temperatureMin;
+    double m_temperatureMax;
+    double m_electronSaturationVelocity;
+    double m_holeSaturationVelocity;
+    std::string m_detectorName;
+    ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
+    ServiceHandle<StoreGateSvc> m_detStore;
 
-  std::vector<InDet::SiliconProperties> m_propertiesCache;
-  std::vector<bool> m_cacheValid;
-  const InDetDD::SiDetectorManager * m_detManager;
+    bool m_conditionsSvcValid;
 
-  std::vector<bool> m_outOfRangeWarning;
+    std::vector<InDet::SiliconProperties> m_propertiesCache;
+    std::vector<bool> m_cacheValid;
+    const InDetDD::SiDetectorManager * m_detManager;
+
+    std::vector<bool> m_outOfRangeWarning;
 
 };
 

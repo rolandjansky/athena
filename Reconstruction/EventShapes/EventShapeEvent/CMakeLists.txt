@@ -7,9 +7,8 @@ atlas_subdir( EventShapeEvent )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           Event/EventKernel
                           Event/NavFourMom )
 
@@ -23,12 +22,12 @@ atlas_add_library( EventShapeEvent
                    PUBLIC_HEADERS EventShapeEvent
                    INCLUDE_DIRS ${FASTJET_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${FASTJET_LIBRARIES} DataModel SGTools EventKernel NavFourMom
+                   LINK_LIBRARIES ${FASTJET_LIBRARIES} AthContainers EventKernel NavFourMom
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( EventShapesDict
                       EventShapeEvent/EventShapeEventDict.h
                       EventShapeEvent/selection.xml
                       INCLUDE_DIRS ${FASTJET_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${FASTJET_LIBRARIES} ${ROOT_LIBRARIES} DataModel SGTools EventKernel NavFourMom EventShapeEvent )
+                      LINK_LIBRARIES ${FASTJET_LIBRARIES} ${ROOT_LIBRARIES} AthContainers EventKernel NavFourMom EventShapeEvent )
 

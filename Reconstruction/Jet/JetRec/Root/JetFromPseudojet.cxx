@@ -5,6 +5,7 @@
 // JetFromPseudojet.cxx
 
 #include "JetRec/JetFromPseudojet.h"
+#include "JetRec/PseudoJetContainer.h"
 #include <iomanip>
 #ifdef USE_BOOST_AUTO
 #include <boost/typeof/typeof.hpp>
@@ -21,20 +22,21 @@
 #include "JetEDM/FastJetLink.h"
 #include "xAODJet/Jet_PseudoJet.icc"
 
+
+#include "xAODJet/JetContainerInfo.h" // DEBUG REMOVE FIXME
+
 using std::setw;
 using xAOD::JetContainer;
 using fastjet::PseudoJet;
 using jet::JetConstituentFiller;
 
 typedef std::vector<PseudoJet> PseudoJetVector;
-typedef IJetFromPseudojet::NameList NameList;
 
 //**********************************************************************
 
 JetFromPseudojet::JetFromPseudojet(std::string name)
   :   AsgTool(name), m_doArea(false), m_doFourVecArea(false) {
   declareProperty("Attributes", m_atts);
-  declareProperty("IsTrigger", m_isTrigger=false);
 
 }
 
@@ -101,10 +103,12 @@ buildAndSetEMScaleMom(xAOD::Jet* jet,
 //**********************************************************************
 
 xAOD::Jet*
-JetFromPseudojet::add(const PseudoJet& pj, xAOD::JetContainer& jets,
-                      xAOD::JetInput::Type inputtype, const NameList& ghostlabs) const {
+JetFromPseudojet::add(const PseudoJet& pj,
+                        const PseudoJetContainer& pjContainer,
+                        xAOD::JetContainer& jets,
+                        xAOD::JetInput::Type inputtype) const {
   const xAOD::Jet* pparent = nullptr;
-  xAOD::Jet* pjet = addjet(pj, jets, pparent, &ghostlabs);
+  xAOD::Jet* pjet = addjet(pj, pjContainer, jets, pparent);
   if ( pjet == nullptr ) return pjet;
   // Set the jet's input type.
   ATH_MSG_VERBOSE("Setting input type.");
@@ -112,6 +116,11 @@ JetFromPseudojet::add(const PseudoJet& pj, xAOD::JetContainer& jets,
   // Set the jet's constituent scale.
   // Calibrated for all but EMTopo.
   ATH_MSG_VERBOSE("Done add with input");
+
+  //DEBUG REMOVE !! FIXME!!
+  ATH_MSG_VERBOSE("Supplied input type: " <<
+                  xAOD::JetInput::typeName(inputtype));
+  
   if ( (inputtype == xAOD::JetInput::EMTopo ) ||
        (inputtype == xAOD::JetInput::EMPFlow ) ) {
     ATH_MSG_VERBOSE("Setting constituent state to uncalibrated state");
@@ -130,16 +139,20 @@ JetFromPseudojet::add(const PseudoJet& pj, xAOD::JetContainer& jets,
 //**********************************************************************
 
 xAOD::Jet*
-JetFromPseudojet::add(const PseudoJet& pj, xAOD::JetContainer& jets,
-                      const xAOD::Jet* pparent) const {
-  return addjet(pj, jets, pparent, 0);
+JetFromPseudojet::add(const PseudoJet& pj,
+                        const PseudoJetContainer& pjContainer,
+                        xAOD::JetContainer& jets,
+                        const xAOD::Jet* pparent) const {
+  return addjet(pj, pjContainer, jets, pparent);
 }
 
 //**********************************************************************
 
 xAOD::Jet*
-JetFromPseudojet::addjet(const PseudoJet& pj, xAOD::JetContainer& jets,
-                         const xAOD::Jet* pparent, const NameList* pghostlabs) const {
+JetFromPseudojet::addjet(const PseudoJet& pj,
+                           const PseudoJetContainer& pjContainer,
+                           xAOD::JetContainer& jets,
+                           const xAOD::Jet* pparent) const {
   ATH_MSG_VERBOSE("Creating jet from PseudoJet @ " << &pj);
   double  px = pj.px();
   double  py = pj.py();
@@ -214,18 +227,7 @@ JetFromPseudojet::addjet(const PseudoJet& pj, xAOD::JetContainer& jets,
 
   const PseudoJetVector pjcons = pj.constituents();
   ATH_MSG_VERBOSE("  Adding constituents: multiplicity is " << pjcons.size());
-  JetConstituentFiller confiller(m_isTrigger);
-  if ( pparent == 0 ) {
-    ATH_MSG_VERBOSE("  No parent jet.");
-
-    int nconskip = confiller.extractConstituents(*pjet, pghostlabs, &pj);
-    
-    if ( nconskip < 0 ) {
-      ATH_MSG_WARNING("  Jet constituent filler returned error " << nconskip);
-    }
-    ATH_MSG_DEBUG("  Real/total/skipped constituents: " << pjet->numConstituents()
-		  << "/" << pjcons.size() << "/" << nconskip);
-  } else {
+  if ( pparent != 0 ) {
     ATH_MSG_VERBOSE("  Adding parent jet properties");
     const JetContainer* pcon = dynamic_cast<const JetContainer*>(pparent->container());
     if ( pcon == 0 ) {
@@ -249,17 +251,11 @@ JetFromPseudojet::addjet(const PseudoJet& pj, xAOD::JetContainer& jets,
     ATH_MSG_VERBOSE("  Setting ghost area from parent.");
     pjet->setAttribute("JetGhostArea", pparent->getAttribute<float>("JetGhostArea"));
 
-    int nconskip = confiller.extractConstituents(*pjet, pghostlabs, &pj);
-    if ( nconskip < 0 ) {
-      ATH_MSG_WARNING("  Jet constituent filler returned error " << nconskip);
-    }
-    ATH_MSG_DEBUG("  Real/total/skipped constituents: " << pjet->numConstituents()
-		  << "/" << pjcons.size() << "/" << nconskip);
-
     ATH_MSG_VERBOSE("  Setting EM scale momentum.");
     buildAndSetEMScaleMom(pjet, inputtype );
   }
   ATH_MSG_VERBOSE("Done add with parent");
+  pjContainer.extractConstituents(*pjet, pj);
   return pjet;
 }
 

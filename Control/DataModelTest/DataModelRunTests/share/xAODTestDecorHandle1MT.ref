@@ -2,7 +2,6 @@ Fri Feb  2 16:13:28 CET 2018
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO using release [WorkDir-22.0.0] [x86_64-slc6-gcc62-dbg] [atlas-work3g/fe158bca093] -- built on [2018-02-02T1445]
-Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO configuring AthenaHive with [1] concurrent threads and [1] concurrent events

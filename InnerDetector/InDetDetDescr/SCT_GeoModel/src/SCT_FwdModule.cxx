@@ -49,7 +49,7 @@
 inline double sqr(double x) {return x*x;}
 
 SCT_FwdModule::SCT_FwdModule(const std::string & name, int ringType)
-	: SCT_UniqueComponentFactory(name), m_ringType(ringType)
+  : SCT_UniqueComponentFactory(name), m_ringType(ringType)
 {
 
   getParameters();
@@ -63,13 +63,12 @@ SCT_FwdModule::SCT_FwdModule(const std::string & name, int ringType)
     m_connector = new SCT_FwdModuleConnector("SCT_FwdModuleConnector"+intToString(ringType), m_ringType);
   }
   else {
-    //std::cout << "SCT_FwdModuleConnector not built" << std::endl;
     m_connector = NULL;
   }
 
   m_logVolume = preBuild();
 
-}	
+}
 
 SCT_FwdModule::~SCT_FwdModule()
 {
@@ -86,7 +85,7 @@ void
 SCT_FwdModule::getParameters()
 {
   const SCT_ForwardModuleParameters * parameters = geometryManager()->forwardModuleParameters();
-   // m_safety = geometryManager()->safety();
+  // m_safety = geometryManager()->safety();
   m_glueThickness = parameters->fwdModuleGlueThickness(m_ringType);
   m_distBtwMountPoints = parameters->fwdModuleDistBtwMountPoints(m_ringType);
   m_mountPointToCenter = parameters->fwdModuleMountPoint(m_ringType);
@@ -116,9 +115,6 @@ const GeoLogVol * SCT_FwdModule::preBuild()
   //  module_thickness = (zhyb->hybz0 * 2 + safety) * CLHEP::cm;
   double sensorEnvelopeThickness = 2 * m_sensor->thickness() + m_spine->thickness() + 2 * m_glueThickness;
   m_thickness = std::max(sensorEnvelopeThickness,  m_hybrid->thickness());
-  //  std::cout << "sensor envelope thickness " << sensorEnvelopeThickness << std::endl;
-  //  std::cout << "hybrid thickness " << m_hybrid->thickness() << std::endl;
-
 
   // module_widthInner = ((zsmo->subdq + zssp[m_ringType].ssp0l + 0.325) * 2.+ 0.7 + safety)*CLHEP::cm;   // upto to NOVA_760
   // module_widthOuter = ((zsmo->subdq + zssp[m_ringType].ssp2l + 0.325) * 2.+ 0.7 + safety)*CLHEP::cm;   // upto to NOVA_760
@@ -135,7 +131,6 @@ const GeoLogVol * SCT_FwdModule::preBuild()
     //  module_widthOuter = (( zsmo->subdq + zssp[m_ringType].ssp2l + 0.325) * 2.+ 1.6 + safety)*CLHEP::cm;  // upto to NOVA_760
     //  module_widthOuter = (( zsmo->subdq + zssp[m_ringType].ssp2l) * 2.+ 1.6 + safety)*CLHEP::cm; 
     m_widthOuter = m_spine->width() + 2 * m_subspineL->outerWidth() + 1.6*CLHEP::cm + safetyTmp; 
-		    
   }  
     
   // Calculate module shift. Distance between module physics center and center of envelope.  
@@ -157,17 +152,6 @@ const GeoLogVol * SCT_FwdModule::preBuild()
   m_secMountPoint =  m_mainMountPoint +  hybridSign * m_distBtwMountPoints;
   m_endLocator =  m_sensor->centerRadius() + hybridSign * m_spine->moduleCenterToEnd();
 
-  //  std::cout << "SCT_FwdModule: " << std::endl; 
-  //  std::cout << "  ringType = " << m_ringType << std::endl;
-  //  std::cout << "  sensorCenterRadius = " << m_sensor->centerRadius() << std::endl;
-  //  std::cout << "  innerRadius = " << m_innerRadius << std::endl;
-  //  std::cout << "  outerRadius = " << m_outerRadius << std::endl;
-  //  std::cout << "  module_widthInner = " << m_widthInner << std::endl;
-  //  std::cout << "  module_widthOuter = " << m_widthOuter << std::endl;
-  //  std::cout << "  module_length = " << m_length << std::endl;
-  //  std::cout << "  module_thickness = " << m_thickness << std::endl;
-
-
   // Outer module the hybrid is on inner edge.
   // For the rest its in the outer edge.
   // TODO Check this.
@@ -175,8 +159,8 @@ const GeoLogVol * SCT_FwdModule::preBuild()
  
 
   const GeoTrd * moduleEnvelopeShape = new GeoTrd(0.5 * m_thickness, 0.5 * m_thickness,
-						  0.5 * m_widthInner, 0.5 * m_widthOuter,  
-						  0.5 * m_length);
+                                                  0.5 * m_widthInner, 0.5 * m_widthOuter,  
+                                                  0.5 * m_length);
   const GeoShapeShift & moduleEnvelope = (*moduleEnvelopeShape << HepGeom::TranslateZ3D(m_moduleShift) );
   
   SCT_MaterialManager materials;
@@ -185,52 +169,6 @@ const GeoLogVol * SCT_FwdModule::preBuild()
   return moduleLog;
 
 }
-
-/*
-GeoVPhysVol* SCT_FwdModule::build(SCT_Identifier id, GeoTransform * position, GeoPhysVol * world)
-{
-
-  m_physVolume = build(id);
-  return m_physVolume;
-  // this build method put all components of module into world on position
-  GeoNameTag * SCTtag = new GeoNameTag("SCT");
- 
-  world->add(SCTtag);  
-  if (position != NULL) world->add(position);
-  world->add(m_hybrid->getVolume());
-  
-  world->add(SCTtag);
-  if (position != NULL) world->add(position);
-  world->add(m_spine->getVolume());
-
-  world->add(SCTtag);
-  if (position != NULL) world->add(position);
-  world->add(m_subspineL->getVolume());
-
-  world->add(SCTtag);
-  if (position != NULL) world->add(position);
-  world->add(m_subspineR->getVolume());
-
-  world->add(SCTtag);
-  if (position != NULL) world->add(position);
-  world->add(m_sensor->getVolume());
-
-  world->add(SCTtag);
-  if (position != NULL) world->add(position);
-  world->add(m_sensor->getVolume());
-
-  if (m_ringType == 2)
-  	{ world->add(SCTtag);
-	  if (position != NULL) world->add(position);
-          world->add(m_sensor->getInactive());
-	  
-	  world->add(SCTtag);
-	  if (position != NULL) world->add(position);
-	  world->add(m_sensor->getInactive());
-	};  
-
-}
-*/
 
 GeoVPhysVol * SCT_FwdModule::build(SCT_Identifier id) const
 {
@@ -293,7 +231,7 @@ GeoVPhysVol * SCT_FwdModule::build(SCT_Identifier id) const
   // Then rotate and then translate in x.
   GeoAlignableTransform *topTransform  
     = new GeoAlignableTransform(HepGeom::Transform3D(rotT,vecT)*HepGeom::TranslateZ3D(positionZ));
-	      
+       
   int topSideNumber = m_upperSide;
   id.setSide(topSideNumber);
   module->add(new GeoNameTag("Sensor_Side#"+intToString(topSideNumber)));
@@ -313,4 +251,3 @@ GeoVPhysVol * SCT_FwdModule::build(SCT_Identifier id) const
   return module;
 
 }
-

@@ -153,18 +153,18 @@ SCT_InnerSide::preBuild()
   // Make an envelope for the whole module.
   //
   const GeoBox * ise1Shape = new GeoBox(0.5 * t_ise1,
-					0.5 * w_ise1,
-					0.5 * l_ise1);
+                                        0.5 * w_ise1,
+                                        0.5 * l_ise1);
   const GeoBox * ise2Shape = new GeoBox(0.5 * t_ise2,
-					0.5 * w_ise2,
-					0.5 * l_ise2);
+                                        0.5 * w_ise2,
+                                        0.5 * l_ise2);
 
   const GeoShape & InnerSideEnvelopeShape = (*ise1Shape).
     add(*ise2Shape << HepGeom::Translate3D(ise2PosX, ise2PosY, ise2PosZ));
 
   const GeoLogVol * InnerSideEnvelopeLog = new GeoLogVol("InnerSideEnvelope",
-							       &InnerSideEnvelopeShape,
-							       materials.gasMaterial());
+                                                         &InnerSideEnvelopeShape,
+                                                         materials.gasMaterial());
   // 28th Mar S.Mima modified
   // *** 16:30 Wed 15th Jun 2005 D.Naito modified. (00)*********************************
   //m_thickness = 0.5*t_sensor + hybridPosX + 0.5*t_ise2;

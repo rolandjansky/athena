@@ -12,11 +12,21 @@
 
 #include "JetInterface/IJetBuildTool.h"
 #include "xAODBase/IParticleContainer.h"
+#include "xAODJet/JetContainer.h"
+#include "AsgTools/IAsgTool.h"
 #include <string>
 
 class PseudoJetContainer;
 
-class ITriggerJetBuildTool: virtual public IJetBuildTool {
+namespace fastjet{
+  class ClusterSequence;
+}
+
+using fastjet::ClusterSequence;
+using xAOD::JetContainer;
+
+// class ITriggerJetBuildTool: virtual public IJetBuildTool {
+class ITriggerJetBuildTool: virtual public asg::IAsgTool {
 ASG_TOOL_INTERFACE(ITriggerJetBuildTool)
 
 public:
@@ -26,6 +36,7 @@ public:
   // set inputs for jet finding. label is a type flag used 
   // for IParticle selection
   virtual void prime(const xAOD::IParticleContainer*) = 0;
+  virtual int build(ClusterSequence*&, JetContainer*&) const = 0;
   
   // Allow owner Algorithm to reset the Pseudojets (no managed by the evt store)
   virtual void resetInputs() = 0;

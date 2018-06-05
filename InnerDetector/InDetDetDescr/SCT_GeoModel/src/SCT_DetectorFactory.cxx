@@ -62,7 +62,7 @@ using InDetDD::SCT_DetectorManager;
 using InDetDD::SiCommonItems; 
 
 SCT_DetectorFactory::SCT_DetectorFactory(const SCT_GeoModelAthenaComps * athenaComps,
-					 const SCT_Options & options)
+                                         const SCT_Options & options)
   : InDetDD::DetectorFactoryBase(athenaComps) 
 { 
   
@@ -82,7 +82,7 @@ SCT_DetectorFactory::SCT_DetectorFactory(const SCT_GeoModelAthenaComps * athenaC
  
   // Create SiCommonItems. These are items that are shared by all elements
   SiCommonItems * commonItems = new SiCommonItems(athenaComps->getIdHelper());
-  commonItems->setLorentzAngleSvc(athenaComps->lorentzAngleSvc());
+  commonItems->setLorentzAngleTool(athenaComps->lorentzAngleTool());
   m_geometryManager->setCommonItems(commonItems);
   
 
@@ -108,12 +108,12 @@ SCT_DetectorFactory::SCT_DetectorFactory(const SCT_GeoModelAthenaComps * athenaC
   int versionMinorNumber = 6;
   int versionPatchNumber = 0;
   InDetDD::Version version(versionTag,
-			   versionName, 
-			   layout, 
-			   description, 
-			   versionMajorNumber,
-			   versionMinorNumber,
-			   versionPatchNumber);
+                           versionName, 
+                           layout, 
+                           description, 
+                           versionMajorNumber,
+                           versionMinorNumber,
+                           versionPatchNumber);
   m_detectorManager->setVersion(version);
 
   // Initailize some static variables in various classes/
@@ -210,8 +210,8 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
     idFwdPlus.setBarrelEC(2);
     GeoVPhysVol * forwardPlusPV = sctForwardPlus.build(idFwdPlus);
     HepGeom::Transform3D fwdTransformPlus(sctTransform 
-				    * sctGeneral->partTransform(forwardPlusLabel) 
-				    * HepGeom::TranslateZ3D(sctForwardPlus.zCenter()));
+                                          * sctGeneral->partTransform(forwardPlusLabel) 
+                                          * HepGeom::TranslateZ3D(sctForwardPlus.zCenter()));
     GeoAlignableTransform * fwdGeoTransformPlus = new GeoAlignableTransform(fwdTransformPlus);
     
     //indet->add(new GeoNameTag("SCT_ForwardPlus"));
@@ -247,9 +247,9 @@ void SCT_DetectorFactory::create(GeoPhysVol *world)
     rot = HepGeom::RotateY3D(180 * CLHEP::degree);
   
     HepGeom::Transform3D fwdTransformMinus(sctTransform  
-				     * sctGeneral->partTransform(forwardMinusLabel)  
-				     * rot  
-				     * HepGeom::TranslateZ3D(sctForwardMinus.zCenter()));
+                                           * sctGeneral->partTransform(forwardMinusLabel)  
+                                           * rot  
+                                           * HepGeom::TranslateZ3D(sctForwardMinus.zCenter()));
     GeoAlignableTransform * fwdGeoTransformMinus = new GeoAlignableTransform(fwdTransformMinus);
 
     //indet->add(new GeoNameTag("SCT_ForwardMinus"));

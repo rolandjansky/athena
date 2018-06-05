@@ -21,21 +21,21 @@ namespace egammaMonitoring {
     tConvRC2SiTRT_pT_Eff = new TH1D("tConvRConv2SiTRT_pT_Eff", ";p_{T} [GeV];p_{T} Efficiency truthConvRecoConv2SiTRT", 200, 0, 200);
     tConvRUnconv_pT_Eff  = new TH1D("tConvRUnconv_pT_Eff"    , ";p_{T} [GeV];p_{T} Efficiency truthConvRecoUnconv"    , 200, 0, 200);
 
-    tConvRConv_eta_Eff    = new TH1D("tConvRConv_eta_Eff"      , ";#eta;#eta Efficiency truthConvRecoConv"      , 200, -3, 3);
-    tConvRC1Si_eta_Eff    = new TH1D("tConvRConv1Si_eta_Eff"   , ";#eta;#eta Efficiency truthConvRecoConv1Si"   , 200, -3, 3);
-    tConvRC1TRT_eta_Eff   = new TH1D("tConvRConv1TRT_eta_Eff"  , ";#eta;#eta Efficiency truthConvRecoConv1TRT"  , 200, -3, 3);
-    tConvRC2Si_eta_Eff    = new TH1D("tConvRConv2Si_eta_Eff"   , ";#eta;#eta Efficiency truthConvRecoConv2Si"   , 200, -3, 3);
-    tConvRC2TRT_eta_Eff   = new TH1D("tConvRConv2TRT_eta_Eff"  , ";#eta;#eta Efficiency truthConvRecoConv2TRT"  , 200, -3, 3);
-    tConvRC2SiTRT_eta_Eff = new TH1D("tConvRConv2SiTRT_eta_Eff", ";#eta;#eta Efficiency truthConvRecoConv2SiTRT", 200, -3, 3);
-    tConvRUnconv_eta_Eff  = new TH1D("tConvRUnconv_eta_Eff"    , ";#eta;#eta Efficiency truthConvRecoUnconv"    , 200, -3, 3);
+    tConvRConv_eta_Eff    = new TH1D("tConvRConv_eta_Eff"      , ";#eta;#eta Efficiency truthConvRecoConv"      , 120, -3, 3);
+    tConvRC1Si_eta_Eff    = new TH1D("tConvRConv1Si_eta_Eff"   , ";#eta;#eta Efficiency truthConvRecoConv1Si"   , 120, -3, 3);
+    tConvRC1TRT_eta_Eff   = new TH1D("tConvRConv1TRT_eta_Eff"  , ";#eta;#eta Efficiency truthConvRecoConv1TRT"  , 120, -3, 3);
+    tConvRC2Si_eta_Eff    = new TH1D("tConvRConv2Si_eta_Eff"   , ";#eta;#eta Efficiency truthConvRecoConv2Si"   , 120, -3, 3);
+    tConvRC2TRT_eta_Eff   = new TH1D("tConvRConv2TRT_eta_Eff"  , ";#eta;#eta Efficiency truthConvRecoConv2TRT"  , 120, -3, 3);
+    tConvRC2SiTRT_eta_Eff = new TH1D("tConvRConv2SiTRT_eta_Eff", ";#eta;#eta Efficiency truthConvRecoConv2SiTRT", 120, -3, 3);
+    tConvRUnconv_eta_Eff  = new TH1D("tConvRUnconv_eta_Eff"    , ";#eta;#eta Efficiency truthConvRecoUnconv"    , 120, -3, 3);
 
-    tConvRConv_phi_Eff    = new TH1D("tConvRConv_phi_Eff"      , ";#phi;#phi Efficiency truthConvRecoConv"      , 100, -TMath::Pi(), TMath::Pi());
-    tConvRC1Si_phi_Eff    = new TH1D("tConvRConv1Si_phi_Eff"   , ";#phi;#phi Efficiency truthConvRecoConv1Si"   , 100, -TMath::Pi(), TMath::Pi());
-    tConvRC1TRT_phi_Eff   = new TH1D("tConvRConv1TRT_phi_Eff"  , ";#phi;#phi Efficiency truthConvRecoConv1TRT"  , 100, -TMath::Pi(), TMath::Pi());
-    tConvRC2Si_phi_Eff    = new TH1D("tConvRConv2Si_phi_Eff"   , ";#phi;#phi Efficiency truthConvRecoConv2Si"   , 100, -TMath::Pi(), TMath::Pi());
-    tConvRC2TRT_phi_Eff   = new TH1D("tConvRConv2TRT_phi_Eff"  , ";#phi;#phi Efficiency truthConvRecoConv2TRT"  , 100, -TMath::Pi(), TMath::Pi());
-    tConvRC2SiTRT_phi_Eff = new TH1D("tConvRConv2SiTRT_phi_Eff", ";#phi;#phi Efficiency truthConvRecoConv2SiTRT", 100, -TMath::Pi(), TMath::Pi());
-    tConvRUnconv_phi_Eff  = new TH1D("tConvRUnconv_phi_Eff"    , ";#phi;#phi Efficiency truthConvRecoUnconv"    , 100, -TMath::Pi(), TMath::Pi());
+    tConvRConv_phi_Eff    = new TH1D("tConvRConv_phi_Eff"      , ";#phi;#phi Efficiency truthConvRecoConv"      , 50, -TMath::Pi(), TMath::Pi());
+    tConvRC1Si_phi_Eff    = new TH1D("tConvRConv1Si_phi_Eff"   , ";#phi;#phi Efficiency truthConvRecoConv1Si"   , 50, -TMath::Pi(), TMath::Pi());
+    tConvRC1TRT_phi_Eff   = new TH1D("tConvRConv1TRT_phi_Eff"  , ";#phi;#phi Efficiency truthConvRecoConv1TRT"  , 50, -TMath::Pi(), TMath::Pi());
+    tConvRC2Si_phi_Eff    = new TH1D("tConvRConv2Si_phi_Eff"   , ";#phi;#phi Efficiency truthConvRecoConv2Si"   , 50, -TMath::Pi(), TMath::Pi());
+    tConvRC2TRT_phi_Eff   = new TH1D("tConvRConv2TRT_phi_Eff"  , ";#phi;#phi Efficiency truthConvRecoConv2TRT"  , 50, -TMath::Pi(), TMath::Pi());
+    tConvRC2SiTRT_phi_Eff = new TH1D("tConvRConv2SiTRT_phi_Eff", ";#phi;#phi Efficiency truthConvRecoConv2SiTRT", 50, -TMath::Pi(), TMath::Pi());
+    tConvRUnconv_phi_Eff  = new TH1D("tConvRUnconv_phi_Eff"    , ";#phi;#phi Efficiency truthConvRecoUnconv"    , 50, -TMath::Pi(), TMath::Pi());
 
     tConvRConv_CR_Eff    = new TH1D("tConvRConv_CR_Eff"      , ";Conversion Radius [mm];Conversion Radius Efficiency truthConvRecoConv"      , 14, m_cR_bins);
     tConvRC1Si_CR_Eff    = new TH1D("tConvRConv1Si_CR_Eff"   , ";Conversion Radius [mm];Conversion Radius Efficiency truthConvRecoConv1Si"   , 14, m_cR_bins);
@@ -61,21 +61,21 @@ namespace egammaMonitoring {
     tUnconvRC2SiTRT_pT_Eff = new TH1D("tUnconvRConv2SiTRT_pT_Eff", ";p_{T} [GeV];p_{T} Efficiency truthUnconvRecoConv2SiTRT", 200, 0, 200);
     tUnconvRUnconv_pT_Eff  = new TH1D("tUnconvRUnconv_pT_Eff"    , ";p_{T} [GeV];p_{T} Efficiency truthUnconvRecoUnconv"    , 200, 0, 200);
 
-    tUnconvRConv_eta_Eff    = new TH1D("tUnconvRConv_eta_Eff"      , ";#eta;#eta Efficiency truthUnconvRecoConv"      , 200, -3, 3);
-    tUnconvRC1Si_eta_Eff    = new TH1D("tUnconvRConv1Si_eta_Eff"   , ";#eta;#eta Efficiency truthUnconvRecoConv1Si"   , 200, -3, 3);
-    tUnconvRC1TRT_eta_Eff   = new TH1D("tUnconvRConv1TRT_eta_Eff"  , ";#eta;#eta Efficiency truthUnconvRecoConv1TRT"  , 200, -3, 3);
-    tUnconvRC2Si_eta_Eff    = new TH1D("tUnconvRConv2Si_eta_Eff"   , ";#eta;#eta Efficiency truthUnconvRecoConv2Si"   , 200, -3, 3);
-    tUnconvRC2TRT_eta_Eff   = new TH1D("tUnconvRConv2TRT_eta_Eff"  , ";#eta;#eta Efficiency truthUnconvRecoConv2TRT"  , 200, -3, 3);
-    tUnconvRC2SiTRT_eta_Eff = new TH1D("tUnconvRConv2SiTRT_eta_Eff", ";#eta;#eta Efficiency truthUnconvRecoConv2SiTRT", 200, -3, 3);
-    tUnconvRUnconv_eta_Eff  = new TH1D("tUnconvRUnconv_eta_Eff"    , ";#eta;#eta Efficiency truthUnconvRecoUnconv"    , 200, -3, 3);
+    tUnconvRConv_eta_Eff    = new TH1D("tUnconvRConv_eta_Eff"      , ";#eta;#eta Efficiency truthUnconvRecoConv"      , 120, -3, 3);
+    tUnconvRC1Si_eta_Eff    = new TH1D("tUnconvRConv1Si_eta_Eff"   , ";#eta;#eta Efficiency truthUnconvRecoConv1Si"   , 120, -3, 3);
+    tUnconvRC1TRT_eta_Eff   = new TH1D("tUnconvRConv1TRT_eta_Eff"  , ";#eta;#eta Efficiency truthUnconvRecoConv1TRT"  , 120, -3, 3);
+    tUnconvRC2Si_eta_Eff    = new TH1D("tUnconvRConv2Si_eta_Eff"   , ";#eta;#eta Efficiency truthUnconvRecoConv2Si"   , 120, -3, 3);
+    tUnconvRC2TRT_eta_Eff   = new TH1D("tUnconvRConv2TRT_eta_Eff"  , ";#eta;#eta Efficiency truthUnconvRecoConv2TRT"  , 120, -3, 3);
+    tUnconvRC2SiTRT_eta_Eff = new TH1D("tUnconvRConv2SiTRT_eta_Eff", ";#eta;#eta Efficiency truthUnconvRecoConv2SiTRT", 120, -3, 3);
+    tUnconvRUnconv_eta_Eff  = new TH1D("tUnconvRUnconv_eta_Eff"    , ";#eta;#eta Efficiency truthUnconvRecoUnconv"    , 120, -3, 3);
 
-    tUnconvRConv_phi_Eff    = new TH1D("tUnconvRConv_phi_Eff"      , ";#phi;#phi Efficiency truthUnconvRecoConv"      , 100, -TMath::Pi(), TMath::Pi());
-    tUnconvRC1Si_phi_Eff    = new TH1D("tUnconvRConv1Si_phi_Eff"   , ";#phi;#phi Efficiency truthUnconvRecoConv1Si"   , 100, -TMath::Pi(), TMath::Pi());
-    tUnconvRC1TRT_phi_Eff   = new TH1D("tUnconvRConv1TRT_phi_Eff"  , ";#phi;#phi Efficiency truthUnconvRecoConv1TRT"  , 100, -TMath::Pi(), TMath::Pi());
-    tUnconvRC2Si_phi_Eff    = new TH1D("tUnconvRConv2Si_phi_Eff"   , ";#phi;#phi Efficiency truthUnconvRecoConv2Si"   , 100, -TMath::Pi(), TMath::Pi());
-    tUnconvRC2TRT_phi_Eff   = new TH1D("tUnconvRConv2TRT_phi_Eff"  , ";#phi;#phi Efficiency truthUnconvRecoConv2TRT"  , 100, -TMath::Pi(), TMath::Pi());
-    tUnconvRC2SiTRT_phi_Eff = new TH1D("tUnconvRConv2SiTRT_phi_Eff", ";#phi;#phi Efficiency truthUnconvRecoConv2SiTRT", 100, -TMath::Pi(), TMath::Pi());
-    tUnconvRUnconv_phi_Eff  = new TH1D("tUnconvRUnconv_phi_Eff"    , ";#phi;#phi Efficiency truthUnconvRecoUnconv"    , 100, -TMath::Pi(), TMath::Pi());
+    tUnconvRConv_phi_Eff    = new TH1D("tUnconvRConv_phi_Eff"      , ";#phi;#phi Efficiency truthUnconvRecoConv"      , 50, -TMath::Pi(), TMath::Pi());
+    tUnconvRC1Si_phi_Eff    = new TH1D("tUnconvRConv1Si_phi_Eff"   , ";#phi;#phi Efficiency truthUnconvRecoConv1Si"   , 50, -TMath::Pi(), TMath::Pi());
+    tUnconvRC1TRT_phi_Eff   = new TH1D("tUnconvRConv1TRT_phi_Eff"  , ";#phi;#phi Efficiency truthUnconvRecoConv1TRT"  , 50, -TMath::Pi(), TMath::Pi());
+    tUnconvRC2Si_phi_Eff    = new TH1D("tUnconvRConv2Si_phi_Eff"   , ";#phi;#phi Efficiency truthUnconvRecoConv2Si"   , 50, -TMath::Pi(), TMath::Pi());
+    tUnconvRC2TRT_phi_Eff   = new TH1D("tUnconvRConv2TRT_phi_Eff"  , ";#phi;#phi Efficiency truthUnconvRecoConv2TRT"  , 50, -TMath::Pi(), TMath::Pi());
+    tUnconvRC2SiTRT_phi_Eff = new TH1D("tUnconvRConv2SiTRT_phi_Eff", ";#phi;#phi Efficiency truthUnconvRecoConv2SiTRT", 50, -TMath::Pi(), TMath::Pi());
+    tUnconvRUnconv_phi_Eff  = new TH1D("tUnconvRUnconv_phi_Eff"    , ";#phi;#phi Efficiency truthUnconvRecoUnconv"    , 50, -TMath::Pi(), TMath::Pi());
 
     tUnconvRConv_CR_Eff    = new TH1D("tUnconvRConv_CR_Eff"      , ";Conversion Radius [mm];Conversion Radius Efficiency truthUnconvRecoConv"      , 14, m_cR_bins);
     tUnconvRC1Si_CR_Eff    = new TH1D("tUnconvRConv1Si_CR_Eff"   , ";Conversion Radius [mm];Conversion Radius Efficiency truthUnconvRecoConv1Si"   , 14, m_cR_bins);

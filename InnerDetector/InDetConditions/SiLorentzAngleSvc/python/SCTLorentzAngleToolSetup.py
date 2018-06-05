@@ -13,6 +13,19 @@ class SCTLorentzAngleToolSetup:
         if not forceUseGeoModel:
             from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
             sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+
+            # For HLT
+            from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+            if athenaCommonFlags.isOnline():
+                sct_DCSConditionsToolSetup.setReadAllDBFolders(False)
+                from AthenaCommon.GlobalFlags import globalflags
+                if globalflags.DataSource() == "data":
+                    sct_DCSConditionsToolSetup.setDbInstance("SCT")
+                    dcs_folder="/SCT/HLT/DCS"
+                    sct_DCSConditionsToolSetup.setStateFolder(dcs_folder+"/CHANSTAT")
+                    sct_DCSConditionsToolSetup.setHVFolder(dcs_folder+"/HV")
+                    sct_DCSConditionsToolSetup.setTempFolder(dcs_folder+"/MODTEMP")
+
             sct_DCSConditionsToolSetup.setup()
 
         # Set up SCT_SiliconConditionsTool

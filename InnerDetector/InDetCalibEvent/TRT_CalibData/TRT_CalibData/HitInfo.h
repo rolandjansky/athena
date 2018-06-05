@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_CALIBDATA__HITINFO_H
@@ -102,6 +102,14 @@ namespace TRT{
     // Constructors
     HitInfo() : m_Ints(Hit::TNOIV),m_Floats(Hit::TNOFV) {}
     HitInfo(const HitInfo& orig): m_Ints(orig.m_Ints),m_Floats(orig.m_Floats) {}
+    //assignment
+    HitInfo & operator=(const HitInfo & other){
+      if (this!=&other){
+        m_Ints = other.m_Ints;
+        m_Floats = other.m_Floats;
+      }
+      return *this;
+    }
     // Destructor
     ~HitInfo(){}
     // Access
@@ -124,7 +132,7 @@ namespace TRT{
     float trkT0() const { return operator[](Hit::trackT0) ; }
     float driftVelocity() const { return operator[](Hit::driftVelocity) ; }
     float residualVariance() const { 
-      float tmp = operator[](Hit::errorSignedDriftRadius); return trkVariance() + tmp*tmp ; }
+    float tmp = operator[](Hit::errorSignedDriftRadius); return trkVariance() + tmp*tmp ; }
     float residualPull() const { return residual()/sqrt(residualVariance()) ; }
     float chiSquare() const { double tmp = residual() ; return tmp*tmp/residualVariance() ; }
     float phiResidual() const { return residual()/operator[](Hit::globalR) ; }

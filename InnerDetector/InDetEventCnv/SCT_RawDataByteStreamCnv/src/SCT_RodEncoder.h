@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -13,25 +13,24 @@
 #ifndef SCT_RAWDATABYTESTREAM_SCT_RODENCODER_H
 #define SCT_RAWDATABYTESTREAM_SCT_RODENCODER_H
 
-///STL
-#include <vector>
-
-///C99 : Not nice, this header puts types in the global namespace
-//should use <cstdint> and std:: namespace, since C++11
-#include <inttypes.h>
-
-///Gaudi
-#include "GaudiKernel/ServiceHandle.h"
 /// base classes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_RawDataByteStreamCnv/ISCT_RodEncoder.h"
+
+///STL
+#include <set>
+
+///Gaudi
+#include "GaudiKernel/ServiceHandle.h"
 
 ///InDet
 /**needed for typedef, cannot fwd declare */
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
 
-class ISCT_ByteStreamErrorsTool;
+///SCT
+#include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
+
 class SCT_ID;
 
 class SCT_RDORawData;
@@ -45,20 +44,20 @@ class IdentifierHash;
  * as we don't want to access the ByteStreamErrorsSvc 90 times per event
  * if we can avoid it.. */
  
-class SCT_RodEncoder : virtual public ISCT_RodEncoder, virtual public AthAlgTool
+class SCT_RodEncoder : public extends<AthAlgTool, ISCT_RodEncoder>
 { 
  public:
  
-  typedef SCT_RDORawData RDO ;
+  typedef SCT_RDORawData RDO;
   typedef std::vector<const RDO*> vRDOs_t;
-  typedef SCT_RDO_Container SCTRawContainer ;
+  typedef SCT_RDO_Container SCTRawContainer;
   
   /** constructor  */
 
   SCT_RodEncoder(const std::string& type, const std::string& name, const IInterface* parent ) ;
 
   /** destructor  */
-  virtual ~SCT_RodEncoder(); 
+  virtual ~SCT_RodEncoder() = default;
 
   /** AlgTool initialize */
   virtual StatusCode initialize();

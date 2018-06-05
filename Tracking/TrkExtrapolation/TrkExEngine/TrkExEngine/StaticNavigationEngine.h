@@ -68,7 +68,7 @@ namespace Trk {
         virtual ExtrapolationCode resolvePosition(Trk::ExCellNeutral& eCelll, PropDirection dir=alongMomentum, bool noLoop=false) const;
 
         /** acces to tracking geometry */
-        virtual const TrackingGeometry& trackingGeometry() const throw (GaudiException);
+        virtual const TrackingGeometry& trackingGeometry() const;
         
      private:
         /** resolve the boundary situation */
@@ -98,7 +98,7 @@ namespace Trk {
             
     };
 
-inline const Trk::TrackingGeometry& StaticNavigationEngine::trackingGeometry() const throw (GaudiException) {
+inline const Trk::TrackingGeometry& StaticNavigationEngine::trackingGeometry() const {
     if (!m_trackingGeometry && updateTrackingGeometry().isFailure()){
         EX_MSG_FATAL("", "updateGeo", "", "Could not load TrackingGeometry with name '" << m_trackingGeometryName << "'. Aborting." );
         throw GaudiException("StaticNavigationEngine", "Problem with TrackingGeometry loading.", StatusCode::FAILURE);

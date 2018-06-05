@@ -104,8 +104,8 @@ FitMatrices::chiSquaredChange (void) const
 {
     // TODO: eigen
     // // not applicable when matrix has been inverted already
-    // if (! m_numberDoF || ! m_weight***REMOVED*** || m_covariance) return 0.;
-    // AlVec diffAl	= m_parameters->differences***REMOVED***();
+    // if (! m_numberDoF || ! m_weightOLD || m_covariance) return 0.;
+    // AlVec diffAl	= m_parameters->differencesOLD();
     // Amg::VectorX diff(m_columnsDM);
     // for (int i = 0; i != m_columnsDM; ++i) diff[i] = diffAl[i];
     // if (m_matrixFromCLHEP)
@@ -118,7 +118,7 @@ FitMatrices::chiSquaredChange (void) const
     // 	Amg::MatrixX weight(m_columnsDM,m_columnsDM);
     // 	for (int i = 0; i != m_columnsDM; ++i)
     // 	{
-    // 	    for (int j = 0; j != m_columnsDM; ++j) weight(i,j) = (*m_weight***REMOVED***)[j][i];
+    // 	    for (int j = 0; j != m_columnsDM; ++j) weight(i,j) = (*m_weightOLD)[j][i];
     // 	}
     // 	return (diff * weight * diff.transpose())(0,0) / static_cast<double>(m_numberDoF);
     // }
@@ -150,7 +150,7 @@ FitMatrices::fullCovariance (void)
     // keep matrix copy for release 21 to avoid rounding changes at Tier0
     // covariance = (*m_weight).inverse();
 
-    // matrix copy version (legacy of ***REMOVED*** which needed copy between matrix packages)
+    // matrix copy version (legacy of older library which needed copy between matrix packages)
     Amg::MatrixX weight(m_columnsDM,m_columnsDM);
     weight.selfadjointView<0x2>();
     weight	= (*m_weight).inverse();

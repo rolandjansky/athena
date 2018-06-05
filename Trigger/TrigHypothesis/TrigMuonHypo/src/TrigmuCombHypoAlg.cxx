@@ -91,7 +91,7 @@ StatusCode TrigmuCombHypoAlg::execute_r(const EventContext& context) const
   // retrieve views created on l2muCombViewsCreator
   auto viewsHandle = SG::makeHandle(m_viewsKey, context);
   if (!viewsHandle.isValid()) {
-    ATH_MSG_ERROR("ReadHandle for std::vector< SG::View*> key:" << m_viewsKey.key() << " is failed");
+    ATH_MSG_ERROR("ReadHandle for ViewContainer key:" << m_viewsKey.key() << " is failed");
     return StatusCode::FAILURE;
   }
 

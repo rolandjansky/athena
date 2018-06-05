@@ -9,6 +9,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include <vector>
+
 namespace Trk
 {
   class TrackingVolume;
@@ -74,8 +76,10 @@ protected:
 
   HepPDT::ParticleDataTable*     m_particleDataTable{nullptr};
 
-  double m_CaloBoundaryR{1148.0};
-  double m_CaloBoundaryZ{3549.5};
+  //Define ID-CALO surface to be used for AFII 
+  //TODO: this should eventually extrapolate to a uniquly defined surface!
+  std::vector<double> m_CaloBoundaryR{1148.0,120.0,41.0};
+  std::vector<double> m_CaloBoundaryZ{3550.0,4587.0,4587.0};
   double m_calomargin{100};
 
   std::vector< int > m_surfacelist;

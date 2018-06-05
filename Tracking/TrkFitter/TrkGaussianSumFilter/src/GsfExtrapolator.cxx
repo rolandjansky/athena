@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
@@ -100,7 +100,7 @@ StatusCode Trk::GsfExtrapolator::initialize()
   ATH_CHECK( m_chronoSvc.retrieve() );
   
   // Request the Propagator AlgTools
-  if ( m_propagators.size() ){
+  if ( not m_propagators.empty() ){
      ATH_MSG_INFO( "Attempting to retrieve propagator tool.... " );
      ATH_CHECK( m_propagators.retrieve() );
      ATH_MSG_INFO( "Retrieved tools " << m_propagators );
@@ -1596,16 +1596,8 @@ void Trk::GsfExtrapolator::initialiseNavigation ( const Trk::IPropagator& propag
     // If the recall method fails then the cashed information needs to be reset
     resetRecallInformation();
     currentVolume = m_navigator->volume( combinedState->position() );
-    currentLayer  = currentVolume->associatedLayer( combinedState->position() );
-  
-    // ---------------------------------- ASSOCIATED STATIC VOLUME --------------------------------------
-    // this is not necessary for ( association & recall )
-//    const Trk::TrackingVolume* lowestStaticVol = 
-//                  m_navigator->trackingGeometry()->lowestStaticTrackingVolume(combinedState->position()); 
-  
-//    if (lowestStaticVol && lowestStaticVol != currentVolume ) currentVolume = lowestStaticVol;
-    // --------------------------------------------------------------------------------------------------
-  
+    currentLayer = (currentVolume) ? currentVolume->associatedLayer(combinedState->position()) : nullptr;
+ 
   }
 
   /* =============================================

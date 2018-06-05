@@ -11,16 +11,13 @@ def getSCT_DetectorTool(name="SCT_DetectorTool", **kwargs):
     kwargs.setdefault("GeoDbTagSvc",      "GeoDbTagSvc");
     from AthenaCommon.DetFlags      import DetFlags
     if DetFlags.digitize.SCT_on() or DetFlags.haveRDO.SCT_on() or DetFlags.haveRIO.SCT_on():
-        # SCTLorentzAngleSvc needed for digi and reco
-        from AthenaCommon.AppMgr        import ServiceMgr
-        if not hasattr(ServiceMgr,'SCTLorentzAngleSvc'):
-            from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleCHSvc
-            SCTLorentzAngleSvc = SiLorentzAngleCHSvc(name = "SCTLorentzAngleSvc",
-                                                     UseMagFieldSvc = False,
-                                                     DetectorName = "SCT")
-            ServiceMgr+=SCTLorentzAngleSvc
-        kwargs.setdefault("LorentzAngleSvc",  "SCTLorentzAngleSvc");
+        # SCTLorentzAngleTool needed for digi and reco
+        from AthenaCommon.AppMgr import ToolSvc
+        if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+            from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+            sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+        kwargs.setdefault("LorentzAngleTool", ToolSvc.SCTLorentzAngleTool)
     else:
-        # SCTLorentzAngleSvc not needed for simulation
-        kwargs.setdefault("LorentzAngleSvc",  "");
+        # SCTLorentzAngleTool not needed for simulation
+        kwargs.setdefault("LorentzAngleTool", "")
     return CfgMgr.SCT_DetectorTool(name, **kwargs)

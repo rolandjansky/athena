@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_GEOMODEL_SCT_DETECTORTOOL_H
@@ -7,14 +7,15 @@
 
 #include "GeoModelUtilities/GeoModelTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
+#include "SCT_GeoModel/SCT_GeoModelAthenaComps.h" 
 
-class ISiLorentzAngleSvc;
+#include <string>
+
 class IGeoDbTagSvc;
 class IRDBAccessSvc;
 class IGeometryDBSvc;
-class SCT_GeoModelAthenaComps;
-
-#include <string>
 
 namespace InDetDD {
   class SCT_DetectorManager;
@@ -23,9 +24,8 @@ namespace InDetDD {
 class SCT_DetectorTool : public GeoModelTool {
 
 public:
-
   // Standard Constructor
-  SCT_DetectorTool( const std::string& type, const std::string& name, const IInterface* parent );
+  SCT_DetectorTool(const std::string& type, const std::string& name, const IInterface* parent);
 
   // Standard Destructor
   virtual ~SCT_DetectorTool() override final;
@@ -33,12 +33,13 @@ public:
   virtual StatusCode create() override final;
   virtual StatusCode clear() override final;
 
+  virtual StatusCode initialize() override final;
+
   // Register callback function on ConDB object
   virtual StatusCode registerCallback() override final;
 
   // Callback function itself
   virtual StatusCode align(IOVSVC_CALLBACK_ARGS) override;
-	
 
 private:
   std::string m_detectorName;
@@ -46,15 +47,19 @@ private:
   bool m_alignable;
   bool m_cosmic;
   
-  const InDetDD::SCT_DetectorManager * m_manager;
+  const InDetDD::SCT_DetectorManager* m_manager;
   
-  SCT_GeoModelAthenaComps * m_athenaComps;
+  SCT_GeoModelAthenaComps m_athenaComps;
 
   ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
   ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;
   ServiceHandle< IGeometryDBSvc > m_geometryDBSvc;
-  ServiceHandle< ISiLorentzAngleSvc > m_lorentzAngleSvc;
+  ToolHandle< ISiLorentzAngleTool > m_lorentzAngleTool{this, "LorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
+  std::string m_run1Folder;
+  std::string m_run2L1Folder;
+  std::string m_run2L2Folder;
+  std::string m_run2L3Folder;
 };
 
 #endif // SCT_GEOMODEL_SCT_DETECTORTOOL_H

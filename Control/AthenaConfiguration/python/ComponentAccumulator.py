@@ -2,7 +2,7 @@
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
-from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers
+from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence
 from AthenaCommon.AlgSequence import AlgSequence
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
@@ -28,6 +28,16 @@ class CurrentSequence:
         #print "CurrentSequence ....get %s " %  CurrentSequence.sequence.name()
         return CurrentSequence.sequence
 
+
+_propsToUnify=frozenset(("GeoModelSvc.DetectorTools","CondInputLoader.Load","IOVDbSvc.Folders","EvtPersistencySvc.CnvServices",
+                         "PoolSvc.ReadCatalog","ProxyProviderSvc.ProviderNames" ))
+
+def unifyProp(prop1,prop2):
+    #May want to strip whitespace in case the params are lists of strings
+    s1=set(prop1)
+    s2=set(prop2)
+    su=s1 | s2
+    return list(su)
 
 class ComponentAccumulator(object): 
 
@@ -94,6 +104,25 @@ class ComponentAccumulator(object):
             raise ConfigurationError("Sequence %s already present" % newseq.name() )
         seq += newseq
         return newseq 
+
+    def moveSequence(self, sequence, destination ):
+        """ moves seqeunce from one sub-sequence to another, primary use case HLT Control Flow """
+        start =  CurrentSequence.get()
+        seq = findSubSequence(start, sequence )
+        if seq is None:
+            raise ConfigurationError("Can not find sequence to move %s " % sequence )
+
+        owner = findOwningSequence(start, sequence)
+        if owner is None:
+            raise ConfigurationError("Can not find the sequence owning the %s " % sequence )
+
+        dest = findSubSequence(start, destination )
+        if dest is None:
+            raise ConfigurationError("Can not find destination sequence %s to move to " % destination )
+
+        owner.remove( seq )
+        dest += seq
+        return seq
 
     def addEventAlgo(self, algo,sequence=None):                
         if not isinstance(algo, ConfigurableAlgorithm):
@@ -183,13 +212,17 @@ class ComponentAccumulator(object):
                         if (oldprop!=newprop):
                             #found property mismatch
                             if isinstance(oldprop,list): #if properties are concatinable, do that!
-                                oldprop+=newprop
-                                #print "concatenating list-property",comp.getJobOptname(),prop
-                                setattr(comp,prop,oldprop)
+                                propid="%s.%s" % (comp.getType(),str(prop))
+                                if propid not in _propsToUnify:
+                                    raise DeduplicationFailed("List property %s defined multiple times with conflicting values.\n " % propid \
+                                                              +"If this property should be concatinated, consider adding it to the _propsToUnify set")
+                                
+                                mergeprop=unifyProp(oldprop,newprop)
+                                setattr(comp,prop,mergeprop)
                             else:
                                 #self._msg.error("component '%s' defined multiple times with mismatching configuration", svcs[i].getJobOptName())
                                 raise DeduplicationFailed("component '%s' defined multiple times with mismatching property %s" % \
-                                                                  comp.getJobOptName(),prop)
+                                                                  (comp.getJobOptName(),str(prop)))
                             pass 
                             #end if prop-mismatch
                         pass
@@ -350,7 +383,7 @@ class ComponentAccumulator(object):
         #The client is supposed to grab the private tools and attach 
         #them to their parent component
         self._privateTools=retval._privateTools
-        return
+        return self._privateTools
 
 
     def appendConfigurable(self,confElem):
@@ -550,6 +583,7 @@ if __name__ == "__main__":
     acc.addSequence( parOR("hltStep_1"), sequence="hltSteps" )
     acc.addSequence( seqAND("L2CaloEgammaSeq"), "hltStep_1" )
     acc.addSequence( parOR("hltStep_2"), sequence="hltSteps" )
+    acc.moveSequence( "L2CaloEgammaSeq", "hltStep_2" )
     acc.printConfig()
     
     acc.store(open("testFile2.pkl", "w"))

@@ -29,6 +29,19 @@
 
 using eformat::helper::SourceIdentifier; 
 
+// Utility namespace for file input sanitation
+namespace {
+	bool inRange(const int var, const int lo, const int hi) {
+		return not ((lo > var) or (hi < var));
+	}
+
+	const int invalidInput{-1};
+	const int maxPossiblePhiModule{9};
+	const int maxPossibleModule{3};
+	const int maxPossibleStrawNumber{999};
+	const int maxPossibleBufferLocation{2000};
+}
+
 static const InterfaceID IID_ITRT_FillCablingData_TB04
                             ("TRT_FillCablingData_TB04", 1, 0);
 
@@ -99,12 +112,9 @@ void TRT_FillCablingData_TB04::defineParameters()
   m_numberOfLayersB = 24;
   m_numberOfLayersC = 30;
 
-  //  m_numberOfStrawsInBarrelROD = 1642;
   m_numberOfIdentifierSectors = 3;
 
   // Mapping from phi sector index to source id
-  //m_phi_to_source.push_back( 2 );        // Phi 0 is Source ID 0x3102
-  //m_phi_to_source.push_back( 3 );        // Phi 1 is Source ID 0x3103
   m_phi_to_source.push_back( 0x310003 );        // Phi 0 is Source ID 0x3103
   m_phi_to_source.push_back( 0x310002 );        // Phi 1 is Source ID 0x3102
   // NB: Source ID 0x3101 is the 3S boards on BOTH Phi 0 and Phi 1
@@ -192,29 +202,24 @@ void TRT_FillCablingData_TB04::defineTables()
 	inputFile >> phiModuleId >> moduleId >> strawNumberInModule
 		  >> BufferLocation;
 
-	/*
-	 * Hack, because we do not detect EOF properly
-	 */
-	if ( -1 == phiModuleId && -1 == moduleId && 
-	     -1 == strawNumberInModule && -1 == BufferLocation )
-	{
-	   continue;
+	// Sanitize input from file
+	const bool validPhi = inRange(phiModuleId, invalidInput, maxPossiblePhiModule);
+	const bool validModule = inRange(moduleId, invalidInput, maxPossibleModule);
+	const bool validStrawNumber = inRange(strawNumberInModule, invalidInput, m_StrawsByModule[moduleId]);
+	const bool validBuffer = inRange(BufferLocation, invalidInput, maxPossibleBufferLocation);
+	if (not (validPhi and validModule and validStrawNumber and validBuffer)) {
+		ATH_MSG_WARNING("One of the following is out of range: " << phiModuleId << ", " << moduleId
+		                << ", " << strawNumberInModule << ", " << BufferLocation);
+		continue;
 	}
 
-	if ( !(moduleId == 0 || moduleId == 1 || moduleId ==2) )
-	   continue;
-
-	if ( strawNumberInModule > m_StrawsByModule[moduleId] )
-	   continue;
-
-         // Swap of phi sectors for ROD 0: 3S1, 3S2
-        if (rod == 0)
-        {
-          if (phiModuleId == 0)
-            phiModuleId = 1;
-          else
-            phiModuleId = 0;
-        }        
+	// Swap of phi sectors for ROD 0: 3S1, 3S2
+	if (rod == 0) {
+		if (phiModuleId == 0)
+			phiModuleId = 1;
+		else
+			phiModuleId = 0;
+	}        
 
 
 	int rodSourceId=0;
@@ -235,6 +240,10 @@ void TRT_FillCablingData_TB04::defineTables()
 	 * go from 0, so we'll just fix this:
 	 */
 	strawNumberInModule--;
+	if (strawNumberInModule < 0) {
+		ATH_MSG_WARNING("Straw number in module became negative: " << strawNumberInModule);
+		continue;
+	}
 
 	//Need to retrieve strawLayerId & strawInLayerId from ncols...
 	strawLayerId=0;
@@ -252,17 +261,11 @@ void TRT_FillCablingData_TB04::defineTables()
    	  //Apparently this is needed to skip to the next line
 	inputFile.ignore(256,'\n');
 
-	//std::cout<<"phiModuleId "<<phiModuleId  <<" moduleId "<< moduleId  <<" strawNumberInModule "<<strawNumberInModule<<std::endl;
-	//std::cout<<"strawLayerId "<<strawLayerId  <<" strawInLayerId "<<strawInLayerId<<std::endl;
-	// I NEED TO COUNT THE ENTRIES  [ptk: ???]
-
-	//std::cout << "strawID " << barrelId << " " << phiModuleId << " " <<  moduleId << " " << strawLayerId << " " << strawInLayerId << std::endl;
 
 	  // Construct an Identifier and put it in the list
         strawID = m_TRTHelper->straw_id(barrelId, phiModuleId, moduleId, 
           strawLayerId, strawInLayerId);
 	m_cabling->set_identfierForAllStraws(0x310000 + rodSourceId, BufferLocation, strawID);
-	//std::cout << "Filling m_identfierForAllStraws " << rodSourceId << " " << BufferLocation << " " << m_TRTHelper->show_to_string(strawID)  << std::endl;
 
        	  // Construct Hash and put it in the list
         IdLayer = m_TRTHelper->layer_id(strawID);
@@ -272,7 +275,6 @@ void TRT_FillCablingData_TB04::defineTables()
 	else
 	   ATH_MSG_DEBUG( "defineTables: unable to get hash for IdLayer " << IdLayer );
 
-//	std::cout << "Filling  m_identfierHashForAllStraws " << rodSourceId << " " << BufferLocation << " " << hashId << std::endl;
       }   // end of loop over straw in ROD
       
       inputFile.close();  //
@@ -286,22 +288,15 @@ void TRT_FillCablingData_TB04::defineTables()
  */
 void TRT_FillCablingData_TB04::defineCollID()
 {
-     // Initialize allRobs
-   //eformat::ModuleType type = eformat::ROB_TYPE;
-   //eformat::SubDetector  det_id = eformat::TRT_BARREL_A_SIDE;
 
      // Start from 1 because we have no Source ID = 0
    for(int rod = 1; rod <= m_numberOfIdentifierSectors; rod++ )
    {
-      //eformat::helper::SourceIdentifier sid(det_id, type, (uint8_t) (rod));
-      //      eformat::helper::SourceIdentifier sid(det_id, (uint8_t) (rod));
       uint32_t RODSourceId = 0x310000 + rod;
 
       std::vector<IdentifierHash> * vectID = new std::vector<IdentifierHash>();
-      //      fillCollID(sid.code(), *vectID);
       fillCollID(RODSourceId, *vectID);
 
-//      m_cabling->add_collID(sid.code(), vectID);
       m_cabling->add_collID(RODSourceId, vectID);
    }
 
@@ -320,11 +315,9 @@ std::vector<IdentifierHash> & ids)
   int barrelId, phiModule=-1;
   IdentifierHash idHash;
   
-  //  eformat::SubDetector det_id;   // set but not used
   int module;
 
   eformat::helper::SourceIdentifier id (rob_id);
-  //  det_id = id.subdetector_id();  // set but not used
   module = (int) id.module_id();
   
   barrelId = -1;
@@ -416,12 +409,9 @@ std::vector<uint32_t> TRT_FillCablingData_TB04::getRobID(Identifier id)
 {
   std::vector<uint32_t> v;
 
-  //eformat::ModuleType type = eformat::ROB_TYPE;
-  //  eformat::SubDetector det_id;  // set but not used
 
   int id_barrel_ec = m_TRTHelper->barrel_ec(id);
   int id_phi_module = m_TRTHelper->phi_module(id);
-  //  int id_layer = m_TRTHelper->layer_or_wheel(id);
 
   /*
    * It seems to be assumed that the ROD/ROB source IDs are aligned to
@@ -434,24 +424,13 @@ std::vector<uint32_t> TRT_FillCablingData_TB04::getRobID(Identifier id)
    */
   if (id_barrel_ec == -1)
   {
-     //    det_id = eformat::TRT_BARREL_A_SIDE;   // set but not used
-
-    //eformat::helper::SourceIdentifier sid(det_id, type, 
-    //    eformat::helper::SourceIdentifier sid(det_id,
-    //			      (uint8_t) m_phi_to_source[id_phi_module] );
-    //    v.push_back(sid.code());
     v.push_back( m_phi_to_source[id_phi_module] );
-
-    
 
 // !!! Artificial inclusion of the ROB XXX (which is in both
 // phi-sectors) in list of ROBs for each collection. !!!
 // This is done in order to have this ROB data to be read in 
 // BS converter
 
-    //eformat::helper::SourceIdentifier sid1(det_id, type, (uint8_t) 1);
-    //    eformat::helper::SourceIdentifier sid1(det_id, (uint8_t) 0x310001);
-    //    v.push_back(sid1.code());
     v.push_back( 0x310001 );
   }
   else

@@ -48,6 +48,7 @@ CaloClusterMaker::CaloClusterMaker(const std::string& name,
 				   ISvcLocator* pSvcLocator) 
   : AthReentrantAlgorithm(name, pSvcLocator)
   , m_clusterOutput("")
+  , m_clusterCellLinkOutput("")
   , m_clusterMakerTools(this)
   , m_clusterCorrectionTools(this)
   , m_chrono("ChronoStatSvc", name)
@@ -57,6 +58,7 @@ CaloClusterMaker::CaloClusterMaker(const std::string& name,
 
   // Name of Cluster Container to be registered in TDS
   declareProperty("ClustersOutputName",m_clusterOutput);  
+  declareProperty("ClusterCellLinkOutputName",m_clusterCellLinkOutput);  
   
   // Name(s) of Cluster Maker Tools
   declareProperty("ClusterMakerTools",m_clusterMakerTools);
@@ -114,6 +116,11 @@ StatusCode CaloClusterMaker::initialize()
 
   ATH_CHECK( m_clusterOutput.initialize() );
 
+  if (m_clusterCellLinkOutput.key().empty()) {
+    m_clusterCellLinkOutput = m_clusterOutput.key() + "_links";
+  }
+  ATH_CHECK( m_clusterCellLinkOutput.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -168,6 +175,7 @@ StatusCode CaloClusterMaker::execute_r (const EventContext& ctx) const
       const std::string interimContName=m_clusterOutput.key() + "-pre" +toolname;
       xAOD::CaloClusterContainer* interimCont=CaloClusterStoreHelper::makeContainer(&(*evtStore()),interimContName,msg());
       CaloClusterStoreHelper::copyContainer(clusColl.ptr(),interimCont);
+
       ATH_CHECK(CaloClusterStoreHelper::finalizeClusters(&(*evtStore()),interimCont, interimContName, msg()));
     }
     
@@ -179,7 +187,9 @@ StatusCode CaloClusterMaker::execute_r (const EventContext& ctx) const
   }//End loop over correction tools
 
   ATH_MSG_DEBUG("Created cluster container with " << clusColl->size() << " clusters");
-  ATH_CHECK(CaloClusterStoreHelper::finalizeClusters(&(*evtStore()),clusColl.ptr(),m_clusterOutput.key(),msg()));
+  SG::WriteHandle<CaloClusterCellLinkContainer> cellLinks (m_clusterCellLinkOutput, ctx);
+  ATH_CHECK(CaloClusterStoreHelper::finalizeClusters (cellLinks,
+                                                      clusColl.ptr()));
 
   return StatusCode::SUCCESS;
 }

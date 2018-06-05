@@ -1186,16 +1186,6 @@ if(!vhdlinput){
      <<" =================================="<<endl<<endl;
  DISP_ERROR;
  };
-ofstream h8output;
-h8output.open("h8.output",ios::app);
-if(!h8output){
- DISP<<" File of H8 data not opened. "<<endl
-     <<" =================================="<<endl<<endl;
- DISP_ERROR;
- };
-// h8output<<" RUN "<<0<<" EVENT "<<eventNum<<" CMID "<<cmid<<std::endl;
-h8output<<this;
-h8output.close();
 //
 const ubit16 maxchan = 100;
 const ubit16 maxtimes= 200;

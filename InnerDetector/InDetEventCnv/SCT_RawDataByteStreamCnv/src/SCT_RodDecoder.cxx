@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_RodDecoder.h"
@@ -8,7 +8,6 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
-#include <iostream>
 //Gaudi
 #include "GaudiKernel/IIncidentSvc.h"
 //Athena
@@ -19,7 +18,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 
-union RawWord{
+union RawWord {
   uint32_t word32;
   uint16_t word16[2];
 };
@@ -27,7 +26,7 @@ union RawWord{
 //constructor
 SCT_RodDecoder::SCT_RodDecoder
 (const std::string& type, const std::string& name,const IInterface* parent) :
-  AthAlgTool(type, name, parent),
+  base_class(type, name, parent),
   m_sct_id{nullptr},
   m_indet_mgr{nullptr},
   m_cabling{"SCT_CablingSvc", name},
@@ -66,11 +65,6 @@ SCT_RodDecoder::SCT_RodDecoder
 {
   declareProperty("CablingSvc", m_cabling);
   declareProperty("TriggerMode", m_triggerMode=true);
-  declareInterface<ISCT_RodDecoder>(this);
-}
-
-//destructor  
-SCT_RodDecoder::~SCT_RodDecoder() {
 }
 
 StatusCode SCT_RodDecoder::initialize() {
@@ -129,7 +123,6 @@ SCT_RodDecoder::finalize() {
 
   if (m_numMissingLinkHeader > 0) ATH_MSG_WARNING("SCT Missing Link Headers found " << m_numMissingLinkHeader);
   if (m_numUnknownOfflineId  > 0) ATH_MSG_WARNING("SCT unknown onlineId found " << m_numUnknownOfflineId);
-
 
   ATH_CHECK(AlgTool::finalize());
   ATH_MSG_DEBUG("SCT_RodDecoder::finalize()");
@@ -829,8 +822,6 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int tbin, uint32_t onlineI
                             const std::vector<int>& errorHit)
 {
 
-  // IIncidentSvc* incsvc;
-
   if (onlineId == 0x0) {
     ATH_MSG_WARNING("No link header found, possibly corrupt ByteStream.  Will not try to make RDO");
     return -1;
@@ -898,10 +889,10 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int tbin, uint32_t onlineI
 
 
 
-  SCT_RDO_Collection* col = nullptr;
-  ATH_CHECK(rdoIdc.naughtyRetrieve(idCollHash, col), 0);//Returns null if not present
+  SCT_RDO_Collection* col{nullptr};
+  ATH_CHECK(rdoIdc.naughtyRetrieve(idCollHash, col), 0); // Returns null if not present
 
-  if(!col){
+  if (col==nullptr) {
     ATH_MSG_DEBUG(" Collection ID = " << idCollHash << " does not exist, create it ");
     /** create new collection */   
     col  = new SCT_RDO_Collection(idCollHash);
@@ -917,9 +908,7 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int tbin, uint32_t onlineI
    * into Collection. 
    */
   m_nRDOs++;
-  col->push_back(std::make_unique<SCT3_RawData>(iddigit,
-                                                     rawDataWord,
-                                                     &errorHit));
+  col->push_back(std::make_unique<SCT3_RawData>(iddigit, rawDataWord, &errorHit));
   return 1;
 }
 

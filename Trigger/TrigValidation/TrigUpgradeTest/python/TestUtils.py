@@ -36,6 +36,11 @@ class MenuTest:
                                  "EM7 : HLT_e7_etcut",
                                  "EM15 : HLT_e15mu4_etcut"]
 
+    TAUThresholdToChainMapping = ["HA8 : HLT_tau10"]
+
+    JThresholdToChainMapping = ["J20 : HLT_j30",
+                                  "J25 : HLT_j30"]
+
     MUThresholdToChainMapping = ["MU6 : HLT_mu6",
                                  "MU6 : HLT_mu6idperf",
                                  "MU4 : HLT_e15mu4",
@@ -63,6 +68,7 @@ class L1DecoderTest(L1Decoder) :
         from TriggerJobOpts.TriggerFlags import TriggerFlags
         from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring, RoIsUnpackingMonitoring
         from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, MURoIsUnpackingTool, METRoIsUnpackingTool
+        from L1Decoder.L1DecoderConf import TAURoIsUnpackingTool, JRoIsUnpackingTool
         from L1Decoder.L1DecoderConf import RerunRoIsUnpackingTool
         # CTP unpacker
 
@@ -91,6 +97,21 @@ class L1DecoderTest(L1Decoder) :
                                                OutputTrigRoI = "METRoI")
             metUnpacker.ThresholdToChainMapping = MenuTest.METThresholdToChainMapping            
             self.roiUnpackers += [metUnpacker]
+
+            tauUnpacker = TAURoIsUnpackingTool(OutputLevel = self.OutputLevel,
+                                             Decisions = "TAURoIDecisions",
+                                             OutputTrigRoIs = "TAURoIs")
+            tauUnpacker.ThresholdToChainMapping = MenuTest.TAUThresholdToChainMapping
+            tauUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="TAU", maxCount=30 )
+            self.roiUnpackers += [tauUnpacker]
+
+            jUnpacker = JRoIsUnpackingTool(OutputLevel = self.OutputLevel,
+                                             Decisions = "JRoIDecisions",
+                                             OutputTrigRoIs = "JRoIs")
+            jUnpacker.ThresholdToChainMapping = MenuTest.JThresholdToChainMapping
+            jUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="J", maxCount=30 )
+            self.roiUnpackers += [jUnpacker]
+
 
         # MU unpacker
         if TriggerFlags.doMuon():

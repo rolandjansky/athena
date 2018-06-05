@@ -15,7 +15,6 @@ class IRDBRecord;
 class TopLevelPlacements;
 
 
-#include <map>
 
 class TRT_DetDescrDB_ParameterInterface : public TRTParameterInterface {
 
@@ -26,7 +25,11 @@ public:
   TRT_DetDescrDB_ParameterInterface(const InDetDD::AthenaComps * athenaComps);
 
   ~TRT_DetDescrDB_ParameterInterface();
-
+  // delete copy c'tor
+  TRT_DetDescrDB_ParameterInterface(const TRT_DetDescrDB_ParameterInterface &) = delete;
+  // delete assignment
+  TRT_DetDescrDB_ParameterInterface & operator=(const TRT_DetDescrDB_ParameterInterface &) = delete;
+  //
   virtual const HepGeom::Transform3D & partTransform(const std::string & partName) const;
   virtual bool partPresent(const std::string & partName) const;
   virtual const InDetDD::DistortedMaterialManager * distortedMatManager() const;

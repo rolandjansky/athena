@@ -19,6 +19,7 @@
 
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonRDO/RpcPad.h"
+#include "MuonDigitContainer/RpcDigitContainer.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
@@ -32,9 +33,8 @@ public:
 
   RpcDigitToRpcRDO (const std::string& name, ISvcLocator* pSvcLocator);
   ~RpcDigitToRpcRDO();
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
 
 private:
 
@@ -71,14 +71,14 @@ private:
   StatusCode fill_RPCdata(RPCsimuData&);
 
 protected:
-  ServiceHandle<ActiveStoreSvc>  m_activeStore;
   const MuonGM::MuonDetectorManager* m_MuonMgr;
   StatusCode fillTagInfo() const;
 
   const IRPCcablingSvc* m_cabling;
   //  IRPCgeometrySvc*      m_geometry;
 
-  RpcPadContainer*      m_padContainer;
+  SG::WriteHandleKey<RpcPadContainer> m_padContainerKey{this,"OutputObjectName","RPCPAD","WriteHandleKey for Output RpcPadContainer"};
+  SG::ReadHandleKey<RpcDigitContainer> m_digitContainerKey{this,"InputObjectName","RPC_DIGITS","ReadHandleKey for Input RpcDigitContainer"};
   const RpcIdHelper*    m_rpcHelper;
   std::string  m_cablingType;
 };

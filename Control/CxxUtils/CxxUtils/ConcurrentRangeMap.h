@@ -64,6 +64,7 @@ namespace CxxUtils {
  *@code
  *  bool operator() (const KEY& k1,   const RANGE& r2) const;
  *  bool operator() (const RANGE& r1, const RANGE& r2) const;
+ *  bool inRange (const KEY& k, const RANGE& r) const;
  @endcode
  *
  * In order to implement updating concurrently with reading, we need to
@@ -79,6 +80,9 @@ namespace CxxUtils {
  *     Atomically update the current object to be p.
  *     Deletion of the previous version should be deferred until
  *     no thread can be referencing it.
+ *   - void discard (std::unique_ptr<T> p);
+ *     Explicitly discard an object, deferring until no thread
+ *     can be referencing it.
  *   - void quiescent (const Context_t& ctx);
  *     Declare that the thread described by ctx is no longer accessing
  *     the object.
@@ -230,6 +234,27 @@ public:
 
 
   /**
+   * @brief Remove unused entries from the front of the list.
+   * @param keys List of keys that may still be in use.
+   *             (Must be sorted.)
+   *
+   * We examine the objects in the container, starting with the earliest one.
+   * If none of the keys in @c keys match the range for this object, then
+   * it is removed from the container.  We stop when we either find
+   * an object with a range matching a key in @c keys or when there
+   * is only one object left.
+   *
+   * The list @c keys MUST be sorted.
+   *
+   * Removed objects are queued for deletion once all slots have been
+   * marked as quiescent.
+   *
+   * Returns the number of objects that were removed.
+   */
+  size_t trim (const std::vector<key_query_type>& keys);
+
+
+  /**
    * @brief Return the current number of elements in the map.
    */
   size_t size() const;
@@ -245,6 +270,18 @@ public:
    * @brief Return the current capacity of the map.
    */
   size_t capacity() const;
+
+
+  /**
+   * @brief Return the number times an item was inserted into the map.
+   */
+  size_t nInserts() const;
+
+
+  /**
+   * @brief Return the maximum size of the map.
+   */
+  size_t maxSize() const;
 
 
   /**
@@ -289,6 +326,15 @@ private:
   void updatePointers (value_type* new_begin, value_type* new_end);
 
   
+  /**
+   * @brief Test to see if any keys within @c keys match @c r.
+   * @brief r Range to test.
+   * @break keys List of keys to test.  MUST be sorted.
+   */
+  bool anyInRange (const key_type& r,
+                   const std::vector<key_query_type>& keys) const;
+
+
   /// Updater object.  This maintains ownership of the current implementation
   /// class and the older versions.
   Updater_t m_updater;
@@ -312,6 +358,10 @@ private:
   /// fails, then re-fetch both pointers.
   std::atomic<value_type*> m_begin;
   std::atomic<value_type*> m_last;
+
+  /// Some basic statistics.
+  size_t m_nInserts;
+  size_t m_maxSize;
 
   /// Mutex protecting the container.
   typedef std::mutex mutex_t;

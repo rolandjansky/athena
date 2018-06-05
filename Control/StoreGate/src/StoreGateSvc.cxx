@@ -14,6 +14,7 @@
 #include "GaudiKernel/IAppMgrUI.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include <fstream>
+#include <algorithm>
 
 using namespace SG;
 using namespace std;
@@ -28,7 +29,8 @@ StoreGateSvc::StoreGateSvc(const std::string& name,ISvcLocator* svc) :
   m_pPPSHandle("ProxyProviderSvc", name),
   m_incSvc("IncidentSvc", name),
   m_activeStoreSvc("ActiveStoreSvc", name),
-  m_storeID (StoreID::findStoreID(name))
+  m_storeID (StoreID::findStoreID(name)),
+  m_algContextSvc ("AlgContextSvc", name)
 {
   
 
@@ -249,6 +251,9 @@ StoreGateSvc::finalize() {
     CHECK( m_defaultStore->finalize());
     m_defaultStore->release();
   }
+
+  printBadList (m_badRetrieves, "retrieve()");
+  printBadList (m_badRecords,   "record()");
   return StatusCode::SUCCESS;
 }
 
@@ -572,6 +577,51 @@ StoreGateSvc::createObj (IConverter* cvt,
                          DataObject*& refpObject)
 {
   _SGXCALL( createObj, (cvt, addr, refpObject), StatusCode::FAILURE );
+}
+
+
+/**
+ * @brief Remember that retrieve or record was called for a MT store.
+ * @param bad The list on which to store the operation.
+ * @param clid CLID of the operation.
+ * @param key Key of the operation.
+ */
+void StoreGateSvc::rememberBad (BadItemList& bad,
+                                CLID clid, const std::string& key) const
+{
+  if (m_storeID == StoreID::EVENT_STORE && s_pSlot != nullptr) {
+    lock_t lock (m_badMutex);
+    std::string algo;
+    if (m_algContextSvc.isValid()) {
+      if (IAlgorithm* alg = m_algContextSvc->currentAlg()) {
+        if (alg->type() == "AthenaOutputStream") return;
+        if (alg->type() == "AthIncFirerAlg") return;
+        algo = alg->type() + "/" + alg->name();
+        bad.insert (BadListItem (clid, key, algo));
+      }
+    }
+  }
+}
+
+
+/** 
+ * @brief Print out a list of bad calls during finalization.
+ * @param bad List of bad calls.
+ * @param what Description of the operation.
+ */
+void StoreGateSvc::printBadList (const BadItemList& bad,
+                                 const std::string& what) const
+{
+  if (bad.empty()) return;
+  std::vector<std::string> lines;
+  for (const BadListItem& id : bad) {
+    lines.push_back (id.fullKey() + " [" + id.m_algo + "]");
+  }
+  std::sort (lines.begin(), lines.end());
+  warning() << "Called " << what << " on these objects in a MT store" << endmsg;
+  for (const std::string& s : lines) {
+    warning() << s << endmsg;
+  }
 }
 
 

@@ -461,6 +461,8 @@ namespace TrigCostRootAnalysis {
     // Get access to main node
     XMLNodePointer_t mainNode = xml->DocGetRootElement(xmlDoc);
 
+    const Bool_t ignorePSGreaterThanOne = (Bool_t) Config::config().getInt(kIgnorePSGreaterThanOne);
+
     assert(xml->GetNodeName(mainNode) == std::string("HLT_MENU"));
     XMLNodePointer_t listNode = xml->GetChild(mainNode);
     m_menuName = xml->GetAttr(mainNode, "menu_name");
@@ -493,6 +495,8 @@ namespace TrigCostRootAnalysis {
           m_hasExpressPrescaleInfo = kTRUE;
         }
         ++chainsRead;
+
+        if (ignorePSGreaterThanOne && m_chainPS[chainName] > 1.) m_chainPS[chainName] = -1;
 
         if (Config::config().debug()) {
           Info("TrigXMLService::parseMenuXML", "Parsed Chain:%s, Counter:%i, LowerChain:%s, PS:%f, PT:%f, RerunPS:%f, Express:%f",
@@ -528,6 +532,8 @@ namespace TrigCostRootAnalysis {
   void TrigXMLService::parseL1MenuXML(TXMLEngine* xml, XMLDocPointer_t xmlDoc) {
     // Get access to main node
     XMLNodePointer_t mainNode = xml->DocGetRootElement(xmlDoc);
+
+    const Bool_t ignorePSGreaterThanOne = (Bool_t) Config::config().getInt(kIgnorePSGreaterThanOne);
 
     assert(xml->GetNodeName(mainNode) == std::string("LVL1Config"));
     XMLNodePointer_t listNode = xml->GetChild(mainNode);
@@ -568,6 +574,9 @@ namespace TrigCostRootAnalysis {
           }
           m_chainCounter[L1Name] = ctpid;
           m_chainPS[L1Name] = prescale;
+
+          if (ignorePSGreaterThanOne && m_chainPS[L1Name] > 1.) m_chainPS[L1Name] = -1;
+
           ++chainsRead;
           if (Config::config().debug()) {
             Info("TrigXMLService::parseL1MenuXML", "Step 2: L1 %s = PS %f", L1Name.c_str(), prescale);
@@ -593,6 +602,8 @@ namespace TrigCostRootAnalysis {
   void TrigXMLService::parsePrescaleXML(TXMLEngine* xml, XMLDocPointer_t xmlDoc) {
     // Get access to main node
     XMLNodePointer_t mainNode = xml->DocGetRootElement(xmlDoc);
+
+    const Bool_t ignorePSGreaterThanOne = (Bool_t) Config::config().getInt(kIgnorePSGreaterThanOne);
 
     assert(xml->GetNodeName(mainNode) == std::string("trigger"));
     XMLNodePointer_t listNode = xml->GetChild(mainNode);
@@ -686,6 +697,8 @@ namespace TrigCostRootAnalysis {
                                                     "will have been lost.", m_chainPS[chainName], chainName.c_str());
         }
 
+        if (ignorePSGreaterThanOne && m_chainPS[chainName] > 1.) m_chainPS[chainName] = -1;
+
         if (Config::config().debug()) {
           Info("TrigXMLService::parsePrescaleXML", "Parsed Chain:%s, "
                                                    "Counter:%i, "
@@ -744,7 +757,10 @@ namespace TrigCostRootAnalysis {
     } else {
 // CAUTION - "ATHENA ONLY" CODE
 #ifndef ROOTCORE
-      path = PathResolverFindDataFile(file);
+      path = PathResolverFindDataFile(file); // Get from CALIB area
+      if (path == Config::config().getStr(kBlankString)) { // One more place we can look
+        path = std::string(Config::config().getStr(kAFSDataDir) + "/" + file);
+      }
 #endif // not ROOTCORE
     }
 
@@ -941,132 +957,184 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * Load which PCs have which CPUs
+   * Load which PCs have which CPUs.
+   * This used to be based on an XML but now is not, hence the naming 
    */
   void TrigXMLService::parseHLTFarmXML() {
-    TXMLEngine* xml = new TXMLEngine();
-
-    std::string path;
-    if (Config::config().getInt(kIsRootCore) == kTRUE) {
-      path = std::string(Config::config().getStr(kDataDir) + Config::config().getStr(kFarmXML));
-    } else {
-// CAUTION - "ATHENA ONLY" CODE
-#ifndef ROOTCORE
-      path = PathResolverFindDataFile(Config::config().getStr(kFarmXML));
-#endif // not ROOTCORE
-    }
-
-    XMLDocPointer_t xmlDoc = xml->ParseFile(path.c_str());
-
-    if (xmlDoc == 0) {
-      Error("TrigXMLService::parseHLTFarmXML", "Unable to load HLT farm XML %s.", Config::config().getStr(kFarmXML).c_str());
-      delete xml;
-      return;
-    }
-
-    // Navigate XML
-    XMLNodePointer_t mainNode = xml->DocGetRootElement(xmlDoc);
-    assert(xml->GetNodeName(mainNode) == std::string("oks-data"));
-    XMLNodePointer_t typesNode = xml->GetChild(mainNode);
-    XMLNodePointer_t compsNode = xml->GetNext(typesNode);
-
-    XMLNodePointer_t typeNode = xml->GetChild(typesNode);
-    XMLNodePointer_t compNode = xml->GetChild(compsNode);
-
-    while (typeNode != 0) { // Loop over all menu elements
-      assert(xml->GetNodeName(typeNode) == std::string("type"));
-      UInt_t id = stringToInt(xml->GetAttr(typeNode, "code"));
-      std::string name = xml->GetAttr(typeNode, "name");
-      m_computerTypeToNameMap[id] = name;
-      if (name == "UNKNOWN CPU") m_computerUnknownID = id;
-      typeNode = xml->GetNext(typeNode);
-    }
-
-    std::map< std::pair<UInt_t, UInt_t>, UInt_t> computerIDToTypeMap;
-    std::map< std::pair<UInt_t, UInt_t>, UInt_t>::const_iterator compIt;
-    while (compNode != 0) { // Loop over all menu elements
-      assert(xml->GetNodeName(compNode) == std::string("c"));
-      std::string computer = xml->GetAttr(compNode, "i");
-      UInt_t rack = stringToInt(computer.substr(0, 2));
-      UInt_t comp = stringToInt(computer.substr(2, 3));
-      UInt_t type = stringToInt(xml->GetAttr(compNode, "t"));
-      computerIDToTypeMap[ std::make_pair(rack, comp) ] = type;
-      compNode = xml->GetNext(compNode);
-    }
 
     // Now build a map of PU hash to computer type
     const std::string hltLevel = "HLT";
-    std::set<Int_t> coreTypes = {
-      8, 12, 24
-    };
-    Int_t myCompType = -1;
-    for (Int_t core : coreTypes) {
-      for (Int_t rack = 1; rack <= 95; ++rack) {
-        for (Int_t pc = 1; pc <= 40; ++pc) {
-          compIt = computerIDToTypeMap.find(std::make_pair(rack, pc));
-          if (compIt != computerIDToTypeMap.end()) myCompType = (*compIt).second;
-          else myCompType = m_computerUnknownID;
-          for (Int_t pu = 1; pu <= core; ++pu) {
-            std::stringstream ss;
-            std::string s;
-            ss << std::setfill('0')
-                << "APP_" << hltLevel
-                << ":HLTMPPU-"
-                << core
-                << "-MTS:HLT-"
-                << core
-                << ":tpu-rack-"
-                << std::setw(2) << rack
-                << ":pc-tdq-tpu-"
-                << std::setw(2) << rack
-                << std::setw(3) << pc
-                << "-"
-                << std::setw(2) << pu;
-            s = ss.str();
-            m_PUHashToPUType[stringToIntHash(s)] = myCompType;
 
-            ss.str(std::string());
-            ss << std::setfill('0')
-                << "APP_" << hltLevel
-                << ":HLTMPPU-"
-                << core
-                << "-MTS:HLT-"
-                << core
-                << "-MTS:tpu-rack-"
-                << std::setw(2) << rack
-                << ":pc-tdq-tpu-"
-                << std::setw(2) << rack
-                << std::setw(3) << pc
-                << "-"
-                << std::setw(2) << pu;
-            s = ss.str();
-            m_PUHashToPUType[stringToIntHash(s)] = myCompType;
-
-            ss.str(std::string());
-            ss << std::setfill('0')
-                << "APP_" << hltLevel
-                << ":HLTMPPU-"
-                << core
-                << ":HLT-"
-                << core
-                << "-NoTS:tpu-rack-"
-                << std::setw(2) << rack
-                << ":pc-tdq-tpu-"
-                << std::setw(2) << rack
-                << std::setw(3) << pc
-                << "-"
-                << std::setw(2) << pu;
-            s = ss.str();
-            m_PUHashToPUType[stringToIntHash(s)] = myCompType;
-          }
+    for (Int_t rack = 94; rack <= 95; ++rack) {
+      for (Int_t pc = 1; pc <= 64; ++pc) {
+        for (Int_t pu = 1; pu <= 12; ++pu) {
+          std::stringstream ss;
+          std::string s;
+          ss << std::setfill('0')
+              << "APP_" << hltLevel
+              << ":HLTMPPU-12:HLT-12-NoTS:tpu-rack-"
+              << std::setw(2) << rack
+              << ":pc-tdq-tpu-"
+              << std::setw(2) << rack
+              << std::setw(3) << pc
+              << "-"
+              << std::setw(2) << pu;
+          s = ss.str();
+          m_PUHashToPUType[stringToIntHash(s)] = rack;
+          if (Config::config().debug()) Info("TrigXMLService::parseHLTFarmXML", "%s = %i = %i", s.c_str(), stringToIntHash(s), rack);
         }
       }
     }
 
-    delete xml;
+    for (Int_t rack = 1; rack <= 70; ++rack) {
+      if (rack > 13 && rack < 64) continue;
+      for (Int_t pc = 1; pc <= 64; ++pc) {
+        for (Int_t pu = 1; pu <= 12; ++pu) {
+          std::stringstream ss;
+          std::string s;
+          ss << std::setfill('0')
+              << "APP_" << hltLevel
+              << ":HLTMPPU-12:HLT-12:tpu-rack-"
+              << std::setw(2) << rack
+              << ":pc-tdq-tpu-"
+              << std::setw(2) << rack
+              << std::setw(3) << pc
+              << "-"
+              << std::setw(2) << pu;
+          s = ss.str();
+          m_PUHashToPUType[stringToIntHash(s)] = rack;
+        }
+      }
+    }
+
+    for (Int_t rack = 1; rack <= 70; ++rack) {
+      if (rack > 13 && rack < 64) continue;
+      for (Int_t pc = 1; pc <= 64; ++pc) {
+        for (Int_t pu = 1; pu <= 12; ++pu) {
+          std::stringstream ss;
+          std::string s;
+          ss << std::setfill('0')
+              << "APP_" << hltLevel
+              << ":HLTMPPU-12:HLT-allracks:tpu-rack-"
+              << std::setw(2) << rack
+              << ":pc-tdq-tpu-"
+              << std::setw(2) << rack
+              << std::setw(3) << pc
+              << "-"
+              << std::setw(2) << pu;
+          s = ss.str();
+          m_PUHashToPUType[stringToIntHash(s)] = rack;
+        }
+      }
+    }
+
+    for (Int_t rack = 77; rack <= 77; ++rack) {
+      for (Int_t pc = 1; pc <= 64; ++pc) {
+        for (Int_t pu = 1; pu <= 24; ++pu) {
+          std::stringstream ss;
+          std::string s;
+          ss << std::setfill('0')
+              << "APP_" << hltLevel
+              << ":HLTMPPU-24:HLT-24-Merge:tpu-rack-"
+              << std::setw(2) << rack
+              << ":pc-tdq-tpu-"
+              << std::setw(2) << rack
+              << std::setw(3) << pc
+              << "-"
+              << std::setw(2) << pu;
+          s = ss.str();
+          m_PUHashToPUType[stringToIntHash(s)] = rack;
+        }
+      }
+    }
+
+    for (Int_t rack = 16; rack <= 90; ++rack) {
+      if (rack > 24 && rack < 70) continue;
+      for (Int_t pc = 1; pc <= 64; ++pc) {
+        for (Int_t pu = 1; pu <= 24; ++pu) {
+          std::stringstream ss;
+          std::string s;
+          ss << std::setfill('0')
+              << "APP_" << hltLevel
+              << ":HLTMPPU-24:HLT-24:tpu-rack-"
+              << std::setw(2) << rack
+              << ":pc-tdq-tpu-"
+              << std::setw(2) << rack
+              << std::setw(3) << pc
+              << "-"
+              << std::setw(2) << pu;
+          s = ss.str();
+          m_PUHashToPUType[stringToIntHash(s)] = rack;
+        }
+      }
+    }
+
+    for (Int_t rack = 25; rack <= 25; ++rack) {
+      for (Int_t pc = 1; pc <= 64; ++pc) {
+        for (Int_t pu = 1; pu <= 36; ++pu) {
+          std::stringstream ss;
+          std::string s;
+          ss << std::setfill('0')
+              << "APP_" << hltLevel
+              << ":HLTMPPU-36:HLT-24-HT:tpu-rack-"
+              << std::setw(2) << rack
+              << ":pc-tdq-tpu-"
+              << std::setw(2) << rack
+              << std::setw(3) << pc
+              << "-"
+              << std::setw(2) << pu;
+          s = ss.str();
+          m_PUHashToPUType[stringToIntHash(s)] = rack;
+        }
+      }
+    }
+
+    for (Int_t rack = 26; rack <= 26; ++rack) {
+      for (Int_t pc = 1; pc <= 64; ++pc) {
+        for (Int_t pu = 1; pu <= 48; ++pu) {
+          std::stringstream ss;
+          std::string s;
+          ss << std::setfill('0')
+              << "APP_" << hltLevel
+              << ":HLTMPPU-48:HLT-24-HTPlus:tpu-rack-"
+              << std::setw(2) << rack
+              << ":pc-tdq-tpu-"
+              << std::setw(2) << rack
+              << std::setw(3) << pc
+              << "-"
+              << std::setw(2) << pu;
+          s = ss.str();
+          m_PUHashToPUType[stringToIntHash(s)] = rack;
+        }
+      }
+    }
+
+    for (Int_t rack = 44; rack <= 44; ++rack) {
+      for (Int_t pc = 18; pc <= 20; ++pc) {
+        for (Int_t pu = 1; pu <= 28; ++pu) {
+          std::stringstream ss;
+          std::string s;
+          ss << std::setfill('0')
+              << "APP_" << hltLevel
+              << ":HLTMPPU-24:HLT-24-IT:tpu-rack"
+              << std::setw(2) << rack
+              << ":pc-tdq-tpu-"
+              << std::setw(2) << rack
+              << std::setw(3) << pc
+              << "-"
+              << std::setw(2) << pu;
+          s = ss.str();
+          m_PUHashToPUType[stringToIntHash(s)] = rack;
+        }
+      }
+    }
+
     return;
   }
 
+  /**
+   * @reutrn The rack number the current PU is located in. Or 0 for unknown
+   */
   UInt_t TrigXMLService::getComputerType(UInt_t hash) {
     UIntUIntMapIt_t it = m_PUHashToPUType.find(hash);
 

@@ -7,9 +7,8 @@ atlas_subdir( iPatRecEvent )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           Reconstruction/iPat/iPatTrack )
 
 # External dependencies:
@@ -20,12 +19,12 @@ atlas_add_library( iPatRecEvent
                    src/iPatTrackContainer.cxx
                    PUBLIC_HEADERS iPatRecEvent
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES DataModel SGTools iPatTrack
+                   LINK_LIBRARIES AthContainers iPatTrack
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( iPatTrackContainerDict
                       iPatRecEvent/iPatTrackContainerDict.h
                       iPatRecEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools iPatTrack iPatRecEvent )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers iPatTrack iPatRecEvent )
 
