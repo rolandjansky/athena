@@ -747,7 +747,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
        xaodVrtList.push_back(tmpXAODVertex);              //VK Save xAOD::Vertex
 //
 //---- Save and clean
-       delete tmpVTAV;delete tmpRecV;         //Mandatory cleaning
+       delete tmpVTAV;delete tmpRecV; delete fullDeriv;   //Mandatory cleaning
     }
 //
 //  Save momenta of all particles including combined at vertex positions
