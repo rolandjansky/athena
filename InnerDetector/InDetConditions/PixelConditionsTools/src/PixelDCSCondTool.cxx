@@ -58,7 +58,7 @@ bool PixelDCSCondTool::canReportAbout(InDetConditions::Hierarchy h) const {
 }   
 
 //Returns if element Id is good or bad
-bool PixelDCSCondTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
+bool PixelDCSCondTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy /*h*/) const {
   Identifier moduleId = m_pHelper->wafer_id(elementId);
   if (not moduleId.is_valid()) { return true; }
 
