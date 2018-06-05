@@ -3,6 +3,7 @@
  */
 
 #include "MuonEfficiencyCorrections/HistHandler.h"
+#include "TROOT.h"
 #include <iostream>
 #include <cmath>
 #include <cstdint>
@@ -80,7 +81,14 @@ namespace CP {
     }
     HistHandler::~HistHandler() {
         if (m_H) {
+            // Turn off MustClean while we delete the histogram.
+            // Prevents having scan all directories looking for the object.
+            // Prevents spending an inordinate amout of time in finalization.
+            // See ATLASRECTS-4431.
+            bool mc = gROOT->MustClean();
+            gROOT->SetMustClean (false);
             delete m_H;
+            gROOT->SetMustClean (mc);
         }
     }
     double HistHandler::GetBinContent(int bin) const {

@@ -77,10 +77,10 @@ protected:
 
 	std::string m_stream;
 	std::string m_triggerChainName;
-	int m_checkrate;
-	float m_matchdRcut;
-	int m_events;
-	int m_histosBooked;
+	int m_checkrate{};
+	float m_matchdRcut{};
+	int m_events{};
+	int m_histosBooked{};
 	
 	//private functions
 	StatusCode fillEfficiencyHisto(TH1* num, TH1* den, TH1* eff);
@@ -93,49 +93,49 @@ protected:
 
 
 	//histograms
-	TH1F* m_delta_phi0;
-	TH1F* m_delta_eta0;
-	TH1F* m_delta_R;
-	TH1F* m_delta_qoverp;
-	TH1F* m_delta_charge;
-	TH1F* m_delta_d0;
-	TH1F* m_delta_z0;
-	TH1F* m_delta_pt;
-	TH1F* m_reldelta_pt;
-	TH1F* m_nhitstrt;
+	TH1F* m_delta_phi0{};
+	TH1F* m_delta_eta0{};
+	TH1F* m_delta_R{};
+	TH1F* m_delta_qoverp{};
+	TH1F* m_delta_charge{};
+	TH1F* m_delta_d0{};
+	TH1F* m_delta_z0{};
+	TH1F* m_delta_pt{};
+	TH1F* m_reldelta_pt{};
+	TH1F* m_nhitstrt{};
 
-	TH1F* m_delta_phi0_b;
-	TH1F* m_delta_eta0_b;
-	TH1F* m_delta_R_b;
-	TH1F* m_delta_qoverp_b;
-	TH1F* m_delta_charge_b;
-	TH1F* m_delta_d0_b;
-	TH1F* m_delta_z0_b;
-	TH1F* m_delta_pt_b;
-	TH1F* m_reldelta_pt_b;
+	TH1F* m_delta_phi0_b{};
+	TH1F* m_delta_eta0_b{};
+	TH1F* m_delta_R_b{};
+	TH1F* m_delta_qoverp_b{};
+	TH1F* m_delta_charge_b{};
+	TH1F* m_delta_d0_b{};
+	TH1F* m_delta_z0_b{};
+	TH1F* m_delta_pt_b{};
+	TH1F* m_reldelta_pt_b{};
 
-	TH1F* m_alltrks_phi0;
-	TH1F* m_alltrks_phi0_b;
-	TH1F* m_alltrks_phi0_eca;
-	TH1F* m_alltrks_phi0_ecc;
-	TH1F* m_alltrks_eta0;
-	TH1F* m_si_phi0;
-	TH1F* m_si_eta0;
-	TH1F* m_trt_phi0;
-	TH1F* m_trt_phi0_b;
-	TH1F* m_trt_phi0_eca;
-	TH1F* m_trt_phi0_ecc;
-	TH1F* m_trt_eta0;
-	TH1F* m_matched_phi0;
-	TH1F* m_matched_eta0;
+	TH1F* m_alltrks_phi0{};
+	TH1F* m_alltrks_phi0_b{};
+	TH1F* m_alltrks_phi0_eca{};
+	TH1F* m_alltrks_phi0_ecc{};
+	TH1F* m_alltrks_eta0{};
+	TH1F* m_si_phi0{};
+	TH1F* m_si_eta0{};
+	TH1F* m_trt_phi0{};
+	TH1F* m_trt_phi0_b{};
+	TH1F* m_trt_phi0_eca{};
+	TH1F* m_trt_phi0_ecc{};
+	TH1F* m_trt_eta0{};
+	TH1F* m_matched_phi0{};
+	TH1F* m_matched_eta0{};
 
-	TProfile* m_sieff_phi0;
-	TProfile* m_sieff_eta0;
-	TProfile* m_trteff_phi0;
-	TProfile* m_trteff_phi0_b;
-	TProfile* m_trteff_phi0_eca;
-	TProfile* m_trteff_phi0_ecc;
-	TProfile* m_trteff_eta0;
+	TProfile* m_sieff_phi0{};
+	TProfile* m_sieff_eta0{};
+	TProfile* m_trteff_phi0{};
+	TProfile* m_trteff_phi0_b{};
+	TProfile* m_trteff_phi0_eca{};
+	TProfile* m_trteff_phi0_ecc{};
+	TProfile* m_trteff_eta0{};
 
 };
 

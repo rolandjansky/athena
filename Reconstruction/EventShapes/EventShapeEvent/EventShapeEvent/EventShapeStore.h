@@ -74,7 +74,7 @@ class EventShapeStore
   
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(EventShapeStore, 79242525, 1)
 
 #endif

@@ -5,7 +5,7 @@
 # Author: Martin Woudstra (Martin.Woudstra@cern.ch)
 
 import copy, types, os, weakref,sys
-import ConfigurableMeta
+from AthenaCommon import ConfigurableMeta
 
 # Note: load iProperty etc. from GaudiPython only as-needed
 import GaudiKernel.GaudiHandles as GaudiHandles
@@ -118,7 +118,7 @@ class Configurable( object ):
             for n,v in kwargs.items():
                try:
                   setattr( conf, n, v )
-               except AttributeError, originalAttributeError:
+               except AttributeError as originalAttributeError:
                 # rather annoying that we have to be somewhat silent here (the
                 # most common cases are 'name' and user kw args to be supplied
                 # to an overridden __init__)
@@ -191,7 +191,7 @@ class Configurable( object ):
 
     # this is an abstract class
       if klass == Configurable:
-         raise TypeError, "%s is an ABC and can not be instantiated" % str(Configurable)
+         raise TypeError( "%s is an ABC and can not be instantiated" % str(Configurable))
 
     # for using this Configurable as a (Gaudi) sequence
       self.__children = []
@@ -441,8 +441,7 @@ class Configurable( object ):
     # make sure base class init has been called
       if not hasattr(self,'_fInitOk') or not self._fInitOk:
        # could check more, but this is the only explanation
-         raise TypeError, \
-            "Configurable.__init__ not called in %s override" % self.__class__.__name__
+         raise TypeError("Configurable.__init__ not called in %s override" % self.__class__.__name__)
 
     # setup self: this collects all values on the python side
       self.__setupServices()

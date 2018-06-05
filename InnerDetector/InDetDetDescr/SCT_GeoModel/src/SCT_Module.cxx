@@ -145,36 +145,36 @@ SCT_Module::preBuild()
 
   // for corner of base board.
   CLHEP::Hep3Vector u(0.0,
-	       m_baseBoardOffsetY + 0.5*baseBoardWidth,
-	       m_baseBoardOffsetZ + 0.5*baseBoardLength);
+                      m_baseBoardOffsetY + 0.5*baseBoardWidth,
+                      m_baseBoardOffsetZ + 0.5*baseBoardLength);
   CLHEP::Hep3Vector v(0.0, m_baseBoardOffsetY - 0.5*baseBoardWidth, u.z());
   CLHEP::Hep3Vector w(0.0, v.y(), m_baseBoardOffsetZ - 0.5*baseBoardLength);
   CLHEP::Hep3Vector x(0.0, u.y(),w.z());
   
   // for corner of hybrid, connectorouter and pigtail of outer side.
   //CLHEP::Hep3Vector i(0.0, 
-  //	       0.5*outerSideHybridWidth,
-  //	       m_outerSide->hybridOffsetZ() + 0.5*outerSideHybridLength);
+  //        0.5*outerSideHybridWidth,
+  //        m_outerSide->hybridOffsetZ() + 0.5*outerSideHybridLength);
   //  CLHEP::Hep3Vector k(0.0,
-  //	       -0.5*outerSideHybridWidth,
-  //	       m_outerSide->hybridOffsetZ() + 0.5*outerSidePigtailLength);
+  //        -0.5*outerSideHybridWidth,
+  //        m_outerSide->hybridOffsetZ() + 0.5*outerSidePigtailLength);
   //CLHEP::Hep3Vector l(0.0,
-  //	       -0.5*outerSideHybridWidth - m_outerSide->pigtail()->width(), k.z());
+  //        -0.5*outerSideHybridWidth - m_outerSide->pigtail()->width(), k.z());
   //CLHEP::Hep3Vector m(0.0, l.y(),
-  //	       m_outerSide->hybridOffsetZ() - 0.5*outerSidePigtailLength);
+  //        m_outerSide->hybridOffsetZ() - 0.5*outerSidePigtailLength);
   //CLHEP::Hep3Vector n(0.0, k.y(),m.z());
   //CLHEP::Hep3Vector p(0.0, i.y(),
-  //	       m_outerSide->hybridOffsetZ() - 0.5*outerSideHybridLength);
+  //        m_outerSide->hybridOffsetZ() - 0.5*outerSideHybridLength);
 
   CLHEP::Hep3Vector i(0.0, 
-  	       0.5*outerSideHybridWidth,
-  	       m_outerSide->hybridOffsetZ() + 0.5*outerSidePigtailLength);
+                      0.5*outerSideHybridWidth,
+                      m_outerSide->hybridOffsetZ() + 0.5*outerSidePigtailLength);
   CLHEP::Hep3Vector l(0.0,
-  	       -0.5*outerSideHybridWidth - m_outerSide->pigtail()->width(), i.z());
+                      -0.5*outerSideHybridWidth - m_outerSide->pigtail()->width(), i.z());
   CLHEP::Hep3Vector m(0.0, l.y(),
-  	       m_outerSide->hybridOffsetZ() - 0.5*outerSidePigtailLength);
+                      m_outerSide->hybridOffsetZ() - 0.5*outerSidePigtailLength);
   CLHEP::Hep3Vector p(0.0, i.y(),
-  	       m.z());
+                      m.z());
 
 
 
@@ -260,9 +260,9 @@ SCT_Module::preBuild()
   const double yminEnv2 = std::min(y_lm, y_rs);
 
   const double thicknessEnv2 = 2.0*(m_outerSide->hybridOffsetX() + 
-				    0.5*m_innerSide->sensor()->thickness() + 
-				    0.5*m_sensorGap + 
-				    0.5*m_outerSide->hybrid()->thickness());
+                                    0.5*m_innerSide->sensor()->thickness() + 
+                                    0.5*m_sensorGap + 
+                                    0.5*m_outerSide->hybrid()->thickness());
   const double lengthEnv2 = zmaxEnv2 - zminEnv2;
   const double widthEnv2  = ymaxEnv2 - yminEnv2;
 
@@ -337,7 +337,7 @@ SCT_Module::preBuild()
   rotInner.rotateZ(180*CLHEP::deg);
   rotInner.rotateX(m_stereoInner);
   m_innerSidePos = new HepGeom::Transform3D(rotInner,
-				      CLHEP::Hep3Vector(ISPosX, 0.0, 0.0));
+                                            CLHEP::Hep3Vector(ISPosX, 0.0, 0.0));
 
   //
   // outer side
@@ -345,7 +345,7 @@ SCT_Module::preBuild()
   CLHEP::HepRotation rotOuter;
   rotOuter.rotateX(m_stereoOuter);
   m_outerSidePos = new HepGeom::Transform3D(rotOuter,
-				      CLHEP::Hep3Vector(OSPosX, 0.0, 0.0));
+                                            CLHEP::Hep3Vector(OSPosX, 0.0, 0.0));
 
   //
   // base board
@@ -389,7 +389,7 @@ SCT_Module::build(SCT_Identifier id) const
   module->add(innerSide);  
   // Store alignable transform
   detectorManager()->addAlignableTransform(0, innerId, innerTransform, innerSide);
-  				    
+     
   // Add outerside
   GeoAlignableTransform * outerTransform = new GeoAlignableTransform(*m_outerSidePos);
   module->add(outerTransform);

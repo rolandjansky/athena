@@ -29,6 +29,16 @@ class CurrentSequence:
         return CurrentSequence.sequence
 
 
+_propsToUnify=frozenset(("GeoModelSvc.DetectorTools","CondInputLoader.Load","IOVDbSvc.Folders","EvtPersistencySvc.CnvServices",
+                         "PoolSvc.ReadCatalog","ProxyProviderSvc.ProviderNames" ))
+
+def unifyProp(prop1,prop2):
+    #May want to strip whitespace in case the params are lists of strings
+    s1=set(prop1)
+    s2=set(prop2)
+    su=s1 | s2
+    return list(su)
+
 class ComponentAccumulator(object): 
 
     def __init__(self):        
@@ -202,9 +212,13 @@ class ComponentAccumulator(object):
                         if (oldprop!=newprop):
                             #found property mismatch
                             if isinstance(oldprop,list): #if properties are concatinable, do that!
-                                oldprop+=newprop
-                                #print "concatenating list-property",comp.getJobOptname(),prop
-                                setattr(comp,prop,oldprop)
+                                propid="%s.%s" % (comp.getType(),str(prop))
+                                if propid not in _propsToUnify:
+                                    raise DeduplicationFailed("List property %s defined multiple times with conflicting values.\n " % propid \
+                                                              +"If this property should be concatinated, consider adding it to the _propsToUnify set")
+                                
+                                mergeprop=unifyProp(oldprop,newprop)
+                                setattr(comp,prop,mergeprop)
                             else:
                                 #self._msg.error("component '%s' defined multiple times with mismatching configuration", svcs[i].getJobOptName())
                                 raise DeduplicationFailed("component '%s' defined multiple times with mismatching property %s" % \

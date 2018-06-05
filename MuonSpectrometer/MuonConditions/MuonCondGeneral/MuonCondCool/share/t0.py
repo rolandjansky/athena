@@ -26,7 +26,6 @@ RWA.Write=True
 RWA.Read=True
 # supply your own datafile here
 RWA.WFile="T0BOL370_7_1.dat"
-#RWA.WFile="AlignCorrH8.dat"
 #RWA.WFile="Rt_BML_1_1.dat"
 RWA.Channel=7
 # use CLOB technology
@@ -42,7 +41,6 @@ RWA2.Write=True
 RWA2.Read=True
 # supply your own datafile here
 RWA2.WFile="T0BOL370_7_2.dat"
-#RWA.WFile="AlignCorrH8.dat"
 #RWA.WFile="Rt_BML_1_1.dat"
 RWA2.Channel=8
 # use CLOB technology
@@ -58,7 +56,6 @@ RWA3.Write=True
 RWA3.Read=True
 # supply your own datafile here
 RWA3.WFile="T0BOL370_7_3.dat"
-#RWA.WFile="AlignCorrH8.dat"
 #RWA.WFile="Rt_BML_1_1.dat"
 RWA3.Channel=9
 # use CLOB technology
@@ -74,7 +71,6 @@ RWA4.Write=True
 RWA4.Read=True
 # supply your own datafile here
 RWA4.WFile="T0BML370_7_1.dat"
-#RWA.WFile="AlignCorrH8.dat"
 #RWA.WFile="Rt_BML_1_1.dat"
 RWA4.Channel=4
 # use CLOB technology
@@ -90,7 +86,6 @@ RWA5.Write=True
 RWA5.Read=True
 # supply your own datafile here
 RWA5.WFile="T0BML370_7_2.dat"
-#RWA.WFile="AlignCorrH8.dat"
 #RWA.WFile="Rt_BML_1_1.dat"
 RWA5.Channel=5
 # use CLOB technology
@@ -106,7 +101,6 @@ RWA6.Write=True
 RWA6.Read=True
 # supply your own datafile here
 RWA6.WFile="T0BML370_7_3.dat"
-#RWA.WFile="AlignCorrH8.dat"
 #RWA.WFile="Rt_BML_1_1.dat"
 RWA6.Channel=6
 # use CLOB technology

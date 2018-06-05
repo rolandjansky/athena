@@ -85,10 +85,10 @@ SCT_FwdSpine::build()
   const GeoBox * spineShapeMain = new GeoBox( 0.5*m_thickness, 0.5*m_width, 0.5*m_length);
  
   double position;
-	 
+
   int HybPos;
   if (m_ringType == 0) {  HybPos = -1; } // outer module, hybrid in inner side
-    		  else {  HybPos = 1;  } //hybrid in outer side
+                  else {  HybPos = 1;  } //hybrid in outer side
 
   // shift between module center and spine center.
   position = (0.5*m_length - m_moduleCenterToEndTmp) *  HybPos; 

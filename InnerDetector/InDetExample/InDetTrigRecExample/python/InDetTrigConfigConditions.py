@@ -64,7 +64,7 @@ class PixelConditionsServicesSetup:
 
     if self._print: print PixelConditionsSummarySvc
 
-    from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummaryTool as pixSummaryTool
+    from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool as pixSummaryTool
     PixelConditionsSummaryTool = \
         pixSummaryTool(name=self.instanceName('PixelConditionsSummaryTool'),
                       UseDCS = self.useDCS,

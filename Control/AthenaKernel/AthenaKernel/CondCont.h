@@ -261,6 +261,18 @@ public:
 
 
   /**
+   * @brief Return the number times an item was inserted into the map.
+   */
+  virtual size_t nInserts() const = 0;
+
+
+  /**
+   * @brief Return the maximum size of the map.
+   */
+  virtual size_t maxSize() const = 0;
+
+
+  /**
    * @brief Make a run+lbn key from an EventIDBase.
    * @param Event ID to convert.
    */
@@ -668,6 +680,18 @@ public:
    */
   virtual void
   quiescent (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) override;
+
+
+  /**
+   * @brief Return the number times an item was inserted into the map.
+   */
+  virtual size_t nInserts() const override;
+
+
+  /**
+   * @brief Return the maximum size of the map.
+   */
+  virtual size_t maxSize() const override;
 
 
 protected:

@@ -48,8 +48,7 @@ TRT_DetDescrDB_ParameterInterface::~TRT_DetDescrDB_ParameterInterface() {
 
   delete m_distortedMatManager;
   delete m_placements;
-  //std::map<std::string, TRT_Part *>::const_iterator iter;
-  //for (iter=m_parts.begin(); iter != m_parts.end(); ++iter) delete iter->second;
+  
 
 }
 
@@ -339,14 +338,9 @@ void TRT_DetDescrDB_ParameterInterface::SetValues() {
 
   endCapShiftForEachRotation = RDBVars_EndCapOverallPars->getFloat("SHIFTFOREACHROTATION")*CLHEP::radian;
 
-  //endCapPhiOfFirstStraw = RDBVars_EndCapOverallPars->getFloat("PHIOFFIRSTSTRAW")*CLHEP::radian;
   endCapPhiOfFirstStraw = 0; // Temporary
 
-  // These are used in the factory and should at some point come from here:
-  //  const unsigned int nSides = 2;
-  //  const unsigned int nStrawLayMaxEc = 16;
-  //  const unsigned int nPhiMax = 32;
-
+ 
   endCapInnerRadiusOfSupportA = RDBVars_A_Wheel->getFloat("INNERRADIUSOFSUPPORT")*CLHEP::mm;
   endCapInnerRadiusOfSupportB = RDBVars_B_Wheel->getFloat("INNERRADIUSOFSUPPORT")*CLHEP::mm;
   endCapInnerRadiusOfSupportC = RDBVars_C_Wheel->getFloat("INNERRADIUSOFSUPPORT")*CLHEP::mm;
@@ -465,14 +459,7 @@ void TRT_DetDescrDB_ParameterInterface::SetValues() {
     const IRDBRecord* row = (*RDB_EndCapStrwLayZPos)[iiPlane];
     endCapLayerZPositionC[iiPlane] = row->getFloat("LAYERZPOSCWHEELS")*CLHEP::mm;
   };
-  
-  //   //Do some overrides for cosmic run:
-  //   if (oldConfiguration&&isCosmicRun) {
-  //     endcapNumberOfAWheels = 0;
-  //     endcapNumberOfBWheels = 0;
-  //     endcapNumberOfCWheels = 0;
-  //   };
-
+ 
 
   
   if (includeECFoilHeatExchangerAndMembranes) {

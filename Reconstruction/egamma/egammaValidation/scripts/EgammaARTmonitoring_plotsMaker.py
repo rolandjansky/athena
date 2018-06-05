@@ -1,13 +1,12 @@
+#!/usr/bin/env python
 #
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
 #
 
-print "\n IMPORTING SOME PYTHON LIBRARIES "
 import sys
 import os
 
 #Import the ROOT libraries
-print "\n IMPORTING SOME ROOT LIBRARIES "
 from ROOT import gDirectory, gROOT, gStyle, kTRUE, TCanvas, TFile, TFileIter, TH1, TH1D, TLegend, TPad
 
 def GetKeyNames(f0, dir = ""):
@@ -107,4 +106,3 @@ for folder in GetKeyNames(f1):
 fO.Write()
 fO.Close()
 
-print " FINISHED \n"

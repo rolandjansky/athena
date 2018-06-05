@@ -58,7 +58,7 @@ class FactoryForStrategyC() :
              ToolSvc += InDetTrigSiDetElementsRoadMaker_C
 
              if DetFlags.haveRIO.pixel_on():
-                 from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummaryTool
+                 from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
                  from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
                  InDetTrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(PixelConditionsSetup.instanceName('PixelConditionsSummaryTool'))
              else:

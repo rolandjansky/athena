@@ -20,6 +20,7 @@ CaloClusterSnapshot::CaloClusterSnapshot(const std::string& type,
 { 
   declareInterface<CaloClusterCollectionProcessor> (this);
   declareProperty("OutputName",m_outputKey);
+  declareProperty("CellLinkName",m_cellLinkOutputKey);
   declareProperty("SetCrossLinks",m_setCrossLinks=false);
   
 }
@@ -39,7 +40,11 @@ StatusCode CaloClusterSnapshot::initialize() {
     }
     m_finalContName=&(parentAlgo->getOutputContainerName());
   }
-  CHECK(m_outputKey.initialize());
+  ATH_CHECK(m_outputKey.initialize());
+  if (m_cellLinkOutputKey.key().empty()) {
+    m_cellLinkOutputKey = m_outputKey.key() + "_links";
+  }
+  ATH_CHECK(m_cellLinkOutputKey.initialize());
   return StatusCode::SUCCESS;
 
 }
@@ -53,7 +58,7 @@ CaloClusterSnapshot::execute(const EventContext& ctx,
   
   SG::WriteHandle<xAOD::CaloClusterContainer>  outputColl(m_outputKey, ctx);
   
-  CHECK(CaloClusterStoreHelper::AddContainerWriteHandle(&(*evtStore()),outputColl,msg()));
+  ATH_CHECK(CaloClusterStoreHelper::AddContainerWriteHandle(&(*evtStore()),outputColl,msg()));
   
   CaloClusterStoreHelper::copyContainer(clusColl,outputColl.ptr());
 
@@ -84,8 +89,9 @@ CaloClusterSnapshot::execute(const EventContext& ctx,
   }
 
   
-  CHECK(CaloClusterStoreHelper::finalizeClusters(&(*evtStore()),outputColl.ptr(), outputColl.name(), msg()));
-
+  SG::WriteHandle<CaloClusterCellLinkContainer> cellLinks (m_cellLinkOutputKey, ctx);
+  ATH_CHECK(CaloClusterStoreHelper::finalizeClusters (cellLinks,
+                                                      outputColl.ptr()));
   
   return StatusCode::SUCCESS;
 }

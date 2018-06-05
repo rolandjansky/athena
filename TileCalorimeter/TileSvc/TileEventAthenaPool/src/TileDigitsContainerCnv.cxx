@@ -9,6 +9,15 @@
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
 
+TileDigitsContainerCnv::TileDigitsContainerCnv(ISvcLocator* svcloc)
+  : T_AthenaPoolCustomCnv<TileDigitsContainer, TileDigitsContainer_PERS >( svcloc)
+{
+  ServiceHandle<IService> cablingSvc ("TileCablingSvc", "TileDigitsContainerCnv");
+  if (cablingSvc.retrieve().isFailure()) {
+    std::abort();
+  }
+}
+
 TileDigitsContainer_PERS* TileDigitsContainerCnv::createPersistent(TileDigitsContainer* transCont) {
     MsgStream mlog(msgSvc(), "TileDigitsContainerConverter" );
     TileDigitsContainerCnv_p3   converter;

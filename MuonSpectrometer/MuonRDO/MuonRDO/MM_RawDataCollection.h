@@ -6,8 +6,8 @@
 #define MUONRDO_MM_RAWDATACOLLECTION_H
 
 #include "MuonRDO/MM_RawData.h"
-#include "DataModel/DataVector.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "Identifier/IdentifierHash.h"
 
 namespace Muon {

@@ -18,7 +18,6 @@ if DetFlags.digitize.pixel_on():
                              ( 'InDetSimDataCollection' , 'StoreGateSvc+PixelSDO_Map' )]
 
 if DetFlags.digitize.SCT_on():
-    digiExtraInputs += [('SiLorentzAngleCondData' , 'ConditionStore+SCTSiLorentzAngleCondData')]
     StreamRDOExtraInputs += [( 'SCT_RDO_Container' , 'StoreGateSvc+SCT_RDOs' ),
                              ( 'InDetSimDataCollection' , 'StoreGateSvc+SCT_SDO_Map' )]
 
@@ -35,7 +34,6 @@ if DetFlags.digitize.LAr_on():
 
 if DetFlags.digitize.Tile_on():
     digiExtraOutputs += [('TileHitContainer', 'TileHitCnt')]
-    topSequence.TileRawChannelToL2.ExtraInputs = [('TileRawChannelContainer' , 'TileRawChannelCnt')]
     StreamRDOExtraInputs += [('TileRawChannelContainer' , 'TileRawChannelCnt'),
                              ('TileRawChannelContainer' , 'TileRawChannelFit'),
                              ('TileL2Container' , 'TileL2Cnt')]

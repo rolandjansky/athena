@@ -51,7 +51,8 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
 
         from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory
 
-        if not "R2" in globalflags.DetDescrVersion() and not "IBL3D25" in globalflags.DetDescrVersion():
+        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
+        if ( not geoFlags.Run() in ["RUN2", "RUN3"] ) :
             NnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "NnClusterizationFactory",
                                                                       NetworkToHistoTool   = NeuralNetworkToHistoTool,
                                                                       doRunI = True,
