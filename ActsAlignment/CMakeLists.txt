@@ -20,7 +20,9 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( CLHEP )
 find_package( Eigen )
 
-#find_package( Acts REQUIRED COMPONENTS Core Legacy )
+if(NOT ATH_ACTS_BUILD_SUBDIR)
+  find_package(Acts REQUIRED COMPONENTS Core)
+endif()
 
 # Component(s) in the package:
 atlas_add_component( ActsAlignment
