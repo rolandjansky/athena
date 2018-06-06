@@ -25,10 +25,15 @@ namespace Analysis{
 }
 class IBeamCondSvc;
 
+namespace HepPDT{
+  class ParticleDataTable;
+}
+
 namespace DerivationFramework {
   
   class BPhysPVCascadeTools {
-
+  typedef ElementLink<xAOD::VertexContainer> VertexLink;
+  typedef std::vector<VertexLink> VertexLinkVector;
   private:
        const Trk::V0Tools *m_v0Tools;
        const CascadeTools *m_cascadeTools;
@@ -117,6 +122,13 @@ namespace DerivationFramework {
                                               double mass, xAOD::BPhysHypoHelper &vtx);
 
        static std::vector<const xAOD::TrackParticle*> CollectAllChargedTracks(const std::vector<xAOD::Vertex*> &cascadeVertices);
+       
+       static void SetVectorInfo(xAOD::BPhysHelper &, const Trk::VxCascadeInfo*);
+       static bool uniqueCollection(const std::vector<const xAOD::TrackParticle*>&);
+       static bool uniqueCollection(const std::vector<const xAOD::TrackParticle*>&, const std::vector<const xAOD::TrackParticle*>&);
+       static bool LinkVertices(SG::AuxElement::Decorator<VertexLinkVector> &decor, const std::vector<xAOD::Vertex*>& vertices,
+                                                 const xAOD::VertexContainer* vertexContainer, xAOD::Vertex* vert);
+       static double getParticleMass(const HepPDT::ParticleDataTable* pdt, int pdg);
   }; // class BPhysPVCascadeTools
 
 } // namespace DerivationFramework

@@ -13,6 +13,7 @@
 #include "TrkVKalVrtFitter/VxCascadeInfo.h"
 #include "DerivationFrameworkBPhys/LocalVector.h"
 #include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
+#include "HepPDT/ParticleDataTable.hh"
 
 using namespace std;
 
@@ -413,3 +414,75 @@ StatusCode DerivationFramework::BPhysPVCascadeTools::FillCandwithRefittedVertice
 }
 
 //-----------------------------------------------------------------------------
+
+void DerivationFramework::BPhysPVCascadeTools::SetVectorInfo(xAOD::BPhysHelper &vtx, const Trk::VxCascadeInfo* casc){
+
+    const std::vector< std::vector<TLorentzVector> > &moms = casc->getParticleMoms();
+    const std::vector<xAOD::Vertex*> &cascadeVertices = casc->vertices();
+    // Get refitted track momenta from all vertices, charged tracks only
+    std::vector<float> px;
+    std::vector<float> py;
+    std::vector<float> pz;
+    for( size_t jt=0; jt<moms.size(); jt++) {
+       for( size_t it=0; it<cascadeVertices[jt]->vxTrackAtVertex().size(); it++) {
+        px.push_back( moms[jt][it].Px() );
+        py.push_back( moms[jt][it].Py() );
+        pz.push_back( moms[jt][it].Pz() );
+      }
+    }
+    vtx.setRefTrks(px,py,pz);
+    
+}
+
+bool DerivationFramework::BPhysPVCascadeTools::uniqueCollection(const std::vector<const xAOD::TrackParticle*>&col){
+    for(auto p : col){
+        if(std::count(col.begin(), col.end(), p) > 1) return false;
+    }
+    return true;
+}
+
+bool DerivationFramework::BPhysPVCascadeTools::uniqueCollection(const std::vector<const xAOD::TrackParticle*>&col1, const std::vector<const xAOD::TrackParticle*>&col2){
+    for(auto p : col1){
+        if((std::count(col1.begin(), col1.end(), p) + std::count(col2.begin(), col2.end(), p)) > 1) return false;
+    }
+    for(auto p : col2){
+        if((std::count(col1.begin(), col1.end(), p) + std::count(col2.begin(), col2.end(), p)) > 1) return false;
+    }
+    return true;
+}
+
+bool DerivationFramework::BPhysPVCascadeTools::LinkVertices(SG::AuxElement::Decorator<VertexLinkVector> &decor, const std::vector<xAOD::Vertex*>& vertices,
+                                                 const xAOD::VertexContainer* vertexContainer, xAOD::Vertex* vert){
+  // create tmp vector of preceding vertex links
+  VertexLinkVector precedingVertexLinks;
+
+  // loop over input precedingVertices  
+  std::vector<xAOD::Vertex*>::const_iterator precedingVerticesItr = vertices.begin();
+  for(; precedingVerticesItr!=vertices.end(); ++precedingVerticesItr) {
+       // sanity check 1: protect against null pointers
+       if( !(*precedingVerticesItr) )
+         return false;
+    
+    // create element link
+    VertexLink vertexLink;
+    vertexLink.setElement(*precedingVerticesItr);
+    vertexLink.setStorableObject(*vertexContainer);
+    
+       // sanity check 2: is the link valid?
+    if( !vertexLink.isValid() )
+       return false;
+    
+    // link is OK, store it in the tmp vector
+    precedingVertexLinks.push_back( vertexLink );
+ 
+  } // end of loop over preceding vertices
+  
+    // all OK: store preceding vertex links in the aux store
+   decor(*vert) = precedingVertexLinks;
+   return true;
+}
+
+double DerivationFramework::BPhysPVCascadeTools::getParticleMass(const HepPDT::ParticleDataTable* pdt, int pdgcode){
+    auto ptr = pdt->particle( pdgcode );
+    return ptr ? ptr->mass() : 0.;
+}
