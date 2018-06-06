@@ -181,7 +181,7 @@ if DerivationFrameworkIsMonteCarlo:
   BkgElectronClassificationTool = DerivationFramework__BkgElectronClassification (name = "BkgElectronClassificationTool", MCTruthClassifierTool = BkgElectronMCTruthClassifier)
   ToolSvc += BkgElectronClassificationTool
   AugmentationTools.append(BkgElectronClassificationTool)
-
+   
 
 #====================================================================
 # SKIMMING TOOL
@@ -322,6 +322,9 @@ SUSY2SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
 SUSY2SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 # Saves BDT and input variables tau algorithm
 SUSY2SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
+# add missing branches needed by Charge Flip Killer Tool
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+SUSY2SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 
 
 SUSY2SlimmingHelper.IncludeMuonTriggerContent = True
