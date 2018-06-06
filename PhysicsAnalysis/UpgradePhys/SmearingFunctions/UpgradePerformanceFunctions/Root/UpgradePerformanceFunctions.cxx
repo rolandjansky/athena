@@ -59,10 +59,10 @@ UpgradePerformanceFunctions::UpgradePerformanceFunctions( const std::string& nam
   // Electrons
   declareProperty( "ElectronWorkingPoint", m_eleCutLevel = UpgradePerformanceFunctions::looseElectron);
   //Muons
-  declareProperty( "MuonWorkingPoint", m_eleCutLevel = UpgradePerformanceFunctions::looseElectron);
+  declareProperty( "MuonWorkingPoint", m_muonCutLevel = UpgradePerformanceFunctions::highPtMuon);
   declareProperty( "UseMuonHighEta", m_useMuonHighEta = true ); // use high-eta muon tagger by default
   //Photons
-  declareProperty( "PhotonWorkingPoint", m_eleCutLevel = UpgradePerformanceFunctions::looseElectron);
+  declareProperty( "PhotonWorkingPoint", m_photonCutLevel = UpgradePerformanceFunctions::tightPhoton);
   declareProperty( "PhotonNoiseScaling", m_photonNoiseScaling = -1 ); //use electron resolution by default
   //Jet
   //Tau
@@ -146,10 +146,10 @@ UpgradePerformanceFunctions::UpgradePerformanceFunctions( const std::string& nam
   // Electrons
   declareProperty( "ElectronWorkingPoint", m_eleCutLevel = UpgradePerformanceFunctions::looseElectron);
   //Muons
-  declareProperty( "MuonWorkingPoint", m_eleCutLevel = UpgradePerformanceFunctions::looseElectron);
+  declareProperty( "MuonWorkingPoint", m_muonCutLevel = UpgradePerformanceFunctions::highPtMuon);
   declareProperty( "UseMuonHighEta", m_useMuonHighEta = true ); // use high-eta muon tagger by default
   //Photons
-  declareProperty( "PhotonWorkingPoint", m_eleCutLevel = UpgradePerformanceFunctions::looseElectron);
+  declareProperty( "PhotonWorkingPoint", m_photonCutLevel = UpgradePerformanceFunctions::tightPhoton);
   declareProperty( "PhotonNoiseScaling", m_photonNoiseScaling = -1 ); //use electron resolution by default
   //Jet
   //Tau
