@@ -21,7 +21,9 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( CLHEP )
 find_package( Eigen )
 
-find_package( Acts REQUIRED COMPONENTS Core Legacy )
+if(NOT TARGET Acts::Core)
+  find_package( Acts REQUIRED COMPONENTS Core Legacy )
+endif()
 
 find_package(OpenMP)
 if (OPENMP_FOUND)

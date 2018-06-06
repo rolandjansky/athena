@@ -31,12 +31,20 @@ find_package( AtlasCMake QUIET )
 # Find the project that we depend on:
 find_package( Athena )
 
+option(ATH_ACTS_BUILD_SUBDIR "build Acts as subdir or attempt find_package" OFF)
+
+if(ATH_ACTS_BUILD_SUBDIR)
+  message(STATUS "Building Acts from ${CMAKE_CURRENT_SOURCE_DIR}/acts-core")
+  set(ACTS_BUILD_TESTS OFF CACHE BOOL "Build ACTS unit tests")
+  set(ACTS_BUILD_EXAMPLES OFF CACHE BOOL "Build ACTS examples")
+  set(ACTS_BUILD_MATERIAL_PLUGIN ON CACHE BOOL "Build Material Plugin")
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/acts-core)
+endif()
+
 # Set up CTest:
 atlas_ctest_setup()
 
 # Set up a work directory project:
-#atlas_project( WorkDir 21.0.39 USE Athena 21.0.39
-   #FORTRAN )
 atlas_project( WorkDir 22.0.0 USE Athena 22.0.0
    FORTRAN )
 
@@ -44,10 +52,6 @@ atlas_project( WorkDir 22.0.0 USE Athena 22.0.0
 lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
 install( FILES ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh
    DESTINATION . )
-
-set(ACTS_BUILD_TESTS OFF CACHE BOOL "Build ACTS unit tests")
-set(ACTS_BUILD_EXAMPLES OFF CACHE BOOL "Build ACTS examples")
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/acts-core)
 
 # Set up CPack:
 atlas_cpack_setup()
