@@ -8,12 +8,8 @@ def getMdtRdoToMdtDigit(name="MdtRdoToMdtDigitOverlay", **kwargs):
     kwargs.setdefault("DecodeTgcRDO", False)
     kwargs.setdefault("DecodeCscRDO", False)
     kwargs.setdefault("RetrievePrivateCopy", True)
-    from AthenaCommon.GlobalFlags import globalflags
-    if globalflags.isOverlay():
-        from OverlayCommonAlgs.OverlayFlags import overlayFlags
-        kwargs.setdefault("InputObjectName",overlayFlags.dataStore()+"+MDT_DIGITS")
-        kwargs.setdefault("OutputObjectName",overlayFlags.dataStore()+"+MDTCSM")
-        kwargs.setdefault("EvtStore", overlayFlags.dataStore())
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    kwargs.setdefault("EvtStore", overlayFlags.dataStore())
     return CfgMgr.MuonRdoToMuonDigitTool(name, **kwargs)
 
 def getRpcRdoToRpcDigit(name="RpcRdoToRpcDigitOverlay", **kwargs):
@@ -22,12 +18,8 @@ def getRpcRdoToRpcDigit(name="RpcRdoToRpcDigitOverlay", **kwargs):
     kwargs.setdefault("DecodeTgcRDO", False)
     kwargs.setdefault("DecodeCscRDO", False)
     kwargs.setdefault("RetrievePrivateCopy", True)
-    from AthenaCommon.GlobalFlags import globalflags
-    if globalflags.isOverlay():
-        from OverlayCommonAlgs.OverlayFlags import overlayFlags
-        kwargs.setdefault("InputObjectName",overlayFlags.dataStore()+"+RPC_DIGITS")
-        kwargs.setdefault("OutputObjectName",overlayFlags.dataStore()+"+RPCPAD")
-        kwargs.setdefault("EvtStore", overlayFlags.dataStore())
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    kwargs.setdefault("EvtStore", overlayFlags.dataStore())
     return CfgMgr.MuonRdoToMuonDigitTool(name, **kwargs)
 
 def getTgcRdoToTgcDigit(name="TgcRdoToTgcDigitOverlay", **kwargs):
@@ -36,10 +28,6 @@ def getTgcRdoToTgcDigit(name="TgcRdoToTgcDigitOverlay", **kwargs):
     kwargs.setdefault("DecodeTgcRDO", True)
     kwargs.setdefault("DecodeCscRDO", False)
     kwargs.setdefault("RetrievePrivateCopy", True)
-    from AthenaCommon.GlobalFlags import globalflags
-    if globalflags.isOverlay():
-        from OverlayCommonAlgs.OverlayFlags import overlayFlags
-        kwargs.setdefault("InputObjectName",overlayFlags.dataStore()+"+TGC_DIGITS")
-        kwargs.setdefault("OutputObjectName",overlayFlags.dataStore()+"+TGCRDO")
-        kwargs.setdefault("EvtStore", overlayFlags.dataStore())
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    kwargs.setdefault("EvtStore", overlayFlags.dataStore())
     return CfgMgr.MuonRdoToMuonDigitTool(name, **kwargs)
