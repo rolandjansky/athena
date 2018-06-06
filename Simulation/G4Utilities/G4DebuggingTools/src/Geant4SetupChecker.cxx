@@ -49,16 +49,19 @@ void Geant4SetupChecker::BeginOfRunAction(const G4Run*){
            G4ExceptionDescription ed;
            ed << "ERROR! Reference had " << lvs << " and this setup has " << g4_logical_volume_store->size() << " logical volumes" << G4endl;
            G4Exception("Geant4SetupChecker","LogVolMismatch",FatalException,ed);
+           abort();
          }
          if (pvs!=g4_physical_volume_store->size()){
            G4ExceptionDescription ed;
            ed << "ERROR! Reference had " << pvs << " and this setup has " << g4_physical_volume_store->size() << " physical volumes" << G4endl;
            G4Exception("Geant4SetupChecker","PhysVolMismatch",FatalException,ed);
+           abort();
          }
          if (regs!=g4_region_store->size()){
            G4ExceptionDescription ed;
            ed << "ERROR! Reference had " << regs << " and this setup has " << g4_region_store->size() << " regions" << G4endl;
            G4Exception("Geant4SetupChecker","RegionMismatch",FatalException,ed);
+           abort();
          }
        } // This was the basic geometry counting part
        else { // This is a region - check materials and fast sim
@@ -67,6 +70,7 @@ void Geant4SetupChecker::BeginOfRunAction(const G4Run*){
            G4ExceptionDescription ed;
            ed << "ERROR! Reference had region named " << id << "that is not in this configuration, or has changed name" << G4endl;
            G4Exception("Geant4SetupChecker","RegionNotFound",FatalException,ed);
+           abort();
          }
          unsigned int nmat=0, nfs=0;
          in >> nmat >> nfs;
@@ -74,12 +78,14 @@ void Geant4SetupChecker::BeginOfRunAction(const G4Run*){
            G4ExceptionDescription ed;
            ed << "ERROR! Region " << id << " had " << nmat << " materials in ref and " << areg->GetNumberOfMaterials() << " in this setup" << G4endl;
            G4Exception("Geant4SetupChecker","MaterialMismatch",FatalException,ed);
+           abort();
          }
          if ( (!areg->GetFastSimulationManager() && nfs!=0) ||
               ( areg->GetFastSimulationManager() && nfs!=areg->GetFastSimulationManager()->GetFastSimulationModelList().size()) ){
            G4ExceptionDescription ed;
            ed << "ERROR! Region " << id << " had " << nfs << " fast sims in ref and " << (areg->GetFastSimulationManager()?areg->GetFastSimulationManager()->GetFastSimulationModelList().size():0) << " in this setup" << G4endl; 
            G4Exception("Geant4SetupChecker","FastSimMismatch",FatalException,ed);
+           abort();
          }
        } // End of region handling
      } // loop over lines
