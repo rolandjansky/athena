@@ -23,7 +23,7 @@ find_package( CLHEP )
 find_package( Eigen )
 
 if(NOT ATH_ACTS_BUILD_SUBDIR)
-  find_package( Acts REQUIRED COMPONENTS Core Legacy )
+  find_package( Acts REQUIRED COMPONENTS Core Legacy MaterialPlugin ProtobufPlugin )
 endif()
 
 # Component(s) in the package:

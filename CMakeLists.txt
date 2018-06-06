@@ -51,6 +51,7 @@ if(ATH_ACTS_BUILD_SUBDIR)
   set(ACTS_BUILD_TESTS OFF CACHE BOOL "Build ACTS unit tests")
   set(ACTS_BUILD_EXAMPLES OFF CACHE BOOL "Build ACTS examples")
   set(ACTS_BUILD_MATERIAL_PLUGIN ON CACHE BOOL "Build Material Plugin")
+  set(ACTS_BUILD_PROTOBUF_PLUGIN ON CACHE BOOL "Build Protobuf Plugin")
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/acts-core)
 endif()
 
