@@ -221,13 +221,6 @@ class ComponentAccumulator(object):
                 return svc
         raise KeyError("No service with name %s known" % name)
 
-    def getAlgTool(self,name):
-        for tool in self._privateTools:
-            if tool.getName()==name:
-                return tool
-            raise KeyError("No AlgTool with name %s known" % name)
-
-
     def getPublicTool(self,name):
         for pt in self._publicTools:
             if pt.getName()==name:
