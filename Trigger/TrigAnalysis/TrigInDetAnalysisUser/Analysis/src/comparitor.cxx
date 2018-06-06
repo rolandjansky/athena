@@ -57,7 +57,14 @@ bool fulldbg = false;
 /// if histogram is not found, then check for dir/name
 
 template<typename T=TH1F>
-T* Get( TFile& f, const std::string& name, const std::string& dir="", std::vector<std::string>* saved=0  ) { 
+T* Get( TFile& f, const std::string& n, const std::string& dir="", std::vector<std::string>* saved=0  ) { 
+
+
+  std::string name;
+
+  size_t pos = n.find("+");
+  if ( pos!=std::string::npos ) name = n.substr( 0, pos );
+  else                          name = n;
 
   T* h = (T*)f.Get( name.c_str() );
   if ( h || dir=="" || name.find(dir)!=std::string::npos ) { 
@@ -1268,7 +1275,8 @@ int main(int argc, char** argv) {
 
 	  if ( fulldbg ) std::cout << __LINE__ << std::endl;
 	
-	  if ( histo.name().find("1d")!=std::string::npos ) { 
+	  if ( histo.name().find("rdz_vs_zed")==std::string::npos && histo.name().find("1d")!=std::string::npos ) { 
+	    std::cout << "Rebinning histogram: " << histo.name() << std::endl;
 	    if (        htest->GetNbinsX()>500 ) htest->Rebin(10);
 	    if ( href && href->GetNbinsX()>500 ) href->Rebin(10);
 	  }
@@ -1485,27 +1493,42 @@ int main(int argc, char** argv) {
 	if ( contains(histo.name(),"_res") ||  contains(histo.name(),"residual_") || contains(histo.name(),"1d") ) residual = true; 
 
 
+
+
 	std::string collection = basename( chains[j] );
 
 	std::string actual_chain = basename( dirname( chains[j] ) );
 
-	std::cout << "track collection: " << collection << std::endl;
-	std::cout << "actual chain:     " << actual_chain     << std::endl;
+	if ( collection.find("_InDet")!=std::string::npos ) collection.erase( 0, collection.find("_InDet")+1 );
+	if ( actual_chain.find("_InDet")!=std::string::npos ) actual_chain.erase( actual_chain.find("_InDet") );
+	
+
+	std::cout << "raw:              " << chains[j]    << std::endl;
+
+	std::cout << "track collection: " << collection   << std::endl;
+	std::cout << "actual chain:     " << actual_chain << std::endl;
+
+
 
 	if ( actual_chain.find("_idperf")!=std::string::npos )    actual_chain.erase( actual_chain.find("_idperf"), 7 );
 	if ( actual_chain.find("_bperf")!=std::string::npos )     actual_chain.erase( actual_chain.find("_bperf"), 6 );
+	if ( actual_chain.find("_boffperf")!=std::string::npos )  actual_chain.erase( actual_chain.find("_boffperf"), 9 );
 	if ( collection.find("_IDTrkNoCut")!=std::string::npos )  collection.erase( collection.find("_IDTrkNoCut"), 11 );
 	if ( collection.find("xAODCnv")!=std::string::npos )      collection.erase( collection.find("xAODCnv"), 7 );
 	if ( collection.find("Tracking")!=std::string::npos )     collection.replace( collection.find("Tracking"), 8, "Trk" );    
-	if ( collection.find("InDetTrigTrk_")!=std::string::npos ) collection.replace( collection.find("InDetTrigTrk_"), 13, "" );    
-
+	if ( collection.find("InDetTrigTrk_")!=std::string::npos ) collection.erase( collection.find("InDetTrigTrk_"), 13 );    
 	if ( collection.find("FTK_Track")==std::string::npos ) replace( collection, "_Tr", " :  " );
 
 	std::string c = actual_chain + " : " + collection;
 
+	std::cout << "track collection: " << collection   << "   <-" << std::endl;
+	std::cout << "actual chain:     " << actual_chain << "   <-" << std::endl;
+       
 	replace( c, "_In", " :  " );
 
 	c = "  " + c;
+
+	std::cout << "use label: " << c << std::endl;
 
 	/// calculate and set axis limits
 
@@ -1918,6 +1941,8 @@ int main(int argc, char** argv) {
 	else { 
 	  useplotname = plotname;
 	}
+
+	useplotname.erase( std::remove( useplotname.begin(), useplotname.end(), '+' ), useplotname.end() );
 
 	// std::string printbase = dir+"HLT_"+ppanelname+tag;
 	std::string printbase = dir + useplotname + tag;
