@@ -31,7 +31,6 @@ find_package( AtlasCMake QUIET )
 # Find the project that we depend on:
 find_package( Athena )
 
-option(ATH_ACTS_BUILD_SUBDIR "build Acts as subdir or attempt find_package" OFF)
 
 # Set up CTest:
 atlas_ctest_setup()
@@ -44,6 +43,8 @@ atlas_project( WorkDir 22.0.0 USE Athena 22.0.0
 lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
 install( FILES ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh
    DESTINATION . )
+
+option(ATH_ACTS_BUILD_SUBDIR "build Acts as subdir or attempt find_package" OFF)
 
 if(ATH_ACTS_BUILD_SUBDIR)
   message(STATUS "Building Acts from ${CMAKE_CURRENT_SOURCE_DIR}/acts-core")
