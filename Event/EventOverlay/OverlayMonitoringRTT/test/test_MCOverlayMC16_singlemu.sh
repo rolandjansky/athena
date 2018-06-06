@@ -2,7 +2,8 @@
 
 # art-description: MC+MC Overlay for MC16, single mu, no trigger
 # art-type: grid
-# art-ci: 21.0, master
+# art-include: 21.0/Athena
+# art-include: master/Athena
 
 # art-output: *.root
 # art-output: log.*

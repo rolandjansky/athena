@@ -2,7 +2,8 @@
 
 # art-description: OverlayChain+Reco test for data16.
 # art-type: grid
-# art-ci: 21.0
+# art-include: 21.0/Athena
+# art-include: master/Athena
 
 # art-output: *.root
 # art-output: log.*
