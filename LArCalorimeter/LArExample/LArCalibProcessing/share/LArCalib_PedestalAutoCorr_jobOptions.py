@@ -315,6 +315,32 @@ theByteStreamAddressProviderSvc.TypeNames += ["LArAccumulatedDigitContainer/HIGH
 theByteStreamAddressProviderSvc.TypeNames += ["LArAccumulatedDigitContainer/MEDIUM"]
 theByteStreamAddressProviderSvc.TypeNames += ["LArAccumulatedDigitContainer/LOW"]
 
+from IOVDbSvc.CondDB import conddb
+
+BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
+MissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
+
+if ( ReadBadChannelFromCOOL ):      
+   if 'InputBadChannelSQLiteFile' in dir():
+      InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
+   else:
+      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
+      InputDBConnectionBadChannel = "COOLOFL_LAR/" + conddb.dbname
+
+if 'BadChannelsLArCalibFolderTag' in dir() :
+   BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,BadChannelsLArCalibFolderTag) 
+   conddb.addFolder("",BadChannelsFolder+"<tag>"+BadChannelsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",
+                    className="CondAttrListCollection")
+else :
+   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="CondAttrListCollection")
+
+if 'MissingFEBsLArCalibFolderTag' in dir() :
+   MissingFEBsTagSpec = LArCalibFolderTag (MissingFEBsFolder,MissingFEBsLArCalibFolderTag)   
+   conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
+else :
+   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
+
+include ("LArCalibProcessing/LArCalib_BadChanTool.py")
 
 ## This algorithm verifies that no FEBs are dropping out of the run
 ## If it finds corrupt events, it breaks the event loop and terminates the job rapidly
@@ -335,31 +361,12 @@ if doBadCatcher:
 #                                                     #
 #######################################################
 
-include ("LArCalibProcessing/LArCalib_BadChanTool.py")
+
 
 if not 'InputBadChannelSQLiteFile' in dir():
    PedestalAutoCorrLog.info( "Read Bad Channels from Oracle DB")
 else :   
    PedestalAutoCorrLog.info( "Read Bad Channels from SQLite file") 
-
-if ( ReadBadChannelFromCOOL ):      
-   if 'InputBadChannelSQLiteFile' in dir():
-      InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
-   else:
-      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
-      InputDBConnectionBadChannel = "COOLOFL_LAR/" + conddb.dbname
-
-if 'BadChannelsLArCalibFolderTag' in dir() :
-   BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,BadChannelsLArCalibFolderTag) 
-   conddb.addFolder("",BadChannelsFolder+"<tag>"+BadChannelsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
-else :
-   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
-
-if 'MissingFEBsLArCalibFolderTag' in dir() :
-   MissingFEBsTagSpec = LArCalibFolderTag (MissingFEBsFolder,MissingFEBsLArCalibFolderTag)   
-   conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
-else :
-   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
 
 from LArCalibProcessing.LArCalibCatalogs import larCalibCatalogs
 svcMgr.PoolSvc.ReadCatalog += larCalibCatalogs
@@ -667,3 +674,4 @@ svcMgr.ChronoStatSvc.OutputLevel  = INFO
 ###########################################################################
 #svcMgr.IOVDbSvc.OutputLevel = DEBUG 
 
+print condSeq
