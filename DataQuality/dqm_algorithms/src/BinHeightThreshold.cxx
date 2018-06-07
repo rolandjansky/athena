@@ -329,9 +329,22 @@ dqm_algorithms::BinHeightThreshold::CompareBinHeightThreshold(const std::string 
 bool 
 dqm_algorithms::BinHeightThreshold::equalWithinPrecision(double a,double b)
 {
-  if(a>=b-precision_ && a<=b+precision_)
+  //relative difference method (following what suggested in (non-ATLAS) web page http://floating-point-gui.de/errors/comparison/)
+  double absA = fabs(a);
+  double absB = fabs(b);
+  double diff = fabs(a - b);
+
+  if (a == b) { // shortcut, handles infinities
     return true;
-  return false;
+  } 
+  else if (a == 0 || b == 0 || diff < DBL_MIN) {
+    // a or b is zero or both are extremely close to it
+    // relative error is less meaningful here
+    return diff < (precision_ * DBL_MIN);
+  } 
+  else { // use relative error
+    return (diff / std::min((absA + absB), DBL_MAX)) < precision_;
+  }
 }
 
 void
