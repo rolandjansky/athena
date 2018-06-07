@@ -47,7 +47,6 @@ namespace BoostedJetTaggers {
     SG::AuxElement::ConstAccessor<ParticleLinks> m_acc_subjets;
     double m_subjet_pt_threshold;
     std::string m_fat_jet_node_name;
-    std::string m_jss_node_name;
     std::vector<std::string> m_subjet_node_names;
     typedef SG::AuxElement::ConstAccessor<float> FloatAcc;
     typedef SG::AuxElement::ConstAccessor<double> DoubleAcc;
@@ -310,7 +309,6 @@ namespace BoostedJetTaggers {
     boost::property_tree::read_json(input_file, pt);
 
     m_fat_jet_node_name = pt.get<std::string>("fatjet.node_name");
-    m_jss_node_name = pt.get<std::string>("fatjet.substructure_node_name");
 
     auto sjets = pt.get<std::string>("subjet.collection");
     m_subjet_pt_threshold = pt.get<double>("subjet.pt_threshold");
@@ -333,15 +331,6 @@ namespace BoostedJetTaggers {
     std::set<std::string> int_subjet_inputs;
     for (const lwt::InputNodeConfig& node_config: network_config.inputs) {
       if (node_config.name == m_fat_jet_node_name) {
-        for (const lwt::Input input: node_config.variables) {
-          if (NON_STRING_ACCESSOR.count(input.name)) {
-            continue;
-            // todo: add substructure accessors
-          } else {
-            throw std::logic_error("don't know how to access " + input.name);
-          }
-        }
-      } else if (node_config.name == m_jss_node_name) {
         m_ssa.reset(new SubstructureAccessors);
       } else if (valid_subjet_nodes.count(node_config.name)) {
         for (const lwt::Input input: node_config.variables) {
@@ -391,11 +380,7 @@ namespace BoostedJetTaggers {
     std::map<std::string, std::map<std::string, double> > inputs;
 
     // fat jet inputs
-    std::map<std::string, double> fat_inputs;
-    fat_inputs["pt"] = jet.pt();
-    fat_inputs["eta"] = jet.eta();
-    fat_inputs["mass"] = jet.m();
-    inputs[m_fat_jet_node_name] = fat_inputs;
+    if (m_ssa) inputs[m_fat_jet_node_name] = m_ssa->get_map(jet);
 
     // get subjets
     const xAOD::Jet* parent_jet = *m_acc_parent(jet);
@@ -442,9 +427,6 @@ namespace BoostedJetTaggers {
       }
       inputs[m_subjet_node_names.at(subjet_n)] = subjet_inputs;
     }
-
-    // add jss stuff
-    if (m_ssa) inputs[m_jss_node_name] = m_ssa->get_map(jet);
 
     return inputs;
   }

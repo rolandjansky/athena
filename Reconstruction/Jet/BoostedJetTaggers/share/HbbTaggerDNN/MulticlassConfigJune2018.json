@@ -1,7 +1,6 @@
 {
     "fatjet": {
-        "node_name": "fat_jet",
-        "substructure_node_name": "jet_substructure"
+        "node_name": "fat_jet"
     },
     "subjet": {
         "collection": "GhostVR30Rmax4Rmin02TrackJet",
