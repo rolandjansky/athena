@@ -180,17 +180,14 @@ if InDetFlags.doMonitoringGlobal():
   ####################################################
   #                                                  #
   # Non Collisional Background Tool                  #
-  # Tool to analyze the NCB in the SCT               #
-  # To be used only with unpaired bunches triggers   #
   #                                                  #
   ####################################################
   
-if InDetFlags.doMonitoringGlobal() and doIdNCBMon:
+if InDetFlags.doMonitoringGlobal() and doIdNCBMon and rec.doTrigger == True:
   from InDetGlobalMonitoring.InDetGlobalMonitoringConf import InDetGlobalBackgroundMonTool
   InDetGlobalBackgroundMonTool = InDetGlobalBackgroundMonTool( name = "InDetGlobalBackgroundMonTool")
   
-  # Trigger selection only for offline. Online, the triggers are selected directly in the job steering
-  if not hasattr(ToolSvc, 'monTrigDecTool') and rec.doTrigger == True and not athenaCommonFlags.isOnline():
+  if not hasattr(ToolSvc, 'monTrigDecTool'):
     print "Trigger decision tool not found: including it now"
     from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
     monTrigDecTool = Trig__TrigDecisionTool(name=DQMonFlags.nameTrigDecTool(),
@@ -201,8 +198,8 @@ if InDetFlags.doMonitoringGlobal() and doIdNCBMon:
                                             )
     ToolSvc += monTrigDecTool
   
-    InDetGlobalBackgroundMonTool.TrigDecisionTool = monTrigDecTool
-    InDetGlobalBackgroundMonTool.TriggerChain = "L1_BCM_AC_UNPAIRED_ISO, L1_BCM_AC_UNPAIRED_NONISO, L1_BCM_CA_UNPAIRED_ISO, L1_BCM_CA_UNPAIRED_NONISO"
+  InDetGlobalBackgroundMonTool.TrigDecisionTool = monTrigDecTool
+  InDetGlobalBackgroundMonTool.TriggerChain = "L1_BCM_AC_UNPAIRED_ISO, L1_BCM_AC_UNPAIRED_NONISO, L1_BCM_CA_UNPAIRED_ISO, L1_BCM_CA_UNPAIRED_NONISO"
   
   ToolSvc += InDetGlobalBackgroundMonTool
   InDetGlobalManager.AthenaMonTools += [ InDetGlobalBackgroundMonTool]

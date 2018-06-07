@@ -362,7 +362,6 @@ namespace SG {
      * Same as typeless_dataPointer with the return value converted to const.
      */
     const void* typeless_cptr();
-    const void* typeless_cptr(bool quiet);
 
 
     /**

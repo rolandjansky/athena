@@ -10,6 +10,6 @@ ElectronTagBuilder  = ElectronTagBuilder(
     name            = "ElectronTagBuilder",
     ElectronTagTool = ElectronTagTool, 
     AttributeList   = EventTagGlobal.AttributeList,
-    MaxNumber       = 6,
+    MaxNumber       = 4,
     CheckAttribute  = True)
 topSequence += ElectronTagBuilder

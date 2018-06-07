@@ -18,7 +18,6 @@
 #include "TrigMuonHypo/TrigMuonEFCombinerMultiHypo.h"
 #include "TrigMuonHypo/TrigMuonEFSegmentHypo.h"
 #include "TrigMuonHypo/TrigMuonEFTrackIsolationHypo.h"
-#include "TrigMuonHypo/TrigMuonEFTrackIsolationMultiHypo.h"
 #include "TrigMuonHypo/TrigMuonEFCaloIsolationHypo.h"
 #include "TrigMuonHypo/TrigL2DimuonMassHypo.h"
 #include "TrigMuonHypo/StauHypo.h"
@@ -54,7 +53,6 @@ DECLARE_ALGORITHM_FACTORY( TrigMuonEFCombinerHypo )
 DECLARE_ALGORITHM_FACTORY( TrigMuonEFCombinerMultiHypo )
 DECLARE_ALGORITHM_FACTORY( TrigMuonEFSegmentHypo )
 DECLARE_ALGORITHM_FACTORY( TrigMuonEFTrackIsolationHypo )
-DECLARE_ALGORITHM_FACTORY( TrigMuonEFTrackIsolationMultiHypo )
 DECLARE_ALGORITHM_FACTORY( TrigMuonEFCaloIsolationHypo )
 DECLARE_ALGORITHM_FACTORY( TrigL2DimuonMassHypo )
 DECLARE_ALGORITHM_FACTORY( StauHypo )
@@ -90,7 +88,6 @@ DECLARE_FACTORY_ENTRIES( TrigMuonHypo ) {
 	DECLARE_ALGORITHM( TrigMuonEFCombinerMultiHypo )
 	DECLARE_ALGORITHM( TrigMuonEFSegmentHypo )
 	DECLARE_ALGORITHM( TrigMuonEFTrackIsolationHypo )
-	DECLARE_ALGORITHM( TrigMuonEFTrackIsolationMultiHypo )
 	DECLARE_ALGORITHM( TrigMuonEFCaloIsolationHypo )
 	DECLARE_ALGORITHM( TrigL2DimuonMassHypo )
         DECLARE_ALGORITHM( StauHypo )

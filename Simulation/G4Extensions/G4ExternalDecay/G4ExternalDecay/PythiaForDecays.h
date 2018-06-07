@@ -24,7 +24,7 @@ class PythiaForDecays
 
    void ImportParticles( std::vector<G4DynamicParticle*> &);
 
-   void DecayRHadron(int pdgid);
+   void DecayRhadrons(int pdgid);
 
   private:
 

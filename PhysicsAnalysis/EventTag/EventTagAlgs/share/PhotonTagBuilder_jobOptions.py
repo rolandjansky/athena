@@ -10,6 +10,6 @@ PhotonTagBuilder   = PhotonTagBuilder(
     name           = "PhotonTagBuilder",
     PhotonTagTool  = PhotonTagTool,
     AttributeList  = EventTagGlobal.AttributeList,
-    MaxNumber      = 4,
+    MaxNumber      = 2,
     CheckAttribute = True)
 topSequence += PhotonTagBuilder

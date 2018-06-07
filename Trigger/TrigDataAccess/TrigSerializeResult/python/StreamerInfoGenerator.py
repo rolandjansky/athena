@@ -13,6 +13,8 @@ class StreamerInfoGenerator:
     self.blacklist = ['std::', 'vector<', 'map<', 'queue<', 'list<']
     self.type = cppyy.gbl.RootType
     self.type.EnableCintex()
+    cppyy.loadDict('libSTLRflx')
+    cppyy.loadDict('libSTLAddRflx')
     cppyy.loadDict('libAtlasSTLAddReflexDict')
     #MN: switch off auto dict generation - god knows what that can mess up
     cppyy.gbl.gROOT.ProcessLine(".autodict")

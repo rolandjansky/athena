@@ -14,6 +14,7 @@ MergeGenericMuonSimHitCollTool::MergeGenericMuonSimHitCollTool(const std::string
   m_pMergeSvc("PileUpMergeSvc", name),
   m_firstSubEvent(true)
 {
+  declareInterface<IPileUpTool>(this);
   declareProperty("SimHitContainerNames",  m_SimHitContainerNamesProp);
 }
 

@@ -45,13 +45,14 @@ static const std::vector<std::vector<float> > TESTDIGITS = {
 
 class TileCablingSvc {
  public:
-   static void init_idhelpers(IdDictParser& parser) {
+   static void init_idhelpers() {
 
      TileHWID* tileHWID = new TileHWID();
      TileID* tileID = new TileID();
      TileTBID* tileTBID = new TileTBID();
 
      tileID->set_do_neighbours (false);
+     IdDictParser parser;
      parser.register_external_entity ("TileCalorimeter", "IdDictTileCalorimeter.xml");
      IdDictMgr& idd = parser.parse ("IdDictParser/ATLAS_IDS.xml");
      assert (tileHWID->initialize_from_dictionary (idd) == 0);
@@ -108,8 +109,8 @@ void test1() {
 
   ISvcLocator* svcLoc = Gaudi::svcLocator();
 
-  IdDictParser parser;
-  TileCablingSvc::init_idhelpers(parser);
+
+  TileCablingSvc::init_idhelpers();
 
   ServiceHandle<StoreGateSvc> evtStore("StoreGateSvc", "");
   ServiceHandle<StoreGateSvc> detStore("DetectorStore", "");

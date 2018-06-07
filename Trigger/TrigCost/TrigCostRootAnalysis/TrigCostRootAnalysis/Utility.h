@@ -129,7 +129,6 @@ namespace TrigCostRootAnalysis {
    */
   enum ConfKey_t {
     kInputFiles = 0,
-    kDecLBMuValue,
     kNEvents,
     kNSkip,
     kTreeName,

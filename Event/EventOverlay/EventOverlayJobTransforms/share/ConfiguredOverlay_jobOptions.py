@@ -28,6 +28,10 @@ from Digitization.DigitizationFlags import jobproperties
 digitization = jobproperties.Digitization
 
 pileUpEventLoopMgr = PileUpEventLoopMgr()
+
+pupStream = "PileUpCollXingStream"
+jobproperties.Digitization.rndmSeedList.addSeed( pupStream, 123, 345 )
+
 pileUpEventLoopMgr.OutStreamType = "AthenaOutputStream"
 
 #include ("EventOverlayJobTransforms/synchFlags_jobOptions.py")
@@ -62,13 +66,22 @@ pileUpEventLoopMgr.IsEventOverlayJobMC=not isRealData
 ServiceMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
 
 # Set up MC input
-mcEvtSel=EventSelectorAthenaPool("mcSignal_EventSelector")
-mcEvtSel.InputCollections = SignalInputCollections
-mcEvtSel.KeepInputFilesOpen = True
-mcEvtSel.SkipEvents = athenaCommonFlags.SkipEvents()
+pileUpEventLoopMgr.bkgCaches += [BkgStreamsCache("mcSignalEvent"+"_Cache")]
+tmpCache=pileUpEventLoopMgr.bkgCaches[0]
+tmpCache.CollPerXing=1
+tmpCache.CollDistribution="Fixed"
+tmpCache.ReadDownscaleFactor=1
+tmpCache.RndmGenSvc=jobproperties.Digitization.rndmSvc()
+tmpCache.RndmStreamName=pupStream
 
-ServiceMgr += mcEvtSel
-pileUpEventLoopMgr.SignalSelector="mcSignal_EventSelector"
+tmpEvtSel=EventSelectorAthenaPool("mcSignalEvent"+"_EventSelector")
+tmpEvtSel.InputCollections = SignalInputCollections
+
+tmpEvtSel.KeepInputFilesOpen = True
+tmpEvtSel.SkipEvents = athenaCommonFlags.SkipEvents()
+
+ServiceMgr += tmpEvtSel
+tmpCache.EventSelector="mcSignalEvent"+"_EventSelector"
 
 ServiceMgr += pileUpEventLoopMgr
 
@@ -102,3 +115,4 @@ if jobproperties.Beam.bunchSpacing.get_Value() != digitization.bunchSpacing.get_
    jobproperties.Beam.override = True ## just incase - default is True
 
 #================================================================
+

@@ -478,7 +478,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
     // JK DEBUG input TEs
 
     for (unsigned int iTE=0; iTE<inputTE.size(); ++iTE) {
-      ATH_MSG_DEBUG("Input TE " << iTE << "  " << inputTE[iTE] << " ID " << inputTE[iTE]->getId());
+      msg() << MSG::DEBUG << "Input TE " << iTE << "  " << inputTE[iTE] << " ID " << inputTE[iTE]->getId() << endmsg;
     }
 
 
@@ -562,7 +562,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
         if ( timerSvc() ) m_TotTimer->stop();
         return HLT::OK; 
     }
-    ATH_MSG_DEBUG("Found ElectronContainer, Got LepEF (1) Feature, size = " << lepContainerEF1.size());
+    if(msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG("Found ElectronContainer, Got LepEF (1) Feature, size = " << lepContainerEF1.size());
 
 
     // OI : here we probably should check that electron object has passed identification at the previous step
@@ -574,7 +574,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
       //}
       const xAOD::Electron* lep = *muel;
       if(!lep) continue;
-      ATH_MSG_DEBUG("electron! " << lep->pt() << ", " << lep->eta() << ", " << lep->phi());
+      msg() << MSG::INFO << "electron! " << lep->pt() << ", " << lep->eta() << ", " << lep->phi() << endmsg;
       if ( lep->pt() < 5000.) continue; 
 
       const xAOD::TrackParticle* idtp(0);

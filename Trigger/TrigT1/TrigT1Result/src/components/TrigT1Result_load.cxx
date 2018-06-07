@@ -1,1 +1,0 @@
-// Trigger/TrigT1/TrigT1Result/src/components/TrigT1Result_load.cxx

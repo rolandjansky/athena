@@ -22,7 +22,6 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "CaloInterface/ILArNoisyROTool.h"
-#include "LArRecConditions/ILArBadChanTool.h"
 
 #include "Identifier/HWIdentifier.h"
 #include "LArIdentifier/LArOnlineID.h"
@@ -111,8 +110,6 @@ class LArNoisyROTool:
   typedef std::unordered_map<unsigned int, FEBEvtStat>::iterator FEBEvtStatMapIt;
   typedef std::unordered_map<unsigned int, FEBEvtStat>::const_iterator FEBEvtStatMapCstIt;
 
-  std::unordered_map<unsigned int,unsigned int> mapPSFEB;
-
  private: 
   std::string m_CaloCellContainerName;
   std::string m_outputKey;
@@ -121,8 +118,6 @@ class LArNoisyROTool:
   const CaloCell_ID* m_calo_id;
   const LArOnlineID* m_onlineID;
   ToolHandle<LArCablingService> m_cablingService;
-  ToolHandle<ILArBadChanTool> m_badFEBsTool;
-  ToolHandle<ILArBadChanTool> m_badMNBFEBsTool;
 
   //** Qfactor value above which a channel is considered bad */
   unsigned int m_CellQualityCut;
@@ -179,9 +174,8 @@ class LArNoisyROTool:
   //** Count events with too many saturated Qfactor cells */
   unsigned int m_SaturatedCellTightCutEvents;
 
-  unsigned int m_MNBLooseCut;
-  unsigned int m_MNBTightCut;
-  std::vector<unsigned int> m_MNBTight_PsVetoCut;
+  float m_MNBLooseCut;
+  float m_MNBTightCut;
 
   //** jobO flag to turn on a summary printout in finalize
   bool m_printSummary;

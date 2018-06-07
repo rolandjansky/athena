@@ -33,7 +33,8 @@
 
 /** Constructor **/
 MagField::AtlasFieldSvc::AtlasFieldSvc(const std::string& name,ISvcLocator* svc) :
-    base_class(name,svc),
+    AthService(name,svc),
+    IMagFieldSvc(),
     m_fullMapFilename("MagneticFieldMaps/bfieldmap_7730_20400_14m.root"),
     m_soleMapFilename("MagneticFieldMaps/bfieldmap_7730_0_14m.root"),
     m_toroMapFilename("MagneticFieldMaps/bfieldmap_0_20400_14m.root"),
@@ -511,6 +512,21 @@ void MagField::AtlasFieldSvc::getFieldZR(const double *xyz, double *bxyz, double
 
   // do interpolation
   m_cacheZR.getB(xyz, r, bxyz, deriv);
+}
+
+/** Query the interfaces. */
+StatusCode MagField::AtlasFieldSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
+{
+    if ( IIncidentListener::interfaceID().versionMatch(riid) ) {
+        *ppvInterface = dynamic_cast<IIncidentListener*>(this);
+    } else if ( MagField::IMagFieldSvc::interfaceID().versionMatch(riid) ) {
+        *ppvInterface = dynamic_cast<MagField::IMagFieldSvc*>(this);
+    } else {
+        // Interface is not directly available: try out a base class
+        return Service::queryInterface(riid, ppvInterface);
+    }
+    addRef();
+    return StatusCode::SUCCESS;
 }
 
 //

@@ -119,9 +119,6 @@ fi
 # Read in the tag/branch to use for AthenaExternals:
 AthenaExternalsVersion=$(awk '/^AthenaExternalsVersion/{print $3}' ${thisdir}/externals.txt)
 
-# Read in the LCG version 
-LCGVersion=`cat ${thisdir}/LCG_version.txt`
-
 # Check out AthenaExternals from the right branch/tag:
 ${scriptsdir}/checkout_atlasexternals.sh \
     -t ${AthenaExternalsVersion} \
@@ -134,7 +131,6 @@ ${scriptsdir}/build_atlasexternals.sh \
     -b ${BUILDDIR}/build/AthenaExternals \
     -i ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION} \
     -p AthenaExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
-    -l ${LCGVersion} \
     -v ${NICOS_PROJECT_VERSION}
 
 # Get the "platform name" from the directory created by the AthenaExternals

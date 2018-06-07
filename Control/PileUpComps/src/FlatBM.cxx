@@ -5,6 +5,18 @@
 #include "FlatBM.h"
 
 FlatBM::FlatBM(const std::string& name, ISvcLocator* svc)
-  : base_class(name,svc)
+  : AthService(name,svc)
 {
+}
+
+StatusCode FlatBM::queryInterface(const InterfaceID& riid, void** ppvInterface)
+{
+  if ( IBeamIntensity::interfaceID().versionMatch(riid) )
+    {
+      *ppvInterface = (IBeamIntensity*)this;
+      addRef();
+      return StatusCode::SUCCESS;
+    }
+  // Interface is not directly available: try out the base class
+  return AthService::queryInterface(riid, ppvInterface);
 }

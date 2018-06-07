@@ -17,7 +17,6 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "GeoModelKernel/GeoPhysVol.h"
-#include "GeoModelKernel/GeoFullPhysVol.h"
 
 #include "GaudiKernel/MsgStream.h"
 
@@ -55,7 +54,9 @@ CscReadoutElement::CscReadoutElement(GeoVFullPhysVol* pv, std::string stName,
   for (unsigned int i = 0; i < 4; i++) m_wireplanez[i] = 0.;
 
   if (mgr->MinimalGeoFlag() == 0) {
-    if (GeoFullPhysVol* pvc = dynamic_cast<GeoFullPhysVol*> (pv)) {
+    GeoPhysVol* pvc = NULL;
+    pvc = (GeoPhysVol*)pv;
+    if (pvc != NULL) {
       unsigned int nchildvol = pvc->getNChildVols();
       int lgg = 0;
       int llay = 0;

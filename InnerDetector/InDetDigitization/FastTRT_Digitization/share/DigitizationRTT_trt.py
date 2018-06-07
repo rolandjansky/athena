@@ -70,4 +70,5 @@ include("Digitization/Digitization.py")
 
 
 from AthenaCommon.AlgSequence import AlgSequence
-AlgSequence("Streams").StreamRDO.ItemList += ["InDet::TRT_DriftCircleContainer#TRT_DriftCircles"]
+topSequence = AlgSequence()
+topSequence.StreamRDO.ItemList += ["InDet::TRT_DriftCircleContainer#TRT_DriftCircles"]

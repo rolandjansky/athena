@@ -114,7 +114,7 @@ TrigConf::L1DataDef::setMaxThresholdsFromL1Version(unsigned int l1version) {
       typeConfig(PCLK).max   =   0;
       typeConfig(BGRP).max   =  16;
       typeConfig(MBTS).max   =   3;
-      typeConfig(MBTSSI).max =  32;
+      typeConfig(MBTSSI).max =  24;
       typeConfig(NIM).max    =  37;
       typeConfig(BCMCMB).max =   1;
       typeConfig(CALREQ).max =   3;

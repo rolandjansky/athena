@@ -8,11 +8,14 @@
 #include "ILArCalculatorSvc.h"
 #include "AthenaBaseComps/AthService.h"
 
-class LArCalculatorSvcImp: public extends<AthService, ILArCalculatorSvc> {
+class LArCalculatorSvcImp: public AthService, virtual public ILArCalculatorSvc {
 
 public:
 
   LArCalculatorSvcImp(const std::string& name, ISvcLocator * pSvcLocator);
+
+  /** Query interface method to make athena happy */
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override final;
 
 protected:
   // Birks' law

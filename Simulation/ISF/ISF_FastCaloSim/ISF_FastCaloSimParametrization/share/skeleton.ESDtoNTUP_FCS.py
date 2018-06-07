@@ -47,17 +47,6 @@ else:
 if hasattr(runArgs,"outputGeoFileName"):
     ServiceMgr.THistSvc.Output +=["ISF_Geometry DATAFILE='"+runArgs.outputGeoFileName+"' OPT='RECREATE'"] # FIXME top level directory name
 
-## Flag for doG4Hits
-if hasattr(runArgs,"doG4Hits"):
-    doG4Hits = runArgs.doG4Hits
-else:
-    doG4Hits = False
-
-## Flag for saveAllBranches
-if hasattr(runArgs, "saveAllBranches"):
-    saveAllBranches = runArgs.saveAllBranches
-else:
-    saveAllBranches = False
 
 #==============================================================
 # Job Configuration parameters:
@@ -77,7 +66,6 @@ if hasattr(runArgs,"preInclude"):
 
 include("ISF_FastCaloSimParametrization/ISF_ntuple_core.py") # Main job options
 
-
 ## Post-include
 if hasattr(runArgs,"postInclude"):
     for fragment in runArgs.postInclude:
@@ -85,7 +73,7 @@ if hasattr(runArgs,"postInclude"):
 
 ## Post-exec
 if hasattr(runArgs,"postExec"):
-    fcsntuplog.info("transform post-exec")
+    digilog.info("transform post-exec")
     for cmd in runArgs.postExec:
         fcsntuplog.info(cmd)
         exec(cmd)

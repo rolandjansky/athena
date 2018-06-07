@@ -21,8 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODTrigMuon
                           Event/xAOD/xAODTracking
-			  GaudiKernel 
-                          InnerDetector/InDetRecTools/InDetTrackSelectionTool			 
+                          GaudiKernel
                           MuonSpectrometer/MuonCnv/MuonCnvToolInterfaces
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonIdHelpers
@@ -32,8 +31,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
                           MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
-                          MuonSpectrometer/MuonReconstruction/MuonSegmentCombiners/MuonSegmentCombinerTools/MuonSegmentCombinerToolInterfaces			  
-			  PhysicsAnalysis/AnalysisCommon/PATCore
+                          MuonSpectrometer/MuonReconstruction/MuonSegmentCombiners/MuonSegmentCombinerTools/MuonSegmentCombinerToolInterfaces
                           Reconstruction/MuonIdentification/MuidInterfaces
                           Reconstruction/MuonIdentification/MuonCombinedEvent
                           Reconstruction/MuonIdentification/MuonCombinedToolInterfaces
@@ -73,7 +71,7 @@ atlas_add_component( TrigMuonEF
                      src/TrigMuonEFIDTrackRoiMaker.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TrigMuonEvent TrigSteeringEvent CaloEvent AthenaBaseComps AthenaKernel StoreGateLib SGtests IRegionSelector EventPrimitives FourMomUtils xAODCaloEvent xAODMuon xAODTracking GaudiKernel MuonReadoutGeometry MuonIdHelpersLib CscClusterizationLib MuonPattern MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonRecToolInterfaces MuidInterfaces MuonCombinedEvent MuonCombinedToolInterfaces Particle PATCoreLib RecoToolInterfaces TrkEventPrimitives TrkParameters TrkSegment TrkTrack TrkTrackSummary TrkToolInterfaces TrigConfHLTData TrigCaloEvent TrigInDetEvent TrigNavigationLib TrigInterfacesLib TrigTimeAlgsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TrigMuonEvent TrigSteeringEvent CaloEvent AthenaBaseComps AthenaKernel StoreGateLib SGtests IRegionSelector EventPrimitives FourMomUtils xAODCaloEvent xAODMuon xAODTracking GaudiKernel MuonReadoutGeometry MuonIdHelpersLib CscClusterizationLib MuonPattern MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonRecToolInterfaces MuidInterfaces MuonCombinedEvent MuonCombinedToolInterfaces Particle RecoToolInterfaces TrkEventPrimitives TrkParameters TrkSegment TrkTrack TrkTrackSummary TrkToolInterfaces TrigConfHLTData TrigCaloEvent TrigInDetEvent TrigNavigationLib TrigInterfacesLib TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_headers( TrigMuonEF )

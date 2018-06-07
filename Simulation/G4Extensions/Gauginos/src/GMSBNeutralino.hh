@@ -13,7 +13,7 @@ class GMSBNeutralino: public G4ParticleDefinition
 {
 private:
 
-  static GMSBNeutralino* s_theInstance;
+  static GMSBNeutralino* theInstance;
   GMSBNeutralino(){}
   ~GMSBNeutralino(){}
 

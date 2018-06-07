@@ -20,48 +20,58 @@ from AthenaCommon.GlobalFlags  import globalflags
 from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
 include ("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
 
-tmp_CaloClusterVecMonCollisions = {"timeGran":"lowStat",
-                                   "useBadLBTool":FALSE,
-                                   "useReadyFilterTool":FALSE,
-                                   "useLArNoisyAlg":FALSE,
-                                   "useBeamBackgroundRemoval":FALSE,
-                                   "useLArCollisionFilter":FALSE}
+if DQMonFlags.monManEnvironment() == 'online':
+   tmp_timeGran = "run"
+else:
+   tmp_timeGran = "lowStat"
 
+if (DQMonFlags.monManEnvironment == 'online' or globalflags.DataSource.get_Value() == 'geant4' or globalflags.DataSource.get_Value() == 'geant3'):
+  tmp_useBadLBTool=FALSE
+else:
+  tmp_useBadLBTool=TRUE
 
 if DQMonFlags.monManEnvironment() == 'online':
-   tmp_CaloClusterVecMonCollisions["timeGran"] = "run"
+  tmp_useReadyFilterTool=FALSE
+else:
+#  tmp_useReadyFilterTool=FALSE
+  tmp_useReadyFilterTool=TRUE
 
-if not (DQMonFlags.monManEnvironment == 'online' or globalflags.DataSource.get_Value() == 'geant4' or globalflags.DataSource.get_Value() == 'geant3'):
-  tmp_CaloClusterVecMonCollisions["useBadLBTool"]=TRUE
-  tmp_CaloClusterVecMonCollisions["useReadyFilterTool"]=TRUE
-  tmp_CaloClusterVecMonCollisions["useLArNoisyAlg"] = TRUE
+if DQMonFlags.monManEnvironment() == 'online':
+   tmp_useLArNoisyAlg = FALSE
+else:
+   tmp_useLArNoisyAlg = TRUE
 
-if (rec.triggerStream()=='CosmicCalo'):
-  tmp_CaloClusterVecMonCollisions["useLArCollisionFilter"] = TRUE
-  tmp_CaloClusterVecMonCollisions["useBeamBackgroundRemoval"] = TRUE
+if DQMonFlags.monManEnvironment() == 'online':
+   tmp_useBeamBackgroundRemoval = FALSE
+else:
+   tmp_useBeamBackgroundRemoval = TRUE
+
+if not (rec.triggerStream()=='CosmicCalo'):
+  tmp_useBeamBackgroundRemoval = FALSE
+  print "not CosmicCalo stream"
+
+print "tmp_useBeamBackgroundRemoval=", tmp_useBeamBackgroundRemoval
 
 CaloClusterMonNoTA = CaloClusterVecMon(
    name           = "CaloClusterMonNoTA",
    CaloClusterContainer = "CaloCalTopoClusters",
     
-   TimeGran = tmp_CaloClusterVecMonCollisions["timeGran"],
+   TimeGran = tmp_timeGran,
 
-   useBadLBTool=tmp_CaloClusterVecMonCollisions["useBadLBTool"],
+   useBadLBTool=tmp_useBadLBTool,
    BadLBTool = GetLArBadLBFilterTool(),
 
-   useReadyFilterTool = tmp_CaloClusterVecMonCollisions["useReadyFilterTool"],
+   useReadyFilterTool = tmp_useReadyFilterTool,
    ReadyFilterTool = monAtlasReadyFilterTool,
+   useLArNoisyAlg = tmp_useLArNoisyAlg,
 
-   useLArCollisionFilterTool = tmp_CaloClusterVecMonCollisions["useLArCollisionFilter"],
-
-   useLArNoisyAlg = tmp_CaloClusterVecMonCollisions["useLArNoisyAlg"],
-
-   useBeamBackgroundRemoval = tmp_CaloClusterVecMonCollisions["useBeamBackgroundRemoval"],
+   useBeamBackgroundRemoval = tmp_useBeamBackgroundRemoval,
 
    # cluster energy threshold in GeV
    lowEthresh = 0.0,  
    lowmedEthresh = 10.0,
    medEthresh = 25.0,
+#   medhiEthresh = 15.0,
    hiEthresh = 50.0,
 )
 

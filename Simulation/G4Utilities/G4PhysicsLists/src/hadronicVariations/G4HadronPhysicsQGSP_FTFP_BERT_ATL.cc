@@ -85,6 +85,7 @@ G4HadronPhysicsQGSP_FTFP_BERT_ATL::G4HadronPhysicsQGSP_FTFP_BERT_ATL(G4int)
     , theHyperon(0)
     , theAntiBaryon(0)
     , theFTFPAntiBaryon(0) */
+    , QuasiElastic(false)
   /*    , ChipsKaonMinus(0)
     , ChipsKaonPlus(0)
     , ChipsKaonZero(0)
@@ -92,7 +93,7 @@ G4HadronPhysicsQGSP_FTFP_BERT_ATL::G4HadronPhysicsQGSP_FTFP_BERT_ATL(G4int)
     , xsNeutronCaptureXS(0)*/
 {}
 
-G4HadronPhysicsQGSP_FTFP_BERT_ATL::G4HadronPhysicsQGSP_FTFP_BERT_ATL(const G4String& name, G4bool /*quasiElastic*/)
+G4HadronPhysicsQGSP_FTFP_BERT_ATL::G4HadronPhysicsQGSP_FTFP_BERT_ATL(const G4String& name, G4bool quasiElastic)
     :  G4VPhysicsConstructor(name) 
 /*    , theNeutrons(0)
     , theBertiniNeutron(0)
@@ -109,6 +110,7 @@ G4HadronPhysicsQGSP_FTFP_BERT_ATL::G4HadronPhysicsQGSP_FTFP_BERT_ATL(const G4Str
     , theHyperon(0)
     , theAntiBaryon(0)
     , theFTFPAntiBaryon(0)*/
+    , QuasiElastic(quasiElastic)
   /*    , ChipsKaonMinus(0)
     , ChipsKaonPlus(0)
     , ChipsKaonZero(0)

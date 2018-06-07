@@ -892,5 +892,9 @@ StatusCode AthenaOutputStream::io_finalize() {
       return StatusCode::FAILURE;
    }
    incSvc->removeListener(this, "MetaDataStop");
+   if (!m_streamer->finalizeOutput().isSuccess()) {
+      ATH_MSG_FATAL("Cannot finalize Output file");
+      return StatusCode::FAILURE;
+   }
    return StatusCode::SUCCESS;
 }

@@ -115,11 +115,7 @@ def getLArDeadSensitiveDetector(name="LArDeadSensitiveDetector", **kwargs):
     kwargs.setdefault("ParticleID",simFlags.ParticleID())
     kwargs.setdefault("doEscapedEnergy",simFlags.CalibrationRun.get_Value()!='DeadLAr')
     # No effect currently
-    outputCollectionName = "LArCalibrationHitDeadMaterial"
-    from G4AtlasApps.SimFlags import simFlags
-    if simFlags.CalibrationRun.get_Value() in ['LAr', 'LAr+Tile']:
-        outputCollectionName = "LArCalibrationHitDeadMaterial_DEAD"
-    kwargs.setdefault("HitCollectionName", outputCollectionName)
+    kwargs.setdefault("OutputCollectionNames", ["LArCalibrationHitDeadMaterial"])
     return CfgMgr.LArG4__DeadSDTool(name, **kwargs)
 
 def getLArEMBSensitiveDetector(name="LArEMBSensitiveDetector", **kwargs):
@@ -262,8 +258,3 @@ def getLArMiniFCALSensitiveDetector(name="LArMiniFCALSensitiveDetector", **kwarg
 
 def getCalibrationDefaultCalculator(name="CalibrationDefaultCalculator", **kwargs):
     return CfgMgr.LArG4__CalibrationDefaultCalculator(name, **kwargs)
-
-def getDeadMaterialCalibrationHitMerger(name="DeadMaterialCalibrationHitMerger", **kwargs):
-    kwargs.setdefault("InputHits",["LArCalibrationHitDeadMaterial_DEAD","LArCalibrationHitActive_DEAD","LArCalibrationHitInactive_DEAD"])
-    kwargs.setdefault("OutputHits","LArCalibrationHitDeadMaterial")
-    return CfgMgr.LArG4__CalibrationHitMerger(name, **kwargs)

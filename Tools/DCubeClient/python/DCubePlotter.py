@@ -153,10 +153,7 @@ class DCubePlotter( DCubeObject ):
     ## get unique plot name
     # @param self "Me, myself and Irene"
     def __plotName( self, what="" ):
-        name = str(uuid.uuid4())
-        if self.opts.useVarNameForPlotName:
-            name = self.name
-        return  what + "_" + name + ".png"
+        return  what + "_" + str(uuid.uuid4()) + ".png"
 
     ## plot dispatcher
     # @param self "Me, myself and Irene"
@@ -181,11 +178,10 @@ class DCubePlotter( DCubeObject ):
             #self.debug("additional plot options are: '%s'" % str(plotOpts) )
            
             for opt in plotOpts:
-                if ( opt not in [ "logx", "logy", "logz", "norm", "enorm" ] ):
+                if ( opt not in [ "logx", "logy", "logz", "norm" ] ):
                     self.error("ignoring unknown additional plot option '%s'" % opt )
                 else:
                     self.plotOpts.append(opt)
-                if opt == "enorm": self.plotOpts.append("norm")
             self.debug("additional plot options are: '%s'" % str(plotOpts) )
             
 
@@ -264,9 +260,6 @@ class DCubePlotter( DCubeObject ):
         status = [ "OK" ]
         self.debug("plotting %s of type %s" % ( self.name, self.className ) )
 
-        title = "%s;%s;%s" % ( self.mon.GetTitle(),
-                               self.mon.GetXaxis().GetTitle(),
-                               self.mon.GetYaxis().GetTitle() )
         graph = ROOT.TMultiGraph()
 
         canvas = self.__getCanvas()
@@ -274,22 +267,17 @@ class DCubePlotter( DCubeObject ):
 
         xmin, xmax, ymin, ymax = self.__getMinMaxTGraph( self.mon, self.ref )
 
+        dx = abs(xmax - xmin) * 0.15
         dy = abs(ymax - ymin) 
-        y0 = ymin - dy * 0.1
-        if ymin >= 0.0 and y0 < 0.0: y0 = 0.0
-        ymin= y0
-        ymax = ymax + dy * (self.unzoom-1.0)
         
-        ROOT.gPad.DrawFrame( xmin, ymin, xmax, ymax, title)
+        ROOT.gPad.DrawFrame( xmin - dx, ymin - dy * 0.4, xmax + dx, ymax + dy*self.unzoom)
 
-##      remove unneeded padding (10/7/2017)
-#       ROOT.gStyle.SetPadBottomMargin(0.2)
+        ROOT.gStyle.SetPadBottomMargin(0.2)
         
      
-        self.mon.SetMarkerStyle( ROOT.kFullCircle )
         self.mon.SetMarkerColor( ROOT.kRed )
         self.mon.SetFillColor( ROOT.kRed )
-        self.mon.SetFillStyle( 3004 )
+        self.mon.SetFillStyle( 3005 )
         self.mon.SetLineColor( ROOT.kRed )
             
                             
@@ -299,7 +287,7 @@ class DCubePlotter( DCubeObject ):
             self.ref.SetMarkerColor( ROOT.kBlue )
             self.ref.SetMarkerSize( 1.0 )        
             self.ref.SetFillColor( ROOT.kBlue )
-            self.ref.SetFillStyle( 3005 )
+            self.ref.SetFillStyle( 3004 )
             self.ref.SetLineColor( ROOT.kBlue )
             
             graph.Add( self.ref, "P" ) 
@@ -351,15 +339,19 @@ class DCubePlotter( DCubeObject ):
                 diffGraph.SetPoint(i, x, points[x] )
                 i += 1
 
+            xl = xmin - dx
+            xr = xmax + dx
+
             xmin, xmax, ymin, ymax = self.__getMinMaxTGraph( diffGraph )
             
             dy = abs(ymax - ymin) 
-            y0 = ymin - dy * 0.1
-            if ymin >= 0.0 and y0 < 0.0: y0 = 0.0
-            ymax = ymax * self.unzoom
-            if ( ymax == 0.0 ): ymax = ymin + ( abs(ymin) * self.unzoom )
+
+            if ( ymin > ymax ):
+                a = ymin
+                ymin = ymax
+                ymax = ymin
             
-            ROOT.gPad.DrawFrame( xmin, y0, xmax, ymax, "diff %s" % title)
+            ROOT.gPad.DrawFrame( xl, ymin - (dy * 0.4), xr, ymax + (dy*self.unzoom) )
             
             diffGraph.SetTitle( self.mon.GetTitle() )
             diffGraph.SetName( self.mon.GetName() )
@@ -380,66 +372,106 @@ class DCubePlotter( DCubeObject ):
     # @param self "Me, myself and Irene"
     def __getMinMaxTGraph( self, mon=None, ref=None ):
 
-        xmin = xmax = ymin = ymax = exmin = exmax = dxmin = None
-        xd = ROOT.Double(0)
-        yd = ROOT.Double(0)
-        for g in (ref, mon):
-            if g:
-                x0 = None
-                for i in range( g.GetN() ):
+        xmin = xmax = ymin=  ymax = None
+        if ( mon ):
+            x = ROOT.Double(0)
+            y = ROOT.Double(0)
 
-                    g.GetPoint(i, xd, yd)
-                    x = float(xd)
-                    y = float(yd)
+            exl = ROOT.Double(0)
+            exr = ROOT.Double(0)
+            eyl = ROOT.Double(0)
+            eyh = ROOT.Double(0) 
 
-                    if x0 is not None:
-                        dx = x - x0
-                        if dx > 0.0 and (dxmin is None or dx < dxmin): dxmin = dx
-                    x0 = x
+            if ( self.className == "TGraph" ):
+                
+                for i in range( mon.GetN()  ):
+                    
+                    mon.GetPoint(i, x, y)
+                    
+                    if ( xmin == None ): xmin = ROOT.Double(x)
+                    if ( xmax == None ): xmax = ROOT.Double(x)
+                    if ( ymin == None ): ymin = ROOT.Double(y)
+                    if ( ymax == None ): ymax = ROOT.Double(y)
+                    
+                    if ( x < xmin ): xmin = x
+                    if ( x > xmax ): xmax = x
+                    if ( y < ymin ): ymin = y
+                    if ( y > ymax ): ymax = y
+                    
+                if ( ref ):
+                    for i in range( ref.GetN() ):
 
-                    if ( self.className == "TGraph" ):
-                        exh = exl = eyh = eyl = 0.0
-                    else:
-                        exh = g.GetErrorXhigh( i )
-                        exl = g.GetErrorXlow( i )
-                        eyh = g.GetErrorYhigh( i )
-                        eyl = g.GetErrorYlow( i )
+                        ref.GetPoint(i, x, y)
+                        
+                        if ( xmin == None ): xmin = ROOT.Double(x)
+                        if ( xmax == None ): xmax = ROOT.Double(x)
+                        if ( ymin == None ): ymin = ROOT.Double(y)
+                        if ( ymax == None ): ymax = ROOT.Double(y)
+                        
+                        if ( x < xmin ): xmin = x
+                        if ( x > xmax ): xmax = x
+                        if ( y < ymin ): ymin = y
+                        if ( y > ymax ): ymax = y
+            else:
 
-                    xh = x + exh
-                    xl = x - exl
-                    yh = y + eyh
+                for i in range( mon.GetN() ):
+
+                    mon.GetPoint(i, x, y)
+
+                    exl = mon.GetErrorXhigh( i )
+                    exr = mon.GetErrorXlow( i )
+                    eyh = mon.GetErrorYhigh( i )
+                    eyl = mon.GetErrorYlow( i )
+
+                    xl = x - exr
+                    xr = x + exl
                     yl = y - eyl
+                    yh = y + eyh
 
-                    if ( xmin is None or xl < xmin ): xmin, exmin = xl, exl
-                    if ( xmax is None or xh > xmax ): xmax, exmax = xh, exh
-                    if ( ymin is None or yl < ymin ): ymin        = yl
-                    if ( ymax is None or yh > ymax ): ymax        = yh
+                    if ( xmin == None ): xmin = ROOT.Double(xl)
+                    if ( xmax == None ): xmax = ROOT.Double(xr)
+                    if ( ymin == None ): ymin = ROOT.Double(yl)
+                    if ( ymax == None ): ymax = ROOT.Double(yh)
 
-        # if no x-errors, add half-bin width
-        if ( dxmin is not None ):
-            if ( exmin <= 0.0 ): xmin -= 0.5 * dxmin
-            if ( exmax <= 0.0 ): xmax += 0.5 * dxmin
+                    if ( xl < xmin ): xmin = xl
+                    if ( xr > xmax ): xmax = xr
+                    if ( yl < ymin ): ymin = yl
+                    if ( yh > ymax ): ymax = yh
+                    
+                if ( ref ):
 
-        # if no limits, then use graph range
-        if ref: g = ref
-        else:   g = mon
-        if g:
-            if ( xmin is None or xmin >= xmax ): xmin = g.GetHistogram().GetXaxis().GetXmin()
-            if ( xmax is None or xmin >= xmax ): xmax = g.GetHistogram().GetXaxis().GetXmax()
-            if ( ymin is None or ymin >= ymax ): ymin = g.GetHistogram().GetYaxis().GetXmin()
-            if ( ymax is None or ymin >= ymax ): ymax = g.GetHistogram().GetYaxis().GetXmax()
+                    for i in range( ref.GetN() ):
 
-        return ( xmin, xmax, ymin, ymax)
+                        ref.GetPoint(i, x, y)
+                        
+                        exl = ref.GetErrorXhigh( i )
+                        exr = ref.GetErrorXlow( i )
+                        eyh = ref.GetErrorYhigh( i )
+                        eyl = ref.GetErrorYlow( i )
+                        
+                        xl = x - exr
+                        xr = x + exl
+                        yl = y - eyl
+                        yh = y + eyh
+
+                        if ( xmin == None ): xmin = ROOT.Double(xl)
+                        if ( xmax == None ): xmax = ROOT.Double(xr)
+                        if ( ymin == None ): ymin = ROOT.Double(yl)
+                        if ( ymax == None ): ymax = ROOT.Double(yh)
+
+                        if ( xl < xmin ): xmin = xl
+                        if ( xr > xmax ): xmax = xr
+                        if ( yl < ymin ): ymin = yl
+                        if ( yh > ymax ): ymax = yh
+
+
+            return ( xmin, xmax, ymin, ymax)
             
 
     def __normTH( self, obj=None ):
         if ( obj ):
-            if ( "enorm" in self.plotOpts ):
-                self.debug( "will normalize histogram '%s' to the number of entries" % obj.GetName())
-                integral = obj.GetEntries()
-            else:
-                self.debug( "will normalize histogram '%s'" % obj.GetName())
-                integral = obj.Integral()
+            self.debug( "will normalize histogram '%s'" % obj.GetName())
+            integral = obj.Integral()
             if ( integral != 0.0 ):
                 scale = 1.0 / integral
                 self.debug("integral = %f, scale = %f" % (integral, scale ) )

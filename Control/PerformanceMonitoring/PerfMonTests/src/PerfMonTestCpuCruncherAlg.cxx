@@ -11,12 +11,14 @@
 
 
 // STL includes
-#include <chrono>
-#include <cmath>
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
+
+// CLHEP includes
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Random/RandGauss.h"
 
 // PerfMonTests includes
 #include "PerfMonTestCpuCruncherAlg.h"
@@ -32,7 +34,8 @@ using namespace PerfMonTest;
 CpuCruncherAlg::CpuCruncherAlg( const std::string& name, 
 				ISvcLocator* pSvcLocator ) : 
   AthAlgorithm( name,    pSvcLocator ),
-  m_random(0)
+  m_rndmSvc   ( "AtRndmGenSvc", name ),
+  m_rndmEngine( 0 )
 {
   //
   // Property declaration
@@ -40,11 +43,11 @@ CpuCruncherAlg::CpuCruncherAlg( const std::string& name,
   //declareProperty( "Property", m_nProperty );
 
   declareProperty( "MeanCpu",
-		   m_meanCpuTime = 100.,
+		   m_meanCpuTime = 10.*CLHEP::millisecond,
 		   "Mean (in ms) of CPU time to consume." );
-    
+
   declareProperty( "RmsCpu",
-		   m_rmsCpuTime = 5.,
+		   m_rmsCpuTime =   2.*CLHEP::millisecond,
 		   "RMS (in ms) of CPU time to consume." );
 }
 
@@ -60,17 +63,16 @@ CpuCruncherAlg::~CpuCruncherAlg()
 StatusCode CpuCruncherAlg::initialize()
 {
   // configure our MsgStream
-  msg().setLevel( msgLevel() );
+  msg().setLevel( outputLevel() );
 
   ATH_MSG_INFO ( "Initializing " << name() << "..." ) ;
   
-  // Random number service
-  m_distribution = std::normal_distribution<double>(m_meanCpuTime,m_rmsCpuTime);
+  // retrieve random number svc
+  ATH_CHECK( m_rndmSvc.retrieve() );
 
   ATH_MSG_INFO ( "CPU usage configuration: <" 
                  << m_meanCpuTime << "> +/- "
-                 << m_rmsCpuTime << " ms" ) ;
-  
+                 << m_rmsCpuTime << " seconds" ) ;
 
   return StatusCode::SUCCESS;
 }
@@ -84,41 +86,7 @@ StatusCode CpuCruncherAlg::finalize()
 StatusCode CpuCruncherAlg::execute()
 {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." ) ;
-
-  // Volatile to avoid optimization
-  volatile double test_result = 0.0;
-
-  // Sample randomly - use w/ care
-  double ms_interval = m_distribution(m_random);
-
-  ATH_MSG_DEBUG ( "Will burn CPU for " << ms_interval << " milliseconds ..." );
-
-  // Define the interval, do some math until the interval is exhausted
-  std::chrono::duration<float, std::milli> chrono_interval(ms_interval);
-
-  auto start = std::chrono::system_clock::now();
-
-  while (std::chrono::system_clock::now() - start < chrono_interval)
-    test_result += burn(5000);
-
-  ATH_MSG_DEBUG ( "Test result sum is " << test_result );
-
   return StatusCode::SUCCESS;
-}
-
-double CpuCruncherAlg::burn(unsigned long nIterations = 10000000lu) {
-
-  // Volatile to avoid optimization
-  volatile double sum = 0.0;
-
-  double val;
-
-  for(auto idx = 0lu; idx < nIterations; ++idx) {
-    val = (double) (idx + 1) / nIterations * 0.7854;
-    sum += std::tan(std::log(val));
-  }
-
-  return sum;
 }
 
 /////////////////////////////////////////////////////////////////// 

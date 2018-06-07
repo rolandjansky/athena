@@ -3,6 +3,7 @@
 */
 
 #include "TrigFTKSim/FTKTrack.h"
+
 #include "TrigFTK_RawDataAlgs/FTK_RDO_CreatorAlgo.h"
 #include "TrigFTKSim/MultiTruth.h"
 
@@ -54,7 +55,7 @@ FTK_RDO_CreatorAlgo::FTK_RDO_CreatorAlgo(const std::string& name, ISvcLocator* p
   m_trainingBeamspotY(0.),
   m_trainingBeamspotTiltX(0.),
   m_trainingBeamspotTiltY(0.),
-  m_reverseIBLlocx(true)
+  m_reverseIBLlocx(false)
 {
   declareProperty("mergedTrackPaths",m_ftktrack_paths_merged,
       "Paths of the merged tracks");
@@ -67,11 +68,11 @@ FTK_RDO_CreatorAlgo::FTK_RDO_CreatorAlgo(const std::string& name, ISvcLocator* p
   declareProperty("ReverseIBLlocX",m_reverseIBLlocx, "reverse the direction of IBL locX from FTK");
 
   m_FTK_RawTrack_checkFails.reserve(9);
-  m_FTK_RawSCT_Cluster_checkFails.reserve(3);
-  m_FTK_RawPixelCluster_checkFails.reserve(5);
+  m_FTK_RawSCT_Cluster_checkFails.reserve(5);
+  m_FTK_RawPixelCluster_checkFails.reserve(3);
   for (unsigned int i=0; i < 9; i++)   m_FTK_RawTrack_checkFails[i]=0;
-  for (unsigned int i=0; i < 3; i++)   m_FTK_RawSCT_Cluster_checkFails[i]=0;
-  for (unsigned int i=0; i < 5; i++)   m_FTK_RawPixelCluster_checkFails[i]=0;
+  for (unsigned int i=0; i < 5; i++)   m_FTK_RawSCT_Cluster_checkFails[i]=0;
+  for (unsigned int i=0; i < 3; i++)   m_FTK_RawPixelCluster_checkFails[i]=0;
 }
 
 FTK_RDO_CreatorAlgo::~FTK_RDO_CreatorAlgo()
@@ -558,11 +559,11 @@ void FTK_RDO_CreatorAlgo::printTrack(const FTKTrack& track, const FTK_RawTrack *
 }
 
 #define d0Res 0.001
-#define z0Res 0.001
-#define phiRes 0.001
+#define z0Res 0.01
+#define phiRes 0.0001
 #define chi2Res 0.001
-#define cotThetaRes 0.001
-#define invPtRes 0.0015 
+#define cotThetaRes 0.00025
+#define invPtRes 5e-8 // MeV^-1
 #define sctStripRes 0.5
 #define pixColRes 0.1
 #define pixRowRes 0.1
@@ -656,18 +657,14 @@ bool FTK_RDO_CreatorAlgo::check_track(const FTKTrack &track, FTK_RawTrack &rdo) 
 	    m_FTK_RawPixelCluster_checkFails[2]+=1;hitOK=false;
 	  }
 	  unsigned int wphi=hit.getPhiWidth();
-	  if (wphi>8) wphi=8; // expect values 1 to 8
-	  if (wphi<1) wphi=1; // expect values 1 to 8
+	  if (wphi>7) wphi=7; // 3 bits values 0 to 7
 	  if (!(this->checkInt(wphi,rdo.getPixelClusters()[i].getRowWidth(),"Pixel RowWidth"))){ 
 	    m_FTK_RawPixelCluster_checkFails[3]+=1;hitOK=false;
-	    ATH_MSG_VERBOSE("Pix PhiWidth Check fails hit.getPhiWidth() " << hit.getPhiWidth()  << " expect "  << wphi << " got " << rdo.getPixelClusters()[i].getRowWidth());
 	  }
 	  unsigned int weta=hit.getEtaWidth(); 
-	  if (weta>8) weta=8; // expect values 1 to 8
-	  if (weta<1) weta=1; // expect values 1 to 8
+	  if (weta>7) weta=7; // 3 bits values 0 to 7
 	  if (!(this->checkInt(weta, rdo.getPixelClusters()[i].getColWidth(),"Pixel ColWidth"))){ 
 	    m_FTK_RawPixelCluster_checkFails[4]+=1;hitOK=false;
-	    ATH_MSG_VERBOSE("Pix EtaWidth Check fails hit.getEtaWidth() " << hit.getEtaWidth()  << " expect "  << weta << " got " << rdo.getPixelClusters()[i].getColWidth());
 	  }
 	} else {
 	  if (!(this->checkInt(hit.getIdentifierHash(), rdo.getSCTClusters()[i-4].getModuleID(), "SCT moduleID"))){
@@ -677,11 +674,9 @@ bool FTK_RDO_CreatorAlgo::check_track(const FTKTrack &track, FTK_RawTrack &rdo) 
 	    m_FTK_RawSCT_Cluster_checkFails[1]+=1;hitOK=false;
 	  }
 	  unsigned int wstrip=hit.getPhiWidth();
-	  if (wstrip>8) wstrip=8; // expect values 1 to 8
-	  if (wstrip<1) wstrip=1; // expect values 1 to 8
+	  if (wstrip>7) wstrip=7; // 3 bits values 0 to 7
 	  if (!(this->checkInt(wstrip,rdo.getSCTClusters()[i-4].getHitWidth(),"SCT cluster width"))){  
 	    m_FTK_RawSCT_Cluster_checkFails[2]+=1;hitOK=false;
-	    ATH_MSG_VERBOSE("SCT clusWidth Check fails hit.getPhiWidth() " << hit.getPhiWidth()  << " expect "  << wstrip << " got " << rdo.getSCTClusters()[i-4].getHitWidth());
 	  }
 	}
 
@@ -702,11 +697,9 @@ bool FTK_RDO_CreatorAlgo::check_track(const FTKTrack &track, FTK_RawTrack &rdo) 
 
 bool FTK_RDO_CreatorAlgo::checkValue(const float &v1, const float &v2, const float &res, const std::string &what) {
   bool check_ok = true;
-  if (fabs(v1+v2)>1e-10) {
-    if (fabs(2*(v1-v2)/(v1+v2)) > res) {
-      ATH_MSG_INFO( "FTK_RDO_CreatorAlgo::checkValue check failed for "<< what << " difference 2*(FTKTrack-RDO)/(FTKTrack+RDO) = " <<  2*(v1-v2)/(v1+v2) << " values:  FTKTrack " << v1 << " RDO " << v2 << " resolution "  << res);
-      check_ok=false;
-    }
+  if (fabs(v1-v2) > res) {
+    ATH_MSG_INFO( "FTK_RDO_CreatorAlgo::checkValue check failed for "<< what << " difference FTKTrack-RDO= " <<  v1-v2 << " values:  FTKTrack " << v1 << " RDO " << v2 << " resolution "  << res);
+    check_ok=false;
   }
   return check_ok;
 }

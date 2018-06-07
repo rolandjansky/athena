@@ -1,6 +1,7 @@
 /*
-Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
+
 /**
  * @file InDetRttLargeD0Plots.cxx
  * @author shaun roe
@@ -43,7 +44,6 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase* pParent, const std::st
 
 // //Testing TRT extension efficiency
   m_trtTesting_st_matched(this, "LargeD0/TRTTesting/StandardTracks/MatchedTracks/"),
-  m_trtTesting_st_matched_signal(this, "LargeD0/TRTTesting/StandardTracks/MatchedTracks/Signal"),
   m_trtTesting_st_matched_primary(this, "LargeD0/TRTTesting/StandardTracks/MatchedTracks/Primary"),
   m_trtTesting_st_matched_secondary(this, "LargeD0/TRTTesting/StandardTracks/MatchedTracks/Secondary/"),
   m_trtTesting_st_matched_noTruthLink(this, "LargeD0/TRTTesting/StandardTracks/MatchedTracks/NoTruthLink/"),
@@ -53,7 +53,6 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase* pParent, const std::st
   m_trtTesting_st_fake_noTruthLink(this, "LargeD0/TRTTesting/StandardTracks/FakeTracks/NoTruthLink"),
 
   m_trtTesting_ld0_matched(this, "LargeD0/TRTTesting/LargeD0Tracks/MatchedTracks/"),
-  m_trtTesting_ld0_matched_signal(this, "LargeD0/TRTTesting/LargeD0Tracks/MatchedTracks/Signal"),
   m_trtTesting_ld0_matched_primary(this, "LargeD0/TRTTesting/LargeD0Tracks/MatchedTracks/Primary"),
   m_trtTesting_ld0_matched_secondary(this, "LargeD0/TRTTesting/LargeD0Tracks/MatchedTracks/Secondary/"),
   m_trtTesting_ld0_matched_noTruthLink(this, "LargeD0/TRTTesting/LargeD0Tracks/MatchedTracks/NoTruthLink/"),
@@ -64,7 +63,6 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase* pParent, const std::st
 
 // hits plots
   m_hitsPlots_st_matched(this, "LargeD0/HitsPlots/StandardTracks/MatchedTracks"),
-  m_hitsPlots_st_matched_signal(this, "LargeD0/HitsPlots/StandardTracks/MatchedTracks/Signal"),
   m_hitsPlots_st_matched_primary(this, "LargeD0/HitsPlots/StandardTracks/MatchedTracks/Primary"),
   m_hitsPlots_st_matched_secondary(this, "LargeD0/HitsPlots/StandardTracks/MatchedTracks/Secondary"),
   m_hitsPlots_st_matched_noTruthLink(this, "LargeD0/HitsPlots/StandardTracks/MatchedTracks/NoTruthLink"),
@@ -74,7 +72,6 @@ InDetRttLargeD0Plots::InDetRttLargeD0Plots(InDetPlotBase* pParent, const std::st
   m_hitsPlots_st_fake_noTruthLink(this, "LargeD0/HitsPlots/StandardTracks/FakeTracks/NoTruthLink"),
 
   m_hitsPlots_ld0_matched(this, "LargeD0/HitsPlots/LargeD0Tracks/MatchedTracks"),
-  m_hitsPlots_ld0_matched_signal(this, "LargeD0/HitsPlots/LargeD0Tracks/MatchedTracks/Signal"),
   m_hitsPlots_ld0_matched_primary(this, "LargeD0/HitsPlots/LargeD0Tracks/MatchedTracks/Primary"),
   m_hitsPlots_ld0_matched_secondary(this, "LargeD0/HitsPlots/LargeD0Tracks/MatchedTracks/Secondary"),
   m_hitsPlots_ld0_matched_noTruthLink(this, "LargeD0/HitsPlots/LargeD0Tracks/MatchedTracks/NoTruthLink"),
@@ -345,7 +342,8 @@ InDetRttLargeD0Plots::fill(const xAOD::TrackParticle& particle) {
 }
 
 void
-InDetRttLargeD0Plots::fill(const xAOD::TrackParticle& particle, const int barcode, const xAOD::EventInfo& ei, const xAOD::VertexContainer& pv, const bool isSignal) {
+InDetRttLargeD0Plots::fill(const xAOD::TrackParticle& particle, const int barcode, const xAOD::EventInfo& ei,
+                           const xAOD::VertexContainer& pv) {
   const bool noTruthLink = ((barcode == 0)or(barcode == -1));
 
   if (isLargeD0Track(particle)) {
@@ -355,10 +353,6 @@ InDetRttLargeD0Plots::fill(const xAOD::TrackParticle& particle, const int barcod
     m_basicPlot_ld0_matched.fill(particle);
     m_ptPlot_ld0_matched.fill(particle);
     m_TrackRecoInfoPlots_ld0_matched.fill(particle);
-    if(isSignal) {
-      m_trtTesting_ld0_matched_signal.fill(particle, ei, pv);
-      m_hitsPlots_ld0_matched_signal.fill(particle);
-    }
     if (noTruthLink) { // no truth link
       m_trtTesting_ld0_matched_noTruthLink.fill(particle, ei, pv);
       m_hitsPlots_ld0_matched_noTruthLink.fill(particle);
@@ -389,10 +383,6 @@ InDetRttLargeD0Plots::fill(const xAOD::TrackParticle& particle, const int barcod
     m_basicPlot_st_matched.fill(particle);
     m_ptPlot_st_matched.fill(particle);
     m_TrackRecoInfoPlots_st_matched.fill(particle);
-    if(isSignal) {
-      m_trtTesting_st_matched_signal.fill(particle, ei, pv);
-      m_hitsPlots_st_matched_signal.fill(particle);
-    }
     if (noTruthLink) { // no truth link
       m_trtTesting_st_matched_noTruthLink.fill(particle, ei, pv);
       m_hitsPlots_st_matched_noTruthLink.fill(particle);

@@ -353,7 +353,7 @@ topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 ## Populate alg sequence
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
-#AlgSequence("Streams").StreamHITS.ItemList                  = ['EventInfo#*']
+#ServiceMgr.AthenaOutputStream.StreamHITS.ItemList                  = ['EventInfo#*']
 
 ToolSvc.MuonTrackingGeometryBuilder.BlendInertMaterial = False
 TestSTEP_Propagator.Straggling = False

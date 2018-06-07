@@ -37,9 +37,7 @@ else:
 
 ## configure Athena for POOL persistency
 streamAlgs = ['StreamHITS','StreamRDO','StreamESD','StreamAOD']
-streamSeq = AlgSequence("Streams")
 for stream in streamAlgs:
-    outStream =  getattr(streamSeq, stream, None)
+    outStream =  getattr(topSequence, stream, None)
     if outStream is not None:
         outStream.ItemList += [ "HijingEventParams#Hijing_event_params" ]
-

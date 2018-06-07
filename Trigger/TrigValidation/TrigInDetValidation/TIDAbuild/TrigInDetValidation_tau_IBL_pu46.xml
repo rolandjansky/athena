@@ -1,13 +1,13 @@
 	 <athena trendId='tau_merging' userJobId='TrigInDetValidation_tau_IBL_pu46' >
            <doc>TauSlice, H->tautau IBL sample, pu46</doc>
            <displayName>TauSlice, H->tautau IBL sample, pu46</displayName>
-           <commandLineFlags>EventMax=4000;PdgId=15</commandLineFlags>
+           <commandLineFlags>EventMax=4000</commandLineFlags>
            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
            <queue>long</queue>
 
-#          include "samples/TrigInDetValidation_tau_sample3.xml"
+#          include "samples/TrigInDetValidation_tau_sample0.xml"
            
 
 
@@ -76,4 +76,5 @@
            <athenaCommonFlags /><alwaysRunPostProc /> 
          </athena>
 	 
+
 

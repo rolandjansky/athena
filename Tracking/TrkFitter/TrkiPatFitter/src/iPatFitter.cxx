@@ -61,6 +61,7 @@ iPatFitter::iPatFitter (const std::string&	type,
 	m_parameters			(0),
 	m_aggregateMaterial		(true),
 	m_asymmetricCaloEnergy		(true),
+	m_eigenMatrixTreatment		(true),
 	m_fullCombinedFit		(true),
 	m_lineFit			(false),
 	m_lineMomentum			(100.*Gaudi::Units::GeV),
@@ -92,6 +93,7 @@ iPatFitter::iPatFitter (const std::string&	type,
     declareInterface<ITrackFitter>(this);
     declareProperty("AggregateMaterial",	       	m_aggregateMaterial);
     declareProperty("AsymmetricCaloEnergy",	       	m_asymmetricCaloEnergy);
+    declareProperty("EigenMatrixTreatment",		m_eigenMatrixTreatment);
     declareProperty("FullCombinedFit",			m_fullCombinedFit);
     declareProperty("LineFit",				m_lineFit);
     declareProperty("LineMomentum",			m_lineMomentum);
@@ -131,6 +133,7 @@ iPatFitter::initialize()
     msg(MSG::INFO) << " with options: ";
     if (m_aggregateMaterial)		msg() << " AggregateMaterial";
     if (m_asymmetricCaloEnergy) 	msg() << " AsymmetricCaloEnergy";
+    if (m_eigenMatrixTreatment)		msg() << " EigenMatrixTreatment";
     if (m_fullCombinedFit)		msg() << " FullCombinedFit";
     if (m_globalFit)			msg() << " GlobalFitter";
     if (m_lineFit)			msg() << " LineFit with p = "
@@ -242,6 +245,7 @@ iPatFitter::initialize()
     // can now create FitProcedure class
     m_fitProcedure = new FitProcedure(m_constrainedAlignmentEffects,
 				      m_extendedDebug,
+				      m_eigenMatrixTreatment,
 				      m_lineFit,
 				      m_rungeKuttaIntersector,
 				      m_solenoidalIntersector,
@@ -293,9 +297,11 @@ iPatFitter::finalize()
     // delete all objects owned by class
     if (m_globalFit && m_measurements)
     {
-      for (auto m : *m_measurements)
+	for (std::list<Trk::FitMeasurement*>::iterator m = m_measurements->begin();
+	     m != m_measurements->end();
+	     ++m)
 	{
-	    delete m;
+	    delete *m;
 	}
 	m_measurements->clear();
     }
@@ -352,7 +358,7 @@ iPatFitter::fit	(const Track&			track,
 	return 0;
     }
     
-    std::vector<FitMeasurement*>* measurements = measurementList();
+    std::list<FitMeasurement*>* measurements = measurementList();
     bool haveMaterial = addMeasurements(*measurements,
 					*m_parameters,
 					particleHypothesis,
@@ -439,7 +445,7 @@ iPatFitter::fit	(const Track&			track,
     m_parameters	= new FitParameters(*perigee);
     
     // set up the measurements (and material)
-    std::vector<FitMeasurement*>* measurements = measurementList();
+    std::list<FitMeasurement*>* measurements = measurementList();
     if (addMeasurements(*measurements,*m_parameters,particleHypothesis,*track.trackStateOnSurfaces()))
 	m_messageHelper->printWarning(8);	// FIX needed: material may get double counted
     addMeasurements(*measurements,
@@ -487,7 +493,7 @@ iPatFitter::fit	(const MeasurementSet&		measurementSet,
     m_parameters	= new FitParameters(*perigee);
     
     // set up the measurements (and material)
-    std::vector<FitMeasurement*>* measurements = measurementList();
+    std::list<FitMeasurement*>* measurements = measurementList();
     addMeasurements(*measurements,measurementSet,*m_parameters);
     if (particleHypothesis != Trk::nonInteracting)
     {
@@ -515,7 +521,7 @@ iPatFitter::fit	(const Track&			indetTrack,
 
     // indet (full refit to measurements or use measured perigee)
     bool haveMaterial	= true;
-    std::vector<FitMeasurement*>* measurements = measurementList();
+    std::list<FitMeasurement*>* measurements = measurementList();
     delete m_parameters;
     if (indetTrack.perigeeParameters())
     {
@@ -618,7 +624,7 @@ iPatFitter::fit	(const Track&			indetTrack,
 	    m_messageHelper->printWarning(14);
 	    return 0;
 	}
-	measurements->insert(measurements->begin(), new FitMeasurement(*indetPerigee));
+	measurements->push_front(new FitMeasurement(*indetPerigee));
 	FitParameters measuredParameters(*indetPerigee);
 	Trk::Track* fittedTrack = performFit(measurements,
 					     &measuredParameters,
@@ -638,7 +644,7 @@ iPatFitter::fit	(const Track&			indetTrack,
 //<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
 
 void
-iPatFitter::addMeasurements (std::vector<FitMeasurement*>&	measurements,
+iPatFitter::addMeasurements (std::list<FitMeasurement*>&	measurements,
 			     const MeasurementSet&		measurementSet,
 			     const FitParameters&		parameters) const
 {
@@ -735,7 +741,7 @@ iPatFitter::addMeasurements (std::vector<FitMeasurement*>&	measurements,
 }
 
 bool
-iPatFitter::addMeasurements (std::vector<FitMeasurement*>&		  measurements,
+iPatFitter::addMeasurements (std::list<FitMeasurement*>&		  measurements,
 			     const FitParameters&			  parameters,
 			     ParticleHypothesis				  particleHypothesis,
 			     const DataVector<const TrackStateOnSurface>& trackStateOnSurfaces) const
@@ -1101,27 +1107,29 @@ iPatFitter::addMeasurements (std::vector<FitMeasurement*>&		  measurements,
     return haveMaterial;
 }
 
-std::vector<FitMeasurement*>*&
+std::list<FitMeasurement*>*&
 iPatFitter::measurementList (void) const
 {
     if (m_globalFit && m_measurements)
     {
-      for (auto m : *m_measurements)
+	for (std::list<Trk::FitMeasurement*>::iterator m = m_measurements->begin();
+	     m != m_measurements->end();
+	     ++m)
 	{
-	    delete m;
+	    delete *m;
 	}
 	m_measurements->clear();
     }
     else
     {
-	m_measurements	= new std::vector<FitMeasurement*>;
+	m_measurements	= new std::list<FitMeasurement*>;
     }
 
     return m_measurements;
 }
      
 Track*
-iPatFitter::performFit(std::vector<FitMeasurement*>*			measurements,
+iPatFitter::performFit(std::list<FitMeasurement*>*			measurements,
 		       FitParameters*					parameters,
 		       const ParticleHypothesis				particleHypothesis,
 		       const TrackInfo&					trackInfo,
@@ -1215,40 +1223,42 @@ iPatFitter::performFit(std::vector<FitMeasurement*>*			measurements,
 		int spect		= 0;
 		double spectX0		= 0.;
 		double spectEloss	= 0.;
-		for (auto m : *measurements)
+		for (std::list<FitMeasurement*>::const_iterator m = measurements->begin();
+		     m != measurements->end();
+		     ++m)
 		{
-		    if (m->isEnergyDeposit())
+		    if ((**m).isEnergyDeposit())
 		    {
 			++calo;
-			caloEloss	+= m->energyLoss();
+			caloEloss	+= (**m).energyLoss();
 		    }
-		    else if (! m->isScatterer())
+		    else if (! (**m).isScatterer())
 		    {
 			continue;
 		    }
 		
-		    if (m_indetVolume->inside(m->position()))
+		    if (m_indetVolume->inside((**m).position()))
 		    {
 			++indet;
-			indetX0	+= m->materialEffects()->thicknessInX0();
-			indetEloss	+= m->energyLoss();
+			indetX0	+= (**m).materialEffects()->thicknessInX0();
+			indetEloss	+= (**m).energyLoss();
 			// conflicting energy deposit sign for inDet material
-			if (m->energyLoss()*indetEloss < 0.) m_messageHelper->printWarning(21);
+			if ((**m).energyLoss()*indetEloss < 0.) m_messageHelper->printWarning(21);
 			continue;
 		    }
 		    else if (m_calorimeterVolume->inside(
-				 m->intersection(FittedTrajectory).position()))
+				 (**m).intersection(FittedTrajectory).position()))
 		    {
 			++calo;
-			caloX0	+= m->materialEffects()->thicknessInX0();
+			caloX0	+= (**m).materialEffects()->thicknessInX0();
 			continue;
 		    }
 		
 		    ++spect;
-		    spectX0	+= m->materialEffects()->thicknessInX0();
-		    spectEloss	+= m->energyLoss();
+		    spectX0	+= (**m).materialEffects()->thicknessInX0();
+		    spectEloss	+= (**m).energyLoss();
 		    // conflicting energy deposit sign for spectrometer material
-		    if (m->energyLoss()*spectEloss < 0.) m_messageHelper->printWarning(22);
+		    if ((**m).energyLoss()*spectEloss < 0.) m_messageHelper->printWarning(22);
 		}
 
 		// WARN in case of bug #56297
@@ -1320,9 +1330,11 @@ iPatFitter::performFit(std::vector<FitMeasurement*>*			measurements,
     // clean up and return
     if (! m_globalFit || ! fittedTrack)
     {
-      for (auto m: *m_measurements)
+	for (std::list<Trk::FitMeasurement*>::iterator m = measurements->begin();
+	     m != measurements->end();
+	     ++m)
 	{
-	    delete m;
+	    delete *m;
 	}
 	measurements->clear();
 	delete measurements;
@@ -1438,7 +1450,7 @@ iPatFitter::refit(const Track&			track,
 	return;
     }
     
-    std::vector<FitMeasurement*>* measurements = measurementList();
+    std::list<FitMeasurement*>* measurements = measurementList();
     bool haveMaterial = addMeasurements(*measurements,
 					*m_parameters,
 					particleHypothesis,

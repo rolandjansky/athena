@@ -18,7 +18,6 @@
 #include <TFile.h>
 #include <TGraph.h>
 #include <TKey.h>
-#include <TEfficiency.h>
 
 
 namespace dqi{

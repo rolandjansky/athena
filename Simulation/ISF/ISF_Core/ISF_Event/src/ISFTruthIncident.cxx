@@ -139,12 +139,6 @@ HepMC::GenParticle* ISF::ISFTruthIncident::childParticle(unsigned short index,
   return updateHepMCTruthParticle( *sec, &m_parent );
 }
 
-HepMC::GenParticle* ISF::ISFTruthIncident::updateChildParticle(unsigned short /*index*/,
-                                                               HepMC::GenParticle *existingChild) const {
-  // Dummy implementation
-  return existingChild;
-}
-
 void ISF::ISFTruthIncident::setAllChildrenBarcodes(Barcode::ParticleBarcode bc) {
   unsigned short numSec = numberOfChildren();
   for (unsigned short i=0; i<numSec; i++) {

@@ -21,14 +21,6 @@
 #include "tile_id_test_common.cxx"
 
 
-class Tile_SuperCell_ID_Test
-  : public Tile_SuperCell_ID, public ITile_ID_Test
-{
-public:
-  virtual int get_tile_field_value() const override { return tile_field_value(); }
-};
-
-
 void test_basic (const Tile_SuperCell_ID& idhelper)
 {
   std::cout << "test_basic\n";
@@ -53,7 +45,7 @@ int main()
 {
   idDictType = "TileCalorimeter";
   idDictXmlFile = "IdDictTileCalorimeter.xml";
-  std::unique_ptr<Tile_SuperCell_ID> idhelper = make_helper<Tile_SuperCell_ID_Test>();
+  std::unique_ptr<Tile_SuperCell_ID> idhelper = make_helper<Tile_SuperCell_ID>();
   try {
     test_basic (*idhelper);
     test_connected (*idhelper, true);

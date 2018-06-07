@@ -211,8 +211,7 @@ SCTCalib::SCTCalib( const std::string& name, ISvcLocator* pSvcLocator ) :
    declareProperty( "DoLorentzAngle",            m_doLorentzAngle             = false );
    declareProperty( "WriteToCool",               m_writeToCool                = true );
    //reinstated 21 May
-   declareProperty( "NoisyWriteAllModules",       m_noisyWriteAllModules      = true );
-   declareProperty( "NoisyUpdate",                m_noisyUpdate               = false );
+   declareProperty( "NoisyUpdate",                m_noisyUpdate               = true );
    declareProperty( "NoisyUploadTest",            m_noisyUploadTest           = true );
    declareProperty( "NoisyModuleAverageInDB",     m_noisyModuleAverageInDB    = -1. );
    declareProperty( "NoisyStripLastRunInDB",      m_noisyStripLastRunInDB     = -999 );
@@ -717,26 +716,26 @@ StatusCode SCTCalib::getNoisyStrip() {
       std::pair<int, bool> noisy=getNumNoisyStrips(waferId);
       const int  numNoisyStripsInWafer=noisy.first;
       const bool isNoisyWafer=noisy.second;
-      if (numNoisyStripsInWafer!=0 || m_noisyWriteAllModules) {
+      if (numNoisyStripsInWafer!=0) {
          if ( m_noisyWaferFinder && isNoisyWafer ) { //in noisy wafer
             ++numNoisyWafers;
             if (not m_noisyWaferWrite) break;
             if (m_noisyWaferAllStrips) { //write out all strips
-               if ( addStripsToList( waferId, stripIdLists[ALL], false, false ).isFailure() or  addStripsToList( waferId, stripIdLists[NEW], false, true ).isFailure() ) {
-               //if ( addStripsToList( waferId, stripIdLists[ALL], false, false ).isFailure() ) {
+               //if ( addStripsToList( waferId, stripIdLists[ALL], false, false ).isFailure() or  addStripsToList( waferId, stripIdLists[NEW], false, true ).isFailure() ) {
+               if ( addStripsToList( waferId, stripIdLists[ALL], false, false ).isFailure() ) {
                   return msg( MSG::ERROR ) << "Could not add stripIds to the list" << endmsg, StatusCode::FAILURE;
                }
                break;
             } else {
                //only noisy strips in noisy wafer
-               if ( addStripsToList( waferId, stripIdLists[ALL], true, false ).isFailure() or addStripsToList( waferId, stripIdLists[NEW], true, true  ).isFailure() ) {
-               //if ( addStripsToList( waferId, stripIdLists[ALL], true, false ).isFailure() ) {
+               //if ( addStripsToList( waferId, stripIdLists[ALL], true, false ).isFailure() or addStripsToList( waferId, stripIdLists[NEW], true, true  ).isFailure() ) {
+               if ( addStripsToList( waferId, stripIdLists[ALL], true, false ).isFailure() ) {
                   return msg( MSG::ERROR ) << "Could not add stripIds to the list" << endmsg, StatusCode::FAILURE;
                }
             }
          } else { // not in noisy wafer
-            if ( addStripsToList( waferId, stripIdLists[ALL], true, false ).isFailure() or addStripsToList( waferId, stripIdLists[NEW], true, true  ).isFailure() ) {
-            //if ( addStripsToList( waferId, stripIdLists[ALL], true, false ).isFailure() ) {
+            //if ( addStripsToList( waferId, stripIdLists[ALL], true, false ).isFailure() or addStripsToList( waferId, stripIdLists[NEW], true, true  ).isFailure() ) {
+            if ( addStripsToList( waferId, stripIdLists[ALL], true, false ).isFailure() ) {
                return msg( MSG::ERROR ) << "Could not add stripIds to the list" << endmsg, StatusCode::FAILURE;
             }
          }
@@ -1867,16 +1866,16 @@ StatusCode SCTCalib::getBSErrors() {
    IntStringMap ErrMap_C, ErrMap;
    const int numberOfErrorTypes(12);
    boost::array<std::string, numberOfErrorTypes> errorNames= {{
-         "ByteStreamParseError","TimeOutError","BCIDError","LVL1IDError","PreambleError","FormatterError",
-         "ABCDError","RawError","MaskedLink","RODClockError",
-         "TruncatedROD","ROBFragmentError"
+         "BSParse","TimeOut", "BCID","LVL1ID", "Preamble", "Formatter",
+         "ABCD","Raw", "MaskedLink", "RODClock",
+         "TruncROD", (m_histBefore2010?"ROBFragment":"ROBFrag" )
       }
    };
    //
    boost::array<std::string, numberOfErrorTypes> errorNames_C= {{
-         "ByteStreamParseError","TimeOutError","BCIDError","LVL1IDError","PreambleError","FormatterError",
-         "ABCDError","RawError","MaskedLink","RODClockError",
-         "TruncatedROD","ROBFragmentError"
+         "BSParse","TimeOut","BCID","LVL1ID", "Preamble", "Formatter",
+         "ABCD","Raw", (m_histBefore2010?"TmaskedLinks":"MaskedLink"), "RODClock",
+         "TruncROD", (m_histBefore2010?"ROBFragment":"ROBFrag" )
       }
    };
    boost::array<int, numberOfErrorTypes> errorValues= {{0,1,2,3,4,5,9,10,11,12,13,14}};
@@ -1894,7 +1893,7 @@ StatusCode SCTCalib::getBSErrors() {
    const int N_ENDCAPS(2);
    boost::array<std::string, N_ENDCAPS> detectorStems= {{"/run_" + runnum.str() + "/SCT/SCTEC/errors/",  "/run_" + runnum.str() + "/SCT/SCTEA/errors/"}}; //barrel stem unused here
    boost::array<IntStringMap::iterator, N_ENDCAPS> detectorIterators= {{ErrMap_C.begin(), ErrMap.begin()}};
-   boost::array<std::string, N_ENDCAPS> detectorParts= {{"EC",  "EA"}};
+   boost::array<std::string, N_ENDCAPS> detectorParts= {{"ECm",  "ECp"}};
    std::string defecttype("");
    std::string n_defect("");
    int n_errorLink = 0;
@@ -1925,13 +1924,11 @@ StatusCode SCTCalib::getBSErrors() {
                      float errorProb = 0.;
                      unsigned long long n_errors = 0;
                      if ( iType == errItr->first ) {
-						ostringstream streamHist;
+                        ostringstream streamHist;
                         ostringstream streamHistAlt; 
                         //temporal fix: folder and histogram names should be Preamble
-                        //streamHist << errItr->second << "Errs" << "_" << iDisk << "_" << iSide;
-                        streamHist << "SCT_T" << errItr->second << detector_part << "_" << iDisk << "_" << iSide;
-                        //streamHistAlt << "T" << errItr->second << "Errs" << detector_part << "_" << iDisk << "_" << iSide; 
-                        streamHistAlt << "SCT_" << errItr->second << detector_part << "_" << iDisk << "_" << iSide; 
+                        streamHist << errItr->second << "Errs" << "_" << iDisk << "_" << iSide;
+                        streamHistAlt << "T" << errItr->second << "Errs" << detector_part << "_" << iDisk << "_" << iSide; 
                         std::string folder = errItr->second+std::string("/");
                         //histogram might or might not be inside a folder with the same name
                         std::string profname = detectorStems[stemIndex] + folder +streamHist.str();
@@ -1953,7 +1950,7 @@ StatusCode SCTCalib::getBSErrors() {
                            msg( MSG::ERROR ) << "Unable to get profile for BSErrorsDB : " << profname << endmsg;
                            return StatusCode::FAILURE;
                         }
-
+                        
                         n_errors = (unsigned long long)prof_tmp->GetBinContent( iEta+1, iPhi+1 );
                         //		    unsigned long long n_errors = (unsigned long long)prof_tmp->GetBinContent( iEta+1, iPhi+1 );
                         if(n_errors!=0) {
@@ -2019,9 +2016,8 @@ StatusCode SCTCalib::getBSErrors() {
                   unsigned long long n_errors = 0;
                   if ( iType == errItr->first ) {
                      ostringstream streamHist;
-                     //streamHist << "SCT_T" << errItr->second << "Errors" << "_" << iLayer << "_" << iSide;
-                     streamHist << "SCT_T" << errItr->second << "B" << "_" << iLayer << "_" << iSide;
-                     //histogram or might not be inside a folder with the same name
+                     streamHist << "T" << errItr->second << "Errs" << "_" << iLayer << "_" << iSide;
+                     //histogram might or might not be inside a folder with the same name
                      std::string folder = errItr->second+std::string("/");
                      std::string profname = "/run_" + runnum.str() + "/SCT/SCTB/errors/" + folder + streamHist.str();
                      std::string profnameShort = "/run_" + runnum.str() + "/SCT/SCTB/errors/" + streamHist.str();
@@ -2779,7 +2775,7 @@ SCTCalib::getNumNoisyStrips( const Identifier& waferId ) const {
    bool isNoisyWafer(false);
    float noisyStripThr = m_noisyStripThrDef?(m_noisyStripThrOffline):(m_noisyStripThrOnline);
    for ( int iStrip = 0; iStrip != nbins; ++iStrip ) {
-      if ( (float) m_calibHitmapSvc->getBinForHistogramIndex( iStrip + 1, (int) waferHash ) / m_numberOfEvents > noisyStripThr ) ++numNoisyStripsInTheWafer;
+      if ( m_calibHitmapSvc->getBinForHistogramIndex( iStrip + 1, (int) waferHash ) / m_numberOfEvents > noisyStripThr ) ++numNoisyStripsInTheWafer;
    }
    //--- Define/counts noisy wafers using wafer occupancy and number of noisy strips
    double averageOccupancy = m_calibHitmapSvc->size((int) waferHash)/(double)nbins/(double)m_numberOfEvents;
@@ -2806,7 +2802,7 @@ SCTCalib::addStripsToList( Identifier& waferId, std::set<Identifier>& stripIdLis
       if ( !isNoisy ) { //--- Add all strips
          stripIdList.insert( stripId );
       } else {
-         const float stripOccupancy =  (float) m_calibHitmapSvc->getBinForHistogramIndex( iStrip + 1, (int) waferHash )  / m_numberOfEvents;
+         const float stripOccupancy =  m_calibHitmapSvc->getBinForHistogramIndex( iStrip + 1, (int) waferHash )  / m_numberOfEvents;
          if ( stripOccupancy > noisyStripThr ) {
             if ( !isNew ) { //--- All noisy strips
                stripIdList.insert( stripId );
@@ -2852,28 +2848,16 @@ SCTCalib::writeModuleListToCool( const std::map< Identifier, std::set<Identifier
             } else msg( MSG::DEBUG ) << "Module "<< moduleId  <<" is identical to the reference output" << endmsg;
          } else {
             if ( m_noisyStripAll ) { //--- ALL noisy strips
-               if ( !defectStripsAll.empty() || m_noisyWriteAllModules) {
-                  if (m_pCalibWriteSvc->createCondObjects( moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsAll ).isFailure()) {
-                     msg( MSG::ERROR ) << "Could not create defect strip entry in the CalibWriteSvc." << endmsg;
-                  };
-               } else {
-                  //msg( MSG::INFO ) << "No CondObj since no noisy strips CalibWriteSvc." << endmsg;
-               }
+               if ( !defectStripsAll.empty() ) m_pCalibWriteSvc->createCondObjects( moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsAll );
             } else { //--- Only NEW noisy strips
-               if ( !defectStripsNew.empty() ) {
-                  if (m_pCalibWriteSvc->createCondObjects( moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsNew ).isFailure()) {
-                     msg( MSG::ERROR ) << "Could not create defect strip entry in the CalibWriteSvc." << endmsg;
-                  }
-               } else {
-                  //msg( MSG::INFO ) << "No CondObj since no noisy strips CalibWriteSvc." << endmsg;
-               }
+               if ( !defectStripsNew.empty() ) m_pCalibWriteSvc->createCondObjects( moduleId, m_pSCTHelper, 10000, "NOISY", noisyStripThr, defectStripsNew );
             }
          }
       }
    }
    //msg( MSG::INFO ) << "Number of modules for which conditions were created: " << nDefects <<"  !!!!"<< endmsg;
-   if ( moduleListAll.empty() || ( nDefects==0 && m_noisyUpdate) ) {
-      msg( MSG::INFO ) << "Number of noisy strips was zero (" << nDefects << ") or the same list of noisy strips. No local DB was created." << endmsg;
+   if ( moduleListAll.empty() || nDefects==0 ) {
+      msg( MSG::INFO ) << "Number of noisy strips was zero or the same list of noisy strips. No local DB was created." << endmsg;
    } else {
       if ( m_pCalibWriteSvc->wrapUpNoisyChannel().isFailure() ) {
          msg( MSG::ERROR ) << "Could not get NoisyStrips info" << endmsg;
@@ -3461,7 +3445,7 @@ SCTCalib::getNoisyLB( const Identifier& moduleId, int& chipId ) const {
    for ( int iLB = 0; iLB != m_LBRange; ++iLB ) {
       double numEventsInLB = m_calibLbSvc->getNumberOfEventsInBin( iLB + 1 );
       if ( numEventsInLB == 0 ) continue;
-      double chipOccupancy = (float) m_calibLbSvc->getBinForHistogramIndex( iLB + 1, histIndex )/numEventsInLB;
+      double chipOccupancy = m_calibLbSvc->getBinForHistogramIndex( iLB + 1, histIndex )/numEventsInLB;
       if ( chipOccupancy > chipOccupancyThr ) LBList.insert( iLB );
    }
    //--- Transform LBList to string and calculate a fraction of noisy LBs

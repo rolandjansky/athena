@@ -14,19 +14,11 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 // HepMC
 #include "HepMC/GenParticle.h"
-// CLHEP
-#include "CLHEP/Random/RandFlat.h"
 
 InDet::PRD_TruthTrajectoryManipulatorID::PRD_TruthTrajectoryManipulatorID(const std::string& t, const std::string& n, const IInterface* p) :
-AthAlgTool(t,n,p),
-m_randSvc("AtDSFMTGenSvc", n),
-m_randEngineName("PRD_TruthTrajectoryManipulatorID"),
-m_randEngine(nullptr)
+AthAlgTool(t,n,p)
 {
     declareInterface<Trk::IPRD_TruthTrajectoryManipulator>(this);
-
-    declareProperty("RandomNumberService", m_randSvc, "ATLAS Random number AthService");
-    declareProperty("RandomStreamName", m_randEngineName, "Name of the random number stream");
 }
 
 StatusCode InDet::PRD_TruthTrajectoryManipulatorID::initialize() {
@@ -36,16 +28,6 @@ StatusCode InDet::PRD_TruthTrajectoryManipulatorID::initialize() {
     msg(MSG::ERROR) << "Could not get AtlasID helper !" << endreq;
     return StatusCode::FAILURE;
   }
-
-  ATH_CHECK(m_randSvc.retrieve());
-
-  // Get own engine with own seeds
-  m_randEngine = m_randSvc->GetEngine(m_randEngineName);
-  if (!m_randEngine) {
-      ATH_MSG_ERROR("Failed to retrieve RandomEngine instance");
-      return StatusCode::FAILURE;
-  }
-
   return StatusCode::SUCCESS;
 }
 
@@ -57,23 +39,23 @@ StatusCode InDet::PRD_TruthTrajectoryManipulatorID::finalize() {
 bool InDet::PRD_TruthTrajectoryManipulatorID::manipulateTruthTrajectory( Trk::PRD_TruthTrajectory &prdvec) const {
 
   if( (*prdvec.genParticle).barcode() < 100000){
+      srand( static_cast< unsigned int >( time( 0 ) ) );
       const int pdg_id = (*prdvec.genParticle).pdg_id();
-      const double prob_pix = pdg_id == 2212 ? 0.04 : 0.;
-      const double prob_sct = 0.04375;
+      const double prob_pix = pdg_id == 2212 ? 4. : 0;
+      const double prob_sct = 4.375;
       std::vector<const Trk::PrepRawData* >::iterator prdIter  = prdvec.prds.begin();
       std::vector<const Trk::PrepRawData* >::iterator prdIterE = prdvec.prds.end();
 
       while( prdIter != prdIterE ){
             if( m_atlasId->is_pixel((*prdIter)->identify()) ){
-                if( prob_pix > 0. && CLHEP::RandFlat::shoot(m_randEngine) <= prob_pix ){
+                if( prob_pix > 0 ? rand()%100 <= prob_pix : false ){
                   prdIter = prdvec.prds.erase(prdIter);
                   prdIterE  = prdvec.prds.end();
                 }
                 else ++ prdIter;
             }
             else if( m_atlasId->is_sct((*prdIter)->identify()) ){
-                double rand = CLHEP::RandFlat::shoot(m_randEngine);
-                if( rand <= prob_sct ){
+                if( rand()%100 <= prob_sct ){
                   prdIter = prdvec.prds.erase(prdIter);
                   prdIterE  = prdvec.prds.end();
                 }

@@ -56,7 +56,7 @@ namespace DerivationFramework {
     std::string m_triggerTowerLocation;
 
     // python configurables
-    double m_minCaloCellET;
+    double m_minCaloCellEnergy;
     int m_minADC;
     bool m_useRandom;
     double m_minRandom;

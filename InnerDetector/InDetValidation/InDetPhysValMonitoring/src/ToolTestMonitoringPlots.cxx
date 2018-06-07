@@ -1,6 +1,7 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
+
 /**
  * @file ToolTestMonitoringPlots.cxx
  * @author shaun roe
@@ -83,12 +84,10 @@ ToolTestMonitoringPlots::bookHistograms() {
   for (auto& hist : hists) {
     ATH_CHECK(regHist(hist.first, hist.second, all)); // ??
   }
-  
   std::vector<EfficiencyData> effs = m_monPlots->retrieveBookedEfficiencies();
   for (auto& eff : effs) {
     ATH_CHECK(regGraph(reinterpret_cast<TGraph*>(eff.first), eff.second, all)); // ??
   }
-  
   return StatusCode::SUCCESS;
 }
 

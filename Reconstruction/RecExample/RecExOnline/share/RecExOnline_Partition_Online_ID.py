@@ -95,17 +95,14 @@ elif ( publishName == "ID-AthenaMon-PixelDetails-Test" ):
     InDetFlags.doBackTracking.set_Value_and_Lock(False)
     streamLogic       = 'Ignore'
 elif ( publishName == "ID-AthenaMon-NCB" ):
-    #Ensure we reconstruct only 01X hits in the SCT!
+    #Ensure we are not running in 25 ns mode to keep early SCT hits!
     from InDetRecExample.InDetJobProperties import InDetFlags
-    InDetFlags.InDet25nsec.set_Value_and_Lock(True)
-    keyname           = 'dcm'
-    keycount          = 255      # increasing dcm to increase statistics
-    streamLogic       = 'Or'
-    streamType        = 'physics'
-    streamName        = 'Background'
+    InDetFlags.InDet25nsec.set_Value_and_Lock(False)
+    streamLogic       = 'Ignore'
+    streamName        = 'MinBias'
     lvl1Logic         = 'Or'
-    lvl1Name          = 'L1_BCM_AC_UNPAIRED_ISO:L1_BCM_AC_UNPAIRED_NONISO:L1_BCM_CA_UNPAIRED_ISO:L1_BCM_CA_UNPAIRED_NONISO:L1_J12_UNPAIRED_ISO:L1_J12_UNPAIRED_NONISO'
-    doIdNCBMon        = True
+    lvl1Name          = 'L1_MBTS_4_A_UNPAIRED_ISO:L1_MBTS_4_C_UNPAIRED_ISO:L1_RD0_UNPAIRED_ISO'
+    doNCBMon          = True
 elif ( publishName == "ID-Test-Application" ):
     ##keyname='CompleteEvent'
     #streamLogic       = 'Or'

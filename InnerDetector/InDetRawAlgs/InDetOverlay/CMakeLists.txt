@@ -13,21 +13,16 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRawEvent/InDetRawData
                           PRIVATE
                           Control/StoreGate
- 			                    Control/CxxUtils	  
+ 			  Control/CxxUtils	  
                           Generators/GeneratorObjects
                           InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetRawEvent/InDetSimData 
-                          InnerDetector/InDetRecTools/TRT_ElectronPidTools
-                          )
-
-find_package( CLHEP )
+                          InnerDetector/InDetRawEvent/InDetSimData )
 
 # Component(s) in the package:
 atlas_add_component( InDetOverlay
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests CxxUtils GeneratorObjects InDetIdentifier InDetSimData TRT_ElectronPidTools )
+                     LINK_LIBRARIES AthenaBaseComps IDC_OverlayBase GaudiKernel InDetRawData StoreGateLib SGtests CxxUtils GeneratorObjects InDetIdentifier InDetSimData )
 
 # Install files from the package:
 atlas_install_headers( InDetOverlay )

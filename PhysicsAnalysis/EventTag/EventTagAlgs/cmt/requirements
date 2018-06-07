@@ -1,0 +1,53 @@
+package EventTagAlgs
+
+author Ketevi A. Assamagan <ketevi@bnl.gov>
+author Kristo Karr         <Kristo.Karr@cern.ch>
+author Tadashi Maeno       <Tadashi.Maeno@cern.ch>
+
+use AtlasPolicy              	AtlasPolicy-*
+
+use TagEvent		     	TagEvent-*		   	PhysicsAnalysis/EventTag
+use AthenaPoolUtilities	     	AthenaPoolUtilities-*      	Database/AthenaPOOL
+use GaudiInterface           	GaudiInterface-*           	External
+use AthenaBaseComps       	AthenaBaseComps-*		Control
+
+private
+use AtlasCLHEP		     	AtlasCLHEP-*	           	External
+use AtlasPOOL                	AtlasPOOL-*                	External
+
+use StoreGate                	StoreGate-*                	Control
+
+use xAODEventInfo               xAODEventInfo-*                	Event/xAOD
+use EventTagUtils	     	EventTagUtils-*			PhysicsAnalysis/EventTag
+use AnalysisTriggerEvent     	AnalysisTriggerEvent-*		PhysicsAnalysis/AnalysisTrigger
+
+use ElectronPhotonTagTools   	ElectronPhotonTagTools-*  	PhysicsAnalysis/ElectronPhotonID
+use JetMissingEtTagTools     	JetMissingEtTagTools-*		PhysicsAnalysis/JetMissingEtID
+use MuonTagTools   	     	MuonTagTools-*   	   	PhysicsAnalysis/MuonID
+use TauTagTools		     	TauTagTools-*			PhysicsAnalysis/TauID
+#use JetTaggingTagTools	     	JetTaggingTagTools-*	   	PhysicsAnalysis/JetTagging
+end_private
+
+library EventTagAlgs AnalysisTagBuilder.cxx \
+	             ElectronTagBuilder.cxx \
+	             GlobalEventTagBuilder.cxx \
+                     GlobalTriggerTagBuilder.cxx \
+  	             MissingETTagBuilder.cxx \
+	             MuonTagBuilder.cxx \
+	             ParticleJetTagBuilder.cxx \
+	             PhotonTagBuilder.cxx \
+	             RawInfoSummaryTagBuilder.cxx \
+		     TagBuilderBase.cxx \
+		     TauJetTagBuilder.cxx \
+		     EventSplitter.cxx \
+		     components/*.cxx
+		     
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+# use the following lines to compile this package with debug symbols
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"

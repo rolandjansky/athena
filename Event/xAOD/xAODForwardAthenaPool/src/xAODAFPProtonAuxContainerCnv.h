@@ -1,4 +1,3 @@
-// Dear emacs, this is -*- c++ -*-
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
@@ -7,22 +6,38 @@
  * @file   xAODAFPProtonAuxContainerCnv.h
  * @author Krzysztof Cieśla <krzysztof.marcin.ciesla@cern.ch>
  * @date   2018-04-05
- *
- * @brief  Declaration of the xAODAFPProtonAuxContainerCnv class.
- *
+ * 
+ * @brief  Header file with declaration of class xAODAFPProtonAuxContainerCnv. Based on xAODAFPSiHitsClusterAuxContainerCnv.h
+ * 
  */
 
-#ifndef XAODFORWARDATHENAPOOL_AFPPROTONAUXCONTAINERCNV_H
-#define XAODFORWARDATHENAPOOL_AFPPROTONAUXCONTAINERCNV_H
 
-// POOL include(s):
-#include "AthenaPoolCnvSvc/T_AthenaPoolAuxContainerCnv.h"
+#ifndef AFPPROTONAUXCONTAINERCNV_H
+#define AFPPROTONAUXCONTAINERCNV_H
 
-// EDM include(s):
+#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "xAODForward/AFPProtonAuxContainer.h"
 
-/// Type of the POOL converter for xAOD::AFPProtonAuxContainer
-typedef T_AthenaPoolAuxContainerCnv< xAOD::AFPProtonAuxContainer >
-   xAODAFPProtonAuxContainerCnv;
+typedef T_AthenaPoolCustomCnv<xAOD::AFPProtonAuxContainer, xAOD::AFPProtonAuxContainer> xAODAFPProtonAuxContainerCnvBase;
 
-#endif // XAODFORWARDATHENAPOOL_AFPPROTONAUXCONTAINERCNV_H
+
+class xAODAFPProtonAuxContainerCnv :
+  public xAODAFPProtonAuxContainerCnvBase {
+ 
+  // Declare the factory as our friend:
+  friend class CnvFactory< xAODAFPProtonAuxContainerCnv >;
+ 
+protected:
+  /// Converter constructor
+  xAODAFPProtonAuxContainerCnv( ISvcLocator* svcLoc );
+ 
+  /// Function preparing the container to be written out
+  virtual xAOD::AFPProtonAuxContainer*
+  createPersistent( xAOD::AFPProtonAuxContainer* trans );
+  
+  /// Function reading in the object from the input file
+  virtual xAOD::AFPProtonAuxContainer* createTransient();
+ 
+};
+
+#endif

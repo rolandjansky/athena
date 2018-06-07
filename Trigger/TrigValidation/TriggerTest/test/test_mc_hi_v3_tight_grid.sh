@@ -18,7 +18,6 @@
 # art-output: *.root
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
-# art-output: TotalEventsProcessed.txt
 
 export NAME="mc_hi_v3_tight_grid"
 export MENU="MC_HI_v3_tight_mc_prescale"

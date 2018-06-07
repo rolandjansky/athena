@@ -70,7 +70,6 @@ class TrigL2CaloRingerReader{
     std::vector<double>         *m_thresholds;
     std::vector<double>         *m_etaBins;
     std::vector<double>         *m_etBins;
-    std::vector<double>         *m_muBins;
   
 };//End of classi
 #endif

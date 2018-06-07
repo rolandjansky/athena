@@ -1,12 +1,9 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 //
 //  ReadFromXmlDom.cxx
 //  HDef
 //
 //  Created by sroe on 15/03/2016.
+//  Copyright © 2016 sroe. All rights reserved.
 //
 
 #include "ReadFromXmlDom.h"

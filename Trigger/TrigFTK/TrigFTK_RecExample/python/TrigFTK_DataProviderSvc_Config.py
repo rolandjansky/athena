@@ -12,8 +12,9 @@ class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
         from AthenaCommon.AppMgr import ToolSvc
 
 
-        from TrigInDetConf.TrigInDetRecToolsFTK import InDetTrigTrackFitterFTK, InDetTrigRotCreatorFTK,  \
+        from TrigInDetConf.TrigInDetRecToolsFTK import InDetTrigTrackFitterFTK, InDetTrigRotCreatorFTK, \
         TrigFTK_UncertaintyTool,TrigFTK_RawVertexFinderTool,InDetTrigTrackParticleCreatorToolFTK,InDetTrigTrackSummaryToolFTK
+        from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import InDetTrigPriVxFinderTool
         
         self.TrackCollectionName= "FTK_TrackCollection"
         self.TrackParticleContainerName= "FTK_TrackParticleContainer"
@@ -31,20 +32,21 @@ class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
         self.TrackSummaryTool=InDetTrigTrackSummaryToolFTK
         self.TrackParticleCreatorTool=InDetTrigTrackParticleCreatorToolFTK
         self.RawVertexFinderTool=TrigFTK_RawVertexFinderTool
+        self.VertexFinderTool=InDetTrigPriVxFinderTool
         self.ROTcreatorTool= InDetTrigRotCreatorFTK 
 
-        from AthenaCommon.BeamFlags import jobproperties
-        print "JTB: beamtype is " , jobproperties.Beam.beamType()
-        if (jobproperties.Beam.beamType() != 'cosmics'):
-            from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import InDetTrigPriVxFinderTool
-            from TrigInDetConf.TrigInDetRecToolsFTK import TrigFTK_VertexCollectionSortingTool
-            self.DoVertexing=True
-            self.VertexFinderTool=InDetTrigPriVxFinderTool
-            self.VertexCollectionSortingTool=TrigFTK_VertexCollectionSortingTool
-        else:
-            self.DoVertexing=False
+
         from RecExConfig.RecFlags import rec
         self.doTruth= rec.doTruth()
+        self.TrainingBeamspotX= 0.0
+        self.TrainingBeamspotY= 0.0
+        self.TrainingBeamspotZ = 0.0
+        self.TrainingBeamspotTiltX= 0.0
+        self.TrainingBeamspotTiltY= 0.0
+        self. PixelBarrelPhiOffsets=[0.,0.,0.,0.]
+        self. PixelBarrelEtaOffsets=[0.,0.,0.,0.]
+        self. PixelEndCapPhiOffsets=[0,0.,0.]
+        self. PixelEndCapEtaOffsets=[0.,0.,0.]
 
         
 

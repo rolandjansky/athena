@@ -38,9 +38,6 @@ public:
 
 protected:
 
-  // Using Pythia8 or Pythia6 for the decays
-  bool m_usePythia8;
-
 };
 
 

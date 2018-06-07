@@ -42,16 +42,14 @@
 
 #define ERROR_AlgorithmProblem           0
 #define ERROR_BphysColl_Fails            1
-#define ERROR_BphysTrackColl_Fails       2
 
 
 TrigMultiTrkFex::TrigMultiTrkFex(const std::string & name, ISvcLocator* pSvcLocator):
   HLT::AllTEAlgo(name, pSvcLocator)
   ,m_bphysHelperTool("TrigBphysHelperUtilsTool")
   ,m_BmmHypTot(0)
-  , m_maxNOutputObject(-1)
+  
   , m_trackCollectionKey()
-  , m_outputTrackCollectionKey()
   , m_bphysCollectionKey()
   , m_nTrk (2)
   , m_nTrkQ (-1)
@@ -78,9 +76,7 @@ TrigMultiTrkFex::TrigMultiTrkFex(const std::string & name, ISvcLocator* pSvcLoca
   // Read cuts
 
   declareProperty("AcceptAll",    m_acceptAll=true);
-  declareProperty("maxNOutputObject", m_maxNOutputObject  = -1 );
   declareProperty("trackCollectionKey", m_trackCollectionKey  = "" );
-  declareProperty("outputTrackCollectionKey", m_outputTrackCollectionKey  = "MultiTrkFex" );
   declareProperty("bphysCollectionKey", m_bphysCollectionKey  = "MultiTrkFex" );
   declareProperty("nTrk"           , m_nTrk 	     = 2 );
   declareProperty("nTrkCharge"     , m_nTrkQ 	     = -1 );
@@ -133,13 +129,13 @@ bool TrigMultiTrkFex::passNTracks(int nObjMin,
 
   unsigned int nTEs = inputTE.size();
   for ( unsigned int i=0; i < nTEs; ++i) {
-    ATH_MSG_DEBUG(  " TE input array " << i );
+    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << " TE input array " << i << endmsg;
     unsigned int mTEs = inputTE[i].size();
-    for ( unsigned int j=0; j < mTEs; ++j) {
-      ATH_MSG_DEBUG(  " TE input  " << j );
-      if(getFeaturesLinks<xAOD::TrackParticleContainer,xAOD::TrackParticleContainer>(inputTE[i][j], inVecColl, collectionKey)==HLT::OK ) {
-	ATH_MSG_DEBUG(  "got track container  " << inVecColl.size() );
-	for( const auto & efmu : inVecColl){	//auto const & inVec: inVecColl ) 
+   for ( unsigned int j=0; j < mTEs; ++j) {
+     if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << " TE input  " << j << endmsg;
+    if(getFeaturesLinks<xAOD::TrackParticleContainer,xAOD::TrackParticleContainer>(inputTE[i][j], inVecColl, collectionKey)==HLT::OK ) {
+      if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "got track container  " << inVecColl.size() << endmsg;
+      for( const auto & efmu : inVecColl){	//auto const & inVec: inVecColl ) 
 	  // check for overlap
 	  bool found = false;
 	  for(const auto& part : outVec ){
@@ -149,20 +145,20 @@ bool TrigMultiTrkFex::passNTracks(int nObjMin,
 	    double deltaR2 = deta*deta +dphi*dphi;
 	    if( deltaR2 <= mindR2){
 	      found = true;
- 	      ATH_MSG_DEBUG(  "Duplicated track pt/eta/phi/q "
+ 	      if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Duplicated track pt/eta/phi/q "
 						   << (*efmu)->pt()<< " /  "
 						   << (*efmu)->eta()<< " /  "
 						   << (*efmu)->phi()<< " /  "
-			      << (*efmu)->charge()<< " skip " <<deltaR2 );
+						   << (*efmu)->charge()<< " skip " <<deltaR2 <<  endmsg;
 	    }
 	  }
 	  if( !found ) {
 	    outVec.push_back(efmu);	    	
-	    ATH_MSG_DEBUG(  "Found track pt/eta/phi/q "
+	    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Found track pt/eta/phi/q "
 						 << (*efmu)->pt()<< " /  "  
 						 << (*efmu)->eta()<< " /  "
 						 << (*efmu)->phi()<< " /  "
-						 << (*efmu)->charge()); 
+						 << (*efmu)->charge()<< endmsg; 
 	  }
       }//}// end loop over muons in one TE
     } // end getFeaturesLinks
@@ -170,9 +166,9 @@ bool TrigMultiTrkFex::passNTracks(int nObjMin,
 
     //=== check if it is enough muons
   if( (int)outVec.size() < nObjMin ) {
-    ATH_MSG_DEBUG(  "Rejecting: "
-		    <<" #Ntracks= " <<  outVec.size() 
-		    << " while need "<< nObjMin );
+    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Rejecting: "
+    					 <<" #Ntracks= " <<  outVec.size() 
+    					 << " while need "<< nObjMin << endmsg;
     return false;
   }
   //== check that muons have correct pts
@@ -189,7 +185,7 @@ bool TrigMultiTrkFex::passNTracks(int nObjMin,
     if(  pt < ptObjMin[ipt] ) failMuonPt = true;	  
   }
   if( failMuonPt ){
-    ATH_MSG_DEBUG(  "Fail track pt cut" );
+    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Fail track pt cut" << endmsg;
     return false;
   }
   // here would be good to limit number of objects to the minimum
@@ -197,6 +193,21 @@ bool TrigMultiTrkFex::passNTracks(int nObjMin,
   return true;
 }
 
+/*
+template <typename T>
+vector<size_t> sortELV(const ElementLinkVector<T> &v) {
+
+  // initialize original index locations
+  vector<size_t> idx(v.size());
+  iota(idx.begin(), idx.end(), 0);
+
+  // sort indexes based on comparing values in v
+  sort(idx.begin(), idx.end(),
+       [&v](size_t i1, size_t i2) {return (*v[i1])->pt() < (*v[i2])->pt();});
+
+  return idx;
+}
+*/
 
 HLT::ErrorCode TrigMultiTrkFex::hltInitialize()
 {
@@ -204,20 +215,22 @@ HLT::ErrorCode TrigMultiTrkFex::hltInitialize()
     m_countPassedEvents = 0;
     m_countPassedCombination = 0;
 
+  if (msgLvl() <= MSG::INFO) {
+    //msg() << MSG::INFO << "Initialization ..." << endmsg;
     msg() << MSG::INFO << "AcceptAll            = "
-	  << (m_acceptAll==true ? "True" : "False")<<endmsg;
+	  << (m_acceptAll==true ? "True" : "False") << endmsg;
     
     
     std::sort(m_ptTrkMin.begin(),m_ptTrkMin.end(), std::greater<float>());
     std::sort(m_ptMuonMin.begin(),m_ptMuonMin.end(), std::greater<float>());
     
-    if(  m_trackCollectionKey != "" )  msg() << MSG::INFO << "trackCollectionKey"<< m_trackCollectionKey  << endmsg;
-    msg() << MSG::INFO << "Select "           << m_nTrk 	<< " tracks " << endmsg;
+    if(  m_trackCollectionKey != "" ) msg() << MSG::INFO << "trackCollectionKey"<< m_trackCollectionKey  << endmsg;
+    msg() << MSG::INFO << "Select "           << m_nTrk 	<< " tracks " << endmsg;    
     msg() << MSG::INFO << " with pts ";	
     for(float pt :  m_ptTrkMin)  msg() << MSG::INFO << pt<<", ";
-    msg() << MSG::INFO << endmsg;
-    
-    
+    msg() << MSG::INFO << endmsg;  
+  }
+  
   if(  m_nTrkMassMin.size() !=  m_nTrkMassMax.size() ){
     msg() << MSG::ERROR << " Unequal size of n-track mass cuts, please fix" << endmsg;
     return HLT::BAD_JOB_SETUP;
@@ -230,7 +243,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltInitialize()
   if( m_nTrkQ >= 0 ) {
     msg() << MSG::INFO << " N-track system has to have charge "<< m_nTrkQ <<endmsg;
     if( m_nTrkQ%2 != m_nTrk%2 ) {
-      msg() << MSG::ERROR << " nTrkCharge parameter makes no sense " << endmsg;
+      msg() << MSG::ERROR << " nTrkCharge parameter makes no sense "<< endmsg;
       return HLT::BAD_JOB_SETUP;
     }
   }
@@ -243,7 +256,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltInitialize()
     msg() << MSG::INFO << "Require N-track Mass in ";
     for( size_t imass = 0; imass < m_nTrkMassMin.size(); ++imass )
       msg() << MSG::INFO << "[" << m_nTrkMassMin[imass]<<","<<m_nTrkMassMax[imass] <<"]";
-    msg() << MSG::INFO  << endmsg;
+    msg() << MSG::INFO << endmsg;
   }
   
   if (msgLvl() <= MSG::INFO &&  m_diTrkMassMin.size() > 0 ){
@@ -254,7 +267,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltInitialize()
     if( m_diTrkQ >= 0 ) {
       msg() << MSG::INFO << " pair has to have charge "<< m_diTrkQ <<endmsg;
       if( m_diTrkQ != 0 && m_diTrkQ != 2 ) {
-	msg() << MSG::ERROR << " diTrkCharge parameter makes no sense " << endmsg;
+	msg() << MSG::ERROR << " diTrkCharge parameter makes no sense "<< endmsg;
 	return HLT::BAD_JOB_SETUP;
       }
     }
@@ -262,28 +275,25 @@ HLT::ErrorCode TrigMultiTrkFex::hltInitialize()
   }
   if (msgLvl() <= MSG::INFO) {
 
-  if( m_nEfMuon ) msg() << MSG::INFO << "require at least "<< m_nEfMuon <<" EF Muons"  << endmsg;
+  if( m_nEfMuon ) msg() << MSG::INFO << "require at least "<< m_nEfMuon <<" EF Muons" << endmsg;
   if( m_nL2CombMuon ) msg() << MSG::INFO << "require at least "<< m_nL2CombMuon <<" EF Muons" << endmsg;
   if( m_nL2SAMuon ) msg() << MSG::INFO << "require at least "<< m_nL2SAMuon <<" EF Muons" << endmsg;
   if(  m_nEfMuon ||m_nL2CombMuon ||   m_nL2SAMuon ){
     msg() << MSG::INFO << " Muons should have  pts ";	
     for(float pt :  m_ptMuonMin)  msg() << MSG::INFO << pt <<", ";
-    msg() << MSG::INFO  << endmsg;
+    msg() << MSG::INFO << endmsg;
     }
   }
   if (msgLvl() <= MSG::INFO) {
-     msg() << MSG::INFO << " Overlap removal dR<"<<m_mindR << endmsg;
-     if ( m_maxNOutputObject > 0 )
-       msg() << MSG::INFO << " Will consider only first " <<  m_maxNOutputObject << " good combinations " << endmsg;
+     msg() << MSG::INFO << " Overlap removal dR<"<<m_mindR<< endmsg;
   }
 
-  
   if ( timerSvc() ) {
     m_BmmHypTot = addTimer("TrigMultiTrkFex");
   }
     
     if (m_bphysHelperTool.retrieve().isFailure()) {
-        msg() << MSG::ERROR << "Can't find TrigBphysHelperUtilsTool"  << endmsg;
+        msg() << MSG::ERROR << "Can't find TrigBphysHelperUtilsTool" << endmsg;
         return HLT::BAD_JOB_SETUP;
     } else {
         if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigBphysHelperUtilsTool found" << endmsg;
@@ -296,7 +306,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltInitialize()
 
 HLT::ErrorCode TrigMultiTrkFex::hltFinalize()
 {
-  msg() << MSG::INFO << "in finalize()"  << endmsg;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
   MsgStream log(msgSvc(), name());
   
   msg() << MSG::INFO << "|----------------------- SUMMARY FROM TrigMultiTrkFex -------------|" << endmsg;
@@ -307,6 +317,33 @@ HLT::ErrorCode TrigMultiTrkFex::hltFinalize()
   return HLT::OK;
 }
 
+
+//-------------------------------------------------------------------------------------
+// HLT::ErrorCode TrigMultiTrkFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass) {
+  
+//   //OI: we do not care from which RoI tracks come from as long as they give good vertex and mass
+// m_mon_Acceptance.push_back( ACCEPT_Input );
+
+//    // event info
+//     uint32_t runNumber(0), evtNumber(0), lbBlock(0);
+//     if (m_bphysHelperTool->getRunEvtLb( runNumber, evtNumber, lbBlock).isFailure()) {
+//         msg() << MSG::WARNING << "Error retriving EventInfo" << endmsg;
+// 	m_mon_Errors.push_back( ERROR_No_EventInfo );
+//     }
+
+ 
+//   if ( msgLvl() <= MSG::DEBUG )
+//     msg() << MSG::DEBUG << "Running TrigMultiTrkFex::acceptInputs" << endmsg;
+
+//   if ( timerSvc() )    m_BmmHypTot->start();
+  
+//   m_countTotalEvents++;
+
+//   if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Number of input TEs " << inputTE.size() << endmsg;
+//   pass=true;
+//   return HLT::OK;
+
+// }
 
 
 HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTE, unsigned int output)
@@ -328,7 +365,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 
 
     m_mon_Acceptance.push_back( ACCEPT_hltExecute );
-    ATH_MSG_DEBUG( " In TrigMultiTrk hltExecute" );
+    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " In TrigMultiTrk hltExecute" << endmsg;
 
     
     
@@ -339,18 +376,18 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
         
     //========  check if we have enough SA muons :  =====================
     std::vector<ElementLink<xAOD::L2StandAloneMuonContainer> > l2samuons;
-    ATH_MSG_DEBUG( "Checking L2SA muon cut"); 
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Checking L2SA muon cut"<< endmsg; 
     bool passMuon = passNObjects<xAOD::L2StandAloneMuonContainer,
       std::vector<ElementLink<xAOD::L2StandAloneMuonContainer> > > ( 
 			     m_nL2SAMuon, m_ptMuonMin, inputTE, l2samuons, "", m_mindR);
     if( !passMuon ){
       if ( timerSvc() )  m_BmmHypTot->stop(); 
-      ATH_MSG_DEBUG(  "Failed L2SA muon cut"); 
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed L2SA muon cut"<< endmsg; 
       //pass = false;
       afterExecMonitors().ignore();   
       return HLT::OK;
     }else{
-      ATH_MSG_DEBUG(  "Passed L2SA cut"); 
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Passed L2SA cut"<< endmsg; 
     }    
 
     m_mon_Acceptance.push_back( ACCEPT_PassNL2SAMuons );
@@ -364,7 +401,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
     if( !passMuon ){
       if ( timerSvc() )  m_BmmHypTot->stop();
       //pass = false;
-      ATH_MSG_DEBUG(  "Failed L2Comb muon cut"); 
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed L2Comb muon cut"<< endmsg; 
       afterExecMonitors().ignore();   
       return HLT::OK;
     }
@@ -377,7 +414,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 									      inputTE, efmuons, "", m_mindR);
     if( !passMuon ){
       if ( timerSvc() )  m_BmmHypTot->stop();
-      ATH_MSG_DEBUG(  "Failed EF muon cut"); 
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed EF muon cut"<< endmsg; 
       afterExecMonitors().ignore();   
       return HLT::OK;
     }
@@ -389,17 +426,17 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
     bool passTrack = passNTracks( m_nTrk, m_ptTrkMin, inputTE, tracks, m_trackCollectionKey , m_mindR);
     if( !passTrack || int(tracks.size()) < m_nTrk ){
       if ( timerSvc() )  m_BmmHypTot->stop();
-      ATH_MSG_DEBUG(  "Failed nTrack cut");     //pass = false;
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed nTrack cut"<< endmsg;     //pass = false;
       afterExecMonitors().ignore();   
     return HLT::OK;
     }else{
-      ATH_MSG_DEBUG(  "Passed nTrack cut"); 
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Passed nTrack cut"<< endmsg; 
     }
 
 
     if( (int)tracks.size() < m_nTrk ) {
       if ( timerSvc() )  m_BmmHypTot->stop();
-      ATH_MSG_ERROR( "You should never get to this point - check code");  
+      if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "You should never get to this point - check code"<< endmsg;  
       m_mon_Errors.push_back(ERROR_AlgorithmProblem);
       afterExecMonitors().ignore();   
     return HLT::OK;
@@ -416,20 +453,20 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 
     //std::vector<const xAOD::TrackParticle*> highptTracks; 
     std::vector<ElementLink<xAOD::TrackParticleContainer> > highptTracks; 
-    highptTracks.reserve(tracks.size());
-    
+
     // preserve all tracks with pt passing lowest requested
     float lowestPt = m_ptTrkMin.back();
     for(const auto& trk :  tracks ){
       if( (*trk)->pt() < lowestPt ) continue;      
       highptTracks.push_back( trk );
 
-      ATH_MSG_DEBUG( "Select track:   "
+      if(msgLvl() <= MSG::DEBUG) 
+	msg() << MSG::DEBUG << "Select track:   "
 	      << " pt: " <<  (*trk)->pt()
 	      << " eta: " << (*trk)->eta()
 	      << " phi: " << (*trk)->phi()
 	      << " q: "   << (*trk)->charge()
-	      );
+	      << endmsg;
     }
 
     m_mon_highptNTrk = highptTracks.size() ;
@@ -439,60 +476,49 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
     xAOD::TrigBphysContainer * xAODTrigBphysColl = new xAOD::TrigBphysContainer;
     xAOD::TrigBphysAuxContainer xAODTrigBphysAuxColl;
     xAODTrigBphysColl->setStore(&xAODTrigBphysAuxColl);
-    xAODTrigBphysColl->reserve(highptTracks.size()); // hard to give here good estimate
     std::vector<double> masses(2,m_trkMass);    
-    
-    // record also tracks that are used in any collection
-    xAOD::TrackParticleContainer* outputTrackColl = new xAOD::TrackParticleContainer();
-    xAOD::TrackParticleAuxContainer outputTrackCollAuxCont;
-    outputTrackColl->setStore( &outputTrackCollAuxCont );
-    outputTrackColl->reserve(highptTracks.size());
+ 
 
-    
     //=====make all requested m_nTrk combinations =================
 
     std::string bitmask( m_nTrk, 1); // K leading 1's
     size_t NtracksTotal = highptTracks.size();
     bitmask.resize(NtracksTotal, 0); // N-K trailing 0's
 
-    ATH_MSG_DEBUG(  " Making combinations with "<< m_nTrk<<" tracks out of "<<NtracksTotal);
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Making combinations with "<< m_nTrk<<" tracks out of "<<NtracksTotal<<endmsg;
 
     // permute bitmask
-    std::vector<ElementLink<xAOD::TrackParticleContainer> > thisIterationTracks;
-    std::vector<int> thisIterationTracksIndex;
-    thisIterationTracks.reserve(m_nTrk);
-    thisIterationTracksIndex.reserve(m_nTrk);
-    std::unordered_set<int> index_0;
-    index_0.reserve(NtracksTotal);
+    std::vector<ElementLink<xAOD::TrackParticleContainer> > thisIterationTracks; 
     do {
-      thisIterationTracks.clear();
-      thisIterationTracksIndex.clear();
       
+      thisIterationTracks.clear();
+      std::ostringstream combi;
+      std::ostringstream hpts;
       for (size_t i = 0; i < NtracksTotal; ++i) // [0..N-1] integers	
 	{
 	  if (bitmask[i]) {
 	    thisIterationTracks.push_back( highptTracks[i] );// std::cout << " " << i;
-	    thisIterationTracksIndex.push_back( i );
+	    combi << i << " ";  // for debug
+	    hpts << (*highptTracks[i])->pt() << ", " ;
 	  }
 	}
+      
       //=== now check if combination is OK
-      // OI : here we need a print out, need to figure out how to do this efficienctly
-      //combinationIndex++;
-      //ATH_MSG_DEBUG( " Combination "<< combinationIndex
-      //               << ", Ntrk="<< thisIterationTracks.size() 
-      //               << " pts=["<< hpts.str() << " ]" );
+      ATH_MSG_DEBUG( " Combination "<< combi.str() 
+                     << ", Ntrk="<< thisIterationTracks.size() 
+                     << " pts=["<< hpts.str() << " ]" );
       
-      
+
       //==== re-check pts
       bool passPts = true;
       for(size_t ipt = 0; ipt <  thisIterationTracks.size(); ++ipt )
 	if( (*thisIterationTracks[ipt])->pt() < m_ptTrkMin[ipt] ){
 	  passPts = false;
-	  ATH_MSG_DEBUG( " fail pt cuts" );
+	  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " fail pt cuts" << endmsg;
 	  break;
 	}
       if( !passPts ) continue;
-      
+
       //== first check charge
       if( m_nTrkQ >= 0 ){
 	int charge = 0;
@@ -500,11 +526,12 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
  	for(ElementLink<xAOD::TrackParticleContainer> trk : thisIterationTracks) 
 	  charge += ( (*trk)->charge() > 0 ) ? 1 : -1 ;
 	if( abs(charge) != m_nTrkQ ){
-	  ATH_MSG_DEBUG( " |Charge| = "<< abs(charge)<< " required "<<m_nTrkQ << " thus fail" );
+	  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " |Charge| = "<< abs(charge)
+					   << " required "<<m_nTrkQ << " thus fail" << endmsg;
 	  continue;
 	}else{
-	  ATH_MSG_DEBUG(  " |Charge| = "<< abs(charge) 
-					   << " required "<<m_nTrkQ << " thus pass" );
+	  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " |Charge| = "<< abs(charge) 
+					   << " required "<<m_nTrkQ << " thus pass" << endmsg;
 	}	
 	passNTrkCharge = true;
       }
@@ -536,7 +563,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
        double m2 = E*E - px*px - py*py -pz*pz;
        totalMass = (m2 < 0) ? 0 : sqrt(m2);
        m_mon_NTrkMass.push_back(totalMass*0.001);
-       ATH_MSG_DEBUG(  "combination mass = "<< totalMass );
+       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "combination mass = "<< totalMass << endmsg;
        // check mass window now
        bool foundMass = false;
        if( m_nTrkMassMin.size() == 0 ) foundMass = true;
@@ -544,18 +571,19 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 	 if( totalMass >=m_nTrkMassMin[im] &&  totalMass <= m_nTrkMassMax[im])
 	   { foundMass = true;   break; }
        if( !foundMass ){
-	 ATH_MSG_DEBUG(  " combination Mass Failed " );
+	 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " combination Mass Failed " << endmsg;
 	 continue; // loop over Ntrk combinations
        }else{
-	 ATH_MSG_DEBUG(  " combination Mass Accepted " );
+	 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " combination Mass Accepted " << endmsg;
        }
        passNTrkMass =true;
      }
-      
-      //== calculate mass of pairs if requested ================
+
+       //== calculate mass of pairs if requested ================
        
+       std::vector<int> index_0;
+       std::vector<int> index_1;
        std::vector<double> dimasses;
-       dimasses.reserve(m_nTrk*m_nTrk);
        
        int npair = 0; 
        int npairAcc = 0;
@@ -573,12 +601,12 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 	       charge += ( (*trk0)->charge() > 0 ) ? 1 : -1 ;
 	       charge += ( (*trk1)->charge() > 0 ) ? 1 : -1 ;
 	       if( abs(charge) != m_diTrkQ ){
-		 ATH_MSG_DEBUG(  "| Charge| = "<< abs(charge) 
-						  << " required "<<m_diTrkQ << " thus fail" );
+		 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "| Charge| = "<< abs(charge) 
+						  << " required "<<m_diTrkQ << " thus fail" << endmsg;
 		 continue;
 	       }else{
-		 ATH_MSG_DEBUG(  " |Charge| = "<< abs(charge) 
-						  << " required "<<m_diTrkQ << " thus pass" );
+		 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " |Charge| = "<< abs(charge) 
+						  << " required "<<m_diTrkQ << " thus pass" << endmsg;
 	       }
 	     }
 	     passPairCharge = true;
@@ -587,16 +615,16 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 	     double dimass = m_bphysHelperTool->invariantMass(*trk0,*trk1,masses[0], masses[1]);
 	     m_mon_pairMass.push_back(dimass);
 
-	     ATH_MSG_DEBUG(  "pair pt1=" << (*trk0)->pt() << ", pt2="<< (*trk1)->pt()
-					      <<", mass = "<<  dimass );
+	     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "pair pt1=" << (*trk0)->pt() << ", pt2="<< (*trk1)->pt()
+					      <<", mass = "<<  dimass << endmsg;
 	     // check di-mass now
 	     for(size_t im = 0; im < m_diTrkMassMin.size(); ++im) 
 	       if( dimass >=m_diTrkMassMin[im] &&  dimass <= m_diTrkMassMax[im])
 		 { 
 
 		   foundPair = true;
-		   //index_0.push_back(thisIterationTracksIndex[itrk0]); // record index in original highpt track container
-		   //index_0.push_back(thisIterationTracksIndex[itrk1]);
+		   index_0.push_back(itrk0);
+		   index_1.push_back(itrk1);
 		   dimasses.push_back(dimass);	
 		 }
 	   }} // end loop over track pairs
@@ -604,14 +632,14 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 	 npairAcc += dimasses.size();
 
 	 if( !foundPair ) {
-	   ATH_MSG_DEBUG(  " di-Mass Failed " );
+	   if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " di-Mass Failed " << endmsg;
 	   continue; // 
 	 }else{
-	   ATH_MSG_DEBUG(  " di-Mass cut succeeded " );
+	   if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " di-Mass cut succeeded " << endmsg;
 	 }
 	 passPairMass = true;
        }
-
+    
 
        m_mon_NPair += npair;
        m_mon_acceptedNPair += npairAcc;
@@ -620,45 +648,42 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
        xAOD::TrigBphys* xaodobj = new xAOD::TrigBphys;
        xAODTrigBphysColl->push_back(xaodobj);
        xaodobj->initialise(0, 0., 0.,0., xAOD::TrigBphys::MULTIMU, totalMass,xAOD::TrigBphys::EF);
-       ATH_MSG_DEBUG( "Adding TrigBphys xAOD obj with mass "<< totalMass );
+       if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Adding TrigBphys xAOD obj with mass "<< totalMass << endmsg;
        
        std::vector<double> masses1(thisIterationTracks.size(), m_trkMass);
        if (m_bphysHelperTool->vertexFit(xaodobj,thisIterationTracks,masses1).isFailure()) {
 	 delete xaodobj; xaodobj = nullptr;
-	 ATH_MSG_DEBUG( "Problems with vertex fit in TrigMultiTrkFex"  );
+	 if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Problems with vertex fit in TrigMultiTrkFex"  << endmsg;
 	 continue;
        }else{
 	 // check chi2 
 	 if( m_nTrkVertexChi2 >= 0 ){
 	   float chi2 = xaodobj->fitchi2();
 	   if( chi2 > m_nTrkVertexChi2 ){  
-	     ATH_MSG_DEBUG(  " nTrk Vertex chi2  "<< chi2
-					      << " required "<<m_nTrkVertexChi2 << " thus fail" );
+	     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " nTrk Vertex chi2  "<< chi2
+					      << " required "<<m_nTrkVertexChi2 << " thus fail" << endmsg;
 	     //delete created object
 	     //xAODTrigBphysColl->pop_back() ;
 	     //delete xaodobj; xaodobj = nullptr;
 	     continue;
 	   }else{
-	     ATH_MSG_DEBUG(  " nTrk Vertex chi2  "<< chi2
-					      << " required "<<m_nTrkVertexChi2 << " is good" );
-	       index_0.insert( thisIterationTracksIndex.begin(), thisIterationTracksIndex.end()  );
+	     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " nTrk Vertex chi2  "<< chi2
+					      << " required "<<m_nTrkVertexChi2 << " is good" << endmsg;
 	   }
-	 }else{
-	     index_0.insert( thisIterationTracksIndex.begin(), thisIterationTracksIndex.end()  );    
-	 }
+	 }	
        } // end of vertexFit.isFailure
 
        passNTrkVertexChi2 = true;
 
-       m_mon_accepted_highptNTrk =  highptTracks.size() ;
+    
+       m_mon_NTrkFitMass.push_back(xaodobj->mass()*0.001 );
+       m_mon_NTrkChi2.push_back(xaodobj->fitchi2() );
+       //m_bphysHelperTool->fillTrigObjectKinematics(xaodobj,{mutrk,trk});
 
-       // now check if the number of output objects is too large for further processing. In principle a few candidate is already enough for further steps.
-       if( m_maxNOutputObject> 0 && ((int)xAODTrigBphysColl->size() > m_maxNOutputObject ||  (int)index_0.size() > m_maxNOutputObject*m_nTrk) ){
-	 if(msgLvl() <= MSG::INFO) msg() << MSG::INFO << " found "<<  xAODTrigBphysColl->size()
-					 << " suitable objects and "<< index_0.size()<< " tracks, enough for acceptance, stopping" <<endmsg;
-	 break;
-       }
-       
+        //std::cout << std::endl;
+
+
+    m_mon_accepted_highptNTrk =  highptTracks.size() ;
 
     } while (std::prev_permutation(bitmask.begin(), bitmask.end()));
   //------------- end of combination loop
@@ -670,26 +695,23 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
     if(  passPairCharge  )   m_mon_Acceptance.push_back( ACCEPT_PairCharge  );
     if(  passPairMass    )   m_mon_Acceptance.push_back( ACCEPT_PairMass    );
 
+
     // record collection now
     if ( timerSvc() )  m_BmmHypTot->stop();
-
-      
-    
-
     
     HLT::TriggerElement* outputTE = addRoI(output);  
 
     if (xAODTrigBphysColl && xAODTrigBphysColl->size()) {
         if ( msgLvl() <= MSG::DEBUG ) 
-	  ATH_MSG_DEBUG( "REGTEST: Store Bphys Collection size: " 
-		 << xAODTrigBphysColl->size() );
+	  msg()  << MSG::DEBUG << "REGTEST: Store Bphys Collection size: " 
+		 << xAODTrigBphysColl->size() << endmsg;
         
 	// OI do we always need to create outputTE? or only when there is something to write ?
 	outputTE->setActiveState(true);
 
         HLT::ErrorCode sc = attachFeature(outputTE, xAODTrigBphysColl, m_bphysCollectionKey );
         if(sc != HLT::OK) {
-            ATH_MSG_WARNING( "Failed to store trigBphys Collection" );
+            msg()  << MSG::WARNING << "Failed to store trigBphys Collection" << endmsg;
             m_mon_Errors.push_back( ERROR_BphysColl_Fails );
             delete xAODTrigBphysColl; xAODTrigBphysColl = nullptr; // assume deletion responsibility
 	    afterExecMonitors().ignore();   
@@ -698,47 +720,11 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 	m_mon_Acceptance.push_back( ACCEPT_RecordedCollection );
 	m_countPassedCombination += xAODTrigBphysColl->size();
     } else {
-        ATH_MSG_DEBUG("REGTEST: no bphys collection to store "  );
+        if ( msgLvl() <= MSG::DEBUG ) 
+	  msg()  << MSG::DEBUG << "REGTEST: no bphys collection to store "  << endmsg;
         delete xAODTrigBphysColl; xAODTrigBphysColl = nullptr;
     }
 
-    //OI if we did not reach this point, then we do not have a good combination at all, nothing to save
-    ATH_MSG_DEBUG(  " got # of indexes " << index_0.size() );
-    //sort( index_0.begin(), index_0.end() );
-    //index_0.erase( unique( index_0.begin(), index_0.end() ), index_0.end() );
-    //ATH_MSG_DEBUG(  " got unique # of indexes " << index_0.size() );
-    outputTrackColl->reserve(index_0.size());
-    for( auto ind : index_0 ){
-      xAOD::TrackParticle *trk1 = new xAOD::TrackParticle();
-      trk1->makePrivateStore(*highptTracks[ind]);
-      outputTrackColl->push_back(trk1);
-    }
-   
-    ATH_MSG_DEBUG(  " OI size of output Track collection " << outputTrackColl->size() );
- 
-
-
-    // add also containter with tracks for seeded EF Muon
-    if (m_outputTrackCollectionKey!= "" && outputTrackColl && outputTrackColl->size()) {
-      ATH_MSG_DEBUG( "REGTEST: Store Bphys track Collection size: " << outputTrackColl->size() );
-      outputTE->setActiveState(true);
-
-      HLT::ErrorCode sc = attachFeature(outputTE, outputTrackColl, m_outputTrackCollectionKey );
-      if(sc != HLT::OK) {
-	ATH_MSG_WARNING( "Failed to store bphys track  Collection" );
-	m_mon_Errors.push_back(  ERROR_BphysTrackColl_Fails );
-	delete outputTrackColl; outputTrackColl = nullptr; // assume deletion responsibility
-	afterExecMonitors().ignore();   
-	return HLT::ERROR;
-      }
-    } else {
-      ATH_MSG_DEBUG( "REGTEST: no bphys track collection to store "  );
-      delete outputTrackColl; outputTrackColl = nullptr;
-    }
-
-
-
-    
     m_countPassedEvents++;
 
 

@@ -23,7 +23,8 @@
  *  @author Edoardo Farina
  *  @date  18-05-2015
  */
-class TRTPhysicsTool final: public G4VPhysicsConstructor, public extends<AthAlgTool, IPhysicsOptionTool>
+class TRTPhysicsTool : public G4VPhysicsConstructor, public AthAlgTool,
+                       virtual public IPhysicsOptionTool
 {
 public:
   /// Standard constructor
@@ -33,12 +34,12 @@ public:
   virtual ~TRTPhysicsTool(){}; ///< Destructor
 
   /// Initialize method
-  virtual StatusCode initialize() override;
-  virtual void ConstructParticle() override;
-  virtual void ConstructProcess() override;
+  virtual StatusCode initialize() override final;
+  virtual void ConstructParticle() override final;
+  virtual void ConstructProcess() override final;
 
   /// IPhysicsOptionTool method; simply returns self.
-  virtual G4VPhysicsConstructor* GetPhysicsOption() override;
+  virtual G4VPhysicsConstructor* GetPhysicsOption() override final;
 
 protected:
 

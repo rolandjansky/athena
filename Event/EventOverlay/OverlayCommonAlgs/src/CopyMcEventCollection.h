@@ -28,9 +28,7 @@ public:
 
 protected:
   std::string m_infoType;
-  bool m_realdata;
-  bool m_checkeventnumbers;
-  bool m_removeBkgHardScatterTruth; //flag to clean up neutrino info from premixed bkg rdos
+  bool m_realdata, m_checkeventnumbers;
   ServiceHandle<StoreGateSvc> m_storeGateData2;
   ToolHandle< xAODMaker::IEventInfoCnvTool > m_cnvTool;
 

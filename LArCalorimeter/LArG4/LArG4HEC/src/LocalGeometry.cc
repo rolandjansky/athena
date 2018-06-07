@@ -109,7 +109,7 @@ namespace LArG4 {
     }
 
     LocalGeometry::LocalGeometry(const std::string& name, ISvcLocator * pSvcLocator)
-      : base_class(name, pSvcLocator)
+      : AthService(name, pSvcLocator)
       , m_geoModel("GeoModelSvc", name)
       , m_AccessSvc("RDBAccessSvc", name)
       , m_isX(false)
@@ -184,6 +184,19 @@ namespace LArG4 {
 
       return StatusCode::SUCCESS;
     }
+
+    StatusCode LocalGeometry::queryInterface( const InterfaceID & riid,  void** ppvInterface )
+    {
+      if ( ILocalGeometry::interfaceID().versionMatch(riid) ) {
+        *ppvInterface = dynamic_cast<ILocalGeometry*>(this);
+      } else {
+        // Interface is not directly available : try out a base class
+        return AthService::queryInterface(riid, ppvInterface);
+      }
+      addRef();
+      return StatusCode::SUCCESS;
+    }
+
 
     LArG4Identifier LocalGeometry::CalculateIdentifier(const G4Step* a_step, const eLocalGeometryType g_type, int depthadd, double deadzone, double locyadd) const {
 
@@ -305,17 +318,16 @@ namespace LArG4 {
         locy += locyadd;
         // Region Identifier
         // This will be computed from local Y coordinate
-        if( locy < m_pads[copyDepth][4] ) {
-          region = 1;
-          etaBin = 3;
-        }
-        else {
-          region = 0;
-          etaBin = 13;
-        }
+        if( locy < m_pads[copyDepth][4] ) region = 1;
+        else region = 0;
+
         // eta_Bin Identifier
         // Needs a table of coordinates of pad boundaries
-        etaBin -= binSearch(locy, copyDepth, region);
+        switch(region) {
+        case 1: { etaBin = 3 - binSearch(locy, copyDepth, region); break; }
+        case 0: { etaBin = 13 - binSearch(locy, copyDepth, region); break; }
+        default: { assert(0<1); break; }
+        }
 
         LArG4Identifier result = LArG4Identifier();
 
@@ -470,16 +482,12 @@ namespace LArG4 {
                 else
                   depthNum = 6;
               }
-              if( locy < m_pads[depthNum][4] ) {
-                region = 1;
-                etaBin = 3;
-                phiBin /= 2;
+              if( locy < m_pads[depthNum][4] ) region = 1;  else region = 0;
+              switch(region) {
+              case 1: { etaBin = 3 - binSearch(locy, depthNum, region); phiBin /= 2; break; }
+              case 0: { etaBin = 13 - binSearch(locy, depthNum, region); break; }
+              default: { assert(0<1); break; }
               }
-              else {
-                region = 0;
-                etaBin = 13;
-              }
-              etaBin -= binSearch(locy, depthNum, region);
 #ifdef DEBUG_HEC
               std::cout <<"HEC::LocalGeometry zSide = "<<zSide<<" , sampling = "<<sampling<<"  ,  region="<<region <<
                 " , phiBin="<<phiBin<< " ,  etaBin="<<etaBin <<std::endl;
@@ -525,18 +533,15 @@ namespace LArG4 {
               else
                 depthNum = 6;
             }
-            if( locy < m_pads[depthNum][4] ) {
-              region = 3;
-              etaBin = 3;
-            }
-            else {
-              region = 2;
-              etaBin = 13;
-            }
+            if( locy < m_pads[depthNum][4] ) region = 3;  else region = 2;
 #ifdef DEBUG_HEC_OLD_DIAGNOSTIC
             std::cout<<locy<<" "<<m_pads[depthNum][4]<<" "<<region<<std::endl;
 #endif
-            etaBin -= binSearch(locy, depthNum, region-2);
+            switch(region) {
+            case 3: { etaBin = 3 - binSearch(locy, depthNum, region-2); break; }
+            case 2: { etaBin = 13 - binSearch(locy, depthNum, region-2); break; }
+            default: { assert(0<1); break; }
+            }
           }
         } else if (copyN==50 ) { // First Absorber - in front of HEC
           copyModule = theTouchable->GetVolume(2)->GetCopyNo() - 1;

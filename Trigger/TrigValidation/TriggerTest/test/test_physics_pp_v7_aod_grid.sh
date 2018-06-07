@@ -18,7 +18,6 @@
 # art-output: *.root
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
-# art-output: TotalEventsProcessed.txt
 
 export NAME="physics_pp_v7_aod_grid"
 export MENU="Physics_pp_v7"

@@ -141,8 +141,8 @@ StatusCode TauWPDecorator::initialize() {
   std::string scoreName = m_scoreName;
   std::string newScoreName = m_newScoreName;
   
-  m_acc_score = std::make_unique<SG::AuxElement::ConstAccessor<float>>(scoreName);
-  m_acc_newScore = std::make_unique<SG::AuxElement::Accessor<float>>(newScoreName);
+  acc_score = std::make_unique<SG::AuxElement::ConstAccessor<float>>(scoreName);
+  acc_newScore = std::make_unique<SG::AuxElement::Accessor<float>>(newScoreName);
   
   return StatusCode::SUCCESS;
 }
@@ -177,7 +177,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
   else histArray = m_hists3P.get() ;
   
   // Retrieve tau properties
-  double score = (*m_acc_score)(pTau);
+  double score = (*acc_score)(pTau);
   double pt = pTau.pt();
 
   double y_var = 0.0;
@@ -267,7 +267,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
   else {
     newscore = transformScore(score, cuts[0], effs[0], cuts[1], effs[1]);
   }
-  (*m_acc_newScore)(pTau) = newscore;
+  (*acc_newScore)(pTau) = newscore;
 
   if(m_defineWP) {
     for (u_int Nwp=0; Nwp < m_cut_bits.size(); Nwp++){

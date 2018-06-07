@@ -9,12 +9,12 @@
 // ######################################################################
 
 
-AMSBCharginoMinus* AMSBCharginoMinus::s_theInstance = NULL;
+AMSBCharginoMinus* AMSBCharginoMinus::theInstance = NULL;
 
 AMSBCharginoMinus* AMSBCharginoMinus::Definition(G4double mass, G4double width, G4double charge, G4double PDG, G4bool stable, G4double lifetime, G4bool shortlived)
 {
 
-  if (s_theInstance !=0 && (mass>=0. || width>=0. || lifetime>=0.) )
+  if (theInstance !=0 && (mass>=0. || width>=0. || lifetime>=0.) )
     {
       G4ExceptionDescription description;
       description << "Trying to redefine the AMSB Chargino Minus properties after it has been constructed is not allowed";
@@ -22,9 +22,9 @@ AMSBCharginoMinus* AMSBCharginoMinus::Definition(G4double mass, G4double width, 
       abort();
     }
 
-  if (s_theInstance != 0)
+  if (theInstance != 0)
     {
-      return s_theInstance;
+      return theInstance;
     }
 
   //    Arguments for constructor are as follows
@@ -44,8 +44,8 @@ AMSBCharginoMinus* AMSBCharginoMinus::Definition(G4double mass, G4double width, 
                                  "supersymmetric",   0,               0,          PDG,
                                  stable,               lifetime,            NULL,
                                  shortlived,              "CharginoMinus");
-      s_theInstance = reinterpret_cast<AMSBCharginoMinus*>(anInstance);
-      return s_theInstance;
+      theInstance = reinterpret_cast<AMSBCharginoMinus*>(anInstance);
+      return theInstance;
     }
   else
     {

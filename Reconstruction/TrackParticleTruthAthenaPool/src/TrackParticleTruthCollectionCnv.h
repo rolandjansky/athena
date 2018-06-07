@@ -8,8 +8,6 @@
 
 #include "ParticleTruth/TrackParticleTruthCollection.h"
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p1.h"
-#include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p2.h"
-#include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionCnv_p2.h"
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionCnv_p1.h"
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionCnv_p0.h"
 
@@ -29,11 +27,9 @@ protected:
 private:
   TrackParticleTruthCollectionCnv_p0 m_converter_p0;
   TrackParticleTruthCollectionCnv_p1 m_converter_p1;
-  TrackParticleTruthCollectionCnv_p2 m_converter_p2;
 
   static pool::Guid s_p0_guid;
   static pool::Guid s_p1_guid;
-  static pool::Guid s_p2_guid;
 };
 
 #endif

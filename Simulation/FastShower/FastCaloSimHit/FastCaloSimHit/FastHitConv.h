@@ -52,8 +52,8 @@ private:
   StatusCode hitConstruction();
 
   // For reading in of Fast Hits
-  LArHitContainer* m_fastHitCont;
-  TileHitVector* m_fastTileHits;
+  LArHitContainer* fastHitCont;
+  TileHitVector* fastTileHits;
   //for writing out of Hit, naming as G4 for default
   SG::WriteHandle<LArHitContainer> m_embHitContainer;
   SG::WriteHandle<LArHitContainer> m_emecHitContainer;

@@ -30,21 +30,6 @@ Conditions conditionsFactorysinglemass(const std::vector<double>& etasMin,
                                   const std::vector<double>& jetMassMin,
                                   const std::vector<double>& jetMassMax);
 
-
-Conditions conditionsFactoryDijet(const std::vector<double>& etThresholds1,
-                                  const std::vector<double>& etThresholds2,
-                                  const std::vector<double>& etaMins1,
-                                  const std::vector<double>& etaMaxs1,
-                                  const std::vector<double>& etaMins2,
-                                  const std::vector<double>& etaMaxs2,
-                                  const std::vector<double>& massMins,
-                                  const std::vector<double>& massMaxs,
-                                  const std::vector<double>& detaMins,
-                                  const std::vector<double>& detaMaxs,
-                                  const std::vector<double>& dphiMins,
-                                  const std::vector<double>& dphiMaxs);
-
-
 // for conditionsFactory2
 Conditions conditionsFactoryDijetEtaMass(const std::vector<double>& etasMin,
                                          const std::vector<double>& etasMax,
@@ -61,10 +46,6 @@ Conditions conditionsFactoryDijetEtaMass(double etasMin,
                                          double ystarsMax,
                                          double massesMin,
                                          double massesMax);
-
-
-Conditions conditionsFactoryDijetDPhi(const std::vector<double>& dPhiMins,
-                                      const std::vector<double>& dPhiMaxs);
 
 
 Conditions conditionsFactoryTLA(const std::vector<double>& etasMin,

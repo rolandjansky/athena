@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo  $(date "+%FT%H:%M %Z")"     Execute Athena test ${NAME}"
+echo  "Execute Athena"
 
 ### DEFAULTS
 
@@ -72,4 +72,3 @@ ${JOBOPTION} | tee ${JOB_LOG}
 COMMAND=$PREVIOUS_COMMAND ATH_RETURN=${PIPESTATUS[0]}
 echo "Command to reproduce: ${COMMAND}"
 echo "art-result: ${ATH_RETURN} ${JOB_LOG%%.*}"
-echo  $(date "+%FT%H:%M %Z")"     Done executing Athena test ${NAME}"

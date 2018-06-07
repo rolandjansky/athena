@@ -89,9 +89,8 @@ namespace LArG4
   //---------------------------------------------------------------------------
   G4VSensitiveDetector* ActiveSDTool::makeSD()
   {
-    const std::string deadHitCollName=m_hitCollName+"_DEAD";
     // Create the wrapper
-    auto sdWrapper = new CalibSDWrapper("LArActiveSDWrapper", m_hitCollName, deadHitCollName);
+    auto sdWrapper = new CalibSDWrapper("LArActiveSDWrapper", m_hitCollName);
 
     // Create the SDs.
     sdWrapper->addSD( makeOneSD( "Barrel::Presampler::Module::Calibration", &*m_bpsmodcalc, m_presBarVolumes ) );

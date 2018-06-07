@@ -45,8 +45,8 @@ iFatras::TransportTool::TransportTool( const std::string& t,
                                       const std::string& n,
                                       const IInterface*  p )
  : base_class(t,n,p),
-   m_rndGenSvc("AtDSFMTGenSvc", n),
-   m_randomEngine(nullptr),
+   m_rndGenSvc("AtDSFMTGenSvc", n), 
+   m_randomEngine(0),
    m_randomEngineName("FatrasRnd"),
    m_validationOutput(false),
    m_validationTool(""),
@@ -90,8 +90,7 @@ iFatras::TransportTool::TransportTool( const std::string& t,
  *  ==> see headerfile
  *=======================================================================*/
 iFatras::TransportTool::~TransportTool()
-{
-}
+{}
 
 /*=========================================================================
  *  DESCRIPTION OF FUNCTION:
@@ -359,10 +358,6 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp)
 									    eParameters->momentum(),
 									    timeLim.time-isp.timeStamp()) : 0;     // update expects time difference
   // free memory
-  if ( hitVector ) {
-    for (auto& h : *hitVector) delete h.trackParms;
-    delete hitVector;
-  }
   delete eParameters;
 
   if (uisp && m_validationOutput) {

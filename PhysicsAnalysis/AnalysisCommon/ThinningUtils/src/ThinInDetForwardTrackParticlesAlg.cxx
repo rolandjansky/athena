@@ -114,14 +114,14 @@ StatusCode ThinInDetForwardTrackParticlesAlg::execute()
     if (evtStore()->contains<xAOD::TrackParticleContainer>("InDetForwardTrackParticles")) {
         CHECK( evtStore()->retrieve( tracks , "InDetForwardTrackParticles" ) );
     } else {
-        ATH_MSG_WARNING("No InDetForwardTrackParticles found.");
-        return StatusCode::SUCCESS;
+        ATH_MSG_FATAL("No InDetForwardTrackParticles found.");
+        return StatusCode::FAILURE;
     }
     if (evtStore()->contains<xAOD::MuonContainer>("Muons")) {
         CHECK( evtStore()->retrieve( muons , "Muons" ) );
     } else {
-        ATH_MSG_WARNING("No Muons found");
-        return StatusCode::SUCCESS;
+        ATH_MSG_FATAL("No Muons found");
+        return StatusCode::FAILURE;
     }
 
     // Set up mask and set the main counters

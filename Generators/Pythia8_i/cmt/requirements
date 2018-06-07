@@ -1,0 +1,39 @@
+package Pythia8_i
+
+author James Monk <jmonk@hep.ucl.ac.uk>
+
+use    AtlasPolicy         AtlasPolicy-*
+use    AtlasBoost          AtlasBoost-*          External
+use    Lhapdf              Lhapdf-*              External
+use    Pythia8             Pythia8-*             External
+use    GeneratorModules    GeneratorModules-*    Generators
+use    AthenaKernel        AthenaKernel-*        Control
+use    AtlasCLHEP          AtlasCLHEP-*          External
+
+private
+
+use    GaudiInterface      GaudiInterface-*      External
+###use    AtlasHepMC          AtlasHepMC-*          External
+use    GeneratorObjects    GeneratorObjects-*    Generators
+use    PathResolver        PathResolver-*        Tools
+
+macro_append Pythia8_i_pp_cppflags ' -DPY8VERSION=\"$(Pythia8_version)\" '
+macro_append fflags "" Linux ""
+
+# Specify the Pythia8 version for cmake (transparent to CMT)
+apply_pattern cmake_add_command command='add_definitions(-DPY8VERSION=\"${PYTHIA8_VERSION}\")'
+
+# The dependencies of the various generator packages need to be sorted out
+# so that they work in full asNeeded/noUndefined mode. Until that time, this
+# package explicitly sets the allowUndefined tag
+#apply_tag allowUndefined
+apply_tag notAsNeeded
+end_private
+
+macro_append pythia8_ifiles 'Pythia8_i.cxx UserProcessFactory.cxx UserHooksFactory.cxx UserResonanceFactory.cxx'
+macro_append UserProcessFiles 'UserProcesses/Sigma2qqbar2emu.cxx UserProcesses/Sigma2qqbar2lStarlBar.cxx UserProcesses/Sigma2qqbar2lStarlStarBar.cxx'
+macro_append UserHookFiles 'UserHooks/WZVetoedShower.cxx UserHooks/QCDVetoedShower.cxx UserHooks/PoWHEGVetoedShower.cxx UserHooks/GravFlat.cxx UserHooks/JetMatchingMadGraphHook.cxx  UserHooks/SuppressMPI.cxx UserHooks/EnhanceMPI.cxx UserHooks/ISRVetoedShower.cxx UserHooks/PTRelVetoedShower.cxx UserHooks/WprimeFlat.cxx UserHooks/WprimeWZFlat.cxx UserHooks/main31.cxx'
+macro_append UserResonanceFiles 'UserResonances/ResonanceExcitedCI.cxx UserResonances/ResonanceLQ.cxx'
+
+apply_pattern named_dual_use_library library="Pythia8_i" files="$(pythia8_ifiles) $(UserProcessFiles) $(UserHookFiles) $(UserResonanceFiles)"
+apply_pattern declare_joboptions files="*.py"

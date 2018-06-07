@@ -210,10 +210,7 @@ class ConfiguredNewTrackingCuts :
     if self.__indetflags.cutLevel() >= 14 :
       self.__minPT                   = 0.5 * Units.GeV
 
-    if self.__indetflags.cutLevel() >= 15 :
-      self.__minClusters             = 8 #based on studies by R.Jansky     
-
-    if self.__indetflags.cutLevel() >= 16:
+    if self.__indetflags.cutLevel() >= 15:
       print '--------> FATAL ERROR, cut level undefined, abort !'
       import sys
       sys.exit()

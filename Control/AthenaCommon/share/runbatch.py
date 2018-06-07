@@ -9,8 +9,9 @@
 
 try:
    from AthenaCommon.AthenaCommonFlags import jobproperties as jps
+   
 
-   #first check if command-line evtMax or skipEvents options were provided
+   #check if command-line evtMax or skipEvents options were provided
    if opts.evtMax != None:
       theApp.EvtMax = jps.AthenaCommonFlags.EvtMax()
    if opts.skipEvents != None:

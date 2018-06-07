@@ -52,8 +52,8 @@ public:
 void test1()
 {
   SG::ArenaHeader head;
-  typedef typename TestAlloc::initParams<int> defaultParams_t;
-  TestAlloc::Params params = defaultParams_t (1000, "foo");
+  TestAlloc::Params params;
+  params.name = "foo";
   TestHandle hand (&head, TestHandle::Creator (static_cast<TestAlloc*>(0),
                                                params));
   assert (hand.params().name == "foo");

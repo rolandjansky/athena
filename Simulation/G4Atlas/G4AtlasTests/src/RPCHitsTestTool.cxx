@@ -50,9 +50,12 @@ Identifier RPCHitsTestTool::getIdentifier(HitID rpchit) {
 StatusCode RPCHitsTestTool::checkIdentifier(Identifier offid) {
 
   const MuonGM::RpcReadoutElement* descriptor = m_pMuonMgr->getRpcReadoutElement(offid);
-  if (!descriptor) {
+  if (descriptor != NULL) {
+    Amg::Vector3D xU;
+    // *AS* Amg::Vector3D localHit((*i_hit).localPosition().x(),(*i_hit).localPosition().y(),(*i_hit).localPosition().z());
+    // *AS*    xU = descriptor->localToGlobalCoords(localHit,offid);
+  } else {
     ATH_MSG_FATAL("RPC readout element not found for Id = " << m_pRpcIdHelper->show_to_string(offid));
-    return StatusCode::FAILURE;
   }
 
   // Testing Sim to Offline ID conversion

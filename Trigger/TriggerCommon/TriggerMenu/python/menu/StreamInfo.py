@@ -29,8 +29,7 @@ physicsStreams = ['Main',
                   'MinBiasOverlay',
                   'UPC',
                   'Mistimed',
-                  'ExoDelayed',
-                  'FTK',
+                  'ExoDelayed'
                   ]
 
 calibStreams = [

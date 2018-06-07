@@ -301,7 +301,7 @@ class cutLevel(InDetFlagsJobProperty):
     """
     statusOn     = True
     allowedTypes = ['int']
-    allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+    allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13,14]
     StoredValue  = 14
 
 class doBremRecovery(InDetFlagsJobProperty):
@@ -421,17 +421,7 @@ class doMonitoringAlignment(InDetFlagsJobProperty):
     StoredValue  = False
 
 class useDynamicAlignFolders(InDetFlagsJobProperty):
-    """ Deprecated property - use GeometryFlags directly to choose the alignment folder scheme """
-    def _do_action( self, *args, **kwds):
-       from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
-       self._log.warning('Deprecated property InDetFlags.useDynamicAlignFolders used to control the alignment scheme - update the code to from AtlasGeoModel.InDetGMJobProperties import GeometryFlags;  GeometryFlags.useDynamicAlignFolders.... ')
-       if self.StoredValue != 'none':
-          from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
-          GeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(self.StoredValue)
-          self._log.info("GeometryFlags.useDynamicAlignFolders set by InDetFlags: %s" % GeometryFlags.useDynamicAlignFolders)
-       else:
-          self._log.warning("Not setting GeometryFlags.useDynamicAlignFolders by InDetFlags: %s" % self.StoredValue)
-          
+    """ Use to turn on dynamic alignment constants folder scheme (new development for 2016) """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -593,10 +583,10 @@ class doVertexFinding(InDetFlagsJobProperty):
     StoredValue  = True
 
 class primaryVertexSetup(InDetFlagsJobProperty):
-    """ string to store the type of finder/fitter for pri vertexing, possible types: 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding' 'MedImgMultiFinding' 'GaussIterativeFinding' 'GaussAdaptiveMultiFinding' """
+    """ string to store the type of finder/fitter for pri vertexing, possible types: 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding' 'MedImgMultiFinding' """
     statusOn     = True
     allowedTypes = ['str']
-    allowedValues= [ 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding', 'DummyVxFinder', 'MedImgMultiFinding', 'GaussIterativeFinding', 'GaussAdaptiveMultiFinding' ]
+    allowedValues= [ 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding', 'DummyVxFinder', 'MedImgMultiFinding']
     StoredValue  = 'IterativeFinding'
 
 class primaryVertexCutSetup(InDetFlagsJobProperty):
@@ -1183,13 +1173,7 @@ class doHIP300(InDetFlagsJobProperty):
 
 class doStoreTrackSeeds(InDetFlagsJobProperty): 
   """Turn on to save the Track Seeds in a xAOD track collecting for development studies""" 
-  statusOn     = False 
-  allowedTypes = ['bool']
-  StoredValue  = False
-
-class doStoreTrackCandidates(InDetFlagsJobProperty):
-  """Turn on to save the Track Candidates (SiSpSeededTracks) in a xAOD track collecting for development studies"""
-  statusOn     = False
+  statusOn     = True 
   allowedTypes = ['bool']
   StoredValue  = False
 
@@ -2825,7 +2809,6 @@ _list_InDetJobProperties = [Enabled,
                             doDBM,
                             doParticleConversion,
                             doStoreTrackSeeds,
-                            doStoreTrackCandidates,
                             doHIP300,
                             checkDeadElementsOnTrack
                            ]

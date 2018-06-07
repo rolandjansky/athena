@@ -8,7 +8,7 @@
 // Monitoring macros for egamma
 // Separate for Electron and Photon
 // GETTER for Shower Shape monitoring
-#define GETTER(_name_) inline float getShowerShape_##_name_(const xAOD::Electron* eg) \
+#define GETTER(_name_) float getShowerShape_##_name_(const xAOD::Electron* eg) \
 { float val{-99}; \
     eg->showerShapeValue(val,xAOD::EgammaParameters::_name_); \
     return val; } 
@@ -37,7 +37,7 @@ GETTER(DeltaE)
 #undef GETTER
 
 // GETTER for Isolation monitoring
-#define GETTER(_name_) inline float getIsolation_##_name_(const xAOD::Electron* eg) \
+#define GETTER(_name_) float getIsolation_##_name_(const xAOD::Electron* eg) \
 { float val{-99}; \
     eg->isolationValue(val,xAOD::Iso::_name_); \
     return val; } 
@@ -53,7 +53,7 @@ GETTER(ptcone40)
 #undef GETTER    
 
 // GETTERs for CaloCluster monitoring   
-#define GETTER(_name_) inline float getCluster_##_name_(const xAOD::Electron* eg) \
+#define GETTER(_name_) float getCluster_##_name_(const xAOD::Electron* eg) \
 {    if(eg && eg->caloCluster()) \
         return eg->caloCluster()->_name_(); \
     else return -99.;}
@@ -63,7 +63,7 @@ GETTER(eta)
 #undef GETTER
 
 // GETTERs for Track monitoring   
-#define GETTER(_name_) inline float getTrack_##_name_(const xAOD::Electron* eg) \
+#define GETTER(_name_) float getTrack_##_name_(const xAOD::Electron* eg) \
 {    if(eg && eg->trackParticle()) \
         return eg->trackParticle()->_name_(); \
     else return -99.;}
@@ -74,7 +74,7 @@ GETTER(d0)
 GETTER(z0)    
 #undef GETTER
 // GETTERs for Track details monitoring    
-#define GETTER(_name_) inline float getTrackSummary_##_name_(const xAOD::Electron* eg) \
+#define GETTER(_name_) float getTrackSummary_##_name_(const xAOD::Electron* eg) \
 { uint8_t val_uint8{0}; \
     if(eg && eg->trackParticle()){ \
         eg->trackParticleSummaryValue(val_uint8,xAOD::_name_); \
@@ -97,7 +97,7 @@ GETTER(numberOfTRTXenonHits)
 
 #undef GETTER
 
-#define GETTER(_name_) inline float getTrackSummaryFloat_##_name_(const xAOD::Electron* eg) \
+#define GETTER(_name_) float getTrackSummaryFloat_##_name_(const xAOD::Electron* eg) \
 { float val_float{0}; \
     if(eg && eg->trackParticle()){ \
         eg->trackParticleSummaryValue(val_float,xAOD::_name_); \
@@ -109,7 +109,7 @@ GETTER(pixeldEdx)
 
 #undef GETTER
 // GETTERs for Calo-Track monitoring
-#define GETTER(_name_) inline float getCaloTrackMatch_##_name_(const xAOD::Electron* eg) \
+#define GETTER(_name_) float getCaloTrackMatch_##_name_(const xAOD::Electron* eg) \
 { float val={-99.}; \
     if(eg && eg->trackParticle()){ \
         eg->trackCaloMatchValue(val,xAOD::EgammaParameters::_name_);} \
@@ -128,14 +128,14 @@ GETTER(deltaPhi3)
 GETTER(deltaPhiRescaled3) 
 #undef GETTER    
 // Additional monitoring function   
-inline float getEta2(const xAOD::Electron* eg){
+float getEta2(const xAOD::Electron* eg){
     if(eg && (eg->caloCluster())){
         const xAOD::CaloCluster*   cluster  = eg->caloCluster(); 
         return fabs(cluster->etaBE(2)); 
     }
     else return -99.;
 }
-inline float getEtCluster37(const xAOD::Electron* eg){
+float getEtCluster37(const xAOD::Electron* eg){
     if(eg && (eg->caloCluster())){
         const xAOD::CaloCluster*   cluster  = eg->caloCluster(); 
         float eta2   = fabs(cluster->etaBE(2)); 
@@ -143,7 +143,7 @@ inline float getEtCluster37(const xAOD::Electron* eg){
     }
     else return -99.;
 }
-inline float getDEmaxs1(const xAOD::Electron *eg){
+float getDEmaxs1(const xAOD::Electron *eg){
     if(eg){
         float emax2=0.;
         eg->showerShapeValue(emax2, xAOD::EgammaParameters::e2tsts1);
@@ -154,7 +154,7 @@ inline float getDEmaxs1(const xAOD::Electron *eg){
     }
     else return -99.;
 }
-inline float rTRT  (const xAOD::Electron* eg) {
+float rTRT  (const xAOD::Electron* eg) {
     if(eg && eg->trackParticle()){ 
         uint8_t trtHits   = 0;
         eg->trackParticleSummaryValue(trtHits,xAOD::numberOfTRTHits);
@@ -168,7 +168,7 @@ inline float rTRT  (const xAOD::Electron* eg) {
     else return -99.;
 }
 
-inline float getSigmaD0(const xAOD::Electron *eg){
+float getSigmaD0(const xAOD::Electron *eg){
     const xAOD::TrackParticle* t = eg->trackParticle();   
     float d0sigma=0.;
     if (t)
@@ -183,7 +183,7 @@ inline float getSigmaD0(const xAOD::Electron *eg){
     else return -99.;
 }
 
-inline float getD0sig(const xAOD::Electron *eg){
+float getD0sig(const xAOD::Electron *eg){
     const xAOD::TrackParticle* t = eg->trackParticle();   
     float d0sigma=0.;
     if (t)
@@ -199,7 +199,7 @@ inline float getD0sig(const xAOD::Electron *eg){
     else return -99.;
 }
 
-inline float getEnergyBE0(const xAOD::Electron *eg){
+float getEnergyBE0(const xAOD::Electron *eg){
     if(eg && (eg->caloCluster())){
         const xAOD::CaloCluster*   cluster  = eg->caloCluster(); 
         return cluster->energyBE(0); 
@@ -207,7 +207,7 @@ inline float getEnergyBE0(const xAOD::Electron *eg){
     else return 0;
 }
 
-inline float getEnergyBE1(const xAOD::Electron *eg){
+float getEnergyBE1(const xAOD::Electron *eg){
     if(eg && (eg->caloCluster())){
         const xAOD::CaloCluster*   cluster  = eg->caloCluster(); 
         return cluster->energyBE(1); 
@@ -215,7 +215,7 @@ inline float getEnergyBE1(const xAOD::Electron *eg){
     else return 0.;
 }
 
-inline float getEnergyBE2(const xAOD::Electron *eg){
+float getEnergyBE2(const xAOD::Electron *eg){
     if(eg && (eg->caloCluster())){
         const xAOD::CaloCluster*   cluster  = eg->caloCluster(); 
         return cluster->energyBE(2); 
@@ -223,7 +223,7 @@ inline float getEnergyBE2(const xAOD::Electron *eg){
     else return 0.;
 }
 
-inline float getEnergyBE3(const xAOD::Electron *eg){
+float getEnergyBE3(const xAOD::Electron *eg){
     if(eg && (eg->caloCluster())){
         const xAOD::CaloCluster*   cluster  = eg->caloCluster(); 
         return cluster->energyBE(3); 
@@ -231,7 +231,7 @@ inline float getEnergyBE3(const xAOD::Electron *eg){
     else return 0.;
 }
 
-inline float getEaccordion(const xAOD::Electron *eg){
+float getEaccordion(const xAOD::Electron *eg){
     if(eg && (eg->caloCluster())){
         const xAOD::CaloCluster*   cluster  = eg->caloCluster(); 
         float ebe1 = cluster->energyBE(1); 
@@ -242,7 +242,7 @@ inline float getEaccordion(const xAOD::Electron *eg){
     else return 0.;
 }
 
-inline float getE0Eaccordion(const xAOD::Electron *eg){
+float getE0Eaccordion(const xAOD::Electron *eg){
     if(eg && (eg->caloCluster())){
         const xAOD::CaloCluster*   cluster  = eg->caloCluster();
         float ebe0 = cluster->energyBE(0); 

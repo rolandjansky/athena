@@ -76,9 +76,8 @@ class TrigMultiTrkFex: public HLT::AllTEAlgo  {
     
     TrigTimer* m_BmmHypTot;
 
-  int m_maxNOutputObject;
+
   std::string m_trackCollectionKey;
-  std::string m_outputTrackCollectionKey;
   std::string m_bphysCollectionKey;
   int m_nTrk ;
   int m_nTrkQ; // if negative - no cut
@@ -158,7 +157,7 @@ template<class Tin, class Tout> bool TrigMultiTrkFex::passNObjects(int nObjMin,
 	    if( pt < 350. && pt>0.01 ) pt *= 1000.;
 	    pts.push_back(pt);	    
 	    outVec.push_back(efmu); 
-	    ATH_MSG_DEBUG( "Found muon, pt= " << pt);
+	    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Found muon, pt= " << pt << endmsg;
 	  }
       }//}// end loop over muons in one TE
     } // end getFeaturesLinks
@@ -166,9 +165,9 @@ template<class Tin, class Tout> bool TrigMultiTrkFex::passNObjects(int nObjMin,
 
     //=== check if it is enough muons
   if( (int)outVec.size() < nObjMin ) {
-    ATH_MSG_DEBUG( "Rejecting: "
-		   <<" #muons= " <<  outVec.size() 
-		   << " while need "<< nObjMin );
+    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Rejecting: "
+    					 <<" #muons= " <<  outVec.size() 
+    					 << " while need "<< nObjMin << endmsg;
     return false;
   }
   //== check that muons have correct pts
@@ -181,7 +180,7 @@ template<class Tin, class Tout> bool TrigMultiTrkFex::passNObjects(int nObjMin,
       failMuonPt = true;	  
   }
   if( failMuonPt ){
-    ATH_MSG_DEBUG( "Fail muon pt cut" );
+    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Fail muon pt cut" << endmsg;
     return false;
   }
   // here would be good to limit number of objects to the minimum

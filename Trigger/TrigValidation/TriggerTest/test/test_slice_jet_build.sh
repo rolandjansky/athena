@@ -18,7 +18,6 @@
 # art-output: *.root
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
-# art-output: TotalEventsProcessed.txt
 
 export NAME="slice_jet_build"
 export SLICE="jet"

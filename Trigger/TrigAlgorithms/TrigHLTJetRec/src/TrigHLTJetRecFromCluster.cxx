@@ -22,6 +22,7 @@ using fastjet::PseudoJet;
 TrigHLTJetRecFromCluster::TrigHLTJetRecFromCluster(const std::string& name, 
                                              ISvcLocator* pSvcLocator):
   TrigHLTJetRecBase<xAOD::CaloClusterContainer>(name, pSvcLocator) {
+  declareProperty( "secondarypseudoJetGetter", m_secondarypseudoJetGetter = NULL);
   declareProperty( "scan_type", m_scantype);
 }
 

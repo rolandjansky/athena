@@ -22,7 +22,6 @@ use HepPDT	     *			   LCG_Interfaces
 private
 use AthenaKernel     AthenaKernel-*        Control
 use AtlasCLHEP       AtlasCLHEP-*          External
-use PathResolver     PathResolver-*        Tools
 
 # The dependencies of the various generator packages need to be sorted out
 # so that they work in asNeeded mode. Until that time, this package

@@ -1,6 +1,6 @@
 from AthenaCommon.AlgSequence import AlgSequence
 
-job = AlgSequence("Streams")
+job = AlgSequence()
 
 if hasattr(job, 'StreamHITS'):
     job.StreamHITS.ItemList += ["LArHitContainer#*"]

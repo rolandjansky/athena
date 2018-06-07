@@ -6,7 +6,7 @@
 #define Spacer_H
 
 #include "MuonGeoModel/DetectorElement.h"
-#include "MuonGeoModel/SpaComponent.h"
+#include "MuonGeoModel/SpacerComponent.h"
 
 class GeoVPhysVol;
 
@@ -27,7 +27,7 @@ public:
    void print();
 
 private:
-   SpaComponent m_component;
+   SpacerComponent m_component;
 };
 
 } // namespace MuonGM

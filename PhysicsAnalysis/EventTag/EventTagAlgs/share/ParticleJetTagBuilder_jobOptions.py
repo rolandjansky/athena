@@ -13,6 +13,6 @@ ParticleJetTagBuilder      = ParticleJetTagBuilder(
      name                  = "ParticleJetTagBuilder",
      JetMissingEtTagTool   = JetMissingEtTagTool,
      AttributeList         = EventTagGlobal.AttributeList,
-     MaxNumber             = 10,
+     MaxNumber             = 6,
      CheckAttribute        = True)
 topSequence += ParticleJetTagBuilder

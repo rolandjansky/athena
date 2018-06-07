@@ -40,12 +40,12 @@
 inline void
 QuirkTransportation::SetPropagatorInField( G4PropagatorInField* pFieldPropagator)
 {
-   m_fieldPropagator= pFieldPropagator;
+   fFieldPropagator= pFieldPropagator;
 }
 
 inline G4PropagatorInField* QuirkTransportation::GetPropagatorInField()
 {
-   return m_fieldPropagator;
+   return fFieldPropagator;
 }
 
 inline G4bool QuirkTransportation::DoesGlobalFieldExist()
@@ -60,42 +60,42 @@ inline G4bool QuirkTransportation::DoesGlobalFieldExist()
 
 inline void QuirkTransportation::SetVerboseLevel( G4int verboseLev )
 {
-  m_verboseLevel= verboseLev;
+  fVerboseLevel= verboseLev;
 }
 
 inline G4int QuirkTransportation::GetVerboseLevel( ) const
 {
-  return m_verboseLevel;
+  return fVerboseLevel;
 }
 
 inline G4double QuirkTransportation::GetThresholdWarningEnergy() const
 {
-  return m_threshold_Warning_Energy;
+  return fThreshold_Warning_Energy;
 }
  
 inline G4double QuirkTransportation::GetThresholdImportantEnergy() const
 { 
-  return m_threshold_Important_Energy;
+  return fThreshold_Important_Energy;
 } 
 
 inline G4int QuirkTransportation::GetThresholdTrials() const
 {
-  return m_thresholdTrials;
+  return fThresholdTrials;
 }
 
 inline void QuirkTransportation::SetThresholdWarningEnergy( G4double newEnWarn )
 {
-  m_threshold_Warning_Energy= newEnWarn;
+  fThreshold_Warning_Energy= newEnWarn;
 }
 
 inline void QuirkTransportation::SetThresholdImportantEnergy( G4double newEnImp )
 {
-  m_threshold_Important_Energy = newEnImp; 
+  fThreshold_Important_Energy = newEnImp; 
 }
 
 inline void QuirkTransportation::SetThresholdTrials(G4int newMaxTrials )
 {
-  m_thresholdTrials = newMaxTrials; 
+  fThresholdTrials = newMaxTrials; 
 }
 
      // Get/Set parameters for killing loopers: 
@@ -105,28 +105,28 @@ inline void QuirkTransportation::SetThresholdTrials(G4int newMaxTrials )
 
 inline G4double QuirkTransportation::GetMaxEnergyKilled() const
 {
-  return m_maxEnergyKilled; 
+  return fMaxEnergyKilled; 
 }
 
 inline G4double QuirkTransportation::GetSumEnergyKilled() const
 {
-  return m_sumEnergyKilled;
+  return fSumEnergyKilled;
 }
 
 inline void QuirkTransportation::ResetKilledStatistics(G4int report)
 {
   if( report ) { 
     G4cout << " QuirkTransportation: Statistics for looping particles " << G4endl;
-    G4cout << "   Sum of energy of loopers killed: " <<  m_sumEnergyKilled << G4endl;
-    G4cout << "   Max energy of loopers killed: " <<  m_maxEnergyKilled << G4endl;
+    G4cout << "   Sum of energy of loopers killed: " <<  fSumEnergyKilled << G4endl;
+    G4cout << "   Max energy of loopers killed: " <<  fMaxEnergyKilled << G4endl;
   } 
 
-  m_sumEnergyKilled= 0;
-  m_maxEnergyKilled= -1.0*CLHEP::GeV;
+  fSumEnergyKilled= 0;
+  fMaxEnergyKilled= -1.0*CLHEP::GeV;
 }
      // Statistics for tracks killed (currently due to looping in field)
 
 inline void QuirkTransportation::EnableShortStepOptimisation(G4bool optimiseShortStep)
 { 
-  m_shortStepOptimisation=optimiseShortStep;
+  fShortStepOptimisation=optimiseShortStep;
 }

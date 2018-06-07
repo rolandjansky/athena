@@ -19,6 +19,5 @@ muonCombinedRecFlags.setDefaults()
 include ("MuonCombinedRecExample/MuonCombinedRec_preprocessing.py")
 
 include ("MuonCombinedRecExample/MuonCombinedRec_identification.py")
-
-if not rec.doAODMerging():    
-    include ("MuonCombinedRecExample/MuonCombinedRec_postprocessing.py")
+    
+include ("MuonCombinedRecExample/MuonCombinedRec_postprocessing.py")

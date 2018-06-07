@@ -10,15 +10,9 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "TrkTruthTrackInterfaces/IPRD_TruthTrajectoryManipulator.h"
 
-// forward declarations
 class AtlasDetectorID;
-
-namespace CLHEP {
-    class HepRandomEngine;
-}
 
 namespace InDet {
 
@@ -49,11 +43,6 @@ namespace InDet {
     private:
         /**ID pixel helper*/
         const AtlasDetectorID* m_atlasId;
-
-        /** Random number generation */
-        ServiceHandle<IAtRndmGenSvc>        m_randSvc;           //!< ATLAS Random Svc
-        std::string                         m_randEngineName;    //!< Name of the random number stream
-        CLHEP::HepRandomEngine*             m_randEngine;        //!< Random Engine instance
     };
 }
 

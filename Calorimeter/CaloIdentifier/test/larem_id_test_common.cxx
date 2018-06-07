@@ -13,6 +13,7 @@
  */
 
 
+#include "boost/foreach.hpp"
 #include "make_idhelper_common.cxx"
 
 
@@ -30,11 +31,12 @@ void basic_print_id (const LArEM_Base_ID& idhelper, const Identifier& id)
 }
 
 
-class ILArEM_ID_Test
+class LArEM_ID_Test
+  : public LArEM_Base_ID
 {
 public:
-  virtual int get_lar_field_value() const = 0;
-  virtual int get_lar_em_field_value() const = 0;
+  using LArEM_Base_ID::lar_field_value;
+  using LArEM_Base_ID::lar_em_field_value;
 };
 
 
@@ -174,9 +176,9 @@ void test_connected (const LArEM_Base_ID& em_id, bool supercell = false)
     counts.count (bec, samp);
 
     ExpandedIdentifier exp_id;
-    const ILArEM_ID_Test& em_id_test = dynamic_cast<const ILArEM_ID_Test&>(em_id);
-    exp_id << em_id_test.get_lar_field_value()
-      	   << em_id_test.get_lar_em_field_value()
+    LArEM_ID_Test* em_id_test = (LArEM_ID_Test*)&em_id;
+    exp_id << em_id_test->lar_field_value()
+      	   << em_id_test->lar_em_field_value()
 	   << em_id.barrel_ec(ch_id)
 	   << em_id.sampling(ch_id)
 	   << em_id.region(ch_id)
@@ -188,7 +190,11 @@ void test_connected (const LArEM_Base_ID& em_id, bool supercell = false)
   for (size_t i = 0; i < hashvec.size(); i++)
     assert (hashvec[i]);
 
+#if __cplusplus > 201100
   for (Identifier ch_id : em_id.em_range()) {
+#else
+  BOOST_FOREACH (Identifier ch_id, em_id.em_range()) {
+#endif
     hashsum -= em_id.channel_hash (ch_id);
   }
   assert (hashsum == 0);
@@ -232,9 +238,9 @@ void test_connected (const LArEM_Base_ID& em_id, bool supercell = false)
     hashvec[regHash] = true;
 
     ExpandedIdentifier exp_id;
-    const ILArEM_ID_Test& em_id_test = dynamic_cast<const ILArEM_ID_Test&>(em_id);
-    exp_id << em_id_test.get_lar_field_value()
-      	   << em_id_test.get_lar_em_field_value()
+    LArEM_ID_Test* em_id_test = (LArEM_ID_Test*)&em_id;
+    exp_id << em_id_test->lar_field_value()
+      	   << em_id_test->lar_em_field_value()
 	   << em_id.barrel_ec(reg_id)
 	   << em_id.sampling(reg_id)
 	   << em_id.region(reg_id);
@@ -243,7 +249,11 @@ void test_connected (const LArEM_Base_ID& em_id, bool supercell = false)
   for (size_t i = 0; i < hashvec.size(); i++)
     assert (hashvec[i]);
 
+#if __cplusplus > 201100
   for (Identifier ch_id : em_id.reg_range()) {
+#else
+  BOOST_FOREACH (Identifier ch_id, em_id.reg_range()) {
+#endif
     hashsum -= em_id.region_hash (ch_id);
   }
   assert (hashsum == 0);

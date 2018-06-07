@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-class Norm1(object):
-
+class Norm1:
   def __init__(self):
     from TrigT2CaloEgamma.RingerConstants import Section, Normalisation
 
@@ -27,9 +25,7 @@ class Norm1(object):
     self.NRings = [8, 64, 8, 8, 4, 4, 4]
 
  
-
-class Sequential(object):
-
+class Sequential:
   def __init__(self):
     from TrigT2CaloEgamma.RingerConstants import Section, Normalisation
 

@@ -15,7 +15,7 @@
 
 #include "G4RunManager.hh"
 #include "MCTruth/EventInformation.h"
-#include "AtlasDetDescr/AtlasDetectorID.h"
+
 #include "G4Step.hh"
 
 LArG4CalibSD::LArG4CalibSD(G4String a_name, ILArCalibCalculatorSvc* calc, bool doPID)
@@ -28,7 +28,6 @@ LArG4CalibSD::LArG4CalibSD(G4String a_name, ILArCalibCalculatorSvc* calc, bool d
   , m_larHecID (nullptr)
   , m_larMiniFcalID (nullptr)
   , m_caloDmID (nullptr)
-  , m_id_helper (nullptr)
 {}
 
 LArG4CalibSD::~LArG4CalibSD()
@@ -62,16 +61,10 @@ G4bool LArG4CalibSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
     return false;
   }
 
-  if(m_id_helper) {
-    Identifier id = this->ConvertID( _identifier );
-    if(id.is_valid() && m_id_helper->is_lar_dm(id)) {
-      return SimpleHit( _identifier, _energies, m_deadCalibrationHits );
-    }
-  }
-  return SimpleHit( _identifier, _energies, m_calibrationHits );
+  return SimpleHit( _identifier , _energies );
 }
 
-G4bool LArG4CalibSD::SimpleHit( const LArG4Identifier& a_ident , const std::vector<double>& energies, m_calibrationHits_t& calibrationHits ){
+G4bool LArG4CalibSD::SimpleHit( const LArG4Identifier& a_ident , const std::vector<double>& energies ){
 
   // retreive particle ID
   unsigned int particleID = 0;
@@ -107,7 +100,7 @@ G4bool LArG4CalibSD::SimpleHit( const LArG4Identifier& a_ident , const std::vect
   // the existing hit.
       
   // Look for the key in the hitCollection (this is a binary search).
-  auto bookmark = calibrationHits.lower_bound(hit);
+  auto bookmark = m_calibrationHits.lower_bound(hit);
  
   // The lower_bound method of a map finds the first element
   // whose key is not less than the identifier.  If this element
@@ -120,14 +113,14 @@ G4bool LArG4CalibSD::SimpleHit( const LArG4Identifier& a_ident , const std::vect
   // Equals() is a function defined in LArG4Hit.h; it has the value of
   // "true" when a LArG4Hit* points to the same identifier.
     
-  if (bookmark == calibrationHits.end() ||
+  if (bookmark == m_calibrationHits.end() ||
       !(*bookmark)->Equals(hit)) {
     // We haven't had a hit in this readout cell before.  Add it
     // to our set.
-    if (calibrationHits.empty() ||
-        bookmark == calibrationHits.begin()) {
+    if (m_calibrationHits.empty() ||
+        bookmark == m_calibrationHits.begin()) {
       // Insert the hit before the first entry in the map.
-      calibrationHits.insert(hit);
+      m_calibrationHits.insert(hit);
     } else {
       // We'just done a binary search of hitCollection, so we should use
       // the results of that search to speed up the insertion of a new
@@ -137,7 +130,7 @@ G4bool LArG4CalibSD::SimpleHit( const LArG4Identifier& a_ident , const std::vect
       // bookmark.  We therefore want to decrement the bookmark from
       // the lower_bound search.
             
-      calibrationHits.insert(--bookmark, hit);
+      m_calibrationHits.insert(--bookmark, hit);
     }
   } else {
     // Update the existing hit.
@@ -166,35 +159,24 @@ G4bool LArG4CalibSD::SpecialHit(G4Step* a_step,
   // If we can't calculate the identifier, something is wrong.
   if (!(m_calculator->Process( a_step, _identifier, _vtmp, LArG4::kOnlyID))) return false;
 
-  return SimpleHit( _identifier , a_energies, m_calibrationHits );
+  return SimpleHit( _identifier , a_energies );
 } 
  
 
-void LArG4CalibSD::EndOfAthenaEvent( CaloCalibrationHitContainer * hitContainer, CaloCalibrationHitContainer * deadHitContainer )
+void LArG4CalibSD::EndOfAthenaEvent( CaloCalibrationHitContainer * hitContainer )
 {
-  if(verboseLevel>4) {
-    G4cout << "EndOfAthenaEvent: " << SensitiveDetectorName << " m_deadCalibrationHits.size() = " << m_deadCalibrationHits.size() << G4endl;
-  }
-  if(hitContainer) {
-    // Loop through the hits...
-    for(auto hit : m_calibrationHits) {
-      // Because of the design, we are sure this is going into the right hit container
-      // Can we actually do this with move?
-      hitContainer->push_back(hit);
-    } // End of loop over hits
-  }
-  // Clean up
+  // Loop through the hits...
+  for(auto hit : m_calibrationHits)
+  {
+
+    // Because of the design, we are sure this is going into the right hit container
+    // Can we actually do this with move?
+    hitContainer->push_back(hit);
+
+  } // End of loop over hits
+
+  // Clean up    
   m_calibrationHits.clear();
-  if(deadHitContainer) {
-    // Loop through the hits...
-    for(auto hit : m_deadCalibrationHits) {
-      // Because of the design, we are sure this is going into the right hit container
-      // Can we actually do this with move?
-      deadHitContainer->push_back(hit);
-    } // End of loop over hits
-  }
-  // Clean up
-  m_deadCalibrationHits.clear();
 }
 
 

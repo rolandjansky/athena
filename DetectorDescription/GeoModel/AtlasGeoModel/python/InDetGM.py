@@ -47,10 +47,7 @@ elif ( DetFlags.detdescr.ID_on() ):
             ToolSvc += blmTool
             GeoModelSvc.DetectorTools['PixelDetectorTool'].BLM_Tool = blmTool
 
-        GeoModelSvc.DetectorTools['PixelDetectorTool'].useDynamicAlignFolders = GeometryFlags.useDynamicAlignFolders()
-
     if ( DetFlags.detdescr.SCT_on() ):
-
         if GeometryFlags.isSLHC():
             #SLHC specific code
             if "GMX" == GeometryFlags.StripGeoType():
@@ -73,15 +70,12 @@ elif ( DetFlags.detdescr.ID_on() ):
             from AthenaCommon import CfgGetter
             GeoModelSvc.DetectorTools += [ CfgGetter.getPrivateTool("SCT_DetectorTool", checkType=True) ]
 
-        GeoModelSvc.DetectorTools['SCT_DetectorTool'].useDynamicAlignFolders = GeometryFlags.useDynamicAlignFolders()
-
     if ( DetFlags.detdescr.TRT_on() ):
         from TRT_GeoModel.TRT_GeoModelConf import TRT_DetectorTool
         trtDetectorTool = TRT_DetectorTool()
         if ( DetFlags.simulate.TRT_on() ):
             trtDetectorTool.DoXenonArgonMixture = True
             trtDetectorTool.DoKryptonMixture = True
-        trtDetectorTool.useDynamicAlignFolders = GeometryFlags.useDynamicAlignFolders()
         GeoModelSvc.DetectorTools += [ trtDetectorTool ]
 
     from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatTool
