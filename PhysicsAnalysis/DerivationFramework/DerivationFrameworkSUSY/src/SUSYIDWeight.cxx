@@ -3,8 +3,6 @@
 */
 
 #include "DerivationFrameworkSUSY/SUSYIDWeight.h"
-
-#include "xAODParticleEvent/CompositeParticle.h"
 #include "xAODTruth/TruthEventContainer.h"
 
 //namespace DerivationFramework {
