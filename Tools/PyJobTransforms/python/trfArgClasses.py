@@ -21,7 +21,7 @@ msg = logging.getLogger(__name__)
 
 import PyJobTransforms.trfExceptions as trfExceptions
 
-from PyJobTransforms.trfFileUtils import athFileInterestingKeys, AthenaLiteFileInfo, NTUPEntries, HISTEntries, urlType, ROOTGetSize
+from PyJobTransforms.trfFileUtils import athFileInterestingKeys, AthenaLiteFileInfo, NTUPEntries, HISTEntries, PRWEntries, urlType, ROOTGetSize
 from PyJobTransforms.trfUtils import call, cliToKey
 from PyJobTransforms.trfExitCodes import trfExit as trfExit
 from PyJobTransforms.trfDecorators import timelimited
@@ -1578,14 +1578,26 @@ class argNTUPFile(argFile):
                                    'file_guid': self._generateGUID,
                                    'integrity': self._getIntegrity,
                                    })
-                
-        
+
+        if name and 'NTUP_PILEUP' in name:
+            self._metadataKeys.update({
+                                       'sumOfWeights': self._getNumberOfEvents,
+                                       })
+
     def _getNumberOfEvents(self, files):
         msg.debug('Retrieving event count for NTUP files {0}'.format(files))
         if self._treeNames is None:
-            msg.debug('treeNames is set to None - event count undefined for this NTUP')
             for fname in files:
-                self._fileMetadata[fname]['nentries'] = 'UNDEFINED'
+                # Attempt to treat this as a pileup reweighting file
+                myEntries = PRWEntries(fileName=fname)
+                if myEntries is not None:
+                    self._fileMetadata[fname]['nentries'] = myEntries
+                    if self.name and 'NTUP_PILEUP' in self.name:
+                        myEntries = PRWEntries(fileName=fname, integral=True)
+                        self._fileMetadata[fname]['sumOfWeights'] = myEntries
+                else:
+                    msg.debug('treeNames is set to None - event count undefined for this NTUP')
+                    self._fileMetadata[fname]['nentries'] = 'UNDEFINED'
         else:
             for fname in files:
                 try:
