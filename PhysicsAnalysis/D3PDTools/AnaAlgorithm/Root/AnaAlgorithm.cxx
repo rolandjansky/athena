@@ -21,6 +21,7 @@
 #ifdef ROOTCORE
 #include <AnaAlgorithm/IFilterWorker.h>
 #include <AnaAlgorithm/IHistogramWorker.h>
+#include <AnaAlgorithm/ITreeWorker.h>
 #endif
 
 //
@@ -45,7 +46,9 @@ namespace EL
 #endif
   {
 #ifdef ROOTCORE
-     msg().declarePropertyFor (*this);
+    msg().declarePropertyFor (*this);
+    declareProperty ("RootStreamName", m_treeStreamName = "ANALYSIS",
+                     "Name of the stream to put trees into");
 #endif
 
     ANA_MSG_DEBUG ("AnaAlgorithm: " << name);
@@ -93,6 +96,35 @@ namespace EL
     if (!m_histogramWorker)
       throw std::logic_error ("no histogram worker set on algorithm " + name());
     return m_histogramWorker;
+  }
+
+
+
+  ::StatusCode AnaAlgorithm ::
+  book (const TTree& tree)
+  {
+     ANA_CHECK_SET_TYPE( ::StatusCode );
+     ANA_CHECK( treeWorker()->addTree( tree, m_treeStreamName ) );
+     return ::StatusCode::SUCCESS;
+  }
+
+
+
+  TTree *AnaAlgorithm ::
+  tree (const std::string& name) const
+  {
+     return treeWorker()->getOutputTree( name, m_treeStreamName );
+  }
+
+
+
+  ITreeWorker *AnaAlgorithm ::
+  treeWorker () const
+  {
+     if( ! m_treeWorker ) {
+        throw std::logic_error( "no tree worker set on algorithm " + name() );
+     }
+     return m_treeWorker;
   }
 
 
@@ -213,6 +245,18 @@ namespace EL
     if (m_histogramWorker)
       throw std::logic_error ("set histogram worker twice on algorithm " + name());
     m_histogramWorker = val_histogramWorker;
+  }
+
+
+
+  void AnaAlgorithm ::
+  setTreeWorker (ITreeWorker *val_treeWorker)
+  {
+     if( m_treeWorker ) {
+        throw std::logic_error( "set tree worker twice on algorithm " +
+                                name() );
+     }
+     m_treeWorker = val_treeWorker;
   }
 
 

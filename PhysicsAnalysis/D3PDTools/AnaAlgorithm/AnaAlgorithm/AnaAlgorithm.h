@@ -23,6 +23,7 @@
 #endif
 
 class TH1;
+class TTree;
 class ISvcLocator;
 #ifdef ROOTCORE
 class Property;
@@ -141,6 +142,34 @@ namespace EL
     /// \post result != nullptr
   public:
     IHistogramWorker *histogramWorker () const;
+
+
+    /// \brief book the given tree
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   tree booking error
+  public:
+    ::StatusCode book (const TTree& tree);
+
+
+    /// \brief get the tree with the given name
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   histogram not found
+  public:
+    TTree *tree (const std::string& name) const;
+
+
+    /// \brief the histogram worker interface
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   no histogram worker configured
+    /// \post result != nullptr
+  public:
+    ITreeWorker *treeWorker () const;
 
 
     /// \brief the filter worker interface
@@ -283,6 +312,14 @@ namespace EL
   public:
     void setHistogramWorker (IHistogramWorker *val_histogramWorker);
 
+    /// \brief set the value of \ref treeWorker
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   service already configured
+  public:
+    void setTreeWorker (ITreeWorker *val_treeWorker);
+
     /// \brief set the value of \ref filterWorker
     /// \par Guarantee
     ///   strong
@@ -345,6 +382,15 @@ namespace EL
     /// \brief the value of \ref histogramWorker
   private:
     IHistogramWorker *m_histogramWorker = nullptr;
+#endif
+
+#ifdef ROOTCORE
+    /// \brief the value of \ref treeWorker
+  private:
+    ITreeWorker *m_treeWorker = nullptr;
+    /// \brief the output stream name for tree writing
+  private:
+    std::string m_treeStreamName;
 #endif
 
 #ifdef ROOTCORE
