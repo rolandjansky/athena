@@ -9,7 +9,7 @@
 #include "xAODBPhys/BPhysHypoHelper.h"
 #include "DerivationFrameworkBPhys/CascadeTools.h"
 #include <vector>
-
+#include "EventKernel/PdtPdg.h"
 // Authors: Adam Barton <abarton@SPAMMENOTTtttcern.ch>
 //          Eva Bouhova <bouhova@SPAMMENOTTtttcern.ch>
 

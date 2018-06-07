@@ -10,7 +10,6 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
-#include "EventKernel/PdtPdg.h"
 
 /**
  *  @class V0Tools
