@@ -36,8 +36,8 @@ AlSpaMat::AlSpaMat()
   m_matrix_type = 2;
   m_size = 0;
   m_nele = 0;
-  m_ptr_row = NULL;
-  m_ptr_col = NULL;    // set pointer to null
+  m_ptr_row = nullptr;
+  m_ptr_col = nullptr;    // set pointer to null
 }
 
 //______________________________________________________________________________
@@ -46,8 +46,8 @@ AlSpaMat::AlSpaMat(long int N)
   m_matrix_type = 2;
   m_size = N;
   m_nele = 0;
-  m_ptr_row = NULL;
-  m_ptr_col = NULL;    // set pointer to null
+  m_ptr_row = nullptr;
+  m_ptr_col = nullptr;    // set pointer to null
 }
 
 //______________________________________________________________________________
@@ -56,8 +56,8 @@ AlSpaMat::AlSpaMat(const AlSpaMat& m)
 {
   m_matrix_type = 2;
   m_size = m.size();
-  m_ptr_row = NULL;
-  m_ptr_col = NULL;    // set pointer to null
+  m_ptr_row = nullptr;
+  m_ptr_col = nullptr;    // set pointer to null
   copy(m);
 }
 
@@ -66,8 +66,8 @@ AlSpaMat::AlSpaMat(const AlSymMat& m)
 {
   m_matrix_type = 2;
   m_size = m.size();
-  m_ptr_row = NULL;
-  m_ptr_col = NULL;    // set pointer to null
+  m_ptr_row = nullptr;
+  m_ptr_col = nullptr;    // set pointer to null
   copy(m);
 }
 
@@ -75,8 +75,8 @@ AlSpaMat::AlSpaMat(const AlSymMat& m)
 AlSpaMat::~AlSpaMat()
 {
   m_ptr_map.clear();
-  if( m_ptr_row != NULL )  delete [] m_ptr_row;
-  if( m_ptr_col != NULL )  delete [] m_ptr_col;
+  if( m_ptr_row != nullptr )  delete [] m_ptr_row;
+  if( m_ptr_col != nullptr )  delete [] m_ptr_col;
 }
 
 //______________________________________________________________________________
