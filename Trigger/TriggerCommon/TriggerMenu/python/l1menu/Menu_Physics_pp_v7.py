@@ -84,6 +84,12 @@ def defineMenu():
 #        'L1_J75_3J20' : '',
 #        'L1_J75_XE40' :'',
 #        'L1_MU6_J75': '',
+
+#        MC-only L1 items, remapped to ALFA 
+        'L1_MU21_FTK'                           :'L1_2EM3_ALFA_EINE',
+        'L1_TAU20IM_FTK'                        :'L1_MU4_ALFA_ANY',
+        'L1_TAU20IM_2TAU12IM_J25_2J20_3J12_FTK' :'L1_MU4_ALFA_ANY_UNPAIRED_ISO',
+        'L1_DR-TAU20ITAU12I-J25_FTK'            :'L1_MU4_ALFA_EINE',
         }
     
     #----------------------------------------------
