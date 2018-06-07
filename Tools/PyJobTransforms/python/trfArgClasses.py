@@ -1730,6 +1730,70 @@ class argHepEvtAsciiFile(argFile):
                 msg.error('Event count for file {0} failed: {1!s}'.format(fname, e))
                 self._fileMetadata[fname]['nentries'] = None
                 
+## @brief LHE ASCII file 
+class argLHEFile(argFile):
+    def __init__(self, value=list(), io = 'output', type=None, splitter=',', runarg=True, multipleOK=None, name=None):
+        super(argLHEFile, self).__init__(value=value, io=io, type=type, splitter=splitter, runarg=runarg, multipleOK=multipleOK,
+                                           name=name)
+
+        self._metadataKeys.update({
+                'nentries': self._getNumberOfEvents,
+                'lheSumOfPosWeights': self._getWeightedEvents,
+                'lheSumOfNegWeights': 0,
+                })
+
+    def _getNumberOfEvents(self, files):
+        msg.debug('Retrieving event count for LHE file {0}'.format(files))
+        import tarfile
+        for fname in files:
+            # Attempt to treat this as a pileup reweighting file
+            try :
+                tar = tarfile.open(fname, "r:gz")
+                lhecount = 0
+                for untar in tar.getmembers():
+                    fileTXT = tar.extractfile(untar)
+                    if fileTXT is not None :
+                        lines = fileTXT.read()
+                        lhecount = lines.find('/event')
+
+                self._fileMetadata[fname]['nentries'] = lhecount
+            except :
+                msg.debug('Entries is set to None - event count undefined for this LHE')
+                self._fileMetadata[fname]['nentries'] = 'UNDEFINED'
+
+    def _getWeightedEvents(self, files):
+        msg.debug('Retrieving weight count for LHE file {0}'.format(files))
+        import tarfile
+        import re
+
+        for fname in files:
+            weightPos = 0
+            weightNeg = 0
+            try :
+                tar = tarfile.open(fname, "r:gz")
+                for untar in tar.getmembers():
+                    fileTXT = tar.extractfile(untar)
+                    next = False
+                    if fileTXT is not None :
+                        lines = fileTXT.readlines()
+                        for line in lines :
+                            if next :
+                                try :
+                                    w = float(re.sub(' +',' ',line).split(" ")[2])
+                                    if w > 0 : weightPos += w
+                                    else : weightNeg += abs(w)
+                                except :
+                                    pass
+                                next = False
+                            if "<event" in line :
+                                next = True
+
+                self._fileMetadata[fname]['lheSumOfPosWeights'] = weightPos
+                self._fileMetadata[fname]['lheSumOfNegWeights'] = weightNeg
+            except :
+                msg.debug('Entries is set to None - negative fraction count undefined for this LHE')
+                self._fileMetadata[fname]['lheSumOfPosWeights'] = 'UNDEFINED'
+                self._fileMetadata[fname]['lheSumOfNegWeights'] = 'UNDEFINED'
 
 ## @brief Base class for substep arguments
 #  @details Sets up a dictionary with {substep1: value1, substep2: value2, ...}
