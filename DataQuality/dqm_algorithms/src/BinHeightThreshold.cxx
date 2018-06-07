@@ -19,19 +19,29 @@
 #include <dqm_core/AlgorithmManager.h>
 
 
-static dqm_algorithms::BinHeightThreshold myInstance;
-
-
-dqm_algorithms::BinHeightThreshold::BinHeightThreshold()
+//static dqm_algorithms::BinHeightThreshold myInstance;
+namespace
 {
-  dqm_core::AlgorithmManager::instance().registerAlgorithm("BinHeightThreshold", this);
+  dqm_algorithms::BinHeightThreshold HeightGreaterThan( "GreaterThan" );
+  dqm_algorithms::BinHeightThreshold HeightGreaterThanEqual( "GreaterThanEqual" );
+  dqm_algorithms::BinHeightThreshold HeightLessThan( "LessThan" );
+  dqm_algorithms::BinHeightThreshold HeightLessThanEqual( "LessThanEqual" );
+  dqm_algorithms::BinHeightThreshold HeightRedEqYellowGT( "redEqual_yellowGreaterThan" );
+  dqm_algorithms::BinHeightThreshold HeightRedEqYellowLT( "redEqual_yellowLessThan" );
+  dqm_algorithms::BinHeightThreshold HeightEqual( "Equal" );
+}
+
+dqm_algorithms::BinHeightThreshold::BinHeightThreshold( const std::string & name )
+  : name_( name )
+{
+  precision_=1e-4;
+  dqm_core::AlgorithmManager::instance().registerAlgorithm("BinHeight_"+name+"_Threshold", this);
 }
 
 dqm_algorithms::BinHeightThreshold * 
 dqm_algorithms::BinHeightThreshold::clone()
-{
-  
-  return new BinHeightThreshold();
+{  
+  return new BinHeightThreshold(name_);
 }
 
 
@@ -62,6 +72,7 @@ dqm_algorithms::BinHeightThreshold::execute(	const std::string &  name,
   int window_size; 
   double gthreshold;
   double rthreshold;
+  std::pair<bool,double> grayValue;
   try {
     n_bins = dqm_algorithms::tools::GetFirstFromMap( "NBins", config.getParameters() ,1);
     window_size = dqm_algorithms::tools::GetFirstFromMap( "WindowSize", config.getParameters() ,1); 
@@ -72,6 +83,42 @@ dqm_algorithms::BinHeightThreshold::execute(	const std::string &  name,
   catch ( dqm_core::Exception & ex ) {
     throw dqm_core::BadConfig( ERS_HERE, name, ex.what(), ex );
   }
+  grayValue.first=true;
+  try {
+    grayValue.second = dqm_algorithms::tools::GetFirstFromMap( "UndefinedStatus", config.getParameters() );
+  }
+  catch ( dqm_core::Exception & ex ) {
+    grayValue.first=false;
+    grayValue.second=-1;
+  }
+  try {
+    precision_ = dqm_algorithms::tools::GetFirstFromMap( "EqualityPrecision", config.getParameters(),1e-4);
+  }
+  catch ( dqm_core::Exception & ex ) {
+    precision_=1e-4;
+  }
+
+
+  //check if the provided parameter values make sense
+  if(precision_<0) {
+    ERS_INFO("'EqualityPrecision cannot be negative: it will be re-set to its absolute value.");
+    precision_=fabs(precision_);
+  }
+  if(window_size<=0) {
+      ERS_INFO("You set search window size (WindowSize) <= 0: I will search the whole histogram.");
+    }
+  else {
+    if(n_bins>window_size) {
+      ERS_INFO("You set the minimum number of bins for throwing error/warning (NBins) larger than the window size (WindowSize): in this way the algorithm can never return error/warning. Setting NBins=WindowSize.");
+      n_bins=window_size;
+    }
+  }
+  if(n_bins<=0)  {
+    ERS_INFO("You set the minimum number of bins for throwing error/warning (NBins) <= 0: in this way the algorithm would always return error. Setting NBins=1 (default value).");
+    n_bins=1;
+  }
+  CheckThresholds(name_,gthreshold,rthreshold);
+  grayValue.first=checkUndefinedStatusValue(name_,gthreshold,rthreshold,grayValue);
 
   dqm_core::Result* result = new dqm_core::Result();
   TH1* resulthisto;
@@ -101,7 +148,7 @@ dqm_algorithms::BinHeightThreshold::execute(	const std::string &  name,
   //if the histogram is just empty, or still has too few bins, do nothing (check already done, in principle should not happen)
    if(i_currentLB<=0)
     {
-     ERS_DEBUG(1,"start_from_last parameter >= total number of bins, I just cannot di the check. Do nothing.");
+     ERS_DEBUG(1,"start_from_last parameter >= total number of bins, I just cannot do the check. Do nothing.");
      return result;
     }
 
@@ -109,10 +156,11 @@ dqm_algorithms::BinHeightThreshold::execute(	const std::string &  name,
     int iLB=i_currentLB;
     int countYellow=0;
     int countRed=0;
-    while(iLB>=1 && (i_currentLB-iLB)<window_size)
+    int countGray=0;
+    while(iLB>=1 && (window_size<0 || (i_currentLB-iLB)<window_size))
        {
 	double content=histogram->GetBinContent(iLB);
-	dqm_algorithms::BinHeightThreshold::binStatus LBstatus=CompareBinHeightThreshold(content, gthreshold , rthreshold);
+	dqm_algorithms::BinHeightThreshold::binStatus LBstatus=CompareBinHeightThreshold(name_,content, gthreshold , rthreshold,grayValue);
 	if(LBstatus==dqm_algorithms::BinHeightThreshold::binStatus::aYellowBin) 
 	{
 	  countYellow++;
@@ -120,6 +168,10 @@ dqm_algorithms::BinHeightThreshold::execute(	const std::string &  name,
 	if(LBstatus==dqm_algorithms::BinHeightThreshold::binStatus::aRedBin) 
 	{
 	  countRed++;
+   	}
+	if(LBstatus==dqm_algorithms::BinHeightThreshold::binStatus::anUndefBin) 
+	{
+	  countGray++;
    	}
  	//fill result histogram
 	resulthisto->SetBinContent(iLB,content);
@@ -142,7 +194,11 @@ dqm_algorithms::BinHeightThreshold::execute(	const std::string &  name,
     {
       result->status_ = dqm_core::Result::Yellow;
     } 
-  else 
+  else if(countGray>=n_bins)
+    {
+      result->status_ = dqm_core::Result::Undefined;
+    }
+  else
     {
       result->status_ = dqm_core::Result::Green;
     }
@@ -151,37 +207,181 @@ dqm_algorithms::BinHeightThreshold::execute(	const std::string &  name,
   
 }
 
-dqm_algorithms::BinHeightThreshold::binStatus
-dqm_algorithms::BinHeightThreshold::CompareBinHeightThreshold(double bincontent, double thresholdGr, double thresholdRed) {
-if(thresholdRed!=-1)
-  {
-    if(bincontent>=thresholdRed)
-	return dqm_algorithms::BinHeightThreshold::binStatus::aRedBin;
-    if(bincontent>=thresholdGr)
-	return dqm_algorithms::BinHeightThreshold::binStatus::aYellowBin;  
-    return dqm_algorithms::BinHeightThreshold::binStatus::aGreenBin;
-  }
-else
-  {
-    if(bincontent==thresholdRed)
-       return dqm_algorithms::BinHeightThreshold::binStatus::aRedBin;
-    if(bincontent==thresholdGr)
-        return dqm_algorithms::BinHeightThreshold::binStatus::aGreenBin;
-    if(bincontent>thresholdGr) 
-      return dqm_algorithms::BinHeightThreshold::binStatus::aYellowBin;
-    return dqm_algorithms::BinHeightThreshold::binStatus::anUndefBin;
-  }
+
+void dqm_algorithms::BinHeightThreshold::CheckThresholds(const std::string & type, double thresholdGr, double thresholdRed) {
+  if(type=="GreaterThan" || type=="GreaterThanEqual")
+    {
+      if(thresholdGr>=thresholdRed)
+	ERS_INFO("'BinHeight_" << type << "_Threshold' algorithm expects red > yellow > green. You set the warning threshold (" << thresholdGr << ") >= error threshold (" << thresholdRed << "): it will never return 'yellow/warning'.");
+    }
+  if(type=="LessThan" || type=="LessThanEqual")
+    {
+      if(thresholdGr<=thresholdRed)
+	ERS_INFO("'BinHeight_" << type << "_Threshold' algorithm expects red < yellow < green. You set the warning threshold (" << thresholdGr << ") <= error threshold (" << thresholdRed << "): it will never return 'yellow/warning'. Are you sure this is what you want?");
+    }
+  if(type=="redEqual_yellowGreaterThan")
+    {
+      if(thresholdRed>0 && thresholdRed<thresholdGr)
+	ERS_INFO("You set the error threshold (" << thresholdRed << ") between zero and the warning threshold (" << thresholdGr << ") in 'BinHeight_redEqual_yellowGreaterThan_Threshgold' algorithm. Are you sure this is what you want?");
+    }
+  if(type=="redEqual_yellowLessThan")
+    {
+      if(thresholdRed>thresholdGr)
+	ERS_INFO("You set the error threshold (" << thresholdRed << ") larger than the warning threshold (" << thresholdGr << ") in 'BinHeight_redEqual_yellowLessThan_Threshold' algorithm. Are you sure this is what you want?");
+    }
 }
 
+bool 
+dqm_algorithms::BinHeightThreshold::checkUndefinedStatusValue(const std::string & type,double thresholdGr, double thresholdRed,std::pair<bool,double> valueGray) {
+  if(!valueGray.first)
+    return valueGray.first;
+    
+  if(type=="LessThan" || type=="GreaterThan")
+    return valueGray.first;
+
+  if(equalWithinPrecision(valueGray.second,thresholdRed))
+    {
+      ERS_INFO("You have set 'UndefinedStatus' equal to the error threshold in 'BinHeight_" << type << "_Threshold' algorithm. Error has the precedence here: the bin content WILL NOT be checked against 'UndefinedStatus'");
+      return false;
+    }
+    
+  if(type!="redEqual_yellowLessThan" && type!="redEqual_yellowGreaterThan" && equalWithinPrecision(valueGray.second,thresholdGr))
+    {
+      ERS_INFO("You have set 'UndefinedStatus' equal to the warning threshold in 'BinHeight_" << type << "_Threshold' algorithm. Warning has the precedence here: the bin content WILL NOT be checked against 'UndefinedStatus'");
+      return false;
+    }
+
+  return valueGray.first;
+}
+
+
+
+dqm_algorithms::BinHeightThreshold::binStatus
+dqm_algorithms::BinHeightThreshold::CompareBinHeightThreshold(const std::string & type,double bincontent, double thresholdGr, double thresholdRed,std::pair<bool,double> valueGray) {
+  if(valueGray.first)
+    {
+      if(equalWithinPrecision(bincontent,valueGray.second))
+	{
+	  return dqm_algorithms::BinHeightThreshold::binStatus::anUndefBin;
+	}
+    }
+
+  if(type=="GreaterThan")
+    {
+      if(bincontent>thresholdRed)
+	return dqm_algorithms::BinHeightThreshold::binStatus::aRedBin;
+      if(bincontent>thresholdGr)
+	return dqm_algorithms::BinHeightThreshold::binStatus::aYellowBin;  
+      return dqm_algorithms::BinHeightThreshold::binStatus::aGreenBin;
+    }
+  if(type=="LessThan")
+    {
+      if(bincontent<thresholdRed)
+	return dqm_algorithms::BinHeightThreshold::binStatus::aRedBin;
+      if(bincontent<thresholdGr)
+	return dqm_algorithms::BinHeightThreshold::binStatus::aYellowBin;  
+      return dqm_algorithms::BinHeightThreshold::binStatus::aGreenBin;
+    }
+  if(type=="GreaterThanEqual")
+    {
+      if(bincontent>thresholdRed || equalWithinPrecision(bincontent,thresholdRed))
+	return dqm_algorithms::BinHeightThreshold::binStatus::aRedBin;
+      if(bincontent>thresholdGr || equalWithinPrecision(bincontent,thresholdGr))
+	return dqm_algorithms::BinHeightThreshold::binStatus::aYellowBin;  
+      return dqm_algorithms::BinHeightThreshold::binStatus::aGreenBin;
+    }
+  if(type=="LessThanEqual")
+    {
+      if(bincontent<thresholdRed || equalWithinPrecision(bincontent,thresholdRed))
+	return dqm_algorithms::BinHeightThreshold::binStatus::aRedBin;
+      if(bincontent<thresholdGr || equalWithinPrecision(bincontent,thresholdGr))
+	return dqm_algorithms::BinHeightThreshold::binStatus::aYellowBin;  
+      return dqm_algorithms::BinHeightThreshold::binStatus::aGreenBin;
+    }
+  if(type=="redEqual_yellowGreaterThan")
+    {
+      if(equalWithinPrecision(bincontent,thresholdRed))
+	return dqm_algorithms::BinHeightThreshold::binStatus::aRedBin;
+      if(bincontent>thresholdGr) 
+	return dqm_algorithms::BinHeightThreshold::binStatus::aYellowBin;
+      return dqm_algorithms::BinHeightThreshold::binStatus::aGreenBin;
+    }
+  if(type=="redEqual_yellowLessThan")
+    {
+      if(equalWithinPrecision(bincontent,thresholdRed))
+	return dqm_algorithms::BinHeightThreshold::binStatus::aRedBin;
+      if(bincontent<thresholdGr) 
+	return dqm_algorithms::BinHeightThreshold::binStatus::aYellowBin;
+      return dqm_algorithms::BinHeightThreshold::binStatus::aGreenBin;
+    }
+  if(type=="Equal")
+    {
+      if(equalWithinPrecision(bincontent,thresholdRed))
+	return dqm_algorithms::BinHeightThreshold::binStatus::aRedBin;
+      if(equalWithinPrecision(bincontent,thresholdGr)) 
+	return dqm_algorithms::BinHeightThreshold::binStatus::aYellowBin;
+      return dqm_algorithms::BinHeightThreshold::binStatus::aGreenBin;
+    }
+  return dqm_algorithms::BinHeightThreshold::binStatus::anUndefBin;
+}
+
+
+bool 
+dqm_algorithms::BinHeightThreshold::equalWithinPrecision(double a,double b)
+{
+  if(a>=b-precision_ && a<=b+precision_)
+    return true;
+  return false;
+}
 
 void
 dqm_algorithms::BinHeightThreshold::printDescription(std::ostream& out)
 {
-  out<<"BinHeightThreshold is built to monitor trigger pre-scale (PS) as a function of lumi-block (LB). It only works with TH1 as input. LB is expected to be on x axis, PS is the bin content. It defines 'red' and 'yellow' bins depending on the value of the bin content. The algorithm looks for a set of consecutive bins which:\n \t-include the current LB (i.e. the nonzero bin at largest x).\n \t-are all 'red' or all 'yellow'.\n If the bin set is found and it is longer than Nbins, then the algorithm returns 'Red' for a set of 'red' bins, 'Yellow' for a set of 'yellow' bins.\n"<<std::endl;
-  out<<"Mandatory Parameter: NBins: number of consecutive red(yellow) bins over which the algorithm returns Red(Yellow).\n"<<std::endl;
-  out<<"Optional Parameter: NRedBins: if set, replace NBins in the case of a set of red bins. To be used if different thresholds are desired for red and yellow bin sets.\n"<<std::endl;
-  out<<"Mandatory Parameter: RedThreshold: used in defining 'red'/'yellow'/'green' bins (see the following).\n"<<std::endl; 
-  out<<"Mandatory Parameter: GreenThreshold: used in defining 'red'/'yellow'/'green' bins (see the following).\n"<<std::endl;
-  out<<"'red'/'yellow'/'green' bins are defined depending on the RedThreshold and GreenThreshold parameters.\n If RedThreshold==-1:\n \t BinContent==RedThreshold --> red bin (i.e. trigger disabled)\n \t BinContent==GreenThreshold --> green bin\n \t BinContent>GreenThreshold --> yellow bin (i.e. trigger pre-scaled). \n If RedThreshold>0:\n \t BinContent<GreenThreshold --> green bin\n \t GreenThreshold<=BinContent<RedThreshold --> yellow bin\n \t BinContent>=RedThreshold --> red bin\n"<<std::endl; 
+  TString redCond,yellowCond;
+  if(name_=="redEqual_yellowGreaterThan" || name_=="redEqual_yellowLessThan" || name_=="Equal")
+    {
+      redCond="bin_content==redThreshold";
+      if(name_=="Equal")
+	yellowCond="bin_content==yellowThreshold && bin_content!=redThreshold";
+      else if(name_=="redEqual_yellowGreaterThan")
+	yellowCond="bin_content>yellowThreshold && bin_content!=redThreshold";
+      else
+	yellowCond="bin_content<yellowThreshold && bin_content!=redThreshold";
+    }
+  else
+    {
+      if(name_=="GreaterThan")
+	{
+	  redCond="bin_content>redThreshold";
+	  yellowCond="redThreshold>=bin_content>yellowThreshold";
+	}
+      else if(name_=="LessThan")
+	{
+	  redCond="bin_content<redThreshold";
+	  yellowCond="redThreshold<=bin_content<yellowThreshold";
+	}
+      else if(name_=="GreaterThanEqual")
+	{
+	  redCond="bin_content>=redThreshold";
+	  yellowCond="redThreshold>bin_content>=yellowThreshold";
+	}
+      else //LessThenEqual is the only remaining
+	{
+	  redCond="bin_content<=redThreshold";
+	  yellowCond="redThreshold<bin_content<=yellowThreshold";
+	}
+    }
+  out << "BinHeight_" << name_ << "_Threshold checks the bin height of a TH1. Ideally, a quantity as a function of LB. LB is expected to be on x axis, the quantity of interest is the bin content." << std::endl;
+  out << "BinHeight_" << name_ << "_Threshold defines 'red' and 'yellow' bins depending on the value of the bin content:\n \t-if " << redCond << ": the bin is 'red'.\n \t-if " << yellowCond << ": the bin is 'yellow'.\n \t-if (OPTIONAL) an 'UndefinedStatus' value is set and bin_content==UndefinedStatus: the bin is 'grey'.\n \t-otherwise the bin in 'green'" << std::endl;
+  out << "The algorithm checks all the bins in a window of size 'WindowSize', starting from:\n \t a) the last bun X bin.\n \t b) the last non-zero bin.\n Oprion a) or b) is chosen by the parameter 'StartFromLast': if('StartFromLast'>=0), (a) holds and X is equal to 'StartFromLast', while (b) holds if 'StartFromLast'<0." << std::endl;
+  out << "In the window of interest, the number of red/yellow/grey bins is counted, respectively Nred/Nyellow/Ngrey. The output is then defined comparing these numbers against the parameter 'NBins':\n \t- if Nred>=NBins: returns 'RED'.\n \t- else, if (Nred+Nyellow)>=NBins: returns 'YELLOW'.\n \t- else, if Ngrey>=NBins: returns 'GREY'.\n \t- else returns 'GREEN'." << std::endl;
+  out << "NOTE: to avoid issues due to rounding in double precision, the equality between the bin content and any parameter is defined with a reduced (tunable) precision. I.e. content==Y is implemented as (content>=Y-delta && content<=Y+delta). delta is equal to the parameter 'EqualityPrecision' which is tunable and set to 10^-4 by default\n"<<std::endl;
+
+  out<<"Mandatory Parameter: HeightThreshold: sets the warning (yellowThreshold) and error (redThreshold) thresholds."<<std::endl; 
+  out<<"Optional Parameter: NBins: minimum number of red/(yellow+red)/grey bins in the window of interest for the algorithm to return Red/Yellow/Grey. Default is 1."<<std::endl;
+  out<<"Optional Parameter: WindowSize: size of the x-axis range (in number of bins) in which red/yellow/grey bins are searched for. If WindowSize<=0, the whole istogram is searched for. Default is 1."<<std::endl;
+  out<<"Optional Parameter: StartFromLast: is StartFromLast=X with X>=0, the algorithm will check the bins starting from the last but X bin. If StartFromLast<0, it will start from the first bin of nonzero content. Default is -1."<<std::endl;
+  out<<"Optional Parameter: UndefinedStatus: a bin is defined to be 'grey' if its content is equal to UndefinedStatus. If not set, bins are not check against it."<<std::endl;
+  out<<"Optional Parameter: EqualityPrecision: sets the precision with which the bin content is defined to be 'equal' to a parameter, as described above. Default is 10^-4."<<std::endl;
 }
 
