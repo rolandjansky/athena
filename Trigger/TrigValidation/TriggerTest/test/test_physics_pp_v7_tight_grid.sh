@@ -18,7 +18,6 @@
 # art-output: *.root
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
-# art-output: TotalEventsProcessed.txt
 
 export MENU="Physics_pp_v7_tight_physics_prescale"
 export EVENTS="500"

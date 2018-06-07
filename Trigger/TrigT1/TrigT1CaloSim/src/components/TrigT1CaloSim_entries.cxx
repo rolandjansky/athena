@@ -14,7 +14,6 @@
 #include "TrigT1CaloSim/CPCMX.h"
 #include "TrigT1CaloSim/JetCMX.h"
 #include "TrigT1CaloSim/EnergyCMX.h"
-#include "TrigT1CaloSim/OverlayRun2TriggerTowerMaker.h"
 #include "TrigT1CaloSim/TransientDatabaseOverride.h"
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
@@ -38,7 +37,6 @@ DECLARE_ALGORITHM_FACTORY(CPCMX)
 DECLARE_ALGORITHM_FACTORY(JetCMX)
 DECLARE_ALGORITHM_FACTORY(EnergyCMX)
 DECLARE_ALGORITHM_FACTORY(TransientDatabaseOverride)
-DECLARE_ALGORITHM_FACTORY(OverlayRun2TriggerTowerMaker)
 
 DECLARE_FACTORY_ENTRIES(TrigT1CaloSim) {
     DECLARE_ALGORITHM(TriggerTowerMaker)
@@ -57,7 +55,6 @@ DECLARE_FACTORY_ENTRIES(TrigT1CaloSim) {
     DECLARE_ALGORITHM(CPCMX)
     DECLARE_ALGORITHM(JetCMX)
     DECLARE_ALGORITHM(EnergyCMX)
-    DECLARE_ALGORITHM(OverlayRun2TriggerTowerMaker)
     DECLARE_ALGORITHM(TransientDatabaseOverride)
 }
 

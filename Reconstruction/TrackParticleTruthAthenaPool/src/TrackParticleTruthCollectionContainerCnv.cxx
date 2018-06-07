@@ -4,9 +4,7 @@
 
 #include "TrackParticleTruthCollectionContainerCnv.h"
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionContainerCnv_tlp1.h"
-#include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionContainerCnv_tlp2.h"
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p1.h"
-#include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p2.h"
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
@@ -15,14 +13,12 @@
 
 TrackParticleTruthCollectionContainerCnv::TrackParticleTruthCollectionContainerCnv(ISvcLocator* svcLoc) : 
   TrackParticleTruthCollectionContainerCnvBase(svcLoc),
-  m_converter_p1(new TrackParticleTruthCollectionContainerCnv_tlp1),
-  m_converter_p2(new TrackParticleTruthCollectionContainerCnv_tlp2)
+  m_converter_p1(new TrackParticleTruthCollectionContainerCnv_tlp1)
 {;}
 
 
 TrackParticleTruthCollectionContainerCnv::~TrackParticleTruthCollectionContainerCnv(){
   delete m_converter_p1;
-  delete m_converter_p2;
 }
 
 TrackParticleTruthCollectionContainerPERS* TrackParticleTruthCollectionContainerCnv::createPersistent(TrackParticleTruthCollectionContainer* trans) {
@@ -37,16 +33,11 @@ TrackParticleTruthCollectionContainerPERS* TrackParticleTruthCollectionContainer
 TrackParticleTruthCollectionContainer* TrackParticleTruthCollectionContainerCnv::createTransient() {
 
   pool::Guid p1_guid("9F47124C-0033-4556-B14A-D7F28E4249EC");
-  pool::Guid p2_guid("9F47124C-0033-4556-B14A-D7F28E4249ED");
 
 
   MsgStream log(messageService(), "TrackParticleTruthCollectionContainerCnv" );
   TrackParticleTruthCollectionContainer *p_collection = 0;
-  if( compareClassGuid( p2_guid ) ){
-      poolReadObject< TrackParticleTruthCollectionContainerPERS >(*m_converter_p2);
-      p_collection = m_converter_p2->createTransient( log );
-  }
-  else if( compareClassGuid( p1_guid ) ){
+  if( compareClassGuid( p1_guid ) ){
       poolReadObject< TrackParticleTruthCollectionContainerPERS >(*m_converter_p1);
       p_collection = m_converter_p1->createTransient( log );
   }

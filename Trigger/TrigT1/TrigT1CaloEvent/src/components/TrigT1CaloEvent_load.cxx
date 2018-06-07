@@ -1,1 +1,0 @@
-// Trigger/TrigT1/TrigT1CaloEvent/src/components/TrigT1CaloEvent_load.cxx

@@ -223,8 +223,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     pixTools = []
     pixTools += ['PixelDiodeCrossTalkGenerator']
     pixTools += ['PixelChargeSmearer']
-    if digitizationFlags.doInDetNoise.get_Value():
-        pixTools += ['PixelNoisyCellGenerator']
+    pixTools += ['PixelNoisyCellGenerator']
     pixTools += ['PixelGangedMerger']
     pixTools += ['SpecialPixelGenerator']
     pixTools += ['PixelRandomDisabledCellGenerator']

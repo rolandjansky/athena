@@ -17,7 +17,6 @@
 
 #include <cstdio>
 #include <cstring>
-#include <signal.h>
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 

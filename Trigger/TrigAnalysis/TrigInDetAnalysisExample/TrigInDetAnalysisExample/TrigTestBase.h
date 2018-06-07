@@ -164,9 +164,6 @@ protected:
   /// additional string for the histogram directory
   std::string  m_sliceTag;
 
-  /// do we want basic, or rigorous roi track containment
-  bool         m_containTracks;
-
 };
 
 

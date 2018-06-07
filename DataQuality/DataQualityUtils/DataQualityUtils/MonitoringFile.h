@@ -41,7 +41,6 @@ class TKey;
 class TTree;
 class TString;
 class RooPlot;
-class TEfficiency;
 
 
 namespace dqutils {
@@ -392,10 +391,8 @@ namespace dqutils {
       virtual ~HistogramOperation() { }
       virtual bool execute(TH1* hist) = 0;
       virtual bool execute(TGraph* graph) = 0;
-      virtual bool execute(TEfficiency* efficiency) = 0;
       virtual bool executeMD(TH1* hist, const MetaData&) { return execute(hist); }
       virtual bool executeMD(TGraph* graph, const MetaData&) { return execute(graph); }
-      virtual bool executeMD(TEfficiency* efficiency, const MetaData&) {return execute(efficiency); }
     };
 
     class CopyHistogram : public HistogramOperation {
@@ -404,11 +401,8 @@ namespace dqutils {
       virtual ~CopyHistogram();
       virtual bool execute(TH1* hist);
       virtual bool execute(TGraph* graph);
-      virtual bool execute(TEfficiency* eff);
       virtual bool executeMD(TH1* hist, const MetaData& md);
       virtual bool executeMD(TGraph* graph, const MetaData& md);
-      virtual bool executeMD(TEfficiency* eff, const MetaData& md);
-
     protected:
       void copyString(char* to, const std::string& from);
       TDirectory*  m_target;
@@ -426,7 +420,6 @@ namespace dqutils {
       GatherStatistics(std::string dirName);
       virtual bool execute(TH1* hist);
       virtual bool execute(TGraph* graph);
-      virtual bool execute(TEfficiency* eff);
 
       std::string  m_dirName;
       int m_nHist1D;
@@ -435,8 +428,6 @@ namespace dqutils {
       int m_nGraphPoints;
       int m_nHist2D;
       int m_nHist2DBins;
-      int m_nEfficiency;
-      int m_nEfficiencyBins;
     };
 
     class GatherNames : public HistogramOperation {
@@ -444,7 +435,6 @@ namespace dqutils {
       GatherNames();
       virtual bool execute(TH1* hist);
       virtual bool execute(TGraph* graph);
-      virtual bool execute( TEfficiency* eff );
 
       std::vector<std::string> m_names;
     };

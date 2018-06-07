@@ -16,20 +16,6 @@
 #include <cassert>
 #include <iostream>
 
-#include "GeneratorObjectsTPCnv/initMcEventCollection.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenEvent.h"
-
-
-void compare (const HepMcParticleLink& p1,
-              const HepMcParticleLink& p2)
-{
-  assert ( p1.isValid() == p2.isValid() );
-  assert ( p1.barcode() == p2.barcode() );
-  assert ( p1.eventIndex() == p2.eventIndex() );
-  assert ( p1.cptr() == p2.cptr() );
-  assert ( p1 == p2 );
-}
 
 void compare (const SiHit& p1,
               const SiHit& p2)
@@ -38,7 +24,6 @@ void compare (const SiHit& p1,
   assert (p1.localEndPosition() == p2.localEndPosition());
   assert (p1.energyLoss() == p2.energyLoss());
   assert (p1.meanTime() == p2.meanTime());
-  compare(p1.particleLink(), p2.particleLink());
   assert (p1.particleLink() == p2.particleLink());
   assert (p1.identify() == p2.identify());
 }
@@ -57,31 +42,23 @@ void testit (const SiHit& trans1)
 }
 
 
-void test1(std::vector<HepMC::GenParticle*>& genPartVector)
+void test1()
 {
   std::cout << "test1\n";
-  const HepMC::GenParticle* pGenParticle = genPartVector.at(0);
-  HepMcParticleLink trkLink(pGenParticle->barcode(),0);
+
   SiHit trans1 (HepGeom::Point3D<double> (10.5, 11.5, 12.5),
                 HepGeom::Point3D<double> (13.5, 14.5, 15.5),
                 16.5,
                 17.5,
-                trkLink,
+                18,
                 19);
-
+    
   testit (trans1);
 }
 
 
 int main()
 {
-  ISvcLocator* pSvcLoc = nullptr;
-  std::vector<HepMC::GenParticle*> genPartVector;
-  if (!Athena_test::initMcEventCollection(pSvcLoc, genPartVector)) {
-    std::cerr << "This test can not be run" << std::endl;
-    return 0;
-  }
-
-  test1(genPartVector);
+  test1();
   return 0;
 }

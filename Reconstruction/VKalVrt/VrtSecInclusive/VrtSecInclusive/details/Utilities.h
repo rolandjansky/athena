@@ -111,19 +111,20 @@ namespace VKalVrtAthena {
     const LeptonContainer *leptonContainer( nullptr );
     ATH_CHECK( evtStore()->retrieve( leptonContainer, containerName ) );
     
-    if( !m_decor_d0_wrtSVs    ) m_decor_d0_wrtSVs    = std::make_unique<IPDecoratorType>( "d0_wrtSVs"    + m_jp.augVerString );
-    if( !m_decor_z0_wrtSVs    ) m_decor_z0_wrtSVs    = std::make_unique<IPDecoratorType>( "z0_wrtSVs"    + m_jp.augVerString );
-    if( !m_decor_pt_wrtSVs    ) m_decor_pt_wrtSVs    = std::make_unique<IPDecoratorType>( "pt_wrtSVs"    + m_jp.augVerString );
-    if( !m_decor_eta_wrtSVs   ) m_decor_eta_wrtSVs   = std::make_unique<IPDecoratorType>( "eta_wrtSVs"   + m_jp.augVerString );
-    if( !m_decor_phi_wrtSVs   ) m_decor_phi_wrtSVs   = std::make_unique<IPDecoratorType>( "phi_wrtSVs"   + m_jp.augVerString );
-    if( !m_decor_d0err_wrtSVs ) m_decor_d0err_wrtSVs = std::make_unique<IPDecoratorType>( "d0err_wrtSVs" + m_jp.augVerString );
-    if( !m_decor_z0err_wrtSVs ) m_decor_z0err_wrtSVs = std::make_unique<IPDecoratorType>( "z0err_wrtSVs" + m_jp.augVerString );
+    using IPDecoratorType = SG::AuxElement::Decorator< std::vector< std::vector<float> > >;
+    static IPDecoratorType decor_d0wrtSV    ( "d0_wrtSVs" );
+    static IPDecoratorType decor_z0wrtSV    ( "z0_wrtSVs" );
+    static IPDecoratorType decor_ptwrtSV    ( "pt_wrtSVs" );
+    static IPDecoratorType decor_etawrtSV   ( "eta_wrtSVs" );
+    static IPDecoratorType decor_phiwrtSV   ( "phi_wrtSVs" );
+    static IPDecoratorType decor_d0errWrtSV ( "d0err_wrtSVs" );
+    static IPDecoratorType decor_z0errWrtSV ( "z0err_wrtSVs" );
     
     // Grouping decorators
-    std::vector< IPDecoratorType* > decor_ipWrtSVs { m_decor_d0_wrtSVs.get(), m_decor_z0_wrtSVs.get(), m_decor_pt_wrtSVs.get(), m_decor_eta_wrtSVs.get(), m_decor_phi_wrtSVs.get(), m_decor_d0err_wrtSVs.get(), m_decor_z0err_wrtSVs.get() };
+    std::vector< IPDecoratorType > decor_ipWrtSVs { decor_d0wrtSV, decor_z0wrtSV, decor_ptwrtSV, decor_etawrtSV, decor_phiwrtSV, decor_d0errWrtSV, decor_z0errWrtSV };
     enum { k_ip_d0, k_ip_z0, k_ip_pt, k_ip_eta, k_ip_phi, k_ip_d0err, k_ip_z0err };
     
-    if( !m_decor_svLink ) m_decor_svLink = std::make_unique< VertexELType >( "svLinks" + m_jp.augVerString );
+    static SG::AuxElement::Decorator< std::vector<ElementLink< xAOD::VertexContainer > > > decor_svLink("svLinks");
     
     // Loop over leptons
     for( const auto& lepton : *leptonContainer ) {
@@ -185,7 +186,7 @@ namespace VKalVrtAthena {
         
         // The linking to the vertices need to be done only once
         if( !linkFlag ) {
-          ( *m_decor_svLink )( *lepton ) = links;
+          decor_svLink ( *lepton ) = links;
           linkFlag = true;
         }
         
@@ -194,7 +195,7 @@ namespace VKalVrtAthena {
       } // end of track type loop
       
       // decoration
-      for( size_t ipar = 0; ipar < decor_ipWrtSVs.size(); ipar++ ) ( *( decor_ipWrtSVs.at( ipar ) ) )( *lepton ) = ip_wrtSVs.at( ipar );
+      for( size_t ipar = 0; ipar < decor_ipWrtSVs.size(); ipar++ ) decor_ipWrtSVs.at( ipar )( *lepton ) = ip_wrtSVs.at( ipar );
       
     } // end of lepton container loop
     

@@ -58,23 +58,18 @@ bitNames_allHLT= [
              ]
 
 
-met_alt_algorithms_shifter = [
+met_alt_algorithms = [
         "mht_lcw",
+        "mht_em",
         "tc_lcw",
         "cell",
-        "pufit"
-]
-
-met_alt_algorithms_expert = [
-        "mht_em",
-        "pueta",
+        #"pueta",
+        "pufit",
         "trkmht_FS",
-        "trkmht_FTK"
-]
-
-# algorithms in Run1
+        "trkmht_FTK",
         #"feb",
         #"fex",
+]
 
 
 def HLTMETMonitoringTool():
@@ -88,14 +83,12 @@ def HLTMETMonitoringTool():
                                   comp_names   = compNames_all,
                                   bit_names    = bitNames_allHLT,
 				  monitoring_met_shifter         = hltmonList.monitoring_met_shifter,
-				  monitoring_met_expert          = hltmonList.monitoring_met_expert,
-                                  monitoring_alg         = met_alt_algorithms_shifter,
-                                  monitoring_alg_shifter = met_alt_algorithms_shifter,
-                                  monitoring_alg_expert  = met_alt_algorithms_expert,
+				  monitoring_met_expert          = [],
+                                  monitoring_alg         = met_alt_algorithms,
 				  muon_base              = "HLT_mu26",
                                   muon_pt_thresh         = 18,
                                   electron_pt_thresh     = 20,
-                                  primary_met            = ["pufit"],
+                                  primary_met            = [],
                                   prescaled_met          = [],
                                   );
 	from AthenaCommon.AppMgr import ToolSvc

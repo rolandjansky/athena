@@ -2,18 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <AFP_Monitoring/AFPTechnicalMonitorTool.h>
-
-#include <xAODEventInfo/EventInfo.h>
-#include <AFP_RawEv/AFP_SiRawData.h>
-#include <AFP_RawEv/AFP_RawContainer.h>
-
 #include <GaudiKernel/IJobOptionsSvc.h>
 #include <GaudiKernel/MsgStream.h>
 #include <GaudiKernel/StatusCode.h>
 #include <AthenaMonitoring/AthenaMonManager.h>
 #include <LWHists/TH1F_LW.h>
 
+#include <xAODEventInfo/EventInfo.h>
+#include <AFP_RawEv/AFP_SiRawData.h>
+#include <AFP_RawEv/AFP_RawContainer.h>
+
+#include <AFP_Monitoring/AFPTechnicalMonitorTool.h>
 
 const int AFPTechnicalMonitorTool::s_cNearStationIndex = 2;
 const int AFPTechnicalMonitorTool::s_cFarStationIndex = 3;
@@ -32,7 +31,8 @@ AFPTechnicalMonitorTool( const std::string & type, const std::string & name,
 }
 
 
-AFPTechnicalMonitorTool::~AFPTechnicalMonitorTool()
+AFPTechnicalMonitorTool::
+~AFPTechnicalMonitorTool()
 {
 }
 

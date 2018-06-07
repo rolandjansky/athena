@@ -23,15 +23,6 @@
 #include "larfcal_id_test_common.cxx"
 
 
-class LArFCAL_SuperCell_ID_Test
-  : public LArFCAL_SuperCell_ID, public ILArFCAL_ID_Test
-{
-public:
-  virtual int get_lar_field_value() const override { return lar_field_value(); }
-  virtual int get_lar_fcal_field_value() const override { return lar_fcal_field_value(); }
-};
-
-
 void test_basic (const LArFCAL_SuperCell_ID& idhelper)
 {
   std::cout << "test_basic\n";
@@ -48,7 +39,7 @@ void test_basic (const LArFCAL_SuperCell_ID& idhelper)
 
 int main()
 {
-  std::unique_ptr<LArFCAL_SuperCell_ID> idhelper = make_helper<LArFCAL_SuperCell_ID_Test>();
+  std::unique_ptr<LArFCAL_SuperCell_ID> idhelper = make_helper<LArFCAL_SuperCell_ID>();
   try {
     test_basic (*idhelper);
     test_connected (*idhelper, true);

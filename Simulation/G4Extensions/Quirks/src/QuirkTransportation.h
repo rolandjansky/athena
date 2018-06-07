@@ -146,68 +146,68 @@ class QuirkTransportation : public G4VProcess
 
   private:
 
-     G4Navigator*         m_linearNavigator;
-     G4PropagatorInField* m_fieldPropagator;
+     G4Navigator*         fLinearNavigator;
+     G4PropagatorInField* fFieldPropagator;
        // The Propagators used to transport the particle
 
      // G4FieldManager*      fGlobalFieldMgr;     // Used MagneticField CC
        // Field Manager for the whole Detector
 
-     G4ThreeVector        m_transportEndPosition;
-     G4ThreeVector        m_transportEndMomentumDir;
-     G4double             m_transportEndKineticEnergy;
-     G4ThreeVector        m_transportEndSpin;
-     G4bool               m_momentumChanged;
-     G4bool               m_energyChanged;
-     G4double             m_candidateEndGlobalTime;
+     G4ThreeVector        fTransportEndPosition;
+     G4ThreeVector        fTransportEndMomentumDir;
+     G4double             fTransportEndKineticEnergy;
+     G4ThreeVector        fTransportEndSpin;
+     G4bool               fMomentumChanged;
+     G4bool               fEnergyChanged;
+     G4double             fCandidateEndGlobalTime;
        // The particle's state after this Step, Store for DoIt
 
-     G4bool               m_particleIsLooping;
+     G4bool               fParticleIsLooping;
 
-     G4TouchableHandle    m_currentTouchableHandle;
+     G4TouchableHandle    fCurrentTouchableHandle;
      
      // G4bool         fFieldExists;
        // Whether a magnetic field exists ...
        // A data member for this is problematic: it is useful only if it
        // can be initialised and updated -- and a scheme is not yet possible.
 
-     G4bool m_geometryLimitedStep;
+     G4bool fGeometryLimitedStep;
        // Flag to determine whether a boundary was reached.
 
-     G4ThreeVector  m_previousSftOrigin;
-     G4double       m_previousSafety; 
+     G4ThreeVector  fPreviousSftOrigin;
+     G4double       fPreviousSafety; 
        // Remember last safety origin & value.
 
-     G4ParticleChangeForTransport m_particleChange;
+     G4ParticleChangeForTransport fParticleChange;
        // New ParticleChange
 
-     G4double m_endpointDistance;
+     G4double endpointDistance;
 
   // Thresholds for looping particles: 
   // 
-     G4double m_threshold_Warning_Energy;     //  Warn above this energy
-     G4double m_threshold_Important_Energy;   //  Hesitate above this
-     G4int    m_thresholdTrials;              //    for this no of trials
+     G4double fThreshold_Warning_Energy;     //  Warn above this energy
+     G4double fThreshold_Important_Energy;   //  Hesitate above this
+     G4int    fThresholdTrials;              //    for this no of trials
        // Above 'important' energy a 'looping' particle in field will 
        //   *NOT* be abandoned, except after fThresholdTrials attempts.
-     G4double m_unimportant_Energy;
+     G4double fUnimportant_Energy;
        //  Below this energy, no verbosity for looping particles is issued
 
   // Counter for steps in which particle reports 'looping',
   //   if it is above 'Important' Energy 
-     G4int    m_noLooperTrials; 
+     G4int    fNoLooperTrials; 
   // Statistics for tracks abandoned
-     G4double m_sumEnergyKilled;
-     G4double m_maxEnergyKilled;
+     G4double fSumEnergyKilled;
+     G4double fMaxEnergyKilled;
 
   // Whether to avoid calling G4Navigator for short step ( < safety)
   //   If using it, the safety estimate for endpoint will likely be smaller.
-     G4bool   m_shortStepOptimisation; 
+     G4bool   fShortStepOptimisation; 
 
-     G4SafetyHelper* m_safetyHelper;  // To pass it the safety value obtained
+     G4SafetyHelper* fpSafetyHelper;  // To pass it the safety value obtained
 
   // Verbosity 
-     G4int    m_verboseLevel;
+     G4int    fVerboseLevel;
        // Verbosity level for warnings
        // eg about energy non-conservation in magnetic field.
 };

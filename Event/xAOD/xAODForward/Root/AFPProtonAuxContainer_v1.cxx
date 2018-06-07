@@ -25,7 +25,7 @@ namespace xAOD {
     AUX_VARIABLE(side);
     AUX_VARIABLE(chi2);
     AUX_VARIABLE(methodID);
-    AUX_VARIABLE(afpTrackLinks);
+    AUX_VARIABLE(tracks);
   }
 
 } // namespace xAOD

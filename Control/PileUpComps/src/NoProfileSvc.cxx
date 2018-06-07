@@ -5,7 +5,7 @@
 #include "NoProfileSvc.h"
 
 NoProfileSvc::NoProfileSvc(const std::string& name,ISvcLocator* svc)
-  : base_class(name,svc)
+  : AthService(name,svc)
 {
 }
 
@@ -23,4 +23,16 @@ float NoProfileSvc::scaleFactor(unsigned int, unsigned int, bool & updated)
 {
   updated = false;
   return 1.0;
+}
+
+StatusCode NoProfileSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
+{
+  if ( IBeamLuminosity::interfaceID().versionMatch(riid) )
+    {
+      *ppvInterface = (IBeamLuminosity*)this;
+      addRef();
+      return StatusCode::SUCCESS;
+    }
+  // Interface is not directly available: try out the base class
+  return AthService::queryInterface(riid, ppvInterface);
 }

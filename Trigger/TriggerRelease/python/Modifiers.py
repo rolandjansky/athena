@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################
 # Modifiers.py
@@ -1142,9 +1142,9 @@ class L1TopoCheck(_modifier):
     def postSetup(self):
         from AthenaCommon.Include import include, IncludeError
         try:
-            include("TrigOnlineMonitor/TrigL1TopoWriteValData.py")
+            include("TrigOnlineMonitor/TrigL1TopoROBMonitor.py")
         except IncludeError:
-            print '  No L1Topo WriteValData available.'        
+            print '  No L1Topo ROB monitoring available.'        
 
 class muCTPicheck(_modifier):
     """

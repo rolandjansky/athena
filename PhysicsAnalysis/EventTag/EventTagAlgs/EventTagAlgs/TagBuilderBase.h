@@ -37,10 +37,10 @@ private:
   void incMaxNumOfBuilder();
   
   // maximum number of builder
-  static int s_maxNumOfBuilder;
+  static int maxNumOfBuilder;
 
   // number of builder to be executed
-  static int s_numOfBuilder;
+  static int numOfBuilder;
 
   // Supported Types
   std::set<std::string> m_supportedTypes;
@@ -56,9 +56,6 @@ protected:
 
   // decrement the number of builder
   void decNumOfBuilder();
-
-  //return last "length" characters of a std::string
-  std::string tail(const std::string& source, const unsigned int length) const;
 
   // test if this is the last builder 
   bool lastBuilder();

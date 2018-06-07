@@ -109,8 +109,6 @@ public:
     double				derivative2 (int param) const;
     void				derivative2 (int param, double value) const;
     void				derivative2 (double* pointer);
-    int 				derivativeRow (void) const;
-    void				derivativeRow (int row);
     double				d0 (void) const;
     double				energyLoss (void) const;
     double				energyLossSigma (void) const;
@@ -207,7 +205,6 @@ private:
     double				m_betaSquared;
     double*				m_derivative;
     double*				m_derivative2;
-    int 				m_derivativeRow;
     double				m_d0;
     double				m_energyLoss;
     unsigned				m_firstParameter;
@@ -315,14 +312,6 @@ FitMeasurement::derivative2 (int param, double value) const
 inline void
 FitMeasurement::derivative2 (double* pointer)
 { m_derivative2 = pointer; }
-
-inline int
-FitMeasurement::derivativeRow (void) const
-{ return m_derivativeRow; }
-
-inline void
-FitMeasurement::derivativeRow (int row)
-{ m_derivativeRow = row; }
 
 inline double
 FitMeasurement::d0 (void) const

@@ -7,13 +7,13 @@
 // ###                         Gravitino                             ###
 // ######################################################################
 
-GMSBGravitino* GMSBGravitino::s_theInstance = NULL;
+GMSBGravitino* GMSBGravitino::theInstance = NULL;
 
 
 GMSBGravitino* GMSBGravitino::Definition(G4double mass, G4double width, G4double charge, G4double PDG, G4bool stable, G4double lifetime, G4bool shortlived)
 {
 
-  if (s_theInstance !=0 && (mass>=0. || width>=0. || lifetime>=0.) )
+  if (theInstance !=0 && (mass>=0. || width>=0. || lifetime>=0.) )
     {
       G4ExceptionDescription description;
       description << "Trying to redefine the GMSB Gravitino properties after it has been constructed is not allowed";
@@ -21,9 +21,9 @@ GMSBGravitino* GMSBGravitino::Definition(G4double mass, G4double width, G4double
       abort();
     }
 
-  if (s_theInstance != 0)
+  if (theInstance != 0)
     {
-      return s_theInstance;
+      return theInstance;
     }
 
   //    Arguments for constructor are as follows
@@ -43,8 +43,8 @@ GMSBGravitino* GMSBGravitino::Definition(G4double mass, G4double width, G4double
                                                                      stable,               lifetime,           NULL,
                                                                      shortlived,              "Gravitino");
 
-      s_theInstance = reinterpret_cast<GMSBGravitino*>(anInstance);
-      return s_theInstance;
+      theInstance = reinterpret_cast<GMSBGravitino*>(anInstance);
+      return theInstance;
     }
   else
     {

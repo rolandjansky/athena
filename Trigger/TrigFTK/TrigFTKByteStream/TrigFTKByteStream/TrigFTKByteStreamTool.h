@@ -28,7 +28,6 @@
 /* the RDO structure */
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
 
-#include "TrigFTKByteStream/IFTKByteStreamDecoderEncoderTool.h"
 
 #include "eformat/SourceIdentifier.h"
 
@@ -37,7 +36,7 @@ class IROBDataProviderSvc;
 
 namespace FTK {
 
-  //  class IFTKByteStreamDecoderEncoderTool;
+  class FTKByteStreamDecoderEncoderTool;
   /**
      @class TrigFTKByteStreamTool
      @brief An AlgTool class to provide conversion from TrigFTK to ByteStream, and fill it in RawEvent
@@ -69,11 +68,7 @@ namespace FTK {
 			const std::string& objName);
   private:
     FullEventAssembler<> m_fea;
-    ToolHandle <IFTKByteStreamDecoderEncoderTool> m_decoder;
-    ToolHandle <IFTKByteStreamDecoderEncoderTool> m_decoderAux;
-    uint16_t m_AuxFormat;
-    bool m_decodeAux;
-    std::vector<uint32_t> m_robID;
+    ToolHandle <FTK::FTKByteStreamDecoderEncoderTool> m_decoder;
 
   };
 }

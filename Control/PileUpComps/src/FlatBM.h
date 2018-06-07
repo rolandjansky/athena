@@ -15,12 +15,16 @@
 #include "PileUpTools/IBeamIntensity.h"
 #include "AthenaBaseComps/AthService.h"
 
-class FlatBM : public extends<AthService, IBeamIntensity>
+class FlatBM : virtual public IBeamIntensity, public AthService
 {
 public:
   /// \name Constructor
   //@{
   FlatBM(const std::string& name,ISvcLocator* svc);
+  //@}
+  /// \name AthService methods
+  //@{
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
   //@}
   /// \name IBeamIntensity methods
   //@{

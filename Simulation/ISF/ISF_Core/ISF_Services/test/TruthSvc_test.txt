@@ -1,2 +1,0 @@
-// Need to set a BarcodeService as TruthSvc will otherwise fail to initialize
-TruthSvc.BarcodeSvc = "Barcode::LegacyBarcodeSvc/LegacyBarcodeSvc";

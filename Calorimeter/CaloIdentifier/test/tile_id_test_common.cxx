@@ -31,10 +31,11 @@ void basic_print_id (const Tile_Base_ID& idhelper, const Identifier& id)
 }
 
 
-class ITile_ID_Test
+class Tile_ID_Test
+  : public Tile_Base_ID
 {
 public:
-  virtual int get_tile_field_value() const = 0;
+  using Tile_Base_ID::tile_field_value;
 };
 
 
@@ -201,8 +202,8 @@ void test_connected (const Tile_Base_ID& idhelper, bool supercell)
     counts.count (sect, samp);
 
     ExpandedIdentifier exp_id;
-    const ITile_ID_Test& idhelper_test = dynamic_cast<const ITile_ID_Test&>(idhelper);
-    exp_id << idhelper_test.get_tile_field_value()
+    Tile_ID_Test* idhelper_test = (Tile_ID_Test*)&idhelper;
+    exp_id << idhelper_test->tile_field_value()
            << (idhelper.section(id) + (supercell ? Tile_Base_ID::SUPERCELL_MASK : 0))
 	   << idhelper.side(id)
 	   << idhelper.module(id)
@@ -227,8 +228,8 @@ void test_connected (const Tile_Base_ID& idhelper, bool supercell)
     assert (!idhelper.module_id (reg_id, 100, id2));
 
     ExpandedIdentifier exp_id;
-    const ITile_ID_Test& idhelper_test = dynamic_cast<const ITile_ID_Test&>(idhelper);
-    exp_id << idhelper_test.get_tile_field_value()
+    Tile_ID_Test* idhelper_test = (Tile_ID_Test*)&idhelper;
+    exp_id << idhelper_test->tile_field_value()
            << (idhelper.section(id) + (supercell ? Tile_Base_ID::SUPERCELL_MASK : 0))
 	   << idhelper.side(id)
 	   << idhelper.module(id);
@@ -251,8 +252,8 @@ void test_connected (const Tile_Base_ID& idhelper, bool supercell)
     assert (!idhelper.tower_id (reg_id, mod, 100, id2));
 
     ExpandedIdentifier exp_id;
-    const ITile_ID_Test& idhelper_test = dynamic_cast<const ITile_ID_Test&>(idhelper);
-    exp_id << idhelper_test.get_tile_field_value()
+    Tile_ID_Test* idhelper_test = (Tile_ID_Test*)&idhelper;
+    exp_id << idhelper_test->tile_field_value()
            << (idhelper.section(id) + (supercell ? Tile_Base_ID::SUPERCELL_MASK : 0))
 	   << idhelper.side(id)
 	   << idhelper.module(id)
@@ -270,8 +271,8 @@ void test_connected (const Tile_Base_ID& idhelper, bool supercell)
     assert (!idhelper.pmt_id (cell_id, 2, id2));
 
     ExpandedIdentifier exp_id;
-    const ITile_ID_Test& idhelper_test = dynamic_cast<const ITile_ID_Test&>(idhelper);
-    exp_id << idhelper_test.get_tile_field_value()
+    Tile_ID_Test* idhelper_test = (Tile_ID_Test*)&idhelper;
+    exp_id << idhelper_test->tile_field_value()
            << (idhelper.section(id) + (supercell ? Tile_Base_ID::SUPERCELL_MASK : 0))
 	   << idhelper.side(id)
 	   << idhelper.module(id)
@@ -329,8 +330,8 @@ void test_connected (const Tile_Base_ID& idhelper, bool supercell)
     region_check (idhelper, id);
 
     ExpandedIdentifier exp_id;
-    const ITile_ID_Test& idhelper_test = dynamic_cast<const ITile_ID_Test&>(idhelper);
-    exp_id << idhelper_test.get_tile_field_value()
+    Tile_ID_Test* idhelper_test = (Tile_ID_Test*)&idhelper;
+    exp_id << idhelper_test->tile_field_value()
            << (idhelper.section(id) + (supercell ? Tile_Base_ID::SUPERCELL_MASK : 0))
 	   << idhelper.side(id)
 	   << idhelper.module(id)
@@ -363,8 +364,8 @@ void test_connected (const Tile_Base_ID& idhelper, bool supercell)
             idhelper.phi_max(id));
 
     ExpandedIdentifier exp_id;
-    const ITile_ID_Test& idhelper_test = dynamic_cast<const ITile_ID_Test&>(idhelper);
-    exp_id << idhelper_test.get_tile_field_value()
+    Tile_ID_Test* idhelper_test = (Tile_ID_Test*)&idhelper;
+    exp_id << idhelper_test->tile_field_value()
            << (idhelper.section(id) + (supercell ? Tile_Base_ID::SUPERCELL_MASK : 0))
 	   << idhelper.side(id);
     assert (idhelper.region_id (exp_id) == id);

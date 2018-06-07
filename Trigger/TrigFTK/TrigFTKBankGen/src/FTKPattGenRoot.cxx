@@ -362,11 +362,10 @@ uint64_t FTKPattGenRoot::trackInvertion(u_int64_t ntrials, bool smear) {
 	 if ( m_select == FTKPattGenRoot::RndSector ) {
 	    // prepare to iterate on the list of sector IDs
 	    patt = (unsigned int)(found_patterns.size() * getRandom());//m_pEng->flat());
-            if(patt>=found_patterns.size()) patt=found_patterns.size()-1;
+            if(patt>=found_patterns.size()) patt=found_patterns.size();
 	 } else if((m_select==ModuleGeometry)||
                    (m_select==ModuleGeometrySmallestSector)||
                    (m_select==ModuleGeometryBestMatch)) {
-            static int print=30;
             if(FTKSetup::getFTKSetup().getHWModeSS()!=2) {
                Fatal("trackInvertion")
                   <<"Selector="<<m_select<<" only implemented for HDMODEID==2\n";
@@ -383,17 +382,16 @@ uint64_t FTKPattGenRoot::trackInvertion(u_int64_t ntrials, bool smear) {
                int isector=found_patterns[ipatt].GetSectorID();
                // the weight w is the a product of the weights from each plane
                for (int p=0; p<pmap()->getNPlanes(); ++p) {
+                  // skip pixel planes - for sime reason it does not work
+                  if(pmap()->getDim(p,1)!=-1) continue;
                   int id=m_sectorbank[isector].GetHit(p);
-                  map<int,RZminmax_t>::const_iterator irz;
-                  if(pmap()->getDim(p,1)!=-1) {
-                     // lookup geometry by module ID
-                     irz=m_moduleBoundsPixel.find(id);
-                     found = (irz!=m_moduleBoundsPixel.end());
+                  // lookup geometry by module ID
+                  map<int,RZminmax_t>::const_iterator irz=
+                     m_moduleBounds.find(id);
+                  if(irz==m_moduleBounds.end()) {
+                     // module not found
+                     found=false;
                   } else {
-                     irz=m_moduleBoundsSCT.find(id);
-                     found = (irz!=m_moduleBoundsSCT.end());
-                  }
-                  if(found) {
                      RZminmax_t const &rz=(*irz).second;
                      // rMin,rMax and zMin,zMax are the 
                      // module bounds in r,z
@@ -415,14 +413,9 @@ uint64_t FTKPattGenRoot::trackInvertion(u_int64_t ntrials, bool smear) {
                         double z=s*cotTh+z0;
                         if(z<rz.zMin) d=(rz.zMin-z)/dz;
                         if(z>rz.zMax) d=(z-rz.zMax)/dz;
-                        if(print) {
-                           cout<<"barr"<<p<<" sector="<<isector
-                               <<" z0="<<z0<<" cotTh="<<cotTh
-                               <<" r="<<r
-                               <<" z="<<z
-                               <<" zMin="<<rz.zMin<<" zMax="<<rz.zMax
-                               <<" d="<<d<<"\n";
-                        }
+                        /* cout<<"barr"<<p<<" "<<isector
+                            <<" "<<z<<" "<<rz.zMin<<" "<<rz.zMax
+                            <<" d="<<d<<"\n"; */
                      } else {
                         // endcap: module is smaller in z than in r
                         double z=0.5*(rz.zMax+rz.zMin);
@@ -432,14 +425,9 @@ uint64_t FTKPattGenRoot::trackInvertion(u_int64_t ntrials, bool smear) {
                         double r=s*(1.-srho*srho/24.);
                         if(r<rz.rMin) d=(rz.rMin-r)/dr;
                         if(r>rz.rMax) d=(r-rz.rMax)/dr;
-                        if(print) {
-                           cout<<"endc"<<p<<" sector="<<isector
-                               <<" z0="<<z0<<" cotTh="<<cotTh
-                               <<" z="<<z
-                               <<" r="<<r<<" s="<<s
-                               <<" rMin="<<rz.rMin<<" rMax="<<rz.rMax
-                               <<" d="<<d<<"\n";
-                        }
+                        /*cout<<"endc"<<p<<" "<<isector
+                            <<" "<<s<<" "<<rz.rMin<<" "<<rz.rMax
+                            <<" d="<<d<<"\n"; */
                      }
                      if(d>0.0) {
                         w *=TMath::Exp(-d*d*50.); 
@@ -460,9 +448,8 @@ uint64_t FTKPattGenRoot::trackInvertion(u_int64_t ntrials, bool smear) {
             if(nFound!=found_patterns.size()) {
                Fatal("trackInvertion")<<"some modules not found\n";
             }
-            // throw a random number here, even if it is not used
+            // throw a random number here, even if it is not sued
             // -> algorithms can be compared event by event
-
             double rndForSector=getRandom();
             if(exactMatch.size()>0) {
                // have an exact match
@@ -504,6 +491,7 @@ uint64_t FTKPattGenRoot::trackInvertion(u_int64_t ntrials, bool smear) {
                   }
                }
             }
+            static int print=30;
             if(print) {
                cout<<"candidates: [";
                for(unsigned ipatt=0;ipatt<found_patterns.size();ipatt++) {
@@ -1028,33 +1016,24 @@ void  FTKPattGenRoot::SetModuleGeometryCheck(const std::string &fileName,
       TTree *t=0;
       f->GetObject("modulePositions",t);
       if(t) {
-         int id,isPixel;
+         int id;
          float r[2],z[2];
-         t->SetBranchAddress("isPixel",&isPixel);
          t->SetBranchAddress("id",&id);
          t->SetBranchAddress("r",r);
          t->SetBranchAddress("z",z);
          for(int i=0;i<t->GetEntries();i++) {
             t->GetEntry(i);
-            RZminmax_t *module;
-            if(isPixel) {
-               module=&m_moduleBoundsPixel[id];
-            } else {
-               module=&m_moduleBoundsSCT[id];
-            }
-            module->rMin=r[0];
-            module->rMax=r[1];
-            module->zMin=z[0];
-            module->zMax=z[1];
+            RZminmax_t &module=m_moduleBounds[id];
+            module.rMin=r[0];
+            module.rMax=r[1];
+            module.zMin=z[0];
+            module.zMax=z[1];
          }
       }
       delete f;
-      if(m_moduleBoundsPixel.size()+
-         m_moduleBoundsSCT.size()) {
+      if(m_moduleBounds.size()) {
          Info("SetModuleGeometryCheck")
-            <<"found "<<m_moduleBoundsPixel.size()
-            <<"/"<<m_moduleBoundsSCT.size()
-            <<" pixel/SCT modules\n";
+            <<"found "<<m_moduleBounds.size()<<" modules\n";
          if(m_select==ModuleGeometry) {
             Info("SetModuleGeometryCheck")
                <<"select="<<m_select<<" random sector within module bounds, or weighted by distance\n";

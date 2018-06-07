@@ -8,11 +8,13 @@
 #include "ILArCalibCalculatorSvc.h"
 #include "AthenaBaseComps/AthService.h"
 
-class LArCalibCalculatorSvcImp: public extends<AthService, ILArCalibCalculatorSvc>
+class LArCalibCalculatorSvcImp: public AthService, virtual public ILArCalibCalculatorSvc
 {
 public:
   LArCalibCalculatorSvcImp(const std::string& name, ISvcLocator * pSvcLocator);
 
+  /** Query interface method to make athena happy */
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override final;
 };
 
 #endif

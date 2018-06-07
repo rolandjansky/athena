@@ -33,7 +33,7 @@
 BkgStreamsCache::BkgStreamsCache( const std::string& type,
                                   const std::string& name,
                                   const IInterface* parent)
-  : base_class( type, name, parent )
+  : AthAlgTool( type, name, parent )
   , p_activeStore(nullptr)
   , m_nXings(0)
   , m_nStores(0)
@@ -80,6 +80,18 @@ BkgStreamsCache::~BkgStreamsCache()
   delete m_collXingPoisson;
   delete m_chooseEventRand;
   delete m_readEventRand;
+}
+
+StatusCode
+BkgStreamsCache::queryInterface(const InterfaceID& riid, void** ppvif)
+{
+  if ( riid == IBkgStreamsCache::interfaceID() )
+    {
+      *ppvif = (IBkgStreamsCache*)this;
+      addRef();
+      return StatusCode::SUCCESS;
+    }
+  return AlgTool::queryInterface( riid, ppvif );
 }
 
 void

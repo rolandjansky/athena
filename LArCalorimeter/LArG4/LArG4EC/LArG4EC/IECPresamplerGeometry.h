@@ -10,6 +10,8 @@
 
 #include "GaudiKernel/IService.h"
 
+//#include "globals.hh"
+
 class LArG4Identifier;
 class G4Step;
 
@@ -22,7 +24,10 @@ namespace LArG4
     IECPresamplerGeometry() {}
     virtual ~IECPresamplerGeometry() {}
 
-    DeclareInterfaceID(IECPresamplerGeometry,1,0);
+    static const InterfaceID& interfaceID() {
+      static const InterfaceID  IID_IECPresamplerGeometry("IECPresamplerGeometry",1,0);
+      return IID_IECPresamplerGeometry;
+    }
 
     // Full identifier computation from a G4 step
     virtual LArG4Identifier CalculateIdentifier( const G4Step*) const = 0;

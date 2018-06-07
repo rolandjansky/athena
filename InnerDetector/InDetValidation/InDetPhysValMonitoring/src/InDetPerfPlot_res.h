@@ -20,8 +20,6 @@
 // could be fwd declared?
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTruth/TruthParticle.h"
-#include "GetMeanWidth.h"
-
 // std includes
 #include <string>
 #include <vector>
@@ -127,16 +125,10 @@ private:
 
   std::vector<std::string> m_paramNames;
 
-  // class and methods for evaluating mean and width of distributions
-  IDPVM::GetMeanWidth m_getMeanWidth;
-  IDPVM::GetMeanWidth::methods m_meanWidthMethod;
-  
   void initializePlots();
-  void Refinement(TH1D* temp, IDPVM::GetMeanWidth::methods p_method,
-		  int var, int j, const std::vector<TH1*>& tvec,
-		  const std::vector<TH1*>& rvec);
+  void Refinement(TH1D* temp, const std::string& width, int var, int j, const std::vector<TH1*>& tvec,
+                  const std::vector<TH1*>& rvec);
   void finalizePlots();
-
 };
 
 

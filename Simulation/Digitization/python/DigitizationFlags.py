@@ -435,14 +435,6 @@ class doBichselSimulation(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
-#
-class doDigiTruth(JobProperty):
-    """ Should DigiTruth information be calculated and stored.
-    """
-    statusOn=False
-    allowedTypes=['bool']
-    StoredValue=True
-
 class IOVDbGlobalTag(JobProperty):
     """ This overrides the default IOVDbGlobalTag which
         corresponds to the detector description in
@@ -827,7 +819,7 @@ list_jobproperties=[doInDetNoise,doCaloNoise,doMuonNoise,doFwdNoise,doRadiationD
                     rndmSeedInputFile,physicsList,overrideMetadata,doBichselSimulation,\
                     IOVDbGlobalTag,SimG4VersionUsed,numberOfCollisions,\
                     doLowPtMinBias,numberOfLowPtMinBias,LowPtMinBiasInputCols,\
-                    doHighPtMinBias,doDigiTruth,numberOfHighPtMinBias,HighPtMinBiasInputCols,\
+                    doHighPtMinBias,numberOfHighPtMinBias,HighPtMinBiasInputCols,\
                     doCavern,numberOfCavern,cavernInputCols,\
                     doBeamGas,numberOfBeamGas,beamGasInputCols,\
                     doBeamHalo,numberOfBeamHalo,beamHaloInputCols,\

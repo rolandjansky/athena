@@ -346,8 +346,7 @@ TEST_F(InputConverter_test, passesFilters_one_pass_filter) {
   m_svc->setProperty("GenParticleFilters", "['ISFTesting::MockFilterTool/DummyFilter']");
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
   ToolHandleArray<ISF::IGenParticleFilter>& genParticleFilters = getGenParticleFilters();
-  const unsigned int expectedSize(1);
-  ASSERT_EQ (genParticleFilters.size(), expectedSize);
+  ASSERT_EQ (genParticleFilters.size(), 1);
   MockFilterTool* filterTool = dynamic_cast<MockFilterTool*>(&*(genParticleFilters[0]));
   ASSERT_TRUE( filterTool );
   const HepMC::GenParticle genPart{};
@@ -370,7 +369,7 @@ TEST_F(InputConverter_test, passesFilters_one_nonpass_filter) {
   m_svc->setProperty("GenParticleFilters", "['ISFTesting::MockFilterTool/DummyFilter']");
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
   ToolHandleArray<ISF::IGenParticleFilter>& genParticleFilters = getGenParticleFilters();
-  ASSERT_EQ (genParticleFilters.size(), 1U);
+  ASSERT_EQ (genParticleFilters.size(), 1);
   MockFilterTool* filterTool = dynamic_cast<MockFilterTool*>(&*(genParticleFilters[0]));
   ASSERT_TRUE( filterTool );
 
@@ -394,7 +393,7 @@ TEST_F(InputConverter_test, passesFilters_two_filters) {
   m_svc->setProperty("GenParticleFilters", "['ISFTesting::MockFilterTool/DummyFilterZ', 'ISFTesting::MockFilterTool/DummyFilterY']");
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
   ToolHandleArray<ISF::IGenParticleFilter>& genParticleFilters = getGenParticleFilters();
-  ASSERT_EQ (genParticleFilters.size(), 2U);
+  ASSERT_EQ (genParticleFilters.size(), 2);
   MockFilterTool* filterTool1 = dynamic_cast<MockFilterTool*>(&*(genParticleFilters[0]));
   ASSERT_TRUE( filterTool1 );
   MockFilterTool* filterTool2 = dynamic_cast<MockFilterTool*>(&*(genParticleFilters[1]));

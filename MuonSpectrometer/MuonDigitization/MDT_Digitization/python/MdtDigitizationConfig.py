@@ -98,5 +98,5 @@ def MDT_Response_DigiTool(name="MDT_Response_DigiTool",**kwargs):
 def Mdt_OverlayDigitizationTool(name="Mdt_OverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     kwargs.setdefault("EvtStore", overlayFlags.evtStore())
-    kwargs.setdefault("GetT0FromBD", overlayFlags.isDataOverlay())
+    kwargs.setdefault("GetT0FromBD", True) #FIXME should depend on readBS and isRealData variables somehow
     return MdtDigitizationTool(name,**kwargs)

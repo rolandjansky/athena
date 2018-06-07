@@ -44,7 +44,6 @@ namespace DerivationFramework
       bool PassSiPhX(const xAOD::Photon& ph1, const xAOD::Photon& ph2) const override;
       bool PassSiPhX(const xAOD::Photon& ph, const xAOD::Muon& mu) const override;
       bool PassSiMu(const xAOD::Muon& mu) const override;
-      bool PassSiMuBa(const xAOD::Muon& mu) const override;
 
       // di filter implementations
       bool PassDiEl(const xAOD::Electron& el1, const xAOD::Electron& el2) const override;
@@ -59,13 +58,11 @@ namespace DerivationFramework
       std::vector<std::string> m_trig_siph;
       std::vector<std::string> m_trig_diph;
       std::vector<std::string> m_trig_simu;
-      std::vector<std::string> m_trig_simuba;
 
       // trigger flags
       bool m_pass_siph;
       bool m_pass_diph;
       bool m_pass_simu;
-      bool m_pass_simuba;
 
       // cut values of the filters
       double m_el_eta;
@@ -80,7 +77,6 @@ namespace DerivationFramework
       double m_siph_pt;
       double m_siph_xpt;
       double m_simu_pt;
-      double m_simuba_pt;
       double m_diel_pt;
       double m_diph_pt;
       double m_dielph_pt;

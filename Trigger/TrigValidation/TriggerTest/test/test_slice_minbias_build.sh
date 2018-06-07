@@ -18,7 +18,6 @@
 # art-output: *.root
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
-# art-output: TotalEventsProcessed.txt
 
 export NAME="slice_minbias_build"
 export SLICE="minbias"

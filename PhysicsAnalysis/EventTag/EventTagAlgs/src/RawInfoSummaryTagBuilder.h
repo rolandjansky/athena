@@ -36,6 +36,9 @@ private:
   //! Attribute list name
   std::string m_attributeListName;
 
+  //! StoreGate service.
+  StoreGateSvc* m_storeGateSvc;
+
   //! Detetor Status Tools
   ToolHandle<RawInfoSummaryForTagTool> m_tagTool;
 

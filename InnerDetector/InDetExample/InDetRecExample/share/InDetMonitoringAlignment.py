@@ -116,14 +116,6 @@ if not jobproperties.Beam.beamType()=='cosmics':
         if (InDetFlags.doPrintConfigurables()):
             print InDetAlignMonBeamSpot_noTrig
 
-        from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonPVBiases
-        InDetAlignMonPVBiases_noTrig = IDAlignMonPVBiases (name           = "InDetAlignMonPVBiases_noTrig",
-                                                           trackSelection = m_alignMonTrackSelectionTool[1],
-                                                           VxPrimContainerName = InDetKeys.xAODVertexContainer())
-
-        ToolSvc += InDetAlignMonPVBiases_noTrig
-        if (InDetFlags.doPrintConfigurables()):
-            print InDetAlignMonPVBiases_noTrig
 
         # Note this is not to be included in the tool service
         from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonNtuple
@@ -390,25 +382,19 @@ else:
                                                    vxContainerName               = InDetKeys.PrimaryVertices(),
                                                    vxContainerWithBeamConstraint = InDetFlags.useBeamConstraint())
 
-    InDetAlignMonPVBiases = IDAlignMonPVBiases (name                = "InDetAlignMonPVBiases",
-                                                trackSelection      = m_alignMonTrackSelectionTool[1],
-                                                VxPrimContainerName = InDetKeys.xAODVertexContainer())
-
     if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
         InDetAlignMonSivsTRT.FilterTools.append(monFilledBunchFilterTool)
         InDetAlignMonResiduals.FilterTools.append(monFilledBunchFilterTool)
         InDetAlignMonEfficiencies.FilterTools.append(monFilledBunchFilterTool)
         InDetAlignMonGenericTracks.FilterTools.append(monFilledBunchFilterTool)
         InDetAlignMonBeamSpot.FilterTools.append(monFilledBunchFilterTool)
-        InDetAlignMonPVBiases.FilterTools.append(monFilledBunchFilterTool)
-
 
     InDetAlignMonSivsTRT.TrigDecisionTool         = monTrigDecTool
     InDetAlignMonResiduals.TrigDecisionTool       = monTrigDecTool
     InDetAlignMonEfficiencies.TrigDecisionTool    = monTrigDecTool
     InDetAlignMonGenericTracks.TrigDecisionTool   = monTrigDecTool
     InDetAlignMonBeamSpot.TrigDecisionTool        = monTrigDecTool
-    InDetAlignMonPVBiases.TrigDecisionTool        = monTrigDecTool
+
 
     if rec.doHeavyIon():
         InDetAlignMonSivsTRT.TriggerChain             = "HLT_j30_ion_L1TE50"
@@ -416,21 +402,18 @@ else:
         InDetAlignMonEfficiencies.TriggerChain        = "HLT_j30_ion_L1TE50"
         InDetAlignMonGenericTracks.TriggerChain       = "HLT_j30_ion_L1TE50"
         InDetAlignMonBeamSpot.TriggerChain            = "HLT_j30_ion_L1TE50"
-        InDetAlignMonPVBiases.TriggerChain            = "HLT_j30_ion_L1TE50"
     else:
         InDetAlignMonSivsTRT.TriggerChain             = "HLT_mu24_imedium"
         InDetAlignMonResiduals.TriggerChain           = "HLT_mu24_imedium"
         InDetAlignMonEfficiencies.TriggerChain        = "HLT_mu24_imedium"
         InDetAlignMonGenericTracks.TriggerChain       = "HLT_mu24_imedium"
         InDetAlignMonBeamSpot.TriggerChain            = "HLT_mu24_imedium"
-        InDetAlignMonPVBiases.TriggerChain            = "HLT_mu24_imedium"
 
     InDetAlignMonSivsTRT.triggerChainName         = "TriggerAwareMon"
     InDetAlignMonResiduals.triggerChainName       = "TriggerAwareMon"
     InDetAlignMonEfficiencies.triggerChainName    = "TriggerAwareMon"
     InDetAlignMonGenericTracks.triggerChainName   = "TriggerAwareMon"
     InDetAlignMonBeamSpot.histFolder              = "IDAlignMon/BeamSpot/TriggerAwareMon"
-    InDetAlignMonPVBiases.triggerChainName   	  = "TriggerAwareMon"
 
     ToolSvc += InDetAlignMonResiduals
     if (InDetFlags.doPrintConfigurables()):
@@ -444,9 +427,6 @@ else:
     ToolSvc += InDetAlignMonBeamSpot
     if (InDetFlags.doPrintConfigurables()):
         print InDetAlignMonBeamSpot
-    ToolSvc += InDetAlignMonPVBiases
-    if (InDetFlags.doPrintConfigurables()):
-        print InDetAlignMonPVBiases
     ToolSvc += InDetAlignMonSivsTRT
     if (InDetFlags.doPrintConfigurables()):
         print InDetAlignMonSivsTRT
@@ -475,8 +455,7 @@ if jobproperties.Beam.beamType()=='cosmics':
 elif jobproperties.Beam.beamType()=='collisions':
     InDetAlignMonManager.AthenaMonTools     += [ InDetAlignMonSivsTRT_noTrig ]
     InDetAlignMonManager.AthenaMonTools     += [ InDetAlignMonBeamSpot_noTrig ]
-    InDetAlignMonManager.AthenaMonTools     += [ InDetAlignMonPVBiases_noTrig ]
-	
+
 InDetAlignMonManager.AthenaMonTools         += [ InDetAlignMonResiduals_noTrig ]
 InDetAlignMonManager.AthenaMonTools         += [ InDetAlignMonEfficiencies_noTrig ]
 InDetAlignMonManager.AthenaMonTools         += [ InDetAlignMonGenericTracks_noTrig ]
@@ -487,7 +466,7 @@ if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBun
     InDetAlignMonEfficiencies_noTrig.FilterTools.append(monFilledBunchFilterTool)
     InDetAlignMonGenericTracks_noTrig.FilterTools.append(monFilledBunchFilterTool)
     InDetAlignMonBeamSpot_noTrig.FilterTools.append(monFilledBunchFilterTool)
-    InDetAlignMonPVBiases_noTrig.FilterTools.append(monFilledBunchFilterTool)
+
 
 if InDetAlignMonDoTruth:
     InDetAlignMonManager.AthenaMonTools     += [ InDetAlignMonTruthComparison ]
@@ -500,7 +479,6 @@ else:
     InDetAlignMonManager.AthenaMonTools     += [ InDetAlignMonEfficiencies ]
     InDetAlignMonManager.AthenaMonTools     += [ InDetAlignMonGenericTracks ]
     InDetAlignMonManager.AthenaMonTools     += [ InDetAlignMonBeamSpot ]
-    InDetAlignMonManager.AthenaMonTools     += [ InDetAlignMonPVBiases ]
     InDetAlignMonManager.AthenaMonTools     += [ InDetAlignMonSivsTRT ]
 
 ## Setup the output histogram file(s):

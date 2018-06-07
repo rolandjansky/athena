@@ -10,7 +10,7 @@ MuonTagBuilder  = MuonTagBuilder(
     name           = "MuonTagBuilder",
     MuonTagTool    = MuonTagTool,
     AttributeList  = EventTagGlobal.AttributeList,
-    MaxNumber      = 6,
+    MaxNumber      = 4,
     CheckAttribute = True)
 topSequence += MuonTagBuilder
 

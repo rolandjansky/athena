@@ -1,1 +1,0 @@
-PowhegConfig.PDF = range(261000, 261101)

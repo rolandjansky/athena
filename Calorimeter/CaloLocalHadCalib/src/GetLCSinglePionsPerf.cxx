@@ -25,6 +25,10 @@
 #include <cmath>
 
 #include "AthenaKernel/errorcheck.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/MsgStream.h"
+#include "StoreGate/StoreGateSvc.h" 
 
 #include "CaloEvent/CaloCell.h"
 #include "CaloSimEvent/CaloCalibrationHit.h"
@@ -178,6 +182,7 @@ GetLCSinglePionsPerf::~GetLCSinglePionsPerf()
 **************************************************************************** */
 StatusCode GetLCSinglePionsPerf::initialize()
 {
+  MsgStream log(messageService(), name());
 
   // pointer to detector manager:
   m_calo_dd_man = CaloDetDescrManager::instance(); 
@@ -186,7 +191,7 @@ StatusCode GetLCSinglePionsPerf::initialize()
 
   StatusCode sg = detStore()->retrieve(m_id_helper);
   if (sg.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve AtlasDetectorID helper from DetectorStore" << endmsg;
+    log << MSG::ERROR << "Unable to retrieve AtlasDetectorID helper from DetectorStore" << endreq;
     return sg;
   }
 
@@ -194,17 +199,17 @@ StatusCode GetLCSinglePionsPerf::initialize()
 //   IToolSvc* p_toolSvc = 0;
 //   sg = service("ToolSvc", p_toolSvc);
 //   if (sg.isFailure()) {
-//     msg(MSG::FATAL) << " Tool Service not found " << endmsg;
+//     log << MSG::FATAL << " Tool Service not found " << endreq;
 //     return StatusCode::FAILURE;
 //   }
 //   IAlgTool* algToolPtr;
 //   sg = p_toolSvc->retrieveTool("CaloDepthTool",algToolPtr,this);
 //   if (sg.isFailure()) {
-//     msg(MSG::FATAL) << " Could not find CaloDepthTool " <<endmsg;
+//     log << MSG::FATAL << " Could not find CaloDepthTool " <<endreq;
 //     return StatusCode::FAILURE;
 //   }
 //   else {
-//     msg(MSG::INFO) << " Found CaloDepthTool" << endmsg;
+//     log << MSG::INFO << " Found CaloDepthTool" << endreq;
 //     m_caloDepthTool = dynamic_cast<CaloDepthTool*>(algToolPtr); // check for tool type
 //   }
 
@@ -508,8 +513,9 @@ writing histograms into the file
 **************************************************************************** */
 StatusCode GetLCSinglePionsPerf::finalize()
 {
+  MsgStream log(messageService(), name());
 
-  msg(MSG::INFO) << "Writing out histograms" << endmsg;
+  log << MSG::INFO << "Writing out histograms" << endreq;
 
   // ereco over truth after each step of calibration
   if(m_doEngRecOverTruth) {
@@ -683,6 +689,7 @@ StatusCode GetLCSinglePionsPerf::finalize()
 StatusCode GetLCSinglePionsPerf::execute()
 { 
    
+  MsgStream log(messageService(), name());
   StatusCode sc;
 
   /* ********************************************
@@ -692,7 +699,7 @@ StatusCode GetLCSinglePionsPerf::execute()
   if(m_isTestbeam) {
     sc = evtStore()->retrieve(theTBEventInfo,"TBEventInfo");
     if (sc.isFailure()||!theTBEventInfo){
-      msg(MSG::ERROR) << "No  theTBEventInfo found"<< endmsg;
+      log << MSG::ERROR << "No  theTBEventInfo found"<< endreq;
       return StatusCode::FAILURE;
     }
   }
@@ -703,11 +710,11 @@ StatusCode GetLCSinglePionsPerf::execute()
   const McEventCollection* truthEvent=0;
   sc = evtStore()->retrieve(truthEvent, "TruthEvent");
   if (sc.isFailure()||!truthEvent){
-    msg(MSG::ERROR) << "No  McEventCollection found"<< endmsg;
+    log << MSG::ERROR << "No  McEventCollection found"<< endreq;
     return StatusCode::FAILURE;
   }
   if( truthEvent->at(0)->particles_empty() ){
-    msg(MSG::ERROR) << "No particles in McEventCollection"<< endmsg;
+    log << MSG::ERROR << "No particles in McEventCollection"<< endreq;
     return StatusCode::FAILURE;
   }
   // primary particle info
@@ -738,11 +745,11 @@ StatusCode GetLCSinglePionsPerf::execute()
 
   sc = evtStore()->retrieve(m_clusColl, m_clusterBasicCollName );
   if(sc != StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "Could not retrieve ClusterContainer "  <<  m_clusterBasicCollName << " from StoreGate" << endmsg;
+    log << MSG::ERROR << "Could not retrieve ClusterContainer "  <<  m_clusterBasicCollName << " from StoreGate" << endreq;
     return sc;
   }
   if(m_clusColl->size() == 0)  {
-    msg(MSG::WARNING) << "Empty ClusterContainer "  <<  m_clusterBasicCollName << endmsg;
+    log << MSG::WARNING << "Empty ClusterContainer "  <<  m_clusterBasicCollName << endreq;
     return StatusCode::SUCCESS;
   }
 
@@ -759,7 +766,7 @@ StatusCode GetLCSinglePionsPerf::execute()
 // 
       double mx_calib_tot;
       if( !theCluster->retrieveMoment( xAOD::CaloCluster::ENG_CALIB_TOT, mx_calib_tot) ) {
-        msg(MSG::ERROR) << "Moment ENG_CALIB_TOT is absent"  << endmsg;
+        log << MSG::ERROR << "Moment ENG_CALIB_TOT is absent"  << endreq;
       }
       double mx_dens, mx_center_lambda;
       if (!theCluster->retrieveMoment(xAOD::CaloCluster::CENTER_LAMBDA, mx_center_lambda))
@@ -816,6 +823,7 @@ StatusCode GetLCSinglePionsPerf::execute()
 **************************************************************************** */
 int GetLCSinglePionsPerf::fill_reco()
 {
+  MsgStream log(messageService(), name());
 
   /* ********************************************
   reading cluster collections for each calibration level
@@ -825,7 +833,7 @@ int GetLCSinglePionsPerf::fill_reco()
     const DataHandle<xAOD::CaloClusterContainer> pColl;
     StatusCode sc = evtStore()->retrieve(pColl, (*it) );    
     if(sc != StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "Could not retrieve ClusterContainer "  << (*it) << " from StoreGate" << endmsg;
+      log << MSG::ERROR << "Could not retrieve ClusterContainer "  << (*it) << " from StoreGate" << endreq;
       return sc;
     }
     clusCollVector.push_back(pColl);
@@ -855,7 +863,7 @@ int GetLCSinglePionsPerf::fill_reco()
 
     double mx_calib_tot;
     if( !theCluster->retrieveMoment( xAOD::CaloCluster::ENG_CALIB_TOT, mx_calib_tot) ) {
-      msg(MSG::ERROR) << "Moment ENG_CALIB_TOT is absent"  << endmsg;
+      log << MSG::ERROR << "Moment ENG_CALIB_TOT is absent"  << endreq;
     }
     double mx_calib_emb0 = 0;
     double mx_calib_eme0 = 0;
@@ -863,13 +871,13 @@ int GetLCSinglePionsPerf::fill_reco()
     if( !theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_EMB0, mx_calib_emb0)
          || !theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_EME0, mx_calib_eme0)
          || !theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_TILEG3, mx_calib_tileg3)){
-      msg(MSG::ERROR) << "One of the moment ENG_CALIB_EMB0, ENG_CALIB_EME0, ENG_CALIB_TILEG3 is absent"  << endmsg;
+      log << MSG::ERROR << "One of the moment ENG_CALIB_EMB0, ENG_CALIB_EME0, ENG_CALIB_TILEG3 is absent"  << endreq;
     }
     double mx_calib_out = 0;
     double mx_calib_dead_tot = 0;
     if( !theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_OUT_L, mx_calib_out)
         || !theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_DEAD_TOT, mx_calib_dead_tot) ){
-      msg(MSG::ERROR) << "One of the moment ENG_CALIB_OUT_L, ENG_CALIB_DEAD_TOT is absent"  << endmsg;
+      log << MSG::ERROR << "One of the moment ENG_CALIB_OUT_L, ENG_CALIB_DEAD_TOT is absent"  << endreq;
     }
 
     double mx_dens, mx_center_lambda;
@@ -1013,6 +1021,7 @@ to check moments assignment
 **************************************************************************** */
 int GetLCSinglePionsPerf::fill_moments()
 {
+  MsgStream log(messageService(), name());
   StatusCode sc;
 
   /* ********************************************
@@ -1024,7 +1033,7 @@ int GetLCSinglePionsPerf::fill_moments()
   for (iter=m_CalibrationHitContainerNames.begin(); iter!=m_CalibrationHitContainerNames.end();iter++) {
     sc = evtStore()->retrieve(cchc,*iter);
     if (sc.isFailure() ) {
-      msg(MSG::ERROR) << "Cannot retrieve calibration hit container " << *iter << endmsg;
+      log << MSG::ERROR << "Cannot retrieve calibration hit container " << *iter << endreq;
       return sc;
     } else {
       v_cchc.push_back(cchc);
@@ -1035,7 +1044,7 @@ int GetLCSinglePionsPerf::fill_moments()
   for (iter=m_DMCalibrationHitContainerNames.begin();iter!=m_DMCalibrationHitContainerNames.end();iter++) {
     sc = evtStore()->retrieve(cchc,*iter);
     if (sc.isFailure() ) {
-      msg(MSG::ERROR) << "Cannot retrieve DM calibration hit container " << *iter << endmsg;
+      log << MSG::ERROR << "Cannot retrieve DM calibration hit container " << *iter << endreq;
       return sc;
     } else {
       v_dmcchc.push_back(cchc);
@@ -1255,6 +1264,7 @@ calibration hits validation
 **************************************************************************** */
 int GetLCSinglePionsPerf::fill_calibhits()
 {
+  MsgStream log(messageService(), name());
   StatusCode sc;
 
   /* ********************************************
@@ -1266,7 +1276,7 @@ int GetLCSinglePionsPerf::fill_calibhits()
   for (iter=m_CalibrationHitContainerNames.begin(); iter!=m_CalibrationHitContainerNames.end();iter++) {
     sc = evtStore()->retrieve(cchc,*iter);
     if (sc.isFailure() ) {
-      msg(MSG::ERROR) << "Cannot retrieve calibration hit container " << *iter << endmsg;
+      log << MSG::ERROR << "Cannot retrieve calibration hit container " << *iter << endreq;
       return sc;
     } else {
       v_cchc.push_back(cchc);
@@ -1277,7 +1287,7 @@ int GetLCSinglePionsPerf::fill_calibhits()
   for (iter=m_DMCalibrationHitContainerNames.begin();iter!=m_DMCalibrationHitContainerNames.end();iter++) {
     sc = evtStore()->retrieve(cchc,*iter);
     if (sc.isFailure() ) {
-      msg(MSG::ERROR) << "Cannot retrieve DM calibration hit container " << *iter << endmsg;
+      log << MSG::ERROR << "Cannot retrieve DM calibration hit container " << *iter << endreq;
       return sc;
     } else {
       v_dmcchc.push_back(cchc);

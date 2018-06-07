@@ -4,7 +4,9 @@
 
 #include "CaloLocalHadCalib/CaloReadLCOutOfClusterFile.h"
 #include "CaloConditions/CaloLocalHadDefs.h"
+#include "GaudiKernel/MsgStream.h"
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "StoreGate/StoreGateSvc.h"
 
 #include "PathResolver/PathResolver.h"
 #include "TFile.h"
@@ -29,10 +31,11 @@ CaloReadLCOutOfClusterFile::~CaloReadLCOutOfClusterFile() {}
 
 StatusCode CaloReadLCOutOfClusterFile::initDataFromFile(std::string theLCOutOfClusterFileName)
 {
+  MsgStream log(msgSvc(), name());
   
   // Find the full path to filename:
   std::string file = PathResolver::find_file (theLCOutOfClusterFileName, "DATAPATH");
-  msg(MSG::INFO) << "Reading file  " << file << endmsg;
+  log << MSG::INFO << "Reading file  " << file << endreq;
   TFile* theLCOutOfClusterFile = new TFile(file.c_str());
   if ( !theLCOutOfClusterFile ) {
     return StatusCode::FAILURE;
@@ -75,7 +78,7 @@ StatusCode CaloReadLCOutOfClusterFile::initDataFromFile(std::string theLCOutOfCl
     for (idim=0;idim<keys.size();idim++) {
       size_t found = sTitle.find(keys[idim]);
       if ( found == std::string::npos ) {
-	msg(MSG::ERROR) << "Could not find key " << keys[idim] << " in current histogram." << endmsg;
+	log << MSG::ERROR << "Could not find key " << keys[idim] << " in current histogram." << endreq;
 	allValid = false;
       }
       else {
@@ -83,7 +86,7 @@ StatusCode CaloReadLCOutOfClusterFile::initDataFromFile(std::string theLCOutOfCl
 	std::istringstream tstr(sTitle.substr(found+keys[idim].length()));
 	tstr >> ibin[idim] >> c >> c >> rmin[idim] >> c >> rmax[idim] >> c >> nbin[idim];
 	if ( ibin[idim] < 0 || ibin[idim] >= nbin[idim] ) {
-	  msg(MSG::ERROR) << "Found invalid bin number " << ibin[idim] << " not in valid range [0," << nbin[idim] << " in current histogram." << endmsg;
+	  log << MSG::ERROR << "Found invalid bin number " << ibin[idim] << " not in valid range [0," << nbin[idim] << " in current histogram." << endreq;
 	  allValid = false;
 	}
       }
@@ -100,10 +103,10 @@ StatusCode CaloReadLCOutOfClusterFile::initDataFromFile(std::string theLCOutOfCl
       if ( theArea.getNdim() == 0 ) {
 	for (idim = 0;idim<names.size();idim++) {
 	  CaloLocalHadCoeff::LocalHadDimension theDim(names[idim].c_str(),types[idim],nbin[idim],rmin[idim],rmax[idim]);
-          msg(MSG::INFO) << "adding dimension " << names[idim].c_str() << " " << types[idim]<< " " << nbin[idim]<< " " << rmin[idim]<< " " << rmax[idim] << endmsg;
+          log << MSG::INFO << "adding dimension " << names[idim].c_str() << " " << types[idim]<< " " << nbin[idim]<< " " << rmin[idim]<< " " << rmax[idim] << endreq;
 	  theArea.addDimension(theDim);
 	}
-	msg(MSG::INFO) << "adding Area with nDim = " << theArea.getNdim() << endmsg;
+	log << MSG::INFO << "adding Area with nDim = " << theArea.getNdim() << endreq;
 	m_data->addArea(theArea);
       }
       // now fill all data for current histogram
@@ -120,10 +123,10 @@ StatusCode CaloReadLCOutOfClusterFile::initDataFromFile(std::string theLCOutOfCl
 	  theData[CaloLocalHadDefs::BIN_ENTRIES] = prof->GetBinEntries(iBin);
 	  theData[CaloLocalHadDefs::BIN_ERROR]   = prof->GetBinError(iBin);
 		  
-	  msg(MSG::INFO) << "Now set data for bins: ";
+	  log << MSG::INFO << "Now set data for bins: ";
 	  for(unsigned int ii=0;ii<ibin.size();ii++)
-	    msg() << ibin[ii] << " ";
-	  msg() << endmsg;
+	    log << ibin[ii] << " ";
+	  log << endreq;
 	  m_data->setCoeff(m_data->getBin(0,ibin),theData);
 	}
       }
@@ -135,27 +138,28 @@ StatusCode CaloReadLCOutOfClusterFile::initDataFromFile(std::string theLCOutOfCl
 }
 
 StatusCode CaloReadLCOutOfClusterFile::initialize() {
-  msg(MSG::INFO) << " Building CaloLocalHadCoeff object " << endmsg;
+  MsgStream log(msgSvc(), name());
+  log << MSG::INFO << " Building CaloLocalHadCoeff object " << endreq;
   StatusCode sc;
   StoreGateSvc* detStore;
   sc=service("DetectorStore",detStore);
   if (sc.isFailure()) {
-     msg(MSG::ERROR) << "Unable to get the DetectorStore" << endmsg;
+     log << MSG::ERROR << "Unable to get the DetectorStore" << endreq;
      return sc;
   }
   sc=initDataFromFile(m_LCOutOfClusterFileName);
   if (sc.isFailure()) {
-     msg(MSG::ERROR) << "Unable to read input Data File" << endmsg;
+     log << MSG::ERROR << "Unable to read input Data File" << endreq;
      return sc;
   }
   sc=detStore->record(m_data,m_key);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to record CaloLocalHadCoeff" << endmsg;
+    log << MSG::ERROR << "Unable to record CaloLocalHadCoeff" << endreq;
     return sc;
   }
   sc=detStore->setConst(m_data);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to lock CaloLocalHadCoeff" << endmsg;
+    log << MSG::ERROR << "Unable to lock CaloLocalHadCoeff" << endreq;
     return sc;
   }
   return StatusCode::SUCCESS;

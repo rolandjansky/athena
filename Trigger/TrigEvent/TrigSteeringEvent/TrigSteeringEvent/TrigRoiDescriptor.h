@@ -76,7 +76,7 @@ public:
    */
   TrigRoiDescriptor(double eta, double etaMinus, double etaPlus, 
 		    double phi, double phiMinus, double phiPlus, 
-		    double zed=0, double zedMinus=-s_zedWidthDefault, double zedPlus=s_zedWidthDefault);
+		    double zed=0, double zedMinus=-zedWidthDefault, double zedPlus=zedWidthDefault);
   
   /**
    * @brief constructor
@@ -95,7 +95,7 @@ public:
   TrigRoiDescriptor(unsigned int l1id, unsigned int id, 
 		    double eta, double etaMinus, double etaPlus, 
 		    double phi, double phiMinus, double phiPlus, 
-		    double zed=0, double zedMinus=-s_zedWidthDefault, double zedPlus=s_zedWidthDefault);
+		    double zed=0, double zedMinus=-zedWidthDefault, double zedPlus=zedWidthDefault);
 
   /**
    * @brief constructor
@@ -115,7 +115,7 @@ public:
   TrigRoiDescriptor(unsigned int roiWord, unsigned int l1id, unsigned int id, 
 		    double eta, double etaMinus, double etaPlus, 
 		    double phi, double phiMinus, double phiPlus, 
-		    double zed=0, double zedMinus=-s_zedWidthDefault, double zedPlus=s_zedWidthDefault);
+		    double zed=0, double zedMinus=-zedWidthDefault, double zedPlus=zedWidthDefault);
 
 
   TrigRoiDescriptor( const IRoiDescriptor& roi );

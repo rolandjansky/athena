@@ -49,8 +49,9 @@ for key in fin.GetListOfKeys():
         break
 
 if args.grl:
-    import DQUtils
-    grl = DQUtils.grl.load_grl(args.grl)
+    grlReader = ROOT.Root.TGoodRunsListReader(args.grl)
+    grlReader.Interpret()
+    grl = grlReader.GetMergedGRLCollection()
 else:
     grl = None
 
@@ -203,7 +204,7 @@ for ibin in xrange(1, int(lbmax-lbmin)+1):
         l_zatimesc = mu_dep_eff(official_mu[ibin])
     else:
         l_zatimesc = ZATIMESC
-    if grl and not DQUtils.grl.grl_contains_run_lb(grl, (int(runname[4:]), int(lumiplot_raw_m.GetBinCenter(ibin)))):
+    if grl and not grl.HasRunLumiBlock(int(runname[4:]), int(lumiplot_raw_m.GetBinCenter(ibin))):
         o_passgrl[0]=0
     else:
         o_passgrl[0]=1

@@ -83,9 +83,7 @@ PixelCalibSvc::PixelCalibSvc(const std::string& name, ISvcLocator* sl):AthServic
   m_disableDb(false),
   m_IBLParameterSvc("IBLParameterSvc",name),
   m_geoModelSvc("GeoModelSvc",name) ,
-  m_offlineCalibSvc("PixelOfflineCalibSvc", name),
-  m_specialIBL_correction(false),
-  m_specialIBL_chargescale(0.985)
+  m_offlineCalibSvc("PixelOfflineCalibSvc", name)
 {
   //  template for property decalration
   //declareProperty("PropertyName", m_propertyName);
@@ -102,8 +100,6 @@ PixelCalibSvc::PixelCalibSvc(const std::string& name, ISvcLocator* sl):AthServic
   declareProperty("IBLParameterService", m_IBLParameterSvc); 
   declareProperty("GeoModelService",     m_geoModelSvc);
   declareProperty("PixelOfflineCalibSvc",m_offlineCalibSvc);
-  declareProperty("SpecialIBLCorrection", m_specialIBL_correction);
-  declareProperty("SpecialIBLChargeScale",m_specialIBL_chargescale);
 }
 
 //================ Destructor =================================================
@@ -271,7 +267,7 @@ int PixelCalibSvc::PixelType(const Identifier pix_id, const Identifier wafer_id,
       }
       col = columnsPerFE-1-eta_index%columnsPerFE; // check the col order in FEI4 ?
       row = 0;
-      circ = p_design->numberOfCircuits()==1 ? 0: eta_index/columnsPerFE;
+      circ = p_design->numberOfCircuits()==1 ? 0: 1-eta_index/columnsPerFE;
     }
     else { // FEI3
       if (barrel_ec==2 || barrel_ec==-2) {
@@ -340,7 +336,7 @@ int PixelCalibSvc::PixelCirc(const Identifier& pix_id, const Identifier& wafer_i
   else {
     int columnsPerFE = p_design->columnsPerCircuit();
     if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
-      circ = p_design->numberOfCircuits()==1 ? 0: eta_index/columnsPerFE;
+      circ = p_design->numberOfCircuits()==1 ? 0: 1-eta_index/columnsPerFE;
     }
     else{ // FEI3 chips
       if (barrel_ec==2 || barrel_ec==-2) {
@@ -704,25 +700,7 @@ float PixelCalibSvc::getTotMean(const Identifier& pix_id, float Q) const {
   int type = PixelType(pix_id,wafer_id,circ); 
   float ToT = 0.0;
   if (!m_disableDb && m_dbTool->getCalibPtr(wafer_id) && circ>-1) { 
-    if (m_specialIBL_correction) {
-      //===============================================================================================================
-      // Special IBL calibration
-      const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(wafer_id);
-      const InDetDD::PixelModuleDesign *p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
-      if (m_pixid->barrel_ec(pix_id)==0 && m_pixid->layer_disk(pix_id)==0) {  // IBL
-        double scaleC = m_specialIBL_chargescale;
-        double corrQ = scaleC*1.11*(1.0-(-7.09*1000.0)/(23.72*1000.0+Q)+(-0.22*1000.0)/(-0.42*1000.0+Q));
-        if (corrQ<1.0) { corrQ = 1.0; }
-        ToT = m_dbTool->getCalibPtr(wafer_id)->getPixelChipSummaryData(circ)->getQ2Tot(type,Q/corrQ); 
-      }
-      else {
-        ToT = m_dbTool->getCalibPtr(wafer_id)->getPixelChipSummaryData(circ)->getQ2Tot(type,Q); 
-      }
-      //===============================================================================================================
-    }
-    else {
-      ToT = m_dbTool->getCalibPtr(wafer_id)->getPixelChipSummaryData(circ)->getQ2Tot(type,Q); 
-    }
+    ToT = m_dbTool->getCalibPtr(wafer_id)->getPixelChipSummaryData(circ)->getQ2Tot(type,Q); 
   }
   else {
     ATH_MSG_WARNING("Condition DB is not available. Use hardcoded value.");

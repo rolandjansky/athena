@@ -154,29 +154,6 @@ if l1caloRawMon:
         ToolSvc += L1PPrMonTool
         L1CaloMan.AthenaMonTools += [L1PPrMonTool]
 
-
-        if isData and rec.triggerStream() == "Mistimed":
-        
-            #======================================================================
-            #=================== Monitoring of the Mistimed Stream ================
-            #======================================================================
-            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__MistimedStreamMon
-       
-            from AthenaCommon.JobProperties import jobproperties
-            L1MistimedStreamTool = LVL1__MistimedStreamMon(
-                name="L1MistimedStreamTool",
-                #OnlineTest = True,
-                #OutputLevel = DEBUG
-            )
-            ToolSvc += L1MistimedStreamTool
-            L1CaloMan.AthenaMonTools += [L1MistimedStreamTool]
-                
-            from TrigT1CaloCondSvc.TrigT1CaloCondSvcConf import L1CaloCondSvc
-            ServiceMgr += L1CaloCondSvc()
-            from IOVDbSvc.CondDB import conddb
-            conddb.addFolderWithTag("TRIGGER","/TRIGGER/L1Calo/V1/Conditions/RunParameters","HEAD")
-            conddb.addFolderWithTag("TRIGGER","/TRIGGER/L1Calo/V2/Configuration/ReadoutConfig","HEAD")
-        
         if isData:
 
             from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__PPMSimBSMon
@@ -191,6 +168,7 @@ if l1caloRawMon:
             ServiceMgr += L1CaloCondSvc()
             from IOVDbSvc.CondDB import conddb
             conddb.addFolderWithTag("TRIGGER","/TRIGGER/L1Calo/V1/Conditions/RunParameters","HEAD")
+
 
             #--------------------------------- PPM Spare Channels--------------
             from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__PPrSpareMon

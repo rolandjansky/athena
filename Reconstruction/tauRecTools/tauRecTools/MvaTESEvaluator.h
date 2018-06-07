@@ -66,12 +66,6 @@ class MvaTESEvaluator
   float m_ptDetectorAxis; //!
   float m_truthDecayMode; //!
   float m_PanTau_DecayMode; //!
-
-  // for online calibration
-  float m_etaDetectorAxis; //!
-  float m_upsilon_cluster; //!
-  float m_lead_cluster_frac; //!
-
 };
 
 #endif // TAURECTOOLSDEV_MVATESEVALUATOR_H

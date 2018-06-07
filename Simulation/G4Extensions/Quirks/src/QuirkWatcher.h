@@ -44,7 +44,7 @@ public:
     ) {return 0;}
 
 private:
-    G4VParticleChange m_particleChange;
+    G4VParticleChange fParticleChange;
 };
 
 #endif

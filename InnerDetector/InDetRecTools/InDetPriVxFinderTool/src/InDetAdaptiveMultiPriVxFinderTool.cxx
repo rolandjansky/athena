@@ -15,11 +15,9 @@
               Fix memory leak.  Don't use a map for sorting.
               2007-10-xx  Giacinto Piacquadio
                           Many improvements (MultiVertexFinder v. 2) 
-              2016-03-09  D. Casper
-                          Change default value of TracksMaxZinterval to 1 mm
-                          (trial working point for high luminosities)
 
  ***************************************************************************/
+// #include <algorithm>
 #include "VxVertex/RecVertex.h"
 #include "VxVertex/Vertex.h"
 #include "InDetPriVxFinderTool/InDetAdaptiveMultiPriVxFinderTool.h"
@@ -43,6 +41,7 @@
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkVertexFitters/AdaptiveMultiVertexFitter.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
+// #include <limits>
 #include "TrkTrack/LinkToTrack.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
@@ -59,6 +58,7 @@
 //added for cuts in case of displaced vertex
 // #include "TrkExInterfaces/IExtrapolator.h"
 
+//#define MULTIFINDER_DEBUG
 
 namespace InDet
 {
@@ -70,7 +70,7 @@ InDetAdaptiveMultiPriVxFinderTool::InDetAdaptiveMultiPriVxFinderTool(const std::
     m_VertexEdmFactory("Trk::VertexInternalEdmFactory"),
     m_iBeamCondSvc("BeamCondSvc",n),
     m_useBeamConstraint(true),
-    m_TracksMaxZinterval(1.),
+    m_TracksMaxZinterval(5.),
     m_maxVertexChi2(18.42),
     m_realMultiVertex(true),
     m_useFastCompatibility(true),
@@ -120,21 +120,36 @@ InDetAdaptiveMultiPriVxFinderTool::~InDetAdaptiveMultiPriVxFinderTool()
 
 StatusCode InDetAdaptiveMultiPriVxFinderTool::initialize()
 {
-    /* Get the right vertex fitting tool */
-    ATH_CHECK( m_MultiVertexFitter.retrieve() );
-    
-    ATH_CHECK( m_SeedFinder.retrieve() );
+    StatusCode sc;
 
-    ATH_CHECK( m_iBeamCondSvc.retrieve() );
+    /* Get the right vertex fitting tool */
+    if ( m_MultiVertexFitter.retrieve().isFailure() ) {
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_MultiVertexFitter << endreq;
+      return StatusCode::FAILURE;
+    } 
     
-    ATH_CHECK( m_trkFilter.retrieve() );
+    if ( m_SeedFinder.retrieve().isFailure() ) {
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_SeedFinder << endreq;
+      return StatusCode::FAILURE;
+    }
+
+    sc = m_iBeamCondSvc.retrieve();
+    if (sc.isFailure())
+      {
+	msg(MSG::ERROR) << "Could not find BeamCondSvc." << endreq;
+	return sc;
+      }
+    
+    if(m_trkFilter.retrieve().isFailure()) {
+      msg(MSG::ERROR) << " Unable to retrieve "<<m_trkFilter<<endreq;
+      return StatusCode::FAILURE;
+    } 
  
     // since some parameters special to an inherited class this method
     // will be overloaded by the inherited class
-    if (msgLvl(MSG::DEBUG)) m_printParameterSettings();
+    m_printParameterSettings();
 
-    ATH_MSG_INFO("Initialization successful");
-
+    msg(MSG::INFO) << "Initialization successful" << endreq;
     return StatusCode::SUCCESS;
 }
 
@@ -189,8 +204,8 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
     }
   }
 
-  ATH_MSG_DEBUG("Of " << trackTES->size() << " tracks "
-		<< selectedTracks.size() << " survived the preselection.");
+  if(msgLvl(MSG::DEBUG)) msg() << "Of " << trackTES->size() << " tracks "
+      << selectedTracks.size() << " survived the preselection." << endreq;
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex( selectedTracks );
   
@@ -245,8 +260,8 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
     }
   }
 
-  ATH_MSG_DEBUG("Of " << trackTES->size() << " tracks "
-		<< selectedTracks.size() << " survived the preselection.");
+  if(msgLvl(MSG::DEBUG)) msg() << "Of " << trackTES->size() << " tracks "
+      << selectedTracks.size() << " survived the preselection." << endreq;
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex( selectedTracks );
 
@@ -362,6 +377,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
   
   
   for (std::vector<const Trk::ITrackLink*>::const_iterator trkiter=trkbegin;trkiter!=trkend;++trkiter) {
+    //      std::cout << "Creating VtxLink for a new track" << std::endl;
     Trk::TrackToVtxLink* newTrkToVtxLink(new Trk::TrackToVtxLink(new std::vector<xAOD::Vertex*>)); // makePrivateStore() is called for each vertex to add in iteration
     TrackLinkOf[*trkiter]=newTrkToVtxLink;
     myTrackToVtxLinks.push_back(newTrkToVtxLink);
@@ -378,12 +394,15 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
     
     if (seedtracknumber==0) 
     {
-      ATH_MSG_DEBUG("No tracks available after track selection for seeding. No finding done.");
+      if(msgLvl(MSG::DEBUG)) msg() << " No tracks available after track selection for seeding. No finding done." << endreq;
       break;
     }
 
+    // TODO: get rid of following line
+    //std::cout << std::endl << std::endl << "Iter: " << iteration << std::endl;
+
+    if(msgLvl(MSG::DEBUG)) msg() << "ITERATION NUMBER " << iteration << endreq;
     iteration+=1;
-    ATH_MSG_DEBUG("Starting iteration number " << iteration << " with " << seedtracknumber << " seed tracks.");
     //now use all the perigee parameters you have so far
 
     if (m_realMultiVertex==true) {
@@ -394,6 +413,19 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
       trkend=seedTracks.end();
     }
     
+    // TODO: get rid of following line
+    //std::cout << "number of seeds: " << seedtracknumber << std::endl;
+
+    // TODO: get rid of following lines
+    /*
+    for (std::vector<const Trk::ITrackLink*>::iterator seedtrkAtVtxIter=seedtrkbegin;
+         seedtrkAtVtxIter!=seedtrkend;++seedtrkAtVtxIter) {
+
+      std::cout << "seedtrack z = " << (*seedtrkAtVtxIter)->parameters()->position().z() << std::endl;
+
+    }
+    */
+
     std::vector<const Trk::TrackParameters*> perigeeList;
     
     for (std::vector<const Trk::ITrackLink*>::iterator seedtrkAtVtxIter=seedtrkbegin;
@@ -423,19 +455,27 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
 
     // TODO: memory leak here with theconstraint when the loop breaks?
     if (actualVertex.z()==0.) {
-      ATH_MSG_DEBUG( "No seed found: no further primary vertex finding performed on this event" );
-      ATH_MSG_DEBUG( perigeeList.size() << " tracks passed to seed finder, but no seed returned." );
+      if (msgLvl(MSG::WARNING))
+      {
+        msg() << "No seed found: no primary vertex finding performed on this event" << endreq;
+        msg() << "Error in Seed Finder. Number of input tracks: " << perigeeList.size() << " but no seed returned." << endreq;
+      }
       // TODO: Do I need this?
       delete constraintVertex;
       constraintVertex = 0;
       break;
     }
 
+    // TODO: get rid of following line
+    //std::cout << "actualVertex z = " << actualVertex.z() << std::endl;
+
     //new xAOD::Vertex with this
     xAOD::Vertex* actualcandidate = new xAOD::Vertex;
     actualcandidate->makePrivateStore();
     actualcandidate->setVertexType( xAOD::VxType::NotSpecified ); // to mimic the initialization present in the old EDM constructor
+    // TODO: think about where everything is deleted! Does Trk::MvfFitInfo destructor and do MVFVxTrackAtVertex destructors get called when actualcandidate gets deleted?
     // now add decorations!
+    //ATH_MSG_INFO ( "Before adding decorations for the first time!" ); // TODO: get rid of this line
     MvfFitInfo( *actualcandidate ) = new Trk::MvfFitInfo( constraintVertex,
                                                           new Amg::Vector3D(actualVertex),
                                                           new Amg::Vector3D(actualVertex));
@@ -443,13 +483,14 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
 
     std::vector<Trk::VxTrackAtVertex*> vector_of_tracks(0);
     VTAV(*actualcandidate) = vector_of_tracks; // TODO: maybe needed before push_back?
+    //ATH_MSG_INFO ( "After adding decorations for the first time!" ); // TODO: get rid of this line
 
     //get link to the tracks
     //std::vector<Trk::VxTrackAtVertex>* tracksOfVertex = &( actualcandidate->vxTrackAtVertex() );
 
     //now iterate on all tracks and find out if they are sufficiently close to the found vertex
     
-    ATH_MSG_VERBOSE("Adding all the tracks which are near the seed to the candidate ");
+    if(msgLvl(MSG::VERBOSE)) msg() << "Adding all the tracks which are near the seed to the candidate " << endreq;
     
     for (std::vector<const Trk::ITrackLink*>::const_iterator trkiter=trkbegin;trkiter!=trkend;++trkiter) {
 
@@ -462,14 +503,17 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
 	std::vector<xAOD::Vertex*>* actualvtxlink=actuallink->vertices();
 	//adding vertex to candidates of track
 	actualvtxlink->push_back(actualcandidate);
-        ATH_MSG_VERBOSE("Adding an MVFVxTrackAtVertex with tracklink " << actuallink << 
-			" to the vertex candidate VTAV decoration");
+        #ifdef MULTIFINDER_DEBUG
+	//std::cout << "Adding an MVFVxTrackAtVertex with tracklink " << actuallink << " to the vertex candidate vector of track " << tracksOfVertex << std::endl;
+        std::cout << "Adding an MVFVxTrackAtVertex with tracklink " << actuallink << " to the vertex candidate VTAV decoration" << std::endl;
+        #endif
         VTAV(*actualcandidate).push_back(new Trk::MVFVxTrackAtVertex((*trkiter)->clone(),
                                                                      actuallink));
       }
     }
 
-    ATH_MSG_VERBOSE(VTAV(*actualcandidate).size() << " tracks added to vertex candidate due to proximity");
+    // TODO: get rid of following line
+    //std::cout << "number of tracks added to actualcandidate due to proximity: " << VTAV(*actualcandidate).size() << std::endl;
 
     //now consider to recovery from the case where no tracks were added to the vertex
     if (VTAV(*actualcandidate).size()==0) {
@@ -504,8 +548,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
         VTAV(*actualcandidate) = vector_of_tracks; // TODO: maybe needed before push_back?
         //delete MvfFitInfo( *oldcandidate ); MvfFitInfo( *oldcandidate ) = 0;
         ////delete VTAV( *oldcandidate ); VTAV( *oldcandidate ) = 0;
-	//delete oldcandidate;oldcandidate=0; // TODO: does this also call the destructor of the decorations?
-	releaseCandidate( oldcandidate );
+	delete oldcandidate;oldcandidate=0; // TODO: does this also call the destructor of the decorations?
 
         //get link to the tracks
         //tracksOfVertex = &( actualcandidate->vxTrackAtVertex() );
@@ -521,30 +564,50 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
             std::vector<xAOD::Vertex*>* actualvtxlink=actuallink->vertices();
             //adding vertex to candidates of track
             actualvtxlink->push_back(actualcandidate);
-            ATH_MSG_VERBOSE("Adding an MVFVxTrackAtVertex with tracklink " << actuallink << 
-			    " to the vertex candidate VTAV decoration");
+            #ifdef MULTIFINDER_DEBUG
+            //std::cout << "Adding an MVFVxTrackAtVertex with tracklink " << actuallink << " to the vertex candidate vector of track " << tracksOfVertex << std::endl;
+            std::cout << "Adding an MVFVxTrackAtVertex with tracklink " << actuallink << " to the vertex candidate VTAV decoration" << std::endl;
+            #endif
             VTAV(*actualcandidate).push_back(new Trk::MVFVxTrackAtVertex((*trkiter)->clone(),
                                                                          actuallink));
 	  }
 	}
 
+        // TODO: get rid of following line
+        //std::cout << "number of tracks added to actualcandidate due to proximity after actualVertex updated with nearest track: " << VTAV(*actualcandidate).size() << std::endl;
+
 	if (VTAV(*actualcandidate).size()==0) {
-	  ATH_MSG_DEBUG("No tracks found near seed, while at least one track was expected.");
+	  if (msgLvl(MSG::ERROR)) msg() << " Internal error in the Multi Vertex Finder. No tracks while at least one track was expected." << endreq;
 	  break;
 	}
       } else {
-	ATH_MSG_DEBUG("Nearest track to seed is missing.");
-	break;
+	  if (msgLvl(MSG::ERROR)) msg() << "Internal error in the Multi Vertex Finder. Nearest track is missing while it is expected." << endreq;
+	  break;
       }
     }
       
     
-    ATH_MSG_VERBOSE("Running addVtxTofit(); The current candidate has " << VTAV(*actualcandidate).size() << 
-		    " tracks in the vector");
+    //now at least you have all the tracks you really want to fit and the connections to the TrackToVtxLinks
+    //      std::cout << "Calling MultiVertexFitter addVtxTofit() " << std::endl;
+
+    if (msgLvl(MSG::DEBUG)) msg() << "running addVtxTofit() " << endreq;
+    #ifdef MULTIFINDER_DEBUG
+    std::cout << "The actual candidate has " << VTAV(*actualcandidate).size() << " tracks in the vector" << std::endl;
+    #endif
+
+    #ifdef MULTIFINDER_DEBUG
+    //The position hasn't been set here yet!
+    //std::cout << "The actual candidate has z: " << actualcandidate->position()[Trk::z] << std::endl;
+    #endif
     
     m_MultiVertexFitter->addVtxTofit(actualcandidate);
 
-    ATH_MSG_VERBOSE("After fit the current candidate has z: " << actualcandidate->position()[Trk::z]);
+    #ifdef MULTIFINDER_DEBUG
+    std::cout << "The actual candidate has z after fit: " << actualcandidate->position()[Trk::z] << std::endl;
+    #endif
+
+    // TODO: get rid of following line
+    //std::cout << "The actual candidate has z after fit: " << actualcandidate->position()[Trk::z] << std::endl;
 
     //get link to the tracks (they are now all properly in the std::vector<Trk::VxTrackAtVertex> of the xAOD::Vertex)
     // TODO: maybe I shouldn't be using xAOD::Vertex vector at all for VxTrackAtVertex...
@@ -559,8 +622,9 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
     int numberOfCompatibleTracks=0;
     for (std::vector<Trk::VxTrackAtVertex*>::iterator trkAtVtxIter=trkAtVtxbegin;
 	 trkAtVtxIter!=trkAtVtxend;++trkAtVtxIter) { 
-      ATH_MSG_VERBOSE("Compatibility: " << (*trkAtVtxIter)->vtxCompatibility() << 
-		      " weight " << (*trkAtVtxIter)->weight());
+      #ifdef MULTIFINDER_DEBUG
+      std::cout << " compatibility: " << (*trkAtVtxIter)->vtxCompatibility() << " weight " << (*trkAtVtxIter)->weight() << std::endl;
+      #endif
       if ( ( (*trkAtVtxIter)->vtxCompatibility()<m_maxVertexChi2&&m_useFastCompatibility) ||
 	   ( (*trkAtVtxIter)->weight()>m_minweight 
 	     && (*trkAtVtxIter)->trackQuality().chiSquared()<m_maxVertexChi2 
@@ -575,7 +639,9 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
 	if (foundTrack!=0) {
 	  atleastonecompatibletrack=true;
 	  numberOfCompatibleTracks+=1;
-	  ATH_MSG_VERBOSE("Found compatible track");
+          #ifdef MULTIFINDER_DEBUG
+	  std::cout << " found in seed " << std::endl;
+          #endif
           if (m_addSingleTrackVertices)
           {
             
@@ -619,7 +685,8 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
       }
     }
 
-    ATH_MSG_VERBOSE("newVertexIsFine = " << newVertexIsFine);
+    // TODO: delete following line
+    //std::cout << "newVertexIsFine = " << newVertexIsFine << std::endl;
 
     //this now should be so powerful to do everything by itself
     //problem now is to delete the really compatible tracks to this fit from the tracks 
@@ -629,13 +696,17 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
       for (std::vector<Trk::VxTrackAtVertex*>::iterator trkAtVtxIter=trkAtVtxbegin;
 	   trkAtVtxIter!=trkAtVtxend;++trkAtVtxIter) {
 	//for now using the compatibility at stage before end...
-	ATH_MSG_VERBOSE("The compatibility value of the track " << *trkAtVtxIter << 
-			" is " <<  (*trkAtVtxIter)->vtxCompatibility());
+        #ifdef MULTIFINDER_DEBUG
+	std::cout << "The compatibility value of the track " << *trkAtVtxIter << " has compatibility " << 
+	  (*trkAtVtxIter)->vtxCompatibility() << std::endl;
+        #endif
 	if ( ( (*trkAtVtxIter)->vtxCompatibility()<m_maxVertexChi2&&m_useFastCompatibility) ||
 	     ( (*trkAtVtxIter)->weight()>m_minweight 
 	       && (*trkAtVtxIter)->trackQuality().chiSquared()<m_maxVertexChi2 
 	       && !m_useFastCompatibility ) ) {
-	  ATH_MSG_VERBOSE("Eliminating incompatible track");
+          #ifdef MULTIFINDER_DEBUG
+	  std::cout << "Eliminating track " << std::endl;
+          #endif
 
 	  std::vector<const Trk::ITrackLink*>::iterator foundTrack=seedtrkend;
 	  for (std::vector<const Trk::ITrackLink*>::iterator seedtrkiter=seedtrkbegin;seedtrkiter!=seedtrkend;++seedtrkiter) {
@@ -643,16 +714,24 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
 	      foundTrack=seedtrkiter;
 	    }
 	  }
-	  ATH_MSG_VERBOSE("Trying to find track now");
+	  
+          #ifdef MULTIFINDER_DEBUG
+	  std::cout << "Trying to find track now" << std::endl;
+          #endif
 	  if (foundTrack!=seedtrkend) {
-	    ATH_MSG_VERBOSE("Track found: eliminating it");
+            #ifdef MULTIFINDER_DEBUG
+	    std::cout << "Track found: eliminating it" << std::endl;
+            #endif
 	    seedTracks.erase(foundTrack);
 	    
 	    //update end and begin??? should I? yes, he can copy, regenerate, you don't know!
 	    seedtrkbegin=seedTracks.begin();
 	    seedtrkend=seedTracks.end();
 	    
-	    ATH_MSG_VERBOSE("Remaining seeds: " << seedTracks.size());
+	    
+            #ifdef MULTIFINDER_DEBUG
+	    std::cout << "Remaining seeds: " << seedTracks.size() << std::endl;
+            #endif
 	  }
 	}
       }
@@ -661,11 +740,15 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
       double highestcompatibility=0;
       Trk::VxTrackAtVertex* trackHighestCompatibility=0;
       
-      ATH_MSG_VERBOSE("Analyzing new vertex");
+      #ifdef MULTIFINDER_DEBUG
+      std::cout <<"analyzing new vertex" << std::endl;
+      #endif
 
       for (std::vector<Trk::VxTrackAtVertex*>::iterator trkAtVtxIter=trkAtVtxbegin;
 	   trkAtVtxIter!=trkAtVtxend;++trkAtVtxIter) {
-	ATH_MSG_VERBOSE("Checking new track for compatibility");
+        #ifdef MULTIFINDER_DEBUG
+	std::cout <<"new track" << std::endl;
+        #endif
 	const Trk::ITrackLink* foundTrack=0;
 	for (std::vector<const Trk::ITrackLink*>::const_iterator seedtrkiter=seedtrkbegin;seedtrkiter!=seedtrkend;++seedtrkiter) {
 	  if ((*seedtrkiter)->parameters()==(*trkAtVtxIter)->trackOrParticleLink()->parameters()) {
@@ -675,15 +758,18 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
 
 	if (foundTrack!=0) {
 	  double compatibility=(*trkAtVtxIter)->vtxCompatibility();
-	  ATH_MSG_VERBOSE("New track has compatibility: " << compatibility);
+          #ifdef MULTIFINDER_DEBUG
+	  std::cout << " found: comp: " << compatibility << std::endl;
+          #endif
 	  if (compatibility>highestcompatibility) {
 	    highestcompatibility=compatibility;
 	    trackHighestCompatibility= *trkAtVtxIter;
 	  }
 	}
       }
-      ATH_MSG_VERBOSE("Highest compatibility track:" <<trackHighestCompatibility << 
-		      "with compatibility: " << highestcompatibility);
+      #ifdef MULTIFINDER_DEBUG
+      std::cout <<"track highestcomp:" <<trackHighestCompatibility << " comp " << highestcompatibility <<std::endl;
+      #endif
 
       if (trackHighestCompatibility!=0) {
 	std::vector<const Trk::ITrackLink*>::iterator foundTrack=seedtrkend;
@@ -698,7 +784,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
 	  seedtrkbegin=seedTracks.begin();
 	  seedtrkend=seedTracks.end();
 	} else {
-	  ATH_MSG_FATAL("Cannot find previously determined track ");
+	  std::cout << " Cannot find previous determined track " << std::endl;
 	  throw;
 	}
       } else {
@@ -724,11 +810,11 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
 	    seedtrkbegin=seedTracks.begin();
 	    seedtrkend=seedTracks.end();
 	  } else {
-	    ATH_MSG_DEBUG("No nearest track found while it was expected.");
+	    if (msgLvl(MSG::ERROR)) msg() << " Internal error in the Multi Vertex Finder. No nearest track found while it was expected to be found." << endreq;
 	    break;
 	  }
 	} else {
-	  ATH_MSG_DEBUG("No further seeding track was found (3 methods used) while it was expected.");
+	  if (msgLvl(MSG::ERROR)) msg() << " Internal error in the Multi Vertex Finder. No further seeding track was found (3 methods used): it was expected to be found " << endreq;
 	  break;
 	}
       }
@@ -738,8 +824,13 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
     ///////////////
     //now break the cycle if you didn't diminish the number of seeds...
     
-    ATH_MSG_DEBUG("Remaining seeds: " << seedTracks.size() << " previous round " << seedtracknumber);
+    #ifdef MULTIFINDER_DEBUG
+    std::cout << "Remaining seeds: " << seedTracks.size() << " previous round " << seedtracknumber << std::endl;
+    #endif
     
+    // TODO: delete following line
+    //std::cout << "Remaining seeds: " << seedTracks.size() << " previous round: " << seedtracknumber << std::endl;
+
     bool deleteLastVertex=false;
 
     if (!newVertexIsFine) {
@@ -766,10 +857,10 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
         contamination=contaminationNum/contaminationDeNom;
       }
       
+      // std::cout << " contamination: " << contamination << std::endl;
       
       if (contamination>m_maximumVertexContamination)
       {
-	ATH_MSG_VERBOSE("Contamination estimator " << contamination << " fails cut of " << m_maximumVertexContamination);
         deleteLastVertex=true;
       }
 
@@ -778,10 +869,14 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
       std::vector<xAODVertex_pair>::iterator vxend=myxAODVertices.end();
       
       for (std::vector<xAODVertex_pair>::iterator vxiter=vxbegin;vxiter!=vxend;++vxiter) {
-	ATH_MSG_VERBOSE("Estimating compatibility of z positions: " << ((*vxiter).second)->position()[Trk::z] << 
-			" and " << actualcandidate->position()[Trk::z]);
+        #ifdef MULTIFINDER_DEBUG
+	std::cout << " Estimating comp of z: " << ((*vxiter).second)->position()[Trk::z] << 
+	  " and" << actualcandidate->position()[Trk::z] << std::endl;
+        #endif
 	//in case of no beam spot constraint you should use the full 3d significance on the distance
 	double dependence=0;
+
+        
 
         if (!m_do3dSplitting)
         {
@@ -795,6 +890,12 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
               (*vxiter).second->covariancePosition()+
               actualcandidate->covariancePosition();
 
+	  /*
+          int failInversion;
+          sumCovariances.invert(failInversion);
+          if (failInversion==0)
+          {
+	  */
 	  sumCovariances = sumCovariances.inverse().eval();
 
 	  Amg::Vector3D hepVectorPosition;
@@ -808,19 +909,32 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
 	    ((*vxiter).second->position()-
 	     actualcandidate->position()).z();
 	  dependence=sqrt(hepVectorPosition.dot(sumCovariances*hepVectorPosition));
+	  /*
+          }
+          else
+          {
+            if (msgLvl(MSG::ERROR)) msg() << " Inversion of matrix during splitting phase failed... Please report... " << endreq;
+            dependence=100;
+          }
+	  */
         }
 	
-	ATH_MSG_VERBOSE("Significance of vertex pair is: " << dependence << "vs. cut at " << m_cutVertexDependence);
-
+        #ifdef MULTIFINDER_DEBUG
+	std::cout << " dependence is: " << dependence << "cut at " << m_cutVertexDependence << std::endl;
+        #endif
 	if (dependence<m_cutVertexDependence) {
-          ATH_MSG_VERBOSE("Deleting last vertex since it was found to be merged with another!");
+
+          // TODO: get rid of following line
+          //std::cout << "Deleting last vertex since it was found to be merged with another!" << std::endl;
+
 	  deleteLastVertex=true;
 	  break;
 	}
       }
     }
     
-    ATH_MSG_VERBOSE("Decision to delete last vertex: " << deleteLastVertex);
+    // TODO: delete following line
+    //std::cout << "deleteLastVertex = " << deleteLastVertex << std::endl;
 
     ////////////
     //Ok all tracks in seed were deleted. You can go ahead and discover further vertices...
@@ -830,24 +944,32 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
       std::vector<Trk::VxTrackAtVertex*>::iterator MVFtrkAtVtxBegin = VTAV( *actualcandidate ).begin();
       std::vector<Trk::VxTrackAtVertex*>::iterator MVFtrkAtVtxEnd = VTAV( *actualcandidate ).end();
       
-      for (std::vector<Trk::VxTrackAtVertex*>::iterator MVFtrkIterator=MVFtrkAtVtxBegin;
-	   MVFtrkIterator!=MVFtrkAtVtxEnd;++MVFtrkIterator) {
-	ATH_MSG_VERBOSE("Deleting one vertex from tracklink " << 
-			(static_cast<Trk::MVFVxTrackAtVertex*>(*MVFtrkIterator))->linkToVertices());
+      for (std::vector<Trk::VxTrackAtVertex*>::iterator MVFtrkIterator=MVFtrkAtVtxBegin;MVFtrkIterator!=MVFtrkAtVtxEnd;++MVFtrkIterator) {
+	
+        #ifdef MULTIFINDER_DEBUG
+	std::cout << "Deleting one vertex from tracklink " << (static_cast<Trk::MVFVxTrackAtVertex*>(*MVFtrkIterator))->linkToVertices() << std::endl;
+        #endif
+
         (static_cast<Trk::MVFVxTrackAtVertex*>(*MVFtrkIterator))->linkToVertices()->vertices()->pop_back();
       }
       seedtracknumber=seedTracks.size();
 
-      ATH_MSG_VERBOSE("Redoing fit after scrapping last vertex");
+      #ifdef MULTIFINDER_DEBUG
+      std::cout << " redoing fit " << std::endl;
+      #endif      
+      // TODO: delete following line
+      //std::cout << " redoing fit " << std::endl;
 
       m_MultiVertexFitter->addVtxTofit(actualcandidate); // TODO: I think this is fine still, but think about it more
 
-      releaseCandidate( actualcandidate );
+      delete actualcandidate;actualcandidate=0; // TODO: does this also delete decorations?
 
     } else {
     
       seedtracknumber=seedTracks.size();
-      ATH_MSG_VERBOSE("Storing new vertex with " << actualcandidate->vxTrackAtVertex().size() << " tracks");
+      #ifdef MULTIFINDER_DEBUG
+      std::cout << " new vertex to be stored: number of tracks " << actualcandidate->vxTrackAtVertex().size() << std::endl;
+      #endif   
       myxAODVertices.push_back
 	(xAODVertex_pair (0,//estimateSignalCompatibility(actualcandidate),
 			    actualcandidate));
@@ -859,12 +981,11 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
             && iteration<m_maxIterations);
 
   if (iteration>= m_maxIterations) {
-    ATH_MSG_WARNING("Maximum number of iterations (" << m_maxIterations << 
-		    ") reached; to reconstruct more vertices, set maxIterations to a higher value.");
+    if (msgLvl(MSG::WARNING)) msg() << " Primary vertex finding: maximum number of iterations reached (more vertices -> set the maximum to a higher value)" << endreq;
   }
 
-  ATH_MSG_DEBUG("Primary vertex finding complete with " << iteration << 
-		" iterations and " << myxAODVertices.size() << " vertices found.");
+  // TODO: delete following line:
+  //std::cout << "Primary vertex finding complete with " << iteration << " total iterations and " << myxAODVertices.size() << " vertices found." << std::endl;
 
   //correction of a bug: you can estimate the probability of being 
   //the primary interaction vertex only after the whole multivertexfit 
@@ -888,6 +1009,14 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
 
   }
 
+  // TODO: get rid of following lines
+  /*
+  //std::cout << std::endl << "Analyzing contents of xAODVertex_pair before sorting:" << std::endl;
+  for (std::vector<xAODVertex_pair>::iterator vtxIter=vtxBegin;vtxIter!=vtxEnd;++vtxIter) {
+    std::cout << "z position: " << (*vtxIter).second->position().z() << std::endl;
+  }
+  */
+
   //before filling the container, you have to decide what is your most probable signal vertex
   for (std::vector<xAODVertex_pair>::iterator vtxIter=vtxBegin;vtxIter!=vtxEnd;++vtxIter) {
     (*vtxIter).first=estimateSignalCompatibility((*vtxIter).second);
@@ -895,16 +1024,17 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
 
   std::sort (myxAODVertices.begin(), myxAODVertices.end());
 
-  if (msgLvl(MSG::VERBOSE))
-  {
-    ATH_MSG_VERBOSE("Vertex positions after sorting");
-    for (std::vector<xAODVertex_pair>::iterator vtxIter=vtxBegin;vtxIter!=vtxEnd;++vtxIter) {
-      ATH_MSG_VERBOSE("z position: " << (*vtxIter).second->position().z());
-    }
+  // TODO: get rid of following lines
+  //std::cout << std::endl << "Analyzing contents of xAODVertex_pair after sorting:" << std::endl;
+  for (std::vector<xAODVertex_pair>::iterator vtxIter=vtxBegin;vtxIter!=vtxEnd;++vtxIter) {
+    std::cout << "z position: " << (*vtxIter).second->position().z() << std::endl;
   }
 
   if (myxAODVertices.size()==0) {
-    ATH_MSG_WARNING("No vertices found: returning a place-holder at the beam spot center.");
+
+    #ifdef MULTIFINDER_DEBUG
+    std::cout << "No candidate fitted: return a candidate with the beam spot constraint" << std::endl;
+    #endif
     
     xAOD::Vertex * beamspotCandidate = new xAOD::Vertex;
     beamspotCandidate->makePrivateStore();
@@ -974,7 +1104,10 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
       Trk::LinkToXAODTrackParticle* linkToXAODTP = dynamic_cast<Trk::LinkToXAODTrackParticle*>( (*tracksIter).trackOrParticleLink() );
       if (linkToXAODTP)
       {
-	ATH_MSG_VERBOSE("Iterating over new vertex in fixing xAOD::TrackParticle links... ");
+        if(msgLvl(MSG::VERBOSE))
+        { 
+          msg(MSG::VERBOSE) << " Iterating over new vertex in fixing xAOD::TrackParticle links... "  << endreq;
+        }
 
         (*vxIter)->addTrackAtVertex(*linkToXAODTP, (*tracksIter).weight());
       } // TODO: esle write in a warning? (if tracks were TrkTracks or Trk::TrackParticleBase) - sorting tool expects there to be xAOD::TrackParticleLinks!
@@ -1024,6 +1157,15 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
     dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
   }
   
+  // TODO: get rid of following lines
+  /*
+  std::cout << std::endl << "Contents of VertexContainer: " << std::endl;
+  for (unsigned int i = 0 ; i < theVertexContainer->size() ; i++)
+  {
+    std::cout << "vertex z: " << (*theVertexContainer)[i]->position().z() << std::endl;
+  }
+  */
+
   // loop over the pile up to set it as pile up (EXCLUDE first and last vertex: loop from 1 to size-1)
   for (unsigned int i = 0 ; i < theVertexContainer->size()-1 ; i++)
   {
@@ -1031,8 +1173,9 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
     {
       (*theVertexContainer)[i]->setVertexType(xAOD::VxType::PileUp);
     }
-    ATH_MSG_VERBOSE("Vertex at z =" << (*theVertexContainer)[i]->position().z() << 
-		    " with ntracks: " << (*theVertexContainer)[i]->vxTrackAtVertex().size());
+    #ifdef MULTIFINDER_DEBUG
+    std::cout << "z position: " << (*theVertexContainer)[i]->position().z() << " ntracks: " << (*theVertexContainer)[i]->vxTrackAtVertex().size() << std::endl;
+    #endif
    
   }
   return std::make_pair(theVertexContainer, theVertexAuxContainer);
@@ -1047,6 +1190,8 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
   // For optimization of access speed
   xAOD::Vertex::Decorator< std::vector<Trk::VxTrackAtVertex*> > VTAV("VTAV");
 
+
+  //std::vector<Trk::VxTrackAtVertex>* tracks = &( mycand->vxTrackAtVertex() );
   std::vector<Trk::VxTrackAtVertex*>::iterator begintracks=VTAV(*mycand).begin();
   std::vector<Trk::VxTrackAtVertex*>::iterator endtracks=VTAV(*mycand).end();
 
@@ -1061,8 +1206,10 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
 
     for(std::vector<Trk::VxTrackAtVertex*>::iterator i = begintracks; i!=endtracks; i++) {
 
-      ATH_MSG_VERBOSE("Compatibility is: " << (*i)->vtxCompatibility() << 
-		      " and chi^2 is: " << (*i)->trackQuality().chiSquared());
+      #ifdef MULTIFINDER_DEBUG
+      std::cout << " compatibility is: " << (*i)->vtxCompatibility() << std::endl;
+      std::cout << " c2 compatibility is: " << (*i)->trackQuality().chiSquared() << std::endl;
+      #endif
 
       if ( ( (*i)->vtxCompatibility()<m_finalCutMaxVertexChi2&&m_useFastCompatibility) ||
 	   ( (*i)->weight()>m_minweight 
@@ -1072,20 +1219,23 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
         if ((*i)->perigeeAtVertex()!=0) {
           perigee=(*i)->perigeeAtVertex();
         } else {
-	  ATH_MSG_VERBOSE("Only initialPerigee is available");
+          #ifdef MULTIFINDER_DEBUG
+	  std::cout << " only initialPerigee is available" << std::endl;
+          #endif
           perigee=(*i)->initialPerigee();
         }
 	if (perigee==0) {
-	  ATH_MSG_ERROR("Neutrals are not supported. Skipping track in pT calculation...");
+	  if (msgLvl(MSG::ERROR)) msg() << "Neutrals not supported. Skipping track in pT calculation..." << endreq;
 	  continue;
 	}
         total_pt_squared+=std::pow(std::fabs(1./perigee->parameters()[Trk::qOverP])*sin(perigee->parameters()[Trk::theta]),2);
         total_num_tracks+=1;
       }
     }//finishing iterating on VxTrackAtVertex associated to **vtxIter xAOD::Vertex
+    
+    // mycand->setPt(total_pt_squared*std::sqrt((double)total_num_tracks));
 
     return  total_pt_squared*std::sqrt((double)total_num_tracks);
-
   } else if (m_selectiontype==1) {//use NN
     double pt_track1=0.;
     double pt_track2=0.;
@@ -1105,11 +1255,13 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
         if ((*i)->perigeeAtVertex()!=0) {
           perigee=(*i)->perigeeAtVertex();
         } else {
-	  ATH_MSG_VERBOSE("Only initialPerigee is available");
+          #ifdef MULTIFINDER_DEBUG
+	  std::cout << " only initialPerigee is available" << std::endl;
+          #endif
           perigee=(*i)->initialPerigee();
         }
 	if (perigee==0) {
-	  ATH_MSG_ERROR("Neutrals not supported. Skipping track in pT calculation...");
+	  if (msgLvl(MSG::ERROR)) msg() << "Neutrals not supported. Skipping track in pT calculation..." << endreq;
 	  continue;
 	}
         double actualpt(std::fabs(1./perigee->parameters()[Trk::qOverP])*sin(perigee->parameters()[Trk::theta]));
@@ -1129,8 +1281,13 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
       }
     }
     if (total_num_tracks==0||pt_track2==0||pt_track3==0) {
+      // mycand->setPt(0.);
       return 0.;
     } else {
+      // mycand->setPt(m_testingclass->value(0,pt_track1,pt_track2,pt_track3,
+      //				pt_sum_linear,pt_sum_quadratic,
+      //				total_num_tracks));
+
       return m_testingclass->value(0,pt_track1,pt_track2,pt_track3,
 					  pt_sum_linear,pt_sum_quadratic,
 					  total_num_tracks);
@@ -1149,30 +1306,99 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
 
   void InDetAdaptiveMultiPriVxFinderTool::m_printParameterSettings()
   {
-    ATH_MSG_DEBUG("Adaptive Multi-Vertex Finder: Parameter settings ");
-    ATH_MSG_DEBUG("Trackselection cuts handled by the TrackSelectorTool: " << m_trkFilter);
-    ATH_MSG_DEBUG("Finder settings: ");
-    ATH_MSG_DEBUG("Maximum distance to include track in simultaneous vertex fits: TracksMaxZinterval " << m_TracksMaxZinterval);
-    ATH_MSG_DEBUG("Seeding: minimum chi^2 for a track being an outlier:  maxVertexChi2 " << m_maxVertexChi2);
-    ATH_MSG_DEBUG("Signal identification: final cut on track chi2: finalCutMaxVertexChi2 = " << m_finalCutMaxVertexChi2);
-    ATH_MSG_DEBUG( "Activate complete multi vertex fitting feature: realMultiVertex " << m_realMultiVertex);
-    ATH_MSG_DEBUG("Merging vertices: upper cut on significance to merge two vertices: cutVertexDependence = " << 
-		  m_cutVertexDependence);
-    ATH_MSG_DEBUG("Maximum number of iterations (and vertices): maxIterations = " << m_maxIterations);
-    ATH_MSG_DEBUG("Selection type (0 is sqrt(Ntr)*Sum_{tr} pT^2): selectiontype = " << m_selectiontype);
-    ATH_MSG_DEBUG("Use fast compatibility (if false use refitted chi2 instead of approximation): useFastCompatibility = "<<  
-		  m_useFastCompatibility);
-    ATH_MSG_DEBUG("MinWeight (if track weight in the fit is lower, don't perform the Kalman Update) = " << m_minweight);
-    ATH_MSG_DEBUG("");
+    msg(MSG::INFO) << "VxPrimary initialize(): Parametersettings " << endreq;
+ 
+    msg(MSG::INFO) << "" << endreq;
+    msg(MSG::INFO) << "Trackselection cuts handled by the TrackSelectorTool: " << m_trkFilter << endreq;
+    msg(MSG::INFO) << "Finder settings: " << endreq;
+    msg(MSG::INFO) << "Maximum distance between simultaneously fitted vertices: TracksMaxZinterval " << m_TracksMaxZinterval << endreq;
+    msg(MSG::INFO) << "Seeding: minimum weight for a track being an outlier:  maxVertexChi2 " << m_maxVertexChi2 << endreq;
+    msg(MSG::INFO) << "Signal identification: final cut on track chi2: finalCutMaxVertexChi2 = " << m_finalCutMaxVertexChi2 << endreq;
+    msg(MSG::INFO) << "Activate complete multi vertex fitting feature: realMultiVertex " << m_realMultiVertex << endreq;
+    msg(MSG::INFO) << "Merging vertices: upper cut on significance to merge two vertices: cutVertexDependence = " << m_cutVertexDependence << endreq;
+    msg(MSG::INFO) << "Maximum number of iterations: maxIterations = " << m_maxIterations << endreq;
+    msg(MSG::INFO) << "Selection type (0 is sqrt(Ntr)*Sum_{tr} pT^2): selectiontype = " << m_selectiontype << endreq;
+    msg(MSG::INFO) << "Use fast compatibility (if false use refitted chi2 instead of approximation): useFastCompatibility = "<<  m_useFastCompatibility << endreq;
+    msg(MSG::INFO) << "MinWeight (if track weight in the fit is lower, don't perform the Kalman Update) = " << m_minweight << endreq;
+
+    msg(MSG::INFO) << "" << endreq;
 }
 
 void InDetAdaptiveMultiPriVxFinderTool::m_SGError(std::string errService)
 {
-  ATH_MSG_FATAL(errService << " not found. Exiting !");
+    msg(MSG::FATAL) << errService << " not found. Exiting !" << endreq;
+    return;
 }
 
-double InDetAdaptiveMultiPriVxFinderTool::estimateDeltaZ(const Trk::TrackParameters& myPerigee, 
-							 const Amg::Vector3D& myTransvVertex)
+/* COMMENTED OUT
+double InDetAdaptiveMultiPriVxFinderTool::estimateDeltaZ(const Trk::TrackParameters& myPerigee, const Amg::Vector3D& myTransvVertex)
+{
+
+  Amg::Vector3D lp=myTransvVertex;
+
+  Amg::Vector3D expPoint(3,0);
+  Trk::GlobalPosition predStatePosition = myPerigee.position();
+  //extrapolatedPerigee->position();
+  expPoint[0] = predStatePosition.x();
+  expPoint[1] = predStatePosition.y();
+  expPoint[2] = predStatePosition.z(); 
+  
+  //phi_v and functions  
+  double phi_v = myPerigee.parameters()[Trk::phi];
+  double sin_phi_v = sin(phi_v);
+  double cos_phi_v = cos(phi_v);
+  
+  //q over p  
+  double q_ov_p = myPerigee.parameters()[Trk::qOverP];
+  int sgn_h = (q_ov_p<0.)? -1:1;
+       
+  //theta and functions  
+  double th = myPerigee.parameters()[Trk::theta];
+  double sin_th = sin(th);
+  double tan_th = tan(th);
+  
+  //momentum
+  Amg::Vector3D expMomentum(3,0);
+  expMomentum[0] = phi_v;
+  expMomentum[1] = th;
+  expMomentum[2] = q_ov_p;
+          
+  double B_z=m_zBfieldApprox;
+  
+  //signed radius and rotation variables    
+  double rho =  sin_th / (q_ov_p * B_z);  
+  double X = expPoint[0] - lp.x() + rho*sin_phi_v;
+  double Y = expPoint[1] - lp.y() - rho*cos_phi_v;
+  double SS = (X * X + Y * Y);
+  double S = sqrt(SS);
+  
+  //calculated parameters at expansion point
+
+  //calculation of phi at expansion point    
+  double phiAtEp;
+  int sgnY = (Y<0)? -1:1;
+  int sgnX = (X<0)? -1:1;  
+  double m_pi = TMath::Pi();//acos(-1.);
+  
+  if(fabs(X)>fabs(Y)) phiAtEp = sgn_h*sgnX* acos(-sgn_h * Y / S);
+  else
+  {
+    phiAtEp = asin(sgn_h * X / S);    
+    if( (sgn_h * sgnY)> 0) phiAtEp =  sgn_h * sgnX * m_pi - phiAtEp;
+  }
+
+//  std::cout << " DeltaZ: " << expPoint[2] - lp.z() << std::endl;
+
+//  std::cout << " DeltaZ (PCA): " << expPoint[2] - lp.z() + rho*(phi_v - phiAtEp)/tan_th << std::endl;
+
+  return expPoint[2] - lp.z() + rho*(phi_v - phiAtEp)/tan_th;    
+ 
+
+
+}
+*/
+
+double InDetAdaptiveMultiPriVxFinderTool::estimateDeltaZ(const Trk::TrackParameters& myPerigee, const Amg::Vector3D& myTransvVertex)
 {
 
   Amg::Vector3D lp=myTransvVertex;
@@ -1201,38 +1427,17 @@ double InDetAdaptiveMultiPriVxFinderTool::estimateDeltaZ(const Trk::TrackParamet
   double X = expPoint[0] - lp.x();
   double Y = expPoint[1] - lp.y();
   
+//  std::cout << " Z: " << expPoint[2] << std::endl;
+//  std::cout << " Z (PCA) Diff: " << expPoint[2] - lp.z() - 1./tan_th*(X*cos_phi_v+Y*sin_phi_v) << std::endl;
+  
+//  std::cout << " D0: " << myPerigee.parameters()[Trk::d0] << std::endl;
+//  std::cout << " D0 (PCA): " << Y*cos_phi_v-X*sin_phi_v  << std::endl;
+  
   return expPoint[2] - lp.z() - 1./tan_th*(X*cos_phi_v+Y*sin_phi_v);
 
 }
   
-  void InDetAdaptiveMultiPriVxFinderTool::releaseCandidate(xAOD::Vertex*& candidate)
-  {
-    if (candidate == nullptr) return;
-    // decorators
-    xAOD::Vertex::Decorator< Trk::MvfFitInfo* > MvfFitInfo("MvfFitInfo");
-    xAOD::Vertex::Decorator< std::vector< Trk::VxTrackAtVertex* > > VTAV("VTAV");
-    
-    if ( VTAV.isAvailable(*candidate) )
-    {
-      for ( auto tav : VTAV( *candidate ) ) 
-      {
-	if (tav == nullptr) continue;
-	(static_cast<Trk::MVFVxTrackAtVertex*>(tav))->setLinkToVertices(nullptr);
-	delete tav;
-	tav = nullptr;
-      }
-      VTAV( *candidate ).clear();
-    }
 
-    if ( MvfFitInfo.isAvailable(*candidate) && MvfFitInfo(*candidate) != nullptr )
-    {
-      delete MvfFitInfo(*candidate);
-      MvfFitInfo(*candidate) = nullptr;
-    }
-
-    delete candidate;
-    candidate = nullptr;
-  }
   
 } // end namespace InDet
 

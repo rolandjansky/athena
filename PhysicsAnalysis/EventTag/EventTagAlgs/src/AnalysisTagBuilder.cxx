@@ -34,19 +34,37 @@ AnalysisTagBuilder::~AnalysisTagBuilder()
 
 
 StatusCode AnalysisTagBuilder::initialize() {
-  ATH_MSG_DEBUG( "Initializing " << name()  );
+  StatusCode sc;
+
+  MsgStream mLog( messageService(), name() );
+  mLog << MSG::DEBUG << "Initializing " << name() << endreq;
+
+  /** get StoreGate service */
+  sc = service( "StoreGateSvc", m_storeGateSvc );
+  if (sc.isFailure()) {
+    mLog << MSG::ERROR << "Unable to get StoreGate service" << endreq;
+    return sc;
+  }
 
   /** get the Analysis Tag Tools */
-  ATH_CHECK( m_jetMissingEtTagTool.retrieve() );
+  sc = m_jetMissingEtTagTool.retrieve();
+  if ( sc.isFailure() ) {
+     mLog << MSG::ERROR<< "Error retrieving the JetMissingEtIdentificationTagTool" << endreq;
+     return sc;
+  }
 
   /** define attributes */ 
-  ATH_MSG_DEBUG( "Defining the attribute list specification."  );
+  mLog << MSG::DEBUG << "Defining the attribute list specification." << endreq;
 
   /** define the attributes for the analysis tags */
 
   std::map<std::string,AthenaAttributeType> attrMap;
 
-  ATH_CHECK( m_jetMissingEtTagTool->attributeSpecification(attrMap, m_nJetMissingEt) );
+  sc = m_jetMissingEtTagTool->attributeSpecification(attrMap, m_nJetMissingEt);
+  if ( sc.isFailure() ) {
+     mLog << MSG::ERROR << "Fail to build Attribute List Specification " << endreq;
+     return sc;
+  }
 
 
   std::map<std::string,AthenaAttributeType>::iterator bMap = attrMap.begin();
@@ -62,8 +80,8 @@ StatusCode AnalysisTagBuilder::initialize() {
        //m_attrMap[(*bMap).first] = ((*bMap).second).typeName();
        addAttribute( (*bMap).first, (*bMap).second );
     } else {
-      ATH_MSG_WARNING( "Removing " << (*bMap).first << " from the attribute List: not in TAG EDM" 
-                       );
+      mLog << MSG::WARNING << "Removing " << (*bMap).first << " from the attribute List: not in TAG EDM" 
+           << endreq;
     }
   }
 
@@ -71,13 +89,17 @@ StatusCode AnalysisTagBuilder::initialize() {
 }
 
 StatusCode AnalysisTagBuilder::execute() {
-  ATH_MSG_DEBUG( "Executing " << name()  );
+  StatusCode sc;
+
+  MsgStream mLog( messageService(), name() );
+
+  mLog << MSG::DEBUG << "Executing " << name() << endreq;
 
   /** retrieve TagAthenaAttributeList */
   TagAthenaAttributeList* attribList;  
-  StatusCode sc = evtStore()->retrieve( attribList, m_attributeListName);
+  sc = m_storeGateSvc->retrieve( attribList, m_attributeListName);
   if (sc.isFailure()) {
-    ATH_MSG_WARNING( "No attribute list in SG"  );
+    mLog << MSG::WARNING << "No attribute list in SG" << endreq; 
     return sc;
   }
   
@@ -88,7 +110,7 @@ StatusCode AnalysisTagBuilder::execute() {
   TagFragmentCollection jetMissingEtTag;
   sc = m_jetMissingEtTagTool->execute( jetMissingEtTag, m_nJetMissingEt );
   if (sc.isFailure()) {
-    ATH_MSG_WARNING( "Cannot Execute JetMissingEtIdentificationTagTool"  );
+    mLog << MSG::WARNING << "Cannot Execute JetMissingEtIdentificationTagTool" << endreq; 
   } else fillAttribute(attribList, jetMissingEtTag );
 
 
@@ -97,14 +119,14 @@ StatusCode AnalysisTagBuilder::execute() {
 
   /** if this is the last builder, lock the Attribute List */
   if (TagBuilderBase::lastBuilder())
-    sc = evtStore()->setConst(attribList);
+    sc = m_storeGateSvc->setConst(attribList);
 
   if (sc.isFailure())
     {
-      ATH_MSG_WARNING( "Could not set const to attribList"  );
+      mLog << MSG::WARNING << "Could not set const to attribList" << endreq; 
     }
 
-  ATH_MSG_DEBUG( "Finished" << name()  );
+  mLog << MSG::DEBUG << "Finished" << name() << endreq;
 
   return StatusCode::SUCCESS;
 }

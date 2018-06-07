@@ -66,7 +66,6 @@ namespace MuonGM {
   */
 
   class MuonDetectorManager;
-  class RpcReadoutSet;
  
   class RpcReadoutElement: public MuonClusterReadoutElement 
   {
@@ -275,7 +274,6 @@ namespace MuonGM {
 
     std::vector<MuonStripDesign> m_phiDesigns;
     std::vector<MuonStripDesign> m_etaDesigns;
-    std::unique_ptr<RpcReadoutSet> m_set;
     
   };
   

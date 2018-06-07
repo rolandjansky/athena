@@ -26,13 +26,11 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/IIoComponent.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 
 class StoreGateSvc;
 
-class CreateLumiBlockCollectionFromFile:public AthAlgorithm, virtual public IIncidentListener,
-		virtual public IIoComponent {
+class CreateLumiBlockCollectionFromFile:public AthAlgorithm, virtual public IIncidentListener {
 public:
   CreateLumiBlockCollectionFromFile (const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize();
@@ -44,9 +42,6 @@ public:
   void handle(const Incident& incident);
   ///  Callback for database access
   virtual StatusCode updateCache(IOVSVC_CALLBACK_ARGS);
-
-   /// Callback method to reinitialize the internal state of the component for I/O purposes (e.g. upon @c fork(2))
-   virtual StatusCode io_reinit();
 
 protected:
  

@@ -17,7 +17,6 @@ class ISvcLocator;
 TrigMuonEFExtrapolatorHypo::TrigMuonEFExtrapolatorHypo(const std::string & name, ISvcLocator* pSvcLocator):
   HLT::HypoAlgo(name, pSvcLocator){
   declareProperty("AcceptAll", m_acceptAll=true);
-  declareProperty("MSonlyCut", m_msonlyCut=false);
   std::vector<float> def_bins;
   def_bins.push_back(0);
   def_bins.push_back(9.9);
@@ -41,37 +40,36 @@ HLT::ErrorCode TrigMuonEFExtrapolatorHypo::hltInitialize(){
 
 
   if(m_acceptAll) {
-	 ATH_MSG_INFO("Accepting all the events with not cut!");
+    msg() << MSG::INFO
+	  << "Accepting all the events with not cut!"
+	  << endreq;
   } else {
     m_bins = m_ptBins.size() - 1;
     if (m_bins != m_ptThresholds.size()) {
-		ATH_MSG_INFO("bad thresholds setup .... exiting!");
+      msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endreq;
       return HLT::BAD_JOB_SETUP;
       //    msg() << MSG::INFO
       //  << "current hypo implementation is dummy" << endreq;
     }
 
     for (std::vector<float>::size_type i=0; i<m_bins;++i) {
-		ATH_MSG_INFO("bin " << m_ptBins[i] << " - " <<  m_ptBins[i+1]
-		                    << " with Pt Threshold of " << (m_ptThresholds[i])/CLHEP::GeV
-								  << " CLHEP::GeV");
+      msg() << MSG::INFO
+	    << "bin " << m_ptBins[i] << " - " <<  m_ptBins[i+1]
+	    << " with Pt Threshold of " << (m_ptThresholds[i])/CLHEP::GeV
+	    << " GeV" << endreq;
     }
   }
 
-  if(m_msonlyCut) {
-     if(msgLvl() <= MSG::DEBUG) {
-		  ATH_MSG_DEBUG("Apply GoodPrecisonLayers cut in MS-only triggers");
-     }
-  }
-
-  ATH_MSG_INFO("Initialization completed successfully");
+  msg() << MSG::INFO
+	<< "Initialization completed successfully"
+	<< endreq;
 
   return HLT::OK;
 }
 
 HLT::ErrorCode TrigMuonEFExtrapolatorHypo::hltFinalize()
 {
-  ATH_MSG_INFO("in finalize()");
+  msg() << MSG::INFO << "in finalize()" << endreq;
   return HLT::OK;
 }
 
@@ -81,8 +79,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorHypo::hltExecute(const HLT::TriggerElement*
 
   m_storeGate = store();
 
-  if(msgLvl() <= MSG::DEBUG) 
-	 ATH_MSG_DEBUG("in execute()");
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endreq;
 
   //resetting the monitoring variables
   m_fex_pt.clear();
@@ -92,7 +89,9 @@ HLT::ErrorCode TrigMuonEFExtrapolatorHypo::hltExecute(const HLT::TriggerElement*
   if(m_acceptAll) {
     pass = true;
     if(msgLvl() <= MSG::DEBUG) {
-		ATH_MSG_DEBUG("Accept property is set: taking all the events");
+      msg() << MSG::DEBUG
+	    << "Accept property is set: taking all the events"
+	    << endreq;
     }
     return HLT::OK;
   }
@@ -103,7 +102,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorHypo::hltExecute(const HLT::TriggerElement*
   bool debug = msgLvl() <= MSG::DEBUG;
 
   // Some debug output:
-  if(msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG("outputTE->ID(): " << outputTE->getId());
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
 
   // will do hypo cuts here
 
@@ -111,14 +110,14 @@ HLT::ErrorCode TrigMuonEFExtrapolatorHypo::hltExecute(const HLT::TriggerElement*
 
   const xAOD::MuonContainer*  muonContainer(0);
   if(getFeature(outputTE, muonContainer)!=HLT::OK) {
-    if (debug) ATH_MSG_DEBUG("no xAOD::MuonContainer Feature found");
+    if (debug) msg() << MSG::DEBUG << "no xAOD::MuonContainer Feature found" << endreq;
     return HLT::MISSING_FEATURE;
   } else {
     if (!muonContainer) { 
-      if (debug) ATH_MSG_DEBUG("null xAOD::MuonContainer Feature found");
+      if (debug) msg() << MSG::DEBUG << "null xAOD::MuonContainer Feature found" << endreq; 
       return HLT::MISSING_FEATURE; 
     } 
-    if (debug) ATH_MSG_DEBUG("vector of xAOD::MuonContainer found with size " << muonContainer->size());
+    if (debug) msg() << MSG::DEBUG << "vector of xAOD::MuonContainer found with size " << muonContainer->size()  << endreq;
   } 
 
   for (unsigned int i=0; i<muonContainer->size(); i++){
@@ -127,7 +126,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorHypo::hltExecute(const HLT::TriggerElement*
 
     const xAOD::Muon* muon = muonContainer->at(i); 
     if (!muon) {
-      if (debug) ATH_MSG_DEBUG("No xAOD::Muon found.");
+      if (debug) msg() << MSG::DEBUG << "No xAOD::Muon found." << endreq;
       continue;
     } else {
 
@@ -139,27 +138,19 @@ HLT::ErrorCode TrigMuonEFExtrapolatorHypo::hltExecute(const HLT::TriggerElement*
 
 
 	if (!tr) {
-	  if (debug) ATH_MSG_DEBUG("No ExtrapolatedMuonSpectrometerTrackParticle found.");
+	  if (debug) msg() << MSG::DEBUG << "No ExtrapolatedMuonSpectrometerTrackParticle found." << endreq;
 	  continue;
 	} else {
-	  if (debug) 
-	    ATH_MSG_DEBUG("Retrieved ExtrapolatedMuonSpectrometerTrack track with abs pt "
-		                << (*tr).pt()/CLHEP::GeV << " GeV");
- 
+	  if (debug) msg() << MSG::DEBUG
+			   << "Retrieved ExtrapolatedMuonSpectrometerTrack track with abs pt "
+			   << (*tr).pt()/CLHEP::GeV << " GeV " << endreq;
+
 	  m_fex_pt.push_back(tr->pt()/CLHEP::GeV);
 	  float eta = tr->eta();
 	  m_fex_eta.push_back(eta);
 	  m_fex_phi.push_back(tr->phi());
 
 	  float absEta = fabs(eta);
-     if (m_msonlyCut) {
-       uint8_t nGoodPrcLayers(0);
-       if (!muon->summaryValue(nGoodPrcLayers, xAOD::numberOfGoodPrecisionLayers)){
-          if (debug) ATH_MSG_DEBUG("No numberOfGoodPrecisionLayers variable foud.");
-          continue;
-       }
-       if(absEta > 1.05 && nGoodPrcLayers < 3) continue;
-     }
 	  float threshold = 0;
 	  for (std::vector<float>::size_type k=0; k<m_bins; ++k) {
 	    if (absEta > m_ptBins[k] && absEta <= m_ptBins[k+1]) threshold = m_ptThresholds[k];
@@ -167,11 +158,10 @@ HLT::ErrorCode TrigMuonEFExtrapolatorHypo::hltExecute(const HLT::TriggerElement*
 	  if (fabs(tr->pt())/CLHEP::GeV > (threshold/CLHEP::GeV)){
 	    result = true;
 	  }
-	  if(debug) 
-		 ATH_MSG_DEBUG(" REGTEST muon pt is " << tr->pt()/CLHEP::GeV << " GeV "
-		                   << " with Charge " << tr->charge()
-								 << " and threshold cut is " << threshold/CLHEP::GeV << " GeV"
-								 << " so hypothesis is " << (result?"true":"false"));
+	  if(debug) msg() << MSG::DEBUG << " REGTEST muon pt is " << tr->pt()/CLHEP::GeV << " GeV "
+			  << " with Charge " << tr->charge()
+			  << " and threshold cut is " << threshold/CLHEP::GeV << " GeV"
+			  << " so hypothesis is " << (result?"true":"false") << endreq;
 	}
       }
 				

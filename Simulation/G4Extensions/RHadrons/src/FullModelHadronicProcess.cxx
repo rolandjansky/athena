@@ -24,10 +24,10 @@
 
 
 FullModelHadronicProcess::FullModelHadronicProcess(const G4String& processName) :
-  G4VDiscreteProcess(processName,fUserDefined),m_theParticle(0),m_newParticle(0),m_toyModel(false),m_cache(0)
+  G4VDiscreteProcess(processName,fUserDefined),theParticle(0),newParticle(0),toyModel(false),cache(0)
 {
   // Instantiating helper class
-  m_theHelper = G4ProcessHelper::Instance();
+  theHelper = G4ProcessHelper::Instance();
 
 }
 
@@ -35,7 +35,7 @@ FullModelHadronicProcess::FullModelHadronicProcess(const G4String& processName) 
 G4bool FullModelHadronicProcess::IsApplicable(const G4ParticleDefinition& aP)
 {
 
-  return m_theHelper->ApplicabilityTester(aP);
+  return theHelper->ApplicabilityTester(aP);
 
 }
 
@@ -44,7 +44,7 @@ G4double FullModelHadronicProcess::GetMicroscopicCrossSection(const G4DynamicPar
                                                               G4double UNUSED(aTemp))
 {
   // Get the cross section for this particle/element combination from the ProcessHelper
-  G4double InclXsec = m_theHelper->GetInclusiveCrossSection(aParticle,anElement);
+  G4double InclXsec = theHelper->GetInclusiveCrossSection(aParticle,anElement);
   //  G4cout<<"Returned cross section from helper was: "<<InclXsec/CLHEP::millibarn<<" millibarn"<<G4endl;
 
   // Need to provide Set-methods for these in time
@@ -175,7 +175,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   //Get the final state particles
 
   G4ParticleDefinition* aTarget;
-  ReactionProduct rp = m_theHelper->GetFinalState(aTrack,aTarget);
+  ReactionProduct rp = theHelper->GetFinalState(aTrack,aTarget);
 
   //FIXME: Due to force2to2 always being set to false the while loop
   //below can never be called, so have commented it out.
@@ -183,7 +183,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   // G4bool force2to2 = false;
   // //  G4cout<<"Trying to get final state..."<<G4endl;
   // while(rp.size()!=2 && force2to2){
-  //   rp = m_theHelper->GetFinalState(aTrack,aTarget);
+  //   rp = theHelper->GetFinalState(aTrack,aTarget);
   // }
 
   G4int NumberOfSecondaries = rp.size();
@@ -356,10 +356,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
                                     aPosition);
       aParticleChange.AddSecondary(Track0);
 
-      // Because of the above calculations, and the use of mass, there's going to be a lot of squaring and
-      //  square rooting to get the total energy.  For that reason, we should allow a little buffer before
-      //  we freak out over energy non-conservation...
-      if(p0->GetKineticEnergy()>e_kin_0+1.e-9) { // Allow 1 meV of energy non-conservation in an interaction
+      if(p0->GetKineticEnergy()>e_kin_0) {
         G4cout<<"ALAAAAARM!!! (incident changed from "
               <<IncidentRhadron->GetDefinition()->GetParticleName()
               <<" to "<<p0->GetDefinition()->GetParticleName()<<")"<<G4endl;
@@ -410,7 +407,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
       p1->SetDefinition( targetParticle.GetDefinition() );
       //      G4cout<<"Target secondary: "<<targetParticle.GetDefinition()->GetParticleName()<<G4endl;
       G4ThreeVector momentum = targetParticle.GetMomentum();
-      momentum = momentum.rotate(m_cache,m_what);
+      momentum = momentum.rotate(cache,what);
       p1->SetMomentum( momentum );
       p1->SetMomentum( (trans*p1->Get4Momentum()).vect());
       G4Track* Track1 = new G4Track(p1,
@@ -462,8 +459,8 @@ void FullModelHadronicProcess::CalculateMomenta(
 {
   FullModelReactionDynamics theReactionDynamics;
 
-  m_cache = 0;
-  m_what = originalIncident->Get4Momentum().vect();
+  cache = 0;
+  what = originalIncident->Get4Momentum().vect();
 
   //Commented out like in casqmesmin.F where CALL STPAIR is commented out
   /*
@@ -565,7 +562,7 @@ void FullModelHadronicProcess::CalculateMomenta(
                                                            targetHasChanged, leadFlag,
                                                            leadingStrangeParticle );
         }
-      catch(G4HadReentrentException& aC)
+      catch(G4HadReentrentException aC)
         {
           aC.Report(G4cout);
           throw G4HadReentrentException(__FILE__, __LINE__, "Failing to calculate momenta");
@@ -635,12 +632,12 @@ G4bool FullModelHadronicProcess::MarkLeadingStrangeParticle(
 void FullModelHadronicProcess::Rotate(G4FastVector<G4ReactionProduct,GHADLISTSIZE> &vec, G4int &vecLen)
 {
   G4double rotation = 2.*CLHEP::pi*G4UniformRand();
-  m_cache = rotation;
+  cache = rotation;
   G4int i;
   for( i=0; i<vecLen; ++i )
     {
       G4ThreeVector momentum = vec[i]->GetMomentum();
-      momentum = momentum.rotate(rotation, m_what);
+      momentum = momentum.rotate(rotation, what);
       vec[i]->SetMomentum(momentum);
     }
 }

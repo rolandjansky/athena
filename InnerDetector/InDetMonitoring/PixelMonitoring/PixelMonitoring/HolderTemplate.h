@@ -57,8 +57,7 @@ class HolderTemplate {
         DBMA{nullptr},
         DBMC{nullptr},
         m_histograms{{nullptr}},
-        // Use parens here to work around gcc bug 83919
-        m_config(config),
+        m_config{config},
         m_copy2DFEval{copy2DFEval},
         m_doIBL{true} {}
 

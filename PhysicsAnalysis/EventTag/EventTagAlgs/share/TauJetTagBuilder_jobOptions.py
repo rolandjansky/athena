@@ -10,6 +10,6 @@ TauJetTagBuilder = TauJetTagBuilder(
      name            = "TauJetTagBuilder",
      TauJetTagTool   = TauJetTagTool,
      AttributeList   = EventTagGlobal.AttributeList,
-     MaxNumber       = 4,
+     MaxNumber       = 2,
      CheckAttribute  = True)
 topSequence += TauJetTagBuilder

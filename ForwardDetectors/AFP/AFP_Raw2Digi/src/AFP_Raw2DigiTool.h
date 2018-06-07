@@ -14,8 +14,9 @@
 #include <string>
 #include "TF1.h"
 
-class AFP_Raw2DigiTool : public extends<AthAlgTool, IAFP_Raw2DigiTool>
-{
+class AFP_Raw2DigiTool
+  : virtual public ::IAFP_Raw2DigiTool,
+    public ::AthAlgTool {
 public:
   AFP_Raw2DigiTool(const std::string &type, const std::string &name, const IInterface *parent);
 

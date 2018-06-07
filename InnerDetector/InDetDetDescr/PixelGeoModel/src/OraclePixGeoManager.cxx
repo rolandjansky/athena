@@ -240,7 +240,6 @@ OraclePixGeoManager::~OraclePixGeoManager()
   delete m_gangedIndexMap;
   delete m_diskRingIndexMap;
   delete m_zPositionMap;
-  delete m_frameElementMap;
 }
 
 

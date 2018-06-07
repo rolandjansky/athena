@@ -105,19 +105,17 @@ svcMgr.DecisionSvc.CalcStats = True
 # Add the TSOS augmentation tool to the derivation framework
 augmentationTools=[]
 
-from InDetRecExample.InDetJobProperties import InDetFlags
-if not InDetFlags.disableTracking():
-    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackStateOnSurfaceDecorator
-    DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "SCTxAOD_DFTrackStateOnSurfaceDecorator",
-                                                               ContainerName = "InDetTrackParticles",
-                                                               DecorationPrefix = prefixName,
-                                                               StoreTRT   = False,
-                                                               StoreSCT   = True,
-                                                               StorePixel = False,
-                                                               IsSimulation = isSctDxAODSimulation,
-                                                               OutputLevel = INFO)
-    ToolSvc += DFTSOS
-    augmentationTools+=[DFTSOS]
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackStateOnSurfaceDecorator
+DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "SCTxAOD_DFTrackStateOnSurfaceDecorator",
+                                                          ContainerName = "InDetTrackParticles",
+                                                          DecorationPrefix = prefixName,
+                                                          StoreTRT   = False,
+                                                          StoreSCT   = True,
+                                                          StorePixel = False,
+                                                          IsSimulation = isSctDxAODSimulation,
+                                                          OutputLevel = INFO)
+ToolSvc += DFTSOS
+augmentationTools+=[DFTSOS]
 
 
 # Add BS error augmentation tool

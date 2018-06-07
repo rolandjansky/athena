@@ -247,7 +247,7 @@ class TopoAlgoDef:
         tm.registerAlgo(alg)            
 
 
-        alg = AlgConf.MuonSort( name = 'MUs', inputs = 'MuonTobArray', outputs = 'MUs', algoId = currentAlgoId ); currentAlgoId += 1
+        alg = AlgConf.MuonSelect( name = 'MUs', inputs = 'MuonTobArray', outputs = 'MUs', algoId = currentAlgoId ); currentAlgoId += 1
 
         alg.addgeneric('InputWidth', HW.InputWidthMU)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortMU )
@@ -1229,7 +1229,7 @@ class TopoAlgoDef:
 
             alg = AlgConf.EtaPhiWindow( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
             alg.addgeneric('InputWidth', inputwidth)  # noqa: F821
-            alg.addgeneric('MaxTob', 0)
+#            alg.addgeneric('MaxTob', 1)
             alg.addgeneric('NumResultBits', 1)
             alg.addvariable('MinET', str(ocut)) # noqa: F821
             alg.addvariable('EtaMin', minEta) # noqa: F821
@@ -1494,9 +1494,9 @@ class TopoAlgoDef:
 
         # FTK 
         for x in [
-            {"minEta": -16, "maxEta": 16, "minPhi": 15, "maxPhi": 29, "otype" : "EM", "ocut" : 20, "inputwidth": HW.OutputWidthSortEM},
-            {"minEta": -16, "maxEta": 16, "minPhi": 15, "maxPhi": 29, "otype" : "J", "ocut" : 100, "inputwidth": HW.OutputWidthSortJET},
-            {"minEta": -16, "maxEta": 16, "minPhi": 15, "maxPhi": 29, "otype" : "MU", "ocut" : 20, "inputwidth": HW.OutputWidthSortMU},
+            {"minEta": -16, "maxEta": 01, "minPhi": 15, "maxPhi": 21, "otype" : "EM", "ocut" : 20, "inputwidth": HW.OutputWidthSortEM},
+            {"minEta": -16, "maxEta": 01, "minPhi": 15, "maxPhi": 21, "otype" : "J", "ocut" : 100, "inputwidth": HW.OutputWidthSortJET},
+            {"minEta": -16, "maxEta": 01, "minPhi": 15, "maxPhi": 21, "otype" : "MU", "ocut" : 20, "inputwidth": HW.OutputWidthSortMU},
             ]:
 
             for k in x:
@@ -1510,7 +1510,7 @@ class TopoAlgoDef:
 
             alg = AlgConf.EtaPhiWindow( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
             alg.addgeneric('InputWidth', inputwidth)  # noqa: F821
-            alg.addgeneric('MaxTob', 1)
+#            alg.addgeneric('MaxTob', 1)
             alg.addgeneric('NumResultBits', 1)
             alg.addvariable('MinET', str(ocut)) # noqa: F821
             alg.addvariable('EtaMin', minEta) # noqa: F821
@@ -1576,9 +1576,9 @@ class TopoAlgoDef:
 
 
 
-        # added for b-phys, 0DR03-EM7ab-CJ15ab
+        # added for b-phys
         for x in [  
-            {"minDr": 0, "maxDr": 3, "otype1" : "EM" ,"ocut1": 7,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 15, "olist2" : "ab"} 
+            {"minDr": 0, "maxDr": 4, "otype1" : "EM" ,"ocut1": 7,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 15, "olist2" : "ab"} 
             ]:
 
             for k in x:
@@ -1605,7 +1605,7 @@ class TopoAlgoDef:
 
         # VBF items INVM_NFF
         for x in [
-            {"algoname": 'INVM_NFF', "Threlist": [ 600, 500, 400, 200 ], "maxInvm": 9999, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 20, "olist2" : "s", "nleading2" : 6 },
+            {"algoname": 'INVM_NFF', "Threlist": [ 800, 600, 400, 200 ], "maxInvm": 9999, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 15, "olist2" : "s", "nleading2" : 6 },
             ]:
             
             for k in x:

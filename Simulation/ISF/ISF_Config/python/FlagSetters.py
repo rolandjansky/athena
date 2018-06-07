@@ -130,9 +130,6 @@ def configureFlagsATLFASTIIF():
     DetFlags.geometry.BCM_setOff()
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "ATLFASTIIF"
-    from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
-    TrkDetFlags.MaterialVersion=21
-    TrkDetFlags.TRT_BuildStrawLayers=True
     return
 
 def configureFlagsFatras_newExtrapolation():
@@ -158,9 +155,6 @@ def configureFlagsG4HS_FastPileup():
     simFlags.SimulationFlavour = "G4HS_FastPileup"
     from ISF_Config.ISF_jobProperties import ISF_Flags
     ISF_Flags.UsingGeant4 = True
-    from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
-    TrkDetFlags.MaterialVersion=21
-    TrkDetFlags.TRT_BuildStrawLayers=True
     return
 
 def configureFlagsATLFASTIIF_IDOnly():

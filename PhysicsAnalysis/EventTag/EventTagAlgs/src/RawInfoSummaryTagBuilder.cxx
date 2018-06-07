@@ -29,18 +29,36 @@ RawInfoSummaryTagBuilder::~RawInfoSummaryTagBuilder()
 
 
 StatusCode RawInfoSummaryTagBuilder::initialize() {
-  ATH_MSG_DEBUG( "Initializing " << name()  );
+  StatusCode sc;
+
+  MsgStream mLog( messageService(), name() );
+  mLog << MSG::DEBUG << "Initializing " << name() << endreq;
+
+  /** get StoreGate service */
+  sc = service( "StoreGateSvc", m_storeGateSvc );
+  if (sc.isFailure()) {
+    mLog << MSG::ERROR << "Unable to get StoreGate service" << endreq;
+    return sc;
+  }
 
   /** get the Tag Tool */
-  ATH_CHECK( m_tagTool.retrieve() );
+  sc = m_tagTool.retrieve();
+  if ( sc.isFailure() ) {
+     mLog << MSG::ERROR<< "Error retrieving the RawInfoSummaryForTagTool" << endreq;
+     return sc;
+  }
 
   /** define attributes */ 
-  ATH_MSG_DEBUG( "Defining the attribute list specification."  );
+  mLog << MSG::DEBUG << "Defining the attribute list specification." << endreq;
 
   /** define the attributes */
   //std::map<std::string,AthenaAttributeType> attrMap;
   std::vector<AthenaAttributeSpecification> attrMap;
-  ATH_CHECK( m_tagTool->attributeSpecification(attrMap) );
+  sc = m_tagTool->attributeSpecification(attrMap);
+  if ( sc.isFailure() ) {
+     mLog << MSG::ERROR << "Fail to build Attribute List Specification " << endreq;
+     return sc;
+  }
 
   //std::map<std::string,AthenaAttributeType>::iterator bMap = attrMap.begin();
   //std::map<std::string,AthenaAttributeType>::iterator eMap = attrMap.end();
@@ -57,7 +75,8 @@ StatusCode RawInfoSummaryTagBuilder::initialize() {
        //addAttribute( bMap->name(), bMap->attributeType() );
        addAttribute( name, type );
     } else {
-      ATH_MSG_WARNING( "Removing " << (*bMap).name() << " from the attribute List: not in TAG EDM" );
+      mLog << MSG::WARNING << "Removing " << (*bMap).name() << " from the attribute List: not in TAG EDM"
+           << endreq;
     }
   }
 
@@ -65,13 +84,17 @@ StatusCode RawInfoSummaryTagBuilder::initialize() {
 }
 
 StatusCode RawInfoSummaryTagBuilder::execute() {
-  ATH_MSG_DEBUG( "Executing " << name()  );
+  StatusCode sc;
+
+  MsgStream mLog( messageService(), name() );
+
+  mLog << MSG::DEBUG << "Executing " << name() << endreq;
 
   /** retrieve TagAthenaAttributeList */
   TagAthenaAttributeList* attribList;  
-  StatusCode sc = evtStore()->retrieve( attribList, m_attributeListName);
+  sc = m_storeGateSvc->retrieve( attribList, m_attributeListName);
   if (sc.isFailure()) {
-    ATH_MSG_WARNING( "No attribute list in SG"  );
+    mLog << MSG::WARNING << "No attribute list in SG" << endreq; 
     return sc;
   }
   
@@ -79,7 +102,7 @@ StatusCode RawInfoSummaryTagBuilder::execute() {
   TagFragmentCollection rawfragment;
   sc = m_tagTool->execute( rawfragment );
   if (sc.isFailure()) {
-    ATH_MSG_WARNING( "Cannot Execute RawInfoSummaryForTagTool"  );
+    mLog << MSG::WARNING << "Cannot Execute RawInfoSummaryForTagTool" << endreq; 
   } else fillAttribute(attribList, rawfragment);
 
   /** decrease number of builders */
@@ -87,14 +110,14 @@ StatusCode RawInfoSummaryTagBuilder::execute() {
 
   /** if this is the last builder, lock the Attribute List */
   if (TagBuilderBase::lastBuilder())
-    sc = evtStore()->setConst(attribList);
+    sc = m_storeGateSvc->setConst(attribList);
 
   if (sc.isFailure())
     {
-      ATH_MSG_WARNING( "Could not set const to attribList"  );
+      mLog << MSG::WARNING << "Could not set const to attribList" << endreq; 
     }
 
-  ATH_MSG_DEBUG( "Finished" << name()  );
+  mLog << MSG::DEBUG << "Finished" << name() << endreq;
 
   return StatusCode::SUCCESS;
 }

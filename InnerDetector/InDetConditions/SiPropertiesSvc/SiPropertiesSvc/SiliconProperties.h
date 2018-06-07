@@ -36,8 +36,6 @@ public:
   double holeHallMobility() const;
   double electronDiffusionConstant() const;
   double holeDiffusionConstant() const;
-  double electronSaturationVelocity() const;
-  double holeSaturationVelocity() const;
   
   double electronHolePairsPerEnergy() const;
   
@@ -68,8 +66,6 @@ public:
   void setHoleHallMobility(double mobility);
   void setElectronDiffusionConstant(double diffusionConstant);
   void setHoleDiffusionConstant(double diffusionConstant);
-  void setElectronSaturationVelocity(double electronSaturationVelocity);
-  void setHoleSaturationVelocity(double holeSaturationVelocity);
   void setElectronHolePairsPerEnergy(double ehPairsPerEnergy);
 
 private:
@@ -79,8 +75,6 @@ private:
   double m_holeHallMobility;
   double m_electronDiffusionConstant;
   double m_holeDiffusionConstant;
-  double m_electronSaturationVelocity;
-  double m_holeSaturationVelocity;
   double m_ehPairsPerEnergy;
 
   bool   m_override; // signal that quantities are overriden and recalculation are disabled.

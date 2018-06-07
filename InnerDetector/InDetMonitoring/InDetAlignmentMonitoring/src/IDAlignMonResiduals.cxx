@@ -742,11 +742,11 @@ StatusCode IDAlignMonResiduals::bookHistograms()
 
   MonGroup al_mon ( this, outputDirName, run );
 	
-  if ( newLowStatFlag() ) {  
+  if ( newLowStat ) {  
   }
-  if ( newLumiBlockFlag() ) {  
+  if ( newLumiBlock ) {  
   }
-  if ( newRunFlag() ) {
+  if ( newRun ) {
 	  
     //if user environment specified we don't want to book new histograms at every run boundary
     //we instead want one histogram per job
@@ -2456,12 +2456,12 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 
 StatusCode IDAlignMonResiduals::procHistograms()
 {  
-  if( endOfLowStatFlag() ) {
+  if( endOfLowStat ) {
   }
-  if( endOfLumiBlockFlag() ) {
+  if( endOfLumiBlock ) {
     
   }
-  if( endOfRunFlag() || ( ( AthenaMonManager::environment() == AthenaMonManager::online ) && endOfLumiBlockFlag() ) ) { 
+  if( endOfRun || ( ( AthenaMonManager::environment() == AthenaMonManager::online ) && endOfLumiBlock ) ) { 
     for(unsigned int side=0;side<3;++side){
       
       //single TRT residuals

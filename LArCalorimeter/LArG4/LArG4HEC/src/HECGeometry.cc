@@ -57,7 +57,11 @@ namespace LArG4 {
   namespace HEC {
 
     HECGeometry::HECGeometry(const std::string& name, ISvcLocator * pSvcLocator)
-      : base_class(name, pSvcLocator)
+      : AthService(name, pSvcLocator)
+      , m_hecManager(nullptr)
+      , m_depthHist(false)
+      , m_withMother(false)
+      , m_g4historyDepth(0)
     {
 
     }
@@ -99,7 +103,7 @@ namespace LArG4 {
 
           int isegInner = 0;
           int isegOuter = block->getNumRadialSegments();
-          const int numBlk  = block->getBlockNumber();
+          int numBlk  = block->getBlockNumber();
 
           int nInReg = 4;
           if (numBlk>1 && numBlk<6) { isegInner = 1; nInReg=3; }
@@ -119,8 +123,8 @@ namespace LArG4 {
               m_minval[depthIndex][iregion][ieta]= hecRad->getMinVal();
               m_maxval[depthIndex][iregion][ieta]= hecRad->getMaxVal();
               // This is a most terrible hack to correct numbers in the database...:
-              const double rInner = m_hecManager->getBlock(depthIndex)->getInnerRadius();
-              const double rOuter = m_hecManager->getBlock(depthIndex)->getOuterRadius();
+              double rInner = m_hecManager->getBlock(depthIndex)->getInnerRadius();
+              double rOuter = m_hecManager->getBlock(depthIndex)->getOuterRadius();
               if (hecRad->getMaxVal()==2027.)                    m_maxval[depthIndex][iregion][ieta]=rOuter;
               if (hecRad->getMinVal()==375. && depthIndex==0)    m_minval[depthIndex][iregion][ieta]=rInner;
               else if (hecRad->getMinVal()==478 && depthIndex>0) m_minval[depthIndex][iregion][ieta]=rInner;
@@ -133,6 +137,7 @@ namespace LArG4 {
       m_firstAbsThickness[1] = m_hecManager->getBlock(3)->getFrontPlateThickness() ;
       m_wheel1 = m_depthSize[0]+m_depthSize[1]+m_depthSize[2];              // 816.5;
       m_wheel2 = m_depthSize[3]+m_depthSize[4]+m_depthSize[5]+m_depthSize[6]; // 961.0;
+      m_betweenWheels = 40.5; // FIXME HACK!! -- can't find this through LArReadoutGeometry...
       m_startHec2 = m_wheel1 + m_betweenWheels + m_firstAbsThickness[1];
       m_hecLength = m_wheel1 + m_betweenWheels + m_wheel2;
       m_rOuter  = m_hecManager->getBlock(0)->getOuterRadius();
@@ -172,6 +177,20 @@ namespace LArG4 {
             }
         }
 
+      return StatusCode::SUCCESS;
+    }
+
+   //============================================================================================
+
+    StatusCode HECGeometry::queryInterface( const InterfaceID & riid,  void** ppvInterface )
+    {
+      if ( IHECGeometry::interfaceID().versionMatch(riid) ) {
+        *ppvInterface = dynamic_cast<IHECGeometry*>(this);
+      } else {
+        // Interface is not directly available : try out a base class
+        return AthService::queryInterface(riid, ppvInterface);
+      }
+      addRef();
       return StatusCode::SUCCESS;
     }
 

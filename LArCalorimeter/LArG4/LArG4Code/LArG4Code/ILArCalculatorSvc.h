@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// ILArCalculatorSvc.h
+// ILArCalculatorSvc.h 
 // Prepared in 2016 based on LArVCalculator from Bill Seligman
 
 #ifndef __ILARCALCULATORSVC_H__
@@ -26,8 +26,10 @@ class ILArCalculatorSvc: virtual public IService {
 public:
 
   ILArCalculatorSvc() {};
-
-  DeclareInterfaceID(ILArCalculatorSvc,1,0);
+  static const InterfaceID& interfaceID() { 
+     static const InterfaceID  IID_ILArCalculatorSvc("ILArCalculatorSvc",1,0);
+     return IID_ILArCalculatorSvc; 
+  }
 
   virtual ~ILArCalculatorSvc() {};
 

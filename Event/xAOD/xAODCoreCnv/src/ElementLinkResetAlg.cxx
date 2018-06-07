@@ -1,16 +1,14 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
+
+// $Id: ElementLinkResetAlg.cxx 788434 2016-12-07 14:46:53Z krasznaa $
 
 // System include(s):
 #include <map>
 
-// Framework include(s):
-#include "AthenaKernel/errorcheck.h"
-
 // EDM include(s):
 #include "AthContainersInterfaces/IConstAuxStore.h"
-#include "AthContainersInterfaces/IAuxStoreIO.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/normalizedTypeinfoName.h"
 #include "AthLinks/ElementLinkBase.h"
@@ -122,22 +120,8 @@ namespace xAODMaker {
          // If the pointer is null, then something dodgy happened with this
          // (dynamic) variable.
          if( ! ptr ) {
-            // Check if this is a static variable. If it is, it's not an error
-            // to get a null pointer for it. Since such a case can only happen
-            // when a new static variable was introduced into the EDM, and we're
-            // reading an old input file that doesn't have this variable in it
-            // yet. Which is an okay scenario.
-            const SG::IAuxStoreIO* storeIO =
-               dynamic_cast< const SG::IAuxStoreIO* >( &store );
-            if( ( ! storeIO ) || ( storeIO->getDynamicAuxIDs().find( auxid ) !=
-                                   storeIO->getDynamicAuxIDs().end() ) ) {
-               REPORT_MESSAGE( MSG::ERROR )
-                  << "Invalid pointer received for variable: " << key
-                  << reg.getName( auxid );
-            } else {
-               ATH_MSG_DEBUG( "Static variable " << key << reg.getName( auxid )
-                              << " is empty" );
-            }
+            ATH_MSG_ERROR( "Invalid pointer received for variable: "
+                           << key << reg.getName( auxid ) );
             continue;
          }
 

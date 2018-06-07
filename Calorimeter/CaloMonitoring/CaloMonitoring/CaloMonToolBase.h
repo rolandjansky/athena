@@ -38,7 +38,6 @@ class CaloMonToolBase : public ManagedMonitorToolBase {
 
   bool m_useLArNoisyAlg;
   //bool m_useTriggerFilter;
-  bool m_useCollisionFilterTool;
   bool m_useBeamBackgroundRemoval;
  
   std::string m_beamBackgroundKey;

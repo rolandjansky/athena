@@ -14,9 +14,6 @@
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "LArG4Code/ILArCalculatorSvc.h"
 
-#include "GaudiKernel/MsgStream.h"
-#include <string>
-
 LArFCS_StepInfoSD::LArFCS_StepInfoSD(G4String a_name, const FCS_Param::Config& config)
   : FCS_StepInfoSD(a_name, config)
   , m_calculator(m_config.m_LArCalculator)
@@ -40,11 +37,12 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
     const double StepLength = a_step->GetStepLength()/ CLHEP::mm;
     const G4ThreeVector preStepPosition = a_step->GetPreStepPoint()->GetPosition(); //pre step is the position we're interested in
     const G4ThreeVector postStepPosition = a_step->GetPostStepPoint()->GetPosition();
+    double et(0.); // Total collected charge
     std::vector<const G4Step*> steps;
     bool madeSubSteps(false);
-    if (m_config.shorten_lar_step && StepLength>m_config.substpsize) {
+    if (m_config.shorten_lar_step && StepLength>0.2) {
       //create smaller substeps instead
-      G4int nsub_step=(int) (StepLength/m_config.substpsize) + 1;
+      G4int nsub_step=(int) (StepLength/0.2) + 1;
       G4double delta=1./((double) nsub_step);
       //G4cout <<"Orig prestep: "<<preStepPosition<<std::endl;
       for (G4int i=0;i<nsub_step;i++) {
@@ -70,56 +68,29 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
       steps.push_back(a_step);
     }
 
-    if (m_config.verboseLevel > 4) {
-      G4cout <<"LArFCS_StepInfoSD::ProcessHits(): original step in Volume: "<<
-               a_step->GetPreStepPoint()->GetPhysicalVolume()->GetName()<<
-               " position: "<<a_step->GetPreStepPoint()->GetPosition()<<" Length="<<a_step->GetStepLength()/CLHEP::mm<<
-               " E="<<a_step->GetTotalEnergyDeposit()<<G4endl;
-      std::vector<LArHitData> processedHits;
-      if (m_calculator->Process(a_step, processedHits)) {
-        if (m_config.verboseLevel > -1) {
-          G4cout <<"  #LArHitData="<<processedHits.size();
-          for(const auto& lhd:processedHits) {
-            G4cout <<" ; id="<<(std::string)lhd.id<<" E="<<lhd.energy<<G4endl;
-          }
-          G4cout << G4endl;
-        }
-      }
-      G4cout <<"LArFCS_StepInfoSD::ProcessHits(): #substep="<< steps.size()<<G4endl;
-    }
-
-    double et_all=0; // Total collected charge in all substeps
     for (const G4Step* substep : steps) {
-      double et(0.); // Total collected charge in this substep
       G4ThreeVector stepPosition = 0.5*(substep->GetPreStepPoint()->GetPosition()+substep->GetPostStepPoint()->GetPosition());
       std::vector<LArHitData> processedHits;
-      if (m_config.verboseLevel > 4) {
-        G4cout <<"  LArFCS_StepInfoSD::ProcessHits(): substep in Volume: "<<
-                 substep->GetPreStepPoint()->GetPhysicalVolume()->GetName()<<
-                 " position: "<<substep->GetPreStepPoint()->GetPosition()<<" Length="<<substep->GetStepLength()/CLHEP::mm<<
-                 " E="<<substep->GetTotalEnergyDeposit()<<G4endl;
-      }
       if (m_calculator->Process(substep, processedHits)) {
         for (const auto& larhit: processedHits) {
           et += larhit.energy;
-          et_all += larhit.energy;
         }
-        if (m_config.verboseLevel > 4) {
-          G4cout <<"    substep #LArHitData="<<processedHits.size();
-          for(const auto& lhd:processedHits) {
-            G4cout <<" ; id="<<(std::string)lhd.id<<" E="<<lhd.energy<<G4endl;
-          }
-          G4cout << G4endl;
-        }
-      } else {
+      }
+      else {
         if (m_config.verboseLevel > 4) {
           //Maybe 0 hits or something like that...
           G4cout << this->GetName()<<" WARNING ProcessHits: Call to ILArCalculatorSvc::Process failed! Details:" << G4endl
                  << "          " << "Volume: "<< a_step->GetPreStepPoint()->GetPhysicalVolume()->GetName()<<" "<<m_calculator<< " position: "<<stepPosition<<" SL: "<<StepLength<<G4endl
                  << "          " << "Orig position: "<<substep->GetPreStepPoint()->GetPosition()<<"  /  "<<substep->GetPostStepPoint()->GetPosition()<<G4endl
                  << "          " << "StepLength: "<<StepLength<<" step: "<<preStepPosition<<" / "<<postStepPosition<<G4endl;
-        }
-        continue;
+            }
+	
+	if (madeSubSteps) {
+	  //only delete steps when doing substeps. Do not delete the original G4Step!
+	  while(!steps.empty()) { delete steps.back(); steps.pop_back(); }
+	}
+	
+        return result;
       }
 
       // drop hits with zero deposited energy (could still happen with negative corrections from calculator)
@@ -128,7 +99,13 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
         if (m_config.verboseLevel > 4) {
           G4cout << this->GetName()<<" WARNING ProcessHits: Total negative energy: " << et << " not processing..." << G4endl;
         }
-        continue;
+
+	if (madeSubSteps) {
+	  //only delete steps when doing substeps. Do not delete the original G4Step!
+	  while(!steps.empty()) { delete steps.back(); steps.pop_back(); }
+	}
+	
+        return result;
       }
 
       const size_t numberOfProcessedHits = processedHits.size();
@@ -154,17 +131,7 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
       //for (size_t i=0; i<numberOfProcessedHits; ++i) {
       for (const auto& larhit: processedHits) {
         Identifier id = this->ConvertID(larhit.id);
-        if(larhit.id[0]==10) {
-          if(m_config.verboseLevel > 9) {
-            G4cout << this->GetName()<<" VERBOSE ProcessHits: Dead Material LArG4Identifier: "<<(std::string) larhit.id<<G4endl
-                   <<"          "<<id<<G4endl
-                   <<"          "<<id.getString()<<G4endl
-                   <<"          "<< a_step->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()<<G4endl
-                   <<"          numberOfProcessedHits: "<<numberOfProcessedHits<<G4endl;
-            G4cout <<"          "<<invalidIdentifier<<G4endl;
-          }
-        }
-        else if (id == invalidIdentifier) {
+        if (id == invalidIdentifier) {
           G4cout << this->GetName()<<" WARNING ProcessHits: Something wrong with LArG4Identifier: "<<(std::string) larhit.id<<G4endl
                  <<"          "<<id<<G4endl
                  <<"          "<<id.getString()<<G4endl
@@ -184,7 +151,13 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
               //find subhit with largest energy
               if (maxSubHitEnergyindex == -1) {
                 G4cout << this->GetName()<<" WARNING ProcessHits: no subhit index with e>-999??? "<<G4endl;
-                continue;
+
+		if (madeSubSteps) {
+		  //only delete steps when doing substeps. Do not delete the original G4Step!
+		  while(!steps.empty()) { delete steps.back(); steps.pop_back(); }
+		}
+		
+                return result;
               }
               if(m_config.verboseLevel > 9) {
                 G4cout << this->GetName()<<" VERBOSE ProcessHits: shifting subhits: largest energy subhit index is "<<maxSubHitEnergyindex<<" E: "<<maxSubHitEnergy<<" identifier: "<<maxEnergyIdentifier.getString()<<G4endl;
@@ -228,31 +201,61 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
         //double time = larhit.energy)==0 ? 0. : (double) larhit.time/larhit.energy/CLHEP::ns;
         double time = larhit.time;
         double energy = larhit.energy/CLHEP::MeV;
-        // Drop any hits that don't have a good identifier attached
-        if (!m_calo_dd_man->get_element(id)) {
-          if(m_config.verboseLevel > 4) {
-            G4cout<<this->GetName()<<" DEBUG update_map: bad identifier: "<<id.getString()<<" skipping this hit."<<G4endl;
-          }
-          continue;
-        }
-        // Get the appropriate merging limits
-        const CaloCell_ID::CaloSample& layer = m_calo_dd_man->get_element(id)->getSampling();
-        const double timeWindow(m_config.m_maxTime);
-        const double distanceWindow((layer == CaloCell_ID::EMB1 || layer == CaloCell_ID::EME1) ? m_config.m_maxRadiusFine : m_config.m_maxRadius); //Default 1mm merging in layers 1 & 5, 5mm merging elsewhere
-        this->update_map(stepPosition, id, energy, time, true, numberOfProcessedHits, timeWindow, distanceWindow); //store numberOfProcessedHits as info
+        this->update_map(stepPosition, id, energy, time, true, numberOfProcessedHits); //store numberOfProcessedHits as info
       }//numberOfProcessedHits
     } //istep
     if (madeSubSteps) {
       //only delete steps when doing substeps. Do not delete the original G4Step!
       while(!steps.empty()) { delete steps.back(); steps.pop_back(); }
     }
-    if (m_config.verboseLevel > 4) {
-      G4cout <<"LArFCS_StepInfoSD::ProcessHits(): Etotal substeps="<<et_all<<G4endl<<G4endl<<G4endl;
-    }
   }
 
   return result;
 }
+
+void LArFCS_StepInfoSD::update_map(const CLHEP::Hep3Vector & l_vec, const Identifier & l_cell, double l_energy, double l_time, bool l_valid, int l_detector)
+{
+  // Drop any hits that don't have a good identifier attached
+  if (!m_calo_dd_man->get_element(l_cell)) {
+    if(m_config.verboseLevel > 4) {
+      G4cout<<this->GetName()<<" DEBUG update_map: bad identifier: "<<l_cell.getString()<<" skipping this hit."<<G4endl;
+    }
+    return;
+  }
+
+  auto map_item = m_hit_map.find( l_cell );
+  if (map_item==m_hit_map.end()) {
+    m_hit_map[l_cell] = new std::vector< ISF_FCS_Parametrization::FCS_StepInfo* >;
+    m_hit_map[l_cell]->reserve(200);
+    m_hit_map[l_cell]->push_back( new ISF_FCS_Parametrization::FCS_StepInfo( l_vec , l_cell , l_energy , l_time , l_valid , l_detector ) );
+  }
+  else {
+    // Get the appropriate merging limits
+    const CaloCell_ID::CaloSample& layer = m_calo_dd_man->get_element(l_cell)->getSampling();
+    const double tsame(m_config.m_maxTime);
+    const double maxRadius((layer == CaloCell_ID::EMB1 || layer == CaloCell_ID::EME1) ? m_config.m_maxRadiusFine : m_config.m_maxRadius); //Default 1mm merging in layers 1 & 5, 5mm merging elsewhere
+    bool match = false;
+    for (auto map_it : * map_item->second) {
+      // Time check
+      const double delta_t = std::fabs(map_it->time()-l_time);
+      if ( delta_t >= tsame ) { continue; }
+      // Distance check
+      const CLHEP::Hep3Vector & currentPosition = map_it->position();
+      const double hit_diff2 = currentPosition.diff2( l_vec );
+      if ( hit_diff2 >= maxRadius ) { continue; }
+
+      // Found a match.  Make a temporary that will be deleted!
+      const ISF_FCS_Parametrization::FCS_StepInfo my_info( l_vec , l_cell , l_energy , l_time , l_valid , l_detector );
+      *map_it += my_info;
+      match = true;
+      break;
+    } // End of search for match in time and space
+    if (!match) {
+      map_item->second->push_back( new ISF_FCS_Parametrization::FCS_StepInfo( l_vec , l_cell , l_energy , l_time , l_valid , l_detector ) );
+    } // Didn't match
+  } // ID already in the map
+  return;
+} // That's it for updating the map!
 
 Identifier LArFCS_StepInfoSD::ConvertID(const LArG4Identifier& a_ident) const
 {

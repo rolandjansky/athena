@@ -17,15 +17,7 @@ map<unsigned long long, unsigned long long> g_cellId_vs_cellHashId_map;
 
 CaloGeometryFromFile::CaloGeometryFromFile() : CaloGeometry()
 {
-}
-
-CaloGeometryFromFile::~CaloGeometryFromFile()
-{
-}
-
-bool CaloGeometryFromFile::LoadGeometryFromFile(TString filename,TString treename,TString hashfile)
-{
-	ifstream textfile(hashfile);
+	ifstream textfile("/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/cellId_vs_cellHashId_map.txt");
 	unsigned long long id, hash_id; 
 	cout << "Loading cellId_vs_cellHashId_map" << endl;
 	int i=0;
@@ -43,7 +35,14 @@ bool CaloGeometryFromFile::LoadGeometryFromFile(TString filename,TString treenam
 	}
 	cout << "Done." << endl;
 	
+}
 
+CaloGeometryFromFile::~CaloGeometryFromFile()
+{
+}
+
+bool CaloGeometryFromFile::LoadGeometryFromFile(TString filename,TString treename)
+{
   TTree *tree;
   TFile *f = TFile::Open(filename);
   if(!f) return false;
@@ -104,10 +103,7 @@ bool CaloGeometryFromFile::LoadGeometryFromFile(TString filename,TString treenam
     if (ientry < 0) break;
     fChain->GetEntry(jentry);
     
-    if (g_cellId_vs_cellHashId_map.find(cell.m_identify)!=g_cellId_vs_cellHashId_map.end()) {
-      cell.m_hash_id=g_cellId_vs_cellHashId_map[cell.m_identify];
-      if(cell.m_hash_id!=jentry) cout<<jentry<<" : ERROR hash="<<cell.m_hash_id<<endl;
-    }  
+    if (g_cellId_vs_cellHashId_map.find(cell.m_identify)!=g_cellId_vs_cellHashId_map.end()) cell.m_hash_id=g_cellId_vs_cellHashId_map[cell.m_identify];
     else cout << endl << "ERROR: Cell id not found in the cellId_vs_cellHashId_map!!!" << endl << endl;
     
 
@@ -160,10 +156,10 @@ bool CaloGeometryFromFile::LoadGeometryFromFile(TString filename,TString treenam
 	std::cout << "\n \n";
 	std::cout << "Testing whether CaloGeoGeometry is loaded properly" << std::endl;
 	if(!mcell)std::cout << "Cell is not found" << std::endl;
-	std::cout << "Identifier " << mcell->identify() <<" sampling " << mcell->getSampling() << " eta: " << mcell->eta() << " phi: " << mcell->phi() << " CaloDetDescrElement="<<mcell << std::endl<< std::endl;
+	std::cout << "Identifier " << mcell->identify() <<" sampling " << mcell->getSampling() << " eta: " << mcell->eta() << " phi: " << mcell->phi() << std::endl<< std::endl;
 	
 	const CaloDetDescrElement* mcell2 = this->getDDE(mcell->getSampling(),mcell->eta(),mcell->phi());
-	std::cout << "Identifier " << mcell2->identify() <<" sampling " << mcell2->getSampling() << " eta: " << mcell2->eta() << " phi: " << mcell2->phi() << " CaloDetDescrElement="<<mcell2<< std::endl<< std::endl;
+	std::cout << "Identifier " << mcell2->identify() <<" sampling " << mcell2->getSampling() << " eta: " << mcell2->eta() << " phi: " << mcell2->phi() << std::endl<< std::endl;
 	
   return ok;
 }

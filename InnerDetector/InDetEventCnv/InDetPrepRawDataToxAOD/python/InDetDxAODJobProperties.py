@@ -152,12 +152,5 @@ class TrtJpsiSelection(JobProperty):
     StoredValue = False
 jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(TrtJpsiSelection)
 
-class DRAWZSelection(JobProperty):
-    """Z event selection based on DRAW ZMUMU"""
-    statusOn = True
-    allowedTypes = ["bool"]
-    StoredValue = False
-jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(DRAWZSelection)
-
 
 InDetDxAODFlags = jobproperties.InDetDxAODJobPropertyContainer

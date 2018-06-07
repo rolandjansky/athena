@@ -32,9 +32,8 @@ class MeasurementProcessor
 {
 public:
     MeasurementProcessor (bool					asymmetricCaloEnergy,
-			  Amg::MatrixX&				derivativeMatrix,
 			  ToolHandle<IIntersector>&		intersector,
-			  std::vector<FitMeasurement*>&		measurements,
+			  std::list<FitMeasurement*>&		measurements,
 			  FitParameters*			parameters,
 			  ToolHandle<IIntersector>&    		rungeKuttaIntersector,
 			  const ToolHandle<IPropagator>&    	stepPropagator,
@@ -62,17 +61,16 @@ private:
     double				m_cosPhi0;
     double				m_cosTheta0;
     double				m_delta[ExtrapolationTypes];
-    Amg::MatrixX&			m_derivativeMatrix;
     double				m_derivQOverP0;
     double				m_derivQOverP1;
     double				m_energyResidual;
-    int 				m_firstScatteringParameter;
+    int					m_firstScatteringParameter;
     //bool				m_havePhiPseudo;
     const TrackSurfaceIntersection*	m_intersectStartingValue;
-    ToolHandle<IIntersector>&		m_intersector;
+    const ToolHandle<IIntersector>&	m_intersector;
     double				m_largeDeltaD0;
     double				m_largeDeltaPhi0;
-    std::vector<FitMeasurement*>& 	m_measurements;
+    std::list<FitMeasurement*>&		m_measurements;
     //double				m_minDistanceForAngle;
     bool				m_numericDerivatives;
     FitParameters*			m_parameters;
@@ -80,9 +78,9 @@ private:
     double				m_qOverP[ExtrapolationTypes];
     double				m_qOverPbeforeCalo;
     double				m_qOverPafterCalo;
-    ToolHandle<IIntersector>&		m_rungeKuttaIntersector;
-    const ToolHandle<IPropagator>&	m_stepPropagator;
-    int 				m_useStepPropagator;
+    const ToolHandle<IIntersector>&	m_rungeKuttaIntersector;
+    const ToolHandle< IPropagator >&    m_stepPropagator;
+    int                                 m_useStepPropagator;
     std::vector<FitMeasurement*>	m_scatterers;
     double				m_sinPhi0;
     double				m_sinTheta0;

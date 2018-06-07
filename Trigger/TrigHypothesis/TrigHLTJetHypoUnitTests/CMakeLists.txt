@@ -13,6 +13,7 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Physics )
+find_package( GTest )
 find_package( GMock )
 
 # Test(s) in the package:
@@ -36,6 +37,6 @@ atlas_add_test( TrigHLTJetHypoUnitTests
    src/SelectedJetsMatcherTest.cxx
    src/TLorentzVectorFactoryTest.cxx
    src/TightCleanerTest.cxx
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} ${GMOCK_LIBRARIES}
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES}
    TrigHLTJetHypoLib )
