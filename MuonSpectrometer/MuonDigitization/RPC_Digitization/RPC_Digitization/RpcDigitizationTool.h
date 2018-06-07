@@ -229,7 +229,7 @@ protected:
   PileUpMergeSvc *m_mergeSvc; // Pile up service
   std::string m_inputHitCollectionName; // name of the input objects
   SG::WriteHandleKey<RpcDigitContainer> m_outputDigitCollectionKey{this,"OutputObjectName","RPC_DIGITS","WriteHandleKey for Output RpcDigitContainer"}; // name of the output digits
-  SG::WriteHandleKey<MuonSimDataCollection> m_outputSDO_CollectionKey{this,"OutputSDOsName","RPC_SDO","WriteHandleKey for Output MuonSimDataCollection"}; // name of the output SDOs
+  SG::WriteHandleKey<MuonSimDataCollection> m_outputSDO_CollectionKey{this,"OutputSDOName","RPC_SDO","WriteHandleKey for Output MuonSimDataCollection"}; // name of the output SDOs
 
   ServiceHandle<IAtRndmGenSvc> m_rndmSvc;      // Random number service
   CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization
