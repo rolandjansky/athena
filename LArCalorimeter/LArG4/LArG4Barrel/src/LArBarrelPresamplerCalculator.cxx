@@ -45,13 +45,13 @@ LArBarrelPresamplerCalculator::LArBarrelPresamplerCalculator(const std::string& 
  , m_IflCur(true)
  , m_birksLaw(nullptr)
  , m_detectorName("LArMgr")
-   //, m_testbeam(false)
+ , m_testbeam(false)
  , m_volname("LArMgr::LAr::Barrel::Presampler")
 {
   declareProperty("GeometryCalculator", m_geometry);
   declareProperty("IflCur",m_IflCur);
   declareProperty("DetectorName",m_detectorName);
-  //declareProperty("isTestbeam",m_testbeam);
+  declareProperty("isTestbeam",m_testbeam);
 }
 
 StatusCode LArBarrelPresamplerCalculator::initialize()
@@ -147,12 +147,8 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
   ATH_MSG_DEBUG(" Detector Name " << m_detectorName);
 #endif
 
-    bool testbeam=false;
-
     const G4String presamplerName((m_detectorName.empty()) ? "LAr::Barrel::Presampler" :
                                   m_detectorName+"::LAr::Barrel::Presampler");
-    const G4String tbCryostatName((m_detectorName.empty()) ? "LAr::TBBarrel::Cryostat::LAr" :
-                                  m_detectorName+"::LAr::TBBarrel::Cryostat::LAr");
     for (G4int ii=0;ii<=ndep;ii++) {
       G4VPhysicalVolume* v1 = g4navigation->GetVolume(ii);
 #ifdef DEBUGSTEP
@@ -160,8 +156,6 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
 #endif
       // FIXME More efficient to find the comparison volume once and compare pointers?
       if (v1->GetName()==presamplerName) idep=ii;
-      // FIXME Why are we checking if the geo is test beam every step?
-      if (v1->GetName()==tbCryostatName) testbeam=true;  // TB or not ?
     }
 
 #ifdef DEBUGSTEP
@@ -238,7 +232,7 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
 
       // compute cell identifier
       G4int zSide;
-      if (testbeam)
+      if (m_testbeam)
         zSide = 1;
       else
         zSide = ( startPoint.z() > 0.) ? 1 : -1;
@@ -271,7 +265,7 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
 
       // time computation is not necessarily correct for test beam
       G4double time;
-      if (testbeam)
+      if (m_testbeam)
         {
           time=0.;
         }
