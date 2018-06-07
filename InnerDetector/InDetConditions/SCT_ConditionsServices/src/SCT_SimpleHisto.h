@@ -1,9 +1,11 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /**
  *  SCT_SimpleHisto.h
  *  C++ projects
  *
  *  Created by sroe on 13/11/2009.
- *  Copyright 2009 CERN. All rights reserved.
  *
  **/
 #ifndef SCT_SimpleHisto_h
