@@ -58,13 +58,13 @@ public:
     ~EMShowerBuilder();
 
     /** @brief initialize method*/
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
     /** @brief standard execute method */
     virtual StatusCode execute(xAOD::Egamma*) const override final ;
     /** @brief method to calculate shower shapes from a CaloCellContainer */
     virtual StatusCode recoExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll) const override final;
     /** @brief finalize method*/
-    StatusCode finalize();
+    virtual StatusCode finalize() override;
 
 private:
     /** @brief method to retrieve ShowerBuilder tool */
@@ -97,9 +97,6 @@ private:
             "HadronicLeakageTool", "egammaIso", 
             "Handle of the EMCaloIsolationTool for Hadronic leakage"};
 
-    /** @brief the CaloCell container */
-    const CaloCellContainer* m_cellcoll;
-    
     /** @brief boolean to print results*/
     Gaudi::Property<bool> m_Print {this,
             "Print", false, "in case of extra prints"};
