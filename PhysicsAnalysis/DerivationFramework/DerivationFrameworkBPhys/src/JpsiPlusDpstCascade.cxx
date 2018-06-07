@@ -17,47 +17,13 @@
 #include <algorithm>
 #include "xAODTracking/VertexContainer.h"
 #include "DerivationFrameworkBPhys/LocalVector.h"
+#include "HepPDT/ParticleDataTable.hh"
 
 namespace DerivationFramework {
     typedef ElementLink<xAOD::VertexContainer> VertexLink;
     typedef std::vector<VertexLink> VertexLinkVector;
     typedef std::vector<const xAOD::TrackParticle*> TrackBag;
 
-    double JpsiPlusDpstCascade::getParticleMass(int pdgcode) const{
-       auto ptr = m_particleDataTable->particle( pdgcode );
-       return ptr ? ptr->mass() : 0.;
-    }
-
-    bool LinkVertices_dupl2(SG::AuxElement::Decorator<VertexLinkVector> &decor, const std::vector<xAOD::Vertex*>& vertices,
-                                                 const xAOD::VertexContainer* vertexContainer, xAOD::Vertex* vert){
-     // create tmp vector of preceding vertex links
-     VertexLinkVector precedingVertexLinks;
-
-     // loop over input precedingVertices  
-     std::vector<xAOD::Vertex*>::const_iterator precedingVerticesItr = vertices.begin();
-     for(; precedingVerticesItr!=vertices.end(); ++precedingVerticesItr) {
-          // sanity check 1: protect against null pointers
-          if( !(*precedingVerticesItr) )
-            return false;
-    
-       // create element link
-       VertexLink vertexLink;
-       vertexLink.setElement(*precedingVerticesItr);
-       vertexLink.setStorableObject(*vertexContainer);
-    
-       // sanity check 2: is the link valid?
-       if( !vertexLink.isValid() )
-          return false;
-    
-       // link is OK, store it in the tmp vector
-       precedingVertexLinks.push_back( vertexLink );
-    
-     } // end of loop over preceding vertices
-  
-       // all OK: store preceding vertex links in the aux store
-      decor(*vert) = precedingVertexLinks;
-      return true;
-    }
 
     StatusCode JpsiPlusDpstCascade::initialize() {
 
@@ -75,23 +41,23 @@ namespace DerivationFramework {
 
         IPartPropSvc* partPropSvc = nullptr;
         ATH_CHECK( service("PartPropSvc", partPropSvc, true) );
-        m_particleDataTable = partPropSvc->PDT();
+        auto pdt = partPropSvc->PDT();
 
         // retrieve particle masses
-        if(m_mass_jpsi < 0. ) m_mass_jpsi = getParticleMass(PDG::J_psi);
-        if(m_vtx0MassHypo < 0.) m_vtx0MassHypo = getParticleMass(PDG::B_c_plus);
-        if(m_vtx1MassHypo < 0.) m_vtx1MassHypo = getParticleMass(PDG::D0);
+        if(m_mass_jpsi < 0. ) m_mass_jpsi = BPhysPVCascadeTools::getParticleMass(pdt, PDG::J_psi);
+        if(m_vtx0MassHypo < 0.) m_vtx0MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::B_c_plus);
+        if(m_vtx1MassHypo < 0.) m_vtx1MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::D0);
 
-        if(m_vtx0Daug1MassHypo < 0.) m_vtx0Daug1MassHypo = getParticleMass(PDG::mu_minus);
-        if(m_vtx0Daug2MassHypo < 0.) m_vtx0Daug2MassHypo = getParticleMass(PDG::mu_minus);
-        if(m_vtx0Daug3MassHypo < 0.) m_vtx0Daug3MassHypo = getParticleMass(PDG::pi_plus);
+        if(m_vtx0Daug1MassHypo < 0.) m_vtx0Daug1MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::mu_minus);
+        if(m_vtx0Daug2MassHypo < 0.) m_vtx0Daug2MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::mu_minus);
+        if(m_vtx0Daug3MassHypo < 0.) m_vtx0Daug3MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::pi_plus);
         if(m_vtx1Daug1MassHypo < 0.) {
-           if(m_Dx_pid == 421) m_vtx1Daug1MassHypo = getParticleMass(PDG::pi_plus);
-           else m_vtx1Daug1MassHypo = getParticleMass(PDG::K_plus);
+           if(m_Dx_pid == 421) m_vtx1Daug1MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::pi_plus);
+           else m_vtx1Daug1MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::K_plus);
         }
         if(m_vtx1Daug2MassHypo < 0.) {
-           if(m_Dx_pid == 421) m_vtx1Daug2MassHypo = getParticleMass(PDG::K_plus);
-           else m_vtx1Daug2MassHypo = getParticleMass(PDG::pi_plus);
+           if(m_Dx_pid == 421) m_vtx1Daug2MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::K_plus);
+           else m_vtx1Daug2MassHypo = BPhysPVCascadeTools::getParticleMass(pdt, PDG::pi_plus);
         }
 
         return StatusCode::SUCCESS;
@@ -220,7 +186,7 @@ namespace DerivationFramework {
         std::vector<xAOD::Vertex*> verticestoLink;
         verticestoLink.push_back(cascadeVertices[0]);
         if(Vtxwritehandles[1] == nullptr) ATH_MSG_ERROR("Vtxwritehandles[1] is null");
-        if(!LinkVertices_dupl2(CascadeLinksDecor, verticestoLink, Vtxwritehandles[0], cascadeVertices[1]))
+        if(!BPhysPVCascadeTools::LinkVertices(CascadeLinksDecor, verticestoLink, Vtxwritehandles[0], cascadeVertices[1]))
             ATH_MSG_ERROR("Error decorating with cascade vertices");
 
         // Identify the input Jpsi+pi
@@ -237,13 +203,13 @@ namespace DerivationFramework {
         std::vector<xAOD::Vertex*> jpsipiVerticestoLink;
         if (jpsipiVertex) jpsipiVerticestoLink.push_back(jpsipiVertex);
         else ATH_MSG_WARNING("Could not find linking Jpsi+pi");
-        if(!LinkVertices_dupl2(JpsipiLinksDecor, jpsipiVerticestoLink, jpsipiContainer, cascadeVertices[1]))
+        if(!BPhysPVCascadeTools::LinkVertices(JpsipiLinksDecor, jpsipiVerticestoLink, jpsipiContainer, cascadeVertices[1]))
             ATH_MSG_ERROR("Error decorating with Jpsi+pi vertices");
 
         std::vector<xAOD::Vertex*> d0VerticestoLink;
         if (d0Vertex) d0VerticestoLink.push_back(d0Vertex);
         else ATH_MSG_WARNING("Could not find linking D0");
-        if(!LinkVertices_dupl2(D0LinksDecor, d0VerticestoLink, d0Container, cascadeVertices[1]))
+        if(!BPhysPVCascadeTools::LinkVertices(D0LinksDecor, d0VerticestoLink, d0Container, cascadeVertices[1]))
             ATH_MSG_ERROR("Error decorating with D0 vertices");
 
 
@@ -271,19 +237,7 @@ namespace DerivationFramework {
         xAOD::BPhysHypoHelper vtx(m_hypoName, mainVertex);
 
         // Get refitted track momenta from all vertices, charged tracks only
-        std::vector<float> px;
-        std::vector<float> py;
-        std::vector<float> pz;
-        for( size_t jt=0; jt<moms.size(); jt++) {
-          for( size_t it=0; it<cascadeVertices[jt]->vxTrackAtVertex().size(); it++) {
-            px.push_back( moms[jt][it].Px() );
-            py.push_back( moms[jt][it].Py() );
-            pz.push_back( moms[jt][it].Pz() );
-            ATH_MSG_DEBUG("track mass " << moms[jt][it].M());
-          }
-        }
-        vtx.setRefTrks(px,py,pz);
-        ATH_MSG_DEBUG("number of refitted tracks " << px.size());
+        BPhysPVCascadeTools::SetVectorInfo(vtx, x);
 
         // Decorate main vertex
         //
@@ -447,7 +401,6 @@ namespace DerivationFramework {
     m_vtx0Daug3MassHypo(-1),
     m_vtx1Daug1MassHypo(-1),
     m_vtx1Daug2MassHypo(-1),
-    m_particleDataTable(nullptr),
     m_mass_jpsi(-1),
     m_Dx_pid(421),
     m_constrD0(true),

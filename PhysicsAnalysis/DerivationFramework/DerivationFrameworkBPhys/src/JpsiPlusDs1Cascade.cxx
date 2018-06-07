@@ -28,37 +28,6 @@ namespace DerivationFramework {
        return ptr ? ptr->mass() : 0.;
     }
 
-    bool LinkVertices_dupl3(SG::AuxElement::Decorator<VertexLinkVector> &decor, const std::vector<xAOD::Vertex*>& vertices,
-                                                 const xAOD::VertexContainer* vertexContainer, xAOD::Vertex* vert){
-     // create tmp vector of preceding vertex links
-     VertexLinkVector precedingVertexLinks;
-
-     // loop over input precedingVertices  
-     std::vector<xAOD::Vertex*>::const_iterator precedingVerticesItr = vertices.begin();
-     for(; precedingVerticesItr!=vertices.end(); ++precedingVerticesItr) {
-          // sanity check 1: protect against null pointers
-          if( !(*precedingVerticesItr) )
-            return false;
-    
-       // create element link
-       VertexLink vertexLink;
-       vertexLink.setElement(*precedingVerticesItr);
-       vertexLink.setStorableObject(*vertexContainer);
-
-       // sanity check 2: is the link valid?
-       if( !vertexLink.isValid() )
-          return false;
-    
-       // link is OK, store it in the tmp vector
-       precedingVertexLinks.push_back( vertexLink );
-    
-     } // end of loop over preceding vertices
-  
-       // all OK: store preceding vertex links in the aux store
-      decor(*vert) = precedingVertexLinks;
-      return true;
-    }
-
     StatusCode JpsiPlusDs1Cascade::initialize() {
 
         // retrieving vertex Fitter
@@ -242,12 +211,12 @@ namespace DerivationFramework {
         verticestoLink.push_back(cascadeVertices[0]);
       //if(Vtxwritehandles[1] == nullptr) ATH_MSG_ERROR("Vtxwritehandles[1] is null");
         if(Vtxwritehandles[2] == nullptr) ATH_MSG_ERROR("Vtxwritehandles[2] is null");
-        if(!LinkVertices_dupl3(CascadeV1LinksDecor, verticestoLink, Vtxwritehandles[0], cascadeVertices[2]))
+        if(!BPhysPVCascadeTools::LinkVertices(CascadeV1LinksDecor, verticestoLink, Vtxwritehandles[0], cascadeVertices[2]))
             ATH_MSG_ERROR("Error decorating with cascade vertices");
 
         verticestoLink.clear();
         verticestoLink.push_back(cascadeVertices[1]);
-        if(!LinkVertices_dupl3(CascadeV2LinksDecor, verticestoLink, Vtxwritehandles[1], cascadeVertices[2]))
+        if(!BPhysPVCascadeTools::LinkVertices(CascadeV2LinksDecor, verticestoLink, Vtxwritehandles[1], cascadeVertices[2]))
             ATH_MSG_ERROR("Error decorating with cascade vertices");
 
         // Identify the input Jpsi+pi
@@ -269,19 +238,19 @@ namespace DerivationFramework {
         std::vector<xAOD::Vertex*> jpsipiVerticestoLink;
         if (jpsipiVertex) jpsipiVerticestoLink.push_back(jpsipiVertex);
         else ATH_MSG_WARNING("Could not find linking Jpsi+pi");
-        if(!LinkVertices_dupl3(JpsipiLinksDecor, jpsipiVerticestoLink, jpsipiContainer, cascadeVertices[2]))
+        if(!BPhysPVCascadeTools::LinkVertices(JpsipiLinksDecor, jpsipiVerticestoLink, jpsipiContainer, cascadeVertices[2]))
             ATH_MSG_ERROR("Error decorating with Jpsi+pi vertices");
 
         std::vector<xAOD::Vertex*> d0VerticestoLink;
         if (d0Vertex) d0VerticestoLink.push_back(d0Vertex);
         else ATH_MSG_WARNING("Could not find linking D0");
-        if(!LinkVertices_dupl3(D0LinksDecor, d0VerticestoLink, d0Container, cascadeVertices[2]))
+        if(!BPhysPVCascadeTools::LinkVertices(D0LinksDecor, d0VerticestoLink, d0Container, cascadeVertices[2]))
             ATH_MSG_ERROR("Error decorating with D0 vertices");
 
         std::vector<xAOD::Vertex*> k0VerticestoLink;
         if (k0Vertex) k0VerticestoLink.push_back(k0Vertex);
         else ATH_MSG_WARNING("Could not find linking K_S0");
-        if(!LinkVertices_dupl3(K0LinksDecor, k0VerticestoLink, k0Container, cascadeVertices[2]))
+        if(!BPhysPVCascadeTools::LinkVertices(K0LinksDecor, k0VerticestoLink, k0Container, cascadeVertices[2]))
             ATH_MSG_ERROR("Error decorating with K_S0 vertices");
 
         // Collect the tracks that should be excluded from the PV
@@ -328,20 +297,7 @@ namespace DerivationFramework {
 
         xAOD::BPhysHypoHelper vtx(m_hypoName, mainVertex);
 
-        // Get refitted track momenta from all vertices, charged tracks only
-        std::vector<float> px;
-        std::vector<float> py;
-        std::vector<float> pz;
-        for( size_t jt=0; jt<moms.size(); jt++) {
-          for( size_t it=0; it<cascadeVertices[jt]->vxTrackAtVertex().size(); it++) {
-            px.push_back( moms[jt][it].Px() );
-            py.push_back( moms[jt][it].Py() );
-            pz.push_back( moms[jt][it].Pz() );
-            ATH_MSG_DEBUG("track mass " << moms[jt][it].M());
-          }
-        }
-        vtx.setRefTrks(px,py,pz);
-        ATH_MSG_DEBUG("number of refitted tracks " << px.size());
+        BPhysPVCascadeTools::SetVectorInfo(vtx, x);
 
         // Decorate main vertex
         //
