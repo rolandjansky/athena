@@ -170,6 +170,10 @@ PP="$PP"'|DEBUG Calling destructor'
 
 PP="$PP"'|INFO TopAlg list empty.'
 
+PP="$PP"'|^ChronoStatSvc +INFO +Number of skipped events for MemStat'
+PP="$PP"'|^Py:Athena +INFO +including file'
+PP="$PP"'|^Athena +INFO +including file'
+
 # Ignore annoying error from root 6.10.06
 PP="$PP"'|no interpreter information for class TSelectorCint'
 
