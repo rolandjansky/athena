@@ -11,6 +11,7 @@
 // ****************************************************************************
 
 #include "DerivationFrameworkBPhys/FourMuonTool.h"
+#include "DerivationFrameworkBPhys/BPhysPVTools.h"
 #include "xAODBPhys/BPhysHelper.h"
 #include "TrkVertexAnalysisUtils/V0Tools.h"
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
@@ -19,7 +20,6 @@
 #include "InDetConversionFinderTools/ConversionFinderUtils.h"
 #include "InDetConversionFinderTools/VertexPointEstimator.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
-#include "EventPrimitives/EventPrimitives.h"
 #include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IPartPropSvc.h"
 #include "DataModel/ElementLink.h"
@@ -350,7 +350,7 @@ namespace DerivationFramework {
             myVxCandidate = m_iVertexFitter->fit(inputTracks, beamSpot /*vertex startingPoint*/ );
         }
         
-        BPhysPVTools::PrepareVertexLinks(myVxCandidate, importedTrackCollection);
+        if(myVxCandidate) BPhysPVTools::PrepareVertexLinks(myVxCandidate, importedTrackCollection);
         
         return myVxCandidate;
         

@@ -15,15 +15,12 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
-#include "DataModel/DataVector.h"
 #include "InDetConversionFinderTools/InDetConversionFinderTools.h"
 
 #include "xAODMuon/Muon.h"
 
 #include <vector>
-#include <cmath>
 #include <string>
-#include <map>
 /////////////////////////////////////////////////////////////////////////////
 
 namespace Trk {
