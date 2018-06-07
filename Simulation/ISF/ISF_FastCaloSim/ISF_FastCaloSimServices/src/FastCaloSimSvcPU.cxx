@@ -105,6 +105,7 @@ StatusCode ISF::FastCaloSimSvcPU::initialize()
    //IdDictMgr& lar_idd = parser->parse("IdDictParser/IdDictLArCalorimeter.xml");
    IdDictMgr& lar_idd = parser->parse("IdDictParser/ATLAS_IDS.xml");
    larID->initialize_from_dictionary(lar_idd);
+   delete parser;
    
    // access tools and store them
    if ( retrieveTools<ICaloCellMakerTool>(m_caloCellMakerTools_setup).isFailure() ) 
@@ -161,6 +162,8 @@ StatusCode ISF::FastCaloSimSvcPU::initialize()
 StatusCode ISF::FastCaloSimSvcPU::finalize()
 {
     ATH_MSG_INFO ( m_screenOutputPrefix << "Finalizing ...");
+    delete detID;
+    delete larID;
     return StatusCode::SUCCESS;
 }
 
