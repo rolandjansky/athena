@@ -17,7 +17,6 @@
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "DataModel/DataVector.h"
 #include "InDetConversionFinderTools/InDetConversionFinderTools.h"
-#include "HepPDT/ParticleDataTable.hh"
 
 #include "xAODMuon/Muon.h"
 
@@ -154,7 +153,7 @@ namespace DerivationFramework {
         //Doing Calculation and inline functions
         StatusCode performSearch(xAOD::VertexContainer*& pairVxContainer, xAOD::VertexAuxContainer*& pairVxAuxContainer,
                                  xAOD::VertexContainer*& quadVxContainer, xAOD::VertexAuxContainer*& quadVxAuxContainer, bool &acceptEvent);
-        xAOD::Vertex* fit(std::vector<const xAOD::TrackParticle*>,const xAOD::TrackParticleContainer* importedTrackCollection, Amg::Vector3D beamSpot);
+        xAOD::Vertex* fit(const std::vector<const xAOD::TrackParticle*>& ,const xAOD::TrackParticleContainer* importedTrackCollection, const Amg::Vector3D &beamSpot);
         std::vector<std::vector<unsigned int> > getQuadIndices(unsigned int length);
         std::vector<std::pair<unsigned int, unsigned int> > getPairIndices(unsigned int length);
         std::vector<std::vector<unsigned int> > mFromN(unsigned int m, unsigned int n);
@@ -163,15 +162,14 @@ namespace DerivationFramework {
                            std::vector<unsigned int> &combination,
                            std::vector<unsigned int> &mainList,
                            std::vector<std::vector<unsigned int> > &allCombinations);
-        void buildCombinations(std::vector<const xAOD::Muon*> muonsIn,
+        void buildCombinations(const std::vector<const xAOD::Muon*> &muonsIn,
                                std::vector<Combination> &pairs,
                                std::vector<Combination> &quadruplets,
                                unsigned int nSelectedMuons);
-        bool passesQuadSelection(std::vector<const xAOD::Muon*> muonsIn);
+        bool passesQuadSelection(const std::vector<const xAOD::Muon*> &muonsIn);
         //-------------------------------------------------------------------------------------
         
     private:
-        const HepPDT::ParticleDataTable *m_particleDataTable;
         double m_ptCut;
         double m_etaCut;
         bool m_useV0Fitter;
