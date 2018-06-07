@@ -49,7 +49,7 @@ AlMat::AlMat(const AlMat& m) {
 }
 
 AlMat::~AlMat()
-{if( m_ptr_data != NULL) delete [] m_ptr_data;}
+{if( m_ptr_data != nullptr ) delete [] m_ptr_data;}
 
 void AlMat::copy(const AlMat&  m) {
   int  nr = nrow();

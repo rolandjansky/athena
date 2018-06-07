@@ -41,7 +41,7 @@ AlSymMat::AlSymMat()
   m_matrix_type = 1;
   m_size = 0;
   m_nele = 0;
-  m_ptr_data = NULL;  // set pointer to null
+  m_ptr_data = nullptr;  // set pointer to null
   m_pathbin="./";
   m_pathtxt="./";
 }
@@ -105,7 +105,7 @@ AlSymMat& AlSymMat::operator=(const AlSpaMat& m)
 //______________________________________________________________________________
 AlSymMat::~AlSymMat()
 {
-  if( m_ptr_data != NULL ) delete [] m_ptr_data;
+  if( m_ptr_data != nullptr ) delete [] m_ptr_data;
   //ptr_map.clear();
 }
 
