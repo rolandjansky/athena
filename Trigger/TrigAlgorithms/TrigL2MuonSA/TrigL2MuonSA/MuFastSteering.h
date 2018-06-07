@@ -159,7 +159,7 @@ class MuFastSteering : public HLT::FexAlgo,
   
   /** Timers */
   ServiceHandle<ITrigTimerSvc> m_timerSvc;
-  std::vector<TrigTimer*> m_timers;
+  std::vector<TrigTimer*> m_timingTimers;
 
   ServiceHandle<IRegSelSvc> m_regionSelector;
   
