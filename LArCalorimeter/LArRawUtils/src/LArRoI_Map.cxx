@@ -90,7 +90,7 @@ StatusCode LArRoI_Map::initialize()
 
 
 void LArRoI_Map::handle(const Incident& /*inc*/)
-{ 
+{
   ATH_MSG_INFO( " handle called "  );
 
   initData().ignore(); 
@@ -103,11 +103,8 @@ StatusCode LArRoI_Map::iovCallBack(IOVSVC_CALLBACK_ARGS) {
 
   m_validCache = false; 
 
-  // HACK: Force a call to the cabling service iov callback to make sure
-  // it gets initialized early enough.
-  int dum1 = 0;
-  std::list<std::string> dum2 { "/LAR/Identifier/OnOffIdMap" };
-  return m_cablingSvc->iovCallBack (dum1, dum2);
+  ATH_CHECK( initCabling() );
+  return StatusCode::SUCCESS;
 }
 
 
@@ -119,6 +116,8 @@ StatusCode LArRoI_Map::initData()
     ATH_MSG_DEBUG(" in initData, but cache is valid" );
     return StatusCode::SUCCESS;
   }
+
+  ATH_CHECK( initCabling() );
 
   ATH_MSG_DEBUG(" in initData, cache is not valid" );
 
@@ -561,5 +560,15 @@ void LArRoI_Map::print()
 
   return ;
 
+}
+
+
+StatusCode LArRoI_Map::initCabling()
+{
+  // HACK: Force a call to the cabling service iov callback to make sure
+  // it gets initialized early enough.
+  int dum1 = 0;
+  std::list<std::string> dum2 { "/LAR/Identifier/OnOffIdMap" };
+  return m_cablingSvc->iovCallBack (dum1, dum2);
 }
 
