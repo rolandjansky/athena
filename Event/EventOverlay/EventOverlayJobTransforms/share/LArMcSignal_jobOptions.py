@@ -59,7 +59,7 @@ if DetFlags.overlay.LAr_on():
       newLArRawChannelBuilder.UseOFCTool= False
       newLArRawChannelBuilder.PhaseInversion=True
       newLArRawChannelBuilder.LArRawChannelContainerName = "LArRawChannels"
-      newLArRawChannelBuilder.PedestalKey='Pedestal'
+      newLArRawChannelBuilder.PedestalKey='LArPedestal'
    else :
       from LArRecUtils.LArOFCToolDefault import LArOFCToolDefault
       theOFCTool = LArOFCToolDefault()

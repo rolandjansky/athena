@@ -58,7 +58,7 @@ if DetFlags.overlay.LAr_on():
        #job.digitmaker1.LArPileUpTool.OutputLevel=DEBUG
        #MessageSvc.debugLimit = 100000
        #job.digitmaker1.LArPileUpTool.useLArFloat=False
-       job.digitmaker1.LArPileUpTool.PedestalKey = "Pedestal"
+       job.digitmaker1.LArPileUpTool.PedestalKey = "LArPedestal"
        job.LArRawChannelBuilder.DataLocation = "LArDigitContainer_MC"
 
 #----------------------------------------------------------------
