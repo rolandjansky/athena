@@ -86,7 +86,7 @@ StatusCode LArBarrelPresamplerCalculator::initialize()
       ATH_MSG_INFO(" LArBarrelPresamplerCalculator: Birks' law OFF");
     }
 
-  if(m_detectorName.size()==0) m_volname="LAr::Barrel::Presampler";
+  if(m_detectorName.empty()) m_volname="LAr::Barrel::Presampler";
   else m_volname=m_detectorName+"::LAr::Barrel::Presampler";
 
   ATH_MSG_DEBUG("End of LArBarrelPresamplerCalculator initialization ");
