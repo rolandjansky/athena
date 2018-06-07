@@ -41,6 +41,9 @@ namespace met {
 
   using namespace xAOD;
 
+  // UE correction for each lepton
+  const static SG::AuxElement::Decorator<float> dec_UEcorr("UEcorr_Pt");
+
   ///////////////////////////////////////////////////////////////////
   // Public methods:
   ///////////////////////////////////////////////////////////////////
@@ -240,19 +243,19 @@ namespace met {
     std::sort(hardObjs_tmp.begin(),hardObjs_tmp.end(),greaterPt);
 
     // artur
-    std::cout<<std::endl<<std::endl;
-    std::cout<<"------------------- begin HR and random Phi calculation --------------------------"<<std::endl;
+    //std::cout<<std::endl<<std::endl;
+    //std::cout<<"------------------- begin HR and random Phi calculation --------------------------"<<std::endl;
     TLorentzVector HR;
-    float UEcorr = 0.;
+    float UEcorr_Pt = 0.;
     unsigned int lept_count = 0;
     std::vector<double> vPhiRnd;
     if (m_pflow && m_useTracks && m_recoil) {
       constlist.clear();
       ATH_CHECK( this->hadrecoil_PFO(hardObjs_tmp, constits, HR, vPhiRnd) );
     }
-    std::cout<<"------------------- end HR and random Phi calculation --------------------------"<<std::endl;
+    //std::cout<<"------------------- end HR and random Phi calculation --------------------------"<<std::endl;
 
-    std::cout<<"------------------- begin loop over leptins --------------------------"<<std::endl;
+    //std::cout<<"------------------- begin loop over leptins --------------------------"<<std::endl;
 
     for(const auto& obj : hardObjs_tmp) {
       if(obj->pt()<5e3 && obj->type()!=xAOD::Type::Muon) continue;
@@ -266,6 +269,7 @@ namespace met {
 
           std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;
           if(m_recoil){
+            /*
             std::cout<<"1. METAssociator::fillAssocMap: m_recoil = true, GetPFOWana "<<std::endl;
             if(obj->type() == xAOD::Type::Muon)
               std::cout<<"MUON "<<std::endl;
@@ -273,20 +277,20 @@ namespace met {
               std::cout<<"ELECTRON "<<std::endl;
             else
               std::cout<<"nor ELECTRON, nor MUON"<<std::endl;
-
-            UEcorr = 0.;
-            std::cout << "vPhiRnd.size()      = " << vPhiRnd.size() << std::endl;
-
-            std::cout<<"UEcorr before = "<<UEcorr<<std::endl;
-            std::cout<<"lept_count before = "<<lept_count<<std::endl;
+            */
+            UEcorr_Pt = 0.;
+            //std::cout << "vPhiRnd.size()      = " << vPhiRnd.size() << std::endl;
+            //std::cout<<"UEcorr_Pt before = "<<UEcorr_Pt<<std::endl;
+            //std::cout<<"lept_count before = "<<lept_count<<std::endl;
             
-            ATH_CHECK( this->GetPFOWana(obj,constlist,constits,momentumOverride, vPhiRnd, lept_count, UEcorr) );
+            ATH_CHECK( this->GetPFOWana(obj,constlist,constits,momentumOverride, vPhiRnd, lept_count, UEcorr_Pt) );
+            dec_UEcorr(*obj) = UEcorr_Pt;
 
-            std::cout<<"UEcorr = "<<UEcorr<<std::endl;
-            std::cout<<"lept_count after = "<<lept_count<<std::endl; 
+            //std::cout<<"UEcorr_Pt = "<<UEcorr_Pt<<std::endl;
+            //std::cout<<"lept_count after = "<<lept_count<<std::endl; 
           }
           else{
-            std::cout<<"METAssociator::fillAssocMap: m_recoil = false, extractPFO "<<std::endl;
+            //std::cout<<"METAssociator::fillAssocMap: m_recoil = false, extractPFO "<<std::endl;
             ATH_CHECK( this->extractPFO(obj,constlist,constits,momentumOverride) );
           }
           MissingETComposition::insert(metMap,obj,constlist,momentumOverride);

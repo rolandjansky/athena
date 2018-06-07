@@ -215,20 +215,21 @@ namespace met {
              unsigned int& lept_count,
              float& UEcorr) const
   {
-    std::cout<<"METMuonAssociator::extractPFO_Wana:  muons"<<std::endl;
+    //std::cout<<"METMuonAssociator::extractPFO_Wana:  muons"<<std::endl;
     const xAOD::Muon *mu = static_cast<const xAOD::Muon*>(obj);
     const TrackParticle* idtrack = mu->trackParticle(xAOD::Muon::InnerDetectorTrackParticle); // not used currently
     const CaloCluster* muclus = mu->cluster();
 
     // Loop over all PFOs
-    for(const auto& pfo : *constits.pfoCont) {
-      // Fill list with charged PFOs (using muon tracks)
-      if( fabs(pfo->charge()) > FLT_MIN ) {
+    for(const auto& pfo : *constits.pfoCont) {      
+      if( fabs(pfo->charge()) > FLT_MIN ) { // Fill list with charged PFOs (using muon tracks)
         const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
-        if(idtrack && P4Helpers::isInDeltaR(*pfo, *idtrack, m_Drcone, m_useRapidity) && PVMatchedAcc(*pfo) )
+        if( idtrack && P4Helpers::isInDeltaR(*pfo, *idtrack, m_Drcone, m_useRapidity) && PVMatchedAcc(*pfo) &&
+          ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) ){
           pfolist.push_back(pfo);
-      } // Fill list with neutral PFOs (using muon clusters)
-      else{
+        }
+      } 
+      else{ // Fill list with neutral PFOs (using muon clusters)
         if( muclus && P4Helpers::isInDeltaR(*pfo, *muclus, m_Drcone, m_useRapidity) )
           pfolist.push_back(pfo);
       } // neutral PFO condition
@@ -246,7 +247,7 @@ namespace met {
       eta_rndphi.second = vPhiRnd[lept_count];
       lept_count++;
   
-      std::cout<<"start looping over PFO to calculate correction"<<std::endl;
+      //std::cout<<"start looping over PFO to calculate correction"<<std::endl;
       for(const auto& pfo_itr : *constits.pfoCont) { // loop over PFOs
         if( pfo_itr->e() < 0)
           continue;
@@ -276,7 +277,7 @@ namespace met {
                                               TLorentzVector& HR,
                                               std::vector<double>& vPhiRnd) const
   {
-    std::cout << "METMuonAssociator::hadrecoil_PFO " << std::endl;
+    //std::cout << "METMuonAssociator::hadrecoil_PFO " << std::endl;
      // 1. Summing all PFOs
     for(const auto& pfo_itr : *constits.pfoCont) {
       if( pfo_itr->pt() < 0 || pfo_itr->e() < 0 ) // sanity check
@@ -285,7 +286,7 @@ namespace met {
       pfo_tmp.SetPtEtaPhiE( pfo_itr->pt(), pfo_itr->eta(), pfo_itr->phi(), pfo_itr->e() );
       HR += pfo_tmp;
     }
-    std::cout << "HR->pt() HR->eta() HR->phi() HR->e()          : " << HR.Pt() << "  " << HR.Eta() << "  " << HR.Phi() << "  " << HR.E() << std::endl;
+    //std::cout << "HR->pt() HR->eta() HR->phi() HR->e()          : " << HR.Pt() << "  " << HR.Eta() << "  " << HR.Phi() << "  " << HR.E() << std::endl;
 
 
     // 2. Subtracting PFOs mathed to electrons from HR 
@@ -295,7 +296,7 @@ namespace met {
         continue;
       mu.push_back( static_cast<const xAOD::Muon*>(obj_i) );
     }
-    std::cout << "mu.size()  = " << mu.size() << std::endl;
+    //std::cout << "mu.size()  = " << mu.size() << std::endl;
 
     std::vector<const TrackParticle*> idtrack_orig;  
     for(const auto& mu_i : mu){
@@ -311,7 +312,7 @@ namespace met {
       idtrack_curr.SetPtEtaPhiE( idtrack_orig_i->pt(), idtrack_orig_i->eta(), idtrack_orig_i->phi(), idtrack_orig_i->e() );
       idtrack.push_back(idtrack_curr);
     }
-    std::cout << "idtrack.size()  = " << idtrack.size() << std::endl;
+    //std::cout << "idtrack.size()  = " << idtrack.size() << std::endl;
 
 
     std::vector<const CaloCluster*> muclus_orig;
@@ -327,7 +328,7 @@ namespace met {
       muclus_curr.SetPtEtaPhiE( muclus_orig_i->pt(), muclus_orig_i->eta(), muclus_orig_i->phi(), muclus_orig_i->e() );
       muclus.push_back(muclus_curr);
     }
-    std::cout << "muclus.size()  = " << muclus.size() << std::endl;
+    //std::cout << "muclus.size()  = " << muclus.size() << std::endl;
 
 
    for(const auto& pfo_i : *constits.pfoCont) {  // charged and neutral PFOs
@@ -355,7 +356,7 @@ namespace met {
         } // over muon muclus
       } // neutral PFOs       
     } // over all PFOs
-    std::cout << "HR->pt() HR->eta() HR->phi() HR->e() corrected: " << HR.Pt() << "  " << HR.Eta() << "  " << HR.Phi() << "  " << HR.E() << std::endl;    
+    //std::cout << "HR->pt() HR->eta() HR->phi() HR->e() corrected: " << HR.Pt() << "  " << HR.Eta() << "  " << HR.Phi() << "  " << HR.E() << std::endl;    
 
 
     // 3. Get random phi based on muclus
@@ -365,7 +366,7 @@ namespace met {
     for(const auto& muclus_i : muclus) {
       seed = floor( muclus_i.Pt() * 1.e3 );      
       hole.SetSeed(seed);
-      std::cout << "seed = " << seed << std::endl;
+      //std::cout << "seed = " << seed << std::endl;
     }
   
     for(const auto& muclus_i : muclus) {
@@ -391,7 +392,7 @@ namespace met {
             isNextToPart = true;
         } // muclus_j
       } // while isNextToPart, isNextToHR
-      std::cout << "aaa pushback random : " << Rnd << std::endl;
+      //std::cout << "aaa pushback random : " << Rnd << std::endl;
       vPhiRnd.push_back(Rnd);
     } // muclus_i 
   

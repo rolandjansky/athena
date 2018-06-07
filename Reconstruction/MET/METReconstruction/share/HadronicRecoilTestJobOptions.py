@@ -116,8 +116,8 @@ cfg_akt4pf = METAssocConfig('NewAntiKt4EMPFlow',
                             associators,
                             doPFlow=True,
                             doRecoil=False,
-                            #modConstKey="JetETMissNeutralParticleFlowObjects" 
-                            modConstKey="CHSParticleFlowObjects"
+                            modConstKey="JetETMissNeutralParticleFlowObjects" 
+                            #modConstKey="CHSParticleFlowObjects"
                             )
 
 metFlags.METAssocConfigs()[cfg_akt4pf.suffix] = cfg_akt4pf
@@ -139,8 +139,8 @@ cfg_akt4pfHR = METAssocConfig('NewAntiKt4EMPFlowHR',
                             associators,
                             doPFlow=True,
                             doRecoil=True,
-                            #modConstKey="JetETMissNeutralParticleFlowObjects"
-                            modConstKey="CHSParticleFlowObjects"
+                            modConstKey="JetETMissNeutralParticleFlowObjects"
+                            #modConstKey="CHSParticleFlowObjects"
                             )
 
 metFlags.METAssocConfigs()[cfg_akt4pfHR.suffix] = cfg_akt4pfHR
@@ -246,7 +246,7 @@ if write_xAOD:
 
 
     # xaodStream.AddAcceptAlgs( "PVSoftTrkTail" )
-theApp.EvtMax = 10
+theApp.EvtMax = 100
 ServiceMgr.EventSelector.SkipEvents = 0
 ServiceMgr.MessageSvc.defaultLimit = 9999
 #ServiceMgr.MessageSvc.defaultLimit = 1
