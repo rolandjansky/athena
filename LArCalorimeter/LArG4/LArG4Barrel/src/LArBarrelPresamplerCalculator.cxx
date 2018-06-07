@@ -149,24 +149,19 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
 
     bool testbeam=false;
 
-  if(m_detectorName=="")
-    for (G4int ii=0;ii<=ndep;ii++) {
-      G4VPhysicalVolume* v1 = g4navigation->GetVolume(ii);
-      // FIXME More efficient to find the comparison volume once and compare pointers?
-      if (v1->GetName()=="LAr::Barrel::Presampler") idep=ii;    // half barrel
-      // FIXME Why are we checking if the geo is test beam every step?
-      if (v1->GetName()=="LAr::TBBarrel::Cryostat::LAr") testbeam=true;  // TB or not ?
-    }
-  else
+    const G4String presamplerName((m_detectorName.empty()) ? "LAr::Barrel::Presampler" :
+                                  m_detectorName+"::LAr::Barrel::Presampler");
+    const G4String tbCryostatName((m_detectorName.empty()) ? "LAr::TBBarrel::Cryostat::LAr" :
+                                  m_detectorName+"::LAr::TBBarrel::Cryostat::LAr");
     for (G4int ii=0;ii<=ndep;ii++) {
       G4VPhysicalVolume* v1 = g4navigation->GetVolume(ii);
 #ifdef DEBUGSTEP
       ATH_MSG_DEBUG(" Level,VolumeName " << ii << " " << v1->GetName());
 #endif
       // FIXME More efficient to find the comparison volume once and compare pointers?
-      if (v1->GetName()==G4String(m_detectorName+"::LAr::Barrel::Presampler")) idep=ii;
+      if (v1->GetName()==presamplerName) idep=ii;
       // FIXME Why are we checking if the geo is test beam every step?
-      if (v1->GetName()==G4String(m_detectorName+"::LAr::TBBarrel::Cryostat::LAr")) testbeam=true;  // TB or not ?
+      if (v1->GetName()==tbCryostatName) testbeam=true;  // TB or not ?
     }
 
 #ifdef DEBUGSTEP
