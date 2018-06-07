@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-
-def getMETMakerAlg(suffix,jetSelection="Tier0",jetColl=""):
+def getMETMakerAlg(suffix,jetSelection="Tier0",jetColl="",setJetMinWPtToInf=False):
     from AthenaCommon import CfgMgr
 
     print "Generate METMaker and METMakerAlg for METAssoc_"+suffix
@@ -15,6 +14,7 @@ def getMETMakerAlg(suffix,jetSelection="Tier0",jetColl=""):
                                     DoPFlow=doPFlow,
                                     DoSoftTruth=doTruth,
                                     JetSelection=jetSelection,
+                                    SetJetMinWPtToInf=setJetMinWPtToInf
                                     );
     ToolSvc += metMaker
 
@@ -38,6 +38,7 @@ def getMETMakerAlg(suffix,jetSelection="Tier0",jetColl=""):
         jetColl = suffix+'Jets'
         if doTruth:
             jetColl = suffix.split('_')[1]+'Jets'
+
     makerAlg = CfgMgr.met__METMakerAlg('METMakerAlg_'+suffix,
                                        METMapName='METAssoc_'+suffix,
                                        METCoreName='MET_Core_'+suffix,

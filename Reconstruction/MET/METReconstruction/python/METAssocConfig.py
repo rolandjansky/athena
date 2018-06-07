@@ -20,6 +20,7 @@ defaultInputKey = {
    'LCJet'     :'AntiKt4LCTopoJets',
    'EMJet'     :'AntiKt4EMTopoJets',
    'PFlowJet'  :'AntiKt4EMPFlowJets',
+   'PFlowJetRecoil':'AntiKt4EMPFlowJets',
    'Muon'      :'Muons',
    'Soft'      :'',
    'Clusters'  :'CaloCalTopoClusters',
@@ -39,7 +40,7 @@ class AssocConfig:
         self.objType = objType
         self.inputKey = inputKey
 
-def getAssociator(config,suffix,doPFlow=False,
+def getAssociator(config,suffix,doPFlow=False,doRecoil=False,
                   trkseltool=None,trkisotool=None,caloisotool=None,
                   modConstKey="",
                   modClusColls={}):
@@ -69,6 +70,8 @@ def getAssociator(config,suffix,doPFlow=False,
         tool = CfgMgr.met__METJetAssocTool('MET_EMJetAssocTool_'+suffix)
     if config.objType == 'PFlowJet':
         tool = CfgMgr.met__METJetAssocTool('MET_PFlowJetAssocTool_'+suffix)
+    if config.objType == 'PFlowJetRecoil':
+        tool = CfgMgr.met__METJetAssocTool('MET_PFlowJetAssocTool_Recoil_'+suffix)    
     if config.objType == 'Muon':
         tool = CfgMgr.met__METMuonAssociator('MET_MuonAssociator_'+suffix)
     if config.objType == 'Soft':
@@ -86,6 +89,8 @@ def getAssociator(config,suffix,doPFlow=False,
     else:
         tool.UseModifiedClus = doModClus
     # set input/output key names
+    if doRecoil:
+        tool.HRecoil = True
     if config.inputKey == '':
         tool.InputCollection = defaultInputKey[config.objType]
         config.inputKey = tool.InputCollection
@@ -129,6 +134,7 @@ class METAssocConfig:
             else:
                 associator = getAssociator(config=config,suffix=self.suffix,
                                            doPFlow=self.doPFlow,
+                                           doRecoil=self.doRecoil,
                                            trkseltool=self.trkseltool,
                                            trkisotool=self.trkisotool,
                                            caloisotool=self.caloisotool,
@@ -143,7 +149,7 @@ class METAssocConfig:
                 print prefix, '  Added '+config.objType+' tool named '+associator.name()
     #
     def __init__(self,suffix,buildconfigs=[],
-                 doPFlow=False,doTruth=False,
+                 doPFlow=False,doRecoil=False,doTruth=False,
                  trksel=None,
                  modConstKey="",
                  modClusColls={}
@@ -163,7 +169,8 @@ class METAssocConfig:
         else:
             print prefix, 'Creating MET Assoc config \''+suffix+'\''
         self.suffix = suffix
-        self.doPFlow = doPFlow                
+        self.doPFlow = doPFlow
+        self.doRecoil = doRecoil                
         self.modConstKey=modConstKey_tmp
         self.modClusColls=modClusColls_tmp
         self.doTruth = doTruth

@@ -255,7 +255,34 @@ STDM4Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
 DerivationFrameworkJob += STDM4Sequence
 
 
+from DerivationFrameworkSM.STDMCommonMETtools import *
+# PFlow augmentation
+applyPFOAugmentation(STDM4Sequence)
 
+
+#=======================================
+# SCHEDULE MET RECONSTRUCTION
+#=======================================
+
+# add map with standard association method and make MET:
+addMETAssocMap(STDM4Sequence,jettype='PFlowJet',assocname='AntiKt4EMPFlow',jetcoll='AntiKt4EMPFlowJets',doPflow=True,dorecoil=False,algname='METAssociation')
+MakeMET(STDM4Sequence, assocname='AntiKt4EMPFlow', jetcoll='AntiKt4EMPFlowJets', setjetminptToinf=False)
+STDM4Stream.AddItem('xAOD::MissingETAssociationMap#METAssoc_AntiKt4EMPFlow')
+STDM4Stream.AddItem('xAOD::MissingETAuxAssociationMap#METAssoc_AntiKt4EMPFlowAux.')
+STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Core_AntiKt4EMPFlow')
+STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Core_AntiKt4EMPFlowAux.')
+STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Reference_AntiKt4EMPFlow')
+STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Reference_AntiKt4EMPFlowAux.-ConstitObjectLinks.-ConstitObjectWeights')
+
+# add map with modified association method and make MET:
+addMETAssocMap(STDM4Sequence,jettype='PFlowJetRecoil',assocname='NewAntiKt4EMPFlowHR',jetcoll='AntiKt4EMPFlowJets',doPflow=True,dorecoil=True,algname='METAssociation')
+MakeMET(STDM4Sequence, assocname='NewAntiKt4EMPFlowHR', jetcoll='AntiKt4EMPFlowJets', setjetminptToinf=True)
+STDM4Stream.AddItem('xAOD::MissingETAssociationMap#METAssoc_NewAntiKt4EMPFlowHR')
+STDM4Stream.AddItem('xAOD::MissingETAuxAssociationMap#METAssoc_NewAntiKt4EMPFlowHRAux.')
+STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Core_NewAntiKt4EMPFlowHR')
+STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Core_NewAntiKt4EMPFlowHRAux.')
+STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Reference_NewAntiKt4EMPFlowHR')
+STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Reference_NewAntiKt4EMPFlowHRAux.-ConstitObjectLinks.-ConstitObjectWeights')
 
 
 #====================================================================

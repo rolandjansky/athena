@@ -64,6 +64,19 @@ namespace met{
 			  const met::METAssociator::ConstitHolder& constits,
 			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;
 
+    StatusCode GetPFOWana(const xAOD::IParticle* obj,
+                         std::vector<const xAOD::IParticle*>& pfolist,
+                         const met::METAssociator::ConstitHolder& constits,
+                         std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta,
+                         std::vector<double>& vPhiRnd,
+                         unsigned int& lept_count,
+                         float& UEcorr) const final;
+
+    StatusCode hadrecoil_PFO(std::vector<const xAOD::IParticle*> hardObjs, 
+                             const met::METAssociator::ConstitHolder& constits, 
+                             TLorentzVector& HR,
+                             std::vector<double>& vPhiRnd) const final;    
+
     StatusCode extractTracks(const xAOD::IParticle* obj,
 			     std::vector<const xAOD::IParticle*>& constlist,
 			     const met::METAssociator::ConstitHolder& constits) const final;
@@ -83,6 +96,12 @@ namespace met{
     double m_extraTrkMatch_dR;
 
     private:
+
+    void deltaPhi(float phi1, float phi2, float& result) const;
+    void deltaR(float eta1, float phi1, float eta2, float phi2, float& result) const;
+
+    const float m_Drcone = 0.2;       // Cone size for el-pfo association
+    const float m_MinDistCone = 0.4;  // Cone size for getting random Phi of PFO which is not assoc to el or HR
  
     /// Default constructor: 
     METEgammaAssociator();

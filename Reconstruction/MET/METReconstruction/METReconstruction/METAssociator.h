@@ -33,6 +33,8 @@
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/PFO.h"
 
+#include "TRandom3.h"
+
 namespace InDet {
   class IInDetTrackSelectionTool;
 }
@@ -83,6 +85,7 @@ namespace met {
     std::string m_pfcoll;
 
     bool m_pflow;
+    bool m_recoil;
     bool m_useTracks;
     bool m_useRapidity;
     bool m_useIsolationTools;
@@ -114,12 +117,27 @@ namespace met {
 				  std::vector<const xAOD::IParticle*>& pfolist,
 				  const met::METAssociator::ConstitHolder& constits,
 				  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const = 0;
+
+    virtual StatusCode GetPFOWana(const xAOD::IParticle* obj,
+          std::vector<const xAOD::IParticle*>& pfolist,
+          const met::METAssociator::ConstitHolder& constits,
+          std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta,
+          std::vector<double>& vPhiRnd,
+          unsigned int& lept_count,
+          float& UEcorr) const = 0;
+
+    virtual StatusCode hadrecoil_PFO(std::vector<const xAOD::IParticle*> hardObjs, 
+                                    const met::METAssociator::ConstitHolder& constits, 
+                                    TLorentzVector& HR, 
+                                    std::vector<double>& vPhiRnd) const = 0;
+
     virtual StatusCode extractTracks(const xAOD::IParticle* obj,
 				     std::vector<const xAOD::IParticle*>& constlist,
 				     const met::METAssociator::ConstitHolder& constits) const = 0;
     virtual StatusCode extractTopoClusters(const xAOD::IParticle* obj,
 					   std::vector<const xAOD::IParticle*>& tclist,
 					   const met::METAssociator::ConstitHolder& constits) const = 0;
+    
     static inline bool greaterPt(const xAOD::IParticle* part1, const xAOD::IParticle* part2) {
       return part1->pt()>part2->pt();
     }

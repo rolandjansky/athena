@@ -62,6 +62,7 @@ namespace met {
     declareProperty( "UseModifiedClus",    m_useModifiedClus = false            );
     declareProperty( "UseTracks",          m_useTracks   = true                  );
     declareProperty( "PFlow",              m_pflow       = false                 );
+    declareProperty( "HRecoil",            m_recoil      = false                 );
     declareProperty( "UseRapidity",        m_useRapidity = false                 );
     declareProperty( "TrackSelectorTool",  m_trkseltool                          );
     declareProperty( "TrackIsolationTool", m_trkIsolationTool                    );
@@ -105,7 +106,7 @@ namespace met {
       }
     }
 
-    if(m_pfcoll == "JetETMissParticleFlowObjects") {
+    if(m_pfcoll == "JetETMissParticleFlowObjects") {      
       ATH_MSG_ERROR("Configured to use standard pflow collection \"" << m_pfcoll << "\".");
       ATH_MSG_ERROR("This is no longer supported -- please use the CHSParticleFlowObjects collection, which has the four-vector corrections built in.");
       return StatusCode::FAILURE;
@@ -238,32 +239,74 @@ namespace met {
     }
     std::sort(hardObjs_tmp.begin(),hardObjs_tmp.end(),greaterPt);
 
+    // artur
+    std::cout<<std::endl<<std::endl;
+    std::cout<<"------------------- begin HR and random Phi calculation --------------------------"<<std::endl;
+    TLorentzVector HR;
+    float UEcorr = 0.;
+    unsigned int lept_count = 0;
+    std::vector<double> vPhiRnd;
+    if (m_pflow && m_useTracks && m_recoil) {
+      constlist.clear();
+      ATH_CHECK( this->hadrecoil_PFO(hardObjs_tmp, constits, HR, vPhiRnd) );
+    }
+    std::cout<<"------------------- end HR and random Phi calculation --------------------------"<<std::endl;
+
+    std::cout<<"------------------- begin loop over leptins --------------------------"<<std::endl;
+
     for(const auto& obj : hardObjs_tmp) {
       if(obj->pt()<5e3 && obj->type()!=xAOD::Type::Muon) continue;
       constlist.clear();
       ATH_MSG_VERBOSE( "Object type, pt, eta, phi = " << obj->type() << ", " << obj->pt() << ", " << obj->eta() << "," << obj->phi() );
       if (m_pflow) {
-	if(!m_useTracks){
-	  ATH_MSG_DEBUG("Attempting to build PFlow without a track collection.");
-	  return StatusCode::FAILURE;
-	}else{
-	  std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;
-	  ATH_CHECK( this->extractPFO(obj,constlist,constits,momentumOverride) );
-	  MissingETComposition::insert(metMap,obj,constlist,momentumOverride);
-	}
-      } else {
-	std::vector<const IParticle*> tclist;
-	tclist.reserve(20);
+        if(!m_useTracks){
+          ATH_MSG_DEBUG("Attempting to build PFlow without a track collection.");
+          return StatusCode::FAILURE;
+        }else{
+
+          std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;
+          if(m_recoil){
+            std::cout<<"1. METAssociator::fillAssocMap: m_recoil = true, GetPFOWana "<<std::endl;
+            if(obj->type() == xAOD::Type::Muon)
+              std::cout<<"MUON "<<std::endl;
+            else if(obj->type() == xAOD::Type::Electron)
+              std::cout<<"ELECTRON "<<std::endl;
+            else
+              std::cout<<"nor ELECTRON, nor MUON"<<std::endl;
+
+            UEcorr = 0.;
+            std::cout << "vPhiRnd.size()      = " << vPhiRnd.size() << std::endl;
+
+            std::cout<<"UEcorr before = "<<UEcorr<<std::endl;
+            std::cout<<"lept_count before = "<<lept_count<<std::endl;
+            
+            ATH_CHECK( this->GetPFOWana(obj,constlist,constits,momentumOverride, vPhiRnd, lept_count, UEcorr) );
+
+            std::cout<<"UEcorr = "<<UEcorr<<std::endl;
+            std::cout<<"lept_count after = "<<lept_count<<std::endl; 
+          }
+          else{
+            std::cout<<"METAssociator::fillAssocMap: m_recoil = false, extractPFO "<<std::endl;
+            ATH_CHECK( this->extractPFO(obj,constlist,constits,momentumOverride) );
+          }
+          MissingETComposition::insert(metMap,obj,constlist,momentumOverride);
+          
+        }
+      } 
+      else {
+        std::vector<const IParticle*> tclist;
+        tclist.reserve(20);
         ATH_CHECK( this->extractTopoClusters(obj,tclist,constits) );
-	if(m_useModifiedClus) {
-	  for(const auto& cl : tclist) {
-	    // use index-parallelism to identify shallow copied constituents
-	    constlist.push_back((*constits.tcCont)[cl->index()]);
-	  }
-	} else {
-	  constlist = tclist;
-	}
-	if(m_useTracks) ATH_CHECK( this->extractTracks(obj,constlist,constits) );
+        if(m_useModifiedClus) {
+          for(const auto& cl : tclist) {
+          // use index-parallelism to identify shallow copied constituents
+            constlist.push_back((*constits.tcCont)[cl->index()]);
+          }
+        } 
+        else {
+          constlist = tclist;
+        }
+        if(m_useTracks) ATH_CHECK( this->extractTracks(obj,constlist,constits) );
         MissingETComposition::insert(metMap,obj,constlist);
       }
     }

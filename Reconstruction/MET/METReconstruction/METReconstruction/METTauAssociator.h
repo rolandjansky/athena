@@ -60,6 +60,21 @@ namespace met{
 			  std::vector<const xAOD::IParticle*>& pfolist,
 			  const met::METAssociator::ConstitHolder& constits,
 			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;
+
+    StatusCode GetPFOWana(const xAOD::IParticle*,
+          std::vector<const xAOD::IParticle*>&,
+          const met::METAssociator::ConstitHolder&,
+          std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &,
+          std::vector<double>&,
+          unsigned int&,
+          float&) const final
+    {return StatusCode::FAILURE;} // should not be called          
+
+    StatusCode hadrecoil_PFO(std::vector<const xAOD::IParticle*>, 
+                            const met::METAssociator::ConstitHolder&, 
+                            TLorentzVector&,
+                            std::vector<double>&) const final
+    {return StatusCode::FAILURE;} // should not be called    
     
     StatusCode extractTracks(const xAOD::IParticle* obj,
 			     std::vector<const xAOD::IParticle*>& constlist,

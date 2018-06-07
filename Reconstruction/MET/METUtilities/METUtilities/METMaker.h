@@ -183,6 +183,8 @@ namespace met {
     bool m_greedyPhotons;
     bool m_veryGreedyPhotons;
 
+    bool m_SetJetMinWeightedPtToInf;
+
     int m_jetTrkNMuOlap;
     double m_jetWidthMuOlap;
     double m_jetPsEMuOlap;
