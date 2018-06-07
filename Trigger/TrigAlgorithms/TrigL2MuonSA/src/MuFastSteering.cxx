@@ -33,14 +33,14 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   : HLT::FexAlgo(name, svc), 
     m_storeGate("StoreGateSvc", this->name()), 
     //m_timerSvc(0),
-    m_regionSelector(0),
+    m_regionSelector("RegSelSvc", this->name()),
     m_recMuonRoIUtils(),
     m_rpcHits(), m_tgcHits(),
     m_mdtRegion(), m_muonRoad(),
     m_rpcFitResult(), m_tgcFitResult(),
     m_mdtHits_normal(), m_mdtHits_overlap(),
     m_cscHits(),
-    m_jobOptionsSvc(0) 
+    m_jobOptionsSvc("JobOptionsSvc", this->name()) 
 {
 }
 // --------------------------------------------------------------------------------
@@ -86,8 +86,7 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
   }
 
   // Locate RegionSelector
-  sc = service("RegSelSvc", m_regionSelector);
-  if( sc.isFailure() ) {
+  if (m_regionSelector.retrieve().isFailure()) {
     ATH_MSG_ERROR("Could not retrieve the regionselector service");
     return HLT::ERROR;
   }
@@ -170,17 +169,11 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
   }
   m_trackFitter -> setUseEIFromBarrel( m_use_endcapInnerFromBarrel );
 
-  // initialize the joboptions service
-  sc = service("JobOptionsSvc", m_jobOptionsSvc);
-  if (sc.isFailure()) {
+  if (m_jobOptionsSvc.retrieve().isFailure()) {
     ATH_MSG_ERROR("Could not find JobOptionsSvc");
     return HLT::ERROR;
-  } else {
-    IService* svc = dynamic_cast<IService*>(m_jobOptionsSvc);
-    if(svc != 0 ) {
-      ATH_MSG_DEBUG(" Algorithm = " << name() << " is connected to JobOptionsSvc Service = " << svc->name());
-    }  
   }
+  ATH_MSG_DEBUG(" Algorithm = " << name() << " is connected to JobOptionsSvc Service = " << m_jobOptionsSvc.name());
 
   //
   // Initialize the calibration streamer and the incident 
