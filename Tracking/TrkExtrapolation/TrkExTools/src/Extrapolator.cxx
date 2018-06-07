@@ -245,6 +245,9 @@ Trk::Extrapolator::initialize() {
   if (m_includeMaterialEffects && not m_updators.empty()) {
     ATH_CHECK( m_updators.retrieve() );
       for (auto& tool : m_updators) {
+
+        // @TODO tools, that are already used, should not be disabled. Those are currently disabled to silence the warning 
+        // issued by the tool usage detection, which is circumvented in case of the m_updators. 
         tool.disable();
       }    
   }
