@@ -6,6 +6,7 @@
 #include "TrkAlgebraUtils/IntVec.h"
 #include <iostream>
 #include <stdint.h>
+#include <exception>
 
 namespace Trk {
 
@@ -40,8 +41,7 @@ IntVec::~IntVec(){
 
 IntVec& IntVec::operator=(const IntVec& v) {
   if(m_Nele!=0 && m_Nele!=v.m_Nele) {
-    std::cerr << "IntVec Assignment: size does not match!" << std::endl;
-    return *this;
+    throw std::range_error( "IntVec Assignment: size does not match!" );
   }
 
   if ( m_ptr_data != v.m_ptr_data ) {
@@ -55,12 +55,10 @@ IntVec& IntVec::operator=(const IntVec& v) {
 
 int& IntVec::operator[](int i) {
   if(i<0) {
-    std::cerr << "IntVec: Index < zero! " << std::endl;
-    return m_ptr_data[0];
+    throw std::out_of_range( "IntVec: Index < zero! " );
   }
   else if(i>=m_Nele) {
-    std::cerr << "IntVec: Index too large! " << std::endl;
-    return m_ptr_data[0];
+    throw std::out_of_range( "IntVec: Index too large! " );
   }
 
   return *(m_ptr_data+i);
@@ -68,12 +66,10 @@ int& IntVec::operator[](int i) {
 
 const int& IntVec::operator[](int i) const {
   if(i<0) {
-    std::cerr << "IntVec: Index < zero! " << std::endl;
-    return m_ptr_data[0];
+    throw std::out_of_range( "IntVec: Index < zero! " );
   }
   else if(i>=m_Nele) {
-    std::cerr << "IntVec: Index too large! " << std::endl;
-    return m_ptr_data[0];
+    throw std::out_of_range( "IntVec: Index too large! " );
   }
 
   return  *(m_ptr_data+i);
@@ -81,8 +77,7 @@ const int& IntVec::operator[](int i) const {
 
 IntVec IntVec::operator+(const IntVec& v) {
   if( m_Nele != v.m_Nele ) {
-    std::cerr << "operator+: vectors size does not match!" << std::endl;
-    return *this;
+    throw std::range_error( "operator+: vectors size does not match!" );
   }
 
   IntVec b(m_Nele);
@@ -94,8 +89,7 @@ IntVec IntVec::operator+(const IntVec& v) {
 
 IntVec& IntVec::operator+=(const IntVec& v) {
   if( m_Nele != v.m_Nele ) {
-    std::cerr << "operator+=: vectors size does not match!" << std::endl;
-    return *this;
+    throw std::range_error(  "operator+=: vectors size does not match!" );
   }
 
   for (int i=0;i<m_Nele;i++)
@@ -106,8 +100,7 @@ IntVec& IntVec::operator+=(const IntVec& v) {
 
 IntVec  IntVec::operator-(const IntVec& v) {
   if( m_Nele != v.m_Nele ) {
-    std::cerr << "operator+: vectors size does not match!" << std::endl;
-    return *this;
+    throw std::range_error(  "operator+: vectors size does not match!" );
   }
 
   IntVec b(m_Nele);
@@ -119,8 +112,7 @@ IntVec  IntVec::operator-(const IntVec& v) {
 
 IntVec& IntVec::operator-=(const IntVec& v) {
   if( m_Nele != v.m_Nele ) {
-    std::cerr << "operator+=: vectors size does not match!" << std::endl;
-    return *this;
+    throw std::range_error(  "operator+=: vectors size does not match!" );
   }
 
   for (int i=0;i<m_Nele;i++)
