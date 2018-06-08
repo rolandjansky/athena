@@ -31,7 +31,7 @@ class EventViewCreatorAlgorithm : public ::InputMakerBase
  public:
     EventViewCreatorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
     virtual ~EventViewCreatorAlgorithm();
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
     virtual StatusCode execute_r(const EventContext&) const override;
     virtual StatusCode finalize() override;
 
