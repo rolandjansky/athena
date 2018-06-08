@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  ParameterSpace.cxx
 //  TopoCore
 //  Created by Joerg Stelzer on 11/18/12.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
 #include "L1TopoInterfaces/ParameterSpace.h"
 #include "L1TopoCommon/Exception.h"

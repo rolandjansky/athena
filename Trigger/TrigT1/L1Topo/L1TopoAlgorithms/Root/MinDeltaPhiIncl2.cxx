@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /*********************************
  * MinDeltaPhiIncl2.cpp
  * Created by Veronica Sorin  on 14/8/14.
