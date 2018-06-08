@@ -385,16 +385,19 @@ dqm_algorithms::BinHeightThreshold::printDescription(std::ostream& out)
 	}
     }
   out << "BinHeight_" << name_ << "_Threshold checks the bin height of a TH1. Ideally, a quantity as a function of LB. LB is expected to be on x axis, the quantity of interest is the bin content." << std::endl;
-  out << "BinHeight_" << name_ << "_Threshold defines 'red' and 'yellow' bins depending on the value of the bin content:\n \t-if " << redCond << ": the bin is 'red'.\n \t-if " << yellowCond << ": the bin is 'yellow'.\n \t-if (OPTIONAL) an 'UndefinedStatus' value is set and bin_content==UndefinedStatus: the bin is 'grey'.\n \t-otherwise the bin in 'green'" << std::endl;
-  out << "The algorithm checks all the bins in a window of size 'WindowSize', starting from:\n \t a) the last bun X bin.\n \t b) the last non-zero bin.\n Oprion a) or b) is chosen by the parameter 'StartFromLast': if('StartFromLast'>=0), (a) holds and X is equal to 'StartFromLast', while (b) holds if 'StartFromLast'<0." << std::endl;
-  out << "In the window of interest, the number of red/yellow/grey bins is counted, respectively Nred/Nyellow/Ngrey. The output is then defined comparing these numbers against the parameter 'NBins':\n \t- if Nred>=NBins: returns 'RED'.\n \t- else, if (Nred+Nyellow)>=NBins: returns 'YELLOW'.\n \t- else, if Ngrey>=NBins: returns 'GREY'.\n \t- else returns 'GREEN'." << std::endl;
-  out << "NOTE: to avoid issues due to rounding in double precision, the equality between the bin content and any parameter is defined with a reduced (tunable) precision. I.e. content==Y is implemented as (content>=Y-delta && content<=Y+delta). delta is equal to the parameter 'EqualityPrecision' which is tunable and set to 10^-4 by default\n"<<std::endl;
+  out << "BinHeight_" << name_ << "_Threshold defines 'red' and 'yellow' bins depending on the value of the bin content:\n \t-if " << redCond << ": the bin is 'red'.\n \t-if " << yellowCond << ": the bin is 'yellow'.\n \t-if (OPTIONAL) an 'UndefinedStatus' value is set and bin_content==UndefinedStatus, the bin is 'gray'.";
+  if(name_!="GreaterThan" && name_!="LessThan")
+    out << " Note that if 'UndefinedStatus' is equal to 'redThreshold' or 'yellowThreshold', the bin will be 'red'/'yellow' rather than 'gray'.";
+  out << "\n \t-otherwise the bin is 'green'" << std::endl;
+  out << "The algorithm checks all the bins in a window of size 'WindowSize', starting from:\n \t a) the last but X bin.\n \t b) the last non-zero bin.\n Oprion a) or b) is chosen by the parameter 'StartFromLast': if('StartFromLast'>=0), (a) holds and X is equal to 'StartFromLast', while (b) holds if 'StartFromLast'<0." << std::endl;
+  out << "In the window of interest, the number of red/yellow/gray bins is counted, respectively Nred/Nyellow/Ngray. The output is then defined comparing these numbers against the parameter 'NBins':\n \t- if Nred>=NBins: returns 'RED'.\n \t- else, if (Nred+Nyellow)>=NBins: returns 'YELLOW'.\n \t- else, if Ngray>=NBins: returns 'GREY'.\n \t- else returns 'GREEN'." << std::endl;
+  out << "NOTE: to avoid issues due to rounding in double precision, the equality between the bin content and any parameter is defined asking for the relative difference between the two to be smaller than a given parameter. I.e. content==Y is implemented as (abs(content-Y)/(content+Y))<epsilon. epsilon is equal to the parameter 'EqualityPrecision' which is tunable and set to 10^-4 by default\n"<<std::endl;
 
   out<<"Mandatory Parameter: HeightThreshold: sets the warning (yellowThreshold) and error (redThreshold) thresholds."<<std::endl; 
-  out<<"Optional Parameter: NBins: minimum number of red/(yellow+red)/grey bins in the window of interest for the algorithm to return Red/Yellow/Grey. Default is 1."<<std::endl;
-  out<<"Optional Parameter: WindowSize: size of the x-axis range (in number of bins) in which red/yellow/grey bins are searched for. If WindowSize<=0, the whole istogram is searched for. Default is 1."<<std::endl;
-  out<<"Optional Parameter: StartFromLast: is StartFromLast=X with X>=0, the algorithm will check the bins starting from the last but X bin. If StartFromLast<0, it will start from the first bin of nonzero content. Default is -1."<<std::endl;
-  out<<"Optional Parameter: UndefinedStatus: a bin is defined to be 'grey' if its content is equal to UndefinedStatus. If not set, bins are not check against it."<<std::endl;
+  out<<"Optional Parameter: NBins: minimum number of red/(yellow+red)/gray bins in the window of interest for the algorithm to return Red/Yellow/Grey. Default is 1."<<std::endl;
+  out<<"Optional Parameter: WindowSize: size of the x-axis range (in number of bins) in which red/yellow/gray bins are searched for. If WindowSize<=0, the whole istogram is searched for. Default is 1."<<std::endl;
+  out<<"Optional Parameter: StartFromLast: if StartFromLast=X with X>=0, the algorithm will check the bins starting from the last but X bin. If StartFromLast<0, it will start from the first bin of nonzero content. Default is -1."<<std::endl;
+  out<<"Optional Parameter: UndefinedStatus: a bin is defined to be 'gray' if its content is equal to UndefinedStatus. If not set, bins are not check against it."<<std::endl;
   out<<"Optional Parameter: EqualityPrecision: sets the precision with which the bin content is defined to be 'equal' to a parameter, as described above. Default is 10^-4."<<std::endl;
 }
 
