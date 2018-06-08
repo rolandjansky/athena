@@ -1573,9 +1573,9 @@ def defineMenu():
         'L1_J12_ALFA_EINE'	:	209,
         ## enabled via remapping in Menu_Physics_pp_v7.py
         #'L1_2EM3_ALFA_EINE'	:	215,
-        #'L1_MU4_ALFA_ANY'	:	216,
-        #'L1_MU4_ALFA_ANY_UNPAIRED_ISO'	:	217,
-        #'L1_MU4_ALFA_EINE'	:	222,
+        'L1_MU4_ALFA_ANY'	:	162,
+        'L1_MU4_ALFA_ANY_UNPAIRED_ISO'	:	217,
+        'L1_MU4_ALFA_EINE'	:	222,
         'L1_TE5_ALFA_ANY'	:	241,
         'L1_TE5_ALFA_ANY_UNPAIRED_ISO'	:	242,
         'L1_TE5_ALFA_EINE'	:	257,

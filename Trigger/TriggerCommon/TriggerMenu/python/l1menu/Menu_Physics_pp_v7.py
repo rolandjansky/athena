@@ -86,11 +86,31 @@ def defineMenu():
 #        'L1_MU6_J75': '',
 
 #        MC-only L1 items, remapped to ALFA 
-        'L1_MU21_FTK'                           :'L1_2EM3_ALFA_EINE',
-        'L1_TAU20IM_FTK'                        :'L1_MU4_ALFA_ANY',
-        'L1_TAU20IM_2TAU12IM_J25_2J20_3J12_FTK' :'L1_MU4_ALFA_ANY_UNPAIRED_ISO',
-        'L1_DR-TAU20ITAU12I-J25_FTK'            :'L1_MU4_ALFA_EINE',
-        }
+        'L1_J40.0ETA25_2J30_J20.31ETA49'                               :'L1_2EM3_ALFA_EINE',
+        'L1_J40.0ETA25_XE50'                                           :'L1_ALFA_SDIFF5',
+        'L1_KF-XE50'                                                   :'L1_ALFA_SDIFF6',
+        'L1_2EM8I'                                                     :'L1_ALFA_SDIFF7',
+        'L1_MU4_UNPAIRED_NONISO'                                       :'L1_ALFA_SDIFF8',
+        'L1_J75_3J20'                                                  :'L1_MBTS_1_A_ALFA_C',
+        'L1_2EM8I_J75'                                                 :'L1_MBTS_1_C_ALFA_A',
+        'L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_W-90RO2-XEHT-0'   :'L1_MBTS_1_A_ALFA_C_UNPAIRED_ISO',
+        'L1_DR25-TAU20ITAU12I-J25'                                     :'L1_MBTS_1_C_ALFA_A_UNPAIRED_ISO',
+        'L1_EM7_MU11'                                                  :'L1_MBTS_2_A_ALFA_C',
+        'L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE'                  :'L1_MBTS_2_C_ALFA_A',
+        'L1_EM12_W-MT25_W-15DPHI-JXE-0_W-15DPHI-EMXE_XS20'             :'L1_MBTS_2_A_ALFA_C_UNPAIRED_ISO',
+        'L1_EM15_W-MT35_W-250RO2-XEHT-0_W-15DPHI-JXE-0_W-15DPHI-EM15XE':'L1_MBTS_2_C_ALFA_A_UNPAIRED_ISO',
+        'L1_2MU4_J20_XE40_DPHI-J20s2XE30'                              :'L1_LUCID_A_ALFA_C',
+        'L1_J15.0ETA25_2J15.31ETA49'                                   :'L1_LUCID_C_ALFA_A',
+        'L1_DR25-TAU20ITAU12I'                                         :'L1_LUCID_A_ALFA_C_UNPAIRED_ISO',
+        'L1_EM7_UNPAIRED_NONISO'                                       :'L1_LUCID_C_ALFA_A_UNPAIRED_ISO',
+        'L1_DPHI-AJ20s2XE50'                                           :'L1_EM3_ALFA_ANY',
+        'L1_2EM8I_J50'                                                 :'L1_EM3_ALFA_ANY_UNPAIRED_ISO',
+        'L1_2MU4_J20_XE50_DPHI-J20s2XE30'                              :'L1_ALFA_ELASTIC_UNPAIRED_ISO',
+        'L1_TAU20IM_FTK'                                               :'L1_ALFA_ANTI_ELASTIC_UNPAIRED_ISO',
+#        'L1_TAU20IM_2TAU12IM_J25_2J20_3J12_FTK'                        :
+#        'L1_DR-TAU20ITAU12I-J25_FTK'                                   :
+#        'L1_TAU8_UNPAIRED_NONISO'                                      :
+        }                                                               
     
     #----------------------------------------------
     def remapThresholds():
