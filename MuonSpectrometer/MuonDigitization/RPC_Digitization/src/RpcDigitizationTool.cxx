@@ -154,6 +154,7 @@ StatusCode RpcDigitizationTool::initialize() {
   ATH_MSG_DEBUG ( "Parameters             " << m_paraFile                  );
   ATH_MSG_DEBUG ( "InputObjectName        " << m_inputHitCollectionName    );
   ATH_MSG_DEBUG ( "OutputObjectName       " << m_outputDigitCollectionKey.key() );
+  ATH_MSG_DEBUG ( "OutputSDOName          " << m_outputSDO_CollectionKey.key());
   ATH_MSG_DEBUG ( "WindowLowerOffset      " << m_timeWindowLowerOffset     );
   ATH_MSG_DEBUG ( "WindowUpperOffset      " << m_timeWindowUpperOffset     );
   ATH_MSG_DEBUG ( "DeadTime               " << m_deadTime                  );

@@ -58,7 +58,9 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
         job += CfgGetter.getAlgorithm("MdtOverlay")
         from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MdtDigitToMdtRDO
         job += MdtDigitToMdtRDO()
-        job.MdtDigitToMdtRDO.EvtStore = job.MdtOverlay.OutputStore
+        job.MdtDigitToMdtRDO.InputObjectName = overlayFlags.dataStore()+"+MDT_DIGITS"
+        job.MdtDigitToMdtRDO.OutputObjectName = overlayFlags.dataStore()+"+MDTCSM"
+        
 
         if readBS:
            ToolSvc.MdtRawDataProviderTool.RdoLocation = "OriginalEvent_SG+MDTCSM"

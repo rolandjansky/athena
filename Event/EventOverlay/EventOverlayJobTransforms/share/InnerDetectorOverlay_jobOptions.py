@@ -64,27 +64,14 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
            #conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True)
            conddb.addFolder("TRT_OFL","/TRT/Cond/DigVers",forceMC=True)
 
-        job += CfgGetter.getAlgorithm("TRT_OverlayDigitization")
-  
-        indetovl.do_TRT = True
-        
-        
-        from Digitization.DigitizationFlags import digitizationFlags
-        rndmStream = "InDetOverlay"
-        indetovl.RndmEngine = rndmStream
-        indetovl.RndmSvc = digitizationFlags.rndmSvc.get_Value();
-
         from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
         TRT_LocalOccupancy = InDet__TRT_LocalOccupancy(      name              ="TRT_LocalOccupancy",
                                                              isTrigger         = False, 
         )
         ToolSvc += TRT_LocalOccupancy
-        indetovl.TRT_LocalOccupancyTool = TRT_LocalOccupancy  
-        
-        #HT hit correction fraction 
-        indetovl.TRT_HT_OccupancyCorrectionBarrel = 0.160
-        indetovl.TRT_HT_OccupancyCorrectionEndcap = 0.130
 
+        job += CfgGetter.getAlgorithm("TRT_OverlayDigitization")
+                        
         from InDetRecExample.InDetJobProperties import InDetFlags
         include("InDetRecExample/InDetRecConditionsAccess.py")
 
