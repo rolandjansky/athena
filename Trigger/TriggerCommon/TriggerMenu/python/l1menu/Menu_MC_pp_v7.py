@@ -883,11 +883,11 @@ def defineMenu():
 
         # Items for beta*=90m run
         'L1_J12_ALFA_EINE',
-        ## enabled via remapping in Menu_Physics_pp_v7.py
-        #'L1_2EM3_ALFA_EINE',
-        #'L1_MU4_ALFA_ANY',
-        #'L1_MU4_ALFA_ANY_UNPAIRED_ISO',
-        #'L1_MU4_ALFA_EINE',
+#        'L1_2EM3_ALFA_EINE',
+        'L1_MU4_ALFA_ANY',
+        'L1_MU4_ALFA_ANY_UNPAIRED_ISO',
+#        'L1_MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO',
+        'L1_MU4_ALFA_EINE',
 
 
         #item with FTK trigger type, for FTK commissioning

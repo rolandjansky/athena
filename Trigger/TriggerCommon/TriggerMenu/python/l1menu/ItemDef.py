@@ -58,6 +58,7 @@ class ItemDef:
         bgrp14cond          = BGRP0 & BGRP14 #UNPAIREDB2                                     # noqa: F821
         alfacalib           = BGRP0 & BGRP10                                                 # noqa: F821
         abortgap            = BGRP0 & BGRP8                                                  # noqa: F821
+        physcond_or_unpaired_isocond    = BGRP0 & (BGRP1 | BGRP4)                            # noqa: F821
         
         # partition 1
         #bgrpcond1           = BGRP0 & BGRP11                                                 # noqa: F821
@@ -1387,6 +1388,7 @@ class ItemDef:
 
         LVL1MenuItem('L1_MU4_ALFA_ANY'             ).setLogic( MU4 & ALFA_ANY  & physcond).setTriggerType(TT.alfa)            # noqa: F821
         LVL1MenuItem('L1_MU4_ALFA_ANY_UNPAIRED_ISO').setLogic( MU4 & ALFA_ANY  & unpaired_isocond).setTriggerType(TT.alfa)    # noqa: F821
+        LVL1MenuItem('L1_MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO').setLogic( MU4 & ALFA_ANY  & physcond_or_unpaired_isocond).setTriggerType(TT.alfa)    # noqa: F821
         LVL1MenuItem('L1_MU4_ALFA_EINE'            ).setLogic( MU4 & ALFA_EINE & physcond).setTriggerType(TT.alfa)            # noqa: F821
         
         LVL1MenuItem('L1_TE5_ALFA_ANY'             ).setLogic( TE5 & ALFA_ANY  & physcond).setTriggerType(TT.alfa)            # noqa: F821

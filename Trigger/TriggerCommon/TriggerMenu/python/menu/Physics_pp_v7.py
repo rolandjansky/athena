@@ -4050,6 +4050,38 @@ def setupMenu():
         ['noalg_L1ALFA_Phys',    'L1_ALFA_Phys',    [], ['MinBias'], ["RATE:MinBias", "RATE:ALFA", "BW:Other"], -1], 
         ['noalg_L1ALFA_PhysAny', 'L1_ALFA_PhysAny', [], ['MinBias'], ["RATE:MinBias", "RATE:ALFA", "BW:Other"], -1], 
         ['noalg_L1ALFA_SYS', 'L1_ALFA_SYS', [], ['MinBias'], ["RATE:MinBias", "RATE:ALFA", "BW:Other"], -1], 
+
+        #ATR-18254
+        ['noalg_L1MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO',   'L1_MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['noalg_L1MU4_ALFA_EINE',   'L1_MU4_ALFA_EINE', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1],
+        ['mu4_mu2noL1_L1MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO',   'L1_MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO', ['L1_MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO',''], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1,['serial',-1,['mu4','mu2noL1']]], 
+        ['mu4_mu2noL1_L1MU4_ALFA_EINE',   'L1_MU4_ALFA_EINE', ['L1_MU4_ALFA_EINE',''], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1,['serial',-1,['mu4','mu2noL1']]],
+        ['noalg_L1EM3_ALFA_EINE', 'L1_EM3_ALFA_EINE', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['noalg_L12EM3_ALFA_EINE', 'L1_2EM3_ALFA_EINE', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['noalg_L1DPHI-2EM3_VTE5.24ETA49_ALFA_EINE', 'L1_DPHI-2EM3_VTE5.24ETA49_ALFA_EINE', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['2g3_loose_mb_sptrk_vetombts2in_L1ALFA_ELAS', 'L1_ALFA_ELAS', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1, ['serial', -1, ['2g3_loose', 'mb_sptrk_vetombts2in_L1ALFA_ELAS'],False]], 
+        ['2g3_loose_mb_sptrk_vetombts2in_L1ALFA_SYST', 'L1_ALFA_SYS', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'],  -1, ['serial', -1, ['2g3_loose', 'mb_sptrk_vetombts2in_L1ALFA_SYST'],False]], 
+
+        ['noalg_L1J12_ALFA_EINE', 'L1_J12_ALFA_EINE', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['2j10_L1TRT_ALFA_EINE', 'L1_TRT_ALFA_EINE', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['2j10_L1TRT_ALFA_ANY_PAIRED_UNPAIRED_ISO', 'L1_TRT_ALFA_ANY_PAIRED_UNPAIRED_ISO', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['2j10_L1ALFA_ELAS', 'L1_ALFA_ELAS', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['2j10_L1ALFA_SYST', 'L1_ALFA_SYS', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['2j10_L1MBTS_ALFA', 'L1_MBTS_ALFA', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['j15_L1ALFA_Jet_Phys', 'L1_ALFA_Jet_Phys', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['noalg_L1ALFA_Jet_Phys', 'L1_ALFA_Jet_Phys', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+
+
+        ['noalg_L1ALFA_Diff_Phys', 'L1_ALFA_Diff_Phys',  [],  ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1],
+        ['noalg_L1ALFA_CDiff_Phys', 'L1_ALFA_CDiff_Phys', [],  ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1],
+        ['mb_sptrk_vetombts2in_L1ALFA_CEP', 'L1_ALFA_CEP', [],  ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1],
+        ['mb_sptrk_vetombts2in_L1TRT_ALFA_EINE', 'L1_TRT_ALFA_EINE', [],  ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1],
+        ['mb_sptrk_vetombts2in_L1ALFA_ANY', 'L1_ALFA_ANY', [],  ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1],
+        ['mb_sptrk_vetombts2in_L1ALFA_ANY_UNPAIRED_ISO', 'L1_ALFA_ANY_UNPAIRED_ISO', [],  ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1],
+        ['mb_sptrk_vetombts2in_L1TRT_ALFA_ANY', 'L1_TRT_ALFA_ANY', [],  ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1],
+        ['mb_sptrk_vetombts2in_L1TRT_ALFA_ANY_UNPAIRED_ISO', 'L1_TRT_ALFA_ANY_UNPAIRED_ISO', [],  ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1],
+
+
         #
         ['ibllumi_L1RD0_ABORTGAPNOTCALIB',    'L1_RD0_ABORTGAPNOTCALIB', [], ['IBLLumi'], [ 'RATE:IBLLumi','BW:Detector'], -1],
         ['ibllumi_L1RD0_FILLED',    'L1_RD0_FILLED', [], ['IBLLumi'], [ 'RATE:IBLLumi','BW:Detector'], -1],
@@ -5736,6 +5768,14 @@ chain_list=[
     'mb_sptrk_pt8_L1RD3_FILLED',
     'mb_sptrk_vetombts2in_L1ZDC_AND',
     'mb_sptrk_vetombts2in_L1ZDC_A_C',
+    '2g3_loose_mb_sptrk_vetombts2in_L1ALFA_ELAS',
+    '2g3_loose_mb_sptrk_vetombts2in_L1ALFA_SYST',
+    'mb_sptrk_vetombts2in_L1ALFA_CEP',
+    'mb_sptrk_vetombts2in_L1TRT_ALFA_EINE',
+    'mb_sptrk_vetombts2in_L1ALFA_ANY',
+    'mb_sptrk_vetombts2in_L1ALFA_ANY_UNPAIRED_ISO',
+    'mb_sptrk_vetombts2in_L1TRT_ALFA_ANY',
+    'mb_sptrk_vetombts2in_L1TRT_ALFA_ANY_UNPAIRED_ISO',
     'mb_sptrk_trk80_L1MBTS_2',
     'mb_sptrk_pt2_L1MBTS_2',
 #    'mb_sptrk_L1MBTS_1',
