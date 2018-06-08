@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /* **********************************************************
 *
 * Quick and dirty hack to work around fact that there is no RoI

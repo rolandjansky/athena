@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "L1TopoInterfaces/AlgFactory.h"
 #include "L1TopoInterfaces/ConfigurableAlg.h"
 
