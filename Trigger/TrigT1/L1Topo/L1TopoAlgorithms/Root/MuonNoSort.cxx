@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  MuonNoSort.cxx
 //  TopoCore
 //  Created by Joerg Stelzer, V Sorin 2014.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 //  algorithm to make sorted muon lists
 //
 #include "L1TopoAlgorithms/MuonNoSort.h"
