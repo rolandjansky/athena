@@ -17,10 +17,9 @@ using namespace TrigCompositeUtils;
 
 TrigMufastHypoAlg::TrigMufastHypoAlg( const std::string& name,
 				      ISvcLocator* pSvcLocator ) :
-  ::AthReentrantAlgorithm( name, pSvcLocator )
-{
+   ::HypoBase( name, pSvcLocator )
+{}
 
-} 
 
 TrigMufastHypoAlg::~TrigMufastHypoAlg() 
 {}
@@ -33,17 +32,8 @@ StatusCode TrigMufastHypoAlg::initialize()
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
   ATH_CHECK(m_hypoTools.retrieve());
 
-  ATH_CHECK(m_viewsKey.initialize());
-
   renounce(m_muFastKey);
   ATH_CHECK(m_muFastKey.initialize());
-
-  renounce(m_roiKey);
-  ATH_CHECK(m_roiKey.initialize());
-
-  ATH_CHECK(m_decisionsKey.initialize());
-
-  ATH_CHECK(m_previousDecisionsKey.initialize());
  
   ATH_MSG_INFO( "Initialization completed successfully" );
   return StatusCode::SUCCESS;
@@ -65,84 +55,68 @@ StatusCode TrigMufastHypoAlg::finalize()
 StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
 {
 
+  // common for all Hypos, to move in the base class
   ATH_MSG_DEBUG("StatusCode TrigMufastHypoAlg::execute_r start");
-
-  auto viewsHandle = SG::makeHandle( m_viewsKey, context );
-
-  std::map<const TrigRoiDescriptor*, const TrigCompositeUtils::Decision* > roiToDecision;
-  auto previousDecisionsHandle = SG::makeHandle( m_previousDecisionsKey, context );
-  for ( auto previousDecision: *previousDecisionsHandle ) { 
-    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
-    if (!roiEL.isValid()) {
-      ATH_MSG_ERROR("ReadHandle for ViewContainer key:" << m_viewsKey.key() << " is failed");
-      return StatusCode::FAILURE;
-    }
-    const TrigRoiDescriptor* roi = *roiEL;
-    roiToDecision.insert( std::make_pair( roi, previousDecision ) );
-  }   
-  ATH_MSG_DEBUG("REGTEST: RoI to decisions map size: " << roiToDecision.size() );
+  auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
+  if( not previousDecisionsHandle.isValid() ) {//implicit
+    ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );
+    return StatusCode::SUCCESS;      
+  }  
+  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
 
   auto decisions = std::make_unique<DecisionContainer>();
   auto aux = std::make_unique<DecisionAuxContainer>();
   decisions->setStore(aux.get());
+  // end of common
+ 
 
-  size_t counter = 0;	// view counter
   std::vector<TrigMufastHypoTool::MuonClusterInfo> toolInput;
-  for (auto view: *viewsHandle) {
+  // loop over previous decisions
+  size_t counter=0;
+  for ( auto previousDecision: *previousDecisionsHandle ) {
+    //get RoI
+    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+    CHECK( roiEL.isValid() );
+    const TrigRoiDescriptor* roi = *roiEL;
+
+    // get View
+    auto viewEL = previousDecision->objectLink< ViewContainer >( "view" );
+    CHECK( viewEL.isValid() );
+
+    const SG::View* view_const = *viewEL;
+    SG::View* view = const_cast<SG::View*>(view_const); // CHECK THIS!
+
+    // get info of that view
+    auto muFastHandle = SG::makeHandle( m_muFastKey, context );    
+    CHECK( muFastHandle.setProxyDict( view ) );
+    ATH_MSG_DEBUG ( "Muinfo handle size: " << muFastHandle->size() << "..." );
+
+    const xAOD::L2StandAloneMuon* fast = muFastHandle.cptr()->at(0);
+    
+    // create new decision
     auto d = newDecisionIn( decisions.get() );
 
-    // retrieve MuFastDecisions with ReadHandle
-    auto muFastHandle = SG::makeHandle( m_muFastKey, context );
-    if (muFastHandle.setProxyDict(view).isFailure()) {
-      ATH_MSG_ERROR("ReadHandle for xAOD::L2StandAloneMuonContainer key:" << m_muFastKey.key() << " is failed");
-      return StatusCode::FAILURE;
-    } 
-    const xAOD::L2StandAloneMuon* fast = muFastHandle.cptr()->at(0);
- 
-    // retrieve MuFastDecisions with ReadHandle
-    auto roiHandle = SG::makeHandle( m_roiKey, context );
-    if (roiHandle.setProxyDict(view).isFailure()) {
-      ATH_MSG_ERROR("ReadHandle for TrigRoiDescriptor key:" << m_roiKey.key() << " is failed");
-      return StatusCode::FAILURE;
-    } 
-    const TrigRoiDescriptor* roi = roiHandle.cptr()->at(0);
-
     // push_back to toolInput
-    toolInput.emplace_back( d, roi, fast, roiToDecision[roi] );
-
-    { // retrieve MUViewRoIs
-      auto element = ElementLink< ViewContainer >( m_viewsKey.key(), counter );
-      if(!element.isValid()) {
-        ATH_MSG_ERROR("ReadHandle for ViewContainer key:" << m_viewsKey.key() << " isn't Valid");
-        return StatusCode::FAILURE;
-      } else {
-        d->setObjectLink( "view", element );
-        ATH_MSG_DEBUG("REGTEST: " << m_viewsKey.key() << " = " << (*element));
-      }
+    toolInput.emplace_back( d, roi, fast, previousDecision );
+    
+    {
+      auto element = ElementLink<xAOD::L2StandAloneMuonContainer>( view->name()+"_"+m_muFastKey.key(), 0 );
+      CHECK( element.isValid() );
+      d->setObjectLink( "feature", element );
+      ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " pT = " << (*element)->pt() << " GeV");
+      ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " eta/phi = " << (*element)->eta() << "/" << (*element)->phi());
     }
-    { // retrieve MURoIs
-      auto element = ElementLink<TrigRoiDescriptorCollection>( view->name()+"_"+m_roiKey.key(), 0 ); 
-      if(!element.isValid()) {
-        ATH_MSG_ERROR("ReadHandle for TrigRoiDescriptorCollection key:" << m_roiKey.key() << " isn't Valid");
-        return StatusCode::FAILURE;
-      } else {
-        d->setObjectLink( "roi", element );
-        ATH_MSG_DEBUG("REGTEST: " << m_roiKey.key() << " eta/phi = " << (*element)->eta() << "/" << (*element)->phi());
-      }
-    }
-    { // retrieve xAOD::MuonFastDecision 
-      auto element = ElementLink<xAOD::L2StandAloneMuonContainer>( view->name()+"_"+m_muFastKey.key(), 0 ); 
-      if(!element.isValid()) {
-        ATH_MSG_ERROR("ReadHandle for xAOD::L2StandAloneMuonContainer key:" << m_muFastKey.key() << " isn't Valid");
-        return StatusCode::FAILURE;
-      } else {
-        d->setObjectLink( "feature", element );
-        ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " pT = " << (*element)->pt() << " GeV");
-        ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " eta/phi = " << (*element)->eta() << "/" << (*element)->phi());
-      }
-    }
+    d->setObjectLink( "roi", roiEL );
+    d->setObjectLink( "view", viewEL );
+    ATH_MSG_DEBUG("REGTEST:  View = " << (*viewEL));
+    ATH_MSG_DEBUG("REGTEST:  RoI  = eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());
+    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
+    ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision "<<counter <<" for view "<<view->name()  );
     counter++;
-  } // End of view loops */
+  }
+
+  ATH_MSG_DEBUG( "Found "<<toolInput.size()<<" inputs to tools");
+
 
   // to TrigMufastHypoTool
   StatusCode sc = StatusCode::SUCCESS;
@@ -153,10 +127,25 @@ StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
       ATH_MSG_ERROR("MuonHypoTool is failed");
       return StatusCode::FAILURE;
     }
-  } // End of tool algorithms */	
+  } // End of tool algorithms */
 
-  auto handle =  SG::makeHandle(m_decisionsKey, context);     
-  ATH_CHECK( handle.record( std::move(decisions), std::move(aux) ) );
+
+
+  {// make output handle and debug, in the base class
+    auto outputHandle = SG::makeHandle(decisionOutput(), context);
+    CHECK( outputHandle.record( std::move( decisions ), std::move( aux ) ) );
+    ATH_MSG_DEBUG ( "Exit with "<<outputHandle->size() <<" decisions");
+    TrigCompositeUtils::DecisionIDContainer allPassingIDs;
+    if ( outputHandle.isValid() ) {
+      for ( auto decisionObject: *outputHandle )  {
+	TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
+      }
+      for ( TrigCompositeUtils::DecisionID id : allPassingIDs ) {
+	ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
+      }
+    }
+  }
+
 
   ATH_MSG_DEBUG("StatusCode TrigMufastHypoAlg::execute_r success");
   return StatusCode::SUCCESS;

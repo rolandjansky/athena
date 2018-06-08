@@ -93,7 +93,7 @@ fastCalo_HLTSequence = HLTRecoSequence("fastCalo_HLTSequence",
 fastCaloSequence = MenuSequence("egammaCaloStep",
                                     recoSeqList=[fastCalo_HLTSequence],
                                     Hypo=theFastCaloHypo,
-                                    HypoToolClassName="TrigL2CaloHypoToolConf",)
+                                    HypoToolClassName="TrigL2CaloHypoToolConf")
 
 #########################################
 # second step:  tracking.....

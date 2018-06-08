@@ -49,11 +49,14 @@ else:
 from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr.StoreGateSvc=Service("StoreGateSvc") 
 ServiceMgr.StoreGateSvc.Dump=True 
- 
+
+
+# menu components   
+from TrigUpgradeTest.HLTCFConfig import decisionTree_From_Chains
+from TrigUpgradeTest.MenuComponents import HLTRecoSequence, MenuSequence, Chain, ChainStep
+
 ### for Control Flow ###
 from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
-from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
-
  
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.CheckDependencies( True )
@@ -66,15 +69,10 @@ from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
 from AthenaCommon import CfgMgr
 
 doL2SA=True
-doL2CB=True
-doEFSA=True
+doL2CB=False
+doEFSA=False
 
-#TriggerFlags.doID=False
-
- ### muon thresholds ###
-testChains = ["HLT_mu6", "HLT_2mu6"]
-
-
+TriggerFlags.doID=False
 
 # ===============================================================================================
 #               Setup PrepData                                                                    
@@ -120,13 +118,23 @@ if TriggerFlags.doMuon:
 
   if doL2SA:
     l2MuViewNode = seqAND("l2MuViewNode")
-   
+    #l2MuViewNode = AthSequencer("l2MuViewNode", Sequential=False, ModeOR=False, StopOverride=False)
+    l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker", OutputLevel=DEBUG)
+    l2MuViewsMaker.ViewFallThrough = True
+ 
+#    l2MuViewsMaker.InputMakerInputDecisions = ["MURoIDecisions"]
+#    l2MuViewsMaker.InputMakerOutputDecisions = ["MURoIDecisionsOutput"]
+    l2MuViewsMaker.RoIsLink = "initialRoI" # -||-
+    l2MuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
+    l2MuViewsMaker.Views = "MUViewRoIs"
+    l2MuViewsMaker.ViewNodeName = l2MuViewNode.name()
+
   if doEFSA:
 
-    efMuViewNode = seqAND("efMuViewNode")
+    efMuViewNode = AthSequencer("efMuViewNode", Sequential=False, ModeOR=False, StopOverride=False)
     efMuViewsMaker = EventViewCreatorAlgorithm("efMuViewsMaker", OutputLevel=DEBUG)
     efMuViewsMaker.ViewFallThrough = True
-    # probably wrong input to the EVMaker
+ 
     efMuViewsMaker.InputMakerInputDecisions = ["MURoIDecisions"]
     efMuViewsMaker.InputMakerOutputDecisions = ["MURoIDecisionsOutputEF"]
     efMuViewsMaker.RoIsLink = "initialRoI" # -||-
@@ -317,7 +325,16 @@ if TriggerFlags.doMuon:
         efMuViewNode += MuonClusterAlg 
 
 
- 
+  ### muon thresholds ###
+  testChains = ["HLT_mu6", "HLT_2mu6"]
+
+  ### set up L1RoIsFilter ###
+  from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
+  filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
+  filterL1RoIsAlg.Input = ["MURoIDecisions"]
+  filterL1RoIsAlg.Output = ["FilteredMURoIDecisions"]
+  filterL1RoIsAlg.Chains = testChains
+  filterL1RoIsAlg.OutputLevel = DEBUG
 
 
 # ===============================================================================================
@@ -325,53 +342,54 @@ if TriggerFlags.doMuon:
 # ===============================================================================================
  
   if doL2SA:
-
-    svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
-
-    ### set up L1RoIsFilter ###
-    filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
-    filterL1RoIsAlg.Input = ["MURoIDecisions"]
-    filterL1RoIsAlg.Output = ["FilteredMURoIDecisions"]
-    filterL1RoIsAlg.Chains = testChains
-    filterL1RoIsAlg.OutputLevel = DEBUG
-
-    # set the EVCreator
-    l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker", OutputLevel=DEBUG)
-    l2MuViewsMaker.ViewFallThrough = True
-    l2MuViewsMaker.InputMakerInputDecisions = filterL1RoIsAlg.Output 
-    l2MuViewsMaker.InputMakerOutputDecisions = ["MURoIDecisionsOutput"]
-    l2MuViewsMaker.RoIsLink = "initialRoI" # -||-
-    l2MuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
-    l2MuViewsMaker.Views = "MUViewRoIs"
-    l2MuViewsMaker.ViewNodeName = l2MuViewNode.name()
-
     ### set up MuFastSteering ###
     from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAMTConfig
     muFastAlg = TrigL2MuonSAMTConfig("Muon")
     muFastAlg.OutputLevel = DEBUG
+
+    svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
+
+    l2MuViewNode += muFastAlg
+
     muFastAlg.MuRoIs = l2MuViewsMaker.InViewRoIs
     muFastAlg.RecMuonRoI = "RecMURoIs"
     muFastAlg.MuonL2SAInfo = "MuonL2SAInfo"
     muFastAlg.MuonCalibrationStream = "MuonCalibrationStream"
     muFastAlg.forID = "forID"
     muFastAlg.forMS = "forMS"
-    l2MuViewNode += muFastAlg
-    
+
     # set up MuFastHypo
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMufastHypoConfig
     trigMufastHypo = TrigMufastHypoConfig("L2MufastHypoAlg")
+    
+#    from TrigMuonHypo.TrigMuonHypoConf import TrigMufastHypoAlg
+#    trigMufastHypo = TrigMufastHypoAlg("L2MufastHypoAlg")
     trigMufastHypo.OutputLevel = DEBUG
+
+    #trigMufastHypo.ViewRoIs = l2MuViewsMaker.Views
     trigMufastHypo.MuonL2SAInfoFromMuFastAlg = muFastAlg.MuonL2SAInfo
-    trigMufastHypo.HypoOutputDecisions = "L2MuonFastDecisions"
-    trigMufastHypo.HypoInputDecisions = l2MuViewsMaker.InputMakerOutputDecisions[0]
-    trigMufastHypo.HypoTools = [ trigMufastHypo.TrigMufastHypoToolFromName( "L2MufastHypoTool", c ) for c in testChains ] 
+    #trigMufastHypo.RoIs = l2MuViewsMaker.InViewRoIs
+    #trigMufastHypo.Decisions = "L2MuonFastDecisions"
+    #trigMufastHypo.L1Decisions = l2MuViewsMaker.InputMakerInputDecisions[0]
 
-    # set the dumper
-    muFastDecisionsDumper = DumpDecisions("muFastDecisionsDumper", OutputLevel=DEBUG, Decisions = trigMufastHypo.HypoOutputDecisions )
+    #trigMufastHypo.HypoTools = [ trigMufastHypo.TrigMufastHypoToolFromName( "L2MufastHypoTool", c ) for c in testChains ] 
 
-    # make sequences
-    l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, l2MuViewNode, trigMufastHypo ])
-    muFastStep = stepSeq("muFastStep", filterL1RoIsAlg, [ l2muFastSequence,  muFastDecisionsDumper ] )
+#    muFastDecisionsDumper = DumpDecisions("muFastDecisionsDumper", OutputLevel=DEBUG, Decisions = trigMufastHypo.Decisions )
+    l2muFastSequence = seqAND("l2muFastSequence", [ l2MuViewsMaker, l2MuViewNode ])
+
+    l2muFast_HLTSequence = HLTRecoSequence("l2muFast_HLTSequence",
+                                          Sequence=l2muFastSequence,
+                                          Maker=l2MuViewsMaker,                                         
+                                          Seed="L1MU")
+    
+    muFastStep = MenuSequence("muFastStep",
+                                      recoSeqList=[l2muFast_HLTSequence],
+                                      Hypo=trigMufastHypo,
+                                      HypoToolClassName="TrigMufastHypoToolConf")
+
+    
+    
+    #muFastStep = stepSeq("muFastStep", filterL1RoIsAlg, [ l2muFastSequence,  muFastDecisionsDumper ] )
 
 
 # ===============================================================================================
@@ -381,8 +399,8 @@ if TriggerFlags.doMuon:
   if doL2CB:
     ### RoRSeqFilter step2 ###
     filterL2SAAlg = RoRSeqFilter("filterL2SAAlg")
-    filterL2SAAlg.Input = [trigMufastHypo.HypoOutputDecisions]
-    filterL2SAAlg.Output = ["Filtered"+trigMufastHypo.HypoOutputDecisions]
+    filterL2SAAlg.Input = [trigMufastHypo.Decisions]
+    filterL2SAAlg.Output = ["Filtered"+trigMufastHypo.Decisions]
     filterL2SAAlg.Chains = testChains
     filterL2SAAlg.OutputLevel = DEBUG
 
@@ -427,7 +445,7 @@ if TriggerFlags.doMuon:
     trigmuCombHypo.OutputLevel = DEBUG
   
     trigmuCombHypo.Decisions = "MuonL2CBDecisions"
-    trigmuCombHypo.L2MuonFastDecisions = trigMufastHypo.HypoOutputDecisions
+    trigmuCombHypo.L2MuonFastDecisions = trigMufastHypo.Decisions
     trigmuCombHypo.ViewRoIs = l2muCombViewsMaker.Views
     trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = muCombAlg.L2CombinedMuonContainerName 
   
@@ -565,19 +583,195 @@ if TriggerFlags.doMuon:
 # ===============================================================================================
 
   ### CF construction ###
-if TriggerFlags.doMuon==True:    
+
+oldstuff=False
+newstuff=True
+
+if  TriggerFlags.doMuon==True and newstuff:
+    ##########################################
+    # menu
+    ##########################################
+
+    # map L1 decisions for menu
+    for unpack in topSequence.L1DecoderTest.roiUnpackers:
+        if unpack.name() is "EMRoIsUnpackingTool":
+            unpack.Decisions="L1EM"
+        if unpack.name() is "MURoIsUnpackingTool":
+            unpack.Decisions="L1MU"
+        
+    for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
+        if unpack.name() is "EMRerunRoIsUnpackingTool":
+            unpack.Decisions="RerunL1EM"
+            unpack.SourceDecisions="L1EM"
+
+    for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
+        if unpack.name() is "EMRerunRoIsUnpackingTool":
+            unpack.SourceDecisions="L1EM"
+        if unpack.name() is "MURerunRoIsUnpackingTool":
+            unpack.SourceDecisions="L1MU"
+
+
+    # menu
+    MenuChains  = []
+
+    
+    if TriggerFlags.doID==False:
+        if doL2SA==True and doL2CB==False and doEFSA==False:           
+            MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[ChainStep("Step1_mufast", [muFastStep]) ])]
+            MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6",  ChainSteps=[ChainStep("Step1_mufast", [muFastStep]) ])]
+        if doEFSA==True and doL2SA==False and doL2CB==False:
+            MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[ChainStep("Step1_mufast", [muFastStep]) ])]
+    elif TriggerFlags.doID==True:    
+        if doL2SA==True and doL2CB==True and doEFSA==False:
+            MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[ChainStep("Step1_mufast", [muFastStep]) ])]
+        if doL2SA==True and doEFSA==True and doL2CB==True:
+            MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[ChainStep("Step1_mufast", [muFastStep]) ])]
+            
+    
+    
+   
+
+
+    ##########################################
+    # add summary and monitor:
+    ##########################################
+    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
+    
+    summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
+    summary.InputDecision = "HLTChains" 
+    summary.OutputLevel = DEBUG
+    
+
+    mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
+    mon.InputDecision = "HLTChains"
+    mon.HLTSummary = "MonitoringSummary" 
+    mon.OutputLevel = DEBUG 
+
+    if TriggerFlags.doID==False:
+        if doL2SA==True and doL2CB==False and doEFSA==False:
+            summary.FinalDecisions = [ trigMufastHypo.HypoOutputDecisions ]
+            mon.FinalDecisions = [ trigMufastHypo.HypoOutputDecisions, "WhateverElse" ]
+        
+        ## step0 = parOR("step0", [ muFastStep ] )
+        ## HLTsteps = seqAND("HLTsteps", [ step0, summary ]  ) 
+        ## hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
+        ## topSequence += hltTop  
+
+        if doEFSA==True and doL2SA==False and doL2CB==False:
+            summary.FinalDecisions = [ trigMuonEFSAHypo.Decisions ]
+            mon.FinalDecisions = [ trigMuonEFSAHypo.Decisions, "WhateverElse" ]
+        
+        ## step0 = parOR("step0", [ muonEFSAStep ] )
+        ## HLTsteps = seqAND("HLTsteps", [ step0, summary ]  )         
+        ## hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
+        ## topSequence += hltTop 
+
+    elif TriggerFlags.doID==True:    
+        if doL2SA==True and doL2CB==True and doEFSA==False:
+        ## from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
+        ## summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
+        ## summary.InputDecision = "HLTChains" 
+            summary.FinalDecisions = [ trigmuCombHypo.Decisions ]
+
+        ## step0 = parOR("step0", [ muFastStep ] )
+        ## step1 = parOR("step1", [ muCombStep ] )
+        ## HLTsteps = seqAND("HLTsteps", [ step0, step1, summary ]  ) 
+        
+        ## mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
+        ## mon.InputDecision = "HLTChains" 
+            mon.FinalDecisions = [ trigmuCombHypo.Decisions, "WhateverElse" ] 
+        ## mon.HLTSummary = "MonitoringSummary" 
+        ## mon.OutputLevel = DEBUG 
+        ## hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
+
+        ## topSequence += hltTop 
+    
+        if doL2SA==True and doEFSA==True and doL2CB==True:
+     #     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
+    ## summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
+    ## summary.InputDecision = "HLTChains" 
+            summary.FinalDecisions = [ trigMuonEFSAHypo.Decisions ]
+#    summary.OutputLevel = DEBUG 
+    ## step0 = parOR("step0", [ muFastStep ] )
+    ## step1 = parOR("step1", [ muCombStep ] )
+    ## step2 = parOR("step2", [ muonEFSAStep ] )
+    ## HLTsteps = seqAND("HLTsteps", [ step0, step1, step2, summary ]  ) 
+
+    ## mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
+    ## mon.InputDecision = "HLTChains" 
+            mon.FinalDecisions = [ trigMuonEFSAHypo.Decisions, "WhateverElse" ] 
+#    mon.HLTSummary = "MonitoringSummary" 
+    ## mon.OutputLevel = DEBUG 
+    ## hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
+
+    ## topSequence += hltTop   
+
+   
+
+    #
+   
+   ##########################################
+    # CF construction
+    ##########################################
+    from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
+  
+    steps = seqAND("MuMenu_HLTSteps"  )
+    decisionTree_From_Chains(steps, MenuChains)
+    steps += summary
+    
+    from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT
+    mon = TrigSignatureMoniMT()
+    mon.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions", "WhateverElse" ]
+    from TrigUpgradeTest.TestUtils import MenuTest
+    mon.ChainsList = [ x.split(":")[1] for x in  MenuTest.CTPToChainMapping ]
+    mon.OutputLevel = DEBUG
+
+    import AthenaPoolCnvSvc.WriteAthenaPool
+    from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
+    StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
+    StreamESD.OutputLevel=VERBOSE
+    topSequence.remove( StreamESD )
+    def addTC(name):   
+        StreamESD.ItemList += [ "xAOD::TrigCompositeContainer#"+name, "xAOD::TrigCompositeAuxContainer#"+name+"Aux." ]
+
+    from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
+    edmCreator = HLTEDMCreator()
+    edmCreator.TrigCompositeContainer = [ "EgammaCaloDecisions", "ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "HLTChainsResult" ]
+    summary.OutputTools = [ edmCreator ]
+    summary.OutputLevel = DEBUG
+ 
+    for tc in edmCreator.TrigCompositeContainer:
+        addTC( tc )
+
+    addTC("HLTSummary")
+
+    print "ESD file content " 
+    print StreamESD.ItemList
+
+
+    hltTop = seqOR( "hltTop", [ steps, mon, summary, StreamESD ] )
+    topSequence += hltTop
+    
+    
+    from AthenaCommon.AlgSequence import dumpSequence
+    dumpSequence(topSequence)
+
+    ##########################################
+    ##########################################  
+
+if TriggerFlags.doMuon==True and oldstuff:    
   from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
   if doL2SA==True and doL2CB==False and doEFSA==False:
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
     summary.InputDecision = "HLTChains" 
-    summary.FinalDecisions = [ trigMufastHypo.HypoOutputDecisions ]
+    summary.FinalDecisions = [ trigMufastHypo.Decisions ]
     summary.OutputLevel = DEBUG 
     step0 = parOR("step0", [ muFastStep ] )
     HLTsteps = seqAND("HLTsteps", [ step0, summary ]  ) 
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
     mon.InputDecision = "HLTChains" 
-    mon.FinalDecisions = [ trigMufastHypo.HypoOutputDecisions, "WhateverElse" ] 
+    mon.FinalDecisions = [ trigMufastHypo.Decisions, "WhateverElse" ] 
     mon.HLTSummary = "MonitoringSummary" 
     mon.OutputLevel = DEBUG 
     hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
@@ -600,7 +794,7 @@ if TriggerFlags.doMuon==True:
     hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
     topSequence += hltTop 
 
-if TriggerFlags.doMuon==True and TriggerFlags.doID==True:    
+if TriggerFlags.doMuon==True and TriggerFlags.doID==True and oldstuff:    
   if doL2SA==True and doL2CB==True and doEFSA==False:
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
@@ -620,7 +814,7 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
 
     topSequence += hltTop   
 
-if TriggerFlags.doMuon==True and TriggerFlags.doID==True:    
+if TriggerFlags.doMuon==True and TriggerFlags.doID==True and oldstuff:    
   if doL2SA==True and doEFSA==True and doL2CB==True:
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 

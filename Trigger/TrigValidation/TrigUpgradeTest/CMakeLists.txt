@@ -81,13 +81,21 @@ atlas_add_test( egammaMenu
                 PROPERTIES TIMEOUT 500 
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_egammaMenu
               )
-#		EXTRA_PATTERNS "TriggerSummary"
+
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muRunData )
 atlas_add_test( muRunData
 		SCRIPT test/test_mu_run_data.sh		
                 PROPERTIES TIMEOUT 500 
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muRunData
               )
+
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muMenu )
+atlas_add_test( muMenu
+		SCRIPT test/test_mu_menu.sh     
+		PROPERTIES TIMEOUT 500 
+		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_muMenu
+              )
+
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_idCaloRunData )
 atlas_add_test( idCaloRunData
