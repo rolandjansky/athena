@@ -145,8 +145,8 @@ dqm_algorithms::BinHeightThreshold::execute(	const std::string &  name,
 	  i_currentLB--;
 	}
     }
-  //if the histogram is just empty, or still has too few bins, do nothing (check already done, in principle should not happen)
-   if(i_currentLB<=0)
+  //if the histogram is just empty, or still has too few bins, do nothing 
+   if(i_currentLB<=0 || i_currentLB<n_bins)
     {
      ERS_DEBUG(1,"start_from_last parameter >= total number of bins, I just cannot do the check. Do nothing.");
      return result;
