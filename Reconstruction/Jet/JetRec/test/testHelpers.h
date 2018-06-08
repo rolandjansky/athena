@@ -18,32 +18,20 @@
 #include <iostream>
 #include <sstream>
 
-using ::testing::Return;
-using ::testing::_;
-using ::testing::SetArgReferee;
-
-
-using fastjet::PseudoJet;
-using xAOD::IParticleContainer;
-using xAOD::IParticle;
-using xAOD::JetContainer;
-using xAOD::Jet;
-using xAOD::JetFourMom_t;
-
 int JetContainerIndex (0);
 
 
-JetContainer* store(JetContainer* jc) {
+xAOD::JetContainer* store(xAOD::JetContainer* jc) {
   std::ostringstream os;
   os << "JetCont"<<JetContainerIndex++;
   SGTest::store.record(jc, os.str());
   return jc;
 }
 
-JetContainer* makeJetContainer_(const std::vector<JetFourMom_t>& v,
-                                bool isTrigger= false,
-                                bool storeIt=true) {
-  JetContainer* jc = new JetContainer;
+xAOD::JetContainer* makeJetContainer_(const std::vector<xAOD::JetFourMom_t>& v,
+                                      bool isTrigger= false,
+                                      bool storeIt=true) {
+  xAOD::JetContainer* jc = new xAOD::JetContainer;
   if (isTrigger){
     jc->setStore(new xAOD::JetTrigAuxContainer);
   } else {
@@ -51,7 +39,7 @@ JetContainer* makeJetContainer_(const std::vector<JetFourMom_t>& v,
   }
 
   for (const auto& m : v){
-    Jet* j = new Jet;
+    xAOD::Jet* j = new xAOD::Jet;
     jc->push_back(j);
     j->setJetP4(m);
   }
@@ -59,16 +47,16 @@ JetContainer* makeJetContainer_(const std::vector<JetFourMom_t>& v,
 }
 
 
-JetContainer* makeJetContainer_(bool isTrigger=false, bool storeIt = true) {
-  std::vector<JetFourMom_t> inMomenta;
-  inMomenta.push_back(JetFourMom_t(50., 0., 0., 0.)); //pt, eta, phi, m
-  inMomenta.push_back(JetFourMom_t(60., 0., 0., 0.)); //pt, eta, phi, m
+xAOD::JetContainer* makeJetContainer_(bool isTrigger=false, bool storeIt = true) {
+  std::vector<xAOD::JetFourMom_t> inMomenta;
+  inMomenta.push_back(xAOD::JetFourMom_t(50., 0., 0., 0.)); //pt, eta, phi, m
+  inMomenta.push_back(xAOD::JetFourMom_t(60., 0., 0., 0.)); //pt, eta, phi, m
   return makeJetContainer_(inMomenta, isTrigger, storeIt);
 }
 
 
-void typeAdjust(JetContainer* c){
-  // Adjust Jet conatainer to allow it
+void typeAdjust(xAOD::JetContainer* c){
+  // Adjust Jet container to allow it
   // to be treated as an IParticle container by the test store
   // - full StoreGate does not need this.
   SG::DataProxy* proxy = SGTest::store.proxy(c);
@@ -81,14 +69,14 @@ void typeAdjust(JetContainer* c){
 
 struct IPtoPSConverter{
   std::size_t ind{0};
-  PseudoJet operator()(IParticle* ip){
-    PseudoJet psj(ip->p4());
+  fastjet::PseudoJet operator()(xAOD::IParticle* ip){
+    fastjet::PseudoJet psj(ip->p4());
     psj.set_user_index(ind++);
     return psj;
   }
 };
 
-IParticleExtractor* makeExtractor(const IParticleContainer* iparticles,
+IParticleExtractor* makeExtractor(const xAOD::IParticleContainer* iparticles,
                                   bool isGhost, bool isTrigger=false){
   
   // Create an Extractor
