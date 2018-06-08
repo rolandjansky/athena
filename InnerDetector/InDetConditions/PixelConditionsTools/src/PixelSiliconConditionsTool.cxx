@@ -2,6 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef SIMULATIONBASE
 #include "PixelSiliconConditionsTool.h"
 
 PixelSiliconConditionsTool::PixelSiliconConditionsTool(const std::string& type, const std::string& name, const IInterface* parent):
@@ -94,3 +95,4 @@ const PixelDCSCondData* PixelSiliconConditionsTool::getCondDataTemp() const {
   }
   return *condData;
 }
+#endif // not SIMULATIONBASE
