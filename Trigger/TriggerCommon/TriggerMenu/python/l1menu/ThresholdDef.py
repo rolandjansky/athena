@@ -451,6 +451,8 @@ class ThresholdDef:
             tc.registerThr('AFP_FSC_SIT', 'NIM', mapping=7).addThrValue(50)        
             tc.registerThr('AFP_FSC_LOG', 'NIM', mapping=8).addThrValue(50)        
             tc.registerThr('AFP_FSC_TOF', 'NIM', mapping=9).addThrValue(50)  
+            tc.registerThr('AFP_NSA_SIT', 'NIM', mapping=10).addThrValue(50) #New ones, is the mapping correct?
+            tc.registerThr('AFP_NSC_SIT', 'NIM', mapping=11).addThrValue(50) #New ones, is the mapping correct?      
         else:
             tc.registerThr('AFP_NSC', 'NIM', mapping=2).addThrValue(50)
             tc.registerThr('AFP_FSC', 'NIM', mapping=3).addThrValue(50)

@@ -2493,8 +2493,6 @@ ps_minb_list=[
     'mb_sptrk_vetombts2in_L1ZDC_A_C',
     '2g3_loose_mb_sptrk_vetombts2in_L1ALFA_ELAS',
     '2g3_loose_mb_sptrk_vetombts2in_L1ALFA_SYST',
-    'mb_sptrk_vetombts2in_L1ALFA_CEP',
-    'mb_sptrk_vetombts2in_L1TRT_ALFA_EINE',
     'mb_sptrk_vetombts2in_L1ALFA_ANY',
     'mb_sptrk_vetombts2in_L1ALFA_ANY_UNPAIRED_ISO',
     'mb_sp600_pusup300_trk40_hmt_L1TE5',

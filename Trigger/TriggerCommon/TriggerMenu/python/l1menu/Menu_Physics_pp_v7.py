@@ -106,8 +106,8 @@ def defineMenu():
         'L1_DPHI-AJ20s2XE50'                                           :'L1_TRT_ALFA_ANY',
         'L1_2EM8I_J50'                                                 :'L1_TRT_ALFA_ANY_UNPAIRED_ISO',
         'L1_2MU4_J20_XE50_DPHI-J20s2XE30'                              :'L1_TRT_ALFA_EINE',
-#        'L1_TAU20IM_FTK'                                               :
-#        'L1_TAU20IM_2TAU12IM_J25_2J20_3J12_FTK'                        :
+        'L1_TAU20IM_FTK'                                               :'L1_TE5_ALFA_ANY_UNPAIRED_ISO',
+        'L1_TAU20IM_2TAU12IM_J25_2J20_3J12_FTK'                        :'L1_TE5_ALFA_ANY',
 #        'L1_DR-TAU20ITAU12I-J25_FTK'                                   :
 #        'L1_TAU8_UNPAIRED_NONISO'                                      :
         }                                                               
