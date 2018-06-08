@@ -507,19 +507,10 @@ def getSpecificL1Seeds(l1seedname, l1itemobject):
     elif (l1seedname == 'L1_ALFA_PhysAny'):
         L1Seed = getL1_ALFA_Phys_Any(l1items)
 
-    elif (l1seedname == 'L1_ALFA_Diff'):
-        L1Seed = getL1ALFA_Diff(l1items)
-
     elif (l1seedname == 'L1_ALFA_Calib'):
         L1Seed = getL1ALFA_Calib(l1items)
     elif (l1seedname == 'L1_ALFA_ELAS'):
         L1Seed = getL1ALFA_ELAS(l1items)
-
-    elif (l1seedname == 'L1_ALFA_Jet'):
-        L1Seed = getL1ALFA_Jet(l1items)
-        
-    elif (l1seedname == 'L1_ALFA_SDiff'):
-        L1Seed = getL1ALFA_SDiff(l1items)
 
     elif (l1seedname == 'L1_ALFA_CEP'):
         L1Seed = getL1ALFA_CEP(l1items)
