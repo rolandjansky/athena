@@ -36,7 +36,7 @@ import os, sys
 import string
 import argparse,xmlrpclib
 
-import pathExtract         
+from DataQualityUtils import pathExtract         
 
 from ROOT import TFile,TCanvas,TBox,TColor,TLegend
 from ROOT import TH1,TH2,TH1I
