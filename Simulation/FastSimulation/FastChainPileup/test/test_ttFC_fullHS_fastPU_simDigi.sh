@@ -16,7 +16,7 @@ FastChain_tf.py --simulator G4HS_FastPileup --digiSteeringConf "SplitNoMergeSF" 
 echo "art-result: $? Job"
 ArtPackage=$1
 ArtJobName=$2
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}  
+art.py compare grid --imf=False --entries 10 ${ArtPackage} ${ArtJobName}  
 echo  "art-result: $? regression"
 #add an additional payload from the job (corollary file).                                                           
 # art-output: InDetStandardPlots.root  
