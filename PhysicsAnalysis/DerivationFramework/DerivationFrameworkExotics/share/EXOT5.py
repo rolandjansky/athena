@@ -315,7 +315,8 @@ triggers = [
     'HLT_mu60_0eta105_msonly',
     # new triggers for 2018
     'HLT_xe110_pufit_xe65_L1XE50',
-    'HLT_xe110_pufit_xe70_L1XE5',
+    'HLT_xe110_pufit_xe70_L1XE50',
+    'HLT_xe120_pufit_L1XE50',
     ]
 lepton_triggers = [
    # el - y2015
