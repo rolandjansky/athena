@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  SimpleCone.h
 
 #ifndef __TopoCore__SimpleCone__

@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  MuonSort_1BC.cxx
 //  TopoCore
 //  Created by Sue Cheatham based on MuonSelect created by Joerg Stelzer, V Sorin 2014.  Selects LateMuons from BC+1
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 //  algorithm to make abbreviated latemuon lists
 //
 #include "L1TopoAlgorithms/MuonSort_1BC.h"
