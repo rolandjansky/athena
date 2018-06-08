@@ -1008,6 +1008,12 @@ StatusCode SiSmearedDigitizationTool::digitize()
             const iFatras::PlanarDetElement* hitPlanarDetElement_temp = it_map->second;
             ATH_MSG_DEBUG("Pixel PlanarDetElement --> barrel_ec " << barrelEC << ", layer_disk " << layerDisk << ", phi_module " << phiModule << ", eta_module " << etaModule );
             hitPlanarDetElement = hitPlanarDetElement_temp;
+            // if hitPlanarDetElement is nullptr at this point, we will all go to hell, 
+            // so we might as well throw an exception first
+            if (not hitPlanarDetElement){
+              ATH_MSG_FATAL("hitPlanarDetElement is null in SiSmearedDigitizationTool:"<<__LINE__);
+              throw std::runtime_error(std::string("hitPlanarDetElement is null in SiSmearedDigitizationTool::digitize() "));
+            }
             ATH_MSG_DEBUG("Surface " << hitPlanarDetElement->surface());
           }
         }
@@ -1028,6 +1034,12 @@ StatusCode SiSmearedDigitizationTool::digitize()
             const iFatras::PlanarDetElement* hitPlanarDetElement_temp = it_map->second;
             ATH_MSG_DEBUG("SCT PlanarDetElement --> barrel_ec " << barrelEC << ", layer_disk " << layerDisk << ", phi_module " << phiModule << ", eta_module " << etaModule << ", side " << side);
             hitPlanarDetElement = hitPlanarDetElement_temp;
+            // if hitPlanarDetElement is nullptr at this point, we will all go to hell, 
+            // so we might as well throw an exception first
+            if (not hitPlanarDetElement){
+              ATH_MSG_FATAL("hitPlanarDetElement is null in SiSmearedDigitizationTool:"<<__LINE__);
+              throw std::runtime_error(std::string("hitPlanarDetElement is null in SiSmearedDigitizationTool::digitize() "));
+            }
             ATH_MSG_DEBUG("Surface " << hitPlanarDetElement->surface());
           }
         }
@@ -1045,7 +1057,25 @@ StatusCode SiSmearedDigitizationTool::digitize()
         ATH_MSG_ERROR( " could not get detector element for PlanarDetElement");
         continue;
       }
-
+      // untangling the logic: if not using custom geometry, hitSiDetElement 
+      // gets dereferenced (and should be checked)
+      //
+      // if using custom geometry, hitPlanarDetElement gets dereferenced 
+      // (and should be checked)
+      if (m_useCustomGeometry){
+        if (not hitPlanarDetElement){
+          ATH_MSG_FATAL("hitPlanarDetElement is null in SiSmearedDigitizationTool:"<<__LINE__);
+          throw std::runtime_error(std::string("hitPlanarDetElement is null in SiSmearedDigitizationTool::digitize() "));
+          }
+        
+      } else {
+        if (not hitSiDetElement){
+          ATH_MSG_FATAL("hitSiDetElement is null in SiSmearedDigitizationTool:"<<__LINE__);
+          throw std::runtime_error(std::string("hitSiDetElement is null in SiSmearedDigitizationTool::digitize() "));
+          
+        }
+      }
+      
       if (m_SmearPixel && !m_useCustomGeometry && !(hitSiDetElement->isPixel())) continue;
       if (m_SmearPixel && m_useCustomGeometry && !(hitPlanarDetElement->isPixel())) continue;
 
@@ -1301,7 +1331,7 @@ StatusCode SiSmearedDigitizationTool::digitize()
           do {
             sParX = CLHEP::RandGauss::shoot(m_randomEngine, 0., sigmaX);
             ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: extracted gaussian value for X --- " << sParX);
-          } while (fabs(interX+sParX)>(hitPlanarDetElement->lengthXmin()/2.));
+          } while (std::fabs(interX+sParX)>(hitPlanarDetElement->lengthXmin()/2.));
           interX += sParX;
         }
         if (sigmaY != 0.) {
@@ -1309,7 +1339,7 @@ StatusCode SiSmearedDigitizationTool::digitize()
           do {
             sParY = CLHEP::RandGauss::shoot(m_randomEngine, 0., sigmaY);
             ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: extracted gaussian value for Y --- " << sParY);
-          }  while (fabs(interY+sParY)>(hitPlanarDetElement->lengthY()/2.));
+          }  while (std::fabs(interY+sParY)>(hitPlanarDetElement->lengthY()/2.));
           interY += sParY;
         }
       }
@@ -1358,7 +1388,7 @@ StatusCode SiSmearedDigitizationTool::digitize()
         if (m_pitch_X == 0. || m_pitch_Y == 0.)
           ATH_MSG_WARNING( "--- SiSmearedDigitizationTool: pitchX and/or pitchY are 0. Cluster length is forced to be 1. mm");
 
-        InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(elementX,elementY), Amg::Vector2D(lengthX, lengthY));
+        InDet::SiWidth siWidth(Amg::Vector2D(elementX,elementY), Amg::Vector2D(lengthX, lengthY));
 
         InDet::PixelCluster* pixelCluster = 0;
         iFatras::PlanarCluster* planarCluster = 0;
@@ -1374,7 +1404,7 @@ StatusCode SiSmearedDigitizationTool::digitize()
           pixelCluster = new InDet::PixelCluster(intersectionId,
                                                  intersection,
                                                  rdoList,
-                                                 *siWidth,
+                                                 siWidth,
                                                  hitSiDetElement,
                                                  clusterErr);
           m_pixelClusterMap->insert(std::pair<IdentifierHash, const InDet::PixelCluster* >(waferID, pixelCluster));
@@ -1388,7 +1418,7 @@ StatusCode SiSmearedDigitizationTool::digitize()
           planarCluster = new iFatras::PlanarCluster(intersectionId,
                                                      intersection,
                                                      rdoList,
-                                                     *siWidth,
+                                                     siWidth,
                                                      hitPlanarDetElement,
                                                      clusterErr);
 
@@ -1466,10 +1496,10 @@ StatusCode SiSmearedDigitizationTool::digitize()
           const std::pair<InDetDD::SiLocalPosition, InDetDD::SiLocalPosition> ends(design_sct->endsOfStrip(intersection));
           double stripLength = fabs(ends.first.xEta()-ends.second.xEta());
 
-          InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(int(rdoList.size()),1),
+          InDet::SiWidth siWidth(Amg::Vector2D(int(rdoList.size()),1),
                                                        Amg::Vector2D(clusterWidth,stripLength) );
 
-          const Amg::Vector2D& colRow = siWidth->colRow();
+          const Amg::Vector2D& colRow = siWidth.colRow();
 
           AmgSymMatrix(2) mat;
           mat.setIdentity();
@@ -1483,16 +1513,16 @@ StatusCode SiSmearedDigitizationTool::digitize()
           if(m_emulateAtlas && elShape == InDetDD::Trapezoid){// rotation for endcap SCT
 
             if(colRow.x() == 1){
-              mat(Trk::locX,Trk::locX) = pow(siWidth->phiR(),2)/12;
+              mat(Trk::locX,Trk::locX) = pow(siWidth.phiR(),2)/12;
             }
             else if(colRow.x() == 2){
-              mat(Trk::locX,Trk::locX) = pow(0.27*siWidth->phiR(),2)/12;
+              mat(Trk::locX,Trk::locX) = pow(0.27*siWidth.phiR(),2)/12;
             }
             else{
-              mat(Trk::locX,Trk::locX) = pow(siWidth->phiR(),2)/12;
+              mat(Trk::locX,Trk::locX) = pow(siWidth.phiR(),2)/12;
             }
 
-            mat(Trk::locY,Trk::locY) = pow(siWidth->z()/colRow.y(),2)/12;
+            mat(Trk::locY,Trk::locY) = pow(siWidth.z()/colRow.y(),2)/12;
             double sn      = hitSiDetElement->sinStereoLocal(intersection);
             double sn2     = sn*sn;
             double cs2     = 1.-sn2;
@@ -1509,7 +1539,7 @@ StatusCode SiSmearedDigitizationTool::digitize()
           sctCluster = new InDet::SCT_Cluster(intersectionId,
                                               intersection,
                                               rdoList,
-                                              *siWidth,
+                                              siWidth,
                                               hitSiDetElement,
                                               clusterErr);
 
@@ -1525,9 +1555,11 @@ StatusCode SiSmearedDigitizationTool::digitize()
           double clusterWidth = rdoList.size()*hitPlanarDetElement->phiPitch(intersection);
           double stripLength  = hitPlanarDetElement->stripLength(intersection);
 
-          InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(int(rdoList.size()),1),
-                                                       Amg::Vector2D(clusterWidth,stripLength) );
-
+          //InDet::SiWidth* siWidth = new InDet::SiWidth(Amg::Vector2D(int(rdoList.size()),1),
+          //                                             Amg::Vector2D(clusterWidth,stripLength) );
+                                                       
+          InDet::SiWidth siWidth(Amg::Vector2D(int(rdoList.size()),1), Amg::Vector2D(clusterWidth,stripLength) );
+          
           AmgSymMatrix(2) mat;
           mat.setIdentity();
           if(m_useDiscSurface) {
@@ -1540,19 +1572,19 @@ StatusCode SiSmearedDigitizationTool::digitize()
             InDetDD::DetectorShape elShape = hitPlanarDetElement->shape();
             if(m_emulateAtlas && elShape == InDetDD::Trapezoid){// rotation for endcap SCT
 
-              const Amg::Vector2D& colRow = siWidth->colRow();
+              const Amg::Vector2D& colRow = siWidth.colRow();
 
               if(colRow.x() == 1){
-                mat(Trk::locX,Trk::locX) = pow(siWidth->phiR(),2)/12;
+                mat(Trk::locX,Trk::locX) = pow(siWidth.phiR(),2)/12;
               }
               else if(colRow.x() == 2){
-                mat(Trk::locX,Trk::locX) = pow(0.27*siWidth->phiR(),2)/12;
+                mat(Trk::locX,Trk::locX) = pow(0.27*siWidth.phiR(),2)/12;
               }
               else{
-                mat(Trk::locX,Trk::locX) = pow(siWidth->phiR(),2)/12;
+                mat(Trk::locX,Trk::locX) = pow(siWidth.phiR(),2)/12;
               }
 
-              mat(Trk::locY,Trk::locY) = pow(siWidth->z()/colRow.y(),2)/12;
+              mat(Trk::locY,Trk::locY) = pow(siWidth.z()/colRow.y(),2)/12;
               double sn      = hitPlanarDetElement->sinStereoLocal(intersection);
               double sn2     = sn*sn;
               double cs2     = 1.-sn2;
@@ -1571,7 +1603,7 @@ StatusCode SiSmearedDigitizationTool::digitize()
           planarCluster = new iFatras::PlanarCluster(intersectionId,
                                                      intersection,
                                                      rdoList,
-                                                     *siWidth,
+                                                     siWidth,
                                                      hitPlanarDetElement,
                                                      clusterErr);
 
