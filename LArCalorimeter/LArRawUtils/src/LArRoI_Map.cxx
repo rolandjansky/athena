@@ -14,9 +14,6 @@
 #include "CaloIdentifier/CaloLVL1_ID.h" 
 #include "LArIdentifier/LArOnlineID.h" 
 
-#include "LArCabling/LArCablingService.h" 
-#include "CaloTriggerTool/CaloTriggerTowerService.h" 
-
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 
@@ -62,8 +59,9 @@ StatusCode LArRoI_Map::initialize()
   ATH_CHECK( detStore()->retrieve(m_em_id) );
   ATH_CHECK( detStore()->retrieve(m_hec_id) );
   ATH_CHECK( detStore()->retrieve(m_fcal_id) );
-  ATH_CHECK( toolSvc()->retrieveTool("LArCablingService",m_cablingSvc) );
-  ATH_CHECK( toolSvc()->retrieveTool("CaloTriggerTowerService",m_ttSvc) );
+
+  ATH_CHECK( m_cablingSvc.retrieve() );
+  ATH_CHECK( m_ttSvc.retrieve() ); 
 
   ATH_CHECK( detStore()->regFcn(&LArCablingService::iovCallBack,&(*m_cablingSvc),
                                 &LArRoI_Map::iovCallBack,
