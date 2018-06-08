@@ -56,7 +56,18 @@ public:
    */
   virtual StatusCode execute(CaloTowerContainer* theContainer,
                              const CaloCellContainer* theCell=0,
-                             const CaloTowerSeg::SubSeg* subseg = 0) override;
+                             const CaloTowerSeg::SubSeg* subseg = 0) const override;
+
+
+  /**
+   * @brief Run tower building and add results to the tower container.
+   * @param theContainer The tower container to fill.
+   *
+   * If the segmentation hasn't been set, take it from the tower container.
+   * This is for use by converters.
+   */
+  virtual StatusCode execute (CaloTowerContainer* theContainer) override;
+
 
   virtual void setCalos( const std::vector<CaloCell_ID::SUBCALO>& v);
 
@@ -92,27 +103,33 @@ private:
   // Specific Initialization //
   /////////////////////////////
 
-  bool m_cacheValid;
   CaloTowerStore m_cellStore;
 
   virtual StatusCode checkSetup(MsgStream& log);
   void addTower (const CaloTowerStore::tower_iterator tower_it,
                  const CaloCellContainer* cells,
                  IProxyDict* sg,
-                 CaloTower* tower);
+                 CaloTower* tower) const;
   void iterateFull (CaloTowerContainer* towers,
                     const CaloCellContainer* cells,
-                    IProxyDict* sg);
+                    IProxyDict* sg) const;
   void iterateSubSeg (CaloTowerContainer* towers,
                       const CaloCellContainer* cells,
                       IProxyDict* sg,
-                      const CaloTowerSeg::SubSeg* subseg);
+                      const CaloTowerSeg::SubSeg* subseg) const;
+
+
+  /**
+   * @brief Rebuild the cell lookup table.
+   */
+  StatusCode rebuildLookup();
+
 
   /**
    * @brief Mark that cached data are invalid.
    *
    * Called when calibrations are updated.
    */
-  virtual void invalidateCache() override;
+  virtual StatusCode invalidateCache() override;
 };
 #endif

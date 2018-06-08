@@ -41,7 +41,7 @@ class ICaloTopoTowerBuilderToolBase : virtual public IAlgTool
   /// common initialization
 
   /// execute is abstract
-  virtual StatusCode execute(CaloTopoTowerContainer* theContainer,const CaloCellContainer* theCell=0) = 0;
+  virtual StatusCode execute(CaloTopoTowerContainer* theContainer,const CaloCellContainer* theCell=0) const = 0;
   virtual StatusCode initialize() =0;
 
   virtual StatusCode initializeTool() = 0;

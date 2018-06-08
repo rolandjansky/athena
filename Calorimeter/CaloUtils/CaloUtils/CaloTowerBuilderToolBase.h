@@ -40,11 +40,11 @@ class CaloTowerBuilderToolBase: public AthAlgTool,
     virtual ~CaloTowerBuilderToolBase();
 
     /// common initialization
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
-    virtual void setTowerSeg(const CaloTowerSeg& theTowerSeg);
+    virtual void setTowerSeg(const CaloTowerSeg& theTowerSeg) override;
 
-    virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS);
+    virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) override;
 
 
     /**
@@ -62,13 +62,24 @@ class CaloTowerBuilderToolBase: public AthAlgTool,
      *               The tower container segmentation must match.
      */
     virtual StatusCode execute(CaloTowerContainer* theContainer,
-                               const CaloCellContainer* theCell = 0,
-                               const CaloTowerSeg::SubSeg* subseg = 0) = 0;
+                               const CaloCellContainer* theCell = nullptr,
+                               const CaloTowerSeg::SubSeg* subseg = nullptr) const override = 0;
 
-    virtual StatusCode initializeTool() = 0;
+    /**
+     * @brief Run tower building and add results to the tower container.
+     * @param theContainer The tower container to fill.
+     *
+     * If the segmentation hasn't been set, take it from the tower container.
+     * This is for use by converters.
+     */
+    virtual StatusCode execute (CaloTowerContainer* theContainer) = 0;
+
+
+    virtual StatusCode initializeTool() override = 0;
 
     // abstract to be implemented by derived class (Tile, LarFCal, Calo)
-    virtual void handle(const Incident&) = 0;
+    virtual void handle(const Incident&) override = 0;
+
 
   protected:
 
@@ -77,7 +88,7 @@ class CaloTowerBuilderToolBase: public AthAlgTool,
      *
      * Called when calibrations are updated.
      */
-    virtual void invalidateCache() = 0;
+    virtual StatusCode invalidateCache() = 0;
 
 
     /**
