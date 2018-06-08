@@ -28,11 +28,9 @@ class EvenPhiCMA : public CMAparameters
      bool m_inversion;  
 
      bool cable_CMA_channels(void);
-     bool cable_CMA_channelsP03(void); 
      bool connect(SectorLogicSetup&);
      bool doInversion(SectorLogicSetup&);
      void get_confirm_strip_boundaries(int,int);
-     void get_confirm_strip_boundariesP03(int,int);
      int  get_max_strip_readout(int);
      bool m_debug;
      IMessageSvc* m_msgSvc;
