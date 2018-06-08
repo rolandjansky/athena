@@ -298,10 +298,6 @@ class HLTRecoSequence():
     def addInput(self,theinput):
         print "adding input to sequence: %s to %s"%(theinput, self.maker.algname )
         self.maker.addInput(theinput)
-
-   # def addOutputDecision(self,theinput):
-   #     print "adding output decisions (%s) to sequence %s  (output of alg %s)"%(theinput, self.name, self.maker.algname )
-   #     self.maker.addOutput(theinput)
         
     def __str__(self):
         return "HLTRecoSequence::%s with \n Seed::%s \n Maker::%s  \n Sequence::%s"%(self.name, self.seed, self.maker, self.sequence)
@@ -331,8 +327,6 @@ class MenuSequence():
             new_output = "%s_%s"%(self.recoSeqList[0].seed, self.hypo.getOutput())
             self.hypo.setOutput(new_output)
             self.outputs.append(new_output)
-
-
         
     def __str__(self):
         return "MenuSequence::%s \n Hypo::%s \n %s"%(self.name, self.hypo, ',\n '.join(map(str, self.recoSeqList)))

@@ -1,12 +1,6 @@
 #
-#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
-
-#include("TrigUpgradeTest/testHLT_MT.py")
-## # provide a minimal menu information
-## if globalflags.InputFormat.is_bytestream():
-##    topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
-##    topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
 
 from AthenaCommon.Include import include
 from AthenaCommon.Constants import VERBOSE,DEBUG
