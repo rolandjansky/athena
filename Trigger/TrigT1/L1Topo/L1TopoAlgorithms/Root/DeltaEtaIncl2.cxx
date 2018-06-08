@@ -1,8 +1,10 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /*********************************
  * DeltaEtaIncl2.cpp
  * Created by Joerg Stelzer on 11/16/12.
  * Modified V Sorin 2014
- * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
  *
  * @brief algorithm calculates the eta-distance between two lists and applies delta-eta criteria
  *

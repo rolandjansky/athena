@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  AlgFactory.h
 //  L1TopoCoreSimulation
 //  Created by Joerg Stelzer on 11/20/12.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
 #ifndef __L1TopoCoreSimulation__AlgFactory__
 #define __L1TopoCoreSimulation__AlgFactory__
