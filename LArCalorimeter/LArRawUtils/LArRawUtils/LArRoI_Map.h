@@ -94,6 +94,8 @@ class LArRoI_Map : public AthAlgTool,
 
   void print(); 
 
+  StatusCode initCabling();
+
  /** Map for offline ID and online id
  */  
   typedef std::map<unsigned int, TT_ID> OFFMAP ; 
