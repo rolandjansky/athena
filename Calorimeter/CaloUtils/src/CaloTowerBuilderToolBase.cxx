@@ -89,7 +89,7 @@ void CaloTowerBuilderToolBase::setTowerSeg(const CaloTowerSeg& theTowerSeg) {
 StatusCode CaloTowerBuilderToolBase::LoadCalibration(IOVSVC_CALLBACK_ARGS){
 
   ATH_MSG_DEBUG(" in CaloTowerBuilderToolBase::LoadCalibration ");
-  invalidateCache();
+  ATH_CHECK( invalidateCache() );
   return StatusCode::SUCCESS;
 }
 

@@ -145,6 +145,7 @@ Updated:  Jul 2009, sss
 // include header files
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloEvent/CaloTowerSeg.h"
+#include "CxxUtils/CachedValue.h"
 #include <vector>
 #include <utility>
 
@@ -311,7 +312,7 @@ private:
     {
       m_it += offs;
       m_entry = m_store.m_entries.begin() +
-        m_store.m_entry_index[m_it - m_store.m_towers.begin()];
+        (*m_store.m_entry_index.ptr())[m_it - m_store.m_towers.begin()];
       return *this;
     }
 
@@ -373,7 +374,8 @@ private:
   /// of the corresponding entry in m_entries.
   /// This is only needed for the case of iterating over a window;
   /// it is otherwise not filled in.
-  mutable std::vector<unsigned short> m_entry_index;
+  /// Use a CachedValue for thread-safety.
+  CxxUtils::CachedValue<std::vector<unsigned short> > m_entry_index;
 };
 
 
