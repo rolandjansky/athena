@@ -3,6 +3,7 @@
 */
 
 #include "TrigByteStreamInputSvc.h"
+#include "TrigKernel/HltExceptions.h"
 
 #include "hltinterface/DataCollector.h"
 #include "eformat/write/FullEventFragment.h"
@@ -73,7 +74,7 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
   hltinterface::DataCollector::Status status = hltinterface::DataCollector::instance()->getNext(l1r);
   if (status == hltinterface::DataCollector::Status::STOP) {
     debug() << "No more events available" << endmsg;
-    return nullptr;
+    throw hltonl::Exception::NoMoreEvents();
   }
   else if (status != hltinterface::DataCollector::Status::OK) {
     error() << "Unhandled return Status " << static_cast<int>(status) << " from DataCollector::getNext" << endmsg;
@@ -87,43 +88,22 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
   auto copiedSize = eformat::write::copy(*top,buf,l1rFragmentSize);
   if(copiedSize!=l1rFragmentSize){
     error() << "Event serialization failed" << endmsg;
-    // missing error handling
+    return nullptr;
   }
 
+  // newRawEvent points to memory allocated by buf
   RawEvent* newRawEvent = new RawEvent(buf);
 
-/* we will probably not use the InputSvc cache,
- * but pass the RawEvent ownership to ROBDataProvider
-  // put the new raw event into cache
+  // find the cache corresponding to the current slot
   EventCache* cache = m_eventsCache.get(context);
+  
+  // free the memory allocated to the previous event processed in the current slot
+  // -- if we make sure ROBDataProviderSvc does this, then TrigByteStreamInputSvc won't need a cache
   releaseEvent(cache);
+
+  // put the new raw event into the cache
   cache->rawEvent = newRawEvent;
-*/
 
-/* ========== DEBUGGING A CRASH IN ROBDATAPROVIDER ==========
-  debug() << "trying to get the first child from l1r" << endmsg;
-  auto l1r_robf = l1r.first_child();
-  debug() << "calling l1r_robf.rod_ndata()" << endmsg;
-  uint32_t n = l1r_robf->rod_ndata(); // <----- THIS ALREADY CRASHES
-  debug() << "l1r_robf->rod_ndata() = " << n << endmsg;
-
-  uint32_t nchildren = newRawEvent->nchildren();
-  debug() << "new raw event has " << nchildren << " children" << endmsg;
-  for (uint32_t ich = 0; ich<nchildren; ++ich) {
-    debug() << "trying to retrieve child " << ich << endmsg;
-    const uint32_t* child = newRawEvent->child_check(ich);
-    debug() << "retrieved child " << ich << " at address " << MSG::hex << child << MSG::dec << endmsg;
-    debug() << "trying to create ROBFragment from the child pointer" << endmsg;
-    OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robf(child);
-    debug() << "successfully created ROBFragment from the child pointer" << endmsg;
-    debug() << "calling robf.rod_ndata()" << endmsg;
-    n = robf.rod_ndata();
-    debug() << "robf.rod_ndata() = " << n << endmsg;
-  }
-*/
-
-  // temporary solution until crashes are resolved - memory leak here!
-  // ROBDataProviderSvc implementation never deletes the raw event
   m_robDataProviderSvc->setNextEvent(context,newRawEvent);
   return newRawEvent;
 }

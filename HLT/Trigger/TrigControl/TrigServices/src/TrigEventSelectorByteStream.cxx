@@ -6,6 +6,7 @@
 
 #include "ByteStreamData/RawEvent.h"
 #include "ByteStreamCnvSvc/ByteStreamInputSvc.h"
+#include "TrigKernel/HltExceptions.h"
 
 #include "hltinterface/DataCollector.h"
 
@@ -82,6 +83,10 @@ StatusCode TrigEventSelectorByteStream::next(IEvtSelector::Context& /*c*/) const
   try {
     ptrRawEvent = m_eventSource->nextEvent();
   }
+  catch (hltonl::Exception::NoMoreEvents e) {
+    info() << e.what() << endmsg;
+    throw; // rethrow NoMoreEvents
+  }
   catch (...) { // what can we actually catch here?
     error() << "Failed to get next event from the event source" << endmsg;
     return StatusCode::FAILURE;
@@ -89,7 +94,7 @@ StatusCode TrigEventSelectorByteStream::next(IEvtSelector::Context& /*c*/) const
 
   // Check if something was returned
   if (ptrRawEvent == nullptr) {
-    error() << "Event source returned nullptr from nextEvent()" << endmsg;
+    error() << "Event source failed to read next event" << endmsg;
     return StatusCode::FAILURE;
   }
 

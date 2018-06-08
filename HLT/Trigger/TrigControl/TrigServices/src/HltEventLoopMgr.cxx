@@ -29,6 +29,7 @@
 #include "TrigServices/HltEventLoopMgr.h"
 #include "TrigSORFromPtreeHelper.h"
 #include "TrigCOOLUpdateHelper.h"
+#include "TrigKernel/HltExceptions.h"
 
 // TDAQ includes
 #include "hltinterface/DataCollector.h"
@@ -505,7 +506,26 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       //-----------------------------------------------------------------------
       // Get the next event
       //-----------------------------------------------------------------------
-      m_evtSelector->next(*m_evtSelContext);
+      StatusCode sc = StatusCode::SUCCESS;
+      try {
+        sc = m_evtSelector->next(*m_evtSelContext);
+      }
+      catch (hltonl::Exception::NoMoreEvents e) {
+        sc = StatusCode::SUCCESS;
+        events_available = false;
+        // does NoMoreEvents mean we got the last event or are we one after the last already?
+      }
+      catch (...) {
+        sc = StatusCode::FAILURE;
+      }
+      if (sc.isFailure()) {
+        // missing error handling here
+        sc = clearWBSlot(evtContext->slot());
+        if (sc.isFailure()) {
+          // what now?
+        }
+        continue;
+      }
 
       EventID* eventID = new EventID(m_currentRun, // l1r.run_no(),
                                      l1r.global_id(),
