@@ -1,11 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-from AthenaCommon.Constants import INFO
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.Logging import logging
-from RecExConfig.RecFlags import rec
 
-from egammaRec.Factories import ToolFactory, AlgFactory, getPropertyValue
+from egammaRec.Factories import ToolFactory, AlgFactory
 
 #---------------------------------------
 
@@ -14,57 +11,24 @@ from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInCo
 CaloClustersInConeTool = ToolFactory(xAOD__CaloClustersInConeTool,
                                      CaloClusterLocation = "CaloCalTopoClusters")
 
-# configuration for ED computation
-def configureEDCorrection(tool):
-  """Configure tools and algorithm for energy density correction 
-     (only if doEnergyDensityCorrection = True)"""
-  # Return if doEnergyDensityCorrection is false
-  if not getPropertyValue(tool, 'doEnergyDensityCorrection'):
-    return
-  # Set OutputLevel to INFO or higher if tool has it too
-  OutputLevel = min(getPropertyValue(tool, 'OutputLevel'), INFO)
-  try:
-    from AthenaCommon.AppMgr import ToolSvc
-    from AthenaCommon.AlgSequence import AlgSequence
-    from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAlg
-    from JetRec.JetRecStandard import jtm
-    topSequence = AlgSequence()
-    if not hasattr(topSequence,'EDtpIsoVeryForwardAlg'):
-      tfcc = configEventDensityTool("EDtpIsoVeryForwardTool", jtm.emget,
-                                    radius          = 0.5,
-                                    AbsRapidityMin  = 2.5,
-                                    AbsRapidityMax  = 4.5,
-                                    OutputContainer = "TopoClusterIsoVeryForwardEventShape",
-                                    OutputLevel     = OutputLevel
-                                    )
-      ToolSvc += tfcc
-      topSequence += EventDensityAlg("EDtpIsoVeryForwardAlg", EventDensityTool = tfcc)
+# tool for the leakage correction (std calo iso)
+from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectionTool as ict
+leakTool = ict(name     = "LeakageCorrection")
+ToolSvc += leakTool
 
-  except Exception:
-    print '\nERROR: could not get handle to ED'
-    raise
-
+# too to compute the calo iso
 from CaloIdentifier import SUBCALO 
 from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool, xAOD__TrackIsolationTool
 CaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "CaloIsolationTool",
-                                postInit                        = [configureEDCorrection],
                                 CaloFillRectangularClusterTool  = None,
                                 ClustersInConeTool              = CaloClustersInConeTool,
                                 PFlowObjectsInConeTool          = None,
-                                IsoLeakCorrectionTool           = None,
-                                saveOnlyRequestedCorrections    = True,
+                                IsoLeakCorrectionTool           = leakTool,
+                                saveOnlyRequestedCorrections    = False,
                                 EMCaloNums                      = [],
                                 HadCaloNums                     = [],
                                 UseEMScale                      = True,
-                                addCaloExtensionDecoration      = False,
-                                OutputLevel                     = 3)
-
-TrackIsolationTool = ToolFactory(xAOD__TrackIsolationTool, name = 'TrackIsolationTool')
-from AthenaCommon import CfgMgr
-tit = CfgMgr.xAOD__TrackIsolationTool('TrackIsolationTool')
-tit.TrackSelectionTool.maxZ0SinTheta = 3
-tit.TrackSelectionTool.minPt         = 1000
-tit.TrackSelectionTool.CutLevel      = "Loose"
+                                addCaloExtensionDecoration      = False)
 
 import ROOT, cppyy
 # Need to be sure base dict is loaded first.
@@ -73,40 +37,19 @@ cppyy.loadDictionary('xAODPrimitivesDict')
 isoPar = ROOT.xAOD.Iso
 
 # The types to be computed
-IsoTypesEg =  [
-  [ isoPar.ptcone40, 
-    isoPar.ptcone30,
-    isoPar.ptcone20 ]
-  ]
-IsoTypesFe =  [
-  [ isoPar.topoetcone20, 
-    isoPar.topoetcone30,
-    isoPar.topoetcone40 ]
-  ]
-IsoTypesMu =  [
-  [ isoPar.topoetcone20, 
-    isoPar.topoetcone30,
-    isoPar.topoetcone40 ]
-  ]
-# And the corrections
-IsoCorEg = [
-  [ isoPar.coreTrackPtr ] 
-  ]
-#
+# For this fix, we recompute topoetconeXX for El, Ph, Fwd...
+IsoTypesEG =  [
+  [ isoPar.topoetcone20, isoPar.topoetcone30, isoPar.topoetcone40 ]
+]
+
+# ...but the corrections are different for El/Ph vs Fwd
+IsoCorEG = [
+  [ isoPar.core57cells, isoPar.ptCorrection, isoPar.pileupCorrection ]
+]
+
 IsoCorFe = [
   [ isoPar.coreCone, isoPar.pileupCorrection ] 
-  ]
-#
-IsoCorMu = [
-  [ isoPar.coreCone, isoPar.pileupCorrection ] 
-  ]
-
-# 
-
-from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectionTool as ict
-leakTool = ict(name     = "LeakageCorrection",
-               CorrFile = "IsolationCorrections/isolation_ptcorrections_rel20_2.root") # in principle the default
-ToolSvc += leakTool
+]
 
 from IsolationAlgs.IsolationAlgsConf import IsolationBuilder
 isoAODFixBuilderElectron = AlgFactory(IsolationBuilder,
@@ -116,19 +59,18 @@ isoAODFixBuilderElectron = AlgFactory(IsolationBuilder,
                                       MuonCollectionContainerName        = "",
                                       FwdElectronCollectionContainerName = "",
                                       CaloCellIsolationTool = None,
-                                      CaloTopoIsolationTool = None,
+                                      CaloTopoIsolationTool = CaloIsolationTool,
                                       PFlowIsolationTool    = None,
                                       TrackIsolationTool    = None, 
                                       FeIsoTypes            = [[]] ,
-                                      FeCorTypes            = IsoCorFe,
-                                      EgIsoTypes            = [[]],
-                                      EgCorTypes            = IsoCorEg,
-                                      MuIsoTypes            = [[]] ,
-                                      MuCorTypes            = IsoCorMu,
+                                      FeCorTypes            = [[]],
+                                      EgIsoTypes            = IsoTypesEG,
+                                      EgCorTypes            = IsoCorEG,
+                                      MuIsoTypes            = [[]],
+                                      MuCorTypes            = [[]],
                                       IsAODFix              = True,
-                                      LeakageTool           = leakTool,
-                                      IsolateEl             = False,
-                                      OutputLevel           = 3)
+                                      LeakageTool           = None,
+                                      IsolateEl             = True)
 
 isoAODFixBuilderPhoton = AlgFactory(IsolationBuilder,
                                     name                  = "IsolationBuilderPhoton",
@@ -137,42 +79,18 @@ isoAODFixBuilderPhoton = AlgFactory(IsolationBuilder,
                                     MuonCollectionContainerName        = "",
                                     FwdElectronCollectionContainerName = "",
                                     CaloCellIsolationTool = None,
-                                    CaloTopoIsolationTool = None,
+                                    CaloTopoIsolationTool = CaloIsolationTool,
                                     PFlowIsolationTool    = None,
-                                    TrackIsolationTool    = TrackIsolationTool, 
+                                    TrackIsolationTool    = None, 
                                     FeIsoTypes            = [[]] ,
-                                    FeCorTypes            = IsoCorFe,
-                                    EgIsoTypes            = IsoTypesEg,
-                                    EgCorTypes            = IsoCorEg,
-                                    MuIsoTypes            = [[]] ,
-                                    MuCorTypes            = IsoCorMu,
+                                    FeCorTypes            = [[]],
+                                    EgIsoTypes            = IsoTypesEG,
+                                    EgCorTypes            = IsoCorEG,
+                                    MuIsoTypes            = [[]],
+                                    MuCorTypes            = [[]],
                                     IsAODFix              = True,
                                     LeakageTool           = leakTool,
-                                    IsolateEl             = False,
-                                    OutputLevel           = 3)
-
-isoAODFixBuilderMuon = AlgFactory(IsolationBuilder,
-                                  name                  = "IsolationBuilderMuon",
-                                  ElectronCollectionContainerName    = "",
-                                  PhotonCollectionContainerName      = "",
-                                  MuonCollectionContainerName        = "Muons",
-                                  FwdElectronCollectionContainerName = "",
-                                  CaloCellIsolationTool = None,
-                                  CaloTopoIsolationTool = CaloIsolationTool,
-                                  PFlowIsolationTool    = None,
-                                  TrackIsolationTool    = None, 
-                                  FeIsoTypes            = [[]] ,
-                                  FeCorTypes            = IsoCorFe,
-                                  EgIsoTypes            = [[]],
-                                  EgCorTypes            = IsoCorEg,
-                                  MuIsoTypes            = IsoTypesMu,
-                                  MuCorTypes            = IsoCorMu,
-                                  CustomConfigurationNameMu = 'Core0p05',
-                                  IsAODFix              = True,
-                                  LeakageTool           = None,
-                                  IsolateEl             = False,
-                                  OutputLevel           = 3)
-
+                                    IsolateEl             = False)
 
 isoAODFixBuilderFwdElectron = AlgFactory(IsolationBuilder,
                                          name                  = "IsolationBuilderForwardElectron",
@@ -182,19 +100,18 @@ isoAODFixBuilderFwdElectron = AlgFactory(IsolationBuilder,
                                          FwdElectronCollectionContainerName = "ForwardElectrons",
                                          CaloCellIsolationTool = None,
                                          CaloTopoIsolationTool = CaloIsolationTool,
+                                         #CaloTopoIsolationTool = None,
                                          PFlowIsolationTool    = None,
                                          TrackIsolationTool    = None, 
-                                         FeIsoTypes            = IsoTypesFe,
+                                         FeIsoTypes            = IsoTypesEG,
                                          FeCorTypes            = IsoCorFe,
                                          EgIsoTypes            = [[]],
-                                         EgCorTypes            = IsoCorEg,
+                                         EgCorTypes            = [[]],
                                          MuIsoTypes            = [[]],
-                                         MuCorTypes            = IsoCorMu,
+                                         MuCorTypes            = [[]],
                                          IsAODFix              = True,
                                          LeakageTool           = None,
-                                         IsolateEl             = False,
-                                         OutputLevel           = 3)
-
+                                         IsolateEl             = False)
 
 from RecExConfig.Configured import Configured
 class isoAODFixGetter ( Configured ) :
@@ -214,8 +131,6 @@ class isoAODFixGetter ( Configured ) :
         self._isoBuilderHandle = isoAODFixBuilderPhoton()
       elif self.type == "ForwardElectrons":
         self._isoBuilderHandle = isoAODFixBuilderFwdElectron()  
-      elif self.type == "Muons":
-        self._isoBuilderHandle = isoAODFixBuilderMuon()  
       else:
         mlog.error("wrong object for IsolationBuilder")
     except Exception:

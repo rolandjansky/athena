@@ -45,12 +45,7 @@ public:
   Filter_Offline2017(  double pTMin=1000, const std::string& type="tight" ) :  
     m_pTMin(pTMin),
     m_type(type)
-  {
-    if ( m_type!="loose" && m_type!="loose-primary" && m_type!="tight" ) { 
-      std::cerr << "Filter_Offline2017::type: " << m_type << "not recognised" << std::endl;
-      std::exit(-1);
-    }
-  } 
+  {  } 
 
   bool select(const TIDA::Track* t, const TIDARoiDescriptor* =0 ) { 
     // Select track parameters
@@ -102,6 +97,10 @@ public:
 
       /// require a blayer (ibl in run2) hit only if one is expected
       if ( ( t->expectBL() || t->hasTruth() ) && t->bLayerHits()<1 )  selected = false;
+    }
+    else { 
+      std::cerr << "Filter_Offline2017::type: " << m_type << "not recognised" << std::endl;
+      std::exit(-1);
     }
 
 

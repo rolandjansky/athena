@@ -731,11 +731,6 @@ TH2D* Resplot::combine(const TH2* h, double inveps2) {
 
     //    double inveps2 = 1/(epsilon*epsilon);
 
-
-    //    hx->DrawCopy();
-    //    gPad->Print("cock.png");
-
-
     double N = 0;
 
     bool newbin = true;
@@ -853,11 +848,6 @@ std::vector<double> Resplot::findbins(const TH1* h, double inveps2) {
     //    hx->SetDirectory(0);
 
     //    double inveps2 = 1/(epsilon*epsilon);
-
-
-    //    hx->DrawCopy();
-    //    gPad->Print("cock.png");
-
 
     double N = 0;
 

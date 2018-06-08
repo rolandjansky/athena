@@ -10,7 +10,7 @@
 //======= TFCSInitWithEkin =========
 //=============================================
 
-TFCSInitWithEkin::TFCSInitWithEkin(const char* name, const char* title):TFCSParametrizationBase(name,title)
+TFCSInitWithEkin::TFCSInitWithEkin(const char* name, const char* title):TFCSParametrization(name,title)
 {
   set_match_all_pdgid();
 }

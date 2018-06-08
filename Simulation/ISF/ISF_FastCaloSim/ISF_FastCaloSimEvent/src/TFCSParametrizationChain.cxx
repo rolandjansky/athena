@@ -138,9 +138,10 @@ void TFCSParametrizationChain::Print(Option_t *option) const
   TString opt(option);
   //bool shortprint=opt.Index("short")>=0;
   //bool longprint=msgLvl(MSG::DEBUG) || (msgLvl(MSG::INFO) && !shortprint);
-  opt=opt+"- ";
 
+  char count='A';
   for(auto param: m_chain) {
-    param->Print(opt);
+    param->Print(opt+count+' ');
+    count++;
   }
 }

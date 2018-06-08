@@ -80,6 +80,7 @@ augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 svcMgr += createThinningSvc( svcName="L1CALO2ThinningSvc", outStreams=[evtStream] )
 
+trackParticleAuxExclusions="-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 
 # Generic event info
 L1CALO2Stream.AddItem("xAOD::EventInfo#*")
