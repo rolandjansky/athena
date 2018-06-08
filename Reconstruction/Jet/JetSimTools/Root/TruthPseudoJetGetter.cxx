@@ -6,6 +6,9 @@
 #include "JetSimTools/TruthParticleExtractor.h"
 
 
+using fastjet::PseudoJet;
+
+
 //**********************************************************************
 
 TruthPseudoJetGetter::TruthPseudoJetGetter(const std::string &name)
