@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  GenericArrayCreator.cxx
 //  L1TopoCoreSimulation
 //  Created by Joerg Stelzer on 12/10/12.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
 #include "L1TopoAlgorithms/GenericArrayCreator.h"
 #include "L1TopoEvent/ClusterTOBArray.h"
