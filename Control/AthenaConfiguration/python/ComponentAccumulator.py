@@ -29,7 +29,10 @@ class CurrentSequence:
         return CurrentSequence.sequence
 
 
-_propsToUnify=frozenset(("GeoModelSvc.DetectorTools","CondInputLoader.Load","IOVDbSvc.Folders","EvtPersistencySvc.CnvServices",
+_propsToUnify=frozenset(("GeoModelSvc.DetectorTools","CondInputLoader.Load",
+                         "IOVDbSvc.Folders",
+                         "IOVDbSvc.FoldersToMetaData",
+                         "EvtPersistencySvc.CnvServices",
                          "PoolSvc.ReadCatalog","ProxyProviderSvc.ProviderNames" ))
 
 def unifyProp(prop1,prop2):
