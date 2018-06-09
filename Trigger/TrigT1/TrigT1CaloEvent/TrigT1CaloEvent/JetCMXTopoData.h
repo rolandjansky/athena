@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /* **********************************************************
 *
 * Emulation of TOB link from one CP CMX to L1Topo

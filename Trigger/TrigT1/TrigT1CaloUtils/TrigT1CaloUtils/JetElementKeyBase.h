@@ -1,21 +1,15 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /***************************************************************************
                           JetElementKeyBase.h  -  description
                              -------------------
     begin                : Monday August 20 2001
-    copyright            : (C) 2000 by Edward Moyse
     email                : e.moyse@qmw.ac.uk
      
   Converted to base class JetElementKeyBase by Alan Watson, 20/01/06
 ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
 
 #ifndef JetElementKeyBase_H
 #define JetElementKeyBase_H
