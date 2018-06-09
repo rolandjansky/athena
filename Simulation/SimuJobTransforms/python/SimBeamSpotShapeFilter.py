@@ -7,8 +7,6 @@ __version__ = '$Id $'
 
 
 # General setup
-from AthenaCommon.AlgSequence import AthSequencer
-filterSeq = AthSequencer("AthFilterSeq")
 from AthenaPython.PyAthena import StatusCode
 import AthenaPython.PyAthena as PyAthena
 
@@ -63,14 +61,14 @@ class SimBeamSpotShapeFilter( PyAthena.AthFilterAlgorithm ):
         self.nProcessed = 0
         self.nEventPassed  = 0
 
-        if self.initial.BStag == '':
+        if self.initialBStag == '':
           self.msg.info('Intial position (%f, %f, %f)' % (self.initialPosX,self.initialPosY,self.initialPosZ ) ) 
           self.msg.info('Intial width (%f, %f, %f)' % (self.initialSigmaX,self.initialSigmaY,self.initialSigmaZ ) ) 
         else:
           self.msg.info('Initial width will be taken from BS tag:  %s' % ( self.initialBStag ) )
 
         if self.targetBStag == '' :
-          self.msg.info('Target width (%f, %f, %f)' % (self.targetSigmaX, ,self.targetSigmaY,self.targetSigmaZ) )
+          self.msg.info('Target width (%f, %f, %f)' % (self.targetSigmaX,self.targetSigmaY,self.targetSigmaZ) )
         else: 
           self.msg.info('Target width will be taken from BS tag:  %s' % ( self.targetBStag ) )
           
@@ -88,7 +86,8 @@ class SimBeamSpotShapeFilter( PyAthena.AthFilterAlgorithm ):
         return value
 
     def execute(self):
-       if self.initialBStag != '' or self.targetBStag != '':
+        
+        if self.initialBStag != '' or self.targetBStag != '':
           #Get Event info object
           eventInfo = self.sg.retrieve( 'EventInfo',"McEventInfo")
           iov = eventInfo.event_ID().run_number() << 32 | ( eventInfo.event_ID().lumi_block() & 0xFFFFFFFF ) 
@@ -138,20 +137,21 @@ class SimBeamSpotShapeFilter( PyAthena.AthFilterAlgorithm ):
 
 
         accept = False
-        deltaZ = self.beamPosZ() - sigVtx.z()
-        deltaX = self.beamPosX() + deltaZ * self.initialTiltXZ() - sigVtx.x()
-        deltaY = self.beamPosY() + deltaZ * self.initialTiltYZ() - sigVtx.y()
+        deltaZ = self.initialPosZ - sigVtx.point3d().z()
+        deltaX = self.initialPosX + deltaZ * self.initialTiltXZ - sigVtx.point3d().x()
+        deltaY = self.initialPosY + deltaZ * self.initialTiltYZ - sigVtx.point3d().y()
         # Calculate prob of keeping this event
-        weight =  self.calcScale( eventInfo.beamPosSigmaX(), self.targetSigmaX, deltaX) \
-                  * self.calcScale( eventInfo.beamPosSigmaY(), self.targetSigmaY, deltaY) \
-                  * self.calcScale( eventInfo.beamPosSigmaZ(), self.targetSigmaZ, deltaZ)
+        weight =  self.calcScale( self.initialSigmaX, self.targetSigmaX, deltaX) \
+                  * self.calcScale( self.initialSigmaY, self.targetSigmaY, deltaY) \
+                  * self.calcScale( self.initialSigmaZ, self.targetSigmaZ, deltaZ)
 
         # Decide if you keep 
         accept =  weight > ROOT.gRandom.Rndm()
         self.setFilterPassed(accept)
         
         self.nProcessed += 1
-        if(accept) self.nEventPassed  += 1
+        if accept:
+          self.nEventPassed  += 1
         
         return StatusCode.Success
 
@@ -159,8 +159,9 @@ class SimBeamSpotShapeFilter( PyAthena.AthFilterAlgorithm ):
         effiEvents    = 0.0
         effiErrEvents = 0.0
         try :
-          effiEvents    = 100.0 * self.nEventPassed / float(self.nProcessed)
+          effiEvents    = self.nEventPassed / float(self.nProcessed)
           effiErrEvents = 100.0 * math.sqrt(effiEvents*(1.-effiEvents)/float(self.nProcessed))
+          effiEvents   *= 100.0 
 
 
         except ZeroDivisionError :
