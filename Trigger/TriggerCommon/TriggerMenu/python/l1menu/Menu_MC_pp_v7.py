@@ -202,7 +202,6 @@ def defineMenu():
         'AFP_NSC', 'AFP_NSA',
         'AFP_FSA_SIT', 'AFP_FSA_TOF', 'AFP_FSA_LOG',
         'AFP_FSC_SIT', 'AFP_FSC_LOG', 'AFP_FSC_TOF',
-        'AFP_NSC_SIT', 'AFP_NSA_SIT',
 
         #-------------------------------------------------------------------
         #L1 TOPO inputs 
@@ -658,7 +657,6 @@ def defineMenu():
         'L1_AFP_A_AND_C_SPECTOF_J100',
     'L1_AFP_C_BGRP0','L1_AFP_A_BGRP0',
 	'L1_AFP_NSA','L1_AFP_NSC','L1_AFP_FSA_SIT','L1_AFP_FSC_SIT',
-    'L1_AFP_NSA_SIT','L1_AFP_NSC_SIT',
 	'L1_EM7_AFP_A_OR_C','L1_EM12_AFP_A_OR_C',
 #	'L1_EM7_AFP_A_AND_C','L1_EM12_AFP_A_AND_C',
 
@@ -1578,11 +1576,9 @@ def defineMenu():
         'L1_MU4_ALFA_ANY'	:	162,
         'L1_MU4_ALFA_ANY_UNPAIRED_ISO'	:	217,
         'L1_MU4_ALFA_EINE'	:	222,
-        #'L1_TE5_ALFA_ANY'	:	241,
-        #'L1_TE5_ALFA_ANY_UNPAIRED_ISO'	:	242,
+        'L1_TE5_ALFA_ANY'	:	241,
+        'L1_TE5_ALFA_ANY_UNPAIRED_ISO'	:	242,
         'L1_TE5_ALFA_EINE'	:	257,
-        'L1_AFP_NSA_SIT':   241,
-        'L1_AFP_NSC_SIT'	:	242,
 
         'L1_MU4_TE20'	:	107,
         'L1_MU4_TE30'	:	127,

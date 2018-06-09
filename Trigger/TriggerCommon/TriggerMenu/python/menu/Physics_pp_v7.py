@@ -4139,8 +4139,6 @@ def setupMenu():
         ['calibAFP_L1AFP_NSC',     'L1_AFP_NSC', [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
         ['calibAFP_L1AFP_FSA_SIT', 'L1_AFP_FSA_SIT', [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
         ['calibAFP_L1AFP_FSC_SIT', 'L1_AFP_FSC_SIT', [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
-        ['calibAFP_L1AFP_NSA_SIT', 'L1_AFP_NSA_SIT', [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
-        ['calibAFP_L1AFP_NSC_SIT', 'L1_AFP_NSC_SIT', [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
         ['calibAFP_L1RD0_FILLED',  'L1_RD0_FILLED', [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
 
         #AFP+ALFA BBA ATR-17865
