@@ -246,10 +246,6 @@ namespace ana
       * MULTI_L_2015_e17_lhloose_2016_e17_lhloose_nod0
       * MULTI_L_2015_e7_lhmedium_2016_e7_lhmedium_nod0
     */
-    std::cout << "m_trigList = " << m_trigList << std::endl;
-    std::cout << "trig_key = " << trig_key << std::endl;
-    std::cout << "iso = " << m_ele_iso_wp << std::endl;
-    std::cout << "ID  = " << id_key << std::endl;
 
     if (!trig_key.empty())
     {
