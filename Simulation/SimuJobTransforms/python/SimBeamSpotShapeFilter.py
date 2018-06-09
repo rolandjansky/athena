@@ -94,9 +94,11 @@ class SimBeamSpotShapeFilter( PyAthena.AthFilterAlgorithm ):
           
           #Get BS from database
           from CoolConvUtilities import AtlCoolLib
+          from PyCool import cool
           cooldbBS = AtlCoolLib.indirectOpen('COOLOFL_INDET/OFLP200', True, True, False)
-          if self.intialBStag != '': 
-            self.msg.info('Taking initial beamspot information from conditions database: %s' % self.intialBStag )
+          folderBS = cooldbBS.getFolder('/Indet/Beampos')
+          if self.initialBStag != '': 
+            self.msg.info('Taking initial beamspot information from conditions database: %s' % self.initialBStag )
             itrBS = folderBS.browseObjects(iov, iov, cool.ChannelSelection.all(), self.initialBStag )
             while itrBS.goToNext():
               obj = itrBS.currentRef()
