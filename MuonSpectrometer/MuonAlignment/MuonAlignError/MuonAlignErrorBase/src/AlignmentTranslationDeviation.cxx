@@ -10,11 +10,11 @@ using namespace std;
 
 AlignmentTranslationDeviation::AlignmentTranslationDeviation (Amg::Vector3D u, double sigma, const std::vector<const Trk::RIO_OnTrack*>& hits)
   : m_u(u.unit()),
-  m_sigma(sigma),
-  m_hits(hits),
-  m_hitshash(0),
-  m_hitshashdone(false)
+  m_sigma(sigma)
 {
+  m_hits = hits;
+  m_hitshash = 0;
+  m_hitshashdone = false;
 }
 
 AlignmentTranslationDeviation::~AlignmentTranslationDeviation () {
@@ -31,23 +31,6 @@ double AlignmentTranslationDeviation::getCovariance (int, int) const {
 Amg::Transform3D AlignmentTranslationDeviation::getTransform (const std::vector<double>& parameters) const {
   Amg::Transform3D t(Amg::Translation3D(parameters[0] * m_u));
   return t;
-}
-
-void AlignmentTranslationDeviation::getListOfHits (std::vector<const Trk::RIO_OnTrack*>& hits) const {
-  hits = m_hits;
-}
-
-std::size_t AlignmentTranslationDeviation::getHashOfHits () const {
-  return m_hitshash;
-}
-
-void AlignmentTranslationDeviation::setHashOfHits (std::size_t hash) {
-  m_hitshash = hash;
-  m_hitshashdone = true;
-}
-
-bool AlignmentTranslationDeviation::hasValidHashOfHits () const {
-  return m_hitshashdone;
 }
 
 void AlignmentTranslationDeviation::print (std::ostream& out) const {

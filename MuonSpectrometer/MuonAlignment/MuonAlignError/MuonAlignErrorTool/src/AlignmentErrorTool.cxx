@@ -324,7 +324,6 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
 
      if ( traslation >= 0.001*Gaudi::Units::mm ) { 
 
-        std::stable_sort( (new_deviationsVec[iDev]->hits).begin(), (new_deviationsVec[iDev]->hits).end() );
         std::size_t hitshash = 0;
         for(auto it : new_deviationsVec[iDev]->hits ) boost::hash_combine( hitshash , (it->identify()).get_compact() );
         deviations.push_back(new AlignmentTranslationDeviation(sumU.cross(sumV), traslation*Gaudi::Units::mm, new_deviationsVec[iDev]->hits));
@@ -332,9 +331,9 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
 
         ATH_MSG_DEBUG("A translation along (" << sumU.x() << ", " << sumU.y() << ", " << sumU.z() << ") with sigma=" << traslation*Gaudi::Units::mm << " mm was applied to " << new_deviationsVec[iDev]->hits.size() << " hits matching the station: " << new_deviationsVec[iDev]->stationName.str() << " and the multilayer " << new_deviationsVec[iDev]->multilayer.str());
 
-     } if ( rotation >= 0.000001*Gaudi::Units::rad ) {
+     }
+     if ( rotation >= 0.000001*Gaudi::Units::rad ) {
 
-        std::stable_sort( (new_deviationsVec[iDev]->hits).begin(), (new_deviationsVec[iDev]->hits).end() );
         std::size_t hitshash = 0;
         for(auto it : new_deviationsVec[iDev]->hits ) boost::hash_combine( hitshash , (it->identify()).get_compact() );
         deviations.push_back(new AlignmentRotationDeviation(sumP, sumV, rotation*Gaudi::Units::rad, new_deviationsVec[iDev]->hits));

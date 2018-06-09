@@ -33,26 +33,6 @@ namespace MuonAlign {
       virtual Amg::Transform3D getTransform(const std::vector<double>& parameters) const;
 
       /**
-       * Return the list of hits the transform should be applied to.
-       */
-      virtual void getListOfHits(std::vector<const Trk::RIO_OnTrack*>& hits) const;
-
-      /**
-       * Return hash built out of associated hits for fast comparison if deviations have same content
-       */
-      virtual std::size_t getHashOfHits() const;
-
-      /**
-       * Return hash built out of associated hits for fast comparison if deviations have same content
-       */
-      virtual void setHashOfHits(std::size_t hash) ;
-
-      /**
-       * Return if the hash created form associated hits is set
-       */
-      virtual bool hasValidHashOfHits() const;
-
-      /**
        * Verbose
        */
       virtual void print(std::ostream& out) const;
@@ -61,9 +41,6 @@ namespace MuonAlign {
       Amg::Vector3D m_center;
       Amg::Vector3D m_axis;
       double m_sigma;
-      std::vector<const Trk::RIO_OnTrack*> m_hits; // not owned
-      std::size_t m_hitshash;
-      bool m_hitshashdone;
   };
 }
 
