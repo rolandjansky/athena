@@ -19,6 +19,25 @@ def setupMenu():
     physics_menu.setupMenu()
     PhysicsStream="Main"
 
+    ### Remove HLT items that have a remapped L1 threshold and therefore not available in MC
+    chainsToRemove = [
+    'noalg_L1MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO',
+    'mu4_mu2noL1_L1MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO',
+    'noalg_L1EM3_ALFA_EINE',
+    'noalg_L12EM3_ALFA_EINE',
+    '2j10_L1TRT_ALFA_EINE',
+    '2j10_L1TRT_ALFA_ANY_PAIRED_UNPAIRED_ISO',
+    '2j10_L1MBTS_ALFA',
+    'j15_L1ALFA_Jet_Phys',
+    'noalg_L1ALFA_Jet_Phys',
+    'noalg_L1ALFA_Diff_Phys',
+    'noalg_L1ALFA_CDiff_Phys',
+    'mb_sptrk_vetombts2in_L1ALFA_CEP',
+    'mb_sptrk_vetombts2in_L1TRT_ALFA_EINE',
+    'mb_sptrk_vetombts2in_L1TRT_ALFA_ANY',
+    'mb_sptrk_vetombts2in_L1TRT_ALFA_ANY_UNPAIRED_ISO',
+    ]
+
     # stream, BW and RATE tags for Bphysics items that appear in Muon and Bphysics slice.signatures
     BPhysicsStream     = "BphysLS"
     BMultiMuonStream   = "Main"  
@@ -877,9 +896,6 @@ def setupMenu():
 #        ['xe0noL1_l2fsperf_trkmht_FTK', '', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
    #L1_XE35
-        ['xe35', 'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['xe35_tc_lcw', 'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-        ['xe35_tc_em', 'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe35_pufit', 'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe35_mht', 'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
         ['xe35_mht_em', 'L1_XE35',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
@@ -2151,6 +2167,12 @@ def setupMenu():
 
         ]
 
+    minBiasSlice = TriggerFlags.MinBiasSlice.signatures()
+    for chain in reversed(minBiasSlice):
+        if chain[0] in chainsToRemove:
+            del minBiasSlice[minBiasSlice.index(chain)]
+            log.info('Removing from MC due to L1 remapping: %s '%chain[0])
+
     #Beamspot chanis first try ATR-9847                                                                                                                
     TriggerFlags.BeamspotSlice.signatures = TriggerFlags.BeamspotSlice.signatures()+ [
         ]
@@ -2469,6 +2491,10 @@ ps_minb_list=[
     'mb_perf_L1RD1_FILLED',
     'mb_sptrk_vetombts2in_L1ZDC_AND',
     'mb_sptrk_vetombts2in_L1ZDC_A_C',
+    '2g3_loose_mb_sptrk_vetombts2in_L1ALFA_ELAS',
+    '2g3_loose_mb_sptrk_vetombts2in_L1ALFA_SYST',
+    'mb_sptrk_vetombts2in_L1ALFA_ANY',
+    'mb_sptrk_vetombts2in_L1ALFA_ANY_UNPAIRED_ISO',
     'mb_sp600_pusup300_trk40_hmt_L1TE5',
     'mb_sp700_pusup350_trk50_hmt_L1TE5',
     'mb_sp900_pusup400_trk50_hmt_L1TE5',
@@ -3111,8 +3137,6 @@ ps_perform_list = [
     'xe35_mht',
     'xe35_mht_em',
     'xe35_pufit',
-    'xe35_tc_em',
-    'xe35_tc_lcw',
     'xe45',
     'xe45_mht',
     'xe45_mht_wEFMu',

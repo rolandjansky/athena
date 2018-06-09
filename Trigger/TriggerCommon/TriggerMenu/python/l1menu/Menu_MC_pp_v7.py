@@ -746,6 +746,7 @@ def defineMenu():
 #        'L1_DPHI-J20XE50',
 #        'L1_DPHI-CJ20XE50',
         'L1_2MU4_J20_XE30_DPHI-J20s2XE30',
+        'L1_MJJ-700',
         'L1_MJJ-800',
         'L1_MJJ-400',
         #'L1_MJJ-350',
@@ -760,6 +761,7 @@ def defineMenu():
         'L1_J50_DETA20-J50J',
         'L1_DPHI-2EM3',
         'L1_DPHI-2EM3_VTE5.24ETA49',
+        'L1_DPHI-2EM3_VTE5.24ETA49_ALFA_EINE',
         'L1_DPHI-2EM3_VTE10',
         'L1_DPHI-2EM7_VTE50',
         'L1_HT150-JJ15.ETA49',
@@ -881,9 +883,10 @@ def defineMenu():
 
         # Items for beta*=90m run
         'L1_J12_ALFA_EINE',
-        'L1_2EM3_ALFA_EINE',
+#        'L1_2EM3_ALFA_EINE',
         'L1_MU4_ALFA_ANY',
         'L1_MU4_ALFA_ANY_UNPAIRED_ISO',
+#        'L1_MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO',
         'L1_MU4_ALFA_EINE',
 
 
@@ -1347,6 +1350,8 @@ def defineMenu():
         'L1_DPHI-J20s2XE50' : 323,
 #        'L1_DPHI-J20XE50' : 324,
 #        'L1_DPHI-CJ20XE50' : 325,
+        'L1_DPHI-2EM3_VTE5.24ETA49_ALFA_EINE' : 215,
+        'L1_MJJ-700' : 216,
         'L1_MJJ-800' : 327,
         'L1_MJJ-400' : 329,
         #'L1_MJJ-350' : 330,
@@ -1566,8 +1571,9 @@ def defineMenu():
 
         # Items for beta*=90m run
         'L1_J12_ALFA_EINE'	:	209,
-        'L1_2EM3_ALFA_EINE'	:	215,
-        'L1_MU4_ALFA_ANY'	:	216,
+        ## enabled via remapping in Menu_Physics_pp_v7.py
+        #'L1_2EM3_ALFA_EINE'	:	215,
+        'L1_MU4_ALFA_ANY'	:	162,
         'L1_MU4_ALFA_ANY_UNPAIRED_ISO'	:	217,
         'L1_MU4_ALFA_EINE'	:	222,
         'L1_TE5_ALFA_ANY'	:	241,
