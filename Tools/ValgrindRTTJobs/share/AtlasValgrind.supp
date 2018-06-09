@@ -1,3 +1,4 @@
+
 {
    Reflex leak
    Memcheck:Leak
@@ -1619,5 +1620,16 @@
    fun:_ZN69_GLOBAL__N_.._src_ApplicationMgr_ApplicationMgr.cpp_9D2164D3_A4BA85537FactoryI14ApplicationMgrFP10IInterfaceS3_EE4FuncEPvRKSt6vectorIS6_SaIS6_EES6_
    fun:_ZNK4ROOT6Reflex14FunctionMember6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
    fun:_ZNK4ROOT6Reflex6Member6InvokeERKNS0_6ObjectERKSt6vectorIPvSaIS6_EE
+}
+
+
+#####################
+# frontier_client
+{
+	FrontierClient:frontier_str_copy/wordcopy_fwd_dest_aligned
+	Memcheck:Addr8
+	fun:_wordcopy_fwd_dest_aligned
+	fun:bcopy
+	fun:frontier_str_copy
 }
 
