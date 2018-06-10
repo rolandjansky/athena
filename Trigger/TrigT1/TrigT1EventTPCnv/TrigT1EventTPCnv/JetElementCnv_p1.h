@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef JetElementCNV_P1_H
 #define JetElementCNV_P1_H
 

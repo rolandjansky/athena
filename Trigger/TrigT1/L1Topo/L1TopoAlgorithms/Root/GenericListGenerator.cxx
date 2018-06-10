@@ -1,9 +1,11 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  GenericListGenerator.cxx
 //  TopoCore
 //  Created by Joerg Stelzer on 11/10/12.
 //  Modified by V Sorin 2014
 //  algorithm to generate the all lists from TOBs
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
 #include "L1TopoAlgorithms/GenericListGenerator.h"
 #include "L1TopoEvent/ClusterTOBArray.h"

@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #include "TrigT1CaloTools/L1NonlinearLutDatabaseOverrideTool.h"
 
 #include "TrigT1CaloCalibConditions/L1CaloPprChanDefaultsContainer.h"
