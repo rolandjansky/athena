@@ -30,7 +30,7 @@ if DerivationFrameworkIsMonteCarlo :
 streamName = derivationFlags.WriteDAOD_HIGG5D2Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_HIGG5D2Stream )
 HIGG5D2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-HIGG5D2Stream.AcceptAlgs(["HIGG5D2Kernel","HIGG5D2KernelTruth"])
+HIGG5D2Stream.AcceptAlgs(["HIGG5D2Kernel"])
 
 import DerivationFrameworkHiggs.HIGG5Common as HIGG5Common
 
