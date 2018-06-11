@@ -141,7 +141,7 @@ StatusCode RPC_RegionSelectorTable::createTable() {
 	
     MuonGM::RpcReadoutSet Set(p_MuonMgr, prdId);
     //int nmod = Set.NreadoutElements();
-	  int ndbz = Set.NdoubletZ();
+    int ndbz = Set.NdoubletZ();
 
     //std::cout<<" Number of modules  in this RpcSet "<<nmod<<" Number of doubletZ in this RpcSet "<<Set.NdoubletZ()<<std::endl;
     //std::cout<<" Number of modules in Phi/DoubletZ: ";
@@ -159,11 +159,14 @@ StatusCode RPC_RegionSelectorTable::createTable() {
     unsigned nmodules = 0;
 
     for (int dbz=1; dbz<=ndbz; dbz++) {
-        
+   
+      /// z doublets ???
       const MuonGM::RpcReadoutElement* _rpcold = NULL;
-	    int ndbp = Set.NPhimodules(dbz);
-	  
-	    for (int dbp=1; dbp<=ndbp; dbp++) {
+      int ndbp = Set.NPhimodules(dbz);
+      
+
+      /// phi doublets ???
+      for (int dbp=1; dbp<=ndbp; dbp++) {
 
         const MuonGM::RpcReadoutElement* _rpc = Set.readoutElement(dbz, dbp);
 		
