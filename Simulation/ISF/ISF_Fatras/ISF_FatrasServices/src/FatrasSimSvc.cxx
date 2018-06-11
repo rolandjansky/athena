@@ -39,10 +39,10 @@ StatusCode iFatras::FatrasSimSvc::releaseEvent()
 }
 
 /** Simulation Call */
-StatusCode iFatras::FatrasSimSvc::simulate(const ISF::ISFParticle& isfp)
+StatusCode iFatras::FatrasSimSvc::simulate(const ISF::ISFParticle& isfp, McEventCollection* mcEventCollection)
 {
   ISF::ISFParticleContainer secondaries;
-  ATH_CHECK(m_simulatorTool->simulate(isfp, secondaries));
+  ATH_CHECK(m_simulatorTool->simulate(isfp, secondaries, mcEventCollection));
   if (not secondaries.empty()) {
     for (auto particle : secondaries) {
       m_particleBroker->push( particle, &isfp);

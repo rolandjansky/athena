@@ -196,7 +196,7 @@ StatusCode ISF::FastCaloTool::commonSetup()
   return StatusCode::SUCCESS;
 }
 
-StatusCode ISF::FastCaloTool::simulate(const ISFParticle& isp, ISFParticleContainer& secondaries)
+StatusCode ISF::FastCaloTool::simulate(const ISFParticle& isp, ISFParticleContainer& secondaries, McEventCollection*)
 {
 
   ATH_MSG_VERBOSE( "FastCaloTool " << name() << " simulate()" );

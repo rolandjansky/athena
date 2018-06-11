@@ -36,10 +36,10 @@ StatusCode ISF::FastCaloSimSvc::releaseEvent()
 }
 
 /** Simulation Call */
-StatusCode ISF::FastCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
+StatusCode ISF::FastCaloSimSvc::simulate(const ISF::ISFParticle& isfp, McEventCollection* mcEventCollection)
 {
   ISF::ISFParticleContainer secondaries;
-  ATH_CHECK(m_simulatorTool->simulate(isfp, secondaries));
+  ATH_CHECK(m_simulatorTool->simulate(isfp, secondaries, mcEventCollection));
   if (not secondaries.empty()) {
     for (auto particle : secondaries) {
       m_particleBroker->push( particle, &isfp);

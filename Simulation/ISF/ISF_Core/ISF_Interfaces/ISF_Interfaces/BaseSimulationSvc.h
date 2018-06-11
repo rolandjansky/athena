@@ -16,6 +16,7 @@
 #include "AthenaBaseComps/AthService.h"
 #include "StoreGate/StoreGateSvc.h"
 
+#include "GeneratorObjects/McEventCollection.h"
 
 // ISF includes
 #include "ISF_Interfaces/ISimulationSvc.h"
@@ -99,7 +100,7 @@ namespace ISF {
     }
 
     /** Simulation call for vectors of particles */
-    virtual StatusCode simulateVector(const ConstISFParticleVector& particles) {
+    virtual StatusCode simulateVector(const ConstISFParticleVector& particles, McEventCollection* mcEventCollection) {
       // this implementation is a wrapper in case the simulator does
       // implement particle-vector input
       ConstISFParticleVector::const_iterator partIt    = particles.begin();
@@ -108,7 +109,7 @@ namespace ISF {
       // simulate each particle individually
       for ( ; partIt != partItEnd; partIt++) {
         ATH_MSG_VERBOSE( m_screenOutputPrefix <<  "Starting simulation of particle: " << (*partIt) );
-        if ( this->simulate(**partIt).isFailure()) {
+        if ( this->simulate(**partIt, mcEventCollection).isFailure()) {
           ATH_MSG_WARNING("Simulation of particle failed!" << endmsg <<
                           "   -> simulator: " << this->simSvcDescriptor() <<
                           "   -> particle : " << (ISFParticle&)(**partIt) );
@@ -119,7 +120,7 @@ namespace ISF {
     }
 
     /** Simulation call for individual particles */
-    virtual StatusCode simulate(const ISFParticle& isp);
+    virtual StatusCode simulate(const ISFParticle& isp, McEventCollection* mcEventCollection);
 
     /** wrapper call to start chrono with given tag */
     const ChronoEntity* chronoStart(const IChronoSvc::ChronoTag& tag ) {
@@ -228,7 +229,7 @@ namespace ISF {
 
 
   /** Simulation Call --- hand over to the particleProcessor if it exists */
-  inline StatusCode BaseSimulationSvc::simulate(const ISFParticle& /*isp*/)
+  inline StatusCode BaseSimulationSvc::simulate(const ISFParticle& /*isp*/, McEventCollection*)
   {
     return StatusCode::SUCCESS;
   }

@@ -224,7 +224,7 @@ void iGeant4::G4TransportTool::finalizeOnce()
 }
 
 //________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::simulate( const ISF::ISFParticle& isp, ISF::ISFParticleContainer& secondaries ) {
+StatusCode iGeant4::G4TransportTool::simulate( const ISF::ISFParticle& isp, ISF::ISFParticleContainer& secondaries, McEventCollection* mcEventCollection) {
 
   // give a screen output that you entered Geant4SimSvc
   ATH_MSG_VERBOSE( "Particle " << isp << " received for simulation." );
@@ -233,7 +233,7 @@ StatusCode iGeant4::G4TransportTool::simulate( const ISF::ISFParticle& isp, ISF:
   // wrap the given ISFParticle into a STL vector of ISFParticles with length 1
   // (minimizing code duplication)
   const ISF::ConstISFParticleVector ispVector(1, &isp);
-  StatusCode success = this->simulateVector(ispVector, secondaries);
+  StatusCode success = this->simulateVector(ispVector, secondaries, mcEventCollection);
   ATH_MSG_VERBOSE( "Simulation done" );
 
   // Geant4 call done
@@ -241,11 +241,11 @@ StatusCode iGeant4::G4TransportTool::simulate( const ISF::ISFParticle& isp, ISF:
 }
 
 //________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::simulateVector( const ISF::ConstISFParticleVector& particles, ISF::ISFParticleContainer& secondaries ) {
+StatusCode iGeant4::G4TransportTool::simulateVector( const ISF::ConstISFParticleVector& particles, ISF::ISFParticleContainer& secondaries, McEventCollection* mcEventCollection) {
 
   ATH_MSG_DEBUG (name() << ".simulateVector(...) : Received a vector of " << particles.size() << " particles for simulation.");
   /** Process ParticleState from particle stack */
-  G4Event* inputEvent = m_inputConverter->ISF_to_G4Event(particles, genEvent());
+  G4Event* inputEvent = m_inputConverter->ISF_to_G4Event(particles, genEvent(mcEventCollection));
   if (!inputEvent) {
     ATH_MSG_ERROR("ISF Event conversion failed ");
     return StatusCode::FAILURE;
@@ -377,26 +377,25 @@ void iGeant4::G4TransportTool::push( ISF::ISFParticle *particle, const ISF::ISFP
 }
 
 //________________________________________________________________________
-HepMC::GenEvent* iGeant4::G4TransportTool::genEvent() const
+HepMC::GenEvent* iGeant4::G4TransportTool::genEvent(McEventCollection* mcEventCollection) const
 {
 
-  // collect last GenEvent from McEventCollection
-
-  McEventCollection* mcEventCollection(nullptr);
-  // retrieve McEventCollection from storegate
-  if (evtStore()->contains<McEventCollection>(m_mcEventCollectionName)) {
-    if (evtStore()->retrieve( mcEventCollection, m_mcEventCollectionName).isFailure()) {
-      ATH_MSG_WARNING( "Unable to retrieve McEventCollection with name=" << m_mcEventCollectionName
-                       << ".");
+  if(!mcEventCollection) {
+    // retrieve McEventCollection from storegate
+    if (evtStore()->contains<McEventCollection>(m_mcEventCollectionName)) {
+      if (evtStore()->retrieve( mcEventCollection, m_mcEventCollectionName).isFailure()) {
+        ATH_MSG_ERROR( "Unable to retrieve McEventCollection with name=" << m_mcEventCollectionName
+                         << ".");
+        return nullptr;
+      }
+      else {
+        ATH_MSG_WARNING( "Fallback. Sucessfully retrieved McEventCollection with name=" << m_mcEventCollectionName);
+      }
     }
-    else {
-      ATH_MSG_DEBUG( "Sucessfully retrieved McEventCollection with name=" << m_mcEventCollectionName);
-
-      return mcEventCollection->back();
-    }
+    else { return nullptr; }
   }
-  return nullptr;
-
+  // collect last GenEvent from McEventCollection
+  return mcEventCollection->back();
 }
 
 //________________________________________________________________________
