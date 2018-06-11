@@ -468,21 +468,44 @@ namespace BoostedJetTaggers {
   }
 
   float SubstructureAccessors::c2(const xAOD::Jet& j) const {
+    // ECF functions return zero if there N < numConstituents,
+    // need this check to prevent div by zero
+    //
+    if (j.numConstituents() < 2) return NAN;
     return ecf3(j) * ecf1(j) / pow(ecf2(j), 2.0);
   }
   float SubstructureAccessors::d2(const xAOD::Jet& j) const {
+    // See comment for C2
+    //
+    if (j.numConstituents() < 2) return NAN;
     return ecf3(j) * pow(ecf1(j), 3.0) / pow(ecf2(j), 3.0);
   }
   float SubstructureAccessors::e3(const xAOD::Jet& j) const {
+    // ECF1 should always be nonzero
+    //
     return ecf3(j)/pow(ecf1(j),3.0);
   }
   float SubstructureAccessors::tau21(const xAOD::Jet& j) const {
+    // Tau variables return zero when N < numConstituents. Here we
+    // should be safe since we should always have one constituent.
+    //
     return tau2wta(j) / tau1wta(j);
   }
   float SubstructureAccessors::tau32(const xAOD::Jet& j) const {
+    // Tau variables return zero when N < numConstituents, need this
+    // check to prevent div by zero
+    //
+    if (j.numConstituents() < 2) return NAN;
     return tau3wta(j) / tau2wta(j);
   }
   float SubstructureAccessors::fw20(const xAOD::Jet& j) const {
+    // Fox Wolfram variables aren't defined for numConstituents < 1,
+    // but we also have the problem of FW0 being zero if
+    // numConstituents is equal to 1, see here:
+    //
+    // https://gitlab.cern.ch/atlas/athena/blob/21.2/Reconstruction/Jet/JetSubStructureUtils/Root/FoxWolfram.cxx
+    //
+    if (j.numConstituents() < 2) return NAN;
     return fw2(j) / fw0(j);
   }
 
