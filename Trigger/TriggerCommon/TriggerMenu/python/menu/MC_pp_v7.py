@@ -20,23 +20,28 @@ def setupMenu():
     PhysicsStream="Main"
 
     ### Remove HLT items that have a remapped L1 threshold and therefore not available in MC
-    chainsToRemove = [
-    'noalg_L1MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO',
-    'mu4_mu2noL1_L1MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO',
-    'noalg_L1EM3_ALFA_EINE',
-    'noalg_L12EM3_ALFA_EINE',
-    '2j10_L1TRT_ALFA_EINE',
-    '2j10_L1TRT_ALFA_ANY_PAIRED_UNPAIRED_ISO',
-    '2j10_L1MBTS_ALFA',
-    'j15_L1ALFA_Jet_Phys',
-    'noalg_L1ALFA_Jet_Phys',
-    'noalg_L1ALFA_Diff_Phys',
-    'noalg_L1ALFA_CDiff_Phys',
-    'mb_sptrk_vetombts2in_L1ALFA_CEP',
-    'mb_sptrk_vetombts2in_L1TRT_ALFA_EINE',
-    'mb_sptrk_vetombts2in_L1TRT_ALFA_ANY',
-    'mb_sptrk_vetombts2in_L1TRT_ALFA_ANY_UNPAIRED_ISO',
+    L1toRemove = [
+        'L1_MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO',
+        'L1_EM3_ALFA_EINE',
+        'L1_2EM3_ALFA_EINE',
+        'L1_MBTS_ALFA',
+        'L1_ALFA_Jet_Phys',
+        'L1_ALFA_Diff_Phys',
+        'L1_ALFA_CDiff_Phys',
+        'L1_ALFA_CEP',
+        'L1_TRT_ALFA_EINE',
+        'L1_TRT_ALFA_ANY',
+        'L1_TRT_ALFA_ANY_UNPAIRED_ISO',
+        'L1_TRT_ALFA_ANY_PAIRED_UNPAIRED_ISO',
     ]
+
+    for prop in dir(TriggerFlags):
+        if prop[-5:]!='Slice': continue
+        sliceName=prop
+        m_slice=getattr(TriggerFlags,sliceName).signatures()
+        for chain in reversed(m_slice):
+            if chain[1] in L1toRemove:
+                del m_slice[m_slice.index(chain)]
 
     # stream, BW and RATE tags for Bphysics items that appear in Muon and Bphysics slice.signatures
     BPhysicsStream     = "BphysLS"
@@ -2166,12 +2171,6 @@ def setupMenu():
 	['mb_sp1800_hmtperf_L1TE40', 'L1_TE40', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
 
         ]
-
-    minBiasSlice = TriggerFlags.MinBiasSlice.signatures()
-    for chain in reversed(minBiasSlice):
-        if chain[0] in chainsToRemove:
-            del minBiasSlice[minBiasSlice.index(chain)]
-            log.info('Removing from MC due to L1 remapping: %s '%chain[0])
 
     #Beamspot chanis first try ATR-9847                                                                                                                
     TriggerFlags.BeamspotSlice.signatures = TriggerFlags.BeamspotSlice.signatures()+ [
