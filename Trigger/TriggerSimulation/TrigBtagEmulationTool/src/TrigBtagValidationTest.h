@@ -5,7 +5,12 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #ifndef TrigBtagValidationTest_H
 #define TrigBtagValidationTest_H
 
+#ifndef XAOD_ANALYSIS
 #include "AthenaBaseComps/AthAlgorithm.h"
+#else
+#include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
+#endif
+
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
@@ -22,7 +27,7 @@ class IExecuteTool;
 
 namespace Trig{
 
-    class TrigBtagValidationTest : public AthAlgorithm { 
+  class TrigBtagValidationTest : public AthAlgorithm {
 
         public: 
             /// Constructor with parameters: 
@@ -51,6 +56,7 @@ namespace Trig{
             std::vector<std::string>   m_triggerList;
 	    StoreGateSvc              *m_storeGate;
 
+	    bool m_errorAtMismatch;
 	    bool m_retrieveRetaggedJets;
 	    std::string m_chain;
 

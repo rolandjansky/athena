@@ -527,7 +527,12 @@ TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets = ["AntiKt10LCTopoTr
                                                                + "WidthPhi."
                                                                + "ZCut12."
                                                                + "ZCut23."
-                                                               + "ZCut34"]
+                                                               + "ZCut34"
+                                                               + "L1"
+                                                               + "L2"
+                                                               + "L3"
+                                                               + "L4"
+                                                               + "L5"]
 
 
 #TOPQExtraVariables_AntiKt2PV0TrackJets = ["AntiKt2PV0TrackJets."
@@ -1236,7 +1241,12 @@ TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_Truth = ["AntiKt10LC
                                                                      + "GhostZBosonsPt."
                                                                      + "TruthLabelDeltaR_B."
                                                                      + "TruthLabelDeltaR_C."
-                                                                     + "TruthLabelDeltaR_T"]
+                                                                     + "TruthLabelDeltaR_T"
+                                                                     + "L1"
+                                                                     + "L2"
+                                                                     + "L3"
+                                                                     + "L4"
+                                                                     + "L5"]
 
 #===========================================
 # COLLECTIONS AT TRUTH LEVEL

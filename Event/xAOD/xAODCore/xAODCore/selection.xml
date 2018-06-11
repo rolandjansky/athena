@@ -10,9 +10,7 @@
       <field name="m_storeIO" transient="true" />
       <field name="m_ownsStore" transient="true" />
       <field name="m_selection" transient="true" />
-      <field name="m_tick" transient="true" />
       <field name="m_mutex" transient="true" />
-      <field name="m_tsAuxids" transient="true" />
       <field name="m_locked" transient="true" />
       <field name="m_name" transient="true" />
    </class>
@@ -33,9 +31,7 @@
       <field name="m_storeIO" transient="true" />
       <field name="m_ownsStore" transient="true" />
       <field name="m_selection" transient="true" />
-      <field name="m_tick" transient="true" />
       <field name="m_mutex" transient="true" />
-      <field name="m_tsAuxids" transient="true" />
       <field name="m_locked" transient="true" />
       <field name="m_name" transient="true" />
    </class>
@@ -56,9 +52,8 @@
      <field name="m_ownsStore" transient="true" />
      <field name="m_parentIO" transient="true" />
      <field name="m_shallowIO" transient="true" />
-     <field name="m_tick" transient="true" />
      <field name="m_mutex" transient="true" />
-     <field name="m_tsAuxids" transient="true" />
+     <field name="m_auxids" transient="true" />
      <field name="m_name" transient="true" />
    </class>
    <read sourceClass="xAOD::ShallowAuxContainer" version="[1-]"

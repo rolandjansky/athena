@@ -49,8 +49,6 @@ LArFCALCalculatorBase::LArFCALCalculatorBase(const std::string& name, ISvcLocato
 
 StatusCode LArFCALCalculatorBase::initialize()
 {
-  m_OOTcut = (2.5*CLHEP::ns); //FIXME should be done via configurable property
-
   StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
   if (detStore->retrieve(m_ChannelMap)==StatusCode::FAILURE) {
   }

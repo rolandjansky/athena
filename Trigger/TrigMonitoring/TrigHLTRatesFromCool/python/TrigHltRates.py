@@ -304,13 +304,13 @@ class TrigHltRates(object):
             raise e
 
         payload = obj.payload()
-        sor_time = payload["SORTime"]/1E9
+        sor_time = payload["SORTime"]/1000000000
         #print("SOR: {0} ".format(sor_time))
 
         try:
             obj = cfolder_eor.findObject(runlb,coolchannel)
             payload = obj.payload()
-            eor_time = payload["EORTime"]/1E9
+            eor_time = payload["EORTime"]/1000000000
             #print("End of Run reached, run is stopped! EOR: {0}".format(eor_time))
         except Exception,e:
             eor_time = cool.ValidityKeyMax
@@ -392,7 +392,14 @@ class TrigHltRates(object):
         try:
             db=dbSvc.openDatabase(dbconnect,readonly)
             ratefolder=db.getFolder(rate_foldername)
-            rateobjs = ratefolder.browseObjects(int(iov_start), int(iov_end),cool.ChannelSelection(int(coolchannel)),self.__ratetag)
+
+            # 341649 is the last physics run of 2017
+            # Starting 2018, the iov of rate folder is in ns instead of s.
+            if runno > 341649:
+                iov_start = iov_start*1000000000
+                iov_end = iov_end*1000000000
+
+            rateobjs = ratefolder.browseObjects(long(iov_start), long(iov_end),cool.ChannelSelection(int(coolchannel)),self.__ratetag)
         except Exception,e:
             msg.error("Can't open DB or get folders, Exception: {0}".format(e))
             raise CantAccessDB
@@ -407,7 +414,13 @@ class TrigHltRates(object):
 
             ratedataexist = 1
 
+            # 341649 is the last physics run of 2017
+            # Starting 2018, the iov of rate folder is in ns instead of s.
+            if runno > 341649:
+                since = since /1000000000
+                until = until /1000000000
             iov = (since,until)
+            # print ("since,until = {},{}".format(since,until))
 
             payload = obj.payload()
             data = payload["rates"]

@@ -881,10 +881,6 @@ class TopConfig final {
   inline virtual void setNominalAvailable(const bool s){m_isNominalAvailable = s;}
   inline bool isNominalAvailable() const { return m_isNominalAvailable;}
 
-  //Setter and getter for event weight names
-  inline void setLHE3Names(const std::vector<std::string> s){m_names_LHE3 = s;}
-  inline std::vector<std::string> getLHE3Names() const { return m_names_LHE3;}
-    
   // Function to set the options for global trigger tool
   void setGlobalTriggerConfiguration(std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>);
   inline bool useGlobalTrigger() const { return m_trigGlobalConfiguration.isActivated; } // Was this requested by the user
@@ -1498,9 +1494,6 @@ class TopConfig final {
   
   // Switch to use event-level jet cleaning tool for testing
   bool m_useEventLevelJetCleaningTool;
-
-  //Vector to keep track of event weight names
-  std::vector<std::string> m_names_LHE3;
 
 
 };

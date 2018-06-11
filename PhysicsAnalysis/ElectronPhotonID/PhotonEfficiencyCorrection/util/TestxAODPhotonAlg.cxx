@@ -89,7 +89,11 @@ int main( int argc, char* argv[] ) {
    //  photonSF_Iso.msg().setLevel( MSG::DEBUG );
    //  photonSF_Trig.msg().setLevel( MSG::DEBUG );
 
-
+   // Set map file !!! THIS IS OBSOLETE, NO NEED TO SETUP MANUALLY, DEFINED IN AsgPhotonEfficiencyCorrectionTool.cxx L62 !!!
+   //CHECK(photonSF_ID.setProperty("MapFilePath","PhotonEfficiencyCorrection/map2.txt"));
+   //CHECK(photonSF_Iso.setProperty("MapFilePath","PhotonEfficiencyCorrection/map2.txt"));
+   //CHECK(photonSF_Trig.setProperty("MapFilePath","PhotonEfficiencyCorrection/map2.txt"));
+   
    //Set Properties for photonID_SF tool
    CHECK(photonSF_ID.setProperty("ForceDataType",1));
 

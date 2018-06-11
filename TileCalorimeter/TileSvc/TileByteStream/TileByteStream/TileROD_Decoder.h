@@ -209,12 +209,12 @@ class TileROD_Decoder: public AthAlgTool {
 
     /** unpack_frag0 decodes tile subfragment type 0x0. This subfragment contains the
      tile raw digits from the 48 read-out channels of a tilecal module. */
-    void unpack_frag0(uint32_t version, const uint32_t* p, pDigiVec & pDigits) const;
+    void unpack_frag0(uint32_t version, const uint32_t* p, pDigiVec & pDigits);
 
     /** unpack_frag1 decodes tile subfragment type 0x1. This subfragment contains the
      tile raw digits ONLY from the existing channels of a tilecal module. <p>
      (not implemented yet). */
-    void unpack_frag1(uint32_t version, const uint32_t* p, pDigiVec & pDigits) const;
+    void unpack_frag1(uint32_t version, const uint32_t* p, pDigiVec & pDigits);
 
     /** unpack_frag2 decodes tile subfragment type 0x2. This subfragment contains the
      reconstructed amplitude and phase from the tilecal digitized pulse and a
@@ -223,7 +223,7 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x2 contains the reconstructed parameters from the
      48 read-out channels of a tilecal module. */
-    void unpack_frag2(uint32_t version, const uint32_t* p, pRwChVec & pChannel) const;
+    void unpack_frag2(uint32_t version, const uint32_t* p, pRwChVec & pChannel);
 
     /** unpack_frag3 decodes tile subfragment type 0x3. This subfragment contains the
      reconstructed amplitude and phase from the tilecal digitized pulse and a
@@ -232,7 +232,7 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x3 contains the reconstructed parameters ONLY
      from the existing channels of a tilecal module. */
-    void unpack_frag3(uint32_t version, const uint32_t* p, pRwChVec & pChannel) const;
+    void unpack_frag3(uint32_t version, const uint32_t* p, pRwChVec & pChannel);
 
     /** unpack_frag4 decodes tile subfragment type 0x4. This subfragment contains the
      reconstructed amplitude and phase from the tilecal digitized pulse and a
@@ -245,7 +245,7 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x4 contains the reconstructed parameters from the
      48 read-out channels of a tilecal module. */
-    void unpack_frag4(uint32_t version, const uint32_t* p, pRwChVec & pChannel) const;
+    void unpack_frag4(uint32_t version, const uint32_t* p, pRwChVec & pChannel);
 
     /** unpack_frag5 decodes tile subfragment type 0x4. This subfragment contains the
      reconstructed amplitude and phase from the tilecal digitized pulse and a
@@ -262,7 +262,7 @@ class TileROD_Decoder: public AthAlgTool {
 
     /** unpack_frag6 decodes tile subfragment type 0x6. This subfragment contains the
      tile raw digits with 16 samples and 2 gains from the 48 read-out channels of a tilecal module. */
-    void unpack_frag6(uint32_t version, const uint32_t* p, pDigiVec & pDigits) const;
+    void unpack_frag6(uint32_t version, const uint32_t* p, pDigiVec & pDigits);
 
     /** unpack_frag3HLT decodes tile subfragment type 0x3 for the high level trigger (HLT).
      This subfragment contains the
@@ -272,7 +272,7 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x3 contains the reconstructed parameters ONLY
      from the existing channels of a tilecal module. */
-    void unpack_frag3HLT(uint32_t version, const uint32_t* p, pFRwChVec & pChannel) const;
+    void unpack_frag3HLT(uint32_t version, const uint32_t* p, pFRwChVec & pChannel);
 
     /** unpack_frag2HLT decodes tile subfragment type 0x2 for the high level trigger (HLT).
      This subfragment contains the
@@ -282,7 +282,7 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x2 contains the reconstructed parameters from the
      48 read-out channels of a tilecal module. */
-    void unpack_frag2HLT(uint32_t version, const uint32_t* p, pFRwChVec & pChannel) const;
+    void unpack_frag2HLT(uint32_t version, const uint32_t* p, pFRwChVec & pChannel);
 
     /** unpack_frag4HLT decodes tile subfragment type 0x4 for the high level trigger (HLT).
      This subfragment contains the
@@ -296,7 +296,7 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x4 contains the reconstructed parameters from the
      48 read-out channels of a tilecal module. */
-    void unpack_frag4HLT(uint32_t version, const uint32_t* p, pFRwChVec & pChannel) const;
+    void unpack_frag4HLT(uint32_t version, const uint32_t* p, pFRwChVec & pChannel);
 
     /** unpack_frag5HLT decodes tile subfragment type 0x5 for the high level trigger (HLT).
      This subfragment contains the
@@ -309,7 +309,7 @@ class TileROD_Decoder: public AthAlgTool {
      The phase is encoded in ns. <p>
      The subfragment type 0x5 contains the reconstructed parameters and residuals from the
      48 read-out channels of a tilecal module. */
-    void unpack_frag5HLT(uint32_t version, const uint32_t* p, pFRwChVec & pChannel) const;
+    void unpack_frag5HLT(uint32_t version, const uint32_t* p, pFRwChVec & pChannel);
 
     /** unpack_fragA decodes tile subfragment type 0XA. This subfragment contains
      data quality checks. */
@@ -547,6 +547,16 @@ class TileROD_Decoder: public AthAlgTool {
           ATH_MSG_WARNING("ROB " << MSG::hex << rob->source_id()
               << " ROD " << rob->rod_source_id() << MSG::dec
               << " has unexpected data size: " << size << " - assuming zero size " );
+        }
+        return 0;
+      } else if (rob->rod_header_size_word() >= rob->rod_fragment_size_word()) {
+        if (rob->rod_source_id() > 0x50ffff) m_error |= 0x10000; // indicate error in frag size, but ignore error in laser ROD
+        if (m_WarningCounter < (m_maxWarningPrint--)) {
+          ATH_MSG_WARNING("ROB " << MSG::hex << rob->source_id()
+              << " ROD " << rob->rod_source_id() << MSG::dec
+              << " has unexpected header size: " << rob->rod_header_size_word()
+              << " bigger than full size " << rob->rod_fragment_size_word()
+              << " - assuming no data " );
         }
         return 0;
       } else if (size > max_allowed_size) {
@@ -868,12 +878,12 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
         }
       }
       if ((m_ErrorCounter++) < m_maxErrorPrint) {
-        msg(MSG::ERROR) << "Frag 0x" << MSG::hex << frag << MSG::dec
+        msg(MSG::WARNING) << "Frag 0x" << MSG::hex << frag << MSG::dec
                         << " has unexpected size: " << count;
         if (wc < size) {
-          msg(MSG::ERROR) << "  skipping " << cnt << " words to the next frag" << endmsg;
+          msg(MSG::WARNING) << "  skipping " << cnt << " words to the next frag" << endmsg;
         } else {
-          msg(MSG::ERROR) << " ignoring " << cnt << " words till the end of ROD frag" << endmsg;
+          msg(MSG::WARNING) << " ignoring " << cnt << " words till the end of ROD frag" << endmsg;
         }
       }
       continue;
@@ -895,7 +905,7 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
   if (wc != size) {
     // check word count
     if ((m_ErrorCounter++) < m_maxErrorPrint) {
-      ATH_MSG_ERROR( "Incorrect ROD size: " << wc << " words instead of " << size );
+      ATH_MSG_WARNING( "Incorrect ROD size: " << wc << " words instead of " << size );
     }
     assert(0);
     // return;
@@ -1026,7 +1036,7 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
 
         default:
           int frag = idAndType & 0xFFFF;
-          ATH_MSG_ERROR( "Unknown frag type=" << type << " for frag=" << frag );
+          ATH_MSG_WARNING( "Unknown frag type=" << type << " for frag=" << frag );
           assert(0);
           break;
       }

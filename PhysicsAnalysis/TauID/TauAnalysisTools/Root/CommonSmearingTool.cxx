@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework include(s):
@@ -456,7 +456,7 @@ void CommonSmearingTool::ReadInputs(TFile* fFile, std::map<std::string, T>* mMap
     std::string sKeyName = kKey->GetName();
     if (sKeyName == "Xaxis")
     {
-      TNamed* tObj = (T)kKey->ReadObj();
+      TNamed* tObj = (TNamed*)kKey->ReadObj();
       std::string sTitle = tObj->GetTitle();
       delete tObj;
       if (sTitle == "P")
@@ -467,7 +467,7 @@ void CommonSmearingTool::ReadInputs(TFile* fFile, std::map<std::string, T>* mMap
     }
     if (sKeyName == "Yaxis")
     {
-      TNamed* tObj = (T)kKey->ReadObj();
+      TNamed* tObj = (TNamed*)kKey->ReadObj();
       std::string sTitle = tObj->GetTitle();
       delete tObj;
       if (sTitle == "track-eta")
@@ -551,7 +551,7 @@ CP::CorrectionCode CommonSmearingTool::getValue(const std::string& sHistName,
     const xAOD::TauJet& xTau,
     double& dEfficiencyScaleFactor) const
 {
-  TH1F* hHist = (*m_mSF)[sHistName];
+  TH1* hHist = (*m_mSF)[sHistName];
   if (!hHist)
   {
     ATH_MSG_ERROR("Histogram with name "<<sHistName<<" was not found in input file.");

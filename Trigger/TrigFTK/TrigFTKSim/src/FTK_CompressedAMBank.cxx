@@ -12,15 +12,18 @@
 #include <stdlib.h>
 #include <fstream>
 #include <iomanip>
-#include <TFile.h>
+//#include <TFile.h>
 #include <TTree.h>
 #include <TLeaf.h>
 #include <TString.h>
 #include <TString.h>
 #include <TRegexp.h>
 
+
+#ifdef SEARCH_MEMORY_LEAK
 #include <sys/time.h>
 #include <sys/resource.h>
+
 static void printVmemUsage(char const *text) {
    struct rusage usage;
    getrusage(RUSAGE_SELF,&usage);
@@ -28,6 +31,9 @@ static void printVmemUsage(char const *text) {
             <<" "<<usage.ru_maxrss/1024./1024.<<"G"
       <<"\n";
 }
+#endif
+
+#define CONSISTENCY_CHECK
 
 /*
   class FTK_CompressedAMBank
@@ -56,8 +62,8 @@ static void printVmemUsage(char const *text) {
 
 int const FTK_CompressedAMBank::MAX_NROAD=300000;
 
-int const FTK_CompressedAMBank::k_WILDCARDid=-1;
-int const FTK_CompressedAMBank::k_INVALIDid=-2;
+int const FTK_CompressedAMBank::s_WILDCARDid=-1;
+int const FTK_CompressedAMBank::s_INVALIDid=-2;
 
 #ifdef DEBUG_EVENT
 static int g_event=0;
@@ -503,7 +509,7 @@ int FTK_CompressedAMBank::writePCachedBankFile
       // loop over all patterns in the sector
       sectorID=sector;
       for(int ipattern=firstPattern;ipattern<=lastPattern;ipattern++) {
-         // skip over reserved patterns
+         // skip over reserved patterns (HW compatibility)
          if(isReservedPatternId(ipattern)) continue;
          // write special pattern if required
          while(patternID<ipattern) {
@@ -512,7 +518,7 @@ int FTK_CompressedAMBank::writePCachedBankFile
                curpatt->setPatternID(patternID);
                curpatt->setPatternDBID(patternID);
                for (int ipl=getNPlanes()-1;ipl>=0;--ipl) {
-                  curpatt->setSSID(ipl,k_WILDCARDid);
+                  curpatt->setSSID(ipl,s_WILDCARDid);
                }
                curpatt->setSectorID(sector);
                curpatt->setDCMask(0);
@@ -523,7 +529,7 @@ int FTK_CompressedAMBank::writePCachedBankFile
                coverage=0;
                nTSP=0;
                for (int ipl=getNPlanes()-1;ipl>=0;--ipl) {
-                  ssid[ipl]=k_WILDCARDid;
+                  ssid[ipl]=s_WILDCARDid;
                }
             }
             amtree->Fill();
@@ -701,7 +707,7 @@ std::pair<int,int> const &FTK_CompressedAMBank::getDCssid
    MAP<int,std::pair<int,int> >::const_iterator
       i=m_TSPtoDC[layer].find(tspSSID);
    if(i==m_TSPtoDC[layer].end()) {
-      insertSSID(layer,sector,tspSSID,k_WILDCARDid);
+      insertSSID(layer,sector,tspSSID,s_WILDCARDid);
       i=m_TSPtoDC[layer].find(tspSSID);
    }   
    return (*i).second;
@@ -712,7 +718,7 @@ int FTK_CompressedAMBank::getDCssidConst
    MAP<int,std::pair<int,int> >::const_iterator
       i=m_TSPtoDC[layer].find(tspSSID);
    if(i==m_TSPtoDC[layer].end()) {
-      return k_INVALIDid;
+      return s_INVALIDid;
    }
    return (*i).second.first;
 }
@@ -728,7 +734,7 @@ std::vector<int> const &FTK_CompressedAMBank::getTSPssidVector
    MAP<int,std::vector<int> >::const_iterator
       i=m_DCtoTSP[layer].find(dcSSID);
    if(i==m_DCtoTSP[layer].end()) {
-      insertSSID(layer,sector,k_WILDCARDid,dcSSID);
+      insertSSID(layer,sector,s_WILDCARDid,dcSSID);
       i=m_DCtoTSP[layer].find(dcSSID);
    }   
    return (*i).second;
@@ -1063,29 +1069,29 @@ void FTK_CompressedAMBank::insertSSID
       m_TSPmap = new TSPMap(getSSMap(),getSSMapTSP()); // TSPLevel
    }
    // here:
-   //  (a) (tspSSID==k_INVALIDid)||(dcSSID0==k_INVALIDid)
+   //  (a) (tspSSID==s_INVALIDid)||(dcSSID0==k_INVALIDid)
    //   -> lookup requested for a bad module, no wildcard
-   //  (b) (tspSSID==k_WILDCARDid)&&(dcSSID0==k_WILDCARDid)
+   //  (b) (tspSSID==s_WILDCARDid)&&(dcSSID0==s_WILDCARDid)
    //   -> lookup requested for a bad module, with wildcard
    //  (c) normal lookup, either tspSSID or dcSSID0 are valid
 
    // if there is no dcSSID, convert TSP to DC
    int dcSSID=dcSSID0;
-   // if TSP is valid, conver to DC
-   if(tspSSID!=k_WILDCARDid) {
+   // if TSP is valid, convert to DC
+   if(tspSSID!=s_WILDCARDid) {
       // (a) or (c)
-      if(tspSSID!=k_INVALIDid) {
+      if(tspSSID!=s_INVALIDid) {
          dcSSID=getDCssidSlow(layer,sector,tspSSID,0);
       } else {
-         dcSSID=k_INVALIDid;
+         dcSSID=s_INVALIDid;
       }
    }
    // at this point:
-   //  (a1) tspSSID==k_INVALIDid  && dcSSID==k_INVALIDid
-   //  (a2) tspSSID==k_WILDCARDid  && dcSSID==k_INVALIDid
-   //  (b)  tspSSID==k_WILDCARDid && dcSSID==k_WILDCARDid
+   //  (a1) tspSSID==s_INVALIDid  && dcSSID==k_INVALIDid
+   //  (a2) tspSSID==s_WILDCARDid  && dcSSID==s_INVALIDid
+   //  (b)  tspSSID==s_WILDCARDid && dcSSID==s_WILDCARDid
    //  (c1) tspSSID=={valid} && dcSSID={valid}
-   //  (c2) tspSSID==k_WILDCARDid && dcSSID={valid}
+   //  (c2) tspSSID==s_WILDCARDid && dcSSID={valid}
 
    // create vector to hold all TSP for the given DC
    int nPos=1;
@@ -1097,13 +1103,13 @@ void FTK_CompressedAMBank::insertSSID
    // loop over all subSS indexes, get TSP from DC 
    bool match=false;
    for(int iTSP=0;iTSP<nPos;iTSP++) {
-      if((dcSSID!=k_INVALIDid)&&(dcSSID!=k_WILDCARDid)) {
+      if((dcSSID!=s_INVALIDid)&&(dcSSID!=s_WILDCARDid)) {
          // (c1) or (c2)
          tsp[iTSP]=getTSPssidSlow(layer,sector,dcSSID,iTSP);
       } else {
          // (a1) or (a2) or (b)
          // copy DC-id which is set properly,
-         //  either k_INVALIDid or k_WILDCARDid
+         //  either s_INVALIDid or s_WILDCARDid
          tsp[iTSP]=dcSSID;
       }
       if(tsp[iTSP]==tspSSID) match=true;
@@ -1112,7 +1118,7 @@ void FTK_CompressedAMBank::insertSSID
          (std::make_pair(tsp[iTSP],std::make_pair(dcSSID,iTSP)));
    }
    int moduleID=-1;
-   if((tspSSID!=k_WILDCARDid)&&(tspSSID!=k_INVALIDid)) {
+   if((tspSSID!=s_WILDCARDid)&&(tspSSID!=s_INVALIDid)) {
       int dcSSID1=getDCssidSlow(layer,sector,tspSSID,&moduleID);
       if((!match)||(dcSSID1!=dcSSID)) {
          std::ostream &fatal=Fatal("insertSSID");
@@ -1334,8 +1340,8 @@ int FTK_CompressedAMBank::readPCachedBank(TDirectory *inputDir,int nlamb) {
                Debug("readPCachedBank")
                   <<iPattern<<" sector="<<pattern->getSectorID()<<"\n";
             // NOTE: pos is a reference, so increasing pos (below)
-            //   automatically selects teh proper position for reading
-            //   the next pattren in this sector
+            //   automatically selects the proper position for reading
+            //   the next pattern in this sector
             int &pos=sectorPointer[pattern->getSectorID()].second;
             for(int i=0;i<nLayer;i++) {
                // SSID layer 0..N-1
@@ -1359,6 +1365,14 @@ int FTK_CompressedAMBank::readPCachedBank(TDirectory *inputDir,int nlamb) {
    readBankPostprocessing("readPCachedBank");
    return error;
 }
+
+//
+// importDCpatterns()
+//   nLayer: number of planes
+//   offsetSSID: number of int per pattern
+//   ssidData: pattern data
+//   sectorPointer: first,last index of a sector in ssidData
+//   nlamb: number of LAMB boards for grouping sectors
 
 void FTK_CompressedAMBank::importDCpatterns
 (int nLayer,int offsetSSID,int32_t *ssidData,
@@ -1409,19 +1423,22 @@ void FTK_CompressedAMBank::importDCpatterns
       }
    }
    uint32_t ipattSector=0;
+   // set number of layers
    m_bank.m_PatternByLayer.resize(nLayer);
    for(int iLayer=0;iLayer<nLayer;iLayer++) {
+      // resize to the maximum sector ID
       m_bank.m_PatternByLayer[iLayer].
          m_CompressedDeltaBySector.resize(sectorPointer.size());
    }
-   // subregion loop
+   // subregion (LAMB) loop
    if(nlamb<=0) nlamb=1;
    for(int ilamb=0;ilamb<nlamb;ilamb++) {
       //
       // sector loop
       unsigned max_sectorByNlamb=(sectorPointer.size()-1)/nlamb;
       unsigned top_sectorByNlamb=0;
-      while(top_sectorByNlamb+1 <= max_sectorByNlamb) top_sectorByNlamb=(top_sectorByNlamb+1)*2-1;
+      while(top_sectorByNlamb+1 <= max_sectorByNlamb)
+         top_sectorByNlamb=(top_sectorByNlamb+1)*2-1;
       // here: top_sectorByLamb has all bits set to one and is larger or equal the largest sector/nlamb
       unsigned leadingBitMask=(top_sectorByNlamb>>1)+1;
       unsigned sectorByLamb=0;
@@ -1461,7 +1478,7 @@ void FTK_CompressedAMBank::importDCpatterns
 #endif
          // 
          // loop two times over all patterns in this sector
-         //  first look: count patterns
+         //  first loop: count patterns
          //  second loop: allocate memory and store patterns
          uint32_t ipatt;
          //
@@ -1507,6 +1524,7 @@ void FTK_CompressedAMBank::importDCpatterns
             // loop over all patterns in this sector
             for(int iPattern=0;iPattern<nPattern;iPattern++) {
                // reserve special pattern IDs as required by hardware
+               // in the compressed bank, these IDs are simply not used
                if(isReservedPatternId(ipatt)) {
                   /* std::cout<<"Skipping reserved pattern "
                      <<std::setbase(16)<<ipatt<<std::setbase(10)<<"\n"; */
@@ -1516,8 +1534,8 @@ void FTK_CompressedAMBank::importDCpatterns
                // skip pattern if all IDs are invalid
                size_t invalid=0;
                for(unsigned iLayer=0;iLayer<compressionHelper.size();iLayer++) {
-                  if((patternData[iLayer]==k_WILDCARDid)||
-                     (patternData[iLayer]==k_INVALIDid)) invalid++;
+                  if((patternData[iLayer]==s_WILDCARDid)||
+                     (patternData[iLayer]==s_INVALIDid)) invalid++;
                }
                if(invalid==compressionHelper.size()) continue;
 
@@ -1555,7 +1573,7 @@ void FTK_CompressedAMBank::importDCpatterns
                   int ssid=patternData[iLayer];
                   // loop over subSS indexes within dcSSID
                   int numTSP=tspIndexes.size();
-                  if((ssid==k_WILDCARDid)||(ssid==k_INVALIDid)) {
+                  if((ssid==s_WILDCARDid)||(ssid==s_INVALIDid)) {
                      // wildcard/invalid pattern has no DC bits
                      // -> only one TSP pattern
                      numTSP=1;
@@ -1646,20 +1664,26 @@ void FTK_CompressedAMBank::importDCpatterns
                   }
                }
                ipatt++;
-            }
+            } // end loop over nPattern
             if(iLoop) {
                // extract auxillary information (coverage and #TSP patterns)
                if(offsetSSID>=nLayer+4) {
                   m_bank.m_numTSP.resize(ipatt);
                   m_bank.m_coverage.resize(ipatt);
-                  for(size_t iPattern=0;iPattern<ipatt-ipattSector;iPattern++) {
+                  ipatt=ipattSector;
+                  for(int iPattern=0;iPattern<nPattern;iPattern++) {
+                     if(isReservedPatternId(ipatt)) {
+                        // skip over reserved IDs
+                        ipatt++;
+                     }
                      int const *patternData=
                         patternDataSector+iPattern*offsetSSID;
                      // Auxillary information for this pattern
-                      m_bank.m_numTSP[ipattSector+iPattern]=
+                      m_bank.m_numTSP[ipatt]=
                          patternData[nLayer+2];
-                      m_bank.m_coverage[ipattSector+iPattern]=
+                      m_bank.m_coverage[ipatt]=
                          patternData[nLayer+3];
+                      ipatt++;
                   }
                }
             }
@@ -1670,8 +1694,8 @@ void FTK_CompressedAMBank::importDCpatterns
             Debug("importDCpatterns")
                <<"sector "<<sector<<" nPatt="<<ipatt<<"\n";
          }
-      }
-   }
+      } // end loop over sectors
+   } // end loop over subregions
 }
 
 void FTK_CompressedAMBank::erase(void) {
@@ -2144,6 +2168,98 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
       <<" total="<<(memorySSIDlookup+memoryPatternIDlookup)/
       (double)(m_npatterns*getNPlanes())<<"\n";
 
+
+   int error=0;
+
+#ifdef CONSISTENCY_CHECK
+   // corruption test of SSIDs
+   // loop over all planes and SSIDS
+   // check whether the SSID correponds to a valid module number
+   int nPrint=100;
+   for(unsigned iPlane=0;iPlane<dcSSIDBySectorLayer.size();iPlane++) {
+      PatternBySectorSSidMap_t const &planeData=
+         m_bank.m_PatternByLayer[iPlane].m_SSidData;
+      for(PatternBySectorSSidMap_t::const_iterator
+             iSSid=planeData.begin();iSSid!=planeData.end();++iSSid) {
+         if(((*iSSid).first!=s_WILDCARDid)&&((*iSSid).first!=s_INVALIDid)) {
+            int moduleId=-1;
+            getDCssidSlow(iPlane,
+                          (*(*iSSid).second.begin()).first,
+                          (*iSSid).first,&moduleId);
+            int hash=-1;
+            if(moduleId>=0) {
+               if (getHWModeSS_tsp()==0) {
+                  hash=moduleId;
+               } else {
+                  hash=getSSMapTSP()->getRegionMap()
+                     ->getGlobalId(getBankID(),iPlane,moduleId);
+               }
+            }
+            if(hash<0) {
+               error++;
+               if(nPrint) {
+                  std::cout<<"invalid SSID="<<(*iSSid).first
+                           <<" (bad module ID) plane="<<iPlane<<"\n";
+                  nPrint--;
+               }
+            }
+         }
+      }
+   }
+   if(error) {
+      Fatal(where)<<"invalid SSIDs ("<<error<<")in pattern bank\n";
+   }
+
+   // corruption test of sector structures
+   // loop over all planes and all SSIDs
+   // construct table of module IDs for each sector
+   // verify that there is only one well-defined module per sector and plane
+   error=0;
+   for(unsigned iPlane=0;iPlane<dcSSIDBySectorLayer.size();iPlane++) {
+      VECTOR<std::set<int> > modulesBySector(maxSector);
+      PatternBySectorSSidMap_t const &planeData=
+         m_bank.m_PatternByLayer[iPlane].m_SSidData;
+      for(PatternBySectorSSidMap_t::const_iterator
+             iSSid=planeData.begin();iSSid!=planeData.end();++iSSid) {
+         for(PatternBySector_t::const_iterator
+                iSector=(*iSSid).second.begin();
+             iSector!=(*iSSid).second.end();++iSector) {
+            int moduleId=-1;
+            if(((*iSSid).first!=s_WILDCARDid)&&(*iSSid).first!=s_INVALIDid) {
+               getDCssidSlow(iPlane,(*iSector).first,(*iSSid).first,&moduleId);
+            }
+            modulesBySector[(*iSector).first].insert(moduleId);
+         }
+      }
+      std::map<int,int> multiplicity;
+      for(size_t sector=0;sector<modulesBySector.size();sector++) {
+         multiplicity[modulesBySector[sector].size()]++;
+      }
+      for(std::map<int,int>::const_iterator imult=multiplicity.begin();
+          imult!=multiplicity.end();imult++) {
+         if((*imult).first>1) {
+            error++;
+            std::cout<<"plane="<<iPlane<<" some sectors ("<<(*imult).second
+                     <<") have "<<(*imult).first<<" modules assigned (error)\n";
+         }
+      }
+      // print all bad sectors
+      for(size_t sector=0;sector<modulesBySector.size();sector++) {
+         if(modulesBySector[sector].size()>1) {
+            std::cout<<"bad plane="<<iPlane<<" sector="<<sector<<" [";
+            for(std::set<int>::const_iterator k=modulesBySector[sector].begin();
+                k!=modulesBySector[sector].end();k++) {
+               std::cout<<" "<<(*k);
+            }
+            std::cout<<"]\n";
+         }
+      }
+   }
+   if(error) {
+      Fatal(where)
+         <<"Multiple modules are assigned to a given plane and sector\n";
+   }
+#endif
    setupSectorWildcards();
 }
 
@@ -2153,8 +2269,8 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
    read wildcards from predefined sources
 */
 void FTK_CompressedAMBank::readWildcards(void) {
-   importBadModuleASCII(getBadSSMapPath(),k_WILDCARDid);
-   importBadModuleASCII(getBadSSMapPath2(),k_INVALIDid);
+   importBadModuleASCII(getBadSSMapPath(),s_WILDCARDid);
+   importBadModuleASCII(getBadSSMapPath2(),s_INVALIDid);
    invalidateSSIDtables();
 }
 
@@ -2163,10 +2279,10 @@ void FTK_CompressedAMBank::readWildcards(void) {
 
    read list of bad modules from an ACSII file
 
-   type==k_WILDCARDid
+   type==s_WILDCARDid
       try to apply wildcards for these modules
 
-   type==k_INVALIDid
+   type==s_INVALIDid
       do not apply wildcards, simply drop the modules
 
    modifies:
@@ -2228,23 +2344,23 @@ void FTK_CompressedAMBank::importBadModuleASCII
          // old type
          // can be:
          //   0 (adding a new module) 
-         //   k_WILDCARDid bad module already added and wildcard is requested
-         //   k_INVALIDid bad module already added and wildcard is forbidden
+         //   s_WILDCARDid bad module already added and wildcard is requested
+         //   s_INVALIDid bad module already added and wildcard is forbidden
          int &typePtr= m_badModules[tmpPlane][id];
          int oldId=typePtr;
          // if type is IGRNORE, it can not be changed
          // (assuming that the wildcard can not be set for good reasons)
-         if(oldId!=k_INVALIDid) {
+         if(oldId!=s_INVALIDid) {
             typePtr=type;
          }
          if(typePtr != oldId) {
             changed++;
-            if(typePtr==k_INVALIDid) {
+            if(typePtr==s_INVALIDid) {
                Info("importBadModuleASCII")
                   <<"bad module added (IGNORE) plane="<<tmpPlane
                   <<" tower="<<getBankID()
                   <<" id="<<id<<"\n";
-            } else if(typePtr==k_WILDCARDid) {
+            } else if(typePtr==s_WILDCARDid) {
                Info("importBadModuleASCII")
                   <<"bad module added (try WILDCARD) plane="<<tmpPlane
                   <<" tower="<<getBankID()
@@ -2328,7 +2444,7 @@ void FTK_CompressedAMBank::exportBadModuleTTree
 
    input:
      m_bank
-        the bank may contain SSIDs == k_WILDCARDid
+        the bank may contain SSIDs == s_WILDCARDid
         ->
      m_badModules
 
@@ -2364,31 +2480,33 @@ void FTK_CompressedAMBank::setupSectorWildcards(void) {
       //}
       PatternBySectorSSidMap_t const &planeData=
          m_bank.m_PatternByLayer[iPlane].m_SSidData;
-      for(PatternBySectorSSidMap_t::const_ptr iSSid=planeData.beginPtr();
-          iSSid!=planeData.endPtr();++iSSid) {
+      for(PatternBySectorSSidMap_t::const_iterator iSSid=planeData.begin();
+          iSSid!=planeData.end();++iSSid) {
          int mask=1;
          int moduleId=-1;
-         if((*iSSid).first==k_WILDCARDid) {
+         if((*iSSid).first==s_WILDCARDid) {
             // wildcard inside bank
             mask=2;
-         } else if((*iSSid).first==k_INVALIDid) {
+         } else if((*iSSid).first==s_INVALIDid) {
             // ignore inside bank
             mask=4;
          } else {
-            PatternBySector_t::const_ptr iSector=(*iSSid).second.beginPtr();
+            PatternBySector_t::const_iterator iSector=
+               (*iSSid).second.begin();
             getDCssidSlow(iPlane,(*iSector).first,(*iSSid).first,&moduleId);
             MAP<int,int>::const_iterator im=
                m_badModules[iPlane].find(moduleId);
             if(im!=m_badModules[iPlane].end()) {
-               if((*im).second==k_WILDCARDid) {
+               if((*im).second==s_WILDCARDid) {
                   mask=2;
-               } else if((*im).second==k_INVALIDid) {
+               } else if((*im).second==s_INVALIDid) {
                   mask=4;
                }
             }
          }
-         for(PatternBySector_t::const_ptr iSector=(*iSSid).second.beginPtr();
-             iSector!=(*iSSid).second.endPtr();++iSector) {
+         for(PatternBySector_t::const_iterator
+                iSector=(*iSSid).second.begin();
+             iSector!=(*iSSid).second.end();++iSector) {
             sectorFlag[(*iSector).first]|=mask;
             /*if((*iSector).first==1273) {
                std::cout<<" SSID="<<(*iSSid).first
@@ -2408,6 +2526,48 @@ void FTK_CompressedAMBank::setupSectorWildcards(void) {
                m_SectorWC[sector] |= 1<<iPlane;
             }
          } else {
+            bool firstPrint=true;
+            for(PatternBySectorSSidMap_t::const_iterator
+                   iSSid=planeData.begin();iSSid!=planeData.end();++iSSid) {
+               int moduleId=-1;
+               bool doPrint=false;
+               for(PatternBySector_t::const_iterator
+                      iSector=(*iSSid).second.begin();
+                   iSector!=(*iSSid).second.end();++iSector) {
+                  if((*iSector).first==sector) doPrint=true;
+               }
+               if(doPrint) {
+                  if(firstPrint) {
+                     for(size_t i=0;i<m_bank.m_PatternByLayer.size();i++) {
+                        std::cout<<"plane="<<i<<" nSSID="
+                                 <<m_bank.m_PatternByLayer[i].m_SSidData.size()
+                                 <<"\n";
+                     }
+                     firstPrint=false;
+                  }
+                  if(((*iSSid).first!=s_WILDCARDid)&&
+                     ((*iSSid).first!=s_INVALIDid)) {
+                     getDCssidSlow(iPlane,(*(*iSSid).second.begin()).first,(*iSSid).first,&moduleId);
+                  }
+                  int hash=-2;
+                  if(moduleId>=0) {
+                     hash=getSSMapTSP()->getRegionMap()
+                        ->getGlobalId(getBankID(),iPlane,moduleId);
+
+                  }
+                  std::cout<<" SSID="<<(*iSSid).first
+                           <<" plane="<<iPlane
+                           <<" module="<<moduleId
+                           <<" hash="<<hash
+                           <<" [";
+                  for(PatternBySector_t::const_iterator
+                         iSector=(*iSSid).second.begin();
+                      iSector!=(*iSSid).second.end();++iSector) {
+                     std::cout<<" "<<(*iSector).first;
+                  }
+                  std::cout<<"]\n";
+               }
+            }
             Error("setupSectorWildcards")
                <<"inconsistent wildcards sector="<<sector
                <<" plane="<<iPlane<<" type="<<type<<"\n";
@@ -3023,6 +3183,7 @@ void FTK_CompressedAMBank::insertPatterns
        itsp!=tspList->End();itsp++) {
       // original pattern in TSP space
       FTKHitPattern const &tsp(tspList->GetHitPattern(itsp));
+      // this stores the coverage plus 2^32*number of TSP patterns
       uint64_t covCtr=tspList->GetCoverage(itsp) + 0x100000000LL;
       // this variables stores DC/HB bits of all layers
       uint64_t dchb0=0;
@@ -3040,11 +3201,11 @@ void FTK_CompressedAMBank::insertPatterns
                   <<"\n"; */
          dc.SetHit(ilayer,dcSSID.first);
          uint64_t dchbLayer;
-         if(dcSSID.first==k_WILDCARDid) {
+         if(dcSSID.first==s_WILDCARDid) {
             badModules|=(1<<ilayer);
             wildcardRequest|=(1<<ilayer);
             dchbLayer=m_dcBitsLookup1[ilayer][0]; // fixed coordinate
-         } else if(dcSSID.first==k_INVALIDid) {
+         } else if(dcSSID.first==s_INVALIDid) {
             badModules|=(1<<ilayer);
             dchbLayer=m_dcBitsLookup1[ilayer][0]; // fixed coordinate
          } else {
@@ -3060,7 +3221,7 @@ void FTK_CompressedAMBank::insertPatterns
          for(int ilayer=nLayer-1;ilayer>=0;ilayer--) {
             if(m_nHit16[wildcardRequest]<=1) break;
             wildcardRequest &= ~ (1<<ilayer);
-            dc.SetHit(ilayer,k_INVALIDid);
+            dc.SetHit(ilayer,s_INVALIDid);
          }
       }
 
@@ -3094,7 +3255,7 @@ void FTK_CompressedAMBank::insertPatterns
          bool accept=true;
          int nDCbits=0;
          for(unsigned ilayer=0;ilayer<nLayer;ilayer++) {
-            if(dc.GetHit(ilayer)==k_WILDCARDid) {
+            if(dc.GetHit(ilayer)==s_WILDCARDid) {
                nDClayer[ilayer]+=m_wildcardPenalty;
                if(ilayer<m_wildcardPenaltyPlane.size()) {
                   nDClayer[ilayer]+=m_wildcardPenaltyPlane[ilayer];
@@ -3121,6 +3282,7 @@ void FTK_CompressedAMBank::insertPatterns
             } */
          if(accept) {
             // store this pattern with the existing DC pattern
+            // by setting more bits to the ternary state X
             if(0 && badModules) {
                std::cout<<"Merging pattern: ";
                for(size_t iLayer=0;iLayer<nLayer;iLayer++) {
@@ -3185,6 +3347,7 @@ int FTK_CompressedAMBank::readSectorOrderedBank(const char *name, int maxpatts,
       std::set<int> subregion;
       FTKPatternBySectorReader *TSPreader=
          FTKPatternBySectorReader::Factory(*TSPfile);
+      TSPreader->CheckConsistency(getSSMapTSP(),getBankID(),getHWModeSS_tsp());
       for(int sector=TSPreader->GetFirstSector();sector>=0;
           sector=TSPreader->GetNextSector(sector)) {
          if((nSub>1)&&(sector%nSub!=getSubID())) continue;
@@ -3398,6 +3561,7 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
             Fatal("readSectorOrderedBank")
                <<"number of layers (reader) "<<TSPreader->GetNLayers()<<"\n";
          }
+         TSPreader->CheckConsistency(getSSMapTSP(),getBankID(),getHWModeSS_tsp());
          if(!nLayer) {
             setNPlanes(TSPreader->GetNLayers());
             nLayer=TSPreader->GetNLayers();
@@ -3410,13 +3574,19 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
          // the coverage map holds for each coverage the number of patterns
          // it is used in order to estimate down to which coverage the patterns
          // can be read
+#ifdef SEARCH_MEMORY_LEAK
          printVmemUsage("before GetNPatternsByCoverage");
+#endif
          std::map<int,int> coverageMap;
          TSPreader->GetNPatternsByCoverage(coverageMap);
+#ifdef SEARCH_MEMORY_LEAK
          printVmemUsage("after GetNPatternsByCoverage");
+#endif
          std::map<int,int>::const_reverse_iterator i=coverageMap.rbegin();
          TSPreader->Rewind();
+#ifdef SEARCH_MEMORY_LEAK
          printVmemUsage("after Rewind");
+#endif
          // print bank statistics
          // determine total number of patterns , patterns*coverage, <coverage>
          uint32_t totalPatterns=0;
@@ -3518,17 +3688,22 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
       VECTOR<std::pair<int,int> > sectorPointer(dcPatterns.size());
       int numPattern=0;
       for(unsigned sector=0;sector<sectorPointer.size();sector++) {
+         // initialize start pointer per sector
+         // and end=start
          sectorPointer[sector]=std::make_pair(pos,pos);
+         // start position of next sector
          pos += dcPatterns[sector].size()*offsetSSID;
          numPattern+=dcPatterns[sector].size();
       }
       int32_t *ssidData=new int32_t[pos];
       for(unsigned sector=0;sector<dcPatterns.size();sector++) {
          HitPatternMap_t const &hitMap=dcPatterns[sector];
+         // pos is a reference, so increasing pos below increases
+         //  the end position in the sectorPointer array
          int &pos=sectorPointer[sector].second;
          for(HitPatternMap_t::const_iterator iPattern=hitMap.begin();
              iPattern!=hitMap.end();iPattern++) {
-            // dchb conttains the encoded DC and HB bits
+            // dchb contains the encoded DC and HB bits
             //   DCHB7 | DCHB6 ... DCHB1 | DCHB0
             uint64_t dchb=(*iPattern).second.first;
             int dcMask=0,hbMask=0;
@@ -3663,8 +3838,8 @@ void FTK_CompressedAMBank::sort_hits
             }
             coded_ssid=getDCssidConst(iplane,tsp_ssid);
             // check whether the hit should be skipped (bad module)
-            if((coded_ssid==k_INVALIDid)||
-               (coded_ssid==k_WILDCARDid)) continue;
+            if((coded_ssid==s_INVALIDid)||
+               (coded_ssid==s_WILDCARDid)) continue;
             if (getHWModeSS_dc()==0) {
                // SS calculated assuming a global SS id
                // large-size pattern ID in upper bits , fine resolution subpattern in lower bits

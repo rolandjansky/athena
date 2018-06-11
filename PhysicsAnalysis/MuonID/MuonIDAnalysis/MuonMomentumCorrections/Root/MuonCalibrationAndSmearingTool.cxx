@@ -36,7 +36,7 @@ namespace CP {
     declareProperty("Year", m_year = "Data16" );
     declareProperty("Algo", m_algo = "muons" );
     declareProperty("SmearingType", m_type = "q_pT" );
-    declareProperty("Release", m_release = "Recs2017_08_02" );
+    declareProperty("Release", m_release = "Recs2018_05_20" );
     declareProperty("ToroidOff", m_toroidOff = false );
     declareProperty("FilesPath", m_FilesPath = "" );
     declareProperty("StatComb", m_useStatComb = false);
@@ -161,7 +161,7 @@ namespace CP {
     declareProperty( "Year", m_year = "Data16" );
     declareProperty( "Algo", m_algo = "muons" );
     declareProperty( "SmearingType", m_type = "q_pT" );
-    declareProperty( "Release", m_release = "Recs2017_08_02" );
+    declareProperty( "Release", m_release = "Recs2018_05_20" );
     declareProperty( "ToroidOff", m_toroidOff = false );
     declareProperty( "FilesPath", m_FilesPath = "" );
 

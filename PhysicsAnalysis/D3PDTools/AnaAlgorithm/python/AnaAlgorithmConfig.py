@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # Import(s):
 import ROOT
@@ -27,6 +27,10 @@ class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
     (apart from syntax errors) is only discovered while initialising the
     analysis job.
     """
+
+    # Class/static variable(s):
+    printHeaderWidth = 80
+    printHeaderPre   = 3
 
     def __init__( self, typeAndName, **kwargs ):
         """Constructor for an algorithm configuration object
@@ -117,19 +121,136 @@ class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
         self._props[ key ] = value
         pass
 
-    def addPrivateTool (self, name, type) :
-        """create a private tool for the algorithm"""
-        super( AnaAlgorithmConfig,
-               self ).createPrivateTool( name, type ).ignore ()
-        self._props[name] = PrivateToolConfig (self, name, type)
+    def __eq__( self, other ):
+        """Check for equality with another object
+
+        The implementation of this is very simple. We only check that the type
+        and the name of the algorithms would match.
+        """
+
+        # First check that the other object is also an AnaAlgorithmConfig one:
+        if not isinstance( other, AnaAlgorithmConfig ):
+            return False
+
+        # Now check whether the type and the name of the algorithms agree:
+        return ( ( self.type() == other.type() ) and
+                 ( self.name() == other.name() ) )
+
+    def __ne__( self, other ):
+        """Check for an inequality with another object
+
+        This is just defined to make the '!=' operator of Python behave
+        consistently with the '==' operator for such objects.
+        """
+        return not self.__eq__( other )
+
+    def __str__( self ):
+        """Print the algorithm configuration in a user friendly way
+
+        This is just to help with debugging configurations, allowing
+        the user to get a nice printout of their job configuration.
+        """
+
+        name = ''
+        if self.isPublicTool():
+            name = 'Public Tool %s/%s' % ( self.type(), self.name() )
+        else:
+            name = 'Algorithm %s/%s' % ( self.type(), self.name() )
+            pass
+        result = AnaAlgorithmConfig._printHeader( name )
+        result += '\n'
+        for key, value in sorted( self._props.iteritems() ):
+            result += "|- %s: %s\n" % ( key, indentBy( value, "| " ) )
+            pass
+        result += AnaAlgorithmConfig._printFooter( name )
+        return result
+
+    def addPrivateTool( self, name, type ):
+        """Create a private tool for the algorithm
+
+        This function is used in 'standalone' mode to declare a private tool
+        for the algorithm, or a private tool for an already declared private
+        tool.
+
+        Can be used like:
+          config.addPrivateTool( 'tool1', 'ToolType1' )
+          config.addPrivateTool( 'tool1.tool2', 'ToolType2' )
+
+        Keyword arguments:
+          name -- The full name of the private tool
+          type -- The C++ type of the private tool
+        """
+
+        # First off, tell the C++ code what to do.
+        self.createPrivateTool( name, type ).ignore()
+
+        # And now set up the Python object that will take care of setting
+        # properties on this tool.
+
+        # Tokenize the tool's name. In case it is a subtool of a tool, or
+        # something possibly even deeper.
+        toolNames = name.split( '.' )
+
+        # Look up the component that we need to set up the private tool on.
+        component = self
+        for tname in toolNames[ 0 : -1 ]:
+            component = getattr( component, tname )
+            pass
+
+        # Check that the component doesn't have such a (tool) property yet.
+        if hasattr( component, toolNames[ -1 ] ):
+            raise RuntimeError( "Tool with name '%s' already exists" % name )
+            pass
+
+        # Now set up a smart object as a property on that component.
+        component._props[ toolNames[ -1 ] ] = PrivateToolConfig( self, name,
+                                                                 type )
         pass
+
+    @staticmethod
+    def _printHeader( title ):
+        """Produce a nice header when printing the configuration
+
+        This function is used for printing the header of both algorithms
+        and tools.
+
+        Keyword arguments:
+          indentString -- String used as indentation
+          title        -- The title of the algorithm/tool
+        """
+
+        preLength = AnaAlgorithmConfig.printHeaderPre
+        postLength = AnaAlgorithmConfig.printHeaderWidth - 3 - preLength - \
+            len( title )
+        return '/%s %s %s' % ( preLength * '*', title, postLength * '*' )
+
+    @staticmethod
+    def _printFooter( title ):
+        """Produce a nice footer when printing the configuration
+
+        This function is used for printing the footer of both algorithms
+        and tools.
+
+        Keyword arguments:
+          indentString -- String used as indentation
+          title        -- The title of the algorithm/tool
+        """
+
+        preLength = AnaAlgorithmConfig.printHeaderPre
+        postLength = AnaAlgorithmConfig.printHeaderWidth - 12 - preLength - \
+            len( title )
+        return '\\%s (End of %s) %s' % ( preLength * '-', title,
+                                         postLength * '-' )
 
     pass
 
 
-
 class PrivateToolConfig( object ):
     """Standalone Private Tool Configuration
+
+    This class is used to mimic the behaviour of Athena tool configurable
+    classes. To be able to set the properties of private tools used by
+    dual-use algorithms in a way that's valid for both Athena and EventLoop.
     """
 
     def __init__( self, algorithm, prefix, type ):
@@ -139,40 +260,40 @@ class PrivateToolConfig( object ):
         self._algorithm = algorithm
         self._prefix = prefix
         self._type = type
+        self._props = {}
 
         pass
 
     def __getattr__( self, name ):
         """Get a previously set property value from the configuration
 
-        This function allows us to retrieve the value of a property that was
-        already set for the algorithm, to possibly use it in some configuration
-        decisions in the Python code itself.
+        This function allows us to retrieve the value of a tool property that
+        was already set for an algorithm's private tool, to possibly use it in
+        some configuration decisions in the Python code itself.
 
         Keyword arguments:
           name -- The name of the property
         """
 
-        fullName = self._prefix + "." + name
-
         # Fail if the property was not (yet) set:
-        if not fullName in self._algorithm._props:
-            raise AttributeError( 'Property \'%s\' was not set on \'%s/%s.%s\'' %
-                                  ( name, self._algorithm.type(), self._algorithm.name(), self._prefix) )
+        if not name in self._props:
+            raise AttributeError( 'Property "%s" was not set on "%s/%s.%s"' %
+                                  ( name, self._algorithm.type(),
+                                    self._algorithm.name(), self._prefix ) )
 
         # Return the property value:
-        return self._algorithm._props[ fullName ]
+        return self._props[ name ]
 
     def __setattr__( self, key, value ):
-        """Set an algorithm property on an existing configuration object
+        """Set a tool property on an existing configuration object
 
-        This function allows us to set/override properties on an algorithm
-        configuration object. Allowing for the following syntax:
+        This function allows us to set/override properties on a private tool
+        of an algorithm configuration object. Allowing for the following syntax:
 
            alg = ...
-           alg.IntProperty = 66
-           alg.FloatProperty = 3.141592
-           alg.StringProperty = "Foo"
+           alg.Tool.IntProperty = 66
+           alg.Tool.FloatProperty = 3.141592
+           alg.Tool.StringProperty = "Foo"
 
         Keyword arguments:
           key   -- The key/name of the property
@@ -183,13 +304,31 @@ class PrivateToolConfig( object ):
         if key[ 0 ] == '_':
             return super( PrivateToolConfig, self ).__setattr__( key, value )
 
+        # Construct the full name, used in the C++ code:
         fullName = self._prefix + "." + key
 
         # Set the property, and remember its value:
-        super( AnaAlgorithmConfig,
-               self._algorithm ).setPropertyFromString( fullName, stringPropValue( value ) )
-        self._algorithm._props[ fullName ] = value
+        self._algorithm.setPropertyFromString( fullName,
+                                               stringPropValue( value ) )
+        self._props[ key ] = value
         pass
+
+    def __str__( self ):
+        """Print the private tool configuration in a user friendly way
+
+        This is just to help with debugging configurations, allowing
+        the user to get a nice printout of their job configuration.
+        """
+
+        name = 'Private Tool %s/%s' % ( self._type, self._prefix )
+        result = ' \n'
+        result += AnaAlgorithmConfig._printHeader( name )
+        result += '\n'
+        for key, value in sorted( self._props.iteritems() ):
+            result += "|- %s: %s\n" % ( key, indentBy( value, "| " ) )
+            pass
+        result += AnaAlgorithmConfig._printFooter( name )
+        return result
 
     pass
 
@@ -202,6 +341,20 @@ def stringPropValue( value ):
         stringValue = str( int( value ) )
         pass
     return stringValue
+
+
+def indentBy( propValue, indent ):
+    """Helper function used in the configuration printout"""
+
+    stringValue = str( propValue )
+    result = ""
+    for stringLine in stringValue.split( '\n' ):
+        if len( result ):
+            result += "\n" + indent
+            pass
+        result += stringLine
+        pass
+    return result
 
 
 #
@@ -255,5 +408,51 @@ class TestAlgProperties( unittest.TestCase ):
     def test_nonexistentprop( self ):
         with self.assertRaises( AttributeError ):
             value = self.config.Prop3
+            pass
+        pass
+
+## Test case for using private tools
+class TestAlgPrivateTool( unittest.TestCase ):
+
+    ## Set up the main algorithm object to test
+    def setUp( self ):
+        self.config = AnaAlgorithmConfig( "AlgType/AlgName" )
+        pass
+
+    ## Test setting up and using one private tool
+    def test_privatetool( self ):
+        self.config.addPrivateTool( "Tool1", "ToolType1" )
+        self.config.Tool1.Prop1 = "Value1"
+        self.config.Tool1.Prop2 = [ 1, 2, 3 ]
+        self.assertEqual( self.config.Tool1.Prop1, "Value1" )
+        self.assertEqual( self.config.Tool1.Prop2, [ 1, 2, 3 ] )
+        pass
+
+    ## Test setting up and using a private tool of a private tool
+    def test_privatetoolofprivatetool( self ):
+        self.config.addPrivateTool( "Tool1", "ToolType1" )
+        self.config.addPrivateTool( "Tool1.Tool2", "ToolType2" )
+        self.config.Tool1.Tool2.Prop3 = "Foo"
+        self.config.Tool1.Tool2.Prop4 = [ "Bar" ]
+        self.assertEqual( self.config.Tool1.Tool2.Prop3, "Foo" )
+        self.assertEqual( self.config.Tool1.Tool2.Prop4, [ "Bar" ] )
+        pass
+
+    ## Test that unset properties on the tools can't be used
+    def test_nonexistentprop( self ):
+        self.config.addPrivateTool( "Tool1", "ToolType1" )
+        with self.assertRaises( AttributeError ):
+            value = self.config.Tool1.BadProp
+            pass
+        self.config.addPrivateTool( "Tool1.Tool2", "ToolType2" )
+        with self.assertRaises( AttributeError ):
+            value = self.config.Tool1.Tool2.BadProp
+            pass
+        pass
+
+    ## Test that private tools can't be set up on not-yet-declared tools
+    def test_nonexistenttool( self ):
+        with self.assertRaises( AttributeError ):
+            self.config.addPrivateTool( "BadTool.Tool4", "BadToolType" )
             pass
         pass

@@ -24,7 +24,7 @@ namespace CP
   MuonCalibrationAndSmearingAlg (const std::string& name, 
                      ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)
-    , m_calibrationAndSmearingTool ("MuonCalibrationAndSmearingTool", this)
+    , m_calibrationAndSmearingTool ("CP::MuonCalibrationAndSmearingTool", this)
   {
     declareProperty ("calibrationAndSmearingTool", m_calibrationAndSmearingTool, "the calibration and smearing tool we apply");
   }

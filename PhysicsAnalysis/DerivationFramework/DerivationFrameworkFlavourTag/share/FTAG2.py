@@ -120,8 +120,7 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 # Tag custom or pre-built jet collections
 #===================================================================
 
-FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets',
-                                 'AntiKt4EMTopoJets'], Sequencer = FTAG2Seq)
+FlavorTagInit(scheduleFlipped = True, JetCollections  = ['AntiKt4EMPFlowJets','AntiKt4EMTopoJets'], Sequencer = FTAG2Seq)
 
 #====================================================================
 # Add sequence (with all kernels needed) to DerivationFrameworkJob  

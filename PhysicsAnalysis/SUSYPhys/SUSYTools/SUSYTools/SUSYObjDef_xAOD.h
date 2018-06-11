@@ -754,11 +754,13 @@ namespace ST {
     std::string m_eleIdDFName;
     std::string m_photonIdBaselineDFName;
     std::string m_photonIdDFName;
+    std::string m_jetCleanDFName;
     //
     SG::AuxElement::ConstAccessor<char> m_acc_eleIdBaseline;
     SG::AuxElement::ConstAccessor<char> m_acc_eleId;
     SG::AuxElement::ConstAccessor<char> m_acc_photonIdBaseline;
     SG::AuxElement::ConstAccessor<char> m_acc_photonId;
+    SG::AuxElement::ConstAccessor<char> m_acc_jetClean;
 
   }; // Class SUSYObjDef_xAOD
 

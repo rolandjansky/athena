@@ -17,20 +17,25 @@ import math
 
 ## HLT & offline jet keys 
 ## internal:StoreGate Key ordered pair
-hlt_JetKeys = { "a10tcemsubFS" : "HLT_xAOD__JetContainer_a10tcemsubFS",
-                "a4tcemsubFS" : "HLT_xAOD__JetContainer_a4tcemsubFS", 
-                "a4tcemjesFS" : "HLT_xAOD__JetContainer_a4tcemjesFS", 
-                "a4tcemsubjesFS" : "HLT_xAOD__JetContainer_a4tcemsubjesFS",
-		"a4tclcwjesFS" : "HLT_xAOD__JetContainer_a4tclcwjesFS" }
+hlt_JetKeys = { "a4tcemsubFS"     : "HLT_xAOD__JetContainer_a4tcemsubFS",
+                "a4tcemjesFS"     : "HLT_xAOD__JetContainer_a4tcemjesFS",
+                "a4tcemsubjesFS"     : "HLT_xAOD__JetContainer_a4tcemsubjesFS",
+                "a4tcemsubjesISFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesISFS",
+                "a4tcemnojcalibFS"     : "HLT_xAOD__JetContainer_a4tcemnojcalibFS",
+                "a4tclcwjesFS"    : "HLT_xAOD__JetContainer_a4tclcwjesFS",
+                "a4GSC" : "HLT_xAOD__JetContainer_GSCJet",
+                #"a10rtcemsubjesFS"   : "HLT_xAOD__JetContainer_a10r_tcemsubjesFS",
+                "a10tclcwsubjesFS"   : "HLT_xAOD__JetContainer_a10tclcwsubjesFS",
+                "a10ttclcwjesFS"   : "HLT_xAOD__JetContainer_a10ttclcwjesFS"
+                }
 
 hlt_offlineJetKeys = { "AntiKt4LCTopoJets" : "AntiKt4LCTopoJets", 
-                       "AntiKt4EMTopoJets" : "AntiKt4EMTopoJets", 
-                       "AntiKt10LCTopoJets" : "AntiKt10LCTopoJets"}
+                       "AntiKt4EMTopoJets" : "AntiKt4EMTopoJets"}
 
 ## Monitoring triggers
 ## Modify to the default naming scheme for menu-aware montioring.  
 hlt_monitoring_l1jet = ['L1_RD0', 'L1_J15']
-hlt_monitoring_jet = ['j25', 'j60'] 
+hlt_monitoring_jet = ['j35', 'j60'] 
 
 # Binning for NJets
 hlt_njetbins = [ 55 ]
@@ -76,21 +81,21 @@ hlt_jetDepbinhi = [ 6.0 ]
 # 4-Feb-2015 Modified to match default naming scheme for menu-aware monitoring
 
 # L1 items   
-hlt_primary_l1jet                 = [ 'L1_J15' ]
+hlt_primary_l1jet             = [ 'L1_J15' ]
 hlt_level1EtThresholds        = { 'L1_J15':50. }
 hlt_level1EtNBins             = [ 40 ]
 hlt_level1EtBinsLow           = [ 0. ]
 hlt_level1EtBinsHigh          = [ 400. ]
 
 # HLT items
-hlt_primary_jet                    = ['j25', 'j60' ] 
-hlt_hltEtThresholds            = { 'j25':20., 'j60':50. }
+hlt_primary_jet                = ['j35', 'j60' ] 
+hlt_hltEtThresholds            = { 'j35':20., 'j60':50. }
 hlt_hltEtNBins                 = [ 50, 50 ]
 hlt_hltEtBinsLow               = [ 0., 0. ]
 hlt_hltEtBinsHigh              = [ 500., 500.]
 
 # Offline 
-hlt_offlineEtThresholds        = { 'L1_J15':10., 'j25':20., 'j60':50. }
+hlt_offlineEtThresholds        = { 'L1_J15':10., 'j35':20., 'j60':50. }
             
 ## implemented but not being used [todo]
 ##hlt_jetchainsbyregexp         = [ "(L2|EF)_[0-9]?[jJ][0-9]+", "(L2|EF)_[0-9]+[fj][j0-9]+"]

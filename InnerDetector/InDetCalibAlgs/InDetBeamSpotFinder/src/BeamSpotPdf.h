@@ -24,22 +24,22 @@ public:
   BeamSpotPdf() {} ; 
   
   BeamSpotPdf(const char *name, const char *title,
-	      RooAbsReal& _x,
-	      RooAbsReal& _y,
-	      RooAbsReal& _z,
-	      RooAbsReal& _vxx,
-	      RooAbsReal& _vyy,
-	      RooAbsReal& _vxy,
-	      RooAbsReal& _mx,
-	      RooAbsReal& _sx,
-	      RooAbsReal& _ax,
-	      RooAbsReal& _my,
-	      RooAbsReal& _sy,
-	      RooAbsReal& _ay,
-	      RooAbsReal& _mz,
-	      RooAbsReal& _sz,
-	      RooAbsReal& _k,
-	      RooAbsReal& _rho);
+	      RooAbsReal& x,
+	      RooAbsReal& y,
+	      RooAbsReal& z,
+	      RooAbsReal& vxx,
+	      RooAbsReal& vyy,
+	      RooAbsReal& vxy,
+	      RooAbsReal& mx,
+	      RooAbsReal& sx,
+	      RooAbsReal& ax,
+	      RooAbsReal& my,
+	      RooAbsReal& sy,
+	      RooAbsReal& ay,
+	      RooAbsReal& mz,
+	      RooAbsReal& sz,
+	      RooAbsReal& k,
+	      RooAbsReal& rho);
   BeamSpotPdf(const BeamSpotPdf& other, const char* name=0) ;
   virtual TObject* clone(const char* newname) const { return new BeamSpotPdf(*this,newname); }
   inline virtual ~BeamSpotPdf() { }
@@ -49,22 +49,22 @@ public:
   
  protected:
 
-  RooRealProxy x ;
-  RooRealProxy y ;
-  RooRealProxy z ;
-  RooRealProxy vxx ;
-  RooRealProxy vyy ;
-  RooRealProxy vxy ;
-  RooRealProxy mx ;
-  RooRealProxy sx ;
-  RooRealProxy ax ;
-  RooRealProxy my ;
-  RooRealProxy sy ;
-  RooRealProxy ay ;
-  RooRealProxy mz ;
-  RooRealProxy sz ;
-  RooRealProxy k ;
-  RooRealProxy rho ;
+  RooRealProxy m_x ;
+  RooRealProxy m_y ;
+  RooRealProxy m_z ;
+  RooRealProxy m_vxx ;
+  RooRealProxy m_vyy ;
+  RooRealProxy m_vxy ;
+  RooRealProxy m_mx ;
+  RooRealProxy m_sx ;
+  RooRealProxy m_ax ;
+  RooRealProxy m_my ;
+  RooRealProxy m_sy ;
+  RooRealProxy m_ay ;
+  RooRealProxy m_mz ;
+  RooRealProxy m_sz ;
+  RooRealProxy m_k ;
+  RooRealProxy m_rho ;
   
   Double_t evaluate() const ;
 

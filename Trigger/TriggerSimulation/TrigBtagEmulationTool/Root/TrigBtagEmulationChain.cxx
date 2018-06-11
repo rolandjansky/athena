@@ -165,6 +165,7 @@ std::vector< std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient > > TrigBt
     if (subString == "HLT") continue;
     else if (outputHLT_string.size() == 0) outputHLT_string.push_back( "EMUL_HLT_" + subString );
     else if (subString.find("j") != std::string::npos) outputHLT_string.push_back( "EMUL_HLT_" + subString );
+    else if (subString.find("invm") != std::string::npos) outputHLT_string.push_back( "EMUL_HLT_" + subString );
     else outputHLT_string.at(outputHLT_string.size() - 1) +=  "_"+subString;
   }
 
@@ -183,7 +184,7 @@ std::vector< std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient > > TrigBt
     for (unsigned int j(i+1); j<triggers_HLT.size(); j++) {
       if (triggers_HLT.at(i)->contains( *triggers_HLT.at(j) ) ) triggers_HLT.at(i)->addJetsMulteplicity( *triggers_HLT.at(j) );
       else if (triggers_HLT.at(j)->contains( *triggers_HLT.at(i) ) ) triggers_HLT.at(j)->addJetsMulteplicity( *triggers_HLT.at(i) );
-      else if (triggers_HLT.at(i)->overlaps( *triggers_HLT.at(j) ) ) m_correctlyConfigured = false;
+      else if (triggers_HLT.at(i)->overlaps( *triggers_HLT.at(j) ) ) m_correctlyConfigured = false; 
     }
  
   for ( std::unique_ptr< TrigBtagEmulationChainJetIngredient_HLT >& el : triggers_HLT)

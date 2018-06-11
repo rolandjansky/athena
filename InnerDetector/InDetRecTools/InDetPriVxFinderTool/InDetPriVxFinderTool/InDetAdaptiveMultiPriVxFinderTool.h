@@ -293,6 +293,11 @@ namespace InDet
    
    double estimateDeltaZ(const Trk::TrackParameters& myPerigee, const Amg::Vector3D& myTransvVertex);
 
+   /**
+    * Clean decorator data from a vertex candidate (to avoid memory leaks) and then delete it and set to zero
+    */
+   
+   void releaseCandidate(xAOD::Vertex*& candidate);
    
 
  };//end of class

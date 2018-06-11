@@ -22,6 +22,7 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "tauRecTools/ITauToolBase.h"
+#include "tauRecTools/TauJetRNNEvaluator.h"
 
 #include "LumiBlockComps/ILuminosityTool.h" 
 #include "InDetBeamSpotService/IBeamCondSvc.h"
@@ -209,6 +210,32 @@ class TrigTauRecMerged: public HLT::FexAlgo {
 
   /** deltaZ0 wide Trks*/
   std::vector<float> m_deltaZ0wideTrks;
+
+  //  RNN ID monitoring
+  // retrieved from tool handle, if tool exists
+  TauJetRNNEvaluator* m_rnn_evaluator;
+
+  float m_RNN_scalar_ptRatioEflowApprox; 
+  float m_RNN_scalar_mEflowApprox; 
+  float m_RNN_scalar_pt_jetseed_log;
+
+  int m_RNN_Nclusters;
+  std::vector<double> m_RNN_cluster_et_log;
+  std::vector<double> m_RNN_cluster_dEta;
+  std::vector<double> m_RNN_cluster_dPhi;
+
+  int m_RNN_Ntracks;
+  std::vector<double> m_RNN_track_pt_log;
+  std::vector<double> m_RNN_track_dEta;
+  std::vector<double> m_RNN_track_dPhi;
+  std::vector<double> m_RNN_track_d0_abs_log;
+  std::vector<double> m_RNN_track_z0sinThetaTJVA_abs_log;
+  std::vector<double> m_RNN_track_nInnermostPixelHits;
+  std::vector<double> m_RNN_track_nPixelHits;
+  std::vector<double> m_RNN_track_nSCTHits;
+
+  float m_RNNJetScore;
+  float m_RNNJetScoreSigTrans;
 
 };
 #endif

@@ -60,7 +60,7 @@ namespace xAOD {
         m_splitLevel( splitLevel ), m_entry( 0 ), m_inTree( 0 ), m_outTree( 0 ),
         m_inputScanned( kFALSE ), m_selection(), m_transientStore( 0 ),
         m_auxIDs(), m_vecs(), m_size( 0 ), m_locked( kFALSE ), m_isDecoration(),
-        m_tick( 0 ), m_mutex1(), m_mutex2(), m_tsAuxids(),
+        m_mutex1(), m_mutex2(), 
         m_branches(), m_branchesWritten(), m_missingBranches() {
 
    }
@@ -214,10 +214,8 @@ namespace xAOD {
       // code makes a copy of the auxid set on purpose. Because the underlying
       // AuxSelection object gets modified while doing the for loop.
       const auxid_set_t selAuxIDs = getSelectedAuxIDs();
-      auxid_set_t::const_iterator itr = selAuxIDs.begin();
-      auxid_set_t::const_iterator end = selAuxIDs.end();
-      for( ; itr != end; ++itr ) {
-         RETURN_CHECK( "xAOD::TAuxStore::writeTo", setupOutputData( *itr ) );
+      for (SG::auxid_t id : selAuxIDs) {
+         RETURN_CHECK( "xAOD::TAuxStore::writeTo", setupOutputData( id ) );
       }
 
       return TReturnCode::kSuccess;
@@ -238,28 +236,19 @@ namespace xAOD {
       // the transient decorations after calling getEntry(...).)
       if( m_transientStore && ( getall != 99 ) ) {
          // Remove the transient auxiliary IDs from the internal list:
-         for( auto auxid : m_transientStore->getAuxIDs() ) {
-            m_auxIDs.erase( auxid );
-         }
+         m_auxIDs -= m_transientStore->getAuxIDs();
          // Delete the object:
          delete m_transientStore;
          m_transientStore = 0;
-         // Remember to update the thread specific IDs:
-         ++m_tick;
       }
 
       // Now remove the IDs of the decorations that are getting persistified:
       if( getall != 99 ) {
-         bool varRemoved = false;
          for( auxid_t auxid = 0; auxid < m_isDecoration.size(); ++auxid ) {
             if( ! m_isDecoration[ auxid ] ) {
                continue;
             }
             m_auxIDs.erase( auxid );
-            varRemoved = true;
-         }
-         if( varRemoved ) {
-            ++m_tick;
          }
       }
 
@@ -301,8 +290,7 @@ namespace xAOD {
 
       // Check if the transient store already handles this variable:
       if( m_transientStore && 
-          ( m_transientStore->getAuxIDs().find( auxid ) !=
-            m_transientStore->getAuxIDs().end() ) ) {
+          ( m_transientStore->getAuxIDs().test( auxid ) ) ) {
          return m_transientStore->getData( auxid );
       }
 
@@ -331,21 +319,7 @@ namespace xAOD {
 
    const TAuxStore::auxid_set_t& TAuxStore::getAuxIDs() const {
 
-      // Guard against multi-threaded execution:
-      guard_t guard( m_mutex1 );
-
-      // Create a new, thread specific object if necessary:
-      if( m_tsAuxids.get() == 0 ) {
-         m_tsAuxids.reset( new TSAuxidSet( m_tick, m_auxIDs ) );
-      }
-      // Or update it if it's out of date:
-      else if( m_tsAuxids->m_tick != m_tick ) {
-         m_tsAuxids->m_set = m_auxIDs;  // May need to optimize this!
-         m_tsAuxids->m_tick = m_tick;
-      }
-
-      // Return the thread-specific object:
-      return m_tsAuxids->m_set;
+      return m_auxIDs;
    }
 
    void* TAuxStore::getDecoration( auxid_t auxid, size_t size,
@@ -372,12 +346,12 @@ namespace xAOD {
          // Since in a locked store *everything* is a decoration in the
          // transient store.
          if( m_transientStore &&
-             m_transientStore->getAuxIDs().count( auxid ) ) {
+             m_transientStore->getAuxIDs().test( auxid ) ) {
             return m_transientStore->getDecoration( auxid, size, capacity );
          }
          // If we know this auxiliary ID, but it was not found as a decoration
          // by the previous checks, then we're in trouble.
-         if( m_auxIDs.count( auxid ) ) {
+         if( m_auxIDs.test( auxid ) ) {
             // It may still be a decoration in a transient store. If such
             // a store exists, leave it up to that store to
             throw SG::ExcStoreLocked( auxid );
@@ -401,7 +375,6 @@ namespace xAOD {
                                                          capacity );
          if( result && ( nids != m_transientStore->getAuxIDs().size() ) ) {
             m_auxIDs.insert( auxid );
-            ++m_tick;
          }
          // Return the memory address from the transient store:
          return result;
@@ -434,46 +407,44 @@ namespace xAOD {
       return;
    }
 
-   void TAuxStore::clearDecorations() {
+   bool TAuxStore::clearDecorations() {
 
       // Guard against multi-threaded execution:
       guard_t guard( m_mutex1 );
 
       // Clear the transient decorations:
+      bool anycleared = false;
       if( m_transientStore ) {
-         // Remove all the transient IDs:
-         for( auto auxid : m_transientStore->getAuxIDs() ) {
-            m_auxIDs.erase( auxid );
-         }
+         SG::auxid_set_t old_id_set = m_transientStore->getAuxIDs();
+
          // Clear the decorations from the transient store:
-         m_transientStore->clearDecorations();
-         // Now add back whatever was left in the transient store:
-         for( auto auxid : m_transientStore->getAuxIDs() ) {
-            m_auxIDs.insert( auxid );
+         anycleared = m_transientStore->clearDecorations();
+
+         // Now remove ids that were cleared.
+         if (anycleared) {
+           old_id_set -= m_transientStore->getAuxIDs();
+           // old_id_set is now the set of ids that were cleared.
+           m_auxIDs -= old_id_set;
          }
-         // Remember that we changed the set:
-         ++m_tick;
       }
 
       // The decorations which are going into the output file, are here to stay.
       // Removing their IDs from the internal set would just cause more problems
       // in my mind than just leaving them be.
 
-      return;
+      return anycleared;
    }
 
    size_t TAuxStore::size() const {
 
       // First, try to find a managed vector in the store:
-      auxid_set_t::const_iterator itr = m_auxIDs.begin();
-      auxid_set_t::const_iterator end = m_auxIDs.end();
-      for( ; itr != end; ++itr ) {
+      for( SG::auxid_t id : m_auxIDs) {
          // Make sure that we are still within the bounds of our vector:
-         if( *itr >= m_vecs.size() ) break;
+         if( id >= m_vecs.size() ) break;
          // Skip non-existent objects:
-         if( ! m_vecs[ *itr ] ) continue;
+         if( ! m_vecs[ id ] ) continue;
          // Ask the vector for its size:
-         const size_t size = m_vecs[ *itr ]->size();
+         const size_t size = m_vecs[ id ]->size();
          // Only accept a non-zero size. Not sure why...
          if( size > 0 ) {
             return size;
@@ -513,7 +484,6 @@ namespace xAOD {
          void* result = m_transientStore->getData( auxid, size, capacity );
          if( result && ( nids != m_transientStore->getAuxIDs().size() ) ) {
             m_auxIDs.insert( auxid );
-            ++m_tick;
          }
          // Return the address in the transient memory:
          return result;
@@ -720,7 +690,7 @@ namespace xAOD {
       }
 
       // Check if it's in the transient store:
-      if( m_transientStore && m_transientStore->getAuxIDs().count( auxid ) ) {
+      if( m_transientStore && m_transientStore->getAuxIDs().test( auxid ) ) {
          return m_transientStore->getIOData( auxid );
       }
 
@@ -763,7 +733,7 @@ namespace xAOD {
       }
 
       // Check if it's in the transient store:
-      if( m_transientStore && m_transientStore->getAuxIDs().count( auxid ) ) {
+      if( m_transientStore && m_transientStore->getAuxIDs().test( auxid ) ) {
          return m_transientStore->getIOType( auxid );
       }
 
@@ -830,14 +800,14 @@ namespace xAOD {
       ReadStats& stats = IOStats::instance().stats();
 
       // Teach the cache about all the branches:
-      auxid_set_t::const_iterator itr = m_auxIDs.begin();
-      auxid_set_t::const_iterator end = m_auxIDs.end();
-      for( ; itr != end; ++itr ) {
-         stats.branch( m_prefix, *itr );
+      size_t nbranch = 0;
+      for (SG::auxid_t id : m_auxIDs) {
+         stats.branch( m_prefix, id );
+         ++nbranch;
       }
 
       // Increment the number of known branches:
-      stats.setBranchNum( stats.branchNum() + m_auxIDs.size() );
+      stats.setBranchNum( stats.branchNum() + nbranch );
 
       // Return gracefully:
       return TReturnCode::kSuccess;
@@ -1064,7 +1034,6 @@ namespace xAOD {
 
       // Remember which variable got created:
       m_auxIDs.insert( auxid );
-      ++m_tick;
 
       // Check if we just replaced a generic object:
       if( isRegisteredType( auxid ) ) {
@@ -1131,8 +1100,7 @@ namespace xAOD {
       // Check if the variable was put into the transient store as a
       // decoration, and now needs to be put into the output file:
       if( ( ! m_vecs[ auxid ] ) && m_transientStore &&
-          ( m_transientStore->getAuxIDs().find( auxid ) !=
-            m_transientStore->getAuxIDs().end() ) ) {
+          ( m_transientStore->getAuxIDs().test( auxid ) ) ) {
 
          // Get the variable from the transient store:
          const void* pptr = m_transientStore->getData( auxid );
@@ -1188,7 +1156,7 @@ namespace xAOD {
 
       // Check if we know about this variable to be on the input,
       // but haven't connected to it yet:
-      if( ( m_auxIDs.find( auxid ) != m_auxIDs.end() ) &&
+      if( ( m_auxIDs.test( auxid ) ) &&
           ( ! m_vecs[ auxid ] ) && ( ! m_branches[ auxid ] ) ) {
          RETURN_CHECK( "xAOD::TAuxStore::setupOutputData",
                        setupInputData( auxid ) );
@@ -1334,7 +1302,6 @@ namespace xAOD {
 
       // Also, remember that we now handle this variable:
       m_auxIDs.insert( auxid );
-      ++m_tick;
 
       // We were successful:
       return TReturnCode::kSuccess;
@@ -1542,7 +1509,6 @@ namespace xAOD {
       const auxid_t regAuxid = registry.findAuxID( auxName );
       if( regAuxid != SG::null_auxid ) {
          m_auxIDs.insert( regAuxid );
-         ++m_tick;
          return TReturnCode::kSuccess;
       }
 
@@ -1622,7 +1588,6 @@ namespace xAOD {
 
       // Remember the auxiliary ID:
       m_auxIDs.insert( auxid );
-      ++m_tick;
       return TReturnCode::kSuccess;
    }
 

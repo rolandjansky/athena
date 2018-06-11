@@ -252,6 +252,9 @@ class UpgradePerformanceFunctions: public asg::AsgMetadataTool, public virtual I
   bool m_bUseHGTD0;
   bool m_bUseHGTD1;
 
+  // WarmToroid properties
+  bool m_useWarmToroid;
+
   static const int m_nPUPtBins = 4;
   float fEffNominalArray[m_nPUPtBins];
   float fEffMediumArray[m_nPUPtBins];
@@ -327,6 +330,7 @@ class UpgradePerformanceFunctions: public asg::AsgMetadataTool, public virtual I
   // Smearing filenames
   std::string m_flavourTaggingCalibrationFilename;
   std::string m_electronEnergyResolutionFilename;
+  std::string m_muonEnergyResolutionFilename;
   std::string m_photonFakeFilename;
   std::string m_chargeFlipRateFilename;
   std::string m_METFilename;

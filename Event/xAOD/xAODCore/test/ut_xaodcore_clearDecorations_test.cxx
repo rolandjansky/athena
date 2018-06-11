@@ -5,6 +5,7 @@
 // $Id: ut_xaodcore_clearDecorations_test.cxx 696772 2015-09-25 08:09:13Z krasznaa $
 
 // System include(s):
+#undef NDEBUG
 #include <iostream>
 
 // Core include(s):
@@ -46,7 +47,7 @@ int main() {
    printContainer( interface );
 
    // Clear the decorations, and see what happens:
-   interface.clearDecorations();
+   assert (interface.clearDecorations() == false);
    std::cout << "\nContainer contents after clearDecorations():\n" << std::endl;
    printContainer( interface );
 
@@ -65,7 +66,7 @@ int main() {
    printContainer( interface );
 
    // Clear the decorations, and see what happens:
-   interface.clearDecorations();
+   assert (interface.clearDecorations() == true);
    std::cout << "\nContainer contents after clearDecorations():\n" << std::endl;
    printContainer( interface );
 

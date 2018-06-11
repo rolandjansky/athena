@@ -12,6 +12,8 @@
 
 #undef NDEBUG
 #include "DetDescrCondTPCnv/DetDescrCondIdentifier_old_cnv.h"
+#include "CxxUtils/ubsan_suppress.h"
+#include "TInterpreter.h"
 #include <cassert>
 #include <iostream>
 
@@ -32,6 +34,7 @@ void test1()
 
 int main()
 {
+  CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); });
   test1();
   return 0;
 }

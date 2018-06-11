@@ -37,13 +37,11 @@ atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*_jobOptions.py )
 atlas_install_scripts( share/*_eljob.py )
 
-# only running test in AnalysisBase for now (the Athena sequence
-# doesn't fully work yet).
 if( XAOD_STANDALONE )
    atlas_add_test( testJob
-      SCRIPT TauAnalysisAlgorithmsTest_eljob.py )
-#else()
-#   atlas_add_test( testJob
-#      SCRIPT athena.py
-#      TauAnalysisAlgorithms/TauAnalysisAlgorithmsTest_jobOptions.py )
+      SCRIPT TauAnalysisAlgorithmsTest_eljob.py --unit-test )
+else()
+   atlas_add_test( testJob
+      SCRIPT athena.py
+      TauAnalysisAlgorithms/TauAnalysisAlgorithmsTest_jobOptions.py )
 endif()

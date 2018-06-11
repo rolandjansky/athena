@@ -53,6 +53,7 @@
 #include "TopPartons/CalcTtbarLightPartonHistory.h"
 #include "TopPartons/CalcTbbarPartonHistory.h"
 #include "TopPartons/CalcWtbPartonHistory.h"
+#include "TopPartons/CalcTTZPartonHistory.h"
 #include "TopPartons/CalcTopPartonHistory.h"
 
 #include "TopParticleLevel/ParticleLevelLoader.h"
@@ -314,6 +315,10 @@ int main(int argc, char** argv) {
     else if(settings->value("TopPartonHistory") == "Wtb"){
       topPartonHistory = std::unique_ptr<top::CalcTopPartonHistory> ( new top::CalcWtbPartonHistory( "top::CalcWtbPartonHistory" ) );
       top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcWtbPartonHistory");
+    }
+    else if(settings->value("TopPartonHistory") == "ttz"){
+      topPartonHistory = std::unique_ptr<top::CalcTopPartonHistory> ( new top::CalcTTZPartonHistory( "top::CalcTTZPartonHistory" ) );
+      top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcTTZPartonHistory");
     }
 
     //LHAPDF SF calculation
@@ -651,8 +656,6 @@ int main(int argc, char** argv) {
                     std::exit(1);
                 }
             }
-            //Setting names for uses in other algorithms
-            topConfig->setLHE3Names(names_LHE3);
             ///-- End of Truth events -- start of reconstruction level events --///
             if (topConfig->isTruthDxAOD())
               continue;
