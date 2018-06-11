@@ -55,8 +55,9 @@ StatusCode LArNoisyROAlg::execute()
   bool badSaturatedTightCut=noisyRO->SatTightFlaggedPartitions();
   bool MNBLooseCut=noisyRO->MNBLooseFlaggedPartitions();
   bool MNBTightCut=noisyRO->MNBTightFlaggedPartitions();
+  bool MNBTight_PsVetoCut=noisyRO->MNBTight_PsVetoFlaggedPartitions();
   
-  if ( badFEBFlag || badFEBFlag_W || badSaturatedTightCut || MNBLooseCut || MNBTightCut) 
+  if ( badFEBFlag || badFEBFlag_W || badSaturatedTightCut || MNBLooseCut || MNBTightCut || MNBTight_PsVetoCut) 
   {
     // retrieve EventInfo
     const xAOD::EventInfo* eventInfo_c=0;
@@ -97,6 +98,12 @@ StatusCode LArNoisyROAlg::execute()
       failSetWARN |=(!eventInfo->setErrorState(EventInfo::LAr,EventInfo::Warning));
       // Set reason why event was flagged
       failSetWARNREASON |=(!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::MININOISEBURSTTIGHT));
+    }
+
+    if ( MNBTight_PsVetoCut ) {
+      failSetWARN |=(!eventInfo->setErrorState(EventInfo::LAr,EventInfo::Warning));
+      // Set reason why event was flagged
+      failSetWARNREASON |=(!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::MININOISEBURSTTIGHT_PSVETO));
     }
 
     if ( MNBLooseCut ) { //FIXME Tight cut actually implies loose cut too

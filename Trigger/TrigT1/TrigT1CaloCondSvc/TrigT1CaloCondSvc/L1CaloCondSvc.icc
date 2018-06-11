@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCONDSVC_L1CALOCONDSVC_ICC
@@ -280,7 +280,7 @@ StatusCode L1CaloCondSvc::retrieveImpl( T*& pobj, const std::string& key) {
   //    }
    
   //sc = this->registerCondition(coolKey, pobj);
-  ATH_CHECK( this->registerCondition(pobj) );
+  ATH_CHECK( this->registerCondition(pobj,key) );
    
   //register object to storegate
   ATH_CHECK( m_detStore->record(pobj, key) );
@@ -289,9 +289,9 @@ StatusCode L1CaloCondSvc::retrieveImpl( T*& pobj, const std::string& key) {
 }
 
 template <typename T>
-StatusCode L1CaloCondSvc::registerCondition(T*& pObj) {
+StatusCode L1CaloCondSvc::registerCondition(T*& pObj, const std::string& mykey) {
   ATH_MSG_DEBUG(  "L1CaloCondSvc::registerCondition(T*& pObj))" );
-
+  ATH_MSG_DEBUG(  " -> Specified key: "<< mykey );
   if(!pObj) {
     ATH_MSG_ERROR(  "IL1CaloPersistenceCapable* pObj is NULL in L1CaloCondSvc::registerCondition()" );
     return StatusCode::FAILURE;
@@ -304,6 +304,40 @@ StatusCode L1CaloCondSvc::registerCondition(T*& pObj) {
     // we retrieve the keys (ie cool folder paths) needed by the condition object
     std::vector<std::string> vCoolInputKeys = pObj->coolInputKeys();
 
+    //Check if we specified some new key
+    
+    // Update for PprChanCalib
+    if (mykey!="" && mykey.find("PprChanCalib")!=std::string::npos){
+	ATH_MSG_INFO("Overriding default keys for PprChanCalib that were:");
+	for (auto it=vCoolInputKeys.begin();it!=vCoolInputKeys.end();++it) {ATH_MSG_INFO(*it);}
+        //Now set to specified key only
+	vCoolInputKeys.clear(); vCoolInputKeys.push_back(mykey);
+    }
+    
+    // Update for PprChanDefaults
+    if (mykey!="" && mykey.find("PprChanDefaults")!=std::string::npos){
+        ATH_MSG_INFO("Overriding default keys for PprChanDefaults that were:");
+        for (auto it=vCoolInputKeys.begin();it!=vCoolInputKeys.end();++it) {ATH_MSG_INFO(*it);}
+        //Now set to specified key only
+        vCoolInputKeys.clear(); vCoolInputKeys.push_back(mykey);
+    }    
+    
+    // Update for DisabledTowers
+    if (mykey!="" && mykey.find("DisabledTowers")!=std::string::npos){
+        ATH_MSG_INFO("Overriding default keys for DisabledTowers that were:");
+        for (auto it=vCoolInputKeys.begin();it!=vCoolInputKeys.end();++it) {ATH_MSG_INFO(*it);}
+        //Now set to specified key only
+        vCoolInputKeys.clear(); vCoolInputKeys.push_back(mykey);
+    } 
+    
+    // Update for PpmDeadChannels
+    if (mykey!="" && mykey.find("PpmDeadChannels")!=std::string::npos){
+        ATH_MSG_INFO("Overriding default keys for PpmDeadChannels that were:");
+        for (auto it=vCoolInputKeys.begin();it!=vCoolInputKeys.end();++it) {ATH_MSG_INFO(*it);}
+        //Now set to specified key only
+        vCoolInputKeys.clear(); vCoolInputKeys.push_back(mykey);
+    }     
+
     // this list is required to call updateConditions() later on
     std::list<std::string> lKeys;
 
@@ -313,9 +347,10 @@ StatusCode L1CaloCondSvc::registerCondition(T*& pObj) {
       std::string key = *it;
 
       lKeys.push_back(key);
+      ATH_MSG_DEBUG("Adding keys to maps: "<<key);
 
       m_mConditions[key].push_back(pObj);
-
+      m_map_conditions2key[pObj].push_back(key);//ACH
       std::map<std::string, const DataHandle<CondAttrListCollection>* >::const_iterator it_dh = m_mDataHandleAttrListColl.find(key);
       if(it_dh==m_mDataHandleAttrListColl.end()) {
 
@@ -326,6 +361,8 @@ StatusCode L1CaloCondSvc::registerCondition(T*& pObj) {
         // set the callback but do not trigger it immediately. updateConditions() is called only once all
         // the CondAttrListCollection the condition is depending on have been registered
         ATH_CHECK( m_detStore->regFcn(&L1CaloCondSvc::updateConditions, this, dh, key, false) );
+
+        ATH_MSG_DEBUG("Added "<<key<<" to m_mDataHandleAttrListColl");
       }
     }
 

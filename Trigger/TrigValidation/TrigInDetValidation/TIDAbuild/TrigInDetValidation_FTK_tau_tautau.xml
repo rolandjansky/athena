@@ -7,7 +7,7 @@
             <group>TrigInDetValidation</group>
             <queue>long</queue>
 
-#          include "samples/TrigInDetValidation_FTK_Ztautau_sample2.xml"
+#          include "samples/TrigInDetValidation_FTK_Ztautau_sample3.xml"
 
 
 

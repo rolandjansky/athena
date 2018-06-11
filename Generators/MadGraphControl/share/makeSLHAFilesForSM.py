@@ -22,14 +22,14 @@ evgenLog = Logging.logging.getLogger('SLHAGetter')
 # only really need this once
 from AthenaCommon.Include import IncludeError, include
 include.setShowIncludes(False)
-include('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC12JobOptions/latest/susycontrol/MadGraphControl_SimplifiedModelPreInclude.py')
-include.block('MC12JobOptions/MadGraphControl_SimplifiedModelPreInclude.py')
-include.block('MC12JobOptions/MadGraphControl_SimplifiedModelPostInclude.py')
+include('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/susycontrol/MadGraphControl_SimplifiedModelPreInclude.py')
+include.block('MC15JobOptions/MadGraphControl_SimplifiedModelPreInclude.py')
+include.block('MC15JobOptions/MadGraphControl_SimplifiedModelPostInclude.py')
 
 for run in listOfRuns:
-    loc_l = glob.glob('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC12JobOptions/latest/share/DSID'+run[0:3]+'xxx/MC12.'+run+'.*')
+    loc_l = glob.glob('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/share/DSID'+run[0:3]+'xxx/MC15.'+run+'.*')
     if 0==len(loc_l):
-        print 'Run not found:',run,'in','/cvmfs/atlas.cern.ch/repo/sw/Generators/MC12JobOptions/latest/share/DSID'+run[0:3]+'xxx/MC12.'+run+'.*'
+        print 'Run not found:',run,'in','/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/share/DSID'+run[0:3]+'xxx/MC15.'+run+'.*'
         continue
     if len(loc_l)>1:
         print 'Multiple runs found:',loc_l,'for run',run,'- Using first.'
@@ -49,9 +49,9 @@ for run in listOfRuns:
     try:
         runArgs.runNumber=int(run)
         runNumber=int(run) # Protection against old code
-        include('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC12JobOptions/latest/susycontrol/'+(main_jobO.split('/')[-1]))
+        include('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/susycontrol/'+(main_jobO.split('/')[-1]))
         SLHAonly=True
-        #include('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC12JobOptions/latest/susycontrol/MadGraphControl_SimplifiedModelPostInclude.py')
+        #include('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/susycontrol/MadGraphControl_SimplifiedModelPostInclude.py')
         include('./MadGraphControl_SimplifiedModelPostInclude.py')
     except: pass
 

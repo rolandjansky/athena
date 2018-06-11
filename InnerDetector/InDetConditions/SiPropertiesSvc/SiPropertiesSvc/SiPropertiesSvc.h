@@ -66,6 +66,8 @@ private:
   // Properties
   double m_temperatureMin;
   double m_temperatureMax;
+  double m_electronSaturationVelocity;
+  double m_holeSaturationVelocity;
   std::string m_detectorName;
   ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
   ServiceHandle<StoreGateSvc> m_detStore;

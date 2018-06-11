@@ -457,26 +457,22 @@ StatusCode MmDigitizationTool::prepareEvent(unsigned int nInputEvents) {
 }
 /*******************************************************************************/
 StatusCode MmDigitizationTool::processBunchXing(int bunchXing,
-						PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-						PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
+						SubEventIterator bSubEvents,
+						SubEventIterator eSubEvents) {
 
   ATH_MSG_DEBUG ( "MmDigitizationTool::in processBunchXing()"  << bunchXing );
   
-  PileUpEventInfo::SubEvent::const_iterator iEvt = bSubEvents;
+  SubEventIterator iEvt = bSubEvents;
  
   //loop on event and sub-events for the current bunch Xing
   for (; iEvt!=eSubEvents; ++iEvt) {
-    StoreGateSvc& seStore = *iEvt->pSubEvtSG;
-    const EventInfo* pEI(0);
-    if (seStore.retrieve(pEI).isSuccess()) {
-      ATH_MSG_INFO( "SubEvt EventInfo from StoreGate " << seStore.name() << " :"
-		    << " bunch crossing : " << bunchXing
-		    << " time offset : " << iEvt->time()
-		    << " event number : " << pEI->event_ID()->event_number()
-		    << " run number : " << pEI->event_ID()->run_number() );
-    }
- 
+    StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
     PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
+    ATH_MSG_VERBOSE( "SubEvt StoreGate " << seStore.name() << " :"
+                     << " bunch crossing : " << bunchXing
+                     << " time offset : " << iEvt->time()
+                     << " event number : " << iEvt->ptr()->eventNumber()
+                     << " run number : " << iEvt->ptr()->runNumber());
       
     const GenericMuonSimHitCollection* seHitColl = 0;
     if (!seStore.retrieve(seHitColl,m_inputObjectName).isSuccess()) {

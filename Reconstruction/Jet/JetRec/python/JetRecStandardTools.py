@@ -189,8 +189,10 @@ jtm += TrackVertexAssociationTool(
 #--------------------------------------------------------------
 
 if jetFlags.useTruth:
+    from MCTruthClassifier.MCTruthClassifierConfig import firstSimCreatedBarcode
     truthClassifier = MCTruthClassifier(name = "JetMCTruthClassifier",
-                                       ParticleCaloExtensionTool="")
+                                        barcodeG4Shift=firstSimCreatedBarcode(),
+                                        ParticleCaloExtensionTool="")
     jtm += truthClassifier
 
     # Extra config: make sure if we are using EVNT that we don't try to check sim metadata 
