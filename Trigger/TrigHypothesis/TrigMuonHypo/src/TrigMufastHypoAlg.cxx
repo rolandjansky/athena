@@ -82,7 +82,6 @@ StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
     // get View
     auto viewEL = previousDecision->objectLink< ViewContainer >( "view" );
     CHECK( viewEL.isValid() );
-
     const SG::View* view_const = *viewEL;
     SG::View* view = const_cast<SG::View*>(view_const); // CHECK THIS!
 
@@ -91,31 +90,36 @@ StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
     CHECK( muFastHandle.setProxyDict( view ) );
     ATH_MSG_DEBUG ( "Muinfo handle size: " << muFastHandle->size() << "..." );
 
-    const xAOD::L2StandAloneMuon* fast = muFastHandle.cptr()->at(0);
-    
+  
+    auto muonEL = ElementLink<xAOD::L2StandAloneMuonContainer>( view->name()+"_"+m_muFastKey.key(), 0 );
+    CHECK( muonEL.isValid() );
+    const xAOD::L2StandAloneMuon* muon = *muonEL;
+
+    // or instead:
+    //const xAOD::L2StandAloneMuon* muon = muFastHandle.cptr()->at(0);
+    //auto muonEL = ElementLink<xAOD::L2StandAloneMuonContainer>( muFastHandle.cptr(), 0 );
+    //    CHECK( muonEL.isValid() );
+
     // create new decision
-    auto d = newDecisionIn( decisions.get() );
+    auto newd = newDecisionIn( decisions.get() );
 
     // push_back to toolInput
-    toolInput.emplace_back( d, roi, fast, previousDecision );
+    toolInput.emplace_back( newd, roi, muon, previousDecision );
     
-    {
-      auto element = ElementLink<xAOD::L2StandAloneMuonContainer>( view->name()+"_"+m_muFastKey.key(), 0 );
-      CHECK( element.isValid() );
-      d->setObjectLink( "feature", element );
-      ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " pT = " << (*element)->pt() << " GeV");
-      ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " eta/phi = " << (*element)->eta() << "/" << (*element)->phi());
-    }
-    d->setObjectLink( "roi", roiEL );
-    d->setObjectLink( "view", viewEL );
+    newd->setObjectLink( "feature", muonEL );  
+    newd->setObjectLink( "roi",     roiEL );
+    newd->setObjectLink( "view",    viewEL );
+    TrigCompositeUtils::linkToPrevious( newd, decisionInput().key(), counter );
+    
+    ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
+    ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());
     ATH_MSG_DEBUG("REGTEST:  View = " << (*viewEL));
     ATH_MSG_DEBUG("REGTEST:  RoI  = eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());
-    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
-    ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision "<<counter <<" for view "<<view->name()  );
+    ATH_MSG_DEBUG("Added view, roi, cluster, previous decision to new decision "<<counter <<" for view "<<view->name()  );
     counter++;
   }
 
-  ATH_MSG_DEBUG( "Found "<<toolInput.size()<<" inputs to tools");
+  ATH_MSG_DEBUG("Found "<<toolInput.size()<<" inputs to tools");
 
 
   // to TrigMufastHypoTool
