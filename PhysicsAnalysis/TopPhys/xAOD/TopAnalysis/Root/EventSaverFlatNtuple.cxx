@@ -183,6 +183,11 @@ namespace top {
         return m_sfRetriever;
     }
 
+    std::shared_ptr<top::TreeManager> EventSaverFlatNtuple::upgradeTreeManager()
+    {
+        return m_upgradeTreeManager;
+    }
+
     std::vector<top::TreeManager::BranchFilter> & EventSaverFlatNtuple::branchFilters()
     {
         return m_branchFilters;
@@ -1223,6 +1228,7 @@ namespace top {
        m_upgradeTreeManager->makeOutputVariable(m_el_phi, "el_phi");
        m_upgradeTreeManager->makeOutputVariable(m_el_e, "el_e");
        m_upgradeTreeManager->makeOutputVariable(m_el_charge, "el_charge");
+       if (m_config->HLLHCFakes()) m_upgradeTreeManager->makeOutputVariable(m_el_faketype, "el_faketype"); // 0 true 2 hfake
 
        // muons
        m_upgradeTreeManager->makeOutputVariable(m_mu_pt, "mu_pt");
@@ -1258,11 +1264,23 @@ namespace top {
            m_upgradeTreeManager->makeOutputVariable(m_ph_eta, "ph_eta");
            m_upgradeTreeManager->makeOutputVariable(m_ph_phi, "ph_phi");
            m_upgradeTreeManager->makeOutputVariable(m_ph_e, "ph_e");
+	   m_upgradeTreeManager->makeOutputVariable(m_ph_true_type,      "ph_true_type");
+	   m_upgradeTreeManager->makeOutputVariable(m_ph_true_origin,    "ph_true_origin");
+	   if (m_config->HLLHCFakes()) m_upgradeTreeManager->makeOutputVariable(m_ph_faketype,       "ph_faketype"); // 0 true 1 efake 2 hfake
        }
 
        // MET
        m_upgradeTreeManager->makeOutputVariable(m_met_met, "met_met");
        m_upgradeTreeManager->makeOutputVariable(m_met_phi, "met_phi");
+
+        m_upgrade_SelectionDecisions.reserve( m_extraBranches.size() );
+        for ( const auto & selection : m_extraBranches ){
+            m_upgrade_SelectionDecisions.push_back( std::make_pair( selection, int() ) );
+        }
+
+        for ( auto & selectionDecision : m_upgrade_SelectionDecisions ){
+            m_upgradeTreeManager->makeOutputVariable( selectionDecision.second, selectionDecision.first );
+        }
    }//setupUpgradeTreeManager
 
     void EventSaverFlatNtuple::recordSelectionDecision(const top::Event& event) {
@@ -3158,6 +3176,9 @@ namespace top {
     }
 
     void EventSaverFlatNtuple::calculateUpgradeEvent(const top::ParticleLevelEvent& upgradeEvent) {
+        for ( auto & selectionDecision : m_upgrade_SelectionDecisions ){
+            selectionDecision.second = upgradeEvent.m_selectionDecisions[ selectionDecision.first ];
+        }
 
         // to get the fixed mc weight
         const xAOD::TruthEventContainer * truthEvent(nullptr);
@@ -3181,6 +3202,7 @@ namespace top {
        m_el_phi.resize(upgradeEvent.m_electrons->size());
        m_el_e.resize(upgradeEvent.m_electrons->size());
        m_el_charge.resize(upgradeEvent.m_electrons->size());
+       if (m_config->HLLHCFakes()) m_el_faketype.resize(upgradeEvent.m_electrons->size());
 
        for (const auto  elPtr : * upgradeEvent.m_electrons) {
          m_el_pt[i] = elPtr->pt();
@@ -3188,6 +3210,13 @@ namespace top {
          m_el_phi[i] = elPtr->phi();
          m_el_e[i] = elPtr->e();
          m_el_charge[i] = elPtr->charge();
+         if (m_config->HLLHCFakes()) {
+ 	   if (elPtr->isAvailable<int>("FakeType")) {
+ 	     m_el_faketype[i] = elPtr->auxdata<int>("FakeType");
+            } else {
+              top::check(false, "Could not obtain FakeType decoration for electron!");
+            }
+ 	 }
          ++i;
        }
 
@@ -3269,11 +3298,53 @@ namespace top {
             m_ph_eta.resize(upgradeEvent.m_photons->size());
             m_ph_phi.resize(upgradeEvent.m_photons->size());
             m_ph_e.resize(upgradeEvent.m_photons->size());
+            m_ph_true_type.resize(upgradeEvent.m_photons->size());
+            m_ph_true_origin.resize(upgradeEvent.m_photons->size());
+            if (m_config->HLLHCFakes()) m_ph_faketype.resize(upgradeEvent.m_photons->size());
+
             for (const auto* const phPtr : * upgradeEvent.m_photons) {
                 m_ph_pt[i] = phPtr->pt();
                 m_ph_eta[i] = phPtr->eta();
                 m_ph_phi[i] = phPtr->phi();
                 m_ph_e[i] = phPtr->e();
+ 		if (!m_config->HLLHCFakes()) {
+ 		    if (phPtr->isAvailable<unsigned int>("particleType")) {
+         	        m_ph_true_type[i] = phPtr->auxdata<unsigned int>("particleType");
+         	    } else if (phPtr->isAvailable<unsigned int>("classifierParticleType")) {
+         	        m_ph_true_type[i] = phPtr->auxdata<unsigned int>("classifierParticleType");
+         	    } else {
+         	        top::check(false, "Could not obtain truth Type decoration for photon!");
+         	    }
+ 		    if (phPtr->isAvailable<unsigned int>("particleOrigin")) {
+         	        m_ph_true_origin[i] = phPtr->auxdata<unsigned int>("particleOrigin");
+         	    } else if (phPtr->isAvailable<unsigned int>("classifierParticleOrigin")) {
+         	        m_ph_true_origin[i] = phPtr->auxdata<unsigned int>("classifierParticleOrigin");
+         	    } else {
+         	        top::check(false, "Could not obtain truth Origin decoration for photon!");
+         	    }
+ 		} else {
+ 		  if (phPtr->isAvailable<int>("FakeType")) {
+ 	   	    m_ph_faketype[i] = phPtr->auxdata<int>("FakeType");
+            	  } else {
+            	    top::check(false, "Could not obtain FakeType decoration for photon!");
+            	  }
+ 		  if (m_ph_faketype[i] == 0) { // truthType/Origin only available for true photon (also for electron fake, but we are not interested in its truth info)
+ 		    if (phPtr->isAvailable<unsigned int>("particleType")) {
+         	        m_ph_true_type[i] = phPtr->auxdata<unsigned int>("particleType");
+         	    } else if (phPtr->isAvailable<unsigned int>("classifierParticleType")) {
+         	        m_ph_true_type[i] = phPtr->auxdata<unsigned int>("classifierParticleType");
+         	    } else {
+         	        top::check(false, "Could not obtain truth Type decoration for photon!");
+         	    }
+ 		    if (phPtr->isAvailable<unsigned int>("particleOrigin")) {
+         	        m_ph_true_origin[i] = phPtr->auxdata<unsigned int>("particleOrigin");
+         	    } else if (phPtr->isAvailable<unsigned int>("classifierParticleOrigin")) {
+         	        m_ph_true_origin[i] = phPtr->auxdata<unsigned int>("classifierParticleOrigin");
+         	    } else {
+         	        top::check(false, "Could not obtain truth Origin decoration for photon!");
+         	    }
+ 		  }
+ 		}
 
                 ++i;
             }
