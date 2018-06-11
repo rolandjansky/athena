@@ -13,7 +13,7 @@
 template <class T>
 void
 RootExCellWriter<T>::write(
-    const Acts::ExtrapolationCell<T>& eCell)
+    const Acts::ExtrapolationCell<T>& eCell, int eventNum)
 {
 
   // exclusive access to the tree
@@ -26,6 +26,9 @@ RootExCellWriter<T>::write(
   m_phi          = sMomentum.phi();
   m_materialX0   = eCell.materialX0;
   m_materialL0   = eCell.materialL0;
+
+  m_eventNum     = eventNum;
+
 
   // clear the vectors & reserve
   // - for main step information
@@ -168,6 +171,8 @@ RootExCellWriter<T>::RootExCellWriter(
   // Initial parameters
   m_outputTree->Branch("eta", &m_eta);
   m_outputTree->Branch("phi", &m_phi);
+  
+  m_outputTree->Branch("evtNum", &m_eventNum);
 
   // Output the step information
   m_outputTree->Branch("step_x", &m_s_positionX);
@@ -188,6 +193,7 @@ RootExCellWriter<T>::RootExCellWriter(
     m_outputTree->Branch("step_material_L0", &m_s_materialL0);
     m_outputTree->Branch("material", &m_s_material);
   }
+
 
   // Sensitive section
   if (m_cfg.writeSensitive) {

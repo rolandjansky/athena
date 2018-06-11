@@ -37,8 +37,10 @@ public:
 private:
   using ExCellCharged = Acts::ExtrapolationCell<Acts::TrackParameters>;
 
+  using queue_item_t = std::pair<size_t, ExCellCharged>;
+
   std::shared_ptr<RootExCellWriter<Acts::TrackParameters>> m_rootEccWriter;
-  std::deque<Acts::ExtrapolationCell<Acts::TrackParameters>> m_exCells;
+  std::deque<queue_item_t> m_queue;
   std::mutex m_chargedMutex;
   std::thread m_writeThread;
   std::atomic<bool> m_doEnd;

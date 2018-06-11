@@ -66,7 +66,7 @@ class TFile;
     /// @param [in] ecells are the celss to be written out
     void
     write(
-        const Acts::ExtrapolationCell<T>& ecell);
+        const Acts::ExtrapolationCell<T>& ecell, int eventNum);
 
   protected:
 
@@ -78,6 +78,7 @@ class TFile;
     float              m_phi;           ///< global phi start
     float              m_materialX0;    ///< material in X0
     float              m_materialL0;    ///< material in L0
+    int             m_eventNum;
     std::vector<float> m_s_positionX;   ///< global position x of the step
     std::vector<float> m_s_positionY;   ///< global position y of the step
     std::vector<float> m_s_positionZ;   ///< global position z of the step

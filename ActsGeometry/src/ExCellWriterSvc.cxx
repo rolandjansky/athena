@@ -1,6 +1,10 @@
 #include "ActsGeometry/ExCellWriterSvc.h"
 #include "GaudiKernel/IInterface.h"
 
+#include "GaudiKernel/Kernel.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+
 #include <vector>
 #include <deque>
 #include <mutex>
@@ -45,10 +49,13 @@ Acts::ExCellWriterSvc::finalize()
 void 
 Acts::ExCellWriterSvc::store(std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>& ecells)
 {
+  
+  auto ctx = Gaudi::Hive::currentContext();
+
   std::lock_guard<std::mutex> lock(m_chargedMutex);
 
   for(size_t i=0;i<ecells.size();++i) {
-    m_exCells.push_back(std::move(ecells[i]));
+    m_queue.emplace_back(ctx.eventID().event_number(), std::move(ecells[i]));
   }
 }
 
@@ -57,7 +64,7 @@ Acts::ExCellWriterSvc::doWrite()
 {
   using namespace std::chrono_literals;
   // wait until we have events
-  while(m_exCells.size() == 0) {
+  while(m_queue.size() == 0) {
     std::this_thread::sleep_for(2s);
     if (m_doEnd) return;
   }
@@ -65,7 +72,7 @@ Acts::ExCellWriterSvc::doWrite()
   while(true) {
     std::unique_lock<std::mutex> lock(m_chargedMutex);
     
-    if (m_exCells.empty()) {
+    if (m_queue.empty()) {
       lock.unlock();
       if (!m_doEnd) {
         std::this_thread::sleep_for(0.5s);
@@ -77,12 +84,15 @@ Acts::ExCellWriterSvc::doWrite()
       }
     }
 
-    Acts::ExtrapolationCell<Acts::TrackParameters> ecell = std::move(m_exCells.front());
-    m_exCells.pop_front();
+    queue_item_t queue_item = std::move(m_queue.front());
+    m_queue.pop_front();
 
     lock.unlock();
+    
+    size_t eventNum = queue_item.first;
+    ExCellCharged ecell = std::move(queue_item.second);
 
-    m_rootEccWriter->write(ecell);
+    m_rootEccWriter->write(ecell, eventNum);
   }
     
   //std::vector<ExCellCharged> writeBuffer;
