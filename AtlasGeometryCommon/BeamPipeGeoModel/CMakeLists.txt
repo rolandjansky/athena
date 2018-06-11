@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/GeoModel/GeoModelUtilities
                           PRIVATE
-                          Control/CLIDSvc
                           Control/SGTools
                           Control/StoreGate
                           Control/AthenaKernel
