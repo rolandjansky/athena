@@ -38,6 +38,9 @@ if DetFlags.overlay.LVL1_on():
         include( "TileSimAlgs/TileTTL1_jobOptions.py" )
         include( "TileSimAlgs/TileMuonReceiver_jobOptions.py" )
 
+    if DetFlags.simulateLVL1.LAr_on() and DetFlags.simulateLVL1.Tile_on():
+        include ("TrigT1CaloSim/TTL1Overlay.py")
+
     if DetFlags.digitize.LVL1_on():
        #--------------------------------------------------------------
        # set up TrigConfigSvc for LVL1 simulation
