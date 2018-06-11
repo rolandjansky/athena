@@ -30,6 +30,8 @@ class GeoVPhysVol;
 class GeoVAlignmentStore;
 class CondAttrListCollection;
 
+class GeomShiftCondAlg;
+
 namespace InDetDD {
 
     class PixelModuleDesign;
@@ -46,7 +48,8 @@ namespace InDetDD {
         */
     
     class PixelDetectorManager : public SiDetectorManager  {
-    
+
+     friend GeomShiftCondAlg;
      public:
       
       /** Constructor */
