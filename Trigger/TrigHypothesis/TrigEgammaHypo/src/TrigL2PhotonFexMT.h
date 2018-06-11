@@ -3,25 +3,9 @@
 */
 
 
-/**************************************************************************
- ** 
- **   Original Author:       R.Goncalo    
- **
- **   File: Trigger/TrigHypothesis/TrigEgammaHypo/TrigL2PhotonFex.h
- **                   
- **   Class Description: Fex algo for TrigPhotons
- ** 
- **   Authors: R. Goncalo 
- **            V. Perez-Reale
- **            N. Berger
- **            A. Hamilton
- ** 
- **   Created:      Tue Nov 28 16:01:12 CET 2006
- **
- **************************************************************************/ 
 
-#ifndef TRIG_PHOTON_FEX_H 
-#define TRIG_PHOTON_FEX_H
+#ifndef TRIG_TrigL2PhotonFexMT_H 
+#define TRIG_TrigL2PhotonFexMT_H
 
 // athena stuff
 #include "GaudiKernel/IToolSvc.h"
@@ -51,7 +35,7 @@
 
 
 /**
- * \class TrigL2PhotonFex  
+ * \class TrigL2PhotonFexMT  
  * \brief TrigL2PhotonFex is an HLT Fex Algorithm that creates TrigPhotons 
  * from the the L2 TrigEMClusters that passed the TrigL2CaloHypo.
  * The TrigPhotons will then be retrieved by the hypothesis algorithm TrigL2PhotonHypo
@@ -83,6 +67,11 @@ class TrigL2PhotonFexMT : public AthAlgorithm {
       "TrigEMClusterName",       // property name
       "clusters",                                                // default value of StoreGate key
       "input TrigEMCluster Container name"};
+
+  SG::WriteHandleKey<xAOD::TrigPhotonContainer> m_outputPhotonsKey{ this,
+       "PhotonsName",                  // property name
+       "Photons",                                             // default value of StoreGate key
+       "output Photon container name "};
 
 
 };
