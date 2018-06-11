@@ -11,13 +11,13 @@
 
 class MMDigitVariables;
 class MMSimHitVariables;
-class MMFastDigitVariables;
+class MMSDOVariables;
 class MMRDOVariables;
 class MMPRDVariables;
 
 class sTGCDigitVariables;
 class sTGCSimHitVariables;
-class sTGCFastDigitVariables;
+class sTGCSDOVariables;
 class sTGCRDOVariables;
 class sTGCPRDVariables;
 
@@ -50,11 +50,13 @@ class NSWPRDValAlg:public AthAlgorithm
   MuEntryVariables*       m_MuEntryVar;
   sTGCSimHitVariables*    m_sTgcSimHitVar;
   sTGCRDOVariables*       m_sTgcRdoVar;
-  sTGCFastDigitVariables* m_sTgcFastDigitVar;
+  sTGCSDOVariables*       m_sTgcSdoVar;
+  sTGCSDOVariables*       m_sTgcFastSdoVar;
   sTGCDigitVariables*     m_sTgcDigitVar;
   sTGCPRDVariables*       m_sTgcPrdVar;
   MMSimHitVariables*      m_MmSimHitVar;
-  MMFastDigitVariables*   m_MmFastDigitVar;
+  MMSDOVariables*         m_MmSdoVar;
+  MMSDOVariables*         m_MmFastSdoVar;
   MMDigitVariables*       m_MmDigitVar;
   MMRDOVariables*         m_MmRdoVar;
   MMPRDVariables*         m_MmPrdVar;
@@ -88,12 +90,12 @@ class NSWPRDValAlg:public AthAlgorithm
   std::string m_Truth_ContainerName;
   std::string m_MuEntry_ContainerName;
   std::string m_NSWsTGC_ContainerName;
-  std::string m_NSWsTGC_FastDigitContainerName;
+  std::string m_NSWsTGC_SDOContainerName;
   std::string m_NSWsTGC_DigitContainerName;
   std::string m_NSWsTGC_RDOContainerName;
   std::string m_NSWsTGC_PRDContainerName;
   std::string m_NSWMM_ContainerName;
-  std::string m_NSWMM_FastDigitContainerName;
+  std::string m_NSWMM_SDOContainerName;
   std::string m_NSWMM_DigitContainerName;
   std::string m_NSWMM_RDOContainerName;
   std::string m_NSWMM_PRDContainerName;
