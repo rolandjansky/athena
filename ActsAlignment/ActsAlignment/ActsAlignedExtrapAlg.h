@@ -14,6 +14,8 @@
 #include "ActsGeometry/IExCellWriterSvc.h"
 #include "ActsGeometry/IExtrapolationTool.h"
 
+#include "GeoModelUtilities/GeoAlignmentStore.h"
+
 #include <string>
 
 namespace Acts {
@@ -41,12 +43,11 @@ public:
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
   virtual StatusCode finalize() override;
+
   
 private:
   
-  //SG::ReadHandleKey<HiveDataObj> m_rdh1 {this, "Key_R1", "a2", "read key 1"};
-  
-  SG::ReadCondHandleKey<ShiftCondObj> m_rch {this, "Key_CH", "X1", "cond read key"};
+  SG::ReadCondHandleKey<GeoAlignmentStore> m_rch {this, "PixelAlignmentKey", "PixelAlignment", "cond read key"};
 
   ServiceHandle<Acts::ITrackingGeometrySvc> m_trackingGeometrySvc;
   ServiceHandle<Acts::IExCellWriterSvc> m_exCellWriterSvc;
@@ -59,3 +60,4 @@ private:
   ToolHandle<Acts::IExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "Acts__ExtrapolationTool"};
 
 };
+

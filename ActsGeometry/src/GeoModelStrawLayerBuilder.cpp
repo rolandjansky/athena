@@ -97,7 +97,8 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
 
             auto trf = std::make_shared<const Transform3D>(brlElem->strawTransform(istraw));
             // @TODO: ID IS WRONG!!!!! all straws get the same ID
-            auto elem = std::make_shared<const Acts::GeoModelDetectorElement>(trf, brlElem);
+            auto elem = std::make_shared<const Acts::GeoModelDetectorElement>(
+                trf, brlElem, m_cfg.trackingGeometrySvc);
 
             m_cfg.elementStore->push_back(elem);
 
@@ -213,7 +214,8 @@ Acts::GeoModelStrawLayerBuilder::endcapLayers(int side)
 
           auto trf = std::make_shared<const Transform3D>(ecElem->strawTransform(istraw));
           // @TODO: ID IS WRONG!!!!!
-          auto elem = std::make_shared<const Acts::GeoModelDetectorElement>(trf, ecElem);
+          auto elem = std::make_shared<const Acts::GeoModelDetectorElement>(
+              trf, ecElem, m_cfg.trackingGeometrySvc);
 
           m_cfg.elementStore->push_back(elem);
 

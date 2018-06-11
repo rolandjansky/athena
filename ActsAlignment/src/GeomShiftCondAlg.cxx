@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #include "ActsAlignment/GeomShiftCondAlg.h"
 #include "AthExHive/IASCIICondDbSvc.h"
 #include "ActsAlignment/ShiftCondObj.h"
@@ -15,15 +16,30 @@
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
+#include "GeoModelKernel/GeoVPhysVol.h"
+#include "GeoModelKernel/GeoNodeAction.h"
+#include "GeoModelKernel/GeoAlignableTransform.h"
+
+#include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
+#include "GeoModelUtilities/GeoAlignmentStore.h"
+#include "InDetReadoutGeometry/ExtendedAlignableTransform.h"
+
+#include "Acts/Utilities/Definitions.hpp"
 
 #include <thread>
 #include <chrono>
 #include <memory>
+#include <iostream>
 
 GeomShiftCondAlg::GeomShiftCondAlg( const std::string& name, 
             ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
-  m_cs("CondSvc",name)
+  m_cs("CondSvc",name),
+  m_detStore("StoreGateSvc/DetectorStore", name)
 {
 }
 
@@ -37,6 +53,60 @@ StatusCode GeomShiftCondAlg::initialize() {
   if (m_cs.retrieve().isFailure()) {
     ATH_MSG_ERROR("unable to retrieve CondSvc");
   }
+
+  ATH_CHECK ( m_detStore->retrieve(p_pixelManager, "Pixel") );
+  ATH_CHECK ( m_detStore->retrieve(p_SCTManager, "SCT") );
+  ATH_CHECK ( m_detStore->retrieve(p_TRTManager, "TRT") );
+
+  struct AlignableTransformFindAction : public GeoNodeAction {
+
+    const GeoAlignableTransform* highestTransform = nullptr;
+
+    //void 
+    //handlePhysVol (const GeoPhysVol *vol) {
+      //std::cout << "VOLUME(" << vol->getLogVol()->getName() <<")" << std::endl;
+    //}
+    
+    //void 
+    //handleFullPhysVol (const GeoPhysVol *vol) {
+      //std::cout << "VOLUME(" << vol->getLogVol()->getName() <<")" << std::endl;
+    //}
+    //void
+    //handleNameTag (const GeoNameTag *nameTag)
+    //{
+      //std::cout << "NAMETAG: " << nameTag->getName() << "+";
+    //}
+
+    //void 
+    //handleIdentifierTag (const GeoIdentifierTag *idTag) {
+      //std::cout << "NAME: " << idTag->getIdentifier() << "+";
+    //}
+
+    void
+    handleTransform(const GeoTransform* xf) {
+      if (highestTransform != nullptr) return;
+      auto alignableTransform = dynamic_cast<const GeoAlignableTransform*>(xf);
+      if (alignableTransform != nullptr) {
+        //std::cout << __FUNCTION__ << ": " << xf << std::endl;
+        highestTransform = alignableTransform;
+      }
+    }
+
+  };
+
+
+  // let's only do pixel for now
+  //size_t numTreeTops = p_pixelManager->getNumTreeTops();
+
+  //std::vector<const GeoAlignableTransform*> topAligns(numTreeTops);
+
+  //for(size_t i=0;i<numTreeTops;i++) {
+    //AlignableTransformFindAction alignableTransformFindAction;
+    //PVConstLink pixelTreeTop = p_pixelManager->getTreeTop(i);
+    //pixelTreeTop->exec(&alignableTransformFindAction);
+    //m_topAligns.push_back(alignableTransformFindAction.highestTransform);
+  //}
+
 
   //if (m_cds.retrieve().isFailure()) {
     //ATH_MSG_ERROR("unable to retrieve ASCIICondDbSvc");
@@ -76,7 +146,7 @@ StatusCode GeomShiftCondAlg::execute() {
                 << " e: " << evt->event_ID()->event_number() );
 
 
-  SG::WriteCondHandle<ShiftCondObj> wch(m_wchk);
+  SG::WriteCondHandle<GeoAlignmentStore> wch(m_wchk);
 
   EventIDBase now(getContext().eventID());
 
@@ -96,55 +166,72 @@ StatusCode GeomShiftCondAlg::execute() {
                   << " not valid now (" << now << "). Getting new info for dbKey \"" 
                   << wch.dbKey() << "\" from CondDb");
 
-    //IASCIICondDbSvc::dbData_t val;
-    //if (m_cds->getRange(wch.dbKey(), getContext(), r, val).isFailure()) {
-      //ATH_MSG_ERROR("  could not find dbKey \"" << wch.dbKey() 
-        //<< "\" in CondSvc registry");
-      //return StatusCode::FAILURE;
-    //}
-
     ATH_MSG_ALWAYS("SG evt: " << *(evt->event_ID()));
 
     ATH_MSG_DEBUG("LB EventInfo = " << evt->event_ID()->lumi_block());
     ATH_MSG_DEBUG("LB context = " << getContext().eventID().lumi_block());
 
     unsigned int intvl_length = 1000;
-    //unsigned int intvl_num = evt->event_ID()->event_number() / intvl_length + 1;
     unsigned int intvl_num = evt->event_ID()->lumi_block();
-    std::cout << "intvl_num=" << intvl_num << std::endl;
-    //int intvl_start = intvl_num * intvl_length;
-    //int intvl_end = (intvl_num+1) * intvl_length;
 
-    //double* shift = new double(intvl_num * 10);
-    double val = intvl_num * 10;
+    double val = intvl_num * 2;
 
-    //EventIDBase start(1, intvl_start);
-    //EventIDBase end(1, intvl_end);
     EventIDBase start(1, EventIDBase::UNDEFEVT);
     EventIDBase end(1, EventIDBase::UNDEFEVT);
 
     start.set_lumi_block(intvl_num);
-    //start.set_time_stamp(0);
-    
     end.set_lumi_block(intvl_num+1);
-    //end.set_time_stamp(0);
 
     EventIDRange r(start, end);
 
-    ATH_MSG_ALWAYS("now >= start: " << (now >= start));
-    ATH_MSG_ALWAYS("now < end: " << (now < end));
-    ATH_MSG_ALWAYS("in range manual: " << (now >= r.start() && now < r.stop() ));
+    //Transform3D shift;
+    //shift
 
-    ATH_MSG_ALWAYS("Is now (" << now << ") in range r (" << r << ")? " << r.isInRange( now ));
+    //ShiftCondObj* cdo = new ShiftCondObj( val );
+    
+    GeoAlignmentStore* alignStore = new GeoAlignmentStore();
+    
+    const InDetDD::PixelDetectorManager* pixMgr 
+      = dynamic_cast<const InDetDD::PixelDetectorManager*>(p_pixelManager);
 
-    ATH_MSG_ALWAYS("make shift: range = " << r << " val = " << val );
-    ATH_MSG_ALWAYS("start: " << start);
-    ATH_MSG_ALWAYS("end: " << end);
+    InDetDD::PixelDetectorManager::AlignableTransformMap& atMatL1 
+      = const_cast<InDetDD::PixelDetectorManager::AlignableTransformMap&>(
+          pixMgr->m_higherAlignableTransforms.at(1));
 
-    ShiftCondObj* cdo = new ShiftCondObj( val );
-    if (wch.record(r, cdo).isFailure()) {
+
+    PixelID idHelper;
+
+    for(const auto& eat_item : atMatL1) {
+      const Identifier &id = eat_item.first;
+
+      std::cout << "Identifier: (bec, d, phim, etam, phiidx, etaidx): ";
+      std::cout << idHelper.barrel_ec(id) << " ";
+      std::cout << idHelper.layer_disk(id) << " ";
+      std::cout << idHelper.phi_module(id) << " ";
+      std::cout << idHelper.eta_module(id) << " ";
+      std::cout << idHelper.phi_index(id) << " ";
+      std::cout << idHelper.eta_index(id) << " ";
+      std::cout << std::endl;
+    
+
+      InDetDD::ExtendedAlignableTransform* eat = eat_item.second;
+      GeoAlignableTransform* alTrf = eat->alignableTransform();
+      Acts::Transform3D delta;
+      delta = Acts::Translation3D(Acts::Vector3D::UnitZ()*val);
+      ATH_MSG_DEBUG("add delta: " << alTrf << " -> (z=" << val << ")");
+      alignStore->setDelta(alTrf, Amg::EigenTransformToCLHEP(delta));
+    }
+
+    //for (const GeoAlignableTransform* alignableTrf : m_topAligns) {
+      //Acts::Transform3D delta;
+      //delta = Acts::Translation3D(Acts::Vector3D::UnitZ()*val);
+      //alignStore->setDelta(alignableTrf, Amg::EigenTransformToCLHEP(delta));
+    //}
+
+
+    if (wch.record(r, alignStore).isFailure()) {
       ATH_MSG_ERROR("could not record shift " << wch.key() 
-		    << " = " << *cdo
+		    << " = " << alignStore
                     << " with EventRange " << r);
       return StatusCode::FAILURE;
     }
@@ -153,7 +240,7 @@ StatusCode GeomShiftCondAlg::execute() {
     ATH_MSG_ALWAYS("isValid now? " << wch.isValid(now));
 
 
-    ATH_MSG_INFO("recorded new shift " << wch.key() << " = " << *cdo 
+    ATH_MSG_INFO("recorded new shift " << wch.key() << " "
 		 << " with range " << r);
   }
 

@@ -14,7 +14,17 @@
 #include "EventInfo/EventInfo.h"
 #include "GaudiKernel/ICondSvc.h"
 
+#include "StoreGate/StoreGateSvc.h"
+#include "GeoModelUtilities/GeoAlignmentStore.h"
+
 #include <string>
+
+namespace InDetDD {
+  class InDetDetectorManager;
+  class SiDetectorManager;
+  class TRT_DetectorManager;
+}
+
 
 class GeomShiftCondAlg  :  public AthAlgorithm {
   
@@ -33,13 +43,19 @@ private:
   
   SG::ReadHandleKey<EventInfo> m_evt {this,"EvtInfo", "McEventInfo", "EventInfo name"};
 
-  SG::WriteCondHandleKey<ShiftCondObj> m_wchk {this, "Key_CH", "X2", "cond handle key"};
+  SG::WriteCondHandleKey<GeoAlignmentStore> m_wchk {this, "PixelAlignmentKey", "PixelAlignment", "cond handle key"};
 
   Gaudi::Property<std::string> m_dbKey {this, "Key_DB", "X2", "explicit dbKey for cond handle"};
 
   ServiceHandle<ICondSvc> m_cs;
   //ServiceHandle<IASCIICondDbSvc> m_cds;
 
+  ServiceHandle<StoreGateSvc> m_detStore;
+  const InDetDD::SiDetectorManager* p_pixelManager;
+  const InDetDD::SiDetectorManager* p_SCTManager;
+  const InDetDD::TRT_DetectorManager* p_TRTManager;
+
+  std::vector<const GeoAlignableTransform*> m_topAligns;
 
 };
 

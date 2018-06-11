@@ -24,6 +24,15 @@
 #include "ActsInterop/IdentityHelper.h"
 #include "ActsInterop/Logger.h"
 
+#include "GeoModelUtilities/GeoAlignmentStore.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
+#include "GaudiKernel/Kernel.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+
+
 Acts::TrackingGeometrySvc::TrackingGeometrySvc(const std::string& name, ISvcLocator* svc)
    : base_class(name,svc),
    m_detStore("StoreGateSvc/DetectorStore", name)
@@ -34,6 +43,8 @@ Acts::TrackingGeometrySvc::TrackingGeometrySvc(const std::string& name, ISvcLoca
 StatusCode
 Acts::TrackingGeometrySvc::initialize()
 {
+  ATH_CHECK(m_rch.initialize());
+  
   ATH_CHECK ( m_detStore->retrieve(p_pixelManager, "Pixel") );
   ATH_CHECK ( m_detStore->retrieve(p_SCTManager, "SCT") );
   ATH_CHECK ( m_detStore->retrieve(p_TRTManager, "TRT") );
@@ -95,11 +106,34 @@ Acts::TrackingGeometrySvc::initialize()
   
   m_trackingGeometry = trackingGeometryBuilder->trackingGeometry();
   
+  //const Acts::TrackingVolume* = m_trackingGeometry->highestTrackingVolume();
+
+
+  
   return StatusCode::SUCCESS;
 }
 
 std::shared_ptr<const Acts::TrackingGeometry>
 Acts::TrackingGeometrySvc::trackingGeometry() {
+
+  // this is called from Alg::execute, test here
+  //auto ctx = Gaudi::Hive::currentContext();
+
+  //if (!ctx.valid()) {
+    //ATH_MSG_DEBUG("TrackingGeometry requested outside of valid event context");
+    //return m_trackingGeometry;
+  //}
+
+  //ATH_MSG_DEBUG("TrackingGeometry requested from ctx:" << ctx.eventID());
+
+  //SG::ReadCondHandle<ShiftCondObj> rch( m_rch, ctx );
+  //const ShiftCondObj *shift = *rch;
+  //if (shift != 0) {
+    //ATH_MSG_INFO("  read CH: " << rch.key() << " = " << *shift );
+  //} else {
+    //ATH_MSG_ERROR("  CDO ptr for " << rch.key() << " == zero");
+  //}
+
   return m_trackingGeometry;
 }
 
@@ -138,6 +172,7 @@ Acts::TrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager
     cfg.mng = static_cast<const InDetDD::TRT_DetectorManager*>(manager);
     cfg.elementStore = m_elementStore;
     cfg.layerCreator = layerCreator;
+    cfg.trackingGeometrySvc = this;
     gmLayerBuilder = std::make_shared<const Acts::GeoModelStrawLayerBuilder>(cfg,
       ACTS_ATH_LOGGER("GMSLayBldr"));
 
@@ -226,6 +261,7 @@ Acts::TrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager
     // use class member element store
     cfg.elementStore = m_elementStore;
     cfg.layerCreator = layerCreator;
+    cfg.trackingGeometrySvc = this;
 
     gmLayerBuilder = std::make_shared<const GMLB>(cfg,
       ACTS_ATH_LOGGER("GMLayBldr"));

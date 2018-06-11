@@ -31,12 +31,16 @@
 #include "Acts/Surfaces/RectangleBounds.hpp"
 #include "Acts/Surfaces/TrapezoidBounds.hpp"
 
+#include "GaudiKernel/ContextSpecificPtr.h"
+
 
 namespace Acts {
 
 class IdentityHelper;
 
 class DigitizationModule;
+
+class TrackingGeometrySvc;
 
 /// @class GeoModelDetectorElement
 ///
@@ -46,11 +50,14 @@ class GeoModelDetectorElement : public DetectorElementBase
 public:
   enum class Subdetector { Pixel, SCT, TRT };
 
-  GeoModelDetectorElement(const InDetDD::SiDetectorElement* detElem);
+  GeoModelDetectorElement(const InDetDD::SiDetectorElement* detElem,
+                          const TrackingGeometrySvc* trkSvc);
 
   /// Constructor for a straw surface.
   /// @param transform Transform to the straw system
-  GeoModelDetectorElement(std::shared_ptr<const Transform3D> trf, const InDetDD::TRT_BaseElement* detElem);
+  GeoModelDetectorElement(std::shared_ptr<const Transform3D> trf, 
+                          const InDetDD::TRT_BaseElement* detElem,
+                          const TrackingGeometrySvc* trkSvc);
 
   ///  Destructor
   virtual ~GeoModelDetectorElement() {}
@@ -103,6 +110,12 @@ private:
   std::vector<std::shared_ptr<const Surface>> m_surfaces;
 
   std::shared_ptr<const Transform3D> m_transform;
+
+  const TrackingGeometrySvc* m_trackingGeometrySvc;
+
+  // this is threadsafe!
+  mutable Gaudi::Hive::ContextSpecificData<Transform3D> m_ctxSpecificTransform;
+
 
 };
 

@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           Control/AthenaExamples/AthExHive 
+                          DetectorDescription/GeoModel/GeoModelKernel
                           ActsGeometry )
 
 # External dependencies:
@@ -25,6 +26,15 @@ if(NOT ATH_ACTS_BUILD_SUBDIR)
 endif()
 
 # Component(s) in the package:
+atlas_add_library( ActsAlignmentLib
+                     src/*.cxx
+                     src/*.cpp
+                     src/obj/*.cpp
+                     src/Extrapolation/*.cpp
+                     PUBLIC_HEADERS ActsAlignment
+                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib GaudiKernel InDetCondServices InDetIdentifier InDetReadoutGeometry AthExHive GeoModelKernel ActsGeometryLib Acts::Core)
+
 atlas_add_component( ActsAlignment
                      src/*.cxx
                      src/*.cpp
@@ -33,7 +43,7 @@ atlas_add_component( ActsAlignment
                      src/components/*.cxx
                      PUBLIC_HEADERS ActsAlignment
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib GaudiKernel InDetCondServices InDetIdentifier InDetReadoutGeometry AthExHive ActsGeometryLib Acts::Core)
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib GaudiKernel InDetCondServices InDetIdentifier InDetReadoutGeometry AthExHive GeoModelKernel ActsGeometryLib Acts::Core)
 
 # Install files from the package:
 atlas_install_headers( ActsAlignment )

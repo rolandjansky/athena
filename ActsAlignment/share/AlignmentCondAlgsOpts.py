@@ -20,7 +20,7 @@ svcMgr.EventSelector.RunNumber=1
 svcMgr.EventSelector.InitialTimeStamp=0
 svcMgr.EventSelector.TimeStampInterval=1
 svcMgr.EventSelector.FirstLB=1
-svcMgr.EventSelector.EventsPerLB = 100
+svcMgr.EventSelector.EventsPerLB = 3000
 
 #
 ## Override Setup for Hive
@@ -84,7 +84,7 @@ trkGeomSvc.OutputLevel = INFO
 ServiceMgr += trkGeomSvc
 
 exCellWriterSvc = CfgMgr.Acts__ExCellWriterSvc("ExCellWriterSvc")
-exCellWriterSvc.FilePath = "excells_charged.root"
+exCellWriterSvc.FilePath = "excells_charged_aligned.root"
 ServiceMgr += exCellWriterSvc
 
 exTool = CfgMgr.Acts__ExtrapolationTool("ExtrapolationTool")
@@ -124,9 +124,9 @@ topSequence = AlgSequence()
 from AthExHive import AthExHiveConf
 from ActsAlignment import ActsAlignmentConf
 
-extrapAlg = ActsAlignmentConf.ActsAlignedExtrapAlg("ActsAlignedExtrapAlg1", 
-                                                    OutputLevel=DEBUG, 
-                                                    Key_CH="X1")
+extrapAlg = ActsAlignmentConf.ActsAlignedExtrapAlg("ActsAlignedExtrapAlg_1", 
+                                                    OutputLevel=VERBOSE)
+
 extrapAlg.ExtrapolationTool = exTool
 
 topSequence += extrapAlg
@@ -135,9 +135,7 @@ from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq") 
 
 condSeq+=ActsAlignmentConf.GeomShiftCondAlg("GeomShiftCondAlg_1",
-                                            OutputLevel=DEBUG, 
-                                            Key_CH="X1", 
-                                            Key_DB="X1")
+                                            OutputLevel=VERBOSE)
 
 
 # condDbFile = "condDb.txt"

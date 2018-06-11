@@ -28,6 +28,7 @@
 namespace Acts {
 
 class Surface;
+class TrackingGeomtrySvc;
 
 /// @class GeoModelStrawLayerBuilder
 class GeoModelStrawLayerBuilder : public ILayerBuilder
@@ -43,6 +44,7 @@ public:
     const InDetDD::TRT_DetectorManager*   mng;
     std::shared_ptr<const LayerCreator> layerCreator = nullptr;
     std::shared_ptr<ElementVector> elementStore;
+    const Acts::TrackingGeometrySvc* trackingGeometrySvc = nullptr;
   };
   
   /// Constructor

@@ -44,7 +44,7 @@ StatusCode ActsAlignedExtrapAlg::initialize() {
 
   ATH_CHECK(m_rch.initialize());
 
-  ATH_MSG_INFO( "m_rch id:  " << m_rch.fullKey() );
+  //ATH_MSG_INFO( "m_rch id:  " << m_rch.fullKey() );
   
   ATH_CHECK( m_trackingGeometrySvc.retrieve() );
   ATH_CHECK( m_exCellWriterSvc.retrieve() );
@@ -78,6 +78,9 @@ StatusCode ActsAlignedExtrapAlg::finalize() {
 StatusCode ActsAlignedExtrapAlg::execute() {
   ATH_MSG_DEBUG("execute " << name());
 
+  // tmp
+  m_trackingGeometrySvc->trackingGeometry();
+
   auto ctx = Gaudi::Hive::currentContext();
 
   auto eventID = getContext().eventID();
@@ -87,6 +90,8 @@ StatusCode ActsAlignedExtrapAlg::execute() {
   rngWrapper->setSeed( name(), ctx );
   
   std::vector<Acts::ProcessVertex> vertices = m_particleGun->generate(*rngWrapper);
+  
+  std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>> ecells;
 
   for(size_t n=0;n<vertices.size();n++) {
     
@@ -139,10 +144,12 @@ StatusCode ActsAlignedExtrapAlg::execute() {
           //m_materialTrackWriterSvc->write(std::move(mTrack));
         //}
 
-        //ecells.push_back(std::move(ecc));
+        ecells.push_back(std::move(ecc));
       }
     }
   }
+  
+  m_exCellWriterSvc->store(ecells);
 
   //EventIDBase t( getContext().eventID() );
   

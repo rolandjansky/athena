@@ -16,7 +16,9 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/SiPropertiesSvc
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
-                          ActsInterop )
+                          DetectorDescription/GeoModel/GeoModelUtilities/
+                          ActsInterop
+                          ActsAlignment )
 
 # External dependencies:
 find_package( CLHEP )
@@ -35,7 +37,7 @@ atlas_add_library( ActsGeometryLib
                      src/Extrapolation/*.cpp
                      PUBLIC_HEADERS ActsGeometry
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GeoPrimitives Identifier RegionSelectorLib GaudiKernel InDetCondServices SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry MagFieldInterfaces TrkGeometry ActsInteropLib Acts::Core Acts::Legacy Acts::MaterialPlugin Acts::ProtobufPlugin)
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GeoPrimitives Identifier RegionSelectorLib GaudiKernel InDetCondServices SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry MagFieldInterfaces TrkGeometry GeoModelUtilities ActsInteropLib Acts::Core Acts::Legacy Acts::MaterialPlugin Acts::ProtobufPlugin)
 
 atlas_add_component( ActsGeometry
                      src/*.cxx
@@ -45,7 +47,7 @@ atlas_add_component( ActsGeometry
                      src/components/*.cxx
                      PUBLIC_HEADERS ActsGeometry
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GeoPrimitives Identifier RegionSelectorLib GaudiKernel InDetCondServices SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry MagFieldInterfaces TrkGeometry ActsInteropLib Acts::Core Acts::Legacy Acts::MaterialPlugin Acts::ProtobufPlugin)
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps StoreGateLib SGtests GeoPrimitives Identifier RegionSelectorLib GaudiKernel InDetCondServices SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry MagFieldInterfaces TrkGeometry GeoModelUtilities ActsInteropLib ActsAlignmentLib Acts::Core Acts::Legacy Acts::MaterialPlugin Acts::ProtobufPlugin)
 
 # Install files from the package:
 atlas_install_headers( ActsGeometry )

@@ -13,7 +13,10 @@
 #include "InDetReadoutGeometry/TRT_EndcapElement.h"
 #include "InDetReadoutGeometry/TRT_BarrelElement.h"
 
+#include "GeoModelKernel/GeoVFullPhysVol.h"
+
 #include "ActsGeometry/GeoModelDetectorElement.hpp"
+#include "ActsGeometry/TrackingGeometrySvc.h"
 #include "ActsInterop/IdentityHelper.h"
 
 #include "Acts/Surfaces/StrawSurface.hpp"
@@ -22,10 +25,20 @@
 #include "GaudiKernel/Kernel.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ThreadLocalContext.h"
+#include "StoreGate/ReadCondHandle.h"
+
+
+#include "GeoPrimitives/CLHEPtoEigenConverter.h"
+
+#include "GaudiKernel/ContextSpecificPtr.h"
+#include "GeoModelUtilities/GeoAlignmentStore.h"
 
 
 
-Acts::GeoModelDetectorElement::GeoModelDetectorElement(const InDetDD::SiDetectorElement* detElem)
+Acts::GeoModelDetectorElement::GeoModelDetectorElement(
+    const InDetDD::SiDetectorElement* detElem,
+    const Acts::TrackingGeometrySvc* trkSvc)
+  : m_trackingGeometrySvc(trkSvc)
 {
   m_detElement = detElem;
 
@@ -76,7 +89,9 @@ Acts::GeoModelDetectorElement::GeoModelDetectorElement(const InDetDD::SiDetector
 
 Acts::GeoModelDetectorElement::GeoModelDetectorElement(
     std::shared_ptr<const Transform3D> trf,
-    const InDetDD::TRT_BaseElement* detElem)
+    const InDetDD::TRT_BaseElement* detElem,
+    const Acts::TrackingGeometrySvc* trkSvc)
+  : m_trackingGeometrySvc(trkSvc)
 {
   m_detElement = detElem;
   m_transform = trf;
@@ -127,19 +142,74 @@ Acts::GeoModelDetectorElement::assignIdentifier(const Identifier& /*identifier*/
 const Acts::Transform3D&
 Acts::GeoModelDetectorElement::transform(const Identifier&) const
 {
-  
-  auto ctx = Gaudi::Hive::currentContext();
-  std::cout << __FUNCTION__ << ": eventID = " << ctx.eventID() << std::endl;
+
+  // unpack context specific storage
+  Transform3D& trf = m_ctxSpecificTransform;
 
 
+  // OLD default way to get transform
   size_t which = m_detElement.which();
+  const GeoVFullPhysVol* physVol;
+  
+  Transform3D recoToHit = Transform3D::Identity();
+
+  auto clhep2eigen = [](auto const &trf) { return Amg::CLHEPTransformToEigen(trf); };
+
   if (which == 0) {
-    return boost::get<const InDetDD::SiDetectorElement*>(m_detElement)->transform();
+    auto de = boost::get<const InDetDD::SiDetectorElement*>(m_detElement);
+    physVol = de->getMaterialGeom();
+    //trf = de->transform();
+    trf = clhep2eigen(physVol->getDefAbsoluteTransform());
+    trf = trf * clhep2eigen(de->recoToHitTransform());
+    recoToHit = clhep2eigen(de->recoToHitTransform());
   }
   else {
-    //return boost::get<const InDetDD::TRT_BaseElement*>(m_detElement)->transform();
-    return (*m_transform);
+    auto de = boost::get<const InDetDD::TRT_BaseElement*>(m_detElement);
+    physVol = de->getMaterialGeom();
+    //nominal = &de->transform();
+    trf = *m_transform;
   }
+  
+
+  auto ctx = Gaudi::Hive::currentContext();
+
+
+  if (!ctx.valid()) {
+    // don't have valid context yet, this is probably geometry construction
+    //trans = physVol->getDefAbsoluteTransform();
+    //return *(new Transform3D(Amg::CLHEPTransformToEigen(trans)));
+    return trf; // def transform
+  }
+
+  // have valid context, get aligned transform
+  SG::ReadCondHandle<GeoAlignmentStore> rch(m_trackingGeometrySvc->alignmentCondHandleKey());
+  //const ShiftCondObj *shift = *rch;
+  // this is obviously not great
+  GeoAlignmentStore* alignmentStore = const_cast<GeoAlignmentStore*>(*rch);
+  
+  HepGeom::Transform3D trans = physVol->getAbsoluteTransform(alignmentStore);
+
+  //std::cout << __FUNCTION__ << " alignmentStore: " << alignmentStore << std::endl;
+
+  //if (shift != 0) {
+    //std::cout << "  read CH: " << rch.key() << " = " << *shift << std::endl;
+  //} else {
+    //std::cout << "  CDO ptr for " << rch.key() << " == zero" << std::endl;
+  //}
+
+  // build fake shift along z
+  //Transform3D shiftTrf;
+  //shiftTrf = Translation3D(Vector3D::UnitZ() * shift->val());
+  //trf = shiftTrf * trf;
+  
+  // @TODO: This is SUPER EVIL! Only temporary
+  //trans = physVol->getAbsoluteTransform();
+  //Transform3D* aligned = new Transform3D(shiftTrf * Amg::CLHEPTransformToEigen(trans));
+
+  trf = clhep2eigen(trans) * recoToHit;
+
+  return trf;
+
 }
 
 const Acts::Surface&

@@ -27,6 +27,7 @@
 namespace Acts {
 
 class Surface;
+class TrackingGeomtrySvc;
 
 /// @class GeoModelLayerBuilder
 class GeoModelLayerBuilder : public ILayerBuilder
@@ -59,6 +60,8 @@ public:
 
     std::pair<size_t, size_t> endcapMaterialBins = {20, 5};
     std::pair<size_t, size_t> barrelMaterialBins = {10, 10};
+
+    const Acts::TrackingGeometrySvc* trackingGeometrySvc = nullptr;
   };
 
   /// Constructor

@@ -8,6 +8,13 @@
 
 #include "ActsGeometry/ITrackingGeometrySvc.h"
 
+#include "ActsAlignment/ShiftCondObj.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadCondHandle.h"
+
+#include "GeoModelUtilities/GeoAlignmentStore.h"
+
 #include <map>
 
 namespace InDetDD {
@@ -26,6 +33,7 @@ class GeoModelDetectorElement;
 class GeometryID;
 class BinnedSurfaceMaterial;
 
+
 class TrackingGeometrySvc : public extends<AthService, ITrackingGeometrySvc> {
 public:
 
@@ -37,6 +45,8 @@ public:
   virtual
   std::shared_ptr<const Acts::TrackingGeometry>
   trackingGeometry() override;
+  
+  SG::ReadCondHandleKey<GeoAlignmentStore> alignmentCondHandleKey() const;
 
 
 private:
@@ -56,11 +66,17 @@ private:
 
   Gaudi::Property<std::vector<size_t>> m_barrelMaterialBins{this, "BarrelMaterialBins", {10, 10}};
   Gaudi::Property<std::vector<size_t>> m_endcapMaterialBins{this, "EndcapMaterialBins", {5, 20}};
+  
+  SG::ReadCondHandleKey<GeoAlignmentStore> m_rch {this, "PixelAlignmentKey", "PixelAlignment", "cond read key"};
 
 
 };
 
 }
 
+inline SG::ReadCondHandleKey<GeoAlignmentStore>
+Acts::TrackingGeometrySvc::alignmentCondHandleKey() const {
+  return m_rch;
+}
 
 #endif 

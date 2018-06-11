@@ -58,7 +58,10 @@ Acts::GeoModelLayerBuilder::getDetectorElements() const
       iter != siDetMng->getDetectorElementEnd();
       ++iter) {
       const InDetDD::SiDetectorElement* siDetElement = *iter;
-      elements.push_back(std::make_shared<const GeoModelDetectorElement>(siDetElement));
+      //elements.emplace_back(siDetElement, m_cfg.trackingGeometrySvc);
+      elements.push_back(
+          std::make_shared<const GeoModelDetectorElement>(
+            siDetElement, m_cfg.trackingGeometrySvc));
     }
   //}
   //else {
@@ -248,7 +251,7 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
     } else {  // ENDCAP
       ProtoLayer pl(layerSurfaces);
       pl.envR    = {0, 0};
-      pl.envZ    = {5, 5};
+      pl.envZ    = {30, 30};
 
 
       // copied from layercreator
