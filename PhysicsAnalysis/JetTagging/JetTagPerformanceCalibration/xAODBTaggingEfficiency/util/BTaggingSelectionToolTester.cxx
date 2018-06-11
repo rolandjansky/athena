@@ -55,7 +55,7 @@ int main() {
   #endif
 
 
-  TFile* m_file = TFile::Open("/mnt/lustre/agrp/jshlomi/seltoolupdate/DAOD_FTAG2.root","read");
+  TFile* m_file = TFile::Open("/afs/cern.ch/work/j/jshlomi/public/DAOD_FTAG2.root","read");
 
   if(!event.readFrom(m_file).isSuccess()){ std::cout << "failed to load file" << std::endl; return -1; }
 

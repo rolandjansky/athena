@@ -636,19 +636,27 @@ CorrectionCode BTaggingSelectionTool::getCutValue(double pT, double & cutval,boo
 {
    cutval = DBL_MAX;
 
+  taggerproperties localtagger;
+
+  if(useVetoWP && m_useVeto){
+    localtagger = m_vetoTagger;
+  }else{
+    localtagger = m_tagger;
+  }
+
    // flat cut for out of range pTs
    if (pT>m_maxRangePt)
      pT = m_maxRangePt;
 
-   if (m_tagger.spline != nullptr && m_tagger.constcut == nullptr) {
+   if (localtagger.spline != nullptr && localtagger.constcut == nullptr) {
      pT = pT/1000.0;
-     double maxsplinept = m_tagger.spline->GetXmax();
+     double maxsplinept = localtagger.spline->GetXmax();
      if (pT>maxsplinept){ pT = maxsplinept; }
-     cutval = m_tagger.spline->Eval(pT);
+     cutval = localtagger.spline->Eval(pT);
    }
 
-   else if (m_tagger.constcut != nullptr && m_tagger.spline == nullptr) {
-     cutval = m_tagger.constcut[0](0);
+   else if (localtagger.constcut != nullptr && localtagger.spline == nullptr) {
+     cutval = localtagger.constcut[0](0);
    }
    else{
     ATH_MSG_ERROR( "Bad cut configuration!" );
