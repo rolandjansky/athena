@@ -38,7 +38,8 @@ class MultiLayerPerceptron {
     REAL                      m_etmax;
     REAL                      m_etamin;
     REAL                      m_etamax;
-
+    REAL                      m_mumin;
+    REAL                      m_mumax;
 
 
   public:
@@ -46,7 +47,7 @@ class MultiLayerPerceptron {
     MultiLayerPerceptron(std::vector<unsigned int> &, 
                          std::vector<REAL> &, std::vector<REAL> &, 
                          REAL etmin,  REAL etmax, 
-                         REAL etamin,  REAL etamax);
+                         REAL etamin,  REAL etamax, REAL mumin, REAL mumax);
 
     ~MultiLayerPerceptron();
 
@@ -60,6 +61,8 @@ class MultiLayerPerceptron {
     REAL etamax(){ return m_etamax;};
     REAL etmin(){  return m_etmin;};
     REAL etmax(){  return m_etmax;};
+    REAL mumin(){  return m_mumin;};
+    REAL mumax(){  return m_mumax;};
 
 };
 #endif

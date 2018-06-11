@@ -82,7 +82,7 @@ class ISF_HitAnalysis : public AthAlgorithm {
    virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
    virtual StatusCode updateMetaData(IOVSVC_CALLBACK_ARGS);
 
-   IFastCaloSimGeometryHelper* GetCaloGeometry() const {return &(*m_CaloGeometryHelper);};
+   const IFastCaloSimGeometryHelper* GetCaloGeometry() const {return &(*m_CaloGeometryHelper);};
 
    const static int MAX_LAYER = 25;
 

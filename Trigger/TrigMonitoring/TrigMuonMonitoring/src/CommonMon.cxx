@@ -112,7 +112,7 @@ StatusCode HLTMuonMonTool::bookCommonDQA()
     ATH_MSG_INFO("start booking Common histograms for newRun");
 
     addHistogram( new TH1F("HI_PP_Flag", "HI_PP_Flag",4,0,4), m_histdir); 
-    addHistogram( new TH1F("Monitoring_Chain", "Monitoring_Chain",20,0,20), m_histdir);
+    addHistogram( new TH1F("Monitoring_Chain", "Monitoring_Chain",15,0,15), m_histdir);
     addHistogram( new TH1F("Common_Counter",           "Event Counter",  30, 0., 30.), m_histdir );
     hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(EVENT+1,"Event");
     hist("Common_Counter", m_histdir)->GetXaxis()->SetBinLabel(MUFAST+1,"L2MuonSA");
@@ -1417,8 +1417,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	vs_ESstd.push_back("HLT_noalg_L1MU10"); 
 	//vs_ESstd.push_back("HLT_noalg_L1MU11"); 
       }else{
-	vs_ESstd.push_back("HLT_mu18"); // for release
-	vs_ESstd.push_back("HLT_mu24_imedium"); // increasing stat for muZTP, which requests now ES bits
+	vs_ESstd.push_back("HLT_mu26_ivarmedium"); // increasing stat for muZTP, which requests now ES bits
       }
       // vs_ESstd.push_back("HLT_mu18i4_tight"); // for test
       // vs_ESstd.push_back("HLT_mu22_medium"); // for test

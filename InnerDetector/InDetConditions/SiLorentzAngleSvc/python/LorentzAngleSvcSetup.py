@@ -48,16 +48,19 @@ class LorentzAngleSvcSetup:
 
         from AthenaCommon.DetFlags      import DetFlags
 
+        from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
+
         ##
         ## Pixel
         ##
         if ( DetFlags.detdescr.pixel_on() ):
 
             from PixelLorentzAngleSvcSetup import pixelLorentzAngleSvcSetup
-
             self.pixel = pixelLorentzAngleSvcSetup.PixelLorentzAngleSvc
             self.pixelSiliconConditionsSvc = pixelLorentzAngleSvcSetup.PixelSiliconConditionsSvc
             self.PixelSiliconConditionsSvc = pixelLorentzAngleSvcSetup.PixelSiliconConditionsSvc
+            self.pixelSiPropertiesSvc      = pixelLorentzAngleSvcSetup.PixelSiPropertiesSvc
+            self.PixelSiPropertiesSvc      = pixelLorentzAngleSvcSetup.PixelSiPropertiesSvc
 
         ##
         ## SCT 
@@ -69,6 +72,8 @@ class LorentzAngleSvcSetup:
             self.sct   = sctLorentzAngleSvcSetup.SCTLorentzAngleSvc
             self.sctSiliconConditionsSvc  = sctLorentzAngleSvcSetup.SCT_SiliconConditionsSvc
             self.SCT_SiliconConditionsSvc = sctLorentzAngleSvcSetup.SCT_SiliconConditionsSvc
+            self.sctSiPropertiesSvc       = sctLorentzAngleSvcSetup.SCT_SiPropertiesSvc
+            self.SCT_SiPropertiesSvc      = sctLorentzAngleSvcSetup.SCT_SiPropertiesSvc
 
     # Force the Lorentz angle sercive to use SiliconConditions service (which are assumed to use the DB)
     # Default is to decide based on GeoModel.

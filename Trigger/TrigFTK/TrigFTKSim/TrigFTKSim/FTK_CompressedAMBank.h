@@ -427,8 +427,8 @@ protected:
 
   //
   // identifier for wildcard SS
-  static int const k_WILDCARDid;
-  static int const k_INVALIDid;
+  static int const s_WILDCARDid;
+  static int const s_INVALIDid;
   //
   // for generating HUF table
   void SplitlistHUF(uint64_t code,int *i2char,int *integral,int i0,int i1,

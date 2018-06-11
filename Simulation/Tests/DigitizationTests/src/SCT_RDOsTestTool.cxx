@@ -226,7 +226,7 @@ StatusCode SCT_RDOsTestTool::processEvent() {
               if(tempEtaMod<0) ++tempEtaMod;
               tempEtaMod = tempEtaMod + 5;        // puts eta module number in range 0-11
               const int index(2*(240*tempEtaMod+60*sctLayer+sctPhiMod)+sctSide);
-              if(NoBarrelModules.count(index)==1) NoiseOnly = false;
+              if(m_NoBarrelModules.count(index)==1) NoiseOnly = false;
               if(NoiseOnly)
                 {
                   module_type=4;
@@ -281,7 +281,7 @@ StatusCode SCT_RDOsTestTool::processEvent() {
               if(sctEtaMod==2)
                 {
                   module_type = 3; // inner modules
-                  if(NoInnerModules.count(index)==1) NoiseOnly=false;
+                  if(m_NoInnerModules.count(index)==1) NoiseOnly=false;
                 }
               if(sctEtaMod==1)
                 {
@@ -289,17 +289,17 @@ StatusCode SCT_RDOsTestTool::processEvent() {
                   if(sctLayer==7)
                     {
                       module_type = 1; // short middle modules
-                      if(NoShortMiddleModules.count(index)==1) NoiseOnly=false;
+                      if(m_NoShortMiddleModules.count(index)==1) NoiseOnly=false;
                     }
                   else
                     {
-                      if(NoMiddleModules.count(index)==1) NoiseOnly=false;
+                      if(m_NoMiddleModules.count(index)==1) NoiseOnly=false;
                     }
                 }
               if(sctEtaMod==0)
                 {
                   module_type = 0; // outer modules
-                  if(NoOuterModules.count(index)==1) NoiseOnly=false;
+                  if(m_NoOuterModules.count(index)==1) NoiseOnly=false;
                 }
               if(NoiseOnly) m_SCT_OccupancyByModuleType->Fill(module_type, clusterSize);
 
@@ -324,11 +324,11 @@ StatusCode SCT_RDOsTestTool::processEvent() {
 
 StatusCode SCT_RDOsTestTool::CheckSDOs() {
 
-  NoOuterModules.clear();
-  NoShortMiddleModules.clear();
-  NoMiddleModules.clear();
-  NoInnerModules.clear();
-  NoBarrelModules.clear();
+  m_NoOuterModules.clear();
+  m_NoShortMiddleModules.clear();
+  m_NoMiddleModules.clear();
+  m_NoInnerModules.clear();
+  m_NoBarrelModules.clear();
 
   const InDetSimDataCollection* simDataMapSCT(NULL);
   if(evtStore()->retrieve(simDataMapSCT,"SCT_SDO_Map").isFailure()) {
@@ -361,7 +361,7 @@ StatusCode SCT_RDOsTestTool::CheckSDOs() {
           if(tempEtaMod<0) ++tempEtaMod;
           tempEtaMod = tempEtaMod + 5;        // puts eta module number in range 0-11
           const int index(2*(240*tempEtaMod+60*sctLayer+sctPhiMod)+sctSide);
-          NoBarrelModules[index]=1;
+          m_NoBarrelModules[index]=1;
         }
       if(sctBarrel!= 0)
         {
@@ -374,22 +374,22 @@ StatusCode SCT_RDOsTestTool::CheckSDOs() {
           const int index(2*((1000*(2+sctBarrel))+(60*sctLayer+sctPhiMod))+sctSide);
           if(sctEtaMod==2)
             {
-              NoInnerModules[index]=1;
+              m_NoInnerModules[index]=1;
             }
           if(sctEtaMod==1)
             {
               if(sctLayer==7)
                 {
-                  NoShortMiddleModules[index]=1;
+                  m_NoShortMiddleModules[index]=1;
                 }
               else
                 {
-                  NoMiddleModules[index]=1;
+                  m_NoMiddleModules[index]=1;
                 }
             }
           if(sctEtaMod==0)
             {
-              NoOuterModules[index]=1;
+              m_NoOuterModules[index]=1;
             }
         }
 
@@ -430,13 +430,13 @@ StatusCode SCT_RDOsTestTool::CheckSDOs() {
         }
     }
 
-  m_NumberModulesVetoed[0] += NoOuterModules.size();
-  m_NumberModulesVetoed[1] += NoShortMiddleModules.size();
-  m_NumberModulesVetoed[2] += NoMiddleModules.size();
-  m_NumberModulesVetoed[3] += NoInnerModules.size();
-  m_NumberModulesVetoed[4] += NoBarrelModules.size();
-  ATH_MSG_DEBUG ("Number of Module sides with True Track Hits: Outer(" << NoOuterModules.size() << "), Short Middle(" << NoShortMiddleModules.size()
-                 << "), Middle(" << NoMiddleModules.size() << "), Inner(" << NoInnerModules.size() << "), Barrel(" << NoBarrelModules.size() << ") ");
+  m_NumberModulesVetoed[0] += m_NoOuterModules.size();
+  m_NumberModulesVetoed[1] += m_NoShortMiddleModules.size();
+  m_NumberModulesVetoed[2] += m_NoMiddleModules.size();
+  m_NumberModulesVetoed[3] += m_NoInnerModules.size();
+  m_NumberModulesVetoed[4] += m_NoBarrelModules.size();
+  ATH_MSG_DEBUG ("Number of Module sides with True Track Hits: Outer(" << m_NoOuterModules.size() << "), Short Middle(" << m_NoShortMiddleModules.size()
+                 << "), Middle(" << m_NoMiddleModules.size() << "), Inner(" << m_NoInnerModules.size() << "), Barrel(" << m_NoBarrelModules.size() << ") ");
 
   return StatusCode::SUCCESS;
 }
@@ -545,9 +545,9 @@ StatusCode SCT_RDOsTestTool::finalize()
       m_SCT_OccupancyByModuleType->SetBinContent(i+1,Occupancy);
       m_SCT_OccupancyByModuleType->SetBinError(i+1,Error);
     }
-  //       ATH_MSG_ERROR("No. Inner Modules Seen = " << NoInnerModules.size());
-  //       ATH_MSG_ERROR("No. Middle Modules Seen = " << NoMiddleModules.size());
-  //       ATH_MSG_ERROR("No. Short Middle Modules Seen = " << NoShortMiddleModules.size());
-  //       ATH_MSG_ERROR("No. Outer Modules Seen = " << NoOuterModules.size());
+  //       ATH_MSG_ERROR("No. Inner Modules Seen = " << m_NoInnerModules.size());
+  //       ATH_MSG_ERROR("No. Middle Modules Seen = " << m_NoMiddleModules.size());
+  //       ATH_MSG_ERROR("No. Short Middle Modules Seen = " << m_NoShortMiddleModules.size());
+  //       ATH_MSG_ERROR("No. Outer Modules Seen = " << m_NoOuterModules.size());
   return StatusCode::SUCCESS;
 }

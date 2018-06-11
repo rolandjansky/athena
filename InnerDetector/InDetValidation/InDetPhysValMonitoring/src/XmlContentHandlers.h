@@ -1,9 +1,11 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //  XmlContentHandlers.hpp
 //  HDef
 //
 //  Created by sroe on 16/03/2016.
-//  Copyright © 2016 sroe. All rights reserved.
 //
 
 #ifndef XmlContentHandlers_h

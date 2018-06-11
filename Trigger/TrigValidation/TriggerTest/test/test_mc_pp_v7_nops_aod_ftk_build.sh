@@ -18,6 +18,7 @@
 # art-output: *.root
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
+# art-output: TotalEventsProcessed.txt
 
 export NAME="mc_pp_v7_nops_aod_ftk_build"
 export MENU="MC_pp_v7_no_prescale"

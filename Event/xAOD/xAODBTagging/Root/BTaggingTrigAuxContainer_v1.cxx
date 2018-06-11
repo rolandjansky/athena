@@ -62,6 +62,7 @@ namespace xAOD {
      AUX_VARIABLE( IP3D_flagFromV0ofTracks );
      AUX_VARIABLE( IP3D_gradeOfTracks );
 
+
      AUX_VARIABLE( SV0_normdist );
      AUX_VARIABLE( SV0_pb );
      AUX_VARIABLE( SV0_pu );
@@ -113,8 +114,61 @@ namespace xAOD {
      AUX_VARIABLE( IP2D_TrackParticleLinks );
      AUX_VARIABLE( IP3D_TrackParticleLinks );
      AUX_VARIABLE( BTagTrackToJetAssociator );
-     AUX_VARIABLE( BTagBtagToJetAssociator ); 
+     AUX_VARIABLE( BTagBtagToJetAssociator );
 
+
+
+
+     AUX_VARIABLE( rnnip_pb );
+     AUX_VARIABLE( rnnip_pu );
+     AUX_VARIABLE( rnnip_pc );
+     AUX_VARIABLE( rnnip_TrackParticleLinks ); 
+
+     AUX_VARIABLE( rnnip_d0 );
+     AUX_VARIABLE( rnnip_d0sig );
+     AUX_VARIABLE( rnnip_z0 );
+     AUX_VARIABLE( rnnip_z0sig );
+     AUX_VARIABLE( rnnip_fromV0 );
+     AUX_VARIABLE( rnnip_grade );
+
+
+     AUX_VARIABLE( SMT_discriminant );
+     AUX_VARIABLE( SMT_mu_link );
+     
+     AUX_VARIABLE( SMT_mombalsignif );
+     AUX_VARIABLE( SMT_scatneighsignif );
+     AUX_VARIABLE( SMT_ID_qOverP );
+
+
+     AUX_VARIABLE( MV2c10rnn_discriminant );
+     AUX_VARIABLE( MV2c10mu_discriminant );
+
+
+     AUX_VARIABLE( DL1_pb );
+     AUX_VARIABLE( DL1_pu );
+     AUX_VARIABLE( DL1_pc );
+
+     AUX_VARIABLE( DL1rnn_pb );
+     AUX_VARIABLE( DL1rnn_pu );
+     AUX_VARIABLE( DL1rnn_pc );
+
+     AUX_VARIABLE( DL1mu_pb );
+     AUX_VARIABLE( DL1mu_pu );
+     AUX_VARIABLE( DL1mu_pc );
+
+     // Additional JetFitter variables for DL1
+     AUX_VARIABLE( nTrk_vtx1 );
+     AUX_VARIABLE( mass_first_vtx );
+     AUX_VARIABLE( e_first_vtx );
+     AUX_VARIABLE( e_frac_vtx1 );
+     AUX_VARIABLE( closestVtx_L3D );
+     AUX_VARIABLE( JF_Lxy1 );
+     AUX_VARIABLE( vtx1_MaxTrkRapidity_jf_path );
+     AUX_VARIABLE( vtx1_AvgTrkRapidity_jf_path );
+     AUX_VARIABLE( vtx1_MinTrkRapidity_jf_path );
+     AUX_VARIABLE( MaxTrkRapidity_jf_path );
+     AUX_VARIABLE( MinTrkRapidity_jf_path );
+     AUX_VARIABLE( AvgTrkRapidity_jf_path );
 
    }
 

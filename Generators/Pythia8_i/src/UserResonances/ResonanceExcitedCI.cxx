@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 // The ResonanceExcited class handles excited-fermion resonances.
 // This is a copy of existing pythia ResonanceExcited class
 // with extention to include decays going via contact interactions (4-fermion vertexes)

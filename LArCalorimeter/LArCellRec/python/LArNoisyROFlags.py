@@ -33,10 +33,17 @@ class MNBLooseCut(JobProperty):
     pass
 
 class MNBTightCut(JobProperty):
-    #Number of channels to declare MNB-Loose
+    #Number of channels to declare MNB-Tight
     statusOn=True
     allowedTypes=['int']
     StoredValue=17
+    pass
+
+class MNBTight_PsVetoCut(JobProperty):
+    #Number of channels to declare MNB-Tight
+    statusOn=True
+    allowedTypes=['list']
+    StoredValue=[13,3]
     pass
 
 class KnownMNBFEBs(JobProperty):
@@ -67,6 +74,7 @@ jobproperties.LArNoisyROFlags.add_JobProperty(BadChanPerFEB)
 jobproperties.LArNoisyROFlags.add_JobProperty(BadFEBCut)
 jobproperties.LArNoisyROFlags.add_JobProperty(MNBLooseCut)
 jobproperties.LArNoisyROFlags.add_JobProperty(MNBTightCut)
+jobproperties.LArNoisyROFlags.add_JobProperty(MNBTight_PsVetoCut)
 jobproperties.LArNoisyROFlags.add_JobProperty(KnownMNBFEBs)
 
 larNoisyROFlags = jobproperties.LArNoisyROFlags

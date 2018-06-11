@@ -294,7 +294,7 @@ if __name__ == "__main__":
             sizelo = calibDrawerPrev.getObjSizeByte()/4
             sizehi = calibDrawer.getObjSizeByte()/4
             if (sizelo <> sizehi):
-              log.info("ERROR!!! object sizes are different for ROS %s (%s %s) drawer %s" % (ros, sizelo, sizehi, modName))
+              log.error("Object sizes are different for ROS %s (%s %s) drawer %s" % (ros, sizelo, sizehi, modName))
 
             typelo = calibDrawerPrev.getObjType()
             typehi = calibDrawer.getObjType()
@@ -304,7 +304,7 @@ if __name__ == "__main__":
             #ng = flt.getNGains()
 
             if (typelo <> typehi):
-              log.info("ERROR!!! object types %s %s are different" % (typelo, typehi))
+              log.error("Object types %s %s are different" % (typelo, typehi))
               sys.exit()
 
             #=== get all problems of this module

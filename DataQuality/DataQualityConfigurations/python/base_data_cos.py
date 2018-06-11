@@ -2,14 +2,23 @@
 
 from DataQualityUtils.DQWebDisplayConfig import DQWebDisplayConfig
 import os
+from ._resolve_data_path import resolve_data_path
+
+hcfg_dir = resolve_data_path('DataQualityConfigurations')
+if hcfg_dir:
+    print "Found DataQualityConfigurations data directory %s, using it" % hcfg_dir
+else:
+    hcfg_dir = os.getcwd()
+    print "DataQualityConfigurations data directory not found, attempting to use $PWD instead."
+print "Looking for cosmics_*.hcfg files in %s" % (hcfg_dir)
 
 isprod = os.environ.get('DQPRODUCTION') == '1'
 
 dqconfig = DQWebDisplayConfig()
 dqconfig.config         = "Cosmics"
-dqconfig.hcfg           = os.environ.get('DQC_HCFG_COSMICS_RUN', "/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Cosmics/cosmics_run.current.hcfg")
-dqconfig.hcfg_min10     = os.environ.get('DQC_HCFG_COSMICS_MINUTES10', "/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Cosmics/cosmics_minutes10.current.hcfg")
-dqconfig.hcfg_min30     = os.environ.get('DQC_HCFG_COSMICS_MINUTES30', "/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/Cosmics/cosmics_minutes30.current.hcfg")
+dqconfig.hcfg           = os.environ.get('DQC_HCFG_COSMICS_RUN', "%s/cosmics_run.hcfg" % hcfg_dir)
+dqconfig.hcfg_min10     = os.environ.get('DQC_HCFG_COSMICS_MINUTES10', "%s/cosmics_minutes10.hcfg" % hcfg_dir)
+dqconfig.hcfg_min30     = os.environ.get('DQC_HCFG_COSMICS_MINUTES30', "%s/cosmics_minutes30.hcfg" % hcfg_dir)
 dqconfig.server         = ["aiatlas039.cern.ch", "aiatlas035.cern.ch", "aiatlas133.cern.ch"] if isprod else []
 dqconfig.eosResultsDir  = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/data-dqm/han_results/tier0/collisions/" if isprod else ""
 dqconfig.histogramCache = "/afs/cern.ch/user/a/atlasdqm/w1/histogram_web_display_cache" if isprod else ''

@@ -14,6 +14,7 @@
 
 #include "TrigFTKSim/FTKPatternBySector.h"
 #include "TrigFTKSim/FTKRootFile.h"
+#include "TrigFTKSim/FTKSSMap.h"
 #include <TList.h>
 #include <TFile.h>
 #include <TChain.h>
@@ -532,6 +533,12 @@ FTKPatternBySectorForestReader::FTKPatternBySectorForestReader(FTKRootFileChain 
       }
    }
    InitializeSectorByCoverageTable();
+}
+
+bool FTKPatternBySectorForestReader::CheckConsistency
+(FTKSSMap *ssMap,int tower,int hwmodeid) const {
+   Warning("CheckConsistency")<<"not implemented\n";
+   return true;
 }
 
 FTKPatternBySectorForestReader::FTKPatternBySectorForestReader
@@ -1096,7 +1103,8 @@ int FTKPatternBySectorIndexedReader::InitializeIndex
    indexTree->SetBranchAddress(s_sectorBranchName,&sector);
    indexTree->SetBranchAddress(s_ncovBranchName,&ncov);
 
-   // first loop over the tree -> ncov,sector,ndecoder%d
+   // loop over the tree to find ncov,sector,ndecoder%d
+   // store result in local variables 
    for(int iIndex=0;iIndex<nIndex;iIndex++) {
       indexTree->GetEntry(iIndex);
       DecoderWithIndex_t &decoderWithIndex=decoderWithIndexTable[iIndex];
@@ -1108,6 +1116,7 @@ int FTKPatternBySectorIndexedReader::InitializeIndex
    }
    uint32_t maxNCov=0;
    uint32_t decoderSize=0;
+   // determine total size of decoder table
    for(int iIndex=0;iIndex<nIndex;iIndex++) {
       DecoderWithIndex_t const &decoderWithIndex=
          decoderWithIndexTable[iIndex];
@@ -1118,8 +1127,9 @@ int FTKPatternBySectorIndexedReader::InitializeIndex
    }
    Info("InitializeIndex")
       <<"decoder size="<<decoderSize<<" maxNCov="<<maxNCov<<" \n";
+   // allocate decoder tables
    m_decoderData.resize(decoderSize);
-   m_decoderDataPtr.resize(nIndex*nPlane);
+   m_decoderDataPtr.resize(nIndex*nPlane+1);
 
    vector<uint32_t> bufferCoverage(maxNCov);
    vector<uint32_t> bufferNPattern(maxNCov);
@@ -1130,8 +1140,9 @@ int FTKPatternBySectorIndexedReader::InitializeIndex
    uint32_t lastSector=0;
    SetContentType(CONTENT_MERGED);
    uint32_t cpatternEntry=0;
-   Info("InitializeIndex")<<"second loop\n";
+   Info("InitializeIndex")<<"read decoder data and data pointers\n";
    decoderSize=0;
+   // loop over all entries in the index ttree 
    for(int iIndex=0;iIndex<nIndex;iIndex++) {
       DecoderWithIndex_t const &decoderWithIndex=
          decoderWithIndexTable[iIndex];
@@ -1141,6 +1152,7 @@ int FTKPatternBySectorIndexedReader::InitializeIndex
                                      m_decoderDataPtr[iIndex*nPlane+plane]);
          decoderSize+= decoderWithIndex.m_decoderSize[plane];
       }
+      m_decoderDataPtr[(iIndex+1)*nPlane]=&m_decoderData[decoderSize];
       indexTree->GetEntry(iIndex);
 
       uint32_t sector=decoderWithIndex.m_sectorID;
@@ -1191,6 +1203,105 @@ int FTKPatternBySectorIndexedReader::InitializeIndex
    return error;
 }
 
+bool FTKPatternBySectorIndexedReader::CheckConsistency
+(FTKSSMap *ssMap,int tower,int hwmodeid) 
+   const {
+   // loop over all sectors
+   int nPlane=GetNLayers();
+   int error=0;
+   std::set<int> badSector;
+   for(SectorTable_t::const_iterator iSector=m_sectorTable.begin();
+       iSector!=m_sectorTable.end();iSector++) {
+      uint32_t sectorID=(*iSector).first;
+      SectorInfo const &sectorInfo((*iSector).second);
+      std::vector<std::set<int> > moduleSet(nPlane);
+      for(CoverageTable_t::const_iterator
+             iCov=sectorInfo.m_coverageTable.begin();
+          iCov!=sectorInfo.m_coverageTable.end();iCov++) {
+         DataBlock_t const &dataBlock((*iCov).second);
+         for(int plane=0;plane<nPlane;plane++) {
+            uint32_t const *decoderData=dataBlock.m_decoderDataPtr[plane];
+            int decoderSize=dataBlock.m_decoderDataPtr[plane+1]-decoderData;
+            bool isPixel=ssMap->getPlaneMap()->isPixel(plane);
+            for(int iSSID=0;iSSID<decoderSize;iSSID++) {
+               int ssid=decoderData[iSSID];
+               int phimod=-1,etacode=-1,section=0,moduleID=-1;
+               int localX=0,localY=0;
+               if(hwmodeid==0) {
+                  if(isPixel) {
+                     ssMap->decodeSSxy
+                        (ssid,plane,section,phimod,localX,etacode,localY);
+                     moduleID=ssMap->getSSxy
+                        (plane,section,phimod,etacode,0,0);
+                  } else {
+                     ssMap->decodeSSx
+                        (ssid,plane,section,phimod,localX,etacode);
+                     moduleID=ssMap->getSSx(plane,section,phimod,etacode,0);
+                  }
+               } else if(hwmodeid==2) {
+                  if (isPixel) {
+                     ssMap->decodeSSTowerXY(ssid,tower,plane,section,
+                                            moduleID,localX,localY);
+                  } else {
+                     ssMap->decodeSSTowerX(ssid,tower,plane,section,
+                                           moduleID,localX);
+                  }
+               }
+               moduleSet[plane].insert(moduleID);
+            }
+         }
+      }
+      bool isBad=false;
+      for(int plane=0;plane<nPlane;plane++) {
+         if(moduleSet[plane].size()>1) {
+            isBad=true;
+            if(error<100) {
+               std::cout<<" sector="<<sectorID<<" plane="<<plane<<" [";
+               for(std::set<int>::const_iterator id=moduleSet[plane].begin();
+                   id!=moduleSet[plane].end();id++) {
+                  std::cout<<" "<< *id;
+               }
+               std::cout<<"]\n";
+            }
+            error++;
+         }
+      }
+      if(isBad) badSector.insert(sectorID);
+   }
+   if(error) {
+      std::cout<<"List of bad sectors:\n";
+      std::map<int,int> sectorList;
+      int sequenceStart=-2;
+      int previous=-2;
+      for(std::set<int>::const_iterator i=badSector.begin();
+          i!=badSector.end();i++) {
+         int sector=(*i);
+         if(sector==previous+1) {
+            previous++;
+         } else {
+            sequenceStart=(*i);
+         }
+         previous=(*i);
+         sectorList[sequenceStart]++;
+      }
+      for(std::map<int,int>::const_iterator i=sectorList.begin();
+          i!=sectorList.end();i++) {
+         std::cout<<" "<<(*i).first;
+         if((*i).second>1) {
+            std::cout<<"-"<<(*i).first+(*i).second-1;
+         }
+      }
+      std::cout<<"\n";
+   }
+   if(error) {
+      Fatal("CheckConsistency")
+         <<"input patterns corrupted: several modules are assigned to a given (sector,plane) pair\n";
+   } else {
+      Info("CheckConsistency")<<"input patterns seem consistent\n";
+   }
+   return error==0;
+}
+
 FTKPatternBySectorIndexedReader::FTKPatternBySectorIndexedReader
 (TDirectory &dir,set<int> const *sectorList,int *error)
    : FTKPatternBySectorReader("FTKPatternBySectorIndexedReader") {
@@ -1238,7 +1349,7 @@ FTKPatternBySectorIndexedReader::FTKPatternBySectorIndexedReader
       if(error) {
          *error=1;
       } else {
-         Error("FTKPatternBySectorIndexedReader")<<"not implemented\n";
+         Error("FTKPatternBySectorIndexedReader")<<"pattern data not found\n";
       }
    }
 }

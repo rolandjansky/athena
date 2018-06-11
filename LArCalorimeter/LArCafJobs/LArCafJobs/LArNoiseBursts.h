@@ -18,9 +18,6 @@
 //LAr services:
 #include "Identifier/Range.h" 
 #include "Identifier/IdentifierHash.h"
-//#include "Identifier/HWIdentifier.h"
-//#include "LArElecCalib/ILArPedestal.h"
-//#include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArBadChannelTool/LArBadChanTool.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
@@ -31,18 +28,12 @@
 #include "LArIdentifier/LArElectrodeID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloIdManager.h"
-//#include "LArCondUtils/LArHVToolDB.h"
-//#include "LArElecCalib/ILArHVTool.h"
 
 // Trigger
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
 // Electrons
 #include "egammaEvent/ElectronContainer.h"
-
-//CBNT_UTILS
-//#include "CBNT_Utils/CBNT_AthenaAwareBase.h"
-//#include "AthenaBaseComps/AthAlgorithm.h"
 
 //STL:
 #include <string>
@@ -57,8 +48,6 @@ class LArCablingService;
 class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
-//class CaloIdManager;
-//class CaloDetDescrManager;
 
 class TileTBID;
 class TgcIdHelper;
@@ -155,6 +144,8 @@ class LArNoiseBursts : public AthAlgorithm  {
    short  m_nt_larnoisyro;
    short  m_nt_larnoisyro_opt;
    short  m_nt_larnoisyro_satTwo;
+   short  m_nt_larnoisyro_mnbTight;
+   short  m_nt_larnoisyro_mnbTight_PSVeto;
 
    //event info veto variables
 //   short  m_nt_veto_mbts;
@@ -175,9 +166,6 @@ class LArNoiseBursts : public AthAlgorithm  {
 //   short  m_nt_veto_muontCosmic;
 
    // LAr event bit info
-   bool m_nt_larflag_badFEBs;
-   bool m_nt_larflag_mediumSaturatedDQ;
-   bool m_nt_larflag_tightSaturatedDQ;
    bool m_nt_larflag_noiseBurstVeto;
    bool m_nt_larflag_dataCorrupted;
    bool m_nt_larflag_dataCorruptedVeto;
@@ -220,7 +208,6 @@ class LArNoiseBursts : public AthAlgorithm  {
    std::vector<float> m_nt_phicell;
    std::vector<float> m_nt_etacell;
    std::vector<float> m_nt_signifcell;
-   //float m_nt_noisycellpercent;
    std::vector<short> m_nt_ft_noisy;
    std::vector<short> m_nt_slot_noisy;
    std::vector<short> m_nt_channel_noisy;
@@ -235,13 +222,6 @@ class LArNoiseBursts : public AthAlgorithm  {
    std::vector<int> m_nt_gain;
    std::vector<int> m_nt_isbadcell;
 
-   /*
-   std::vector<int> m_nt_isbarrel;
-   std::vector<int> m_nt_isendcap;
-   std::vector<int> m_nt_isfcal;
-   std::vector<int> m_nt_ishec;
-   */
-   
    std::vector<int>  m_nt_partition;
    std::vector<int>  m_nt_layer;
    

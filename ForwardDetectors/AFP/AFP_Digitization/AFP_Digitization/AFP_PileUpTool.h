@@ -68,8 +68,8 @@ class AFP_PileUpTool: public PileUpToolBase {
 
  private:
   
-  StatusCode recordContainers(ServiceHandle<StoreGateSvc>& evtStore, std::string m_key_digitCnt);
-  StatusCode recordSiCollection(ServiceHandle<StoreGateSvc>& evtStore, std::string m_key_SidigitCnt);
+  StatusCode recordContainers(ServiceHandle<StoreGateSvc>& evtStore, std::string key_digitCnt);
+  StatusCode recordSiCollection(ServiceHandle<StoreGateSvc>& evtStore, std::string key_SidigitCnt);
 
   void fillTDDigiCollection(const AFP_TDSimHitCollection*,     CLHEP::HepRandomEngine*);
   void fillTDDigiCollection(TimedHitCollection<AFP_TDSimHit>&, CLHEP::HepRandomEngine*);
@@ -112,12 +112,12 @@ class AFP_PileUpTool: public PileUpToolBase {
   AFP_SiDigiCollection *m_SiDigiCollection;  
   
      
-  double QuantumEff_PMT[7];
+  double m_QuantumEff_PMT[7];
 
   TH1F  m_Signal[4][32][2];
   
-  float deposited_charge[645120]; // = 4 x 6 x 336 x 80
-  float deposited_energy[645120];
+  float m_deposited_charge[645120]; // = 4 x 6 x 336 x 80
+  float m_deposited_energy[645120];
 
   std::vector<double> m_SignalVect;
 
