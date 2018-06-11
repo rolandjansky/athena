@@ -292,27 +292,6 @@ def addStandardTruthContents(kernel=None,
     # Add back the navigation contect for the collections we want
     addTruthCollectionNavigationDecorations(kernel,["TruthElectrons","TruthMuons","TruthPhotons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson"])
 
-# Add W bosons and their downstream particles (immediate and further decay products) in a special collection
-def addWbosonsAndDownstreamParticles(kernel=None, generations=1):
-    # Ensure that we are adding it to something
-    if kernel is None:
-        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
-        kernel = DerivationFrameworkJob
-    if hasattr(kernel,'MCTruthCommonWbosonsAndDecaysKernel'):
-        # Already there!  Carry on...
-        return
-    # Set up a tool to keep the W bosons and all downstream particles
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDecayCollectionMaker
-    DFCommonWbosonsAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name="DFCommonWbosonsAndDecaysTool",
-                                                                   NewCollectionName="TruthWbosonWithDecay",
-                                                                        PDGIDsToKeep=[24],
-                                                                         Generations=generations)
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += DFCommonWbosonsAndDecaysTool
-    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
-    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonWbosonsAndDecaysKernel",
-                                                             AugmentationTools = [DFCommonWbosonsAndDecaysTool] )
-
 def addParentAndDownstreamParticles(kernel=None,
                                     generations=1,
                                     parents=[6],
