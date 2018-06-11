@@ -108,6 +108,8 @@ namespace Muon {
     double                               m_fixedErrorTgcPhi;
     double                               m_fixedErrorRpcPhi;
     double                               m_fixedErrorCscPhi;
+
+    double                               m_eDriftVelocityMM;
   };
 }
 #endif // MuonClusterOnTrackCreator_H

@@ -8,6 +8,7 @@
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
 #include "MuonReadoutGeometry/MuonPadDesign.h"
 #include "MuonPrepRawData/sTgcPrepData.h"
+#include "MuonPrepRawData/MMPrepData.h"
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkEventPrimitives/FitQuality.h"
@@ -60,7 +61,7 @@ namespace Muon {
 
   std::vector<const Muon::MuonSegment*>* MuonClusterSegmentFinderTool::find(std::vector< const Muon::MuonClusterOnTrack* >& muonClusters) {
     ATH_MSG_DEBUG("Entering MuonClusterSegmentFinderTool with " << muonClusters.size() << " clusters to be fit" );
-    if(muonClusters.size() < 4) return 0;
+    if(belowThreshold(muonClusters,4)) return 0;
     std::vector<const Muon::MuonSegment*>* segs = findPrecisionSegments(muonClusters);
     if(segs == 0) return 0;
     if(segs->size() == 0)
@@ -85,7 +86,7 @@ namespace Muon {
     bool selectPhiHits(false);
     std::vector< const Muon::MuonClusterOnTrack* > clusters = cleanClusters(muonClusters,selectPhiHits);
     ATH_MSG_VERBOSE("After hit cleaning, there are " << clusters.size() << " 2D clusters to be fit" );
-    if(clusters.size() < 4){
+    if(belowThreshold(clusters,4)){
       return 0;
     }
     
@@ -101,9 +102,9 @@ namespace Muon {
     std::vector< const Muon::MuonClusterOnTrack* > rioVecPrevious;
     //find all clusters near the seed and try to fit
     for(unsigned int i=0; i<seeds.size(); ++i) {
-      std::vector< const Muon::MuonClusterOnTrack* > rioVec = getClustersOnSegment(orderedClusters,seeds[i]);
+      std::vector< const Muon::MuonClusterOnTrack* > rioVec = getClustersOnSegment(orderedClusters,seeds[i],false);
 //  make consistent cut
-      if(rioVec.size() <4) continue;
+      if(belowThreshold(rioVec,4)) continue;
       // logic to reduce combinatorics
       if(rioVec.size() == rioVecPrevious.size()) {
          bool sameContent = true;
@@ -264,8 +265,9 @@ namespace Muon {
 										      std::vector<const Muon::MuonSegment*>* etaSegs) const {
     bool selectPhiHits(true);
     std::vector< const Muon::MuonClusterOnTrack* > clusters = cleanClusters(muonClusters,selectPhiHits);
+    std::vector< const Muon::MuonClusterOnTrack* > etaClusters = cleanClusters(muonClusters,false);
     ATH_MSG_DEBUG("After hit cleaning, there are " << clusters.size() << " 3D clusters to be fit" );
-    if(clusters.size() < 4) {
+    if(belowThreshold(clusters,4)) {
       ATH_MSG_DEBUG("Not enough phi hits present, cannot perform the fit!");
       return etaSegs;
     }
@@ -273,7 +275,8 @@ namespace Muon {
     TrackCollection* segTrkColl = new TrackCollection;
     //order the clusters by layer
     bool useWires(true);
-    std::vector< std::vector<const Muon::MuonClusterOnTrack*> > orderedClusters = orderByLayer(clusters,useWires);    
+    std::vector< std::vector<const Muon::MuonClusterOnTrack*> > orderedClusters = orderByLayer(clusters,useWires);
+    std::vector< std::vector<const Muon::MuonClusterOnTrack*> > orderedEtaClusters = orderByLayer(etaClusters,false);
     if(orderedClusters.size() == 0) {
       ATH_MSG_DEBUG( "No phi wire hits found ... moving to pads" );
       useWires = false;
@@ -326,7 +329,8 @@ namespace Muon {
 	  seed3D = seeds[i];
 	}
 	
-	std::vector< const Muon::MuonClusterOnTrack* > phiHits = getClustersOnSegment(orderedClusters,seed3D);
+	std::vector< const Muon::MuonClusterOnTrack* > phiHits = getClustersOnSegment(orderedClusters,seed3D,true);
+	std::vector< const Muon::MuonClusterOnTrack* > etaHitsRedone = getClustersOnSegment(orderedEtaClusters,seed3D,true);
 	if(phiHits.size() < 2) {
           delete startpar;
           continue;
@@ -352,8 +356,15 @@ namespace Muon {
 	//interleave the phi hits
 	std::vector<const Trk::MeasurementBase*> vec2;
 	const std::vector<const Trk::RIO_OnTrack*> etaHits = (*sit)->containedROTs();
-	if(m_ipConstraint) vec2.reserve(phiHits.size()+etaHits.size()+1);
-	else vec2.reserve(phiHits.size()+etaHits.size());
+        bool useEtaHitsRedone = false;
+        if(etaHitsRedone.size()>etaHits.size()) {
+          ATH_MSG_VERBOSE(" Found additional eta hits " << etaHitsRedone.size() - etaHits.size());  
+          useEtaHitsRedone = true;
+        }
+        unsigned int netas = etaHits.size();
+        if(useEtaHitsRedone) netas = etaHitsRedone.size();
+	if(m_ipConstraint) vec2.reserve(phiHits.size()+netas+1);
+	else vec2.reserve(phiHits.size()+netas);
 
 	// pseudo measurement for vtx
 	Trk::PseudoMeasurementOnTrack* pseudoVtx = nullptr;
@@ -378,10 +389,14 @@ namespace Muon {
 	    iPhi++;
 	  }
 	  else {
-	    vec2.push_back(etaHits[iEta]);
+	    if(!useEtaHitsRedone) {
+              vec2.push_back(etaHits[iEta]);
+            } else {
+              vec2.push_back(etaHitsRedone[iEta]);
+            }
             iEta++;
 	  }
-	  if( iEta >= etaHits.size() && iPhi >= phiHits.size() ) break;
+	  if( iEta >= netas && iPhi >= phiHits.size() ) break;
 	}
 
 	
@@ -584,30 +599,62 @@ namespace Muon {
   }
 
   std::vector< const Muon::MuonClusterOnTrack* > MuonClusterSegmentFinderTool::getClustersOnSegment(std::vector< std::vector<const Muon::MuonClusterOnTrack*> >& clusters, 
-												    std::pair<Amg::Vector3D,Amg::Vector3D>& seed) const {
+												    std::pair<Amg::Vector3D,Amg::Vector3D>& seed, bool tight) const {
     ATH_MSG_VERBOSE(" getClustersOnSegment: layers " << clusters.size()  );
     std::vector< const Muon::MuonClusterOnTrack* > rios;
     int layer = 0;
     for(std::vector<std::vector<const Muon::MuonClusterOnTrack*> >::const_iterator cvecIt=clusters.begin(); cvecIt!=clusters.end(); ++cvecIt) {
       const Muon::MuonClusterOnTrack* rio = 0;      
       double bestDist(9999.);      
-      for(std::vector< const Muon::MuonClusterOnTrack* >::const_iterator cit=(*cvecIt).begin(); cit!=(*cvecIt).end(); ++cit) {
-	double dist = clusterDistanceToSeed( *cit, seed);
-	double error = Amg::error((*cit)->localCovariance(),Trk::locX);
-	if(m_idHelperTool->isMM((*cit)->identify())) error += 25.;
-	ATH_MSG_VERBOSE(" lay " << layer << " dist " << dist << " pull " << dist/error
+      double bestTimeDist(9999.);
+      if (m_idHelperTool->isMM((*((*cvecIt).begin()))->identify())) {  // MM specific algorithm
+        for(std::vector< const Muon::MuonClusterOnTrack* >::const_iterator cit=(*cvecIt).begin(); cit!=(*cvecIt).end(); ++cit) {
+	  double tdrift = (dynamic_cast<const MMPrepData *>((*cit)->prepRawData()))->time();
+	  double dist = clusterDistanceToSeed( *cit, seed);
+	  double timedist = std::abs(clusterDistanceToSeed( *cit, seed)) + std::abs(tdrift*0.015); // std::abs(tdrift*0.015) is an ad hoc penalty factor, to be optimised when time resolution is known
+	  double error = Amg::error((*cit)->localCovariance(),Trk::locX);
+	  if (!tight) error += 1.;
+	  ATH_MSG_VERBOSE(" lay " << layer << " tdrift " << tdrift << " dist " << dist  << " timedist " << timedist << " pull " << dist/error
 			<< " cut " << m_maxClustDist << "  " << m_idHelperTool->toString((*cit)->identify()) );
-	if( fabs(dist/error) < m_maxClustDist) {
-	  if(fabs(dist) < bestDist) {
-	    bestDist = fabs(dist);
-	    rio = (*cit);
-	  }
-	}	 
-      }
-      if(rio) {
-	ATH_MSG_VERBOSE(" adding  " << bestDist << "  " << m_idHelperTool->toString(rio->identify()) );
-	rios.push_back( rio );
-      }else{
+	  if( std::abs(dist/error) < m_maxClustDist) {
+	    if(std::abs(timedist) < bestTimeDist) {
+	      bestTimeDist = std::abs(timedist);
+	      bestDist = dist;
+	    }
+	  }	 
+        }
+        if(bestDist<9999.) {  // check if at least one cluster present close to seed 
+	  ATH_MSG_VERBOSE(" Best distance " << bestDist);
+	  ATH_MSG_VERBOSE(" Looking for RIOs from mTPC around the best distance");
+          for(std::vector< const Muon::MuonClusterOnTrack* >::const_iterator cit=(*cvecIt).begin(); cit!=(*cvecIt).end(); ++cit) {
+	    double dist = clusterDistanceToSeed( *cit, seed);
+	    double window = std::abs(2.*5.*0.047 * ((*cit)->globalPosition().perp() / (*cit)->globalPosition().z()));  // all hits in the range [bestDist-window;bestDist-window] will be accepted; 2-safety factor; 5-time resolution; 0.047-drift velocity; (hardcoded values to be removed once time resolution model is known) 
+	    double error = Amg::error((*cit)->localCovariance(),Trk::locX);
+	    if (!tight) error += 1.;
+	    ATH_MSG_VERBOSE(" Current RIO : distance " << dist << " window " << window << " to be attached " << ( (std::abs(std::abs(dist)-bestDist) < window) && (std::abs(dist/error) < m_maxClustDist) ) );
+	    if( (std::abs(dist-bestDist) < window) && (std::abs(dist/error) < m_maxClustDist) ) {
+	      rios.push_back( (*cit) );
+	      ATH_MSG_VERBOSE(" adding  " << dist << "  " << m_idHelperTool->toString((*cit)->identify()) );
+	    }	 
+          }
+        }
+      } else {  // algorithm for all the technoligies but MM
+        for(std::vector< const Muon::MuonClusterOnTrack* >::const_iterator cit=(*cvecIt).begin(); cit!=(*cvecIt).end(); ++cit) {
+	  double dist = clusterDistanceToSeed( *cit, seed);
+	  double error = Amg::error((*cit)->localCovariance(),Trk::locX);
+	  ATH_MSG_VERBOSE(" lay " << layer << " dist " << dist << " pull " << dist/error
+			<< " cut " << m_maxClustDist << "  " << m_idHelperTool->toString((*cit)->identify()) );
+	  if( std::abs(dist/error) < m_maxClustDist) {
+	    if(std::abs(dist) < bestDist) {
+	      bestDist = std::abs(dist);
+	      rio = (*cit);
+	    }
+	  }	 
+        }
+        if(rio) {
+	  ATH_MSG_VERBOSE(" adding  " << bestDist << "  " << m_idHelperTool->toString(rio->identify()) );
+	  rios.push_back( rio );
+        }
       }
       ++layer;
     }    
@@ -866,5 +913,20 @@ namespace Muon {
     return phiOverlap;
   }
 
+  bool MuonClusterSegmentFinderTool::belowThreshold(std::vector< const Muon::MuonClusterOnTrack* >& muonClusters, int threshold) const {
+    int n_surf_with_hits = 0;
+    if (muonClusters.size()>1) {
+      for(std::vector< const Muon::MuonClusterOnTrack* >::const_iterator cit=muonClusters.begin()+1; cit!=muonClusters.end(); cit++){  
+        if ((*cit) && (*(cit-1))) {
+          if ((*cit)->detectorElement()->center((*cit)->identify()) != (*(cit-1))->detectorElement()->center((*(cit-1))->identify())) {
+            n_surf_with_hits++;
+          }
+        }
+      }
+    } else 
+      n_surf_with_hits = muonClusters.size();
+    if(n_surf_with_hits < threshold) return true;
+    else return false;
+  }
 
 }//end namespace
