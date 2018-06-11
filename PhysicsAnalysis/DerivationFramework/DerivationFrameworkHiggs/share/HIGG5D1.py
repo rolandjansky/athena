@@ -204,7 +204,6 @@ if not "HIGG5D1Jets" in OutputJets:
     replaceAODReducedJets(reducedJetList, higg5d1Seq, "HIGG5D1Jets")
 
     addDefaultTrimmedJets(higg5d1Seq,"HIGG5D1Jets");
-
     if jetFlags.useTruth:
       HIGG5Common.addTrimmedTruthWZJets(higg5d1Seq,'HIGG5D1Jets')
 
