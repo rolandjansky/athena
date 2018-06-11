@@ -15,7 +15,7 @@
 
 
 /// Do we have function multiversioning?
-#if defined(__GNUC__) && !defined(__clang__) && !defined(__ICC)
+#if defined(__GNUC__) && !defined(__clang__) && !defined(__ICC) && !defined(__COVERITY__)
 # define HAVE_FUNCTION_MULTIVERSIONING 1
 #else
 # define HAVE_FUNCTION_MULTIVERSIONING 0
