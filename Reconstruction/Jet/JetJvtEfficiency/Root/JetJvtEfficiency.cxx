@@ -117,8 +117,10 @@ CorrectionCode JetJvtEfficiency::getEfficiencyScaleFactor( const xAOD::Jet& jet,
             ATH_MSG_ERROR("Truth tagging required but decoration not available. Please call JetJvtEfficiency::tagTruth(...) first.");
             return CorrectionCode::Error;
         } else {
-            if (!(*m_isHSAcc)(jet)) sf = 1;
-            return CorrectionCode::Ok;
+            if (!(*m_isHSAcc)(jet)) {
+                sf = 1;
+                return CorrectionCode::Ok;
+            }
         }
     }
     int jetbin = h_JvtHist->FindBin(jet.pt(),fabs(jet.getAttribute<float>(m_jetEtaName)));
@@ -142,8 +144,10 @@ CorrectionCode JetJvtEfficiency::getInefficiencyScaleFactor( const xAOD::Jet& je
             ATH_MSG_ERROR("Truth tagging required but decoration not available. Please call JetJvtEfficiency::tagTruth(...) first.");
             return CorrectionCode::Error;
         } else {
-            if(!(*m_isHSAcc)(jet)) sf = 1;
-            return CorrectionCode::Ok;
+            if(!(*m_isHSAcc)(jet)) {
+                sf = 1;
+                return CorrectionCode::Ok;
+            }
         }
     }
     int jetbin = h_JvtHist->FindBin(jet.pt(),fabs(jet.getAttribute<float>(m_jetEtaName)));
