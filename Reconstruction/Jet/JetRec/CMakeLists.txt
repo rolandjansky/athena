@@ -36,6 +36,7 @@ find_package( FastJet COMPONENTS fastjetplugins fastjettools siscone
   siscone_spherical )
 find_package( FastJetContrib COMPONENTS VariableR RecursiveTools )
 find_package( ROOT COMPONENTS Core )
+find_package( GTest )
 
 # Component(s) in the package:
 atlas_add_library( JetRecLib
@@ -66,31 +67,31 @@ atlas_add_test( TestTests
  # test/all_tests.cx
  test/TestTest.cxx
  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
- LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools JetRecLib )
+ LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
 
 atlas_add_test(JetTests
   SOURCES
   test/JetTest.cxx
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools JetRecLib )
+  LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
 
 atlas_add_test(PseudoJetContainerOffline
   SOURCES
   test/PseudoJetContainerOfflineTest.cxx
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools JetRecLib )
+  LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
 
 atlas_add_test(PseudoJetContainerTrigger
   SOURCES
   test/PseudoJetContainerTriggerTest.cxx
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools JetRecLib )
+  LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
 
 atlas_add_test(ExtractorUnitTests
   SOURCES
     test/ExtractorTest.cxx
     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-`   LINK_LIBRARIES ${ROOT_LIBRARIES} GoogleTestTools JetRecLib )
+    LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
   
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
