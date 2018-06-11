@@ -100,11 +100,12 @@ class RatesScanTrigger : public RatesTrigger {
    */
   const std::string printRate(const double ratesDenominator) const override;
 
-  TH1D* getThresholdHist() const { return m_rateScanHist; } //!< Get a pointer to the rate as a fn. of threshold
+  TH1D* getThresholdHist(bool clientIsTHistSvc = false); //!< Get a pointer to the rate as a fn. of threshold
 
  private: 
 
   TH1D* m_rateScanHist; //!< Even if we are not exporting it - we still need this histo 
+  bool m_givenRateScanHist; //!< m_rateScanHist has been given to the THistSvc and should not be deleted
   double m_thresholdPassed; //!< Analogous to m_pass. This is the threshold that the trigger passed in the event
   TriggerBehaviour_t m_behaviour; //!< If we need to be above or below the threshold to cause the trigger to fire
 

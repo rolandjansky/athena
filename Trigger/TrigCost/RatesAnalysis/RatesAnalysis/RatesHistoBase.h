@@ -80,9 +80,9 @@ class RatesHistoBase {
   RatesHistoBase(const std::string& name, const MsgStream& log, const bool doHistograms = true);
   virtual ~RatesHistoBase();
 
-  TH1D* getMuHist() const; //!< @return histogram pointer or nullptr and an error
-  TH1D* getDataHist() const; //!< @return histogram pointer or nullptr. Does not cause error
-  TH1D* getTrainHist() const; //!< @return histogram pointer or nullptr and an error
+  TH1D* getMuHist(bool clientIsTHistSvc = false); //!< @return histogram pointer or nullptr and an error
+  TH1D* getDataHist(bool clientIsTHistSvc = false); //!< @return histogram pointer or nullptr. Does not cause error
+  TH1D* getTrainHist(bool clientIsTHistSvc = false); //!< @return histogram pointer or nullptr and an error
   virtual void normaliseHist(const double ratesDenominator); //!< Normalise to walltime to get rate.
   bool doHistograms() const { return m_doHistograms; } //!< If histogramming was enabled in this rates object
 
@@ -90,10 +90,14 @@ class RatesHistoBase {
 
  protected:
 
+  std::string m_name; //!< My name
   bool m_doHistograms; //!< If histogramming is switched on
   TH1D* m_rateVsMu; //!< Histogram of rate as a fn. of the input event's mu
   TH1D* m_rateVsTrain; //!< Histogram of rate as a fn. of position in bunch train
   TH1D* m_data; //!< Histogram of raw rates quantites, for when we need to normalise offline (e.g. grid processing)
+  bool  m_givenRateVsMu; //!< m_rateVsMu has been given to the THistSvc and should not be deleted
+  bool  m_givenRateVsTrain; //!< m_rateVsTrain has been given to the THistSvc and should not be deleted
+  bool  m_givenData; //!< m_data has been given to the THistSvc and should not be deleted
   static uint32_t m_histoID; //!< Give every histo a unique name using this
 
   mutable MsgStream m_log; //!< For ATHENA messaging

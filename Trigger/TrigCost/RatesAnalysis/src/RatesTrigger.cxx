@@ -107,8 +107,8 @@ const std::string RatesTrigger::printRate(const double ratesDenominator) const {
        << " +- "           << std::setw(11) << std::left << uniqueErr << " Hz";
   }
   ss << " : ";
-  if (m_seed != "") ss << m_seed << " [PS:" << m_seedPrescale << "] -> ";
   ss << m_name << " [PS:" << m_prescale << "]";
+  if (m_seed != "") ss << " <- " << m_seed << " [PS:" << m_seedPrescale << "]";
   return ss.str();
 }
 
