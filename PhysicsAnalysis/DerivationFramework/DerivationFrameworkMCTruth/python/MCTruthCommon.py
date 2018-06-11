@@ -292,27 +292,6 @@ def addStandardTruthContents(kernel=None,
     # Add back the navigation contect for the collections we want
     addTruthCollectionNavigationDecorations(kernel,["TruthElectrons","TruthMuons","TruthPhotons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson"])
 
-# Add taus and their downstream particles (immediate and further decay products) in a special collection
-def addTausAndDownstreamParticles(kernel=None, generations=-1):
-    # Ensure that we are adding it to something
-    if kernel is None:
-        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
-        kernel = DerivationFrameworkJob
-    if hasattr(kernel,'MCTruthCommonTausAndDecaysKernel'):
-        # Already there!  Carry on...
-        return
-    # Set up a tool to keep the taus and all downstream particles
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDecayCollectionMaker
-    DFCommonTausAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name="DFCommonTausAndDecaysTool",
-                                                                   NewCollectionName="TruthTauWithDecay",
-                                                                        PDGIDsToKeep=[15],
-                                                                         Generations=generations)
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += DFCommonTausAndDecaysTool
-    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
-    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonTausAndDecaysKernel",
-                                                             AugmentationTools = [DFCommonTausAndDecaysTool] )
-
 # Add W bosons and their downstream particles (immediate and further decay products) in a special collection
 def addWbosonsAndDownstreamParticles(kernel=None, generations=1):
     # Ensure that we are adding it to something
@@ -334,70 +313,66 @@ def addWbosonsAndDownstreamParticles(kernel=None, generations=1):
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonWbosonsAndDecaysKernel",
                                                              AugmentationTools = [DFCommonWbosonsAndDecaysTool] )
 
-# Add W/Z/H bosons and their downstream particles (notice "boson" here does not include photons and gluons)
-def addBosonsAndDownstreamParticles(kernel=None, generations=1):
-    # Ensure that we are adding it to something
+def addParentAndDownstreamParticles(kernel=None,
+                                    generations=1,
+                                    parents=[6],
+                                    prefix='TopQuark',
+                                    collection_prefix=None): 
+  # Ensure that we are adding it to something
     if kernel is None:
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
         kernel = DerivationFrameworkJob
-    if hasattr(kernel,'MCTruthCommonBosonsAndDecaysKernel'):
+    kernel_name = 'MCTruthCommon'+prefix+'AndDecaysKernel'
+    if hasattr(kernel,kernel_name):
         # Already there!  Carry on...
         return
+    collection_name=collection_prefix+'WithDecay' if collection_prefix!=None else 'Truth'+prefix+'WithDecay'
     # Set up a tool to keep the W/Z/H bosons and all downstream particles
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDecayCollectionMaker
-    DFCommonBosonsAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name="DFCommonBosonsAndDecaysTool",
-                                                                                  NewCollectionName="TruthBosonWithDecay",
-                                                                                  PDGIDsToKeep=[23,24,25],
-                                                                                  Generations=generations)
+    collection_maker = DerivationFramework__TruthDecayCollectionMaker( name='DFCommon'+prefix+'AndDecaysTool',
+                                                                       NewCollectionName=collection_name,
+                                                                       PDGIDsToKeep=parents,
+                                                                       Generations=generations)
     from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += DFCommonBosonsAndDecaysTool
+    ToolSvc += collection_maker
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
-    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonBosonsAndDecaysKernel",
-                                                             AugmentationTools = [DFCommonBosonsAndDecaysTool] )
+    kernel += CfgMgr.DerivationFramework__CommonAugmentation(kernel_name,
+                                                             AugmentationTools = [collection_maker] )
 
-# Special collection for top quarks and their downstream particles (immediate and further decay products)
+# Add taus and their downstream particles (immediate and further decay products) in a special collection
+def addTausAndDownstreamParticles(kernel=None, generations=1):
+    return addParentAndDownstreamParticles(kernel=kernel,
+                                    generations=generations,
+                                    parents=[15],
+                                    prefix='Tau') 
+
+# Add W bosons and their downstream particles 
+def addWbosonsAndDownstreamParticles(kernel=None, generations=1):
+    return addParentAndDownstreamParticles(kernel=kernel,
+                                    generations=generations,
+                                    parents=[24],
+                                    prefix='Wboson') 
+
+# Add W/Z/H bosons and their downstream particles (notice "boson" here does not include photons and gluons)
+def addBosonsAndDownstreamParticles(kernel=None, generations=1):
+    return addParentAndDownstreamParticles(kernel=kernel,
+                                    generations=generations,
+                                    parents=[23,24,25],
+                                    prefix='Boson') 
+
+
 def addTopQuarkAndDownstreamParticles(kernel=None, generations=1):
-    # Ensure that we are adding it to something
-    if kernel is None:
-        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
-        kernel = DerivationFrameworkJob
-    if hasattr(kernel,'MCTruthCommonTopQuarkAndDecaysKernel'):
-        # Already there!  Carry on...
-        return
-    # Set up a tool to keep the top quarks and all downstream particles
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDecayCollectionMaker
-    DFCommonTopQuarkAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name="DFCommonTopQuarkAndDecaysTool",
-                                                                                    NewCollectionName="TruthTopQuarkWithDecay",
-                                                                                    PDGIDsToKeep=[6],
-                                                                                    Generations=generations)
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += DFCommonTopQuarkAndDecaysTool
-    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
-    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonTopQuarkAndDecaysKernel",
-                                                             AugmentationTools = [DFCommonTopQuarkAndDecaysTool] )
-
-
+   return addParentAndDownstreamParticles(kernel=kernel,
+                                    generations=generations,
+                                    parents=[6],
+                                    prefix='TopQuark')
 
 # Add electrons, photons, and their downstream particles in a special collection
-def addEgammaAndDownstreamParticles(kernel=None, generations=-1):
-    # Ensure that we are adding it to something
-    if kernel is None:
-        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
-        kernel = DerivationFrameworkJob
-    if hasattr(kernel,'MCTruthCommonEgammasAndDecaysKernel'):
-        # Already there!  Carry on...
-        return
-    # Set up a tool to keep the e/gammas and all downstream particles
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDecayCollectionMaker
-    DFCommonEgammasAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name="DFCommonEgammasAndDecaysTool",
-                                                                      NewCollectionName="TruthEgammaWithDecay",
-                                                                           PDGIDsToKeep=[11,22],
-                                                                            Generations=generations)
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += DFCommonEgammasAndDecaysTool
-    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
-    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonEgammasAndDecaysKernel",
-                                                             AugmentationTools = [DFCommonEgammasAndDecaysTool] )
+def addEgammaAndDownstreamParticles(kernel=None, generations=1):
+    return addParentAndDownstreamParticles(kernel=kernel,
+                                           generations=generations,
+                                           parents=[11,22],
+                                           prefix='Egamma')
 
 # Add b/c-hadrons and their downstream particles (immediate and further decay products) in a special collection
 def addHFAndDownstreamParticles(kernel=None, addB=True, addC=True, generations=-1):
