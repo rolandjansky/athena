@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/SGTools
                           Control/StoreGate
+                          Control/AthContainerInterfaces
                           Event/EventBookkeeperMetaData
                           Event/EventInfo
                           Event/xAOD/xAODEventInfo )

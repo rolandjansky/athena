@@ -47,8 +47,11 @@ public: // Constructor and Destructor
 public:
    //void handle(const Incident& incident);
    virtual StatusCode metaDataStop();
+   virtual StatusCode metaDataStop(const SG::SourceID& sid = "Serial");
    virtual StatusCode beginInputFile();
+   virtual StatusCode beginInputFile(const SG::SourceID& sid = "Serial");
    virtual StatusCode endInputFile();
+   virtual StatusCode endInputFile(const SG::SourceID& sid = "Serial");
    virtual StatusCode initialize();
    virtual StatusCode finalize();
 
@@ -58,7 +61,9 @@ private:
   StatusCode updateContainer( xAOD::CutBookkeeperContainer* contToUpdate,
                               const xAOD::CutBookkeeperContainer* otherCont );
 
-  StatusCode copyContainerToOutput(const std::string& outname);
+  StatusCode copyContainerToOutput(const SG::SourceID& sid = "Serial", const std::string& outname = "");
+
+  StatusCode initOutputContainer(const std::string& sgkey, const SG::SourceID& sid);
 
   /// Fill Cutflow information
   StatusCode addCutFlow();
@@ -78,6 +83,8 @@ private:
   bool m_cutflowTaken;
 
 };
+
+METACONT_DEF( xAOD::CutBookkeeperAuxContainer, 1422102 );
 
 #endif
 

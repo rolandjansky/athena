@@ -32,14 +32,14 @@ public:
    StatusCode finalize();
 
    /// Function called when a new input file is opened
-   virtual StatusCode beginInputFile();
+   virtual StatusCode beginInputFile(const SG::SourceID& = "Serial");
  
    /// Function called when the currently open input file got completely
    /// processed
-   virtual StatusCode endInputFile();
+   virtual StatusCode endInputFile(const SG::SourceID& = "Serial");
 
    /// Function called when the tool should write out its metadata
-   virtual StatusCode metaDataStop();
+   virtual StatusCode metaDataStop(const SG::SourceID& = "Serial");
 
    /// Incident service handle listening for BeginInputFile and EndInputFile.
    //void handle(const Incident& incident);

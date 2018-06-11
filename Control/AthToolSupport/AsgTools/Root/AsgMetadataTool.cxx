@@ -120,10 +120,10 @@ namespace asg {
       ATH_CHECK( incSvc.retrieve() );
 
       // Set up the right callbacks: don't rethrow exceptions, any failure and we should end
-      incSvc->addListener( this, IncidentType::BeginEvent, 0, false );
-      incSvc->addListener( this, IncidentType::BeginInputFile, 0, false );
-      incSvc->addListener( this, IncidentType::EndInputFile, 0, false );
-      incSvc->addListener( this, IncidentType::MetaDataStop, 70, false );
+      //incSvc->addListener( this, IncidentType::BeginEvent, 0, false );
+      //incSvc->addListener( this, IncidentType::BeginInputFile, 0, false );
+      //incSvc->addListener( this, IncidentType::EndInputFile, 0, false );
+      //incSvc->addListener( this, IncidentType::MetaDataStop, 70, false );
 
       // Let the base class do its thing:
       ATH_CHECK( AlgTool::sysInitialize() );
@@ -139,6 +139,7 @@ namespace asg {
       // Tell the user what's happening:
       ATH_MSG_VERBOSE( "Callback received with incident: " << inc.type() );
 
+      ATH_MSG_INFO("BLARG FUCK");
       // Call the appropriate member function:
       if( inc.type() == IncidentType::BeginInputFile ) {
          m_beginInputFileCalled = true;

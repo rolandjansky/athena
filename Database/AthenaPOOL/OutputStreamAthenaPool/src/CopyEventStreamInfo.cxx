@@ -67,7 +67,7 @@ StatusCode CopyEventStreamInfo::finalize() {
 }
 
 
-StatusCode CopyEventStreamInfo::beginInputFile()
+StatusCode CopyEventStreamInfo::beginInputFile(const SG::SourceID&)
 {
    if (m_inputMetaDataStore->contains<EventStreamInfo>(m_key)) {
       std::list<SG::ObjectWithVersion<EventStreamInfo> > allVersions;
@@ -121,11 +121,11 @@ StatusCode CopyEventStreamInfo::beginInputFile()
    }
    return(StatusCode::SUCCESS);
 }
-StatusCode CopyEventStreamInfo::endInputFile()
+StatusCode CopyEventStreamInfo::endInputFile(const SG::SourceID&)
 {
    return(StatusCode::SUCCESS);
 }
-StatusCode CopyEventStreamInfo::metaDataStop()
+StatusCode CopyEventStreamInfo::metaDataStop(const SG::SourceID&)
 {
    return(StatusCode::SUCCESS);
 }

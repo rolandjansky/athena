@@ -205,11 +205,11 @@ StatusCode MetaDataSvc::stop() {
    }
 
    // Set to be listener for end of event
-   Incident metaDataStopIncident(name(), "MetaDataStop");
-   m_incSvc->fireIncident(metaDataStopIncident);
+   //Incident metaDataStopIncident(name(), "MetaDataStop");
+   //m_incSvc->fireIncident(metaDataStopIncident);
 
    // finalizing tools via metaDataStop
-   ATH_CHECK(this->prepareOutput());
+   //ATH_CHECK(this->prepareOutput(metaDataStopIncident));
 
    return(StatusCode::SUCCESS);
 }
@@ -275,6 +275,7 @@ StatusCode MetaDataSvc::newMetadataSource(const Incident& inc)
       ATH_MSG_ERROR("Unable to get FileName from EndInputFile incident");
       return StatusCode::FAILURE;
    }
+   const std::string guid = fileInc->fileGuid();
    const std::string fileName = fileInc->fileName();
    m_allowMetaDataStop = false;
    if (fileName.find("BSF:") != 0) {
@@ -292,7 +293,7 @@ StatusCode MetaDataSvc::newMetadataSource(const Incident& inc)
    StatusCode rc(StatusCode::SUCCESS);
    for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
       ATH_MSG_DEBUG(" calling beginInputFile for " << (*it)->name());
-      if ( (*it)->beginInputFile().isFailure() ) {
+      if ( (*it)->beginInputFile(guid).isFailure() ) {
          ATH_MSG_ERROR("Unable to call beginInputFile for " << it->name());
          rc = StatusCode::FAILURE;
       }
@@ -300,10 +301,16 @@ StatusCode MetaDataSvc::newMetadataSource(const Incident& inc)
    return rc;
 }
 
-StatusCode MetaDataSvc::retireMetadataSource(const Incident&)
+StatusCode MetaDataSvc::retireMetadataSource(const Incident& inc)
 {
+   const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
+   if (fileInc == nullptr) {
+      ATH_MSG_ERROR("Unable to get FileName from EndInputFile incident");
+      return StatusCode::FAILURE;
+   }
+   const std::string guid = fileInc->fileGuid();
    for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
-      if ( (*it)->endInputFile().isFailure() ) {
+      if ( (*it)->endInputFile(guid).isFailure() ) {
          ATH_MSG_ERROR("Unable to call endInputFile for " << it->name());
          return StatusCode::FAILURE;
       }
@@ -312,12 +319,18 @@ StatusCode MetaDataSvc::retireMetadataSource(const Incident&)
    return StatusCode::SUCCESS;
 }
 
-StatusCode MetaDataSvc::prepareOutput()
+StatusCode MetaDataSvc::prepareOutput(const Incident& inc)
 {
+   const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
+   if (fileInc == nullptr) {
+      ATH_MSG_ERROR("Unable to get FileName from MetaDataStop incident");
+      return StatusCode::FAILURE;
+   }
+   const std::string guid = fileInc->fileGuid();
    StatusCode rc(StatusCode::SUCCESS);
    for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
       ATH_MSG_DEBUG(" calling metaDataStop for " << (*it)->name());
-      if ( (*it)->metaDataStop().isFailure() ) {
+      if ( (*it)->metaDataStop(guid).isFailure() ) {
          ATH_MSG_ERROR("Unable to call metaDataStop for " << it->name());
          rc = StatusCode::FAILURE;
       }
@@ -387,16 +400,17 @@ void MetaDataSvc::handle(const Incident& inc) {
    }
 }
 //__________________________________________________________________________
-StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
+StatusCode MetaDataSvc::transitionMetaDataFile(const FileIncident& inc, bool ignoreInputFile) {
    // Allow MetaDataStop only on Input file transitions
    if (!m_allowMetaDataStop && !ignoreInputFile) {
       return(StatusCode::FAILURE);
    }
-   Incident metaDataStopIncident(name(), "MetaDataStop");
-   m_incSvc->fireIncident(metaDataStopIncident);
+   //FileIncident metaDataStopIncident(name(), "MetaDataStop", inc.fileName(), inc.fileGuid());
+   //m_incSvc->fireIncident(metaDataStopIncident);
 
    // Set to be listener for end of event
-   ATH_CHECK(this->prepareOutput());
+   //ATH_CHECK(this->prepareOutput(metaDataStopIncident));
+   ATH_CHECK(this->prepareOutput(inc));
 
    AthCnvSvc* cnvSvc = dynamic_cast<AthCnvSvc*>(m_addrCrtr.operator->());
    if (cnvSvc) {

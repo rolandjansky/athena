@@ -32,6 +32,7 @@
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
 #include "OutputStreamSequencerSvc.h"
+#include "MetaDataSvc.h"
 
 #include <boost/tokenizer.hpp>
 #include <cassert>
@@ -149,14 +150,12 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
           m_outSeqSvc("OutputStreamSequencerSvc", name),
         m_p2BWritten(string("SG::Folder/") + name + string("_TopFolder"), this),
         m_decoder(string("SG::Folder/") + name + string("_excluded"), this),
-        m_transient(string("SG::Folder/") + name + string("_transient"), this),
-          m_events(0),
+                m_events(0),
         m_streamer(string("AthenaOutputStreamTool/") + name + string("Tool"), this),
    m_helperTools(this) {
    assert(pSvcLocator);
    declareProperty("ItemList",               m_itemList);
    declareProperty("MetadataItemList",       m_metadataItemList);
-   declareProperty("TransientItems",         m_transientItems);
    declareProperty("OutputFile",             m_outputName="DidNotNameOutput.root");
    declareProperty("EvtConversionSvc",       m_persName="EventPersistencySvc");
    declareProperty("WritingTool",            m_streamer);
@@ -281,38 +280,72 @@ StatusCode AthenaOutputStream::initialize() {
       ATH_MSG_FATAL("Could re-init I/O component");
       return(status);
    }
-
-   // Add an explicit input dependency for everything in our item list
-   // that we know from the configuration is in the transient store.
-   // We don't want to add everything on the list, because configurations
-   // often initialize this with a maximal static list of everything
-   // that could possibly be written.
-   {
-     ATH_CHECK( m_transient.retrieve() );
-     IProperty *pAsIProp = dynamic_cast<IProperty*> (&*m_transient);
-     if (!pAsIProp) {
-       ATH_MSG_FATAL ("Bad folder interface");
-       return StatusCode::FAILURE;
-     }
-     ATH_CHECK (pAsIProp->setProperty("ItemList", m_transientItems.toString()));
-
-     for (const SG::FolderItem& item : *m_p2BWritten) {
-       const std::string& k = item.key();
-       if (k.find('*') != std::string::npos) continue;
-       if (k.find('.') != std::string::npos) continue;
-       for (const SG::FolderItem& titem : *m_transient) {
-         if (titem.id() == item.id() && titem.key() == k) {
-           DataObjID id (item.id(), m_dataStore.name() + "+" + k);
-           this->addDependency (id, Gaudi::DataHandle::Reader);
-           break;
-         }
-       }
-     }
-   }
-
    ATH_MSG_DEBUG("End initialize");
    if (baseStatus == StatusCode::FAILURE) return StatusCode::FAILURE;
    return(status);
+}
+
+StatusCode AthenaOutputStream::stop()
+{
+      for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
+           iter != m_helperTools.end(); iter++) {
+         if (!(*iter)->preFinalize().isSuccess()) {
+             ATH_MSG_ERROR("Cannot finalize helper tool");
+         }
+      }
+      // Always force a final commit in stop - mainly applies to AthenaPool
+      if (m_writeOnFinalize) {
+         if (write().isFailure()) {  // true mean write AND commit
+            ATH_MSG_ERROR("Cannot write on finalize");
+         }
+         ATH_MSG_INFO("Records written: " << m_events);
+      }
+      FileIncident fileInc(name(),"MetaDataStop","","");
+      ServiceHandle<MetaDataSvc> mdsvc("MetaDataSvc", name());
+      if (mdsvc.retrieve().isFailure()) {
+         ATH_MSG_ERROR("Could not retrieve MetaDataSvc for stop actions");
+      }
+      else {
+         mdsvc->prepareOutput(fileInc);
+      }
+
+      if (!m_metadataItemList.value().empty()) {
+         m_currentStore = &m_metadataStore;
+         StatusCode status = m_streamer->connectServices(m_metadataStore.type(), m_persName, false);
+         if (status.isFailure()) {
+            throw GaudiException("Unable to connect metadata services", name(), StatusCode::FAILURE);
+         }
+         m_checkNumberOfWrites = false;
+         m_outputAttributes = "[OutputCollection=MetaDataHdr][PoolContainerPrefix=MetaData][AttributeListKey=][DataHeaderSatellites=]";
+         m_p2BWritten->clear();
+         IProperty *pAsIProp(nullptr);
+         if ((m_p2BWritten.retrieve()).isFailure() ||
+                        nullptr == (pAsIProp = dynamic_cast<IProperty*>(&*m_p2BWritten)) ||
+                        (pAsIProp->setProperty("ItemList", m_metadataItemList.toString())).isFailure()) {
+            throw GaudiException("Folder property [metadataItemList] not found", name(), StatusCode::FAILURE);
+         }
+         if (write().isFailure()) {  // true mean write AND commit
+            ATH_MSG_ERROR("Cannot write metadata");
+         }
+         m_outputAttributes.clear();
+         m_currentStore = &m_dataStore;
+         status = m_streamer->connectServices(m_dataStore.type(), m_persName, m_extendProvenanceRecord);
+         if (status.isFailure()) {
+            throw GaudiException("Unable to re-connect services", name(), StatusCode::FAILURE);
+         }
+         m_p2BWritten->clear();
+         if ((pAsIProp->setProperty(m_itemList)).isFailure()) {
+            throw GaudiException("Folder property [itemList] not found", name(), StatusCode::FAILURE);
+         }
+         ATH_MSG_INFO("Records written: " << m_events);
+         for (std::vector<ToolHandle<IAthenaOutputTool> >::iterator iter = m_helperTools.begin();
+             iter != m_helperTools.end(); iter++) {
+            if (!(*iter)->postInitialize().isSuccess()) {
+                ATH_MSG_ERROR("Cannot initialize helper tool");
+            }
+         }
+      }
+   return StatusCode::SUCCESS;
 }
 
 void AthenaOutputStream::handle(const Incident& inc) {

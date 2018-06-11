@@ -12,6 +12,7 @@
  **/
 
 #include "GaudiKernel/IAlgTool.h"
+#include "AthenaKernel/SourceID.h"
 
 /** @class IMetaDataTool
  *  @brief This class provides the interface for MetaDataTools.
@@ -21,14 +22,14 @@ class IMetaDataTool : virtual public IAlgTool {
 public: // Non-static members
 
   /// Function called when a new input file is opened
-  virtual StatusCode beginInputFile() = 0;
+  virtual StatusCode beginInputFile(const SG::SourceID&) = 0;
 
   /// Function called when the currently open input file got completely
   /// processed
-  virtual StatusCode endInputFile() = 0;
+  virtual StatusCode endInputFile(const SG::SourceID&) = 0;
 
   /// Function called when the tool should write out its metadata
-  virtual StatusCode metaDataStop() = 0;
+  virtual StatusCode metaDataStop(const SG::SourceID&) = 0;
 
   /// Gaudi boilerplate
    static const InterfaceID& interfaceID();

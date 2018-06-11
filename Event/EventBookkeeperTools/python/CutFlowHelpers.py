@@ -63,8 +63,6 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
     import AthenaCommon.CfgMgr as CfgMgr
     if not hasattr(svcMgr,"CutFlowSvc"): svcMgr += CfgMgr.CutFlowSvc()
     svcMgr.CutFlowSvc.InputStream   = inputStreamName
-    #if not hasattr(svcMgr,"FileCutFlowSvc"): svcMgr += CfgMgr.FileCutFlowSvc()
-    #svcMgr.FileCutFlowSvc.InputStream   = inputStreamName
 
     # Make sure MetaDataSvc is ready
     if not hasattr(svcMgr,'MetaDataSvc'):
@@ -81,6 +79,7 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
                                  InputCollName = inname,
                                  OutputCollName= outname) 
     svcMgr.ToolSvc += cutflowtool
+    svcMgr.ToolSvc.OutputLevel = 2
 
     # Add tool to MetaDataSvc
     svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
@@ -88,9 +87,6 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
     # Add pdf sum of weights counts if appropriate
     from AthenaCommon.GlobalFlags  import globalflags
     if globalflags.DataSource() == 'geant4':
-        #from PyUtils import AthFile
-        #afc = AthFile.fopen( svcMgr.EventSelector.InputCollections[0] )
-
         # PDF
         name = "PDFSumOfWeights"
         pdfweighttool = BookkeeperTool(name,
