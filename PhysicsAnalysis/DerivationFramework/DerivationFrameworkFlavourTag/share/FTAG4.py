@@ -12,7 +12,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-from DerivationFrameworkFlavourTag.HbbCommon import * 
+from DerivationFrameworkFlavourTag.HbbCommon import addVRJets addExCoM addExKt
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
