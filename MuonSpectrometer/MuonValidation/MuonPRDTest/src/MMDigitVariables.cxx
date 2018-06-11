@@ -5,8 +5,6 @@
 #include "MMDigitVariables.h"
 #include "AthenaKernel/errorcheck.h"
 
-#include "MuonSimData/MuonSimDataCollection.h"
-
 #include "MuonDigitContainer/MmDigitContainer.h"
 #include "MuonDigitContainer/MmDigit.h"
 
@@ -22,10 +20,6 @@ StatusCode MMDigitVariables::fillVariables()
 
   // clear variables
   CHECK( this->clearVariables() );
-
-  // get truth information container of digitization
-  const MuonSimDataCollection* nsw_MmSdoContainer = nullptr;
-  CHECK( m_evtStore->retrieve(nsw_MmSdoContainer, "MM_SDO") );
 
   // get digit container (a container corresponds to a multilayer of a module)
   const MmDigitContainer *nsw_MmDigitContainer = nullptr;
@@ -243,44 +237,6 @@ StatusCode MMDigitVariables::fillVariables()
       m_NSWMM_dig_sr_stripGposY->push_back(sr_globalPosY);
       m_NSWMM_dig_sr_stripGposZ->push_back(sr_globalPosZ);
 
-
-      // retrieve the MC truth associated with the digit (means the Geant4 hit information)
-      if (nsw_MmSdoContainer && nsw_MmSdoContainer->size()>0) {
-        // search the truth container with the Id of the digit
-        const MuonSimData mm_sdo = (nsw_MmSdoContainer->find(Id))->second;
-        std::vector<MuonSimData::Deposit> deposits;
-        // get the truth deposits
-        mm_sdo.deposits(deposits);
-
-        // use the information of the first deposit
-        int    truth_barcode   = deposits[0].first.barcode();
-        double truth_localPosX = deposits[0].second.firstEntry();
-        double truth_localPosY = deposits[0].second.secondEntry();
-        float  truth_angle     = mm_sdo.word()/1000.;
-
-        // get global and local coordinates of this first deposit
-        Amg::Vector2D hit_on_surface(truth_localPosX, truth_localPosY);
-        Amg::Vector3D hit_gpos(0., 0., 0.);
-        rdoEl->surface(Id).localToGlobal(hit_on_surface, Amg::Vector3D(0., 0., 0.), hit_gpos);
-
-        ATH_MSG_DEBUG("MicroMegas Digit, truth barcode=" << truth_barcode);
-        ATH_MSG_DEBUG("MicroMegas Digit, truth localPosX=" << std::setw(9) << std::setprecision(2) << truth_localPosX
-                                   << ", truth localPosY=" << std::setw(9) << std::setprecision(2) << truth_localPosY
-                                    << ", truth XZ angle=" << std::setw(8) << std::setprecision(5) << truth_angle);
-
-        // truth information like positions and barcode
-        // to be stored in the ntuple
-        m_NSWMM_dig_truth_barcode->push_back( truth_barcode );
-        m_NSWMM_dig_truth_localPosX->push_back( truth_localPosX );
-        m_NSWMM_dig_truth_localPosY->push_back( truth_localPosY );
-        m_NSWMM_dig_truth_XZ_angle->push_back( truth_angle );
-
-        m_NSWMM_dig_truth_globalPosX->push_back( hit_gpos[0] );
-        m_NSWMM_dig_truth_globalPosY->push_back( hit_gpos[1] );
-        m_NSWMM_dig_truth_globalPosZ->push_back( hit_gpos[2] );
-
-      }
-
       // some more information of the digit to be stored in the ntuple
       m_NSWMM_dig_time_trigger->push_back(time_trigger);
       m_NSWMM_dig_charge_trigger->push_back(charge_trigger);
@@ -337,16 +293,6 @@ StatusCode MMDigitVariables::clearVariables()
   m_NSWMM_dig_sr_stripGposY->clear();
   m_NSWMM_dig_sr_stripGposZ->clear();
 
-  // truth information of the (1st) Geant4 hit that caused this
-  // digit to be recorded (size is m_NSWMM_nDigits)
-  m_NSWMM_dig_truth_barcode->clear();
-  m_NSWMM_dig_truth_localPosX->clear();
-  m_NSWMM_dig_truth_localPosY->clear();
-  m_NSWMM_dig_truth_XZ_angle->clear();
-  m_NSWMM_dig_truth_globalPosX->clear();
-  m_NSWMM_dig_truth_globalPosY->clear();
-  m_NSWMM_dig_truth_globalPosZ->clear();
-
   // more information for trigger
   m_NSWMM_dig_time_trigger->clear();
   m_NSWMM_dig_charge_trigger->clear();
@@ -388,14 +334,6 @@ StatusCode MMDigitVariables::initializeVariables()
   m_NSWMM_dig_sr_stripGposY    = new std::vector< std::vector<double> >;
   m_NSWMM_dig_sr_stripGposZ    = new std::vector< std::vector<double> >;
 
-  m_NSWMM_dig_truth_barcode    = new std::vector<int>;
-  m_NSWMM_dig_truth_localPosX  = new std::vector<double>;
-  m_NSWMM_dig_truth_localPosY  = new std::vector<double>;
-  m_NSWMM_dig_truth_XZ_angle   = new std::vector<float>;
-  m_NSWMM_dig_truth_globalPosX = new std::vector<double>;
-  m_NSWMM_dig_truth_globalPosY = new std::vector<double>;
-  m_NSWMM_dig_truth_globalPosZ = new std::vector<double>;
-
   m_NSWMM_dig_time_trigger        = new std::vector< std::vector<float> >;
   m_NSWMM_dig_charge_trigger      = new std::vector< std::vector<float> >;
   m_NSWMM_dig_position_trigger    = new std::vector< std::vector<int> >;
@@ -428,14 +366,6 @@ StatusCode MMDigitVariables::initializeVariables()
     m_tree->Branch("Digits_MM_stripresponse_stripGposX",    &m_NSWMM_dig_sr_stripGposX);
     m_tree->Branch("Digits_MM_stripResponse_stripGposY",    &m_NSWMM_dig_sr_stripGposY);
     m_tree->Branch("Digits_MM_stripResponse_stripGposZ",    &m_NSWMM_dig_sr_stripGposZ);
-
-    m_tree->Branch("Digits_MM_truth_barcode",    &m_NSWMM_dig_truth_barcode);
-    m_tree->Branch("Digits_MM_truth_localPosX",  &m_NSWMM_dig_truth_localPosX);
-    m_tree->Branch("Digits_MM_truth_localPosY",  &m_NSWMM_dig_truth_localPosY);
-    m_tree->Branch("Digits_MM_truth_XZ_angle",   &m_NSWMM_dig_truth_XZ_angle);
-    m_tree->Branch("Digits_MM_truth_globalPosX", &m_NSWMM_dig_truth_globalPosX);
-    m_tree->Branch("Digits_MM_truth_globalPosY", &m_NSWMM_dig_truth_globalPosY);
-    m_tree->Branch("Digits_MM_truth_globalPosZ", &m_NSWMM_dig_truth_globalPosZ);
       
     m_tree->Branch("Digits_MM_time_trigger",          &m_NSWMM_dig_time_trigger);
     m_tree->Branch("Digits_MM_charge_trigger",        &m_NSWMM_dig_charge_trigger);
@@ -477,14 +407,6 @@ void MMDigitVariables::deleteVariables()
   delete m_NSWMM_dig_sr_stripGposY;
   delete m_NSWMM_dig_sr_stripGposZ;
 
-  delete m_NSWMM_dig_truth_barcode;
-  delete m_NSWMM_dig_truth_localPosX;
-  delete m_NSWMM_dig_truth_localPosY;
-  delete m_NSWMM_dig_truth_XZ_angle;
-  delete m_NSWMM_dig_truth_globalPosX;
-  delete m_NSWMM_dig_truth_globalPosY;
-  delete m_NSWMM_dig_truth_globalPosZ;
-
   delete m_NSWMM_dig_time_trigger;
   delete m_NSWMM_dig_charge_trigger;
   delete m_NSWMM_dig_position_trigger;
@@ -516,14 +438,6 @@ void MMDigitVariables::deleteVariables()
   m_NSWMM_dig_sr_stripGposX = nullptr;
   m_NSWMM_dig_sr_stripGposY = nullptr;
   m_NSWMM_dig_sr_stripGposZ = nullptr;
-
-  m_NSWMM_dig_truth_barcode    = nullptr;
-  m_NSWMM_dig_truth_localPosX  = nullptr;
-  m_NSWMM_dig_truth_localPosY  = nullptr;
-  m_NSWMM_dig_truth_XZ_angle   = nullptr;
-  m_NSWMM_dig_truth_globalPosX = nullptr;
-  m_NSWMM_dig_truth_globalPosY = nullptr;
-  m_NSWMM_dig_truth_globalPosZ = nullptr;
 
   m_NSWMM_dig_time_trigger = nullptr;
   m_NSWMM_dig_charge_trigger = nullptr;
