@@ -72,7 +72,7 @@ public:
   /**Bad chips for a given module*/
   virtual unsigned int                  badChips(const Identifier& moduleId) const override;
   /** Get the chip number containing a particular strip*/
-  int                                   getChip(const Identifier& stripId) const;
+  virtual int                           getChip(const Identifier& stripId) const override;
 
 private:
   // Mutex to protect the contents.

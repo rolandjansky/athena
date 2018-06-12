@@ -36,7 +36,7 @@ double SCT_ElectricFieldTool::getElectricField(double positionZ,
                                                double /**fluence**/,
                                                double depletionVoltage,
                                                double sensorThickness,
-                                               double biasVoltage) {
+                                               double biasVoltage) const {
   if ((m_eFieldModel == UNIFORM_FIELD) or (m_eFieldModel == FLAT_DIODE)) {
     //--------------------------------------------------------------
     //   Electric Field Ez
