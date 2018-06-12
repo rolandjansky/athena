@@ -173,11 +173,16 @@ if InDetFlags.loadRotCreator():
         PixelClusterOnTrackToolDigital = None
 
     if DetFlags.haveRIO.SCT_on():
+        # SiLorentzAngleTool
+        if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+            from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+            sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
         from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
         SCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("InDetSCT_ClusterOnTrackTool",
                                                                 #CorrectionStrategy = -1,  # no position correction (test for bug #56477)
                                                                 CorrectionStrategy = 0,  # do correct position bias
-                                                                ErrorStrategy      = 2)  # do use phi dependent errors
+                                                                ErrorStrategy      = 2,  # do use phi dependent errors
+                                                                LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
         ToolSvc += SCT_ClusterOnTrackTool
         if (InDetFlags.doPrintConfigurables()):
             print SCT_ClusterOnTrackTool
@@ -252,6 +257,10 @@ if InDetFlags.loadRotCreator():
         BroadPixelClusterOnTrackTool = None
     
     if DetFlags.haveRIO.SCT_on():
+        # SiLorentzAngleTool
+        if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+            from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+            sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
         #
         # tool to always make conservative sct cluster errors
         #
@@ -259,7 +268,8 @@ if InDetFlags.loadRotCreator():
         BroadSCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("InDetBroadSCT_ClusterOnTrackTool",
                                                                      #CorrectionStrategy = -1,  # no position correction (test for bug #56477)
                                                                      CorrectionStrategy = 0,  # do correct position bias
-                                                                     ErrorStrategy      = 0)  # do use broad errors
+                                                                     ErrorStrategy      = 0,  # do use broad errors
+                                                                     LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
         ToolSvc += BroadSCT_ClusterOnTrackTool
         if (InDetFlags.doPrintConfigurables()):
             print BroadSCT_ClusterOnTrackTool
