@@ -2,6 +2,7 @@
 
 import os
 
+RAW_FILE = "data15_13TeV:data15_13TeV.00284285.physics_Main.daq.RAW"
 RDO_FILE = "mc16_13TeV:mc16_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s3126_r9546"
 HAMMERCLOUD_FILE = "mc15_13TeV.423202.Pythia8B_A14_CTEQ6L1_Jpsie3e13.merge.AOD.e3869_s2608_s2183_r6630_r6264" #NOTE: needs update to mc16(?)
 PROJECTS = ["AthAnalysis", "AthDerivation", "AthSimulation", "Athena", "AnalysisBase"]
@@ -13,9 +14,9 @@ RECO_TF_TURLS = {
     {"HTTPS" : "https://lcg-lrz-http.grid.lrz.de:443/pnfs/lrz-muenchen.de/data/atlas/dq2/atlasdatadisk/rucio/mc16_13TeV/90/96/RDO.11373415._000001.pool.root.1" }, # LRZ-LMU
   ),
   "RAW" : (
-    {"ROOT"  : "" }, # LRZ-LMU
-    {"DAVS"  : "" }, # LRZ-LMU
-    {"HTTPS" : "" }, # LRZ-LMU
+    {"ROOT"  : "root://lcg-lrz-rootd.grid.lrz.de:1094/pnfs/lrz-muenchen.de/data/atlas/dq2/atlasdatadisk/rucio/data15_13TeV/71/42/data15_13TeV.00284285.physics_Main.daq.RAW._lb0856._SFO-1._0003.data" }, # LRZ-LMU
+    {"DAVS"  : "davs://lcg-lrz-http.grid.lrz.de:443/pnfs/lrz-muenchen.de/data/atlas/dq2/atlasdatadisk/rucio/data15_13TeV/71/42/data15_13TeV.00284285.physics_Main.daq.RAW._lb0856._SFO-1._0003.data" }, # LRZ-LMU
+    {"HTTPS" : "https://lcg-lrz-http.grid.lrz.de:443/pnfs/lrz-muenchen.de/data/atlas/dq2/atlasdatadisk/rucio/data15_13TeV/71/42/data15_13TeV.00284285.physics_Main.daq.RAW._lb0856._SFO-1._0003.data" }, # LRZ-LMU
   ),
 }
 
@@ -47,7 +48,7 @@ TFILE_OPEN_TURLs = [
      "https://grid-dav.rzg.mpg.de:2880/atlas/dq2/atlasdatadisk/rucio/mc15_13TeV/ed/68/AOD.05536542._000001.pool.root.1",                                           # MPPMU
      "https://dcache-atlas-webdav.desy.de:2880/dq2/atlasdatadisk/rucio/mc15_13TeV/ed/68/AOD.05536542._000001.pool.root.1",                                         # DESY-Hamburg
      "https://lcg-se0.ifh.de:2880/pnfs/ifh.de/data/atlas/atlasdatadisk/rucio/mc15_13TeV/ed/68/AOD.05536542._000001.pool.root.1",                                   # DESY-Zeuthen
-     "https ://atlaswebdav-kit.gridka.de:2880/pnfs/gridka.de/atlas/disk-only/atlasdatadisk/rucio/mc15_13TeV/ed/68/AOD.05536542._000001.pool.root.1",               # Karlsruhe
+     "https://atlaswebdav-kit.gridka.de:2880/pnfs/gridka.de/atlas/disk-only/atlasdatadisk/rucio/mc15_13TeV/ed/68/AOD.05536542._000001.pool.root.1",                # Karlsruhe
      "https://webdav.bfg.uni-freiburg.de:2880/pnfs/bfg.uni-freiburg.de/data/atlasdatadisk/rucio/mc15_13TeV/ed/68/AOD.05536542._000001.pool.root.1",                # Freiburg
      "https://se-goegrid.gwdg.de:2880/pnfs/gwdg.de/data/atlas/atlasdatadisk/rucio/mc15_13TeV/ed/68/AOD.05536542._000001.pool.root.1",                              # Goettingen
      "https://grid-se.physik.uni-wuppertal.de:2881/pnfs/physik.uni-wuppertal.de/data/atlas/atlasdatadisk/rucio/mc15_13TeV/ed/68/AOD.05536542._000001.pool.root.1", # Wuppertal
@@ -95,7 +96,40 @@ echo \"art-result: $? DirectIOART_AthenaMP_RecoTF_inputRDO_protocol_{protocol}\"
         os.system("chmod +x " + name)
     
     # loop over turl list if RAW input files
-    # TODO
+    for item in RECO_TF_TURLS["RAW"]:
+      name = os.path.join("test", "test_directioart_athena_recotf_with_raw_" + item.keys()[0].lower() + ".sh")
+      print "\tGenerating ...",name
+      outfile = open(name,'w')
+      # generate test scripts
+      outstring = """#!/bin/bash\n
+# art-description: DirectIOART Athena Reco_tf.py inputFile:RAW protocol={protocol}
+# art-type: grid
+# art-output: *.pool.root
+# art-include: 21.0/Athena\n
+set -e\n
+Reco_tf.py --AMI q431 --inputBSFile {turl} --outputESDFile art.pool.root\n
+echo \"art-result: $? DirectIOART_Athena_RecoTF_inputBS_protocol_{protocol}\"""".format(turl=item.values()[0], protocol=item.keys()[0])
+      outfile.write(outstring)
+      outfile.close()
+      os.system("chmod +x " + name)
+      # if AthenaMP
+      if opts.mp:
+        name = os.path.join("test", "test_directioart_athenamp_recotf_with_raw_" + item.keys()[0].lower() + ".sh")
+        print "\tGenerating ...",name
+        outfile = open(name,'w')
+        # generate test scripts
+        outstring = """#!/bin/bash\n
+# art-description: DirectIOART AthenaMP Reco_tf.py inputFile:RAW protocol={protocol}
+# art-type: grid
+# art-output: *.pool.root
+# art-include: 21.0/Athena\n
+set -e\n
+export ATHENA_PROC_NUMBER=2
+Reco_tf.py --AMI q431 --inputBSFile {turl} --outputESDFile art.pool.root\n
+echo \"art-result: $? DirectIOART_AthenaMP_RecoTF_inputBS_protocol_{protocol}\"""".format(turl=item.values()[0], protocol=item.keys()[0])
+        outfile.write(outstring)
+        outfile.close()
+        os.system("chmod +x " + name)
   
   # in case of "AthDerivation"
   if "AthDerivation" in opts.athena_project:
