@@ -15,7 +15,7 @@ namespace xAOD{
   
   template<class T> bool PFO_v1::attribute(PFODetails::PFOAttributes AttributeType, T& anAttribute) const {
     
-    Accessor<T>* acc = PFOAttributesAccessor_v1<T>::accessor(AttributeType);
+    ConstAccessor<T>* acc = PFOAttributesAccessor_v1<T>::accessor(AttributeType);
     //check if accessor pointer is NULL
     if( ! acc ) {  return false ;}
     //check if variable is avaialable
@@ -33,7 +33,7 @@ namespace xAOD{
   }
 
   template<class T> bool PFO_v1::attribute(const std::string& AttributeType, T& anAttribute) const {
-    Accessor<T> acc(AttributeType);
+    ConstAccessor<T> acc(AttributeType);
     //Check if variable is available
     if( !acc.isAvailable( *this ) ) return false;
     else {

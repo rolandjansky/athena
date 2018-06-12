@@ -1,4 +1,3 @@
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -52,7 +51,7 @@ namespace xAOD {
 
    double PFO_v1::pt() const {
 
-     const static Accessor<float> accPt("pt");
+     const static ConstAccessor<float> accPt("pt");
      float pt = accPt(*this);
 
      return pt;
@@ -60,28 +59,28 @@ namespace xAOD {
 
    double PFO_v1::eta() const {
 
-     const static Accessor<float> accEta("eta");
+     const static ConstAccessor<float> accEta("eta");
      float eta = accEta(*this);
      return eta;
    }
 
    double PFO_v1::phi() const {
 
-     const static Accessor<float> accPhi("phi");
+     const static ConstAccessor<float> accPhi("phi");
      float phi = accPhi(*this);
      return phi;
    }
 
    double PFO_v1::m() const {
 
-     const static Accessor<float> accM("m");
+     const static ConstAccessor<float> accM("m");
      float M = accM(*this);
      return M;
    }
 
    double PFO_v1::e() const {
 
-     const static Accessor<float> accPt("pt");
+     const static ConstAccessor<float> accPt("pt");
      float pt = accPt(*this);
 
      if (pt < 0.0) return -genvecP4().E();
@@ -149,10 +148,10 @@ namespace xAOD {
     FourMom_t p4EM;
 
     //change to use pt, eta, phi ,e 
-    const static Accessor<float> accPt("ptEM");
-    const static Accessor<float> accEta("eta");
-    const static Accessor<float> accPhi("phi");
-    const static Accessor<float> accM("mEM");
+    const static ConstAccessor<float> accPt("ptEM");
+    const static ConstAccessor<float> accEta("eta");
+    const static ConstAccessor<float> accPhi("phi");
+    const static ConstAccessor<float> accM("mEM");
     
     p4EM.SetPtEtaPhiM(accPt(*this), accEta(*this), accPhi(*this), accM(*this));
     return p4EM;
@@ -163,10 +162,10 @@ namespace xAOD {
     if (fabs(this->charge()) > FLT_MIN) return genvecP4();
 
     //change to use pt, eta, phi ,e 
-    const static Accessor<float> accPt("ptEM");
-    const static Accessor<float> accEta("eta");
-    const static Accessor<float> accPhi("phi");
-    const static Accessor<float> accM("mEM");
+    const static ConstAccessor<float> accPt("ptEM");
+    const static ConstAccessor<float> accEta("eta");
+    const static ConstAccessor<float> accPhi("phi");
+    const static ConstAccessor<float> accM("mEM");
     
     return GenVecFourMom_t(accPt(*this), accEta(*this), accPhi(*this), accM(*this));
   }
@@ -206,7 +205,7 @@ namespace xAOD {
 
      if (fabs(this->charge()) > FLT_MIN) return this->pt();
 
-     const static Accessor<float> accPt("ptEM");
+     const static ConstAccessor<float> accPt("ptEM");
      float pt = accPt(*this);
 
      return pt;
@@ -225,7 +224,7 @@ namespace xAOD {
    double PFO_v1::mEM() const {
 
      if (fabs(this->charge()) > FLT_MIN) return this->m();
-     const static Accessor<float> accM("mEM");
+     const static ConstAccessor<float> accM("mEM");
      float M = accM(*this);
 
      return M;
@@ -235,7 +234,7 @@ namespace xAOD {
 
      if (fabs(this->charge()) > FLT_MIN) return this->e();
 
-     const static Accessor<float> accPt("ptEM");
+     const static ConstAccessor<float> accPt("ptEM");
      float pt = accPt(*this);
 
      if (pt < 0.0) return -p4EM().E();
@@ -295,7 +294,7 @@ namespace xAOD {
       return isValid;
     }
     else{
-      Accessor<float>* p_acc = PFOAttributesAccessor_v1<float>::accessor(AttributeType);
+      ConstAccessor<float>* p_acc = PFOAttributesAccessor_v1<float>::accessor(AttributeType);
       //check if accessor pointer is NULL
       if( ! p_acc ) {  return false ;}
       //check if variable is avaialable
@@ -604,7 +603,7 @@ namespace xAOD {
   
   bool PFO_v1::associatedParticles(PFODetails::PFOParticleType ParticleType, std::vector<const IParticle*>& theParticles ) const{
 
-    const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(ParticleType);
+    const ConstAccessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(ParticleType);
     if (!p_acc) return false;
     else{
       if (!p_acc->isAvailable(*this)) return false;
@@ -638,7 +637,7 @@ namespace xAOD {
   }
 
   bool PFO_v1::associatedParticles(const std::string& ParticleType, std::vector<const IParticle*>& theParticles ) const{
-    Accessor<std::vector<ElementLink<IParticleContainer > > > acc(ParticleType);
+    ConstAccessor<std::vector<ElementLink<IParticleContainer > > > acc(ParticleType);
     if (!acc.isAvailable(*this)) return false;
     else{
       const std::vector<ElementLink<IParticleContainer> >& theLinks = acc(*this);
@@ -653,7 +652,7 @@ namespace xAOD {
 
   const CaloCluster* PFO_v1::cluster(unsigned int index) const {
     
-    const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(PFODetails::CaloCluster);
+    const ConstAccessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(PFODetails::CaloCluster);
     if (!p_acc) return nullptr;
     else if (!p_acc->isAvailable(*this)) {return nullptr;}
     else {
@@ -675,7 +674,7 @@ namespace xAOD {
 
   const TrackParticle* PFO_v1::track(unsigned int index) const {
 
-    const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(PFODetails::Track);
+    const ConstAccessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(PFODetails::Track);
     if (!p_acc) return nullptr;
     else if (!p_acc->isAvailable(*this)) {return nullptr;}
     else {
@@ -695,7 +694,7 @@ namespace xAOD {
   }
 
   const xAOD::Vertex* PFO_v1::vertex() const{
-    const static Accessor<ElementLink<xAOD::VertexContainer> > acc("pfo_vertex");
+    const static ConstAccessor<ElementLink<xAOD::VertexContainer> > acc("pfo_vertex");
     if (!acc.isAvailable(*this)) return nullptr;
     else{
       ElementLink<xAOD::VertexContainer> tempVertexLink = acc(*this);
