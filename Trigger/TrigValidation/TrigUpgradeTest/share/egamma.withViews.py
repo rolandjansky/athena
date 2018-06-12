@@ -45,7 +45,7 @@ topSequence.L1DecoderTest.prescaler.Prescales = ["HLT_e3_etcut:2", "HLT_2e3_etcu
 from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
 theFastCaloAlgo=T2CaloEgamma_FastAlgo("FastCaloAlgo" )
 theFastCaloAlgo.OutputLevel=VERBOSE
-theFastCaloAlgo.ClustersName="L2CaloClusters"
+theFastCaloAlgo.ClustersName="HLT_xAOD__TrigEMClusterContainer_L2CaloClusters" #"L2CaloClusters"
 svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
  
@@ -69,7 +69,7 @@ def createFastCaloSequence(rerun=False):
    #clusterMaker=T2CaloEgamma_FastAlgo(__prefix+"FastClusterMaker" )
    clusterMaker=T2CaloEgamma_FastAlgo( "FastClusterMaker" )
    clusterMaker.OutputLevel=VERBOSE
-   clusterMaker.ClustersName="L2CaloClusters"
+   clusterMaker.ClustersName = theFastCaloAlgo.ClustersName
    svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
    fastCaloInViewAlgs = seqAND( __prefix+"fastCaloInViewAlgs", [ clusterMaker ])
@@ -125,21 +125,21 @@ viewAlgs.append(theFTF)
 # A simple algorithm to confirm that data has been inherited from parent view
 # Required to satisfy data dependencies
 ViewVerify = CfgMgr.AthViews__ViewDataVerifier("electronViewDataVerifier")
-ViewVerify.DataObjects = [('xAOD::TrigEMClusterContainer','StoreGateSvc+L2CaloClusters')]
+ViewVerify.DataObjects = [('xAOD::TrigEMClusterContainer','StoreGateSvc+'+theFastCaloAlgo.ClustersName)]
 ViewVerify.OutputLevel = DEBUG
 viewAlgs.append(ViewVerify)
 
-TrackParticlesName = ""
+TrackParticlesName = "HLT_xAOD_TrackParticleContainer_L2ElectronTracks"
 for viewAlg in viewAlgs:
   if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
-    TrackParticlesName = viewAlg.TrackParticlesName
+     viewAlg.TrackParticlesName = TrackParticlesName
     
 
 from TrigEgammaHypo.TrigL2ElectronFexMTConfig import L2ElectronFex_1
 theElectronFex= L2ElectronFex_1()
 theElectronFex.TrigEMClusterName = theFastCaloAlgo.ClustersName
 theElectronFex.TrackParticlesName = TrackParticlesName
-theElectronFex.ElectronsName="Electrons"
+theElectronFex.ElectronsName=  "HLT_xAOD__TrigElectronContainer_L2ElectronFex" #"Electrons"
 theElectronFex.OutputLevel=VERBOSE
 
 
@@ -222,22 +222,28 @@ edmCreator.TrigCompositeContainer = [ "EgammaCaloDecisions", "ElectronL2Decision
 egammaViewsMerger = HLTEDMCreator("egammaViewsMerger")
 
 egammaViewsMerger.TrackParticleContainerViews = [ l2ElectronViewsMaker.Views ]
-egammaViewsMerger.TrackParticleContainerInViews = [ theElectronFex.TrackParticlesName ]
-egammaViewsMerger.TrackParticleContainer = ["HLT_electron_tracks"]
+egammaViewsMerger.TrackParticleContainerInViews = [ TrackParticlesName ]
+egammaViewsMerger.TrackParticleContainer = [ TrackParticlesName ]
 
+# this merging directive causes the issue
 egammaViewsMerger.TrigElectronContainerViews = [ l2ElectronViewsMaker.Views ]
 egammaViewsMerger.TrigElectronContainerInViews = [ theElectronFex.ElectronsName ]
-egammaViewsMerger.TrigElectronContainer = ["HLT_electrons"]
+egammaViewsMerger.TrigElectronContainer = [ theElectronFex.ElectronsName ]
 
+egammaViewsMerger.TrigEMClusterContainerViews = [ "EMCaloViews" ]
+egammaViewsMerger.TrigEMClusterContainerInViews = [ theFastCaloAlgo.ClustersName ]
+egammaViewsMerger.TrigEMClusterContainer = [ theFastCaloAlgo.ClustersName ]
 
+egammaViewsMerger.OutputLevel = VERBOSE
 
+svcMgr.StoreGateSvc.OutputLevel = VERBOSE
 
 summary.OutputTools = [ edmCreator, egammaViewsMerger ]
 
 
 summary.OutputLevel = DEBUG
 
-steps = seqAND("HLTSteps", [ step0, step1, step0r, summary ]  )
+steps = seqAND("HLTSteps", [ step0, step1, step0r ]  )
 
 from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT
 mon = TrigSignatureMoniMT()
@@ -259,7 +265,13 @@ for tc in edmCreator.TrigCompositeContainer:
 
 addTC("HLTSummary")
 
-StreamESD.ItemList += [ "xAOD::TrigElectronContainer#HLT_electrons", "xAOD::TrackParticleContainer#HLT_electron_tracks"]
+StreamESD.ItemList += [ "xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex", 
+                        "xAOD::TrackParticleContainer#HLT_xAOD_TrackParticleContainer_L2ElectronTracks",
+                        "xAOD::TrigEMClusterContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClusters"]
+
+StreamESD.ItemList += [ "xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux.", 
+                        "xAOD::TrackParticleAuxContainer#HLT_xAOD_TrackParticleContainer_L2ElectronTracksAux.", 
+                        "xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux."]
 
 print "ESD file content " 
 print StreamESD.ItemList
