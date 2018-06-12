@@ -41,8 +41,17 @@ public:
   std::map<std::string, double> getScores(const xAOD::Jet& jet) const;
 
   // this (and only this) method will add a decorator to the jet. The
-  // name is set with the decorationName property.
+  // name is set with the decorationNames property. If this is not
+  // given the names are looked up from the the configuration file
+  // under "outputs.decoration_map". If this is unspecified, fall back
+  // to the names given in the lwtnn file.
   void decorate(const xAOD::Jet& jet) const;
+  //
+  // In some cases it's useful to add the decorations to a jet that
+  // is not the one the inputs are coming from.
+  void decorateSecond(const xAOD::Jet& ref, const xAOD::Jet& target) const;
+  //
+  // convenience function to get the decorator names
   std::set<std::string> decorationNames() const;
 
   // check how many subjets there are

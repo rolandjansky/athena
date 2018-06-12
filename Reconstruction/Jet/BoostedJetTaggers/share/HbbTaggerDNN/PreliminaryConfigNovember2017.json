@@ -22,5 +22,10 @@
                 "type": "float"
             }
         ]
+    },
+    "outputs": {
+        "decoration_map": {
+            "h_vs_qcd": "HbbScore"
+        }
     }
 }

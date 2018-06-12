@@ -127,11 +127,11 @@ StatusCode HbbTaggerDNN::initialize(){
 
   // read json file for DNN weights
   ATH_MSG_INFO("Using NN file: "+ m_neuralNetworkFile);
-  std::string configPath = PathResolverFindCalibFile(m_neuralNetworkFile);
-  ATH_MSG_INFO("NN file resolved to: " + configPath);
+  std::string nn_path = PathResolverFindCalibFile(m_neuralNetworkFile);
+  ATH_MSG_INFO("NN file resolved to: " + nn_path);
   lwt::GraphConfig config;
   try {
-    std::ifstream input_cfg( configPath );
+    std::ifstream input_cfg( nn_path );
     config = lwt::parse_json_graph(input_cfg);
   } catch (boost::property_tree::ptree_error& err) {
     ATH_MSG_ERROR("NN file is garbage");
@@ -169,17 +169,35 @@ StatusCode HbbTaggerDNN::initialize(){
   }
 
   // setup the input builder
-  ATH_MSG_INFO( "Using variable map: "<< m_configurationFile );
-  std::string var_map_file = PathResolverFindDataFile(m_configurationFile);
-  ATH_MSG_INFO( "Variable map resolved to: "<< var_map_file );
+  ATH_MSG_INFO( "Using config file: "<< m_configurationFile );
+  std::string config_file = PathResolverFindDataFile(m_configurationFile);
+  ATH_MSG_INFO( "Config file resolved to: "<< config_file );
   try {
-    m_input_builder.reset(new HbbInputBuilder(var_map_file, config));
+    m_input_builder.reset(new HbbInputBuilder(config_file, config));
   } catch (boost::property_tree::ptree_error& err) {
     ATH_MSG_ERROR("Config file is garbage: " << err.what());
     return StatusCode::FAILURE;
   }
 
   // set up the output decorators
+  //
+  // if there aren't any decorators given in the constructor we look
+  // in the config file
+  if (m_decoration_names.size() > 0) {
+    ATH_MSG_INFO("Output names set in tool setup");
+  } else {
+    boost::property_tree::ptree pt;
+    boost::property_tree::read_json(config_file, pt);
+    if (pt.count("outputs") > 0) {
+      for (const auto& pair: pt.get_child("outputs.decoration_map") ) {
+        m_decoration_names[pair.first] = pair.second.data();
+      }
+      ATH_MSG_INFO("Output names read from config file");
+    } else {
+      ATH_MSG_INFO("Output names read from NN file ");
+    }
+  }
+  // now build the decoration vectors
   for (const std::string& name: out_names) {
     std::string dec_name = name;
     // if we've given custom decoration names, insist that this output
@@ -191,6 +209,7 @@ StatusCode HbbTaggerDNN::initialize(){
       }
       dec_name = m_decoration_names.at(name);
     }
+    ATH_MSG_VERBOSE("Adding output " + dec_name);
     m_decorators.emplace_back(SG::AuxElement::Decorator<float>(dec_name));
   }
 
@@ -250,6 +269,15 @@ void HbbTaggerDNN::decorate(const xAOD::Jet& jet) const {
   size_t dec_num = 0;
   for (const auto& dec: m_decorators) {
     dec(jet) = scores.at(m_output_value_names.at(dec_num));
+    dec_num++;
+  }
+}
+void HbbTaggerDNN::decorateSecond(const xAOD::Jet& ref,
+                                  const xAOD::Jet& target) const {
+  std::map<std::string, double> scores = getScores(ref);
+  size_t dec_num = 0;
+  for (const auto& dec: m_decorators) {
+    dec(target) = scores.at(m_output_value_names.at(dec_num));
     dec_num++;
   }
 }
