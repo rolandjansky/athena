@@ -39,7 +39,7 @@ public:
   
 private:
   // Options for storate
-  bool m_includeNonInt; //!< Include non-interacting particles in particles
+  bool m_includeBSMNonInt; //!< Include non-interacting BSM particles in particles
   bool m_includeNu; //!< Include neutrinos in particles
   bool m_includeMu; //!< Include muons in particles
   bool m_includePromptLeptons; //!< Include particles from prompt decays, i.e. not from hadrons
@@ -48,6 +48,7 @@ private:
   // -- added for dark jet clustering -- //
   bool m_includeSM; //!< Include SM particles
   bool m_includeDark; //!< Include dark hadrons
+  bool m_chargedOnly; //!< Include only charged particles
 
   bool isPrompt( const xAOD::TruthParticle* tp,
                  std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const;

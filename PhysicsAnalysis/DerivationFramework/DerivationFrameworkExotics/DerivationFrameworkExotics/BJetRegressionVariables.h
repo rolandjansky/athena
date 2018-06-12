@@ -51,7 +51,7 @@ namespace DerivationFramework {
     InDet::InDetTrackSelectionTool* m_TrackSelTool;
     std::string m_tva;
 
-    struct TrackMomentStruct {float vecSumPtTrk; float scalSumPtTrk; float vecSumPtTrkClean; float scalSumPtTrkClean;};
+    struct TrackMomentStruct {float vecSumPtTrk; float scalSumPtTrk; float scalSumPtTrkClean; float vecSumPtTrkCleanPV0; float scalSumPtTrkCleanPV0;};
 
     TrackMomentStruct getSumTrackPt( const float minTrackPt, 
 				     const std::vector<const xAOD::TrackParticle*>& tracks, 

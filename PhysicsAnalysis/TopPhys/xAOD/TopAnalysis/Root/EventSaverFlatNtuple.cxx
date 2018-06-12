@@ -69,6 +69,14 @@ namespace top {
         m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN(0.),
         m_weight_leptonSF_MU_SF_TTVA_SYST_UP(0.),
         m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN(0.),
+	// Special global lepton trigger SF + systematics
+	m_weight_globalLeptonTriggerSF(0.),
+	m_weight_globalLeptonTriggerSF_EL_Trigger_UP(0.),
+	m_weight_globalLeptonTriggerSF_EL_Trigger_DOWN(0.),
+	m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP(0.),
+	m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN(0.),
+	m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP(0.),
+	m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN(0.),
 
         // individual components electrons
         m_weight_indiv_SF_EL_Trigger(0.),
@@ -169,7 +177,8 @@ namespace top {
         return m_particleLevelTreeManager;
     }
 
-    std::shared_ptr<top::ScaleFactorRetriever> EventSaverFlatNtuple::scaleFactorRetriever()
+  //std::shared_ptr<top::ScaleFactorRetriever> EventSaverFlatNtuple::scaleFactorRetriever()
+    top::ScaleFactorRetriever* EventSaverFlatNtuple::scaleFactorRetriever()
     {
         return m_sfRetriever;
     }
@@ -247,7 +256,15 @@ namespace top {
         // Truth tree
         if (m_config->isMC()) {
 
-            m_sfRetriever = std::unique_ptr<top::ScaleFactorRetriever> ( new top::ScaleFactorRetriever( m_config ) );
+	    if(asg::ToolStore::contains<ScaleFactorRetriever>("top::ScaleFactorRetriever")){
+	      m_sfRetriever = asg::ToolStore::get<ScaleFactorRetriever>("top::ScaleFactorRetriever");
+	    }
+	    else{
+	      top::ScaleFactorRetriever* topSFR = new top::ScaleFactorRetriever("top::ScaleFactorRetriever");
+	      top::check(asg::setProperty(topSFR, "config", m_config), "Failed to set config");
+	      top::check(topSFR->initialize(), "Failed to initalialise");
+	      m_sfRetriever = topSFR;
+	    }
 
             m_truthTreeManager = std::shared_ptr<top::TreeManager>( new top::TreeManager( "truth" , file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector() ) );
             m_truthTreeManager->branchFilters() = branchFilters();
@@ -346,6 +363,9 @@ namespace top {
                   systematicTree->makeOutputVariable(m_weight_tauSF,
                                                      "weight_tauSF");
 
+		if(m_config->useGlobalTriggerConfiguration())
+		  systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF,                      "weight_globalLeptonTriggerSF");
+
                 // nominal b-tagging SFs
                 for( auto& tagWP : m_config -> bTagWP_available()){
                   // skip uncalibrated though available WPs
@@ -405,8 +425,16 @@ namespace top {
                     systematicTree->makeOutputVariable(m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN,    "weight_leptonSF_MU_SF_TTVA_STAT_DOWN");
                     systematicTree->makeOutputVariable(m_weight_leptonSF_MU_SF_TTVA_SYST_UP,      "weight_leptonSF_MU_SF_TTVA_SYST_UP");
                     systematicTree->makeOutputVariable(m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN,    "weight_leptonSF_MU_SF_TTVA_SYST_DOWN");
-
-
+		    // Special global lepton trigger SF when requested
+		    if(m_config->useGlobalTriggerConfiguration()){
+		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_EL_Trigger_UP,        "weight_globalLeptonTriggerSF_EL_Trigger_UP");
+		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_EL_Trigger_DOWN,      "weight_globalLeptonTriggerSF_EL_Trigger_DOWN");
+		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP,   "weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP");
+		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN, "weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN");
+		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP,   "weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP");
+		      systematicTree->makeOutputVariable(m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN, "weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN");
+		    }
+		    
                     // write also out the individual components:
 
                     systematicTree->makeOutputVariable(m_weight_indiv_SF_EL_Trigger,         "weight_indiv_SF_EL_Trigger");
@@ -604,8 +632,9 @@ namespace top {
               if (m_config->isMC()) {
                 systematicTree->makeOutputVariable(m_el_true_type,      "el_true_type");
                 systematicTree->makeOutputVariable(m_el_true_origin,    "el_true_origin");
-                systematicTree->makeOutputVariable(m_el_true_typebkg,   "el_true_typebkg");
-                systematicTree->makeOutputVariable(m_el_true_originbkg, "el_true_originbkg");
+                systematicTree->makeOutputVariable(m_el_true_firstEgMotherTruthType,   "el_true_firstEgMotherTruthType");
+                systematicTree->makeOutputVariable(m_el_true_firstEgMotherTruthOrigin, "el_true_firstEgMotherTruthOrigin");
+		systematicTree->makeOutputVariable(m_el_true_isPrompt, "el_true_isPrompt");
               }
             }
 
@@ -626,6 +655,7 @@ namespace top {
               if (m_config->isMC()) {
                 systematicTree->makeOutputVariable(m_mu_true_type,   "mu_true_type");
                 systematicTree->makeOutputVariable(m_mu_true_origin, "mu_true_origin");
+		systematicTree->makeOutputVariable(m_mu_true_isPrompt, "mu_true_isPrompt");
               }
             }
 
@@ -1017,6 +1047,7 @@ namespace top {
 
         m_particleLevelTreeManager = std::make_shared<top::TreeManager>( "particleLevel", m_outputFile, m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector());
 
+        m_particleLevelTreeManager->branchFilters() = branchFilters();
         m_particleLevelTreeManager->makeOutputVariable(m_weight_mc, "weight_mc");
 
         //event info
@@ -1293,6 +1324,9 @@ namespace top {
             if (m_config->usePhotons())
               m_weight_photonSF = m_sfRetriever->photonSF(event, top::topSFSyst::nominal);
 
+	    if(m_config->useGlobalTriggerConfiguration())
+	      m_weight_globalLeptonTriggerSF = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::nominal);
+
             for( auto& tagWP : m_config -> bTagWP_available()) {
 	      if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
               m_weight_bTagSF[tagWP] = m_sfRetriever->btagSF(event, top::topSFSyst::nominal, tagWP);
@@ -1350,8 +1384,16 @@ namespace top {
                 m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN = m_sfRetriever->leptonSF(event,top::topSFSyst::MU_SF_TTVA_STAT_DOWN);
                 m_weight_leptonSF_MU_SF_TTVA_SYST_UP   = m_sfRetriever->leptonSF(event,top::topSFSyst::MU_SF_TTVA_SYST_UP);
                 m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN = m_sfRetriever->leptonSF(event,top::topSFSyst::MU_SF_TTVA_SYST_DOWN);
-
-
+		// Special global lepton trigger SF systematics if requested
+		if(m_config->useGlobalTriggerConfiguration()){
+		  m_weight_globalLeptonTriggerSF_EL_Trigger_UP        = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::EL_SF_Trigger_UP);
+		  m_weight_globalLeptonTriggerSF_EL_Trigger_DOWN      = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::EL_SF_Trigger_DOWN);
+		  m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP   = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::MU_SF_Trigger_STAT_UP);
+		  m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::MU_SF_Trigger_STAT_DOWN);
+		  m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP   = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::MU_SF_Trigger_SYST_UP);
+		  m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN = m_sfRetriever->globalTriggerSF(event, top::topSFSyst::MU_SF_Trigger_SYST_DOWN);
+		}
+		
                 m_weight_indiv_SF_EL_Trigger      = m_sfRetriever -> triggerSF(event,top::topSFSyst::nominal);
                 m_weight_indiv_SF_EL_Trigger_UP   = m_sfRetriever -> triggerSF(event,top::topSFSyst::EL_SF_Trigger_UP);
                 m_weight_indiv_SF_EL_Trigger_DOWN = m_sfRetriever -> triggerSF(event,top::topSFSyst::EL_SF_Trigger_DOWN);
@@ -1576,8 +1618,9 @@ namespace top {
             if (m_config->isMC()) {
               m_el_true_type.resize(n_electrons);
               m_el_true_origin.resize(n_electrons);
-              m_el_true_typebkg.resize(n_electrons);
-              m_el_true_originbkg.resize(n_electrons);
+              m_el_true_firstEgMotherTruthOrigin.resize(n_electrons);
+              m_el_true_firstEgMotherTruthType.resize(n_electrons);
+	      m_el_true_isPrompt.resize(n_electrons);
             }
 
             for (const auto* const elPtr : event.m_electrons) {
@@ -1609,16 +1652,20 @@ namespace top {
                 if (m_config->isMC()) {
                   m_el_true_type[i] = 0;
                   m_el_true_origin[i] = 0;
-                  m_el_true_typebkg[i] = 0;
-                  m_el_true_originbkg[i] = 0;
+                  m_el_true_firstEgMotherTruthType[i] = 0;
+                  m_el_true_firstEgMotherTruthOrigin[i] = 0;
                   static SG::AuxElement::Accessor<int> typeel("truthType");
                   static SG::AuxElement::Accessor<int> origel("truthOrigin");
-                  static SG::AuxElement::Accessor<int> typebkgel("bkgTruthType");
-                  static SG::AuxElement::Accessor<int> origbkgel("bkgTruthOrigin");
+		  static SG::AuxElement::Accessor<int> firstEgMotherTruthType("firstEgMotherTruthType");
+                  static SG::AuxElement::Accessor<int> firstEgMotherTruthOrigin("firstEgMotherTruthOrigin");
+
                   if (typeel.isAvailable(*elPtr)) m_el_true_type[i] = typeel(*elPtr);
                   if (origel.isAvailable(*elPtr)) m_el_true_origin[i] = origel(*elPtr);
-                  if (typebkgel.isAvailable(*elPtr)) m_el_true_typebkg[i] = typebkgel(*elPtr);
-                  if (origbkgel.isAvailable(*elPtr)) m_el_true_originbkg[i] = origbkgel(*elPtr);
+		  if (firstEgMotherTruthType.isAvailable(*elPtr)) m_el_true_firstEgMotherTruthType[i] = firstEgMotherTruthType(*elPtr);
+		  if (firstEgMotherTruthOrigin.isAvailable(*elPtr)) m_el_true_firstEgMotherTruthOrigin[i] = firstEgMotherTruthOrigin(*elPtr);
+
+		  m_el_true_isPrompt[i] = isPromptElectron(m_el_true_type[i], m_el_true_origin[i], m_el_true_firstEgMotherTruthType[i], m_el_true_firstEgMotherTruthOrigin[i]);
+		  
                 }
                 ++i;
             }
@@ -1643,6 +1690,7 @@ namespace top {
             if (m_config->isMC()) {
               m_mu_true_type.resize(n_muons);
               m_mu_true_origin.resize(n_muons);
+	      m_mu_true_isPrompt.resize(n_muons);
             }
 
             for (const auto* const muPtr : event.m_muons) {
@@ -1673,11 +1721,10 @@ namespace top {
                   static SG::AuxElement::Accessor<int> acc_mcto("truthOrigin");
                   m_mu_true_type[i]=0;
                   m_mu_true_origin[i]=0;
-                  const xAOD::TrackParticle* mutrack = muPtr->primaryTrackParticle();
-                  if (mutrack!=nullptr) {
-                      if (acc_mctt.isAvailable(*mutrack)) m_mu_true_type[i] = acc_mctt(*mutrack);
-                      if (acc_mcto.isAvailable(*mutrack)) m_mu_true_origin[i] = acc_mcto(*mutrack);
-                  }
+		  if (acc_mctt.isAvailable(*muPtr)) m_mu_true_type[i] = acc_mctt(*muPtr);
+		  if (acc_mcto.isAvailable(*muPtr)) m_mu_true_origin[i] = acc_mcto(*muPtr);
+		  m_mu_true_isPrompt[i] = isPromptMuon(m_mu_true_type[i], m_mu_true_origin[i]);
+
                 }
                 ++i;
             }
@@ -3435,5 +3482,26 @@ namespace top {
       }
       return out;
     }
+  
+  bool EventSaverFlatNtuple::isPromptElectron(int type, int origin, int egMotherType, int egMotherOrigin){
+    // 43 is "diboson" origin, but is needed due to buggy origin flags in Sherpa ttbar
+    bool prompt            = (type == 2 &&
+			      (origin == 10 || origin == 12 || origin == 13 || origin == 14 || origin == 43) ); 
+    // New recovery using first Non-Geant 
+    bool recovered_FSRConv = (type == 4 && egMotherType == 40);
+    bool recovered_Other   = (type == 4 && egMotherType == 2 &&			      
+			      (egMotherOrigin == 10 || egMotherOrigin == 12 || egMotherOrigin == 13 || egMotherOrigin == 14 || egMotherOrigin == 43) );
+
+    return (prompt || recovered_FSRConv || recovered_Other);
+  }
+
+  bool EventSaverFlatNtuple::isPromptMuon(int type, int origin){
+    // 43 is "diboson" origin, but is needed due to buggy origin flags in Sherpa ttbar
+    bool prompt = (type == 6 &&
+		   (origin == 10 || origin == 12 || origin == 13 || origin == 14 || origin == 43) ); 
+
+    return prompt;
+  }
+  
 
 } // namespace

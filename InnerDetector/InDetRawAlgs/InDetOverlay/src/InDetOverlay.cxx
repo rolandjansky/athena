@@ -8,6 +8,12 @@
 #include "InDetOverlay/InDetOverlay.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
+#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "CLHEP/Random/RandomEngine.h"
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+
+
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadHandle.h"
@@ -18,7 +24,6 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 
-#include "InDetRawData/TRT_RDO_Container.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/PixelRDO_Container.h"
 
@@ -28,9 +33,8 @@
 //#include "InDetRawData/Pixel1RawData.h"
 
 #include "InDetIdentifier/SCT_ID.h"
+#include "InDetIdentifier/TRT_ID.h"
 
-//#include "InDetReadoutGeometry/SiDetectorElement.h"
-//#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include <iostream>
 #include <sstream>
 #include <typeinfo>
@@ -123,7 +127,7 @@ namespace Overlay {
 
   template<> void mergeCollectionsNew(InDetRawDataCollection<SCT_RDORawData> *mc_coll,
                                       InDetRawDataCollection<SCT_RDORawData> *data_coll,
-				      InDetRawDataCollection<SCT_RDORawData> *out_coll,
+                                      InDetRawDataCollection<SCT_RDORawData> *out_coll,
                                       IDC_OverlayBase *tmp)
   {
     // We want to use the SCT_ID helper provided by InDetOverlay, thus the constraint
@@ -275,7 +279,12 @@ namespace Overlay {
 InDetOverlay::InDetOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   IDC_OverlayBase(name, pSvcLocator),
   m_detStore("StoreGateSvc/DetectorStore", name),
-  m_sct_id(0)
+  m_sct_id(nullptr),
+  m_trt_id(nullptr),
+  m_rndmSvc("AtRndmGenSvc",name),
+  m_rndmEngineName("InDetOverlay"),
+  m_rndmEngine(nullptr),
+  m_TRT_LocalOccupancyTool("TRT_LocalOccupancy")
 {
 
   //change via postExec indetovl.do_XXX=True
@@ -294,7 +303,19 @@ InDetOverlay::InDetOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   declareProperty("do_Pixel_background", m_do_Pixel_background=true);
   declareProperty("mainInputPixelName", m_mainInputPixel_Name="PixelRDOs");
   declareProperty("overlayInputPixelName", m_overlayInputPixel_Name="PixelRDOs");
-  //  declareProperty("OutputPixelName", m_OutputPixel_Name="PixelRDOs");
+  
+  
+  declareProperty("TRTinputSDO_Name", m_TRTinputSDO_Name="TRT_SDO_Map");
+  declareProperty("TRT_HT_OccupancyCorrectionBarrel",m_HTOccupancyCorrectionB=0.160);
+  declareProperty("TRT_HT_OccupancyCorrectionEndcap",m_HTOccupancyCorrectionEC=0.130);
+  declareProperty("TRT_HT_OccupancyCorrectionBarrelNoE",m_HTOccupancyCorrectionB_noE=0.105);
+  declareProperty("TRT_HT_OccupancyCorrectionEndcapNoE",m_HTOccupancyCorrectionEC_noE=0.080);
+
+  declareProperty("RndmSvc",    m_rndmSvc,       "Random Number Service");
+  declareProperty("RndmEngine", m_rndmEngineName,"Random engine name");
+  
+  declareProperty("TRT_LocalOccupancyTool", m_TRT_LocalOccupancyTool);
+  
 }
 
 //================================================================
@@ -306,6 +327,29 @@ StatusCode InDetOverlay::overlayInitialize()
     msg(MSG::FATAL) << "Cannot retrieve SCT ID helper"  << endmsg;
     return StatusCode::FAILURE;
   }
+  
+  
+  if(m_do_TRT){
+  
+    if(!m_detStore->retrieve(m_trt_id,"TRT_ID").isSuccess() || !m_sct_id ) {
+      ATH_MSG_FATAL("Cannot retrieve TRT ID helper");
+      return StatusCode::FAILURE;
+    }
+  
+    // Initialize random number generator
+    CHECK(m_rndmSvc.retrieve());
+    m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
+    if (!m_rndmEngine) {
+      ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
+      return StatusCode::FAILURE;
+    }
+    else {
+      ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);
+    }
+
+    CHECK( m_TRT_LocalOccupancyTool.retrieve() );
+
+  } 
   return StatusCode::SUCCESS;
 }
 
@@ -337,17 +381,23 @@ StatusCode InDetOverlay::overlayExecute() {
     }
     ATH_MSG_INFO("TRT MC     = "<<shortPrint(mcContainer.cptr()));
    
-   SG::WriteHandle<TRT_RDO_Container> outputContainer(m_mainInputTRT_Name, m_storeGateOutput->name());
-   outputContainer = CxxUtils::make_unique<TRT_RDO_Container>(dataContainer->size());
+    SG::WriteHandle<TRT_RDO_Container> outputContainer(m_mainInputTRT_Name, m_storeGateOutput->name());
+    outputContainer = CxxUtils::make_unique<TRT_RDO_Container>(dataContainer->size());
 
-   if(dataContainer.isValid() && mcContainer.isValid() && outputContainer.isValid()) {
-     if (m_do_TRT_background ) overlayContainerNew(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr());
-     else if(!m_do_TRT_background){
-       TRT_RDO_Container nobkg;
-       overlayContainerNew(&nobkg , mcContainer.cptr() , outputContainer.ptr());
-     }
-     ATH_MSG_INFO("TRT Result = "<<shortPrint(outputContainer.cptr()));
-   }
+    if(dataContainer.isValid() && mcContainer.isValid() && outputContainer.isValid()) {
+      if (m_do_TRT_background ){ 
+        SG::ReadHandle<InDetSimDataCollection> sdoContainer(m_TRTinputSDO_Name, m_storeGateMC->name());
+
+        // Calculate occupancy here
+        std::map<int, double> occupancy = m_TRT_LocalOccupancyTool->getDetectorOccupancy( dataContainer.cptr() );
+        //Merge containers
+        overlayTRTContainers(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr(), occupancy, *sdoContainer);
+      } else if(!m_do_TRT_background){
+        TRT_RDO_Container nobkg;
+        overlayContainerNew(&nobkg , mcContainer.cptr() , outputContainer.ptr());
+      }
+      ATH_MSG_INFO("TRT Result = "<<shortPrint(outputContainer.cptr()));
+    }
   }
   
   //----------------------------------------------------------------
@@ -446,6 +496,200 @@ for (containerItr=mcContainer->begin(); containerItr!=mcContainer->end(); ++cont
   ATH_MSG_DEBUG("InDetOverlay::execute() end");
   return StatusCode::SUCCESS;
 }
+
+void InDetOverlay::overlayTRTContainers(const TRT_RDO_Container *pileupContainer,
+                                        const TRT_RDO_Container *signalContainer,
+                                        TRT_RDO_Container *outputContainer,
+                                        std::map<int,double>&  occupancyMap,
+                                        const InDetSimDataCollection& SDO_Map) 
+{
+
+   //There are some use cases where this is empty
+   if(pileupContainer != nullptr){
+   /** Add data from the data container to the output one */
+     TRT_RDO_Container::const_iterator p_data = pileupContainer->begin();
+     TRT_RDO_Container::const_iterator p_data_end = pileupContainer->end();
+
+     for(; p_data != p_data_end; ++p_data) {
+       IdentifierHash hashId = p_data.hashId();
+       auto coll_data = std::make_unique<TRT_RDO_Collection>(hashId); 
+       Overlay::copyCollection( (*p_data).cptr(), coll_data.get());
+
+       if ( outputContainer->addCollection(coll_data.release(), p_data.hashId() ).isFailure() ) {
+         ATH_MSG_WARNING( "add data Collection failed for output "<< p_data.hashId   () ); // 
+       } 
+     }
+   }
+
+   /** Add data from the ovl container to the output one */
+   TRT_RDO_Container::const_iterator p_ovl = signalContainer->begin(); 
+   TRT_RDO_Container::const_iterator p_ovl_end = signalContainer->end();
+
+   for(; p_ovl != p_ovl_end; ++p_ovl) {
+ 
+      IdentifierHash coll_id = p_ovl.hashId();
+      auto coll_ovl = std::make_unique<TRT_RDO_Collection>(coll_id);    
+      Overlay::copyCollection( (*p_ovl).cptr(), coll_ovl.get() ) ;
+
+      /** The newly created stuff will go to the output EventStore SG */
+      auto coll_out = std::make_unique<TRT_RDO_Collection>(coll_id);
+      coll_out->setIdentifier((*p_ovl)->identify());
+
+      /** Look for the same ID in the main StoreGate EventStore */ 
+      auto q = outputContainer->indexFind( coll_id );
+      if( q != outputContainer->end() ) {
+      /**Need to merge the collections
+         Retrieve q */
+         std::unique_ptr <TRT_RDO_Collection> coll_data ((TRT_RDO_Collection *) (*q).cptr() );
+         int det =  m_trt_id->barrel_ec( (*p_ovl)->identify() );
+         mergeTRTCollections(coll_data.get(),coll_ovl.get(),coll_out.get(), occupancyMap[det], SDO_Map);
+         
+         outputContainer->removeCollection(p_ovl.hashId());
+         if (outputContainer->addCollection(coll_out.release(), p_ovl.hashId()).isFailure() ) {
+            ATH_MSG_WARNING( "overlay addCollection failed "  ); 
+         }
+      }
+      else {
+       /** Copy the complete collection from ovl to output, 
+           hopefully preserving the "most derived" type of its raw data */ 
+       if ( outputContainer->addCollection(coll_ovl.release(), coll_id).isFailure() ) {
+          ATH_MSG_WARNING(  "add mc Collection failed " ); 
+      }
+    }   
+  }                               
+}
+
+
+
+//================================================================
+void InDetOverlay::mergeTRTCollections(TRT_RDO_Collection *mc_coll, 
+                                       TRT_RDO_Collection *data_coll, 
+                                       TRT_RDO_Collection *out_coll, 
+                                       double occupancy,
+                                       const InDetSimDataCollection& SDO_Map) 
+{
+   
+  if(mc_coll->identify() != data_coll->identify()) {
+    std::ostringstream os;
+    os<<"mergeCollectionsNew<generic>(): collection Id mismatch";
+    ATH_MSG_FATAL(os.str());
+    throw std::runtime_error(os.str());
+  }
+
+  const Identifier idColl = mc_coll->identify();
+
+  // ----------------------------------------------------------------
+  // debug
+  static bool first_time = true;
+  if(first_time) {
+    first_time = false;
+    ATH_MSG_INFO( "mergeTRTCollections():  code is called ");
+  }
+
+  // ----------------------------------------------------------------
+
+  TRT_RDO_Collection data(data_coll->identifyHash());
+  data.setIdentifier(idColl);
+  data_coll->swap(data);
+
+  TRT_RDO_Collection mc(mc_coll->identifyHash());
+  mc.setIdentifier(idColl);
+  mc_coll->swap(mc);
+
+  //################################################################
+  // Merge by copying ptrs from data and mc to mc_coll
+
+  unsigned int idata = 0;
+  unsigned int imc   = 0;
+ 
+  while( (idata < data.size()) || (imc < mc.size())) {
+
+    // The RDO that goes to the output at the end of this step.
+    TRT_RDORawData *p_rdo(0);
+  
+    if(imc == mc.size()) {
+      // just copy the remaining data inputs
+      data.swapElement(idata++, 0, p_rdo);
+    }
+    else if(idata == data.size()) {
+      //just copy the remaining MC digits
+      mc.swapElement(imc++, 0, p_rdo);
+    }
+    else {
+      // Need to decide which one goes first.  
+      // See comments in TRTDigitization.cxx about the assumption that id1<id2 <=> hash1<hash2
+      if( mc[imc]->identify() < data[idata]->identify() ) {
+        mc.swapElement(imc++, 0, p_rdo);
+      }
+      else if(data[idata]->identify() < mc[imc]->identify()) {
+        data.swapElement(idata++, 0, p_rdo);
+      }
+      else {
+        // The hits are on the same channel.
+        TRT_RDORawData *p2(0);
+        data.swapElement(idata++, 0, p2);
+        mc.swapElement(imc++, 0, p_rdo);
+
+        TRT_LoLumRawData *pr1 = dynamic_cast<TRT_LoLumRawData*>(p_rdo);
+        const TRT_LoLumRawData *pr2 = dynamic_cast<const TRT_LoLumRawData*>(p2);
+
+        if(pr1 && pr2) {
+          // the actual merging
+          pr1->merge(*pr2);
+        
+          //If the hit is not already a high level hit 
+          if( !(pr1->getWord() & 0x04020100) ) {
+            
+            //Determine if the hit is from an electron or not
+            bool isElectron = false;
+            Identifier rdoId = p_rdo->identify();
+            InDetSimDataCollection::const_iterator sdoIter(SDO_Map.find(rdoId));
+            if( sdoIter != SDO_Map.end() ){
+              const std::vector< InDetSimData::Deposit >& deposits = sdoIter->second.getdeposits();
+              for ( const auto& deposit: deposits ){
+                const auto& particleLink = deposit.first;
+                if( particleLink.isValid() ){
+                  if( abs( particleLink->pdg_id() ) == 11 ){
+                    isElectron = true;
+                  }
+                }
+              }
+            }
+
+            
+            unsigned int newword = 0;
+            //Get random number 
+            int det =  m_trt_id->barrel_ec( pr1->identify() );
+            float HTOccupancyCorrection = 0;
+            if(isElectron){ 
+              HTOccupancyCorrection = abs(det) > 1 ? m_HTOccupancyCorrectionEC : m_HTOccupancyCorrectionB;  
+            } else { 
+              HTOccupancyCorrection = abs(det) > 1 ? m_HTOccupancyCorrectionEC_noE : m_HTOccupancyCorrectionB_noE; 
+            }
+
+            if( occupancy * HTOccupancyCorrection > CLHEP::RandFlat::shoot( m_rndmEngine, 0, 1) ) 
+              newword += 1 << (26-9);
+            //
+            TRT_LoLumRawData newrdo( pr1->identify(), newword); 
+            pr1->merge(newrdo);
+          }  
+        } else {
+          ATH_MSG_WARNING("TRT RDO is the wrong format");
+        }
+      
+        Overlay::mergeChannelData(*p_rdo, *p2, this);
+        delete p2;
+      }
+    }
+
+    out_coll->push_back(p_rdo);
+  } // <= while
+}
+
+
+
+
+
 
 //================================================================
 //EOF

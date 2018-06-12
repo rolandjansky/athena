@@ -83,24 +83,9 @@ namespace CP
       if (m_evtStore->retrieve (inputObject, std::get<0>(cache->second)).isFailure())
         return StatusCode::FAILURE;
 
-      assert (inputObject != nullptr);
-      auto copy = detail::ShallowCopyCore<T>::copy (*inputObject);
-      if (!copy.first || !copy.second)
-      {
-        ANA_MSG_ERROR ("failed to shallow copy object: " << std::get<0>(cache->second));
-        ANA_MSG_ERROR ("likely shallow copying a view container");
-        return StatusCode::FAILURE;
-      }
-
-      if (detail::ShallowCopyCore<T>::setLink (*inputObject, *copy.first).isFailure())
-        return StatusCode::FAILURE;
-
-      if (m_evtStore->record (copy.second, std::get<2>(cache->second)).isFailure())
-        return StatusCode::FAILURE;
-      if (m_evtStore->record (copy.first, std::get<1>(cache->second)).isFailure())
-        return StatusCode::FAILURE;
-      object = copy.first;
-      return StatusCode::SUCCESS;
+      return detail::ShallowCopy<T>::getCopy
+        (*m_msg, *m_evtStore, object, inputObject,
+         std::get<1>(cache->second), std::get<2>(cache->second));
     }
   }
 

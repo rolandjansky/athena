@@ -14,7 +14,7 @@ from datetime import datetime
 from keyword import iskeyword
 from os.path import dirname
 
-from CoolConvUtilities.AtlCoolLib import indirectOpen
+from .AtlCoolLib import indirectOpen
 
 from .channel_mapping import make_channelselection, get_channel_ids_names
 from .general import timer, date_to_nanounix

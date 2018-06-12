@@ -266,10 +266,6 @@ from DerivationFrameworkCalo.CaloCellDFGetter import CaloCellDFGetter
 theCaloCellDFGetter = CaloCellDFGetter(inputClusterKeys=["MuonClusterCollection"],
                                        outputCellKey="DFMUONCellContainer")
 
-import IsolationAlgs.IsoUpdatedTrackCones as isoCones
-if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
-  DerivationFrameworkJob += isoCones.GetUpdatedIsoTrackCones()
-
 from DerivationFrameworkMuons import  JPsiVertexFitSetup
 MUON1AugmentTools += JPsiVertexFitSetup.AddJPsiVertexingAlgs('MUON1',False)
 for t in MUON1AugmentTools: print t
@@ -296,6 +292,24 @@ MUON1Seq += CfgMgr.DerivationFramework__DerivationKernel("MUON1Kernel",
                                                                        SkimmingTools = [MUON1SkimmingTool1],
                                                                        ThinningTools = MUON1ThinningTools
                                                                        )
+
+#====================================================================
+#       Decorate the vertices with the sum pt of their tracks
+#====================================================================
+alg_name = "MUONVertexDecorationAlg"
+if not hasattr(DerivationFrameworkJob, alg_name ): 
+    from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import VertexDecoratorAlg
+    from MuonPerformanceAlgs.IsolationBuilder import setupTrackSelectionTool
+    from InDetRecTools.InDetRecToolsConf import InDet__InDetTrackSelectionTool
+   
+    the_alg = VertexDecoratorAlg(alg_name)
+    InDetTool = InDet__InDetTrackSelectionTool("TrackSelectionTool_VertexDecoration")
+    InDetTool.minPt = 400
+    InDetTool.CutLevel = "Loose"
+    ToolSvc+= InDetTool
+    the_alg.TrackSelectionTool = InDetTool
+    DerivationFrameworkJob += the_alg
+
 #====================================================================
 # JetTagNonPromptLepton decorations
 #====================================================================
@@ -317,3 +331,4 @@ conf.Items['MUON1']+=["CaloCellContainer#DFMUONCellContainer"]
 conf.Items['MUON1']+=["CaloClusterCellLinkContainer#MuonClusterCollection_links"]
 conf.extraVariables['MUON1'] += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 conf.Config(MUON1Stream, 'MUON1')
+

@@ -9,6 +9,7 @@
 #=== get user options or set default
 if not 'RUN' in dir():
     RUN = 999999
+RunNumber = RUN
 
 if not 'RUN2' in dir(): 
     RUN2 = (RUN>=222222)
@@ -31,6 +32,8 @@ globalflags.InputFormat.set_Value_and_Lock('bytestream')
 if RUN2: globalflags.DatabaseInstance="CONDBR2"
 else:    globalflags.DatabaseInstance="COMP200"
 
+TileUseDCS = False
+
 #--- Geometry setup
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.detdescr.ID_setOff()
@@ -39,10 +42,10 @@ DetFlags.detdescr.LAr_setOff()
 DetFlags.detdescr.Tile_setOn()
 from AthenaCommon.JobProperties import jobproperties
 
-#--- see http://atlas.web.cern.ch/Atlas/GROUPS/OPERATIONS/dataBases/DDDB/tag_hierarchy_browser.php
+#--- see https://atlas-geometry-db.web.cern.ch/atlas-geometry-db/
 #--- for the geometry updates
-if RUN2: jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
-else:    jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-02"
+if RUN2: jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
+else:    jobproperties.Global.DetDescrVersion = "ATLAS-R1-2012-03-01-00"
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
 
@@ -50,7 +53,7 @@ from AtlasGeoModel import GeoModelInit
 #=== set global tag
 #=============================================================
 from IOVDbSvc.CondDB import conddb
-if RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2016-25")
+if RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2017-15")
 else:    conddb.setGlobalTag("COMCOND-BLKPA-RUN1-06")
 
 #=============================================================
@@ -115,7 +118,6 @@ tileCoolMgr.setTag(   "oflIntGain","RUN2-HLT-UPD1-00")
 #=== TileConditions/python/TileCoolMgr.py
 
 #=== Setup COOL
-if RUN2: TileCablingType = 4 
 include( "TileConditions/TileConditions_jobOptions.py" )
 tileInfoConfigurator.setupCOOL()
 tileInfoConfigurator.setupCOOLOFC()
@@ -137,7 +139,6 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 tileInfoDump.AthenaIsOnline=athenaCommonFlags.isOnline()
 
 #=== add private fit method noise tool
-# UNCOMMENT the next two lines if you need "PrintPedestals"
 from TileConditions.TileCondToolConf import getTileCondToolNoiseRawChn
 tileInfoDump.TileCondToolNoiseRawChn = getTileCondToolNoiseRawChn('COOL')
 
@@ -198,7 +199,7 @@ if hasattr(tileInfoDump,"PrintBadCells"):
         from GaudiSvc.GaudiSvcConf import THistSvc
         svcMgr += THistSvc()
         svcMgr.THistSvc.Output = [ "AANT DATAFILE='tileBadCells.root' OPT='RECREATE'" ]
-        from AnalysisTools.AnalysisToolsConf import AANTupleStream
+        from AnalysisTools.AthAnalysisToolsConf import AANTupleStream
         job += AANTupleStream()
         AANTupleStream = AANTupleStream()
         AANTupleStream.ExtraRefNames = [ "StreamESD","Stream1" ]

@@ -349,63 +349,250 @@ def cleanUpLowStat( allBSResultsInNt, averagenVtx, lbSize ):
         allBSResultsInNt.insert(i, bcopy)
       i += 1
 
+from PyCool import cool
+from CoolConvUtilities import AtlCoolLib
+
+def getLumiScanIOVs( runMin, runMax=0 ):
+    dbScan = 'COOLONL_TDAQ/CONDBR2'
+    pathScan = '/TDAQ/OLC/LHC/SCANDATA' 
+
+    #Open up required databases
+    cooldb = AtlCoolLib.indirectOpen(dbScan, True, True, True)
+    folderScan = cooldb.getFolder(pathScan)
+    
+    #Set min and max run 
+    if runMin is not None:
+        iov1 = runMin << 32
+        if runMax is not None:
+          iov2 = runMax << 32
+        else :
+          iov2 = runMin << 32
+    else :
+      print 'No run selected -- ERROR' 
+      return []
+    
+    if (iov2>cool.ValidityKeyMax):
+      iov2=cool.ValidityKeyMax
+    
+    #Get the start time of the first run
+    try:
+      tdaqfolder=cooldb.getFolder('/TDAQ/RunCtrl/SOR')
+      obj=tdaqfolder.findObject(iov1,0)
+      payload=obj.payload()
+      timeStart=payload['SORTime']
+      #print 'Start Time : ', timeStart
+    except Exception,e:
+      print 'ERROR :  accessing SOR'
+      print e
+   
+    #Get the end time of the last run
+    try:
+      tdaqfolder=cooldb.getFolder('/TDAQ/RunCtrl/EOR')
+      obj=tdaqfolder.findObject(iov2,0)
+      payload=obj.payload()
+      timeEnd=payload['EORTime']
+      #print 'End Time : ', timeEnd
+    except Exception,e:
+      print 'ERROR :  accessing EOR'
+      print e
+  
+   
+    #Get scan data from the requested IOVs
+    itrScan = folderScan.browseObjects(timeStart, timeEnd, cool.ChannelSelection.all() )
+   
+    #Array to store IOV information 
+    scanTimes = []
+    startRLB =0
+    endRLB = 0x7FFFFFFFFFFFFFFF
+   
+    # Loop over scan data
+    # Assumption is that scan data is written every lumi block of a scan
+    while itrScan.goToNext():
+       obj = itrScan.currentRef()
+       since = int(obj.payloadValue('RunLB'))
+       runBegin = since >> 32
+       lumiBegin = since & 0xFFFFFFFF
+
+       #Check scan is occuring at ATLAS (IP 1)
+       IP  = int(obj.payloadValue('ScanningIP'))
+       if IP & 0b10 :
+
+         if( since == endRLB ):
+           endRLB = since+1
+         else :
+           # Break in scan 
+           print 'Break in scan', since, startRLB, endRLB 
+           # Make new entry and continue
+           if(startRLB!=0):
+             scanTimes.append( [startRLB,endRLB] )
+
+           endRLB = since+1
+           startRLB = since
+    # Add final valid scan period  
+    if(startRLB!=0):
+      scanTimes.append( [startRLB,endRLB] )
+    
+    return scanTimes 
+ 
 
 
 
 def fillInMissingLbs(allBSResultsInNt, lbSize):
+    nBsResults = len( allBSResultsInNt ) 
+    if(len < 1):
+      return   
+    scanTimes = getLumiScanIOVs( allBSResultsInNt[0].run, allBSResultsInNt[-1].run )   
+     
+    #Check if scan happens before or after all data
+
+  
+    i=0
+    lastValidEntry  = -1
+    nextValidEntry  = -1
+    while  i < len( allBSResultsInNt ):
+      if allBSResultsInNt[i].status != 59: 
+        i += 1
+        continue
+
+      nextValidEntry = i
+        
+      if(lastValidEntry >= 0):
+        if allBSResultsInNt[nextValidEntry].lbStart !=  allBSResultsInNt[lastValidEntry].lbEnd + 1:
+          print "Missing Lumi block from {:>5d} to {:>5d}".format( allBSResultsInNt[lastValidEntry].lbEnd + 1 , allBSResultsInNt[nextValidEntry].lbStart)
+          #Determine if the Missing Lumiblock is in a scan period
+          isScan = False
+          for scan in scanTimes:
+            scanRunStart = scan[0] >> 32 
+            scanLbStart = scan[0] & 0xFFFFFFFF
+            scanRunEnd = scan[1] >> 32
+            scanLbEnd = scan[1] & 0xFFFFFFFF 
+            if allBSResultsInNt[lastValidEntry].run == scanRunStart \
+               and abs( allBSResultsInNt[lastValidEntry].lbEnd - scanLbStart) < 4 \
+               and allBSResultsInNt[nextValidEntry].run == scanRunEnd \
+               and abs( allBSResultsInNt[nextValidEntry].lbStart - scanLbEnd) < 4 :
+              isScan = True
+
+          if isScan:
+            print 'Lumi scan was in progress'
+          else:
+            print 'No lumi scan'
+              
+          if not isScan and allBSResultsInNt[nextValidEntry].lbStart -  allBSResultsInNt[lastValidEntry].lbEnd + 1 > lbSize:
+            print "--Lumi block gap too large wont fill in the gap"           
+          elif not isScan and (allBSResultsInNt[nextValidEntry].lbStart-1) -  (allBSResultsInNt[lastValidEntry].lbEnd+1) < 0 :
+            print "Missing Lumi block is invalid from {:>5d} to {:>5d}".format( allBSResultsInNt[lastValidEntry].lbEnd+1, allBSResultsInNt[nextValidEntry].lbStart -1)
+          else:
+            print "--Filling in the gap"
+            varList = ['posX','posY','posZ','sigmaX','sigmaY','sigmaZ','tiltX','tiltY','rhoXY','sigmaXY']
+            #Calculate average
+            calc = BeamSpotAverage(varList ,weightedAverage=True)
+            calc.add(allBSResultsInNt[nextValidEntry])
+            calc.add(allBSResultsInNt[lastValidEntry])
+            calc.average()
+
+            ave = calc.ave
+            err = calc.err
+
+            #copy beamspot tuple
+            bcopy = copy.deepcopy(allBSResultsInNt[i])
+            
+            #update the values
+            for var in varList:
+              #print "Var,index: {:>10} ,  {:>3}".format( var,  calc.varList.index(var))
+              setattr(bcopy, var,       ave[calc.varList.index(var)])
+              setattr(bcopy, var+"Err", err[calc.varList.index(var)])
+
+            bcopy.status    = 59
+            bcopy.timeStart = 0 
+            bcopy.timeEnd   = 0   
+            bcopy.nEvents   = 1   
+            bcopy.nValid    = 1    
+            bcopy.nVtxAll   = 1   
+            bcopy.nVtxPrim  = 1  
+            bcopy.lbStart   = allBSResultsInNt[lastValidEntry].lbEnd + 1    
+            bcopy.lbEnd     = allBSResultsInNt[nextValidEntry].lbStart-1
+            #Insert it back in 
+            allBSResultsInNt.insert(lastValidEntry+1, bcopy)
+            i += 1
+            nextValidEntry += 1
+
+      lastValidEntry = nextValidEntry
+      i += 1  
+   
+    # Ensure all scans are covered by a valid beamspot entry
+    for scan in scanTimes:
+      scanRunStart = scan[0] >> 32      
+      scanLbStart = scan[0] & 0xFFFFFFFF
+      scanRunEnd = scan[1] >> 32       
+      scanLbEnd = scan[1] & 0xFFFFFFFF
+      if scanRunStart != scanRunEnd:
+        print 'Error: Scan runs dont match'
+        continue
+      scanLb = list(range(scanLbStart, scanLbEnd+1))
+      print ' All scan lbs ', scanLb  
       i=0
-      lastValidEntry  = -1
-      nextValidEntry  = -1
       while  i < len( allBSResultsInNt ):
-        if allBSResultsInNt[i].status != 59: 
+        if(len(scanLb) == 0):
+          break
+        if allBSResultsInNt[i].run != scanRunStart or allBSResultsInNt[i].status != 59:
           i += 1
           continue
 
-        nextValidEntry = i
-          
-        if(lastValidEntry >= 0):
-          if allBSResultsInNt[nextValidEntry].lbStart !=  allBSResultsInNt[lastValidEntry].lbEnd + 1:
-            print "Missing Lumi block from {:>5d} to {:>5d}".format( allBSResultsInNt[lastValidEntry].lbEnd + 1 , allBSResultsInNt[nextValidEntry].lbStart)
-            
-            
-            if allBSResultsInNt[nextValidEntry].lbStart -  allBSResultsInNt[lastValidEntry].lbEnd + 1 > lbSize:
-              print "--Lumi block gap too large wont fill in the gap"           
-            elif (allBSResultsInNt[nextValidEntry].lbStart-1) -  (allBSResultsInNt[lastValidEntry].lbEnd+1) < 0 :
-              print "Missing Lumi block is invalid from {:>5d} to {:>5d}".format( allBSResultsInNt[lastValidEntry].lbEnd+1, allBSResultsInNt[nextValidEntry].lbStart -1)
-            else:
-              varList = ['posX','posY','posZ','sigmaX','sigmaY','sigmaZ','tiltX','tiltY','rhoXY','sigmaXY']
-              calc = BeamSpotAverage(varList ,weightedAverage=True)
-              calc.add(allBSResultsInNt[nextValidEntry])
-              calc.add(allBSResultsInNt[lastValidEntry])
-              calc.average()
+        for lb in range( allBSResultsInNt[i].lbStart, allBSResultsInNt[i].lbEnd+1 ):
+          if lb in scanLb : 
+            scanLb.remove( lb )
+        i+=1
+      
+      if(len(scanLb) != 0):
+        print 'Missing BS lbs ',  scanLb   
+        i=0
+        #check missing lb are squential 
+        if scanLb[-1] - scanLb[0] + 1 != len(scanLb) :
+          print 'ERROR missing lbs are not squential'
+          continue
 
-              ave = calc.ave
-              err = calc.err
-
-              bcopy = copy.deepcopy(b)
-              
-              for var in varList:
-                #print "Var,index: {:>10} ,  {:>3}".format( var,  calc.varList.index(var))
-                setattr(bcopy, var,       ave[calc.varList.index(var)])
-                setattr(bcopy, var+"Err", err[calc.varList.index(var)])
-
-              bcopy.status    = 59
-              bcopy.timeStart = 0 
-              bcopy.timeEnd   = 0   
-              bcopy.nEvents   = 1   
-              bcopy.nValid    = 1    
-              bcopy.nVtxAll   = 1   
-              bcopy.nVtxPrim  = 1  
-              bcopy.lbStart   = allBSResultsInNt[lastValidEntry].lbEnd + 1    
-              bcopy.lbEnd     = allBSResultsInNt[nextValidEntry].lbStart-1
-              allBSResultsInNt.insert(lastValidEntry+1, bcopy)
-              i += 1
-              nextValidEntry += 1
-
-        lastValidEntry = nextValidEntry
-        i += 1  
-
-
+        while i < len( allBSResultsInNt ):
+          if allBSResultsInNt[i].run != scanRunStart or allBSResultsInNt[i].status != 59:
+             i += 1
+             continue
+          if(  allBSResultsInNt[i].lbStart > scanLb[0] ):
+             #copy beamspot tuple
+             bcopy = copy.deepcopy(allBSResultsInNt[i])
+             bcopy.status    = 59
+             bcopy.timeStart = 0 
+             bcopy.timeEnd   = 0   
+             bcopy.nEvents   = 1   
+             bcopy.nValid    = 1    
+             bcopy.nVtxAll   = 1   
+             bcopy.nVtxPrim  = 1  
+             bcopy.lbStart   =  scanLb[0]+1   
+             bcopy.lbEnd     =  allBSResultsInNt[i].lbStart-1
+             print 'Inserting front', scanLb[0]+1, allBSResultsInNt[i].lbStart-1
+             #Insert it back in 
+             allBSResultsInNt.insert(i, bcopy) 
+             break
+          elif( allBSResultsInNt[i].lbEnd < scanLb[-1]  ):
+             if i+1 < len(allBSResultsInNt) and  allBSResultsInNt[i+1].lbEnd < scanLb[-1]:
+               i+=1
+               continue
+             #copy beamspot tuple
+             bcopy = copy.deepcopy(allBSResultsInNt[i])
+             bcopy.status    = 59
+             bcopy.timeStart = 0 
+             bcopy.timeEnd   = 0   
+             bcopy.nEvents   = 1   
+             bcopy.nValid    = 1    
+             bcopy.nVtxAll   = 1   
+             bcopy.nVtxPrim  = 1  
+             bcopy.lbStart   =  allBSResultsInNt[i].lbEnd+1   
+             bcopy.lbEnd     =  scanLb[-1]
+             #Insert it back in 
+             print "Inserting  back " , allBSResultsInNt[i].lbEnd+1, scanLb[-1]
+             allBSResultsInNt.insert(i+1, bcopy) 
+             break
+          i+=1
+      else:
+        print 'All scan lbs have a valid BS'
 
 class Plots(ROOTUtils.PlotLibrary):
 

@@ -18,6 +18,7 @@
 <branch>devval</branch>
 <branch>bugfix</branch>
 <branch>point1</branch>
+<branch re="\d{2}\.\d{1}$">NN.N</branch>
 <branch re="\d{2}\.\d{1}\.\d{1}X$">NN.N.NX</branch>
 <branch re="\d{2}\.\d{1}\.\d{1}X\.Y$">NN.N.NX.Y</branch>
 <branch re="\d{2}\.\d{1}\.\d{1}X\.Y\-VAL$">NN.N.NX.Y-VAL</branch>
@@ -44,14 +45,6 @@
 <install>*</install>
 
 <!-- known CMTCONFIG values -->
-<cmt>i686-slc3-gcc323-dbg</cmt>
-<cmt>i686-slc3-gcc323-opt</cmt>
-<cmt>i686-slc4-gcc34-dbg</cmt>
-<cmt>i686-slc4-gcc34-opt</cmt>
-<cmt>i686-slc4-gcc43-dbg</cmt>
-<cmt>i686-slc4-gcc43-opt</cmt>
-<cmt>x86_64-slc4-gcc34-dbg</cmt>
-<cmt>x86_64-slc4-gcc34-opt</cmt>
 <cmt>i686-slc5-gcc34-dbg</cmt>
 <cmt>i686-slc5-gcc34-opt</cmt>
 <cmt>i686-slc5-gcc43-dbg</cmt>
@@ -60,11 +53,22 @@
 <cmt>x86_64-slc5-gcc34-opt</cmt>
 <cmt>x86_64-slc5-gcc43-dbg</cmt>
 <cmt>x86_64-slc5-gcc43-opt</cmt>
+<cmt>x86_64-slc6-gcc46-opt</cmt>
+<cmt>x86_64-slc6-gcc46-dbg</cmt>
+<cmt>x86_64-slc6-gcc47-opt</cmt>
+<cmt>x86_64-slc6-gcc47-dbg</cmt>
+<cmt>x86_64-slc6-gcc48-opt</cmt>
+<cmt>x86_64-slc6-gcc48-dbg</cmt>
+<cmt>x86_64-slc6-gcc49-opt</cmt>
+<cmt>x86_64-slc6-gcc49-dbg</cmt>
+<cmt>x86_64-slc6-gcc62-opt</cmt>
+<cmt>x86_64-slc6-gcc62-dbg</cmt>
 <!-- this one matches to ALL -->
 <cmt>*</cmt>
 
 
 <!-- known projects -->
+<project>Athena</project>
 <project>AtlasProduction</project>
 <project>AtlasOffline</project>
 <project>AtlasAnalysis</project> 

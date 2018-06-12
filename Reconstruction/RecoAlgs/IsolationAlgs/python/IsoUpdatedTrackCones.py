@@ -48,19 +48,25 @@ def GetUpdatedIsoTrackCones(name=""):
   egIsoTypes = [[]]
   customNameMu_pt1000 = ""
   customNameEl_pt1000 = ""
+  customNamePh_pt1000 = ""
   customNameMu_pt500 = ""
   customNameEl_pt500 = ""
+  customNamePh_pt500 = ""
   if name == "" or name == "Electrons":
     egIsoTypes = ptconeList
     customNameEl_pt1000 = "TightTTVA_pt1000"
     customNameEl_pt500 = "TightTTVA_pt500"
+  if name == "" or name == "Photons":
+    egIsoTypes = ptconeList
+    customNamePh_pt1000 = "TightTTVA_pt1000"
+    customNamePh_pt500 = "TightTTVA_pt500"
   if name == "" or name == "Muons":
     muIsoTypes = ptconeList
     customNameMu_pt1000 = "TightTTVA_pt1000"
     customNameMu_pt500 = "TightTTVA_pt500"
 
   isoBuilderTight1000 = IsolationBuilder(
-    name                   = "IsolationBuilderTight1000",
+    name                   = "IsolationBuilderTight1000"+name,
     CaloCellIsolationTool  = None,
     CaloTopoIsolationTool  = None,
     PFlowIsolationTool     = None,
@@ -69,13 +75,15 @@ def GetUpdatedIsoTrackCones(name=""):
     MuIsoTypes             = muIsoTypes,
     CustomConfigurationNameMu = customNameMu_pt1000,
     CustomConfigurationNameEl = customNameEl_pt1000,
+    CustomConfigurationNamePh = customNamePh_pt1000,
     CustomConfigurationName   = "TightTTVA_pt1000",
-    IsAODFix = True,
+    IsAODFix = False,
     LeakageTool = None,
+    #PhotonCollectionContainerName = "",
     OutputLevel            = 3)
   algs += [isoBuilderTight1000]
   isoBuilderTight500 = IsolationBuilder(
-    name                   = "IsolationBuilderTight500",
+    name                   = "IsolationBuilderTight500"+name,
     CaloCellIsolationTool  = None,
     CaloTopoIsolationTool  = None,
     PFlowIsolationTool     = None,
@@ -84,18 +92,22 @@ def GetUpdatedIsoTrackCones(name=""):
     MuIsoTypes             = muIsoTypes,
     CustomConfigurationNameMu = customNameMu_pt500,
     CustomConfigurationNameEl = customNameEl_pt500,
+    CustomConfigurationNamePh = customNamePh_pt500,
     CustomConfigurationName   = "TightTTVA_pt500",
-    IsAODFix = True,
+    IsAODFix = False,
     LeakageTool = None,
+    #PhotonCollectionContainerName = "",
     OutputLevel            = 3)
   algs += [isoBuilderTight500]
   return algs
 
 def GetExtraIsoVariablesForDxAOD(name=""):
     iso_lep_vars = []
-    iso_vars = ["ptcone20_TightTTVA_pt500.ptcone20_TightTTVA_pt1000.ptcone30_TightTTVA_pt500.ptcone30_TightTTVA_pt1000.ptcone40_TightTTVA_pt500.ptcone40_TightTTVA_pt1000.ptvarcone20_TightTTVA_pt500.ptvarcone20_TightTTVA_pt1000.ptvarcone30_TightTTVA_pt500.ptvarcone30_TightTTVA_pt1000.ptvarcone40_TightTTVA_pt500.ptvarcone40_TightTTVA_pt1000"]
+    iso_vars = "ptcone20_TightTTVA_pt500.ptcone20_TightTTVA_pt1000.ptcone30_TightTTVA_pt500.ptcone30_TightTTVA_pt1000.ptcone40_TightTTVA_pt500.ptcone40_TightTTVA_pt1000.ptvarcone20_TightTTVA_pt500.ptvarcone20_TightTTVA_pt1000.ptvarcone30_TightTTVA_pt500.ptvarcone30_TightTTVA_pt1000.ptvarcone40_TightTTVA_pt500.ptvarcone40_TightTTVA_pt1000"
     if name == "" or name == "Electrons":
         iso_lep_vars += ["Electrons.%s" %iso_vars]
+    if name == "" or name == "Photons":
+        iso_lep_vars += ["Photons.%s" %iso_vars]
     if name == "" or name == "Muons":
         iso_lep_vars += ["Muons.%s" %iso_vars] 
     return iso_lep_vars

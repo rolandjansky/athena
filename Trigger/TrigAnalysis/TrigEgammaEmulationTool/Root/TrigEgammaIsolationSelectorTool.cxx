@@ -35,6 +35,8 @@ TrigEgammaIsolationSelectorTool( const std::string& myname )
   declareProperty("PtConeCut"                  , m_PtConeCut                    );
   declareProperty("UseClusETforCaloIso"        , m_useClusETforCaloIso = true   );
   declareProperty("UseClusETforTrackIso"       , m_useClusETforTrackIso = true  );
+  declareProperty("TrackIsolationTool",       m_trackIsolationTool,   "Handle of the track IsolationTool");  
+  
 }
 //**********************************************************************
 StatusCode TrigEgammaIsolationSelectorTool::initialize() {
@@ -44,6 +46,13 @@ StatusCode TrigEgammaIsolationSelectorTool::initialize() {
     ATH_MSG_WARNING("TrigEgammaSelectorBaseTool::initialize() failed");
     return StatusCode::FAILURE;
   }
+
+  sc = service("StoreGateSvc", m_storeGate);
+  if(sc.isFailure()) {
+      ATH_MSG_ERROR( "Unable to locate Service StoreGateSvc" );
+      return sc;
+  }
+
   
   if ( m_EtConeCut.size() != m_EtConeSizes ) {
     ATH_MSG_ERROR(" m_EtConeCut size is " <<  m_EtConeCut.size() << " but needs " << m_EtConeSizes);
@@ -91,6 +100,18 @@ StatusCode TrigEgammaIsolationSelectorTool::initialize() {
   m_mapRelPtCone.insert(std::pair<int, string>(4, "ptvarcone30/ele_pt")   );
   m_mapRelPtCone.insert(std::pair<int, string>(5, "ptvarcone40/ele_pt")   );
 
+  // Lets initialize trackIsolationTool
+  if (!m_trackIsolationTool.empty()){       
+      ATH_MSG_DEBUG("Retrieve TrackIsolationTool");
+      if(m_trackIsolationTool.retrieve().isFailure()){
+	  ATH_MSG_ERROR("Unable to retrieve " << m_trackIsolationTool);
+	  return StatusCode::FAILURE;
+      } else {      
+	  ATH_MSG_DEBUG("Retrieved Tool "<<m_trackIsolationTool);
+      }         
+  }
+
+
   ATH_MSG_INFO("TrigEgammaIsolationSelectorTool initialised");
 
   return StatusCode::SUCCESS;
@@ -105,42 +126,156 @@ bool TrigEgammaIsolationSelectorTool::emulation(const xAOD::IParticle* part, boo
   pass=false;
   if (!part) {
     ATH_MSG_WARNING("emulateIsolation() \t particle is NULL");
-    return pass;
+    return false;
   }
 
   const xAOD::Electron *el = static_cast<const xAOD::Electron *>(part);
+  // Try to use *here* the trackIsolationTool
+
+
+
+
   //ATH_MSG_DEBUG("ElectronContainer size: "<<elContainer->size());
 
+  //if(el->trackParticle()){
+  //  float Z0SinTheta = std::fabs(el->trackParticle()->z0()*std::sin(el->trackParticle()->theta()));
+  //  if(Z0SinTheta > m_maxZ0SinTheta){
+  //    ATH_MSG_DEBUG("emulateIsolation()->Z0SinTheta = " << Z0SinTheta << " > " << m_maxZ0SinTheta);
+  //    return true;
+  //  }else{
+  //    ATH_MSG_DEBUG("emulateIsolation()->Z0SinTheta = " << Z0SinTheta);
+  //  }
+  //}
+
   // Declare vectors of isolation variables for different cone sizes
-  std::vector<float>  EtCone, PtCone;     
+  std::vector<float>  EtCone, PtCone, _m_PtCone, _m_PtVarCone, PtCone_recalculated; //, PtCone_recalculated_fixed;
   float val=-99;
   el->isolationValue(val,xAOD::Iso::etcone20);
-  ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::etcone20) = " << val);
+  //ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::etcone20) = " << val);
   EtCone.push_back(val);
   el->isolationValue(val,xAOD::Iso::etcone30);
-  ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::etcone30) = " << val);
+  //ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::etcone30) = " << val);
   EtCone.push_back(val);
   el->isolationValue(val,xAOD::Iso::etcone40);
-  ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::etcone40) = " << val);
+  //ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::etcone40) = " << val);
   EtCone.push_back(val);
   el->isolationValue(val,xAOD::Iso::ptcone20);
-  ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::ptcone20) = " << val);
+  //ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::ptcone20) = " << val);
   PtCone.push_back(val);
   el->isolationValue(val,xAOD::Iso::ptcone30);
-  ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::ptcone30) = " << val);
+  //ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::ptcone30) = " << val);
   PtCone.push_back(val);
   el->isolationValue(val,xAOD::Iso::ptcone40);
-  ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::ptcone40) = " << val);
+  //ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::ptcone40) = " << val);
   PtCone.push_back(val);
   el->isolationValue(val,xAOD::Iso::ptvarcone20);
-  ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::ptvarcone20) = " << val);
+  //ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::ptvarcone20) = " << val);
   PtCone.push_back(val);
   el->isolationValue(val,xAOD::Iso::ptvarcone30);
-  ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::ptvatcone30) = " << val);
+  //ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::ptvatcone30) = " << val);
   PtCone.push_back(val);
   el->isolationValue(val,xAOD::Iso::ptvarcone40);
-  ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::ptvarcone40) = " << val);
+  //ATH_MSG_DEBUG("el->isolationValue(val,xAOD::Iso::ptvarcone40) = " << val);
   PtCone.push_back(val);
+
+  // OK, now we have the ptcone values in PtCone. Lets compute the same, but by using the TrackIsolationTool:
+  // Using code as here:
+  //  https://gitlab.cern.ch:8443/atlas/athena/blob/21.0/Reconstruction/RecoTools/IsolationTool/util/test_isolaitonTool.cxx
+  vector<xAOD::Iso::IsolationType> isoTypes;
+  isoTypes.push_back(xAOD::Iso::ptcone40);
+  isoTypes.push_back(xAOD::Iso::ptcone30);
+  isoTypes.push_back(xAOD::Iso::ptcone20);
+
+  xAOD::TrackCorrection corrlist;
+  corrlist.trackbitset.set(static_cast<unsigned int>(xAOD::Iso::coreTrackPtr));
+ 
+
+ 
+
+  // Compute the track isolation with trackIsolationTool
+  // But *before* we need to define the vertex as it is in TrigEgammaRec as the vertex of the ighest pT track in the cone.... Otherwise we can try with that of the electron candidate... ?
+
+  //const xAOD::TrackParticleContainer* pTrackParticleContainer = 0;
+  xAOD::Vertex *leadTrkVtx = new xAOD::Vertex();     
+  leadTrkVtx->makePrivateStore();
+
+  leadTrkVtx->setZ(el->trackParticle()->z0() + el->trackParticle()->vz());
+
+  //const ElementLink< TrackParticleContainer* > link  =  el->trackParticleLink( /*0 this is the index of trackparticle*/ );
+  //then I think it is 
+  // std::str ld = link.dataID();
+  std::string m_trk_container =  el->trackParticleLink().dataID();
+  ATH_MSG_DEBUG("TRacks linked to " <<  m_trk_container << " container"); 
+  ////that @brief Return the SG key that we reference, as a string.
+  //
+  const std::set<const xAOD::TrackParticle*> tracksToExclude = xAOD::EgammaHelpers::getTrackParticles(el, false);
+  ATH_MSG_DEBUG("tracksToExclude size = " << tracksToExclude.size() );
+
+
+
+  const xAOD::TrackParticleContainer *TrackParticleContainer=0;
+
+  if ( (m_storeGate->retrieve(TrackParticleContainer,m_trk_container)).isFailure() ){
+      ATH_MSG_ERROR("Failed to retrieve EF ID trackParticles ");
+      return false;
+  } else {
+      ATH_MSG_DEBUG("Retrieved EF ID trackParticles "  << m_trk_container << " of size " << TrackParticleContainer->size());
+  }
+
+  std::vector<const xAOD::TrackParticleContainer*> vectorTrackParticleContainer;
+  vectorTrackParticleContainer.push_back(TrackParticleContainer);
+
+  xAOD::TrackIsolation result;
+  _m_PtCone.clear();
+  _m_PtVarCone.clear();
+  if(m_trackIsolationTool->trackIsolation(result, *el, isoTypes, corrlist, leadTrkVtx, &tracksToExclude, TrackParticleContainer)){
+      for(unsigned int i=0; i<isoTypes.size(); i++){
+	  _m_PtCone.push_back(result.ptcones[i]);
+	  _m_PtVarCone.push_back(result.ptvarcones_10GeVDivPt[i]);
+      }
+  } else {
+      ATH_MSG_ERROR("Hey!!!! Something wrong! Couldn't run TrackIsolationTool " << m_trackIsolationTool);
+  }
+
+
+  // So _m_PtCone has the result of ptcone40,30,20 and _m_PtVarCone result of ptvarcone40,30,20 (requested in this order by the tool). So lets build PtCone_recalculated to have (as PtCone) results of ptcone20 30 40 and ptvarcone20 30 40
+
+  PtCone_recalculated.push_back( _m_PtCone[2]    );
+  PtCone_recalculated.push_back( _m_PtCone[1]    );
+  PtCone_recalculated.push_back( _m_PtCone[0]    );
+  PtCone_recalculated.push_back( _m_PtVarCone[2] );
+  PtCone_recalculated.push_back( _m_PtVarCone[1] );
+  PtCone_recalculated.push_back( _m_PtVarCone[0] );
+
+  // Lets try a hack... if the recomputed ptcone is larger than the sum of pt of exclude tracks, then, remove them
+  float pt_tracks_to_exclude=0.;
+  for (auto trk: tracksToExclude){
+      pt_tracks_to_exclude+= trk->pt();
+  }
+
+  // for (std::size_t iConeSize=0; iConeSize<PtCone_recalculated.size(); iConeSize++){
+  //     // In this hack, if for some reason the isolation computation didn't work, the ptcone computes ptcone *including* tracks that should have been excluded
+  //     //if (PtCone_recalculated[iConeSize] > el->trackParticle()->pt()){
+  //         PtCone_recalculated_fixed.push_back(PtCone_recalculated[iConeSize] - pt_tracks_to_exclude);
+  //     //}else{
+  //     //    PtCone_recalculated_fixed.push_back(PtCone_recalculated[iConeSize]);
+  //     //}
+  // }
+
+
+  // Lets cut on PtCone_recalculated_fixed Isntead, and show the difference betweenPtCone_recalculated (from tool) and PtCone(from xAOD):
+  //for(std::size_t iConeSize = 0; iConeSize < PtCone_recalculated.size(); iConeSize++) {
+  std::size_t iConeSize = 3;
+  ATH_MSG_DEBUG("TrackIsolationTool vs xAOD value at " << iConeSize << "  PtCone_recalculated = " << PtCone_recalculated[iConeSize] << /*" PtCone_recalculated_fixed = " << PtCone_recalculated_fixed[iConeSize] <<*/ "  PtCone = " << PtCone[iConeSize] << "  TiT/xAOD = "  << PtCone_recalculated[iConeSize]/PtCone[iConeSize] << " and el_trk_pt = " << el->trackParticle()->pt());
+
+
+  //    ATH_MSG_DEBUG("PtCone_recalculated = " << PtCone_recalculated[iConeSize] << " TrkPt =  " <<  el->trackParticle()->pt() << "  PtCone = " << PtCone[iConeSize] << "  PtCone_recalculated/TrkPt = "  << (PtCone_recalculated[iConeSize]/el->trackParticle()->pt()) << " (PtCone_recalculated-TrkPt)/PtCone = "  << (PtCone_recalculated[iConeSize] - el->trackParticle()->pt())/PtCone[iConeSize]);
+  //}
+
+
+
+    
+
 
   bool absEtConeCut_ispassed = true;
 
@@ -152,20 +287,21 @@ bool TrigEgammaIsolationSelectorTool::emulation(const xAOD::IParticle* part, boo
     }
   }  
   //if one isolation cut fails on one egamma object go to next egamma object
-  if(!absEtConeCut_ispassed) return pass; 
+  if(!absEtConeCut_ispassed) return true; 
 
+  
   // Cut on Absolute Track Isolation
   bool absPtConeCut_ispassed = true;
-  for(std::size_t iConeSize = 0; iConeSize < PtCone.size(); iConeSize++) {
-    if( ( m_PtConeCut[iConeSize] > 0.) && (PtCone[iConeSize] > m_PtConeCut[iConeSize])) {
-        ATH_MSG_DEBUG("Absolute Track Isolation " << m_mapPtCone[iConeSize] << " NOT satisfied: "<< PtCone[iConeSize] << " > cut: " << m_PtConeCut[iConeSize]);
+  for(std::size_t iConeSize = 0; iConeSize < PtCone_recalculated.size(); iConeSize++) {
+    if( ( m_PtConeCut[iConeSize] > 0.) && (PtCone_recalculated[iConeSize] > m_PtConeCut[iConeSize])) {
+        ATH_MSG_DEBUG("Absolute Track Isolation " << m_mapPtCone[iConeSize] << " NOT satisfied: "<< PtCone_recalculated[iConeSize] << " > cut: " << m_PtConeCut[iConeSize]);
       absPtConeCut_ispassed = false;
       break;//skip remaining ptcone sizes if one fails
     }
   }
   
   //if one isolation cut fails on one egamma object go to next egamma object
-  if(!absPtConeCut_ispassed) return pass;
+  if(!absPtConeCut_ispassed) return true;
 
   // Relative isolation
   std::vector<float>  RelEtCone, RelPtCone;
@@ -208,12 +344,13 @@ bool TrigEgammaIsolationSelectorTool::emulation(const xAOD::IParticle* part, boo
   // Fill vectors of Relative isolation variables for different cone sizes
   for (std::size_t iConeSize = 0; iConeSize < EtCone.size(); iConeSize++){
     if(caloIso_ele_pt > 0.) RelEtCone.push_back(EtCone[iConeSize]/caloIso_ele_pt);
-    else RelEtCone.push_back(0.);
+    else RelEtCone.push_back(99990.);
   }
-  
+ 
+  // Here use PtCone for xAOD values and PtCone_recalulated if using track isolation tool 
   for (std::size_t iConeSize = 0; iConeSize < PtCone.size(); iConeSize++){
     if(trkIso_ele_pt > 0.) RelPtCone.push_back(PtCone[iConeSize]/trkIso_ele_pt);
-    else RelPtCone.push_back(0.);
+    else RelPtCone.push_back(99990.);
   }
  
   // Cut on Relative Calo Isolation
@@ -229,7 +366,7 @@ bool TrigEgammaIsolationSelectorTool::emulation(const xAOD::IParticle* part, boo
   }
  
   //if one isolation cut fails on one egamma object go to next egamma object
-  if(!relEtConeCut_ispassed) return pass;
+  if(!relEtConeCut_ispassed) return true;
  
   // ivarloose parameters
   std::vector<float> RelPtConeCut;
@@ -249,15 +386,17 @@ bool TrigEgammaIsolationSelectorTool::emulation(const xAOD::IParticle* part, boo
                     << " NOT satisfied: "<< RelPtCone[iConeSize] << " > cut: " << RelPtConeCut[iConeSize]);
       relPtConeCut_ispassed = false;
       break;//skip remaining ptcone sizes if one fails
+    } else {
+      ATH_MSG_DEBUG("REGTEST Relative Track Isolation " << m_mapRelPtCone[iConeSize]
+                    << " SATISFIED: "<< RelPtCone[iConeSize] << " > cut: " << RelPtConeCut[iConeSize]);
     }
   }
 
   //if one isolation cut fails on one egamma object go to next egamma object
-  if(!relPtConeCut_ispassed) return pass;
+  if(!relPtConeCut_ispassed) return true;
 
   pass=true;
   ATH_MSG_DEBUG("emulateIsolation() \t isIsolation = " << pass);
-  return pass;
 
   ATH_MSG_DEBUG( "End of emulation method in TrigEgammaIsolationSelectorTool" );
 

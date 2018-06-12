@@ -71,14 +71,14 @@ void applyPublicFormat(TGraph& graph)
         graph.SetLineColor(kBlue);
         graph.SetLineStyle(2);
         if (!name.CompareTo("Flav. composition"))
-            graph.SetName(Form("%s, %s",name.Data(),optHelper.IsDijetComposition()?"inclusive jets":"unknown composition"));
+            graph.SetName(Form("%s, %s",name.Data(),optHelper.GetCompositionName().Data()));
     }
     else if (name.Contains("Flav. response"))
     {
         graph.SetLineColor(kGreen+1);
         graph.SetLineStyle(3);
         if (!name.CompareTo("Flav. response"))
-            graph.SetName(Form("%s, %s",name.Data(),optHelper.IsDijetComposition()?"inclusive jets":"unknown composition"));
+            graph.SetName(Form("%s, %s",name.Data(),optHelper.GetCompositionName().Data()));
     }
     else if (name.Contains("Pileup") || name.Contains("Pile-up"))
     {
@@ -293,6 +293,11 @@ std::vector<TString> GetJetDesc(const TString& jetAlgoIn)
         jetAlgo.ReplaceAll("LCTopo","");
         jetAlgo.ReplaceAll("TopoLC","");
     }
+    else if (jetAlgo.Contains("EMPFlow"))
+    {
+        calib = "EMPFlow";
+        jetAlgo.ReplaceAll("EMPFlow","");
+    }
     if (calib == "")
     {
         printf("Failed to parse calib for: %s\n",jetAlgoIn.Data());
@@ -500,7 +505,7 @@ void DrawYearLabel(const JetUncertaintiesTool* provider, const double yPos)
         type = "Data 2015";
         sqrtS = "13 TeV";
     }
-    else if (release.BeginsWith("2016_Moriond"))
+    else if (release.BeginsWith("2016_Moriond") || release.BeginsWith("rel21_Moriond2018"))
     {
         type = "Data 2016";
         sqrtS = "13 TeV";
@@ -574,12 +579,13 @@ double GetPunchthroughProb(const JetUncertaintiesTool* provider, const xAOD::Jet
         std::istringstream ss(release.Data());
         std::string token;
         std::getline(ss, token, '_');
-        int year = std::stoi(token);
+        std::cout << "Year: " << token << std::endl;
+        int year = token == "rel21" ? 2017 : std::stoi(token);
         if (year > 2012) {
-          filename = optHelper.GetInputsDir()+"PTprob.root";
+          filename = optHelper.GetInputsDir()+"/PTprob.root";
           histName = "h_PT_pT_EMJES4_norm";
         } else {
-          filename = optHelper.GetInputsDir()+"PTprob_2012.root";
+          filename = optHelper.GetInputsDir()+"/PTprob_2012.root";
 
           if (jetType == "AntiKt4LCTopo")
               histName = "h_PT_pT_LCJES4_norm";
@@ -596,7 +602,7 @@ double GetPunchthroughProb(const JetUncertaintiesTool* provider, const xAOD::Jet
           }
         }
         std::cout << "Using pT file " << filename << std::endl;
-        TFile* PTfile = new TFile(filename,"READ");
+        TFile* PTfile = new TFile("/"+filename,"READ");
         if (!PTfile || PTfile->IsZombie())
         {
             printf("Failed to open PT fraction file\n");
@@ -642,7 +648,7 @@ void setPileupShiftsForYear(const JetUncertaintiesTool* provider, xAOD::EventInf
         sigmaMu = 1.9;
         sigmaNPV = 2.9;
     }
-    else if (release.BeginsWith("2016_"))
+    else if (release.BeginsWith("2016_") || release.BeginsWith("rel21_Moriond2018"))
     {
         // Kate, Nov 2016 
         // via Eric Corrigan's pileup studies
@@ -661,7 +667,7 @@ void setPileupShiftsForYear(const JetUncertaintiesTool* provider, xAOD::EventInf
     NPV(*eInfo) = (jet?provider->getRefNPV(*jet):provider->getRefNPV())+sigmaNPV;
 }
 
-double getQuadratureSumUncertainty(const JetUncertaintiesTool* provider, const std::vector<size_t>& compIndices,const xAOD::Jet& jet,const xAOD::EventInfo& eInfo,const size_t PTindex)
+double getQuadratureSumUncertainty(const JetUncertaintiesTool* provider, const std::vector<int>& compIndices,const xAOD::Jet& jet,const xAOD::EventInfo& eInfo,const int PTindex)
 {
     if (compIndices.size() == 0)
         printf("WARNING: empty vector passed to getQuadratureSumUncertainty\n");
@@ -678,11 +684,12 @@ double getQuadratureSumUncertainty(const JetUncertaintiesTool* provider, const s
     }
     else if (compIndices.size() == 1 && !optHelper.AbsValue())
     {
-        const double factor = compIndices.at(0) != PTindex ? 1 : GetPunchthroughProb(provider,jet);
+        const double factor = abs(compIndices.at(0)) != PTindex ? 1 : GetPunchthroughProb(provider,jet);
+        const double inverted = compIndices.at(0) < 0 ? -1 : 1;
         double localUnc = 0;
         for (size_t iScaleVar = 0; iScaleVar < optHelper.GetScaleVars().size(); ++iScaleVar)
-            if (provider->getValidUncertainty(compIndices.at(0),localUnc,jet,eInfo,optHelper.GetScaleVars().at(iScaleVar)))
-                unc = factor*localUnc;
+            if (provider->getValidUncertainty(abs(compIndices.at(0)),localUnc,jet,eInfo,optHelper.GetScaleVars().at(iScaleVar)))
+                unc = factor*localUnc*inverted;
     }
     else
     {
@@ -693,15 +700,23 @@ double getQuadratureSumUncertainty(const JetUncertaintiesTool* provider, const s
             const double factor = compIndices.at(iComp) != PTindex ? 1 : GetPunchthroughProb(provider,jet);
             double localUnc = 0;
             for (size_t iScaleVar = 0; iScaleVar < optHelper.GetScaleVars().size(); ++iScaleVar)
-                    if (provider->getValidUncertainty(compIndices.at(iComp),localUnc,jet,eInfo,optHelper.GetScaleVars().at(iScaleVar)))
-                        unc += factor*factor*localUnc*localUnc;
+            {
+                const double inverted = compIndices.at(iComp) < 0 ? -1 : 1;
+                if (provider->getValidUncertainty(abs(compIndices.at(iComp)),localUnc,jet,eInfo,optHelper.GetScaleVars().at(iScaleVar)))
+                    unc += factor*factor*localUnc*localUnc*inverted;
+            }
         }
-        unc = sqrt(unc);
+        if (unc > 0)
+            unc = sqrt(unc);
+        else if (optHelper.AbsValue())
+            unc = sqrt(-unc);
+        else
+            unc = -sqrt(-unc);
     }
     return unc;
 }
 
-std::vector<size_t> getComponentIndicesFromName(const JetUncertaintiesTool* provider,const TString& compName)
+std::vector<int> getComponentIndicesFromName(const JetUncertaintiesTool* provider,const TString& compName)
 {
     // Map of name to index won't work as we need to worry about wildcard component names
     // So build a vector
@@ -714,7 +729,7 @@ std::vector<size_t> getComponentIndicesFromName(const JetUncertaintiesTool* prov
 
     // Now parse component name to index/indices
     const std::vector<TString> subComponents = jet::utils::vectorize<TString>(compName,",");
-    std::vector<size_t> indices;
+    std::vector<int> indices;
     for (size_t iSubComp = 0; iSubComp < subComponents.size(); ++iSubComp)
     {
         // Check for wildcards
@@ -724,7 +739,8 @@ std::vector<size_t> getComponentIndicesFromName(const JetUncertaintiesTool* prov
         const bool ALLCOMP    = !subComponents.at(iSubComp).CompareTo("total",TString::kIgnoreCase) || !subComponents.at(iSubComp).CompareTo("#");
         const bool CALOWEIGHT = !subComponents.at(iSubComp).CompareTo("caloweight",TString::kIgnoreCase);
         const bool TAWEIGHT   = !subComponents.at(iSubComp).CompareTo("taweight",TString::kIgnoreCase);
-        const TString toFind  = midWild ? subComponents.at(iSubComp) : TString(subComponents.at(iSubComp)).ReplaceAll("#","");
+        const bool inverted   = subComponents.at(iSubComp).BeginsWith("INV__");
+        const TString toFind  = midWild ? subComponents.at(iSubComp) : TString(subComponents.at(iSubComp)).ReplaceAll("#","").ReplaceAll("INV__","");
 
         // Treat the more difficult mid-wild case
         std::vector<TString> tokensToFind;
@@ -808,6 +824,8 @@ std::vector<size_t> getComponentIndicesFromName(const JetUncertaintiesTool* prov
         }
         if (!foundIndex)
             printf("WARNING: Failed to find match for sub/component: %s\n",toFind.Data());
+        else if (inverted)
+            indices.back() *= -1;
     }
 
     if (!indices.size())
@@ -819,9 +837,9 @@ std::vector<size_t> getComponentIndicesFromName(const JetUncertaintiesTool* prov
     return indices;
 }
 
-std::vector< std::vector<size_t> > getComponentIndicesFromNames(const JetUncertaintiesTool* provider,const std::vector<TString>& compNames)
+std::vector< std::vector<int> > getComponentIndicesFromNames(const JetUncertaintiesTool* provider,const std::vector<TString>& compNames)
 {
-    std::vector< std::vector<size_t> > indices;
+    std::vector< std::vector<int> > indices;
     
     // Now parse all of the names to provider indices
     for (size_t iComp = 0; iComp < compNames.size(); ++iComp)
@@ -832,10 +850,12 @@ std::vector< std::vector<size_t> > getComponentIndicesFromNames(const JetUncerta
         {
             printf("Parsed component named: %s\n",compNames.at(iComp).Data());
             for (size_t iIndex = 0; iIndex < indices.at(iComp).size(); ++iIndex)
-                if (indices.at(iComp).at(iIndex) < provider->getNumComponents())
-                    printf("\t %zu: %s\n",indices.at(iComp).at(iIndex),provider->getComponentName(indices.at(iComp).at(iIndex)).c_str());
+                if (indices.at(iComp).at(iIndex) >= 0 && indices.at(iComp).at(iIndex) < static_cast<int>(provider->getNumComponents()))
+                    printf("\t %d: %s\n",indices.at(iComp).at(iIndex),provider->getComponentName(indices.at(iComp).at(iIndex)).c_str());
+                else if (indices.at(iComp).at(iIndex) < 0)
+                    printf("\t %d: INVERTED %s\n",indices.at(iComp).at(iIndex)*-1,provider->getComponentName(indices.at(iComp).at(iIndex)*-1).c_str());
                 else
-                    printf("\t %zu: SPECIAL\n",indices.at(iComp).at(iIndex));
+                    printf("\t %d: SPECIAL\n",indices.at(iComp).at(iIndex));
         }
 
     return indices;
@@ -843,11 +863,12 @@ std::vector< std::vector<size_t> > getComponentIndicesFromNames(const JetUncerta
 
 
 
-void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vector<JetUncertaintiesTool*>& providers,const std::vector< std::vector< std::vector<size_t> > >& compSetIndices,const std::vector< std::vector<TString> >& labelNames,TH1D* frame,const double fixedValue,const std::vector<double>& scanBins,const bool fixedIsEta, const float mOverPt, const bool doComparison, const bool doCompareOnly)
+void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vector<JetUncertaintiesTool*>& providers,const std::vector< std::vector< std::vector<int> > >& compSetIndices,const std::vector< std::vector<TString> >& labelNames,TH1D* frame,const double fixedValue,const std::vector<double>& scanBins,const bool fixedIsEta, const float mOverPt, const bool doComparison, const bool doCompareOnly)
 {
     static SG::AuxElement::Accessor<int> Nsegments("GhostMuonSegmentCount");
     static SG::AuxElement::Accessor<char> IsBjet("IsBjet");
     static SG::AuxElement::Accessor<float> minDR("MinDR");
+    static SG::AuxElement::Accessor<int> NJets("Njet");
 
     // Combined mass helpers
     static jet::JetFourMomAccessor scaleCalo(jet::CompMassDef::getJetScaleString(jet::CompMassDef::CaloMass).Data());
@@ -884,6 +905,7 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
     eInfos->setStore(new xAOD::EventInfoAuxContainer());
     eInfos->push_back(new xAOD::EventInfo());
     xAOD::EventInfo* eInfo = eInfos->at(0);
+    if (optHelper.GetNjetFlavour() != -1) NJets(*eInfo) = optHelper.GetNjetFlavour();
 
     size_t indexHelper = 0;
 
@@ -902,6 +924,13 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
             jet->setJetP4(xAOD::JetFourMom_t(100.e3,0.,0.,0.));
             setPileupShiftsForYear(provider,eInfo,jet);
         }
+
+        // Fix the jet flavour if relevant
+        if (optHelper.FixedTruthLabel())
+        {
+            jet->setAttribute("PartonTruthLabelID",optHelper.FixedTruthLabel());
+            std::cout << "Fixed PartonTruthLabelID to " << optHelper.FixedTruthLabel() << std::endl;
+        }
         
         // One totalHist per provider
         totalHists.push_back(new TH1D(Form("Total_%zu_hist",iProv),"",scanBins.size()-1,&scanBins[0]));
@@ -918,10 +947,10 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
         totalGraph->SetLineColor(kBlack);
 
         // One list of all indices per provider
-        const std::vector<size_t> allIndices = getComponentIndicesFromName(provider,"total");
+        const std::vector<int> allIndices = getComponentIndicesFromName(provider,"total");
 
         // Find the punch-through index, if applicable
-        size_t PTindex = allIndices.size();
+        int PTindex = static_cast<int>(allIndices.size());
         for (size_t iComp = 0; iComp < provider->getNumComponents(); ++iComp)
             if (TString(provider->getComponentName(iComp).c_str()).Contains("PunchThrough",TString::kIgnoreCase))
             {
@@ -1294,7 +1323,7 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
 
 
     // Convert components to indices
-    std::vector< std::vector< std::vector<size_t> > > compSetIndices;
+    std::vector< std::vector< std::vector<int> > > compSetIndices;
     for (size_t iProv = 0; iProv < providers.size(); ++iProv)
         compSetIndices.push_back(getComponentIndicesFromNames(providers.at(iProv),compSetComponents.at(iProv)));
 
@@ -1317,18 +1346,6 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
     delete frameEtaScan;
 }
 
-// Add your root files here if you are doing additional studies
-TString getCompFile() {
-
-  TString tmpFile; // const
-  if (optHelper.IsDijetComposition()) tmpFile = optHelper.GetInputsDir()+"/../random_stuff/DijetFlavourComp_Run2.root";
-  else if (optHelper.IsGinosComposition()) tmpFile = optHelper.GetInputsDir()+"/../random_stuff/random_stuff/GinoComposition.root";
-  else if (optHelper.IsReginasComposition()) tmpFile = optHelper.GetInputsDir()+"/../random_stuff/TTBarFlavourComp.root";
-  else tmpFile = "";
-
-  return tmpFile;
-
-}
 
 int main (int argc, char* argv[])
 {
@@ -1509,13 +1526,33 @@ int main (int argc, char* argv[])
                 }
 
                 // Check if we want to change topology from unknown to dijet
-                const TString analysisFile = getCompFile();
+                const TString analysisFile = optHelper.GetCompositionPath();
           
                 if (analysisFile) {
                   
                     if (providers.back()->setProperty("AnalysisFile",analysisFile.Data()).isFailure())
                     {
                         printf("Failed to set AnalysisFile to %s\n",analysisFile.Data());
+                        exit(7);
+                    }
+                }
+
+                // Check if we want to set the CalibArea
+                if (optHelper.GetCalibArea() != "")
+                {
+                    if (providers.back()->setProperty("CalibArea",optHelper.GetCalibArea().Data()).isFailure())
+                    {
+                        printf("Failed to set CalibArea to %s\n",optHelper.GetCalibArea().Data());
+                        exit(7);
+                    }
+                }
+
+                // Check if we want to set the Path
+                if (optHelper.GetPath() != "")
+                {
+                    if (providers.back()->setProperty("Path",optHelper.GetPath().Data()).isFailure())
+                    {
+                        printf("Failed to set Path to %s\n",optHelper.GetPath().Data());
                         exit(7);
                     }
                 }
@@ -1559,7 +1596,7 @@ int main (int argc, char* argv[])
             const TString jetDef = jetDefs.at(iJetDef);
             const TString config = configs.at(iJetDef);
             
-            //Make a new provier
+            //Make a new provider
             providers.push_back(new JetUncertaintiesTool(Form("%s_%zu",jetDef.Data(),iJetDef)));
 
             //Set properties
@@ -1580,13 +1617,34 @@ int main (int argc, char* argv[])
             }
 
             // Check if we want to change topology from unknown to dijet
-            const TString analysisFile = getCompFile();
+            const TString analysisFile = optHelper.GetCompositionPath();
           
             if (analysisFile) {
                   
                 if (providers.back()->setProperty("AnalysisFile",analysisFile.Data()).isFailure())
                 {
                     printf("Failed to set AnalysisFile to %s\n",analysisFile.Data());
+                    exit(7);
+                }
+            }
+            
+            
+            // Check if we want to set the CalibArea
+            if (optHelper.GetCalibArea() != "")
+            {
+                if (providers.back()->setProperty("CalibArea",optHelper.GetCalibArea().Data()).isFailure())
+                {
+                    printf("Failed to set CalibArea to %s\n",optHelper.GetCalibArea().Data());
+                    exit(7);
+                }
+            }
+
+            // Check if we want to set the Path
+            if (optHelper.GetPath() != "")
+            {
+                if (providers.back()->setProperty("Path",optHelper.GetPath().Data()).isFailure())
+                {
+                    printf("Failed to set Path to %s\n",optHelper.GetPath().Data());
                     exit(7);
                 }
             }

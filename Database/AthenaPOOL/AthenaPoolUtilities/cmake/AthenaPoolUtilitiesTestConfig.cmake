@@ -14,7 +14,7 @@
 
 function( run_tpcnv_test testName refName )
 
-   cmake_parse_arguments( ARG "" "REFERENCE_TAG" "" ${ARGN} )
+   cmake_parse_arguments( ARG "" "REFERENCE_TAG" "REQUIRED_LIBRARIES" ${ARGN} )
 
    # The package name is needed for the configuration of the test script:
    atlas_get_package_name( pkgName )

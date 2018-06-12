@@ -871,6 +871,9 @@ Int_t CP::TPileupReweighting::AddLumiCalcFile(const TString& fileName, const TSt
             Info("AddLumiCalcFile","Adding LumiMetaData for DataWeight (trigger=%s) (scale factor=%f)...",trigger.Data(),m_dataScaleFactorX);
          }
          
+      } else {
+        Error("AddLumiCalcFile","No LumiMetaData found in file %s. not a LumiCalcFile?", fileName.Data());
+        throw std::runtime_error("No LumiMetaData found in file, not a LumiCalcFile?");
       }
    }
 
@@ -1152,6 +1155,18 @@ Int_t CP::TPileupReweighting::Initialize() {
                 }
             }
          }
+         
+         //ensure hist is normalized correctly, if was read in from the 'actual mu' config files (where the normalization can be slightly wrong)
+         if(run.second.nominalFromHists) {
+          //get the total lumi for the run ...
+          double totLumi(0);
+          for(auto lb : run.second.lumiByLbn) {
+            totLumi += lb.second.first; 
+          }
+          hist->Scale( totLumi / hist->Integral() );
+          
+         }
+         
          //create the period's 'data' hist if necessary 
          if( hist->GetDimension()==1 ) {
               if(!period.second->primaryHists[-1] )  {
@@ -1401,7 +1416,7 @@ UInt_t CP::TPileupReweighting::GetRandomLumiBlockNumber(UInt_t runNumber) {
       lumisum += lbn.second.first;
       if(lumisum >= lumi) return lbn.first;
    }
-   Error("GetRandomLumiBlockNumber","overran integrated luminosity for RunNumber=%d",runNumber);
+   Error("GetRandomLumiBlockNumber","overran integrated luminosity for RunNumber=%d (%f vs %f)",runNumber,lumi,lumisum);
    throw std::runtime_error("Throwing 46: overran integrated luminosity for runNumber");
    return 0;
 }
@@ -1584,8 +1599,8 @@ Float_t CP::TPileupReweighting::GetPrimaryWeight(Int_t periodNumber, Int_t chann
    double l = p->primaryHists[-1]->GetBinContent(bin);
 
    if (l==0 && n==0){
-      Error("GetPrimaryWeight","No events expected with this mu.  Incorrect PRW profile?  Returning weight of zero.");
-      return 0.;
+      Error("GetPrimaryWeight","No events expected with this mu.  Incorrect PRW profile?  Throwing exception ...");
+      throw std::runtime_error(Form("Incorrect PRW profile detected. x=%g is not in the config file profile for channel %d, period %d", x, channelNumber, periodNumber ));
    }
 
    return l/n;

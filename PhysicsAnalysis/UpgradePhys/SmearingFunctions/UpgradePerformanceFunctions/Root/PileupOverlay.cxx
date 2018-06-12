@@ -8,65 +8,48 @@
 #include "UpgradePerformanceFunctions/UpgradePerformanceFunctions.h"
 #include "TFile.h"
 
-void UpgradePerformanceFunctions::setPileupRandomSeed(unsigned seed) {
-  m_pileupRandom.SetSeed(seed);
-}
-void UpgradePerformanceFunctions::setPileupEfficiencyScheme(PileupEff puscheme) {
-  m_pueff = puscheme;
-  ATH_MSG_INFO("setPileupEfficiencyScheme: You set efficiency scheme to " << m_pueff);
-}
-
-void UpgradePerformanceFunctions::setPileupEff(float hseff) {
-  m_fEff = hseff;
-  ATH_MSG_INFO("setPileupEff: You set efficiency to " << m_fEff);
-}
-
-void UpgradePerformanceFunctions::setPileupUseTrackConf(bool usetr) {
-  m_bUseTrackConf = usetr;
-}
+namespace Upgrade {
 
 bool UpgradePerformanceFunctions::getPileupTrackConfSetting() {
   return m_bUseTrackConf;
-}
-
-void UpgradePerformanceFunctions::setPileupJetPtThresholdMeV(float ptThresholdMeV) {
-  m_fPileupJetThresholdMeV = ptThresholdMeV;
 }
 
 float UpgradePerformanceFunctions::getPileupJetPtThresholdMeV() {
   return m_fPileupJetThresholdMeV;
 }
 
-
 // Loads the pileup jets
-void UpgradePerformanceFunctions::setPileupTemplatesPath(TString puPath) {
+std::string UpgradePerformanceFunctions::setPileupTemplatesPath() {
   if ( std::abs(m_avgMu - 140) < 0.1 )
-    initializePileupTemplates(puPath + "/PULibrary140_1.root");
+    return m_puPath + "/PULibrary140_1.root";
   else if ( std::abs(m_avgMu - 200) < 0.1 )
-    initializePileupTemplates(puPath + "/PULibrary200_2.root");
+    return m_puPath + "/PULibrary200_2.root";
   else
-    ATH_MSG_FATAL(Form("Cannot initialize pileup jet template with mu = %.1f", m_avgMu));
+    return "";
 }
 
-void UpgradePerformanceFunctions::initializePileupTemplates(TString pileupTemplateFilename) {
-  if ( !(m_avgMu == 140 || m_avgMu == 200) )
+StatusCode UpgradePerformanceFunctions::initializePileupTemplates() {
+  if ( !(m_avgMu == 140 || m_avgMu == 200) ){ 
     ATH_MSG_FATAL("initializePileupTemplates: Pileup library only implemented for mu=140 and 200 only!");
+    return StatusCode::FAILURE;
+  }
+
+  std::string pileupTemplateFilename = setPileupTemplatesPath();
 
   if (m_fPileupJetThresholdMeV < 20000.) {
     ATH_MSG_WARNING("initializePileupTemplates: Lowest threshold you can get is 20 GeV and that will be automatically set now");
     m_fPileupJetThresholdMeV = 20000.;
   }
 
-  m_puInitialized = true;
   ATH_MSG_INFO("========");
   ATH_MSG_INFO("initializePileupTemplates:");
   ATH_MSG_INFO("Pileup jet pT treshold " << m_fPileupJetThresholdMeV / 1000);
   ATH_MSG_INFO("Avg int per x-ing " << m_avgMu);
-  ATH_MSG_INFO("PU jet library " << pileupTemplateFilename.Data());
+  ATH_MSG_INFO("PU jet library " << pileupTemplateFilename);
 
   //m_fPileupTCMaxPtMeV = 70000.; // not used. Now hardcoded to 100 GeV
 
-  TFile *ftemplate = new TFile(pileupTemplateFilename, "READ");
+  TFile *ftemplate = new TFile(pileupTemplateFilename.c_str(), "READ");
   if (ftemplate == nullptr)
     ATH_MSG_FATAL("Cannot open " + pileupTemplateFilename);
   TString treeName = "PUEvtTree30";
@@ -76,7 +59,7 @@ void UpgradePerformanceFunctions::initializePileupTemplates(TString pileupTempla
   ATH_MSG_INFO("pT-eta-phi-E branches " << treePt.Data() << " " << treeEta.Data() << " " << treePhi.Data() << " " << treeE.Data());
   ATH_MSG_INFO("========");
 
-  m_pileupTree30 = (TTree*)ftemplate->Get(treeName);
+  m_pileupTree30.reset( (TTree*)ftemplate->Get(treeName) );
   if (m_pileupTree30 == nullptr)
     ATH_MSG_FATAL("Cannot access TTree " + treeName + " in " + pileupTemplateFilename);
 
@@ -196,7 +179,7 @@ void UpgradePerformanceFunctions::initializePileupTemplates(TString pileupTempla
         fEffNominalArray[i] = fPU10Nominal200[i];
     } else {
       ATH_MSG_WARNING("initializePileupTemplates:: You haven't provided working point consistent with PU::Gold");
-      return;
+      return StatusCode::FAILURE;
     }
 
     // mu 140
@@ -257,7 +240,7 @@ void UpgradePerformanceFunctions::initializePileupTemplates(TString pileupTempla
         fEffMediumArray[i] = fPU10Medium200[i];
     } else {
       ATH_MSG_WARNING("initializePileupTemplates: You haven't provided working point consistent with PU::Gold");
-      return;
+      return StatusCode::FAILURE;
     }
 
     // mu 140
@@ -318,7 +301,7 @@ void UpgradePerformanceFunctions::initializePileupTemplates(TString pileupTempla
         fEffExtendedArray[i] = fPU10Extended200[i];
     } else {
       ATH_MSG_WARNING("initializePileupTemplates: You haven't provided working point consistent with PU::Gold ");
-      return;
+      return StatusCode::FAILURE;
     }
 
     // mu 140
@@ -369,10 +352,10 @@ void UpgradePerformanceFunctions::initializePileupTemplates(TString pileupTempla
   float pars_ITK_05_gt50[4] = {0.743145, 0.201092, -0.118611, 0.00935206};      // ITk 0.5% PU
   float pars_ITKHGTD_05_gt50[4] = {1.04009, -0.117583, 0.0502864, -0.0101477};  // ITk+HGTD 0.5% PU
 
-  func_TC_lt50 = new TF1("func_TC_lt50", "[0]+[1]*x + [2]*x*x + [3]*x*x*x", 1.2, 3.8); // default ITk only
-  func_TC_gt50 = new TF1("func_TC_gt50", "[0]+[1]*x + [2]*x*x + [3]*x*x*x", 1.2, 3.8);
-  func_IH_lt50 = new TF1("func_IH_lt50", "[0]+[1]*x + [2]*x*x + [3]*x*x*x", 1.2, 3.8); // IH = ITk + HGTD
-  func_IH_gt50 = new TF1("func_IH_gt50", "[0]+[1]*x + [2]*x*x + [3]*x*x*x", 1.2, 3.8);
+  func_TC_lt50.reset( new TF1("func_TC_lt50", "[0]+[1]*x + [2]*x*x + [3]*x*x*x", 1.2, 3.8) ); // default ITk only
+  func_TC_gt50.reset( new TF1("func_TC_gt50", "[0]+[1]*x + [2]*x*x + [3]*x*x*x", 1.2, 3.8) );
+  func_IH_lt50.reset( new TF1("func_IH_lt50", "[0]+[1]*x + [2]*x*x + [3]*x*x*x", 1.2, 3.8) ); // IH = ITk + HGTD
+  func_IH_gt50.reset( new TF1("func_IH_gt50", "[0]+[1]*x + [2]*x*x + [3]*x*x*x", 1.2, 3.8) );
 
   if ( m_layout == Step1p6 ) {
     if (m_pueff == PU && fabs(m_fEff - 0.02) < 0.001 && fabs( m_avgMu - 200)  < 0.1) { // "standard setting"
@@ -400,8 +383,7 @@ void UpgradePerformanceFunctions::initializePileupTemplates(TString pileupTempla
       }
     }
     else
-      ATH_MSG_FATAL(Form("UpgradePerformanceFunctions::initializePileupTemplates:: ITk 1.6 with mu=%.0f, JVT scheme: %s, JVT eff: %.3f not supported.",
-                         m_avgMu, m_pueff == PU ? "PU" : "HS", m_fEff));
+      ATH_MSG_FATAL(Form("UpgradePerformanceFunctions::initializePileupTemplates:: ITk 1.6 with mu=%.0f, JVT scheme: %s, JVT eff: %.3f not supported.", m_avgMu, m_pueff == PU ? "PU" : "HS", m_fEff));
 
   } else {
     // in older than Step 1.6 version you won't use the new parametrisation however the function needs to be initialised -> dummy
@@ -413,16 +395,11 @@ void UpgradePerformanceFunctions::initializePileupTemplates(TString pileupTempla
     }
   }
 
-
-  return;
+  return StatusCode::SUCCESS;
 }
 
 std::vector<TLorentzVector> UpgradePerformanceFunctions::getPileupJets() {
   std::vector<TLorentzVector> pujets;
-
-  // if we are not initialized, load the PU jets
-  if (!m_puInitialized)
-    setPileupTemplatesPath(m_puPath);
 
   static int iNevts = m_pileupTree30->GetEntries();
   int indx = m_pileupRandom.Integer(iNevts);
@@ -464,10 +441,10 @@ double UpgradePerformanceFunctions::getJVTeff_HSjet(double ptMeV, double eta) {
   if ( absEta > m_GoldEtaMax ) return 1.0;
 
   // Pick up the right efficiency curves (TC = ITk only, IH = ITk+HGTD)
-  TF1 *eff_lt50 = func_TC_lt50, *eff_gt50 = func_TC_gt50;
+  TF1 *eff_lt50 = func_TC_lt50.get(), *eff_gt50 = func_TC_gt50.get();
   if ( m_bUseHGTD1 || ( m_bUseHGTD0 && absEta > 2.4 ) ) {
-    eff_lt50 = func_IH_lt50;
-    eff_gt50 = func_IH_gt50;
+    eff_lt50 = func_IH_lt50.get();
+    eff_gt50 = func_IH_gt50.get();
   }
 
   // eff measured in two bins: 20-50 GeV and 50-100 GeV
@@ -820,29 +797,6 @@ float UpgradePerformanceFunctions::getTrackJetConfirmEff(float ptMeV, float eta,
   return tceff;
 }
 
-void UpgradePerformanceFunctions::setUseHGTD0(bool usehgtd0) {
-  m_bUseHGTD0 = usehgtd0;
-  if (m_ExtHGTDTrig) {
-    m_JetTrigMaxEta = m_HGTDMaxTrigEta;
-    m_JetTrig4jMin  = m_HGTD0MinExtTrigPt;
-  } else { // max trigger eta stays default 3.2
-    m_JetTrig4jMin  = m_HGTD0MinTrigPt;
-  }
-  ATH_MSG_INFO("UpgradePerformanceFunctions::setUseHGTD0 is set to " << m_bUseHGTD0);
-}
-
-void UpgradePerformanceFunctions::setUseHGTD1(bool usehgtd1) {
-  m_bUseHGTD1 = usehgtd1;
-  if (m_ExtHGTDTrig) {
-    m_JetTrigMaxEta = m_HGTDMaxTrigEta;
-    m_JetTrig4jMin  = m_HGTD1MinExtTrigPt;
-  } else { // max trigger eta stays default 3.2
-    m_JetTrig4jMin  = m_HGTD1MinTrigPt;
-  }
-
-  ATH_MSG_INFO("UpgradePerformanceFunctions::setUseHGTD1 is set to " << m_bUseHGTD1);
-}
-
 void UpgradePerformanceFunctions::extendJetTrigger(bool exttrig) {
   m_ExtHGTDTrig = exttrig;
 }
@@ -855,6 +809,8 @@ float UpgradePerformanceFunctions::getHGTDMinEta() {
 
 float UpgradePerformanceFunctions::getHGTDMaxEta() {
   return m_HGTDmax;
+}
+
 }
 
 #endif

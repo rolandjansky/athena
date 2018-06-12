@@ -30,8 +30,8 @@
 #include "PATInterfaces/SystematicSet.h"
 
 // CP Tool include(s):
-#include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
-#include "ElectronPhotonShowerShapeFudgeTool/IElectronPhotonShowerShapeFudgeTool.h"
+#include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
+#include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 
@@ -54,8 +54,8 @@ namespace top{
 
       StatusCode initialize();
 
-      StatusCode executePhotons();
-      StatusCode executeElectrons();
+      StatusCode executePhotons(bool);
+      StatusCode executeElectrons(bool);
 
       StatusCode printoutPhotons();
       StatusCode printoutElectrons();

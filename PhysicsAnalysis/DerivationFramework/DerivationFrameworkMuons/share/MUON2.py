@@ -380,15 +380,12 @@ StaticContent += ["xAOD::VertexContainer#MUON2RefBplJpsiKplPrimaryVertices"]
 StaticContent += ["xAOD::VertexAuxContainer#MUON2RefBplJpsiKplPrimaryVerticesAux."]
 
 
-
-## ID track particles
-AllVariables += ["InDetTrackParticles"]
-
 ## combined / extrapolated muon track particles 
 ## (note: for tagged muons there is no extra TrackParticle collection since the ID tracks
 ##        are store in InDetTrackParticles collection)
 AllVariables += ["CombinedMuonTrackParticles"]
 AllVariables += ["ExtrapolatedMuonTrackParticles"]
+AllVariables += ["MuonSegments"]
 
 ## muon container
 AllVariables += ["Muons"] 
@@ -413,9 +410,7 @@ tagJetCollections = ['AntiKt4LCTopoJets', 'AntiKt4EMTopoJets', 'AntiKt4PV0TrackJ
 
 AllVariables += [ "Kt4LCTopoOriginEventShape", "Kt4EMTopoOriginEventShape" ]
 SmartVar = [] #[ tagJetCollections ]
-
-
-
+SmartVar += ["InDetTrackParticles"]
 
 for jet_collection in tagJetCollections:
     AllVariables   += [jet_collection]
@@ -441,7 +436,10 @@ replaceAODReducedJets(tagJetCollections, bphy5Seq  ,  "MUON2" )
 
 AllVariables = list(set(AllVariables)) # remove duplicates
 
+ExtraVariables = ["InDetTrackParticles.numberOfTRTHits.numberOfTRTOutliers.numberOfTRTHoles.numberOfTRTHighThresholdHits.numberOfTRTHighThresholdHitsTotal.numberOfTRTHighThresholdOutliers.numberOfTRTDeadStraws.numberOfTRTTubeHits.numberOfTRTXenonHits.TRTTrackOccupancy.numberOfTRTSharedHits"]
+
 MUON2SlimmingHelper.AllVariables = AllVariables
+MUON2SlimmingHelper.ExtraVariables = ExtraVariables
 MUON2SlimmingHelper.StaticContent = StaticContent
 MUON2SlimmingHelper.SmartCollections = SmartVar
 

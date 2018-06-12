@@ -44,11 +44,11 @@
 
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 
+#include "tauRecTools/TauJetRNN.h"
+
 #include "TrigTauRec/TrigTauRecMerged.h"
 
-
 using namespace std;
-
 
 // Invokes base class constructor.
 TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLocator):
@@ -61,7 +61,8 @@ TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLoca
 		  m_beamSpotSvc("BeamCondSvc", name),
 		  m_maxeta( 2.5 ),
 		  m_minpt( 10000 ),
-		  m_trkcone( 0.2 )
+		  m_trkcone( 0.2 ),
+		  m_rnn_evaluator(0)
 {
   
   // The following properties can be specified at run-time
@@ -194,14 +195,39 @@ TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLoca
   /** Errors */
   declareMonitoredStdContainer("EF_track_errors",m_track_errors);
   
-  /** Author */
+  /** Author - not filled? */
   declareMonitoredStdContainer("EF_author",m_author);
   
-  /** deltaZ0 core Trks*/
+  /** deltaZ0 core Trks - not filled?*/
   declareMonitoredStdContainer("EF_deltaZ0coreTrks",m_deltaZ0coreTrks);
   
-  /** deltaZ0 wide Trks*/
+  /** deltaZ0 wide Trks - not filled?*/
   declareMonitoredStdContainer("EF_deltaZ0wideTrks",m_deltaZ0wideTrks);
+
+  // RNN inputs
+  // scalar
+  declareMonitoredVariable("EF_RNN_scalar_ptRatioEflowApprox", m_RNN_scalar_ptRatioEflowApprox);
+  declareMonitoredVariable("EF_RNN_scalar_mEflowApprox", m_RNN_scalar_mEflowApprox);
+  declareMonitoredVariable("EF_RNN_scalar_pt_jetseed_log", m_RNN_scalar_pt_jetseed_log);
+
+  // clusters
+  declareMonitoredVariable("EF_RNN_Nclusters", m_RNN_Nclusters);
+  declareMonitoredStdContainer("EF_RNN_cluster_et_log", m_RNN_cluster_et_log);
+  declareMonitoredStdContainer("EF_RNN_cluster_dEta", m_RNN_cluster_dEta);
+  declareMonitoredStdContainer("EF_RNN_cluster_dPhi", m_RNN_cluster_dPhi);
+  // tracks
+  declareMonitoredVariable("EF_RNN_Ntracks", m_RNN_Ntracks);
+  declareMonitoredStdContainer("EF_RNN_track_pt_log", m_RNN_track_pt_log);
+  declareMonitoredStdContainer("EF_RNN_track_dEta", m_RNN_track_dEta);
+  declareMonitoredStdContainer("EF_RNN_track_dPhi", m_RNN_track_dPhi);
+  declareMonitoredStdContainer("EF_RNN_track_d0_abs_log", m_RNN_track_d0_abs_log);
+  declareMonitoredStdContainer("EF_RNN_track_z0sinThetaTJVA_abs_log", m_RNN_track_z0sinThetaTJVA_abs_log);
+  declareMonitoredStdContainer("EF_RNN_track_nInnermostPixelHits", m_RNN_track_nInnermostPixelHits);
+  declareMonitoredStdContainer("EF_RNN_track_nPixelHits", m_RNN_track_nPixelHits);
+  declareMonitoredStdContainer("EF_RNN_track_nSCTHits", m_RNN_track_nSCTHits);
+  // output
+  declareMonitoredVariable("EF_RNNJetScore", m_RNNJetScore);
+  declareMonitoredVariable("EF_RNNJetScoreSigTrans", m_RNNJetScoreSigTrans);
 
 }
 
@@ -242,11 +268,20 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 			msg() <<" add timer for tool "<< ( *p_itT )->type() <<" "<< ( *p_itT )->name() << endreq;
 			if(  doTiming() ) m_mytimers.push_back(addTimer((*p_itT)->name())) ;
 			(*p_itT)->setTauEventData(&m_tauEventData);
+
+			// monitoring of RNN input variables
+			ToolHandle<ITauToolBase> handle = *p_itT;
+			TauJetRNNEvaluator* RNN_evaluator = dynamic_cast<TauJetRNNEvaluator*>(&(*handle));
+			if(RNN_evaluator) {
+			  msg() << MSG::INFO << "Retrieved TauJetRNNEvaluator for RNN inputs monitoring" << endreq;
+			  m_rnn_evaluator = RNN_evaluator;
+			}
 		}
 	}
 
 	msg() << MSG::INFO << " " << endreq;
 	msg() << MSG::INFO << "------------------------------------" << endreq;
+
 
 	ToolHandleArray<ITauToolBase> ::iterator p_itTe = m_endtools.begin();
 	ToolHandleArray<ITauToolBase> ::iterator p_itTEe = m_endtools.end();
@@ -291,7 +326,7 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 	
 	msg() << MSG::INFO << " " << endreq;
 	msg() << MSG::INFO << "------------------------------------" << endreq;
-	
+       	
 	return HLT::OK;
 }
 
@@ -355,6 +390,17 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 
 	m_EtaEF = -99;
 	m_PhiEF = -99;
+
+	// RNN variables monitoring
+	m_RNN_scalar_ptRatioEflowApprox = 0.; m_RNN_scalar_mEflowApprox = 0.; m_RNN_scalar_pt_jetseed_log = 0.;
+	m_RNN_Nclusters = -1;
+	m_RNN_cluster_et_log.clear(); m_RNN_cluster_dEta.clear(); m_RNN_cluster_dPhi.clear();
+	m_RNN_Ntracks = -1;
+	m_RNN_track_pt_log.clear(); m_RNN_track_dEta.clear(); m_RNN_track_dPhi.clear();
+	m_RNN_track_d0_abs_log.clear(); m_RNN_track_z0sinThetaTJVA_abs_log.clear();
+	m_RNN_track_nInnermostPixelHits.clear(); m_RNN_track_nPixelHits.clear(); m_RNN_track_nSCTHits.clear();
+	m_RNNJetScore = -999; m_RNNJetScoreSigTrans = -999.;
+
 
 	// Retrieve store.
 	if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Executing TrigTauRecMerged" << endreq;
@@ -860,8 +906,47 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	  if(m_dPhi<-M_PI) m_dPhi += 2.0*M_PI;
 	  if(m_dPhi>M_PI)  m_dPhi -= 2.0*M_PI;
 	  
-	  // author variable removed. There are no different tau reco algs anymor
+	  // author variable removed. There are no different tau reco algs anymore
+
+
+	  // for RNN, monitor only taus with at least 1 track (RNN not computed/supported for 0-prong)
+	  if(m_rnn_evaluator && m_numTrack>0) {
+
+	    TauJetRNN* rnn = m_numTrack==1? m_rnn_evaluator->get_rnn_1p() : m_rnn_evaluator->get_rnn_3p();
+	    
+	    std::map<std::string, std::map<std::string, double> > rnn_scalar = rnn->getScalarInputs();
+	    std::map<std::string, std::map<std::string, std::vector<double>> > rnn_vector = rnn->getVectorInputs();
+	    
+	    m_RNN_scalar_ptRatioEflowApprox = rnn_scalar["scalar"]["ptRatioEflowApprox"];	    
+	    m_RNN_scalar_mEflowApprox = rnn_scalar["scalar"]["mEflowApprox"];
+	    // this is obviously a scalar, but is stored in tracks and clusters
+	    if(rnn_vector["tracks"]["pt_log"].size()>0) m_RNN_scalar_pt_jetseed_log = rnn_vector["tracks"]["pt_jetseed_log"][0];
+	    else if(rnn_vector["clusters"]["et_log"].size()>0) m_RNN_scalar_pt_jetseed_log = rnn_vector["clusters"]["pt_jetseed_log"][0];
+
+	    m_RNN_Nclusters = rnn_vector["clusters"]["et_log"].size();
+	    m_RNN_cluster_et_log = rnn_vector["clusters"]["et_log"];
+	    m_RNN_cluster_dEta = rnn_vector["clusters"]["dEta"];
+	    m_RNN_cluster_dPhi = rnn_vector["clusters"]["dPhi"];
+
+	    m_RNN_Ntracks = rnn_vector["tracks"]["pt_log"].size();
+	    m_RNN_track_pt_log = rnn_vector["tracks"]["pt_log"];
+	    m_RNN_track_dEta = rnn_vector["tracks"]["dEta"];
+	    m_RNN_track_dPhi = rnn_vector["tracks"]["dPhi"];
+	    m_RNN_track_d0_abs_log = rnn_vector["tracks"]["d0_abs_log"];
+	    m_RNN_track_z0sinThetaTJVA_abs_log = rnn_vector["tracks"]["z0sinThetaTJVA_abs_log"];
+	    m_RNN_track_nInnermostPixelHits = rnn_vector["tracks"]["nInnermostPixelHits"];
+	    m_RNN_track_nPixelHits = rnn_vector["tracks"]["nPixelHits"];
+	    m_RNN_track_nSCTHits = rnn_vector["tracks"]["nSCTHits"];
+
+	    if(!p_tau->hasDiscriminant(xAOD::TauJetParameters::RNNJetScore))
+	      msg() << MSG::WARNING <<" RNNJetScore not available. Should not happen when TauJetRNNEvaluator is run!"<<endmsg;
+	    else m_RNNJetScore = p_tau->discriminant(xAOD::TauJetParameters::RNNJetScore);
+	    if(!p_tau->hasDiscriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans))
+	      msg() << MSG::WARNING <<" RNNJetScoreSigTrans not available. Make sure TauWPDecorator is run!"<<endmsg;
+	    else m_RNNJetScoreSigTrans = p_tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+	  }
 	  
+	
 	  // write out delta Z0
 	  /*
 	   * FF, March 2014: deactivated.

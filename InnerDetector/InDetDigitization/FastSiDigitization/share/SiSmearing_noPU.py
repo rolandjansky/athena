@@ -122,14 +122,10 @@ topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.PRD_TruthPlanarCont
 
 
 topSequence.StreamRDO.ItemList += ["iFatras::PlanarClusterContainer#Pixel_PlanarClusters"]
-##topSequence.StreamRDO.ItemList += ["InDet::SiClusterContainer#PixelClusters"]
 topSequence.StreamRDO.ItemList += ["iFatras::PlanarClusterContainer#SCT_PlanarClusters"]
-#topSequence.StreamRDO.ItemList += ["InDet::SiClusterContainer#SCT_Clusters"]
 
 topSequence.StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPlanarPixel"]
 topSequence.StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPlanarSCT"]
-##topSequence.StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPixel"]
-#topSequence.StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthSCT"]
 
 #from VP1Algs.VP1AlgsConf import VP1Alg 
 #topSequence += VP1Alg()

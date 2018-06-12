@@ -64,6 +64,9 @@ def AvailableDatasets():
 def Samples(names):
     samples = []
     for n in names:
+        #removing whitespaces from concatenated lines - ANALYSISTO-553
+        for ds in range(0,len(availableDatasets[n].datasets)):
+            availableDatasets[n].datasets[ds]=availableDatasets[n].datasets[ds].replace(' ','')
         samples.append(availableDatasets[n])
     return samples
 
@@ -105,6 +108,7 @@ class Config:
     memory          = '2000' #in MB
     maxNFilesPerJob = ''
     otherOptions    = ''
+    skipShowerCheck = False
     nameShortener   = basicInDSNameShortener # default shortener function
     customTDPFile   = None
     reuseTarBall    = False
@@ -129,6 +133,7 @@ class Config:
         print ' -MergeType:     ', self.mergeType, 'out of (None, Default, xAOD)'
         print ' -memory:        ', self.memory, 'in MB'
         print ' -maxNFilesPerJob', self.maxNFilesPerJob        
+        print ' -skipShowerCheck', self.skipShowerCheck        
         print ' -OtherOptions:  ', self.otherOptions 
         print ' -nameShortener: ', self.nameShortener
         print ' -reuseTarBall:  ', self.reuseTarBall
@@ -185,7 +190,8 @@ def submit(config, allSamples):
   checkForPrun()
   checkMergeType(config)
   config.details()
-  checkForShowerAlgorithm(allSamples, config.settingsFile)
+  if not config.skipShowerCheck:
+      checkForShowerAlgorithm(allSamples, config.settingsFile)
   if config.checkPRW:
       checkPRWFile(allSamples, config.settingsFile)
 
@@ -233,6 +239,7 @@ def submit(config, allSamples):
 
       if l.find('OutputFilename') > -1:
           outputFilename = l.replace('OutputFilename', '').strip()
+          outputFilename = outputFilename.replace(".root","_root") + ":" + outputFilename
 
   if outputFilename == 'EMPTY':
       print 'OutputFilename not found in %s' % config.settingsFile

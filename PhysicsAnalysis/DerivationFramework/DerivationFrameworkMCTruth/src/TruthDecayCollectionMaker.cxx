@@ -95,14 +95,8 @@ StatusCode DerivationFramework::TruthDecayCollectionMaker::addBranches() const
     std::vector<int> seen_particles;
     // Go through that list of particles!
     for (auto * part : *importedTruthParticles){
-        for (int id : m_pdgIdsToKeep){
-            if (part->absPdgId()==id){
-                addTruthParticle( *part, newParticleCollection, newVertexCollection, seen_particles, m_generations );
-            } // Found a particle of interest!
-        } // Loop over the PDG IDs we want to keep
-        if ((m_keepBHadrons && part->isBottomHadron()) ||
-            (m_keepCHadrons && part->isCharmHadron()) ||
-            (m_keepBSM && part->isBSM()) ){
+        // If this passes my cuts, keep it
+        if (id_ok(*part)){
             addTruthParticle( *part, newParticleCollection, newVertexCollection, seen_particles , m_generations );
         }
     } // Loop over the initial truth particle collection
@@ -189,11 +183,30 @@ int DerivationFramework::TruthDecayCollectionMaker::addTruthVertex( const xAOD::
     // Add all the outgoing particles
     for (size_t n=0;n<old_vert.nOutgoingParticles();++n){
         if (!old_vert.outgoingParticle(n)) continue; // Just in case we removed some truth particles, e.g. G4 decays
-        int part_index = addTruthParticle( *old_vert.outgoingParticle(n), part_cont, vert_cont, seen_particles, generations-1);
+        // Continue on the next generation; note that we only decrement the generation if this particle doesn't also pass our cuts
+        int part_index = addTruthParticle( *old_vert.outgoingParticle(n), part_cont, vert_cont, seen_particles,
+                                           generations-1+(id_ok(*old_vert.outgoingParticle(n))?1:0) );
         ElementLink<xAOD::TruthParticleContainer> eltp( *part_cont, part_index);
         xTruthVertex->addOutgoingParticleLink( eltp );
         (*part_cont)[part_index]->setProdVtxLink( eltv );
     }
     // Return a link to this vertex
     return my_index;
+}
+
+bool DerivationFramework::TruthDecayCollectionMaker::id_ok( const xAOD::TruthParticle& part ) const
+{
+    // Check list of PDG IDs to keep
+    for (int id : m_pdgIdsToKeep){
+        if (part.absPdgId()==id){
+            return true;
+        } // Found a particle of interest!
+    } // Loop over the PDG IDs we want to keep
+    // Also check functions for B/C/BSM
+    if ((m_keepBHadrons && part.isBottomHadron()) ||
+        (m_keepCHadrons && part.isCharmHadron()) ||
+        (m_keepBSM && part.isBSM()) ){
+        return true;
+    }
+    return false;
 }

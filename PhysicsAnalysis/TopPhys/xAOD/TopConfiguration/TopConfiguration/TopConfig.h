@@ -520,10 +520,12 @@ class TopConfig final {
 
   virtual void jetUncertainties_NPModel( const std::string& s );
   virtual void jetUncertainties_QGFracFile( const std::string& s );
+  virtual void jetUncertainties_QGHistPatterns( const std::string& s );
   inline bool doMultipleJES() const {return m_doMultipleJES;}
   inline bool doLargeRSmallRCorrelations() const {return m_largeRSmallRCorrelations;}
   inline virtual const std::string& jetUncertainties_NPModel() const {return m_jetUncertainties_NPModel;}
   inline virtual const std::string& jetUncertainties_QGFracFile() const {return m_jetUncertainties_QGFracFile;}
+  inline virtual const std::vector<std::string>& jetUncertainties_QGHistPatterns() const {return m_jetUncertainties_QGHistPatterns;}
 
   inline virtual void jetJERSmearingModel( const std::string& s ){if(!m_configFixed){m_jetJERSmearingModel = s;}}
   inline virtual const std::string& jetJERSmearingModel() const {return m_jetJERSmearingModel;}
@@ -875,6 +877,26 @@ class TopConfig final {
   // Just a function that might need to be used in multiple places - return the running year (2015, 2016, 2017)
   const std::string getYear(unsigned int runnumber);
 
+  // Setter and getter functions for recording whether we have configured the nominal objects
+  inline virtual void setNominalAvailable(const bool s){m_isNominalAvailable = s;}
+  inline bool isNominalAvailable() const { return m_isNominalAvailable;}
+
+  // Function to set the options for global trigger tool
+  void setGlobalTriggerConfiguration(std::vector<std::string>, std::vector<std::string>, std::vector<std::string>, std::vector<std::string>);
+  inline bool useGlobalTrigger() const { return m_trigGlobalConfiguration.isActivated; } // Was this requested by the user
+  inline std::string getGlobalTriggerElectronTriggerString()      const { return m_trigGlobalConfiguration.electron_trigger; } // Trigger string to be parsed
+  inline std::string getGlobalTriggerElectronTriggerLooseString() const { return m_trigGlobalConfiguration.electron_trigger_loose;} // Trigger string to be parsed  
+  inline std::string getGlobalTriggerMuonTriggerString()          const { return m_trigGlobalConfiguration.muon_trigger; } // Trigger string to be parsed  
+  inline std::string getGlobalTriggerMuonTriggerLooseString()     const { return m_trigGlobalConfiguration.muon_trigger_loose; } // Trigger string to be parsed  
+  inline bool useGlobalTriggerConfiguration() const { return m_trigGlobalConfiguration.isConfigured; } // Was this subsequently configured
+  inline std::vector<std::string> getGlobalTriggerElectronSystematics() const { return m_trigGlobalConfiguration.electron_trigger_systematics; }
+  inline std::vector<std::string> getGlobalTriggerMuonSystematics()     const { return m_trigGlobalConfiguration.muon_trigger_systematics; }
+  inline std::vector<std::string> getGlobalTriggerElectronTools()       const { return m_trigGlobalConfiguration.electron_trigger_tool_names; }
+  inline std::vector<std::string> getGlobalTriggerMuonTools()           const { return m_trigGlobalConfiguration.muon_trigger_tool_names; }
+
+
+
+
  private:
   // Prevent any more configuration
   bool m_configFixed;
@@ -924,6 +946,9 @@ class TopConfig final {
 
   std::string m_jetSubstructureName;
 
+  // Store in config a boolean which lets us know if we called the nominal object setup
+  bool m_isNominalAvailable;
+    
   // Do systematics? - this needs many more configuration options
   std::string m_systematics;
   std::string m_nominalSystName;
@@ -1083,6 +1108,7 @@ class TopConfig final {
   std::string m_jetUncertainties_BunchSpacing; // 25ns or 50ns
   std::string m_jetUncertainties_NPModel; // AllNuisanceParameters, 19NP or 3NP
   std::string m_jetUncertainties_QGFracFile; // to improve Flavour composition and response
+  std::vector<std::string> m_jetUncertainties_QGHistPatterns; // to improve Flavour composition and response, with more flexibility
   bool m_doMultipleJES;
   bool m_largeRSmallRCorrelations = false; // Add correlations of large/small R jets
   std::string m_jetJERSmearingModel; // Full or Simple
@@ -1286,6 +1312,32 @@ class TopConfig final {
     std::vector<double> custom_SF = {};
 
   } m_pileup_reweighting;
+
+  // Struct for holding TrigGlobalEfficiencyCorrectionTool settings in order to 
+  // manage systematic variations through this tool
+
+  struct{
+    // -- Set from cutfile --//
+    // Boolean to be set to true if the user activates a flag
+    bool isActivated  = false;
+    // Trigger strings formatted as PERIOD1@trigger1,trigger2 PERIOD2@trigger3,trigger4
+    std::string electron_trigger;
+    std::string electron_trigger_loose;
+    std::string muon_trigger;
+    std::string muon_trigger_loose;
+
+    // -- Set from TopCPTools  --//
+    // Boolean to be set to true if we set this information
+    bool isConfigured = false;
+    // Names of CP::SystematicSet from electron trigger tools
+    std::vector<std::string> electron_trigger_systematics;
+    // Names of CP::SystematicSet from muon trigger tools
+    std::vector<std::string> muon_trigger_systematics;
+    // Name of the underlying electron tools, to be accessed and passes CP::SystematicSet
+    std::vector<std::string> electron_trigger_tool_names;
+    // Name of the underlying muon tools, to be accessed and passes CP::SystematicSet  
+    std::vector<std::string> muon_trigger_tool_names;
+  } m_trigGlobalConfiguration;
 
   // Muon Trigger SF configuration
   std::string m_muon_trigger_SF;

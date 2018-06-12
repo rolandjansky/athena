@@ -1,15 +1,34 @@
 #!/bin/bash
 
 echo 'Testing duplicate key upload'
-if [ $# -ge 1 ]; then
-   type=$1
-   echo "Compare upload of Menus generated with tests with "${type}"_menu and "${type}"_rerun in name" 
-else
-   type=""
-fi
+
+type=""
+database="ATN"
+
+while [[ $# -gt 0 ]]
+do
+key="$1"
+
+case $key in
+    --menu)
+    type=$2
+    echo "Compare upload of Menus generated with tests with "${type}"_menu and "${type}"_menu_checkkeys in name"
+    shift # past argument
+    shift # past value
+    ;;
+    --art)
+    database="ART"
+    shift # past argument
+    ;;
+    *)    # unknown option
+    echo "unkown option "$key
+    exit 1
+    ;;
+esac
+done
 
 #setup the TT
-export DBConn="TRIGGERDBATN"
+export DBConn="TRIGGERDB${database}"
 export TNS_ADMIN=/afs/cern.ch/atlas/offline/external/oracle/latest/admin
 
 ##get the right pattern to load Lvl1 xml file
@@ -63,9 +82,15 @@ get_files -xmls LVL1config.dtd
 ### eval $cmd1 &> uploadSMK1.log
 
 # with the first upload removed obtain the files from the test UploadMenuKeys
-echo "copy output from UploadMenuKeys test"
-cp ../UploadMenuKeys/uploadSMK.log uploadSMK1.log
-cp ../UploadMenuKeys/MenusKeys.txt .
+ref_folder=""
+if [ $database == "ART" ]; then
+  ref_folder="_ART"
+fi
+
+
+echo "copy output from UploadMenuKeys${ref_folder} test"
+cp ../UploadMenuKeys${ref_folder}/uploadSMK.log uploadSMK1.log
+cp ../UploadMenuKeys${ref_folder}/MenusKeys.txt .
 # now continue as if had done the first upload
 
 if [ ! -f MenusKeys.txt ]
@@ -80,13 +105,13 @@ fi
 mv MenusKeys.txt MenusKeys1.txt
 
 #prepare files for second key: l2 and ef menus are the same (full menu)
-hltmenu2=`find ../"${type}"_rerun/ -name outputHLTconfig_\*.xml`
+hltmenu2=`find ../"${type}"_menu_checkkeys/ -name outputHLTconfig_\*.xml`
 
-cp ../"${type}"_rerun/ef_Default_setup.txt ef_Default_setup_rerun.txt 
-cp ../"${type}"_rerun/ef_Default_setup_setup.txt ef_Default_setup_setup_rerun.txt
+cp ../"${type}"_menu_checkkeys/ef_Default_setup.txt ef_Default_setup_menu_checkkeys.txt 
+cp ../"${type}"_menu_checkkeys/ef_Default_setup_setup.txt ef_Default_setup_setup_menu_checkkeys.txt
 
-ConvertHLTSetup_txt2xml.py ef_Default_setup_rerun.txt ef_Default_setup_setup_rerun.txt > convertHLT2
-hlt__setup2=ef_Default_setup_rerun.xml
+ConvertHLTSetup_txt2xml.py ef_Default_setup_menu_checkkeys.txt ef_Default_setup_setup_menu_checkkeys.txt > convertHLT2
+hlt__setup2=ef_Default_setup_menu_checkkeys.xml
 
 
 #upload the second key

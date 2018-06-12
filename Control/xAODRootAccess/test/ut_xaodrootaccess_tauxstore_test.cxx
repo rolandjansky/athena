@@ -89,7 +89,9 @@ int main() {
    SIMPLE_ASSERT( store.getAuxIDs().size() == 3 );
 
    // Check that it can be cleared out:
-   store.clearDecorations();
+   SIMPLE_ASSERT (store.clearDecorations() == true);
+   SIMPLE_ASSERT( store.getAuxIDs().size() == 2 );
+   SIMPLE_ASSERT (store.clearDecorations() == false);
    SIMPLE_ASSERT( store.getAuxIDs().size() == 2 );
 
    // Try to overwrite an existing variable with a decoration, to check that
@@ -149,7 +151,7 @@ int main() {
 
    // Make sure that when we clear the decorations, the auxiliary ID is not
    // removed. Since this is a "persistent decoration" now:
-   store.clearDecorations();
+   SIMPLE_ASSERT (store.clearDecorations() == false);
    SIMPLE_ASSERT( store.getAuxIDs().size() == 3 );
 
    return 0;

@@ -24,7 +24,7 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
                                               "PrimaryVertices"]
     
     # extra containers for some formats                                                  
-    if HIGG4DxName in ['HIGG4D1', 'HIGG4D2', 'HIGG4D3','HIGG4D6']:
+    if HIGG4DxName in ['HIGG4D1', 'HIGG4D2', 'HIGG4D3', 'HIGG4D5', 'HIGG4D6']:
         HIGG4DxSlimmingHelper.SmartCollections += ["Photons"]
 
     if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
@@ -119,6 +119,12 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
 
     if HIGG4DxName == 'HIGG4D6':
         HIGG4DxSlimmingHelper.ExtraVariables += ExtraContentJets
+
+    if HIGG4DxName == 'HIGG4D1':
+        from HIGG4DxAugmentation import JetTagConfig
+        HIGG4DxSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+        HIGG4DxSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
+    
 
     #extra containers
     if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D4', 'HIGG4D5', 'HIGG4D6']:

@@ -13,15 +13,19 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODBase
    Event/xAOD/xAODCore
    PRIVATE
-   Event/xAOD/xAODEventInfo
+   Control/xAODRootAccess
    Event/xAOD/xAODJet
+   Event/xAOD/xAODMuon
+   Event/xAOD/xAODEgamma
+   Event/xAOD/xAODTau
    PhysicsAnalysis/D3PDTools/RootCoreUtils )
 
 atlas_add_library( SystematicsHandlesLib
    SystematicsHandles/*.h SystematicsHandles/*.icc Root/*.cxx
    PUBLIC_HEADERS SystematicsHandles
    LINK_LIBRARIES AsgTools PATInterfaces AnaAlgorithmLib xAODBase xAODCore
-   PRIVATE_LINK_LIBRARIES RootCoreUtils )
+   PRIVATE_LINK_LIBRARIES RootCoreUtils
+   xAODJet xAODMuon xAODEgamma xAODTau )
 
 atlas_add_test( cc_SysReadHandle
    SOURCES test/cc_SysReadHandle.cxx
@@ -31,6 +35,13 @@ atlas_add_test( cc_SysCopyHandle
    SOURCES test/cc_SysCopyHandle.cxx
    LINK_LIBRARIES AsgTools AnaAlgorithmLib xAODEventInfo xAODJet
    SystematicsHandlesLib )
+
+if( XAOD_STANDALONE )
+   atlas_add_test( ut_CopyHelpers
+      SOURCES test/ut_CopyHelpers.cxx
+      LINK_LIBRARIES xAODRootAccess AsgTools xAODBase xAODJet
+      SystematicsHandlesLib )
+endif()
 
 atlas_add_test( cc_SysWriteHandle
    SOURCES test/cc_SysWriteHandle.cxx

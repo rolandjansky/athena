@@ -65,7 +65,7 @@ bool ImportData::readDataFile(const char* filename, std::vector<std::string>& co
 				{
 					auto i = line.find('#');
 					if(i != std::string::npos) line = line.substr(0,i);
-					if(line.length() >= 5) contents.emplace_back(std::move(line));
+					if(line.length() >= 3) contents.emplace_back(std::move(line));
 				}
 			}
 			if(!f.eof())
@@ -90,6 +90,18 @@ bool ImportData::readDataFile(const char* filename, std::vector<std::string>& co
 	return success;
 }
 
+void ImportData::setNonMixed3LType(TrigDef& def, TriggerType flavourFlag)
+{
+	if(def.leg[0]==def.leg[1] && def.leg[1]==def.leg[2]) def.type = static_cast<TriggerType>(TT_TRILEPTON_SYM | flavourFlag);
+	else if(def.leg[0]!=def.leg[1] && def.leg[1]!=def.leg[2] && def.leg[0]!=def.leg[2]) def.type = static_cast<TriggerType>(TT_TRILEPTON_ASYM | flavourFlag);
+	else // swap legs so that the last two are identical, for later convenience
+	{
+		if(def.leg[1]!=def.leg[0] && def.leg[1]!=def.leg[2]) std::swap(def.leg[0],def.leg[1]);
+		else if(def.leg[2]!=def.leg[0] && def.leg[2]!=def.leg[1]) std::swap(def.leg[0],def.leg[2]);
+		def.type = static_cast<TriggerType>(TT_TRILEPTON_HALFSYM | flavourFlag);
+	}
+}
+
 bool ImportData::importTriggers()
 {
 	if(!m_triggerThresholds.size() && !importThresholds()) return false;
@@ -101,12 +113,15 @@ bool ImportData::importTriggers()
 	bool success = true;
 	for(auto& line : config)
 	{
+                ATH_MSG_DEBUG(line);
 		ss.clear();
 		ss.str(line);
 		ss >> triggerName;
 		std::size_t h = m_hasher(triggerName);
 		m_dictionary[h] = triggerName;
+		ATH_MSG_DEBUG(std::to_string(h) << " " << triggerName );
 		auto& def = m_triggerDefs[h];
+		def.name = h;
 		for(std::size_t& leg : def.leg)
 		{
 			if(!(ss >> token)) break;
@@ -132,49 +147,60 @@ bool ImportData::importTriggers()
 		
 		/// Classify trigger and re-arrange legs (if needed) so that all electron legs come before muon legs
 		def.type = TT_UNKNOWN;
-		int ne = (associatedLeptonFlavour(def.leg[0], success) == xAOD::Type::Electron)? 1: 0;
-		if(def.leg[1])
+		auto flavour0 = associatedLeptonFlavour(def.leg[0], success);
+		if(flavour0 == xAOD::Type::Electron || flavour0 == xAOD::Type::Muon)
 		{
-			if(associatedLeptonFlavour(def.leg[1], success) == xAOD::Type::Electron)
+			int ne = (flavour0 == xAOD::Type::Electron)? 1: 0;
+			if(def.leg[1])
 			{
-				if(!ne) std::swap(def.leg[0],def.leg[1]);
-				++ne;
-			}
-			if(def.leg[2])
-			{
-				if(associatedLeptonFlavour(def.leg[2], success)==xAOD::Type::Electron)
+				if(associatedLeptonFlavour(def.leg[1], success) == xAOD::Type::Electron)
 				{
-					if(!ne) std::swap(def.leg[0], def.leg[2]);
-					else if(ne==1) std::swap(def.leg[1], def.leg[2]);
+					if(!ne) std::swap(def.leg[0],def.leg[1]);
 					++ne;
 				}
-				if(ne==0 || ne==3) // 3e, 3mu
+				if(def.leg[2])
 				{
-					if(def.leg[0]==def.leg[1] && def.leg[1]==def.leg[2]) def.type = (ne ? TT_3E_SYM : TT_3MU_SYM);
-					else if(def.leg[0]!=def.leg[1] && def.leg[1]!=def.leg[2] && def.leg[0]!=def.leg[2]) def.type = (ne ? TT_3E_ASYM : TT_3MU_ASYM);
-					else // swap legs so that the last two are identical, for later convenience
+					if(associatedLeptonFlavour(def.leg[2], success)==xAOD::Type::Electron)
 					{
-						if(def.leg[1]!=def.leg[0] && def.leg[1]!=def.leg[2]) std::swap(def.leg[0],def.leg[1]);
-						else if(def.leg[2]!=def.leg[0] && def.leg[2]!=def.leg[1]) std::swap(def.leg[0],def.leg[2]);
-						def.type = (ne ? TT_3E_HALFSYM : TT_3MU_HALFSYM);
+						if(!ne) std::swap(def.leg[0], def.leg[2]);
+						else if(ne==1) std::swap(def.leg[1], def.leg[2]);
+						++ne;
+					}
+					if(ne==0 || ne==3) // 3e, 3mu
+					{
+						setNonMixed3LType(def, (ne? TT_ELECTRON_FLAG : TT_MUON_FLAG));
+					}
+					else // µµe, eeµ
+					{
+						if(def.leg[0]==def.leg[1] || def.leg[1]==def.leg[2]) def.type = ((ne>=2) ? TT_2E_MU_SYM : TT_E_2MU_SYM);
+						else def.type = ((ne>=2)? TT_2E_MU_ASYM : TT_E_2MU_ASYM);
 					}
 				}
-				else // µµe, eeµ
+				else
 				{
-					if(def.leg[0]==def.leg[1] || def.leg[1]==def.leg[2]) def.type = ((ne>=2) ? TT_2E_MU_SYM : TT_2MU_E_SYM);
-					else def.type = ((ne>=2)? TT_2E_MU_ASYM : TT_2MU_E_ASYM);
+					if(ne==0) def.type = (def.leg[0]==def.leg[1])? TT_2MU_SYM : TT_2MU_ASYM;
+					else if(ne==1) def.type = TT_EMU;
+					else def.type = (def.leg[0]==def.leg[1])? TT_2E_SYM : TT_2E_ASYM;
 				}
 			}
 			else
 			{
-				if(ne==0) def.type = (def.leg[0]==def.leg[1])? TT_2MU_SYM : TT_2MU_ASYM;
-				else if(ne==1) def.type = TT_EMU;
-				else def.type = (def.leg[0]==def.leg[1])? TT_2E_SYM : TT_2E_ASYM;
+				def.type = ne? TT_SINGLE_E : TT_SINGLE_MU;
 			}
 		}
-		else
+		else if(flavour0 == xAOD::Type::Photon)
 		{
-			def.type = ne? TT_SINGLE_E : TT_SINGLE_MU;
+			if(def.leg[1])
+			{
+				if(associatedLeptonFlavour(def.leg[1], success) != xAOD::Type::Photon) success = false;
+				if(def.leg[2])
+				{
+					if(associatedLeptonFlavour(def.leg[2], success) != xAOD::Type::Photon) success = false;
+					setNonMixed3LType(def, TT_PHOTON_FLAG);
+				}
+				else def.type = (def.leg[0]==def.leg[1])? TT_2PH_SYM : TT_2PH_ASYM;
+			}
+			else def.type = TT_SINGLE_PH;
 		}
 		if(!success || def.type==TT_UNKNOWN)
 		{
@@ -464,6 +490,7 @@ xAOD::Type::ObjectType ImportData::associatedLeptonFlavour(const std::string& le
 	// note: 'success' is not set to 'true', only downgraded to 'false' if needed
 	if(leg.length()>=2 && leg[0]=='e' && leg[1]>='1' && leg[1]<='9') return xAOD::Type::Electron;
 	else if(leg.length()>=3 && leg[0]=='m' && leg[1]=='u' && leg[2]>='1' && leg[2]<='9') return xAOD::Type::Muon;
+	else if(leg.length()>=3 && leg[0]=='g' && leg[1]>='1' && leg[1]<='9') return xAOD::Type::Photon;
 	success = false;
 	return xAOD::Type::Other;
 }
@@ -508,6 +535,7 @@ std::vector<ImportData::TrigDef> ImportData::parseTriggerString(const std::strin
 	while(std::getline(ss,s,'|'))
 	{
 		std::size_t trig = m_hasher(s);
+		ATH_MSG_DEBUG(std::to_string(trig) << " --> " << s );
 		auto itr = m_triggerDefs.find(trig);
 		if(itr == m_triggerDefs.end())
 		{
@@ -618,4 +646,39 @@ bool ImportData::suggestElectronMapKeys(const std::map<std::string,std::string>&
 		}
 	}
 	return success;
+}
+
+bool ImportData::adaptTriggerListForTriggerMatching(std::vector<ImportData::TrigDef>& triggers)
+{
+	/// This essentially splits _OR_ single lepton triggers into independent items
+	std::set<std::size_t> extraItems; /// to prevent duplicates
+	std::vector<ImportData::TrigDef> updatedTriggers;
+	for(auto& trig : triggers)
+	{
+		auto& name = m_dictionary.at(trig.name);
+		std::size_t pos = 0, len = name.find("_OR_");
+		if(len == std::string::npos)
+		{
+			updatedTriggers.emplace_back(trig);
+			continue;
+		}
+		while(true)
+		{
+			std::string item = name.substr(pos, len);
+			auto h = m_hasher(item);
+			auto def = m_triggerDefs.find(h);
+			if(def == m_triggerDefs.end())
+			{
+				ATH_MSG_ERROR("while listing triggers for trigger matching; trigger \"" << item << "\" extracted from \"" << name << "\" is not recognized");
+				return false;
+			}
+			if(extraItems.emplace(h).second) updatedTriggers.emplace_back(def->second);
+			if(len == std::string::npos) break;
+			pos += len + 4;
+			len = name.find("_OR_", pos);
+			if(len != std::string::npos) len -= pos;
+		}
+	}
+	triggers.swap(updatedTriggers);
+	return true;
 }

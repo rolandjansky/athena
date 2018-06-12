@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //============================================================================
@@ -30,6 +30,7 @@
 //  - Chi2Max                -- maximum chi2 cut
 //  - DoVertexType           -- bits defining vertex association types
 //                              to be used
+//  - Do3d                   -- add 3d proper time
 //  - BlindMassMin           -- minimum of blinded mass range
 //  - BlindMassMax           -- maximum blinded mass range
 //  - DoBlinding             -- switch to enable blinding (default: false)
@@ -88,6 +89,7 @@ namespace DerivationFramework {
     declareProperty("MassMin"               , m_massMin                = 2000);
     declareProperty("Chi2Max"               , m_chi2Max                = 200);
     declareProperty("DoVertexType"          , m_DoVertexType           = 7);
+    declareProperty("Do3d"                  , m_do3d                   = false);
     declareProperty("BlindMassMin"          , m_blindMassMin           = 0.);
     declareProperty("BlindMassMax"          , m_blindMassMax           = 0.);
     declareProperty("DoBlinding"            , m_doBlinding             = false);
@@ -148,6 +150,7 @@ namespace DerivationFramework {
   void Select_Bmumu::ProcessVertex(xAOD::BPhysHypoHelper &bcand,
                                    xAOD::BPhysHelper::pv_type pv_t) const {
 
+      constexpr float errConst = -9999999;
       const xAOD::Vertex* pv = bcand.pv(pv_t); 
       if (pv) {
         // decorate the vertex. 
@@ -172,7 +175,6 @@ namespace DerivationFramework {
         //enum pv_type {PV_MAX_SUM_PT2, PV_MIN_A0, PV_MIN_Z0, PV_MIN_Z0_BA};
       } else {
         
-        const float errConst = -9999999;
         BPHYS_CHECK( bcand.setTau(errConst, pv_t,
                                   xAOD::BPhysHypoHelper::TAU_CONST_MASS) );
         // Proper decay time assuming error constant mass hypothesis m_massHypo
@@ -188,6 +190,36 @@ namespace DerivationFramework {
                                       pv_t,
                                       xAOD::BPhysHypoHelper::TAU_INV_MASS) );
       }
+
+      if(m_do3d){
+
+        BPHYS_CHECK( bcand.setTau3d( pv ?
+                                     m_v0Tools->tau3D(bcand.vtx(), pv,
+                                                      m_massHypo)
+                                     : errConst, pv_t,
+                                     xAOD::BPhysHypoHelper::TAU_CONST_MASS) );
+        // Proper decay time assuming error constant mass hypothesis m_massHypo
+        BPHYS_CHECK( bcand.setTau3dErr( pv ?
+                                        m_v0Tools->tau3DError(bcand.vtx(), pv,
+                                                              m_massHypo)
+                                        : errConst, pv_t,
+                                        xAOD::BPhysHypoHelper::TAU_CONST_MASS)
+                     );
+
+        BPHYS_CHECK( bcand.setTau3d( pv ?
+                                     m_v0Tools->tau3D(bcand.vtx(), pv,
+                                                      m_trkMasses)
+                                     : errConst, pv_t,
+                                     xAOD::BPhysHypoHelper::TAU_INV_MASS) );
+        
+        BPHYS_CHECK( bcand.setTau3dErr( pv ?
+                                        m_v0Tools->tau3DError(bcand.vtx(), pv,
+                                                              m_trkMasses)
+                                        : errConst, pv_t,
+                                        xAOD::BPhysHypoHelper::TAU_INV_MASS)
+                     );
+      }
+
   } 
   //---------------------------------------------------------------------------
   StatusCode Select_Bmumu::addBranches() const {

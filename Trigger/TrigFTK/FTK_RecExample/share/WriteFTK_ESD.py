@@ -22,8 +22,14 @@ if rec.doFTK:
 
     if rec.doTruth():
         FtkESDList += [
-            "PRD_MultiTruthCollection#FTK_PRD_MultiTruthPixel",
-            "PRD_MultiTruthCollection#FTK_PRD_MultiTruthSCT",
+            "xAOD::TrackParticleContainer#Converted_FTKTrackParticleContainer",
+            "xAOD::TrackParticleAuxContainer#Converted_FTKTrackParticleContainerAux.",
             "DetailedTrackTruthCollection#FTK_Tracks_DetailedTruthCollection",
             "DetailedTrackTruthCollection#FTK_RefitTracks_DetailedTruthCollection",
+            "xAOD::TrackParticleContainer#Converted_FTKTrackParticleContainerRefit",
+            "xAOD::TrackParticleAuxContainer#Converted_FTKTrackParticleContainerRefitAux.",
+            "PRD_MultiTruthCollection#FTK_PRD_MultiTruthPixel",
+            "PRD_MultiTruthCollection#FTK_PRD_MultiTruthSCT"
             ]
+
+

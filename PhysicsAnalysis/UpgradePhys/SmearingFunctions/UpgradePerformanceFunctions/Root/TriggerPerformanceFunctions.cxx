@@ -7,6 +7,8 @@
 
 #include "UpgradePerformanceFunctions/UpgradePerformanceFunctions.h"
 
+namespace Upgrade {
+
 float UpgradePerformanceFunctions::getSingleElectronTriggerEfficiency(float ptMeV, float eta) {
   float minPt = 22000.;
   float minPtHighEta = 35000;
@@ -85,7 +87,15 @@ float UpgradePerformanceFunctions::muonEtaTriggerEfficiency(float eta) {
     //=======
     
     float eff = 0.98*0.98; //TGC*MDT efficiency
-    if (fabs(eta)>2.65) return 0.;
+
+    if (fabs(eta)>2.65){
+      if ( m_useWarmToroid && fabs(eta)>3.2 && fabs(eta)<4. ){
+        return 0.95;
+      }
+      else{
+        return 0.;
+      }
+    }
     if (fabs(eta)>1.05) {
         if ( m_layout == LoI || m_layout == LoIVF) eff=0.86; //obsolete numbers
         if ( m_layout == bronze) eff*=0.98; //additional 2% loss from L1Track
@@ -223,6 +233,8 @@ float UpgradePerformanceFunctions::getJetEtmissTriggerEfficiency(float smearedJe
   } else {
     return 0.95;
   }
+}
+
 }
 
 #endif

@@ -205,32 +205,38 @@ StatusCode DiTauTruthMatchingTool::checkTruthMatch (const xAOD::DiTauJet& xDiTau
   static const SG::AuxElement::Decorator<unsigned int> decClassifierParticleOrigin("classifierParticleOriginTruthLepton");
   static const SG::AuxElement::Decorator<ElementLink<xAOD::TruthParticleContainer>> decTruthLeptonLink("truthLeptonLink");
   
+  int mcTruthType = MCTruthPartClassifier::ParticleType::Unknown;
+  int mcTruthOrigin = MCTruthPartClassifier::ParticleOrigin::NonDefined;
+  static const SG::AuxElement::ConstAccessor<int> accTruthType("truthType");
+  static const SG::AuxElement::ConstAccessor<int> accTruthOrigin("truthOrigin");
   if(xDiTau.isAvailable<ElementLink<xAOD::ElectronContainer>>("elLink") &&
      xDiTau.isAvailable<ElementLink<xAOD::MuonContainer>>("muonLink"))
     ATH_MSG_ERROR("Links to reco electron and reco muon available for one ditau candidate.");
   if(xDiTau.isAvailable<ElementLink<xAOD::ElectronContainer>>("elLink")){
     static const SG::AuxElement::ConstAccessor<ElementLink<xAOD::ElectronContainer>> accElLink("elLink");
     const xAOD::Electron* pElectron = *accElLink(xDiTau);
+    if ((pElectron->isAvailable<int>("truthType") && pElectron->isAvailable<int>("truthOrigin")))
+    {
+      mcTruthType = accTruthType(*pElectron);
+      mcTruthOrigin = accTruthOrigin(*pElectron);
+    }
     lTruthLeptonLink = checkTruthLepton(pElectron);
   }
   if(xDiTau.isAvailable<ElementLink<xAOD::MuonContainer>>("muonLink")){
     static const SG::AuxElement::ConstAccessor<ElementLink<xAOD::MuonContainer>> accMuLink("muonLink");
     const xAOD::Muon* pMuon = *accMuLink(xDiTau);
+    if (pMuon->isAvailable<int>("truthType") && pMuon->isAvailable<int>("truthOrigin"))
+    {
+      mcTruthType = accTruthType(*pMuon);
+      mcTruthOrigin = accTruthOrigin(*pMuon);
+    }
     lTruthLeptonLink = checkTruthLepton(pMuon);
   }
 
-  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> paLeptonClassification;
-  if(lTruthLeptonLink.isValid())
-    paLeptonClassification = m_tMCTruthClassifier->particleTruthClassifier(*lTruthLeptonLink);
-  else{
-    paLeptonClassification.first = MCTruthPartClassifier::ParticleType::Unknown;
-    paLeptonClassification.second = MCTruthPartClassifier::ParticleOrigin::NonDefined;
-  }
-  
-  decIsTruthHadEl(xDiTau) = (char)(paLeptonClassification.first == MCTruthPartClassifier::ParticleType::IsoElectron && accNSubjets(xDiTau) != 0 && vTruthMatchedParticleType[0] == TruthHadronicTau);
-  decIsTruthHadMu(xDiTau) = (char)(paLeptonClassification.first == MCTruthPartClassifier::ParticleType::IsoMuon && accNSubjets(xDiTau) != 0 && vTruthMatchedParticleType[0] == TruthHadronicTau);
-  decClassifierParticleType(xDiTau) = paLeptonClassification.first;
-  decClassifierParticleOrigin(xDiTau) = paLeptonClassification.second;
+  decIsTruthHadEl(xDiTau) = (char)(mcTruthType == MCTruthPartClassifier::ParticleType::IsoElectron && accNSubjets(xDiTau) != 0 && vTruthMatchedParticleType[0] == TruthHadronicTau);
+  decIsTruthHadMu(xDiTau) = (char)(mcTruthType == MCTruthPartClassifier::ParticleType::IsoMuon && accNSubjets(xDiTau) != 0 && vTruthMatchedParticleType[0] == TruthHadronicTau);
+  decClassifierParticleType(xDiTau) = mcTruthType;
+  decClassifierParticleOrigin(xDiTau) = mcTruthOrigin;
   decTruthLeptonLink(xDiTau) = lTruthLeptonLink;
 
   // the ditau candidate should have at least 2 subjets to be truth matched

@@ -14,7 +14,7 @@ cd athena
 git remote add upstream https://:@gitlab.cern.ch:8443/atlas/athena.git
 git remote -v show
 ```
-we perform a "sparse" checkout
+we perform a "sparse" checkout:
 ```
 git atlas init-workdir https://:@gitlab.cern.ch:8443/atlas/athena.git
 ```
@@ -26,10 +26,10 @@ git atlas init-workdir https://:@gitlab.cern.ch:8443/atlas/athena.git
 * `cd ../`
 * `mkdir run build; cd build`
 * `cmake ../athena/Projects/WorkDir`
-* Compile `make -j$(nproc)'
+* Compile `make -j$(nproc)`
 * `source x86_64-slc6-gcc62-opt/setup.sh`
 * `cd ../run/`
-* Modify things and run
+* Modify things and run:
 ```
 INPUT=AOD.input.pool.root
 OUTPUT=AOD.output.pool.root
@@ -41,7 +41,6 @@ Reco_tf.py \
     --outputDAODFile $OUTPUT \
     --maxEvents $NEVT \
     --reductionConf $TRAIN
-
 ```
 Note that the preexec for MC and data is different.
 * Check your file staging status `git status`
@@ -64,12 +63,37 @@ asetup --restore
 cd build/ && source x86_64-slc6-gcc62-opt/setup.sh && cd -
 ```
 
+Merge Conflicts
+===============
+To resolve conflicts that appear in your "Merge Request", pull in the upstream changes and run `git merge`:
+```
+git fetch upstream         # Fetch changes from upstream (i.e. the upstream branch of the athena release)
+git merge upstream/21.2    # Apply those changes to your branch
+```
+Because there are conflicts between your changes and the upstream ones, git needs you to resolve them. 
+The affected files are marked up with the usual conflict indicators (`>>>>>>>`) showing which pieces of the file came from which versions.
+Make sure you choose the right piece of code and merge again with your topic's target branch!
+
+Inspecting the content of a (D)xAOD file
+========================================
+In a ROOT session
+```
+TFile *_file0 = TFile::Open("your file")
+xAOD::Init()
+t = xAOD::MakeTransientTree( _file0 )
+CollectionTree->Print("AntiKt4TruthJetsAux*")
+t->Draw("Muons.isolation(xAOD::Iso::ptcone20)") 
+```
+
 PreExec
 =======
 
 PreExec commands may vary between caches. Also, the syntax is different for MC and Data. 
 
-Please consult this page for the PreExec commands used in caches: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/DerivationProductionTeam#Info_on_AtlasDerivation_caches_a and this page https://gitlab.cern.ch/atlas/athena/tree/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkART/test for those in the ART tests.
+Please consult this page for the PreExec commands used in caches: 
+* https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/DerivationProductionTeam#Info_on_AtlasDerivation_caches_a 
+and this page
+* https://gitlab.cern.ch/atlas/athena/tree/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkART/test for those in the ART tests.
 
 References
 ==========

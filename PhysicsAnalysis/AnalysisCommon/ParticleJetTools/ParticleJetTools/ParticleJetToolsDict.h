@@ -15,5 +15,11 @@
 #include "ParticleJetTools/JetParticleAssociation.h"
 #include "ParticleJetTools/JetParticleCenterOfMassAssociation.h"
 #include "ParticleJetTools/JetParticleShrinkingConeAssociation.h"
+#include "ParticleJetTools/JetParticleFixedConeAssociation.h"
+
+#ifndef XAOD_STANDALONE
+#include "src/JetModifierAlg.h"
+#include "src/JetAssocConstAlg.h"
+#endif
 
 #endif

@@ -40,4 +40,6 @@ ContainersOnTheFly = [
                         ["BTagging_AntiKt2TrackAux","xAOD::BTaggingAuxContainer"],
                         ["BTagging_AntiKtVR30Rmax4Rmin02Track","xAOD::BTaggingContainer"],
                         ["BTagging_AntiKtVR30Rmax4Rmin02TrackAux","xAOD::BTaggingAuxContainer"],
+                        ["BTagging_AntiKt4EMPFlow","xAOD::BTaggingContainer"],
+                        ["BTagging_AntiKt4EMPFlowAux","xAOD::BTaggingAuxContainer"],
 ]

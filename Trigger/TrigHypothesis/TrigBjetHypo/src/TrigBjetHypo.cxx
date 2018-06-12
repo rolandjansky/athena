@@ -7,8 +7,8 @@
 // NAME:     TrigBjetHypo.cxx
 // PACKAGE:  Trigger/TrigHypothesis/TrigBjetHypo
 //
-// AUTHOR:   Andrea Coccaro
-// EMAIL:    Andrea.Coccaro@ge.infn.it
+// AUTHORs:   John Alison    johnda@uchicago.edu
+//            Andrea Coccaro Andrea.Coccaro@ge.infn.it
 // 
 // ************************************************
 
@@ -32,16 +32,17 @@ TrigBjetHypo::TrigBjetHypo(const std::string& name, ISvcLocator* pSvcLocator) :
   HLT::HypoAlgo(name, pSvcLocator),
   m_cutCounter(0)
 {
-  declareProperty ("JetKey",    m_jetKey     = ""   ); //"EFJet" or "" needed for default config, "SplitJet" for new config
-  declareProperty ("AcceptAll", m_acceptAll         );
-  declareProperty ("CutXIP2D",  m_xcutIP2D   = -20  );
-  declareProperty ("CutXIP3D",  m_xcutIP3D   = -20  );
-  declareProperty ("CutXCOMB",  m_xcutCOMB   = -20  );
-  declareProperty ("CutXCHI2",  m_xcutCHI2   = -20  );
-  declareProperty ("CutMV2c20", m_xcutMV2c20 = -20  );
-  declareProperty ("CutMV2c10", m_xcutMV2c10 = -20  );
-  declareProperty ("MethodTag", m_methodTag  = ""   );
-  declareProperty ("Instance",  m_instance          );
+  declareProperty ("JetKey"          , m_jetKey     = ""          ); //"EFJet" or "" needed for default config, "SplitJet" for new config
+  declareProperty ("AcceptAll"       , m_acceptAll                );
+  declareProperty ("CutXIP2D"        , m_xcutIP2D   = -20         );
+  declareProperty ("CutXIP3D"        , m_xcutIP3D   = -20         );
+  declareProperty ("CutXCOMB"        , m_xcutCOMB   = -20         );
+  declareProperty ("CutXCHI2"        , m_xcutCHI2   = -20         );
+  declareProperty ("CutMV2c20"       , m_xcutMV2c20 = -20         );
+  declareProperty ("CutMV2c10"       , m_xcutMV2c10 = -20         );
+  declareProperty ("CutMV2c10_hybrid", m_xcutMV2c10_hybrid = -20  );
+  declareProperty ("MethodTag"       , m_methodTag  = ""          );
+  declareProperty ("Instance"        , m_instance                 );
 
   declareProperty ("UseBeamSpotFlag",       m_useBeamSpotFlag = false);
   declareProperty ("OverrideBeamSpotValid", m_overRideBeamSpotValid = false);
@@ -62,25 +63,22 @@ TrigBjetHypo::~TrigBjetHypo() {}
 
 HLT::ErrorCode TrigBjetHypo::hltInitialize() {
 
-  // Get message service 
-  if (msgLvl() <= MSG::INFO) 
-    msg() << MSG::INFO << "Initializing TrigBjetHypo" << endmsg;   
+  ATH_MSG_INFO( "Initializing TrigBjetHypo" );
 
-  if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
-    msg() << MSG::DEBUG << " AcceptAll = "       << m_acceptAll       << endmsg; 
-    msg() << MSG::DEBUG << " MethodTag = "       << m_methodTag       << endmsg; 
-    msg() << MSG::DEBUG << " Instance = "        << m_instance        << endmsg; 
-    msg() << MSG::DEBUG << " UseBeamSpotFlag = " << m_useBeamSpotFlag << endmsg; 
-    msg() << MSG::DEBUG << " JetKey = "          << m_jetKey          << endmsg; 
+  ATH_MSG_DEBUG( "declareProperty review:" );
+  ATH_MSG_DEBUG(" AcceptAll = "       << m_acceptAll );
+  ATH_MSG_DEBUG(" MethodTag = "       << m_methodTag );
+  ATH_MSG_DEBUG(" Instance = "        << m_instance );
+  ATH_MSG_DEBUG(" UseBeamSpotFlag = " << m_useBeamSpotFlag );
+  ATH_MSG_DEBUG(" JetKey = "          << m_jetKey );
 
-    if (m_xcutMV2c20 != -20) msg() << MSG::DEBUG << " CutMV2c20 = "  << m_xcutMV2c20 << endmsg;
-    if (m_xcutMV2c10 != -20) msg() << MSG::DEBUG << " CutMV2c10 = "  << m_xcutMV2c10 << endmsg; 
-    if (m_xcutCOMB   != -20) msg() << MSG::DEBUG << " CutXCOMB  = "  << m_xcutCOMB   << endmsg; 
-    if (m_xcutCHI2   != -20) msg() << MSG::DEBUG << " CutXCHI2  = "  << m_xcutCHI2   << endmsg; 
-    if (m_xcutIP3D   != -20) msg() << MSG::DEBUG << " CutXIP3D  = "  << m_xcutIP3D   << endmsg; 
-    if (m_xcutIP2D   != -20) msg() << MSG::DEBUG << " CutXIP2D  = "  << m_xcutIP2D   << endmsg; 
-  }
+  if (m_xcutMV2c20 != -20) ATH_MSG_DEBUG( " CutMV2c20 = "  << m_xcutMV2c20 );
+  if (m_xcutMV2c10 != -20) ATH_MSG_DEBUG( " CutMV2c10 = "  << m_xcutMV2c10 );
+  if (m_xcutMV2c10_hybrid != -20) ATH_MSG_DEBUG( " CutMV2c10_hybrid = "  << m_xcutMV2c10_hybrid );
+  if (m_xcutCOMB   != -20) ATH_MSG_DEBUG( " CutXCOMB  = "  << m_xcutCOMB );
+  if (m_xcutCHI2   != -20) ATH_MSG_DEBUG( " CutXCHI2  = "  << m_xcutCHI2 );
+  if (m_xcutIP3D   != -20) ATH_MSG_DEBUG( " CutXIP3D  = "  << m_xcutIP3D );
+  if (m_xcutIP2D   != -20) ATH_MSG_DEBUG( " CutXIP2D  = "  << m_xcutIP2D );
 
   return HLT::OK;
 }
@@ -91,16 +89,13 @@ HLT::ErrorCode TrigBjetHypo::hltInitialize() {
 
 HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass) {
   
-  if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Executing TrigBjetHypo" << endmsg;
+  ATH_MSG_DEBUG( "Executing TrigBjetHypo" );
 
   // AcceptAll declare property setting 
   if (m_acceptAll) {
-    if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "REGTEST: AcceptAll property is set: taking all events and applying the selection only to save the TrigPassBits" << endmsg;
+    ATH_MSG_DEBUG( "REGTEST: AcceptAll property is set: taking all events and applying the selection only to save the TrigPassBits" );
   } else 
-    if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "REGTEST: AcceptAll property not set: applying the selection and saving the TrigPassBits" << endmsg;
+    ATH_MSG_DEBUG( "REGTEST: AcceptAll property not set: applying the selection and saving the TrigPassBits" );
   
   // initialise monitoring variables 
   m_cutCounter = -1;
@@ -139,12 +134,10 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   HLT::ErrorCode stat = getFeature(outputTE, roiDescriptor, m_jetKey);
   
   if (stat == HLT::OK) {
-    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Using outputTE: " << *roiDescriptor << endmsg;
-      //<< "RoI id " << roiDescriptor->roiId()
-      //    << ", Phi = " <<  roiDescriptor->phi()
-      //	    << ", Eta = " << roiDescriptor->eta() << endmsg;
-    }
+    ATH_MSG_DEBUG( "Using outputTE: " << *roiDescriptor );
+    //<< "RoI id " << roiDescriptor->roiId()
+    //    << ", Phi = " <<  roiDescriptor->phi()
+    //	    << ", Eta = " << roiDescriptor->eta() << endmsg;
   } else {
     if (msgLvl() <= MSG::WARNING) 
       msg() <<  MSG::WARNING << "No RoI for this Trigger Element " << endmsg;
@@ -159,14 +152,14 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
 
   // Retrieve xAOD b-jet object 
   const xAOD::BTaggingContainer* trigBTaggingContainer=0;
- 
+  
   if((getFeature(outputTE, trigBTaggingContainer, "HLTBjetFex") != HLT::OK) && trigBTaggingContainer) {
     if (msgLvl() <= MSG::WARNING)
       msg() << MSG::WARNING << "Failed to get BTaggingContainer" << endmsg;
     return HLT::OK;
   }
   if(msgLvl() <= MSG::DEBUG && trigBTaggingContainer != 0) {
-    msg() << MSG::DEBUG << "Got BTaggingContainer with " << trigBTaggingContainer->size() << " BTagging object" << endmsg;
+    ATH_MSG_DEBUG( "Got BTaggingContainer with " << trigBTaggingContainer->size() << " BTagging object" );
   }
   if(trigBTaggingContainer && trigBTaggingContainer != 0 && trigBTaggingContainer->size() > 1) {
     if(msgLvl() <= MSG::ERROR)
@@ -196,7 +189,7 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
 
       double x = (*trigBTagging)->auxdata<double>("MV2c20_discriminant");
 
-      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "MV2c20 x =  " << x;
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<"MV2c20 x =  " << x;
       if(x>m_xcutMV2c20) {
 	//HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
 	xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
@@ -226,6 +219,29 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       }
     }
   } 
+  // Temporary use mv2c00 for hybrid tuning
+  //  else if (m_methodTag == "MV2c10_hybrid") {
+  else if (m_methodTag == "MV2c00") {
+    
+    for ( ; trigBTagging != trigBTaggingEnd; trigBTagging++) {
+
+      // Temporary use mv2c00 for hybrid tuning
+      //      double x = (*trigBTagging)->auxdata<double>("MV2c10_hybrid_discriminant");
+      double x = (*trigBTagging)->auxdata<double>("MV2c00_discriminant");
+
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "MV2c10_hybrid x =  " << x;
+      if(x>m_xcutMV2c10_hybrid) {
+        //HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);                                                                                                                            
+        xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
+        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endmsg;
+        result = true;
+      }
+      else {
+	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Failed " << endmsg;
+      }
+    }
+
+  }
   else if (m_methodTag == "COMB") {
     for ( ; trigBTagging != trigBTaggingEnd; trigBTagging++) { 
       double w=((*trigBTagging)->IP3D_pb()/(*trigBTagging)->IP3D_pu()) * ((*trigBTagging)->SV1_pb()/(*trigBTagging)->SV1_pu());
@@ -283,11 +299,9 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   
   // Print trigger decision 
   if (m_acceptAll) {
-    if(msgLvl() <= MSG::DEBUG) 
-      msg() << MSG::DEBUG << "REGTEST: Trigger decision is 1" << endmsg;
+    ATH_MSG_DEBUG( "REGTEST: Trigger decision is 1" );
   } else {
-    if(msgLvl() <= MSG::DEBUG) 
-      msg() << MSG::DEBUG << "REGTEST: Trigger decision is " << pass << endmsg;
+    ATH_MSG_DEBUG( "REGTEST: Trigger decision is " << pass );
   }
 
   // Monitoring of method used to perform the cut 
@@ -311,8 +325,7 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
     ATH_MSG_ERROR("Could not store TrigPassBits! ");
 
-  if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "TrigPassBits was saved" << endmsg; 
+  ATH_MSG_DEBUG( "TrigPassBits was saved" );
 
 
   return HLT::OK;

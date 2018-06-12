@@ -1,28 +1,23 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // PerfMonTestCpuCruncherAlg.h 
 // Header file for class PerfMonTest::CpuCruncherAlg
-// Author: S.Binet<binet@cern.ch>
+// Author: S.Binet<binet@cern.ch>, A. S. Mete<amete@cern.ch>
 /////////////////////////////////////////////////////////////////// 
 #ifndef PERFMONTESTS_PERFMONTESTCPUCRUNCHERALG_H 
 #define PERFMONTESTS_PERFMONTESTCPUCRUNCHERALG_H 
 
 // STL includes
 #include <string>
-
-// HepMC / CLHEP includes
+#include <random>
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-
-// Forward declaration
-class IAtRndmGenSvc;
-namespace CLHEP { class HepRandomEngine; }
 
 namespace PerfMonTest {
 
@@ -50,6 +45,9 @@ class CpuCruncherAlg : public AthAlgorithm
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
 
+  // Perform math operations to burn CPU for a number of iterations
+  double burn(unsigned long nIterations);
+
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
   ///////////////////////////////////////////////////////////////////
@@ -72,12 +70,10 @@ class CpuCruncherAlg : public AthAlgorithm
   /// Property to setup the RMS  (in ms) of CPU time to consume
   float m_rmsCpuTime;
 
-  typedef ServiceHandle<IAtRndmGenSvc> IAtRndmGenSvc_t;
-  /// pointer to the Athena random generator service interface
-  IAtRndmGenSvc_t m_rndmSvc;
+  /// Random number setup
+  std::default_random_engine m_random;
+  std::normal_distribution<double> m_distribution;
 
-  /// random number engine
-  CLHEP::HepRandomEngine *m_rndmEngine;
 }; 
 
 // I/O operators

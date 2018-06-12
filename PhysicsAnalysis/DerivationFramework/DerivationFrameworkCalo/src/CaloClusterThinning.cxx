@@ -186,8 +186,8 @@ StatusCode DerivationFramework::CaloClusterThinning::doThinning() const
     m_is_tau = true;
   }
   
-  if( !(m_is_egamma || m_is_muons || m_is_tau) ) {
-    ATH_MSG_ERROR("This tool only works with Egamma, Muons and Taus, " << m_sgKey << " is not a compatible collection");
+  if( !(m_is_egamma || m_is_muons || m_is_tau) && m_coneSize<0 ) {
+    ATH_MSG_ERROR("This tool is designed for Egamma, Muons and Taus and " << m_sgKey << " is not a one of these collections. For general iParticles dR needs to be specified");
     return StatusCode::FAILURE;
   }
 
@@ -314,6 +314,14 @@ StatusCode DerivationFramework::CaloClusterThinning::setClustersMask( std::vecto
       return StatusCode::FAILURE;
     }
     DerivationFramework::ClustersInCone::select(muon, m_coneSize, cps, mask); 
+  }
+  if(!(m_is_egamma || m_is_muons || m_is_tau)){
+    const xAOD::IParticle* iparticle = dynamic_cast<const xAOD::IParticle*>(particle);
+    if(!iparticle) {
+      ATH_MSG_ERROR("IParticle cast failed");
+      return StatusCode::FAILURE;
+    }
+    DerivationFramework::ClustersInCone::select(iparticle, m_coneSize, cps, mask); 
   }
   return StatusCode::SUCCESS;
 }

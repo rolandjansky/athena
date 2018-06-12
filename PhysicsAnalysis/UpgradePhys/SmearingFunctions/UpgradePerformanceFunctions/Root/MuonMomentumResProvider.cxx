@@ -61,7 +61,7 @@ StatusCode MuonMomentumResProvider::initialize(){
     m_MC_p1_MS.clear();
     m_MC_p2_MS.clear();
     // and open the ITk specific calib file
-    std::string mc_val = PathResolverFindCalibFile( "UpgradePerformanceFunctions/MuonMomentumResolutions_"+m_upgradeResolutionRelease + ".dat" );
+    std::string mc_val = PathResolverFindCalibFile( "UpgradePerformanceFunctions/"+m_upgradeResolutionRelease );
     ATH_MSG_DEBUG( "Checking Files - MC: " << mc_val );
     ATH_MSG_INFO("Trying to acquire Upgrade-specific muon resolutions values from "<<mc_val);
     std::ifstream InValues( mc_val.c_str() );

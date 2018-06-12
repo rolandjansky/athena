@@ -48,7 +48,7 @@ endif()
 find_package( FastJet )
 
 if(XAOD_ANALYSIS)
-atlas_add_root_dictionary( DiTauRec DiTauRecLibCintDict
+atlas_add_root_dictionary( DiTauRecLib DiTauRecLibCintDict
   ROOT_HEADERS
   DiTauRec/ILepHadBuilder.h
   DiTauRec/HadElBuilder.h

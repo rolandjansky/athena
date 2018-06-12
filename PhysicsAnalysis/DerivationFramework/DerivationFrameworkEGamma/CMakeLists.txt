@@ -22,6 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PhysicsAnalysis/CommonTools/ExpressionEvaluation
                           PhysicsAnalysis/MCTruthClassifier 
+			  PhysicsAnalysis/ElectronPhotonID/EgammaAnalysisHelpers
 			  Calorimeter/CaloCalibHitRec )
 
 # External dependencies:
@@ -32,7 +33,7 @@ atlas_add_library( DerivationFrameworkEGammaLib
                    src/*.cxx
                    PUBLIC_HEADERS DerivationFrameworkEGamma
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AsgTools AthenaBaseComps PATCoreLib EgammaAnalysisInterfacesLib ExpressionEvaluationLib MCTruthClassifierLib CaloCalibHitRecLib
+                   LINK_LIBRARIES AsgTools AthenaBaseComps PATCoreLib EgammaAnalysisInterfacesLib ExpressionEvaluationLib MCTruthClassifierLib CaloCalibHitRecLib EgammaAnalysisHelpersLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} xAODBase xAODCaloEvent xAODEgamma xAODMissingET xAODMuon xAODTruth )
 
 atlas_add_component( DerivationFrameworkEGamma

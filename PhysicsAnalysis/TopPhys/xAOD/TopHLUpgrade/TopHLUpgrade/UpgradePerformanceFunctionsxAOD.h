@@ -20,7 +20,7 @@
  *
  * @author Mark Owen <markowen@cern.ch>
  */
-class UpgradePerformanceFunctionsxAOD : public UpgradePerformanceFunctions {
+class UpgradePerformanceFunctionsxAOD : public Upgrade::UpgradePerformanceFunctions {
 
  public:
 

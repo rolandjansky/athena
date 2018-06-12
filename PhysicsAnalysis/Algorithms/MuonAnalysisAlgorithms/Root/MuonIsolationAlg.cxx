@@ -24,7 +24,7 @@ namespace CP
   MuonIsolationAlg (const std::string& name, 
                      ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)
-    , m_isolationTool ("MuonIsolationTool", this)
+    , m_isolationTool ("CP::IsolationSelectionTool", this)
   {
     declareProperty ("isolationTool", m_isolationTool, "the isolation tool we apply");
     declareProperty ("isolationDecoration", m_isolationDecoration, "the decoration for the muon isolation");

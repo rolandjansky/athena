@@ -285,11 +285,15 @@ bool AuxElement::hasNonConstStore() const
  *
  * Erase all decorations from an associated store, restoring the state to when
  * @c lock was called.
+ *
+ * Returns true if there were any decorations that were cleared,
+ * false if the store did not contain any decorations.
  */
-void AuxElement::clearDecorations() const
+bool AuxElement::clearDecorations() const
 {
   if (privateDataValid())
-    m_privateData->clearDecorations();
+    return m_privateData->clearDecorations();
+  return false;
 }
 
 
@@ -432,10 +436,9 @@ void AuxElement::clearAux()
     throw SG::ExcConstAuxData ("clearAux", SG::null_auxid);
 
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
-  SG::AuxTypeRegistry::lock_t lock (r);
-  ATHCONTAINERS_FOREACH (SG::auxid_t auxid, m_container->getWritableAuxIDs()) {
+  for (SG::auxid_t auxid : m_container->getWritableAuxIDs()) {
     void* dst = m_container->getDataArray (auxid);
-    r.clear (lock, auxid, dst, m_index);
+    r.clear (auxid, dst, m_index);
   }
 }
 
@@ -467,7 +470,7 @@ void AuxElement::copyAux (const AuxElement& other)
   }
 
   size_t oindex = other.index();
-  const SG::auxid_set_t& other_ids = ocont->getAuxIDs();
+  SG::auxid_set_t other_ids = ocont->getAuxIDs();
 
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
 
@@ -483,8 +486,8 @@ void AuxElement::copyAux (const AuxElement& other)
     }
   }
 
-  ATHCONTAINERS_FOREACH (SG::auxid_t auxid, m_container->getWritableAuxIDs()) {
-    if (other_ids.find (auxid) == other_ids.end()) {
+  for (SG::auxid_t auxid : m_container->getWritableAuxIDs()) {
+    if (!other_ids.test (auxid)) {
       void* dst = m_container->getDataArray (auxid);
       r.clear (auxid, dst, m_index);
     }

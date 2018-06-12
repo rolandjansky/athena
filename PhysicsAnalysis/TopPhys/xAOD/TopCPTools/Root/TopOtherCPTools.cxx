@@ -21,6 +21,9 @@
 // Pileup Reweighting include(s):
 #include "PileupReweighting/PileupReweightingTool.h"
 
+// PMG include(s):
+#include "PMGTools/PMGTruthWeightTool.h"
+
 namespace top {
 
 OtherCPTools::OtherCPTools(const std::string& name) :
@@ -175,7 +178,7 @@ StatusCode OtherCPTools::setupPileupReweighting() {
 
 StatusCode OtherCPTools::setupPMGTools() {
   // Setup any PMG tools
-  // Currently only a single tool for reweighting
+
   // Sherpa 2.2 V+jets samples based on the number of truth jets
   const std::string name = "PMGSherpa22VJetsWeightTool";
   PMGTools::PMGSherpa22VJetsWeightTool* tool = nullptr;
@@ -189,6 +192,18 @@ StatusCode OtherCPTools::setupPMGTools() {
     top::check(tool->initialize(), "Failed to initialize " + name);
   }
   m_pmg_sherpa22_vjets_tool = tool;
+
+  // Tool for access truth weights via names
+  const std::string truthWeightToolName = "PMGTruthWeightTool";
+  PMGTools::PMGTruthWeightTool* truthweightTool = nullptr;
+  if(asg::ToolStore::contains<PMGTools::PMGTruthWeightTool>(truthWeightToolName)) {
+    truthweightTool = asg::ToolStore::get<PMGTools::PMGTruthWeightTool>(truthWeightToolName);
+  } else {
+    truthweightTool = new PMGTools::PMGTruthWeightTool(truthWeightToolName);
+    top::check(truthweightTool->initialize(), "Failed to initialize "+truthWeightToolName);
+  }
+  m_pmg_weightTool = truthweightTool; 
+
   return StatusCode::SUCCESS;
 }
 

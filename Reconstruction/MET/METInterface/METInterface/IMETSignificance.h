@@ -29,6 +29,14 @@ namespace met {
 		       PthardParam=1,
 		       TSTParam=2
   };
+  enum METSignificanceResoTerms{ ResoNone=0,
+				 ResoJet =1,
+				 ResoSoft=2,
+				 ResoEle =3,
+				 ResoMuo =4,
+				 ResoPho =5,
+				 ResoTau =6
+  };
 }// end met namespace
 
 class IMETSignificance :  virtual public asg::IAsgTool {
@@ -45,20 +53,25 @@ public:
   // Version with single soft term
   virtual StatusCode varianceMET(xAOD::MissingETContainer* metCont, std::string jetTermName, std::string softTermName, std::string totalMETName)=0;
     
+  // rotates the phi direction of the object resolutions & recomputes the MET significance
   virtual StatusCode RotateToPhi(float phi) = 0;
+
+  // subtracks the vector lambda from the MET & recomputes the met signficance in new MET - lambda direction
+  virtual StatusCode SetLambda(const float px, const float py, const bool GeV=true) = 0;
 
   ///////////////////////////////////////////////////////////////////
   // Additional utility commands
   ///////////////////////////////////////////////////////////////////
 
-  virtual double GetMETOverSqrtSumET() const = 0 ; 
-  virtual double GetMETOverSqrtHT   () const = 0 ; 
-  virtual double GetSignificance()     const = 0 ;
-  virtual double GetSigDirectional()   const = 0 ;
-  virtual double GetRho()              const = 0 ;
-  virtual double GetVarL()             const = 0 ;
-  virtual double GetVarT()             const = 0 ;
-
+  virtual double GetMETOverSqrtSumET()       const = 0 ; 
+  virtual double GetMETOverSqrtHT   ()       const = 0 ; 
+  virtual double GetSignificance()           const = 0 ;
+  virtual double GetSigDirectional()         const = 0 ;
+  virtual double GetRho()                    const = 0 ;
+  virtual double GetVarL()                   const = 0 ;
+  virtual double GetVarT()                   const = 0 ;
+  virtual double GetTermVarL(const int term) const = 0 ;
+  virtual double GetTermVarT(const int term) const = 0 ;
 };
 
 #endif

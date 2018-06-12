@@ -157,15 +157,20 @@ namespace met {
 
     double m_CenJetPtCut, m_FwdJetPtCut ; // jet pt cut for central/forward jets(eta<2.4)
     double m_JvtCut, m_JvtPtMax; // JVT cut and pt region of jets to apply a JVT selection
+    double m_JvtCutTight, m_JvtTightPtMax;
+    double m_JvtCutMedium, m_JvtMediumPtMax;
+
     std::string m_jetSelection;
     // Extra configurables for custom WP
     double m_customCenJetPtCut,m_customFwdJetPtCut;
     double m_customJvtCut,m_customJvtPtMax;
+    double m_JetEtaMax;
 
     bool m_extraJetRejection;
     bool m_doPFlow;
     bool m_doSoftTruth;
     bool m_doConstJet;
+    bool m_storeSoftLinks;
 
     bool m_useGhostMuons;
     bool m_doRemoveMuonJets;
@@ -175,6 +180,15 @@ namespace met {
 
     bool m_muEloss;
     bool m_orCaloTaggedMuon;
+    bool m_greedyPhotons;
+    bool m_veryGreedyPhotons;
+
+    int m_jetTrkNMuOlap;
+    double m_jetWidthMuOlap;
+    double m_jetPsEMuOlap;
+    double m_jetEmfMuOlap;
+    double m_jetTrkPtMuPt;
+    double m_muIDPTJetPtRatioMuOlap;
 
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
     /// Default constructor:

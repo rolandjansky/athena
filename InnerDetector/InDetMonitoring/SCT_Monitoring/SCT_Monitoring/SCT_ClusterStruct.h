@@ -1,9 +1,11 @@
 /*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+/*
  *  SCT_ClusterStruct.h
  *  
  *
  *  Created by Shaun Roe on 24/05/2005.
- *  Copyright (c) 2005 CERN. All rights reserved.
  *
  */
 

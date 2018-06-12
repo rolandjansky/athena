@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SUSYTools/SUSYCrossSection.h"
@@ -116,7 +116,8 @@ int main( int argc, char* argv[] ) {
 		<< my_XsecDB.kfactor(id) <<  delim
 		<< pmgxs->getKfactor(id) <<  delim
 		<< my_XsecDB.efficiency(id) << delim
-		<< pmgxs->getFilterEff(id) * pmgxs->getBR(id) << std::endl;
+	        << pmgxs->getFilterEff(id) //* pmgxs->getBR(id) 
+		<< std::endl;
     }
   }
 

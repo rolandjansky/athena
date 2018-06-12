@@ -11,6 +11,7 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
@@ -77,6 +78,15 @@ DerivationFrameworkJob += STDM6Sequence
 #evtStream = augStream.GetEventStream()
 #svcMgr += createThinningSvc( svcName="STDM6ThinningSvc", outStreams=[evtStream] )
 
+
+#====================================================================
+# Jet reconstruction/retagging
+#====================================================================
+
+#re-tag PFlow jets so they have b-tagging info.
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = STDM6Sequence)
+
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
@@ -91,6 +101,8 @@ STDM6SlimmingHelper.SmartCollections = ["Electrons",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4LCTopoJets",
                                         "AntiKt4EMTopoJets",
+                                        "MET_Reference_AntiKt4EMPFlow",
+                                        "AntiKt4EMPFlowJets",
                                         "InDetTrackParticles",
                                         "PrimaryVertices"  ]
 
@@ -116,6 +128,8 @@ if globalflags.DataSource()=='geant4':
     STDM6SlimmingHelper.AppendToDictionary = ExtraDictionary
 
 addJetOutputs(STDM6SlimmingHelper,["STDM6","STDM6Jets"])
+
+addMETOutputs(STDM6SlimmingHelper,["AntiKt4EMPFlow"])
 
 STDM6SlimmingHelper.AppendContentToStream(STDM6Stream)
 

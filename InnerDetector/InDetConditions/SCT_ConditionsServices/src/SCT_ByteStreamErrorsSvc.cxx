@@ -347,9 +347,19 @@ SCT_ByteStreamErrorsSvc::isGood(const IdentifierHash & elementIdHash) {
 		      elementIdHash) == m_bsErrors[SCT_ByteStreamErrors::MissingLinkHeaderError]->end());
   if (!result) return result;
 
+  result = (std::find(m_bsErrors[SCT_ByteStreamErrors::HeaderTrailerLimitError]->begin(),
+		      m_bsErrors[SCT_ByteStreamErrors::HeaderTrailerLimitError]->end(),
+		      elementIdHash) == m_bsErrors[SCT_ByteStreamErrors::HeaderTrailerLimitError]->end());
+  if (!result) return result;
+
   result = (std::find(m_bsErrors[SCT_ByteStreamErrors::MaskedROD]->begin(),
 		      m_bsErrors[SCT_ByteStreamErrors::MaskedROD]->end(),
 		      elementIdHash) == m_bsErrors[SCT_ByteStreamErrors::MaskedROD]->end());
+  if (!result) return result;
+
+  result = (std::find(m_bsErrors[SCT_ByteStreamErrors::TruncatedROD]->begin(),
+		      m_bsErrors[SCT_ByteStreamErrors::TruncatedROD]->end(),
+		      elementIdHash) == m_bsErrors[SCT_ByteStreamErrors::TruncatedROD]->end());
   if (!result) return result;
 
   // If all 6 chips of a link issue ABCD errors or are bad chips or temporarily masked chips, the link is treated as bad one. 

@@ -27,6 +27,7 @@ ConstituentSubtractorTool::ConstituentSubtractorTool(const std::string & name): 
 
   // Option to disregard cPFOs in the weight calculation
   declareProperty("IgnoreChargedPFO", m_ignoreChargedPFOs=true);
+  declareProperty("UseWorkaroundForBugInFastjetContrib", m_useWorkaroundForBugInFastjetContrib=true);
 }
 
 
@@ -67,6 +68,11 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
   size_t i =0; // Corresponds to the index in the input container
   // We don't use part->index() because it might be a view container
   // combining more than one owning container
+
+  // Minimal and maximum rapidities needed for the workaround for the bug in fastjet-contrib ConstituentSubtractor, see ATLASG-1417
+  double minRap=1000;
+  double maxRap=-1000;
+
   for(xAOD::IParticle * part: *cont){
     // Only use positive E
     bool accept = part->e() > -1*FLT_MIN;
@@ -89,13 +95,53 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
     if(accept) {
       ATH_MSG_VERBOSE("Using " << part->type() << " with pt " << part->pt());
       inputs_to_correct.push_back(pj);
+      // Minimal and maximum rapidities needed for the workaround for the bug in fastjet-contrib ConstituentSubtractor, see ATLASG-1417
+      if (pj.rap()<minRap) minRap = pj.rap(); 
+      if (pj.rap()>maxRap) maxRap = pj.rap(); 
     } else {
       ATH_MSG_VERBOSE("Will not correct " << part->type() << " with pt " << part->pt());
       inputs_to_not_correct.push_back(pj);
     }
-
+    
     ++i;
   }
+
+  // Workaround for the bug in fastjet-contrib ConstituentSubtractor, see ATLASG-1417. This part should be removed after the bug is fixed and the new fixed fastjet-contrib version is used in rel 21.2
+  if (m_useWorkaroundForBugInFastjetContrib){
+    ATH_MSG_DEBUG("Using workaround for bug in fastjet-contrib ConstituentSubtractor, see ATLASG-1417");
+
+    bool needToModifyParticlesWithMinRap=false; // boolean to tell if it is needed to modify the rapidity of particle (or more particles) with minimum rapidity
+    bool needToModifyParticlesWithMaxRap=false; // boolean to tell if it is needed to modify the rapidity of particle (or more particles) with maximum rapidity
+
+    // these lines find out the positions of the ghosts in CS. This is exactly the same procedure as in fastjet-contrib ConstituentSubtractor and was copied from it.
+    double ghostAreaSqrt=sqrt(m_ghost_area);
+    int nRap=2*m_maxEta/ghostAreaSqrt+0.5;
+    double sizeRap=2*m_maxEta/(double)nRap;
+    for (int iRap=0;iRap<nRap;++iRap){
+      double ghostRapidity=sizeRap*(iRap+0.5)-m_maxEta;
+      if (ghostRapidity-m_maxDeltaR == minRap) needToModifyParticlesWithMinRap=true;
+      if (ghostRapidity+m_maxDeltaR == maxRap) needToModifyParticlesWithMaxRap=true;
+    }
+
+    // The implementation of workaround in case it is needed:
+    if (needToModifyParticlesWithMinRap){
+      ATH_MSG_DEBUG("It was found that the particle (or more particles) with minimal rapidity in this event has the same rapidity as one of the ghosts (minus m_maxDeltaR). This would cause seg fault in fastjet-contrib version 1.033. For this reason the rapidity of this particle (or particles) is slightly shifted.");
+      for(PseudoJet &pj: inputs_to_correct){
+	if (pj.rap() == minRap) pj.reset_momentum_PtYPhiM(pj.pt(),pj.rap()*0.999999,pj.phi(),pj.m());
+      }
+    }
+    else ATH_MSG_DEBUG("It is not necessary to make the workaround for particle with minimal rapidity in this event (The particle with minimal rapidity has different rapidity than the rapidity of ghosts (minus m_maxDeltaR)).");
+
+    if (needToModifyParticlesWithMaxRap){
+      ATH_MSG_DEBUG("It was found that the particle (or more particles) with maximal rapidity in this event has the same rapidity as one of the ghosts (plus m_maxDeltaR). This would cause seg fault in fastjet-contrib version 1.033. For this reason the rapidity of this particle (or particles) is slightly shifted.");
+      for(PseudoJet &pj: inputs_to_correct){
+	if (pj.rap() == maxRap) pj.reset_momentum_PtYPhiM(pj.pt(),pj.rap()*0.999999,pj.phi(),pj.m());
+      }
+    }
+    else ATH_MSG_DEBUG("It is not necessary to make the workaround for particle with maximal rapidity in this event (The particle with maximal rapidity has different rapidity than the rapidity of ghosts (plus m_maxDeltaR)).");
+  }  // if (m_useWorkaroundForBugInFastjetContrib)
+
+
 
   // create what we need for the background estimation
   //----------------------------------------------------------
