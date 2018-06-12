@@ -97,9 +97,10 @@ void test1 (const MuonGM::MuonDetectorManager& muo_dd)
 
 int main()
 {
+  MsgStream log (0, "test");
   ISvcLocator* pSvcLoc;
   if (!Athena_test::initGaudi("MuonEventTPCnv_test.txt", pSvcLoc)) {
-    std::cerr << "This test can not be run" << std::endl;
+    log << MSG::ERROR << "This test can not be run" << endreq;
     return 0;
   }
 
