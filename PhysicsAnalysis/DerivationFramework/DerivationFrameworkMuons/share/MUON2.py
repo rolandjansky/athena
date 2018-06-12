@@ -436,7 +436,7 @@ replaceAODReducedJets(tagJetCollections, bphy5Seq  ,  "MUON2" )
 
 AllVariables = list(set(AllVariables)) # remove duplicates
 
-ExtraVariables = ["InDetTrackParticles.numberOfTRTHits.numberOfTRTOutliers.numberOfTRTHoles.numberOfTRTHighThresholdHits.numberOfTRTHighThresholdHitsTotal.numberOfTRTHighThresholdOutliers.numberOfTRTDeadStraws.numberOfTRTTubeHits.numberOfTRTXenonHits.TRTTrackOccupancy.numberOfTRTSharedHits"]
+ExtraVariables = ["InDetTrackParticles.numberOfTRTHits.numberOfTRTOutliers.numberOfTRTHoles.numberOfTRTHighThresholdHits.numberOfTRTHighThresholdHitsTotal.numberOfTRTHighThresholdOutliers.numberOfTRTDeadStraws.numberOfTRTTubeHits.numberOfTRTXenonHits.TRTTrackOccupancy.numberOfTRTSharedHits.vx.vy.vz"]
 
 MUON2SlimmingHelper.AllVariables = AllVariables
 MUON2SlimmingHelper.ExtraVariables = ExtraVariables
