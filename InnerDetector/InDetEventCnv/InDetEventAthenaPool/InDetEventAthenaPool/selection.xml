@@ -31,4 +31,5 @@
   <class name="SCT_RawDataContainer_p2" id="D1258125-2CBA-476E-8578-E09D54F477E1" />
   <class name="SCT_RawDataContainer_p3" id="5FBC8D4D-7B4D-433A-8487-0EA0C870CBDB" />
   <class name="std::vector<InDetRawDataCollection_p1>" />
+  <class name="SCT_FlaggedCondData_p1" id="0C10E502-F02B-440B-9E8F-6A8C31915D7C" />
 </lcgdict>

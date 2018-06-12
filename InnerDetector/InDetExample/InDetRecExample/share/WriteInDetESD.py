@@ -33,6 +33,8 @@ elif InDetFlags.writePRDs():
    InDetESDList+=["InDet::PixelGangedClusterAmbiguities#"+InDetKeys.GangedPixelMap()]
    if InDetFlags.doPixelClusterSplitting():
       InDetESDList+=["InDet::PixelGangedClusterAmbiguities#"+InDetKeys.SplitClusterAmbiguityMap()]
+   # Save SCT_FlaggedCondData for SCT_FlaggedConditionTool
+   InDetESDList+=['SCT_FlaggedCondData#'+'SCT_FlaggedCondData']
 
 # add tracks
 # ----------
