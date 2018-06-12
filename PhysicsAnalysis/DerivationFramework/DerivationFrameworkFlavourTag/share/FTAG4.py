@@ -12,7 +12,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-from DerivationFrameworkFlavourTag.HbbCommon import addVRJets addExCoM addExKt
+from DerivationFrameworkFlavourTag.HbbCommon import addVRJets addExCoM
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
@@ -91,15 +91,12 @@ replaceAODReducedJets(reducedJetList,FTAG4Seq,"FTAG4", extendedFlag)
 
 addDefaultTrimmedJets(FTAG4Seq,"FTAG4",dotruth=True)
 #
-# Adding ExKt and ExCoM sub-jets for each trimmed large-R jet
+# Adding ExCoM sub-jets for each trimmed large-R jet
 #
-ExKtJetCollection__FatJet = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-doTrackJet = False
-ExKtJetCollection__SubJet = addExKt(FTAG4Seq, ToolSvc, ExKtJetCollection__FatJet, 2,doTrackJet)
-ExCoMJetCollection__SubJet = addExCoM(FTAG4Seq, ToolSvc, ExKtJetCollection__FatJet, 2,doTrackJet)
+ExCoMJetCollection__FatJet = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
+ExCoMJetCollection__SubJet = addExCoM(FTAG4Seq, ToolSvc, ExCoMJetCollection__FatJet, 2, False)
 
-BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
-                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
+BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
 
 #===================================================================
 # Variable Radius (VR) Jets
@@ -141,12 +138,12 @@ FTAG4Stream.AcceptAlgs(["FTAG4SkimKernel"])
 
 FTAG4SlimmingHelper = SlimmingHelper("FTAG4SlimmingHelper")
 #
-# ExKt and ExCoM sub-jets
-for JetCollectionExKtCoM in ExKtJetCollection__SubJet + ExCoMJetCollection__SubJet:
-    JetName = JetCollectionExKtCoM[:-4]
-    FTAG4SlimmingHelper.StaticContent.append("xAOD::JetContainer#"+JetCollectionExKtCoM)
+# ExCoM sub-jets
+for JetCollectionExCoM in ExCoMJetCollection__SubJet:
+    JetName = JetCollectionExCoM[:-4]
+    FTAG4SlimmingHelper.StaticContent.append("xAOD::JetContainer#"+JetCollectionExCoM)
     ## "Parent" link is broken after deep copy of parent jet in b-tagging module
-    FTAG4SlimmingHelper.StaticContent.append("xAOD::JetAuxContainer#"+JetCollectionExKtCoM+"Aux.-Parent")
+    FTAG4SlimmingHelper.StaticContent.append("xAOD::JetAuxContainer#"+JetCollectionExCoM+"Aux.-Parent")
     # b-tagging #
     FTAG4SlimmingHelper.StaticContent.append("xAOD::BTaggingContainer#BTagging_"+JetName)
     FTAG4SlimmingHelper.StaticContent.append("xAOD::BTaggingAuxContainer#BTagging_" + JetName + "Aux.")
@@ -208,10 +205,6 @@ FTAG4SlimmingHelper.AppendToDictionary = {
   "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtxAux"    :   "xAOD::BTagVertexAuxContainer",
   "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx"      :   "xAOD::VertexContainer"   ,
   "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtxAux"   :   "xAOD::VertexAuxContainer",
-  "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets"                 :   "xAOD::JetContainer"        ,
-  "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJetsAux"              :   "xAOD::JetAuxContainer"     ,
-  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub"            :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubAux"         :   "xAOD::BTaggingAuxContainer",
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"                 :   "xAOD::JetContainer"        ,
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJetsAux"              :   "xAOD::JetAuxContainer"     ,
   "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub"            :   "xAOD::BTaggingContainer"   ,
