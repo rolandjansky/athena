@@ -168,12 +168,12 @@ CondInputLoader::initialize()
 
   std::ostringstream ost;
   ost << "Adding base classes:";
-  for (auto &e : handles_to_load) {
+  for (auto &e : sortedDataObjIDColl (handles_to_load)) {
     // ignore empty keys
-    if (e.key() == "") continue;
+    if (e->key() == "") continue;
 
-    ost << "\n  + " << e  << "  ->";
-    CLID clid = e.clid();
+    ost << "\n  + " << *e  << "  ->";
+    CLID clid = e->clid();
     const SG::BaseInfoBase* bib = SG::BaseInfoBase::find( clid );
     if ( ! bib ) {
       ost << " no bases";
@@ -183,7 +183,7 @@ CondInputLoader::initialize()
           std::string base("UNKNOWN");
           m_clidSvc->getTypeNameOfID(clid2,base).ignore();
           ost << " " << base << " (" << clid2 << ")";
-          SG::VarHandleKey vhk(clid2,e.key(),Gaudi::DataHandle::Writer,
+          SG::VarHandleKey vhk(clid2,e->key(),Gaudi::DataHandle::Writer,
                                StoreID::storeName(StoreID::CONDITION_STORE));
           m_load.emplace(vhk.fullKey());
         }
@@ -250,9 +250,8 @@ CondInputLoader::start()
   // us the trouble of stripping out the storename from the key later.
   //
 
-  DataObjIDColl::iterator ditr;
   bool fail(false);
-  for (ditr = m_handlesToCreate.begin(); ditr != m_handlesToCreate.end(); ++ditr) {
+  for (const DataObjID* ditr : sortedDataObjIDColl (m_handlesToCreate)) {
     SG::VarHandleKey vhk(ditr->clid(),ditr->key(),Gaudi::DataHandle::Writer);
     if ( ! m_condStore->contains<CondContBase>( vhk.key() ) ){
       std::string tp("UNKNOWN");
