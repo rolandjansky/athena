@@ -139,47 +139,56 @@ StatusCode AthenaPoolAddressProviderSvc::loadAddresses(StoreID::type storeID,
          oid2 = token.oid().second;
       }
    }
+   const DataHandle<DataHeader> dataHeader;
    if (thisFile == Guid::null() || oid2 == 0L || thisFile != m_guid) { // New file (or reading DataHeader)
-      const DataHandle<DataHeader> dataHeader;
       if (!eventStore()->retrieve(dataHeader, m_dataHeaderKey.value()).isSuccess() || !dataHeader.isValid()) {
          ATH_MSG_ERROR("Cannot retrieve DataHeader from StoreGate.");
          return(StatusCode::FAILURE);
       }
-      dataHeader->setStatus(DataHeader::Primary);
-      ATH_MSG_DEBUG("The current Event contains: " << dataHeader->size() << " objects");
-      for (const auto& element : *dataHeader) {
-         SG::TransientAddress* tadd = element.getAddress();
-         if (tadd->clID() == ClassID_traits<DataHeader>::ID()) { // self reference
-            if (tadd->name() != "StreamRAW") {
-               if (tadd->name().empty() && dataHeader->sizeProvenance() == 1) { // reading DataHeader satellite
-                  SG::TransientAddress* taddDh = dataHeader->beginProvenance()->getAddress();
-                  if (taddDh != 0) {
-                     tads.push_back(new SG::TransientAddress(taddDh->clID(), "Full", taddDh->address())); // full DataHeader
-                  }
-                  delete taddDh; taddDh = 0;
-               }
-               dataHeader->setProcessTag(tadd->name());
-            }
-            delete tadd; tadd = 0;
-         } else {
-            ATH_MSG_DEBUG("loadAddresses: DataObject address, clid = " << tadd->clID() << ", name = " << tadd->name());
-            tadd->setProvider(this, storeID);
-            if (m_dataHeaderIterator) {
-               tadd->clearAddress(false);
-            }
-            tads.push_back(tadd);
+      if (m_dataHeaderIterator) {
+         ServiceHandle<StoreGateSvc> mds("MetaDataStore", name());
+         if (!mds.retrieve().isFailure()) {
+            const DataHeader* dataHeaderCopy = new DataHeader(*dataHeader.cptr());
+            if (mds->record(dataHeaderCopy, thisFile.toString()).isFailure()) ATH_MSG_WARNING("Can't copy event DataHeader to MetaData store.");
          }
-         EventSelectorAthenaPoolUtil::registerKeys(element, eventStore());
       }
-      m_guid = thisFile;
-   } else { // Iterating in current file, use DataHeader file entry number for all object references.
-      for (const auto& proxy : eventStore()->proxies()) {
-         TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(proxy->address());
-         if (tokAddr != 0 && tokAddr->getToken() != 0) {
-            const_cast<Token*>(tokAddr->getToken())->oid().second = oid2;
+   } else {
+      ServiceHandle<StoreGateSvc> mds("MetaDataStore", name());
+      if (mds.retrieve().isFailure() || mds->retrieve(dataHeader, thisFile.toString()).isFailure()) {
+         ATH_MSG_WARNING("Can't get event DataHeader from MetaData store.");
+         if (!eventStore()->retrieve(dataHeader, m_dataHeaderKey.value()).isSuccess() || !dataHeader.isValid()) {
+            ATH_MSG_ERROR("Cannot retrieve DataHeader from StoreGate.");
+            return(StatusCode::FAILURE);
          }
       }
    }
+   dataHeader->setStatus(DataHeader::Primary);
+   ATH_MSG_DEBUG("The current Event contains: " << dataHeader->size() << " objects");
+   for (const auto& element : *dataHeader) {
+      if (m_dataHeaderIterator) { // Get oid2 (event file entry number) from DataHeader proxy
+         const_cast<Token*>(element.getToken())->oid().second = oid2;
+      }
+      SG::TransientAddress* tadd = element.getAddress();
+      if (tadd->clID() == ClassID_traits<DataHeader>::ID()) { // self reference
+         if (tadd->name() != "StreamRAW") {
+            if (tadd->name().empty() && dataHeader->sizeProvenance() == 1) { // reading DataHeader satellite
+               SG::TransientAddress* taddDh = dataHeader->beginProvenance()->getAddress();
+               if (taddDh != 0) {
+                  tads.push_back(new SG::TransientAddress(taddDh->clID(), "Full", taddDh->address())); // full DataHeader
+               }
+               delete taddDh; taddDh = 0;
+            }
+            dataHeader->setProcessTag(tadd->name());
+         }
+         delete tadd; tadd = 0;
+      } else {
+         ATH_MSG_DEBUG("loadAddresses: DataObject address, clid = " << tadd->clID() << ", name = " << tadd->name());
+         tadd->setProvider(this, storeID);
+         tads.push_back(tadd);
+      }
+      EventSelectorAthenaPoolUtil::registerKeys(element, eventStore());
+   }
+   m_guid = thisFile;
    return(StatusCode::SUCCESS);
 }
 //________________________________________________________________________________

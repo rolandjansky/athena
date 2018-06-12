@@ -58,6 +58,7 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 
 svcMgr.EventSelector.InputCollections = [ "SimplePoolCollection3.root" ]; # ** mandatory parameter ** // The input file name
 svcMgr.EventSelector.CollectionType = "ExplicitROOT"
+svcMgr.AthenaPoolAddressProviderSvc.DataHeaderIterator = False
 
 svcMgr.EventSelector.Query = "EventNumber > 5"
 
