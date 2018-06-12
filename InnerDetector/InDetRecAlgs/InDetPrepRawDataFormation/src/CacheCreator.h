@@ -17,7 +17,6 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "PixelConditionsData/PixelOfflineCalibData.h"
-#include "SiLorentzAngleSvc/SiLorentzAngleCondData.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/PixelRDO_Container.h"
 
@@ -54,7 +53,6 @@ namespace InDet{
         bool m_disableTRT;
 	//Temporary workarounds for problem in scheduler - remove later
         SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_condKey5{ this, "PixelOfflineCalibData", "PixelOfflineCalibData", "" };
-        SG::ReadCondHandleKey<SiLorentzAngleCondData> m_condKey11{ this, "SiLorentzAngleCondData", "SCTSiLorentzAngleCondData", "" };
         SG::ReadCondHandleKey<DetectorSpecialPixelMap> m_condKey12{ this, "SpecialPixelMap", "SpecialPixelMap", "" };
         template<typename T>
         StatusCode CreateContainer(const SG::WriteHandleKey<T>& , long unsigned int , const EventContext& ) const;

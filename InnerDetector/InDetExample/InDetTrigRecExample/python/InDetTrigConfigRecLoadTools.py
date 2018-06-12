@@ -19,6 +19,10 @@ log = logging.getLogger("InDetTrigConfigRecLoadTools.py")
 
 from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
 
+# SiLorentzAngleTool for SCT
+if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
 #
 # common ClusterMakerTool
@@ -31,6 +35,7 @@ InDetTrigClusterMakerTool = \
                              PixelOfflineCalibSvc = PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                              #pixLorentzAnleSvc = "InDetTrigPixLorentzAngleSvc",
                              #UseLorentzAngleCorrections = False
+                             SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool
                              )
 if (InDetTrigFlags.doPrintConfigurables()):
   print InDetTrigClusterMakerTool

@@ -22,10 +22,16 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
         
         from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
         from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+
+        # --- SiLorentzAngleTool for SCT
+        if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+            from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+            sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
         
         InDetL2TrigClusterMakerTool = InDet__ClusterMakerTool( name = "InDetL2TrigClusterMakerTool",
                                                                UsePixelCalibCondDB = False,
                                                                PixelOfflineCalibSvc =  PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
+                                                               SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool
                                                                )
 
         ToolSvc += InDetL2TrigClusterMakerTool
