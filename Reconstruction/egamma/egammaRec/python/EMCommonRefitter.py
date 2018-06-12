@@ -75,10 +75,15 @@ def CreateEgammaRotCreator():
     egPixelClusterOnTrackTool = None
 
   if DetFlags.haveRIO.SCT_on():
+    # SiLorentzAngleTool
+    if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+      from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+      sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
     from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
     egSCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("egSCT_ClusterOnTrackTool",
                                                               CorrectionStrategy = 0,  # do correct position bias
-                                                              ErrorStrategy      = 2)  # do use phi dependent errors
+                                                              ErrorStrategy      = 2,  # do use phi dependent errors
+                                                              LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
     ToolSvc += egSCT_ClusterOnTrackTool
   else:
     egSCT_ClusterOnTrackTool = None

@@ -106,6 +106,8 @@ InDet::SCT_ClusterOnTrackTool::initialize() {
     return StatusCode::FAILURE;
   }
 
+  ATH_CHECK(m_lorentzAngleTool.retrieve());
+
   return sc;
 }
 
@@ -156,7 +158,7 @@ InDet::SCT_ClusterOnTrackTool::correct
   if (m_option_errorStrategy == 2 || m_option_correctionStrategy == 0) {
     double pNormal = trackPar.momentum().dot(EL->normal());
     double pPhi = trackPar.momentum().dot(Amg::AngleAxis3D(asin(-sinAlpha), Amg::Vector3D::UnitZ()) * EL->phiAxis());
-    dphi = std::atan(pPhi / pNormal) - std::atan(EL->getTanLorentzAnglePhi());
+    dphi = std::atan(pPhi / pNormal) - std::atan(m_lorentzAngleTool->getTanLorentzAngle(iH));
   }
   Amg::Vector3D localstripdir(-sinAlpha, cosAlpha, 0.);
   Amg::Vector3D globalstripdir = trackPar.associatedSurface().transform().linear() * localstripdir;
