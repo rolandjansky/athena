@@ -406,7 +406,7 @@ StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet&
       static const SG::AuxElement::Accessor<float> acc_mu("MU");
       ATH_CHECK( evtStore()->retrieve(xEventInfo,"EventInfo") );
 
-      static SG::AuxElement::Accessor<float> acc_absEtaLead("ABS_ETA_LEAD_TRACK");
+      static const SG::AuxElement::Accessor<float> acc_absEtaLead("ABS_ETA_LEAD_TRACK");
       
       if(pTauCopy->nTracks()>0)
         acc_absEtaLead(*pTauCopy) = pTauCopy->track(0)->eta();
