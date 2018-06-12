@@ -30,8 +30,7 @@
 
 #include "InDetReadoutGeometry/TRT_BaseElement.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
-
-class TRT_ID;
+#include "StoreGate/ReadCondHandle.h"
 
 
 
@@ -49,14 +48,22 @@ TRT_StrawStatusSummarySvc::TRT_StrawStatusSummarySvc( const std::string& name,
     m_par_statstream("StatStream1"),
     m_trtid(0),
     m_trtDetMgr(0),
-    m_strawstatuscontainerexists(false),
-    m_strawstatuspermanentcontainerexists(false),
-    m_strawstatusHTcontainerexists(false)
+    m_condSvc("CondSvc",name),
+    m_statReadKey("/TRT/Cond/Status"),
+    m_permReadKey("/TRT/Cond/StatusPermanent"),
+    m_statHTReadKey("/TRT/Cond/StatusHT"),
+    m_isGEANT4(true),
+    m_strawstatusG4(nullptr),
+    m_strawstatuspermanentG4(nullptr),
+    m_strawstatusHTG4(nullptr),
+    m_setup(false)
+
 {
   declareProperty("statusTextFile",m_par_stattextfile);
   declareProperty("statusTextFilePermanent",m_par_stattextfilepermanent);
   declareProperty("statusTextFileHT",m_par_stattextfileHT);
   declareProperty("ToolSvc",m_toolsvc);
+  declareProperty("isGEANT4",m_isGEANT4);
 
     // create arrays for alive straws
   m_stw_total = new int[7];
@@ -64,10 +71,18 @@ TRT_StrawStatusSummarySvc::TRT_StrawStatusSummarySvc( const std::string& name,
   m_stw_wheel = new int*[34];
   for (int i=0; i<6 ; ++i) m_stw_local[i] = new int[32];
   for (int i=0; i<34; ++i) m_stw_wheel[i] = new int[32];
-                          
-  resetArrays();//RM moved to c'tor from initialize() to avoid coverity defects
+
+  // initialise event number cache
+  m_evtstat.push_back(-1);
+  m_evtperm.push_back(-1);
+  m_evtstatHT.push_back(-1);
+  m_strawstatuscontainer.push_back(nullptr);
+  m_strawstatuspermanentcontainer.push_back(nullptr);
+  m_strawstatusHTcontainer.push_back(nullptr);
+
+
 }
-//  declareProperty("statusTextFile",m_par_stattextfile);
+
 
 
 TRT_StrawStatusSummarySvc::~TRT_StrawStatusSummarySvc()
@@ -78,7 +93,6 @@ StatusCode TRT_StrawStatusSummarySvc::initialize()
 {
   msg(MSG::INFO) << "TRT_StrawStatusSummarySvc initialize method called" << endmsg;
 
-  //  if (m_par_stattextfilepermanent=="") m_par_stattextfilepermanent=PathResolver::find_file ("strawstatuspermanent-01.txt", "DATAPATH");
 
   // Retrieve the DetectorStore
   if (StatusCode::SUCCESS!=m_detStore.retrieve()) {
@@ -98,85 +112,90 @@ StatusCode TRT_StrawStatusSummarySvc::initialize()
     return StatusCode::FAILURE;
   }
 
-  msg(MSG::INFO) << "TRT_StrawStatusSummarySvc::initialize " << m_par_stattextfile  << endmsg;
+
+  if(!m_isGEANT4) {
   
-  if(msgLvl(MSG::DEBUG)) msg() <<"trying to read "<<m_par_strawstatuscontainerkey<< " from StoreGateSvc"<<endmsg;
-  m_strawstatuscontainerexists = m_detStore->StoreGateSvc::contains<TRTCond::StrawStatusMultChanContainer>(m_par_strawstatuscontainerkey) ;
-
-  if( m_strawstatuscontainerexists ) {
-     if(msgLvl(MSG::DEBUG)) msg() << " strawstatuscontainerexists " <<endmsg; 
-     if( (m_detStore->regFcn(&TRT_StrawStatusSummarySvc::IOVCallBack,this,m_strawstatuscontainer,m_par_strawstatuscontainerkey)).isFailure()) 
-        msg(MSG::ERROR) << "Could not register IOV callback for key: " << m_par_strawstatuscontainerkey << endmsg ;
-  } else if (!m_par_stattextfile.empty()) {
-     // create, record and update data handle
-     if(msgLvl(MSG::DEBUG)) msg() << "Creating new strawstatus container" << endmsg ;
-     const TRTCond::StrawStatusMultChanContainer* strawstatuscontainer = new TRTCond::StrawStatusMultChanContainer() ; 
-
-     if( (m_detStore->record(strawstatuscontainer,m_par_strawstatuscontainerkey))!=StatusCode::SUCCESS ) {
-        msg(MSG::ERROR) << "Could not record StrawStatusContainer for key " << m_par_strawstatuscontainerkey << endmsg;
-     }
-     else{ 
-        msg( MSG::VERBOSE) << "Got record StrawStatusContainer for key " << m_par_strawstatuscontainerkey << endmsg; 
-        m_strawstatuscontainerexists = true;
-     }
-     if(StatusCode::SUCCESS!=m_detStore->retrieve(m_strawstatuscontainer,m_par_strawstatuscontainerkey)) {
-        msg(MSG::FATAL) << "Could not retrieve data handle for StrawStatusContainer " << endmsg;
-        return StatusCode::FAILURE ;
-     }else{if(msgLvl(MSG::VERBOSE)) msg() << "Retrieved data handle for StrawStatusContainer " << endmsg;}
-    if(!m_par_stattextfile.empty()) return readFromTextFile( m_par_stattextfile ) ;
+    // Read keys in case of normal reconstruction/digitization
+    ATH_CHECK( m_statReadKey.initialize() );
+    ATH_CHECK( m_permReadKey.initialize() );
+    ATH_CHECK( m_statHTReadKey.initialize() );
   }
 
-  if(msgLvl(MSG::DEBUG)) msg() <<"trying to read "<<m_par_strawstatuspermanentcontainerkey<< " from StoreGateSvc"<<endmsg;
-  m_strawstatuspermanentcontainerexists = m_detStore->StoreGateSvc::contains<TRTCond::StrawStatusMultChanContainer>(m_par_strawstatuspermanentcontainerkey) ;
+  if(m_isGEANT4) {
+    // Here we are either doing GEANT4 simulation or reading from text file. In either case revert to old non-MT style
+    if (m_par_stattextfile.empty()) {
+      msg(MSG::INFO) << "TRT_StrawStatusSummarySvc::initialize for simulation or streaming to/from text file"  << endmsg;
+      if(StatusCode::SUCCESS!=m_detStore->retrieve(m_strawstatusG4,m_par_strawstatuscontainerkey)) {
+        ATH_MSG_FATAL("Could not retrieve folder " << m_par_strawstatuscontainerkey);
+        return StatusCode::FAILURE;
+      }
+    }
+    if (m_par_stattextfilepermanent.empty()) {
+      if(StatusCode::SUCCESS!=m_detStore->retrieve(m_strawstatuspermanentG4,m_par_strawstatuspermanentcontainerkey)) {
+        ATH_MSG_FATAL("Could not retrieve folder " << m_par_strawstatuspermanentcontainerkey);
+        return StatusCode::FAILURE;
+      }
+    }
+    if (m_par_stattextfileHT.empty()) {
+      if(StatusCode::SUCCESS!=m_detStore->retrieve(m_strawstatusHTG4,m_par_strawstatusHTcontainerkey)) {
+        ATH_MSG_FATAL("Could not retrieve folder " << m_par_strawstatusHTcontainerkey);
+        return StatusCode::FAILURE;
+      }
+    }
+    if (!m_par_stattextfile.empty()) {
+      // Assume implicitely that the folder was blocked. Create, record and update data handle
+      if(msgLvl(MSG::INFO)) msg() << "Creating new strawstatus container" << endmsg ;
+      const TRTCond::StrawStatusMultChanContainer*  strawstatuscontainer = new TRTCond::StrawStatusMultChanContainer() ; 
 
-  if( m_strawstatuspermanentcontainerexists ) {
-     if(msgLvl(MSG::DEBUG)) msg() << " strawstatuspermanentcontainerexists " <<endmsg; 
-     if( (m_detStore->regFcn(&TRT_StrawStatusSummarySvc::IOVCallBack,this,m_strawstatuspermanentcontainer,m_par_strawstatuspermanentcontainerkey)).isFailure()) 
-        msg(MSG::ERROR) << "Could not register IOV callback for key: " << m_par_strawstatuspermanentcontainerkey << endmsg ;
-  } else if (!m_par_stattextfilepermanent.empty()) {
-     // create, record and update data handle
-     if(msgLvl(MSG::DEBUG)) msg() << "Creating new strawstatuspermanent container" << endmsg ;
+      if( (m_detStore->record(strawstatuscontainer,m_par_strawstatuscontainerkey))!=StatusCode::SUCCESS ) {
+           msg(MSG::ERROR) << "Could not record StrawStatusContainer for key " << m_par_strawstatuscontainerkey << endmsg;
+           return StatusCode::FAILURE;
+      }
+      if(StatusCode::SUCCESS!=m_detStore->retrieve(m_strawstatusG4,m_par_strawstatuscontainerkey)) {
+	msg(MSG::FATAL) << "Could not retrieve data handle for StrawStatusContainer " << endmsg;
+	return StatusCode::FAILURE ;
+      }
 
-     const TRTCond::StrawStatusMultChanContainer* strawstatuspermanentcontainer = new TRTCond::StrawStatusMultChanContainer() ; 
-     if( (m_detStore->record(strawstatuspermanentcontainer,m_par_strawstatuspermanentcontainerkey))!=StatusCode::SUCCESS ) {
-        msg(MSG::ERROR) << "Could not record StrawStatuspermanentContainer for key " << m_par_strawstatuspermanentcontainerkey << endmsg;
-     }
-     else{ 
-        if(msgLvl(MSG::VERBOSE)) msg() << "Got record StrawStatuspermanentContainer for key " << m_par_strawstatuspermanentcontainerkey << endmsg; 
-        m_strawstatuspermanentcontainerexists = true;
-     }
-     if(StatusCode::SUCCESS!=m_detStore->retrieve(m_strawstatuspermanentcontainer,m_par_strawstatuspermanentcontainerkey)) {
-        msg(MSG::FATAL) << "Could not retrieve data handle for StrawStatuspermanentContainer " << endmsg;
-        return StatusCode::FAILURE ;
-     }else{if(msgLvl(MSG::VERBOSE)) msg() << "Retrieved data handle for StrawStatuspermanentContainer " << endmsg;}
-     if(!m_par_stattextfilepermanent.empty()) return readFromTextFile( m_par_stattextfilepermanent ) ;
-  }
+      return readFromTextFile( m_par_stattextfile ) ;
+    }
+    if (!m_par_stattextfilepermanent.empty()) {
+      // Assume implicitely that the folder was blocked. Create, record and update data handle
+      if(msgLvl(MSG::INFO)) msg() << "Creating new strawstatuspermanent container" << endmsg ;
+      const TRTCond::StrawStatusMultChanContainer* strawstatuscontainer = new TRTCond::StrawStatusMultChanContainer() ; 
+
+      if( (m_detStore->record(strawstatuscontainer,m_par_strawstatuspermanentcontainerkey))!=StatusCode::SUCCESS ) {
+           msg(MSG::ERROR) << "Could not record StrawStatusContainer for key " << m_par_strawstatuspermanentcontainerkey << endmsg;
+           return StatusCode::FAILURE;
+      }
+
+      if(StatusCode::SUCCESS!=m_detStore->retrieve(m_strawstatuspermanentG4,m_par_strawstatuspermanentcontainerkey)) {
+	  msg(MSG::FATAL) << "Could not retrieve data handle for StrawStatusPermanentContainer " << endmsg;
+	  return StatusCode::FAILURE ;
+      }
 
 
-  
-  if(msgLvl(MSG::DEBUG)) msg() <<"trying to read "<<m_par_strawstatusHTcontainerkey<< " from StoreGateSvc"<<endmsg;
-  m_strawstatusHTcontainerexists = m_detStore->StoreGateSvc::contains<TRTCond::StrawStatusMultChanContainer>(m_par_strawstatusHTcontainerkey) ;
-  
-  if( m_strawstatusHTcontainerexists ) {
-     if(msgLvl(MSG::DEBUG)) msg() << " strawstatusHTcontainerexists " <<endmsg; 
-     if( (m_detStore->regFcn(&TRT_StrawStatusSummarySvc::IOVCallBack,this,m_strawstatusHTcontainer,m_par_strawstatusHTcontainerkey)).isFailure()) 
-        msg(MSG::ERROR) << "Could not register IOV callback for key: " << m_par_strawstatusHTcontainerkey << endmsg ;
-  } else if (!m_par_stattextfileHT.empty()) {
-     // create, record and update data handle
-     if(msgLvl(MSG::DEBUG)) msg() << "Creating new strawstatusHT container" << endmsg ;
-     const TRTCond::StrawStatusMultChanContainer* strawstatusHTcontainer = new TRTCond::StrawStatusMultChanContainer() ; 
-     if( (m_detStore->record(strawstatusHTcontainer,m_par_strawstatusHTcontainerkey))!=StatusCode::SUCCESS ) {
-        msg(MSG::ERROR) << "Could not record StrawStatusHTContainer for key " << m_par_strawstatusHTcontainerkey << endmsg;
-     }
-     else{ 
-        if(msgLvl(MSG::VERBOSE)) msg() << "Got record StrawStatusHTContainer for key " << m_par_strawstatusHTcontainerkey << endmsg; 
-        m_strawstatusHTcontainerexists = true;
-     }
-     if(StatusCode::SUCCESS!=m_detStore->retrieve(m_strawstatusHTcontainer,m_par_strawstatusHTcontainerkey)) {
-        msg(MSG::FATAL) << "Could not retrieve data handle for StrawStatusHTContainer " << endmsg;
-        return StatusCode::FAILURE ;
-     }else{if(msgLvl(MSG::VERBOSE)) msg() << "Retrieved data handle for StrawStatusHTContainer " << endmsg;}
-     if(!m_par_stattextfileHT.empty()) return readFromTextFile( m_par_stattextfileHT ) ;
+      return readFromTextFile( m_par_stattextfilepermanent ) ;
+    }
+    if (!m_par_stattextfileHT.empty()) {
+      // Assume implicitely that the folder was blocked. Create, record and update data handle
+      if(msgLvl(MSG::INFO)) msg() << "Creating new strawstatusHT container" << endmsg ;
+      const TRTCond::StrawStatusMultChanContainer* strawstatuscontainer = new TRTCond::StrawStatusMultChanContainer() ; 
+
+      if( (m_detStore->record(strawstatuscontainer,m_par_strawstatusHTcontainerkey))!=StatusCode::SUCCESS ) {
+           msg(MSG::ERROR) << "Could not record StrawStatusContainer for key " << m_par_strawstatusHTcontainerkey << endmsg;
+           return StatusCode::FAILURE;
+      }
+
+      if(StatusCode::SUCCESS!=m_detStore->retrieve(m_strawstatusHTG4,m_par_strawstatusHTcontainerkey)) {
+	msg(MSG::FATAL) << "Could not retrieve data handle for StrawStatusHTContainer " << endmsg;
+	return StatusCode::FAILURE ;
+      }
+
+      return readFromTextFile( m_par_stattextfileHT ) ;
+    }
+
+  } else {
+    msg(MSG::INFO) << "TRT_StrawStatusSummarySvc::initialize for reconstruction or digitization "  << endmsg;
   }
 
 
@@ -226,7 +245,7 @@ int TRT_StrawStatusSummarySvc::getStatus(Identifier offlineID){
   TRTCond::ExpandedIdentifier id=  TRTCond::ExpandedIdentifier( m_trtid->barrel_ec(offlineID),m_trtid->layer_or_wheel(offlineID),
 								       m_trtid->phi_module(offlineID),m_trtid->straw_layer(offlineID),
 								       m_trtid->straw(offlineID),level );
-  StrawStatusContainer* strawstatuscontainer = getStrawStatusContainer();
+  const StrawStatusContainer* strawstatuscontainer = getStrawStatusContainer();
   static int countStrawStatusContainerError(0);
   if (!strawstatuscontainer) {
     if (countStrawStatusContainerError<5) { 
@@ -247,7 +266,7 @@ int TRT_StrawStatusSummarySvc::getStatusPermanent(Identifier offlineID){
   TRTCond::ExpandedIdentifier id=  TRTCond::ExpandedIdentifier( m_trtid->barrel_ec(offlineID),m_trtid->layer_or_wheel(offlineID),
 								       m_trtid->phi_module(offlineID),m_trtid->straw_layer(offlineID),
 								       m_trtid->straw(offlineID),level );
-  StrawStatusContainer* strawstatuspermanentcontainer = getStrawStatusPermanentContainer();
+  const StrawStatusContainer* strawstatuspermanentcontainer = getStrawStatusPermanentContainer();
   static int countStrawStatusContainerError(0);
   if (!strawstatuspermanentcontainer) {
     if (countStrawStatusContainerError<5) {       msg(MSG::WARNING) << "TRT_StrawStatusSummarySvc::getStatusPermanent, strawstatuspermanentcontainer == 0, dead straws not set" << endmsg; 
@@ -267,7 +286,7 @@ int TRT_StrawStatusSummarySvc::getStatusHT(Identifier offlineID){
   TRTCond::ExpandedIdentifier id=  TRTCond::ExpandedIdentifier( m_trtid->barrel_ec(offlineID),m_trtid->layer_or_wheel(offlineID),
 								m_trtid->phi_module(offlineID),m_trtid->straw_layer(offlineID),
 								m_trtid->straw(offlineID),level );
-  StrawStatusContainer* strawstatusHTcontainer = getStrawStatusHTContainer();
+  const StrawStatusContainer* strawstatusHTcontainer = getStrawStatusHTContainer();
 
  static int countStrawStatusContainerError(0);
  if (!strawstatusHTcontainer) {
@@ -310,7 +329,7 @@ void  TRT_StrawStatusSummarySvc::set_LT_occ(Identifier offlineID, double lt_occ)
     status = status | org_stat ; 
 
 
-  StrawStatusContainer* strawstatuscontainer = getStrawStatusContainer();
+    StrawStatusContainer* strawstatuscontainer = const_cast<StrawStatusContainer*>(getStrawStatusContainer());
   ((*strawstatuscontainer).set(id,status));
 }
 
@@ -346,7 +365,7 @@ void  TRT_StrawStatusSummarySvc::set_HT_occ(Identifier offlineID, double ht_occ)
   //carefull not to change information which is already set 
   status = status | (org_stat & (~htbitmask&(~(0x31) ))) ;
   
-  StrawStatusContainer* strawstatuscontainer = getStrawStatusContainer();
+  StrawStatusContainer* strawstatuscontainer = const_cast<StrawStatusContainer*>(getStrawStatusContainer());
   ((*strawstatuscontainer).set(id,status));
 }
 
@@ -368,17 +387,8 @@ void  TRT_StrawStatusSummarySvc::set_status_temp(Identifier offlineID, bool set)
 								m_trtid->straw(offlineID),level );
   unsigned int org_stat = getStatus(offlineID);
   const unsigned int statusbitmask = 1 << 8;// 0000001 00000000
-  /*
-  unsigned int status = 0;
-  if (set) { 
-    status= (org_stat | statusbitmask); 
-  } 
-  else if ((!set)&&(get_status(offlineID))) {
-    status = org_stat - 256;
-  }
-  m_data.set(id,status);
-  */
-  StrawStatusContainer* strawstatuscontainer = getStrawStatusContainer();
+
+  StrawStatusContainer* strawstatuscontainer = const_cast<StrawStatusContainer*>(getStrawStatusContainer());
 
   if (set) {   (*strawstatuscontainer).set(id, (org_stat|statusbitmask)); }else{    (*strawstatuscontainer).set(id, (org_stat & (~statusbitmask) )); }
 }
@@ -392,7 +402,7 @@ void  TRT_StrawStatusSummarySvc::set_status_permanent(Identifier offlineID, bool
 								m_trtid->straw(offlineID),level );
   unsigned int org_stat = getStatusPermanent(offlineID);
   const unsigned int statusbitmask = 1 << 8;// 0000001 00000000
-  StrawStatusContainer* strawstatuspermanentcontainer = getStrawStatusPermanentContainer();
+  StrawStatusContainer* strawstatuspermanentcontainer = const_cast<StrawStatusContainer*>(getStrawStatusPermanentContainer());
 
   if (set) {   (*strawstatuspermanentcontainer).set(id, (org_stat|statusbitmask)); }else{    (*strawstatuspermanentcontainer).set(id, (org_stat & (~statusbitmask) )); }
 }
@@ -408,14 +418,10 @@ bool TRT_StrawStatusSummarySvc::get_status(Identifier offlineID){
   else if (getStatus(offlineID)==0) st = false;
   else {st = bool( (getStatus(offlineID) & statusbitmask) >> 8);};
 
-  // Safety check: Won't do any good unless a somewhere a StatusPermanent tag is defined.
 
-
-  if (m_strawstatuspermanentcontainerexists) {
     if (getStatusPermanent(offlineID)==1) stperm = true;
     else if (getStatusPermanent(offlineID)==0) stperm = false;
     else {stperm = bool( (getStatusPermanent(offlineID) & statusbitmask) >> 8);};
-  }
 
   return ( (st||stperm) );
   
@@ -428,15 +434,10 @@ bool TRT_StrawStatusSummarySvc::get_statusHT(Identifier offlineID){
   if(msgLvl(MSG::VERBOSE)) msg() <<"offlineID "<<offlineID<<" "<<getStatus(offlineID)<<" "<<((getStatus(offlineID) & statusbitmask) >> 8)<<endmsg;
   bool stHT=false;
 
-  // Safety check: Won't do any good unless a somewhere a StatusHT
 
-  
-  if (m_strawstatusHTcontainerexists) {
     if (getStatusHT(offlineID)==1) stHT = true;
     else if (getStatusHT(offlineID)==0) stHT = false;
     else {stHT = bool( (getStatusHT(offlineID) & statusbitmask) >> 8);};
-  }
-  else { if(msgLvl(MSG::WARNING)) msg() <<"Attempt to use get_statusHT flag, but CondDB folder not available. Returning StrawStatus::Good "<<endmsg; }
 
   return ( stHT );
 
@@ -454,7 +455,7 @@ void  TRT_StrawStatusSummarySvc::set_pid_status(Identifier offlineID, bool set){
 								m_trtid->straw(offlineID),level );
   unsigned int org_stat = getStatus(offlineID);
   const unsigned int pidstatusbitmask = 0x80; //0000000 10000000
-   StrawStatusContainer* strawstatuscontainer = getStrawStatusContainer();
+  StrawStatusContainer* strawstatuscontainer = const_cast<StrawStatusContainer*>(getStrawStatusContainer());
 
 
   if (set) {   (*strawstatuscontainer).set(id, (org_stat|pidstatusbitmask));  }else{    (*strawstatuscontainer).set(id, (org_stat & (~pidstatusbitmask) )); } 
@@ -473,7 +474,7 @@ void  TRT_StrawStatusSummarySvc::set_track_status(Identifier offlineID, bool set
 								m_trtid->straw(offlineID),level );
   unsigned int org_stat = getStatus(offlineID);
   const unsigned int trackstatusbitmask = 0x40; //0000000 01000000
-  StrawStatusContainer* strawstatuscontainer = getStrawStatusContainer();
+  StrawStatusContainer* strawstatuscontainer = const_cast<StrawStatusContainer*>(getStrawStatusContainer());
 
 
   if (set) {   (*strawstatuscontainer).set(id, (org_stat|trackstatusbitmask));  }else{   (*strawstatuscontainer).set(id, (org_stat & (~trackstatusbitmask) )); } 
@@ -499,24 +500,14 @@ bool TRT_StrawStatusSummarySvc::get_track_status(Identifier offlineID){
 StatusCode TRT_StrawStatusSummarySvc::readFromTextFile(const std::string& filename)
 {
 
-/*
-
-TRT_StrawStatusSummarySvc                  INFO  IOVCALLBACK for key /TRT/Cond/Status number 2
-TRT_StrawStatusSummarySvc                  INFO  IOVCALLBACK for key /TRT/Cond/StatusPermanent number 2
-TRT_StrawStatusSummarySvc                  INFO TRT_StrawStatusSummarySvc::readFromTextFile dummyNonExisting_TRT_StrawStatus_InputFile_TRT_StrawStatusSummarySvc
-TRT_StrawStatusSummarySvc                 DEBUG Permanently dead straws are removed based on the txt file: 
-TRT_StrawStatusSummarySvc                 ERROR Cannot initialize TRT_StrawStatusSummarySvc: Read from text file chosen, but no text file is found. To resolve: copy strawstatus.txt from TRT_ConditionsAlgs/share to your run dir
-IOVSvcTool                                ERROR Problems calling TRT_StrawStatusSummarySvc[0xf2f0b80]+d1
-ServiceManager                            DEBUG Stopping service TRT_StrawStatusSummarySvc
-myOCA                                      INFO 0: TRTCond::StrawStatusMultChanContainer#/TRT/Cond/Status#/TRT/Cond/Status
-ToolSvc.myOCATool                         DEBUG Found object for type TRTCond::StrawStatusMultChanContainer key /TRT/Cond/Status
-AthenaSealSvc                             DEBUG Checking members of type NestedContainerBase<2,TRTCond::NestedContainer<3,TRTCond::StrawStatus,TRTCond::DeadStrawTrait>,TRTCond::StrawStatus,TRTCond::DeadStrawTrait> for 2 members: ok  
-*/
   msg(MSG::INFO) << "TRT_StrawStatusSummarySvc::readFromTextFile " << filename << endmsg;
-//  m_par_stattextfile = filename;
+
+  // Input text file
+  std::ifstream ifs(m_par_stattextfile.c_str()) ;
   if(!m_par_stattextfile.empty()) {
-    StrawStatusContainer* strawstatuscontainer = getStrawStatusContainer();
+    StrawStatusContainer* strawstatuscontainer = const_cast<StrawStatusContainer*>(getStrawStatusContainer());
     strawstatuscontainer->clear();
+
   
     const InDetDD::TRT_DetectorManager* TRTDetectorManager ;
     if ((m_detStore->retrieve(TRTDetectorManager)).isFailure()) {
@@ -535,15 +526,12 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
 				      TRTCond::ExpandedIdentifier::LAYERWHEEL ) ;
       strawstatuscontainer->setStatus(id,TRTCond::StrawStatus::Good );
     }
-    
-    
-   // std::ifstream ifs(filename.c_str()) ;
-    std::ifstream ifs(m_par_stattextfile.c_str()) ;
-    if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Permanently dead straws are removed based on the txt file: "<<m_par_stattextfilepermanent<< endmsg;
+
+    if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Run dependent dead straws are removed based on the txt file: "<<m_par_stattextfile<< endmsg;    
     
 
     if (!ifs)  { 
-    msg(MSG::ERROR) << "Cannot initialize TRT_StrawStatusSummarySvc: Read from text file chosen, but no text file is found. To resolve: copy strawstatus.txt from TRT_ConditionsAlgs/share to your run dir" << endmsg;
+    msg(MSG::ERROR) << "No text file is found. To resolve: copy strawstatus.txt from TRT_ConditionsAlgs/share to your run dir" << endmsg;
     return StatusCode::FAILURE;
     }
 
@@ -563,13 +551,13 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
 	}	
 	int level = TRTCond::ExpandedIdentifier::STRAW ;
 	line +=1;
-	//    std::cout<<"read "<< bec<<  " "<<layer<<" "<<sector<<" "<<strawlayer<<" "<<straw<<" "<<level<<" "<<std::endl;
+
 	if( straw<0      ) { level = TRTCond::ExpandedIdentifier::STRAWLAYER ; straw = 0 ; }
 	if( strawlayer<0 ) { level = TRTCond::ExpandedIdentifier::MODULE ;     strawlayer = 0 ; }
 	if( sector<0     ) { level = TRTCond::ExpandedIdentifier::LAYERWHEEL ; sector = 0 ; }
 	if( layer<0      ) { level = TRTCond::ExpandedIdentifier::BARRELEC ;   layer = 0 ; }
 	if( bec<-2       ) { level = TRTCond::ExpandedIdentifier::DETECTOR ;   bec = -2 ; }
-              msg(MSG::INFO) << "StrawRead FromText File: bec: "  << bec << " layer: " << layer << " phi: " << sector << " stl:  " << strawlayer << " stw: " << straw   << endmsg;
+        msg(MSG::INFO) << "StrawRead FromText File: bec: "  << bec << " layer: " << layer << " phi: " << sector << " stl:  " << strawlayer << " stw: " << straw   << endmsg;
 	TRTCond::ExpandedIdentifier id( bec,layer,sector,strawlayer,straw,level);
 	strawstatuscontainer->set(id,TRTCond::StrawStatus::Dead) ;
 	strawstatuscontainer->setStatus(id,TRTCond::StrawStatus::Dead );
@@ -583,6 +571,7 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
       }
      msg(MSG::INFO) << "Straw Status read from: "  <<  filename << " We read: " << line << " straws on it"  << endmsg;
 
+
     } else {
 
       msg(MSG::ERROR) << "TRT_StrawStatusSummarySvc::readFromTextFile: can not read the file, file missing: " << filename << endmsg;
@@ -593,33 +582,20 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
 
   std::ifstream ifsHT(m_par_stattextfileHT.c_str()) ;
   if(!m_par_stattextfileHT.empty()) {
-    StrawStatusContainer* strawstatuscontainer = getStrawStatusHTContainer();
+    StrawStatusContainer* strawstatuscontainer = const_cast<StrawStatusContainer*>(getStrawStatusHTContainer());
     strawstatuscontainer->clear();
+
     const InDetDD::TRT_DetectorManager* TRTDetectorManager ;
     if ((m_detStore->retrieve(TRTDetectorManager)).isFailure()) {
       msg(MSG::FATAL) << "Problem retrieving TRT_DetectorManager" << endmsg;
     }
-    // initialize strawlayers with status 'good'
-    for( InDetDD::TRT_DetElementCollection::const_iterator it =  TRTDetectorManager->getDetectorElementBegin() ;
-         it != TRTDetectorManager->getDetectorElementEnd() ; ++it) {
-      Identifier ident = (*it)->identify() ;
-      TRTCond::ExpandedIdentifier id( m_trtid->barrel_ec(ident),
-                                      m_trtid->layer_or_wheel(ident),
-                                      0,
-                                      m_trtid->straw_layer(ident),
-                                      m_trtid->straw(ident),
-                                      TRTCond::ExpandedIdentifier::LAYERWHEEL ) ;
-      strawstatuscontainer->setStatus(id,TRTCond::StrawStatus::Good );
-    }
-    std::ifstream ifsHT(m_par_stattextfileHT.c_str()) ;
+
     if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "HT dead straws are removed based on the txt file: "<<m_par_stattextfileHT<< endmsg;
 
     if (!ifsHT) {
-      msg(MSG::ERROR) << "Cannot initialize TRT_StrawStatusSummarySvc: Read from text file chosen, but no text file is found. To resolve: copy strawstatus.txt from TRT_ConditionsAlgs/share to your run dir" << endmsg;
+      msg(MSG::ERROR) << "No text file is found. To resolve: copy strawstatus.txt from TRT_ConditionsAlgs/share to your run dir" << endmsg;
       return StatusCode::FAILURE;
     }
-    
-
     
     
     if (ifsHT) {
@@ -634,7 +610,7 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
 
       while( ifsHT >> bec >> sector>> straw >> strawlayer >> layer >> status ) {
         int level = TRTCond::ExpandedIdentifier::STRAW ;
-        //    std::cout<<"read "<< bec<<  " "<<layer<<" "<<sector<<" "<<strawlayer<<" "<<straw<<" "<<level<<" "<<std::endl;
+
 	line +=1;
         if( straw<0      ) { level = TRTCond::ExpandedIdentifier::STRAWLAYER ; straw = 0 ; }
         if( strawlayer<0 ) { level = TRTCond::ExpandedIdentifier::MODULE ;     strawlayer = 0 ; }
@@ -679,9 +655,6 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
   
 
 
-
-
-
   //Permanent
 
 
@@ -692,9 +665,8 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
     if (ifspermanent) {
 
 
-      StrawStatusContainer* strawstatuspermanentcontainer = getStrawStatusPermanentContainer();
+      StrawStatusContainer* strawstatuspermanentcontainer = const_cast<StrawStatusContainer*>(getStrawStatusPermanentContainer());
       strawstatuspermanentcontainer->clear();
-
 
       int bec, layer, sector, strawlayer, straw, status;
       //int  pid_status,  track_status;
@@ -708,7 +680,7 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
 		return StatusCode::FAILURE;	
 	}	
 	int level = TRTCond::ExpandedIdentifier::STRAW ;
-	//    std::cout<<"read "<< bec<<  " "<<layer<<" "<<sector<<" "<<strawlayer<<" "<<straw<<" "<<level<<" "<<std::endl;
+
 	line +=1;
 	if( straw<0      ) { level = TRTCond::ExpandedIdentifier::STRAWLAYER ; straw = 0 ; }
 	if( strawlayer<0 ) { level = TRTCond::ExpandedIdentifier::MODULE ;     strawlayer = 0 ; }
@@ -738,72 +710,69 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
 
 
 
-
-
-
-
-
 ///////////////////////////////////////////////////
 
 
-StatusCode TRT_StrawStatusSummarySvc::writeToTextFile(const std::string& filename ) const
+StatusCode TRT_StrawStatusSummarySvc::writeToTextFile(const std::string& filename )
 {
   std::ofstream outfile(filename.c_str());
 
 
-   msg(MSG::INFO) << " Dump To File: StrawStatus "  << endmsg;
-if(m_strawstatuscontainer->numObjects()>0){
+
+  if(getStrawStatusHTContainer()->numObjects()>0){
+    msg(MSG::INFO) << " Dump To File: StrawStatus "  << endmsg;
     outfile << " Status: " << std::endl;
-  TRTCond::StrawStatusLayerContainer::FlatContainer flatcontainer;
-  m_strawstatuscontainer                ->getall(flatcontainer) ;
-  for( TRTCond::StrawStatusContainer::FlatContainer::const_iterator
+    TRTCond::StrawStatusLayerContainer::FlatContainer flatcontainer;
+
+    getStrawStatusContainer()->getall(flatcontainer) ;
+
+    for( TRTCond::StrawStatusContainer::FlatContainer::const_iterator
          it = flatcontainer.begin() ; it != flatcontainer.end() ; ++it) {
-    TRTCond::ExpandedIdentifier id = it->first ;
-    const TRTCond::StrawStatus* status = it->second ;
-    outfile << id << " " << int(status->getstatus()) << std::endl ;
+      TRTCond::ExpandedIdentifier id = it->first ;
+      const TRTCond::StrawStatus* status = it->second ;
+      outfile << id << " " << int(status->getstatus()) << std::endl ;
+    }
   }
-}
 
 
+
+ if( getStrawStatusHTContainer()->numObjects()>0){
     msg(MSG::INFO) << " Dump To File: StrawStatus HT "  << endmsg;
-if( m_strawstatusHTcontainer->numObjects()>0){
-  TRTCond::StrawStatusLayerContainer::FlatContainer flatcontainerHT;
-  m_strawstatusHTcontainer              ->getall(flatcontainerHT) ;
-
-
     outfile << " HT Status: " << std::endl;
-  for( TRTCond::StrawStatusContainer::FlatContainer::const_iterator
+    TRTCond::StrawStatusLayerContainer::FlatContainer flatcontainerHT;
+
+    getStrawStatusHTContainer()->getall(flatcontainerHT) ;
+
+
+    for( TRTCond::StrawStatusContainer::FlatContainer::const_iterator
          it = flatcontainerHT.begin() ; it != flatcontainerHT.end() ; ++it) {
-    TRTCond::ExpandedIdentifier id = it->first ;
-    const TRTCond::StrawStatus* status = it->second ;
-    outfile << id << " " << int(status->getstatus()) << std::endl ;
+      TRTCond::ExpandedIdentifier id = it->first ;
+      const TRTCond::StrawStatus* status = it->second ;
+      outfile << id << " " << int(status->getstatus()) << std::endl ;
+    }
   }
-}
 
 
-if(m_strawstatuspermanentcontainer->numObjects()>0){
-    msg(MSG::INFO) << " Dump To File: StrawStatus permanent "  << endmsg;
-  TRTCond::StrawStatusLayerContainer::FlatContainer flatcontainerpermanent;
-  m_strawstatuspermanentcontainer               ->getall(flatcontainerpermanent) ;
+ if(getStrawStatusPermanentContainer()->numObjects()>0){
+   msg(MSG::INFO) << " Dump To File: StrawStatus permanent "  << endmsg;
+   outfile << " permanent Status: " << std::endl;
+   TRTCond::StrawStatusLayerContainer::FlatContainer flatcontainerpermanent;
+
+   getStrawStatusPermanentContainer() ->getall(flatcontainerpermanent) ;
 
 
-    outfile << " permanent Status: " << std::endl;
-  for( TRTCond::StrawStatusContainer::FlatContainer::const_iterator
+   for( TRTCond::StrawStatusContainer::FlatContainer::const_iterator
          it = flatcontainerpermanent.begin() ; it != flatcontainerpermanent.end() ; ++it) {
-    TRTCond::ExpandedIdentifier id = it->first ;
-    const TRTCond::StrawStatus* status = it->second ;
-    outfile << id << " " << int(status->getstatus()) << std::endl ;
-  }
-}
-  return StatusCode::SUCCESS ;
+     TRTCond::ExpandedIdentifier id = it->first ;
+     const TRTCond::StrawStatus* status = it->second ;
+     outfile << id << " " << int(status->getstatus()) << std::endl ;
+   }
+ }
+ return StatusCode::SUCCESS ;
 
 
 
 }
-
-
-
-
 
 
 
@@ -914,7 +883,7 @@ void TRT_StrawStatusSummarySvc::resetArrays(){
 
 
 ///////////////////////////////////////////////////
-StatusCode TRT_StrawStatusSummarySvc::ComputeAliveStraws(){
+void TRT_StrawStatusSummarySvc::ComputeAliveStraws(){
    // The TRT helper:
   bool detectorManager = true;
   if (StatusCode::SUCCESS!=m_detStore->retrieve(m_trtDetMgr,"TRT")) {
@@ -922,6 +891,7 @@ StatusCode TRT_StrawStatusSummarySvc::ComputeAliveStraws(){
     detectorManager = false;
   }
 
+  resetArrays();
   for (std::vector<Identifier>::const_iterator it = m_trtid->straw_layer_begin(); it != m_trtid->straw_layer_end(); it++  ) {
 
    unsigned int nstraws = 0;
@@ -956,27 +926,38 @@ StatusCode TRT_StrawStatusSummarySvc::ComputeAliveStraws(){
     }//For
  }//For
 
+ m_setup=true;
  ATH_MSG_DEBUG("Active Straws: " << m_stw_total[0] << " \t" << m_stw_total[1]<< "\t" << m_stw_total[2]<< "\t" << m_stw_total[3] );	
- return StatusCode::SUCCESS;
+
 }
 
-
-///////////////////////////////////////////////////
-
-StatusCode TRT_StrawStatusSummarySvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I,keys))
+int*  TRT_StrawStatusSummarySvc::getStwTotal()
 {
-  for (std::list<std::string>::const_iterator 
-	 itr=keys.begin(); itr!=keys.end(); ++itr) 
-    msg(MSG::INFO) << " IOVCALLBACK for key " << *itr << " number " << I << endmsg;
-  
-  // if constants need to be read from textfile, we sue the call back routine to refill the IOV objects
-   if(!m_par_stattextfile.empty()) return readFromTextFile( m_par_stattextfile) ;
-
-   msg(MSG::INFO) << " Compute Alive Straws " << endmsg;
-   StatusCode sc = ComputeAliveStraws();
-   return sc ;
+  if(!m_setup) {
+    resetArrays();
+    ComputeAliveStraws();
+  }
+  return m_stw_total;
 }
-////////////////////////////////
+
+int**  TRT_StrawStatusSummarySvc::getStwLocal()
+{
+  if(!m_setup) {
+    resetArrays();
+    ComputeAliveStraws();
+  }
+
+  return m_stw_local;
+}
+
+int**  TRT_StrawStatusSummarySvc::getStwWheel()
+{
+  if(!m_setup) {
+    resetArrays();
+    ComputeAliveStraws();
+  }
+  return m_stw_wheel;
+}
 
 
 StatusCode TRT_StrawStatusSummarySvc::streamOutStrawStatObjects() const
