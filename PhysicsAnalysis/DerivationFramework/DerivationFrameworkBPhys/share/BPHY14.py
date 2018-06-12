@@ -13,7 +13,6 @@ isSimulation = False
 if globalflags.DataSource()=='geant4':
     isSimulation = True
 
-print isSimulation
 
 #====================================================================
 # AUGMENTATION TOOLS 
@@ -36,11 +35,13 @@ BPHY14JpsiFinder = Analysis__JpsiFinder(
   muAndTrack                  = False,
   TrackAndTrack               = False,
   assumeDiMuons               = True,    # If true, will assume dimu hypothesis and use PDG value for mu mass
-  invMassUpper                = 100000.0,
-  invMassLower                = 0.0,
+  invMassUpper                = 15000.0,
+  invMassLower                = 2000.,
   Chi2Cut                     = 200.,
-  oppChargesOnly	            = True,
-  atLeastOneComb              = True,
+  muonThresholdPt             = 2500.,
+  oppChargesOnly	          = True,
+  atLeastOneComb              = False,
+  combOnly                    = True,
   useCombinedMeasurement      = False, # Only takes effect if combOnly=True	
   muonCollectionKey           = "Muons",
   TrackParticleCollection     = "InDetTrackParticles",
@@ -143,7 +144,6 @@ print BPHY14_Select_Upsi2mumu
 #====================================================================
 # Photon things
 #====================================================================
-#from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
@@ -151,8 +151,8 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 
-#photonRequirements = '(DFCommonPhotons_et >= 15*GeV) && (abs(DFCommonPhotons_eta) < 2.5)'# && (Photons.Loose)'
-photonRequirements = 'Photons.pt > 5.*GeV'
+#photonRequirements = '(DFCommonPhotons_et >= 5*GeV) && (abs(DFCommonPhotons_eta) < 2.6)'# && (Photons.Loose)'
+photonRequirements = 'DFCommonPhotons_et > 5*GeV'
 
 
 expression = "(count(BPHY14OniaCandidates.passed_Jpsi) > 0 || count(BPHY14OniaCandidates.passed_Psi) > 0 || count(BPHY14OniaCandidates.passed_Upsi) > 0) && count("+photonRequirements+") >0"
@@ -194,12 +194,29 @@ BPHY14MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name  
                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += BPHY14MuonTPThinningTool
 
+
+# Tracks associated with Photons
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+BPHY14PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name = "BPHY14PhotonTPThinningTool",
+                                                           ThinningService        = "BPHY14ThinningSvc",
+                                                           SGKey                  = "Photons",
+                                                           GSFTrackParticlesKey   = "GSFTrackParticles",
+                                                           InDetTrackParticlesKey = "InDetTrackParticles",
+                                                           SelectionString        = photonRequirements,
+                                                           BestMatchOnly          = False,
+                                                           ConeSize               = 0.6,
+                                                           ApplyAnd               = False)
+ToolSvc += BPHY14PhotonTPThinningTool
+
+
+
+
 # Added by ASC
 # Only save truth informtion directly associated with Onia
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 BPHY14TruthThinTool = DerivationFramework__GenericTruthThinning(name                    = "BPHY14TruthThinTool",
                                                         ThinningService         = "BPHY14ThinningSvc",
-                                                        ParticleSelectionString = "TruthParticles.pdgId == 443 || TruthParticles.pdgId == 100443 || TruthParticles.pdgId == 553 || TruthParticles.pdgId == 100553 || TruthParticles.pdgId == 200553",
+                                                        ParticleSelectionString = "TruthParticles.pdgId == 22 || TruthParticles.pdgId == 443 || TruthParticles.pdgId == 100443 || TruthParticles.pdgId == 553 || TruthParticles.pdgId == 100553 || TruthParticles.pdgId == 200553",
                                                         PreserveDescendants     = True,
                                                         PreserveAncestors      = True)
 ToolSvc += BPHY14TruthThinTool
@@ -213,7 +230,7 @@ print BPHY14TruthThinTool
 ##    be executed!
 
 # Added by ASC
-BPHY14ThinningTools = [BPHY14Thin_vtxTrk, BPHY14MuonTPThinningTool]
+BPHY14ThinningTools = [BPHY14Thin_vtxTrk, BPHY14MuonTPThinningTool,BPHY14PhotonTPThinningTool]
 if globalflags.DataSource()=='geant4':
     BPHY14ThinningTools.append(BPHY14TruthThinTool)
 
@@ -248,51 +265,66 @@ svcMgr += createThinningSvc( svcName="BPHY14ThinningSvc", outStreams=[evtStream]
 # Added by ASC
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 BPHY14SlimmingHelper = SlimmingHelper("BPHY14SlimmingHelper")
-AllVariables     = []
-StaticContent    = []
-SmartCollections = []
+BPHY14_AllVariables     = []
+BPHY14_StaticContent    = []
+BPHY14_SmartCollections = []
+BPHY14_ExtraVariables   = []
 
 # Needed for trigger objects
-BPHY14SlimmingHelper.IncludeMuonTriggerContent = True
-BPHY14SlimmingHelper.IncludeBPhysTriggerContent = True
+BPHY14SlimmingHelper.IncludeMuonTriggerContent   = True
+BPHY14SlimmingHelper.IncludeBPhysTriggerContent  = True
+BPHY14SlimmingHelper.IncludeEGammaTriggerContent = True
 
 ## primary vertices
-AllVariables  += ["PrimaryVertices"]
-StaticContent += ["xAOD::VertexContainer#BPHY14RefittedPrimaryVertices"]
-StaticContent += ["xAOD::VertexAuxContainer#BPHY14RefittedPrimaryVerticesAux."]
+BPHY14_SmartCollections  += ["PrimaryVertices"]
+BPHY14_StaticContent += ["xAOD::VertexContainer#BPHY14RefittedPrimaryVertices"]
+BPHY14_StaticContent += ["xAOD::VertexAuxContainer#BPHY14RefittedPrimaryVerticesAux."]
 
 ## ID track particles
-AllVariables += ["InDetTrackParticles"]
+BPHY14_SmartCollections += ["InDetTrackParticles"]
+BPHY14_ExtraVariables += ["%s.vx.vy.vz" %  "InDetTrackParticles"]
+#BPHY14_AllVariables += ["InDetTrackParticles"]
+
 
 ## combined / extrapolated muon track particles 
 ## (note: for tagged muons there is no extra TrackParticle collection since the ID tracks
 ##        are store in InDetTrackParticles collection)
-AllVariables += ["CombinedMuonTrackParticles"]
-AllVariables += ["ExtrapolatedMuonTrackParticles"]
+BPHY14_AllVariables += ["CombinedMuonTrackParticles"]
+BPHY14_AllVariables += ["ExtrapolatedMuonTrackParticles"]
 
 ## muon container
-AllVariables += ["Muons"]
+BPHY14_SmartCollections += ["Muons"]
+BPHY14_ExtraVariables   += ["%s.etcone30.etcone40" %  "Muons"
+                           +".momentumBalanceSignificance"
+                           +".scatteringCurvatureSignificance"
+                           +".scatteringNeighbourSignificance"
+                           +".msInnerMatchDOF.msInnerMatchChi2"
+                           +".msOuterMatchDOF.msOuterMatchChi2"
+                           +".EnergyLoss.ParamEnergyLoss.MeasEnergyLoss"
+                           +".ET_Core" ]
+#BPHY14_AllVariables += ["Muons"]
 
 ## Jpsi candidates 
-StaticContent += ["xAOD::VertexContainer#%s"        % BPHY14_Reco_mumu.OutputVtxContainerName]
-StaticContent += ["xAOD::VertexAuxContainer#%sAux." % BPHY14_Reco_mumu.OutputVtxContainerName]
+BPHY14_StaticContent += ["xAOD::VertexContainer#%s"        % BPHY14_Reco_mumu.OutputVtxContainerName]
+BPHY14_StaticContent += ["xAOD::VertexAuxContainer#%sAux." % BPHY14_Reco_mumu.OutputVtxContainerName]
 ## we have to disable vxTrackAtVertex branch since it is not xAOD compatible
-StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY14_Reco_mumu.OutputVtxContainerName]
+BPHY14_StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY14_Reco_mumu.OutputVtxContainerName]
 
-# Added by ASC
 # Truth information for MC only
 if isSimulation:
-    AllVariables += ["TruthEvents","TruthParticles","TruthVertices","MuonTruthParticles"]
+    BPHY14_StaticContent += ["xAOD::TruthParticleContainer#TruthMuons","xAOD::TruthParticleAuxContainer#TruthMuonsAux."]
+    BPHY14_StaticContent += ["xAOD::TruthParticleContainer#TruthPhotons","xAOD::TruthParticleAuxContainer#TruthPhotonsAux."]
+    BPHY14_AllVariables  += ["TruthEvents","TruthParticles","TruthVertices","MuonTruthParticles"]
 
 #Photon Information
-AllVariables     += ["Photons"]
-SmartCollections += ["Photons","Muons","InDetTrackParticles","PrimaryVertices"]
-BPHY14SlimmingHelper.IncludeEGammaTriggerContent = True
-#from DerivationFrameworkSM.STDMExtraContent import *
-#BPHY14SlimmingHelper.ExtraVariables = ExtraContentPhotons
+#AllVariables     += ["Photons"]
+BPHY14_SmartCollections += ["Photons"] #,"Muons","InDetTrackParticles","PrimaryVertices"]
+from DerivationFrameworkSM.STDMExtraContent import *
+BPHY14_ExtraVariables.extend(ExtraContentPhotons)
 
 
-BPHY14SlimmingHelper.AllVariables    = AllVariables
-BPHY14SlimmingHelper.StaticContent   = StaticContent
-BPHY14SlimmingHelper.SmartCollections = SmartCollections
+BPHY14SlimmingHelper.AllVariables     = BPHY14_AllVariables
+BPHY14SlimmingHelper.StaticContent    = BPHY14_StaticContent
+BPHY14SlimmingHelper.SmartCollections = BPHY14_SmartCollections
+BPHY14SlimmingHelper.ExtraVariables   = BPHY14_ExtraVariables
 BPHY14SlimmingHelper.AppendContentToStream(BPHY14Stream)
