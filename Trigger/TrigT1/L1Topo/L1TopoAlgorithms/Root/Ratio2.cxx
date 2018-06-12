@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /*********************************
  * Ratio2.cpp
  * Created by Joerg Stelzer on 11/16/12.
- * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
  *
  * @brief algorithm calculates the phi-distance between one or two lists and applies delta-phi criteria
  *

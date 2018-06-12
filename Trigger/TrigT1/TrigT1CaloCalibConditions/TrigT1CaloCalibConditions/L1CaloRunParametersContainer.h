@@ -1,5 +1,8 @@
 // -*- C++ -*-
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALORUNPARAMETERSCONTAINER_H
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #define TRIGT1CALOCALIBCONDITIONS_L1CALORUNPARAMETERSCONTAINER_H
 
 #include <map>

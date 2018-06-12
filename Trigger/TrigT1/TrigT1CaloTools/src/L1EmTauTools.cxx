@@ -1,5 +1,8 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 ///////////////////////////////////////////////////////////////////
-// L1EmTauTools.cxx, (c) Alan Watson (see header file for license)
+// L1EmTauTools.cxx,  
 ///////////////////////////////////////////////////////////////////
 
 #include "TrigT1CaloTools/L1EmTauTools.h"
