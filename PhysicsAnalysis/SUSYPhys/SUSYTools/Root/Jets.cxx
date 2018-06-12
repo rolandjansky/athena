@@ -437,7 +437,7 @@ namespace ST {
 
     if (m_jetInputType == xAOD::JetInput::EMTopo) { //--- Jet cleaning only well defined for EMTopo jets!
       if (m_acc_jetClean.isAvailable(input)) {
-	dec_bad(input) = m_acc_jetClean(input);
+	dec_bad(input) = !m_acc_jetClean(input);
       } else {
 	ATH_MSG_VERBOSE("DFCommon jet cleaning variable not available ... Using jet cleaning tool");
 	dec_bad(input) = m_jetCleaningTool.empty() ? false : !m_jetCleaningTool->keep(input);
