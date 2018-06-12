@@ -212,14 +212,12 @@ StatusCode LArPileUpTool::initialize()
      ATH_MSG_INFO(" No overlay of random events");
   }
 
-  if (m_PileUp) {
-       if (service("PileUpMergeSvc", m_mergeSvc).isFailure()) {
-            ATH_MSG_ERROR( "Can not retrive PileUpMergeSvc" );
-            ATH_MSG_ERROR( "Setting PileUp and RndmOverlay flags to FALSE ");
-            m_PileUp = m_RndmEvtOverlay = false;
-        } else {
-            ATH_MSG_INFO( "PileUpMergeSvc successfully initialized");
-        }
+  if (service("PileUpMergeSvc", m_mergeSvc).isFailure()) {
+    ATH_MSG_ERROR( "Can not retrive PileUpMergeSvc" );
+    ATH_MSG_ERROR( "Setting PileUp and RndmOverlay flags to FALSE ");
+    m_PileUp = m_RndmEvtOverlay = false;
+  } else {
+    ATH_MSG_INFO( "PileUpMergeSvc successfully initialized");
   }
 
   //
@@ -609,33 +607,30 @@ StatusCode LArPileUpTool::processBunchXing(int bunchXing,
   SubEventIterator iEvt(bSubEvents);
   while (iEvt != eSubEvents) {
 
-        // event store for this sub event
-        StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
+    // do we deal with the MC signal event ?
+    bool isSignal = ( (iEvt->type()==xAOD::EventInfo_v1::PileUpType::Signal) || m_RndmEvtOverlay);
 
-        // do we deal with the MC signal event ?
-        bool isSignal = ( (iEvt->type()==xAOD::EventInfo_v1::PileUpType::Signal) || m_RndmEvtOverlay);
+    // fill LArHits in map
+    if (this->fillMapFromHit(iEvt, tbunch,isSignal).isFailure()) {
 
-        // fill LArHits in map
-        if (this->fillMapFromHit(&seStore,tbunch,isSignal).isFailure()) {
-          ATH_MSG_ERROR(" cannot fill map from hits ");
-          return StatusCode::FAILURE;
-        }
+      ATH_MSG_ERROR(" cannot fill map from hits ");
+      return StatusCode::FAILURE;
+    }
 
-        // store digits from randoms for overlay
-        if (m_RndmEvtOverlay) {
-           LArDigitContainer* rndm_digit_container;
-           if (seStore.contains<LArDigitContainer>("m_RandomDigitContainer")) {
-             if (seStore.retrieve(rndm_digit_container,m_RandomDigitContainer).isSuccess()) {
-               int ndigit=0;
-               for (LArDigit* digit : *rndm_digit_container) {
-                 if (m_hitmap->AddDigit(digit)) ndigit++;
-               }
-               ATH_MSG_INFO(" Number of digits stored for RndmEvt Overlay " << ndigit);
-             }
-           }
-        }
+    // store digits from randoms for overlay
+    if (m_RndmEvtOverlay) {
+      const LArDigitContainer* rndm_digit_container;
+      if (m_mergeSvc->retrieveSingleSubEvtData(m_RandomDigitContainer, rndm_digit_container, bunchXing, iEvt).isSuccess()) {
+	int ndigit=0;
+	for (const LArDigit* digit : *rndm_digit_container) {
+	  if (m_hitmap->AddDigit(digit)) ndigit++;
+	}
+	ATH_MSG_INFO(" Number of digits stored for RndmEvt Overlay " << ndigit);
+      }
+    }
 
-        ++iEvt;
+    ++iEvt;
+
   }
 
   if (!m_useMBTime) {
@@ -1020,6 +1015,97 @@ StatusCode LArPileUpTool::fillMapFromHit(StoreGateSvc* myStore, float bunchTime,
          ATH_MSG_WARNING(" LAr Hit container not found for signal event key " << m_HitContainer[iHitContainer]);
       }
      }
+    }
+  }   // end loop over containers
+
+  return StatusCode::SUCCESS;
+}
+
+// ============================================================================================
+StatusCode LArPileUpTool::fillMapFromHit(SubEventIterator iEvt, float bunchTime, bool isSignal)
+{
+  for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
+  {
+
+  //
+  // ..... Get the pointer to the Hit Container from StoreGate through the merge service
+  //
+
+    ATH_MSG_DEBUG(" fillMapFromHit: asking for: " << m_HitContainer[iHitContainer]);
+
+    unsigned int offset;
+    int ical=0;
+    if (m_CaloType[iHitContainer] == LArHitEMap::EMBARREL_INDEX ||
+        m_CaloType[iHitContainer] == LArHitEMap::EMENDCAP_INDEX)
+    {
+      offset=0;
+      ical=1;
+    }
+    else if (m_CaloType[iHitContainer] == LArHitEMap::HADENDCAP_INDEX)
+    {
+      offset=m_hitmap->get_ncellem();
+      ical=2;
+    }
+    else if (m_CaloType[iHitContainer] == LArHitEMap::FORWARD_INDEX)
+    {
+      offset=m_hitmap->get_ncellem()+m_hitmap->get_ncellhec();
+      ical=3;
+    }
+    else
+    {
+     ATH_MSG_ERROR("unknown calo type ! ");
+     return StatusCode::FAILURE;
+    }
+
+    if (m_useLArHitFloat) {
+
+      const LArHitFloatContainer * hit_container;
+
+      if (!(m_mergeSvc->retrieveSingleSubEvtData(m_HitContainer[iHitContainer], hit_container, bunchTime,
+						 iEvt).isSuccess())){
+	ATH_MSG_ERROR(" LAr Hit container not found for event key " << m_HitContainer[iHitContainer]);
+	return StatusCode::FAILURE;
+      }
+
+      LArHitFloatContainer::const_iterator hititer;
+      for(hititer=hit_container->begin();
+	  hititer != hit_container->end();hititer++)
+	{
+	  m_nhit_tot++;
+	  Identifier cellId = (*hititer).cellID();
+	  float energy = (float) (*hititer).energy();
+	  float time;
+	  if (m_ignoreTime) time=0.;
+	  else time   = (float) ((*hititer).time() - m_trigtime);
+	  time = time + bunchTime;
+
+         if (this->AddHit(cellId,energy,time,isSignal,offset,ical).isFailure()) return StatusCode::FAILURE;
+	}
+    }
+    else {
+
+      const LArHitContainer * hit_container;
+
+      if (!(m_mergeSvc->retrieveSingleSubEvtData(m_HitContainer[iHitContainer], hit_container, bunchTime,
+					      iEvt).isSuccess())){
+	ATH_MSG_ERROR(" LAr Hit container not found for event key " << m_HitContainer[iHitContainer]);
+	return StatusCode::FAILURE;
+      }
+
+      LArHitContainer::const_iterator hititer;
+      for(hititer=hit_container->begin();
+	  hititer != hit_container->end();hititer++)
+	{
+	  m_nhit_tot++;
+	  Identifier cellId = (*hititer)->cellID();
+	  float energy = (float) (*hititer)->energy();
+	  float time;
+	  if (m_ignoreTime) time=0.;
+	  else time   = (float) ((*hititer)->time() - m_trigtime);
+	  time = time + bunchTime;
+
+         if (this->AddHit(cellId,energy,time,isSignal,offset,ical).isFailure()) return StatusCode::FAILURE;
+	}
     }
   }   // end loop over containers
 
