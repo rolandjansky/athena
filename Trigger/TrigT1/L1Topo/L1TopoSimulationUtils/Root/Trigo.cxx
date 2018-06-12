@@ -1,8 +1,10 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /*********************************
  * Trigo.cxx
  * author : Ignacio Aracena <ignacio.aracena@cern.ch>
  * Created June 2015
- * Copyright (c) 2015 Ignacio Aracena. All rights reserved.
  *
  * @brief Lookup table for trigonometric functions.
  *        Resolution is in PI/32. Values is in Qm.n format 

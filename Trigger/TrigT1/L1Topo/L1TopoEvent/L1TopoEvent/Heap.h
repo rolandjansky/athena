@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //  Heap.h
 //  L1TopoEvent
 //  Created by Joerg Stelzer on 11/23/12.
-//  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
 #ifndef __L1TopoEvent__Heap__
 #define __L1TopoEvent__Heap__
