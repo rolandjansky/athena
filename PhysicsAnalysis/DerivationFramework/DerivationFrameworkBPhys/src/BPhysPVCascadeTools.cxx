@@ -15,7 +15,6 @@
 #include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
 #include "HepPDT/ParticleDataTable.hh"
 
-using namespace std;
 
 DerivationFramework::BPhysPVCascadeTools::BPhysPVCascadeTools(CascadeTools *cascadeTools) :
   m_cascadeTools(cascadeTools), m_beamSpotSvc(nullptr), m_PV_minNTracks(0),
@@ -129,7 +128,7 @@ size_t DerivationFramework::BPhysPVCascadeTools::FindLowA0Index(const std::vecto
     return lowA0;
 }
 
-vector<const xAOD::Vertex*> DerivationFramework::BPhysPVCascadeTools::GetGoodPV(const xAOD::VertexContainer* pvContainer) {
+std::vector<const xAOD::Vertex*> DerivationFramework::BPhysPVCascadeTools::GetGoodPV(const xAOD::VertexContainer* pvContainer) {
     typedef xAOD::VxType::VertexType VertexType;
     VertexType Pvtx = xAOD::VxType::PriVtx;
     VertexType Pileupvtx = xAOD::VxType::PileUp;
@@ -486,3 +485,4 @@ double DerivationFramework::BPhysPVCascadeTools::getParticleMass(const HepPDT::P
     auto ptr = pdt->particle( pdgcode );
     return ptr ? ptr->mass() : 0.;
 }
+
