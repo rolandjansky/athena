@@ -14,7 +14,12 @@ from JetRec.JetRecConf import JetAlgorithm
 #===================================================================
 
 # make exkt subjet finding tool
-def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTrackSubJet, ExGhostLabels=None):
+def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal", "GhostCHadronsFinal"] ):
+    #
+    # a full list of ExGhostLabels = ["GhostBHadronsFinal", "GhostBHadronsInitial", "GhostBQuarksFinal", "GhostCHadronsFinal", "GhostCHadronsInitial", 
+    # "GhostCQuarksFinal", "GhostHBosons", "GhostPartons", "GhostTQuarksFinal", "GhostTausFinal", "GhostTruth", "GhostTrack"]
+    #
+
     from JetRec.JetRecStandard import jtm
 
     subjetlabel = "Ex%s%iSubJets" % (subjet_mode, nsubjet)
@@ -39,14 +44,6 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
 
         from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import SubjetFinderTool
         from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import SubjetRecorderTool
-        if ExGhostLabels == None:
-          if subjet_mode == "CoM":
-            ExGhostLabels = []
-          else:
-            ExGhostLabels = ["GhostBHadronsFinal", "GhostBHadronsInitial", "GhostBQuarksFinal", "GhostCHadronsFinal", "GhostCHadronsInitial", "GhostCQuarksFinal", "GhostHBosons", "GhostPartons", "GhostTQuarksFinal", "GhostTausFinal", "GhostTruth"]
-            if "Track" not in JetCollectionName:
-              ExGhostLabels += ["GhostTrack"]
-
 
         subjetrecorder = SubjetRecorderTool("subjetrecorder_%s%i_%s" % (subjet_mode, nsubjet, JetCollectionName))
         ToolSvc += subjetrecorder
@@ -86,7 +83,7 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
 #===================================================================
 # Build ExKt Subjets
 #===================================================================
-def addExKt(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJet, ExGhostLabels=None):
+def addExKt(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal", "GhostCHadronsFinal"]):
     from JetRec.JetRecStandard import jtm
     ExKtJetCollection__SubJet = []
     for JetCollectionExKt in ExKtJetCollection__FatJet:
@@ -162,7 +159,7 @@ def addExKt(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJe
 #===================================================================
 # Build CoM Subjets
 #===================================================================
-def addExCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJet, ExGhostLabels=None):
+def addExCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal", "GhostCHadronsFinal"]):
     from JetRec.JetRecStandard import jtm
     ExCoMJetCollection__SubJet = []
     for JetCollectionExCoM in ExKtJetCollection__FatJet:
