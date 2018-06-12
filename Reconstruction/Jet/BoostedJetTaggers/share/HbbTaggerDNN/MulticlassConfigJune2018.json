@@ -22,5 +22,13 @@
                 "type": "float"
             }
         ]
+    },
+    "outputs": {
+        "decoration_map": {
+            "qcd": "XbbScoreQCD",
+            "higgs": "XbbScoreHiggs",
+            "top": "XbbScoreTop"
+        }
     }
+
 }

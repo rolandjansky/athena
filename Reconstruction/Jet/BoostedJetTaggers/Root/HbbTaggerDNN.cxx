@@ -209,7 +209,7 @@ StatusCode HbbTaggerDNN::initialize(){
       }
       dec_name = m_decoration_names.at(name);
     }
-    ATH_MSG_VERBOSE("Adding output " + dec_name);
+    ATH_MSG_DEBUG("Adding output " + dec_name);
     m_decorators.emplace_back(SG::AuxElement::Decorator<float>(dec_name));
   }
 
@@ -233,12 +233,12 @@ std::map<std::string, double> HbbTaggerDNN::getScores(const xAOD::Jet& jet)
   // build the jet properties into a map
   HbbInputBuilder::VMap inputs = m_input_builder->get_map(jet);
 
-  if (msgLvl(MSG::DEBUG)) {
-    ATH_MSG_DEBUG("Hbb inputs:");
+  if (msgLvl(MSG::VERBOSE)) {
+    ATH_MSG_VERBOSE("Hbb inputs:");
     for (auto& input_node: inputs) {
-      ATH_MSG_DEBUG(" input node: " << input_node.first);
+      ATH_MSG_VERBOSE(" input node: " << input_node.first);
       for (auto& input: input_node.second) {
-        ATH_MSG_DEBUG("  " << input.first << ": " << input.second);
+        ATH_MSG_VERBOSE("  " << input.first << ": " << input.second);
       }
     }
   }
@@ -260,7 +260,7 @@ double HbbTaggerDNN::getScore(const xAOD::Jet& jet) const {
       "asked for a single tagger score from a multi-class tagger");
   }
   auto nn_output = getScores(jet);
-  ATH_MSG_DEBUG("Hbb score " << nn_output.at(m_output_value_names.at(0)));
+  ATH_MSG_VERBOSE("Hbb score " << nn_output.at(m_output_value_names.at(0)));
   return nn_output.at(m_output_value_names.at(0));
 }
 

@@ -443,7 +443,8 @@ def addHbbTagger(
         sequence, ToolSvc, logger=None,
         output_level=WARNING,
         jet_collection="AntiKt10LCTopoTrimmedPtFrac5SmallR20",
-        nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/Apr13HbbNetwork.json"):
+        nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/Apr13HbbNetwork.json",
+        nn_config_file="BoostedJetTaggers/HbbTaggerDNN/PreliminaryConfigNovember2017.json"):
     if logger is None:
         logger = Logging.logging.getLogger('HbbTaggerLog')
 
@@ -462,6 +463,7 @@ def addHbbTagger(
         logger.info('set up {}'.format(fatCalib))
     else:
         logger.info('took {} from tool svc'.format(fat_calibrator_name))
+        fatCalib = getattr(ToolSvc, fat_calibrator_name)
 
     # short name for naming tools
     nn_short_file = nn_file_name.split('/')[-1].split('.')[0]
@@ -471,11 +473,13 @@ def addHbbTagger(
         hbbTagger = CfgMgr.HbbTaggerDNN(
             hbb_tagger_name,
             OutputLevel=output_level,
-            neuralNetworkFile=nn_file_name)
+            neuralNetworkFile=nn_file_name,
+            configurationFile=nn_config_file)
         ToolSvc += hbbTagger
         logger.info('set up {}'.format(hbbTagger))
     else:
         logger.info('took {} from tool svc'.format(hbb_tagger_name))
+        hbbTagger = getattr(ToolSvc, hbb_tagger_name)
 
     tagger_alg_name = get_unique_name(
         ["HbbTaggerAlg",jet_collection, nn_short_file])
