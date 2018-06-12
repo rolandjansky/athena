@@ -173,7 +173,8 @@ namespace Trk {
       const MeasurementBase *meas = m_states.back()->measurement();
       const MeasurementBase *meas2 = state->measurement();
       if (&meas->associatedSurface() == &meas2->associatedSurface() &&
-          meas->localParameters().parameterKey() == meas2->localParameters().parameterKey()) {
+          meas->localParameters().parameterKey() == meas2->localParameters().parameterKey() &&
+          state->measurementType() != TrackState::MM) {
         delete state;
         return false;
       }
