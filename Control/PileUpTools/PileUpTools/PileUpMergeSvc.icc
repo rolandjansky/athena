@@ -185,6 +185,26 @@ PileUpMergeSvc::retrieveSubSetEvtData(const KEY& dataKey, //orig evt key
 
 }
 
+///retrieve keyed DATA objs for single sub-event (un-timed)
+template <typename KEY, typename DATA>
+StatusCode
+PileUpMergeSvc::retrieveSingleSubEvtData(const KEY& dataKey, const DATA*& data, int bunchXing, SubEventIterator iEvt){
+
+  StoreGateSvc &seStore = *iEvt->ptr()->evtStore();
+  ATH_MSG_VERBOSE("SubEvt StoreGate " << seStore.name() << " :"
+		  << " bunch crossing : " << bunchXing
+		  << " time offset : " << iEvt->time()
+		  << " event number : " <<
+		  iEvt->ptr()->eventNumber()
+		  << " run number : " <<
+		  iEvt->ptr()->runNumber());
+
+  StatusCode sc = seStore.retrieve(data, dataKey);
+  return sc;
+
+}
+
+
 ///retrieve keyed DATA objs for all sub-events and attach a time to them
 template <typename KEY, typename TIMEDDATA>
 StatusCode 
