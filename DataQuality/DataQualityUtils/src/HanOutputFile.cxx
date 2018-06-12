@@ -2238,7 +2238,14 @@ void HanOutputFile::ratioplot (TCanvas* myC_upperpad ,TH1* h,TH1* hRef,std::stri
     clonehist->Divide(hRef);
     formatTH1( myC_ratiopad, clonehist);
     clonehist->SetTitle("");
-    clonehist->SetAxisRange(0.25,1.75,"Y");
+
+    // extract delta value from string that holds the draw options
+    double delta = 0.75;
+    if (display.find("delta(") != std::string::npos) {
+      delta = std::stod(display.substr(display.find("delta(") + 6));
+    }
+    clonehist->SetAxisRange(1. - delta, 1. + delta, "Y");
+
     clonehist->GetYaxis()->SetNdivisions(3, true);
     clonehist->SetMarkerStyle(1);
     clonehist->Draw("E");
