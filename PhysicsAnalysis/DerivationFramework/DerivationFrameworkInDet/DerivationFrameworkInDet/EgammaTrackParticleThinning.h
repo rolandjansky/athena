@@ -18,7 +18,6 @@
 // DF include(s):
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
 #include "DerivationFrameworkInterfaces/ExpressionParserHelper.h"
-#include "DerivationFrameworkInDet/TracksInCone.h"
 
 // EDM include(s):
 #include "xAODEgamma/EgammaFwd.h"

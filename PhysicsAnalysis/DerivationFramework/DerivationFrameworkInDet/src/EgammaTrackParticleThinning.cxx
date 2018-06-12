@@ -12,6 +12,7 @@
 
 // Local include(s):
 #include "DerivationFrameworkInDet/EgammaTrackParticleThinning.h"
+#include "DerivationFrameworkInDet/TracksInCone.h"
 
 namespace DerivationFramework {
 
@@ -55,7 +56,7 @@ namespace DerivationFramework {
          return StatusCode::FAILURE;
       }
       ATH_MSG_INFO( "Using " << m_inDetSGKey
-                    << "as the source collection for inner detector track "
+                    << " as the source collection for inner detector track "
                        "particles" );
 
       if( m_sgKey == "" ) {
@@ -74,7 +75,7 @@ namespace DerivationFramework {
                     << m_gsfSGKey << " will be retained in this format with "
                                      "the rest being thinned away");
 
-      // Set up the text-parsing machinery for selectiong the photon directly
+      // Set up the text-parsing machinery for selectiong the e/gamma directly
       // according to user cuts
       if( m_selectionString != "" ) {
          m_parser.reset( new ExpressionParserHelper( evtStore() ) );
@@ -84,6 +85,9 @@ namespace DerivationFramework {
             return StatusCode::FAILURE;
          }
       }
+
+      // Access the thinning service:
+      ATH_CHECK( m_thinningSvc.retrieve() );
 
       // Return gracefully:
       return StatusCode::SUCCESS;
@@ -122,9 +126,7 @@ namespace DerivationFramework {
 
       // Set up a mask with the same entries as the full TrackParticle
       // collection(s)
-      std::vector< bool > mask, gsfMask;
-      mask.assign( nTracks, false ); // default: don't keep any tracks
-      gsfMask.assign( nGSF, false );
+      std::vector< bool > mask( nTracks, false ), gsfMask( nGSF, false );
       m_ntot += nTracks;
       m_ntotGSF += nGSF;
 
@@ -144,7 +146,7 @@ namespace DerivationFramework {
          const size_t nEntries = entries.size();
          // check the sizes are compatible
          if( nEgammas != nEntries ) {
-            ATH_MSG_ERROR( "Sizes incompatible! Are you sure your selection "
+            ATH_MSG_FATAL( "Sizes incompatible! Are you sure your selection "
                            "string used e-gamma objects??" );
             return StatusCode::FAILURE;
          }
