@@ -3,6 +3,7 @@
 from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import OnlineSpacePointProviderTool
 from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import PixelClusterCacheTool
 from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import SCT_ClusterCacheTool
+from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import FastSCT_RodDecoder
 
 from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
 from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
@@ -51,8 +52,18 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
         ToolSvc += InDetL2TrigMergedPixelsTool
         ToolSvc += InDetL2TrigSCT_ClusteringTool
 
+        # SiLorentzAngleTool for FastSCT_RodDecoder
+        if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+            from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+            sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup() 
+
+        # FastSCT_RodDecoder
+        ToolSvc += FastSCT_RodDecoder(name = "FastSCT_RodDecoder",
+                                      LorentzAngleTool=ToolSvc.SCTLorentzAngleTool)
+
         ConfiguredPixelClusterCacheTool = PixelClusterCacheTool(PixelClusteringTool=InDetL2TrigMergedPixelsTool)
         ConfiguredSCT_ClusterCacheTool = SCT_ClusterCacheTool(SCT_ClusteringTool = InDetL2TrigSCT_ClusteringTool,
+                                                              FastSCT_RodDecoder = ToolSvc.FastSCT_RodDecoder
                                                               )
 
         if not self.DoBS_Conversion :

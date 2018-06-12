@@ -56,7 +56,7 @@ private:
   std::string m_containerName;
   IdContext m_cntx_sct;
 
-  FastSCT_RodDecoder* m_decoder;
+  ToolHandle<FastSCT_RodDecoder> m_decoder{this, "FastSCT_RodDecoder", "FastSCT_RodDecoder", "Fast SCT ROD decoder"};
   ToolHandle<ISCT_RodDecoder> m_offlineDecoder;
   bool m_useOfflineDecoder;
   bool m_useOfflineClustering;
