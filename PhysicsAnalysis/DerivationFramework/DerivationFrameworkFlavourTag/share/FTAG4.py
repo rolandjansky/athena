@@ -80,7 +80,7 @@ if globalflags.DataSource()!='data':
 #====================================================================
 
 OutputJets["FTAG4"] = ["AntiKt4EMTopoJets",
-                       "AntiKtVR30Rmax4Rmin02TrackJets"]
+                       "AntiKtVR30Rmax4Rmin02TrackJets","AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"]
 
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
@@ -137,21 +137,6 @@ FTAG4Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 FTAG4Stream.AcceptAlgs(["FTAG4SkimKernel"])
 
 FTAG4SlimmingHelper = SlimmingHelper("FTAG4SlimmingHelper")
-#
-# ExCoM sub-jets
-for JetCollectionExCoM in ExCoMJetCollection__SubJet:
-    JetName = JetCollectionExCoM[:-4]
-    FTAG4SlimmingHelper.StaticContent.append("xAOD::JetContainer#"+JetCollectionExCoM)
-    ## "Parent" link is broken after deep copy of parent jet in b-tagging module
-    FTAG4SlimmingHelper.StaticContent.append("xAOD::JetAuxContainer#"+JetCollectionExCoM+"Aux.-Parent")
-    # b-tagging #
-    FTAG4SlimmingHelper.StaticContent.append("xAOD::BTaggingContainer#BTagging_"+JetName)
-    FTAG4SlimmingHelper.StaticContent.append("xAOD::BTaggingAuxContainer#BTagging_" + JetName + "Aux.")
-    FTAG4SlimmingHelper.StaticContent.append("xAOD::VertexContainer#BTagging_" + JetName + "SecVtx")
-    FTAG4SlimmingHelper.StaticContent.append("xAOD::VertexAuxContainer#BTagging_" + JetName + "SecVtx" + "Aux.")
-    FTAG4SlimmingHelper.StaticContent.append("xAOD::BTagVertexContainer#BTagging_" + JetName + "JFVtx")
-    FTAG4SlimmingHelper.StaticContent.append("xAOD::BTagVertexAuxContainer#BTagging_" + JetName + "JFVtx" + "Aux.")
-
 
 # nb: BTagging_AntiKt4EMTopo smart collection includes both AntiKt4EMTopoJets and BTagging_AntiKt4EMTopo
 # container variables. Thus BTagging_AntiKt4EMTopo is needed in SmartCollections as well as AllVariables
@@ -164,6 +149,8 @@ FTAG4SlimmingHelper.SmartCollections = ["Electrons","Muons",
 FTAG4SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                     "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
+                                    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub",
+                                    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJFVtx",
                                     "BTagging_AntiKt4EMTopo",
                                     "BTagging_AntiKt4EMTopoJFVtx",
                                     "BTagging_AntiKt2Track",
@@ -185,6 +172,7 @@ FTAG4SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "MSOnlyExtrapolatedMuonTrackParticles.vx.vy.vz",
                                        "MuonSpectrometerTrackParticles.vx.vy.vz",
                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
+                                       "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex"]
 
@@ -209,6 +197,10 @@ FTAG4SlimmingHelper.AppendToDictionary = {
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJetsAux"              :   "xAOD::JetAuxContainer"     ,
   "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub"            :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubAux"         :   "xAOD::BTaggingAuxContainer",
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJFVtx"       :   "xAOD::BTagVertexContainer" ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJFVtxAux"    :   "xAOD::BTagVertexAuxContainer",
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubSecVtx"      :   "xAOD::VertexContainer"   ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubSecVtxAux"   :   "xAOD::VertexAuxContainer",
 }
 #----------------------------------------------------------------------
 addJetOutputs(FTAG4SlimmingHelper,["FTAG4"])

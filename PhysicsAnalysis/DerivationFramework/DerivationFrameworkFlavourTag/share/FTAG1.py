@@ -100,7 +100,7 @@ FTAG1Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG1AugmentKernel",
 #====================================================================
 
 #put custom jet names here
-OutputJets["FTAG1"] = ["AntiKtVR30Rmax4Rmin02TrackJets",
+OutputJets["FTAG1"] = ["AntiKtVR30Rmax4Rmin02TrackJets","AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets","AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets",
                        "AntiKt4EMTopoJets"]
 
 reducedJetList = ["AntiKt2PV0TrackJets",
@@ -117,9 +117,8 @@ addDefaultTrimmedJets(FTAG1Seq,"FTAG1",dotruth=True)
 # Adding ExKt and ExCoM sub-jets for each trimmed large-R jet
 #
 ExKtJetCollection__FatJet = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-doTrackJet = False
-ExKtJetCollection__SubJet = addExKt(FTAG1Seq, ToolSvc, ExKtJetCollection__FatJet, 2, doTrackJet)
-ExCoMJetCollection__SubJet = addExCoM(FTAG1Seq, ToolSvc, ExKtJetCollection__FatJet, 2, doTrackJet)
+ExKtJetCollection__SubJet = addExKt(FTAG1Seq, ToolSvc, ExKtJetCollection__FatJet, 2, False)
+ExCoMJetCollection__SubJet = addExCoM(FTAG1Seq, ToolSvc, ExKtJetCollection__FatJet, 2, False)
 
 BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
                                             "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
@@ -164,22 +163,6 @@ FTAG1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 FTAG1Stream.AcceptAlgs(["FTAG1SkimKernel"])
 FTAG1SlimmingHelper = SlimmingHelper("FTAG1SlimmingHelper")
 
-#
-# ExKt and ExCoM sub-jets
-for JetCollectionExKtCoM in ExKtJetCollection__SubJet + ExCoMJetCollection__SubJet:
-    JetName = JetCollectionExKtCoM[:-4]
-    FTAG1SlimmingHelper.StaticContent.append("xAOD::JetContainer#"+JetCollectionExKtCoM)
-    ## "Parent" link is broken after deep copy of parent jet in b-tagging module
-    FTAG1SlimmingHelper.StaticContent.append("xAOD::JetAuxContainer#"+JetCollectionExKtCoM+"Aux.-Parent")
-    # b-tagging #
-    FTAG1SlimmingHelper.StaticContent.append("xAOD::BTaggingContainer#BTagging_"+JetName)
-    FTAG1SlimmingHelper.StaticContent.append("xAOD::BTaggingAuxContainer#BTagging_" + JetName + "Aux.")
-    FTAG1SlimmingHelper.StaticContent.append("xAOD::VertexContainer#BTagging_" + JetName + "SecVtx")
-    FTAG1SlimmingHelper.StaticContent.append("xAOD::VertexAuxContainer#BTagging_" + JetName + "SecVtx" + "Aux.")
-    FTAG1SlimmingHelper.StaticContent.append("xAOD::BTagVertexContainer#BTagging_" + JetName + "JFVtx")
-    FTAG1SlimmingHelper.StaticContent.append("xAOD::BTagVertexAuxContainer#BTagging_" + JetName + "JFVtx" + "Aux.")
-
-
 # nb: BTagging_AntiKt4EMTopo smart collection includes both AntiKt4EMTopoJets and BTagging_AntiKt4EMTopo
 # container variables. Thus BTagging_AntiKt4EMTopo is needed in SmartCollections as well as AllVariables
 FTAG1SlimmingHelper.SmartCollections = ["Electrons","Muons",
@@ -191,6 +174,10 @@ FTAG1SlimmingHelper.SmartCollections = ["Electrons","Muons",
 FTAG1SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                     "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
+                                    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub",
+                                    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJFVtx",
+                                    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub",
+                                    "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJFVtx",
                                     "BTagging_AntiKt4EMTopo",
                                     "BTagging_AntiKt2Track",
                                     "BTagging_AntiKt4EMTopoJFVtx",
@@ -232,6 +219,8 @@ FTAG1SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
+                                       "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubSecVtx.-vxTrackAtVertex",
+                                       "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubSecVtx.-vxTrackAtVertex",
                                        #"InDetTrackParticles.FTAG1_unbiased_d0.FTAG1_unbiased_z0.FTAG1_unbiased_d0Sigma.FTAG1_unbiased_z0Sigma", 
                                        "CaloCalTopoClusters.calM.calE.calEta.calPhi",
                                        "PrimaryVertices.x.y.trackParticleLinks.vertexType.neutralParticleLinks",
@@ -267,10 +256,18 @@ FTAG1SlimmingHelper.AppendToDictionary = {
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJetsAux"              :   "xAOD::JetAuxContainer"     ,
   "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub"            :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubAux"         :   "xAOD::BTaggingAuxContainer",
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJFVtx"       :   "xAOD::BTagVertexContainer" ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJFVtxAux"    :   "xAOD::BTagVertexAuxContainer",
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubSecVtx"      :   "xAOD::VertexContainer"   ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubSecVtxAux"   :   "xAOD::VertexAuxContainer",
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"                 :   "xAOD::JetContainer"        ,
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJetsAux"              :   "xAOD::JetAuxContainer"     ,
   "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub"            :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubAux"         :   "xAOD::BTaggingAuxContainer",
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJFVtx"       :   "xAOD::BTagVertexContainer" ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJFVtxAux"    :   "xAOD::BTagVertexAuxContainer",
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubSecVtx"      :   "xAOD::VertexContainer"   ,
+  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubSecVtxAux"   :   "xAOD::VertexAuxContainer",
   }
 #----------------------------------------------------------------------
 
