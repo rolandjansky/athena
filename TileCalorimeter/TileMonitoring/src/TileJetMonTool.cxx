@@ -44,6 +44,7 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "JetMomentTools/JetVertexTaggerTool.h"
+//#include "JetJvtEfficiency/JetJvtEfficiency.h"
 //#include "CaloIdentifier/Tile_Base_ID.h"
 //#include "TH2F.h"
 //#include "TH1F.h"
@@ -61,6 +62,7 @@ TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & nam
   , m_tileBadChanTool("TileBadChanTool")
   , m_jvt("JVT")
   , m_cleaningTool("MyCleaningTool")
+  , m_ECTool("ECTool")
 #else
 TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   : TileFatherMonTool(type, name, parent)
@@ -85,10 +87,14 @@ TileJetMonTool::TileJetMonTool(const std::string & type, const std::string & nam
   declareProperty("do_jet_cleaning",m_do_jet_cleaning = true);
 #ifdef JVT
   declareProperty("useJVTTool",m_jvt);
+  //  declareProperty("useJVTEffTool",m_JVTEffTool);
   declareProperty("useJetCleaning",m_cleaningTool);
+  declareProperty("useEventCleaning",m_ECTool);
+  declareProperty("JvtDecorator",m_JvtDecorator = "passJvt");
+  declareProperty("OrDecorator",m_OrDecorator = "passOR");
 #endif
   declareProperty("jet_tracking_eta_limit",m_jet_tracking_eta_limit = 2.4);
-  declareProperty("jet_JVT_threshold",m_jet_jvt_threshold = 0.64);
+  declareProperty("jet_JVT_threshold",m_jet_jvt_threshold = 0.59);
   m_path = "/Tile/Jet";
 
   m_partname[0] = "LBA";
@@ -135,6 +141,7 @@ StatusCode TileJetMonTool::initialize() {
        CHECK(m_cleaningTool->initialize());
     */
     CHECK(m_cleaningTool.retrieve());
+    CHECK(m_ECTool.retrieve());
 
     ATH_MSG_DEBUG("TileJetMonTool: initialized JetCleaningTool");
 #endif
@@ -735,8 +742,7 @@ bool TileJetMonTool::isGoodEvent() {
   if (eventInfo->errorState(EventInfo::LAr) == EventInfo::Error) return(false);
   if (eventInfo->errorState(EventInfo::Tile) == EventInfo::Error) return(false);
 
-  /* see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/HowToCleanJets2015#Event_Cleaning and 
-     https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetVertexTaggerTool
+  /* see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/HowToCleanJets2017
   */
 
 #ifdef JVT
@@ -751,17 +757,31 @@ bool TileJetMonTool::isGoodEvent() {
     ATH_MSG_DEBUG("Jet " << ijet << ", pT " << jet->pt()/1000.0 << " GeV, eta " 
 		  << jet->eta());
 #ifdef JVT
-    if (jet->pt() > 50000) {
-      if (m_cleaningTool->keep(*jet) == 0) return false;
-    } else if ((jet->pt() > 20000) && (fabs(jet->eta()) < m_jet_tracking_eta_limit)) {
-      float jvt = m_jvt->updateJvt(*jet);
-      ATH_MSG_DEBUG("... jvt = " << jvt);
-      if ((jvt > m_jet_jvt_threshold) && (m_cleaningTool->keep(*jet) == 0)) return false;
-    }
+    jet->auxdecor<char>(m_JvtDecorator) = passesJvt(*jet);
+    jet->auxdecor<char>(m_OrDecorator) = true;
+    // if (jet->pt() > 50000) {
+    //   if (m_cleaningTool->keep(*jet) == 0) return false;
+    // } else if ((jet->pt() > 20000) && (fabs(jet->eta()) < m_jet_tracking_eta_limit)) {
+    //   float jvt = m_jvt->updateJvt(*jet);
+    //   ATH_MSG_DEBUG("... jvt = " << jvt);
+    //   if ((jvt > m_jet_jvt_threshold) && (m_cleaningTool->keep(*jet) == 0)) return false;
+    // }
 #endif
     ATH_MSG_DEBUG("... done with jet " << ijet);
     ijet++;
   }
+#ifdef JVT
+  return m_ECTool->acceptEvent(jetContainer);
+#endif
+  return true;
+}
+
+bool TileJetMonTool::passesJvt(const xAOD::Jet& jet) {
+  if (jet.pt() > 20000 
+      && jet.pt() < 60000 
+      && fabs(jet.getAttribute<float>("DetectorEta")) < 2.4
+      && m_jvt->updateJvt(jet) < m_jet_jvt_threshold)
+    return false;
   return true;
 }
 
@@ -788,20 +808,25 @@ bool TileJetMonTool::isGoodJet(const xAOD::Jet& jet) {
   return (!isBadJet);
   */
 #ifdef JVT
+  if (jet.pt() < 20000) return false;
+  if (! passesJvt(jet)) return false;
   if (! m_do_jet_cleaning) return true;
-  double pt = jet.pt();
-  if (pt > 50000) {
-    return(m_cleaningTool->keep(jet));
-  } else if (pt > 20000) {
-    if (fabs(jet.eta()) < m_jet_tracking_eta_limit) {
-      float jvt = m_jvt->updateJvt(jet);
-      return(m_cleaningTool->keep(jet) && (jvt > m_jet_jvt_threshold));
-    } else {
-      return(true);
-    }
-  } else {
-    return(true);
-  }
+  if (! m_cleaningTool->keep(jet)) return false;
+  return true;
+
+  // double pt = jet.pt();
+  // if (pt > 50000) {
+  //   return(m_cleaningTool->keep(jet));
+  // } else if (pt > 20000) {
+  //   if (fabs(jet.eta()) < m_jet_tracking_eta_limit) {
+  //     float jvt = m_jvt->updateJvt(jet);
+  //     return(m_cleaningTool->keep(jet) && (jvt > m_jet_jvt_threshold));
+  //   } else {
+  //     return(true);
+  //   }
+  // } else {
+  //   return(true);
+  // }
 #else
   return(true);
 #endif

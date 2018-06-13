@@ -27,6 +27,8 @@
 // Jet cleaning
 #include "JetInterface/IJetSelector.h"
 //#include "JetSelectorTools/JetCleaningTool.h"
+// Event cleaning
+#include "JetSelectorTools/IEventCleaningTool.h"
 
 class ITileBadChanTool;
 
@@ -61,6 +63,7 @@ class TileJetMonTool: public TileFatherMonTool {
 
     unsigned int find_index(const int gain, const float energy);
     bool isGoodChannel(int part, int mod, int pmt, uint32_t bad, unsigned int qbit, Identifier id);
+    bool passesJvt(const xAOD::Jet& jet);
     bool isGoodJet(const xAOD::Jet& jet);
     bool isGoodEvent();
 
@@ -135,10 +138,13 @@ class TileJetMonTool: public TileFatherMonTool {
     // JVT
 #ifdef JVT
     ToolHandle<IJetUpdateJvt> m_jvt;
+    std::string m_JvtDecorator;
+    std::string m_OrDecorator;
 #endif
     // event/jet cleaning
     ToolHandle<IJetSelector> m_cleaningTool;
     //  JetCleaningTool* m_cleaningTool;
+    ToolHandle<ECUtils::IEventCleaningTool> m_ECTool;
 };
 
 #endif
