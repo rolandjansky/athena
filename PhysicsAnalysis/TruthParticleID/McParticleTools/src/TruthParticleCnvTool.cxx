@@ -17,6 +17,7 @@
 
 // FrameWork includes
 #include "GaudiKernel/IPartPropSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 // CLHEP/HepMC includes
 #include "HepMC/GenEvent.h"
@@ -147,12 +148,18 @@ StatusCode TruthParticleCnvTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TruthParticleCnvTool::execute()
+StatusCode TruthParticleCnvTool::execute() const
+{
+  return execute (Gaudi::Hive::currentContext());
+}
+
+
+StatusCode TruthParticleCnvTool::execute (const EventContext& ctx) const
 {  
   ATH_MSG_DEBUG("Executing " << name() << "...");
 
   //Setup WriteHandle, and record new TruthParticleContainer
-  SG::WriteHandle<TruthParticleContainer> mcPartsOutputWriteHandle(m_mcPartsOutputWriteHandleKey);
+  SG::WriteHandle<TruthParticleContainer> mcPartsOutputWriteHandle(m_mcPartsOutputWriteHandleKey, ctx);
   ATH_CHECK(mcPartsOutputWriteHandle.record(std::make_unique<TruthParticleContainer>()));  
   
   if (!mcPartsOutputWriteHandle.isValid()){
@@ -161,10 +168,10 @@ StatusCode TruthParticleCnvTool::execute()
   }
 
   //Setup ReadHandle for input McEventCollection
-  SG::ReadHandle<McEventCollection> mcEventsReadHandle(m_mcEventsReadHandleKey);
+  SG::ReadHandle<McEventCollection> mcEventsReadHandle(m_mcEventsReadHandleKey, ctx);
 
   if (!mcEventsReadHandle.isValid()){
-     ATH_MSG_WARNING("Invalid ReadHamdle for McEventCollection with key ["
+     ATH_MSG_WARNING("Invalid ReadHandle for McEventCollection with key ["
 		     << m_mcEventsReadHandleKey.key() << "] !!"
 		     << endmsg
 		     << "TruthParticleContainer [" << m_mcPartsOutputWriteHandleKey.key()
