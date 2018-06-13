@@ -120,57 +120,13 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 # ExKt subjet collection
 #===================================================================
 
-specialTaggers = ['ExKtbb_Hbb_MV2Only', 'ExKtbb_Hbb_MV2andJFDRSig', 'ExKtbb_Hbb_MV2andTopos']
-defaultTaggers = ['MV2c10']
-import DerivationFrameworkTop.TOPQCommonJets
-
-#Then apply jet calibration
-DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("AntiKt4EMTopo",FTAG2Seq)
-
-ToolSvc += CfgMgr.JetReclusteringTool("TOPQReclusteringTool",InputJetContainer="AntiKt4EMTopoJets", OutputJetContainer="AntiKt8EMTopoJets")
-ToolSvc.TOPQReclusteringTool.ReclusterRadius = 0.8
-ToolSvc.TOPQReclusteringTool.InputJetPtMin = 0
-ToolSvc.TOPQReclusteringTool.RCJetPtMin = 1
-ToolSvc.TOPQReclusteringTool.RCJetPtFrac = 0
-ToolSvc.TOPQReclusteringTool.DoArea = False
-ToolSvc.TOPQReclusteringTool.GhostTracksInputContainer = "InDetTrackParticles"
-ToolSvc.TOPQReclusteringTool.GhostTracksVertexAssociationName = "JetTrackVtxAssoc"
-#ToolSvc.TOPQReclusteringTool.GhostTruthInputBContainer = "BHadronsFinal"
-#ToolSvc.TOPQReclusteringTool.GhostTruthInputCContainer = "CHadronsFinal"
-FTAG2Seq += CfgMgr.AthJetReclusteringAlgo("TOPQJetRecAlgo", JetReclusteringTool = ToolSvc.TOPQReclusteringTool)
 ExKtJetCollection__FatJetConfigs = {
-                                 "AntiKt8EMTopoJets"         : {"doTrackSubJet": True},#False},
-                               }
-
+                                   "AntiKt8EMTopoJets"         : {"doTrackSubJet": True},#False},
+                                   }
 ExKtJetCollection__FatJet = ExKtJetCollection__FatJetConfigs.keys()
 ExKtJetCollection__SubJet = []
 
-for key, config in ExKtJetCollection__FatJetConfigs.items():
-        # N=2 subjets
-        ExKtJetCollection__SubJet += addExKt(FTAG2Seq, ToolSvc, [key], nSubjets=2, **config)
-
-        # N=3 subjets
-        if "RNNCone" not in key:
-          ExKtJetCollection__SubJet += addExKt(FTAG2Seq, ToolSvc, [key], nSubjets=3, **config)
-
-FTAG2Seq += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterSubjetBuild", SGKeys=[name+"Aux." for name in ExKtJetCollection__SubJet])
-#from FlavourTagCommon import *
-BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
-BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20->AntiKt4EMTopo"]  # enforced by ExKt tagger
-BTaggingFlags.CalibrationChannelAliases += [ jetname[:-4].replace("PV0", "")+"->AntiKt4EMTopo" for jetname in ExKtJetCollection__FatJet ]
-BTaggingFlags.CalibrationChannelAliases += [ jetname[:-4].replace("PV0", "")+"->AntiKt4EMTopo" for jetname in ExKtJetCollection__SubJet ]
-#FlavorTagInit(ToolSvc,
-#              myTaggers      = defaultTaggers,
-#              JetCollections = ExKtJetCollection__SubJet,
-#              Sequencer      = FTAG2Seq,
-#             )
-#FlavorTagInit(ToolSvc,
-#              myTaggers      = defaultTaggers,
-#              JetCollections = ExKtJetCollection__FatJet,
-#              Sequencer      = FTAG2Seq,
-#             )
-FTAG2Seq += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterBtag", SGKeys=[name+"Aux." for name in ExKtJetCollection__SubJet])
-
+addDoubleTaggerJet(FTAG2Seq, ToolSvc, ExKtJetCollection__FatJetConfigs, ExKtJetCollection__FatJet, ExKtJetCollection__SubJet)
 
 
 #===================================================================

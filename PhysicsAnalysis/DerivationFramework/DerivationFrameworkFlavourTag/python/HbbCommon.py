@@ -616,3 +616,41 @@ def addHbbTagger(sequence, ToolSvc, logger=None,
         logger.info('{} already scheduled for {}'.format(
             tagger_alg_name, jet_collection))
 
+#====================================================================
+# Large-R jet w/ ExKt 2 & 3 subjets
+#===================================================================
+def addDoubleTaggerJet(sequence, ToolSvc, ExKtTopJetCollection__FatJetConfigs, ExKtTopJetCollection__FatJet, ExKtTopJetCollection__SubJet):
+   defaultTaggers = ['IP2D', 'IP3D', 'SV0', 'MultiSVbb1', 'MultiSVbb2', 'SV1', 'BasicJetFitter', 'JetFitterTag', 'JetFitterNN', 'GbbNNTag', 'MV2c00', 'MV2c10', 'MV2c20', 'MV2c100', 'MV2m']
+   specialTaggers = ['ExKtbb_Hbb_MV2Only', 'ExKtbb_Hbb_MV2andJFDRSig', 'ExKtbb_Hbb_MV2andTopos']
+   ToolSvc += CfgMgr.JetReclusteringTool("TOPQReclusteringTool",InputJetContainer="AntiKt4EMTopoJets", OutputJetContainer="AntiKt8EMTopoJets")
+   ToolSvc.TOPQReclusteringTool.ReclusterRadius = 0.8
+   ToolSvc.TOPQReclusteringTool.InputJetPtMin = 0
+   ToolSvc.TOPQReclusteringTool.RCJetPtMin = 1
+   ToolSvc.TOPQReclusteringTool.RCJetPtFrac = 0
+   ToolSvc.TOPQReclusteringTool.DoArea = False
+   ToolSvc.TOPQReclusteringTool.GhostTracksInputContainer = "InDetTrackParticles"
+   ToolSvc.TOPQReclusteringTool.GhostTracksVertexAssociationName  = "JetTrackVtxAssoc"
+   DFisMC = (globalflags.DataSource()=='geant4')
+   if(DFisMC):
+     ToolSvc.TOPQReclusteringTool.GhostTruthInputBContainer = "BHadronsFinal"
+     ToolSvc.TOPQReclusteringTool.GhostTruthInputCContainer = "CHadronsFinal"
+   
+   sequence += CfgMgr.AthJetReclusteringAlgo("TOPQJetRecAlgo", JetReclusteringTool = ToolSvc.TOPQReclusteringTool)
+   
+   # build subjets
+
+   for key, config in ExKtTopJetCollection__FatJetConfigs.items():
+     # N=2 subjets
+     ExKtTopJetCollection__SubJet += addExKt(sequence, ToolSvc, [key], nSubjets=2, **config)
+     # N=3 subjets
+     if "RNNCone" not in key:
+       ExKtTopJetCollection__SubJet += addExKt(sequence, ToolSvc, [key], nSubjets=3, **config)
+
+   sequence += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterSubjetBuild", SGKeys=[name+"Aux." for name in ExKtTopJetCollection__SubJet])
+   
+   from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+   BTaggingFlags.CalibrationChannelAliases += [ jetname[:-4].replace("PV0", "")+"->AntiKt4EMTopo" for jetname in ExKtTopJetCollection__FatJet ]
+   BTaggingFlags.CalibrationChannelAliases += [ jetname[:-4].replace("PV0", "")+"->AntiKt4EMTopo" for jetname in ExKtTopJetCollection__SubJet ]
+
+   sequence += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterBtag", SGKeys=[name+"Aux." for name in ExKtTopJetCollection__SubJet])
+
