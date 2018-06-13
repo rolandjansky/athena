@@ -15,6 +15,7 @@
 #include "../MURoIsUnpackingTool.h"
 #include "../RerunRoIsUnpackingTool.h"
 #include "../PrescalingEmulationTool.h"
+#include "../CreateFullScanRoI.h"
 
 
 DECLARE_COMPONENT( L1CaloDecoder )
@@ -34,3 +35,4 @@ DECLARE_COMPONENT( JRoIsUnpackingTool )
 DECLARE_COMPONENT( TAURoIsUnpackingTool )
 DECLARE_COMPONENT( PrescalingEmulationTool )
 DECLARE_COMPONENT( RerunRoIsUnpackingTool )
+DECLARE_COMPONENT( CreateFullScanRoI )
