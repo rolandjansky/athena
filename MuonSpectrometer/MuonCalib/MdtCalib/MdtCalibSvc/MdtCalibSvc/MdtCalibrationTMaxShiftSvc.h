@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef MDTCALIBSVC_MDTCALIBRATIONTMAXSHIFTSVC_H
 #define MDTCALIBSVC_MDTCALIBRATIONTMAXSHIFTSVC_H
 
