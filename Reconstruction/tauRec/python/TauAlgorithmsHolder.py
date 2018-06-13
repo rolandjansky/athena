@@ -655,10 +655,11 @@ def getTauVertexFinder(doUseTJVA=False):
     from tauRecTools.tauRecToolsConf import TauVertexFinder
     TauVertexFinder = TauVertexFinder(name = _name,
                                       UseTJVA                 = doUseTJVA,
-                                      PrimaryVertexContainer  = _DefaultVertexContainer,
                                       AssociatedTracks="GhostTrack", # OK??
-                                      TrackVertexAssociation="JetTrackVtxAssoc_forTaus",
-                                      InDetTrackSelectionToolForTJVA = getInDetTrackSelectionToolForTJVA()
+                                      InDetTrackSelectionToolForTJVA = getInDetTrackSelectionToolForTJVA(),
+                                      Key_trackPartInputContainer=_DefaultTrackContainer,
+                                      Key_JetTrackVtxAssoc_forTaus="JetTrackVtxAssoc_forTaus",
+                                      Key_vertexInputContainer = _DefaultVertexContainer
                                       )
     
     cached_instances[_name] = TauVertexFinder         
@@ -699,6 +700,7 @@ def getTauTrackFinder(removeDuplicateTracks=True):
                                     TrackToVertexTool         = getTrackToVertexTool(),
                                     ParticleCaloExtensionTool = getParticleCaloExtensionTool(),
                                     removeDuplicateCoreTracks = removeDuplicateTracks,
+                                    Key_trackPartInputContainer = _DefaultTrackContainer,
                                     #maxDeltaZ0wrtLeadTrk = 2, #in mm
                                     #removeTracksOutsideZ0wrtLeadTrk = True
                                     )
