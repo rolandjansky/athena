@@ -1332,7 +1332,7 @@ StatusCode SCT_FrontEnd::doClustering(SiChargedDiodeCollection &collection)
 
     const SCT_ModuleSideDesign &sctDesign = dynamic_cast<const SCT_ModuleSideDesign &> (collection.design());
     
-    Identifier hitStrip;        
+    SiCellId hitStrip;        
 
     if (m_data_readout_mode == 0) {
         do {
@@ -1360,8 +1360,8 @@ StatusCode SCT_FrontEnd::doClustering(SiChargedDiodeCollection &collection)
                                                                                      
                 clusterSize = (clusterLastStrip - clusterFirstStrip) + 1;           
 
-                hitStrip = m_sct_id->strip_id(collection.identify(),
-                                              clusterFirstStrip);
+		hitStrip = SiCellId(strip);
+		  
                 SiChargedDiode &HitDiode = *(collection.find(hitStrip));             
                                                                                     
                 SiHelper::SetStripNum(HitDiode, clusterSize);                         
@@ -1369,10 +1369,10 @@ StatusCode SCT_FrontEnd::doClustering(SiChargedDiodeCollection &collection)
                 SiChargedDiode *PreviousHitDiode = &HitDiode;
                 for (int i = clusterFirstStrip + 1; i <= clusterLastStrip;
                      ++i) {
-                    hitStrip = m_sct_id->strip_id(collection.identify(), i);
-                    SiChargedDiode &HitDiode2 = *(collection.find(hitStrip));          
+		  hitStrip  = SiCellId(strip);
+		  SiChargedDiode &HitDiode2 = *(collection.find(hitStrip));          
                                                                                        
-                    SiHelper::ClusterUsed(HitDiode2, true);                             
+		  SiHelper::ClusterUsed(HitDiode2, true);                             
 
                     PreviousHitDiode->setNextInCluster(&HitDiode2);
                     PreviousHitDiode = &HitDiode2;
@@ -1386,8 +1386,8 @@ StatusCode SCT_FrontEnd::doClustering(SiChargedDiodeCollection &collection)
         do { // Expanded read out mode, one RDO/strip per cluster
             if (m_StripHitsOnWafer[strip] > 0) {
                 clusterSize = 1;
-                hitStrip = m_sct_id->strip_id(collection.identify(), strip);
-                SiChargedDiode &HitDiode = *(collection.find(hitStrip));         
+                hitStrip = SiCellId(strip);
+		SiChargedDiode &HitDiode = *(collection.find(hitStrip));         
                                                                                  
                 SiHelper::SetStripNum(HitDiode, clusterSize);                     
                                                                                   

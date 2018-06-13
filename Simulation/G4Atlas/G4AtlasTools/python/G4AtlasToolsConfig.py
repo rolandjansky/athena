@@ -84,7 +84,10 @@ def generateInDetSensitiveDetectorList():
         SensitiveDetectorList += [ 'PixelSensorSD' ]
     if DetFlags.simulate.SCT_on():
         if isUpgrade:
-            SensitiveDetectorList += [ 'SLHC_SctSensorSD' ]
+            if commonGeoFlags.StripGeoType() == "GMX":
+             SensitiveDetectorList += [ 'SLHC_SctSensorSD_Gmx' ]
+            else:
+             SensitiveDetectorList += [ 'SLHC_SctSensorSD' ]
         else:
             SensitiveDetectorList += [ 'SctSensorSD' ]
     if DetFlags.simulate.TRT_on() and not isUpgrade:
