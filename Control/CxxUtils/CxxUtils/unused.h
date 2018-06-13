@@ -37,4 +37,13 @@
 #endif
 
 
+// Declare that a member is unused, to suppress warnings.
+// Only clang recognizes an unused attribute for a member.
+#ifdef __clang__
+# define ATH_UNUSED_MEMBER(v) v __attribute__((unused))
+#else
+# define ATH_UNUSED_MEMBER(v) v
+#endif
+
+
 #endif /* not CXXUTILS_UNUSED_H */
