@@ -1,0 +1,6 @@
++ .*ActsGeometry
++ .*ActsInterop
++ .*ActsAlignment
++ .*InnerDetector/InDetDetDescr/InDetReadoutGeometry.*
++ .*DetectorDescription/GeoModel/GeoModelUtilities.*
+- .*
