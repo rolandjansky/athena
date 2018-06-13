@@ -62,7 +62,7 @@ class SimBeamSpotShapeFilter( PyAthena.AthFilterAlgorithm ):
         self.nProcessed = 0
         self.nEventPassed  = 0
 
-        if self.targetBStag == '' :
+        if self.initialBStag == '' :
           self.msg.info('Initial width will be taken from associated BS tag'  )
         else:
           self.msg.info('Initial width will be taken from BS tag:  %s' % ( self.initialBStag ) )
@@ -129,8 +129,8 @@ class SimBeamSpotShapeFilter( PyAthena.AthFilterAlgorithm ):
               self.initialPosZ = float(obj.payloadValue("posZ"))
               break
             self.initialBStag = ''
-            self.msg.info('Intial position (%f, %f, %f)' % (self.initialPosX,self.initialPosY,self.initialPosZ ) )
-            self.msg.info('Intial width (%f, %f, %f)' % (self.initialSigmaX,self.initialSigmaY,self.initialSigmaZ ) ) 
+            self.msg.info('Intial BS position from tag  (%f, %f, %f)' % (self.initialPosX,self.initialPosY,self.initialPosZ ) )
+            self.msg.info('Intial BS width from tag (%f, %f, %f)' % (self.initialSigmaX,self.initialSigmaY,self.initialSigmaZ ) ) 
 
           if self.targetBStag != '': 
         
@@ -204,10 +204,10 @@ class SimBeamSpotShapeFilter( PyAthena.AthFilterAlgorithm ):
         
         
         self.msg.info( '==> Finalize %s...' % self.name() )
-        self.msg.info( '***************************************************************' )
+        self.msg.info( '**********************************************************************' )
         self.msg.info( ' Number of processed events: %r' % self.nProcessed )
         self.msg.info( ' Events accepted:  %r and resulting efficiency = (%3.3f +/- %3.3f)%%' % ( self.nEventPassed, effiEvents, effiErrEvents ) )
-        self.msg.info( '***************************************************************' )
+        self.msg.info( '**********************************************************************' )
 
         return StatusCode.Success
 

@@ -1,3 +1,7 @@
+# Example command 
+# HITSMerge_tf.py --inputHITSFile=XXXX --outputHITS_MRGFile=XXXX --maxEvents=20 --preExec 'targetSigmaZ=20' --preInclude SimuJobTransforms/preinclude.BeamSpotShapeFilter.py --checkEventCount False
+
+
 from AthenaCommon.AlgSequence import AthSequencer
 
 from AthenaCommon.AppMgr import ServiceMgr
