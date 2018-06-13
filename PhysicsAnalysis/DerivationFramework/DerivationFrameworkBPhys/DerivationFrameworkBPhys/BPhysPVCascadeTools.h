@@ -9,7 +9,7 @@
 #include "xAODBPhys/BPhysHypoHelper.h"
 #include "DerivationFrameworkBPhys/CascadeTools.h"
 #include <vector>
-
+#include "EventKernel/PdtPdg.h"
 // Authors: Adam Barton <abarton@SPAMMENOTTtttcern.ch>
 //          Eva Bouhova <bouhova@SPAMMENOTTtttcern.ch>
 
@@ -17,6 +17,7 @@
 //class CascadeTools;
 namespace Trk {
   class V0Tools;
+  class VxCascadeInfo;
 }
 
 namespace Analysis{
@@ -24,10 +25,15 @@ namespace Analysis{
 }
 class IBeamCondSvc;
 
+namespace HepPDT{
+  class ParticleDataTable;
+}
+
 namespace DerivationFramework {
   
   class BPhysPVCascadeTools {
-
+  typedef ElementLink<xAOD::VertexContainer> VertexLink;
+  typedef std::vector<VertexLink> VertexLinkVector;
   private:
        const Trk::V0Tools *m_v0Tools;
        const CascadeTools *m_cascadeTools;
@@ -107,7 +113,22 @@ namespace DerivationFramework {
        /// along the B candidate's momentum direction. 
        Amg::Vector3D DocaExtrapToBeamSpot(const std::vector<TLorentzVector> &mom, const xAOD::BPhysHelper &obj) const;
 
+       static void PrepareVertexLinks(Trk::VxCascadeInfo *result,  const xAOD::TrackParticleContainer* importedTrackCollection);
 
+       StatusCode FillCandwithRefittedVertices( bool refitPV,
+					      const xAOD::VertexContainer* pvContainer, xAOD::VertexContainer* refPvContainer,
+					      Analysis::PrimaryVertexRefitter *pvRefitter, size_t in_PV_max, int DoVertexType,
+                                              Trk::VxCascadeInfo* casc, int index,
+                                              double mass, xAOD::BPhysHypoHelper &vtx);
+
+       static std::vector<const xAOD::TrackParticle*> CollectAllChargedTracks(const std::vector<xAOD::Vertex*> &cascadeVertices);
+       
+       static void SetVectorInfo(xAOD::BPhysHelper &, const Trk::VxCascadeInfo*);
+       static bool uniqueCollection(const std::vector<const xAOD::TrackParticle*>&);
+       static bool uniqueCollection(const std::vector<const xAOD::TrackParticle*>&, const std::vector<const xAOD::TrackParticle*>&);
+       static bool LinkVertices(SG::AuxElement::Decorator<VertexLinkVector> &decor, const std::vector<xAOD::Vertex*>& vertices,
+                                                 const xAOD::VertexContainer* vertexContainer, xAOD::Vertex* vert);
+       static double getParticleMass(const HepPDT::ParticleDataTable* pdt, int pdg);
   }; // class BPhysPVCascadeTools
 
 } // namespace DerivationFramework
