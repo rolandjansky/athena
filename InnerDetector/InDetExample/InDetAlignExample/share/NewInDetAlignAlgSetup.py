@@ -41,7 +41,7 @@ newInDetAlignAlg_Options = {
     ,"inputMatrixFiles"             : [ "matrix.bin" ]           #  list of matrix files when solving only
     ,"inputVectorFiles"             : [ "vector.bin" ]               #  list of vector files when solving only
     ,"inputTFiles"          : ["AlignmentTFile.root"]        # list of the Alignment TFiles, used only if WriteTFile is True
-    ,"solvingOption"            : 3                          #  which global solver to run 0-none, 1-Lapack, 2-***REMOVED***, 6-ROOT, 7-CLHEP
+    ,"solvingOption"            : 3                          #  which global solver to run 0-none, 1-Lapack, 2-Eigen, 6-ROOT, 7-CLHEP
     ,"solveLocal"               : True                       #  whether to run locaal solving
     ,"writeMatrixFile"          : True                       #  whether to write matrix to file before solving
     ,"writeMatrixFileTxt"           : True                   #  whether to write matrix to text file
@@ -307,7 +307,7 @@ if not newInDetAlignAlg_Options["runLocal"]:
         ):
         matrixTool.WriteEigenMat = False
         matrixTool.UseSparse = True
-        matrixTool.SolveOption = 2 # run ***REMOVED*** for L3 by default
+        matrixTool.SolveOption = 2 # run Eigen for L3 by default
         matrixTool.WriteMatTxt = False
         matrixTool.WriteHitmapTxt = False
         matrixTool.CalculateFullCovariance = False
