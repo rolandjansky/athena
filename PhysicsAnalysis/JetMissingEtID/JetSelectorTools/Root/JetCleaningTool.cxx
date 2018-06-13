@@ -103,6 +103,7 @@ JetCleaningTool::JetCleaningTool(const std::string& name)
   , m_cutName("")
   , m_cutLevel(LooseBad)
   , m_doUgly(false)
+  , m_jetCleanDFName("")
   , m_acc_jetClean("")
   , m_hotCellsFile("")
   , m_hotCellsMap(NULL)
@@ -117,8 +118,6 @@ JetCleaningTool::JetCleaningTool(const CleaningLevel alevel, const bool doUgly)
   : JetCleaningTool( "JetCleaningTool_"+getCutName(alevel) )
 {
   m_cutLevel=alevel;
-  m_jetCleanDFName = "DFCommonJets_jetClean_"+getCutName(alevel);
-  m_acc_jetClean = m_jetCleanDFName;
   m_doUgly = doUgly;
 }
 
@@ -127,8 +126,6 @@ JetCleaningTool::JetCleaningTool(const std::string& name , const CleaningLevel a
   : JetCleaningTool(name)
 {
   m_cutLevel=alevel;
-  m_jetCleanDFName = "DFCommonJets_jetClean_"+getCutName(alevel);
-  m_acc_jetClean = m_jetCleanDFName;
   m_doUgly = doUgly;
 }
 
@@ -171,6 +168,9 @@ StatusCode JetCleaningTool::initialize()
 
   if (m_cutName!="") m_cutLevel = getCutLevel( m_cutName );
   ATH_MSG_INFO( "Configured with cut level " << getCutName( m_cutLevel ) );
+  m_jetCleanDFName = "DFCommonJets_jetClean_"+getCutName(m_cutLevel);
+  m_acc_jetClean = m_jetCleanDFName;
+  ATH_MSG_DEBUG( "Initialized decorator name: " << m_jetCleanDFName );
 
   m_accept.addCut( "Cleaning", "Cleaning of the jet" );
     
@@ -312,7 +312,6 @@ const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
   int isJetClean = 0;
   if(m_acc_jetClean.isAvailable(jet)) { //look for the decoration that corresponds to your cleaning (Tight or Loose only) 
 	  isJetClean = m_acc_jetClean(jet);
-	  ATH_MSG_INFO("Int containing jetClean accessor decision: " << isJetClean );
 	  return accept (isJetClean);
   }
   else{  
