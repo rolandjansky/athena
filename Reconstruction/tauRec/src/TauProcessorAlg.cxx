@@ -140,17 +140,15 @@ StatusCode TauProcessorAlg::execute() {
   StatusCode sc;
 
   
-    // Declare containers                                                                                                                                          
+    // Declare containers  
     xAOD::TauJetContainer * pContainer = 0;
     xAOD::TauJetAuxContainer* pAuxContainer = 0;
-    xAOD::TauTrackContainer* pTracks = 0;
-    xAOD::TauTrackAuxContainer* pAuxTracks = 0;
+    xAOD::TauTrackContainer* pTauTrackCont = 0;
+    xAOD::TauTrackAuxContainer* pTauTrackAuxCont = 0;
 
-    // Declare write handles                                                                                                                                       
+    // Declare write handles
     SG::WriteHandle<xAOD::TauJetContainer> tauHandle( m_tauOutputContainer );
-    ATH_MSG_INFO("  write: " << tauHandle.key() << " = " << "..." );
     SG::WriteHandle<xAOD::TauTrackContainer> tauTrackHandle( m_tauTrackOutputContainer );
-    ATH_MSG_INFO("  write: " << tauTrackHandle.key() << " = " << "..." );
 
     if (m_doCreateTauContainers) {
       //-------------------------------------------------------------------------                         
@@ -160,10 +158,9 @@ StatusCode TauProcessorAlg::execute() {
       pAuxContainer = new xAOD::TauJetAuxContainer();
       pContainer->setStore( pAuxContainer );
 
-
-      pTracks = new xAOD::TauTrackContainer();
-      pAuxTracks = new xAOD::TauTrackAuxContainer();
-      pTracks->setStore( pAuxTracks );
+      pTauTrackCont = new xAOD::TauTrackContainer();
+      pTauTrackAuxCont = new xAOD::TauTrackAuxContainer();
+      pTauTrackCont->setStore( pTauTrackAuxCont );
 
 
     } else {
@@ -178,7 +175,6 @@ StatusCode TauProcessorAlg::execute() {
       }
     }
 
-
     //-------------------------------------------------------------------------                        
     // Initialize tools for this event
     //-------------------------------------------------------------------------                                                      
@@ -189,7 +185,6 @@ StatusCode TauProcessorAlg::execute() {
       if (sc != StatusCode::SUCCESS)
 	return StatusCode::FAILURE;
     }
-
 
     //---------------------------------------------------------------------                                                    
     // Retrieve seed Container from TDS, return `failure if no                                        
@@ -203,9 +198,6 @@ StatusCode TauProcessorAlg::execute() {
     const xAOD::JetContainer *pSeedContainer = 0;
     pSeedContainer = jetHandle.cptr();
 
-
-    
-
     //---------------------------------------------------------------------                                                        
     // Loop over seeds
     //---------------------------------------------------------------------                                                 
@@ -213,7 +205,6 @@ StatusCode TauProcessorAlg::execute() {
     xAOD::JetContainer::const_iterator itSE = pSeedContainer->end();
 
     ATH_MSG_VERBOSE("Number of seeds in the container: " << pSeedContainer->size());
-
     for (; itS != itSE; ++itS) {
 
       const xAOD::Jet *pSeed = (*itS);
@@ -236,6 +227,9 @@ StatusCode TauProcessorAlg::execute() {
       pContainer->push_back( pTau );
       pTau->setJet(pSeedContainer, pSeed);
 
+      // This sets one track and link. Need to have at least 1 track linked to retrieve track container
+      setEmptyTauTrack(pTau, pTauTrackCont);
+      
       //-----------------------------------------------------------------
       // Loop stops when Failure indicated by one of the tools
       //-----------------------------------------------------------------
@@ -247,16 +241,16 @@ StatusCode TauProcessorAlg::execute() {
 	if (sc.isFailure())
 	  break;
       }
-      
-      if (sc.isSuccess()) {
 
+      if (sc.isSuccess()) {
+	
 	ATH_MSG_VERBOSE("The tau candidate has been registered");
      
       } else if (!sc.isSuccess()) {
 	//remove orphaned tracks before tau is deleted via pop_back
 	xAOD::TauJet* bad_tau = pContainer->back();
 	ATH_MSG_DEBUG("Deleting " << bad_tau->nAllTracks() << "Tracks associated with tau: ");
-	pTracks->erase(pTracks->end()-bad_tau->nAllTracks(), pTracks->end());
+	pTauTrackCont->erase(pTauTrackCont->end()-bad_tau->nAllTracks(), pTauTrackCont->end());
 
 	//m_data.xAODTauContainer->pop_back();
 	pContainer->pop_back();
@@ -265,7 +259,7 @@ StatusCode TauProcessorAlg::execute() {
 	//remove orphaned tracks before tau is deleted via pop_back
 	xAOD::TauJet* bad_tau = pContainer->back();
 	ATH_MSG_DEBUG("Deleting " << bad_tau->nAllTracks() << "Tracks associated with tau: ");
-	pTracks->erase(pTracks->end()-bad_tau->nAllTracks(), pTracks->end());
+	pTauTrackCont->erase(pTauTrackCont->end()-bad_tau->nAllTracks(), pTauTrackCont->end());
 
 	//m_data.xAODTauContainer->pop_back();
 	pContainer->pop_back();
@@ -288,9 +282,27 @@ StatusCode TauProcessorAlg::execute() {
   } else if (!sc.isSuccess()) {
   } else  {
   }
-
+  
+  // Write the completed tau and track containers
+  ATH_MSG_DEBUG("  write: " << tauHandle.key() << " = " << "..." );
   ATH_CHECK(tauHandle.record(std::unique_ptr<xAOD::TauJetContainer>{pContainer}, std::unique_ptr<xAOD::TauJetAuxContainer>{pAuxContainer}));
-  ATH_CHECK(tauTrackHandle.record(std::unique_ptr<xAOD::TauTrackContainer>{pTracks}, std::unique_ptr<xAOD::TauTrackAuxContainer>{pAuxTracks}));
+  ATH_MSG_DEBUG("  write: " << tauTrackHandle.key() << " = " << "..." );  
+  ATH_CHECK(tauTrackHandle.record(std::unique_ptr<xAOD::TauTrackContainer>{pTauTrackCont}, std::unique_ptr<xAOD::TauTrackAuxContainer>{pTauTrackAuxCont}));
 
   return StatusCode::SUCCESS;
 }
+
+
+void TauProcessorAlg::setEmptyTauTrack(xAOD::TauJet* &pTau, 
+				       xAOD::TauTrackContainer* &tauTrackContainer)
+{  
+  // Make a new tau track, add to container
+  xAOD::TauTrack* pTrack = new xAOD::TauTrack();
+  tauTrackContainer->push_back(pTrack);
+    
+  // Create an element link for that track
+  ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
+  linkToTauTrack.toContainedElement(*tauTrackContainer, pTrack);
+  pTau->addTauTrackLink(linkToTauTrack);
+}
+

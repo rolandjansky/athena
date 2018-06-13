@@ -37,6 +37,9 @@ class TauProcessorAlg: public AthAlgorithm
 
     private:
        
+	void setEmptyTauTrack( xAOD::TauJet* &tauJet,
+			       xAOD::TauTrackContainer* &tauTrackCont);				 
+
 	ToolHandleArray<ITauToolBase>  m_tools;
 
 	double m_maxEta; //!< only build taus with eta_seed < m_maxeta
