@@ -218,7 +218,7 @@ FTAG4SlimmingHelper.AppendToDictionary = {
   "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubAux"         :   "xAOD::BTaggingAuxContainer",
 }
 #----------------------------------------------------------------------
-addJetOutputs(FTAG4SlimmingHelper,["FTAG4"])
+#addJetOutputs(FTAG4SlimmingHelper,["FTAG4"])
 
 FTAG4SlimmingHelper.IncludeMuonTriggerContent = True
 FTAG4SlimmingHelper.IncludeEGammaTriggerContent = True

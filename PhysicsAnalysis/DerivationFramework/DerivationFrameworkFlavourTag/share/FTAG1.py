@@ -274,7 +274,7 @@ FTAG1SlimmingHelper.AppendToDictionary = {
   }
 #----------------------------------------------------------------------
 
-addJetOutputs(FTAG1SlimmingHelper,["FTAG1"])
+#addJetOutputs(FTAG1SlimmingHelper,["FTAG1"])
 
 FTAG1SlimmingHelper.IncludeMuonTriggerContent = False
 FTAG1SlimmingHelper.IncludeEGammaTriggerContent = False
