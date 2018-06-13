@@ -185,9 +185,9 @@ StatusCode JetCleaningTool::initialize()
 
   return StatusCode::SUCCESS;
 }
-//=====================================================================================
-// Calculate the accept from the DFCommonJets_jetClean decorator + tight cleaning vars
-//====================================================================================
+//======================================================================================
+// Calculate the accept from the DFCommonJets_jetClean decorator (same for Loose/Tight)
+//======================================================================================
 const Root::TAccept& JetCleaningTool::accept( const int isJetClean ) const
 {                
         m_accept.clear();
@@ -201,6 +201,7 @@ const Root::TAccept& JetCleaningTool::accept( const int isJetClean ) const
                 m_accept.setCutResult( "Cleaning", true );
                 return m_accept;
         }
+
 
 	// We should never arrive here!
 	ATH_MSG_ERROR( "Unknown cut name: " << getCutName( m_cutLevel ) << " in JetCleaningTool" );
@@ -299,15 +300,10 @@ void missingVariable(const char* varName)
 
 const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
 {
-  //variables needed for tight cleaning
   std::vector<float> sumPtTrkvec;
   jet.getAttribute( xAOD::JetAttribute::SumPtTrkPt500, sumPtTrkvec );
   double sumpttrk = 0;
   if( ! sumPtTrkvec.empty() ) sumpttrk = sumPtTrkvec[0];
-
-  float FracSamplingMax = 0;
-  if (!jet.getAttribute(xAOD::JetAttribute::FracSamplingMax,FracSamplingMax))
-    missingVariable("FracSamplingMax");
 
   int isJetClean = 0;
   if(m_acc_jetClean.isAvailable(jet)) { //look for the decoration that corresponds to your cleaning (Tight or Loose only) 
@@ -315,7 +311,7 @@ const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
 	  return accept (isJetClean);
   }
   else{  
-	  ATH_MSG_VERBOSE("DFCommon jet cleaning variable not available ... Using jet cleaning tool");
+	  ATH_MSG_DEBUG("DFCommon jet cleaning variable not available ... Using jet cleaning tool");
 	  // Get all of the required variables
 	  // Do it this way so we can gracefully handle missing variables (rather than segfaults)
 	  float EMFrac = 0;
@@ -330,6 +326,9 @@ const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
 	  float HECQuality = 0;
 	  if (!jet.getAttribute(xAOD::JetAttribute::HECQuality,HECQuality))
 		  missingVariable("HECQuality");
+	  float FracSamplingMax = 0;
+	  if (!jet.getAttribute(xAOD::JetAttribute::FracSamplingMax,FracSamplingMax))
+		  missingVariable("FracSamplingMax");
 	  float NegativeE = 0;
 	  if (!jet.getAttribute(xAOD::JetAttribute::NegativeE,NegativeE))
 		  missingVariable("NegativeE");
