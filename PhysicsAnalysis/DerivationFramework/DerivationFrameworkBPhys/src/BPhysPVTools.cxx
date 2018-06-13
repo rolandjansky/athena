@@ -539,4 +539,21 @@ Amg::Vector3D DerivationFramework::BPhysPVTools::DocaExtrapToBeamSpot(const xAOD
   }
   return xDOCA;
 }
+
+void DerivationFramework::BPhysPVTools::PrepareVertexLinks(xAOD::Vertex* theResult,
+               const xAOD::TrackParticleContainer* importedTrackCollection)
+{
+  std::vector<ElementLink<DataVector<xAOD::TrackParticle> > > newLinkVector;
+  const auto &trkprtl = theResult->trackParticleLinks();
+  for(unsigned int i=0; i< trkprtl.size(); i++)
+  {
+      ElementLink<DataVector<xAOD::TrackParticle> > mylink=trkprtl[i]; //makes a copy (non-const)
+      mylink.setStorableObject(*importedTrackCollection, true);
+      newLinkVector.push_back( mylink );
+  }
+  theResult->clearTracks();
+  theResult->setTrackParticleLinks( newLinkVector );
+}
+
+
 //-----------------------------------------------------------------------------
