@@ -18,7 +18,8 @@
 // construction/destruction
 sTGCSensitiveDetector::sTGCSensitiveDetector(const std::string& name, const std::string& hitCollectionName)
   : G4VSensitiveDetector( name )
-  , m_GenericMuonHitCollection( hitCollectionName )
+  //, m_GenericMuonHitCollection( hitCollectionName )
+  , m_sTGCSimHitCollection( hitCollectionName )//Jing
 {
   m_muonHelper = sTgcHitIdHelper::GetHelper();
   //m_muonHelper->PrintFields();
@@ -27,7 +28,8 @@ sTGCSensitiveDetector::sTGCSensitiveDetector(const std::string& name, const std:
 // Implemenation of memebr functions
 void sTGCSensitiveDetector::Initialize(G4HCofThisEvent*)
 {
-  if (!m_GenericMuonHitCollection.isValid()) m_GenericMuonHitCollection = CxxUtils::make_unique<GenericMuonSimHitCollection>();
+  //if (!m_GenericMuonHitCollection.isValid()) m_GenericMuonHitCollection = CxxUtils::make_unique<GenericMuonSimHitCollection>();
+  if (!m_sTGCSimHitCollection.isValid()) m_sTGCSimHitCollection = CxxUtils::make_unique<sTGCSimHitCollection>();//Jing
 }
 
 G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/)
@@ -110,7 +112,8 @@ G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*RO
   TrackHelper trHelp(aStep->GetTrack());
   int barcode = trHelp.GetBarcode();
 
-  m_GenericMuonHitCollection->Emplace(sTgcId,globalTime,globalpreTime,position,local_position,preposition,local_preposition,pdgCode,eKin,direction,depositEnergy,StepLength,barcode);
+  //m_GenericMuonHitCollection->Emplace(sTgcId,globalTime,globalpreTime,position,local_position,preposition,local_preposition,pdgCode,eKin,direction,depositEnergy,StepLength,barcode);
+  m_sTGCSimHitCollection->Emplace(sTgcId,globalTime,position,pdgCode,direction,depositEnergy);//Jing
 
   return true;
 }

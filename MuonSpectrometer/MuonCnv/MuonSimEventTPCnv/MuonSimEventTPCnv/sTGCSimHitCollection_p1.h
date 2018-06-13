@@ -1,0 +1,35 @@
+/*
+  Jing, 12/06/2018 
+*/
+
+#ifndef STGCSIMHITCOLLECTION_P1_H
+#define STGCSIMHITCOLLECTION_P1_H
+
+#include <vector>
+#include "GeneratorObjectsTPCnv/HepMcParticleLink_p1.h"
+
+namespace Muon {
+  class sTGCSimHitCollection_p1   
+  {
+  public:
+    std::vector<int>      m_sTGCId;
+    std::vector<float>    m_globalTime;
+    std::vector<float>    m_globalpreTime;
+    //preStep
+    std::vector<float>    m_prestX, m_prestY, m_prestZ;    //!< Represents m_globalPosition in transient class
+    std::vector<float>    m_prelocX, m_prelocY, m_prelocZ; //!< Represents m_localPosition in transient class
+    //postStep
+    std::vector<float>    m_stX, m_stY, m_stZ;    //!< Represents m_globalPosition in transient class
+    std::vector<float>    m_locX, m_locY, m_locZ; //!< Represents m_localPosition in transient class
+    std::vector<float>    m_kineticEnergy;
+    std::vector<int>      m_particleEncoding;
+    std::vector<float>    m_ptX, m_ptY, m_ptZ;
+    std::vector<float>    m_depositEnergy;
+    std::vector<float>    m_StepLength;
+
+    std::vector<HepMcParticleLink_p1>  m_partLink;
+  };
+}
+
+#endif
+

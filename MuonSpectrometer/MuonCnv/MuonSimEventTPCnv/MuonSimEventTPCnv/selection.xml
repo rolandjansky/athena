@@ -18,5 +18,6 @@
     <class name="Muon::MDTSimHitCollection_p3" id="0E9EEEE2-304F-44B8-B1DF-E75297183A02"/>
     <class name="Muon::GenericMuonSimHitCollection_p1" id="C2D5D558-2671-11E1-AAFA-001E4F3E5646"/>
     <class name="Muon::GenericMuonSimHitCollection_p2" id="3760C0D8-C7EA-42C7-925A-E841196F2138"/>
+    <class name="Muon::sTGCSimHitCollection_p1" id="b9521cc6-6e3b-11e8-adbb-02163e01bddd"/> <!--Jing-->
     
 </lcgdict>
