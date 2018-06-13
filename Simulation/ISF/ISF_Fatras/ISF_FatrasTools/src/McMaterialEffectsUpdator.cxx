@@ -527,7 +527,11 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
       }
       m_particleBroker->push(regisp, m_isp);
     }
-    if (isp!=m_isp) { delete isp; delete parm; }
+    if (isp!=m_isp) {
+      delete isp;
+      delete parm;
+      return nullptr;
+    }
     return parm; 
   } else {
     if ( pathLim.x0Max>0 && pathLim.process<100 && pathLim.x0Collected+dX0>= pathLim.x0Max) {      // elmg. interaction
@@ -565,7 +569,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
 
     if (1./fabs(updatedParameters[4]) < m_minimumMomentum ) {
       if (isp!=m_isp) delete isp;
-      return 0;
+      return nullptr;
     }
   } else {
     matFraction += dX0/pathCorrection/m_matProp->thicknessInX0();  
@@ -596,7 +600,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
     if (parm->momentum().mag() < m_minimumMomentum ) {
       if (isp!=m_isp) { delete isp; delete parm; }
       else delete updated;
-      return 0;
+      return nullptr;
     }
   }
 
@@ -638,7 +642,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
     if (childs.size()>0) { // assume that interaction processing failed if no children
       if (isp!=m_isp) { delete isp; delete parm; }
       else delete updated;   // non-updated parameters registered with the extrapolator
-      return 0;
+      return nullptr;
     }
   }
 
