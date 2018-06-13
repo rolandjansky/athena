@@ -44,51 +44,52 @@ OverlayTTL1::OverlayTTL1(const std::string& name, ISvcLocator* pSvcLocator)
 {
   declareProperty("PpmMappingTool", m_mappingTool);
 
-  declareProperty("EmTTL1ContainerName",m_EmTTL1ContainerName= "LArTTL1EM");
-  declareProperty("HadTTL1ContainerName",m_HadTTL1ContainerName= "LArTTL1HAD");
-  declareProperty("TileTTL1ContainerName",m_TileTTL1ContainerName= "TileTTL1Cnt");
-  declareProperty("EmTTL1OverlayContainerName",m_EmTTL1OverlayContainerName= "OriginalEvent_SG/LArTTL1EM");
-  declareProperty("HadTTL1OverlayContainerName",m_HadTTL1OverlayContainerName= "OriginalEvent_SG/LArTTL1HAD");
-  declareProperty("TileTTL1OverlayContainerName",m_TileTTL1OverlayContainerName= "OriginalEvent_SG/TileTTL1Cnt");
-  declareProperty("EmTTL1OutputContainerName",m_EmTTL1OutputContainerName= "LArTTL1EMMerged");
-  declareProperty("HadTTL1OutputContainerName",m_HadTTL1OutputContainerName= "LArTTL1HADMerged");
-  declareProperty("TileTTL1OutputContainerName",m_TileTTL1OutputContainerName= "TileTTL1CntMerged");
-
+  declareProperty("EmTTL1MainKey", m_EmTTL1MainKey);
+  declareProperty("HadTTL1MainKey", m_HadTTL1MainKey);
+  declareProperty("TileTTL1MainKey", m_TileTTL1MainKey);
+  declareProperty("EmTTL1OverlayKey", m_EmTTL1OverlayKey);
+  declareProperty("HadTTL1OverlayKey", m_HadTTL1OverlayKey);
+  declareProperty("TileTTL1OverlayKey", m_TileTTL1OverlayKey);
+  declareProperty("EmTTL1OutputKey", m_EmTTL1OutputKey);
+  declareProperty("HadTTL1OutputKey", m_HadTTL1OutputKey);
+  declareProperty("TileTTL1OutputKey", m_TileTTL1OutputKey);
 }
 
 OverlayTTL1::~OverlayTTL1() {}
 
 StatusCode OverlayTTL1::overlayInitialize()
 {
-  ATH_MSG_DEBUG("Initialising");
+  ATH_MSG_INFO("Initialising");
 
   CHECK(m_mappingTool.retrieve());
 
   // StoreGate keys
-  ATH_CHECK( m_EmTTL1ContainerName.initialize() );
-  ATH_CHECK( m_HadTTL1ContainerName.initialize() );
-  ATH_CHECK( m_TileTTL1ContainerName.initialize() );
-  ATH_CHECK( m_EmTTL1OverlayContainerName.initialize() );
-  ATH_CHECK( m_HadTTL1OverlayContainerName.initialize() );
-  ATH_CHECK( m_TileTTL1OverlayContainerName.initialize() );
-  ATH_CHECK( m_EmTTL1OutputContainerName.initialize() );
-  ATH_CHECK( m_HadTTL1OutputContainerName.initialize() );
-  ATH_CHECK( m_TileTTL1OutputContainerName.initialize() );
+  ATH_CHECK( m_EmTTL1MainKey.initialize() );
+  ATH_CHECK( m_HadTTL1MainKey.initialize() );
+  ATH_CHECK( m_EmTTL1OverlayKey.initialize() );
+  ATH_CHECK( m_HadTTL1OverlayKey.initialize() );
+  ATH_CHECK( m_EmTTL1OutputKey.initialize() );
+  ATH_CHECK( m_HadTTL1OutputKey.initialize() );
 
+  ATH_CHECK( m_TileTTL1MainKey.initialize() );
+  ATH_CHECK( m_TileTTL1OverlayKey.initialize() );
+  ATH_CHECK( m_TileTTL1OutputKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode OverlayTTL1::overlayFinalize() {
-  ATH_MSG_DEBUG("Finalizing");
+StatusCode OverlayTTL1::overlayFinalize()
+{
+  ATH_MSG_INFO("Finalizing");
   return StatusCode::SUCCESS;
 }
 
 /** Checks that the Cell Type is supported (terminates with errors if not)
     and calls relevant routine to look for the cells.
 */
-StatusCode OverlayTTL1::overlayExecute() {
+StatusCode OverlayTTL1::overlayExecute()
+{
   ATH_MSG_VERBOSE("Executing");
 
   // Retrieve towers
@@ -110,46 +111,50 @@ StatusCode LVL1::OverlayTTL1::getTowers()
   m_tileTowerMap.clear();
 
   // Find LAr towers in TES
-  SG::ReadHandle<LArTTL1Container> EMTowers(m_EmTTL1ContainerName);
+  SG::ReadHandle<LArTTL1Container> EMTowers(m_EmTTL1MainKey);
   if(!EMTowers.isValid()){
     ATH_MSG_WARNING("EM LArTTL1Container not found");
   }
   else groupLArTowers(EMTowers, m_emTowerMap);
 
-  SG::ReadHandle<LArTTL1Container> HECTowers(m_HadTTL1ContainerName);
+  SG::ReadHandle<LArTTL1Container> HECTowers(m_HadTTL1MainKey);
   if(!HECTowers.isValid()){
     ATH_MSG_WARNING("Had LArTTL1Container not found");
   }
   else groupLArTowers(HECTowers, m_hecTowerMap);
 
-  // Find Tile towers in TES
-  SG::ReadHandle<TileTTL1Container> TileTowers(m_TileTTL1ContainerName);
-  if(!TileTowers.isValid()){
-    ATH_MSG_WARNING("Tile TTL1Container not found");
-  }
-  else groupTileTowers(TileTowers);
-
   /// If we are doing MC-MC overlay there should be a second set of TTL1
   /// So here we retrieve those, match them up and sum their amplitudes
-
-  SG::ReadHandle<LArTTL1Container> EMOverlay(m_EmTTL1OverlayContainerName);
+  SG::ReadHandle<LArTTL1Container> EMOverlay(m_EmTTL1OverlayKey);
   if(!EMOverlay.isValid()){
     ATH_MSG_WARNING("EM Overlay LArTTL1Container not found");
   }
   else groupLArTowers(EMOverlay, m_emTowerMap);
 
-
-  SG::ReadHandle<LArTTL1Container> HadOverlay(m_HadTTL1OverlayContainerName);
+  SG::ReadHandle<LArTTL1Container> HadOverlay(m_HadTTL1OverlayKey);
   if(!HadOverlay.isValid()){
     ATH_MSG_WARNING("Had LArTTL1 Overlay Container not found");
   } 
   else groupLArTowers(HadOverlay, m_hecTowerMap);
 
-  SG::ReadHandle<TileTTL1Container> TileOverlay(m_TileTTL1OverlayContainerName);
-  if(!TileOverlay.isValid()){
+
+  // Only do tile overlay if there is no merge container there already
+  if (!m_storeGateOutput->contains<TileTTL1Container>(m_TileTTL1OutputKey.key())) {
+    // Find Tile towers in TES
+    SG::ReadHandle<TileTTL1Container> TileOverlay(m_TileTTL1OverlayKey);
+    if(!TileOverlay.isValid()){
     ATH_MSG_WARNING("TileTTL1 Overlay Container not found");
-  } 
-  else groupTileTowers(TileOverlay);
+    } 
+    else groupTileTowers(TileOverlay);
+
+    /// If we are doing MC-MC overlay there should be a second set of TTL1
+    /// So here we retrieve those, match them up and sum their amplitudes
+    SG::ReadHandle<TileTTL1Container> TileTowers(m_TileTTL1MainKey);
+    if(!TileTowers.isValid()){
+    ATH_MSG_WARNING("Tile TTL1Container not found");
+    }
+    else groupTileTowers(TileTowers);
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -219,20 +224,15 @@ StatusCode LVL1::OverlayTTL1::mergeTowers()
 
   // Set up output containers
   
-  SG::WriteHandle<LArTTL1Container> outputEmTTL1Container(m_EmTTL1OutputContainerName);
+  SG::WriteHandle<LArTTL1Container> outputEmTTL1Container(m_EmTTL1OutputKey);
   // Register the TTL1 container in the TES
   ATH_CHECK( outputEmTTL1Container.record(std::make_unique<LArTTL1Container>()) );
-  ATH_MSG_DEBUG( "Output EM LArTTL1Container registered successfully (" << m_EmTTL1OutputContainerName.key() << ")" );
+  ATH_MSG_DEBUG( "Output EM LArTTL1Container registered successfully (" << m_EmTTL1OutputKey.key() << ")" );
   
-  SG::WriteHandle<LArTTL1Container> outputHadTTL1Container(m_HadTTL1OutputContainerName);
+  SG::WriteHandle<LArTTL1Container> outputHadTTL1Container(m_HadTTL1OutputKey);
   // Register the TTL1 container in the TES
   ATH_CHECK( outputHadTTL1Container.record(std::make_unique<LArTTL1Container>()) );
-  ATH_MSG_DEBUG( "Output Hadronic LArTTL1Container registered successfully (" << m_HadTTL1OutputContainerName.key() << ")" );
-
-  SG::WriteHandle<TileTTL1Container> outputTileTTL1Container(m_TileTTL1OutputContainerName);
-  // Register the TTL1 container in the TES
-  ATH_CHECK( outputTileTTL1Container.record(std::make_unique<TileTTL1Container>()) );
-  ATH_MSG_DEBUG( "Output TileTTL1Container registered successfully (" << m_TileTTL1OutputContainerName.key() << ")" );
+  ATH_MSG_DEBUG( "Output Hadronic LArTTL1Container registered successfully (" << m_HadTTL1OutputKey.key() << ")" );
 
 
   // Start with EM collection
@@ -282,28 +282,34 @@ StatusCode LVL1::OverlayTTL1::mergeTowers()
      outputHadTTL1Container->push_back(ttL1.release());
   }
 
-  // Then the Tile TTL1 collection
-  for (std::map<std::string, std::vector<TileTTL1*>>::iterator tileIt = m_tileTowerMap.begin(); tileIt != m_tileTowerMap.end(); ++tileIt) {
-     std::vector<TileTTL1*>::iterator it = (tileIt->second).begin();
-     Identifier Id = (*it)->TTL1_ID();
 
-     std::vector<float> mergedAmps;
-     for (; it != (tileIt->second).end(); ++it) {
+  if (!m_storeGateOutput->contains<TileTTL1Container>(m_TileTTL1OutputKey.key())) {
+    SG::WriteHandle<TileTTL1Container> outputTileTTL1Container(m_TileTTL1OutputKey);
+    // Register the TTL1 container in the TES
+    ATH_CHECK( outputTileTTL1Container.record(std::make_unique<TileTTL1Container>()) );
+    ATH_MSG_DEBUG( "Output TileTTL1Container registered successfully (" << m_TileTTL1OutputKey.key() << ")" );
+
+    // Then the process Tile TTL1 collection
+    for (std::map<std::string, std::vector<TileTTL1*>>::iterator tileIt = m_tileTowerMap.begin(); tileIt != m_tileTowerMap.end(); ++tileIt) {
+      std::vector<TileTTL1*>::iterator it = (tileIt->second).begin();
+      Identifier Id = (*it)->TTL1_ID();
+
+      std::vector<float> mergedAmps;
+      for (; it != (tileIt->second).end(); ++it) {
         if (mergedAmps.size() == 0) mergedAmps = (*it)->fsamples();
         else {
           std::vector<float> amps = (*it)->fsamples();
           if (amps.size() != mergedAmps.size()) ATH_MSG_WARNING("Tile vectors have different lengths: " << amps.size() << ", " << mergedAmps.size()); 
           else for (unsigned int i = 0; i < amps.size(); ++i) mergedAmps[i] += amps[i];     
         }
-     }
+      }
 
-     // Create new tower and add to output vector
-     //TileTTL1 * ttL1 = new TileTTL1(Id,mergedAmps);
-     //outputTileTTL1Container->push_back(ttL1;
-     std::unique_ptr<TileTTL1> ttL1 = std::make_unique<TileTTL1>(Id,mergedAmps);
-     outputTileTTL1Container->push_back(ttL1.release());
-
-
+      // Create new tower and add to output vector
+      //TileTTL1 * ttL1 = new TileTTL1(Id,mergedAmps);
+      //outputTileTTL1Container->push_back(ttL1;
+      std::unique_ptr<TileTTL1> ttL1 = std::make_unique<TileTTL1>(Id,mergedAmps);
+      outputTileTTL1Container->push_back(ttL1.release());
+    }
   }
 
   return StatusCode::SUCCESS;

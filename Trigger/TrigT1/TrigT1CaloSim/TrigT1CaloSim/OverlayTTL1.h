@@ -81,19 +81,19 @@ private:
   //SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_outputKey;
 
   // location of TTL1 data
-  SG::ReadHandleKey<LArTTL1Container> m_EmTTL1ContainerName;
-  SG::ReadHandleKey<LArTTL1Container> m_HadTTL1ContainerName;
-  SG::ReadHandleKey<TileTTL1Container> m_TileTTL1ContainerName;
+  SG::ReadHandleKey<LArTTL1Container> m_EmTTL1MainKey;
+  SG::ReadHandleKey<LArTTL1Container> m_HadTTL1MainKey;
+  SG::ReadHandleKey<TileTTL1Container> m_TileTTL1MainKey;
 
   // locations of overlay TTL1 data
-  SG::ReadHandleKey<LArTTL1Container> m_EmTTL1OverlayContainerName;
-  SG::ReadHandleKey<LArTTL1Container> m_HadTTL1OverlayContainerName;
-  SG::ReadHandleKey<TileTTL1Container> m_TileTTL1OverlayContainerName;
+  SG::ReadHandleKey<LArTTL1Container> m_EmTTL1OverlayKey;
+  SG::ReadHandleKey<LArTTL1Container> m_HadTTL1OverlayKey;
+  SG::ReadHandleKey<TileTTL1Container> m_TileTTL1OverlayKey;
 
   // locations of output TTL1 data
-  SG::WriteHandleKey<LArTTL1Container> m_EmTTL1OutputContainerName;
-  SG::WriteHandleKey<LArTTL1Container> m_HadTTL1OutputContainerName;
-  SG::WriteHandleKey<TileTTL1Container> m_TileTTL1OutputContainerName;
+  SG::WriteHandleKey<LArTTL1Container> m_EmTTL1OutputKey;
+  SG::WriteHandleKey<LArTTL1Container> m_HadTTL1OutputKey;
+  SG::WriteHandleKey<TileTTL1Container> m_TileTTL1OutputKey;
 
   const CaloLVL1_ID* m_caloId; //non-owning ptr
 
