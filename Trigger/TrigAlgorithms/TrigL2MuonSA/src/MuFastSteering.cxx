@@ -32,15 +32,15 @@ using namespace SG;
 MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc) 
   : HLT::FexAlgo(name, svc), 
     m_storeGate("StoreGateSvc", this->name()), 
-    m_timerSvc(0),
-    m_regionSelector(0),
+    m_timerSvc("TrigTimerSvc", name),
+    m_regionSelector("RegSelSvc", this->name()),
     m_recMuonRoIUtils(),
     m_rpcHits(), m_tgcHits(),
     m_mdtRegion(), m_muonRoad(),
     m_rpcFitResult(), m_tgcFitResult(),
     m_mdtHits_normal(), m_mdtHits_overlap(),
     m_cscHits(),
-    m_jobOptionsSvc(0) 
+    m_jobOptionsSvc("JobOptionsSvc", this->name()) 
 {
 }
 // --------------------------------------------------------------------------------
@@ -63,27 +63,23 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
   
   StatusCode sc;
 
-  m_timerSvc = 0;
   if (m_use_timer) {
-    StatusCode sc = service( "TrigTimerSvc", m_timerSvc, true); 
-    if( sc.isFailure() ) {
-      ATH_MSG_ERROR(": Unable to locate TrigTimer Service");
-    }
-  
-    if(m_timerSvc) {
-      m_timers.push_back(m_timerSvc->addItem(name()+":DataPreparator"));
-      m_timers.push_back(m_timerSvc->addItem(name()+":PatternFinder"));
-      m_timers.push_back(m_timerSvc->addItem(name()+":StationFitter"));
-      m_timers.push_back(m_timerSvc->addItem(name()+":TrackFitter"));
-      m_timers.push_back(m_timerSvc->addItem(name()+":TrackExtrapolator"));
-      m_timers.push_back(m_timerSvc->addItem(name()+":CalibrationStreamer"));    
-      m_timers.push_back(m_timerSvc->addItem(name()+":TotalProcessing"));
+    if (m_timerSvc.retrieve().isFailure()) {
+      ATH_MSG_ERROR("Unable to locate TrigTimer Service");
+    } else {
+      ATH_MSG_DEBUG("Retrieved TrigTimer Service");
+      m_timingTimers.push_back(m_timerSvc->addItem(name()+":DataPreparator"));
+      m_timingTimers.push_back(m_timerSvc->addItem(name()+":PatternFinder"));
+      m_timingTimers.push_back(m_timerSvc->addItem(name()+":StationFitter"));
+      m_timingTimers.push_back(m_timerSvc->addItem(name()+":TrackFitter"));
+      m_timingTimers.push_back(m_timerSvc->addItem(name()+":TrackExtrapolator"));
+      m_timingTimers.push_back(m_timerSvc->addItem(name()+":CalibrationStreamer"));    
+      m_timingTimers.push_back(m_timerSvc->addItem(name()+":TotalProcessing"));
     }
   }
 
   // Locate RegionSelector
-  sc = service("RegSelSvc", m_regionSelector);
-  if( sc.isFailure() ) {
+  if (m_regionSelector.retrieve().isFailure()) {
     ATH_MSG_ERROR("Could not retrieve the regionselector service");
     return HLT::ERROR;
   }
@@ -166,17 +162,11 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
   }
   m_trackFitter -> setUseEIFromBarrel( m_use_endcapInnerFromBarrel );
 
-  // initialize the joboptions service
-  sc = service("JobOptionsSvc", m_jobOptionsSvc);
-  if (sc.isFailure()) {
+  if (m_jobOptionsSvc.retrieve().isFailure()) {
     ATH_MSG_ERROR("Could not find JobOptionsSvc");
     return HLT::ERROR;
-  } else {
-    IService* svc = dynamic_cast<IService*>(m_jobOptionsSvc);
-    if(svc != 0 ) {
-      ATH_MSG_DEBUG(" Algorithm = " << name() << " is connected to JobOptionsSvc Service = " << svc->name());
-    }  
   }
+  ATH_MSG_DEBUG(" Algorithm = " << name() << " is connected to JobOptionsSvc Service = " << m_jobOptionsSvc.name());
 
   //
   // Initialize the calibration streamer and the incident 
@@ -574,18 +564,18 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
 
   StatusCode sc = StatusCode::SUCCESS;
 
-  if (m_timerSvc) {
-    for (unsigned int i_timer=0; i_timer<m_timers.size(); i_timer++) {
-      m_timers[i_timer]->start();
-      m_timers[i_timer]->pause();
+  if (m_use_timer) {
+    for (unsigned int i_timer=0; i_timer<m_timingTimers.size(); i_timer++) {
+      m_timingTimers[i_timer]->start();
+      m_timingTimers[i_timer]->pause();
     }
   }
 
   ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " size = " << roids.size() << " (argument)"); 
   ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " size = " << muonRoIs.size() << " (argument)"); 
 
-  if (m_timerSvc) m_timers[ITIMER_TOTAL_PROCESSING]->resume();
-  if (m_timerSvc) m_timers[ITIMER_DATA_PREPARATOR]->resume();
+  if (m_use_timer) m_timingTimers[ITIMER_TOTAL_PROCESSING]->resume();
+  if (m_use_timer) m_timingTimers[ITIMER_DATA_PREPARATOR]->resume();
 
   DataVector<const TrigRoiDescriptor>::const_iterator p_roids;
   DataVector<const LVL1::RecMuonRoI>::const_iterator p_roi;
@@ -645,7 +635,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
                             trackPatterns, outputTracks, outputID, outputMS);
         return StatusCode::SUCCESS;
       }
-      if (m_timerSvc) m_timers[ITIMER_DATA_PREPARATOR]->pause();
+      if (m_use_timer) m_timingTimers[ITIMER_DATA_PREPARATOR]->pause();
 
       if ( m_rpcErrToDebugStream && m_dataPreparator->isRpcFakeRoi() ) {
         ATH_MSG_ERROR("Invalid RoI in RPC data found: event to debug stream");
@@ -659,7 +649,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
       } 
 
       // Pattern finding
-      if (m_timerSvc) m_timers[ITIMER_PATTERN_FINDER]->resume();
+      if (m_use_timer) m_timingTimers[ITIMER_PATTERN_FINDER]->resume();
       sc = m_patternFinder->findPatterns(m_muonRoad,
                                          m_mdtHits_normal,
                                          trackPatterns);
@@ -671,10 +661,10 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
                             trackPatterns, outputTracks, outputID, outputMS);
         return StatusCode::SUCCESS;
       }
-      if (m_timerSvc) m_timers[ITIMER_PATTERN_FINDER]->pause();
+      if (m_use_timer) m_timingTimers[ITIMER_PATTERN_FINDER]->pause();
 
       // Superpoint fit
-      if (m_timerSvc) m_timers[ITIMER_STATION_FITTER]->resume();      
+      if (m_use_timer) m_timingTimers[ITIMER_STATION_FITTER]->resume();      
       sc = m_stationFitter->findSuperPoints(*p_roi,
                                             m_rpcFitResult,
                                             trackPatterns);
@@ -686,10 +676,10 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
                             trackPatterns, outputTracks, outputID, outputMS);
         return StatusCode::SUCCESS;
       }
-      if (m_timerSvc) m_timers[ITIMER_STATION_FITTER]->pause();      
+      if (m_use_timer) m_timingTimers[ITIMER_STATION_FITTER]->pause();      
 
       // Track fitting
-      if (m_timerSvc) m_timers[ITIMER_TRACK_FITTER]->resume();      
+      if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->resume();      
       sc = m_trackFitter->findTracks(*p_roi,
                                       m_rpcFitResult,
                                       trackPatterns);
@@ -702,7 +692,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
                             trackPatterns, outputTracks, outputID, outputMS);
         return StatusCode::SUCCESS;
       }
-      if (m_timerSvc) m_timers[ITIMER_TRACK_FITTER]->pause();      
+      if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->pause();      
 
     } else { // Endcap
       ATH_MSG_DEBUG("Endcap");
@@ -729,10 +719,10 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
                             trackPatterns, outputTracks, outputID, outputMS);
         return StatusCode::SUCCESS;
       }
-      if (m_timerSvc) m_timers[ITIMER_DATA_PREPARATOR]->pause();
+      if (m_use_timer) m_timingTimers[ITIMER_DATA_PREPARATOR]->pause();
 
       // Pattern finding
-      if (m_timerSvc) m_timers[ITIMER_PATTERN_FINDER]->resume();
+      if (m_use_timer) m_timingTimers[ITIMER_PATTERN_FINDER]->resume();
       sc = m_patternFinder->findPatterns(m_muonRoad,
                                          m_mdtHits_normal,
                                          trackPatterns);
@@ -746,10 +736,10 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
                             trackPatterns, outputTracks, outputID, outputMS);
         return StatusCode::SUCCESS;
       }
-      if (m_timerSvc) m_timers[ITIMER_PATTERN_FINDER]->pause();
+      if (m_use_timer) m_timingTimers[ITIMER_PATTERN_FINDER]->pause();
       
       // Superpoint fit
-      if (m_timerSvc) m_timers[ITIMER_STATION_FITTER]->resume();
+      if (m_use_timer) m_timingTimers[ITIMER_STATION_FITTER]->resume();
       if(!m_use_new_segmentfit){
         sc = m_stationFitter->findSuperPoints(*p_roi,
                                               m_tgcFitResult,
@@ -772,10 +762,10 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
         return StatusCode::SUCCESS;
       }
 
-      if (m_timerSvc) m_timers[ITIMER_STATION_FITTER]->pause();      
+      if (m_use_timer) m_timingTimers[ITIMER_STATION_FITTER]->pause();      
 
       // Track fittingh    
-      if (m_timerSvc) m_timers[ITIMER_TRACK_FITTER]->resume();     
+      if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->resume();     
       sc = m_trackFitter->findTracks(*p_roi,
                                      m_tgcFitResult,
                                      trackPatterns,
@@ -789,7 +779,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
                             trackPatterns, outputTracks, outputID, outputMS);
         return StatusCode::SUCCESS;
         }
-      if (m_timerSvc) m_timers[ITIMER_TRACK_FITTER]->pause();      
+      if (m_use_timer) m_timingTimers[ITIMER_TRACK_FITTER]->pause();      
     }
  
     // fix if eta is strange
@@ -806,7 +796,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
     }
 
     // Track extrapolation for ID combined
-    if (m_timerSvc) m_timers[ITIMER_TRACK_EXTRAPOLATOR]->resume();
+    if (m_use_timer) m_timingTimers[ITIMER_TRACK_EXTRAPOLATOR]->resume();
 
     sc = m_trackExtrapolator->extrapolateTrack(trackPatterns, m_winPt);
 
@@ -818,7 +808,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
                           trackPatterns, outputTracks, outputID, outputMS);
       return StatusCode::SUCCESS;
     }
-    if (m_timerSvc) m_timers[ITIMER_TRACK_EXTRAPOLATOR]->pause();
+    if (m_use_timer) m_timingTimers[ITIMER_TRACK_EXTRAPOLATOR]->pause();
     
     // Update monitoring variables
     sc = updateMonitor(*p_roi, m_mdtHits_normal, trackPatterns);
@@ -838,7 +828,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
     // call the calibration streamer 
     if (m_doCalStream && trackPatterns.size()>0 ) { 
       TrigL2MuonSA::TrackPattern tp = trackPatterns[0];
-      if (m_timerSvc) m_timers[ITIMER_CALIBRATION_STREAMER]->resume();
+      if (m_use_timer) m_timingTimers[ITIMER_CALIBRATION_STREAMER]->resume();
 
       //      m_calStreamer->setInstanceName(this->name());
       
@@ -853,7 +843,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
       if (sc != StatusCode::SUCCESS ) {  
         ATH_MSG_WARNING("Calibration streamer: create Roi Fragment failed");
       }
-      if (m_timerSvc) m_timers[ITIMER_CALIBRATION_STREAMER]->pause(); 
+      if (m_use_timer) m_timingTimers[ITIMER_CALIBRATION_STREAMER]->pause(); 
 
       // if it's a data scouting chain check the buffer length
       if ( m_calDataScouting ) {
@@ -888,14 +878,14 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
     if (p_roids==roids.end()) break; 
   }
   
-  if (m_timerSvc) m_timers[ITIMER_TOTAL_PROCESSING]->pause();
+  if (m_use_timer) m_timingTimers[ITIMER_TOTAL_PROCESSING]->pause();
   
   int nRoI = muonRoIs.size();
 
-  if (m_timerSvc) {
-     for (unsigned int i_timer=0; i_timer<m_timers.size(); i_timer++) {
-         m_timers[i_timer]->propVal(nRoI);
-         m_timers[i_timer]->stop();
+  if (m_use_timer) {
+     for (unsigned int i_timer=0; i_timer<m_timingTimers.size(); i_timer++) {
+         m_timingTimers[i_timer]->propVal(nRoI);
+         m_timingTimers[i_timer]->stop();
      }
   }
 
