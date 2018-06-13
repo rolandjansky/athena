@@ -103,6 +103,7 @@ JetCleaningTool::JetCleaningTool(const std::string& name)
   , m_cutName("")
   , m_cutLevel(LooseBad)
   , m_doUgly(false)
+  , m_acc_jetClean("")
   , m_hotCellsFile("")
   , m_hotCellsMap(NULL)
 {
@@ -116,6 +117,8 @@ JetCleaningTool::JetCleaningTool(const CleaningLevel alevel, const bool doUgly)
   : JetCleaningTool( "JetCleaningTool_"+getCutName(alevel) )
 {
   m_cutLevel=alevel;
+  m_jetCleanDFName = "DFCommonJets_jetClean_"+getCutName(alevel);
+  m_acc_jetClean = m_jetCleanDFName;
   m_doUgly = doUgly;
 }
 
@@ -124,6 +127,8 @@ JetCleaningTool::JetCleaningTool(const std::string& name , const CleaningLevel a
   : JetCleaningTool(name)
 {
   m_cutLevel=alevel;
+  m_jetCleanDFName = "DFCommonJets_jetClean_"+getCutName(alevel);
+  m_acc_jetClean = m_jetCleanDFName;
   m_doUgly = doUgly;
 }
 
@@ -179,6 +184,28 @@ StatusCode JetCleaningTool::initialize()
 
 
   return StatusCode::SUCCESS;
+}
+//=====================================================================================
+// Calculate the accept from the DFCommonJets_jetClean decorator + tight cleaning vars
+//====================================================================================
+const Root::TAccept& JetCleaningTool::accept( const int isJetClean ) const
+{                
+        m_accept.clear();
+	m_accept.setCutResult( "Cleaning", false );
+
+	//=============================================================
+	//Loose/tight cleaning taken from decoration
+	//=============================================================
+        if(isJetClean==0) return m_accept; 
+        else{
+                m_accept.setCutResult( "Cleaning", true );
+                return m_accept;
+        }
+
+	// We should never arrive here!
+	ATH_MSG_ERROR( "Unknown cut name: " << getCutName( m_cutLevel ) << " in JetCleaningTool" );
+	return m_accept;
+
 }
 
 //=============================================================================
@@ -259,7 +286,6 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
     return m_accept;
   }
 
-
   // We should never arrive here!
   ATH_MSG_ERROR( "Unknown cut name: " << getCutName( m_cutLevel ) << " in JetCleaningTool" );
   return m_accept;
@@ -273,55 +299,65 @@ void missingVariable(const char* varName)
 
 const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
 {
+  //variables needed for tight cleaning
   std::vector<float> sumPtTrkvec;
   jet.getAttribute( xAOD::JetAttribute::SumPtTrkPt500, sumPtTrkvec );
   double sumpttrk = 0;
   if( ! sumPtTrkvec.empty() ) sumpttrk = sumPtTrkvec[0];
 
-  // Get all of the required variables
-  // Do it this way so we can gracefully handle missing variables (rather than segfaults)
-  float EMFrac = 0;
-  if (!jet.getAttribute(xAOD::JetAttribute::EMFrac,EMFrac))
-    missingVariable("EMFrac");
-  float HECFrac = 0;
-  if (!jet.getAttribute(xAOD::JetAttribute::HECFrac,HECFrac))
-    missingVariable("HECFrac");
-  float LArQuality = 0;
-  if (!jet.getAttribute(xAOD::JetAttribute::LArQuality,LArQuality))
-    missingVariable("LArQuality");
-  float HECQuality = 0;
-  if (!jet.getAttribute(xAOD::JetAttribute::HECQuality,HECQuality))
-    missingVariable("HECQuality");
   float FracSamplingMax = 0;
   if (!jet.getAttribute(xAOD::JetAttribute::FracSamplingMax,FracSamplingMax))
     missingVariable("FracSamplingMax");
-  float NegativeE = 0;
-  if (!jet.getAttribute(xAOD::JetAttribute::NegativeE,NegativeE))
-    missingVariable("NegativeE");
-  float AverageLArQF = 0;
-  if (!jet.getAttribute(xAOD::JetAttribute::AverageLArQF,AverageLArQF))
-    missingVariable("AverageLArQF");
 
-  // fmax index is not necessarily required
-  // This is only used if doUgly is set
-  // Handle it gracefully if the variable is not present but doUgly is false
-  int FracSamplingMaxIndex = -1;
-  if (!jet.getAttribute(xAOD::JetAttribute::FracSamplingMaxIndex,FracSamplingMaxIndex) && m_doUgly)
-    missingVariable("FracSamplingMaxIndex");
+  int isJetClean = 0;
+  if(m_acc_jetClean.isAvailable(jet)) { //look for the decoration that corresponds to your cleaning (Tight or Loose only) 
+	  isJetClean = m_acc_jetClean(jet);
+	  ATH_MSG_INFO("Int containing jetClean accessor decision: " << isJetClean );
+	  return accept (isJetClean);
+  }
+  else{  
+	  ATH_MSG_VERBOSE("DFCommon jet cleaning variable not available ... Using jet cleaning tool");
+	  // Get all of the required variables
+	  // Do it this way so we can gracefully handle missing variables (rather than segfaults)
+	  float EMFrac = 0;
+	  if (!jet.getAttribute(xAOD::JetAttribute::EMFrac,EMFrac))
+		  missingVariable("EMFrac");
+	  float HECFrac = 0;
+	  if (!jet.getAttribute(xAOD::JetAttribute::HECFrac,HECFrac))
+		  missingVariable("HECFrac");
+	  float LArQuality = 0;
+	  if (!jet.getAttribute(xAOD::JetAttribute::LArQuality,LArQuality))
+		  missingVariable("LArQuality");
+	  float HECQuality = 0;
+	  if (!jet.getAttribute(xAOD::JetAttribute::HECQuality,HECQuality))
+		  missingVariable("HECQuality");
+	  float NegativeE = 0;
+	  if (!jet.getAttribute(xAOD::JetAttribute::NegativeE,NegativeE))
+		  missingVariable("NegativeE");
+	  float AverageLArQF = 0;
+	  if (!jet.getAttribute(xAOD::JetAttribute::AverageLArQF,AverageLArQF))
+		  missingVariable("AverageLArQF");
 
-  
-  return accept (EMFrac,
-                 HECFrac,
-                 LArQuality,
-                 HECQuality,
-                 //jet.getAttribute<float>(xAOD::JetAttribute::Timing),
-                 sumpttrk,
-                 jet.eta(),
-                 jet.pt(),
-                 FracSamplingMax,
-                 NegativeE,
-                 AverageLArQF,
-                 FracSamplingMaxIndex);
+	  // fmax index is not necessarily required
+	  // This is only used if doUgly is set
+	  // Handle it gracefully if the variable is not present but doUgly is false
+	  int FracSamplingMaxIndex = -1;
+	  if (!jet.getAttribute(xAOD::JetAttribute::FracSamplingMaxIndex,FracSamplingMaxIndex) && m_doUgly)
+		  missingVariable("FracSamplingMaxIndex");
+
+
+	  return accept (EMFrac,
+			  HECFrac,
+			  LArQuality,
+			  HECQuality,
+			  //jet.getAttribute<float>(xAOD::JetAttribute::Timing),
+			  sumpttrk,
+			  jet.eta(),
+			  jet.pt(),
+			  FracSamplingMax,
+			  NegativeE,
+			  AverageLArQF,
+			  FracSamplingMaxIndex);}
 }
 
 /** Hot cell checks */
