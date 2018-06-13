@@ -7,6 +7,8 @@ from RecExConfig.RecFlags import rec
 
 from glob import glob
 
+#ServiceMgr.StoreGateSvc.Dump = True
+
 
 #filelist = glob("/atlas/data1/userdata/khoo/Data16/AOD_r21/data16_13TeV.00302347.express_express.recon.AOD.r9112/*")
 #filelist = glob("/sps/atlas/a/atrofymo/data16_13TeV.00302347.express_express.recon.AOD.r9112/*")
@@ -44,31 +46,6 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 
-####### CHSParticleFlowObjects
-from JetRec.JetRecConf import JetToolRunner
-from RecExConfig.AutoConfiguration import IsInInputFile
-containerexists = IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects")
-
-algexists = hasattr(topSequence,"jetalgCHSPFlow")
-
-print "containerexists = ", containerexists
-print "algexists       = ", algexists
-
-if not (containerexists or algexists):
-    from JetRec.JetRecStandard import jtm
-    jtm += JetToolRunner("jetconstitCHSPFlow",
-                         EventShapeTools=[],
-                         Tools=[jtm.JetConstitSeq_PFlowCHS],
-                         )
-    print "adding JetToolRunner"
-    from JetRec.JetRecConf import JetAlgorithm
-    topSequence += JetAlgorithm("jetalgCHSPFlow", Tools=[jtm.jetconstitCHSPFlow])
-    print "adding JetAlgorithm"   
-#######
-
-print "!!!!!!!!topSequence: ", topSequence
-
-
 from GaudiSequencer.PyComps import PyEvtFilter
 filterseq = CfgMgr.AthSequencer("AthFilterSeq")
 #the following lines are examples, pick one...
@@ -102,6 +79,35 @@ import inspect
 import os
 print os.path.dirname(os.path.abspath(inspect.getsourcefile(AssocConfig)))
 
+
+
+
+####### CHSParticleFlowObjects
+from JetRec.JetRecConf import JetToolRunner
+from RecExConfig.AutoConfiguration import IsInInputFile
+containerexists = IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects")
+
+algexists = hasattr(filterseq,"jetalgCHSPFlow")
+
+print "containerexists = ", containerexists
+print "algexists       = ", algexists
+
+if not (containerexists or algexists):
+    from JetRec.JetRecStandard import jtm
+    jtm += JetToolRunner("jetconstitCHSPFlow",
+                         EventShapeTools=[],
+                         Tools=[jtm.JetConstitSeq_PFlowCHS],
+                         )
+    print "adding JetToolRunner"
+    from JetRec.JetRecConf import JetAlgorithm
+    filterseq += JetAlgorithm("jetalgCHSPFlow", Tools=[jtm.jetconstitCHSPFlow])
+    print "adding JetAlgorithm"   
+#######
+
+
+
+
+
 ############################################################################
 # Set up an extra associator for testing
 
@@ -116,8 +122,8 @@ cfg_akt4pf = METAssocConfig('NewAntiKt4EMPFlow',
                             associators,
                             doPFlow=True,
                             doRecoil=False,
-                            modConstKey="JetETMissNeutralParticleFlowObjects" 
-                            #modConstKey="CHSParticleFlowObjects"
+                            #modConstKey="JetETMissNeutralParticleFlowObjects" 
+                            modConstKey="CHSParticleFlowObjects"
                             )
 
 metFlags.METAssocConfigs()[cfg_akt4pf.suffix] = cfg_akt4pf
@@ -139,8 +145,8 @@ cfg_akt4pfHR = METAssocConfig('NewAntiKt4EMPFlowHR',
                             associators,
                             doPFlow=True,
                             doRecoil=True,
-                            modConstKey="JetETMissNeutralParticleFlowObjects"
-                            #modConstKey="CHSParticleFlowObjects"
+                            #modConstKey="JetETMissNeutralParticleFlowObjects"
+                            modConstKey="CHSParticleFlowObjects"
                             )
 
 metFlags.METAssocConfigs()[cfg_akt4pfHR.suffix] = cfg_akt4pfHR
@@ -163,15 +169,19 @@ from METUtilities.METMakerConfig import getMETMakerAlg
 #filterseq += makerAlgEM  # artur commented
 
 makerAlgPF = getMETMakerAlg("NewAntiKt4EMPFlow",jetColl="AntiKt4EMPFlowJets",setJetMinWPtToInf=False)
-ToolSvc.METMaker_NewAntiKt4EMPFlow.OutputLevel=VERBOSE
+#ToolSvc.METMaker_NewAntiKt4EMPFlow.OutputLevel=VERBOSE
 #ToolSvc.METMaker_NewAntiKt4EMPFlow.DoRemoveElecTrks=False
 filterseq += makerAlgPF
 
 
 makerAlgPF_HR = getMETMakerAlg("NewAntiKt4EMPFlowHR",jetColl="AntiKt4EMPFlowJets",setJetMinWPtToInf=True)
-ToolSvc.METMaker_NewAntiKt4EMPFlowHR.OutputLevel=VERBOSE
+#ToolSvc.METMaker_NewAntiKt4EMPFlowHR.OutputLevel=VERBOSE
 # ToolSvc.METMaker_NewAntiKt4EMPFlowHR.DoRemoveElecTrks=False
 filterseq += makerAlgPF_HR
+
+
+print "!!!!!!!!topSequence: ", topSequence
+print "!!!!!!!!filterseq: ", filterseq
 
 
 write_xAOD = True
@@ -246,7 +256,7 @@ if write_xAOD:
 
 
     # xaodStream.AddAcceptAlgs( "PVSoftTrkTail" )
-theApp.EvtMax = 100
+theApp.EvtMax = 500
 ServiceMgr.EventSelector.SkipEvents = 0
 ServiceMgr.MessageSvc.defaultLimit = 9999
 #ServiceMgr.MessageSvc.defaultLimit = 1

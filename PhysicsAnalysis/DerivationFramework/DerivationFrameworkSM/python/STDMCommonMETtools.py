@@ -5,6 +5,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 # MET
 ##########################################################################################
 
+'''
 METLists = {}
 
 #simplelist = ['EMTopo','LocHadTopo','Truth','Track','EMTopoRegions','LocHadTopoRegions','TruthRegions',
@@ -65,7 +66,7 @@ def addMETOutputsSTDM(slimhelper, contentlist=[], slimlist=[]):
 			slimhelper.StaticContent.append("xAOD::MissingETContainer#MET_"+suffix)
 			slimhelper.StaticContent.append("xAOD::MissingETAuxContainer#MET_"+suffix+"Aux.")
 
-
+'''
 
 ##########################################################################################
 # MET
@@ -85,6 +86,26 @@ def addMETAssocMap(sequence=DerivationFrameworkJob,
 	from METReconstruction.METAssocConfig import AssocConfig, METAssocConfig
 	from METReconstruction.METAssocConfig import getMETAssocAlg
 
+	####### CHSParticleFlowObjects
+	from JetRec.JetRecConf import JetToolRunner
+	from RecExConfig.AutoConfiguration import IsInInputFile
+	containerexists = IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects")
+
+	algexists = hasattr(sequence,"jetalgCHSPFlow")
+	##print "containerexists = ", containerexists
+	##print "algexists       = ", algexists
+
+	if not (containerexists or algexists):
+	    from JetRec.JetRecStandard import jtm
+	    jtm += JetToolRunner("jetconstitCHSPFlow",
+	                         EventShapeTools=[],
+	                         Tools=[jtm.JetConstitSeq_PFlowCHS],
+	                         )
+	    #print "adding JetToolRunner"
+	    from JetRec.JetRecConf import JetAlgorithm
+	    sequence += JetAlgorithm("jetalgCHSPFlow", Tools=[jtm.jetconstitCHSPFlow])
+	#######
+
 	associators = [AssocConfig(jettype),
              	   AssocConfig('Muon'),
             	   AssocConfig('Ele'),
@@ -95,7 +116,8 @@ def addMETAssocMap(sequence=DerivationFrameworkJob,
                     	associators,
                     	doPFlow=doPflow,
                         doRecoil=dorecoil,
-                        modConstKey="JetETMissNeutralParticleFlowObjects"
+                        #modConstKey="JetETMissNeutralParticleFlowObjects"
+                        modConstKey="CHSParticleFlowObjects"
                     	)
 
 	metFlags.METAssocConfigs()[cfg.suffix] = cfg
@@ -127,7 +149,7 @@ def MakeMET(sequence=DerivationFrameworkJob,
 
 def applyPFOAugmentation(sequence=DerivationFrameworkJob):
 
-    print '1111111111 artur: we are in applyPFOAugmentation!!!!!'
+    print 'In applyPFOAugmentation...'
 
     # simple set up -- either the alg exists and contains the tool, in which case we exit
     if hasattr(sequence,"PFlowAugmentation"):

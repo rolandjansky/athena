@@ -255,6 +255,8 @@ STDM4Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
 DerivationFrameworkJob += STDM4Sequence
 
 
+
+##############
 from DerivationFrameworkSM.STDMCommonMETtools import *
 # PFlow augmentation
 applyPFOAugmentation(STDM4Sequence)
@@ -265,14 +267,17 @@ applyPFOAugmentation(STDM4Sequence)
 #=======================================
 
 # add map with standard association method and make MET:
-addMETAssocMap(STDM4Sequence,jettype='PFlowJet',assocname='AntiKt4EMPFlow',jetcoll='AntiKt4EMPFlowJets',doPflow=True,dorecoil=False,algname='METAssociation')
-MakeMET(STDM4Sequence, assocname='AntiKt4EMPFlow', jetcoll='AntiKt4EMPFlowJets', setjetminptToinf=False)
-STDM4Stream.AddItem('xAOD::MissingETAssociationMap#METAssoc_AntiKt4EMPFlow')
-STDM4Stream.AddItem('xAOD::MissingETAuxAssociationMap#METAssoc_AntiKt4EMPFlowAux.')
-STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Core_AntiKt4EMPFlow')
-STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Core_AntiKt4EMPFlowAux.')
-STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Reference_AntiKt4EMPFlow')
-STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Reference_AntiKt4EMPFlowAux.-ConstitObjectLinks.-ConstitObjectWeights')
+#addMETAssocMap(STDM4Sequence,jettype='PFlowJet',assocname='AntiKt4EMPFlow',jetcoll='AntiKt4EMPFlowJets',doPflow=True,dorecoil=False,algname='METAssociation')
+#MakeMET(STDM4Sequence, assocname='AntiKt4EMPFlow', jetcoll='AntiKt4EMPFlowJets', setjetminptToinf=False)
+addMETAssocMap(STDM4Sequence,jettype='myPFlowJet',assocname='myAntiKt4EMPFlow',jetcoll='AntiKt4EMPFlowJets',doPflow=True,dorecoil=False,algname='METAssociation')
+MakeMET(STDM4Sequence, assocname='myAntiKt4EMPFlow', jetcoll='AntiKt4EMPFlowJets', setjetminptToinf=False)
+STDM4Stream.AddItem('xAOD::MissingETAssociationMap#METAssoc_myAntiKt4EMPFlow')
+STDM4Stream.AddItem('xAOD::MissingETAuxAssociationMap#METAssoc_myAntiKt4EMPFlowAux.')
+STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Core_myAntiKt4EMPFlow')
+STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Core_myAntiKt4EMPFlowAux.')
+STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Reference_myAntiKt4EMPFlow')
+STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Reference_myAntiKt4EMPFlowAux.-ConstitObjectLinks.-ConstitObjectWeights')
+
 
 # add map with modified association method and make MET:
 addMETAssocMap(STDM4Sequence,jettype='PFlowJetRecoil',assocname='NewAntiKt4EMPFlowHR',jetcoll='AntiKt4EMPFlowJets',doPflow=True,dorecoil=True,algname='METAssociation')
@@ -283,6 +288,16 @@ STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Core_NewAntiKt4EMPFlowHR')
 STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Core_NewAntiKt4EMPFlowHRAux.')
 STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Reference_NewAntiKt4EMPFlowHR')
 STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Reference_NewAntiKt4EMPFlowHRAux.-ConstitObjectLinks.-ConstitObjectWeights')
+
+
+STDM4Stream.AddItem("xAOD::MuonContainer#Muons")
+STDM4Stream.AddItem("xAOD::MuonAuxContainer#MuonsAux.")
+
+STDM4Stream.AddItem("xAOD::ElectronContainer#Electrons")
+STDM4Stream.AddItem("xAOD::ElectronAuxContainer#ElectronsAux.")
+##############
+
+
 
 
 #====================================================================
@@ -305,7 +320,7 @@ STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Reference_NewAntiKt4EMPFlow
 #====================================================================
 
 #re-tag PFlow jets so they have b-tagging info.
-FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = STDM4Sequence)
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = STDM4Sequence) 
 
 
 #====================================================================
@@ -315,16 +330,18 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkSM.STDMExtraContent import *
 
 STDM4SlimmingHelper = SlimmingHelper("STDM4SlimmingHelper")
-STDM4SlimmingHelper.SmartCollections = ["Electrons",
+STDM4SlimmingHelper.SmartCollections = [#"Electrons",
                                         "Photons",
-                                        "Muons",
+                                        #"Muons",
                                         "TauJets",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMTopoJets",
                                         "BTagging_AntiKt4EMTopo",
-                                        "MET_Reference_AntiKt4EMPFlow",
-                                        "AntiKt4EMPFlowJets",
-                                        "BTagging_AntiKt4EMPFlow",
+                                        "MET_Reference_AntiKt4EMPFlow",   
+                                        "AntiKt4EMPFlowJets",             
+                                        "BTagging_AntiKt4EMPFlow",        
+                                        #"MET_Reference_myAntiKt4EMPFlow",    # artur added
+                                        #"MET_Reference_NewAntiKt4EMPFlowHR", # artur added
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 
@@ -346,14 +363,14 @@ from  DerivationFrameworkFlavourTag.BTaggingContent import *
 
 STDM4SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMTopoJets")
 STDM4SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt2PV0TrackJets")
-STDM4SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMPFlowJets")
+STDM4SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMPFlowJets") 
 
 ExtraDictionary["BTagging_AntiKt4EMTopo"]     = "xAOD::BTaggingContainer"
 ExtraDictionary["BTagging_AntiKt4EMTopoAux"]  = "xAOD::BTaggingAuxContainer"
 ExtraDictionary["BTagging_AntiKt2Track"]      = "xAOD::BTaggingContainer"
 ExtraDictionary["BTagging_AntiKt2TrackAux"]   = "xAOD::BTaggingAuxContainer"
-ExtraDictionary["BTagging_AntiKt4EMPFlow"]    = "xAOD::BTaggingContainer"
-ExtraDictionary["BTagging_AntiKt4EMPFlowAux"] = "xAOD::BTaggingAuxContainer"
+ExtraDictionary["BTagging_AntiKt4EMPFlow"]    = "xAOD::BTaggingContainer"           
+ExtraDictionary["BTagging_AntiKt4EMPFlowAux"] = "xAOD::BTaggingAuxContainer"  
 
 if globalflags.DataSource()=='geant4':
 
@@ -363,7 +380,7 @@ if globalflags.DataSource()=='geant4':
 
 addJetOutputs(STDM4SlimmingHelper,["STDM4","STDM4Jets"])
 
-addMETOutputs(STDM4SlimmingHelper,["AntiKt4EMPFlow"])
+addMETOutputs(STDM4SlimmingHelper,["AntiKt4EMPFlow"]) 
 
 STDM4SlimmingHelper.AppendContentToStream(STDM4Stream)
 

@@ -324,6 +324,10 @@ class SlimmingHelper:
         def GetSmartItems(self,collectionName):
                 # Look up what is needed for this container type
                 items = []
+                print '---------- artur ---------'
+                print 'collectionName = ', collectionName
+                print 'FullListOfSmartContainers = ', FullListOfSmartContainers
+                print '--------------------------'
                 if collectionName not in FullListOfSmartContainers:
                         raise RuntimeError("Smart slimming container "+collectionName+" does not exist or does not have a smart slimming list")
                 if collectionName=="Electrons":
@@ -352,6 +356,17 @@ class SlimmingHelper:
                 elif collectionName=="MET_Reference_AntiKt4EMPFlow":
                         from DerivationFrameworkJetEtMiss.MET_Reference_AntiKt4EMPFlowCPContent import MET_Reference_AntiKt4EMPFlowCPContent
                         items.extend(MET_Reference_AntiKt4EMPFlowCPContent)
+                # artur begin -----------
+                #elif collectionName=="MET_Reference_myAntiKt4EMPFlow": 
+                #        from DerivationFrameworkJetEtMiss.MET_Reference_myAntiKt4EMPFlowCPContent import MET_Reference_myAntiKt4EMPFlowCPContent
+                #        items.extend(MET_Reference_myAntiKt4EMPFlowCPContent)
+                elif collectionName=="MET_Reference_NewAntiKt4EMPFlowHR":
+                        print 'artur aaaaaaaaa in MET_Reference_NewAntiKt4EMPFlowHR 1' 
+                        from DerivationFrameworkJetEtMiss.MET_Reference_NewAntiKt4EMPFlowHRCPContent import MET_Reference_NewAntiKt4EMPFlowHRCPContent
+                        print 'artur aaaaaaaaa in MET_Reference_NewAntiKt4EMPFlowHR 2'
+                        items.extend(MET_Reference_NewAntiKt4EMPFlowHRCPContent)
+                        print 'artur aaaaaaaaa in MET_Reference_NewAntiKt4EMPFlowHR 3'
+                # artur end -----------
                 elif collectionName=="AntiKt4TruthJets":
                         from DerivationFrameworkJetEtMiss.AntiKt4TruthJetsCPContent import AntiKt4TruthJetsCPContent
                         items.extend(AntiKt4TruthJetsCPContent)

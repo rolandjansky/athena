@@ -18,8 +18,8 @@ METLists = {}
 #          'Reference_AntiKt4EMPFlow', 'Reference_AntiKt4EMTopo', 'Reference_AntiKt4LCTopo',]
 xaodlist = ['Calo', 'EMTopo', 'EMTopoRegions', 'LocHadTopo', 'LocHadTopoRegions',
         'Track', 'Truth', 'TruthRegions']
-xaodmaps = ['AntiKt4LCTopo','AntiKt4EMTopo','AntiKt4EMPFlow']
-maplist = ['AntiKt4LCTopo','AntiKt4EMTopo','AntiKt4EMPFlow']
+xaodmaps = ['AntiKt4LCTopo','AntiKt4EMTopo','AntiKt4EMPFlow', 'myAntiKt4EMPFlow', 'NewAntiKt4EMPFlowHR']
+maplist = ['AntiKt4LCTopo','AntiKt4EMTopo','AntiKt4EMPFlow',  'myAntiKt4EMPFlow', 'NewAntiKt4EMPFlowHR']
 truthmaplist = ['Truth_AntiKt4LCTopo','Truth_AntiKt4EMTopo','Truth_AntiKt4EMPFlow']
 METLists['Diagnostic'] = ['Calo','EMTopo','EMTopoRegions','LocHadTopo','LocHadTopoRegions','TruthRegions']
 METLists['Assocs'] = [m for m in maplist]
