@@ -20,7 +20,7 @@ def CaloCellMakerCfg(configFlags):
 
     theTileCellBuilder = TileCellBuilder()
     result.addEventAlgo(CaloCellMaker(CaloCellMakerToolNames=theLArCellMaker+
-                                                             [CaloCellContainerFinalizerTool()]+theLArCellCorrectors,
+                                                             [CaloCellContainerFinalizerTool(),]+theLArCellCorrectors,
                                       CaloCellsOutputName="AllCalo"))
     return result
 

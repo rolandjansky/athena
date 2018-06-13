@@ -61,17 +61,17 @@ def TileCond( flags ):
     def __addFolder(f):        
         acc.addConfig( addFolders, flags, '%s <key>%s</key>' %(f,f),   'TILE_OFL' if '/OFL' in f else 'TILE_ONL')
 
-    tool.ProxyOflCes    = acc.addAlgTool( TileCondProxyCoolFlt('TileCondProxyCool_OflCes',    Source = '/TILE/OFL02/CALIB/CES') )
-    tool.ProxyOflCisLin = acc.addAlgTool( TileCondProxyCoolFlt('TileCondProxyCool_OflCisLin', Source = '/TILE/OFL02/CALIB/CIS/LIN') )
-    tool.ProxyOflCisNln = acc.addAlgTool( TileCondProxyCoolFlt('TileCondProxyCool_OflCisNln', Source = '/TILE/OFL02/CALIB/CIS/NLN') )
-    tool.ProxyOflEms    = acc.addAlgTool( TileCondProxyCoolFlt('TileCondProxyCool_OflEms',    Source = '/TILE/OFL02/CALIB/EMS') )
-    tool.ProxyOflLasFib = acc.addAlgTool( TileCondProxyCoolFlt('TileCondProxyCool_OflLasFib', Source = '/TILE/OFL02/CALIB/LAS/FIBER') )
-    tool.ProxyOflLasLin = acc.addAlgTool( TileCondProxyCoolFlt('TileCondProxyCool_OflLasLin', Source = '/TILE/OFL02/CALIB/LAS/LIN') )
-    tool.ProxyOflLasNln = acc.addAlgTool( TileCondProxyCoolFlt('TileCondProxyCool_OflLasNln', Source = '/TILE/OFL02/CALIB/LAS/NLN') )
-    tool.ProxyOnlCes    = acc.addAlgTool( TileCondProxyCoolFlt('TileCondProxyCool_OnlCes',    Source = '/TILE/ONL01/CALIB/CES') )
-    tool.ProxyOnlCis    = acc.addAlgTool( TileCondProxyCoolFlt('TileCondProxyCool_OnlCis',    Source = '/TILE/ONL01/CALIB/CIS/LIN') )
-    tool.ProxyOnlEms    = acc.addAlgTool( TileCondProxyCoolFlt('TileCondProxyCool_OnlEms',    Source = '/TILE/ONL01/CALIB/EMS') )
-    tool.ProxyOnlLas    = acc.addAlgTool( TileCondProxyCoolFlt('TileCondProxyCool_OnlLas',    Source = '/TILE/ONL01/CALIB/LAS/LIN') )
+    tool.ProxyOflCes    = TileCondProxyCoolFlt('TileCondProxyCool_OflCes',    Source = '/TILE/OFL02/CALIB/CES') 
+    tool.ProxyOflCisLin = TileCondProxyCoolFlt('TileCondProxyCool_OflCisLin', Source = '/TILE/OFL02/CALIB/CIS/LIN') 
+    tool.ProxyOflCisNln = TileCondProxyCoolFlt('TileCondProxyCool_OflCisNln', Source = '/TILE/OFL02/CALIB/CIS/NLN') 
+    tool.ProxyOflEms    = TileCondProxyCoolFlt('TileCondProxyCool_OflEms',    Source = '/TILE/OFL02/CALIB/EMS') 
+    tool.ProxyOflLasFib = TileCondProxyCoolFlt('TileCondProxyCool_OflLasFib', Source = '/TILE/OFL02/CALIB/LAS/FIBER') 
+    tool.ProxyOflLasLin = TileCondProxyCoolFlt('TileCondProxyCool_OflLasLin', Source = '/TILE/OFL02/CALIB/LAS/LIN') 
+    tool.ProxyOflLasNln = TileCondProxyCoolFlt('TileCondProxyCool_OflLasNln', Source = '/TILE/OFL02/CALIB/LAS/NLN') 
+    tool.ProxyOnlCes    = TileCondProxyCoolFlt('TileCondProxyCool_OnlCes',    Source = '/TILE/ONL01/CALIB/CES') 
+    tool.ProxyOnlCis    = TileCondProxyCoolFlt('TileCondProxyCool_OnlCis',    Source = '/TILE/ONL01/CALIB/CIS/LIN') 
+    tool.ProxyOnlEms    = TileCondProxyCoolFlt('TileCondProxyCool_OnlEms',    Source = '/TILE/ONL01/CALIB/EMS') 
+    tool.ProxyOnlLas    = TileCondProxyCoolFlt('TileCondProxyCool_OnlLas',    Source = '/TILE/ONL01/CALIB/LAS/LIN')
 
     __addFolder( '/TILE/OFL02/CALIB/CES')       
     __addFolder( '/TILE/OFL02/CALIB/CIS/LIN')   
@@ -245,8 +245,6 @@ def EgammaCaloMod( flags ):
     accessTool                       = TrigDataAccess()
     accessTool.ApplyOffsetCorrection = False
 
-    acc.addAlgTool( accessTool )
-
     fastCalo.IAlgToolList = __fex_tools
     from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaHitsCalibrationBarrelConfig, EgammaHitsCalibrationEndcapConfig, EgammaGapCalibrationConfig
     from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaTransitionRegionsConfig
@@ -261,12 +259,12 @@ def EgammaCaloMod( flags ):
     __barrelTools = [ __sshape, __hits, __gap, __transition ]
 
     fastCalo.CalibListBarrel = __barrelTools
-    [ acc.addAlgTool( t ) for t in __barrelTools ]                      
+    #[ acc.addAlgTool( t ) for t in __barrelTools ]                      
     
     __endcapTools = [ EgammaSshapeCalibrationEndcapConfig(),
                       EgammaHitsCalibrationEndcapConfig(),
                       EgammaGapCalibrationConfig() ]
-    [ acc.addAlgTool( t ) for t in __endcapTools ]
+    #[ acc.addAlgTool( t ) for t in __endcapTools ]
     fastCalo.CalibListEndcap= __endcapTools
 
     acc.addEventAlgo( fastCalo, sequence=inViewAlgsSeqName )
@@ -293,7 +291,7 @@ def EgammaCaloMod( flags ):
     hypo.HypoTools =  [ TrigL2CaloHypoToolFromName( c ) for c in chains ]
     acc.addEventAlgo( hypo, sequence = 'L2CaloEgamma' )
 
-    return acc
+    return acc,accessTool
 
 
 if __name__ == '__main__':
