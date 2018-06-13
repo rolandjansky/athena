@@ -287,6 +287,7 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
     return m_accept;
   }
 
+
   // We should never arrive here!
   ATH_MSG_ERROR( "Unknown cut name: " << getCutName( m_cutLevel ) << " in JetCleaningTool" );
   return m_accept;
