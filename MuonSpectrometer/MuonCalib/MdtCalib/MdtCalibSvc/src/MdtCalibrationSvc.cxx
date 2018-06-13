@@ -38,6 +38,9 @@
 #include "MdtCalibData/TrRelation.h"
 #include "MdtCalibData/RtScaleFunction.h"
 
+#include "MdtCalibSvc/MdtCalibrationT0ShiftSvc.h"
+#include "MdtCalibSvc/MdtCalibrationTMaxShiftSvc.h"
+
 #include "GaudiKernel/ServiceHandle.h"
 
 //
@@ -76,6 +79,15 @@ public:
   ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
   ServiceHandle<MdtCalibrationDbSvc> m_dbSvc;
   
+  /* T0 Shift Service -- Per-tube offsets of t0 value */
+  ServiceHandle<MdtCalibrationT0ShiftSvc> m_t0ShiftSvc;
+  /* TMax Shift Service -- Per-tube offsets of Tmax */
+  ServiceHandle<MdtCalibrationTMaxShiftSvc> m_tMaxShiftSvc;
+
+  // tools should only be retrieved if they are used
+  bool m_doT0Shift;
+  bool m_doTMaxShift;
+
   double m_unphysicalHitRadiusUpperBound;
   double m_unphysicalHitRadiusLowerBound;
   double m_resTwin;
@@ -93,6 +105,10 @@ MdtCalibrationSvc::Imp::Imp(std::string name) :
   m_debug(false),
   m_magFieldSvc("AtlasFieldSvc", name),
   m_dbSvc("MdtCalibrationDbSvc", name),
+  m_t0ShiftSvc("MdtCalibrationT0ShiftSvc", name),
+  m_tMaxShiftSvc("MdtCalibrationTMaxShiftSvc", name),
+  m_doT0Shift(false),
+  m_doTMaxShift(false),
   m_unphysicalHitRadiusUpperBound(-1.),
   m_unphysicalHitRadiusLowerBound(-1.),
   m_resTwin(-1.),
@@ -118,6 +134,8 @@ MdtCalibrationSvc::MdtCalibrationSvc(const std::string &name,ISvcLocator *sl)
   declareProperty("MagFieldSvc", m_imp->m_magFieldSvc);
   declareProperty("UpperBoundHitRadius", m_imp->m_unphysicalHitRadiusUpperBound = 20. );
   declareProperty("LowerBoundHitRadius", m_imp->m_unphysicalHitRadiusLowerBound = 0. );
+  declareProperty("DoT0Shift", m_imp->m_doT0Shift = false );
+  declareProperty("DoTMaxShift", m_imp->m_doTMaxShift = false );
 }
 
 MdtCalibrationSvc::~MdtCalibrationSvc() {
@@ -171,7 +189,11 @@ StatusCode MdtCalibrationSvc::initialize() {
   if ( m_imp->m_magFieldSvc.retrieve().isFailure() ) {
     ATH_MSG_FATAL( "Could not find MagFieldSvc" );
     return StatusCode::FAILURE;
-  }                                                         
+  }
+
+  if (m_imp->m_doT0Shift) ATH_CHECK( m_imp->m_t0ShiftSvc.retrieve() );
+
+  if (m_imp->m_doTMaxShift) ATH_CHECK ( m_imp->m_tMaxShiftSvc.retrieve() );
 
   m_imp->m_log = &msg();
   m_imp->m_verbose = msgLvl(MSG::VERBOSE);
@@ -300,6 +322,9 @@ bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit &hit,
 			  << " tubes " << geo->getNtubesperlayer() << endmsg;
       t0 =  800.;
     }
+
+    // get t0 shift from tool (default: no shift, value is zero)
+    if (m_imp->m_doT0Shift) t0 += m_imp->m_t0ShiftSvc->getValue(id);
   } else {
     msg(MSG::WARNING) << "MdtTubeCalibContainer not found for "
 		      << m_imp->m_mdtIdHelper->print_to_string( id ) << endmsg;
@@ -353,9 +378,16 @@ bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit &hit,
   bool calibOk = true;
   Muon::MdtDriftCircleStatus timeStatus = driftTimeStatus(t, rtRelation, settings);
   if( rtRelation->rt() ){
-      
+
+    r = rtRelation->rt()->radius(t);
+
+    // apply tUpper gshift
+    if (m_imp->m_doTMaxShift) {
+      float tShift = m_imp->m_tMaxShiftSvc->getValue(id);
+      r = rtRelation->rt()->radius( t * (1 + tShift) );
+    }
+
     // check whether drift times are within range, if not fix them to the min/max range
-    r = rtRelation->rt()->radius( t );
     if ( t < rtRelation->rt()->tLower() ) {
       t_inrange = rtRelation->rt()->tLower();
       double rmin = rtRelation->rt()->radius( t_inrange );
