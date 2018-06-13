@@ -1,6 +1,6 @@
 # $Id $
 """
-This library defines different classes for filtering events in athena.
+This library defines a class for filtering events based on the beamspot size in athena.
 """
 __author__  = 'Anthony Morley'
 __version__ = '$Id $'
@@ -12,7 +12,7 @@ import AthenaPython.PyAthena as PyAthena
 from AthenaCommon.AppMgr import ServiceMgr
 
 #
-# Event filtering based on z of primary vertex position
+# Event filtering based on signal vertex position
 #
 import ROOT
 import math
