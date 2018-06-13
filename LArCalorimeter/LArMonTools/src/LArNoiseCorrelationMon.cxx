@@ -141,7 +141,7 @@ LArNoiseCorrelationMon::initialize()
 
   
   /** Get bad-channel mask (only if jO IgnoreBadChannels is true)*/
-  if(m_ignoreKnownBadChannels) {
+  if (m_ignoreKnownBadChannels) {
     ATH_CHECK(m_badChannelMask.retrieve());
   }
   
@@ -221,16 +221,16 @@ LArNoiseCorrelationMon::fillHistograms()
   ATH_MSG_DEBUG("in fillHists()" );
     
 
-  /**EventID is a part of EventInfo, search event informations:*/
-  const xAOD::EventInfo* thisEvent;
-  ATH_CHECK(evtStore()->retrieve(thisEvent));
-  
-  m_evtId = thisEvent->eventNumber();
-  ATH_MSG_DEBUG("Event nb " << m_evtId );  
-
   /** check trigger */
   bool passTrig = m_isCalibrationRun;
   if(!m_isCalibrationRun) { 
+     /**EventID is a part of EventInfo, search event informations:*/
+     const xAOD::EventInfo* thisEvent;
+     ATH_CHECK(evtStore()->retrieve(thisEvent));
+  
+     m_evtId = thisEvent->eventNumber();
+     ATH_MSG_DEBUG("Event nb " << m_evtId );  
+
     bool passBCID;
     if(!m_trigDecTool.empty()) {
       for(auto trig_chain : m_triggers) {
@@ -238,14 +238,14 @@ LArNoiseCorrelationMon::fillHistograms()
 	passTrig=(passTrig || (passBCID && m_trigDecTool->isPassed(trig_chain)));
       }
     }
-    if (!passTrig) {
+  }
+  if (!passTrig) {
       ATH_MSG_DEBUG ( " Failed trigger selection " );
       return StatusCode::SUCCESS;
-    }
-    else {
+  } else {
       ATH_MSG_DEBUG ( " Pass trigger selection " );
-    }
   }
+  
 
 
 
@@ -254,6 +254,7 @@ LArNoiseCorrelationMon::fillHistograms()
   ATH_CHECK(evtStore()->retrieve(pLArDigitContainer, m_LArDigitContainerKey));
   
   
+  ATH_MSG_DEBUG ( " LArDigitContainer size "<<pLArDigitContainer->size()<<" for key "<<m_LArDigitContainerKey); 
   /** Define iterators to loop over Digits containers*/
   LArDigitContainer::const_iterator itDig = pLArDigitContainer->begin(); 
   LArDigitContainer::const_iterator itDig_2;

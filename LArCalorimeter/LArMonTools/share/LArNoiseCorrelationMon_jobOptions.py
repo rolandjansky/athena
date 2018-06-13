@@ -6,6 +6,7 @@ if 'EventBlockSize' not in dir():
 
 
 #Run is Online or Offline:
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 OnlineMode=athenaCommonFlags.isOnline()
 
 
