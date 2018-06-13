@@ -180,16 +180,12 @@ def _setupConfig():
         from AthenaCommon.AppMgr  import ServiceMgr as svcMgr
         from AthenaCommon.AppMgr import ToolSvc
 
-        if not hasattr( ToolSvc, 'IOVDbMetaDataTool' ):
-            from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
-            ToolSvc += IOVDbMetaDataTool( "IOVDbMetaDataTool" )
-
-        
         if not hasattr( svcMgr, 'MetaDataSvc' ):
+            from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
             from AthenaServices.AthenaServicesConf import MetaDataSvc
             svcMgr += MetaDataSvc( "MetaDataSvc" )
             svcMgr.MetaDataSvc.MetaDataContainer = "MetaDataHdr"
-            svcMgr.MetaDataSvc.MetaDataTools += [ "IOVDbMetaDataTool" ]
+            svcMgr.MetaDataSvc.MetaDataTools += [ IOVDbMetaDataTool() ]
 
         # for debugging uncomment the following three lines
         from AthenaCommon.Constants import VERBOSE
