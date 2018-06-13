@@ -59,16 +59,11 @@ private:
 
 
   //IParticles 
-  const xAOD::IParticleContainer* m_jetFinderInputs{nullptr};
-
   ToolHandle<IJetFinder> m_finder;
   ToolHandleArray<IJetModifier> m_modifiers;
 
 
   std::string m_concreteTypeStr; // determines m_concreteType
-
-  // m_inputType - updated from m_concreteTypeStr
-  xAOD::JetInput::Type m_inputType{xAOD::JetInput::Uncategorized};
 
   // m_concreteType -  affects IParticle->PseudoJet 
   xAOD::JetInput::Type m_concreteType{xAOD::JetInput::Uncategorized};
