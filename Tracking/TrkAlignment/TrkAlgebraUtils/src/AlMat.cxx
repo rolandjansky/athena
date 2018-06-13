@@ -334,18 +334,18 @@ void AlMat::reSize(int Nnew, int Mnew) {
     double*  p = m_ptr_data;
     m_nele = Nnew*Mnew;
     m_ptr_data = new double[m_nele];
-    int nrow_old = m_nrow;
-    int ncol_old = m_ncol;
+    int m_nrow_old = m_nrow;
+    int m_ncol_old = m_ncol;
     m_transpose = false;
 
     m_nrow = Nnew;
     m_ncol = Mnew;
-    int k = m_nrow <= nrow_old ? m_nrow : nrow_old;
-    int l = m_ncol <= ncol_old ? m_ncol : ncol_old;
+    int k = m_nrow <= m_nrow_old ? m_nrow : m_nrow_old;
+    int l = m_ncol <= m_ncol_old ? m_ncol : m_ncol_old;
 
     for( int i=0; i<k; i++ ) {
       for( int j=0; j<l; j++ ) {
-        *(m_ptr_data+i*m_ncol+j) = *(p+i*ncol_old+j);
+        *(m_ptr_data+i*m_ncol+j) = *(p+i*m_ncol_old+j);
       }
     }
 
