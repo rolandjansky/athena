@@ -2,12 +2,14 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaMonitoring/MonitoredScope.h"
 
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
 #include "AthenaMonitoring/MonitoredScope.h"
 
-#include "TrigMultiVarHypo/TrigL2CaloRingerFexMT.h"
+#include "TrigL2CaloRingerFexMT.h"
 #include "TrigMultiVarHypo/preprocessor/TrigRingerPreprocessor.h"
 #include "TrigMultiVarHypo/discriminator/MultiLayerPerceptron.h"
 
@@ -20,15 +22,17 @@
 
 
 
-#define SIZEOF_NODES            3
-#define SIZEOF_RINGSETS         7
+static const size_t SIZEOF_NODES = 3;
+static const size_t SIZEOF_RINGSETS = 7;
 
 
-    TrigL2CaloRingerFexMT:: TrigL2CaloRingerFexMT(const std::string & name, ISvcLocator* pSvcLocator)
-        :AthAlgorithm(name, pSvcLocator){
+TrigL2CaloRingerFexMT:: TrigL2CaloRingerFexMT(const std::string & name, ISvcLocator* pSvcLocator)
+  :AthAlgorithm(name, pSvcLocator){
+  
+  ATH_MSG_DEBUG( "start RingerMT const:" );     
+}
 
-                ATH_MSG_DEBUG( "start RingerMT const:" );     
-	} TrigL2CaloRingerFexMT:: ~TrigL2CaloRingerFexMT(){}
+TrigL2CaloRingerFexMT:: ~TrigL2CaloRingerFexMT(){}
 
 
 StatusCode TrigL2CaloRingerFexMT::initialize(){
@@ -39,27 +43,26 @@ StatusCode TrigL2CaloRingerFexMT::initialize(){
   m_nDiscr   = m_nodes.size()/SIZEOF_NODES;
   m_nPreproc = m_normRings.size()/SIZEOF_RINGSETS;
 
-  ATH_CHECK(m_ringerShape.initialize());
-  //ATH_CHECK(m_TrigRingerRingsContainer.initialize());
-  ATH_CHECK(m_outputKey.initialize());
+  ATH_CHECK( m_ringsKey.initialize());
+  ATH_CHECK( m_clustersKey.initialize());
+  ATH_CHECK( m_outputKey.initialize());
 
   if(configurationInvalid()){
 	return StatusCode::FAILURE;
   }
   ///Initialize all discriminators
-  for(unsigned i=0; i<m_nDiscr; ++i)
-  {
+  for(unsigned i=0; i<m_nDiscr; ++i) {
     MultiLayerPerceptron   *discr   = nullptr;
     TrigRingerPreprocessor *preproc = nullptr;
 
-    ATH_MSG_INFO("Create multi layer perceptron discriminator using configuration:");     
+    ATH_MSG_INFO( "Create multi layer perceptron discriminator using configuration:");     
     ATH_MSG_INFO( "   Input layer   :   " << m_nodes[i*SIZEOF_NODES+0] );
     ATH_MSG_INFO( "   Output layer  :   " << m_nodes[i*SIZEOF_NODES+2] );
     ATH_MSG_INFO( "   Eta range     :   " << m_etaBins[i][0] << " < |eta|   <=" << m_etaBins[i][1] );
     ATH_MSG_INFO( "   Et range      :   " << m_etBins[i][0] << "  < Et[GeV] <=" << m_etBins[i][1] );
 
    
-    try{
+    try {
       ///Alloc discriminator
       ///TODO: find best way to parse this vector. The athena don't accept vector<vector<unsigned int>>
       std::vector<unsigned int> nodes(SIZEOF_NODES);
@@ -68,20 +71,14 @@ StatusCode TrigL2CaloRingerFexMT::initialize(){
       discr = new MultiLayerPerceptron(nodes, m_weights[i], m_bias[i], 0,
                                        m_etBins[i][0], m_etBins[i][1], m_etaBins[i][0],
                                        m_etaBins[i][1]);
-    }
-    catch(const std::bad_alloc& xa){
+    } catch(const std::bad_alloc& ) {
       ATH_MSG_ERROR( "Weight vector size is not compatible with nodes vector." );
       return StatusCode::FAILURE;
-    }
-    catch(int e){
-      if (e == BAD_WEIGHT_SIZE)
-      { 
+    } catch(int e){
+      if (e == BAD_WEIGHT_SIZE) { 
         ATH_MSG_ERROR( "Weight vector size is not compatible with nodes vector." );
 	return StatusCode::FAILURE;
-      }
-      if (e == BAD_BIAS_SIZE)
-      {
-        
+      } else if (e == BAD_BIAS_SIZE) {
         ATH_MSG_ERROR( "Bias vector size is not compatible with nodes vector." );
 	return StatusCode::FAILURE;
       }
@@ -93,16 +90,14 @@ StatusCode TrigL2CaloRingerFexMT::initialize(){
     try{
       ///TODO: find best way to parse this vector. The athena don't accept vector<vector<unsigned int>>
       std::vector<unsigned int> nrings(SIZEOF_RINGSETS), normrings(SIZEOF_RINGSETS), sectionrings(SIZEOF_RINGSETS);
-      for(unsigned rs=0;rs<SIZEOF_RINGSETS;++rs){
-        nrings[rs]=m_nRings[rs+i*SIZEOF_RINGSETS];
-        normrings[rs]=m_normRings[rs+i*SIZEOF_RINGSETS];
-        sectionrings[rs]=m_sectionRings[rs+i*SIZEOF_RINGSETS];
-      }///parser
+      for(unsigned rs = 0; rs < SIZEOF_RINGSETS; ++rs ){
+        nrings[rs]	 = m_nRings[rs+i*SIZEOF_RINGSETS];
+        normrings[rs]	 = m_normRings[rs+i*SIZEOF_RINGSETS];
+        sectionrings[rs] = m_sectionRings[rs+i*SIZEOF_RINGSETS];
+      }				///parser
 
-      preproc = new TrigRingerPreprocessor(nrings,normrings,sectionrings);
-    }
-    catch(const std::bad_alloc& xa){
-     
+      preproc = new TrigRingerPreprocessor( nrings, normrings, sectionrings );
+    } catch(const std::bad_alloc& ){     
       ATH_MSG_ERROR(  "Bad alloc for TrigRingerPrepoc." );
       return StatusCode::FAILURE;
     }
@@ -129,16 +124,21 @@ StatusCode TrigL2CaloRingerFexMT::finalize(){
 }
 
 StatusCode TrigL2CaloRingerFexMT::execute(){
-  ATH_MSG_DEBUG("start RingerMT");
+  auto totalTime = Monitored::MonitoredTimer::declare("TIME_total");
+  totalTime.start();
+  ATH_MSG_DEBUG( "start RingerMT" );
   
   m_output = 999;
-  auto ctx = getContext();
+  auto context = getContext();
 
   ///Retrieve rings pattern information
-  auto ringerShapeHandle = SG::makeHandle(m_ringerShape, ctx);
-  const xAOD::TrigRingerRings * ringerShape =  ringerShapeHandle.cptr();
-  //G::ReadHandle<xAOD::TrigRingerRings_v2>
- 
+  auto ringerShapeHandle = SG::makeHandle( m_ringsKey, context );
+  const xAOD::TrigRingerRings* ringerRings =  ringerShapeHandle.cptr();
+
+
+  auto clustersHandle = SG::makeHandle( m_clustersKey, context );
+  const xAOD::TrigEMClusterContainer* clusters = clustersHandle.cptr();
+  CHECK( clusters->size() == 1 );
   
   //It's ready to select the correct eta/et bin
   ATH_MSG_DEBUG("executing"); 
@@ -146,13 +146,12 @@ StatusCode TrigL2CaloRingerFexMT::execute(){
   MultiLayerPerceptron    *discr  = nullptr;
   TrigRingerPreprocessor  *preproc = nullptr;
   
-  //TODO read parameters from EM Cluster
-  //float eta = std::fabs(emCluster->eta());
-  //if(eta>2.50) eta=2.50;///fix for events out of the ranger
-  //float et  = emCluster->et()*1e-3; ///in GeV
   
-  float et = 10;
-  float eta = 1;
+  float eta = std::fabs(clusters->front()->eta());
+  if(eta>2.50) eta=2.50;///fix for events out of the ranger
+  float et  = clusters->front()->et() / CLHEP::GeV; // in GeV
+  
+
   if(m_discriminators.size() > 0){
     for(unsigned i=0; i<m_discriminators.size(); ++i){
       if(et > m_discriminators[i]->etmin() && et <= m_discriminators[i]->etmax()){
@@ -165,23 +164,29 @@ StatusCode TrigL2CaloRingerFexMT::execute(){
     }///Loop over discriminators
 
     ///get shape
-    const std::vector<float> rings = ringerShape->rings();
+    const std::vector<float> rings = ringerRings->rings();
      
-    ATH_MSG_DEBUG( "ringerShape->rings().size() is: " <<rings.size() );
+    ATH_MSG_DEBUG( "rings->rings().size() is: " <<rings.size() );
 
     std::vector<float> refRings(rings.size());
     refRings.assign(rings.begin(), rings.end());
 
     
-    ATH_MSG_DEBUG("Et = " << et << " GeV, |eta| = " << eta);
-
+    ATH_MSG_DEBUG( "Et = " << et << " GeV, |eta| = " << eta );
+    auto preprocessTime = Monitored::MonitoredTimer::declare("TIME_preprocess");
     ///pre-processing shape
+    preprocessTime.start();
     if(preproc)     preproc->ppExecute(refRings);
-
-    ATH_MSG_DEBUG("after preproc refRings.size() is: " << rings.size());
-
+    preprocessTime.stop();
+    
+    ATH_MSG_DEBUG( "after preproc refRings.size() is: " << rings.size() );
+    auto decisionTime = Monitored::MonitoredTimer::declare("TIME_decision");
     ///Apply the discriminator
+    decisionTime.start();
     if(discr)  m_output = discr->propagate(refRings);
+    decisionTime.stop();
+    auto scope = Monitored::MonitoredScope::declare( m_monTool, preprocessTime, decisionTime );
+    
   }else{
      ATH_MSG_DEBUG("There is no discriminator into this Fex.");
   }
@@ -194,10 +199,12 @@ StatusCode TrigL2CaloRingerFexMT::execute(){
   rnnOutput->setRnnDecision(m_output);
 
 
-  auto outputHandle =   SG::makeHandle (m_outputKey, ctx);  
+  auto outputHandle =   SG::makeHandle (m_outputKey, context);  
   ATH_CHECK( outputHandle.record(std::move(rnnOutput)) );
 
-
+  totalTime.stop();
+  auto scope = Monitored::MonitoredScope::declare( m_monTool, totalTime );
+  
   return StatusCode::SUCCESS;
 }
 
