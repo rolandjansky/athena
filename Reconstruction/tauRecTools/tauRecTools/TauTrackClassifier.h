@@ -48,7 +48,6 @@ public:
 
 private:
   ToolHandleArray<TrackMVABDT> m_vClassifier;
-  std::string m_tauTrackConName;
   std::vector<std::string> m_vClassifierNames;//optional
 
 }; // class TauTrackClassifier

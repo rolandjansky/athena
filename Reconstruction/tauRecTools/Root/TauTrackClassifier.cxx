@@ -35,7 +35,6 @@ TauTrackClassifier::TauTrackClassifier(const std::string& sName)
 {
   declareProperty("Classifiers", m_vClassifier );
   declareProperty("ClassifierNames", m_vClassifierNames );
-  declareProperty("TauTrackContainerName", m_tauTrackConName="TauTracks");
 }
 
 //______________________________________________________________________________
@@ -69,8 +68,16 @@ StatusCode TauTrackClassifier::initialize()
 //______________________________________________________________________________
 StatusCode TauTrackClassifier::execute(xAOD::TauJet& xTau)
 {
+  // Get track container via link from tau - instead of using read handle (not written to store yet) 
+  // Check that size > 0
+  // ATH_MSG_INFO("track links size = " << xTau.allTauTrackLinks().size() ); 
+  ElementLink< xAOD::TauTrackContainer > link;
   xAOD::TauTrackContainer* tauTrackCon = 0;
-  ATH_CHECK(evtStore()->retrieve(tauTrackCon, m_tauTrackConName));
+  if (xTau.allTauTrackLinks().size() > 0) {
+    link = xTau.allTauTrackLinks().at(0);//we don't care about this specific link, just the container
+    tauTrackCon = link.getDataNonConstPtr();
+  }  
+
   std::vector<xAOD::TauTrack*> vTracks = xAOD::TauHelpers::allTauTracksNonConst(&xTau, tauTrackCon);
   for (xAOD::TauTrack* xTrack : vTracks)
   {
