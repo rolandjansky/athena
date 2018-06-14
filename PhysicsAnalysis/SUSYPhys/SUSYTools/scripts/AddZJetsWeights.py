@@ -1014,8 +1014,8 @@ def main(infile, weightsFile, treename, attr_mcID, attr_nTruthJets):
                 qsf025[0] =  WenuHistograms[6].GetBinContent(ZpTBin,TruthJetBin)
                 qsf4[0] =  WenuHistograms[7].GetBinContent(ZpTBin,TruthJetBin)
             else:
-                print MCID, nTruthJets, decayType
-                exit(0)
+                print '\x1b[2K\r', "Missing entry for MCID={0}, nTruthJets={1}".format(MCID, nTruthJets)
+                exit(1)
 
         ckkw15branch.Fill()
         ckkw30branch.Fill()
