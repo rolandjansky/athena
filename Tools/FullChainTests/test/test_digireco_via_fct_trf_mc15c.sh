@@ -3,5 +3,5 @@
 # art-description: digireco
 # art-type: grid
 
-fct_trf.py --config=$(echo $CMAKE_PREFIX_PATH | tr ":" "\n" | grep AtlasOffline)/src/Tools/FullChainTests/test/digireco_MC15c.cfg --runDigi --runReco
+fct_trf.py --config=$(echo $CMAKE_PREFIX_PATH | tr ":" "\n" |  head -n 1)/src/Tools/FullChainTests/test/digireco_MC15c.cfg --runDigi --runReco
 

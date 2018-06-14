@@ -229,6 +229,8 @@ namespace met {
 	  return StatusCode::SUCCESS;
 	}
 	m_met    = tot_met->met()/m_GeV;
+	m_metx    = tot_met->mpx()/m_GeV;
+	m_mety    = tot_met->mpy()/m_GeV;
 	m_metphi = tot_met->phi();
 	m_sumet  = tot_met->sumet()/m_GeV;
 	m_ht     = m_sumet;
@@ -238,7 +240,7 @@ namespace met {
 	ATH_MSG_ERROR("Could not find the total MET with name:" <<totalMETName);
 	return StatusCode::SUCCESS;
       }
-      m_met_vect.SetPtEtaPhi(m_met, 0.0, m_metphi);
+      m_met_vect.SetXYZ(m_metx, m_mety, 0);
 
       // Fill the remaining terms
       for(const auto& met : *metCont) {
@@ -467,12 +469,9 @@ namespace met {
       return StatusCode::FAILURE;
     }
 
-    xAOD::Muon *my_muon = NULL;
-    ATH_CHECK(m_muonCalibrationAndSmearingTool->correctedCopy(*muon,my_muon)==CP::CorrectionCode::Ok);
-    pt_reso=m_muonCalibrationAndSmearingTool->expectedResolution(dettype,*my_muon,!m_isDataMuon);
-    if(m_doPhiReso) phi_reso = my_muon->pt()*0.001;
+    pt_reso=m_muonCalibrationAndSmearingTool->expectedResolution(dettype,*muon,!m_isDataMuon);
+    if(m_doPhiReso) phi_reso = muon->pt()*0.001;
     ATH_MSG_VERBOSE("muon: " << pt_reso << " dettype: " << dettype << " " << muon->pt() << " " << muon->p4().Eta() << " " << muon->p4().Phi());
-    delete my_muon;
 
     return StatusCode::SUCCESS;
   }
@@ -552,7 +551,7 @@ namespace met {
 
       ATH_MSG_VERBOSE("Resolution Soft term set to 10GeV");
 
-      m_soft_vect.SetPtEtaPhi(soft->met()/m_GeV, 0.0, soft->phi());
+      m_soft_vect.SetXYZ(soft->mpx()/m_GeV, soft->mpy()/m_GeV, 0);
 
       double particle_u[2][2] = {{m_softTermReso*m_softTermReso,0.0},
 				 {0.0,m_softTermReso*m_softTermReso}};
@@ -581,7 +580,7 @@ namespace met {
 
       ATH_MSG_VERBOSE("Resolution Soft term parameterized in pthard direction");
 
-      m_soft_vect.SetPtEtaPhi(soft->met()/m_GeV, 0.0, soft->phi());
+      m_soft_vect.SetXYZ(soft->mpx()/m_GeV, soft->mpy()/m_GeV, 0);
 
       m_pthard_vect =  m_soft_vect - met_vect;
 
@@ -610,7 +609,7 @@ namespace met {
 
       ATH_MSG_VERBOSE("Resolution Soft term parameterized in TST");
 
-      m_soft_vect.SetPtEtaPhi(soft->met()/m_GeV, 0.0, soft->phi());
+      m_soft_vect.SetXYZ(soft->mpx()/m_GeV, soft->mpy()/m_GeV, 0);
 
       double varTST = VarparPtSoftdir(soft->met()/m_GeV, soft->sumet()/m_GeV);
 

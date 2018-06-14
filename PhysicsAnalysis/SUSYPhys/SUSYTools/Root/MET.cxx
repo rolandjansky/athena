@@ -205,11 +205,19 @@ StatusCode SUSYObjDef_xAOD::GetTrackMET(xAOD::MissingETContainer &met,
   ATH_CHECK( m_metMaker->rebuildTrackMET(m_jetTerm, softTerm, &met, jet, metcore, metMap, true) );
 
   if (!isData()) {
-    ATH_MSG_VERBOSE("Apply MET systematics");
-    if ( m_metSystTool->applyCorrection(*met[softTerm],metMap) != CP::CorrectionCode::Ok ) 
-      ATH_MSG_WARNING("GetMET: Failed to apply MET track (PVSoftTrk) systematics.");
-    if ( m_metSystTool->applyCorrection(*met[m_jetTerm],metMap) != CP::CorrectionCode::Ok ) 
-      ATH_MSG_WARNING("GetMET: Failed to apply MET track (RefJet) systematics.");
+
+    if (m_trkMETsyst) {
+      ATH_MSG_VERBOSE("Apply trkMET systematics");
+      if ( m_metSystTool->applyCorrection(*met[softTerm],metMap) != CP::CorrectionCode::Ok )
+	ATH_MSG_WARNING("GetMET: Failed to apply MET track (PVSoftTrk) systematics.");
+    }
+
+    if (m_trkJetsyst) {
+      ATH_MSG_VERBOSE("Apply Ref Jet trkMET systematics");
+      if ( m_metSystTool->applyCorrection(*met[m_jetTerm],metMap) != CP::CorrectionCode::Ok )
+	ATH_MSG_WARNING("GetMET: Failed to apply MET track (RefJet) systematics.");
+    }
+
   }
 
   ATH_MSG_VERBOSE("Build MET sum");

@@ -3,7 +3,7 @@
 import os
 
 RDO_FILE = "mc16_13TeV:mc16_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s3126_r9546"
-HAMMERCLOUD_FILE = "mc15_13TeV.423202.Pythia8B_A14_CTEQ6L1_Jpsie3e13.merge.AOD.e3869_s2608_s2183_r6630_r6264" #NOTE: needs update to mc16
+HAMMERCLOUD_FILE = "mc15_13TeV.423202.Pythia8B_A14_CTEQ6L1_Jpsie3e13.merge.AOD.e3869_s2608_s2183_r6630_r6264" #NOTE: needs update to mc16(?)
 PROJECTS = ["AthAnalysis", "AthDerivation", "AthSimulation", "Athena", "AnalysisBase"]
 
 RECO_TF_TURLS = {
@@ -98,7 +98,26 @@ echo \"art-result: $? DirectIOART_AthenaMP_RecoTF_inputRDO_protocol_{protocol}\"
     # TODO
   
   # in case of "AthDerivation"
-  # TODO
+  if "AthDerivation" in opts.athena_project:
+    # loop over turl list
+    for i in xrange(len(TFILE_OPEN_TURLs)):
+      # get values of dictionaries
+      for key, value in TFILE_OPEN_TURLs[i].items():
+        name = os.path.join("test", "test_directioart_athderivation_recotf_with_aod_" + key.lower() + ".sh")
+        print "\tGenerating ...",name
+        outfile = open(name,'w')
+        # generate test scripts
+        outstring = """#!/bin/bash\n
+# art-description: DirectIOART AthDerivation inputFile:RDO protocol={protocol} reductionConf:TEST1
+# art-type: grid
+# art-output: *.pool.root
+# art-include: 21.2/AthDerivation\n
+set -e\n
+Reco_tf.py --inputAODFile {turl} --outputDAODFile art.pool.root --reductionConf TEST1 --maxEvents 100\n
+echo \"art-result: $? DirectIOART_AthDerivation_RecoTF_inputAOD_protocol_{protocol}_TEST1\"""".format(turl=value[0], protocol=key)
+        outfile.write(outstring)
+        outfile.close()
+        os.system("chmod +x " + name)
 
 def write_AthAnalysis_TestAlg():
   # loop over turl list
@@ -117,7 +136,6 @@ def write_AthAnalysis_TestAlg():
 set -e\n
 athena --filesInput=\"{turl}\" DirectIOART/DirectIOARTAthAnalysisJobOptions.py\n
 echo \"art-result: $? DirectIOART_AthAnalysis_ParticleSelectionAlg_protocol_{protocol}\"""".format(turl=value[0], protocol=key)
-      
       outfile.write(outstring)
       outfile.close()
       os.system("chmod +x " + name)
@@ -188,13 +206,16 @@ def main():
       print "\tAthena project \"",opts.athena_project[i],"\" not intended for DirectIOART!"
       continue
   
+  if opts.mp and not "Athena" in opts.athena_project:
+    opts.mp = False
+  
   if opts.open_tests:
     writeTFileOpen()
   
   if "AthAnalysis" in opts.athena_project:
     write_AthAnalysis_TestAlg()
   
-  if "Athena" in opts.athena_project:
+  if "Athena" in opts.athena_project or "AthDerivation" in opts.athena_project:
     write_RecoTF(opts)
 
 if __name__ == "__main__":

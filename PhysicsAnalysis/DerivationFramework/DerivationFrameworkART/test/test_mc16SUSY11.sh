@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# art-include
 # art-description: DAOD building SUSY11 mc16
 # art-type: grid
 # art-output: *.pool.root

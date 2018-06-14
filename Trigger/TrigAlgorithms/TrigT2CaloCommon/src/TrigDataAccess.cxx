@@ -123,6 +123,8 @@ StatusCode TrigDataAccess::initialize()
           m_vrodid32hec0.reserve(24);
           m_vrodid32hec1.reserve(24);
           m_vrodid32hec2.reserve(24);
+          m_vrodid32hec0SideA.reserve(12);
+          m_vrodid32hec0SideC.reserve(12);
           m_vrodid32fcalem.reserve(8);
           m_vrodid32fcalhad.reserve(6);
           m_vrodid32tile.reserve(300);
@@ -336,6 +338,9 @@ StatusCode TrigDataAccess::beginRunHandle_RegSelSvc(IOVSVC_CALLBACK_ARGS){
              ATH_MSG_DEBUG("Finalizing Preparation of full collections");
 
 	  TrigRoiDescriptor tmproi(true);
+	  TrigRoiDescriptor tmproiA(0.,0.,5.,0.,-M_PI,M_PI,0.,0.,225.);
+	  TrigRoiDescriptor tmproiC(0.,-5.,0.,0.,-M_PI,M_PI,0.,-225.,0.);
+
 	  //TrigRoiDescriptor tmproi( true ); /// use new fullscan RoI
 
 	  //          const double mineta = -4.8;
@@ -349,6 +354,9 @@ StatusCode TrigDataAccess::beginRunHandle_RegSelSvc(IOVSVC_CALLBACK_ARGS){
           m_pRegionSelector->DetROBIDListUint(TTHEC,1,tmproi,m_vrodid32hec1);
           m_pRegionSelector->DetROBIDListUint(TTHEC,2,tmproi,m_vrodid32hec2);
           m_pRegionSelector->DetROBIDListUint(TTHEC,3,tmproi,m_vrodid32hec3);
+
+          m_pRegionSelector->DetROBIDListUint(TTHEC,0,tmproiA,m_vrodid32hec0SideA);
+          m_pRegionSelector->DetROBIDListUint(TTHEC,0,tmproiC,m_vrodid32hec0SideC);
           // FCALHAD
           m_pRegionSelector->DetROBIDListUint(FCALHAD,-1,tmproi,m_vrodid32fcalhad);
           m_pRegionSelector->DetROBIDListUint(FCALEM,-1,tmproi,m_vrodid32fcalem);
@@ -469,11 +477,20 @@ void TrigDataAccess::RegionSelectorRobID (const int sampling,
 	    m_full_vrodid32.insert(m_full_vrodid32.end(),m_partial_vrodid32.begin(),m_partial_vrodid32.end());
 	  }
 	  
+	  // In case of HEC always add complete side A or C if RoI overlaps with them
+	  bool addHecA(false), addHecC(false);
 	  for(int sa=0;sa<4;sa++){
 	    m_partial_vrodid32.clear();
 	    m_pRegionSelector->DetROBIDListUint(TTHEC,sa, roi, m_partial_vrodid32); 
-	    m_full_vrodid32.insert(m_full_vrodid32.end(),m_partial_vrodid32.begin(),m_partial_vrodid32.end());
+	    for (auto rob_hec: m_partial_vrodid32) {
+              std::vector<uint32_t>::iterator rob_A = std::find(m_vrodid32hec0SideA.begin(), m_vrodid32hec0SideA.end(), rob_hec);
+              if (rob_A != m_vrodid32hec0SideA.end()) { addHecA = true; }
+              std::vector<uint32_t>::iterator rob_C = std::find(m_vrodid32hec0SideC.begin(), m_vrodid32hec0SideC.end(), rob_hec);
+              if (rob_C != m_vrodid32hec0SideC.end()) { addHecC = true; }
+	    }
 	  }
+          if (addHecA) m_full_vrodid32.insert(m_full_vrodid32.end(),m_vrodid32hec0SideA.begin(),m_vrodid32hec0SideA.end());
+          if (addHecC) m_full_vrodid32.insert(m_full_vrodid32.end(),m_vrodid32hec0SideC.begin(),m_vrodid32hec0SideC.end());
 	  
 	  m_partial_vrodid32.clear();
 	  m_pRegionSelector->DetROBIDListUint(FCALEM, 0, roi, m_partial_vrodid32); 
@@ -495,9 +512,9 @@ void TrigDataAccess::RegionSelectorRobID (const int sampling,
 	  sort(m_full_vrodid32.begin(),m_full_vrodid32.end());
 
 	  m_full_vrodid32.erase(std::unique(m_full_vrodid32.begin(),m_full_vrodid32.end()),m_full_vrodid32.end());
-	  if ( fetchROBs ) {m_robDataProvider->addROBData(m_full_vrodid32); m_robDataProvider->getROBData(m_full_vrodid32,m_robFrags); m_robFrags.clear();} 
+	  if ( fetchROBs ) {m_robDataProvider->addROBData(m_full_vrodid32);} 
         } 
-	else if ( fetchROBs ) {m_robDataProvider->addROBData(m_vrodid32); m_robDataProvider->getROBData(m_vrodid32,m_robFrags); m_robFrags.clear();} 
+	else if ( fetchROBs ) {m_robDataProvider->addROBData(m_vrodid32);} 
 
 	if (msgLvl(MSG::VERBOSE)) {
           ATH_MSG_VERBOSE( "m_vrodid32.size() = " << m_vrodid32.size() );
@@ -1367,7 +1384,7 @@ void TrigDataAccess::ROBList( const IRoiDescriptor& roi, std::vector<uint32_t>& 
 		vec.insert(vec.end(), m_vrodid32fullDet.begin(), m_vrodid32fullDet.end() );
 		return;
 	}
-        this->RegionSelectorRobID( 2, roi, TTEM, true );
+        this->RegionSelectorRobID( 2, roi, TTEM, false );
         vec.insert(vec.end(),m_full_vrodid32.begin(),m_full_vrodid32.end()); 
 	return;
 }

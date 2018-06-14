@@ -5,7 +5,7 @@
 # art-ci: 21.2
 # art-include: 21.2/AthAnalysis
 
-echo "Running SUSYTools test: \'share/minimalExampleJobOptions_data.py\'"
+echo "Running SUSYTools test: \'share/minimalExampleJobOptions_atlfast.py\'"
 athena SUSYTools/minimalExampleJobOptions_atlfast.py
 
 result=$?

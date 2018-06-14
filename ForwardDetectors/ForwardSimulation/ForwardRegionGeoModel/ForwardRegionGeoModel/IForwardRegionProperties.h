@@ -143,12 +143,11 @@ typedef struct _FWDMg_CONFIGURATION
     }
 } FWDMg_CONFIGURATION, *PFWDMg_CONFIGURATION;
 
-static const InterfaceID IID_IForwardRegionProperties("IForwardRegionProperties", 1, 0);
-
 class IForwardRegionProperties : virtual public IAlgTool{
 
 public:
-  static const InterfaceID&	interfaceID() { return IID_IForwardRegionProperties; }
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(IForwardRegionProperties, 1, 0);
 
   virtual PFWDMg_CONFIGURATION getConf()=0;
   virtual void getMagTransforms(std::string, int, HepGeom::Point3D<double>&, HepGeom::Point3D<double>&, double&, bool twiss = false)=0;

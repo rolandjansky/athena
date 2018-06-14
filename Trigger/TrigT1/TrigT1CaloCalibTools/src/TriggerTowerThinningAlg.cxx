@@ -16,7 +16,7 @@
 
    This algorithm can be used to keep only TriggerTowers which have either:
    1.) An ADC value > m_minADC  OR
-   2.) A Calo Cell energy > m_minCaloCellEnergy
+   2.) A Calo Cell ET > m_minCaloCellET
 
    For a random (TRandom3) m_minRandom % of events, all Trigger Towers are saved.
    This is very useful for pedestal and noise studies
@@ -33,8 +33,8 @@ namespace DerivationFramework {
     AthAlgTool(t,n,p),
     m_thinningSvc( "ThinningSvc",  n ),
     m_triggerTowerLocation(LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation),
-    m_minCaloCellEnergy(0.05),
-    m_minADC(30),
+    m_minCaloCellET(0.4),
+    m_minADC(32),
     m_useRandom(false),
     m_minRandom(0.03),
     m_nEventsProcessed(0),
@@ -47,7 +47,7 @@ namespace DerivationFramework {
     declareInterface<DerivationFramework::IThinningTool>(this);    
     declareProperty("ThinService",m_thinningSvc);
     declareProperty("TriggerTowerLocation", m_triggerTowerLocation);
-    declareProperty("MinCaloCellEnergy",m_minCaloCellEnergy);
+    declareProperty("MinCaloCellET",m_minCaloCellET);
     declareProperty("MinADC",m_minADC);
     declareProperty("UseRandom",m_useRandom);
     declareProperty("MinRandom",m_minRandom);
@@ -95,7 +95,7 @@ namespace DerivationFramework {
     //
     // If this is collisions data then only save if:
     // 1.) Any ADC value is greater than m_minADC  OR
-    // 2.) The CaloCell energy is greater than m_minCaloCellEnergy
+    // 2.) The CaloCell ET is greater than m_minCaloCellET
 
     bool globalSaveMe(false);
     // Random number save all
@@ -114,15 +114,15 @@ namespace DerivationFramework {
       bool saveMe(false);
       if(globalSaveMe == true){saveMe = true;}
       
-      // Test for Calo Energy
+      // Test for Calo ET
       if(saveMe == false){
-        if (tt->isAvailable< std::vector<float> > ("CaloCellEnergyByLayer")) {
-          std::vector<float> caloCellEnergyByLayer = tt->auxdataConst< std::vector<float> > ("CaloCellEnergyByLayer");
-          float totalCaloCellEnergy(0.);
-          for (auto c : caloCellEnergyByLayer) {
-            totalCaloCellEnergy += c;
+        if (tt->isAvailable< std::vector<float> > ("CaloCellETByLayer")) {
+          std::vector<float> caloCellETByLayer = tt->auxdataConst< std::vector<float> > ("CaloCellETByLayer");
+          float totalCaloCellET(0.);
+          for (auto c : caloCellETByLayer) {
+            totalCaloCellET += c;
           }
-          if (totalCaloCellEnergy > m_minCaloCellEnergy) {
+          if (totalCaloCellET > m_minCaloCellET) {
             saveMe = true;
           }
         }

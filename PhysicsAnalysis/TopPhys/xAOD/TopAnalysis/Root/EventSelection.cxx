@@ -73,8 +73,9 @@ EventSelection::EventSelection(const std::string& name, const std::vector<std::s
     m_config = config;
     m_isMC   = config->isMC();
 
-    if(m_isMC)
-      m_sfRetriever = std::unique_ptr<top::ScaleFactorRetriever> ( new top::ScaleFactorRetriever( config) );
+    if(m_isMC){
+      this->initialiseTopScaleFactorRetriever(m_config);
+    }
 
     TDirectory* plotDir = outputFile->mkdir(m_name.c_str());
     plotDir->cd();
@@ -232,8 +233,24 @@ EventSelection::EventSelection(EventSelection&& other) :
 {
 
   // need this to calculate the lepton SF for the cutflow
-  if(m_isMC)
-    m_sfRetriever = std::unique_ptr<top::ScaleFactorRetriever> ( new top::ScaleFactorRetriever( m_config ) );
+  if(m_isMC){
+    this->initialiseTopScaleFactorRetriever(m_config);
+  }
+
+}
+
+
+void EventSelection::initialiseTopScaleFactorRetriever(std::shared_ptr<TopConfig> config){
+  // Define this once, and then use it when needed
+  if(asg::ToolStore::contains<ScaleFactorRetriever>("top::ScaleFactorRetriever")){
+    m_sfRetriever = asg::ToolStore::get<ScaleFactorRetriever>("top::ScaleFactorRetriever");
+  }
+  else{
+    top::ScaleFactorRetriever* topSFR = new top::ScaleFactorRetriever("top::ScaleFactorRetriever");
+    top::check(asg::setProperty(topSFR, "config", config), "Failed to set config");
+    top::check(topSFR->initialize(), "Failed to initalialise");
+    m_sfRetriever = topSFR;
+  }
 
 }
 

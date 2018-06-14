@@ -101,6 +101,7 @@ LArFEBMon::LArFEBMon(const std::string& type,
   
   m_hTriggerType	= NULL;
   m_hTriggerTypeAllDSP	= NULL;
+  m_hTriggerTypeMissingTT= NULL;
   m_hTimeDistrib	= NULL;
   m_nbOfFebBlocksTotal	= NULL;
   
@@ -285,13 +286,18 @@ StatusCode LArFEBMon::bookHistograms() {
     sc = sc && perPartitionDataGroup.regHist(m_eventType);
     
     // Trigger types
-    m_hTriggerType = TH1I_LW::create("TriggerWord","Number of Events per L1 trigger word (8 bits)", 256, -0.5, 255.5);
+    m_hTriggerType = TH1I_LW::create("TriggerWord","L1 trigger word (8 bits)", 256, -0.5, 255.5);
     m_hTriggerType->GetXaxis()->SetTitle("L1 trigger word");
+    m_hTriggerType->GetYaxis()->SetTitle("Number of events");
     sc = sc && perPartitionDataGroup.regHist(m_hTriggerType);
-    m_hTriggerTypeAllDSP = TH1I_LW::create("TriggerWordAllDSP","Number L1 trigger word per DSP (8 bits)", 256, -0.5, 255.5);
+    m_hTriggerTypeAllDSP = TH1I_LW::create("TriggerWordAllDSP","L1 trigger word per DSP (8 bits)", 256, -0.5, 255.5);
     m_hTriggerTypeAllDSP->GetXaxis()->SetTitle("L1 trigger word");
-    (m_hTriggerTypeAllDSP->GetYaxis())->SetTitle("Number of events");
+    m_hTriggerTypeAllDSP->GetYaxis()->SetTitle("Number of events");
     sc = sc && perPartitionDataGroup.regHist(m_hTriggerTypeAllDSP);
+    m_hTriggerTypeMissingTT = TH1I_LW::create("TriggerWordMissingTT","L1 trigger word (8 bits) - Missing TT or mismatch", 256, -0.5, 255.5);
+    m_hTriggerTypeMissingTT->GetXaxis()->SetTitle("L1 trigger word");
+    m_hTriggerTypeMissingTT->GetYaxis()->SetTitle("Number of events");
+    sc = sc && perPartitionDataGroup.regHist(m_hTriggerTypeMissingTT);
     
     // Nb of samples
     m_nbOfSamples = TH1I_LW::create("NbOfSamples","# of samples (1st readout FEB)",35,-1.5,33.5);
@@ -490,7 +496,12 @@ StatusCode LArFEBMon::fillHistograms() {
       (m_partHistos[partitionNb_dE].nbOfEvts)->Fill(slot,ft);
       if (firstEventType == 4) (m_partHistos[partitionNb_dE].nbOfSweet1)->Fill(slot,ft,(*it)->NbSweetCells1());
       if (firstEventType == 4) (m_partHistos[partitionNb_dE].nbOfSweet2)->Fill(slot,ft,(*it)->NbSweetCells2());
-      if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() == 170 || (*it)->LVL1TigType() != m_l1Trig) (m_partHistos[partitionNb_dE].missingTriggerType)->Fill(slot,ft);
+      // Before we were also filtering on DSP TT == 170 that is the default value but this was removed as also 
+      // covered by the condition (*it)->LVL1TigType() != m_l1Trig
+      if ((*it)->LVL1TigType() == 0 || (*it)->LVL1TigType() != m_l1Trig) {
+	(m_partHistos[partitionNb_dE].missingTriggerType)->Fill(slot,ft);
+	m_hTriggerTypeMissingTT->Fill(m_l1Trig);
+      }
       ATH_MSG_DEBUG(" EMBC : " <<  m_onlineHelper->show_to_string(febid) << " LVL1 type" << (*it)->LVL1TigType());
 
     }//Test on FEBid

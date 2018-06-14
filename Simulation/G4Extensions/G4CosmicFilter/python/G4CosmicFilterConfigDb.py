@@ -4,3 +4,4 @@ from AthenaCommon.CfgGetter import addTool
 
 # this returns three different tools, depending on the runtime config
 addTool("G4CosmicFilter.G4CosmicFilterConfig.getCosmicFilterTool", "G4UA::G4CosmicFilterTool")
+addTool("G4CosmicFilter.G4CosmicFilterConfig.getStoppedParticleFilterTool", "G4UA::StoppedParticleFilterTool")

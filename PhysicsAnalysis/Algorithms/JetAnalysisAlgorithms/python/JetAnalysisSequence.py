@@ -1,132 +1,151 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
+# AnaAlgorithm import(s):
+from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
+from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool, \
+                                       createPublicTool
 
-def makeJetAnalysisSequence (jetContainer,dataType,runJvtUpdate=True,runJvtEfficiency=True,runJetSmearing=True) :
+def makeJetAnalysisSequence( dataType, jetCollection, runJvtUpdate = True,
+                             runJvtEfficiency = True, runJetSmearing = True ):
+    """Create a jet analysis algorithm sequence
+
+    Keyword arguments:
+      dataType -- The data type to run on ("data", "mc" or "afii")
+      jetCollection -- The jet container to run on
+      runJvtUpdate -- Determines whether or not to update JVT on the jets
+      runJvtEfficiency -- Determines whether or not to recalculate the JVT
+                          efficiency
+      runJetSmearing -- Determines whether to smear the jets
+    """
+
     if not dataType in ["data", "mc", "afii"] :
-        raise Exception ("invalid data type: " + dataType)
+        raise ValueError ("invalid data type: " + dataType)
 
-    sequence = []
+    # Create the analysis algorithm sequence object:
+    seq = AnaAlgSequence( "JetAnalysisSequence" )
 
-    jetCollection = jetContainer[0:-4]
-    if dataType == "afii" :
-        configFile = "JES_MC16Recommendation_AFII_EMTopo_April2018_rel21.config"
+    # Set up the jet calibration algorithm:
+    if dataType == 'afii':
+        configFile = 'JES_MC16Recommendation_AFII_EMTopo_April2018_rel21.config'
+    else:
+        configFile = 'JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config'
         pass
-    else :
-        configFile = "JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config"
-        pass
-    if dataType == "data" :
-        calibSeq = "JetArea_Residual_EtaJES_GSC_Insitu"
-        pass
-    else :
-        calibSeq = "JetArea_Residual_EtaJES_GSC"
+    if dataType == 'data':
+        calibSeq = 'JetArea_Residual_EtaJES_GSC_Insitu'
+    else:
+        calibSeq = 'JetArea_Residual_EtaJES_GSC'
         pass
 
     alg = createAlgorithm( 'CP::JetCalibrationAlg', 'JetCalibrationAlg' )
-    addPrivateTool (alg, "calibrationTool", "JetCalibrationTool")
-    alg.calibrationTool.CalibArea = "00-04-81"
-    alg.calibrationTool.JetCollection = jetCollection
+    addPrivateTool( alg, 'calibrationTool', 'JetCalibrationTool' )
+    alg.calibrationTool.CalibArea = '00-04-81'
+    alg.calibrationTool.JetCollection = jetCollection[ 0 : -4 ]
     alg.calibrationTool.ConfigFile = configFile
     alg.calibrationTool.CalibSequence = calibSeq
-    if dataType == "data" :
+    if dataType == 'data':
         alg.calibrationTool.IsData = 1
-        pass
     else :
         alg.calibrationTool.IsData = 0
         pass
-    sequence.append ( {"alg" : alg, "in" : "jets", "out" : "jetsOut"} )
+    seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
 
-
-    uncertConfigFile = "rel21/Moriond2018/R4_StrongReduction_Scenario1.config"
-
+    # Set up the jet uncertainty calculation algorithm:
     alg = createAlgorithm( 'CP::JetUncertaintiesAlg', 'JetUncertaintiesAlg' )
-    addPrivateTool (alg, "uncertaintiesTool", "JetUncertaintiesTool")
-    alg.uncertaintiesTool.JetDefinition = jetCollection
-    alg.uncertaintiesTool.ConfigFile = uncertConfigFile
-    alg.uncertaintiesTool.CalibArea = "CalibArea-03"
-    if dataType == "afii" :
+    addPrivateTool( alg, 'uncertaintiesTool', 'JetUncertaintiesTool' )
+    alg.uncertaintiesTool.JetDefinition = jetCollection[ 0 : -4 ]
+    alg.uncertaintiesTool.ConfigFile = \
+        'rel21/Moriond2018/R4_StrongReduction_Scenario1.config'
+    alg.uncertaintiesTool.CalibArea = "CalibArea-04"
+    if dataType == 'afii':
         alg.uncertaintiesTool.MCType = "AFII"
-        pass
-    else :
+    else:
         alg.uncertaintiesTool.MCType = "MC16"
         pass
-    sequence.append ( {"alg" : alg, "in" : "jets", "out" : "jetsOut",
-                       "sys" : "(^JET_RelativeNonClosure.*)|(^JET_GroupedNP.*)|(^JET_EtaIntercalibration.*)"} )
+    seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
+                affectingSystematics = '(^JET_RelativeNonClosure.*)|(^JET_GroupedNP.*)|(^JET_EtaIntercalibration.*)' )
 
-
-
-    if runJetSmearing :
-        jerFile = "JetResolution/Prerec2015_xCalib_2012JER_ReducedTo9NP_Plots_v2.root"
-
+    # Set up the jet smearing algorithm:
+    if runJetSmearing:
         alg = createAlgorithm( 'CP::JetSmearingAlg', 'JetSmearingAlg' )
-        addPrivateTool (alg, "smearingTool", "JERSmearingTool")
-        addPrivateTool (alg, "smearingTool.JERTool", "JERTool")
-        if dataType == "data" :
+        addPrivateTool( alg, 'smearingTool', 'JERSmearingTool' )
+        JERTool = createPublicTool( 'MyJERTool', 'JERTool' )
+        JERTool.PlotFileName = \
+            'JetResolution/Prerec2015_xCalib_2012JER_ReducedTo9NP_Plots_v2.root'
+        JERTool.CollectionName = jetCollection
+        alg.smearingTool.JERTool = '%s/%s' % ( JERTool.getType(),
+                                                   JERTool.getName() )
+        seq.addPublicTool( JERTool )
+        if dataType == 'data':
             alg.smearingTool.isMC = 0
-            pass
         else :
             alg.smearingTool.isMC = 1
             pass
         alg.smearingTool.ApplyNominalSmearing = 0
-        alg.smearingTool.SystematicMode = "Simple"
-        alg.smearingTool.JERTool.PlotFileName = jerFile
-        alg.smearingTool.JERTool.CollectionName = jetContainer
-        sequence.append ( {"alg" : alg, "in" : "jets", "out" : "jetsOut",
-                           "sys" : "(^JET_JER_.*)"} )
+        alg.smearingTool.SystematicMode = 'Simple'
+        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
+                    affectingSystematics = '(^JET_JER_.*)' )
         pass
 
+    # Define a list of cuts to apply later on and the
+    # number of bits in the corresponding TAccept
+    cutlist = []
+    cutlength = []
 
-
+    # Set up the jet selection algorithm:
     alg = createAlgorithm( 'CP::JetSelectionAlg', 'JetCleaningAlg' )
-    addPrivateTool (alg, "selectionTool", "JetCleaningTool")
+    addPrivateTool( alg, 'selectionTool', 'JetCleaningTool' )
     alg.selectionTool.CutLevel = "LooseBad"
     alg.selectionTool.DoUgly = 0
-    sequence.append ( {"alg" : alg, "in" : "jets", "out" : "jetsOut"} )
+    seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
+    cutlist.append('clean_jet')
+    cutlength.append(1)
 
-
-
+    # Set up the JVT update algorithm:
     if runJvtUpdate :
-        jvtFile = "JetMomentTools/JVTlikelihood_20140805.root"
-
         alg = createAlgorithm( 'CP::JvtUpdateAlg', 'JvtUpdateAlg' )
-        addPrivateTool (alg, "jvtTool", "JetVertexTaggerTool")
-        alg.jvtTool.JVTFileName = jvtFile
-        sequence.append ( {"alg" : alg, "in" : "jets", "out" : "jetsOut"} )
+        addPrivateTool( alg, 'jvtTool', 'JetVertexTaggerTool' )
+        alg.jvtTool.JVTFileName = 'JetMomentTools/JVTlikelihood_20140805.root'
+        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut' )
         pass
 
-
-
-    alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'JvtEfficiencyAlg' )
-    addPrivateTool (alg, "efficiencyTool", "CP::JetJvtEfficiency")
-    alg.selection = "jvt_selection"
-    if runJvtEfficiency :
-        alg.efficiency = "jvt_efficiency"
-        alg.outOfValidity = "no_jvt"
-        alg.skipBadEfficiency = "0"
-        # disabled, doesn't seem to work
-        #alg.efficiencyTool.WorkingPoint = "Default"
+    # Set up the jet efficiency scale factor calculation algorithm
+    # Change the truthJetCollection property to AntiKt4TruthWZJets if preferred
+    if runJvtEfficiency:
+        alg = createAlgorithm( 'CP::JvtEfficiencyAlg', 'JvtEfficiencyAlg' )
+        addPrivateTool( alg, 'efficiencyTool', 'CP::JetJvtEfficiency' )
+        alg.selection = 'jvt_selection'
+        alg.efficiency = 'jvt_efficiency'
+        # Disable efficiency decorations if running on data
+        # We still want to run the JVT selection
+        if dataType == 'data':
+            alg.efficiency = ''
+            alg.truthJetCollection = ''
+        alg.outOfValidity = 2
+        alg.outOfValidityDeco = 'no_jvt'
+        alg.skipBadEfficiency = 0
+        seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut',
+                    affectingSystematics = '(^JET_JvtEfficiency$)|(^JET_fJvtEfficiency$)' )
+        cutlist.append('jvt_selection')
+        cutlength.append(1)
         pass
-    sequence.append ( {"alg" : alg, "in" : "jets", "out" : "jetsOut",
-                       "sys" : "(^JET_JvtEfficiency$)|(^JET_fJvtEfficiency$)"} )
 
-
-
+    # Set up an algorithm used for debugging the jet selection:
     alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'JetCutFlowDumperAlg' )
-    alg.histPattern = "jet_cflow_%SYS%"
-    alg.selection = ['clean_jet','jvt_selection']
-    alg.selectionNCuts = [1,1]
-    sequence.append ( {"alg" : alg, "in" : "input"} )
+    alg.histPattern = 'jet_cflow_%SYS%'
+    alg.selection = cutlist
+    alg.selectionNCuts = cutlength
+    seq.append( alg, inputPropName = 'input' )
 
-
-
+    # Set up an algorithm that makes a view container using the selections
+    # performed previously:
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'JetViewFromSelectionAlg' )
-    alg.selection = ['clean_jet','jvt_selection']
-    sequence.append ( {"alg" : alg, "in" : "input", "out" : "output", "needOut" : True} )
+    alg.selection = cutlist
+    seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
 
-
-
+    # Set up an algorithm dumping the properties of the jets, for debugging:
     alg = createAlgorithm( 'CP::KinematicHistAlg', 'JetKinematicDumperAlg' )
-    alg.histPattern = "jet_%VAR%_%SYS%"
-    sequence.append ( {"alg" : alg, "in" : "input"} )
+    alg.histPattern = 'jet_%VAR%_%SYS%'
+    seq.append( alg, inputPropName = 'input' )
 
-    return sequence
+    # Return the sequence:
+    return seq

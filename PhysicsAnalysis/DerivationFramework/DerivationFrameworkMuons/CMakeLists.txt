@@ -21,9 +21,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/MuonIdentification/ICaloTrkMuIdTools
                           Reconstruction/MuonIdentification/CaloTrkMuIdTools
                           Tracking/TrkExtrapolation/TrkExInterfaces
+                          InnerDetector/InDetRecTools/InDetTrackSelectionTool
                           PRIVATE
                           Control/AthenaKernel
-			  Control/AthenaBaseComps
+                          Control/AthenaBaseComps
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTruth )

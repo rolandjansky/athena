@@ -98,7 +98,9 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
                   "AntiKt10LCTopoJets",
                   "AntiKt4TruthJets"]
-replaceAODReducedJets(reducedJetList,FTAG2Seq,"FTAG2")
+
+extendedFlag = 1 # --- = 0 for Standard Taggers & =1 for ExpertTaggers
+replaceAODReducedJets(reducedJetList,FTAG2Seq,"FTAG2", extendedFlag)
 
 addDefaultTrimmedJets(FTAG2Seq,"FTAG2",dotruth=True)
 
@@ -118,8 +120,7 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 # Tag custom or pre-built jet collections
 #===================================================================
 
-FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets',
-                                 'AntiKt4EMTopoJets'], Sequencer = FTAG2Seq)
+FlavorTagInit(scheduleFlipped = True, JetCollections  = ['AntiKt4EMPFlowJets','AntiKt4EMTopoJets'], Sequencer = FTAG2Seq)
 
 #====================================================================
 # Add sequence (with all kernels needed) to DerivationFrameworkJob  

@@ -62,19 +62,14 @@ class DCubeValid( object ):
     def __init__( self, xmlfile=None, log=None ):
 
 
-        inInstallArea = None
-        if ( not xmlfile ):
-            inInstallArea = os.path.abspath( os.path.join( os.path.dirname( globals()["__file__"] ), "../share/DCubeValid.xml" ) )
-            if ( not xmlfile and os.path.exists( inInstallArea) ): xmlfile = inInstallArea
-
-        inDCubePath = None
-        ## in current dir
-        if ( not xmlfile ):
-            path = os.path.abspath( globals()["__file__"] ).split("/")[0:-1]
-            path.append( self.__default_dcubeValid_xmlfile )
-            path = "/".join(path)
-            inDCubePath = path
-            if ( os.path.exists( inDCubePath ) ): xmlfile = path
+        if not xmlfile:
+            basepath = os.path.dirname( globals()["__file__"] )
+            # xmlfile locations depend on how dcube.py is run: (1) direct from source package or with CMT layout, (2) CMake layout, or (3) all-in-one.
+            for subpath in "../share:../../share:".split(":"):
+                testpath = os.path.abspath( os.path.join( basepath, subpath, self.__default_dcubeValid_xmlfile ) )
+                if ( os.path.exists( testpath ) ):
+                    xmlfile = testpath
+                    break
 
         if ( xmlfile ):        
             self.__xmlfile = xmlfile

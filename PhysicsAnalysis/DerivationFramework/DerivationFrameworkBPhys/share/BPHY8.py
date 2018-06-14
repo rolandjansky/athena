@@ -1,6 +1,6 @@
 #====================================================================
 #
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #   
 # @file   BPHY8.py
 #
@@ -239,6 +239,9 @@ BPHY8cf.doVertexType   = 8  # only Z0_BA
 
 # minimum number of tracks in PV considered for PV association
 BPHY8cf.minNTracksInPV = 3
+
+# add 3-dimensional proper time information?
+BPHY8cf.do3dProperTime = True
 
 # use invariant mass based on combined muon track information in mass cuts?
 BPHY8cf.useMuCalcMass = True
@@ -711,6 +714,7 @@ for BPHY8_reco in BPHY8_recoList:
             PVContainerName        = BPHY8cf.PVContName,
             RefPVContainerName     = BPHY8cf.DerivationName+"DiMuonRefittedPrimaryVertices",
             RefitPV                = True,
+            Do3d                   = BPHY8cf.do3dProperTime,
             MaxPVrefit             = 100000,
             MinNTracksInPV         = BPHY8cf.minNTracksInPV,
             DoVertexType           = BPHY8cf.doVertexType)
@@ -723,6 +727,7 @@ for BPHY8_reco in BPHY8_recoList:
             PVContainerName        = BPHY8cf.PVContName,
             RefPVContainerName     = BPHY8cf.DerivationName+BPHY8_reco+"RefittedPrimaryVertices",
             RefitPV                = True,
+            Do3d                   = BPHY8cf.do3dProperTime,
             MaxPVrefit             = 100000,
             MinNTracksInPV         = BPHY8cf.minNTracksInPV,
             DoVertexType           = BPHY8cf.doVertexType)
@@ -735,6 +740,7 @@ for BPHY8_reco in BPHY8_recoList:
             PVContainerName        = BPHY8cf.PVContName,
             RefPVContainerName     = BPHY8cf.DerivationName+BPHY8_reco+"RefittedPrimaryVertices",
             RefitPV                = True,
+            Do3d                   = BPHY8cf.do3dProperTime,
             MaxPVrefit             = 100000,
             MinNTracksInPV         = BPHY8cf.minNTracksInPV,
             DoVertexType           = BPHY8cf.doVertexType)
@@ -1226,6 +1232,7 @@ if "Bsmumu" in BPHY8cf.doChannels:
         MassMax                = BPHY8cf.GlobalBMassUpperCut,
         Chi2Max                = BPHY8cf.Chi2Cut2Prong,
         DoVertexType           = BPHY8cf.doVertexType,
+        Do3d                   = BPHY8cf.do3dProperTime,
         BlindMassMin           = BPHY8cf.GlobalBlindLowerCut,
         BlindMassMax           = BPHY8cf.GlobalBlindUpperCut,
         DoBlinding             = BPHY8cf.doBmumuBlinding,
@@ -1244,6 +1251,7 @@ if [i for i in BPHY8cf.doChannels if i in ["BJpsiK", "BsJpsiPhi"]]:
         MassMax                = BPHY8cf.GlobalJpsiMassUpperCut,
         Chi2Max                = BPHY8cf.Chi2Cut2Prong,
         DoVertexType           = BPHY8cf.doVertexType,
+        Do3d                   = BPHY8cf.do3dProperTime,
         UseMuCalcMass          = BPHY8cf.useMuCalcMass,
         OutputLevel            = WARNING)
 # c) for BJpsiK
@@ -1259,6 +1267,7 @@ if "BJpsiK" in BPHY8cf.doChannels:
         MassMax                = BPHY8cf.GlobalBMassUpperCut,
         Chi2Max                = BPHY8cf.Chi2Cut3Prong,
         DoVertexType           = BPHY8cf.doVertexType,
+        Do3d                   = BPHY8cf.do3dProperTime,
         UseMuCalcMass          = BPHY8cf.useMuCalcMass,
         SubDecVtxContNames     = [BPHY8cf.DerivationName+"DiMuonCandidates"],
         SubDecVtxHypoCondNames = ["Jpsimumu"],
@@ -1277,6 +1286,7 @@ if "BsJpsiPhi" in BPHY8cf.doChannels:
         MassMax                = BPHY8cf.GlobalBMassUpperCut,
         Chi2Max                = BPHY8cf.Chi2Cut4Prong,
         DoVertexType           = BPHY8cf.doVertexType,
+        Do3d                   = BPHY8cf.do3dProperTime,
         UseMuCalcMass          = BPHY8cf.useMuCalcMass,
         SubDecVtxContNames     = [BPHY8cf.DerivationName+"DiMuonCandidates"],
         SubDecVtxHypoCondNames = ["Jpsimumu"],
@@ -1295,6 +1305,7 @@ if "BJpsiPi" in BPHY8cf.doChannels:
         MassMax                = BPHY8cf.GlobalBMassUpperCut,
         Chi2Max                = BPHY8cf.Chi2Cut3Prong,
         DoVertexType           = BPHY8cf.doVertexType,
+        Do3d                   = BPHY8cf.do3dProperTime,
         UseMuCalcMass          = BPHY8cf.useMuCalcMass,
         SubDecVtxContNames     = [BPHY8cf.DerivationName+"DiMuonCandidates"],
         SubDecVtxHypoCondNames = ["Jpsimumu"],
@@ -1313,6 +1324,7 @@ if "Bhh" in BPHY8cf.doChannels:
         MassMax                = BPHY8cf.GlobalBMassUpperCut,
         Chi2Max                = BPHY8cf.Chi2Cut2Prong,
         DoVertexType           = BPHY8cf.doVertexType,
+        Do3d                   = BPHY8cf.do3dProperTime,
         UseMuCalcMass          = BPHY8cf.useMuCalcMass,
         OutputLevel            = WARNING)
   

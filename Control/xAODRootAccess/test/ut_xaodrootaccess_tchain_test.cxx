@@ -1,10 +1,6 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: ut_xaodrootaccess_tchain_test.cxx 691099 2015-08-25 08:19:08Z krasznaa $
 
 // ROOT include(s):
 #include <TChain.h>
@@ -23,20 +19,20 @@
 
 /// Type used in the event/store test
 class ClassA {
-   
+
 public:
    int m_var1;
    float m_var2;
-   
+
 }; // class ClassA
 
 /// Type used in the event/store test
 class ClassB : public ClassA {
-   
+
 public:
    int m_var3;
    float m_var4;
-   
+
 }; // class ClassB
 
 /// Helper function, "processing" a TChain
@@ -46,22 +42,28 @@ int main() {
 
    // Get the name of the application:
    const char* APP_NAME = "ut_xaodrootaccess_tchain_test";
-   
+
    // Initialise the environment:
    RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
-   
+
    // Create the tested object(s):
    xAOD::TEvent event( xAOD::TEvent::kClassAccess );
    xAOD::TStore store;
 
+   const char* ref = getenv( "ATLAS_REFERENCE_DATA" );
+   const std::string FPATH =
+      ref ? ref : "/afs/cern.ch/atlas/project/PAT";
+   const std::string FNAME1 = FPATH + "/xAODs/r5591/"
+      "mc14_8TeV.117050.PowhegPythia_P2011C_ttbar.recon."
+      "AOD.e1727_s1933_s1911_r5591/AOD.01494881._105458.pool.root.1";
+   const std::string FNAME2 = FPATH + "/xAODs/r5591/"
+      "mc14_8TeV.117050.PowhegPythia_P2011C_ttbar.recon."
+      "AOD.e1727_s1933_s1911_r5591/AOD.01494881._107292.pool.root.1";
+
    // Set up a TChain with some mc14_8TeV input files:
    ::TChain chain1( "CollectionTree" );
-   chain1.Add( "/afs/cern.ch/atlas/project/PAT/xAODs/r5591/"
-               "mc14_8TeV.117050.PowhegPythia_P2011C_ttbar.recon."
-               "AOD.e1727_s1933_s1911_r5591/AOD.01494881._105458.pool.root.1" );
-   chain1.Add( "/afs/cern.ch/atlas/project/PAT/xAODs/r5591/"
-               "mc14_8TeV.117050.PowhegPythia_P2011C_ttbar.recon."
-               "AOD.e1727_s1933_s1911_r5591/AOD.01494881._107292.pool.root.1" );
+   chain1.Add( FNAME1.c_str() );
+   chain1.Add( FNAME2.c_str() );
 
    // Connect the TEvent object to it:
    RETURN_CHECK( APP_NAME, event.readFrom( &chain1 ) );
@@ -72,14 +74,16 @@ int main() {
 
    // Set up a TChain with some mc14_8TeV input files:
    ::TChain chain2( "CollectionTree" );
-   chain2.Add( "/afs/cern.ch/atlas/project/PAT/xAODs/r5787/"
-               "mc14_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.merge."
-               "AOD.e2928_s1982_s2008_r5787_r5853_tid01597980_00/"
-               "AOD.01597980._000098.pool.root.1" );
-   chain2.Add( "/afs/cern.ch/atlas/project/PAT/xAODs/r5787/"
-               "mc14_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.merge."
-               "AOD.e2928_s1982_s2008_r5787_r5853_tid01597980_00/"
-               "AOD.01597980._000420.pool.root.1" );
+   const std::string FNAME3 = FPATH + "/xAODs/r5787/"
+      "mc14_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.merge."
+      "AOD.e2928_s1982_s2008_r5787_r5853_tid01597980_00/"
+      "AOD.01597980._000098.pool.root.1";
+   const std::string FNAME4 = FPATH + "/xAODs/r5787/"
+      "mc14_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.merge."
+      "AOD.e2928_s1982_s2008_r5787_r5853_tid01597980_00/"
+      "AOD.01597980._000420.pool.root.1";
+   chain2.Add( FNAME3.c_str() );
+   chain2.Add( FNAME4.c_str() );
 
    // Connect the TEvent object to it:
    RETURN_CHECK( APP_NAME, event.readFrom( &chain2 ) );

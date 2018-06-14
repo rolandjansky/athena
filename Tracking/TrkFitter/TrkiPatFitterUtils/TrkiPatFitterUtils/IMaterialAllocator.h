@@ -13,7 +13,6 @@
 #ifndef TRKIPATFITTERUTILS_IMATERIALALLOCATOR_H
 #define TRKIPATFITTERUTILS_IMATERIALALLOCATOR_H
 
-#include <list>
 #include <vector>
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
@@ -48,12 +47,12 @@ public:
     static const InterfaceID&	interfaceID() { return IID_IMaterialAllocator; }
     
     /**IMaterialAllocator interface: add leading material effects to fit measurements and parameters */
-    virtual void	addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
-					    ParticleHypothesis		particleHypothesis,
-					    FitParameters&		fitParameters) const = 0;
+    virtual void	addLeadingMaterial (std::vector<FitMeasurement*>& measurements,
+					    ParticleHypothesis		  particleHypothesis,
+					    FitParameters&		  fitParameters) const = 0;
     
     /**IMaterialAllocator interface: allocate material */
-    virtual void	allocateMaterial (std::list<FitMeasurement*>&	measurements,
+    virtual void	allocateMaterial (std::vector<FitMeasurement*>&	measurements,
 					  ParticleHypothesis		particleHypothesis,
 					  const FitParameters&		fitParameters,
 					  const TrackParameters&	startParameters) const = 0;
@@ -62,7 +61,7 @@ public:
     virtual void	clear (void) = 0;
 
     /**IMaterialAllocator interface: initialize scattering (needs to know X0 integral) */
-    virtual void	initializeScattering (std::list<FitMeasurement*>& measurements) const = 0;
+    virtual void	initializeScattering (std::vector<FitMeasurement*>& measurements) const = 0;
 
     /**IMaterialAllocator interface:
        material TSOS between spectrometer entrance surface and parameters given in spectrometer */
@@ -70,13 +69,13 @@ public:
 	const TrackParameters& spectrometerParameters) const = 0;
     
     /**IMaterialAllocator interface: clear temporary TSOS*/
-    virtual void	orderMeasurements (std::list<FitMeasurement*>&	measurements,
-					   Amg::Vector3D		startDirection,
-					   Amg::Vector3D		startPosition) const = 0;
+    virtual void	orderMeasurements (std::vector<FitMeasurement*>& measurements,
+					   Amg::Vector3D		 startDirection,
+					   Amg::Vector3D		 startPosition) const = 0;
     
     /**IMaterialAllocator interface: has material been reallocated? */   
-    virtual bool	reallocateMaterial (std::list<FitMeasurement*>&	measurements,
-					    const FitParameters&	fitParameters) const = 0;
+    virtual bool	reallocateMaterial (std::vector<FitMeasurement*>& measurements,
+					    const FitParameters&	  fitParameters) const = 0;
 
 };
  

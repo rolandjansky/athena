@@ -39,7 +39,7 @@ namespace MagField {
       @author Elmar.Ritsch -at- cern.ch
     */
 
-  class AtlasFieldSvc : public IMagFieldSvc, virtual public IIncidentListener, virtual public AthService {
+  class AtlasFieldSvc : public extends<AthService, IMagFieldSvc, IIncidentListener> {
     public:
      
       //** Constructor with parameters */
@@ -55,9 +55,6 @@ namespace MagField {
       /** Read **/
       void handle(const Incident& runIncident);
 
-      /** Query the interfaces **/
-      StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
-     
       /** Call back for possible magnet current update **/
       StatusCode updateCurrent(IOVSVC_CALLBACK_ARGS);
 

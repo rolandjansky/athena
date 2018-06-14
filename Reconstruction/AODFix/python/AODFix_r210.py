@@ -63,6 +63,11 @@ class AODFix_r210(AODFix_base):
                 self.btagging_postSystemRec(topSequence)
                 pass
 
+            from tauRec.tauRecFlags import tauAODFlags
+            if tauAODFlags.doTauIDAODFix():
+                if "tauidtest" not in oldMetadataList:
+                    self.tauidtest_postSystemRec(topSequence)
+                    pass
 
             # Reset all of the ElementLinks. To be safe.
             from AthenaCommon import CfgMgr
@@ -163,3 +168,43 @@ class AODFix_r210(AODFix_base):
     def phIso_postSystemRec (self, topSequence):
         from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter               
         isoAODFixGetter("Photons")        
+
+    from tauRec.tauRecFlags import tauAODFlags
+    if tauAODFlags.doTauIDAODFix():
+        def tauidtest_postSystemRec(self, topSequence):
+            """
+            This fix recalculates the RNN-based tau identification algorithm.
+            Currently it is disabled by default and has to be enabled via a
+            pre-exec by setting the 'doTauIDAODFix' flag.
+            """
+            from AthenaCommon.AppMgr import ToolSvc
+            from RecExConfig.AutoConfiguration import IsInInputFile
+            from JetRec.JetRecConf import JetAlgorithm
+            from JetRecTools.JetRecToolsConf import CaloClusterConstituentsOrigin
+            from JetRecTools.JetRecToolsConf import JetConstituentModSequence
+
+            # Rebuild LCOriginTopoClusters container if not present in input
+            if not IsInInputFile("xAOD::CaloClusterContainer",
+                                 "LCOriginTopoClusters"):
+                xAOD_Type_CaloCluster = 1
+                clusterOrigin = CaloClusterConstituentsOrigin(
+                    "CaloClusterConstitOrigin_tau_AODFix",
+                    InputType=xAOD_Type_CaloCluster)
+                ToolSvc += clusterOrigin
+
+                jetConstitModSeq = JetConstituentModSequence(
+                    "JetConstitModSeq_tau_AODFix",
+                    InputContainer="CaloCalTopoClusters",
+                    OutputContainer="LCOriginTopoClusters",
+                    InputType=xAOD_Type_CaloCluster,
+                    Modifiers=[clusterOrigin]
+                )
+                ToolSvc += jetConstitModSeq
+
+                # See also: ATLJETMET-958
+                jetAlg = JetAlgorithm("jetalgTCOriginLC", Tools=[jetConstitModSeq])
+                topSequence += jetAlg
+
+            # Calculate RNN-ID and set working points
+            from tauRec.TauRecAODBuilder import TauRecAODProcessor_RNN_ID
+            TauRecAODProcessor_RNN_ID()

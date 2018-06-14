@@ -178,7 +178,6 @@ StatusCode JetManager::retagOffline() {
   if ( m_jet_Containers->size() == 0 ) return StatusCode::SUCCESS;
 
 #if !defined( XAOD_STANDALONE ) && !defined( XAOD_ANALYSIS )
-
   xAOD::VertexContainer::iterator pv  = m_primaryVertex_Containers->begin();
   std::vector<std::unique_ptr<DataVector<xAOD::TrackParticle_v1> > >::iterator tp = m_trackParticle_Containers.begin();
   std::vector< std::unique_ptr< TrigBtagEmulationJet > >::iterator out = m_outputJets.begin();
@@ -293,7 +292,7 @@ StatusCode JetManager::retagOffline() {
     (*out)->weights( "MV2c20",mv2c20 );
 
     // Increment
-    pv++; tp++; out++; 
+    pv++; tp++; out++;
   }
 #endif
 
@@ -343,7 +342,6 @@ JetManager& JetManager::merge( std::unique_ptr< xAOD::JetContainer >& jets, doub
 // ********************************************** //
 
 StatusCode JetManager::retrieveJetContainer() {
-
   // In case we want LVL1 Jet we shoud use jet RoIs
   const xAOD::JetRoIContainer *theJetRoIContainer = nullptr;
   const xAOD::JetContainer *theJetContainer = nullptr;
@@ -374,8 +372,10 @@ StatusCode JetManager::retrieveJetContainer() {
 
     jetCopy( m_jetRoI_Containers );
   } else { 
-    // Check if the input chain fired 
-    if ( !m_trigDec->isPassed( m_chain ) ) return StatusCode::SUCCESS;
+    // Check if the input chain fired. Little protection against raw jets container : in this case we do not have to check the input chain
+    if ( std::get< EventElement::JET >( m_containers) != "HLT_xAOD__JetContainer_a4tcemsubjesISFS" && 
+	 std::get< EventElement::JET >( m_containers) != "HLT_xAOD__JetContainer_a4tcemsubjesFS" && 
+	 not m_trigDec->isPassed( m_chain ) ) return StatusCode::SUCCESS;
     const std::string ilContainer = std::get< EventElement::JET >( m_containers);
 
     // We are retrieving xAOD::Jet object

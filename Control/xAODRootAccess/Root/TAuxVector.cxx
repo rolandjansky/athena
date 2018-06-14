@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: TAuxVector.cxx 797214 2017-02-14 19:51:39Z ssnyder $
 
 // ROOT include(s):
 #include <TClass.h>

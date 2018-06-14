@@ -156,7 +156,8 @@ protected:
     * which allows us to easily access the SF decorations
     * @returns A shared pointer to the top::ScaleFactorRetriever object
     */
-    std::shared_ptr<top::ScaleFactorRetriever> scaleFactorRetriever();
+    //std::shared_ptr<top::ScaleFactorRetriever> scaleFactorRetriever();
+    top::ScaleFactorRetriever* scaleFactorRetriever();
 
     /*!
      * @brief Function to access the branch filters - cf ANALYSISTO-61
@@ -220,7 +221,8 @@ private:
     std::shared_ptr<top::TopConfig> m_config;
 
     ///Scale factors
-    std::shared_ptr<top::ScaleFactorRetriever> m_sfRetriever;
+    //std::shared_ptr<top::ScaleFactorRetriever> m_sfRetriever;
+    top::ScaleFactorRetriever* m_sfRetriever;
 
     ///The file where everything goes
     TFile* m_outputFile;
@@ -306,6 +308,14 @@ private:
     float m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN;
     float m_weight_leptonSF_MU_SF_TTVA_SYST_UP;
     float m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN;
+    // Additional global event calculated trigger SF + systematics
+    float m_weight_globalLeptonTriggerSF;
+    float m_weight_globalLeptonTriggerSF_EL_Trigger_UP;
+    float m_weight_globalLeptonTriggerSF_EL_Trigger_DOWN;
+    float m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP;
+    float m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN;
+    float m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP;
+    float m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN;
 
     ///-- individual components for lepton SF --///
     float m_weight_indiv_SF_EL_Trigger;
@@ -874,7 +884,15 @@ protected:
   const float& weight_leptonSF_MU_SF_TTVA_STAT_DOWN() const { return m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN;}
   const float& weight_leptonSF_MU_SF_TTVA_SYST_UP() const { return m_weight_leptonSF_MU_SF_TTVA_SYST_UP;}
   const float& weight_leptonSF_MU_SF_TTVA_SYST_DOWN() const { return m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN;}
-
+  // Special global lepton trigger SF + systematics
+  const float& weight_globalLeptonTriggerSF() const { return m_weight_globalLeptonTriggerSF; }
+  const float& weight_globalLeptonTriggerSF_EL_Trigger_UP() const { return m_weight_globalLeptonTriggerSF_EL_Trigger_UP; }
+  const float& weight_globalLeptonTriggerSF_EL_Trigger_DOWN() const { return m_weight_globalLeptonTriggerSF_EL_Trigger_DOWN; }
+  const float& weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP() const { return m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP; }
+  const float& weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN() const { return m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN; }
+  const float& weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP() const { return m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP; }
+  const float& weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN() const { return m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN; }
+  
   ///-- individual components for lepton SF --///
   const float& weight_indiv_SF_EL_Trigger() const { return m_weight_indiv_SF_EL_Trigger;}
   const float& weight_indiv_SF_EL_Trigger_UP() const { return m_weight_indiv_SF_EL_Trigger_UP;}

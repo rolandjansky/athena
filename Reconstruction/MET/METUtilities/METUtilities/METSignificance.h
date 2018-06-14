@@ -177,6 +177,8 @@ namespace met {
     std::map<int, double> m_term_CvLT;
 
     double m_met;
+    double m_metx;
+    double m_mety;
     double m_metphi;
     double m_metsoft;
     double m_metsoftphi;

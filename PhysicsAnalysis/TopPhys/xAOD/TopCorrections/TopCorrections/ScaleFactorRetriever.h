@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+#include "AsgTools/AsgTool.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODMuon/MuonContainer.h"
@@ -80,16 +81,19 @@ enum topSFSyst{nominal = 0,
 
 enum topSFComp{ALL = 0, TRIGGER, RECO, ID, ISOLATION, CHARGEID, CHARGEMISID, TTVA};
 
-
-class ScaleFactorRetriever final {
+class ScaleFactorRetriever final : public asg::AsgTool{
+  // Specify that we will overload print with top::Event later on
+  using asg::AsgTool::print;
  public:
-  explicit ScaleFactorRetriever(std::shared_ptr<top::TopConfig> config);
+  explicit ScaleFactorRetriever(const std::string& name);
   virtual ~ScaleFactorRetriever() {}
 
   // Delete Standard constructors
   ScaleFactorRetriever(const ScaleFactorRetriever& rhs) = delete;
   ScaleFactorRetriever(ScaleFactorRetriever&& rhs) = delete;
   ScaleFactorRetriever& operator=(const ScaleFactorRetriever& rhs) = delete;
+
+  StatusCode initialize();
 
   // Pile up SF
   static bool hasPileupSF(const top::Event& event);
@@ -100,6 +104,10 @@ class ScaleFactorRetriever final {
 
   // Obtain the trigger SF
   float triggerSF(const top::Event& event, const top::topSFSyst SFSyst) const;
+  
+  // Obtain trigger SF via global tool
+  float globalTriggerSF(const top::Event& event, const top::topSFSyst SFSyst) const;
+
 
   // Obtain the electron SF
   float electronSF(const top::Event& event,

@@ -102,8 +102,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 		      "Variables to be varied with JES uncertainties. Options:D2Beta1,Tau21WTA,Tau32WTA,Split12,Split23,Qw ( default Split23,Tau32WTA)",
 		      "Split23,Tau32WTA");
     registerParameter("LargeRJESJMSConfig",
-		      "Calibration for large-R JES/JMS. CombinedMass or CaloMass (default CombinedMass).",
-                      "CombinedMass");
+		      "Calibration for large-R JES/JMS. CombMass or CaloMass (default CombMass).",
+                      "CombMass");
     registerParameter("LargeRToptaggingConfigFile",
                       "Configuration file for top tagging (default or NFC). default=d23,tau32 (recommended) NFC=m,tau32"
                       "(alternative not optimized on large-R jet containing a truth top)",
@@ -210,7 +210,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("ApplyTightSFsInLooseTree","Special: in Loose trees, calculate lepton SFs with tight leptons only, and considering they are tight: True or False (default)", "False");
 
     registerParameter("ApplyElectronInJetSubtraction","Subtract electrons close to jets for boosted analysis : True or False(top default)", "False");
-    registerParameter("TopPartonHistory","ttbar, tb, Wtb, False (default)", "False");
+    registerParameter("TopPartonHistory","ttbar, tb, Wtb, ttz, False (default)", "False");
 
     registerParameter("TopParticleLevel", "Perform particle level selection? True or False", "False");
     registerParameter("DoParticleLevelOverlapRemoval",
@@ -335,6 +335,11 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 
     registerParameter("UseEventLevelJetCleaningTool", "Switch to turn on event-level jet cleaning tool (for testing), True or False (default False)", "False");
 
+    registerParameter("UseGlobalLeptonTriggerSF", "Switch to activate event-level trigger scale factors allowing multiple OR of single-, di-, tri- lepton triggers, True or False (default False)", "False");
+    registerParameter("ElectronTriggers",         "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)", "None");
+    registerParameter("ElectronTriggersLoose",    "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)", "None");
+    registerParameter("MuonTriggers",             "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)", "None");
+    registerParameter("MuonTriggersLoose",        "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)","None");
 }
 
 ConfigurationSettings* ConfigurationSettings::get() {

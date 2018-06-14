@@ -290,8 +290,6 @@ SeqSUSY1 += CfgMgr.DerivationFramework__DerivationKernel(
 #re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY1)
 
-FlavorTagInit(JetCollections = ["AntiKtVR30Rmax4Rmin02TrackJets"], Sequencer = SeqSUSY1)
-
 #==============================================================================
 OutputJets["SUSY1"] = []
 

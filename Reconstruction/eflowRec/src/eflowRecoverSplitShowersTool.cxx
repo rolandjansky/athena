@@ -157,10 +157,10 @@ void eflowRecoverSplitShowersTool::getTracksToRecover() {
     /* Skip isolated tracks if flag set */
     if (!m_recoverIsolatedTracks && thisEflowCaloObject->nClusters() == 0) {
       unsigned int nTrk = thisEflowCaloObject->nTracks();
-      /* But make sure we get eflowObjects from them
-       * TODO: replace this mechanism by something better */
+      // But make sure we get eflowObjects from them
       for (unsigned int iTrk = 0; iTrk < nTrk; ++iTrk) {
-        thisEflowCaloObject->efRecTrack(iTrk)->setSubtracted();
+	eflowRecTrack* thisEfRecTrack = thisEflowCaloObject->efRecTrack(iTrk);
+	if (!thisEfRecTrack->isSubtracted()) thisEfRecTrack->setSubtracted();
       }
       continue;
     }

@@ -37,7 +37,7 @@ namespace xAOD {
     std::vector<int>    side;
     std::vector<int>    methodID;
 
-    std::vector<std::vector<AFPProton_v1::AFPTrackLink_t>> tracks;
+    std::vector<std::vector<AFPProton_v1::AFPTrackLink_t> > afpTrackLinks;
   }; // class AFPProtonAuxContainer_v1
     
 } // namespace xAOD

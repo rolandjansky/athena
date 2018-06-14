@@ -21,7 +21,7 @@ namespace CP
   PileupReweightingAlg (const std::string& name, 
                         ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)
-    , m_pileupReweightingTool ("PileupReweightingTool", this)
+    , m_pileupReweightingTool ("CP::PileupReweightingTool", this)
   {
     declareProperty ("pileupReweightingTool", m_pileupReweightingTool, "the pileup reweighting tool we apply");
   }
