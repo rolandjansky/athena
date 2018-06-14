@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_FatrasToolsID/HitCreatorSilicon.h"
+#include "HitCreatorSilicon.h"
 
 // ISF
 #include "ISF_Event/ISFParticle.h"
