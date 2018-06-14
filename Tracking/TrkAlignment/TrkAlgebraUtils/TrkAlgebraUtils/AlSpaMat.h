@@ -50,7 +50,7 @@ class AlSpaMat : public AlSymMatBase {
     virtual  AlSpaMat&  operator*=(const double&);
 
   // ADVANCED:
-    int ***REMOVED***Solve(AlVec& RHS);
+    int SolveWithEigen(AlVec& RHS);
     virtual  void RemoveModule( int);
     virtual  void RemoveAlignPar(int, int);
     virtual  void RemoveDoF( int, int nelem=1);

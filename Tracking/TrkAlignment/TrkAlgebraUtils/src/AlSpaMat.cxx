@@ -22,23 +22,9 @@
 
 #include <TMatrixDSparse.h>
 
-extern"C" {
-  void ma27id_(int ICNTL[],double CNTL[]);
 
-  void ma27ad_(int *N,int *NZ,int IRN[],int ICN[],
-               int IW[],int *LIW,int IKEEP[],int IW1p[],
-               int *NSTEPS,int *IFLAG,int ICNTL[],double CNTL[],
-               int INFO[],double *OPS);
-
-  void ma27bd_(int *N,int *NZ,int IRN[],int ICN[],
-               double A[],int *LA,int IW[],int *LIW,int IKEEP[],
-               int *NSTEPS,int *MAXFRT, int IW1[],int ICNTL[],
-               double CNTL[], int INFO[]);
-
-  void ma27cd_(int *N, double A[],int *LA,int IW[],int *LIW,
-               double W[],int *MAXFRT,double RHS[],int IW1[],int *NSTEPS,
-               int ICNTL[], int INFO[]);
-}
+#include <Eigen/Core>
+#include <Eigen/IterativeLinearSolvers>
 
 namespace Trk {
 
@@ -445,95 +431,83 @@ double AlSpaMat::determinant()
   return deter;
 }
 
-//______________________________________________________________________________
-int AlSpaMat::***REMOVED***Solve(AlVec& RHS)
-{
-  int ICNTL[30];
-  double CNTL[5];
-  ma27id_(ICNTL,CNTL);
+int AlSpaMat::SolveWithEigen(AlVec& RHS){
+ 
+  if(RHS.size() != size() ){
+    std::cerr << "AlSpaMat::SolveWithEigen vector size is incorrect" <<  std::endl;
+    return 10;
+  }
+  
+  Eigen::VectorXd eigenBigVector( RHS.size() );
+  for(int i(0); i< RHS.size(); ++i ){
+    eigenBigVector[i] = RHS[i];
+  }
 
-  double* ptr_data = new double[m_nele];
-  m_ptr_row = new int[m_nele];
-  m_ptr_col = new int[m_nele];
-
-  int Size(m_size);
-  int Nele(m_nele);
-
-  //Convert Storage System
-
+  Eigen::SparseMatrix<double> eigenBigMatrix( m_size, m_size );
+  
+  typedef Eigen::Triplet<double> Triplet;
+  std::vector<Triplet> tripletList;
+  tripletList.reserve(m_nele);
   long int      i, j;
   long int counter(0);
   mapiterator pos;
   for (pos = m_ptr_map.begin(); pos!=m_ptr_map.end(); pos++){
     elem(pos->first, i, j);
-    *(ptr_data+counter)=pos->second;
-    *(m_ptr_row+counter)= i+1;
-    *(m_ptr_col+counter)= j+1;
+    tripletList.push_back(Triplet(i,j,pos->second));
+    if(i!=j) tripletList.push_back(Triplet(j,i,pos->second));
     counter++;
   }
+  eigenBigMatrix.setFromTriplets(tripletList.begin(), tripletList.end());
+  std::cout << "AlSpaMat::SolveWithEigen: Matrix and vector created now solving" << std::endl;
 
-  int LIW =3/2*(2*Nele+3*Size+1);
-  int* IW = new int[LIW];
-  int* IKEEP = new int[3*Size];
-  int* IW1 = new int[2*Size];
-  int NSTEPS;
-  int IFLAG = 0;
-  int INFO[20];
-  double OPS;
+  // Eigen::CholmodSupernodalLLT  is much much quicker (x50) so it would be great to move to that in the future
+  // requires an external package SuiteSparse
+  // BiCGSTAB was the fastest iterative solver in Eigen from a quick test
+  // SimplicialLDLT was the fastest direct solver in Eigen (x2 slower than BiCGSTAB ) 
 
-  ma27ad_(&Size, &Nele,m_ptr_row,m_ptr_col,
-          IW,&LIW,IKEEP,IW1,
-          &NSTEPS,&IFLAG,ICNTL,CNTL,
-          INFO,&OPS);
+  Eigen::BiCGSTAB<Eigen::SparseMatrix<double> > solver;
 
-  int MAXFRT;
-  int LA =2*INFO[4];
+  solver.compute(eigenBigMatrix);
+  if(solver.info()!=Eigen::Success) {
+    // decomposition failed
+    std::cout << "AlSpaMat::SolveWithEigen: failed to compute: -- is your matrix singular?" <<  std::endl;
+    return 1;
+  } else {
+    std::cout << "AlSpaMat::SolveWithEigen: Finished compute now solving" <<  std::endl;
+  }
+  Eigen::VectorXd x = solver.solve( eigenBigVector );
+  if(solver.info()!=Eigen::Success) {
+  // solving failed
+    std::cout << "AlSpaMat::SolveWithEigen: Failed to solve: -- is your matrix singular? " <<  std::endl;
+    return 2;
+  }else {
+    std::cout << "AlSpaMat::SolveWithEigen: Finished solving" <<  std::endl;
+  }
+  
+  //Copy results into vector
+  for(int i(0); i< RHS.size(); ++i ){
+    RHS[i] = x[i];
+  }
 
-  double* TempA = new double[Nele];
-  for (int i=0; i<Nele ;i++)
-    *(TempA+i) = *(ptr_data+i);
+  //Check accuracy
+  Eigen::VectorXd residual = eigenBigMatrix * x - eigenBigVector;
+  double sumresidual = 0;
+  for( int i=0; i<residual.size(); ++i){
+    sumresidual += fabs(residual[i]);
+  }
+  
+  std::cout << "AlSpaMat::SolveWithEigen: residual of solution is " <<  sumresidual << std::endl;
+  if( sumresidual > 1e-10 ){
+    std::cout << "AlSpaMat::SolveWithEigen: WARNING your solution is not very good!" << std::endl;
+    return 3;
+  }
 
-  delete [] ptr_data;
-  ptr_data = new double[LA];
+  return 0;
 
-  for (int i=0; i<LA ;i++)
-    *(ptr_data+i)=0;
 
-  for (int i=0; i<Nele ;i++)
-    *(ptr_data+i)= *(TempA+i);
-
-  delete [] TempA;
-
-  ma27bd_(&Size,&Nele,m_ptr_row,m_ptr_col,
-          ptr_data,&LA,IW,&LIW,IKEEP,
-          &NSTEPS,&MAXFRT,IW1,ICNTL,
-          CNTL,INFO);
-
-  double* W =new double[MAXFRT];
-
-  double* RHStemp =new double[Size];
-  for (int i=0; i<Size; i++)
-    RHStemp[i] = RHS[i];
-
-  ma27cd_(&Size, ptr_data,&LA,IW,&LIW,
-          W,&MAXFRT,RHStemp,IW1,&NSTEPS,
-          ICNTL,INFO);
-
-  for (int i=0; i<Size; i++)
-    RHS[i] = RHStemp[i];
-
-  delete [] RHStemp;
-  delete [] IW;
-  delete [] IKEEP;
-  delete [] IW1;
-  delete [] W;
-
-  delete [] ptr_data;  ptr_data=NULL;
-  delete [] m_ptr_row;   m_ptr_row=NULL;
-  delete [] m_ptr_col;   m_ptr_col=NULL;
-
-  return INFO[0];
 }
+
+
 
 //______________________________________________________________________________
 //jlove int AlSpaMat::diagonalize(char jobz, AlVec& w, AlMat& z) {

@@ -224,7 +224,6 @@ void AlVec::reSize(int Nnew) {
     m_ptr_data = new double[Nnew];
     m_size = Nnew;
     int k = m_size <= size_old ? m_size : size_old;
-
     p += k;
     double*  q = m_ptr_data + k;
     while (q > m_ptr_data) *(--q) = *(--p);
