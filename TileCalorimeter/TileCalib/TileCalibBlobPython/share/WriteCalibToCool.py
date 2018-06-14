@@ -230,11 +230,11 @@ else:
 if len(txtFile)>0:
     #=== create default: one number per ADC
     default = cppyy.gbl.std.vector('float')()
-    for n in xrange(nval):
+    for n in xrange(nval if nval>0 else mval):
         default.push_back(0.)
 
     defConst = cppyy.gbl.std.vector('std::vector<float>')()
-    for ng in xrange(ngain):
+    for ng in xrange(ngain if ngain>0 else mgain):
         defConst.push_back(default) # low/high gain
 
     blobParser = TileCalibTools.TileASCIIParser2(txtFile,prefix,readGain);

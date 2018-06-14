@@ -33,7 +33,7 @@ void init_geo()
  cout<<"init geometry done"<<endl;
  cout << "running run_geo.C" << endl;
  
- gROOT->ProcessLine(".x run_geo.C");
+
  
  
  

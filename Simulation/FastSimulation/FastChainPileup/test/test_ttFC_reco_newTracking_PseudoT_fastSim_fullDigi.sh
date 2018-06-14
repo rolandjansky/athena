@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+B41;326;0c#!/usr/bin/env bash
 # art-description: test for job configuration ttFC_fastSim_fulldigi then ttFC_reco_newTracking_PseudoT_fastSim_fullDigi
 # art-type: grid
 #
@@ -18,7 +18,7 @@ FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-0
 echo "art-result: $? AOD step"
 ArtPackage=$1
 ArtJobName=$2
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} 
+art.py compare grid --entries 10 --imf=False ${ArtPackage} ${ArtJobName}
 echo  "art-result: $? regression"
 
 #add an additional payload from the job (corollary file).                                                           

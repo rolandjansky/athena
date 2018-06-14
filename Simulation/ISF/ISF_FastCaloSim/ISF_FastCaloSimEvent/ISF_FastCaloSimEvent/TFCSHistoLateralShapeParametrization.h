@@ -15,6 +15,15 @@ public:
   TFCSHistoLateralShapeParametrization(const char* name=nullptr, const char* title=nullptr);
   ~TFCSHistoLateralShapeParametrization();
 
+  ///Status bit for FCS needs
+  enum FCSStatusBits {
+     k_phi_symmetric = BIT(15) ///< Set this bit to simulate phi symmetric histograms
+  };
+
+  bool is_phi_symmetric() const {return TestBit(k_phi_symmetric);};
+  virtual void set_phi_symmetric() {SetBit(k_phi_symmetric);};
+  virtual void reset_phi_symmetric() {ResetBit(k_phi_symmetric);};
+
   /// set the integral of the histogram to the desired number of hits
   void set_number_of_hits(float nhits);
 

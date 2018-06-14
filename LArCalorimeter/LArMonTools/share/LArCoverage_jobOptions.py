@@ -21,10 +21,11 @@ ToolSvc+=theLArBadChannelTool
 ToolSvc.LArCoverage.LArBadChannelTool=theLArBadChannelTool
 
 # KnownMNBFEBsTool configuration
-theMNBFebTool=LArBadChanTool("KnownMNBFEBsTool")
-theMNBFebTool.CoolMissingFEBsFolder="/LAR/BadChannels/KnownMNBFEBs"
-ToolSvc+=theMNBFebTool
-ToolSvc.LArCoverage.LArKnownMNBFEBsTool=theMNBFebTool
+if 'COMP200' not in conddb.GetInstance():
+    theMNBFebTool=LArBadChanTool("KnownMNBFEBsTool")
+    theMNBFebTool.CoolMissingFEBsFolder="/LAR/BadChannels/KnownMNBFEBs"
+    ToolSvc+=theMNBFebTool
+    ToolSvc.LArCoverage.LArKnownMNBFEBsTool=theMNBFebTool
 
 
 # CaloNoiseTool configuration
