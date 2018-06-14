@@ -944,7 +944,7 @@ def main(infile, weightsFile, treename, attr_mcID, attr_nTruthJets):
                (363364 <= MCID <= 363411) or
                (364114 <= MCID <= 364127) or
                (364100 <= MCID <= 364113) or
-               (364128 <= MCID <= 364140)
+               (364128 <= MCID <= 364141)
             ):
             decayType = "dilepton"
 
