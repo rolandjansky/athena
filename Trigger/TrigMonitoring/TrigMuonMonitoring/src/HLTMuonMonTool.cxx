@@ -1059,6 +1059,7 @@ const HLT::TriggerElement* HLTMuonMonTool :: getDirectSuccessorHypoTEForL2(const
     msg() << MSG::DEBUG << "[" << chainname <<"] ::TE2: " << te2->getId() << " " <<  Trig::getTEName(*te2) << endreq;
     if(Trig::getTEName(*te2)==hyponame){
       msg() << MSG::DEBUG << "[" << chainname<< "] selected HypoTE: " << te2->getId() << " " <<  Trig::getTEName(*te2) <<  " isPassed=" << te2->getActiveState() << endreq;
+      hypote = te2;
     }
   }
 
