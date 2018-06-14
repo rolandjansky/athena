@@ -1172,7 +1172,7 @@ class ItemDef:
         #new naming convention ATR-15881 AFP_C = AFP_NSC && AFP_FSC_SIT,  AFP_C_SPECTOF = AFP_FSC_TOF
         if not '_v6' in TriggerFlags.triggerMenuSetup():
             AFP_A = (AFP_NSA & AFP_FSA_SIT)     # noqa: F821
-            AFP_C = (AFP_NSC & AFP_FSC_SIT)     # noqa: F821
+            AFP_C = (AFP_NSC | AFP_FSC_SIT)     # noqa: F821
             AFP_A_AND_C_SPECTOF = (AFP_FSA_TOF & AFP_FSC_TOF)     # noqa: F821
 
             LVL1MenuItem('L1_AFP_A_BGRP0').setLogic( AFP_A & BGRP0)                 # noqa: F821
