@@ -1,5 +1,5 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
-#include "ISF_FatrasToolsMS/SimHitCreatorMS.h"
+#include "../SimHitCreatorMS.h"
 
 DECLARE_NAMESPACE_TOOL_FACTORY( iFatras, SimHitCreatorMS )
 
