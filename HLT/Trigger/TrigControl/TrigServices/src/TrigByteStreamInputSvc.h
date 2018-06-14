@@ -12,6 +12,9 @@
 
 #include <mutex>
 
+// Forward declarations
+class StoreGateSvc;
+
 /** @class ByteStreamEventStorageInputSvc
  *  @brief A ByteStreamInputSvc implementation for online use, reading events from hltinterface::DataCollector
  *
@@ -35,10 +38,12 @@ public:
   virtual const RawEvent* nextEvent() override;
   virtual const RawEvent* previousEvent() override;
   virtual const RawEvent* currentEvent() const override;
+  virtual StatusCode generateDataHeader() override;
 
 private:
   // ------------------------- service handles ---- ----------------------------
   ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc;
+  ServiceHandle<StoreGateSvc> m_evtStore;
   
   // ------------------------- private data members ----------------------------
   std::mutex m_readerMutex;

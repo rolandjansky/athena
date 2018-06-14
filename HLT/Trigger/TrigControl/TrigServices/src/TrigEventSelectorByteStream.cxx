@@ -6,6 +6,8 @@
 
 #include "ByteStreamData/RawEvent.h"
 #include "ByteStreamCnvSvc/ByteStreamInputSvc.h"
+#include "EventInfo/EventInfo.h"
+#include "StoreGate/StoreGateSvc.h"
 #include "TrigKernel/HltExceptions.h"
 
 #include "hltinterface/DataCollector.h"
@@ -15,7 +17,8 @@
 // =============================================================================
 TrigEventSelectorByteStream::TrigEventSelectorByteStream(const std::string& name, ISvcLocator* svcLoc)
 : Service(name, svcLoc),
-	m_eventSource("ByteStreamInputSvc", name) {
+  m_eventSource("ByteStreamInputSvc", name),
+  m_evtStore("StoreGateSvc", name) {
   declareProperty("ByteStreamInputSvc", m_eventSource);
 }
 
@@ -46,6 +49,7 @@ StatusCode TrigEventSelectorByteStream::queryInterface(const InterfaceID& riid, 
 // =============================================================================
 StatusCode TrigEventSelectorByteStream::initialize()
 {
+  verbose() << "start of " << __FUNCTION__ << endmsg;
   StatusCode sc = StatusCode::SUCCESS;
 
   sc = m_eventSource.retrieve();
@@ -54,6 +58,13 @@ StatusCode TrigEventSelectorByteStream::initialize()
     return sc;
   }
 
+  sc = m_evtStore.retrieve();
+  if (sc.isFailure()) {
+    error() << "Failed to retrieve the event store service" << endmsg;
+    return sc;
+  }
+
+  verbose() << "end of " << __FUNCTION__ << endmsg;
   return sc;
 }
 
@@ -62,9 +73,11 @@ StatusCode TrigEventSelectorByteStream::initialize()
 // =============================================================================
 StatusCode TrigEventSelectorByteStream::finalize()
 {
+  verbose() << "start of " << __FUNCTION__ << endmsg;
   if (m_eventSource.release().isFailure()) {
     warning() << "Cannot release the event source service" << endmsg;
   }
+  verbose() << "end of " << __FUNCTION__ << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -98,6 +111,12 @@ StatusCode TrigEventSelectorByteStream::next(IEvtSelector::Context& /*c*/) const
     return StatusCode::FAILURE;
   }
 
+  // In online implementation, this creates an EventInfo address for use in event processing
+  if (m_eventSource->generateDataHeader().isFailure()) {
+    error() << "Failed to record ByteStream DataHeader / EventInfo in StoreGate" << endmsg;
+    return StatusCode::FAILURE;
+  }
+
   verbose() << "end of " << __FUNCTION__ << endmsg;
   return StatusCode::SUCCESS;
 }
@@ -118,6 +137,25 @@ StatusCode TrigEventSelectorByteStream::releaseContext(IEvtSelector::Context*& /
 {
   // this does nothing
   return StatusCode::SUCCESS;
+}
+
+// =============================================================================
+// Implementation of IEvtSelector::createAddress(Context&,IOpaqueAddress*&)
+// Unlike offline, we do not provide a DataHeader proxy here, but an EventInfo proxy
+// =============================================================================
+StatusCode TrigEventSelectorByteStream::createAddress(const IEvtSelector::Context& c, IOpaqueAddress*& iop) const
+{
+  verbose() << "start of " << __FUNCTION__ << endmsg;
+  SG::DataProxy* proxy = m_evtStore->proxy(ClassID_traits<EventInfo>::ID(),"ByteStreamEventInfo");
+  if (proxy !=0) {
+    iop = proxy->address();
+    verbose() << "end of " << __FUNCTION__ << endmsg;
+    return StatusCode::SUCCESS;
+  } else {
+    iop = 0;
+    verbose() << "end of " << __FUNCTION__ << endmsg;
+    return StatusCode::FAILURE;
+  }
 }
 
 // =============================================================================
@@ -148,11 +186,6 @@ StatusCode TrigEventSelectorByteStream::last(IEvtSelector::Context& refContext) 
 }
 
 StatusCode TrigEventSelectorByteStream::rewind(IEvtSelector::Context& c) const
-{
-  TRIGEVENTSELECTORBYTESTREAM_UNIMPL
-}
-
-StatusCode TrigEventSelectorByteStream::createAddress(const IEvtSelector::Context& c, IOpaqueAddress*& iop) const
 {
   TRIGEVENTSELECTORBYTESTREAM_UNIMPL
 }

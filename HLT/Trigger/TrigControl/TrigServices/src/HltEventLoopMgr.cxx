@@ -33,7 +33,6 @@
 
 // TDAQ includes
 #include "hltinterface/DataCollector.h"
-#include "eformat/write/FullEventFragment.h"
 
 #include "owl/time.h"
 
@@ -485,17 +484,19 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       // Create new EventContext
       //-----------------------------------------------------------------------
       ++m_nevt;
-      EventContext* evtContext(nullptr);
+      EventContext* evtContext = nullptr;
       if (createEventContext(evtContext).isFailure()){
         error() << "Failed to create event context" << endmsg;
-        // needs careful handling, make a framework error, send event to debug
+        // what do we do now? we haven't requested the next event from DataCollector yet,
+        // we have a failure while not processing an event
         continue;
       }
 
       // do we need this duplication? it's selected already in createEventContext
       if (m_whiteboard->selectStore(evtContext->slot()).isFailure()){
         error() << "Slot " << evtContext->slot() << " could not be selected for the WhiteBoard" << endmsg;
-        // needs careful handling, make a framework error, send event to debug
+        // what do we do now? we haven't requested the next event from DataCollector yet,
+        // we have a failure while not processing an event
         continue;
       }
 
@@ -513,62 +514,80 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       catch (hltonl::Exception::NoMoreEvents e) {
         sc = StatusCode::SUCCESS;
         events_available = false;
-        // does NoMoreEvents mean we got the last event or are we one after the last already?
+        sc = clearWBSlot(evtContext->slot());
+        if (sc.isFailure()) {
+          warning() << "Failed to clear the whiteboard slot " << evtContext->slot()
+                    << " after NoMoreEvents detected" << endmsg;
+          // do we need to do anything here?
+        }
+        continue;
       }
       catch (...) {
         sc = StatusCode::FAILURE;
       }
       if (sc.isFailure()) {
-        // missing error handling here
-        sc = clearWBSlot(evtContext->slot());
+        error() << "Failed to get the next event" << endmsg;
+        // we called getNext and some failure happened, but we don't know the event number
+        // should we return anything to the DataCollector?
+        failedEvent(evtContext,nullptr);
+        continue;
+      }
+
+      IOpaqueAddress* addr = nullptr;
+      if (m_evtSelector->createAddress(*m_evtSelContext, addr).isFailure()) {
+        error() << "Could not create an IOpaqueAddress" << endmsg;
+        // we cannot get the EventInfo, so we don't know the event number
+        // should we return anything to the DataCollector?
+        failedEvent(evtContext,nullptr);
+        continue;
+      }
+
+      if (addr != nullptr) {
+        sc = m_evtStore->recordAddress(addr);
         if (sc.isFailure()) {
-          // what now?
+          warning() << "Failed to record IOpaqueAddress in the event store" << endmsg;
+          /*
+          // we cannot get the EventInfo, so we don't know the event number
+          // should we return anything to the DataCollector?
+          failedEvent(evtContext,nullptr);
+          */
         }
-        continue;
+        sc = m_evtStore->loadEventProxies();
+        if (sc.isFailure()) {
+          error() << "Failed to load event proxies" << endmsg;
+          // we cannot get the EventInfo, so we don't know the event number
+          // should we return anything to the DataCollector?
+          failedEvent(evtContext,nullptr);
+        }
       }
 
-      EventID* eventID = new EventID(m_currentRun, // l1r.run_no(),
-                                     l1r.global_id(),
-                                     l1r.bc_time_seconds(),
-                                     l1r.bc_time_nanoseconds(),
-                                     l1r.lumi_block(),
-                                     l1r.bc_id(),
-                                     std::get<0>(m_detector_mask),
-                                     std::get<1>(m_detector_mask),
-                                     std::get<2>(m_detector_mask),
-                                     std::get<3>(m_detector_mask));
-      TriggerInfo* triggerInfo = new TriggerInfo(0, // FIXME
-                                                 l1r.lvl1_id(),
-                                                 l1r.lvl1_trigger_type(),
-                                                 std::vector<uint32_t>(
-                                                   l1r.lvl1_trigger_info(),
-                                                   l1r.lvl1_trigger_info()+l1r.nlvl1_trigger_info())
-                                                );
-      EventInfo* eventInfo = new EventInfo(eventID, new EventType(), triggerInfo);
+      const EventInfo* eventInfo = nullptr;
+      sc = m_evtStore->retrieve(eventInfo);
+      if (sc.isFailure()) {
+        error() << "Failed to retrieve event info" << endmsg;
+        // we cannot get the EventInfo, so we don't know the event number
+        // should we return anything to the DataCollector?
+        failedEvent(evtContext,eventInfo);
+      }
 
-      debug() << "recording EventInfo " << *eventID << " in " << m_evtStore->name() << endmsg;
+      debug() << "Retrieved event info for the new event " << *(eventInfo->event_ID()) << endmsg;
       
-      if(m_evtStore->record(eventInfo, "EventInfo").isFailure()) {
-        error() << "Error recording EventInfo object in SG" << endmsg;
-        // needs careful handling, make a framework error, send event to debug
-        continue;
-      }
-
-      evtContext->setEventID( *static_cast<EventIDBase*>(eventID) );
+      evtContext->setEventID( *static_cast<EventIDBase*>(eventInfo->event_ID()) );
       evtContext->template getExtension<Atlas::ExtendedEventContext>()->setConditionsRun(m_currentRun);
+
       // not sure if needed again
       Gaudi::Hive::setCurrentContext(*evtContext);
 
       // Record EventContext in current whiteboard
       if (m_evtStore->record(std::make_unique<EventContext> (*evtContext), "EventContext").isFailure()) {
         error() << "Error recording event context object" << endmsg;
-        // needs careful handling, make a framework error, send event to debug
+        failedEvent(evtContext,eventInfo);
         continue;
       }
 
       if (executeEvent(evtContext).isFailure()) {
         error() << "Error processing event" << endmsg;
-        // needs careful handling, make a framework error, send event to debug
+        failedEvent(evtContext,eventInfo);
         continue;
       }
 
@@ -912,30 +931,11 @@ int HltEventLoopMgr::drainScheduler() const
     // m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndEvent,
     // 					 *thisFinishedEvtContext ));
 
-    // create a dummy HLT result and call eventDone
-
-    debug() << "Creating a dummy HLT Result" << endmsg;
-    eformat::write::FullEventFragment hltrFragment;
-    hltrFragment.global_id(pEvent->event_ID()->event_number());
-    hltrFragment.bc_time_seconds(pEvent->event_ID()->time_stamp());
-    hltrFragment.bc_time_nanoseconds(pEvent->event_ID()->time_stamp_ns_offset());
-    hltrFragment.run_no(pEvent->event_ID()->run_number());
-    hltrFragment.bc_id(pEvent->event_ID()->bunch_crossing_id());
-    hltrFragment.lvl1_id(pEvent->trigger_info()->extendedLevel1ID());
-    hltrFragment.lvl1_trigger_type(pEvent->trigger_info()->level1TriggerType());
-    hltrFragment.lvl1_trigger_info(pEvent->trigger_info()->level1TriggerInfo().size(),
-                                   pEvent->trigger_info()->level1TriggerInfo().data());
-
-    const eformat::write::node_t* top = hltrFragment.bind();
-    auto hltrFragmentSize = hltrFragment.size_word();
-    auto hltrPtr = std::make_unique<uint32_t[]>(hltrFragmentSize);
-    auto copiedSize = eformat::write::copy(*top,hltrPtr.get(),hltrFragmentSize);
-    if(copiedSize!=hltrFragmentSize){
-      error() << "Event serialization failed" << endmsg;
-      // missing error handling
-    }
-    debug() << "Sending the HLT result to DataCollector" << endmsg;
-    hltinterface::DataCollector::instance()->eventDone(std::move(hltrPtr));
+    // create HLT result FullEventFragment
+    eformat::write::FullEventFragment* hltrFragment = HltResult(pEvent);
+    // serialize and send the result
+    eventDone(hltrFragment);
+    // should we delete hltrFragment now?
 
     debug() << "Clearing slot " << thisFinishedEvtContext->slot() 
             << " (event " << thisFinishedEvtContext->evt()
@@ -994,10 +994,88 @@ int HltEventLoopMgr::drainScheduler() const
 }
 
 // ==============================================================================
-StatusCode HltEventLoopMgr::clearWBSlot(int evtSlot) const {
+StatusCode HltEventLoopMgr::clearWBSlot(int evtSlot) const
+{
+  verbose() << "start of " << __FUNCTION__ << endmsg;
   StatusCode sc = m_whiteboard->clearStore(evtSlot);
   if( !sc.isSuccess() )  {
     warning() << "Clear of Event data store failed" << endmsg;    
   }
+  verbose() << "end of " << __FUNCTION__ << ", returning m_whiteboard->freeStore(evtSlot=" << evtSlot << ")" << endmsg;
   return m_whiteboard->freeStore(evtSlot);
+}
+
+// ==============================================================================
+void HltEventLoopMgr::failedEvent(EventContext* eventContext, const EventInfo* eventInfo) const
+{
+  verbose() << "start of " << __FUNCTION__ << endmsg;
+
+  if (eventContext && !eventInfo) {
+    // try to retrieve the event info from event store
+    if (m_whiteboard->selectStore(eventContext->slot()).isSuccess()) {
+      if (m_evtStore->retrieve(eventInfo).isFailure()) {
+        debug() << "Failed to retrieve event info" << endmsg;
+      }
+    }
+    else {
+      debug() << "Failed to select whiteboard store for slot " << eventContext->slot() << endmsg;
+    }
+  }
+
+  if (!eventInfo) {
+    warning() << "Failure occurred while we don't have an EventInfo, so don't know which event was being processed."
+              << " No result will be produced for this event." << endmsg;
+    return;
+  }
+
+  if (eventContext && clearWBSlot(eventContext->slot()).isFailure()) {
+    warning() << "Failed to clear the whiteboard slot " << eventContext->slot() << endmsg;
+  }
+
+  // need to create and return a result with debug stream flags
+  // for now, only creating a dummy result
+  eformat::write::FullEventFragment* hltrFragment = HltResult(eventInfo);
+
+  // serialize and send the result
+  eventDone(hltrFragment);
+  // should we delete hltrFragment now?
+
+  verbose() << "end of " << __FUNCTION__ << endmsg;
+}
+
+// ==============================================================================
+eformat::write::FullEventFragment* HltEventLoopMgr::HltResult(const EventInfo* eventInfo) const
+{
+  verbose() << "start of " << __FUNCTION__ << endmsg;
+  debug() << "Creating an HLT result for event " << *(eventInfo->event_ID()) << endmsg;
+  eformat::write::FullEventFragment* hltrFragment = new eformat::write::FullEventFragment;
+  hltrFragment->global_id(eventInfo->event_ID()->event_number());
+  hltrFragment->bc_time_seconds(eventInfo->event_ID()->time_stamp());
+  hltrFragment->bc_time_nanoseconds(eventInfo->event_ID()->time_stamp_ns_offset());
+  hltrFragment->run_no(eventInfo->event_ID()->run_number());
+  hltrFragment->bc_id(eventInfo->event_ID()->bunch_crossing_id());
+  hltrFragment->lvl1_id(eventInfo->trigger_info()->extendedLevel1ID());
+  hltrFragment->lvl1_trigger_type(eventInfo->trigger_info()->level1TriggerType());
+  hltrFragment->lvl1_trigger_info(eventInfo->trigger_info()->level1TriggerInfo().size(),
+                                  eventInfo->trigger_info()->level1TriggerInfo().data());
+
+  verbose() << "end of " << __FUNCTION__ << endmsg;
+  return hltrFragment;
+}
+
+// ==============================================================================
+void HltEventLoopMgr::eventDone(eformat::write::FullEventFragment* hltrFragment) const
+{
+  verbose() << "start of " << __FUNCTION__ << endmsg;
+  const eformat::write::node_t* top = hltrFragment->bind();
+  auto hltrFragmentSize = hltrFragment->size_word();
+  auto hltrPtr = std::make_unique<uint32_t[]>(hltrFragmentSize);
+  auto copiedSize = eformat::write::copy(*top,hltrPtr.get(),hltrFragmentSize);
+  if(copiedSize!=hltrFragmentSize){
+    error() << "HLT result serialization failed" << endmsg;
+    // missing error handling
+  }
+  debug() << "Sending the HLT result to DataCollector" << endmsg;
+  hltinterface::DataCollector::instance()->eventDone(std::move(hltrPtr));
+  verbose() << "end of " << __FUNCTION__ << endmsg;
 }

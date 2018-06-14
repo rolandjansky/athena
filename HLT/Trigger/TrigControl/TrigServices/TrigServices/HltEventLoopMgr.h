@@ -17,12 +17,15 @@
 #include "TrigKernel/IHltTHistSvc.h"
 #include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
 
+#include "eformat/write/FullEventFragment.h"
+
 
 // Forward declarations
 class IIncidentSvc;
 class IAlgContextSvc;
 class IThreadPoolSvc;
 class StoreGateSvc;
+class EventInfo;
 class ITHistSvc;
 class IROBDataProviderSvc;
 class CondAttrListCollection;
@@ -34,7 +37,6 @@ class IAlgResourcePool;
 class IHiveWhiteBoard;
 class IScheduler;
 class IAlgExecStateSvc;
-
 
 
 class HltEventLoopMgr : public MinimalEventLoopMgr,
@@ -172,6 +174,15 @@ protected:
 
   /// Clear an event slot in the whiteboard
   StatusCode clearWBSlot(int evtSlot) const;
+
+  /// Handle a failure to process an event
+  void failedEvent(EventContext* eventContext, const EventInfo* eventInfo) const;
+
+  // Build an HLT result FullEventFragment
+  eformat::write::FullEventFragment* HltResult(const EventInfo* eventInfo) const;
+
+  /// Send an HLT result FullEventFragment to the DataCollector
+  void eventDone(eformat::write::FullEventFragment* hltrFragment) const;
 
   // ------------------------- Hive stuff from AthenaHiveEventLoopMgr ----------
   /// Reference to the Whiteboard interface

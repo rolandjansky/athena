@@ -10,6 +10,7 @@
 
 // Forward declarations
 class ByteStreamInputSvc;
+class StoreGateSvc;
 
 /**
  * @class  TrigEventSelectorByteStream
@@ -65,6 +66,8 @@ public:
 private:
   // @property Reference to the event source (ByteStreamInputSvc)
   ServiceHandle<ByteStreamInputSvc> m_eventSource;
+  // Reference to the StoreGateScv
+  ServiceHandle<StoreGateSvc> m_evtStore;
 };
 
 #endif // TRIGEVENTSELECTORBYTESTREAM_H

@@ -3,6 +3,9 @@
 */
 
 #include "TrigByteStreamInputSvc.h"
+#include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
+#include "EventInfo/EventInfo.h"
+#include "StoreGate/StoreGateSvc.h"
 #include "TrigKernel/HltExceptions.h"
 
 #include "hltinterface/DataCollector.h"
@@ -13,7 +16,8 @@
 // =============================================================================
 TrigByteStreamInputSvc::TrigByteStreamInputSvc(const std::string& name, ISvcLocator* svcLoc)
 : ByteStreamInputSvc(name, svcLoc),
-  m_robDataProviderSvc("ROBDataProviderSvc", name) {}
+  m_robDataProviderSvc("ROBDataProviderSvc", name),
+  m_evtStore("StoreGateSvc", name) {}
 
 // =============================================================================
 // Standard destructor
@@ -40,6 +44,7 @@ StatusCode TrigByteStreamInputSvc::queryInterface(const InterfaceID& riid, void*
 // Implementation of Service::initialize
 // =============================================================================
 StatusCode TrigByteStreamInputSvc::initialize() {
+  verbose() << "start of " << __FUNCTION__ << endmsg;
   StatusCode sc = StatusCode::SUCCESS;
 
   sc = m_robDataProviderSvc.retrieve();
@@ -48,6 +53,13 @@ StatusCode TrigByteStreamInputSvc::initialize() {
     return sc;
   }
 
+  sc = m_evtStore.retrieve();
+  if (sc.isFailure()) {
+    error() << "Failed to retrieve the event store service" << endmsg;
+    return sc;
+  }
+
+  verbose() << "end of " << __FUNCTION__ << endmsg;
   return sc;
 }
 
@@ -55,9 +67,11 @@ StatusCode TrigByteStreamInputSvc::initialize() {
 // Implementation of Service::finalize
 // =============================================================================
 StatusCode TrigByteStreamInputSvc::finalize() {
+  verbose() << "start of " << __FUNCTION__ << endmsg;
   if (m_robDataProviderSvc.release().isFailure()) {
     warning() << "Cannot release rob data provider" << endmsg;
   }
+  verbose() << "end of " << __FUNCTION__ << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -65,7 +79,8 @@ StatusCode TrigByteStreamInputSvc::finalize() {
 // Implementation of ByteStreamInputSvc::nextEvent
 // =============================================================================
 const RawEvent* TrigByteStreamInputSvc::nextEvent() {
-  std::lock_guard<std::mutex> lock( m_readerMutex );
+  verbose() << "start of " << __FUNCTION__ << endmsg;
+  std::lock_guard<std::mutex> lock( m_readerMutex ); // probably don't need a lock for InputSvc
 
   // not a nice solution - depends on the Gaudi::currentContext being set correctly upstream
   const EventContext context{ Gaudi::Hive::currentContext() };
@@ -105,6 +120,7 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
   cache->rawEvent = newRawEvent;
 
   m_robDataProviderSvc->setNextEvent(context,newRawEvent);
+  verbose() << "end of " << __FUNCTION__ << endmsg;
   return newRawEvent;
 }
 
@@ -125,8 +141,24 @@ const RawEvent* TrigByteStreamInputSvc::currentEvent() const {
 }
 
 // =============================================================================
+// Implementation of ByteStreamInputSvc::generateDataHeader
+// Unlike offline, we do not actually generate any DataHeader here. We only create and record an EventInfo address.
+// =============================================================================
+StatusCode TrigByteStreamInputSvc::generateDataHeader() {
+  verbose() << "start of " << __FUNCTION__ << endmsg;
+  IOpaqueAddress* iop = new ByteStreamAddress(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo", "");
+  if (m_evtStore->recordAddress("ByteStreamEventInfo",iop).isFailure()) {
+    error() << "Failed to record ByteStreamEventInfo address in StoreGate" << endmsg;
+    return StatusCode::FAILURE;
+  }
+  verbose() << "end of " << __FUNCTION__ << endmsg;
+  return StatusCode::SUCCESS;
+}
+
+// =============================================================================
 void TrigByteStreamInputSvc::releaseEvent(EventCache* cache)
 {
+  verbose() << "start of " << __FUNCTION__ << endmsg;
   if (cache->rawEvent) {
     OFFLINE_FRAGMENTS_NAMESPACE::PointerType fragment = cache->rawEvent->start();
     delete[] fragment;
@@ -135,6 +167,7 @@ void TrigByteStreamInputSvc::releaseEvent(EventCache* cache)
     cache->rawEvent = nullptr;
     // cache->eventStatus = 0;
   }
+  verbose() << "end of " << __FUNCTION__ << endmsg;
 }
 
 // =============================================================================
