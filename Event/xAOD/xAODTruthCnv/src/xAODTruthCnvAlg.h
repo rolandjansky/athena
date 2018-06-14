@@ -5,7 +5,7 @@
 #ifndef XAODCREATORALGS_XAODTRUTHCNVALG_H
 #define XAODCREATORALGS_XAODTRUTHCNVALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 // The lines below I don't like. We should fix them when we update the
 // the metadata to handles (ATLASRECTS-4162).
@@ -25,6 +25,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <unordered_set>
 
@@ -43,19 +44,41 @@ namespace xAODMaker {
   /// @author James Catmore <James.Catmore@cern.ch>
   /// @author Jovan Mitreski <Jovan.Mitreski@cern.ch>
   /// @author Andy Buckley <Andy.Buckley@cern.ch>
-  class xAODTruthCnvAlg : public AthAlgorithm {
+  class xAODTruthCnvAlg : public AthReentrantAlgorithm {
   public:
 
     /// Regular algorithm constructor
     xAODTruthCnvAlg( const std::string& name, ISvcLocator* svcLoc );
 
     /// Function initialising the algorithm
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
     /// Function executing the algorithm
-    virtual StatusCode execute();
+    virtual StatusCode execute_r (const EventContext& ctx) const override;
 
 
   private:
+    /// Factor out the pieces dealing with writing to meta data.
+    /// This will be non-const, so need to protect with a mutex.
+    class MetaDataWriter
+    {
+    public:
+      StatusCode initialize (ServiceHandle<StoreGateSvc>& metaStore,
+                             const std::string& metaName);
+      StatusCode maybeWrite (uint32_t mcChannelNumber,
+                             const HepMC::GenEvent& genEvt);
+
+
+    private:
+      /// Mutex to control access to meta data writing.
+      std::mutex m_mutex;
+      typedef std::lock_guard<std::mutex> lock_t;
+
+      /// The meta data container to be written out
+      xAOD::TruthMetaDataContainer* m_tmd = nullptr;
+
+      /// Set for tracking the mc channels for which we already added meta data 
+      std::unordered_set<uint32_t> m_existingMetaDataChan;
+    };
 
     /// Type for tracking particles connected to a single vertex
     struct VertexParticles {
@@ -91,15 +114,16 @@ namespace xAODMaker {
     Gaudi::Property<bool> m_doAllPileUp{this, "WriteAllPileUpTruth", false};
     Gaudi::Property<bool> m_doInTimePileUp{this, "WriteInTimePileUpTruth", false};
 
+    /// Helper for writing to the meta data store.
+    /// This factors out the pieces that are non-const.
+    /// It's declared mutable and protected with a mutex.
+    mutable MetaDataWriter m_meta ATLAS_THREAD_SAFE;
+
     /// Connection to the metadata store
     ServiceHandle< StoreGateSvc > m_metaStore;
     ServiceHandle<StoreGateSvc> m_inputMetaStore;
-    /// The meta data container to be written out
-    xAOD::TruthMetaDataContainer* m_tmd;
     /// SG key and name for meta data
     std::string m_metaName;
-    /// Set for tracking the mc channels for which we already added meta data 
-    std::unordered_set<uint32_t> m_existingMetaDataChan;
 
     /// option to disable writing of metadata (e.g. if running a filter on xAOD in generators)
     Gaudi::Property<bool> m_writeMetaData{this, "WriteTruthMetaData", true};
