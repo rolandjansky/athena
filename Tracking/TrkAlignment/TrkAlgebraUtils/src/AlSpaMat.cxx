@@ -84,7 +84,7 @@ AlSpaMat::~AlSpaMat()
 void AlSpaMat::copy(const AlSpaMat& m)
 {
   if( size() != m.size()) {
-    throw std::length_error( "AlSpaMat::copy: size do not match!" );
+    throw std::range_error( "AlSpaMat::copy: size do not match!" );
   }
   m_ptr_map.clear();
   m_nele=m.m_nele;
@@ -96,7 +96,7 @@ void AlSpaMat::copy(const AlSpaMat& m)
 void AlSpaMat::copy(const AlSymMat& m)
 {
   if( size() != m.size()) {
-    throw std::length_error( "AlSpaMat::copy: size do not match!" );
+    throw std::range_error( "AlSpaMat::copy: size do not match!" );
   }
   m_ptr_map.clear();
   m_nele=0;
@@ -116,7 +116,7 @@ void AlSpaMat::copy(const AlSymMat& m)
 void AlSpaMat::copy(const AlMat& m)
 {
   if( size() != m.nrow() || size() != m.ncol() ) {
-    throw std::length_error( "AlSpaMat::copy: size do not match!" );
+    throw std::range_error( "AlSpaMat::copy: size do not match!" );
   }
 
   // copy just the lower triangle:
@@ -139,16 +139,16 @@ double& AlSpaMat::elemr(long int i,long int j)
 {
 #ifdef _DEBUG
   if( i<0 ) {
-    throw std::range_error( "AlSpaMat::elemr: Index 1 < zero! " );
+    throw std::out_of_range( "AlSpaMat::elemr: Index 1 < zero! " );
   }
   if( i>=size() ) {
-    throw std::range_error( "AlSpaMat::elemr: Index 1 too large! " );
+    throw std::out_of_range( "AlSpaMat::elemr: Index 1 too large! " );
   }
   if( j<0 ) {
-    throw std::range_error( "AlSpaMat::elemr: Index 2 < zero! " );
+    throw std::out_of_range( "AlSpaMat::elemr: Index 2 < zero! " );
   }
   if( j>=size() ) {
-    throw std::range_error("AlSpaMat::elemr: Index 2 too large! " );;
+    throw std::out_of_range("AlSpaMat::elemr: Index 2 too large! " );;
   }
 #endif
   // try fast referencing:
@@ -175,20 +175,16 @@ double  AlSpaMat::elemc(long int i,long int j) const
 {
 #ifdef _DEBUG
   if( i<0 ) {
-    throw std::range_error( "AlSpaMat::elemc: Index 1 < zero! " );
-    return 0.0;
+    throw std::out_of_range( "AlSpaMat::elemc: Index 1 < zero! " );
   }
   if( i>=size() ) {
-    throw std::range_error( "AlSpaMat::elemc: Index 1 too large! " );
-    return 0.0;
+    throw std::out_of_range( "AlSpaMat::elemc: Index 1 too large! " );
   }
   if( j<0 ) {
-    throw std::range_error( "AlSpaMat::elemc: Index 2 < zero! " );
-    return 0.0;
+    throw std::out_of_range( "AlSpaMat::elemc: Index 2 < zero! " );
   }
   if( j>=size() ) {
-    throw std::range_error( "AlSpaMat::elemc: Index 2 too large! " );
-    return 0.0;
+    throw std::out_of_range( "AlSpaMat::elemc: Index 2 too large! " );
   }
 #endif
   // try fast referencing:
@@ -210,16 +206,16 @@ indices  AlSpaMat::elem(long int i,long int j) const
   // ATTENTION! the key value is returned:
 #ifdef _DEBUG
   if( i<0 ) {
-    throw std::range_error( "AlSpaMat::elem: Index 1 < zero! " );
+    throw std::out_of_range( "AlSpaMat::elem: Index 1 < zero! " );
   }
   if( i>=size() ) {
-    throw std::range_error( "AlSpaMat::elem: Index 1 too large! " );
+    throw std::out_of_range( "AlSpaMat::elem: Index 1 too large! " );
   }
   if( j<0 ) {
-    throw std::range_error( "AlSpaMat::elem: Index 2 < zero! " );
+    throw std::out_of_range( "AlSpaMat::elem: Index 2 < zero! " );
   }
   if( j>=size() ) {
-    throw std::range_error( "AlSpaMat::elem: Index 2 too large! " );
+    throw std::out_of_range( "AlSpaMat::elem: Index 2 too large! " );
   }
 #endif
 
@@ -250,7 +246,7 @@ AlSpaMat&  AlSpaMat::operator=(const AlSymMat& m)
 AlSpaMat&  AlSpaMat::operator=(const AlMat& m)
 {
   if( m.nrow() != m.ncol() ) {
-    throw std::length_error( "AlSpaMat::=operator: allowed for square matrices only!" );
+    throw std::range_error( "AlSpaMat::=operator: allowed for square matrices only!" );
   }
 
   m_size=m.nrow();
@@ -272,7 +268,7 @@ AlSpaMat&  AlSpaMat::operator=(const double& d)
 AlSpaMat AlSpaMat::operator+(const AlSpaMat& m) const
 {
   if( size() != m.size()) {
-    throw std::length_error(  "AlSpaMat::operator+: size do not match!" );
+    throw std::range_error(  "AlSpaMat::operator+: size do not match!" );
   }
 
   AlSpaMat b(m);
@@ -288,7 +284,7 @@ AlSpaMat AlSpaMat::operator+(const AlSpaMat& m) const
 AlSpaMat&  AlSpaMat::operator+=(const AlSpaMat& m)
 {
   if( size() != m.size()) {
-    throw std::length_error( "AlSpaMat::operator+=: size do not match!" );
+    throw std::range_error( "AlSpaMat::operator+=: size do not match!" );
   }
 
   const_mapiterator pos;
@@ -303,7 +299,7 @@ AlSpaMat&  AlSpaMat::operator+=(const AlSpaMat& m)
 AlSpaMat AlSpaMat::operator-(const AlSpaMat& m) const
 {
   if( size() != m.size()) {
-    throw std::length_error(  "AlSpaMat::operator-: size do not match!" );
+    throw std::range_error(  "AlSpaMat::operator-: size do not match!" );
   }
 
   AlSpaMat b(m);
@@ -319,7 +315,7 @@ AlSpaMat AlSpaMat::operator-(const AlSpaMat& m) const
 AlSpaMat&  AlSpaMat::operator-=(const AlSpaMat& m)
 {
   if( size() != m.size()) {
-    throw std::length_error(  "AlSpaMat::operator-=: size do not match!" );
+    throw std::range_error(  "AlSpaMat::operator-=: size do not match!" );
   }
 
   const_mapiterator pos;
@@ -334,7 +330,7 @@ AlSpaMat&  AlSpaMat::operator-=(const AlSpaMat& m)
 AlMat AlSpaMat::operator*(const AlSymMatBase& m) const
 {
   if( size() != m.size() ) {
-    throw std::length_error(  "AlSpaMat::operator*: size do not match!" );
+    throw std::range_error(  "AlSpaMat::operator*: size do not match!" );
   }
 
   long int  isiz(size());
@@ -351,7 +347,7 @@ AlMat AlSpaMat::operator*(const AlSymMatBase& m) const
 //______________________________________________________________________________
 AlMat  AlSpaMat::operator*(const AlMat& m) const {
   if( size() != m.nrow() ) {
-    throw std::length_error(  "AlSpaMat::operator*: size do not match!" );
+    throw std::range_error(  "AlSpaMat::operator*: size do not match!" );
   }
 
   long int  isiz(size());
@@ -370,7 +366,7 @@ AlMat  AlSpaMat::operator*(const AlMat& m) const {
 AlVec AlSpaMat::operator*(const AlVec& v) const
 {
   if( size() != v.size() ) {
-    throw std::length_error(  "AlSpaMat::operator*: size do not match! " );
+    throw std::range_error(  "AlSpaMat::operator*: size do not match! " );
   }
 
   long int  isiz(size());
@@ -413,7 +409,7 @@ double AlSpaMat::determinant()
 int AlSpaMat::SolveWithEigen(AlVec& RHS){
  
   if(RHS.size() != size() ){
-    throw std::length_error(  "AlSpaMat::SolveWithEigen vector size is incorrect" );
+    throw std::range_error(  "AlSpaMat::SolveWithEigen vector size is incorrect" );
   }
   
   Eigen::VectorXd eigenBigVector( RHS.size() );
@@ -560,7 +556,7 @@ int AlSpaMat::RemoveCollsRows(std::vector<int> indices)
   // remove rows and columns starting from largest indices
   for (int i=0;i<n;i++) {
     if (indices[i] > m_size-1) {
-      throw std::invalid_argument( "AlSpaMat::RemoveCollsRows: Index goes beyond matrix." );
+      throw std::out_of_range( "AlSpaMat::RemoveCollsRows: Index goes beyond matrix." );
     }
     RemoveDoF(indices[i]);
   }

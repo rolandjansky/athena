@@ -521,7 +521,7 @@ int AlSymMat::RemoveCollsRows(std::vector<int> indices)
   for (int i=0;i<n;i++) {
     int index = indices[i];
     if (index > m_size-1) {
-      throw std::range_error("AlSymMat::RemoveCollsRows: Index goes beyond matrix.");
+      throw std::out_of_range("AlSymMat::RemoveCollsRows: Index goes beyond matrix.");
     }
 
     for (int j=index; j<m_size-1; j++)
@@ -797,20 +797,16 @@ double& AlSymMat::elemr(long int i,long int j)
 {
 #ifdef _DEBUG
   if( i<0 ) {
-    std::cerr << "AlSymMat::elemr: Index 1 < zero! " << i << std::endl;
-    return *(m_ptr_data);
+    throw std::underflow_error( "AlSymMat::elemr: Index 1 < zero!" );
   }
   if( i>=size() ) {
-    std::cerr << "AlSymMat::elemr: Index 1 too large! " << i << std::endl;
-    return *(m_ptr_data);
+    throw std::overflow_error( "AlSymMat::elemr: Index 1 too large!" );
   }
   if( j<0 ) {
-    std::cerr << "AlSymMat::elemr: Index 2 < zero! " << j << std::endl;
-    return *(m_ptr_data);
+    throw std::underflow_error( "AlSymMat::elemr: Index 2 < zero!" );
   }
   if( j>=size() ) {
-    std::cerr << "AlSymMat::elemr: Index 2 too large! " << j << std::endl;
-    return *(m_ptr_data);
+    throw std::overflow_error( "AlSymMat::elemr: Index 2 too large!" );
   }
 #endif
   if( j<=i )
@@ -824,20 +820,16 @@ double AlSymMat::elemc(long int i,long int j) const
 {
 #ifdef _DEBUG
   if( i<0 ) {
-    std::cerr << "AlSymMat::elemc: Index 1 < zero! " << i << std::endl;
-    return *(m_ptr_data);
+    throw std::underflow_error( "AlSymMat::elemc: Index 1 < zero!" );
   }
   if( i>=size() ) {
-    std::cerr << "AlSymMat::elemc: Index 1 too large! " << i << std::endl;
-    return *(m_ptr_data);
+    throw std::overflow_error( "AlSymMat::elemc: Index 1 too large!" );
   }
   if( j<0 ) {
-    std::cerr << "AlSymMat::elemc: Index 2 < zero! " << j << std::endl;
-    return *(m_ptr_data);
+    throw std::underflow_error( "AlSymMat::elemc: Index 2 < zero!" );
   }
   if( j>=size() ) {
-    std::cerr << "AlSymMat::elemc: Index 2 too large! " << j << std::endl;
-    return *(m_ptr_data);
+    throw std::overflow_error( "AlSymMat::elemc: Index 2 too large!" );
   }
 #endif
   if( j<=i )
