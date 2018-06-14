@@ -22,7 +22,7 @@ mioctIndent(std::ostream& o, int lvl, int size) ;
 class MioctROIGeometry {
    public:
       MioctROIGeometry();
-      ~MioctROIGeometry();
+      virtual ~MioctROIGeometry();
      
       // getters
     float        eta()     const { return m_eta; };
