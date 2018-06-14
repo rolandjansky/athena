@@ -477,8 +477,8 @@ StatusCode AlVec::InitializeOutputVector(const std::string& filename, bool binar
 StatusCode AlVec::ReadPartial(const std::string &filename, double &scale, 
 			      std::map<int,unsigned long long> &modmap, float &version)
 {
-  bool StdUnits = true;
-  if (StatusCode::SUCCESS != CheckVecVersion(m_pathbin+filename, StdUnits)) {
+  bool stdUnits = true;
+  if (StatusCode::SUCCESS != CheckVecVersion(m_pathbin+filename, stdUnits)) {
     //std::cout<<"CheckVecVersion failed"<<std::endl;
     return StatusCode::FAILURE;
   }
