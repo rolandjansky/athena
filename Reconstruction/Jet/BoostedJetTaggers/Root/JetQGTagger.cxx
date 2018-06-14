@@ -47,6 +47,9 @@ namespace CP {
 
     declareProperty( "ConfigFile",   m_configFile="");
     declareProperty( "NTrackCut",    m_NTrackCut=-1);
+    declareProperty( "cuttype",    m_cuttype="log_pt");
+    declareProperty( "slope",    m_slope=9.779);
+    declareProperty( "intercept",    m_intercept=-32.28);
     declareProperty( "DecorateJet",  m_decorate = true);
 
     declareProperty( "Tagger", m_taggername = "ntrack");
@@ -116,6 +119,13 @@ namespace CP {
         ATH_MSG_WARNING( "No config file provided AND no NTrackCut specified." ) ;
       }
     }
+    if(m_cuttype != "linear_pt" && m_cuttype != "threshold" && m_cuttype != "log_pt"){
+	ATH_MSG_ERROR("Cuttype set to: " << m_cuttype );
+	ATH_MSG_ERROR("Cuttype invalid. Must use 'linear_pt', 'log_pt', or 'threshold'");
+	return StatusCode::FAILURE;	
+    }
+ 
+
 
     // decorators used to store
     // 1) ntracks
@@ -306,6 +316,8 @@ namespace CP {
     if (!isValid)
       return m_accept;
 
+
+
     // obtain the relevant information for tagging
     // 1) the number of tracks
     // 2) jet-by-jet event weight
@@ -323,11 +335,18 @@ namespace CP {
     // fill the TAccept
     ATH_MSG_DEBUG("NTrack       = "<<jetNTrack);
     ATH_MSG_DEBUG("NTrackWeight = "<<jetWeight);
-
     // JBurr: I've removed the n track < 0 check - it's now impossible for it to ever be satisfied
-    if(jetNTrack<m_NTrackCut){
-      m_accept.setCutResult("QuarkJetTag", true);
+    double variable_nTrk = -999.0;
+    if (m_cuttype=="linear_pt"){
+    	variable_nTrk=(m_slope*jet.pt())+m_intercept;
+	if(jetNTrack<variable_nTrk) m_accept.setCutResult("QuarkJetTag", true);
     }
+    else if (m_cuttype=="log_pt"){
+	 variable_nTrk=(m_slope*TMath::Log10(jet.pt()))+m_intercept;
+         if(jetNTrack<variable_nTrk) m_accept.setCutResult("QuarkJetTag", true);
+    }
+    else if(m_cuttype=="threshold" && jetNTrack<m_NTrackCut) m_accept.setCutResult("QuarkJetTag", true);
+
     // return the m_accept object
     return m_accept;
 
@@ -338,13 +357,30 @@ namespace CP {
     ATH_MSG_DEBUG( "Counting the number of tracks in the jet" );
 
     ntracks = 0;
-
     // loop over the tracks associated to the jet of interest
     std::vector<const xAOD::IParticle*> jettracks;
-    jet->getAssociatedObjects<xAOD::IParticle>(xAOD::JetAttribute::GhostTrack,jettracks);
+
+    if(!jet->getAssociatedObjects<xAOD::IParticle>(xAOD::JetAttribute::GhostTrack,jettracks)){
+	ATH_MSG_ERROR("This jet has no associated objects, so it will not be tagged. Please check the jet collection you are using.");
+	ntracks=999;
+	//Returning failure as this jet has no associated objects and we do not want to wrongly classify it as a gluon or quark using tag(). 
+	//Physics should be independent of skimming, which may have removed tracks.
+	//So we are returning a failure, and throwing an exception. 
+        return StatusCode::FAILURE;
+    }
+
     for (size_t i = 0; i < jettracks.size(); i++) {
 
       const xAOD::TrackParticle* trk = static_cast<const xAOD::TrackParticle*>(jettracks[i]);
+
+      if(!trk){
+	ATH_MSG_ERROR("This jet has null tracks, so it will not be tagged. Please check the jet collection you are using.");
+	ntracks=998;
+	//Returning failure as this jet has null tracks and we do not want to wrongly classify it as a gluon or quark using tag(). 
+	//Physics should be independent of skimming, which may have introduced null tracks.
+	//So we are returning a failure, and throwing an exception. 
+        return StatusCode::FAILURE;
+      }
 
       // if you are applying a systematic variation then
       // FRANCESCO ADD COMMENT
@@ -367,7 +403,6 @@ namespace CP {
                      m_trkSelectionTool->accept(*trk) &&
                      (trk->vertex()==pv || (!trk->vertex() && fabs((trk->z0()+trk->vz()-pv->z())*sin(trk->theta()))<3.))
                     );
-
       if (!accept)
         continue;
 
