@@ -57,7 +57,7 @@ def generateZpTMapping(dictionary):
 
 
 
-    print "\nAdding Z--> ee to the dictionary:",
+    print "\nAdding Z--> ee to the dictionary:"
     print "\tRange 0-70",
     for i in range(361372, 361375):
         dictionary[i] = 1
