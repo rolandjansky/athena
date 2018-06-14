@@ -25,3 +25,5 @@ atlas_add_library( FlavorTagDiscriminants
   Root/BTagJetAugmenter.cxx
   PUBLIC_HEADERS FlavorTagDiscriminants
   LINK_LIBRARIES xAODBase xAODJet xAODEventInfo)
+
+atlas_install_python_modules( python/*.py )
