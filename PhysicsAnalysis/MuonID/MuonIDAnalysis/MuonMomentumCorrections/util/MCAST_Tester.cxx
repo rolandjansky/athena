@@ -138,7 +138,8 @@ int main( int argc, char* argv[] ) {
   corrTool.setProperty("Year",                  "Data17" );
   //   corrTool.setProperty("Algo",                  "muons" );
   //   corrTool.setProperty("SmearingType",          "q_pT" );
-  corrTool.setProperty("Release",               "Recs2017_08_02" );
+  //corrTool.setProperty("Release",               "Recs2017_08_02" );
+  corrTool.setProperty("Release",               "Recs2018_05_20" );     
   //   corrTool.setProperty("ToroidOff",             false );
   //   corrTool.setProperty("FilesPath",             "" );
   corrTool.setProperty("StatComb",              false);

@@ -5,7 +5,7 @@
 #include "ForwardRegionProperties/ForwardRegionProperties.h"
 
 ForwardRegionProperties::ForwardRegionProperties( const std::string& type, const std::string& name, const IInterface* parent )
-: AthAlgTool( type, name, parent )
+: base_class( type, name, parent )
 {
     m_Config.clear();
     declareProperty("twissFileB1",m_Config.twissFileB1="");
@@ -70,36 +70,6 @@ ForwardRegionProperties::ForwardRegionProperties( const std::string& type, const
 }
 
 ForwardRegionProperties::~ForwardRegionProperties(){}
-
-StatusCode ForwardRegionProperties::initialize(){
-
-  StatusCode sc = StatusCode::SUCCESS;
-
-  ATH_MSG_INFO( "Initialisation started" ) ;
-
-  sc = AthAlgTool::initialize();
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( " AthAlgTool::initialize() failed" ) ;
-    return( StatusCode::FAILURE );
-  }
-
-  ATH_MSG_INFO( "Initialisation ended" ) ;
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode ForwardRegionProperties::queryInterface( const InterfaceID& riid, void** ppvIf )
-{
-        if(riid==IForwardRegionProperties::interfaceID()){
-                *ppvIf = static_cast< IForwardRegionProperties* >( this );
-                addRef();
-                return StatusCode::SUCCESS;
-        }
-
-        return AthAlgTool::queryInterface( riid, ppvIf );
-}
-
-StatusCode ForwardRegionProperties::finalize(){return StatusCode::SUCCESS;}
 
 PFWDMg_CONFIGURATION ForwardRegionProperties::getConf() {
     return &m_Config;

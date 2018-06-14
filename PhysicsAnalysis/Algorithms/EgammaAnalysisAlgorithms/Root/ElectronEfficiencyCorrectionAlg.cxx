@@ -22,7 +22,7 @@ namespace CP
   ElectronEfficiencyCorrectionAlg (const std::string& name, 
                      ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)
-    , m_efficiencyCorrectionTool ("ElectronEfficiencyCorrectionTool", this)
+    , m_efficiencyCorrectionTool ("AsgElectronEfficiencyCorrectionTool", this)
   {
     declareProperty ("efficiencyCorrectionTool", m_efficiencyCorrectionTool, "the calibration and smearing tool we apply");
     declareProperty ("efficiencyDecoration", m_efficiencyDecoration, "the decoration for the electron efficiency");

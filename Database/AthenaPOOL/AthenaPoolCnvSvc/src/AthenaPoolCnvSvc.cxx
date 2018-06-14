@@ -324,9 +324,17 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
       return(StatusCode::SUCCESS);
    }
    if (!m_outputStreamingTool.empty()
-		   && (m_streamServer == m_outputStreamingTool.size() || !m_outputStreamingTool[0]->isServer())) {
+		   && (m_streamServer == m_outputStreamingTool.size() || !m_outputStreamingTool[m_streamServer < m_outputStreamingTool.size() ? m_streamServer : 0]->isServer())) {
       ATH_MSG_DEBUG("connectOutput SKIPPED for expired server.");
       return(StatusCode::SUCCESS);
+   }
+   std::size_t streamClient = 0;
+   for (std::vector<std::string>::const_iterator iter = m_streamClientFiles.begin(), last = m_streamClientFiles.end(); iter != last; iter++) {
+      if (*iter == outputConnectionSpec) break;
+      streamClient++;
+   }
+   if (streamClient == m_streamClientFiles.size()) {
+      m_streamClientFiles.push_back(outputConnectionSpec);
    }
    try {
       if (!m_poolSvc->connect(pool::ITransaction::UPDATE).isSuccess()) {
@@ -377,9 +385,20 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       ATH_MSG_DEBUG("commitOutput SKIPPED for expired server.");
       return(StatusCode::SUCCESS);
    }
-   if (!m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isServer()) {
-      ATH_MSG_DEBUG("commitOutput SKIPPED for uninitialized server.");
+   if (!m_outputStreamingTool.empty() && !m_outputStreamingTool[m_streamServer < m_outputStreamingTool.size() ? m_streamServer : 0]->isServer()) {
+      ATH_MSG_DEBUG("commitOutput SKIPPED for uninitialized server: " << m_streamServer << ".");
       return(StatusCode::SUCCESS);
+   }
+   if (!m_outputStreamingTool.empty() && m_streamServer == m_outputStreamingTool.size()) {
+      std::size_t streamClient = 0;
+      for (std::vector<std::string>::const_iterator iter = m_streamClientFiles.begin(), last = m_streamClientFiles.end(); iter != last; iter++) {
+         if (*iter == outputConnectionSpec) break;
+         streamClient++;
+      }
+      if (streamClient == m_streamClientFiles.size()) {
+         ATH_MSG_DEBUG("commitOutput SKIPPED for unconnected file: " << outputConnectionSpec << ".");
+         return(StatusCode::SUCCESS);
+      }
    }
    std::map<void*, RootType> commitCache;
    if (!m_outputStreamingTool.empty() && m_streamServer < m_outputStreamingTool.size()
@@ -664,7 +683,7 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
       ATH_MSG_VERBOSE("Requesting write object for: " << placementStr);
       StatusCode sc = m_outputStreamingTool[streamClient]->lockObject(placementStr.c_str());
       while (sc.isRecoverable()) {
-         usleep(100);
+         //usleep(100);
          sc = m_outputStreamingTool[streamClient]->lockObject(placementStr.c_str());
       }
       if (!sc.isSuccess()) {
@@ -689,7 +708,7 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
       // Share object
       sc = m_outputStreamingTool[streamClient]->putObject(buffer, nbytes);
       while (sc.isRecoverable()) {
-         usleep(100);
+         //usleep(100);
          sc = m_outputStreamingTool[streamClient]->putObject(buffer, nbytes);
       }
       if (own) { delete [] static_cast<const char*>(buffer); }
@@ -712,7 +731,7 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
       int num = -1;
       sc = m_outputStreamingTool[streamClient]->clearObject(&tokenStr, num);
       while (sc.isRecoverable()) {
-         usleep(100);
+         //usleep(100);
          sc = m_outputStreamingTool[streamClient]->clearObject(&tokenStr, num);
       }
       if (!sc.isSuccess()) {
@@ -725,16 +744,32 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
       token = tempToken; tempToken = nullptr;
    } else {
       if (!m_outputStreamingTool.empty() && m_metadataContainerProp.value().empty()
-		      && (m_streamServer == m_outputStreamingTool.size() || !m_outputStreamingTool[0]->isServer())) {
+		      && (m_streamServer == m_outputStreamingTool.size() || !m_outputStreamingTool[m_streamServer < m_outputStreamingTool.size() ? m_streamServer : 0]->isServer())) {
          ATH_MSG_DEBUG("registerForWrite SKIPPED for expired server, Placement = " << placement->toString());
          Token* tempToken = new Token();
          tempToken->setClassID(pool::DbReflex::guid(classDesc));
          token = tempToken; tempToken = nullptr;
-      } else if (!m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isServer()) {
+      } else if (!m_outputStreamingTool.empty() && m_streamServer != m_outputStreamingTool.size() && !m_outputStreamingTool[m_streamServer < m_outputStreamingTool.size() ? m_streamServer : 0]->isServer()) {
          ATH_MSG_DEBUG("registerForWrite SKIPPED for uninitialized server, Placement = " << placement->toString());
          Token* tempToken = new Token();
          tempToken->setClassID(pool::DbReflex::guid(classDesc));
          token = tempToken; tempToken = nullptr;
+      } else if (!m_outputStreamingTool.empty() && m_streamServer == m_outputStreamingTool.size()) {
+         std::size_t streamClient = 0;
+         std::string fileName = placement->fileName();
+         for (std::vector<std::string>::const_iterator iter = m_streamClientFiles.begin(), last = m_streamClientFiles.end(); iter != last; iter++) {
+            if (*iter == fileName) break;
+            streamClient++;
+         }
+         if (streamClient == m_streamClientFiles.size()) {
+            ATH_MSG_DEBUG("registerForWrite SKIPPED for unconnected file: " << fileName << ".");
+            Token* tempToken = new Token();
+            tempToken->setClassID(pool::DbReflex::guid(classDesc));
+            token = tempToken; tempToken = nullptr;
+         } else {
+            ATH_MSG_VERBOSE("Requested write object for: " << placement->toString());
+            token = m_poolSvc->registerForWrite(placement, obj, classDesc);
+         }
       } else {
          token = m_poolSvc->registerForWrite(placement, obj, classDesc);
       }
@@ -751,6 +786,7 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
    }
    if (!m_outputStreamingTool.empty() && m_streamServer < m_outputStreamingTool.size()
 		   && m_outputStreamingTool[m_streamServer]->isServer()) {
+      ATH_MSG_VERBOSE("Requesting object for: " << token->toString());
       if (token->dbID() == Guid::null()) {
          int num = token->oid().first;
          // Get object from SHM
@@ -763,31 +799,33 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
          }
          if (!sc.isSuccess()) {
             ATH_MSG_ERROR("Failed to get Data for " << token->toString());
+            obj = nullptr;
             return;
-         }
-         if (token->classID() != Guid::null()) {
-            // Deserialize object
-            RootType cltype(pool::DbReflex::forGuid(token->classID()));
-            obj = m_serializeSvc->deserialize(buffer, nbytes, cltype); buffer = nullptr;
          } else {
-            // Deserialize object
-            std::string className = token->auxString();
-            className = className.substr(className.find("[PNAME="));
-            className = className.substr(7, className.find(']') - 7);
-            RootType cltype(RootType::ByName(className));
-            obj = m_serializeSvc->deserialize(buffer, nbytes, cltype); buffer = nullptr;
+            if (token->classID() != Guid::null()) {
+               // Deserialize object
+               RootType cltype(pool::DbReflex::forGuid(token->classID()));
+               obj = m_serializeSvc->deserialize(buffer, nbytes, cltype); buffer = nullptr;
+            } else {
+               // Deserialize object
+               std::string className = token->auxString();
+               className = className.substr(className.find("[PNAME="));
+               className = className.substr(7, className.find(']') - 7);
+               RootType cltype(RootType::ByName(className));
+               obj = m_serializeSvc->deserialize(buffer, nbytes, cltype); buffer = nullptr;
+            }
+            AuxDiscoverySvc auxDiscover;
+            if (!auxDiscover.receiveStore(const_cast<IAthenaSerializeSvc*>(m_serializeSvc.get()), dynamic_cast<const IAthenaIPCTool*>(m_outputStreamingTool[m_streamServer].get()), obj, num).isSuccess()) {
+               ATH_MSG_ERROR("Failed to get Dynamic Aux Store for " << token->toString());
+               obj = nullptr;
+            }
          }
-         AuxDiscoverySvc auxDiscover;
-         if (!auxDiscover.receiveStore(const_cast<IAthenaSerializeSvc*>(m_serializeSvc.get()), dynamic_cast<const IAthenaIPCTool*>(m_outputStreamingTool[m_streamServer].get()), obj, num).isSuccess()) {
-            ATH_MSG_ERROR("Failed to get Dynamic Aux Store for " << token->toString());
-         }
-         return;
       }
    }
    if (!m_inputStreamingTool.empty() && m_inputStreamingTool->isClient()) {
       ATH_MSG_VERBOSE("Requesting object for: " << token->toString());
       if (!m_inputStreamingTool->lockObject(token->toString().c_str()).isSuccess()) {
-         ATH_MSG_WARNING("Failed to lock Data for " << token->toString());
+         ATH_MSG_ERROR("Failed to lock Data for " << token->toString());
          obj = nullptr;
       } else {
          if (m_doChronoStat) {
@@ -804,20 +842,22 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
             m_chronoStatSvc->chronoStop("gObj_ALL");
          }
          if (!sc.isSuccess()) {
-            ATH_MSG_WARNING("Failed to get Data for " << token->toString());
+            ATH_MSG_ERROR("Failed to get Data for " << token->toString());
             obj = nullptr;
          } else {
             obj = m_serializeSvc->deserialize(buffer, nbytes, token->classID()); buffer = nullptr;
             AuxDiscoverySvc auxDiscover;
             if (!auxDiscover.receiveStore(const_cast<IAthenaSerializeSvc*>(m_serializeSvc.get()), dynamic_cast<const IAthenaIPCTool*>(m_inputStreamingTool.get()), obj).isSuccess()) {
                ATH_MSG_ERROR("Failed to get Dynamic Aux Store for " << token->toString());
+               obj = nullptr;
             }
          }
       }
    } else if (!m_inputStreamingTool.empty() && m_inputStreamingTool->isServer()) {
       // Reading in Server
+      ATH_MSG_VERBOSE("Requested object for: " << token->toString());
       m_poolSvc->setObjPtr(obj, token);
-   } else {
+   } else if (token->dbID() != Guid::null()) {
       m_poolSvc->setObjPtr(obj, token, m_contextIds.back());
    }
    if (m_doChronoStat) {
@@ -941,6 +981,7 @@ StatusCode AthenaPoolCnvSvc::makeServer(int num) {
             ATH_MSG_ERROR("makeServer: " << m_outputStreamingTool << " failed");
             return(StatusCode::FAILURE);
          }
+         m_streamClientFiles.clear();
          return(StatusCode::SUCCESS);
       }
       return(StatusCode::RECOVERABLE);

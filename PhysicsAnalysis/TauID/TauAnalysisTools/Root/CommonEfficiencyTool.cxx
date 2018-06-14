@@ -11,8 +11,8 @@
 #include "xAODTruth/TruthParticleContainer.h"
 
 // ROOT include(s)
-#include "TH2F.h"
-#include "TH3D.h"
+#include "TH2.h"
+#include "TH3.h"
 
 using namespace TauAnalysisTools;
 
@@ -125,7 +125,7 @@ StatusCode CommonEfficiencyTool::initialize()
       ATH_MSG_FATAL("Could not open file " << sInputFilePath.c_str());
       return StatusCode::FAILURE;
     }
-    ReadInputs(fSF);
+    ReadInputs(*fSF);
     fSF->Close();
   }
 
@@ -408,7 +408,7 @@ std::string CommonEfficiencyTool::ConvertProngToString(const int& fProngness)
   top)
 */
 //______________________________________________________________________________
-void CommonEfficiencyTool::ReadInputs(std::unique_ptr<TFile> &fFile)
+void CommonEfficiencyTool::ReadInputs(TFile& fFile)
 {
   m_mSF->clear();
 
@@ -417,7 +417,7 @@ void CommonEfficiencyTool::ReadInputs(std::unique_ptr<TFile> &fFile)
   m_fY = &caloTauEta;
 
   TKey *kKey;
-  TIter itNext(fFile->GetListOfKeys());
+  TIter itNext(fFile.GetListOfKeys());
   while ((kKey = (TKey*)itNext()))
   {
     // parse file content for objects of type TNamed, check their title for
@@ -472,7 +472,7 @@ void CommonEfficiencyTool::ReadInputs(std::unique_ptr<TFile> &fFile)
       }
     }
   }
-  ATH_MSG_INFO("data loaded from " << fFile->GetName());
+  ATH_MSG_INFO("data loaded from " << fFile.GetName());
 }
 
 /*
@@ -486,19 +486,16 @@ void CommonEfficiencyTool::addHistogramToSFMap(TKey* kKey, const std::string& sK
   TClass *cClass = gROOT->GetClass(kKey->GetClassName());
   if (cClass->InheritsFrom("TH2"))
   {
-    TH1F* oObject = (TH1F*)kKey->ReadObj();
+    TH1* oObject = (TH1*)kKey->ReadObj();
     oObject->SetDirectory(0);
-    if (cClass->InheritsFrom("TH2D"))
-      (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTH2D);
-    else
-      (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTH2F);
+    (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTH2);
     ATH_MSG_DEBUG("added histogram with name "<<sKeyName);
   }
-  else if (cClass->InheritsFrom("TH3D"))
+  else if (cClass->InheritsFrom("TH3"))
   {
-    TH1F* oObject = (TH1F*)kKey->ReadObj();
+    TH1* oObject = (TH1*)kKey->ReadObj();
     oObject->SetDirectory(0);
-    (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTH3D);
+    (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTH3);
     ATH_MSG_DEBUG("added histogram with name "<<sKeyName);
   }
   else if (cClass->InheritsFrom("TF1"))
@@ -617,18 +614,18 @@ CP::CorrectionCode CommonEfficiencyTool::getValue(const std::string& sHistName,
 }
 
 /*
-  find the particular value in TH2F depending on pt and eta (or the
+  find the particular value in TH2 depending on pt and eta (or the
   corresponding value in case of configuration)
   Note: In case values are outside of bin ranges, the closest bin value is used
 */
 //______________________________________________________________________________
-CP::CorrectionCode CommonEfficiencyTool::getValueTH2F(const TObject* oObject,
+CP::CorrectionCode CommonEfficiencyTool::getValueTH2(const TObject* oObject,
     double& dEfficiencyScaleFactor, double dVars[])
 {
   double dPt = dVars[0];
   double dEta = dVars[1];
 
-  const TH2F* hHist = dynamic_cast<const TH2F*>(oObject);
+  const TH2* hHist = dynamic_cast<const TH2*>(oObject);
 
   if (!hHist)
   {
@@ -650,51 +647,18 @@ CP::CorrectionCode CommonEfficiencyTool::getValueTH2F(const TObject* oObject,
 }
 
 /*
-  find the particular value in TH2D depending on pt and eta (or the
-  corresponding value in case of configuration)
+  find the particular value in TH3 depending on x, y, z
   Note: In case values are outside of bin ranges, the closest bin value is used
 */
 //______________________________________________________________________________
-CP::CorrectionCode CommonEfficiencyTool::getValueTH2D(const TObject* oObject,
-    double& dEfficiencyScaleFactor, double dVars[])
-{
-  double dPt = dVars[0];
-  double dEta = dVars[1];
-
-  const TH2D* hHist = dynamic_cast<const TH2D*>(oObject);
-
-  if (!hHist)
-  {
-    // ATH_MSG_ERROR("Problem with casting TObject of type "<<oObject->ClassName()<<" to TH2D");
-    return CP::CorrectionCode::Error;
-  }
-
-  // protect values from underflow bins
-  dPt = std::max(dPt,hHist->GetXaxis()->GetXmin());
-  dEta = std::max(dEta,hHist->GetYaxis()->GetXmin());
-  // protect values from overflow bins (times .999 to keep it inside last bin)
-  dPt = std::min(dPt,hHist->GetXaxis()->GetXmax() * .999);
-  dEta = std::min(dEta,hHist->GetYaxis()->GetXmax() * .999);
-
-  // get bin from TH2 depending on x and y values; finally set the scale factor
-  int iBin = hHist->FindFixBin(dPt,dEta);
-  dEfficiencyScaleFactor = hHist->GetBinContent(iBin);
-  return CP::CorrectionCode::Ok;
-}
-
-/*
-  find the particular value in TH3D depending on x, y, z
-  Note: In case values are outside of bin ranges, the closest bin value is used
-*/
-//______________________________________________________________________________
-CP::CorrectionCode CommonEfficiencyTool::getValueTH3D(const TObject* oObject,
+CP::CorrectionCode CommonEfficiencyTool::getValueTH3(const TObject* oObject,
     double& dEfficiencyScaleFactor, double dVars[])
 {
   double dX = dVars[0];
   double dY = dVars[1];
   double dZ = dVars[2];
 
-  const TH3D* hHist = dynamic_cast<const TH3D*>(oObject);
+  const TH3* hHist = dynamic_cast<const TH3*>(oObject);
 
   if (!hHist)
   {

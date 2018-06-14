@@ -27,43 +27,8 @@
 
 struct AthContainersInstan
 {
-  std::pair<SG::auxid_set_t::iterator, bool> p1;
   std::pair<SG::auxid_set_t::const_iterator, bool> p2;
 };
-
-
-inline bool
-operator!=(const CxxUtils_Internal::hashtable_iterator<unsigned long, true, false>& x,
-           const CxxUtils_Internal::hashtable_iterator<unsigned long, true, false>& y)
-{
-  typedef CxxUtils_Internal::hashtable_iterator_base<unsigned long, false> base;
-  return static_cast<const base&>(x) != static_cast<const base&>(y);
-}
-
-inline bool
-operator!=(const CxxUtils_Internal::hashtable_const_iterator<unsigned long, true, false>& x,
-           const CxxUtils_Internal::hashtable_const_iterator<unsigned long, true, false>& y)
-{
-  typedef CxxUtils_Internal::hashtable_iterator_base<unsigned long, false> base;
-  return static_cast<const base&>(x) != static_cast<const base&>(y);
-}
-
-
-inline bool
-operator==(const CxxUtils_Internal::hashtable_iterator<unsigned long, true, false>& x,
-           const CxxUtils_Internal::hashtable_iterator<unsigned long, true, false>& y)
-{
-  typedef CxxUtils_Internal::hashtable_iterator_base<unsigned long, false> base;
-  return static_cast<const base&>(x) == static_cast<const base&>(y);
-}
-
-inline bool
-operator==(const CxxUtils_Internal::hashtable_const_iterator<unsigned long, true, false>& x,
-           const CxxUtils_Internal::hashtable_const_iterator<unsigned long, true, false>& y)
-{
-  typedef CxxUtils_Internal::hashtable_iterator_base<unsigned long, false> base;
-  return static_cast<const base&>(x) == static_cast<const base&>(y);
-}
 
 
 namespace {

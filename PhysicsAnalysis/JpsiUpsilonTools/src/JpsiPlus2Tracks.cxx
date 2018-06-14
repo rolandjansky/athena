@@ -87,6 +87,7 @@ namespace Analysis {
     m_excludeCrossJpsiTracks(true),
     m_iVertexFitter("Trk::TrkVKalVrtFitter"),
     m_trkSelector("InDet::TrackSelectorTool"),
+    m_vertexEstimator("InDet::VertexPointEstimator"),
     m_useMassConst(true),
     m_altMassConst(-1.0),
     m_diTrackMassUpper(-1.0),
@@ -125,7 +126,7 @@ namespace Analysis {
         declareProperty("AlternativeMassConstraint",m_altMassConst);
         declareProperty("DiTrackMassUpper",m_diTrackMassUpper);
         declareProperty("DiTrackMassLower",m_diTrackMassLower);
-        
+        declareProperty("VertexPointEstimator", m_vertexEstimator);
         // additional cuts by Daniel Scheirich
         declareProperty("Chi2Cut",m_chi2cut);
         declareProperty("DiTrackPt",m_diTrackPt);

@@ -7,7 +7,7 @@
 
 #include "AsgTools/AsgTool.h"
 //#include "ElectronChargeEfficiencyCorrectionTool/IElectronChargeEfficiencyCorrectionTool.h"
-#include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 #include "PATInterfaces/ISystematicsTool.h"
 #include "TH2.h"
 // #include "xAODTruth/TruthParticle.h"
@@ -28,10 +28,10 @@ namespace xAOD {
 namespace CP {
 
   class ElectronChargeEfficiencyCorrectionTool
-    : virtual public CP::IEfficiencyScaleFactorTool,
+    : virtual public IAsgElectronEfficiencyCorrectionTool,
     public asg::AsgTool
   {
-    ASG_TOOL_CLASS2(ElectronChargeEfficiencyCorrectionTool, CP::IEfficiencyScaleFactorTool, CP:: ISystematicsTool)
+    ASG_TOOL_CLASS(ElectronChargeEfficiencyCorrectionTool, IAsgElectronEfficiencyCorrectionTool)
 
   public:
 
@@ -57,10 +57,13 @@ namespace CP {
     virtual StatusCode finalize();
 
     /// Retrieve the Scale factor
-    virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::IParticle& part, double& sf) const;
+    virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::Electron& part, double& sf) const;
 
     /// Decorate the electron
-    virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::IParticle& part) const;
+    virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::Electron& part) const;
+
+    /// The following method is not implemented properly in this tool
+    virtual int systUncorrVariationIndex( const xAOD::Electron &inputObject) const;
 
     /// Systematics
     //  void applySysVariation();

@@ -5,9 +5,7 @@
 #include "CaloLocalHadCalib/CaloReadLCWeightsFile.h"
 #include "CaloConditions/CaloLocalHadDefs.h"
 #include "CaloUtils/CaloSamplingHelper.h"
-#include "GaudiKernel/MsgStream.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "PathResolver/PathResolver.h"
 #include "TFile.h"
 #include "TList.h"
@@ -30,11 +28,10 @@ CaloReadLCWeightsFile::~CaloReadLCWeightsFile() {}
 
 StatusCode CaloReadLCWeightsFile::initDataFromFile(std::string theLCWeightFileName)
 {
-  MsgStream log(msgSvc(), name());
   
   // Find the full path to filename:
   std::string file = PathResolver::find_file (theLCWeightFileName, "DATAPATH");
-  log << MSG::INFO << "Reading file  " << file << endreq;
+  msg(MSG::INFO) << "Reading file  " << file << endmsg;
 
   std::vector<int> isampmap(CaloSampling::Unknown,-1);
   unsigned int nAreas(0);
@@ -59,14 +56,14 @@ StatusCode CaloReadLCWeightsFile::initDataFromFile(std::string theLCWeightFileNa
       std::string key("_isamp_");
       size_t found = sTitle.find(key);
       if ( found == std::string::npos ) {
-	log << MSG::ERROR << "Could not find key " << key << " in current histogram." << endreq;
+	msg(MSG::ERROR) << "Could not find key " << key << " in current histogram." << endmsg;
       }
       else {
 	std::istringstream tstr(sTitle.substr(found+key.length()));
 	int isamp(-1);
 	tstr >> isamp;
 	if ( isamp <= 0 || isamp >= CaloSampling::Unknown ) {
-	  log << MSG::ERROR << "Found invalid sampling " << isamp << " in current histogram." << endreq;
+	  msg(MSG::ERROR) << "Found invalid sampling " << isamp << " in current histogram." << endmsg;
 	}
 	else {
 	  // now the other dimensions
@@ -100,7 +97,7 @@ StatusCode CaloReadLCWeightsFile::initDataFromFile(std::string theLCWeightFileNa
 	  for (idim=0;idim<keys.size();idim++) {
 	    found = sTitle.find(keys[idim]);
 	    if ( found == std::string::npos ) {
-	      log << MSG::ERROR << "Could not find key " << keys[idim] << " in current histogram." << endreq;
+	      msg(MSG::ERROR) << "Could not find key " << keys[idim] << " in current histogram." << endmsg;
 	      allValid = false;
 	    }
 	    else {
@@ -108,7 +105,7 @@ StatusCode CaloReadLCWeightsFile::initDataFromFile(std::string theLCWeightFileNa
 	      std::istringstream tstr(sTitle.substr(found+keys[idim].length()));
 	      tstr >> ibin[idim] >> c >> c >> rmin[idim] >> c >> rmax[idim] >> c >> nbin[idim];
 	      if ( ibin[idim] < 0 || ibin[idim] >= nbin[idim] ) {
-		log << MSG::ERROR << "Found invalid bin number " << ibin[idim] << " not in valid range [0," << nbin[idim] << " in current histogram." << endreq;
+		msg(MSG::ERROR) << "Found invalid bin number " << ibin[idim] << " not in valid range [0," << nbin[idim] << " in current histogram." << endmsg;
 		allValid = false;
 	      }
 	    }
@@ -145,11 +142,11 @@ StatusCode CaloReadLCWeightsFile::initDataFromFile(std::string theLCWeightFileNa
 		  theData[CaloLocalHadDefs::BIN_ENTRIES] = prof->GetBinEntries(iBin);
 		  theData[CaloLocalHadDefs::BIN_ERROR]   = prof->GetBinError(iBin);
 		  
-		  log << MSG::INFO << "Now set data for isamp=" << isamp
+		  msg(MSG::INFO) << "Now set data for isamp=" << isamp
 		      << " and bins: ";
 		  for(unsigned int ii=0;ii<ibin.size();ii++)
-		    log << ibin[ii] << " ";
-		  log << endreq;
+		    msg() << ibin[ii] << " ";
+		  msg() << endmsg;
 		  m_data->setCoeff(m_data->getBin(isampmap[isamp],ibin),theData);
 		}
 	      }
@@ -163,7 +160,7 @@ StatusCode CaloReadLCWeightsFile::initDataFromFile(std::string theLCWeightFileNa
       // create the data object from all areas
       for(unsigned int jsamp=0;jsamp<theAreas.size();jsamp++) {
 	if ( theAreas[jsamp].getNdim() > 0 ) { 
-	  log << MSG::INFO << "adding Area for jsamp=" << jsamp << " with nDim = " << theAreas[jsamp].getNdim() << endreq;
+	  msg(MSG::INFO) << "adding Area for jsamp=" << jsamp << " with nDim = " << theAreas[jsamp].getNdim() << endmsg;
 	  m_data->addArea(theAreas[jsamp]);
 	}
       }
@@ -175,28 +172,27 @@ StatusCode CaloReadLCWeightsFile::initDataFromFile(std::string theLCWeightFileNa
 }
                             
 StatusCode CaloReadLCWeightsFile::initialize() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << " Building CaloLocalHadCoeff object " << endreq;
+  msg(MSG::INFO) << " Building CaloLocalHadCoeff object " << endmsg;
   StatusCode sc;
   StoreGateSvc* detStore;
   sc=service("DetectorStore",detStore);
   if (sc.isFailure()) {
-     log << MSG::ERROR << "Unable to get the DetectorStore" << endreq;
+     msg(MSG::ERROR) << "Unable to get the DetectorStore" << endmsg;
      return sc;
   }
   sc=initDataFromFile(m_LCWeightFileName);
   if (sc.isFailure()) {
-     log << MSG::ERROR << "Unable to read input Data File" << endreq;
+     msg(MSG::ERROR) << "Unable to read input Data File" << endmsg;
      return sc;
   }
   sc=detStore->record(m_data,m_key);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to record CaloLocalHadCoeff" << endreq;
+    msg(MSG::ERROR) << "Unable to record CaloLocalHadCoeff" << endmsg;
     return sc;
   }
   sc=detStore->setConst(m_data);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to lock CaloLocalHadCoeff" << endreq;
+    msg(MSG::ERROR) << "Unable to lock CaloLocalHadCoeff" << endmsg;
     return sc;
   }
   return StatusCode::SUCCESS;

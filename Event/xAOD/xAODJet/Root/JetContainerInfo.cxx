@@ -83,6 +83,7 @@ namespace xAOD {
       nameToTypemap["Truth"] =              Truth;
       nameToTypemap["TruthWZ"] =            TruthWZ;
       nameToTypemap["TruthDressedWZ"] =     TruthDressedWZ;
+      nameToTypemap["TruthCharged"] =       TruthCharged;
       nameToTypemap["Track"] =              Track;
       nameToTypemap["PFlow"] =              PFlow;
       nameToTypemap["LCPFlow"] =            LCPFlow;

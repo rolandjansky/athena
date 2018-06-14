@@ -134,7 +134,7 @@ int JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
     std::vector<float> vsumpttrk = jet->getAttribute<std::vector<float> >(m_sumPtTrkName);
     float sumpttrk_all = tracksums.first;
     float sumpttrk_nonPV = tracksums.second;
-    float sumpttrk_PV = vsumpttrk[HSvertex->index()];
+    float sumpttrk_PV = vsumpttrk[HSvertex->index() - (*vertices)[0]->index()];
 
     // Get and set the JVF vector
     std::vector<float> jvf(vertices->size());
@@ -255,15 +255,19 @@ int JetVertexFractionTool::getPileupTrackCount(const xAOD::Vertex* vertex,
 
 const xAOD::Vertex* JetVertexFractionTool::findHSVertex(const xAOD::VertexContainer*& vertices) const
 {
-  for ( size_t iVertex = 0; iVertex < vertices->size(); ++iVertex ) {
-    if(vertices->at(iVertex)->vertexType() == xAOD::VxType::PriVtx) {
-      
-      ATH_MSG_VERBOSE("JetVertexFractionTool " << name() << " Found HS vertex at index: "<< iVertex);
-      return vertices->at(iVertex);
-    }
+  xAOD::Vertex* primvert = nullptr;
+  for (xAOD::Vertex* pv : *vertices) {
+	if (pv->vertexType() == xAOD::VxType::PriVtx ) {
+		primvert = pv;
+      		ATH_MSG_VERBOSE("JetVertexFractionTool " << name() << " Found HS vertex.");
+		break;
+	}
   }
-  ATH_MSG_VERBOSE("There is no vertex of type PriVx. Taking default vertex.");
-  return vertices->at(0);
+  if (primvert == nullptr ) {
+  	ATH_MSG_VERBOSE("There is no vertex of type PriVx. Taking default vertex.");
+	primvert = *(vertices->begin());
+  }
+  return primvert;
 }
 
 //**********************************************************************

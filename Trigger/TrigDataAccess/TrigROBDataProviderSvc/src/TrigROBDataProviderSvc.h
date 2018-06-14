@@ -42,11 +42,13 @@
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h"
 #include "TrigDataAccessMonitoring/ROBDataMonitor.h"
+#include "TrigSteeringEvent/RobRequestInfo.h"
 #include "eformat/Status.h"
 #include <vector>
 #include <map>
 
 #include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
+#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvcPrefetch.h"
 
 // Forward declarations
 class StoreGateSvc;  
@@ -55,7 +57,8 @@ class TH1F;   /// for monitoring purposes
 class TH2F;   /// for monitoring purposes
 
 class TrigROBDataProviderSvc : public ROBDataProviderSvc, 
-			       virtual public ITrigROBDataProviderSvc,   
+			       virtual public ITrigROBDataProviderSvc,
+                               virtual public ITrigROBDataProviderSvcPrefetch,   
 			       virtual public IIncidentListener
 {
 public:
@@ -119,6 +122,14 @@ public:
 
     /// get the name of the program which is presently registered in the ROBDataProviderSvc
     virtual std::string getCallerName() { return m_callerName; };
+
+    /// --- Implementation of ITrigROBDataProviderSvcPrefetch interface ---
+
+    /// Set access to ROB prefetching information from steering
+    virtual void setRobRequestInfo(HLT::RobRequestInfo* robInfo) { m_RobRequestInfo = robInfo; } ;
+
+    /// Get access to ROB prefetching information from steering
+    virtual HLT::RobRequestInfo* robRequestInfo() const { return m_RobRequestInfo; };
 
     /// --- Implementation of IIncidentListener interface ---
 
@@ -210,10 +221,12 @@ private:
   
     // Flag to indicate if all event data are already in the cache
     bool m_isEventComplete;
-
    
     /** @brief Pointer to MsgStream.*/
     MsgStream* m_msg;
+
+    // ROB prefetching info
+    HLT::RobRequestInfo* m_RobRequestInfo;
 
     // monitoring
     std::map<eformat::GenericStatus, std::string> m_map_GenericStatus;

@@ -42,10 +42,10 @@ if not hasattr(DerivationFrameworkJob, "IsolationBuilderLoose500"):
         EgIsoTypes             = [[]],
         MuIsoTypes             = ptconeList,
         CustomConfigurationNameMu = "LooseTTVA_pt500",
-        IsAODFix = True,
-        LeakageTool = None,
-        OutputLevel            = 3)
+        IsAODFix = False,
+        LeakageTool = None)
     DerivationFrameworkJob += isoBuilderLoose500
+
 if not hasattr(DerivationFrameworkJob, "IsolationBuilderTight1000"):
     isoBuilderTight1000 = IsolationBuilder(
         name                   = "IsolationBuilderTight1000",
@@ -56,10 +56,10 @@ if not hasattr(DerivationFrameworkJob, "IsolationBuilderTight1000"):
         EgIsoTypes             = [[]],
         MuIsoTypes             = ptconeList,
         CustomConfigurationNameMu = "TightTTVA_pt1000",
-        IsAODFix = True,
-        LeakageTool = None,
-        OutputLevel            = 3)
+        IsAODFix = False,
+        LeakageTool = None)
     DerivationFrameworkJob += isoBuilderTight1000
+
 if not hasattr(DerivationFrameworkJob, "IsolationBuilderTight500"):
     isoBuilderTight500 = IsolationBuilder(
         name                   = "IsolationBuilderTight500",
@@ -70,7 +70,6 @@ if not hasattr(DerivationFrameworkJob, "IsolationBuilderTight500"):
         EgIsoTypes             = [[]],
         MuIsoTypes             = ptconeList,
         CustomConfigurationNameMu = "TightTTVA_pt500",
-        IsAODFix = True,
-        LeakageTool = None,
-        OutputLevel            = 3)
+        IsAODFix = False,
+        LeakageTool = None)
     DerivationFrameworkJob += isoBuilderTight500

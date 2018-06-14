@@ -47,7 +47,7 @@ namespace xAOD {
       //
       const size_t iindex = orig.index();
       const size_t oindex = copy.index();
-      const SG::auxid_set_t& other_ids = ocont->getAuxIDs();
+      SG::auxid_set_t other_ids = ocont->getAuxIDs();
       SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
 
       // Copy the variables that exist on the input object:
@@ -71,7 +71,7 @@ namespace xAOD {
       }
       // Clear out the variables that only exist on the output object:
       for( SG::auxid_t auxid : copy.container()->getWritableAuxIDs() ) {
-         if( other_ids.find( auxid ) == other_ids.end() ) {
+         if( !other_ids.test( auxid ) ) {
             void* dst = copy.container()->getDataArray( auxid );
             r.clear( auxid, dst, oindex );
          }

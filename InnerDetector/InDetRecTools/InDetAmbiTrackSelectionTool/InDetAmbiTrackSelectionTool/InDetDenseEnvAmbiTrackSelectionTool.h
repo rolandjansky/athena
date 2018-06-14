@@ -369,6 +369,8 @@ namespace InDet
       float m_pairDeltaEta;
 
       bool m_monitorTracks; // to track observeration/monitoring (default is false)
+      bool m_doSCTSplitting; //WPM
+
       
     }; 
 } // end of namespace

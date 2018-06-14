@@ -99,7 +99,7 @@ float UpgradePerformanceFunctions::getMuonPtResolution(float ptMeV, float eta, f
   // replaced by custom MCP values for now while waiting for official upgrade tracking numbers
   // sigma_ID = getTrackPtResolution(ptMeV, eta);
 
-  if (fabs(eta)>2.7) { // large eta tagger momentum measurement comes from ITK
+  if (fabs(eta)>2.7 && !m_useWarmToroid) { // large eta tagger momentum measurement comes from ITK
       return sigma_ID;
   }
   if (sigma_ID > 0.) {
@@ -127,11 +127,14 @@ float  UpgradePerformanceFunctions::getMuonIDQOverPtResolution(float ptMeV, floa
 
 bool UpgradePerformanceFunctions::setupMuonResProvider(){
     m_muonRes =  std::unique_ptr<MuonMomentumResProvider>(new MuonMomentumResProvider("MuonMomentumResProvider"));
-    std::string release = "Step1p9_171002";
     if (m_muonCutLevel == highPtMuon){
-      release = "Step1p9_171002-HighPt";
+      m_muonEnergyResolutionFilename = "MuonMomentumResolutions_Step1p9_171002-HighPt.dat";
     }
-    if(m_muonRes->setProperty("UpgradeResolutionRelease",release).isFailure()  
+    if (m_muonCutLevel == highPtMuon && m_useWarmToroid ){
+      ATH_MSG_ERROR("Warm toroid smearing for High pT muons missing! ");
+      return false;  
+    }
+    if(m_muonRes->setProperty("UpgradeResolutionRelease", m_muonEnergyResolutionFilename).isFailure()  
        || m_muonRes->initialize()!=StatusCode::SUCCESS){
       ATH_MSG_ERROR("Failed to set up MuonMomentumResProvider! ");
       return false;  

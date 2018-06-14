@@ -402,6 +402,18 @@ def addVRJetsTCC(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadi
     jetassoctool = getJetExternalAssocTool('AntiKt10TrackCaloCluster', LargeRJetPrefix, MomentPrefix='', ListOfOldLinkNames=[VRGhostLabel])
     applyJetAugmentation('AntiKt10TrackCaloCluster', LinkTransferAlg, sequence, jetassoctool)
     
+##################################################################
+# Build variable-R calorimeter jets
+##################################################################
+def addVRCaloJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
+    if DerivationFrameworkIsMonteCarlo and dotruth:
+        addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, variableRMassScale=600000, variableRMinRadius=0.2, mods="truth_groomed",
+                       algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
+    addTrimmedJets('AntiKt', 1.0, 'PV0Track', rclus=0.2, ptfrac=0.05, variableRMassScale=600000, variableRMinRadius=0.2, mods="groomed",
+                   algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
+    addTrimmedJets('AntiKt', 1.0, 'LCTopo', rclus=0.2, ptfrac=0.05, variableRMassScale=600000, variableRMinRadius=0.2, mods="lctopo_groomed",
+                   algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
+
 #===================================================================
 # Utils: Copy Jets
 #===================================================================

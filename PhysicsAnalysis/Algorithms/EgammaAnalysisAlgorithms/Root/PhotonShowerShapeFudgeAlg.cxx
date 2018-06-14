@@ -22,7 +22,7 @@ namespace CP
   PhotonShowerShapeFudgeAlg (const std::string& name, 
                      ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)
-    , m_showerShapeFudgeTool ("CP::PhotonShowerShapeFudgeTool", this)
+    , m_showerShapeFudgeTool ("ElectronPhotonShowerShapeFudgeTool", this)
   {
     declareProperty ("showerShapeFudgeTool", m_showerShapeFudgeTool, "the smearing tool we apply");
   }

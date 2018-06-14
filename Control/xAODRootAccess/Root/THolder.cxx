@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: THolder.cxx 725531 2016-02-22 16:14:25Z krasznaa $
 
 // ROOT include(s):
 #include <TClass.h>
@@ -60,6 +58,7 @@ namespace xAOD {
    ///
    THolder::THolder( const THolder& parent )
       : m_object( parent.m_object ), m_type( parent.m_type ),
+        m_typeInfo( parent.m_typeInfo ),
         m_owner( parent.m_owner ) {
 
       // Increase the object count:
@@ -80,6 +79,7 @@ namespace xAOD {
    ///
    THolder::THolder( THolder&& parent )
       : m_object( parent.m_object ), m_type( parent.m_type ),
+        m_typeInfo( parent.m_typeInfo ),
         m_owner( parent.m_owner ) {
 
       // Tell the parent that it no longer owns the object:

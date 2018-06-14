@@ -1,5 +1,7 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_COMMONEFFICIENCYTOOL_H
@@ -32,7 +34,7 @@
 #include "TROOT.h"
 #include "TClass.h"
 #include "TFile.h"
-#include "TH1F.h"
+#include "TH1.h"
 #include "TF1.h"
 #include "TKey.h"
 
@@ -103,24 +105,20 @@ protected:
   double (*m_fX)(const xAOD::TauJet& xTau);
   double (*m_fY)(const xAOD::TauJet& xTau);
 
-  void ReadInputs(std::unique_ptr<TFile> &fFile);
+  void ReadInputs(TFile& fFile);
   void addHistogramToSFMap(TKey* kKey, const std::string& sKeyName);
 
   virtual CP::CorrectionCode getValue(const std::string& sHistName,
                                       const xAOD::TauJet& xTau,
                                       double& dEfficiencyScaleFactor) const;
 
-  static CP::CorrectionCode getValueTH2F(const TObject* oObject,
-                                         double& dEfficiencyScaleFactor,
-                                         double dVars[]
+  static CP::CorrectionCode getValueTH2(const TObject* oObject,
+                                        double& dEfficiencyScaleFactor,
+                                        double dVars[]
                                         );
-  static CP::CorrectionCode getValueTH2D(const TObject* oObject,
-                                         double& dEfficiencyScaleFactor,
-                                         double dVars[]
-                                        );
-  static CP::CorrectionCode getValueTH3D(const TObject* oObject,
-                                         double& dEfficiencyScaleFactor,
-                                         double dVars[]
+  static CP::CorrectionCode getValueTH3(const TObject* oObject,
+                                        double& dEfficiencyScaleFactor,
+                                        double dVars[]
                                         );
   static CP::CorrectionCode getValueTF1(const TObject* oObject,
                                         double& dEfficiencyScaleFactor,

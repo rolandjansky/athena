@@ -620,8 +620,11 @@ public:
    *
    * Erase all decorations from the store, restoring the state to when
    * @c lock was called.
+   *
+   * Returns true if there were any decorations that were cleared,
+   * false if the store did not contain any decorations.
    */
-  void clearDecorations() const;
+  bool clearDecorations() const;
 
 
   //@}
@@ -872,7 +875,7 @@ private:
   mutable mutex_t m_mutex;
 
   /// Empty auxid set, used for a return value when we have no associated store.
-  static SG::auxid_set_t s_emptySet;
+  static const SG::auxid_set_t s_emptySet;
 };
 
 

@@ -15,6 +15,12 @@ from AthenaCommon.Logging import logging
 
 overlayflaglog = logging.getLogger('Overlay_Flags')
 
+class isDataOverlay(JobProperty):
+    """Flag to separate data vs MC overlay"""
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue = True
+
 class EventIDTextFile(JobProperty):
     """Name of the Event ID Text file"""
     statusOn=True
@@ -64,7 +70,3 @@ for jpname in dir():
 
 ## Short-cut alias (standard naming)
 overlayFlags = jobproperties.Overlay_Flags
-
-
-  
-
