@@ -3254,7 +3254,8 @@ CombinedMuonTrackBuilder::appendSelectedTSOS(
 	    if (previousSurface
 		&& std::find(measurementSurfaces.begin(),
 			     measurementSurfaces.end(),
-			     surface) != measurementSurfaces.end())	
+			     surface) != measurementSurfaces.end()
+		&& !m_idHelperTool->isMM(surface->associatedDetectorElementIdentifier()))	
 	    {
 		std::string type	 = "";
 		if (dynamic_cast<const Trk::CompetingRIOsOnTrack*>((**s).measurementOnTrack()))
@@ -4087,7 +4088,8 @@ CombinedMuonTrackBuilder::createSpectrometerTSOS(const Trk::Track& spectrometerT
 		if (previousSurface
 		    && std::find(measurementSurfaces.begin(),
 				 measurementSurfaces.end(),
-				 surface) != measurementSurfaces.end())
+				 surface) != measurementSurfaces.end()
+		    && !m_idHelperTool->isMM(surface->associatedDetectorElementIdentifier()))
 		{
 		    std::string type	 = "";
 		    if (dynamic_cast<const Trk::CompetingRIOsOnTrack*>((**s).measurementOnTrack()))
