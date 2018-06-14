@@ -48,7 +48,8 @@ atlas_add_test( read_test
                 SOURCES
                 test/read_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} TestTools AthenaKernel RootUtils RootUtilsPyROOT CollectionBase FileCatalog POOLCore PersistencySvc PersistentDataModel GaudiKernel RootCollection RootCollectionComponents )
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} TestTools AthenaKernel RootUtils RootUtilsPyROOT CollectionBase FileCatalog POOLCore PersistencySvc PersistentDataModel GaudiKernel RootCollection RootCollectionComponents
+                PROPERTIES DEPENDS RootCollection_update_test_ctest )
 
 atlas_add_test( update_test
                 SOURCES
