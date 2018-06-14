@@ -1,5 +1,5 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
-#include "ISF_FatrasServices/FatrasSimSvc.h"
+#include "../FatrasSimSvc.h"
 
 DECLARE_NAMESPACE_SERVICE_FACTORY( iFatras , FatrasSimSvc )
 
