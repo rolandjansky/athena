@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_FatrasTools/McMaterialEffectsEngine.h"
+#include "McMaterialEffectsEngine.h"
 
 // Gaudi Kernel
 #include "GaudiKernel/DataSvc.h"
