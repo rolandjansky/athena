@@ -8,8 +8,11 @@
  *
  */
 
-#ifndef LARHVCORRECTIONMONTOOL_H
-#define LARHVCORRECTIONMONTOOL_H
+#ifndef LARMONTOOLS_LARHVCORRECTIONMONTOOL_H
+#define LARMONTOOLS_LARHVCORRECTIONMONTOOL_H
+
+#include "SelectAllLArRawChannels.h"
+#include "LArOnlineIDStrHelper.h"
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "CaloIdentifier/CaloIdManager.h"
@@ -21,13 +24,10 @@
 
 #include "Identifier/HWIdentifier.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArMonTools/SelectAllLArRawChannels.h"
-#include "LArMonTools/LArOnlineIDStrHelper.h"
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "EventContainers/SelectAllObject.h" 
 #include "LArCabling/LArCablingService.h"
-#include "LArRecUtils/LArHVCorrTool.h"
 #include "LArElecCalib/ILArHVCorrTool.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
 

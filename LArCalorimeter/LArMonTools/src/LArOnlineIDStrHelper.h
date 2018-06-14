@@ -12,8 +12,8 @@
  * cryostatEnd, feedthroug, feb, channel, partition names
  * Four different types of names are supported: see enum NameType below */
 
-#ifndef LARONLINEIDSTRHELPER_H
-#define LARONLINEIDSTRHELPER_H
+#ifndef LARMONTOOLS_LARONLINEIDSTRHELPER_H
+#define LARMONTOOLS_LARONLINEIDSTRHELPER_H
 
 #include "Identifier/HWIdentifier.h"
 

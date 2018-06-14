@@ -8,8 +8,11 @@
  *
  */
 
-#ifndef LARCOVERAGE_H
-#define LARCOVERAGE_H
+#ifndef LARMONTOOLS_LARCOVERAGE_H
+#define LARMONTOOLS_LARCOVERAGE_H
+
+#include "SelectAllLArRawChannels.h"
+#include "LArOnlineIDStrHelper.h"
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "CaloIdentifier/CaloGain.h"
@@ -24,8 +27,6 @@
 
 #include "Identifier/HWIdentifier.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArMonTools/SelectAllLArRawChannels.h"
-#include "LArMonTools/LArOnlineIDStrHelper.h"
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "EventContainers/SelectAllObject.h" 

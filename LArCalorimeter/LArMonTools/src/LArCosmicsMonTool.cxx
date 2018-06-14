@@ -15,11 +15,7 @@
 //
 // ********************************************************************
 
-//#include "GaudiKernel/MsgStream.h"
-//#include "AthenaMonitoring/LogFileMsgStream.h"
-//#include "GaudiKernel/ISvcLocator.h"
-//#include "GaudiKernel/ITHistSvc.h"
-//#include "GaudiKernel/IToolSvc.h"
+#include "LArCosmicsMonTool.h"
 
 #include "Identifier/IdentifierHash.h"
 
@@ -32,8 +28,6 @@
 #include <functional>
 #include <map>
 #include <utility>
-
-#include "LArMonTools/LArCosmicsMonTool.h"
 
 using namespace std;
 
