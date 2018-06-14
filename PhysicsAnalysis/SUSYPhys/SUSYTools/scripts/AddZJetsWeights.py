@@ -942,7 +942,7 @@ def main(infile, weightsFile, treename, attr_mcID, attr_nTruthJets):
                (363102 <= MCID <= 363122) or
                (363361 <= MCID <= 363363) or
                (363364 <= MCID <= 363411) or
-               (364114 <= MCID <= 364126) or
+               (364114 <= MCID <= 364127) or
                (364100 <= MCID <= 364112) or
                (364128 <= MCID <= 364140)
             ):
