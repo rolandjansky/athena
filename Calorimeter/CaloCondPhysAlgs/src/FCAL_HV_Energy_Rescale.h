@@ -9,7 +9,7 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "LArRecUtils/LArHVCorrTool.h"
+#include "LArElecCalib/ILArHVCorrTool.h"
 
 class FCAL_HV_Energy_Rescale: public AthAlgorithm
 { 

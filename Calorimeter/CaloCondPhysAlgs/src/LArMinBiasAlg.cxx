@@ -2,9 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CaloCondPhysAlgs/LArMinBiasAlg.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/MsgStream.h"
+#include "LArMinBiasAlg.h"
 
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventInfo.h"

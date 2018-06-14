@@ -5,8 +5,8 @@
 // CaloCellPosition2Ntuple.h
 //
 
-#ifndef _CaloCondPhysAlgs_CaloCellPosition2Ntuple_H
-#define _CaloCondPhysAlgs_CaloCellPosition2Ntuple_H
+#ifndef CALOCONDPHYSALGS_CALOCELLPOSITION2NTUPLE_H
+#define CALOCONDPHYSALGS_CALOCELLPOSITION2NTUPLE_H
 
 #include <string>
 
