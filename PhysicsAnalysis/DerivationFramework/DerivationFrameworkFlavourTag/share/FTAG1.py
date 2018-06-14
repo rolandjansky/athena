@@ -124,7 +124,12 @@ ExCoMJetCollection__SubJet = addExCoM(FTAG1Seq, ToolSvc, ExKtJetCollection__FatJ
 BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
                                             "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
 
-
+RCExKtJetCollection__FatJetConfigs = {
+                                   "AntiKt8EMTopoJets"         : {"doTrackSubJet": True},#False},
+                                   }
+RCExKtJetCollection__FatJet = RCExKtJetCollection__FatJetConfigs.keys()
+RCExKtJetCollection__SubJet = []
+addRCDoubleTaggerJets(FTAG1Seq, ToolSvc, RCExKtJetCollection__FatJetConfigs, RCExKtJetCollection__FatJet, RCExKtJetCollection__SubJet)#,"FTAG1JetReclusteringTool","FTAG1JetAlgo")
 #===================================================================
 # Variable Radius (VR) Jets 
 #===================================================================
@@ -174,10 +179,10 @@ for JetCollectionExKtCoM in ExKtJetCollection__SubJet + ExCoMJetCollection__SubJ
     # b-tagging #
     FTAG1SlimmingHelper.StaticContent.append("xAOD::BTaggingContainer#BTagging_"+JetName)
     FTAG1SlimmingHelper.StaticContent.append("xAOD::BTaggingAuxContainer#BTagging_" + JetName + "Aux.")
-    FTAG1SlimmingHelper.StaticContent.append("xAOD::VertexContainer#BTagging_" + JetName + "SecVtx")
-    FTAG1SlimmingHelper.StaticContent.append("xAOD::VertexAuxContainer#BTagging_" + JetName + "SecVtx" + "Aux.")
-    FTAG1SlimmingHelper.StaticContent.append("xAOD::BTagVertexContainer#BTagging_" + JetName + "JFVtx")
-    FTAG1SlimmingHelper.StaticContent.append("xAOD::BTagVertexAuxContainer#BTagging_" + JetName + "JFVtx" + "Aux.")
+    #FTAG1SlimmingHelper.StaticContent.append("xAOD::VertexContainer#BTagging_" + JetName + "SecVtx")
+    #FTAG1SlimmingHelper.StaticContent.append("xAOD::VertexAuxContainer#BTagging_" + JetName + "SecVtx" + "Aux.")
+    #FTAG1SlimmingHelper.StaticContent.append("xAOD::BTagVertexContainer#BTagging_" + JetName + "JFVtx")
+    #FTAG1SlimmingHelper.StaticContent.append("xAOD::BTagVertexAuxContainer#BTagging_" + JetName + "JFVtx" + "Aux.")
 
 
 # nb: BTagging_AntiKt4EMTopo smart collection includes both AntiKt4EMTopoJets and BTagging_AntiKt4EMTopo
@@ -273,6 +278,22 @@ FTAG1SlimmingHelper.AppendToDictionary = {
   "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubAux"         :   "xAOD::BTaggingAuxContainer",
   }
 #----------------------------------------------------------------------
+
+
+for JetCollectionName in RCExKtJetCollection__FatJet+RCExKtJetCollection__SubJet:
+  JetCollectionBtagName = JetCollectionName[:-4].replace("PV0", "")
+
+  FTAG1SlimmingHelper.AppendToDictionary[JetCollectionName] = "xAOD::JetContainer"
+  FTAG1SlimmingHelper.AppendToDictionary[JetCollectionName+"Aux"] = "xAOD::JetAuxContainer"
+
+  FTAG1SlimmingHelper.AppendToDictionary["BTagging_"+JetCollectionBtagName] = "xAOD::BTaggingContainer"
+  FTAG1SlimmingHelper.AppendToDictionary["BTagging_"+JetCollectionBtagName+"Aux"] = "xAOD::BTaggingAuxContainer"
+
+for JetCollectionName in RCExKtJetCollection__FatJet+RCExKtJetCollection__SubJet:
+  JetCollectionBtagName = JetCollectionName[:-4].replace("PV0", "")
+
+  FTAG1SlimmingHelper.AllVariables += [JetCollectionName,
+                                       "BTagging_"+JetCollectionBtagName]
 
 #addJetOutputs(FTAG1SlimmingHelper,["FTAG1"])
 

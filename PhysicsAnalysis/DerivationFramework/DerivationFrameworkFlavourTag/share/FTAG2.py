@@ -120,14 +120,13 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 # ExKt subjet collection
 #===================================================================
 
-ExKtJetCollection__FatJetConfigs = {
+RCExKtJetCollection__FatJetConfigs = {
                                    "AntiKt8EMTopoJets"         : {"doTrackSubJet": True},#False},
                                    }
-ExKtJetCollection__FatJet = ExKtJetCollection__FatJetConfigs.keys()
-ExKtJetCollection__SubJet = []
+RCExKtJetCollection__FatJet = RCExKtJetCollection__FatJetConfigs.keys()
+RCExKtJetCollection__SubJet = []
 
-addDoubleTaggerJet(FTAG2Seq, ToolSvc, ExKtJetCollection__FatJetConfigs, ExKtJetCollection__FatJet, ExKtJetCollection__SubJet)
-
+addRCDoubleTaggerJets(FTAG2Seq, ToolSvc, RCExKtJetCollection__FatJetConfigs, RCExKtJetCollection__FatJet, RCExKtJetCollection__SubJet)#,"FTAG2JetReclusteringTool","FTAG2JetAlgo")
 
 #===================================================================
 # Tag custom or pre-built jet collections
@@ -236,7 +235,7 @@ FTAG2SlimmingHelper.AppendToDictionary = {
 
 #----------------------------------------------------------------------
 
-for JetCollectionName in ExKtJetCollection__FatJet+ExKtJetCollection__SubJet:
+for JetCollectionName in RCExKtJetCollection__FatJet+RCExKtJetCollection__SubJet:
   JetCollectionBtagName = JetCollectionName[:-4].replace("PV0", "")
 
   FTAG2SlimmingHelper.AppendToDictionary[JetCollectionName] = "xAOD::JetContainer"
@@ -245,7 +244,7 @@ for JetCollectionName in ExKtJetCollection__FatJet+ExKtJetCollection__SubJet:
   FTAG2SlimmingHelper.AppendToDictionary["BTagging_"+JetCollectionBtagName] = "xAOD::BTaggingContainer"
   FTAG2SlimmingHelper.AppendToDictionary["BTagging_"+JetCollectionBtagName+"Aux"] = "xAOD::BTaggingAuxContainer"
 
-for JetCollectionName in ExKtJetCollection__FatJet+ExKtJetCollection__SubJet:
+for JetCollectionName in RCExKtJetCollection__FatJet+RCExKtJetCollection__SubJet:
   JetCollectionBtagName = JetCollectionName[:-4].replace("PV0", "")
 
   FTAG2SlimmingHelper.AllVariables += [JetCollectionName,
