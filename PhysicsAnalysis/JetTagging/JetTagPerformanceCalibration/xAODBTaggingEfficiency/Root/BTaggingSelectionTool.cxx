@@ -12,6 +12,8 @@
 #include "PathResolver/PathResolver.h"
 
 #include "TFile.h"
+#include "TObjArray.h"
+#include "TObjString.h"
 
 #include <algorithm>
 
