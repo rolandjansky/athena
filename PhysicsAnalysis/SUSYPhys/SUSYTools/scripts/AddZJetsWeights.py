@@ -951,7 +951,7 @@ def main(infile, weightsFile, treename, attr_mcID, attr_nTruthJets):
         elif (
                (361444 <= MCID <= 361467) or
                (363412 <= MCID <= 363435) or
-               (364142 <= MCID <= 364154)
+               (364142 <= MCID <= 364155)
             ):
             decayType = "nolepton"
 
