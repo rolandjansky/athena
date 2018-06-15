@@ -309,7 +309,7 @@ namespace CP {
 
             // The regular expression used to extract the needed info.
             static const std::regex
-               re( "\\s*([\\w%]+)\\.(\\w+)\\s*->\\s*([\\w%]+)" );
+               re( "\\s*([\\w%]+)\\.([\\w%]+)\\s*->\\s*([\\w%]+)" );
 
             // Interpret this branch declaration.
             std::smatch match;
@@ -329,9 +329,23 @@ namespace CP {
 
                // Event store key for the object under consideration.
                const std::string key = makeSystematicsName( match[ 1 ], sys );
+               // Auxiliary variable name for the object under consideration.
+               const std::string auxName = makeSystematicsName( match[ 2 ],
+                                                                sys );
                // Branch name for the variable.
                const std::string brName = makeSystematicsName( match[ 3 ],
                                                                sys );
+
+               // Check that we use the %SYS% pattern reasonably in the names.
+               if( ( ( key == match[ 1 ] ) && ( auxName == match[ 2 ] ) &&
+                     ( brName != match[ 3 ] ) ) ||
+                   ( ( ( key != match[ 1 ] ) || ( auxName != match[ 2 ] ) ) &&
+                     ( brName == match[ 3 ] ) ) ) {
+                  ATH_MSG_ERROR( "The systematic variation pattern is used "
+                                 "inconsistently in: \"" << branchDecl
+                                 << "\"" );
+                  return StatusCode::FAILURE;
+               }
 
                // Decide whether the specified key belongs to a container or
                // a standalone object.
@@ -339,25 +353,32 @@ namespace CP {
                if( getVector( key, *( evtStore() ), ALLOW_MISSING,
                               msg() ) ) {
                   ATH_CHECK( m_containers[ key ].addBranch( *m_tree,
-                                                            match[ 2 ],
+                                                            auxName,
                                                             brName ) );
                   ATH_MSG_DEBUG( "Writing branch \"" << brName
                                  << "\" from container/variable \"" << key
-                                 << "." << match[ 2 ] << "\"" );
+                                 << "." << auxName << "\"" );
                   branchCreated = true;
                } else if( getElement( key, *( evtStore() ),
                                       ALLOW_MISSING, msg() ) ) {
                   ATH_CHECK( m_elements[ key ].addBranch( *m_tree,
-                                                          match[ 2 ],
+                                                          auxName,
                                                           brName ) );
                   ATH_MSG_DEBUG( "Writing branch \"" << brName
                                  << "\" from object/variable \"" << key
-                                 << "." << match[ 2 ] << "\"" );
+                                 << "." << auxName << "\"" );
                   branchCreated = true;
                } else {
                   ATH_MSG_DEBUG( "Container \"" << key
                                  << "\" not readable for expression: \""
                                  << branchDecl << "\"" );
+               }
+
+               // If the %SYS% pattern was not used in this setup, then stop
+               // after the first iteration.
+               if( ( key == match[ 1 ] ) && ( auxName == match[ 2 ] ) &&
+                   ( brName == match[ 3 ] ) ) {
+                  break;
                }
             }
 
@@ -460,17 +481,8 @@ namespace CP {
       auto itr = std::find_if( m_branches.begin(), m_branches.end(),
                                BranchFinder( branchName ) );
       if( itr != m_branches.end() ) {
-         // Make sure that it is set up from the same auxiliary variable that
-         // we're trying to set up now.
-         if( itr->m_acc->auxid() !=
-            SG::AuxTypeRegistry::instance().findAuxID( auxName ) ) {
-            ATH_MSG_ERROR( "Incompatible sources received for branch: "
-                           << branchName );
-            return StatusCode::FAILURE;
-         } else {
-            // This is normal...
-            return StatusCode::SUCCESS;
-         }
+         ATH_MSG_ERROR( "Duplicate setup received for branch: " << branchName );
+         return StatusCode::FAILURE;
       }
 
       // Set up the new branch.
@@ -694,17 +706,7 @@ namespace CP {
       auto itr = std::find_if( m_branches.begin(), m_branches.end(),
                                BranchFinder( branchName ) );
       if( itr != m_branches.end() ) {
-         // Make sure that it is set up from the same auxiliary variable that
-         // we're trying to set up now.
-         if( itr->m_acc->auxid() !=
-             SG::AuxTypeRegistry::instance().findAuxID( auxName ) ) {
-            ATH_MSG_ERROR( "Incompatible sources received for branch: "
-                           << branchName );
-            return StatusCode::FAILURE;
-         } else {
-            // This is normal...
-            return StatusCode::SUCCESS;
-         }
+         ATH_MSG_ERROR( "Duplicate setup received for branch: " << branchName );
       }
 
       // Set up the new branch.
