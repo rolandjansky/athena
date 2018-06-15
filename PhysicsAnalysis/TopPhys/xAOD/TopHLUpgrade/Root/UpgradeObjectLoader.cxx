@@ -28,7 +28,7 @@ bool ptSort(const xAOD::IParticle* p1, const xAOD::IParticle* p2) {
 UpgradeObjectLoader::UpgradeObjectLoader( const std::shared_ptr<top::TopConfig> & cfg ) :
   asg::AsgTool( "UpgradeObjectLoader" ),
   m_config(cfg),
-  m_upgrade(),
+  m_upgrade(nullptr),
   // tool is active depending on config settings
   m_active(m_config->isMC() && m_config->HLLHC()),
   m_dofakes(m_config->isMC() && m_config->HLLHCFakes()),
@@ -40,24 +40,28 @@ UpgradeObjectLoader::UpgradeObjectLoader( const std::shared_ptr<top::TopConfig> 
 
   if ( m_active ){
     std::cout << "Upgrade level reconstruction is enabled; telling you how I am configured:" << '\n';
-    m_upgrade.reset(new UpgradePerformanceFunctionsxAOD("UpgradePerformanceFunctionsxAOD",UpgradePerformanceFunctionsxAOD::Step1p6,200.0)); //layout & mu hard coded for now
-    m_upgrade->setElectronWorkingPoint(UpgradePerformanceFunctions::mediumElectron);
-    m_upgrade->setElectronRandomSeed(171);
-    m_upgrade->setMuonWorkingPoint(UpgradePerformanceFunctions::tightMuon);
-    m_upgrade->setMETRandomSeed(986);
-    m_upgrade->loadMETHistograms("UpgradePerformanceFunctions/sumetPU_mu200_ttbar_gold.root");
-    m_upgrade->setPileupUseTrackConf(true); 
-    m_upgrade->setJetRandomSeed(121);
-    m_upgrade->setPileupRandomSeed(771);
-    m_upgrade->setPileupJetPtThresholdMeV(30000.);
-    m_upgrade->setPileupEfficiencyScheme(UpgradePerformanceFunctions::PileupEff::PU);
-    m_upgrade->setPileupEff(0.02);
-    m_upgrade->setPileupTemplatesPath("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/UpgradePerformanceFunctions/");
-    m_upgrade->setFlavourTaggingCalibrationFilename("UpgradePerformanceFunctions/flavor_tags_v2.0.root");
-    m_upgrade->setPhotonWorkingPoint(UpgradePerformanceFunctions::tightPhoton);
-    m_upgrade->setPhotonNoiseScaling(0.375); //recommended value
-    m_upgrade->setPhotonRandomSeed(1);
-    m_upgrade->initPhotonFakeHistograms("UpgradePerformanceFunctions/PhotonFakes.root");
+    //asg::setProperty(m_upgrade, "Layout", UpgradePerformanceFunctionsxAOD::Step1p6) , "Failed to setProperty" );
+    m_upgrade.reset( new UpgradePerformanceFunctionsxAOD("UpgradePerformanceFunctionsxAOD"));
+    std::cout << "Upgrade level reconstruction is enabled; telling you how I am configured:" << '\n';
+    top::check(m_upgrade->setProperty("Layout", UpgradePerformanceFunctionsxAOD::Step1p6) , "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("AvgMu", 200) , "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("ElectronWorkingPoint", UpgradePerformanceFunctionsxAOD::mediumElectron) , "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("ElectronRadomSeed", 171) , "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("MuonWorkingPoint", UpgradePerformanceFunctionsxAOD::tightMuon), "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("METRandomSeed", 986), "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("METFile", "UpgradePerformanceFunctions/sumetPU_mu200_ttbar_gold.root"), "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("UseTrackConfirmation", true), "Failed to setProperty" ); 
+    top::check(m_upgrade->setProperty("JetRandomSeed", 121), "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("PileupRandomSeed", 771), "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("PileupJetThresholdMeV", 30000.), "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("PileupEfficiency", UpgradePerformanceFunctionsxAOD::PU), "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("JVT_PU_Efficiency", 0.02), "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("PileupPath", "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/UpgradePerformanceFunctions/"), "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("FlavourTaggingCalibrationFile", "UpgradePerformanceFunctions/flavor_tags_v2.0.root"), "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("PhotonWorkingPoint", UpgradePerformanceFunctionsxAOD::tightPhoton), "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("PhotonNoiseScaling", 0.375), "Failed to setProperty" ); //recommended value
+    top::check(m_upgrade->setProperty("PhotonRandomSeed", 1), "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("PhotonFakeFile", "UpgradePerformanceFunctions/PhotonFakes.root"), "Failed to setProperty" );
 
     // configure muon selector
     auto optMu = UpgradeLeptonObjectSelector::Options{
@@ -493,7 +497,7 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
   const xAOD::MissingET* origmet = (*origmetcont)["NonInt"];
 
   // the MET type is just std::pair<double,double>, representing the smeared METx and METy
-  UpgradePerformanceFunctions::MET smearedMET = m_upgrade->getMETSmeared(origmet->sumet(), origmet->mpx(), origmet->mpy());
+  UpgradePerformanceFunctionsxAOD::MET smearedMET = m_upgrade->getMETSmeared(origmet->sumet(), origmet->mpx(), origmet->mpy());
   
   // Shallow copy 
   std::pair< xAOD::MissingETContainer*, xAOD::ShallowAuxContainer* > metcont_shallowCopy = xAOD::shallowCopyContainer( *origmetcont );
