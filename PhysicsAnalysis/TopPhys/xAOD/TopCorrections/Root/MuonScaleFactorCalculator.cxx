@@ -111,14 +111,14 @@ namespace top {
     }
 
     ///-- Not a good reason for this happening at the moment --///
-    if (m_config->muonIsolation() != "None" && !m_do_muon_isolation_SFs) {
+    if (m_config->muonIsolationSF() != "None" && !m_do_muon_isolation_SFs) {
       ATH_MSG_WARNING("No muon isolation SFs available."
                       " You can run with MuonIsolation set to"
                       " None if you don't want isolation.");
       return StatusCode::FAILURE;
     }
     ///-- Not a good reason for this happening at the moment --///
-    if (m_config->muonIsolationLoose() != "None" && !m_do_muon_isolation_SFs_loose) {
+    if (m_config->muonIsolationSFLoose() != "None" && !m_do_muon_isolation_SFs_loose) {
       ATH_MSG_WARNING("No loose muon isolation SFs available."
                       " You can run with MuonIsolationLoose set to"
                       " None if you don't want isolation.");
@@ -140,8 +140,8 @@ namespace top {
     m_decor_triggerSF_loose  = "MU_SF_Trigger_"   + m_config->muonQualityLoose();
     m_decor_idSF             = "MU_SF_ID_"        + m_config->muonQuality();
     m_decor_idSF_loose       = "MU_SF_ID_"        + m_config->muonQualityLoose();
-    m_decor_isoSF            = "MU_SF_Isol_"      + m_config->muonIsolation();
-    m_decor_isoSF_loose      = "MU_SF_Isol_"      + m_config->muonIsolationLoose();
+    m_decor_isoSF            = "MU_SF_Isol_"      + m_config->muonIsolationSF();
+    m_decor_isoSF_loose      = "MU_SF_Isol_"      + m_config->muonIsolationSFLoose();
 
     return StatusCode::SUCCESS;
   }

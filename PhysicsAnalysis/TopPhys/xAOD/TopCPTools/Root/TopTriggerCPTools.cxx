@@ -172,12 +172,12 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
   std::string electronID, electronIDLoose, electronIsolation, electronIsolationLoose, muonQuality, muonQualityLoose;
   if(m_config->doTightEvents()){
     electronID             = m_config->electronID();
-    electronIsolation      = m_config->electronIsolation();
+    electronIsolation      = m_config->electronIsolationSF();
     muonQuality            = m_config->muonQuality();
   }
   if(m_config->doLooseEvents()){
     electronIDLoose        = m_config->electronIDLoose();
-    electronIsolationLoose = m_config->electronIsolationLoose();
+    electronIsolationLoose = m_config->electronIsolationSFLoose();
     muonQualityLoose       = m_config->muonQualityLoose();
   }
   

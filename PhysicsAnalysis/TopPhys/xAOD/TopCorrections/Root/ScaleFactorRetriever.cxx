@@ -196,9 +196,9 @@ namespace top {
     if (event.m_isLoose && !m_config->applyTightSFsInLooseTree()) {
       electronID = m_config->electronIDLoose();
     }
-    std::string electronIso = m_config->electronIsolation();
+    std::string electronIso = m_config->electronIsolationSF();
     if (event.m_isLoose && !m_config->applyTightSFsInLooseTree()) {
-      electronIso = m_config->electronIsolationLoose();
+      electronIso = m_config->electronIsolationSFLoose();
     }
 
     float reco(1.);
@@ -364,7 +364,7 @@ namespace top {
                                               const top::topSFSyst SFSyst,
                                               bool isLoose) const {
 
-      return electronSF_Isol(x, (isLoose ? m_config->electronIsolationLoose() : m_config->electronIsolation()), SFSyst);
+      return electronSF_Isol(x, (isLoose ? m_config->electronIsolationSFLoose() : m_config->electronIsolationSF()), SFSyst);
 
     }
 
@@ -477,11 +477,11 @@ namespace top {
     float sf(1.);
 
     std::string muonID = m_config->muonQuality();
-    std::string muonIso = m_config->muonIsolation();
+    std::string muonIso = m_config->muonIsolationSF();
 
     if (event.m_isLoose && !m_config->applyTightSFsInLooseTree()) {
       muonID = m_config->muonQualityLoose();
-      muonIso = m_config->muonIsolationLoose();
+      muonIso = m_config->muonIsolationSFLoose();
     }
 
     float reco(1.);
@@ -665,7 +665,7 @@ namespace top {
                                           const top::topSFSyst SFSyst,
                                           bool isLoose) const {
 
-    return muonSF_Isol(x, (isLoose ? m_config->muonIsolationLoose() : m_config->muonIsolation()), SFSyst);
+    return muonSF_Isol(x, (isLoose ? m_config->muonIsolationSFLoose() : m_config->muonIsolationSF()), SFSyst);
   }
 
 

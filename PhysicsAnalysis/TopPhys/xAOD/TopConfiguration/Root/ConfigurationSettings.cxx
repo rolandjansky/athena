@@ -51,7 +51,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("EgammaSystematicModel","Egamma Systematic model : FULL_v1 , FULL_ETACORRELATED_v1 , 1NP_v1 (default)","1NP_v1");
     registerParameter("ElectronIsolation","Isolation to use : Gradient, GradientLoose, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, LooseTrackOnly, Loose, Tight, FixedCutHighPtCaloOnly,  None","Gradient");
     registerParameter("ElectronIsolationLoose","Isolation to use : Gradient, GradientLoose, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, LooseTrackOnly, Loose, Tight, FixedCutHighPtCaloOnly, None","None");
-    registerParameter("ElectronIsoSFs", "True/False. Set to False to allow unsupported ID/isolation WP combinations to be used.", "True");
+    registerParameter("ElectronIsolationSF", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
+    registerParameter("ElectronIsolationSFLoose", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("ElectronVetoLArCrack", "True/False. Set to False to disable LAr crack veto (not recommended).", "True");
 
     registerParameter("PhotonPt", "Photon pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
@@ -68,6 +69,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("MuonQualityLoose", "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight", "Medium");
     registerParameter("MuonIsolation","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTightTrackOnly, FixedCutLoose, PromptLepton, None","Gradient");
     registerParameter("MuonIsolationLoose","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTightTrackOnly, FixedCutLoose, PromptLepton, None,","None");
+    registerParameter("MuonIsolationSF", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
+    registerParameter("MuonIsolationSFLoose", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("UseAntiMuons", "Use AntiMuons for fake estimate. Default: false", "false");
 
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
