@@ -290,11 +290,11 @@ STDM4Stream.AddItem('xAOD::MissingETContainer#MET_Reference_NewAntiKt4EMPFlowHR'
 STDM4Stream.AddItem('xAOD::MissingETAuxContainer#MET_Reference_NewAntiKt4EMPFlowHRAux.-ConstitObjectLinks.-ConstitObjectWeights')
 
 
-STDM4Stream.AddItem("xAOD::MuonContainer#Muons")
-STDM4Stream.AddItem("xAOD::MuonAuxContainer#MuonsAux.")
+#STDM4Stream.AddItem("xAOD::MuonContainer#Muons")
+#STDM4Stream.AddItem("xAOD::MuonAuxContainer#MuonsAux.")
 
-STDM4Stream.AddItem("xAOD::ElectronContainer#Electrons")
-STDM4Stream.AddItem("xAOD::ElectronAuxContainer#ElectronsAux.")
+#STDM4Stream.AddItem("xAOD::ElectronContainer#Electrons")
+#STDM4Stream.AddItem("xAOD::ElectronAuxContainer#ElectronsAux.")
 ##############
 
 
@@ -330,9 +330,9 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkSM.STDMExtraContent import *
 
 STDM4SlimmingHelper = SlimmingHelper("STDM4SlimmingHelper")
-STDM4SlimmingHelper.SmartCollections = [#"Electrons",
+STDM4SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
-                                        #"Muons",
+                                        "Muons",
                                         "TauJets",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMTopoJets",
@@ -340,8 +340,8 @@ STDM4SlimmingHelper.SmartCollections = [#"Electrons",
                                         "MET_Reference_AntiKt4EMPFlow",   
                                         "AntiKt4EMPFlowJets",             
                                         "BTagging_AntiKt4EMPFlow",        
-                                        #"MET_Reference_myAntiKt4EMPFlow",    # artur added
-                                        #"MET_Reference_NewAntiKt4EMPFlowHR", # artur added
+                                        #"MET_Reference_myAntiKt4EMPFlow",    # artur tmp added
+                                        #"MET_Reference_NewAntiKt4EMPFlowHR", # artur tmp added
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 
@@ -354,7 +354,20 @@ STDM4SlimmingHelper.ExtraVariables = ExtraContentAll + [
   "JetETMissNeutralParticleFlowObjects.pt.eta.phi.m.centerMag.ptEM.mEM",
   "AntiKt4EMTopoJets.SumPtTrkPt1000.SumPtTrkPt500.NumTrkPt500.NumTrkPt1000",
   "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m",
+  "Electrons.UEcorr_Pt", "Muons.UEcorr_Pt",
+  "Electrons.Reta",
+  "Electrons.Rphi",
+  "Electrons.Rhad1",
+  "Electrons.Rhad",
+  "Electrons.weta1",
+  "Electrons.weta2",
+  "Electrons.Eratio",
+  "Electrons.f3",
+  "Electrons.deltaEta1",
+  "Electrons.deltaPhiRescaled2",
+  "Electrons.wtots1"
 ]
+
 STDM4SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 STDM4SlimmingHelper.AllVariables = ExtraContainersAll
 
