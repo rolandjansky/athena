@@ -76,7 +76,9 @@ commissionTP_electron = [
 
 monitoringTP_electron = [
                          'HLT_e28_lhtight_nod0_ivarloose',                        
-                         'HLT_e24_lhvloose_nod0_L1EM20VH'
+                         'HLT_e24_lhvloose_nod0_L1EM20VH',
+                         # low mu runs 2018
+                         'HLT_e15_lhloose_nod0_L1EM12' 
                          ]
 monitoringTP_electron += commissionTP_electron
 
