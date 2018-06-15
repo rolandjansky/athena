@@ -34,7 +34,7 @@ BPHY16JpsiFinder = Analysis__JpsiFinder(
     invMassUpper                = 12000.0,
     invMassLower                = 8000.,
     Chi2Cut                     = 20.,
-    oppChargesOnly	        = True,
+    oppChargesOnly	        = False,
     atLeastOneComb              = True,
     useCombinedMeasurement      = False, # Only takes effect if combOnly=True	
     muonCollectionKey           = "Muons",
