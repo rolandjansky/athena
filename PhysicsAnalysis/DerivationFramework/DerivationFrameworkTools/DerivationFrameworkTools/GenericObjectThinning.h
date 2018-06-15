@@ -1,56 +1,80 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// GenericObjectThinning.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+#ifndef DERIVATIONFRAMEWORKTOOLS_GENERICOBJECTTHINNING_H
+#define DERIVATIONFRAMEWORKTOOLS_GENERICOBJECTTHINNING_H
 
-#ifndef DERIVATIONFRAMEWORK_GENERICOBJECTTHINNING_H
-#define DERIVATIONFRAMEWORK_GENERICOBJECTTHINNING_H
-
+// System include(s):
 #include <string>
-#include <vector>
+#include <memory>
 
+// Framework include(s):
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaKernel/IThinningSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+
+// DF include(s):
 #include "DerivationFrameworkInterfaces/IThinningTool.h"
-#include "GaudiKernel/ToolHandle.h"
-
-#include "xAODBase/IParticleContainer.h"
-
-namespace ExpressionParsing {
-  class ExpressionParser;
-}
-
-class IThinningSvc;
+#include "DerivationFrameworkInterfaces/ExpressionParserHelper.h"
 
 namespace DerivationFramework {
 
-  class GenericObjectThinning : public AthAlgTool, public IThinningTool {
-    public: 
-      GenericObjectThinning(const std::string& t, const std::string& n, const IInterface* p);
-      ~GenericObjectThinning();
-      StatusCode initialize();
-      StatusCode finalize();
-      virtual StatusCode doThinning() const;
+   /// Tool performing a string based thinning on any @c xAOD::IParticle container
+   ///
+   /// This tool is used in derivation jobs to thin an
+   /// @c xAOD::IParticleContainer based on a string expression.
+   ///
+   /// @author James Catmore (James.Catmore@cern.ch)
+   ///
+   class GenericObjectThinning : public AthAlgTool, public IThinningTool {
 
-    private:
-      //Main thinning service
-      ServiceHandle<IThinningSvc> m_thinningSvc;
+   public:
+      /// AlgTool constructor
+      GenericObjectThinning( const std::string& type, const std::string& name,
+                             const IInterface* parent );
 
-      //Expression for object thinning selection
-      std::string m_expression;
-      ExpressionParsing::ExpressionParser *m_parser;
+      /// @name Function(s) implementing the @c IAlgTool interface
+      /// @{
+
+      /// Function initialising the tool
+      StatusCode initialize() override;
+      /// Function finalising the tool
+      StatusCode finalize() override;
+
+      /// @}
+
+      /// @name Function(s) implementing the
+      ///       @c DerivationFramework::IThinningTool interface
+      /// @{
+
+      /// Function performing the configured thinning operation
+      StatusCode doThinning() const override;
+
+      /// @}
+
+   private:
+      /// @name Tool properties
+      /// @{
+
+      /// SG key for the particle container to use
+      std::string m_sgKey;
+      /// Selection string to use with the expression evaluation
       std::string m_selectionString;
+      /// Flag for using @c IThinningSvc::Operator::And (instead of "or")
+      bool m_and = false;
 
-      //Counters and key
-      mutable unsigned int m_ntot, m_npass;
-      std::string m_SGKey;
+      /// @}
 
-      //logic
-      bool m_and;
+      /// Handle for accessing the thinning service
+      ServiceHandle< IThinningSvc > m_thinningSvc;
+      /// Variables keeping statistics information about the job
+      mutable unsigned int m_ntot = 0, m_npass = 0;
+      /// The expression evaluation helper object
+      std::unique_ptr< ExpressionParserHelper > m_parser;
 
-  }; 
-}
+   }; // class GenericObjectThinning
 
-#endif // DERIVATIONFRAMEWORK_GENERICOBJECTTHINNING_H
+} // namespace DerivationFramework
+
+#endif // DERIVATIONFRAMEWORKTOOLS_GENERICOBJECTTHINNING_H

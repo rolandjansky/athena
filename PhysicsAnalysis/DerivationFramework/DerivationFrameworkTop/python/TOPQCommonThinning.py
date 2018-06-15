@@ -304,6 +304,18 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
     thinningTools.append(TOPQTruthThinningTool)
     print TOPQname+".py", TOPQname+"TruthThinningTool: ", TOPQTruthThinningTool
 
+    if TOPQname == 'TOPQ5':
+      # Only save truth informtion directly associated with Onia 
+      from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning 
+      TOPQOniaTruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = TOPQname + "OniaTruthThinningTool",
+                                                                            ThinningService         = TOPQThinningSvc,      
+                                                                            ParticleSelectionString = "TruthParticles.pdgId == 443 || TruthParticles.pdgId == 100443 || TruthParticles.pdgId == 553 || TruthParticles.pdgId == 100553 || TruthParticles.pdgId == 200553",      
+                                                                            PreserveDescendants     = True,                                                          
+                                                                            PreserveAncestors      = True) 
+      ToolSvc += TOPQOniaTruthThinningTool
+      thinningTools.append(TOPQOniaTruthThinningTool)
+      print TOPQname+".py", TOPQname+"OniaTruthThinningTool: ", TOPQOniaTruthThinningTool
+
     #==============================================================================
     # Thinning the photon truth collection : no photons from pi0 (origin=42)
     #==============================================================================
