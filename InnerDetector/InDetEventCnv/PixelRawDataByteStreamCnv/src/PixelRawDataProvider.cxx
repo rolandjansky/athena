@@ -63,11 +63,7 @@ StatusCode PixelRawDataProvider::initialize() {
   } else
     ATH_MSG_INFO("Retrieved tool " << m_rawDataTool);
  
-
- if (detStore()->retrieve(m_pixel_id, "PixelID").isFailure()) {
-     ATH_MSG_FATAL("Could not get Pixel ID helper");
-     return StatusCode::FAILURE;
- }
+  ATH_CHECK(detStore()->retrieve(m_pixel_id, "PixelID"));
 
   // Get the cabling service
   if (m_pixelCabling.retrieve().isFailure()) {
