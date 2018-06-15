@@ -403,13 +403,24 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree & pt)
 {
   verbose() << "start of " << __FUNCTION__ << endmsg;
 
-  debug() << "trying to initialise the scheduler after forking" << endmsg;
-  m_schedulerSvc = serviceLocator()->service(m_schedulerName);
+  debug() << "Initialising the scheduler after forking" << endmsg;
+  m_schedulerSvc = serviceLocator()->service(m_schedulerName, /*createIf=*/ true);
   if ( !m_schedulerSvc.isValid()){
-    fatal() << "Error retrieving " << m_schedulerName << " interface ISchedulerSvc." << endmsg;
+    fatal() << "Error retrieving " << m_schedulerName << " interface ISchedulerSvc" << endmsg;
     return StatusCode::FAILURE;    
   }
-  debug() << "initialised " << m_schedulerName << " interface ISchedulerSvc." << endmsg;
+  debug() << "Initialised " << m_schedulerName << " interface ISchedulerSvc" << endmsg;
+
+  debug() << "Trying a stop-start of CoreDumpSvc" << endmsg;
+  SmartIF<IService> svc = serviceLocator()->service("CoreDumpSvc", /*createIf=*/ false);
+  if (svc.isValid()) {
+    svc->stop();
+    svc->start();
+    debug() << "Done a stop-start of CoreDumpSvc" << endmsg;
+  }
+  else {
+    warning() << "Could not retrieve CoreDumpSvc" << endmsg;
+  }
 
   //-------------------------------------------------------------------------
   // Reopen the hive pool thread
@@ -543,15 +554,15 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       }
 
       if (addr != nullptr) {
+        /* do we need this???
         sc = m_evtStore->recordAddress(addr);
         if (sc.isFailure()) {
           warning() << "Failed to record IOpaqueAddress in the event store" << endmsg;
-          /*
           // we cannot get the EventInfo, so we don't know the event number
           // should we return anything to the DataCollector?
-          failedEvent(evtContext,nullptr);
-          */
+          // failedEvent(evtContext,nullptr);
         }
+        */
         sc = m_evtStore->loadEventProxies();
         if (sc.isFailure()) {
           error() << "Failed to load event proxies" << endmsg;
