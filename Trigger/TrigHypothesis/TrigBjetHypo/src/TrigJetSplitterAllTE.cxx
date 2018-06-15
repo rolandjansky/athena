@@ -1,11 +1,13 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TrigJetSplitterAllTE.cxx        
 //
 //            Splits a jet collection into separate TEs
 //                   
 //  
-//   Copyright (C) 2014 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TrigJetSplitterAllTE.cxx, v0.0   Tue 17 Jun 2014 03:26:44 CEST sutt $
 

@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    runtool.cxx         
 //   
 //
 //   @Author.Sutton
 // 
-//   Copyright (C) 2016 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: runtool.cxx, v0.0   Mon 24 Oct 2016 15:25:43 CEST sutt $
 

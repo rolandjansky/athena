@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    RoiSerialise.cxx         
 //   
@@ -6,7 +9,6 @@
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2015 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: serialise.cxx, v0.0   Sat 31 Oct 2015 08:20:38 CET sutt $
 
