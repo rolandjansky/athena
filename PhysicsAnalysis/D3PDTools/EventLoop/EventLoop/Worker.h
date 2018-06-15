@@ -25,6 +25,7 @@
 #include <SampleHandler/Global.h>
 #include <AnaAlgorithm/IFilterWorker.h>
 #include <AnaAlgorithm/IHistogramWorker.h>
+#include <AnaAlgorithm/ITreeWorker.h>
 
 class TFile;
 class TH1;
@@ -40,7 +41,8 @@ namespace xAOD
 
 namespace EL
 {
-  class Worker : public IFilterWorker, public IHistogramWorker
+  class Worker : public IFilterWorker, public IHistogramWorker,
+                 public ITreeWorker
   {
     //
     // public interface
@@ -127,6 +129,21 @@ namespace EL
     ///   it, otherwise it ignores it.
   public:
     TFile *getOutputFileNull (const std::string& label) const;
+
+
+    /// effects: adds a tree to an output file specified by the stream/label
+    /// failures: Incorrect stream/label specified, called at the wrong time
+    /// note: See getOutputFile for failure types...
+  public:
+    ::StatusCode addTree( const TTree& tree,
+                          const std::string& stream ) final override;
+
+
+    /// effects: get the tree that was added to an output file earlier
+    /// failures: Tree doesn't exist
+  public:
+    TTree* getOutputTree( const std::string& name,
+                          const std::string& stream ) const final override;
 
 
     /// description: the sample meta-data we are working on
@@ -378,6 +395,13 @@ namespace EL
   private:
     typedef std::map<std::string,TH1*>::const_iterator OutputHistMapIter;
     std::map<std::string,TH1*> m_outputHistMap;
+
+
+    /// description: the list of output trees
+  private:
+    typedef std::map<std::pair<std::string,std::string>,TTree*>::const_iterator
+       OutputTreeMapIter;
+    std::map<std::pair<std::string,std::string>,TTree*> m_outputTreeMap;
 
 
     /// description: the list of output files
