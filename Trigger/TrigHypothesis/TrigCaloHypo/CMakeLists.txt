@@ -21,7 +21,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/FourMomUtils
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODEventInfo
-                          LArCalorimeter/LArCellRec
                           LArCalorimeter/LArRecEvent
                           Reconstruction/Jet/JetUtils )
 
