@@ -7,7 +7,11 @@ atlas_subdir( AsgAnalysisAlgorithms )
 
 atlas_depends_on_subdirs(
    PUBLIC
+   Control/AthContainers
+   Control/AthContainersInterfaces
+   Control/AthToolSupport/AsgTools
    Event/xAOD/xAODBase
+   Event/xAOD/xAODEventInfo
    PhysicsAnalysis/Algorithms/SelectionHelpers
    PhysicsAnalysis/Algorithms/SystematicsHandles
    PhysicsAnalysis/AnalysisCommon/PATCore
@@ -15,7 +19,6 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/D3PDTools/AnaAlgorithm
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PRIVATE
-   Control/AthToolSupport/AsgTools
    Event/xAOD/xAODJet
    Event/xAOD/xAODMuon
    Event/xAOD/xAODTau
