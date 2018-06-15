@@ -10,14 +10,15 @@
 #include "StoreGate/DataHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/Property.h"
+#include "TFile.h"
 #include <map>
 #include <string>
 #include <utility>
 #include <set>
 
-class ICoolHistSvc;
 class TH1;
 class TObject;
+class IPoolSvc;
 
 namespace Analysis {
 
@@ -112,11 +113,14 @@ public:
 
 private:
 
-  StatusCode createHistoMap( std::list<std::string> keys);
+  StatusCode createHistoMap(TFile* file);
+  StatusCode objectTDirExists(const std::string& histname, TFile* file);
+  StatusCode getTObject(const std::string& histname, TFile* file, TObject*& hist);
   std::vector<std::string> tokenize(std::string str, std::string delim);
+  TFile* getFile(const std::string& guid);
 
-  StoreGateSvc* p_detstore;
-  ICoolHistSvc* p_coolhistsvc;
+  //ServiceHandle<IIOVDbSvc>  m_IOVDbSvc;
+  IPoolSvc* m_poolsvc;
   int m_nrefresh;
   bool m_callBackRegistered;
   static const unsigned int s_nmax_callbacks;
