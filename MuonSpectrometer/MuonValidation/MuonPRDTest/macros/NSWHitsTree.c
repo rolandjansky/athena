@@ -1,8 +1,10 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //  NSWHitsTree.c
 //  
 //  Created by Ourania Sidiropoulou on 1/03/2013.
-//  Copyright (c) 2013 CERN - PH/ADE. All rights reserved.
 //
 
 #define NSWHitsTree_cxx
