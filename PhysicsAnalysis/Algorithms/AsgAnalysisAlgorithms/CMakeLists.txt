@@ -2,7 +2,6 @@
 #
 # @author Nils Krumnack
 
-
 atlas_subdir( AsgAnalysisAlgorithms )
 
 atlas_depends_on_subdirs(
@@ -28,10 +27,10 @@ atlas_depends_on_subdirs(
 atlas_add_library( AsgAnalysisAlgorithmsLib
    AsgAnalysisAlgorithms/*.h AsgAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS AsgAnalysisAlgorithms
-   LINK_LIBRARIES xAODBase SelectionHelpersLib SystematicsHandlesLib
-     PATInterfaces AnaAlgorithmLib AsgAnalysisInterfaces PATCoreLib
-   PRIVATE_LINK_LIBRARIES AsgTools RootCoreUtils
-     xAODJet xAODMuon xAODEgamma xAODTau )
+   LINK_LIBRARIES AthContainers AthContainersInterfaces AsgTools xAODBase
+     xAODEventInfo SelectionHelpersLib SystematicsHandlesLib PATCoreLib
+     PATInterfaces AnaAlgorithmLib AsgAnalysisInterfaces
+   PRIVATE_LINK_LIBRARIES xAODJet xAODMuon xAODTau xAODEgamma RootCoreUtils )
 
 atlas_add_dictionary( AsgAnalysisAlgorithmsDict
    AsgAnalysisAlgorithms/AsgAnalysisAlgorithmsDict.h
