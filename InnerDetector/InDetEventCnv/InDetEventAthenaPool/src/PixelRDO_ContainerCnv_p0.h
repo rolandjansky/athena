@@ -17,7 +17,7 @@ typedef  DataVector<InDetRawDataCollection< Pixel1RawData > >  PixelRDO_Containe
 
 class MsgStream;
 class PixelRDO_ContainerCnv_p0  : public T_AthenaPoolTPCnvBase<PixelRDO_Container, PixelRDO_Container_p0> {
-   const PixelID*  m_pixId;
+   const PixelID*  m_pixId{nullptr};
 public:
   virtual void   persToTrans(const PixelRDO_Container_p0*, PixelRDO_Container*, MsgStream&) {
     // everything is done in createTransient()

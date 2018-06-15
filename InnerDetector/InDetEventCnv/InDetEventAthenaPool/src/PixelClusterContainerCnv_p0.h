@@ -14,14 +14,14 @@ typedef DataVector<Trk::PrepRawDataCollection<InDet::PixelCluster> > PixelCluste
 
 class PixelID;
 namespace InDetDD{
-class PixelDetectorManager;
+  class PixelDetectorManager;
 }
 
 class MsgStream;
 class PixelClusterContainerCnv_p0  : public T_AthenaPoolTPCnvBase<InDet::PixelClusterContainer, PixelClusterContainer_p0> {
  private:
-   const PixelID*  m_pixId;
-   const InDetDD::PixelDetectorManager* m_pixMgr;
+   const PixelID*  m_pixId{nullptr};
+   const InDetDD::PixelDetectorManager* m_pixMgr{nullptr};
  public:
   virtual void   persToTrans(const PixelClusterContainer_p0*, InDet::PixelClusterContainer*, MsgStream&) override {
     // everything is done in createTransient()
