@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef LARAFFECTEDREGIONS_H
-#define LARAFFECTEDREGIONS_H
+#ifndef LARMONTOOLS_LARAFFECTEDREGIONS_H
+#define LARMONTOOLS_LARAFFECTEDREGIONS_H
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "StoreGate/StoreGateSvc.h"

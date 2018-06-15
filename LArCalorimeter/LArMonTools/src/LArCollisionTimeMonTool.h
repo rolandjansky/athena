@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef LAR_COLLISION_TIME_MON_TOOL_H
-#define LAR_COLLISION_TIME_MON_TOOL_H
+#ifndef LARMONTOOLS_LARCOLLISIONTIMEMONTOOL_H
+#define LARMONTOOLS_LARCOLLISIONTIMEMONTOOL_H
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 

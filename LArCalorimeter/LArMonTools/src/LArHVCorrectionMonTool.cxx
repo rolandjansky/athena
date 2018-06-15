@@ -11,11 +11,15 @@
 // Class for monitoring offline HV corrections based in DCS infos
 // ********************************************************************
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/IToolSvc.h"
+#include "LArHVCorrectionMonTool.h"
 
 #include "Identifier/IdentifierHash.h"
+
+#include "LWHists/TH2I_LW.h"
+#include "LWHists/TProfile_LW.h"
+#include "TMath.h"
+
+#include "xAODEventInfo/EventInfo.h"
 
 #include <sstream>
 #include <iomanip>
@@ -26,14 +30,6 @@
 #include <functional>
 #include <map>
 #include <utility>
-
-#include "LWHists/TH2I_LW.h"
-#include "LWHists/TProfile_LW.h"
-#include "TMath.h"
-
-
-#include "LArMonTools/LArHVCorrectionMonTool.h"
-#include "xAODEventInfo/EventInfo.h"
 
 using namespace std;
 

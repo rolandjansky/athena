@@ -8,8 +8,8 @@
  * 2017 : major upgrade/rewriting by B.Trocme (LPSC Grenoble)
  */
 
-#ifndef LArNoisyROMon_h
-#define LArNoisyROMon_h
+#ifndef LARMONTOOLS_LARNOISYROMON_H
+#define LARMONTOOLS_LARNOISYROMON_H
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"

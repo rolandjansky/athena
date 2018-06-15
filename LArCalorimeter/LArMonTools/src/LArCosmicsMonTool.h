@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef LARCOSMICSMONTOOL_H
-#define LARCOSMICSMONTOOL_H
+#ifndef LARMONTOOLS_LARCOSMICSMONTOOL_H
+#define LARMONTOOLS_LARCOSMICSMONTOOL_H
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "Identifier/HWIdentifier.h"

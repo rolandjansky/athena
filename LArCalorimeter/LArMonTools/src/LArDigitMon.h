@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef LARDIGITMON_H
-#define LARDIGITMON_H
+#ifndef LARMONTOOLS_LARDIGITMON_H
+#define LARMONTOOLS_LARDIGITMON_H
 
 //inheritance:
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -24,7 +24,7 @@
 //STL:
 #include <string>
 
-//class LArEM_ID;
+class LArEM_ID;
 class LArOnlineID;
 class HWIdentifier;
 class LArOnlineIDStrHelper;
@@ -33,6 +33,7 @@ class TProfile2D_LW;
 class TProfile_LW;
 
 class LWHist1D;
+class LWHist2D;
 class TH1F_LW;
 class TH1I_LW;
 class TH2F_LW;

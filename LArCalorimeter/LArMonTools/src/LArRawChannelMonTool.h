@@ -2,23 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LAR_RAW_CHANNEL_MON_TOOL_H
-#define LAR_RAW_CHANNEL_MON_TOOL_H
+#ifndef LARMONTOOLS_LARRAWCHANNELMONTOOL_H
+#define LARMONTOOLS_LARRAWCHANNELMONTOOL_H
 /*!
   \class LArRawChannelMonTool
   \author Frank Berghaus <Frank.Olaf.Berghaus@cern.ch>
  */
 
-// --- stl ---
-#include <string>
-#include <vector>
-#include <set>
-// --- boost ---
-#include <boost/shared_ptr.hpp>
+#include "LArRawChannelMonTools.h"
 
 // --- athena ---
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/StatusCode.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
 //#include "AthenaMonitoring/IDQFilterTool.h"
@@ -26,7 +20,14 @@
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "LArCabling/LArCablingService.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
-#include "LArMonTools/LArRawChannelMonTools.h"
+
+// --- boost ---
+#include <boost/shared_ptr.hpp>
+// --- stl ---
+#include <string>
+#include <vector>
+#include <set>
+
 
 
 // --- forward declarations ---

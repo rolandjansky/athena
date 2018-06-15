@@ -26,8 +26,10 @@
 //   c) ADCsature: lowest value to check if a Digit sample is in saturation.
 // ********************************************************************
 
+#include "LArDigitMon.h"
+#include "LArOnlineIDStrHelper.h"
+
 //Histograms
-#include "GaudiKernel/ITHistSvc.h"
 #include "LWHists/TProfile2D_LW.h"
 #include "LWHists/TProfile_LW.h"
 
@@ -36,16 +38,8 @@
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
 
-//STL:
-#include <sstream>
-#include <iomanip>
-#include <cmath>
-#include <vector>
-#include <algorithm>
-
 //LAr infos:
 #include "Identifier/HWIdentifier.h"
-#include "LArMonTools/LArOnlineIDStrHelper.h"
 #include "LArCabling/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawEvent/LArDigit.h"
@@ -55,11 +49,14 @@
 //Events infos:
 #include "xAODEventInfo/EventInfo.h"
 
-
-//Header:
-#include "LArMonTools/LArDigitMon.h"
-
 #include "LArTrigStreamMatching.h"
+
+//STL:
+#include <sstream>
+#include <iomanip>
+#include <cmath>
+#include <vector>
+#include <algorithm>
 
 /*---------------------------------------------------------*/
 LArDigitMon::LArDigitMon(const std::string& type, 

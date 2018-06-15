@@ -2,13 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LAR_RAW_CHANNEL_MON_TOOLS_H
-#define LAR_RAW_CHANNEL_MON_TOOLS_H
-
-#include <deque>
-#include <map>
-#include <string>
-#include <vector>
+#ifndef LARMONTOOLS_LARRAWCHANNELMONTOOLS_H
+#define LARMONTOOLS_LARRAWCHANNELMONTOOLS_H
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -20,6 +15,11 @@
 #include "LWHists/TProfile_LW.h"
 #include "LWHists/TProfile2D_LW.h"
 #include "LArRawEvent/LArRawChannel.h"
+
+#include <deque>
+#include <map>
+#include <string>
+#include <vector>
 
 class LArOnlineID;
 

@@ -2,30 +2,22 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LARFEBMON_H
-#define LARFEBMON_H
+#ifndef LARMONTOOLS_LARFEBMON_H
+#define LARMONTOOLS_LARFEBMON_H
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ObjectVector.h"
+#include "LArOnlineIDStrHelper.h"
+
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRecConditions/ILArBadChanTool.h"
 #include "Identifier/HWIdentifier.h"
 
+#include "TrigDecisionTool/TrigDecisionTool.h"
+
 #include <string>
 #include <vector>
 #include <bitset>
-
-#include "LArMonTools/LArOnlineIDStrHelper.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
-
-//#include "LWHists/TH1I_LW.h"
-//#include "LWHists/TH2I_LW.h"
-//#include "LWHists/TH1F_LW.h"
-//#include "LWHists/TH2F_LW.h"
-//#include "LWHists/TProfile2D_LW.h"
-//#include "LWHists/TProfile_LW.h"
 
 class TH1I_LW;
 class TH1F_LW;

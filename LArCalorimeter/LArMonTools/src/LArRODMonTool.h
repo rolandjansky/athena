@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef LARRODMONTOOL_H
-#define LARRODMONTOOL_H
+#ifndef LARMONTOOLS_LARRODMONTOOL_H
+#define LARMONTOOLS_LARRODMONTOOL_H
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "LArElecCalib/ILArPedestal.h"
