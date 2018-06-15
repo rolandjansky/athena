@@ -49,8 +49,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("ElectronIDLoose", "Type of electron for background. IsEM : Loose, Medium, Tight or Likelihood LooseAndBLayerLH, MediumLH, TightLH","MediumLH");
     registerParameter("ElectronPt", "Electron pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("EgammaSystematicModel","Egamma Systematic model : FULL_v1 , FULL_ETACORRELATED_v1 , 1NP_v1 (default)","1NP_v1");
-    registerParameter("ElectronIsolation","Isolation to use : Gradient, GradientLoose, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, LooseTrackOnly, Loose, Tight, FixedCutHighPtCaloOnly,  None","Gradient");
-    registerParameter("ElectronIsolationLoose","Isolation to use : Gradient, GradientLoose, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, LooseTrackOnly, Loose, Tight, FixedCutHighPtCaloOnly, None","None");
+    registerParameter("ElectronIsolation","Isolation to use : Gradient, GradientLoose, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, LooseTrackOnly, Loose, Tight, FixedCutHighPtCaloOnly, FixedCutHighMuTight, FixedCutHighMuLoose, None","Gradient");
+    registerParameter("ElectronIsolationLoose","Isolation to use : Gradient, GradientLoose, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, LooseTrackOnly, Loose, Tight, FixedCutHighPtCaloOnly, FixedCutHighMuTight, FixedCutHighMuLoose, None","None");
     registerParameter("ElectronIsolationSF", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("ElectronIsolationSFLoose", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("ElectronVetoLArCrack", "True/False. Set to False to disable LAr crack veto (not recommended).", "True");
@@ -67,8 +67,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("MuonEta", "Absolute Muon eta cut for object selection. Default 2.5.", "2.5" );
     registerParameter("MuonQuality", "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight", "Medium");
     registerParameter("MuonQualityLoose", "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight", "Medium");
-    registerParameter("MuonIsolation","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTightTrackOnly, FixedCutLoose, PromptLepton, None","Gradient");
-    registerParameter("MuonIsolationLoose","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTightTrackOnly, FixedCutLoose, PromptLepton, None,","None");
+    registerParameter("MuonIsolation","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, FixedCutHighMuTight, FixedCutHighMuLoose, PromptLepton, None","Gradient");
+    registerParameter("MuonIsolationLoose","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, FixedCutHighMuTight, FixedCutHighMuLoose, PromptLepton, None","None");
     registerParameter("MuonIsolationSF", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("MuonIsolationSFLoose", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("UseAntiMuons", "Use AntiMuons for fake estimate. Default: false", "false");

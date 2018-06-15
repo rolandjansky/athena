@@ -7,6 +7,7 @@
 #include "TopConfiguration/TopConfig.h"
 #include "TopEvent/EventTools.h"
 
+#include "AthContainers/AuxElement.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/ElectronAuxContainer.h"
@@ -42,6 +43,8 @@ namespace top{
     m_isolationTool_FixedCutTightCaloOnly("CP::IsolationTool_FixedCutTightCaloOnly"),
     m_isolationTool_FixedCutLoose("CP::IsolationTool_FixedCutLoose"),
     m_isolationTool_FixedCutHighPtCaloOnly("CP::IsolationTool_FixedCutHighPtCaloOnly"),
+    m_isolationTool_FixedCutHighMuTight("CP::IsolationTool_FixedCutHighMuTight"),
+    m_isolationTool_FixedCutHighMuLoose("CP::IsolationTool_FixedCutHighMuLoose"),
     m_isolationCorr("CP::IsolationCorrectionTool")
   {
     declareProperty( "config" , m_config ); 
@@ -57,6 +60,8 @@ namespace top{
     declareProperty( "IsolationTool_FixedCutTightCaloOnly" , m_isolationTool_FixedCutTightCaloOnly );
     declareProperty( "IsolationTool_FixedCutLoose" , m_isolationTool_FixedCutLoose );
     declareProperty( "IsolationTool_FixedCutHighPtCaloOnly", m_isolationTool_FixedCutHighPtCaloOnly );
+    declareProperty( "IsolationTool_FixedCutHighMuTight" , m_isolationTool_FixedCutHighMuTight );
+    declareProperty( "IsolationTool_FixedCutHighMuLoose" , m_isolationTool_FixedCutHighMuLoose );
     declareProperty( "IsolationCorrectionTool", m_isolationCorr );
   } 
   
@@ -89,6 +94,8 @@ namespace top{
       top::check( m_isolationTool_FixedCutTight.retrieve() , "Failed to retrieve Isolation Tool" );
       top::check( m_isolationTool_FixedCutTightTrackOnly.retrieve() , "Failed to retrieve Isolation Tool" );
       top::check( m_isolationTool_FixedCutLoose.retrieve() , "Failed to retrieve Isolation Tool" );
+      top::check( m_isolationTool_FixedCutHighMuTight.retrieve() , "Failed to retrieve Isolation Tool" );
+      top::check( m_isolationTool_FixedCutHighMuLoose.retrieve() , "Failed to retrieve Isolation Tool" );
     }
     
     top::check( m_isolationCorr.retrieve() , "Failed to retrieve Isolation Correction Tool" );
@@ -208,6 +215,9 @@ namespace top{
     
   StatusCode EgammaObjectCollectionMaker::executeElectrons(bool executeNominal)
   {
+    static SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVA_pt1000("ptvarcone30_TightTTVA_pt1000");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FixedCutHighMuTight("AnalysisTop_Isol_FixedCutHighMuTight");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FixedCutHighMuLoose("AnalysisTop_Isol_FixedCutHighMuLoose");
 
     const xAOD::EventInfo* eventInfo(nullptr);
     top::check( evtStore()->retrieve( eventInfo, m_config->sgKeyEventInfo() ), "Failed to retrieve EventInfo");
@@ -282,6 +292,11 @@ namespace top{
 	electron->auxdecor<char>("AnalysisTop_Isol_FixedCutTightTrackOnly") = passIsol_FixedCutTightTrackOnly;
 	electron->auxdecor<char>("AnalysisTop_Isol_FixedCutLoose")          = passIsol_FixedCutLoose;
 	electron->auxdecor<char>("AnalysisTop_Isol_FixedCutHighPtCaloOnly") = passIsol_FixedCutHighPtCaloOnly;
+
+        if (ptvarcone30_TightTTVA_pt1000.isAvailable(*electron)) {
+          AnalysisTop_Isol_FixedCutHighMuTight(*electron) = (m_isolationTool_FixedCutHighMuTight->accept(*electron) ? 1 : 0);
+          AnalysisTop_Isol_FixedCutHighMuLoose(*electron) = (m_isolationTool_FixedCutHighMuLoose->accept(*electron) ? 1 : 0);
+        }
 
 	// For electron prompt isolation tagger, check a cut on the tagger and also loose isolation
 	electron->auxdecor<char>("AnalysisTop_Isol_PromptLepton") = (electron->auxdata<float>("PromptLeptonIso_TagWeight") < -0.5) ? 1 : 0;
