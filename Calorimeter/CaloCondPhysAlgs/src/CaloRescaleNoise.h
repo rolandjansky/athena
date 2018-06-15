@@ -5,8 +5,8 @@
 // CaloRescaleNoise.h
 //
 
-#ifndef _CaloCondPhysAlgs_CaloRescaleNoise_H
-#define _CaloCondPhysAlgs_CaloRescaleNoise_H
+#ifndef CALOCONDPHYSALGS_CALORESCALENOISE_H
+#define CALOCONDPHYSALGS_CALORESCALENOISE_H
 
 #include <string>
 

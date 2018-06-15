@@ -5,8 +5,8 @@
 // TheCaloCellNoiseAlg.h
 //
 
-#ifndef _CaloCondBlobAlgs_CaloCellNoiseAlg_H
-#define _CaloCondBlobAlgs_CaloCellNoiseAlg_H
+#ifndef CALOCONDPHYSALGS_CALOCELLNOISEALG_H
+#define CALOCONDPHYSALGS_CALOCELLNOISEALG_H
 
 #include <string>
 

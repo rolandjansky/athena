@@ -2,11 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// CaloAddCellPedShift.h
+// CaloNoise2Ntuple.h
 //
 
-#ifndef _CaloCondPhysAlgs_CaloAddCellPedShift_H
-#define _CaloCondPhysAlgs_CaloAddCellPedShift_H
+#ifndef CALOCONDPHYSALGS_CALONOISE2NTUPLE_H
+#define CALOCONDPHYSALGS_CALONOISE2NTUPLE_H
 
 #include <string>
 
@@ -17,27 +17,21 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "StoreGate/DataHandle.h"  
-#include "AthenaKernel/IOVSvcDefs.h"
-#include "CaloCondBlobObjs/ICaloCoolIdTool.h"
-#include "LArIdentifier/LArOnlineID.h"
+#include "CaloInterface/ICaloNoiseTool.h"
+#include "CaloInterface/ICaloMBAverageTool.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
 
-class CaloCondBlobFlt;
-class CondAttrListCollection;
-class LArCablingService ;
-
-
-class CaloAddCellPedShift : public AthAlgorithm {
+class CaloNoise2Ntuple : public AthAlgorithm {
 
   public:
     //Gaudi style constructor and execution methods
     /** Standard Athena-Algorithm Constructor */
-    CaloAddCellPedShift(const std::string& name, ISvcLocator* pSvcLocator);
+    CaloNoise2Ntuple(const std::string& name, ISvcLocator* pSvcLocator);
     /** Default Destructor */
-    ~CaloAddCellPedShift();
+    ~CaloNoise2Ntuple();
     
     /** standard Athena-Algorithm method */
     StatusCode          initialize();
@@ -53,23 +47,14 @@ class CaloAddCellPedShift : public AthAlgorithm {
   //---------------------------------------------------
   // Member variables
   //---------------------------------------------------
-  std::string m_fname;
-  std::string m_folderName;
-
   ITHistSvc* m_thistSvc;
 
   const DataHandle<CaloIdManager> m_caloIdMgr;
   const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
-  ToolHandle<LArCablingService> m_cablingService;
   const CaloCell_ID*       m_calo_id;
-  const LArOnlineID*      m_onlineID;
 
-  virtual StatusCode updateMap(IOVSVC_CALLBACK_ARGS);
-  //=== blob storage
-  const DataHandle<CondAttrListCollection> m_noiseAttrListColl;
-  std::map<unsigned int, const CaloCondBlobFlt*> m_noiseBlobMap;
-
-  ToolHandle<ICaloCoolIdTool> m_caloCoolIdTool;
+  ToolHandle<ICaloNoiseTool> m_noiseTool;
+  ToolHandle<ICaloMBAverageTool> m_averageTool;
 
   int m_iCool;
   int m_SubHash;
@@ -79,17 +64,14 @@ class CaloAddCellPedShift : public AthAlgorithm {
   float m_phi;
   int m_layer;
   int m_Gain;
-  int   m_bec;
-  int   m_posneg;
-  int   m_FT;
-  int   m_slot;
-  int   m_channel;
-  float m_ped1;
-  float m_ped1corr;
-  float m_ped2;
-
+  float m_noise;
+  float m_elecNoise;
+  float m_pileupNoise; 
+  float m_average;
   TTree* m_tree;
-  
+
+  int m_runNumber;
+  int m_lumiBlock;
 
 };
 #endif
