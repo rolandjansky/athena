@@ -13,18 +13,6 @@ TrackIsolationLoose500.TrackSelectionTool.CutLevel      = "Loose"
 TrackIsolationLoose500.TrackSelectionTool.maxZ0SinTheta = 3.
 TrackIsolationLoose500.UseTTVAtool = False
 ToolSvc += TrackIsolationLoose500
-TrackIsolationTight1000 = xAOD__TrackIsolationTool(name = 'TrackIsolationToolTight1000')
-TrackIsolationTight1000.TrackSelectionTool.minPt         = 1000
-TrackIsolationTight1000.TrackSelectionTool.CutLevel      = "Loose"
-TrackIsolationTight1000.UseTTVAtool = True
-TrackIsolationTight1000.TrackVertexAssociationTool = tighttrackvertexassotool
-ToolSvc += TrackIsolationTight1000
-TrackIsolationTight500 = xAOD__TrackIsolationTool(name = 'TrackIsolationToolTight500')
-TrackIsolationTight500.TrackSelectionTool.minPt         = 500
-TrackIsolationTight500.TrackSelectionTool.CutLevel      = "Loose"
-TrackIsolationTight500.UseTTVAtool = True
-TrackIsolationTight500.TrackVertexAssociationTool = tighttrackvertexassotool
-ToolSvc += TrackIsolationTight500
 
 import ROOT, PyCintex
 PyCintex.loadDictionary('xAODCoreRflxDict')
@@ -45,31 +33,3 @@ if not hasattr(DerivationFrameworkJob, "IsolationBuilderLoose500"):
         IsAODFix = False,
         LeakageTool = None)
     DerivationFrameworkJob += isoBuilderLoose500
-
-if not hasattr(DerivationFrameworkJob, "IsolationBuilderTight1000"):
-    isoBuilderTight1000 = IsolationBuilder(
-        name                   = "IsolationBuilderTight1000",
-        CaloCellIsolationTool  = None,
-        CaloTopoIsolationTool  = None,
-        PFlowIsolationTool     = None,
-        TrackIsolationTool     = TrackIsolationTight1000, 
-        EgIsoTypes             = [[]],
-        MuIsoTypes             = ptconeList,
-        CustomConfigurationNameMu = "TightTTVA_pt1000",
-        IsAODFix = False,
-        LeakageTool = None)
-    DerivationFrameworkJob += isoBuilderTight1000
-
-if not hasattr(DerivationFrameworkJob, "IsolationBuilderTight500"):
-    isoBuilderTight500 = IsolationBuilder(
-        name                   = "IsolationBuilderTight500",
-        CaloCellIsolationTool  = None,
-        CaloTopoIsolationTool  = None,
-        PFlowIsolationTool     = None,
-        TrackIsolationTool     = TrackIsolationTight500, 
-        EgIsoTypes             = [[]],
-        MuIsoTypes             = ptconeList,
-        CustomConfigurationNameMu = "TightTTVA_pt500",
-        IsAODFix = False,
-        LeakageTool = None)
-    DerivationFrameworkJob += isoBuilderTight500
