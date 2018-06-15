@@ -15,6 +15,7 @@
 // Framework include(s):
 #include "AsgTools/AsgMessaging.h"
 #include "AnaAlgorithm/AnaAlgorithm.h"
+#include "SystematicsHandles/SysListHandle.h"
 
 // EDM include(s):
 #include "AthContainersInterfaces/IAuxTypeVector.h"
@@ -114,7 +115,8 @@ namespace CP {
             StatusCode process( const SG::AuxElement& element,
                                 MsgStream& msg );
 
-         private:
+            /// Name of the branch being written
+            std::string m_branchName;
             /// Object accessing the variable in question
             std::unique_ptr< SG::AuxElement::TypelessConstAccessor > m_acc;
             /// Pointer to the helper object that handles this variable
@@ -169,7 +171,8 @@ namespace CP {
             StatusCode process( const SG::AuxElement& element, size_t index,
                                 MsgStream& msg );
 
-         private:
+            /// Name of the branch being written
+            std::string m_branchName;
             /// Object accessing the variable in question
             std::unique_ptr< SG::AuxElement::TypelessConstAccessor > m_acc;
             /// Pointer to the helper object that handles this variable
@@ -203,6 +206,9 @@ namespace CP {
 
       /// Internal status flag
       bool m_isInitialized = false;
+
+      /// The systematic list to consider during execution
+      SysListHandle m_systematicsList{ this };
 
       /// @}
 

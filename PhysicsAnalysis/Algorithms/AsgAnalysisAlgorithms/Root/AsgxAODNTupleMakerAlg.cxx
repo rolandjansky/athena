@@ -18,6 +18,9 @@
 #include "AthContainers/AuxVectorBase.h"
 #include "AthContainers/normalizedTypeinfoName.h"
 
+// Framework include(s):
+#include "SystematicsHandles/Helpers.h"
+
 // Local include(s):
 #include "AsgAnalysisAlgorithms/AsgxAODNTupleMakerAlg.h"
 
@@ -283,6 +286,11 @@ namespace CP {
                         << "\"" );
          return StatusCode::FAILURE;
       }
+      m_tree->SetAutoFlush( 200 );
+      ATH_MSG_INFO( "Created xAOD->NTuple tree: " << m_treeName );
+
+      // Set up the systematics list.
+      ATH_CHECK( m_systematicsList.initialize() );
 
       // Reset the initialisation flag:
       m_isInitialized = false;
@@ -300,7 +308,8 @@ namespace CP {
          for( const std::string& branchDecl : m_branches ) {
 
             // The regular expression used to extract the needed info.
-            static const std::regex re( "\\s*(\\w+)\\.(\\w+)\\s*->\\s*(\\w+)" );
+            static const std::regex
+               re( "\\s*([\\w%]+)\\.(\\w+)\\s*->\\s*([\\w%]+)" );
 
             // Interpret this branch declaration.
             std::smatch match;
@@ -311,28 +320,50 @@ namespace CP {
                return StatusCode::FAILURE;
             }
 
-            // Decide whether the specified key belongs to a container or
-            // a standalone object.
-            static const bool ALLOW_MISSING = true;
-            if( getVector( match[ 1 ], *( evtStore() ), ALLOW_MISSING,
-                           msg() ) ) {
-               ATH_CHECK( m_containers[ match[ 1 ] ].addBranch( *m_tree,
-                                                                match[ 2 ],
-                                                                match[ 3 ] ) );
-               ATH_MSG_DEBUG( "Writing branch \"" << match[ 3 ]
-                              << "\" from container/variable \"" << match[ 1 ]
-                              << "." << match[ 3 ] << "\"" );
-            } else if( getElement( match[ 1 ], *( evtStore() ),
-                                   ALLOW_MISSING, msg() ) ) {
-               ATH_CHECK( m_elements[ match[ 1 ] ].addBranch( *m_tree,
-                                                              match[ 2 ],
-                                                              match[ 3 ] ) );
-               ATH_MSG_DEBUG( "Writing branch \"" << match[ 3 ]
-                              << "\" from object/variable \"" << match[ 1 ]
-                              << "." << match[ 3 ] << "\"" );
-            } else {
-               ATH_MSG_WARNING( "Container \"" << match[ 1 ]
-                                << "\" not readable for expression: \""
+            // Flag keeping track whether any branch was set up for this rule.
+            bool branchCreated = false;
+
+            // Consider all systematics.
+            auto sysVector = m_systematicsList.systematicsVector();
+            for( const auto& sys : sysVector ) {
+
+               // Event store key for the object under consideration.
+               const std::string key = makeSystematicsName( match[ 1 ], sys );
+               // Branch name for the variable.
+               const std::string brName = makeSystematicsName( match[ 3 ],
+                                                               sys );
+
+               // Decide whether the specified key belongs to a container or
+               // a standalone object.
+               static const bool ALLOW_MISSING = true;
+               if( getVector( key, *( evtStore() ), ALLOW_MISSING,
+                              msg() ) ) {
+                  ATH_CHECK( m_containers[ key ].addBranch( *m_tree,
+                                                            match[ 2 ],
+                                                            brName ) );
+                  ATH_MSG_DEBUG( "Writing branch \"" << brName
+                                 << "\" from container/variable \"" << key
+                                 << "." << match[ 2 ] << "\"" );
+                  branchCreated = true;
+               } else if( getElement( key, *( evtStore() ),
+                                      ALLOW_MISSING, msg() ) ) {
+                  ATH_CHECK( m_elements[ key ].addBranch( *m_tree,
+                                                          match[ 2 ],
+                                                          brName ) );
+                  ATH_MSG_DEBUG( "Writing branch \"" << brName
+                                 << "\" from object/variable \"" << key
+                                 << "." << match[ 2 ] << "\"" );
+                  branchCreated = true;
+               } else {
+                  ATH_MSG_DEBUG( "Container \"" << key
+                                 << "\" not readable for expression: \""
+                                 << branchDecl << "\"" );
+               }
+            }
+
+            // Check if the rule was meaningful or not:
+            if( ! branchCreated ) {
+               ATH_MSG_WARNING( "No branch was created for rule: \""
                                 << branchDecl << "\"" );
             }
          }
@@ -410,6 +441,38 @@ namespace CP {
    addBranch( TTree& tree, const std::string& auxName,
               const std::string& branchName ) {
 
+      /// Helper class for finding an already existing branch processor.
+      class BranchFinder {
+      public:
+         /// Type of the predicate's argument
+         typedef const BranchProcessor& argument_type;
+         /// Constructor with key/name
+         BranchFinder( const std::string& branchName ) : m_name( branchName ) {}
+         /// Operator evaluating whether this is the branch we're looking for
+         bool operator()( argument_type bp ) const {
+            return ( bp.m_branchName == m_name );
+         }
+      private:
+         std::string m_name; ///< Name of the branch
+      }; // class BranchFinder
+
+      // Check whether this branch is already set up:
+      auto itr = std::find_if( m_branches.begin(), m_branches.end(),
+                               BranchFinder( branchName ) );
+      if( itr != m_branches.end() ) {
+         // Make sure that it is set up from the same auxiliary variable that
+         // we're trying to set up now.
+         if( itr->m_acc->auxid() !=
+            SG::AuxTypeRegistry::instance().findAuxID( auxName ) ) {
+            ATH_MSG_ERROR( "Incompatible sources received for branch: "
+                           << branchName );
+            return StatusCode::FAILURE;
+         } else {
+            // This is normal...
+            return StatusCode::SUCCESS;
+         }
+      }
+
       // Set up the new branch.
       m_branches.emplace_back();
       ATH_CHECK( m_branches.back().setup( tree, auxName, branchName, msg() ) );
@@ -422,6 +485,9 @@ namespace CP {
    AsgxAODNTupleMakerAlg::ElementProcessor::BranchProcessor::
    setup( TTree& tree, const std::string& auxName,
           const std::string& branchName, MsgStream& msg ) {
+
+      // Remember the branch name.
+      m_branchName = branchName;
 
       // Create the accessor.
       m_acc.reset( new SG::AuxElement::TypelessConstAccessor( auxName ) );
@@ -609,6 +675,38 @@ namespace CP {
    addBranch( TTree& tree, const std::string& auxName,
               const std::string& branchName ) {
 
+      /// Helper class for finding an already existing branch processor.
+      class BranchFinder {
+      public:
+         /// Type of the predicate's argument
+         typedef const BranchProcessor& argument_type;
+         /// Constructor with key/name
+         BranchFinder( const std::string& branchName ) : m_name( branchName ) {}
+         /// Operator evaluating whether this is the branch we're looking for
+         bool operator()( argument_type bp ) const {
+            return ( bp.m_branchName == m_name );
+         }
+      private:
+         std::string m_name; ///< Name of the branch
+      }; // class BranchFinder
+
+      // Check whether this branch is already set up:
+      auto itr = std::find_if( m_branches.begin(), m_branches.end(),
+                               BranchFinder( branchName ) );
+      if( itr != m_branches.end() ) {
+         // Make sure that it is set up from the same auxiliary variable that
+         // we're trying to set up now.
+         if( itr->m_acc->auxid() !=
+             SG::AuxTypeRegistry::instance().findAuxID( auxName ) ) {
+            ATH_MSG_ERROR( "Incompatible sources received for branch: "
+                           << branchName );
+            return StatusCode::FAILURE;
+         } else {
+            // This is normal...
+            return StatusCode::SUCCESS;
+         }
+      }
+
       // Set up the new branch.
       m_branches.emplace_back();
       ATH_CHECK( m_branches.back().setup( tree, auxName, branchName, msg() ) );
@@ -620,6 +718,9 @@ namespace CP {
    StatusCode AsgxAODNTupleMakerAlg::ContainerProcessor::BranchProcessor::
    setup( TTree& tree, const std::string& auxName,
           const std::string& branchName, MsgStream& msg ) {
+
+      // Remember the branch name.
+      m_branchName = branchName;
 
       // Create the accessor.
       m_acc.reset( new SG::AuxElement::TypelessConstAccessor( auxName ) );
