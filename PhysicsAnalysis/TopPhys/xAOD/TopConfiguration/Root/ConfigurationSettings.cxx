@@ -343,6 +343,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("ElectronTriggersLoose",    "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)", "None");
     registerParameter("MuonTriggers",             "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)", "None");
     registerParameter("MuonTriggersLoose",        "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)","None");
+
+    registerParameter("KillExperimental", "Disable some specific experimental feature.", " ");
 }
 
 ConfigurationSettings* ConfigurationSettings::get() {
@@ -450,6 +452,16 @@ void ConfigurationSettings::loadFromFile(const std::string& filename) {
         m_selections.push_back({sel.name, sel.cuts});
     }
 
+    {
+       auto const & it = strings_.find("KillExperimental");
+       m_killedFeatures.clear();
+       if (it != strings_.end() && it->second.m_set) {
+          std::string strValue(it->second.m_data);
+          boost::trim(strValue);
+          boost::split(m_killedFeatures, strValue, boost::is_any_of(" "));
+       }
+    }
+
     input.close();
     m_configured = true;
 }
@@ -515,6 +527,13 @@ bool ConfigurationSettings::retrieve(std::string const & key, bool & value) cons
         return true;
     }
     throw std::invalid_argument(std::string("expected boolean value for configuration setting ") + key);
+}
+
+bool ConfigurationSettings::feature(std::string const & name) const {
+   /* We search a list of strings, not a particularly efficient implementation.
+    * If need be, we could abuse the aux registry and use integers instead of
+    * strings. Anyhow, in most cases, the list should be empty. */
+   return (m_killedFeatures.empty() || std::find(m_killedFeatures.begin(), m_killedFeatures.end(), name) == m_killedFeatures.end());
 }
 
 }
