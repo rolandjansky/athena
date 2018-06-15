@@ -5,7 +5,6 @@
 /***************************************************************************
  properties of a plane based strip detector with equidistant parallel strips
  -----------------------------------------
- Copyright (C) 2013 by ATLAS Collaboration, Niels van Eldik
 ***************************************************************************/
 
 #ifndef MUONGEOMODEL_MUONSTRIPDESIGN_H
