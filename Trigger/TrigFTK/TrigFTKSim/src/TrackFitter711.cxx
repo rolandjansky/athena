@@ -17,6 +17,8 @@
 #include <cassert>
 using namespace std;
 
+static int print_guessed=0; //1000;
+
 TrackFitter711::TrackFitter711() :
   TrackFitter(),
   m_use_guessing(true),
@@ -619,6 +621,7 @@ void TrackFitter711::processor_end(int ibank)
   // m_trackoutput_pre_hw->addNFitsHWRejectedMajorityI(ibank,m_nfits_rejmajI);
   // m_trackoutput_pre_hw->addNConnections(ibank,m_nconn);
   // m_trackoutput_pre_hw->addNExtrapolatedTracks(ibank,m_nextrapolatedTracks);
+
 }
 
 
@@ -3366,7 +3369,10 @@ void TrackFitter711::guessedHitsToSSID() {
       m_ssid[ip] = m_ssmap_complete->getSSGlobal(tmphit, 1);
     }
 
-
+    if(print_guessed && (m_idplanes_eff[ip]==0)) {
+       cout<<"guessed_hit: "<< m_ssid[ip]<<":"<<moduleID
+           <<","<<tmphit[0]<<","<<tmphit[1]<<"\n";
+    }
 
     //    std::cout << "SSID current " << m_ssid[ip] << std::endl;
 
