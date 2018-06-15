@@ -1913,7 +1913,7 @@ void AmdcDbSvcMakerFromRDB::Set(
   m_detectorNode = detectorNode ;
   
   AMDC(pIRDBAccessSvc,pAmdcDbSvc);
-  AGDD(pIRDBAccessSvc,pAmdcDbSvc);
+  // AGDD(pIRDBAccessSvc,pAmdcDbSvc);
   
   ATYP(pIRDBAccessSvc,pAmdcDbSvc);
   ACUT(pIRDBAccessSvc,pAmdcDbSvc);

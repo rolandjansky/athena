@@ -413,14 +413,14 @@ StatusCode AmdcDumpOracle::DoIt()
             << std::endl;
 
 //  Check AGDD
-    Kwarn = 0 ;
-    Kchck = 0 ;
-    DumpAGDD((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
-    KwarnTot = KwarnTot + Kwarn ;
-    KchckTot = KchckTot + Kchck ;
-    OutFile 
-            << "AGDD: " << Kwarn << " Warnings " << " for " << Kchck << " tested elements " 
-            << std::endl;
+//    Kwarn = 0 ;
+//    Kchck = 0 ;
+//    DumpAGDD((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+//    KwarnTot = KwarnTot + Kwarn ;
+//    KchckTot = KchckTot + Kchck ;
+//    OutFile
+//            << "AGDD: " << Kwarn << " Warnings " << " for " << Kchck << " tested elements "
+//            << std::endl;
 
 //  Check AMDC
     Kwarn = 0 ;
