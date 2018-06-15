@@ -15,6 +15,39 @@ def setDefaults(kwargs, **def_kwargs) :
     def_kwargs.update(kwargs)
     return def_kwargs
 
+def getPixelRIO_OnTrackErrorScalingDbOverrideCondAlg( **kwargs) :
+    '''
+    usage:
+       createAndAddCondAlg( getPixelRIO_OnTrackErrorScalingDbOverrideCondAlg, 'PixelRIO_OnTrackErrorScalingDbOverrideCondAlg' )
+    '''
+    the_name=kwargs.pop("name",None)
+    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+    # kPixBarrelPhi
+    params   = [ 10. , 0.0044]
+    # kPixBarrelEta
+    params  += [ 10. , 0.0312]
+    # kPixEndcapPhi,
+    params  += [ 10. , 0.026]
+    # kPixEndcapEta,
+    params  += [ 10. , 0.0]
+    if geoFlags.isIBL() :
+        error_scaling_type='PixelRIO_OnTrackErrorScaling'
+        # kPixIBLPhi
+        params  += [ 10. , 0.0044]
+        # kPixIBLEta
+        params  += [ 10. , 0.0312]
+    else :
+        error_scaling_type='PixelRIO_OnTrackErrorScalingRun1'
+
+
+    from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import RIO_OnTrackErrorScalingDbOverrideCondAlg
+    return RIO_OnTrackErrorScalingDbOverrideCondAlg( 'PixelRIO_OnTrackErrorScalingDbOverrideCondAlg',
+                                                     **setDefaults( kwargs,
+                                                                    ErrorScalingTypeName  = error_scaling_type,
+                                                                    WriteKey              = "/Indet/TrkErrorScalingPixel",
+                                                                    ErorScalingParameters = params,
+                                                                    OutputLevel = 1) ) # VERBOSE
+
 def getRIO_OnTrackErrorScalingCondAlg( **kwargs) :
     the_name=kwargs.pop("name",None)
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
@@ -39,6 +72,7 @@ def getRIO_OnTrackErrorScalingCondAlg( **kwargs) :
         print 'DEBUG folder /Indet/TrkErrorScaling already requested.'
     for elm in conddb.iovdbsvc.Folders :
         print 'DEBUG IOVDbSvc folder %s' % elm
+
 
     from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import RIO_OnTrackErrorScalingCondAlg
     if the_name == None :
