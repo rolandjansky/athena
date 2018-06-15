@@ -73,6 +73,11 @@ class ManagedMonitorToolTest : public ManagedMonitorToolBase
       int                m_offset;
       TRandom3           m_gen;
 
+      TEfficiency*       m_efficiency;
+      TEfficiency*       m_managedEfficiency;
+      TEfficiency*       m_managedEfficiencyXLB;
+
+      TGraph*            m_managedGraphXLB;
 };
 
 #endif

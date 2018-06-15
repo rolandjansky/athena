@@ -425,6 +425,8 @@ SCTCalib.DoLorentzAngle   = DoLorentzAngle    # False in default
 #--- Local DB
 SCTCalib.WriteToCool = WriteToCool # True in default
 #--- Properties for noisy strips
+SCTCalib.NoisyUpdate            = NoisyUpdate
+SCTCalib.NoisyWriteAllModules   = NoisyWriteAllModules
 SCTCalib.NoisyMinStat           = NoisyMinStat
 SCTCalib.NoisyStripAll          = NoisyStripAll
 SCTCalib.NoisyStripThrDef       = NoisyStripThrDef
@@ -470,7 +472,7 @@ SCTCalib.BSErrorDBMinStat           = BSErrorDBMinStat
 
 #Lorentz Angle Properties
 SCTCalib.LorentzAngleMinStat        = LorentzAngleMinStat
-SCTCalib.LorentzAngleDebugMode        = LorentzAngleDebugMode
+SCTCalib.LorentzAngleDebugMode      = LorentzAngleDebugMode
 
 #--- Tags for XMLs : have to be consistent with SCTCalibWriteSvc
 SCTCalib.TagID4NoisyStrips    = TagID4NoisyStrips

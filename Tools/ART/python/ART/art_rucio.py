@@ -63,7 +63,7 @@ class ArtRucio(object):
         else:
             cmd = ' '.join(('rucio', 'download', '--dir', dst_dir, did))
 
-        (exit_code, out, err) = run_command(cmd, env=env)
+        (exit_code, out, err, command, start_time, end_time) = run_command(cmd, env=env)
         if (exit_code != 0):
             log.error(err)
         log.info(out)
@@ -76,7 +76,7 @@ class ArtRucio(object):
         log = logging.getLogger(MODULE)
         cmd = ' '.join(('xrdcp -N', '-f' if force else '', '-r' if recursive else '', '-v' if verbose else '', src, dst))
         log.debug(cmd)
-        (exit_code, out, err) = run_command(cmd, verbose=False)
+        (exit_code, out, err, command, start_time, end_time) = run_command(cmd, verbose=False)
         if exit_code != 0:
             log.error(err)
         # seems to write empty lines
@@ -206,7 +206,7 @@ class ArtRucio(object):
 
         tmp_dir = tempfile.gettempdir()
         dst_dir = tmp_dir
-    
+
         log.info("Shell = %s", shell)
         exit_code = self.download(outfiles_str, dst_dir, shell)
         if exit_code != 0:

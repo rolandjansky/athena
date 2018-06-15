@@ -18,7 +18,7 @@ class ExternalPHOTOS(ExternalBase):
 
         @param process  PHOTOS process
         """
-        super(self.__class__, self).__init__("PHOTOS", *args)
+        super(ExternalPHOTOS, self).__init__("PHOTOS", *args)
 
         # Add parameters used by PHOTOS
         self.add_keyword("PHOTOS_enabled")
@@ -30,7 +30,9 @@ class ExternalPHOTOS(ExternalBase):
         """
         # Check that PHOTOS is not disabled
         self.expose()
-        if self.PHOTOS_enabled != 1:
-            logger.warning("PHOTOS not enabled")
+        if self.PHOTOS_enabled:
+            logger.info("Running with PHOTOS enabled")
+        else:
+            logger.info("Running without PHOTOS")
             return False
         return True

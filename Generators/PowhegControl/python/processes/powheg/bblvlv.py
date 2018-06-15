@@ -17,7 +17,7 @@ class bblvlv(PowhegRES):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, "b_bbar_4l", **kwargs)
+        super(bblvlv, self).__init__(base_directory, "b_bbar_4l", **kwargs)
 
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("allrad", 1)
@@ -48,7 +48,7 @@ class bblvlv(PowhegRES):
         self.add_keyword("enhancereg")
         self.add_keyword("evenmaxrat")
         self.add_keyword("ewscheme")
-        self.add_keyword("facscfact")
+        self.add_keyword("facscfact", self.default_scales[0])
         self.add_keyword("fastbtlbound")
         self.add_keyword("fixedscale")
         self.add_keyword("flg_debug")
@@ -75,8 +75,8 @@ class bblvlv(PowhegRES):
         self.add_keyword("iupperfsr")
         self.add_keyword("iupperisr")
         self.add_keyword("iymax")
-        self.add_keyword("lhans1")
-        self.add_keyword("lhans2")
+        self.add_keyword("lhans1", self.default_PDFs)
+        self.add_keyword("lhans2", self.default_PDFs)
         self.add_keyword("lhrwgt_descr")
         self.add_keyword("lhrwgt_group_combine")
         self.add_keyword("lhrwgt_group_name")
@@ -118,7 +118,7 @@ class bblvlv(PowhegRES):
         self.add_keyword("rand1")
         self.add_keyword("rand2")
         self.add_keyword("regridfix")
-        self.add_keyword("renscfact")
+        self.add_keyword("renscfact", self.default_scales[1])
         self.add_keyword("rwl_add")
         self.add_keyword("rwl_file")
         self.add_keyword("rwl_format_rwgt")

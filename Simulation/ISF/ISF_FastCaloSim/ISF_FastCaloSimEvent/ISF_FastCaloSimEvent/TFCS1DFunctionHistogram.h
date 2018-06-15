@@ -18,10 +18,12 @@ class TFCS1DFunctionHistogram:public TFCS1DFunction
 
     void Initialize(TH1* hist, double);
 
+    using TFCS1DFunction::rnd_to_fct;
     virtual double rnd_to_fct(double rnd);
     TH1* vector_to_histo();
     double get_inverse(double rnd);
     double linear(double x1,double x2,double y1,double y2,double x);
+    double non_linear(double x1,double x2,double y1,double y2,double x);
     
     double  get_maxdev(TH1*, TH1D*);
     void    smart_rebin_loop(TH1* hist, double);
@@ -34,11 +36,10 @@ class TFCS1DFunctionHistogram:public TFCS1DFunction
     vector<float> get_HistoBorders() {return m_HistoBorders;};
     vector<float> get_HistoContents()  {return m_HistoContents;};
 
-  private:
+  protected:
 
     vector<float> m_HistoBorders;
     vector<float> m_HistoContents;
-
 
   ClassDef(TFCS1DFunctionHistogram,1)  //TFCS1DFunctionHistogram
 

@@ -18,7 +18,7 @@ class VBF_Z(PowhegV1):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, "VBF_W-Z", **kwargs)
+        super(VBF_Z, self).__init__(base_directory, "VBF_W-Z", **kwargs)
 
         # Add algorithms to the sequence
         self.add_algorithm(ExternalVBFNLO("Z", ["z > e+ e-", "z > mu+ mu-"]))
@@ -35,7 +35,7 @@ class VBF_Z(PowhegV1):
         self.add_keyword("charmthr")
         self.add_keyword("charmthrpdf")
         self.add_keyword("colltest")
-        self.add_keyword("facscfact")
+        self.add_keyword("facscfact", self.default_scales[0])
         self.add_keyword("fakevirt")
         self.add_keyword("flg_debug")
         self.add_keyword("foldcsi")
@@ -51,8 +51,8 @@ class VBF_Z(PowhegV1):
         self.add_keyword("iupperfsr")
         self.add_keyword("iupperisr")
         self.add_keyword("iymax")
-        self.add_keyword("lhans1")
-        self.add_keyword("lhans2")
+        self.add_keyword("lhans1", self.default_PDFs)
+        self.add_keyword("lhans2", self.default_PDFs)
         self.add_keyword("manyseeds")
         self.add_keyword("mll_gencut", 20)
         self.add_keyword("ncall1", 1200000)
@@ -70,7 +70,7 @@ class VBF_Z(PowhegV1):
         self.add_keyword("radregion")
         self.add_keyword("rand1")
         self.add_keyword("rand2")
-        self.add_keyword("renscfact")
+        self.add_keyword("renscfact", self.default_scales[1])
         self.add_keyword("smartsig")
         self.add_keyword("softtest")
         self.add_keyword("testplots")

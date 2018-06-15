@@ -711,8 +711,12 @@ def getTrackToVertexTool():
 
 ########################################################################
 # Tau-Track Association
-def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, noSelector = False):
-    _name = sPrefix + 'TauTrackFinder'
+def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, noSelector = False, prefix=''):
+
+    #if prefix is not given, take global one 
+    if not prefix: 
+        prefix=sPrefix 
+    _name = prefix + 'TauTrackFinder'
     
     if _name in cached_instances:
         return cached_instances[_name] 

@@ -12,8 +12,6 @@ import logging
 import multiprocessing
 import os
 
-from datetime import datetime
-
 from art_misc import run_command, mkdir_p
 from art_base import ArtBase
 from art_header import ArtHeader
@@ -30,11 +28,9 @@ def run_job(art_directory, sequence_tag, script_directory, package, job_type, jo
     """
     # <script_directory> <sequence_tag> <package> <outfile> <job_type> <job_index>
     log = logging.getLogger(MODULE)
-    start_time = datetime.now()
     log.info("job started %s %s %s %s %s %d %s", art_directory, sequence_tag, script_directory, package, job_type, job_index, test_name)
-    (exit_code, out, err) = run_command(' '.join((os.path.join(art_directory, './art-internal.py'), "build", "job", script_directory, sequence_tag, package, "out", job_type, str(job_index))))
+    (exit_code, out, err, command, start_time, end_time) = run_command(' '.join((os.path.join(art_directory, './art-internal.py'), "build", "job", script_directory, sequence_tag, package, "out", job_type, str(job_index))))
     log.info("job ended %s %s %s %s %s %d %s", art_directory, sequence_tag, script_directory, package, job_type, job_index, test_name)
-    end_time = datetime.now()
 
     return (package, test_name, exit_code, out, err, start_time, end_time)
 
@@ -176,7 +172,7 @@ class ArtBuild(ArtBase):
         env['ArtJobType'] = job_type
         env['ArtJobName'] = test_name
         cmd = ' '.join((os.path.join(test_directory, test_name), package, test_name, script_directory, job_type))
-        (exit_code, output, err) = run_command(cmd, dir=work_directory, env=env)
+        (exit_code, output, err, command, start_time, end_time) = run_command(cmd, dir=work_directory, env=env)
 
         with open(os.path.join(work_directory, "stdout.txt"), "w") as text_file:
             log.debug("Copying stdout into %s", work_directory)

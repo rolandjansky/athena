@@ -232,7 +232,7 @@ i=0
 
 for git in $jobList ; do 
 
-    ARGS="$git;EventMax=2000;doIDNewTracking=True;PdgId=15"
+    ARGS="$git;EventMax=2000;doIDNewTracking=True"
  
 #   echo "ARGS: $ARGS"
 
@@ -262,9 +262,12 @@ done
 
 [ -e topp.log ] && rm topp.log
 
-ps -aF --pid $PPROCS | grep $USER >> topp.log
+echo -e "\nUID        PID  PPID  C    SZ   RSS PSR STIME TTY          TIME CMD" >> topp.log
+ps -aF --pid $PPROCS | grep $USER | grep -v grep | grep -v sed | sed 's| [^[:space:]]*/python | python |g' | sed 's| [^[:space:]]*/athena| athena|g' | sed 's|ARTConfig=.* |ARTConfig=... |g' | sed 's|eos/[^[:space:]]*/trigindet|eos/.../trigindet|g' >> topp.log
 
 echo >> topp.log
+
+sleep 20 
 
 top -b -n1 > top.log
 grep PID top.log >> topp.log

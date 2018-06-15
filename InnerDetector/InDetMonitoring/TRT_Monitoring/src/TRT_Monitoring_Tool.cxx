@@ -234,8 +234,8 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
   declareProperty("max_abs_eta",              m_max_abs_eta         = 2.5);
   declareProperty("MinTrackP",                m_minP                = 0.0 * CLHEP::GeV);
   declareProperty("min_pT",                   m_min_pT              = 0.5 * CLHEP::GeV);
-  declareProperty("min_si_hits",              m_min_si_hits         = 1);
-  declareProperty("min_pixel_hits",           m_min_pixel_hits      = 0);
+  declareProperty("min_si_hits",              m_min_si_hits         = 3);
+  declareProperty("min_pixel_hits",           m_min_pixel_hits      = 1);
   declareProperty("min_sct_hits",             m_min_sct_hits        = 0);
   declareProperty("min_trt_hits",             m_min_trt_hits        = 10);
   declareProperty("min_tracks_straw",         m_min_tracks_straw    = 10);
@@ -1136,8 +1136,8 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
 	  m_hHtoLRatioOnTrack_B_Ar = bookTH1F_LW(trackShiftTH1, "hHtoLRatioOnTrack_Ar", "HL/LL Ratio per Reconstructed Track for Argon" + regionTag, 50, 0, 1, "HL/LL Ratio", "Norm. Entries", scode); //for argon
         }
 	m_hHtoLRatioOnTrack_B_Xe = bookTH1F_LW(trackShiftTH1, "hHtoLRatioOnTrack_Xe", "HL/LL Ratio per Reconstructed Track for Xenon" + regionTag, 50, 0, 1, "HL/LL Ratio", "Norm. Entries", scode); //for xenon 
-	m_hResidual_B           = bookTH1F_LW(trackShiftTH1_lowStat, "hResidual", "Residuals for Xenon Straws" + regionTag, 200, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
-	m_hResidual_B_20GeV   = bookTH1F_LW(trackShiftTH1, "hResidual_20GeV", "Residuals for Xenon Straws" + regionTag+"(After 20GeV pT cut)", 200, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
+	m_hResidual_B           = bookTH1F_LW(trackShiftTH1_lowStat, "hResidual_Xe", "Residuals for Xenon Straws" + regionTag, 200, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
+	m_hResidual_B_20GeV   = bookTH1F_LW(trackShiftTH1, "hResidual_Xe_20GeV", "Residuals for Xenon Straws" + regionTag+"(After 20GeV pT cut)", 200, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
         m_hTimeResidual_B       = bookTH1F_LW(trackShiftTH1, "hTimeResidual", "Time Residuals for Xenon Straws" + regionTag, 200, -20, 20, "Time Residual (ns)", "Norm. Entries", scode);
 	m_hWireToTrkPosition_B  = bookTH1F_LW(trackShiftTH1, "hWireToTrkPosition", "Track-to-Wire Distance for Xenon" + regionTag, 100, -5., 5, "Track-to-Wire Distance (mm)", "Norm. Entries", scode);
         m_hNumSwLLWoT_B         = bookTH1F_LW(trackShiftTH1, "hNumSwLLWoT", "Number of Straws with Hits on Track in Time Window" + regionTag, 150, 0, 150, "Number of LL Hits per Track", "Norm. Entries", scode);
@@ -1166,8 +1166,8 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
           m_hTronTDist_E[iside]          = bookTH1F_LW(trackShiftTH1, "hTronTDist_"+side_id[iside], "Trailing Edge Distribution on Track for Xenon Straws" + regionTag, 26, -0.5, 80.75,  "Trailing Edge (ns)", "Norm. Entries", scode);
           m_hDriftTimeonTrkDist_E[iside] = bookTH1F_LW(trackShiftTH1, "hDriftTimeonTrkDist_"+side_id[iside], "Drift Time Distribution on Track for Xenon Straws" + regionTag, 32, 0, 100, "Drift Time (ns)", "Norm. Entries", scode);
           m_hNumTrksDetPhi_E[iside]      = bookTH1F_LW(trackShift, "hNumTrksDetPhi_"+side_id[iside], "Number of Reconstructed Tracks vs #phi (2D)" + regionTag, 60, 0, 360, "#phi (deg)", "Number of Tracks", scode);
-	  m_hResidual_E[iside]           = bookTH1F_LW(trackShiftTH1_lowStat, "hResidual_"+side_id[iside], "Residuals for Xenon Straws" + regionTag, 200, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
-	  m_hResidual_E_20GeV[iside]     = bookTH1F_LW(trackShiftTH1, "hResidual_"+side_id[iside]+"_20GeV", "Residuals for Xenon Straws" + regionTag+"(After 20GeV pT cut)", 200, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
+	  m_hResidual_E[iside]           = bookTH1F_LW(trackShiftTH1_lowStat, "hResidual_Xe_"+side_id[iside], "Residuals for Xenon Straws" + regionTag, 200, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
+	  m_hResidual_E_20GeV[iside]     = bookTH1F_LW(trackShiftTH1, "hResidual_Xe_"+side_id[iside]+"_20GeV", "Residuals for Xenon Straws" + regionTag+"(After 20GeV pT cut)", 200, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
           m_hTimeResidual_E[iside]       = bookTH1F_LW(trackShiftTH1, "hTimeResidual_"+side_id[iside], "Time Residuals for Xenon Straws" + regionTag, 200, -20, 20, "Time Residual (ns)", "Norm. Entries", scode);
 
           if (m_ArgonXenonSplitter) {

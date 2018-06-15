@@ -106,15 +106,12 @@ def addAthenaArguments(parser, maxEventsDefaultSubstep='first', addValgrind=True
                         metavar='N', group='Athena',
                         help='Set AthenaMP to fork after processing N events (default is to fork immediately after '
                         'initialisation')
-    parser.add_argument('--checkpoint', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg = False),
-                        metavar='BOOL', group='Athena',
-                        help='Checkpoint mode active')
-    parser.add_argument('--restart', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg = False),
-                        group='Athena',
-                        help='Full path to the checkpoint image')
     parser.add_argument('--sharedWriter', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=False),
                         metavar='BOOL', group='Athena',
                         help='SharedWriter mode active')
+    parser.add_argument('--eventService', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        metavar='BOOL', group='Athena',
+                        help='Switch AthenaMP to the Event Service configuration')
 
     if addValgrind:
         addValgrindArguments(parser)
@@ -478,8 +475,8 @@ def addExtraDPDTypes(parser, pick=None, transform=None, multipleOK=False, NTUPMe
                 msg.debug('Adding DPD {0} ({1}, {2}, {3}, {4})'.format(dpd.name, dpd.type, dpd.substeps, dpd.treeNames, dpd.argclass))
                 # NTUPs are a bit special as they can take a treeName to count events
                 if issubclass(dpd.argclass, trfArgClasses.argNTUPFile):
-                    parser.add_argument('--output' + dpd.name + 'File', 
-                                        type=argFactory(dpd.argclass, multipleOK=multipleOK, type=dpd.type, treeNames=dpd.treeNames), 
+                    parser.add_argument('--output' + dpd.name + 'File',
+                                        type=argFactory(dpd.argclass, name=dpd.name.upper(), multipleOK=multipleOK, type=dpd.type, treeNames=dpd.treeNames), 
                                         group = 'Additional DPDs', metavar=dpd.name.upper(), 
                                         help=dpd.help if dpd.help else 'DPD output {0} file'.format(dpd.name))
                 else:

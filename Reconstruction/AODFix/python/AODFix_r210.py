@@ -45,13 +45,24 @@ class AODFix_r210(AODFix_base):
                 self.trklinks_postSystemRec(topSequence)
                 pass
 
-            if "egammaStrips" not in oldMetadataList:
+            if "egammaStrips" not in oldMetadataList and not self.isHI:
                 self.egammaStrips_postSystemRec(topSequence)
                 pass
 
-            if "btagging" not in oldMetadataList:
+            if "elIso" not in oldMetadataList:
+                self.elIso_postSystemRec(topSequence)
+                pass
+            if "felIso" not in oldMetadataList:
+                self.felIso_postSystemRec(topSequence)
+                pass
+            if "phIso" not in oldMetadataList:
+                self.phIso_postSystemRec(topSequence)
+                pass
+    
+            if "btagging" not in oldMetadataList and not self.isHI:
                 self.btagging_postSystemRec(topSequence)
                 pass
+
 
             # Reset all of the ElementLinks. To be safe.
             from AthenaCommon import CfgMgr
@@ -71,8 +82,13 @@ class AODFix_r210(AODFix_base):
         JIRA: https://its.cern.ch/jira/browse/ATLASRECTS-3988
         """
         from AthenaCommon import CfgMgr
+        if self.isHI:
+            containers = ["CombinedMuonTrackParticlesAux.","MuonsAux."]
+        else:
+            containers = ["CombinedMuonTrackParticlesAux.","BTagging_AntiKt4EMTopoAux.","MuonsAux."]
+
         topSequence += \
-            CfgMgr.xAODMaker__DynVarFixerAlg( "AODFix_DynAuxVariables", Containers = ["CombinedMuonTrackParticlesAux.","BTagging_AntiKt4EMTopoAux.","MuonsAux."] )
+            CfgMgr.xAODMaker__DynVarFixerAlg( "AODFix_DynAuxVariables", Containers = containers )
 
     def btagging_postSystemRec(self, topSequence):
         """
@@ -126,4 +142,12 @@ class AODFix_r210(AODFix_base):
         pass
         
 
-                
+    def elIso_postSystemRec (self, topSequence):
+        from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter               
+        isoAODFixGetter("Electrons")        
+    def felIso_postSystemRec (self, topSequence):
+        from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter               
+        isoAODFixGetter("ForwardElectrons")        
+    def phIso_postSystemRec (self, topSequence):
+        from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter               
+        isoAODFixGetter("Photons")        

@@ -5,7 +5,6 @@
 /***************************************************************************
  Vertex parameters data-class
  ----------------------------
- Copyright (C) 2000 by ATLAS Collaboration
  ***************************************************************************/
 
 #ifndef IPATTRACKPARAMETERS_VERTEXPARAMETERS_H

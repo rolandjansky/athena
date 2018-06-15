@@ -1,25 +1,19 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /***************************************************************************
                           CrateEnergy.h  -  description
                              -------------------
     begin                : 06/09/2007
-    copyright            : (C) 2007 by Alan Watson
     email                : Alan.Watson@cern.ch
  ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
 
 #include "TrigT1CaloUtils/CrateEnergy.h"
 
 namespace LVL1 {
 
-CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* JEMs, float etaMaxXE, float etaMaxTE, bool restricted):
+CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* JEMs, uint32_t maskXE, uint32_t maskTE, bool restricted):
   m_crate(crate),
   m_crateEt(0),
   m_crateEx(0),
@@ -34,19 +28,7 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* JEM
   if (m_crate > 1) return;
 
   /** Added for restricted eta triggers in Run 2 */
-  int moduleMinXE = 0;
-  if (etaMaxXE <= 2.41) moduleMinXE = 1;
-  if (etaMaxXE <= 1.61) moduleMinXE = 2;
-  if (etaMaxXE <= 0.81) moduleMinXE = 3;
-  int moduleMaxXE = 7 - moduleMinXE;
-
-  int moduleMinTE = 0;
-  if (etaMaxTE <= 2.41) moduleMinTE = 1;
-  if (etaMaxTE <= 1.61) moduleMinTE = 2;
-  if (etaMaxTE <= 0.81) moduleMinTE = 3;
-  int moduleMaxTE = 7 - moduleMinTE;
-
-  if (moduleMinXE > 0 || moduleMinTE > 0) m_restricted = true;
+  if ((maskXE&0xff) != 0xff || (maskTE&0xff) != 0xff) m_restricted = true;
 
   /** Summing within a crate proceeds as follows: <br>
          unsigned 14 bit Ex, Ey, Et sums are formed for each half crate<br>
@@ -63,20 +45,15 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* JEM
     int moduleInQuad = (*it)->module() % 8;
     if ((*it)->crate() == m_crate) {
       int quad = ( (*it)->module() < 8 ? 0 : 1 );
-      
-      if (moduleInQuad >= moduleMinTE && moduleInQuad <= moduleMaxTE) {
+      if ((maskTE>>moduleInQuad)&1) {
         eT[quad] += (*it)->et();
         if ( (*it)->et() >= m_jemEtSaturation ) m_overflowT = 1;
       }
-      
- 
-      if (moduleInQuad >= moduleMinXE && moduleInQuad <= moduleMaxXE) {
+      if ((maskXE>>moduleInQuad)&1) {
         eX[quad] += (*it)->ex();
         eY[quad] += (*it)->ey();
- 
         if ( (*it)->ex() >= m_jemEtSaturation ) m_overflowX = 1;
         if ( (*it)->ey() >= m_jemEtSaturation ) m_overflowY = 1;
- 
       } 
     }  // Right crate?
   }   // Loop over JEMs
@@ -115,7 +92,7 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<ModuleEnergy>* JEM
   
 }
 
-CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* JEMs, float etaMaxXE, float etaMaxTE, bool restricted):
+CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* JEMs, uint32_t maskXE, uint32_t maskTE, bool restricted):
   m_crate(crate),
   m_crateEt(0),
   m_crateEx(0),
@@ -130,19 +107,7 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* JE
   if (m_crate > 1) return;
 
   /** Added for restricted eta triggers in Run 2 */
-  int moduleMinXE = 0;
-  if (etaMaxXE <= 2.41) moduleMinXE = 1;
-  if (etaMaxXE <= 1.61) moduleMinXE = 2;
-  if (etaMaxXE <= 0.81) moduleMinXE = 3;
-  int moduleMaxXE = 7 - moduleMinXE;
-
-  int moduleMinTE = 0;
-  if (etaMaxTE <= 2.41) moduleMinTE = 1;
-  if (etaMaxTE <= 1.61) moduleMinTE = 2;
-  if (etaMaxTE <= 0.81) moduleMinTE = 3;
-  int moduleMaxTE = 7 - moduleMinTE;
-
-  if (moduleMinXE > 0 || moduleMinTE > 0) m_restricted = true;
+  if ((maskXE&0xff) != 0xff || (maskTE&0xff) != 0xff) m_restricted = true;
 
   /** Summing within a crate proceeds as follows: <br>
          unsigned 14 bit Ex, Ey, Et sums are formed for each half crate<br>
@@ -160,11 +125,11 @@ CrateEnergy::CrateEnergy(unsigned int crate, const DataVector<EnergyCMXData>* JE
     if ((unsigned int)(*it)->crate() == m_crate) {
       int quad = ( (*it)->module() < 8 ? 0 : 1 );
 
-      if (moduleInQuad >= moduleMinTE && moduleInQuad <= moduleMaxTE) {
+      if ((maskTE>>moduleInQuad)&1) {
         eT[quad] += (*it)->Et();
         if ( (*it)->Et() >= m_jemEtSaturation ) m_overflowT = 1;
       }
-      if (moduleInQuad >= moduleMinXE && moduleInQuad <= moduleMaxXE) {
+      if ((maskXE>>moduleInQuad)&1) {
         eX[quad] += (*it)->Ex();
         eY[quad] += (*it)->Ey();
         if ( (*it)->Ex() >= m_jemEtSaturation ) m_overflowX = 1;

@@ -8,16 +8,16 @@ topSequence += monManJetTag
 
 from JetTagTools.JetTagToolsConf import Analysis__TrackSelector
 trackSelectorTool = Analysis__TrackSelector (
-    name           = "Analysis::TrackSelector"
-    )
+     name           = "Analysis::TrackSelector"
+     )
 ToolSvc += trackSelectorTool
 #trackSelectorTool.OutputLevel = VERBOSE
 trackSelectorTool.nHitBLayer = 0
 
 from JetTagMonitoring.JetTagMonitoringConf import JetTagMonitoring
 jetTagMonTool = JetTagMonitoring (
-    name           = "jetTagMonTool",
-    )
+     name           = "jetTagMonTool",
+     )
 ToolSvc += jetTagMonTool
 monManJetTag.AthenaMonTools += [ jetTagMonTool ]
 
@@ -31,7 +31,11 @@ monbadlb = GetLArBadLBFilterTool()
 jetTagMonTool.FilterTools += [ monbadlb ] 
 
 jetTagMonTool.OutputLevel = INFO
-jetTagMonTool.JetContainer = "AntiKt4EMTopoJets"
+
+#Properties defined in the jobOptions
+#START
+jetTagMonTool.JetContainer = "AntiKt4EMTopoJets" #nominal jet collection
+#jetTagMonTool.JetContainer = "AntiKtHIJets" #Heavy Ion runs jet collection
 jetTagMonTool.TrackParticleContainer = "InDetTrackParticles"
 jetTagMonTool.PrimaryVertexContainer = "PrimaryVertices"
 jetTagMonTool.ElectronContainer = "Electrons"
@@ -45,39 +49,80 @@ jetTagMonTool.JetPt_cuts = 15
 jetTagMonTool.JetEta_cuts = 2.5
 jetTagMonTool.nTrk_cuts = 1
 
+# Choose between MV2c10, MV2c10mu, MV2c10rnn, DL1, DL1mu, DL1rnn
 jetTagMonTool.MV_algorithmName = "MV2c10"
+jetTagMonTool.MV_nBins = 100
+jetTagMonTool.MV_rangeStart = -1.
+jetTagMonTool.MV_rangeStop = 1.
+jetTagMonTool.MV_cFraction = 0.08
 
-# taken from webpage (https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTaggingBenchmarksRelease20) 14 june 2017
+# r21 Benchmarks (https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTaggingBenchmarksRelease21) 3 March 2018
+if (jetTagMonTool.MV_algorithmName == "MV2c10") :
+     jetTagMonTool.MV_60_cut = 0.94
+     jetTagMonTool.MV_70_cut = 0.83
+     jetTagMonTool.MV_77_cut = 0.64
+     jetTagMonTool.MV_85_cut = 0.11
+if (jetTagMonTool.MV_algorithmName == "MV2c10mu") :
+     jetTagMonTool.MV_60_cut = 0.95
+     jetTagMonTool.MV_70_cut = 0.87
+     jetTagMonTool.MV_77_cut = 0.71
+     jetTagMonTool.MV_85_cut = 0.23
+if (jetTagMonTool.MV_algorithmName == "MV2c10rnn") :
+     jetTagMonTool.MV_60_cut = 0.96
+     jetTagMonTool.MV_70_cut = 0.87
+     jetTagMonTool.MV_77_cut = 0.71
+     jetTagMonTool.MV_85_cut = 0.26
+if (jetTagMonTool.MV_algorithmName == "DL1") :
+     jetTagMonTool.MV_60_cut = 2.74
+     jetTagMonTool.MV_70_cut = 2.02
+     jetTagMonTool.MV_77_cut = 1.45
+     jetTagMonTool.MV_85_cut = 0.46
+     jetTagMonTool.MV_nBins = 150
+     jetTagMonTool.MV_rangeStart = -5.
+     jetTagMonTool.MV_rangeStop = 10.
+     jetTagMonTool.MV_cFraction = 0.08
+if (jetTagMonTool.MV_algorithmName == "DL1mu") :
+     jetTagMonTool.MV_60_cut = 2.72
+     jetTagMonTool.MV_70_cut = 1.83
+     jetTagMonTool.MV_77_cut = 1.10
+     jetTagMonTool.MV_85_cut = 0.12
+     jetTagMonTool.MV_nBins = 150
+     jetTagMonTool.MV_rangeStart = -5.
+     jetTagMonTool.MV_rangeStop = 10.
+     jetTagMonTool.MV_cFraction = 0.08
+if (jetTagMonTool.MV_algorithmName == "DL1rnn") :
+     jetTagMonTool.MV_60_cut = 4.31
+     jetTagMonTool.MV_70_cut = 2.98
+     jetTagMonTool.MV_77_cut = 2.23
+     jetTagMonTool.MV_85_cut = 1.32
+     jetTagMonTool.MV_nBins = 150
+     jetTagMonTool.MV_rangeStart = -5.
+     jetTagMonTool.MV_rangeStop = 10.
+     jetTagMonTool.MV_cFraction = 0.03
+
 jetTagMonTool.SV1IP3D_weight_cut = 0.0
-jetTagMonTool.MV_60_cut = 0.934906
-jetTagMonTool.MV_70_cut = 0.8244273
-jetTagMonTool.MV_77_cut = 0.645925
-jetTagMonTool.MV_85_cut = 0.1758475
+#END
 
 if not rec.doInDet:
-    jetTagMonTool.UseTrackSelector = False
+     jetTagMonTool.UseTrackSelector = False
 else:
-    jetTagMonTool.UseTrackSelector = True
+     jetTagMonTool.UseTrackSelector = True
 
-# Setting up the trigger decision tool
-# for trigger-aware monitoring
-
-jetTagMonTool.UseTrigDecisionTool = True # added by SARA
+# Setting up the trigger decision tool for trigger-aware monitoring
+jetTagMonTool.UseTrigDecisionTool = True
 if DQMonFlags.useTrigger() and hasattr(ToolSvc, DQMonFlags.nameTrigDecTool()):
-    print "jetTagMonTool will use TrigDecisionTool instance: %s" % DQMonFlags.nameTrigDecTool()
-#    jetTagMonTool.TrigDecisionTool = getattr(ToolSvc, DQMonFlags.nameTrigDecTool())
-    jetTagMonTool.UseTrigDecisionTool = True
+     print "jetTagMonTool will use TrigDecisionTool instance: %s" % DQMonFlags.nameTrigDecTool()
+     jetTagMonTool.UseTrigDecisionTool = True
 else:
-    print "WARNING!!! jetTagMonTool will NOT use TrigDecisionTool."
-    jetTagMonTool.UseTrigDecisionTool = False
+     print "WARNING!!! jetTagMonTool will NOT use TrigDecisionTool."
+     jetTagMonTool.UseTrigDecisionTool = False
 
-if (rec.triggerStream()=='express'): # added by SARA # don't require trigger if running on express stream
-    jetTagMonTool.UseTrigDecisionTool = False # added by SARA
+if (rec.triggerStream()=='express'): # don't require trigger if running on express stream
+     jetTagMonTool.UseTrigDecisionTool = False
 
-jetTagMonTool.ElectronTrigger_2016 = "HLT_e26_lhtight_nod0_ivarloose"; # added by SARA
-jetTagMonTool.MuonTrigger_2016 = "HLT_mu26_ivarmedium"; # added by SARA
-jetTagMonTool.JetTrigger_2016 = "HLT_j15"; # added by SARA
-jetTagMonTool.ElectronTrigger_2017 = "HLT_e28_lhtight_nod0_ivarloose"; # added by SARA
-jetTagMonTool.MuonTrigger_2017 = "HLT_mu26_ivarmedium"; # added by SARA
-jetTagMonTool.JetTrigger_2017 = "HLT_j15"; # added by SARA
+#jetTagMonTool.UseTrigDecisionTool = False #disable triggers for HI events
+
+jetTagMonTool.ElectronTrigger_201X = "HLT_e[2-9][0-9]_.*"; # electrons 20-99 GeV
+jetTagMonTool.MuonTrigger_201X = "HLT_mu.*"; # muons *all* GeV
+#jetTagMonTool.JetTrigger_201X = "HLT_j15"; # jets (disabled)
 

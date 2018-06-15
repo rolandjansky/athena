@@ -12,6 +12,7 @@
 
 #include "LArG4Code/LArG4Identifier.h"
 
+#include "AthenaKernel/Units.h"
 #include "globals.hh"
 
 
@@ -23,7 +24,7 @@ namespace LArG4 {
 
   namespace BarrelPresampler {
 
-    class Geometry: public AthService, virtual public ILArBarrelPresamplerGeometry {
+    class Geometry: public extends<AthService, ILArBarrelPresamplerGeometry> {
 
     public:
 
@@ -32,49 +33,47 @@ namespace LArG4 {
 
       virtual ~Geometry();
 
-      /** Query interface method to make athena happy */
-      virtual StatusCode queryInterface(const InterfaceID&, void**) override final;
-
       virtual StatusCode initialize() override final;
 
       virtual LArG4Identifier CalculateIdentifier( const G4Step* ) const override final;
       virtual bool findCell(CalcData & currentCellData, G4double xloc,G4double yloc,G4double zloc) const override final;
 
     private:
-      LArG4Identifier CalculatePSActiveIdentifier( const G4Step* , const G4int indPS , const bool itb ) const;
-      LArG4Identifier CalculatePS_DMIdentifier( const G4Step* , const G4int indPS , const bool itb) const;
+      LArG4Identifier CalculatePSActiveIdentifier( const G4Step* , const G4int indPS ) const;
+      LArG4Identifier CalculatePS_DMIdentifier( const G4Step* , const G4int indPS ) const;
 
-      inline G4int determineZSide(const bool isTestBeam, const double zCoord) const {
+      inline G4int determineZSide(const double zCoord) const {
         // in TB case, only 1 side,
         // in Atlas case, use overall z to decide side
-        if (isTestBeam) { return 1; }
+        if (m_testbeam) { return 1; }
         if (zCoord > 0.) { return 1; }
         return -1;
       }
 
       // detector name, for translated geometry
-      std::string m_detectorName;
+      std::string m_detectorName{"LArMgr"};
 
 #include "PresParameterDef.h"
 
       // end z of the various modules
       G4double m_end_module[8];
-      G4double m_zminPS;
-      G4double m_zpres;
-      G4double m_cat_th;
+      G4double m_zminPS{3.00*Athena::Units::mm};   // FIXME this should come from the database;
+      G4double m_zpres{1549.*Athena::Units::mm}; // position of mother volume inside nominal Atlas frame
+      G4double m_cat_th{};
       // z of first cathode in each module
-      G4double m_first_cathod[8];
+      G4double m_first_cathod[8]{};
       // tilt of electrodes
-      G4double m_tilt[8];
+      G4double m_tilt[8]{};
       // number of gaps per cell
-      G4int m_ngap_cell[8];
+      G4int m_ngap_cell[8]{};
       // pitch in z of gaps
-      G4double m_pitch[8];
+      G4double m_pitch[8]{};
       // number of cells per modules
-      G4int    m_ncell_module[8];
+      G4int    m_ncell_module[8]{};
       // total LAr thickness
-      G4double m_halfThickLAr;
-
+      G4double m_halfThickLAr{0.5*13.*Athena::Units::mm}; // LAr total gap
+      // is this a test beam simulation job
+      bool m_testbeam{false};
 
     } ;
 

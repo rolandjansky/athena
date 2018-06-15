@@ -70,6 +70,13 @@ class ArtConfiguration(object):
 
         return keys
 
+    def packages(self):
+        """Return all packages, including 'All', defined in the configuration."""
+        if self.config is None:
+            return []
+
+        return self.config.keys()
+
     def get(self, nightly_release, project, platform, package, key, default_value=None):
         """Return most specific value for specified key and matching pattern.
 

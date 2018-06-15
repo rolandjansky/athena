@@ -63,7 +63,7 @@ void TFCSEnergyBinParametrization::clear_pdgid()
 
 void TFCSEnergyBinParametrization::set_pdgid_Ekin_bin_probability(int id,std::vector< float > prob)
 {
-  set_pdgid(id);
+  add_pdgid(id);
   if(prob.size()!=m_pdgid_Ebin_probability[id].size()) {
     ATH_MSG_ERROR("TFCSEnergyBinParametrization::set_pdgid_Ekin_bin_probability(): size of vectors does not match! in.size()="<<prob.size()<<" instance="<<m_pdgid_Ebin_probability[id].size());
     return;

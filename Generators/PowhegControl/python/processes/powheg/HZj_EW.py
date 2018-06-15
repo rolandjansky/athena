@@ -20,7 +20,7 @@ class HZj_EW(PowhegRES):
         @param base_directory  path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, "HZJ_ew", **kwargs)
+        super(HZj_EW, self).__init__(base_directory, "HZJ_ew", **kwargs)
 
         ## List of allowed decay modes
         self.allowed_decay_modes = ["z > e+ e-", "z > mu+ mu-", "z > tau+ tau-", "z > ve ve~", "z > vm vm~",
@@ -57,7 +57,7 @@ class HZj_EW(PowhegRES):
         self.add_keyword("enhancereg")
         self.add_keyword("evenmaxrat")
         self.add_keyword("ew_renorm_scheme")
-        self.add_keyword("facscfact")
+        self.add_keyword("facscfact", self.default_scales[0])
         self.add_keyword("factsc2min")
         self.add_keyword("fastbtlbound")
         self.add_keyword("flg_debug")
@@ -92,8 +92,8 @@ class HZj_EW(PowhegRES):
         self.add_keyword("kappa_ght")
         self.add_keyword("kappa_ghw")
         self.add_keyword("lambdaHHH")
-        self.add_keyword("lhans1")
-        self.add_keyword("lhans2")
+        self.add_keyword("lhans1", self.default_PDFs)
+        self.add_keyword("lhans2", self.default_PDFs)
         self.add_keyword("LOevents")
         self.add_keyword("manyseeds")
         self.add_keyword("max_h_mass", 2.0 * self.parameters_by_name("beam_energy")[0].value)
@@ -139,7 +139,7 @@ class HZj_EW(PowhegRES):
         self.add_keyword("rand1")
         self.add_keyword("rand2")
         self.add_keyword("regridfix")
-        self.add_keyword("renscfact")
+        self.add_keyword("renscfact", self.default_scales[1])
         self.add_keyword("runningscales", 3, description="scale at underlying Born level. [0: mh+mw; 1: Ht; 2: sqrt(pt_l1*pt_l2); 3: sqrt((p_H+p_l1+p_l2)^2)]")
         self.add_keyword("rwl_add")
         self.add_keyword("rwl_file")

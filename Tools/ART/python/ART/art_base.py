@@ -98,6 +98,10 @@ class ArtBase(object):
         """Show configuration."""
         log = logging.getLogger(MODULE)
         config = ArtConfiguration(config)
+        if package is None:
+            log.info("%s", config.packages())
+            return 0
+
         keys = config.keys(nightly_release, project, platform, package)
         for key in keys:
             log.info("%s %s", key, config.get(nightly_release, project, platform, package, key))
@@ -110,13 +114,13 @@ class ArtBase(object):
         """TBD."""
         result = 0
 
-        (exit_code, out, err) = run_command(' '.join(("art-diff.py", "--diff-type=diff-pool", path, ref_path)))
+        (exit_code, out, err, command, start_time, end_time) = run_command(' '.join(("art-diff.py", "--diff-type=diff-pool", path, ref_path)))
         if exit_code != 0:
             result |= exit_code
             print err
         print out
 
-        (exit_code, out, err) = run_command(' '.join(("art-diff.py", "--diff-type=diff-root", "--entries=" + str(entries), path, ref_path)))
+        (exit_code, out, err, command, start_time, end_time) = run_command(' '.join(("art-diff.py", "--diff-type=diff-root", "--entries=" + str(entries), path, ref_path)))
         if exit_code != 0:
             result |= exit_code
             print err
@@ -225,7 +229,7 @@ class ArtBase(object):
         for pattern in patterns:
             nightly_release_pattern = "*"
             project_pattern = "*"
-            platform_pattern = "*-*-*-opt"
+            platform_pattern = "*-*-*-*"
 
             count = pattern.count('/')
             if count >= 2:

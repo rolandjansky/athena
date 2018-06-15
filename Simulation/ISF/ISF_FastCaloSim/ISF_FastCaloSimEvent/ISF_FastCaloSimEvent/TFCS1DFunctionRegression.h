@@ -19,6 +19,7 @@ class TFCS1DFunctionRegression:public TFCS1DFunction
     TFCS1DFunctionRegression() {};
     ~TFCS1DFunctionRegression() {};
 
+    using TFCS1DFunction::rnd_to_fct;
     virtual double rnd_to_fct(double rnd);
     double  regression_value(double uniform);
     void    set_weights(vector<vector<double> > fWeightMatrix0to1, vector<vector<double> > fWeightMatrix1to2);

@@ -1,9 +1,9 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+import os
 from AthenaCommon import Logging
 from ..external import ExternalPHOTOS
 from ..powheg_V2 import PowhegV2
-import os
 
 ## Get handle to Athena logging
 logger = Logging.logging.getLogger("PowhegControl")
@@ -23,7 +23,7 @@ class W_EW(PowhegV2):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, "W_ew-BMNNP", **kwargs)
+        super(W_EW, self).__init__(base_directory, "W_ew-BMNNP", **kwargs)
 
         # Add algorithms to the sequence
         self.add_algorithm(ExternalPHOTOS(os.path.split(self.executable)[0], "main-PHOTOS-lhef"))
@@ -69,7 +69,7 @@ class W_EW(PowhegV2):
         self.add_keyword("compute_rwgt")
         self.add_keyword("doublefsr")
         self.add_keyword("evenmaxrat")
-        self.add_keyword("facscfact")
+        self.add_keyword("facscfact", self.default_scales[0])
         self.add_keyword("fastbtlbound")
         self.add_keyword("fixedgrid")
         self.add_keyword("flg_debug")
@@ -95,8 +95,8 @@ class W_EW(PowhegV2):
         self.add_keyword("iymax")
         self.add_keyword("kt2minqed")
         self.add_keyword("lepaslight")
-        self.add_keyword("lhans1")
-        self.add_keyword("lhans2")
+        self.add_keyword("lhans1", self.default_PDFs)
+        self.add_keyword("lhans2", self.default_PDFs)
         self.add_keyword("lhapdf6maxsets")
         self.add_keyword("lhrwgt_descr")
         self.add_keyword("lhrwgt_group_combine")
@@ -138,7 +138,7 @@ class W_EW(PowhegV2):
         self.add_keyword("radregion")
         self.add_keyword("rand1")
         self.add_keyword("rand2")
-        self.add_keyword("renscfact")
+        self.add_keyword("renscfact", self.default_scales[1])
         self.add_keyword("runningscale")
         self.add_keyword("rwl_add")
         self.add_keyword("rwl_file")
@@ -171,7 +171,13 @@ class W_EW(PowhegV2):
         self.add_keyword("Zwidth")
 
     def validate_decays(self):
-        """! Validate idvecbos and vdecaymode keywords."""
+        """! Validate idvecbos and vdecaymode keywords and check that 'no_ew' is compatible with 'PHOTOS_enabled'."""
+        # If PHOTOS is disabled but EW effects are on, any subsequent PHOTOS process will have to run in vetoed mode which is not supported
+        if not self.externals["PHOTOS"].parameters_by_keyword("PHOTOS_enabled")[0].value and self.parameters_by_keyword("no_ew")[0].value == 0:
+            logger.error("Attempting to run with native PHOTOS disabled but with EW corrections on.")
+            logger.error("This would require any later PHOTOS generation to run in vetoed mode.")
+            logger.error("Please change 'PHOTOS_enabled' and/or 'no_ew' in your jobOptions.")
+            raise ValueError("Incompatible options. Please change 'PHOTOS_enabled' and/or 'no_ew' in your jobOptions.")
         self.expose()  # convenience call to simplify syntax
         self.check_decay_mode(self.decay_mode, self.allowed_decay_modes)
         # Calculate appropriate decay mode numbers

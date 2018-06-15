@@ -17,7 +17,8 @@ Usage:
   art.py list grid       [-v -q --user=<user> --json --test-type=<TT>] <package>
   art.py log grid        [-v -q --user=<user>] <package> <test_name>
   art.py output grid     [-v -q --user=<user>] <package> <test_name>
-  art.py config          [-v -q --config=<file>] <package>
+  art.py config          [-v -q --config=<file>] [<package>]
+  art.py createpoolfile  [-v -q]
 
 Options:
   --ci                   Run Continuous Integration tests only (using env: AtlasBuildBranch)
@@ -49,6 +50,7 @@ Sub-commands:
   log               Show the log of a job
   output            Get the output of a job
   config            Show configuration
+  createpoolfile    Creates an 'empty' poolfile catalog
 
 Arguments:
   indexed_package   Package of the test or indexed package (e.g. MooPerformance.4)
@@ -71,7 +73,7 @@ Tests are called with:
 """
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
-__version__ = '0.8.20'
+__version__ = '0.9.5'
 
 import logging
 import os
@@ -221,6 +223,15 @@ def config(package, **kwargs):
     (nightly_release, project, platform, nightly_tag) = get_atlas_env()
     config = kwargs['config']
     exit(ArtBase(art_directory).config(package, nightly_release, project, platform, config))
+
+
+@dispatch.on('createpoolfile')
+def createpoolfile(package, **kwargs):
+    """Show configuration."""
+    set_log(kwargs)
+    art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
+    (nightly_release, project, platform, nightly_tag) = get_atlas_env()
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag).createpoolfile())
 
 
 if __name__ == '__main__':

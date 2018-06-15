@@ -1,9 +1,11 @@
 /*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+/*
  *  SCT_OnlineId.cxx
  *  SCT_Cabling
  *
  *  Created by sroe on 21/10/2008.
- *  Copyright 2008 CERN. All rights reserved.
  *
  */
 

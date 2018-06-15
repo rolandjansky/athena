@@ -100,7 +100,26 @@ def defineCPSGroups():
         'RATE:CPS:HLT_tau25_express'         :['tau25_idperf_track',
                                                'tau25_perf_tracktwo',
                                                'tau25_idperf_tracktwo',
-                                               'tau25_medium1_tracktwo',],  
+                                               'tau25_medium1_tracktwo',
+                                               'tau25_idperf_tracktwoEF',
+                                               'tau25_perf_tracktwoEF',
+                                               'tau25_medium1_tracktwoEF',
+                                               'tau25_idperf_tracktwoEFmvaTES',
+                                               'tau25_perf_tracktwoEFmvaTES',
+                                               'tau25_medium1NoPt_tracktwoEFmvaTES',
+                                               'tau25_medium1_tracktwoEFmvaTES',
+                                               'tau25_idperf_tracktwoMVA',
+                                               'tau25_perf_tracktwoMVA',
+                                               'tau25_medium1_tracktwoMVA',
+                                               'tau25_verylooseRNN_tracktwoMVA',
+                                               'tau25_looseRNN_tracktwoMVA',
+                                               'tau25_mediumRNN_tracktwoMVA',
+                                               'tau25_tightRNN_tracktwoMVA',
+                                               'tau25_verylooseRNN_tracktwo',
+                                               'tau25_looseRNN_tracktwo',
+                                               'tau25_mediumRNN_tracktwo',
+                                               'tau25_tightRNN_tracktwo',
+                                              ],  
         'RATE:CPS:HLT_tau160'		     :['tau160_idperf_track',
                                                'tau160_idperf_tracktwo',
                                                'tau160_perf_tracktwo',],  					       
@@ -599,15 +618,16 @@ def defineCPSGroups():
     if "v6" in TriggerFlags.triggerMenuSetup() or "v7" in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
 
-          "RATE:CPS:HLT_razor"   :  [''
-                                     'j30_xe10_razor100',
-                                     'j30_xe60_razor100',
-                                     'j30_xe10_razor170',
-                                     'j30_xe10_razor185',
-                                     'j30_xe10_razor195',
-                                     'j30_xe60_razor170',
-                                     'j30_xe60_razor185',
-                                     ],	
+          #Moved from physics to MC menu: ATR-17795
+          #"RATE:CPS:HLT_razor"   :  [''
+           #                          'j30_xe10_razor100',
+           #                          'j30_xe60_razor100',
+           #                          'j30_xe10_razor170',
+           #                          'j30_xe10_razor185',
+           #                          'j30_xe10_razor195',
+           #                          'j30_xe60_razor170',
+           #                          'j30_xe60_razor185',
+           #                          ],	
 
          "RATE:CPS:HLT_mu6_mu4_bBmumu"   : ['mu6_mu4_bBmumu',
 	                                    'mu6_mu4_bBmumu_Lxy0',],
@@ -723,6 +743,12 @@ def defineCPSGroups():
                                             'j260_a10t_lcw_nojcalib_L1J75',
                                             'j260_a10r_L1J75',
                                         ],
+
+
+        'RATE:CPS:HLT_j460_a10L1SC111' : [	'j460_a10_lcw_subjes_L1SC111',
+                                                'j460_a10r_L1SC111',
+                                                'j460_a10t_lcw_jes_L1SC111',],
+
 
         'RATE:CPS:HLT_j480_a10_L1J100': [   'j480_a10_sub_L1J100',
                                             'j480_a10_nojcalib_L1J100',

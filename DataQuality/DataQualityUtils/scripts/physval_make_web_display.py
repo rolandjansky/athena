@@ -35,7 +35,7 @@ def recurse(rdir, dqregion, ignorepath, refs=None, displaystring='Draw=PE', disp
         if ' ' in key.GetName():
             print 'WARNING: cannot have spaces in histogram names for han config; not including %s %s' % (cl, key.GetName())
             continue
-        if rcl.InheritsFrom('TH1'):
+        if rcl.InheritsFrom('TH1') or rcl.InheritsFrom('TGraph') or rcl.InheritsFrom('TEfficiency'):
             if '/' in key.GetName():
                 print 'WARNING: cannot have slashes in histogram names, encountered in directory %s, histogram %s' % (rdir.GetPath(), key.GetName())
                 continue
@@ -74,6 +74,8 @@ def recurse(rdir, dqregion, ignorepath, refs=None, displaystring='Draw=PE', disp
             if options.ratio: drawstrs.append('RatioPad')
             #if options.ratio: drawstrs.append('Ref2DSignif')
             if options.ratio2D: drawstrs.append('Ref2DRatio')
+            if options.ratiorange is not None:
+              drawstrs.append('delta(%f)' % options.ratiorange)
 
             drawstrs.append('DataName=%s' % options.title)
             dqpar.addAnnotation('display', ','.join(drawstrs))
@@ -226,7 +228,8 @@ def super_process(fname, options):
                                            hanoutput,
                                            options.outdir,
                                            '', False, False, 
-                                           'https://atlasdqm.web.cern.ch/atlasdqm/js/')
+                                           'https://atlasdqm.web.cern.ch/atlasdqm/js/',
+                                           3 if options.jsRoot else 1)
 ##            print '====> Copying to', hantargetdir
 ##            hantargetfile = os.path.join(hantargetdir, 'out_han.root')
 ##            if not os.access(hantargetdir, os.W_OK):
@@ -291,7 +294,10 @@ if __name__=="__main__":
                       help='Draw histograms with ratio plots')
     parser.add_option('--ratio2D', default=False, action='store_true',
                       help='Draw 2D histograms with ratio plots')
-
+    parser.add_option('--jsRoot',action='store_true', default=False,
+                      help="make interactive jsRoot displays")
+    parser.add_option('--ratiorange', default=None, type=float,
+                      help='set range for ratio plots (as delta to 1.0)')
 
     options, args = parser.parse_args()
     
