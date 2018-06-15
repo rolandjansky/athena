@@ -28,9 +28,11 @@
 #include "TObject.h"
 #include "TTree.h"
 
+#include "AthenaBaseComps/AthService.h"
+
 class IIncidentSvc;
 
-class THistSvcHLT : public extends<Service, ITHistSvc, IIncidentListener, IIoComponent>
+class THistSvcHLT : public extends<AthService, ITHistSvc, IIncidentListener, IIoComponent>
 {
 public:
   THistSvcHLT( const std::string& name, ISvcLocator* svc );

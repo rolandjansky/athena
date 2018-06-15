@@ -33,14 +33,10 @@ class TTree;
 
 #include <boost/regex.hpp>
 
-class TrigMonTHistSvc: virtual public THistSvcHLT,
-                       public AthMessaging
+class TrigMonTHistSvc: public THistSvcHLT
 { 
 public:
   
-  // fwd compat w/ gaudi-21
-  using AthMessaging::msg;
-
   TrigMonTHistSvc(const std::string& name, ISvcLocator *svc );
   virtual ~TrigMonTHistSvc();
 
