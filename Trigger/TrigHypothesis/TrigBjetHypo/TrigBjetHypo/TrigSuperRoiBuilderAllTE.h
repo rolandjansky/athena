@@ -1,10 +1,12 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TrigSuperRoiBuilderAllTE.h        
 //
 //                   
 //  
-//   Copyright (C) 2014 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TrigSuperRoiBuilderAllTE.h 797477 2017-02-16 09:56:10Z kleney $
 

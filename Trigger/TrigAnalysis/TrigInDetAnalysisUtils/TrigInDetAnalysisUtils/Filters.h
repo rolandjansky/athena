@@ -1,11 +1,13 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 // emacs: this is -*- c++ -*-
 //
 //   @file    Filters.h        
 //
 //                   
 //  
-//   Copyright (C) 2012 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: Filters.h 767214 2016-08-10 12:23:36Z sutt $
 

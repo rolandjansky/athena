@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TrackTrigObject.cxx         
 //   
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2012 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TrackTrigObject.cxx, v0.0   Mon  5 Nov 2012 12:13:48 GMT sutt $
 
