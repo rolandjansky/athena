@@ -8,7 +8,6 @@
 #include "SCT_SLHC_GeoModel/SCT_Options.h" 
 #include "SCT_SLHC_GeoModel/SCT_GeoModelAthenaComps.h" 
 #include "InDetReadoutGeometry/SCT_DetectorManager.h" 
-#include "InDetCondServices/ISiLorentzAngleSvc.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
@@ -53,18 +52,6 @@ SCT_SLHC_DetectorTool::SCT_SLHC_DetectorTool( const std::string& type,
 SCT_SLHC_DetectorTool::~SCT_SLHC_DetectorTool()
 {
   delete m_athenaComps;
-}
-
-// Initialize
-StatusCode SCT_SLHC_DetectorTool::initialize(){
-  // LorentzAngleTool
-  if (not m_lorentzAngleTool.empty()) {
-    ATH_CHECK(m_lorentzAngleTool.retrieve());
-  } else {
-    m_lorentzAngleTool.disable();
-  }
-
-  return StatusCode::SUCCESS;
 }
 
 // Create the Geometry via the factory corresponding to this tool
@@ -146,17 +133,10 @@ StatusCode SCT_SLHC_DetectorTool::create(){
       m_athenaComps->setGeoDbTagSvc(&*m_geoDbTagSvc);
       m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
       m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
-      m_athenaComps->setLorentzAngleTool(m_lorentzAngleTool.get());
 
       const SCT_ID* idHelper = nullptr;
       ATH_CHECK(detStore()->retrieve(idHelper, "SCT_ID"));
       m_athenaComps->setIdHelper(idHelper);
-    
-      //
-      // LorentzAngleService
-      //
-      ATH_MSG_DEBUG("Lorentz angle tool passed to InDetReadoutGeometry with name: " << m_lorentzAngleTool.name());
-    
 
       // Service builder tool
       if (!m_serviceBuilderTool.empty()) {
@@ -196,12 +176,6 @@ StatusCode SCT_SLHC_DetectorTool::create(){
       // Create a symLink to the SiDetectorManager base class
       const SiDetectorManager * siDetManager = m_manager;
       ATH_CHECK(detStore()->symLink(m_manager, siDetManager));
-   
-      // LorentzAngleTool
-      if (m_lorentzAngleTool.get()) {
-        // SCT_DetectorManager is not available at initialize of m_lorentzAngleTool
-        ATH_CHECK(m_lorentzAngleTool->retrieveDetectorManager());
-      }
     }  
   }
   return StatusCode::SUCCESS;
