@@ -20,6 +20,7 @@
 #include "AthenaKernel/EventContextClid.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+#include "ByteStreamData/ByteStreamMetadata.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
@@ -345,10 +346,10 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree & pt)
       
     auto& soral = getSorAttrList(sor);
     
-    updInternal(soral);     // update internally kept info
+    updateInternal(soral);     // update internally kept info
+    updateMetadataStore(soral);  // update metadata store
+
     /*
-    updMetadaStore(soral);  // update metadata store
-    
     const EventInfo * evinfo;
     if(updMagField(pt).isFailure() ||     // update mag field when appropriate
        updHLTConfigSvc().isFailure() ||   // update config svc when appropriate
@@ -729,11 +730,11 @@ const SOR* HltEventLoopMgr::processRunParams(const ptree & pt)
 }
 
 // =============================================================================
-void HltEventLoopMgr::updInternal(const coral::AttributeList & sor_attrlist)
+void HltEventLoopMgr::updateInternal(const coral::AttributeList & sor_attrlist)
 {
   auto detMaskFst = sor_attrlist["DetectorMaskFst"].data<unsigned long long>();
   auto detMaskSnd = sor_attrlist["DetectorMaskSnd"].data<unsigned long long>();
-  updDetMask({detMaskFst, detMaskSnd});
+  updateDetMask({detMaskFst, detMaskSnd});
 
   // auto sorTime = sor_attrlist["SORTime"].data<unsigned long long>();
   // updSorTime(sorTime);
@@ -755,6 +756,41 @@ void HltEventLoopMgr::updInternal(const coral::AttributeList & sor_attrlist)
     // debug() << ST_WHERE << "sorTimeStamp[0] [sec] = " << m_sorTime_stamp[0] << endmsg;
     // debug() << ST_WHERE << "sorTimeStamp[1] [ns]  = " << m_sorTime_stamp[1] << endmsg;
   }
+}
+
+// =============================================================================
+void HltEventLoopMgr::updateMetadataStore(const coral::AttributeList & sor_attrlist) const
+{
+  // least significant part is "snd" in sor but "fst" for ByteStreamMetadata
+  auto bs_dm_fst = sor_attrlist["DetectorMaskSnd"].data<unsigned long long>();
+  // most significant part is "fst" in sor but "snd" for ByteStreamMetadata
+  auto bs_dm_snd = sor_attrlist["DetectorMaskFst"].data<unsigned long long>();
+
+  auto metadata = new ByteStreamMetadata(
+    sor_attrlist["RunNumber"].data<unsigned int>(),
+    0,
+    0,
+    sor_attrlist["RecordingEnabled"].data<bool>(),
+    0,
+    bs_dm_fst,
+    bs_dm_snd,
+    0,
+    0,
+    "",
+    "",
+    "",
+    0,
+    std::vector<std::string>());
+
+  // Record ByteStreamMetadata in MetaData Store
+  if(m_inputMetaDataStore->record(metadata,"ByteStreamMetadata").isFailure()) {
+    warning() << ST_WHERE << "Unable to record MetaData in InputMetaDataStore" << endmsg;
+    delete metadata;
+  }
+  else {
+    debug() << ST_WHERE << "Recorded MetaData in InputMetaDataStore" << endmsg;
+  }
+
 }
 
 // ==============================================================================
@@ -782,7 +818,7 @@ StatusCode HltEventLoopMgr::clearTemporaryStores()
 }
 
 // =============================================================================
-void HltEventLoopMgr::updDetMask(const std::pair<uint64_t, uint64_t>& dm)
+void HltEventLoopMgr::updateDetMask(const std::pair<uint64_t, uint64_t>& dm)
 {
   m_detector_mask = std::make_tuple(
                       // least significant 4 bytes

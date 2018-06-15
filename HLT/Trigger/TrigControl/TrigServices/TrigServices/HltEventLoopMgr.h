@@ -98,13 +98,16 @@ private:
   const CondAttrListCollection* processRunParams(const boost::property_tree::ptree& pt);
   
   // Update internally kept data from new sor
-  void updInternal(const coral::AttributeList & sor_attrlist);
+  void updateInternal(const coral::AttributeList & sor_attrlist);
+
+  // Update internally kept data from new sor
+  void updateMetadataStore(const coral::AttributeList & sor_attrlist) const;
 
   /// Clear per-event stores
   StatusCode clearTemporaryStores();
 
   /// Update the detector mask
-  void updDetMask(const std::pair<uint64_t, uint64_t>& dm);
+  void updateDetMask(const std::pair<uint64_t, uint64_t>& dm);
 
   /// Extract the single attr list off the SOR CondAttrListCollection
   const coral::AttributeList& getSorAttrList(const CondAttrListCollection* sor) const;
