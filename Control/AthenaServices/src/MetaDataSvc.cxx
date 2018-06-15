@@ -327,6 +327,7 @@ StatusCode MetaDataSvc::prepareOutput(const Incident& inc)
       return StatusCode::FAILURE;
    }
    const std::string guid = fileInc->fileGuid();
+   ATH_MSG_INFO("BLARG guid=" << guid);
    StatusCode rc(StatusCode::SUCCESS);
    for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
       ATH_MSG_DEBUG(" calling metaDataStop for " << (*it)->name());

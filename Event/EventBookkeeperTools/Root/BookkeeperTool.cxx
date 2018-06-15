@@ -161,7 +161,6 @@ StatusCode BookkeeperTool::beginInputFile()
 #ifdef ASGTOOL_ATHENA
 StatusCode BookkeeperTool::beginInputFile(const SG::SourceID& sid)
 {
-  ATH_MSG_INFO("BLARG 2 " << sid);
   //OPENING NEW INPUT FILE
   //Things to do:
   // 1) note that a file is currently opened
@@ -169,103 +168,52 @@ StatusCode BookkeeperTool::beginInputFile(const SG::SourceID& sid)
   //    2a) if incomplete from input, directly propagate to output
   //    2b) if complete from input, wait for EndInputFile to decide what to do in output
 
-  //  Now make sure the output containers are in the output store
+  std::string tmp_name = m_outputCollName+"tmp";
+  std::string inc_name = "Incomplete"+m_outputCollName; 
+  //  IF NO METACONT IN OUTPUT STORE YET
+  //     Initialize MetaCont for incomplete and tmp containers in output store
   //
-  //  Make sure complete container exists in output
   if( !(outputMetaStore()->contains<MetaCont<xAOD::CutBookkeeperContainer> >(m_outputCollName)) ) {
-    ATH_CHECK(this->initOutputContainer(m_outputCollName,sid));
-/*
-      // Now create the complete container
-    xAOD::CutBookkeeperContainer* inc = new xAOD::CutBookkeeperContainer();
-    xAOD::CutBookkeeperAuxContainer* auxinc = new xAOD::CutBookkeeperAuxContainer();
-    inc->setStore(auxinc);
-    MetaCont<xAOD::CutBookkeeperContainer>* mcont = new MetaCont<xAOD::CutBookkeeperContainer>(DataObjID("xAOD::CutBookkeeperContainer",m_outputCollName));
-    if(!mcont->insert(sid,inc)) {
-      ATH_MSG_ERROR("Unable to insert into MetaCont");
-    }
-    ATH_CHECK(outputMetaStore()->record(std::move(mcont),m_outputCollName));
-    std::string auxkey(m_outputCollName+"Aux.");
-    MetaCont<xAOD::CutBookkeeperAuxContainer>* acont = new MetaCont<xAOD::CutBookkeeperAuxContainer>(DataObjID("xAOD::CutBookkeeperAuxContainer",auxkey));
-    //MetaCont<SG::IConstAuxStore>* acont = new MetaCont<SG::IConstAuxStore>(DataObjID("xAOD::CutBookkeeperAuxContainer",auxkey));
-    ATH_CHECK(outputMetaStore()->record(std::move(acont),auxkey));
-    ATH_CHECK(outputMetaStore()->symLink
-            (
-              ClassID_traits<MetaCont<xAOD::CutBookkeeperAuxContainer> >::ID(),
-              auxkey,
-              ClassID_traits<xAOD::CutBookkeeperAuxContainer>::ID()
-            ));
-*/
-/*
-    ATH_CHECK(outputMetaStore()->symLink
-            (
-              ClassID_traits<MetaCont<SG::IConstAuxStore> >::ID(),
-              auxkey,
-              ClassID_traits<SG::IConstAuxStore>::ID()
-            ));
-*/
-    // Below to be deprecated
-    //ATH_CHECK(outputMetaStore()->record(inc,m_outputCollName));
-    //ATH_CHECK(outputMetaStore()->record(auxinc,m_outputCollName+"Aux."));
+    ATH_CHECK(this->initOutputContainer(tmp_name));
   }
   else {
     ATH_MSG_WARNING("complete collection already exists");
   }
-  //  Make sure incomplete container exists in output
-  std::string inc_name = "Incomplete"+m_outputCollName;
   if( !(outputMetaStore()->contains<MetaCont<xAOD::CutBookkeeperContainer> >(inc_name)) ) {
-    ATH_CHECK(this->initOutputContainer(inc_name,sid));
-/*
-      // Now create the complete container
-    xAOD::CutBookkeeperContainer* coll = new xAOD::CutBookkeeperContainer();
-    xAOD::CutBookkeeperAuxContainer* auxcoll = new xAOD::CutBookkeeperAuxContainer();
-    coll->setStore(auxcoll);
-    MetaCont<xAOD::CutBookkeeperContainer>* mcont = new MetaCont<xAOD::CutBookkeeperContainer>(DataObjID("xAOD::CutBookkeeperContainer",inc_name));
-    if(!mcont->insert(sid,coll)) {
-      ATH_MSG_ERROR("Unable to insert into MetaCont");
-    }
-    ATH_CHECK(outputMetaStore()->record(std::move(mcont),inc_name));
-    std::string auxkey(inc_name+"Aux.");
-    MetaCont<xAOD::CutBookkeeperAuxContainer>* acont = new MetaCont<xAOD::CutBookkeeperAuxContainer>(DataObjID("xAOD::CutBookkeeperAuxContainer",auxkey));
-    ATH_CHECK(outputMetaStore()->record(std::move(acont),auxkey));
-    ATH_CHECK(outputMetaStore()->symLink
-            (
-              ClassID_traits<MetaCont<xAOD::CutBookkeeperAuxContainer> >::ID(),
-              auxkey,
-              ClassID_traits<xAOD::CutBookkeeperAuxContainer>::ID()
-            ));
-*/
-    //ATH_CHECK(outputMetaStore()->record(coll,inc_name));
-    //ATH_CHECK(outputMetaStore()->record(auxcoll,inc_name+"Aux."));
+    ATH_CHECK(this->initOutputContainer(inc_name));
   }
   else {
     ATH_MSG_WARNING("incomplete collection already exists");
   }
 
+  // Now retrieve pointers for the MetaConts
+  MetaCont<xAOD::CutBookkeeperContainer>* tmp;
+  MetaCont<xAOD::CutBookkeeperContainer>* inc;
+  ATH_CHECK(outputMetaStore()->retrieve(tmp,tmp_name));
+  ATH_CHECK(outputMetaStore()->retrieve(inc,inc_name));
+
+  // Make sure sid does not already exist in container
+  if (std::find(tmp->sources().begin(),tmp->sources().end(),sid)!=tmp->sources().end() ||  
+      std::find(inc->sources().begin(),inc->sources().end(),sid)!=inc->sources().end() ) {
+    ATH_MSG_ERROR("Metadata already exists for sid " << sid);
+    return StatusCode::FAILURE;
+  }
+
   // reset cutflow taken marker
   m_cutflowTaken = false;
 
+  // NOW GET NEW INFORMATION FROM INPUT STORE
+  //
   // Get the incomplete bookkeeper collection of the input metadata store
-  const xAOD::CutBookkeeperContainer* input_inc = 0;
-  // Construct input and output incomplete names
   std::string inCollName = "Incomplete" + m_inputCollName;
-  std::string outCollName = "Incomplete" + m_outputCollName;
+  xAOD::CutBookkeeperContainer* input_inc = 0;
   if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>(inCollName) ) {
     StatusCode ssc = inputMetaStore()->retrieve( input_inc, inCollName );
     if (ssc.isSuccess()) {
       // retrieve the incomplete output container
-      xAOD::CutBookkeeperContainer* incompleteBook(NULL);
-      ATH_CHECK(outputMetaStore()->retrieve( incompleteBook, outCollName));
-      // update incomplete output with any incomplete input
-      ATH_CHECK(this->updateContainer(incompleteBook,input_inc));
-      // Find output in MetaCont
-      MetaCont<xAOD::CutBookkeeperContainer>* inc_cont;
-      ATH_CHECK(outputMetaStore()->retrieve(inc_cont,outCollName));
-      // update incomplete output with any incomplete input
-      xAOD::CutBookkeeperContainer* incompleteContBook(NULL);
-      if (inc_cont->find(sid,incompleteContBook)) {
-        ATH_CHECK(this->updateContainer(incompleteContBook,input_inc));
+      if ( !inc->insert(sid,input_inc) ) {
+        ATH_MSG_ERROR("Unable to insert " << inCollName << " for " << sid << " with key " << inc_name);
       }
-      ATH_MSG_DEBUG("Successfully merged input incomplete bookkeepers with output");
     }
   }
   else {
@@ -273,25 +221,13 @@ StatusCode BookkeeperTool::beginInputFile(const SG::SourceID& sid)
   }
 
   // Get the complete bookkeeper collection of the input metadata store
-  const xAOD::CutBookkeeperContainer* input_com = 0;
   inCollName = m_inputCollName;
-  outCollName = m_outputCollName;
+  xAOD::CutBookkeeperContainer* input_com = 0;
   if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>(inCollName) ) {
     if ( (inputMetaStore()->retrieve( input_com, inCollName )).isSuccess() ) {
-      // Check if a tmp is there. IT SHOULD NOT BE
-      //xAOD::CutBookkeeperContainer* incompleteBook(NULL);
-      if( !(outputMetaStore()->contains<xAOD::CutBookkeeperContainer>(outCollName+"tmp")) ) {
-        // Now create the tmp container
-        xAOD::CutBookkeeperContainer* tmp = new xAOD::CutBookkeeperContainer();
-        xAOD::CutBookkeeperAuxContainer* auxtmp = new xAOD::CutBookkeeperAuxContainer();
-        tmp->setStore(auxtmp);
-        if (updateContainer(tmp,input_com).isSuccess()) {
-          ATH_CHECK(outputMetaStore()->record(tmp,outCollName+"tmp"));
-          ATH_CHECK(outputMetaStore()->record(auxtmp,outCollName+"tmpAux."));
-        }
-        else {
-          ATH_MSG_WARNING("Could not update tmp container from input complete conatiner");
-        }
+      // retrieve the incomplete output container
+      if ( !tmp->insert(sid,input_com) ) {
+        ATH_MSG_ERROR("Unable to insert " << inCollName << " for " << sid << "with key " << tmp_name);
       }
     }
     else {
@@ -325,26 +261,68 @@ StatusCode BookkeeperTool::endInputFile()
 }
 
 
-#ifdef ASGTOOL_ATHENA
-StatusCode BookkeeperTool::endInputFile(const SG::SourceID&)
+//#ifdef ASGTOOL_ATHENA
+StatusCode BookkeeperTool::endInputFile(const SG::SourceID& sid)
 {
+  // Add the sid to the list of complete sids
+  m_completes.insert(sid);
+
   return StatusCode::SUCCESS;
 }
 
-StatusCode BookkeeperTool::metaDataStop(const SG::SourceID& sid)
+StatusCode BookkeeperTool::metaDataStop(const SG::SourceID&)
 {
   //TERMINATING THE JOB (EndRun)
   //Things to do:
   // 1) Create new incomplete CutBookkeepers if relevant
   // 2) Print cut flow summary
   // 3) Write root file if requested
-  //  Make sure incomplete container exists in output
-  std::string inc_name = "Incomplete"+m_outputCollName;
-  ATH_MSG_INFO(this->name() << " BLARG Stop 1");
-  if (copyContainerToOutput(sid,inc_name).isFailure()) return StatusCode::FAILURE;
+  // Now retrieve pointers for the MetaConts
+  std::string tmp_name = m_outputCollName+"tmp";
+  std::string inc_name = "Incomplete"+m_outputCollName; 
+  MetaCont<xAOD::CutBookkeeperContainer>* tmp;
+  MetaCont<xAOD::CutBookkeeperContainer>* inc;
+  ATH_CHECK(outputMetaStore()->retrieve(tmp,tmp_name));
+  ATH_CHECK(outputMetaStore()->retrieve(inc,inc_name));
+
+  // Output containers
+  xAOD::CutBookkeeperContainer* outcom = new xAOD::CutBookkeeperContainer();
+  xAOD::CutBookkeeperContainer* outinc = new xAOD::CutBookkeeperContainer();
+  // Incomplete can just be merged
+  auto sids_inc = inc->sources();
+  xAOD::CutBookkeeperContainer* contptr(nullptr);
+  for (auto it = sids_inc.begin(); it != sids_inc.end(); ++it) {
+    if (!inc->find(*it,contptr)) {
+      ATH_MSG_ERROR("Container sid list did not match contents");
+    } else {
+      ATH_CHECK(updateContainer(outinc,contptr));
+    }
+    contptr = nullptr; 
+  }
+  //for (auto it = inc->begin(); it != inc->end(); ++it) {
+  //  ATH_CHECK(updateContainer(outinc,it->second));
+  //}
+  // Loop over containers and mark complete/incomplete based on end files seen
+  auto sids_tmp = tmp->sources();
+  contptr = nullptr;
+  for (auto it = sids_tmp.begin(); it != sids_tmp.end(); ++it) {
+    if (!inc->find(*it,contptr)) {
+      ATH_MSG_ERROR("Container sid list did not match contents");
+    } else {
+      if (std::find(m_completes.begin(), 
+                    m_completes.end(),
+                    *it) == m_completes.end()) {
+        ATH_CHECK(updateContainer(outinc,contptr));
+      } else {
+        ATH_CHECK(updateContainer(outcom,contptr));
+      }
+    }
+  }
+  // Record container objects directly in store for output
+  ATH_CHECK(outputMetaStore()->record(outinc,"Incomplete"+m_outputCollName));
+  ATH_CHECK(outputMetaStore()->record(outcom,m_outputCollName));
 
 
-  ATH_MSG_INFO(this->name() << " BLARG Stop 2");
   if (!m_cutflowTaken) {
     if (addCutFlow().isFailure()) {
       ATH_MSG_ERROR("Could not add CutFlow information");
@@ -353,14 +331,13 @@ StatusCode BookkeeperTool::metaDataStop(const SG::SourceID& sid)
   else {
     ATH_MSG_DEBUG("Cutflow information written into container before metaDataStop");
   }
-  ATH_MSG_INFO(this->name() << " BLARG Stop 3");
 
   // Reset after metadata stop
   m_cutflowTaken = false;
   
   return StatusCode::SUCCESS;
 }
-#endif
+//#endif
 
 StatusCode BookkeeperTool::metaDataStop()
 {
@@ -371,11 +348,9 @@ StatusCode BookkeeperTool::metaDataStop()
   // 3) Write root file if requested
   //  Make sure incomplete container exists in output
   std::string inc_name = "Incomplete"+m_outputCollName;
-  ATH_MSG_INFO(this->name() << " BLARG Stop 1");
   if (copyContainerToOutput(inc_name).isFailure()) return StatusCode::FAILURE;
 
 
-  ATH_MSG_INFO(this->name() << " BLARG Stop 2");
   if (!m_cutflowTaken) {
     if (addCutFlow().isFailure()) {
       ATH_MSG_ERROR("Could not add CutFlow information");
@@ -384,7 +359,6 @@ StatusCode BookkeeperTool::metaDataStop()
   else {
     ATH_MSG_DEBUG("Cutflow information written into container before metaDataStop");
   }
-  ATH_MSG_INFO(this->name() << " BLARG Stop 3");
 
   // Reset after metadata stop
   m_cutflowTaken = false;
@@ -401,8 +375,7 @@ BookkeeperTool::finalize()
 }
 
 
-StatusCode BookkeeperTool::initOutputContainer( const std::string& sgkey, 
-                                                const SG::SourceID& sid )
+StatusCode BookkeeperTool::initOutputContainer( const std::string& sgkey)
 {
   // Now create the primary container
   xAOD::CutBookkeeperContainer* coll = new xAOD::CutBookkeeperContainer();
@@ -410,21 +383,10 @@ StatusCode BookkeeperTool::initOutputContainer( const std::string& sgkey,
   coll->setStore(auxcoll);
   // Put it in a MetaCont
   MetaCont<xAOD::CutBookkeeperContainer>* mcont = new MetaCont<xAOD::CutBookkeeperContainer>(DataObjID("xAOD::CutBookkeeperContainer",sgkey));
-  if(!mcont->insert(sid,coll)) {
-    ATH_MSG_ERROR("Unable to insert primary into MetaCont for " << sgkey);
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO("Prefind test");
-  bool ss = mcont->valid(sid);
-  ATH_MSG_INFO("Postfind test " << ss);
-  ATH_CHECK(outputMetaStore()->record(std::move(mcont),sgkey));
   // Do the same for the auxiliary container
   std::string auxkey(sgkey+"Aux.");
   MetaCont<xAOD::CutBookkeeperAuxContainer>* acont = new MetaCont<xAOD::CutBookkeeperAuxContainer>(DataObjID("xAOD::CutBookkeeperAuxContainer",auxkey));
-  if(!acont->insert(sid,auxcoll)) {
-    ATH_MSG_ERROR("Unable to insert auxiliary into MetaCont for " << auxkey);
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(outputMetaStore()->record(std::move(mcont),sgkey));
   ATH_CHECK(outputMetaStore()->record(std::move(acont),auxkey));
   ATH_CHECK(outputMetaStore()->symLink
           (
@@ -619,12 +581,12 @@ StatusCode BookkeeperTool::copyContainerToOutput(const SG::SourceID& sid,
       return StatusCode::FAILURE;
     }
     if (!contBookCont->find(sid,contBook)) {
-      ATH_MSG_ERROR( "Could not get " << outname << " CutBookkeepers from MetaCont" );
+      ATH_MSG_ERROR( "Could not get " << outname << " CutBookkeepers from MetaCont for sid=" << sid );
       return StatusCode::FAILURE;
     }
   }
   else {
-    xAOD::CutBookkeeperContainer* contBook(nullptr); 
+    //xAOD::CutBookkeeperContainer* contBook(nullptr); 
     if( !(outputMetaStore()->retrieve( contBook, outname) ).isSuccess() ) {
       ATH_MSG_ERROR( "Could not get " << outname << " CutBookkeepers from output MetaDataStore" );
       ATH_MSG_INFO(outputMetaStore()->dump());

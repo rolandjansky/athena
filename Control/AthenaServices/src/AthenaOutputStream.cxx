@@ -144,18 +144,20 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
         m_dataStore("StoreGateSvc", name),
         m_metadataStore("MetaDataStore", name),
         m_currentStore(&m_dataStore),
-                m_itemSvc("ItemListSvc", name),
+        m_itemSvc("ItemListSvc", name),
 	m_outputAttributes(),
-          m_pCLIDSvc("ClassIDSvc", name),
-          m_outSeqSvc("OutputStreamSequencerSvc", name),
+        m_pCLIDSvc("ClassIDSvc", name),
+        m_outSeqSvc("OutputStreamSequencerSvc", name),
         m_p2BWritten(string("SG::Folder/") + name + string("_TopFolder"), this),
         m_decoder(string("SG::Folder/") + name + string("_excluded"), this),
-                m_events(0),
+        m_transient(string("SG::Folder/") + name + string("_transient"), this),
+        m_events(0),
         m_streamer(string("AthenaOutputStreamTool/") + name + string("Tool"), this),
    m_helperTools(this) {
    assert(pSvcLocator);
    declareProperty("ItemList",               m_itemList);
    declareProperty("MetadataItemList",       m_metadataItemList);
+   declareProperty("TransientItems",         m_transientItems);
    declareProperty("OutputFile",             m_outputName="DidNotNameOutput.root");
    declareProperty("EvtConversionSvc",       m_persName="EventPersistencySvc");
    declareProperty("WritingTool",            m_streamer);
@@ -280,6 +282,35 @@ StatusCode AthenaOutputStream::initialize() {
       ATH_MSG_FATAL("Could re-init I/O component");
       return(status);
    }
+
+   // Add an explicit input dependency for everything in our item list
+   // that we know from the configuration is in the transient store.
+   // We don't want to add everything on the list, because configurations
+   // often initialize this with a maximal static list of everything
+   // that could possibly be written.
+   {
+     ATH_CHECK( m_transient.retrieve() );
+     IProperty *pAsIProp = dynamic_cast<IProperty*> (&*m_transient);
+     if (!pAsIProp) {
+       ATH_MSG_FATAL ("Bad folder interface");
+       return StatusCode::FAILURE;
+     }
+     ATH_CHECK (pAsIProp->setProperty("ItemList", m_transientItems.toString()));
+
+     for (const SG::FolderItem& item : *m_p2BWritten) {
+       const std::string& k = item.key();
+       if (k.find('*') != std::string::npos) continue;
+       if (k.find('.') != std::string::npos) continue;
+       for (const SG::FolderItem& titem : *m_transient) {
+         if (titem.id() == item.id() && titem.key() == k) {
+           DataObjID id (item.id(), m_dataStore.name() + "+" + k);
+           this->addDependency (id, Gaudi::DataHandle::Reader);
+           break;
+         }
+       }
+     }
+   }
+
    ATH_MSG_DEBUG("End initialize");
    if (baseStatus == StatusCode::FAILURE) return StatusCode::FAILURE;
    return(status);
@@ -300,7 +331,7 @@ StatusCode AthenaOutputStream::stop()
          }
          ATH_MSG_INFO("Records written: " << m_events);
       }
-      FileIncident fileInc(name(),"MetaDataStop","","");
+      FileIncident fileInc(name(),"MetaDataStop","","Serial");
       ServiceHandle<MetaDataSvc> mdsvc("MetaDataSvc", name());
       if (mdsvc.retrieve().isFailure()) {
          ATH_MSG_ERROR("Could not retrieve MetaDataSvc for stop actions");

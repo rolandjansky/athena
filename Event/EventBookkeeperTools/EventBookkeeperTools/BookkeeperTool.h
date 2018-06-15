@@ -47,7 +47,7 @@ public: // Constructor and Destructor
 public:
    //void handle(const Incident& incident);
    virtual StatusCode metaDataStop();
-   virtual StatusCode metaDataStop(const SG::SourceID& sid = "Serial");
+   virtual StatusCode metaDataStop(const SG::SourceID&);
    virtual StatusCode beginInputFile();
    virtual StatusCode beginInputFile(const SG::SourceID& sid = "Serial");
    virtual StatusCode endInputFile();
@@ -63,7 +63,7 @@ private:
 
   StatusCode copyContainerToOutput(const SG::SourceID& sid = "Serial", const std::string& outname = "");
 
-  StatusCode initOutputContainer(const std::string& sgkey, const SG::SourceID& sid);
+  StatusCode initOutputContainer(const std::string& sgkey);
 
   /// Fill Cutflow information
   StatusCode addCutFlow();
@@ -79,6 +79,9 @@ private:
 
   /// The name of the CutFlowSvc CutBookkeeperContainer
   std::string m_cutflowCollName;
+
+  /// List of source ids which have reached end file
+  std::set<SG::SourceID> m_completes;
 
   bool m_cutflowTaken;
 
