@@ -63,7 +63,7 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 HIGG4D1SlimmingHelper = SlimmingHelper(DAOD_StreamID+"SlimmingHelper")
 
 # jets and calibration
-# not in this derivation
+import DerivationFrameworkHiggs.HIGG4DxJets
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
@@ -78,6 +78,9 @@ HIGG4D1Sequence += CfgMgr.DerivationFramework__CommonAugmentation("HIGG4DxCommon
 
 #skimming
 HIGG4D1Sequence += CfgMgr.DerivationFramework__DerivationKernel(DAOD_StreamID+"SkimmingKernel", SkimmingTools = skimmingTools)
+
+# fat/trimmed jet building (after skimming)
+DerivationFrameworkHiggs.HIGG4DxJets.setup(DAOD_StreamID, HIGG4D1Sequence, HIGG4D1SlimmingHelper)
 
 # NonPrompt Lepton Tagger
 DerivationFrameworkHiggs.HIGG4DxAugmentation.addJetTagNonPromptLepton(DAOD_StreamID, HIGG4D1Sequence)
