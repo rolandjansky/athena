@@ -143,8 +143,55 @@ const Acts::Transform3D&
 Acts::GeoModelDetectorElement::transform(const Identifier&) const
 {
 
+  struct get_transform_visitor : public boost::static_visitor<Transform3D> {
+
+    explicit get_transform_visitor(GeoAlignmentStore* store, bool default, const Transform3D* fallback)
+      : m_store(store), m_default(default), m_fallback(fallback)
+    {}
+
+    Transform3D operator()(const InDetDD::SiDetectorElement* detElem) const
+    {
+      HepGeom::Transform3D g2l;
+      if (m_default) g2l = detElem->getMaterialGeom()->getDefAbsoluteTransform(m_store);
+      else g2l = detElem->getMaterialGeom()->getAbsoluteTransform(m_store);
+
+      return clhep2eigen(g2l * detElem->recoToHitTransform());
+    }
+
+    Transform3D operator()(const InDetDD::TRT_BaseElement* detElem) const
+    {
+      return *m_fallback;
+    }
+
+    GeoAlignmentStore* m_store;
+    bool m_default;
+    const Transform3D* m_fallback;
+  };
+
+  auto get_transform = [this](GeoAlignmentStore* store, bool default) {
+    return boost::apply_visitor(get_transform_visitor(store, default), m_detElement);
+  };
+
+  auto ctx = Gaudi::Hive::currentContext();
+
+  if (!ctx.valid()) {
+    return get_transform(nullptr, true); // no store, default transform
+  }
+
+  // ctx is valid
+
+  SG::ReadCondHandle<GeoAlignmentStore> rch(m_trackingGeometrySvc->alignmentCondHandleKey());
+  GeoAlignmentStore* alignmentStore = const_cast<GeoAlignmentStore*>(*rch);
+
+  // early return if cache is valid for IOV
+  Transform3D* trf = alignmentStore->getTransform(this);
+  if (trf != nullptr) return *trf;
+
+
+
+
   // unpack context specific storage
-  Transform3D& trf = m_ctxSpecificTransform;
+  //Transform3D& trf = m_ctxSpecificTransform;
 
 
   // OLD default way to get transform
@@ -158,7 +205,6 @@ Acts::GeoModelDetectorElement::transform(const Identifier&) const
   if (which == 0) {
     auto de = boost::get<const InDetDD::SiDetectorElement*>(m_detElement);
     physVol = de->getMaterialGeom();
-    //trf = de->transform();
     trf = clhep2eigen(physVol->getDefAbsoluteTransform());
     trf = trf * clhep2eigen(de->recoToHitTransform());
     recoToHit = clhep2eigen(de->recoToHitTransform());
@@ -171,7 +217,6 @@ Acts::GeoModelDetectorElement::transform(const Identifier&) const
   }
   
 
-  auto ctx = Gaudi::Hive::currentContext();
 
 
   if (!ctx.valid()) {
@@ -182,10 +227,8 @@ Acts::GeoModelDetectorElement::transform(const Identifier&) const
   }
 
   // have valid context, get aligned transform
-  SG::ReadCondHandle<GeoAlignmentStore> rch(m_trackingGeometrySvc->alignmentCondHandleKey());
   //const ShiftCondObj *shift = *rch;
   // this is obviously not great
-  GeoAlignmentStore* alignmentStore = const_cast<GeoAlignmentStore*>(*rch);
   
   HepGeom::Transform3D trans = physVol->getAbsoluteTransform(alignmentStore);
 

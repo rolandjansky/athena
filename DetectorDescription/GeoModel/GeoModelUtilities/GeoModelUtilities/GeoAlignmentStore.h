@@ -27,11 +27,14 @@ class GeoAlignmentStore final : public GeoVAlignmentStore
   virtual void setDefAbsPosition(const GeoVFullPhysVol*, const HepGeom::Transform3D&) override;
   virtual const HepGeom::Transform3D* getDefAbsPosition(const GeoVFullPhysVol*) const override;
 
+  void setTransform(const void*, const Amg::Transform3D&);
+  const Amg::Transform3D* getTransform(const void*) const;
 
  private:
   TransformMap<GeoAlignableTransform,HepGeom::Transform3D> m_deltas;
   TransformMap<GeoVFullPhysVol,HepGeom::Transform3D> m_absPositions;
   TransformMap<GeoVFullPhysVol,HepGeom::Transform3D> m_defAbsPositions;
+  std::unordered_map<const void*, Amg::Transform3D> m_transforms;
 };
 
 CLASS_DEF(GeoAlignmentStore, 135648236, 1)
