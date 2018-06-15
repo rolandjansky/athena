@@ -28,7 +28,7 @@ TrigByteStreamInputSvc::~TrigByteStreamInputSvc() {}
 // Implementation of IInterface::queryInterface
 // =============================================================================
 StatusCode TrigByteStreamInputSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-  verbose() << "start of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
   if(ByteStreamInputSvc::interfaceID().versionMatch(riid))
     *ppvInterface = static_cast<ByteStreamInputSvc*>(this);
@@ -36,7 +36,7 @@ StatusCode TrigByteStreamInputSvc::queryInterface(const InterfaceID& riid, void*
     return AthService::queryInterface(riid, ppvInterface);
 
   addRef();
-  verbose() << "end of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
 }
 
@@ -44,22 +44,22 @@ StatusCode TrigByteStreamInputSvc::queryInterface(const InterfaceID& riid, void*
 // Implementation of Service::initialize
 // =============================================================================
 StatusCode TrigByteStreamInputSvc::initialize() {
-  verbose() << "start of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
   StatusCode sc = StatusCode::SUCCESS;
 
   sc = m_robDataProviderSvc.retrieve();
   if (sc.isFailure()) {
-    error() << "Failed to retrieve the ROB data provider" << endmsg;
+    ATH_MSG_ERROR("Failed to retrieve the ROB data provider");
     return sc;
   }
 
   sc = m_evtStore.retrieve();
   if (sc.isFailure()) {
-    error() << "Failed to retrieve the event store service" << endmsg;
+    ATH_MSG_ERROR("Failed to retrieve the event store service");
     return sc;
   }
 
-  verbose() << "end of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return sc;
 }
 
@@ -67,11 +67,11 @@ StatusCode TrigByteStreamInputSvc::initialize() {
 // Implementation of Service::finalize
 // =============================================================================
 StatusCode TrigByteStreamInputSvc::finalize() {
-  verbose() << "start of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
   if (m_robDataProviderSvc.release().isFailure()) {
-    warning() << "Cannot release rob data provider" << endmsg;
+    ATH_MSG_WARNING("Cannot release rob data provider");
   }
-  verbose() << "end of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
 }
 
@@ -79,7 +79,7 @@ StatusCode TrigByteStreamInputSvc::finalize() {
 // Implementation of ByteStreamInputSvc::nextEvent
 // =============================================================================
 const RawEvent* TrigByteStreamInputSvc::nextEvent() {
-  verbose() << "start of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
   std::lock_guard<std::mutex> lock( m_readerMutex ); // probably don't need a lock for InputSvc
 
   // not a nice solution - depends on the Gaudi::currentContext being set correctly upstream
@@ -88,11 +88,11 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
   eformat::write::FullEventFragment l1r;
   hltinterface::DataCollector::Status status = hltinterface::DataCollector::instance()->getNext(l1r);
   if (status == hltinterface::DataCollector::Status::STOP) {
-    debug() << "No more events available" << endmsg;
+    ATH_MSG_DEBUG("No more events available");
     throw hltonl::Exception::NoMoreEvents();
   }
   else if (status != hltinterface::DataCollector::Status::OK) {
-    error() << "Unhandled return Status " << static_cast<int>(status) << " from DataCollector::getNext" << endmsg;
+    ATH_MSG_ERROR("Unhandled return Status " << static_cast<int>(status) << " from DataCollector::getNext");
     return nullptr;
   }
 
@@ -102,7 +102,7 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
   uint32_t* buf = new uint32_t[l1rFragmentSize];
   auto copiedSize = eformat::write::copy(*top,buf,l1rFragmentSize);
   if(copiedSize!=l1rFragmentSize){
-    error() << "Event serialization failed" << endmsg;
+    ATH_MSG_ERROR("Event serialization failed");
     return nullptr;
   }
 
@@ -111,7 +111,7 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
 
   // find the cache corresponding to the current slot
   EventCache* cache = m_eventsCache.get(context);
-  
+
   // free the memory allocated to the previous event processed in the current slot
   // -- if we make sure ROBDataProviderSvc does this, then TrigByteStreamInputSvc won't need a cache
   releaseEvent(cache);
@@ -120,7 +120,7 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
   cache->rawEvent = newRawEvent;
 
   m_robDataProviderSvc->setNextEvent(context,newRawEvent);
-  verbose() << "end of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return newRawEvent;
 }
 
@@ -128,7 +128,7 @@ const RawEvent* TrigByteStreamInputSvc::nextEvent() {
 // Implementation of ByteStreamInputSvc::previousEvent
 // =============================================================================
 const RawEvent* TrigByteStreamInputSvc::previousEvent() {
-  fatal() << "The method " << __FUNCTION__ << " is not implemented for online running" << endmsg;
+  ATH_MSG_FATAL("The method " << __FUNCTION__ << " is not implemented for online running");
   return nullptr;
 }
 
@@ -136,7 +136,7 @@ const RawEvent* TrigByteStreamInputSvc::previousEvent() {
 // Implementation of ByteStreamInputSvc::currentEvent
 // =============================================================================
 const RawEvent* TrigByteStreamInputSvc::currentEvent() const {
-  fatal() << "The method " << __FUNCTION__ << " is not implemented for online running" << endmsg;
+  ATH_MSG_FATAL("The method " << __FUNCTION__ << " is not implemented for online running");
   return nullptr;
 }
 
@@ -145,20 +145,20 @@ const RawEvent* TrigByteStreamInputSvc::currentEvent() const {
 // Unlike offline, we do not actually generate any DataHeader here. We only create and record an EventInfo address.
 // =============================================================================
 StatusCode TrigByteStreamInputSvc::generateDataHeader() {
-  verbose() << "start of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
   IOpaqueAddress* iop = new ByteStreamAddress(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo", "");
   if (m_evtStore->recordAddress("ByteStreamEventInfo",iop).isFailure()) {
-    error() << "Failed to record ByteStreamEventInfo address in StoreGate" << endmsg;
+    ATH_MSG_ERROR("Failed to record ByteStreamEventInfo address in StoreGate");
     return StatusCode::FAILURE;
   }
-  verbose() << "end of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
 }
 
 // =============================================================================
 void TrigByteStreamInputSvc::releaseEvent(EventCache* cache)
 {
-  verbose() << "start of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
   if (cache->rawEvent) {
     OFFLINE_FRAGMENTS_NAMESPACE::PointerType fragment = cache->rawEvent->start();
     delete[] fragment;
@@ -167,7 +167,7 @@ void TrigByteStreamInputSvc::releaseEvent(EventCache* cache)
     cache->rawEvent = nullptr;
     // cache->eventStatus = 0;
   }
-  verbose() << "end of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
 }
 
 // =============================================================================

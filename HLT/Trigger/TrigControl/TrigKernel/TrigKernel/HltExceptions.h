@@ -17,7 +17,7 @@ namespace hltonl {
       public:
         NoMoreEvents() {}
         virtual ~NoMoreEvents() {}
-        const char* what() {return "No more events to be processed";}
+        const char* what() const noexcept override {return "No more events to be processed";}
     };
   }
 }

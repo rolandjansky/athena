@@ -5,8 +5,6 @@
 
 // Gaudi includes
 #include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/IAlgContextSvc.h"
-#include "GaudiKernel/IThreadPoolSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IAlgResourcePool.h"
@@ -55,14 +53,14 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   m_robDataProviderSvc("ROBDataProviderSvc", name),
   m_THistSvc("THistSvc", name),
   m_evtSelector("EvtSel", name),
-  m_evtSelContext(0),
   m_coolHelper("TrigCOOLUpdateHelper", this),
   m_detector_mask(0xffffffff, 0xffffffff, 0, 0),
   m_nevt(0),
-  m_threadPoolSize(-1)
+  m_threadPoolSize(-1),
+  m_evtSelContext(nullptr)
 {
   verbose() << "start of " << __FUNCTION__ << endmsg;
-  
+
   declareProperty("JobOptionsType",           m_jobOptionsType="NONE");
   declareProperty("ApplicationName",          m_applicationName="None");
   declareProperty("PartitionName",            m_partitionName="None");
@@ -110,13 +108,13 @@ StatusCode HltEventLoopMgr::queryInterface(const InterfaceID& riid, void** ppvIn
 StatusCode HltEventLoopMgr::initialize()
 {
   verbose() << "start of " << __FUNCTION__ << endmsg;
-  
+
   //----------------------------------------------------------------------------
   // Initialize the base class
   //----------------------------------------------------------------------------
   StatusCode sc = MinimalEventLoopMgr::initialize();
-  
-  
+
+
   info() << " ---> HltEventLoopMgr = " << name()
          << " initialize - package version " << PACKAGE_VERSION << endmsg;
 
@@ -124,14 +122,14 @@ StatusCode HltEventLoopMgr::initialize()
     error() << "Failed to initialize base class MinimalEventLoopMgr" << endmsg;
     return sc;
   }
-  
+
   //----------------------------------------------------------------------------
   // Setup properties
   //----------------------------------------------------------------------------
-  
+
   // read DataFlow configuration properties
   updateDFProps();
-  
+
   // JobOptions type
   SmartIF<IProperty> propMgr(Gaudi::createApplicationMgr());
   if (propMgr.isValid()) {
@@ -152,7 +150,7 @@ StatusCode HltEventLoopMgr::initialize()
   info() << " ---> ApplicationName        = " << m_applicationName << endmsg;
   info() << " ---> PartitionName          = " << m_partitionName << endmsg;
   info() << " ---> JobOptionsType         = " << m_jobOptionsType << endmsg;
-  
+
   info() << " ---> Enabled ROBs: size = " << m_enabledROBs.value().size();
   if (m_enabledROBs.value().size() == 0)
     info() << ". No check will be performed";
@@ -179,7 +177,7 @@ StatusCode HltEventLoopMgr::initialize()
   m_schedulerSvc = serviceLocator()->service(m_schedulerName);
   if ( !m_schedulerSvc.isValid()){
     fatal() << "Error retrieving " << m_schedulerName << " interface ISchedulerSvc." << endmsg;
-    return StatusCode::FAILURE;    
+    return StatusCode::FAILURE;
   }
   debug() << "initialised " << m_schedulerName << " interface ISchedulerSvc." << endmsg;
   */
@@ -206,7 +204,7 @@ StatusCode HltEventLoopMgr::initialize()
     fatal() << "Error retrieving IncidentSvc " + m_incidentSvc << endmsg;
     return sc;
   }
-  
+
   //----------------------------------------------------------------------------
   // Setup the StoreGateSvc
   //----------------------------------------------------------------------------
@@ -235,7 +233,7 @@ StatusCode HltEventLoopMgr::initialize()
   }
 
   //----------------------------------------------------------------------------
-  // Setup the ROBDataProviderSvc 
+  // Setup the ROBDataProviderSvc
   //----------------------------------------------------------------------------
   sc = m_robDataProviderSvc.retrieve();
   if(sc.isFailure()) {
@@ -275,26 +273,6 @@ StatusCode HltEventLoopMgr::initialize()
   }
 
   //----------------------------------------------------------------------------
-  // Setup the AlgContextSvc (optional)
-  //----------------------------------------------------------------------------
-  if (service("AlgContextSvc", m_algContextSvc, /*createIf=*/ true).isFailure()) {
-    m_algContextSvc = 0;
-    debug() << "No AlgContextSvc available" << endmsg;
-  }
-
-  //----------------------------------------------------------------------------
-  // Setup the ThreadPoolSvc (optional)
-  //----------------------------------------------------------------------------
-  if (service("ThreadPoolSvc", m_threadPoolSvc, /*createIf=*/ false).isFailure()) {
-    m_threadPoolSvc = 0;
-    debug() << "No ThreadPoolSvc available" << endmsg;
-  }
-  else {
-    m_threadPoolSize = m_threadPoolSvc->poolSize();
-    debug() << "ThreadPoolSvc available with pool size " << m_threadPoolSize << endmsg;
-  }
-
-  //----------------------------------------------------------------------------
   // Setup the HLT Histogram Service when configured
   //----------------------------------------------------------------------------
   if ( &*m_THistSvc ) {
@@ -323,14 +301,14 @@ StatusCode HltEventLoopMgr::initialize()
 // =============================================================================
 // Implementation of ITrigEventLoopMgr::prepareForRun
 // =============================================================================
-StatusCode HltEventLoopMgr::prepareForRun(const ptree & pt)
+StatusCode HltEventLoopMgr::prepareForRun(const ptree& pt)
 {
   verbose() << "start of " << __FUNCTION__ << endmsg;
   try
   {
     // (void)TClass::GetClass("vector<unsigned short>"); // preload to overcome an issue with dangling references in serialization
     // (void)TClass::GetClass("vector<unsigned long>");
-    
+
     // do the necessary resets
     // internalPrepareResets() was here
     StatusCode sc = clearTemporaryStores();
@@ -338,14 +316,14 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree & pt)
       error() << "Clearing temporary stores failed" << endmsg;
       return sc;
     }
-    
+
     const SOR* sor;
     // update SOR in det store and get it back
     if(!(sor = processRunParams(pt)))
       return StatusCode::FAILURE;
-      
+
     auto& soral = getSorAttrList(sor);
-    
+
     updateInternal(soral);     // update internally kept info
     updateMetadataStore(soral);  // update metadata store
 
@@ -364,14 +342,6 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree & pt)
     if(prepareAlgs(*evinfo).isSuccess())
       return StatusCode::SUCCESS;
     */
-    
-    //-------------------------------------------------------------------------
-    // Shut down the hive pool thread
-    //-------------------------------------------------------------------------
-    // if (m_threadPoolSvc) {
-    //   debug() << "Terminating thread pool" << endmsg;
-    //   m_threadPoolSvc->terminatePool();
-    // }
 
     verbose() << "end of " << __FUNCTION__ << endmsg;
     return StatusCode::SUCCESS;
@@ -400,7 +370,7 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree & pt)
 // =============================================================================
 // Implementation of ITrigEventLoopMgr::hltUpdateAfterFork
 // =============================================================================
-StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree & pt)
+StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
 {
   verbose() << "start of " << __FUNCTION__ << endmsg;
 
@@ -408,7 +378,7 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree & pt)
   m_schedulerSvc = serviceLocator()->service(m_schedulerName, /*createIf=*/ true);
   if ( !m_schedulerSvc.isValid()){
     fatal() << "Error retrieving " << m_schedulerName << " interface ISchedulerSvc" << endmsg;
-    return StatusCode::FAILURE;    
+    return StatusCode::FAILURE;
   }
   debug() << "Initialised " << m_schedulerName << " interface ISchedulerSvc" << endmsg;
 
@@ -423,13 +393,6 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree & pt)
     warning() << "Could not retrieve CoreDumpSvc" << endmsg;
   }
 
-  //-------------------------------------------------------------------------
-  // Reopen the hive pool thread
-  //-------------------------------------------------------------------------
-  // if (m_threadPoolSvc) {
-  //   debug() << "Reopening thread pool with size " << m_threadPoolSize << " after fork" << endmsg;
-  //   m_threadPoolSvc->initPool(m_threadPoolSize);
-  // }
   verbose() << "end of " << __FUNCTION__ << endmsg;
   return StatusCode::SUCCESS;
 }
@@ -439,9 +402,9 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree & pt)
 // DUE TO BE REMOVED
 // =============================================================================
 StatusCode HltEventLoopMgr::processRoIs(
-             const std::vector<eformat::ROBFragment<const uint32_t*> >& l1_result,
-             hltinterface::HLTResult& hlt_result,
-             const hltinterface::EventId& evId)
+             const std::vector<eformat::ROBFragment<const uint32_t*> >& /*l1_result*/,
+             hltinterface::HLTResult& /*hlt_result*/,
+             const hltinterface::EventId& /*evId*/)
 {
   verbose() << "dummy implementation of " << __FUNCTION__ << endmsg;
   return StatusCode::SUCCESS;
@@ -450,7 +413,7 @@ StatusCode HltEventLoopMgr::processRoIs(
 // =============================================================================
 // Implementation of ITrigEventLoopMgr::timeOutReached
 // =============================================================================
-StatusCode HltEventLoopMgr::timeOutReached(const boost::property_tree::ptree& pt)
+StatusCode HltEventLoopMgr::timeOutReached(const boost::property_tree::ptree& /*pt*/)
 {
   verbose() << "dummy implementation of " << __FUNCTION__ << endmsg;
   return StatusCode::SUCCESS;
@@ -467,7 +430,7 @@ StatusCode HltEventLoopMgr::executeRun(int maxevt)
     error() << "Event loop failed" << endmsg;
     // some special cleanup here?
   }
-  
+
   // do some cleanup here
   verbose() << "end of " << __FUNCTION__ << endmsg;
   return sc;
@@ -480,11 +443,11 @@ StatusCode HltEventLoopMgr::executeRun(int maxevt)
 StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
 {
   verbose() << "start of " << __FUNCTION__ << endmsg;
-  
+
   info() << "Starting loop on events" << endmsg;
   bool loop_ended = false;
   bool events_available = true; // DataCollector has more events
-  
+
   while (!loop_ended) {
     debug() << "Free slots = " << m_schedulerSvc->freeSlots() << endmsg;
     if (m_schedulerSvc->freeSlots()>0 && events_available) {
@@ -583,7 +546,7 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
       }
 
       debug() << "Retrieved event info for the new event " << *(eventInfo->event_ID()) << endmsg;
-      
+
       evtContext->setEventID( *static_cast<EventIDBase*>(eventInfo->event_ID()) );
       evtContext->template getExtension<Atlas::ExtendedEventContext>()->setConditionsRun(m_currentRun);
 
@@ -634,7 +597,7 @@ StatusCode HltEventLoopMgr::executeEvent(void* pEvtContext)
     error() << "Failed to cast the call parameter to EventContext*" << endmsg;
     return StatusCode::FAILURE;
   }
-  
+
   resetTimeout(Athena::Timeout::instance(*evtContext));
 
   // Now add event to the scheduler
@@ -647,7 +610,7 @@ StatusCode HltEventLoopMgr::executeEvent(void* pEvtContext)
             << " to the scheduler" << endmsg;
     return StatusCode::FAILURE;
   }
-  
+
   verbose() << "end of " << __FUNCTION__ << endmsg;
   return StatusCode::SUCCESS;
 }
@@ -717,7 +680,7 @@ const SOR* HltEventLoopMgr::processRunParams(const ptree & pt)
   // need to provide an event context extended with a run number, down the line passed to IOVDBSvc::signalBeginRun
   EventContext runStartEventContext = {}; // with invalid evt number and slot number
   runStartEventContext.setExtension(Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(), m_currentRun));
-    
+
   // Fill SOR parameters from the ptree
   TrigSORFromPtreeHelper sorhelp{msgStream()};
   const SOR* sor = sorhelp.fillSOR(pt.get_child("RunParams"),runStartEventContext);
@@ -885,174 +848,6 @@ void HltEventLoopMgr::printSORAttrList(const coral::AttributeList& atr, MsgStrea
 }
 
 // ==============================================================================
-StatusCode HltEventLoopMgr::createEventContext(EventContext*& evtContext) const
-{
-  evtContext = new EventContext(m_nevt, m_whiteboard->allocateStore(m_nevt));
-  
-  m_aess->reset(*evtContext);
-
-  StatusCode sc = m_whiteboard->selectStore(evtContext->slot());
-  if (sc.isFailure()){
-    warning() << "Slot " << evtContext->slot() << " could not be selected for the WhiteBoard" << endmsg;
-  } else {
-    evtContext->setExtension( Atlas::ExtendedEventContext( m_evtStore->hiveProxyDict() ) );
-    debug() << "created EventContext, num: " << evtContext->evt()  << "  in slot: " << evtContext->slot() << endmsg;
-  }
-  return sc;
-}
-
-// ==============================================================================
-int HltEventLoopMgr::drainScheduler() const
-{
-  verbose() << "start of " << __FUNCTION__ << endmsg;
-
-  // method copied from AthenaHiveEventLoopMgr
-
-  StatusCode sc(StatusCode::SUCCESS);
-    
-  // maybe we can do better
-  std::vector<EventContext*> finishedEvtContexts;
-
-  EventContext* finishedEvtContext(nullptr);
-
-  // Here we wait not to loose cpu resources
-  // debug() << "drainScheduler: [" << finishedEvts << "] Waiting for a context" << endmsg;
-  debug() << "drainScheduler: Waiting for a context" << endmsg;
-  sc = m_schedulerSvc->popFinishedEvent(finishedEvtContext);
-
-  // We got past it: cache the pointer
-  if (sc.isSuccess()){
-    debug() << "drainScheduler: scheduler not empty: Context " 
-	    << finishedEvtContext << endmsg;
-    finishedEvtContexts.push_back(finishedEvtContext);
-  } else{
-    // no more events left in scheduler to be drained
-    debug() << "drainScheduler: scheduler empty" << endmsg;
-    return 0;
-  }
-
-  // Let's see if we can pop other event contexts
-  while (m_schedulerSvc->tryPopFinishedEvent(finishedEvtContext).isSuccess()){
-    finishedEvtContexts.push_back(finishedEvtContext);
-  }
-
-  // Now we flush them
-  bool fail(false);
-  for (auto& thisFinishedEvtContext : finishedEvtContexts) {
-    if (!thisFinishedEvtContext) {
-      fatal() << "Detected nullptr ctxt while clearing WB!"<< endmsg;
-      fail = true;
-      continue;
-    }
-
-    if (m_aess->eventStatus(*thisFinishedEvtContext) != EventStatus::Success) {
-      fatal() << "Failed event detected on " << thisFinishedEvtContext 
-              << " w/ fail mode: "
-              << m_aess->eventStatus(*thisFinishedEvtContext) << endmsg;
-      delete thisFinishedEvtContext;
-      fail = true;
-      continue;
-    }
-    
-    EventID::number_type n_run(0);
-    EventID::number_type n_evt(0);
-
-    const EventInfo* pEvent(0);
-    if (m_whiteboard->selectStore(thisFinishedEvtContext->slot()).isSuccess()) {
-      if (m_evtStore->retrieve(pEvent).isFailure()) {
-        error() << "DrainSched: unable to get EventInfo obj" << endmsg;
-        delete thisFinishedEvtContext;
-        fail = true;
-        continue;
-      } else {
-        n_run = pEvent->event_ID()->run_number();
-        n_evt = pEvent->event_ID()->event_number();
-      }
-    } else {
-      error() << "DrainSched: unable to select store " << thisFinishedEvtContext->slot() << endmsg;
-      delete thisFinishedEvtContext;
-      fail = true;
-      continue;
-    }
-
-    // m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndEvent,
-    // 					 *thisFinishedEvtContext ));
-
-    // create HLT result FullEventFragment
-    eformat::write::FullEventFragment* hltrFragment = HltResult(pEvent);
-    // serialize and send the result
-    eventDone(hltrFragment);
-    // should we delete hltrFragment now?
-
-    debug() << "Clearing slot " << thisFinishedEvtContext->slot() 
-            << " (event " << thisFinishedEvtContext->evt()
-            << ") of the whiteboard" << endmsg;
-    
-    StatusCode sc = clearWBSlot(thisFinishedEvtContext->slot());
-    if (!sc.isSuccess()) {
-      error() << "Whiteboard slot " << thisFinishedEvtContext->slot() 
-	      << " could not be properly cleared";
-      fail = true;
-      delete thisFinishedEvtContext;
-      continue;
-    }
-/*
-    finishedEvts++;
-
-    writeHistograms().ignore();
-    ++m_proc;
-
-    if (m_doEvtHeartbeat) {
-      if(!m_useTools) 
-        info() << "  ===>>>  done processing event #" << n_evt << ", run #" << n_run 
-               << " on slot " << thisFinishedEvtContext->slot() << ",  "
-               << m_proc << " events processed so far  <<<===" << endmsg;
-      else 
-	info() << "  ===>>>  done processing event #" << n_evt << ", run #" << n_run 
-	       << " on slot " << thisFinishedEvtContext->slot() << ",  "          
-	       << m_nev << " events read and " << m_proc 
-	       << " events processed so far <<<===" << endmsg;
-      std::ofstream outfile( "eventLoopHeartBeat.txt");
-      if ( !outfile ) {
-	error() << " unable to open: eventLoopHeartBeat.txt" << endmsg;
-	fail = true;
-	delete thisFinishedEvtContext;
-	continue;
-      } else {
-	outfile << "  done processing event #" << n_evt << ", run #" << n_run 
-		<< " " << m_nev << " events read so far  <<<===" << std::endl;
-	outfile.close();
-      }  
-    }
-*/
-    debug() << "drainScheduler thisFinishedEvtContext: " << thisFinishedEvtContext << endmsg;
-    
-    
-    m_incidentSvc->fireIncident(Incident(name(),
-                                         IncidentType::EndProcessing,
-                                         *thisFinishedEvtContext));
-
-    delete thisFinishedEvtContext;
-
-  }
-
-  verbose() << "end of " << __FUNCTION__ << endmsg;
-  return (  fail ? -1 : 1 );
-}
-
-// ==============================================================================
-StatusCode HltEventLoopMgr::clearWBSlot(int evtSlot) const
-{
-  verbose() << "start of " << __FUNCTION__ << endmsg;
-  StatusCode sc = m_whiteboard->clearStore(evtSlot);
-  if( !sc.isSuccess() )  {
-    warning() << "Clear of Event data store failed" << endmsg;    
-  }
-  verbose() << "end of " << __FUNCTION__ << ", returning m_whiteboard->freeStore(evtSlot=" << evtSlot << ")" << endmsg;
-  return m_whiteboard->freeStore(evtSlot);
-}
-
-// ==============================================================================
 void HltEventLoopMgr::failedEvent(EventContext* eventContext, const EventInfo* eventInfo) const
 {
   verbose() << "start of " << __FUNCTION__ << endmsg;
@@ -1125,4 +920,172 @@ void HltEventLoopMgr::eventDone(eformat::write::FullEventFragment* hltrFragment)
   debug() << "Sending the HLT result to DataCollector" << endmsg;
   hltinterface::DataCollector::instance()->eventDone(std::move(hltrPtr));
   verbose() << "end of " << __FUNCTION__ << endmsg;
+}
+
+// ==============================================================================
+StatusCode HltEventLoopMgr::createEventContext(EventContext*& evtContext) const
+{
+  evtContext = new EventContext(m_nevt, m_whiteboard->allocateStore(m_nevt));
+
+  m_aess->reset(*evtContext);
+
+  StatusCode sc = m_whiteboard->selectStore(evtContext->slot());
+  if (sc.isFailure()){
+    warning() << "Slot " << evtContext->slot() << " could not be selected for the WhiteBoard" << endmsg;
+  } else {
+    evtContext->setExtension( Atlas::ExtendedEventContext( m_evtStore->hiveProxyDict() ) );
+    debug() << "created EventContext, num: " << evtContext->evt()  << "  in slot: " << evtContext->slot() << endmsg;
+  }
+  return sc;
+}
+
+// ==============================================================================
+int HltEventLoopMgr::drainScheduler() const
+{
+  verbose() << "start of " << __FUNCTION__ << endmsg;
+
+  // method copied from AthenaHiveEventLoopMgr
+
+  StatusCode sc(StatusCode::SUCCESS);
+
+  // maybe we can do better
+  std::vector<EventContext*> finishedEvtContexts;
+
+  EventContext* finishedEvtContext(nullptr);
+
+  // Here we wait not to loose cpu resources
+  // debug() << "drainScheduler: [" << finishedEvts << "] Waiting for a context" << endmsg;
+  debug() << "drainScheduler: Waiting for a context" << endmsg;
+  sc = m_schedulerSvc->popFinishedEvent(finishedEvtContext);
+
+  // We got past it: cache the pointer
+  if (sc.isSuccess()){
+    debug() << "drainScheduler: scheduler not empty: Context "
+	    << finishedEvtContext << endmsg;
+    finishedEvtContexts.push_back(finishedEvtContext);
+  } else{
+    // no more events left in scheduler to be drained
+    debug() << "drainScheduler: scheduler empty" << endmsg;
+    return 0;
+  }
+
+  // Let's see if we can pop other event contexts
+  while (m_schedulerSvc->tryPopFinishedEvent(finishedEvtContext).isSuccess()){
+    finishedEvtContexts.push_back(finishedEvtContext);
+  }
+
+  // Now we flush them
+  bool fail(false);
+  for (auto& thisFinishedEvtContext : finishedEvtContexts) {
+    if (!thisFinishedEvtContext) {
+      fatal() << "Detected nullptr ctxt while clearing WB!"<< endmsg;
+      fail = true;
+      continue;
+    }
+
+    if (m_aess->eventStatus(*thisFinishedEvtContext) != EventStatus::Success) {
+      fatal() << "Failed event detected on " << thisFinishedEvtContext
+              << " w/ fail mode: "
+              << m_aess->eventStatus(*thisFinishedEvtContext) << endmsg;
+      delete thisFinishedEvtContext;
+      fail = true;
+      continue;
+    }
+
+    // EventID::number_type n_run(0);
+    // EventID::number_type n_evt(0);
+
+    const EventInfo* pEvent = nullptr;
+    if (m_whiteboard->selectStore(thisFinishedEvtContext->slot()).isSuccess()) {
+      if (m_evtStore->retrieve(pEvent).isFailure()) {
+        error() << "DrainSched: unable to get EventInfo obj" << endmsg;
+        delete thisFinishedEvtContext;
+        fail = true;
+        continue;
+      } else {
+        // n_run = pEvent->event_ID()->run_number();
+        // n_evt = pEvent->event_ID()->event_number();
+      }
+    } else {
+      error() << "DrainSched: unable to select store " << thisFinishedEvtContext->slot() << endmsg;
+      delete thisFinishedEvtContext;
+      fail = true;
+      continue;
+    }
+
+    // m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndEvent,
+    // 					 *thisFinishedEvtContext ));
+
+    // create HLT result FullEventFragment
+    eformat::write::FullEventFragment* hltrFragment = HltResult(pEvent);
+    // serialize and send the result
+    eventDone(hltrFragment);
+    // should we delete hltrFragment now?
+
+    debug() << "Clearing slot " << thisFinishedEvtContext->slot()
+            << " (event " << thisFinishedEvtContext->evt()
+            << ") of the whiteboard" << endmsg;
+
+    StatusCode sc = clearWBSlot(thisFinishedEvtContext->slot());
+    if (!sc.isSuccess()) {
+      error() << "Whiteboard slot " << thisFinishedEvtContext->slot()
+	      << " could not be properly cleared";
+      fail = true;
+      delete thisFinishedEvtContext;
+      continue;
+    }
+/*
+    finishedEvts++;
+
+    writeHistograms().ignore();
+    ++m_proc;
+
+    if (m_doEvtHeartbeat) {
+      if(!m_useTools)
+        info() << "  ===>>>  done processing event #" << n_evt << ", run #" << n_run
+               << " on slot " << thisFinishedEvtContext->slot() << ",  "
+               << m_proc << " events processed so far  <<<===" << endmsg;
+      else
+	info() << "  ===>>>  done processing event #" << n_evt << ", run #" << n_run
+	       << " on slot " << thisFinishedEvtContext->slot() << ",  "
+	       << m_nev << " events read and " << m_proc
+	       << " events processed so far <<<===" << endmsg;
+      std::ofstream outfile( "eventLoopHeartBeat.txt");
+      if ( !outfile ) {
+	error() << " unable to open: eventLoopHeartBeat.txt" << endmsg;
+	fail = true;
+	delete thisFinishedEvtContext;
+	continue;
+      } else {
+	outfile << "  done processing event #" << n_evt << ", run #" << n_run
+		<< " " << m_nev << " events read so far  <<<===" << std::endl;
+	outfile.close();
+      }
+    }
+*/
+    debug() << "drainScheduler thisFinishedEvtContext: " << thisFinishedEvtContext << endmsg;
+
+
+    m_incidentSvc->fireIncident(Incident(name(),
+                                         IncidentType::EndProcessing,
+                                         *thisFinishedEvtContext));
+
+    delete thisFinishedEvtContext;
+
+  }
+
+  verbose() << "end of " << __FUNCTION__ << endmsg;
+  return (  fail ? -1 : 1 );
+}
+
+// ==============================================================================
+StatusCode HltEventLoopMgr::clearWBSlot(int evtSlot) const
+{
+  verbose() << "start of " << __FUNCTION__ << endmsg;
+  StatusCode sc = m_whiteboard->clearStore(evtSlot);
+  if( !sc.isSuccess() )  {
+    warning() << "Clear of Event data store failed" << endmsg;
+  }
+  verbose() << "end of " << __FUNCTION__ << ", returning m_whiteboard->freeStore(evtSlot=" << evtSlot << ")" << endmsg;
+  return m_whiteboard->freeStore(evtSlot);
 }

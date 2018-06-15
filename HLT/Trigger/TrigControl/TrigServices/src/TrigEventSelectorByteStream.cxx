@@ -16,7 +16,7 @@
 // Standard constructor
 // =============================================================================
 TrigEventSelectorByteStream::TrigEventSelectorByteStream(const std::string& name, ISvcLocator* svcLoc)
-: Service(name, svcLoc),
+: AthService(name, svcLoc),
   m_eventSource("ByteStreamInputSvc", name),
   m_evtStore("StoreGateSvc", name) {
   declareProperty("ByteStreamInputSvc", m_eventSource);
@@ -32,7 +32,7 @@ TrigEventSelectorByteStream::~TrigEventSelectorByteStream() {}
 // =============================================================================
 StatusCode TrigEventSelectorByteStream::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
-  verbose() << "start of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
   if(IEvtSelector::interfaceID().versionMatch(riid))
     *ppvInterface = static_cast<IEvtSelector*>(this);
@@ -40,7 +40,7 @@ StatusCode TrigEventSelectorByteStream::queryInterface(const InterfaceID& riid, 
     return Service::queryInterface(riid, ppvInterface);
 
   addRef();
-  verbose() << "end of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
 }
 
@@ -49,22 +49,22 @@ StatusCode TrigEventSelectorByteStream::queryInterface(const InterfaceID& riid, 
 // =============================================================================
 StatusCode TrigEventSelectorByteStream::initialize()
 {
-  verbose() << "start of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
   StatusCode sc = StatusCode::SUCCESS;
 
   sc = m_eventSource.retrieve();
   if (sc.isFailure()) {
-    error() << "Failed to retrieve the event source service" << endmsg;
+    ATH_MSG_ERROR("Failed to retrieve the event source service");
     return sc;
   }
 
   sc = m_evtStore.retrieve();
   if (sc.isFailure()) {
-    error() << "Failed to retrieve the event store service" << endmsg;
+    ATH_MSG_ERROR("Failed to retrieve the event store service");
     return sc;
   }
 
-  verbose() << "end of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return sc;
 }
 
@@ -73,11 +73,11 @@ StatusCode TrigEventSelectorByteStream::initialize()
 // =============================================================================
 StatusCode TrigEventSelectorByteStream::finalize()
 {
-  verbose() << "start of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
   if (m_eventSource.release().isFailure()) {
-    warning() << "Cannot release the event source service" << endmsg;
+    ATH_MSG_WARNING("Cannot release the event source service");
   }
-  verbose() << "end of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
 }
 
@@ -87,7 +87,7 @@ StatusCode TrigEventSelectorByteStream::finalize()
 // =============================================================================
 StatusCode TrigEventSelectorByteStream::next(IEvtSelector::Context& /*c*/) const
 {
-  verbose() << "start of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
   // RawEvent is a typedef for FullEventFragment
   const RawEvent* ptrRawEvent = nullptr;
@@ -97,27 +97,27 @@ StatusCode TrigEventSelectorByteStream::next(IEvtSelector::Context& /*c*/) const
     ptrRawEvent = m_eventSource->nextEvent();
   }
   catch (hltonl::Exception::NoMoreEvents e) {
-    info() << e.what() << endmsg;
+    ATH_MSG_INFO(e.what());
     throw; // rethrow NoMoreEvents
   }
   catch (...) { // what can we actually catch here?
-    error() << "Failed to get next event from the event source" << endmsg;
+    ATH_MSG_ERROR("Failed to get next event from the event source");
     return StatusCode::FAILURE;
   }
 
   // Check if something was returned
   if (ptrRawEvent == nullptr) {
-    error() << "Event source failed to read next event" << endmsg;
+    ATH_MSG_ERROR("Event source failed to read next event");
     return StatusCode::FAILURE;
   }
 
   // In online implementation, this creates an EventInfo address for use in event processing
   if (m_eventSource->generateDataHeader().isFailure()) {
-    error() << "Failed to record ByteStream DataHeader / EventInfo in StoreGate" << endmsg;
+    ATH_MSG_ERROR("Failed to record ByteStream DataHeader / EventInfo in StoreGate");
     return StatusCode::FAILURE;
   }
 
-  verbose() << "end of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
 }
 
@@ -143,17 +143,17 @@ StatusCode TrigEventSelectorByteStream::releaseContext(IEvtSelector::Context*& /
 // Implementation of IEvtSelector::createAddress(Context&,IOpaqueAddress*&)
 // Unlike offline, we do not provide a DataHeader proxy here, but an EventInfo proxy
 // =============================================================================
-StatusCode TrigEventSelectorByteStream::createAddress(const IEvtSelector::Context& c, IOpaqueAddress*& iop) const
+StatusCode TrigEventSelectorByteStream::createAddress(const IEvtSelector::Context& /*c*/, IOpaqueAddress*& iop) const
 {
-  verbose() << "start of " << __FUNCTION__ << endmsg;
+  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
   SG::DataProxy* proxy = m_evtStore->proxy(ClassID_traits<EventInfo>::ID(),"ByteStreamEventInfo");
   if (proxy !=0) {
     iop = proxy->address();
-    verbose() << "end of " << __FUNCTION__ << endmsg;
+    ATH_MSG_VERBOSE("end of " << __FUNCTION__);
     return StatusCode::SUCCESS;
   } else {
     iop = 0;
-    verbose() << "end of " << __FUNCTION__ << endmsg;
+    ATH_MSG_VERBOSE("end of " << __FUNCTION__);
     return StatusCode::FAILURE;
   }
 }
@@ -162,35 +162,35 @@ StatusCode TrigEventSelectorByteStream::createAddress(const IEvtSelector::Contex
 // Unimplemented methods of IEvtSelector
 // =============================================================================
 #define TRIGEVENTSELECTORBYTESTREAM_UNIMPL \
-  fatal() << "Misconfiguration - the method " << __FUNCTION__ << " cannot be used online" << endmsg; \
+  ATH_MSG_FATAL("Misconfiguration - the method " << __FUNCTION__ << " cannot be used online"); \
   return StatusCode::FAILURE;
 
-StatusCode TrigEventSelectorByteStream::next(IEvtSelector::Context& c, int jump) const
+StatusCode TrigEventSelectorByteStream::next(IEvtSelector::Context& /*c*/, int /*jump*/) const
 {
   TRIGEVENTSELECTORBYTESTREAM_UNIMPL
 }
 
-StatusCode TrigEventSelectorByteStream::previous(IEvtSelector::Context& c) const
+StatusCode TrigEventSelectorByteStream::previous(IEvtSelector::Context& /*c*/) const
 {
   TRIGEVENTSELECTORBYTESTREAM_UNIMPL
 }
 
-StatusCode TrigEventSelectorByteStream::previous(IEvtSelector::Context& c, int jump) const
+StatusCode TrigEventSelectorByteStream::previous(IEvtSelector::Context& /*c*/, int /*jump*/) const
 {
   TRIGEVENTSELECTORBYTESTREAM_UNIMPL
 }
 
-StatusCode TrigEventSelectorByteStream::last(IEvtSelector::Context& refContext) const
+StatusCode TrigEventSelectorByteStream::last(IEvtSelector::Context& /*refContext*/) const
 {
   TRIGEVENTSELECTORBYTESTREAM_UNIMPL
 }
 
-StatusCode TrigEventSelectorByteStream::rewind(IEvtSelector::Context& c) const
+StatusCode TrigEventSelectorByteStream::rewind(IEvtSelector::Context& /*c*/) const
 {
   TRIGEVENTSELECTORBYTESTREAM_UNIMPL
 }
 
-StatusCode TrigEventSelectorByteStream::resetCriteria(const std::string& cr, IEvtSelector::Context& c) const
+StatusCode TrigEventSelectorByteStream::resetCriteria(const std::string& /*cr*/, IEvtSelector::Context& /*c*/) const
 {
   TRIGEVENTSELECTORBYTESTREAM_UNIMPL
 }

@@ -6,7 +6,7 @@
 #define TRIGEVENTSELECTORBYTESTREAM_H
 
 #include "GaudiKernel/IEvtSelector.h"
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 
 // Forward declarations
 class ByteStreamInputSvc;
@@ -17,7 +17,7 @@ class StoreGateSvc;
  * @brief  online implementation of IEvtSelector for ByteStream
  */
 
-class TrigEventSelectorByteStream : public Service,
+class TrigEventSelectorByteStream : public AthService,
                                     virtual public IEvtSelector {
 public:
   /**

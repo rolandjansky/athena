@@ -44,7 +44,7 @@ private:
   // ------------------------- service handles ---- ----------------------------
   ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc;
   ServiceHandle<StoreGateSvc> m_evtStore;
-  
+
   // ------------------------- private data members ----------------------------
   std::mutex m_readerMutex;
 
