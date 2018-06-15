@@ -50,12 +50,7 @@ StatusCode SiLorentzAngleTool::initialize() {
   ATH_CHECK(m_condData.initialize());
 
   // Get the detector manager
-  if (detStore()->contains<InDetDD::SiDetectorManager>(m_detectorName)) {
-    ATH_CHECK(detStore()->retrieve(m_detManager, m_detectorName));
-  } else {
-    ATH_MSG_INFO("InDetDD::SiDetectorManager " << m_detectorName << " is not available yet.");
-    ATH_MSG_INFO("SiLorentzAngleTool::retrieveDetectorManager() has to be called later.");
-  }
+  ATH_CHECK(detStore()->retrieve(m_detManager, m_detectorName));
 
   // MagneticFieldSvc handles updates itself
   if (not m_useMagFieldSvc) {
@@ -252,15 +247,6 @@ const SiLorentzAngleCondData* SiLorentzAngleTool::getCondData() const {
   }
   ATH_MSG_WARNING(m_condData.key() << " cannot be retrieved.");
   return nullptr;
-}
-
-StatusCode SiLorentzAngleTool::retrieveDetectorManager() {
-  // If m_detManager is not retrieved yet, it is retrieved.
-  if (!m_detManager) {
-    ATH_CHECK(detStore()->retrieve(m_detManager, m_detectorName));
-    ATH_MSG_INFO("SiLorentzAngleTool::retrieveDetectorManager() is called now.");
-  }
-  return StatusCode::SUCCESS;
 }
 
 const double SiLorentzAngleTool::s_invalidValue{std::numeric_limits<double>::quiet_NaN()};
