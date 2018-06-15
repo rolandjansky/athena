@@ -237,25 +237,41 @@ vector<int>* FTKSectorSlice::searchSectors(FTKTrack& track) {
 
   int error=0;
 
+  static int print=200;
   if ((track.getPhi()<m_phi_min) || (track.getPhi()>m_phi_max)) {
-    cout << "Error: wrong phi parameter " << track.getPhi() << '\n';
+     if(print) {
+        cout << "Error: wrong phi parameter " << track.getPhi() << '\n';
+        print--;
+     }
     error++;
   }
   if ((2.*track.getHalfInvPt()<m_c_min) ||
       (2.*track.getHalfInvPt()>m_c_max)) {
-    cout << "Error: wrong c parameter " << 2.*track.getHalfInvPt() << '\n';
+     if(print) {
+        cout << "Error: wrong c parameter " << 2.*track.getHalfInvPt() << '\n';
+        print--;
+     }
     error++;
   }
   if ((track.getIP()<m_d0_min) || (track.getIP()>m_d0_max)) {
-    cout << "Error: wrong d0 parameter " << track.getIP() << '\n';
+     if(print) {
+        cout << "Error: wrong d0 parameter " << track.getIP() << '\n';
+        print--;
+     }
     error++;
   }
   if ((track.getZ0()<m_z0_min) || (track.getZ0()>m_z0_max)) {
-    cout << "Error: wrong z0 parameter " << track.getZ0() << '\n';
+     if(print) {
+        cout << "Error: wrong z0 parameter " << track.getZ0() << '\n';
+        print--;
+     }
     error++;
   }
   if ((track.getCotTheta()<m_ctheta_min) || (track.getCotTheta()>m_ctheta_max)) {
-    cout << "Error: wrong ctheta parameter " << track.getCotTheta() << '\n';
+     if(print) {
+        cout << "Error: wrong ctheta parameter " << track.getCotTheta() << '\n';
+        print--;
+     }
     error++;
   }
   //if(error) exit(0);
