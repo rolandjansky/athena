@@ -95,8 +95,8 @@ class TauHypoProvider:
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo
                         theVars = ['NTrackMax', 'EtCalibMin', 'Level']
                         theThresh = self.thresholdsEF[(criteria, int(threshold))]
-                        theVars.extend(['Method'])
-                        theThresh.extend([3])
+                        theVars.extend(['Method','NTrackMin','HighptIDThr'])
+                        theThresh.extend([3,0,280000.])
                         currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
 
                     else:
@@ -158,6 +158,10 @@ class TauHypoProvider:
                         theVars = ['LowerPtCut','LowerTrackPtCut']
                         theThresh = [int(threshold)*self.GeV,1.*self.GeV]
                         currentHypo = HLTTrackTauHypo(currentHypoKey, theVars, theThresh)
+                    elif strategy == 'tracktwoMVA':
+                        theVars = ['NTrackMin','NTrackMax','NWideTrackMax','EtCalibMin', 'Level','Method']
+                        theThresh = [0,3,1,0.*self.GeV,-1111,0]
+                        currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
                     else:
                         theVars = ['NTrackMin','NTrackMax','NWideTrackMax','EtCalibMin', 'Level','Method']
                         theThresh = [1,3,1,0.*self.GeV,-1111,0]
