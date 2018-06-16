@@ -123,7 +123,14 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 # Add Large-R RC jets w/ ExKt 2 & 3 subjets
 #===================================================================
 
-addRCDoubleTaggerJets(FTAG2Seq, ToolSvc)
+#addRCDoubleTaggerJets(FTAG2Seq, ToolSvc)
+RCExKtJetCollection__FatJetConfigs = {
+                                   "AntiKt8EMTopoJets"         : {"doTrackSubJet": True},#False},
+                                   }
+RCExKtJetCollection__FatJet = RCExKtJetCollection__FatJetConfigs.keys()
+RCExKtJetCollection__SubJet = []
+addRCDoubleTaggerJets(FTAG2Seq, ToolSvc, RCExKtJetCollection__FatJetConfigs, RCExKtJetCollection__FatJet, RCExKtJetCollection__SubJet)#,"FTAG2JetReclusteringTool","FTAG2JetAlgo")
+
 
 #===================================================================
 # Tag custom or pre-built jet collections
@@ -166,9 +173,12 @@ FTAG2SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                     "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
                                     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJFVtx",
-                                    "BTagging_AntiKt8EMTopo",
-                                    "BTagging_AntiKt8EMTopoExKt2Sub",
-                                    "BTagging_AntiKt8EMTopoExKt3Sub",
+#                                    "AntiKt8EMTopoJets",
+#                                    "AntiKt8EMTopoExKt2SubJets",
+#                                    "AntiKt8EMTopoExKt3SubJets",
+#                                    "BTagging_AntiKt8EMTopo",
+#                                    "BTagging_AntiKt8EMTopoExKt2Sub",
+#                                    "BTagging_AntiKt8EMTopoExKt3Sub",
                                     "BTagging_AntiKt4EMTopo",
                                     "BTagging_AntiKt4EMTopoJFVtx",
                                     "BTagging_AntiKt4EMPFlow",
@@ -229,24 +239,38 @@ FTAG2SlimmingHelper.AppendToDictionary = {
   "BTagging_AntiKt2TrackJFVtxAux"                  :   "xAOD::BTagVertexAuxContainer",
   "BTagging_AntiKt2TrackSecVtx"                    :   "xAOD::VertexContainer"   ,
   "BTagging_AntiKt2TrackSecVtxAux"                 :   "xAOD::VertexAuxContainer",
-  "AntiKt8EMTopoJets"                              :   "xAOD::JetContainer"        ,
-  "AntiKt8EMTopoJetsAux"                           :   "xAOD::JetAuxContainer"     ,
-  "AntiKt8EMTopoExKt2SubJets"                      :   "xAOD::JetContainer"        ,
-  "AntiKt8EMTopoExKt2SubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
-  "BTagging_AntiKt8EMTopoExKt2Sub"                 :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKt8EMTopoExKt2SubAux"              :   "xAOD::BTaggingAuxContainer",
-  "AntiKt8EMTopoExKt3SubJets"                      :   "xAOD::JetContainer"        ,
-  "AntiKt8EMTopoExKt3SubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
-  "BTagging_AntiKt8EMTopoExKt3Sub"                 :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKt8EMTopoExKt3SubAux"              :   "xAOD::BTaggingAuxContainer",
+ # "AntiKt8EMTopoJets"                              :   "xAOD::JetContainer"        ,
+ # "AntiKt8EMTopoJetsAux"                           :   "xAOD::JetAuxContainer"     ,
+ # "AntiKt8EMTopoExKt2SubJets"                      :   "xAOD::JetContainer"        ,
+ # "AntiKt8EMTopoExKt2SubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
+ # "BTagging_AntiKt8EMTopoExKt2Sub"                 :   "xAOD::BTaggingContainer"   ,
+ # "BTagging_AntiKt8EMTopoExKt2SubAux"              :   "xAOD::BTaggingAuxContainer",
+ # "AntiKt8EMTopoExKt3SubJets"                      :   "xAOD::JetContainer"        ,
+ # "AntiKt8EMTopoExKt3SubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
+ # "BTagging_AntiKt8EMTopoExKt3Sub"                 :   "xAOD::BTaggingContainer"   ,
+ # "BTagging_AntiKt8EMTopoExKt3SubAux"              :   "xAOD::BTaggingAuxContainer",
 }
-
-
-
 
 #----------------------------------------------------------------------
 
-addJetOutputs(FTAG2SlimmingHelper,["FTAG2"])
+for JetCollectionName in RCExKtJetCollection__FatJet+RCExKtJetCollection__SubJet:
+  JetCollectionBtagName = JetCollectionName[:-4].replace("PV0", "")
+
+  FTAG2SlimmingHelper.AppendToDictionary[JetCollectionName] = "xAOD::JetContainer"
+  FTAG2SlimmingHelper.AppendToDictionary[JetCollectionName+"Aux"] = "xAOD::JetAuxContainer"
+
+  FTAG2SlimmingHelper.AppendToDictionary["BTagging_"+JetCollectionBtagName] = "xAOD::BTaggingContainer"
+  FTAG2SlimmingHelper.AppendToDictionary["BTagging_"+JetCollectionBtagName+"Aux"] = "xAOD::BTaggingAuxContainer"
+
+for JetCollectionName in RCExKtJetCollection__FatJet+RCExKtJetCollection__SubJet:
+  JetCollectionBtagName = JetCollectionName[:-4].replace("PV0", "")
+
+  FTAG2SlimmingHelper.AllVariables += [JetCollectionName,
+                                       "BTagging_"+JetCollectionBtagName]
+
+#----------------------------------------------------------------------
+
+#addJetOutputs(FTAG2SlimmingHelper,["FTAG2"])
 
 FTAG2SlimmingHelper.IncludeMuonTriggerContent = True
 FTAG2SlimmingHelper.IncludeEGammaTriggerContent = True

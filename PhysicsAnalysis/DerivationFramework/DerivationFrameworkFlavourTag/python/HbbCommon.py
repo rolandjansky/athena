@@ -619,14 +619,14 @@ def addHbbTagger(sequence, ToolSvc, logger=None,
 #====================================================================
 # Large-R RC jets w/ ExKt 2 & 3 subjets
 #===================================================================
-def addRCDoubleTaggerJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetConfigs, ExKtJetCollection__FatJet, ExKtJetCollection__SubJet):, jetToolName, algoName):
+def addRCDoubleTaggerJets(sequence, ToolSvc, ExKtJetCollection__FatJetConfigs, ExKtJetCollection__FatJet, ExKtJetCollection__SubJet):#, jetToolName, algoName):
    jetToolName = "FTAGReclustertingTool"
    algoName = "FTAGJetReclusteringAlgo"
-   ExKtJetCollection__FatJetConfigs = {
-                                      "AntiKt8EMTopoJets"         : {"doTrackSubJet": True},#False},
-                                      }
-   ExKtJetCollection__FatJet = ExKtJetCollection__FatJetConfigs.keys()
-   ExKtJetCollection__SubJet = []
+   #ExKtJetCollection__FatJetConfigs = {
+    #                                 "AntiKt8EMTopoJets"         : {"doTrackSubJet": True},#False},
+    #                                  }
+   #ExKtJetCollection__FatJet = ExKtJetCollection__FatJetConfigs.keys()
+   #ExKtJetCollection__SubJet = []
 
    if jetToolName not in DFJetAlgs:
      ToolSvc += CfgMgr.JetReclusteringTool(jetToolName,InputJetContainer="AntiKt4EMTopoJets", OutputJetContainer="AntiKt8EMTopoJets")
