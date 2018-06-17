@@ -178,6 +178,7 @@ from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoAlgMT
 from TrigEgammaHypo.TrigL2ElectronHypoTool import TrigL2ElectronHypoToolFromName
 theElectronHypo = TrigL2ElectronHypoAlgMT()
 theElectronHypo.RunInView=True
+theElectronHypo.HypoInputDecisions = caloHypoDecisions
 theElectronHypo.Electrons = theElectronFex.ElectronsName
 
 theElectronHypo.OutputLevel = VERBOSE
