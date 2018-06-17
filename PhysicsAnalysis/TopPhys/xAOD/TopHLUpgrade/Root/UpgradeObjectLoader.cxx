@@ -49,7 +49,7 @@ UpgradeObjectLoader::UpgradeObjectLoader( const std::shared_ptr<top::TopConfig> 
     top::check(m_upgrade->setProperty("ElectronRadomSeed", 171) , "Failed to setProperty" );
     top::check(m_upgrade->setProperty("MuonWorkingPoint", UpgradePerformanceFunctionsxAOD::tightMuon), "Failed to setProperty" );
     top::check(m_upgrade->setProperty("METRandomSeed", 986), "Failed to setProperty" );
-    top::check(m_upgrade->setProperty("METFile", "UpgradePerformanceFunctions/sumetPU_mu200_ttbar_gold.root"), "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("METFile", "UpgradePerformanceFunctions/CalibArea-00-01/sumetPU_mu200_ttbar_gold.root"), "Failed to setProperty" );
     top::check(m_upgrade->setProperty("UseTrackConfirmation", true), "Failed to setProperty" ); 
     top::check(m_upgrade->setProperty("JetRandomSeed", 121), "Failed to setProperty" );
     top::check(m_upgrade->setProperty("PileupRandomSeed", 771), "Failed to setProperty" );
@@ -57,11 +57,14 @@ UpgradeObjectLoader::UpgradeObjectLoader( const std::shared_ptr<top::TopConfig> 
     top::check(m_upgrade->setProperty("PileupEfficiency", UpgradePerformanceFunctionsxAOD::PU), "Failed to setProperty" );
     top::check(m_upgrade->setProperty("JVT_PU_Efficiency", 0.02), "Failed to setProperty" );
     top::check(m_upgrade->setProperty("PileupPath", "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/UpgradePerformanceFunctions/"), "Failed to setProperty" );
-    top::check(m_upgrade->setProperty("FlavourTaggingCalibrationFile", "UpgradePerformanceFunctions/flavor_tags_v2.0.root"), "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("FlavourTaggingCalibrationFile", "UpgradePerformanceFunctions/CalibArea-00-01/flavor_tags_v2.0.root"), "Failed to setProperty" );
     top::check(m_upgrade->setProperty("PhotonWorkingPoint", UpgradePerformanceFunctionsxAOD::tightPhoton), "Failed to setProperty" );
     top::check(m_upgrade->setProperty("PhotonNoiseScaling", 0.375), "Failed to setProperty" ); //recommended value
     top::check(m_upgrade->setProperty("PhotonRandomSeed", 1), "Failed to setProperty" );
-    top::check(m_upgrade->setProperty("PhotonFakeFile", "UpgradePerformanceFunctions/PhotonFakes.root"), "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("PhotonFakeFile", "UpgradePerformanceFunctions/CalibArea-00-01/PhotonFakes.root"), "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("UseHGTD0", false), "Failed to setProperty" );
+
+    top::check(m_upgrade->initialize(), "Failed to initialize upgrade loader");
 
     // configure muon selector
     auto optMu = UpgradeLeptonObjectSelector::Options{

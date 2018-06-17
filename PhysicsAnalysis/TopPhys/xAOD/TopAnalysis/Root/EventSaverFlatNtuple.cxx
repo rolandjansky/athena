@@ -3284,8 +3284,12 @@ namespace top {
                m_ljet_phi[i] = jetPtr->phi();
                m_ljet_e[i] = jetPtr->e();
 
-               m_ljet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
+              if (jetPtr->isAvailable<int>("GhostBHadronsFinalCount")) {
+                m_ljet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
+              }
+              if (jetPtr->isAvailable<int>("GhostCHadronsFinalCount")) {
                m_ljet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
+              }
 
                ++i;
            }
