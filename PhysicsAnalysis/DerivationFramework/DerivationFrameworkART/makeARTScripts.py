@@ -38,12 +38,11 @@ trainList = [
               ["EGAM9","EXOT20","SUSY11","EXOT6","SUSY2","HIGG4D1","BPHY1","BPHY4"],
               ["SUSY12","STDM3","EXOT15","JETM3","EXOT19","HIGG4D6","HIGG6D1","HIGG1D1"],
               ["TAUP1","HIGG4D5","JETM4","TOPQ2","TOPQ5","HIGG4D3","SUSY16","EXOT7"],
-              ["STDM2","SUSY18","EXOT3","EGAM1","EGAM5","EXOT2","SUSY3","EXOT5"],
+              ["STDM2","SUSY18","EXOT3","EGAM1","EGAM5","EXOT2","SUSY3","EXOT5","HIGG6D2"],
               ["EXOT22","SUSY4","JETM11","EXOT21","SUSY1","STDM7","SUSY8","SUSY10"],
               ["EXOT13","SUSY5","SUSY7","EXOT8","EXOT4","HIGG4D2"],
-              ["HIGG8D1","JETM6","MUON1","SUSY6","HIGG2D1","JETM1","MUON0","TOPQ1"],
+              ["HIGG8D1","JETM6","MUON1","SUSY6","HIGG2D1","JETM1","MUON0","TOPQ1","TAUP3"],
               ["JETM9","STDM4","TOPQ4","FTAG4"],
-              ["HIGG6D2","TAUP3"]
               # All FTAG run as singletons
               # Special streams (BLS/ZB) not run as trains
             ]
