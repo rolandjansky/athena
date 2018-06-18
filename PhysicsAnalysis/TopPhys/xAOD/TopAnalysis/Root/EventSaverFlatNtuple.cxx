@@ -1216,6 +1216,10 @@ namespace top {
 
         m_upgradeTreeManager->makeOutputVariable(m_weight_mc, "weight_mc");
 
+        if (m_config->doMCGeneratorWeights()) {
+            m_upgradeTreeManager->makeOutputVariable(m_mc_generator_weights, "mc_generator_weights");
+	}
+
         //event info
         m_upgradeTreeManager->makeOutputVariable(m_eventNumber, "eventNumber");
         m_upgradeTreeManager->makeOutputVariable(m_runNumber, "runNumber");
@@ -3357,6 +3361,11 @@ namespace top {
        // MET
        m_met_met = upgradeEvent.m_met->met();
        m_met_phi = upgradeEvent.m_met->phi();
+
+       if (m_config->doMCGeneratorWeights()) {
+           // delegate to helper function.
+           loadMCGeneratorWeights();
+       }
 
     }
 
