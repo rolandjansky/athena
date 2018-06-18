@@ -75,7 +75,7 @@ StatusCode TrigL2ElectronHypoAlgMT::execute_r( const EventContext& context ) con
     auto viewEL = previousDecision->objectLink< ViewContainer >( "view" );
     CHECK( viewEL.isValid() );
     const SG::View* view_const = *viewEL;
-    SG::View* view = const_cast<SG::View*>(view_const); // CHECK THIS!
+    SG::View* view = const_cast<SG::View*>(view_const); // CHECK THIS! (checked with Scott in the past, will be fixed but low prio)
 
     // get electron from that view:
     size_t electronCounter = 0;
