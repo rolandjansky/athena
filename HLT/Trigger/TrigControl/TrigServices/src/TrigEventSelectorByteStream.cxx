@@ -37,7 +37,7 @@ StatusCode TrigEventSelectorByteStream::queryInterface(const InterfaceID& riid, 
   if(IEvtSelector::interfaceID().versionMatch(riid))
     *ppvInterface = static_cast<IEvtSelector*>(this);
   else
-    return Service::queryInterface(riid, ppvInterface);
+    return AthService::queryInterface(riid, ppvInterface);
 
   addRef();
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
@@ -50,22 +50,12 @@ StatusCode TrigEventSelectorByteStream::queryInterface(const InterfaceID& riid, 
 StatusCode TrigEventSelectorByteStream::initialize()
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  StatusCode sc = StatusCode::SUCCESS;
 
-  sc = m_eventSource.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Failed to retrieve the event source service");
-    return sc;
-  }
-
-  sc = m_evtStore.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Failed to retrieve the event store service");
-    return sc;
-  }
+  CHECK(m_eventSource.retrieve());
+  CHECK(m_evtStore.retrieve());
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 // =============================================================================
@@ -112,10 +102,7 @@ StatusCode TrigEventSelectorByteStream::next(IEvtSelector::Context& /*c*/) const
   }
 
   // In online implementation, this creates an EventInfo address for use in event processing
-  if (m_eventSource->generateDataHeader().isFailure()) {
-    ATH_MSG_ERROR("Failed to record ByteStream DataHeader / EventInfo in StoreGate");
-    return StatusCode::FAILURE;
-  }
+  CHECK(m_eventSource->generateDataHeader());
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;

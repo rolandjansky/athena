@@ -45,22 +45,12 @@ StatusCode TrigByteStreamInputSvc::queryInterface(const InterfaceID& riid, void*
 // =============================================================================
 StatusCode TrigByteStreamInputSvc::initialize() {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  StatusCode sc = StatusCode::SUCCESS;
 
-  sc = m_robDataProviderSvc.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Failed to retrieve the ROB data provider");
-    return sc;
-  }
-
-  sc = m_evtStore.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Failed to retrieve the event store service");
-    return sc;
-  }
+  CHECK(m_robDataProviderSvc.retrieve());
+  CHECK(m_evtStore.retrieve());
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 // =============================================================================
@@ -146,11 +136,10 @@ const RawEvent* TrigByteStreamInputSvc::currentEvent() const {
 // =============================================================================
 StatusCode TrigByteStreamInputSvc::generateDataHeader() {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
+  
   IOpaqueAddress* iop = new ByteStreamAddress(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo", "");
-  if (m_evtStore->recordAddress("ByteStreamEventInfo",iop).isFailure()) {
-    ATH_MSG_ERROR("Failed to record ByteStreamEventInfo address in StoreGate");
-    return StatusCode::FAILURE;
-  }
+  CHECK(m_evtStore->recordAddress("ByteStreamEventInfo",iop));
+
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
 }
