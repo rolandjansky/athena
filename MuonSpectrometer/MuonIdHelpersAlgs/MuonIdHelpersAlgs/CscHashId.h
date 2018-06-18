@@ -8,11 +8,9 @@
 #include <vector>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/ActiveStoreSvc.h"
 #include "Identifier/Identifier.h"
 
 class StoreGateSvc;
-class MsgStream;
 class CscIdHelper;
 namespace MuonGM {
 class MuonDetectorManager;
