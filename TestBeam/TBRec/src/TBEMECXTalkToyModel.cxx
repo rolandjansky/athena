@@ -18,10 +18,6 @@ PURPOSE:  A simple toy model to simulate longitudinal cross-talk
 
 #include "TBRec/TBEMECXTalkToyModel.h"
 
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ListItem.h"
-
 #include "StoreGate/StoreGateSvc.h"
 
 

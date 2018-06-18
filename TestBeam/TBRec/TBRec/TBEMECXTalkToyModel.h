@@ -9,7 +9,6 @@ class StoreGateSvc;
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "CaloEvent/CaloCellContainer.h"
-#include "CaloUtils/CaloCellCorrection.h"
 
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -23,15 +22,12 @@ class TBEMECXTalkToyModel: public AthAlgTool,
 {
 public:    
   TBEMECXTalkToyModel(const std::string& type, 
-				 const std::string& name, 
-				 const IInterface* parent) ;
+                      const std::string& name, 
+                      const IInterface* parent) ;
 
-  typedef ToolHandleArray<CaloCellCorrection> ::iterator 
-    CellCorrectionToolIterator;   
-
-  virtual StatusCode initialize() ; 
+  virtual StatusCode initialize() override;
   // update theCellContainer
-  virtual StatusCode process( CaloCellContainer * theCellContainer) ;
+  virtual StatusCode process( CaloCellContainer * theCellContainer) override;
 
 
  private:
