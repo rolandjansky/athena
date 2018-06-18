@@ -86,6 +86,7 @@ monitoringTP_Jpsiee = ["HLT_e5_lhtight_nod0"]
 
 monitoring_photon = ['HLT_g25_medium_L1EM20VH',
                      'HLT_g35_loose',
+                     'HLT_g120_loose',
                      'HLT_g25_medium_sc_L1EM20VH',
                      'HLT_g20_tight_icalovloose_L1EM15VHI',
                      'HLT_g200_loose']
