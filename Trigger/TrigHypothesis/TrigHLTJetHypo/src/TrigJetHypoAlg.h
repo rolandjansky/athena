@@ -10,13 +10,13 @@
   or an association between chain name and collection name will ned tobe set
   up.
 */
-#ifndef TRIGHLTJETHYPO_TRIGJETHYPO_H
-#define TRIGHLTJETHYPO_TRIGJETHYPO_H
+#ifndef TRIGHLTJETHYPOALG_TRIGJETHYPO_H
+#define TRIGHLTJETHYPOALG_TRIGJETHYPO_H
 
 #include <string>
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "TrigHLTJetHypo/ITrigHLTJetHypoTool.h"
+#include "TrigHLTJetHypo/ITrigJetHypoTool.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 /**
  * @class Implements jet selection for the new HLT framework
@@ -24,14 +24,14 @@
  **/
 
 
-class TrigJetHypo
+class TrigJetHypoAlg
   : public ::AthReentrantAlgorithm
 { 
  public: 
 
-  TrigJetHypo( const std::string& name, ISvcLocator* pSvcLocator );
+  TrigJetHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
-  virtual ~TrigJetHypo(); 
+  virtual ~TrigJetHypoAlg(); 
 
   StatusCode  initialize() override;
   StatusCode  execute_r( const EventContext& context ) const override;
@@ -40,7 +40,7 @@ class TrigJetHypo
 
  private: 
 
-  ToolHandleArray<ITrigHLTJetHypoTool> m_hypoTools;
+  ToolHandleArray<ITrigJetHypoTool> m_hypoTools;
 
   SG::ReadHandleKey<xAOD::JetContainer> m_jetsKey{
     this, 

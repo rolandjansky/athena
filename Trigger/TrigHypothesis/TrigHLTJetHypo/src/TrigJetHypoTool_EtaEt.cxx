@@ -2,20 +2,37 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigHLTJetHypoTool.h"
-#include "xAODJet/JetContainer.h"
+// ********************************************************************
+//
+// NAME:     TrigHLTJet_EtaEtTool.cxx
+// PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
+//
+// AUTHOR: P Sherwood
+//
+// ********************************************************************
+
+#include "TrigJetHypoTool_EtaEt.h"
+
+#include "GaudiKernel/StatusCode.h"
+
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/conditionsFactory2.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsSorter.h"
+
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/SingleJetGrouper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJetFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/groupsMatcherFactory.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/lineSplitter.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
 
-#include <limits>
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-TrigHLTJetHypoTool::TrigHLTJetHypoTool( const std::string& type, 
-                                        const std::string& name,
-                                        const IInterface* parent ): AthAlgTool( type, name, parent ), m_id(name) {
+TrigJetHypoTool_EtaEt::TrigJetHypoTool_EtaEt(const std::string& name):
+  asg::AsgTool(name), m_id(name) {
+  
+  declareProperty("EtThresholds",   m_EtThresholds );
+  declareProperty("eta_mins",   m_etaMins);
+  declareProperty("eta_maxs",   m_etaMaxs);
+  declareProperty("asymmetricEtas",   m_asymmetricEtas);
 
-  declareProperty("AcceptAll",      m_acceptAll=false);
+
+    declareProperty("AcceptAll",      m_acceptAll=false);
   declareProperty("chain_name",      m_chainName="Unknown");
   
   // cleaning
@@ -23,8 +40,8 @@ TrigHLTJetHypoTool::TrigHLTJetHypoTool( const std::string& type,
   
   // matching. Legal: maximumBipartite, orderedCollections, selectedJets
   declareProperty("matchingAlg", m_matchingAlg = "maximumBipartite");
- 
- //basic cleaning  
+  
+  //basic cleaning  
   declareProperty("n90CleaningThreshold", m_n90Threshold = 2 );
   declareProperty("presamplerCleaningThreshold", m_presamplerThreshold = 0.9 );
   declareProperty("negativeECleaningThreshold", m_negativeEThreshold = -60e3 ); // 60 GeV
@@ -50,9 +67,10 @@ TrigHLTJetHypoTool::TrigHLTJetHypoTool( const std::string& type,
   declareProperty("negativeELlpThreshold", m_negELlpThreshold = 10e3 ); // 10 GeV
   declareProperty("HECfLlpThreshold", m_hecfLlpThreshold = 0.5 );
   declareProperty("HECQLlpThreshold", m_hecqLlpThreshold = 0.5 );
-  declareProperty("AverageLArQFLlpThreshold", m_avLarQFLlpThreshold = 0.8*65535 );
- 
+  declareProperty("AverageLArQFLlpThreshold",
+                  m_avLarQFLlpThreshold = 0.8*65535);
 
+  
   // Monitored variables...
   /*
   declareMonitoredVariable("NJet", m_njet);
@@ -62,65 +80,20 @@ TrigHLTJetHypoTool::TrigHLTJetHypoTool( const std::string& type,
   */
 }
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode TrigHLTJetHypoTool::queryInterface( const InterfaceID& riid, 
-                                               void** ppvIf )
-{
-  if ( riid == ITrigHLTJetHypoTool::interfaceID() )  {
-    *ppvIf = (ITrigHLTJetHypoTool*)this;
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-
-  return AthAlgTool::queryInterface( riid, ppvIf );
+TrigJetHypoTool_EtaEt::~TrigJetHypoTool_EtaEt(){
 }
 
-StatusCode TrigHLTJetHypoTool::initialize(){
-  ATH_MSG_INFO("in initialize()");
-  
-  // make and store the jet cleaners
-  setCleaners();
-
-  
-  ATH_CHECK(checkVals());
-  
-  setConditions();
-  // setJetGrouper();
-
-  ATH_CHECK(!m_conditions.empty());
-
-  auto matcher = groupsMatcherFactory(m_conditions);
-  auto grouper = getJetGrouper();
-  auto helper = TrigHLTJetHypoHelper2(m_cleaners, 
-                                      std::move(grouper), 
-                                      std::move(matcher));
-
-
-  // print out the TrigHLTJetHypoHelper configuration
-  ATH_MSG_INFO("Initializing TrigHLTJetHypoTool for chain " 
-               << m_chainName);
-  std::string line = helper.toString();
-  std::vector<std::string> lines = lineSplitter(line, '\n');
-  
-  for(auto l : lines){
-    ATH_MSG_INFO(l);
-  }
-
-  ATH_MSG_DEBUG("Tool configured for chain/id: " << m_id);
-
+StatusCode TrigJetHypoTool_EtaEt::initialize(){
   return StatusCode::SUCCESS;
 }
 
+StatusCode TrigJetHypoTool_EtaEt::finalize(){
+  return StatusCode::SUCCESS;
+}
 
-
-StatusCode 
-TrigHLTJetHypoTool::decide(const xAOD::JetContainer* jets, 
-                               bool& pass) const {
-  ATH_MSG_DEBUG("Executing " << name() << "...");
-  ATH_CHECK(jets != nullptr);
-
-  // resetCounters();
+StatusCode TrigJetHypoTool_EtaEt::decide(const xAOD::JetContainer* jets,
+                                         bool& pass) const{
 
   HypoJetVector hypoJets(jets->size());
 
@@ -136,9 +109,8 @@ TrigHLTJetHypoTool::decide(const xAOD::JetContainer* jets,
                                       std::move(grouper), 
                                       std::move(matcher));
 
-   /* apply cleaning and hypothesis alg */
-  ATH_MSG_DEBUG("hypo helper start... " 
-                << name() 
+  /* apply cleaning and hypothesis alg */
+  ATH_MSG_DEBUG("hypo helper start... " << m_chainName
                 << " no of jets ... " 
                 << jets->size() 
                 << "...");
@@ -155,7 +127,9 @@ TrigHLTJetHypoTool::decide(const xAOD::JetContainer* jets,
 
   // accumulateTime(steady_clock::now() - t);
   
-  ATH_MSG_DEBUG("hypo testing done... " << name() << "...");
+  ATH_MSG_DEBUG("hypo testing done chain  " << m_chainName
+                << " no of input jets " << jets->size()
+                << " pass " << pass );
   
   if(m_dumpJets){writeDebug(pass, helper.passedJets(), helper.failedJets());}
 
@@ -166,8 +140,50 @@ TrigHLTJetHypoTool::decide(const xAOD::JetContainer* jets,
 }
 
 
-void  TrigHLTJetHypoTool::setCleaners() {
 
+Conditions TrigJetHypoTool_EtaEt::getConditions() const {
+  auto conditions = conditionsFactoryEtaEt(m_etaMins,
+                                           m_etaMaxs,
+                                           m_EtThresholds,
+                                           m_asymmetricEtas);
+  std::sort(conditions.begin(), conditions.end(), ConditionsSorter());
+  
+  return conditions;
+}
+
+ 
+std::unique_ptr<IJetGrouper> TrigJetHypoTool_EtaEt::getJetGrouper() const {
+  return std::make_unique<SingleJetGrouper>();
+}
+
+StatusCode TrigJetHypoTool_EtaEt::checkVals() const {
+  if (m_EtThresholds.size() != m_etaMins.size() or
+      m_EtThresholds.size() != m_etaMaxs.size() or
+      m_asymmetricEtas.size() != m_etaMaxs.size()){
+    
+    ATH_MSG_ERROR(name()
+                  << ": mismatch between number of thresholds "
+                  << "and eta min, max boundaries or asymmetric eta flags: "
+                  << m_EtThresholds.size() << " "
+                  << m_etaMins.size() << " "
+                  << m_etaMaxs.size() << " "
+                  << m_asymmetricEtas.size() << " "
+                  );
+    
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
+}
+
+std::vector<std::shared_ptr<ICleaner>> 
+TrigJetHypoTool_EtaEt::getCleaners() const {
+  std::vector<std::shared_ptr<ICleaner>> v;
+  return v;
+}
+
+
+void  TrigJetHypoTool_EtaEt::setCleaners() {
+  
   if (m_cleaningAlg != "noCleaning"){
 
     CleanerFactory cleanerFactory(//basic cleaning
@@ -202,32 +218,21 @@ void  TrigHLTJetHypoTool::setCleaners() {
   ATH_MSG_INFO("No of Cleaners " << m_cleaners.size());
 }
 
-/*
-void TrigHLTJetHypoTool::bumpCounters(bool pass, int multiplicity){
-   if (pass){
-     ++m_accepted;
-     m_njet = multiplicity;
-   } else {
-     ++m_rejected;
-   }
- }
-*/
-
-void TrigHLTJetHypoTool::writeDebug(bool pass,
-                                    const HypoJetVector& passedJets,
-                                    const HypoJetVector& failedJets
-                                    ) const{
-  ATH_MSG_INFO("Writing debug start" << name() << "...");
+void TrigJetHypoTool_EtaEt::writeDebug(bool pass,
+                                       const HypoJetVector& passedJets,
+                                       const HypoJetVector& failedJets
+                                       ) const{
+  ATH_MSG_INFO("Writing debug start" << m_chainName << "...");
   
   if(pass){
-    std::cout<<name()<< " event passed \n";
+    std::cout<<m_chainName<< " event passed \n";
   } else {
-    std::cout<<name()<< " event failed \n";
+    std::cout<<m_chainName<< " event failed \n";
   }
 
   for (auto j :  passedJets) {
     auto p4 = j->p4();
-    std::cout<<"\nHYPODUMP passed TrigHLTJetHypoTool Et: " 
+    std::cout<<"\nHYPODUMP passed TrigJetHypoToolImp Et: " 
              << p4.Et() 
              << " eta " 
              << j->eta() 
@@ -244,7 +249,7 @@ void TrigHLTJetHypoTool::writeDebug(bool pass,
   
   for (auto j :  failedJets) {
     auto p4 = j->p4();
-    std::cout<<"\nHYPODUMP failed TrigHLTJetHypoTool Et: " 
+    std::cout<<"\nHYPODUMP failed TrigJetHypoToolImp Et: " 
              << p4.Et() 
              << " eta " 
              << j->eta() 
@@ -261,49 +266,7 @@ void TrigHLTJetHypoTool::writeDebug(bool pass,
   
 }
 
-/*
-void TrigHLTJetHypoTool::resetCounters(){
-  m_njet = std::numeric_limits<int>::max();
-  m_et = std::numeric_limits<double>::max();
-  m_eta = std::numeric_limits<double>::max();
-  m_phi = std::numeric_limits<double>::max();
-}
 
-void  TrigHLTJetHypoTool::accumulateTime(nanoseconds duration) noexcept{
-
-  auto dtime = duration_cast<microseconds>(duration);
-  auto counts = dtime.count();
-  //  countssq = counts*counts;
-
-  if (m_nCalls == 0){
-    m_nCalls = 1;
-    m_chainTimeAv = counts;
-    // m_chainTimeSquareAv = countssq;
-    return;
-  }
-  
-  m_nCalls += 1;
-  m_chainTimeAv = (m_chainTimeAv * (m_nCalls - 1) +  counts)/m_nCalls;
-*/
-/* error in here somewhere
-  m_chainTimeSquareAv += 
-    (m_chainTimeSquareAv * (m_nCalls - 1) + countssq)/m_nCalls;
-*/
-/*
-}
-*/
-void  TrigHLTJetHypoTool::setConditions() {
-  m_conditions = getConditions();
-}
-
-TrigCompositeUtils::DecisionID TrigHLTJetHypoTool::decisionId() const{
+TrigCompositeUtils::DecisionID TrigJetHypoTool_EtaEt::decisionId() const{
   return m_id.numeric();
 }  
-
-
-
-/*
-void  TrigHLTJetHypoTool::setJetGrouper() {
-  m_grouper = getJetGrouper();
-}
-*/

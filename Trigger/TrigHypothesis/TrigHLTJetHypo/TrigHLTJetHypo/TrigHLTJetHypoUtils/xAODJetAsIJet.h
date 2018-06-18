@@ -7,6 +7,7 @@
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/JetBase.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include  "xAODJet/Jet.h"
 
 class TLorentzVector;

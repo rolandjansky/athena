@@ -3,24 +3,24 @@
 */
 
 #include "GaudiKernel/Property.h"
-#include "TrigJetHypo.h"
+#include "TrigJetHypoAlg.h"
 
 using TrigCompositeUtils::DecisionContainer;
 using TrigCompositeUtils::DecisionAuxContainer;
 using TrigCompositeUtils::newDecisionIn;
 using TrigCompositeUtils::addDecisionID;
 
-TrigJetHypo::TrigJetHypo( const std::string& name, 
-                          ISvcLocator* pSvcLocator ) : 
+TrigJetHypoAlg::TrigJetHypoAlg( const std::string& name, 
+                                ISvcLocator* pSvcLocator ) : 
   ::AthReentrantAlgorithm( name, pSvcLocator ),
   m_hypoTools(this){
   declareProperty("HypoTools", m_hypoTools);
 }
 
-TrigJetHypo::~TrigJetHypo(){
+TrigJetHypoAlg::~TrigJetHypoAlg(){
 }
 
-StatusCode TrigJetHypo::initialize() {
+StatusCode TrigJetHypoAlg::initialize() {
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
   CHECK(m_hypoTools.retrieve());
   CHECK(m_jetsKey.initialize());
@@ -28,13 +28,13 @@ StatusCode TrigJetHypo::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigJetHypo::finalize() {
+StatusCode TrigJetHypoAlg::finalize() {
   ATH_MSG_INFO ( "Finalizing " << name() << "..." );
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigJetHypo::execute_r( const EventContext& context ) const {  
+StatusCode TrigJetHypoAlg::execute_r( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto jetsHandle = SG::makeHandle(m_jetsKey, context);
   
@@ -52,9 +52,12 @@ StatusCode TrigJetHypo::execute_r( const EventContext& context ) const {
   auto jets = jetsHandle.cptr();
 
   // loop over hypo tools (one per chain) and report acceptances.
+  ATH_MSG_DEBUG("Executing " << m_hypoTools.size() << " tools");
   for (auto tool : m_hypoTools) {
     bool accept{false};
     ATH_CHECK(tool->decide(jets, accept));
+    ATH_MSG_DEBUG("Executed tool " <<  tool->name()
+                  << " " << std::boolalpha << accept);
 
     if (accept) {   
       addDecisionID(tool->decisionId(), decision);
