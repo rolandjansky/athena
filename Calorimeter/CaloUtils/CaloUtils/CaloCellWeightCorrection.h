@@ -32,14 +32,16 @@ class CaloCellWeightCorrection : public CaloCellCorrection
 
   CaloCellWeightCorrection(const std::string& type, const std::string& name,
 		    const IInterface* parent);
-  virtual ~CaloCellWeightCorrection();
+  virtual ~CaloCellWeightCorrection() override;
 
   // Main access method: Correct cells in cellCollection:
-  StatusCode initialize() ;  
-  StatusCode execute(CaloCellContainer* cellCollection);
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute (CaloCellContainer* cellCollection,
+                              const EventContext& ctx) const override;
 
   // All derived class must implement the following method:
-  virtual void   MakeCorrection(CaloCell*); 
+  virtual void   MakeCorrection (CaloCell*,
+                                 const EventContext& ctx) const override;
 
 
  protected:
