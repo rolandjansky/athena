@@ -26,7 +26,7 @@
 #include <vector>
 #include <cmath>
 #include <string>
-#include "TVector3.h"
+#include "EventKernel/PdtPdg.h"
 
 namespace InDet
 {

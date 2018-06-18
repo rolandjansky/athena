@@ -102,7 +102,8 @@ namespace DerivationFramework {
        /// along the B candidate's momentum direction. 
        Amg::Vector3D DocaExtrapToBeamSpot(const xAOD::BPhysHelper &obj) const;
 
-
+       static void PrepareVertexLinks(xAOD::Vertex* theResult,
+               const xAOD::TrackParticleContainer* importedTrackCollection);
   }; // class BPhysPVTools
 
 } // namespace DerivationFramework
