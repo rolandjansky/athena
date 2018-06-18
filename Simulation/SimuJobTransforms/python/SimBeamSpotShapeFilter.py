@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 # $Id $
 """
 This library defines a class for filtering events based on the beamspot size in athena.
