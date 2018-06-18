@@ -19,7 +19,6 @@
 // EDM include(s):
 #include "AthLinks/DataLink.h"
 #include "AthLinks/ElementLink.h"
-#include "AthLinks/ElementLinkVector.h"
 
 // Local include(s):
 #include "xAODEgamma/EgammaContainer.h"
@@ -47,46 +46,43 @@
 #include "AthContainers/tools/AuxTypeVectorFactory.h"
 
 namespace {
-   struct GCCXML_DUMMY_INSTANTIATION_XAODEGAMMA {
-      xAOD::EgammaContainer_v1 eg_c1;
-      DataLink< xAOD::EgammaContainer_v1 > eg_l1;
-      ElementLink< xAOD::EgammaContainer_v1 > eg_l2;
-      ElementLinkVector< xAOD::EgammaContainer_v1 > eg_l3;
-      std::vector< DataLink< xAOD::EgammaContainer_v1 > > eg_l4;
-      std::vector< ElementLink< xAOD::EgammaContainer_v1 > > eg_l5;
-      std::vector< ElementLinkVector< xAOD::EgammaContainer_v1 > > eg_l6;
-      SG::AuxTypeVectorFactory<ElementLink< xAOD::EgammaContainer_v1 > > eg_l7;
+struct GCCXML_DUMMY_INSTANTIATION_XAODEGAMMA {
+  xAOD::EgammaContainer_v1 eg_c1;
+  DataLink< xAOD::EgammaContainer_v1 > eg_l1;
+  ElementLink< xAOD::EgammaContainer_v1 > eg_l2;
+  std::vector< DataLink< xAOD::EgammaContainer_v1 > > eg_l3;
+  std::vector< ElementLink< xAOD::EgammaContainer_v1 > > eg_l4;
+  std::vector< std::vector< ElementLink<  xAOD::EgammaContainer_v1 > > > eg_l5;
+  SG::AuxTypeVectorFactory<ElementLink< xAOD::EgammaContainer_v1 > > eg_l6;
 
-      xAOD::ElectronContainer_v1 el_c1;
-      DataLink< xAOD::ElectronContainer_v1 > el_l1;
-      ElementLink< xAOD::ElectronContainer_v1 > el_l2;
-      ElementLinkVector< xAOD::ElectronContainer_v1 > el_l3;
-      std::vector< DataLink< xAOD::ElectronContainer_v1 > > el_l4;
-      std::vector< ElementLink< xAOD::ElectronContainer_v1 > > el_l5;
-      std::vector< ElementLinkVector< xAOD::ElectronContainer_v1 > > el_l6;
+  xAOD::ElectronContainer_v1 el_c1;
+  DataLink< xAOD::ElectronContainer_v1 > el_l1;
+  ElementLink< xAOD::ElectronContainer_v1 > el_l2;
+  std::vector< ElementLink<  xAOD::ElectronContainer_v1 > > el_l3;
+  std::vector< DataLink< xAOD::ElectronContainer_v1 > > el_l4;
+  std::vector< std::vector< ElementLink<  xAOD::ElectronContainer_v1 > > > el_l5;
 
-      xAOD::PhotonContainer_v1 ph_c1;
-      DataLink< xAOD::PhotonContainer_v1 > ph_l1;
-      ElementLink< xAOD::PhotonContainer_v1 > ph_l2;
-      ElementLinkVector< xAOD::PhotonContainer_v1 > ph_l3;
-      std::vector< DataLink< xAOD::PhotonContainer_v1 > > ph_l4;
-      std::vector< ElementLink< xAOD::PhotonContainer_v1 > > ph_l5;
-      std::vector< ElementLinkVector< xAOD::PhotonContainer_v1 > > ph_l6;
+  xAOD::PhotonContainer_v1 ph_c1;
+  DataLink< xAOD::PhotonContainer_v1 > ph_l1;
+  ElementLink< xAOD::PhotonContainer_v1 > ph_l2;
+  std::vector< ElementLink< xAOD::PhotonContainer_v1 > > ph_l3;
+  std::vector< DataLink< xAOD::PhotonContainer_v1 > > ph_l4;
+  std::vector< std::vector< ElementLink < xAOD::PhotonContainer_v1 > > > ph_l5;
 
-     // Instantiate the classes used by xAOD::Electron, xAODPhoton so that
-     // Reflex would see them with their "correct type". Note that the
-     // dictionary for these types comes from other places. This instantiation
-     // is just needed for "Reflex related technical reasons"...
-     ElementLink< xAOD::TrackParticleContainer > auxlink1;
-     std::vector< ElementLink< xAOD::TrackParticleContainer > > auxlink2;
-     ElementLink< xAOD::CaloClusterContainer > auxlink3;
-     std::vector< ElementLink< xAOD::CaloClusterContainer > > auxlink4;
-     ElementLink< xAOD::VertexContainer > auxlink5;
-     std::vector< ElementLink< xAOD::VertexContainer > > auxlink6;
+  // Instantiate the classes used by xAOD::Electron, xAODPhoton so that
+  // Reflex would see them with their "correct type". Note that the
+  // dictionary for these types comes from other places. This instantiation
+  // is just needed for "Reflex related technical reasons"...OA
+  ElementLink< xAOD::TrackParticleContainer > auxlink1;
+  std::vector< ElementLink< xAOD::TrackParticleContainer > > auxlink2;
+  ElementLink< xAOD::CaloClusterContainer > auxlink3;
+  std::vector< ElementLink< xAOD::CaloClusterContainer > > auxlink4;
+  ElementLink< xAOD::VertexContainer > auxlink5;
+  std::vector< ElementLink< xAOD::VertexContainer > > auxlink6;
      
-     std::set<const xAOD::TrackParticle*> setTP;
+  std::set<const xAOD::TrackParticle*> setTP;
 
-   };
+};
 }
 
 #endif // XAODEGAMMA_XAODEGAMMADICT_H
