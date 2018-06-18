@@ -44,16 +44,18 @@ class LArG3Escale : public CaloCellCorrection
 		const IInterface* parent);
 
     virtual ~LArG3Escale();
-    virtual StatusCode initialize(); 
+    virtual StatusCode initialize() override;
 
-    void MakeCorrection(CaloCell* theCell);    
-    double correction(const CaloDetDescrElement* theCaloDDE) ;    
+    virtual void MakeCorrection (CaloCell* theCell,
+                                 const EventContext& ctx) const override;
+
+    double correction(const CaloDetDescrElement* theCaloDDE) const;
 
  private: 
  
-    double scalee(double eta);
-    double GetWgt(int table, double eta);
-    double LArScale(int bar_ec, double abseta);
+    double scalee(double eta) const;
+    double GetWgt(int table, double eta) const;
+    double LArScale(int bar_ec, double abseta) const;
 
     static const double s_gap0;
     static const double s_ecdg_scale;

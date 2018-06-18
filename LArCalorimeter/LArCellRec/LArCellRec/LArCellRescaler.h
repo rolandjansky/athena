@@ -35,10 +35,11 @@ public:
   LArCellRescaler (const std::string& type, const std::string& name, 
 		   const IInterface* parent);
 
-  ~LArCellRescaler();
-  virtual StatusCode initialize(); 
+  virtual ~LArCellRescaler();
+  virtual StatusCode initialize() override;
 
-  void MakeCorrection(CaloCell* theCell);    
+  virtual void MakeCorrection (CaloCell* theCell,
+                               const EventContext& ctx) const override;
 
  private: 
   const DataHandle<CaloRec::CaloCellFactor> m_factors;

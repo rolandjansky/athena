@@ -80,8 +80,13 @@ StatusCode  LArCellHVCorr::LoadCalibration(IOVSVC_CALLBACK_ARGS) {
   return StatusCode::SUCCESS;
 }
 
-float LArCellHVCorr::getCorrection(const Identifier id) {
+float LArCellHVCorr::getCorrection(const Identifier id)
+{
+  return const_cast<const LArCellHVCorr*>(this)->getCorrection (id);
+}
 
+float LArCellHVCorr::getCorrection(const Identifier id) const
+{
  float hvcorr = m_hvCorrTool->Scale(id);
 
  if (m_undoHVonline) {
@@ -102,11 +107,11 @@ float LArCellHVCorr::getCorrection(const Identifier id) {
 }
 
 
-void LArCellHVCorr::MakeCorrection(CaloCell* theCell) {
-  
+void LArCellHVCorr::MakeCorrection (CaloCell* theCell,
+                                    const EventContext& /*ctx*/) const
+{
   const float hvcorr=getCorrection(theCell->ID());
   theCell->setEnergy(theCell->energy()*hvcorr);
-
 }  
 
   /*

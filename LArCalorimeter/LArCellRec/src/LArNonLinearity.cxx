@@ -105,7 +105,8 @@ LArNonLinearity::~LArNonLinearity()
 
 // MakeCorrection:  This is called with a pointer to the Cell Object.
 
-void LArNonLinearity::MakeCorrection(CaloCell* theCell)
+void LArNonLinearity::MakeCorrection (CaloCell* theCell,
+                                      const EventContext& /*ctx*/) const
 {
   float eta = theCell->eta();
   Identifier id =  theCell->ID();

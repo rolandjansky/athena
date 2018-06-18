@@ -35,17 +35,22 @@ public:
 		   const IInterface* parent);
 
   ~LArCellHVCorr();
-  virtual StatusCode initialize(); 
+  virtual StatusCode initialize() override;
 
-  void MakeCorrection(CaloCell* theCell); //Implements the CaloCellCorrection interface    
 
-  float getCorrection(const Identifier id); //Implements the ILArCellHVCorrTool interface
+  //Implements the CaloCellCorrection interface    
+  virtual void MakeCorrection (CaloCell* theCell,
+                               const EventContext& ctx) const override;
+
+  //Implements the ILArCellHVCorrTool interface
+  virtual float getCorrection(const Identifier id) override;
 
   StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS);
 
   bool updateOnLastCallback() {return m_updateOnLastCallback;}
 
  private: 
+  float getCorrection(const Identifier id) const;
 
  ToolHandle<ILArHVCorrTool> m_hvCorrTool;
  std::string m_keyHVScaleCorr;
