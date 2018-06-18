@@ -119,6 +119,7 @@ namespace Analysis {
         declareProperty("TrackSelectorTool", m_trkSelector);
         declareProperty("UseMassConstraint", m_useMassConst);
         declareProperty("AlternativeMassConstraint",m_altMassConst);
+        declareProperty("VertexPointEstimator", m_vertexEstimator);
 
         // additional cuts by Daniel Scheirich copied from 2Tracks by Adam Barton
         declareProperty("Chi2Cut",m_chi2cut);

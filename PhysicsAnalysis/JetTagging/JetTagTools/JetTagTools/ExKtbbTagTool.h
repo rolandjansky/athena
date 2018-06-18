@@ -22,8 +22,10 @@
 
 #include "JetRec/JetModifierBase.h"
 #include "AsgTools/ToolHandle.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "JetSubStructureMomentTools/SubjetRecorderTool.h"
 #include "JetSubStructureUtils/SubjetFinder.h"
+#include "xAODTracking/VertexContainer.h"
 
 namespace Analysis{
 
@@ -36,6 +38,9 @@ class ExKtbbTagTool : public JetModifierBase {
 
     virtual StatusCode initialize();
 
+    // Need to modify a base function to fix bug when jet collection is empty
+    virtual int modify(xAOD::JetContainer& jets) const;
+
     // Inherited method to modify a jet.
     virtual int modifyJet(xAOD::Jet& jet) const;
 
@@ -45,12 +50,11 @@ class ExKtbbTagTool : public JetModifierBase {
     float       m_JetRadius;
     float       m_PtMin;
     int         m_ExclusiveNJets;
+    bool        m_doTrack;
 
     // related to subjet recording
     std::string m_InputJetContainerName;             // Mainly used to build correct link from subjet to parent jet
     ToolHandle<ISubjetRecorderTool> m_SubjetRecorderTool;     
-
-
     std::string m_SubjetLabel;                       // must be exactly the same label as the one used by SubjetRecorder inside SubjetFinder. 
                                                      // At this moment, there is no way to figure out this name given SubjetFinderTool
     std::string m_SubjetContainerName;               // must be exactly the same container name as the one used by SubjetRecorder inside SubjetFinder.
@@ -58,7 +62,55 @@ class ExKtbbTagTool : public JetModifierBase {
     std::string m_SubjetAlgorithm_BTAG;
     float       m_SubjetRadius_BTAG;
 
+    // for track selection (if m_doTrack is turned on)
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_TrkSelTool;
+    std::string m_PrimaryVtxContainerName;
+
+    // for CoM
+    bool m_SubjetBoostConstituent;
+
+    // for ghost association
+    std::string m_GhostSources;                      // a list of sources where the ghost association link comes from, separated with ","
+    std::string m_GhostLabels;                       // a list of ghost association labels done at parent jet level, separated with ","
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+
     std::vector<fastjet::PseudoJet> constituentPseudoJets(xAOD::Jet& jet) const;
+    std::vector<fastjet::PseudoJet> getBoostedConstituents(xAOD::Jet& jet) const;
+
+    const xAOD::Jet* GetParentJet(const xAOD::Jet* jet) const;
+    std::vector<std::string> ConvertStringToVector(std::string inputString, std::string delim) const;
+    std::vector<std::string> m_GhostSourceVector;    // internal vector converted from m_GhostSources;
+    std::vector<std::string> m_GhostLabelVector;     // internal vector converted from m_GhostLabels
+
+    bool TrackSelection(const xAOD::TrackParticle* track) const;
+
+    mutable const xAOD::Vertex* m_priVtx;
+    const xAOD::Vertex* findHSVertex(const xAOD::VertexContainer* vertices) const;
+
+    mutable const xAOD::JetContainer* m_jets_original;
+
+};
+
+// a small class for pseudojet user info
+class SimplePseudoJetUserInfo : public fastjet::PseudoJet::UserInfoBase{
+
+public:
+
+  // constructor
+  SimplePseudoJetUserInfo() {m_jetsource = ""; m_label = ""; m_index = -1;}
+  SimplePseudoJetUserInfo(std::string jetsource, std::string label, int index) {m_jetsource = jetsource; m_label = label; m_index = index;}
+
+  std::string jetsource() {return m_jetsource;}
+  std::string label()     {return m_label;}
+  int         index()     {return m_index;}
+
+private:
+
+  std::string m_jetsource;
+  std::string m_label;
+  int         m_index;
+
 };
 
 }

@@ -73,6 +73,7 @@ atlas_add_library( DerivationFrameworkInDetLib
    xAODEgamma xAODEventInfo xAODTracking InDetIdentifier InDetReadoutGeometry
    InDetPrepRawData TrkTrack VxVertex StoreGateLib SGtests SCT_CablingLib
    TRT_ConditionsServicesLib ExpressionEvaluationLib
+   DerivationFrameworkInterfacesLib
    PRIVATE_LINK_LIBRARIES CommissionEvent AtlasDetDescr FourMomUtils xAODJet
    xAODMuon xAODTau xAODPFlow xAODTruth xAODCaloEvent GaudiKernel
    InDetRIO_OnTrack LArRecEvent TrkCompetingRIOsOnTrack TrkEventPrimitives
