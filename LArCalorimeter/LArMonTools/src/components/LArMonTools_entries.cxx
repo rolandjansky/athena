@@ -8,6 +8,7 @@
 #include "LArMonTools/LArAffectedRegions.h"
 #include "LArMonTools/LArHVCorrectionMonTool.h"
 #include "LArMonTools/LArNoisyROMon.h"
+#include "LArMonTools/LArNoiseCorrelationMon.h"
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
@@ -21,7 +22,7 @@ DECLARE_TOOL_FACTORY(LArRODMonTool)
 DECLARE_TOOL_FACTORY(LArAffectedRegions)
 DECLARE_TOOL_FACTORY(LArHVCorrectionMonTool)
 DECLARE_TOOL_FACTORY(LArNoisyROMon)
-
+DECLARE_TOOL_FACTORY(LArNoiseCorrelationMon)
 
 DECLARE_FACTORY_ENTRIES(LArMonTools) {
   DECLARE_ALGTOOL(LArFEBMon)
@@ -34,4 +35,5 @@ DECLARE_FACTORY_ENTRIES(LArMonTools) {
   DECLARE_ALGTOOL(LArAffectedRegions)
   DECLARE_ALGTOOL(LArHVCorrectionMonTool)
   DECLARE_ALGTOOL(LArNoisyROMon)
+  DECLARE_ALGTOOL(LArNoiseCorrelationMon)
 }
