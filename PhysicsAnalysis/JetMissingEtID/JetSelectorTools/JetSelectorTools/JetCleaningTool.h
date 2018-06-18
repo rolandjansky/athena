@@ -55,7 +55,15 @@ class JetCleaningTool : public asg::AsgTool , virtual public IJetSelector
     virtual StatusCode initialize();
 
     /** The DFCommonJets decoration accept method */
-    const Root::TAccept& accept( const int isJetClean ) const;
+    const Root::TAccept& accept( const int isJetClean, const int fmaxIndex ) const;
+    
+    /** The DFCommonJets decoration + tight method  */
+    const Root::TAccept& accept( const int isJetClean,
+                                              const double sumpttrk, //in MeV, same as sumpttrk
+                                              const double fmax,
+					      const double eta,
+					      const double pt, 
+                                              const int    fmaxIndex ) const;
 
     /** The main accept method: the actual cuts are applied here */
     const Root::TAccept& accept( const double emf,
@@ -94,6 +102,7 @@ class JetCleaningTool : public asg::AsgTool , virtual public IJetSelector
     bool m_doUgly;
     std::string m_jetCleanDFName; //new implementation with derivation level event cleaning decision
     SG::AuxElement::ConstAccessor<char> m_acc_jetClean;
+    SG::AuxElement::ConstAccessor<char> m_acc_looseClean;
 
     /** Previous decision */
     mutable Root::TAccept m_accept;
