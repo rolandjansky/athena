@@ -478,7 +478,8 @@ const Trk::MultiComponentState* Trk::GsfSmoother::combine (const Trk::MultiCompo
 
       if ( !smootherMeasuredCov && !forwardMeasuredCov ){
         ATH_MSG_WARNING("Cannot combine two components both without associated errors... returning 0");
-        return 0;
+	delete combinedMultiState;
+        return nullptr;
       }
 
       if ( !forwardMeasuredCov ){
