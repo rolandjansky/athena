@@ -49,8 +49,9 @@ StatusCode CaloCellRescaler::initialize() {
 }
 
 
-void CaloCellRescaler::MakeCorrection(CaloCell* theCell) {
-
+void CaloCellRescaler::MakeCorrection (CaloCell* theCell,
+                                       const EventContext& /*ctx*/) const
+{
   const CaloDetDescrElement* caloDDE = theCell->caloDDE();
   if (caloDDE) {
     theCell->scaleEnergy( m_factorToCells[caloDDE->getSampling()] );

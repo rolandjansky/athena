@@ -49,6 +49,10 @@ def CaloCellPedestalCorrDefault(name='CaloCellPedestalCorr'):
       theCaloCellPedestalCorr.LumiFolderName = lumiFolder
 
    if jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr() and (not athenaCommonFlags.isOnline()):
+       import AthenaCommon.ConcurrencyFlags
+       if jobproperties.ConcurrencyFlags.NumThreads() >= 1:
+          mlog.error ("FIXME: CaloLumiBCIDTool does not work in MT")
+          raise RunTimeError ("FIXME: CaloLumiBCIDTool does not work in MT")
        from CaloTools.CaloLumiBCIDToolDefault import CaloLumiBCIDToolDefault
        theCaloLumiBCIDTool = CaloLumiBCIDToolDefault()
        ToolSvc += theCaloLumiBCIDTool
