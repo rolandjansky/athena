@@ -1,10 +1,9 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODEgammaDict.h 789134 2016-12-11 02:15:53Z christos $
 #ifndef XAODEGAMMA_XAODEGAMMADICT_H
 #define XAODEGAMMA_XAODEGAMMADICT_H
 
