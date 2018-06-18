@@ -465,7 +465,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
   // -------------------------------------------------------------------------------
   
   // prepare material collection
-  const Trk::MaterialProperties* extMatProp = 0;
+  const Trk::MaterialProperties* extMatProp = nullptr;
   double dInL0 = 0.;
   if (m_matProp) {
     extMatProp = dynamic_cast<const Trk::MaterialProperties*>(m_matProp);
