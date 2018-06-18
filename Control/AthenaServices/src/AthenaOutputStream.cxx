@@ -337,7 +337,7 @@ StatusCode AthenaOutputStream::stop()
          ATH_MSG_ERROR("Could not retrieve MetaDataSvc for stop actions");
       }
       else {
-         mdsvc->prepareOutput(fileInc);
+         ATH_CHECK(mdsvc->prepareOutput(fileInc));
       }
 
       if (!m_metadataItemList.value().empty()) {

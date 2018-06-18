@@ -66,7 +66,6 @@ BookkeeperTool::initialize()
 //__________________________________________________________________________
 StatusCode BookkeeperTool::beginInputFile()
 {
-  ATH_MSG_INFO("BLARG");
   //OPENING NEW INPUT FILE
   //Things to do:
   // 1) note that a file is currently opened
@@ -168,8 +167,8 @@ StatusCode BookkeeperTool::beginInputFile(const SG::SourceID& sid)
   //    2a) if incomplete from input, directly propagate to output
   //    2b) if complete from input, wait for EndInputFile to decide what to do in output
 
-  std::string tmp_name = m_outputCollName+"tmp";
-  std::string inc_name = "Incomplete"+m_outputCollName; 
+  std::string tmp_name = m_outputCollName+"tmpCont";
+  std::string inc_name = "Incomplete"+m_outputCollName+"Cont"; 
   //  IF NO METACONT IN OUTPUT STORE YET
   //     Initialize MetaCont for incomplete and tmp containers in output store
   //
@@ -244,7 +243,6 @@ StatusCode BookkeeperTool::beginInputFile(const SG::SourceID& sid)
 
 StatusCode BookkeeperTool::endInputFile()
 {
-
   if (copyContainerToOutput(m_outputCollName).isFailure()) return StatusCode::FAILURE;
 
   if (!m_cutflowTaken) {
@@ -278,8 +276,8 @@ StatusCode BookkeeperTool::metaDataStop(const SG::SourceID&)
   // 2) Print cut flow summary
   // 3) Write root file if requested
   // Now retrieve pointers for the MetaConts
-  std::string tmp_name = m_outputCollName+"tmp";
-  std::string inc_name = "Incomplete"+m_outputCollName; 
+  std::string tmp_name = m_outputCollName+"tmpCont";
+  std::string inc_name = "Incomplete"+m_outputCollName+"Cont"; 
   MetaCont<xAOD::CutBookkeeperContainer>* tmp;
   MetaCont<xAOD::CutBookkeeperContainer>* inc;
   ATH_CHECK(outputMetaStore()->retrieve(tmp,tmp_name));
@@ -288,6 +286,10 @@ StatusCode BookkeeperTool::metaDataStop(const SG::SourceID&)
   // Output containers
   xAOD::CutBookkeeperContainer* outcom = new xAOD::CutBookkeeperContainer();
   xAOD::CutBookkeeperContainer* outinc = new xAOD::CutBookkeeperContainer();
+  xAOD::CutBookkeeperAuxContainer* outcom_aux = new xAOD::CutBookkeeperAuxContainer();
+  xAOD::CutBookkeeperAuxContainer* outinc_aux = new xAOD::CutBookkeeperAuxContainer();
+  outcom->setStore(outcom_aux);
+  outinc->setStore(outinc_aux);
   // Incomplete can just be merged
   auto sids_inc = inc->sources();
   xAOD::CutBookkeeperContainer* contptr(nullptr);
@@ -299,9 +301,6 @@ StatusCode BookkeeperTool::metaDataStop(const SG::SourceID&)
     }
     contptr = nullptr; 
   }
-  //for (auto it = inc->begin(); it != inc->end(); ++it) {
-  //  ATH_CHECK(updateContainer(outinc,it->second));
-  //}
   // Loop over containers and mark complete/incomplete based on end files seen
   auto sids_tmp = tmp->sources();
   contptr = nullptr;
@@ -319,8 +318,32 @@ StatusCode BookkeeperTool::metaDataStop(const SG::SourceID&)
     }
   }
   // Record container objects directly in store for output
-  ATH_CHECK(outputMetaStore()->record(outinc,"Incomplete"+m_outputCollName));
+  std::string incout_name = "Incomplete"+m_outputCollName;
+  // Do any cleanup
+  if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>(incout_name) ) {
+    ATH_MSG_INFO("Cleaning up xAOD::CutBookkeeperContainer for " << incout_name);
+    const xAOD::CutBookkeeperContainer* tmpBook(nullptr);
+    if ( outputMetaStore()->retrieve(tmpBook,incout_name).isSuccess() ) {
+      const SG::IConstAuxStore* tmpBookAux = tmpBook->getConstStore();
+      ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpBook));
+      ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpBookAux));
+    }
+    else ATH_MSG_ERROR("StoreGate failed retrieve after contains=true");
+  }
+  if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>(m_outputCollName) ) {
+    ATH_MSG_INFO("Cleaning up xAOD::CutBookkeeperContainer for " << m_outputCollName);
+    const xAOD::CutBookkeeperContainer* tmpBook(nullptr);
+    if ( outputMetaStore()->retrieve(tmpBook,m_outputCollName).isSuccess() ) {
+      const SG::IConstAuxStore* tmpBookAux = tmpBook->getConstStore();
+      ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpBook));
+      ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpBookAux));
+    }
+    else ATH_MSG_ERROR("StoreGate failed retrieve after contains=true");
+  }
+  ATH_CHECK(outputMetaStore()->record(outinc,incout_name));
+  ATH_CHECK(outputMetaStore()->record(outinc_aux,incout_name+"Aux."));
   ATH_CHECK(outputMetaStore()->record(outcom,m_outputCollName));
+  ATH_CHECK(outputMetaStore()->record(outcom_aux,m_outputCollName+"Aux."));
 
 
   if (!m_cutflowTaken) {
