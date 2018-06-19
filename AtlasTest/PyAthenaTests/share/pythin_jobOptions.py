@@ -45,7 +45,7 @@ import AthenaPoolCnvSvc.WriteAthenaPool
 ## create an output stream
 job += CfgMgr.AthenaOutputStream(
     'OutStream',
-    WritingTool = "AthenaPoolOutputStreamTool"
+    WritingTool = "AthenaOutputStreamTool"
     )
 # Copy everything from the input and must force reading of all input
 # objects

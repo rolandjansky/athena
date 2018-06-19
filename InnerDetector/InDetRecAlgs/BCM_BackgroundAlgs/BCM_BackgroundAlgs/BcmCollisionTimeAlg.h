@@ -8,6 +8,9 @@
 #ifndef BcmCollisionTimeAlg_H
 #define BcmCollisionTimeAlg_H
 
+#include "BCM_CollisionTime/BcmCollisionTime.h"
+#include "InDetBCM_RawData/BCM_RDO_Container.h"
+
 // Gaudi includes
 
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -29,27 +32,14 @@ class BcmCollisionTimeAlg : public AthAlgorithm {
 
   private:
 
-  //---------------------------------------------------
-  // Member variables
-  //---------------------------------------------------
-
-
-
-  //int m_nevt;
-  //ToolHandle<ICaloNoiseTool>  m_noiseTool;
-  //bool m_isMC;
-  //bool m_iterCut;
-  float m_timeCut;
-  //int m_minCells;
-  //std::string m_cellsContName;
-
-  //const DataHandle<CaloIdManager> m_caloIdMgr;
-  //const CaloCell_ID*       m_calo_id;
+    SG::ReadHandleKey<BCM_RDO_Container> m_bcmContainerName      { this, "BcmContainerName", "BCM_RDOs" ,"" };
+    SG::WriteHandleKey<BcmCollisionTime> m_bcmCollisionTimeName  { this, "BcmCollisionTimeName", "BcmCollisionTime" ,"" };
+    Gaudi::Property< float > m_timeCut                           { this, "TimeCut", 6.25, "" };
 
 };
 
 class deltat_data{
- public: 
+ public:
   deltat_data();
   deltat_data( unsigned int channel, unsigned int bcid, unsigned int position );
 

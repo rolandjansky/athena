@@ -80,7 +80,7 @@ private:
 
   friend class AssocObjAttachmentHandle;
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 

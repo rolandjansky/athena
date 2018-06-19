@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _GEOVISATTRIBUTES_H_
-#define _GEOVISATTRIBUTES_H_
+#ifndef VP1GEOMETRYSYSTEMS_GEOVISATTRIBUTES_H
+#define VP1GEOMETRYSYSTEMS_GEOVISATTRIBUTES_H
 
 #include <string>
 #include <QByteArray>
@@ -42,7 +42,7 @@ class VisAttributes {
  private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 
 };

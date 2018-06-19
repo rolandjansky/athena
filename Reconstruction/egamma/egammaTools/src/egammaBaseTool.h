@@ -18,14 +18,10 @@
 // INCLUDE HEADER FILES:
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "egammaInterfaces/IegammaBaseTool.h"
-#include "xAODEgamma/EgammaFwd.h"
  
-
-class egammaBaseTool : public AthAlgTool, virtual public IegammaBaseTool
-{
+class egammaBaseTool : public AthAlgTool, virtual public IegammaBaseTool{
 
  public:
-
   /** @brief Default constructor*/
   egammaBaseTool(const std::string& name, const std::string& description, 
 		 const IInterface* parent);
@@ -36,11 +32,7 @@ class egammaBaseTool : public AthAlgTool, virtual public IegammaBaseTool
   StatusCode initialize() override;
   /** @brief finalize method*/
   StatusCode finalize() override;
-  /** @brief execute method*/
-  virtual StatusCode execute(xAOD::Egamma* eg) override; 
-  /** @brief execute method for methods working on containers*/
-  virtual StatusCode contExecute(xAOD::ElectronContainer *electronContainer, 
-				 xAOD::PhotonContainer *photonContainer) override; 
+  
  
 };
 

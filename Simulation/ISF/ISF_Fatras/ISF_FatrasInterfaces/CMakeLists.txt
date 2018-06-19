@@ -7,7 +7,7 @@ atlas_subdir( ISF_FatrasInterfaces )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/DataModel
+                          Control/AthContainers
                           DetectorDescription/GeoPrimitives
                           GaudiKernel
                           Simulation/ISF/ISF_Core/ISF_Event
@@ -24,5 +24,5 @@ find_package( Eigen )
 atlas_add_library( ISF_FatrasInterfaces
                    PUBLIC_HEADERS ISF_FatrasInterfaces
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} DataModel GeoPrimitives GaudiKernel ISF_Event TrkEventPrimitives TrkNeutralParameters TrkParameters TrkExInterfaces TrkExUtils )
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthContainers GeoPrimitives GaudiKernel ISF_Event TrkEventPrimitives TrkNeutralParameters TrkParameters TrkExInterfaces TrkExUtils )
 

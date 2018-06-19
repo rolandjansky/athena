@@ -36,7 +36,7 @@ class VP1ExtraInputSystem: public IVP13DSystemSimple
  private:
 
   class Clockwork;
-  Clockwork* c;
+  Clockwork* m_c;
 
 
 };

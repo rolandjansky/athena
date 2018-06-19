@@ -22,6 +22,7 @@
 #include "TrigInDetAnalysis/Track.h"
 #include "TrigInDetAnalysis/TIDAEvent.h"
 #include "TrigInDetAnalysis/TIDAVertex.h"
+#include "TrigInDetAnalysis/TIDARoiDescriptor.h"
 #include "TrigInDetAnalysis/TIDAFeatureStore.h"
 
 #include "TH1.h"
@@ -35,7 +36,7 @@ public:
     mname(name), 
     m_xBeamReference(0), m_yBeamReference(0), m_zBeamReference(0),
     m_xBeamTest(0),      m_yBeamTest(0),      m_zBeamTest(0),
-    m_event(0)
+    m_event(0), m_roi(0)
   { } 
   
   virtual ~TrackAnalysis() { } 
@@ -49,6 +50,11 @@ public:
   virtual void execute( const std::vector<TIDA::Track*>& tracks1,
 			const std::vector<TIDA::Track*>& tracks2,
 			TrackAssociator* matcher ) = 0;
+
+  //  virtual void execute( const std::vector<TIDA::Track*>& ,
+  //			const std::vector<TIDA::Track*>& ,
+  //			TrackAssociator* , 
+  //			TIDARoiDescriptor* =0 ) { } 
 
   virtual void execute_vtx( const std::vector<TIDA::Vertex*>& ,
 			    const std::vector<TIDA::Vertex*>& , 
@@ -96,15 +102,21 @@ public:
 
   TIDA::FeatureStore& store() { return m_store; }
 
-  TIDA::Event*    event()               { return m_event; }
+  TIDA::Event*    event() const         { return m_event; }
   void         setevent(TIDA::Event* e) { m_event=e; }
 
-protected:
- 
+  TIDARoiDescriptor*  roi() const               { return m_roi; }
+  void             setroi(TIDARoiDescriptor* r) { m_roi=r; }
+
+
+public:
+  /// FIXME: public for now, to avoid warnings about naming convention
+  ///        violations.  Should be fixed properly after run2 finishes.
   /// identifier of the of the analysis - also used for the root
   ///  directory into which the histograms are put
   std::string   mname;
 
+protected:
   /// lookup table for the histograms by name - does this 
   /// need to be in the base class?  
   std::map<std::string, TH1*> m_histos;
@@ -122,7 +134,8 @@ protected:
 
   TIDA::FeatureStore m_store;
   
-  TIDA::Event*       m_event;
+  TIDA::Event*        m_event;
+  TIDARoiDescriptor*  m_roi;
   
 };
 

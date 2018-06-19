@@ -28,8 +28,8 @@ namespace LArGeo {
   
     // Set parameters:
 
-    void setFCALVisLimit(int maxCell)       {_fcalVisLimit   = maxCell;}
-    void setAxisVisState(bool axis)         {_axisVisState   = axis;}
+    void setFCALVisLimit(int maxCell)       {m_fcalVisLimit   = maxCell;}
+    void setAxisVisState(bool axis)         {m_axisVisState   = axis;}
 
   private:  
   
@@ -39,8 +39,8 @@ namespace LArGeo {
   
     // The manager:
     LArDetectorManager*       m_detectorManager;
-    int                       _fcalVisLimit;
-    bool                      _axisVisState;
+    int                       m_fcalVisLimit;
+    bool                      m_axisVisState;
   };
 
 } // namespace LArGeo

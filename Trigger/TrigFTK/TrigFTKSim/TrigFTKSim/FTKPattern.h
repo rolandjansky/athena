@@ -112,7 +112,6 @@ private:
   int m_splitplane; // coordinate compated at this level
   FTKPattern *m_node; // element
   int m_pos; // position
-  FTKPatternKDTree *m_parent; // parent element
   FTKPatternKDTree *m_left; // left sub-tree
   FTKPatternKDTree *m_right; // right sub-tree
 

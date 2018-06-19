@@ -85,6 +85,15 @@ namespace Monitored {
           m_scopeMonitored(scopeMonitored), 
           m_histogramsFillers(!m_tool.empty() ? m_tool->getHistogramsFillers(m_scopeMonitored) : std::vector<HistogramFiller*>()) { }
   };
+
+  template <typename... T>  
+  void save( const ToolHandle<GenericMonitoringTool>& tool, T&&... variables ) {
+    if ( ! tool.empty() ) {
+      for( auto filler: tool->getHistogramsFillers( {std::forward<T>(variables)...} ) ) {
+	filler->fill();	
+      }
+    }
+  }
 }
 
 #endif /* AthenaMonitoring_MonitoredScope_h */

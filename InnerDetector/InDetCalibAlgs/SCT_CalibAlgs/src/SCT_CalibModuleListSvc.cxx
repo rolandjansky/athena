@@ -9,7 +9,6 @@ SCT_CalibModuleListSvc::SCT_CalibModuleListSvc(const std::string& name, ISvcLoca
     AthService(name, pSvcLocator),
     m_pSCTHelper(0),
     m_detStore("DetectorStore", name),
-    m_MonitorConditionsSvc( "SCT_MonitorConditionsSvc", name ),
     m_IOVDbSvc( "IOVDbSvc", name ){
 
 }
@@ -28,7 +27,7 @@ StatusCode SCT_CalibModuleListSvc::initialize(){
      return sc;
    }
 
-  sc = m_MonitorConditionsSvc.retrieve();
+  sc = m_MonitorConditionsTool.retrieve();
   if ( sc.isFailure() ) {
     msg( MSG::ERROR ) << "Unable to retrieve MonitorConditionsSvc" << endmsg;
     return sc;
@@ -69,7 +68,7 @@ StatusCode SCT_CalibModuleListSvc::readModuleList( std::map< Identifier, std::se
     Identifier moduleId = m_pSCTHelper->module_id( waferId );
 
     std::set<Identifier> stripIdList;
-    m_MonitorConditionsSvc->badStrips( moduleId, stripIdList );
+    m_MonitorConditionsTool->badStrips( moduleId, stripIdList );
     if ( !stripIdList.empty() ) moduleList.insert( std::map< Identifier, std::set<Identifier> >::value_type( moduleId, stripIdList ) );
   }
 

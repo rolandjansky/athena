@@ -32,7 +32,9 @@ class TrigTauClusterContainerCnv : public TrigTauClusterContainerCnvBase
     friend class CnvFactory<TrigTauClusterContainerCnv>;
 
 protected:
+public:
     TrigTauClusterContainerCnv(ISvcLocator *svcloc) : TrigTauClusterContainerCnvBase(svcloc){}
+protected:
 
     virtual TrigTauClusterContainer_PERS* createPersistent(TrigTauClusterContainer *transObj);
     virtual TrigTauClusterContainer* createTransient();

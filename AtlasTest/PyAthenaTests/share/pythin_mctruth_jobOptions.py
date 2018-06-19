@@ -57,7 +57,7 @@ import AthenaPoolCnvSvc.WriteAthenaPool
 ## create an output stream
 job += CfgMgr.AthenaOutputStream(
     'OutStream',
-    WritingTool = "AthenaPoolOutputStreamTool"
+    WritingTool = "AthenaOutputStreamTool"
     )
 job.OutStream.TakeItemsFromInput = False
 job.OutStream.ForceRead          = True

@@ -82,12 +82,12 @@ private:
 //	std::vector<int>* m_PMFId;
 //	std::vector<int>* m_hit;
 
-	int mbID;
-	int pmfID;
-	int fibID;
+	int m_mbID;
+	int m_pmfID;
+	int m_fibID;
 
-	int MAPMTChan;
-	int MapChan;
+	int m_MAPMTChan;
+	int m_MapChan;
 
 	int m_pot;
 	int m_side;
@@ -103,19 +103,19 @@ private:
 //	int maroc2fiber[8][64];
 //	int maroc2mapmt[8][64];
 //	int mapmt2maroc[8][64];
-	int maroc2fiber[8][20][64];
-	int maroc2mapmt[8][20][64];
-	int mapmt2maroc[8][20][64];
+	int m_maroc2fiber[8][20][64];
+	int m_maroc2mapmt[8][20][64];
+	int m_mapmt2maroc[8][20][64];
 
-	int pmf2layer[8][23];
+	int m_pmf2layer[8][23];
 //	int layer2pmf[8][20];
    
-	int OD_pmf2layer[8][4];
+	int m_OD_pmf2layer[8][4];
 //	int OD_layer2pmf[8][3];
-	int OD_pmf_maroc2fiber[8][4][64];
-	int OD_pmf_maroc2side[8][4][64];
+	int m_OD_pmf_maroc2fiber[8][4][64];
+	int m_OD_pmf_maroc2side[8][4][64];
    
-	int mb2det[8];
+	int m_mb2det[8];
 
 /*
 	TGraph *MAPMT_activity[8];
@@ -125,27 +125,24 @@ private:
 	TH2I* MapmtHit[8][23];
 */
 
-	TH1I *thChargeDet[8][2];
-	TH2I *All_Trigger;
-	TH2D *All_Trigger_norm;
+	TH2I *m_All_Trigger;
+	TH2D *m_All_Trigger_norm;
 
-	TH1F* act_lay_h[8];
-	TH1F* hit_lay_h[8];
-	uint32_t lumi_block, lumi_block_old;
-	uint16_t charge_1[8], charge_2[8];
-	std::vector<bool> trigger_pattern;
-	bool pot_b[8], layer_b[8][20], fiber_b[8][20][64], trigger_pattern_b[8][16];
-	bool act_lay[8][20];
-	Int_t n_act_lay[8], n_hits_lay[8][20], n_trig[8][4];
-	Int_t event_no;
-	int events_count[8];
+	TH1F* m_act_lay_h[8];
+	TH1F* m_hit_lay_h[8];
+	uint32_t m_lumi_block, m_lumi_block_old;
+	uint16_t m_charge_1[8], m_charge_2[8];
+	std::vector<bool> m_trigger_pattern;
+	bool m_pot_b[8], m_layer_b[8][20], m_fiber_b[8][20][64], m_trigger_pattern_b[8][16];
+	Int_t m_n_hits_lay[8][20];
+	Int_t m_event_no;
 	TTree* m_tree;
 	TFile *m_rootOutput;
 	TString m_rootOutputFileName;
 
 
-	Int_t pmf_chan_hit_counter[8][23][64];
-	Int_t hit_counter[8];
+	Int_t m_pmf_chan_hit_counter[8][23][64];
+	Int_t m_hit_counter[8];
      
 //   ServiceHandle<StoreGateSvc>   m_digitsStore; 
    
@@ -158,19 +155,19 @@ private:
 	std::string m_key_DigitCollection;
 	std::string m_key_ODDigitCollection;
 
-	std::ifstream inChan;
-	std::ifstream inPMF;
-	std::ifstream inOD;
-	std::ifstream inDet;
+	std::ifstream m_inChan;
+	std::ifstream m_inPMF;
+	std::ifstream m_inOD;
+	std::ifstream m_inDet;
 
-	std::string mapname;
-	std::stringstream s;
-	std::string h_name1, h_name2, h_name3;
-	std::string h_loc1, h_loc2, h_loc3;
-	std::string CanName;
+	std::string m_mapname;
+	std::stringstream m_s;
+	std::string m_h_name1, m_h_name2, m_h_name3;
+	std::string m_h_loc1, m_h_loc2, m_h_loc3;
+	std::string m_CanName;
       
-	int WordId_count;
-	uint32_t chan_i, chan_j;
+	int m_WordId_count;
+	uint32_t m_chan_i, m_chan_j;
 
 /* 
 	TTree* m_tree;

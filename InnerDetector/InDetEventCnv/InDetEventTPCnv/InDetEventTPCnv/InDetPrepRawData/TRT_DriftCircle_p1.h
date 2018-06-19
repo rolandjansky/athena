@@ -1,3 +1,4 @@
+// -*- c++ -*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -18,15 +19,19 @@ namespace InDet
    class TRT_DriftCircle_p1
    {
   public:
-     TRT_DriftCircle_p1() {}
+     TRT_DriftCircle_p1():
+       m_timeOverThreshold(0.0),
+       m_driftTime(0.0),
+       m_driftTimeValid(true),
+       m_highLevel(true) {}
 
      // base PrepRawData_p1
-     TPObjRef		m_rawData;
-      
-     float 		m_timeOverThreshold;
-     float 		m_driftTime;
-     bool		m_driftTimeValid;
-     bool   		m_highLevel;
+     TPObjRef m_rawData;
+
+     float    m_timeOverThreshold;
+     float    m_driftTime;
+     bool     m_driftTimeValid;
+     bool     m_highLevel;
    };
 }
 

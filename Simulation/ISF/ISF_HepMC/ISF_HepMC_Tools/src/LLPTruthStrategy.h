@@ -15,6 +15,7 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AtlasDetDescr/AtlasRegion.h"
 
 // ISF includes
 #include "ISF_HepMC_Interfaces/ITruthStrategy.h"
@@ -28,7 +29,7 @@ namespace ISF {
   
       @author Elmar.Ritsch -at- cern.ch
      */
-  class LLPTruthStrategy : public extends<AthAlgTool, ITruthStrategy> {
+  class LLPTruthStrategy final : public extends<AthAlgTool, ITruthStrategy> {
       
     public: 
       /** Constructor with parameters */
@@ -38,11 +39,13 @@ namespace ISF {
       ~LLPTruthStrategy();
 
       // Athena algtool's Hooks
-      StatusCode  initialize();
-      StatusCode  finalize();
+      virtual StatusCode  initialize() override;
+      virtual StatusCode  finalize() override;
 
       /** True if the ITruthStrategy implementationapplies to the given ITruthIncident */
-      bool pass( ITruthIncident& incident) const;
+      virtual bool pass( ITruthIncident& incident) const override;
+
+      virtual bool appliesToRegion(unsigned short geoID) const override;
 
 	private:
       /** The process code range (low-high) and the category of processes that
@@ -50,6 +53,8 @@ namespace ISF {
       int  m_passProcessCodeRangeLow;
       int  m_passProcessCodeRangeHigh;
       int  m_passProcessCategory;
+
+      IntegerArrayProperty            m_regionListProperty;
 
       /** Returns true if the given |pdgID| is a SUSY particle */
       bool isSUSYParticle(const int absPdgID) const;

@@ -12,7 +12,6 @@
 #include "TrkVertexSeedFinderUtils/IMode1dFinder.h"
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 
-#include "xAODEventInfo/EventInfo.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/ParamDefs.h"
@@ -61,6 +60,7 @@ namespace Trk
 
   StatusCode ZScanSeedFinder::initialize() 
   { 
+    ATH_CHECK( m_eventInfoKey.initialize() );
     if ( m_mode1dfinder.retrieve().isFailure() ) {
       ATH_MSG_FATAL("Failed to retrieve tool " << m_mode1dfinder);
       return StatusCode::FAILURE;
@@ -124,8 +124,8 @@ namespace Trk
     }
     else
     {
-      const xAOD::EventInfo* myEventInfo = 0;
-      if (evtStore()->retrieve(myEventInfo).isFailure())
+      SG::ReadHandle<xAOD::EventInfo> myEventInfo(m_eventInfoKey);
+      if ( !myEventInfo.isValid() )
       {
 	  ATH_MSG_ERROR("Failed to retrieve event information; clearing cached weights");
 	  m_weightMap.clear();

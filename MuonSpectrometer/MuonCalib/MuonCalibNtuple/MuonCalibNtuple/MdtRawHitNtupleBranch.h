@@ -38,29 +38,29 @@ namespace MuonCalib {
     MdtRawHitNtupleBranch(std::string branchName = "rawMdt_");  //!< default constructor 
     bool  fillBranch( const MuonCalibRawMdtHit &hit );          //!< fill content of hit into branch 
     bool  createBranch(TTree *tree);                            //!< create branch structure in tree 
-    void reset() { index = 0; }                                 //!< set hit_index to zero 
-    inline const int& getBranchEntries() const { return index; }//!< returns the number of hits currently in the branch 
+    void reset() { m_index = 0; }                                 //!< set hit_index to zero 
+    inline const int& getBranchEntries() const { return m_index; }//!< returns the number of hits currently in the branch 
     inline int blockSize() const { return m_blockSize; }        //!< returns maximum number of entries stored to ntuple
   
   private:
     std::string m_branchName;                           //!< name of branch in tree, per default prepended to variable names 
-    bool branchesInit;                                  //!< flag to check whether branches were initialized 
+    bool m_branchesInit;                                  //!< flag to check whether branches were initialized 
     static const int m_blockSize = 13000;               //!< quantities stored in the tree 
-    int   index;                                        //!< counter keeping track on the number of MuonCalibRawMdtHit s stored in the event
+    int   m_index;                                        //!< counter keeping track on the number of MuonCalibRawMdtHit s stored in the event
 
-//    int   occupancy[m_blockSize];
-    int   id[m_blockSize];
-    int   tdc[m_blockSize];
-    int   adc[m_blockSize];
-//    float t[m_blockSize];
-//    float r[m_blockSize]; 
-//    float dr[m_blockSize];
-//    float posX[m_blockSize];
-//    float posY[m_blockSize];
-//    float posZ[m_blockSize];
-    float gPosX[m_blockSize];
-    float gPosY[m_blockSize];
-    float gPosZ[m_blockSize];
+//    int   m_occupancy[m_blockSize];
+    int   m_id[m_blockSize];
+    int   m_tdc[m_blockSize];
+    int   m_adc[m_blockSize];
+//    float m_t[m_blockSize];
+//    float m_r[m_blockSize]; 
+//    float m_dr[m_blockSize];
+//    float m_posX[m_blockSize];
+//    float m_posY[m_blockSize];
+//    float m_posZ[m_blockSize];
+    float m_gPosX[m_blockSize];
+    float m_gPosY[m_blockSize];
+    float m_gPosZ[m_blockSize];
 
   };
 }  //namespace MuonCalib

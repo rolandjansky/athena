@@ -5,8 +5,7 @@
 #ifndef G4DEBUGGINGTOOLS_G4UA__GEANT4SETUPCHECKERTOOL_H
 #define G4DEBUGGINGTOOLS_G4UA__GEANT4SETUPCHECKERTOOL_H
 
-#include "G4AtlasInterfaces/IG4RunActionTool.h"
-#include "G4AtlasTools/ActionToolBase.h"
+#include "G4AtlasTools/UserActionToolBase.h"
 #include "Geant4SetupChecker.h"
 
 namespace G4UA
@@ -17,21 +16,16 @@ namespace G4UA
   ///
   /// @author Zach Marshall
   ///
-  class Geant4SetupCheckerTool : public ActionToolBase<Geant4SetupChecker>,
-                                 public IG4RunActionTool
+  class Geant4SetupCheckerTool : public UserActionToolBase<Geant4SetupChecker>
   {
 
     public:
       /// Standard constructor
       Geant4SetupCheckerTool(const std::string& type, const std::string& name,const IInterface* parent);
-      /// Retrieve the BoE action
-      virtual G4UserRunAction* getRunAction() override final
-      { return static_cast<G4UserRunAction*>( getAction() ); }
-      /// Gaudi interface management
-      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
     protected:
       /// Create an action for this thread
-      virtual std::unique_ptr<Geant4SetupChecker> makeAction() override final;
+      virtual std::unique_ptr<Geant4SetupChecker>
+      makeAndFillAction(G4AtlasUserActions&) override final;
     private:
       /// File location for reference file
       std::string m_file_location;

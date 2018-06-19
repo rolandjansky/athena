@@ -187,7 +187,7 @@ StatusCode MuonStationIntersectSvc::finalize() {
   m_imp->clearGeometry();
   delete m_imp->m_log;
 
-  return StatusCode::SUCCESS;;
+  return StatusCode::SUCCESS;
 }
 
 const std::vector<const Muon::MuonIntersectGeometry*>& MuonStationIntersectSvc::getStationGeometry( const Identifier& id ) const {

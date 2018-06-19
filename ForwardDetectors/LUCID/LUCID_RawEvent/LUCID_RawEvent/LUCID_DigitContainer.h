@@ -5,13 +5,10 @@
 #ifndef LUCID_DIGITCONTAINER_H
 #define LUCID_DIGITCONTAINER_H
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "LUCID_RawEvent/LUCID_Digit.h"
 
-#ifndef __CINT__
-  #include "CLIDSvc/CLASS_DEF.h"
-#endif
 
 class LUCID_DigitContainer: public DataVector<LUCID_Digit> {
   

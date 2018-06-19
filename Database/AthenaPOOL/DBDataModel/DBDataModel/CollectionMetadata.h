@@ -10,7 +10,7 @@
  *  @author Peter van Gemmeren <gemmeren@anl.gov>
  **/
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include <string>
 #include <map>
@@ -32,7 +32,7 @@ public: // Constructor and Destructor
 
 typedef DataVector<CollectionMetadata> CollectionMetadataContainer;
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(CollectionMetadata, 1253814833, 1)
 CLASS_DEF(CollectionMetadataContainer, 1296887519, 1)
 #endif

@@ -6,8 +6,8 @@
 #include "TrigT1CaloEvent/CMXEtSums.h"
 #endif
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 
 CLASS_DEF( LVL1::CMXEtSums , 247102965 , 1 )
 CLASS_DEF( DataVector<LVL1::CMXEtSums> , 87855916 , 1 )

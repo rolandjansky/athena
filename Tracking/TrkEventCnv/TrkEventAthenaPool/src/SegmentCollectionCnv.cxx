@@ -32,13 +32,10 @@ SegmentCollectionCnv::~SegmentCollectionCnv() {}
 //-----------------------------------------------------------------------------
 // Initializer
 //-----------------------------------------------------------------------------
-StatusCode SegmentCollectionCnv::initialize()
+void SegmentCollectionCnv::initializeOldExtConverters()
 {
-    StatusCode sc = SegmentCollectionCnvBase::initialize();
-    if( sc.isFailure() ) {
-        m_log << MSG::FATAL << "Could not initialize cnv base" << endmsg;
-        return sc;
-    }
+    if( m_oldExtCnvInitialized )  return;
+
     //-------------------------------------------------------------------------
     // Set up the message stream
     //-------------------------------------------------------------------------
@@ -62,13 +59,11 @@ StatusCode SegmentCollectionCnv::initialize()
     // We cannot proceed if none of the tools is present
     //-------------------------------------------------------------------------
     if( !doInDet && !doMuon ) {
-        m_log << MSG::FATAL << "Could not get either ID or Muon tl convertor! Aborting.";
-        m_log << endmsg;
-        return StatusCode::FAILURE;
+        m_log << MSG::FATAL << "Failed to load Extending T/P converters!" << endmsg;
     }
-   
-    return StatusCode::SUCCESS;
+    m_oldExtCnvInitialized = true;
 }
+
 
 SegmentCollection_PERS *
 SegmentCollectionCnv::createPersistent( Trk::SegmentCollection *transCont)
@@ -84,7 +79,8 @@ SegmentCollectionCnv::createPersistent( Trk::SegmentCollection *transCont)
 //-----------------------------------------------------------------------------
 Trk::SegmentCollection *SegmentCollectionCnv::createTransient()
 {
-    m_log.setLevel( m_msgSvc->outputLevel() );
+    m_log.setLevel( m_msgSvc->outputLevel() ); 
+    static pool::Guid tlp4_guid( "27FB33E0-3284-11E8-9390-0800271C02BC" );
     static pool::Guid tlp3_guid( "1AA73E8A-AF6D-11E3-A8C8-6C3BE51AB9F1" );
     static pool::Guid tlp2_guid( "61A4056D-4FDF-4798-93D7-1BAC351FE32E" );
     static pool::Guid tlp1_guid( "03A83988-8E38-45E9-95A5-9CB17B98074C" );
@@ -92,14 +88,19 @@ Trk::SegmentCollection *SegmentCollectionCnv::createTransient()
 
     Trk::SegmentCollection *p_collection = 0;
 
-    if( compareClassGuid( tlp3_guid ) ) {
+    if( compareClassGuid( tlp4_guid ) ) {
        poolReadObject< SegmentCollection_PERS >( m_TPConverterForPER );
        p_collection = m_TPConverterForPER.createTransient( m_log );
+    } else if( compareClassGuid( tlp3_guid ) ) {
+       initializeOldExtConverters();
+       poolReadObject< Trk::SegmentCollection_tlp3 >( m_TPConverter_tlp3 );
+       p_collection = m_TPConverter_tlp3.createTransient( m_log );
     } else if( compareClassGuid( tlp2_guid ) ) {
+       initializeOldExtConverters();
        poolReadObject< Trk::SegmentCollection_tlp2 >( m_TPConverter_tlp2 );
        p_collection = m_TPConverter_tlp2.createTransient( m_log );
-    }
-    else if( compareClassGuid( tlp1_guid ) ) {
+    } else if( compareClassGuid( tlp1_guid ) ) {
+       initializeOldExtConverters();
        poolReadObject< Trk::SegmentCollection_tlp1 >( m_TPConverter_tlp1 );
        p_collection = m_TPConverter_tlp1.createTransient( m_log );
     }

@@ -9,3 +9,11 @@ theLArBadChanTool= LArBadChanTool(CoolFolder=BadChannelsFolder,
 
 ToolSvc+=theLArBadChanTool
 
+
+from AthenaCommon.AlgSequence import AthSequencer
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg,LArBadFebCondAlg
+condSeq = AthSequencer("AthCondSeq")
+condSeq+=LArBadFebCondAlg(ReadKey=MissingFEBsFolder)
+condSeq+=LArBadChannelCondAlg(ReadKey=BadChannelsFolder)
+
+

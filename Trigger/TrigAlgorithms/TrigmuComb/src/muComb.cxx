@@ -182,6 +182,8 @@ HLT::ErrorCode muComb::hltInitialize()
       } else {
          msg() << MSG::INFO << "Retrieved tool " << m_backExtrapolatorG4 << endmsg;
       }
+   } else {
+     m_backExtrapolatorG4.disable();
    }
 
    if (m_useAthenaFieldService) {

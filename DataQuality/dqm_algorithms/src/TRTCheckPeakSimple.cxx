@@ -27,9 +27,9 @@ static dqm_algorithms::TRTCheckPeakSimple staticInstance;
 namespace dqm_algorithms
 {
 
-TRTCheckPeakSimple::TRTCheckPeakSimple(): name("TRTCheckPeakSimple")
+TRTCheckPeakSimple::TRTCheckPeakSimple(): m_name("TRTCheckPeakSimple")
 {
-    dqm_core::AlgorithmManager::instance().registerAlgorithm(name, this);
+    dqm_core::AlgorithmManager::instance().registerAlgorithm(m_name, this);
 }
 
 TRTCheckPeakSimple::~TRTCheckPeakSimple()
@@ -132,7 +132,7 @@ dqm_core::Result *TRTCheckPeakSimple::execute(const std::string &name, const TOb
 
 void TRTCheckPeakSimple::printDescription(std::ostream& out)
 {
-    out << name << ": Checks on the most probable value (peak) in the histogram." << std::endl;
+    out << m_name << ": Checks on the most probable value (peak) in the histogram." << std::endl;
 }
 
 } // namespace dqm_algorithms

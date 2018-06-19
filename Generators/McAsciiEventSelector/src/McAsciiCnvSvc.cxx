@@ -14,8 +14,6 @@
 #include <stdexcept>
 
 // Framework includes
-#include "GaudiKernel/SvcFactory.h"
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IConversionSvc.h"

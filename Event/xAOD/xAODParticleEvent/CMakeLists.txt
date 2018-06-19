@@ -20,11 +20,13 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTau
    Event/xAOD/xAODTruth )
 
+find_package( ROOT COMPONENTS Core GenVector )
+
 # Component(s) in the package:
 atlas_add_library( xAODParticleEvent
    xAODParticleEvent/*.h xAODParticleEvent/versions/*.h Root/*.cxx
    PUBLIC_HEADERS xAODParticleEvent
-   LINK_LIBRARIES AthContainers AthLinks xAODBase xAODCore xAODEgamma xAODJet
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks xAODBase xAODCore xAODEgamma xAODJet
    xAODMissingET xAODMuon xAODTau xAODTruth )
 
 atlas_add_dictionary( xAODParticleEventDict

@@ -112,7 +112,7 @@ class CaloClusterGetterBase (Configured):
         if cls._output == {}:
             # The full list of output objects that we produce.
             cls._output = { cls._outputType : cls._outputKey ,
-                            "CaloClusterAuxContainer" : cls._outputKey+"Aux.",
+                            "xAOD::CaloClusterAuxContainer" : cls._outputKey+"Aux.",
                             "CaloClusterCellLinkContainer" : cls._outputKey+"_links"}
         return cls._output
 

@@ -34,6 +34,11 @@ T2CaloJetGridFromLvl1Ppr::~T2CaloJetGridFromLvl1Ppr()
 StatusCode T2CaloJetGridFromLvl1Ppr::initialize() 
 {
   if ( !m_gridElement ) m_gridElement = new Trig3Momentum();
+
+  // from IAlgToolCalo
+  m_geometryTool.disable();
+  m_data.disable();
+
   return StatusCode::SUCCESS;
 }
 

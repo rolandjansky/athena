@@ -23,7 +23,7 @@
 // ATLAS C++
 #include "CxxUtils/make_unique.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
+//#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include <algorithm>
 #include <cassert>
@@ -100,7 +100,7 @@ class TileCondToolDspThresholdMock: public AthAlgTool, virtual public ITileCondT
 };
 
 
-DECLARE_TOOL_FACTORY( TileCondToolDspThresholdMock )
+DECLARE_COMPONENT( TileCondToolDspThresholdMock )
 
 void test1() {
 

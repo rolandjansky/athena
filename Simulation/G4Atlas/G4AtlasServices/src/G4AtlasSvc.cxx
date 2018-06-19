@@ -18,7 +18,7 @@ G4AtlasSvc::G4AtlasSvc( const std::string& name, ISvcLocator* pSvcLocator )
   , m_isMT(false)
   , m_activateParallelGeometries(false)
 {
-  ATH_MSG_INFO( "G4AtlasSvc being created!" );
+  ATH_MSG_DEBUG( "G4AtlasSvc being created!" );
   declareProperty( "ActivateParallelWorlds",m_activateParallelGeometries,"Toggle on/off the G4 parallel geometry system");
   declareProperty("DetectorGeometrySvc", m_detGeoSvc );
   declareProperty("PhysicsListTool", m_physicsListTool);

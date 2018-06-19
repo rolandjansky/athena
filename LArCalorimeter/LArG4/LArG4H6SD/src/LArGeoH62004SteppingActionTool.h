@@ -9,8 +9,7 @@
 #include <string>
 
 // Infrastructure includes
-#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
-#include "G4AtlasTools/ActionToolBase.h"
+#include "G4AtlasTools/UserActionToolBase.h"
 
 // Local includes
 #include "LArGeoH62004SteppingAction.h"
@@ -25,8 +24,8 @@ namespace G4UA
   ///
   /// @author Andrea Di Simone
   ///
-  class LArGeoH62004SteppingActionTool : public ActionToolBase<LArGeoH62004SteppingAction>,
-                                         public IG4SteppingActionTool
+  class LArGeoH62004SteppingActionTool :
+    public UserActionToolBase<LArGeoH62004SteppingAction>
   {
 
   public:
@@ -38,20 +37,14 @@ namespace G4UA
     /// Framework intialize method
     StatusCode initialize() override final;
 
-    /// Retrieve the stepping action interface
-    virtual G4UserSteppingAction* getSteppingAction() override final
-    { return static_cast<G4UserSteppingAction*>( getAction() ); }
-
-    /// Query interface for gaudi
-    virtual StatusCode
-    queryInterface(const InterfaceID& riid, void** ppvInterface) override;
-
   protected:
 
     /// Create action for this thread
-    virtual std::unique_ptr<LArGeoH62004SteppingAction> makeAction() override final;
+    virtual std::unique_ptr<LArGeoH62004SteppingAction>
+    makeAndFillAction(G4AtlasUserActions&) override final;
 
   private:
+
     /// Configuration parameters
     LArGeoH62004SteppingAction::Config m_config;
 

@@ -24,46 +24,46 @@ namespace MuonCalib {
     MuonCalibRpcSectorLogicBranch(std::string branchName = "rpc_SL"); //!< default constructor 
     bool  fillBranch(const RpcSectorLogicContainer &slContainer);     //!< fill content of container into branch 
     bool  createBranch(TTree *tree);                                  //!< create branch structure in tree 
-    inline void reset() { index = 0; index2=0; index3=0; }            //!< set index to zero 
-    inline const int& getBranchEntries() const{ return index; }       //!< returns the number of pats currently in the branch 
+    inline void reset() { m_index = 0; m_index2=0; m_index3=0; }            //!< set index to zero 
+    inline const int& getBranchEntries() const{ return m_index; }       //!< returns the number of pats currently in the branch 
     inline  int blockSize() const{ return m_blockSize; }              //!< returns maximum number of entries stored to ntuple
   
   private:
     std::string m_branchName;             //!< name of branch in tree, per default prepended to variable names 
-    bool branchesInit;                    //!< flag to check whether branches were initialized 
+    bool m_branchesInit;                    //!< flag to check whether branches were initialized 
     bool m_first;                         //!< flag to make sure that overflow message is only printed once
     static const int m_blockSize = 100;   //!< quantities stored in the tree 
-    int   index;                          //!< counter keeping track on the number of MuonCalibPattern s stored in the event
+    int   m_index;                          //!< counter keeping track on the number of MuonCalibPattern s stored in the event
 
     // sector logic information
-    int sectorId[m_blockSize];
-    int bcid[m_blockSize];
-    int lvl1Id[m_blockSize];
-    int errorCode[m_blockSize];
-    int crc[m_blockSize];
-    int hasMoreThan2TriggerCand[m_blockSize];
+    int m_sectorId[m_blockSize];
+    int m_bcid[m_blockSize];
+    int m_lvl1Id[m_blockSize];
+    int m_errorCode[m_blockSize];
+    int m_crc[m_blockSize];
+    int m_hasMoreThan2TriggerCand[m_blockSize];
 
     // vector properties, if value is -99999 it should be ignored
     static const int m_blockSize2 = 100;     //!< quantities stored in the tree 
-    int   index2;                            //!< counter keeping track on the number of entries
+    int   m_index2;                            //!< counter keeping track on the number of entries
     
     // RpcSLTriggerHit properties
     static const int m_blockSize3 = 100;     //!< quantities stored in the tree 
-    int   index3;                            //!< counter keeping track on the number of entries
+    int   m_index3;                            //!< counter keeping track on the number of entries
 
     // bc within within the readout window
-    int slIndex2[m_blockSize3];            //!< index of corresponding SL
-    int triggerBcid[m_blockSize3];         //!< bc of trigger hit
-    int rowinBcid[m_blockSize3];
-    int padId[m_blockSize3];
-    int ptId[m_blockSize3];
-    int roi[m_blockSize3];
-    int isInput[m_blockSize3];             //! < is input or output
+    int m_slIndex2[m_blockSize3];            //!< index of corresponding SL
+    int m_triggerBcid[m_blockSize3];         //!< bc of trigger hit
+    int m_rowinBcid[m_blockSize3];
+    int m_padId[m_blockSize3];
+    int m_ptId[m_blockSize3];
+    int m_roi[m_blockSize3];
+    int m_isInput[m_blockSize3];             //! < is input or output
     
     // Info variables split
-    int outerPlane[m_blockSize3];
-    int overlapPhi[m_blockSize3];
-    int overlapEta[m_blockSize3];
+    int m_outerPlane[m_blockSize3];
+    int m_overlapPhi[m_blockSize3];
+    int m_overlapEta[m_blockSize3];
     
   };
 

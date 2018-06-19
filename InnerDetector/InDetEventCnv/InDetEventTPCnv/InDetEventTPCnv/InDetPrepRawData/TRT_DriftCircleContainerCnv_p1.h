@@ -1,3 +1,4 @@
+// -*- c++ -*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -10,9 +11,9 @@
 // file:   TRT_DriftCircleContainerCnv_p1.h
 //
 //-----------------------------------------------------------------------------
- 
+
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
- 
+
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Container_p1.h"
 class TRT_ID;
@@ -23,13 +24,16 @@ class StoreGateSvc;
 class MsgStream;
 namespace InDet{
 class TRT_DriftCircleContainerCnv_p1 : public T_AthenaPoolTPCnvBase< InDet::TRT_DriftCircleContainer, InDet::InDetPRD_Container_p1 >
- 
+
 {
  public:
-   typedef InDet::InDetPRD_Container_p1 PERS; 
+   typedef InDet::InDetPRD_Container_p1 PERS;
    typedef InDet::TRT_DriftCircleContainer TRANS;
-   TRT_DriftCircleContainerCnv_p1(): m_isInitialized(0) {}
-   virtual void persToTrans(const PERS* persCont, TRANS* transCont, MsgStream &log); 
+   TRT_DriftCircleContainerCnv_p1():
+     m_trtId(nullptr),
+     m_trtMgr(nullptr),
+     m_isInitialized(0) {}
+   virtual void persToTrans(const PERS* persCont, TRANS* transCont, MsgStream &log);
    virtual void transToPers(const TRANS* transCont, PERS* persCont, MsgStream &log);
    virtual InDet::TRT_DriftCircleContainer* createTransient(const InDet::InDetPRD_Container_p1* persObj, MsgStream& log);
  private:
@@ -38,7 +42,6 @@ class TRT_DriftCircleContainerCnv_p1 : public T_AthenaPoolTPCnvBase< InDet::TRT_
    bool m_isInitialized;
    StatusCode initialize(MsgStream &log);
 };
- 
+
 }
-#endif 
- 
+#endif

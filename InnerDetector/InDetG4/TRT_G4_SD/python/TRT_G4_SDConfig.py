@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from G4AtlasApps.SimFlags import simFlags
@@ -14,8 +14,8 @@ def getTRTSensitiveDetector(name="TRTSensitiveDetector", **kwargs):
                                                               mergeable_collection_suffix,
                                                               merger_input_property)
     logicalVolumeNames = ["TRT::Gas","TRT::GasMA"]
-    from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
-    if geoFlags.Run()=="RUN2":
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
+    if ( geoFlags.Run() in ["RUN2", "RUN3"] ) :
         ## RUN2 configuration
         logicalVolumeNames += ["TRT::Gas_Ar","TRT::GasMA_Ar",
                                "TRT::Gas_Kr","TRT::GasMA_Kr"]

@@ -1132,7 +1132,7 @@ InDet::SiTrajectoryElement_xk::trackStateOnSurface (bool change,bool cov,bool mu
       const Trk::TrackParameters    * tpn = 0;
       if(!change)                     tpn = trackParameters                (cov,Q);
       else                            tpn = trackParametersWithNewDirection(cov,Q); 
-      if(!tpn) break;;
+      if(!tpn) break;
 
       const Trk::FitQualityOnSurface   * fqn = new Trk::FitQualityOnSurface(m_linkB[i].xi2(),m_ndf);
       const Trk::MeasurementBase       * ron = m_riotool->correct(*m_linkB[i].cluster(),*tp);

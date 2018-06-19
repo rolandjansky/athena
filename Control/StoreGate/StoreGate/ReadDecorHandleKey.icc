@@ -1,0 +1,72 @@
+/*
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+ */
+// $Id$
+/**
+ * @file StoreGate/ReadDecorHandleKey.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jan, 2018
+ * @brief Property holding a SG store/key/clid/attr name from which a
+ *        ReadDecorHandle is made.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Constructor.
+ * @param key The StoreGate key for the object.
+ * @param storeName Name to use for the store, if it's not encoded in sgkey.
+ *
+ * The provided key may actually start with the name of the store,
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
+ * the store named by @c storeName is used.
+ */
+template <class T>
+inline
+ReadDecorHandleKey<T>::ReadDecorHandleKey (const std::string& key /*= ""*/,
+                                           const std::string& storeName /*= StoreID::storeName(StoreID::EVENT_STORE)*/)
+  : Base (ClassID_traits<topbase_t>::ID(), key, storeName)
+{
+}
+
+
+/**
+ * @brief auto-declaring Property Constructor.
+ * @param name name of the Property
+ * @param key  default StoreGate key for the object.
+ *
+ * will associate the named Property with this RHK via declareProperty
+ *
+ * The provided key may actually start with the name of the store,
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
+ * the store named by @c storeName is used.
+ */
+template <class T>
+template <class OWNER, class K,
+          typename /*= typename std::enable_if<std::is_base_of<IProperty, OWNER>::value>::type*/>
+inline
+ReadDecorHandleKey<T>::ReadDecorHandleKey( OWNER* owner,
+                                           const std::string& name,
+                                           const K& key /*={}*/,
+                                           const std::string& doc /*=""*/)
+  : Base (ClassID_traits<topbase_t>::ID(), owner, name, key, doc)
+{
+}
+
+
+/**
+ * @brief Return the class ID for the referenced object.
+ *
+ * Overridden here to return the CLID for @c T instead of @c topbase_t.
+ */
+template <class T>
+inline
+CLID ReadDecorHandleKey<T>::clid() const
+{
+  return ClassID_traits<T>::ID();
+}
+
+
+} // namespace SG

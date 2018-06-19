@@ -5,7 +5,6 @@
 // CoolStrFile.cxx
 // Richard Hawkings, started 14/11/05
 
-#include "GaudiKernel/SvcFactory.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 

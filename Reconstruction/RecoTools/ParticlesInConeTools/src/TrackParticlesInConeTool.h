@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "ParticlesInConeTools/ITrackParticlesInConeTool.h"
 #include "IParticlesLookUpTable.h"
@@ -40,11 +41,9 @@ namespace xAOD {
     // init look-up table
     const LookUpTable* getTable() const;
 
-    /** retrieve id track particles */
-    const TrackParticleContainer* retrieveTrackParticleContainer() const; 
-
     /** ID track collection name */
-    std::string m_indetTrackParticleLocation;
+    SG::ReadHandleKey<TrackParticleContainer> m_indetTrackParticleLocation {this,
+	"TrackParticleLocation", "InDetTrackParticles"};
   };
 
 }	// end of namespace

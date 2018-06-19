@@ -25,8 +25,8 @@
 // Plottable adaptor for Function1D's                                        //
 //                                                                           //
 //---------------------------------------------------------------------------//
-#ifndef _PLOTBOX_H_
-#define _PLOTBOX_H_
+#ifndef QATPLOTTING_PLOTBOX_H
+#define QATPLOTTING_PLOTBOX_H
 #include "QatPlotting/Plotable.h"
 #include "QatPlotting/PlotBoxProperties.h"
 #include "CLHEP/Matrix/SymMatrix.h"
@@ -72,7 +72,7 @@ private:
   PlotBox & operator=(const PlotBox &); 
   
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 };
 #endif

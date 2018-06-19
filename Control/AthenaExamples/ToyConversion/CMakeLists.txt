@@ -19,7 +19,7 @@ atlas_add_library( ToyConversionLib
 
 atlas_add_component( ToyConversion
                      src/components/*.cxx
-                     LINK_LIBRARIES SGTools GaudiKernel ToyConversionLib )
+                     LINK_LIBRARIES ToyConversionLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/ToyConversionOpts.txt share/ToyConversionOpts.py )

@@ -25,26 +25,26 @@
 template <class T>
 inline Query<T>::Query(const T & t) 
   :
-  _failed(false),
-  _instance(t)
+  m_failed(false),
+  m_instance(t)
 {
 }
 
 template <class T>
 inline Query<T>::Query() 
   :
-  _failed(true)
+  m_failed(true)
 {
 }
 
 template <class T> 
 inline Query<T>::operator T() const {
-  assert (!_failed);
-  return _instance;  
+  assert (!m_failed);
+  return m_instance;  
 }
 
 template <class T>
 inline bool Query<T>::isValid() const {
-  return !_failed;
+  return !m_failed;
 }
 

@@ -9,6 +9,7 @@ HIClusterPseudoJetGetter::HIClusterPseudoJetGetter(const std::string &name) : Ps
   
 }
 
+/*
 int HIClusterPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* pli) const 
 { 
   bool doGhosts=bool(m_ghostscale)&!m_negEnergyAsGhosts;
@@ -91,3 +92,4 @@ int HIClusterPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* 
   ATH_MSG_ERROR("Unable to find input collection: " << m_incoll);
   return 1;
 }
+*/

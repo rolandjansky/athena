@@ -264,7 +264,7 @@ StatusCode MMHitAnalysis::execute() {
 
   m_hits_x->clear();
 
-  const DataHandle<GenericMuonSimHitCollection> p_collection;;
+  const DataHandle<GenericMuonSimHitCollection> p_collection;
   if ((evtStore()->retrieve(p_collection,"MicromegasSensitiveDetector"))==StatusCode::SUCCESS) {
     for (GenericMuonSimHitCollection::const_iterator i_hit = p_collection->begin(); i_hit != p_collection->end(); ++i_hit){
       

@@ -313,7 +313,7 @@ public:
    *
    * A decoration is locked by changing from a decoration to an ordinary
    * variable.  If the container itself is locked, then modifications
-   * to be variable are not permitted after this call.
+   * to the variable are not permitted after this call.
    */
   virtual void lockDecoration (SG::auxid_t auxid) override;
 
@@ -391,7 +391,7 @@ private:
 
   /// The collection of vectors of aux data that we're managing,
   /// indexed by @c auxid.
-  std::vector<IAuxTypeVector*> m_vecs;
+  std::vector<std::unique_ptr<IAuxTypeVector> > m_vecs;
 
   /// Record which variables are decorations.
   std::vector<bool> m_isDecoration;

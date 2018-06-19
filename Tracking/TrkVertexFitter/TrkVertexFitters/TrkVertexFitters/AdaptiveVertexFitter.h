@@ -29,7 +29,6 @@ namespace Trk
   class IVertexUpdator;
   class IVertexSmoother;
   class IVertexAnnealingMaker;
-  class IVxCandidateXAODVertex;
 
   /**
    * @class Trk::AdaptiveVertexFitter
@@ -269,7 +268,6 @@ namespace Trk
     ToolHandle< Trk::IVertexUpdator > m_VertexUpdator;
     ToolHandle< Trk::IVertexSmoother > m_VertexSmoother;
     ToolHandle< Trk::IVertexAnnealingMaker > m_AnnealingMaker;
-    ToolHandle< IVxCandidateXAODVertex > m_xaodConverter;
 
     /**
      * Number of maximum iterations

@@ -35,7 +35,7 @@ class VP1CaloClusterSystem : public IVP13DSystemSimple {
 
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 #endif

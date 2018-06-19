@@ -40,15 +40,20 @@
 
 #include "EventKernel/IParticle.h" //> for ParticleDataType
 
+// CLHEP/HepMC includes
+#include "GeneratorObjects/McEventCollection.h"
+
 // McParticleKernel includes
 #include "McParticleKernel/ITruthParticleCnvTool.h"
 
 #include "McParticleEvent/PileUpClassification.h"
 
+// McParticleEvent includes
+#include "McParticleEvent/TruthParticleContainer.h"
+
 // Forward declarations
 class McEventCollection;
 class TruthParticle;
-class TruthParticleContainer;
 class ITruthIsolationTool;
 
 class TruthParticleCnvTool :  virtual public ITruthParticleCnvTool, 
@@ -68,8 +73,9 @@ class TruthParticleCnvTool :  virtual public ITruthParticleCnvTool,
   virtual ~TruthParticleCnvTool ();
   
   // Athena's Hooks
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() const override;
+  virtual StatusCode execute (const EventContext& ctx) const override;
   
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
@@ -86,7 +92,7 @@ class TruthParticleCnvTool :  virtual public ITruthParticleCnvTool,
   StatusCode convert( const McEventCollection* mcEvts,
 		      const unsigned int genEvtIndex,
 		      TruthParticleContainer* mcParts,
-		      const ITruthParticleVisitor* visitor ) const;
+		      const ITruthParticleVisitor* visitor ) const override;
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
@@ -107,13 +113,13 @@ class TruthParticleCnvTool :  virtual public ITruthParticleCnvTool,
   
   std::string m_vxCandidatesName;
 
-  /** Location of the McEventCollection the TruthParticles will be made from
+  /** ReadHandleKey for the McEventCollection the TruthParticles will be made from
    */
-  StringProperty m_mcEventsName;
+  SG::ReadHandleKey<McEventCollection> m_mcEventsReadHandleKey{this,"McEvents","GEN_AOD","ReadHandleKey for the input McEventCollection, from which the TruthParticles will be made from"};
 
-  /** Output TruthParticle location (built from the McEventCollection)
+  /** Output TruthParticle WriteHandleKey (built from the McEventCollection)
    */
-  StringProperty m_mcPartsOutputName;
+  SG::WriteHandleKey<TruthParticleContainer>  m_mcPartsOutputWriteHandleKey{this,"TruthParticlesOutput","SpclMC","WriteHandleKey for the output truth particles (built from the McEventCollection)"};
 
   /** Particle Property service
    */

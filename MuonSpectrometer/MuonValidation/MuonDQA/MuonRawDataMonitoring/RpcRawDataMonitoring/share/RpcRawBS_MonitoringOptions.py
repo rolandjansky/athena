@@ -37,7 +37,8 @@ rpcLv1SLRawMonMan = AthenaMonManager(name="RpcLv1SLRawMonManager",
                                      OutputLevel         = muonOutputLevel)
 from RpcRawDataMonitoring.RpcRawDataMonitoringConf import RpcLv1RawDataSectorLogic
 rpcLV1RawDataSectorLogic = RpcLv1RawDataSectorLogic(name='rpcLV1RawDataSectorLogic',OutputLevel = OutputMessageLevel)
-
+if globalflags.DataSource() != 'data':
+    rpcLV1RawDataSectorLogic.isMC = True
 ToolSvc += rpcLV1RawDataSectorLogic
 rpcLv1SLRawMonMan.AthenaMonTools += [ rpcLV1RawDataSectorLogic ]
 topSequence += rpcLv1SLRawMonMan

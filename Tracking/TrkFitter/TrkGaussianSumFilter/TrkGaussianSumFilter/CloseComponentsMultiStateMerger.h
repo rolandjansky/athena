@@ -16,6 +16,7 @@ decription           : Class for merging components of a multi-state based on
 #ifndef TrkCloseComponentsMultiStateMerger_H
 #define TrkCloseComponentsMultiStateMerger_H
 
+#include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
 #include "TrkGaussianSumFilter/SortingClasses.h"
 
@@ -31,7 +32,6 @@ namespace Trk{
 
 class IMultiComponentStateCombiner;
 class IComponentSeparationDistance;
-class IMultiComponentStateAssembler;
 
 class CloseComponentsMultiStateMerger : public AthAlgTool, virtual public IMultiComponentStateMerger {
 
@@ -61,7 +61,8 @@ class CloseComponentsMultiStateMerger : public AthAlgTool, virtual public IMulti
   ToolHandle<IComponentSeparationDistance>  m_distance;
 
   ToolHandle<Trk::IMultiComponentStateCombiner>   m_stateCombiner;
-  ToolHandle<Trk::IMultiComponentStateAssembler>  m_stateAssembler;
+  PublicToolHandle<Trk::IMultiComponentStateAssembler>  m_stateAssembler
+     {this,"MultiComponentStateAssembler","Trk::MultiComponentStateAssembler/CloseComponentsStateAssembler",""};
     
   ServiceHandle<IChronoStatSvc>                  m_chronoSvc;           //!< Timing: The Gaudi time auditing service
 };

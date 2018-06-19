@@ -11,7 +11,7 @@ metaMV2FlipTag = { 'IsATagger'          : True,
                                            'IP3DNegTag',
                                            'JetFitterTagCOMBNNIP3DNeg',
                                            'SV1FlipTag'],
-                   'CalibrationFolders' : ['MV2',],
+                   'CalibrationTaggers' : ['MV2',],
                    'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                    'ToolCollection'     : 'MV2FlipTag' }
 

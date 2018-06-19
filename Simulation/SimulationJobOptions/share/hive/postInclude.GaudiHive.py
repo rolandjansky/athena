@@ -1,18 +1,19 @@
-# TODO: make this declaration more automatic
+#
+# For post-include MT configuration, we need to add some explicit data
+# dependencies for the AthenaMT scheduler.
+#
 
-topSeq.G4AtlasAlg.ExtraInputs =  [('McEventCollection','GEN_EVENT')]
-topSeq.G4AtlasAlg.ExtraOutputs = [('SiHitCollection','SCT_Hits'),('RecoTimingObj','EVNTtoHITS_timings')]
-
+# I'm not sure if we need this timing setting here,
+# so leaving this older code commented out for now.
+#topSeq.G4AtlasAlg.ExtraOutputs = [('SiHitCollection','SCT_Hits'),('RecoTimingObj','EVNTtoHITS_timings')]
+topSeq.G4AtlasAlg.ExtraInputs =  [('McEventCollection','StoreGateSvc+BeamTruthEvent')]
+topSeq.G4AtlasAlg.ExtraOutputs = [('SiHitCollection','StoreGateSvc+SCT_Hits')]
 topSeq.StreamHITS.ExtraInputs += topSeq.G4AtlasAlg.ExtraOutputs
+
 # Disable alg filtering - doesn't work in multi-threading
 topSeq.StreamHITS.AcceptAlgs = []
-algCardinality = jp.ConcurrencyFlags.NumThreads()
 
-if (algCardinality != 1):
-    for alg in topSeq:
-        name = alg.name()
-        if name in ["StreamHITS"]:
-            # suppress INFO message about Alg unclonability
-            alg.Cardinality = 1
-        else:
-            alg.Cardinality = algCardinality
+# Override algorithm cloning settings
+nThreads = jp.ConcurrencyFlags.NumThreads()
+topSeq.BeamEffectsAlg.Cardinality = nThreads
+topSeq.G4AtlasAlg.Cardinality = nThreads

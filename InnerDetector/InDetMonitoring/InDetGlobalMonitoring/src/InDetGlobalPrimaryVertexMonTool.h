@@ -7,7 +7,10 @@
 
 #include <string>
 #include "GaudiKernel/StatusCode.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/Vertex.h"
 
 class TH1F_LW;
 class TH2F_LW;
@@ -15,10 +18,6 @@ class TProfile_LW;
 
 namespace Trk {
   class VxCandidate;
-}
-
-namespace xAOD {
-  class Vertex_v1;
 }
 
 class InDetGlobalPrimaryVertexMonTool : public ManagedMonitorToolBase {
@@ -92,9 +91,9 @@ private:
 
 	// Properties
         std::string m_histFolder;
-        std::string m_vxContainerName;
-        std::string m_vxContainerNameWithoutBeamConstraint;
-        std::string m_vxContainerNameSplit;
+        SG::ReadHandleKey<xAOD::VertexContainer> m_vxContainerName{this,"vxContainerName","VxPrimaryCandidate","Primary Vertices for Global Monitoring"};
+        SG::ReadHandleKey<xAOD::VertexContainer> m_vxContainerNameWithoutBeamConstraint{this,"vxContainerNameWithOutBeamConstraint","VxCandidatesWithoutBeamConstraint","Vertices without beam constraint for Global Monitoring"};
+        SG::ReadHandleKey<xAOD::VertexContainer> m_vxContainerNameSplit{this,"vxContainerNameSplit","SplitVxCandidates","Split Vertices for Global Monitoring"};
 	int         m_splitVertexTrkInvFraction; ///< store inverse of the fraction of input tracks used for probe vertex (1:N)
 	float       m_distanceSplitVxMatch; ///< store maximum distance for matching split vertices to original non-BC vertex
 	/** store metric to be used for split vertex matching in selection efficiency
@@ -112,7 +111,7 @@ private:
 	 * @param originalVx pointer to original non-BC vertex
 	 * @return distance for matching split to original Vertex
 	 */
-    double GetSplitMatchDistance(const xAOD::Vertex_v1* splitVx, const xAOD::Vertex_v1* originalVx);
+    double GetSplitMatchDistance(const xAOD::Vertex* splitVx, const xAOD::Vertex* originalVx);
 	
 };
 

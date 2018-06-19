@@ -160,7 +160,7 @@ namespace Muon {
       error_time->Fill(fullTime,err);
       timeResScat->Fill(fullTime,res);
       timePullScat->Fill(fullTime,pull);
-      float errTrk = (*times.avTimeProp)[index];;
+      float errTrk = (*times.avTimeProp)[index];
       errorTrack->Fill(errTrk);
       float errRT = sqrt(err*err-errTrk*errTrk);
       errorRT->Fill(errRT);

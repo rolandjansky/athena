@@ -25,6 +25,7 @@ Purpose : create a collection of PhotonTag
 #include "TagEvent/PhotonAttributeNames.h"
 #include "AnalysisUtils/AnalysisMisc.h"
 #include "AthContainers/ConstDataVector.h"
+#include "PATCore/AcceptData.h"
 // #include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
 
 #include <sstream>
@@ -252,7 +253,7 @@ StatusCode PhotonTagTool::execute(TagFragmentCollection& pTagColl, const int& ma
     /** apply Et cut*/
     bool passPtCut  = (*photItr)->pt() > m_cut_Et;
     /** apply loose PID cut*/
-    bool isLoose    = m_loose_cut_based->accept(*photItr);
+    bool isLoose    = static_cast<bool>(m_loose_cut_based->accept(*photItr));
     /** apply author cut*/
     bool goodAuthor = ( (*photItr)->author() & xAOD::EgammaParameters::AuthorPhoton ) > 0 ||
                       ( (*photItr)->author() & xAOD::EgammaParameters::AuthorAmbiguous ) > 0;
@@ -292,10 +293,10 @@ StatusCode PhotonTagTool::execute(TagFragmentCollection& pTagColl, const int& ma
     /** Retrieving tightness info from xAOD */
     unsigned int tightness = 0x0;
 
-    bool isLoose = m_loose_cut_based->accept(*photonItr);
+    bool isLoose = static_cast<bool>(m_loose_cut_based->accept(*photonItr));
     if (isLoose) tightness |= (1<<0);//loose
     
-    bool isTight = m_tight_cut_based->accept(*photonItr);
+    bool isTight = static_cast<bool>(m_tight_cut_based->accept(*photonItr));
     if (isTight) tightness |= (1<<1);//tight
     
     /** Photon Object Quality*/

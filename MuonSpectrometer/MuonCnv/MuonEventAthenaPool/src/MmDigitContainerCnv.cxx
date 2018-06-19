@@ -5,7 +5,6 @@
 #include "MmDigitContainerCnv.h"
 
 // Gaudi
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentSvc.h"
@@ -31,7 +30,6 @@ StatusCode MmDigitContainerCnv::initialize() {
     
     // msgSvc()->setOutputLevel( "MmDigitContainerCnv", MSG::DEBUG );
 
-    std::cout<<"MmDigitContainerCnv:initialize"<<std::endl;
    // Get the messaging service, print where you are
     MsgStream log(msgSvc(), "MmDigitContainerCnv");
     if (log.level() <= MSG::INFO) log << MSG::INFO << "MmDigitContainerCnv::initialize()" << endmsg;

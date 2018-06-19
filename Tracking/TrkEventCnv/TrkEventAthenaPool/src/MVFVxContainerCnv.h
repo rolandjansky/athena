@@ -41,7 +41,9 @@ class MVFVxContainerCnv : public MVFVxContainerCnvBase
 
  protected:
   
+public:
   MVFVxContainerCnv( ISvcLocator *svcloc );
+protected:
 
   ~MVFVxContainerCnv();
   

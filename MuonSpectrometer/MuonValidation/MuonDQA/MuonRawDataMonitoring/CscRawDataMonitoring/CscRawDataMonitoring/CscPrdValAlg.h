@@ -6,6 +6,9 @@
 #define CscPrdValAlg_H
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "MuonPrepRawData/CscStripPrepDataContainer.h"
+#include "xAODEventInfo/EventInfo.h"
 
 class TH1;
 class TH1F;
@@ -38,7 +41,9 @@ class CscPrdValAlg: public ManagedMonitorToolBase  {
   void bookPrdHistograms();
 
   size_t m_cscNoiseCut;
-  std::string m_cscPrdKey, m_cscPRDPath, m_cscGenPath;
+  SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_cscPrdKey{this,"CSCPrepRawDataKey","CSC_Measurements","CSC PRDs"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
+  std::string m_cscPRDPath, m_cscGenPath;
   bool m_mapxyrz;
 
   // Strip fitter
@@ -49,7 +54,6 @@ class CscPrdValAlg: public ManagedMonitorToolBase  {
 
   StatusCode fillLumiBlock();
   int m_lumiblock;
-  ActiveStoreSvc* m_activeStore;
 
  private:
 

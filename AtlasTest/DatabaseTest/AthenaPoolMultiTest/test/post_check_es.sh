@@ -87,7 +87,9 @@ else
 		# ignore file names 
 		egrep -a -v 'Reading file'  |\
 		# ignore root collect key 
-		egrep -a -v 'NewEventCollection.root, recovered'
+		egrep -a -v 'NewEventCollection.root, recovered' |\
+                # ignore new file catalog messages
+                egrep -a -v 'registerPFN'
 
 	    diffStatus=$?
 	    if [ $diffStatus = 0 ] 

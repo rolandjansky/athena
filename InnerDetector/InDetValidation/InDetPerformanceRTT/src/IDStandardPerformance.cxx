@@ -2151,7 +2151,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
   msg(MSG::DEBUG) << "Found " << nPrimaries << " primary GenParticles." << endmsg;
 
 
-  rttMap.clear();
+  m_rttMap.clear();
   recoToTruthMap::const_iterator imap;
 
   int nTracks=0;
@@ -2299,7 +2299,7 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
         TrackTruth trtruth=found->second;
         HepMcParticleLink hmpl = trtruth.particleLink();
 	msg(MSG::VERBOSE) << "Adding HMPL=" << hmpl << " with probability=" << trtruth.probability() << endmsg;
-        rttMap.insert(std::pair<HepMcParticleLink,float>(hmpl,trtruth.probability()));
+        m_rttMap.insert(std::pair<HepMcParticleLink,float>(hmpl,trtruth.probability()));
       }
     } else {
       msg(MSG::WARNING) << "No Truth Map found"<<endmsg;
@@ -2525,47 +2525,47 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 		      const Trk::TrackParameters* generatedTrackPerigee = m_truthToTrack->makePerigeeParameters(genparptr);
 		      if (!generatedTrackPerigee)   msg(MSG::WARNING) <<  "Unable to extrapolate genparticle to perigee!" << endmsg;
 		      if ( generatedTrackPerigee) {
-			float m_track_truth_qoverpt = 1000. * generatedTrackPerigee->parameters()[Trk::qOverP]/sin(generatedTrackPerigee->parameters()[Trk::theta]);
-			float m_track_truth_phi     = generatedTrackPerigee->parameters()[Trk::phi0];
-			float m_track_truth_d0      = generatedTrackPerigee->parameters()[Trk::d0];
-			float m_track_truth_z0      = generatedTrackPerigee->parameters()[Trk::z0];
-			float m_track_truth_theta   = generatedTrackPerigee->parameters()[Trk::theta];
-			float m_track_truth_eta     = generatedTrackPerigee->eta();
+			float track_truth_qoverpt = 1000. * generatedTrackPerigee->parameters()[Trk::qOverP]/sin(generatedTrackPerigee->parameters()[Trk::theta]);
+			float track_truth_phi     = generatedTrackPerigee->parameters()[Trk::phi0];
+			float track_truth_d0      = generatedTrackPerigee->parameters()[Trk::d0];
+			float track_truth_z0      = generatedTrackPerigee->parameters()[Trk::z0];
+			float track_truth_theta   = generatedTrackPerigee->parameters()[Trk::theta];
+			float track_truth_eta     = generatedTrackPerigee->eta();
 			//float m_track_truth_cot      = 1/tan(generatedTrackPerigee->parameters()[Trk::theta]);
 			//float m_track_truth_pdgid    = genparptr->pdg_id();
 
 			// Delete  generatedTrackPerigee;
-			float m_track_truth_pt      = 1./fabs(m_track_truth_qoverpt);
-			float m_track_truth_charge  = 1;
-			if (m_track_truth_qoverpt<0)    
-                        m_track_truth_charge = -1;
-			if (m_track_truth_phi<0)
-                        m_track_truth_phi+=2*m_Pi;
-			ATH_MSG_VERBOSE("Found matched truth track with phi, PT = " << m_track_truth_phi << ", " << m_track_truth_pt);
+			float track_truth_pt      = 1./fabs(track_truth_qoverpt);
+			float track_truth_charge  = 1;
+			if (track_truth_qoverpt<0)    
+                        track_truth_charge = -1;
+			if (track_truth_phi<0)
+                        track_truth_phi+=2*m_Pi;
+			ATH_MSG_VERBOSE("Found matched truth track with phi, PT = " << track_truth_phi << ", " << track_truth_pt);
 
 			// Calculate d0 corrected to vertex position
-			//float d0x=m_track_truth_d0*sin(m_track_truth_phi)-genparptr->production_vertex()->position().x();
-			//float d0y=m_track_truth_d0*cos(m_track_truth_phi)-genparptr->production_vertex()->position().y();
+			//float d0x=track_truth_d0*sin(track_truth_phi)-genparptr->production_vertex()->position().x();
+			//float d0y=track_truth_d0*cos(track_truth_phi)-genparptr->production_vertex()->position().y();
 			//float d0corr=sqrt(d0x*d0x+d0y*d0y);
 
 			// Fill generic tracks parameters
-			m_truthpT->Fill(m_track_truth_pt);
-			m_truthpTlow->Fill(m_track_truth_pt);
-			m_truthcharge->Fill(m_track_truth_charge);
-			m_truthphi->Fill(m_track_truth_phi);
-			m_trutheta->Fill(m_track_truth_eta);
-			m_truthd0->Fill(m_track_truth_d0);
-			m_truthz0->Fill(m_track_truth_z0);
+			m_truthpT->Fill(track_truth_pt);
+			m_truthpTlow->Fill(track_truth_pt);
+			m_truthcharge->Fill(track_truth_charge);
+			m_truthphi->Fill(track_truth_phi);
+			m_trutheta->Fill(track_truth_eta);
+			m_truthd0->Fill(track_truth_d0);
+			m_truthz0->Fill(track_truth_z0);
 			//m_truthd0c->Fill(d0corr);
 
-			//int ieta = fabs(int(m_track_truth_eta/0.25));
-			//int ieta = int(m_track_truth_eta/0.25 + 10.0);
-			int ieta = int(0.5*m_trackEtaBins*(m_track_truth_eta/m_maxTrackEta + 1.0));
+			//int ieta = fabs(int(track_truth_eta/0.25));
+			//int ieta = int(track_truth_eta/0.25 + 10.0);
+			int ieta = int(0.5*m_trackEtaBins*(track_truth_eta/m_maxTrackEta + 1.0));
 			if (ieta < 0 || ieta>=m_trackEtaBins){
 			  delete generatedTrackPerigee;
 			  continue;
 			}
-			float log10pt = log10(m_track_truth_pt);
+			float log10pt = log10(track_truth_pt);
 			//int ipt     = int((log10pt+0.5)/0.25);
 			int ipt       = int(m_trackPtBins*(log10pt+0.5)/2.5);
 			if (ipt>=m_trackPtBins) ipt=m_trackPtBins-1;
@@ -2573,48 +2573,48 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 
 			// Fill histograms for resolutions
 			// versus eta
-			m_hd0[ieta]->Fill(trkd0-m_track_truth_d0);
-			m_hz0[ieta]->Fill(trkz0-m_track_truth_z0);
-			m_hphi[ieta]->Fill(trkphi-m_track_truth_phi);
-			m_htheta[ieta]->Fill(trktheta-m_track_truth_theta);
+			m_hd0[ieta]->Fill(trkd0-track_truth_d0);
+			m_hz0[ieta]->Fill(trkz0-track_truth_z0);
+			m_hphi[ieta]->Fill(trkphi-track_truth_phi);
+			m_htheta[ieta]->Fill(trktheta-track_truth_theta);
 			// JFA: bug fix qopt Sept. 26, 2008
-			//m_hqopt[ieta]->Fill((trkqOverPt-m_track_truth_qoverpt)*fabs(m_track_truth_pt));
-			m_hqopt[ieta]->Fill((trkqOverPt-m_track_truth_qoverpt)*fabs(m_track_truth_pt)*m_track_truth_charge);
-			m_hz0st[ieta]->Fill(trkz0*sin(trktheta)-m_track_truth_z0*sin(m_track_truth_theta));
+			//m_hqopt[ieta]->Fill((trkqOverPt-track_truth_qoverpt)*fabs(track_truth_pt));
+			m_hqopt[ieta]->Fill((trkqOverPt-track_truth_qoverpt)*fabs(track_truth_pt)*track_truth_charge);
+			m_hz0st[ieta]->Fill(trkz0*sin(trktheta)-track_truth_z0*sin(track_truth_theta));
 			// versus pt
-			m_hptd0[ipt]->Fill(trkd0-m_track_truth_d0);
-			m_hptz0[ipt]->Fill(trkz0-m_track_truth_z0);
-			m_hptphi[ipt]->Fill(trkphi-m_track_truth_phi);
-			m_hpttheta[ipt]->Fill(trktheta-m_track_truth_theta);
+			m_hptd0[ipt]->Fill(trkd0-track_truth_d0);
+			m_hptz0[ipt]->Fill(trkz0-track_truth_z0);
+			m_hptphi[ipt]->Fill(trkphi-track_truth_phi);
+			m_hpttheta[ipt]->Fill(trktheta-track_truth_theta);
 			// JFA: bug fix qopt Sept. 26, 2008
-			//m_hptqopt[ipt]->Fill((trkqOverPt-m_track_truth_qoverpt)*fabs(m_track_truth_pt));
-			m_hptqopt[ipt]->Fill((trkqOverPt-m_track_truth_qoverpt)*fabs(m_track_truth_pt)*m_track_truth_charge);
-			m_hptz0st[ipt]->Fill(trkz0*sin(trktheta)-m_track_truth_z0*sin(m_track_truth_theta));
+			//m_hptqopt[ipt]->Fill((trkqOverPt-track_truth_qoverpt)*fabs(track_truth_pt));
+			m_hptqopt[ipt]->Fill((trkqOverPt-track_truth_qoverpt)*fabs(track_truth_pt)*track_truth_charge);
+			m_hptz0st[ipt]->Fill(trkz0*sin(trktheta)-track_truth_z0*sin(track_truth_theta));
 			// fill histograms for pulls vs eta
-			m_pulld0[ieta]->Fill((trkd0-m_track_truth_d0)/trkd0err);
-			m_pullz0[ieta]->Fill((trkz0-m_track_truth_z0)/trkz0err);
-			m_pullphi[ieta]->Fill((trkphi-m_track_truth_phi)/trkphierr);
-			m_pulltheta[ieta]->Fill((trktheta-m_track_truth_theta)/trkthetaerr);
-			m_pullqopt[ieta]->Fill(((trkqOverPt-m_track_truth_qoverpt)*m_track_truth_charge)/trkqopterr);
+			m_pulld0[ieta]->Fill((trkd0-track_truth_d0)/trkd0err);
+			m_pullz0[ieta]->Fill((trkz0-track_truth_z0)/trkz0err);
+			m_pullphi[ieta]->Fill((trkphi-track_truth_phi)/trkphierr);
+			m_pulltheta[ieta]->Fill((trktheta-track_truth_theta)/trkthetaerr);
+			m_pullqopt[ieta]->Fill(((trkqOverPt-track_truth_qoverpt)*track_truth_charge)/trkqopterr);
 			// fill histograms for pulls overall
-			m_pulld0all->Fill((trkd0-m_track_truth_d0)/trkd0err);
-			m_pullz0all->Fill((trkz0-m_track_truth_z0)/trkz0err);
-			m_pullphiall->Fill((trkphi-m_track_truth_phi)/trkphierr);
-			m_pullthetaall->Fill((trktheta-m_track_truth_theta)/trkthetaerr);
-			m_pullqoptall->Fill(((trkqOverPt-m_track_truth_qoverpt)*m_track_truth_charge)/trkqopterr);
-			m_pulld0all_widerange->Fill((trkd0-m_track_truth_d0)/trkd0err);
-			m_pullz0all_widerange->Fill((trkz0-m_track_truth_z0)/trkz0err);
-			m_pullphiall_widerange->Fill((trkphi-m_track_truth_phi)/trkphierr);
-			m_pullthetaall_widerange->Fill((trktheta-m_track_truth_theta)/trkthetaerr);
-			m_pullqoptall_widerange->Fill(((trkqOverPt-m_track_truth_qoverpt)*m_track_truth_charge)/trkqopterr);
+			m_pulld0all->Fill((trkd0-track_truth_d0)/trkd0err);
+			m_pullz0all->Fill((trkz0-track_truth_z0)/trkz0err);
+			m_pullphiall->Fill((trkphi-track_truth_phi)/trkphierr);
+			m_pullthetaall->Fill((trktheta-track_truth_theta)/trkthetaerr);
+			m_pullqoptall->Fill(((trkqOverPt-track_truth_qoverpt)*track_truth_charge)/trkqopterr);
+			m_pulld0all_widerange->Fill((trkd0-track_truth_d0)/trkd0err);
+			m_pullz0all_widerange->Fill((trkz0-track_truth_z0)/trkz0err);
+			m_pullphiall_widerange->Fill((trkphi-track_truth_phi)/trkphierr);
+			m_pullthetaall_widerange->Fill((trktheta-track_truth_theta)/trkthetaerr);
+			m_pullqoptall_widerange->Fill(((trkqOverPt-track_truth_qoverpt)*track_truth_charge)/trkqopterr);
 
 			// charge mididentification rate versus eta
-			if (m_track_truth_charge!=charge) {
-			  if(m_plotsVsAbsEta) m_chargemisid->Fill(fabs(m_track_truth_eta),1);
-			  else m_chargemisid->Fill(m_track_truth_eta,1);
+			if (track_truth_charge!=charge) {
+			  if(m_plotsVsAbsEta) m_chargemisid->Fill(fabs(track_truth_eta),1);
+			  else m_chargemisid->Fill(track_truth_eta,1);
 			} else {
-			  if(m_plotsVsAbsEta) m_chargemisid->Fill(fabs(m_track_truth_eta),0);
-			  else m_chargemisid->Fill(m_track_truth_eta,0);
+			  if(m_plotsVsAbsEta) m_chargemisid->Fill(fabs(track_truth_eta),0);
+			  else m_chargemisid->Fill(track_truth_eta,0);
 			}
 			delete generatedTrackPerigee;
 		      }
@@ -2808,11 +2808,11 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
 
    if (msgLvl(MSG::VERBOSE)) msg() << " count tracks associated to same mc particle" << endmsg;
    // Count number of tracks associated to the same hmpl
-   for(recoToTruthMap::iterator rtt_it = rttMap.begin(); rtt_it != rttMap.end(); ++rtt_it){
+   for(recoToTruthMap::iterator rtt_it = m_rttMap.begin(); rtt_it != m_rttMap.end(); ++rtt_it){
 
       HepMcParticleLink hmpl = rtt_it->first;
       float barcode = hmpl.barcode();
-      float nTrkMatchesSameHmpl = rttMap.count(hmpl);
+      float nTrkMatchesSameHmpl = m_rttMap.count(hmpl);
 
       //log << MSG::ERROR << "HMPL = " << hmpl << ", barcode = " << barcode << ", nmatches = " << nTrkMatchesSameHmpl << endmsg;
 
@@ -3015,15 +3015,15 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       bool isDetPaperCut=true;
 
       // V47: Create generated track perigee to cut on truth tracks
-      float m_track_truth_d0 = 999.;
-      float m_track_truth_phi = 999.;
+      float track_truth_d0 = 999.;
+      float track_truth_phi = 999.;
       auto_ptr<const Trk::TrackParameters> generatedTrackPerigee(m_truthToTrack->makePerigeeParameters(particle));
       if (!generatedTrackPerigee.get())   msg(MSG::DEBUG) <<  "Unable to extrapolate genparticle to perigee!" << endmsg;
       else {
-	m_track_truth_d0 = generatedTrackPerigee->parameters()[Trk::d0];
-	m_track_truth_phi = generatedTrackPerigee->parameters()[Trk::phi0];
+	track_truth_d0 = generatedTrackPerigee->parameters()[Trk::d0];
+	track_truth_phi = generatedTrackPerigee->parameters()[Trk::phi0];
       }
-      float truth_d0corr=m_track_truth_d0-(primaryVtx.y()*cos(m_track_truth_phi)-primaryVtx.x()*sin(m_track_truth_phi));
+      float truth_d0corr=track_truth_d0-(primaryVtx.y()*cos(track_truth_phi)-primaryVtx.x()*sin(track_truth_phi));
       float truthvtx_R=sqrt(primaryVtx.x()*primaryVtx.x()+primaryVtx.y()*primaryVtx.y());
       m_truthd0c->Fill(truth_d0corr);
       m_truthvtx_R->Fill(truthvtx_R);
@@ -3170,11 +3170,11 @@ IDStandardPerformance::MakeTrackPlots(const DataVector<Trk::Track>* trks,
       bool matchedIDRS = false;
       int nmatched = 0;
       HepMcParticleLink hmpl2(particle, ievt);
-      recoToTruthMap::iterator barcode=rttMap.find(hmpl2);
+      recoToTruthMap::iterator barcode=m_rttMap.find(hmpl2);
       if (msgLvl(MSG::VERBOSE)) msg() << "Looking for HMPL=" << hmpl2 << "... " << endmsg;
-      if (barcode != rttMap.end()){
+      if (barcode != m_rttMap.end()){
 	if (msgLvl(MSG::VERBOSE)) msg() << "...found some" << endmsg;
-	for(imap = rttMap.lower_bound(hmpl2); imap !=rttMap.upper_bound(hmpl2); ++imap){
+	for(imap = m_rttMap.lower_bound(hmpl2); imap !=m_rttMap.upper_bound(hmpl2); ++imap){
 	  if (genPt>30) if (msgLvl(MSG::VERBOSE)) msg() << "track match probability = "<< imap->second<<endmsg;
 	  if (imap->second > m_minProbEff){  // 80% match probability
 	    matchedDetPaper = true;

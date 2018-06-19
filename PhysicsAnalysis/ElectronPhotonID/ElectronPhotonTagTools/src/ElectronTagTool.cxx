@@ -29,6 +29,7 @@ Purpose : create a collection of ElectronTag
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
+#include "PATCore/AcceptData.h"
 //#include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
 
 #include <sstream>
@@ -178,7 +179,7 @@ StatusCode ElectronTagTool::attributeSpecification(std::map<std::string,AthenaAt
     /** Tightness */
     os.str("");
     os << ElectronAttributeNames[ElectronID::Tight] << std::dec << i;
-    attrMap[ os.str() ] = AthenaAttributeType("unsigned int", ElectronAttributeUnitNames[ElectronID::Tight], ElectronAttributeGroupNames[ElectronID::Tight]) ;;
+    attrMap[ os.str() ] = AthenaAttributeType("unsigned int", ElectronAttributeUnitNames[ElectronID::Tight], ElectronAttributeGroupNames[ElectronID::Tight]) ;
     m_tightStr.push_back( os.str() );
 
     /** Isolation for  Electron */

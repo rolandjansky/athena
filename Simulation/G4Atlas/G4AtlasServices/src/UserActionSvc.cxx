@@ -24,20 +24,8 @@ namespace G4UA
   UserActionSvc::UserActionSvc(const std::string& name,
                                ISvcLocator* pSvcLocator)
     : base_class(name, pSvcLocator),
-      m_runActionTools(),
-      m_eventActionTools(),
-      m_stackingActionTools(),
-      m_trackingActionTools(),
-      m_steppingActionTools(),
       m_userActionTools(this)
   {
-    declareProperty("RunActionTools", m_runActionTools);
-    declareProperty("EventActionTools", m_eventActionTools);
-    declareProperty("StackingActionTools", m_stackingActionTools);
-    declareProperty("TrackingActionTools", m_trackingActionTools);
-    declareProperty("SteppingActionTools", m_steppingActionTools);
-
-    // New user action tools
     declareProperty("UserActionTools", m_userActionTools);
   }
 
@@ -46,38 +34,11 @@ namespace G4UA
   //---------------------------------------------------------------------------
   StatusCode UserActionSvc::initialize()
   {
-    ATH_MSG_INFO("Initializing. user action tools of each type, in order of execution:");
+    ATH_MSG_INFO("Initializing " << m_userActionTools.size() << " user action tools.");
 
-    ATH_MSG_INFO("  run:      " << m_runActionTools.size());
-    for(auto& action : m_runActionTools)
-      ATH_MSG_INFO("      -> " << action.name());
-
-    ATH_MSG_INFO("  event:    " << m_eventActionTools.size());
-    for(auto& action : m_eventActionTools)
-      ATH_MSG_INFO("      -> " << action.name());
-
-    ATH_MSG_INFO("  stacking: " << m_stackingActionTools.size());
-    for(auto& action : m_stackingActionTools)
-      ATH_MSG_INFO("      -> " << action.name());
-
-    ATH_MSG_INFO("  tracking: " << m_trackingActionTools.size());
-    for(auto& action : m_trackingActionTools)
-      ATH_MSG_INFO("      -> " << action.name());
-
-    ATH_MSG_INFO("  stepping: " << m_steppingActionTools.size());
-    for(auto& action : m_steppingActionTools)
-      ATH_MSG_INFO("      -> " << action.name());
-
-    ATH_MSG_INFO( "  general: " << m_userActionTools.size() );
     for(const auto& action : m_userActionTools) {
       ATH_MSG_INFO( "      -> " << action.name() );
     }
-
-    ATH_CHECK( m_runActionTools.retrieve() );
-    ATH_CHECK( m_eventActionTools.retrieve() );
-    ATH_CHECK( m_stackingActionTools.retrieve() );
-    ATH_CHECK( m_trackingActionTools.retrieve() );
-    ATH_CHECK( m_steppingActionTools.retrieve() );
 
     ATH_CHECK( m_userActionTools.retrieve() );
 
@@ -132,8 +93,6 @@ namespace G4UA
     }
     auto runAction = CxxUtils::make_unique<G4AtlasRunAction>();
     // Assign run plugins
-    for(auto& runTool : m_runActionTools)
-      runAction->addRunAction( runTool->getRunAction() );
     for(auto* action : actions.runActions)
       runAction->addRunAction(action);
     G4RunManager::GetRunManager()->SetUserAction( runAction.get() );
@@ -146,8 +105,6 @@ namespace G4UA
     }
     auto eventAction = CxxUtils::make_unique<G4AtlasEventAction>();
     // Assign event plugins
-    for(auto& eventTool : m_eventActionTools)
-      eventAction->addEventAction( eventTool->getEventAction() );
     for(auto* action : actions.eventActions)
       eventAction->addEventAction(action);
     G4RunManager::GetRunManager()->SetUserAction( eventAction.get() );
@@ -160,10 +117,6 @@ namespace G4UA
     }
     auto stackAction = CxxUtils::make_unique<G4AtlasStackingAction>();
     // Assign stacking plugins
-    for(auto& stackTool : m_stackingActionTools){
-      auto stackPlugin = stackTool->getStackingAction();
-      stackAction->addAction( stackPlugin );
-    }
     for(auto* action : actions.stackingActions)
       stackAction->addAction(action);
     G4RunManager::GetRunManager()->SetUserAction( stackAction.get() );
@@ -176,8 +129,6 @@ namespace G4UA
     }
     auto trackAction = CxxUtils::make_unique<G4AtlasTrackingAction>();
     // Assign tracking plugins
-    for(auto& trackTool : m_trackingActionTools)
-      trackAction->addTrackAction( trackTool->getTrackingAction() );
     for(auto* action : actions.trackingActions)
       trackAction->addTrackAction(action);
     G4RunManager::GetRunManager()->SetUserAction( trackAction.get() );
@@ -190,8 +141,6 @@ namespace G4UA
     }
     auto stepAction = CxxUtils::make_unique<G4AtlasSteppingAction>();
     // Assign stepping plugins
-    for(auto& stepTool : m_steppingActionTools)
-      stepAction->addAction( stepTool->getSteppingAction() );
     for(auto* action : actions.steppingActions)
       stepAction->addAction(action);
     G4RunManager::GetRunManager()->SetUserAction( stepAction.get() );

@@ -269,6 +269,7 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 		}
 	}
 
+        m_lumiTool.disable();   // never used?
 	// // Try to retrieve the lumi tool
 	// if (m_lumiTool.retrieve().isFailure()) {                                     
 	//   msg() << MSG::WARNING << "Unable to retrieve Luminosity Tool" << endmsg;     

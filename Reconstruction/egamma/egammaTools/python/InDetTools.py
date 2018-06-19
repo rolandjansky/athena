@@ -4,7 +4,8 @@ __doc__ = "ToolFactories to instantiate InDet tools for egamma with default conf
 __author__ = "Bruno Lenzi"
 
 from egammaRec.Factories import FcnWrapper, ToolFactory, PublicToolFactory
-#########
+import egammaRec.EMCommonRefitter
+
 # Tools for extrapolating to the calo
 def configureExtrapolator( egammaExtrapolator ):
 
@@ -84,23 +85,14 @@ egammaInDetTrackSummaryTool = PublicToolFactory( Trk__TrackSummaryTool,
                                                  InDetHoleSearchTool    = egammaInDetHoleSearchTool)
 
 #################################################################
-# Configure InDet__ConversionFinderUtils  and InDet__SingleTrackConversionTool 
-# Helper Tool
-def getTrkExtrapolator():
-  import egammaRec.EMCommonRefitter
-  return egammaRec.EMCommonRefitter.egTrkExtrapolator
-
-from InDetConversionFinderTools import InDetConversionFinderToolsConf
-InDet__ConversionFinderUtils = PublicToolFactory( InDetConversionFinderToolsConf.InDet__ConversionFinderUtils)
-
 #
 # Single track conversion tool
 #
+from InDetConversionFinderTools import InDetConversionFinderToolsConf
 InDet__SingleTrackConversionTool = PublicToolFactory( InDetConversionFinderToolsConf.InDet__SingleTrackConversionTool,
                                                       name                       = "CPSingleTrackConversionTool",
-                                                      ConversionFinderHelperTool = InDet__ConversionFinderUtils,
                                                       TrackSummaryTool           = egammaInDetTrackSummaryTool,
-                                                      Extrapolator               = FcnWrapper(getTrkExtrapolator),
+                                                      Extrapolator               = FcnWrapper(egammaRec.EMCommonRefitter.getTrkExtrapolator),
                                                       MinInitialHitRadius        = 70.,
                                                       MinRatioOfHLhits           = 0.95)
 

@@ -46,19 +46,19 @@ VP1BanksSystem::VP1BanksSystem()
   : IVP1System("Banks",
 	       "System for browsing the contents of StoreGate",
 	       "Joe Boudreau <boudreau@pitt.edu> (original), Thomas.Kittelmann@cern.ch (VP1 implementation)"),
-    d(new Imp(this))
+    m_d(new Imp(this))
 {
-  d->clidSvc=0;
-  d->ui.radioButton_store_event = 0;
-  d->ui.radioButton_store_detector = 0;
-  d->ui.pushButton_refresh = 0;
+  m_d->clidSvc=0;
+  m_d->ui.radioButton_store_event = 0;
+  m_d->ui.radioButton_store_detector = 0;
+  m_d->ui.pushButton_refresh = 0;
 }
 
 
 //____________________________________________________________________
 VP1BanksSystem::~VP1BanksSystem()
 {
-  delete d; d=0;
+  delete m_d; m_d=0;
 }
 
 //____________________________________________________________________
@@ -83,9 +83,9 @@ bool VP1BanksSystem::Imp::useDetStore()
 void VP1BanksSystem::create( StoreGateSvc* /*detstore*/ )
 {
   QWidget * controller = new QWidget;
-  d->ui.setupUi(controller);
-  connect(d->ui.radioButton_store_event,SIGNAL(toggled(bool)),this,SLOT(refreshList()));
-  connect(d->ui.pushButton_refresh,SIGNAL(clicked()),this,SLOT(refreshList()));
+  m_d->ui.setupUi(controller);
+  connect(m_d->ui.radioButton_store_event,SIGNAL(toggled(bool)),this,SLOT(refreshList()));
+  connect(m_d->ui.pushButton_refresh,SIGNAL(clicked()),this,SLOT(refreshList()));
   registerController(controller);
 
   ISvcLocator* svcLoc = serviceLocator();
@@ -93,9 +93,9 @@ void VP1BanksSystem::create( StoreGateSvc* /*detstore*/ )
     message("Error: Got NULL pointer to the service locator!");
     return;
   }
-  StatusCode status = svcLoc->service( "ClassIDSvc",d->clidSvc );
+  StatusCode status = svcLoc->service( "ClassIDSvc",m_d->clidSvc );
   if(!status.isSuccess()) {
-    d->clidSvc=0;
+    m_d->clidSvc=0;
     message("Error: Could not retrieve ClassIDSvc!!");
     return;
   }
@@ -106,28 +106,28 @@ void VP1BanksSystem::create( StoreGateSvc* /*detstore*/ )
 //____________________________________________________________________
 void VP1BanksSystem::refresh( StoreGateSvc* )
 {
-  d->allowRefresh = true;
+  m_d->allowRefresh = true;
   refreshList();
 }
 
 //____________________________________________________________________
 void VP1BanksSystem::refreshList()
 {
-  if (!d->allowRefresh)
+  if (!m_d->allowRefresh)
     return;
-  messageVerbose("Refreshing list for "+QString(d->useDetStore()?"detector":"event")+" store");
+  messageVerbose("Refreshing list for "+QString(m_d->useDetStore()?"detector":"event")+" store");
 
   QStringList entry_key;
   QStringList entry_type;
   QStringList entry_id;
 
-  VP1SGContentsHelper sgcont(this,d->useDetStore());
+  VP1SGContentsHelper sgcont(this,m_d->useDetStore());
 
   int i(0);
   foreach (CLID id, sgcont.getPossibleCLIDs()) {
     QStringList keys = sgcont.getKeys(id);
     if (!keys.isEmpty()) {
-      QString typeName = d->idToName(id);
+      QString typeName = m_d->idToName(id);
       QString idstr = QString::number(id);
       foreach (QString key,keys) {
 	entry_key << key;
@@ -138,14 +138,14 @@ void VP1BanksSystem::refreshList()
     if (!i++%20)
       updateGUI();
   }
-  d->emitIfChanged(entry_key,entry_type,entry_id);
+  m_d->emitIfChanged(entry_key,entry_type,entry_id);
 }
 
 //____________________________________________________________________
 void VP1BanksSystem::erase()
 {
-  d->allowRefresh = false;
-  d->emitIfChanged(QStringList(),QStringList(),QStringList());
+  m_d->allowRefresh = false;
+  m_d->emitIfChanged(QStringList(),QStringList(),QStringList());
 }
 
 
@@ -155,7 +155,7 @@ QByteArray VP1BanksSystem::saveState()
   VP1Serialise serialise(0/*version*/,this);
   serialise.save(IVP1System::saveState());//Info from base class
 
-  serialise.save(d->ui.radioButton_store_event,d->ui.radioButton_store_detector);
+  serialise.save(m_d->ui.radioButton_store_event,m_d->ui.radioButton_store_detector);
 
   serialise.warnUnsaved(controllerWidget());
   return serialise.result();
@@ -172,7 +172,7 @@ void VP1BanksSystem::restoreFromState(QByteArray ba)
   }
   IVP1System::restoreFromState(state.restoreByteArray());
 
-  state.restore(d->ui.radioButton_store_event,d->ui.radioButton_store_detector);
+  state.restore(m_d->ui.radioButton_store_event,m_d->ui.radioButton_store_detector);
 
   state.warnUnrestored(controllerWidget());
 }

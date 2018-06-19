@@ -19,8 +19,10 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "InDetConversionFinderTools/InDetConversionFinderTools.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "ITrackToVertex/ITrackToVertex.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 /**
    The InDetV0FinderTool reads in the TrackParticle container from StoreGate,
@@ -100,10 +102,15 @@ namespace InDet
                              xAOD::VertexContainer*& ksContainer, xAOD::VertexAuxContainer*& ksAuxContainer,
                              xAOD::VertexContainer*& laContainer, xAOD::VertexAuxContainer*& laAuxContainer,
                              xAOD::VertexContainer*& lbContainer, xAOD::VertexAuxContainer*& lbAuxContainer,
-                             const xAOD::Vertex* vertex, std::string vertCollName);
+                             const xAOD::Vertex* vertex, 
+			     // AthenaMT migration: passing the vertex collection name at run-time is not supported
+			     SG::ReadHandle<xAOD::VertexContainer> vertColl
+			     );
 
   //protected:
   private:
+    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleKey { this, "TrackParticleCollection", "InDetTrackParticles", 
+                                                                         "key for retrieval of TrackParticles" };
 
     ToolHandle < Trk::IVertexFitter > m_iVertexFitter;
     ToolHandle < Trk::IVertexFitter > m_iVKVertexFitter;
@@ -162,9 +169,6 @@ namespace InDet
 
     ServiceHandle <IBeamCondSvc> m_beamConditionsService;
 
-    std::string   m_TrkParticleCollection ;   //!< Name of input track particle collection
-
-
     void SGError(std::string errService);
 
     double invariantMass(const Trk::TrackParameters* per1, const Trk::TrackParameters* per2, double &m1, double &m2);
@@ -181,6 +185,9 @@ namespace InDet
     bool doMassFit(xAOD::Vertex* vxCandidate, int pdgID);
 
     xAOD::Vertex* massFit(int pdgID, std::vector<const xAOD::TrackParticle*> pairV0, Amg::Vector3D vertex, Trk::TrkV0VertexFitter* concreteVertexFitter);
+
+    SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", 
+	                                                   "primary vertex container" };
 
   };
 

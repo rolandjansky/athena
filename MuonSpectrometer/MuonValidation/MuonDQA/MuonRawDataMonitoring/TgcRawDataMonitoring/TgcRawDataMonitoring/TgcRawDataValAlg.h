@@ -21,7 +21,6 @@
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/NTuple.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -33,6 +32,10 @@
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
+
+#include "xAODEventInfo/EventInfo.h"
+
+#include "StoreGate/ReadHandleKey.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -69,10 +72,6 @@ public:
   virtual StatusCode procHistograms();
 
 private:
-  // Stores
-  //StoreGateSvc*   m_eventStore;
-  StoreGateSvc*   m_detStore;
-  ActiveStoreSvc* m_activeStore;
   
   // Muon Detector Manager
   const MuonGM::MuonDetectorManager* m_muonMgr;
@@ -88,10 +87,11 @@ private:
   std::string m_generic_path_tgcmonitoring;
   
   // Keys and Locations for retrieving collections
-  std::string m_tgcPrepDataContainerName;
-  std::string m_tgcPrepDataPreviousContainerName;
-  std::string m_tgcPrepDataNextContainerName;
-  std::string m_outputCoinCollectionLocation;
+  SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcPrepDataContainerName{this,"TgcPrepDataContainer","TGC_Measurements","current BC TGC PRD"};
+  SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcPrepDataPreviousContainerName{this,"TgcPrepDataPreviousContainer","TGC_MeasurementsPriorBC","previous BC TGC PRD"};
+  SG::ReadHandleKey<Muon::TgcPrepDataContainer> m_tgcPrepDataNextContainerName{this,"TgcPrepDataNextContainer","TGC_MeasurementsNextBC","next BC TGC PRD"};
+  SG::ReadHandleKey<Muon::TgcCoinDataContainer> m_outputCoinCollectionLocation{this,"OutputCoinCollection","TrigT1CoinDataCollection","TGC T1 coincidences"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","EventInfo"};
   
   // Enum style indexes
   static const int PREV=0, CURR=1, NEXT=2, TOTA=3; //PCNT index

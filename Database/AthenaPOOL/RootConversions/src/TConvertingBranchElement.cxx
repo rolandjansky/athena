@@ -1275,7 +1275,7 @@ Int_t TConvertingBranchElement::ReadSubBranches(Long64_t entry,
 void TConvertingBranchElement::Streamer(TBuffer& R__b)
 {
   TObjArray brsave;
-  Int_t type_save = 0;;
+  Int_t type_save = 0;
 
   if (!R__b.IsReading()) {
     if (fConvOrigType == -1)

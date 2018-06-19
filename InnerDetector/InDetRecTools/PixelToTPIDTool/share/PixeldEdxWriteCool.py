@@ -132,6 +132,6 @@ svcMgr.AthenaSealSvc.CheckDictionary = TRUE
 theApp.OutStream = []
 
 from AthenaCommon.AppMgr import ToolSvc
-mytestalg.StreamName = "AthenaPoolOutputStreamTool/CondStream2"
-from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
-ToolSvc += AthenaPoolOutputStreamTool("CondStream2",OutputFile = "SimplePoolFile.root")
+mytestalg.StreamName = "AthenaOutputStreamTool/CondStream2"
+from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
+ToolSvc += AthenaOutputStreamTool("CondStream2",OutputFile = "SimplePoolFile.root")

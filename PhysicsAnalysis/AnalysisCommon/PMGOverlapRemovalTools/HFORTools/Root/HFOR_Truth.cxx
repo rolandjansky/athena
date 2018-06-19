@@ -724,15 +724,15 @@ int HFOR_Truth::readRunConfig(std::string runConfigFile) {
     m_runConfigMap[HFORType::isLight].push_back( atoi(v.first.data()) ) ;
   }
   BOOST_FOREACH(boost::property_tree::ptree::value_type &v, runConfig.get_child("flavor.isBB")) {
-    //std::cout << BOOST_CURRENT_FUNCTION << " In flavor isBB: " << v.first.data() << " --> " << v.second.data() << std::endl;;
+    //std::cout << BOOST_CURRENT_FUNCTION << " In flavor isBB: " << v.first.data() << " --> " << v.second.data() << std::endl;
     m_runConfigMap[HFORType::isBB].push_back( atoi(v.first.data()) ) ;
   }
   BOOST_FOREACH(boost::property_tree::ptree::value_type &v, runConfig.get_child("flavor.isCC")) {
-    //std::cout << BOOST_CURRENT_FUNCTION << " In flavor isCC: " << v.first.data() << " --> " << v.second.data() << std::endl;;
+    //std::cout << BOOST_CURRENT_FUNCTION << " In flavor isCC: " << v.first.data() << " --> " << v.second.data() << std::endl;
     m_runConfigMap[HFORType::isCC].push_back( atoi(v.first.data()) ) ;
   }
   BOOST_FOREACH(boost::property_tree::ptree::value_type &v, runConfig.get_child("flavor.isC")) {
-    //std::cout << BOOST_CURRENT_FUNCTION << " In flavor isC: " << v.first.data() << " --> " << v.second.data() << std::endl;;
+    //std::cout << BOOST_CURRENT_FUNCTION << " In flavor isC: " << v.first.data() << " --> " << v.second.data() << std::endl;
     m_runConfigMap[HFORType::isC].push_back( atoi(v.first.data()) ) ;
   }
 

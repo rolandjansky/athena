@@ -272,14 +272,14 @@ bool PatternDefinition::doStaticRoadWarrior(const PatternDefinition &patt1,
  \**************************************************************/
 PatternBank::PatternBank(bool usehash) :
   m_fname(""),m_ifile(), m_ready(false), m_okread(false),
-  m_nplanes(0), m_npatterns(0), m_maxnhits(0), m_maxnmissing(0),
+  m_nplanes(0), m_npatterns(0), m_maxnmissing(0),
   m_usehash(usehash), m_maps(0)
 {;}
 
 
 PatternBank::PatternBank(const char *fname, bool usehash) :
    m_ready(false), m_nplanes(0), m_npatterns(0),
-   m_maxnhits(0), m_maxnmissing(0), m_usehash(usehash),
+   m_maxnmissing(0), m_usehash(usehash),
    m_maps(0)
 {
   m_fname = fname;
@@ -487,7 +487,7 @@ void PatternBank::mergeOverlaps() {
 
 /** Dump the patterns in m_lookup */
 // void PatternBank::Dump() {
-//   cout << "Dumping " << m_lookup.size() << " patterns with max multiplicity of " << m_maxnhits << endl;
+//   cout << "Dumping " << m_lookup.size() << " patterns" << endl;
 //   for(map<PatternDefinition,int>::iterator i = m_lookup.begin(); i!=m_lookup.end(); i++) {
 //     cout << i->first << endl;
 //   }
@@ -645,7 +645,7 @@ vector<PatternDefinition> PatternBank::getSimilar(int ip,PatternDefinition &patt
 /** the constructor should know the dimension of the space */
 KD_Elm::KD_Elm(const PatternDefinition& aRoad, int depth, KD_Elm *parent) :
   m_dim(aRoad.getNPlanes()), m_depth(depth), m_road(aRoad),
-  m_parent(parent), m_left(0), m_right(0)
+  m_left(0), m_right(0)
 {
   // determine the SS that splits the hyper-space
   m_splitplane = parent ? (parent->getSplitPlane()+1) : 0;

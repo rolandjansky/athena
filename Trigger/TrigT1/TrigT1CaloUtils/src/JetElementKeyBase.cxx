@@ -282,7 +282,7 @@ Coordinate JetElementKeyBase::upPhi(const Coordinate coord){
 /**returns key of next JE in +ve phi dir.*/
 unsigned int JetElementKeyBase::upPhiKey(const double phi, const double eta){
 	Coordinate coord=upPhi(phi,eta);
-	return jeKey(coord.phi(),coord.eta());;
+	return jeKey(coord.phi(),coord.eta());
 }
 
 /**returns coord of next JE in -ve phi dir.*/
@@ -310,7 +310,7 @@ Coordinate JetElementKeyBase::downPhi(const Coordinate coord){
 /**returns key of next JE in -ve phi dir.*/
 unsigned int JetElementKeyBase::downPhiKey(const double phi, const double eta){
 	Coordinate coord=downPhi(phi,eta);
-	return jeKey(coord.phi(),coord.eta());;
+	return jeKey(coord.phi(),coord.eta());
 }
 
 Coordinate JetElementKeyBase::upperLeft(const double phi,const double eta){

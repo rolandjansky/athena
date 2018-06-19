@@ -20,6 +20,10 @@
 //Local includes
 #include "InDetGlobalMotherMonTool.h"
 
+//Framework
+#include "StoreGate/ReadHandleKey.h"
+#include "EventInfo/EventInfo.h"
+
 //Standard C++
 #include <vector>
 #include <string>
@@ -65,6 +69,7 @@ class InDetGlobalMotherTrigMonTool : public InDetGlobalMotherMonTool
  private:
     int m_firedTriggers[8];
     std::vector<unsigned int> m_activeMenuItems;
+    SG::ReadHandleKey<EventInfo> m_eventInfoKey{this,"EventInfoKey","BysteStreamEventInfo","Event Info Key for Global Trigger Montioring"};
 };
 
 #endif

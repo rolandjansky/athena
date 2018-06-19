@@ -24,7 +24,6 @@ template <class CnvType> class CnvFactory;
 
 class McAsciiEventCnv : public Converter
 { 
-  friend class CnvFactory<McAsciiEventCnv>;
 
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
@@ -52,11 +51,6 @@ class McAsciiEventCnv : public Converter
   static const CLID& classID();                 
 
   StatusCode createObj( IOpaqueAddress* pAddr, DataObject*& pObj ); 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Protected methods: 
-  /////////////////////////////////////////////////////////////////// 
- protected: 
 
   /// Constructor with parameters: 
   McAsciiEventCnv( ISvcLocator* svcLoc );

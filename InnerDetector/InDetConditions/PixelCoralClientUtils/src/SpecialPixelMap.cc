@@ -107,7 +107,7 @@ DetectorSpecialPixelMap& DetectorSpecialPixelMap::operator+=(const DetectorSpeci
   return *this;
 }
 
-void DetectorSpecialPixelMap::merge(DetectorSpecialPixelMap* spm){
+void DetectorSpecialPixelMap::merge(const DetectorSpecialPixelMap* spm){
   (*this) += (*spm);
   return;
 }
@@ -263,7 +263,7 @@ ModuleSpecialPixelMap& ModuleSpecialPixelMap::operator+=(ModuleSpecialPixelMap m
   return *this;
 }
 
-void ModuleSpecialPixelMap::merge(ModuleSpecialPixelMap* mspm){
+void ModuleSpecialPixelMap::merge(const ModuleSpecialPixelMap* mspm){
   (*this) += (*mspm);
   return;
 }

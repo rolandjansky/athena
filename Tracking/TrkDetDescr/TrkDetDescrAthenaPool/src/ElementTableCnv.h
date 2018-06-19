@@ -33,7 +33,9 @@ class ElementTableCnv : public ElementTableCnvBase {
  
  protected:
  
+public:
   ElementTableCnv( ISvcLocator *svcloc );
+protected:
   ~ElementTableCnv();
   
   virtual StatusCode initialize();

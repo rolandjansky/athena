@@ -23,7 +23,9 @@ typedef  T_AthenaPoolCustomCnv<TBMWPCCont, TBMWPCCont_PERS >   TBMWPCContCnvBase
 class TBMWPCContCnv : public TBMWPCContCnvBase {
 friend class CnvFactory<TBMWPCContCnv >;
 protected:
+public:
   TBMWPCContCnv (ISvcLocator* svcloc) : TBMWPCContCnvBase(svcloc) {}
+protected:
   virtual TBMWPCCont_PERS*   createPersistent (TBMWPCCont* transCont);
   virtual TBMWPCCont*        createTransient ();
 

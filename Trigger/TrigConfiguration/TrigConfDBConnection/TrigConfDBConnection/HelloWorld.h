@@ -19,7 +19,7 @@ public:
 
 private:
 
-   std::string fMessage;
+   std::string m_message;
 
 };
 

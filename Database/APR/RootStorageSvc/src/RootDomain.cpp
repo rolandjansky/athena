@@ -25,8 +25,7 @@
 using namespace pool;
 
 /// Standard Constuctor
-RootDomain::RootDomain(IOODatabase* idb)
-: DbDomainImp(idb),
+RootDomain::RootDomain() :
   m_defCompression(1),
   m_defCompressionAlg(1),
   m_defSplitLevel(99),

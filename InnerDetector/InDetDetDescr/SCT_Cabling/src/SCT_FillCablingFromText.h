@@ -22,11 +22,10 @@
 //local includes
 #include "SCT_Cabling/ISCT_FillCabling.h"
 
-
 //fwd declarations
 template <class TYPE> class SvcFactory;
 class ISvcLocator;
-class SCT_CablingSvc;
+class ISCT_CablingSvc;
 class StatusCode;
  
 /**
@@ -34,47 +33,47 @@ class StatusCode;
  *    @brief Service which fill the SCT Cabling from plain text (a file).
  *
  */
-class SCT_FillCablingFromText: virtual public ISCT_FillCabling, public AthService{
-    friend class SvcFactory<SCT_FillCablingFromText>;
-public:
+class SCT_FillCablingFromText: virtual public ISCT_FillCabling, public AthService {
+  friend class SvcFactory<SCT_FillCablingFromText>;
+ public:
   //@name Service methods, reimplemented
   //@{
-  SCT_FillCablingFromText(const std::string &name, ISvcLocator * svc);  
-  virtual ~SCT_FillCablingFromText(){}
+  SCT_FillCablingFromText(const std::string& name, ISvcLocator* svc);
+  virtual ~SCT_FillCablingFromText() = default;
   virtual StatusCode initialize();
   virtual StatusCode finalize();
   //interfaceID() implementation is in the baseclass
-  virtual StatusCode queryInterface(const InterfaceID & riid, void** ppvInterface );
+  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
   //@}
 
   /** May set the data source to textFile, database etc
-  * @param[in] @c string name of datasource
-  */
-  virtual StatusCode setDataSource(const std::string & dataSource);
+   * @param[in] @c string name of datasource
+   */
+  virtual StatusCode setDataSource(const std::string& dataSource);
   
   /** Gets the data source
-  * @return @c string name of datasource
-  */
+   * @return @c string name of datasource
+   */
   virtual std::string getDataSource() const;
   
   /**Fill the cabling maps
-  * @param[in] @c SCT_CablingSvc& , reference to the underlying data service
-  */
-  virtual StatusCode fillMaps(SCT_CablingSvc * cabling);
+   * @param[in] @c ISCT_CablingSvc& , reference to the underlying data service
+   */
+  virtual StatusCode fillMaps(ISCT_CablingSvc* cabling);
   
   /**Report whether the map was filled
-  * @return @c bool
-  */
+   * @return @c bool
+   */
   virtual bool filled() const;
   
   /**Filling from text can be done during intialise, it doesn't need the db to be ready
-  * @return @c bool
-  */
+   * @return @c bool
+   */
   virtual bool canFillDuringInitialize() const {return true;}
-private:
-  StatusCode readDataFromFile(SCT_CablingSvc * cabling);
+ private:
+  StatusCode readDataFromFile(ISCT_CablingSvc* cabling);
   bool m_filled;
   std::string m_source;
 };//end of class
-#endif
 
+#endif

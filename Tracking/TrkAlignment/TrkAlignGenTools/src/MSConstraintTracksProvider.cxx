@@ -17,7 +17,6 @@
 #include "MuonSegment/MuonSegment.h"
 #include "Particle/TrackParticle.h"
 
-#include "MuonRecToolInterfaces/IMuonHitSummaryTool.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -32,10 +31,8 @@ namespace Trk {
     
     : AthAlgTool(type,name,parent)
     , m_trackFitter("Trk::GlobalChi2Fitter/InDetTrackFitter")
-    , m_muonHitSummaryTool("Muon::MuonHitSummaryTool/MuonHitSummaryTool")
     , m_inputMuonCollection("MuidMuonCollection")
     , m_inputTracksCollection("Tracks")
-    , m_nRetrievalErrors{}
     , m_nCBMuonsFromSG(0)
     , m_nCBMuonsHasEXandID(0)
     , m_nCBMuonsPassSelection(0)

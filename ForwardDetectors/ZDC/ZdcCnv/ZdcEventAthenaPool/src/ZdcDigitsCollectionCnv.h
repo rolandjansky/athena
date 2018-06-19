@@ -16,7 +16,9 @@ typedef T_AthenaPoolCustomCnv<ZdcDigitsCollection, ZdcDigitsCollection_PERS > Zd
 class ZdcDigitsCollectionCnv  : public ZdcDigitsCollectionCnvBase {
   friend class CnvFactory<ZdcDigitsCollectionCnv>;
 protected:
+public:
   ZdcDigitsCollectionCnv(ISvcLocator* svcloc) : ZdcDigitsCollectionCnvBase ( svcloc) {}
+protected:
   virtual ZdcDigitsCollection_PERS*  createPersistent(ZdcDigitsCollection* transCont);
   virtual ZdcDigitsCollection*       createTransient ();
 };

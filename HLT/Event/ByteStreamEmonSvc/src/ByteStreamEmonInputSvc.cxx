@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //===================================================================
@@ -93,7 +93,6 @@ ByteStreamEmonInputSvc::ByteStreamEmonInputSvc(const std::string& name, ISvcLoca
     m_stream_type("physics"),
     m_stream_logic("Ignore"),
     m_trigger_type(256),
-    m_dispersion(false),
     m_buffer_size(2),
     m_readDetectorMask(true),
     m_timeout(3600000),
@@ -131,7 +130,8 @@ ByteStreamEmonInputSvc::ByteStreamEmonInputSvc(const std::string& name, ISvcLoca
     declareProperty("StreamLogic", m_stream_logic, "'And', 'Or' or 'Ignore' (default: Ignore)")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
 
     declareProperty("TriggerType", m_trigger_type, "LVL1 8 bit trigger type")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
-    declareProperty("Dispersion", m_dispersion, "Dispersion")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
+
+    declareProperty("GroupName", m_groupName, "Name of the monitoring group")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
     declareProperty("BufferSize", m_buffer_size, "Number of buffers");
     declareProperty("ReadDetectorMaskFromIS", m_readDetectorMask, "Read detector mask from IS");
     declareProperty("Timeout", m_timeout, "Timeout in seconds, -1 == infinity")->declareUpdateHandler(&ByteStreamEmonInputSvc::updateHandler, this);
@@ -348,7 +348,7 @@ bool ByteStreamEmonInputSvc::getIterator()
 
 	try {
             m_eventIt.reset(0);
-	    m_eventIt.reset(new emon::EventIterator(partition, *address, criteria, m_buffer_size, m_dispersion));
+	    m_eventIt.reset(new emon::EventIterator(partition, *address, criteria, m_buffer_size, m_groupName));
             if(m_readDetectorMask) {
                 get_runparams();
             }
@@ -469,7 +469,7 @@ const RawEvent* ByteStreamEmonInputSvc::nextEvent()
     if (ioc.isSuccess()) {
         const SG::DataProxy* ptmp = m_sgSvc->transientProxy(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo");
         if (ptmp !=0) {
-            DataHeaderElement DheEI(ptmp->transientAddress(),nullptr, "ByteStreamEventInfo");
+            DataHeaderElement DheEI(ptmp, nullptr, "ByteStreamEventInfo");
             Dh->insert(DheEI);
         }
         //else ATH_MSG_ERROR("Failed to create EventInfo proxy " << ptmp);

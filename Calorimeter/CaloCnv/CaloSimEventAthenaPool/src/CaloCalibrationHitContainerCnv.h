@@ -17,9 +17,10 @@ typedef CaloCalibrationHitContainer_p3  CaloCalibrationHitContainer_PERS;
 
 class CaloCalibrationHitContainerCnv  : public T_AthenaPoolCustomCnv<CaloCalibrationHitContainer, CaloCalibrationHitContainer_PERS > {
   friend class CnvFactory<CaloCalibrationHitContainerCnv>;
-protected:
+public:
   CaloCalibrationHitContainerCnv(ISvcLocator* svcloc) :
         T_AthenaPoolCustomCnv<CaloCalibrationHitContainer, CaloCalibrationHitContainer_PERS >( svcloc) {}
+protected:
   CaloCalibrationHitContainer_PERS*  createPersistent(CaloCalibrationHitContainer* transCont);
   CaloCalibrationHitContainer*       createTransient ();
 };

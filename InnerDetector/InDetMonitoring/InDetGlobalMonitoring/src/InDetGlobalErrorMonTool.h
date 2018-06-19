@@ -12,10 +12,10 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
+#include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
+#include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 
 class IInDetConditionsSvc;
-class ISCT_ByteStreamErrorsSvc;
-class ISCT_ConfigurationConditionsSvc;
 class IPixelByteStreamErrorsSvc;
 
 namespace InDetDD
@@ -60,8 +60,9 @@ private:
     const InDetDD::SCT_DetectorManager  * m_sctManager;
     
     ServiceHandle<IInDetConditionsSvc> m_pixCond;
-    ServiceHandle<ISCT_ConfigurationConditionsSvc> m_ConfigurationSvc;
-    ServiceHandle<ISCT_ByteStreamErrorsSvc> m_byteStreamErrSvc;
+    ToolHandle<ISCT_ConfigurationConditionsTool> m_ConfigurationTool{this, "conditionsTool",
+        "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
+    ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
     ServiceHandle<IPixelByteStreamErrorsSvc> m_ErrorSvc;
 
     geoContainer_t m_errorGeoPixel;

@@ -20,8 +20,8 @@
 // --------------------------------------------------------------------------//
 
 
-#ifndef _HIST2DMAKER_H_
-#define _HIST2DMAKER_H_
+#ifndef QATDATAANALYSIS_HIST2DMAKER_H
+#define QATDATAANALYSIS_HIST2DMAKER_H
 //-------------------------------------------------------------------//
 // Class which allows to make a histogram from an ntuple.            //
 //-------------------------------------------------------------------//
@@ -52,7 +52,7 @@ class Hist2DMaker {
   Hist2DMaker(const Hist2DMaker &);
 
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 };
 

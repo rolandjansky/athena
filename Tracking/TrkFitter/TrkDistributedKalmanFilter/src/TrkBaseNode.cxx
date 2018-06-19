@@ -26,22 +26,22 @@ namespace Trk {
     m_pTrackState=nullptr;
   }
 	
-  bool TrkBaseNode::m_isValidated()
+  bool TrkBaseNode::isValidated()
   {
     return (m_nodeState!=0);
   }
 
-  TrkPlanarSurface* TrkBaseNode::m_getSurface()
+  TrkPlanarSurface* TrkBaseNode::getSurface()
   {
     return m_pSurface;
   }
 
-  const PrepRawData* TrkBaseNode::m_getPrepRawData()
+  const PrepRawData* TrkBaseNode::getPrepRawData()
   {
     return m_pPRD;
   }
   
-  TrkTrackState* TrkBaseNode::m_getTrackState()
+  TrkTrackState* TrkBaseNode::getTrackState()
   {
     return m_pTrackState;
   }
@@ -51,37 +51,37 @@ namespace Trk {
 
   }
 
-  void TrkBaseNode::m_setNodeState(int s)
+  void TrkBaseNode::setNodeState(int s)
   {
     m_nodeState=s;
   }
 
-  int TrkBaseNode::m_getNodeState()
+  int TrkBaseNode::getNodeState()
   {
     return m_nodeState;
   }
 
-  void TrkBaseNode::m_setNodeType(char s)
+  void TrkBaseNode::setNodeType(char s)
   {
     m_nodeType=s;
   }
 
-  char TrkBaseNode::m_getNodeType()
+  char TrkBaseNode::getNodeType()
   {
     return m_nodeType;
   }
   
-  int TrkBaseNode::m_getNdof()
+  int TrkBaseNode::getNdof()
   {
     return m_ndof;
   }
 
-  double TrkBaseNode::m_getChi2()
+  double TrkBaseNode::getChi2()
   {
     return m_dChi2;
   }
 
-  void TrkBaseNode::m_updateInternal()
+  void TrkBaseNode::updateInternal()
   {
 
   }

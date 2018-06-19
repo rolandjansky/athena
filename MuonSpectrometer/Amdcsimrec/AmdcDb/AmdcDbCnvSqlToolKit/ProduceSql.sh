@@ -86,6 +86,13 @@ GetNew_XXX_DATA_ID(){
 #TEST
 #  New_XXX_DATA_ID=$(( ${New_XXX_DATA_ID} - 1 ))
  fi
+
+ if [ "${TableName}" = "NSWD" ]
+ then
+   New_XXX_DATA_ID=$(( ${Max_XXX_DATA_ID} + 1 ))
+#TEST
+#  New_XXX_DATA_ID=$(( ${New_XXX_DATA_ID} - 1 ))
+ fi
  
 }
 

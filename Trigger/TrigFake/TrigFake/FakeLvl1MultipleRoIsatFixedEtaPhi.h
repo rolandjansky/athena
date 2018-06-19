@@ -49,8 +49,6 @@ class FakeLvl1MultipleRoIsatFixedEtaPhi : public HLT::LvlConverter
   std::vector<double> m_jetRoiEta;
   std::vector<std::string> m_jetRoiLabel;
 
-  std::string instance;
-
   unsigned int m_lvl1ID; //!< Level 1 ID, in case Level 1 result is read from file
 
 

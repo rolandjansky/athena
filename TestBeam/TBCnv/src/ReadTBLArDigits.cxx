@@ -3,7 +3,6 @@
 */
 
 #include "TBCnv/ReadTBLArDigits.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "LArRawEvent/LArDigit.h"
 #include <vector>
 #include "GaudiKernel/IToolSvc.h"

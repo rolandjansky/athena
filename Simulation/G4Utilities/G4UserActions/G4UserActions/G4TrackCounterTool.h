@@ -6,8 +6,6 @@
 #define G4USERACTIONS__G4UA_G4TRACKCOUNTERTOOL_H
 
 // Infrastructure includes
-#include "G4AtlasInterfaces/IG4EventActionTool.h"
-#include "G4AtlasInterfaces/IG4TrackingActionTool.h"
 #include "G4AtlasTools/UserActionToolBase.h"
 
 // Local includes

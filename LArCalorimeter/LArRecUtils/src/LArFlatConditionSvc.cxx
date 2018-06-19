@@ -96,7 +96,7 @@ LArFlatConditionSvc::LArFlatConditionSvc( const std::string& name, ISvcLocator* 
   declareProperty("uA2MeVOutput",       m_objInfo[0].m_outputKey="LAruA2MeV");
   declareProperty("DAC2uAVOutput",      m_objInfo[1].m_outputKey="LArDAC2uA");
   declareProperty("HVScaleCorrOutput",  m_objInfo[2].m_outputKey="LArHVScaleCorr");
-  declareProperty("PedestalOutput",     m_objInfo[3].m_outputKey="Pedestal");
+  declareProperty("PedestalOutput",     m_objInfo[3].m_outputKey="LArPedestal");
   declareProperty("RampOutput",         m_objInfo[4].m_outputKey="LArRamp");
   declareProperty("MphysOverMcalOutput",m_objInfo[5].m_outputKey="LArMphysOverMcal");
   declareProperty("OFCOutput",          m_objInfo[6].m_outputKey="LArOFC");

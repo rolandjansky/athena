@@ -94,7 +94,7 @@ void AscObj_TruthPoint::buildShapes(SoSeparator*&shape_simple, SoSeparator*&shap
   Amg::Vector3D p2 = p1+5*CLHEP::cm*u;
 
   SoLineSet * line = new SoLineSet();
-  SoVertexProperty * vertices = new SoVertexProperty();;
+  SoVertexProperty * vertices = new SoVertexProperty();
   vertices->vertex.set1Value(0,p1.x(),p1.y(),p1.z());
   vertices->vertex.set1Value(1,p2.x(),p2.y(),p2.z());
   line->numVertices.set1Value(0,2);

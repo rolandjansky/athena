@@ -64,6 +64,9 @@ CONCURRENTRANGEMAP::Impl::capacity() const
 }
 
 
+/***
+ * @brief Queue a payload object for deletion.
+ */
 T_CONCURRENTRANGEMAP
 void
 CONCURRENTRANGEMAP::Impl::discard (const T* p)
@@ -72,12 +75,21 @@ CONCURRENTRANGEMAP::Impl::discard (const T* p)
 }
 
 
+/**
+ * @brief Constructor.
+ * @param updater Object used to manage memory
+ *                (see comments at the start of the class).
+ * @param capacity Initial capacity of the map.
+ * @param compare Comparison object.
+ */
 T_CONCURRENTRANGEMAP
 CONCURRENTRANGEMAP::ConcurrentRangeMap (Updater_t&& updater,
                                         size_t capacity /*= 16*/,
                                         const COMPARE& compare /*= COMPARE()*/)
   : m_updater (std::move (updater)),
-    m_compare (compare)
+    m_compare (compare),
+    m_nInserts (0),
+    m_maxSize (0)
 {
   auto impl = std::make_unique<Impl> (capacity);
   m_impl = impl.get();
@@ -128,9 +140,9 @@ CONCURRENTRANGEMAP::find (const key_query_type& key) const
   const_iterator begin = getBegin (last);
   if (!last) return nullptr;
   const_iterator pos = std::upper_bound (begin, last+1, key,
-                                         [this](const key_query_type& key,
+                                         [this](const key_query_type& key2,
                                                 const value_type& v)
-                                         { return m_compare (key, v.first); } );
+                                         { return m_compare (key2,v.first); } );
 
   // Fail if it would be before the first value.
   if (pos == begin) return nullptr;
@@ -145,9 +157,13 @@ CONCURRENTRANGEMAP::find (const key_query_type& key) const
  * @param range Validity range for this element.
  * @param ptr Payload for this element.
  * @param ctx Execution context.
+ *
+ * Returns true if the new element was successfully inserted.
+ * Returns false if the range compared equal to an existing one. In that case,
+ * no new element is inserted (and @c ptr gets deleted).
  */
 T_CONCURRENTRANGEMAP
-void
+bool
 CONCURRENTRANGEMAP::emplace (const RANGE& range,
                              std::unique_ptr<T> ptr,
                              const typename Updater_t::Context_t& ctx
@@ -155,14 +171,23 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
 {
   lock_t lock (m_mutex);
 
+  value_type* last = m_last;
+  value_type* begin = m_begin;
+
+  // Check if the element to be inserted is greater than all existing entries.
+  bool pastEnd = (!last || m_compare (last->first, range));
+
+  // Make sure the new element is not a duplicate of the last.  Fail if so.
+  if (last && !pastEnd && !m_compare (range, last->first)) {
+    // Duplicate of the last entry.
+    return false;
+  }
+
   // Can we add this to the end?
   // There has to be room for another, and either the container must be empty,
   // or the new element must be greater than the current last one.
-  value_type* last = m_last;
-  value_type* begin = m_begin;
   value_type* end = last ? last+1 : begin;
-  if (end < m_impl->data() + m_impl->capacity() &&
-      (!last || !m_compare (range, last->first)))
+  if (pastEnd && end < m_impl->data() + m_impl->capacity())
   {
     // Yes --- copy the data to the container.
     end->first = range;
@@ -171,7 +196,9 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
     // Update the last pointer.
     m_last = end;
     // Now the new element is visible to other threads.
-    return;
+    ++m_nInserts;
+    m_maxSize = std::max (m_maxSize, static_cast<size_t> (end+1 - begin));
+    return true;
   }
 
   // No --- need to make a new implementation object and copy.
@@ -187,27 +214,48 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
   value_type* new_end = new_begin;
 
   // Copy the data, adding the new item at the proper place.
-  while (begin < end) {
-    if (ptr && m_compare (range, begin->first)) {
-      new_end->first = range;
-      new_end->second = ptr.release();
-      ++new_end;
-    }
-    *new_end++ = *begin++;
-  }
-  // Maybe the new one goes at the end.
-  if (ptr) {
+  // Separate out the case where the new item goes at the end,
+  // since we can do that faster.
+  if (pastEnd) {
+    std::copy (begin, end, new_end);
+    new_end += (end-begin);
     new_end->first = range;
     new_end->second = ptr.release();
     ++new_end;
   }
+  else {
+    // Otherwise we need to search for the proper place to insert the new entry.
+    while (begin < end) {
+      if (ptr && m_compare (range, begin->first)) {
+        // Make sure this isn't a duplicate.
+        if (begin > m_begin && !m_compare ((begin-1)->first, range)) {
+          // Duplicate entry; fail.  Everything allocated is held by unique_ptr,
+          // so should be cleaned up properly.
+          return false;
+        }
+        new_end->first = range;
+        new_end->second = ptr.release();
+        ++new_end;
+      }
+      *new_end++ = *begin++;
+    }
+
+    // Must have dealt with the new element by now.
+    assert (!ptr);
+  }
 
   // Install the new implementation.
   m_impl = new_impl.get();
-  m_updater.update (std::move (new_impl), ctx);
 
   // Make the update visible to other threads.
+  // Make sure not to add the old version to the garbage list before
+  // we've updated the pointers.
   updatePointers (new_begin, new_end);
+  m_updater.update (std::move (new_impl), ctx);
+
+  ++m_nInserts;
+  m_maxSize = std::max (m_maxSize, static_cast<size_t> (new_end - new_begin));
+  return true;
 }
 
 
@@ -268,10 +316,83 @@ CONCURRENTRANGEMAP::erase (const key_query_type& key,
 
   // Install the new implementation.
   m_impl = new_impl.get();
-  m_updater.update (std::move (new_impl), ctx);
 
   // Make the update visible to other threads.
+  // Make sure not to add the old version to the garbage list before
+  // we've updated the pointers.
   updatePointers (new_begin, new_end);
+  m_updater.update (std::move (new_impl), ctx);
+}
+
+
+/**
+ * @brief Remove unused entries from the front of the list.
+ * @param keys List of keys that may still be in use.
+ *             (Must be sorted.)
+ *
+ * We examine the objects in the container, starting with the earliest one.
+ * If none of the keys in @c keys match the range for this object, then
+ * it is removed from the container.  We stop when we either find
+ * an object with a range matching a key in @c keys or when there
+ * is only one object left.
+ *
+ * Removed objects are queued for deletion once all slots have been
+ * marked as quiescent.
+ *
+ * The list @c keys MUST be sorted.
+ *
+ * Returns the number of objects that were removed.
+ */
+T_CONCURRENTRANGEMAP
+size_t
+CONCURRENTRANGEMAP::trim (const std::vector<key_query_type>& keys)
+{
+  size_t ndel = 0;
+
+  lock_t lock (m_mutex);
+
+  // Return immediately if the container is empty.
+  value_type* last = m_last;
+  if (last == nullptr) return ndel;
+  
+  value_type* pos = m_begin;
+
+  // If we remove objects, stick them in a dummy Impl object, and then
+  // discard that.  FIXME: It's a bit funny to have to allocate an object
+  // in order to delete stuff.  Maybe RCUObject could be taught to manage
+  // objects of multiple types?
+  std::unique_ptr<Impl> garbage;
+
+  // Compare with last rather than end=last+1; we don't want to consider
+  // the last elt.
+  while (pos < last) {
+    // FIXME: Can use the position where we found the last one as a hint?
+    if (anyInRange (pos->first, keys)) {
+      // One of the keys matched the range of this object.  Stop here.
+      break;
+    }
+
+    // We're deleting the object now.
+
+    if (!garbage) {
+      // Allocate a dummy impl object if we haven't done so yet.
+      garbage = std::make_unique<Impl> (0);
+    }
+
+    // Add it to the garbage list.
+    garbage->discard (pos->second);
+    ++ndel;
+    ++pos;
+  }
+
+  // If we've deleted any object, then queue the dummy impl object
+  // for destruction, and update the begin pointer.
+  if (ndel > 0) {
+    m_updater.discard (std::move (garbage));
+    m_begin = pos;
+  }
+
+  return ndel;
 }
 
 
@@ -309,6 +430,28 @@ inline
 size_t CONCURRENTRANGEMAP::capacity() const
 {
   return m_updater.get().capacity();
+}
+
+
+/**
+ * @brief Return the number times an item was inserted into the map.
+ */
+T_CONCURRENTRANGEMAP
+inline
+size_t CONCURRENTRANGEMAP::nInserts() const
+{
+  return m_nInserts;
+}
+
+
+/**
+ * @brief Return the maximum size of the map.
+ */
+T_CONCURRENTRANGEMAP
+inline
+size_t CONCURRENTRANGEMAP::maxSize() const
+{
+  return m_maxSize;
 }
 
 
@@ -399,6 +542,21 @@ CONCURRENTRANGEMAP::updatePointers (value_type* new_begin, value_type* new_end)
   }
   // Then set the begin pointer.
   m_begin = new_begin;
+}
+
+
+/**
+ * @brief Test to see if any keys within @c keys match @c r.
+ * @brief r Range to test.
+ * @break keys List of keys to test.  MUST be sorted.
+ */
+T_CONCURRENTRANGEMAP
+bool
+CONCURRENTRANGEMAP::anyInRange (const key_type& r,
+                                const std::vector<key_query_type>& keys) const
+{
+  auto pos = std::lower_bound (keys.begin(), keys.end(), r, m_compare);
+  return pos != keys.end() && m_compare.inRange (*pos, r);
 }
 
 

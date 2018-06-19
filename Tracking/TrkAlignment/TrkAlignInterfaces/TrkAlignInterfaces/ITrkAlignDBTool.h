@@ -53,10 +53,6 @@ namespace Trk {
 
   protected:
     std::ostream * m_logStream; //!< logfile output stream
-
-  private:
-    bool m_AlignDBToolFormat; //!< text file has AlignDBTool or the GlobalChi2 format
-    
   };
   
   inline const InterfaceID& ITrkAlignDBTool::interfaceID()

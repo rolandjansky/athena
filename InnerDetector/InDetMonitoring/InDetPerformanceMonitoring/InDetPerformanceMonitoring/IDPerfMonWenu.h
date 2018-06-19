@@ -11,7 +11,7 @@
 // **********************************************************************
 
 #include <vector>
-
+#include <memory>
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/PhysicalConstants.h"
@@ -182,7 +182,7 @@ public:
   std::string m_electronIDLevel;
   bool m_doIDCuts;
   //Likelihood tool:
-  AsgElectronLikelihoodTool* m_LHTool2015; //!
+  std::unique_ptr<AsgElectronLikelihoodTool> m_LHTool2015; //!
 
 };
 

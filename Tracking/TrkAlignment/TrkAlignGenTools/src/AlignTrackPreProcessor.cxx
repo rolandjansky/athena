@@ -144,8 +144,8 @@ namespace Trk {
     for ( ; it != it_end ; ++it, ++itrk) {
       
       ATH_MSG_DEBUG(" ** processTrackCollection ** Processing track "<<itrk);
-      Track * origTrack = *it;
-      Track * newTrack = *it;
+      const Track * origTrack = *it;
+      const Track * newTrack = *it;
       AlignTrack* at;
       
       // check whether the original track passes selection
@@ -234,7 +234,7 @@ namespace Trk {
   }
 
    //________________________________________________________________________
-  Track * AlignTrackPreProcessor::performSiliconHitSelection(Track * inputTrack, const ToolHandle<Trk::IGlobalTrackFitter> & fitter)
+  Track * AlignTrackPreProcessor::performSiliconHitSelection(const Track * inputTrack, const ToolHandle<Trk::IGlobalTrackFitter> & fitter)
   {
     /** select silicon hits by quality. keep all the rest **/
     ATH_MSG_DEBUG(" -- performSiliconHitSelection -- before removing bad Silicon hits, this track has "<< inputTrack->trackStateOnSurfaces()->size()<< " tsos");
@@ -244,11 +244,11 @@ namespace Trk {
 
     // loop on track hits
     int nhits = 0;
-    for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsos=inputTrack->trackStateOnSurfaces()->begin();
-      tsos!=inputTrack->trackStateOnSurfaces()->end(); ++tsos) {
+    for (const Trk::TrackStateOnSurface* tsos : *inputTrack->trackStateOnSurfaces())
+    {
       nhits++;
-      if (m_hitQualityTool->isGoodSiHit(*tsos)) {
-        selectedMeasurementSet.push_back( (*tsos)->measurementOnTrack() );
+      if (m_hitQualityTool->isGoodSiHit(tsos)) {
+        selectedMeasurementSet.push_back( tsos->measurementOnTrack() );
       }
       else {
         ATH_MSG_DEBUG(" -- performSiliconHitSelection -- hit # "<< nhits << " status = BAD HIT ");

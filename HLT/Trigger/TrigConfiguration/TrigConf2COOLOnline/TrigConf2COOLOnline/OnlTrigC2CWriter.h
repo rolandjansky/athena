@@ -53,7 +53,7 @@ public:
    virtual void user         (const daq::rc::UserCmd& usrCmd);
    virtual void stopArchiving(const daq::rc::TransitionCmd& cmd) override;
 
-   TC2CConfig& conf() { return fJobConfig; }
+   TC2CConfig& conf() { return m_jobConfig; }
 
 private:
 
@@ -71,14 +71,14 @@ private:
 
    void writeHLTPrescaleSetToCool(unsigned int lb, unsigned int pskey, std::string& name);
 
-   TC2CConfig                       fJobConfig; // object to hold different configuration parameters
-   TrigConf::TrigConfCoolWriter*    fConf2Cool; // the class that does all the work
-   std::string                      fTriggerDB;
-   ISInfoReceiver*                  fInfoRec;
-   IPCPartition*                    fIPCPartition; // the ipc partition object
+   TC2CConfig                       m_jobConfig; // object to hold different configuration parameters
+   TrigConf::TrigConfCoolWriter*    m_conf2Cool; // the class that does all the work
+   std::string                      m_triggerDB;
+   ISInfoReceiver*                  m_infoRec;
+   IPCPartition*                    m_IPCPartition; // the ipc partition object
 
-   TrigConf::HLTFrame*              fHLTFrame;  // pointer to the HLTFrame (could be skipped at the moment since it is still a singleton)
-   TrigConf::CTPConfig*             fCTPConfig; // the pointer to the lvl1 ctpc;
+   TrigConf::HLTFrame*              m_HLTFrame;  // pointer to the HLTFrame (could be skipped at the moment since it is still a singleton)
+   TrigConf::CTPConfig*             m_CTPConfig; // the pointer to the lvl1 ctpc;
    bool m_forceTriggerDBReadAtPrepareForRun { false };
     
 };

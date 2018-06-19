@@ -39,7 +39,8 @@ theApp.EvtMax = 20
 
 from DataModelTestDataCommon.DataModelTestDataCommonConf import \
      DMTest__xAODTestWriteCInfo, \
-     DMTest__xAODTestDecor
+     DMTest__xAODTestDecor, \
+     DMTest__MetaWriterAlg
 from DataModelTestDataWrite.DataModelTestDataWriteConf import \
      DMTest__xAODTestWriteCVec, \
      DMTest__xAODTestWriteHVec, \
@@ -55,6 +56,7 @@ topSequence += DMTest__xAODTestWrite ("xAODTestWrite")
 topSequence += DMTest__xAODTestWriteCVecConst ("xAODTestWriteCVecConst")
 topSequence += DMTest__xAODTestDecor ("xAODTestDecor")
 topSequence += DMTest__xAODTestWriteSymlinks ("xAODTestWriteSymlinks")
+topSequence += DMTest__MetaWriterAlg ("MetaWriterAlg")
 
 
 #--------------------------------------------------------------
@@ -114,6 +116,9 @@ Stream1 = Stream1_Augmented.GetEventStream()
 Stream1.WritingTool.SubLevelBranchName = '<key>'
 # List of DO's to write out
 Stream1.ItemList   += fullItemList
+Stream1.MetadataItemList += [ 'DMTest::S1#MetaS1',
+                              'DMTest::C#MetaC',
+                              'DMTest::CInfoAuxContainer#MetaCAux.' ]
 ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += ["DEFAULT_SPLITLEVEL='1'"]
 
 
@@ -130,10 +135,9 @@ ChronoStatSvc.ChronoPrintOutTable = FALSE
 ChronoStatSvc.PrintUserTime       = FALSE
 ChronoStatSvc.StatPrintOutTable   = FALSE
 
-# Explicitly specify the output file catalog
-# to avoid races when running tests in parallel.
-PoolSvc = Service( "PoolSvc" )
-PoolSvc.WriteCatalog = "file:xAODTestWrite_catalog.xml"
+# Avoid races when running tests in parallel.
+FILECATALOG = 'xAODTestWrite_catalog.xml'
+include ('DataModelRunTests/setCatalog.py')
 
 # Increment LBN every two events.
 from McEventSelector import McEventSelectorConf

@@ -5,15 +5,13 @@
 # 10-Sep-2010, Peter Onyisi <ponyisi@cern.ch>
 #
 # Script for uploading a new DQ configuration to AMI "h" tag
-# ASSUMPTION: the binary DQ configurations are in AFS; they have the following
+# ASSUMPTION: the binary DQ configurations have the following
 # directory structure:
-#   $BASEDIR / Cosmics    / cosmics_minutes10.current.hcfg
-#                         / cosmics_minutes30.current.hcfg
-#                         / cosmics_run.current.hcfg
-#            / Collisions / collisions_*current.hcfg
-#            / HeavyIons  / heavyions_*current.hcfg
-# and that the *.current.hcfg files are valid symlinks to files in the
-# respective directories.
+#   $BASEDIR / cosmics_minutes10.hcfg
+#            / cosmics_minutes30.hcfg
+#            / cosmics_run.hcfg
+#            / collisions_*.hcfg
+#            / heavyions_*.hcfg
 
 import sys, os
 
@@ -63,12 +61,12 @@ def get_current_config(amiclient):
     #del rv1['writeStatus']
     for k in ('tag', 'createdBy', 'modifiedBy', 'tagStatus', 'tagNumber', 'tagType',
               'locked', 'updates', 'created', 'lastModified', 'processingStep',
-              'transformationName', 'baseRelease', 'modified'):
+              'transformationName', 'baseRelease', 'modified', 'phconfig'):
         try:
             del rv1[k]
         except KeyError:
             pass
-    for k in ('inputs','outputs', 'moreInfo', 'phconfig', 'trfsetupcmd',
+    for k in ('inputs','outputs', 'moreInfo', 'trfsetupcmd',
               'description'):
         rv1[k] = '"%s"' % str(rv1[k].__str__())
 
@@ -86,7 +84,7 @@ def update_dict_for_configs(updict, indir):
 
     print 'Looking for configurations in subdirectories of', indir
 
-    types = ['minutes10', 'minutes30', 'run']
+    types = ['minutes10', 'run']
     searchparams = [('Cosmics', 'cosmics'), ('Collisions', 'collisions'),
                     ('HeavyIons', 'heavyions')]
 
@@ -98,19 +96,12 @@ def update_dict_for_configs(updict, indir):
         filepathdict[dir1] = {}
         for t in types:
             print '  ', t, '...',
-            fname = os.path.join(basedir, dir1,
-                                '%s_%s.current.hcfg' % (fn, t))
+            fname = os.path.join(basedir, '%s_%s.hcfg' % (fn, t))
             if os.access(fname, os.R_OK):
-                print 'found,',
-                if os.path.islink(fname) and os.path.isfile(fname):
-                    realname = os.readlink(fname)
-                    if not os.path.isabs(realname):
-                        realname = os.path.join(os.path.dirname(fname), realname)
-                    print 'is symlink to', realname
-                    filepathdict[dir1][t] = realname
-                    filelist.append(realname)
-                else:
-                    print 'but is not valid symlink'
+                print 'found %s' % (dir1)
+                if os.path.isfile(fname):
+                    filepathdict[dir1][t] = fname
+                    filelist.append(fname)
             else:
                 print 'not found'
         if filepathdict[dir1] == {}:
@@ -166,12 +157,14 @@ def update_dict_for_release(updict, release):
         extraSetup += " AtlasProduction"
     elif relProj == "Athena":
         extraSetup += " Athena"
+    elif relProj == "AthDataQuality":
+        extraSetup += " AthDataQuality"
     elif relProj != "AtlasOffline":
         s="ERROR: The project specified (" + relProj +") is not Athena, AtlasOffline or AtlasProduction. Are you sure?"
         raise RuntimeError(s)
 
     # update dictionary
-    tasktransinfo = {'trfpath': 'DQM_Tier0Wrapper_trf.py',
+    tasktransinfo = {'trfpath': 'DQM_Tier0Wrapper_tf.py',
                                'trfsetupcmd': "/afs/cern.ch/atlas/tzero/software/setup/usetuptrf.sh " + relNbr + extraSetup}
     updict['moreInfo'] = '"{\'tasktransinfo\': %s}"' % tasktransinfo.__str__()
     updict['SWReleaseCache'] = release.replace('-', '_')

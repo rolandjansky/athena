@@ -15,11 +15,15 @@
 #include "AthenaKernel/ClassID_traits.h"
 #include "AthenaKernel/BaseInfo.h"
 #include "AthenaKernel/RCUUpdater.h"
+#include "AthenaKernel/IConditionsCleanerSvc.h"
 #include "CxxUtils/ConcurrentRangeMap.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/EventIDRange.h"
 #include "GaudiKernel/DataObjID.h"
+#include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "boost/preprocessor/facilities/overload.hpp"
 
 #include <iostream>
@@ -37,12 +41,64 @@ namespace Athena {
 }
 
 
+/**
+ * @brief Define extended status codes used by CondCont.
+ *        We add DUPLICATE.
+ */
+enum class CondContStatusCode : StatusCode::code_t
+{
+  FAILURE           = 0,
+  SUCCESS           = 1,
+  RECOVERABLE       = 2,
+
+  // Attempt to insert an item in a CondCont with a range duplicating
+  // an existing one.  The original contents of the container are unchanged,
+  // and the new item has been deleted.
+  // This is classified as Success.
+  DUPLICATE         = 10
+};
+STATUSCODE_ENUM_DECL (CondContStatusCode)
+
+
 class CondContBase
 {
 public:
+  /**
+   * @brief Status code category for ContCont.
+   *        This adds a new code, DUPLICATE, which is classified
+   *        as success.
+   */
+  class Category : public StatusCode::Category
+  {
+  public:
+    typedef StatusCode::code_t code_t;
+
+    /// Name of the category
+    virtual const char* name() const override;
+
+    /// Description for code within this category.
+    virtual std::string message (code_t code) const override;
+
+    /// Is code considered success?
+    virtual bool isSuccess (code_t code) const override;
+
+    /// Helper to test whether a code is DUPLICATE.
+    static bool isDuplicate (code_t code);
+    /// Helper to test whether a code is DUPLICATE.
+    static bool isDuplicate (StatusCode code);
+  };
+
+
   /// Payload type held by this class.
   /// Need to define this here for @c cast() to work properly.
   typedef void Payload;
+
+  
+  /// Type used to store an IOV time internally.
+  /// For efficiency, we pack two 32-bit words into a 64-bit word
+  /// Can be either run+lbn or a timestamp.
+  typedef uint64_t key_type;
+
 
   /// Destructor.
   virtual ~CondContBase() {};
@@ -58,6 +114,7 @@ public:
    * @brief Return CLID/key corresponding to this container.
    */
   virtual const DataObjID& id() const = 0;
+
 
   /**
    * @brief Return the associated @c DataProxy, if any.
@@ -82,7 +139,21 @@ public:
   /**
    * @brief Return the number of conditions objects in the container.
    */
-  virtual int entries() const = 0;
+  virtual size_t entries() const = 0;
+
+  
+  /**
+   * @brief Return the number of run+LBN conditions objects
+   *        in the container.
+   */
+  virtual size_t entriesRunLBN() const = 0;
+
+
+  /**
+   * @brief Return the number of timestamp-based conditions objects
+   *        in the container.
+   */
+  virtual size_t entriesTimestamp() const = 0;
 
 
   /**
@@ -102,12 +173,14 @@ public:
    * correspond to the most-derived @c CondCont type.
    * The container will take ownership of this object.
    *
-   * Returns true if the object was successfully inserted; false otherwise
-   * (ownership of the object will be taken in either case).
+   * Returns SUCCESS if the object was successfully inserted;
+   * DUPLICATE if the object wasn't inserted because the range
+   * duplicates an existing one, and FAILURE otherwise
+   * (ownership of the object will be taken in any case).
    */
-  virtual bool typelessInsert (const EventIDRange& r,
-                               void* obj,
-                               const EventContext& ctx = Gaudi::Hive::currentContext()) = 0;
+  virtual StatusCode typelessInsert (const EventIDRange& r,
+                                     void* obj,
+                                     const EventContext& ctx = Gaudi::Hive::currentContext()) = 0;
 
 
   /**
@@ -137,6 +210,50 @@ public:
 
 
   /**
+   * @brief Remove unused run+LBN entries from the front of the list.
+   * @param keys List of keys that may still be in use.
+   *             (Must be sorted.)
+   *
+   * We examine the objects in the container, starting with the earliest one.
+   * If none of the keys in @c keys match the range for this object, then
+   * it is removed from the container.  We stop when we either find
+   * an object with a range matching a key in @c keys or when there
+   * is only one object left.
+   *
+   * The list @c keys should contain keys as computed by keyFromRunLBN.
+   * The list must be sorted.
+   *
+   * Removed objects are queued for deletion once all slots have been
+   * marked as quiescent.
+   *
+   * Returns the number of objects that were removed.
+   */
+  virtual size_t trimRunLBN (const std::vector<key_type>& keys) = 0;
+
+
+  /**
+   * @brief Remove unused timestamp entries from the front of the list.
+   * @param keys List of keys that may still be in use.
+   *             (Must be sorted.)
+   *
+   * We examine the objects in the container, starting with the earliest one.
+   * If none of the keys in @c keys match the range for this object, then
+   * it is removed from the container.  We stop when we either find
+   * an object with a range matching a key in @c keys or when there
+   * is only one object left.
+   *
+   * The list @c keys should contain keys as computed by keyFromRunLBN.
+   * The list must be sorted.
+   *
+   * Removed objects are queued for deletion once all slots have been
+   * marked as quiescent.
+   *
+   * Returns the number of objects that were removed.
+   */
+  virtual size_t trimTimestamp (const std::vector<key_type>& keys) = 0;
+
+
+  /**
    * @brief Mark that this thread is no longer accessing data from this container.
    * @param ctx Event context for the current thread.
    *
@@ -146,10 +263,16 @@ public:
   virtual void quiescent (const EventContext& ctx = Gaudi::Hive::currentContext()) = 0;
 
 
-  /// Type used to store an IOV time internally.
-  /// For efficiency, we pack two 32-bit words into a 64-bit word
-  /// Can be either run+lbn or a timestamp.
-  typedef uint64_t key_type;
+  /**
+   * @brief Return the number times an item was inserted into the map.
+   */
+  virtual size_t nInserts() const = 0;
+
+
+  /**
+   * @brief Return the maximum size of the map.
+   */
+  virtual size_t maxSize() const = 0;
 
 
   /**
@@ -206,9 +329,21 @@ public:
     { return r1.m_start < r2.m_start; }
     bool operator() (key_type t, const RangeKey& r2) const
     { return t < r2.m_start; }
+    bool inRange (key_type t, const RangeKey& r) const
+    {
+      return t >= r.m_start && t< r.m_stop;
+    }
   };
 
 
+  /**
+   * @brief Allow overriding the name of the global conditions cleaner
+   *        service (for testing purposes).
+   * @param name The name of the global conditions cleaner service.
+   */
+  static void setCleanerSvcName ATLAS_NOT_THREAD_SAFE (const std::string& name);
+
+  
 protected:
   /**
    * @brief Internal constructor.
@@ -249,10 +384,22 @@ protected:
                                   const EventIDBase& t,
                                   EventIDRange const** r) const = 0;
 
-  
+
+  /**
+   * @brief Tell the cleaner that a new object was added to the container.
+   */
+  StatusCode inserted (const EventContext& ctx);
+
+
 private:
   /// CLID of the most-derived @c CondCont
   CLID m_clid;
+
+  /// Handle to the cleaner service.
+  ServiceHandle<Athena::IConditionsCleanerSvc> m_cleanerSvc;
+
+  /// Name of the global conditions cleaner service.
+  static std::string s_cleanerSvcName ATLAS_THREAD_SAFE;
 };
 
 
@@ -347,6 +494,8 @@ public:
   /// Payload type held by this class.
   typedef T Payload;
 
+  typedef CondContBase::key_type key_type;
+
 
   /** 
    * @brief Constructor.
@@ -398,7 +547,21 @@ public:
   /**
    * @brief Return the number of conditions objects in the container.
    */
-  virtual int entries() const override;
+  virtual size_t entries() const override;
+
+
+  /**
+   * @brief Return the number of run+LBN conditions objects
+   *        in the container.
+   */
+  virtual size_t entriesRunLBN() const override;
+
+
+  /**
+   * @brief Return the number of timestamp-based conditions objects
+   *        in the container.
+   */
+  virtual size_t entriesTimestamp() const override;
 
 
   /**
@@ -418,12 +581,14 @@ public:
    * correspond to the most-derived @c CondCont type.
    * The container will take ownership of this object.
    *
-   * Returns true if the object was successfully inserted; false otherwise
-   * (ownership of the object will be taken in either case).
+   * Returns SUCCESS if the object was successfully inserted;
+   * DUPLICATE if the object wasn't inserted because the range
+   * duplicates an existing one, and FAILURE otherwise
+   * (ownership of the object will be taken in any case).
    */
-  virtual bool typelessInsert (const EventIDRange& r,
-                               void* obj,
-                               const EventContext& ctx = Gaudi::Hive::currentContext()) override;
+  virtual StatusCode typelessInsert (const EventIDRange& r,
+                                     void* obj,
+                                     const EventContext& ctx = Gaudi::Hive::currentContext()) override;
 
 
   /** 
@@ -436,11 +601,14 @@ public:
    * This will give an error if this is not called
    * on the most-derived @c CondCont.
    *
-   * Returns true if the object was successfully inserted; false otherwise.
+   * Returns SUCCESS if the object was successfully inserted;
+   * DUPLICATE if the object wasn't inserted because the range
+   * duplicates an existing one, and FAILURE otherwise
+   * (ownership of the object will be taken in any case).
    */
-  bool insert (const EventIDRange& r,
-               std::unique_ptr<T> obj,
-               const EventContext& ctx = Gaudi::Hive::currentContext());
+  StatusCode insert (const EventIDRange& r,
+                     std::unique_ptr<T> obj,
+                     const EventContext& ctx = Gaudi::Hive::currentContext());
 
 
   /** 
@@ -481,6 +649,50 @@ public:
   virtual void erase (const EventIDBase& t,
                       const EventContext& ctx = Gaudi::Hive::currentContext()) override;
 
+
+  /**
+   * @brief Remove unused run+LBN entries from the front of the list.
+   * @param keys List of keys that may still be in use.
+   *             (Must be sorted.)
+   *
+   * We examine the objects in the container, starting with the earliest one.
+   * If none of the keys in @c keys match the range for this object, then
+   * it is removed from the container.  We stop when we either find
+   * an object with a range matching a key in @c keys or when there
+   * is only one object left.
+   *
+   * The list @c keys should contain keys as computed by keyFromRunLBN.
+   * The list must be sorted.
+   *
+   * Removed objects are queued for deletion once all slots have been
+   * marked as quiescent.
+   *
+   * Returns the number of objects that were removed.
+   */
+  virtual size_t trimRunLBN (const std::vector<key_type>& keys) override;
+
+
+  /**
+   * @brief Remove unused timestamp entries from the front of the list.
+   * @param keys List of keys that may still be in use.
+   *             (Must be sorted.)
+   *
+   * We examine the objects in the container, starting with the earliest one.
+   * If none of the keys in @c keys match the range for this object, then
+   * it is removed from the container.  We stop when we either find
+   * an object with a range matching a key in @c keys or when there
+   * is only one object left.
+   *
+   * The list @c keys should contain keys as computed by keyFromRunLBN.
+   * The list must be sorted.
+   *
+   * Removed objects are queued for deletion once all slots have been
+   * marked as quiescent.
+   *
+   * Returns the number of objects that were removed.
+   */
+  virtual size_t trimTimestamp (const std::vector<key_type>& keys) override;
+
   
   /**
    * @brief Mark that this thread is no longer accessing data from this container.
@@ -491,6 +703,18 @@ public:
    */
   virtual void
   quiescent (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) override;
+
+
+  /**
+   * @brief Return the number times an item was inserted into the map.
+   */
+  virtual size_t nInserts() const override;
+
+
+  /**
+   * @brief Return the maximum size of the map.
+   */
+  virtual size_t maxSize() const override;
 
 
 protected:
@@ -542,7 +766,6 @@ public:
 
 private:
   typedef CondContBase::RangeKey RangeKey;
-  typedef CondContBase::key_type key_type;
 
 
   /// Sets of mapped objects, by timestamp and run+LBN.

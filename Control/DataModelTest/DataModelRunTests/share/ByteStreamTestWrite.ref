@@ -2,7 +2,6 @@ Fri Mar 17 21:59:44 CET 2017
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO using release [AthenaExternals-22.0.0] [x86_64-slc6-gcc49-opt] [private/private] -- built on [2017-03-16 21:31]
-Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 [?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"
@@ -55,7 +54,6 @@ PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 PoolSvc              INFO Re-initializing PoolSvc
-StreamBSFileOut...   INFO AthenaOutputStreamTool initialize
 ByteStreamEvent...   INFO Initializing ByteStreamEventStorageOutputSvc - package version ByteStreamCnvSvc-00-00-00
 ByteStreamEvent...   INFO eformat version to use: "current"
 ByteStreamEvent...   INFO event storage (BS) version to use: "current"
@@ -130,7 +128,6 @@ ByteStreamEvent...   INFO number of events written: 20
 DecisionSvc          INFO Finalized successfully.
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
-StreamBSFileOut...   INFO AthenaOutputStreamTool finalize
 ToolSvc.TrigTSe...   INFO ToolSvc.TrigTSerializer no problems encountered
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

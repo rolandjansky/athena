@@ -71,9 +71,9 @@ class Attribute {                                                         //
  private:                                                                 //
   //                                                                      //
   //                                                                      //
-  std::string    _name;                                                   //
-  Type           _type;                                                   //
-  int            _attrId;                                                 //
+  std::string    m_name;                                                  //
+  Type           m_type;                                                  //
+  int            m_attrId;                                                //
 };                                                                        //
                                                                           //
 //------------------------------------------------------------------------//

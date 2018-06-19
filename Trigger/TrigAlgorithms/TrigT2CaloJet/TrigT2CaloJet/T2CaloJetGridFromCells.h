@@ -76,7 +76,6 @@ class T2CaloJetGridFromCells : public T2CaloJetBaseTool
  private:
   bool isInVetoRegion(const double &eta, const double &phi);
  private:
-  ITrigDataAccess *m_data;
   Trig3Momentum* m_gridElement;
 
 
@@ -99,11 +98,11 @@ class T2CaloJetGridFromCells : public T2CaloJetBaseTool
 
   bool m_applyNoiseCut;
   double m_noiseCutValue;
-  LArCablingService* m_cablingSvc;
   // cell based jet cleaning:
   bool m_doHECcellQualityCleaning;
   int m_cellQualityThresholdHEC;
 
+  ToolHandle<LArCablingService> m_cablingSvc;
   ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
   std::vector< EtaPhiRectangle > m_forbiddenRegions; //!< regions to be skipped
 
@@ -114,8 +113,6 @@ class T2CaloJetGridFromCells : public T2CaloJetBaseTool
   std::map<std::string, TrigTimer*> m_timers;
 
   bool m_doTiming;
-
-  MsgStream * m_log;
 };
 
 #endif // TRIGT2CALOJET_T2CALOJETGRIDFROMCELLS

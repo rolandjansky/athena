@@ -150,7 +150,7 @@ bool DerivationFramework::SkimmingToolHIGG2::eventPassesFilter() const
 
   // Retrieve EventInfo
   const xAOD::EventInfo *eventInfo(nullptr);
-  ATH_CHECK(evtStore()->retrieve(eventInfo)); 
+  ATH_CHECK(evtStore()->retrieve(eventInfo), false);
 
   // LAr error check
   if(m_checkLArError) {
@@ -164,7 +164,7 @@ bool DerivationFramework::SkimmingToolHIGG2::eventPassesFilter() const
   //  m_mapElectrons.clear();
   if(m_nElectrons>0 or m_nLeptons>0) {
     const xAOD::ElectronContainer *electrons(nullptr); 
-    ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey));
+    ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey), false);
     for(auto el: *electrons) {
       if(this->checkElectronQuality(el)) m_goodElectrons.push_back(el);
     } 
@@ -174,7 +174,7 @@ bool DerivationFramework::SkimmingToolHIGG2::eventPassesFilter() const
   m_goodMuons.clear();
   if(m_nMuons>0 or m_nLeptons>0) {
     const xAOD::MuonContainer *muons(nullptr); 
-    ATH_CHECK(evtStore()->retrieve(muons, m_muonSGKey));
+    ATH_CHECK(evtStore()->retrieve(muons, m_muonSGKey), false);
     for(auto mu: *muons) {
       if(this->checkMuonQuality(mu)) m_goodMuons.push_back(mu);
     } 
@@ -184,7 +184,7 @@ bool DerivationFramework::SkimmingToolHIGG2::eventPassesFilter() const
   m_goodJets.clear();
   if(m_nJets>0) {
     const xAOD::JetContainer *jets(nullptr); 
-    ATH_CHECK(evtStore()->retrieve(jets, m_jetSGKey));
+    ATH_CHECK(evtStore()->retrieve(jets, m_jetSGKey), false);
     for(auto jet: *jets) {
       if(this->checkJetQuality(jet)) m_goodJets.push_back(jet);
      }
@@ -193,7 +193,7 @@ bool DerivationFramework::SkimmingToolHIGG2::eventPassesFilter() const
     m_goodMergedJets[type].clear();
     if(m_nMergedJets[type]>0) {
       const xAOD::JetContainer *jets(nullptr);
-      ATH_CHECK(evtStore()->retrieve(jets, m_mergedJetSGKey[type]));
+      ATH_CHECK(evtStore()->retrieve(jets, m_mergedJetSGKey[type]), false);
       for(auto jet: *jets) {
 	if(this->checkMergedJetQuality(jet, type)) m_goodMergedJets[type].push_back(jet);
       }
@@ -204,7 +204,7 @@ bool DerivationFramework::SkimmingToolHIGG2::eventPassesFilter() const
   m_goodPhotons.clear();
   if(m_nPhotons>0) {
     const xAOD::PhotonContainer *photons(nullptr); 
-    ATH_CHECK(evtStore()->retrieve(photons, m_photonSGKey));
+    ATH_CHECK(evtStore()->retrieve(photons, m_photonSGKey), false);
     for(auto ph: *photons) {
       if(this->checkPhotonQuality(ph)) m_goodPhotons.push_back(ph);
     }
@@ -214,7 +214,7 @@ bool DerivationFramework::SkimmingToolHIGG2::eventPassesFilter() const
   m_goodTracks.clear();
   if(m_nTracks>0) {
     const xAOD::TrackParticleContainer *tracks(nullptr);
-    ATH_CHECK(evtStore()->retrieve(tracks, m_trackSGKey));
+    ATH_CHECK(evtStore()->retrieve(tracks, m_trackSGKey), false);
     for(auto trk: *tracks) {
       if(this->checkTrackQuality(trk)) m_goodTracks.push_back(trk);
     }

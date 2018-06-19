@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/Barcode/BarcodeInterfaces
                           Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimInterfaces
                           AtlasGeometryCommon/SubDetectorEnvelopes
-                          Control/DataModel
+                          Control/AthContainers
                           GaudiKernel
                           Simulation/ISF/ISF_Core/ISF_Event
                           Simulation/ISF/ISF_Core/ISF_Interfaces
@@ -33,7 +33,7 @@ atlas_add_component( ISF_PunchThroughTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives ISF_FastCaloSimInterfaces DataModel GaudiKernel ISF_Event ISF_Interfaces PathResolver )
+                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives ISF_FastCaloSimInterfaces AthContainers GaudiKernel ISF_Event ISF_Interfaces PathResolver )
 
 # Install files from the package:
 atlas_install_headers( ISF_PunchThroughTools )

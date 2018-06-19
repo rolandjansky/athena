@@ -16,9 +16,9 @@ typedef T_AthenaPoolCustomCnv<LArFebErrorSummary,LArFebErrorSummary_PERSISTENT> 
 
 class LArFebErrorSummaryCnv : public LArFebErrorSummaryCnvBase 
 {
-  friend class CnvFactory<LArFebErrorSummaryCnv>;
- protected:
+public:
   LArFebErrorSummaryCnv(ISvcLocator*);
+ protected:
   virtual LArFebErrorSummary* createTransient();
   virtual LArFebErrorSummary_PERSISTENT* createPersistent(LArFebErrorSummary*);
  private:

@@ -8,7 +8,7 @@
 
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.BeamFlags import jobproperties
-from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 
 
 # check (for robustness) if ID is on at all!

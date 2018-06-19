@@ -51,14 +51,14 @@ public:
 
 VP1SimHitSystem::VP1SimHitSystem()
   :IVP13DSystemSimple("Sim Hits","Display simulation hits from trackers","Vakho Tsulaia <Vakhtang.Tsulaia@cern.ch>"),
-   _clockwork(new Clockwork())
+   m_clockwork(new Clockwork())
 {
 }
 
 VP1SimHitSystem::~VP1SimHitSystem()
 {
-  delete _clockwork;
-  _clockwork = 0;
+  delete m_clockwork;
+  m_clockwork = 0;
 }
 
 QWidget* VP1SimHitSystem::buildController()
@@ -68,21 +68,21 @@ QWidget* VP1SimHitSystem::buildController()
   ui.setupUi(controller);
 
   // Populate Check Box Names Map
-  _clockwork->checkBoxNamesMap.insert(ui.chbxPixelHits,"Pixel");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxSCTHits,"SCT");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxTRTHits,"TRT");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxMDTHits,"MDT");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxRPCHits,"RPC");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxTGCHits,"TGC");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxCSCHits,"CSC");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxGenericMuonHits,"Generic Muon");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxForwardRegionHits,"Forward Region");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxPixelHits,"Pixel");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxSCTHits,"SCT");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxTRTHits,"TRT");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxMDTHits,"MDT");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxRPCHits,"RPC");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxTGCHits,"TGC");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxCSCHits,"CSC");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxGenericMuonHits,"Generic Muon");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxForwardRegionHits,"Forward Region");
 
   // Populate Check Box Map and connect slots
-  foreach(QCheckBox* cb,_clockwork->checkBoxNamesMap.keys())
+  foreach(QCheckBox* cb,m_clockwork->checkBoxNamesMap.keys())
   {
     connect(cb,SIGNAL(toggled(bool)),this,SLOT(checkboxChanged()));
-    _clockwork->checkBoxMap.insert(_clockwork->checkBoxNamesMap[cb],cb);
+    m_clockwork->checkBoxMap.insert(m_clockwork->checkBoxNamesMap[cb],cb);
   }
 
   return controller;
@@ -91,15 +91,15 @@ QWidget* VP1SimHitSystem::buildController()
 void VP1SimHitSystem::systemcreate(StoreGateSvc* /*detstore*/)
 {
   // Populate Color Map
-  _clockwork->colorMap.insert("Pixel",SbColor(0,0,1));
-  _clockwork->colorMap.insert("SCT",SbColor(1,1,1));
-  _clockwork->colorMap.insert("TRT",SbColor(1,0,0));
-  _clockwork->colorMap.insert("MDT",SbColor(.98,.8,.21));
-  _clockwork->colorMap.insert("RPC",SbColor(0,.44,.28));
-  _clockwork->colorMap.insert("TGC",SbColor(0,.631244,.748016));
-  _clockwork->colorMap.insert("CSC",SbColor(.21,.64,1.));
-  _clockwork->colorMap.insert("Generic Muon",SbColor(.21,.64,1.));
-  _clockwork->colorMap.insert("Forward Region",SbColor(.21,.64,1.));
+  m_clockwork->colorMap.insert("Pixel",SbColor(0,0,1));
+  m_clockwork->colorMap.insert("SCT",SbColor(1,1,1));
+  m_clockwork->colorMap.insert("TRT",SbColor(1,0,0));
+  m_clockwork->colorMap.insert("MDT",SbColor(.98,.8,.21));
+  m_clockwork->colorMap.insert("RPC",SbColor(0,.44,.28));
+  m_clockwork->colorMap.insert("TGC",SbColor(0,.631244,.748016));
+  m_clockwork->colorMap.insert("CSC",SbColor(.21,.64,1.));
+  m_clockwork->colorMap.insert("Generic Muon",SbColor(.21,.64,1.));
+  m_clockwork->colorMap.insert("Forward Region",SbColor(.21,.64,1.));
 }
 
 void VP1SimHitSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root)
@@ -111,11 +111,11 @@ void VP1SimHitSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root)
   root->addChild(ds);
 
   // Keep SG pointer
-  _clockwork->sg = sg;
+  m_clockwork->sg = sg;
 
   // clean up
-  _clockwork->switchMap.clear();
-  _clockwork->hitsThisEvent.clear();
+  m_clockwork->switchMap.clear();
+  m_clockwork->hitsThisEvent.clear();
 
   if(!sg)
   {
@@ -123,20 +123,20 @@ void VP1SimHitSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root)
     return;
   }
 
-  foreach(QString detector,_clockwork->checkBoxMap.keys())
+  foreach(QString detector,m_clockwork->checkBoxMap.keys())
   {
     // Add switch, off by default
-    SoSwitch* _switch = new SoSwitch();
-    _switch->whichChild = SO_SWITCH_NONE;
-    root->addChild(_switch);
-    _clockwork->switchMap.insert(detector,_switch);
+    SoSwitch* sw = new SoSwitch();
+    sw->whichChild = SO_SWITCH_NONE;
+    root->addChild(sw);
+    m_clockwork->switchMap.insert(detector,sw);
 
     // Build subtree if the check box is ON
-    if(_clockwork->checkBoxMap.contains(detector) &&
-       _clockwork->checkBoxMap[detector]->isChecked())
+    if(m_clockwork->checkBoxMap.contains(detector) &&
+       m_clockwork->checkBoxMap[detector]->isChecked())
     {
       buildHitTree(detector);
-      _switch->whichChild = SO_SWITCH_ALL;
+      sw->whichChild = SO_SWITCH_ALL;
     }
     updateGUI();
   }
@@ -146,22 +146,22 @@ void VP1SimHitSystem::checkboxChanged()
 {
   // Get ChB pointer
   QCheckBox* cb = dynamic_cast<QCheckBox*>(sender());
-  if(cb && _clockwork->checkBoxNamesMap.contains(cb))
+  if(cb && m_clockwork->checkBoxNamesMap.contains(cb))
   {
     // Get detector name
-    QString detector = _clockwork->checkBoxNamesMap[cb];
-    if(_clockwork->switchMap.contains(detector))
+    QString detector = m_clockwork->checkBoxNamesMap[cb];
+    if(m_clockwork->switchMap.contains(detector))
     {
       // Get swtich
-      SoSwitch* _switch = _clockwork->switchMap[detector];
+      SoSwitch* sw = m_clockwork->switchMap[detector];
       if(cb->isChecked()){
   // Build subtree if necessary
-        if(!_clockwork->hitsThisEvent.contains(detector))
+        if(!m_clockwork->hitsThisEvent.contains(detector))
           buildHitTree(detector);
-        _switch->whichChild = SO_SWITCH_ALL;
+        sw->whichChild = SO_SWITCH_ALL;
       }
       else
-        _switch->whichChild = SO_SWITCH_NONE;
+        sw->whichChild = SO_SWITCH_NONE;
     } else {
       message("WARNING: Unknown detector:"+detector);
     }
@@ -172,19 +172,19 @@ void VP1SimHitSystem::checkboxChanged()
 void VP1SimHitSystem::buildHitTree(const QString& detector)
 {
   messageVerbose("buildHitTree for "+detector);
-  if(_clockwork->hitsThisEvent.contains(detector)) {
+  if(m_clockwork->hitsThisEvent.contains(detector)) {
     messageVerbose(" in hitsThisEvent"); return;
   }
-  if(!_clockwork->colorMap.contains(detector)) {
+  if(!m_clockwork->colorMap.contains(detector)) {
     messageVerbose("not in colorMap"); return;
   }
-  if(!_clockwork->switchMap.contains(detector)) {
+  if(!m_clockwork->switchMap.contains(detector)) {
     messageVerbose("not in switchMap"); return;
   }
 
   // -- Initializations
-  StoreGateSvc* sg = _clockwork->sg;
-  SoSwitch* _switch = _clockwork->switchMap[detector];
+  StoreGateSvc* sg = m_clockwork->sg;
+  SoSwitch* sw = m_clockwork->switchMap[detector];
   unsigned int hitCount = 0;
 
   SoVertexProperty* hitVtxProperty = new SoVertexProperty();
@@ -195,9 +195,9 @@ void VP1SimHitSystem::buildHitTree(const QString& detector)
 
   // -- COLOR
   SoMaterial* material = new SoMaterial();
-  material->diffuseColor.setValue(_clockwork->colorMap[detector]);
+  material->diffuseColor.setValue(m_clockwork->colorMap[detector]);
 
-  _switch->addChild(material);
+  sw->addChild(material);
 
   // Take hits from SG
   if(detector=="Pixel")
@@ -386,7 +386,7 @@ void VP1SimHitSystem::buildHitTree(const QString& detector)
   // Add to the switch
   hitPointSet->numPoints=hitCount;
   hitPointSet->vertexProperty.setValue(hitVtxProperty);
-  _switch->addChild(hitPointSet);
+  sw->addChild(hitPointSet);
   hitPointSet->enableNotify(TRUE);
   hitVtxProperty->enableNotify(TRUE);
 }

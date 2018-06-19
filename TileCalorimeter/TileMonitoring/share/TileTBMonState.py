@@ -242,7 +242,7 @@ except Exception:
      treatException("Could not set BufferSize")
 
 
-PublishInclude = '.*LBA01.*|.*LBC01.*|.*LBA02.*|.*LBC02.*|.*EBC03.*|.*BeamElements.*|.*TileTB.*'
+PublishInclude = '.*LBA01.*|.*LBC01.*|.*LBA02.*|.*LBC02.*|.*EBC03.*|.*BeamElements.*|.*TileTB.*|.*LBA04.*|.*LBC04.*'
 
 if 'PublishInclude' in dir():
     ByteStreamEmonInputSvc.Include = PublishInclude

@@ -35,7 +35,7 @@
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "InDetSimEvent/SiHit.h"
 // CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -60,8 +60,8 @@ iFatras::HitCreatorSilicon::HitCreatorSilicon(const std::string& t, const std::s
   m_siIdHelperName("PixelID"),
   m_pixIdHelper(0),
   m_sctIdHelper(0),
-  m_condSummarySvc("PixelConditionsSummarySvc", n),
-  m_useConditionsSvc(true),
+  m_condSummaryTool("PixelConditionsSummaryTool", this),
+  m_useConditionsTool(true),
   m_siPathToCharge(500.),
   m_fastEnergyDepositionModel(true)
 {
@@ -75,8 +75,8 @@ iFatras::HitCreatorSilicon::HitCreatorSilicon(const std::string& t, const std::s
     // For the SiHit creation
     declareProperty("PathToChargeConversion",       m_siPathToCharge);
     // Tools & Services
-    declareProperty("UseConditionsSvc",             m_useConditionsSvc);
-    declareProperty("ConditionsSvc",                m_condSummarySvc);
+    declareProperty("UseConditionsTool",            m_useConditionsTool);
+    declareProperty("ConditionsTool",               m_condSummaryTool);
     // Services
     declareProperty("IncidentService",              m_incidentSvc);   
     declareProperty("FastEnergyDepositionModel",    m_fastEnergyDepositionModel);   
@@ -102,11 +102,16 @@ StatusCode iFatras::HitCreatorSilicon::initialize()
         return StatusCode::FAILURE;
     }
        
-    if ( m_useConditionsSvc && m_condSummarySvc.retrieve().isFailure()){
-        ATH_MSG_ERROR( "[ --- ] Could not Retrieve '" << m_condSummarySvc << "'" );
-        return StatusCode::FAILURE;        
-    } else 
-        ATH_MSG_VERBOSE( "[ sihit ] Successfully retireved " << m_condSummarySvc );
+    if ( m_useConditionsTool ) {
+      if ( m_condSummaryTool.retrieve().isFailure()) {
+        ATH_MSG_ERROR( "[ --- ] Could not Retrieve '" << m_condSummaryTool << "'" );
+        return StatusCode::FAILURE;
+      } else {
+        ATH_MSG_VERBOSE( "[ sihit ] Successfully retireved " << m_condSummaryTool );
+      }
+    } else {
+      m_condSummaryTool.disable();
+    }
 
     // Get the Pixel Identifier-helper:
     if (m_siIdHelperName == "PixelID" && detStore()->retrieve(m_pixIdHelper, m_siIdHelperName).isFailure()) {
@@ -406,9 +411,9 @@ void iFatras::HitCreatorSilicon::createSimHit(const ISF::ISFParticle& isp, const
   Identifier hitId         = hitSurface.associatedDetectorElementIdentifier();   
   IdentifierHash hitIdHash = hitSiDetElement->identifyHash();
   // check conditions of the intersection
-  if ( m_useConditionsSvc ) {
-    bool isActive = m_condSummarySvc->isActive(hitIdHash, hitId);                   // active = "element returns data"
-    bool isGood   = isActive ? m_condSummarySvc->isGood(hitIdHash, hitId) : false;  // good   = "data are reliable"
+  if ( m_useConditionsTool ) {
+    bool isActive = m_condSummaryTool->isActive(hitIdHash, hitId);                   // active = "element returns data"
+    bool isGood   = isActive ? m_condSummaryTool->isGood(hitIdHash, hitId) : false;  // good   = "data are reliable"
     if (!isActive) 
       ATH_MSG_VERBOSE("[ sihit ]  ID " << hitId << ", hash " << hitIdHash << " is not active. ");
     else if (!isGood)               

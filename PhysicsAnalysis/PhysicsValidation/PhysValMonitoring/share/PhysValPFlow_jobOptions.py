@@ -17,6 +17,7 @@ PhysValPFO_neutral_EM = PhysValPFO("PhysValPFO_neutral")
 PhysValPFO_neutral_EM.OutputLevel = WARNING
 PhysValPFO_neutral_EM.DetailLevel = 10
 PhysValPFO_neutral_EM.EnableLumi = False
+PhysValPFO_neutral_EM.PFOContainerName="JetETMissNeutralParticleFlowObjects";
 PhysValPFO_neutral_EM.useNeutralPFO = True
 
 ToolSvc += PhysValPFO_neutral_EM

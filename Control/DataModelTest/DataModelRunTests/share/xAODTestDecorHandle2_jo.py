@@ -76,3 +76,7 @@ ChronoStatSvc.ChronoPrintOutTable = FALSE
 ChronoStatSvc.PrintUserTime       = FALSE
 ChronoStatSvc.StatPrintOutTable   = FALSE
 
+# Avoid races when running tests in parallel.
+if 'FILECATALOG' not in globals():
+  FILECATALOG = 'xAODTestDecorHandle2_catalog.xml'
+include ('DataModelRunTests/setCatalog.py')

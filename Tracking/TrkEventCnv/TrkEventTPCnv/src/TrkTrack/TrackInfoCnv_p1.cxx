@@ -49,7 +49,7 @@ void TrackInfoCnv_p1::transToPers( const Trk::TrackInfo * transObj, Trk::TrackIn
    unsigned int i = 0;
    unsigned int size=transObj->patternRecognition().size();
  
- //  std::cout<<transObj->dumpBitsPatternRecoInfo()<<std::endl;;
+ //  std::cout<<transObj->dumpBitsPatternRecoInfo()<<std::endl;
  
    for (;i<32;++i)       persObj->m_patternRecognition    |= ((transObj->patternRecognition()[i]) << i);
    for (i=32;i<size;++i) persObj->m_extPatternRecognition |= ((transObj->patternRecognition()[i]) << (i-32));

@@ -26,7 +26,7 @@ if DetFlags.digitize.Muon_on():
     if DetFlags.digitize.sTGC_on():
         job += CfgGetter.getAlgorithm("STGC_DigitToRDO/STGC_DigitToRDO", tryDefaultConfigurable=True)
     #----------------
-    #if DetFlags.digitize.Micromegas_on():
-    #    job += CfgGetter.getAlgorithm("MM_DigitToRDO/MM_DigitToRDO", tryDefaultConfigurable=True)
+    if DetFlags.digitize.Micromegas_on():
+       job += CfgGetter.getAlgorithm("MM_DigitToRDO/MM_DigitToRDO", tryDefaultConfigurable=True)
     #----------------
 #endif digitize.Muon_on

@@ -83,7 +83,7 @@ PP="$PP"'|PluginMgr +INFO loaded plugin info for'
 # ignore HistorySvc registered count
 PP="$PP"'|HistorySvc +INFO Registered'
 # ignore clid registry entries count
-PP="$PP"'|ClassIDSvc +INFO  getRegistryEntries: read'
+PP="$PP"'|ClassIDSvc[ 0]+INFO  getRegistryEntries: read'
 # ignore existsDir path WARNINGS
 PP="$PP"'|DirSearchPath::existsDir: WARNING not a directory'
 # ignore warnings about duplicate services/converters.
@@ -169,6 +169,18 @@ PP="$PP"'|Terminating thread-pool resources|Joining Scheduler thread'
 PP="$PP"'|DEBUG Calling destructor'
 
 PP="$PP"'|INFO TopAlg list empty.'
+
+PP="$PP"'|^ChronoStatSvc +INFO +Number of skipped events for MemStat'
+PP="$PP"'|^Py:Athena +INFO +including file'
+PP="$PP"'|^Athena +INFO +including file'
+
+# Ignore annoying error from root 6.10.06
+PP="$PP"'|no interpreter information for class TSelectorCint'
+
+# Ignore warning stemming from apparent bug in ReadRootmapFile; gives messages
+# like
+#  Warning in <TInterpreter::ReadRootmapFile>: enum  xAOD::Type::ObjectType found in libxAODBaseDict.so  libEventKernelDict.so  libxAODBaseDict.so  libEventKernelDict.so  is already in libxAODBaseDict.so  libEventKernelDict.so 
+PP="$PP"'|Warning in <TInterpreter::ReadRootmapFile>: enum'
 
 
 if [ "$extrapatterns" != "" ]; then

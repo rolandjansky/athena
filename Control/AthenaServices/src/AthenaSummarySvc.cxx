@@ -211,11 +211,7 @@ StatusCode AthenaSummarySvc::initialize() {
     addListener(*itr);
   }
 
-  #ifdef ATLAS_GAUDI_V21
   p_logMsg = dynamic_cast< ILoggedMessageSvc* > ( msgSvc().get() );
-  #else
-  p_logMsg = dynamic_cast< ILoggedMessageSvc* > ( msgSvc() );
-  #endif
   if (p_logMsg == nullptr) {
     m_log << MSG::INFO << "unable dcast IMessageSvc to ILoggedMessageSvc: "
 	  << "not scanning for keywords in logs, or printing logged messages"

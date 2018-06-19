@@ -47,10 +47,10 @@ ByteStreamEmonInputSvc.Key = "SFI"
 ByteStreamEmonInputSvc.KeyCount = 3
 
 # ############################################################
-# Dispersion: if false all processes with the same selection
-# criteria see the same events.
+# GroupName: Monitors with the same group name and selection 
+# criteria will never receive same events.
 # ############################################################
-# ByteStreamEmonInputSvc.Dispersion = False
+# ByteStreamEmonInputSvc.GroupName = ""
 
 # ############################################################
 # Number of internally buffered events. Keep small for
@@ -118,7 +118,7 @@ theApp.ExtSvc += [ "ByteStreamCnvSvc"]
 
 # It looks as if one needs this now online ?
 if False:
-    from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
+    from AthenaServices.AthenaServicesConf import MetaDataSvc
     svcMgr += MetaDataSvc( "MetaDataSvc" )
     # Add in MetaData Stores
     from StoreGate.StoreGateConf import StoreGateSvc

@@ -46,8 +46,8 @@ public:
     //
     // This is only for atlas:
     //
-    char *_ldlibpath = getenv("LD_LIBRARY_PATH");
-    char *ldlibpath = _ldlibpath ? strdup(_ldlibpath) : NULL;
+    char *ldlibpath_env = getenv("LD_LIBRARY_PATH");
+    char *ldlibpath = ldlibpath_env ? strdup(ldlibpath_env) : NULL;
 
     if (ldlibpath) {
       char *thisDir = strtok(ldlibpath, (char *) ":");
@@ -130,24 +130,24 @@ public:
   }
 };
 
-IOLoader::IOLoader() : c(new Clockwork()) {
-  c->loadDrivers();
+IOLoader::IOLoader() : m_c(new Clockwork()) {
+  m_c->loadDrivers();
 }
 
 IOLoader::~IOLoader() {
-  delete c;
+  delete m_c;
 }
 
 const IODriver *
 IOLoader::ioDriver(const std::string &name) const {
-  std::map<std::string, const IODriver *>::iterator d = c->_driver.find(name);
+  std::map<std::string, const IODriver *>::iterator d = m_c->_driver.find(name);
 
-  if (d == c->_driver.end()) {
-    std::map<std::string, Clockwork::CreationMethod>::iterator m = c->_create.find(name);
-    if (m != c->_create.end()) {
+  if (d == m_c->_driver.end()) {
+    std::map<std::string, Clockwork::CreationMethod>::iterator m = m_c->_create.find(name);
+    if (m != m_c->_create.end()) {
       Clockwork::CreationMethod createMethod = (*m).second;
       IODriver *driver = (IODriver *) (*createMethod)();
-      c->_driver[name] = driver;
+      m_c->_driver[name] = driver;
       return driver;
     }else {
       return NULL;

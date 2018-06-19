@@ -30,10 +30,10 @@
 #endif
 
 
-SplitBkgStreamsCache::SplitBkgStreamsCache( const std::string& type, 
-					    const std::string& name,
-					    const IInterface* parent) : 
-  AthAlgTool( type, name, parent ),
+SplitBkgStreamsCache::SplitBkgStreamsCache( const std::string& type,
+                                            const std::string& name,
+                                            const IInterface* parent) :
+  base_class( type, name, parent ),
   p_activeStore(0),
   m_nXings(0),
   m_nStores1(0),
@@ -93,18 +93,6 @@ SplitBkgStreamsCache::~SplitBkgStreamsCache()
   delete m_chooseCacheRand;
   delete m_readEventRand1;
   delete m_readEventRand2;
-}
-
-StatusCode
-SplitBkgStreamsCache::queryInterface(const InterfaceID& riid, void** ppvif) 
-{
-  if ( riid == IBkgStreamsCache::interfaceID() ) 
-    {
-      *ppvif = (IBkgStreamsCache*)this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-  return AthAlgTool::queryInterface( riid, ppvif );
 }
 
 void

@@ -20,7 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEgamma
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODTracking
-                          InnerDetector/InDetConditions/SCT_ConditionsServices
+                          InnerDetector/InDetConditions/SCT_ConditionsTools
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetDetDescr/SCT_Cabling

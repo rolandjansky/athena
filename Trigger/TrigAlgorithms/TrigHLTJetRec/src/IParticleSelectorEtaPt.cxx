@@ -5,7 +5,6 @@
 #include <iostream>
 #include <cmath>
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "TrigHLTJetRec/IParticleSelectorEtaPt.h"
 #include "xAODBase/IParticle.h"
 

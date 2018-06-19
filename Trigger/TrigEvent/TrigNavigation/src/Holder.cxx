@@ -275,14 +275,14 @@ bool HLTNavDetails::IHolder::serializePayload(std::vector<uint32_t>& dataBlob,
   DataBucketBase* dobjBase = static_cast<DataBucketBase*>(dobj);
   if ( dobjBase ) {
     dobjBase->relinquish();
-    MLOG(VERBOSE) << "serialization giving up the ownership" << endmsg;;
+    MLOG(VERBOSE) << "serialization giving up the ownership" << endmsg;
   }
   delete dobj;
   delete addr;
   
   DataObject* dobjaux = getAuxDataObject();
 
-  MLOG(VERBOSE) << "aux object: " << dobjaux << endmsg;;
+  MLOG(VERBOSE) << "aux object: " << dobjaux << endmsg;
 
   TrigStreamAddress* auxaddr(0);
   if(dobjaux){

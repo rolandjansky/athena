@@ -8,7 +8,9 @@
 #include "CaloUtils/CaloCellCorrection.h"
 
 #include "CaloInterface/ICalorimeterNoiseTool.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 //class CaloCell;
 //class ICalorimeterNoiseTool;
@@ -20,14 +22,14 @@ class CaloCellRandomizer : public CaloCellCorrection
 public:
 
   CaloCellRandomizer(const std::string& type,
-                       const std::string& name,
-                       const IInterface* parent);
+                     const std::string& name,
+                     const IInterface* parent);
 
   virtual ~CaloCellRandomizer() {};
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   
-  void MakeCorrection(CaloCell* theCell);
+  virtual void MakeCorrection (CaloCell* theCell) override;
 
 
 private:
@@ -49,7 +51,10 @@ private:
   float m_shift_TileGap;
   float m_shift_TileExt;
   float m_shift_FCAL;
- 
+
+  ServiceHandle<IAthRNGSvc> m_athRNGSvc;
+  std::string m_randomStream;
+  ATHRNG::RNGWrapper* m_randomEngine;
 };
 
 #endif

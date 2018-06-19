@@ -185,7 +185,7 @@ def toolIP3DFlipTrackSelector(name, useBTagFlagsDefaults = True, **options):
 
 #----------------------------------------------------------------------
 
-metaIP3DFlipNewLikelihoodTool = { 'CalibrationFolders' : ['IP3D',],
+metaIP3DFlipNewLikelihoodTool = { 'CalibrationTaggers' : ['IP3D',],
                                   'DependsOn'          : ['BTagCalibrationBrokerTool',],
                                   'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                                   'ToolCollection'     : 'IP3DFlipTag' }

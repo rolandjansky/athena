@@ -11,8 +11,11 @@
 #include "JetEDM/PseudoJetVector.h"
 #include "JetEDM/IndexedTConstituentUserInfo.h"
 
+#include "JetRec/PseudoJetContainer.h"
+#include "JetRec/MuonSegmentExtractor.h"
+#include "JetRec/PseudoJetContainer.h"
+
 using std::string;
-using jet::LabelIndex;
 using jet::PseudoJetVector;
 
 //**********************************************************************
@@ -30,103 +33,106 @@ MuonSegmentPseudoJetGetter::MuonSegmentPseudoJetGetter(const std::string& name)
 StatusCode MuonSegmentPseudoJetGetter::initialize() {
   ATH_MSG_DEBUG("Initializing...");
   print();
+
+  ATH_CHECK( m_incoll.initialize() );
+  ATH_CHECK( m_outcoll.initialize() );
+
+  m_outcollRead = m_outcoll.key();
+  ATH_CHECK( m_outcollRead.initialize() );
+
+  m_outcollReadGhost = m_outcoll.key() + "Ghost";
+  ATH_CHECK( m_outcollReadGhost.initialize() );
+
+  m_outcollGhost = m_outcoll.key() + "Ghost";
+  ATH_CHECK( m_outcollGhost.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
 //**********************************************************************
 
-const PseudoJetVector* MuonSegmentPseudoJetGetter::get() const {
-  ATH_MSG_DEBUG("Getting pseudojets...");
-  PseudoJetVector* ppsjs = 0;
-  // Check if output container is already present.
-  if ( evtStore()->contains<PseudoJetVector>(m_outcoll) ) {
-    ATH_MSG_DEBUG("Fetching existing pseudojets." << m_outcoll);
-    ppsjs = evtStore()->retrieve<PseudoJetVector>(m_outcoll);
+StatusCode MuonSegmentPseudoJetGetter::createAndRecord() const {
+  // Use const pointer for now, but can change to unique pointer when
+  // we move to DataVector and when MR 2431 is complete:
+  // https://gitlab.cern.ch/atlas/athena/merge_requests/2431
+
+  // should rename getC createAndRecord once get() is removed.
+
+  const PseudoJetContainer* pjc = this->getC();
+  if(!pjc) return StatusCode::FAILURE; 
+
+  return StatusCode::SUCCESS;
+}
+
+//**********************************************************************
+
+const PseudoJetContainer* MuonSegmentPseudoJetGetter::getC() const {
+  ATH_MSG_DEBUG("Getting MuonSegmentPseudoJetContainer...");
+  const PseudoJetContainer * pjcont;
+
+  // check if not already existing
+  auto handle_inOut = SG::makeHandle (m_outcollRead);
+  if ( handle_inOut.isValid() ) {
+    ATH_MSG_DEBUG("Fetching existing pseudojets." << m_outcollRead.key());
+    pjcont = handle_inOut.cptr();
+    return pjcont;
   }
-  // Create and fill output container.
-  if ( ppsjs == 0 ) {
-    // Fetch label index map.
-    LabelIndex* pli = 0;
-    string liname = "PseudoJetLabelMap";
-    if ( evtStore()->contains<LabelIndex>(liname) ) {
-      ATH_MSG_DEBUG("Fetching existing pseudojet label map." << m_outcoll);
-      pli = evtStore()->retrieve<LabelIndex>(liname);
-      if ( pli == 0 ) {
-        ATH_MSG_ERROR("Unable to fetch pseudojet label map.");
-        return 0;
-      }
-    } else {
-      ATH_MSG_DEBUG("Creating new pseudojet label map." << m_outcoll);
-      pli = new LabelIndex(liname);
-      if ( evtStore()->record(pli, liname).isFailure() ) {
-        ATH_MSG_ERROR("Unable to store pseudojet label map.");
-        return 0;
-      }
-    }
-    // Add this label to the map.
-    if ( pli->addLabel(m_label) == 0 ) {
-      ATH_MSG_ERROR("Unable to store pseudojet label map.");
-      return 0;
-    }
-    // Create pseudojet collection.
-    ATH_MSG_DEBUG("Creating new pseudojet collection");
-    ppsjs = new PseudoJetVector;
-    // Fill pseudojet collection.
-    if ( appendTo(*ppsjs, pli) ) {
-      ATH_MSG_ERROR("Error creating pseudojets.");
-      delete ppsjs;
-      return 0;
-    }
-    StatusCode sc = evtStore()->record(ppsjs, m_outcoll);
-    if ( sc.isFailure() ) {
-      ATH_MSG_ERROR("Unable to write new pseudojet collection to event store: "
-                    << m_outcoll);
-    } else {
-      ATH_MSG_DEBUG("Created new pseudojet collection in event store: "
-                    << m_outcoll);
-    }
+
+  // else we build and record the container
+  const xAOD::MuonSegmentContainer* cont;
+  auto handle_in = SG::makeHandle(m_incoll);
+  if ( handle_in.isValid() ) {
+    ATH_MSG_DEBUG("Retrieving xAOD container " << m_incoll.key() );
+    // retrieve the input.
+    cont = handle_in.cptr();
   } else {
-    ATH_MSG_DEBUG("Using existing PseudoJet collection");
+    ATH_MSG_ERROR("Unable to find input collection: " << m_incoll.key());
+    ATH_MSG_ERROR("Error creating pseudojets.");
+    return nullptr;
   }
-  return ppsjs;
+
+  std::vector<PseudoJet> vpj = createPseudoJets(cont);
+
+  // "Ghost" in outout collection name? If so is a ghost collection.
+  if((m_outcoll.key()).find("Ghost") != std::string::npos){
+    for(PseudoJet& pj : vpj) {pj *= 1e-40;}
+  }
+    
+  // create an extractor (MuonSegmentExtractors are always ghost extractors)
+  MuonSegmentExtractor* extractor = new MuonSegmentExtractor(cont, m_label);
+
+  // Put the PseudoJetContainer together :
+  pjcont = new PseudoJetContainer(extractor, vpj);
+  std::unique_ptr<const PseudoJetContainer> pjcont_ptr(pjcont);
+  
+  // record
+  SG::WriteHandle<PseudoJetContainer> handle_out(m_outcoll);
+  ATH_MSG_DEBUG("New PseudoJetContainer in event store with extractor: " 
+                << extractor->toString(0));
+
+  // notify
+  if ( ! handle_out.put(std::move(pjcont_ptr))) {
+    ATH_MSG_ERROR("Unable to write new PseudoJetContainer to event store: " 
+                  << m_outcoll.key());
+  } else {
+    ATH_MSG_DEBUG("Created new PseudoJetContainer in event store: " 
+                  << m_outcoll.key());
+  }
+
+  return pjcont;
 }
 
-//**********************************************************************
 
-int MuonSegmentPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* pli) const {
-  ATH_MSG_DEBUG("Entering appendTo(PseudoJetVector)...");
-  if ( evtStore()->contains<xAOD::MuonSegmentContainer>(m_incoll) ) {
-    ATH_MSG_DEBUG("Retrieving xAOD muon segment container " << m_incoll << ", pT="
-                  << m_pt  <<  ", isGhost");
-    const xAOD::MuonSegmentContainer* ppars = 0;
-    ppars = evtStore()->retrieve<const xAOD::MuonSegmentContainer>(m_incoll);
-    if ( ppars != 0 ) return append(*ppars, psjs, pli);
-  }
-  ATH_MSG_ERROR("Unable to find input collection: " << m_incoll);
-  return 1;
-}
-
-//**********************************************************************
-
-int MuonSegmentPseudoJetGetter::
-append(const xAOD::MuonSegmentContainer& inputs, PseudoJetVector& psjs, const LabelIndex* pli) const {
-  jet::IConstituentUserInfo::Index labidx = 0;
-  if ( pli != 0 ) labidx = pli->index(m_label);
-  else ATH_MSG_WARNING("Index-to-label map is not supplied.");
-  labidx = -labidx;
-
-  /// Loop over input, buid CUI and PseudoJets
-#ifdef USE_BOOST_AUTO
-  for ( BOOST_AUTO(iinp, inputs.begin()); iinp!=inputs.end(); ++iinp ) {
-    BOOST_AUTO(ppar, *iinp); // IParticle pointer
-#else
-  for ( auto iinp=inputs.begin(); iinp!=inputs.end(); ++iinp ) {
-    auto ppar = *iinp; // IParticle pointer
-#endif
+std::vector<PseudoJet> 
+MuonSegmentPseudoJetGetter::createPseudoJets(const xAOD::MuonSegmentContainer* ms) const {
+  
+  std::vector<PseudoJet> vpj;
+  int index=0;
+  for(const xAOD::MuonSegment* part: *ms) {
     double pt = m_pt;
-    double x = ppar->x();
-    double y = ppar->y();
-    double z = ppar->z();
+    double x = part->x();
+    double y = part->y();
+    double z = part->z();
     double xy = sqrt(x*x + y*y);
     double r = sqrt(xy*xy + z*z);
     double pfac = pt/xy;
@@ -136,19 +142,16 @@ append(const xAOD::MuonSegmentContainer& inputs, PseudoJetVector& psjs, const La
     double  e = pfac*r;
     fastjet::PseudoJet psj(px, py, pz, e);
     ATH_MSG_VERBOSE("Muon segment pseuojet y: " << psj.rap());
-    if ( pli != 0 ) {
-      jet::IConstituentUserInfo* pcui =
-        new jet::IndexedTConstituentUserInfo<xAOD::MuonSegment>(*ppar,labidx, pli);
-      psj.set_user_info(pcui);
-    }
-    psjs.push_back(psj);
-  } // end loop over input 
-  ATH_MSG_DEBUG("After append, PseudoJet count is " << psjs.size());
-  return 0;
+    vpj.push_back(psj);
+    //vpj.push_back( PseudoJet(part->px(),part->py(),part->pz(),part->t0()) );
+    vpj.back().set_user_index(index); // Set the index !!
+    index++;
+  }
+
+  return vpj;
 }
-
+  
 //**********************************************************************
-
 
 std::string MuonSegmentPseudoJetGetter::label() const{
   return m_label;
@@ -159,8 +162,8 @@ std::string MuonSegmentPseudoJetGetter::label() const{
 void MuonSegmentPseudoJetGetter::print() const {
   ATH_MSG_INFO("Properties for PseudoJetGetter " << name());
   ATH_MSG_INFO("             Label: " << m_label);
-  ATH_MSG_INFO("   Input container: " << m_incoll);
-  ATH_MSG_INFO("  Output container: " << m_outcoll);
+  ATH_MSG_INFO("   Input container: " << m_incoll.key());
+  ATH_MSG_INFO("  Output container: " << m_outcoll.key());
   ATH_MSG_INFO("      Pseudojet pT: " << m_pt);
 
 }

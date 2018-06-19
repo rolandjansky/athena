@@ -3255,7 +3255,8 @@ CombinedMuonTrackBuilder::appendSelectedTSOS(
 	    if (previousSurface
 		&& std::find(measurementSurfaces.begin(),
 			     measurementSurfaces.end(),
-			     surface) != measurementSurfaces.end())	
+			     surface) != measurementSurfaces.end()
+		&& !m_idHelperTool->isMM(surface->associatedDetectorElementIdentifier()))	
 	    {
 		std::string type	 = "";
 		if (dynamic_cast<const Trk::CompetingRIOsOnTrack*>((**s).measurementOnTrack()))
@@ -3926,7 +3927,7 @@ CombinedMuonTrackBuilder::createMuonTrack(
 	 } 
          if(entranceTSOS) {  
             double distance = (entranceTSOS->trackParameters()->position() - (**s).trackParameters()->position()).mag();
-//            std::cout << " Muon Entrance " <<  " r " << entranceTSOS->trackParameters()->position().perp() << " z " << entranceTSOS->trackParameters()->position().z() << " track pars r " <<  (**s).trackParameters()->position().perp() << " z " << (**s).trackParameters()->position().z() << std::endl;; 
+//            std::cout << " Muon Entrance " <<  " r " << entranceTSOS->trackParameters()->position().perp() << " z " << entranceTSOS->trackParameters()->position().z() << " track pars r " <<  (**s).trackParameters()->position().perp() << " z " << (**s).trackParameters()->position().z() << std::endl;
             if(distance>2000) ATH_MSG_DEBUG(" Added Muon Entrance " <<  " r " << entranceTSOS->trackParameters()->position().perp() << " z " << entranceTSOS->trackParameters()->position().z() << " track pars r " <<  (**s).trackParameters()->position().perp() << " z " << (**s).trackParameters()->position().z()); 
             trackStateOnSurfaces->push_back(entranceTSOS);
          }
@@ -4088,7 +4089,8 @@ CombinedMuonTrackBuilder::createSpectrometerTSOS(const Trk::Track& spectrometerT
 		if (previousSurface
 		    && std::find(measurementSurfaces.begin(),
 				 measurementSurfaces.end(),
-				 surface) != measurementSurfaces.end())
+				 surface) != measurementSurfaces.end()
+		    && !m_idHelperTool->isMM(surface->associatedDetectorElementIdentifier()))
 		{
 		    std::string type	 = "";
 		    if (dynamic_cast<const Trk::CompetingRIOsOnTrack*>((**s).measurementOnTrack()))

@@ -5,6 +5,8 @@
 #include "TrigT2CaloCommon/TrigDataAccessATLFAST.h"
 #include "TrigT2CaloCommon/T2CaloInitSvc.h"
 #include "TrigT2CaloCommon/T2GeometryTool.h"
+#include "../TrigCaloDataAccessSvc.h"
+#include "../TestCaloDataAccess.h"
 
 DECLARE_COMPONENT( T2CaloInitSvc )
 
@@ -14,4 +16,6 @@ DECLARE_COMPONENT( T2CaloInitSvc )
 DECLARE_COMPONENT( TrigDataAccess )
 DECLARE_COMPONENT( TrigDataAccessATLFAST )
 DECLARE_COMPONENT( T2GeometryTool )
+DECLARE_COMPONENT( TrigCaloDataAccessSvc)
+DECLARE_COMPONENT( TestCaloDataAccess )
 

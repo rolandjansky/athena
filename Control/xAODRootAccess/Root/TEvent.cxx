@@ -3099,7 +3099,7 @@ namespace xAOD {
 
       // If there are no dynamic auxiliary variables in the object, return
       // right away:
-      if( ! auxids.size() ) {
+      if( auxids.empty() ) {
          return TReturnCode::kSuccess;
       }
 

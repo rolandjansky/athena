@@ -60,7 +60,9 @@ class TestScenario : public ParallelCallTest {
 public:
   TestScenario( RNGWrapper* wrapper, const std::string& name )
     : m_wrapper( wrapper ),
-      m_name( name ){}
+      m_name( name ),
+      m_slot0SumRef(0)
+  {}
 
   // pull numbers from the first slot and make it a reference
   void firstCall() override {    

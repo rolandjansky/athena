@@ -35,7 +35,9 @@ class TrigEMClusterCnv  : public T_AthenaPoolCustomCnv<TrigEMCluster, TrigEMClus
 
  protected:
   
+public:
   TrigEMClusterCnv(ISvcLocator* svcloc);
+protected:
   ~TrigEMClusterCnv();
 
   TrigEMCluster_PERS*  createPersistent(TrigEMCluster* transCont);

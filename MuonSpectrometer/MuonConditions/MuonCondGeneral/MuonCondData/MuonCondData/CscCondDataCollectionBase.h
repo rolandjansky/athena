@@ -14,9 +14,9 @@
         Exists so that CscCondDataCollection objects of different types can be stored in the same vector, map, etc. 
 **/
 #include <sstream>
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "StoreGate/DataHandle.h"
-//#include "CLIDSvc/CLASS_DEF.h"
+//#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "MuonCondData/CscCondData.h"
 #include <sstream>

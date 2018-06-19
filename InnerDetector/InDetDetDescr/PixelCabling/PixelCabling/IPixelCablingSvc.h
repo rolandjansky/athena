@@ -83,9 +83,12 @@ class IPixelCablingSvc: virtual public IInterface {
   enum moduletype {DBM, IBL, PIX_BARREL, PIX_ENDCAP, NONE};
   virtual moduletype getModuleType(const Identifier& id) = 0;
 
+  enum pixeltype {NORMAL, LONG, GANGED};
+  virtual pixeltype getPixelType(const Identifier& id) = 0;
+
   virtual int getHitDiscCnfg(const uint32_t robId, const int link) = 0;
   virtual int getHitDiscCnfg(Identifier* pixelId) = 0;
-
+  virtual int getIBLOverflowToT(Identifier* pixelId) = 0;
 
    // Wrappers to PixelCablingData -- get maps
    virtual std::map< uint64_t, Identifier > get_idMap_onoff() = 0;

@@ -54,7 +54,7 @@ def toolSoftMuonTag(name, useBTagFlagsDefaults = True, **options):
 
 #----------------------------------------------------------------------
 
-metaSoftMuonTagNewLikelihoodTool = { 'CalibrationFolders' : ['SMT',],
+metaSoftMuonTagNewLikelihoodTool = { 'CalibrationTaggers' : ['SMT',],
                                      'DependsOn'          : ['BTagCalibrationBrokerTool',],
                                      'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                                      'ToolCollection'     : 'SoftMuonTag' }

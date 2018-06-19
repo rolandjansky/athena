@@ -164,6 +164,9 @@ protected:
 				     ITER lCell,
 				     const xAOD::CaloCluster* pClus,
 				     double pl,double pr);
+
+private:
+  static void warnMoment (const char* momName);
 };
 
 template<typename ITER>
@@ -177,17 +180,21 @@ CaloClusterOverlapHelper::getOverlapCells(ITER fCell,
   cell_list_t cellList;
   // ----- FIXME!!
   /*CaloLine l(CaloPoint(pClus->getMomentValue(CaloClusterMoment::CENTER_X),
-		       pClus->getMomentValue(CaloClusterMoment::CENTER_Y),
-		       pClus->getMomentValue(CaloClusterMoment::CENTER_Z)),
-	     CaloPoint(0.,0.,0.));
+    pClus->getMomentValue(CaloClusterMoment::CENTER_Y),
+    pClus->getMomentValue(CaloClusterMoment::CENTER_Z)),
+    CaloPoint(0.,0.,0.));
   */
   // -----
-  double rad;//(pr*sqrt(pClus->getMomentValue(CaloxAOD::CaloCluster::Moment::SECOND_R)));
-  pClus->retrieveMoment(xAOD::CaloCluster::SECOND_R,rad);
+  double rad = 0;//(pr*sqrt(pClus->getMomentValue(CaloxAOD::CaloCluster::Moment::SECOND_R)));
+  if (!pClus->retrieveMoment(xAOD::CaloCluster::SECOND_R,rad)) {
+    CaloClusterOverlapHelper::warnMoment ("SECOND_R");
+  }
   rad*=pr;
     
   double lam;//(pl*sqrt(pClus->getMomentValue(CaloxAOD::CaloCluster::Moment::SECOND_LAMBDA)));
-  pClus->retrieveMoment(xAOD::CaloCluster::SECOND_LAMBDA,lam);
+  if (!pClus->retrieveMoment(xAOD::CaloCluster::SECOND_LAMBDA,lam)) {
+    CaloClusterOverlapHelper::warnMoment ("SECOND_LAMBDA");
+  }
   lam*=pl;
 
   //use new topo cluster moment in rel15 center_mag = sqrt(CENTER_X^2+CENTER_Y^2+CENTER_Z^2) 
@@ -196,7 +203,9 @@ CaloClusterOverlapHelper::getOverlapCells(ITER fCell,
   double clus_theta = 2 * atan(exp(-pClus->eta()));
   
   double center_mag = 0;
-  (void)pClus->retrieveMoment(xAOD::CaloCluster::CENTER_MAG, center_mag);
+  if (!pClus->retrieveMoment(xAOD::CaloCluster::CENTER_MAG, center_mag)) {
+    CaloClusterOverlapHelper::warnMoment ("CENTER_MAG");
+  }
   
   CxxUtils::sincos sc_phi(pClus->phi());
   CxxUtils::sincos sc_theta(clus_theta);

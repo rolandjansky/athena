@@ -12,7 +12,7 @@
 #include "VxVertex/VxTrackAtVertex.h"
 #include "VxVertex/ExtendedVxCandidate.h"
 #include "VxVertex/LinearizedTrack.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 namespace VxVertexDict
 {

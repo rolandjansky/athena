@@ -17,19 +17,31 @@
 #define ATHCONTAINERSROOT_ATHCONTAINERSROOTTESTDICT_H
 
 
+#include "AthContainersRoot/test/Foo.h"
 #include "AthContainers/tools/AuxTypeVectorFactory.h"
+#include "AthLinks/ElementLink.h"
+#include <vector>
 
 
 namespace AthContainersRootTest {
 
 
-class Foo {};
 class Bar {};
 class Baz {};
 
 
 } // namespace AthContainersRootTest
 
+
+template class std::vector<AthContainersRootTest::Foo*>;
+template class ElementLink<std::vector<AthContainersRootTest::Foo*> >;
+template class std::vector<ElementLink<std::vector<AthContainersRootTest::Foo*> > >;
+template class std::vector<std::vector<ElementLink<std::vector<AthContainersRootTest::Foo*> > > >;
+
+template class std::vector<AthContainersRootTest::Foo>;
+template class ElementLink<std::vector<AthContainersRootTest::Foo> >;
+template class std::vector<ElementLink<std::vector<AthContainersRootTest::Foo> > >;
+template class std::vector<std::vector<ElementLink<std::vector<AthContainersRootTest::Foo> > > >;
 
 namespace SG {
 template class AuxTypeVectorFactory<AthContainersRootTest::Foo>;

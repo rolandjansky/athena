@@ -1,5 +1,5 @@
 # --- Set the environment variables need by the package VP1Algs ---
-# rbianchi@cern.ch - Nov 2016
+# rbianchi@cern.ch - Nov 2016, Feb 2018
 
 # Set the environment variables
 
@@ -10,5 +10,4 @@ set( VP1ALGSENVIRONMENT_ENVIRONMENT
 
 # Silently declare the module found
 set( VP1ALGSENVIRONMENT_FOUND TRUE )
-
 

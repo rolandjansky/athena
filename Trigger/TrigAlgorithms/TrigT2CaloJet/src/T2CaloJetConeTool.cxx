@@ -70,6 +70,10 @@ StatusCode T2CaloJetConeTool::initialize()
   // cleaning:
   m_cellenergies.reserve(8192);
 
+  // from IAlgToolCalo
+  m_geometryTool.disable();
+  m_data.disable();
+
   return StatusCode::SUCCESS;
 }
 

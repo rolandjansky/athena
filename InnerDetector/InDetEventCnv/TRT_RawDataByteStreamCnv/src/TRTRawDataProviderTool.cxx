@@ -6,7 +6,6 @@
 //#include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"
 
 #include "TRTRawDataProviderTool.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "InDetRawData/TRT_RDORawData.h"
 #include "ByteStreamData/RawEvent.h" 
@@ -31,6 +30,9 @@ TRTRawDataProviderTool::TRTRawDataProviderTool
      m_decoder   ("TRT_RodDecoder"),
      m_bsErrSvc ("TRT_ByteStream_ConditionsSvc", name),
      m_robIdSet(),
+     m_LastLvl1ID(),
+     m_LVL1Collection(nullptr),
+     m_BCCollection(nullptr),
      m_storeInDetTimeColls(true)
 {
   declareProperty ("Decoder", m_decoder);

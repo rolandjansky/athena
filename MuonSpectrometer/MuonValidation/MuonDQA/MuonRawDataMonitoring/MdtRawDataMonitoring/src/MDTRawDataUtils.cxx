@@ -13,7 +13,6 @@
 #include "MdtRawDataMonitoring/MdtRawDataValAlg.h"
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include <TError.h>
-#include "xAODEventInfo/EventInfo.h"
 #include <string>
 #include <TBox.h>
 #include <TList.h>
@@ -936,24 +935,14 @@ bool MdtRawDataValAlg::AinB( int A, std::vector<int> & B ) {
 
 StatusCode MdtRawDataValAlg::GetTimingInfo() {
   m_time = -1;
-  const xAOD::EventInfo* evt(0);
 
-  StatusCode sc = StatusCode::SUCCESS;
-  sc = (*m_activeStore)->retrieve(evt);
-  if ( sc.isSuccess() ) {
-    ATH_MSG_DEBUG("MdtRawDataValAlg::retrieved eventInfo");
-  	//m_time = (uint32_t) evt->timeStamp();
-  	m_time = (1000000000L*(uint64_t)evt->timeStamp()+evt->timeStampNSOffset()) * 0.000000001;
-  }
-  else {
-    ATH_MSG_ERROR("Could not find eventInfo");
-    return sc;
-  }
+  SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo);
+  m_time = (1000000000L*(uint64_t)evt->timeStamp()+evt->timeStampNSOffset()) * 0.000000001;
    
   // protection against simulated cosmics when the trigger_info() of the event_info is not filled and returns a null pointer. 
   //trigtype = eventInfo->level1TriggerType();
 
-  return sc;
+  return StatusCode::SUCCESS;
 } 
 
 void MdtRawDataValAlg::StoreTriggerType(int type) {
@@ -980,36 +969,22 @@ StatusCode MdtRawDataValAlg::fillLumiBlock(){
 
   m_lumiblock = -1;
 
-  const xAOD::EventInfo* evt(0);
-
-  StatusCode sc = StatusCode::SUCCESS;
-  sc = (*m_activeStore)->retrieve(evt);
-  if (sc.isFailure() || evt==0){
-    ATH_MSG_ERROR("Could not find Event Info");
-    return sc;
-  }
+  SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo);
 
   m_lumiblock = evt->lumiBlock();
 
-  return sc;
+  return StatusCode::SUCCESS;
 
 }
 StatusCode MdtRawDataValAlg::GetEventNum(){
 
   m_eventNum = -1;
 
-  const xAOD::EventInfo* evt(0);
-
-  StatusCode sc = StatusCode::SUCCESS;
-  sc = (*m_activeStore)->retrieve(evt);
-  if (sc.isFailure() || evt==0){
-    ATH_MSG_ERROR("Could not find Event Info");
-    return sc;
-  }
+  SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo);
 
   m_eventNum = evt->eventNumber();
 
-  return sc;
+  return StatusCode::SUCCESS;
 
 }
 

@@ -109,6 +109,8 @@ StatusCode TileRawChannelBuilderMF::initialize() {
   if (m_bestPhase) {
     //=== get TileToolTiming
     CHECK(m_tileToolTiming.retrieve());
+  } else {
+    m_tileToolTiming.disable();
   }
 
   //=== get TileCondToolNoiseSample

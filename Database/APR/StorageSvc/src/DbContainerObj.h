@@ -61,8 +61,6 @@ namespace pool  {
     DbDatabase                    m_dbH;
     /// Flag indication DbStatus of technology dependent container
     bool                          m_isOpen;
-    /// Flag to mark ongoing Transactions
-    bool                          m_transactOpen;
 
     /// Check database access
     bool hasAccess();
@@ -91,8 +89,6 @@ namespace pool  {
     DbDatabase& database()                  {  return m_dbH;          }
     /// Access the token of the container object
     const Token* token() const              {  return m_tokH;         }
-    /// Allow query if Transaction is active
-    bool transactionActive() const          {  return m_transactOpen; }
     /// Query the pending transaction stack
     bool updatesPending() const;
     /// Flag if container was opened
@@ -101,7 +97,7 @@ namespace pool  {
     bool isReadOnly() const      
     { return !(mode()&pool::UPDATE) && !(mode()&pool::CREATE);    }
     /// Cancel transaction flag
-    void cancelTransaction()                { m_transactOpen = false; }
+    void cancelTransaction()                { }
     /// Size of the Database container (=# of objects)
     long long int size();
     /// Open the container
@@ -110,8 +106,8 @@ namespace pool  {
     DbStatus close();
     /// Retire the container
     DbStatus retire();
-    /// Start/Commit/Rollback Database Transaction
-    DbStatus transAct(DbTransaction& refTransaction);
+    /// Execute Database Transaction Action
+    DbStatus transAct(Transaction::Action);
     /// Pass options to the implementation
     DbStatus setOption(const DbOption& opt);
     /// Access options

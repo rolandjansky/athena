@@ -1029,7 +1029,7 @@ bool Trk::KalmanFitter::iterateKalmanFilter(const Trk::TrackParameters*&  startP
       this->prepareNextIteration(1,newFitQuality,iFilterBeginState, *startPar);
 
       ATH_MSG_VERBOSE ( endmsg << "********** call forward kalman filter, reverting "
-			<< "DNA (still #1) **********" << endmsg );;
+			<< "DNA (still #1) **********" << endmsg );
       // do not recalibrate again - DNA usually guarantees ROTs are made close to real track
       m_fitStatus = m_forwardFitter->fit(m_trajectory, *startPar, runOutlier, kalMec,
                                          false, iFilterBeginState);

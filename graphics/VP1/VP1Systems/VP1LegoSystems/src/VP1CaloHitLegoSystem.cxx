@@ -43,17 +43,17 @@ public:
 
 VP1CaloHitLegoSystem::VP1CaloHitLegoSystem()
   :IVP13DSystemSimple("CaloHitLego","Display the calorimeter hits in an eta-phi view","boudreau@pitt.edu"),
-   _clockwork(new Clockwork())
+   m_clockwork(new Clockwork())
 {
-  _clockwork->lowThresholdEnergy=500;
-  _clockwork->highThresholdEnergy=1000000;
-  _clockwork->larEnergyScale=0.0002;
+  m_clockwork->lowThresholdEnergy=500;
+  m_clockwork->highThresholdEnergy=1000000;
+  m_clockwork->larEnergyScale=0.0002;
 }
 
 VP1CaloHitLegoSystem::~VP1CaloHitLegoSystem()
 {
-  delete _clockwork;
-  _clockwork = 0;
+  delete m_clockwork;
+  m_clockwork = 0;
 }
 
 QWidget* VP1CaloHitLegoSystem::buildController()
@@ -68,24 +68,24 @@ QWidget* VP1CaloHitLegoSystem::buildController()
   }
 
   // Populate Check Box Names Map
-  _clockwork->checkBoxNamesMap.insert(ui.chbxEMB0, "EMB0");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxEMB1, "EMB1");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxEMB2, "EMB2");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxEMB3, "EMB3");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxEMEC0,"EMEC0");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxEMEC1,"EMEC1");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxEMEC2,"EMEC2");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxEMEC3,"EMEC3");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxHEC0, "HEC0");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxHEC1, "HEC1");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxHEC2, "HEC2");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxHEC3, "HEC3");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxEMB0, "EMB0");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxEMB1, "EMB1");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxEMB2, "EMB2");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxEMB3, "EMB3");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxEMEC0,"EMEC0");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxEMEC1,"EMEC1");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxEMEC2,"EMEC2");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxEMEC3,"EMEC3");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxHEC0, "HEC0");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxHEC1, "HEC1");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxHEC2, "HEC2");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxHEC3, "HEC3");
 
   // Populate Check Box Map and connect slots
-  foreach(QCheckBox* cb,_clockwork->checkBoxNamesMap.keys())
+  foreach(QCheckBox* cb,m_clockwork->checkBoxNamesMap.keys())
   {
     connect(cb,SIGNAL(toggled(bool)),this,SLOT(checkboxChanged()));
-    _clockwork->checkBoxMap.insert(_clockwork->checkBoxNamesMap[cb],cb);
+    m_clockwork->checkBoxMap.insert(m_clockwork->checkBoxNamesMap[cb],cb);
   }
 
   return controller;
@@ -97,21 +97,21 @@ void VP1CaloHitLegoSystem::systemuncreate()
     return;
 
   for (int i=0;i<3;i++) {
-    _clockwork->fcalSwitch[i]->removeAllChildren();
-    _clockwork->fcalSwitch[i]->unref();
-    _clockwork->fcalSwitch[i]=0;
+    m_clockwork->fcalSwitch[i]->removeAllChildren();
+    m_clockwork->fcalSwitch[i]->unref();
+    m_clockwork->fcalSwitch[i]=0;
   }
 
   for (int i=0;i<4;i++) {
-    _clockwork->embSwitch[i]->removeAllChildren();
-    _clockwork->embSwitch[i]->unref();
-    _clockwork->embSwitch[i]=0;
-    _clockwork->emecSwitch[i]->removeAllChildren();
-    _clockwork->emecSwitch[i]->unref();
-    _clockwork->emecSwitch[i]=0;
-    _clockwork->hecSwitch[i]->removeAllChildren();
-    _clockwork->hecSwitch[i]->unref();
-    _clockwork->hecSwitch[i]=0;
+    m_clockwork->embSwitch[i]->removeAllChildren();
+    m_clockwork->embSwitch[i]->unref();
+    m_clockwork->embSwitch[i]=0;
+    m_clockwork->emecSwitch[i]->removeAllChildren();
+    m_clockwork->emecSwitch[i]->unref();
+    m_clockwork->emecSwitch[i]=0;
+    m_clockwork->hecSwitch[i]->removeAllChildren();
+    m_clockwork->hecSwitch[i]->unref();
+    m_clockwork->hecSwitch[i]=0;
   }
 
 }
@@ -122,32 +122,32 @@ void VP1CaloHitLegoSystem::systemcreate(StoreGateSvc* /*detstore*/)
     return;
 
   for (int i=0;i<3;i++) {
-    _clockwork->fcalSwitch[i] = new SoSwitch();
-    _clockwork->fcalSwitch[i]->ref();
+    m_clockwork->fcalSwitch[i] = new SoSwitch();
+    m_clockwork->fcalSwitch[i]->ref();
   }
 
   for (int i=0;i<4;i++) {
-    _clockwork->embSwitch[i] = new SoSwitch();
-    _clockwork->embSwitch[i]->ref();
-    _clockwork->emecSwitch[i] = new SoSwitch();
-    _clockwork->emecSwitch[i]->ref();
-    _clockwork->hecSwitch[i] = new SoSwitch();
-    _clockwork->hecSwitch[i]->ref();
+    m_clockwork->embSwitch[i] = new SoSwitch();
+    m_clockwork->embSwitch[i]->ref();
+    m_clockwork->emecSwitch[i] = new SoSwitch();
+    m_clockwork->emecSwitch[i]->ref();
+    m_clockwork->hecSwitch[i] = new SoSwitch();
+    m_clockwork->hecSwitch[i]->ref();
   }
-  _clockwork->switchMap["EMB0"] = _clockwork->embSwitch[0];
-  _clockwork->switchMap["EMB1"] = _clockwork->embSwitch[1];
-  _clockwork->switchMap["EMB2"] = _clockwork->embSwitch[2];
-  _clockwork->switchMap["EMB3"] = _clockwork->embSwitch[3];
+  m_clockwork->switchMap["EMB0"] = m_clockwork->embSwitch[0];
+  m_clockwork->switchMap["EMB1"] = m_clockwork->embSwitch[1];
+  m_clockwork->switchMap["EMB2"] = m_clockwork->embSwitch[2];
+  m_clockwork->switchMap["EMB3"] = m_clockwork->embSwitch[3];
 
-  _clockwork->switchMap["EMEC0"] = _clockwork->emecSwitch[0];
-  _clockwork->switchMap["EMEC1"] = _clockwork->emecSwitch[1];
-  _clockwork->switchMap["EMEC2"] = _clockwork->emecSwitch[2];
-  _clockwork->switchMap["EMEC3"] = _clockwork->emecSwitch[3];
+  m_clockwork->switchMap["EMEC0"] = m_clockwork->emecSwitch[0];
+  m_clockwork->switchMap["EMEC1"] = m_clockwork->emecSwitch[1];
+  m_clockwork->switchMap["EMEC2"] = m_clockwork->emecSwitch[2];
+  m_clockwork->switchMap["EMEC3"] = m_clockwork->emecSwitch[3];
 
-  _clockwork->switchMap["HEC0"] = _clockwork->hecSwitch[0];
-  _clockwork->switchMap["HEC1"] = _clockwork->hecSwitch[1];
-  _clockwork->switchMap["HEC2"] = _clockwork->hecSwitch[2];
-  _clockwork->switchMap["HEC3"] = _clockwork->hecSwitch[3];
+  m_clockwork->switchMap["HEC0"] = m_clockwork->hecSwitch[0];
+  m_clockwork->switchMap["HEC1"] = m_clockwork->hecSwitch[1];
+  m_clockwork->switchMap["HEC2"] = m_clockwork->hecSwitch[2];
+  m_clockwork->switchMap["HEC3"] = m_clockwork->hecSwitch[3];
 }
 
 void VP1CaloHitLegoSystem::buildPermanentSceneGraph(StoreGateSvc* /*detStore*/, SoSeparator */*root*/)
@@ -162,11 +162,11 @@ void VP1CaloHitLegoSystem::systemerase()
     return;
 
   for (int i=0; i<3; i++)
-    _clockwork->fcalSwitch[i]->removeAllChildren();
+    m_clockwork->fcalSwitch[i]->removeAllChildren();
   for (int i=0; i<4; i++) {
-    _clockwork->embSwitch[i]->removeAllChildren();
-    _clockwork->emecSwitch[i]->removeAllChildren();
-    _clockwork->hecSwitch[i]->removeAllChildren();
+    m_clockwork->embSwitch[i]->removeAllChildren();
+    m_clockwork->emecSwitch[i]->removeAllChildren();
+    m_clockwork->hecSwitch[i]->removeAllChildren();
   }
 }
 
@@ -184,7 +184,7 @@ void VP1CaloHitLegoSystem::buildEventSceneGraph(StoreGateSvc* /*sg*/, SoSeparato
 	// Cannot draw object if it has no Calo DDE
 	const EMBDetectorElement *embElement = dynamic_cast<const EMBDetectorElement *> ((*i_cell)->caloDDE());
 	if (embElement) {
-	  bool overThresh=(energy>=_clockwork->lowThresholdEnergy) &&  (energy<=_clockwork->highThresholdEnergy);
+	  bool overThresh=(energy>=m_clockwork->lowThresholdEnergy) &&  (energy<=m_clockwork->highThresholdEnergy);
 	  if (overThresh) {
 
 	    EMBCellConstLink cellPtr = (const_cast<EMBDetectorElement *> (embElement))->getEMBCell();
@@ -199,7 +199,7 @@ void VP1CaloHitLegoSystem::buildEventSceneGraph(StoreGateSvc* /*sg*/, SoSeparato
 	      etaMin = -etaMin;
 	      etaMax = -etaMax;
 	    }
-	    double height = energy*fabs(1.0/cosh((etaMin+etaMax)/2.0))*_clockwork->larEnergyScale;
+	    double height = energy*fabs(1.0/cosh((etaMin+etaMax)/2.0))*m_clockwork->larEnergyScale;
 	    SoCube *cube = new SoCube();
 	    SoTranslation *translation = new SoTranslation();
 	    translation->translation.setValue((etaMax+etaMin)/2.0, (phiMax+phiMin)/2.0, height/2.0);
@@ -209,13 +209,13 @@ void VP1CaloHitLegoSystem::buildEventSceneGraph(StoreGateSvc* /*sg*/, SoSeparato
 	    SoSeparator *sep = new SoSeparator();
 	    sep->addChild(translation);
 	    sep->addChild(cube);
-	    _clockwork->embSwitch[cellPtr->getSamplingIndex()]->addChild(sep);
+	    m_clockwork->embSwitch[cellPtr->getSamplingIndex()]->addChild(sep);
 
 	  }
 	}
 	const EMECDetectorElement *emecElement = dynamic_cast<const EMECDetectorElement *> ((*i_cell)->caloDDE());
 	if (emecElement) {
-	  bool overThresh=(energy>=_clockwork->lowThresholdEnergy) &&  (energy<=_clockwork->highThresholdEnergy);
+	  bool overThresh=(energy>=m_clockwork->lowThresholdEnergy) &&  (energy<=m_clockwork->highThresholdEnergy);
 	  if (overThresh) {
 
 	    EMECCellConstLink cellPtr = (const_cast<EMECDetectorElement *> (emecElement))->getEMECCell();
@@ -230,7 +230,7 @@ void VP1CaloHitLegoSystem::buildEventSceneGraph(StoreGateSvc* /*sg*/, SoSeparato
 	      etaMin = -etaMin;
 	      etaMax = -etaMax;
 	    }
-	    double height = energy*fabs(1.0/cosh((etaMin+etaMax)/2.0))*_clockwork->larEnergyScale;
+	    double height = energy*fabs(1.0/cosh((etaMin+etaMax)/2.0))*m_clockwork->larEnergyScale;
 	    SoCube *cube = new SoCube();
 	    SoTranslation *translation = new SoTranslation();
 	    translation->translation.setValue((etaMax+etaMin)/2.0, (phiMax+phiMin)/2.0, height/2);
@@ -240,13 +240,13 @@ void VP1CaloHitLegoSystem::buildEventSceneGraph(StoreGateSvc* /*sg*/, SoSeparato
 	    SoSeparator *sep = new SoSeparator();
 	    sep->addChild(translation);
 	    sep->addChild(cube);
-	    _clockwork->emecSwitch[cellPtr->getSamplingIndex()]->addChild(sep);
+	    m_clockwork->emecSwitch[cellPtr->getSamplingIndex()]->addChild(sep);
 
 	  }
 	}
 	const HECDetectorElement *hecElement = dynamic_cast<const HECDetectorElement *> ((*i_cell)->caloDDE());
 	if (hecElement) {
-	  bool overThresh=(energy>=_clockwork->lowThresholdEnergy) &&  (energy<=_clockwork->highThresholdEnergy);
+	  bool overThresh=(energy>=m_clockwork->lowThresholdEnergy) &&  (energy<=m_clockwork->highThresholdEnergy);
 	  if (overThresh) {
 
 	    HECCellConstLink cellPtr = (const_cast<HECDetectorElement *> (hecElement))->getHECCell();
@@ -261,7 +261,7 @@ void VP1CaloHitLegoSystem::buildEventSceneGraph(StoreGateSvc* /*sg*/, SoSeparato
 	      etaMin = -etaMin;
 	      etaMax = -etaMax;
 	    }
-	    double height = energy*fabs(1.0/cosh((etaMin+etaMax)/2.0))*_clockwork->larEnergyScale;
+	    double height = energy*fabs(1.0/cosh((etaMin+etaMax)/2.0))*m_clockwork->larEnergyScale;
 	    SoCube *cube = new SoCube();
 	    SoTranslation *translation = new SoTranslation();
 	    translation->translation.setValue((etaMax+etaMin)/2.0, (phiMax+phiMin)/2.0, height/2);
@@ -271,7 +271,7 @@ void VP1CaloHitLegoSystem::buildEventSceneGraph(StoreGateSvc* /*sg*/, SoSeparato
 	    SoSeparator *sep = new SoSeparator();
 	    sep->addChild(translation);
 	    sep->addChild(cube);
-	    _clockwork->hecSwitch[cellPtr->getSamplingIndex()]->addChild(sep);
+	    m_clockwork->hecSwitch[cellPtr->getSamplingIndex()]->addChild(sep);
 
 	  }
 	}
@@ -280,11 +280,11 @@ void VP1CaloHitLegoSystem::buildEventSceneGraph(StoreGateSvc* /*sg*/, SoSeparato
   }
 
   for (int i=0;i<3;i++)
-    root->addChild(_clockwork->fcalSwitch[i]);
+    root->addChild(m_clockwork->fcalSwitch[i]);
   for (int i=0;i<4;i++) {
-    root->addChild(_clockwork->embSwitch[i]);
-    root->addChild(_clockwork->emecSwitch[i]);
-    root->addChild(_clockwork->hecSwitch[i]);
+    root->addChild(m_clockwork->embSwitch[i]);
+    root->addChild(m_clockwork->emecSwitch[i]);
+    root->addChild(m_clockwork->hecSwitch[i]);
   }
 }
 
@@ -294,21 +294,21 @@ void VP1CaloHitLegoSystem::checkboxChanged()
     return;
   // Get ChB pointer
   QCheckBox* cb = dynamic_cast<QCheckBox*>(sender());
-  if(cb && _clockwork->checkBoxNamesMap.contains(cb))
+  if(cb && m_clockwork->checkBoxNamesMap.contains(cb))
   {
     // Get technology name
-    QString swName = _clockwork->checkBoxNamesMap[cb];
+    QString swName = m_clockwork->checkBoxNamesMap[cb];
 
-    if(_clockwork->switchMap.contains(swName))
+    if(m_clockwork->switchMap.contains(swName))
     {
       // Get swtich
-      SoSwitch* _switch = _clockwork->switchMap[swName];
+      SoSwitch* sw = m_clockwork->switchMap[swName];
       if(cb->isChecked())
       {
-	_switch->whichChild = SO_SWITCH_ALL;
+	sw->whichChild = SO_SWITCH_ALL;
       }
       else
-	_switch->whichChild = SO_SWITCH_NONE;
+	sw->whichChild = SO_SWITCH_NONE;
     }
   }
 }
@@ -325,7 +325,7 @@ QByteArray VP1CaloHitLegoSystem::saveState()
   serialise.save(IVP13DSystemSimple::saveState());
 
   //Checkboxes (by name for greater stability in case we change content of map):
-  QMapIterator<QString,QCheckBox*> it(_clockwork->checkBoxMap);
+  QMapIterator<QString,QCheckBox*> it(m_clockwork->checkBoxMap);
   QMap<QString,bool> checkboxstate;
   while (it.hasNext()) {
     it.next();
@@ -350,7 +350,7 @@ void VP1CaloHitLegoSystem::restoreFromState(QByteArray ba)
 
   //Checkboxes (by name for greater stability in case we change content of map):
   QMap<QString,bool> checkboxstate(state.restore<QMap<QString,bool> >());
-  QMapIterator<QString,QCheckBox*> it(_clockwork->checkBoxMap);
+  QMapIterator<QString,QCheckBox*> it(m_clockwork->checkBoxMap);
   while (it.hasNext()) {
     it.next();
     state.widgetHandled(it.value());

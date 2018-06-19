@@ -7,7 +7,6 @@
 
 #include "StoreGate/StoreGate.h"
 
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"

@@ -196,8 +196,10 @@ StatusCode iFatras::McMaterialEffectsUpdator::initialize()
           return StatusCode::FAILURE;
       } else
          ATH_MSG_VERBOSE( "Successfully retrieved " << m_eLossUpdator );
+    } else {
+      m_eLossUpdator.disable();
     }
-    
+
     // retrieve the multiple scattering updator tool
     if (m_ms && m_use_msUpdator){
       if (m_msUpdator.retrieve().isFailure()){
@@ -205,6 +207,8 @@ StatusCode iFatras::McMaterialEffectsUpdator::initialize()
           return StatusCode::FAILURE;
       } else
           ATH_MSG_VERBOSE( "Successfully retrieved " << m_msUpdator );
+    } else {
+      m_msUpdator.disable();
     }
 
     // retrieve the photon conversion tool
@@ -221,8 +225,10 @@ StatusCode iFatras::McMaterialEffectsUpdator::initialize()
           return StatusCode::FAILURE;
       } else
           ATH_MSG_VERBOSE( "Successfully retrieved " << m_hadIntProcessor );                
+    } else {
+      m_hadIntProcessor.disable();
     }
-    
+
     // get the random generator serice
      if (m_rndGenSvc.retrieve().isFailure()){
           ATH_MSG_FATAL( "Could not retrieve " << m_rndGenSvc );
@@ -303,7 +309,9 @@ StatusCode iFatras::McMaterialEffectsUpdator::initialize()
       } else
 	ATH_MSG_INFO( "TTree for MaterialEffects validation booked." );
 
-    } 
+    } else {
+      m_validationTool.disable();
+    }
     // the validation setup -------------------------------- PART 2: Brem Photons -----------------------------
     if (m_bremValidation){
 
@@ -465,11 +473,11 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
   // -------------------------------------------------------------------------------
   
   // prepare material collection
-  const Trk::MaterialProperties* m_extMatProp = 0;
+  const Trk::MaterialProperties* extMatProp = 0;
   double dInL0 = 0.;
   if (m_matProp) {
-    m_extMatProp = dynamic_cast<const Trk::MaterialProperties*>(m_matProp);
-    dInL0 = m_extMatProp ? (1-matFraction)*pathCorrection*m_extMatProp->thicknessInL0() : 
+    extMatProp = dynamic_cast<const Trk::MaterialProperties*>(m_matProp);
+    dInL0 = extMatProp ? (1-matFraction)*pathCorrection*extMatProp->thicknessInL0() : 
       (1-matFraction)*pathCorrection*m_matProp->thicknessInX0()/0.37/m_matProp->averageZ();
   }
   
@@ -519,7 +527,11 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
       }
       m_particleBroker->push(regisp, m_isp);
     }
-    if (isp!=m_isp) { delete isp; delete parm; }
+    if (isp!=m_isp) {
+      delete isp;
+      delete parm;
+      return nullptr;
+    }
     return parm; 
   } else {
     if ( pathLim.x0Max>0 && pathLim.process<100 && pathLim.x0Collected+dX0>= pathLim.x0Max) {      // elmg. interaction
@@ -527,7 +539,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
       dInL0 *= x0rem>0 ? x0rem/dX0 : 1.; 
       if ( x0rem>0 ) dX0 = x0rem;
       iStatus = 1; 
-    } else if ( pathLim.x0Max>0 && m_extMatProp && pathLim.process>100 && pathLim.l0Collected+dInL0 >= pathLim.x0Max )   {     // hadronic interaction
+    } else if ( pathLim.x0Max>0 && extMatProp && pathLim.process>100 && pathLim.l0Collected+dInL0 >= pathLim.x0Max )   {     // hadronic interaction
       float l0rem = pathLim.x0Max - pathLim.l0Collected;
       dX0 *= l0rem>0 ? l0rem/dInL0 : 1.;
       if ( l0rem>0 ) dInL0 = l0rem;
@@ -557,7 +569,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
 
     if (1./fabs(updatedParameters[4]) < m_minimumMomentum ) {
       if (isp!=m_isp) delete isp;
-      return 0;
+      return nullptr;
     }
   } else {
     matFraction += dX0/pathCorrection/m_matProp->thicknessInX0();  
@@ -588,7 +600,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
     if (parm->momentum().mag() < m_minimumMomentum ) {
       if (isp!=m_isp) { delete isp; delete parm; }
       else delete updated;
-      return 0;
+      return nullptr;
     }
   }
 
@@ -596,7 +608,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
     
     ISF::ISFParticleVector childs = iStatus==1 ? interactLay(isp,timeLim.time,*parm,particle,pathLim.process) :
       m_hadIntProcessor->doHadIntOnLayer(isp, timeLim.time, parm->position(), parm->momentum(),
-					 ( m_extMatProp ? &m_extMatProp->material() : 0), particle);
+					 ( extMatProp ? &extMatProp->material() : 0), particle);
 
     // save info for locally created particles
     if (m_validationMode && childs.size()>0 && isp!=m_isp) {
@@ -630,7 +642,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
     if (childs.size()>0) { // assume that interaction processing failed if no children
       if (isp!=m_isp) { delete isp; delete parm; }
       else delete updated;   // non-updated parameters registered with the extrapolator
-      return 0;
+      return nullptr;
     }
   }
 
@@ -1299,7 +1311,8 @@ void iFatras::McMaterialEffectsUpdator::multipleScatteringUpdate(const Trk::Trac
     double z = 0.;
     // if it runs along the z axis - no good ==> take the x axis
     if (newDirectionHep.z()*newDirectionHep.z() > 0.999999) {
-        x = 1.; y=0.;
+      x = 1.;
+      y = 0.;
     }
     // deflector direction
     CLHEP::Hep3Vector deflector(x,y,z);
@@ -1598,7 +1611,8 @@ void iFatras::McMaterialEffectsUpdator::recordBremPhotonLay(const ISF::ISFPartic
     } else {  //  interaction within the layer
       const Trk::CurvilinearParameters*  cparm = new Trk::CurvilinearParameters(bremPhoton->position(),bremPhoton->momentum(),bremPhoton->charge());
       const Trk::TrackParameters* uPar = updateInLay(bremPhoton,cparm,remMat,timeLim, pLim, dir, Trk::photon);
-      if (uPar) ATH_MSG_VERBOSE( "Check this: parameters should be dummy here (brem.photon) " <<","<<uPar->position() );
+      if (uPar) { ATH_MSG_VERBOSE( "Check this: parameters should be dummy here (brem.photon) " <<","<<uPar->position() ); }
+      if (cparm) { delete cparm; }
     }
 
     // if validation is turned on - go for it 
@@ -1644,7 +1658,7 @@ const Trk::TrackParameters*  iFatras::McMaterialEffectsUpdator::interact(double 
 						  const Amg::Vector3D& momentum,
 						  Trk::ParticleHypothesis particle,
 						  int process,
-						  const Trk::Material* m_extMatProp) const {
+						  const Trk::Material* extMatProp) const {
   if ( process==0 ) return 0;
 
   // get parent particle
@@ -1777,7 +1791,7 @@ const Trk::TrackParameters*  iFatras::McMaterialEffectsUpdator::interact(double 
 
     const Trk::TrackParameters* parm = new Trk::CurvilinearParameters(position,momentum,parent->charge());
 
-    bool recHad = m_hadIntProcessor->doHadronicInteraction(time, position, momentum, m_extMatProp, particle, true);
+    bool recHad = m_hadIntProcessor->doHadronicInteraction(time, position, momentum, extMatProp, particle, true);
     // eventually : bool recHad =  m_hadIntProcessor->recordHadState( time, p, position, pDir, particle);
  
     // kill the track if interaction recorded --------------------------
@@ -1798,7 +1812,7 @@ ISF::ISFParticleVector  iFatras::McMaterialEffectsUpdator::interactLay(const ISF
 								       const Trk::TrackParameters& parm,
 								       Trk::ParticleHypothesis particle,
 								       int process,
-								       const Trk::MaterialProperties* m_extMatProp) const {
+								       const Trk::MaterialProperties* extMatProp) const {
   ISF::ISFParticleVector childVector(0);
 
   if ( process==0 ) return childVector;
@@ -1918,7 +1932,7 @@ ISF::ISFParticleVector  iFatras::McMaterialEffectsUpdator::interactLay(const ISF
     const Trk::CurvilinearParameters parm(position,momentum,parent->charge());
 
     return ( m_hadIntProcessor->doHadIntOnLayer(parent, time, position, momentum,
-						m_extMatProp? &m_extMatProp->material() : 0, particle) );
+						extMatProp? &extMatProp->material() : 0, particle) );
 
   }
 

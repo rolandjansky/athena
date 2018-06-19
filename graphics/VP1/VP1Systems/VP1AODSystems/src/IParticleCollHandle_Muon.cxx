@@ -61,12 +61,12 @@ public:
 //____________________________________________________________________
 IParticleCollHandle_Muon::IParticleCollHandle_Muon(AODSysCommonData * cd,
   const QString& name, xAOD::Type::ObjectType type)
-  : IParticleCollHandleBase(cd,name,type), d(new Imp)
+  : IParticleCollHandleBase(cd,name,type), m_d(new Imp)
 {
-  d->theclass = this;
-  d->updateGUICounter = 0;
-  d->collSettingsButton=0;
-  d->last_minimumQuality=0;
+  m_d->theclass = this;
+  m_d->updateGUICounter = 0;
+  m_d->collSettingsButton=0;
+  m_d->last_minimumQuality=0;
 
   //The object names should not contain all sorts of funky chars (mat button style sheets wont work for instance):
   QString safetext(text());
@@ -81,25 +81,25 @@ IParticleCollHandle_Muon::IParticleCollHandle_Muon(AODSysCommonData * cd,
   safetext.replace('&','_');
 
   // SoMaterial* mat 
-  //   = d->collSettingsButton->defaultParameterMaterial();
+  //   = m_d->collSettingsButton->defaultParameterMaterial();
   // mat->setName(("IParticleCollHandle_Muon"+safetext).toStdString().c_str()); // Useful for debugging
-  // d->collSettingsButton->setDefaultParameterMaterial(d->defaultParametersMaterial); FIXME
+  // m_d->collSettingsButton->setDefaultParameterMaterial(m_d->defaultParametersMaterial); FIXME
 }
 
 //____________________________________________________________________
 IParticleCollHandle_Muon::~IParticleCollHandle_Muon()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
 void IParticleCollHandle_Muon::init(VP1MaterialButtonBase*)
 {
   // std::cout<<"IParticleCollHandle_Muon::init 1"<<std::endl;
-  d->collSettingsButton = new MuonCollectionSettingsButton;
-  d->collSettingsButton->setMaterialText(name());
-  // std::cout<<"Calling VP1StdCollection::init with d->collSettingsButton (MuonCollectionSettingsButton)="<<d->collSettingsButton<<std::endl;
-  VP1StdCollection::init(d->collSettingsButton);//this call is required. Passing in d->collSettingsButton means we have the more complex button. 
+  m_d->collSettingsButton = new MuonCollectionSettingsButton;
+  m_d->collSettingsButton->setMaterialText(name());
+  // std::cout<<"Calling VP1StdCollection::init with m_d->collSettingsButton (MuonCollectionSettingsButton)="<<m_d->collSettingsButton<<std::endl;
+  VP1StdCollection::init(m_d->collSettingsButton);//this call is required. Passing in m_d->collSettingsButton means we have the more complex button. 
   setupSettingsFromController(common()->controller());
   connect(this,SIGNAL(visibilityChanged(bool)),this,SLOT(collVisibilityChanged(bool)));
   
@@ -111,27 +111,27 @@ void IParticleCollHandle_Muon::init(VP1MaterialButtonBase*)
   // std::cout<<"sep: "<<collSep()<<std::endl;
   // std::cout<<"mat: "<<material()<<std::endl;
   
-  collSwitch()->addChild(d->collSettingsButton->trackLightModel());
-  collSwitch()->addChild(d->collSettingsButton->trackDrawStyle());
+  collSwitch()->addChild(m_d->collSettingsButton->trackLightModel());
+  collSwitch()->addChild(m_d->collSettingsButton->trackDrawStyle());
 }
 
 void IParticleCollHandle_Muon::setupSettingsFromControllerSpecific(AODSystemController*) {
   //cuts  
-  connect(d->collSettingsButton,SIGNAL(cutAllowedPtChanged(const VP1Interval&)),this,SLOT(setCutAllowedPt(const VP1Interval&)));
-  setCutAllowedPt(d->collSettingsButton->cutAllowedPt());
+  connect(m_d->collSettingsButton,SIGNAL(cutAllowedPtChanged(const VP1Interval&)),this,SLOT(setCutAllowedPt(const VP1Interval&)));
+  setCutAllowedPt(m_d->collSettingsButton->cutAllowedPt());
   // 
 
-  connect(d->collSettingsButton,SIGNAL(cutAllowedEtaChanged(const VP1Interval&)),this,SLOT(setCutAllowedEta(const VP1Interval&)));
-  setCutAllowedEta(d->collSettingsButton->cutAllowedEta());
+  connect(m_d->collSettingsButton,SIGNAL(cutAllowedEtaChanged(const VP1Interval&)),this,SLOT(setCutAllowedEta(const VP1Interval&)));
+  setCutAllowedEta(m_d->collSettingsButton->cutAllowedEta());
   // 
 
-  connect(d->collSettingsButton,SIGNAL(cutAllowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(setCutAllowedPhi(const QList<VP1Interval>&)));
-  setCutAllowedPhi(d->collSettingsButton->cutAllowedPhi());
+  connect(m_d->collSettingsButton,SIGNAL(cutAllowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(setCutAllowedPhi(const QList<VP1Interval>&)));
+  setCutAllowedPhi(m_d->collSettingsButton->cutAllowedPhi());
 
-  connect(d->collSettingsButton,SIGNAL(minimumQualityChanged(unsigned int)),this,SLOT(setMinimumQuality(unsigned int)));
-  setMinimumQuality(d->collSettingsButton->minimumQuality());
+  connect(m_d->collSettingsButton,SIGNAL(minimumQualityChanged(unsigned int)),this,SLOT(setMinimumQuality(unsigned int)));
+  setMinimumQuality(m_d->collSettingsButton->minimumQuality());
 
-  connect(d->collSettingsButton,SIGNAL(shownAssociatedObjectsChanged(MuonCollectionSettingsButton::ShownAssociatedObjects)),this,SLOT(updateShownAssociatedObjects()));
+  connect(m_d->collSettingsButton,SIGNAL(shownAssociatedObjectsChanged(MuonCollectionSettingsButton::ShownAssociatedObjects)),this,SLOT(updateShownAssociatedObjects()));
 }
 
 
@@ -140,11 +140,11 @@ void IParticleCollHandle_Muon::resetCachedValuesCuts()
 	// TODO: it is not used so far! Check Other collections and update accordingly
 
 	// kinetic cuts
-	setCutAllowedPt(d->collSettingsButton->cutAllowedPt());
-	setCutAllowedEta(d->collSettingsButton->cutAllowedEta());
-	setCutAllowedPhi(d->collSettingsButton->cutAllowedPhi());
+	setCutAllowedPt(m_d->collSettingsButton->cutAllowedPt());
+	setCutAllowedEta(m_d->collSettingsButton->cutAllowedEta());
+	setCutAllowedPhi(m_d->collSettingsButton->cutAllowedPhi());
 	// other settings
-	setMinimumQuality(d->collSettingsButton->minimumQuality());
+	setMinimumQuality(m_d->collSettingsButton->minimumQuality());
 
   // TODO: adding "shownAssociatedObjectsChanged" settings as well??
 }
@@ -152,10 +152,10 @@ void IParticleCollHandle_Muon::resetCachedValuesCuts()
 
 
 const MuonCollectionSettingsButton& IParticleCollHandle_Muon::collSettingsButton() const {
-  if (!d->collSettingsButton){
+  if (!m_d->collSettingsButton){
     messageVerbose("No collSettingsButton set! Can't call init(), so crash is imminent...");
   }
-  return *d->collSettingsButton;
+  return *m_d->collSettingsButton;
 }
 
 //____________________________________________________________________
@@ -188,7 +188,7 @@ bool IParticleCollHandle_Muon::load()
   // hintNumberOfTracksInEvent(coll->size());
   xAOD::MuonContainer::const_iterator it, itEnd = coll->end();
   for ( it = coll->begin() ; it != itEnd; ++it) {
-    d->possiblyUpdateGUI();
+    m_d->possiblyUpdateGUI();
     if (!*it) {
       messageDebug("WARNING: Ignoring null Muon pointer.");
       continue;
@@ -225,11 +225,11 @@ bool IParticleCollHandle_Muon::cut(AODHandleBase* handle)
 }
 
 void IParticleCollHandle_Muon::setMinimumQuality(unsigned int quality) {
-  if (quality == d->last_minimumQuality)
+  if (quality == m_d->last_minimumQuality)
     return;
-  std::cout<<"IParticleCollHandle_Muon::setMinimumQuality : "<<quality<<" last = "<<d->last_minimumQuality<<std::endl;
-  bool relaxcut = quality > d->last_minimumQuality;
-  d->last_minimumQuality = quality;
+  std::cout<<"IParticleCollHandle_Muon::setMinimumQuality : "<<quality<<" last = "<<m_d->last_minimumQuality<<std::endl;
+  bool relaxcut = quality > m_d->last_minimumQuality;
+  m_d->last_minimumQuality = quality;
 
   if (relaxcut)
     recheckCutStatusOfAllNotVisibleHandles();

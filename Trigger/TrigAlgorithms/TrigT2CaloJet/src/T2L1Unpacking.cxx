@@ -488,7 +488,7 @@ HLT::ErrorCode T2L1Unpacking::hltExecute(std::vector<std::vector<HLT::TriggerEle
            (*m_log) << MSG::DEBUG  << "Executing tool [" << current << "]"<< endmsg;
         }
 #endif
-        if ((*it)->execute(m_jet, TrigRoiDescriptor(true) ).isFailure()){    // the zeros are the unused eta phi coordinates used by many base tools to define the RoI region
+        if ((*it)->execute(m_jet, TrigRoiDescriptor(true), caloDDENull, nullptr ).isFailure()){    // the zeros are the unused eta phi coordinates used by many base tools to define the RoI region
             msg() << MSG::WARNING << "T2CaloFastJet AlgToolJets returned Failure" << endmsg;
             return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,HLT::Reason::USERDEF_1);
         }

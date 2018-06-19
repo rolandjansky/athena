@@ -4,7 +4,6 @@
 
 #include "LArSim/LArFakeHitProducer.h"
 
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IDataProviderSvc.h"

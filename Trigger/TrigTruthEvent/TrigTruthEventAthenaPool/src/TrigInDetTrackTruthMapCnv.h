@@ -44,7 +44,9 @@ class TrigInDetTrackTruthMapCnv : public TrigInDetTrackTruthMapCnvBase
 
  protected:
 
+public:
   TrigInDetTrackTruthMapCnv(ISvcLocator* svcloc);
+protected:
   ~TrigInDetTrackTruthMapCnv();
 
   virtual TrigInDetTrackTruthMap_PERS*  createPersistent(TrigInDetTrackTruthMap* transObj);

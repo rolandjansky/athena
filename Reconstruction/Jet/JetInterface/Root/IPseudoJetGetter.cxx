@@ -8,6 +8,12 @@
 
 //**********************************************************************
 
+const PseudoJetVector* IPseudoJetGetter::get() const {
+  return 0;
+}
+
+//**********************************************************************
+
 int IPseudoJetGetter::inputContainerNames(std::vector<std::string>&) {
   return 0;
 }

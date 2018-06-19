@@ -46,7 +46,9 @@ public:
                                    const EventContext& ctx) override;
 
 
-  void add (CLID clid, const std::string& name);
+  void add (CLID clid,
+            const std::string& name,
+            const std::vector<CLID>& tclids = {});
 
 
 public:
@@ -61,8 +63,12 @@ StatusCode TestProvider::preLoadAddresses(StoreID::type /*storeID*/,
                                           tadList& list)
 {
   tListLen = list.size();
-  for (const SG::TransientAddress& tad : m_tads)
+  for (const SG::TransientAddress& tad : m_tads) {
     list.push_back (new SG::TransientAddress (tad.clID(), tad.name()));
+    for (CLID clid : tad.transientID()) {
+      list.back()->setTransientID (clid);
+    }
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -71,8 +77,12 @@ StatusCode TestProvider::loadAddresses(StoreID::type /*storeID*/,
                                        tadList& list)
 {
   tListLen = list.size();
-  for (const SG::TransientAddress& tad : m_tads)
+  for (const SG::TransientAddress& tad : m_tads) {
     list.push_back (new SG::TransientAddress (tad.clID(), tad.name()));
+    for (CLID clid : tad.transientID()) {
+      list.back()->setTransientID (clid);
+    }
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -85,9 +95,13 @@ StatusCode TestProvider::updateAddress(StoreID::type /*storeID*/,
 }
 
 
-void TestProvider::add (CLID clid, const std::string& name)
+void TestProvider::add (CLID clid, const std::string& name,
+                        const std::vector<CLID>& tclids)
 {
   m_tads.emplace_back (clid, name);
+  for (CLID clid : tclids) {
+    m_tads.back().setTransientID (clid);
+  }
 }
 
 
@@ -95,6 +109,8 @@ class TestProxyRegistry
   : public IProxyRegistry
 {
 public:
+  virtual ~TestProxyRegistry();
+
   virtual StatusCode addToStore(const CLID& id, SG::DataProxy* proxy) override;
 
   virtual StatusCode addAlias(const std::string& /*key*/, SG::DataProxy* /*proxy*/) override
@@ -113,14 +129,27 @@ public:
                                      const std::string& /*key*/) const override
   { return nullptr; }
 
-  std::vector<std::unique_ptr<SG::DataProxy> > proxies;
+  std::vector<SG::DataProxy*> proxies;
 };
 
 
-StatusCode
-TestProxyRegistry::addToStore (const CLID& /*id*/, SG::DataProxy* proxy)
+TestProxyRegistry::~TestProxyRegistry()
 {
-  proxies.emplace_back (proxy);
+  for (SG::DataProxy* p : proxies) {
+    p->release();
+  }
+}
+
+
+StatusCode
+TestProxyRegistry::addToStore (const CLID& id, SG::DataProxy* proxy)
+{
+  // First entry should be primary.
+  if (proxies.empty() || proxies.back() != proxy) {
+    assert (id == proxy->clID());
+  }
+  proxy->addRef();
+  proxies.push_back (proxy);
   return StatusCode::SUCCESS;
 }
 
@@ -131,7 +160,9 @@ TestProvider providers[NPROVIDERS];
 
 void checkStore (const TestProxyRegistry& store)
 {
-  assert (store.proxies.size() == 3);
+  typedef SG::DataProxy::CLIDCont_t CLIDCont_t;
+
+  assert (store.proxies.size() == 5);
   assert (providers[0].tListLen == 0);
   assert (providers[1].tListLen == 0);
   assert (providers[2].tListLen == 2);
@@ -140,14 +171,20 @@ void checkStore (const TestProxyRegistry& store)
   assert (store.proxies[0]->clID() == 10);
   assert (store.proxies[0]->name() == "x1");
   assert (store.proxies[0]->provider() == &providers[1]);
+  assert (store.proxies[0]->transientID() == CLIDCont_t{10});
 
   assert (store.proxies[1]->clID() == 11);
   assert (store.proxies[1]->name() == "x2");
   assert (store.proxies[1]->provider() == &providers[1]);
+  assert (store.proxies[1]->transientID() == CLIDCont_t{11});
 
   assert (store.proxies[2]->clID() == 12);
   assert (store.proxies[2]->name() == "y1");
   assert (store.proxies[2]->provider() == &providers[3]);
+  assert (store.proxies[2]->transientID() == (CLIDCont_t{5, 12, 20}));
+
+  assert (store.proxies[3] == store.proxies[2]);
+  assert (store.proxies[4] == store.proxies[2]);
 }
 
 
@@ -157,7 +194,7 @@ void test1 (IProxyProviderSvc& svc)
 
   providers[1].add (10, "x1");
   providers[1].add (11, "x2");
-  providers[3].add (12, "y1");
+  providers[3].add (12, "y1", {5, 20});
 
   for (TestProvider& p : providers)
     svc.addProvider (&p);

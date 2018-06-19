@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "GaudiKernel/SmartDataPtr.h"

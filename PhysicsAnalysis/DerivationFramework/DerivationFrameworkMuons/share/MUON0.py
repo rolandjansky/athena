@@ -21,15 +21,19 @@ MUON0Stream.AcceptAlgs(["MUON0Kernel"])
 # augStream = MSMgr.GetStream( streamName )
 # evtStream = augStream.GetEventStream()
 
-# triggerList = ['HLT_.*mu\d+.*', 'L1_.*MU\d+.*', 'HLT_noalg_L1.*MU\d+.*']
-triggerList1 = ['HLT_.*mu\d+.*', 'L1_.*MU.*', 'HLT_noalg_L1.*MU.*']
-triggerList = ['HLT_.*mu.*', 'L1_.*MU.*', 'HLT_noalg_L1.*MU.*']
+triggerList1 = ['HLT_.*mu\d+.*', 'L1_.*MU\d+.*', 'HLT_noalg_L1.*MU\d+.*']
+#triggerList1 = []
+triggerList = ['HLT_.*mu.*', 'L1_.*MU.*','HLT_noalg_L1.*MU.*']
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 MUON0ThinningHelper = ThinningHelper( "MUON0ThinningHelper" )
 MUON0ThinningHelper.TriggerChains = '|'.join(triggerList1)
 print MUON0ThinningHelper.TriggerChains
 MUON0ThinningHelper.AppendToStream( MUON0Stream )
+thinningSvc = getattr( svcMgr, "MUON0ThinningSvc" )
+thinningHelperTool = getattr( ToolSvc, "MUON0ThinningHelperSlim" )
+thinningHelperTool.FeatureInclusionList += ['HLT_xAOD__L2StandAloneMuonContainer_MuonL2SAInfo','HLT_xAOD__L2StandAloneMuonContainer_MuonL2SAInfoAux.','HLT_xAOD__L2CombinedMuonContainer_MuonL2CBInfo','HLT_xAOD__L2CombinedMuonContainer_MuonL2CBInfoAux.','HLT_xAOD__L2IsoMuonContainer_MuonL2ISInfo','HLT_xAOD__L2IsoMuonContainer_MuonL2ISInfoAux.','HLT_TrigRoiDescriptorCollection_forMS','HLT_TrigRoiDescriptorCollection_forMSAux.','HLT_TrigRoiDescriptorCollection_forID','HLT_TrigRoiDescriptorCollection_forIDAux.']
+
 
 
 #====================================================================

@@ -87,7 +87,7 @@ namespace Trk {
   }
   
   //________________________________________________________________________
-  double AlignResidualCalculator::setResiduals(const AlignTrack* alignTrack,const Track* track)
+  double AlignResidualCalculator::setResiduals(AlignTrack* alignTrack,const Track* track)
   {
     bool useNewTrack = (track!=0);
     const Track* newTrack = (useNewTrack) ? track : alignTrack;
@@ -95,8 +95,8 @@ namespace Trk {
   }
   
   //________________________________________________________________________
-  double AlignResidualCalculator::setResiduals(AlignTSOSCollection::const_iterator firstAtsos,
-                                               AlignTSOSCollection::const_iterator lastAtsos,
+  double AlignResidualCalculator::setResiduals(AlignTSOSCollection::iterator firstAtsos,
+                                               AlignTSOSCollection::iterator lastAtsos,
                                                const Track* track, bool newTrack) 
   {
     m_nDoF=0;
@@ -113,11 +113,12 @@ namespace Trk {
 
     int    ntsos(0);
     double chi2(0.);
-    for (AlignTSOSCollection::const_iterator atsos=firstAtsos; atsos != lastAtsos; ++atsos,ntsos++) {
+    for (AlignTSOSCollection::iterator atsos=firstAtsos; atsos != lastAtsos; ++atsos,ntsos++) {
 
+      const AlignTSOS* atsosp = *atsos;
       // get TSOS from AlignTSOS or closest TSOS if track given
       const TrackStateOnSurface* tsos =
-          (newTrack) ? getMatchingTSOS(*atsos,track) : dynamic_cast<const TrackStateOnSurface*>(*atsos);
+          (newTrack) ? getMatchingTSOS(*atsos,track) : dynamic_cast<const TrackStateOnSurface*>(atsosp);
 
       ATH_MSG_DEBUG("ntsos "<<ntsos);
 
@@ -333,13 +334,11 @@ namespace Trk {
 
     if (atsos->rio() || atsos->crio()) {
 
-      for (std::vector<const TrackStateOnSurface*>::const_iterator itTsos=
-           track->trackStateOnSurfaces()->begin();
-           itTsos!=track->trackStateOnSurfaces()->end(); ++itTsos) {
-        if ((*itTsos)->type(TrackStateOnSurface::Outlier))
+      for (const TrackStateOnSurface* itTsos : *track->trackStateOnSurfaces()) {
+        if (itTsos->type(TrackStateOnSurface::Outlier))
           continue;
 
-        const MeasurementBase* mesb = (*itTsos)->measurementOnTrack();
+        const MeasurementBase* mesb = itTsos->measurementOnTrack();
         const RIO_OnTrack* rio = dynamic_cast<const RIO_OnTrack*>(mesb);
         const CompetingRIOsOnTrack* crio = dynamic_cast<const CompetingRIOsOnTrack*>(mesb);
         
@@ -349,7 +348,7 @@ namespace Trk {
         if (!rio) continue;
         if (rio->identify() == atsos->rio()->identify()) {
           ATH_MSG_DEBUG("matched TSOS with identifier: "<<rio->identify());
-          tsos=*itTsos;
+          tsos=itTsos;
           break;
         } 
       }
@@ -360,20 +359,18 @@ namespace Trk {
       const Amg::Vector3D origPosition=atsos->trackParameters()->position();
       double distance2(1.e27);
       
-      // loop over track and get closest TSOS   
-      for (std::vector<const TrackStateOnSurface*>::const_iterator itTsos=
-           track->trackStateOnSurfaces()->begin();
-           itTsos!=track->trackStateOnSurfaces()->end(); ++itTsos) {
-        if ((*itTsos)->type(TrackStateOnSurface::Outlier))
+      // loop over track and get closest TSOS
+      for (const TrackStateOnSurface* itTsos : *track->trackStateOnSurfaces()) {
+        if (itTsos->type(TrackStateOnSurface::Outlier))
           continue;
-        if (!dynamic_cast<const MaterialEffectsOnTrack*>((*itTsos)->materialEffectsOnTrack())) continue;
-        if (!(*itTsos)->trackParameters()) { ATH_MSG_WARNING("no track parameters!"); continue; }
-        const Amg::Vector3D newPosition=(*itTsos)->trackParameters()->position();
+        if (!dynamic_cast<const MaterialEffectsOnTrack*>(itTsos->materialEffectsOnTrack())) continue;
+        if (!itTsos->trackParameters()) { ATH_MSG_WARNING("no track parameters!"); continue; }
+        const Amg::Vector3D newPosition=itTsos->trackParameters()->position();
         ATH_MSG_DEBUG("origPos: "<<origPosition<<", newPos: "<<newPosition);
         double newdist2=(newPosition - origPosition).mag2();
         if (newdist2<distance2) {
           distance2=newdist2;
-          tsos=*itTsos;
+          tsos=itTsos;
         }
       }      
       ATH_MSG_DEBUG("done with scatterer");

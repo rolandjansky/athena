@@ -67,6 +67,7 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   , m_tileID(0)
   , m_tileTBID(0)
   , m_tileHWID(0)
+  , m_cabling(0)
   , m_DQstatus(0)
   , m_tileBadChanTool("TileBadChanTool")
   , m_tileToolEmscale("TileCondToolEmscale")
@@ -206,10 +207,11 @@ StatusCode TileCellBuilder::initialize() {
   //=== get TileCondToolTiming
   CHECK( m_tileToolTiming.retrieve() );
 
+  m_cabling = TileCablingService::getInstance();
+
   reset(true, false);
 
-  m_run2 = ((TileCablingService::getInstance())->getCablingType() == TileCablingService::RUN2Cabling
-            || (TileCablingService::getInstance())->getCablingType() == TileCablingService::UpgradeABC);
+  m_run2 = (m_cabling->isRun2Cabling() || m_cabling->getCablingType() == TileCablingService::UpgradeABC);
 
   if (m_run2 && !m_E4prContainerKey.key().empty()) {
     ATH_CHECK( m_E4prContainerKey.initialize() );
@@ -630,34 +632,23 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
   ++m_eventErrorCounter[3]; // count separately total number of events
   
   // retrieve EventInfo
-  const xAOD::EventInfo* eventInfo_c = 0;
-  if (evtStore()->retrieve(eventInfo_c).isFailure()) {
+  const xAOD::EventInfo* eventInfo = 0;
+  if (evtStore()->retrieve(eventInfo).isFailure()) {
     ATH_MSG_WARNING( " cannot retrieve EventInfo, will not set Tile information " );
-  }
-  xAOD::EventInfo* eventInfo = 0;
-  if (eventInfo_c) {
-    /// FIXME: const_cast; changing EventInfo.
-    eventInfo = const_cast<xAOD::EventInfo*>(eventInfo_c);
-    if (!eventInfo->getStore()) {
-      const SG::IAuxStore* store = dynamic_cast<const SG::IAuxStore*> (eventInfo->getConstStore());
-      if (store) {
-        eventInfo->setStore (const_cast<SG::IAuxStore*> (store));
-      }
-    }
   }
 
   if (eventInfo) {
 
     if (flag != 0) {
       ATH_MSG_DEBUG( " set eventInfo for Tile for this event to 0x" << MSG::hex << flag << MSG::dec );
-      if (!eventInfo->setEventFlags(xAOD::EventInfo::Tile, flag)) {
+      if (!eventInfo->updateEventFlags(xAOD::EventInfo::Tile, flag)) {
         ATH_MSG_WARNING( " cannot set eventInfo for Tile " );
       }
     }
     
     if (error != xAOD::EventInfo::NotSet) {
       ATH_MSG_DEBUG( " set error bits for Tile for this event to " << error );
-      if (!eventInfo->setErrorState(xAOD::EventInfo::Tile, error)) {
+      if (!eventInfo->updateErrorState(xAOD::EventInfo::Tile, error)) {
         ATH_MSG_WARNING( " cannot set error state for Tile " );
       }
     }
@@ -872,11 +863,9 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
       }
     }
 
-    static const TileCablingService * s_cabling = TileCablingService::getInstance();
-
     single_PMT_C10 = (((ros2 == TileHWID::EXTBAR_POS && chan1 == 4)
                       || (ros2 == TileHWID::EXTBAR_NEG && chan2 == 4))
-                      && !s_cabling->C10_connected(drawer2));
+                      && !m_cabling->C10_connected(drawer2));
     if (single_PMT_C10) {
       // for special C10 disconnected channel might be masked in DB
       // and energy of good channel is taken twice with correct weight
@@ -1133,15 +1122,20 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
 
     int index, pmt;
     int channel1 = channel;
+
     if (m_useDemoCabling == 2015 && ros == 4 && drawer == 1) {
         int pmt2channel[48] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,
                                26,25,24,29,31,32,27,28,30,35,34,33,38,37,43,44,41,40,39,36,42,47,46,45};
         channel1 = pmt2channel[channel];
-    } else if ( m_useDemoCabling == 2016 && (/* (ros == 1 && drawer == 0) || */ (ros == 2 && drawer == 1) || (drawer>2) )) {
-        int pmt2channel[48] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,
-                               26,25,24,29,28,27,32,31,30,35,34,33,38,37,36,41,40,39,44,43,42,47,46,45};
-        channel1 = pmt2channel[channel];
+
+    } else if ( (m_useDemoCabling == 2016 || m_useDemoCabling == 2017 )
+                && (/* (ros == 1 && drawer == 0) || */ (ros == 2 && drawer == 1) || (drawer>2) )) {
+      int pmt2channel[48] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,
+                             26,25,24,29,28,27,32,31,30,35,34,33,38,37,36,41,40,39,44,43,42,47,46,45
+      };
+      channel1 = pmt2channel[channel];
     }
+
     Identifier cell_id = (TileCablingService::getInstance())->h2s_cell_id_index (ros, drawer, channel1, index, pmt);
 
     if (index == -3) { // E4' cells

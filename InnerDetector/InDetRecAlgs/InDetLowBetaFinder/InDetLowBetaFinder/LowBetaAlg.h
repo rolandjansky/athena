@@ -8,13 +8,13 @@
 
 /* class LowBetaAlg
 
-LowBetaAlg is an algoirthm for the identification of Charged Stable 
-Massive Particles based on tracking information mainly from the TRT.  
-Timing information and energy deposition are used to indentify 
-candidate tracks and make measurement of beta and excess ionization 
-comparing to relativistic particles. 
+LowBetaAlg is an algoirthm for the identification of Charged Stable
+Massive Particles based on tracking information mainly from the TRT.
+Timing information and energy deposition are used to indentify
+candidate tracks and make measurement of beta and excess ionization
+comparing to relativistic particles.
  
-author Christopher.Marino <Christopher.Marino@cern.ch> 
+author Christopher.Marino <Christopher.Marino@cern.ch>
 
 */
 
@@ -25,6 +25,9 @@ author Christopher.Marino <Christopher.Marino@cern.ch>
 #include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "InDetLowBetaInfo/InDetLowBetaContainer.h"
+#include "TrkTrack/TrackCollection.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -44,10 +47,10 @@ namespace InDetDD{ class TRT_DetectorManager; }
 
 namespace Trk {class Track;}
 
-namespace Rec { class TrackParticleContainer; 
+namespace Rec { class TrackParticleContainer;
                 class TrackParticle; }
 
-namespace InDet 
+namespace InDet
 {
 
 
@@ -58,7 +61,7 @@ namespace InDet
     StatusCode execute();
     StatusCode finalize();
 
-    std::vector<float> ChargedSMPindicators(const Trk::Track& track);
+    std::vector<float> ChargedSMPindicators(const Trk::Track& track) const;
     
     
 
@@ -69,15 +72,15 @@ namespace InDet
     const InDetDD::TRT_DetectorManager* m_TRTdetMgr;  // TRT detector manager (to get ID helper)
     
     unsigned int               m_minTRThits;          // Minimum number of TRT hits to give PID.
-    float                      m_RcorrZero;           // Inputs for R Correction     
-    float                      m_RcorrOne;            // Inputs for R Correction   
-    float                      m_RcorrTwo;            // Inputs for R Correction   
-    float                      m_TimingOffset;        // timing offset for trailing bit time  
+    float                      m_RcorrZero;           // Inputs for R Correction
+    float                      m_RcorrOne;            // Inputs for R Correction
+    float                      m_RcorrTwo;            // Inputs for R Correction
+    float                      m_TimingOffset;        // timing offset for trailing bit time
     bool                       m_mcswitch;
  
     //std::string m_tracksName;                          //!< Name of track container in StoreGate
-    std::string m_trackParticleCollection;                          //!< Name of track container in StoreGate
-    std::string m_InDetLowBetaOutputName;             //!< Name of output container to store results
+    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleCollection; //!< Name of track container in StoreGate
+    SG::WriteHandleKey<InDet::InDetLowBetaContainer>  m_InDetLowBetaOutputName; //!< Name of output container to store results
     
     /** trying to get ahold of the TRT calib DB: */
     ServiceHandle<ITRT_CalDbSvc> m_trtconddbsvc;
@@ -100,7 +103,7 @@ namespace InDet
     bool m_TrtToolInitSuccess;
     // Track refit container
     //std::string m_RefittedTracksContainerName;
-    std::string m_UnslimmedTracksContainerName;
+    SG::ReadHandleKey<TrackCollection> m_UnslimmedTracksContainerName;
     
     //////////
     ////////// ATHENA function equivalents (call from corresponding function)
@@ -125,14 +128,14 @@ namespace InDet
     // Returns a vector of results from TRT_FEbeta where:
     //	vector[0] = LikelihoodBeta
     //	vector[1] = LikelihoodError
-    std::vector<float> callTrtToolBetaLiklihood(const Trk::Track& track);
+    std::vector<float> callTrtToolBetaLiklihood(const Trk::Track& track) const;
     
     // Gather all of the necessary data that the TRT_FEbeta function takes as inputs
     // Sets all of the input arguments
     StatusCode parseDataForTrtToolBetaLiklihood(const Trk::Track& track,
 			std::vector<int>* TRT_bitpattern,std::vector<int>* TRT_bec,std::vector<int>* TRT_strawlayer,std::vector<int>* TRT_layer,
 			std::vector<float>* TRT_t0,std::vector<float>* TRT_estDrift,std::vector<float>* TRT_R,std::vector<float>* TRT_R_track,
-			std::vector<float>* TrackX,std::vector<float>* TrackY,std::vector<float>* TrackZ,float* RecPt,float* RecEta, std::vector<int>* TRT_isTube);
+			std::vector<float>* TrackX,std::vector<float>* TrackY,std::vector<float>* TrackZ,float* RecPt,float* RecEta, std::vector<int>* TRT_isTube) const;
     
     
     

@@ -26,3 +26,13 @@ atlas_install_headers( AthExHive )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/condDb.txt )
 
+atlas_add_test ( AthExHive_test
+   SCRIPT test/AthExHive_test.sh
+   PROPERTIES TIMEOUT 300
+   )
+
+atlas_add_test ( AthExHiveCond_test
+   SCRIPT test/AthExHiveCond_test.sh
+   PROPERTIES TIMEOUT 300
+   )
+

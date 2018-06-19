@@ -5,8 +5,7 @@
 #include "PhysValPFO.h"
 #include "xAODPFlow/PFOContainer.h"
 
-PhysValPFO::PhysValPFO (const std::string& type, const std::string& name, const IInterface* parent ) : ManagedMonitorToolBase( type, name, parent ), m_useLCScale(false), m_useNeutralPFO(false) {
-  declareProperty("useLCScale",m_useLCScale, " Select which PFO setup to use - LC or EM ");
+PhysValPFO::PhysValPFO (const std::string& type, const std::string& name, const IInterface* parent ) : ManagedMonitorToolBase( type, name, parent ), m_useNeutralPFO(false) {
   declareProperty("useNeutralPFO", m_useNeutralPFO, "Select whether to use neutral or charged PFO");
 }
 
@@ -23,17 +22,9 @@ StatusCode PhysValPFO::initialize(){
 
 
 StatusCode PhysValPFO::bookHistograms(){
-
-  std::string scale = "EM";
-  std::string type = "charged";
-
-  if (m_useLCScale) scale = "LC";
-
-  if (m_useNeutralPFO) type = "neutral";
-  else scale = "";
-
-  std::string theName = "PFlow/PFO_JetETMiss/JetETMiss_"+scale+"_"+type;
-
+    
+  std::string theName = "PFlow/"+m_PFOContainerHandleKey.key();
+  
   std::vector<HistData> hists;
   if (!m_useNeutralPFO){
     m_PFOChargedValidationPlots.reset(new PFOChargedValidationPlots(0,theName, theName));
@@ -80,17 +71,6 @@ StatusCode PhysValPFO::fillHistograms(){
     }//if valid read handle
   }
 
-  StatusCode sc = StatusCode::SUCCESS;
-  if (m_useNeutralPFO) {    
-    if (m_useLCScale) sc = m_PFOContainerHandleKey.assign("JetETMiss_LCNeutralParticleFlowObjects");
-    else sc = m_PFOContainerHandleKey.assign("JetETMissNeutralParticleFlowObjects");
-  }
-    
-  if (StatusCode::SUCCESS != sc) {
-    ATH_MSG_ERROR("Could not assign PFO Container key name");
-    return sc;
-  }
-    
   SG::ReadHandle<xAOD::PFOContainer> PFOContainerReadHandle(m_PFOContainerHandleKey);
   if(!PFOContainerReadHandle.isValid()){
      ATH_MSG_WARNING("Invalid ReadHandle for xAOD::PFOContainer with key: " << PFOContainerReadHandle.key());

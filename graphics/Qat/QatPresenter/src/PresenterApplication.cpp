@@ -245,26 +245,26 @@ void PresenterApplication::Clockwork::handleManager (const HistogramManager *man
 
 
 PresenterApplication::PresenterApplication (QWidget *parent)
-  :QMainWindow(parent), c(new Clockwork())
+  :QMainWindow(parent), m_c(new Clockwork())
 {
-  c->ui.setupUi(this);
-  c->driver=loader.ioDriver(getDriver());
-  if (!c->driver) {
+  m_c->ui.setupUi(this);
+  m_c->driver=loader.ioDriver(getDriver());
+  if (!m_c->driver) {
     // Do not throw error at this point.
   }
-  c->ui.treeWidget->setColumnWidth(0,200);
+  m_c->ui.treeWidget->setColumnWidth(0,200);
  
 
-  connect (c->ui.actionQuit, SIGNAL(triggered()), this, SLOT(quit()));
-  connect (c->ui.actionAttach, SIGNAL(triggered()), this, SLOT(selectOpenFile()));
-  connect (c->ui.actionDetach, SIGNAL(triggered()), this, SLOT(selectCloseFile()));
-  //  connect (c->ui.actionNew,  SIGNAL(triggered()), this, SLOT(selectNewFile()));
-  connect (c->ui.actionLoad_Configuration, SIGNAL(triggered()), this, SLOT(selectLoadFile()));
-  connect (c->ui.actionSave_Configuration, SIGNAL(triggered()), this, SLOT(selectSaveFile()));
-  connect (c->ui.tabWidget,SIGNAL(contextMenu(QWidget *, const QPoint& )),
+  connect (m_c->ui.actionQuit, SIGNAL(triggered()), this, SLOT(quit()));
+  connect (m_c->ui.actionAttach, SIGNAL(triggered()), this, SLOT(selectOpenFile()));
+  connect (m_c->ui.actionDetach, SIGNAL(triggered()), this, SLOT(selectCloseFile()));
+  //  connect (m_c->ui.actionNew,  SIGNAL(triggered()), this, SLOT(selectNewFile()));
+  connect (m_c->ui.actionLoad_Configuration, SIGNAL(triggered()), this, SLOT(selectLoadFile()));
+  connect (m_c->ui.actionSave_Configuration, SIGNAL(triggered()), this, SLOT(selectSaveFile()));
+  connect (m_c->ui.tabWidget,SIGNAL(contextMenu(QWidget *, const QPoint& )),
 	   this,SLOT(raiseTabBarContextMenu(QWidget *, const QPoint &)));
-  connect (c->ui.tabWidget, SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
-  connect(c->ui.treeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this, SLOT(itemDoubleClicked(QTreeWidgetItem *, int)));
+  connect (m_c->ui.tabWidget, SIGNAL(currentChanged(int)), this, SLOT(currentChanged(int)));
+  connect(m_c->ui.treeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this, SLOT(itemDoubleClicked(QTreeWidgetItem *, int)));
   // Look at the Plugin Directory and Populate the list of Plugins:
   
   QStringList libraryPath=QApplication::libraryPaths();
@@ -281,7 +281,7 @@ PresenterApplication::PresenterApplication (QWidget *parent)
 	  QString system=trunc0.remove(suffix);
 	  QString extraDotsIndicatingVersion=".";
 	  if (system.indexOf(extraDotsIndicatingVersion)!=-1) continue;
-	  QAction *action=c->ui.menuSystems->addAction(system, this, SLOT(loadSystem()));
+	  QAction *action=m_c->ui.menuSystems->addAction(system, this, SLOT(loadSystem()));
 	  action->setObjectName(system);
 	}
 #else 
@@ -292,35 +292,35 @@ PresenterApplication::PresenterApplication (QWidget *parent)
 	  QString system=trunc0.remove(suffix);
 	  QString extraDotsIndicatingVersion=".";
 	  if (system.indexOf(extraDotsIndicatingVersion)!=-1) continue;
-	  QAction *action=c->ui.menuSystems->addAction(system, this, SLOT(loadSystem()));
+	  QAction *action=m_c->ui.menuSystems->addAction(system, this, SLOT(loadSystem()));
 	  action->setObjectName(system);
 	}
 #endif
       }
     }
   }
-  c->ui.tabWidget->removeTab(0);
+  m_c->ui.tabWidget->removeTab(0);
 
-  connect(c->ui.treeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(updateSelection()));
-  connect(c->ui.treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *,QTreeWidgetItem *)),   this, SLOT(updateSelection()));
-  //  connect(c->ui.treeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this, SLOT(itemDoubleClicked(QTreeWidgetItem *, int)));
-  c->tab=-1;
+  connect(m_c->ui.treeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(updateSelection()));
+  connect(m_c->ui.treeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem *,QTreeWidgetItem *)),   this, SLOT(updateSelection()));
+  //  connect(m_c->ui.treeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem *, int)), this, SLOT(itemDoubleClicked(QTreeWidgetItem *, int)));
+  m_c->tab=-1;
 
 
 }
 
 void PresenterApplication::readVisFunctions() {
   FunctionInsertion fs;
-  for (unsigned int i=0;i<c->visFunctionDir.size();i++) {
-    fs.insert(c->ui.treeWidget, c->visFunctionDir[i], c->visFunctionMap,c->visFunctionLocator);
+  for (unsigned int i=0;i<m_c->visFunctionDir.size();i++) {
+    fs.insert(m_c->ui.treeWidget, m_c->visFunctionDir[i], m_c->visFunctionMap,m_c->visFunctionLocator);
   }
 }
 
 PresenterApplication::~PresenterApplication() {
   clear();
   std::map<QTreeWidgetItem *, VisFunction *>::iterator 
-    begin=c->visFunctionMap.begin(),
-    end=c->visFunctionMap.end(),
+    begin=m_c->visFunctionMap.begin(),
+    end=m_c->visFunctionMap.end(),
     current=begin;
   while(current!=end) {
     delete (*current).second;
@@ -328,7 +328,7 @@ PresenterApplication::~PresenterApplication() {
   }
 
  
-  delete c;
+  delete m_c;
 }
 
 void PresenterApplication::open(const std::string & pathname) {
@@ -337,7 +337,7 @@ void PresenterApplication::open(const std::string & pathname) {
   realpath(pathname.c_str(),fpath);
 
   const std::string fullpathname=fpath;
-  const HistogramManager *manager = c->driver ? c->driver->openManager(fullpathname):NULL;
+  const HistogramManager *manager = m_c->driver ? m_c->driver->openManager(fullpathname):NULL;
   if (!manager) {
     std::cerr << "Warning: PresenterApplication cannot open file " << pathname << std::endl; 
   }
@@ -347,11 +347,11 @@ void PresenterApplication::open(const std::string & pathname) {
     list << "File";
 
     QTreeWidgetItem *item = new QTreeWidgetItem(list);
-    c->managerMap[item]=manager;
-    c->ui.treeWidget->addTopLevelItem(item);
-    c->handleManager(manager,item);
-    c->ui.treeWidget->reset();
-    c->attachFilename=fullpathname;
+    m_c->managerMap[item]=manager;
+    m_c->ui.treeWidget->addTopLevelItem(item);
+    m_c->handleManager(manager,item);
+    m_c->ui.treeWidget->reset();
+    m_c->attachFilename=fullpathname;
   }
 
 }
@@ -382,10 +382,10 @@ void PresenterApplication::loadSystem(const std::string & system)
   //  Here is a message string for errors:
   std::ostringstream messageString;
     
-  std::map<std::string, QObject *>::const_iterator lM =c->loadMap.find(system);
+  std::map<std::string, QObject *>::const_iterator lM =m_c->loadMap.find(system);
   QObject *instance=NULL;
 
-  if (lM!=c->loadMap.end()) instance = (*lM).second;
+  if (lM!=m_c->loadMap.end()) instance = (*lM).second;
   
   if (!instance) {
     QString systemName=system.c_str();
@@ -410,9 +410,9 @@ void PresenterApplication::loadSystem(const std::string & system)
       
       instance = piloader.instance();
       if (instance) {
-        c->loadMap[system]=instance; //should presumably be here
+        m_c->loadMap[system]=instance; //should presumably be here
 	      break;
-	      //c->loadMap[system]=instance; unreachable code
+	      //m_c->loadMap[system]=instance; unreachable code
       }
     }
   }
@@ -423,36 +423,36 @@ void PresenterApplication::loadSystem(const std::string & system)
       DASystem *system = interface->newSystem();
       if (system) {
 	messageString << "Success creating a " << system->name().toStdString() << std::endl;
-	system->setHist1DSet(&c->selectedH1Set);
-	system->setHist2DSet(&c->selectedH2Set);
-	system->setTableSet (&c->selectedTableSet);
-	system->setVisFunctionSet (&c->selectedVisFunctionSet);
-	system->setPresenterTreeWidget(c->ui.treeWidget);
-	system->setPresenterMessageTextEdit(c->ui.messageTextEdit);
-	system->setPresenterH1Locator(&c->histoLocator1);
-	system->setPresenterH2Locator(&c->histoLocator2);
-	system->setPresenterVisFunctionLocator(&c->visFunctionLocator);
-	c->system.push_back(system);
+	system->setHist1DSet(&m_c->selectedH1Set);
+	system->setHist2DSet(&m_c->selectedH2Set);
+	system->setTableSet (&m_c->selectedTableSet);
+	system->setVisFunctionSet (&m_c->selectedVisFunctionSet);
+	system->setPresenterTreeWidget(m_c->ui.treeWidget);
+	system->setPresenterMessageTextEdit(m_c->ui.messageTextEdit);
+	system->setPresenterH1Locator(&m_c->histoLocator1);
+	system->setPresenterH2Locator(&m_c->histoLocator2);
+	system->setPresenterVisFunctionLocator(&m_c->visFunctionLocator);
+	m_c->system.push_back(system);
 	
-	system->toolWidget()->setParent(c->ui.toolBoxStackedWidget);
-	c->ui.toolBoxStackedWidget->addWidget(system->toolWidget());
+	system->toolWidget()->setParent(m_c->ui.toolBoxStackedWidget);
+	m_c->ui.toolBoxStackedWidget->addWidget(system->toolWidget());
 	system->toolWidget()->show();
 	//Exp:
-	c->ui.toolBoxStackedWidget->setEnabled(true);
-	c->ui.toolBoxStackedWidget->show();
-	c->ui.toolBoxStackedWidget->update();
-	c->ui.toolBoxStackedWidget->setCurrentWidget(system->toolWidget());
-	c->ui.tabWidget->blockSignals(true);
-	c->ui.tabWidget->setCurrentIndex(c->ui.tabWidget->addTab(system->mainWidget(),system->name()));
-	c->ui.tabWidget->blockSignals(false);
+	m_c->ui.toolBoxStackedWidget->setEnabled(true);
+	m_c->ui.toolBoxStackedWidget->show();
+	m_c->ui.toolBoxStackedWidget->update();
+	m_c->ui.toolBoxStackedWidget->setCurrentWidget(system->toolWidget());
+	m_c->ui.tabWidget->blockSignals(true);
+	m_c->ui.tabWidget->setCurrentIndex(m_c->ui.tabWidget->addTab(system->mainWidget(),system->name()));
+	m_c->ui.tabWidget->blockSignals(false);
 
-	c->tab=c->ui.tabWidget->currentIndex();
+	m_c->tab=m_c->ui.tabWidget->currentIndex();
 	//
 	// This routine is called from (A) user request, or (B) config file restore.
 	// In case (B) there is no sender, and no need to update either, since update
 	// will follow...
 	//
-	if (senderObject) c->system.back()->update();
+	if (senderObject) m_c->system.back()->update();
       }
       else {
 	messageString << "Failure creating system" << std::endl;
@@ -462,7 +462,7 @@ void PresenterApplication::loadSystem(const std::string & system)
   else {
     messageString << "Failure loading library" << std::endl;
   }
-  c->ui.messageTextEdit->insertPlainText (messageString.str().c_str());
+  m_c->ui.messageTextEdit->insertPlainText (messageString.str().c_str());
 }
 
 
@@ -475,15 +475,15 @@ void PresenterApplication::selectOpenFile () {
   filters.append("Root files (*.root)");
   filters.append("All files (*)");
   dialog.setFilters(filters);
-  dialog.setDirectory(c->attachDirectory=="" ? dirbuff : c->attachDirectory.c_str());
-  dialog.selectFile(c->attachFilename.c_str());
+  dialog.setDirectory(m_c->attachDirectory=="" ? dirbuff : m_c->attachDirectory.c_str());
+  dialog.selectFile(m_c->attachFilename.c_str());
   dialog.setFileMode(QFileDialog::ExistingFile);
   if (dialog.exec()) {
     
     QStringList openFilenames=dialog.selectedFiles();
     if (openFilenames.count()!=1) return;
     QString openFileName = openFilenames[0];
-    c->attachDirectory=dirname((char *) openFileName.toStdString().c_str());
+    m_c->attachDirectory=dirname((char *) openFileName.toStdString().c_str());
     
     if (!openFileName.isNull()) {
       open(openFileName.toStdString());
@@ -495,35 +495,35 @@ void PresenterApplication::selectCloseFile () {
   // Get the list of selected top level items in the tree view.
   // Take those items out of the list..
 
-  QList<QTreeWidgetItem *> selectedItems =c->ui.treeWidget->selectedItems();
+  QList<QTreeWidgetItem *> selectedItems =m_c->ui.treeWidget->selectedItems();
   for (int i=0;i<selectedItems.count();i++) {
     if (!selectedItems[i]->parent()) {
       if (selectedItems[i]->text(1).toStdString()=="File") {
 
 	std::ostringstream message;
 	message << "Drop file " << selectedItems[i]->text(0).toStdString() << std::endl;
-	c->ui.messageTextEdit->insertPlainText (message.str().c_str());
+	m_c->ui.messageTextEdit->insertPlainText (message.str().c_str());
 
 	// Block signals for a while:
-	c->ui.treeWidget->blockSignals(true);
-	int index = c->ui.treeWidget->indexOfTopLevelItem(selectedItems[i]);
-	QTreeWidgetItem *removedItem=c->ui.treeWidget->takeTopLevelItem(index);
+	m_c->ui.treeWidget->blockSignals(true);
+	int index = m_c->ui.treeWidget->indexOfTopLevelItem(selectedItems[i]);
+	QTreeWidgetItem *removedItem=m_c->ui.treeWidget->takeTopLevelItem(index);
 
 	// Purge:
 	Hist1DSet doomedH1Set;
 	Hist2DSet doomedH2Set;
 	TableSet  doomedTableSet;
-	c->purge(removedItem, doomedH1Set, doomedH2Set, doomedTableSet);
+	m_c->purge(removedItem, doomedH1Set, doomedH2Set, doomedTableSet);
 
 	// Close input file:
-	const HistogramManager *manager=c->managerMap[removedItem];
-	if (c->driver) c->driver->close(manager);
+	const HistogramManager *manager=m_c->managerMap[removedItem];
+	if (m_c->driver) m_c->driver->close(manager);
 
 
 	// Turn signals back on.
 							   
-	c->ui.treeWidget->blockSignals(false);
-	c->ui.treeWidget->update();
+	m_c->ui.treeWidget->blockSignals(false);
+	m_c->ui.treeWidget->update();
 	updateSelection();
       }
     } 
@@ -542,15 +542,15 @@ void PresenterApplication::selectLoadFile () {
   filters.append("Presenter files (*.pres)");
   filters.append("All files (*)");
   dialog.setFilters(filters);
-  dialog.setDirectory(c->currentDirectory=="" ? dirbuff : c->currentDirectory.c_str());
-  dialog.selectFile(c->currentFilename.c_str());
+  dialog.setDirectory(m_c->currentDirectory=="" ? dirbuff : m_c->currentDirectory.c_str());
+  dialog.selectFile(m_c->currentFilename.c_str());
   dialog.setFileMode(QFileDialog::ExistingFile);
   if (dialog.exec()) {
     
     QStringList loadFilenames=dialog.selectedFiles();
     if (loadFilenames.count()!=1) return;
     QString loadFileName = loadFilenames[0];
-    c->currentDirectory=dirname((char *) loadFileName.toStdString().c_str());
+    m_c->currentDirectory=dirname((char *) loadFileName.toStdString().c_str());
     
     if (!loadFileName.isNull()) {
       clear();
@@ -570,8 +570,8 @@ void PresenterApplication::selectSaveFile () {
   filters.append("Presenter files (*.pres)");
   filters.append("All files (*)");
   dialog.setFilters(filters);
-  dialog.setDirectory(c->currentDirectory=="" ? dirbuff : c->currentDirectory.c_str());
-  dialog.selectFile(c->currentFilename.c_str());
+  dialog.setDirectory(m_c->currentDirectory=="" ? dirbuff : m_c->currentDirectory.c_str());
+  dialog.selectFile(m_c->currentFilename.c_str());
   dialog.setAcceptMode(QFileDialog::AcceptSave);
   dialog.setConfirmOverwrite(true);
   if (dialog.exec()) {
@@ -579,7 +579,7 @@ void PresenterApplication::selectSaveFile () {
     QStringList saveFilenames=dialog.selectedFiles();
     if (saveFilenames.count()!=1) return;
     QString saveFileName = saveFilenames[0];
-    c->currentDirectory=dirname((char *) saveFileName.toStdString().c_str());
+    m_c->currentDirectory=dirname((char *) saveFileName.toStdString().c_str());
     
     if (!saveFileName.isNull()) {
       save(saveFileName.toStdString());
@@ -592,40 +592,40 @@ void PresenterApplication::selectSaveFile () {
 
 void PresenterApplication::updateSelection() {
 
-  QList<QTreeWidgetItem *> selectedItems=c->ui.treeWidget->selectedItems();
-  QTreeWidgetItem         *currentItem  =c->ui.treeWidget->currentItem();
+  QList<QTreeWidgetItem *> selectedItems=m_c->ui.treeWidget->selectedItems();
+  QTreeWidgetItem         *currentItem  =m_c->ui.treeWidget->currentItem();
 
-  c->selectedH1Set.erase(c->selectedH1Set.begin(),c->selectedH1Set.end());
-  c->selectedH2Set.erase(c->selectedH2Set.begin(),c->selectedH2Set.end());
-  c->selectedTableSet.erase(c->selectedTableSet.begin(),c->selectedTableSet.end());
-  c->selectedVisFunctionSet.erase(c->selectedVisFunctionSet.begin(),c->selectedVisFunctionSet.end());
+  m_c->selectedH1Set.erase(m_c->selectedH1Set.begin(),m_c->selectedH1Set.end());
+  m_c->selectedH2Set.erase(m_c->selectedH2Set.begin(),m_c->selectedH2Set.end());
+  m_c->selectedTableSet.erase(m_c->selectedTableSet.begin(),m_c->selectedTableSet.end());
+  m_c->selectedVisFunctionSet.erase(m_c->selectedVisFunctionSet.begin(),m_c->selectedVisFunctionSet.end());
 
   // Selected Items:
   for (int i=0;i<selectedItems.size();i++) {
     QTreeWidgetItem *item=selectedItems.at(i);
     // Locate all histograms:
-    std::map<QTreeWidgetItem *, const Hist1D *>::const_iterator h1=c->h1Map.find(item);
-    if (h1!=c->h1Map.end()) {
+    std::map<QTreeWidgetItem *, const Hist1D *>::const_iterator h1=m_c->h1Map.find(item);
+    if (h1!=m_c->h1Map.end()) {
       const Hist1D *hist1D=(*h1).second;
-      c->selectedH1Set.push_back(hist1D);
+      m_c->selectedH1Set.push_back(hist1D);
     }
     // Locate all scatterplots:
-    std::map<QTreeWidgetItem *, const Hist2D *>::const_iterator h2=c->h2Map.find(item);
-    if (h2!=c->h2Map.end()) {
+    std::map<QTreeWidgetItem *, const Hist2D *>::const_iterator h2=m_c->h2Map.find(item);
+    if (h2!=m_c->h2Map.end()) {
       const Hist2D *hist2D=(*h2).second;
-      c->selectedH2Set.push_back(hist2D);
+      m_c->selectedH2Set.push_back(hist2D);
     }
     // Locate all tables:
-    std::map<QTreeWidgetItem *, const Table *>::const_iterator tb=c->tbMap.find(item);
-    if (tb!=c->tbMap.end()) {
+    std::map<QTreeWidgetItem *, const Table *>::const_iterator tb=m_c->tbMap.find(item);
+    if (tb!=m_c->tbMap.end()) {
       const Table *table=(*tb).second;
-      c->selectedTableSet.push_back(table);
+      m_c->selectedTableSet.push_back(table);
     }
     // Locate all vis functions
-    std::map<QTreeWidgetItem *, VisFunction *>::const_iterator vi=c->visFunctionMap.find(item);
-    if (vi!=c->visFunctionMap.end()) {
+    std::map<QTreeWidgetItem *, VisFunction *>::const_iterator vi=m_c->visFunctionMap.find(item);
+    if (vi!=m_c->visFunctionMap.end()) {
       const VisFunction *visFunction=(*vi).second;
-      c->selectedVisFunctionSet.push_back(visFunction);
+      m_c->selectedVisFunctionSet.push_back(visFunction);
     }
   }
   if (selectedItems.size()==0) {
@@ -633,28 +633,28 @@ void PresenterApplication::updateSelection() {
     if (!selectedItems.contains(currentItem))
       {
 	// Locate all histograms:
-	std::map<QTreeWidgetItem *, const Hist1D *>::const_iterator h1=c->h1Map.find(currentItem);
-	if (h1!=c->h1Map.end()) {
+	std::map<QTreeWidgetItem *, const Hist1D *>::const_iterator h1=m_c->h1Map.find(currentItem);
+	if (h1!=m_c->h1Map.end()) {
 	  const Hist1D *hist1D=(*h1).second;
-	  c->selectedH1Set.push_back(hist1D);
+	  m_c->selectedH1Set.push_back(hist1D);
 	}
 	// Locate all scatterplots:
-	std::map<QTreeWidgetItem *, const Hist2D *>::const_iterator h2=c->h2Map.find(currentItem);
-	if (h2!=c->h2Map.end()) {
+	std::map<QTreeWidgetItem *, const Hist2D *>::const_iterator h2=m_c->h2Map.find(currentItem);
+	if (h2!=m_c->h2Map.end()) {
 	  const Hist2D *hist2D=(*h2).second;
-	  c->selectedH2Set.push_back(hist2D);
+	  m_c->selectedH2Set.push_back(hist2D);
 	}
 	// Locate all tables:
-	std::map<QTreeWidgetItem *, const Table *>::const_iterator tb=c->tbMap.find(currentItem);
-	if (tb!=c->tbMap.end()) {
+	std::map<QTreeWidgetItem *, const Table *>::const_iterator tb=m_c->tbMap.find(currentItem);
+	if (tb!=m_c->tbMap.end()) {
 	  const Table *table=(*tb).second;
-	  c->selectedTableSet.push_back(table);
+	  m_c->selectedTableSet.push_back(table);
 	}
 	// Locate all vis functions
-	std::map<QTreeWidgetItem *, VisFunction *>::const_iterator vi=c->visFunctionMap.find(currentItem);
-	if (vi!=c->visFunctionMap.end()) {
+	std::map<QTreeWidgetItem *, VisFunction *>::const_iterator vi=m_c->visFunctionMap.find(currentItem);
+	if (vi!=m_c->visFunctionMap.end()) {
 	  const VisFunction *visFunction=(*vi).second;
-	  c->selectedVisFunctionSet.push_back(visFunction);
+	  m_c->selectedVisFunctionSet.push_back(visFunction);
 	}
       }
   }
@@ -662,10 +662,10 @@ void PresenterApplication::updateSelection() {
   // Issue a message:
   
   
-  c->ui.messageTextEdit->insertPlainText ("Updating systems\n");
-  QWidget *w = c->tab== -1 ? 0 : c->ui.tabWidget->widget(c->tab);
-  for (unsigned int i=0;i<c->system.size();i++) {
-    if (w && c->system[i]->mainWidget()==w) c->system[i]->update();
+  m_c->ui.messageTextEdit->insertPlainText ("Updating systems\n");
+  QWidget *w = m_c->tab== -1 ? 0 : m_c->ui.tabWidget->widget(m_c->tab);
+  for (unsigned int i=0;i<m_c->system.size();i++) {
+    if (w && m_c->system[i]->mainWidget()==w) m_c->system[i]->update();
   }
 
 
@@ -673,7 +673,7 @@ void PresenterApplication::updateSelection() {
  
 void PresenterApplication::raiseTabBarContextMenu (QWidget *w, const QPoint &p) {
   QMenu menu(w);
-  int index = c->ui.tabWidget->indexOf(w);
+  int index = m_c->ui.tabWidget->indexOf(w);
 
   QAction *cloneAction=menu.addAction("Clone");
   QAction *deleteAction=menu.addAction("Delete");
@@ -684,34 +684,34 @@ void PresenterApplication::raiseTabBarContextMenu (QWidget *w, const QPoint &p) 
     return;
   }
   if (selectedAction==cloneAction) {
-    for (unsigned int i=0;i<c->system.size();i++) {
-      if (c->system[i]->mainWidget()==w) {
+    for (unsigned int i=0;i<m_c->system.size();i++) {
+      if (m_c->system[i]->mainWidget()==w) {
 	std::ostringstream messageString;
-	QByteArray byteArray=c->system[i]->saveState();
-	DASystem *system = c->system[i]->clone();
+	QByteArray byteArray=m_c->system[i]->saveState();
+	DASystem *system = m_c->system[i]->clone();
 	if (system) {
 	  messageString << "Success cloning a " << system->name().toStdString() << std::endl;
-	  system->setHist1DSet(&c->selectedH1Set);
-	  system->setHist2DSet(&c->selectedH2Set);
-	  system->setTableSet (&c->selectedTableSet);
-	  system->setVisFunctionSet(&c->selectedVisFunctionSet);
-	  system->setPresenterTreeWidget(c->ui.treeWidget);
-	  system->setPresenterMessageTextEdit(c->ui.messageTextEdit);
-	  system->setPresenterH1Locator(&c->histoLocator1);
-	  system->setPresenterH2Locator(&c->histoLocator2);
-	  system->setPresenterVisFunctionLocator(&c->visFunctionLocator);
-	  c->system.push_back(system);
+	  system->setHist1DSet(&m_c->selectedH1Set);
+	  system->setHist2DSet(&m_c->selectedH2Set);
+	  system->setTableSet (&m_c->selectedTableSet);
+	  system->setVisFunctionSet(&m_c->selectedVisFunctionSet);
+	  system->setPresenterTreeWidget(m_c->ui.treeWidget);
+	  system->setPresenterMessageTextEdit(m_c->ui.messageTextEdit);
+	  system->setPresenterH1Locator(&m_c->histoLocator1);
+	  system->setPresenterH2Locator(&m_c->histoLocator2);
+	  system->setPresenterVisFunctionLocator(&m_c->visFunctionLocator);
+	  m_c->system.push_back(system);
 
-	  system->toolWidget()->setParent(c->ui.toolBoxStackedWidget);
-	  c->ui.toolBoxStackedWidget->addWidget(system->toolWidget());
+	  system->toolWidget()->setParent(m_c->ui.toolBoxStackedWidget);
+	  m_c->ui.toolBoxStackedWidget->addWidget(system->toolWidget());
 	  system->toolWidget()->show();
 	//Exp:
-	  c->ui.toolBoxStackedWidget->setEnabled(true);
-	  c->ui.toolBoxStackedWidget->show();
-	  c->ui.toolBoxStackedWidget->update();
-	  c->ui.toolBoxStackedWidget->setCurrentWidget(system->toolWidget());
+	  m_c->ui.toolBoxStackedWidget->setEnabled(true);
+	  m_c->ui.toolBoxStackedWidget->show();
+	  m_c->ui.toolBoxStackedWidget->update();
+	  m_c->ui.toolBoxStackedWidget->setCurrentWidget(system->toolWidget());
 
-	  c->ui.tabWidget->setCurrentIndex(c->ui.tabWidget->addTab(system->mainWidget(),system->name()));
+	  m_c->ui.tabWidget->setCurrentIndex(m_c->ui.tabWidget->addTab(system->mainWidget(),system->name()));
 
 	  system->restoreFromState(byteArray);
 	  system->update();
@@ -719,73 +719,73 @@ void PresenterApplication::raiseTabBarContextMenu (QWidget *w, const QPoint &p) 
 	else {
 	  messageString << "Failure cloning system" << std::endl;
 	}
-	c->ui.messageTextEdit->insertPlainText (messageString.str().c_str());
+	m_c->ui.messageTextEdit->insertPlainText (messageString.str().c_str());
 	break;
       }
     }
   }
   else if (selectedAction==deleteAction) {
-    for (unsigned int i=0;i<c->system.size();i++) {
-      if (c->system[i]->mainWidget()==w) {
-	c->tab=-1;
-	c->ui.tabWidget->removeTab(index);
-	c->ui.toolBoxStackedWidget->removeWidget(c->system[i]->toolWidget());
-	delete c->system[i];
-	c->system.erase(c->system.begin()+i);
+    for (unsigned int i=0;i<m_c->system.size();i++) {
+      if (m_c->system[i]->mainWidget()==w) {
+	m_c->tab=-1;
+	m_c->ui.tabWidget->removeTab(index);
+	m_c->ui.toolBoxStackedWidget->removeWidget(m_c->system[i]->toolWidget());
+	delete m_c->system[i];
+	m_c->system.erase(m_c->system.begin()+i);
       }
     }
   }
   else if (selectedAction==renameAction) {
     bool ok;
-    QString text = QInputDialog::getText( c->ui.tabWidget, "Rename tab","Rename tab '"+c->ui.tabWidget->tabText(index)+"' to:",
-					  QLineEdit::Normal, c->ui.tabWidget->tabText(index), &ok );
-    if (ok) c->ui.tabWidget->setTabText(index,text);
+    QString text = QInputDialog::getText( m_c->ui.tabWidget, "Rename tab","Rename tab '"+m_c->ui.tabWidget->tabText(index)+"' to:",
+					  QLineEdit::Normal, m_c->ui.tabWidget->tabText(index), &ok );
+    if (ok) m_c->ui.tabWidget->setTabText(index,text);
 
   }
 
 }
 
 void PresenterApplication::currentChanged(int newTab) {
-  if (c->ui.tabWidget->count()==0) return;
-  c->ui.tabWidget->setFocus();
+  if (m_c->ui.tabWidget->count()==0) return;
+  m_c->ui.tabWidget->setFocus();
   QObject::blockSignals(true);
   // Do stuff;
   
-  if (c->tab!=-1) {
+  if (m_c->tab!=-1) {
     // Save the state of the tab widget, in four easy steps. 
 
     // 1. Get the main widget.
-    QWidget *w = c->ui.tabWidget->widget(c->tab);
+    QWidget *w = m_c->ui.tabWidget->widget(m_c->tab);
     
     // 2. Get the system.
     DASystem *system=NULL;
-    for (unsigned int i=0;i<c->system.size();i++) {
-      if (w==c->system[i]->mainWidget()) {
-	system=c->system[i];
+    for (unsigned int i=0;i<m_c->system.size();i++) {
+      if (w==m_c->system[i]->mainWidget()) {
+	system=m_c->system[i];
 	break;
       }
     }
     if (!system) {
       std::ostringstream stream;
-      stream << "Cannot locate the system for tab widget " << c->tab ;
+      stream << "Cannot locate the system for tab widget " << m_c->tab ;
       throw std::runtime_error (stream.str());
     }
 
     // 3. Get the state of the tab widget.
     Serializer serializer(1);
-    serializer.save(c->ui.tabWidget->tabText(c->tab).toStdString());
-    serializer.save(c->ui.treeWidget);
+    serializer.save(m_c->ui.tabWidget->tabText(m_c->tab).toStdString());
+    serializer.save(m_c->ui.treeWidget);
     QByteArray byteArray=serializer.result();
    
     
     // 4. Connect the tab widget state to the system.
-    c->treeMap[w]=byteArray;
+    m_c->treeMap[w]=byteArray;
 
     // 5. Save the state of the system, too:
     if (1) {
       if (system) {
 	QByteArray systemByteArray=system->saveCache();
-	c->sysStateMap[w]=systemByteArray;
+	m_c->sysStateMap[w]=systemByteArray;
       }
     }
 
@@ -795,34 +795,34 @@ void PresenterApplication::currentChanged(int newTab) {
   // see if the state is avaiable.  If so, set the state.  
   {
     // 1. Get the main widget.
-    QWidget *w = c->ui.tabWidget->widget(newTab);
+    QWidget *w = m_c->ui.tabWidget->widget(newTab);
 
     DASystem *system=NULL;
-    for (unsigned int i=0;i<c->system.size();i++) {
-      if (w==c->system[i]->mainWidget()) {
-	system=c->system[i];
+    for (unsigned int i=0;i<m_c->system.size();i++) {
+      if (w==m_c->system[i]->mainWidget()) {
+	system=m_c->system[i];
 	break;
       }
     }
  
-    if (system) c->ui.toolBoxStackedWidget->setCurrentWidget(system->toolWidget());
+    if (system) m_c->ui.toolBoxStackedWidget->setCurrentWidget(system->toolWidget());
 
     
 
     // 2. See if its state is in the map, if so restore.
     {
-      std::map<QWidget         *, QByteArray>::iterator t=c->treeMap.find(w), end=c->treeMap.end();
+      std::map<QWidget         *, QByteArray>::iterator t=m_c->treeMap.find(w), end=m_c->treeMap.end();
       if (t!=end) {
 	Deserializer state((*t).second);
-	c->ui.treeWidget->blockSignals(true);
+	m_c->ui.treeWidget->blockSignals(true);
 	if (state.version() >=1) {
 	  std::string tName;
 	  state.restore(tName);
 	  QString tn(tName.c_str());
-	  c->ui.tabWidget->setTabText(newTab,tn);
+	  m_c->ui.tabWidget->setTabText(newTab,tn);
 	}
-	state.restore(c->ui.treeWidget);
-	c->ui.treeWidget->blockSignals(false);
+	state.restore(m_c->ui.treeWidget);
+	m_c->ui.treeWidget->blockSignals(false);
 	if (state.version()>1) throw std::runtime_error ("Error restoring the state of the tree widget");
 	
       }
@@ -831,7 +831,7 @@ void PresenterApplication::currentChanged(int newTab) {
     // And restore the system as well:
     if (1) 
     {
-      std::map<QWidget         *, QByteArray>::iterator t=c->sysStateMap.find(w), end=c->sysStateMap.end();
+      std::map<QWidget         *, QByteArray>::iterator t=m_c->sysStateMap.find(w), end=m_c->sysStateMap.end();
       if (t!=end) {
 	if (system) {
 	  system->restoreFromCache((*t).second);
@@ -843,7 +843,7 @@ void PresenterApplication::currentChanged(int newTab) {
   }
 
   // End do stuff.  Old tab is now this tab.
-  c->tab=newTab;
+  m_c->tab=newTab;
   QObject::blockSignals(false);
   updateSelection();
     
@@ -854,8 +854,8 @@ void PresenterApplication::currentChanged(int newTab) {
 void PresenterApplication::refreshTables(HistogramManager *, const Table *oldTable, const Table *newTable) {
 
   std::map<QTreeWidgetItem *, const Table *>::const_iterator 
-    begin=c->tbMap.begin(),
-    end=  c->tbMap.end(),
+    begin=m_c->tbMap.begin(),
+    end=  m_c->tbMap.end(),
     tb=begin;
 
   while (tb!=end) {
@@ -863,7 +863,7 @@ void PresenterApplication::refreshTables(HistogramManager *, const Table *oldTab
     if (table==oldTable) {
       QTreeWidgetItem *item = (*tb).first;
       
-      c->tbMap[item]=newTable;
+      m_c->tbMap[item]=newTable;
 
       break;
     }
@@ -877,29 +877,29 @@ void PresenterApplication::refreshTables(HistogramManager *, const Table *oldTab
 
 void PresenterApplication::itemDoubleClicked(QTreeWidgetItem *item, int /*column*/) {
   
-  for (unsigned int i=0;i<c->system.size();i++) {
-    if (c->system[i]->mainWidget()==c->ui.tabWidget->currentWidget()) {
+  for (unsigned int i=0;i<m_c->system.size();i++) {
+    if (m_c->system[i]->mainWidget()==m_c->ui.tabWidget->currentWidget()) {
       
-      std::map<QTreeWidgetItem *, const Hist1D *>::const_iterator h1=c->h1Map.find(item);
-      if (h1!=c->h1Map.end()) {
+      std::map<QTreeWidgetItem *, const Hist1D *>::const_iterator h1=m_c->h1Map.find(item);
+      if (h1!=m_c->h1Map.end()) {
 	const Hist1D *hist1D=(*h1).second;
-	c->system[i]->dblClicked1D(hist1D);
+	m_c->system[i]->dblClicked1D(hist1D);
       }
-      std::map<QTreeWidgetItem *, const Hist2D *>::const_iterator h2=c->h2Map.find(item);
-      if (h2!=c->h2Map.end()) {
+      std::map<QTreeWidgetItem *, const Hist2D *>::const_iterator h2=m_c->h2Map.find(item);
+      if (h2!=m_c->h2Map.end()) {
 	const Hist2D *hist2D=(*h2).second;
-	c->system[i]->dblClicked2D(hist2D);
+	m_c->system[i]->dblClicked2D(hist2D);
       }
 
-      std::map<QTreeWidgetItem *, const HistogramManager *>::const_iterator dr=c->managerMap.find(item);
-      if (dr!=c->managerMap.end()) {
+      std::map<QTreeWidgetItem *, const HistogramManager *>::const_iterator dr=m_c->managerMap.find(item);
+      if (dr!=m_c->managerMap.end()) {
 	const HistogramManager *dir=(*dr).second;
-	c->system[i]->dblClickedMan(dir);
+	m_c->system[i]->dblClickedMan(dir);
       }
-      std::map<QTreeWidgetItem *,  VisFunction *>::const_iterator v1=c->visFunctionMap.find(item);
-      if (v1!=c->visFunctionMap.end()) {
+      std::map<QTreeWidgetItem *,  VisFunction *>::const_iterator v1=m_c->visFunctionMap.find(item);
+      if (v1!=m_c->visFunctionMap.end()) {
 	const VisFunction *vf=(*v1).second;
-	c->system[i]->dblClickedVisFunction(vf);
+	m_c->system[i]->dblClickedVisFunction(vf);
       }
 
       if (item->flags() & Qt::ItemIsSelectable) item->setSelected(true);
@@ -987,18 +987,18 @@ void PresenterApplication::load( const std::string & pathname) {
    }
    // Restore all of the system trees to their states:
    for (int i=0;i<systemNames.count();i++) {
-     c->treeMap[c->system[i]->mainWidget()]=systemTreeStates[i];
+     m_c->treeMap[m_c->system[i]->mainWidget()]=systemTreeStates[i];
      Deserializer state(systemTreeStates[i]);
-     c->ui.treeWidget->blockSignals(true);
+     m_c->ui.treeWidget->blockSignals(true);
      if (state.version() >=1) {
        std::string tName;
        state.restore(tName);
        QString tn(tName.c_str());
-       c->ui.tabWidget->setTabText(i,tn);
+       m_c->ui.tabWidget->setTabText(i,tn);
      }
 
-     state.restore(c->ui.treeWidget);
-     c->ui.treeWidget->blockSignals(false);
+     state.restore(m_c->ui.treeWidget);
+     m_c->ui.treeWidget->blockSignals(false);
 
      if (state.version()>1) throw std::runtime_error ("Error restoring the state of the tree widget");
 
@@ -1013,12 +1013,12 @@ void PresenterApplication::load( const std::string & pathname) {
    //--------------------------
 
    for (int i=0;i<systemNames.count();i++) {
-     c->ui.tabWidget->setCurrentIndex(i);
-     c->system[i]->restoreFromState(systemStates[i]);
-     //c->system[i]->update(); // normally done when the tab widget selection occurs..
+     m_c->ui.tabWidget->setCurrentIndex(i);
+     m_c->system[i]->restoreFromState(systemStates[i]);
+     //m_c->system[i]->update(); // normally done when the tab widget selection occurs..
    }
-   c->ui.tabWidget->setCurrentIndex(tab);
-   c->currentFilename=pathname;
+   m_c->ui.tabWidget->setCurrentIndex(tab);
+   m_c->currentFilename=pathname;
 }
 
 
@@ -1027,39 +1027,39 @@ void PresenterApplication::save( const std::string & pathname) {
 
   // Input Files:
   QStringList inFileNames;
-  for (int i=0;i<c->ui.treeWidget->topLevelItemCount();i++) {
-    QString file=c->ui.treeWidget->topLevelItem(i)->text(0);
+  for (int i=0;i<m_c->ui.treeWidget->topLevelItemCount();i++) {
+    QString file=m_c->ui.treeWidget->topLevelItem(i)->text(0);
     inFileNames.append( file ) ;
   }
   
   // Systems:
   QStringList systemNames;
-  for (unsigned int i=0;i<c->system.size();i++) {
-    systemNames.append(c->system[i]->name());
+  for (unsigned int i=0;i<m_c->system.size();i++) {
+    systemNames.append(m_c->system[i]->name());
   }
   
   // Tree widget state:
   QList<QByteArray> systemTreeStates;
-  for (unsigned int i=0;i<c->system.size();i++) {
+  for (unsigned int i=0;i<m_c->system.size();i++) {
     
-    QWidget *W = c->system[i]->mainWidget();
-    QWidget *w = c->tab==-1 ? NULL: c->ui.tabWidget->widget(c->tab);
+    QWidget *W = m_c->system[i]->mainWidget();
+    QWidget *w = m_c->tab==-1 ? NULL: m_c->ui.tabWidget->widget(m_c->tab);
     if (w==W) { // Means record now!  From presenting widget!
       Serializer serializer(1);
-      serializer.save(c->ui.tabWidget->tabText(c->tab).toStdString());
-      serializer.save(c->ui.treeWidget);
+      serializer.save(m_c->ui.tabWidget->tabText(m_c->tab).toStdString());
+      serializer.save(m_c->ui.treeWidget);
       QByteArray byteArray=serializer.result();      
       systemTreeStates.append(byteArray);
     }
     else {
-      systemTreeStates.append(c->treeMap[W]);
+      systemTreeStates.append(m_c->treeMap[W]);
     }
   }
 
   // System state:
   QList<QByteArray> systemStates;
-  for (unsigned int i=0;i<c->system.size();i++) {
-    systemStates.append(c->system[i]->saveState());
+  for (unsigned int i=0;i<m_c->system.size();i++) {
+    systemStates.append(m_c->system[i]->saveState());
   }
 
 
@@ -1072,52 +1072,52 @@ void PresenterApplication::save( const std::string & pathname) {
   out<< systemNames;
   out<< systemStates;
   out<< systemTreeStates;
-  out<< c->tab;
+  out<< m_c->tab;
   out<<QString("This is the end of the automatically generated config file for present." );
   buffer.close();
 
   QFile file(pathname.c_str());
   if (!file.open(QIODevice::WriteOnly)) {
-    c->ui.messageTextEdit->insertPlainText ("Cannot save configuration");  
+    m_c->ui.messageTextEdit->insertPlainText ("Cannot save configuration");  
     return;
   }
   QDataStream outfile(&file);
   outfile<<qCompress(byteArray).toBase64();
 
-  c->currentFilename=pathname;
+  m_c->currentFilename=pathname;
 }
 
 void PresenterApplication::clear() {
 
-  c->ui.tabWidget->blockSignals(true);
-  c->ui.treeWidget->clear();
-  for (int i=c->ui.tabWidget->count()-1;i>=0;i--) c->ui.tabWidget->removeTab(i);
-  c->ui.tabWidget->blockSignals(false);
+  m_c->ui.tabWidget->blockSignals(true);
+  m_c->ui.treeWidget->clear();
+  for (int i=m_c->ui.tabWidget->count()-1;i>=0;i--) m_c->ui.tabWidget->removeTab(i);
+  m_c->ui.tabWidget->blockSignals(false);
 
-  c->tab=-1;
+  m_c->tab=-1;
 
-  for (unsigned int i=0;i<c->system.size();i++) {
-    delete c->system[i];
+  for (unsigned int i=0;i<m_c->system.size();i++) {
+    delete m_c->system[i];
   }
-  c->system.erase(c->system.begin(),c->system.end());
-  c->selectedH1Set.erase(c->selectedH1Set.begin(),c->selectedH1Set.end());
-  c->selectedH2Set.erase(c->selectedH2Set.begin(),c->selectedH2Set.end());
-  c->selectedTableSet.erase(c->selectedTableSet.begin(),c->selectedTableSet.end());
-  c->selectedVisFunctionSet.erase(c->selectedVisFunctionSet.begin(), c->selectedVisFunctionSet.end());
-  c->h1Map.erase(c->h1Map.begin(),c->h1Map.end());
-  c->h2Map.erase(c->h2Map.begin(),c->h2Map.end());
-  c->tbMap.erase(c->tbMap.begin(),c->tbMap.end());
-  c->treeMap.erase(c->treeMap.begin(),c->treeMap.end());
+  m_c->system.erase(m_c->system.begin(),m_c->system.end());
+  m_c->selectedH1Set.erase(m_c->selectedH1Set.begin(),m_c->selectedH1Set.end());
+  m_c->selectedH2Set.erase(m_c->selectedH2Set.begin(),m_c->selectedH2Set.end());
+  m_c->selectedTableSet.erase(m_c->selectedTableSet.begin(),m_c->selectedTableSet.end());
+  m_c->selectedVisFunctionSet.erase(m_c->selectedVisFunctionSet.begin(), m_c->selectedVisFunctionSet.end());
+  m_c->h1Map.erase(m_c->h1Map.begin(),m_c->h1Map.end());
+  m_c->h2Map.erase(m_c->h2Map.begin(),m_c->h2Map.end());
+  m_c->tbMap.erase(m_c->tbMap.begin(),m_c->tbMap.end());
+  m_c->treeMap.erase(m_c->treeMap.begin(),m_c->treeMap.end());
 
 
   {
     std::map<QTreeWidgetItem *, const HistogramManager *>::const_iterator 
-      begin=c->managerMap.begin(),
-      end=c->managerMap.end(),
+      begin=m_c->managerMap.begin(),
+      end=m_c->managerMap.end(),
       current=begin;
     while (current!=end) {
       const HistogramManager *manager=(*current).second;
-      if (c->driver) c->driver->close(manager);
+      if (m_c->driver) m_c->driver->close(manager);
       current++;
     }
   }
@@ -1127,7 +1127,7 @@ void PresenterApplication::clear() {
 
 // Add a directory for vis functions
 void PresenterApplication::addVisFunctionDirectory(const std::string & visFunctionDir) {
-  c->visFunctionDir.push_back(visFunctionDir);
+  m_c->visFunctionDir.push_back(visFunctionDir);
 }
 
 

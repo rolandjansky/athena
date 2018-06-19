@@ -71,7 +71,7 @@ StatusCode AthExCreateCondAlg::createCondObjects()
     return StatusCode::FAILURE;
   }
 
-  ToolHandle<IAthenaOutputStreamTool> streamTool("AthenaPoolOutputStreamTool/AthExCondStream");  
+  ToolHandle<IAthenaOutputStreamTool> streamTool("AthenaOutputStreamTool/AthExCondStream");  
   if (streamTool.retrieve().isFailure()) {
     ATH_MSG_FATAL ("Unable to find AthenaOutputStreamTool");
     return StatusCode::FAILURE;

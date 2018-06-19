@@ -115,6 +115,8 @@ StatusCode TileBeamInfoProvider::initialize() {
     m_pHRengine = m_rndmSvc->GetEngine("Tile_CondToolTrip");
     m_rndmVec = new double[TileCalibUtils::MAX_DRAWER];
     ATH_MSG_INFO("Drawer trips will be simulated");
+  } else {
+    m_tileBadChanTool.disable();
   }
 
   if (!(m_beamElemContainerKey.key().empty() 

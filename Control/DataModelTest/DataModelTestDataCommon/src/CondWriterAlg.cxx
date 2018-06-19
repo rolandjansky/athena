@@ -29,7 +29,7 @@ namespace DMTest {
 CondWriterAlg::CondWriterAlg (const std::string &name, ISvcLocator *pSvcLocator)
   : AthAlgorithm (name, pSvcLocator),
     m_regSvc ("IOVRegistrationSvc", name),
-    m_streamer ("AthenaPoolOutputStreamTool/CondStream", this)
+    m_streamer ("AthenaOutputStreamTool/CondStream", this)
 {
   declareProperty ("Streamer",     m_streamer);
   declareProperty ("EventInfoKey", m_eventInfoKey = "McEventInfo");

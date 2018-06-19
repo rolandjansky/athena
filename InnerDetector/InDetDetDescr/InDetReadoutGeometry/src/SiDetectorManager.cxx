@@ -35,11 +35,6 @@ namespace InDetDD
         return m_tag;
     }
 
-// Non const version needed when it is registered to IOVSvc
-    StatusCode SiDetectorManager::alignmentCallback( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
-        return align(I,keys);
-    }
-
     void SiDetectorManager::invalidateAll() const
     {
         for (SiDetectorElementCollection::const_iterator element_iter = getDetectorElementBegin();
@@ -62,40 +57,6 @@ namespace InDetDD
             }
         }
     }
-
-
-// Register the call back for this key and the corresponding level in
-// in the hierarchy.
-// DEPRECATED
-    void SiDetectorManager::addKey(const std::string & key, int level)
-    {
-        bool globalDelta = (level != 0); // local delta for level == 0
-        addKey(key, level, globalDelta);
-    }
-
-
-
-// Register the call back for this key and the corresponding level in
-// in the hierarchy. Also specify whether its a global or local delta.
-// DEPRECATED
-    void SiDetectorManager::addKey(const std::string & key, int level, bool globalDelta)
-    {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering alignmentCallback with key " << key << endmsg;
-        const DataHandle<AlignableTransform> transformCollection;  
-        StatusCode sc = m_detStore->regFcn(&SiDetectorManager::alignmentCallback, this, transformCollection, key);
-        if (sc.isFailure()) {
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to register call back using old method. This is OK if you are using COOL." << endmsg;
-        }
-        FrameType frame = (globalDelta) ? InDetDD::global : InDetDD::local;
-        addKey(key, level, frame);
-    }
-
-
-    void SiDetectorManager::addKey(const std::string & key, int level, FrameType frame)
-    {
-        addChannel(key, level, frame);
-    }
-
 
     bool SiDetectorManager::setAlignableTransformLocalDelta(ExtendedAlignableTransform * extXF, 
                                                             const Amg::Transform3D & localToGlobalXF,
@@ -168,7 +129,6 @@ namespace InDetDD
         }
     }
 
-
     void SiDetectorManager::addDesign(const SiDetectorDesign * design)
     {
         m_designs.push_back(design);
@@ -184,8 +144,5 @@ namespace InDetDD
     {
         return m_designs[i];
     }
-
-
-
 
 }// namespace InDetDD

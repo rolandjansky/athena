@@ -26,7 +26,7 @@ FTKSetup::FTKSetup() :
    m_tot_events(0), m_EnableFTKSim(0), m_RawMode(1),
    m_SectorsAsPatterns(0),
    m_MaxMissingPlanes(1), m_MaskLayers(0), m_RoadWarrior(1),
-   m_KeepRemoved(0), m_HWModeSS(0), m_event(-1), m_MaxMissingSctPairs(0),
+   m_KeepRemoved(0), m_HWModeSS(0), m_MaxMissingSctPairs(0),
    m_restrictSctPairLayer(0), m_restrictSctPairModule(0),
    m_usage_ncalls(0),m_fixEndcapL0(false)
 {
@@ -176,7 +176,7 @@ void FTKSetup::usageStat(const char *header /* =0 */)
     cerr << "USG[" << setw(2) << m_usage_ncalls << "]::CPU eff " << static_cast<float>(utime+stime)/realsec << " %" << endl;
   cerr << "USG[" << setw(2) << m_usage_ncalls << "]::Vir Mem " << vsize/MBunit << " MB" << endl;
   cerr << "USG[" << setw(2) << m_usage_ncalls << "]::RSS Mem " << rss/MBunit << " MB" << endl;
-  cerr << "USG[" << setw(2) << m_usage_ncalls << "]::Max Mem " << rsslim/MBunit << " MB" << endl;;
+  cerr << "USG[" << setw(2) << m_usage_ncalls << "]::Max Mem " << rsslim/MBunit << " MB" << endl;
   cerr << endl;
 }
 

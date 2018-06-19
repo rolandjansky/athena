@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTRAWEVENTCNV_H
@@ -18,7 +18,7 @@
 
 class DataObject;
 class IByteStreamEventAccess;
-class ISCTRawContByteStreamService;
+class ISCTRawContByteStreamTool;
 
 /** Externals */ 
 extern long ByteStream_StorageType;
@@ -32,15 +32,11 @@ extern long ByteStream_StorageType;
  * to do the actual converting. */
 
 class SCTRawContByteStreamCnv: public Converter {
-  friend class CnvFactory<SCTRawContByteStreamCnv>;
-  
-  ~SCTRawContByteStreamCnv();
+  virtual ~SCTRawContByteStreamCnv() = default;
 
- protected:
-
+ public:
   SCTRawContByteStreamCnv(ISvcLocator* svcloc);
   
- public:
   typedef SCT_RDO_Container SCTRawContainer; 
 
   /** Storage type and class ID */
@@ -60,7 +56,7 @@ class SCTRawContByteStreamCnv: public Converter {
 
  private: 
   /** for BS infrastructure */
-  ServiceHandle<ISCTRawContByteStreamService> m_service;
+  ToolHandle<ISCTRawContByteStreamTool> m_tool;
   ServiceHandle<IByteStreamEventAccess> m_byteStreamEventAccess; 
   MsgStream m_log;
 };

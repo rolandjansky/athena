@@ -131,7 +131,8 @@ SteeringParameterArray::SteeringParameterArray(void) {
 }
 
 SteeringParameterArray::~SteeringParameterArray(void) {
-   while(Shrink()) ;;
+   while(Shrink())
+     ;
    if(m_prototype) delete m_prototype;
 }
 
@@ -159,7 +160,8 @@ void SteeringParameterArray::Clear(void) {
          *(m_data[i]) = *m_prototype;
       }
    } else {
-      while(Shrink()) ;;
+      while(Shrink())
+        ;
       m_data.resize(0);
    }
 }

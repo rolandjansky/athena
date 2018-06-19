@@ -7,7 +7,6 @@
 #include "TrigVKalFitter/VKalVrtAtlas.h"
 //-------------------------------------------------
 // Other stuff
-#include "GaudiKernel/ToolFactory.h"
 // Other stuff
 #include "GaudiKernel/MsgStream.h"
 //

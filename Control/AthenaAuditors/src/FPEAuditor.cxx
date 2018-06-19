@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // FPEAuditor.cxx 
@@ -13,10 +13,12 @@
 #include <stdexcept>
 
 // FrameWork includes
-#include "GaudiKernel/AudFactory.h"
 #include "GaudiKernel/INamedInterface.h"
 
 #include "FPEAuditor.h"
+
+#include "StoreGate/StoreGateSvc.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // C includes
 #include <fenv.h>
@@ -40,13 +42,14 @@ extern "C" {
 // Public methods: 
 /////////////////////////////////////////////////////////////////// 
 
+thread_local FPEAuditor::FpeStack_t FPEAuditor::s_fpe_stack;
+
 // Constructors
 ////////////////
 FPEAuditor::FPEAuditor( const std::string& name, 
 			ISvcLocator* pSvcLocator ) : 
   Auditor     ( name, pSvcLocator  ),
   AthMessaging(msgSvc(), name),
-  m_fpe_stack(),
   m_CountFPEs(),
   m_NstacktracesOnFPE(0),
   m_SigHandInstalled(false),
@@ -66,6 +69,7 @@ FPEAuditor::FPEAuditor( const std::string& name,
                   "After collecting the stacktrace, the code has to modify the mcontext_t "
                   "struct to ignore FPEs for the rest of the processing of the algorithm/service "
                   "This part is highly non-portable!" );
+  declareProperty("EventInfoKey",m_evtInfoKey="EventInfo","SG Key of xAOD::EventInfo obj");
 }
 
 // Destructor
@@ -85,6 +89,7 @@ StatusCode FPEAuditor::initialize()
   // add a fake node here because we may come alive while the AuditorSvc is
   // still initializing (so one edge is left orphaned)
   add_fpe_node();
+
   return StatusCode::SUCCESS;
 }
 
@@ -161,6 +166,8 @@ void FPEAuditor::afterInitialize(INamedInterface* comp)
   static const std::string step = "initialize";
   report_fpe(step, comp->name());
   pop_fpe_node();
+
+
 }
 
 void FPEAuditor::beforeReinitialize(INamedInterface* /*comp*/)
@@ -266,8 +273,21 @@ FPEAuditor::report_fpe(const std::string& step,
   // store current list of FPE flags which were raised before
   int raised = fetestexcept(FE_OVERFLOW | FE_INVALID | FE_DIVBYZERO);
   if (raised) {
+    std::stringstream evStr;
+    //try to get the event number:
+    StoreGateSvc* evtStore=nullptr; 
+    if (service("StoreGateSvc",evtStore).isSuccess()) {
+      const xAOD::EventInfo* ei=evtStore->tryConstRetrieve<xAOD::EventInfo>(m_evtInfoKey);
+      if (ei) {
+	evStr << " on event " << ei->eventNumber();
+      }
+      else {
+	std::cout << "Failed to get EventInfo with key ["<<m_evtInfoKey<<"] while reporting FPE" << std::endl;
+      }
+    }
+
     if (raised & FE_OVERFLOW) {
-      ATH_MSG_WARNING("FPE OVERFLOW in [" << step << "] of [" << caller << "]");
+      ATH_MSG_WARNING("FPE OVERFLOW in [" << step << "] of [" << caller << "]" << evStr.str());
       ++m_CountFPEs[FPEAUDITOR_OVERFLOW];
       if ( m_NstacktracesOnFPE && FPEAudit::s_array_O[0] != NULL )
 	{
@@ -282,7 +302,7 @@ FPEAuditor::report_fpe(const std::string& step,
 	}
     }
     if (raised & FE_INVALID) {
-      ATH_MSG_WARNING("FPE INVALID in [" << step << "] of [" << caller << "]");
+      ATH_MSG_WARNING("FPE INVALID in [" << step << "] of [" << caller << "]" << evStr.str());
       ++m_CountFPEs[FPEAUDITOR_INVALID];
     }
     if ( m_NstacktracesOnFPE && FPEAudit::s_array_I[0] != NULL )
@@ -297,7 +317,7 @@ FPEAuditor::report_fpe(const std::string& step,
 	  }
       }
     if (raised & FE_DIVBYZERO) {
-      ATH_MSG_WARNING("FPE DIVBYZERO in [" << step << "] of [" << caller << "]");
+      ATH_MSG_WARNING("FPE DIVBYZERO in [" << step << "] of [" << caller << "]" << evStr.str());
       ++m_CountFPEs[FPEAUDITOR_DIVBYZERO];
       if ( m_NstacktracesOnFPE && FPEAudit::s_array_D[0] != NULL )
 	{
@@ -321,7 +341,7 @@ FPEAuditor::add_fpe_node()
 {
   // get current list of FPE flags so far
   int raised = fetestexcept(FE_OVERFLOW | FE_INVALID | FE_DIVBYZERO);
-  m_fpe_stack.push_back(std::make_pair(raised, 0));
+  s_fpe_stack.push_back(std::make_pair(raised, 0));
 
   // clear FPE status word
   feclearexcept(FE_ALL_EXCEPT);
@@ -330,18 +350,18 @@ FPEAuditor::add_fpe_node()
 void
 FPEAuditor::pop_fpe_node()
 {
-  if (m_fpe_stack.empty()) {
+  if (s_fpe_stack.empty()) {
     ATH_MSG_ERROR("inconsistent fpe-stack !");
     throw std::runtime_error("inconsistent fpe-stack");
   }
 
   // restore fpe stack info
-  int raised = m_fpe_stack.back().first;
-  m_fpe_stack.pop_back();
+  int raised = s_fpe_stack.back().first;
+  s_fpe_stack.pop_back();
   
   // consolidate
-  if (!m_fpe_stack.empty()) {
-    m_fpe_stack.back().second |= raised;
+  if (!s_fpe_stack.empty()) {
+    s_fpe_stack.back().second |= raised;
   }
   if ( m_SigHandInstalled )
     FPEAudit::unmask_fpe();

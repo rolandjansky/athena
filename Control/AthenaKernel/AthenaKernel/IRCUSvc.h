@@ -18,7 +18,6 @@
 
 
 #include "AthenaKernel/RCUObject.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/IInterface.h"
 #include <memory>
 
@@ -52,11 +51,15 @@ public:
   template <class T, typename... Args>
   std::unique_ptr<RCUObject<T> > newrcu (Args&&... args)
   {
-    auto obj = CxxUtils::make_unique<RCUObject<T> > (*this,
-                                                     std::forward<Args>(args)...);
-    add (obj.get());
-    return obj; 
+    return std::make_unique<RCUObject<T> > (*this, std::forward<Args>(args)...);
   }
+
+
+  /**
+   * @brief Add a new RCU object to the set being managed.
+   * @param obj The object to add.
+   */
+  virtual void add (IRCUObject* obj) = 0;
 
 
   /**
@@ -70,14 +73,6 @@ public:
    * @brief Return the number of event slots.
    */
   virtual size_t getNumSlots() const = 0;
-
-
-private:
-  /**
-   * @brief Remove an object from the service.
-   * @param obj The object to add.
-   */
-  virtual void add (IRCUObject* obj) = 0;
 };
 
 

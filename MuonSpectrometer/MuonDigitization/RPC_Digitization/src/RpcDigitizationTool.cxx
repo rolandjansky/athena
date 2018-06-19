@@ -18,9 +18,6 @@
 //Inputs
 #include "MuonSimEvent/RPCSimHit.h"
 #include "MuonSimEvent/RPCSimHitCollection.h"
-//Outputs
-#include "MuonDigitContainer/RpcDigitContainer.h"
-#include "MuonSimData/MuonSimDataCollection.h"
 //Geometry
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
@@ -70,8 +67,6 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
 					 const std::string& name,
 					 const IInterface* pIID)
   : PileUpToolBase(type, name, pIID)
-  , m_digitContainer(0)
-  , m_sdoContainer(0)
   , m_GMmgr(0)
   , m_idHelper(0)
   , m_muonHelper(0)
@@ -84,8 +79,6 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
   , m_SetEtaOn(false)
   , m_mergeSvc(0)
   , m_inputHitCollectionName("RPC_Hits")
-  , m_outputDigitCollectionName("RPC_DIGITS")
-  , m_outputSDO_CollectionName("RPC_SDO")
   , m_rndmSvc("AtRndmGenSvc", name )
   , m_rndmEngine(0)
   , m_rndmEngineName("RPC_Digitization")
@@ -96,8 +89,6 @@ RpcDigitizationTool::RpcDigitizationTool(const std::string& type,
 
   declareProperty("Parameters"           ,  m_paraFile = "G4RPC_Digitizer.txt");  // File with cluster distributions
   declareProperty("InputObjectName"      ,  m_inputHitCollectionName    = "RPC_Hits",  "name of the input object");
-  declareProperty("OutputObjectName"     ,  m_outputDigitCollectionName = "RPC_DIGITS","name of the output object");
-  declareProperty("OutputSDOsName"       ,  m_outputSDO_CollectionName  = "RPC_SDO",   "name of the output object");
   declareProperty("WindowLowerOffset"    ,  m_timeWindowLowerOffset = -100.       , "digitization window lower limit");
   declareProperty("WindowUpperOffset"    ,  m_timeWindowUpperOffset = +150.       , "digitization window lower limit");
   declareProperty("DeadTime"             ,  m_deadTime              = 100.        , "dead time"                      );
@@ -162,7 +153,8 @@ StatusCode RpcDigitizationTool::initialize() {
 
   ATH_MSG_DEBUG ( "Parameters             " << m_paraFile                  );
   ATH_MSG_DEBUG ( "InputObjectName        " << m_inputHitCollectionName    );
-  ATH_MSG_DEBUG ( "OutputObjectName       " << m_outputDigitCollectionName );
+  ATH_MSG_DEBUG ( "OutputObjectName       " << m_outputDigitCollectionKey.key() );
+  ATH_MSG_DEBUG ( "OutputSDOName          " << m_outputSDO_CollectionKey.key());
   ATH_MSG_DEBUG ( "WindowLowerOffset      " << m_timeWindowLowerOffset     );
   ATH_MSG_DEBUG ( "WindowUpperOffset      " << m_timeWindowUpperOffset     );
   ATH_MSG_DEBUG ( "DeadTime               " << m_deadTime                  );
@@ -202,6 +194,16 @@ StatusCode RpcDigitizationTool::initialize() {
   }
   ATH_MSG_DEBUG ( "Retrieved GeoModel from DetectorStore." );
 
+  if(!m_mergeSvc) {
+    //locate the PileUpMergeSvc and initialize our local ptr
+    const bool CREATEIF(true);
+    if (!(service("PileUpMergeSvc", m_mergeSvc, CREATEIF)).isSuccess() ||
+	0 == m_mergeSvc) {
+      ATH_MSG_ERROR ("Could not find PileUpMergeSvc" );
+      return StatusCode::FAILURE;
+    }
+  }
+
   m_idHelper = m_GMmgr->rpcIdHelper();
   if(!m_idHelper) {
     return StatusCode::FAILURE;
@@ -215,18 +217,10 @@ StatusCode RpcDigitizationTool::initialize() {
     ATH_MSG_DEBUG ( "Input objects: '" << m_inputHitCollectionName << "'" );
   }
 
-  // check the output object name
-  if (m_outputDigitCollectionName=="") {
-    ATH_MSG_FATAL ( "Property OutputObjectName not set !" );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG ( "Output digits: '" << m_outputDigitCollectionName << "'" );
-  }
-
-  // initialize digit container
-  // m_digitContainer = new RpcDigitContainer(m_idHelper->module_hash_max());
-  //  m_digitContainer->addRef();
-
+  //initialize the output WriteHandleKeys
+  ATH_CHECK(m_outputDigitCollectionKey.initialize());
+  ATH_CHECK(m_outputSDO_CollectionKey.initialize());
+  ATH_MSG_DEBUG ( "Output digits: '" << m_outputDigitCollectionKey.key() << "'" );
 
   //set the configuration based on run1/run2
   // Retrieve geometry config information from the database (RUN1, RUN2, etc...) 
@@ -260,7 +254,7 @@ StatusCode RpcDigitizationTool::initialize() {
       if(configVal=="RUN1" || MSgeoVersion=="R.06"){ 
         run1 = true; 
       } 
-      else if(configVal=="RUN2" || MSgeoVersion=="R.07") { 
+      else if(configVal=="RUN2" || configVal=="RUN3" || MSgeoVersion=="R.07") { 
         run1 = false; 
       } 
       else { 
@@ -373,10 +367,6 @@ StatusCode RpcDigitizationTool::initialize() {
     }
   }
 
-  // initialize digit container
-  m_digitContainer = new RpcDigitContainer(m_idHelper->module_hash_max());
-  m_digitContainer->addRef();
-
   if(m_PrintCalibrationVector!=0){
     if  (StatusCode::SUCCESS != PrintCalibrationVector()) {
       ATH_MSG_WARNING ( "Could not PrintCalibrationVector" );
@@ -414,38 +404,38 @@ StatusCode RpcDigitizationTool::processBunchXing(int bunchXing,
 {
   ATH_MSG_DEBUG ( "RpcDigitizationTool::in processBunchXing()" );
 
-  SubEventIterator iEvt = bSubEvents;
-  while(iEvt!=eSubEvents)
-    {
-      StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
-      PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
-      ATH_MSG_VERBOSE("SubEvt StoreGate " << seStore.name() << " :"
-                      << " bunch crossing : " << bunchXing
-                      << " time offset : " << iEvt->time()
-                      << " event number : " << iEvt->ptr()->eventNumber()
-                      << " run number : " << iEvt->ptr()->runNumber());
-      const RPCSimHitCollection* seHitColl(nullptr);
-      if (!seStore.retrieve(seHitColl,m_inputHitCollectionName).isSuccess())
-        {
-          ATH_MSG_ERROR ("SubEvent RPCSimHitCollection not found in StoreGate " << seStore.name());
-          return StatusCode::FAILURE;
-        }
-      ATH_MSG_VERBOSE ("RPCSimHitCollection found with " << seHitColl->size() << " hits");
-      //Copy Hit Collection
-      RPCSimHitCollection* RPCHitColl = new RPCSimHitCollection("RPC_Hits");
-      RPCSimHitCollection::const_iterator i = seHitColl->begin();
-      RPCSimHitCollection::const_iterator e = seHitColl->end();
-      // Read hits from this collection
-      for (; i!=e; ++i)
-        {
-          RPCHitColl->Emplace(*i);
-        }
-      m_thpcRPC->insert(thisEventIndex, RPCHitColl);
-      //store these for deletion at the end of mergeEvent
-      m_RPCHitCollList.push_back(RPCHitColl);
+  typedef PileUpMergeSvc::TimedList<RPCSimHitCollection>::type TimedHitCollList;
+  TimedHitCollList hitCollList;
 
-      ++iEvt;
-    }
+  if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputHitCollectionName, hitCollList, bunchXing,
+					  bSubEvents, eSubEvents).isSuccess()) &&
+        hitCollList.size() == 0) {
+    ATH_MSG_ERROR("Could not fill TimedHitCollList");
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_VERBOSE(hitCollList.size() << " RPCSimHitCollection with key " <<
+		    m_inputHitCollectionName << " found");
+  }
+
+  TimedHitCollList::iterator iColl(hitCollList.begin());
+  TimedHitCollList::iterator endColl(hitCollList.end());
+
+  // Iterating over the list of collections
+  for( ; iColl != endColl; iColl++){
+
+    RPCSimHitCollection *hitCollPtr = new RPCSimHitCollection(*iColl->second);
+    PileUpTimeEventIndex timeIndex(iColl->first);
+
+    ATH_MSG_DEBUG("RPCSimHitCollection found with " << hitCollPtr->size() <<
+		  " hits");
+    ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
+		    << " index: " << timeIndex.index()
+		    << " type: " << timeIndex.type());
+
+    m_thpcRPC->insert(timeIndex, hitCollPtr);
+    m_RPCHitCollList.push_back(hitCollPtr);
+
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -518,33 +508,26 @@ StatusCode RpcDigitizationTool::mergeEvent() {
     m_DumpFromDbFirst = false ;
   }
 
-  // Cleanup and record the Digit container in StoreGate
-  m_digitContainer->cleanup();
-  status = evtStore()->record(m_digitContainer,m_outputDigitCollectionName);
-  if (status.isFailure())  {
-    ATH_MSG_ERROR ( "Unable to record RPC digit container in StoreGate" );
-    return status;
-  }
+  // create and record the Digit container in StoreGate
+  SG::WriteHandle<RpcDigitContainer> digitContainer(m_outputDigitCollectionKey);
+  ATH_CHECK(digitContainer.record(std::make_unique<RpcDigitContainer>(m_idHelper->module_hash_max())));
   ATH_MSG_DEBUG ( "RpcDigitContainer recorded in StoreGate." );
 
   // Create and record the SDO container in StoreGate
-  m_sdoContainer = new MuonSimDataCollection();
-  status = evtStore()->record(m_sdoContainer,m_outputSDO_CollectionName);
-  if (status.isFailure())  {
-    ATH_MSG_ERROR ( "Unable to record RPC SDO collection in StoreGate" );
-    return status;
-  }
+  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey);
+  ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
   ATH_MSG_DEBUG ( "RpcSDOCollection recorded in StoreGate." );
 
   //////////////// TEMP////
   m_sdo_tmp_map.clear();
   /////////////////////////
 
-  status = doDigitization();
+  status = doDigitization(digitContainer.ptr(), sdoContainer.ptr());
   if (status.isFailure())  {
     ATH_MSG_ERROR ( "doDigitization Failed" );
   }
 
+  // Clean-up
   std::list<RPCSimHitCollection*>::iterator RPCHitColl = m_RPCHitCollList.begin();
   std::list<RPCSimHitCollection*>::iterator RPCHitCollEnd = m_RPCHitCollList.end();
   while(RPCHitColl!=RPCHitCollEnd)
@@ -577,22 +560,14 @@ StatusCode RpcDigitizationTool::processAllSubEvents() {
     m_DumpFromDbFirst = false ;
   }
 
-  // Cleanup and record the Digit container in StoreGate
-  m_digitContainer->cleanup();
-  status = evtStore()->record(m_digitContainer, m_outputDigitCollectionName);
-  if (status.isFailure())  {
-    ATH_MSG_ERROR ( "Unable to record RPC digit container in StoreGate" );
-    return status;
-  }
+  // create and record the Digit container in StoreGate
+  SG::WriteHandle<RpcDigitContainer> digitContainer(m_outputDigitCollectionKey);
+  ATH_CHECK(digitContainer.record(std::make_unique<RpcDigitContainer>(m_idHelper->module_hash_max())));
   ATH_MSG_DEBUG ( "RpcDigitContainer recorded in StoreGate." );
 
   // Create and record the SDO container in StoreGate
-  m_sdoContainer = new MuonSimDataCollection();
-  status = evtStore()->record(m_sdoContainer,m_outputSDO_CollectionName);
-  if (status.isFailure())  {
-    ATH_MSG_ERROR ( "Unable to record RPC SDO collection in StoreGate" );
-    return status;
-  }
+  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey);
+  ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
   ATH_MSG_DEBUG ( "RpcSDOCollection recorded in StoreGate." );
 
   //////////////// TEMP////
@@ -606,17 +581,14 @@ StatusCode RpcDigitizationTool::processAllSubEvents() {
       return status; // there are no hits in this event
     }
   }
-  
-  status = doDigitization();
-  if (status.isFailure())  {
-    ATH_MSG_ERROR ( "doDigitization Failed" );
-  }
+
+  ATH_CHECK(doDigitization(digitContainer.ptr(), sdoContainer.ptr()));
 
   return status;
 }
 
 //--------------------------------------------
-StatusCode RpcDigitizationTool::doDigitization() {
+StatusCode RpcDigitizationTool::doDigitization(RpcDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer) {
 
   //StatusCode status = StatusCode::SUCCESS;
   //status.ignore();
@@ -885,8 +857,8 @@ StatusCode RpcDigitizationTool::doDigitization() {
         MuonSimData simData(it->second.deposits,0);
         simData.setPosition(it->second.gpos);
         simData.setTime(it->second.simTime);
-        auto insertResult = m_sdoContainer->insert(std::make_pair( it->first,simData) );
-        if (!insertResult.second) ATH_MSG_ERROR ( "Attention: this sdo is not recorded, since the identifier already exists in the m_sdoContainer map" );
+        auto insertResult = sdoContainer->insert(std::make_pair( it->first,simData) );
+        if (!insertResult.second) ATH_MSG_ERROR ( "Attention: this sdo is not recorded, since the identifier already exists in the sdoContainer map" );
       }
     }
 
@@ -933,9 +905,9 @@ StatusCode RpcDigitizationTool::doDigitization() {
 	{
 	  // store (before any cut: all G4 hits) in the SDO container
 	  //Identifier sdo and digit are the same
-	  if (m_sdoContainer->find(theId) != m_sdoContainer->end()) // Identifier exist -> increase deposit
+	  if (sdoContainer->find(theId) != sdoContainer->end()) // Identifier exist -> increase deposit
 	    {
-	      std::map<Identifier,MuonSimData>::const_iterator it = m_sdoContainer->find(theId);
+	      std::map<Identifier,MuonSimData>::const_iterator it = sdoContainer->find(theId);
 	      std::vector<MuonSimData::Deposit> deps = ((*it).second).getdeposits();
 	      deps.push_back((*map_dep_iter).second);
 	    }
@@ -944,8 +916,8 @@ StatusCode RpcDigitizationTool::doDigitization() {
 	      std::vector<MuonSimData::Deposit> deposits;
 	      deposits.push_back((*map_dep_iter).second);
 	      std::pair<std::map<Identifier,MuonSimData>::iterator, bool> insertResult =
-		m_sdoContainer->insert(std::make_pair( theId, MuonSimData(deposits,0) ) );
-	      if (!insertResult.second) ATH_MSG_ERROR ( "Attention: this sdo is not recorded, since the identifier already exists in the m_sdoContainer map" );
+		sdoContainer->insert(std::make_pair( theId, MuonSimData(deposits,0) ) );
+	      if (!insertResult.second) ATH_MSG_ERROR ( "Attention: this sdo is not recorded, since the identifier already exists in the sdoContainer map" );
 	    }
 	}
       //apply dead time
@@ -1007,11 +979,11 @@ StatusCode RpcDigitizationTool::doDigitization() {
 	  //std::cout << "Digit Id = " << m_idHelper->show_to_string(theId)<<" digit time "<<newDigit_time << std::endl;
 
 	  // put new collection in storegate
-	  RpcDigitContainer::const_iterator it_coll = m_digitContainer->indexFind(coll_hash);
-	  if (m_digitContainer->end() ==  it_coll) {
+	  RpcDigitContainer::const_iterator it_coll = digitContainer->indexFind(coll_hash);
+	  if (digitContainer->end() ==  it_coll) {
 	    digitCollection = new RpcDigitCollection(elemId,coll_hash);
 	    digitCollection->push_back(newDigit);
-	    StatusCode status = m_digitContainer->addCollection(digitCollection, coll_hash);
+	    StatusCode status = digitContainer->addCollection(digitCollection, coll_hash);
 	    if (status.isFailure()){
 	      ATH_MSG_ERROR  ( "Couldn't record RpcDigitCollection with key=" << coll_hash << " in StoreGate!" );
 	      //else
@@ -1030,9 +1002,9 @@ StatusCode RpcDigitizationTool::doDigitization() {
 	    {
 
 	      // put SDO collection in StoreGate
-	      if (m_sdoContainer->find(theId) != m_sdoContainer->end())
+	      if (sdoContainer->find(theId) != sdoContainer->end())
 		{
-		  std::map<Identifier,MuonSimData>::const_iterator it = m_sdoContainer->find(theId);
+		  std::map<Identifier,MuonSimData>::const_iterator it = sdoContainer->find(theId);
 		  std::vector<MuonSimData::Deposit> deps = ((*it).second).getdeposits();
 		  deps.push_back((*map_dep_iter).second);
 		}
@@ -1041,8 +1013,8 @@ StatusCode RpcDigitizationTool::doDigitization() {
 		  std::vector<MuonSimData::Deposit> deposits;
 		  deposits.push_back((*map_dep_iter).second);
 		  std::pair<std::map<Identifier,MuonSimData>::iterator, bool> insertResult =
-		    m_sdoContainer->insert(std::make_pair( theId, MuonSimData(deposits,0) ) );
-		  if (!insertResult.second) ATH_MSG_ERROR("Attention: this sdo is not recorded, since teh identifier already exists in the m_sdoContainer map");
+		    sdoContainer->insert(std::make_pair( theId, MuonSimData(deposits,0) ) );
+		  if (!insertResult.second) ATH_MSG_ERROR("Attention: this sdo is not recorded, since teh identifier already exists in the sdoContainer map");
 		}
 	    }
 
@@ -1360,16 +1332,6 @@ std::vector<int> RpcDigitizationTool::TurnOnStrips(std::vector<int> pcs, const I
 
   return pcs;
 
-}
-
-//--------------------------------------------
-StatusCode RpcDigitizationTool::finalize() {
-
-  ATH_MSG_DEBUG ( "RpcDigitizationTool::in finalize()" );
-
-  m_digitContainer->release();
- 
-  return StatusCode::SUCCESS;
 }
 
 //--------------------------------------------
@@ -3031,7 +2993,7 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
 		    int stripstatus	      = m_rSummarySvc->RPC_DeadStripList      ().find(atlasId)->second ;
 		    if( stripstatus != 1 )continue;
 		    ATH_MSG_VERBOSE( "Identifier " << atlasId << " sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi<<" strip "<<strip << " stripstatus "<<stripstatus );
-		    //std::cout<<"Identifier " << atlasId << " sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi<<" strip "<<strip << " stripstatus "<<stripstatus << std::endl;;
+		    //std::cout<<"Identifier " << atlasId << " sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi<<" strip "<<strip << " stripstatus "<<stripstatus << std::endl;
 
 		  }}}}}}}}}
   return sc;

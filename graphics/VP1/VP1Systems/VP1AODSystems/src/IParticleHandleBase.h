@@ -68,7 +68,7 @@ private:
   IParticleHandleBase & operator= (const IParticleHandleBase & );
 
   class Imp;
-  Imp * d;  
+  Imp * m_d;
 };
 
 

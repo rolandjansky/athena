@@ -31,54 +31,54 @@
 
 
 AttributeListConstLink Table::attributeList()  const {
-  if (!c->tuple) return AttributeListConstLink();
-  return c->tuple->attributeList();
+  if (!m_c->tuple) return AttributeListConstLink();
+  return m_c->tuple->attributeList();
 }
 
 Table::Table(const std::string & name, const TupleStoreLink s):
-  c(new Clockwork)
+  m_c(new Clockwork)
 {
-  c->name    = name;
+  m_c->name    = name;
 
   // Make a compound table (it is the most general!)
-  c->store=s;
+  m_c->store=s;
 
 
   if (s->size()==0) {
     AttributeListConstLink attributeList=new AttributeList();
-    c->tuple=new Tuple(attributeList); 
+    m_c->tuple=new Tuple(attributeList); 
   }
   else {
-    c->tuple = (TupleLink) (*s)[s->size()-1];
+    m_c->tuple = (TupleLink) (*s)[s->size()-1];
   }
 
 }
 
 Table::Table(const std::string & name):
-  c(new Clockwork)
+  m_c(new Clockwork)
 {
-  c->name    = name;
+  m_c->name    = name;
 
   // Assign to Link, will delete automatically.
   AttributeListConstLink attributeList=new AttributeList();
 
   // Assign to Link, will delete automatically.
-  c->tuple=new Tuple(attributeList); 
+  m_c->tuple=new Tuple(attributeList); 
 
   // Make a compound table (it is the most general!)
-  c->store=new CompoundStore();
+  m_c->store=new CompoundStore();
 }
 
 Table::~Table() {
-  delete c;
+  delete m_c;
 }
 
 TupleConstLink Table::capture() {
   
-  if (!c->store->size()) {                                        
+  if (!m_c->store->size()) {                                        
 
-    AttributeListLink  attListPtr = AttributeListLink(c->tuple->attributeList());
-    ValueList         * valListPtr  = & c->tuple->valueList();
+    AttributeListLink  attListPtr = AttributeListLink(m_c->tuple->attributeList());
+    ValueList         * valListPtr  = & m_c->tuple->valueList();
     AttributeList     & attList = *attListPtr;
     ValueList         & valList = *valListPtr;
     
@@ -98,20 +98,20 @@ TupleConstLink Table::capture() {
       }
     }
     for (unsigned int i=0;i<attList.size();i++) {
-      c->nameList.push_back(attList[i].name());
+      m_c->nameList.push_back(attList[i].name());
       attList[i].attrId()=i;
     }
   }
-  c->store->push_back(c->tuple);
-  c->tuple=new Tuple(c->tuple->attributeList(),c->tuple->valueList());
+  m_c->store->push_back(m_c->tuple);
+  m_c->tuple=new Tuple(m_c->tuple->attributeList(),m_c->tuple->valueList());
   
-  return (*(c->store))[c->store->size()-1];
+  return (*(m_c->store))[m_c->store->size()-1];
 }
 
 std::ostream &  Table::print (std::ostream & o) const {
-  if (c->store->size()==0) return o;
+  if (m_c->store->size()==0) return o;
   
-  for (AttributeList::ConstIterator t=c->tuple->attributeList()->begin();t!=c->tuple->attributeList()->end();t++) {
+  for (AttributeList::ConstIterator t=m_c->tuple->attributeList()->begin();t!=m_c->tuple->attributeList()->end();t++) {
     o << std::setw(10);
     o << (*t).name() << " ";
   } 
@@ -124,13 +124,13 @@ std::ostream &  Table::print (std::ostream & o) const {
 
 
 size_t Table::numAttributes() const { 
-  if (c->store->size()==0) throw std::runtime_error ("Table::size.  Attribute list not formed");
-  return c->tuple->attributeList()->size();
+  if (m_c->store->size()==0) throw std::runtime_error ("Table::size.  Attribute list not formed");
+  return m_c->tuple->attributeList()->size();
 }
 
 
 TupleConstLink Table::operator [] (size_t index) const {
-  return (*(c->store))[index];
+  return (*(m_c->store))[index];
   
 }
 
@@ -138,7 +138,7 @@ TupleConstLink Table::operator [] (size_t index) const {
 
 void Table::operator += (const Table & a) {
 
- CompoundStore *cStore = dynamic_cast<CompoundStore *> (c->store.operator->());
+ CompoundStore *cStore = dynamic_cast<CompoundStore *> (m_c->store.operator->());
  if (!cStore) throw std::runtime_error("Error summing tables:  table type?");
 
  if (cStore->isLocked()) throw std::runtime_error("Error summing tables:  first operand is locked");
@@ -146,7 +146,7 @@ void Table::operator += (const Table & a) {
   // Check that both tables are compatible with the union:
  
  if (!attributeList()||attributeList()->size()==0)   {
-   c->tuple=new Tuple(a.attributeList(),a.c->tuple->valueList());
+   m_c->tuple=new Tuple(a.attributeList(),a.m_c->tuple->valueList());
  }
 
  if (a.attributeList()->size()!=attributeList()->size()) {
@@ -160,20 +160,20 @@ void Table::operator += (const Table & a) {
      throw std::runtime_error ("Error summing tables: operands are not compatible with the union");
    }
  }
- cStore->push_back(a.c->store);
+ cStore->push_back(a.m_c->store);
  
  // Once this table has been used in an "operation" it is locked to further modification!
  
- a.c->store->lock();
+ a.m_c->store->lock();
 }
 
 Table::Table(const Table & table) :
-  c(new Clockwork(*table.c))
+  m_c(new Clockwork(*table.m_c))
 {
 }
 
 TupleStoreConstLink Table::store() const {
-  return c->store;
+  return m_c->store;
 }
 
 Genfun::Variable Table::symbol (const std::string & name) const {
@@ -185,14 +185,14 @@ Genfun::Variable Table::symbol (const std::string & name) const {
 
 Table *Table::memorize() const{
 
-  Table *t = new Table(c->name);
-  t->c->store=new CompoundStore();
-  t->c->tuple = c->tuple;
+  Table *t = new Table(m_c->name);
+  t->m_c->store=new CompoundStore();
+  t->m_c->tuple = m_c->tuple;
 
   for (unsigned int n=0;n<numTuples();n++) {
-    TupleConstLink tp=(*c->store)[n];
+    TupleConstLink tp=(*m_c->store)[n];
     TupleConstLink nt=new Tuple(tp->attributeList(),tp->valueList());
-    t->c->store->push_back(nt);
+    t->m_c->store->push_back(nt);
   }
   return t;
 }

@@ -26,7 +26,6 @@
 #include "StoreGate/DataHandle.h"
 
 // Framework include files
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -347,6 +346,12 @@ StatusCode RegistrationStream::getRefs(std::vector< std::pair<std::string,std::s
 		    }
 		}
 	    }
+	    if (hdr==0) {
+	        if (evtStore()->retrieve(hdr, "EventSelector").isFailure()) {
+	          ATH_MSG_DEBUG ("Could not retrieve DataHeader with key EventSelector.");
+	          continue;
+                }
+            }
 	}
 	else {	  // i.e. key is not "*"
 	    StatusCode status = StatusCode::FAILURE;

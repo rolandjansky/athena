@@ -15,10 +15,6 @@
     @author Wolfgang.Lukas@cern.ch
 */
 
-namespace Trk {
-  class IPositionMomentumWriter;
-}
-
 #include <vector>
 
 #include "StoreGate/StoreGateSvc.h"
@@ -34,10 +30,15 @@ namespace Trk {
 #include "TrkGeometry/ElementTable.h"
 #include "TrkGeometry/Material.h"
 
-namespace G4UA{
+namespace Trk {
+  class IPositionMomentumWriter;
+}
 
+namespace G4UA
+{
 
-  class MaterialStepRecorder: public AthMessaging, public G4UserEventAction,  public G4UserRunAction,  public G4UserSteppingAction
+  class MaterialStepRecorder: public AthMessaging, public G4UserEventAction,
+                              public G4UserRunAction, public G4UserSteppingAction
   {
 
   public:
@@ -69,7 +70,6 @@ namespace G4UA{
     Trk::ElementTable*              m_runElementTable;
 
   }; // class MaterialStepRecorder
-
 
 } // namespace G4UA
 

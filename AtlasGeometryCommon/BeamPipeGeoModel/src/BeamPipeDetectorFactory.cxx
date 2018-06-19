@@ -25,6 +25,9 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
+
 #include <iomanip>
 #include <vector>
 
@@ -241,11 +244,14 @@ void BeamPipeDetectorFactory::addSections(GeoPhysVol* parent, int region)
 
     if (addToFirstSection && secNum!=1) {
       if (!pvMotherSection) {
-	std::cout << "Unexpected condition when building beam pipe." << std::endl;
+        MsgStream gLog(Athena::getMessageSvc(), "BeamPipeDetectorFactory");
+        gLog << MSG::ERROR << "Logic error building beam pipe." << endmsg;
       }
-      //std::cout << "Placing section " << secNum << " in Section1" << std::endl;
-      pvMotherSection->add(ntSection);
-      pvMotherSection->add(pvSection);
+      else {
+        //std::cout << "Placing section " << secNum << " in Section1" << std::endl;
+        pvMotherSection->add(ntSection);
+        pvMotherSection->add(pvSection);
+      }
     } else {
       //std::cout << "Placing section " << secNum << " in mother envelope" << std::endl;
       parent->add(ntSection);

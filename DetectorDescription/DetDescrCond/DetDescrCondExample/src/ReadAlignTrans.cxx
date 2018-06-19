@@ -35,11 +35,11 @@ StatusCode ReadAlignTrans::initialize()
   }
 
   // get SiDetectorManagers for checking module positions
-  if (StatusCode::SUCCESS!=detStore()->retrieve(p_sidetman[0],"Pixel")) {
+  if (StatusCode::SUCCESS!=detStore()->retrieve(m_sidetman[0],"Pixel")) {
     ATH_MSG_ERROR("Cannot get Pixel SiDetectorManager");
     return StatusCode::FAILURE;
   }
-  if (StatusCode::SUCCESS!=detStore()->retrieve(p_sidetman[1],"SCT")) {
+  if (StatusCode::SUCCESS!=detStore()->retrieve(m_sidetman[1],"SCT")) {
     ATH_MSG_ERROR("Cannot get SCT SiDetectorManager");
     return StatusCode::FAILURE;
   }
@@ -116,10 +116,10 @@ StatusCode ReadAlignTrans::readSiPositions(std::vector<Identifier>& idvec,
   idvec.clear();
   posvec.clear();
   for (int idet=0;idet<2;++idet) {
-    if (p_sidetman[idet]==0) return StatusCode::FAILURE;
+    if (m_sidetman[idet]==0) return StatusCode::FAILURE;
     for (InDetDD::SiDetectorElementCollection::const_iterator iter=
-	 p_sidetman[idet]->getDetectorElementBegin();
-         iter!=p_sidetman[idet]->getDetectorElementEnd();++iter) {
+	 m_sidetman[idet]->getDetectorElementBegin();
+         iter!=m_sidetman[idet]->getDetectorElementEnd();++iter) {
       idvec.push_back((*iter)->identify());
       posvec.push_back((*iter)->center());
       ++nmod;

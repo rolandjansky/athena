@@ -20,7 +20,6 @@ decription           : Implementation code for EnergyLossUpdator class
 
 
 #include "TrkMaterialOnTrack/EnergyLoss.h"
-#include "TrkExInterfaces/IEnergyLossUpdator.h"
 
 #include "TrkEventPrimitives/ParamDefs.h"
 
@@ -31,8 +30,7 @@ Trk::ParticleMasses Trk::GsfEnergyLossUpdator::s_particleMasses;
 Trk::GsfEnergyLossUpdator::GsfEnergyLossUpdator(const std::string& type, const std::string& name, const IInterface* parent)
   :
   AthAlgTool(type, name, parent),
-  m_outputlevel(0),
-  m_EnergyLossUpdator("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator")
+  m_outputlevel(0)
 {
 
   declareInterface<IMaterialEffectsUpdator>(this);

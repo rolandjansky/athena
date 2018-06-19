@@ -34,7 +34,7 @@ using namespace xAOD::EgammaParameters;
 EMConversionBuilder::EMConversionBuilder(const std::string& type,
 					 const std::string& name,
 					 const IInterface* parent)
-  : egammaBaseTool(type, name, parent)
+  : AthAlgTool(type, name, parent)
 {
   
   // declare interface
@@ -68,7 +68,7 @@ StatusCode EMConversionBuilder::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode EMConversionBuilder::executeRec(egammaRec* egRec) {
+StatusCode EMConversionBuilder::executeRec(egammaRec* egRec) const {
   // retrieve Conversion Container
   
   SG::ReadHandle<xAOD::VertexContainer> conversions(m_conversionContainerKey); 
@@ -86,12 +86,12 @@ StatusCode EMConversionBuilder::executeRec(egammaRec* egRec) {
 }
 
 // =============================================================
-StatusCode EMConversionBuilder::hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions){
+StatusCode EMConversionBuilder::hltExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions) const {
   ATH_CHECK(vertexExecute(egRec,conversions));
   return StatusCode::SUCCESS;
 }
 
-StatusCode EMConversionBuilder::vertexExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions){
+StatusCode EMConversionBuilder::vertexExecute(egammaRec* egRec, const xAOD::VertexContainer* conversions) const {
   
   if (!egRec || !conversions){
     ATH_MSG_WARNING("trackExecute: NULL pointer to egammaRec or VertexContainer");

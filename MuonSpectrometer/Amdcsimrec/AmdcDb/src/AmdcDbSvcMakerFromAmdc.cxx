@@ -40,7 +40,6 @@ void AmdcDbSvcMakerFromAmdc::SetEpsAngle   (std::string NameOfTheSet, int EpsAng
 void AmdcDbSvcMakerFromAmdc::Set(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc){
 
   AMDC(pAmdcsimrec,pAmdcDbSvc);
-  AGDD(pAmdcsimrec,pAmdcDbSvc);
 
   ATYP(pAmdcsimrec,pAmdcDbSvc);
   ACUT(pAmdcsimrec,pAmdcDbSvc);
@@ -105,44 +104,6 @@ void AmdcDbSvcMakerFromAmdc::AMDC(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc)
   std::string TheBlob = pAmdcsimrec->GetAmdcString() ;
   
   DbVar = "LENAMDC" ; DbVarComment="STRING LENGTH"   ; iDbVal = TheBlob.size()	               ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
-  
-  DbVar = "NLINE"   ; DbVarComment="CHAR4 NUMBER"    ; iDbVal = int ( (TheBlob.size()+2.)/4. ) ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
-
-  DbVar = "DATA"    ; DbVarComment="(NLINE)-ASCII"   ; sDbVal = TheBlob                        ; pAmdcDbRecord->addBlob(DbVar,DbVarComment,sDbVal);
- 
-  pAmdcDbRecordset->addIRDBRecord(pAmdcDbRecord);
-
-  pAmdcDbSvc->addIRDBRecordset(NameOfTheSet,pAmdcDbRecordset);
-
-}
-
-void AmdcDbSvcMakerFromAmdc::AGDD(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc){
-
-  std::string NameOfTheSet = "AGDD";
-//   int LocalEpsLengthMM = GetEpsLengthMM(NameOfTheSet) ;
-//   int LocalEpsLengthCM = GetEpsLengthCM(NameOfTheSet) ;
-//   int LocalEpsAngle    = GetEpsAngle   (NameOfTheSet) ;
-
-  std::string DbVar	   = "";
-  std::string DbVarComment = "";
-  int	      iDbVal	   = 0 ;
-//double      dDbVal	   = 0.;
-  std::string sDbVal	   = ""; 
-
-  AmdcDbRecordset* pAmdcDbRecordset = new AmdcDbRecordset();
-
-  m_UniversalIdKounter = m_UniversalIdKounter + 1;
-  AmdcDbRecord* pAmdcDbRecord = new AmdcDbRecord(m_UniversalIdKounter,NameOfTheSet);
-
-  DbVar = "VERS"    ; DbVarComment="VERSION"  	     ; iDbVal = m_version                      ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
-
-  std::string TheAmdcName = pAmdcsimrec->AmdcName() ;
-
-  DbVar = "VNAME"   ; DbVarComment="NAME"	     ; sDbVal  = TheAmdcName.substr(0,4)       ; pAmdcDbRecord->addString(DbVar,DbVarComment,sDbVal);
-
-  std::string TheBlob = pAmdcsimrec->GetAgddString() ;
-  
-  DbVar = "LENAGDD" ; DbVarComment="STRING LENGTH"   ; iDbVal = TheBlob.size()	               ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
   
   DbVar = "NLINE"   ; DbVarComment="CHAR4 NUMBER"    ; iDbVal = int ( (TheBlob.size()+2.)/4. ) ; pAmdcDbRecord->addInt(DbVar,DbVarComment,iDbVal);
 

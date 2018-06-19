@@ -35,7 +35,8 @@ TrigTestMonToolAC::TrigTestMonToolAC(const std::string & type, const std::string
      m_firstRun(true),
      m_keepAllEvents(false),
      m_fileopen(false),
-     m_requireDecision(false)
+     m_requireDecision(false),
+     m_containTracks(false)
 {
   msg(MSG::WARNING) << "TrigTestMonToolAC::TrigTestMonToolAC() compiled: " << __DATE__ << " " << __TIME__ << endmsg;
 
@@ -70,7 +71,8 @@ TrigTestMonToolAC::TrigTestMonToolAC(const std::string & type, const std::string
   declareProperty( "matchR",   m_matchR   = 0.1 );
   declareProperty( "matchPhi", m_matchPhi = 0.1 );
 
-  //  declareProperty( "chainNames",        m_chainNames );
+  declareProperty( "ContainTracks", m_containTracks = false );
+
   declareProperty( "ntupleChainNames",  m_ntupleChainNames );
   declareProperty( "releaseMetaData",   m_releaseMetaData );
 
@@ -271,8 +273,15 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
 							dR_matcher,
 							new Analysis_Tier0(m_chainNames.at(i), 1000., 2.5, 1.5, 1.5 ) ) );
 	
+	/// add the meta data
+	
 	m_sequences.back()->releaseData(m_releaseMetaData);	
 	
+	/// should the tracks be completely contained ? 
+
+	dynamic_cast<AnalysisConfig_Tier0*>(m_sequences.back())->containTracks( m_containTracks );	
+
+
       }
       
     }

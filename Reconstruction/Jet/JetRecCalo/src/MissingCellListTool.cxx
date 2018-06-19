@@ -151,7 +151,12 @@ int MissingCellListTool::execute() const {
   if(m_addBadCells) {
     // (In run1 this part possibly added several times the same cell in the geometric map)
     const CaloCellContainer * cells;
-    CHECK(evtStore()->retrieve(cells, "AllCalo"));
+    StatusCode sc = evtStore()->retrieve(cells, "AllCalo");
+    if ( sc.isFailure() ) {
+      ATH_MSG_ERROR("Unable to retrieve CaloCellContainer AllCalo from event store.");
+      return 1;
+    }
+ 
     CaloCellContainer::const_iterator it= cells->begin();
     CaloCellContainer::const_iterator itE= cells->end();
     for(; it!=itE; ++it){
@@ -200,7 +205,12 @@ int MissingCellListTool::execute() const {
   ATH_MSG( DEBUG ) << " total bad and missing "<< badandmissingCells.size() << "  "<< badandmissingCellsGeomMap->size() << endmsg; 
   
 
-  CHECK( evtStore()->record(badandmissingCellsGeomMap, m_missingCellMapName) );
+  StatusCode sc = evtStore()->record(badandmissingCellsGeomMap, m_missingCellMapName) ;
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Unable to record badandmissingCellsGeomMap in event store: " << m_missingCellMapName);
+   return 1;
+  }
+
   //  m_needSetup = false;
   return 0;
 }

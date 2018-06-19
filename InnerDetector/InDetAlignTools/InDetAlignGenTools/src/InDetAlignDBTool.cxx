@@ -300,6 +300,8 @@ void InDetAlignDBTool::createDB() const
       // first check object not already there
       if (detStore()->contains<AlignableTransform>(m_alignobjs[i])) {
         ATH_MSG_FATAL( "create DB: AlignableTransform " << m_alignobjs[i] << " already exists" );
+        delete pat;
+        pat=nullptr;
         return;
       }
       if (StatusCode::SUCCESS!=detStore()->record(pat,m_alignobjs[i]))
@@ -1283,7 +1285,7 @@ StatusCode InDetAlignDBTool::outputObjs() const {
   // get the AthenaOutputStream tool
   IAthenaOutputStreamTool* optool;
 
-  if (StatusCode::SUCCESS!=p_toolsvc->retrieveTool("AthenaPoolOutputStreamTool",m_par_condstream,optool)) {
+  if (StatusCode::SUCCESS!=p_toolsvc->retrieveTool("AthenaOutputStreamTool",m_par_condstream,optool)) {
     ATH_MSG_ERROR("Cannot get AthenaPoolOutputStream tool" );
     return StatusCode::FAILURE;
   }

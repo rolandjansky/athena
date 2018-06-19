@@ -44,7 +44,7 @@ tag=None
 sv=True
 geo=False
 dspth=False
-detdescrtag="ATLAS-GEO-20-00-00"
+detdescrtag="ATLAS-R2-2016-01-00-01"
 detdescrset=False
 sqlite=""
 
@@ -201,17 +201,6 @@ theLArCellConditionsAlg=LArCellConditionsAlg("LArCellConditions",
                                              printLocation=geo,
                                              printDSPTh=dspth)
 job+= theLArCellConditionsAlg
-
-#print ServiceMgr.IOVDbSvc.Folders
-
-try:
-    svcMgr.PoolSvc.WriteCatalog=""
-    #svcMgr.PoolSvc.ReadCatalog.remove('apcfile:poolcond/PoolFileCatalog.xml')
-except:
-    pass
-
-print svcMgr.PoolSvc.ReadCatalog
-print svcMgr.PoolSvc.WriteCatalog
 
 
 theApp.initialize()

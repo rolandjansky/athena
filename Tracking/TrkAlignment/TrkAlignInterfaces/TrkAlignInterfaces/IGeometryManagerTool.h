@@ -8,7 +8,7 @@
 #include "GaudiKernel/IAlgTool.h"
 
 #include "TrkAlignEvent/AlignModuleList.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 /**
    @file IGeometryManagerTool.h

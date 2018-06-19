@@ -3,8 +3,6 @@
 */
 
 #include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ThreadGaudi.h"
-
 
 #include "TrigSteerMoni.h"
 

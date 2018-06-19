@@ -6,8 +6,8 @@
 #include "TrigT1CaloEvent/EnergyCMXData.h"
 #endif
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 
 CLASS_DEF( LVL1::EnergyCMXData , 152254774 , 1 )
 CLASS_DEF( DataVector<LVL1::EnergyCMXData> , 227556281 , 1 )

@@ -154,7 +154,10 @@ StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
     else 
       ATH_MSG_INFO( "Retrieved tool " << m_observerTool );
   }
-  
+  else {
+    m_observerTool.disable();
+  }
+
   ATH_CHECK( m_selectionTool.retrieve());
   ATH_CHECK( m_fitterTool.retrieve());
   if (m_fitterTool.empty()){

@@ -81,7 +81,7 @@ class BarrelSecondCoordinatePreparationTool : public AthAlgTool, virtual public 
   const MuonCalib::IIdToFixedIdTool *m_id_tool; // identifier converter
 
   FILE* m_rpcHitsFile; //File to store RPC entries
-  bool write_rpc_hits;
+  bool m_write_rpc_hits;
 
 //    RPCTrackAssociator m_RPC_track_associator; // tool for the determination of
                                                  // the second coordinates of MDT hits

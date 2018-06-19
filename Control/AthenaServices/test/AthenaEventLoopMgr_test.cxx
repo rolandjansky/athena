@@ -30,7 +30,7 @@
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IEventProcessor.h"
 #include "GaudiKernel/Service.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
+// //#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "GaudiKernel/Converter.h"
 #include "GaudiKernel/ConversionSvc.h"
 #include <iostream>
@@ -301,11 +301,11 @@ StatusCode TestAlgorithm::execute()
 //********************************************************************
 
 
-DECLARE_SERVICE_FACTORY( TestEvtSelector )
-DECLARE_SERVICE_FACTORY( TestEvtSelector2 )
-DECLARE_SERVICE_FACTORY( TestConversionSvc )
-DECLARE_ALGORITHM_FACTORY( TestAlgorithm )
-DECLARE_CONVERTER_FACTORY( TestConverter )
+DECLARE_COMPONENT( TestEvtSelector )
+DECLARE_COMPONENT( TestEvtSelector2 )
+DECLARE_COMPONENT( TestConversionSvc )
+DECLARE_COMPONENT( TestAlgorithm )
+DECLARE_CONVERTER( TestConverter )
 class swallowsemicolon;
 
 void testit (IService* mgr)

@@ -43,6 +43,4 @@ SiCommonItems::lorentzAngleSvc() const
   }
   return m_lorentzAngleSvc;
 }
-
-
 } // End namespace InDetDD

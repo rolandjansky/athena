@@ -19,7 +19,6 @@ decription           : Implementation code for multiple scatter updator
 
 #include "TrkEventPrimitives/ParamDefs.h"
 
-#include "TrkExInterfaces/IMultipleScatteringUpdator.h"
 #include <cmath>
 
 Trk::ParticleMasses Trk::MultipleScatterUpdator::s_particleMasses;
@@ -32,7 +31,6 @@ Trk::MultipleScatterUpdator::MultipleScatterUpdator(const std::string& type, con
   :
   AthAlgTool(type, name, parent),
   m_outputlevel(1),
-  m_msUpdator("Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator"),
   m_multipleScatterLogTermOn(true) 
 {
 

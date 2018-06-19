@@ -38,7 +38,9 @@ EgammaAllFex::~EgammaAllFex(){
 }
 
 StatusCode EgammaAllFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
-				 const IRoiDescriptor& roi) { 
+				 const IRoiDescriptor& roi,
+				 const CaloDetDescrElement*& /*caloDDE*/,
+                                 const EventContext* /*context*/) { 
   
   // Time total AlgTool time 
   if (!m_timersvc.empty()) {

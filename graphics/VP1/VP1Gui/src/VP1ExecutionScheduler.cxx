@@ -181,72 +181,72 @@ VP1ExecutionScheduler::VP1ExecutionScheduler( QObject * parent,
 		StoreGateSvc* eventStore,StoreGateSvc* detStore,
 		ISvcLocator* svcLocator,IToolSvc*toolSvc,
 		VP1AvailEvents * availEvents)
-: QObject(parent), d(new Imp)
+: QObject(parent), m_d(new Imp)
 {
-	d->availEvents = availEvents;
+	m_d->availEvents = availEvents;
 	VP1AthenaPtrs::setPointers(eventStore,detStore,svcLocator,toolSvc);
 
-	d->scheduler = this;
-	d->prioritiser = new VP1Prioritiser(this);
-	d->mainwindow = new VP1MainWindow(this,availEvents);//mainwindow takes ownership of available events
-	d->batchMode = false;
-	d->batchModeAllEvents = false;
-	d->allSystemsRefreshed = false;
-	d->goingtonextevent=true;
-	d->currentsystemrefreshing=0;
-	d->eraseJustAfterRefresh=false;
-	d->postponedUncreateAndDeleteCW=0;
-	d->refreshtimer = new QTimer(this);
-	connect(d->refreshtimer, SIGNAL(timeout()), this, SLOT(processSystemForRefresh()));
+	m_d->scheduler = this;
+	m_d->prioritiser = new VP1Prioritiser(this);
+	m_d->mainwindow = new VP1MainWindow(this,availEvents);//mainwindow takes ownership of available events
+	m_d->batchMode = false;
+	m_d->batchModeAllEvents = false;
+	m_d->allSystemsRefreshed = false;
+	m_d->goingtonextevent=true;
+	m_d->currentsystemrefreshing=0;
+	m_d->eraseJustAfterRefresh=false;
+	m_d->postponedUncreateAndDeleteCW=0;
+	m_d->refreshtimer = new QTimer(this);
+	connect(m_d->refreshtimer, SIGNAL(timeout()), this, SLOT(processSystemForRefresh()));
 
 	//Connect signals to ensure that prioritiser knows about present channels and their visibility:
-	connect(d->mainwindow->channelManager(),SIGNAL(newChannelCreated(IVP1ChannelWidget*)),d->prioritiser, SLOT(channelCreated(IVP1ChannelWidget*)));
-	connect(d->mainwindow->channelManager(),SIGNAL(channelUncreated(IVP1ChannelWidget*)),d->prioritiser, SLOT(channelUncreated(IVP1ChannelWidget*)));
-	connect(d->mainwindow->channelManager(),SIGNAL(newChannelCreated(IVP1ChannelWidget*)),this, SLOT(channelCreated(IVP1ChannelWidget*)));
-	connect(d->mainwindow->channelManager(),SIGNAL(channelUncreated(IVP1ChannelWidget*)),this, SLOT(channelUncreated(IVP1ChannelWidget*)));
+	connect(m_d->mainwindow->channelManager(),SIGNAL(newChannelCreated(IVP1ChannelWidget*)),m_d->prioritiser, SLOT(channelCreated(IVP1ChannelWidget*)));
+	connect(m_d->mainwindow->channelManager(),SIGNAL(channelUncreated(IVP1ChannelWidget*)),m_d->prioritiser, SLOT(channelUncreated(IVP1ChannelWidget*)));
+	connect(m_d->mainwindow->channelManager(),SIGNAL(newChannelCreated(IVP1ChannelWidget*)),this, SLOT(channelCreated(IVP1ChannelWidget*)));
+	connect(m_d->mainwindow->channelManager(),SIGNAL(channelUncreated(IVP1ChannelWidget*)),this, SLOT(channelUncreated(IVP1ChannelWidget*)));
 
-	connect(d->mainwindow->tabManager(),SIGNAL(visibleChannelsChanged(const QSet<IVP1ChannelWidget*>&,const QSet<IVP1ChannelWidget*>&,const double&)),
-			d->prioritiser,SLOT(visibleChannelsChanged(const QSet<IVP1ChannelWidget*>&,const QSet<IVP1ChannelWidget*>&,const double&)));
+	connect(m_d->mainwindow->tabManager(),SIGNAL(visibleChannelsChanged(const QSet<IVP1ChannelWidget*>&,const QSet<IVP1ChannelWidget*>&,const double&)),
+			m_d->prioritiser,SLOT(visibleChannelsChanged(const QSet<IVP1ChannelWidget*>&,const QSet<IVP1ChannelWidget*>&,const double&)));
 
 
 	// Init and show the main window of VP1
-	SoQt::init( d->mainwindow );// SoQt::init( "VP1" );
+	SoQt::init( m_d->mainwindow );// SoQt::init( "VP1" );
 	bool batchMode = VP1QtUtils::environmentVariableIsSet("VP1_BATCHMODE"); // ::getenv("VP1_BATCHMODE");
 	qDebug() << "VP1ExecutionScheduler:: Do we run in 'batch' mode?" << batchMode;
 	if (batchMode) {
 		VP1Msg::messageWarningAllRed("User has run VP1 in 'batch-mode', so the main window of the program will not be shown.");
-		d->batchMode = true;
+		m_d->batchMode = true;
 	}
 	else {
-		d->mainwindow->show();
+		m_d->mainwindow->show();
 	}
 
     // If in batch mode, let's see if the user set the "all events" options as well
-	d->batchModeAllEvents = VP1QtUtils::environmentVariableIsSet("VP1_BATCHMODE_ALLEVENTS"); // ::getenv("VP1_BATCHMODE");
+	m_d->batchModeAllEvents = VP1QtUtils::environmentVariableIsSet("VP1_BATCHMODE_ALLEVENTS"); // ::getenv("VP1_BATCHMODE");
 
 
-	d->pb = d->mainwindow->progressbar;
-	d->pbtimer = new QTimer(this);
-	connect(d->pbtimer, SIGNAL(timeout()), this, SLOT(updateProgressBarDuringRefresh()));
-	d->calctimethisevent=0;
-	d->currentrefreshsystemestimate=0;
+	m_d->pb = m_d->mainwindow->progressbar;
+	m_d->pbtimer = new QTimer(this);
+	connect(m_d->pbtimer, SIGNAL(timeout()), this, SLOT(updateProgressBarDuringRefresh()));
+	m_d->calctimethisevent=0;
+	m_d->currentrefreshsystemestimate=0;
 
-	d->cruisemode = NONE;
-	d->cruisetimer = new QTimer(this);
-	connect(d->cruisetimer, SIGNAL(timeout()), this, SLOT(performCruise()));
-	d->cruisetab_waitingtoproceed=false;
+	m_d->cruisemode = NONE;
+	m_d->cruisetimer = new QTimer(this);
+	connect(m_d->cruisetimer, SIGNAL(timeout()), this, SLOT(performCruise()));
+	m_d->cruisetab_waitingtoproceed=false;
 
 	if (VP1QtUtils::environmentVariableIsOn("VP1_DISPLAY_MOUSE_CLICKS")) {
-		d->globalEventFilter = new Imp::GlobalEventFilter;
-		qApp->installEventFilter(d->globalEventFilter);
+		m_d->globalEventFilter = new Imp::GlobalEventFilter;
+		qApp->installEventFilter(m_d->globalEventFilter);
 	} else {
-		d->globalEventFilter = 0;
+		m_d->globalEventFilter = 0;
 	}
 
 	VP1AvailEvtsHttps* availEvtsHttps = dynamic_cast<VP1AvailEvtsHttps*>(availEvents);
 	if(availEvtsHttps) {
-		d->skipEvent = true;
-		VP1Authenticator* auth = new VP1Authenticator(d->mainwindow,availEvtsHttps->fileinfoLocation());
+		m_d->skipEvent = true;
+		VP1Authenticator* auth = new VP1Authenticator(m_d->mainwindow,availEvtsHttps->fileinfoLocation());
 
 		connect(auth,SIGNAL(authenticationSuccessful(QNetworkAccessManager*)),
 				availEvtsHttps,SLOT(start(QNetworkAccessManager*)));
@@ -258,17 +258,17 @@ VP1ExecutionScheduler::VP1ExecutionScheduler( QObject * parent,
 		delete auth;
 	}
 	else
-		d->skipEvent = false;
+		m_d->skipEvent = false;
 }
 
 //___________________________________________________________________
 VP1ExecutionScheduler::~VP1ExecutionScheduler()
 {
-	d->refreshtimer->stop();
-	delete d->mainwindow;
-	delete d->prioritiser;
-	delete d->globalEventFilter;
-	delete d;
+	m_d->refreshtimer->stop();
+	delete m_d->mainwindow;
+	delete m_d->prioritiser;
+	delete m_d->globalEventFilter;
+	delete m_d;
 }
 
 //___________________________________________________________________
@@ -350,12 +350,12 @@ VP1ExecutionScheduler* VP1ExecutionScheduler::init( StoreGateSvc* eventStore, St
 
 	//Pass on "joboptions"
 	if (joboptions.empty()) {
-		//scheduler->d->mainwindow->tabManager()->addNewTab("My Tab");
+		//scheduler->m_d->mainwindow->tabManager()->addNewTab("My Tab");
 	} else {
 		foreach(QString opt,joboptions)
-    		  scheduler->d->mainwindow->loadConfigurationFromFile(opt);
+    		  scheduler->m_d->mainwindow->loadConfigurationFromFile(opt);
 	}
-	if (scheduler->d->mainwindow->tabWidget_central->count()<=1) {
+	if (scheduler->m_d->mainwindow->tabWidget_central->count()<=1) {
 		if (initialCruiseMode=="TAB") {
 			VP1Msg::message("ERROR: Can not start in cruisemode TAB unless there are at least 2 tabs loaded from initial .vp1 files. Reverting to cruise mode NONE.");
 			initialCruiseMode="NONE";
@@ -367,34 +367,34 @@ VP1ExecutionScheduler* VP1ExecutionScheduler::init( StoreGateSvc* eventStore, St
 
 	//Set default value of cruisemode (dont use setCruiseMode() since it starts timers):
 	if (initialCruiseMode=="EVENT") {
-		scheduler->d->cruisemode=EVENT;
-		scheduler->d->mainwindow->radioButton_cruise_event->setChecked(true);
-		scheduler->d->mainwindow->pushButton_cruise->setChecked(true);
+		scheduler->m_d->cruisemode=EVENT;
+		scheduler->m_d->mainwindow->radioButton_cruise_event->setChecked(true);
+		scheduler->m_d->mainwindow->pushButton_cruise->setChecked(true);
 
 	} else if (initialCruiseMode=="TAB") {
-		scheduler->d->cruisemode=TAB;
-		scheduler->d->mainwindow->radioButton_cruise_tab->setChecked(true);
-		scheduler->d->mainwindow->pushButton_cruise->setChecked(true);
+		scheduler->m_d->cruisemode=TAB;
+		scheduler->m_d->mainwindow->radioButton_cruise_tab->setChecked(true);
+		scheduler->m_d->mainwindow->pushButton_cruise->setChecked(true);
 	} else if (initialCruiseMode=="BOTH") {
-		scheduler->d->cruisemode=BOTH;
-		scheduler->d->mainwindow->radioButton_cruise_both->setChecked(true);
-		scheduler->d->mainwindow->pushButton_cruise->setChecked(true);
+		scheduler->m_d->cruisemode=BOTH;
+		scheduler->m_d->mainwindow->radioButton_cruise_both->setChecked(true);
+		scheduler->m_d->mainwindow->pushButton_cruise->setChecked(true);
 	} else {
 		if (initialCruiseMode!="NONE")
 			VP1Msg::message("ERROR: unknown initial cruise mode "+initialCruiseMode+" (valid are NONE/EVENT/TAB/BOTH). Assuming NONE.");
-		scheduler->d->cruisemode=NONE;
-		scheduler->d->mainwindow->radioButton_cruise_event->setChecked(true);
-		scheduler->d->mainwindow->pushButton_cruise->setChecked(false);
+		scheduler->m_d->cruisemode=NONE;
+		scheduler->m_d->mainwindow->radioButton_cruise_event->setChecked(true);
+		scheduler->m_d->mainwindow->pushButton_cruise->setChecked(false);
 	}
 
-	scheduler->d->mainwindow->request_cruisemodechange();
+	scheduler->m_d->mainwindow->request_cruisemodechange();
 
 	int cruisesecs = ( initialCruiseSeconds == 0 ? 0 :
-			std::max(scheduler->d->mainwindow->spinBox_cruise->minimum(),
-					std::min(scheduler->d->mainwindow->spinBox_cruise->maximum(),
+			std::max(scheduler->m_d->mainwindow->spinBox_cruise->minimum(),
+					std::min(scheduler->m_d->mainwindow->spinBox_cruise->maximum(),
 							static_cast<int>(initialCruiseSeconds))));
 	if ( cruisesecs>0 )
-		scheduler->d->mainwindow->spinBox_cruise->setValue(cruisesecs);
+		scheduler->m_d->mainwindow->spinBox_cruise->setValue(cruisesecs);
 
 	return scheduler;
 }
@@ -403,7 +403,7 @@ VP1ExecutionScheduler* VP1ExecutionScheduler::init( StoreGateSvc* eventStore, St
 void VP1ExecutionScheduler::cleanup(VP1ExecutionScheduler*scheduler)
 {
 	if (VP1QtUtils::environmentVariableIsOn("VP1_ENABLE_INFORM_ON_END_OF_JOB")
-	&& ( !scheduler||!(scheduler->d->mainwindow->userRequestedExit()) ) )
+	&& ( !scheduler||!(scheduler->m_d->mainwindow->userRequestedExit()) ) )
 		QMessageBox::information(0, "End of job reached",Qt::convertFromPlainText("Job about to end.\n\nThis is most"
 				" likely since there are no more available events to process."),QMessageBox::Ok,QMessageBox::Ok);
 
@@ -448,25 +448,25 @@ void VP1ExecutionScheduler::Imp::updateProgressBar()
 //___________________________________________________________________
 void VP1ExecutionScheduler::updateProgressBarDuringRefresh()
 {
-	if (d->currentrefreshsystemestimate<1.0)
+	if (m_d->currentrefreshsystemestimate<1.0)
 		return;
-	double timing=(d->prioritiser->elapsedTiming_Refresh())*0.95;//The *0.95 is to give a smoother overall impression.
-	if (timing>d->currentrefreshsystemestimate)
+	double timing=(m_d->prioritiser->elapsedTiming_Refresh())*0.95;//The *0.95 is to give a smoother overall impression.
+	if (timing>m_d->currentrefreshsystemestimate)
 		return;
-	d->pb->setValue(static_cast<int>((d->calctimethisevent+timing)*10.0));
+	m_d->pb->setValue(static_cast<int>((m_d->calctimethisevent+timing)*10.0));
 }
 
 
 //___________________________________________________________________
 QString VP1ExecutionScheduler::nextRequestedEventFile() const
 {
-	return d->nextRequestedEvent;
+	return m_d->nextRequestedEvent;
 }
 
 //___________________________________________________________________
 void VP1ExecutionScheduler::setNextRequestedEventFile(const QString& f)
 {
-	d->nextRequestedEvent = f;
+	m_d->nextRequestedEvent = f;
 }
 
 //___________________________________________________________________
@@ -474,23 +474,23 @@ bool VP1ExecutionScheduler::executeNewEvent(const int& runnumber, const unsigned
 {
 	VP1Msg::messageDebug("VP1ExecutionScheduler::executeNewEvent()");
 
-	d->nextRequestedEvent="";
+	m_d->nextRequestedEvent="";
 
-	d->mainwindow->setRunEvtNumber(runnumber, eventnumber, triggerType, time, !d->skipEvent);
+	m_d->mainwindow->setRunEvtNumber(runnumber, eventnumber, triggerType, time, !m_d->skipEvent);
 
-	d->goingtonextevent = false;
-	d->calctimethisevent=0;
-	d->currentrefreshsystemestimate=0;
-	d->updateProgressBar();
+	m_d->goingtonextevent = false;
+	m_d->calctimethisevent=0;
+	m_d->currentrefreshsystemestimate=0;
+	m_d->updateProgressBar();
 
-	assert(!d->refreshtimer->isActive());//fixme: -> if.
+	assert(!m_d->refreshtimer->isActive());//fixme: -> if.
 
 
 	VP1Msg::messageDebug("calling refreshtimer->start()...");
-	d->refreshtimer->start();
+	m_d->refreshtimer->start();
 
 	VP1Msg::messageDebug("calling initCruise...");
-	d->initCruise();
+	m_d->initCruise();
 	VP1Msg::messageDebug("initCruise called.");
 
 	//Flush event queue before reenabling controllers, etc.:
@@ -498,20 +498,20 @@ bool VP1ExecutionScheduler::executeNewEvent(const int& runnumber, const unsigned
 	VP1Msg::messageDebug("qApp->processEvents() called.");
 
 	//Enable various user input:
-	d->mainwindow->groupBox_channelcontrols->setEnabled(true);
-	d->mainwindow->groupBox_cruise->setEnabled(true);
-	d->mainwindow->groupBox_event->setEnabled(true);
+	m_d->mainwindow->groupBox_channelcontrols->setEnabled(true);
+	m_d->mainwindow->groupBox_cruise->setEnabled(true);
+	m_d->mainwindow->groupBox_event->setEnabled(true);
 
 
-	VP1Msg::messageDebug("batch mode: " + QString::number(d->batchMode));
-	if ( d->batchMode && d->allVisibleRefreshed() ) { // or d->allSystemsRefreshed ???
+	VP1Msg::messageDebug("batch mode: " + QString::number(m_d->batchMode));
+	if ( m_d->batchMode && m_d->allVisibleRefreshed() ) { // or m_d->allSystemsRefreshed ???
 			VP1Msg::messageDebug("We're in batch mode, skipping...");
 	} else {
-		VP1Msg::messageDebug("skipEvent: " + QString::number(d->skipEvent));
-		if(d->skipEvent) {
+		VP1Msg::messageDebug("skipEvent: " + QString::number(m_d->skipEvent));
+		if(m_d->skipEvent) {
 			VP1Msg::messageDebug("skipEvent");
-			d->skipEvent=false;
-			d->mainwindow->nextEvent();
+			m_d->skipEvent=false;
+			m_d->mainwindow->nextEvent();
 		}
 		else {
 			VP1Msg::messageDebug("calling qApp->exec()...");
@@ -521,25 +521,25 @@ bool VP1ExecutionScheduler::executeNewEvent(const int& runnumber, const unsigned
 
 	VP1Msg::messageDebug("Disabling user inputs...");
 	//Disable various user input:
-	d->mainwindow->groupBox_channelcontrols->setEnabled(false);
-	d->mainwindow->groupBox_cruise->setEnabled(false);
-	d->mainwindow->groupBox_event->setEnabled(false);
+	m_d->mainwindow->groupBox_channelcontrols->setEnabled(false);
+	m_d->mainwindow->groupBox_cruise->setEnabled(false);
+	m_d->mainwindow->groupBox_event->setEnabled(false);
 
-	d->goingtonextevent = true;
+	m_d->goingtonextevent = true;
 
-	if (d->refreshtimer->isActive()) {
-		d->refreshtimer->stop();
+	if (m_d->refreshtimer->isActive()) {
+		m_d->refreshtimer->stop();
 	}
-	d->pb->hide();
-	d->pb->reset();
-	d->pbtimer->stop();
+	m_d->pb->hide();
+	m_d->pb->reset();
+	m_d->pbtimer->stop();
 	//Fixme: Refresh all accumulators that still needs refresh (or just have the button disabled until now)
 
 	//Fixme: wait here until end of any active refreshing...
 
 	VP1Msg::messageDebug("Erasing systems...");
-	assert(!d->currentsystemrefreshing);
-	foreach(IVP1System*s,d->prioritiser->getSystemsToEraseByPriority()) {
+	assert(!m_d->currentsystemrefreshing);
+	foreach(IVP1System*s,m_d->prioritiser->getSystemsToEraseByPriority()) {
 		qApp->processEvents(QEventLoop::ExcludeUserInputEvents|QEventLoop::ExcludeSocketNotifiers);
 		eraseSystem(s);
 	}
@@ -547,14 +547,14 @@ bool VP1ExecutionScheduler::executeNewEvent(const int& runnumber, const unsigned
 	VP1Msg::messageDebug("event processed.");
 
 	//Let channels know we are going to the next event now:
-	foreach(IVP1ChannelWidget*cw, d->mainwindow->tabManager()->allChannels()) {
+	foreach(IVP1ChannelWidget*cw, m_d->mainwindow->tabManager()->allChannels()) {
 		cw->goingToNextEvent();
 	}
 
 	qApp->processEvents(QEventLoop::ExcludeUserInputEvents|QEventLoop::ExcludeSocketNotifiers);
 
-	VP1Msg::messageDebug("mainwindow->mustQuit: " + QString::number(d->mainwindow->mustQuit()) );
-	return !d->mainwindow->mustQuit();
+	VP1Msg::messageDebug("mainwindow->mustQuit: " + QString::number(m_d->mainwindow->mustQuit()) );
+	return !m_d->mainwindow->mustQuit();
 }
 
 //___________________________________________________________________
@@ -566,46 +566,46 @@ void VP1ExecutionScheduler::eraseSystem(IVP1System*s) {
 	assert(!s->isRefreshing());
 
 	QString base =  QString(s->name())+" from channel "+s->channel()->unique_name();
-	d->mainwindow->statusBar()->showMessage( "Erasing system ["+base+"]" );
+	m_d->mainwindow->statusBar()->showMessage( "Erasing system ["+base+"]" );
 	VP1Msg::messageDebug("ERASING - " + base);
 
 	s->disallowUpdateGUI();
 	s->erase();//fixme: time?
 	s->setState(IVP1System::ERASED);
-	d->mainwindow->statusBar()->showMessage( "Post-erase update to channel ["+base+"]" );
+	m_d->mainwindow->statusBar()->showMessage( "Post-erase update to channel ["+base+"]" );
 	s->channel()->systemErased(s);//fixme: time?
-	d->mainwindow->statusBar()->clearMessage();
+	m_d->mainwindow->statusBar()->clearMessage();
 }
 
 //___________________________________________________________________
 void VP1ExecutionScheduler::systemNeedErase() {
 	IVP1System*s = static_cast<IVP1System*>(sender());
 	assert(s);
-	if (d->currentsystemrefreshing!=s) {
+	if (m_d->currentsystemrefreshing!=s) {
 		eraseSystem(s);
 	} else {
 		assert(s->isRefreshing());
-		d->eraseJustAfterRefresh=true;
+		m_d->eraseJustAfterRefresh=true;
 	}
 }
 
 //___________________________________________________________________
 void VP1ExecutionScheduler::processSystemForRefresh()
 {
-	assert(!d->goingtonextevent);
-	if (d->currentsystemrefreshing)
+	assert(!m_d->goingtonextevent);
+	if (m_d->currentsystemrefreshing)
 		return;
 
-	IVP1System * s = d->prioritiser->nextErasedActiveSystemByPriority();
+	IVP1System * s = m_d->prioritiser->nextErasedActiveSystemByPriority();
 	if (s) {
 		refreshSystem(s);
 	} else {
-		assert(d->refreshtimer->isActive());//fixme: -> if. ???
+		assert(m_d->refreshtimer->isActive());//fixme: -> if. ???
 		//if (refreshtimer->isActive())
-		d->refreshtimer->stop();
-		d->pb->hide();
-		d->pb->reset();
-		d->pbtimer->stop();
+		m_d->refreshtimer->stop();
+		m_d->pb->hide();
+		m_d->pb->reset();
+		m_d->pbtimer->stop();
 	}
 }
 
@@ -631,14 +631,14 @@ void VP1ExecutionScheduler::channelUncreated(IVP1ChannelWidget* cw)
 //___________________________________________________________________
 void VP1ExecutionScheduler::startRefreshQueueIfAppropriate()
 {
-	if (!d->goingtonextevent&&!d->refreshtimer->isActive())
-		d->refreshtimer->start();
+	if (!m_d->goingtonextevent&&!m_d->refreshtimer->isActive())
+		m_d->refreshtimer->start();
 }
 
 //___________________________________________________________________
 bool VP1ExecutionScheduler::isRefreshing() const
 {
-	return d->currentsystemrefreshing;
+	return m_d->currentsystemrefreshing;
 }
 
 //___________________________________________________________________
@@ -647,17 +647,17 @@ void VP1ExecutionScheduler::refreshSystem(IVP1System*s)
 	QString sysname = s->name();
 	VP1Msg::messageDebug("VP1ExecutionScheduler::refreshSystem() - system: " + sysname);
 
-	d->updateProgressBar();
+	m_d->updateProgressBar();
 
 	assert(s->state()==IVP1System::ERASED);
 	assert(s->activeState()==IVP1System::ON);
-	assert(!d->currentsystemrefreshing);
+	assert(!m_d->currentsystemrefreshing);
 
-	d->currentrefreshsystemestimate = d->prioritiser->beginTiming_Refresh(s);
-	d->currentsystemrefreshing = s;
+	m_d->currentrefreshsystemestimate = m_d->prioritiser->beginTiming_Refresh(s);
+	m_d->currentsystemrefreshing = s;
 
 	QString base =  QString(s->name())+" from channel "+s->channel()->unique_name();
-	d->mainwindow->statusBar()->showMessage( "Refreshing system ["+base+"]" );
+	m_d->mainwindow->statusBar()->showMessage( "Refreshing system ["+base+"]" );
 
 	s->allowUpdateGUI();
 	s->setRefreshing(true);
@@ -668,14 +668,14 @@ void VP1ExecutionScheduler::refreshSystem(IVP1System*s)
 	s->setRefreshing(false);
 	s->disallowUpdateGUI();
 
-	d->mainwindow->statusBar()->showMessage( "Post-refresh update to channel ["+base+"]" );
+	m_d->mainwindow->statusBar()->showMessage( "Post-refresh update to channel ["+base+"]" );
 	s->channel()->systemRefreshed(s);//fixme: time independently?
 
-	d->mainwindow->statusBar()->clearMessage();
-	d->currentsystemrefreshing = 0;
-	d->calctimethisevent += d->prioritiser->endTiming_Refresh();
-	d->currentrefreshsystemestimate=0;
-	d->updateProgressBar();
+	m_d->mainwindow->statusBar()->clearMessage();
+	m_d->currentsystemrefreshing = 0;
+	m_d->calctimethisevent += m_d->prioritiser->endTiming_Refresh();
+	m_d->currentrefreshsystemestimate=0;
+	m_d->updateProgressBar();
 
 	refreshingStatusChanged(false);
 	s->channel()->emitRefreshInfoChanged();
@@ -686,28 +686,28 @@ void VP1ExecutionScheduler::refreshSystem(IVP1System*s)
 		VP1Msg::messageDebug("All systems refreshed! - last system refreshed! - system: " + sysname);
 		s->channel()->lastOfActiveSystemsRefreshed();
 
-		d->allSystemsRefreshed = true; // check if that is fine for multiple channels window: i.e. VP1 instances with a couple of 3DCkocktail windows, for example.
+		m_d->allSystemsRefreshed = true; // check if that is fine for multiple channels window: i.e. VP1 instances with a couple of 3DCkocktail windows, for example.
 
 	} // end of hasAllActiveSystemsRefreshed()
 
-	d->performPostRefreshCruiseActions(s->channel());
+	m_d->performPostRefreshCruiseActions(s->channel());
 
-	if (d->eraseJustAfterRefresh) {
+	if (m_d->eraseJustAfterRefresh) {
 		//Someone asked to erase the system while it was refreshing!
-		d->eraseJustAfterRefresh=false;
+		m_d->eraseJustAfterRefresh=false;
 		//Check that it still needs to (maybe it was flicked back to ON by the impatient user)
 		if (s->activeState()==IVP1System::OFF)
 			eraseSystem(s);
 	}
-	if (d->postponedUncreateAndDeleteCW) {
-		actualUncreateAndDelete(d->postponedUncreateAndDeleteCW);
-		d->postponedUncreateAndDeleteCW=0;
+	if (m_d->postponedUncreateAndDeleteCW) {
+		actualUncreateAndDelete(m_d->postponedUncreateAndDeleteCW);
+		m_d->postponedUncreateAndDeleteCW=0;
 	}
 
 	VP1Msg::messageDebug("end of refreshing the system: " + sysname);
 
 //	// if in "batch mode", now exit from VP1
-//	if (d->batchMode) {
+//	if (m_d->batchMode) {
 //
 ////		if (hasAllActiveSystemsRefreshed(s->channel())) {
 ////			VP1Msg::messageWarningRed("All systems refreshed!");
@@ -721,7 +721,7 @@ void VP1ExecutionScheduler::refreshSystem(IVP1System*s)
 //
 //		//for the moment, we only quit VP1.
 //		//To quit the application completely, we have to call "MainWindow::close()"
-//		d->mainwindow->close();
+//		m_d->mainwindow->close();
 ////		}
 //
 //	}
@@ -734,7 +734,7 @@ void VP1ExecutionScheduler::refreshSystem(IVP1System*s)
 	if ( hasAllActiveSystemsRefreshed(s->channel()) ) {
 
 
-		if (d->batchMode) {
+		if (m_d->batchMode) {
 
 			VP1Msg::messageDebug("we are in 'batch-mode'...");
 
@@ -747,7 +747,7 @@ void VP1ExecutionScheduler::refreshSystem(IVP1System*s)
 			}
 
 
-			if (d->batchModeAllEvents) {
+			if (m_d->batchModeAllEvents) {
 				VP1Msg::messageWarningAllRed("'batch mode' with 'all events' option. Moving to the next event...");
 				VP1Msg::messageWarningAllRed("******************************************************************");
 				QApplication::quit();
@@ -756,7 +756,7 @@ void VP1ExecutionScheduler::refreshSystem(IVP1System*s)
 
 				// Here we want to close VP1 completely.
 				// So, in order to do that, we have to call "MainWindow::close()"
-				d->mainwindow->close();
+				m_d->mainwindow->close();
 			}
 		}
 	}
@@ -805,11 +805,11 @@ QString VP1ExecutionScheduler::saveSnaphsotToFile(IVP1System* s, bool batch)
 
 		// EVENT INFO AND TIMESTAMP
 
-		QString runnumb = QString::number(d->mainwindow->getRunNumber());
-		QString evnumb = QString::number(d->mainwindow->getEventNumber());
-		QString evtimestamp = QString::number(d->mainwindow->getEventTimestamp());
+		QString runnumb = QString::number(m_d->mainwindow->getRunNumber());
+		QString evnumb = QString::number(m_d->mainwindow->getEventNumber());
+		QString evtimestamp = QString::number(m_d->mainwindow->getEventTimestamp());
 
-		time_t t_evttimestamp = d->mainwindow->getEventTimestamp();
+		time_t t_evttimestamp = m_d->mainwindow->getEventTimestamp();
 		tm * human_evtimestamp = localtime(&t_evttimestamp);
 
 		std::ostringstream h_evtimestamp_ostri;
@@ -892,12 +892,12 @@ void VP1ExecutionScheduler::bringFromConstructedToReady(IVP1ChannelWidget*cw)
 {
 	assert(cw->state()==IVP1ChannelWidget::CONSTRUCTED);
 
-	connect(cw,SIGNAL(message(const QString&)),d->mainwindow,SLOT(channelAddToMessageBox(const QString&)));
+	connect(cw,SIGNAL(message(const QString&)),m_d->mainwindow,SLOT(channelAddToMessageBox(const QString&)));
 
 	std::set<IVP1System *>::iterator itsys, itsysE = cw->systems().end();
 	for (itsys = cw->systems().begin();itsys!=itsysE;++itsys) {
 		assert((*itsys)->state()==IVP1System::CONSTRUCTED);
-		connect((*itsys),SIGNAL(sysmessage(const QString&)),d->mainwindow,SLOT(systemAddToMessageBox(const QString&)));
+		connect((*itsys),SIGNAL(sysmessage(const QString&)),m_d->mainwindow,SLOT(systemAddToMessageBox(const QString&)));
 	}
 	itsysE = cw->systems().end();
 	for (itsys = cw->systems().begin();itsys!=itsysE;++itsys) {
@@ -920,9 +920,9 @@ void VP1ExecutionScheduler::bringFromConstructedToReady(IVP1ChannelWidget*cw)
 void VP1ExecutionScheduler::uncreateAndDelete(IVP1ChannelWidget*cw)
 {
 	assert(cw->state()==IVP1ChannelWidget::READY);
-	if (d->currentsystemrefreshing&&cw->systems().find(d->currentsystemrefreshing)!=cw->systems().end()) {
-		assert(!d->postponedUncreateAndDeleteCW);
-		d->postponedUncreateAndDeleteCW=cw;
+	if (m_d->currentsystemrefreshing&&cw->systems().find(m_d->currentsystemrefreshing)!=cw->systems().end()) {
+		assert(!m_d->postponedUncreateAndDeleteCW);
+		m_d->postponedUncreateAndDeleteCW=cw;
 	} else {
 		actualUncreateAndDelete(cw);
 	}
@@ -945,7 +945,7 @@ void VP1ExecutionScheduler::actualUncreateAndDelete(IVP1ChannelWidget*cw)
 
 	//Make sure that all systems gets in the ERASED state. Throw assert if any is presently refreshing (BAD PROGRAMMER!!)
 	for (itsys = cw->systems().begin();itsys!=itsysE;++itsys) {
-		assert(d->currentsystemrefreshing!=(*itsys));
+		assert(m_d->currentsystemrefreshing!=(*itsys));
 		if ((*itsys)->state()==IVP1System::REFRESHED)
 			eraseSystem(*itsys);
 	}
@@ -1126,13 +1126,13 @@ void VP1ExecutionScheduler::Imp::initCruise()
 //___________________________________________________________________
 void VP1ExecutionScheduler::setCruiseMode(const CruiseMode& m)
 {
-	if (d->cruisemode == m)
+	if (m_d->cruisemode == m)
 		return;
-	d->cruisemode = m;
+	m_d->cruisemode = m;
 
-	d->mainwindow->tabManager()->setTabCruiseMode(m==TAB||m==BOTH);
+	m_d->mainwindow->tabManager()->setTabCruiseMode(m==TAB||m==BOTH);
 
-	d->initCruise();
+	m_d->initCruise();
 
 }
 
@@ -1142,33 +1142,33 @@ void VP1ExecutionScheduler::setCruiseMode(const CruiseMode& m)
 void VP1ExecutionScheduler::performCruise()
 {
 	//In any case, we should stop the timer (fixme: What if there are 0 visible channels - when will the timer get started again?):
-	d->cruisetimer->stop();
+	m_d->cruisetimer->stop();
 
-	if (!d->mainwindow->okToProceedToNextEvent()) {
+	if (!m_d->mainwindow->okToProceedToNextEvent()) {
 		//Hmm. Would like to cruise, but that is not ok. Check back in a few seconds.
-		d->cruisetimer->start( (d->mainwindow->spinBox_cruise->value() > 5 ? 3000 : 1000) );
+		m_d->cruisetimer->start( (m_d->mainwindow->spinBox_cruise->value() > 5 ? 3000 : 1000) );
 		return;
 	}
 
-	assert(!d->goingtonextevent);//Otherwise it is a bit silly?
+	assert(!m_d->goingtonextevent);//Otherwise it is a bit silly?
 
-	switch (d->cruisemode) {
+	switch (m_d->cruisemode) {
 	case NONE:
 		assert(0&&"should never happen");
 		break;
 	case TAB:
-		assert(d->cruisetab_waitingtoproceed==false);
-		if (d->allSoonVisibleRefreshed()) {
-			d->mainwindow->tabManager()->showNextTab();
+		assert(m_d->cruisetab_waitingtoproceed==false);
+		if (m_d->allSoonVisibleRefreshed()) {
+			m_d->mainwindow->tabManager()->showNextTab();
 			//If now all visible are refreshed, we start the timer again.
-			if (d->allVisibleRefreshed())
-				d->cruisetimer->start(d->mainwindow->spinBox_cruise->value()*1000);
+			if (m_d->allVisibleRefreshed())
+				m_d->cruisetimer->start(m_d->mainwindow->spinBox_cruise->value()*1000);
 		} else {
-			d->cruisetab_waitingtoproceed=true;
+			m_d->cruisetab_waitingtoproceed=true;
 		}
 		break;
 	case EVENT:
-		d->mainwindow->goToNextEvent();
+		m_d->mainwindow->goToNextEvent();
 		VP1Msg::messageDebug("Crusing to next event");
 		break;
 	case BOTH:
@@ -1185,7 +1185,7 @@ void VP1ExecutionScheduler::performCruise()
 //___________________________________________________________________
 QStringList VP1ExecutionScheduler::userRequestedFiles()
 {
-	return d->mainwindow->userRequestedFiles();
+	return m_d->mainwindow->userRequestedFiles();
 }
 
 

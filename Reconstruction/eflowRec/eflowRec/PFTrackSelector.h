@@ -9,6 +9,7 @@
 #include "eflowRec/eflowRecTrack.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "Particle/TrackParticleContainer.h"
+#include "xAODTracking/VertexContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
 
@@ -48,6 +49,8 @@ private:
 
   /** WriteHandleKey for the eflowRecTrackContainer to write out */
   SG::WriteHandleKey<eflowRecTrackContainer> m_eflowRecTracksWriteHandleKey{this,"eflowRecTracksOutputName","eflowRecTracks","WriteHandleKey for the eflowRecTrackContainer to write out"};
+
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", "primary vertex container" };
 
   /** ToolHandle for track extrapolation to calorimeter tool */
   ToolHandle<eflowTrackExtrapolatorBaseAlgTool> m_theTrackExtrapolatorTool{this,"trackExtrapolatorTool","Trk::ParticleCaloExtensionTool","ToolHandle for track extrapolation to calorimeter tool"};

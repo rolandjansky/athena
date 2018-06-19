@@ -36,7 +36,7 @@ atlas_add_library( LArBadChannelToolLib
 atlas_add_component( LArBadChannelTool
                      src/components/*.cxx
                      INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${COOL_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} CaloConditions CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArRecConditions LArCablingLib LArBadChannelToolLib )
+                     LINK_LIBRARIES LArBadChannelToolLib )
 
 atlas_add_dictionary( BadChanDict
                       LArBadChannelTool/LArBadChannelDBToolsDict.h

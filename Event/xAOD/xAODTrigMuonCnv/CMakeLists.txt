@@ -14,7 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/DataModel
+                          Control/AthLinks
                           Event/FourMomUtils
                           Trigger/TrigEvent/TrigMuonEvent )
 
@@ -22,7 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( xAODTrigMuonCnv
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES xAODMuon xAODTracking xAODTrigMuon GaudiKernel AthenaBaseComps AthenaKernel DataModel FourMomUtils TrigMuonEvent )
+                     LINK_LIBRARIES xAODMuon xAODTracking xAODTrigMuon GaudiKernel AthenaBaseComps AthenaKernel AthLinks FourMomUtils TrigMuonEvent )
 
 # Install files from the package:
 atlas_install_headers( xAODTrigMuonCnv )

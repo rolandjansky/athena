@@ -8,7 +8,6 @@
  *///-------------------------------------------------
 
 // Header Includes
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"

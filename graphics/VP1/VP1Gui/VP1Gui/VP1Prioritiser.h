@@ -43,7 +43,7 @@ public slots:
   void channelUncreated(IVP1ChannelWidget*);
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
   void setupSysItr(IVP1ChannelWidget*cw);
 };
 

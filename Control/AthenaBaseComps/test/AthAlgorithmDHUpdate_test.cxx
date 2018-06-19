@@ -13,8 +13,8 @@
 
 #undef NDEBUG
 #include "../src/AthAlgorithmDHUpdate.h"
-#include "SGTools/CLASS_DEF.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/BaseInfo.h"
 #include "TestTools/initGaudi.h"
 #include <cassert>
 #include <iostream>

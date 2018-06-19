@@ -19,9 +19,8 @@
 #include "TrkAlignEvent/AlignPar.h"
 
 #include "InDetAlignGeomTools/SiGeometryManagerTool.h"
+#include <ostream>
 
-
-#include <iostream>
 
 using namespace InDetDD;
 
@@ -85,8 +84,7 @@ namespace InDet {
   SiGeometryManagerTool::~SiGeometryManagerTool() 
   {
     ATH_MSG_DEBUG("deleting alignModuleList");
-    for (int i=0;i<(int)m_alignModuleList.size();i++)
-      delete m_alignModuleList[i];
+    for (const auto & i:m_alignModuleList) delete i;
     m_alignModuleList.clear();
 
     ATH_MSG_DEBUG("deleting fullAlignParList");
@@ -101,88 +99,49 @@ namespace InDet {
     ATH_MSG_DEBUG("initialize() of SiGeometryManagerTool");
 
     // retrieve AlignModuleTool
-    if ( m_alignModuleTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL)<<"Could not get " << m_alignModuleTool << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else
-      ATH_MSG_INFO("Retrieved " << m_alignModuleTool);
+    ATH_CHECK( m_alignModuleTool.retrieve() );
 
     // retrieve Pixel helper
-    if ( detStore()->retrieve(m_pixHelper).isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve Pixel Helper " << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else
-      ATH_MSG_INFO("retrieved Pixel Helper");
+    ATH_CHECK( detStore()->retrieve(m_pixHelper) );
 
     // retrieve SCT helper
-    if ( detStore()->retrieve(m_sctHelper).isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve SCT Helper " << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else
-      ATH_MSG_INFO("retrieved Silicon SCT Helper");
+    ATH_CHECK( detStore()->retrieve(m_sctHelper));
 
     // retrieve silicon helper
-    if ( detStore()->retrieve(m_idHelper).isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve Silicon Helper " << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else
-      ATH_MSG_INFO("retrieved Silicon Helper");
+    ATH_CHECK( detStore()->retrieve(m_idHelper) );
       
     // retrieve SCT detector manager
-    if ( detStore()->retrieve(m_sctDetManager, "SCT").isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve SCT Detector Manager " << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else
-      ATH_MSG_INFO("retrieved SCT Detector Manager");
+    ATH_CHECK( detStore()->retrieve(m_sctDetManager, "SCT") );
 
     // retrieve PIX detector manager
-    if ( detStore()->retrieve(m_pixelDetManager, "Pixel").isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve PIX Detector Manager " << endmsg;
-      return StatusCode::FAILURE;
-    }
-    else
-      ATH_MSG_INFO("retrieved PIX Detector Manager");
+    ATH_CHECK( detStore()->retrieve(m_pixelDetManager, "Pixel") );
 
     // dump module selection
     if(m_doModuleSelection && msgLvl(MSG::INFO)) {
-      msg(MSG::INFO)<<"Creating geometry for selected "<<m_moduleSelection.size()<<" modules:"<<endmsg;
-      for(unsigned int i=0;i<m_moduleSelection.size();i++)
-        msg(MSG::INFO)<<"   "<<i<<".  "<<m_moduleSelection.at(i)<<endmsg;
+      int idx{};
+      ATH_MSG_INFO("Creating geometry for selected "<<m_moduleSelection.size()<<" modules:");
+      for(const auto & mod:m_moduleSelection)
+        ATH_MSG_INFO("   "<<idx++<<".  "<<mod);
     }
 
     // retrieve PixelGeometryManagerTool
     if ( !m_pixelGeoManager.empty() ) {
-      if ( m_pixelGeoManager.retrieve().isFailure() ) {
-        msg(MSG::FATAL)<<"Could not get " << m_pixelGeoManager << endmsg;
-        return StatusCode::FAILURE;
-      }
-      else
-        ATH_MSG_INFO("Retrieved " << m_pixelGeoManager);
+      ATH_CHECK( m_pixelGeoManager.retrieve() );
     }
 
     // retrieve SCTGeometryManagerTool
     if ( !m_sctGeoManager.empty() ) {
-      if ( m_sctGeoManager.retrieve().isFailure() ) {
-        msg(MSG::FATAL)<<"Could not get " << m_sctGeoManager << endmsg;
-        return StatusCode::FAILURE;
-      }
-      else
-        ATH_MSG_INFO("Retrieved " << m_sctGeoManager);
+      ATH_CHECK( m_sctGeoManager.retrieve() );
     }
 
     if(!m_alignPixel && !m_alignSCT) {
-      msg(MSG::FATAL)<<"Alignment of both Pixel and SCT turned off. Aborting."<<endmsg;
+      ATH_MSG_FATAL("Alignment of both Pixel and SCT turned off. Aborting.");
       return StatusCode::FAILURE;
     }
 
     // check allowed alignment level
     if(!checkAlignLevel()) {
-      msg(MSG::FATAL)<<"Wrong alignment level."<<endmsg;
+      ATH_MSG_FATAL("Wrong alignment level.");
       return StatusCode::FAILURE;
     }
 
@@ -211,8 +170,8 @@ namespace InDet {
         // for levels 1,2,3 we need the managers and we have to
         // set the levels in them
         if( (m_pixelGeoManager.empty() && m_alignPixel) || (m_sctGeoManager.empty() && m_alignSCT) ) {
-          msg(MSG::ERROR)<<"PixelGeometryManagerTool and/or SCTGeometryManagerTool not available"<<endmsg;
-          msg(MSG::ERROR)<<"Can't set alignment geometry."<<endmsg;
+          ATH_MSG_ERROR("PixelGeometryManagerTool and/or SCTGeometryManagerTool not available");
+          ATH_MSG_ERROR("Can't set alignment geometry.");
           return false;
         }
 
@@ -229,14 +188,14 @@ namespace InDet {
         // if level is not set here (i.e. it is equal to -1) we need the Pixel and SCT
         // managers but we trust their setup, we don't need to check it
         if( (m_pixelGeoManager.empty() && m_alignPixel) || (m_sctGeoManager.empty() && m_alignSCT) ) {
-          msg(MSG::ERROR)<<"PixelGeometryManagerTool and/or SCTGeometryManagerTool not available"<<endmsg;
-          msg(MSG::ERROR)<<"Can't set alignment geometry."<<endmsg;
+          ATH_MSG_ERROR("PixelGeometryManagerTool and/or SCTGeometryManagerTool not available");
+          ATH_MSG_ERROR("Can't set alignment geometry.");
           return false;
         }
         break;
 
       default:
-        msg(MSG::ERROR)<<"Unknown alignment level "<<m_alignLevel<<". Can't set alignment geometry."<<endmsg;
+        ATH_MSG_ERROR("Unknown alignment level "<<m_alignLevel<<". Can't set alignment geometry.");
         return false;
 
     }
@@ -653,7 +612,11 @@ namespace InDet {
         const SiDetectorElement * element=0;
         if(isPix) element = dynamic_cast<const SiDetectorElement*>(module->detElementCollection(Trk::AlignModule::Pixel)->at(j)); 
 	if(isSCT) element = dynamic_cast<const SiDetectorElement*>(module->detElementCollection(Trk::AlignModule::SCT)->at(j)); 
-        const Identifier element_id = element->identify();
+	if (not element){
+	  ATH_MSG_WARNING("Dynamic cast to SiDetectorElement from pixel or SCT module failed");
+	  return;
+	}
+  const Identifier element_id = element->identify();
 	int det,bec,layer,ring,sector,side;
 	// in the future, the InDetAlignDBTool::idToDetSet should be directly used !                                              
 	bool resok=false;
@@ -699,20 +662,18 @@ namespace InDet {
 	  ATH_MSG_INFO("Adding a volume to the Silicon geometry:");
 	  TString nname = "Si_COG_";
 	  TString mname = "Si_MOD_";
-          TString undsc = "_";
-	  //	  std::stringstream ss;
-	  //      ss << Si_count;
-          //      nname += ss.str();
-          //      mname += ss.str();
-          std::stringstream det_str;            det_str << det;
-	  std::stringstream bec_str;            bec_str << bec;
-	  std::stringstream layer_str;        layer_str << layer;
-	  std::stringstream ring_str;          ring_str << ring;
-	  std::stringstream sector_str;      sector_str << sector;
-          nname += TString(det_str.str())+undsc+TString(bec_str.str())+undsc+TString(layer_str.str())+undsc+TString(ring_str.str())+undsc+TString(sector_str.str());
-          mname += TString(det_str.str())+undsc+TString(bec_str.str())+undsc+TString(layer_str.str())+undsc+TString(ring_str.str())+undsc+TString(sector_str.str());
+    TString undsc = "_";
 
-          Si_cog[Si_count] = gm->MakeSphere(nname,med,0.0,element->length(),0.0,180.0,0.0,360.0);    // invisible container
+    std::string det_str = std::to_string(det);
+	  std::string bec_str = std::to_string( bec);
+	  std::string layer_str = std::to_string( layer);
+	  std::string ring_str = std::to_string( ring);
+	  std::string sector_str = std::to_string( sector);
+	  const auto suffix = TString(det_str)+undsc+TString(bec_str)+undsc+TString(layer_str)+undsc+TString(ring_str)+undsc+TString(sector_str);
+    nname += suffix;
+    mname += suffix;
+
+    Si_cog[Si_count] = gm->MakeSphere(nname,med,0.0,element->length(),0.0,180.0,0.0,360.0);    // invisible container
 	  Si_cog[Si_count]->SetVisibility(kFALSE);
 	  // create a wedge for SCT Endcap, otherwise a box:
           if(element->isSCT() && element->isEndcap())  {

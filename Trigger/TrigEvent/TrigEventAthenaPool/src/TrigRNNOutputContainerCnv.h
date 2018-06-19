@@ -21,7 +21,9 @@ class TrigRNNOutputContainerCnv : public TrigRNNOutputContainerCnvBase {
  
   protected:
    
+public:
   TrigRNNOutputContainerCnv( ISvcLocator *svcloc ) : TrigRNNOutputContainerCnvBase(svcloc){}
+protected:
    
    virtual TrigRNNOutputContainer_PERS *createPersistent( TrigRNNOutputContainer *transObj);
    virtual TrigRNNOutputContainer      *createTransient();

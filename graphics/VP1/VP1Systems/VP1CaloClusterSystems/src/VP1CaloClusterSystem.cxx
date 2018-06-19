@@ -36,48 +36,48 @@ VP1CaloClusterSystem::VP1CaloClusterSystem()
   : IVP13DSystemSimple("Clusters",
 		       "System showing Calorimeter Clusters",
 		       "Thomas.Kittelmann@cern.ch"),
-    d(new Imp(this))
+    m_d(new Imp(this))
 {
 }
 
 //____________________________________________________________________
 VP1CaloClusterSystem::~VP1CaloClusterSystem()
  {
-  delete d;
+  delete m_d;
 }
 
 //_____________________________________________________________________________________
 void VP1CaloClusterSystem::systemerase()
 {
   //Save present states and then clear all event data and related gui elements.
-  d->controller->collWidget()->clear();
+  m_d->controller->collWidget()->clear();
 }
 
 //_____________________________________________________________________________________
 void VP1CaloClusterSystem::buildEventSceneGraph(StoreGateSvc*, SoSeparator *root)
 {
-  root->addChild(d->controller->drawOptions());
+  root->addChild(m_d->controller->drawOptions());
 
   //Create collection list based on contents of event store, populate
   //gui and apply states:
-  d->controller->collWidget()->setCollections(VP1CaloClusterCollection::createCollections(this,d->controller));
+  m_d->controller->collWidget()->setCollections(VP1CaloClusterCollection::createCollections(this,m_d->controller));
 
   //Add collections to event scenegraph:
-  foreach (VP1StdCollection* col,d->controller->collWidget()->collections<VP1StdCollection>())
+  foreach (VP1StdCollection* col,m_d->controller->collWidget()->collections<VP1StdCollection>())
     root->addChild(col->collSwitch());
 }
 
 //_____________________________________________________________________________________
 QWidget * VP1CaloClusterSystem::buildController()
 {
-  d->controller = new CaloClusterSysController(this);
-  return d->controller;
+  m_d->controller = new CaloClusterSysController(this);
+  return m_d->controller;
 }
 
 //_____________________________________________________________________________________
 void VP1CaloClusterSystem::userPickedNode(SoNode*, SoPath * pickedPath) {
 
-  foreach (VP1CaloClusterCollection* col,d->controller->collWidget()->collections<VP1CaloClusterCollection>()) {
+  foreach (VP1CaloClusterCollection* col,m_d->controller->collWidget()->collections<VP1CaloClusterCollection>()) {
     if (col->visible()&&pickedPath->containsNode(col->collSep())) {
       message(col->infoOnClicked(pickedPath));
       return;
@@ -94,8 +94,8 @@ QByteArray VP1CaloClusterSystem::saveState()
 
   serialise.save(IVP13DSystemSimple::saveState());
 
-  serialise.save(d->controller->collWidget());
-  serialise.save(d->controller->saveSettings());//1+
+  serialise.save(m_d->controller->collWidget());
+  serialise.save(m_d->controller->saveSettings());//1+
 
   serialise.disableUnsavedChecks();//We do the testing in the controller
 
@@ -113,9 +113,9 @@ void VP1CaloClusterSystem::restoreFromState(QByteArray ba)
   ensureBuildController();
   IVP13DSystemSimple::restoreFromState(state.restoreByteArray());
 
-  state.restore(d->controller->collWidget());
+  state.restore(m_d->controller->collWidget());
   if (state.version()>=1)
-    d->controller->restoreSettings(state.restoreByteArray());
+    m_d->controller->restoreSettings(state.restoreByteArray());
 
   state.disableUnrestoredChecks();//We do the testing in the controller
 }

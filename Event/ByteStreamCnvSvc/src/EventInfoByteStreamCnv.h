@@ -36,13 +36,10 @@ extern long ByteStream_StorageType;
  *  EventInfo is built from RawEvent when reading and does nothing when writing ByteStream
  **/
 class EventInfoByteStreamCnv : public Converter {
-   friend class CnvFactory<EventInfoByteStreamCnv>;
-
-protected:
-   /// Constructor
-   EventInfoByteStreamCnv(ISvcLocator* svcloc);
 
 public:
+   EventInfoByteStreamCnv(ISvcLocator* svcloc);
+
    virtual StatusCode initialize();
    virtual StatusCode finalize();
 

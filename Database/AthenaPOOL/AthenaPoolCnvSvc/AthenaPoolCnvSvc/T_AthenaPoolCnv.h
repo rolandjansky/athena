@@ -22,9 +22,8 @@ template <class TYPE> class CnvFactory;
  **/
 template <class T>
 class T_AthenaPoolCnv : public T_AthenaPoolCnvBase<T> {
-   friend class CnvFactory<T_AthenaPoolCnv<T> >;
 
-protected:
+public:
    using T_AthenaPoolCnvBase<T>::T_AthenaPoolCnvBase;
 };
 
@@ -32,9 +31,8 @@ protected:
 template <class DV>
 class T_AthenaPoolCnv<ViewVector<DV> > : public T_AthenaPoolViewVectorCnv<DV>
 {
-   friend class CnvFactory<T_AthenaPoolCnv<ViewVector<DV> > >;
 
-protected:
+public:
    using T_AthenaPoolViewVectorCnv<DV>::T_AthenaPoolViewVectorCnv;
 };
 

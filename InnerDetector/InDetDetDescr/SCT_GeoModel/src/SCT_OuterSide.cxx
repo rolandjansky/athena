@@ -39,10 +39,6 @@ SCT_OuterSide::SCT_OuterSide(const std::string & name)
     m_hybrid(0),
     m_pigtail(0),
     m_sensor(0)
-
-  //m_hybridPos(0),  // 16:30 Wed 15th Jun 2005 D.Naito removed.
-  //m_pigtailPos(0), // 16:30 Wed 15th Jun 2005 D.Naito removed.
-  //m_sensorPos(0)   // 16:30 Wed 15th Jun 2005 D.Naito removed.
 {
   getParameters();
   m_logVolume = preBuild();
@@ -51,19 +47,14 @@ SCT_OuterSide::SCT_OuterSide(const std::string & name)
 
 SCT_OuterSide::~SCT_OuterSide()
 {
-  // Clean up
   delete m_hybrid;
   delete m_pigtail;
   delete m_sensor;
-  // *** 16:30 Wed 15th Jun 2005 D.Naito modified. (01)*********************************
-  // *** -->>                                      (01)*********************************
   delete m_env1RefPointVector;
   delete m_env2RefPointVector;
-  // *** End of modified lines. ------------------ (01)*********************************
-
-  //delete m_hybridPos;
-  //delete m_pigtailPos;
-  //delete m_sensorPos;
+  if (m_hybridPos) m_hybridPos->unref();
+  if (m_pigtailPos) m_pigtailPos->unref();
+  if (m_sensorPos) m_sensorPos->unref();
 }
 
 
@@ -145,7 +136,9 @@ SCT_OuterSide::preBuild()
   // *** End of modified lines. ------------------ (02)*********************************
 
   m_hybridPos             = new GeoTransform(HepGeom::Translate3D(hybridPosX, hybridPosY, hybridPosZ));
+  m_hybridPos->ref();
   m_pigtailPos            = new GeoTransform(HepGeom::Translate3D(pigtailPosX, pigtailPosY, pigtailPosZ));
+  m_pigtailPos->ref();
 
   // The depth axis goes from the backside to the implant side 
   // and so point to away from the  module center.
@@ -162,24 +155,24 @@ SCT_OuterSide::preBuild()
   //m_outerSidePos = new HepGeom::Transform3D(rotOuter, CLHEP::Hep3Vector(0.5 * (m_sensorGap + sectThickness), 0., 0.));
   //m_sensorPos = new GeoTransform(HepGeom::Transform3D(rotSensor, CLHEP::Hep3Vector(sensorPosX, sensorPosY, sensorPosZ)));
   m_sensorPos             = new GeoTransform(HepGeom::Translate3D(sensorPosX, sensorPosY, sensorPosZ));
-
+  m_sensorPos->ref();
 
   //
   // Make an envelope for the whole module.
   //
   const GeoBox * ose1Shape = new GeoBox(0.5 * t_ose1,
-					0.5 * w_ose1,
-					0.5 * l_ose1);
+                                        0.5 * w_ose1,
+                                        0.5 * l_ose1);
   const GeoBox * ose2Shape = new GeoBox(0.5 * t_ose2,
-					0.5 * w_ose2,
-					0.5 * l_ose2);
+                                        0.5 * w_ose2,
+                                        0.5 * l_ose2);
 
   const GeoShape & OuterSideEnvelopeShape = (*ose1Shape).
     add(*ose2Shape << HepGeom::Translate3D(ose2PosX, ose2PosY, ose2PosZ));
 
   const GeoLogVol * OuterSideEnvelopeLog = new GeoLogVol("OuterSideEnvelope",
-							       &OuterSideEnvelopeShape,
-							       materials.gasMaterial());
+                                                         &OuterSideEnvelopeShape,
+                                                         materials.gasMaterial());
 
   // 28th Mar S.Mima modified.
   // *** 16:30 Wed 15th Jun 2005 D.Naito modified. (03)*********************************

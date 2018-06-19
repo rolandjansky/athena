@@ -12,11 +12,14 @@
 #include "TileIdentifier/TileHWID.h"
 
 #include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/getMessageSvc.h"
 #include "boost/io/ios_state.hpp"
 
 #include <iostream>
 #include <iomanip>
 #include <cmath>
+
+#define MLOG(x)   if (m_log->level()<=MSG::x) *m_log << MSG::x
 
 
 // 23-feb-2005
@@ -44,17 +47,17 @@
 #include "CellVolumes.h"
 // ------------- Temporary solution for cell volumes
 
-TileDetDescrManager::TileDetDescrManager(TileDddbManager_ptr dbManager,
-                                         MsgStream *log)
+TileDetDescrManager::TileDetDescrManager(TileDddbManager_ptr dbManager)
   : m_dbManager(dbManager)
   , m_elements_created(false)
   , m_tile_id(0)
   , m_cell_id(0)
   , m_tile_hwid(0)
 {
-  
-   m_verbose = (log->level()<=MSG::VERBOSE);
-  //  m_verbose = true;
+  m_log = new MsgStream(Athena::getMessageSvc(), "TileDetDescrManager");
+
+  m_verbose = (m_log->level()<=MSG::VERBOSE);
+
   setName("Tile");
 }
 
@@ -132,9 +135,9 @@ void TileDetDescrManager::print() const
   std::cout << std::endl;
 }
 
-void TileDetDescrManager::create_elements(MsgStream *log)
+void TileDetDescrManager::create_elements()
 {
-  (*log) << MSG::INFO <<" TileDetDescrManager: entering create_elements() " << endmsg;
+  MLOG(INFO) << "Entering create_elements()" << endmsg;
 
   // resize vectors :
   m_tile_module_vec.resize( (int) m_tile_id->module_hash_max(),0);
@@ -165,8 +168,8 @@ void TileDetDescrManager::create_elements(MsgStream *log)
  
     int etasign = descr->sign_eta();
     if (side != etasign) {
-      (*log) << MSG::ERROR  << "side and eta sign in TileDetDescriptor[" << n_regions 
-             << "] do not match" << endmsg;
+      MLOG(ERROR) << "side and eta sign in TileDetDescriptor[" << n_regions
+                  << "] do not match" << endmsg;
     }
     ++n_regions;
     
@@ -355,10 +358,10 @@ void TileDetDescrManager::create_elements(MsgStream *log)
         add_module(idhash,modDescr);
         ++n_modules;
       } catch ( const TileID_Exception& ) {
-        (*log) << MSG::ERROR  << "can't build module ID from ("
-               << section << ","
-               << side << ","
-               << module << ")" << endmsg;
+        MLOG(ERROR) << "can't build module ID from ("
+                    << section << ","
+                    << side << ","
+                    << module << ")" << endmsg;
         continue;
       }
       
@@ -401,8 +404,8 @@ void TileDetDescrManager::create_elements(MsgStream *log)
 
               if (doZshift) {
 
-                double eta1 = ShiftEta(eta-deta/2,rcenter,zshift);
-                double eta2 = ShiftEta(eta+deta/2,rcenter,zshift);
+                double eta1 = shiftEta(eta-deta/2,rcenter,zshift);
+                double eta2 = shiftEta(eta+deta/2,rcenter,zshift);
                 
                 if ( m_verbose && (0 == iphi) ) 
                   std::cout << "side/sec/mod/twr/samp=" 
@@ -840,9 +843,9 @@ void TileDetDescrManager::create_elements(MsgStream *log)
               add_cell(elt);
               ++n_cells;
             } catch ( const TileID_Exception& ) {
-              (*log) << MSG::ERROR << "can't build cell ID from ("
-                     << section << "," << side << "," << module << ","
-                     << tower << "," << sample << ")" << endmsg;
+              MLOG(ERROR) << "can't build cell ID from ("
+                          << section << "," << side << "," << module << ","
+                          << tower << "," << sample << ")" << endmsg;
             }
             eta += deta;
           }
@@ -852,11 +855,10 @@ void TileDetDescrManager::create_elements(MsgStream *log)
     }
   }
 
-  (*log) << MSG::DEBUG
-         << n_cells << " cells and " 
-         << n_modules << " half-modules were created for " 
-         << n_regions << " Tile Regions" 
-         << endmsg;
+  MLOG(DEBUG) << n_cells << " cells and "
+              << n_modules << " half-modules were created for "
+              << n_regions << " Tile Regions"
+              << endmsg;
 }
 
 

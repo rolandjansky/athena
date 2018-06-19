@@ -114,7 +114,8 @@ private:  // Private methods.
   //  int make_clusters(bool dump, int maxstrip, double pitch, const std::vector<Muon::CscStripPrepData*>& strips);
   int make_clusters(bool measphi, const std::vector<const Muon::CscStripPrepData*>& strips,Muon::CscPrepDataCollection *&collection);
   StatusCode getClusters(IdentifierHash idVect,  std::vector<IdentifierHash>& selectedIdVect);
-  StatusCode getClusters(std::vector<IdentifierHash>& selectedIdVect);
+  StatusCode getClusters(IdentifierHash idVect,  std::vector<IdentifierHash>& selectedIdVect, Muon::CscPrepDataContainer *pclusters);
+  StatusCode getClusters(std::vector<IdentifierHash>& selectedIdVect, Muon::CscPrepDataContainer *pclusters);
 private:  // data
 
   // Properties.
@@ -123,7 +124,7 @@ private:  // data
   std::string m_noiseOptionStr;
   NoiseOption m_noiseOption;
   SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_digit_key;        // SG key for input digits
-  SG::WriteHandle<Muon::CscPrepDataContainer> m_pclusters;      // SG key for output clusters
+  SG::WriteHandleKey<Muon::CscPrepDataContainer> m_pclusters;      // SG key for output clusters
 
   // Calibration tool.
   ToolHandle<ICscCalibTool> m_cscCalibTool;

@@ -13,7 +13,7 @@ StatusCode TrigL2ElectronViewsMergerTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TrigL2ElectronViewsMergerTool::merge( const EventContext& context, const std::vector<SG::View*>& views ) const {
+StatusCode TrigL2ElectronViewsMergerTool::merge( const EventContext& context, const ViewContainer& views ) const {
 
   auto output = std::make_unique< ConstDataVector< xAOD::TrigElectronContainer > >();
   output->clear( SG::VIEW_ELEMENTS );

@@ -5,10 +5,10 @@
 #ifndef G4USERACTIONS_G4UA__FLUXRECORDERTOOL_H
 #define G4USERACTIONS_G4UA__FLUXRECORDERTOOL_H
 
-#include "G4AtlasInterfaces/IG4RunActionTool.h"
-#include "G4AtlasInterfaces/IG4EventActionTool.h"
-#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
+// Infrastructure includes
 #include "G4AtlasTools/UserActionToolBase.h"
+
+// Local includes
 #include "G4UserActions/FluxRecorder.h"
 
 namespace G4UA

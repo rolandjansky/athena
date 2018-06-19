@@ -45,4 +45,5 @@ atlas_add_test( creatingEVTest
 atlas_add_test( mergingEVTest 
 		SCRIPT scripts/mergingEVTest.sh
  		POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/scripts/post_with_filter.sh mergingEVTest"
+                PROPERTIES TIMEOUT 300
 		ENVIRONMENT PATTERNS=EMViewsMaker algInView EMViewsMerger "start processing" )

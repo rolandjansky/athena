@@ -1454,11 +1454,12 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
         int pixHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfPixelHits)  ?  tmpValue : -99;
         int trtHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfTRTHits)    ?  tmpValue : -99;
         
-        if( chainName.find("bBmumux") != std::string::npos && trkIt1->dataID().find("Bphysics_IDTrig") != std::string::npos ) {
+        if(fullSetOfHists && chainName.find("bBmumux") != std::string::npos && trkIt1->dataID().find("Bphysics_IDTrig") != std::string::npos ) {
           // // first fill ID track histograms
-          // hist(Form("%s_%s_pTtrk",pref,name))->Fill(ptTrk1/1000.);
-          // hist(Form("%s_%s_d0trk",pref,name))->Fill(d0Trk1);
-          // hist(Form("%s_%s_z0trk",pref,name))->Fill(z0Trk1);
+          setCurrentMonGroup(m_base_path_shifter+"/"+path);
+          hist(Form("%s_%s_pTtrk",pref,name))->Fill(ptTrk1/1000.);
+          hist(Form("%s_%s_d0trk",pref,name))->Fill(d0Trk1);
+          hist(Form("%s_%s_z0trk",pref,name))->Fill(z0Trk1);
           continue; // not consider ID tracks which appear in Bmumux-like chains
         }
         

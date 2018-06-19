@@ -83,7 +83,7 @@ StatusCode RpcReadWriteCoolStr::execute() {
 
       m_readDone=true;
 
-      if(p_coolsvc->makeFile(m_fileName)!=StatusCode::SUCCESS) m_log << MSG::ERROR << "Problems in reading from DB"<<endmsg;;
+      if(p_coolsvc->makeFile(m_fileName)!=StatusCode::SUCCESS) m_log << MSG::ERROR << "Problems in reading from DB"<<endmsg;
 
     }
   }
@@ -104,7 +104,7 @@ StatusCode RpcReadWriteCoolStr::execute() {
 
       m_readDone=true;
 
-      if(p_coolsvc->makeOnlineFile(m_fileName)!=StatusCode::SUCCESS) m_log << MSG::ERROR << "Problems in reading from DB"<<endmsg;;
+      if(p_coolsvc->makeOnlineFile(m_fileName)!=StatusCode::SUCCESS) m_log << MSG::ERROR << "Problems in reading from DB"<<endmsg;
 
     }
   }

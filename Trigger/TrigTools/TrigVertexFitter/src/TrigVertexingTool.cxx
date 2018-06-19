@@ -137,7 +137,7 @@ double TrigVertexingTool::FindClosestApproach(const TrigVertexFitInputTrack* pT1
 
 TrigVertex* TrigVertexingTool::createTrigVertex(TrigL2Vertex* pV)
 {
-  if(!pV->m_isVertexFitted())
+  if(!pV->isVertexFitted())
     {
       ATH_MSG_WARNING( "Cannot create TrigVertex: input TrigL2Vertex is not fitted" );
       return NULL;
@@ -148,14 +148,14 @@ TrigVertex* TrigVertexingTool::createTrigVertex(TrigL2Vertex* pV)
   TrackInVertexList* pTVL=new TrackInVertexList;
   pTVL->clear();
 
-  for(std::list<TrigVertexFitInputTrack*>::iterator it=pV->m_getTracks()->begin();
-      it!=pV->m_getTracks()->end();++it)
+  for(std::list<TrigVertexFitInputTrack*>::iterator it=pV->getTracks()->begin();
+      it!=pV->getTracks()->end();++it)
     {
-      if((*it)->m_getTrackType()!=1) continue;
-      pTVL->push_back((*it)->m_getTrigTrack());
+      if((*it)->getTrackType()!=1) continue;
+      pTVL->push_back((*it)->getTrigTrack());
     }
-  double* Rk=pV->m_getParametersVector();
-  //  TrigVertexCovariance& Gk=(*pV->m_getCovariance());
+  double* Rk=pV->getParametersVector();
+  //  TrigVertexCovariance& Gk=(*pV->getCovariance());
   double cv[6];
 
   cv[0]=pV->m_Gk[0][0];cv[1]=pV->m_Gk[0][1];cv[2]=pV->m_Gk[1][1];
@@ -165,10 +165,10 @@ TrigVertex* TrigVertexingTool::createTrigVertex(TrigL2Vertex* pV)
 
   pTV->setMass(pV->mass());
   pTV->setMassVariance(pV->massVariance());
-  if(pV->m_getMotherTrack()!=NULL) 
+  if(pV->getMotherTrack()!=NULL) 
   {
-    pTV->setMotherTrack(pV->m_getMotherTrack());
-    pV->m_setMotherTrack(NULL);
+    pTV->setMotherTrack(pV->getMotherTrack());
+    pV->setMotherTrack(NULL);
   }
 
   if(m_timers) m_timer[2]->stop();
@@ -191,7 +191,7 @@ StatusCode TrigVertexingTool::setMassConstraint(TrigL2Vertex* pV, const TrigInDe
       return StatusCode::FAILURE;
     }
 
-  pI1=pV->m_contains(pT1);pI2=pV->m_contains(pT2);
+  pI1=pV->contains(pT1);pI2=pV->contains(pT2);
 
   if(pI1!=NULL) nFound++;
   if(pI2!=NULL) nFound++;
@@ -200,7 +200,7 @@ StatusCode TrigVertexingTool::setMassConstraint(TrigL2Vertex* pV, const TrigInDe
       ATH_MSG_WARNING( "Cannot setup mass constraint - no such tracks in vertex " );
       return StatusCode::FAILURE;
     }
-  pV->m_getConstraints()->push_back(new TrigVertexFitConstraint(m,pI1,pI2));
+  pV->getConstraints()->push_back(new TrigVertexFitConstraint(m,pI1,pI2));
   return StatusCode::SUCCESS;
 }
 
@@ -222,7 +222,7 @@ StatusCode TrigVertexingTool::setMassConstraint(TrigL2Vertex* pV, const TrigInDe
       return StatusCode::FAILURE;
     }
 
-  pI1=pV->m_contains(pT1);pI2=pV->m_contains(pT2);pI3=pV->m_contains(pT3);
+  pI1=pV->contains(pT1);pI2=pV->contains(pT2);pI3=pV->contains(pT3);
 
   if(pI1!=NULL) nFound++;
   if(pI2!=NULL) nFound++;
@@ -232,7 +232,7 @@ StatusCode TrigVertexingTool::setMassConstraint(TrigL2Vertex* pV, const TrigInDe
       ATH_MSG_WARNING( "Cannot setup mass constraint - no such tracks in vertex " );
       return StatusCode::FAILURE;
     }
-  pV->m_getConstraints()->push_back(new TrigVertexFitConstraint(m,pI1,pI2,pI3));
+  pV->getConstraints()->push_back(new TrigVertexFitConstraint(m,pI1,pI2,pI3));
   return StatusCode::SUCCESS;
 }
 
@@ -249,7 +249,7 @@ StatusCode TrigVertexingTool::setMassConstraint(TrigL2Vertex* pV, const Trk::Tra
       return StatusCode::FAILURE;
     }
 
-  pI1=pV->m_contains(pT1);pI2=pV->m_contains(pT2);
+  pI1=pV->contains(pT1);pI2=pV->contains(pT2);
 
   if(pI1!=NULL) nFound++;
   if(pI2!=NULL) nFound++;
@@ -258,7 +258,7 @@ StatusCode TrigVertexingTool::setMassConstraint(TrigL2Vertex* pV, const Trk::Tra
       ATH_MSG_WARNING( "Cannot setup mass constraint - no such tracks in vertex " );
       return StatusCode::FAILURE;
     }
-  pV->m_getConstraints()->push_back(new TrigVertexFitConstraint(m,pI1,pI2));
+  pV->getConstraints()->push_back(new TrigVertexFitConstraint(m,pI1,pI2));
   return StatusCode::SUCCESS;
 }
 
@@ -276,7 +276,7 @@ StatusCode TrigVertexingTool::setMassConstraint(TrigL2Vertex* pV, const Trk::Tra
       return StatusCode::FAILURE;
     }
 
-  pI1=pV->m_contains(pT1);pI2=pV->m_contains(pT2);pI3=pV->m_contains(pT3);
+  pI1=pV->contains(pT1);pI2=pV->contains(pT2);pI3=pV->contains(pT3);
 
   if(pI1!=NULL) nFound++;
   if(pI2!=NULL) nFound++;
@@ -286,7 +286,7 @@ StatusCode TrigVertexingTool::setMassConstraint(TrigL2Vertex* pV, const Trk::Tra
       ATH_MSG_WARNING( "Cannot setup mass constraint - no such tracks in vertex " );
       return StatusCode::FAILURE;
     }
-  pV->m_getConstraints()->push_back(new TrigVertexFitConstraint(m,pI1,pI2,pI3));
+  pV->getConstraints()->push_back(new TrigVertexFitConstraint(m,pI1,pI2,pI3));
   return StatusCode::SUCCESS;
 }
 
@@ -333,8 +333,8 @@ StatusCode TrigVertexingTool::addTrack(const TrigInDetTrack* pT, TrigL2Vertex* p
   //3. adding track to vertex
 
 
-  pFN->m_setIndex(pV->m_getTracks()->size());
-  pV->m_getTracks()->push_back(pFN);
+  pFN->setIndex(pV->getTracks()->size());
+  pV->getTracks()->push_back(pFN);
 
   if(m_timers) m_timer[0]->stop();
 
@@ -358,8 +358,8 @@ StatusCode TrigVertexingTool::addTrack(const Trk::Track* pT,  TrigL2Vertex* pV, 
   TrigVertexFitInputTrack* pFN=new TrigVertexFitInputTrack(pT,mass);
 
   //3. adding track to vertex
-  pFN->m_setIndex(pV->m_getTracks()->size());
-  pV->m_getTracks()->push_back(pFN);
+  pFN->setIndex(pV->getTracks()->size());
+  pV->getTracks()->push_back(pFN);
 
   if(m_timers) m_timer[0]->stop();
   return StatusCode::SUCCESS;
@@ -520,7 +520,7 @@ StatusCode TrigVertexingTool::calculateInvariantMass(TrigL2Vertex* pV)
   const double C=0.029997;
   const double B=20.84;
 
-  if(!pV->m_isVertexFitted())
+  if(!pV->isVertexFitted())
     {
       ATH_MSG_WARNING("Mass estimation: vertex is not fitted - run fit first" );
       return StatusCode::FAILURE;
@@ -528,7 +528,7 @@ StatusCode TrigVertexingTool::calculateInvariantMass(TrigL2Vertex* pV)
 
   if(m_timers) m_timer[1]->start();
 
-  int nSize=pV->m_getTracks()->size();
+  int nSize=pV->getTracks()->size();
   double invMass=0.0,alpha=C*B*1e-3;
   double P[3];
   double E=0.0;
@@ -539,16 +539,16 @@ StatusCode TrigVertexingTool::calculateInvariantMass(TrigL2Vertex* pV)
 
   double Hk[200];
 
-  double* Rk = pV->m_getParametersVector();
+  double* Rk = pV->getParametersVector();
 
   int trackId=0;
   int offset=0;
   for(i=0;i<3;i++) P[i]=0.0;
-  for(std::list<TrigVertexFitInputTrack*>::iterator it=pV->m_getTracks()->begin();
-      it!=pV->m_getTracks()->end();++it)
+  for(std::list<TrigVertexFitInputTrack*>::iterator it=pV->getTracks()->begin();
+      it!=pV->getTracks()->end();++it)
     {
       offset+=3;trackId++;
-      double mass=(*it)->m_getMass()*1e-3;
+      double mass=(*it)->getMass()*1e-3;
       double pT=fabs(Rk[offset+2]);
       double p=pT/sin(Rk[offset+1]);
 
@@ -567,15 +567,15 @@ StatusCode TrigVertexingTool::calculateInvariantMass(TrigL2Vertex* pV)
       E+=sqrt(mass*mass+p*p);
     }
   invMass=sqrt(E*E-P[0]*P[0]-P[1]*P[1]-P[2]*P[2])*1000.0;
-  pV->m_setMass(invMass);
+  pV->setMass(invMass);
 
   offset=0;trackId=0;Hk[0]=0.0;Hk[1]=0.0;Hk[2]=0.0;
-  for(std::list<TrigVertexFitInputTrack*>::iterator it=pV->m_getTracks()->begin();
-      it!=pV->m_getTracks()->end();++it)
+  for(std::list<TrigVertexFitInputTrack*>::iterator it=pV->getTracks()->begin();
+      it!=pV->getTracks()->end();++it)
     {
       offset+=3;trackId++;
 
-      double mass=(*it)->m_getMass()*1e-3;
+      double mass=(*it)->getMass()*1e-3;
       double Ck=(Rk[offset+2]<0.0)?-1.0:1.0;
       const double sinT=sin(Rk[offset+1]);
       const double inv_sinT = 1. / sinT;
@@ -605,7 +605,7 @@ StatusCode TrigVertexingTool::calculateInvariantMass(TrigL2Vertex* pV)
       Hk[offset+1]=(Rk[offset+2]*inv_sinT*inv_sinT)*(P[2]*Ck-eE*cosT);
       Hk[offset+2]=eE*inv_sinT-Ck*(P[0]*cos(phiV)+P[1]*sin(phiV)+P[2]*cosT*inv_sinT)+dP*Ck*sinPsi*inv_cosPsi;
     }
-  //  TrigVertexCovariance& Gk=(*pV->m_getCovariance());
+  //  TrigVertexCovariance& Gk=(*pV->getCovariance());
   double covM=0.0;
 
   nSize=3+3*nSize;
@@ -624,9 +624,9 @@ StatusCode TrigVertexingTool::calculateInvariantMass(TrigL2Vertex* pV)
       covM=fabs(covM);
     }
   covM=sqrt(covM)*1e6/invMass;
-  pV->m_setMassVariance(covM);
+  pV->setMassVariance(covM);
   ATH_MSG_DEBUG("Inv mass = "<<invMass<<"  +/- "<<covM );
-  pV->m_setStatus(2);
+  pV->setStatus(2);
   //  delete[] Hk;
 
   if(m_timers) m_timer[1]->stop();
@@ -639,7 +639,7 @@ StatusCode TrigVertexingTool::createMotherParticle(TrigL2Vertex* pV)
   const double C=0.029997;
   const double B=20.84;
 
-  if(!pV->m_isVertexFitted())
+  if(!pV->isVertexFitted())
     {
       ATH_MSG_WARNING("Cannot form mother particle: vertex is not fitted - run fit first" );
       return StatusCode::FAILURE;
@@ -652,15 +652,15 @@ StatusCode TrigVertexingTool::createMotherParticle(TrigL2Vertex* pV)
 
   double mPer[5];
 
-  double* Rk = pV->m_getParametersVector();
+  double* Rk = pV->getParametersVector();
 
   int trackId=0;
   int offset=0;
   for(i=0;i<3;i++) P[i]=0.0;
     
   Charge=0;
-  for(std::list<TrigVertexFitInputTrack*>::iterator it=pV->m_getTracks()->begin();
-      it!=pV->m_getTracks()->end();++it)
+  for(std::list<TrigVertexFitInputTrack*>::iterator it=pV->getTracks()->begin();
+      it!=pV->getTracks()->end();++it)
     {
       offset+=3;trackId++;      
       Charge+=(Rk[offset+2]<0.0)?-1:1;
@@ -693,9 +693,9 @@ StatusCode TrigVertexingTool::createMotherParticle(TrigL2Vertex* pV)
   TrigInDetTrackFitPar* pMPar=new TrigInDetTrackFitPar(mPer[0],mPer[1],mPer[2],
 						       mPer[3],mPer[4],
 						       0.05,0.001,0.1,0.0001,100.0);
-  pV->m_setMotherTrack(pMPar);
+  pV->setMotherTrack(pMPar);
 
-  pV->m_setStatus(3);
+  pV->setStatus(3);
   return StatusCode::SUCCESS;
 }
 

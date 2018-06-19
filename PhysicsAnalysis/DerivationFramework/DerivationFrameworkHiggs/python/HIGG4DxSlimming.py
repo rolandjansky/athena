@@ -7,6 +7,8 @@
 # Nov 2015                                      #
 #################################################
 
+from DerivationFrameworkMCTruth.MCTruthCommon import *
+from DerivationFrameworkJetEtMiss.JetCommon import *
 
 def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     from AthenaCommon.GlobalFlags import globalflags
@@ -117,8 +119,6 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     #derivation truth
     if DFisMC:
 
-        from DerivationFrameworkMCTruth.MCTruthCommon import *
-
         HIGG4DxSlimmingHelper.StaticContent = ["xAOD::TruthParticleContainer#TruthMuons",
                                                "xAOD::TruthParticleAuxContainer#TruthMuonsAux.",
                                                "xAOD::TruthParticleContainer#TruthElectrons",
@@ -149,7 +149,6 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
         assert False, "HIGG4DxSlimming: Unknown derivation stream '{}'".format(HIGG4DxName)
 
     if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
-        from DerivationFrameworkJetEtMiss.JetCommon import *
         addJetOutputs(HIGG4DxSlimmingHelper, [HIGG4DxName+"Jets"])
 
     # the very last line in job options

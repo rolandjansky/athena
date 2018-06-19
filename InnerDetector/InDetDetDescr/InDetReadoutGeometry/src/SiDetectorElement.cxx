@@ -374,15 +374,15 @@ SiDetectorElement::updateConditionsCache() const
   // Lorentz Angle related stuff
   // 
 
-  if (m_commonItems->lorentzAngleSvc()) {
+  if (isPixel() and m_commonItems->lorentzAngleSvc()) {
     m_tanLorentzAnglePhi = m_commonItems->lorentzAngleSvc()->getTanLorentzAngle(m_idHash);
     m_tanLorentzAngleEta = m_commonItems->lorentzAngleSvc()->getTanLorentzAngleEta(m_idHash);
     m_lorentzCorrection = m_commonItems->lorentzAngleSvc()->getLorentzShift(m_idHash);
   } else {
     // Set to zero
-    m_tanLorentzAnglePhi = 0;
-    m_tanLorentzAngleEta = 0;
-    m_lorentzCorrection =  0;
+    m_tanLorentzAnglePhi = 0.;
+    m_tanLorentzAngleEta = 0.;
+    m_lorentzCorrection =  0.;
   }
 }
 

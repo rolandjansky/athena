@@ -29,8 +29,8 @@ namespace G4UA
     };
 
   public:
-    /// ctor
-    StepNtuple();
+    /// Constructor with message level argument for AthMessaging
+    StepNtuple(const MSG::Level lvl = MSG::INFO);
 
     /// the hooks for G4 UA handling
     virtual void BeginOfEventAction(const G4Event*) override;

@@ -63,7 +63,7 @@ bool BCIDFilterTool::eventPassesFilter() const
      ++m_ntot;
 
      const xAOD::EventInfo* ei(0);
-     ATH_CHECK( evtStore()->retrieve(ei, "EventInfo") );
+     ATH_CHECK( evtStore()->retrieve(ei, "EventInfo"), false );
 
      int bcid = ei->bcid();
      

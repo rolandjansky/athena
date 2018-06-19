@@ -7,10 +7,8 @@
 *********************************************************************/
 
 #include "TrkVertexSeedFinderTools/MCTrueSeedFinder.h"
-#include "GeneratorObjects/McEventCollection.h"
 #include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/ParamDefs.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "TrkParameters/TrackParameters.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -47,8 +45,6 @@ namespace Trk
 
   MCTrueSeedFinder::MCTrueSeedFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
     AthAlgTool(t,n,p),
-    m_McEventCollection(0),
-    m_McEventCollectionName("G4Truth"),
     m_partPropSvc( "PartPropSvc", n ),
     m_removeInTimePileUp(false),
     m_removeHardScattering(false),
@@ -56,7 +52,6 @@ namespace Trk
     m_cacheEventNumber(0),
     m_currentInteractionIdx(0)
   {   
-    declareProperty("McTruthCollection",m_McEventCollectionName);
     declareProperty("RemoveHardScattering", m_removeHardScattering, "Do not consider hard-scattering");
     declareProperty("RemoveInTimePileUp", m_removeInTimePileUp, "Do not consider in-time pile-up");
     declareProperty( "PartPropSvc", m_partPropSvc, "Handle to the particle property service" );
@@ -67,8 +62,10 @@ namespace Trk
   
   StatusCode MCTrueSeedFinder::initialize() 
   { 
-   msg(MSG::INFO)  << "Initialize successful" << endmsg;
-   return StatusCode::SUCCESS;
+    ATH_CHECK( m_eventInfoKey.initialize() );
+    ATH_CHECK( m_mcEventCollectionKey.initialize() );
+    msg(MSG::INFO)  << "Initialize successful" << endmsg;
+    return StatusCode::SUCCESS;
   }
 
   StatusCode MCTrueSeedFinder::finalize() 
@@ -140,10 +137,8 @@ namespace Trk
 
   StatusCode MCTrueSeedFinder::retrieveInteractionsInfo() {
     // This gets the EventInfo object from StoreGate
-    const xAOD::EventInfo* myEventInfo = 0;
-    if(evtStore()->retrieve(myEventInfo/*,"MyEvent"*/).isFailure()) {
-      // Key "MyEvent" is optional, usually not specified for EventInfo because
-      // there'll be only one. When not specified, just takes the first container.
+    SG::ReadHandle<xAOD::EventInfo> myEventInfo(m_eventInfoKey);
+    if( !myEventInfo.isValid() ) {
       msg(MSG::ERROR) << "Failed to retrieve event information" << endmsg;
       return StatusCode::FAILURE;
     }
@@ -155,11 +150,11 @@ namespace Trk
       return StatusCode::SUCCESS; //cached info already available
 
     ATH_MSG_DEBUG("Retrieving interactions information");
-    msg(MSG::DEBUG) << "StoreGate Step: MCTrueSeedFinder retrieves -- " << m_McEventCollectionName << endmsg;
-    StatusCode sc = evtStore()->retrieve(m_McEventCollection, m_McEventCollectionName);
-    if ( sc.isFailure() ) {
+    msg(MSG::DEBUG) << "StoreGate Step: MCTrueSeedFinder retrieves -- " << m_mcEventCollectionKey.key() << endmsg;
+    SG::ReadHandle<McEventCollection> mcEventCollection( m_mcEventCollectionKey );
+    if ( !mcEventCollection.isValid() ) {
       msg(MSG::DEBUG)
-	  << "Could not retrieve McEventCollection " << m_McEventCollectionName << " from StoreGate."  << endmsg;
+	<< "Could not retrieve McEventCollection/" << m_mcEventCollectionKey.key() << " from StoreGate."  << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -168,10 +163,10 @@ namespace Trk
     m_cacheRunNumber = ei_RunNumber;
     m_cacheEventNumber = ei_EventNumber;
     m_currentInteractionIdx = 0; //reset counter of interactions given
-    McEventCollection::const_iterator itr = m_McEventCollection->begin();;
-    for ( ; itr != m_McEventCollection->end(); ++itr ) {
+    McEventCollection::const_iterator itr = mcEventCollection->begin();
+    for ( ; itr != mcEventCollection->end(); ++itr ) {
       const HepMC::GenEvent* myEvent=(*itr);
-      if(!pass( myEvent, m_McEventCollection)) continue; //checked if events is acceptable
+      if(!pass( myEvent, mcEventCollection.cptr())) continue; //checked if events is acceptable
       
       
       //get "intensity" (scalar sum ot p_T^2)
@@ -179,7 +174,7 @@ namespace Trk
       HepMC::GenEvent::particle_const_iterator pitr;
       for (pitr = myEvent->particles_begin(); pitr != myEvent->particles_end(); ++pitr ) {
 	HepMC::GenParticle *part = (*pitr);
-	if(!pass(part, m_McEventCollection)) continue; //select stable charged particles
+	if(!pass(part, mcEventCollection.cptr())) continue; //select stable charged particles
 	sum_pt2 += part->momentum().perp2();
       }
       ATH_MSG_DEBUG("Calculated Sum P_T^2 = " << sum_pt2);

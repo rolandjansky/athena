@@ -64,6 +64,9 @@ StatusCode TauPi0CreateROI::initialize() {
     m_calo_dd_man  = CaloDetDescrManager::instance();
     m_calo_id      = m_calo_dd_man->getCaloCell_ID();
 
+    ATH_CHECK( m_caloCellInputContainer.initialize() );
+    ATH_CHECK( m_tauCaloOutputContainer.initialize() );
+
     return StatusCode::SUCCESS;
 }
 
@@ -89,11 +92,7 @@ StatusCode TauPi0CreateROI::eventInitialize() {
     //---------------------------------------------------------------------
     // Create CustomCellContainer and register in StoreGate
     //---------------------------------------------------------------------
-    m_pPi0CellContainer = new CaloCellContainer(SG::OWN_ELEMENTS);
-    CHECK( evtStore()->record(m_pPi0CellContainer, m_pi0CellContainerName) );
-
-    // symlink as INavigable4MomentumCollection (as in CaloRec/CaloCellMaker)
-    CHECK(evtStore()->symLink(m_pPi0CellContainer, static_cast<INavigable4MomentumCollection*> (0)));
+    m_pPi0CellContainer = new CaloCellContainer();
 
     return StatusCode::SUCCESS;
 }
@@ -112,8 +111,14 @@ StatusCode TauPi0CreateROI::execute(xAOD::TauJet& pTau) {
     // retrieve cells around tau 
     //---------------------------------------------------------------------
     // get all calo cell container
+    SG::ReadHandle<CaloCellContainer> caloCellInHandle( m_caloCellInputContainer );
+    if (!caloCellInHandle.isValid()) {
+      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << caloCellInHandle.key());
+      return StatusCode::FAILURE;
+    }
     const CaloCellContainer *pCellContainer = NULL;
-    CHECK( evtStore()->retrieve(pCellContainer, m_caloCellContainerName) );
+    pCellContainer = caloCellInHandle.cptr();
+    //ATH_MSG_INFO("  read: " << caloCellInHandle.key() << " = " << "..." );      
     
     // get only EM cells within dR<0.4
     vector<CaloCell_ID::SUBCALO> emSubCaloBlocks;
@@ -142,12 +147,23 @@ StatusCode TauPi0CreateROI::execute(xAOD::TauJet& pTau) {
 
 StatusCode TauPi0CreateROI::eventFinalize() {
 
-    //---------------------------------------------------------------------
-    // use the m_cellMakerTool to finalize the custom CaloCellContainer
-    //---------------------------------------------------------------------
-    CHECK( m_cellMakerTool->process(static_cast<CaloCellContainer*> (m_pPi0CellContainer)) );
+  // Declare write handle
+  SG::WriteHandle<CaloCellContainer> tauCaloHandle( m_tauCaloOutputContainer );
+  ATH_MSG_DEBUG("  write: " << tauCaloHandle.key() << " = " << "..." );
 
-    return StatusCode::SUCCESS;
+  // Write completed cell container
+  ATH_CHECK(tauCaloHandle.record(std::unique_ptr<CaloCellContainer>(m_pPi0CellContainer)));
+
+  // here or event initialize?
+  // symlink as INavigable4MomentumCollection (as in CaloRec/CaloCellMaker)
+  ATH_CHECK(evtStore()->symLink(m_pPi0CellContainer, static_cast<INavigable4MomentumCollection*> (0)));
+
+  //---------------------------------------------------------------------
+  // use the m_cellMakerTool to finalize the custom CaloCellContainer
+  //---------------------------------------------------------------------
+  CHECK( m_cellMakerTool->process(static_cast<CaloCellContainer*> (m_pPi0CellContainer)) );
+
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TauPi0CreateROI::finalize() {

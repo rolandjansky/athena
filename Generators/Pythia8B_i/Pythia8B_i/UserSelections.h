@@ -482,7 +482,7 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 
 		CLHEP::HepRandomEngine* Rdmengine =
 				Pythia8B_i::p_AtRndmGenSvc->GetEngine(Pythia8_i::pythia_stream);
-		const double gentau = Pythia8_i::m_pythia.particleData.tau0(531);
+		const double gentau = Pythia8_i::m_pythia->particleData.tau0(531);
 		const double correctionfactor = 0.299792458;
 		const double gentauCorrect = gentau / correctionfactor;
 		if (debug) {
@@ -667,7 +667,7 @@ bool Pythia8B_i::userSelection(Pythia8::Event &event, std::string userString,
 
 		CLHEP::HepRandomEngine* Rdmengine =
 				Pythia8B_i::p_AtRndmGenSvc->GetEngine(Pythia8_i::pythia_stream);
-		const double gentau = Pythia8_i::m_pythia.particleData.tau0(511);
+		const double gentau = Pythia8_i::m_pythia->particleData.tau0(511);
 		const double correctionfactor = 0.299792458;
 		const double gentauCorrect = gentau / correctionfactor;
 		if (debug) {

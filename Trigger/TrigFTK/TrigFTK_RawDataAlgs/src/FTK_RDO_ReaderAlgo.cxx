@@ -129,7 +129,7 @@ StatusCode FTK_RDO_ReaderAlgo::initialize(){
   ATH_CHECK(m_DataProviderSvc.retrieve());
   /// Get Histogram Service ///
     
-  if (m_fillTree || m_fillHists) ATH_CHECK(service("THistSvc", rootHistSvc));
+  if (m_fillTree || m_fillHists) ATH_CHECK(service("THistSvc", m_rootHistSvc));
   
   
 
@@ -137,12 +137,12 @@ StatusCode FTK_RDO_ReaderAlgo::initialize(){
   std::string trackRootPath;
   if(m_fillTree){ 
 
-    Tree_ftk = new TTree("ftk_data", "ftk_data");
+    m_Tree_ftk = new TTree("ftk_data", "ftk_data");
     Tree_Init();
     
     //Register Tree                                                                                   
     trackRootPath = "/TREE/";
-    if (rootHistSvc->regTree("/TREE/",Tree_ftk).isFailure())
+    if (m_rootHistSvc->regTree("/TREE/",m_Tree_ftk).isFailure())
       {
 	std::string temp = "Failed to book Tree";
 	ATH_MSG_WARNING(temp);
@@ -163,7 +163,7 @@ StatusCode FTK_RDO_ReaderAlgo::initialize(){
 
     trackRootPath = "/TRACKS/";
     for( uint i = 0; i < histograms->size(); ++i){
-      if ( rootHistSvc->regHist( trackRootPath + (*histograms)[i]->GetName(), (*histograms)[i] ).isFailure()) {
+      if ( m_rootHistSvc->regHist( trackRootPath + (*histograms)[i]->GetName(), (*histograms)[i] ).isFailure()) {
 	std::string temp = "Failed to book Histogram: " + std::string((*histograms)[i]->GetName());
 	ATH_MSG_WARNING(temp);
       } else {
@@ -204,17 +204,17 @@ StatusCode FTK_RDO_ReaderAlgo::execute() {
       
       const TriggerInfo *triggerInfo(eventInfo->trigger_info());
       
-      RunNumber = eventID->run_number();
-      EventNumber = eventID->event_number();
-      LumiBlock = eventID->lumi_block();
-      BCID = eventID->bunch_crossing_id();
-      averageInteractionsPerCrossing = eventInfo->averageInteractionsPerCrossing();
-      actualInteractionsPerCrossing = eventInfo->actualInteractionsPerCrossing();
-      extendedLevel1ID = triggerInfo->extendedLevel1ID();
-      level1TriggerType = triggerInfo->level1TriggerType();
+      m_RunNumber = eventID->run_number();
+      m_EventNumber = eventID->event_number();
+      m_LumiBlock = eventID->lumi_block();
+      m_BCID = eventID->bunch_crossing_id();
+      m_averageInteractionsPerCrossing = eventInfo->averageInteractionsPerCrossing();
+      m_actualInteractionsPerCrossing = eventInfo->actualInteractionsPerCrossing();
+      m_extendedLevel1ID = triggerInfo->extendedLevel1ID();
+      m_level1TriggerType = triggerInfo->level1TriggerType();
       std::vector<unsigned int> info = triggerInfo->level1TriggerInfo();
       
-      for (unsigned int i = 0; i < info.size(); i++) level1TriggerInfo.push_back(info[i]);
+      for (unsigned int i = 0; i < info.size(); i++) m_level1TriggerInfo.push_back(info[i]);
     }
   }
 
@@ -306,7 +306,7 @@ StatusCode FTK_RDO_ReaderAlgo::execute() {
   }
 
 
-   if(m_fillTree)  Tree_ftk->Fill();
+   if(m_fillTree)  m_Tree_ftk->Fill();
   // Reset the ftk cache for this event //
   //scFTK = m_DataProviderSvc->endEvent();
   //if( scFTK.isFailure()){
@@ -333,67 +333,67 @@ void FTK_RDO_ReaderAlgo::Hist_Init(std::vector<TH1D*> *histograms){
   double PI = TMath::Pi();
 
     // FTK Raw Track Histograms //
-    h_FTK_RawTrack_n    = new TH1D("h_FTK_RawTrack_n",    ";FTK Raw Track multiplicity;Tracks",      1000,  0.,    1000.);
-    h_FTK_RawTrack_phi  = new TH1D("h_FTK_RawTrack_phi",  ";FTK Raw Track #phi [rad];Tracks",         100, -PI,    PI);
-    h_FTK_RawTrack_d0   = new TH1D("h_FTK_RawTrack_d0",   ";FTK Raw Track d_{0} [mm];Tracks",         100, -10.,   10.);
-    h_FTK_RawTrack_z0   = new TH1D("h_FTK_RawTrack_z0",   ";FTK Raw Track z_{0} [mm];Tracks",         500, -50.,   50.);
-    h_FTK_RawTrack_invPt = new TH1D("h_FTK_RawTrack_invPt", ";FTK Raw Track 1/p_{T} [GeV^{-1}];Tracks", 100,   0.,   0.1);
-    h_FTK_RawTrack_cot  = new TH1D("h_FTK_RawTrack_cot",  ";FTK Raw Track cot(#theta); Tracks",       100,  -PI,   PI);
-    h_FTK_RawTrack_eta  = new TH1D("h_FTK_RawTrack_eta",  ";FTK Raw Track #eta; Tracks",              100, -3.0,   3.0);
-    h_FTK_RawTrack_nPix = new TH1D("h_FTK_RawTrack_nPix", ";FTK Raw Track Pixel Cluster Multiplicity; Events", 10, 0.,   10.);
-    h_FTK_RawTrack_nSCT = new TH1D("h_FTK_RawTrack_nSCT", ";FTK Raw Track SCT Cluster Multiplicity; Events",   10, 0.,   10.);
+    m_h_FTK_RawTrack_n    = new TH1D("h_FTK_RawTrack_n",    ";FTK Raw Track multiplicity;Tracks",      1000,  0.,    1000.);
+    m_h_FTK_RawTrack_phi  = new TH1D("h_FTK_RawTrack_phi",  ";FTK Raw Track #phi [rad];Tracks",         100, -PI,    PI);
+    m_h_FTK_RawTrack_d0   = new TH1D("h_FTK_RawTrack_d0",   ";FTK Raw Track d_{0} [mm];Tracks",         100, -10.,   10.);
+    m_h_FTK_RawTrack_z0   = new TH1D("h_FTK_RawTrack_z0",   ";FTK Raw Track z_{0} [mm];Tracks",         500, -50.,   50.);
+    m_h_FTK_RawTrack_invPt = new TH1D("h_FTK_RawTrack_invPt", ";FTK Raw Track 1/p_{T} [GeV^{-1}];Tracks", 100,   0.,   0.1);
+    m_h_FTK_RawTrack_cot  = new TH1D("h_FTK_RawTrack_cot",  ";FTK Raw Track cot(#theta); Tracks",       100,  -PI,   PI);
+    m_h_FTK_RawTrack_eta  = new TH1D("h_FTK_RawTrack_eta",  ";FTK Raw Track #eta; Tracks",              100, -3.0,   3.0);
+    m_h_FTK_RawTrack_nPix = new TH1D("h_FTK_RawTrack_nPix", ";FTK Raw Track Pixel Cluster Multiplicity; Events", 10, 0.,   10.);
+    m_h_FTK_RawTrack_nSCT = new TH1D("h_FTK_RawTrack_nSCT", ";FTK Raw Track SCT Cluster Multiplicity; Events",   10, 0.,   10.);
 
-    histograms->push_back(h_FTK_RawTrack_n);
-    histograms->push_back(h_FTK_RawTrack_phi);
-    histograms->push_back(h_FTK_RawTrack_d0);
-    histograms->push_back(h_FTK_RawTrack_z0);
-    histograms->push_back(h_FTK_RawTrack_invPt);
-    histograms->push_back(h_FTK_RawTrack_cot);
-    histograms->push_back(h_FTK_RawTrack_eta);
-    histograms->push_back(h_FTK_RawTrack_nPix);
-    histograms->push_back(h_FTK_RawTrack_nSCT);
+    histograms->push_back(m_h_FTK_RawTrack_n);
+    histograms->push_back(m_h_FTK_RawTrack_phi);
+    histograms->push_back(m_h_FTK_RawTrack_d0);
+    histograms->push_back(m_h_FTK_RawTrack_z0);
+    histograms->push_back(m_h_FTK_RawTrack_invPt);
+    histograms->push_back(m_h_FTK_RawTrack_cot);
+    histograms->push_back(m_h_FTK_RawTrack_eta);
+    histograms->push_back(m_h_FTK_RawTrack_nPix);
+    histograms->push_back(m_h_FTK_RawTrack_nSCT);
 
     // Trk::Track (prefit) Histograms //
-    h_Track_n    = new TH1D("h_Track_n",    ";Trk::Track multiplicity;Tracks",       1000,  0.,    1000.);
-    h_Track_phi  = new TH1D("h_Track_phi",  ";Trk::Track #phi [rad];Tracks",         100, -PI,    PI);
-    h_Track_d0   = new TH1D("h_Track_d0",   ";Trk::Track d_{0} [mm];Tracks",         100, -10.,   10.);
-    h_Track_z0   = new TH1D("h_Track_z0",   ";Trk::Track z_{0} [mm];Tracks",         500, -50.,   50.);
-    h_Track_invPt = new TH1D("h_Track_invPt", ";Trk::Track 1/p_{T} [GeV^{-1}];Tracks", 100,   0.,   0.1);
-    h_Track_cot  = new TH1D("h_Track_cot",  ";Trk::Track cot(#theta); Tracks",       100,  -PI,   PI);
-    h_Track_eta  = new TH1D("h_Track_eta",  ";Trk::Track #eta; Tracks",              100, -3.0,   3.0);
-    h_Track_nPix = new TH1D("h_Track_nPix", ";Trk::Track Pixel Cluster Multiplicity; Events", 10, 0.,   10.);
-    h_Track_nSCT = new TH1D("h_Track_nSCT", ";Trk::Track SCT Cluster Multiplicity; Events",   10, 0.,   10.);
+    m_h_Track_n    = new TH1D("h_Track_n",    ";Trk::Track multiplicity;Tracks",       1000,  0.,    1000.);
+    m_h_Track_phi  = new TH1D("h_Track_phi",  ";Trk::Track #phi [rad];Tracks",         100, -PI,    PI);
+    m_h_Track_d0   = new TH1D("h_Track_d0",   ";Trk::Track d_{0} [mm];Tracks",         100, -10.,   10.);
+    m_h_Track_z0   = new TH1D("h_Track_z0",   ";Trk::Track z_{0} [mm];Tracks",         500, -50.,   50.);
+    m_h_Track_invPt = new TH1D("h_Track_invPt", ";Trk::Track 1/p_{T} [GeV^{-1}];Tracks", 100,   0.,   0.1);
+    m_h_Track_cot  = new TH1D("h_Track_cot",  ";Trk::Track cot(#theta); Tracks",       100,  -PI,   PI);
+    m_h_Track_eta  = new TH1D("h_Track_eta",  ";Trk::Track #eta; Tracks",              100, -3.0,   3.0);
+    m_h_Track_nPix = new TH1D("h_Track_nPix", ";Trk::Track Pixel Cluster Multiplicity; Events", 10, 0.,   10.);
+    m_h_Track_nSCT = new TH1D("h_Track_nSCT", ";Trk::Track SCT Cluster Multiplicity; Events",   10, 0.,   10.);
 
-    histograms->push_back(h_Track_n);
-    histograms->push_back(h_Track_phi);
-    histograms->push_back(h_Track_d0);
-    histograms->push_back(h_Track_z0);
-    histograms->push_back(h_Track_invPt);
-    histograms->push_back(h_Track_cot);
-    histograms->push_back(h_Track_eta);
-    histograms->push_back(h_Track_nPix);
-    histograms->push_back(h_Track_nSCT);
+    histograms->push_back(m_h_Track_n);
+    histograms->push_back(m_h_Track_phi);
+    histograms->push_back(m_h_Track_d0);
+    histograms->push_back(m_h_Track_z0);
+    histograms->push_back(m_h_Track_invPt);
+    histograms->push_back(m_h_Track_cot);
+    histograms->push_back(m_h_Track_eta);
+    histograms->push_back(m_h_Track_nPix);
+    histograms->push_back(m_h_Track_nSCT);
 
     // Trk::Track (prefit) Histograms ///
-    h_refitTrack_n    = new TH1D("h_refitTrack_n",    ";refit Trk::Track multiplicity;Tracks",       1000,  0.,    1000.);
-    h_refitTrack_phi  = new TH1D("h_refitTrack_phi",  ";refit refit Trk::Track #phi [rad];Tracks",         100, -PI,    PI);
-    h_refitTrack_d0   = new TH1D("h_refitTrack_d0",   ";Trk::Track d_{0} [mm];Tracks",         100, -10.,   10.);
-    h_refitTrack_z0   = new TH1D("h_refitTrack_z0",   ";refit Trk::Track z_{0} [mm];Tracks",         500, -50.,   50.);
-    h_refitTrack_invPt = new TH1D("h_refitTrack_invPt", ";refit Trk::Track 1/p_{T} [GeV^{-1}];Tracks", 100,   0.,   0.1);
-    h_refitTrack_cot  = new TH1D("h_refitTrack_cot",  ";refit Trk::Track cot(#theta); Tracks",       100,  -PI,   PI);
-    h_refitTrack_eta  = new TH1D("h_refitTrack_eta",  ";refit Trk::Track #eta; Tracks",              100, -3.0,   3.0);
-    h_refitTrack_nPix = new TH1D("h_refitTrack_nPix", ";refit Trk::Track Pixel Cluster Multiplicity; Events", 10, 0.,   10.);
-    h_refitTrack_nSCT = new TH1D("h_refitTrack_nSCT", ";refit Trk::Track SCT Cluster Multiplicity; Events",   10, 0.,   10.);
+    m_h_refitTrack_n    = new TH1D("h_refitTrack_n",    ";refit Trk::Track multiplicity;Tracks",       1000,  0.,    1000.);
+    m_h_refitTrack_phi  = new TH1D("h_refitTrack_phi",  ";refit refit Trk::Track #phi [rad];Tracks",         100, -PI,    PI);
+    m_h_refitTrack_d0   = new TH1D("h_refitTrack_d0",   ";Trk::Track d_{0} [mm];Tracks",         100, -10.,   10.);
+    m_h_refitTrack_z0   = new TH1D("h_refitTrack_z0",   ";refit Trk::Track z_{0} [mm];Tracks",         500, -50.,   50.);
+    m_h_refitTrack_invPt = new TH1D("h_refitTrack_invPt", ";refit Trk::Track 1/p_{T} [GeV^{-1}];Tracks", 100,   0.,   0.1);
+    m_h_refitTrack_cot  = new TH1D("h_refitTrack_cot",  ";refit Trk::Track cot(#theta); Tracks",       100,  -PI,   PI);
+    m_h_refitTrack_eta  = new TH1D("h_refitTrack_eta",  ";refit Trk::Track #eta; Tracks",              100, -3.0,   3.0);
+    m_h_refitTrack_nPix = new TH1D("h_refitTrack_nPix", ";refit Trk::Track Pixel Cluster Multiplicity; Events", 10, 0.,   10.);
+    m_h_refitTrack_nSCT = new TH1D("h_refitTrack_nSCT", ";refit Trk::Track SCT Cluster Multiplicity; Events",   10, 0.,   10.);
 
-    histograms->push_back(h_refitTrack_n);
-    histograms->push_back(h_refitTrack_phi);
-    histograms->push_back(h_refitTrack_d0);
-    histograms->push_back(h_refitTrack_z0);
-    histograms->push_back(h_refitTrack_invPt);
-    histograms->push_back(h_refitTrack_cot);
-    histograms->push_back(h_refitTrack_eta);
-    histograms->push_back(h_refitTrack_nPix);
-    histograms->push_back(h_refitTrack_nSCT);
+    histograms->push_back(m_h_refitTrack_n);
+    histograms->push_back(m_h_refitTrack_phi);
+    histograms->push_back(m_h_refitTrack_d0);
+    histograms->push_back(m_h_refitTrack_z0);
+    histograms->push_back(m_h_refitTrack_invPt);
+    histograms->push_back(m_h_refitTrack_cot);
+    histograms->push_back(m_h_refitTrack_eta);
+    histograms->push_back(m_h_refitTrack_nPix);
+    histograms->push_back(m_h_refitTrack_nSCT);
 
 }
 
@@ -401,420 +401,420 @@ void FTK_RDO_ReaderAlgo::Hist_Init(std::vector<TH1D*> *histograms){
 void FTK_RDO_ReaderAlgo::Tree_Init(){
 
   ////// Track Variables
-  Tree_ftk->Branch("FTKraw_track_theta",&raw_track_theta);
-  Tree_ftk->Branch("FTKraw_track_eta",&raw_track_eta);
-  Tree_ftk->Branch("FTKraw_track_phi0",&raw_track_phi0);
-  Tree_ftk->Branch("FTKraw_track_d0",&raw_track_d0);
-  Tree_ftk->Branch("FTKraw_track_z0",&raw_track_z0);
-  Tree_ftk->Branch("FTKraw_track_invPt",&raw_track_invPt);
-  Tree_ftk->Branch("FTKraw_track_Pt",&raw_track_Pt);
+  m_Tree_ftk->Branch("FTKraw_track_theta",&m_raw_track_theta);
+  m_Tree_ftk->Branch("FTKraw_track_eta",&m_raw_track_eta);
+  m_Tree_ftk->Branch("FTKraw_track_phi0",&m_raw_track_phi0);
+  m_Tree_ftk->Branch("FTKraw_track_d0",&m_raw_track_d0);
+  m_Tree_ftk->Branch("FTKraw_track_z0",&m_raw_track_z0);
+  m_Tree_ftk->Branch("FTKraw_track_invPt",&m_raw_track_invPt);
+  m_Tree_ftk->Branch("FTKraw_track_Pt",&m_raw_track_Pt);
   
-  Tree_ftk->Branch("FTKconverted_track_theta",&converted_track_theta);
-  Tree_ftk->Branch("FTKconverted_track_eta",&converted_track_eta);
-  Tree_ftk->Branch("FTKconverted_track_phi0",&converted_track_phi0);
-  Tree_ftk->Branch("FTKconverted_track_d0",&converted_track_d0);
-  Tree_ftk->Branch("FTKconverted_track_z0",&converted_track_z0);
-  Tree_ftk->Branch("FTKconverted_track_invPt",&converted_track_invPt);
-  Tree_ftk->Branch("FTKconverted_track_Pt",&converted_track_Pt);
+  m_Tree_ftk->Branch("FTKconverted_track_theta",&m_converted_track_theta);
+  m_Tree_ftk->Branch("FTKconverted_track_eta",&m_converted_track_eta);
+  m_Tree_ftk->Branch("FTKconverted_track_phi0",&m_converted_track_phi0);
+  m_Tree_ftk->Branch("FTKconverted_track_d0",&m_converted_track_d0);
+  m_Tree_ftk->Branch("FTKconverted_track_z0",&m_converted_track_z0);
+  m_Tree_ftk->Branch("FTKconverted_track_invPt",&m_converted_track_invPt);
+  m_Tree_ftk->Branch("FTKconverted_track_Pt",&m_converted_track_Pt);
   
-  Tree_ftk->Branch("FTKrefit_track_theta",&refit_track_theta);     
-  Tree_ftk->Branch("FTKrefit_track_eta",&refit_track_eta);         
-  Tree_ftk->Branch("FTKrefit_track_phi0",&refit_track_phi0);       
-  Tree_ftk->Branch("FTKrefit_track_d0",&refit_track_d0);           
-  Tree_ftk->Branch("FTKrefit_track_z0",&refit_track_z0);           
-  Tree_ftk->Branch("FTKrefit_track_invPt",&refit_track_invPt);     
-  Tree_ftk->Branch("FTKrefit_track_Pt",&refit_track_Pt);           
+  m_Tree_ftk->Branch("FTKrefit_track_theta",&m_refit_track_theta);     
+  m_Tree_ftk->Branch("FTKrefit_track_eta",&m_refit_track_eta);         
+  m_Tree_ftk->Branch("FTKrefit_track_phi0",&m_refit_track_phi0);       
+  m_Tree_ftk->Branch("FTKrefit_track_d0",&m_refit_track_d0);           
+  m_Tree_ftk->Branch("FTKrefit_track_z0",&m_refit_track_z0);           
+  m_Tree_ftk->Branch("FTKrefit_track_invPt",&m_refit_track_invPt);     
+  m_Tree_ftk->Branch("FTKrefit_track_Pt",&m_refit_track_Pt);           
 
-  Tree_ftk->Branch("offline_track_theta",&offline_track_theta);     
-  Tree_ftk->Branch("offline_track_eta",&offline_track_eta);         
-  Tree_ftk->Branch("offline_track_phi0",&offline_track_phi0);       
-  Tree_ftk->Branch("offline_track_d0",&offline_track_d0);           
-  Tree_ftk->Branch("offline_track_z0",&offline_track_z0);           
-  Tree_ftk->Branch("offline_track_invPt",&offline_track_invPt);     
-  Tree_ftk->Branch("offline_track_Pt",&offline_track_Pt);           
+  m_Tree_ftk->Branch("offline_track_theta",&m_offline_track_theta);     
+  m_Tree_ftk->Branch("offline_track_eta",&m_offline_track_eta);         
+  m_Tree_ftk->Branch("offline_track_phi0",&m_offline_track_phi0);       
+  m_Tree_ftk->Branch("offline_track_d0",&m_offline_track_d0);           
+  m_Tree_ftk->Branch("offline_track_z0",&m_offline_track_z0);           
+  m_Tree_ftk->Branch("offline_track_invPt",&m_offline_track_invPt);     
+  m_Tree_ftk->Branch("offline_track_Pt",&m_offline_track_Pt);           
 
   //////////// Raw Tracks, Fast Algorithm
-  Tree_ftk->Branch("fastAlg_FTKraw_vertex_x_position",&fastAlg_FTKraw_vertex_x_position);
-  Tree_ftk->Branch("fastAlg_FTKraw_vertex_y_position",&fastAlg_FTKraw_vertex_y_position);
-  Tree_ftk->Branch("fastAlg_FTKraw_vertex_z_position",&fastAlg_FTKraw_vertex_z_position);
-  Tree_ftk->Branch("fastAlg_FTKraw_vertex_x_error",&fastAlg_FTKraw_vertex_x_error);
-  Tree_ftk->Branch("fastAlg_FTKraw_vertex_y_error",&fastAlg_FTKraw_vertex_y_error);
-  Tree_ftk->Branch("fastAlg_FTKraw_vertex_z_error",&fastAlg_FTKraw_vertex_z_error);
-  Tree_ftk->Branch("fastAlg_FTKraw_vertex_nTrack",&fastAlg_FTKraw_vertex_nTrack);
-  Tree_ftk->Branch("fastAlg_FTKraw_vertex_nDoF",&fastAlg_FTKraw_vertex_ndf);
-  Tree_ftk->Branch("fastAlg_FTKraw_vertex_chi2",&fastAlg_FTKraw_vertex_chi2);
-  Tree_ftk->Branch("fastAlg_FTKraw_vertex_chi2_over_ndf",&fastAlg_FTKraw_vertex_chi2_over_ndf);
-  Tree_ftk->Branch("fastAlg_FTKraw_vertex_associated_track_theta",&fastAlg_FTKraw_vertex_associated_track_theta);
-  Tree_ftk->Branch("fastAlg_FTKraw_vertex_associated_track_phi",&fastAlg_FTKraw_vertex_associated_track_phi0);
-  Tree_ftk->Branch("fastAlg_FTKraw_vertex_associated_track_d0",&fastAlg_FTKraw_vertex_associated_track_d0);
-  Tree_ftk->Branch("fastAlg_FTKraw_vertex_associated_track_z0",&fastAlg_FTKraw_vertex_associated_track_z0);
-  Tree_ftk->Branch("fastAlg_FTKraw_vertex_associated_track_invPt",&fastAlg_FTKraw_vertex_associated_track_invPt);
-  Tree_ftk->Branch("fastAlg_FTKraw_vertex_associated_track_Pt",&fastAlg_FTKraw_vertex_associated_track_Pt);
-  Tree_ftk->Branch("fastAlg_FTKraw_vertex_associated_track_eta",&fastAlg_FTKraw_vertex_associated_track_eta);
-  Tree_ftk->Branch("fastAlg_FTKraw_vertex_number",&fastAlg_FTKraw_vertex_number);
-  Tree_ftk->Branch("fastAlg_FTKraw_vertex_associated_track_nVerts",&fastAlg_FTKraw_vertex_associated_track_nVerts);
-  Tree_ftk->Branch("fastAlg_FTKraw_vertex_associated_track_VtxNumber",&fastAlg_FTKraw_vertex_associated_track_VtxNumber);
-  Tree_ftk->Branch("fastAlg_FTKraw_sumPt",&fastAlg_FTKraw_vertex_sumPt);
-  Tree_ftk->Branch("fastAlg_FTKraw_sumPt2",&fastAlg_FTKraw_vertex_sumPt2);
-  Tree_ftk->Branch("fastAlg_FTKraw_sumPt2_vertex_number",&fastAlg_FTKraw_vertex_sumPt2_vtxNumber);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_vertex_x_position",&m_fastAlg_FTKraw_vertex_x_position);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_vertex_y_position",&m_fastAlg_FTKraw_vertex_y_position);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_vertex_z_position",&m_fastAlg_FTKraw_vertex_z_position);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_vertex_x_error",&m_fastAlg_FTKraw_vertex_x_error);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_vertex_y_error",&m_fastAlg_FTKraw_vertex_y_error);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_vertex_z_error",&m_fastAlg_FTKraw_vertex_z_error);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_vertex_nTrack",&m_fastAlg_FTKraw_vertex_nTrack);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_vertex_nDoF",&m_fastAlg_FTKraw_vertex_ndf);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_vertex_chi2",&m_fastAlg_FTKraw_vertex_chi2);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_vertex_chi2_over_ndf",&m_fastAlg_FTKraw_vertex_chi2_over_ndf);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_vertex_associated_track_theta",&m_fastAlg_FTKraw_vertex_associated_track_theta);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_vertex_associated_track_phi",&m_fastAlg_FTKraw_vertex_associated_track_phi0);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_vertex_associated_track_d0",&m_fastAlg_FTKraw_vertex_associated_track_d0);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_vertex_associated_track_z0",&m_fastAlg_FTKraw_vertex_associated_track_z0);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_vertex_associated_track_invPt",&m_fastAlg_FTKraw_vertex_associated_track_invPt);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_vertex_associated_track_Pt",&m_fastAlg_FTKraw_vertex_associated_track_Pt);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_vertex_associated_track_eta",&m_fastAlg_FTKraw_vertex_associated_track_eta);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_vertex_number",&m_fastAlg_FTKraw_vertex_number);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_vertex_associated_track_nVerts",&m_fastAlg_FTKraw_vertex_associated_track_nVerts);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_vertex_associated_track_VtxNumber",&m_fastAlg_FTKraw_vertex_associated_track_VtxNumber);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_sumPt",&m_fastAlg_FTKraw_vertex_sumPt);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_sumPt2",&m_fastAlg_FTKraw_vertex_sumPt2);
+  m_Tree_ftk->Branch("fastAlg_FTKraw_sumPt2_vertex_number",&m_fastAlg_FTKraw_vertex_sumPt2_vtxNumber);
   
   
   /////////// Refit Tracks, Fast Algorithm
-  Tree_ftk->Branch("fastAlg_FTKrefit_vertex_x_position",&fastAlg_FTKrefit_vertex_x_position);
-  Tree_ftk->Branch("fastAlg_FTKrefit_vertex_y_position",&fastAlg_FTKrefit_vertex_y_position);
-  Tree_ftk->Branch("fastAlg_FTKrefit_vertex_z_position",&fastAlg_FTKrefit_vertex_z_position);
-  Tree_ftk->Branch("fastAlg_FTKrefit_vertex_x_error",&fastAlg_FTKrefit_vertex_x_error);
-  Tree_ftk->Branch("fastAlg_FTKrefit_vertex_y_error",&fastAlg_FTKrefit_vertex_y_error);
-  Tree_ftk->Branch("fastAlg_FTKrefit_vertex_z_error",&fastAlg_FTKrefit_vertex_z_error);
-  Tree_ftk->Branch("fastAlg_FTKrefit_vertex_nTrack",&fastAlg_FTKrefit_vertex_nTrack);
-  Tree_ftk->Branch("fastAlg_FTKrefit_vertex_nDoF",&fastAlg_FTKrefit_vertex_ndf);
-  Tree_ftk->Branch("fastAlg_FTKrefit_vertex_chi2",&fastAlg_FTKrefit_vertex_chi2);
-  Tree_ftk->Branch("fastAlg_FTKrefit_vertex_chi2_over_ndf",&fastAlg_FTKrefit_vertex_chi2_over_ndf);
-  Tree_ftk->Branch("fastAlg_FTKrefit_vertex_associated_track_theta",&fastAlg_FTKrefit_vertex_associated_track_theta);
-  Tree_ftk->Branch("fastAlg_FTKrefit_vertex_associated_track_phi",&fastAlg_FTKrefit_vertex_associated_track_phi0);
-  Tree_ftk->Branch("fastAlg_FTKrefit_vertex_associated_track_d0",&fastAlg_FTKrefit_vertex_associated_track_d0);
-  Tree_ftk->Branch("fastAlg_FTKrefit_vertex_associated_track_z0",&fastAlg_FTKrefit_vertex_associated_track_z0);
-  Tree_ftk->Branch("fastAlg_FTKrefit_vertex_associated_track_invPt",&fastAlg_FTKrefit_vertex_associated_track_invPt);
-  Tree_ftk->Branch("fastAlg_FTKrefit_vertex_associated_track_Pt",&fastAlg_FTKrefit_vertex_associated_track_Pt);
-  Tree_ftk->Branch("fastAlg_FTKrefit_vertex_associated_track_eta",&fastAlg_FTKrefit_vertex_associated_track_eta);
-  Tree_ftk->Branch("fastAlg_FTKrefit_vertex_number",&fastAlg_FTKrefit_vertex_number);
-  Tree_ftk->Branch("fastAlg_FTKrefit_vertex_associated_track_nVerts",&fastAlg_FTKrefit_vertex_associated_track_nVerts);
-  Tree_ftk->Branch("fastAlg_FTKrefit_vertex_associated_track_VtxNumber",&fastAlg_FTKrefit_vertex_associated_track_VtxNumber);
-  Tree_ftk->Branch("fastAlg_FTKrefit_sumPt",&fastAlg_FTKrefit_vertex_sumPt);
-  Tree_ftk->Branch("fastAlg_FTKrefit_sumPt2",&fastAlg_FTKrefit_vertex_sumPt2);
-  Tree_ftk->Branch("fastAlg_FTKrefit_sumPt2_vertex_number",&fastAlg_FTKrefit_vertex_sumPt2_vtxNumber);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_vertex_x_position",&m_fastAlg_FTKrefit_vertex_x_position);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_vertex_y_position",&m_fastAlg_FTKrefit_vertex_y_position);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_vertex_z_position",&m_fastAlg_FTKrefit_vertex_z_position);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_vertex_x_error",&m_fastAlg_FTKrefit_vertex_x_error);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_vertex_y_error",&m_fastAlg_FTKrefit_vertex_y_error);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_vertex_z_error",&m_fastAlg_FTKrefit_vertex_z_error);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_vertex_nTrack",&m_fastAlg_FTKrefit_vertex_nTrack);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_vertex_nDoF",&m_fastAlg_FTKrefit_vertex_ndf);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_vertex_chi2",&m_fastAlg_FTKrefit_vertex_chi2);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_vertex_chi2_over_ndf",&m_fastAlg_FTKrefit_vertex_chi2_over_ndf);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_vertex_associated_track_theta",&m_fastAlg_FTKrefit_vertex_associated_track_theta);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_vertex_associated_track_phi",&m_fastAlg_FTKrefit_vertex_associated_track_phi0);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_vertex_associated_track_d0",&m_fastAlg_FTKrefit_vertex_associated_track_d0);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_vertex_associated_track_z0",&m_fastAlg_FTKrefit_vertex_associated_track_z0);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_vertex_associated_track_invPt",&m_fastAlg_FTKrefit_vertex_associated_track_invPt);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_vertex_associated_track_Pt",&m_fastAlg_FTKrefit_vertex_associated_track_Pt);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_vertex_associated_track_eta",&m_fastAlg_FTKrefit_vertex_associated_track_eta);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_vertex_number",&m_fastAlg_FTKrefit_vertex_number);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_vertex_associated_track_nVerts",&m_fastAlg_FTKrefit_vertex_associated_track_nVerts);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_vertex_associated_track_VtxNumber",&m_fastAlg_FTKrefit_vertex_associated_track_VtxNumber);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_sumPt",&m_fastAlg_FTKrefit_vertex_sumPt);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_sumPt2",&m_fastAlg_FTKrefit_vertex_sumPt2);
+  m_Tree_ftk->Branch("fastAlg_FTKrefit_sumPt2_vertex_number",&m_fastAlg_FTKrefit_vertex_sumPt2_vtxNumber);
   
   /////////// Converted Tracks, Offline Algorithm
-  Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_x_position",&offlineAlg_FTKconverted_vertex_x_position);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_y_position",&offlineAlg_FTKconverted_vertex_y_position);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_z_position",&offlineAlg_FTKconverted_vertex_z_position);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_x_error",&offlineAlg_FTKconverted_vertex_x_error);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_y_error",&offlineAlg_FTKconverted_vertex_y_error);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_z_error",&offlineAlg_FTKconverted_vertex_z_error);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_nTrack",&offlineAlg_FTKconverted_vertex_nTrack);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_nDoF",&offlineAlg_FTKconverted_vertex_ndf);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_chi2",&offlineAlg_FTKconverted_vertex_chi2);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_chi2_over_ndf",&offlineAlg_FTKconverted_vertex_chi2_over_ndf);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_associated_track_theta",&offlineAlg_FTKconverted_vertex_associated_track_theta);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_associated_track_phi",&offlineAlg_FTKconverted_vertex_associated_track_phi0);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_associated_track_d0",&offlineAlg_FTKconverted_vertex_associated_track_d0);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_associated_track_z0",&offlineAlg_FTKconverted_vertex_associated_track_z0);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_associated_track_invPt",&offlineAlg_FTKconverted_vertex_associated_track_invPt);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_associated_track_Pt",&offlineAlg_FTKconverted_vertex_associated_track_Pt);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_associated_track_eta",&offlineAlg_FTKconverted_vertex_associated_track_eta);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_number",&offlineAlg_FTKconverted_vertex_number);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_associated_track_nVerts",&offlineAlg_FTKconverted_vertex_associated_track_nVerts);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_associated_track_VtxNumber",&offlineAlg_FTKconverted_vertex_associated_track_VtxNumber);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_sumPt",&offlineAlg_FTKconverted_vertex_sumPt);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_sumPt2",&offlineAlg_FTKconverted_vertex_sumPt2);
-  Tree_ftk->Branch("offlineAlg_FTKconverted_sumPt2_vertex_number",&offlineAlg_FTKconverted_vertex_sumPt2_vtxNumber);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_x_position",&m_offlineAlg_FTKconverted_vertex_x_position);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_y_position",&m_offlineAlg_FTKconverted_vertex_y_position);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_z_position",&m_offlineAlg_FTKconverted_vertex_z_position);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_x_error",&m_offlineAlg_FTKconverted_vertex_x_error);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_y_error",&m_offlineAlg_FTKconverted_vertex_y_error);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_z_error",&m_offlineAlg_FTKconverted_vertex_z_error);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_nTrack",&m_offlineAlg_FTKconverted_vertex_nTrack);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_nDoF",&m_offlineAlg_FTKconverted_vertex_ndf);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_chi2",&m_offlineAlg_FTKconverted_vertex_chi2);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_chi2_over_ndf",&m_offlineAlg_FTKconverted_vertex_chi2_over_ndf);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_associated_track_theta",&m_offlineAlg_FTKconverted_vertex_associated_track_theta);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_associated_track_phi",&m_offlineAlg_FTKconverted_vertex_associated_track_phi0);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_associated_track_d0",&m_offlineAlg_FTKconverted_vertex_associated_track_d0);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_associated_track_z0",&m_offlineAlg_FTKconverted_vertex_associated_track_z0);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_associated_track_invPt",&m_offlineAlg_FTKconverted_vertex_associated_track_invPt);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_associated_track_Pt",&m_offlineAlg_FTKconverted_vertex_associated_track_Pt);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_associated_track_eta",&m_offlineAlg_FTKconverted_vertex_associated_track_eta);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_number",&m_offlineAlg_FTKconverted_vertex_number);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_associated_track_nVerts",&m_offlineAlg_FTKconverted_vertex_associated_track_nVerts);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_vertex_associated_track_VtxNumber",&m_offlineAlg_FTKconverted_vertex_associated_track_VtxNumber);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_sumPt",&m_offlineAlg_FTKconverted_vertex_sumPt);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_sumPt2",&m_offlineAlg_FTKconverted_vertex_sumPt2);
+  m_Tree_ftk->Branch("offlineAlg_FTKconverted_sumPt2_vertex_number",&m_offlineAlg_FTKconverted_vertex_sumPt2_vtxNumber);
   
   /////////// Refit Tracks, Offline Algorithm
-  Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_x_position",&offlineAlg_FTKrefit_vertex_x_position);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_y_position",&offlineAlg_FTKrefit_vertex_y_position);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_z_position",&offlineAlg_FTKrefit_vertex_z_position);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_x_error",&offlineAlg_FTKrefit_vertex_x_error);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_y_error",&offlineAlg_FTKrefit_vertex_y_error);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_z_error",&offlineAlg_FTKrefit_vertex_z_error);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_chi2",&offlineAlg_FTKrefit_vertex_chi2);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_nTrack",&offlineAlg_FTKrefit_vertex_nTrack);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_nDoF",&offlineAlg_FTKrefit_vertex_ndf);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_chi2_over_ndf",&offlineAlg_FTKrefit_vertex_chi2_over_ndf);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_number",&offlineAlg_FTKrefit_vertex_number);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_associated_track_theta",&offlineAlg_FTKrefit_vertex_associated_track_theta);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_associated_track_eta",&offlineAlg_FTKrefit_vertex_associated_track_eta);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_associated_track_phi0",&offlineAlg_FTKrefit_vertex_associated_track_phi0);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_associated_track_z0",&offlineAlg_FTKrefit_vertex_associated_track_z0);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_associated_track_d0",&offlineAlg_FTKrefit_vertex_associated_track_d0);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_associated_track_invPt",&offlineAlg_FTKrefit_vertex_associated_track_invPt);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_associated_track_Pt",&offlineAlg_FTKrefit_vertex_associated_track_Pt);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_associated_track_nVerts",&offlineAlg_FTKrefit_vertex_associated_track_nVerts);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_associated_track_VtxNumber",&offlineAlg_FTKrefit_vertex_associated_track_VtxNumber);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_sumPt",&offlineAlg_FTKrefit_vertex_sumPt);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_sumPt2",&offlineAlg_FTKrefit_vertex_sumPt2);
-  Tree_ftk->Branch("offlineAlg_FTKrefit_sumPt2_vertex_number",&offlineAlg_FTKrefit_vertex_sumPt2_vtxNumber);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_x_position",&m_offlineAlg_FTKrefit_vertex_x_position);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_y_position",&m_offlineAlg_FTKrefit_vertex_y_position);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_z_position",&m_offlineAlg_FTKrefit_vertex_z_position);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_x_error",&m_offlineAlg_FTKrefit_vertex_x_error);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_y_error",&m_offlineAlg_FTKrefit_vertex_y_error);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_z_error",&m_offlineAlg_FTKrefit_vertex_z_error);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_chi2",&m_offlineAlg_FTKrefit_vertex_chi2);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_nTrack",&m_offlineAlg_FTKrefit_vertex_nTrack);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_nDoF",&m_offlineAlg_FTKrefit_vertex_ndf);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_chi2_over_ndf",&m_offlineAlg_FTKrefit_vertex_chi2_over_ndf);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_number",&m_offlineAlg_FTKrefit_vertex_number);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_associated_track_theta",&m_offlineAlg_FTKrefit_vertex_associated_track_theta);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_associated_track_eta",&m_offlineAlg_FTKrefit_vertex_associated_track_eta);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_associated_track_phi0",&m_offlineAlg_FTKrefit_vertex_associated_track_phi0);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_associated_track_z0",&m_offlineAlg_FTKrefit_vertex_associated_track_z0);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_associated_track_d0",&m_offlineAlg_FTKrefit_vertex_associated_track_d0);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_associated_track_invPt",&m_offlineAlg_FTKrefit_vertex_associated_track_invPt);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_associated_track_Pt",&m_offlineAlg_FTKrefit_vertex_associated_track_Pt);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_associated_track_nVerts",&m_offlineAlg_FTKrefit_vertex_associated_track_nVerts);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_vertex_associated_track_VtxNumber",&m_offlineAlg_FTKrefit_vertex_associated_track_VtxNumber);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_sumPt",&m_offlineAlg_FTKrefit_vertex_sumPt);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_sumPt2",&m_offlineAlg_FTKrefit_vertex_sumPt2);
+  m_Tree_ftk->Branch("offlineAlg_FTKrefit_sumPt2_vertex_number",&m_offlineAlg_FTKrefit_vertex_sumPt2_vtxNumber);
   
   //////////// Offline Tracks, Offline Algorithm
-  Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_x_position",&offlineAlg_offlineTracks_vertex_x_position);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_y_position",&offlineAlg_offlineTracks_vertex_y_position);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_z_position",&offlineAlg_offlineTracks_vertex_z_position);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_x_error",&offlineAlg_offlineTracks_vertex_x_error);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_y_error",&offlineAlg_offlineTracks_vertex_y_error);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_z_error",&offlineAlg_offlineTracks_vertex_z_error);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_chi2",&offlineAlg_offlineTracks_vertex_chi2);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_nTrack",&offlineAlg_offlineTracks_vertex_nTrack);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_nDoF",&offlineAlg_offlineTracks_vertex_ndf);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_chi2_over_ndf",&offlineAlg_offlineTracks_vertex_chi2_over_ndf);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_number",&offlineAlg_offlineTracks_vertex_number);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_associated_track_theta",&offlineAlg_offlineTracks_vertex_associated_track_theta);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_associated_track_eta",&offlineAlg_offlineTracks_vertex_associated_track_eta);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_associated_track_phi0",&offlineAlg_offlineTracks_vertex_associated_track_phi0);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_associated_track_z0",&offlineAlg_offlineTracks_vertex_associated_track_z0);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_associated_track_d0",&offlineAlg_offlineTracks_vertex_associated_track_d0);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_associated_track_invPt",&offlineAlg_offlineTracks_vertex_associated_track_invPt);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_associated_track_Pt",&offlineAlg_offlineTracks_vertex_associated_track_Pt);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_associated_track_nVerts",&offlineAlg_offlineTracks_vertex_associated_track_nVerts);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_associated_track_VtxNumber",&offlineAlg_offlineTracks_vertex_associated_track_VtxNumber);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_sumPt",&offlineAlg_offlineTracks_vertex_sumPt);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_sumPt2",&offlineAlg_offlineTracks_vertex_sumPt2);
-  Tree_ftk->Branch("offlineAlg_offlineTracks_sumPt2_vertex_number",&offlineAlg_offlineTracks_vertex_sumPt2_vtxNumber);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_x_position",&m_offlineAlg_offlineTracks_vertex_x_position);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_y_position",&m_offlineAlg_offlineTracks_vertex_y_position);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_z_position",&m_offlineAlg_offlineTracks_vertex_z_position);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_x_error",&m_offlineAlg_offlineTracks_vertex_x_error);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_y_error",&m_offlineAlg_offlineTracks_vertex_y_error);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_z_error",&m_offlineAlg_offlineTracks_vertex_z_error);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_chi2",&m_offlineAlg_offlineTracks_vertex_chi2);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_nTrack",&m_offlineAlg_offlineTracks_vertex_nTrack);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_nDoF",&m_offlineAlg_offlineTracks_vertex_ndf);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_chi2_over_ndf",&m_offlineAlg_offlineTracks_vertex_chi2_over_ndf);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_number",&m_offlineAlg_offlineTracks_vertex_number);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_associated_track_theta",&m_offlineAlg_offlineTracks_vertex_associated_track_theta);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_associated_track_eta",&m_offlineAlg_offlineTracks_vertex_associated_track_eta);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_associated_track_phi0",&m_offlineAlg_offlineTracks_vertex_associated_track_phi0);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_associated_track_z0",&m_offlineAlg_offlineTracks_vertex_associated_track_z0);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_associated_track_d0",&m_offlineAlg_offlineTracks_vertex_associated_track_d0);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_associated_track_invPt",&m_offlineAlg_offlineTracks_vertex_associated_track_invPt);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_associated_track_Pt",&m_offlineAlg_offlineTracks_vertex_associated_track_Pt);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_associated_track_nVerts",&m_offlineAlg_offlineTracks_vertex_associated_track_nVerts);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_vertex_associated_track_VtxNumber",&m_offlineAlg_offlineTracks_vertex_associated_track_VtxNumber);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_sumPt",&m_offlineAlg_offlineTracks_vertex_sumPt);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_sumPt2",&m_offlineAlg_offlineTracks_vertex_sumPt2);
+  m_Tree_ftk->Branch("offlineAlg_offlineTracks_sumPt2_vertex_number",&m_offlineAlg_offlineTracks_vertex_sumPt2_vtxNumber);
   
   // Truth Vertices
-  Tree_ftk->Branch("truth_x0",&truth_x0);
-  Tree_ftk->Branch("truth_y0",&truth_y0);
-  Tree_ftk->Branch("truth_z0",&truth_z0);
+  m_Tree_ftk->Branch("truth_x0",&m_truth_x0);
+  m_Tree_ftk->Branch("truth_y0",&m_truth_y0);
+  m_Tree_ftk->Branch("truth_z0",&m_truth_z0);
   
   //Hard Scatter Variables
-  Tree_ftk->Branch("isRawFastHS",&isRawFastHS);
-  Tree_ftk->Branch("isRefitFastHS",&isRefitFastHS);
-  Tree_ftk->Branch("isConvertedOfflineHS",&isConvertedOfflineHS);
-  Tree_ftk->Branch("isRefitOfflineHS",&isRefitOfflineHS);
-  Tree_ftk->Branch("isOfflineOfflineHS",&isOfflineOfflineHS);
+  m_Tree_ftk->Branch("isRawFastHS",&m_isRawFastHS);
+  m_Tree_ftk->Branch("isRefitFastHS",&m_isRefitFastHS);
+  m_Tree_ftk->Branch("isConvertedOfflineHS",&m_isConvertedOfflineHS);
+  m_Tree_ftk->Branch("isRefitOfflineHS",&m_isRefitOfflineHS);
+  m_Tree_ftk->Branch("isOfflineOfflineHS",&m_isOfflineOfflineHS);
   
   //Additional Variables                                                                            
-  Tree_ftk->Branch("RunNumber",&RunNumber);
-  Tree_ftk->Branch("EventNumber",&EventNumber);
-  Tree_ftk->Branch("LumiBlock",&LumiBlock);
-  Tree_ftk->Branch("BCID",&BCID);
-  Tree_ftk->Branch("averageInteractionsPerCrossing",&averageInteractionsPerCrossing);
-  Tree_ftk->Branch("actualInteractionsPerCrossing",&actualInteractionsPerCrossing);
-  Tree_ftk->Branch("extendedLevel1ID",&extendedLevel1ID);
-  Tree_ftk->Branch("level1TriggerType",&level1TriggerType);
-  Tree_ftk->Branch("level1TriggerInfo",&level1TriggerInfo);
+  m_Tree_ftk->Branch("RunNumber",&m_RunNumber);
+  m_Tree_ftk->Branch("EventNumber",&m_EventNumber);
+  m_Tree_ftk->Branch("LumiBlock",&m_LumiBlock);
+  m_Tree_ftk->Branch("BCID",&m_BCID);
+  m_Tree_ftk->Branch("averageInteractionsPerCrossing",&m_averageInteractionsPerCrossing);
+  m_Tree_ftk->Branch("actualInteractionsPerCrossing",&m_actualInteractionsPerCrossing);
+  m_Tree_ftk->Branch("extendedLevel1ID",&m_extendedLevel1ID);
+  m_Tree_ftk->Branch("level1TriggerType",&m_level1TriggerType);
+  m_Tree_ftk->Branch("level1TriggerInfo",&m_level1TriggerInfo);
 
   //Clusters
 
-  refit_x_residual = new std::vector<float>;
-  refit_y_residual = new std::vector<float>; 
-  refit_locX = new std::vector<float>;
-  refit_locY = new std::vector<float>;
-  refit_isPixel = new std::vector<bool>;
-  refit_isBarrel = new std::vector<bool>;
-  refit_isSCT = new std::vector<bool>;
-  refit_layer = new std::vector<int>;
-  refit_resAssociatedTrack = new std::vector<int>;
-  refit_clustID = new std::vector<int>;
+  m_refit_x_residual = new std::vector<float>;
+  m_refit_y_residual = new std::vector<float>; 
+  m_refit_locX = new std::vector<float>;
+  m_refit_locY = new std::vector<float>;
+  m_refit_isPixel = new std::vector<bool>;
+  m_refit_isBarrel = new std::vector<bool>;
+  m_refit_isSCT = new std::vector<bool>;
+  m_refit_layer = new std::vector<int>;
+  m_refit_resAssociatedTrack = new std::vector<int>;
+  m_refit_clustID = new std::vector<int>;
 
 
-  Tree_ftk->Branch("refit_x_residual",&refit_x_residual);
-  Tree_ftk->Branch("refit_y_residual",&refit_y_residual);
-  Tree_ftk->Branch("refit_locX",&refit_locX);
-  Tree_ftk->Branch("refit_locY",&refit_locY);
-  Tree_ftk->Branch("refit_is_Pixel",&refit_isPixel);
-  Tree_ftk->Branch("refit_is_Barrel",&refit_isBarrel);
-  Tree_ftk->Branch("refit_is_SCT",&refit_isSCT);
-  Tree_ftk->Branch("refit_layer",&refit_layer);
-  Tree_ftk->Branch("refit_resAssociatedTrack",&refit_resAssociatedTrack);
-  Tree_ftk->Branch("refit_clustID",&refit_clustID);
+  m_Tree_ftk->Branch("refit_x_residual",&m_refit_x_residual);
+  m_Tree_ftk->Branch("refit_y_residual",&m_refit_y_residual);
+  m_Tree_ftk->Branch("refit_locX",&m_refit_locX);
+  m_Tree_ftk->Branch("refit_locY",&m_refit_locY);
+  m_Tree_ftk->Branch("refit_is_Pixel",&m_refit_isPixel);
+  m_Tree_ftk->Branch("refit_is_Barrel",&m_refit_isBarrel);
+  m_Tree_ftk->Branch("refit_is_SCT",&m_refit_isSCT);
+  m_Tree_ftk->Branch("refit_layer",&m_refit_layer);
+  m_Tree_ftk->Branch("refit_resAssociatedTrack",&m_refit_resAssociatedTrack);
+  m_Tree_ftk->Branch("refit_clustID",&m_refit_clustID);
 
 
 
-  offline_x_residual = new std::vector<float>;
-  offline_y_residual = new std::vector<float>; 
-  offline_locX = new std::vector<float>;
-  offline_locY = new std::vector<float>;
-  offline_isPixel = new std::vector<bool>;
-  offline_isBarrel = new std::vector<bool>;
-  offline_isSCT = new std::vector<bool>;
-  offline_layer = new std::vector<int>;
-  offline_resAssociatedTrack = new std::vector<int>;
-  offline_clustID = new std::vector<int>;
+  m_offline_x_residual = new std::vector<float>;
+  m_offline_y_residual = new std::vector<float>; 
+  m_offline_locX = new std::vector<float>;
+  m_offline_locY = new std::vector<float>;
+  m_offline_isPixel = new std::vector<bool>;
+  m_offline_isBarrel = new std::vector<bool>;
+  m_offline_isSCT = new std::vector<bool>;
+  m_offline_layer = new std::vector<int>;
+  m_offline_resAssociatedTrack = new std::vector<int>;
+  m_offline_clustID = new std::vector<int>;
 
 
-  Tree_ftk->Branch("offline_x_residual",&offline_x_residual);
-  Tree_ftk->Branch("offline_y_residual",&offline_y_residual);
-  Tree_ftk->Branch("offline_locX",&offline_locX);
-  Tree_ftk->Branch("offline_locY",&offline_locY);
-  Tree_ftk->Branch("offline_is_Pixel",&offline_isPixel);
-  Tree_ftk->Branch("offline_is_Barrel",&offline_isBarrel);
-  Tree_ftk->Branch("offline_is_SCT",&offline_isSCT);
-  Tree_ftk->Branch("offline_layer",&offline_layer);
-  Tree_ftk->Branch("offline_resAssociatedTrack",&offline_resAssociatedTrack);
-  Tree_ftk->Branch("offline_clustID",&offline_clustID);
+  m_Tree_ftk->Branch("offline_x_residual",&m_offline_x_residual);
+  m_Tree_ftk->Branch("offline_y_residual",&m_offline_y_residual);
+  m_Tree_ftk->Branch("offline_locX",&m_offline_locX);
+  m_Tree_ftk->Branch("offline_locY",&m_offline_locY);
+  m_Tree_ftk->Branch("offline_is_Pixel",&m_offline_isPixel);
+  m_Tree_ftk->Branch("offline_is_Barrel",&m_offline_isBarrel);
+  m_Tree_ftk->Branch("offline_is_SCT",&m_offline_isSCT);
+  m_Tree_ftk->Branch("offline_layer",&m_offline_layer);
+  m_Tree_ftk->Branch("offline_resAssociatedTrack",&m_offline_resAssociatedTrack);
+  m_Tree_ftk->Branch("offline_clustID",&m_offline_clustID);
 
   
   ///////////////////////////// Clear Vectors ////////////////////////////////////////////////////           
   
-  raw_track_theta.clear();
-  raw_track_eta.clear();
-  raw_track_phi0.clear();
-  raw_track_d0.clear();
-  raw_track_z0.clear();
-  raw_track_invPt.clear();
-  raw_track_Pt.clear();
+  m_raw_track_theta.clear();
+  m_raw_track_eta.clear();
+  m_raw_track_phi0.clear();
+  m_raw_track_d0.clear();
+  m_raw_track_z0.clear();
+  m_raw_track_invPt.clear();
+  m_raw_track_Pt.clear();
   
-  converted_track_theta.clear();                                          
-  converted_track_eta.clear();                                                                    
-  converted_track_phi0.clear();                                                                   
-  converted_track_d0.clear();                                                                     
-  converted_track_z0.clear();                                                                     
-  converted_track_invPt.clear();                                                                  
-  converted_track_Pt.clear();                                                                     
+  m_converted_track_theta.clear();                                          
+  m_converted_track_eta.clear();                                                                    
+  m_converted_track_phi0.clear();                                                                   
+  m_converted_track_d0.clear();                                                                     
+  m_converted_track_z0.clear();                                                                     
+  m_converted_track_invPt.clear();                                                                  
+  m_converted_track_Pt.clear();                                                                     
   
-  refit_track_theta.clear();                                                                      
-  refit_track_eta.clear();                                                                        
-  refit_track_phi0.clear();                                                                       
-  refit_track_d0.clear();                                                                         
-  refit_track_z0.clear();                                                                         
-  refit_track_invPt.clear();                                                                      
-  refit_track_Pt.clear();                                                                         
+  m_refit_track_theta.clear();                                                                      
+  m_refit_track_eta.clear();                                                                        
+  m_refit_track_phi0.clear();                                                                       
+  m_refit_track_d0.clear();                                                                         
+  m_refit_track_z0.clear();                                                                         
+  m_refit_track_invPt.clear();                                                                      
+  m_refit_track_Pt.clear();                                                                         
   
-  offline_track_theta.clear();                                                                      
-  offline_track_eta.clear();                                                                        
-  offline_track_phi0.clear();                                                                       
-  offline_track_d0.clear();                                                                         
-  offline_track_z0.clear();                                                                         
-  offline_track_invPt.clear();                                                                      
-  offline_track_Pt.clear();                                                                         
+  m_offline_track_theta.clear();                                                                      
+  m_offline_track_eta.clear();                                                                        
+  m_offline_track_phi0.clear();                                                                       
+  m_offline_track_d0.clear();                                                                         
+  m_offline_track_z0.clear();                                                                         
+  m_offline_track_invPt.clear();                                                                      
+  m_offline_track_Pt.clear();                                                                         
   
   //////
-  fastAlg_FTKraw_vertex_x_position.clear();
-  fastAlg_FTKraw_vertex_y_position.clear();
-  fastAlg_FTKraw_vertex_z_position.clear();
-  fastAlg_FTKraw_vertex_x_error.clear();
-  fastAlg_FTKraw_vertex_y_error.clear();
-  fastAlg_FTKraw_vertex_z_error.clear();
-  fastAlg_FTKraw_vertex_nTrack.clear();
-  fastAlg_FTKraw_vertex_ndf.clear();
-  fastAlg_FTKraw_vertex_chi2.clear();
-  fastAlg_FTKraw_vertex_chi2_over_ndf.clear();
+  m_fastAlg_FTKraw_vertex_x_position.clear();
+  m_fastAlg_FTKraw_vertex_y_position.clear();
+  m_fastAlg_FTKraw_vertex_z_position.clear();
+  m_fastAlg_FTKraw_vertex_x_error.clear();
+  m_fastAlg_FTKraw_vertex_y_error.clear();
+  m_fastAlg_FTKraw_vertex_z_error.clear();
+  m_fastAlg_FTKraw_vertex_nTrack.clear();
+  m_fastAlg_FTKraw_vertex_ndf.clear();
+  m_fastAlg_FTKraw_vertex_chi2.clear();
+  m_fastAlg_FTKraw_vertex_chi2_over_ndf.clear();
   
-  fastAlg_FTKraw_vertex_associated_track_theta.clear();
-  fastAlg_FTKraw_vertex_associated_track_phi0.clear();
-  fastAlg_FTKraw_vertex_associated_track_d0.clear();
-  fastAlg_FTKraw_vertex_associated_track_z0.clear();
-  fastAlg_FTKraw_vertex_associated_track_invPt.clear();
-  fastAlg_FTKraw_vertex_associated_track_Pt.clear();
-  fastAlg_FTKraw_vertex_associated_track_eta.clear();
-  fastAlg_FTKraw_vertex_associated_track_nVerts.clear();
-  fastAlg_FTKraw_vertex_associated_track_VtxNumber.clear();
-  fastAlg_FTKraw_vertex_number.clear();
+  m_fastAlg_FTKraw_vertex_associated_track_theta.clear();
+  m_fastAlg_FTKraw_vertex_associated_track_phi0.clear();
+  m_fastAlg_FTKraw_vertex_associated_track_d0.clear();
+  m_fastAlg_FTKraw_vertex_associated_track_z0.clear();
+  m_fastAlg_FTKraw_vertex_associated_track_invPt.clear();
+  m_fastAlg_FTKraw_vertex_associated_track_Pt.clear();
+  m_fastAlg_FTKraw_vertex_associated_track_eta.clear();
+  m_fastAlg_FTKraw_vertex_associated_track_nVerts.clear();
+  m_fastAlg_FTKraw_vertex_associated_track_VtxNumber.clear();
+  m_fastAlg_FTKraw_vertex_number.clear();
   ///
   
-  fastAlg_FTKrefit_vertex_x_position.clear();
-  fastAlg_FTKrefit_vertex_y_position.clear();
-  fastAlg_FTKrefit_vertex_z_position.clear();
-  fastAlg_FTKrefit_vertex_x_error.clear();
-  fastAlg_FTKrefit_vertex_y_error.clear();
-  fastAlg_FTKrefit_vertex_z_error.clear();
-  fastAlg_FTKrefit_vertex_nTrack.clear();
-  fastAlg_FTKrefit_vertex_ndf.clear();
-  fastAlg_FTKrefit_vertex_chi2.clear();
-  fastAlg_FTKrefit_vertex_chi2_over_ndf.clear();
+  m_fastAlg_FTKrefit_vertex_x_position.clear();
+  m_fastAlg_FTKrefit_vertex_y_position.clear();
+  m_fastAlg_FTKrefit_vertex_z_position.clear();
+  m_fastAlg_FTKrefit_vertex_x_error.clear();
+  m_fastAlg_FTKrefit_vertex_y_error.clear();
+  m_fastAlg_FTKrefit_vertex_z_error.clear();
+  m_fastAlg_FTKrefit_vertex_nTrack.clear();
+  m_fastAlg_FTKrefit_vertex_ndf.clear();
+  m_fastAlg_FTKrefit_vertex_chi2.clear();
+  m_fastAlg_FTKrefit_vertex_chi2_over_ndf.clear();
   
-  fastAlg_FTKrefit_vertex_associated_track_theta.clear();
-  fastAlg_FTKrefit_vertex_associated_track_phi0.clear();
-  fastAlg_FTKrefit_vertex_associated_track_d0.clear();
-  fastAlg_FTKrefit_vertex_associated_track_z0.clear();
-  fastAlg_FTKrefit_vertex_associated_track_invPt.clear();
-  fastAlg_FTKrefit_vertex_associated_track_Pt.clear();
-  fastAlg_FTKrefit_vertex_associated_track_eta.clear();
-  fastAlg_FTKrefit_vertex_associated_track_nVerts.clear();
-  fastAlg_FTKrefit_vertex_associated_track_VtxNumber.clear();
-  fastAlg_FTKrefit_vertex_number.clear();
+  m_fastAlg_FTKrefit_vertex_associated_track_theta.clear();
+  m_fastAlg_FTKrefit_vertex_associated_track_phi0.clear();
+  m_fastAlg_FTKrefit_vertex_associated_track_d0.clear();
+  m_fastAlg_FTKrefit_vertex_associated_track_z0.clear();
+  m_fastAlg_FTKrefit_vertex_associated_track_invPt.clear();
+  m_fastAlg_FTKrefit_vertex_associated_track_Pt.clear();
+  m_fastAlg_FTKrefit_vertex_associated_track_eta.clear();
+  m_fastAlg_FTKrefit_vertex_associated_track_nVerts.clear();
+  m_fastAlg_FTKrefit_vertex_associated_track_VtxNumber.clear();
+  m_fastAlg_FTKrefit_vertex_number.clear();
   
   ////////
-  offlineAlg_FTKconverted_vertex_x_position.clear();
-  offlineAlg_FTKconverted_vertex_y_position.clear();
-  offlineAlg_FTKconverted_vertex_z_position.clear();
-  offlineAlg_FTKconverted_vertex_x_error.clear();
-  offlineAlg_FTKconverted_vertex_y_error.clear();
-  offlineAlg_FTKconverted_vertex_z_error.clear();
-  offlineAlg_FTKconverted_vertex_nTrack.clear();
-  offlineAlg_FTKconverted_vertex_ndf.clear();
-  offlineAlg_FTKconverted_vertex_chi2.clear();
-  offlineAlg_FTKconverted_vertex_chi2_over_ndf.clear();
+  m_offlineAlg_FTKconverted_vertex_x_position.clear();
+  m_offlineAlg_FTKconverted_vertex_y_position.clear();
+  m_offlineAlg_FTKconverted_vertex_z_position.clear();
+  m_offlineAlg_FTKconverted_vertex_x_error.clear();
+  m_offlineAlg_FTKconverted_vertex_y_error.clear();
+  m_offlineAlg_FTKconverted_vertex_z_error.clear();
+  m_offlineAlg_FTKconverted_vertex_nTrack.clear();
+  m_offlineAlg_FTKconverted_vertex_ndf.clear();
+  m_offlineAlg_FTKconverted_vertex_chi2.clear();
+  m_offlineAlg_FTKconverted_vertex_chi2_over_ndf.clear();
   
-  offlineAlg_FTKconverted_vertex_associated_track_theta.clear();
-  offlineAlg_FTKconverted_vertex_associated_track_phi0.clear();
-  offlineAlg_FTKconverted_vertex_associated_track_d0.clear();
-  offlineAlg_FTKconverted_vertex_associated_track_z0.clear();
-  offlineAlg_FTKconverted_vertex_associated_track_invPt.clear();
-  offlineAlg_FTKconverted_vertex_associated_track_Pt.clear();
-  offlineAlg_FTKconverted_vertex_associated_track_eta.clear(); 
-  offlineAlg_FTKconverted_vertex_associated_track_nVerts.clear();
-  offlineAlg_FTKconverted_vertex_associated_track_VtxNumber.clear();
-  offlineAlg_FTKconverted_vertex_number.clear();
+  m_offlineAlg_FTKconverted_vertex_associated_track_theta.clear();
+  m_offlineAlg_FTKconverted_vertex_associated_track_phi0.clear();
+  m_offlineAlg_FTKconverted_vertex_associated_track_d0.clear();
+  m_offlineAlg_FTKconverted_vertex_associated_track_z0.clear();
+  m_offlineAlg_FTKconverted_vertex_associated_track_invPt.clear();
+  m_offlineAlg_FTKconverted_vertex_associated_track_Pt.clear();
+  m_offlineAlg_FTKconverted_vertex_associated_track_eta.clear(); 
+  m_offlineAlg_FTKconverted_vertex_associated_track_nVerts.clear();
+  m_offlineAlg_FTKconverted_vertex_associated_track_VtxNumber.clear();
+  m_offlineAlg_FTKconverted_vertex_number.clear();
   
   //////
-  offlineAlg_FTKrefit_vertex_x_position.clear();
-  offlineAlg_FTKrefit_vertex_y_position.clear();
-  offlineAlg_FTKrefit_vertex_z_position.clear();
-  offlineAlg_FTKrefit_vertex_x_error.clear();
-  offlineAlg_FTKrefit_vertex_y_error.clear();
-  offlineAlg_FTKrefit_vertex_z_error.clear();
-  offlineAlg_FTKrefit_vertex_chi2.clear();
-  offlineAlg_FTKrefit_vertex_nTrack.clear();
-  offlineAlg_FTKrefit_vertex_ndf.clear();
-  offlineAlg_FTKrefit_vertex_chi2_over_ndf.clear();
+  m_offlineAlg_FTKrefit_vertex_x_position.clear();
+  m_offlineAlg_FTKrefit_vertex_y_position.clear();
+  m_offlineAlg_FTKrefit_vertex_z_position.clear();
+  m_offlineAlg_FTKrefit_vertex_x_error.clear();
+  m_offlineAlg_FTKrefit_vertex_y_error.clear();
+  m_offlineAlg_FTKrefit_vertex_z_error.clear();
+  m_offlineAlg_FTKrefit_vertex_chi2.clear();
+  m_offlineAlg_FTKrefit_vertex_nTrack.clear();
+  m_offlineAlg_FTKrefit_vertex_ndf.clear();
+  m_offlineAlg_FTKrefit_vertex_chi2_over_ndf.clear();
   
-  offlineAlg_FTKrefit_vertex_associated_track_theta.clear();
-  offlineAlg_FTKrefit_vertex_associated_track_eta.clear();
-  offlineAlg_FTKrefit_vertex_associated_track_phi0.clear();
-  offlineAlg_FTKrefit_vertex_associated_track_z0.clear();
-  offlineAlg_FTKrefit_vertex_associated_track_d0.clear();
-  offlineAlg_FTKrefit_vertex_associated_track_invPt.clear();
-  offlineAlg_FTKrefit_vertex_associated_track_Pt.clear();
-  offlineAlg_FTKrefit_vertex_associated_track_nVerts.clear();
-  offlineAlg_FTKrefit_vertex_associated_track_VtxNumber.clear();
-  offlineAlg_FTKrefit_vertex_number.clear();
+  m_offlineAlg_FTKrefit_vertex_associated_track_theta.clear();
+  m_offlineAlg_FTKrefit_vertex_associated_track_eta.clear();
+  m_offlineAlg_FTKrefit_vertex_associated_track_phi0.clear();
+  m_offlineAlg_FTKrefit_vertex_associated_track_z0.clear();
+  m_offlineAlg_FTKrefit_vertex_associated_track_d0.clear();
+  m_offlineAlg_FTKrefit_vertex_associated_track_invPt.clear();
+  m_offlineAlg_FTKrefit_vertex_associated_track_Pt.clear();
+  m_offlineAlg_FTKrefit_vertex_associated_track_nVerts.clear();
+  m_offlineAlg_FTKrefit_vertex_associated_track_VtxNumber.clear();
+  m_offlineAlg_FTKrefit_vertex_number.clear();
   
   ///////
-  offlineAlg_offlineTracks_vertex_x_position.clear();
-  offlineAlg_offlineTracks_vertex_y_position.clear();
-  offlineAlg_offlineTracks_vertex_z_position.clear();
-  offlineAlg_offlineTracks_vertex_x_error.clear();
-  offlineAlg_offlineTracks_vertex_y_error.clear();
-  offlineAlg_offlineTracks_vertex_z_error.clear();
-  offlineAlg_offlineTracks_vertex_chi2.clear();
-  offlineAlg_offlineTracks_vertex_nTrack.clear();
-  offlineAlg_offlineTracks_vertex_ndf.clear();
-  offlineAlg_offlineTracks_vertex_chi2_over_ndf.clear();
+  m_offlineAlg_offlineTracks_vertex_x_position.clear();
+  m_offlineAlg_offlineTracks_vertex_y_position.clear();
+  m_offlineAlg_offlineTracks_vertex_z_position.clear();
+  m_offlineAlg_offlineTracks_vertex_x_error.clear();
+  m_offlineAlg_offlineTracks_vertex_y_error.clear();
+  m_offlineAlg_offlineTracks_vertex_z_error.clear();
+  m_offlineAlg_offlineTracks_vertex_chi2.clear();
+  m_offlineAlg_offlineTracks_vertex_nTrack.clear();
+  m_offlineAlg_offlineTracks_vertex_ndf.clear();
+  m_offlineAlg_offlineTracks_vertex_chi2_over_ndf.clear();
   
-  offlineAlg_offlineTracks_vertex_associated_track_theta.clear();
-  offlineAlg_offlineTracks_vertex_associated_track_eta.clear();
-  offlineAlg_offlineTracks_vertex_associated_track_phi0.clear();
-  offlineAlg_offlineTracks_vertex_associated_track_z0.clear();
-  offlineAlg_offlineTracks_vertex_associated_track_d0.clear();
-  offlineAlg_offlineTracks_vertex_associated_track_invPt.clear();
-  offlineAlg_offlineTracks_vertex_associated_track_Pt.clear();
-  offlineAlg_offlineTracks_vertex_associated_track_nVerts.clear();
-  offlineAlg_offlineTracks_vertex_associated_track_VtxNumber.clear();
-  offlineAlg_offlineTracks_vertex_number.clear();
+  m_offlineAlg_offlineTracks_vertex_associated_track_theta.clear();
+  m_offlineAlg_offlineTracks_vertex_associated_track_eta.clear();
+  m_offlineAlg_offlineTracks_vertex_associated_track_phi0.clear();
+  m_offlineAlg_offlineTracks_vertex_associated_track_z0.clear();
+  m_offlineAlg_offlineTracks_vertex_associated_track_d0.clear();
+  m_offlineAlg_offlineTracks_vertex_associated_track_invPt.clear();
+  m_offlineAlg_offlineTracks_vertex_associated_track_Pt.clear();
+  m_offlineAlg_offlineTracks_vertex_associated_track_nVerts.clear();
+  m_offlineAlg_offlineTracks_vertex_associated_track_VtxNumber.clear();
+  m_offlineAlg_offlineTracks_vertex_number.clear();
   
   ////
-  isRawFastHS.clear();
-  isRefitFastHS.clear();
-  isConvertedOfflineHS.clear();
-  isRefitOfflineHS.clear();
-  isOfflineOfflineHS.clear();
+  m_isRawFastHS.clear();
+  m_isRefitFastHS.clear();
+  m_isConvertedOfflineHS.clear();
+  m_isRefitOfflineHS.clear();
+  m_isOfflineOfflineHS.clear();
   
   //additional variables                                                                            
-  level1TriggerInfo.clear();
+  m_level1TriggerInfo.clear();
 
   //cluster variables 
-  refit_x_residual->clear();
-  refit_y_residual->clear();
-  refit_locX->clear();
-  refit_locY->clear();
-  refit_isPixel->clear();
-  refit_isBarrel->clear();
-  refit_isSCT->clear();
-  refit_layer->clear();
-  refit_resAssociatedTrack->clear();
-  refit_clustID->clear();
+  m_refit_x_residual->clear();
+  m_refit_y_residual->clear();
+  m_refit_locX->clear();
+  m_refit_locY->clear();
+  m_refit_isPixel->clear();
+  m_refit_isBarrel->clear();
+  m_refit_isSCT->clear();
+  m_refit_layer->clear();
+  m_refit_resAssociatedTrack->clear();
+  m_refit_clustID->clear();
 
 
-  offline_x_residual->clear();
-  offline_y_residual->clear();
-  offline_locX->clear();
-  offline_locY->clear();
-  offline_isPixel->clear();
-  offline_isBarrel->clear();
-  offline_isSCT->clear();
-  offline_layer->clear();
-  offline_resAssociatedTrack->clear();
-  offline_clustID->clear();
+  m_offline_x_residual->clear();
+  m_offline_y_residual->clear();
+  m_offline_locX->clear();
+  m_offline_locY->clear();
+  m_offline_isPixel->clear();
+  m_offline_isBarrel->clear();
+  m_offline_isSCT->clear();
+  m_offline_layer->clear();
+  m_offline_resAssociatedTrack->clear();
+  m_offline_clustID->clear();
 
 }
 
@@ -839,16 +839,16 @@ void FTK_RDO_ReaderAlgo::Fill_Raw_Tracks(){
     FTK_RawTrackContainer::const_iterator pTrack = rawTracks->begin();
     FTK_RawTrackContainer::const_iterator pLastTrack = rawTracks->end();
     
-    if (m_fillHists) 	h_FTK_RawTrack_n->Fill(rawTracks->size());
+    if (m_fillHists) 	m_h_FTK_RawTrack_n->Fill(rawTracks->size());
 
     if (m_fillTree) {
-      raw_track_theta.clear();
-      raw_track_eta.clear();
-      raw_track_phi0.clear();
-      raw_track_d0.clear();
-      raw_track_z0.clear();
-      raw_track_invPt.clear();
-      raw_track_Pt.clear();
+      m_raw_track_theta.clear();
+      m_raw_track_eta.clear();
+      m_raw_track_phi0.clear();
+      m_raw_track_d0.clear();
+      m_raw_track_z0.clear();
+      m_raw_track_invPt.clear();
+      m_raw_track_Pt.clear();
     }
     
     for ( int itr=0; pTrack!= pLastTrack; pTrack++, itr++) {
@@ -867,23 +867,23 @@ void FTK_RDO_ReaderAlgo::Fill_Raw_Tracks(){
       ATH_MSG_VERBOSE( "     SectorID " << (*pTrack)->getSectorID()   <<   "  RoadID "  << (*pTrack)->getRoadID() << " LayerMap " << (*pTrack)->getLayerMap());
       
       if (m_fillHists) {
-	h_FTK_RawTrack_phi->Fill((*pTrack)->getPhi());
-	h_FTK_RawTrack_d0->Fill((*pTrack)->getD0());
-	h_FTK_RawTrack_z0->Fill((*pTrack)->getZ0());
-	h_FTK_RawTrack_invPt->Fill((*pTrack)->getInvPt());
-	h_FTK_RawTrack_cot->Fill((*pTrack)->getCotTh());
-	h_FTK_RawTrack_nPix->Fill((*pTrack)->getPixelClusters().size());
-	h_FTK_RawTrack_nSCT->Fill((*pTrack)->getSCTClusters().size());
+	m_h_FTK_RawTrack_phi->Fill((*pTrack)->getPhi());
+	m_h_FTK_RawTrack_d0->Fill((*pTrack)->getD0());
+	m_h_FTK_RawTrack_z0->Fill((*pTrack)->getZ0());
+	m_h_FTK_RawTrack_invPt->Fill((*pTrack)->getInvPt());
+	m_h_FTK_RawTrack_cot->Fill((*pTrack)->getCotTh());
+	m_h_FTK_RawTrack_nPix->Fill((*pTrack)->getPixelClusters().size());
+	m_h_FTK_RawTrack_nSCT->Fill((*pTrack)->getSCTClusters().size());
       }
       
       if (m_fillTree){
-	raw_track_eta.push_back(trkEta);
-	raw_track_theta.push_back(trkTheta);
-	if(fabs(trkPt) >= 1e-9) raw_track_invPt.push_back(1000/trkPt);
-	raw_track_Pt.push_back(trkPt);
-	raw_track_d0.push_back(d0);
-	raw_track_z0.push_back(z0);
-	raw_track_phi0.push_back(phi0);
+	m_raw_track_eta.push_back(trkEta);
+	m_raw_track_theta.push_back(trkTheta);
+	if(fabs(trkPt) >= 1e-9) m_raw_track_invPt.push_back(1000/trkPt);
+	m_raw_track_Pt.push_back(trkPt);
+	m_raw_track_d0.push_back(d0);
+	m_raw_track_z0.push_back(z0);
+	m_raw_track_phi0.push_back(phi0);
       }		
     }
   }    
@@ -902,19 +902,19 @@ void FTK_RDO_ReaderAlgo::Fill_Converted_Tracks(){
 
   if (m_fillHists || m_fillTree) {
 	
-    if (m_fillHists)h_Track_n->Fill(track_collection->size());
+    if (m_fillHists)m_h_Track_n->Fill(track_collection->size());
     TrackCollection::const_iterator track_it   = track_collection->begin();
     TrackCollection::const_iterator last_track = track_collection->end();
     int iTrack=0;
     
     if(m_fillTree){
-      converted_track_eta.clear();
-      converted_track_theta.clear();
-      converted_track_invPt.clear();
-      converted_track_Pt.clear();
-      converted_track_d0.clear();
-      converted_track_z0.clear();
-      converted_track_phi0.clear();
+      m_converted_track_eta.clear();
+      m_converted_track_theta.clear();
+      m_converted_track_invPt.clear();
+      m_converted_track_Pt.clear();
+      m_converted_track_d0.clear();
+      m_converted_track_z0.clear();
+      m_converted_track_phi0.clear();
     }
     
     
@@ -942,27 +942,27 @@ void FTK_RDO_ReaderAlgo::Fill_Converted_Tracks(){
 	z0 = (*track_it)->perigeeParameters()->parameters()[Trk::z0];
 	phi0 = (*track_it)->perigeeParameters()->parameters()[Trk::phi0];
 	
-	converted_track_eta.push_back(trkEta);
-	converted_track_theta.push_back(trkTheta);
-	if(fabs(trkPt) >= 1e-9) converted_track_invPt.push_back(1000/trkPt);
-	converted_track_Pt.push_back(trkPt);
-	converted_track_d0.push_back(d0);
-	converted_track_z0.push_back(z0);
-	converted_track_phi0.push_back(phi0);
+	m_converted_track_eta.push_back(trkEta);
+	m_converted_track_theta.push_back(trkTheta);
+	if(fabs(trkPt) >= 1e-9) m_converted_track_invPt.push_back(1000/trkPt);
+	m_converted_track_Pt.push_back(trkPt);
+	m_converted_track_d0.push_back(d0);
+	m_converted_track_z0.push_back(z0);
+	m_converted_track_phi0.push_back(phi0);
       }
       
       if (m_fillHists) {
-	h_Track_phi->Fill((*track_it)->perigeeParameters()->parameters()[Trk::phi0]);
-	h_Track_d0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::d0]);
-	h_Track_z0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::z0]);
-	h_Track_invPt->Fill((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]);
+	m_h_Track_phi->Fill((*track_it)->perigeeParameters()->parameters()[Trk::phi0]);
+	m_h_Track_d0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::d0]);
+	m_h_Track_z0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::z0]);
+	m_h_Track_invPt->Fill((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]);
 	double cotTheta=1.e10;
 	double tanTheta = std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]);
 	if (fabs(tanTheta)>=1e-9) cotTheta= 1./tanTheta;
-	h_Track_cot->Fill(cotTheta);
+	m_h_Track_cot->Fill(cotTheta);
 	
-	h_Track_nPix->Fill(nPix);
-	h_Track_nSCT->Fill(nSCT);
+	m_h_Track_nPix->Fill(nPix);
+	m_h_Track_nSCT->Fill(nSCT);
       }
       
       trkPt = 1.e10;
@@ -994,16 +994,16 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Tracks(){
   
   if (m_fillTree || m_fillHists) {
     if(m_fillTree){
-      refit_track_eta.clear();
-      refit_track_theta.clear();
-      refit_track_invPt.clear();
-      refit_track_Pt.clear();
-      refit_track_d0.clear();
-      refit_track_z0.clear();
-      refit_track_phi0.clear();
+      m_refit_track_eta.clear();
+      m_refit_track_theta.clear();
+      m_refit_track_invPt.clear();
+      m_refit_track_Pt.clear();
+      m_refit_track_d0.clear();
+      m_refit_track_z0.clear();
+      m_refit_track_phi0.clear();
     }
     
-    if (m_fillHists) h_Track_n->Fill(refitTracks->size());
+    if (m_fillHists) m_h_Track_n->Fill(refitTracks->size());
     auto track_it   = refitTracks->begin();
     auto last_track = refitTracks->end();
     for (int iTrack=0 ; track_it!= last_track; track_it++, iTrack++) {
@@ -1015,16 +1015,16 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Tracks(){
 	nSCT = summary->get(Trk::numberOfSCTHits);
       }
       if (m_fillHists) {
-	h_Track_phi->Fill((*track_it)->perigeeParameters()->parameters()[Trk::phi0]);
-	h_Track_d0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::d0]);
-	h_Track_z0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::z0]);
-	h_Track_invPt->Fill((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]);
+	m_h_Track_phi->Fill((*track_it)->perigeeParameters()->parameters()[Trk::phi0]);
+	m_h_Track_d0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::d0]);
+	m_h_Track_z0->Fill((*track_it)->perigeeParameters()->parameters()[Trk::z0]);
+	m_h_Track_invPt->Fill((*track_it)->perigeeParameters()->parameters()[Trk::qOverP]);
 	double cotTheta=1.e10;
 	double tanTheta = std::tan((*track_it)->perigeeParameters()->parameters()[Trk::theta]);
 	if (fabs(tanTheta)>=1e-9) cotTheta=1./tanTheta;
-	h_Track_cot->Fill(cotTheta);
-	h_Track_nPix->Fill(nPix);
-	h_Track_nSCT->Fill(nSCT);
+	m_h_Track_cot->Fill(cotTheta);
+	m_h_Track_nPix->Fill(nPix);
+	m_h_Track_nSCT->Fill(nSCT);
       }
       
       float trkEta = -99999;
@@ -1042,13 +1042,13 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Tracks(){
       phi0 = (*track_it)->perigeeParameters()->parameters()[Trk::phi0];
       
       if (m_fillTree){
-	refit_track_eta.push_back(trkEta);
-	refit_track_theta.push_back(trkTheta);
-	if(fabs(trkPt) >= 1e-9) refit_track_invPt.push_back(1000/trkPt);
-	refit_track_Pt.push_back(trkPt);
-	refit_track_d0.push_back(d0);
-	refit_track_z0.push_back(z0);
-	refit_track_phi0.push_back(phi0);
+	m_refit_track_eta.push_back(trkEta);
+	m_refit_track_theta.push_back(trkTheta);
+	if(fabs(trkPt) >= 1e-9) m_refit_track_invPt.push_back(1000/trkPt);
+	m_refit_track_Pt.push_back(trkPt);
+	m_refit_track_d0.push_back(d0);
+	m_refit_track_z0.push_back(z0);
+	m_refit_track_phi0.push_back(phi0);
       }
       
       
@@ -1062,7 +1062,7 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Tracks(){
 		       " z0: " << (*track_it)->perigeeParameters()->parameters()[Trk::z0] <<
 		       " nPix: " << nPix << " nSCT: " << nSCT );
     }
-    if(m_fillTree && m_getClusters) Fill_Clusters(refitTracks,refit_x_residual,refit_y_residual,refit_locX,refit_locY,refit_isPixel,refit_isBarrel,refit_isSCT,refit_layer,refit_resAssociatedTrack,refit_clustID);
+    if(m_fillTree && m_getClusters) Fill_Clusters(refitTracks,m_refit_x_residual,m_refit_y_residual,m_refit_locX,m_refit_locY,m_refit_isPixel,m_refit_isBarrel,m_refit_isSCT,m_refit_layer,m_refit_resAssociatedTrack,m_refit_clustID);
   }
   delete (refitTracks);
 }
@@ -1072,13 +1072,13 @@ void FTK_RDO_ReaderAlgo::Fill_Offline_Tracks(){
 
   if (m_fillTree) {
     
-    offline_track_theta.clear();                                                                      
-    offline_track_eta.clear();                                                                        
-    offline_track_phi0.clear();                                                                       
-    offline_track_d0.clear();                                                                         
-    offline_track_z0.clear();                                                                         
-    offline_track_invPt.clear();                                                                      
-    offline_track_Pt.clear();                                                                         
+    m_offline_track_theta.clear();                                                                      
+    m_offline_track_eta.clear();                                                                        
+    m_offline_track_phi0.clear();                                                                       
+    m_offline_track_d0.clear();                                                                         
+    m_offline_track_z0.clear();                                                                         
+    m_offline_track_invPt.clear();                                                                      
+    m_offline_track_Pt.clear();                                                                         
       
     const xAOD::TrackParticleContainer *offlineTracks = nullptr;
     if(evtStore()->retrieve(offlineTracks,"InDetTrackParticles").isFailure()){
@@ -1093,17 +1093,17 @@ void FTK_RDO_ReaderAlgo::Fill_Offline_Tracks(){
       for (int iTrk=0 ; track_it!= last_track; track_it++, iTrk++){
 	
 	if(m_fillTree){
-	  offline_track_Pt.push_back((*track_it)->pt()*(*track_it)->charge()/1000);
-	  if(fabs(1000*(*track_it)->pt()*(*track_it)->charge()) >= 1e-9) offline_track_invPt.push_back(1000/(*track_it)->pt()*(*track_it)->charge());
-	  offline_track_theta.push_back((*track_it)->theta());
-	  offline_track_eta.push_back((*track_it)->eta());
-	  offline_track_phi0.push_back((*track_it)->phi0());
-	  offline_track_d0.push_back((*track_it)->d0());
-	  offline_track_z0.push_back((*track_it)->z0());
+	  m_offline_track_Pt.push_back((*track_it)->pt()*(*track_it)->charge()/1000);
+	  if(fabs(1000*(*track_it)->pt()*(*track_it)->charge()) >= 1e-9) m_offline_track_invPt.push_back(1000/(*track_it)->pt()*(*track_it)->charge());
+	  m_offline_track_theta.push_back((*track_it)->theta());
+	  m_offline_track_eta.push_back((*track_it)->eta());
+	  m_offline_track_phi0.push_back((*track_it)->phi0());
+	  m_offline_track_d0.push_back((*track_it)->d0());
+	  m_offline_track_z0.push_back((*track_it)->z0());
 	}
       }
     }
-    if(m_getOfflineClusters) Fill_Clusters(offlineTracks,offline_x_residual,offline_y_residual,offline_locX,offline_locY,offline_isPixel,offline_isBarrel,offline_isSCT,offline_layer,offline_resAssociatedTrack,offline_clustID);
+    if(m_getOfflineClusters) Fill_Clusters(offlineTracks,m_offline_x_residual,m_offline_y_residual,m_offline_locX,m_offline_locY,m_offline_isPixel,m_offline_isBarrel,m_offline_isSCT,m_offline_layer,m_offline_resAssociatedTrack,m_offline_clustID);
   }
 }
 
@@ -1126,30 +1126,30 @@ void FTK_RDO_ReaderAlgo::Fill_Raw_Vertices_fast(unsigned int track_requirement){
     int ivx=0;
     
     
-    fastAlg_FTKraw_vertex_ndf.clear();
-    fastAlg_FTKraw_vertex_chi2.clear();
-    fastAlg_FTKraw_vertex_chi2_over_ndf.clear();
-    fastAlg_FTKraw_vertex_x_position.clear();
-    fastAlg_FTKraw_vertex_y_position.clear();
-    fastAlg_FTKraw_vertex_z_position.clear();
-    fastAlg_FTKraw_vertex_x_error.clear();
-    fastAlg_FTKraw_vertex_y_error.clear();
-    fastAlg_FTKraw_vertex_z_error.clear();
-    fastAlg_FTKraw_vertex_nTrack.clear();
-    fastAlg_FTKraw_vertex_number.clear();
-    fastAlg_FTKraw_vertex_associated_track_phi0.clear();
-    fastAlg_FTKraw_vertex_associated_track_d0.clear();
-    fastAlg_FTKraw_vertex_associated_track_z0.clear();
-    fastAlg_FTKraw_vertex_associated_track_invPt.clear();
-    fastAlg_FTKraw_vertex_associated_track_cot.clear();
-    fastAlg_FTKraw_vertex_associated_track_eta.clear();
-    fastAlg_FTKraw_vertex_associated_track_nVerts.clear();
-    fastAlg_FTKraw_vertex_associated_track_VtxNumber.clear();    
-    fastAlg_FTKraw_vertex_number.clear();
-    fastAlg_FTKraw_vertex_associated_track_Pt.clear();
-    fastAlg_FTKraw_vertex_associated_track_eta.clear();
-    fastAlg_FTKraw_vertex_associated_track_theta.clear();
-    isRawFastHS.clear();  // currently HS variable does not work for Fast Algo (use sumpt2 for HSV)
+    m_fastAlg_FTKraw_vertex_ndf.clear();
+    m_fastAlg_FTKraw_vertex_chi2.clear();
+    m_fastAlg_FTKraw_vertex_chi2_over_ndf.clear();
+    m_fastAlg_FTKraw_vertex_x_position.clear();
+    m_fastAlg_FTKraw_vertex_y_position.clear();
+    m_fastAlg_FTKraw_vertex_z_position.clear();
+    m_fastAlg_FTKraw_vertex_x_error.clear();
+    m_fastAlg_FTKraw_vertex_y_error.clear();
+    m_fastAlg_FTKraw_vertex_z_error.clear();
+    m_fastAlg_FTKraw_vertex_nTrack.clear();
+    m_fastAlg_FTKraw_vertex_number.clear();
+    m_fastAlg_FTKraw_vertex_associated_track_phi0.clear();
+    m_fastAlg_FTKraw_vertex_associated_track_d0.clear();
+    m_fastAlg_FTKraw_vertex_associated_track_z0.clear();
+    m_fastAlg_FTKraw_vertex_associated_track_invPt.clear();
+    m_fastAlg_FTKraw_vertex_associated_track_cot.clear();
+    m_fastAlg_FTKraw_vertex_associated_track_eta.clear();
+    m_fastAlg_FTKraw_vertex_associated_track_nVerts.clear();
+    m_fastAlg_FTKraw_vertex_associated_track_VtxNumber.clear();    
+    m_fastAlg_FTKraw_vertex_number.clear();
+    m_fastAlg_FTKraw_vertex_associated_track_Pt.clear();
+    m_fastAlg_FTKraw_vertex_associated_track_eta.clear();
+    m_fastAlg_FTKraw_vertex_associated_track_theta.clear();
+    m_isRawFastHS.clear();  // currently HS variable does not work for Fast Algo (use sumpt2 for HSV)
 
     
     for (auto pvx = vxr->begin(); pvx != vxr->end(); pvx++, ivx++) {
@@ -1164,20 +1164,20 @@ void FTK_RDO_ReaderAlgo::Fill_Raw_Vertices_fast(unsigned int track_requirement){
 		       " nDoF " << (*pvx)->numberDoF() );
       
 
-      fastAlg_FTKraw_vertex_nTrack.push_back((*pvx)->vxTrackAtVertex().size());
-      fastAlg_FTKraw_vertex_ndf.push_back((*pvx)->numberDoF());
-      fastAlg_FTKraw_vertex_chi2.push_back((*pvx)->chiSquared());
-      fastAlg_FTKraw_vertex_x_position.push_back((*pvx)->position().x());
-      fastAlg_FTKraw_vertex_y_position.push_back((*pvx)->position().y());
-      fastAlg_FTKraw_vertex_z_position.push_back((*pvx)->position().z());
-      fastAlg_FTKraw_vertex_x_error.push_back(sqrt((*pvx)->covariancePosition()(0,0)));
-      fastAlg_FTKraw_vertex_y_error.push_back(sqrt((*pvx)->covariancePosition()(1,1)));
-      fastAlg_FTKraw_vertex_z_error.push_back(sqrt((*pvx)->covariancePosition()(2,2)));
-      if (fabs((*pvx)->numberDoF()) >= 1e-9) fastAlg_FTKraw_vertex_chi2_over_ndf.push_back((*pvx)->chiSquared()/(*pvx)->numberDoF());       
+      m_fastAlg_FTKraw_vertex_nTrack.push_back((*pvx)->vxTrackAtVertex().size());
+      m_fastAlg_FTKraw_vertex_ndf.push_back((*pvx)->numberDoF());
+      m_fastAlg_FTKraw_vertex_chi2.push_back((*pvx)->chiSquared());
+      m_fastAlg_FTKraw_vertex_x_position.push_back((*pvx)->position().x());
+      m_fastAlg_FTKraw_vertex_y_position.push_back((*pvx)->position().y());
+      m_fastAlg_FTKraw_vertex_z_position.push_back((*pvx)->position().z());
+      m_fastAlg_FTKraw_vertex_x_error.push_back(sqrt((*pvx)->covariancePosition()(0,0)));
+      m_fastAlg_FTKraw_vertex_y_error.push_back(sqrt((*pvx)->covariancePosition()(1,1)));
+      m_fastAlg_FTKraw_vertex_z_error.push_back(sqrt((*pvx)->covariancePosition()(2,2)));
+      if (fabs((*pvx)->numberDoF()) >= 1e-9) m_fastAlg_FTKraw_vertex_chi2_over_ndf.push_back((*pvx)->chiSquared()/(*pvx)->numberDoF());       
       
       int isThisRawFastHS = 0;
       if ((*pvx)->vertexType() == xAOD::VxType::PriVtx) isThisRawFastHS = 1;
-      isRawFastHS.push_back(isThisRawFastHS);
+      m_isRawFastHS.push_back(isThisRawFastHS);
       
       
       for(vector<Trk::VxTrackAtVertex>::const_iterator ti=(*pvx)->vxTrackAtVertex().begin(); ti!=(*pvx)->vxTrackAtVertex().end(); ti++){
@@ -1199,27 +1199,27 @@ void FTK_RDO_ReaderAlgo::Fill_Raw_Vertices_fast(unsigned int track_requirement){
 	  trk_invPt = vertexPerigee->parameters()[Trk::qOverP];
 	}
 
-	fastAlg_FTKraw_vertex_associated_track_theta.push_back(trk_theta);
-	fastAlg_FTKraw_vertex_associated_track_phi0.push_back(trk_phi0);
-	fastAlg_FTKraw_vertex_associated_track_d0.push_back(trk_d0);
-	fastAlg_FTKraw_vertex_associated_track_z0.push_back(trk_z0);
-	if( fabs(sin(trk_theta)) >= 1e-9) fastAlg_FTKraw_vertex_associated_track_invPt.push_back(1000*trk_invPt/sin(trk_theta));
-	if( fabs(1000*trk_invPt) >= 1e-9) fastAlg_FTKraw_vertex_associated_track_Pt.push_back(sin(trk_theta)/(1000*trk_invPt));
-	fastAlg_FTKraw_vertex_associated_track_eta.push_back(trk_eta);
-	fastAlg_FTKraw_vertex_number.push_back(ivx);
+	m_fastAlg_FTKraw_vertex_associated_track_theta.push_back(trk_theta);
+	m_fastAlg_FTKraw_vertex_associated_track_phi0.push_back(trk_phi0);
+	m_fastAlg_FTKraw_vertex_associated_track_d0.push_back(trk_d0);
+	m_fastAlg_FTKraw_vertex_associated_track_z0.push_back(trk_z0);
+	if( fabs(sin(trk_theta)) >= 1e-9) m_fastAlg_FTKraw_vertex_associated_track_invPt.push_back(1000*trk_invPt/sin(trk_theta));
+	if( fabs(1000*trk_invPt) >= 1e-9) m_fastAlg_FTKraw_vertex_associated_track_Pt.push_back(sin(trk_theta)/(1000*trk_invPt));
+	m_fastAlg_FTKraw_vertex_associated_track_eta.push_back(trk_eta);
+	m_fastAlg_FTKraw_vertex_number.push_back(ivx);
 	
 	if( fabs(1000*trk_invPt) >= 1e-9) this_vertex_sumpt = fabs(this_vertex_sumpt+sin(trk_theta)/(1000*trk_invPt));
 	if((*pvx)->vxTrackAtVertex().size() > track_requirement) flag = true;
 	else flag = false;
       }
       
-      if(this_vertex_sumpt*this_vertex_sumpt >= fastAlg_FTKraw_vertex_sumPt*fastAlg_FTKraw_vertex_sumPt && flag == true ){
-	fastAlg_FTKraw_vertex_sumPt = this_vertex_sumpt;
-	fastAlg_FTKraw_vertex_sumPt2_vtxNumber = ivx;
+      if(this_vertex_sumpt*this_vertex_sumpt >= m_fastAlg_FTKraw_vertex_sumPt*m_fastAlg_FTKraw_vertex_sumPt && flag == true ){
+	m_fastAlg_FTKraw_vertex_sumPt = this_vertex_sumpt;
+	m_fastAlg_FTKraw_vertex_sumPt2_vtxNumber = ivx;
       }
-      fastAlg_FTKraw_vertex_associated_track_nVerts.push_back(vxr->size());
+      m_fastAlg_FTKraw_vertex_associated_track_nVerts.push_back(vxr->size());
     }
-    if(fabs(fastAlg_FTKraw_vertex_sumPt) >= 1e-9) fastAlg_FTKraw_vertex_sumPt2 = fastAlg_FTKraw_vertex_sumPt*fastAlg_FTKraw_vertex_sumPt;
+    if(fabs(m_fastAlg_FTKraw_vertex_sumPt) >= 1e-9) m_fastAlg_FTKraw_vertex_sumPt2 = m_fastAlg_FTKraw_vertex_sumPt*m_fastAlg_FTKraw_vertex_sumPt;
   }
   delete(vxr);
   
@@ -1243,30 +1243,30 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Vertices_fast(unsigned int track_requirement
     ATH_MSG_VERBOSE( " Printing information for " <<  vxr->size()<< " Vertex " );
     int ivx=0;
     
-    fastAlg_FTKrefit_vertex_ndf.clear();
-    fastAlg_FTKrefit_vertex_chi2.clear();
-    fastAlg_FTKrefit_vertex_chi2_over_ndf.clear();
-    fastAlg_FTKrefit_vertex_x_position.clear();
-    fastAlg_FTKrefit_vertex_y_position.clear();
-    fastAlg_FTKrefit_vertex_z_position.clear();
-    fastAlg_FTKrefit_vertex_x_error.clear();
-    fastAlg_FTKrefit_vertex_y_error.clear();
-    fastAlg_FTKrefit_vertex_z_error.clear();
-    fastAlg_FTKrefit_vertex_nTrack.clear();
-    fastAlg_FTKrefit_vertex_number.clear();
-    fastAlg_FTKrefit_vertex_associated_track_phi0.clear();
-    fastAlg_FTKrefit_vertex_associated_track_d0.clear();
-    fastAlg_FTKrefit_vertex_associated_track_z0.clear();
-    fastAlg_FTKrefit_vertex_associated_track_invPt.clear();
-    fastAlg_FTKrefit_vertex_associated_track_cot.clear();
-    fastAlg_FTKrefit_vertex_associated_track_eta.clear();
-    fastAlg_FTKrefit_vertex_associated_track_nVerts.clear();
-    fastAlg_FTKrefit_vertex_associated_track_VtxNumber.clear();    
-    fastAlg_FTKrefit_vertex_number.clear();
-    fastAlg_FTKrefit_vertex_associated_track_Pt.clear();
-    fastAlg_FTKrefit_vertex_associated_track_eta.clear();
-    fastAlg_FTKrefit_vertex_associated_track_theta.clear();
-    isRefitFastHS.clear();  // currently does not work for fast algo, use sumpt2 for HSV
+    m_fastAlg_FTKrefit_vertex_ndf.clear();
+    m_fastAlg_FTKrefit_vertex_chi2.clear();
+    m_fastAlg_FTKrefit_vertex_chi2_over_ndf.clear();
+    m_fastAlg_FTKrefit_vertex_x_position.clear();
+    m_fastAlg_FTKrefit_vertex_y_position.clear();
+    m_fastAlg_FTKrefit_vertex_z_position.clear();
+    m_fastAlg_FTKrefit_vertex_x_error.clear();
+    m_fastAlg_FTKrefit_vertex_y_error.clear();
+    m_fastAlg_FTKrefit_vertex_z_error.clear();
+    m_fastAlg_FTKrefit_vertex_nTrack.clear();
+    m_fastAlg_FTKrefit_vertex_number.clear();
+    m_fastAlg_FTKrefit_vertex_associated_track_phi0.clear();
+    m_fastAlg_FTKrefit_vertex_associated_track_d0.clear();
+    m_fastAlg_FTKrefit_vertex_associated_track_z0.clear();
+    m_fastAlg_FTKrefit_vertex_associated_track_invPt.clear();
+    m_fastAlg_FTKrefit_vertex_associated_track_cot.clear();
+    m_fastAlg_FTKrefit_vertex_associated_track_eta.clear();
+    m_fastAlg_FTKrefit_vertex_associated_track_nVerts.clear();
+    m_fastAlg_FTKrefit_vertex_associated_track_VtxNumber.clear();    
+    m_fastAlg_FTKrefit_vertex_number.clear();
+    m_fastAlg_FTKrefit_vertex_associated_track_Pt.clear();
+    m_fastAlg_FTKrefit_vertex_associated_track_eta.clear();
+    m_fastAlg_FTKrefit_vertex_associated_track_theta.clear();
+    m_isRefitFastHS.clear();  // currently does not work for fast algo, use sumpt2 for HSV
     
     
     for (auto pvx = vxr->begin(); pvx != vxr->end(); pvx++, ivx++) {
@@ -1281,20 +1281,20 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Vertices_fast(unsigned int track_requirement
 		       " nDoF " << (*pvx)->numberDoF() );
       
 
-      fastAlg_FTKrefit_vertex_nTrack.push_back((*pvx)->vxTrackAtVertex().size());
-      fastAlg_FTKrefit_vertex_ndf.push_back((*pvx)->numberDoF());
-      fastAlg_FTKrefit_vertex_chi2.push_back((*pvx)->chiSquared());
-      fastAlg_FTKrefit_vertex_x_position.push_back((*pvx)->position().x());
-      fastAlg_FTKrefit_vertex_y_position.push_back((*pvx)->position().y());
-      fastAlg_FTKrefit_vertex_z_position.push_back((*pvx)->position().z());
-      fastAlg_FTKrefit_vertex_x_error.push_back(sqrt((*pvx)->covariancePosition()(0,0)));
-      fastAlg_FTKrefit_vertex_y_error.push_back(sqrt((*pvx)->covariancePosition()(1,1)));
-      fastAlg_FTKrefit_vertex_z_error.push_back(sqrt((*pvx)->covariancePosition()(2,2)));
-      if (fabs((*pvx)->numberDoF()) >= 1e-9) fastAlg_FTKrefit_vertex_chi2_over_ndf.push_back((*pvx)->chiSquared()/(*pvx)->numberDoF());       
+      m_fastAlg_FTKrefit_vertex_nTrack.push_back((*pvx)->vxTrackAtVertex().size());
+      m_fastAlg_FTKrefit_vertex_ndf.push_back((*pvx)->numberDoF());
+      m_fastAlg_FTKrefit_vertex_chi2.push_back((*pvx)->chiSquared());
+      m_fastAlg_FTKrefit_vertex_x_position.push_back((*pvx)->position().x());
+      m_fastAlg_FTKrefit_vertex_y_position.push_back((*pvx)->position().y());
+      m_fastAlg_FTKrefit_vertex_z_position.push_back((*pvx)->position().z());
+      m_fastAlg_FTKrefit_vertex_x_error.push_back(sqrt((*pvx)->covariancePosition()(0,0)));
+      m_fastAlg_FTKrefit_vertex_y_error.push_back(sqrt((*pvx)->covariancePosition()(1,1)));
+      m_fastAlg_FTKrefit_vertex_z_error.push_back(sqrt((*pvx)->covariancePosition()(2,2)));
+      if (fabs((*pvx)->numberDoF()) >= 1e-9) m_fastAlg_FTKrefit_vertex_chi2_over_ndf.push_back((*pvx)->chiSquared()/(*pvx)->numberDoF());       
       
       int isThisRefitFastHS = 0;
       if ((*pvx)->vertexType() == xAOD::VxType::PriVtx) isThisRefitFastHS = 1;
-      isRefitFastHS.push_back(isThisRefitFastHS);
+      m_isRefitFastHS.push_back(isThisRefitFastHS);
       
       
       for(vector<Trk::VxTrackAtVertex>::const_iterator ti=(*pvx)->vxTrackAtVertex().begin(); ti!=(*pvx)->vxTrackAtVertex().end(); ti++){
@@ -1317,14 +1317,14 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Vertices_fast(unsigned int track_requirement
 	}
 	  
 	
-	fastAlg_FTKrefit_vertex_associated_track_theta.push_back(trk_theta);
-	fastAlg_FTKrefit_vertex_associated_track_phi0.push_back(trk_phi0);
-	fastAlg_FTKrefit_vertex_associated_track_d0.push_back(trk_d0);
-	fastAlg_FTKrefit_vertex_associated_track_z0.push_back(trk_z0);
-	if( fabs(sin(trk_theta)) >= 1e-9) fastAlg_FTKrefit_vertex_associated_track_invPt.push_back(1000*trk_invPt/sin(trk_theta));
-	if( fabs(1000*trk_invPt) >= 1e-9) fastAlg_FTKrefit_vertex_associated_track_Pt.push_back(sin(trk_theta)/(1000*trk_invPt));
-	fastAlg_FTKrefit_vertex_associated_track_eta.push_back(trk_eta);
-	fastAlg_FTKrefit_vertex_number.push_back(ivx);
+	m_fastAlg_FTKrefit_vertex_associated_track_theta.push_back(trk_theta);
+	m_fastAlg_FTKrefit_vertex_associated_track_phi0.push_back(trk_phi0);
+	m_fastAlg_FTKrefit_vertex_associated_track_d0.push_back(trk_d0);
+	m_fastAlg_FTKrefit_vertex_associated_track_z0.push_back(trk_z0);
+	if( fabs(sin(trk_theta)) >= 1e-9) m_fastAlg_FTKrefit_vertex_associated_track_invPt.push_back(1000*trk_invPt/sin(trk_theta));
+	if( fabs(1000*trk_invPt) >= 1e-9) m_fastAlg_FTKrefit_vertex_associated_track_Pt.push_back(sin(trk_theta)/(1000*trk_invPt));
+	m_fastAlg_FTKrefit_vertex_associated_track_eta.push_back(trk_eta);
+	m_fastAlg_FTKrefit_vertex_number.push_back(ivx);
 
 	  
 	if( fabs(1000*trk_invPt) >= 1e-9) this_vertex_sumpt = fabs(this_vertex_sumpt+sin(trk_theta)/(1000*trk_invPt));
@@ -1333,15 +1333,15 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Vertices_fast(unsigned int track_requirement
 	
       }
 	
-      if(this_vertex_sumpt*this_vertex_sumpt >= fastAlg_FTKrefit_vertex_sumPt*fastAlg_FTKrefit_vertex_sumPt && flag == true ){
-	fastAlg_FTKrefit_vertex_sumPt = this_vertex_sumpt;
-	fastAlg_FTKrefit_vertex_sumPt2_vtxNumber = ivx;
+      if(this_vertex_sumpt*this_vertex_sumpt >= m_fastAlg_FTKrefit_vertex_sumPt*m_fastAlg_FTKrefit_vertex_sumPt && flag == true ){
+	m_fastAlg_FTKrefit_vertex_sumPt = this_vertex_sumpt;
+	m_fastAlg_FTKrefit_vertex_sumPt2_vtxNumber = ivx;
 	
       }
-      fastAlg_FTKrefit_vertex_associated_track_nVerts.push_back(vxr->size());
+      m_fastAlg_FTKrefit_vertex_associated_track_nVerts.push_back(vxr->size());
 	
     }
-    if(fabs(fastAlg_FTKrefit_vertex_sumPt) >= 1e-9) fastAlg_FTKrefit_vertex_sumPt2 = fastAlg_FTKrefit_vertex_sumPt*fastAlg_FTKrefit_vertex_sumPt;
+    if(fabs(m_fastAlg_FTKrefit_vertex_sumPt) >= 1e-9) m_fastAlg_FTKrefit_vertex_sumPt2 = m_fastAlg_FTKrefit_vertex_sumPt*m_fastAlg_FTKrefit_vertex_sumPt;
   }
   delete(vxr);
 }
@@ -1363,30 +1363,30 @@ void FTK_RDO_ReaderAlgo::Fill_Converted_Vertices(unsigned int track_requirement)
     ATH_MSG_VERBOSE( " Printing information for " <<  vxc->size()<< " Vertex " );
     int ivx=0;
     
-    offlineAlg_FTKconverted_vertex_ndf.clear();
-    offlineAlg_FTKconverted_vertex_chi2.clear();
-    offlineAlg_FTKconverted_vertex_chi2_over_ndf.clear();
-    offlineAlg_FTKconverted_vertex_x_position.clear();
-    offlineAlg_FTKconverted_vertex_y_position.clear();
-    offlineAlg_FTKconverted_vertex_z_position.clear();
-    offlineAlg_FTKconverted_vertex_x_error.clear();
-    offlineAlg_FTKconverted_vertex_y_error.clear();
-    offlineAlg_FTKconverted_vertex_z_error.clear();
-    offlineAlg_FTKconverted_vertex_nTrack.clear();
-    offlineAlg_FTKconverted_vertex_number.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_phi0.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_d0.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_z0.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_invPt.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_cot.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_eta.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_nVerts.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_VtxNumber.clear();    
-    offlineAlg_FTKconverted_vertex_number.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_Pt.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_eta.clear();
-    offlineAlg_FTKconverted_vertex_associated_track_theta.clear();
-    isConvertedOfflineHS.clear();
+    m_offlineAlg_FTKconverted_vertex_ndf.clear();
+    m_offlineAlg_FTKconverted_vertex_chi2.clear();
+    m_offlineAlg_FTKconverted_vertex_chi2_over_ndf.clear();
+    m_offlineAlg_FTKconverted_vertex_x_position.clear();
+    m_offlineAlg_FTKconverted_vertex_y_position.clear();
+    m_offlineAlg_FTKconverted_vertex_z_position.clear();
+    m_offlineAlg_FTKconverted_vertex_x_error.clear();
+    m_offlineAlg_FTKconverted_vertex_y_error.clear();
+    m_offlineAlg_FTKconverted_vertex_z_error.clear();
+    m_offlineAlg_FTKconverted_vertex_nTrack.clear();
+    m_offlineAlg_FTKconverted_vertex_number.clear();
+    m_offlineAlg_FTKconverted_vertex_associated_track_phi0.clear();
+    m_offlineAlg_FTKconverted_vertex_associated_track_d0.clear();
+    m_offlineAlg_FTKconverted_vertex_associated_track_z0.clear();
+    m_offlineAlg_FTKconverted_vertex_associated_track_invPt.clear();
+    m_offlineAlg_FTKconverted_vertex_associated_track_cot.clear();
+    m_offlineAlg_FTKconverted_vertex_associated_track_eta.clear();
+    m_offlineAlg_FTKconverted_vertex_associated_track_nVerts.clear();
+    m_offlineAlg_FTKconverted_vertex_associated_track_VtxNumber.clear();    
+    m_offlineAlg_FTKconverted_vertex_number.clear();
+    m_offlineAlg_FTKconverted_vertex_associated_track_Pt.clear();
+    m_offlineAlg_FTKconverted_vertex_associated_track_eta.clear();
+    m_offlineAlg_FTKconverted_vertex_associated_track_theta.clear();
+    m_isConvertedOfflineHS.clear();
     
     for (auto pvx = vxc->begin(); pvx != vxc->end(); pvx++, ivx++) {
       this_vertex_sumpt=0;
@@ -1399,20 +1399,20 @@ void FTK_RDO_ReaderAlgo::Fill_Converted_Vertices(unsigned int track_requirement)
 		       " nDoF " << (*pvx)->numberDoF() );
       
 
-      offlineAlg_FTKconverted_vertex_nTrack.push_back((*pvx)->vxTrackAtVertex().size());
-      offlineAlg_FTKconverted_vertex_ndf.push_back((*pvx)->numberDoF());
-      offlineAlg_FTKconverted_vertex_chi2.push_back((*pvx)->chiSquared());
-      offlineAlg_FTKconverted_vertex_x_position.push_back((*pvx)->position().x());
-      offlineAlg_FTKconverted_vertex_y_position.push_back((*pvx)->position().y());
-      offlineAlg_FTKconverted_vertex_z_position.push_back((*pvx)->position().z());
-      offlineAlg_FTKconverted_vertex_x_error.push_back(sqrt((*pvx)->covariancePosition()(0,0)));
-      offlineAlg_FTKconverted_vertex_y_error.push_back(sqrt((*pvx)->covariancePosition()(1,1)));
-      offlineAlg_FTKconverted_vertex_z_error.push_back(sqrt((*pvx)->covariancePosition()(2,2)));
-      if (fabs((*pvx)->numberDoF()) >= 1e-9) offlineAlg_FTKconverted_vertex_chi2_over_ndf.push_back((*pvx)->chiSquared()/(*pvx)->numberDoF());       
+      m_offlineAlg_FTKconverted_vertex_nTrack.push_back((*pvx)->vxTrackAtVertex().size());
+      m_offlineAlg_FTKconverted_vertex_ndf.push_back((*pvx)->numberDoF());
+      m_offlineAlg_FTKconverted_vertex_chi2.push_back((*pvx)->chiSquared());
+      m_offlineAlg_FTKconverted_vertex_x_position.push_back((*pvx)->position().x());
+      m_offlineAlg_FTKconverted_vertex_y_position.push_back((*pvx)->position().y());
+      m_offlineAlg_FTKconverted_vertex_z_position.push_back((*pvx)->position().z());
+      m_offlineAlg_FTKconverted_vertex_x_error.push_back(sqrt((*pvx)->covariancePosition()(0,0)));
+      m_offlineAlg_FTKconverted_vertex_y_error.push_back(sqrt((*pvx)->covariancePosition()(1,1)));
+      m_offlineAlg_FTKconverted_vertex_z_error.push_back(sqrt((*pvx)->covariancePosition()(2,2)));
+      if (fabs((*pvx)->numberDoF()) >= 1e-9) m_offlineAlg_FTKconverted_vertex_chi2_over_ndf.push_back((*pvx)->chiSquared()/(*pvx)->numberDoF());       
       
       int isThisConvertedOfflineHS = 0;
       if ((*pvx)->vertexType() == xAOD::VxType::PriVtx) isThisConvertedOfflineHS = 1;
-      isConvertedOfflineHS.push_back(isThisConvertedOfflineHS);
+      m_isConvertedOfflineHS.push_back(isThisConvertedOfflineHS);
       
       for(vector<Trk::VxTrackAtVertex>::const_iterator ti=(*pvx)->vxTrackAtVertex().begin(); ti!=(*pvx)->vxTrackAtVertex().end(); ti++){
 	const Trk::Perigee* vertexPerigee = dynamic_cast <const Trk::Perigee*>(ti->perigeeAtVertex());
@@ -1434,14 +1434,14 @@ void FTK_RDO_ReaderAlgo::Fill_Converted_Vertices(unsigned int track_requirement)
 	}
 	
 	
-	offlineAlg_FTKconverted_vertex_associated_track_theta.push_back(trk_theta);
-	offlineAlg_FTKconverted_vertex_associated_track_phi0.push_back(trk_phi0);
-	offlineAlg_FTKconverted_vertex_associated_track_d0.push_back(trk_d0);
-	offlineAlg_FTKconverted_vertex_associated_track_z0.push_back(trk_z0);
-	if( fabs(sin(trk_theta)) >= 1e-9) offlineAlg_FTKconverted_vertex_associated_track_invPt.push_back(1000*trk_invPt/sin(trk_theta));
-	if( fabs(1000*trk_invPt) >= 1e-9) offlineAlg_FTKconverted_vertex_associated_track_Pt.push_back(sin(trk_theta)/(1000*trk_invPt));
-	offlineAlg_FTKconverted_vertex_associated_track_eta.push_back(trk_eta);
-	offlineAlg_FTKconverted_vertex_number.push_back(ivx);
+	m_offlineAlg_FTKconverted_vertex_associated_track_theta.push_back(trk_theta);
+	m_offlineAlg_FTKconverted_vertex_associated_track_phi0.push_back(trk_phi0);
+	m_offlineAlg_FTKconverted_vertex_associated_track_d0.push_back(trk_d0);
+	m_offlineAlg_FTKconverted_vertex_associated_track_z0.push_back(trk_z0);
+	if( fabs(sin(trk_theta)) >= 1e-9) m_offlineAlg_FTKconverted_vertex_associated_track_invPt.push_back(1000*trk_invPt/sin(trk_theta));
+	if( fabs(1000*trk_invPt) >= 1e-9) m_offlineAlg_FTKconverted_vertex_associated_track_Pt.push_back(sin(trk_theta)/(1000*trk_invPt));
+	m_offlineAlg_FTKconverted_vertex_associated_track_eta.push_back(trk_eta);
+	m_offlineAlg_FTKconverted_vertex_number.push_back(ivx);
 	
 	  
 	if( fabs(1000*trk_invPt) >= 1e-9) this_vertex_sumpt = fabs(this_vertex_sumpt+sin(trk_theta)/(1000*trk_invPt));
@@ -1449,13 +1449,13 @@ void FTK_RDO_ReaderAlgo::Fill_Converted_Vertices(unsigned int track_requirement)
 	else flag = false;
       }
       
-      if(this_vertex_sumpt*this_vertex_sumpt >= offlineAlg_FTKconverted_vertex_sumPt*offlineAlg_FTKconverted_vertex_sumPt && flag == true ){
-	offlineAlg_FTKconverted_vertex_sumPt = this_vertex_sumpt;
-	offlineAlg_FTKconverted_vertex_sumPt2_vtxNumber = ivx;
+      if(this_vertex_sumpt*this_vertex_sumpt >= m_offlineAlg_FTKconverted_vertex_sumPt*m_offlineAlg_FTKconverted_vertex_sumPt && flag == true ){
+	m_offlineAlg_FTKconverted_vertex_sumPt = this_vertex_sumpt;
+	m_offlineAlg_FTKconverted_vertex_sumPt2_vtxNumber = ivx;
       }
-      offlineAlg_FTKconverted_vertex_associated_track_nVerts.push_back(vxc->size());
+      m_offlineAlg_FTKconverted_vertex_associated_track_nVerts.push_back(vxc->size());
       
-      if(fabs(offlineAlg_FTKconverted_vertex_sumPt) >= 1e-9) offlineAlg_FTKconverted_vertex_sumPt2 = offlineAlg_FTKconverted_vertex_sumPt*offlineAlg_FTKconverted_vertex_sumPt;
+      if(fabs(m_offlineAlg_FTKconverted_vertex_sumPt) >= 1e-9) m_offlineAlg_FTKconverted_vertex_sumPt2 = m_offlineAlg_FTKconverted_vertex_sumPt*m_offlineAlg_FTKconverted_vertex_sumPt;
     }
   }
   delete(vxc);
@@ -1478,30 +1478,30 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Vertices(unsigned int track_requirement){
     int ivx=0;
     
     
-    offlineAlg_FTKrefit_vertex_ndf.clear();
-    offlineAlg_FTKrefit_vertex_chi2.clear();
-    offlineAlg_FTKrefit_vertex_chi2_over_ndf.clear();
-    offlineAlg_FTKrefit_vertex_x_position.clear();
-    offlineAlg_FTKrefit_vertex_y_position.clear();
-    offlineAlg_FTKrefit_vertex_z_position.clear();
-    offlineAlg_FTKrefit_vertex_x_error.clear();
-    offlineAlg_FTKrefit_vertex_y_error.clear();
-    offlineAlg_FTKrefit_vertex_z_error.clear();
-    offlineAlg_FTKrefit_vertex_nTrack.clear();
-    offlineAlg_FTKrefit_vertex_number.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_phi0.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_d0.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_z0.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_invPt.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_cot.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_eta.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_nVerts.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_VtxNumber.clear();    
-    offlineAlg_FTKrefit_vertex_number.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_Pt.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_eta.clear();
-    offlineAlg_FTKrefit_vertex_associated_track_theta.clear();
-    isRefitOfflineHS.clear();
+    m_offlineAlg_FTKrefit_vertex_ndf.clear();
+    m_offlineAlg_FTKrefit_vertex_chi2.clear();
+    m_offlineAlg_FTKrefit_vertex_chi2_over_ndf.clear();
+    m_offlineAlg_FTKrefit_vertex_x_position.clear();
+    m_offlineAlg_FTKrefit_vertex_y_position.clear();
+    m_offlineAlg_FTKrefit_vertex_z_position.clear();
+    m_offlineAlg_FTKrefit_vertex_x_error.clear();
+    m_offlineAlg_FTKrefit_vertex_y_error.clear();
+    m_offlineAlg_FTKrefit_vertex_z_error.clear();
+    m_offlineAlg_FTKrefit_vertex_nTrack.clear();
+    m_offlineAlg_FTKrefit_vertex_number.clear();
+    m_offlineAlg_FTKrefit_vertex_associated_track_phi0.clear();
+    m_offlineAlg_FTKrefit_vertex_associated_track_d0.clear();
+    m_offlineAlg_FTKrefit_vertex_associated_track_z0.clear();
+    m_offlineAlg_FTKrefit_vertex_associated_track_invPt.clear();
+    m_offlineAlg_FTKrefit_vertex_associated_track_cot.clear();
+    m_offlineAlg_FTKrefit_vertex_associated_track_eta.clear();
+    m_offlineAlg_FTKrefit_vertex_associated_track_nVerts.clear();
+    m_offlineAlg_FTKrefit_vertex_associated_track_VtxNumber.clear();    
+    m_offlineAlg_FTKrefit_vertex_number.clear();
+    m_offlineAlg_FTKrefit_vertex_associated_track_Pt.clear();
+    m_offlineAlg_FTKrefit_vertex_associated_track_eta.clear();
+    m_offlineAlg_FTKrefit_vertex_associated_track_theta.clear();
+    m_isRefitOfflineHS.clear();
 
     
     for (auto pvx = vxr->begin(); pvx != vxr->end(); pvx++, ivx++) {
@@ -1516,20 +1516,20 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Vertices(unsigned int track_requirement){
 		       " nDoF " << (*pvx)->numberDoF() );
       
 
-      offlineAlg_FTKrefit_vertex_nTrack.push_back((*pvx)->vxTrackAtVertex().size());
-      offlineAlg_FTKrefit_vertex_ndf.push_back((*pvx)->numberDoF());
-      offlineAlg_FTKrefit_vertex_chi2.push_back((*pvx)->chiSquared());
-      offlineAlg_FTKrefit_vertex_x_position.push_back((*pvx)->position().x());
-      offlineAlg_FTKrefit_vertex_y_position.push_back((*pvx)->position().y());
-      offlineAlg_FTKrefit_vertex_z_position.push_back((*pvx)->position().z());
-      offlineAlg_FTKrefit_vertex_x_error.push_back(sqrt((*pvx)->covariancePosition()(0,0)));
-      offlineAlg_FTKrefit_vertex_y_error.push_back(sqrt((*pvx)->covariancePosition()(1,1)));
-      offlineAlg_FTKrefit_vertex_z_error.push_back(sqrt((*pvx)->covariancePosition()(2,2)));
-      if (fabs((*pvx)->numberDoF()) >= 1e-9) offlineAlg_FTKrefit_vertex_chi2_over_ndf.push_back((*pvx)->chiSquared()/(*pvx)->numberDoF());       
+      m_offlineAlg_FTKrefit_vertex_nTrack.push_back((*pvx)->vxTrackAtVertex().size());
+      m_offlineAlg_FTKrefit_vertex_ndf.push_back((*pvx)->numberDoF());
+      m_offlineAlg_FTKrefit_vertex_chi2.push_back((*pvx)->chiSquared());
+      m_offlineAlg_FTKrefit_vertex_x_position.push_back((*pvx)->position().x());
+      m_offlineAlg_FTKrefit_vertex_y_position.push_back((*pvx)->position().y());
+      m_offlineAlg_FTKrefit_vertex_z_position.push_back((*pvx)->position().z());
+      m_offlineAlg_FTKrefit_vertex_x_error.push_back(sqrt((*pvx)->covariancePosition()(0,0)));
+      m_offlineAlg_FTKrefit_vertex_y_error.push_back(sqrt((*pvx)->covariancePosition()(1,1)));
+      m_offlineAlg_FTKrefit_vertex_z_error.push_back(sqrt((*pvx)->covariancePosition()(2,2)));
+      if (fabs((*pvx)->numberDoF()) >= 1e-9) m_offlineAlg_FTKrefit_vertex_chi2_over_ndf.push_back((*pvx)->chiSquared()/(*pvx)->numberDoF());       
       
       int isThisRefitOfflineHS = 0;
       if ((*pvx)->vertexType() == xAOD::VxType::PriVtx) isThisRefitOfflineHS = 1;
-      isRefitOfflineHS.push_back(isThisRefitOfflineHS);
+      m_isRefitOfflineHS.push_back(isThisRefitOfflineHS);
       
       
       for(vector<Trk::VxTrackAtVertex>::const_iterator ti=(*pvx)->vxTrackAtVertex().begin(); ti!=(*pvx)->vxTrackAtVertex().end(); ti++){
@@ -1552,14 +1552,14 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Vertices(unsigned int track_requirement){
 	}
 	
 	
-	offlineAlg_FTKrefit_vertex_associated_track_theta.push_back(trk_theta);
-	offlineAlg_FTKrefit_vertex_associated_track_phi0.push_back(trk_phi0);
-	offlineAlg_FTKrefit_vertex_associated_track_d0.push_back(trk_d0);
-	offlineAlg_FTKrefit_vertex_associated_track_z0.push_back(trk_z0);
-	if( fabs(sin(trk_theta)) >= 1e-9) offlineAlg_FTKrefit_vertex_associated_track_invPt.push_back(1000*trk_invPt/sin(trk_theta));
-	if( fabs(1000*trk_invPt) >= 1e-9) offlineAlg_FTKrefit_vertex_associated_track_Pt.push_back(sin(trk_theta)/(1000*trk_invPt));
-	offlineAlg_FTKrefit_vertex_associated_track_eta.push_back(trk_eta);
-	offlineAlg_FTKrefit_vertex_number.push_back(ivx);
+	m_offlineAlg_FTKrefit_vertex_associated_track_theta.push_back(trk_theta);
+	m_offlineAlg_FTKrefit_vertex_associated_track_phi0.push_back(trk_phi0);
+	m_offlineAlg_FTKrefit_vertex_associated_track_d0.push_back(trk_d0);
+	m_offlineAlg_FTKrefit_vertex_associated_track_z0.push_back(trk_z0);
+	if( fabs(sin(trk_theta)) >= 1e-9) m_offlineAlg_FTKrefit_vertex_associated_track_invPt.push_back(1000*trk_invPt/sin(trk_theta));
+	if( fabs(1000*trk_invPt) >= 1e-9) m_offlineAlg_FTKrefit_vertex_associated_track_Pt.push_back(sin(trk_theta)/(1000*trk_invPt));
+	m_offlineAlg_FTKrefit_vertex_associated_track_eta.push_back(trk_eta);
+	m_offlineAlg_FTKrefit_vertex_number.push_back(ivx);
 	
 	
 	if( fabs(1000*trk_invPt) >= 1e-9) this_vertex_sumpt = fabs(this_vertex_sumpt+sin(trk_theta)/(1000*trk_invPt));
@@ -1567,13 +1567,13 @@ void FTK_RDO_ReaderAlgo::Fill_Refit_Vertices(unsigned int track_requirement){
 	else flag = false;
 	}
       
-      if(this_vertex_sumpt*this_vertex_sumpt >= offlineAlg_FTKrefit_vertex_sumPt*offlineAlg_FTKrefit_vertex_sumPt && flag == true ){
-	offlineAlg_FTKrefit_vertex_sumPt = this_vertex_sumpt;
-	offlineAlg_FTKrefit_vertex_sumPt2_vtxNumber = ivx;
+      if(this_vertex_sumpt*this_vertex_sumpt >= m_offlineAlg_FTKrefit_vertex_sumPt*m_offlineAlg_FTKrefit_vertex_sumPt && flag == true ){
+	m_offlineAlg_FTKrefit_vertex_sumPt = this_vertex_sumpt;
+	m_offlineAlg_FTKrefit_vertex_sumPt2_vtxNumber = ivx;
       }
-      offlineAlg_FTKrefit_vertex_associated_track_nVerts.push_back(vxr->size());
+      m_offlineAlg_FTKrefit_vertex_associated_track_nVerts.push_back(vxr->size());
       
-      if(fabs(offlineAlg_FTKrefit_vertex_sumPt) >= 1e-9) offlineAlg_FTKrefit_vertex_sumPt2 = offlineAlg_FTKrefit_vertex_sumPt*offlineAlg_FTKrefit_vertex_sumPt;
+      if(fabs(m_offlineAlg_FTKrefit_vertex_sumPt) >= 1e-9) m_offlineAlg_FTKrefit_vertex_sumPt2 = m_offlineAlg_FTKrefit_vertex_sumPt*m_offlineAlg_FTKrefit_vertex_sumPt;
     }
   }
 
@@ -1596,27 +1596,27 @@ void FTK_RDO_ReaderAlgo::Fill_Offline_Vertices(unsigned int track_requirement){
     else {
       
       int ivertexc = 0;
-      offlineAlg_offlineTracks_vertex_x_position.clear();
-      offlineAlg_offlineTracks_vertex_y_position.clear();
-      offlineAlg_offlineTracks_vertex_z_position.clear();
-      offlineAlg_offlineTracks_vertex_x_error.clear();
-      offlineAlg_offlineTracks_vertex_y_error.clear();
-      offlineAlg_offlineTracks_vertex_z_error.clear();
-      offlineAlg_offlineTracks_vertex_chi2.clear();
-      offlineAlg_offlineTracks_vertex_nTrack.clear();
-      offlineAlg_offlineTracks_vertex_ndf.clear();
-      offlineAlg_offlineTracks_vertex_chi2_over_ndf.clear();
-      offlineAlg_offlineTracks_vertex_number.clear();
-      offlineAlg_offlineTracks_vertex_associated_track_theta.clear();
-      offlineAlg_offlineTracks_vertex_associated_track_eta.clear();
-      offlineAlg_offlineTracks_vertex_associated_track_phi0.clear();
-      offlineAlg_offlineTracks_vertex_associated_track_z0.clear();
-      offlineAlg_offlineTracks_vertex_associated_track_d0.clear();
-      offlineAlg_offlineTracks_vertex_associated_track_invPt.clear();
-      offlineAlg_offlineTracks_vertex_associated_track_Pt.clear();
-      offlineAlg_offlineTracks_vertex_associated_track_nVerts.clear();
-      offlineAlg_offlineTracks_vertex_associated_track_VtxNumber.clear();
-      isOfflineOfflineHS.clear();
+      m_offlineAlg_offlineTracks_vertex_x_position.clear();
+      m_offlineAlg_offlineTracks_vertex_y_position.clear();
+      m_offlineAlg_offlineTracks_vertex_z_position.clear();
+      m_offlineAlg_offlineTracks_vertex_x_error.clear();
+      m_offlineAlg_offlineTracks_vertex_y_error.clear();
+      m_offlineAlg_offlineTracks_vertex_z_error.clear();
+      m_offlineAlg_offlineTracks_vertex_chi2.clear();
+      m_offlineAlg_offlineTracks_vertex_nTrack.clear();
+      m_offlineAlg_offlineTracks_vertex_ndf.clear();
+      m_offlineAlg_offlineTracks_vertex_chi2_over_ndf.clear();
+      m_offlineAlg_offlineTracks_vertex_number.clear();
+      m_offlineAlg_offlineTracks_vertex_associated_track_theta.clear();
+      m_offlineAlg_offlineTracks_vertex_associated_track_eta.clear();
+      m_offlineAlg_offlineTracks_vertex_associated_track_phi0.clear();
+      m_offlineAlg_offlineTracks_vertex_associated_track_z0.clear();
+      m_offlineAlg_offlineTracks_vertex_associated_track_d0.clear();
+      m_offlineAlg_offlineTracks_vertex_associated_track_invPt.clear();
+      m_offlineAlg_offlineTracks_vertex_associated_track_Pt.clear();
+      m_offlineAlg_offlineTracks_vertex_associated_track_nVerts.clear();
+      m_offlineAlg_offlineTracks_vertex_associated_track_VtxNumber.clear();
+      m_isOfflineOfflineHS.clear();
 
     
       for (auto pv = offlineVertices->begin(); pv != offlineVertices->end(); pv++, ivertexc++) {
@@ -1628,20 +1628,20 @@ void FTK_RDO_ReaderAlgo::Fill_Offline_Vertices(unsigned int track_requirement){
 			 " ) chi2: " << (*pv)->chiSquared() << " Ndof: "<< (*pv)->numberDoF() <<
 			 " VertexType: " << this->strVertexType((*pv)->vertexType()));
 
-	offlineAlg_offlineTracks_vertex_nTrack.push_back((*pv)->vxTrackAtVertex().size());
-	offlineAlg_offlineTracks_vertex_ndf.push_back((*pv)->numberDoF());
-	offlineAlg_offlineTracks_vertex_chi2.push_back((*pv)->chiSquared());
-	offlineAlg_offlineTracks_vertex_x_position.push_back((*pv)->position().x());
-	offlineAlg_offlineTracks_vertex_y_position.push_back((*pv)->position().y());
-	offlineAlg_offlineTracks_vertex_z_position.push_back((*pv)->position().z());
-	offlineAlg_offlineTracks_vertex_x_error.push_back(sqrt((*pv)->covariancePosition()(0,0)));
-	offlineAlg_offlineTracks_vertex_y_error.push_back(sqrt((*pv)->covariancePosition()(1,1)));
-	offlineAlg_offlineTracks_vertex_z_error.push_back(sqrt((*pv)->covariancePosition()(2,2)));
-	if(fabs((*pv)->numberDoF()) >=1e-9) offlineAlg_offlineTracks_vertex_chi2_over_ndf.push_back((*pv)->chiSquared()/(*pv)->numberDoF());
+	m_offlineAlg_offlineTracks_vertex_nTrack.push_back((*pv)->vxTrackAtVertex().size());
+	m_offlineAlg_offlineTracks_vertex_ndf.push_back((*pv)->numberDoF());
+	m_offlineAlg_offlineTracks_vertex_chi2.push_back((*pv)->chiSquared());
+	m_offlineAlg_offlineTracks_vertex_x_position.push_back((*pv)->position().x());
+	m_offlineAlg_offlineTracks_vertex_y_position.push_back((*pv)->position().y());
+	m_offlineAlg_offlineTracks_vertex_z_position.push_back((*pv)->position().z());
+	m_offlineAlg_offlineTracks_vertex_x_error.push_back(sqrt((*pv)->covariancePosition()(0,0)));
+	m_offlineAlg_offlineTracks_vertex_y_error.push_back(sqrt((*pv)->covariancePosition()(1,1)));
+	m_offlineAlg_offlineTracks_vertex_z_error.push_back(sqrt((*pv)->covariancePosition()(2,2)));
+	if(fabs((*pv)->numberDoF()) >=1e-9) m_offlineAlg_offlineTracks_vertex_chi2_over_ndf.push_back((*pv)->chiSquared()/(*pv)->numberDoF());
 	
 	int isThisOfflineOfflineHS = 0;
 	if ((*pv)->vertexType() == xAOD::VxType::PriVtx) isThisOfflineOfflineHS = 1;
-	isOfflineOfflineHS.push_back(isThisOfflineOfflineHS);
+	m_isOfflineOfflineHS.push_back(isThisOfflineOfflineHS);
 	
 	
 	int offline_nverts_counter = 0;
@@ -1668,17 +1668,17 @@ void FTK_RDO_ReaderAlgo::Fill_Offline_Vertices(unsigned int track_requirement){
 	  }
 	  
 	  
-	  offlineAlg_offlineTracks_vertex_associated_track_theta.push_back(ol_trk_theta);
-	  offlineAlg_offlineTracks_vertex_associated_track_phi0.push_back(ol_trk_phi0);
-	  offlineAlg_offlineTracks_vertex_associated_track_d0.push_back(ol_trk_d0);
-	  offlineAlg_offlineTracks_vertex_associated_track_z0.push_back(ol_trk_z0);
-	  if(fabs(sin(ol_trk_theta)) >= 1e-9) offlineAlg_offlineTracks_vertex_associated_track_invPt.push_back(1000*ol_trk_invPt/sin(ol_trk_theta));
-	  if(fabs(1000*ol_trk_invPt) >= 1e-9) offlineAlg_offlineTracks_vertex_associated_track_Pt.push_back(sin(ol_trk_theta)/(1000*ol_trk_invPt));
-	  offlineAlg_offlineTracks_vertex_associated_track_eta.push_back(ol_trk_eta);
-	  offlineAlg_offlineTracks_vertex_associated_track_VtxNumber.push_back(ivertexc);
+	  m_offlineAlg_offlineTracks_vertex_associated_track_theta.push_back(ol_trk_theta);
+	  m_offlineAlg_offlineTracks_vertex_associated_track_phi0.push_back(ol_trk_phi0);
+	  m_offlineAlg_offlineTracks_vertex_associated_track_d0.push_back(ol_trk_d0);
+	  m_offlineAlg_offlineTracks_vertex_associated_track_z0.push_back(ol_trk_z0);
+	  if(fabs(sin(ol_trk_theta)) >= 1e-9) m_offlineAlg_offlineTracks_vertex_associated_track_invPt.push_back(1000*ol_trk_invPt/sin(ol_trk_theta));
+	  if(fabs(1000*ol_trk_invPt) >= 1e-9) m_offlineAlg_offlineTracks_vertex_associated_track_Pt.push_back(sin(ol_trk_theta)/(1000*ol_trk_invPt));
+	  m_offlineAlg_offlineTracks_vertex_associated_track_eta.push_back(ol_trk_eta);
+	  m_offlineAlg_offlineTracks_vertex_associated_track_VtxNumber.push_back(ivertexc);
 	  offline_nverts_counter++;
 	  
-	  offlineAlg_offlineTracks_vertex_number.push_back(ivertexc);
+	  m_offlineAlg_offlineTracks_vertex_number.push_back(ivertexc);
 	  
 	  float pT = sin(ol_trk_theta)/(1000*ol_trk_invPt);
 	  this_vertex_sumpt = fabs(this_vertex_sumpt+pT);
@@ -1688,15 +1688,15 @@ void FTK_RDO_ReaderAlgo::Fill_Offline_Vertices(unsigned int track_requirement){
 	  else flag = false;
 	  
 	}
-	offlineAlg_offlineTracks_vertex_associated_track_nVerts.push_back(offline_nverts_counter);
+	m_offlineAlg_offlineTracks_vertex_associated_track_nVerts.push_back(offline_nverts_counter);
 	
-	if(this_vertex_sumpt2 >= offlineAlg_offlineTracks_vertex_sumPt2 && flag == true){
-	  offlineAlg_offlineTracks_vertex_sumPt2 = this_vertex_sumpt2;
-	  offlineAlg_offlineTracks_vertex_sumPt2_vtxNumber = ivertexc;
+	if(this_vertex_sumpt2 >= m_offlineAlg_offlineTracks_vertex_sumPt2 && flag == true){
+	  m_offlineAlg_offlineTracks_vertex_sumPt2 = this_vertex_sumpt2;
+	  m_offlineAlg_offlineTracks_vertex_sumPt2_vtxNumber = ivertexc;
 	}
     }
     //}
-      offlineAlg_offlineTracks_vertex_sumPt2 = offlineAlg_offlineTracks_vertex_sumPt*offlineAlg_offlineTracks_vertex_sumPt;   
+      m_offlineAlg_offlineTracks_vertex_sumPt2 = m_offlineAlg_offlineTracks_vertex_sumPt*m_offlineAlg_offlineTracks_vertex_sumPt;   
     }
   }
 }
@@ -1714,9 +1714,9 @@ void FTK_RDO_ReaderAlgo::Fill_Truth_Vtx(){
 
        const xAOD::TruthVertex *vertex =  (*importedTruthVertices)[0];
        
-       truth_x0 = vertex->x();
-       truth_y0 = vertex->y();
-       truth_z0 = vertex->z();
+       m_truth_x0 = vertex->x();
+       m_truth_y0 = vertex->y();
+       m_truth_z0 = vertex->z();
 
      }
   }

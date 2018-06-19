@@ -338,32 +338,6 @@ bool MuonTGC_CablingSvc::getOfflineIDfromReadoutID(Identifier & offlineID,
 						   const int channelID,
 						   bool orChannel) const
 {
-  static Identifier cache_offlineID;
-  static int cache_subDetectorID = -1;
-  static int cache_rodID = -1;
-  static int cache_sswID = -1;
-  static int cache_sbLoc = -1;
-  static int cache_channelID = -1;
-  static bool cache_orChannel = false;
-  static bool cache_status = false; 
-  
-  if((cache_channelID==channelID) && 
-     (cache_orChannel==orChannel) &&
-     (cache_sbLoc==sbLoc) && 
-     (cache_sswID==sswID) &&
-     (cache_rodID==rodID) &&
-     (cache_subDetectorID==subDetectorID)) {
-    offlineID = cache_offlineID;
-    return cache_status;
-  }
-  
-  cache_subDetectorID = subDetectorID;
-  cache_rodID = rodID;
-  cache_sswID = sswID;
-  cache_sbLoc = sbLoc;
-  cache_channelID = channelID;
-  cache_orChannel = orChannel;
-  
   int subsystemNumber;
   int octantNumber;
   int moduleNumber;
@@ -399,7 +373,6 @@ bool MuonTGC_CablingSvc::getOfflineIDfromReadoutID(Identifier & offlineID,
 	  << endmsg;
   }
   if(!status) {
-    cache_status = status; 
     return status;
   }
 
@@ -423,9 +396,6 @@ bool MuonTGC_CablingSvc::getOfflineIDfromReadoutID(Identifier & offlineID,
 	  << " channel=" << channelNumber  
 	  << endmsg;
   }
-  
-  cache_offlineID = offlineID;
-  cache_status = status;
   
   return status;
 }
@@ -550,16 +520,13 @@ bool MuonTGC_CablingSvc::getOnlineIDfromOfflineID(const Identifier & offlineId,
 {
   // get station name in string format : T1F,T1E,T2F...
   const int iStation  =  m_idHelper->stationName(offlineId);
-  const std::string stationName_str = m_idHelper->stationNameString(iStation);
+  const int stationType = (iStation - 39)/2;
+
+  if((stationType <1) || (stationType >4)) return false; 
   
   // eta and phi
   int iEta = m_idHelper->stationEta(offlineId);
   int iPhi = m_idHelper->stationPhi(offlineId);
-  
-  // station type : ex. T1E -> 1, T2F->2
-  std::string station_str = stationName_str.substr(1, 1);
-  const int stationType = atoi(station_str.c_str());
-  if((stationType <1) || (stationType >4)) return false; 
   
   // forward/endcap
   enum {FORWARD, ENDCAP};
@@ -1064,15 +1031,11 @@ bool MuonTGC_CablingSvc::getReadoutIDfromElementID(const Identifier & elementID,
 {
   // get station name in string format : T1F,T1E,T2F...
   const int iStation = m_idHelper->stationName(elementID);
-  const std::string stationName_str = m_idHelper->stationNameString(iStation);
-  
+  const int stationType = (iStation - 39)/2;
+
   int iEta = m_idHelper->stationEta(elementID);
   int iPhi = m_idHelper->stationPhi(elementID);
        
-  // station type : ex. T1E -> 1, T2F->2
-  std::string station_str = stationName_str.substr(1, 1);
-  const int stationType = atoi(station_str.c_str());
-
   // forward/endcap
   enum {FORWARD, ENDCAP};
   const int regionType = m_idHelper->isForward(elementID) ? FORWARD : ENDCAP;

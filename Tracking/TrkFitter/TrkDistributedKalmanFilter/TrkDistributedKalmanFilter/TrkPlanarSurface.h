@@ -12,8 +12,8 @@
 // D.Emeliyanov@rl.ac.uk
 ///////////////////////////////////////////////////////////////////
 
-#ifndef __TRK_PLANAR_SURFACE_H__
-#define __TRK_PLANAR_SURFACE_H__
+#ifndef TRKDISTRIBUTEDKALMANFILTER_TRK_PLANAR_SURFACE_H
+#define TRKDISTRIBUTEDKALMANFILTER_TRK_PLANAR_SURFACE_H
 
 namespace Trk {	
   class Surface;
@@ -27,27 +27,27 @@ namespace Trk
       TrkPlanarSurface(double Center[3],
 		       double Normal[3], double Transform[3][3], double, const Surface* pS = 0);
       ~TrkPlanarSurface();
-      const double* m_getParameters();
-      double m_getPar(int);
-      double m_radiusVector();
-      const double* m_getCenter();
-      const double* m_getNormal();
-      double m_getRotMatrix(int,int);
-      double m_getInvRotMatrix(int,int);
-      double m_getRadLength();
-      double m_calculateCombinedMatrix(int,int,TrkPlanarSurface*);
-      void m_rotateVectorToLocal(double*,double*);
-      void m_rotateVectorToGlobal(double*,double*);
-      void m_transformPointToLocal(double*,double*);
-      void m_transformPointToGlobal(double*,double*);
-      void m_setBreakPoint(double);
-      void m_unsetBreakPoint(){m_breakPoint=false;}
-      bool m_isBreakPoint();
-      double m_getInput();
-      void m_report();
-      const Surface* m_getTrkSurface();
+      const double* getParameters();
+      double getPar(int);
+      double radiusVector();
+      const double* getCenter();
+      const double* getNormal();
+      double getRotMatrix(int,int);
+      double getInvRotMatrix(int,int);
+      double getRadLength();
+      double calculateCombinedMatrix(int,int,TrkPlanarSurface*);
+      void rotateVectorToLocal(double*,double*);
+      void rotateVectorToGlobal(double*,double*);
+      void transformPointToLocal(double*,double*);
+      void transformPointToGlobal(double*,double*);
+      void setBreakPoint(double);
+      void unsetBreakPoint(){m_breakPoint=false;}
+      bool isBreakPoint();
+      double getInput();
+      void report();
+      const Surface* getTrkSurface();
     private:
-      void m_calculateInverseTransform();
+      void calculateInverseTransform();
       double m_Params[4];
       double m_Center[3];
       double m_Normal[3];

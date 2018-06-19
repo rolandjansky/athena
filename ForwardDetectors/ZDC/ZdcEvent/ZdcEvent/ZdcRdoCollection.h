@@ -5,8 +5,8 @@
 #ifndef ZDCRDOCOLLECTION_H
 #define ZDCRDOCOLLECTION_H
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include "ZdcEvent/ZdcRdo.h"
 
 /** @class ZdcRdoCollection

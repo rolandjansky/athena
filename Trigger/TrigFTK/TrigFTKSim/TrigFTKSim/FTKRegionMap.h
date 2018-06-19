@@ -99,7 +99,6 @@ private:
   std::string m_path; // configuration file path
   bool m_isok;
   bool m_old_format; // old_format = 8 regions; otherwise 64 towers
-  bool m_ITk_format; // ITk_format = specific to ITk geometry
   FTKPlaneMap *m_pmap;
   FTKPlaneMap *m_m_pmap; //whether this class 'owns' m_pmap
   int m_nregions;

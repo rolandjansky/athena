@@ -6,13 +6,16 @@
 #define G4ATLASTESTS_ISIMTESTTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
-class ISimTestTool : virtual public IAlgTool{
+
+/// Interface for the simulation test tools.
+///
+class ISimTestTool : virtual public IAlgTool
+{
 public:
   virtual StatusCode processEvent() = 0;
 
   /// Creates the InterfaceID and interfaceID() method
   DeclareInterfaceID(ISimTestTool, 1, 0);
-
 };
 
 #endif //G4ATLASTESTS_ISIMTESTTOOL_H

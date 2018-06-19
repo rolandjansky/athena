@@ -204,13 +204,16 @@ InDetFlags.doSCTModuleVeto.set_Value_and_Lock                      (True)
 
 include ("RecExCommon/RecExCommon_topOptions.py")
 
+from IOVDbSvc.CondDB import conddb
+conddb.addOverride ('/SCT/Manual/BadModules', 'SCTManualBadModules-000-00')
+
 
 ServiceMgr.SpecialPixelMapSvc.MaskLayers = True
 ServiceMgr.SpecialPixelMapSvc.LayersToMask = [0]
 
-ServiceMgr.InDetSCT_ModuleVetoSvc.MaskLayers = True
-ServiceMgr.InDetSCT_ModuleVetoSvc.MaskSide = -1
-ServiceMgr.InDetSCT_ModuleVetoSvc.DisksToMask = [-9]
+#ServiceMgr.InDetSCT_ModuleVetoSvc.MaskLayers = True
+#ServiceMgr.InDetSCT_ModuleVetoSvc.MaskSide = -1
+#ServiceMgr.InDetSCT_ModuleVetoSvc.DisksToMask = [-9]
 
 import AtlasGeoModel.GeoModelInit
 svcMgr.GeoModelSvc.IgnoreTagDifference = True

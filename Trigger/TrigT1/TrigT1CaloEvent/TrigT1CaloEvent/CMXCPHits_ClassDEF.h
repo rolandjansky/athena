@@ -6,8 +6,8 @@
 #include "TrigT1CaloEvent/CMXCPHits.h"
 #endif
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 
 CLASS_DEF( LVL1::CMXCPHits , 196617589 , 1 )
 CLASS_DEF( DataVector<LVL1::CMXCPHits> , 99664276 , 1 )

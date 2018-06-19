@@ -34,9 +34,9 @@ class TRTStrawStatusWrite : public AthAlgorithm
 
   ServiceHandle<ITRT_ConditionsSvc> m_trtStrawStatusIF;
   ServiceHandle<ITRT_StrawStatusSummarySvc> m_trtStrawStatus;
-  std::string  par_statusfile;
-  std::string  par_statusfilepermanent;
-  std::string  par_statusfileHT;
+  std::string  m_par_statusfile;
+  std::string  m_par_statusfilepermanent;
+  std::string  m_par_statusfileHT;
   bool m_setup;
 };
 

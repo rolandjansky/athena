@@ -54,7 +54,7 @@ namespace Trig {
 #ifndef XAOD_STANDALONE
       declareProperty( "ConfigSvc", m_configSvc );
 #endif // not XAOD_STANDALONE
-      declareProperty( "ConfigTool", m_configTool );
+      declareProperty( "ConfigTool", m_configTool=nullptr );
    }
 
    StatusCode TrigConfBunchCrossingTool::initialize() {

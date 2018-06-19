@@ -62,7 +62,6 @@
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
 #include "TrkExInterfaces/IMaterialEffectsUpdator.h"
 
-#include "TrkDetDescrInterfaces/IMaterialEffectsOnTrackProvider.h"
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
@@ -104,7 +103,6 @@ namespace Trk {
     m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
     m_calotool("Rec::MuidMaterialEffectsOnTrackProvider/MuidMaterialEffectsOnTrackProvider"),
     m_calotoolparam(""),
-    m_cmeotp("Trk::CaloMaterialEffectsOnTrackProvider/CaloMaterialEffectsOnTrackProvider"),
     m_fieldService("AtlasFieldSvc", n),
     m_trackingGeometrySvc("", n),
     // m_trackingVolumesSvc    ("TrackingVolumesSvc/TrackingVolumesSvc",n),
@@ -145,7 +143,8 @@ namespace Trk {
     m_updatescat{},
     m_useCaloTG(false),
     m_caloMaterialProvider("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool"),
-    m_rejectLargeNScat(false){
+    m_rejectLargeNScat(false),
+    m_MMCorrectionStatus(0){
     // tools and services
     declareProperty("ExtrapolationTool", m_extrapolator);
     declareProperty("MeasurementUpdateTool", m_updator);
@@ -2240,7 +2239,48 @@ namespace Trk {
     MeasurementSet::const_iterator itSet = rots.begin();
     MeasurementSet::const_iterator itSetEnd = rots.end();
     GXFTrajectory trajectory;
-    for (; itSet != itSetEnd; ++itSet) {
+
+    if (m_MMCorrectionStatus==0) {
+      for (itSet = rots.begin(); itSet != itSetEnd; ++itSet) {
+        if ((*itSet)) {
+          if (m_DetID->is_mm((*itSet)->associatedSurface().associatedDetectorElementIdentifier())) {
+            m_MMCorrectionStatus = 1;
+            break;
+          }
+        }
+      }
+    }
+
+    if (m_MMCorrectionStatus==1) {
+      itSet = rots.begin();
+      MeasurementSet rots_new;
+      MeasurementSet rots_tbd;
+      for (itSet = rots.begin(); itSet != itSetEnd; ++itSet) {
+          if (!(*itSet)) {
+            msg(MSG::WARNING) << "There is an empty MeasurementBase object in the track! Skip this object.." << endmsg;
+          } else {
+            const RIO_OnTrack *rot = dynamic_cast<const RIO_OnTrack *>(*itSet);
+            if (rot && m_DetID->is_mm(rot->identify())) {
+              const PlaneSurface* surf = dynamic_cast<const PlaneSurface *>(&rot->associatedSurface());
+              AtaPlane atapl(surf->center(), param.parameters()[Trk::phi], param.parameters()[Trk::theta], param.parameters()[Trk::qOverP], *surf);
+              rot = m_ROTcreator->correct(*(rot->prepRawData()), atapl);
+              rots_tbd.push_back(rot);
+              rots_new.push_back(rot);
+            } else {
+              rots_new.push_back(*itSet);
+            }
+          }
+      }
+      m_MMCorrectionStatus = -1;
+      Track *track = fit(rots_new, param, runOutlier, matEffects);
+      m_MMCorrectionStatus = 0;
+      for (MeasurementSet::const_iterator it = rots_tbd.begin(); it != rots_tbd.end(); it++) {
+        delete *it;
+      }
+      return track;
+    }
+
+    for (itSet = rots.begin(); itSet != itSetEnd; ++itSet) {
       if (!(*itSet)) {
         msg(MSG::WARNING) << "There is an empty MeasurementBase object in the track! Skip this object.." << endmsg;
       }else {

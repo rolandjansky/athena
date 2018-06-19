@@ -25,12 +25,13 @@
 #include "TrkEventTPCnv/SegmentCollectionCnv_tlp1.h"
 #include "TrkEventTPCnv/SegmentCollectionCnv_tlp2.h"
 #include "TrkEventTPCnv/SegmentCollectionCnv_tlp3.h"
+#include "TrkEventTopLevelCnv/SegmentCollectionCnv_tlp4.h"
 
 //-----------------------------------------------------------------------------
 // Base class definition
 //-----------------------------------------------------------------------------
-typedef Trk::SegmentCollection_tlp3 SegmentCollection_PERS;
-typedef SegmentCollectionCnv_tlp3 SegmentCollectionCNV_PERS;
+typedef Trk::SegmentCollection_tlp4 SegmentCollection_PERS;
+typedef SegmentCollectionCnv_tlp4 SegmentCollectionCNV_PERS;
 
 typedef T_AthenaPoolCustomCnv<Trk::SegmentCollection, SegmentCollection_PERS> SegmentCollectionCnvBase;
 
@@ -43,10 +44,11 @@ class SegmentCollectionCnv
 {
 friend class CnvFactory<SegmentCollectionCnv>;
 
-protected:
+public:
   SegmentCollectionCnv( ISvcLocator *svcloc );
+
+protected:
   ~SegmentCollectionCnv();
-  virtual StatusCode initialize();
 
   virtual SegmentCollection_PERS *createPersistent( Trk::SegmentCollection *transCont);
   virtual Trk::SegmentCollection *createTransient();
@@ -54,14 +56,20 @@ protected:
   virtual AthenaPoolTopLevelTPCnvBase* getTopLevelTPCnv() { return &m_TPConverterForPER; }
 
 private:
+  void    initializeOldExtConverters();  //!< setup old extended converters when reading old data
   void    updateLog(); //!< This method modifies m_log to indicate the current key being converted
 
   IMessageSvc           *m_msgSvc;
   MsgStream             m_log;
+  bool                  m_oldExtCnvInitialized = false;
 
   SegmentCollectionCnv_tlp1 m_TPConverter_tlp1;
   SegmentCollectionCnv_tlp2 m_TPConverter_tlp2;
+  SegmentCollectionCnv_tlp3 m_TPConverter_tlp3;
   SegmentCollectionCNV_PERS m_TPConverterForPER;
 };
 
 #endif // TRKEVENTATHENAPOOL_SEGMENTCOLLECTIONCNV_H
+
+
+

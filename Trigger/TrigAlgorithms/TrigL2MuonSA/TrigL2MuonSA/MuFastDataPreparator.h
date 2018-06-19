@@ -112,6 +112,7 @@ class MuFastDataPreparator: public AthAlgTool
  private:
   
   const TrigL2MuonSA::PtEndcapLUTSvc*    m_ptEndcapLUTSvc;
+  //ServiceHandle<PtEndcapLUTSvc>    m_ptEndcapLUTSvc;
 
   // Tools
   ToolHandle<RpcDataPreparator>  m_rpcDataPreparator;

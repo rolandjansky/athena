@@ -37,6 +37,8 @@ StatusCode InDet::ToolTester::initialize() {
   ATH_CHECK( m_selTool.retrieve() );
 
   ATH_CHECK( m_sgKey.initialize() );
+
+  ATH_CHECK( m_vertexKey.initialize() );
   // Return gracefully:
   return StatusCode::SUCCESS;
 }
@@ -52,6 +54,14 @@ StatusCode InDet::ToolTester::execute_r(const EventContext &ctx) const {
   Int_t numberOfTracks = tracks->size();
   ATH_MSG_INFO( "Number of tracks: " << numberOfTracks );
 
+
+  // retrieve vertex container to look for tracks
+  SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey, ctx };
+  if (!vertices.isValid()) {
+    ATH_MSG_ERROR("Invalid xAOD::VertexContainer " << m_vertexKey.key() );
+    return StatusCode::FAILURE;
+  }
+
   // we will be copying TAccepts to see if the cuts are consistent for each version of accept().
   // this is not how the tool should be used outside of testing, as it is expensive to copy
   // the TAccepts.
@@ -62,10 +72,23 @@ StatusCode InDet::ToolTester::execute_r(const EventContext &ctx) const {
 
   // Loop over them:
   for ( const xAOD::TrackParticle* track : *tracks ) {
+    const xAOD::Vertex* foundVertex = nullptr;
+    for (const auto& vertex : *vertices)
+    {
+      for (const auto& tpLink : vertex->trackParticleLinks())
+      {
+	if (*tpLink == track)
+	{
+	  foundVertex = vertex;
+	  break;
+	}
+      }
+      if (foundVertex) break;
+    }
     // Select "good" tracks:
-    if( ! m_selTool->accept( *track , track->vertex() ) ) continue;
+    if( ! m_selTool->accept( *track , foundVertex ) ) continue;
     numberOfGoodTracks++;
-    acceptxAOD = m_selTool->accept( *track, track->vertex() );
+    acceptxAOD = m_selTool->accept( *track, foundVertex );
 #ifndef XAOD_ANALYSIS // if we are in full athena we have access to Trk::Tracks
      if (track->track()) {
        Trk::Track trkTrack = *(track->track());

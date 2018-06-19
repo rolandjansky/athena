@@ -271,8 +271,8 @@ StatusCode McEventCollectionFilter::SiliconHitsTruthRelink(){
   return StatusCode::SUCCESS;
 }
 
-StatusCode McEventCollectionFilter::SiHitsTruthRelink(SG::ReadHandle<SiHitCollection>& m_inputHits, SG::WriteHandle<SiHitCollection>& m_outputHits){
-  for (SiHitCollection::const_iterator i = m_inputHits->begin(); i != m_inputHits->end(); ++i) {
+StatusCode McEventCollectionFilter::SiHitsTruthRelink(SG::ReadHandle<SiHitCollection>& inputHits, SG::WriteHandle<SiHitCollection>& outputHits){
+  for (SiHitCollection::const_iterator i = inputHits->begin(); i != inputHits->end(); ++i) {
     const HepMcParticleLink McLink = (*i).particleLink();
 
 
@@ -285,7 +285,7 @@ StatusCode McEventCollectionFilter::SiHitsTruthRelink(SG::ReadHandle<SiHitCollec
     int CurBarcode=0;
     if(McLink.barcode()!=0)  CurBarcode=m_RefBarcode;
 
-    m_outputHits->Emplace(lP1,lP2, edep, mt,CurBarcode , id);
+    outputHits->Emplace(lP1,lP2, edep, mt,CurBarcode , id);
   }
 
   return StatusCode::SUCCESS;

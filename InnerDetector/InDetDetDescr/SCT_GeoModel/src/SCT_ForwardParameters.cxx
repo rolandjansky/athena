@@ -109,7 +109,7 @@ SCT_ForwardParameters::fwdWheelRingMapIndex(int iWheel, int iRing, int ec) const
   index = fwdWheelRingMapIndexDB(iWheelDB, iRing);
   if (index < 0) {
     std::cout << "Wheel (numbering from 1)" << iWheelDB << ", Ring " << iRing 
-	      << " not in table SctFwdWheelRingMap" << std::endl;
+              << " not in table SctFwdWheelRingMap" << std::endl;
   }
   return index;
 }
@@ -773,4 +773,22 @@ SCT_ForwardParameters::fwdOptoHarnessMaterial(int index) const
   return m_rdb->fwdOptoHarness(index)->getString("MATERIAL");
 }
 
+SCT_ForwardParameters&
+SCT_ForwardParameters::operator=(const SCT_ForwardParameters& right) {
+  if (this != &right) {
+    m_rdb = right.m_rdb;
+    m_fsiHelper = nullptr;
+    if (right.m_fsiHelper!=nullptr) {
+      m_fsiHelper = new FSIHelper(m_rdb);
+    }
+  }
+  return *this;
+}
 
+SCT_ForwardParameters::SCT_ForwardParameters(const SCT_ForwardParameters& right) {
+  m_rdb = right.m_rdb;
+  m_fsiHelper = nullptr;
+  if (right.m_fsiHelper!=nullptr) {
+    m_fsiHelper = new FSIHelper(m_rdb);
+  }
+}

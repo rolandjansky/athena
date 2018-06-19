@@ -23,6 +23,7 @@ comments: A. Wildauer: 27.01.2005 rewritten into an AlgTool
 // #include "JetEvent/JetAssociationBase.h"
 
 #include "xAODJet/Jet.h"
+#include "xAODJet/JetContainer.h"
 
 #include <vector>
 #include <list>
@@ -71,6 +72,11 @@ class ParticleToJetAssociator : public asg::AsgTool {
         template<typename ConstituentType, typename coll>
             std::vector<ConstituentType*>
             associateParticlesToJets(jetcollection_t* theJets,
+                    const coll* particleContainer,
+                    const std::string& constituentName) const;
+        template<typename ConstituentType, typename coll>
+            std::vector<ConstituentType*>
+            associateParticlesToJets(const xAOD::JetContainer* theJets,
                     const coll* particleContainer,
                     const std::string& constituentName) const;
 
@@ -268,6 +274,104 @@ template<typename ConstituentType, typename coll>
         return vecTrackConst;
     }
 
+template<typename ConstituentType, typename coll>
+    inline std::vector<ConstituentType*>
+    ParticleToJetAssociator::associateParticlesToJets(const xAOD::JetContainer * theJets,
+            const coll* particleContainer,
+            const std::string& constituentName) const {
+
+        std::vector<ConstituentType*> vecTrackConst;
+        ATH_MSG_VERBOSE("Number of Jets      : " << theJets->size());
+        if (theJets->size()<1) return vecTrackConst;
+        ATH_MSG_VERBOSE("Number of Particles of Type " << constituentName << " : " << particleContainer->size());
+
+        for (xAOD::JetContainer::const_iterator itr = theJets->begin(); itr != theJets->end(); ++itr) {
+            //    NameType name(constituentName);
+            vecTrackConst.push_back(new ConstituentType);
+        }
+
+        int index(0);
+        if(!m_shareTracks) {
+            // Case 1: associate a track to only one jet:
+            // loop through track particles and add to closest jet
+            typename coll::const_iterator tpItr = particleContainer->begin();
+            for (; tpItr!=particleContainer->end() ; tpItr++) {
+                double pt = (*tpItr)->pt();
+                double deltaRMatch(1000);
+                // BUG: this used to claim it was printing the jet
+                // pt...
+                ATH_MSG_VERBOSE("Particle-Jet association (no sharing). TRACK pT= " << pt);
+                bool findAMatch = false;
+                int i(0);
+                const xAOD::Jet *theJet = 0;
+                for (xAOD::JetContainer::const_iterator itr = theJets->begin(); itr != theJets->end(); ++itr) {
+                    double r = (*itr)->p4().DeltaR((*tpItr)->p4());
+                    if ( r < deltaRMatch ) {
+                        deltaRMatch = r;
+                        index = i;
+                        findAMatch = true;
+                        theJet = (*itr);
+                    }
+                    i++;
+                }
+
+                ATH_MSG_VERBOSE(" matching: find= " << findAMatch << " dR=" << deltaRMatch);
+                double trackCone = m_trackCone;
+                if( m_useVariableSizedTrackCone ) {
+                    if(0 != theJet)
+                        trackCone = getConeSize(theJet->pt());
+
+                    ATH_MSG_VERBOSE("Using Variable Sized Cone of " << trackCone); 
+                } else {
+                    ATH_MSG_VERBOSE("Using Fixed Sized Cone of " << trackCone);
+                }
+                if (findAMatch && deltaRMatch < trackCone ) {
+                    // FF: changed this to assume an STL container or at least push_back() functionality
+                    //     note that this does not have any mechanism for updating particle weights etc.
+                    // vecTrackConst[index]->set_association(particleContainer, (*tpItr), 0.);
+                    vecTrackConst[index]->push_back(*tpItr);
+                    ATH_MSG_VERBOSE(" added constituent to Jet " << index);
+                }
+            }
+        } else {
+            // Case 2: can associate a track to many jets:
+            // loop on jets and tracks
+            xAOD::JetContainer::const_iterator jetItr = theJets->begin();
+            xAOD::JetContainer::const_iterator jetEnd = theJets->end();
+            for(; jetItr!=jetEnd; jetItr++) {
+                typename coll::const_iterator tpItr = particleContainer->begin();
+                typename coll::const_iterator tpEnd = particleContainer->end();
+                for(; tpItr!=tpEnd; tpItr++) {
+                    double dR = (*jetItr)->p4().DeltaR((*tpItr)->p4());
+                    double trackCone = m_trackCone;
+                    if( m_useVariableSizedTrackCone ) {
+                        trackCone = getConeSize((*jetItr)->pt());
+                        ATH_MSG_VERBOSE("Using Variable Sized Cone of " << trackCone); 
+                    } else {
+                        ATH_MSG_VERBOSE("Using Fixed Sized Cone of " << trackCone);
+                    }
+                    if(dR<trackCone) {
+                        ATH_MSG_VERBOSE("Particle-jet association (with sharing): "
+                                << " jet pt,phi,eta= " << (*jetItr)->pt() << " " << (*jetItr)->phi() << " " << (*jetItr)->eta()
+                                << " trk pt,phi,eta= " << (*tpItr)->pt() << " " << (*tpItr)->phi() << " " << (*tpItr)->eta());
+                        // FF: changed this to assume an STL container or at least push_back() functionality
+                        //     note that this does not have any mechanism for updating particle weights etc.
+                        // vecTrackConst[index]->set_association( particleContainer, (*tpItr), 0);
+                        vecTrackConst[index]->push_back(*tpItr);
+                    }
+                }
+                index++;
+            }
+        }
+        // FF: the code below cannot be used for xAOD::Jet
+        // index=0;
+        // for (jetcollection_t::iterator itr = theJets->begin(); itr != theJets->end(); ++itr) {
+        //     (*itr)->setAssociation( vecTrackConst[index] );
+        //     index++;
+        //   } 
+
+        return vecTrackConst;
+    }
 
 } // End namespace
 #endif

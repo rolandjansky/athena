@@ -80,7 +80,7 @@ void L1JetTools::mapJetInputs(const DataVector<JetElement>* jes, std::map<int, J
        if (test == elements->end()){
        // no JI yet. Create it!
          ATH_MSG_DEBUG( "Creating JetInput at ("
-                        << jetElementPhi << " , " << jetElementEta << ")" );;
+                        << jetElementPhi << " , " << jetElementEta << ")" );
          jetInput=new JetInput(jetElementPhi,jetElementEta, jetElementET, key);
          elements->insert(std::map<int, JetInput*>::value_type(key,jetInput)); //and put it in the map.
        }

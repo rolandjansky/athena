@@ -12,7 +12,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParameters
                           graphics/JiveXML
                           PRIVATE
-                          Control/DataModel
+                          Control/AthLinks
+                          Control/AthContainers
                           Control/StoreGate
                           DetectorDescription/AtlasDetDescr
                           Reconstruction/Particle
@@ -34,7 +35,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TrkJiveXML
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkParameters JiveXMLLib DataModel StoreGateLib SGtests AtlasDetDescr Particle TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkMeasurementBase TrkParticleBase TrkRIO_OnTrack TrkSegment TrkTrack TrkTrackSummary TrkTruthData VxVertex TrkToolInterfaces )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkParameters JiveXMLLib AthLinks AthContainers StoreGateLib SGtests AtlasDetDescr Particle TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkMeasurementBase TrkParticleBase TrkRIO_OnTrack TrkSegment TrkTrack TrkTrackSummary TrkTruthData VxVertex TrkToolInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TrkJiveXML )

@@ -216,7 +216,7 @@ namespace G4UA{
     std::string CurrentLogicalVolumeName = pCurrentLogicalVolume->GetName();
     std::string OrigLogicalVolumeName = CurrentLogicalVolumeName;
     //  std::cout <<"ZH Step length: "<<aStep->GetStepLength() /CLHEP::mm <<" in "<<OrigLogicalVolumeName<<std::endl;
-    double StepLength = aStep->GetStepLength()/ CLHEP::mm;;
+    double StepLength = aStep->GetStepLength()/ CLHEP::mm;
     //std::cout <<"ZH Step: "<<StepLength<<std::endl;
     //std::cout <<"Current : "<<CurrentLogicalVolumeName<<std::endl;
 

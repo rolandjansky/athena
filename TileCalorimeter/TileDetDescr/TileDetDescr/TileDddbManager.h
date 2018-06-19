@@ -41,8 +41,7 @@ class TileDddbManager
 
   TileDddbManager(IRDBAccessSvc* access,
 		  std::string    version_tag,
-		  std::string    version_node,
-                  MsgStream *log);
+		  std::string    version_node);
 
   virtual ~TileDddbManager() {}
     
@@ -256,8 +255,8 @@ class TileDddbManager
 
   // fields of tile switches
   bool addPlatesToCell() const;
-  int  Ushape()  const;
-  bool glue() const;
+  int  uShape()  const;
+  int  glue() const;
  private:
 
   IRDBRecordset_ptr m_tiglob;
@@ -307,9 +306,10 @@ class TileDddbManager
   std::vector<unsigned int> m_modTypes;
   void FillModTypes();
 
-  bool m_verbose;
   bool m_buildCuts;
   bool m_buildSaddle;
+
+  MsgStream * m_log;
 };
 
 #endif

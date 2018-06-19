@@ -64,16 +64,22 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
            #conddb.addFolderWithTag("TRT_OFL","/TRT/Cond/DigVers","TRTCondDigVers-Collisions-01",force=True,forceMC=True)
            conddb.addFolder("TRT_OFL","/TRT/Cond/DigVers",forceMC=True)
 
+        from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
+        TRT_LocalOccupancy = InDet__TRT_LocalOccupancy(      name              ="TRT_LocalOccupancy",
+                                                             isTrigger         = False, 
+        )
+        ToolSvc += TRT_LocalOccupancy
+
         job += CfgGetter.getAlgorithm("TRT_OverlayDigitization")
+                        
+        from InDetRecExample.InDetJobProperties import InDetFlags
+        include("InDetRecExample/InDetRecConditionsAccess.py")
 
         if readBS and isRealData:
            job.InDetTRTRawDataProvider.EvtStore = "OriginalEvent_SG"
            job.InDetTRTRawDataProvider.RDOKey = "OriginalEvent_SG+TRT_RDOs"
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TRT_RDO_Container/TRT_RDOs" ]
   
-           from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-           InDetTRTCalDbSvc = TRT_CalDbSvc()
-           ServiceMgr += InDetTRTCalDbSvc
           #from IOVDbSvc.CondDB import conddb
 #           conddb.addFolder("TRT","/TRT/Calib/T0","<tag>TrtCalibt0-UPD2-FDR2-01</tag>")
 #           conddb.addFolder("TRT","/TRT/Calib/RT","<tag>TrtCalibRt-UPD2-FDR2-01</tag>")

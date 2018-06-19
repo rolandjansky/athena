@@ -3,15 +3,14 @@
 */
 
 #include "LArBadChannelTool/LArBadChannelMasker.h"
-//#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadCondHandle.h"
 
 LArBadChanBitPacking LArBadChannelMasker::s_bitPacking;  //init static member
 
 LArBadChannelMasker::LArBadChannelMasker(const std::string& type, 
       const std::string& name, const IInterface* parent) :
   AthAlgTool(type, name, parent), 
-  m_badChanToolHandle("LArBadChanTool"), 
-  m_badChanTool(0),
+  m_bcContKey("LArBadChannel"),
   m_problemWords(defaultProblems()),
   m_bitMask(0), 
   m_doMasking(false),
@@ -20,7 +19,7 @@ LArBadChannelMasker::LArBadChannelMasker(const std::string& type,
   m_lowGainMask(s_bitPacking.lowGainMask())
 {
   declareInterface<ILArBadChannelMasker>(this);
-  declareProperty("TheLArBadChanTool", m_badChanToolHandle, "Public, shared LArBadChanTool.");
+  declareProperty("BCKey",m_bcContKey,"Key of the BadChannelContainer in the conditions store");
   declareProperty("ProblemsToMask", m_problemWords, "List of channel problems to be masked.");
   declareProperty("DoMasking", m_doMasking, "Flag to turn cell masking on or off.");
 }
@@ -32,42 +31,12 @@ StatusCode LArBadChannelMasker::initialize()
 {
    ATH_MSG_DEBUG ( "in initialize()" );
 
-   if(!m_doMasking)
-   {
-      ATH_MSG_INFO ( "Cell masking is OFF." );
-      return StatusCode::SUCCESS;       // Do nothing.
-   }
-
+   if(!m_doMasking) return StatusCode::SUCCESS; //Do nothing
+     
    buildBitMask();
 
-   if(m_badChanToolHandle.retrieve().isFailure())
-   {
-      ATH_MSG_ERROR ( m_badChanToolHandle.propertyName() 
-                      << ": Failed to retrieve tool " << m_badChanToolHandle );
-      return StatusCode::FAILURE;
-   }
+   ATH_CHECK(m_bcContKey.initialize());
 
-   ATH_MSG_DEBUG ( "Successfully retrieved a " << m_badChanToolHandle.type() );
-
-   // Please don't do this unless you know you really need to.
-   m_badChanTool = &(*m_badChanToolHandle);   
-   m_badChanTool->addRef();
-
-
-/*   StatusCode sc = service("DetectorStore", m_detStore); 	 
-   if (!sc.isSuccess() || 0 == m_detStore) 	 
-   { 	 
-      log << MSG::ERROR <<"Could not get DetectorStore." <<endmsg; 	 
-      return StatusCode::FAILURE; 	 
-   } 	 
-	  	 
-   sc = m_detStore->regFcn(&ILArBadChanTool::updateFromDB, &(*m_badChanToolHandle), 	 
-      &ILArBadChannelMasker::testCallBack, dynamic_cast<ILArBadChannelMasker*>(this), true); 	 
-   if(sc.isSuccess()) 	 
-      log << MSG::DEBUG << "Successfully registered a callback to ILArBadChanTool::updateFromDB." << endmsg; 	 
-   else 	 
-      log << MSG::WARNING << "Failed to register a callback to ILArBadChanTool::updateFromDB." << endmsg;
-*/
 
    LArBadChannel tempBC(m_bitMask);    //consider overloading the function
    ATH_MSG_INFO ( "Cell masking is ON. The following problems will be masked: " 
@@ -78,26 +47,24 @@ StatusCode LArBadChannelMasker::initialize()
 
 StatusCode LArBadChannelMasker::finalize()
 {
-  if(m_badChanTool)
-    m_badChanTool->release();
-  m_badChanToolHandle.release().ignore(); //check but ignore the StatusCode
   return StatusCode::SUCCESS;
 }
 
 bool LArBadChannelMasker::cellShouldBeMasked(const Identifier& offlineId, const int gain) const
 {
-   return m_doMasking && statusShouldBeMasked(m_badChanTool->offlineStatus(offlineId),gain);
+  SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_bcContKey};
+  const LArBadChannelCont* bcCont{*bcContHdl};
+
+  return m_doMasking && statusShouldBeMasked(bcCont->offlineStatus(offlineId),gain);
 }
 
 bool LArBadChannelMasker::cellShouldBeMasked(const HWIdentifier& hardwareId, const int gain) const
 {
-   return m_doMasking && statusShouldBeMasked(m_badChanTool->status(hardwareId),gain);
+  SG::ReadCondHandle<LArBadChannelCont> bcContHdl{m_bcContKey};
+  const LArBadChannelCont* bcCont{*bcContHdl};
+  return m_doMasking && statusShouldBeMasked(bcCont->status(hardwareId),gain);
 }
 
-bool LArBadChannelMasker::cellShouldBeMaskedFEB(const HWIdentifier& FEBid, const int channelNumber, const int gain) const
-{
-   return m_doMasking && statusShouldBeMasked(m_badChanTool->status(FEBid, channelNumber), gain);
-}
 
 void LArBadChannelMasker::buildBitMask()
 {
@@ -137,14 +104,6 @@ const std::vector<std::string>& LArBadChannelMasker::defaultProblems()
   }
   return defaults;
 }
-
-/*
-StatusCode LArBadChannelMasker::testCallBack(IOVSVC_CALLBACK_ARGS) 	 
-{  //Could monitor DB updates, or implement a check of whether the database was read. 	 
-   //Maybe use a one-shot incident listener instead?
-   log << MSG::DEBUG << "In LArBadChannelMasker::testCallBack" << endmsg; 	 
-   return StatusCode::SUCCESS; 	 
-}*/
 
 StatusCode LArBadChannelMasker::queryInterface(const InterfaceID& riid, void** ppvIf )
 {

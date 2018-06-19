@@ -33,6 +33,7 @@ public: // Non-static members
    EventStreamInfo_p2& operator=(const EventStreamInfo_p2& rhs);
 
 friend class EventStreamInfoCnv_p2;
+ friend class PoolFilePeeker;
 
 private:
    unsigned int	m_numberOfEvents;	// Number of Events

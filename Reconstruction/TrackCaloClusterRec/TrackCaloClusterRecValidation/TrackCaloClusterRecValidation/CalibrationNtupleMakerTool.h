@@ -59,7 +59,7 @@ private:
   
   double                                       m_matchingCut;
   
-  TH1*                                         h_events;
+  TH1*                                         m_h_events;
   
   float                                        m_eventWeight;
   float                                        m_mu;

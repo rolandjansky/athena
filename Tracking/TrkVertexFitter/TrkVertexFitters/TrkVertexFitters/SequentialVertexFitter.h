@@ -51,7 +51,6 @@ namespace Trk
  class IVertexUpdator;
  class IVertexSmoother;
  class IVertexLinearizedTrackFactory;
- class IVxCandidateXAODVertex;
  
  class SequentialVertexFitter : public AthAlgTool, virtual public IVertexFitter
  {
@@ -181,7 +180,6 @@ namespace Trk
    ToolHandle< IVertexUpdator > m_Updator;
    ToolHandle< IVertexSmoother > m_Smoother;
    ToolHandle< Trk::IVertexLinearizedTrackFactory > m_LinTrkFactory;  
-   ToolHandle< IVxCandidateXAODVertex > m_xaodConverter;
    
    /**
     * Flag controlling optional smoothing

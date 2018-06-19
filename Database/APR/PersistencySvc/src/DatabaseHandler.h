@@ -18,7 +18,6 @@ namespace pool {
 
   // forward declarations
   class Session;
-  class Transaction;
   class IStorageSvc;
   class IStorageExplorer;
   class IContainer;
@@ -46,9 +45,6 @@ namespace pool {
       /// Destructor. Disconnects from the database
       ~DatabaseHandler();
 
-      /// Starts the transaction
-      bool startTransaction();
-
       /// Commits the transaction
       bool commitTransaction();
 
@@ -57,12 +53,6 @@ namespace pool {
 
       /// Rolls back the transaction
       void rollBackTransaction();
-
-      /// Checks if a transaction is active
-      bool isTransactionActive() const;
-
-      /// Returns the container name for object
-      std::string getContName(const Token& token);
 
       /// Gives the list of containers
       std::vector< std::string > containers();
@@ -97,9 +87,6 @@ namespace pool {
       /// Reads an object given a token
       void* readObject( const Token& token, void* object = 0 );
 
-      /// Deletes an object from the persistent store
-      bool destroyObject( const Token& token );
-
       /// Returns an attrtibute
       bool attribute( const std::string& attributeName,
                       void* data,
@@ -119,8 +106,6 @@ namespace pool {
       IStorageExplorer& m_storageExplorer;
       /// Pointer to the session for this database
       Session*          m_session;
-      /// Micro transaction handler for this database
-      Transaction*      m_transaction;
       /// File descriptor for this database
       FileDescriptor    m_fileDescriptor;
       /// Technology identifier

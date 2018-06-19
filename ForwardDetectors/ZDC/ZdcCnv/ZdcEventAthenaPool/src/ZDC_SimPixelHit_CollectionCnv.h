@@ -25,7 +25,9 @@ class ZDC_SimPixelHit_CollectionCnv  : public ZDC_SimPixelHit_CollectionCnvBase 
 
 protected:
 
+public:
   ZDC_SimPixelHit_CollectionCnv(ISvcLocator* svcloc) : ZDC_SimPixelHit_CollectionCnvBase ( svcloc) {}
+protected:
   virtual ZDC_SimPixelHit_Collection_PERS*  createPersistent(ZDC_SimPixelHit_Collection* transCont);
   virtual ZDC_SimPixelHit_Collection*       createTransient ();
 

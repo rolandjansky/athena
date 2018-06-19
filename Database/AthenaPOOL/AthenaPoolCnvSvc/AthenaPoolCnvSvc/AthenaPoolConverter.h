@@ -58,6 +58,11 @@ public:
    /// @param pAddr [OUT] IOpaqueAddress of POOL persistent representation.
    virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
 
+   /// Create a POOL persistent representation for a transient object.
+   /// @param pAddr [IN] IOpaqueAddress of POOL persistent representation.
+   /// @param pObj [IN] pointer to the transient object.
+   virtual StatusCode fillRepRefs(IOpaqueAddress* pAddr, DataObject* pObj);
+
    /// @return storage type.
    static long storageType();
 
@@ -71,6 +76,11 @@ protected:
    /// Standard Service Constructor
    AthenaPoolConverter(const CLID& id, ISvcLocator* pSvcLocator,
                        const char* name = nullptr);
+
+   /// Convert an object into Persistent.
+   /// @param pObj [IN] pointer to the transient object.
+   /// @param key [IN] StoreGate key (string) - placement hint to generate POOL container name
+   virtual StatusCode DataObjectToPers(DataObject* pObj, const std::string& key) = 0;
 
    /// Write an object into POOL.
    /// @param pObj [IN] pointer to the transient object.

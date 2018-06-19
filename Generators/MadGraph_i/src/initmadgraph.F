@@ -1171,7 +1171,7 @@ c     if (found) write (*,*) name,var
         write (*,*) "         setting it to default value ",def_value
         var=def_value
       else
-        write(*,*),'Found parameter ',name,var
+        write(*,*) 'Found parameter ',name,var
       endif
       return
 

@@ -14,7 +14,6 @@
 #include <iostream>
 #include <iomanip>
 #include <utility>
-//#include "GaudiKernel/ToolFactory.h"
 //#include "GaudiKernel/MsgStream.h"
 //#include "GaudiKernel/ListItem.h"
 #include "StoreGate/StoreGateSvc.h"

@@ -48,16 +48,12 @@ class AugmentedNTUPStream( AugmentedStreamBase ):
         return self.Stream.ItemList
 
     def AddMetaDataItem(self, item):
-        #self._AddValidItemToList(item, self.Stream_FH.ItemList)
         return
 
     def RemoveMetaDataItem(self, item):
-        #self._RemoveValidItemFromList(item, self.Stream_FH.ItemList)
-        #return
         pass
 
     def GetMetaDataItems(self):
-        #return self.Stream_FH.ItemList
         pass
 
     #########################################
@@ -77,8 +73,6 @@ class AugmentedNTUPStream( AugmentedStreamBase ):
         print self.GetPrescale()
         print "ItemList:"
         print self.Stream.ItemList
-        #print "MetaData ItemList:"
-        #print self.Stream_FH.ItemList
         return
 #############################################################
 class MultipleNTUPStreamManager:

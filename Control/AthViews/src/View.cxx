@@ -9,6 +9,10 @@ View::View(const std::string& name, bool AllowFallThrough ) {
   m_implementation = new SimpleView(name, AllowFallThrough);
 }
 
+View::View(const std::string& name, bool AllowFallThrough, std::string const& storeName) {
+  m_implementation = new SimpleView(name, AllowFallThrough, storeName);
+}
+
 View::~View () {
   delete m_implementation;
 }

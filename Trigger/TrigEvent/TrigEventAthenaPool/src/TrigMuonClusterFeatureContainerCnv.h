@@ -45,7 +45,9 @@ class TrigMuonClusterFeatureContainerCnv : public TrigMuonClusterFeatureContaine
   
  protected:
   
+public:
   TrigMuonClusterFeatureContainerCnv( ISvcLocator *svcloc );
+protected:
   ~TrigMuonClusterFeatureContainerCnv();
   
   virtual TrigMuonClusterFeatureContainer_PERS *createPersistent( TrigMuonClusterFeatureContainer *transObj);

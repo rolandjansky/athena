@@ -25,7 +25,6 @@ namespace Trk {
     
     : AthAlgTool(type,name,parent)
     , m_trackFitter("Trk::GlobalChi2Fitter/InDetTrackFitter")
-    , m_nRetrievalErrors(0)
     , m_scalepmaptogev(false)    
     , m_constrainedTracks(0)
     , m_passconstrainedRequirements(0)

@@ -676,11 +676,8 @@ class OptionalUserActionList(JobProperty):
       The name of the action must be a name retrievable through the ConfigurableFactory"""
     statusOn = True
     allowedTypes = ['dict']
-    # not allowing stacking actions to be modified this way.
-    # 'General' refers to new common-interface tools.
     # FIXME: why do we add the LoopKillerTool here???
-    StoredValue = {'Run':[], 'Event':[], 'Tracking':[], 'Step':[],
-                   'General':['G4UA::LooperKillerTool']}
+    StoredValue = {'General':['G4UA::LooperKillerTool']}
     def addAction(self, actionTool, roles=[]):
         # If no roles specified, assume 'General'.
         if len(roles) == 0:
@@ -693,9 +690,8 @@ class OptionalUserActionList(JobProperty):
                 _sflog.warn('Attempt to assign action %s to role %s not allowed' %
                             (actionTool, role))
 
-    def removeAction(self, actionTool, roles=['Run', 'Event', 'Tracking', 'Step']):
-        # Remove the action from the lists of actions for each role
-        # (remove from all by default) - no error if it isn't in the list.
+    def removeAction(self, actionTool, roles=['General']):
+        # Remove the action from the list of actions - no error if role isn't in the list.
         for role in roles:
             try:
                 self.StoredValue[role].remove(actionTool)

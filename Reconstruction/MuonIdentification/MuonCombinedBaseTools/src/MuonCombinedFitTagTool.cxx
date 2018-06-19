@@ -100,6 +100,8 @@ namespace MuonCombined {
         return StatusCode::FAILURE;
       }
 
+      ATH_CHECK( m_vertexKey.initialize() );
+
       return StatusCode::SUCCESS;
     }
 
@@ -383,7 +385,23 @@ namespace MuonCombined {
     float bs_y = 0.;
     float bs_z = 0.;
 
-    const xAOD::Vertex* matchedVertex = idTrackParticle.vertex();
+    const xAOD::Vertex* matchedVertex { nullptr };
+    SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
+    if ( vertices.isValid() )
+    {
+      for (const auto& vx : *vertices)
+      {
+	for (const auto& tpLink : vx->trackParticleLinks())
+	{
+	  if (*tpLink == &idTrackParticle)
+	  {
+	    matchedVertex = vx;
+	    break;
+	  }
+	}
+	if (matchedVertex) break;
+      }
+    }
     if(matchedVertex) {
       bs_x = matchedVertex->x();  
       bs_y = matchedVertex->y();  

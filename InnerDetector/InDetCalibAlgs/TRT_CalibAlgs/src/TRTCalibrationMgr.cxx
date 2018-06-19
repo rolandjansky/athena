@@ -16,7 +16,6 @@
 #include "TRT_CalibData/TrackInfo.h"
 #include "TRT_ConditionsData/FloatArrayStore.h"
 #include "TRT_CalibTools/IFillAlignTrkInfo.h"
-#include "TRT_CalibTools/ITRTCalibrator.h"
 #include "TRT_CalibTools/IAccumulator.h"
 #include "TRT_CalibTools/IFitTool.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
@@ -169,8 +168,8 @@ StatusCode TRTCalibrationMgr::execute() {
 	}
 
 	// get event info pointer
-	SG::ReadHandle<xAOD::EventInfo> m_EventInfo(m_EventInfoKey);
-	if (not m_EventInfo.isValid()) {
+	SG::ReadHandle<xAOD::EventInfo> EventInfo(m_EventInfoKey);
+	if (not EventInfo.isValid()) {
 		msg(MSG::FATAL) << "skipping event, could not get EventInfo" << endmsg;
 		return StatusCode::FAILURE;
 	}
@@ -221,13 +220,13 @@ StatusCode TRTCalibrationMgr::execute() {
 						// fill track info
 						TRT::TrackInfo at;
 						// Run, event, track id
-						at[TRT::Track::run]=m_EventInfo->runNumber();
-						at[TRT::Track::event]=m_EventInfo->eventNumber();
+						at[TRT::Track::run]=EventInfo->runNumber();
+						at[TRT::Track::event]=EventInfo->eventNumber();
 						at[TRT::Track::trackNumber]=m_ntrk;
 						if (msgLvl(MSG::DEBUG)) msg() << "  Track " << m_ntrk << " accepted Info: run="
 						                              << at[TRT::Track::run] << "   event=" << at[TRT::Track::event] << endmsg;
 						for (unsigned int j=0;j<m_TrackInfoTools.size();j++)
-							if (!m_TrackInfoTools[j]->fill(aTrack, &at, comTime.ptr(), *m_EventInfo, *vertices)) break;
+							if (!m_TrackInfoTools[j]->fill(aTrack, &at, comTime.ptr(), *EventInfo, *vertices)) break;
 						if(m_dorefit)
 							delete aTrack;
 					}

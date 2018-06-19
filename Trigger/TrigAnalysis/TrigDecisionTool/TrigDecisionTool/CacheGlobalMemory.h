@@ -100,7 +100,7 @@ namespace Trig {
     const HLT::TrigNavStructure* navigation() const {   //!< gives back pointer to navigation object (unpacking if necessary)
       if(!m_unpacker->unpacked_navigation()){
 	if(const_cast<CacheGlobalMemory*>(this)->unpackNavigation().isFailure()){
-	  ATH_MSG_WARNING("unpack Navigation failed");;
+	  ATH_MSG_WARNING("unpack Navigation failed");
 	}
       }
       return m_navigation; 

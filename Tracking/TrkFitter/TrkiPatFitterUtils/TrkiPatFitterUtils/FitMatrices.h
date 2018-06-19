@@ -43,7 +43,7 @@ namespace Trk
  class FitMatrices
  {
  public:
-     FitMatrices (bool constrainedAlignmentEffects, bool eigenMatrixTreatment);
+     FitMatrices (bool constrainedAlignmentEffects);
      
      ~FitMatrices (void);
      
@@ -92,7 +92,7 @@ namespace Trk
      void			releaseMemory (void);
 
      // initialize matrices - set appropriate dimensions for a given set of measurements 
-     int	       		setDimensions (std::list<FitMeasurement*>&	measurements,
+     int	       		setDimensions (std::vector<FitMeasurement*>&	measurements,
 					       FitParameters*			parameters);
     
      // solve matrix equations for parameters change
@@ -110,21 +110,17 @@ namespace Trk
      void			addPerigeeMeasurement (void);
      // fix for momentum singularity
      void			avoidMomentumSingularity (void);  // using Eigen    
-     // implementation of matrix equation solution
-     bool			solveEquationsEigen (void);	// using Eigen
-     bool			solveEquations***REMOVED*** (void);	// using alignment matrix pkg ***REMOVED***
-    
+     
      int		       		m_columnsDM;
      bool				m_constrainedAlignmentEffects;
      Amg::MatrixX*			m_covariance;
      Amg::MatrixX*			m_derivativeMatrix;
-     bool				m_eigen;
      Amg::MatrixX*		   	m_finalCovariance;
      std::vector<int>       		m_firstRowForParameter;
      double				m_largePhiWeight;
      std::vector<int>			m_lastRowForParameter;
      bool				m_matrixFromCLHEP;
-     std::list<FitMeasurement*>*	m_measurements;
+     std::vector<FitMeasurement*>*	m_measurements;
      int			       	m_numberDoF;
      int		       		m_numberDriftCircles;
      int		      	 	m_numberPerigee;

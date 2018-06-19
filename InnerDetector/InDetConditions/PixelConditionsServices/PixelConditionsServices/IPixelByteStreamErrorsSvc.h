@@ -33,7 +33,7 @@ namespace InDetDD{
   class PixelDetectorManager; 
 }
 
-  const InterfaceID IID_IPixelByteStreamErrorsSvc("IPixelByteStreamErrorsSvc",1,0);
+// STSTST  const InterfaceID IID_IPixelByteStreamErrorsSvc("IPixelByteStreamErrorsSvc",1,0);
 
 
 /**
@@ -98,6 +98,7 @@ public:
 };
 
 inline const InterfaceID & IPixelByteStreamErrorsSvc::interfaceID(){
+  static const InterfaceID IID_IPixelByteStreamErrorsSvc("IPixelByteStreamErrorsSvc",1,0);
   return IID_IPixelByteStreamErrorsSvc;
 }
 

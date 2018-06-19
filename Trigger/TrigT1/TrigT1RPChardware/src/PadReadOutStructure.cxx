@@ -127,7 +127,7 @@ ubit16 PadReadOutStructure::decodeFragment(ubit16 inputWord, char &field) {
     m_l1id      = get16Bits(inputWord,s_headerPos[2],s_headerLen[2]);
   } else  if(isSubHeader()) {
     m_field = 'S';
-    m_bcid     = get16Bits(inputWord,s_subHeaderPos[1],s_subHeaderLen[1]);;
+    m_bcid     = get16Bits(inputWord,s_subHeaderPos[1],s_subHeaderLen[1]);
   } else  if(isPreFooter()) {
     m_field = 'P';
     m_fifoCM  = get16Bits(inputWord,s_prefooterPos[1],s_prefooterLen[1]);

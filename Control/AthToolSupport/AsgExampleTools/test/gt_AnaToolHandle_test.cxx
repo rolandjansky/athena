@@ -231,6 +231,8 @@ namespace asg
     ASSERT_FALSE (tool.isUserConfigured());
     ASSERT_TRUE (tool.isConfigurable());
     ASSERT_SUCCESS (tool.make());
+    ASSERT_SUCCESS (tool.setProperty ("regPublicHandle", ""));
+    ASSERT_SUCCESS (tool.setProperty ("regPrivateHandle", ""));
     ASSERT_SUCCESS (tool.initialize());
     ASSERT_TRUE (tool.get() != nullptr);
   }
@@ -629,6 +631,14 @@ namespace asg
       }
       ASSERT_SUCCESS (mainTool.setProperty (handleName, par.handle));
 
+      if (handleName != "regPublicHandle" || par.handle.name() == "UNDEFINED_TOOL_NAME") {
+        ASSERT_SUCCESS (mainTool.setProperty ("regPublicHandle", ""));
+      }
+      if (handleName != "regPrivateHandle" || par.handle.name() == "UNDEFINED_TOOL_NAME") {
+        ASSERT_SUCCESS (mainTool.setProperty ("regPrivateHandle", ""));
+      }
+
+
       // for AnaToolHandle members we try to get the tool in
       // initialize(), so if we can't get a tool from the tool handle,
       // we will fail
@@ -850,6 +860,9 @@ namespace asg
     ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","");
     joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("anaPrivateHandle", "asg::UnitTestTool1A/anaPrivateHandle"));
 
+    joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("regPublicHandle", ""));
+    joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("regPrivateHandle", ""));
+
     AnaToolHandle<IUnitTestTool2> handle ("asg::UnitTestTool2/" + name);
     ASSERT_TRUE (handle.isUserConfigured());
     ASSERT_SUCCESS (handle.initialize());
@@ -863,6 +876,9 @@ namespace asg
     ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","");
     joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("anaPrivateHandle", "asg::UnitTestTool1/anaPrivateHandle"));
     joSvc->addPropertyToCatalogue ("ToolSvc." + name + ".anaPrivateHandle", StringProperty("propertyInt", "48"));
+
+    joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("regPublicHandle", ""));
+    joSvc->addPropertyToCatalogue ("ToolSvc." + name, StringProperty("regPrivateHandle", ""));
 
     AnaToolHandle<IUnitTestTool2> handle ("asg::UnitTestTool2/" + name);
     EXPECT_TRUE (handle.isUserConfigured());

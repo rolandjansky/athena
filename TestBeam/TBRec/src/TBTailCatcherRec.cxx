@@ -9,7 +9,6 @@
 
 #include "TBRec/TBTailCatcherRec.h"
 
-//#include "GaudiKernel/AlgFactory.h"
 // static const AlgFactory<TBObjectRecoAlgo> s_factory;
 // const IAlgFactory& TBObjectRecoAlgoFactory = s_factory;
 

@@ -1102,9 +1102,9 @@ HLT::ErrorCode TrigL2BMuMuXFex::hltExecute(HLT::TEConstVec& inputTEs, HLT::Trigg
         {
           if(msgLvl() <= MSG::DEBUG) {                           
 	        msg() << MSG::DEBUG << "MuMu vertex fit success:"
-		  	      <<  " x= " << muMuVtx->m_getParametersVector()[0]   //x
-			      << ", y= " << muMuVtx->m_getParametersVector()[1]   //y
-			      << ", z= " << muMuVtx->m_getParametersVector()[2]   //z
+		  	      <<  " x= " << muMuVtx->getParametersVector()[0]   //x
+			      << ", y= " << muMuVtx->getParametersVector()[1]   //y
+			      << ", z= " << muMuVtx->getParametersVector()[2]   //z
 			      << ", chi2= " << muMuVtx->chi2()
 			      << ", ndof= " << muMuVtx->ndof()
 			      << endmsg;//->pt()
@@ -1533,7 +1533,7 @@ void TrigL2BMuMuXFex::checkBMuMuK(const xAOD::L2CombinedMuon* mu1, const xAOD::L
                 status = m_vertexingTool->createMotherParticle(baplusVtx);
                 if(status.isSuccess()){
                     m_mon_Acceptance.push_back( ACCEPT_MotherVtxCreated );
-                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " B created, with pt: " << baplusVtx->m_getMotherTrack()->pT() << endmsg;
+                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " B created, with pt: " << baplusVtx->getMotherTrack()->pT() << endmsg;
                 }else{
                     vertex = false;
                 }
@@ -1580,9 +1580,9 @@ void TrigL2BMuMuXFex::checkBMuMuK(const xAOD::L2CombinedMuon* mu1, const xAOD::L
                     {
                         if(msgLvl() <= MSG::DEBUG)  {
                             msg() << MSG::DEBUG << " B vertex fit success: x= "
-                            <<            baplusVtx->m_getParametersVector()[0] //x
-                            << ", y= " << baplusVtx->m_getParametersVector()[1] //y
-                            << ", z= " << baplusVtx->m_getParametersVector()[2] //z
+                            <<            baplusVtx->getParametersVector()[0] //x
+                            << ", y= " << baplusVtx->getParametersVector()[1] //y
+                            << ", z= " << baplusVtx->getParametersVector()[2] //z
                             << ", chi2= " << baplusVtx->chi2()
                             <<", ndof = " <<baplusVtx->ndof()
                             << endmsg;
@@ -1754,7 +1754,7 @@ void TrigL2BMuMuXFex::checkBdMuMuKstar(const xAOD::L2CombinedMuon* mu1, const xA
                 mother_KstarVtx = m_vertexingTool->createTrigVertex(kaStarVtx);
                 status = m_vertexingTool->createMotherParticle(kaStarVtx);
                 if(status.isSuccess()){
-                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Kstar created, with pt: " << kaStarVtx->m_getMotherTrack()->pT() << endmsg;
+                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Kstar created, with pt: " << kaStarVtx->getMotherTrack()->pT() << endmsg;
                 }
                 if(mother_KstarVtx == NULL){
                     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Vertex fit failed for particle candidate tracks " << trk3
@@ -1798,9 +1798,9 @@ void TrigL2BMuMuXFex::checkBdMuMuKstar(const xAOD::L2CombinedMuon* mu1, const xA
                     {
                         if(msgLvl() <= MSG::DEBUG)  {
                             msg() << MSG::DEBUG << " Kstar vertex fit success: x= "
-                            <<            kaStarVtx->m_getParametersVector()[0] //x
-                            << ", y= " << kaStarVtx->m_getParametersVector()[1] //y
-                            << ", z= " << kaStarVtx->m_getParametersVector()[2] //z
+                            <<            kaStarVtx->getParametersVector()[0] //x
+                            << ", y= " << kaStarVtx->getParametersVector()[1] //y
+                            << ", z= " << kaStarVtx->getParametersVector()[2] //z
                             << ", chi2= " << kaStarVtx->chi2()
                             <<", ndof = " <<kaStarVtx->ndof()
                             << endmsg;
@@ -1917,7 +1917,7 @@ void TrigL2BMuMuXFex::checkBdMuMuKstar(const xAOD::L2CombinedMuon* mu1, const xA
                     mother_BdVtx = m_vertexingTool->createTrigVertex(baDVtx);
                     status = m_vertexingTool->createMotherParticle(baDVtx);
                     if(status.isSuccess()){
-                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Bd created, with pt: " << baDVtx->m_getMotherTrack()->pT() << endmsg;
+                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Bd created, with pt: " << baDVtx->getMotherTrack()->pT() << endmsg;
                     }
                     if(mother_BdVtx == NULL){
                         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Vertex fit failed for particle candidate track " << trk3
@@ -1960,9 +1960,9 @@ void TrigL2BMuMuXFex::checkBdMuMuKstar(const xAOD::L2CombinedMuon* mu1, const xA
                         {
                             if(msgLvl() <= MSG::DEBUG)  {
                                 msg() << MSG::DEBUG << " Bd vertex fit success: x= "
-                                <<            baDVtx->m_getParametersVector()[0] //x
-                                << ", y= " << baDVtx->m_getParametersVector()[1] //y
-                                << ", z= " << baDVtx->m_getParametersVector()[2] //z
+                                <<            baDVtx->getParametersVector()[0] //x
+                                << ", y= " << baDVtx->getParametersVector()[1] //y
+                                << ", z= " << baDVtx->getParametersVector()[2] //z
                                 << ", chi2= " << baDVtx->chi2()
                                 <<", ndof = " <<baDVtx->ndof()
                                 << endmsg;
@@ -2198,7 +2198,7 @@ void TrigL2BMuMuXFex::checkBsMuMuPhi(const xAOD::L2CombinedMuon* mu1, const xAOD
                 mother_PhiVtx = m_vertexingTool->createTrigVertex(phia1020Vtx);
                 status = m_vertexingTool->createMotherParticle(phia1020Vtx);
                 if(status.isSuccess()){
-                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Phi created, with pt: " << phia1020Vtx->m_getMotherTrack()->pT() << endmsg;
+                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Phi created, with pt: " << phia1020Vtx->getMotherTrack()->pT() << endmsg;
                 }
                 if(mother_PhiVtx == NULL){
                     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Vertex fit failed for particle candidate tracks " << trk3
@@ -2242,9 +2242,9 @@ void TrigL2BMuMuXFex::checkBsMuMuPhi(const xAOD::L2CombinedMuon* mu1, const xAOD
                     {
                         if(msgLvl() <= MSG::DEBUG)  {
                             msg() << MSG::DEBUG << " Phi vertex fit success: x= "
-                            <<            phia1020Vtx->m_getParametersVector()[0] //x
-                            << ", y= " << phia1020Vtx->m_getParametersVector()[1] //y
-                            << ", z= " << phia1020Vtx->m_getParametersVector()[2] //z
+                            <<            phia1020Vtx->getParametersVector()[0] //x
+                            << ", y= " << phia1020Vtx->getParametersVector()[1] //y
+                            << ", z= " << phia1020Vtx->getParametersVector()[2] //z
                             << ", chi2= " << phia1020Vtx->chi2()
                             <<", ndof = " <<phia1020Vtx->ndof()
                             << endmsg;
@@ -2364,7 +2364,7 @@ void TrigL2BMuMuXFex::checkBsMuMuPhi(const xAOD::L2CombinedMuon* mu1, const xAOD
                     mother_BsVtx = m_vertexingTool->createTrigVertex(baSVtx);
                     status = m_vertexingTool->createMotherParticle(baSVtx);
                     if(status.isSuccess()){
-                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Bs created, with pt: " << baSVtx->m_getMotherTrack()->pT() << endmsg;
+                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Bs created, with pt: " << baSVtx->getMotherTrack()->pT() << endmsg;
                     }
                     if(mother_BsVtx == NULL){
                         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Vertex fit failed for particle candidate track " << trk3
@@ -2408,9 +2408,9 @@ void TrigL2BMuMuXFex::checkBsMuMuPhi(const xAOD::L2CombinedMuon* mu1, const xAOD
                         {
                             if(msgLvl() <= MSG::DEBUG)  {
                                 msg() << MSG::DEBUG << " Bs vertex fit success: x= "
-                                <<            baSVtx->m_getParametersVector()[0] //x
-                                << ", y= " << baSVtx->m_getParametersVector()[1] //y
-                                << ", z= " << baSVtx->m_getParametersVector()[2] //z
+                                <<            baSVtx->getParametersVector()[0] //x
+                                << ", y= " << baSVtx->getParametersVector()[1] //y
+                                << ", z= " << baSVtx->getParametersVector()[2] //z
                                 << ", chi2= " << baSVtx->chi2()
                                 <<", ndof = " <<baSVtx->ndof()
                                 << endmsg;
@@ -2662,7 +2662,7 @@ void TrigL2BMuMuXFex::checkLbMuMuLambda(const xAOD::L2CombinedMuon* mu1, const x
                 mother_LVtx = m_vertexingTool->createTrigVertex(lambdaaVtx);
                 status = m_vertexingTool->createMotherParticle(lambdaaVtx);
                 if(status.isSuccess()){
-                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " L created, with pt: " << lambdaaVtx->m_getMotherTrack()->pT() << endmsg;
+                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " L created, with pt: " << lambdaaVtx->getMotherTrack()->pT() << endmsg;
                 }
                 if(mother_LVtx == NULL){
                     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Vertex fit failed for particle candidate tracks " << trk3
@@ -2706,9 +2706,9 @@ void TrigL2BMuMuXFex::checkLbMuMuLambda(const xAOD::L2CombinedMuon* mu1, const x
                     {
                         if(msgLvl() <= MSG::DEBUG)  {
                             msg() << MSG::DEBUG << " L vertex fit success: x= "
-                            <<            lambdaaVtx->m_getParametersVector()[0] //x
-                            << ", y= " << lambdaaVtx->m_getParametersVector()[1] //y
-                            << ", z= " << lambdaaVtx->m_getParametersVector()[2] //z
+                            <<            lambdaaVtx->getParametersVector()[0] //x
+                            << ", y= " << lambdaaVtx->getParametersVector()[1] //y
+                            << ", z= " << lambdaaVtx->getParametersVector()[2] //z
                             << ", chi2= " << lambdaaVtx->chi2()
                             <<", ndof = " <<lambdaaVtx->ndof()
                             << endmsg;
@@ -2822,7 +2822,7 @@ void TrigL2BMuMuXFex::checkLbMuMuLambda(const xAOD::L2CombinedMuon* mu1, const x
                     mother_LbVtx = m_vertexingTool->createTrigVertex(laBVtx);
                     status = m_vertexingTool->createMotherParticle(laBVtx);
                     if(status.isSuccess()){
-                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Lb created, with pt: " << laBVtx->m_getMotherTrack()->pT() << endmsg;
+                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Lb created, with pt: " << laBVtx->getMotherTrack()->pT() << endmsg;
                     }
                     if(mother_LbVtx == NULL){
                         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Vertex fit failed for particle candidate track " << trk3
@@ -2865,9 +2865,9 @@ void TrigL2BMuMuXFex::checkLbMuMuLambda(const xAOD::L2CombinedMuon* mu1, const x
                         {
                             if(msgLvl() <= MSG::DEBUG)  {
                                 msg() << MSG::DEBUG << " Lb vertex fit success: x= "
-                                <<            laBVtx->m_getParametersVector()[0] //x
-                                << ", y= " << laBVtx->m_getParametersVector()[1] //y
-                                << ", z= " << laBVtx->m_getParametersVector()[2] //z
+                                <<            laBVtx->getParametersVector()[0] //x
+                                << ", y= " << laBVtx->getParametersVector()[1] //y
+                                << ", z= " << laBVtx->getParametersVector()[2] //z
                                 << ", chi2= " << laBVtx->chi2()
                                 <<", ndof = " <<laBVtx->ndof()
                                 << endmsg;
@@ -3133,7 +3133,7 @@ void TrigL2BMuMuXFex::checkBcMuMuDs(const xAOD::L2CombinedMuon* mu1, const xAOD:
                 mother_DsVtx = m_vertexingTool->createTrigVertex(DsVtx);
                 status = m_vertexingTool->createMotherParticle(DsVtx);
                 if(status.isSuccess()){
-                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Ds created, with pt: " << DsVtx->m_getMotherTrack()->pT() << endmsg;
+                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Ds created, with pt: " << DsVtx->getMotherTrack()->pT() << endmsg;
                 }
                 if(mother_DsVtx == NULL){
                     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Vertex fit failed for particle candidate tracks " << trk3
@@ -3177,9 +3177,9 @@ void TrigL2BMuMuXFex::checkBcMuMuDs(const xAOD::L2CombinedMuon* mu1, const xAOD:
                     {
                         if(msgLvl() <= MSG::DEBUG)  {
                             msg() << MSG::DEBUG << " Ds vertex fit success: x= "
-                            <<            DsVtx->m_getParametersVector()[0] //x
-                            << ", y= " << DsVtx->m_getParametersVector()[1] //y
-                            << ", z= " << DsVtx->m_getParametersVector()[2] //z
+                            <<            DsVtx->getParametersVector()[0] //x
+                            << ", y= " << DsVtx->getParametersVector()[1] //y
+                            << ", z= " << DsVtx->getParametersVector()[2] //z
                             << ", chi2= " << DsVtx->chi2()
                             <<", ndof = " <<DsVtx->ndof()
                             << endmsg;
@@ -3312,7 +3312,7 @@ void TrigL2BMuMuXFex::checkBcMuMuDs(const xAOD::L2CombinedMuon* mu1, const xAOD:
                     mother_BcVtx = m_vertexingTool->createTrigVertex(BcVtx);
                     status = m_vertexingTool->createMotherParticle(BcVtx);
                     if(status.isSuccess()){
-                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Bc created, with pt: " << BcVtx->m_getMotherTrack()->pT() << endmsg;
+                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Bc created, with pt: " << BcVtx->getMotherTrack()->pT() << endmsg;
                     }
                     if(mother_BcVtx == NULL){
                         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Vertex fit failed for particle candidate tracks " << trk3
@@ -3356,9 +3356,9 @@ void TrigL2BMuMuXFex::checkBcMuMuDs(const xAOD::L2CombinedMuon* mu1, const xAOD:
                         {
                             if(msgLvl() <= MSG::DEBUG)  {
                                 msg() << MSG::DEBUG << " Bc vertex fit success: x= "
-                                <<            BcVtx->m_getParametersVector()[0] //x
-                                << ", y= " << BcVtx->m_getParametersVector()[1] //y
-                                << ", z= " << BcVtx->m_getParametersVector()[2] //z
+                                <<            BcVtx->getParametersVector()[0] //x
+                                << ", y= " << BcVtx->getParametersVector()[1] //y
+                                << ", z= " << BcVtx->getParametersVector()[2] //z
                                 << ", chi2= " << BcVtx->chi2()
                                 <<", ndof = " <<BcVtx->ndof()
                                 << endmsg;
@@ -3746,7 +3746,7 @@ double TrigL2BMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::T
 //                status = m_vertexingTool->createMotherParticle(baplusVtx);
 //                if(status.isSuccess()){
 //                    m_mon_Acceptance.push_back( ACCEPT_MotherVtxCreated );
-//                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " B created, with pt: " << baplusVtx->m_getMotherTrack()->pT() << endmsg;
+//                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " B created, with pt: " << baplusVtx->getMotherTrack()->pT() << endmsg;
 //                }else{
 //                    vertex = false;
 //                }
@@ -3792,9 +3792,9 @@ double TrigL2BMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::T
 //                    {
 //                        if(msgLvl() <= MSG::DEBUG)  {
 //                            msg() << MSG::DEBUG << " B vertex fit success: x= "
-//                            <<            baplusVtx->m_getParametersVector()[0] //x
-//                            << ", y= " << baplusVtx->m_getParametersVector()[1] //y
-//                            << ", z= " << baplusVtx->m_getParametersVector()[2] //z
+//                            <<            baplusVtx->getParametersVector()[0] //x
+//                            << ", y= " << baplusVtx->getParametersVector()[1] //y
+//                            << ", z= " << baplusVtx->getParametersVector()[2] //z
 //                            << ", chi2= " << baplusVtx->chi2()
 //                            <<", ndof = " <<baplusVtx->ndof()
 //                            << endmsg;
@@ -3959,7 +3959,7 @@ double TrigL2BMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::T
 //                mother_KstarVtx = m_vertexingTool->createTrigVertex(kaStarVtx);
 //                status = m_vertexingTool->createMotherParticle(kaStarVtx);
 //                if(status.isSuccess()){
-//                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Kstar created, with pt: " << kaStarVtx->m_getMotherTrack()->pT() << endmsg;
+//                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Kstar created, with pt: " << kaStarVtx->getMotherTrack()->pT() << endmsg;
 //                }
 //                if(mother_KstarVtx == NULL){
 //                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Vertex fit failed for particle candidate tracks " << trk3
@@ -4003,9 +4003,9 @@ double TrigL2BMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::T
 //                    {
 //                        if(msgLvl() <= MSG::DEBUG)  {
 //                            msg() << MSG::DEBUG << " Kstar vertex fit success: x= "
-//                            <<            kaStarVtx->m_getParametersVector()[0] //x
-//                            << ", y= " << kaStarVtx->m_getParametersVector()[1] //y
-//                            << ", z= " << kaStarVtx->m_getParametersVector()[2] //z
+//                            <<            kaStarVtx->getParametersVector()[0] //x
+//                            << ", y= " << kaStarVtx->getParametersVector()[1] //y
+//                            << ", z= " << kaStarVtx->getParametersVector()[2] //z
 //                            << ", chi2= " << kaStarVtx->chi2()
 //                            <<", ndof = " <<kaStarVtx->ndof()
 //                            << endmsg;
@@ -4117,7 +4117,7 @@ double TrigL2BMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::T
 //                    mother_BdVtx = m_vertexingTool->createTrigVertex(baDVtx);
 //                    status = m_vertexingTool->createMotherParticle(baDVtx);
 //                    if(status.isSuccess()){
-//                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Bd created, with pt: " << baDVtx->m_getMotherTrack()->pT() << endmsg;
+//                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Bd created, with pt: " << baDVtx->getMotherTrack()->pT() << endmsg;
 //                    }
 //                    if(mother_BdVtx == NULL){
 //                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Vertex fit failed for particle candidate track " << trk3
@@ -4159,9 +4159,9 @@ double TrigL2BMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::T
 //                        {
 //                            if(msgLvl() <= MSG::DEBUG)  {
 //                                msg() << MSG::DEBUG << " Bd vertex fit success: x= "
-//                                <<            baDVtx->m_getParametersVector()[0] //x
-//                                << ", y= " << baDVtx->m_getParametersVector()[1] //y
-//                                << ", z= " << baDVtx->m_getParametersVector()[2] //z
+//                                <<            baDVtx->getParametersVector()[0] //x
+//                                << ", y= " << baDVtx->getParametersVector()[1] //y
+//                                << ", z= " << baDVtx->getParametersVector()[2] //z
 //                                << ", chi2= " << baDVtx->chi2()
 //                                <<", ndof = " <<baDVtx->ndof()
 //                                << endmsg;
@@ -4388,7 +4388,7 @@ double TrigL2BMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::T
 //                mother_PhiVtx = m_vertexingTool->createTrigVertex(phia1020Vtx);
 //                status = m_vertexingTool->createMotherParticle(phia1020Vtx);
 //                if(status.isSuccess()){
-//                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Phi created, with pt: " << phia1020Vtx->m_getMotherTrack()->pT() << endmsg;
+//                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Phi created, with pt: " << phia1020Vtx->getMotherTrack()->pT() << endmsg;
 //                }
 //                if(mother_PhiVtx == NULL){
 //                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Vertex fit failed for particle candidate tracks " << trk3
@@ -4432,9 +4432,9 @@ double TrigL2BMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::T
 //                    {
 //                        if(msgLvl() <= MSG::DEBUG)  {
 //                            msg() << MSG::DEBUG << " Phi vertex fit success: x= "
-//                            <<            phia1020Vtx->m_getParametersVector()[0] //x
-//                            << ", y= " << phia1020Vtx->m_getParametersVector()[1] //y
-//                            << ", z= " << phia1020Vtx->m_getParametersVector()[2] //z
+//                            <<            phia1020Vtx->getParametersVector()[0] //x
+//                            << ", y= " << phia1020Vtx->getParametersVector()[1] //y
+//                            << ", z= " << phia1020Vtx->getParametersVector()[2] //z
 //                            << ", chi2= " << phia1020Vtx->chi2()
 //                            <<", ndof = " <<phia1020Vtx->ndof()
 //                            << endmsg;
@@ -4549,7 +4549,7 @@ double TrigL2BMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::T
 //                    mother_BsVtx = m_vertexingTool->createTrigVertex(baSVtx);
 //                    status = m_vertexingTool->createMotherParticle(baSVtx);
 //                    if(status.isSuccess()){
-//                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Bs created, with pt: " << baSVtx->m_getMotherTrack()->pT() << endmsg;
+//                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Bs created, with pt: " << baSVtx->getMotherTrack()->pT() << endmsg;
 //                    }
 //                    if(mother_BsVtx == NULL){
 //                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Vertex fit failed for particle candidate track " << trk3
@@ -4592,9 +4592,9 @@ double TrigL2BMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::T
 //                        {
 //                            if(msgLvl() <= MSG::DEBUG)  {
 //                                msg() << MSG::DEBUG << " Bs vertex fit success: x= "
-//                                <<            baSVtx->m_getParametersVector()[0] //x
-//                                << ", y= " << baSVtx->m_getParametersVector()[1] //y
-//                                << ", z= " << baSVtx->m_getParametersVector()[2] //z
+//                                <<            baSVtx->getParametersVector()[0] //x
+//                                << ", y= " << baSVtx->getParametersVector()[1] //y
+//                                << ", z= " << baSVtx->getParametersVector()[2] //z
 //                                << ", chi2= " << baSVtx->chi2()
 //                                <<", ndof = " <<baSVtx->ndof()
 //                                << endmsg;
@@ -4835,7 +4835,7 @@ double TrigL2BMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::T
 //                mother_LVtx = m_vertexingTool->createTrigVertex(lambdaaVtx);
 //                status = m_vertexingTool->createMotherParticle(lambdaaVtx);
 //                if(status.isSuccess()){
-//                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " L created, with pt: " << lambdaaVtx->m_getMotherTrack()->pT() << endmsg;
+//                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " L created, with pt: " << lambdaaVtx->getMotherTrack()->pT() << endmsg;
 //                }
 //                if(mother_LVtx == NULL){
 //                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Vertex fit failed for particle candidate tracks " << trk3
@@ -4879,9 +4879,9 @@ double TrigL2BMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::T
 //                    {
 //                        if(msgLvl() <= MSG::DEBUG)  {
 //                            msg() << MSG::DEBUG << " L vertex fit success: x= "
-//                            <<            lambdaaVtx->m_getParametersVector()[0] //x
-//                            << ", y= " << lambdaaVtx->m_getParametersVector()[1] //y
-//                            << ", z= " << lambdaaVtx->m_getParametersVector()[2] //z
+//                            <<            lambdaaVtx->getParametersVector()[0] //x
+//                            << ", y= " << lambdaaVtx->getParametersVector()[1] //y
+//                            << ", z= " << lambdaaVtx->getParametersVector()[2] //z
 //                            << ", chi2= " << lambdaaVtx->chi2()
 //                            <<", ndof = " <<lambdaaVtx->ndof()
 //                            << endmsg;
@@ -4991,7 +4991,7 @@ double TrigL2BMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::T
 //                    mother_LbVtx = m_vertexingTool->createTrigVertex(laBVtx);
 //                    status = m_vertexingTool->createMotherParticle(laBVtx);
 //                    if(status.isSuccess()){
-//                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Lb created, with pt: " << laBVtx->m_getMotherTrack()->pT() << endmsg;
+//                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Lb created, with pt: " << laBVtx->getMotherTrack()->pT() << endmsg;
 //                    }
 //                    if(mother_LbVtx == NULL){
 //                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Vertex fit failed for particle candidate track " << trk3
@@ -5033,9 +5033,9 @@ double TrigL2BMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::T
 //                        {
 //                            if(msgLvl() <= MSG::DEBUG)  {
 //                                msg() << MSG::DEBUG << " Lb vertex fit success: x= "
-//                                <<            laBVtx->m_getParametersVector()[0] //x
-//                                << ", y= " << laBVtx->m_getParametersVector()[1] //y
-//                                << ", z= " << laBVtx->m_getParametersVector()[2] //z
+//                                <<            laBVtx->getParametersVector()[0] //x
+//                                << ", y= " << laBVtx->getParametersVector()[1] //y
+//                                << ", z= " << laBVtx->getParametersVector()[2] //z
 //                                << ", chi2= " << laBVtx->chi2()
 //                                <<", ndof = " <<laBVtx->ndof()
 //                                << endmsg;
@@ -5290,7 +5290,7 @@ double TrigL2BMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::T
 //                mother_DsVtx = m_vertexingTool->createTrigVertex(DsVtx);
 //                status = m_vertexingTool->createMotherParticle(DsVtx);
 //                if(status.isSuccess()){
-//                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Ds created, with pt: " << DsVtx->m_getMotherTrack()->pT() << endmsg;
+//                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Ds created, with pt: " << DsVtx->getMotherTrack()->pT() << endmsg;
 //                }
 //                if(mother_DsVtx == NULL){
 //                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Vertex fit failed for particle candidate tracks " << trk3
@@ -5334,9 +5334,9 @@ double TrigL2BMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::T
 //                    {
 //                        if(msgLvl() <= MSG::DEBUG)  {
 //                            msg() << MSG::DEBUG << " Ds vertex fit success: x= "
-//                            <<            DsVtx->m_getParametersVector()[0] //x
-//                            << ", y= " << DsVtx->m_getParametersVector()[1] //y
-//                            << ", z= " << DsVtx->m_getParametersVector()[2] //z
+//                            <<            DsVtx->getParametersVector()[0] //x
+//                            << ", y= " << DsVtx->getParametersVector()[1] //y
+//                            << ", z= " << DsVtx->getParametersVector()[2] //z
 //                            << ", chi2= " << DsVtx->chi2()
 //                            <<", ndof = " <<DsVtx->ndof()
 //                            << endmsg;
@@ -5464,7 +5464,7 @@ double TrigL2BMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::T
 //                    mother_BcVtx = m_vertexingTool->createTrigVertex(BcVtx);
 //                    status = m_vertexingTool->createMotherParticle(BcVtx);
 //                    if(status.isSuccess()){
-//                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Bc created, with pt: " << BcVtx->m_getMotherTrack()->pT() << endmsg;
+//                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Bc created, with pt: " << BcVtx->getMotherTrack()->pT() << endmsg;
 //                    }
 //                    if(mother_BcVtx == NULL){
 //                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  Vertex fit failed for particle candidate tracks " << trk3
@@ -5507,9 +5507,9 @@ double TrigL2BMuMuXFex::X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::T
 //                        {
 //                            if(msgLvl() <= MSG::DEBUG)  {
 //                                msg() << MSG::DEBUG << " Bc vertex fit success: x= "
-//                                <<            BcVtx->m_getParametersVector()[0] //x
-//                                << ", y= " << BcVtx->m_getParametersVector()[1] //y
-//                                << ", z= " << BcVtx->m_getParametersVector()[2] //z
+//                                <<            BcVtx->getParametersVector()[0] //x
+//                                << ", y= " << BcVtx->getParametersVector()[1] //y
+//                                << ", z= " << BcVtx->getParametersVector()[2] //z
 //                                << ", chi2= " << BcVtx->chi2()
 //                                <<", ndof = " <<BcVtx->ndof()
 //                                << endmsg;

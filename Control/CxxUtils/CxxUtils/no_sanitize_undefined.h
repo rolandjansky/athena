@@ -22,7 +22,7 @@
 #define CXXUTILS_NO_SANITIZE_UNDEFINED_H
 
 
-#if (__GNUC__ >= 6) && !defined(__clang__)
+#if (__GNUC__ >= 6) && !defined(__clang__) && !defined(__ICC)
 # define NO_SANITIZE_UNDEFINED [[gnu::no_sanitize_undefined]]
 #else
 # define NO_SANITIZE_UNDEFINED

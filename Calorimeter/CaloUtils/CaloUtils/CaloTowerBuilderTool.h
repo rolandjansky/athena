@@ -30,7 +30,9 @@ class MsgStream;
 
 class CaloTowerBuilderTool : public CaloTowerBuilderToolBase
 {
- public:
+public:
+  CaloTowerBuilderTool (const CaloTowerBuilderTool&) = delete;
+  CaloTowerBuilderTool& operator= (const CaloTowerBuilderTool&) = delete;
   
   /// AlgTool constructor
   CaloTowerBuilderTool(const std::string& name, const std::string& type,
@@ -54,15 +56,36 @@ class CaloTowerBuilderTool : public CaloTowerBuilderToolBase
    */
   virtual StatusCode execute(CaloTowerContainer* theContainer,
                              const CaloCellContainer* theCell=0,
-                             const CaloTowerSeg::SubSeg* subseg = 0);
+                             const CaloTowerSeg::SubSeg* subseg = 0) const override;
+
+
+  /**
+   * @brief Run tower building and add results to the tower container.
+   * @param theContainer The tower container to fill.
+   *
+   * If the segmentation hasn't been set, take it from the tower container.
+   * This is for use by converters.
+   */
+  virtual StatusCode execute (CaloTowerContainer* theContainer) override;
+
 
   virtual void setCalos( const std::vector<CaloCell_ID::SUBCALO>& v);
 
-  virtual StatusCode initializeTool();
+  virtual StatusCode initializeTool() override;
 
-  virtual void handle(const Incident&);
+  virtual void handle(const Incident&) override;
 
- protected:
+
+protected:
+  /**
+   * @brief Convert calorimeter strings to enums.
+   * @param includedCalos Property with calorimeter strings.
+   */
+  virtual std::vector<CaloCell_ID::SUBCALO> parseCalos
+    (const std::vector<std::string>& includedCalos) const;
+
+
+private:
 
   ////////////////
   // Properties //
@@ -74,30 +97,39 @@ class CaloTowerBuilderTool : public CaloTowerBuilderToolBase
   // Store and Services //
   ////////////////////////
 
-  //  unsigned int m_errorCounter;
   std::vector<CaloCell_ID::SUBCALO> m_caloIndices;
 
   /////////////////////////////
   // Specific Initialization //
   /////////////////////////////
 
-  bool m_firstEvent;
-  CaloTowerStore* m_cellStore;
+  CaloTowerStore m_cellStore;
 
   virtual StatusCode checkSetup(MsgStream& log);
   void addTower (const CaloTowerStore::tower_iterator tower_it,
                  const CaloCellContainer* cells,
                  IProxyDict* sg,
-                 CaloTower* tower);
+                 CaloTower* tower) const;
   void iterateFull (CaloTowerContainer* towers,
                     const CaloCellContainer* cells,
-                    IProxyDict* sg);
+                    IProxyDict* sg) const;
   void iterateSubSeg (CaloTowerContainer* towers,
                       const CaloCellContainer* cells,
                       IProxyDict* sg,
-                      const CaloTowerSeg::SubSeg* subseg);
+                      const CaloTowerSeg::SubSeg* subseg) const;
 
-  CaloTowerBuilderTool (const CaloTowerBuilderTool&);
-  CaloTowerBuilderTool& operator= (const CaloTowerBuilderTool&);
+
+  /**
+   * @brief Rebuild the cell lookup table.
+   */
+  StatusCode rebuildLookup();
+
+
+  /**
+   * @brief Mark that cached data are invalid.
+   *
+   * Called when calibrations are updated.
+   */
+  virtual StatusCode invalidateCache() override;
 };
 #endif

@@ -944,14 +944,6 @@ if rec.doWriteRDO():
     from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
     StreamRDO_Augmented=MSMgr.NewPoolStream("StreamRDO",athenaCommonFlags.PoolRDOOutput(),asAlg=True)
 
-    #topSequence+=AthenaOutputStream("StreamRDO",
-                                 #>=12.3.0 StreamAOD.EvtConversionSvc = "AthenaPoolCnvSvc"
-    #                             WritingTool = "AthenaPoolOutputStreamTool",
-                                 #force read of input data to write in output data
-    #                             ForceRead = True,
-                                 # Define the output file name
-    #                             OutputFile    = athenaCommonFlags.PoolRDOOutput())
-
     if rec.doFileMetaData():
         StreamRDO_Augmented.AddMetaDataItem(recoMetadataItemList())
 
@@ -1004,7 +996,7 @@ if globalflags.InputFormat()=='bytestream':
     # FIXME : metadata store definition is in ReadAthenaPool_jobOptions.py
     # copy it there for BS Reading for 13..0.X
     # Add in MetaDataSvc
-    from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
+    from AthenaServices.AthenaServicesConf import MetaDataSvc
     svcMgr += MetaDataSvc( "MetaDataSvc" )
     # Add in MetaData Stores
     from StoreGate.StoreGateConf import StoreGateSvc
@@ -1016,8 +1008,8 @@ if globalflags.InputFormat()=='bytestream':
 
     # enable IOVDbSvc to read metadata
     svcMgr.MetaDataSvc.MetaDataContainer = "MetaDataHdr"
-    if not hasattr (svcMgr.ToolSvc, 'IOVDbMetaDataTool'):
-        svcMgr.MetaDataSvc.MetaDataTools += [ "IOVDbMetaDataTool" ]
+    from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
+    svcMgr.MetaDataSvc.MetaDataTools += [ IOVDbMetaDataTool() ]
 
 MetaDataStore=svcMgr.MetaDataStore
 
@@ -1035,13 +1027,11 @@ if rec.doFileMetaData():
         else:
             #ok to use the metadata tool if single process
             from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
-            svcMgr.MetaDataSvc.MetaDataTools += [ "LumiBlockMetaDataTool" ]
+            svcMgr.MetaDataSvc.MetaDataTools += [ LumiBlockMetaDataTool() ]
         # Trigger tool
-        ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool" )
-        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
+        svcMgr.MetaDataSvc.MetaDataTools += [ CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool" ) ]
         # EventFormat tool
-        ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool" )
-        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
+        svcMgr.MetaDataSvc.MetaDataTools += [ CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool" ) ]
 
     else:
         # Create LumiBlock meta data containers *before* creating the output StreamESD/AOD
@@ -1062,8 +1052,7 @@ if rec.doFileMetaData():
     try:
         # ByteStreamMetadata
         from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMetadataTool        
-        if not hasattr (svcMgr.ToolSvc, 'ByteStreamMetadataTool'):
-            svcMgr.MetaDataSvc.MetaDataTools += [ "ByteStreamMetadataTool" ]
+        svcMgr.MetaDataSvc.MetaDataTools += [ ByteStreamMetadataTool() ]
     except Exception:
         treatException("Could not load ByteStreamMetadataTool")
 
@@ -1441,13 +1430,14 @@ if rec.doWriteAOD():
 
     if rec.doFileMetaData():
         # Trigger tool
-        ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool")
-
-        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
+        trigMDTool= CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool")
+        if not trigMDTool in svcMgr.MetaDataSvc.MetaDataTools:
+            svcMgr.MetaDataSvc.MetaDataTools += [ trigMDTool ]
         # EventFormat tool
-        ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool")
-
-        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
+        
+        efMDTool=CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool")
+        if not efMDTool in  svcMgr.MetaDataSvc.MetaDataTools:
+            svcMgr.MetaDataSvc.MetaDataTools += [ efMDTool ]
         # Put MetaData in AOD stream via AugmentedPoolStream_
         # Write all meta data containers
         StreamAOD_Augmented.AddMetaDataItem(dfMetadataItemList())

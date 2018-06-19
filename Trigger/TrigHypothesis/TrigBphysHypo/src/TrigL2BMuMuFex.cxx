@@ -1023,7 +1023,7 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
                 sc = m_vertexingTool->createMotherParticle(pL2V);
                 if ( sc.isSuccess() ) {
                     m_mon_Acceptance.push_back( ACCEPT_CalcMother );
-                    if ( msgLvl() <= MSG::VERBOSE ) msg() << MSG::VERBOSE << "Bs created: pT "<<pL2V->m_getMotherTrack()->pT() << endmsg;
+                    if ( msgLvl() <= MSG::VERBOSE ) msg() << MSG::VERBOSE << "Bs created: pT "<<pL2V->getMotherTrack()->pT() << endmsg;
                 } else {
                     m_mon_Errors.push_back( ERROR_CalcMother_Fails );
                 }

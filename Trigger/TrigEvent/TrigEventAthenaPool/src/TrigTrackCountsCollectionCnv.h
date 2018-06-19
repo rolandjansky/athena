@@ -43,7 +43,9 @@ class TrigTrackCountsCollectionCnv : public TrigTrackCountsCollectionCnvBase
   
  protected:
   
+public:
   TrigTrackCountsCollectionCnv( ISvcLocator *svcloc );
+protected:
   ~TrigTrackCountsCollectionCnv();
   
   virtual TrigTrackCountsCollection_PERS *createPersistent( TrigTrackCountsCollection *transObj);

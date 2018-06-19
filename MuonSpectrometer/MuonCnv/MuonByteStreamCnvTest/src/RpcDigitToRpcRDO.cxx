@@ -9,7 +9,6 @@
 
 #include "MuonIdHelpers/RpcIdHelper.h"
 
-#include "MuonDigitContainer/RpcDigitContainer.h"
 #include "MuonDigitContainer/RpcDigitCollection.h"
 #include "MuonDigitContainer/RpcDigit.h"
 
@@ -34,8 +33,7 @@ static double time_correction(double, double, double);
 
 RpcDigitToRpcRDO::RpcDigitToRpcRDO(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator), /*m_simu_code(0),*/
-  m_activeStore("ActiveStoreSvc", name),
-  m_MuonMgr(0), m_cabling(0), m_padContainer(0),
+  m_MuonMgr(0), m_cabling(0),
   m_rpcHelper(0)
 {
   declareProperty ( "FastDebug", m_fast_debug=0 );
@@ -83,7 +81,6 @@ RpcDigitToRpcRDO::~RpcDigitToRpcRDO()
 StatusCode RpcDigitToRpcRDO::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
-  ATH_CHECK( m_activeStore.retrieve() );
 
   ATH_CHECK( detStore()->retrieve(m_rpcHelper, "RPCIDHELPER") );
   ATH_CHECK( detStore()->retrieve(m_MuonMgr) );
@@ -115,9 +112,8 @@ StatusCode RpcDigitToRpcRDO::initialize()
     //     return sc ;
     // }
 
-    // create an empty pad container and record it
-    m_padContainer = new RpcPadContainer(600);
-    m_padContainer->addRef();
+  ATH_CHECK( m_padContainerKey.initialize() );
+  ATH_CHECK( m_digitContainerKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -132,18 +128,13 @@ StatusCode RpcDigitToRpcRDO::execute() {
 
   ATH_MSG_DEBUG( "in execute()"  );
 
-  m_padContainer->cleanup();
-  std::string key = "RPCPAD";
-  m_activeStore->setStore( &*evtStore() );
-  StatusCode sc = evtStore()->record(m_padContainer,key);
-  if (sc.isFailure()) 
-    ATH_MSG_ERROR( "Fail to record RPC Pad container in TDS"  );
-
+  // create an empty pad container and record it
+  SG::WriteHandle<RpcPadContainer> padContainer (m_padContainerKey);
+  ATH_CHECK(padContainer.record((std::make_unique<RpcPadContainer>(600))));
 
   RPCsimuData data;         // instantiate the container for the RPC digits
 
-  sc = fill_RPCdata(data);  // fill the data with RPC simulated digts
-  if (sc.isFailure())
+  if (fill_RPCdata(data).isFailure()) // fill the data with RPC simulated digits
     ATH_MSG_ERROR( "Fail to produce RPC data for byte stream simulation "  );
 
   ATH_MSG_DEBUG( "RPC data loaded from G3:" << endl
@@ -190,8 +181,7 @@ StatusCode RpcDigitToRpcRDO::execute() {
 							      m_cabling,
 							      m_rpcHelper,
                                                               &msg());
-  sc = padDecoder->decodeByteStream();
-  if (sc.isFailure()) 
+  if (padDecoder->decodeByteStream().isFailure()) 
     ATH_MSG_ERROR( "Fail to decode RPC byte stream"  );
  
   std::vector<RpcPad*>* pads = padDecoder->getPads();
@@ -214,25 +204,13 @@ StatusCode RpcDigitToRpcRDO::execute() {
 //     else ATH_MSG_DEBUG(" HashId IS known to the Pad "<<elementHash1<<" = to the computed hashId "<<elementHash );
     
     
-    m_activeStore->setStore( &*evtStore() );
-    sc = m_padContainer->addCollection(pad, elementHash1);
-    if (sc.isFailure())
+    if (padContainer->addCollection(pad, elementHash1).isFailure())
       ATH_MSG_ERROR( "Unable to record RPC Pad in IDC"   );
   }
 
   delete padDecoder;
 
   return StatusCode::SUCCESS;
-}
-
-StatusCode RpcDigitToRpcRDO::finalize() {
- 
-   ATH_MSG_INFO( "in finalize()"  );
-   //delete m_log; m_log=0;
-   //delete m_padContainer; m_padContainer=0;
-   if(m_padContainer) m_padContainer->release();
-   return StatusCode::SUCCESS;
-
 }
 
 StatusCode RpcDigitToRpcRDO::fill_RPCdata(RPCsimuData& data)  {
@@ -246,9 +224,7 @@ StatusCode RpcDigitToRpcRDO::fill_RPCdata(RPCsimuData& data)  {
     typedef RpcDigitContainer::const_iterator collection_iterator;
     typedef RpcDigitCollection::const_iterator digit_iterator;
 
-    string key = "RPC_DIGITS";
-    const RpcDigitContainer* container;
-    ATH_CHECK( evtStore()->retrieve(container,key) );
+  SG::ReadHandle<RpcDigitContainer> container (m_digitContainerKey);
 
     collection_iterator it1_coll= container->begin(); 
     collection_iterator it2_coll= container->end(); 

@@ -68,6 +68,8 @@ StatusCode T2CaloEgammaFastAlgo::initialize()
   ATH_CHECK( m_regionSelector.retrieve());
   ATH_CHECK( m_clusterContainerKey.initialize() );
   ATH_CHECK( m_roiCollectionKey.initialize() );
+  CHECK( m_calibsBarrel.retrieve() );
+  CHECK( m_calibsEndcap.retrieve() );
   ATH_MSG_DEBUG( "Initialize done !" );
   return StatusCode::SUCCESS;
 }
@@ -88,11 +90,18 @@ StatusCode T2CaloEgammaFastAlgo::execute()
 
   m_trigEmClusterCollection = SG::WriteHandle<xAOD::TrigEMClusterContainer>( m_clusterContainerKey, getContext() );
   ATH_CHECK( m_trigEmClusterCollection.record( CxxUtils::make_unique<xAOD::TrigEMClusterContainer>(), CxxUtils::make_unique<xAOD::TrigEMClusterAuxContainer>() ) );
-
+  ATH_MSG_DEBUG( "Made WriteHandle " << m_clusterContainerKey );
+  ATH_MSG_INFO( name() << " running with store " <<  getContext().getExtension<Atlas::ExtendedEventContext>()->proxy()->name() );
+ 
   auto roisHandle = SG::makeHandle( m_roiCollectionKey );
+  CHECK( roisHandle.isValid() );
+  ATH_MSG_DEBUG( "Made handle " << m_roiCollectionKey  );
+
+
   const TrigRoiDescriptorCollection* roiCollection = roisHandle.cptr();
   //  ATH_CHECK(m_roiCollectionKey.isValid());
 
+  ATH_MSG_DEBUG( "Made pointer " << m_roiCollectionKey << " with "<< roiCollection->size() <<" elements"  );
 
   const TrigRoiDescriptor* roiDescriptor = 0;
   //TrigRoiDescriptor* roiDescriptor = 0;
@@ -194,18 +203,13 @@ StatusCode T2CaloEgammaFastAlgo::execute()
 ////  if ( m_timersvc ) m_timer[1]->start();
   uint32_t error = 0;
   for (; it < m_emAlgTools.end(); it++)  {
-    (*it)->setCaloDetDescrElement(caloDDE);
-  (*m_log) << MSG::INFO  << "setCaloDetDescrElement(caloDDE) : DONE  "<< endmsg;
-    if ((*it)->execute(*ptrigEmCluster, newroi ).isFailure() ) {
+    if ((*it)->execute(*ptrigEmCluster, newroi, caloDDE, nullptr ).isFailure() ) {
       (*m_log) << MSG::WARNING << "T2Calo AlgToolEgamma returned Failure" << endmsg;
       return StatusCode::FAILURE;
     }
 //    uint32_t in_error = (*it)->report_error();
 //    if ( 0x0FFFFFFF & in_error ) m_conversionError++;
 //    if ( 0xF0000000 & in_error ) m_algorithmError++;
-//    if ( (*it)->getCaloDetDescrElement() != 0 ){
-//    	caloDDE = (*it)->getCaloDetDescrElement();
-//    }
 //    error|=in_error;
   }
 //  // support to new monitoring

@@ -10,10 +10,13 @@
 // EDM include(s):
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODTracking/versions/TrackParticleAuxContainer_v1.h"
+#include "xAODTracking/versions/TrackParticleAuxContainer_v2.h"
+#include "xAODTracking/versions/TrackParticleAuxContainer_v3.h"
 
 // Local include(s):
 #include "xAODTrackParticleAuxContainerCnv_v1.h"
 #include "xAODTrackParticleAuxContainerCnv_v2.h"
+#include "xAODTrackParticleAuxContainerCnv_v3.h"
 
 // Declare the T/P converter(s):
 DECLARE_TPCNV_FACTORY( xAODTrackParticleAuxContainerCnv_v1,
@@ -24,4 +27,9 @@ DECLARE_TPCNV_FACTORY( xAODTrackParticleAuxContainerCnv_v1,
 DECLARE_TPCNV_FACTORY( xAODTrackParticleAuxContainerCnv_v2,
                        xAOD::TrackParticleAuxContainer,
                        xAOD::TrackParticleAuxContainer_v2,
+                       Athena::TPCnvVers::Old )
+
+DECLARE_TPCNV_FACTORY( xAODTrackParticleAuxContainerCnv_v3,
+                       xAOD::TrackParticleAuxContainer,
+                       xAOD::TrackParticleAuxContainer_v3,
                        Athena::TPCnvVers::Old )

@@ -6,9 +6,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "StoreGate/StoreGateSvc.h"
 
-//#include "GaudiKernel/ISvcFactory.h"
-//#include "GaudiKernel/SvcFactory.h"
-
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "TrigT2CaloCommon/T2CaloInitSvc.h"

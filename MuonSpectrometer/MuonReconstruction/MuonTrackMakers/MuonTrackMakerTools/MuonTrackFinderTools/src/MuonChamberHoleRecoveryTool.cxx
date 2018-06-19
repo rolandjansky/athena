@@ -812,7 +812,7 @@ MuonChamberHoleRecoveryTool::insertMdtsWithHoleSearch( std::vector<const Trk::Tr
       }
 
       bool inBounds = false;
-      Amg::Vector2D locPos;;
+      Amg::Vector2D locPos;
       if( surf.globalToLocal(exPars->position(),exPars->momentum(),locPos) ){
 	inBounds = surf.insideBounds(locPos,-100.,-100.);
       }

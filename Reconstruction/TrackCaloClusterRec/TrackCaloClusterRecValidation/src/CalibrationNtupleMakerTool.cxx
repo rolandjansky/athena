@@ -44,7 +44,7 @@ CalibrationNtupleMakerTool::CalibrationNtupleMakerTool(const std::string& name, 
   m_trueIsoDR(2.5),
   m_trueIsoPtCut(100.*GeV),  
   m_matchingCut(0.6),  
-  h_events(nullptr),
+  m_h_events(nullptr),
   m_index(0),  
   m_etaCalo(0),
   m_etaDetCalo(0),
@@ -147,10 +147,10 @@ StatusCode CalibrationNtupleMakerTool::bookTree()
   }
   
   // now register the Event histogram
-  h_events = new TH1F("h_events","total events", 10, 0, 10);
+  m_h_events = new TH1F("h_events","total events", 10, 0, 10);
   
-  if (tHistSvc and (tHistSvc->regHist(m_treeFolder+h_events->GetName(), h_events)).isFailure()) {
-    ATH_MSG_ERROR( "Can not register histogram" <<  h_events->GetName() );
+  if (tHistSvc and (tHistSvc->regHist(m_treeFolder+m_h_events->GetName(), m_h_events)).isFailure()) {
+    ATH_MSG_ERROR( "Can not register histogram" <<  m_h_events->GetName() );
     return StatusCode::FAILURE;
   }
 
@@ -162,7 +162,7 @@ StatusCode CalibrationNtupleMakerTool::bookTree()
 
 StatusCode CalibrationNtupleMakerTool::execute()
 {
-  h_events->Fill(0);
+  m_h_events->Fill(0);
   
   const EventInfo* info = nullptr;
   if (evtStore()->retrieve(info).isFailure()){

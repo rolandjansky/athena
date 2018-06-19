@@ -340,7 +340,7 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
     {
         //        HLT::ErrorCode stat = (*it)->execute(*ptrigTauCluster, m_phiWidth, m_etaWidth, m_phiWidthEM, m_etaWidthEM, RoIeta, RoIphi);
         //       HLT::ErrorCode stat = (*it)->execute(*ptrigTauCluster, *roi, *roiEM );
-        HLT::ErrorCode stat = (*it)->execute(*ptrigTauCluster, roi );
+        HLT::ErrorCode stat = (*it)->execute(*ptrigTauCluster, roi, caloDDENull, nullptr );
         if(stat.reason() == NEG_ENERGY_CLUSTER)
         {
             msg() << MSG::DEBUG << (*it)->name() << " Found a cluster with E~<=0. CONTINUE execution. " << endmsg;

@@ -5,8 +5,8 @@
 #ifndef TRKPARTICLEBASE_TRKTRACKPARTICLEBASECOLLECTION_H
 #define TRKPARTICLEBASE_TRKTRACKPARTICLEBASECOLLECTION_H
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TrkParticleBase/TrackParticleBase.h"
 
 namespace Trk

@@ -13,7 +13,7 @@
 #include <string>
 
 #include "tbb/flow_graph.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // derived from http://threadingbuildingblocks.org/docs/help/reference/flow_graph/message_flow_graph_example.htm

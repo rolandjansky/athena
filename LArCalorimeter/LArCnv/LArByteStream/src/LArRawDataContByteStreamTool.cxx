@@ -20,7 +20,6 @@
 #include "LArByteStream/LArRodBlockPhysicsV3.h"
 #include "LArByteStream/LArRodBlockPhysicsV5.h"
 #include "LArByteStream/LArRodBlockPhysicsV6.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/MsgStream.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 
@@ -115,9 +114,11 @@ LArRawDataContByteStreamTool::initialize()
    LArRodEncoder::setRodBlockStructure(m_RodBlockStructure);
    ATH_MSG_INFO ( "Initialization done for reading and writing" );
  }
- else
-   ATH_MSG_INFO ( "Initialization done for reading only" );
- return StatusCode::SUCCESS;  
+  else {
+    m_noisetool.disable();
+    ATH_MSG_INFO ( "Initialization done for reading only" );
+  }
+  return StatusCode::SUCCESS;  
 }
 
  

@@ -24,12 +24,8 @@
 #include "InDetReadoutGeometry/SiLocalPosition.h"
 
 
-#include <iostream>
 #include <vector>
 #include <string>
-
-using std::cout;
-using std::endl;
 
 using namespace InDetDD;
 // or just the ones we need.
@@ -64,6 +60,7 @@ ReadSiDetectorElements::ReadSiDetectorElements(const std::string& name, ISvcLoca
   declareProperty("LoopOverElements", m_doLoop);
   declareProperty("DoInitialize", m_doInit = false);
   declareProperty("DoExecute",    m_doExec = true);
+  declareProperty("UseConditionsTools", m_useConditionsTools = false);
   declareProperty("SiLorentzAngleSvc", m_siLorentzAngleSvc);
   declareProperty("SiConditionsSvc", m_siConditionsSvc);
   declareProperty("SiPropertiesSvc", m_siPropertiesSvc);
@@ -86,7 +83,7 @@ StatusCode ReadSiDetectorElements::initialize(){
     // Get Pixel ID helper
     //
     // Pixel ID helper: const PixelID * m_pixelIdHelper;
-    ATH_CHECK (detStore()->retrieve(m_pixelIdHelper, "PixelID"));
+    ATH_CHECK(detStore()->retrieve(m_pixelIdHelper, "PixelID"));
 
     // If common pixel/SCT code can copy to pointer to AtlasDetectorID
     m_idHelper = m_pixelIdHelper;
@@ -96,22 +93,32 @@ StatusCode ReadSiDetectorElements::initialize(){
     // Get SCT ID helper
     //
     // SCT ID helper: const SCT_ID * m_sctIdHelper;
-    ATH_CHECK (detStore()->retrieve(m_sctIdHelper, "SCT_ID"));
+    ATH_CHECK(detStore()->retrieve(m_sctIdHelper, "SCT_ID"));
 
     // If common pixel/SCT code can copy to pointer to AtlasDetectorID
     m_idHelper = m_sctIdHelper;
   }
-  StatusCode sc = m_siLorentzAngleSvc.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not retrieve Lorentz Angle Svc: " << m_siLorentzAngleSvc.name() );
-  }
-  sc = m_siPropertiesSvc.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not retrieve silicon properties svc: " << m_siPropertiesSvc.name() );
-  }
-  sc = m_siConditionsSvc.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not retrieve silicon conditions service: " << m_siConditionsSvc.name() );
+
+  if (m_useConditionsTools) {
+    ATH_CHECK(m_siLorentzAngleTool.retrieve());
+    ATH_CHECK(m_siConditionsTool.retrieve());
+    ATH_CHECK(m_siPropertiesTool.retrieve());
+  } else {
+    StatusCode sc = m_siLorentzAngleSvc.retrieve();
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR( "Could not retrieve Lorentz Angle Svc: " << m_siLorentzAngleSvc.name() );
+    }
+    sc = m_siPropertiesSvc.retrieve();
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR( "Could not retrieve silicon properties svc: " << m_siPropertiesSvc.name() );
+    }
+    sc = m_siConditionsSvc.retrieve();
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR( "Could not retrieve silicon conditions service: " << m_siConditionsSvc.name() );
+    }
+    m_siLorentzAngleTool.disable();
+    m_siConditionsTool.disable();
+    m_siPropertiesTool.disable();
   }
   // Print during initialize
   if (m_doInit) {
@@ -143,52 +150,63 @@ void ReadSiDetectorElements::printAllElements() {
     for (iter = m_manager->getDetectorElementBegin(); iter != m_manager->getDetectorElementEnd(); ++iter){
       const SiDetectorElement * element = *iter; 
       if (element) {
-        cout << m_idHelper->show_to_string(element->identify()) << endl;;
+        ATH_MSG_ALWAYS(m_idHelper->show_to_string(element->identify()));
         // The id helper is also available through  the elements
         //
         // element->getIdHelper()->show(element->identify());
         //
   
-        cout << " center = " << element->center() << endl;
-        cout << " sin(tilt), sin(stereo) = " <<  element->sinTilt() << " " 
-             << element->sinStereo() << endl;
-        cout << " width, minWidth, maxWidth, length (mm) = " 
-             << element->width()/CLHEP::mm << " " 
-             << element->minWidth()/CLHEP::mm << " " 
-             << element->maxWidth()/CLHEP::mm << " " 
-             << element->length()/CLHEP::mm << endl;
+        ATH_MSG_ALWAYS(" center = " << element->center());
+        ATH_MSG_ALWAYS(" sin(tilt), sin(stereo) = " <<  element->sinTilt() << " " 
+                       << element->sinStereo());
+        ATH_MSG_ALWAYS(" width, minWidth, maxWidth, length (mm) = " 
+                       << element->width()/CLHEP::mm << " " 
+                       << element->minWidth()/CLHEP::mm << " " 
+                       << element->maxWidth()/CLHEP::mm << " " 
+                       << element->length()/CLHEP::mm);
   
         // These are no longer accessed through the detector element.
         IdentifierHash hashId = element->identifyHash();
-        cout << " Temperature (C), bias voltage, depletion voltage: "
-             << m_siConditionsSvc->temperature(hashId) << " "
-             << m_siConditionsSvc->biasVoltage(hashId) << " "
-             << m_siConditionsSvc->depletionVoltage(hashId) << endl;
-  
-        //cout << "Via SiDetectorElement:"
-        cout << " Lorentz correction (mm), tanLorentzPhi = "
-             << element->getLorentzCorrection()/CLHEP::mm << " " 
-             << element->getTanLorentzAnglePhi() << endl;
-  
-        //cout << "Direct from SiLorentzAngleSvc:"
-        //cout << " Lorentz correction (mm), tanLorentzPhi = "
-        //     << m_siLorentzAngleSvc->getLorentzShift(hashId)/CLHEP::mm << " "  
-        //     << m_siLorentzAngleSvc->getTanLorentzAngle(hashId) << endl;
-  
+        if (m_useConditionsTools) {
+          ATH_MSG_ALWAYS(" Temperature (C), bias voltage, depletion voltage: "
+                         << m_siConditionsTool->temperature(hashId) << " "
+                         << m_siConditionsTool->biasVoltage(hashId) << " "
+                         << m_siConditionsTool->depletionVoltage(hashId));
+        } else {
+          ATH_MSG_ALWAYS(" Temperature (C), bias voltage, depletion voltage: "
+                         << m_siConditionsSvc->temperature(hashId) << " "
+                         << m_siConditionsSvc->biasVoltage(hashId) << " "
+                         << m_siConditionsSvc->depletionVoltage(hashId));
+        }
+
+        if (m_manager->getName() == "Pixel") {
+          //msg(MSG::ALWAYS) << "Via SiDetectorElement:"
+          ATH_MSG_ALWAYS(" Lorentz correction (mm), tanLorentzPhi = "
+                         << element->getLorentzCorrection()/CLHEP::mm << " "
+                         << element->getTanLorentzAnglePhi());
+        } else {
+          //msg(MSG::ALWAYS) << "Direct from SiLorentzAngleSvc:"
+          ATH_MSG_ALWAYS(" Lorentz correction (mm), tanLorentzPhi = "
+                         << m_siLorentzAngleTool->getLorentzShift(hashId)/CLHEP::mm << " "
+                         << m_siLorentzAngleTool->getTanLorentzAngle(hashId));
+        }
+
         // These are no longer accessed through the detector element.
-        const InDet::SiliconProperties & siProperties =  m_siPropertiesSvc->getSiProperties(hashId);
-        cout << " Hall Mobility (cm2/volt/s), Drift mobility (cm2/volt/s), diffusion constant (cm2/s) = " 
-             << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
-             << siProperties.driftMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
-             << siProperties.diffusionConstant(element->carrierType()) /(CLHEP::cm2/CLHEP::s) << endl;
-        //cout << element->hitDepthDirection() << " "
+        const InDet::SiliconProperties & siProperties = m_useConditionsTools
+          ? m_siPropertiesTool->getSiProperties(hashId)
+          : m_siPropertiesSvc->getSiProperties(hashId);
+        ATH_MSG_ALWAYS(" Hall Mobility (cm2/volt/s), Drift mobility (cm2/volt/s), diffusion constant (cm2/s) = " 
+                       << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
+                       << siProperties.driftMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
+                       << siProperties.diffusionConstant(element->carrierType()) /(CLHEP::cm2/CLHEP::s));
+        // ATH_MSG_ALWAYS(element->hitDepthDirection() << " "
         //   << element->hitPhiDirection() << " "
         //   << element->hitEtaDirection() << " "
         //   << element->swapPhiReadoutDirection() << " "
-        //   << element->swapEtaReadoutDirection() << endl;
-        //cout << "isBarrel: " << element->isBarrel() << endl;
+        //   << element->swapEtaReadoutDirection());
+        // ATH_MSG_ALWAYS("isBarrel: " << element->isBarrel());
 
-        cout << " HashId, Id : " << hashId << "\t" << element->identify().getString() << endl;
+        ATH_MSG_ALWAYS(" HashId, Id : " << hashId << "\t" << element->identify().getString());
 
         // Make some consistency tests for the identifier.
         Identifier idTest;
@@ -205,17 +223,16 @@ void ReadSiDetectorElements::printAllElements() {
         const SiDetectorElement * elementtest1 = m_manager->getDetectorElement(element->identify());
         const SiDetectorElement * elementtest2 = m_manager->getDetectorElement(hashId);
         bool idOK = true;
-        if (idHashTest != hashId) {cout << " Id test 1 FAILED!" << endl; idOK = false;}
-        if (idTest != element->identify()) {cout << " Id test 2 FAILED!" << endl; idOK = false;}
-        if (elementtest1 != element) {cout << " Id test 3 FAILED!" << endl; idOK = false;}
-        if (elementtest2 != element) {cout << " Id test 4 FAILED!" << endl; idOK = false;}
-        if (idOK) cout << " ID tests OK" << std::endl;
+        if (idHashTest != hashId) {ATH_MSG_ALWAYS(" Id test 1 FAILED!"); idOK = false;}
+        if (idTest != element->identify()) {ATH_MSG_ALWAYS(" Id test 2 FAILED!"); idOK = false;}
+        if (elementtest1 != element) {ATH_MSG_ALWAYS(" Id test 3 FAILED!"); idOK = false;}
+        if (elementtest2 != element) {ATH_MSG_ALWAYS(" Id test 4 FAILED!"); idOK = false;}
+        if (idOK) ATH_MSG_ALWAYS(" ID tests OK") ;
       } else {
-        //  cout << "Missing element!!!!!!!!!!!" << endl;
+        // ATH_MSG_ALWAYS("Missing element!!!!!!!!!!!");
       }
     }
   }
-  cout << endl;
   // Testing numerology
   const SiNumerology  siNumerology(m_manager->numerology());
   int nSides = 1;
@@ -225,13 +242,13 @@ void ReadSiDetectorElements::printAllElements() {
   // Barrel
   for (int iBarrelIndex = 0; iBarrelIndex < siNumerology.numBarrels(); iBarrelIndex++) {
     int iBarrel = siNumerology.barrelId(iBarrelIndex);
-    cout << "Barrel: " << iBarrel << endl;
-    cout << " Num layers: " << siNumerology.numLayers() << endl;
+    ATH_MSG_ALWAYS("Barrel: " << iBarrel);
+    ATH_MSG_ALWAYS(" Num layers: " << siNumerology.numLayers());
     for (int iLayer = 0; iLayer < siNumerology.numLayers(); iLayer++) {
-      cout << " Layer: " << iLayer << endl;
-      if (!siNumerology.useLayer(iLayer)) cout << "  Layer not present" << endl;
-      cout << "  Num Modules in Phi: " << siNumerology.numPhiModulesForLayer(iLayer) << endl;
-      cout << "  Num Modules in Eta: " << siNumerology.numEtaModulesForLayer(iLayer) << endl;
+      ATH_MSG_ALWAYS(" Layer: " << iLayer);
+      if (!siNumerology.useLayer(iLayer))ATH_MSG_ALWAYS("  Layer not present");
+      ATH_MSG_ALWAYS("  Num Modules in Phi: " << siNumerology.numPhiModulesForLayer(iLayer));
+      ATH_MSG_ALWAYS("  Num Modules in Eta: " << siNumerology.numEtaModulesForLayer(iLayer));
       for (int iPhi = 0; iPhi < siNumerology.numPhiModulesForLayer(iLayer); iPhi++) {
         for (int iEta = siNumerology.beginEtaModuleForLayer(iLayer); iEta < siNumerology.endEtaModuleForLayer(iLayer); iEta++) {
           if (!iEta && siNumerology.skipEtaZeroForLayer(iLayer)) continue;
@@ -246,11 +263,11 @@ void ReadSiDetectorElements::printAllElements() {
             barrelCount++;
             if (!element) {
               barrelCountError++;
-              cout << "   No element found for id: " << m_idHelper->show_to_string(id) << endl;
+              ATH_MSG_ALWAYS("   No element found for id: " << m_idHelper->show_to_string(id));
             } else {
-            // For extra safety in case some strip modules do not have two sides (eg in future geometries) one could add.
+              // For extra safety in case some strip modules do not have two sides (eg in future geometries) one could add.
               if (!element->otherSide()) iSide++;
-              cout << "   " << m_idHelper->show_to_string(id) << endl;
+              ATH_MSG_ALWAYS("   " << m_idHelper->show_to_string(id));
             }     
           } // iSide
         } // iEta
@@ -263,15 +280,15 @@ void ReadSiDetectorElements::printAllElements() {
   // Endcap
   for (int iEndcapIndex = 0; iEndcapIndex < siNumerology.numEndcaps(); iEndcapIndex++) {
     int iEndcap = siNumerology.endcapId(iEndcapIndex);
-    cout << "Endcap: " << iEndcap << endl;
-    cout << " Num disks: " << siNumerology.numDisks() << endl;
+    ATH_MSG_ALWAYS("Endcap: " << iEndcap);
+    ATH_MSG_ALWAYS(" Num disks: " << siNumerology.numDisks());
     for (int iDisk = 0; iDisk < siNumerology.numDisks(); iDisk++) {
-      cout << " Disk: " << iDisk << endl;
-    if (!siNumerology.useDisk(iDisk)) cout << "  Disk not present" << endl;
-      cout << "  Num Rings: " << siNumerology.numRingsForDisk(iDisk) << endl;
+      ATH_MSG_ALWAYS(" Disk: " << iDisk);
+      if (!siNumerology.useDisk(iDisk))ATH_MSG_ALWAYS("  Disk not present");
+      ATH_MSG_ALWAYS("  Num Rings: " << siNumerology.numRingsForDisk(iDisk));
       for (int iEta = 0; iEta < siNumerology.numRingsForDisk(iDisk); iEta++) {
-        cout << "  Ring: " << iEta << endl; 
-        cout << "   Num Modules in Phi: " << siNumerology.numPhiModulesForDiskRing(iDisk,iEta) << endl;    
+        ATH_MSG_ALWAYS("  Ring: " << iEta); 
+        ATH_MSG_ALWAYS("   Num Modules in Phi: " << siNumerology.numPhiModulesForDiskRing(iDisk,iEta));    
         for (int iPhi = 0; iPhi < siNumerology.numPhiModulesForDiskRing(iDisk,iEta); iPhi++) {
           for (int iSide = 0; iSide < nSides; iSide++) {
             Identifier id;
@@ -286,11 +303,11 @@ void ReadSiDetectorElements::printAllElements() {
             endcapCount++;
             if (!element) {
               endcapCountError++;
-              cout << "    No element found for id: " << m_idHelper->show_to_string(id) << endl;
+              ATH_MSG_ALWAYS("    No element found for id: " << m_idHelper->show_to_string(id));
             } else {
-            // For extra safety in case some strip modules do not have two sides (eg in future geometries) one could add.
+              // For extra safety in case some strip modules do not have two sides (eg in future geometries) one could add.
               if (!element->otherSide()) iSide++;
-              cout << "    " << m_idHelper->show_to_string(id) << endl;
+              ATH_MSG_ALWAYS("    " << m_idHelper->show_to_string(id));
             }
           } // iSide
         } // iEta
@@ -298,24 +315,24 @@ void ReadSiDetectorElements::printAllElements() {
     } //iDisk
   } // Endcap;
 
-  cout << "Number of barrel elements : " << barrelCount << endl;
-  cout << "Number not found          : " << barrelCountError << endl;
-  cout << "Number of endcap elements : " << endcapCount << endl;
-  cout << "Number not found          : " << endcapCountError << endl;
-
+  ATH_MSG_ALWAYS("Number of barrel elements : " << barrelCount);
+  ATH_MSG_ALWAYS("Number not found          : " << barrelCountError);
+  ATH_MSG_ALWAYS("Number of endcap elements : " << endcapCount);
+  ATH_MSG_ALWAYS("Number not found          : " << endcapCountError);
+  
   // Maximums 
-  cout << "MaxNumBarrelEta:   " <<  siNumerology.maxNumBarrelEta() << endl;
-  cout << "MaxNumEndcapRings: " <<  siNumerology.maxNumEndcapRings() << endl;
-  cout << "MaxNumStrips:      " <<  siNumerology.maxNumStrips() << endl;
-  cout << "MaxNumPhiCells:    " <<  siNumerology.maxNumPhiCells() << endl;
-  cout << "MaxNumEtaCells:    " <<  siNumerology.maxNumEtaCells() << endl;
+  ATH_MSG_ALWAYS("MaxNumBarrelEta:   " <<  siNumerology.maxNumBarrelEta());
+  ATH_MSG_ALWAYS("MaxNumEndcapRings: " <<  siNumerology.maxNumEndcapRings());
+  ATH_MSG_ALWAYS("MaxNumStrips:      " <<  siNumerology.maxNumStrips());
+  ATH_MSG_ALWAYS("MaxNumPhiCells:    " <<  siNumerology.maxNumPhiCells());
+  ATH_MSG_ALWAYS("MaxNumEtaCells:    " <<  siNumerology.maxNumEtaCells());
 
-  cout << "Num Designs: " <<  m_manager->numDesigns() << endl;
+  ATH_MSG_ALWAYS("Num Designs: " <<  m_manager->numDesigns());
 }
 
 
 void ReadSiDetectorElements::printRandomAccess() {
-  msg(MSG::INFO) << "printRandomAccess()" << endmsg;
+  ATH_MSG_INFO("printRandomAccess()");
   // Some random access
   if (m_manager->getName() == "Pixel") {
     //const PixelID * idHelper = dynamic_cast<const PixelID *>(m_manager->getIdHelper());
@@ -326,9 +343,9 @@ void ReadSiDetectorElements::printRandomAccess() {
       std::vector<Amg::Vector2D> positions;
       // wafer_id(barrel_ec, layer_disk, phi_module, eta_module)
       // A barrel element
-      cout << "----------------------------------------------" << endl;
-      cout << " A Pixel Barrel element (non B-layer) "         << endl;
-      cout << "----------------------------------------------" << endl;
+      ATH_MSG_ALWAYS("----------------------------------------------");
+      ATH_MSG_ALWAYS(" A Pixel Barrel element (non B-layer) "        );
+      ATH_MSG_ALWAYS("----------------------------------------------");
       id = idHelper->wafer_id(0,1,15,-3);
       cellIds.push_back(SiCellId(32,8)); // phi,eta
       //add a range of cells from 151 to 175
@@ -347,9 +364,9 @@ void ReadSiDetectorElements::printRandomAccess() {
       testElement(id, cellIds, positions);
 
       // A barrel element (B-Layer)
-      cout << "----------------------------------------------" << endl;
-      cout << " A Pixel Barrel element (B-layer)     "         << endl;
-      cout << "----------------------------------------------" << endl;
+      ATH_MSG_ALWAYS("----------------------------------------------");
+      ATH_MSG_ALWAYS(" A Pixel Barrel element (B-layer)     "        );
+      ATH_MSG_ALWAYS("----------------------------------------------");
       id = idHelper->wafer_id(0,0,7,-3);
       cellIds.clear();
       positions.clear();
@@ -358,9 +375,9 @@ void ReadSiDetectorElements::printRandomAccess() {
       testElement(id, cellIds, positions);
 
       // An endcap element
-      cout << "----------------------------------------------" << endl;
-      cout << " A Pixel Endcap element"                        << endl;
-      cout << "----------------------------------------------" << endl;
+      ATH_MSG_ALWAYS("----------------------------------------------");
+      ATH_MSG_ALWAYS(" A Pixel Endcap element"                       );
+      ATH_MSG_ALWAYS("----------------------------------------------");
       id = idHelper->wafer_id(2,2,13,0);
       cellIds.push_back(SiCellId(182,75)); // phi,eta
       positions.push_back(Amg::Vector2D(0*CLHEP::mm, 0*CLHEP::mm)); // eta,phi
@@ -384,9 +401,9 @@ void ReadSiDetectorElements::printRandomAccess() {
 
       // wafer_id(barrel_ec, layer_disk, phi_module, eta_module, side)
       // A barrel element
-      cout << "----------------------------------------------" << endl;
-      cout << " A SCT Barrel element"                          << endl;
-      cout << "----------------------------------------------" << endl;
+      ATH_MSG_ALWAYS("----------------------------------------------");
+      ATH_MSG_ALWAYS(" A SCT Barrel element"                         );
+      ATH_MSG_ALWAYS("----------------------------------------------");
       id = idHelper->wafer_id(0,1,15,-3,0);
       cellIds.clear();
       positions.clear();
@@ -402,9 +419,9 @@ void ReadSiDetectorElements::printRandomAccess() {
       testElement(id, cellIds, positions);
 
       // A barrel element (other side of above)
-      cout << "----------------------------------------------" << endl;
-      cout << " A SCT Barrel element (other side of above)   " << endl;
-      cout << "----------------------------------------------" << endl;
+      ATH_MSG_ALWAYS("----------------------------------------------");
+      ATH_MSG_ALWAYS(" A SCT Barrel element (other side of above)   ");
+      ATH_MSG_ALWAYS("----------------------------------------------");
       id = idHelper->wafer_id(0,1,15,-3,1);
       cellIds.clear();
       positions.clear();
@@ -413,9 +430,9 @@ void ReadSiDetectorElements::printRandomAccess() {
       testElement(id, cellIds, positions);
 
       // A outer fwd
-      cout << "----------------------------------------------" << endl;
-      cout << " A SCT Endcap element (outer type)"             << endl;
-      cout << "----------------------------------------------" << endl;
+      ATH_MSG_ALWAYS("----------------------------------------------");
+      ATH_MSG_ALWAYS(" A SCT Endcap element (outer type)"            );
+      ATH_MSG_ALWAYS("----------------------------------------------");
       id = idHelper->wafer_id(2,3,15,0,0);
       cellIds.clear();
       positions.clear();
@@ -429,9 +446,9 @@ void ReadSiDetectorElements::printRandomAccess() {
       positions.push_back(Amg::Vector2D(3*CLHEP::mm, -25*CLHEP::mm)); // eta,phi
       testElement(id, cellIds, positions);
 
-      cout << "----------------------------------------------" << endl;
-      cout << " A SCT Endcap element (outer type) other side"             << endl;
-      cout << "----------------------------------------------" << endl;
+      ATH_MSG_ALWAYS("----------------------------------------------");
+      ATH_MSG_ALWAYS(" A SCT Endcap element (outer type) other side");
+      ATH_MSG_ALWAYS("----------------------------------------------");
       id = idHelper->wafer_id(2,3,15,0,1);
       cellIds.clear();
       positions.clear();
@@ -442,9 +459,9 @@ void ReadSiDetectorElements::printRandomAccess() {
       testElement(id, cellIds, positions);
 
       // A middle fwd
-      cout << "----------------------------------------------" << endl;
-      cout << " A SCT Endcap element (middle type)"            << endl;
-      cout << "----------------------------------------------" << endl;
+      ATH_MSG_ALWAYS("----------------------------------------------");
+      ATH_MSG_ALWAYS(" A SCT Endcap element (middle type)"           );
+      ATH_MSG_ALWAYS("----------------------------------------------");
       id = idHelper->wafer_id(2,1,15,1,0);
       cellIds.clear();
       positions.clear();
@@ -453,9 +470,9 @@ void ReadSiDetectorElements::printRandomAccess() {
       testElement(id, cellIds, positions);
 
       // A truncated middle
-      cout << "----------------------------------------------" << endl;
-      cout << " A SCT Endcap element (truncated middle type)"  << endl;
-      cout << "----------------------------------------------" << endl;
+      ATH_MSG_ALWAYS("----------------------------------------------");
+      ATH_MSG_ALWAYS(" A SCT Endcap element (truncated middle type)" );
+      ATH_MSG_ALWAYS("----------------------------------------------");
       id = idHelper->wafer_id(2,7,15,1,0);
       cellIds.clear();
       positions.clear();
@@ -464,9 +481,9 @@ void ReadSiDetectorElements::printRandomAccess() {
       testElement(id, cellIds, positions);
 
       // A inner fwd
-      cout << "----------------------------------------------" << endl;
-      cout << " A SCT Endcap element (inner type)"             << endl;
-      cout << "----------------------------------------------" << endl;
+      ATH_MSG_ALWAYS("----------------------------------------------");
+      ATH_MSG_ALWAYS(" A SCT Endcap element (inner type)"            );
+      ATH_MSG_ALWAYS("----------------------------------------------");
       id = idHelper->wafer_id(2,1,15,2,0);
       cellIds.clear();
       positions.clear();
@@ -480,141 +497,155 @@ void ReadSiDetectorElements::printRandomAccess() {
 
 void
 ReadSiDetectorElements::testElement(const Identifier & id, 
-            const std::vector<SiCellId> & cellIdVec, 
-            const std::vector<Amg::Vector2D> & positionsVec) const{
-  cout << "----------------------------------------------" << endl;
+                                    const std::vector<SiCellId> & cellIdVec, 
+                                    const std::vector<Amg::Vector2D> & positionsVec) const{
+  ATH_MSG_ALWAYS("----------------------------------------------");
   const SiDetectorElement * element = m_manager->getDetectorElement(id);
   if (element) {
     IdentifierHash hashId = element->identifyHash();
-    cout << element->getIdHelper()->show_to_string(id) << endl;
-    cout << " width, minWidth, maxWidth, length, thickness (mm) = " 
-   << element->width()/CLHEP::mm << " " 
-   << element->minWidth()/CLHEP::mm << " " 
-   << element->maxWidth()/CLHEP::mm << " " 
-   << element->length()/CLHEP::mm << " "
-   << element->thickness()/CLHEP::mm
-   << endl;
-    cout << " average etaPitch = " << element->etaPitch()/CLHEP::micrometer << " microns" << endl;
-    cout << " average phiPitch = " << element->phiPitch()/CLHEP::micrometer << " microns" << endl;
-    cout << " rMin, rMax, zMin, zMax (mm), phiMin, phiMax (deg) = " 
-   << element->rMin()/CLHEP::mm << " "
-   << element->rMax()/CLHEP::mm << " "
-   << element->zMin()/CLHEP::mm << " "
-   << element->zMax()/CLHEP::mm << " "
-   << element->phiMin()/CLHEP::degree << " "
-   << element->phiMax()/CLHEP::degree
-   << endl;
-    cout << " center, normal, etaAxis, phiAxis = "
-   << element->center() << " "
-   << element->normal() << " "
-   << element->etaAxis() << " "
-   << element->phiAxis() 
-   << endl;
-    cout << " center: r (mm) = " <<  element->center().perp()/CLHEP::mm 
-   << ", phi (deg) = " <<  element->center().phi()/CLHEP::deg << endl;
-    const InDet::SiliconProperties & siProperties =  m_siPropertiesSvc->getSiProperties(hashId);
-    cout << " Lorentz correction (mm), mobility (cm2/V/s), tanLorentzPhi = "
-   << element->getLorentzCorrection()/CLHEP::mm << " " 
-   << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
-   << element->getTanLorentzAnglePhi() << endl;
-    cout << " Temperature (C), bias voltage, depletion voltage: " 
-   << m_siConditionsSvc->temperature(hashId) << " "
-   << m_siConditionsSvc->biasVoltage(hashId) << " "
-   << m_siConditionsSvc->depletionVoltage(hashId) << endl;
-    cout << " sin(tilt), tilt (deg), sin(stereo), stereo (deg) = " 
-   << element->sinTilt() << ", " 
-   << asin(element->sinTilt())/CLHEP::degree << ", "
-   << element->sinStereo() << ", " 
-   << asin(element->sinStereo())/CLHEP::degree << endl;
-    cout << " Neighbours: " << endl;
-    cout << "  nextInEta: " << printElementId(element->nextInEta())  << endl;
-    cout << "  prevInEta: " << printElementId(element->prevInEta())  << endl;
-    cout << "  nextInPhi: " << printElementId(element->nextInPhi())  << endl;
-    cout << "  prevInPhi: " << printElementId(element->prevInPhi())  << endl;
-    cout << "  otherSide: " << printElementId(element->otherSide())  << endl;
+    ATH_MSG_ALWAYS(element->getIdHelper()->show_to_string(id));
+    ATH_MSG_ALWAYS(" width, minWidth, maxWidth, length, thickness (mm) = " 
+                   << element->width()/CLHEP::mm << " " 
+                   << element->minWidth()/CLHEP::mm << " " 
+                   << element->maxWidth()/CLHEP::mm << " " 
+                   << element->length()/CLHEP::mm << " "
+                   << element->thickness()/CLHEP::mm
+                   );
+    ATH_MSG_ALWAYS(" average etaPitch = " << element->etaPitch()/CLHEP::micrometer << " microns");
+    ATH_MSG_ALWAYS(" average phiPitch = " << element->phiPitch()/CLHEP::micrometer << " microns");
+    ATH_MSG_ALWAYS(" rMin, rMax, zMin, zMax (mm), phiMin, phiMax (deg) = " 
+                   << element->rMin()/CLHEP::mm << " "
+                   << element->rMax()/CLHEP::mm << " "
+                   << element->zMin()/CLHEP::mm << " "
+                   << element->zMax()/CLHEP::mm << " "
+                   << element->phiMin()/CLHEP::degree << " "
+                   << element->phiMax()/CLHEP::degree
+                   );
+    ATH_MSG_ALWAYS(" center, normal, etaAxis, phiAxis = "
+                   << element->center() << " "
+                   << element->normal() << " "
+                   << element->etaAxis() << " "
+                   << element->phiAxis() 
+                   );
+    ATH_MSG_ALWAYS(" center: r (mm) = " <<  element->center().perp()/CLHEP::mm 
+                   << ", phi (deg) = " <<  element->center().phi()/CLHEP::deg);
+    const InDet::SiliconProperties & siProperties = m_useConditionsTools
+      ? m_siPropertiesTool->getSiProperties(hashId)
+      : m_siPropertiesSvc->getSiProperties(hashId);
+    if (m_manager->getName() == "Pixel") {
+      ATH_MSG_ALWAYS(" Lorentz correction (mm), mobility (cm2/V/s), tanLorentzPhi = "
+                     << element->getLorentzCorrection()/CLHEP::mm << " "
+                     << element->getLorentzCorrection()/CLHEP::mm << " "
+                     << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " "
+                     << element->getTanLorentzAnglePhi());
+    } else {
+      ATH_MSG_ALWAYS(" Lorentz correction (mm), mobility (cm2/V/s), tanLorentzPhi = "
+                     << m_siLorentzAngleTool->getLorentzShift(hashId)/CLHEP::mm << " "
+                     << element->getLorentzCorrection()/CLHEP::mm << " "
+                     << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " "
+                     << m_siLorentzAngleTool->getTanLorentzAngle(hashId));
+    }
+    if (m_useConditionsTools) {
+      ATH_MSG_ALWAYS(" Temperature (C), bias voltage, depletion voltage: "
+                     << m_siConditionsTool->temperature(hashId) << " "
+                     << m_siConditionsTool->biasVoltage(hashId) << " "
+                     << m_siConditionsTool->depletionVoltage(hashId));
+    } else {
+      ATH_MSG_ALWAYS(" Temperature (C), bias voltage, depletion voltage: "
+                     << m_siConditionsSvc->temperature(hashId) << " "
+                     << m_siConditionsSvc->biasVoltage(hashId) << " "
+                     << m_siConditionsSvc->depletionVoltage(hashId));
+    }
+    ATH_MSG_ALWAYS(" sin(tilt), tilt (deg), sin(stereo), stereo (deg) = " 
+                   << element->sinTilt() << ", " 
+                   << asin(element->sinTilt())/CLHEP::degree << ", "
+                   << element->sinStereo() << ", " 
+                   << asin(element->sinStereo())/CLHEP::degree);
+    ATH_MSG_ALWAYS(" Neighbours: ");
+    ATH_MSG_ALWAYS("  nextInEta: " << printElementId(element->nextInEta()) );
+    ATH_MSG_ALWAYS("  prevInEta: " << printElementId(element->prevInEta()) );
+    ATH_MSG_ALWAYS("  nextInPhi: " << printElementId(element->nextInPhi()) );
+    ATH_MSG_ALWAYS("  prevInPhi: " << printElementId(element->prevInPhi()) );
+    ATH_MSG_ALWAYS("  otherSide: " << printElementId(element->otherSide()) );
 
     for (unsigned int iTestCell = 0; iTestCell < cellIdVec.size(); iTestCell++) {
       SiCellId cellId = cellIdVec[iTestCell];
-      cout << endl;
-      cout << " cell [phiIndex.etaIndex] = " << cellId << endl;
+      ATH_MSG_ALWAYS(" cell [phiIndex.etaIndex] = " << cellId);
       
       // Test cell Id -> Identifier
       Identifier fullCellId = element->identifierFromCellId(cellId);
-      cout << " identifier = ";
+      ATH_MSG_ALWAYS(" identifier = ");
       element->getIdHelper()->show(fullCellId);
       
       // Test Identifier -> cell Id 
       SiCellId cellId2 = element->cellIdFromIdentifier(fullCellId);
-      cout << " extracted cell id [phiIndex.etaIndex] = " << cellId2 << endl;
+      ATH_MSG_ALWAYS(" extracted cell id [phiIndex.etaIndex] = " << cellId2);
       
       InDetDD::SiLocalPosition localPosRaw1 = element->rawLocalPositionOfCell(cellId);
       InDetDD::SiLocalPosition localPosRaw2 = element->rawLocalPositionOfCell(fullCellId);
       InDetDD::SiLocalPosition localPos1 = element->localPositionOfCell(cellId);
       InDetDD::SiLocalPosition localPos2 = element->localPositionOfCell(fullCellId);
-      cout << " raw localPosition (using cell id) (xPhi,xEta) = " 
-     << localPosRaw1.xPhi() << ", " << localPosRaw1.xEta() << endl;
-      cout << " raw localPosition (using full id) (xPhi,xEta) = " 
-     << localPosRaw2.xPhi() << ", " << localPosRaw2.xEta() << endl;
+      ATH_MSG_ALWAYS(" raw localPosition (using cell id) (xPhi,xEta) = " 
+                     << localPosRaw1.xPhi() << ", " << localPosRaw1.xEta());
+      ATH_MSG_ALWAYS(" raw localPosition (using full id) (xPhi,xEta) = " 
+                     << localPosRaw2.xPhi() << ", " << localPosRaw2.xEta());
       SiCellId cellIdRaw(element->cellIdOfPosition(localPosRaw1));
-      cout << " corresponding cell (phiIndex,etaIndex) = " 
-     << cellIdRaw << endl; 
-      cout << " lorentz corrected localPosition (using cell id) (xPhi,xEta) = " 
-     << localPos1.xPhi() << ", " << localPos1.xEta() << endl;
-      cout << " lorentz corrected localPosition (using cell id) (xPhi,xEta) = " 
-     << localPos2.xPhi() << ", " << localPos2.xEta() << endl;
+      ATH_MSG_ALWAYS(" corresponding cell (phiIndex,etaIndex) = " 
+                     << cellIdRaw); 
+      ATH_MSG_ALWAYS(" lorentz corrected localPosition (using cell id) (xPhi,xEta) = " 
+                     << localPos1.xPhi() << ", " << localPos1.xEta());
+      ATH_MSG_ALWAYS(" lorentz corrected localPosition (using cell id) (xPhi,xEta) = " 
+                     << localPos2.xPhi() << ", " << localPos2.xEta());
       SiCellId cellIdNew(element->cellIdOfPosition(localPos1));
-      cout << " corresponding cell (phiIndex,etaIndex) = " 
-     << cellIdNew << endl; 
-      cout << " Number of connected cells (2 means ganged): " 
-     << element->numberOfConnectedCells(cellId) << endl;
-      cout << " Connected cells";
+      ATH_MSG_ALWAYS(" corresponding cell (phiIndex,etaIndex) = " 
+                     << cellIdNew); 
+      ATH_MSG_ALWAYS(" Number of connected cells (2 means ganged): " 
+                     << element->numberOfConnectedCells(cellId));
+      msg(MSG::ALWAYS) << " Connected cells";
       for (int iCell=0; iCell < element->numberOfConnectedCells(cellId) ; iCell++) {
         SiCellId connectedCellId =  element->connectedCell(cellId, iCell);
-        cout << ", ";
-        cout << iCell << ": " << connectedCellId;
+        msg(MSG::ALWAYS) << ", " << iCell << ": " << connectedCellId;
       }
-      cout << endl; 
-      cout << "In range: " << element->design().cellIdInRange(cellId) << endl;
+      ATH_MSG_ALWAYS("In range: " << element->design().cellIdInRange(cellId));
     }
     
     for (unsigned int iTestPos = 0; iTestPos < positionsVec.size(); iTestPos++) {
       const InDetDD::SiLocalPosition & localPosOrig = positionsVec[iTestPos];
-      cout << endl;
-      cout << " Requested local pos (xPhi,xEta) = " << localPosOrig.xPhi() << ", " << localPosOrig.xEta() << endl;
+      ATH_MSG_ALWAYS(" Requested local pos (xPhi,xEta) = " << localPosOrig.xPhi() << ", " << localPosOrig.xEta());
       //lost out to HepGeom here
       HepGeom::Point3D<double> globalPos(element->globalPositionCLHEP(localPosOrig));
-      cout << " Global pos = " << globalPos << ", r (mm) = " << globalPos.perp()/CLHEP::mm<< ", phi (deg) = " << globalPos.phi()/CLHEP::degree << endl;
+      ATH_MSG_ALWAYS(" Global pos = " << globalPos << ", r (mm) = " << globalPos.perp()/CLHEP::mm<< ", phi (deg) = " << globalPos.phi()/CLHEP::degree);
 
       //...because i need a HepGeom::Point3D<double> to pass to element->localPosition...
       InDetDD::SiLocalPosition localPosNew(element->localPosition(globalPos));
-      cout << " Returned local Pos (xPhi,xEta) =  " << localPosNew.xPhi() << ", " << localPosNew.xEta() << endl;
+      ATH_MSG_ALWAYS(" Returned local Pos (xPhi,xEta) =  " << localPosNew.xPhi() << ", " << localPosNew.xEta());
       // Some arbitrary tolerance picked out of the air.
       double tolerance = 100*CLHEP::micrometer;
       SiIntersect intersectState = element->inDetector(globalPos, tolerance, tolerance);
-      cout << " Intersects (tolerance = " << tolerance/CLHEP::mm << " mm) " 
-      << " (in,out,nearBoundary,mayIntersect) : " 
-     << intersectState.in() << ","
-     << intersectState.out() << ","
-     << intersectState.nearBoundary() << ","
-     << intersectState.mayIntersect() << endl;
-      cout << " Near bond gap: (tolerance = " << tolerance/CLHEP::mm << " mm) : " 
-     <<  element->nearBondGap(globalPos, tolerance) << endl;
+      ATH_MSG_ALWAYS(" Intersects (tolerance = " << tolerance/CLHEP::mm << " mm) " 
+                     << " (in,out,nearBoundary,mayIntersect) : " 
+                     << intersectState.in() << ","
+                     << intersectState.out() << ","
+                     << intersectState.nearBoundary() << ","
+                     << intersectState.mayIntersect());
+      ATH_MSG_ALWAYS(" Near bond gap: (tolerance = " << tolerance/CLHEP::mm << " mm) : " 
+                     <<  element->nearBondGap(globalPos, tolerance));
       SiCellId returnedCellId = element->cellIdOfPosition(localPosNew);
-      //      cout << " Returned cell Id (phiIndex,etaIndex) = " 
-      //     << returnedCellId.phiIndex() << ", " << returnedCellId.etaIndex() << endl; 
-      cout << " Returned cell Id [phiIndex.etaIndex] = " 
-     << returnedCellId << endl; 
-      cout << " using global position sin(tilt), tilt (deg), sin(stereo), stereo (deg) = "
-     << element->sinTilt(globalPos) << ", "
-     << asin(element->sinTilt(globalPos))/CLHEP::degree << ", "
-     << element->sinStereo(globalPos) << ", "
-     << asin(element->sinStereo(globalPos))/CLHEP::degree << endl;
+      //     ATH_MSG_ALWAYS(" Returned cell Id (phiIndex,etaIndex) = " 
+      //     << returnedCellId.phiIndex() << ", " << returnedCellId.etaIndex()); 
+      ATH_MSG_ALWAYS(" Returned cell Id [phiIndex.etaIndex] = " 
+                     << returnedCellId); 
+      ATH_MSG_ALWAYS(" using global position sin(tilt), tilt (deg), sin(stereo), stereo (deg) = "
+                     << element->sinTilt(globalPos) << ", "
+                     << asin(element->sinTilt(globalPos))/CLHEP::degree << ", "
+                     << element->sinStereo(globalPos) << ", "
+                     << asin(element->sinStereo(globalPos))/CLHEP::degree);
     }   
   } else { // element == 0
   
-    cout << " ELEMENT MISSING!!!!!!!!!! " << endl;
+    ATH_MSG_ALWAYS(" ELEMENT MISSING!!!!!!!!!! ");
   }
-  cout << "----------------------------------------------" << endl;
+  ATH_MSG_ALWAYS("----------------------------------------------");
 }
 
 std::string 
@@ -633,10 +664,6 @@ ReadSiDetectorElements::printElementId(const SiDetectorElement * element) const{
 
 StatusCode ReadSiDetectorElements::finalize() {
   // Part 1: Get the messaging service, print where you are
-  msg(MSG::INFO) << "finalize()" << endmsg;
+  ATH_MSG_INFO("finalize()");
   return StatusCode::SUCCESS;
 }
-
-
-
-

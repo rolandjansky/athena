@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/CxxUtils
-                          Control/DataModel
+                          Control/AthContainers
                           Control/StoreGate
                           Event/EventKernel
                           Event/NavFourMom
@@ -35,17 +35,17 @@ atlas_add_library( AnalysisUtilsLib
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils DataModel EventKernel NavFourMom GaudiKernel ParticleEvent AraTool McParticleEvent StoreGateLib SGtests
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils AthContainers EventKernel NavFourMom GaudiKernel ParticleEvent AraTool McParticleEvent StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} Particle egammaEvent )
 
 atlas_add_component( AnalysisUtils
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils DataModel StoreGateLib SGtests EventKernel NavFourMom GaudiKernel ParticleEvent AraTool McParticleEvent Particle egammaEvent AnalysisUtilsLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils AthContainers StoreGateLib SGtests EventKernel NavFourMom GaudiKernel ParticleEvent AraTool McParticleEvent Particle egammaEvent AnalysisUtilsLib )
 
 atlas_add_dictionary( AnalysisUtilsDict
                       AnalysisUtils/AnalysisUtilsDict.h
                       AnalysisUtils/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils DataModel StoreGateLib SGtests EventKernel NavFourMom GaudiKernel ParticleEvent AraTool McParticleEvent Particle egammaEvent AnalysisUtilsLib )
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils AthContainers StoreGateLib SGtests EventKernel NavFourMom GaudiKernel ParticleEvent AraTool McParticleEvent Particle egammaEvent AnalysisUtilsLib )
 

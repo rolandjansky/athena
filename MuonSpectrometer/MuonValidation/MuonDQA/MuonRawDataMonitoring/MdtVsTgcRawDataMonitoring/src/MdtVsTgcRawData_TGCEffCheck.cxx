@@ -87,56 +87,6 @@ MdtVsTgcRawDataValAlg::tgceffcalc(const xAOD::MuonSegmentContainer *newmdtsegmen
   return;
 }// End of function
 
-//Old to calculate the efficiency
-void
-MdtVsTgcRawDataValAlg::tgceffcalc(const Trk::SegmentCollection     *segmcollection,
-                                  const Muon::TgcPrepDataContainer *tgc_prepcontainer){
-  ATH_MSG_DEBUG("inside tgcEIFIeffcalc" );
-  //////////////////////////////////////////////////////
-  // Declare vector arrays to hold segment pointers
-
-  // Holds Segments sorted into MDT Stations on each side
-  vector<const Muon::MuonSegment*> sortedSegments[2][4];           //[AC][MDTStation]
-  
-  // Holds Segments which have been disqualified, any segments in this array are ignored when looping through sortedSegments
-  vector<const Muon::MuonSegment*> DQdisqualifiedSegments[2][4];   //[AC][MDTStation] // Segments which have been disqualified by DQ
-  vector<const Muon::MuonSegment*> MATCHdisqualifiedSegments[2][4];//[AC][MDTStation] // Segments which have been disqualified by DQ or already been included in a track
-  
-  // Holds Segments which have been matched into a track
-  vector<SegmTrack> matchedSegments[2];             //[AC]
-  
-  
-  //////////////////////////////////////////////////////
-  // Sort and filter Segments
-  
-  // Sort Segments from segmcollection into correct bin in sortedSegments array
-  SortMDTSegments(segmcollection, sortedSegments);
-  // Disqualify Segments with bad DQ
-  DQCheckMDTSegments(sortedSegments, DQdisqualifiedSegments);
-  for(int i=0;i<2;i++){
-    for(int jMDT=0;jMDT<4;jMDT++){
-      MATCHdisqualifiedSegments[i][jMDT] = DQdisqualifiedSegments[i][jMDT];
-    }
-  }
-  
-  
-  //////////////////////////////////////////////////////
-  // Segment Track Method
-  // Match up Segments into tracks
-  MatchMDTSegments(sortedSegments, MATCHdisqualifiedSegments, matchedSegments);
-  // Use tracks to look for TGC hits
-  CheckTGConTrack(matchedSegments, tgc_prepcontainer);
-
-  
-  //////////////////////////////////////////////////////
-  // Midstation-only Method
-  
-  // Use segments to check Midstation again
-  MidstationOnlyCheck(sortedSegments, DQdisqualifiedSegments, tgc_prepcontainer);
-  
-  return;
-}// End of function
-
 // Prepare array of TGC Readout Elements
 void
 MdtVsTgcRawDataValAlg::prepareTREarray(){

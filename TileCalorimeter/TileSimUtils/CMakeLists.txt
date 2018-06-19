@@ -34,7 +34,7 @@ atlas_add_library( TileSimUtilsLib
 atlas_add_component( TileSimUtils
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier CaloSimEvent AthenaBaseComps SGTools GaudiKernel AthenaKernel StoreGateLib SGtests TileSimUtilsLib )
+                     LINK_LIBRARIES TileSimUtilsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

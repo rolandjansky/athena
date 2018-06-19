@@ -102,7 +102,7 @@ TCanvas *c41;
 TCanvas *c42;
 TCanvas *c43;
 int n_rdo,trtlayer[MAX],straw_layer[MAX],straw[MAX],trtphi[MAX];
-int nDC,nmdtdig;;
+int nDC,nmdtdig;
 float straw_y[MAX];
 float drift_t[MAX],trttot[MAX],hl[MAX];
 

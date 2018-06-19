@@ -3,7 +3,6 @@
 */
 
 #include "LArRecUtils/LArHVCorrTool.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
@@ -242,7 +241,7 @@ StatusCode LArHVCorrTool::LoadCalibration(IOVSVC_CALLBACK_ARGS) {
       }
     }//end if 
   }//end else m_updateIfChanged
-  return StatusCode::SUCCESS;;
+  return StatusCode::SUCCESS;
 }
 
 

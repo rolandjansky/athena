@@ -32,7 +32,7 @@ information VKalVrt is able to provide:
 #ifndef VXSECVERTEX_VXSECVKALVERTEXINFO_H
 #define VXSECVERTEX_VXSECVKALVERTEXINFO_H
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "TrkParticleBase/TrackParticleBaseCollection.h"
 #include "xAODBase/IParticleContainer.h"
 #include "VxSecVertex/VxSecVertexInfo.h"

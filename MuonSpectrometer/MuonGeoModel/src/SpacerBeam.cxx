@@ -18,7 +18,6 @@
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-#include "CLHEP/Geometry/Transform3D.h"
 #include "MuonGeoModel/CHV_Technology.h"
 #include "MuonGeoModel/CRO_Technology.h"
 #include "MuonGeoModel/CMI_Technology.h"

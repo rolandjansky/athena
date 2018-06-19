@@ -18,6 +18,8 @@
 #include "GaudiKernel/IFileMgr.h"  // for FILEMGR_CALLBACK_ARGS
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaBaseComps/AthService.h"
+#include "AthenaKernel/IMetaDataTool.h"
+#include "AthenaKernel/IMetadataTransition.h"
 
 #include "boost/bind.hpp"
 
@@ -42,6 +44,7 @@ template <class TYPE> class SvcFactory;
 class MetaDataSvc : public ::AthService,
 	virtual public IAddressProvider,
 	virtual public IIncidentListener,
+        virtual public IMetadataTransition,
 	virtual public IIoComponent {
    // Allow the factory class access to the constructor
    friend class SvcFactory<MetaDataSvc>;
@@ -64,6 +67,17 @@ public: // Non-static members
    StatusCode finalize();
    /// Required of all Gaudi services:  see Gaudi documentation for details
 
+   /// Function called when a new metadata source becomes available
+   StatusCode newMetadataSource(const Incident&);
+
+   /// Function called when a metadata source is closed
+   StatusCode retireMetadataSource(const Incident&);
+
+   /// Function called when the current state of metadata must be made 
+   /// ready for output
+   StatusCode prepareOutput();
+   StatusCode proxyIncident(const Incident&);
+              
    StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
 
    /// Get all addresses from provider. Called before begin event.
@@ -114,7 +128,8 @@ private: // properties
    /// MetaDataContainer, POOL container name for MetaData.
    StringProperty                 m_metaDataCont;
    /// MetaDataTools, vector with the MetaData tools.
-   ToolHandleArray<IAlgTool> m_metaDataTools;
+   ToolHandleArray<IMetaDataTool> m_metaDataTools;
 };
 
 #endif
+

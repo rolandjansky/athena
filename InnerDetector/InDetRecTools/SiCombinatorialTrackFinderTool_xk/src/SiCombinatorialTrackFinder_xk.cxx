@@ -24,7 +24,6 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkToolInterfaces/IPatternParametersUpdator.h"
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
@@ -38,8 +37,7 @@
 InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p)                                           ,
-    m_pixelCondSummarySvc("PixelConditionsSummarySvc",n        ),
-    m_sctCondSummarySvc  ("SCT_ConditionsSummarySvc" ,n        ),
+    m_pixelCondSummaryTool("PixelConditionsSummaryTool",this        ),
     m_fieldServiceHandle("AtlasFieldSvc",n)                     ,
     m_proptool   ("Trk::RungeKuttaPropagator/InDetPropagator"  ),
     m_updatortool("Trk::KalmanUpdator_xk/InDetPatternUpdator"  ),
@@ -74,8 +72,7 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   declareProperty("AssosiationTool"      ,m_assoTool           );
   declareProperty("usePixel"             ,m_usePIX             );
   declareProperty("useSCT"               ,m_useSCT             );
-  declareProperty("PixelSummarySvc"      ,m_pixelCondSummarySvc);
-  declareProperty("SctSummarySvc"        ,m_sctCondSummarySvc  );
+  declareProperty("PixelSummaryTool"     ,m_pixelCondSummaryTool);
   declareProperty("TrackQualityCut"      ,m_qualityCut         );
   declareProperty("MagFieldSvc"         , m_fieldServiceHandle );
 }
@@ -130,28 +127,30 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
 
   // Get PixelConditionsSummarySvc
   //
-  IInDetConditionsSvc* pixcond = 0; 
+  IInDetConditionsTool* pixcond = 0; 
   if(m_usePIX ) {  
-    if ( m_pixelCondSummarySvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummarySvc << endmsg;
+    if ( m_pixelCondSummaryTool.retrieve().isFailure() ) {
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummaryTool << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_pixelCondSummarySvc << endmsg;
+      msg(MSG::INFO) << "Retrieved tool " << m_pixelCondSummaryTool << endmsg;
     }
-    pixcond = &(*m_pixelCondSummarySvc); 
+    pixcond = &(*m_pixelCondSummaryTool); 
   }
 
-  // Get SctConditionsSummarySvc
+  // Get SctConditionsSummaryTool
   //
-  IInDetConditionsSvc* sctcond = 0; 
-  if(m_useSCT ) {  
-    if ( m_sctCondSummarySvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_sctCondSummarySvc << endmsg;
+  IInDetConditionsTool* sctcond = nullptr;
+  if (m_useSCT) {
+    if ( m_sctCondSummaryTool.retrieve().isFailure() ) {
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_sctCondSummaryTool << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_sctCondSummarySvc << endmsg;
+      msg(MSG::INFO) << "Retrieved tool " << m_sctCondSummaryTool << endmsg;
     }
-    sctcond = &(*m_sctCondSummarySvc); 
+    sctcond = &(*m_sctCondSummaryTool);
+  } else {
+    m_sctCondSummaryTool.disable();
   }
 
   // get the key -- from StoreGate (DetectorStore)

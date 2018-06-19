@@ -86,8 +86,6 @@ class TileTrackFillerTool:public D3PD::BlockFillerTool<xAOD::TrackParticle>{
         float *m_ptcone40;
         float *m_ptcone45;
 
-	float dif_eta;
-	float dif_phi;
         float *m_pt; 
         float *m_p;
 

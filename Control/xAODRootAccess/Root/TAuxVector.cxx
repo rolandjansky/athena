@@ -102,9 +102,9 @@ namespace xAOD {
       return *this;
    }
 
-   SG::IAuxTypeVector* TAuxVector::clone() const {
+   std::unique_ptr<SG::IAuxTypeVector> TAuxVector::clone() const {
 
-      return new TAuxVector( *this );
+      return std::make_unique<TAuxVector>( *this );
    }
 
    void* TAuxVector::toPtr() {

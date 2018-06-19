@@ -1601,8 +1601,8 @@ namespace Trk
   double V0Tools::phiStar(const CLHEP::HepLorentzVector & v0, const CLHEP::HepLorentzVector & track) const
   {
     double phiStar = -999999.;
-    CLHEP::Hep3Vector V0 = v0.getV();;
-    CLHEP::Hep3Vector trk = track.getV();;
+    CLHEP::Hep3Vector V0 = v0.getV();
+    CLHEP::Hep3Vector trk = track.getV();
     //double v0_rapidity = v0.rapidity();
     trk.rotateZ(-V0.phi());
     trk.rotateY(-V0.theta());

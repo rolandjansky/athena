@@ -23,6 +23,7 @@
 #include "AthContainers/tools/AuxTypeVector.h"
 #include "AthContainers/tools/AuxTypeVectorFactory.h"
 #include "AthContainers/tools/threading.h"
+#include "CxxUtils/bitmask.h"
 #ifndef XAOD_STANDALONE
 #include "AthenaKernel/IInputRename.h"
 #include "AthenaKernel/IStringPool.h"
@@ -56,25 +57,30 @@ namespace SG {
  * This class is meant to be used as a singleton.  Use the @c instance
  * method to get the singleton instance.
  *
- * Methods are locked internally, so access is thread-safe.
- * However, since calls to registry methods are often used in a loop,
- * externally-locked variants are also provided in order to reduce
- * the overhead of locking.  Use them like this:
- *
- *@code
- *  SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
- *  SG::AuxTypeRegistry::lock_t lock (r);
- *  std::string name = r.getName (lock, auxid);
- @endcode
- *
- * Thread-safety is not supported in standalone builds.
+ * Methods are locked internally as needed, so access is thread-safe.
+ * Thread-safety is however not supported in standalone builds.
  */
 class AuxTypeRegistry
 {
 public:
-  typedef AthContainers_detail::upgrade_mutex mutex_t;
-  typedef AthContainers_detail::strict_shared_lock<AuxTypeRegistry> lock_t;
-  typedef AthContainers_detail::upgrading_lock<mutex_t> upgrading_lock_t;
+  /// Additional flags to quality an auxiliary variable.
+  enum Flags {
+    /// No special flags set.
+    None   = 0x00,
+
+    /// Mark that this variable should only be accessed atomically.
+    /// If this is set, then the variable can be accessed only via
+    /// @c AtomicDecorator.
+    /// Be aware that this is not completely safe; it is still possible
+    /// to have non-atomic accesses to the variable via either the implicit
+    /// operations provided by this class or by explicit access to the
+    /// value vector.  Therefore, this is not recommended for general use.
+    /// Contact core software before using this for new code.
+    Atomic = 0x01,
+
+    /// Enable bitwise functions on this enum; see bitmask.h.
+    IS_ATH_BITMASK
+  };
 
   /**
    * @brief Return the singleton registry instance.
@@ -86,6 +92,7 @@ public:
    * @brief Look up a name -> @c auxid_t mapping.
    * @param name The name of the aux data item.
    * @param clsname The name of its associated class.  May be blank.
+   * @param flags Optional flags qualifying the type.  See above.
    *
    * The type of the item is given by the template parameter @c T.
    * If an item with the same name was previously requested
@@ -93,7 +100,8 @@ public:
    */
   template <class T>
   SG::auxid_t getAuxID (const std::string& name,
-                        const std::string& clsname = "");
+                        const std::string& clsname = "",
+                        const Flags flags = Flags::None);
 
 
   /**
@@ -101,6 +109,7 @@ public:
    * @param ti Type of the aux data item.
    * @param name The name of the aux data item.
    * @param clsname The name of its associated class.  May be blank.
+   * @param flags Optional flags qualifying the type.  See above.
    *
    * The type of the item is given by @a ti.
    * Return @c null_auxid if we don't know how to make vectors of @a ti.
@@ -110,7 +119,8 @@ public:
    */
   SG::auxid_t getAuxID (const std::type_info& ti,
                         const std::string& name,
-                        const std::string& clsname = "");
+                        const std::string& clsname = "",
+                        const Flags flags = Flags::None);
 
 
   /**
@@ -123,7 +133,7 @@ public:
    * returns @c null_auxid.
    */
   SG::auxid_t findAuxID( const std::string& name,
-                         const std::string& clsname = "" ) const;
+                         const std::string& clsname = "") const;
 
   
   /**
@@ -133,27 +143,10 @@ public:
    * @param capacity Initial capacity of the new vector.
    *
    * Returns a newly-allocated object.
-   * FIXME: Should return a unique_ptr.
    */
-  IAuxTypeVector* makeVector (SG::auxid_t auxid,
-                              size_t size,
-                              size_t capacity) const;
-
-
-  /**
-   * @brief Construct a new vector to hold an aux item (external locking).
-   * @param lock The registry lock.
-   * @param auxid The desired aux data item.
-   * @param size Initial size of the new vector.
-   * @param capacity Initial capacity of the new vector.
-   *
-   * Returns a newly-allocated object.
-   * FIXME: Should return a unique_ptr.
-   */
-  IAuxTypeVector* makeVector (lock_t& lock,
-                              SG::auxid_t auxid,
-                              size_t size,
-                              size_t capacity) const;
+  std::unique_ptr<IAuxTypeVector> makeVector (SG::auxid_t auxid,
+                                              size_t size,
+                                              size_t capacity) const;
 
 
   /**
@@ -169,12 +162,11 @@ public:
    * should instead point at an object of type @c SG::PackedContainer<T>.
    *
    * Returns a newly-allocated object.
-   * FIXME: Should return a unique_ptr.
    */
-  IAuxTypeVector* makeVectorFromData (SG::auxid_t auxid,
-                                      void* data,
-                                      bool isPacked,
-                                      bool ownFlag) const;
+  std::unique_ptr<IAuxTypeVector> makeVectorFromData (SG::auxid_t auxid,
+                                                      void* data,
+                                                      bool isPacked,
+                                                      bool ownFlag) const;
 
 
   /**
@@ -182,15 +174,6 @@ public:
    * @param auxid The desired aux data item.
    */
   std::string getName (SG::auxid_t auxid) const;
-
-
-  /**
-   * @brief Return the name of an aux data item (external locking).
-   * @param lock The registry lock.
-   * @param auxid The desired aux data item.
-   */
-  std::string getName (lock_t& lock,
-                       SG::auxid_t auxid) const;
 
 
   /**
@@ -202,29 +185,10 @@ public:
 
 
   /**
-   * @brief Return the class name associated with an aux data item
-   *        (may be blank).   [external locking.]
-   * @param lock The registry lock.
-   * @param auxid The desired aux data item.
-   */
-  std::string getClassName (lock_t& lock,
-                            SG::auxid_t auxid) const;
-
-
-  /**
    * @brief Return the type of an aux data item.
    * @param auxid The desired aux data item.
    */
   const std::type_info* getType (SG::auxid_t auxid) const;
-
-
-  /**
-   * @brief Return the type of an aux data item (external locking).
-   * @param lock The registry lock.
-   * @param auxid The desired aux data item.
-   */
-  const std::type_info* getType (lock_t& lock,
-                                 SG::auxid_t auxid) const;
 
 
   /**
@@ -237,31 +201,10 @@ public:
 
 
   /**
-   * @brief Return the type name of an aux data item (external locking).
-   * @param lock The registry lock.
-   * @param auxid The desired aux data item.
-   *
-   * Returns an empty string if the type is not known.
-   */
-  std::string getTypeName (lock_t& lock,
-                           SG::auxid_t auxid) const;
-
-
-  /**
    * @brief Return the type of the STL vector used to hold an aux data item.
    * @param auxid The desired aux data item.
    */
   const std::type_info* getVecType (SG::auxid_t auxid) const;
-
-
-  /**
-   * @brief Return the type name of the STL vector used to hold an aux data item
-   *        (external locking).
-   * @param lock The registry lock.
-   * @param auxid The desired aux data item.
-   */
-  const std::type_info* getVecType (lock_t& lock,
-                                    SG::auxid_t auxid) const;
 
 
   /**
@@ -274,18 +217,6 @@ public:
 
 
   /**
-   * @brief Return the type name of the STL vector used to hold an aux data item
-   *        (external locking).
-   * @param lock The registry lock.
-   * @param auxid The desired aux data item.
-   *
-   * Returns an empty string if the type is not known.
-   */
-  std::string getVecTypeName (lock_t& lock,
-                              SG::auxid_t auxid) const;
-
-
-  /**
    * @brief Return size of an element in the STL vector.
    * @param auxid The desired aux data item.
    */
@@ -293,13 +224,10 @@ public:
 
 
   /**
-   * @brief Return size of an element in the STL vector
-   *        (external locking).
-   * @param lock The registry lock.
+   * @brief Return flags associated with an auxiliary variable.
    * @param auxid The desired aux data item.
    */
-  size_t getEltSize (lock_t& lock,
-                     SG::auxid_t auxid) const;
+  Flags getFlags (SG::auxid_t auxid) const;
 
 
   /**
@@ -313,23 +241,6 @@ public:
    * @c dst and @ src can be either the same or different.
    */
   void copy (SG::auxid_t auxid,
-             void* dst,       size_t dst_index,
-             const void* src, size_t src_index);
-
-
-  /**
-   * @brief Copy an element between vectors (external locking).
-   * @param lock The registry lock.
-   * @param auxid The aux data item being operated on.
-   * @param dst Pointer to the start of the destination vector's data.
-   * @param dst_index Index of destination element in the vector.
-   * @param src Pointer to the start of the source vector's data.
-   * @param src_index Index of source element in the vector.
-   *
-   * @c dst and @ src can be either the same or different.
-   */
-  void copy (lock_t& lock,
-             SG::auxid_t auxid,
              void* dst,       size_t dst_index,
              const void* src, size_t src_index);
 
@@ -351,24 +262,6 @@ public:
 
 
   /**
-   * @brief Copy an element between vectors (external locking).
-   *        Apply any transformations needed for output.
-   * @param lock The registry lock.
-   * @param auxid The aux data item being operated on.
-   * @param dst Pointer to the start of the destination vector's data.
-   * @param dst_index Index of destination element in the vector.
-   * @param src Pointer to the start of the source vector's data.
-   * @param src_index Index of source element in the vector.
-   *
-   * @c dst and @ src can be either the same or different.
-   */
-  void copyForOutput (lock_t& lock,
-                      SG::auxid_t auxid,
-                      void* dst,       size_t dst_index,
-                      const void* src, size_t src_index);
-
-
-  /**
    * @brief Swap an element between vectors.
    * @param auxid The aux data item being operated on.
    * @param a Pointer to the start of the first vector's data.
@@ -384,40 +277,12 @@ public:
 
 
   /**
-   * @brief Swap an element between vectors (external locking).
-   * @param lock The registry lock.
-   * @param auxid The aux data item being operated on.
-   * @param a Pointer to the start of the first vector's data.
-   * @param aindex Index of the element in the first vector.
-   * @param b Pointer to the start of the second vector's data.
-   * @param bindex Index of the element in the second vector.
-   *
-   * @c a and @ b can be either the same or different.
-   */
-  void swap (lock_t& lock,
-             SG::auxid_t auxid,
-             void* a, size_t aindex,
-             void* b, size_t bindex);
-
-
-  /**
    * @brief Clear an element within a vector.
    * @param auxid The aux data item being operated on.
    * @param dst Pointer to the start of the vector's data.
    * @param dst_index Index of the element in the vector.
    */
   void clear (SG::auxid_t auxid, void* dst, size_t dst_index);
-
-
-  /**
-   * @brief Clear an element within a vector (external locking).
-   * @param lock The registry lock.
-   * @param auxid The aux data item being operated on.
-   * @param dst Pointer to the start of the vector's data.
-   * @param dst_index Index of the element in the vector.
-   */
-  void clear (lock_t& lock,
-              SG::auxid_t auxid, void* dst, size_t dst_index);
 
 
   /**
@@ -431,32 +296,6 @@ public:
 
 
   /**
-   * @brief Return the vector factory for a given vector element type.
-   *        (external locking)
-   * @param lock The registry lock.
-   * @param ti The type of the vector element.
-   *
-   * Returns 0 if the type is not known.
-   * (Use @c addFactory to add new mappings.)
-   */
-  const IAuxTypeVectorFactory* getFactory (lock_t& lock,
-                                           const std::type_info& ti) const;
-
-
-  /**
-   * @brief Return the vector factory for a given vector element type.
-   *        (external locking)
-   * @param lock The registry lock.
-   * @param ti The type of the vector element.
-   *
-   * Returns 0 if the type is not known.
-   * (Use @c addFactory to add new mappings.)
-   */
-  const IAuxTypeVectorFactory* getFactory (upgrading_lock_t& lock,
-                                           const std::type_info& ti) const;
-
-
-  /**
    * @brief Add a new type -> factory mapping.
    * @param ti Type of the vector element.
    * @param factory The factory instance.  The registry will take ownership.
@@ -467,18 +306,6 @@ public:
    * the new one isn't, in which case the new replaces the old one.
    */
   void addFactory (const std::type_info& ti, IAuxTypeVectorFactory* factory);
-
-
-  /**
-   * @brief Lock the registry for shared access.
-   */
-  void lock_shared() const;
-
-
-  /**
-   * @brief Unlock the registry for shared access.
-   */
-  void unlock_shared() const;
 
 
 #ifndef XAOD_STANDALONE
@@ -510,6 +337,9 @@ public:
 
 
 private:
+  typedef AthContainers_detail::mutex mutex_t;
+  typedef AthContainers_detail::lock_guard<mutex_t> lock_t;
+
   /**
    * @brief Constructor.
    *
@@ -535,6 +365,7 @@ private:
    * @brief Look up a name -> @c auxid_t mapping.
    * @param name The name of the aux data item.
    * @param clsname The name of its associated class.  May be blank.
+   * @param flags Optional flags qualifying the type.  See above.
    * @param ti The type of this aux data item.
    * @param makeFactory Function to create a factory for this type, if needed.
    *                    May return 0 if the type is unknown.
@@ -553,19 +384,9 @@ private:
   SG::auxid_t
   findAuxID (const std::string& name,
              const std::string& clsname,
+             const Flags flags,
              const std::type_info& ti,
              IAuxTypeVectorFactory* (AuxTypeRegistry::*makeFactory) () const);
-
-
-  /**
-   * @brief Return the vector factory for a given vector element type.
-   *        The registry lock must be held.
-   * @param ti The type of the vector element.
-   *
-   * Returns 0 if the type is not known.
-   * (Use @c addFactory to add new mappings.)
-   */
-  const IAuxTypeVectorFactory* getFactoryLocked (const std::type_info& ti) const;
 
 
   /**
@@ -579,15 +400,16 @@ private:
 
 
   /**
-   * @brief Return the vector factory for a given auxid.  (external locking)
+   * @brief Return the vector factory for a given vector element type.
+   *        (external locking)
    * @param lock The registry lock.
-   * @param auxid The desired aux data item.
+   * @param ti The type of the vector element.
    *
    * Returns 0 if the type is not known.
    * (Use @c addFactory to add new mappings.)
    */
-  const IAuxTypeVectorFactory* getFactory (lock_t& /*lock*/,
-                                           SG::auxid_t auxid) const;
+  const IAuxTypeVectorFactory* getFactory (lock_t& lock,
+                                           const std::type_info& ti) const;
 
 
   /**
@@ -601,7 +423,7 @@ private:
    * factory is discarded, unless the old one is a dynamic factory and
    * the new one isn't, in which case the new replaces the old one.
    */
-  void addFactory (upgrading_lock_t& lock,
+  void addFactory (lock_t& lock,
                    const std::type_info& ti,
                    IAuxTypeVectorFactory* factory);
 
@@ -625,39 +447,11 @@ private:
   IAuxTypeVectorFactory* makeFactoryNull() const;
 
 
-  /**
-   * @brief Initialize the m_isEL* flags for a given variable.
-   * @param auxid The variable for which the flags should be initialized.
-   * @param lock The registry lock (must be locked).
-   *
-   * ??? Should go away when we extend the factory interface.
-   */
-  void setELFlags (upgrading_lock_t& lock, auxid_t auxid);
-
-
-  /**
-   * @brief Apply @c ElementLink output transformations to a single element.
-   * @param dst Pointer to the element.
-   *
-   * ??? Should go away when we extend the factory interface.
-   */
-  void applyELThinning (void* dst);
-
-
-  /**
-   * @brief Apply @c ElementLink output transformations to a vector.
-   * @param dst Pointer to the vector.
-   *
-   * ??? Should go away when we extend the factory interface.
-   */
-  void applyELVecThinning (void* dst);
-
-
   /// Hold information about one aux data item.
   struct typeinfo_t
   {
     /// Factory object.
-    const IAuxTypeVectorFactory* m_factory;
+    AthContainers_detail::atomic<const IAuxTypeVectorFactory*> m_factory;
 
     /// Type of the aux data item.
     const std::type_info* m_ti;
@@ -667,11 +461,15 @@ private:
 
     /// Class name associated with this aux data item.  May be blank.
     std::string m_clsname;
+
+    /// Additional type flags.
+    Flags m_flags;
   };
 
 
   /// Table of aux data items, indexed by @c auxid.
-  std::vector<typeinfo_t> m_types;
+  // A concurrent vector, so we don't need to take a lock to read it.
+  AthContainers_detail::concurrent_vector<typeinfo_t> m_types;
 
 
   /// Key used for name -> auxid lookup.
@@ -703,24 +501,18 @@ private:
   /// Hold additional factory instances we need to delete.
   std::vector<const IAuxTypeVectorFactory*> m_oldFactories;
 
-  /// Mutex controlling access to the registry.
-  /// Reads should be much more common than writes, so use an upgrade_mutex.
-  mutable mutex_t m_mutex;
-
-  /// Flag that a variable is an ElementLink.
-  /// ??? Should go away when we extend the factory interface.
-  /// ??? Separate from typeinfo_t to avoid the need for a full rebuild.
-  std::vector<bool> m_isEL;
-
-  /// Flag that a variable is a vector of ElementLink.
-  /// ??? Should go away when we extend the factory interface.
-  /// ??? Separate from typeinfo_t to avoid the need for a full rebuild.
-  std::vector<bool> m_isELVec;
-
   /// Save the information provided by @c setInputRenameMap.
   /// Each entry is of the form   KEY.DECOR -> DECOR_RENAMED
   typedef std::unordered_map<std::string, std::string> renameMap_t;
   renameMap_t m_renameMap;
+
+  /// Mutex controlling access to the registry.
+  // We originally used an upgrading mutex here.
+  // But that's relatively slow, and most of the locked sections are short,
+  // so it's not really a win.
+  // This guards write access to all members, and read access to all members
+  // except for m_types.
+  mutable mutex_t m_mutex;
 };
 
 

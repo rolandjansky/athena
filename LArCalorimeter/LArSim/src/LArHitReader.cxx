@@ -4,7 +4,6 @@
 
 #include "LArSim/LArHitReader.h"
 
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IDataProviderSvc.h"
 

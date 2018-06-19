@@ -5,7 +5,6 @@
 #include "GeneratorFilters/TTbarPlusHeavyFlavorFilter.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 
 //--------------------------------------------------------------------------
 TTbarPlusHeavyFlavorFilter::TTbarPlusHeavyFlavorFilter(const std::string& fname, 

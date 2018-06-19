@@ -321,7 +321,7 @@ namespace G4UA
 
       plotstring = it;
 
-      //G4cout<<"processing string "<<plotstring<<G4endl;;
+      //G4cout<<"processing string "<<plotstring<<G4endl;
 
       if(!m_rzMapRL[plotstring]){
 

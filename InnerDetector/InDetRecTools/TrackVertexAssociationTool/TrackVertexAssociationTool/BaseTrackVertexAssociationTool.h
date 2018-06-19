@@ -15,6 +15,7 @@
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
 #include "TrackVertexAssociationTool/TrackVertexAssociationMap.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include <string>
 
@@ -82,6 +83,8 @@ public:
                     const xAOD::VertexContainer &vxCont) const;
 
 private:
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo { this, "EventInfo", "EventInfo", "EventInfo key" };
+
   /// Checks if a track-vertex pair passes the cuts.  Returns
   /// Δz * sin θ of the pair in `dzSinTheta` if successful.
   bool isMatch(const xAOD::TrackParticle &trk, const xAOD::Vertex &vx,

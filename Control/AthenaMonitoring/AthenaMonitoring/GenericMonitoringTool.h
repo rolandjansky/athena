@@ -71,13 +71,19 @@ public:
   GenericMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent);
   virtual ~GenericMonitoringTool();
   
-  virtual StatusCode initialize();
+  virtual StatusCode initialize();  
   virtual std::vector<Monitored::HistogramFiller*> getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables);
+  StatusCode book();
+  /**
+   * Overrride configured booking path
+   **/
+  void setPath( const std::string&  newPath );
 private:   
-  ServiceHandle<ITHistSvc> m_histSvc;  
+  ServiceHandle<ITHistSvc> m_histSvc       { this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };  
+  Gaudi::Property<std::string> m_histoPath { this, "HistPath", "/EXPERT/", "Histogram base path" };      
+  Gaudi::Property<std::vector<std::string> > m_histograms    { this, "Histograms", {},  "Definitions of histograms"};
+  Gaudi::Property<bool> m_explicitBooking  { this, "ExplicitBooking", false, "Do not create histograms automatically in initialize but wait until the method book is called." };
   std::vector<Monitored::HistogramFiller*> m_fillers;              //!< list of fillers
-  std::string m_histoPath;                                         //!< property (base path for histograms)
-  std::vector<std::string> m_histograms;                           //!< property (list of histogram definitions)
 };
 
 /*

@@ -11,7 +11,7 @@
 #ifndef POOL_ROOTDOMAIN_H
 #define POOL_ROOTDOMAIN_H 1
 
-#include "StorageSvc/DbDomainImp.h"
+#include "StorageSvc/IDbDomain.h"
 
 /*
  *  namespace declaration
@@ -32,7 +32,7 @@ namespace pool  {
     * @date    1/8/2002
     * @version 1.0
     */
-  class RootDomain : public DbDomainImp  {
+  class RootDomain : public IDbDomain  {
   protected:
     /// Default compression level
     int m_defCompression;
@@ -49,11 +49,7 @@ namespace pool  {
     
   public:
     /// Standard Constuctor
-    /** @param idb      [IN]  Pointer to implementation object
-      *
-      * @return Reference to initialized object
-      */
-    RootDomain(IOODatabase* idb);
+    RootDomain();
 
     /// Standard destructor
     virtual ~RootDomain();

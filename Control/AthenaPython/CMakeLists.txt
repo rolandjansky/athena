@@ -30,7 +30,7 @@ atlas_add_library( AthenaPython
 atlas_add_component( AthenaPythonComps
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${PYTHON_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel CxxUtils DataModelRoot SGTools AthenaPython )
+                     LINK_LIBRARIES AthenaPython )
 
 atlas_add_dictionary( AthenaPythonDict
                       AthenaPython/AthenaPythonDict.h

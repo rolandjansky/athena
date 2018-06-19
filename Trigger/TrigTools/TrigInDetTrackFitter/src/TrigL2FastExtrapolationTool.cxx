@@ -86,7 +86,7 @@ Trk::TrkTrackState* TrigL2FastExtrapolationTool::extrapolate(Trk::TrkTrackState*
   if(pSB!=NULL)
     {   
       double diff=0.0;
-      for(i=0;i<4;i++) diff+=fabs(pSE->m_getPar(i)-pSB->m_getPar(i));
+      for(i=0;i<4;i++) diff+=fabs(pSE->getPar(i)-pSB->getPar(i));
       if(diff<1e-5) {
 	samePlane=true;	
 	//(m_fitStats[m_algorithmId]).m_fitErrors[0]++;
@@ -98,18 +98,18 @@ Trk::TrkTrackState* TrigL2FastExtrapolationTool::extrapolate(Trk::TrkTrackState*
 
     //m_numericalJacobian(pTS,pSB,pSE,J);
 
-    sint=sin(pTS->m_getTrackState(3));cosf=cos(pTS->m_getTrackState(2));
-    sinf=sin(pTS->m_getTrackState(2));cost=cos(pTS->m_getTrackState(3));
-    gV[0]=sint*cosf;gV[1]=sint*sinf;gV[2]=cost;CQ=C*pTS->m_getTrackState(4);
+    sint=sin(pTS->getTrackState(3));cosf=cos(pTS->getTrackState(2));
+    sinf=sin(pTS->getTrackState(2));cost=cos(pTS->getTrackState(3));
+    gV[0]=sint*cosf;gV[1]=sint*sinf;gV[2]=cost;CQ=C*pTS->getTrackState(4);
 
     memset(&J0[0][0],0,sizeof(J0));
     
     if(pSB!=NULL)
       {
 	double L[3][3];
-	lP[0]=pTS->m_getTrackState(0);lP[1]=pTS->m_getTrackState(1);lP[2]=0.0;
-	pSB->m_transformPointToGlobal(lP,gP);
-	for(i=0;i<3;i++) for(j=0;j<3;j++) L[i][j]=pSB->m_getInvRotMatrix(i,j);
+	lP[0]=pTS->getTrackState(0);lP[1]=pTS->getTrackState(1);lP[2]=0.0;
+	pSB->transformPointToGlobal(lP,gP);
+	for(i=0;i<3;i++) for(j=0;j<3;j++) L[i][j]=pSB->getInvRotMatrix(i,j);
 	
 	J0[0][0]=L[0][0];J0[0][1]=L[0][1];
 	J0[1][0]=L[1][0];J0[1][1]=L[1][1];
@@ -121,18 +121,18 @@ Trk::TrkTrackState* TrigL2FastExtrapolationTool::extrapolate(Trk::TrkTrackState*
       }
     else
       {
-	gP[0]=-pTS->m_getTrackState(0)*sinf;
-	gP[1]= pTS->m_getTrackState(0)*cosf;
-	gP[2]= pTS->m_getTrackState(1);
-	J0[0][0]=-sinf;J0[0][2]=-pTS->m_getTrackState(0)*cosf;
-	J0[1][0]= cosf;J0[1][2]=-pTS->m_getTrackState(0)*sinf;
+	gP[0]=-pTS->getTrackState(0)*sinf;
+	gP[1]= pTS->getTrackState(0)*cosf;
+	gP[2]= pTS->getTrackState(1);
+	J0[0][0]=-sinf;J0[0][2]=-pTS->getTrackState(0)*cosf;
+	J0[1][0]= cosf;J0[1][2]=-pTS->getTrackState(0)*sinf;
 	J0[2][1]=1.0;
 	J0[3][2]=-sinf*sint;J0[3][3]=cosf*cost;
 	J0[4][2]= cosf*sint;J0[4][3]=sinf*cost;
 	J0[5][3]=-sint;
 	J0[6][4]=1.0;
       }
-    for(i=0;i<4;i++) D[i]=pSE->m_getPar(i);
+    for(i=0;i<4;i++) D[i]=pSE->getPar(i);
     for(i=0;i<3;i++) gPi[i]=gP[i];
     
     getMagneticField(gP,gB);
@@ -247,18 +247,18 @@ Trk::TrkTrackState* TrigL2FastExtrapolationTool::extrapolate(Trk::TrkTrackState*
 	for(i=0;i<3;i++) gB[i]+=dBds[i]*ds;
 	nStep--;
       }
-    pSE->m_transformPointToLocal(gP,lP);
+    pSE->transformPointToLocal(gP,lP);
     Rf[0]=lP[0];Rf[1]=lP[1];
     Rf[2]=atan2(V[1],V[0]);
 
     if(fabs(V[2])>1.0) return NULL;
 
     Rf[3]=acos(V[2]);
-    Rf[4]=pTS->m_getTrackState(4);
+    Rf[4]=pTS->getTrackState(4);
 
     gV[0]=sint*cosf;gV[1]=sint*sinf;gV[2]=cost;
 
-    for(i=0;i<4;i++) D[i]=pSE->m_getPar(i);
+    for(i=0;i<4;i++) D[i]=pSE->getPar(i);
     for(i=0;i<3;i++) gP[i]=gPi[i];
     
     for(i=0;i<3;i++)
@@ -306,11 +306,11 @@ Trk::TrkTrackState* TrigL2FastExtrapolationTool::extrapolate(Trk::TrkTrackState*
 
   V[0]=gV[0]+Av*DVx;V[1]=gV[1]+Av*DVy;V[2]=gV[2]+Av*DVz;
 
-  pSE->m_transformPointToLocal(P,lP);
+  pSE->transformPointToLocal(P,lP);
   
   memset(&Jm[0][0],0,sizeof(Jm));
 
-  for(i=0;i<3;i++) for(j=0;j<3;j++) M[i][j]=pSE->m_getRotMatrix(i,j);
+  for(i=0;i<3;i++) for(j=0;j<3;j++) M[i][j]=pSE->getRotMatrix(i,j);
   
   double coeff[3], dadVx,dadVy,dadVz,dadQ,dsdx,dsdy,dsdz,dsdVx,dsdVy,dsdVz,dsdQ;
   coeff[0]=-c*c/(b*b*b);
@@ -428,18 +428,18 @@ Trk::TrkTrackState* TrigL2FastExtrapolationTool::extrapolate(Trk::TrkTrackState*
      }
   }
   else {
-    Rf[0]=pTS->m_getTrackState(0);
-    Rf[1]=pTS->m_getTrackState(1);	
-    Rf[2]=pTS->m_getTrackState(2);
-    Rf[3]=pTS->m_getTrackState(3);
-    Rf[4]=pTS->m_getTrackState(4);
+    Rf[0]=pTS->getTrackState(0);
+    Rf[1]=pTS->getTrackState(1);	
+    Rf[2]=pTS->getTrackState(2);
+    Rf[3]=pTS->getTrackState(3);
+    Rf[4]=pTS->getTrackState(4);
     memset(&J[0][0],0,sizeof(J));
     for(i=0;i<5;i++) J[i][i]=1.0;
   }
 
   for(i=0;i<5;i++) for(j=0;j<5;j++)
     {
-      AG[i][j]=0.0;for(m=0;m<5;m++) AG[i][j]+=J[i][m]*pTS->m_getTrackCovariance(m,j);
+      AG[i][j]=0.0;for(m=0;m<5;m++) AG[i][j]+=J[i][m]*pTS->getTrackCovariance(m,j);
     }
   for(i=0;i<5;i++) for(j=i;j<5;j++)
     {
@@ -450,17 +450,17 @@ Trk::TrkTrackState* TrigL2FastExtrapolationTool::extrapolate(Trk::TrkTrackState*
 
   Trk::TrkTrackState* pTE=new Trk::TrkTrackState(pTS);
 
-  pTE->m_setTrackState(Rf);
-  pTE->m_setTrackCovariance(Gf);
-  pTE->m_attachToSurface(pSE);
-  pTE->m_applyMaterialEffects();
+  pTE->setTrackState(Rf);
+  pTE->setTrackCovariance(Gf);
+  pTE->attachToSurface(pSE);
+  pTE->applyMaterialEffects();
 
   if(smooth)
     {
       double A[5][5],Gi[5][5];
       for(i=0;i<5;i++) for(j=0;j<5;j++)
 	{
-	  Gi[i][j]=pTE->m_getTrackCovariance(i,j);
+	  Gi[i][j]=pTE->getTrackCovariance(i,j);
 	}
       matrixInversion5x5(Gi);
       for(i=0;i<5;i++) for(j=0;j<5;j++)
@@ -468,8 +468,8 @@ Trk::TrkTrackState* TrigL2FastExtrapolationTool::extrapolate(Trk::TrkTrackState*
 	  A[i][j]=0.0;
 	  for(m=0;m<5;m++) A[i][j]+=AG[m][i]*Gi[m][j];
 	}
-      pTE->m_setPreviousState(pTS);
-      pTE->m_setSmootherGain(A);
+      pTE->setPreviousState(pTS);
+      pTE->setSmootherGain(A);
     }
 
   return pTE;

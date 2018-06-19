@@ -7,7 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "TrkAlignInterfaces/IAlignResidualCalculator.h"
 
@@ -42,23 +42,25 @@ namespace Trk {
 		    const IInterface* parent);
     virtual ~AlignResidualCalculator();
     
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     /** sets residuals for AlignTSOS on AlignTrack and returns total chi2 */
-    double setResiduals(DataVector<AlignTSOS>* alignTSOSColl, 
-			const Track* track);
+    virtual double setResiduals(DataVector<AlignTSOS>* alignTSOSColl, 
+                                const Track* track) override;
     
     /** sets residuals for AlignTSOS on AlignTrack and returns total chi2 */
-    double setResiduals(const AlignTrack* alignTrack, const Track* track);
+    virtual double setResiduals(AlignTrack* alignTrack,
+                                const Track* track) override;
     
     /** sets residuals for AlignTSOS on AlignTrack and returns total chi2 */
-    double setResiduals(DataVector<AlignTSOS>::const_iterator firstAtsos,
-			DataVector<AlignTSOS>::const_iterator lastAtsos,
-			const Track* track, bool newTrack);
+    virtual double setResiduals(DataVector<AlignTSOS>::iterator firstAtsos,
+                                DataVector<AlignTSOS>::iterator lastAtsos,
+                                const Track* track, bool newTrack) override;
 
     /** returns chi2 summed over hits of a particular MeasurementType */
-    double chi2ForMeasType(int measType) const { return m_chi2ForMeasType[measType]; }
+    virtual double chi2ForMeasType(int measType) const override
+    { return m_chi2ForMeasType[measType]; }
 
   private:
 

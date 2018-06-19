@@ -1,7 +1,7 @@
 #ifndef TRIGT1CAL_RODHeaderCOLLECTION_H
 #define TRIGT1CAL_RODHeaderCOLLECTION_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrigT1CaloEvent/RODHeader.h"
 
 /** Container class for RODHeaders.

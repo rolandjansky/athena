@@ -16,9 +16,9 @@ typedef T_AthenaPoolCustomCnv<LArNoisyROSummary,LArNoisyROSummary_PERSISTENT> LA
  
 class LArNoisyROSummaryCnv : public LArNoisyROSummaryCnvBase 
 {
-  friend class CnvFactory<LArNoisyROSummaryCnv>;
- protected:
+public:
   LArNoisyROSummaryCnv(ISvcLocator*);
+ protected:
   virtual LArNoisyROSummary* createTransient();
   virtual LArNoisyROSummary_PERSISTENT* createPersistent(LArNoisyROSummary*);
   private:

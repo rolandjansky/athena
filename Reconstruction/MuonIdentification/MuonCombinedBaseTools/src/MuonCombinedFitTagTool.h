@@ -14,6 +14,7 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSegment/SegmentCollection.h"
+#include "xAODTracking/VertexContainer.h"
 #include <vector>
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
@@ -91,6 +92,7 @@ namespace MuonCombined {
     ServiceHandle<MagField::IMagFieldSvc>	      m_magFieldSvc;
     const AtlasDetectorID *m_DetID;
 
+    SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", "primary vertex container" };
     // configuration
     double			m_badFitChi2;
     double			m_momentumBalanceCut;	// Cut on momentum balance of combined track

@@ -24,7 +24,7 @@
 #include "StorageSvc/DbConnection.h"
 #include "StorageSvc/DbTypeInfo.h"
 #include "StorageSvc/FileDescriptor.h"
-#include "StorageSvc/DbPrint.h"
+#include "POOLCore/DbPrint.h"
 
 #include <memory>
 #include <stdexcept>

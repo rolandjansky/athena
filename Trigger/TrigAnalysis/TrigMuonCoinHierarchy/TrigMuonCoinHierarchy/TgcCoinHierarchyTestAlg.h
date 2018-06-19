@@ -41,19 +41,19 @@ namespace Trigger {
     ITgcCoinHierarchySvc* m_tgcCoinSvc;
 
     /** Flag for showing the associated fractions */
-    bool showFraction; 
+    bool m_showFraction; 
     /** Flag for processing the event example */
-    bool runEvent;
+    bool m_runEvent;
     /** Flag for processing the event example and make check histograms of TGC2 and TGC3 */
-    bool runEventHistos;
+    bool m_runEventHistos;
     /** Flag for processing the TgcPrepData example */
-    bool runTgcPrepData;
+    bool m_runTgcPrepData;
     /** Flag for processing the TgcCoinData example */
-    bool runTgcCoinData;
+    bool m_runTgcCoinData;
     /** Flag for processing the Muon example */
-    bool runMuon;
+    bool m_runMuon;
     /** Flag for processing the Track example */
-    bool runTrack;
+    bool m_runTrack;
 
     /** ITHistSvc */
     ITHistSvc* m_thistSvc;
@@ -63,38 +63,38 @@ namespace Trigger {
     TH1I *m_h_nTGC1Hit[TgcCoinHierarchy::NTYPES]; 
 
     /** Counters */
-    unsigned long int nEvent;
-    unsigned long int nSL;
+    unsigned long int m_nEvent;
+    unsigned long int m_nSL;
     TH1F *m_hnSL;
-    unsigned long int nSLWithTrackletWire;
+    unsigned long int m_nSLWithTrackletWire;
     TH1F *m_hnSLWithTrackletWire;
-    unsigned long int nSLWithTrackletStrip;
+    unsigned long int m_nSLWithTrackletStrip;
     TH1F *m_hnSLWithTrackletStrip;
-    unsigned long int nSLWithPT2456;
+    unsigned long int m_nSLWithPT2456;
     TH1F *m_hnSLWithPT2456;
-    unsigned long int nSLWithPT2456WithHiPtWire;
+    unsigned long int m_nSLWithPT2456WithHiPtWire;
     TH1F *m_hnSLWithPT2456WithHiPtWire;
-    unsigned long int nSLWithPT2456WithHiPtStrip;
+    unsigned long int m_nSLWithPT2456WithHiPtStrip;
     TH1F *m_hnSLWithPT2456WithHiPtStrip;
-    unsigned long int nHiPtWire;
+    unsigned long int m_nHiPtWire;
     TH1F *m_hnHiPtWire;
-    unsigned long int nHiPtWireWithTrackletWire;
+    unsigned long int m_nHiPtWireWithTrackletWire;
     TH1F *m_hnHiPtWireWithTrackletWire;
-    unsigned long int nHiPtWireWithTGC1WireHit;
+    unsigned long int m_nHiPtWireWithTGC1WireHit;
     TH1F *m_hnHiPtWireWithTGC1WireHit;
-    unsigned long int nHiPtStrip;
+    unsigned long int m_nHiPtStrip;
     TH1F *m_hnHiPtStrip;
-    unsigned long int nHiPtStripWithTrackletStrip;
+    unsigned long int m_nHiPtStripWithTrackletStrip;
     TH1F *m_hnHiPtStripWithTrackletStrip;
-    unsigned long int nHiPtStripWithTGC1StripHit;
+    unsigned long int m_nHiPtStripWithTGC1StripHit;
     TH1F *m_hnHiPtStripWithTGC1StripHit;
-    unsigned long int nTrackletWire;
+    unsigned long int m_nTrackletWire;
     TH1F *m_hnTrackletWire;
-    unsigned long int nTrackletWireWithTGC23WireHit;
+    unsigned long int m_nTrackletWireWithTGC23WireHit;
     TH1F *m_hnTrackletWireWithTGC23WireHit;
-    unsigned long int nTrackletStrip;
+    unsigned long int m_nTrackletStrip;
     TH1F *m_hnTrackletStrip;
-    unsigned long int nTrackletStripWithTGC23StripHit;
+    unsigned long int m_nTrackletStripWithTGC23StripHit;
     TH1F *m_hnTrackletStripWithTGC23StripHit;
 
     TH2I *m_hMuonPt;

@@ -18,11 +18,11 @@ LArDetectorToolH62003::LArDetectorToolH62003(const std::string& type,
 				 const std::string& name, 
 				 const IInterface* parent)
   : GeoModelTool(type,name,parent), 
-    _fcalVisLimit(-1),
-    _axisVisState(-1)
+    m_fcalVisLimit(-1),
+    m_axisVisState(-1)
 {
-  declareProperty("FCALVisLimit",          _fcalVisLimit);
-  declareProperty("axisVisState",          _axisVisState=false);
+  declareProperty("FCALVisLimit",          m_fcalVisLimit);
+  declareProperty("axisVisState",          m_axisVisState=false);
 }
 
 LArDetectorToolH62003::~LArDetectorToolH62003()
@@ -68,8 +68,8 @@ StatusCode LArDetectorToolH62003::create()
   //}
   LArGeo::LArDetectorFactoryH62003 theLArFactory;
 
-  theLArFactory.setFCALVisLimit        (_fcalVisLimit);
-  theLArFactory.setAxisVisState(_axisVisState);
+  theLArFactory.setFCALVisLimit        (m_fcalVisLimit);
+  theLArFactory.setAxisVisState(m_axisVisState);
 
 
   if (0 == m_detector) 

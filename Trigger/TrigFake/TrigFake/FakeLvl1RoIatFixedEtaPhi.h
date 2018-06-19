@@ -42,7 +42,6 @@ class FakeLvl1RoIatFixedEtaPhi : public HLT::LvlConverter
   double m_muonRoiEta;
   double m_jetRoiPhi;
   double m_jetRoiEta;
-  std::string instance;
 
   std::string m_emRoiLabel;
   std::string m_muonRoiLabel;

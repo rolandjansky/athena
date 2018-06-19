@@ -45,6 +45,7 @@ svcMgr.PoolSvc.WriteCatalog = "XMLFileCatalog_file:EventSplit.xml"
 #svcMgr.EventSelector.InputCollections =  ["AthenaPoolMultiTest_Splittable0.root"]; # The input file name
 svcMgr.EventSelector.InputCollections =  ["PFN:SplittableCollection.root"]; # The input file name
 svcMgr.EventSelector.CollectionType = "ExplicitROOT"
+svcMgr.AthenaPoolAddressProviderSvc.DataHeaderIterator = False
 
 #--------------------------------------------------------------
 # Private Application Configuration options
@@ -104,23 +105,6 @@ topSequence+=Splitter456
 topSequence+=Splitter7
 topSequence+=Splitter48
 topSequence+=Triggered
-
-from RegistrationServices.RegistrationServicesConf import InputCollectionMetadataCopy
-from RegistrationServices.RegistrationServicesConf import RegistrationStreamDefMeta
-
-# Add tool for copying input collection metadata
-copyTool = InputCollectionMetadataCopy("copyTool")
-copyTool.OutputLevel = DEBUG
-ToolSvc += copyTool
-svcMgr.MetaDataSvc.MetaDataTools += [copyTool]
-
-# Add algorithm to add default collection metadata
-DefaultCollMeta = RegistrationStreamDefMeta("DefaultCollMeta")
-DefaultCollMeta.Project = "AthenaPoolMultiTest"
-DefaultCollMeta.Pass = 1
-DefaultCollMeta.Stream = "EventSplit"
-DefaultCollMeta.OutputLevel = DEBUG
-topSequence+=DefaultCollMeta
 
 #--------------------------------------------------------------
 #---  Set up the streams for the filters
@@ -221,7 +205,6 @@ Coll23.CollectionType = "ExplicitROOT"
 Coll23.OutputCollection = "Collection_Split23.root"
 Coll23.ItemList        += [ "DataHeader#*" ]
 Coll23.ItemList        += [ "AthenaAttributeList#SimpleTag" ]
-Coll23.ItemList        += [ "CollectionMetadataContainer#Default" ]
 Coll23.OutputLevel      = INFO
 Coll23.AcceptAlgs       = ["Splitter2"]
 Coll23.AcceptAlgs      += ["Splitter3"]
@@ -235,7 +218,6 @@ Coll456.CollectionType = "ExplicitROOT"
 Coll456.OutputCollection = "Collection_Split456.root"
 Coll456.ItemList        += [ "DataHeader#*" ]
 Coll456.ItemList        += [ "AthenaAttributeList#SimpleTag" ]
-Coll456.ItemList        += [ "CollectionMetadataContainer#Default" ]
 Coll456.OutputLevel      = INFO
 Coll456.AcceptAlgs       = ["Splitter456"]
 
@@ -246,7 +228,6 @@ CollBar.OutputCollection = "Collection_SplitBar.root"
 #CollBar.Tool = TagTool
 CollBar.ItemList        += [ "DataHeader#*" ]
 CollBar.ItemList        += [ "AthenaAttributeList#RunEventTag" ]
-CollBar.ItemList        += [ "CollectionMetadataContainer#Default" ]
 CollBar.OutputLevel      = INFO
 CollBar.VetoAlgs         = ["Splitter1"]
 CollBar.VetoAlgs        += ["Splitter2"]
@@ -263,7 +244,6 @@ Coll1and7.CollectionType = "ExplicitROOT"
 Coll1and7.OutputCollection = "Collection_Split1plus7"
 Coll1and7.ItemList        += [ "DataHeader#*" ]
 Coll1and7.ItemList        += [ "AthenaAttributeList#SimpleTag" ]
-Coll1and7.ItemList        += [ "CollectionMetadataContainer#Default" ]
 Coll1and7.OutputLevel      = INFO
 Coll1and7.RequireAlgs      = ["Splitter1"]
 Coll1and7.RequireAlgs     += ["Splitter7"]
@@ -274,7 +254,6 @@ Coll348.CollectionType = "ExplicitROOT"
 Coll348.OutputCollection = "Collection_Split348.root"
 Coll348.ItemList        += [ "DataHeader#*" ]
 Coll348.ItemList        += [ "AthenaAttributeList#SimpleTag" ]
-Coll348.ItemList        += [ "CollectionMetadataContainer#Default" ]
 Coll348.OutputLevel      = INFO
 Coll348.AcceptAlgs       = ["Splitter48"]
 Coll348.AcceptAlgs      += ["Splitter3"]
@@ -290,7 +269,6 @@ CollTrig.CollectionType = "ExplicitROOT"
 CollTrig.OutputCollection = "Collection_SplitTrig.root"
 CollTrig.ItemList        += [ "DataHeader#*" ]
 CollTrig.ItemList        += [ "AthenaAttributeList#SimpleTag" ]
-CollTrig.ItemList        += [ "CollectionMetadataContainer#Default" ]
 CollTrig.AcceptAlgs       = ["Triggered"]
 #CollTrig.OutputLevel = DEBUG
 CollTrig.Tool = CTTool
@@ -302,7 +280,6 @@ CollBad.OutputCollection = "Collection_SplitBad.root"
 CollBad.WriteInputDataHeader = TRUE
 CollBad.ItemList        += [ "DataHeader#EventSelector" ]
 CollBad.ItemList        += [ "AthenaAttributeList#SimpleTag" ]
-CollBad.ItemList        += [ "CollectionMetadataContainer#Default" ]
 CollBad.OutputLevel      = INFO
 CollBad.VetoAlgs         = ["Triggered"]
 

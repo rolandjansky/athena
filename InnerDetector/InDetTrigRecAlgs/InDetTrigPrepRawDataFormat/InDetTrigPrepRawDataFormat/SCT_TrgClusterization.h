@@ -34,12 +34,14 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+
 #include "Identifier/IdentifierHash.h"
 
 //typedefs - cannot be declared forward
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
-
+#include "SCT_ConditionsData/SCT_FlaggedCondData.h"
 
 
 class IRegSelSvc;
@@ -47,10 +49,6 @@ class TrigTimer;
 
 class SCT_ID;
 class SCT_ChannelStatusAlg;
-class ISCT_ByteStreamErrorsSvc;
-
-class IInDetConditionsSvc;
-class ISCT_FlaggedConditionSvc;
 
 class IROBDataProviderSvc;
 
@@ -113,6 +111,7 @@ namespace InDet {
     ToolHandle<ISCT_ClusteringTool> m_clusteringTool; //!<  clustering algorithm
     std::string             m_managerName; //!< detector manager name in StoreGate
     std::string             m_clustersName; 
+    std::string             m_flaggedCondDataName;
     const SCT_ID*           m_idHelper;
     
     SCT_ClusterContainer*   m_clusterContainer;
@@ -124,12 +123,11 @@ namespace InDet {
     double                  m_etaHalfWidth;          //!<  ROI half-width in eta.
     double                  m_phiHalfWidth;          //!<  ROI half-width in phi.
     std::string             m_sctRDOContainerName; 
-    ServiceHandle<ISCT_ByteStreamErrorsSvc> m_bsErrorSvc;
     ServiceHandle<IROBDataProviderSvc>    m_robDataProvider;   //!< ROB Data Provide Service
 
     //conditions
-    ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;
-    ServiceHandle<ISCT_FlaggedConditionSvc>  m_flaggedConditionSvc;
+    ToolHandle<IInDetConditionsTool>         m_pSummaryTool{this, "conditionsSummaryTool",
+        "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT conditions summary"};
     bool                                     m_checkBadModules;
     unsigned int                             m_maxRDOs;
     std::set<IdentifierHash>                 m_flaggedModules;

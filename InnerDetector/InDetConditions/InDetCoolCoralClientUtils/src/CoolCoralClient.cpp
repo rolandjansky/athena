@@ -2192,12 +2192,12 @@ RODobj_t* COOLCORALClient::GetROD(int rod_id){
   int nRows = 0;
   int nRows2 = 0;
 
-
+  // this code looks erroneous
   coral::ICursor& cursor0 = query0->execute();
   while ( cursor0.next() ) {
     const coral::AttributeList &row0 = cursor0.currentRow();
+    if (rod_param) delete rod_param;
     rod_param = new RODobj_t;
-
     rod_param->VMEslot = row0[0].data<int>();
     rod_param->RODhalf = row0[1].data<int>();
     rod_param->EdgeSelect[0] = row0[2].data<int>();
@@ -2209,24 +2209,10 @@ RODobj_t* COOLCORALClient::GetROD(int rod_id){
     rod_param->GolDelay[2] = row0[8].data<int>();
     rod_param->GolDelay[3] = row0[9].data<int>();
     rod_param->DetID = row0[10].data<int>();
-    //      rod_param->FEMode =  row0[11].data<std::string>();
-
-
-
-    //   was query 2    
-    
-
     
     dtmroc_condData[0].data<int>() = part_nr*100000+phi_id*1000+(firstroc-1);
     dtmroc_condData[1].data<int>() = part_nr*100000+phi_id*1000+
       (nrdtmrocs-1);
-
-    //      if(m_verbose) std::cout << "DTMROC from " << part_nr*100000+phi_id*1000+firstroc
-    //  	      << " to " << part_nr*100000+phi_id*1000+nrdtmrocs 
-    //  	      << std::endl;
-
-    
-    
 
     if (query2){
 			coral::ICursor& cursor2 = query2->execute();
@@ -2248,26 +2234,14 @@ RODobj_t* COOLCORALClient::GetROD(int rod_id){
 				dtmroc_param.Mask_FE = row2[12].data<int>();
 				dtmroc_param.Pipe_Latency_FE = row2[13].data<short>();
 				dtmroc_param.Clock_FE = row2[14].data<std::string>();
-
 				rod_param->dtmroc_params.push_back(dtmroc_param);
-			
 				nRows2++;
-	
 			}      
     }
     delete query2; query2=nullptr;
- 
-
-    //      ttc_params.push_back(ttc_param);
     ++nRows;
   }
   delete query0;
-
-
-
-      
-    
-
 
   m_session->transaction().commit();
 
@@ -3429,47 +3403,27 @@ TTCobj_t* COOLCORALClient::GetTTCOOL(int ttc_id){
   coral::ICursor& cursor0 = query0->execute();
   while ( cursor0.next() ) {
     const coral::AttributeList &row0 = cursor0.currentRow();
+    if (ttc_param) delete ttc_param;
     ttc_param = new TTCobj_t;
-
     ttc_param->VMEslot = row0[1].data<int>();
     ttc_param->Delay = row0[2].data<int>();
     ttc_param->ArShaping = row0[3].data<short>();
     ttc_param->SetSendID = row0[4].data<short>();
     ttc_param->DetID = row0[0].data<int>();
     ttc_param->Comment =  row0[5].data<std::string>();
-
-
-    
-
     ttcgr_condData[0].data<int>() = ttc_id*10;
-
     int nrgroups=3;
-//     if (part_nr<33){
-//       nrgroups = phi.size() - 1;
-//     }
-//     else if (part_nr>=33){
-//       nrgroups = 2*phi.size()-1;
-//     }
-
     ttcgr_condData[1].data<int>() = ttc_id*10 + nrgroups;
-
-    
     cool::IObjectIteratorPtr grobjs = ttcgr_fld->browseObjects( since, until, ttc_id*10 );
-	
     while ( grobjs->goToNext() ) {
       const cool::IObject& obj = grobjs->currentRef();
       FromString(fk,obj.payloadValue("ttcgr_iovfk"));
-      //	if(m_verbose) std::cout << "FK GROUP = " << fk << std::endl;
     }
     ttcgr_condData[2].data<long long>() = fk;
-
     if (query1){
 			coral::ICursor& cursor1 = query1->execute();
 			while ( cursor1.next() ) {
 				const coral::AttributeList &row1 = cursor1.currentRow();
-
-			
-			
 				ttcgr_param.Group = row1[0].data<int>();
 				ttcgr_param.DutyCycle = row1[1].data<int>();
 			
@@ -3489,14 +3443,10 @@ TTCobj_t* COOLCORALClient::GetTTCOOL(int ttc_id){
 					ttcgr_param.TDMdelay[k]=tdm[k];
 				}
 				ttc_param->Groups.push_back(ttcgr_param);
-	
-
 				nRows1++;
-	
 			}      
     }
     delete query1;query1=nullptr;
-    
     //   was query 2    
     int nrdtmrocs = 0;
     if (part_nr<33) {
@@ -3509,14 +3459,9 @@ TTCobj_t* COOLCORALClient::GetTTCOOL(int ttc_id){
     dtmroc_condData[0].data<int>() = part_nr*100000+phi[0]*1000;
     dtmroc_condData[1].data<int>() = part_nr*100000+phi[phi.size()-1]*1000+
       nrdtmrocs;
-    
-
     cool::IObjectIteratorPtr rocobjs = dtmroc_fld->browseObjects( since, until, part_nr*100000+phi[0]*1000+1 );
-
-
     // this is buggy because assumes all dtmrocs have the same key
 
-    
     unsigned long long fkroc = 0;
     while ( rocobjs->goToNext() ) {
       const cool::IObject& rocobj = rocobjs->currentRef();
@@ -3524,17 +3469,6 @@ TTCobj_t* COOLCORALClient::GetTTCOOL(int ttc_id){
       if(m_verbose) std::cout << "FK ROC = " << fkroc << std::endl;
     }
     dtmroc_condData[2].data<long long>() = fkroc;
-
-    //    if(m_verbose) std::cout << "channel = " << part_nr*100000+phi[0]*1000+nrdtmrocs << std::endl;    
-
-
-    //    if(m_verbose) std::cout << "DTMROC from " << part_nr*100000+phi[0]*1000+1 
-    //   	      << " to " << part_nr*100000+phi[phi.size()-1]*1000+nrdtmrocs 
-    //   	      << std::endl;
-
-    
-    
-
     if (query2){
 			coral::ICursor& cursor2 = query2->execute();
 			while ( cursor2.next() ) {
@@ -3563,9 +3497,6 @@ TTCobj_t* COOLCORALClient::GetTTCOOL(int ttc_id){
 			}      
     }
     delete query2; query2=nullptr;
- 
-
-    //      ttc_params.push_back(ttc_param);
     ++nRows;
   }
   delete query0;
@@ -3578,12 +3509,6 @@ TTCobj_t* COOLCORALClient::GetTTCOOL(int ttc_id){
   total_usecs = (end_time.tv_sec-start_time.tv_sec) * 1000000 +
     (end_time.tv_usec-start_time.tv_usec);
   if(m_verbose) std::cout << "Total time was " << total_usecs << " usec" << std::endl;
-
-  // 	for (size_t k = 0; k < ttc_params.size(); k++) {
-  // 	  delete ttc_params[k];
-  // 	}
-
-
   if(m_verbose) std::cout << "****************************" << std::endl;
   if(m_verbose) std::cout << "* Total " << nRowsM << " Mapping records  *" << std::endl;
   if(m_verbose) std::cout << "* Total " << nRows << " TTC records      *" << std::endl;
@@ -3797,22 +3722,6 @@ void COOLCORALClient::fillTTC(const TTC_t& ttc){
 	    
   ttc_editor.insertRow(ttc_row);
 
-
-
-
-
-  // measuring elapsed time
-  //     gettimeofday(&end_time, NULL);
-  //         total_usecs = (end_time.tv_sec-start_time.tv_sec) * 1000000 +
-  //                  (end_time.tv_usec-start_time.tv_usec);
-  //         if(m_verbose) std::cout << "Total time was " << total_usecs << " usec" << std::endl;
-
-
-
-
-
-
-
   m_session->transaction().commit();
 
 }
@@ -3821,41 +3730,17 @@ void COOLCORALClient::fillTTC(const TTC_t& ttc){
 /// Fill ROD table with one entry
 void COOLCORALClient::fillROD(const ROD_t& rod){
 
-  //    if(m_verbose) std::cout << "\nCOOLCORAL Client: Fill ROD info" << std::endl;
-
-  //     struct timeval start_time, end_time;
-  //     int total_usecs;
-  //     gettimeofday(&start_time, NULL);
-
   m_session->transaction().start();
 
 
 
   struct timeval nunc_time;
-  //unsigned long long nunc_usecs;
     
   gettimeofday(&nunc_time, NULL);
-
-  // iovfk is time in nanoseconds
-  //nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
-  //nunc_usecs = (nunc_time.tv_usec);
-  //    iovfkrod = (unsigned long long) nunc_usecs/10;
-
   std::string ROD_TABLE="BROD";
-
-    
- 
-
-  //    if(m_verbose) std::cout << "Filling table " << ROD_TABLE  << std::endl;
   coral::ITableDataEditor& rod_editor = m_session->nominalSchema().tableHandle(ROD_TABLE ).dataEditor();
   coral::AttributeList rod_row;
   rod_editor.rowBuffer(rod_row);
-
-
-
-	
-  //    coral::IBulkOperation* rod_bulk= rod_editor.bulkInsert(rod_row,32);
-
   rod_row["rod_UID"].setValue <int> (rod.rod_UID);
   rod_row["rod_iovfk"].setValue <long long> (rod.rod_iovfk);
   rod_row["RODByteSwapping"].setValue <short> (rod.RODByteSwapping);
@@ -3880,22 +3765,6 @@ void COOLCORALClient::fillROD(const ROD_t& rod){
 	    
   rod_editor.insertRow(rod_row);
 
-
-
-
-
-  // measuring elapsed time
-  //     gettimeofday(&end_time, NULL);
-  //         total_usecs = (end_time.tv_sec-start_time.tv_sec) * 1000000 +
-  //                  (end_time.tv_usec-start_time.tv_usec);
-  //         if(m_verbose) std::cout << "Total time was " << total_usecs << " usec" << std::endl;
-
-
-
-
-
-
-
   m_session->transaction().commit();
 
 }
@@ -3905,41 +3774,18 @@ void COOLCORALClient::fillROD(const ROD_t& rod){
 /// Fill TTC GROUP table with one entry
 void COOLCORALClient::fillTTCGR(const TTCGroup_t& ttcgr){
 
-  //    if(m_verbose) std::cout << "\nCOOLCORAL Client: Fill TTC GROUP info" << std::endl;
-
-  //     struct timeval start_time, end_time;
-  //     int total_usecs;
-  //     gettimeofday(&start_time, NULL);
-
   m_session->transaction().start();
 
 
 
   struct timeval nunc_time;
-  //unsigned long long nunc_usecs;
     
   gettimeofday(&nunc_time, NULL);
 
-  // iovfk is time in nanoseconds
-  //nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
-  //nunc_usecs = (nunc_time.tv_usec);
-  //    iovfkttcgr = (unsigned long long) nunc_usecs/10;
-
   std::string TTCGR_TABLE="BTTCGR";
-
-    
- 
-
-  //    if(m_verbose) std::cout << "Filling table " << TTCGR_TABLE  << std::endl;
   coral::ITableDataEditor& ttcgr_editor = m_session->nominalSchema().tableHandle(TTCGR_TABLE ).dataEditor();
   coral::AttributeList ttcgr_row;
   ttcgr_editor.rowBuffer(ttcgr_row);
-
-
-
-	
-  //    coral::IBulkOperation* ttcgr_bulk= ttcgr_editor.bulkInsert(ttcgr_row,32);
-
   ttcgr_row["ttcgr_UID"].setValue <int> (ttcgr.ttcgr_UID);
   ttcgr_row["ttcgr_iovfk"].setValue <long long> (ttcgr.ttcgr_iovfk);
   ttcgr_row["Group"].setValue <int> (ttcgr.Group);
@@ -3954,22 +3800,6 @@ void COOLCORALClient::fillTTCGR(const TTCGroup_t& ttcgr){
 	    
   ttcgr_editor.insertRow(ttcgr_row);
 
-
-
-
-
-  // measuring elapsed time
-  //     gettimeofday(&end_time, NULL);
-  //         total_usecs = (end_time.tv_sec-start_time.tv_sec) * 1000000 +
-  //                  (end_time.tv_usec-start_time.tv_usec);
-  //         if(m_verbose) std::cout << "Total time was " << total_usecs << " usec" << std::endl;
-
-
-
-
-
-
-
   m_session->transaction().commit();
 
 }
@@ -3978,41 +3808,18 @@ void COOLCORALClient::fillTTCGR(const TTCGroup_t& ttcgr){
 /// Fill TTC GROUP table with one entry
 void COOLCORALClient::fillROC(const DTMROC_t& roc){
 
-  //    if(m_verbose) std::cout << "\nCOOLCORAL Client: Fill TTC GROUP info" << std::endl;
-
-  //     struct timeval start_time, end_time;
-  //     int total_usecs;
-  //     gettimeofday(&start_time, NULL);
-
   m_session->transaction().start();
 
 
 
   struct timeval nunc_time;
-  //unsigned long long nunc_usecs;
     
   gettimeofday(&nunc_time, NULL);
 
-  // iovfk is time in nanoseconds
-  //nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
-  //nunc_usecs = (nunc_time.tv_usec);
-  //    iovfkroc = (unsigned long long) nunc_usecs/10;
-
   std::string DTMROC_TABLE="BDTMROC";
-
-    
- 
-
-  //    if(m_verbose) std::cout << "Filling table " << DTMROC_TABLE  << std::endl;
   coral::ITableDataEditor& roc_editor = m_session->nominalSchema().tableHandle(DTMROC_TABLE ).dataEditor();
   coral::AttributeList roc_row;
   roc_editor.rowBuffer(roc_row);
-
-
-
-	
-  //    coral::IBulkOperation* roc_bulk= roc_editor.bulkInsert(roc_row,32);
-
   roc_row["dtmroc_UID"].setValue <int> (roc.dtmroc_UID);
   roc_row["dtmroc_iovfk"].setValue <long long> (roc.dtmroc_iovfk);
   roc_row["DTMROCByteSwapping"].setValue <short> (roc.DTMROCByteSwapping);
@@ -4039,23 +3846,6 @@ void COOLCORALClient::fillROC(const DTMROC_t& roc){
     
     
   roc_editor.insertRow(roc_row);
-
-
-
-
-
-  // measuring elapsed time
-  //        gettimeofday(&end_time, NULL);
-  //       total_usecs = (end_time.tv_sec-start_time.tv_sec) * 1000000 +
-  //                 (end_time.tv_usec-start_time.tv_usec);
-  //        if(m_verbose) std::cout << "Total time was " << total_usecs << " usec" << std::endl;
-
-
-
-
-
-
-
   m_session->transaction().commit();
 
 }
@@ -4100,25 +3890,13 @@ void COOLCORALClient::changeROC(const DTMROC_t& roc, const std::string& param, d
 /// Fill ROD table with one entry
 void COOLCORALClient::fillRODV(const std::vector<ROD_t>& rodv){
 
-  //    if(m_verbose) std::cout << "\nCOOLCORAL Client: Fill ROD info" << std::endl;
-
-  //     struct timeval start_time, end_time;
-  //     int total_usecs;
-  //     gettimeofday(&start_time, NULL);
-
   m_session->transaction().start();
 
 
 
   struct timeval nunc_time;
-  //unsigned long long nunc_usecs;
     
   gettimeofday(&nunc_time, NULL);
-
-  // iovfk is time in nanoseconds
-  //nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
-  //nunc_usecs = (nunc_time.tv_usec);
-  //    iovfkrod = (unsigned long long) nunc_usecs/10;
 
   std::string ROD_TABLE="BROD";
 
@@ -4189,37 +3967,13 @@ void COOLCORALClient::fillRODV(const std::vector<ROD_t>& rodv){
 /// Fill TTC GROUP table with one entry
 void COOLCORALClient::fillROCV(const std::vector<DTMROC_t>& rocv){
 
-  //    if(m_verbose) std::cout << "\nCOOLCORAL Client: Fill TTC GROUP info" << std::endl;
-
-  //     struct timeval start_time, end_time;
-  //     int total_usecs;
-  //     gettimeofday(&start_time, NULL);
-
   m_session->transaction().start();
-
-
-
   struct timeval nunc_time;
-  //unsigned long long nunc_usecs;
-    
   gettimeofday(&nunc_time, NULL);
-
-  // iovfk is time in nanoseconds
-  //nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
-  //nunc_usecs = (nunc_time.tv_usec);
-  //    iovfkroc = (unsigned long long) nunc_usecs/10;
-
   std::string DTMROC_TABLE="BDTMROC";
-
-    
- 
-
-  //    if(m_verbose) std::cout << "Filling table " << DTMROC_TABLE  << std::endl;
   coral::ITableDataEditor& roc_editor = m_session->nominalSchema().tableHandle(DTMROC_TABLE ).dataEditor();
   coral::AttributeList roc_row;
   roc_editor.rowBuffer(roc_row);
-
-	
   coral::IBulkOperation* roc_bulk= roc_editor.bulkInsert(roc_row,32);
 
   std::vector<DTMROC_t>::const_iterator v_iter;
@@ -4250,7 +4004,6 @@ void COOLCORALClient::fillROCV(const std::vector<DTMROC_t>& rocv){
     roc_row["roc_tag"].setValue <std::string> ((*v_iter).roc_tag);
     
     roc_bulk->processNextIteration();    
-    //    roc_editor.insertRow(roc_row);
   }
 
 
@@ -4259,20 +4012,6 @@ void COOLCORALClient::fillROCV(const std::vector<DTMROC_t>& rocv){
 
   roc_bulk->flush();
   delete roc_bulk;
-
-
-  // measuring elapsed time
-  //        gettimeofday(&end_time, NULL);
-  //       total_usecs = (end_time.tv_sec-start_time.tv_sec) * 1000000 +
-  //                 (end_time.tv_usec-start_time.tv_usec);
-  //        if(m_verbose) std::cout << "Total time was " << total_usecs << " usec" << std::endl;
-
-
-
-
-
-
-
   m_session->transaction().commit();
 
 }
@@ -4281,45 +4020,20 @@ void COOLCORALClient::fillROCV(const std::vector<DTMROC_t>& rocv){
 /// Fill TTC GROUP table with one entry
 void COOLCORALClient::fillTTCGRV(const std::vector<TTCGroup_t>& ttcgrv){
 
-  //    if(m_verbose) std::cout << "\nCOOLCORAL Client: Fill TTC GROUP info" << std::endl;
-
-  //     struct timeval start_time, end_time;
-  //     int total_usecs;
-  //     gettimeofday(&start_time, NULL);
-
   m_session->transaction().start();
 
 
 
   struct timeval nunc_time;
-  //unsigned long long nunc_usecs;
     
   gettimeofday(&nunc_time, NULL);
-
-  // iovfk is time in nanoseconds
-  //nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
-  //nunc_usecs = (nunc_time.tv_usec);
-  //    iovfkttcgr = (unsigned long long) nunc_usecs/10;
-
   std::string TTCGR_TABLE="BTTCGR";
-
-    
- 
-
-  //    if(m_verbose) std::cout << "Filling table " << TTCGR_TABLE  << std::endl;
   coral::ITableDataEditor& ttcgr_editor = m_session->nominalSchema().tableHandle(TTCGR_TABLE ).dataEditor();
   coral::AttributeList ttcgr_row;
   ttcgr_editor.rowBuffer(ttcgr_row);
-
-
-
-	
   coral::IBulkOperation* ttcgr_bulk= ttcgr_editor.bulkInsert(ttcgr_row,4);
-
   std::vector<TTCGroup_t>::const_iterator v_iter;
-
   for (v_iter = ttcgrv.begin(); v_iter != ttcgrv.end(); ++v_iter) {
-   
     ttcgr_row["ttcgr_UID"].setValue <int> ((*v_iter).ttcgr_UID);
     ttcgr_row["ttcgr_iovfk"].setValue <long long> ((*v_iter).ttcgr_iovfk);
     ttcgr_row["Group"].setValue <int> ((*v_iter).Group);
@@ -4330,14 +4044,7 @@ void COOLCORALClient::fillTTCGRV(const std::vector<TTCGroup_t>& ttcgrv){
     ttcgr_row["TDMdelay"].setValue <std::string> ((*v_iter).TDMdelay);
     ttcgr_row["TTCGRNAME"].setValue <std::string> ((*v_iter).TTCGRNAME);
     ttcgr_row["ttcgr_tag"].setValue <std::string> ((*v_iter).ttcgr_tag);
-
-	    
-    //    ttcgr_editor.insertRow(ttcgr_row);
-
-    
-
     ttcgr_bulk->processNextIteration();    
-    //    roc_editor.insertRow(roc_row);
   }
 
 
@@ -4346,20 +4053,6 @@ void COOLCORALClient::fillTTCGRV(const std::vector<TTCGroup_t>& ttcgrv){
 
   ttcgr_bulk->flush();
   delete ttcgr_bulk;
-
-
-  // measuring elapsed time
-  //     gettimeofday(&end_time, NULL);
-  //         total_usecs = (end_time.tv_sec-start_time.tv_sec) * 1000000 +
-  //                  (end_time.tv_usec-start_time.tv_usec);
-  //         if(m_verbose) std::cout << "Total time was " << total_usecs << " usec" << std::endl;
-
-
-
-
-
-
-
   m_session->transaction().commit();
 
 }
@@ -4369,7 +4062,6 @@ void COOLCORALClient::fillTTCGRV(const std::vector<TTCGroup_t>& ttcgrv){
 /// Fill TTC table with one entry
 void COOLCORALClient::fillTTCV(const std::vector<TTC_t>& ttcv){
 
-  //    if(m_verbose) std::cout << "\nCOOLCORAL Client: Fill TTC info" << std::endl;
 
   //     struct timeval start_time, end_time;
   //     int total_usecs;
@@ -4380,14 +4072,9 @@ void COOLCORALClient::fillTTCV(const std::vector<TTC_t>& ttcv){
 
 
   struct timeval nunc_time;
-  //unsigned long long nunc_usecs;
-    
-  gettimeofday(&nunc_time, NULL);
+    gettimeofday(&nunc_time, NULL);
 
-  // iovfk is time in nanoseconds
-  //nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
-  //nunc_usecs = (nunc_time.tv_usec);
-  //    iovfkttc = (unsigned long long) nunc_usecs/10;
+
 
   std::string TTC_TABLE="BTTC";
 
@@ -4426,7 +4113,6 @@ void COOLCORALClient::fillTTCV(const std::vector<TTC_t>& ttcv){
     ttc_row["ttc_tag"].setValue <std::string> ((*v_iter).ttc_tag);
 
 	    
-    //    ttc_editor.insertRow(ttc_row);
     ttc_bulk->processNextIteration();    
 	
   }
@@ -4438,22 +4124,6 @@ void COOLCORALClient::fillTTCV(const std::vector<TTC_t>& ttcv){
   ttc_bulk->flush();
   delete ttc_bulk;
 
-
-
-
-
-  // measuring elapsed time
-  //     gettimeofday(&end_time, NULL);
-  //         total_usecs = (end_time.tv_sec-start_time.tv_sec) * 1000000 +
-  //                  (end_time.tv_usec-start_time.tv_usec);
-  //         if(m_verbose) std::cout << "Total time was " << total_usecs << " usec" << std::endl;
-
-
-
-
-
-
-
   m_session->transaction().commit();
 
 }
@@ -4462,25 +4132,14 @@ void COOLCORALClient::fillTTCV(const std::vector<TTC_t>& ttcv){
 /// Fill TTC GROUP table with one entry
 void COOLCORALClient::fillBarrel(const Barrel_t& Barrel){
 
-  //    if(m_verbose) std::cout << "\nCOOLCORAL Client: Fill TTC GROUP info" << std::endl;
-
-  //     struct timeval start_time, end_time;
-  //     int total_usecs;
-  //     gettimeofday(&start_time, NULL);
-
   m_session->transaction().start();
 
 
 
   struct timeval nunc_time;
-  //unsigned long long nunc_usecs;
     
   gettimeofday(&nunc_time, NULL);
 
-  // iovfk is time in nanoseconds
-  //nunc_usecs = (nunc_time.tv_sec) * 1000000 + (nunc_time.tv_usec);
-  //nunc_usecs = (nunc_time.tv_usec);
-  //    iovfkttcgr = (unsigned long long) nunc_usecs/10;
 
   unsigned long long nunc_sec = nunc_time.tv_sec;
   std::string tag = "DAQ";
@@ -4489,21 +4148,17 @@ void COOLCORALClient::fillBarrel(const Barrel_t& Barrel){
   std::string ROD_TABLE="BROD";
   std::string DTMROC_TABLE="BDTMROC";
 
-  //    if(m_verbose) std::cout << "Filling table " << TTCGR_TABLE  << std::endl;
   coral::ITableDataEditor& ttcgr_editor = m_session->nominalSchema().tableHandle(TTCGR_TABLE ).dataEditor();
   coral::AttributeList ttcgr_row;
   ttcgr_editor.rowBuffer(ttcgr_row);
 	
   coral::IBulkOperation* ttcgr_bulk= ttcgr_editor.bulkInsert(ttcgr_row,4);
 
-  //    if(m_verbose) std::cout << "Filling table " << ROD_TABLE  << std::endl;
   coral::ITableDataEditor& rod_editor = m_session->nominalSchema().tableHandle(ROD_TABLE ).dataEditor();
   coral::AttributeList rod_row;
   rod_editor.rowBuffer(rod_row);
 
   coral::IBulkOperation* rod_bulk= rod_editor.bulkInsert(rod_row,32);
-
-  //    if(m_verbose) std::cout << "Filling table " << DTMROC_TABLE  << std::endl;
   coral::ITableDataEditor& roc_editor = m_session->nominalSchema().tableHandle(DTMROC_TABLE ).dataEditor();
   coral::AttributeList roc_row;
   roc_editor.rowBuffer(roc_row);
@@ -4610,7 +4265,6 @@ void COOLCORALClient::fillBarrel(const Barrel_t& Barrel){
 /// Create and fill CORAL only Connection table for a partition, identified by an input string
 void COOLCORALClient::createMap(){
 
-  //    if(m_verbose) std::cout << "\nCOOLCORAL Client: Create tables" << std::endl;
     
   struct timeval start_time, end_time;
   int total_usecs;
@@ -4619,14 +4273,8 @@ void COOLCORALClient::createMap(){
 
 
 
-  //    if (part_trt=="barrel"){
   BCONNECT_TABLE = "BCONNECT";
-  //    }
-  //    else if (part_trt=="endcap") {
-  //      BCONNECT_TABLE = "ECCONNECT";
-  //  }
-
-
+ 
   m_session->transaction().start();
 
 
@@ -4657,13 +4305,6 @@ void COOLCORALClient::createMap(){
   // Unfortunately, there is no easy/standard way of having the
   // database server automatically assigning a value to a PK
 
-  /*
-    tmp_strings.clear();
-    tmp_strings.push_back ("ttc_iovfk");
-    // Define primary key
-    bconn_columns.setPrimaryKey( tmp_string );
-    bconn_columns->setNotNullConstraint ("ttc_iovfk");
-  */
   // put an index on const
   //    if (part_trt=="barrel"){
   tmp_strings.clear();
@@ -4677,22 +4318,7 @@ void COOLCORALClient::createMap(){
   tmp_strings.clear();
   tmp_strings.push_back ("Slot");
   bconn_columns.createIndex ("bslot_idx", tmp_strings);
-  //    }
-  //    else if (part_trt=="endcap"){
-  //  tmp_strings.clear();
-  //  tmp_strings.push_back ("Partition");
-  //  bconn_columns.createIndex ("ecpart_idx", tmp_strings);
-      
-  //       tmp_strings.clear();
-  //       tmp_strings.push_back ("Crate");
-  //       bconn_columns.createIndex ("eccrate_idx", tmp_strings);
-      
-  //       tmp_strings.clear();
-  //       tmp_strings.push_back ("Slot");
-  //       bconn_columns.createIndex ("ecslot_idx", tmp_strings);
-      
-  //     }
-
+ 
   bconn_columns.setNotNullConstraint ("Partition");
   bconn_columns.setNotNullConstraint ("Crate");
   bconn_columns.setNotNullConstraint ("Slot");
@@ -4718,11 +4344,6 @@ void COOLCORALClient::createMap(){
 //------------------------------------------------------------------------------
 /// Create and fill CORAL only Connection table for a partition, identified by an input string
 void COOLCORALClient::fillMap(){
-  //    if(m_verbose) std::cout << "\nCOOLCORAL Client: Create tables" << std::endl;
-    
-  //     struct timeval start_time, end_time;
-  //     int total_usecs;
-  //     gettimeofday(&start_time, NULL);
   std::string BCONNECT_TABLE;
 
 
@@ -4741,28 +4362,13 @@ void COOLCORALClient::fillMap(){
   // TRT-BCONNECT quantities
 
   Mapping_t conn_struct;
-  //     int part;
-  //     int crate;
-  //     int slot;
-  //     int phi;
-  //--------//
-
 	
   coral::IBulkOperation* bconn_bulk= bconn_editor.bulkInsert(bconn_row,16);
 
   int run=0;	
   const char* filename;
-  // 	if (part_trt=="barrel"){
   filename = "PITConnectTable.dat";
-  // 	}
-  // 	else if (part_trt=="endcap"){
-  // 	  filename = "EC-ConnectTable.dat";
-  // 	}
-
   ifstream itAfile (filename);
-
-	
-  //ifstream itAfile ("ConnectTable.dat");
   std::vector<char> buffer(999);
   if (itAfile.is_open()){
     while (itAfile.getline(&buffer[0],999,'\n')) {
@@ -4778,21 +4384,13 @@ void COOLCORALClient::fillMap(){
       bconn_row["Crate"].setValue <int> (conn_struct.crate);
       bconn_row["Slot"].setValue <int> (conn_struct.slot);
       bconn_row["phi"].setValue <int> (conn_struct.phi);
-	    
-      //	    bconn_row["phi3"].setValue <int> (0);
-      //  bconn_row["phi4"].setValue <int> (0);
-
       run++;
-	    
-      //ttc_editor.insertRow(ttc_row);
       bconn_bulk->processNextIteration();
     }
   } 
   if(m_verbose) std::cout << "Read CONNECT data done..." << std::endl;
 
   itAfile.close();
-
-  //	ttc_fld->flushStorageBuffer();	    
 
   bconn_bulk->flush();
   delete bconn_bulk;
@@ -4809,11 +4407,7 @@ void COOLCORALClient::fillMap(){
 //------------------------------------------------------------------------------
 /// Create and fill CORAL only Connection table for a partition, identified by an input string
 void COOLCORALClient::fillMapV(const std::vector<Mapping_t>& conn_struct){
-  //    if(m_verbose) std::cout << "\nCOOLCORAL Client: Create tables" << std::endl;
-    
-  //     struct timeval start_time, end_time;
-  //     int total_usecs;
-  //     gettimeofday(&start_time, NULL);
+
   std::string BCONNECT_TABLE;
 
 
@@ -4832,13 +4426,7 @@ void COOLCORALClient::fillMapV(const std::vector<Mapping_t>& conn_struct){
   // TRT-BCONNECT quantities
 
   std::vector<Mapping_t>::const_iterator conn_iter;
-  //     int part;
-  //     int crate;
-  //     int slot;
-  //     int phi;
-  //--------//
-
-	
+ 
   coral::IBulkOperation* bconn_bulk= bconn_editor.bulkInsert(bconn_row,16);
 
   for (conn_iter=conn_struct.begin(); conn_iter!=conn_struct.end();++conn_iter) {
@@ -4848,31 +4436,15 @@ void COOLCORALClient::fillMapV(const std::vector<Mapping_t>& conn_struct){
     bconn_row["Slot"].setValue <int> ((*conn_iter).slot);
     bconn_row["phi"].setValue <int> ((*conn_iter).phi);
 	  
-    //	    bconn_row["phi3"].setValue <int> (0);
-    //  bconn_row["phi4"].setValue <int> (0);
-	  
-    //	    run++;
-	  
-    //ttc_editor.insertRow(ttc_row);
+   
     bconn_bulk->processNextIteration();
 	  
   }
   if(m_verbose) std::cout << "Read CONNECT data done..." << std::endl;
 
-  //	itAfile.close();
-
-  //	ttc_fld->flushStorageBuffer();	    
-
   bconn_bulk->flush();
   delete bconn_bulk;
-	
-  //	printf("Total: %d  rows\n",run);
-	
- 
   m_session->transaction().commit();
-
-
-
 }
 
 
@@ -4896,10 +4468,6 @@ int COOLCORALClient::GetIDS(int phi){
   int ttcgr_id;
   int rod_id;
   int dtmroc_id;
-
-  //     int part_nr = ttc_id/10000 - 4  ;
-  //  int crate_id = ttc_id/100 - (part_nr+4)*100;
-  //  int slot_id = ttc_id - (part_nr+4)*10000 - crate_id*100;
 
   //
   std::string TTC_TABLE = "BTTC";
@@ -4997,22 +4565,10 @@ int COOLCORALClient::GetIDS(int phi){
     if(m_verbose) std::cout << std::endl;
     if(m_verbose) std::cout << "****************************" << std::endl;
     if(m_verbose) std::cout << std::endl;
-    
-
-    //       if(m_verbose) std::cout << "Partition = " << row00[0].data<int>() << std::endl;
-    //       if(m_verbose) std::cout << "Crate = " << row00[1].data<int>() << std::endl;
-    //       if(m_verbose) std::cout << "Slot = " << row00[2].data<int>() << std::endl;
-      
-
+   
     nRowsM++;
   }
   delete query00;
-
-
-  //    if (phi.size()==0) {
-  //  if(m_verbose) std::cout << "Provide phi values, please!" << std::endl;
-  // }
-
 
   m_session->transaction().commit();
 
@@ -5022,12 +4578,6 @@ int COOLCORALClient::GetIDS(int phi){
     (end_time.tv_usec-start_time.tv_usec);
   if(m_verbose) std::cout << "Total time was " << total_usecs << " usec" << std::endl;
 
-  // 	for (size_t k = 0; k < ttc_params.size(); k++) {
-  // 	  delete ttc_params[k];
-  // 	}
-    
-
-    
   return 0;
 	
 }
@@ -6818,7 +6368,7 @@ void COOLCORALClient::GetLastValues(Detector_t& detector){
     rod.RODDetID = row2[4].data<int>();
     rod.RODVMEslot = row2[5].data<int>();
     rod.RODhalf = row2[6].data<int>();
-    rod.EdgeSelect0 = row2[7].data<int>();;
+    rod.EdgeSelect0 = row2[7].data<int>();
     rod.EdgeSelect1 = row2[8].data<int>();
     rod.EdgeSelect2 = row2[9].data<int>();
     rod.EdgeSelect3 = row2[10].data<int>();
@@ -7314,7 +6864,6 @@ void COOLCORALClient::fillHistDetector(const Detector_t& Detector, const std::st
 
   for (v_iter2 = (Detector.rod).begin(); v_iter2 != (Detector.rod).end(); ++v_iter2) {
     rod_row["rod_UID"].setValue <int> ((*v_iter2).rod_UID);
-    //    rod_row["rod_iovfk"].setValue <long long> ((*v_iter2).rod_iovfk);
     rod_row["rod_iovfk"].setValue <long long> (key);
     rod_row["RODByteSwapping"].setValue <short> ((*v_iter2).RODByteSwapping);
     rod_row["RODPhysicalAddress"].setValue <int> ((*v_iter2).RODPhysicalAddress);
@@ -7333,7 +6882,6 @@ void COOLCORALClient::fillHistDetector(const Detector_t& Detector, const std::st
     rod_row["RODInputFragmentType"].setValue <std::string> ((*v_iter2).RODInputFragmentType);
     rod_row["RODName"].setValue <std::string> ((*v_iter2).RODName);
     rod_row["Comment"].setValue <std::string> ((*v_iter2).Comment);
-    //    rod_row["rod_tag"].setValue <std::string> ((*v_iter2).rod_tag);
     rod_row["rod_tag"].setValue <std::string> (tag);
 
 
@@ -7417,11 +6965,9 @@ long long COOLCORALClient::GetIoVKey(long long since, long long until, const std
 
   coral::IQuery* query0 = m_session->nominalSchema().tableHandle(QUERY_TABLE).newQuery();
 
-  //query0->addToOutputList("Object" );
   query0->addToOutputList("Key" );
   query0->addToOutputList("Time" );
 
-//  query0->addToTableList( QUERY_TABLE );
 
   std::string query_cond = "Object =:object ";
   query_cond += " AND ";
@@ -7528,9 +7074,7 @@ long long COOLCORALClient::GetIoVROC(int dtmroc_id,long long since,long long unt
 
   query0->addToOutputList("dtmroc_UID" );
   query0->addToOutputList("dtmroc_iovfk" );
- // query0->addToOutputList("Time" );
 
-//  query0->addToTableList( QUERY_TABLE );
 
   std::string query_cond = "dtmroc_UID =:dtmroc_id ";
   query_cond += " AND ";
@@ -8130,7 +7674,7 @@ Detector_t COOLCORALClient::GetHistValues(const std::string& tag,long long tstam
     rod.RODDetID = row2[4].data<int>();
     rod.RODVMEslot = row2[5].data<int>();
     rod.RODhalf = row2[6].data<int>();
-    rod.EdgeSelect0 = row2[7].data<int>();;
+    rod.EdgeSelect0 = row2[7].data<int>();
     rod.EdgeSelect1 = row2[8].data<int>();
     rod.EdgeSelect2 = row2[9].data<int>();
     rod.EdgeSelect3 = row2[10].data<int>();
@@ -8214,14 +7758,6 @@ Detector_t COOLCORALClient::GetHistValues(const std::string& tag,long long tstam
       
   }
   delete query3;
-
-
-
-  
-//   if(m_verbose) std::cout << "Number of ttcv elements = " << detector.ttc.size() << std::endl;
-//   if(m_verbose) std::cout << "Number of ttcgrv elements = " << detector.ttcgr.size() << std::endl;
-//   if(m_verbose) std::cout << "Number of rodv elements = " << detector.rod.size() << std::endl;
-//   if(m_verbose) std::cout << "Number of dtmrocv elements = " << detector.dtmroc.size() << std::endl;
 
   m_session->transaction().commit();
     
@@ -8946,12 +8482,10 @@ COOLCORALClient::CompHistValues(const std::string& tag1,long long tstamp1, const
   coral::ICursor& cursor00 = query00->execute();
     
   int nlines = 0;
-  //  std::cout << "TAG\t Key \t Time" << std::endl;
   while ( cursor00.next() ) {
     const coral::AttributeList &row00 = cursor00.currentRow();
 
     key1 = row00[0].data<long long>();
-    //    std::cout << "Key = " << key1 <<  std::endl;
     nlines++;
   }
 
@@ -9264,7 +8798,7 @@ COOLCORALClient::CompHistValues(const std::string& tag1,long long tstamp1, const
     rod1.RODDetID = row2a[4].data<int>();
     rod1.RODVMEslot = row2a[5].data<int>();
     rod1.RODhalf = row2a[6].data<int>();
-    rod1.EdgeSelect0 = row2a[7].data<int>();;
+    rod1.EdgeSelect0 = row2a[7].data<int>();
     rod1.EdgeSelect1 = row2a[8].data<int>();
     rod1.EdgeSelect2 = row2a[9].data<int>();
     rod1.EdgeSelect3 = row2a[10].data<int>();
@@ -9297,7 +8831,7 @@ COOLCORALClient::CompHistValues(const std::string& tag1,long long tstamp1, const
     rod2.RODDetID = row2b[4].data<int>();
     rod2.RODVMEslot = row2b[5].data<int>();
     rod2.RODhalf = row2b[6].data<int>();
-    rod2.EdgeSelect0 = row2b[7].data<int>();;
+    rod2.EdgeSelect0 = row2b[7].data<int>();
     rod2.EdgeSelect1 = row2b[8].data<int>();
     rod2.EdgeSelect2 = row2b[9].data<int>();
     rod2.EdgeSelect3 = row2b[10].data<int>();

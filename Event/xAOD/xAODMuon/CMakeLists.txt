@@ -25,11 +25,13 @@ atlas_depends_on_subdirs(
    MuonSpectrometer/MuonIdHelpers
    ${extra_deps} )
 
+find_package( ROOT COMPONENTS Core GenVector )
+
 # Component(s) in the package:
 atlas_add_library( xAODMuon
    xAODMuon/*.h xAODMuon/versions/*.h Root/*.cxx
    PUBLIC_HEADERS xAODMuon
-   LINK_LIBRARIES AthContainers AthLinks xAODBase xAODCaloEvent xAODCore
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks xAODBase xAODCaloEvent xAODCore
    xAODPrimitives xAODTracking MuonIdHelpersLib ${extra_libs} )
 
 atlas_add_dictionary( xAODMuonDict

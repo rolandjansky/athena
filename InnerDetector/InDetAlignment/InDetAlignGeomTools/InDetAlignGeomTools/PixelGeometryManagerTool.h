@@ -88,7 +88,7 @@ namespace InDet
   private:
       
     /** eta correction value needed when IBL is present*/
-    int etaCorrection;
+    int m_etaCorrection;
     
     /** creates L1 AlignModules for Pixel : full Pixel*/
     void buildL1();

@@ -42,12 +42,9 @@ class IChronoStatSvc;
 
 
 class PixelRawContByteStreamCnv: public Converter {
-  //  friend class CnvFactory<PixelRawContByteStreamCnv>;
-
   ~PixelRawContByteStreamCnv( );
 
  public:
-
 
   typedef InDetRawDataCollection<Pixel1RawData> COLLECTION; // define collection format here
 

@@ -33,10 +33,13 @@ TRT_CalDbSvc::TRT_CalDbSvc( const std::string& name, ISvcLocator* pSvcLocator )
     m_par_t0containerkey("/TRT/Calib/T0"),
     m_par_caltextfile(""),
     m_trtid(0),
-    m_streamer("AthenaPoolOutputStreamTool/CondStream1"),
+    m_streamer("AthenaOutputStreamTool/CondStream1"),
     m_detstore("DetectorStore",name),
     m_condSvc("CondSvc",name),
-    m_useCachedPtr(false)
+    m_rtContainer(nullptr),
+    m_errContainer(nullptr),
+    m_slopeContainer(nullptr),
+    m_t0Container(nullptr)
 {
   declareProperty("StreamTool",m_streamer);
   declareProperty("calibTextFile",m_par_caltextfile);
@@ -80,11 +83,98 @@ StatusCode TRT_CalDbSvc::initialize()
     return StatusCode::FAILURE;
   }
 
+
+  int format=0;
+  int readformat=0;
+  if( !m_par_caltextfile.empty() ) {
+    if(StatusCode::SUCCESS!=this->checkTextFile(m_par_caltextfile, readformat)) {
+      msg(MSG::FATAL) << "Could not read calibration objects from text file" << m_par_caltextfile << endmsg;
+      return StatusCode::FAILURE ;
+    }
+    format=readformat+1;
+  }
   // Read keys
-  ATH_CHECK( m_rtReadKey.initialize() );
-  ATH_CHECK( m_errReadKey.initialize() );
-  ATH_CHECK( m_slopeReadKey.initialize() );
-  ATH_CHECK( m_t0ReadKey.initialize() );
+
+  if(format==0) ATH_CHECK( m_rtReadKey.initialize() );
+  if(format<3)  ATH_CHECK( m_errReadKey.initialize() );
+  if(format<4)  ATH_CHECK( m_slopeReadKey.initialize() );
+  if(format==0) ATH_CHECK( m_t0ReadKey.initialize() );
+ 
+
+   // Here we are reading from text file. Revert to old non-MT style
+   // Assume implicitely that the folder was blocked. Create, record and update data handle
+  if(!m_par_caltextfile.empty()) {
+ 
+    if(format>0) {
+
+      if(msgLvl(MSG::INFO)) msg() << "Creating new T0 container" << endmsg ;
+      TRTCond::StrawT0Container*  t0container = new TRTCond::StrawT0Container() ; 
+
+      if( (m_detstore->record(t0container,m_par_t0containerkey))!=StatusCode::SUCCESS ) {
+         msg(MSG::ERROR) << "Could not record T0 Container for key " << m_par_t0containerkey << endmsg;
+         return StatusCode::FAILURE;
+      }
+      if(StatusCode::SUCCESS!=m_detstore->retrieve(m_t0Container,m_par_t0containerkey)) {
+        msg(MSG::FATAL) << "Could not retrieve data handle for T0 Container " << endmsg;
+        return StatusCode::FAILURE ;
+      }
+
+      if(msgLvl(MSG::INFO)) msg() << "Creating new Rt container" << endmsg ;
+      TRTCond::RtRelationContainer*  rtcontainer = new TRTCond::RtRelationContainer() ; 
+
+      if( (m_detstore->record(rtcontainer,m_par_rtcontainerkey))!=StatusCode::SUCCESS ) {
+         msg(MSG::ERROR) << "Could not record Rt Container for key " << m_par_rtcontainerkey << endmsg;
+         return StatusCode::FAILURE;
+      }
+      if(StatusCode::SUCCESS!=m_detstore->retrieve(m_rtContainer,m_par_t0containerkey)) {
+        msg(MSG::FATAL) << "Could not retrieve data handle for Rt Container " << endmsg;
+        return StatusCode::FAILURE ;
+      }
+
+    }
+
+    if(format>1) {
+     if(msgLvl(MSG::INFO)) msg() << "Creating new error container" << endmsg ;
+     TRTCond::RtRelationContainer*  rtcontainer = new TRTCond::RtRelationContainer() ; 
+
+      if( (m_detstore->record(rtcontainer,m_par_errcontainerkey))!=StatusCode::SUCCESS ) {
+         msg(MSG::ERROR) << "Could not record Rt Container for key " << m_par_errcontainerkey << endmsg;
+         return StatusCode::FAILURE;
+      }
+      if(StatusCode::SUCCESS!=m_detstore->retrieve(m_errContainer,m_par_errcontainerkey)) {
+        msg(MSG::FATAL) << "Could not retrieve data handle for Rt Container " << endmsg;
+        return StatusCode::FAILURE ;
+      }
+
+    }
+
+    if(format>2) {
+     if(msgLvl(MSG::INFO)) msg() << "Creating new slope container" << endmsg ;
+     TRTCond::RtRelationContainer*  rtcontainer = new TRTCond::RtRelationContainer() ; 
+
+      if( (m_detstore->record(rtcontainer,m_par_slopecontainerkey))!=StatusCode::SUCCESS ) {
+         msg(MSG::ERROR) << "Could not record Rt Container for key " << m_par_slopecontainerkey << endmsg;
+         return StatusCode::FAILURE;
+      }
+      if(StatusCode::SUCCESS!=m_detstore->retrieve(m_slopeContainer,m_par_slopecontainerkey)) {
+        msg(MSG::FATAL) << "Could not retrieve data handle for Rt Container " << endmsg;
+        return StatusCode::FAILURE ;
+      }
+
+    }
+
+ 
+  } else {
+    msg(MSG::INFO) << "TRT_CalDbSvc::initialize for standard running "  << endmsg;
+  }
+
+  if( !m_par_caltextfile.empty() ) {
+    if(StatusCode::SUCCESS!=this->readTextFile(m_par_caltextfile, readformat)) {
+      msg(MSG::FATAL) << "Could not read calibration objects from text file. Have you set athenaCommon.EvtMax=1? Try 2" << m_par_caltextfile << endmsg;
+      return StatusCode::FAILURE ;
+    }
+  }
+
 
   return StatusCode::SUCCESS;
 }
@@ -98,36 +188,36 @@ StatusCode TRT_CalDbSvc::finalize()
 
 
 TRT_CalDbSvc::RtRelationContainer* TRT_CalDbSvc::getRtContainer() const {
-  if(!m_useCachedPtr) {
+  if(!m_rtContainer) {
     SG::ReadCondHandle<RtRelationContainer> rtc(m_rtReadKey);
     return const_cast<RtRelationContainer*>(*rtc);
   }
-  return m_rtContainer.get();
+  return m_rtContainer;
 }
 
 
 TRT_CalDbSvc::RtRelationContainer* TRT_CalDbSvc::getErrContainer() const {
-  if(!m_useCachedPtr) {
+  if(!m_errContainer) {
     SG::ReadCondHandle<RtRelationContainer> erc(m_errReadKey);
     return const_cast<RtRelationContainer*>(*erc);
   }
-  return m_errContainer.get();
+  return m_errContainer;
 }
 
 TRT_CalDbSvc::RtRelationContainer* TRT_CalDbSvc::getSlopeContainer() const {
-  if(!m_useCachedPtr) {
+  if(!m_slopeContainer) {
     SG::ReadCondHandle<RtRelationContainer> slc(m_slopeReadKey);
     return const_cast<RtRelationContainer*>(*slc);
   }
-  return m_slopeContainer.get();
+  return m_slopeContainer;
 }
 
 TRT_CalDbSvc::StrawT0Container* TRT_CalDbSvc::getT0Container() const {
-  if(!m_useCachedPtr) {
+  if(!m_t0Container) {
     SG::ReadCondHandle<StrawT0Container> t0c(m_t0ReadKey);
     return const_cast<StrawT0Container*>(*t0c);
   }
-  return m_t0Container.get();
+  return m_t0Container;
 }
 
 
@@ -180,6 +270,35 @@ StatusCode TRT_CalDbSvc::readTextFile(const std::string& filename, int& format )
   return sc ;
 }
 
+StatusCode TRT_CalDbSvc::checkTextFile(const std::string& filename, int& format ) 
+{
+
+  StatusCode sc=StatusCode::SUCCESS ;
+  std::ifstream infile(filename.c_str()) ;
+  if(!infile) {
+    msg(MSG::ERROR) << "Cannot find input file " << filename << endmsg ;
+    sc=StatusCode::FAILURE;
+  } else {
+    // read the format tag. if none, default to 0
+    format = 0 ;
+    char line[512] ;
+    infile.getline(line,512) ;
+    std::string linestring(line) ;
+    size_t pos = linestring.find("Fileformat") ;
+    if(pos != std::string::npos) {
+      sscanf(line,"# Fileformat=%d",&format) ;
+    } else {
+      msg(MSG::WARNING) << "Input file has no Fileformat identifier. Assuming format=0." << endmsg;
+      // 'rewind' the file
+
+      infile.close() ;
+      infile.open(filename.c_str()) ;
+    }
+  }
+  infile.close() ;
+  return sc ;
+}
+
 StatusCode TRT_CalDbSvc::writeTextFile_Format0(std::ostream& outfile) const
 {
 
@@ -217,11 +336,10 @@ StatusCode TRT_CalDbSvc::readTextFile_Format0(std::istream& infile)
 {
 
   //If you supply a text file in format 0 remember to block the RT and T0 folders
-
- 
-  m_rtContainer = new RtRelationContainer() ;
-  m_t0Container = new StrawT0Container() ;
-
+  RtRelationContainer* rtContainer = getRtContainer() ;
+  StrawT0Container* t0Container = getT0Container() ;
+  rtContainer->clear();
+  t0Container->clear();
  
   TRTCond::ExpandedIdentifier calid ;
   float t0,t0err,d0,a[4];
@@ -240,14 +358,14 @@ StatusCode TRT_CalDbSvc::readTextFile_Format0(std::istream& infile)
 	++nentries ;
       } else ++ninvalid ;
     }
-  size_t t0footprint = m_t0Container->footprint()  ;
-  size_t rtfootprint = m_rtContainer->footprint()  ;
+  size_t t0footprint = t0Container->footprint()  ;
+  size_t rtfootprint = rtContainer->footprint()  ;
   //t0container->crunch() ;
   //rtcontainer->crunch() ;
   
   msg(MSG::INFO) << "read " << nentries << " from file. " 
 	<< " t0/rt footprints before " << t0footprint << " / " << rtfootprint << " and after "
-	<< m_t0Container->footprint() << " / " << m_rtContainer->footprint() << " compression." << endmsg ;
+	<< t0Container->footprint() << " / " << rtContainer->footprint() << " compression." << endmsg ;
   if(ninvalid>0) msg(MSG::WARNING) << "read " << ninvalid << " invalid lines from input file" << endmsg ;
 
   return StatusCode::SUCCESS ;
@@ -289,18 +407,20 @@ StatusCode TRT_CalDbSvc::readTextFile_Format1(std::istream& infile)
 
   //If you supply a text file in format 1 remember to block the RT and T0 folders
 
-  m_rtContainer = new RtRelationContainer() ;
-  m_t0Container = new StrawT0Container() ;
-
   enum ReadMode { ReadingRtRelation, ReadingStrawT0, ReadingGarbage } ;
   ReadMode readmode =ReadingGarbage ;
+  RtRelationContainer* rtContainer = getRtContainer() ;
+  StrawT0Container* t0Container = getT0Container() ;
+  rtContainer->clear();
+  t0Container->clear();
+
   char line[512] ;
   int nrtrelations(0), nstrawt0(0) ;
   while( infile.getline(line,512) ) {
     if(line[0] == '#') {
       // line with tag
       std::string linestring(line) ;
-      if(     linestring.find("RtRelation") != std::string::npos) 
+      if(linestring.find("RtRelation") != std::string::npos) 
 	readmode = ReadingRtRelation ;
       else if(linestring.find("StrawT0") != std::string::npos) 
 	readmode = ReadingStrawT0 ;
@@ -330,14 +450,14 @@ StatusCode TRT_CalDbSvc::readTextFile_Format1(std::istream& infile)
       }
     }
   }
-  size_t t0footprint = m_t0Container->footprint()  ;
-  size_t rtfootprint = m_rtContainer->footprint()  ;
+  size_t t0footprint = t0Container->footprint()  ;
+  size_t rtfootprint = rtContainer->footprint()  ;
   //t0container->crunch() ;
   //rtcontainer->crunch() ;
   
   msg(MSG::INFO) << "read " << nstrawt0 << " t0 and " << nrtrelations << " rt from file. " 
 	<< " t0/rt footprints before " << t0footprint << " / " << rtfootprint << " and after "
-	<< m_t0Container->footprint() << " / " << m_rtContainer->footprint() << " compression." << endmsg ;
+	<< t0Container->footprint() << " / " << rtContainer->footprint() << " compression." << endmsg ;
 
   return StatusCode::SUCCESS ;
 }
@@ -392,22 +512,26 @@ StatusCode TRT_CalDbSvc::readTextFile_Format2(std::istream& infile)
   ReadMode readmode =ReadingGarbage ;
   char line[512] ;
   int nrtrelations(0), nerrors(0), nstrawt0(0) ;
-  m_rtContainer = new RtRelationContainer() ;
-  m_errContainer = new RtRelationContainer() ;
-  m_t0Container = new StrawT0Container() ;
+  RtRelationContainer* rtContainer = getRtContainer() ;
+  RtRelationContainer* errContainer = getErrContainer() ;
+  StrawT0Container* t0Container = getT0Container() ;
+  rtContainer->clear();
+  t0Container->clear();
+  errContainer->clear();
+
   while( infile.getline(line,512) ) {
     if(line[0] == '#') {
       // line with tag
       std::string linestring(line) ;
       if(     linestring.find("RtRelation") != std::string::npos) {
 	readmode = ReadingRtRelation ;
-        m_rtContainer->clear() ;
+        rtContainer->clear() ;
       } else if(linestring.find("StrawT0") != std::string::npos) {
 	readmode = ReadingStrawT0 ;
-        m_t0Container->clear() ;
+        t0Container->clear() ;
       } else if(linestring.find("RtErrors") != std::string::npos) {
 	readmode = ReadingErrors ; 
-        m_errContainer->clear() ;
+        errContainer->clear() ;
       } else { readmode = ReadingGarbage ; }
     } else if( readmode != ReadingGarbage) {
       std::istringstream is(line) ;
@@ -452,31 +576,36 @@ StatusCode TRT_CalDbSvc::readTextFile_Format3(std::istream& infile)
 {
 
   //If you supply a text file in format 3 remember to block the RT, T0, errors2 and slopes folders
+  RtRelationContainer* rtContainer = getRtContainer() ;
+  RtRelationContainer* errContainer = getErrContainer() ;
+  RtRelationContainer* slopeContainer = getSlopeContainer() ;
+  StrawT0Container* t0Container = getT0Container() ;
+  t0Container->clear();
+  rtContainer->clear();
+  errContainer->clear();
+  slopeContainer->clear();
 
   enum ReadMode { ReadingRtRelation, ReadingErrors, ReadingSlopes, ReadingStrawT0, ReadingGarbage } ;
   ReadMode readmode =ReadingGarbage ;
   char line[512] ;
   int nrtrelations(0), nerrors(0), nslopes(0), nstrawt0(0) ;
-  m_rtContainer = new RtRelationContainer() ;
-  m_errContainer = new RtRelationContainer() ;
-  m_slopeContainer = new RtRelationContainer() ;
-  m_t0Container = new StrawT0Container() ;
+
   while( infile.getline(line,512) ) {
     if(line[0] == '#') {
       // line with tag
       std::string linestring(line) ;
       if(     linestring.find("RtRelation") != std::string::npos) {
         readmode = ReadingRtRelation ;
-        m_rtContainer->clear() ;
+        rtContainer->clear() ;
       } else if(linestring.find("RtErrors") != std::string::npos) {
         readmode = ReadingErrors ;
-        m_errContainer->clear() ;
+        errContainer->clear() ;
       } else if(linestring.find("RtSlopes") != std::string::npos) {
         readmode = ReadingSlopes ;
-        m_slopeContainer->clear() ;
+        slopeContainer->clear() ;
       } else if(linestring.find("StrawT0") != std::string::npos) {
         readmode = ReadingStrawT0 ;
-        m_t0Container->clear() ;
+        t0Container->clear() ;
       } else { readmode = ReadingGarbage ; }
     } else if( readmode != ReadingGarbage) {
       std::istringstream is(line) ;

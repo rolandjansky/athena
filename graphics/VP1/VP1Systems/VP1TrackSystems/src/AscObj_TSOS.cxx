@@ -329,7 +329,7 @@ void AscObj_TSOS::addDeviationFromMeasurementInfoToShapes( SoSeparator*&shape_si
     delete unitz;
 
     SoLineSet * line = new SoLineSet();
-    SoVertexProperty * vertices = new SoVertexProperty();;
+    SoVertexProperty * vertices = new SoVertexProperty();
     vertices->vertex.set1Value(0,point.x(),point.y(),point.z());
     vertices->vertex.set1Value(1,pointMeas.x(),pointMeas.y(),pointMeas.z());
     line->numVertices = 2;
@@ -399,7 +399,7 @@ void AscObj_TSOS::addTrackParamInfoToShapes( SoSeparator*&shape_simple,
 
     //Line:
     SoLineSet * line = new SoLineSet();
-    SoVertexProperty * vertices = new SoVertexProperty();;
+    SoVertexProperty * vertices = new SoVertexProperty();
     vertices->vertex.set1Value(0,p1.x(),p1.y(),p1.z());
     vertices->vertex.set1Value(1,p2.x(),p2.y(),p2.z());
     line->numVertices.set1Value(0,2);

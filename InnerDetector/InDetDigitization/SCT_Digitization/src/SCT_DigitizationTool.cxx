@@ -544,43 +544,50 @@ void SCT_DigitizationTool::applyProcessorTools(SiChargedDiodeCollection* charged
 StatusCode SCT_DigitizationTool::processBunchXing(int bunchXing,
                                                   SubEventIterator bSubEvents,
                                                   SubEventIterator eSubEvents) {
-  ATH_MSG_VERBOSE("SCT_DigitizationTool::processBunchXing() " << bunchXing);
-  // decide if this event will be processed depending on
-  // HardScatterSplittingMode & bunchXing
-  if (m_HardScatterSplittingMode == 2 and !m_HardScatterSplittingSkipper) {
-    m_HardScatterSplittingSkipper = true;
-    return StatusCode::SUCCESS;
-  }
-  if (m_HardScatterSplittingMode == 1 and m_HardScatterSplittingSkipper) {
-    return StatusCode::SUCCESS;
-  }
-  if (m_HardScatterSplittingMode == 1 and !m_HardScatterSplittingSkipper) {
-    m_HardScatterSplittingSkipper = true;
-  }
-
-  SubEventIterator iEvt{bSubEvents};
-  for (; iEvt != eSubEvents; iEvt++) {
-    StoreGateSvc& seStore{*iEvt->ptr()->evtStore()};
-    ATH_MSG_VERBOSE("SubEvt StoreGate " << seStore.name() << " :"
-                    << " bunch crossing : " << bunchXing
-                    << " time offset : " << iEvt->time()
-                    << " event number : " <<
-                    iEvt->ptr()->eventNumber()
-                    << " run number : " <<
-                    iEvt->ptr()->runNumber());
-    const SiHitCollection* seHitColl{nullptr};
-    if (!seStore.retrieve(seHitColl, m_inputObjectName).isSuccess()) {
-      ATH_MSG_ERROR("SubEvent SCT SiHitCollection not found in StoreGate " << seStore.name());
-      return StatusCode::FAILURE;
+    ATH_MSG_VERBOSE("SCT_DigitizationTool::processBunchXing() " << bunchXing);
+    // decide if this event will be processed depending on
+    // HardScatterSplittingMode & bunchXing
+    if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper) {
+        m_HardScatterSplittingSkipper = true;
+        return StatusCode::SUCCESS;
     }
-    ATH_MSG_DEBUG("SiHitCollection found with " << seHitColl->size() << " hits");
-    PileUpTimeEventIndex timeIndex{iEvt->time(), iEvt->index()};
-    SiHitCollection* hitCollPtr{new SiHitCollection(*seHitColl)};
-    m_thpcsi->insert(timeIndex, hitCollPtr);
-    m_hitCollPtrs.push_back(hitCollPtr);
-  }
+    if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper) {
+        return StatusCode::SUCCESS;
+    }
+    if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper) {
+        m_HardScatterSplittingSkipper = true;
+    }
 
-  return StatusCode::SUCCESS;
+    typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
+    TimedHitCollList hitCollList;
+
+    if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
+					    bSubEvents, eSubEvents).isSuccess()) &&
+        hitCollList.size() == 0) {
+      ATH_MSG_ERROR("Could not fill TimedHitCollList");
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_VERBOSE(hitCollList.size() << " SiHitCollections with key " <<
+		      m_inputObjectName << " found");
+    }
+
+    TimedHitCollList::iterator iColl(hitCollList.begin());
+    TimedHitCollList::iterator endColl(hitCollList.end());
+
+    for( ; iColl != endColl; iColl++){
+      SiHitCollection *hitCollPtr = new SiHitCollection(*iColl->second);
+      PileUpTimeEventIndex timeIndex(iColl->first);
+      ATH_MSG_DEBUG("SiHitCollection found with " << hitCollPtr->size() <<
+		    " hits");
+      ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
+		      << " index: " << timeIndex.index()
+		      << " type: " << timeIndex.type());
+      m_thpcsi->insert(timeIndex, hitCollPtr);
+      m_hitCollPtrs.push_back(hitCollPtr);
+    }
+
+    return StatusCode::SUCCESS;
+
 }
 
 // =========================================================================

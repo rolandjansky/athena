@@ -21,7 +21,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 // Prevent checkreq warning.
-#include "AthenaPoolKernel/IMetaDataTool.h"
+#include "AthenaKernel/IMetaDataTool.h"
 
 
 //class StoreGateSvc;

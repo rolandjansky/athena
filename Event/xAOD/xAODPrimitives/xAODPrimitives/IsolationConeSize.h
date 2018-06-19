@@ -27,7 +27,7 @@ namespace xAOD {
        numIsolationConeSizes=9
      };
      
-     static inline const char* toString(IsolationConeSize conesize)
+     static inline const char* toCString(IsolationConeSize conesize)
      {
        switch (conesize)
        {

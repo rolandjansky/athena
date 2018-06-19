@@ -6,7 +6,6 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/IClassIDSvc.h"
-//#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/MsgStream.h"
 #include "LArCalibTools/ForceLoadCondObj.h"
 

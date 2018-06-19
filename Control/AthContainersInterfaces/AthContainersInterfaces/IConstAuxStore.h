@@ -150,7 +150,7 @@ public:
    *
    * A decoration is locked by changing from a decoration to an ordinary
    * variable.  If the container itself is locked, then modifications
-   * to be variable are not permitted after this call.
+   * to the variable are not permitted after this call.
    */
   virtual void lockDecoration (SG::auxid_t auxid) = 0;
 };
@@ -161,7 +161,7 @@ public:
 
 
 #ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( SG::IConstAuxStore , 187169987 , 1 )
 #endif // not XAOD_STANDALONE
 

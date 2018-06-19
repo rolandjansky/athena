@@ -153,7 +153,6 @@ namespace Trk {
     bool m_diagonalize;           //!< run diagonalization instead of inversion
     double m_eigenvaluethreshold; //!< cut on the minimum eigenvalue
 
-    int   m_nDoF;
     int   m_solveOption;     //!< solving option
     int   m_modcut;          //!< cut on the weak modes which number is <par_modcut
     int   m_minNumHits;      //!< cut on the minimum number of hits per module
@@ -182,9 +181,6 @@ namespace Trk {
     double m_scale;        //!< scale for big matrix and vector normalization
     bool m_scaleMatrix;    //!< scale matrix by number of hits before solving
     
-    float m_matVersion;    //!< version of matrix format (based on m_stdUnits and m_angleUnit)
-    float m_vecVersion;    //!< version of vector format (based on m_stdUnits and m_angleUnit)
-
     double  m_softEigenmodeCut; //!< add constant to diagonal to effectively cut on weak eigenmodes
 
     bool m_removeSpurious; //!< run spurious removal

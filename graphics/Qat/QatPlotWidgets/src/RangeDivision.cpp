@@ -1,36 +1,36 @@
 #include "QatPlotWidgets/RangeDivision.h"
 QTextDocument* RangeDivision::label() const {
-  return _label;
+  return m_label;
 }
 
 void RangeDivision::setLabel(QTextDocument *doc) {
-  delete _label;
-  _label=doc->clone();
+  delete m_label;
+  m_label=doc->clone();
 }
 
 const double & RangeDivision::x() const { 
-  return _x;
+  return m_x;
 }
 
 
-RangeDivision::RangeDivision(double value): _x(value),_label(new QTextDocument) {
+RangeDivision::RangeDivision(double value): m_x(value),m_label(new QTextDocument) {
 }
     
 RangeDivision::~RangeDivision() {
-  delete _label;
+  delete m_label;
 }
 
 RangeDivision::RangeDivision ( const RangeDivision & right):
-  _x(right._x),
-  _label(right._label->clone())
+  m_x(right.m_x),
+  m_label(right.m_label->clone())
 {
 }
 
 RangeDivision & RangeDivision::operator=(const RangeDivision & right) {
   if (&right!=this) {
-    if (_label) delete _label;
-    _label=right._label->clone();
-    _x=right._x;
+    if (m_label) delete m_label;
+    m_label=right.m_label->clone();
+    m_x=right.m_x;
   }
   return *this;
 }

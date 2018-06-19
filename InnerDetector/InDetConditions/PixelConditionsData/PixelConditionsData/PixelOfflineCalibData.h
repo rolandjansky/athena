@@ -9,7 +9,7 @@
 #ifndef PIXELOFFLINECALIBDATA_H
 #define PIXELOFFLINECALIBDATA_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "PixelConditionsData/PixelClusterErrorData.h"
 #include "PixelConditionsData/PixelClusterOnTrackErrorData.h"
 #include "PixelConditionsData/PixelChargeInterpolationParameters.h"

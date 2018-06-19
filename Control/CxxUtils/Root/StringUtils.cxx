@@ -587,7 +587,7 @@ namespace CxxUtils {
       } 
       if(inputFormat == StringUtils::UNICODE){
 	// if the input is unicode, we need to take care of superscript and subscript;
-	std::string scriptreplaced;;
+	std::string scriptreplaced;
 	scriptreplaced.reserve(2*input.size());
 	size_t pos = 0;
 	while(pos < input.size()){

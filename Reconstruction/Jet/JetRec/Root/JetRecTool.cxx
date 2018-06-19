@@ -6,22 +6,20 @@
 
 #include "JetRec/JetRecTool.h"
 #include <iomanip>
-#ifdef USE_BOOST_FOREACH
-#include <boost/foreach.hpp>
-#endif
 #include "xAODJet/JetAuxContainer.h"
 #include "xAODJet/JetTrigAuxContainer.h"
 #include <fstream>
-//#include "AthenaKernel/errorcheck.h"
 
 #include "xAODBase/IParticleHelpers.h"
-#include "xAODCore/ShallowCopy.h"
 #include "JetEDM/FastJetLink.h"
 #include "xAODJet/Jet_PseudoJet.icc"
 
 #include "JetRec/JetPseudojetRetriever.h"
+#include "JetRec/PseudoJetContainer.h"
+#include <algorithm>
 
-typedef ToolHandleArray<IPseudoJetGetter> PseudoJetGetterArray;
+#include "StoreGate/ReadHandle.h"
+
 typedef ToolHandleArray<IJetModifier> ModifierArray;
 typedef ToolHandleArray<IJetConsumer> ConsumerArray;
 
@@ -32,28 +30,11 @@ using std::setprecision;
 using xAOD::JetContainer;
 using xAOD::Jet;
 
-
-namespace {
-  
-xAOD::JetContainer* shallowCopyJets(const xAOD::JetContainer& jetsin,
-                                    const IJetPseudojetRetriever* ppjr){
-  xAOD::JetContainer& outjets = *(xAOD::shallowCopyContainer(jetsin).first);
-  if ( ppjr != nullptr ) {
-    for ( size_t ijet=0; ijet<outjets.size(); ++ijet ) {
-      const fastjet::PseudoJet* ppj = ppjr->pseudojet(*jetsin[ijet]);
-      if ( ppj != nullptr ) outjets[ijet]->setPseudoJet(ppj);
-    }
-  }
-  xAOD::setOriginalObjectLink(jetsin, outjets);
-  return &outjets;
-} 
-
-}  // end unnamed namespace
-
 //**********************************************************************
 
 JetRecTool::JetRecTool(std::string myname)
-: AsgTool(myname), m_intool(""),
+: AsgTool(myname),
+  m_intool(""),
 #ifdef XAOD_STANDALONE
   m_hpjr(""),
 #else
@@ -61,8 +42,6 @@ JetRecTool::JetRecTool(std::string myname)
 #endif
   m_finder(""), m_groomer(""),
   m_trigger(false),
-  m_shallowCopy(true),
-  m_warnIfDuplicate(true),
   m_initCount(0),
   m_find(false), m_groom(false), m_copy(false),
   m_inputtype(xAOD::JetInput::Uncategorized),
@@ -70,17 +49,14 @@ JetRecTool::JetRecTool(std::string myname)
   declareProperty("OutputContainer", m_outcoll);
   declareProperty("InputContainer", m_incoll);
   declareProperty("InputTool", m_intool);
+  declareProperty("InputPseudoJets", m_psjsin);
   declareProperty("JetPseudojetRetriever", m_hpjr);
-  declareProperty("PseudoJetGetters", m_pjgetters);
   declareProperty("JetFinder", m_finder);
   declareProperty("JetGroomer", m_groomer);
   declareProperty("JetModifiers", m_modifiers);
   declareProperty("JetConsumers", m_consumers);
   declareProperty("Trigger", m_trigger);
   declareProperty("Timer", m_timer =0);
-  declareProperty("ShallowCopy", m_shallowCopy =true);
-  declareProperty("WarnIfDuplicate", m_warnIfDuplicate =true);
-  declareProperty("Overwrite", m_overwrite=false);
 }
 
 //**********************************************************************
@@ -92,21 +68,24 @@ StatusCode JetRecTool::initialize() {
   bool needinp = false;
   bool needout = false;
   string mode = "pseudojets";
-  if ( m_outcoll.size() ) {
-    m_outcolls.push_back(m_outcoll);
+  if ( m_outcoll.key().size() ) {
+    m_outcolls.push_back(m_outcoll.key());
     if ( ! m_finder.empty() ) {
       mode = "find";
       m_find = true;
       needout = true;
-      if ( m_pjgetters.size() == 0 ) {
+      if ( m_psjsin.size() == 0 ) {
         ATH_MSG_ERROR("Jet finding requested with no inputs.");
         return StatusCode::FAILURE;
+      } else {
+	ATH_CHECK( m_psjsin.initialize() );
       }
     } else if ( ! m_groomer.empty() ) {
       mode = "groom";
       m_groom = true;
       needinp = true;
       needout = true;
+      ATH_CHECK(m_groomer.retrieve());
     } else {
       mode = "copy";
       m_copy = true;
@@ -114,9 +93,12 @@ StatusCode JetRecTool::initialize() {
       needout = true;
     }
   }
-  m_shallowCopy &= m_copy; // m_shallowCopy is false if not copy mode
-  m_shallowCopy &= m_incoll != m_outcoll; // m_shallowCopy is false for update mode
+  else {
+    m_finder.disable();
+    m_groomer.disable();
+  }
 
+  ATH_CHECK( m_psjsin.initialize() );
   // Retrieve or create pseudojet retrieval tool.
   if ( !m_hpjr.empty() ) {
     if ( m_hpjr.retrieve().isSuccess() ) {
@@ -134,7 +116,7 @@ StatusCode JetRecTool::initialize() {
   ATH_MSG_INFO("Jet reconstruction mode: " << mode);
   // Check/set the input jet collection name.
   if ( needinp ) {
-    if ( m_incoll.size() == 0 ) {
+    if ( m_incoll.key().size() == 0 ) {
       if ( ! m_intool.retrieve() ) {
         ATH_MSG_ERROR("Input collection must be specified.");
         return StatusCode::FAILURE;
@@ -146,24 +128,30 @@ StatusCode JetRecTool::initialize() {
             m_incoll = *pval;
           }
         }
-        if ( m_incoll.size() == 0 ) {
+        if ( m_incoll.key().size() == 0 ) {
           ATH_MSG_ERROR("Input tool does not have output collection name.");
           return StatusCode::FAILURE;
         }
       }
+    } else {
+      // Input DataHandles
+      ATH_CHECK( m_incoll.initialize() );
     }
-    m_incolls.push_back(m_incoll);
+    m_incolls.push_back(m_incoll.key());
   }
   // Check/set the output jet collection name.
   if ( needout ) {
-    if ( m_outcoll.size() == 0 ) {
+    if ( m_outcoll.key().size() == 0 ) {
       ATH_MSG_ERROR("Output collection must be specified.");
       return StatusCode::FAILURE;
+    } else {
+      // Output DataHandle
+      ATH_CHECK( m_outcoll.initialize() );
     }
   }
   // Other checks.
   if ( m_find ) {
-    if ( m_pjgetters.size() == 0 ) {
+    if ( m_psjsin.size() == 0 ) {
       ATH_MSG_ERROR("Jet finding requested with no inputs.");
       return StatusCode::FAILURE;
     }
@@ -171,50 +159,45 @@ StatusCode JetRecTool::initialize() {
     m_groomer->setPseudojetRetriever(m_ppjr);
   } else if ( m_copy ) {
   } else {
-    if ( m_pjgetters.size() == 0 ) {
+    if ( m_psjsin.size() == 0 ) {
       ATH_MSG_ERROR("No action requested.");
       return StatusCode::FAILURE;
     }
   }
-  // Fetch the pseudojet getters.
+  // Parse the pseudojet inputs
   StatusCode rstat = StatusCode::SUCCESS;
   string prefix = "--- ";
-  ATH_MSG_INFO(prefix << "JetRecTool " << name() << " has " << m_pjgetters.size()
-               << " pseudojet getters.");
-  m_getclocks.resize(m_pjgetters.size());
-  unsigned int iclk = 0;
-  for ( PseudoJetGetterArray::const_iterator iget=m_pjgetters.begin();
-          iget!=m_pjgetters.end(); ++iget ) {
-    ToolHandle<IPseudoJetGetter> hget = *iget;
-    if ( hget.retrieve().isSuccess() ) {
-      ATH_MSG_INFO(prefix << "Retrieved " << hget->name());
-    } else {
-      ATH_MSG_ERROR(prefix << "Unable to retrieve IPseudoJetGetter");
-      rstat = StatusCode::FAILURE;
+  ATH_MSG_INFO(prefix << "JetRecTool " << name() << " has " << m_psjsin.size()
+               << " pseudojet inputs.");
+  for ( size_t ilab(0); ilab<m_psjsin.size(); ++ilab ) {
+    const std::string& pjcontname = m_psjsin[ilab].key();
+    if(pjcontname.size()<9) {
+      ATH_MSG_ERROR("Invalid pseudojet container name " << pjcontname);
+      ATH_MSG_ERROR("This must be of the form \"PseudoJet\"+label");
+      return StatusCode::FAILURE;
     }
+    std::string label = pjcontname.substr(9);
+    ATH_MSG_INFO(prefix << " " << label << " --> " << pjcontname);
     // Extract the input type from the first getter.
-    if ( iget == m_pjgetters.begin() ) {
-      ATH_MSG_INFO(prefix << "Extracting input type from primary getter.");
-      string tname = hget->label();
-      ATH_MSG_INFO(prefix << "Input label: " << tname);
-      m_inputtype = xAOD::JetInput::inputType(tname);
+    if ( ilab == 0 ) {
+      ATH_MSG_INFO(prefix << "Extracting input type from primary label.");
+      ATH_MSG_INFO(prefix << "Input label: " << label);
+      m_inputtype = xAOD::JetInput::inputType(label);
       if ( m_inputtype == xAOD::JetInput::Uncategorized ) {
-        ATH_MSG_ERROR("Invalid label for first pseudojet getter: " << tname);
+        ATH_MSG_ERROR("Invalid label for first pseudojet getter: " << label);
         rstat = StatusCode::FAILURE;
       }
     } else {
-      m_ghostlabs.push_back(hget->label());
+      m_ghostlabs.push_back(label);
     }
-    m_getclocks[iclk++].Reset();
-    hget->inputContainerNames(m_incolls);
-    hget->outputContainerNames(m_outcolls);
   }
   ATH_MSG_INFO(prefix << "Input type: " << m_inputtype);
   // Fetch the jet modifiers.
   ATH_MSG_INFO(prefix << "JetRecTool " << name() << " has " << m_modifiers.size()
                << " jet modifiers.");
   m_modclocks.resize(m_modifiers.size());
-  iclk = 0;
+
+  size_t iclk = 0;
   for ( ModifierArray::const_iterator imod=m_modifiers.begin();
         imod!=m_modifiers.end(); ++imod ) {
     ToolHandle<IJetModifier> hmod = *imod;
@@ -324,22 +307,6 @@ StatusCode JetRecTool::finalize() {
     if( saveToFile ) outfile << "input," << avg_ictime << ","<< avg_iwtime << std::endl;
     if( saveToFile ) outfile << "finding," << avg_actime << ","<< avg_awtime << std::endl;
   }
-  
-  if ( m_timer > 1 && m_nevt > 0 ) {
-    unsigned int ntool = m_pjgetters.size();
-    ATH_MSG_INFO("  CPU/wall time [s] for " << ntool << " getters:");
-    for ( unsigned int itool=0; itool<ntool; ++itool ) {
-      string tname;
-      TStopwatch& clock = m_getclocks[itool];
-      tname = m_pjgetters[itool]->name();
-      if ( tname.substr(0,8) == "ToolSvc." ) tname = tname.substr(8);
-      double tctime = clock.CpuTime()/double(m_nevt);
-      double twtime = clock.RealTime()/double(m_nevt);
-      ATH_MSG_INFO("  " << setw(50) << tname
-                   << fixed << setprecision(3) << setw(10) << tctime
-                   << fixed << setprecision(3) << setw(10) << twtime);
-    }
-  }
 
   if ( m_timer > 1 && m_nevt > 0 ) {
     unsigned int ntool = m_modifiers.size();
@@ -372,144 +339,15 @@ const JetContainer* JetRecTool::build() const {
   }
   m_totclock.Start(false);
   ATH_MSG_DEBUG("Building jets with " << name() << ".");
-  int naction = 0;
   ++m_nevt;
 
-  if ( m_outcoll.size() ) {
-    ATH_MSG_DEBUG("Checking output container.");
-    if ( m_outcoll != m_incoll && !m_overwrite) {
-      if(evtStore()->contains<JetContainer>(m_outcoll) ) {
-        if ( m_warnIfDuplicate ) {ATH_MSG_ERROR("Jet collection already exists: " << m_outcoll);}
-        m_totclock.Stop();
-        return 0;
-      }
-    }
-  }
-
-  // Retrieve jet inputs.
-  PseudoJetVector psjs;
-  if ( m_pjgetters.size() ) {
-    m_inpclock.Start(false);
-    ATH_MSG_DEBUG("Fetching pseudojet inputs.");
-    unsigned int iclk = 0;
-    for ( PseudoJetGetterArray::const_iterator iget=m_pjgetters.begin();
-          iget!=m_pjgetters.end(); ++iget ) {
-      m_getclocks[iclk].Start(false);
-      ToolHandle<IPseudoJetGetter> hget = *iget;
-      const PseudoJetVector* newpsjs = hget->get();
-      if ( newpsjs == 0 ) {
-        ATH_MSG_ERROR("Pseudojets not found.");
-        m_totclock.Stop();
-        m_inpclock.Stop();
-        m_getclocks[iclk++].Stop();
-        return 0;
-      } else {
-        ATH_MSG_DEBUG("Added input count: " << newpsjs->size());
-        psjs.insert(psjs.end(), newpsjs->begin(), newpsjs->end());
-      }
-      ++naction;
-      m_getclocks[iclk++].Stop();
-    }
-    ATH_MSG_DEBUG("Total input count: " << psjs.size());
-    m_inpclock.Stop();
-  }
-
-  // Retrieve the old jet collection.
-  const JetContainer* pjetsin = 0;
-  if ( m_groom || m_copy ) {
-    m_inpclock.Start(false);
-
-    if(!m_trigger || m_copy) { // reco case : get input from evt store
-      if ( m_incoll.size() && evtStore()->contains<JetContainer>(m_incoll)) {
-        pjetsin = evtStore()->retrieve<const JetContainer>(m_incoll);
-      }
-      if ( pjetsin==0 && !m_intool.empty() ) {
-        ATH_MSG_DEBUG("Excuting input tool.");
-        if ( m_intool->execute() ) {
-          ATH_MSG_WARNING("Input tool execution failed.");
-        }
-        pjetsin = evtStore()->retrieve<const JetContainer>(m_incoll);
-      }
-    } else { // trigger case : assume setInputJetContainer was called, use m_trigInputJetsForGrooming
-      pjetsin = m_trigInputJetsForGrooming;
-    }
-
-    if ( pjetsin == 0 ) {
-      ATH_MSG_ERROR("Unable to retrieve input jet container: " << m_incoll);
-      m_totclock.Stop();
-      m_inpclock.Stop();
-      return 0;
-    }
-    ATH_MSG_DEBUG("Input collection " << m_incoll << " jet multiplicity is "
-                  << pjetsin->size());
-    m_inpclock.Stop();
-  }
-
-  // The new jet collection.
-  JetContainer* pjets = 0;
-
-  // Fill output container by finding, grooming or copying.
-  if ( m_outcoll.size() ) {
-    m_actclock.Start(false);
-    ATH_MSG_DEBUG("Creating output container.");
-
-    if ( m_shallowCopy ) {
-      ATH_MSG_DEBUG("Shallow-copying jets.");
-      if ( m_outcoll == m_incoll ) {
-        // This should never happen.
-        ATH_MSG_ERROR("Update of existing collection requires deep copy: " << m_outcoll);
-        m_totclock.Stop();
-        m_actclock.Stop();
-        return 0;
-      }
-      pjets = shallowCopyJets(*pjetsin, m_ppjr);
-      ++naction;
-    } else {
-      pjets = new JetContainer;
-      if ( m_trigger ) {
-        ATH_MSG_DEBUG("Attaching online Aux container.");
-        pjets->setStore(new xAOD::JetTrigAuxContainer);
-      } else {
-        ATH_MSG_DEBUG("Attaching offline Aux container.");
-        pjets->setStore(new xAOD::JetAuxContainer);
-      }
-    }
-    
-    // Find jets.
-    if ( ! m_finder.empty() ) {
-      ATH_MSG_DEBUG("Finding jets.");
-      m_finder->find(psjs, *pjets, m_inputtype, m_ghostlabs);
-      ++naction;
-    // Groom jets.
-    } else if ( ! m_groomer.empty() ) {
-      ATH_MSG_DEBUG("Grooming " << pjetsin->size() << " jets.");
-      for ( JetContainer::const_iterator ijet=pjetsin->begin();
-            ijet!=pjetsin->end(); ++ijet ) {
-        m_groomer->groom(**ijet, *pjets);
-      }
-      ++naction;
-    // Copy jets.
-    } else if ( (pjetsin != 0 ) && !m_shallowCopy) {
-      ATH_MSG_DEBUG("Copying " << pjetsin->size() << " jets.");
-#ifdef USE_BOOST_FOREACH
-      BOOST_FOREACH(const Jet* poldjet, *pjetsin) {
-#else
-      for ( const Jet* poldjet : *pjetsin ) {
-#endif
-        Jet* pnewjet = new Jet;
-        pjets->push_back(pnewjet);
-        *pnewjet = *poldjet;
-      }
-      ++naction;
-    }  // End list of options.
-    m_actclock.Stop();
-  }  // End filling of output container.
+  std::unique_ptr<JetContainer> pjets = fillOutputContainer();
 
   // Modify jets.
   unsigned int nmod = m_modifiers.size();
   if ( nmod ) {
     m_modclock.Start(false);
-    if ( pjets == 0 ) {
+    if ( pjets == nullptr ) {
       ATH_MSG_WARNING("There is no jet collection to modify.");
     } else {
       ATH_MSG_DEBUG("Executing " << nmod << " jet modifiers.");
@@ -520,17 +358,17 @@ const JetContainer* JetRecTool::build() const {
         ATH_MSG_DEBUG("  Executing modifier " << imod->name());
         ATH_MSG_VERBOSE("    @ " << *imod);
         (*imod)->modify(*pjets) ;
-        ++naction;
         m_modclocks[iclk++].Stop();
       }
     }
     m_modclock.Stop();
   }
+
   // Consume jets.
   unsigned int ncon = m_consumers.size();
   if ( ncon ) {
     m_conclock.Start(false);
-    if ( pjets == 0 ) {
+    if ( pjets == nullptr ) {
       ATH_MSG_WARNING("There is no jet collection to consume");
     } else {
       ATH_MSG_DEBUG("Executing " << ncon << " jet consumers.");
@@ -541,17 +379,15 @@ const JetContainer* JetRecTool::build() const {
         ATH_MSG_DEBUG("  Executing consumer " << icon->name());
         ATH_MSG_VERBOSE("    @ " << *icon);
         (*icon)->process(*pjets) ;
-        ++naction;
         m_conclocks[iclk++].Stop();
       }
     }
     m_conclock.Stop();
   }
-  if ( naction == 0 ) {
-    ATH_MSG_ERROR("Invalid configuration.");
-  }
+
   m_totclock.Stop();
-  return pjets;
+
+  return pjets.release();
 }
 
 //**********************************************************************
@@ -561,81 +397,38 @@ int JetRecTool::execute() const {
     ATH_MSG_WARNING("Execute requested before initialization.");
     return 1;
   }
-  const xAOD::JetContainer* pjets = build();
-  if ( pjets == 0 ) {
+  std::unique_ptr<const xAOD::JetContainer> pjets(build());
+  if ( pjets.get() == nullptr ) {
     ATH_MSG_ERROR("Unable to retrieve container");
     return 1;
   }
   if ( m_trigger ) {
-    return record<xAOD::JetTrigAuxContainer>(pjets);
+    return record<xAOD::JetTrigAuxContainer>(std::move(pjets));
   } 
-  if (m_shallowCopy) {
-    return record<xAOD::ShallowAuxContainer>(pjets);
-  }
-  return record<xAOD::JetAuxContainer>(pjets);
+
+  return record<xAOD::JetAuxContainer>(std::move(pjets));
 }
 
 //**********************************************************************
 
 template <typename TAux>
-int JetRecTool::record(const xAOD::JetContainer* pjets) const {
-  bool overwrite = (m_outcoll == m_incoll) || (m_overwrite && m_incoll.size()==0);
-  const TAux* pjetsaux = dynamic_cast<const TAux*>(pjets->getStore());
-    ATH_MSG_DEBUG("Check Aux store: " << pjets << " ... " << &pjets->auxbase() << " ... " << pjetsaux );
-  if ( pjetsaux == 0 ) {
+
+int JetRecTool::record(std::unique_ptr<const xAOD::JetContainer> pjets) const {
+  SG::WriteHandle<xAOD::JetContainer> h_out(m_outcoll);
+
+  // This isn't very nice, because we take ownership, but the store wasn't owned before...
+  std::unique_ptr<const TAux> pjetsaux(dynamic_cast<const TAux*>( pjets->getStore() ));
+  ATH_MSG_DEBUG("Check Aux store: " << pjets.get() << " ... " << &pjets->auxbase() << " ... " << pjetsaux.get() );
+  if ( pjetsaux.get() == nullptr ) {
     ATH_MSG_ERROR("Unable to retrieve Aux container");
-   return 2;
+    return 2;
   }
-  if ( overwrite ) {
-#ifdef XAOD_STANDALONE
-    ATH_MSG_ERROR("Conatainer overwrite is not supported in Root.");
-#else
-    ATH_MSG_VERBOSE("Overwiting Jet Aux container.");
-    TAux* pmutjetsaux = const_cast<TAux*>(pjetsaux);
-    StatusCode sca = evtStore()->overwrite(pmutjetsaux, m_outcoll+"Aux.", false, false);
-    if ( sca.isFailure() ) {
-      ATH_MSG_ERROR("Unable to overwrite Aux Jet collection in event store: " << m_outcoll);
-      return 3;
-    }
-    ATH_MSG_VERBOSE("Overwriting Jet container.");
-    xAOD::JetContainer* pmutjets = const_cast<xAOD::JetContainer*>(pjets);
-    StatusCode sc = evtStore()->overwrite(pmutjets, m_outcoll, false, false);
-    if ( sc.isFailure() ) {
-      ATH_MSG_ERROR("Unable to overwrite Jet collection in event store: " << m_outcoll);
-      return 4;
-    }
-    ATH_MSG_DEBUG("Created new Jet collection in event store: " << m_outcoll);
-#endif
-  } else {
-    ATH_MSG_VERBOSE("Recording new Jet Aux container.");
-#ifdef XAOD_STANDALONE
-    // TEvent only records mutable containers.
-    xAOD::JetContainer* pmutjetsaux = const_cast<TAux*>(pjetsaux);
-    StatusCode sca = evtStore()->record(pmutjetsaux, m_outcoll + "Aux.");
-#else
-    StatusCode sca = evtStore()->record(pjetsaux, m_outcoll + "Aux.");
-#endif
-    if ( sca.isFailure() ) {
-      ATH_MSG_ERROR("Unable to write new Aux Jet collection to event store: " << m_outcoll);
-      return 3;
-    }
-    ATH_MSG_VERBOSE("Recording new Jet container.");
-#ifdef XAOD_STANDALONE
-    // TEvent only records mutable containers.
-    xAOD::JetContainer* pmutjets = const_cast<xAOD::JetContainer*>(pjets);
-    StatusCode sc = evtStore()->record(pmutjets, m_outcoll);
-#else
-    StatusCode sc = evtStore()->record(pjets, m_outcoll);
-    if(sc.isSuccess()) {
-      sc = evtStore()->setConst(pjets);
-    }
-#endif
-    if ( sc.isFailure() ) {
-      ATH_MSG_ERROR("Unable to write new Jet collection to event store: " << m_outcoll);
-      return 4;
-    }
-    ATH_MSG_DEBUG("Created new Jet collection in event store: " << m_outcoll);
+  ATH_MSG_VERBOSE("Recording new Jet and Aux container.");
+  if ( ! h_out.put(std::move(pjets), std::move(pjetsaux)) ) {
+    ATH_MSG_ERROR("Unable to write new Jet collection and aux store to event store: " << m_outcoll.key());
+    return 3;
   }
+  ATH_MSG_DEBUG("Created new Jet collection in event store: " << m_outcoll.key());
   return 0;
 }
 
@@ -643,20 +436,19 @@ int JetRecTool::record(const xAOD::JetContainer* pjets) const {
 
 void JetRecTool::print() const {
   ATH_MSG_INFO("Properties for JetRecTool " << name());
-  ATH_MSG_INFO("  OutputContainer: " << m_outcoll);
-  if ( m_incoll.size() == 0 ) ATH_MSG_INFO("  InputContainer is not defined");
-  else ATH_MSG_INFO("  InputContainer: " << m_incoll);
+
+  ATH_MSG_INFO("  OutputContainer: " << m_outcoll.key());
+  if ( m_incoll.key().size() == 0 ) ATH_MSG_INFO("  InputContainer is not defined");
+  else ATH_MSG_INFO("  InputContainer: " << m_incoll.key());
   if ( m_intool.empty() ) {
     ATH_MSG_INFO("  InputTool is not defined");
   } else {
     ATH_MSG_INFO("  InputTool: " << m_intool->name());
   }
-  if ( m_pjgetters.size() ) {
-    ATH_MSG_INFO("  Pseudojet getter count is " << m_pjgetters.size());
-    for ( PseudoJetGetterArray::const_iterator iget=m_pjgetters.begin();
-            iget!=m_pjgetters.end(); ++iget ) {
-      ToolHandle<IPseudoJetGetter> hget = *iget;
-      ATH_MSG_INFO("    " << hget->name());
+  if ( m_psjsin.size() ) {
+    ATH_MSG_INFO("  InputPseudoJet container count is " << m_psjsin.size());
+    for ( const auto& pjcontkey : m_psjsin ) {
+      ATH_MSG_INFO("    " << pjcontkey.key());
     }
   }
   if ( m_finder.empty() ) {
@@ -714,3 +506,163 @@ int JetRecTool::outputContainerNames(std::vector<std::string>& connames) {
  void JetRecTool::setInputJetContainer(const xAOD::JetContainer* cont) {
    m_trigInputJetsForGrooming = cont; 
  }
+
+//**********************************************************************
+
+std::unique_ptr<PseudoJetContainer> JetRecTool::collectPseudoJets() const{
+  // PseudoJetContainer used for jet finding 
+  
+  m_inpclock.Start(false);
+  
+  auto allPseudoJets = std::make_unique<PseudoJetContainer>();
+
+  ATH_MSG_DEBUG("Fetching pseudojet inputs.");
+    
+  for (const auto& pjcontkey : m_psjsin) {
+    SG::ReadHandle<PseudoJetContainer> h_newpsjs( pjcontkey );
+    ATH_MSG_DEBUG("Adding PseudoJetContainers for: " << h_newpsjs.key());
+    if(! h_newpsjs.isValid()) {
+      m_inpclock.Stop();
+      ATH_MSG_ERROR("Retrieval of PseudoJetContainer "
+                    << h_newpsjs.key() << " failed");
+      return nullptr;
+    }
+    allPseudoJets->append(h_newpsjs.get());
+  }
+
+  m_inpclock.Stop();
+  return allPseudoJets;
+}
+
+//**********************************************************************
+ 
+std::unique_ptr<xAOD::JetContainer> JetRecTool::fillOutputContainer() const{
+  
+  if (!m_finder.empty()) {return findJets();}
+  if (!m_groomer.empty()) {return groomJets();}
+  return copyJets();
+}
+
+//**********************************************************************
+
+const xAOD::JetContainer* JetRecTool::getOldJets() const{
+  m_inpclock.Start(false);
+
+  const xAOD::JetContainer* pjetsin{nullptr};
+  auto handle_in = SG::makeHandle (m_incoll);
+  if ( m_incoll.key().size() && handle_in.isValid()) {
+    pjetsin = handle_in.cptr();
+  }
+  if ( pjetsin == nullptr && !m_intool.empty() ) {
+    ATH_MSG_DEBUG("Executing input tool.");
+    if ( m_intool->execute() ) {
+      ATH_MSG_WARNING("Input tool execution failed.");
+    }
+  }
+
+  if ( pjetsin == 0 ) {
+    ATH_MSG_ERROR("Unable to retrieve input jet container: " << m_incoll.key());
+  } else {
+    ATH_MSG_DEBUG("Input collection " << m_incoll.key() 
+                  << " jet multiplicity is "<< pjetsin->size());
+  }
+    m_totclock.Stop();
+    m_inpclock.Stop();
+    return pjetsin;
+}
+
+//**********************************************************************
+
+std::unique_ptr<xAOD::JetContainer> JetRecTool::makeOutputContainer() const{
+  ATH_MSG_DEBUG("Creating output container.");
+
+  auto pjets = std::make_unique<xAOD::JetContainer>();
+
+  if ( m_outcoll.key().size() ) {
+    if(m_trigger) {
+      ATH_MSG_DEBUG("Attaching online Aux container.");
+      pjets->setStore(new xAOD::JetTrigAuxContainer);
+    } else {
+      ATH_MSG_DEBUG("Attaching offline Aux container.");
+      pjets->setStore(new xAOD::JetAuxContainer);
+    }
+  }
+  return pjets;
+}
+
+//**********************************************************************
+
+std::unique_ptr<xAOD::JetContainer> JetRecTool::findJets() const {
+  
+  m_actclock.Start(false);
+  ATH_MSG_DEBUG("Finding jets.");
+  
+  // The new jet collection.
+  auto jets = makeOutputContainer();
+  
+  // PseudoJetContainer used for jet finding 
+  auto pseudoJets = collectPseudoJets();
+
+  m_finder->find(*pseudoJets, *jets, m_inputtype);
+
+  m_actclock.Stop();
+  return jets;
+}
+
+//**********************************************************************
+
+std::unique_ptr<xAOD::JetContainer> JetRecTool::groomJets() const{
+  
+  m_actclock.Start(false);
+  
+  // The new jet collection.
+  auto jets = makeOutputContainer();
+
+  // Retrieve the old jet collection.
+  auto jetsIn = getOldJets();
+
+  if(jetsIn == nullptr){
+    ATH_MSG_WARNING("Grooming: but input jets not found ");
+    return jets;
+  }
+  
+  ATH_MSG_DEBUG("Grooming " << jetsIn->size() << " jets.");
+
+  // PseudoJetContainer used for jet finding 
+  auto pseudoJets = collectPseudoJets();
+  
+  for (const auto ijet : *jetsIn){ m_groomer->groom(*ijet,
+                                                    *pseudoJets,
+                                                    *jets);}
+  
+  m_actclock.Stop();
+  return jets;
+}
+
+//**********************************************************************
+
+std::unique_ptr<xAOD::JetContainer> JetRecTool::copyJets() const{
+  
+  // The new jet collection.
+  auto jets = makeOutputContainer();
+  
+  // Retrieve the old jet collection.
+  auto jetsIn = getOldJets();
+
+  if(jetsIn == nullptr){
+    ATH_MSG_WARNING("Copying: but input jets not found ");
+    return jets;
+  }
+
+
+  ATH_MSG_DEBUG("Copying " << jetsIn->size() << " jets.");
+
+  for (const Jet* poldjet : *jetsIn) {
+    Jet* pnewjet = new Jet;
+    jets->push_back(pnewjet);
+    *pnewjet = *poldjet;
+  }
+  
+  m_actclock.Stop();
+  return jets;
+}

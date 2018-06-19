@@ -108,7 +108,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
   // Retrieve MET container 
   const xAOD::MissingETContainer* metContainer(0);
   const xAOD::MissingET* met(0);
-  ATH_CHECK( evtStore()->retrieve(metContainer, m_metSGKey) );	
+  ATH_CHECK( evtStore()->retrieve(metContainer, m_metSGKey), false );
   met = (*metContainer)[m_metTerm];
   if (!met) {
     ATH_MSG_ERROR("Cannot retrieve MissingET term " << m_metTerm << " in " << m_metSGKey);
@@ -119,7 +119,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
 
   // Loop over jets
   const DataVector<xAOD::Jet>* jetContainer(0);
-  ATH_CHECK( evtStore()->retrieve(jetContainer, m_jetSGKey) );
+  ATH_CHECK( evtStore()->retrieve(jetContainer, m_jetSGKey), false );
   ATH_MSG_DEBUG("retrieved jet collection size "<< jetContainer->size());
 
   std::vector<const xAOD::Jet *> sortedJetContainer;
@@ -169,7 +169,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
   if (m_LeptonVeto) {
     // Retrieve muon container	
     const xAOD::MuonContainer* muons(0);
-    ATH_CHECK( evtStore()->retrieve(muons, m_muonSGKey) );	
+    ATH_CHECK( evtStore()->retrieve(muons, m_muonSGKey), false );
     int qflag(0);
     if (m_muonIDKey == "VeryLoose") {
       qflag = xAOD::Muon::VeryLoose;
@@ -196,7 +196,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
 
     // Retrieve electron container	
     const xAOD::ElectronContainer* electrons(0);
-    ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey));	
+    ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey), false);
     for (auto ele: *electrons) {
       bool passID(false);
       if (!ele->passSelection(passID, m_electronIDKey)) {
@@ -214,7 +214,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
     // Find IsolatedTracklet
     bool passIsolatedTracklet = false;
     const xAOD::TrackParticleContainer *pixelTrackletContainer=NULL;
-    ATH_CHECK( evtStore()->retrieve(pixelTrackletContainer, "InDetPixelPrdAssociationTrackParticles") );
+    ATH_CHECK( evtStore()->retrieve(pixelTrackletContainer, "InDetPixelPrdAssociationTrackParticles"), false );
     
     for(auto Tracklet : *pixelTrackletContainer){
       passIsolatedTracklet = true;
@@ -261,7 +261,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
 
       bool passIsolatedStdTrack = false;
       const xAOD::TrackParticleContainer *standardTrackContainer=NULL;
-      ATH_CHECK( evtStore()->retrieve(standardTrackContainer, "InDetTrackParticles") );
+      ATH_CHECK( evtStore()->retrieve(standardTrackContainer, "InDetTrackParticles"), false );
       
       for(auto StdTrack : *standardTrackContainer){
 	if(StdTrack->pt()/1000.0 < 20.0)

@@ -31,14 +31,14 @@ class SurveyConstraintTestAlg:public AthAlgorithm {
   
  private :
   IToolSvc*                              m_toolsvc;            //!< Pointer to tool service
-  ISurveyConstraint*                     SurvConstr;
+  ISurveyConstraint*                     m_SurvConstr;
   const InDetDD::PixelDetectorManager*   m_pixelManager;
   const InDetDD::SCT_DetectorManager*    m_SCT_Manager;
   const PixelID*                         m_pixid;
   const SCT_ID*                          m_sctid;
-  AIDA::IHistogram1D*                    h_PixEC_Align_Disk[6];
-  AIDA::IHistogram1D*                    h_PixEC_Align_first[6];
-  AIDA::IHistogram1D*                    h_PixEC_Align[6];
+  AIDA::IHistogram1D*                    m_h_PixEC_Align_Disk[6];
+  AIDA::IHistogram1D*                    m_h_PixEC_Align_first[6];
+  AIDA::IHistogram1D*                    m_h_PixEC_Align[6];
 
   int                  m_AlignResults_nModules;
   NTuple::Item<double> m_AlignResults_x;

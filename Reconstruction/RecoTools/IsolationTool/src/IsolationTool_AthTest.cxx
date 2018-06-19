@@ -50,14 +50,14 @@ StatusCode IsolationTool_AthTest::initialize() {
   m_ptconeTypes.clear();
   for(auto c: m_ptcones){
     xAOD::Iso::IsolationType t = static_cast<xAOD::Iso::IsolationType>(c);
-    m_decorators[c] = new SG::AuxElement::Decorator< float >(m_prefix+xAOD::Iso::toString(t));
-    m_decorators[c+NDIFF] = new SG::AuxElement::Decorator< float >(m_prefix+xAOD::Iso::toString(static_cast<xAOD::Iso::IsolationType>(c+NDIFF)));
+    m_decorators[c] = new SG::AuxElement::Decorator< float >(m_prefix+xAOD::Iso::toCString(t));
+    m_decorators[c+NDIFF] = new SG::AuxElement::Decorator< float >(m_prefix+xAOD::Iso::toCString(static_cast<xAOD::Iso::IsolationType>(c+NDIFF)));
     m_ptconeTypes.push_back(t);
   }
   m_topoetconeTypes.clear();
   for(auto c: m_topoetcones) {
     xAOD::Iso::IsolationType t = static_cast<xAOD::Iso::IsolationType>(c);
-    m_decorators[c] = new SG::AuxElement::Decorator< float >(m_prefix+xAOD::Iso::toString(t));
+    m_decorators[c] = new SG::AuxElement::Decorator< float >(m_prefix+xAOD::Iso::toCString(t));
     m_topoetconeTypes.push_back(t);
   }
 

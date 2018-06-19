@@ -23,7 +23,9 @@ class xAODParticleAuxContainerCnv : public xAODParticleAuxContainerCnvBase {
  protected:
 
   /** The constructor */
+public:
   xAODParticleAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
   /** Create persistent container */
   xAOD::ParticleAuxContainer* createPersistent( xAOD::ParticleAuxContainer* trans );

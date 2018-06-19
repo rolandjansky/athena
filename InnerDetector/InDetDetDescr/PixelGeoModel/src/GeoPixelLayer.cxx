@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -294,8 +294,8 @@ GeoVPhysVol* GeoPixelLayer::Build() {
     //
     GeoPixelPigtail pigtail;
     pigtailPhysVol = pigtail.Build();
-    transPigtail = HepGeom::Translate3D(pigtail.bendCenterX() + m_gmt_mgr->PixelLadderCableOffsetX(), 
-				  pigtail.bendCenterY() + m_gmt_mgr->PixelLadderCableOffsetY(), 
+    transPigtail = HepGeom::Translate3D(m_gmt_mgr->PixelPigtailBendX() + m_gmt_mgr->PixelLadderCableOffsetX(), 
+				  m_gmt_mgr->PixelPigtailBendY() + m_gmt_mgr->PixelLadderCableOffsetY(), 
 				  0.);
 
 
@@ -441,8 +441,13 @@ GeoVPhysVol* GeoPixelLayer::Build() {
 
     }
   }
-
   //  delete staveSupport;
+  
+  if(layerPhys==0)
+  {
+      m_gmt_mgr->msg(MSG::ERROR)<<"layerPhys = 0 in GeoPixelLayer in "<<__FILE__<<endmsg;
+      exit(EXIT_FAILURE);
+  } 
 
   // SLHC only
   // Add the "support layer" -- another way to add extra material
@@ -468,12 +473,6 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //
   // Extra Material. I don't think there is much room but we provide the hooks anyway   
   //
-  if(layerPhys==0)
-  {
-      m_gmt_mgr->msg(MSG::ERROR)<<"layerPhys = 0 in GeoPixelLayer in "<<__FILE__<<endmsg;
-      exit(EXIT_FAILURE);
-  } 
-
   InDetDD::ExtraMaterial xMat(m_gmt_mgr->distortedMatManager());
   xMat.add(layerPhys,"PixelLayer");
   std::ostringstream ostr; ostr << m_gmt_mgr->GetLD();

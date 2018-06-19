@@ -57,7 +57,6 @@ int service_initialize(const Service* psvc) {
 #include <stdlib.h>
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/Service.h"
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/IAppMgrUI.h"

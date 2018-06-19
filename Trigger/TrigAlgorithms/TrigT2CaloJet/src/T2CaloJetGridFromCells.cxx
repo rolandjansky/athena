@@ -19,7 +19,6 @@ PURPOSE: Data preparation from Cells
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ThreadGaudi.h"
 
 // should use this, but needs fixes
 //#include "TrigT2CaloCommon/ITrigDataAccess.h" 
@@ -35,12 +34,13 @@ T2CaloJetGridFromCells::T2CaloJetGridFromCells(const std::string& type,
 				     const IInterface* parent):
   T2CaloJetBaseTool(type, name, parent),
   m_noiseCutValue(2.) ,
+  m_cablingSvc("LArCablingService"),
   m_noiseTool("CaloNoiseTool/CaloNoiseToolDefault"),
   m_forbiddenRegions(0),
-  m_timerSvc(0),
-  m_log(0)
+  m_timerSvc(0)
 {
   declareProperty("doTiming", m_doTiming= false );
+  declareProperty("cablingSvc", m_cablingSvc, "cabling svc");
   declareProperty("noiseTool", m_noiseTool, "handle for noise tool");
   declareProperty("applyNoiseCut", m_applyNoiseCut = false);
   declareProperty("noiseCutValue", m_noiseCutValue );
@@ -57,27 +57,18 @@ T2CaloJetGridFromCells::~T2CaloJetGridFromCells()
 StatusCode T2CaloJetGridFromCells::initialize() 
 {
 
-  m_log = new MsgStream (msgSvc(), name());
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if(outputLevel <= MSG::VERBOSE)
-    (*m_log) << MSG::VERBOSE << "  In initalize() " << endmsg;
+  ATH_MSG_VERBOSE("  In initalize() ");
 
-  if (toolSvc()->retrieveTool("TrigDataAccess", m_data).isFailure()) {
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_data.retrieve());
 
 /// noise suppression
   if(m_applyNoiseCut!=0){
-    if(m_noiseTool.retrieve().isFailure()){
-      (*m_log) << MSG::ERROR << "Unable to find CaloNoiseTool" << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_noiseTool.retrieve() );
 
-    StatusCode sc=toolSvc()->retrieveTool("LArCablingService", m_cablingSvc);
-    if (sc!=StatusCode::SUCCESS) {
-      (*m_log) << MSG::ERROR << "Failed to retrieve LArCablingService " << endmsg;
-      return sc;
-    }
+    ATH_CHECK( m_cablingSvc.retrieve() );
+  } else {
+    m_noiseTool.disable();
+    m_cablingSvc.disable();
   }
 
   // Retrieve timing service
@@ -86,16 +77,15 @@ StatusCode T2CaloJetGridFromCells::initialize()
 
     StatusCode sc = service("TrigTimerSvc", m_timerSvc);
     if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "unable to locate timing service TrigTimerSvc."
-	       << " Setting doTiming = false!!! " 
-	       << endmsg;
+      ATH_MSG_ERROR( "unable to locate timing service TrigTimerSvc."
+                     << " Setting doTiming = false!!! " );
       m_timerSvc = 0;
       m_doTiming=false;
       //return sc;
     }
     else{
       
-      std::string prefix = getGaudiThreadGenericName(name()) + ":";
+      std::string prefix = name() + ":";
 
      // Define now the timers:
       std::string label = prefix+"LArUnpck";
@@ -113,6 +103,8 @@ StatusCode T2CaloJetGridFromCells::initialize()
     }
   }
 
+  // from IAlgToolCalo
+  m_geometryTool.disable();
 
   m_gridElement = new Trig3Momentum();
 
@@ -123,12 +115,9 @@ TrigTimer* T2CaloJetGridFromCells::getTimer(const std::string& timerName){
 
   if (!m_doTiming ) return 0;
 
-  int outputLevel = msgSvc()->outputLevel( name() );
-
   std::map<std::string, TrigTimer*>::const_iterator t = m_timers.find(timerName);
   if (t == m_timers.end()) {
-    if(outputLevel <= MSG::DEBUG)
-      (*m_log) << MSG::DEBUG << " Timer " << timerName << " not found."<< endmsg;
+    ATH_MSG_DEBUG( " Timer " << timerName << " not found." );
     return 0;
   }
     
@@ -150,8 +139,6 @@ StatusCode T2CaloJetGridFromCells::execute(TrigT2Jet
 * jet,const IRoiDescriptor& roi  )
 {
 
-  int outputLevel = msgSvc()->outputLevel( name() );
-
   // reset error
   m_error = 0x0;
 
@@ -169,8 +156,7 @@ StatusCode T2CaloJetGridFromCells::execute(TrigT2Jet
 
   StatusCode sc = addAllCells(roi.etaMinus(),roi.etaPlus(), roi.phiMinus(), roi.phiPlus(), grid);
   if(sc.isFailure()){
-    if(outputLevel <= MSG::DEBUG) 
-      (*m_log) << MSG::DEBUG << " Failure of addAllCells. Empty grid! " << endmsg;
+    ATH_MSG_DEBUG( " Failure of addAllCells. Empty grid! " );
   }
   
   //then set the grid in the jet.  do not delete anything.  Cleanup
@@ -344,8 +330,8 @@ StatusCode T2CaloJetGridFromCells::addLArCells(double etamin, double etamax,
   }
 
   if ( Athena::Timeout::instance().reached() ) {
-      (*m_log) << MSG::ERROR << "Timeout reached in addLArCells " << endmsg;
-      return StatusCode::FAILURE;
+    ATH_MSG_ERROR( "Timeout reached in addLArCells " );
+    return StatusCode::FAILURE;
   }
 
   return StatusCode::SUCCESS;
@@ -420,8 +406,8 @@ StatusCode T2CaloJetGridFromCells::addTileCells(double etamin, double etamax,
 
     }
     if ( Athena::Timeout::instance().reached() ) {
-        (*m_log) << MSG::ERROR << "Timeout reached in addTileCells " << endmsg;
-        return StatusCode::FAILURE;
+      ATH_MSG_ERROR( "Timeout reached in addTileCells " );
+      return StatusCode::FAILURE;
     }
   }
 
@@ -432,8 +418,6 @@ StatusCode T2CaloJetGridFromCells::finalize()
 {
   delete m_gridElement;
   m_gridElement = 0;
-  delete m_log;
-  m_log = 0; 
   return StatusCode::SUCCESS;
 }
 
@@ -447,11 +431,9 @@ struct EtaPhiRectInsideChecker : public std::unary_function<EtaPhiRectangle, boo
 };
 
 bool T2CaloJetGridFromCells::isInVetoRegion(const double &eta, const double &phi){
-  (*m_log)<<MSG::DEBUG//ALWAYS
-	  <<"T2CaloJetGridFromCells::isInVetoRegion --DG-- checking"
-	  <<" ("<<eta<<", "<<phi<<")"
-	  <<" against "<<m_forbiddenRegions.size()<<" forbidden regions"
-	  <<endmsg;
+  ATH_MSG_DEBUG("T2CaloJetGridFromCells::isInVetoRegion --DG-- checking"
+                <<" ("<<eta<<", "<<phi<<")"
+                <<" against "<<m_forbiddenRegions.size()<<" forbidden regions" );
   return
     m_forbiddenRegions.end() !=
     std::find_if(m_forbiddenRegions.begin(),

@@ -18,7 +18,7 @@
 namespace xAOD {
 
   TauTrack_v1::TauTrack_v1()
-    : IParticle(), m_p4(), m_p4Cached( false ) {
+    : IParticle() {
   }
 
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauTrack_v1, float, double, pt)
@@ -28,18 +28,15 @@ namespace xAOD {
   // Pion mass, as assumed for the track:
   static const double PION_MASS = 139.570;
 
-  const TauTrack_v1::FourMom_t& TauTrack_v1::p4() const {
-
-     // Update the 4-momentum object if necessary:
-     if( ! m_p4Cached ) {
-        m_p4.SetPtEtaPhiM( pt(), eta(), phi(), PION_MASS );//using pion mass
-        m_p4Cached = true;
-     }
-
-     // Return the object:
-     return m_p4;
+  TauTrack_v1::FourMom_t TauTrack_v1::p4() const {
+    FourMom_t p4;
+    p4.SetPtEtaPhiM( pt(), eta(), phi(), m()); 
+    return p4;	
   }
 
+  TauTrack_v1::GenVecFourMom_t TauTrack_v1::genvecP4() const {
+    return GenVecFourMom_t(pt(), eta(), phi(), m());
+  }
 
   void TauTrack_v1::setP4(double pt, double eta, double phi, double /*m*/)  {
 
@@ -51,9 +48,6 @@ namespace xAOD {
      acc2( *this ) = eta;
      acc3( *this ) = phi;
 
-     // Reset the cache:
-     m_p4Cached = false;
-
      return;
   }
 
@@ -64,7 +58,7 @@ namespace xAOD {
 
 
   double TauTrack_v1::rapidity() const {
-    return p4().Rapidity();
+    return genvecP4().Rapidity();
   }
 
   double TauTrack_v1::m() const {
@@ -72,7 +66,7 @@ namespace xAOD {
   }
 
   double TauTrack_v1::e() const {
-    return p4().E();
+    return genvecP4().E();
   }
 
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauTrack_v1, TauTrack_v1::TrackFlagType, flagSet, setFlagSet)

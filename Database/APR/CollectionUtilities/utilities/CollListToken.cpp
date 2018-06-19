@@ -7,7 +7,6 @@
  * @brief Utility to list the event references of a POOL collection
  * @author K. Karr <Kristo.Karr@cern.ch>
  * @author Marcin.Nowak@cern.ch
- * $Id: CollListToken.cpp 726582 2016-02-27 11:23:37Z krasznaa $ 
  */
 
 #include "PersistentDataModel/Token.h"
@@ -23,6 +22,7 @@
 
 #include "CoralBase/MessageStream.h"
 #include "POOLCore/Exception.h"
+#include "POOLCore/SystemTools.h"
 
 #include "CollectionUtilities/Args2Container.h"
 #include "CollectionUtilities/SrcInfo.h"
@@ -32,6 +32,7 @@
 
 #include <sstream>
 #include <iostream>
+
 using namespace std;
 using namespace pool;
 #define corENDL coral::MessageStream::endmsg
@@ -39,6 +40,8 @@ using namespace pool;
 int main(int argc, const char *argv[])
 {
    string thisProgram("CollListToken");
+   SystemTools::initGaudi();
+  
    try
    { 
       coral::MessageStream log( thisProgram );
@@ -145,17 +148,17 @@ int main(int argc, const char *argv[])
    }
    catch( pool::Exception& poolException )
    {
-      std::cerr << "pool::Exception: " << poolException.what() << std::endl;;
+      std::cerr << "pool::Exception: " << poolException.what() << std::endl;
       return 1;
    }
    catch( std::exception& exception )
    {
-      std::cerr << "std::exception: " << exception.what() << std::endl;;
+      std::cerr << "std::exception: " << exception.what() << std::endl;
       return 1;
    }
    catch( ... )
    {
-      std::cerr << "Unknown exception caught in main()." << std::endl;;
+      std::cerr << "Unknown exception caught in main()." << std::endl;
       return 1;
    }
 }

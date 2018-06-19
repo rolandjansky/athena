@@ -157,7 +157,7 @@ namespace LVL1MUONIF {
 				 int    bcid           ) const {
     for( size_t ip=0; ip<m_data[systemAddress].size(); ip++){
       int bc=((m_data[systemAddress]).at(ip)).first;
-      if (bc == bcid) return false;;
+      if (bc == bcid) return false;
     }
     return true;
   }

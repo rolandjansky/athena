@@ -30,7 +30,6 @@
 // the first two come for free when using AthAlgorithm
 //#include "GaudiKernel/MsgStream.h"
 //#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 
 

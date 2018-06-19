@@ -3,6 +3,7 @@
 from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import OnlineSpacePointProviderTool
 from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import PixelClusterCacheTool
 from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import SCT_ClusterCacheTool
+from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import FastSCT_RodDecoder
 
 from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
 from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
@@ -21,24 +22,31 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
         
         from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
         from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+
+        # --- SiLorentzAngleTool for SCT
+        if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+            from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+            sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
         
         InDetL2TrigClusterMakerTool = InDet__ClusterMakerTool( name = "InDetL2TrigClusterMakerTool",
                                                                UsePixelCalibCondDB = False,
                                                                PixelOfflineCalibSvc =  PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
+                                                               SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool
                                                                )
 
         ToolSvc += InDetL2TrigClusterMakerTool
-
+        from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
         InDetL2TrigMergedPixelsTool = InDet__MergedPixelsTool( name = "InDetL2TrigMergedPixelsTool",
                                                                globalPosAlg  = InDetL2TrigClusterMakerTool,
                                                                UseSpecialPixelMap = False,
-                                                               PixelConditionsSummarySvc = PixelConditionsSetup.instanceName('PixelConditionsSummarySvc'),
+                                                               PixelConditionsSummaryTool = PixelConditionsSummaryTool(PixelConditionsSetup.instanceName('PixelConditionsSummaryTool'))
                                                              )
 
+        from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
         from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
         InDetL2TrigSCT_ClusteringTool = InDet__SCT_ClusteringTool(name = "InDetL2TrigSCT_ClusteringTool",
                                                                   globalPosAlg  = InDetL2TrigClusterMakerTool,
-                                                                  conditionsService = SCT_ConditionsSetup.instanceName("InDetSCT_ConditionsSummarySvc"),
+                                                                  conditionsTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryTool'))
                                                                 )
 
         if InDetTrigFlags.doSCTIntimeHits():
@@ -50,9 +58,18 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
         ToolSvc += InDetL2TrigMergedPixelsTool
         ToolSvc += InDetL2TrigSCT_ClusteringTool
 
+        # SiLorentzAngleTool for FastSCT_RodDecoder
+        if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+            from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+            sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup() 
+
+        # FastSCT_RodDecoder
+        ToolSvc += FastSCT_RodDecoder(name = "FastSCT_RodDecoder",
+                                      LorentzAngleTool=ToolSvc.SCTLorentzAngleTool)
+
         ConfiguredPixelClusterCacheTool = PixelClusterCacheTool(PixelClusteringTool=InDetL2TrigMergedPixelsTool)
         ConfiguredSCT_ClusterCacheTool = SCT_ClusterCacheTool(SCT_ClusteringTool = InDetL2TrigSCT_ClusteringTool,
-                                                              SCT_ByteStreamErrorsSvc= SCT_ConditionsSetup.instanceName("InDetSCT_ByteStreamErrorsSvc"),
+                                                              FastSCT_RodDecoder = ToolSvc.FastSCT_RodDecoder
                                                               )
 
         if not self.DoBS_Conversion :

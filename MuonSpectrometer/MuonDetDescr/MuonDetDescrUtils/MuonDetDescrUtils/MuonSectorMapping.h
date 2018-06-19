@@ -154,7 +154,7 @@ namespace Muon {
     if( dphi < -M_PI ) dphi += 2* M_PI;
     if( fabs(dphi) > 0.3 && m_debug ){
       std::cout << " large dphi detected!!: sector " << sector << " of hit " << sectorHit << " phi ref sector "  << phi_sec
-                << " hit " << phi << " dphi " << dphi << std::endl;;
+                << " hit " << phi << " dphi " << dphi << std::endl;
     }
     return redge*cos(dphi);
   }

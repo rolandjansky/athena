@@ -72,7 +72,7 @@ void VP1LocalEvtRetriever::updateLocalDir()
       QString basefn = QFileInfo(fn).fileName();
       QString target = tmplocal + basefn;
       if (!QFile::exists(target)) {
-	QString tmptarget = ad+basefn+"_"+QString::number(ntmpdlcount++);;
+	QString tmptarget = ad+basefn+"_"+QString::number(ntmpdlcount++);
       	if (!QFile::copy(fn,tmptarget)) {
 	  m_availEvts->message("Problems copying "+fn+" to "+tmptarget);
 	  changesad = true;

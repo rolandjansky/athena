@@ -59,12 +59,12 @@ public:
 //____________________________________________________________________
 IParticleCollHandle_TrackParticle::IParticleCollHandle_TrackParticle(AODSysCommonData * cd,
   const QString& name, xAOD::Type::ObjectType type, bool shouldLoad)
-  : IParticleCollHandleBase(cd,name,type), d(new Imp)
+  : IParticleCollHandleBase(cd,name,type), m_d(new Imp)
 {
-  d->theclass = this;
-  d->updateGUICounter = 0;
-  d->collSettingsButton=0;
-  d->shouldLoad = shouldLoad;
+  m_d->theclass = this;
+  m_d->updateGUICounter = 0;
+  m_d->collSettingsButton=0;
+  m_d->shouldLoad = shouldLoad;
 
   //The object names should not contain all sorts of funky chars (mat button style sheets wont work for instance):
   QString safetext(text());
@@ -79,16 +79,16 @@ IParticleCollHandle_TrackParticle::IParticleCollHandle_TrackParticle(AODSysCommo
   safetext.replace('&','_');
 
   // SoMaterial* mat 
-  //   = d->collSettingsButton->defaultParameterMaterial();
+  //   = m_d->collSettingsButton->defaultParameterMaterial();
   // mat->setName(("IParticleCollHandle_TrackParticle"+safetext).toStdString().c_str()); // Useful for debugging
-  // d->collSettingsButton->setDefaultParameterMaterial(d->defaultParametersMaterial); FIXME
+  // m_d->collSettingsButton->setDefaultParameterMaterial(m_d->defaultParametersMaterial); FIXME
 }
 
 //____________________________________________________________________
 IParticleCollHandle_TrackParticle::~IParticleCollHandle_TrackParticle()
 {
-  delete d;
-  // FIXME - check that we're not leaking handles if (!d->shouldLoad){
+  delete m_d;
+  // FIXME - check that we're not leaking handles if (!m_d->shouldLoad){
 
 }
 
@@ -96,10 +96,10 @@ IParticleCollHandle_TrackParticle::~IParticleCollHandle_TrackParticle()
 void IParticleCollHandle_TrackParticle::init(VP1MaterialButtonBase*)
 {
   // std::cout<<"IParticleCollHandle_TrackParticle::init 1"<<std::endl;
-  d->collSettingsButton = new TrackParticleCollectionSettingsButton;
-  d->collSettingsButton->setMaterialText(name());
-  // std::cout<<"Calling VP1StdCollection::init with d->collSettingsButton (TrackParticleCollectionSettingsButton)="<<d->collSettingsButton<<std::endl;
-  VP1StdCollection::init(d->collSettingsButton);//this call is required. Passing in d->collSettingsButton means we have the more complex button. 
+  m_d->collSettingsButton = new TrackParticleCollectionSettingsButton;
+  m_d->collSettingsButton->setMaterialText(name());
+  // std::cout<<"Calling VP1StdCollection::init with m_d->collSettingsButton (TrackParticleCollectionSettingsButton)="<<m_d->collSettingsButton<<std::endl;
+  VP1StdCollection::init(m_d->collSettingsButton);//this call is required. Passing in m_d->collSettingsButton means we have the more complex button. 
   setupSettingsFromController(common()->controller());
   connect(this,SIGNAL(visibilityChanged(bool)),this,SLOT(collVisibilityChanged(bool)));
 
@@ -108,29 +108,29 @@ void IParticleCollHandle_TrackParticle::init(VP1MaterialButtonBase*)
   // std::cout<<"sep: "<<collSep()<<std::endl;
   // std::cout<<"mat: "<<material()<<std::endl;
   
-  collSwitch()->addChild(d->collSettingsButton->trackLightModel());
-  collSwitch()->addChild(d->collSettingsButton->trackDrawStyle());
+  collSwitch()->addChild(m_d->collSettingsButton->trackLightModel());
+  collSwitch()->addChild(m_d->collSettingsButton->trackDrawStyle());
 }
 
 void IParticleCollHandle_TrackParticle::setupSettingsFromControllerSpecific(AODSystemController*) {
   //cuts  
-  connect(d->collSettingsButton,SIGNAL(cutAllowedPtChanged(const VP1Interval&)),this,SLOT(setCutAllowedPt(const VP1Interval&)));
-  setCutAllowedPt(d->collSettingsButton->cutAllowedPt());
+  connect(m_d->collSettingsButton,SIGNAL(cutAllowedPtChanged(const VP1Interval&)),this,SLOT(setCutAllowedPt(const VP1Interval&)));
+  setCutAllowedPt(m_d->collSettingsButton->cutAllowedPt());
   // 
 
-  connect(d->collSettingsButton,SIGNAL(cutAllowedEtaChanged(const VP1Interval&)),this,SLOT(setCutAllowedEta(const VP1Interval&)));
-  setCutAllowedEta(d->collSettingsButton->cutAllowedEta());
+  connect(m_d->collSettingsButton,SIGNAL(cutAllowedEtaChanged(const VP1Interval&)),this,SLOT(setCutAllowedEta(const VP1Interval&)));
+  setCutAllowedEta(m_d->collSettingsButton->cutAllowedEta());
   // 
 
-  connect(d->collSettingsButton,SIGNAL(cutAllowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(setCutAllowedPhi(const QList<VP1Interval>&)));
-  setCutAllowedPhi(d->collSettingsButton->cutAllowedPhi());
+  connect(m_d->collSettingsButton,SIGNAL(cutAllowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(setCutAllowedPhi(const QList<VP1Interval>&)));
+  setCutAllowedPhi(m_d->collSettingsButton->cutAllowedPhi());
 
   // Propagation
-  connect(d->collSettingsButton,SIGNAL(propagationOptionsChanged()),        this,SLOT(propagationOptionsChanged()));
+  connect(m_d->collSettingsButton,SIGNAL(propagationOptionsChanged()),        this,SLOT(propagationOptionsChanged()));
 
   // Parameters
-  connect(d->collSettingsButton,SIGNAL(showParametersChanged(bool)),        this,SLOT(showParametersChanged(bool)));
-  connect(d->collSettingsButton,SIGNAL(colourParametersByTypeChanged(bool)),this,SLOT(showParametersChanged(bool)));
+  connect(m_d->collSettingsButton,SIGNAL(showParametersChanged(bool)),        this,SLOT(showParametersChanged(bool)));
+  connect(m_d->collSettingsButton,SIGNAL(colourParametersByTypeChanged(bool)),this,SLOT(showParametersChanged(bool)));
   // Just reusing the same slot, since it doesn 
 
 }
@@ -140,25 +140,25 @@ void IParticleCollHandle_TrackParticle::resetCachedValuesCuts()
 	// TODO: it is not used so far! Check Other collections and update accordingly
 
 	// kinetic cuts
-	setCutAllowedPt(d->collSettingsButton->cutAllowedPt());
-	setCutAllowedEta(d->collSettingsButton->cutAllowedEta());
-	setCutAllowedPhi(d->collSettingsButton->cutAllowedPhi());
+	setCutAllowedPt(m_d->collSettingsButton->cutAllowedPt());
+	setCutAllowedEta(m_d->collSettingsButton->cutAllowedEta());
+	setCutAllowedPhi(m_d->collSettingsButton->cutAllowedPhi());
 
   // TODO: adding "propagation" and "parameters" settings as well??
 }
 
 
 const TrackParticleCollectionSettingsButton& IParticleCollHandle_TrackParticle::collSettingsButton() const {
-  if (!d->collSettingsButton){
+  if (!m_d->collSettingsButton){
     messageVerbose("No collSettingsButton set! Can't call init(), so crash is imminent...");
   }
-  return *d->collSettingsButton;
+  return *m_d->collSettingsButton;
 }
 
 //____________________________________________________________________
 bool IParticleCollHandle_TrackParticle::load()
 {
-  if (!d->shouldLoad){
+  if (!m_d->shouldLoad){
     messageVerbose("not loading TrackParticle collection - contains associated objects.");
     return true;
   }
@@ -188,7 +188,7 @@ bool IParticleCollHandle_TrackParticle::load()
   // hintNumberOfTracksInEvent(coll->size());
   xAOD::TrackParticleContainer::const_iterator it, itEnd = coll->end();
   for ( it = coll->begin() ; it != itEnd; ++it) {
-    d->possiblyUpdateGUI();
+    m_d->possiblyUpdateGUI();
     if (!*it) {
       messageDebug("WARNING: Ignoring null TrackParticle pointer.");
       continue;

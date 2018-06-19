@@ -6,7 +6,6 @@
 // BCM_RodDecoder.cxx
 //   Implementation file for class BCM_RodDecoder
 ///////////////////////////////////////////////////////////////////
-// (c) ATLAS BCM Detector software
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 //  Version 00-00-01 12/05/2008 Daniel Dobos
@@ -46,7 +45,7 @@ BCM_RodDecoder::~BCM_RodDecoder()
 StatusCode BCM_RodDecoder::initialize() 
 {
 #ifdef BCM_DEBUG
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "in BCM_RodDecoder::initialize" << endmsg;
+  ATH_MSG_VERBOSE( "in BCM_RodDecoder::initialize" );
 #endif
 
   StatusCode sc;
@@ -66,12 +65,12 @@ StatusCode BCM_RodDecoder::initialize()
 StatusCode BCM_RodDecoder::finalize()
 {
 #ifdef BCM_DEBUG
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "in BCM_RodDecoder::finalize" << endmsg;
+  ATH_MSG_VERBOSE( "in BCM_RodDecoder::finalize" );
 #endif
 
-  if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Bytestream summary: " << m_fragment_number << " fragments found" << endmsg;
-  if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Bytestream summary: " << m_LVL1A_number << " LVL1As found" << endmsg;
-  if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Bytestream summary: " << m_hit_number << " hits found" << endmsg;
+  ATH_MSG_INFO( "Bytestream summary: " << m_fragment_number << " fragments found" );
+  ATH_MSG_INFO( "Bytestream summary: " << m_LVL1A_number << " LVL1As found" );
+  ATH_MSG_INFO( "Bytestream summary: " << m_hit_number << " hits found" );
 
   return StatusCode::SUCCESS;
 }
@@ -82,22 +81,22 @@ StatusCode BCM_RodDecoder::finalize()
 StatusCode BCM_RodDecoder::fillCollection(const ROBFragment *robFrag, BCM_RDO_Container* rdoCont, std::vector<unsigned int>* /*vecHash*/)
 {
 #ifdef BCM_DEBUG
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "in BCM_RodDecoder::fillCollection" << endmsg;
+  ATH_MSG_INFO( "in BCM_RodDecoder::fillCollection" );
 #endif
 
   StatusCode sc = StatusCode::SUCCESS;
 
-  BCM_RDO_Collection* m_coll = 0;
+  BCM_RDO_Collection* coll = 0;
 
   // set the data pointer type
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType vint;
   robFrag->rod_data(vint);
 
   // get source ID
-  int m_ROD_source_ID = robFrag->rod_source_id();
+  int ROD_source_ID = robFrag->rod_source_id();
 
   // get LVL1 ID
-  int m_ROD_LVL1_ID = robFrag->rod_lvl1_id();
+  int ROD_LVL1_ID = robFrag->rod_lvl1_id();
 
   // get BC ID
   //int m_ROD_BC_ID = robFrag->rod_bc_id();
@@ -132,8 +131,8 @@ StatusCode BCM_RodDecoder::fillCollection(const ROBFragment *robFrag, BCM_RDO_Co
 	  BCID               = (rawDataWord & 0xfff00000) >> 20;
           LVL1A              = dataword_it / 6;
           m_LVL1A_number++;  
-          Channel            = getChannelID(m_ROD_source_ID, 0);
-          m_coll             = getCollection(Channel,rdoCont);
+          Channel            = getChannelID(ROD_source_ID, 0);
+          coll             = getCollection(Channel,rdoCont);
 	  Pulse1Position     = (rawDataWord & 0x000fc000) >> 14;
 	  Pulse1Width        = (rawDataWord & 0x00003e00) >> 9;
 	  Pulse2Position     = (rawDataWord & 0x000001f8) >> 3;
@@ -143,28 +142,28 @@ StatusCode BCM_RodDecoder::fillCollection(const ROBFragment *robFrag, BCM_RDO_Co
           Pulse2Width        = ((rawDataWord & 0xc0000000) >> 30) | (rawDataWord_buffer << 2);
 #ifdef BCM_DEBUG
           if (Pulse1Width != 0 || Pulse2Width != 0) {
-            if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "BCM-ISSUE L1ID: " << m_ROD_LVL1_ID << " Ch: " << Channel << " L1A: " << LVL1A << " BCID: " << BCID << " Hit: " << Pulse1Position << " " << Pulse1Width << " " << Pulse2Position << " " << Pulse2Width << endmsg; 
+            ATH_MSG_ERROR( "BCM-ISSUE L1ID: " << ROD_LVL1_ID << " Ch: " << Channel << " L1A: " << LVL1A << " BCID: " << BCID << " Hit: " << Pulse1Position << " " << Pulse1Width << " " << Pulse2Position << " " << Pulse2Width ); 
           }
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Decoded ROD 0x"<< std::hex<<m_ROD_source_ID<<std::dec <<" channel: "<< Channel <<" - BCID: "<< BCID <<" : "<< Pulse1Position <<"-"<< Pulse1Width <<" "<< Pulse2Position <<"-"<< Pulse2Width << endmsg;
+          ATH_MSG_DEBUG( "Decoded ROD 0x"<< std::hex<<ROD_source_ID<<std::dec <<" channel: "<< Channel <<" - BCID: "<< BCID <<" : "<< Pulse1Position <<"-"<< Pulse1Width <<" "<< Pulse2Position <<"-"<< Pulse2Width );
 #endif
-	  m_coll->push_back(new RDO(Channel,Pulse1Position,Pulse1Width,Pulse2Position,Pulse2Width,LVL1A,BCID,m_ROD_LVL1_ID,Error));
+	  coll->push_back(new RDO(Channel,Pulse1Position,Pulse1Width,Pulse2Position,Pulse2Width,LVL1A,BCID,ROD_LVL1_ID,Error));
           m_hit_number++;
-          Channel            = getChannelID(m_ROD_source_ID, 1);
-          m_coll             = getCollection(Channel,rdoCont);
+          Channel            = getChannelID(ROD_source_ID, 1);
+          coll             = getCollection(Channel,rdoCont);
 	  Pulse1Position     = (rawDataWord & 0x3f000000) >> 24;
 	  Pulse1Width        = (rawDataWord & 0x00f80000) >> 19;
 	  Pulse2Position     = (rawDataWord & 0x0007e000) >> 13;
 	  Pulse2Width        = (rawDataWord & 0x00001f00) >> 8;
 #ifdef BCM_DEBUG
           if (Pulse1Width != 0 || Pulse2Width != 0) {
-            if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "BCM-ISSUE L1ID: " << m_ROD_LVL1_ID << " Ch: " << Channel << " L1A: " << LVL1A << " BCID: " << BCID << " Hit: " << Pulse1Position << " " << Pulse1Width << " " << Pulse2Position << " " << Pulse2Width << endmsg; 
+            ATH_MSG_ERROR( "BCM-ISSUE L1ID: " << ROD_LVL1_ID << " Ch: " << Channel << " L1A: " << LVL1A << " BCID: " << BCID << " Hit: " << Pulse1Position << " " << Pulse1Width << " " << Pulse2Position << " " << Pulse2Width ); 
           }
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Decoded ROD 0x"<< std::hex<<m_ROD_source_ID<<std::dec <<" channel: "<< Channel <<" - BCID: "<< BCID <<" : "<< Pulse1Position <<"-"<< Pulse1Width <<" "<< Pulse2Position <<"-"<< Pulse2Width << endmsg;
+          ATH_MSG_DEBUG( "Decoded ROD 0x"<< std::hex<<ROD_source_ID<<std::dec <<" channel: "<< Channel <<" - BCID: "<< BCID <<" : "<< Pulse1Position <<"-"<< Pulse1Width <<" "<< Pulse2Position <<"-"<< Pulse2Width );
 #endif
-	  m_coll->push_back(new RDO(Channel,Pulse1Position,Pulse1Width,Pulse2Position,Pulse2Width,LVL1A,BCID,m_ROD_LVL1_ID,Error));
+	  coll->push_back(new RDO(Channel,Pulse1Position,Pulse1Width,Pulse2Position,Pulse2Width,LVL1A,BCID,ROD_LVL1_ID,Error));
           m_hit_number++;
-          Channel            = getChannelID(m_ROD_source_ID, 2);
-          m_coll             = getCollection(Channel,rdoCont);
+          Channel            = getChannelID(ROD_source_ID, 2);
+          coll             = getCollection(Channel,rdoCont);
 	  Pulse1Position     = (rawDataWord & 0x000000fc) >> 2;
 	  rawDataWord_buffer = (rawDataWord & 0x00000003);
 	  break;
@@ -174,14 +173,14 @@ StatusCode BCM_RodDecoder::fillCollection(const ROBFragment *robFrag, BCM_RDO_Co
 	  Pulse2Width        = (rawDataWord & 0x007c0000) >> 18;
 #ifdef BCM_DEBUG
           if (Pulse1Width != 0 || Pulse2Width != 0) {
-            if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "BCM-ISSUE L1ID: " << m_ROD_LVL1_ID << " Ch: " << Channel << " L1A: " << LVL1A << " BCID: " << BCID << " Hit: " << Pulse1Position << " " << Pulse1Width << " " << Pulse2Position << " " << Pulse2Width << endmsg; 
+            ATH_MSG_ERROR( "BCM-ISSUE L1ID: " << ROD_LVL1_ID << " Ch: " << Channel << " L1A: " << LVL1A << " BCID: " << BCID << " Hit: " << Pulse1Position << " " << Pulse1Width << " " << Pulse2Position << " " << Pulse2Width ); 
           }
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Decoded ROD 0x"<< std::hex<<m_ROD_source_ID<<std::dec <<" channel: "<< Channel <<" - BCID: "<< BCID <<" : "<< Pulse1Position <<"-"<< Pulse1Width <<" "<< Pulse2Position <<"-"<< Pulse2Width << endmsg;
+          ATH_MSG_DEBUG( "Decoded ROD 0x"<< std::hex<<ROD_source_ID<<std::dec <<" channel: "<< Channel <<" - BCID: "<< BCID <<" : "<< Pulse1Position <<"-"<< Pulse1Width <<" "<< Pulse2Position <<"-"<< Pulse2Width );
 #endif
-	  m_coll->push_back(new RDO(Channel,Pulse1Position,Pulse1Width,Pulse2Position,Pulse2Width,LVL1A,BCID,m_ROD_LVL1_ID,Error));
+	  coll->push_back(new RDO(Channel,Pulse1Position,Pulse1Width,Pulse2Position,Pulse2Width,LVL1A,BCID,ROD_LVL1_ID,Error));
           m_hit_number++;
-          Channel            = getChannelID(m_ROD_source_ID, 3);
-          m_coll             = getCollection(Channel,rdoCont);
+          Channel            = getChannelID(ROD_source_ID, 3);
+          coll             = getCollection(Channel,rdoCont);
 	  Pulse1Position     = (rawDataWord & 0x0003f000) >> 12;
 	  Pulse1Width        = (rawDataWord & 0x00000f80) >> 7;
 	  Pulse2Position     = (rawDataWord & 0x0000007e) >> 1;
@@ -191,28 +190,28 @@ StatusCode BCM_RodDecoder::fillCollection(const ROBFragment *robFrag, BCM_RDO_Co
 	  Pulse2Width        = ((rawDataWord & 0xf0000000) >> 28) | (rawDataWord_buffer << 4);
 #ifdef BCM_DEBUG
           if (Pulse1Width != 0 || Pulse2Width != 0) {
-            if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "BCM-ISSUE L1ID: " << m_ROD_LVL1_ID << " Ch: " << Channel << " L1A: " << LVL1A << " BCID: " << BCID << " Hit: " << Pulse1Position << " " << Pulse1Width << " " << Pulse2Position << " " << Pulse2Width << endmsg; 
+            ATH_MSG_ERROR( "BCM-ISSUE L1ID: " << ROD_LVL1_ID << " Ch: " << Channel << " L1A: " << LVL1A << " BCID: " << BCID << " Hit: " << Pulse1Position << " " << Pulse1Width << " " << Pulse2Position << " " << Pulse2Width ); 
           }
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Decoded ROD 0x"<< std::hex<<m_ROD_source_ID<<std::dec <<" channel: "<< Channel <<" - BCID: "<< BCID <<" : "<< Pulse1Position <<"-"<< Pulse1Width <<" "<< Pulse2Position <<"-"<< Pulse2Width << endmsg;
+          ATH_MSG_DEBUG( "Decoded ROD 0x"<< std::hex<<ROD_source_ID<<std::dec <<" channel: "<< Channel <<" - BCID: "<< BCID <<" : "<< Pulse1Position <<"-"<< Pulse1Width <<" "<< Pulse2Position <<"-"<< Pulse2Width );
 #endif
-	  m_coll->push_back(new RDO(Channel,Pulse1Position,Pulse1Width,Pulse2Position,Pulse2Width,LVL1A,BCID,m_ROD_LVL1_ID,Error));
+	  coll->push_back(new RDO(Channel,Pulse1Position,Pulse1Width,Pulse2Position,Pulse2Width,LVL1A,BCID,ROD_LVL1_ID,Error));
           m_hit_number++;
-          Channel            = getChannelID(m_ROD_source_ID, 4);
-          m_coll             = getCollection(Channel,rdoCont);
+          Channel            = getChannelID(ROD_source_ID, 4);
+          coll             = getCollection(Channel,rdoCont);
 	  Pulse1Position     = (rawDataWord & 0x0fc00000) >> 22;
 	  Pulse1Width        = (rawDataWord & 0x003e0000) >> 17;
 	  Pulse2Position     = (rawDataWord & 0x0001f800) >> 11;
 	  Pulse2Width        = (rawDataWord & 0x000007c0) >> 6;
 #ifdef BCM_DEBUG
           if (Pulse1Width != 0 || Pulse2Width != 0) {
-            if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "BCM-ISSUE L1ID: " << m_ROD_LVL1_ID << " Ch: " << Channel << " L1A: " << LVL1A << " BCID: " << BCID << " Hit: " << Pulse1Position << " " << Pulse1Width << " " << Pulse2Position << " " << Pulse2Width << endmsg; 
+            ATH_MSG_ERROR( "BCM-ISSUE L1ID: " << ROD_LVL1_ID << " Ch: " << Channel << " L1A: " << LVL1A << " BCID: " << BCID << " Hit: " << Pulse1Position << " " << Pulse1Width << " " << Pulse2Position << " " << Pulse2Width ); 
           }
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Decoded ROD 0x"<< std::hex<<m_ROD_source_ID<<std::dec <<" channel: "<< Channel <<" - BCID: "<< BCID <<" : "<< Pulse1Position <<"-"<< Pulse1Width <<" "<< Pulse2Position <<"-"<< Pulse2Width << endmsg;
+          ATH_MSG_DEBUG( "Decoded ROD 0x"<< std::hex<<ROD_source_ID<<std::dec <<" channel: "<< Channel <<" - BCID: "<< BCID <<" : "<< Pulse1Position <<"-"<< Pulse1Width <<" "<< Pulse2Position <<"-"<< Pulse2Width);
 #endif
-	  m_coll->push_back(new RDO(Channel,Pulse1Position,Pulse1Width,Pulse2Position,Pulse2Width,LVL1A,BCID,m_ROD_LVL1_ID,Error));
+	  coll->push_back(new RDO(Channel,Pulse1Position,Pulse1Width,Pulse2Position,Pulse2Width,LVL1A,BCID,ROD_LVL1_ID,Error));
           m_hit_number++;
-          Channel            = getChannelID(m_ROD_source_ID, 5);
-          m_coll             = getCollection(Channel,rdoCont);
+          Channel            = getChannelID(ROD_source_ID, 5);
+          coll             = getCollection(Channel,rdoCont);
 	  Pulse1Position     = (rawDataWord & 0x0000003f);
 	  break;
 	case 4:
@@ -221,14 +220,14 @@ StatusCode BCM_RodDecoder::fillCollection(const ROBFragment *robFrag, BCM_RDO_Co
 	  Pulse2Width        = (rawDataWord & 0x001f0000) >> 16;
 #ifdef BCM_DEBUG
           if (Pulse1Width != 0 || Pulse2Width != 0) {
-            if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "BCM-ISSUE L1ID: " << m_ROD_LVL1_ID << " Ch: " << Channel << " L1A: " << LVL1A << " BCID: " << BCID << " Hit: " << Pulse1Position << " " << Pulse1Width << " " << Pulse2Position << " " << Pulse2Width << endmsg; 
+            ATH_MSG_ERROR( "BCM-ISSUE L1ID: " << ROD_LVL1_ID << " Ch: " << Channel << " L1A: " << LVL1A << " BCID: " << BCID << " Hit: " << Pulse1Position << " " << Pulse1Width << " " << Pulse2Position << " " << Pulse2Width); 
           }
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Decoded ROD 0x"<< std::hex<<m_ROD_source_ID<<std::dec <<" channel: "<< Channel <<" - BCID: "<< BCID <<" : "<< Pulse1Position <<"-"<< Pulse1Width <<" "<< Pulse2Position <<"-"<< Pulse2Width << endmsg;
+          ATH_MSG_DEBUG( "Decoded ROD 0x"<< std::hex<<ROD_source_ID<<std::dec <<" channel: "<< Channel <<" - BCID: "<< BCID <<" : "<< Pulse1Position <<"-"<< Pulse1Width <<" "<< Pulse2Position <<"-"<< Pulse2Width );
 #endif
-	  m_coll->push_back(new RDO(Channel,Pulse1Position,Pulse1Width,Pulse2Position,Pulse2Width,LVL1A,BCID,m_ROD_LVL1_ID,Error));
+	  coll->push_back(new RDO(Channel,Pulse1Position,Pulse1Width,Pulse2Position,Pulse2Width,LVL1A,BCID,ROD_LVL1_ID,Error));
           m_hit_number++;
-          Channel            = getChannelID(m_ROD_source_ID, 6);
-          m_coll             = getCollection(Channel,rdoCont);
+          Channel            = getChannelID(ROD_source_ID, 6);
+          coll             = getCollection(Channel,rdoCont);
 	  Pulse1Position     = (rawDataWord & 0x0000fc00) >> 10;
 	  Pulse1Width        = (rawDataWord & 0x000003e0) >> 5;
 	  rawDataWord_buffer = (rawDataWord & 0x0000001f);
@@ -238,29 +237,27 @@ StatusCode BCM_RodDecoder::fillCollection(const ROBFragment *robFrag, BCM_RDO_Co
 	  Pulse2Width        = (rawDataWord & 0x7c000000) >> 26;
 #ifdef BCM_DEBUG
           if (Pulse1Width != 0 || Pulse2Width != 0) {
-            if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "BCM-ISSUE L1ID: " << m_ROD_LVL1_ID << " Ch: " << Channel << " L1A: " << LVL1A << " BCID: " << BCID << " Hit: " << Pulse1Position << " " << Pulse1Width << " " << Pulse2Position << " " << Pulse2Width << endmsg; 
+            ATH_MSG_ERROR( "BCM-ISSUE L1ID: " << ROD_LVL1_ID << " Ch: " << Channel << " L1A: " << LVL1A << " BCID: " << BCID << " Hit: " << Pulse1Position << " " << Pulse1Width << " " << Pulse2Position << " " << Pulse2Width ); 
           }
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Decoded ROD 0x"<< std::hex<<m_ROD_source_ID<<std::dec <<" channel: "<< Channel <<" - BCID: "<< BCID <<" : "<< Pulse1Position <<"-"<< Pulse1Width <<" "<< Pulse2Position <<"-"<< Pulse2Width << endmsg;
+          ATH_MSG_DEBUG( "Decoded ROD 0x"<< std::hex<<ROD_source_ID<<std::dec <<" channel: "<< Channel <<" - BCID: "<< BCID <<" : "<< Pulse1Position <<"-"<< Pulse1Width <<" "<< Pulse2Position <<"-"<< Pulse2Width );
 #endif
-	  m_coll->push_back(new RDO(Channel,Pulse1Position,Pulse1Width,Pulse2Position,Pulse2Width,LVL1A,BCID,m_ROD_LVL1_ID,Error));
+	  coll->push_back(new RDO(Channel,Pulse1Position,Pulse1Width,Pulse2Position,Pulse2Width,LVL1A,BCID,ROD_LVL1_ID,Error));
           m_hit_number++;
-          Channel            = getChannelID(m_ROD_source_ID, 7);
-          m_coll             = getCollection(Channel,rdoCont);
+          Channel            = getChannelID(ROD_source_ID, 7);
+          coll             = getCollection(Channel,rdoCont);
 	  Pulse1Position     = (rawDataWord & 0x03f00000) >> 20;
 	  Pulse1Width        = (rawDataWord & 0x000f8000) >> 15;
 	  Pulse2Position     = (rawDataWord & 0x00007e00) >> 9;
 	  Pulse2Width        = (rawDataWord & 0x000001f0) >> 4;
 #ifdef BCM_DEBUG
           if (Pulse1Width != 0 || Pulse2Width != 0) {
-            if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "BCM-ISSUE L1ID: " << m_ROD_LVL1_ID << " Ch: " << Channel << " L1A: " << LVL1A << " BCID: " << BCID << " Hit: " << Pulse1Position << " " << Pulse1Width << " " << Pulse2Position << " " << Pulse2Width << endmsg; 
+            ATH_MSG_ERROR( "BCM-ISSUE L1ID: " << ROD_LVL1_ID << " Ch: " << Channel << " L1A: " << LVL1A << " BCID: " << BCID << " Hit: " << Pulse1Position << " " << Pulse1Width << " " << Pulse2Position << " " << Pulse2Width ); 
           }
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Decoded ROD 0x"<< std::hex<<m_ROD_source_ID<<std::dec <<" channel: "<< Channel <<" - BCID: "<< BCID <<" : "<< Pulse1Position <<"-"<< Pulse1Width <<" "<< Pulse2Position <<"-"<< Pulse2Width << endmsg;
+          ATH_MSG_DEBUG( "Decoded ROD 0x"<< std::hex<<ROD_source_ID<<std::dec <<" channel: "<< Channel <<" - BCID: "<< BCID <<" : "<< Pulse1Position <<"-"<< Pulse1Width <<" "<< Pulse2Position <<"-"<< Pulse2Width );
 #endif
-	  m_coll->push_back(new RDO(Channel,Pulse1Position,Pulse1Width,Pulse2Position,Pulse2Width,LVL1A,BCID,m_ROD_LVL1_ID,Error));
+	  coll->push_back(new RDO(Channel,Pulse1Position,Pulse1Width,Pulse2Position,Pulse2Width,LVL1A,BCID,ROD_LVL1_ID,Error));
 	  m_hit_number++;
           break;
-	default:
-	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "ROD data block decoding failed. Most probably due to wrong words per data block. " << endmsg;
      }
   }
 

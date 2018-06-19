@@ -77,7 +77,7 @@ namespace TrigCompositeUtils {
   /**
    * @brief Checks if any of the DecisionIDs passed in arg required is availble in Decision object
    **/
-  bool passingIDs( const Decision* d,  const DecisionIDContainer& required);
+  bool isAnyIDPassing( const Decision* d,  const DecisionIDContainer& required);
 
   /**
    * @brief checks if required ID is in the set of the decisions
@@ -99,7 +99,12 @@ namespace TrigCompositeUtils {
    **/
   ElementLink<DecisionContainer> linkToPrevious(const Decision*);
 
-
+  /**
+   * @brief copy all links from src to dest TC objects
+   * @warning if there are links already in the dest TC, the operation is not performed and false returned
+   * @ret true if success
+   **/
+  bool copyLinks(const Decision* src, Decision* dest);
 
 
 

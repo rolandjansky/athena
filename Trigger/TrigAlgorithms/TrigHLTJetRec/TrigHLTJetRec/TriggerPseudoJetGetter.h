@@ -46,7 +46,7 @@ class TriggerPseudoJetGetter: virtual public ITriggerPseudoJetGetter,
 
   // method from IPseudojetCetter - some not applicable to trigger jets...
   // needed only for future changes to offline jets
-  // virtual StatusCode createAndRecord() const override;
+  virtual StatusCode createAndRecord() const override;
 
   /// Label assignd to this collection of pseudojets.
   virtual std::string label() const override;

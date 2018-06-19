@@ -96,17 +96,26 @@ if ( IS_DIRECTORY /usr/include/ck )
     PRIVATE "-DHAVE_CK" )
 endif()
 
+atlas_add_test( exctrace2_test
+   SOURCES test/exctrace2_test.cxx
+   LINK_LIBRARIES CxxUtils
+   EXTRA_PATTERNS "no version information available" )
+
 # Set up the "simple" tests:
 foreach( test sincos_test copyif_test ArrayScanner_test Arrayrep_test
       Array_test PackedArray_test pointer_list_test FloatPacker_test
       fpcompare_test StrFormat_test
       prefetch_test ClassName_test make_unique_test ones_test
-      exctrace1_test exctrace2_test bitscan_test ConcurrentRangeMap_test
-      CachedValue_test CachedPointer_test atomic_fetch_minmax_test )
+      exctrace1_test bitscan_test ConcurrentRangeMap_test
+      CachedValue_test CachedPointer_test atomic_fetch_minmax_test
+      MurmurHash2_test bitmask_test crc64_test Ring_test )
    atlas_add_test( ${test}
       SOURCES test/${test}.cxx
+      EXTRA_PATTERNS "no version information available"
       LINK_LIBRARIES CxxUtils )
 endforeach()
+# Needed because this executable directly uses multiversioned functions.
+set_property( TARGET CxxUtils_crc64_test PROPERTY POSITION_INDEPENDENT_CODE ON )
 
 
 # If we are in release rebuilding mode, stop here:

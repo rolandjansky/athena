@@ -18,7 +18,6 @@
 #include "TrkGeometry/Layer.h"
 
 #include "TrkExInterfaces/IExtrapolator.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -49,7 +48,7 @@ namespace InDet {
 					   const std::string& n, const IInterface* p):
     AthAlgTool(name, n,p),
     m_extrapolator(""),
-    m_pixelCondSummarySvc("",n),
+    m_pixelCondSummaryTool("",this),
     m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
     m_idHelper(nullptr),
     m_pixelId(nullptr),
@@ -57,7 +56,7 @@ namespace InDet {
   {
     declareInterface<IInDetTestBLayerTool>(this);
     declareProperty("Extrapolator"   , m_extrapolator);
-    declareProperty("PixelSummarySvc", m_pixelCondSummarySvc);
+    declareProperty("PixelSummaryTool", m_pixelCondSummaryTool);
     declareProperty("ResidualPullCalculator",m_residualPullCalculator);
     declareProperty("CheckActiveAreas", m_checkActiveAreas = false);
     declareProperty("CheckDeadRegions", m_checkDeadRegions = false);
@@ -104,16 +103,16 @@ namespace InDet {
     }
 
     // Get PixelConditionsSummarySvc
-    if( m_pixelCondSummarySvc.empty() ){
-      ATH_MSG_INFO( "PixelConditionsSummarySvc not configured " );
+    if( m_pixelCondSummaryTool.empty() ){
+      ATH_MSG_INFO( "PixelConditionsSummary not configured " );
       m_configured=false;
     }
     else{
-      if ( m_pixelCondSummarySvc.retrieve().isFailure() ) {
-	ATH_MSG_FATAL("Failed to retrieve tool " << m_pixelCondSummarySvc);
+      if ( m_pixelCondSummaryTool.retrieve().isFailure() ) {
+	ATH_MSG_FATAL("Failed to retrieve tool " << m_pixelCondSummaryTool);
 	return StatusCode::FAILURE;
       } else {
-	ATH_MSG_INFO("Retrieved tool " << m_pixelCondSummarySvc);
+	ATH_MSG_INFO("Retrieved tool " << m_pixelCondSummaryTool);
       }
     }
 
@@ -371,7 +370,7 @@ namespace InDet {
 
       Identifier id = (*it)->associatedSurface().associatedDetectorElement()->identify();
 
-      if( m_pixelCondSummarySvc->isGood(id,InDetConditions::PIXEL_MODULE) ){
+      if( m_pixelCondSummaryTool->isGood(id,InDetConditions::PIXEL_MODULE) ){
 
 	if( m_checkActiveAreas ){
 
@@ -619,7 +618,7 @@ namespace InDet {
       blayerInfo.errLocalX(error_locx);
       blayerInfo.errLocalY(error_locy);
 
-      bool isgood =  m_pixelCondSummarySvc->isGood(id,InDetConditions::PIXEL_MODULE);
+      bool isgood =  m_pixelCondSummaryTool->isGood(id,InDetConditions::PIXEL_MODULE);
 
       double phitol = 2.5;
       double etatol = 5.;
@@ -737,7 +736,7 @@ namespace InDet {
 
     IdentifierHash id_hash = m_pixelId->wafer_hash(moduleid);
 
-    if( !m_pixelCondSummarySvc->isGood(id_hash) ){
+    if( !m_pixelCondSummaryTool->isGood(id_hash) ){
       ATH_MSG_WARNING (  "Invalid Hash"  );
       return 0.;
     }
@@ -807,7 +806,7 @@ namespace InDet {
 	ATH_MSG_WARNING ( "unvalid identifier: locPos outside module! " );
 	return 0.;
       }
-      double frac = m_pixelCondSummarySvc->goodFraction(id_hash,startId,endId);
+      double frac = m_pixelCondSummaryTool->goodFraction(id_hash,startId,endId);
       return frac;
     }
     else{

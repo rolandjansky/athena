@@ -5,7 +5,6 @@
 #include <cmath>
 #include <iostream>
 #include <list>
-//#include "GaudiKernel/ToolFactory.h"
 #include "IRegionSelector/IRoiDescriptor.h"
 //#include "InDetIdentifier/PixelID.h" 
 //#include "InDetIdentifier/SCT_ID.h" 

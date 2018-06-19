@@ -354,7 +354,7 @@ StatusCode LArTimePhysPrediction::stop()
 	    if((emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==15 && real_eta>0 && slot>10) || (emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==16 && real_eta>0 && slot<3)) DeltaTTC=m_vDeltaTTC_ECA_SPEC[2][1];
 	    if(hecId->is_lar_hec(id) && abs(barrel_ec)==1 && FT==16 && real_eta>0) DeltaTTC=m_vDeltaTTC_ECA_SPEC[2][2];
 	    //A FTs 21/22
-	    if(emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==21 && real_eta>0 && slot<11) DeltaTTC=m_vDeltaTTC_ECA_SPEC[3][0];;
+	    if(emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==21 && real_eta>0 && slot<11) DeltaTTC=m_vDeltaTTC_ECA_SPEC[3][0];
 	    if((emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==21 && real_eta>0 && slot>10) || (emId->is_lar_em(id) && abs(barrel_ec)==1 && FT==21 && real_eta>0 && slot<3)) DeltaTTC=m_vDeltaTTC_ECA_SPEC[3][1];
 	    if(hecId->is_lar_hec(id) && abs(barrel_ec)==1 && FT==22 && real_eta>0) DeltaTTC=m_vDeltaTTC_ECA_SPEC[3][2];
 	    //C FTs 2/3

@@ -294,23 +294,6 @@ namespace pool {
      */
     virtual IFileCatalog* getCatalog( );
 
-    /**
-     * Returns a cursor for the navigation over collections registered in a collection catalog 
-     * managed by the collection service. Queries are possible at both the collection and 
-     * row levels.
-     *
-     * @param collectionLevelQuery Predicates for collection level query.
-     * @param rowLevelQuery Predicates for row level query.
-     * @param tokenOutputList Names of Token columns to be retrieved by row level query.
-     * @param attribOutputList Names of attribute columns to be retrieved by row level query.
-     * @param rowCacheSize Size of cache used to store rows retrieved by row level query.
-     */
-    virtual ICollectionCursor* getCatalogCollectionCursor( std::string collectionLevelQuery = "",
-	                                                   std::string rowLevelQuery = "",
-	                                                   std::vector<std::string>* tokenOutputList = 0,
-	                                                   std::vector<std::string>* attribOutputList = 0,
-	                                                   int rowCacheSize = 0 ) const;
-
   };
 }
 

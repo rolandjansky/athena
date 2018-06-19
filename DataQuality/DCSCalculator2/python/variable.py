@@ -47,14 +47,14 @@ class DCSC_Variable(object):
     is_global = False
     is_config_variable = False
     timewise_folder = True
-    input_db = 'COOLOFL_DCS/COMP200'
 
     def __init__(self, folder_name, evaluator, **kwargs):
+        if not hasattr(self, 'input_db'):
+            self.input_db = 'COOLOFL_DCS/CONDBR2'
         self.folder_name = folder_name
         self.evaluator = evaluator
         if not hasattr(self, "fetch_args"):
             self.fetch_args = {}
-        self.fetch_args.update(dict(database=self.input_db))
         self.__dict__.update(kwargs)
         self.input_hashes = []
     
@@ -84,10 +84,23 @@ class DCSC_Variable(object):
         if config.opts.check_input_time:
             self.fetch_args["with_time"] = True
         
+        # Massage DB access
+        if '/' in self.input_db:
+            newdbstring = self.input_db.rsplit('/', 1)[0]
+        else:
+            newdbstring = self.input_db
+        self.fetch_args['database'] = ('%s/%s' % (newdbstring, config.opts.input_database))
         if self.fetch_args:
             log.debug("Fetching with args: %r", self.fetch_args)
             
         iovs = fetch_iovs(folder_path, *query_range, **self.fetch_args)
+
+        # Prints even when not doing debug.
+        # TODO: fix this. Might be broken in DQUtils.logger
+        #if log.isEnabledFor(logging.DEBUG):
+        #    log.debug("Dumping input IOVs:")
+        #    for iov in iovs:
+        #        print iov
         
         if config.opts.check_input_time:
             self.print_time_info(iovs)
@@ -181,6 +194,7 @@ class DCSC_Variable(object):
         iovs = self.map_input_channels(iovs)
 
         if self.timewise_folder and not config.opts.timewise:
+            # we might already know the defect mapping
             with timer("Quantize %s (%i iovs over %i lbs)" % 
                        (self.folder_name, len(iovs), len(lbtime))):
                 # Quantize to luminosity block

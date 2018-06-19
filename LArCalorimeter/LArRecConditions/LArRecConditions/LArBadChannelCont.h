@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRECCONDITIONS_LARBADCHANNELCONT_H
@@ -61,7 +61,13 @@ public:
    * @return LArBadChannel or LArBadFeb object describing the problem
    */
   LArBC_t status(const HWIdentifier channel) const;
-
+ 
+  /**@brief Query the status of a particular channel by offline ID
+   * This is the main client access method
+   * @param Identifer of the channel in question
+   * @return LArBadChannel 
+   */
+  LArBC_t offlineStatus(const Identifier id) const;
 
   ///Access to the begin iterator of the underlying vector
   const_iterator begin() const {return m_cont.begin();}
@@ -73,7 +79,12 @@ public:
   size_type      size() const {return m_cont.size();}
 
   /// Deletes the contents and sets size to 0 (same as stl::vector<T>::clear())
-  void clear() {m_cont.clear();}
+  void clear() {m_cont.clear();  m_oflCont.clear();}
+
+  const BadChanVec& fullCont() const {return m_cont;}
+
+  //Add offline vector
+  void setOflVec(BadChanVec& input);
 
 private:
   ///Comparison functor for sorting and searching
@@ -84,7 +95,8 @@ private:
   };
 
   //The vector storing bad-channels
-  BadChanVec m_cont;
+  BadChanVec m_cont;    //with their online id
+  BadChanVec m_oflCont; //with their offline id (only for channels, not FEBs)
 };
 
 #include "LArRecConditions/LArBadChannelCont.icc"

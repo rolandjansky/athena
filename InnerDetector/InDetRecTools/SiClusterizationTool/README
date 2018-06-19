@@ -3,7 +3,7 @@ responsible:   Tommaso Lari (Tommaso.Lari@cern.ch)
 content:       Silicon Clustering algorithms
 Inputs:        Silicon RDO, Geometry
 Outputs:       cluster collection with local position info
-Dependencies:  Control/DataModel
+Dependencies:  Control/AthContainers
                DetectorDescription/AtlasDetDescr
                DetectorDescription/Identifier
                InnerDetector/InDetConditions/SCT_ConditionsAlgs

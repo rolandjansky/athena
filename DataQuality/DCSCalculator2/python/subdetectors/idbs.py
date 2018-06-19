@@ -8,7 +8,7 @@ IDBS = 150
     
 class IDBS_Beampos(DCSC_Global_Variable):
     
-    input_db = "COOLOFL_INDET/COMP200"
+    input_db = "COOLOFL_INDET/CONDBR2"
     timewise_folder = False
     fetch_args = dict(tag="IndetBeampos-ES1-UPD2")
     

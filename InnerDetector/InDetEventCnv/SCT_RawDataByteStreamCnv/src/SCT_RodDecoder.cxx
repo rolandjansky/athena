@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_RodDecoder.h"
@@ -8,19 +8,17 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
-#include <iostream>
 //Gaudi
 #include "GaudiKernel/IIncidentSvc.h"
 //Athena
 #include "ByteStreamData/RawEvent.h"
 //Inner detector
 #include "SCT_Cabling/ISCT_CablingSvc.h"
-#include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 
-union RawWord{
+union RawWord {
   uint32_t word32;
   uint16_t word16[2];
 };
@@ -28,11 +26,10 @@ union RawWord{
 //constructor
 SCT_RodDecoder::SCT_RodDecoder
 (const std::string& type, const std::string& name,const IInterface* parent) :
-  AthAlgTool(type, name, parent),
+  base_class(type, name, parent),
   m_sct_id{nullptr},
   m_indet_mgr{nullptr},
   m_cabling{"SCT_CablingSvc", name},
-  m_byteStreamErrSvc{"SCT_ByteStreamErrorsSvc", name},
   m_condensedMode{false},
   m_superCondensedMode{false},
   m_singleCondHitNumber{0},
@@ -67,13 +64,7 @@ SCT_RodDecoder::SCT_RodDecoder
   m_incidentSvc{"IncidentSvc", name}
 {
   declareProperty("CablingSvc", m_cabling);
-  declareProperty("ErrorsSvc", m_byteStreamErrSvc);
   declareProperty("TriggerMode", m_triggerMode=true);
-  declareInterface<ISCT_RodDecoder>(this);
-}
-
-//destructor  
-SCT_RodDecoder::~SCT_RodDecoder() {
 }
 
 StatusCode SCT_RodDecoder::initialize() {
@@ -88,8 +79,9 @@ StatusCode SCT_RodDecoder::initialize() {
   ATH_CHECK(detStore()->retrieve(m_indet_mgr,"SCT"));
   
   ATH_CHECK(detStore()->retrieve(m_sct_id,"SCT_ID"));
+  m_cntx_sct = m_sct_id->wafer_context();
 
-  ATH_CHECK(m_byteStreamErrSvc.retrieve());
+  ATH_CHECK(m_configTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -132,7 +124,6 @@ SCT_RodDecoder::finalize() {
   if (m_numMissingLinkHeader > 0) ATH_MSG_WARNING("SCT Missing Link Headers found " << m_numMissingLinkHeader);
   if (m_numUnknownOfflineId  > 0) ATH_MSG_WARNING("SCT unknown onlineId found " << m_numUnknownOfflineId);
 
-
   ATH_CHECK(AlgTool::finalize());
   ATH_MSG_DEBUG("SCT_RodDecoder::finalize()");
 
@@ -144,16 +135,18 @@ StatusCode
 SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
                                ISCT_RDO_Container& rdoIdc,
                                InDetBSErrContainer* errs,
+                               SCT_ByteStreamFractionContainer* bsFracCont,
                                std::vector<IdentifierHash>* vecHash)
 {
   uint32_t robid{robFrag.rod_source_id()};
   /**determine whether this data was generated using the ROD simulator */
   uint32_t rod_datatype{robFrag.rod_detev_type()};
-  if ((rod_datatype >> 20) & 1) m_byteStreamErrSvc->setRODSimulatedData();
+  const bool rodSimulatedData{static_cast<bool>((rod_datatype >> 20) & 1)};
+  if (bsFracCont) bsFracCont->insert(SCT_ByteStreamFractionContainer::SimulatedData, robid, rodSimulatedData);
 
   /** look for the bit that denotes "Super-condensed" mode.*/
   m_superCondensedMode = ((rod_datatype >> 21) & 1);   
-
+  if (bsFracCont) bsFracCont->insert(SCT_ByteStreamFractionContainer::SuperCondensedMode, robid, m_superCondensedMode);
 
   int strip{0};
   int oldstrip{-1};
@@ -233,8 +226,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
       }
       /** look at bits 20-23 for DCS HV */
       int hvBits{static_cast<int>((statusWord >> 20) & 0xf)};
-      if (hvBits==0xf) m_byteStreamErrSvc->addRODHVCounter(true); 
-      else m_byteStreamErrSvc->addRODHVCounter(false); 
+      const bool hvOn{hvBits==0xf};
+      if (bsFracCont) bsFracCont->insert(SCT_ByteStreamFractionContainer::HVOn, robid, hvOn);
     }
   }
   
@@ -650,14 +643,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
           sc=StatusCode::RECOVERABLE;
         }
 
-        bool condensedMode{false};
-        if (d[n]&0x100) condensedMode = true;
-
-        if (condensedMode != m_condensedMode) {
-          m_condensedMode = condensedMode;
-          // This does not appear to be used.  Can it be removed???
-          m_byteStreamErrSvc->setCondensedReadout(m_condensedMode);
-        }
+        m_condensedMode = static_cast<bool>(d[n]&0x100);
 
         continue;
   
@@ -681,7 +667,10 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
         }
   
         if (d[n]&0x800) {
-          //ErrorTrailer = true;/** no data should appear between header and trailer */
+          //ErrorTrailer = true;
+          /** no data should appear between header and trailer
+              See 1.2.2 Formatter FPGA - Serial Data Decoding and Formatting of
+              http://www-eng.lbl.gov/~jmjoseph/Atlas-SiROD/Manuals/usersManual-v164.pdf */
           ATH_MSG_DEBUG("    Trailer: xxx Header-Trailer limit ERROR " << std::hex << d[n]);
           m_trail_error_limit++;
           addSingleError(currentLinkIdHash, SCT_ByteStreamErrors::HeaderTrailerLimitError, errs);
@@ -716,7 +705,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
           // 6 means chip 5 is temporarily masked. 
           // 7 means chips 6-11, 0-5 are temporarily masked. 
           // 12 means chips 11, 0-5 are temporarily masked. 
-          m_byteStreamErrSvc->setFirstTempMaskedChip(currentLinkIdHash, (d[n] & 0xF));
+          setFirstTempMaskedChip(currentLinkIdHash, (d[n] & 0xF), errs);
         }
         continue; 
       }
@@ -816,8 +805,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
     }
   }
 
-  // Set this ROD as decoded in SCT_ByteStreamErrorSvc
-  m_byteStreamErrSvc->setDecodedROD(robid);
+  if (bsFracCont) bsFracCont->insert(SCT_ByteStreamFractionContainer::CondensedMode, robid, m_condensedMode);
 
   if (sc.isFailure()) ATH_MSG_DEBUG("One or more ByteStream errors found ");
   return sc;
@@ -833,8 +821,6 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int tbin, uint32_t onlineI
                             CacheHelper& cache,
                             const std::vector<int>& errorHit)
 {
-
-  // IIncidentSvc* incsvc;
 
   if (onlineId == 0x0) {
     ATH_MSG_WARNING("No link header found, possibly corrupt ByteStream.  Will not try to make RDO");
@@ -903,10 +889,10 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int tbin, uint32_t onlineI
 
 
 
-  SCT_RDO_Collection* col = nullptr;
-  ATH_CHECK(rdoIdc.naughtyRetrieve(idCollHash, col), 0);//Returns null if not present
+  SCT_RDO_Collection* col{nullptr};
+  ATH_CHECK(rdoIdc.naughtyRetrieve(idCollHash, col), 0); // Returns null if not present
 
-  if(!col){
+  if (col==nullptr) {
     ATH_MSG_DEBUG(" Collection ID = " << idCollHash << " does not exist, create it ");
     /** create new collection */   
     col  = new SCT_RDO_Collection(idCollHash);
@@ -922,9 +908,7 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize, int tbin, uint32_t onlineI
    * into Collection. 
    */
   m_nRDOs++;
-  col->push_back(std::make_unique<SCT3_RawData>(iddigit,
-                                                     rawDataWord,
-                                                     &errorHit));
+  col->push_back(std::make_unique<SCT3_RawData>(iddigit, rawDataWord, &errorHit));
   return 1;
 }
 
@@ -947,15 +931,161 @@ SCT_RodDecoder::addSingleError(const IdentifierHash idHash,
                                const int bsErrorType,
                                InDetBSErrContainer* errs)
 {
-  bool ok{true};
-  if (m_triggerMode) {
-    m_byteStreamErrSvc->addErrorCount(bsErrorType);
-  } else {
-    ok=idHash.is_valid();
-    if (ok) {
-      errs->push_back(std::make_unique<std::pair<IdentifierHash, int> >
-                      (idHash, bsErrorType));
-    }
+  bool ok{idHash.is_valid() and errs!=nullptr};
+  if (ok) {
+    errs->push_back(std::make_unique<std::pair<IdentifierHash, int> >(idHash, bsErrorType));
   }
   return ok;
+}
+
+void
+SCT_RodDecoder::setFirstTempMaskedChip(const IdentifierHash& hashId, const unsigned int firstTempMaskedChip, InDetBSErrContainer* errs) {
+  if (not hashId.is_valid()) {
+    ATH_MSG_INFO("setFirstTempMaskedChip hashId " << hashId << " is invalid.");
+    return;
+  }
+  if (firstTempMaskedChip==0) {
+    ATH_MSG_WARNING("setFirstTempMaskedChip: firstTempMaskedChip should be greater than 0. firstTempMaskedChip is " << firstTempMaskedChip);
+    return;
+  }
+
+  // wafer hash -> wafer id -> module id -> wafer hash on side-0, wafer hash on side-1
+  const Identifier wafId{m_sct_id->wafer_id(hashId)};
+  const Identifier moduleId{m_sct_id->module_id(wafId)};
+
+  // Side 0
+  IdentifierHash hash_side0;
+  m_sct_id->get_hash(moduleId, hash_side0, &m_cntx_sct);
+  unsigned int firstTempMaskedChip_side0{0};
+  if (hashId==hash_side0) firstTempMaskedChip_side0 = firstTempMaskedChip;
+
+  // Side 1
+  IdentifierHash hash_side1;
+  m_sct_id->get_other_side(hash_side0, hash_side1);
+  unsigned int firstTempMaskedChip_side1{0};
+  if (hashId==hash_side1) firstTempMaskedChip_side1 = firstTempMaskedChip;
+
+  int type{0};
+  // Check if Rx redundancy is used or not in this module
+  std::pair<bool, bool> badLinks{m_configTool->badLinks(moduleId)};
+  if (badLinks.first xor badLinks.second) {
+    // Rx redundancy is used in this module.
+    if (badLinks.first and not badLinks.second) {
+      // link-1 is broken
+      type = 1;
+    } else if (badLinks.second and not badLinks.first) {
+      // link-0 is broken
+      type = 2;
+    } else if (badLinks.first and badLinks.second) {
+      // both link-0 and link-1 are working
+      ATH_MSG_WARNING("setFirstTempMaskedChip: Both link-0 and link-1 are working. But Rx redundancy is used... Why?");
+      return;
+    } else {
+      // both link-0 and link-1 are broken
+      ATH_MSG_WARNING("setFirstTempMaskedChip: Both link-0 and link-1 are broken. But data are coming... Why?");
+      return;
+    }
+  }
+
+  // "Modified" module (using Rx redundancy) case
+  // Information of modified modules are found in
+  // modified0 and modified1 functions of SCT_ReadoutTool.cxx and
+  // Table 3.8 of CERN-THESIS-2008-001 https://cds.cern.ch/record/1078223
+  // However, there are two exceptions of the exceptions.
+  unsigned long long fullSerialNumber{m_cabling->getSerialNumberFromHash(hashId).to_ulonglong()};
+  if (// Readout through link-0
+      fullSerialNumber==20220170200183 or // hash=4662 bec=0 layer=2 eta= 6 phi=39
+      fullSerialNumber==20220330200606 or // hash=5032 bec=0 layer=3 eta=-2 phi= 7
+      fullSerialNumber==20220330200693    // hash=5554 bec=0 layer=3 eta=-5 phi=29
+      ) {
+    if (type!=1) ATH_MSG_WARNING("Link-0 is broken but modified module readingout link-0, inconsistent");
+    type = 3;
+
+    // An exception:
+    // fullSerialNumber=20220170200941, hash=3560 bec=0 layer=1 eta=-6 phi=34
+    // This module is a modified one. However, it is not using modified configuration.
+    // Readout sequence is 0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11.
+  }
+  if (// Readout through link-1
+      fullSerialNumber==20220170200653 or // hash=2786 bec=0 layer=1 eta= 4 phi= 1
+      fullSerialNumber==20220330200117 or // hash=5516 bec=0 layer=3 eta= 1 phi=27
+      fullSerialNumber==20220330200209 or // hash=5062 bec=0 layer=3 eta= 2 phi= 8
+      fullSerialNumber==20220330200505 or // hash=5260 bec=0 layer=3 eta= 5 phi=16
+      fullSerialNumber==20220330200637 or // hash=4184 bec=0 layer=2 eta=-6 phi=20
+      fullSerialNumber==20220330200701    // hash=4136 bec=0 layer=2 eta=-6 phi=18
+      ) {
+    if (type!=2) ATH_MSG_WARNING("Link-1 is broken but modified module readingout link-1, inconsistent");
+    type = 4;
+
+    // Another exception:
+    // fullSerialNumber=20220170200113, hash=3428 bec=0 layer=1 eta= 1 phi=28
+    // This module is a modified one. However, it is not using modified configuration.
+    // Readout sequence is 6, 7, 8, 9, 10, 11, 1, 2, 3, 4, 5.
+  }
+
+  static const int chipOrder[5][12]{
+    // type=0 not prepared for both link-0 and link-1 are working
+    {},
+    // type=1 link-1 is broken: chip 0 1 2 3 4 5 6 7 8 9 10 11
+    {0, 1, 2, 3,  4,  5, 6, 7, 8,  9, 10, 11},
+    // type=2 link-0 is broken: chip 6 7 8 9 10 11 0 1 2 3 4 5
+    {6, 7, 8, 9, 10, 11, 0, 1, 2,  3,  4,  5},
+    // type=3 "modified" modules and link-1 is broken: chip 0 1 2 3 4 5 7 8 9 10 11 6
+    {0, 1, 2, 3,  4,  5, 7, 8, 9, 10, 11,  6},
+    // type=4 "modified" modules and link-0 is broken: chip 6 7 8 9 10 11 1 2 3 4 5 0
+    {6, 7, 8, 9, 10, 11, 1, 2, 3,  4,  5,  0}
+  };
+
+  if (type==0) {
+    // both link-0 and link-1 are working
+
+    // Chips 0-5 are on side 0 and chips 6-11 are on side 1.
+    // Normally, modules send hits on side 0 via link-0 and side 1 via link-1.
+    // The first temporally masked chip value is the id of the chip that is
+    // first masked in the readout chain "plus one".
+    // If the value is in between 1 to  6, it indicates side 0.
+    // If the value is in between 7 to 12, it indicates side 1.
+    // However, some special modules send hits on side 0 via link-1 and hits on
+    // side 1 via link-0. If the first masked chip value on side 1 (0) is
+    // between 1 to 6 (7 to 12), it indicates the module is a special one.
+    // In that case, information is swapped.
+    if ((6<firstTempMaskedChip_side0 and firstTempMaskedChip_side0<=12) or
+        (0<firstTempMaskedChip_side1 and firstTempMaskedChip_side1<= 6)) {
+      unsigned int swapFirstTempMaskedChip_side0{firstTempMaskedChip_side0};
+      firstTempMaskedChip_side0 = firstTempMaskedChip_side1;
+      firstTempMaskedChip_side1 = swapFirstTempMaskedChip_side0;
+    }
+
+    if (firstTempMaskedChip_side0>0) {
+      for (unsigned int iChip{firstTempMaskedChip_side0-1}; iChip<6; iChip++) {
+        addSingleError(hash_side0, SCT_ByteStreamErrors::TempMaskedChip0+iChip, errs);
+      }
+    }
+    if (firstTempMaskedChip_side1>6) {
+      for (unsigned int iChip{firstTempMaskedChip_side1-1}; iChip<12; iChip++) {
+        addSingleError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+iChip-6, errs);
+      }
+    }
+  } else {
+    // type=1, 2, 3, 4: cases using Rx redundancy
+    bool toBeMasked{false};
+    for (int iChip{0}; iChip<12; iChip++) {
+      int jChip{chipOrder[type][iChip]};
+      if (jChip==static_cast<int>(firstTempMaskedChip-1)) toBeMasked = true;
+      if (toBeMasked) {
+        if (jChip<6) addSingleError(hash_side0, SCT_ByteStreamErrors::TempMaskedChip0+jChip, errs);
+        else         addSingleError(hash_side1, SCT_ByteStreamErrors::TempMaskedChip0+jChip-6, errs);
+      }
+    }
+  }
+
+  ATH_MSG_VERBOSE("setFirstTempMaskedChip Hash " << hashId
+                  << " SerialNumber " << m_cabling->getSerialNumberFromHash(hashId).str()
+                  << " moduleId " << moduleId
+                  << " barrel_ec " << m_sct_id->barrel_ec(wafId)
+                  << " layer_disk " << m_sct_id->layer_disk(wafId)
+                  << " eta_module " << m_sct_id->eta_module(wafId)
+                  << " phi_module " << m_sct_id->phi_module(wafId)
+                  << " side " << m_sct_id->side(wafId)
+                  << " firstTempMaskedChip " << firstTempMaskedChip);
 }

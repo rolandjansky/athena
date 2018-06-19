@@ -1,5 +1,5 @@
-#ifndef _RANGEDIVISION_H_
-#define _RANGEDIVISION_H_
+#ifndef QATPLOTWIDGETS_RANGEDIVISION_H
+#define QATPLOTWIDGETS_RANGEDIVISION_H
 #include <QtGui/QTextDocument>
 
 class RangeDivision {
@@ -30,8 +30,8 @@ class RangeDivision {
 
  private:
 
-  double _x;
-  QTextDocument *_label;
+  double m_x;
+  QTextDocument *m_label;
  
 
 };

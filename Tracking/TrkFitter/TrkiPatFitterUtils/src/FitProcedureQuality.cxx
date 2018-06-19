@@ -6,14 +6,10 @@
  quality variables produced during fit procedure
  ***************************************************************************/
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include <iostream>
 #include <iomanip>
 #include "GaudiKernel/MsgStream.h"
 #include "TrkiPatFitterUtils/FitProcedureQuality.h"
-
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
 namespace Trk{
   

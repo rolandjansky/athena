@@ -2,13 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __HERWIG65_HH__
-#define __HERWIG65_HH__
+#ifndef HERWIG_I_HERWIG6520_H
+#define HERWIG_I_HERWIG6520_H
 
 /* Common Block Declarations */
 #include <complex>
 
-const int m_nmxhep = 10000;
+const int nmxhep = 10000;
 
 struct Hwbeam_t {
     int ipart1, ipart2;
@@ -69,7 +69,7 @@ extern  Hwparp_t* gHwparp ;
 struct Hwbosc_t {
   // rhohep = 3*NMXHEP
 //   double alpfac, brhig[12], enhanc[12], gammax, rhohep[30000];
-  double alpfac, brhig[12], enhanc[12], gammax, rhohep[3*m_nmxhep];
+  double alpfac, brhig[12], enhanc[12], gammax, rhohep[3*nmxhep];
   int iophig, modbos[50];
 } ;
 
@@ -92,7 +92,7 @@ struct Hwevnt_t {
   // idhw = NMXHEP
     double avwgt, evwgt, gamwt, tlout, wbigst, wgtmax, wgtsum, wsqsum;
 //     int idhw[10000], ierror, istat, lwevt, maxer, maxpr;
-    int idhw[m_nmxhep], ierror, istat, lwevt, maxer, maxpr;
+    int idhw[nmxhep], ierror, istat, lwevt, maxer, maxpr;
     int nowgt;
     int nrn[2], numer, numeru, nwgts;
     int gensof;
@@ -313,7 +313,7 @@ struct Hwspin_t {
     std::complex<double> mespn[2400]	/* was [2][2][2][2][3][50] */, rhospn[200]	/* was [2][2][50] */;
     double spncfc[450]	/* was [3][3][50] */;
 //     int idspn[50], jmospn[50], jdaspn[100]	/* was [2][50] */, nspn, isnhep[10000], nsntry;
-    int idspn[50], jmospn[50], jdaspn[100]	/* was [2][50] */, nspn, isnhep[m_nmxhep], nsntry;
+    int idspn[50], jmospn[50], jdaspn[100]	/* was [2][50] */, nspn, isnhep[nmxhep], nsntry;
     int decspn[50];
     int ncfl[50], spcopt;
 };

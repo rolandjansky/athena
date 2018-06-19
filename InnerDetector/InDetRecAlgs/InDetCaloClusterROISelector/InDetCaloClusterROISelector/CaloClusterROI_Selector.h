@@ -70,7 +70,7 @@ class CaloClusterROI_Selector : public AthReentrantAlgorithm
   ToolHandle<IegammaIso>                       m_emCaloIsolationTool;
   /** @brief Pointer to the egammaCheckEnergyDepositTool*/
   ToolHandle<IegammaCheckEnergyDepositTool>    m_egammaCheckEnergyDepositTool;
-  /** @Middle shape Tool*/
+  /** @brief Middle shape Tool*/
   ToolHandle<IegammaMiddleShape>               m_egammaMiddleShape;
   /** @brief Tool to build ROI*/
   ToolHandle<InDet::ICaloClusterROI_Builder>   m_caloClusterROI_Builder;

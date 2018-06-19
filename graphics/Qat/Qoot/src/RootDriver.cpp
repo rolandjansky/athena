@@ -69,12 +69,12 @@ public:
 
   void read(HistogramManager * mgr) const;
   
-  mutable std::map<std::string, HistogramManager *> _mgrMap;
-  mutable std::map<std::string, TFile            *> _ostrMap;
-  mutable std::map<std::string, TFile            *> _istrMap;
+  mutable std::map<std::string, HistogramManager *> m_mgrMap;
+  mutable std::map<std::string, TFile            *> m_ostrMap;
+  mutable std::map<std::string, TFile            *> m_istrMap;
 
-  mutable TFile *_o;
-  mutable TFile *_i;
+  mutable TFile *m_o;
+  mutable TFile *m_i;
 
 };
 
@@ -106,11 +106,11 @@ public:
 
   // Get the size:
   virtual size_t size() const {
-    return (size_t) _tree->GetEntries();
+    return (size_t) m_tree->GetEntries();
   }
 
   AttributeListConstLink attributeList() const { 
-    return internalTable->attributeList();
+    return m_internalTable->attributeList();
   }
 
 private:
@@ -120,13 +120,13 @@ private:
 
   
 
-  TTree                         *_tree;
+  TTree                         *m_tree;
   
-  Table                          *internalTable;
-  TupleLink                      internalTuple;
-  std::vector<std::string>       nList;
-  std::vector<TLeaf *>           lList;
-  size_t                         nAttributes;
+  Table                          *m_internalTable;
+  TupleLink                      m_internalTuple;
+  std::vector<std::string>       m_nList;
+  std::vector<TLeaf *>           m_lList;
+  size_t                         m_nAttributes;
 
   friend class ImaginaryFriend;
 
@@ -135,33 +135,33 @@ private:
 
 TupleConstLink RootIOStore::operator [] (size_t i) const {
 
-  size_t limit = (size_t) (0.5+_tree->GetEntries());
+  size_t limit = (size_t) (0.5+m_tree->GetEntries());
   if (i>=limit) return NULL;
 
-  _tree->GetEntry(i);
-  internalTuple->uncache();
+  m_tree->GetEntry(i);
+  m_internalTuple->uncache();
 
-  return internalTuple;
+  return m_internalTuple;
 
 }
 
 
 RootIOStore::~RootIOStore() {
-  delete internalTable;
-  delete _tree;
+  delete m_internalTable;
+  delete m_tree;
 }
 
 RootIOStore::RootIOStore(TTree * tree):
-_tree(tree),
-internalTable(NULL),
-internalTuple(NULL),
-nAttributes{}
+m_tree(tree),
+m_internalTable(NULL),
+m_internalTuple(NULL),
+m_nAttributes{}
 {
   TObjArray *bArray = tree->GetListOfLeaves();
   TObjArrayIter next(bArray);
   TObject *to;
 
-  internalTable       = new Table("Internal Use Only");
+  m_internalTable       = new Table("Internal Use Only");
 
   while ((to=next())) {
     
@@ -172,41 +172,41 @@ nAttributes{}
       std::string branchName = branch ? std::string(branch->GetName()) : std::string("") ;
       std::string name     = branchName != leaf->GetName() ? branchName + std::string("_") + leaf->GetName() : leaf->GetName();
       if (typeName=="Float_t")  {
-	internalTable->add(name,float(0));
+	m_internalTable->add(name,float(0));
       }
       else if (typeName=="Double_t") {
-	internalTable->add(name,double(0));
+	m_internalTable->add(name,double(0));
       }
       else if (typeName=="Int_t")    {
-	internalTable->add(name,int(0));
+	m_internalTable->add(name,int(0));
       }
       // Just added, not debugged:
       else if (typeName=="UChar_t")    {
-	internalTable->add(name,size_t(0));
+	m_internalTable->add(name,size_t(0));
       }
       // End  addition
       else if (typeName=="UInt_t") {  
-	internalTable->add(name,size_t(0));
+	m_internalTable->add(name,size_t(0));
       }
       else {
 	std::cerr << "[RootDriver:  Unknown type " << typeName << " will be ignored on input]" << std::endl;
       }
-      nList.push_back(name);
-      lList.push_back(leaf);
+      m_nList.push_back(name);
+      m_lList.push_back(leaf);
     }
   }
   // Get the data:
   
   // End of header.  Now start the data:
-  internalTuple       = (TupleLink) internalTable->capture();
+  m_internalTuple       = (TupleLink) m_internalTable->capture();
     
-  ValueList & vList = internalTuple->valueList();
+  ValueList & vList = m_internalTuple->valueList();
 
 
-  for (size_t j=0;j<nList.size();j++) {
+  for (size_t j=0;j<m_nList.size();j++) {
     try {
-      int i = internalTable->attribute(nList[j]).attrId();
-      lList[j]->SetAddress((void *) vList[i].asCharStar() );
+      int i = m_internalTable->attribute(m_nList[j]).attrId();
+      m_lList[j]->SetAddress((void *) vList[i].asCharStar() );
     }
     catch (std::runtime_error &) {
     }
@@ -221,7 +221,7 @@ extern "C" void *RootDriverCreate() {
 } 
 
 
-RootDriver::RootDriver():_o(NULL),_i(NULL) {
+RootDriver::RootDriver():m_o(NULL),m_i(NULL) {
   std::cerr << "[RootDriver:  HELLO.]" << std::endl;
 }
 
@@ -250,11 +250,11 @@ const HistogramManager *RootDriver::openManager(const std::string & filename)  c
     return NULL; 
   }
    
-  _istrMap[filename]=stream;
+  m_istrMap[filename]=stream;
 
    
   HistogramManager *mgr = new HistogramManager(filename);
-  _mgrMap[filename]=mgr;
+  m_mgrMap[filename]=mgr;
    
   read(mgr);
    
@@ -274,10 +274,10 @@ HistogramManager *RootDriver::newManager(const std::string & filename)  const {
     return NULL;
   }
                                                                                                            
-  _ostrMap[filename]=stream;
+  m_ostrMap[filename]=stream;
                                                                                                            
   HistogramManager *mgr = new HistogramManager();
-  _mgrMap[filename]=mgr;
+  m_mgrMap[filename]=mgr;
                                                                                                            
   std::cerr << "[RootDriver:  New Histogram file " << filename << "]" << std::endl;
 
@@ -289,8 +289,8 @@ HistogramManager *RootDriver::newManager(const std::string & filename)  const {
 void RootDriver::close (const HistogramManager *mgr) const {
   // Find the file name:
   std::map<std::string, HistogramManager *>::iterator 
-    begin=_mgrMap.begin(),
-    end=_mgrMap.end(),m=begin;
+    begin=m_mgrMap.begin(),
+    end=m_mgrMap.end(),m=begin;
   std::string filename;
   while (m!=end) {
     m++;
@@ -302,24 +302,24 @@ void RootDriver::close (const HistogramManager *mgr) const {
   
   if (filename!="") {
     {
-      TFile *file = _ostrMap[filename];
+      TFile *file = m_ostrMap[filename];
       if (file) file->Close();
     }
     {
-      TFile *file = _istrMap[filename];
+      TFile *file = m_istrMap[filename];
       if (file) file->Close();
     }
     {
-      std::map<std::string, HistogramManager *>::iterator d=_mgrMap.find(filename);
-      if (d!=_mgrMap.end()) _mgrMap.erase(d);
+      std::map<std::string, HistogramManager *>::iterator d=m_mgrMap.find(filename);
+      if (d!=m_mgrMap.end()) m_mgrMap.erase(d);
     }
     {
-      std::map<std::string, TFile *>::iterator d=_istrMap.find(filename);
-      if (d!=_istrMap.end()) _istrMap.erase(d);
+      std::map<std::string, TFile *>::iterator d=m_istrMap.find(filename);
+      if (d!=m_istrMap.end()) m_istrMap.erase(d);
     }
     {
-      std::map<std::string, TFile *>::iterator d=_ostrMap.find(filename);
-      if (d!=_ostrMap.end()) _ostrMap.erase(d);
+      std::map<std::string, TFile *>::iterator d=m_ostrMap.find(filename);
+      if (d!=m_ostrMap.end()) m_ostrMap.erase(d);
     }
   }
   
@@ -334,11 +334,11 @@ void RootDriver::write (HistogramManager *mgr) const {
   bool topLevel(false);
   std::string name;
   std::map<std::string , HistogramManager *>::iterator m;
-  for (m=_mgrMap.begin();m!=_mgrMap.end();m++) {
+  for (m=m_mgrMap.begin();m!=m_mgrMap.end();m++) {
     if (mgr==(*m).second) {
       name = (*m).first;
-      _o = _ostrMap[name];
-      _o->cd();
+      m_o = m_ostrMap[name];
+      m_o->cd();
       topLevel=true;
       break;
     }
@@ -458,7 +458,7 @@ void RootDriver::write (HistogramManager *mgr) const {
     
   }
   
-  if (topLevel) _o->Write();       // Once per file?
+  if (topLevel) m_o->Write();       // Once per file?
 
 }
 
@@ -467,11 +467,11 @@ void RootDriver::read(HistogramManager *mgr) const {
   // Find the output stream for this:
   std::string name;
   std::map<std::string , HistogramManager *>::iterator m;
-  for (m=_mgrMap.begin();m!=_mgrMap.end();m++) {
+  for (m=m_mgrMap.begin();m!=m_mgrMap.end();m++) {
     if (mgr==(*m).second) {
       name = (*m).first;
-      _i = _istrMap[name];
-      _i->cd();
+      m_i = m_istrMap[name];
+      m_i->cd();
       break;
     }
   }

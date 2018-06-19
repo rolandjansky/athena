@@ -14,14 +14,16 @@
 
  ***************************************************************************/
 
+#include "InDetV0Finder.h"
+
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 
-#include "InDetV0Finder/InDetV0Finder.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "TrkVertexAnalysisUtils/V0Tools.h"
 #include "GaudiKernel/IPartPropSvc.h"
+#include "StoreGate/WriteDecorHandle.h"
 
 #include <vector>
 #include <cmath>
@@ -44,16 +46,11 @@ InDetV0Finder::InDetV0Finder(const std::string &n, ISvcLocator *pSvcLoc)
   m_masse(0.510999),
   m_massK0S(497.672),
   m_massLambda(1115.68),
-  m_VxPrimaryCandidateName("PrimaryVertices"),
   m_events_processed(0),
   m_V0s_stored(0),
   m_Kshort_stored(0),
   m_Lambda_stored(0),
-  m_Lambdabar_stored(0),
-  m_v0ContainerName("V0Candidates"),
-  m_ksContainerName("KshortCandidates"),
-  m_laContainerName("LambdaCandidates"),
-  m_lbContainerName("LambdabarCandidates")
+  m_Lambdabar_stored(0)
 {
   declareProperty("InDetV0FinderToolName"   , m_v0FinderTool);
   declareProperty("V0Tools",m_V0Tools);
@@ -64,48 +61,119 @@ InDetV0Finder::InDetV0Finder(const std::string &n, ISvcLocator *pSvcLoc)
   declareProperty("masse", m_masse);
   declareProperty("massK0S", m_massK0S);
   declareProperty("massLambda", m_massLambda);
-  declareProperty("VxPrimaryCandidateName", m_VxPrimaryCandidateName);
-  declareProperty("V0ContainerName", m_v0ContainerName);
-  declareProperty("KshortContainerName", m_ksContainerName);
-  declareProperty("LambdaContainerName", m_laContainerName);
-  declareProperty("LambdabarContainerName", m_lbContainerName);
 }
 
 InDetV0Finder::~InDetV0Finder() {}
 
 StatusCode InDetV0Finder::initialize()
 {
-  StatusCode sc;
+  ATH_CHECK( resetStatistics() );
 
-  sc = resetStatistics();     // reset counters
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Error in resetStatistics !" << endmsg;
-    return sc;
-  }
+  ATH_CHECK( m_vertexKey.initialize() );
+  ATH_CHECK( m_v0Key.initialize() );
+  ATH_CHECK( m_ksKey.initialize() );
+  ATH_CHECK( m_laKey.initialize() );
+  ATH_CHECK( m_lbKey.initialize() );
+
+  // Make sure decoration keys match the VertexContainer name (which is configured at run-time by python for production jobs)
+  m_decorKsMass = m_v0Key.key() + m_decorKsMass.key();
+  m_decorLaMass = m_v0Key.key() + m_decorLaMass.key();
+  m_decorLbMass = m_v0Key.key() + m_decorLaMass.key();
+  m_decorKsMassErr = m_v0Key.key() + m_decorKsMassErr.key();
+  m_decorLaMassErr = m_v0Key.key() + m_decorLaMassErr.key();
+  m_decorLbMassErr = m_v0Key.key() + m_decorLbMassErr.key();
+
+  ATH_CHECK( m_decorKsMass.initialize() );
+  ATH_CHECK( m_decorLaMass.initialize() );
+  ATH_CHECK( m_decorLbMass.initialize() );
+  ATH_CHECK( m_decorKsMassErr.initialize() );
+  ATH_CHECK( m_decorLaMassErr.initialize() );
+  ATH_CHECK( m_decorLbMassErr.initialize() );
+
+  m_decorMass_ks = m_ksKey.key() + m_decorMass_ks.key();
+  m_decorMass_la = m_laKey.key() + m_decorMass_la.key();
+  m_decorMass_lb = m_lbKey.key() + m_decorMass_lb.key();
+
+  m_decorMassErr_ks = m_ksKey.key() + m_decorMassErr_ks.key();
+  m_decorMassErr_la = m_laKey.key() + m_decorMassErr_la.key();
+  m_decorMassErr_lb = m_lbKey.key() + m_decorMassErr_lb.key();
+
+  ATH_CHECK( m_decorMass_ks.initialize() );
+  ATH_CHECK( m_decorMass_la.initialize() );
+  ATH_CHECK( m_decorMass_lb.initialize() );
+  ATH_CHECK( m_decorMassErr_ks.initialize() );
+  ATH_CHECK( m_decorMassErr_la.initialize() );
+  ATH_CHECK( m_decorMassErr_lb.initialize() );
+
+  m_decorPt_v0 = m_v0Key.key() + m_decorPt_v0.key();
+  m_decorPt_ks = m_ksKey.key() + m_decorPt_ks.key();
+  m_decorPt_la = m_laKey.key() + m_decorPt_la.key();
+  m_decorPt_lb = m_lbKey.key() + m_decorPt_lb.key();
+  m_decorPtErr_v0 = m_v0Key.key() + m_decorPtErr_v0.key();
+  m_decorPtErr_ks = m_ksKey.key() + m_decorPtErr_ks.key();
+  m_decorPtErr_la = m_laKey.key() + m_decorPtErr_la.key();
+  m_decorPtErr_lb = m_lbKey.key() + m_decorPtErr_lb.key();
+  m_decorRxy_v0 = m_v0Key.key() + m_decorRxy_v0.key();
+  m_decorRxy_ks = m_ksKey.key() + m_decorRxy_ks.key();
+  m_decorRxy_la = m_laKey.key() + m_decorRxy_la.key();
+  m_decorRxy_lb = m_lbKey.key() + m_decorRxy_lb.key();
+  m_decorRxyErr_v0 = m_v0Key.key() + m_decorRxyErr_v0.key();
+  m_decorRxyErr_ks = m_ksKey.key() + m_decorRxyErr_ks.key();
+  m_decorRxyErr_la = m_laKey.key() + m_decorRxyErr_la.key();
+  m_decorRxyErr_lb = m_lbKey.key() + m_decorRxyErr_lb.key();
+  m_decorPx_v0 = m_v0Key.key() + m_decorPx_v0.key();
+  m_decorPx_ks = m_ksKey.key() + m_decorPx_ks.key();
+  m_decorPx_la = m_laKey.key() + m_decorPx_la.key();
+  m_decorPx_lb = m_lbKey.key() + m_decorPx_lb.key();
+  m_decorPy_v0 = m_v0Key.key() + m_decorPy_v0.key();
+  m_decorPy_ks = m_ksKey.key() + m_decorPy_ks.key();
+  m_decorPy_la = m_laKey.key() + m_decorPy_la.key();
+  m_decorPy_lb = m_lbKey.key() + m_decorPy_lb.key();
+  m_decorPz_v0 = m_v0Key.key() + m_decorPz_v0.key();
+  m_decorPz_ks = m_ksKey.key() + m_decorPz_ks.key();
+  m_decorPz_la = m_laKey.key() + m_decorPz_la.key();
+  m_decorPz_lb = m_lbKey.key() + m_decorPz_lb.key();
+
+  ATH_CHECK( m_decorPt_v0.initialize() );
+  ATH_CHECK( m_decorPt_ks.initialize() );
+  ATH_CHECK( m_decorPt_la.initialize() );
+  ATH_CHECK( m_decorPt_lb.initialize() );
+  ATH_CHECK( m_decorPtErr_v0.initialize() );
+  ATH_CHECK( m_decorPtErr_ks.initialize() );
+  ATH_CHECK( m_decorPtErr_la.initialize() );
+  ATH_CHECK( m_decorPtErr_lb.initialize() );
+  ATH_CHECK( m_decorRxy_v0.initialize() );
+  ATH_CHECK( m_decorRxy_ks.initialize() );
+  ATH_CHECK( m_decorRxy_la.initialize() );
+  ATH_CHECK( m_decorRxy_lb.initialize() );
+  ATH_CHECK( m_decorRxyErr_v0.initialize() );
+  ATH_CHECK( m_decorRxyErr_ks.initialize() );
+  ATH_CHECK( m_decorRxyErr_la.initialize() );
+  ATH_CHECK( m_decorRxyErr_lb.initialize() );
+  ATH_CHECK( m_decorPx_v0.initialize() );
+  ATH_CHECK( m_decorPx_ks.initialize() );
+  ATH_CHECK( m_decorPx_la.initialize() );
+  ATH_CHECK( m_decorPx_lb.initialize() );
+  ATH_CHECK( m_decorPy_v0.initialize() );
+  ATH_CHECK( m_decorPy_ks.initialize() );
+  ATH_CHECK( m_decorPy_la.initialize() );
+  ATH_CHECK( m_decorPy_lb.initialize() );
+  ATH_CHECK( m_decorPz_v0.initialize() );
+  ATH_CHECK( m_decorPz_ks.initialize() );
+  ATH_CHECK( m_decorPz_la.initialize() );
+  ATH_CHECK( m_decorPz_lb.initialize() );
 
 // uploading the V0Finding tools
-  if ( m_v0FinderTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_v0FinderTool << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_v0FinderTool << endmsg;
-  }
+  ATH_CHECK( m_v0FinderTool.retrieve() ); 
+  msg(MSG::INFO) << "Retrieved tool " << m_v0FinderTool << endmsg;
 
 // uploading the V0 tools
-  if ( m_V0Tools.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_V0Tools << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_V0Tools << endmsg;
-  }
+  ATH_CHECK( m_V0Tools.retrieve() );
+  msg(MSG::INFO) << "Retrieved tool " << m_V0Tools << endmsg;
 
 // get the Particle Properties Service
   IPartPropSvc* partPropSvc = 0;
-  sc = service("PartPropSvc", partPropSvc, true);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not initialize Particle Properties Service" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( service("PartPropSvc", partPropSvc, true) );
   m_particleDataTable = partPropSvc->PDT();
 
   const HepPDT::ParticleData* pd_pi = m_particleDataTable->particle(PDG::pi_plus);
@@ -128,27 +196,23 @@ StatusCode InDetV0Finder::initialize()
 
 StatusCode InDetV0Finder::execute()
 {
-  StatusCode sc;
 
   m_events_processed++;
 
 // Get primary vertex from StoreGate
-  const xAOD::Vertex * primaryVertex(0);
-  const xAOD::VertexContainer * importedVxContainer(0);
-  sc = evtStore()->retrieve(importedVxContainer,m_VxPrimaryCandidateName);
-  if (sc.isFailure() ) {
-    ATH_MSG_WARNING("No VxPrimaryCandidate found in StoreGate");
-    return StatusCode::RECOVERABLE;
+  const xAOD::Vertex* primaryVertex = nullptr;
+  SG::ReadHandle<xAOD::VertexContainer> importedVxContainer( m_vertexKey );
+  if ( !importedVxContainer.isValid() )
+  {
+    ATH_MSG_WARNING("No xAOD::VertexContainer named " << m_vertexKey.key() << " found in StoreGate");
+    return StatusCode::RECOVERABLE;    
   } else {
-    ATH_MSG_DEBUG("Found " << m_VxPrimaryCandidateName << " in StoreGate!");
+    ATH_MSG_DEBUG("Found xAOD::VertexContainer named " << m_vertexKey.key() );
   }
-  if (importedVxContainer!=0) {
-    if (importedVxContainer->size()==0){
-      ATH_MSG_WARNING("You have no primary vertices: " << importedVxContainer->size());
-    } else {
-      xAOD::VertexContainer::const_iterator pvItr = importedVxContainer->begin();
-      primaryVertex = *pvItr;
-    }
+  if ( importedVxContainer->empty() ){
+    ATH_MSG_WARNING("Primary vertex container is empty.");
+  } else {
+    primaryVertex = importedVxContainer->front();
   }
 
 // InDetV0 container and its auxilliary store
@@ -162,34 +226,47 @@ StatusCode InDetV0Finder::execute()
   xAOD::VertexAuxContainer* lbAuxContainer(0);
 
 // call InDetV0 finder
-  if ( !m_v0FinderTool->performSearch(v0Container,v0AuxContainer,ksContainer,ksAuxContainer,laContainer,laAuxContainer,lbContainer,lbAuxContainer,primaryVertex,m_VxPrimaryCandidateName).isSuccess() )
-  //if ( !m_v0FinderTool->performSearch(v0Container,v0AuxContainer,ksContainer,ksAuxContainer,laContainer,laAuxContainer,lbContainer,lbAuxContainer,NULL,m_VxPrimaryCandidateName).isSuccess() )
-  {
-    ATH_MSG_FATAL("InDetV0 finder (" << m_v0FinderTool << ") failed.");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_v0FinderTool->performSearch(v0Container, v0AuxContainer,
+					   ksContainer, ksAuxContainer,
+					   laContainer, laAuxContainer,
+                                           lbContainer, lbAuxContainer,
+					   primaryVertex, importedVxContainer) );
+
+  //---- Recording section: write the results to StoreGate ---//
+
+  SG::WriteHandle<xAOD::VertexContainer> h_V0( m_v0Key );
+  ATH_CHECK( h_V0.record(std::unique_ptr<xAOD::VertexContainer>(v0Container), 
+			 std::unique_ptr<xAOD::VertexAuxContainer>(v0AuxContainer)) );
+
+  SG::WriteHandle<xAOD::VertexContainer> h_Ks( m_ksKey );
+  ATH_CHECK( h_Ks.record(std::unique_ptr<xAOD::VertexContainer>(ksContainer), 
+			 std::unique_ptr<xAOD::VertexAuxContainer>(ksAuxContainer)) );
+
+  SG::WriteHandle<xAOD::VertexContainer> h_La( m_laKey );
+  ATH_CHECK( h_La.record(std::unique_ptr<xAOD::VertexContainer>(laContainer), 
+			 std::unique_ptr<xAOD::VertexAuxContainer>(laAuxContainer)) );
+
+  SG::WriteHandle<xAOD::VertexContainer> h_Lb( m_lbKey );
+  ATH_CHECK(h_Lb.record(std::unique_ptr<xAOD::VertexContainer>(lbContainer), 
+			std::unique_ptr<xAOD::VertexAuxContainer>(lbAuxContainer)) );
 
   if (m_decorate) {
-    SG::AuxElement::Decorator<float> mDecor_Ksmass("Kshort_mass");
-    SG::AuxElement::Decorator<float> mDecor_Ksmasse("Kshort_massError");
-    SG::AuxElement::Decorator<float> mDecor_Lamass("Lambda_mass");
-    SG::AuxElement::Decorator<float> mDecor_Lamasse("Lambda_massError");
-    SG::AuxElement::Decorator<float> mDecor_Lbmass("Lambdabar_mass");
-    SG::AuxElement::Decorator<float> mDecor_Lbmasse("Lambdabar_massError");
-    SG::AuxElement::Decorator<float> mDecor_mass("mass");
-    SG::AuxElement::Decorator<float> mDecor_massError("massError");
-    SG::AuxElement::Decorator<float> mDecor_pt("pT");
-    SG::AuxElement::Decorator<float> mDecor_ptError("pTError");
-    SG::AuxElement::Decorator<float> mDecor_rxy("Rxy");
-    SG::AuxElement::Decorator<float> mDecor_rxyError("RxyError");
-    SG::AuxElement::Decorator<float> mDecor_px("px");
-    SG::AuxElement::Decorator<float> mDecor_py("py");
-    SG::AuxElement::Decorator<float> mDecor_pz("pz");
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorKsMass(m_decorKsMass);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorLaMass(m_decorLaMass);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorLbMass(m_decorLbMass);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorKsMassErr(m_decorKsMassErr);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorLaMassErr(m_decorLaMassErr);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorLbMassErr(m_decorLbMassErr);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorPt_v0(m_decorPt_v0);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorPtErr_v0(m_decorPtErr_v0);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorRxy_v0(m_decorRxy_v0);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorRxyErr_v0(m_decorRxyErr_v0);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorPx_v0(m_decorPx_v0);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorPy_v0(m_decorPy_v0);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorPz_v0(m_decorPz_v0);
 
-    xAOD::VertexContainer::const_iterator v0Itr = v0Container->begin();
-    for ( v0Itr=v0Container->begin(); v0Itr!=v0Container->end(); ++v0Itr )
+    for ( auto unconstrV0 : *h_V0 )
     {
-      const xAOD::Vertex * unconstrV0 = (*v0Itr);
       double mass_ks = m_V0Tools->invariantMass(unconstrV0,m_masspi,m_masspi);
       double mass_error_ks = m_V0Tools->invariantMassError(unconstrV0,m_masspi,m_masspi);
       double mass_la = m_V0Tools->invariantMass(unconstrV0,m_massp,m_masspi);
@@ -201,24 +278,34 @@ StatusCode InDetV0Finder::execute()
       double rxy = m_V0Tools->rxy(unconstrV0);
       double rxyError = m_V0Tools->rxyError(unconstrV0);
       Amg::Vector3D momentum = m_V0Tools->V0Momentum(unconstrV0);
-      mDecor_Ksmass( *unconstrV0 ) = mass_ks;
-      mDecor_Ksmasse( *unconstrV0 ) = mass_error_ks;
-      mDecor_Lamass( *unconstrV0 ) = mass_la;
-      mDecor_Lamasse( *unconstrV0 ) = mass_error_la;
-      mDecor_Lbmass( *unconstrV0 ) = mass_lb;
-      mDecor_Lbmasse( *unconstrV0 ) = mass_error_lb;
-      mDecor_pt( *unconstrV0 ) = pt;
-      mDecor_ptError( *unconstrV0 ) = ptError;
-      mDecor_rxy( *unconstrV0 ) = rxy;
-      mDecor_rxyError( *unconstrV0 ) = rxyError;
-      mDecor_px( *unconstrV0 ) = momentum.x();
-      mDecor_py( *unconstrV0 ) = momentum.y();
-      mDecor_pz( *unconstrV0 ) = momentum.z();
+
+      decorKsMass( *unconstrV0 ) = mass_ks;
+      decorLaMass( *unconstrV0 ) = mass_la;
+      decorLbMass( *unconstrV0 ) = mass_lb;
+      decorKsMassErr( *unconstrV0 ) = mass_error_ks;
+      decorLaMassErr( *unconstrV0 ) = mass_error_la;
+      decorLbMassErr( *unconstrV0 ) = mass_error_lb;
+      decorPt_v0( *unconstrV0 ) = pt;
+      decorPtErr_v0( *unconstrV0 ) =ptError;
+      decorRxy_v0( *unconstrV0 ) = rxy;
+      decorRxyErr_v0( *unconstrV0 ) =rxyError;
+      decorPx_v0( *unconstrV0 ) = momentum.x();
+      decorPy_v0( *unconstrV0 ) = momentum.y();
+      decorPz_v0( *unconstrV0 ) = momentum.z();
     }
-    xAOD::VertexContainer::const_iterator ksItr = ksContainer->begin();
-    for ( ksItr=ksContainer->begin(); ksItr!=ksContainer->end(); ++ksItr )
+
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorMass_ks(m_decorMass_ks);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorMassErr_ks(m_decorMassErr_ks);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorPt_ks(m_decorPt_ks);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorPtErr_ks(m_decorPtErr_ks);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorRxy_ks(m_decorRxy_ks);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorRxyErr_ks(m_decorRxyErr_ks);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorPx_ks(m_decorPx_ks);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorPy_ks(m_decorPy_ks);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorPz_ks(m_decorPz_ks);
+
+    for ( auto ksV0 : *h_Ks )
     {
-      const xAOD::Vertex * ksV0 = (*ksItr);
       double mass_ks = m_V0Tools->invariantMass(ksV0,m_masspi,m_masspi);
       double mass_error_ks = m_V0Tools->invariantMassError(ksV0,m_masspi,m_masspi);
       double pt = m_V0Tools->pT(ksV0);
@@ -226,20 +313,30 @@ StatusCode InDetV0Finder::execute()
       double rxy = m_V0Tools->rxy(ksV0);
       double rxyError = m_V0Tools->rxyError(ksV0);
       Amg::Vector3D momentum = m_V0Tools->V0Momentum(ksV0);
-      mDecor_mass( *ksV0 ) = mass_ks;
-      mDecor_massError( *ksV0 ) = mass_error_ks;
-      mDecor_pt( *ksV0 ) = pt;
-      mDecor_ptError( *ksV0 ) = ptError;
-      mDecor_rxy( *ksV0 ) = rxy;
-      mDecor_rxyError( *ksV0 ) = rxyError;
-      mDecor_px( *ksV0 ) = momentum.x();
-      mDecor_py( *ksV0 ) = momentum.y();
-      mDecor_pz( *ksV0 ) = momentum.z();
+
+      decorMass_ks( *ksV0 ) = mass_ks;
+      decorMassErr_ks( *ksV0 ) = mass_error_ks;
+      decorPt_ks( *ksV0 ) = pt;
+      decorPtErr_ks( *ksV0 ) = ptError;
+      decorRxy_ks( *ksV0 ) = rxy;
+      decorRxyErr_ks( *ksV0 ) = rxyError;
+      decorPx_ks( *ksV0 ) = momentum.x();
+      decorPy_ks( *ksV0 ) = momentum.y();
+      decorPz_ks( *ksV0 ) = momentum.z();
     }
-    xAOD::VertexContainer::const_iterator laItr = laContainer->begin();
-    for ( laItr=laContainer->begin(); laItr!=laContainer->end(); ++laItr )
+
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorMass_la(m_decorMass_la);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorMassErr_la(m_decorMassErr_la);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorPt_la(m_decorPt_la);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorPtErr_la(m_decorPtErr_la);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorRxy_la(m_decorRxy_la);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorRxyErr_la(m_decorRxyErr_la);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorPx_la(m_decorPx_la);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorPy_la(m_decorPy_la);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorPz_la(m_decorPz_la);
+
+    for ( auto laV0 : *h_La )
     {
-      const xAOD::Vertex * laV0 = (*laItr);
       double mass_la = m_V0Tools->invariantMass(laV0,m_massp,m_masspi);
       double mass_error_la = m_V0Tools->invariantMassError(laV0,m_massp,m_masspi);
       double pt = m_V0Tools->pT(laV0);
@@ -247,20 +344,30 @@ StatusCode InDetV0Finder::execute()
       double rxy = m_V0Tools->rxy(laV0);
       double rxyError = m_V0Tools->rxyError(laV0);
       Amg::Vector3D momentum = m_V0Tools->V0Momentum(laV0);
-      mDecor_mass( *laV0 ) = mass_la;
-      mDecor_massError( *laV0 ) = mass_error_la;
-      mDecor_pt( *laV0 ) = pt;
-      mDecor_ptError( *laV0 ) = ptError;
-      mDecor_rxy( *laV0 ) = rxy;
-      mDecor_rxyError( *laV0 ) = rxyError;
-      mDecor_px( *laV0 ) = momentum.x();
-      mDecor_py( *laV0 ) = momentum.y();
-      mDecor_pz( *laV0 ) = momentum.z();
+
+      decorMass_la( *laV0 ) = mass_la;
+      decorMassErr_la( *laV0 ) = mass_error_la;
+      decorPt_la( *laV0 ) = pt;
+      decorPtErr_la( *laV0 ) = ptError;
+      decorRxy_la( *laV0 ) = rxy;
+      decorRxyErr_la( *laV0 ) = rxyError;
+      decorPx_la( *laV0 ) = momentum.x();
+      decorPy_la( *laV0 ) = momentum.y();
+      decorPz_la( *laV0 ) = momentum.z();
     }
-    xAOD::VertexContainer::const_iterator lbItr = lbContainer->begin();
-    for ( lbItr=lbContainer->begin(); lbItr!=lbContainer->end(); ++lbItr )
+
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorMass_lb(m_decorMass_lb);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorMassErr_lb(m_decorMassErr_lb);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorPt_lb(m_decorPt_lb);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorPtErr_lb(m_decorPtErr_lb);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorRxy_lb(m_decorRxy_lb);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorRxyErr_lb(m_decorRxyErr_lb);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorPx_lb(m_decorPx_lb);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorPy_lb(m_decorPy_lb);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> decorPz_lb(m_decorPz_lb);
+
+    for ( auto lbV0 : *h_Lb )
     {
-      const xAOD::Vertex * lbV0 = (*lbItr);
       double mass_lb = m_V0Tools->invariantMass(lbV0,m_masspi,m_massp);
       double mass_error_lb = m_V0Tools->invariantMassError(lbV0,m_masspi,m_massp);
       double pt = m_V0Tools->pT(lbV0);
@@ -268,48 +375,23 @@ StatusCode InDetV0Finder::execute()
       double rxy = m_V0Tools->rxy(lbV0);
       double rxyError = m_V0Tools->rxyError(lbV0);
       Amg::Vector3D momentum = m_V0Tools->V0Momentum(lbV0);
-      mDecor_mass( *lbV0 ) = mass_lb;
-      mDecor_massError( *lbV0 ) = mass_error_lb;
-      mDecor_pt( *lbV0 ) = pt;
-      mDecor_ptError( *lbV0 ) = ptError;
-      mDecor_rxy( *lbV0 ) = rxy;
-      mDecor_rxyError( *lbV0 ) = rxyError;
-      mDecor_px( *lbV0 ) = momentum.x();
-      mDecor_py( *lbV0 ) = momentum.y();
-      mDecor_pz( *lbV0 ) = momentum.z();
+
+      decorMass_lb( *lbV0 ) = mass_lb;
+      decorMassErr_lb( *lbV0 ) = mass_error_lb;
+      decorPt_lb( *lbV0 ) = pt;
+      decorPtErr_lb( *lbV0 ) = ptError;
+      decorRxy_lb( *lbV0 ) = rxy;
+      decorRxyErr_lb( *lbV0 ) = rxyError;
+      decorPx_lb( *lbV0 ) = momentum.x();
+      decorPy_lb( *lbV0 ) = momentum.y();
+      decorPz_lb( *lbV0 ) = momentum.z();
     }
   }
 
-  m_V0s_stored += v0Container->size();
-  m_Kshort_stored += ksContainer->size();
-  m_Lambda_stored += laContainer->size();
-  m_Lambdabar_stored += lbContainer->size();
-
-  //---- Recording section: write the results to StoreGate ---//
-  if (!evtStore()->contains<xAOD::VertexContainer>(m_v0ContainerName))
-    CHECK(evtStore()->record(v0Container, m_v0ContainerName));
-
-  if (!evtStore()->contains<xAOD::VertexAuxContainer>(m_v0ContainerName+"Aux."))
-    CHECK(evtStore()->record(v0AuxContainer, m_v0ContainerName+"Aux."));
-
-  if (!evtStore()->contains<xAOD::VertexContainer>(m_ksContainerName))
-    CHECK(evtStore()->record(ksContainer, m_ksContainerName));
-
-  if (!evtStore()->contains<xAOD::VertexAuxContainer>(m_ksContainerName+"Aux."))
-    CHECK(evtStore()->record(ksAuxContainer, m_ksContainerName+"Aux."));
-
-  if (!evtStore()->contains<xAOD::VertexContainer>(m_laContainerName))
-    CHECK(evtStore()->record(laContainer, m_laContainerName));
-
-  if (!evtStore()->contains<xAOD::VertexAuxContainer>(m_laContainerName+"Aux."))
-    CHECK(evtStore()->record(laAuxContainer, m_laContainerName+"Aux."));
-
-  if (!evtStore()->contains<xAOD::VertexContainer>(m_lbContainerName))
-    CHECK(evtStore()->record(lbContainer, m_lbContainerName));
-
-  if (!evtStore()->contains<xAOD::VertexAuxContainer>(m_lbContainerName+"Aux."))
-    CHECK(evtStore()->record(lbAuxContainer, m_lbContainerName+"Aux."));
-
+  m_V0s_stored += h_V0->size();
+  m_Kshort_stored += h_Ks->size();
+  m_Lambda_stored += h_La->size();
+  m_Lambdabar_stored += h_Lb->size();
 
   return StatusCode::SUCCESS;
 }// end execute block

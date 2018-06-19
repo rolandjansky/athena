@@ -8,7 +8,7 @@ atlas_subdir( TrkAlignGenTools )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          Control/DataModel
+                          Control/AthContainers
                           DetectorDescription/GeoPrimitives
                           Event/EventPrimitives
                           Event/xAOD/xAODTracking
@@ -62,13 +62,13 @@ atlas_add_library( TrkAlignGenToolsLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps DataModel GeoPrimitives EventPrimitives xAODTracking GaudiKernel muonEvent TrkAlignEvent TrkEventPrimitives VxVertex TrkFitterUtils StoreGateLib SGtests
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthContainers GeoPrimitives EventPrimitives xAODTracking GaudiKernel muonEvent TrkAlignEvent TrkEventPrimitives VxVertex TrkFitterUtils StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} AtlasDetDescr xAODEventInfo MuonSegment MuonRecToolInterfaces Particle TrkAlgebraUtils TrkDetElementBase TrkSurfaces TrkCompetingRIOsOnTrack TrkEventUtils TrkMaterialOnTrack TrkMeasurementBase TrkParameters TrkParticleBase TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack TrkVertexOnTrack TrkExInterfaces TrkFitterInterfaces TrkToolInterfaces TrkVertexFitterInterfaces InDetTrackSelectionToolLib )
 
 atlas_add_component( TrkAlignGenTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps DataModel GeoPrimitives EventPrimitives xAODTracking GaudiKernel muonEvent TrkAlignEvent TrkEventPrimitives VxVertex TrkFitterUtils StoreGateLib SGtests AtlasDetDescr xAODEventInfo MuonSegment MuonRecToolInterfaces Particle TrkAlgebraUtils TrkDetElementBase TrkSurfaces TrkCompetingRIOsOnTrack TrkEventUtils TrkMaterialOnTrack TrkMeasurementBase TrkParameters TrkParticleBase TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack TrkVertexOnTrack TrkExInterfaces TrkFitterInterfaces TrkToolInterfaces TrkVertexFitterInterfaces TrkAlignGenToolsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthContainers GeoPrimitives EventPrimitives xAODTracking GaudiKernel muonEvent TrkAlignEvent TrkEventPrimitives VxVertex TrkFitterUtils StoreGateLib SGtests AtlasDetDescr xAODEventInfo MuonSegment MuonRecToolInterfaces Particle TrkAlgebraUtils TrkDetElementBase TrkSurfaces TrkCompetingRIOsOnTrack TrkEventUtils TrkMaterialOnTrack TrkMeasurementBase TrkParameters TrkParticleBase TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack TrkVertexOnTrack TrkExInterfaces TrkFitterInterfaces TrkToolInterfaces TrkVertexFitterInterfaces TrkAlignGenToolsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

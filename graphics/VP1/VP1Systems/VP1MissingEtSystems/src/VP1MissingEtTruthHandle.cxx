@@ -42,14 +42,14 @@ public:
 
 //____________________________________________________________________
 VP1MissingEtTruthHandle::VP1MissingEtTruthHandle(IVP1System*sys,const QString& key)
-  : VP1MissingEtHandle(sys,key), d(new Imp)
+  : VP1MissingEtHandle(sys,key), m_d(new Imp)
 {
 }
 
 //____________________________________________________________________
 VP1MissingEtTruthHandle::~VP1MissingEtTruthHandle()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -57,7 +57,7 @@ QStringList VP1MissingEtTruthHandle::clicked(SoPath*pickedPath) const
 {
   //Fixme: add MissingEtTruth specific info.
   truncateToCollSep(pickedPath);
-  return baseInfo(d->metTruth);
+  return baseInfo(m_d->metTruth);
 }
 
 //____________________________________________________________________
@@ -69,9 +69,9 @@ QColor VP1MissingEtTruthHandle::baseCol() const
 //____________________________________________________________________
 bool VP1MissingEtTruthHandle::load()
 {
-  if (!VP1SGAccessHelper(systemBase()).retrieve(d->metTruth,key()))
+  if (!VP1SGAccessHelper(systemBase()).retrieve(m_d->metTruth,key()))
     return false;
 
-  addArrowToCollSep(d->metTruth);
+  addArrowToCollSep(m_d->metTruth);
   return true;
 }

@@ -59,6 +59,11 @@
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 #include "MuonCondInterface/IMDTConditionsSvc.h"
 
+//Outputs
+#include "MuonSimData/MuonSimDataCollection.h"
+#include "MuonSimData/MuonSimData.h"
+#include "MuonDigitContainer/MdtDigitContainer.h"
+
 namespace MuonGM{
   class MuonDetectorManager;
   class MdtReadoutElement;
@@ -66,8 +71,6 @@ namespace MuonGM{
 
 class PileUpMergeSvc;
 
-class MdtDigitContainer;
-class MdtDigitCollection;
 class MdtIdHelper;
 class MdtHitIdHelper;
 class IAtRndmGenSvc;
@@ -127,9 +130,6 @@ class MdtDigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
       (IMuonDigitizationTool) */
   StatusCode digitize() override final;
 
-  /** Finalize */
-  StatusCode finalize() override final;
-
   /** accessors */
   ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service
   CLHEP::HepRandomEngine  *getRndmEngine() const { return m_rndmEngine; } // Random number engine used 
@@ -156,13 +156,11 @@ class MdtDigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
   bool                      checkMDTSimHit(const MDTSimHit& hit) const;
   
   bool                      handleMDTSimhit(const TimedHitPtr<MDTSimHit>& phit);
-  bool                      createDigits();
-  
+  bool                      createDigits(MdtDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer);
+
   // calculate local hit position in local sagged wire frame, also returns whether the hit passed above or below the wire
   GeoCorOut correctGeometricalWireSag( const MDTSimHit& hit, const Identifier& id, const MuonGM::MdtReadoutElement* element ) const ;
-  
-  MdtDigitContainer*         m_digitContainer;
-  MuonSimDataCollection*     m_sdoContainer;
+
   MDT_SortedHitVector        m_hits;
   
   const MdtIdHelper*         m_idHelper;
@@ -255,16 +253,16 @@ class MdtDigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
   ///////////////////////////////////////////////////////////////////
   // Get next event and extract collection of hit collections:
   StatusCode                getNextEvent();
-  StatusCode doDigitization();
-  MdtDigitCollection*       getDigitCollection(Identifier elementId);
-  void 		      fillMaps(const MDTSimHit * mdtHit, const Identifier digitId, 
-			       const double driftR);
+  StatusCode doDigitization(MdtDigitContainer* digitContainer, MuonSimDataCollection* sdoContainer);
+  MdtDigitCollection*       getDigitCollection(Identifier elementId, MdtDigitContainer* digitContainer);
+  void                fillMaps(const MDTSimHit * mdtHit, const Identifier digitId,
+                               const double driftR);
 
- protected:  
+protected:
   PileUpMergeSvc *m_mergeSvc; // Pile up service
   std::string m_inputObjectName; // name of the input objects
-  std::string m_outputObjectName; // name of the output digits
-  std::string m_outputSDOName; // name of the output SDOs
+  SG::WriteHandleKey<MdtDigitContainer> m_outputObjectKey{this,"OutputObjectName","MDT_DIGITS","WriteHandleKey for Output MdtDigitContainer"};
+  SG::WriteHandleKey<MuonSimDataCollection> m_outputSDOKey{this,"OutputSDOName","MDT_SDO","WriteHandleKey for Output MuonSimDataCollection"};
 
   ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
   CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization

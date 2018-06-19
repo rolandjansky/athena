@@ -5,6 +5,7 @@
 #ifndef TRKALIGNGENTOOLS_MSCONSTRAINTTRACKSPROVIDER_H
 #define TRKALIGNGENTOOLS_MSCONSTRAINTTRACKSPROVIDER_H
 
+#include "MuonRecToolInterfaces/IMuonHitSummaryTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "muonEvent/Muon.h"
@@ -20,7 +21,6 @@ class TTree;
 
 
 namespace Muon{
-  class IMuonHitSummaryTool;
 }
 
 
@@ -49,12 +49,12 @@ namespace Trk {
     StatusCode fillNtuple();
 
     ToolHandle<IGlobalTrackFitter>        m_trackFitter;     //!< normal track fitter 
-    ToolHandle<Muon::IMuonHitSummaryTool> m_muonHitSummaryTool;
+    PublicToolHandle<Muon::IMuonHitSummaryTool> m_muonHitSummaryTool
+       {this,"MuonHitSummaryTool","Muon::MuonHitSummaryTool/MuonHitSummaryTool",""};
  
     std::string 	  m_inputMuonCollection;       //!< Name of input combined muons collection
     std::string		  m_inputTracksCollection;     //!< Name of input tracks collection
     RunOutlierRemoval     m_runOutlierRemoval;         //!< run outlier removal in the GX2 fitter 
-    int      		  m_nRetrievalErrors;          //!< number of retrieval errors at the beginning of the job
     int      		  m_maxRetrievalErrors;        //!< maximum allowed number of retrieval errors at the beginning of the job (-1 for infinite)
     bool		  m_useMSConstraintTrkOnly;
     bool 		  m_doTree;

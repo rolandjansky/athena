@@ -6,7 +6,6 @@
   <class name="IEMFourMomBuilder" />
   <class name="IEMShowerBuilder" />
   <class name="IEMTrackMatchBuilder" />
-  <class name="IFourMomCombiner" />
   <class name="IegammaBackShape" />
   <class name="IegammaBaseTool" />
   <class name="IegammaCheckEnergyDepositTool" />

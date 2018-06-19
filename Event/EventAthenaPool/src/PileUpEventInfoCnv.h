@@ -35,7 +35,9 @@ typedef  T_AthenaPoolCustomCnv<PileUpEventInfo, PileUpEventInfo_PERS >   PileUpE
 class PileUpEventInfoCnv : public PileUpEventInfoCnvBase {
 friend class CnvFactory<PileUpEventInfoCnv >;
 protected:
+public:
   PileUpEventInfoCnv (ISvcLocator* svcloc) : PileUpEventInfoCnvBase(svcloc) {}
+protected:
   virtual PileUpEventInfo_PERS*   createPersistent (PileUpEventInfo* transObj);
   virtual PileUpEventInfo*        createTransient ();
 };

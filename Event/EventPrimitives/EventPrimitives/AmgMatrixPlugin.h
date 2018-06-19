@@ -30,7 +30,7 @@
     /**pseudorapidity method */
     inline Scalar eta() const {
         EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(Matrix, 3)
-        double m = std::sqrt((*this).x() * (*this).x() + (*this).y() * (*this).y() + (*this).z() * (*this).z());;
+        double m = std::sqrt((*this).x() * (*this).x() + (*this).y() * (*this).y() + (*this).z() * (*this).z());
         return 0.5*std::log((m+(*this).z())/(m-(*this).z()));
     }
 

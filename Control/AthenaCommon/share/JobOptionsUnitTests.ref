@@ -1,0 +1,37 @@
+Mon Mar  5 17:12:03 EST 2018
+WARNING: TCMALLOCDIR not defined, will use libc malloc
+Py:Athena            INFO including file "AthenaCommon/Preparation.py"
+Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Py:Athena            INFO executing ROOT6Setup
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "AthenaCommon/JobOptionsUnitTests.py"
+# setting LC_ALL to "C"
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Mon Mar  5 17:12:08 2018
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+test1ParameterAccess (__main__.BasicConfigurableWorkingsTestCase)
+Test proper behavior of property access ... ok
+test2ParameterValidation (__main__.BasicConfigurableWorkingsTestCase)
+Test type checking of property setting ... ok
+test3NonTransfers (__main__.BasicConfigurableWorkingsTestCase)
+Verify that temporary configurables leave nothing in the catalogue ... ok
+test4HistoryBehavior (__main__.BasicConfigurableWorkingsTestCase)
+Verify that name-uniqueness is preserved ... ok
+test1SetBuiltinTypes (__main__.BasicJobOptionsTestCase)
+Test setting of builtin types ... Py:ConfigurableDb    INFO Read module info for 470 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+ok
+test2SetToolProperties (__main__.BasicJobOptionsTestCase)
+Test setting of tool properties ... ok
+test3SetAuditorProperties (__main__.BasicJobOptionsTestCase)
+Test setting of Auditor properties ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.495s
+
+OK
+ApplicationMgr       INFO Application Manager Terminated successfully

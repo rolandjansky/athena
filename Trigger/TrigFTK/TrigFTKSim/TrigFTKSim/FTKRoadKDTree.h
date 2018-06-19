@@ -19,7 +19,6 @@ private:
   int m_splitplane; // coordinate compated at this level
   FTKRoad *m_node; // element
   int m_pos; // position
-  FTKRoadKDTree *m_parent; // parent element
   FTKRoadKDTree *m_left; // left sub-tree
   FTKRoadKDTree *m_right; // right sub-tree
 

@@ -35,10 +35,10 @@ public:
 VP1RawDataCommonData::VP1RawDataCommonData(IVP13DSystem * sys,VP1RawDataSysController* controller)
   : VP1HelperClassBase(sys,"VP1RawDataCommonData"),
     m_controller(controller), m_system(sys),
-    m_nodeManager(new HitsSoNodeManager(sys)), d(new Imp)
+    m_nodeManager(new HitsSoNodeManager(sys)), m_d(new Imp)
 {
   SoGenericBox::initClass();
-  d->showVolOutlines = controller->showVolumeOutLines();
+  m_d->showVolOutlines = controller->showVolumeOutLines();
   connect(controller,SIGNAL(showVolumeOutLinesChanged(bool)),
 	  this,SLOT(setShowVolumeOutLines(bool)));
 }
@@ -47,21 +47,21 @@ VP1RawDataCommonData::VP1RawDataCommonData(IVP13DSystem * sys,VP1RawDataSysContr
 VP1RawDataCommonData::~VP1RawDataCommonData()
 {
   delete m_nodeManager;
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
 void VP1RawDataCommonData::registerTransformAndHandle(SoTransform*t,VP1RawDataHandleBase*h)
 {
   if (t&&h) {
-    d->transform2handle[t]=h;
+    m_d->transform2handle[t]=h;
   }
 }
 
 //____________________________________________________________________
 void VP1RawDataCommonData::clearEventData()
 {
-  d->transform2handle.clear();
+  m_d->transform2handle.clear();
 }
 
 //____________________________________________________________________
@@ -69,8 +69,8 @@ VP1RawDataHandleBase* VP1RawDataCommonData::getHandle(SoTransform*t)
 {
   if (!t)
     return 0;
-  std::map<SoTransform*,VP1RawDataHandleBase*>::iterator it = d->transform2handle.find(t);
-  return it==d->transform2handle.end() ? 0 : it->second;
+  std::map<SoTransform*,VP1RawDataHandleBase*>::iterator it = m_d->transform2handle.find(t);
+  return it==m_d->transform2handle.end() ? 0 : it->second;
 }
 
 //_____________________________________________________________________________________
@@ -90,17 +90,17 @@ void VP1RawDataCommonData::Imp::setShowVolumeOutlines(SoGroup*nodegroup,bool sho
 //_____________________________________________________________________________________
 void VP1RawDataCommonData::updateVolumeOutlines(SoGroup * g)
 {
-  Imp::setShowVolumeOutlines(g,d->showVolOutlines);
+  Imp::setShowVolumeOutlines(g,m_d->showVolOutlines);
 }
 
 //_____________________________________________________________________________________
 void VP1RawDataCommonData::setShowVolumeOutLines(bool b)
 {
-  if (d->showVolOutlines==b)
+  if (m_d->showVolOutlines==b)
     return;
-  d->showVolOutlines = b;
-  std::map<SoTransform*,VP1RawDataHandleBase*>::iterator it, itE = d->transform2handle.end();
-  for (it=d->transform2handle.begin();it!=itE;++it)
+  m_d->showVolOutlines = b;
+  std::map<SoTransform*,VP1RawDataHandleBase*>::iterator it, itE = m_d->transform2handle.end();
+  for (it=m_d->transform2handle.begin();it!=itE;++it)
     it->second->updateShownOutlines();
 }
 

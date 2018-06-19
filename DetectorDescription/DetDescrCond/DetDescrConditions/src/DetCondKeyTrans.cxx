@@ -13,7 +13,7 @@ DetCondKeyTrans::DetCondKeyTrans() :
 
 bool DetCondKeyTrans::getTransform(const std::string& key,
               HepGeom::Transform3D& result) const {
-  KeyTrans::const_iterator ik=m_keytrans.lower_bound(key);
+  KeyTrans::const_iterator ik=m_keytrans.find(key);
   if (ik!=m_keytrans.end()) {
     result=(ik->second);
     return true;
@@ -23,7 +23,7 @@ bool DetCondKeyTrans::getTransform(const std::string& key,
 }
 
 bool DetCondKeyTrans::exists(const std::string& key) const {
-  KeyTrans::const_iterator ik=m_keytrans.lower_bound(key);
+  KeyTrans::const_iterator ik=m_keytrans.find(key);
   return (ik!=m_keytrans.end());
 }
 

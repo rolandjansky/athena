@@ -16,15 +16,15 @@ namespace PFO {
 
   void PFOPlots::initializePlots(){
 
-    m_PFO_pt = Book1D("PFO_Pt",m_sPFOContainerName + "_Pt (Entries/1 GeV)",30,-10.0,20.0);
-    m_PFO_eta = Book1D("PFO_Eta",m_sPFOContainerName + "_Eta (Entries/0.1)",100,-5.0,5.0);
-    m_PFO_phi = Book1D("PFO_Phi",m_sPFOContainerName + "_Phi (Entries/0.1)",64,-3.2,3.2);
-    m_PFO_m = Book1D("PFO_m",m_sPFOContainerName + "_m (Entries/100 MeV)",10,0.0,0.5);
-    m_PFO_charge = Book1D("PFO_charge",m_sPFOContainerName + "_charge (Entries/unit charge)",5,-2,2);
+    m_PFO_pt = Book1D("_Pt",m_sPFOContainerName + "_Pt (Entries/1 GeV)",30,-10.0,20.0);
+    m_PFO_eta = Book1D("_Eta",m_sPFOContainerName + "_Eta (Entries/0.1)",100,-5.0,5.0);
+    m_PFO_phi = Book1D("_Phi",m_sPFOContainerName + "_Phi (Entries/0.1)",64,-3.2,3.2);
+    m_PFO_m = Book1D("_m",m_sPFOContainerName + "_m (Entries/100 MeV)",10,0.0,0.5);
+    m_PFO_charge = Book1D("_charge",m_sPFOContainerName + "_charge (Entries/unit charge)",5,-2,2);
     
-    m_PFO_pt_etaBinA = Book1D("PFO_Pt_A",m_sPFOContainerName + "_Pt (Entries/1 GeV, |eta| < 1 )",30,-10.0,20.0);
-    m_PFO_pt_etaBinB = Book1D("PFO_Pt_B",m_sPFOContainerName + "_Pt (Entries/1 GeV,  1 <= |eta| < 2 )",30,-10.0,20.0);
-    m_PFO_pt_etaBinC = Book1D("PFO_Pt_C",m_sPFOContainerName + "_Pt (Entries/1 GeV, |eta| >= 2 )",30,-10.0,20.0);
+    m_PFO_pt_etaBinA = Book1D("_Pt_A",m_sPFOContainerName + "_Pt (Entries/1 GeV, |eta| < 1 )",30,-10.0,20.0);
+    m_PFO_pt_etaBinB = Book1D("_Pt_B",m_sPFOContainerName + "_Pt (Entries/1 GeV,  1 <= |eta| < 2 )",30,-10.0,20.0);
+    m_PFO_pt_etaBinC = Book1D("_Pt_C",m_sPFOContainerName + "_Pt (Entries/1 GeV, |eta| >= 2 )",30,-10.0,20.0);
   }
 
   void PFOPlots::fill(const xAOD::PFO& PFO){

@@ -23,7 +23,6 @@
 #include "xAODTrigger/TrigComposite.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 
-#include "GaudiKernel/ThreadGaudi.h"
 #include "AthenaKernel/Timeout.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 //#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
@@ -114,7 +113,7 @@ AcceptL1TopoMonitor::AcceptL1TopoMonitor(const std::string& name, ISvcLocator* p
     m_scaler = new HLT::PeriodicScaler();
     declareProperty("L1TopoDAQROBIDs", m_vDAQROBIDs = {0x00910000, 0x00910010, 0x00910020}, "L1TOPO DAQ ROB IDs");
     declareProperty("L1TopoROIROBIDs", m_vROIROBIDs = {0x00910081, 0x00910082, 0x00910091, 0x00910092, 0x009100a1, 0x009100a2}, "L1Topo ROI ROB IDs");
-    declareProperty("PrescaleDAQROBAccess", m_prescaleForDAQROBAccess = 4, "Prescale factor for requests for DAQ ROBs: can be used to avoid overloading ROS. Zero means disabled, 1 means always, N means sample only 1 in N events");
+    declareProperty("PrescaleDAQROBAccess", m_prescaleForDAQROBAccess = 1, "Prescale factor for requests for DAQ ROBs: can be used to avoid overloading ROS. Zero means disabled, 1 means always, N means sample only 1 in N events");
     declareProperty("doRawMon", m_doRawMon = true, "enable L1Topo monitoring direct from ROB fragments");
     declareProperty("doCnvMon", m_doCnvMon = true, "enable L1Topo monitoring via converters");
     declareProperty("doSimMon", m_doSimMon = true, "enable L1Topo hardware vs simulation comparison");
@@ -124,13 +123,13 @@ AcceptL1TopoMonitor::AcceptL1TopoMonitor(const std::string& name, ISvcLocator* p
     declareProperty("SimTopoOverflowCTPLocation", m_simTopoOverflowCTPLocation = LVL1::DEFAULT_L1TopoOverflowCTPLocation,
                     "StoreGate key of simulated topo overflow output for CTP" );
     declareProperty("HLTResultName", m_HltResultName = "HLTResult_HLT", "StoreGate key of HLT result" );
-    declareProperty("AcceptGenericRoiError"  , m_acceptGenericRoiError=false,   "accept event with Generic Roi error"  );
-    declareProperty("AcceptGenericDaqError"  , m_acceptGenericDaqError=false,   "accept event with Generic Daq error"  );
+    declareProperty("AcceptGenericRoiError"  , m_acceptGenericRoiError=true,   "accept event with Generic Roi error"  );
+    declareProperty("AcceptGenericDaqError"  , m_acceptGenericDaqError=true,   "accept event with Generic Daq error"  );
     declareProperty("AcceptCrcTobError"      , m_acceptCrcTobError=false,       "accept event with CrcTob error"      );
     declareProperty("AcceptCrcFibreError"    , m_acceptCrcFibreError=false,     "accept event with CrcFibre error"    );
     declareProperty("AcceptCrcDaqError"      , m_acceptCrcDaqError=false,       "accept event with CrcDaq error"      );
-    declareProperty("AcceptRoibDaqDifference", m_acceptRoibDaqDifference=false, "accept event with Roib Daq Difference");
-    declareProperty("AcceptRoibCtpDifference", m_acceptRoibCtpDifference=false, "accept event with Roib Ctp Difference");
+    declareProperty("AcceptRoibDaqDifference", m_acceptRoibDaqDifference=true, "accept event with Roib Daq Difference");
+    declareProperty("AcceptRoibCtpDifference", m_acceptRoibCtpDifference=true, "accept event with Roib Ctp Difference");
     declareProperty("AcceptDaqCtpDifference" , m_acceptDaqCtpDifference=true,  "accept event with Daq Ctp Difference");
 }
 //----------------------------------------------------------
@@ -302,7 +301,7 @@ bool AcceptL1TopoMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& rootHist
 bool AcceptL1TopoMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& rootHistSvc, TH1F*& hist, std::string hName, std::string hTitle, int bins, float lowEdge, float highEdge)
 {
     // booking path
-    std::string path = std::string("/EXPERT/")+getGaudiThreadGenericName(name())+"/";
+    std::string path = std::string("/EXPERT/")+name()+"/";
     ATH_MSG_VERBOSE( "Booking monitoring histogram "<<hName );
     hist = new TH1F(hName.c_str(), hTitle.c_str(), bins, lowEdge, highEdge);
     if (hist) {

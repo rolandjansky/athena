@@ -3,7 +3,6 @@
 */
 
 #include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ThreadGaudi.h"
 
 #include "TrigTimeAlgs/TrigTimer.h"
 #include "TrigTimeAlgs/ITrigTimerSvc.h"
@@ -50,7 +49,7 @@ StatusCode TrigTimeTreeTool::bookHists() {
   // find out for whom we are running (i.e. Algo)    
   const Algorithm *parentAlg = dynamic_cast<const Algorithm*>(parent());
   if ( parentAlg ) 
-	m_parentName = getGaudiThreadGenericName(parentAlg->name());
+	m_parentName = parentAlg->name();
 
   std::string treeName = m_path + m_parentName;
   // try to get global tree  make my own tree if can not get global

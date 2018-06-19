@@ -41,9 +41,9 @@ public:
 
 //____________________________________________________________________
 VP1RawDataColl_LUCID::VP1RawDataColl_LUCID(VP1RawDataCommonData*common,const QString& key)
-  : VP1RawDataCollBase(common,key), d(new Imp)
+  : VP1RawDataCollBase(common,key), m_d(new Imp)
 {
-  d->minQDC = 9999999;
+  m_d->minQDC = 9999999;
   connect(common->controller(),SIGNAL(lucidMinQDCChanged(unsigned)),
 	  this,SLOT(setMinQDC(unsigned)));
   setMinQDC(common->controller()->lucidMinQDC());
@@ -52,7 +52,7 @@ VP1RawDataColl_LUCID::VP1RawDataColl_LUCID(VP1RawDataCommonData*common,const QSt
 //____________________________________________________________________
 VP1RawDataColl_LUCID::~VP1RawDataColl_LUCID()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -85,16 +85,16 @@ bool VP1RawDataColl_LUCID::load()
 //____________________________________________________________________
 bool VP1RawDataColl_LUCID::cut(VP1RawDataHandleBase*handle)
 {
-  return static_cast<VP1RawDataHandle_LUCID*>(handle)->getQDC() >= d->minQDC;
+  return static_cast<VP1RawDataHandle_LUCID*>(handle)->getQDC() >= m_d->minQDC;
 }
 
 //____________________________________________________________________
 void VP1RawDataColl_LUCID::setMinQDC(unsigned i)
 {
-  if (d->minQDC==i)
+  if (m_d->minQDC==i)
     return;
-  bool relaxed(i<d->minQDC);
-  d->minQDC=i;
+  bool relaxed(i<m_d->minQDC);
+  m_d->minQDC=i;
   if (relaxed)
     recheckCutStatusOfAllNotVisibleHandles();
   else

@@ -21,9 +21,8 @@
 #include <utility>
 
 //for CondDB
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
-#include "SCT_ConditionsServices/ISCT_FlaggedConditionSvc.h"
-#include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
+#include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
+#include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 #include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 
 #include "StoreGate/ReadHandleKey.h"
@@ -46,9 +45,8 @@ class TProfile2D_LW;
 class StatusCode;
 class SCT_ID;
 class SCT_ModuleStatistics;
-class ISCT_ByteStreamErrorsSvc;
 class TString;
-namespace InDetDD//11.09.2016
+namespace InDetDD
 {
   class SCT_DetectorManager;
 }
@@ -213,9 +211,8 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   //@name Service methods
   //@{
 
-  //SCT_ModuleConditionsTool* m_ModuleConditions;
-  ServiceHandle<ISCT_ConfigurationConditionsSvc> m_ConfigurationSvc;
-  ServiceHandle<ISCT_FlaggedConditionSvc>   m_flaggedSvc;
+  ToolHandle<ISCT_ConfigurationConditionsTool> m_ConfigurationTool{this, "conditionsTool",
+      "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
   StatusCode fillCondDBMaps();
   StatusCode fillConfigurationDetails();
   StatusCode resetCondDBMaps();
@@ -254,8 +251,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
 
   /** a handle on the Hist/TTree registration service */
   ServiceHandle<ITHistSvc> m_thistSvc;
-  ServiceHandle<ISCT_ByteStreamErrorsSvc> m_byteStreamErrSvc;
-  //  ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;
+  ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
   bool                                     m_checkBadModules;
   bool                                     m_ignore_RDO_cut_online;
   bool                                     m_CoverageCheck;
@@ -292,7 +288,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TH2F * m_totalModulesMapSCT;
 
   const unsigned int m_nBinsEta;
-  const double 		 m_rangeEta;
+  const double m_rangeEta;
   const unsigned int m_nBinsPhi;
   const double m_ModulesThreshold;
 

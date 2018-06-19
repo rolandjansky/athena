@@ -162,6 +162,25 @@ void IDAlignMonTrackSegments::InitializeHistograms()
   
 }
 
+StatusCode IDAlignMonTrackSegments::initialize() {
+  //initialize tools and services
+  ATH_MSG_DEBUG( "initialize() to setup tools/services" );
+  
+  if (ManagedMonitorToolBase::initialize().isFailure()) {
+    ATH_MSG_ERROR("unable to initialize ManagedMonitorToolBase class");
+    return StatusCode::FAILURE;
+  }
+
+  if (setupTools().isFailure()) {
+    ATH_MSG_ERROR( "Failed to initialize tools/services!" );
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_DEBUG( "Successfully initialized tools/services" );
+  }
+
+  return StatusCode::SUCCESS;
+
+}
 
 
 //---------------------------------------------------------------------------------------
@@ -169,16 +188,6 @@ void IDAlignMonTrackSegments::InitializeHistograms()
 StatusCode IDAlignMonTrackSegments::bookHistograms()
 {
   m_events=0;
-  
-  //initialize tools and services
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Calling initialize() to setup tools/services" << endmsg;
-  StatusCode sc = setupTools();
-  if (sc.isFailure()) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Failed to initialize tools/services!" << endmsg;
-    return StatusCode::SUCCESS;
-  } 
-  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Successfully initialized tools/services" << endmsg;
-
   
   if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...

@@ -21,10 +21,6 @@
 
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/VertexContainer.h"
-#include "xAODTracking/VertexAuxContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTracking/TrackParticleAuxContainer.h"
 
 #include "VxVertex/VxCandidate.h"
 #include "VxVertex/VxContainer.h"
@@ -214,71 +210,5 @@ StatusCode VxCandidateXAODVertex::finalize()
     ATH_MSG_DEBUG("Successfully created new xAOD::Vertex  " << xAODVx);    
     return StatusCode::SUCCESS;
   }
-
-  StatusCode VxCandidateXAODVertex::createXAODVertexContainer(const VxContainer &vxContainer, 
-							      xAOD::VertexContainer* &xAODVxContainer, xAOD::VertexAuxContainer* &xAODVxAuxContainer, 
-							      std::string xAODContainerName)
-  {
-    //first create new container with its own aux store
-    if (xAODVxContainer || xAODVxAuxContainer) {
-      ATH_MSG_WARNING("Creating new content for existing xAOD Vertex container pointer. Possible memory leak!");
-      //@todo: may allow to use existing container to append results at some point, but better with a different interface
-    }
-    ATH_MSG_DEBUG("Creating new xAOD vertex container.");
-    xAODVxContainer = new xAOD::VertexContainer();
-    xAODVxAuxContainer = new xAOD::VertexAuxContainer();
-    xAODVxContainer->setStore( xAODVxAuxContainer );
-    
-    if (not xAODContainerName.empty()) {
-      if (evtStore()->contains<xAOD::VertexContainer>(xAODContainerName)) {   
-	CHECK( evtStore()->overwrite( xAODVxAuxContainer, xAODContainerName + "Aux.",true,false) );
-	CHECK( evtStore()->overwrite( xAODVxContainer, xAODContainerName,true,false) );	
-	ATH_MSG_DEBUG( "Overwrote Vertices with key: " << xAODContainerName);
-      }
-      else{
-	CHECK( evtStore()->record( xAODVxAuxContainer, xAODContainerName + "Aux." ) );
-	CHECK( evtStore()->record( xAODVxContainer,xAODContainerName  ) );
-	ATH_MSG_DEBUG( "Recorded Vertices with key: " << xAODContainerName );
-      }
-    }
-    
-    ATH_MSG_VERBOSE("Filling new xAOD container");
-    VxContainer::const_iterator vxCand;
-    for (vxCand = vxContainer.begin(); vxCand != vxContainer.end(); ++vxCand) {
-      xAOD::Vertex *newXAODVx = new xAOD::Vertex();
-      xAODVxContainer->push_back(newXAODVx);
-      ATH_CHECK( createXAODVertex( **vxCand, newXAODVx ) );
-    } 
-
-    ATH_MSG_DEBUG("Done converting VxCandidate container to xAOD Vertex container: " << xAODVxContainer);    
-    //if (msgLvl(MSG::DEBUG)) {
-    //  xAODVxAuxContainer->dump();
-    //}
-    
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode VxCandidateXAODVertex::createVxContainer(const xAOD::VertexContainer &xAODVxContainer, VxContainer* &vxContainer, std::string vxCandidateContainerName)
-  {
-    ATH_MSG_DEBUG("Creating new VxCandidate container from xAOD vertex container.");
-    if (vxContainer) {
-      ATH_MSG_WARNING("Creating new content for existing VxContainer pointer. Possible memory leak.");
-    }
-    //first create new container
-    vxContainer = new VxContainer();
-    if (not vxCandidateContainerName.empty()) {
-      ATH_MSG_DEBUG("Storing new VxCandidate container to StoreGate with prefix: " << vxCandidateContainerName);
-      CHECK ( evtStore()->record( vxContainer, vxCandidateContainerName ) );
-    }    
-    
-    for (const auto& xaodVx : xAODVxContainer.stdcont()) {
-      Trk::VxCandidate *newVxCandidate(0);
-      ATH_CHECK( createVxCandidate( *xaodVx, newVxCandidate ) );
-      vxContainer->push_back(newVxCandidate);
-    }
-
-    return StatusCode::SUCCESS;
-  }
-
 
 } //end  namespace Trk

@@ -18,6 +18,9 @@
 #include "MuonRecHelperTools/MuonEDMHelperTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
+#include "xAODEventInfo/EventInfo.h"
+
+#include "StoreGate/ReadHandleKey.h"
 
 // class IIncidentSvc;
 namespace Trk {}
@@ -62,6 +65,7 @@ namespace Rec
     ToolHandle<Muon::MuonIdHelperTool>  m_idHelperTool;
     ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool;
 
+      SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
 
   }; 
 

@@ -292,6 +292,8 @@ muFastThresholds = {
     '30GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 17.83, 18.32, 20.46, 23.73] ],
     '36GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 23.94, 12.25, 19.80, 23.17] ],
     '40GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 21.20, 25.38, 29.54] ],
+    '60GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 21.20, 25.38, 29.54] ],
+    '80GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 21.20, 25.38, 29.54] ],
     '40GeV_uptoEC2_v15a'     : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 21.20, 25.38, 1000.] ],
     '40GeV_barrelOnly_v15a'  : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 1000., 1000., 1000.] ],
     '50GeV_barrelOnly_v15a'  : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 1000., 1000., 1000.] ],
@@ -376,11 +378,187 @@ muFastThresholdsForECWeakBRegion = {
     '30GeV_v15a'            : [ 14.41, 17.43 ],
     '36GeV_v15a'            : [ 10.78, 10.66],
     '40GeV_v15a'            : [ 15.07, 18.02 ],
+    '60GeV_v15a'            : [ 15.07, 18.02 ],
+    '80GeV_v15a'            : [ 15.07, 18.02 ],
     '40GeV_uptoEC2_v15a'    : [ 15.07, 18.02 ],
     '40GeV_barrelOnly_v15a' : [ 1000., 1000. ],
     '50GeV_barrelOnly_v15a' : [ 1000., 1000. ],
     '60GeV_barrelOnly_v15a' : [ 1000., 1000. ],
     }
+
+# This class is copied from MufastHypoConfig.
+class TrigMufastHypoConfig(TrigMufastHypoAlg) :
+
+    __slots__ = []
+
+    def TrigMufastHypoToolFromName( self, name, thresholdHLT ):	
+
+        from AthenaCommon.Constants import DEBUG
+        tool = TrigMufastHypoTool( thresholdHLT )  
+        tool.OutputLevel = DEBUG
+        
+        # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
+        bname = thresholdHLT.split('_') 
+
+        threshold = bname[1]
+        thresholds = TrigMufastHypoConfig().decodeThreshold( threshold )
+        print "TrigMufastHypoConfig: Decoded ", thresholdHLT, " to ", thresholds
+        TrigMufastHypoConfig().ConfigrationHypoTool( name, thresholdHLT, thresholds )
+  
+        # Setup MonTool for monitored variables in AthenaMonitoring package
+        TriggerFlags.enableMonitoring = ["Validation"]
+
+        try:
+            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
+                tool.MonTool = TrigMufastHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
+        except AttributeError:
+            tool.MonTool = ""
+            print name, ' Monitoring Tool failed'
+    
+        return tool
+
+    def decodeThreshold( self, threshold ):
+        """ decodes the thresholds of the form mu6, 2mu6, ... """
+        print "decoding ", threshold
+
+        if threshold[0].isdigit():  # If the form is NmuX, return as list [X,X,X...N times...]
+            assert threshold[1:3] == "mu", "Two digit multiplicity not supported"
+            return [ threshold[3:] ] * int( threshold[0] )
+    
+        if threshold.count('mu') > 1:  # If theform is muXmuY, return as [X,Y]
+            return threshold.strip('mu').split('mu')
+    
+        # If the form is muX(inclusive), return as 1 element list
+        return [ threshold[2:] ]        
+    
+    def ConfigrationHypoTool( self, name, thresholdHLT, thresholds ): 
+        
+        tool = TrigMufastHypoTool( thresholdHLT )  
+
+        datayear = '2017'
+
+        nt = len(thresholds)
+        print "TrigMufastHypoConfig: Set ", nt, " thresholds" 
+        tool.PtBins = [ [ 0, 2.5 ] ] * nt
+        tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
+        tool.PtThresholdForECWeakBRegionA = [ 3. * GeV ] * nt
+        tool.PtThresholdForECWeakBRegionB = [ 3. * GeV ] * nt
+
+        for th, thvalue in enumerate(thresholds):
+            if datayear == '2015'or datayear == '2016' or datayear == '2017':
+                thvaluename = thvalue + 'GeV_v15a'
+            else:
+                thvaluename = thvalue + 'GeV'
+            print "Number of threshold = ", th, ", Value of threshold = ", thvaluename
+
+            try:
+                tool.AcceptAll = False
+                values = muFastThresholds[thvaluename]
+                tool.PtBins[th] = values[0]
+                tool.PtThresholds[th] = [ x * GeV for x in values[1] ]
+                print "TrigMufastHypoConfig: Configration of threshold[", th, "] ", tool.PtThresholds[th]
+                print "TrigMufastHypoConfig: Configration of PtBins[", th, "] ", tool.PtBins[th]
+                if thvaluename in muFastThresholdsForECWeakBRegion:
+                    spThres = muFastThresholdsForECWeakBRegion[thvaluename]
+                    tool.PtThresholdForECWeakBRegionA[th] = spThres[0] * GeV
+                    tool.PtThresholdForECWeakBRegionB[th] = spThres[1] * GeV
+                    print 'TrigMufastHypoConfig: -> Thresholds for A[', th, ']/B[', th, ']=',tool.PtThresholdForECWeakBRegionA[th],'/',tool.PtThresholdForECWeakBRegionB[th]
+                else:
+                    print 'TrigMufastHypoConfig: No special thresholds for EC weak Bfield regions for',thvaluename
+                    print 'TrigMufastHypoConfig: -> Copy EC1 for region A, EC2 for region B'
+                    spThres = values[0][1]
+                    if thvaluename == '2GeV' or thvaluename == '3GeV':
+                        tool.PtThresholdForECWeakBRegionA[th] = spThres[0] * GeV
+                        tool.PtThresholdForECWeakBRegionB[th] = spThres[0] * GeV
+                    else:
+                        tool.PtThresholdForECWeakBRegionA[th] = spThres[1] * GeV
+                        tool.PtThresholdForECWeakBRegionB[th] = spThres[2] * GeV
+                    print 'TrigMufastHypoConfig: -> Thresholds for A[', th, ']/B[', th, ']=',tool.PtThresholdForECWeakBRegionA[th],'/',tool.PtThresholdForECWeakBRegionB[th]
+                
+            except LookupError:
+                if (thvaluename=='passthrough'):
+                    tool.PtBins[th] = [-10000.,10000.]
+                    tool.PtThresholds[th] = [ -1. * GeV ]
+                else:
+                    raise Exception('MuFast Hypo Misconfigured: threshold %r not supported' % thvaluename)
+
+        return thvaluename
+
+
+# This class is copied from MucombHypoConfig.
+class TrigmuCombHypoConfig(TrigmuCombHypoAlg):
+
+    __slots__ = []
+
+    # thresholdHLT: name threshold, for example HLT_mu6 etc
+    def TrigmuCombHypoToolFromName( self, name, thresholdHLT ):
+
+        from AthenaCommon.Constants import DEBUG
+        tool = TrigmuCombHypoTool( thresholdHLT )  
+        tool.OutputLevel = DEBUG
+
+        # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
+        bname = thresholdHLT.split('_') 
+
+        threshold = bname[1]
+        thresholds = TrigMufastHypoConfig().decodeThreshold( threshold )
+        tight = False
+
+        TrigmuCombHypoConfig().ConfigrationHypoTool( name, thresholdHLT, thresholds, tight )
+        print """ Configration SUCCESS: Configure threshold """, threshold, """ at TrigmuCombHypoTool """
+
+        # Setup MonTool for monitored variables in AthenaMonitoring package
+        TriggerFlags.enableMonitoring = ["Validation"]
+
+        try:
+            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
+                tool.MonTool = TrigmuCombHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
+        except AttributeError:
+            tool.MonTool = ""
+            print name, ' Monitoring Tool failed'
+
+        return tool
+ 
+    def ConfigrationHypoTool( self, name, thresholdHLT, thresholds, tight ):
+
+        tool = TrigmuCombHypoTool( thresholdHLT )
+        print 'MucombHypoConfig configured for threshold: ',thresholds
+
+        datayear = "2017"
+
+        nt = len(thresholds)
+        print "TrigMufastHypoConfig: Set ", nt, " thresholds" 
+        tool.PtBins = [ [ 0, 2.5 ] ] * nt
+        tool.PtThresholds = [ [ 5.83 * GeV ] ] * nt
+
+        for th, thvalue in enumerate(thresholds):
+            if datayear == '2015'or datayear == '2016' or datayear == '2017':
+                thvaluename = thvalue + 'GeV_v15a'
+            else:
+                thvaluename = thvalue + 'GeV'
+            print "Number of threshold = ", th, ", Value of threshold = ", thvaluename
+
+            try:
+                values = muCombThresholds[thvaluename]
+                tool.PtBins[th] = values[0]
+                tool.PtThresholds[th] = [ x * GeV for x in values[1] ]
+            except LookupError:
+                if (threshold=='passthrough'):
+                    tool.AcceptAll = True
+                    tool.PtBins[th] = [-10000.,10000.]
+                    tool.PtThresholds[th] = [ -1. * GeV ]
+                    tool.ApplyStrategyDependentCuts = True
+                    tool.ApplyPikCuts = False
+                else:
+                    raise Exception('MuComb Hypo Misconfigured: threshold %r not supported' % thvaluename)
+        
+            if (tight == True): 
+                tool.ApplyPikCuts        = True
+                tool.MaxPtToApplyPik      = 25.
+                tool.MaxChi2IDPik         = 3.5
+
+        return thvaluename
+
 
 class MufastHypoConfig(MufastHypo) :
 
@@ -430,91 +608,11 @@ class MufastHypoConfig(MufastHypo) :
         cosmic     = MufastHypoCosmicMonitoring()
 	
         self.AthenaMonTools = [ validation, online, cosmic ]
-        #if len(args) == 4:
-        #    if args[2] != 9999:
-        #        
-        #        self.SelectPV = True
-        #        self.Z_PV_Bins = args[2]
-        #        self.R_PV_Bins = args[3]
-        #    else:
-        #        self.SelectPV = False
-        #        self.Z_PV_Bins = 99999
-        #        self.R_PV_Bins = 99999
     
     def setDefaults(cls,handle):
         if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
             if len(handle.PtThresholds)!=len(handle.PtBins)-1:
                 print handle.name," eta bins doesn't match the Pt thresholds!"
-
-
-class TrigMufastHypoConfig(TrigMufastHypoAlg) :
-
-    __slots__ = []
-
-    # nath: name threshold, for example HLT_mu6 etc
-    def TrigMufastHypoToolFromName( self, name, nath ):	
-
-        from AthenaCommon.Constants import DEBUG
-        tool = TrigMufastHypoTool( nath )  
-        tool.OutputLevel = DEBUG
-        bname = nath.split('_') 
-
-        # this needs to be correct denied, as this is defined for test run
-        if len(bname) == 2: 
-            th = re.findall(r'[0-9]+', bname[1])           
-            threshold = str(th[0]) + 'GeV'
-            TrigMufastHypoConfig().ConfigrationHypoTool( name, nath, threshold )
-        #if len(bname) == 3:
-        #    th = re.findall(r'[0-9]+', bname[1])           
-        #    threshold = str(th[0]) + 'GeV_' + str(bname[2])
-        #    TrigMufastHypoConfig().ConfigrationHypoTool( name, nath, threshold )
-        else:
-            print """ Configration ERROR: Can't configure threshold at TrigMufastHypoTool """
-            return tool
-    
-        # Setup MonTool for monitored variables in AthenaMonitoring package
-        try:
-            TriggerFlags.enableMonitoring = ["Validation"]
-            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
-                tool.MonTool = TrigMufastHypoMonitoring() 
-        except AttributeError:
-            tool.MonTool = ""
-            print name, ' Monitoring Tool failed'
-    
-        return tool
-    
-    def ConfigrationHypoTool( self, name, nath, threshold ): 
-        
-        tool = TrigMufastHypoTool( nath )  
-    
-        try:
-            tool.AcceptAll = False
-            values = muFastThresholds[threshold]
-            tool.PtBins = values[0]
-            tool.PtThresholds = [ x * GeV for x in values[1] ]
-            if threshold in muFastThresholdsForECWeakBRegion:
-                spThres = muFastThresholdsForECWeakBRegion[threshold]
-                tool.PtThresholdForECWeakBRegionA = spThres[0] * GeV
-                tool.PtThresholdForECWeakBRegionB = spThres[1] * GeV
-            else:
-                print 'TrigMufastHypoConfig: No special thresholds for EC weak Bfield regions for',threshold
-                print 'TrigMufastHypoConfig: -> Copy EC1 for region A, EC2 for region B'
-                spThres = values[0][1]
-                if threshold == '2GeV' or threshold == '3GeV':
-                    tool.PtThresholdForECWeakBRegionA = spThres[0] * GeV
-                    tool.PtThresholdForECWeakBRegionB = spThres[0] * GeV
-                else:
-                    tool.PtThresholdForECWeakBRegionA = spThres[1] * GeV
-                    tool.PtThresholdForECWeakBRegionB = spThres[2] * GeV
-                print 'TrigMufastHypoConfig: -> Thresholds for A/B=',tool.PtThresholdForECWeakBRegionA,'/',tool.PtThresholdForECWeakBRegionB
-            
-        except LookupError:
-            if (threshold=='passthrough'):
-                tool.PtBins = [-10000.,10000.]
-                tool.PtThresholds = [ -1. * GeV ]
-            else:
-                raise Exception('MuFast Hypo Misconfigured: threshold %r not supported' % threshold)
-        return threshold
 
 
 class MufastStauHypoConfig(MufastStauHypo) :
@@ -549,16 +647,6 @@ class MufastStauHypoConfig(MufastStauHypo) :
         cosmic     = MufastStauHypoCosmicMonitoring()
 	
         self.AthenaMonTools = [ validation, online, cosmic ]
-        #if len(args) == 4:
-        #    if args[2] != 9999:
-        #        
-        #        self.SelectPV = True
-        #        self.Z_PV_Bins = args[2]
-        #        self.R_PV_Bins = args[3]
-        #    else:
-        #        self.SelectPV = False
-        #        self.Z_PV_Bins = 99999
-        #        self.R_PV_Bins = 99999
         if (args[0]=='Tight'):
             print "sofia OK"
             self.EtaCut = True
@@ -677,57 +765,6 @@ class MucombHypoConfig(MucombHypo) :
             if len(handle.PtThresholds)!=len(handle.PtBins)-1:
                 print handle.name," eta bins doesn't match the Pt thresholds!"
 
-
-class TrigmuCombHypoConfig(TrigmuCombHypoAlg):
-
-    __slots__ = []
-
-    # nath: name threshold, for example HLT_mu6 etc
-    def TrigmuCombHypoToolFromName( self, name, nath ):
-
-        from AthenaCommon.Constants import DEBUG
-        tool = TrigmuCombHypoTool( nath )  
-        tool.OutputLevel = DEBUG
-        bname = nath.split('_')
-
-        # this needs to be correct denied, as this is defined for test run
-        if len(bname) == 2: 
-            th = re.findall(r'[0-9]+', bname[1])           
-            threshold = str(th[0]) + 'GeV'
-            tight = False
-            TrigmuCombHypoConfig().ConfigrationHypoTool( name, nath, threshold, tight )        
-        else: 
-            print """ Configration ERROR: Can't configure threshold at TrigmuCombHypoTool """
-            return tool
-
-        print """ Configration SUCCESS: Configure threshold """, threshold, """ at TrigmuCombHypoTool """
-        return tool
- 
-    def ConfigrationHypoTool( self, name, nath, threshold, tight ):
-
-        tool = TrigmuCombHypoTool( nath )
-        print 'MucombHypoConfig configured for threshold: ',threshold
-
-        try:
-            values = muCombThresholds[threshold]
-            tool.PtBins = values[0]
-            tool.PtThresholds = [ x * GeV for x in values[1] ]
-        except LookupError:
-            if (threshold=='passthrough'):
-                tool.AcceptAll = True
-                tool.PtBins = [-10000.,10000.]
-                tool.PtThresholds = [ -1. * GeV ]
-                tool.ApplyStrategyDependentCuts = True
-                tool.ApplyPikCuts = False
-            else:
-                raise Exception('MuComb Hypo Misconfigured: threshold %r not supported' % threshold)
-
-        if (tight == True): 
-            tool.ApplyPikCuts        = True
-            tool.MaxPtToApplyPik      = 25.
-            tool.MaxChi2IDPik         = 3.5
-
-        return threshold
 
 class MucombStauHypoConfig(MucombStauHypo) :
 
@@ -1787,3 +1824,53 @@ class TrigMuonIDTrackMultiHypoConfig(TrigMuonIDTrackMultiHypo) :
 	
         self.AthenaMonTools = [ online ]
 
+
+########MT EF hypo 
+class TrigMuonEFMSonlyHypoConfig(TrigMuonEFMSonlyHypoAlg) :
+
+    __slots__ = []
+
+    # nath: name threshold, for example HLT_mu6 etc
+    def TrigMuonEFMSonlyHypoToolFromName( self, name, nath ):	
+
+        from AthenaCommon.Constants import DEBUG
+        tool = TrigMuonEFMSonlyHypoTool( nath )  
+        tool.OutputLevel = DEBUG
+        bname = nath.split('_') 
+
+        # this needs to be correctly defined, as this is defined for test run
+        if len(bname) == 2: 
+            th = re.findall(r'[0-9]+', bname[1])           
+            threshold = str(th[0]) + 'GeV'
+            TrigMuonEFMSonlyHypoConfig().ConfigrationHypoTool( name, nath, threshold )
+        else:
+            print """ Configration ERROR: Can't configure threshold at TrigMuonEFMSonlyHypoTool """
+            return tool
+    
+        # Setup MonTool for monitored variables in AthenaMonitoring package
+        try:
+            TriggerFlags.enableMonitoring = ["Validation"]
+            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
+                tool.MonTool = TrigMuonEFMSonlyHypoMonitoring() 
+        except AttributeError:
+            tool.MonTool = ""
+            print name, ' Monitoring Tool failed'
+    
+        return tool
+    
+    def ConfigrationHypoTool( self, name, nath, threshold ): 
+        
+        tool = TrigMuonEFMSonlyHypoTool( nath )  
+    
+        try:
+            tool.AcceptAll = False
+            values = trigMuonEFSAThresholds[threshold]
+            tool.PtBins = values[0]
+            tool.PtThresholds = [ x * GeV for x in values[1] ]
+        except LookupError:
+            if (threshold=='passthrough'):
+                tool.PtBins = [-10000.,10000.]
+                tool.PtThresholds = [ -1. * GeV ]
+            else:
+                raise Exception('MuonEFMSonly Hypo Misconfigured: threshold %r not supported' % threshold)
+        return threshold

@@ -35,7 +35,9 @@ class xAODTrigPhotonAuxContainerCnv :
 
 protected:
    /// Converter constructor
+public:
    xAODTrigPhotonAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::TrigPhotonAuxContainer*

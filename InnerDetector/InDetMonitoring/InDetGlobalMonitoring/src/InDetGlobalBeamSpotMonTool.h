@@ -25,7 +25,10 @@
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "InDetGlobalMotherMonTool.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 class TH1F_LW;
 class TH2F_LW;
@@ -88,9 +91,10 @@ private:
 
   std::string m_stream;
   bool m_useBeamspot;
-  std::string m_vxContainerName;
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vxContainerName{this,"vxContainerName","VxPrimaryCandidate","Vertex Container for Global Beamsport Monitoring"};
   bool m_vxContainerWithBeamConstraint;
-  std::string m_trackContainerName;
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackContainerName{this,"trackContainerName","TrackParticle container for Gloabl Beamsport Monitoring"};
+  
   std::string m_histFolder;
   std::string m_triggerChainName;
   unsigned int m_minTracksPerVtx;

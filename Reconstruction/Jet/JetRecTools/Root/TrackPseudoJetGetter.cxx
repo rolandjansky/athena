@@ -7,31 +7,135 @@
 
 #include "JetEDM/TrackVertexAssociation.h"
 
-TrackPseudoJetGetter::TrackPseudoJetGetter(const std::string &name) : PseudoJetGetter(name) , m_trkVtxAssocName("JetTrackVtxAssoc") {
-  declareProperty("TrackVertexAssociation", m_trkVtxAssocName, "SG key for the TrackVertexAssociation object");
+#include "JetRec/PseudoJetContainer.h"
+#include "JetRecTools/TrackExtractor.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "fastjet/PseudoJet.hh"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/TrackParticleContainer.h"
+
+TrackPseudoJetGetter::TrackPseudoJetGetter(const std::string &name) 
+  : PseudoJetGetter(name) , m_inTVA("JetTrackVtxAssoc") {
+  declareProperty("TrackVertexAssociation", m_inTVA, "SG key for the TrackVertexAssociation object");
+  declareProperty("InputContainer", m_incolltrk);
 }
 
-int TrackPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* pli) const { 
-  StatusCode sc = evtStore()->retrieve(m_trkVtxAssoc, m_trkVtxAssocName);
-  if(sc.isFailure()){ ATH_MSG_ERROR("Can't retrieve TrackVertexAssociation : "<< m_trkVtxAssocName); return 1;}
+//**********************************************************************
+StatusCode TrackPseudoJetGetter::initialize() {
+  ATH_MSG_DEBUG("Initializing...");
+  print();
 
-  // temporary re-copy from PseudoJetGetter as long as tracks can not be retrieved as IParticle
-  if ( evtStore()->contains<xAOD::TrackParticleContainer>(m_incoll) ) {
-    ATH_MSG_DEBUG("Retrieving xAOD container " << m_incoll << ", ghost scale="
-                  << m_ghostscale  <<  ", isGhost=" << bool(m_ghostscale));
-    const xAOD::TrackParticleContainer* ppars = 0;
-    ppars = evtStore()->retrieve<const xAOD::TrackParticleContainer>(m_incoll);
-    if ( ppars != 0 ) return append(*ppars, psjs, pli);
+  m_incolltrk = m_incoll.key();
+  ATH_CHECK( m_incolltrk.initialize() );
+  ATH_CHECK( m_outcoll.initialize() );
+  ATH_CHECK( m_inTVA.initialize() );
+
+  m_outcollRead = m_outcoll.key();
+  ATH_CHECK( m_outcollRead.initialize() );
+
+  return StatusCode::SUCCESS;
+}
+
+//**********************************************************************
+
+StatusCode TrackPseudoJetGetter::createAndRecord() const {
+  // Use const pointer for now, but can change to unique pointer when
+  // we move to DataVector and when MR 2431 is complete:
+  // https://gitlab.cern.ch/atlas/athena/merge_requests/2431
+  const PseudoJetContainer* pjc = this->getC();
+  if (!pjc) return StatusCode::FAILURE;
+
+  return StatusCode::SUCCESS;
+}
+
+//**********************************************************************
+const PseudoJetContainer* TrackPseudoJetGetter::getC() const {
+
+  ATH_MSG_DEBUG("Getting PseudoJetContainer in TrackPseudoJetGetter ...");
+
+  // check if already exists
+  auto handle_inOut = SG::makeHandle (m_outcollRead);
+  if ( handle_inOut.isValid() ) {
+    ATH_MSG_DEBUG("Fetching existing pseudojets." << m_outcollRead.key());
+    return handle_inOut.cptr();
   }
-  return 0;
+  
+  // else we build and record the container
+  const xAOD::TrackParticleContainer* cont;
+  auto handle_in = SG::makeHandle(m_incolltrk);
+  if ( handle_in.isValid() ) {
+    ATH_MSG_DEBUG("Retrieving xAOD container " << m_incolltrk.key() << ", ghost scale=" << m_ghostscale  <<  ", isGhost=" << bool(m_ghostscale));
+    // retrieve the input.
+    cont = handle_in.cptr();
+  } else {
+    ATH_MSG_ERROR("Unable to find input collection: " << m_incolltrk.key());
+    ATH_MSG_ERROR("Error creating pseudojets.");
+    return nullptr;
+  }
 
-  //return PseudoJetGetter::appendTo(psjs,pli);
+  SG::ReadHandle<jet::TrackVertexAssociation> h_tva(m_inTVA);
+
+  std::vector<PseudoJet> vpj = createPseudoJets(cont);
+
+  // "Ghost" in outout collection name? If so is a ghost collection.
+  bool isGhost = (m_outcoll.key()).find("Ghost") != std::string::npos;
+
+  // create an extractor
+  TrackExtractor* extractor = new TrackExtractor(cont, m_label, isGhost);
+
+  // ghostify the pseudojets if necessary
+  if(isGhost){
+    for(PseudoJet& pj : vpj) {pj *= 1e-40;}
+  }
+
+  // record
+  // to satisfy legacy code, need to return a bare pointer as well
+  // as write to storegate. so no calls to  make_unique...
+
+  SG::WriteHandle<PseudoJetContainer> handle_out(m_outcoll);
+  PseudoJetContainer*  pjcont = new PseudoJetContainer(extractor, vpj);
+  
+  if(!handle_out.record(std::unique_ptr<PseudoJetContainer>(pjcont))){
+    ATH_MSG_DEBUG("Error storing PseudoJetContainer in event "
+                  << " at key " << m_outcoll.key());
+  } else {
+    ATH_MSG_DEBUG("PseudoJetContainer in event store with extractor: " 
+                  << extractor->toString(0)
+                  << " at key " << m_outcoll.key());
+  }
+
+  return pjcont;
+
 }
 
-jet::IConstituentUserInfo* TrackPseudoJetGetter::buildCUI(const xAOD::IParticle* p, jet::IConstituentUserInfo::Index id, const LabelIndex* labelMap) const {
-  const xAOD::TrackParticle* trk = static_cast<const xAOD::TrackParticle*>(p);
-  ATH_MSG_DEBUG( " buildCUI with index "<< id );
-  return  new jet::VertexIndexedConstituentUserInfo(*p, id, labelMap, m_trkVtxAssoc->associatedVertex(trk));
+std::vector<PseudoJet> 
+TrackPseudoJetGetter::createPseudoJets(const xAOD::TrackParticleContainer* ips) const {
 
+  std::vector<PseudoJet> vpj;
+  // create PseudoJets
+  int index=-1;
+  for(const xAOD::TrackParticle* part: *ips) {
+    index++;
+    
+    if ( part == 0 || (m_skipNegativeEnergy && part->e() <= 0.0) ) {
+      if ( part == 0 ) ATH_MSG_DEBUG("NUll object!");
+      else ATH_MSG_VERBOSE("Skipping cluster with E = " << part->e());
+      //++nskip;
+      continue;
+    }
+    
+    // Take momentum from TrackParticle.
+    fastjet::PseudoJet psj(part->p4());
+    
+    // const xAOD::Vertex* vtx = h_tva->associatedVertex(part);
+    //jet::IConstituentUserInfo* pcui = this->buildCUI(trk, vtx, labidx, pli);
+    //psj.set_user_info(pcui);
+    
+    vpj.push_back( psj );
+    vpj.back().set_user_index(index); // Set the index !!
+  }
+
+  return vpj;
 }
+
 

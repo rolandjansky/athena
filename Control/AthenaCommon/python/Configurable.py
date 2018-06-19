@@ -4,12 +4,11 @@
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 # Author: Martin Woudstra (Martin.Woudstra@cern.ch)
 
-import copy, types, os, weakref
-import ConfigurableMeta
+import copy, types, os, weakref,sys
+from AthenaCommon import ConfigurableMeta
 
 # Note: load iProperty etc. from GaudiPython only as-needed
 import GaudiKernel.GaudiHandles as GaudiHandles
-
 
 ### data ---------------------------------------------------------------------
 __version__ = '3.2.0'
@@ -110,62 +109,63 @@ class Configurable( object ):
          raise NameError( '"%s": type separator "/" no allowed in component name, '\
                           'typename is derived from configurable instead' % name )
 
-    # ordinary recycle case
-      try:
-         conf = cls.configurables[ name ]
+      if 'AthenaConfiguration.ComponentAccumulator' not in sys.modules.keys():
+         # ordinary recycle case
+         try:
+            conf = cls.configurables[ name ]
 
-       # initialize additional properties, if any
-         for n,v in kwargs.items():
-            try:
-               setattr( conf, n, v )
-            except AttributeError, originalAttributeError:
-             # rather annoying that we have to be somewhat silent here (the
-             # most common cases are 'name' and user kw args to be supplied
-             # to an overridden __init__)
-               log.debug( 'not accepting keyword "%s" as a property', n )
+          # initialize additional properties, if any
+            for n,v in kwargs.items():
+               try:
+                  setattr( conf, n, v )
+               except AttributeError as originalAttributeError:
+                # rather annoying that we have to be somewhat silent here (the
+                # most common cases are 'name' and user kw args to be supplied
+                # to an overridden __init__)
+                  log.debug( 'not accepting keyword "%s" as a property', n )
 
-             # now for a completely different can of worms ...
-               acceptableKeyWord = False
+                # now for a completely different can of worms ...
+                  acceptableKeyWord = False
 
-             # little helper
-               def flat( classtree ):
-                  if isinstance( classtree, list ) or isinstance( classtree, tuple ):
-                     return [ j for i in classtree for j in flat( i ) ]
-                  else:
-                     return [ classtree ]
+                # little helper
+                  def flat( classtree ):
+                     if isinstance( classtree, list ) or isinstance( classtree, tuple ):
+                        return [ j for i in classtree for j in flat( i ) ]
+                     else:
+                        return [ classtree ]
 
-             # the following attempts to figure out if the missing attribute
-             # is in fact an acceptable formal function argument to __init__,
-               import inspect
-               allclasses = flat( inspect.getclasstree( [ conf.__class__ ] ) )
-               for confklass in allclasses:
-                  try:
-                   # the following may result in the same init tried several
-                   # times, but we shouldn't be in this loop too often anyway
-                     confinit = getattr( confklass, '__init__' )
-                     if n in confinit.func_code.co_varnames:
-                        log.debug( 'accepting keyword "%s" as an argument for %s.__init__' % (n,confklass.__name__) )
-                        acceptableKeyWord = True
-                        break
-                  except AttributeError:
-                     pass
+                # the following attempts to figure out if the missing attribute
+                # is in fact an acceptable formal function argument to __init__,
+                  import inspect
+                  allclasses = flat( inspect.getclasstree( [ conf.__class__ ] ) )
+                  for confklass in allclasses:
+                     try:
+                      # the following may result in the same init tried several
+                      # times, but we shouldn't be in this loop too often anyway
+                        confinit = getattr( confklass, '__init__' )
+                        if n in confinit.func_code.co_varnames:
+                           log.debug( 'accepting keyword "%s" as an argument for %s.__init__' % (n,confklass.__name__) )
+                           acceptableKeyWord = True
+                           break
+                     except AttributeError:
+                        pass
 
-             # raising here will break the usage of keywords in __init__, but
-             # there don't appear to be such cases in ATLAS yet ...
-               if not acceptableKeyWord:
-                  raise originalAttributeError
-         return conf
-      except KeyError:
-         pass
+                # raising here will break the usage of keywords in __init__, but
+                # there don't appear to be such cases in ATLAS yet ...
+                  if not acceptableKeyWord:
+                     raise originalAttributeError
+            return conf
+         except KeyError:
+            pass
 
-    # the following is purely for debugging support and should realistically bomb
-      try:
-         conf = cls.allConfigurables[ name ]
-         raise TypeError( 'attempt to redefine type of "%s" (was: %s, new: %s)' %
-                          (name,conf.__class__.__name__,cls.__name__) )
-      except KeyError:
-         pass
-
+       # the following is purely for debugging support and should realistically bomb
+         try:
+            conf = cls.allConfigurables[ name ]
+            raise TypeError( 'attempt to redefine type of "%s" (was: %s, new: %s)' %
+                             (name,conf.__class__.__name__,cls.__name__) )
+         except KeyError:
+            pass
+      pass #end if not new configuration approach
     # still here: create a new instance ...
       conf = object.__new__( cls )
 
@@ -191,7 +191,7 @@ class Configurable( object ):
 
     # this is an abstract class
       if klass == Configurable:
-         raise TypeError, "%s is an ABC and can not be instantiated" % str(Configurable)
+         raise TypeError( "%s is an ABC and can not be instantiated" % str(Configurable))
 
     # for using this Configurable as a (Gaudi) sequence
       self.__children = []
@@ -441,8 +441,7 @@ class Configurable( object ):
     # make sure base class init has been called
       if not hasattr(self,'_fInitOk') or not self._fInitOk:
        # could check more, but this is the only explanation
-         raise TypeError, \
-            "Configurable.__init__ not called in %s override" % self.__class__.__name__
+         raise TypeError("Configurable.__init__ not called in %s override" % self.__class__.__name__)
 
     # setup self: this collects all values on the python side
       self.__setupServices()
@@ -514,8 +513,7 @@ class Configurable( object ):
                value = value.getFullName()
             elif type(value) is list and len(value) > 0 and hasattr(value[0], 'getFullName'):
                value = [ i.getFullName() for i in value ]
-            if not hasattr(proxy,'default') or value != proxy.default :
-               props[ name ] = value
+            props[ name ] = value               
          except AttributeError:
             pass
 

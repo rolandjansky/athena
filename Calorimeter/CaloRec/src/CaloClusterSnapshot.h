@@ -7,6 +7,7 @@
 #define CALOREC_CALOCLUSTERSNAPSHOT_H
 
 #include "CaloRec/CaloClusterCollectionProcessor.h"
+#include "CaloEvent/CaloClusterCellLinkContainer.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
 class CaloClusterSnapshot : public AthAlgTool, virtual public CaloClusterCollectionProcessor {
@@ -26,6 +27,7 @@ class CaloClusterSnapshot : public AthAlgTool, virtual public CaloClusterCollect
  private:
   // properties 
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputKey;
+  SG::WriteHandleKey<CaloClusterCellLinkContainer> m_cellLinkOutputKey;
 
   bool m_setCrossLinks;
 

@@ -23,5 +23,6 @@ addTool("G4UserActions.G4UserActionsConfig.getScoringVolumeTrackKillerTool", "G4
 
 addTool("G4UserActions.G4UserActionsConfig.getFluxRecorderTool", "G4UA::FluxRecorderTool")
 addTool("G4UserActions.G4UserActionsConfig.getScoringPlaneTool", "G4UA::ScoringPlaneTool")
+addTool("G4UserActions.G4UserActionsConfig.getRadiationMapsMakerTool", "G4UA::RadiationMapsMakerTool")
 
 

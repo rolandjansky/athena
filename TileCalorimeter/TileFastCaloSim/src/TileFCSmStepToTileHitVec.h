@@ -71,7 +71,7 @@ private:
   float   m_deltaT;
   std::vector<TileHit*> m_allHits;
 
-  int m_Ushape;
+  int m_uShape;
 };
 
 #endif // TILERECALGS_TILEFCSMSTEPTOTILEHITVEC_H

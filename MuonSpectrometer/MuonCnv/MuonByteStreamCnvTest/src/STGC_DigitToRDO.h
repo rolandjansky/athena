@@ -22,9 +22,9 @@ class STGC_DigitToRDO : public AthAlgorithm
 public:
 
   STGC_DigitToRDO (const std::string& name, ISvcLocator* pSvcLocator);
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
 private:
 

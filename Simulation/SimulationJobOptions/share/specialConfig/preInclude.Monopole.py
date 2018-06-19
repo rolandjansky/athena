@@ -47,6 +47,8 @@ try:
         doG4SimConfig = False
     else:
         from G4AtlasApps.SimFlags import simFlags
+        if not "InteractingPDGCodes" in simFlags.specialConfiguration.get_Value():
+            simFlags.specialConfiguration.get_Value()['InteractingPDGCodes'] = [4110000,-4110000]
         simdict = simFlags.specialConfiguration.get_Value()
 except:
     from G4AtlasApps.SimFlags import simFlags
@@ -68,9 +70,9 @@ if doG4SimConfig:
     simFlags.TightMuonStepping.set_Value_and_Lock(False)
     simFlags.PhysicsOptions += ["MonopolePhysicsTool"]
     # add monopole-specific configuration for looper killer
-    simFlags.OptionalUserActionList.addAction('G4UA::MonopoleLooperKillerTool',['Step'])
+    simFlags.OptionalUserActionList.addAction('G4UA::MonopoleLooperKillerTool')
     # add default HIP killer
-    simFlags.OptionalUserActionList.addAction('G4UA::HIPKillerTool',['Step'])
+    simFlags.OptionalUserActionList.addAction('G4UA::HIPKillerTool')
 
 
 

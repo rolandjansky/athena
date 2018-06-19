@@ -15,7 +15,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AsgTools/AsgMetadataTool.h"
 #ifdef ASGTOOL_ATHENA
-#include "AthenaPoolKernel/IMetaDataTool.h"
+#include "AthenaKernel/IMetaDataTool.h"
 #endif // ASGTOOL_ATHENA
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"

@@ -12,7 +12,10 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODBTagging/BTaggingContainer.h"
 
 namespace Analysis{
 
@@ -33,15 +36,12 @@ class  StandAloneJetBTaggerAlg:
 
   private:
   
-    std::string m_JetCollectionName;
+    SG::ReadHandleKey<xAOD::JetContainer > m_JetCollectionName {this, "JetCollectionName", "", "Input jet container"};
+    SG::WriteHandleKey<xAOD::BTaggingContainer> m_BTaggingCollectionName {this, "BTaggingCollectionName", "", "Output BTagging container"};
     std::string m_suffix;
 
     ToolHandle< IJetBTaggerTool > m_JetBTaggerTool; 
 
-    // Utility function to be used in case of container overwriting.
-    // Note that it do not need to be defined here, as it can only be called from code in StandAloneJetBTaggerAlg.cxx.
-    template< class CONTAINER, class AUXSTORE >
-      StatusCode overwrite(const std::string& key) const;
 };
 
 }

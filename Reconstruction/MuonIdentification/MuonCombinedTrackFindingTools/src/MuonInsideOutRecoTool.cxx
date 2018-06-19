@@ -75,7 +75,7 @@ namespace MuonCombined {
     if( !m_recoValidationTool.empty() ) ATH_CHECK(m_recoValidationTool.retrieve());
     ATH_CHECK(m_trackFitter.retrieve());
     ATH_CHECK(m_trackAmbibuityResolver.retrieve());
-    
+    ATH_CHECK(m_vertexKey.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -216,7 +216,7 @@ namespace MuonCombined {
     const Muon::MuonCandidate* candidate = trackCandidateLookup[selectedTrack];
     if( !candidate ){
       ATH_MSG_WARNING("candidate lookup failed, this should not happen");
-      return std::pair<std::unique_ptr<const Muon::MuonCandidate>,std::unique_ptr<const Trk::Track> >(nullptr,nullptr);;
+      return std::pair<std::unique_ptr<const Muon::MuonCandidate>,std::unique_ptr<const Trk::Track> >(nullptr,nullptr);
     }
 
     return std::make_pair( std::unique_ptr<const Muon::MuonCandidate>(new Muon::MuonCandidate(*candidate)),
@@ -231,7 +231,27 @@ namespace MuonCombined {
     float bs_y = 0.;
     float bs_z = 0.;
  
-    const xAOD::Vertex* matchedVertex = idTrackParticle.vertex();
+    const xAOD::Vertex* matchedVertex = nullptr;
+    SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
+    if (!vertices.isValid())
+    {
+      ATH_MSG_WARNING("No vertex container with key = " << m_vertexKey.key() << " found");
+    }
+    else
+    {
+      for ( const auto& vx : *vertices )
+      {
+	for ( const auto& tpLink : vx->trackParticleLinks() )
+	{
+	  if (*tpLink == &idTrackParticle)
+	  {
+	    matchedVertex = vx;
+	    break;
+	  }
+	  if (matchedVertex) break;
+	}
+      }
+    }
     if(matchedVertex) {
       bs_x = matchedVertex->x();
       bs_y = matchedVertex->y();

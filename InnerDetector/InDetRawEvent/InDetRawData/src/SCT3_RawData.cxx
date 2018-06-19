@@ -34,11 +34,3 @@ SCT3_RawData::SCT3_RawData(const Identifier rdoId,
     m_errorCondensedHit (std::move(errorhit))
 {
 }
-
-// Destructor:
-//should I be destructing something here?
-SCT3_RawData::~SCT3_RawData()
-{
-}
-
-

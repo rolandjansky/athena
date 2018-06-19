@@ -17,7 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           Control/CLIDSvc
                           Control/SGTools
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           GaudiKernel
                           TileCalorimeter/TileConditions
                           TileCalorimeter/TileIdentifier )
@@ -39,9 +39,11 @@ atlas_add_library( TileGeoModelLib
 atlas_add_component( TileGeoModel
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} StoreGateLib SGtests GeoModelKernel GeoModelUtilities TileDetDescr CaloDetDescrLib CaloIdentifier SGTools GaudiKernel TileConditionsLib TileIdentifier TileGeoModelLib )
+                     LINK_LIBRARIES TileGeoModelLib )
 
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( python/*.py )
+
 

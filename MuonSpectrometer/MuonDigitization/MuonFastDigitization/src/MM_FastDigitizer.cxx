@@ -44,13 +44,13 @@ using namespace Muon;
 /*******************************************************************************/ 
   MM_FastDigitizer::MM_FastDigitizer(const std::string& name, ISvcLocator* pSvcLocator)
 : AthAlgorithm(name, pSvcLocator) , m_activeStore(NULL) , m_detManager(NULL) , m_idHelper(NULL)
-  , m_file(NULL) , m_ntuple(NULL) , slx(0.) , sly(0.) , slz(0.) , dlx(0.) , dly(0.) , dlz(0.)
-  , sulx(0.) , suly(0.) , tsulx(0.) , tsuly(0.) , tsulz(0.) , stsulx(0.) , stsuly(0.) , stsulz(0.)
-  , ang(0.) , shift(0.) , resx(0.) , resy(0.) , resz(0.) , suresx(0.) , suresy(0.) , err(0.) , res(0.)
-  , pull(0.) , is(0) , seta(0) , sphi(0) , sml(0) , sl(0) , ss(0) , ieta(0) , iphi(0) , iml(0) , il(0)
-  , ich(0) , istr(0) , exitcode(0) , mode(0) , pdg(0) , trkid(0) , gpx(0.) , gpy(0.) , gpz(0.)
-  , gpr(0.) , gpp(0.) , dgpx(0.) , dgpy(0.) , dgpz(0.), dgpr(0.) , dgpp(0.) , tofCorrection(0.)
-  , bunchTime(0.) , globalHitTime(0.) , e(0.) , edep(0.) , surfcentx(0.) , surfcenty(0.) , surfcentz(0.)
+  , m_file(NULL) , m_ntuple(NULL) , m_slx(0.) , m_sly(0.) , m_slz(0.) , m_dlx(0.) , m_dly(0.) , m_dlz(0.)
+  , m_sulx(0.) , m_suly(0.) , m_tsulx(0.) , m_tsuly(0.) , m_tsulz(0.) , m_stsulx(0.) , m_stsuly(0.) , m_stsulz(0.)
+  , m_ang(0.) , m_shift(0.) , m_resx(0.) , m_resy(0.) , m_resz(0.) , m_suresx(0.) , m_suresy(0.) , m_err(0.) , m_res(0.)
+  , m_pull(0.) , m_is(0) , m_seta(0) , m_sphi(0) , m_sml(0) , m_sl(0) , m_ss(0) , m_ieta(0) , m_iphi(0) , m_iml(0) , m_il(0)
+  , m_ich(0) , m_istr(0) , m_exitcode(0) , m_mode(0) , m_pdg(0) , m_trkid(0) , m_gpx(0.) , m_gpy(0.) , m_gpz(0.)
+  , m_gpr(0.) , m_gpp(0.) , m_dgpx(0.) , m_dgpy(0.) , m_dgpz(0.), m_dgpr(0.) , m_dgpp(0.) , m_tofCorrection(0.)
+  , m_bunchTime(0.) , m_globalHitTime(0.) , m_e(0.) , m_edep(0.) , m_surfcentx(0.) , m_surfcenty(0.) , m_surfcentz(0.)
   , m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool" )
   , m_muonClusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator")
   , m_rndmSvc("AtRndmGenSvc", name )
@@ -66,6 +66,7 @@ using namespace Muon;
   declareProperty("CheckIds", m_checkIds = false,  "Turn on validity checking of Identifiers"  );
   declareProperty("MaskMultiplet", m_maskMultiplet = 0,  "0: all, 1: first, 2: second, 3: both"  );
   declareProperty("SDOname", m_sdoName = "MMfast_SDO"  );
+  declareProperty("MicroTPC", m_microTPC = true,  "Turn on microTPC mode"  );
 }
 /*******************************************************************************/ 
 MM_FastDigitizer::~MM_FastDigitizer()  {
@@ -130,64 +131,64 @@ StatusCode MM_FastDigitizer::initialize() {
 
   m_file = new TFile("MM_plots.root","RECREATE");
   m_ntuple = new TTree("a","a");
-  m_ntuple->Branch("slx",&slx);
-  m_ntuple->Branch("sly",&sly);
-  m_ntuple->Branch("slz",&slz);
-  m_ntuple->Branch("dlx",&dlx);
-  m_ntuple->Branch("dly",&dly);
-  m_ntuple->Branch("dlz",&dlz);
-  m_ntuple->Branch("sulx",&sulx);
-  m_ntuple->Branch("suly",&suly);
-  m_ntuple->Branch("tsulx",&tsulx);
-  m_ntuple->Branch("tsuly",&tsuly);
-  m_ntuple->Branch("tsulz",&tsulz);
-  m_ntuple->Branch("stsulx",&stsulx);
-  m_ntuple->Branch("stsuly",&stsuly);
-  m_ntuple->Branch("stsulz",&stsulz);
-  m_ntuple->Branch("ang",&ang);
-  m_ntuple->Branch("shift",&shift);
-  m_ntuple->Branch("resx",&resx);
-  m_ntuple->Branch("resy",&resy);
-  m_ntuple->Branch("suresx",&suresx);
-  m_ntuple->Branch("suresy",&suresy);
-  m_ntuple->Branch("resz",&resz);
-  m_ntuple->Branch("err",&err);
-  m_ntuple->Branch("res",&res);
-  m_ntuple->Branch("pull",&pull);
-  m_ntuple->Branch("is",&is);
-  m_ntuple->Branch("seta",&seta);
-  m_ntuple->Branch("sphi",&sphi);
-  m_ntuple->Branch("sml",&sml);
-  m_ntuple->Branch("sl",&sl);
-  m_ntuple->Branch("ss",&ss);
-  m_ntuple->Branch("ieta",&ieta);
-  m_ntuple->Branch("iphi",&iphi);
-  m_ntuple->Branch("iml",&iml);
-  m_ntuple->Branch("il",&il);
-  m_ntuple->Branch("ich",&ich);
-  m_ntuple->Branch("istr",&istr);
-  m_ntuple->Branch("exitcode",&exitcode);
-  m_ntuple->Branch("mode",&mode);
-  m_ntuple->Branch("pdg",&pdg);
-  m_ntuple->Branch("trkid",&trkid);
-  m_ntuple->Branch("gpx",&gpx);
-  m_ntuple->Branch("gpy",&gpy);
-  m_ntuple->Branch("gpz",&gpz);
-  m_ntuple->Branch("gpr",&gpr);
-  m_ntuple->Branch("gpp",&gpp);
-  m_ntuple->Branch("dgpx",&dgpx);
-  m_ntuple->Branch("dgpy",&dgpy);
-  m_ntuple->Branch("dgpz",&dgpz);
-  m_ntuple->Branch("dgpr",&dgpr);
-  m_ntuple->Branch("dgpp",&dgpp);
-  m_ntuple->Branch("globalHitTime", &globalHitTime);
-  m_ntuple->Branch("tofCorrection", &tofCorrection);
-  m_ntuple->Branch("bunchTime", &bunchTime);
-  m_ntuple->Branch("e", &e);
-  m_ntuple->Branch("edep", &edep);
-  m_ntuple->Branch("surfcentx",&surfcentx);
-  m_ntuple->Branch("surfcenty",&surfcenty);
-  m_ntuple->Branch("surfcentz",&surfcentz);
+  m_ntuple->Branch("slx",&m_slx);
+  m_ntuple->Branch("sly",&m_sly);
+  m_ntuple->Branch("slz",&m_slz);
+  m_ntuple->Branch("dlx",&m_dlx);
+  m_ntuple->Branch("dly",&m_dly);
+  m_ntuple->Branch("dlz",&m_dlz);
+  m_ntuple->Branch("sulx",&m_sulx);
+  m_ntuple->Branch("suly",&m_suly);
+  m_ntuple->Branch("tsulx",&m_tsulx);
+  m_ntuple->Branch("tsuly",&m_tsuly);
+  m_ntuple->Branch("tsulz",&m_tsulz);
+  m_ntuple->Branch("stsulx",&m_stsulx);
+  m_ntuple->Branch("stsuly",&m_stsuly);
+  m_ntuple->Branch("stsulz",&m_stsulz);
+  m_ntuple->Branch("ang",&m_ang);
+  m_ntuple->Branch("shift",&m_shift);
+  m_ntuple->Branch("resx",&m_resx);
+  m_ntuple->Branch("resy",&m_resy);
+  m_ntuple->Branch("suresx",&m_suresx);
+  m_ntuple->Branch("suresy",&m_suresy);
+  m_ntuple->Branch("resz",&m_resz);
+  m_ntuple->Branch("err",&m_err);
+  m_ntuple->Branch("res",&m_res);
+  m_ntuple->Branch("pull",&m_pull);
+  m_ntuple->Branch("is",&m_is);
+  m_ntuple->Branch("seta",&m_seta);
+  m_ntuple->Branch("sphi",&m_sphi);
+  m_ntuple->Branch("sml",&m_sml);
+  m_ntuple->Branch("sl",&m_sl);
+  m_ntuple->Branch("ss",&m_ss);
+  m_ntuple->Branch("ieta",&m_ieta);
+  m_ntuple->Branch("iphi",&m_iphi);
+  m_ntuple->Branch("iml",&m_iml);
+  m_ntuple->Branch("il",&m_il);
+  m_ntuple->Branch("ich",&m_ich);
+  m_ntuple->Branch("istr",&m_istr);
+  m_ntuple->Branch("exitcode",&m_exitcode);
+  m_ntuple->Branch("mode",&m_mode);
+  m_ntuple->Branch("pdg",&m_pdg);
+  m_ntuple->Branch("trkid",&m_trkid);
+  m_ntuple->Branch("gpx",&m_gpx);
+  m_ntuple->Branch("gpy",&m_gpy);
+  m_ntuple->Branch("gpz",&m_gpz);
+  m_ntuple->Branch("gpr",&m_gpr);
+  m_ntuple->Branch("gpp",&m_gpp);
+  m_ntuple->Branch("dgpx",&m_dgpx);
+  m_ntuple->Branch("dgpy",&m_dgpy);
+  m_ntuple->Branch("dgpz",&m_dgpz);
+  m_ntuple->Branch("dgpr",&m_dgpr);
+  m_ntuple->Branch("dgpp",&m_dgpp);
+  m_ntuple->Branch("globalHitTime", &m_globalHitTime);
+  m_ntuple->Branch("tofCorrection", &m_tofCorrection);
+  m_ntuple->Branch("bunchTime", &m_bunchTime);
+  m_ntuple->Branch("e", &m_e);
+  m_ntuple->Branch("edep", &m_edep);
+  m_ntuple->Branch("surfcentx",&m_surfcentx);
+  m_ntuple->Branch("surfcenty",&m_surfcenty);
+  m_ntuple->Branch("surfcentz",&m_surfcentz);
   return StatusCode::SUCCESS;
 
 }
@@ -201,7 +202,7 @@ StatusCode MM_FastDigitizer::execute() {
   SG::WriteHandle<MuonSimDataCollection> h_sdoContainer(m_sdoName);
   ATH_CHECK( h_sdoContainer.record ( std::make_unique<MuonSimDataCollection>() ) );
 
-  MMPrepDataContainer* prdContainer = new MMPrepDataContainer(m_idHelper->detectorElement_hash_max());
+  MMPrepDataContainer* prdContainer = new MMPrepDataContainer(m_idHelper->module_hash_max());
   std::string key = "MM_Measurements";
   ATH_MSG_DEBUG(" Done! Total number of MM chambers with PRDS: " << prdContainer->numberOfCollections() << " key " << key);
   ATH_CHECK( evtStore()->record(prdContainer,key) );
@@ -211,7 +212,7 @@ StatusCode MM_FastDigitizer::execute() {
     return StatusCode::SUCCESS;
   }
   // as the MMPrepDataContainer only allows const accesss, need a local vector as well.
-  std::vector<MMPrepDataCollection*> localMMVec(m_idHelper->detectorElement_hash_max());
+  std::vector<MMPrepDataCollection*> localMMVec(m_idHelper->module_hash_max());
 
   const DataHandle< GenericMuonSimHitCollection > collGMSH;
   if ( evtStore()->retrieve( collGMSH,m_inputObjectName ).isFailure()) {
@@ -246,16 +247,16 @@ StatusCode MM_FastDigitizer::execute() {
       if( diff.mag() < 0.1 ) continue;
     }
 
-    globalHitTime = hit.globalpreTime();
-    tofCorrection = hit.globalPosition().mag()/CLHEP::c_light;
-    bunchTime = globalHitTime - tofCorrection;
+    m_globalHitTime = hit.globalpreTime();
+    m_tofCorrection = hit.globalPosition().mag()/CLHEP::c_light;
+    m_bunchTime = m_globalHitTime - m_tofCorrection;
     const float stripPropagationTime = 0.;
     static const float jitter = 0.;
-    float MMDigitTime = bunchTime + jitter + stripPropagationTime;
+    float MMDigitTime = m_bunchTime + jitter + stripPropagationTime;
 
     float timeWindowStrip = 120.; //driftvelocity gap;
     if (MMDigitTime < -timeWindowStrip || MMDigitTime > timeWindowStrip) {
-      exitcode = 4;
+      m_exitcode = 4;
       m_ntuple->Fill();
       continue;
     }
@@ -291,7 +292,7 @@ StatusCode MM_FastDigitizer::execute() {
 
     // collections stored per readout element
     IdentifierHash hash;
-    m_idHelper->get_detectorElement_hash(layid, hash);
+    m_idHelper->get_module_hash(layid, hash);
     MuonPrepDataCollection<Muon::MMPrepData>* col  = localMMVec[hash];
     if( !col ){
       col = new MMPrepDataCollection(hash);
@@ -339,7 +340,8 @@ StatusCode MM_FastDigitizer::execute() {
     double scale;//, scaletop;
 //    double gasgap = 5.;
     
-    scale = -slpos.z()/ldir.z();
+    if (m_microTPC) scale = 0;
+    else scale = -slpos.z()/ldir.z();
 //    scaletop = (gasgap+slpos.z())/ldir.z();
 
     Amg::Vector3D hitOnSurface = slpos + scale*ldir;
@@ -351,6 +353,8 @@ StatusCode MM_FastDigitizer::execute() {
     double shiftTimeOffset = MMDigitTime*vdrift;
     Amg::Vector3D hitAfterTimeShift(hitOnSurface.x(),hitOnSurface.y(),shiftTimeOffset);
     Amg::Vector3D hitAfterTimeShiftOnSurface = hitAfterTimeShift - (shiftTimeOffset/ldirTime.z())*ldirTime;
+
+    double tdrift = 0;
 
     // resolution = -.01/3 * angle + .64/3.
     double resolution;
@@ -373,7 +377,7 @@ StatusCode MM_FastDigitizer::execute() {
       posOnSurf[0]=(slpos.x()+sp);
 //      digiMode = 1;
       // if using timing information use hit position after shift
-    }else if( m_useTimeShift ){
+    }else if( m_useTimeShift && !m_microTPC ){
       posOnSurf[0]=(hitAfterTimeShiftOnSurface.x()+sp);
 //      digiMode = 2;
     }
@@ -384,71 +388,71 @@ StatusCode MM_FastDigitizer::execute() {
 
     std::string stName = m_idHelper->stationNameString(m_idHelper->stationName(layid));
     int isSmall = stName[2] == 'S';
-    slx = hit.localPosition().x();
-    sly = hit.localPosition().y();
-    slz = hit.localPosition().z();
-    dlx = lpos.x();
-    dly = lpos.y();
-    sulx = posOnSurf.x();
-    suly = posOnSurf.y();
-    tsulx = hitOnSurface.x();
-    tsuly = hitOnSurface.y();
-    tsulz = hitOnSurface.z();
-    stsulx = hitAfterTimeShiftOnSurface.x();
-    stsuly = hitAfterTimeShiftOnSurface.y();
-    stsulz = hitAfterTimeShiftOnSurface.z();
-    ang = inAngle_XZ;
-    shift  = shiftTimeOffset;
-    resx = hit.localPosition().x() - lpos.x();
-    resy = hit.localPosition().y() - lpos.y();
-    resz = hit.localPosition().z() - lpos.z();
-    suresx = posOnSurf.x()-hitOnSurface.x();
-    suresy = posOnSurf.y()-hitOnSurface.y();
-    err  = -99999.; 
-    res  = -99999.; 
-    pull  = -99999.; 
-    is   = isSmall;
-    seta =  hitHelper->GetZSector(simId);
-    sphi = hitHelper->GetPhiSector(simId);
-    sml  = hitHelper->GetMultiLayer(simId);
-    sl  = hitHelper->GetLayer(simId);
-    ss  = hitHelper->GetSide(simId);
-    ieta = m_idHelper->stationEta(layid);
-    iphi = m_idHelper->stationPhi(layid);
-    iml  = m_idHelper->multilayer(layid);
-    il  = m_idHelper->gasGap(layid);
-    ich = -99999;
-    istr  = -99999;
-    exitcode = 0;
-    mode = 0;
-    pdg = hit.particleEncoding();
-    trkid = hit.trackNumber();
-    gpx  = hit.globalPosition().x();
-    gpy  = hit.globalPosition().y();
-    gpz  = hit.globalPosition().z();
-    gpr  = hit.globalPosition().perp();
-    gpp  = hit.globalPosition().phi();
-    dgpx  = repos.x();
-    dgpy  = repos.y();
-    dgpz  = repos.z();
-    dgpr  = repos.perp();
-    dgpp  = repos.phi();
-    edep  = hit.depositEnergy();
-    e     = hit.kineticEnergy();
-    surfcentx = surf.center().x();
-    surfcenty = surf.center().y();
-    surfcentz = surf.center().z();
+    m_slx = hit.localPosition().x();
+    m_sly = hit.localPosition().y();
+    m_slz = hit.localPosition().z();
+    m_dlx = lpos.x();
+    m_dly = lpos.y();
+    m_sulx = posOnSurf.x();
+    m_suly = posOnSurf.y();
+    m_tsulx = hitOnSurface.x();
+    m_tsuly = hitOnSurface.y();
+    m_tsulz = hitOnSurface.z();
+    m_stsulx = hitAfterTimeShiftOnSurface.x();
+    m_stsuly = hitAfterTimeShiftOnSurface.y();
+    m_stsulz = hitAfterTimeShiftOnSurface.z();
+    m_ang = inAngle_XZ;
+    m_shift  = shiftTimeOffset;
+    m_resx = hit.localPosition().x() - lpos.x();
+    m_resy = hit.localPosition().y() - lpos.y();
+    m_resz = hit.localPosition().z() - lpos.z();
+    m_suresx = posOnSurf.x()-hitOnSurface.x();
+    m_suresy = posOnSurf.y()-hitOnSurface.y();
+    m_err  = -99999.; 
+    m_res  = -99999.; 
+    m_pull  = -99999.; 
+    m_is   = isSmall;
+    m_seta =  hitHelper->GetZSector(simId);
+    m_sphi = hitHelper->GetPhiSector(simId);
+    m_sml  = hitHelper->GetMultiLayer(simId);
+    m_sl  = hitHelper->GetLayer(simId);
+    m_ss  = hitHelper->GetSide(simId);
+    m_ieta = m_idHelper->stationEta(layid);
+    m_iphi = m_idHelper->stationPhi(layid);
+    m_iml  = m_idHelper->multilayer(layid);
+    m_il  = m_idHelper->gasGap(layid);
+    m_ich = -99999;
+    m_istr  = -99999;
+    m_exitcode = 0;
+    m_mode = 0;
+    m_pdg = hit.particleEncoding();
+    m_trkid = hit.trackNumber();
+    m_gpx  = hit.globalPosition().x();
+    m_gpy  = hit.globalPosition().y();
+    m_gpz  = hit.globalPosition().z();
+    m_gpr  = hit.globalPosition().perp();
+    m_gpp  = hit.globalPosition().phi();
+    m_dgpx  = repos.x();
+    m_dgpy  = repos.y();
+    m_dgpz  = repos.z();
+    m_dgpr  = repos.perp();
+    m_dgpp  = repos.phi();
+    m_edep  = hit.depositEnergy();
+    m_e     = hit.kineticEnergy();
+    m_surfcentx = surf.center().x();
+    m_surfcenty = surf.center().y();
+    m_surfcentz = surf.center().z();
 
     /////
     if(hit.kineticEnergy()<m_energyThreshold && abs(hit.particleEncoding())==11) {
-      exitcode = 5;
+      m_exitcode = 5;
       m_ntuple->Fill();      
       continue;
     }
 
     // perform bound check
     if( !surf.insideBounds(posOnSurf) ){
-      exitcode = 1;
+      m_exitcode = 1;
       m_ntuple->Fill();
       continue;
     }
@@ -460,7 +464,7 @@ StatusCode MM_FastDigitizer::execute() {
     if( stripNumber == -1 ){
       ATH_MSG_WARNING("Failed to obtain strip number " << m_idHelperTool->toString(layid) );
       ATH_MSG_WARNING(" pos " << posOnSurf << " z " << slpos.z() ); 
-      exitcode = 2;
+      m_exitcode = 2;
       m_ntuple->Fill();
       continue;
     }
@@ -480,7 +484,7 @@ StatusCode MM_FastDigitizer::execute() {
     if( stripNumber >= detEl->numberOfStrips(layid) ){
       ATH_MSG_WARNING("Failed to obtain strip number " << m_idHelperTool->toString(layid) );
       ATH_MSG_WARNING(" pos " << posOnSurf << " z " << slpos.z() ); 
-      exitcode = 3;
+      m_exitcode = 3;
       m_ntuple->Fill();
       continue;
     }
@@ -491,47 +495,101 @@ StatusCode MM_FastDigitizer::execute() {
 
     if( stripNumber != m_idHelper->channel(id) ) {
       ATH_MSG_WARNING(" bad stripNumber: in  "  << stripNumber << " from id " << m_idHelper->channel(id));
-      exitcode = 4;
+      m_exitcode = 4;
       continue;
     }
 
     std::vector<Identifier> rdoList;
     rdoList.push_back(id);
-    Amg::MatrixX* cov = new Amg::MatrixX(1,1);
-    cov->setIdentity();
-    (*cov)(0,0) = resolution*resolution;
-    MMPrepData* prd = new MMPrepData( id,hash,posOnSurf,rdoList,cov,detEl);
-    prd->setHashAndIndex(col->identifyHash(), col->size()); // <<< add this line to the MM code as well
-    col->push_back(prd);
+
     ATH_MSG_VERBOSE("Global hit: r " << hit.globalPosition().perp() << " phi " << hit.globalPosition().phi() << " z " << hit.globalPosition().z());
-    ATH_MSG_VERBOSE(" Prd: r " << prd->globalPosition().perp() << "  phi " << prd->globalPosition().phi() << " z " << prd->globalPosition().z());
     ATH_MSG_VERBOSE(" Calculated truth hitOnSurfaceGlobal: r " << hitOnSurfaceGlobal.perp() << " phi " << hitOnSurfaceGlobal.phi() << " z " << hitOnSurfaceGlobal.z());
     ATH_MSG_VERBOSE(" detEl: r " << repos.perp() << " phi " << repos.phi() << " z " << repos.z());
     ATH_MSG_VERBOSE(" Surface center: r " << surf.center().perp() << " phi " << surf.center().phi() << " z " << surf.center().z());
-
     ATH_MSG_VERBOSE("Local hit in Det Element Frame: x " << hit.localPosition().x() << " y " << hit.localPosition().y() << " z " << hit.localPosition().z());
-    ATH_MSG_VERBOSE(" Prd: local posOnSurf.x() " << posOnSurf.x() << " posOnSurf.y() " << posOnSurf.y() );
-    // 		    << " detEl: x " << lpos.x() << " y " << lpos.y() << " z " << lpos.z() << " strip " << stripNumber);
     ATH_MSG_DEBUG(" hit:  " << m_idHelperTool->toString(id) << " hitx " << posOnSurf.x() << " hitOnSurface.x() " << hitOnSurface.x() << " residual " << posOnSurf.x() - hitOnSurface.x()
 		  << " pull " << (posOnSurf.x() - hitOnSurface.x())/resolution );
-    err = resolution;
-    ich = m_idHelper->channel(id);
-    istr  = stripNumber;
+    Amg::Vector3D CurrentHitInDriftGap = slpos;
+    // emulating micro track in the drift volume for microTPC
+    if (!m_microTPC) {
+      Amg::MatrixX* cov = new Amg::MatrixX(1,1);
+      cov->setIdentity();
+      (*cov)(0,0) = resolution*resolution;
+      MMPrepData* prd = new MMPrepData( id,hash,Amg::Vector2D(posOnSurf.x(),0.),rdoList,cov,detEl,(int)tdrift,0);
+      prd->setHashAndIndex(col->identifyHash(), col->size()); // <<< add this line to the MM code as well
+      col->push_back(prd);
+
+      std::vector<MuonSimData::Deposit> deposits;
+      MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(hitOnSurface.x(),hitOnSurface.y()));
+      deposits.push_back(deposit);
+
+      MuonSimData simdata(deposits,0);
+      simdata.setPosition(hitOnSurfaceGlobal);
+      simdata.setTime(m_globalHitTime);
+      h_sdoContainer->insert ( std::make_pair ( id, simdata ) );
+
+      ATH_MSG_VERBOSE(" Prd: local x " << posOnSurf.x() << " y " << 0 );
+      ATH_MSG_VERBOSE(" Prd: r " << prd->globalPosition().perp() << "  phi " << prd->globalPosition().phi() << " z " << prd->globalPosition().z());
+    } else {
+      for (int loop_direction = -1; loop_direction <=1; loop_direction+=2) {
+        Amg::Vector3D stepInDriftGap = loop_direction * ldir * (roParam.stripPitch/std::cos(roParam.stereoAngel.at(m_idHelper->gasGap(layid)-1) ))/abs(ldir.x());
+        if (loop_direction == 1) CurrentHitInDriftGap = slpos + stepInDriftGap;
+        while (std::abs(CurrentHitInDriftGap.z()) <= roParam.gasThickness) {
+          Amg::MatrixX* cov = new Amg::MatrixX(1,1);
+          cov->setIdentity();
+          (*cov)(0,0) = resolution*resolution;
+
+          tdrift = CurrentHitInDriftGap.z() / vdrift + CLHEP::RandGauss::shoot(m_rndmEngine, 0., 5.);
+          Amg::Vector2D CurrenPosOnSurf(CurrentHitInDriftGap.x(),CurrentHitInDriftGap.y());
+
+          stripNumber = detEl->stripNumber(CurrenPosOnSurf,layid);
+          if( (stripNumber >= detEl->numberOfStrips(layid)) || (stripNumber == -1) ) {
+            CurrentHitInDriftGap += stepInDriftGap;
+            continue;
+          }
+          id = m_idHelper->channelID(parentID, m_idHelper->multilayer(layid), m_idHelper->gasGap(layid),stripNumber,m_checkIds);
+          if( stripNumber != m_idHelper->channel(id) ) {
+            CurrentHitInDriftGap += stepInDriftGap;
+            continue;
+          }
+        
+          MMPrepData* prd = new MMPrepData( id,hash,Amg::Vector2D(CurrenPosOnSurf.x(),0.),rdoList,cov,detEl,(int)tdrift,0);
+          prd->setHashAndIndex(col->identifyHash(), col->size()); // <<< add this line to the MM code as well
+          col->push_back(prd);
+
+          std::vector<MuonSimData::Deposit> deposits;
+          MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(CurrenPosOnSurf.x(),CurrenPosOnSurf.y()));
+          deposits.push_back(deposit);
+
+          MuonSimData simdata(deposits,0);
+          Amg::Vector3D SDO_GP = surf.transform()*CurrentHitInDriftGap;
+          simdata.setPosition(SDO_GP);
+          simdata.setTime(m_globalHitTime);
+          h_sdoContainer->insert ( std::make_pair ( id, simdata ) );
+
+          ATH_MSG_VERBOSE(" Local CurrentHitInDriftGap.x() " << CurrentHitInDriftGap.x() << " CurrentHitInDriftGap.y() " << CurrentHitInDriftGap.y() << " CurrentHitInDriftGap.z() " << CurrentHitInDriftGap.z() << " drift time " << (int)tdrift );
+          ATH_MSG_VERBOSE(" Prd: local x " << CurrentHitInDriftGap.x() << " y " << 0 << " drift time " << (int)tdrift << " identifier " << id );
+          ATH_MSG_VERBOSE(" Prd: r " << prd->globalPosition().perp() << "  phi " << prd->globalPosition().phi() << " z " << prd->globalPosition().z());
+          ATH_MSG_VERBOSE(" SDO: True Global position: x  " << SDO_GP.x() << "  y " << SDO_GP.y() << " z " << SDO_GP.z());
+
+          CurrentHitInDriftGap += stepInDriftGap;
+        }
+      }
+    }
+
+
+    m_err = resolution;
+    m_ich = m_idHelper->channel(id);
+    m_istr  = stripNumber;
 
 //     const MuonClusterOnTrack* rot = m_muonClusterCreator->createRIO_OnTrack( *prd, hit.globalPosition() );
 //     if( rot ){
-//       res  = rot->localParameters().get(Trk::locX)-hitOnSurface.x();
-//       pull = res/rot->localErrorMatrix().error(Trk::locX);
+//       m_res  = rot->localParameters().get(Trk::locX)-hitOnSurface.x();
+//       m_pull = m_res/rot->localErrorMatrix().error(Trk::locX);
 //       delete rot;
 //     }
 
     m_ntuple->Fill();
-    // create SDO 
-    MuonSimData::Deposit deposit(hit.particleLink(), MuonMCData(hitOnSurface.x(),hitOnSurface.y()));
-    //Record the SDO collection in StoreGate
-    std::vector<MuonSimData::Deposit> deposits;
-    deposits.push_back(deposit);
-    h_sdoContainer->insert ( std::make_pair ( id, MuonSimData(deposits,0) ) );
     // OLD CODE ENDS HERE
 
     previousHit = &hit;

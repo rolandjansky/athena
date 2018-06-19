@@ -140,11 +140,11 @@ void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_n
   MuonCalibEvent_E::TrackVec::const_iterator trk=extra_event.beginTrack();
   MuonCalibEvent_E::TrackVec::const_iterator trk_end=extra_event.endTrack();
   
-  EventHandler m_EventHandler;
-  m_EventHandler.setEvent(extra_event);
+  EventHandler EventHandler;
+  EventHandler.setEvent(extra_event);
 
-  MuonCalibSelector::TrackVec trk_selected = m_EventHandler.extendedTracks(m_TrkAuthor);
-  MuonCalibSelector::TrackVec trk_inner = m_EventHandler.extendedTracks(1000);
+  MuonCalibSelector::TrackVec trk_selected = EventHandler.extendedTracks(m_TrkAuthor);
+  MuonCalibSelector::TrackVec trk_inner = EventHandler.extendedTracks(1000);
   MuonCalibSelector::TrkCit track_it = trk_selected.begin();
   MuonCalibSelector::TrkCit track_it_end = trk_selected.end();
   //    MuonCalibSelector::TrkCit track_inner = trk_inner.begin();
@@ -162,11 +162,11 @@ void MdtDqaTrackAnalysis::handleEvent(const MuonCalibEvent &event,  int /*evnt_n
     Id_TrackCB    = 140;  // StacoMuonCB
   }
 
-  MuonCalibSelector::TrackVec trk_ID    = m_EventHandler.extendedTracks(Id_TrackID);
-  MuonCalibSelector::TrackVec trk_SA    = m_EventHandler.extendedTracks(Id_TrackSA);
-  MuonCalibSelector::TrackVec trk_SA_IP = m_EventHandler.extendedTracks(Id_TrackSA_IP);
-  MuonCalibSelector::TrackVec trk_Tag   = m_EventHandler.extendedTracks(Id_TrackTag);
-  MuonCalibSelector::TrackVec trk_CB    = m_EventHandler.extendedTracks(Id_TrackCB);
+  MuonCalibSelector::TrackVec trk_ID    = EventHandler.extendedTracks(Id_TrackID);
+  MuonCalibSelector::TrackVec trk_SA    = EventHandler.extendedTracks(Id_TrackSA);
+  MuonCalibSelector::TrackVec trk_SA_IP = EventHandler.extendedTracks(Id_TrackSA_IP);
+  MuonCalibSelector::TrackVec trk_Tag   = EventHandler.extendedTracks(Id_TrackTag);
+  MuonCalibSelector::TrackVec trk_CB    = EventHandler.extendedTracks(Id_TrackCB);
 
   MuonCalibSelector::TrkCit trk_ID_it = trk_ID.begin();
   MuonCalibSelector::TrkCit trk_ID_end = trk_ID.end();

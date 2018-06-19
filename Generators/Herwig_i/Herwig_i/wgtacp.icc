@@ -6,18 +6,18 @@
 
 // initialise pointer
 void Wgtacp::init(){
-  if ( !_wgtacp ) {
-    _wgtacp = static_cast< WGTACP* >( wgtacp_address_() );
+  if ( !s_wgtacp ) {
+    s_wgtacp = static_cast< WGTACP* >( wgtacp_address_() );
   }
 }
 
 double Wgtacp::wgtacp(int i){
   init();
-  return _wgtacp->wgtacp[i];
+  return s_wgtacp->wgtacp[i];
 }
 
 int Wgtacp::userwgts(){
   init();
-  return _wgtacp->userwgts;
+  return s_wgtacp->userwgts;
 }
 

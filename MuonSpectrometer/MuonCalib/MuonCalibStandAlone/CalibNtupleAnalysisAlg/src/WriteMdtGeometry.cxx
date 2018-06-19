@@ -49,8 +49,8 @@ WriteMdtGeometry::WriteMdtGeometry(const std::string &name, ISvcLocator *pSvcLoc
   m_idToFixedIdToolName = std::string("MuonCalib_IdToFixedIdTool");
   declareProperty("idToFixedIdToolName", m_idToFixedIdToolName);
 	
-  declareProperty("ConnectionString", connectionString);
-  declareProperty("WorkingSchema", WorkingSchema);
+  declareProperty("ConnectionString", m_connectionString);
+  declareProperty("WorkingSchema", m_WorkingSchema);
 	
   //for the sake of coverity
   m_session=NULL;
@@ -165,7 +165,7 @@ inline void WriteMdtGeometry::fillLayer(const MuonGM::MdtReadoutElement *detEl, 
 
 void WriteMdtGeometry::OpenConnection() {
   coral::ConnectionService connSvc;
-  m_session = connSvc.connect( connectionString );
+  m_session = connSvc.connect( m_connectionString );
 }
 
 void WriteMdtGeometry::CloseConnection(bool commit) {

@@ -310,7 +310,7 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
        IERR = fitVertexCascade( vk, 0);     if(IERR)return IERR;   //fit 
        IERR = setVTrackMass(vk);            if(IERR)return IERR;   //mass of combined particle
        Chi2Cur += vk->Chi2;
-//std::cout<<iv<<"---Chi2="<<vk->Chi2<<", "<<vk->refIterV[0]+vk->fitV[0]<<", "<<vk->refIterV[1]+vk->fitV[1]<<", "<<vk->refIterV[2]+vk->fitV[2]<<'\n';;
+//std::cout<<iv<<"---Chi2="<<vk->Chi2<<", "<<vk->refIterV[0]+vk->fitV[0]<<", "<<vk->refIterV[1]+vk->fitV[1]<<", "<<vk->refIterV[2]+vk->fitV[2]<<'\n';
      }
      if( Chi2Cur-Chi2Old > 1. && Iter){ IERR = translateToFittedPos(0.8);}   //step limitation is case of divergence
      else                             { IERR = translateToFittedPos(1.0);}   if(IERR)return IERR;

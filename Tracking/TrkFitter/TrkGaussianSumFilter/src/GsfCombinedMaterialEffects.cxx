@@ -29,11 +29,9 @@ Trk::GsfCombinedMaterialEffects::GsfCombinedMaterialEffects (const std::string& 
   :
   MultiStateMaterialEffects(type, name, parent),
   m_multipleScatterEffects("Trk::MultipleScatterUpdator/MultipleScatterUpdator"),
-  m_multiStateMultipleScatteringEffects("Trk::MultiStateMaterialEffectsAdapter/MultipleScatteringEffectsAdapter"),
   m_energyLossEffects("Trk::GsfEnergyLossUpdator/MyGsfEnergyLossUpdator"),
   //m_energyLossEffects("Trk::EnergyLossUpdator/MyEnergyLossUpdator"), 
   m_betheHeitlerEffects("Trk::GsfBetheHeitlerEffects/GsfBetheHeitlerEffects"),
-  m_multiStateEnergyLossEffects("Trk::MultiStateMaterialEffectsAdapter/EnergyLossEffectsAdapter"),
   m_multiStateMultipleScatteringAdapter(0),
   m_multiStateEnergyLossAdapter(0)
 

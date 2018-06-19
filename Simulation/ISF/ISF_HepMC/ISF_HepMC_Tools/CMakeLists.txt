@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/AthenaBaseComps
+                          DetectorDescription/AtlasDetDescr
                           Generators/TruthUtils
                           Simulation/ISF/ISF_Core/ISF_Event
                           Simulation/ISF/ISF_Core/ISF_Interfaces
@@ -29,13 +30,19 @@ atlas_add_component( ISF_HepMC_Tools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} GaudiKernel AthenaBaseComps TruthUtils ISF_Event ISF_Interfaces PathResolver )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} GaudiKernel AtlasDetDescr AthenaBaseComps TruthUtils ISF_Event ISF_Interfaces PathResolver )
 
 # Tests
 atlas_add_test( GenParticleGenericFilter_test
                 SOURCES test/GenParticleGenericFilter_test.cxx src/GenParticleGenericFilter.cxx
                 INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                 LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps )
+
+# Tests
+atlas_add_test( GenParticleInteractingFilter_test
+                SOURCES test/GenParticleInteractingFilter_test.cxx src/GenParticleInteractingFilter.cxx
+                INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
+                LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps TruthUtils )
 
 # Install files from the package:
 atlas_install_headers( ISF_HepMC_Tools )

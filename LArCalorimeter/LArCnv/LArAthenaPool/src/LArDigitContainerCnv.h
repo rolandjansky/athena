@@ -19,9 +19,9 @@ typedef T_AthenaPoolCustomCnv<LArDigitContainer,LArDigitContainerPERS> LArDigitC
 
 class LArDigitContainerCnv : public LArDigitContainerCnvBase 
 {
-  friend class CnvFactory<LArDigitContainerCnv>;
- protected:
+public:
   LArDigitContainerCnv(ISvcLocator*);
+protected:
   virtual LArDigitContainer* createTransient();
   virtual LArDigitContainerPERS* createPersistent(LArDigitContainer*);
  private:

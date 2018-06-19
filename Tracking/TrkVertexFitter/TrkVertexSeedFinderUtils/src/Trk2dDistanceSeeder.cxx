@@ -37,7 +37,7 @@ namespace {
     //      if (Dy<0) {
     //	return atan(Dy/Dx)-M_PI;
     //      } else {
-    //	return atan(Dy/Dx)+M_PI;;
+    //	return atan(Dy/Dx)+M_PI;
     //      }
     //    }
     //    return atan(Dy/Dx);

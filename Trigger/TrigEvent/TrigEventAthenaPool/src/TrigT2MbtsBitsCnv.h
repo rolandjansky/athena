@@ -30,7 +30,9 @@ class TrigT2MbtsBitsCnv : public TrigT2MbtsBitsCnvBase {
   friend class CnvFactory<TrigT2MbtsBitsCnv>;
   
  protected:
+public:
   TrigT2MbtsBitsCnv(ISvcLocator* svcloc);
+protected:
   ~TrigT2MbtsBitsCnv();
   
   TrigT2MbtsBits_PERS* createPersistent(TrigT2MbtsBits* transObj);

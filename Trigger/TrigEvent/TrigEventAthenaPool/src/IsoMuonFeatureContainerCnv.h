@@ -20,7 +20,9 @@ class IsoMuonFeatureContainerCnv : public IsoMuonFeatureContainerCnvBase {
 
  protected:
 
+public:
   IsoMuonFeatureContainerCnv( ISvcLocator *svcloc ): IsoMuonFeatureContainerCnvBase(svcloc){}
+protected:
 
   virtual IsoMuonFeatureContainer_PERS *createPersistent( IsoMuonFeatureContainer *transObj);
   virtual IsoMuonFeatureContainer      *createTransient();

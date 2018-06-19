@@ -46,47 +46,47 @@ public:
 
 //____________________________________________________________________
 IParticleHandle_Muon::IParticleHandle_Muon(IParticleCollHandleBase* ch, const xAOD::Muon *tp)
-  : IParticleHandleBase(ch), d(new Imp)
+  : IParticleHandleBase(ch), m_d(new Imp)
 { 
-  d->theclass = this;
-  d->muon = tp;
-  d->collHandle = dynamic_cast<IParticleCollHandle_Muon*>(ch);
-  d->sep=0;
-  d->line=0;
+  m_d->theclass = this;
+  m_d->muon = tp;
+  m_d->collHandle = dynamic_cast<IParticleCollHandle_Muon*>(ch);
+  m_d->sep=0;
+  m_d->line=0;
 }
 
 //____________________________________________________________________
 IParticleHandle_Muon::~IParticleHandle_Muon()
 {
-  if (d->line) d->line->unref();
-  if (d->sep) d->sep->unref();
-  delete d;
+  if (m_d->line) m_d->line->unref();
+  if (m_d->sep) m_d->sep->unref();
+  delete m_d;
 }
 
 bool IParticleHandle_Muon::has3DObjects(){
-  return 0!=d->sep;
+  return 0!=m_d->sep;
 }
 void IParticleHandle_Muon::clear3DObjects(){
   VP1Msg::messageVerbose("IParticleHandle_Muon::clear3DObjects()");
   
-  if (d->line) {
-    d->line->unref();
-    d->line=0;
+  if (m_d->line) {
+    m_d->line->unref();
+    m_d->line=0;
   }
-  if (d->sep) {
-    d->sep->unref();
-    d->sep=0;
+  if (m_d->sep) {
+    m_d->sep->unref();
+    m_d->sep=0;
   }
 }
 
 // SoNode* IParticleHandle_Muon::nodes(){
-//   // VP1Msg::messageVerbose("IParticleHandle_Muon::nodes with d->sep="+VP1Msg::str(d->sep));
+//   // VP1Msg::messageVerbose("IParticleHandle_Muon::nodes with m_d->sep="+VP1Msg::str(m_d->sep));
 //
-//   if (d->sep)
-//     return d->sep; // FIXME - do we need to check if anything need to be redrawn?
-//   if (!d->sep) {
-//     d->sep = new SoSeparator();
-//     d->sep->ref();
+//   if (m_d->sep)
+//     return m_d->sep; // FIXME - do we need to check if anything need to be redrawn?
+//   if (!m_d->sep) {
+//     m_d->sep = new SoSeparator();
+//     m_d->sep->ref();
 //   }
 //
 //   int iver(0);
@@ -96,7 +96,7 @@ void IParticleHandle_Muon::clear3DObjects(){
 //   std::vector<Amg::Vector3D> positions;
 //   std::vector<Amg::Vector3D> momenta;
 //
-//   const Trk::Perigee& peri = d->muon->primaryTrackParticle()->perigeeParameters (); // FIXME - I'd quite like not to use anything which requires Athena ...
+//   const Trk::Perigee& peri = m_d->muon->primaryTrackParticle()->perigeeParameters (); // FIXME - I'd quite like not to use anything which requires Athena ...
 //
 //   // std::cout<<peri.position()<<std::endl;
 //   // std::cout<<p4.X()<<", "<<p4.Y()<<", "<<p4.Z()<<std::endl;
@@ -107,8 +107,8 @@ void IParticleHandle_Muon::clear3DObjects(){
 //   float x,y,z;
 //   unsigned int iMinusOne=0;
 //
-//   for (unsigned int i=0; i<d->muon->primaryTrackParticle()->numberOfParameters()+1 ; ++i){
-//     // std::cout<<"i:"<<i<<"/"<<d->muon->primaryTrackParticle()->numberOfParameters()+1<<std::endl;
+//   for (unsigned int i=0; i<m_d->muon->primaryTrackParticle()->numberOfParameters()+1 ; ++i){
+//     // std::cout<<"i:"<<i<<"/"<<m_d->muon->primaryTrackParticle()->numberOfParameters()+1<<std::endl;
 //     if (0==i) {
 //       // 1st position - set 'first' to false a few lines further down...
 //       x = peri.position().x();
@@ -120,19 +120,19 @@ void IParticleHandle_Muon::clear3DObjects(){
 //     } else {
 //       // Other positions
 //       iMinusOne=i-1;
-//       x = d->muon->primaryTrackParticle()->parameterX(iMinusOne);
-//       y = d->muon->primaryTrackParticle()->parameterY(iMinusOne);
-//       z = d->muon->primaryTrackParticle()->parameterZ(iMinusOne);
-//       momenta.push_back(Amg::Vector3D(d->muon->primaryTrackParticle()->parameterPX(iMinusOne),
-//       d->muon->primaryTrackParticle()->parameterPY(iMinusOne),
-//       d->muon->primaryTrackParticle()->parameterPZ(iMinusOne)));
+//       x = m_d->muon->primaryTrackParticle()->parameterX(iMinusOne);
+//       y = m_d->muon->primaryTrackParticle()->parameterY(iMinusOne);
+//       z = m_d->muon->primaryTrackParticle()->parameterZ(iMinusOne);
+//       momenta.push_back(Amg::Vector3D(m_d->muon->primaryTrackParticle()->parameterPX(iMinusOne),
+//       m_d->muon->primaryTrackParticle()->parameterPY(iMinusOne),
+//       m_d->muon->primaryTrackParticle()->parameterPZ(iMinusOne)));
 //     }
 //     positions.push_back(Amg::Vector3D(x,y,z));
 //   } // end of loop.
 //
 //   // Create new lineset etc
-//   d->line = new SoLineSet();
-//   d->line->ref();
+//   m_d->line = new SoLineSet();
+//   m_d->line->ref();
 //   SoVertexProperty * vertices = new SoVertexProperty();
 //   iver=0;
 //   // For the moment, lets just draw the lines.
@@ -152,34 +152,34 @@ void IParticleHandle_Muon::clear3DObjects(){
 //   }
 //
 //   // Add to SoLine set
-//   d->line->numVertices.set1Value(0,npointsused);
-//   d->line->vertexProperty = vertices;
+//   m_d->line->numVertices.set1Value(0,npointsused);
+//   m_d->line->vertexProperty = vertices;
 //   // std::cout<<"About to add "<<collHandleTrk->material()<<std::endl;
-//   d->sep->addChild(collHandleTrk->material());
+//   m_d->sep->addChild(collHandleTrk->material());
 //   // ^^ FIXME - should rearrange so we don't need to reset material
-//   d->sep->addChild(d->line);
+//   m_d->sep->addChild(m_d->line);
 //
 //   // points->vertexProperty = vertices2;
 //
-//   return d->sep;
+//   return m_d->sep;
 // }
 
 SoNode* IParticleHandle_Muon::nodes(){
-  VP1Msg::messageVerbose("IParticleHandle_Muon::nodes with d->sep="+VP1Msg::str(d->sep));
+  VP1Msg::messageVerbose("IParticleHandle_Muon::nodes with d->sep="+VP1Msg::str(m_d->sep));
 
-  if (d->sep) {
+  if (m_d->sep) {
     VP1Msg::messageVerbose("IParticleHandle_Muon::nodes() - already have sep so not doing anything.");
-    return d->sep; 
+    return m_d->sep; 
   }
-  if (!d->sep) {
-    d->sep = new SoSeparator();
-    d->sep->ref();
+  if (!m_d->sep) {
+    m_d->sep = new SoSeparator();
+    m_d->sep->ref();
   }
   
   addLine_FromTrackParticle();
   addParameterShapes();
   
-  return d->sep;
+  return m_d->sep;
 }
 
 void IParticleHandle_Muon::addParameterShapes(){
@@ -199,8 +199,8 @@ void IParticleHandle_Muon::addParameterShapes(){
   parameterPoints->numPoints=i;
   parameterPoints->vertexProperty = vertices2;
   
-  // d->sep->addChild(d->collHandle->collSettingsButton().defaultParameterMaterial());
-  d->sep->addChild(parameterPoints);
+  // m_d->sep->addChild(m_d->collHandle->collSettingsButton().defaultParameterMaterial());
+  m_d->sep->addChild(parameterPoints);
   
 }
 
@@ -208,7 +208,7 @@ void IParticleHandle_Muon::addLine_FromTrackParticle(){
 
   std::vector<Amg::Vector3D> positions, momenta;
 
-  const xAOD::TrackParticle* trackparticle = d->muon->primaryTrackParticle();
+  const xAOD::TrackParticle* trackparticle = m_d->muon->primaryTrackParticle();
   if (!trackparticle) {
     VP1Msg::message("ERROR : no primary track particle associated with this Muon. Can't visualise it.");
     return;
@@ -220,7 +220,7 @@ void IParticleHandle_Muon::addLine_FromTrackParticle(){
   momenta.  push_back(Amg::Vector3D(peri.momentum().x(),peri.momentum().y(),peri.momentum().z()));
   VP1Msg::messageVerbose("IParticleHandle_Muon::addLine_FromTrackParticle - has "+QString::number(trackparticle->numberOfParameters())+" extra parameters.");
   for (unsigned int i=0; i<trackparticle->numberOfParameters() ; ++i){
-    // std::cout<<"i:"<<i<<"/"<<d->trackparticle->numberOfParameters()+1<<std::endl;
+    // std::cout<<"i:"<<i<<"/"<<m_d->trackparticle->numberOfParameters()+1<<std::endl;
 
     positions.push_back(Amg::Vector3D(trackparticle->parameterX(i),
                                       trackparticle->parameterY(i),
@@ -238,10 +238,10 @@ void IParticleHandle_Muon::addLine_FromTrackParticle(){
   fillLineFromSplineFit(positions, momenta);
 
   // std::cout<<"About to add "<<collHandleTrk->material()<<std::endl;
-  d->sep->addChild(d->collHandle->material()); 
+  m_d->sep->addChild(m_d->collHandle->material()); 
   // ^^ FIXME - should rearrange so we don't need to reset material
 
-  d->sep->addChild(d->line);
+  m_d->sep->addChild(m_d->line);
 }
 
 void IParticleHandle_Muon::linear(Amg::Vector3D& output, Amg::Vector3D& a, Amg::Vector3D& b, float t){
@@ -266,8 +266,8 @@ void IParticleHandle_Muon::fillLineFromSplineFit(const std::vector<Amg::Vector3D
   int iver(0);
   unsigned int npointsused(0);
   // Create new lineset etc
-  d->line = new SoLineSet();
-  d->line->ref();
+  m_d->line = new SoLineSet();
+  m_d->line->ref();
   
   // For the moment, lets just draw the lines.
   // std::cout<<"About to loop over "<<positions.size()<<" points to make line"<<std::endl;
@@ -275,7 +275,7 @@ void IParticleHandle_Muon::fillLineFromSplineFit(const std::vector<Amg::Vector3D
 
   for (unsigned int i=1; i<positions.size(); ++i){
     // std::cout<<"i: "<<i<<" at ("<<positions[i].x()<<","<<positions[i].y()<<","<<positions[i].z()<<")"<<" \tmom = ("<<momenta[i].x()<<","<<momenta[i].y()<<","<<momenta[i].z()<<")"<<std::endl;
-    // unsigned int maxCount=d->collHandle->collSettingsButton().numOfStepsForInterpolation();
+    // unsigned int maxCount=m_d->collHandle->collSettingsButton().numOfStepsForInterpolation();
     unsigned int maxCount=4;
     float scale = ( (positions[i]-positions[i-1]).mag() )/2.0;
     Amg::Vector3D p0(positions[i-1]);
@@ -297,8 +297,8 @@ void IParticleHandle_Muon::fillLineFromSplineFit(const std::vector<Amg::Vector3D
     }
   }
   // Add to SoLine set
-  d->line->numVertices.set1Value(0,npointsused);
-  d->line->vertexProperty = vertices;
+  m_d->line->numVertices.set1Value(0,npointsused);
+  m_d->line->vertexProperty = vertices;
   
 }
 
@@ -308,7 +308,7 @@ QStringList IParticleHandle_Muon::clicked() const
   QStringList l;
   l << "Muon:";
   l << IParticleHandleBase::baseInfo();
-  switch (d->muon->muonType()){
+  switch (m_d->muon->muonType()){
     case  xAOD::Muon::Combined: 
       l << "Type = Combined";
       break;
@@ -328,7 +328,7 @@ QStringList IParticleHandle_Muon::clicked() const
        l << "Type = Unknown";
   }
   
-  switch (d->muon->quality()){
+  switch (m_d->muon->quality()){
     case xAOD::Muon::Tight: 
       l << "Quality = Tight";
       break;
@@ -351,35 +351,35 @@ QStringList IParticleHandle_Muon::clicked() const
 //____________________________________________________________________
 Amg::Vector3D IParticleHandle_Muon::momentum() const
 {
-  const Trk::Perigee& p = d->muon->primaryTrackParticle()->perigeeParameters();
+  const Trk::Perigee& p = m_d->muon->primaryTrackParticle()->perigeeParameters();
   return p.momentum();
 }
 
 //____________________________________________________________________
 const xAOD::IParticle& IParticleHandle_Muon::iParticle() const
 {
-  return *(d->muon->primaryTrackParticle());
+  return *(m_d->muon->primaryTrackParticle());
 }
 
 //____________________________________________________________________
 double IParticleHandle_Muon::charge() const
 {
-  return d->muon->primaryTrackParticle()->charge();
+  return m_d->muon->primaryTrackParticle()->charge();
 }
 
 //____________________________________________________________________
 unsigned int IParticleHandle_Muon::quality() const
 {
-  return static_cast<unsigned int>(d->muon->quality());
+  return static_cast<unsigned int>(m_d->muon->quality());
 }
 
 const xAOD::Muon& IParticleHandle_Muon::muon() const 
 {
-  return *(d->muon);
+  return *(m_d->muon);
 }
 
 QString IParticleHandle_Muon::muonTypeString() const {
-  switch (d->muon->muonType()) {
+  switch (m_d->muon->muonType()) {
     case xAOD::Muon::Combined:
     return QString("Combined");
     case xAOD::Muon::MuonStandAlone:
@@ -396,7 +396,7 @@ QString IParticleHandle_Muon::muonTypeString() const {
 }
 
 QString IParticleHandle_Muon::qualityString() const{
-  switch (d->muon->muonType()) {
+  switch (m_d->muon->muonType()) {
     case xAOD::Muon::Tight:
     return QString("Tight");
     case xAOD::Muon::Medium:
@@ -414,7 +414,7 @@ QString IParticleHandle_Muon::qualityString() const{
 // unsigned IParticleHandle_Muon::summaryValue(xAOD::SummaryType type) const
 // { 
 //   uint8_t num = 0;
-//   if (d->muon->summaryValue(num,type)){
+//   if (m_d->muon->summaryValue(num,type)){
 //     return num;
 //   }
 //   // else...
@@ -437,30 +437,30 @@ void IParticleHandle_Muon::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfIt
   QTreeWidgetItem* TSOSitem = new QTreeWidgetItem(browserTreeItem());
   TSOSitem->setText(0, QString("Def. Parameters " ) );
   QString dParameters("(");
-  dParameters+=QString::number(d->muon->primaryTrackParticle()->d0());
+  dParameters+=QString::number(m_d->muon->primaryTrackParticle()->d0());
   dParameters+=", ";
-  dParameters+=QString::number(d->muon->primaryTrackParticle()->z0());
+  dParameters+=QString::number(m_d->muon->primaryTrackParticle()->z0());
   dParameters+=", ";
-  dParameters+=QString::number(d->muon->primaryTrackParticle()->phi0());
+  dParameters+=QString::number(m_d->muon->primaryTrackParticle()->phi0());
   dParameters+=", ";
-  dParameters+=QString::number(d->muon->primaryTrackParticle()->theta());
+  dParameters+=QString::number(m_d->muon->primaryTrackParticle()->theta());
   dParameters+=", ";
-  dParameters+=QString::number(d->muon->primaryTrackParticle()->qOverP());
+  dParameters+=QString::number(m_d->muon->primaryTrackParticle()->qOverP());
   dParameters+=")";
   TSOSitem->setText(1, dParameters );
   
-  for (unsigned int i=0; i<d->muon->primaryTrackParticle()->numberOfParameters() ; ++i){
+  for (unsigned int i=0; i<m_d->muon->primaryTrackParticle()->numberOfParameters() ; ++i){
     QTreeWidgetItem* TSOSitem = new QTreeWidgetItem(browserTreeItem());
     TSOSitem->setText(0, QString("Parameter "+QString::number( i+1 ) ) );
     QString pos(", Position = (");
-    pos+=QString::number(d->muon->primaryTrackParticle()->parameterX(i));
+    pos+=QString::number(m_d->muon->primaryTrackParticle()->parameterX(i));
     pos+=", ";
-    pos+=QString::number(d->muon->primaryTrackParticle()->parameterY(i));
+    pos+=QString::number(m_d->muon->primaryTrackParticle()->parameterY(i));
     pos+=", ";
-    pos+=QString::number(d->muon->primaryTrackParticle()->parameterZ(i));
+    pos+=QString::number(m_d->muon->primaryTrackParticle()->parameterZ(i));
     pos+=")";
 
-    switch (d->muon->primaryTrackParticle()->parameterPosition(i)){
+    switch (m_d->muon->primaryTrackParticle()->parameterPosition(i)){
       case xAOD::BeamLine:
         TSOSitem->setText(1, QString("BeamLine" )+pos );
         break;
@@ -489,21 +489,21 @@ void IParticleHandle_Muon::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfIt
 
 const QList<std::pair<xAOD::ParameterPosition, Amg::Vector3D> >& IParticleHandle_Muon::parametersAndPositions() const {
   // 1st position
-  if (!d->parametersAndPositions.isEmpty()) 
-    return d->parametersAndPositions;
+  if (!m_d->parametersAndPositions.isEmpty()) 
+    return m_d->parametersAndPositions;
   
   typedef std::pair<xAOD::ParameterPosition, Amg::Vector3D> paramAndPos;
   
-  const Trk::Perigee& peri = d->muon->primaryTrackParticle()->perigeeParameters (); // FIXME - I'd quite like not to use anything which requires Athena ...
-  d->parametersAndPositions.append(paramAndPos(xAOD::BeamLine, Amg::Vector3D(peri.position().x(),peri.position().y(),peri.position().z()) ) );
+  const Trk::Perigee& peri = m_d->muon->primaryTrackParticle()->perigeeParameters (); // FIXME - I'd quite like not to use anything which requires Athena ...
+  m_d->parametersAndPositions.append(paramAndPos(xAOD::BeamLine, Amg::Vector3D(peri.position().x(),peri.position().y(),peri.position().z()) ) );
 
   float x,y,z;
-  for (unsigned int i=0; i<d->muon->primaryTrackParticle()->numberOfParameters() ; ++i){
-    x = d->muon->primaryTrackParticle()->parameterX(i);
-    y = d->muon->primaryTrackParticle()->parameterY(i);
-    z = d->muon->primaryTrackParticle()->parameterZ(i);
+  for (unsigned int i=0; i<m_d->muon->primaryTrackParticle()->numberOfParameters() ; ++i){
+    x = m_d->muon->primaryTrackParticle()->parameterX(i);
+    y = m_d->muon->primaryTrackParticle()->parameterY(i);
+    z = m_d->muon->primaryTrackParticle()->parameterZ(i);
   
-    d->parametersAndPositions.append(paramAndPos(d->muon->primaryTrackParticle()->parameterPosition(i), Amg::Vector3D(x,y,z)));
+    m_d->parametersAndPositions.append(paramAndPos(m_d->muon->primaryTrackParticle()->parameterPosition(i), Amg::Vector3D(x,y,z)));
   }
-  return d->parametersAndPositions;
+  return m_d->parametersAndPositions;
 }

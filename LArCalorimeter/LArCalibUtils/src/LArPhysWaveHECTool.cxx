@@ -757,7 +757,7 @@ TF1 * LArPhysWaveHECTool::CaliWave2PhysWaveHEC(TProfile *pcal, Double_t *par, do
  for(i=1; i<=nbin; ++i) {
    x[i-1] = pcal->GetBinCenter(i);
    y[i-1] = pcal->GetBinContent(i);
-   //FT std::cout<<"calib2phys: CALIWAVE:  x[i-1]Time="<<x[i-1]<<" y[i-1]AmplCalib="<<y[i-1]<<std::endl;;
+   //FT std::cout<<"calib2phys: CALIWAVE:  x[i-1]Time="<<x[i-1]<<" y[i-1]AmplCalib="<<y[i-1]<<std::endl;
    if(i5bin == 0 && y[i-1] > mcut) i5bin = i; 
   };
  //std::cout<<std::endl;
@@ -893,7 +893,7 @@ TF1 * LArPhysWaveHECTool::CaliWave2PhysWaveHEC(TProfile *pcal, Double_t *par, do
  //std::cout<<"What happens after pointer assigment?"<<std::endl; 
 
  //for(unsigned int i=1;i<=nbin; ++i)
- //std::cout<<"xTime="<<x[i-1]<<" yAmplCalib="<<y[i-1]<<" AmplPhys="<<fitfun->Eval(x[i-1])<<std::endl;;
+ //std::cout<<"xTime="<<x[i-1]<<" yAmplCalib="<<y[i-1]<<" AmplPhys="<<fitfun->Eval(x[i-1])<<std::endl;
 
  return fitfun;
 }

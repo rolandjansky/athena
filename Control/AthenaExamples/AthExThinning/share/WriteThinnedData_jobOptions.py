@@ -67,7 +67,7 @@ for i in xrange(2):
    _outStreamName = "StreamUSR_%i" % i
    topSequence += CfgMgr.AthenaOutputStream(
       _outStreamName,
-      WritingTool = "AthenaPoolOutputStreamTool")
+      WritingTool = "AthenaOutputStreamTool")
    outStreams += [getattr(topSequence, _outStreamName)]
    outStream   = outStreams[i]
    

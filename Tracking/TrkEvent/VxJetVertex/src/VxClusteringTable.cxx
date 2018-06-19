@@ -44,8 +44,8 @@ namespace Trk {
     if (m_compatibilityPairOfVertices.size()==0) {
       sl << "No couple of vertices contained in the table " << endmsg;
     } else {
-      sl << "Numbers of compatibilities store: " << m_compatibilityPairOfVertices.size() << endmsg;;
-      sl << "Highest probability: " << m_compatibilityPairOfVertices.rbegin()->first << endmsg;;
+      sl << "Numbers of compatibilities store: " << m_compatibilityPairOfVertices.size() << endmsg;
+      sl << "Highest probability: " << m_compatibilityPairOfVertices.rbegin()->first << endmsg;
       
       std::map<float,PairOfVxVertexOnJetAxis>::const_iterator CompBegin=m_compatibilityPairOfVertices.begin();
       std::map<float,PairOfVxVertexOnJetAxis>::const_iterator CompEnd=m_compatibilityPairOfVertices.end();

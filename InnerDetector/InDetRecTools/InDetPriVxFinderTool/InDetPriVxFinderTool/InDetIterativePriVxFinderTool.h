@@ -125,7 +125,6 @@ public:
 //   ToolHandle< Trk::IVertexTrackCompatibilityEstimator > m_TrackCompatibilityEstimator;
 //   ToolHandle< Trk::ImpactPoint3dAtaPlaneFactory > m_ImpactPoint3dAtaPlaneFactory;
    ToolHandle< Trk::IVertexLinearizedTrackFactory > m_LinearizedTrackFactory;
-   ToolHandle< Trk::IVxCandidateXAODVertex > m_VertexEdmFactory;
    
    ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; //!< pointer to the beam condition service
 

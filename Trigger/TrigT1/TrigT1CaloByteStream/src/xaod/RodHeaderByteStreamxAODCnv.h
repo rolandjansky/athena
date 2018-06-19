@@ -33,13 +33,8 @@ namespace LVL1BS {
 
 class RodHeaderByteStreamxAODCnv: public Converter, public ::AthMessaging {
 
-  friend class CnvFactory<RodHeaderByteStreamxAODCnv>;
-
-protected:
-
-  RodHeaderByteStreamxAODCnv(ISvcLocator* svcloc);
-
 public:
+  RodHeaderByteStreamxAODCnv(ISvcLocator* svcloc);
 
   virtual ~RodHeaderByteStreamxAODCnv(){};
 

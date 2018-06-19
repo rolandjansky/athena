@@ -18,35 +18,18 @@ namespace xAOD {
     :	AthAlgTool(type, name, parent)
   {
     declareInterface<ICaloClustersInConeTool>(this);
-    declareProperty("CaloClusterLocation",m_caloClusterLocation = "CaloCalTopoClusters");
   }
 
   CaloClustersInConeTool::~CaloClustersInConeTool()
   {}
 
   StatusCode CaloClustersInConeTool::initialize() {
+    ATH_CHECK(m_caloClusterLocation.initialize());
     return StatusCode::SUCCESS;
   }
 
   StatusCode CaloClustersInConeTool::finalize() {
     return StatusCode::SUCCESS;
-  }
-
-  const CaloClusterContainer* CaloClustersInConeTool::retrieveCaloClusterContainer() const {
-    // retrieve MuonSpectrometer tracks
-    const CaloClusterContainer* caloClusters = 0;
-    if(evtStore()->contains<CaloClusterContainer>(m_caloClusterLocation)) {
-      if(evtStore()->retrieve(caloClusters,m_caloClusterLocation).isFailure()) {
-        ATH_MSG_FATAL( "Unable to retrieve " << m_caloClusterLocation );
-        return 0;
-      }else{
-        ATH_MSG_VERBOSE("retrieved CaloClusterContainer with name " << m_caloClusterLocation << " size " << caloClusters->size());
-      
-      }
-    }else{
-      ATH_MSG_WARNING("CaloClusterContainer with name " << m_caloClusterLocation << " not in StoreGate");
-    }
-    return caloClusters;
   }
 
   const CaloClustersInConeTool::LookUpTable*
@@ -57,8 +40,12 @@ namespace xAOD {
     if (rh.isValid())
       return &*rh;
 
-    const CaloClusterContainer* caloClusters = retrieveCaloClusterContainer();
-    if( !caloClusters ) return nullptr;
+    
+    SG::ReadHandle<CaloClusterContainer> caloClusters(m_caloClusterLocation);
+    if (!caloClusters.isValid()) {
+      ATH_MSG_ERROR("Was not able to access the calo cluster container " << m_caloClusterLocation.key());
+      return nullptr;
+    }
     auto lut = std::make_unique<LookUpTable>();
     lut->init(*caloClusters);
     SG::WriteHandle<LookUpTable> wh (tableName);

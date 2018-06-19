@@ -13,7 +13,7 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
-//#include "LArIdentifier/LArOnlineID_Base.h"
+#include "GaudiKernel/ToolHandle.h"
 
 class LArADC2MeV;
 class ILAruA2MeV;
@@ -21,9 +21,9 @@ class ILArDAC2uA;
 class ILArRamp;
 class ILArMphysOverMcal;
 class ILArHVScaleCorr;
+class LArOnOffIdMapping;
 
-class LArOnlineID;
-class LArOnline_SuperCellID;
+class ILArFEBConfigReader;
 
 class LArADC2MeVCondAlg: public AthAlgorithm {
  public:
@@ -36,8 +36,7 @@ class LArADC2MeVCondAlg: public AthAlgorithm {
   StatusCode finalize() {return StatusCode::SUCCESS;}
 
  private:
-  //SG::ReadCondHandleKey<LArOnlineID>       m_larOnlineIDKey; //Identifier helper
-  //SG::ReadCondHandleKey<LArOnline_SuperCellID> m_larSCOnlineIDKey; //Identifier helper (Supercells)
+  SG::ReadCondHandleKey<LArOnOffIdMapping>  m_cablingKey;   
   SG::ReadCondHandleKey<ILAruA2MeV>         m_lAruA2MeVKey; //Always used
   SG::ReadCondHandleKey<ILArDAC2uA>         m_lArDAC2uAKey; //Always used
   SG::ReadCondHandleKey<ILArRamp>           m_lArRampKey;   //Always used
@@ -49,6 +48,12 @@ class LArADC2MeVCondAlg: public AthAlgorithm {
   SG::WriteCondHandleKey<LArADC2MeV>  m_ADC2MeVKey;
 
   ServiceHandle<ICondSvc> m_condSvc;
+
+
+  //FIXME:
+  //The FEB configurations (gain thresholds) are also conditions
+  //Its stored in 18 COOL folders, so waiting for ReadCondHandleArray for migrating to a cond-algo
+  ToolHandle<ILArFEBConfigReader> m_febCfgReader;
 
   size_t m_nGains;
   bool m_isSuperCell;

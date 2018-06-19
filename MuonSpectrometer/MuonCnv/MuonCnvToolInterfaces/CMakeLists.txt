@@ -7,9 +7,8 @@ atlas_subdir( MuonCnvToolInterfaces )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           DetectorDescription/Identifier
                           Event/ByteStreamCnvSvcBase
                           Event/ByteStreamData

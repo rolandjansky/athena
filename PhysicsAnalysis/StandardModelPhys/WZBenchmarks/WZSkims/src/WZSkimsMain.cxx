@@ -172,8 +172,8 @@ StatusCode WZSkimsMain::initialize(){
   ATH_MSG_DEBUG("Prescaling : "               << m_doPrescale);
   ATH_MSG_DEBUG("Prescale rate : "            << m_prescaleRate);
 
-  n_events = 0;
-  n_good_events = 0;
+  m_n_events = 0;
+  m_n_good_events = 0;
   m_prescaleCounter = 0;
 
   bool CutsOk = CheckCuts();
@@ -198,8 +198,8 @@ StatusCode WZSkimsMain::initialize(){
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode WZSkimsMain::execute() {
 
-  n_events++;
-  ATH_MSG_DEBUG("*************** Event number " << n_events << " ****************");
+  m_n_events++;
+  ATH_MSG_DEBUG("*************** Event number " << m_n_events << " ****************");
 
   if (!m_doSkim) {
     setFilterPassed(true);
@@ -252,7 +252,7 @@ StatusCode WZSkimsMain::execute() {
 
   if (isGoodEvent) {
     ATH_MSG_DEBUG("Event accepted");
-    n_good_events++;
+    m_n_good_events++;
   }
 
 
@@ -380,8 +380,8 @@ StatusCode WZSkimsMain::finalize() {
     
     ATH_MSG_DEBUG ("finalize()");
 
-    ATH_MSG_INFO ("Skimmable events " << n_events);
-    ATH_MSG_INFO ("Skimmed events " << n_good_events);
+    ATH_MSG_INFO ("Skimmable events " << m_n_events);
+    ATH_MSG_INFO ("Skimmed events " << m_n_good_events);
 
     
     return StatusCode::SUCCESS;

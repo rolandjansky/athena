@@ -41,6 +41,6 @@ private:
   OFFLINE_FRAGMENTS_NAMESPACE::DataType* m_start;
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(ByteStream, 7001, 1)
 #endif

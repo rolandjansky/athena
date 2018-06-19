@@ -33,13 +33,8 @@ namespace LVL1BS {
 
 class CpmTowerByteStreamxAODCnv: public Converter, public ::AthMessaging {
 
-  friend class CnvFactory<CpmTowerByteStreamxAODCnv>;
-
-protected:
-
-  CpmTowerByteStreamxAODCnv(ISvcLocator* svcloc);
-
 public:
+  CpmTowerByteStreamxAODCnv(ISvcLocator* svcloc);
 
   virtual ~CpmTowerByteStreamxAODCnv(){};
 

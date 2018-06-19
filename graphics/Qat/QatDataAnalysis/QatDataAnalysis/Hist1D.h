@@ -20,8 +20,8 @@
 // --------------------------------------------------------------------------//
 
 
-#ifndef _HIST1D_H_
-#define _HIST1D_H_
+#ifndef QATDATAANALYSIS_HIST1D_H
+#define QATDATAANALYSIS_HIST1D_H
 #include <string>
 #include <vector>
 #include <cmath>
@@ -90,7 +90,7 @@ class Hist1D {
 
  private:
 
-  Clockwork           *c;
+  Clockwork           *m_c;
                                               
 };
 

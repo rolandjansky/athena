@@ -7,8 +7,11 @@ def LArBadChannelAccess(algname="LArBadChannelCondAlg",dbString=None):
     if hasattr(condSeq,algname):
         print "Access to bad Feb info already set up"
         return
-    
-    
+
+
+    from LArCabling.LArCablingAccess import LArOnOffIdMapping
+    LArOnOffIdMapping()
+
     from IOVDbSvc.CondDB import conddb
 
     if dbString is not None:

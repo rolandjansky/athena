@@ -110,7 +110,7 @@ StatusCode TauEleOLRDecorator::execute(xAOD::TauJet& tau)
 
   // compute the LH score if there is a match
   if(xEleMatch!=0)
-    fLHScore = (m_tEMLHTool->calculate(xEleMatch)).getMVAResponse ();
+    fLHScore = m_tEMLHTool->calculate(xEleMatch);
 
   // create link to the matched electron
   if (xEleMatch)

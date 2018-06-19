@@ -15,11 +15,7 @@
 //
 // ********************************************************************
 
-//#include "GaudiKernel/MsgStream.h"
-//#include "AthenaMonitoring/LogFileMsgStream.h"
-//#include "GaudiKernel/ISvcLocator.h"
-//#include "GaudiKernel/ITHistSvc.h"
-//#include "GaudiKernel/IToolSvc.h"
+#include "LArCosmicsMonTool.h"
 
 #include "Identifier/IdentifierHash.h"
 
@@ -32,8 +28,6 @@
 #include <functional>
 #include <map>
 #include <utility>
-
-#include "LArMonTools/LArCosmicsMonTool.h"
 
 using namespace std;
 
@@ -132,6 +126,7 @@ LArCosmicsMonTool::initialize()
     return sc;
   }
   
+  ATH_CHECK( m_badChannelMask.retrieve() );
   
   // Get LAr Cabling Service
   sc=m_larCablingService.retrieve();
@@ -351,7 +346,7 @@ LArCosmicsMonTool::fillHistograms() {
     
     if(m_LArOnlineIDHelper->isFCALchannel(id)){
       
-      int sampling = m_LArFCAL_IDHelper->module(offlineID);;
+      int sampling = m_LArFCAL_IDHelper->module(offlineID);
       const std::vector < short > samples = pLArDigit->samples();
       
       // Look for Muons Candidates in sampling 2

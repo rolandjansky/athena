@@ -199,6 +199,24 @@ FastShowerCellBuilderTool::FastShowerCellBuilderTool(const std::string& type, co
 
 FastShowerCellBuilderTool::~FastShowerCellBuilderTool()
 {
+  for (auto* el : m_shape_correction ) delete el;
+  m_shape_correction.clear();
+  for (auto const& m1 : m_map_ParticleShapeParametrizationMap ) {
+    for (auto const& m2 : m1.second ) {
+      for (auto const& m3 : m2.second ) {
+        for (auto* el : m3.second ) {
+          delete el;
+        }
+      }
+    }
+  }
+  for (auto const& m1 : m_map_ParticleEnergyParametrizationMap ) {
+    for (auto const& m2 : m1.second ) {
+      for (auto const& m3 : m2.second ) {
+        delete m3.second;
+      }
+    }
+  }
 }
 
 void FastShowerCellBuilderTool::LoadParametrizationsFromDir(std::string dir)

@@ -42,6 +42,7 @@
 #include "TrkToolInterfaces/ITruthToTrack.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
@@ -90,9 +91,9 @@ public:
 
 private:
   
-  RecoToTruthTrackMap _rttTrackMap; // mapping from reconstructed track to mc barcode
-  TruthToRecoTrackMap _ttrTrackMap; // mapping from mc barcode to reconstructed track (index into m_tracksName TrackCollection)
-  TruthToRecoProbMap _ttrProbMap;  // mapping from mc barcode to matching fraction for corresponding rttTrackMap entry
+  RecoToTruthTrackMap m_rttTrackMap; // mapping from reconstructed track to mc barcode
+  TruthToRecoTrackMap m_ttrTrackMap; // mapping from mc barcode to reconstructed track (index into m_tracksName TrackCollection)
+  TruthToRecoProbMap m_ttrProbMap;  // mapping from mc barcode to matching fraction for corresponding rttTrackMap entry
 
   typedef enum { TAU_PARENT_BIT , B_PARENT_BIT , PION_PARENT_BIT , PION_IMMEDIATE_PARENT_BIT , NBITS } Bits;
   typedef std::bitset<NBITS> ParentBitmask;
@@ -138,7 +139,8 @@ private:
   //#ifdef HAVE_VERSION_15
   ToolHandle<Trig::TrigDecisionTool>        m_trigDecTool; // tool to retrieve trigger decision
   ServiceHandle<IInDetConditionsSvc>        m_pixelCondSummarySvc; // tool to retrieve pixel conditions db
-  ServiceHandle<IInDetConditionsSvc>        m_sctCondSummarySvc; // tool to retrieve SCT conditions db
+  ToolHandle<IInDetConditionsTool>          m_sctCondSummaryTool{this, "SctSummaryTool",
+      "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions Summary"}; // tool to retrieve SCT conditions db
   //#else
     // ToolHandle<Trk::TruthToTrack>             m_truthToTrack; //!< tool to create track parameters from a gen particle
   //#endif
@@ -182,8 +184,8 @@ private:
   // output
   // ================================================================
 
-  mutable boost::shared_ptr<boost::iostreams::filtering_ostream> ofl;
-  mutable boost::shared_ptr<boost::iostreams::filtering_ostream> oflraw;
+  mutable boost::shared_ptr<boost::iostreams::filtering_ostream> m_ofl;
+  mutable boost::shared_ptr<boost::iostreams::filtering_ostream> m_oflraw;
 
 };
 

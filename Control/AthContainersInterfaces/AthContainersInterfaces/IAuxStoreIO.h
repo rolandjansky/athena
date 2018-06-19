@@ -108,7 +108,7 @@ public:
 
 
 #ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( SG::IAuxStoreIO, 55879233, 1 )
 #endif
 

@@ -9,7 +9,6 @@
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/Converter.h"
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -43,9 +42,8 @@ extern long ByteStream_StorageType;
  *    @date $Date: 2014-11-12 00:00:00 $
  */
 class L1TopoByteStreamCnv : public Converter, public AthMessaging {
-  friend class CnvFactory<L1TopoByteStreamCnv>;
 
- protected:
+public:
   /// Standard constructor
   L1TopoByteStreamCnv(ISvcLocator* svcloc);
 

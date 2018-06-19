@@ -65,14 +65,14 @@ class TileCalibDrawerBase{
       @details In case the copy constructor is called, the underlying coral::Blob
       is copied and the new TileCalibDrawer is the owner of the new coral::Blob. I.e. 
       it will be deleted when the TileCalibDrawer Dtor is called.
-      @params other The TileCalibDrawer to copy */
+      @param other The TileCalibDrawer to copy */
   TileCalibDrawerBase(const TileCalibDrawerBase& other);
 
   /** @brief Assignment operator */
   TileCalibDrawerBase& operator=(const TileCalibDrawerBase& other);
 
   /** @brief Initialzes Blob with content of other Blob.
-      @params other TileCalibDrawer used for initialization
+      @param other TileCalibDrawer used for initialization
   */
   virtual void clone(const TileCalibDrawerBase& other);
   

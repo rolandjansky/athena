@@ -37,13 +37,13 @@ class GraphicsView : public QGraphicsView
 {
 	Q_OBJECT
 public:
-	GraphicsView(VP1EventDisplaySceneView *v) : QGraphicsView(), view(v) { }
+	GraphicsView(VP1EventDisplaySceneView *v) : QGraphicsView(), m_view(v) { }
 
 protected:
 	void wheelEvent(QWheelEvent *);
 
 private:
-	VP1EventDisplaySceneView *view;
+	VP1EventDisplaySceneView *m_view;
 };
 
 
@@ -83,32 +83,32 @@ public:
 	void rotateRight();
 
 	private:
-	GraphicsView *graphicsView;
+	GraphicsView *m_graphicsView;
 
-	bool _preview;
+	bool m_preview;
 
-	QGraphicsRectItem* _frame;
-	QGraphicsLineItem * _line;
+	QGraphicsRectItem* m_frame;
+	QGraphicsLineItem * m_line;
 
-	QLabel *label;
-	QLabel *label2;
+	QLabel *m_label;
+	QLabel *m_label2;
 
-	QToolButton *selectModeButton;
-	QToolButton *dragModeButton;
-	QToolButton *openGlButton;
-	QToolButton *antialiasButton;
-	QToolButton *printButton;
-	QToolButton *resetButton;
+	QToolButton *m_selectModeButton;
+	QToolButton *m_dragModeButton;
+	QToolButton *m_openGlButton;
+	QToolButton *m_antialiasButton;
+	QToolButton *m_printButton;
+	QToolButton *m_resetButton;
 
-	QVBoxLayout *zoomSliderLayout;
-	QSlider *zoomSlider;
-	QToolButton *zoomInIcon;
-	QToolButton *zoomOutIcon;
+	QVBoxLayout *m_zoomSliderLayout;
+	QSlider *m_zoomSlider;
+	QToolButton *m_zoomInIcon;
+	QToolButton *m_zoomOutIcon;
 
-	QHBoxLayout *rotateSliderLayout;
-	QSlider *rotateSlider;
-	QToolButton *rotateLeftIcon;
-	QToolButton *rotateRightIcon;
+	QHBoxLayout *m_rotateSliderLayout;
+	QSlider *m_rotateSlider;
+	QToolButton *m_rotateLeftIcon;
+	QToolButton *m_rotateRightIcon;
 
 };
 

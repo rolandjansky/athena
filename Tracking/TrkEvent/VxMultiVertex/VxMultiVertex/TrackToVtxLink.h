@@ -5,7 +5,7 @@
 #ifndef VXMULTIVERTEX_TrackToVtxLink_H
 #define VXMULTIVERTEX_TrackToVtxLink_H
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 #include "xAODTracking/Vertex.h"
 

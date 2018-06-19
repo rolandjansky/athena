@@ -38,18 +38,18 @@ public:
 
 //____________________________________________________________________
 VP1RawDataCollBase::VP1RawDataCollBase(VP1RawDataCommonData*common,const QString& key)
-  : VP1StdCollection(common->system(),"RawDataColl_"+key), m_common(common), d(new Imp)
+  : VP1StdCollection(common->system(),"RawDataColl_"+key), m_common(common), m_d(new Imp)
 {
-  d->key = key;
-  d->sepHelper = 0;
-  d->iupdategui = 0;
+  m_d->key = key;
+  m_d->sepHelper = 0;
+  m_d->iupdategui = 0;
 }
 
 //____________________________________________________________________
 void VP1RawDataCollBase::init(VP1MaterialButtonBase*)
 {
   VP1StdCollection::init();//Must be here
-  d->allowedInDetParts = (usesInDetPartsCuts() ? VP1RawDataFlags::None : VP1RawDataFlags::All);
+  m_d->allowedInDetParts = (usesInDetPartsCuts() ? VP1RawDataFlags::None : VP1RawDataFlags::All);
   connect(this,SIGNAL(visibilityChanged(bool)),this,SLOT(collVisibilityChanged(bool)));
 
   connect(m_common->controller(),SIGNAL(cutAllowedEtaChanged(const VP1Interval&)),
@@ -68,27 +68,27 @@ void VP1RawDataCollBase::init(VP1MaterialButtonBase*)
 //____________________________________________________________________
 VP1ExtraSepLayerHelper * VP1RawDataCollBase::sepHelper() const
 {
-  if (!d->sepHelper)
-    d->sepHelper = new VP1ExtraSepLayerHelper(collSep());
-  return d->sepHelper;
+  if (!m_d->sepHelper)
+    m_d->sepHelper = new VP1ExtraSepLayerHelper(collSep());
+  return m_d->sepHelper;
 }
 
 //____________________________________________________________________
 VP1RawDataCollBase::~VP1RawDataCollBase()
 {
-  std::vector<VP1RawDataHandleBase*>::iterator it(d->handles.begin()),itE(d->handles.end());
+  std::vector<VP1RawDataHandleBase*>::iterator it(m_d->handles.begin()),itE(m_d->handles.end());
   for (;it!=itE;++it)
     delete *it;
-  d->handles.clear();
+  m_d->handles.clear();
 
-  delete d->sepHelper;
-  delete d;
+  delete m_d->sepHelper;
+  delete m_d;
 }
 
 //____________________________________________________________________
 QString VP1RawDataCollBase::provideText() const
 {
-  return d->key;
+  return m_d->key;
 }
 
 //____________________________________________________________________
@@ -105,11 +105,11 @@ void VP1RawDataCollBase::collVisibilityChanged(bool vis)
 //____________________________________________________________________
 void VP1RawDataCollBase::setAllowedEta(const VP1Interval&e)
 {
-  if (d->allowedEta==e)
+  if (m_d->allowedEta==e)
     return;
-  bool relaxed(e.contains(d->allowedEta));
-  bool tightened(d->allowedEta.contains(e));
-  d->allowedEta=e;
+  bool relaxed(e.contains(m_d->allowedEta));
+  bool tightened(m_d->allowedEta.contains(e));
+  m_d->allowedEta=e;
   if (relaxed)
     recheckCutStatusOfAllNotVisibleHandles();
   else if (tightened)
@@ -121,9 +121,9 @@ void VP1RawDataCollBase::setAllowedEta(const VP1Interval&e)
 //____________________________________________________________________
 void VP1RawDataCollBase::setAllowedPhi(const QList<VP1Interval>&l)
 {
-  if (d->allowedPhi==l)
+  if (m_d->allowedPhi==l)
     return;
-  d->allowedPhi=l;
+  m_d->allowedPhi=l;
   recheckCutStatusOfAllHandles();
 }
 
@@ -132,11 +132,11 @@ void VP1RawDataCollBase::setEnabledInDetParts(VP1RawDataFlags::InDetPartsFlags f
 {
   if (!usesInDetPartsCuts())
     return;
-  if (d->allowedInDetParts==f)
+  if (m_d->allowedInDetParts==f)
     return;
-  bool relaxed((d->allowedInDetParts&f) == d->allowedInDetParts);
-  bool tightened((d->allowedInDetParts&f) == f);
-  d->allowedInDetParts=f;
+  bool relaxed((m_d->allowedInDetParts&f) == m_d->allowedInDetParts);
+  bool tightened((m_d->allowedInDetParts&f) == f);
+  m_d->allowedInDetParts=f;
   if (relaxed)
     recheckCutStatusOfAllNotVisibleHandles();
   else if (tightened)
@@ -149,8 +149,8 @@ void VP1RawDataCollBase::setEnabledInDetParts(VP1RawDataFlags::InDetPartsFlags f
 void VP1RawDataCollBase::addHandle(VP1RawDataHandleBase*handle)
 {
   if (handle)
-    d->handles.push_back(handle);
-  if (!((d->iupdategui)++)%200)
+    m_d->handles.push_back(handle);
+  if (!((m_d->iupdategui)++)%200)
     systemBase()->updateGUI();
 }
 
@@ -186,7 +186,7 @@ bool VP1RawDataCollBase::Imp::commonCuts(VP1RawDataHandleBase*handle)
 //____________________________________________________________________
 void VP1RawDataCollBase::recheckCutStatus(VP1RawDataHandleBase*handle)
 {
-  handle->setVisible( visible() && cut(handle) && d->commonCuts(handle) );
+  handle->setVisible( visible() && cut(handle) && m_d->commonCuts(handle) );
 }
 
 //____________________________________________________________________
@@ -196,7 +196,7 @@ void VP1RawDataCollBase::recheckCutStatusOfAllHandles()
     return;
   common()->system()->deselectAll();
   largeChangesBegin();
-  std::vector<VP1RawDataHandleBase*>::iterator it(d->handles.begin()),itE(d->handles.end());
+  std::vector<VP1RawDataHandleBase*>::iterator it(m_d->handles.begin()),itE(m_d->handles.end());
   int i(0);
   for (;it!=itE;++it) {
     recheckCutStatus(*it);
@@ -215,7 +215,7 @@ void VP1RawDataCollBase::recheckCutStatusOfAllVisibleHandles()
   common()->system()->deselectAll();
 
   largeChangesBegin();
-  std::vector<VP1RawDataHandleBase*>::iterator it(d->handles.begin()),itE(d->handles.end());
+  std::vector<VP1RawDataHandleBase*>::iterator it(m_d->handles.begin()),itE(m_d->handles.end());
   for (;it!=itE;++it) {
     if ((*it)->visible())
       recheckCutStatus(*it);
@@ -229,7 +229,7 @@ void VP1RawDataCollBase::recheckCutStatusOfAllNotVisibleHandles()
   if (!isLoaded())
     return;
   largeChangesBegin();
-  std::vector<VP1RawDataHandleBase*>::iterator it(d->handles.begin()),itE(d->handles.end());
+  std::vector<VP1RawDataHandleBase*>::iterator it(m_d->handles.begin()),itE(m_d->handles.end());
   for (;it!=itE;++it) {
     if (!(*it)->visible())
       recheckCutStatus(*it);
@@ -240,5 +240,5 @@ void VP1RawDataCollBase::recheckCutStatusOfAllNotVisibleHandles()
 //____________________________________________________________________
 std::vector<VP1RawDataHandleBase*>& VP1RawDataCollBase::getHandles()
 {
-  return d->handles;
+  return m_d->handles;
 }

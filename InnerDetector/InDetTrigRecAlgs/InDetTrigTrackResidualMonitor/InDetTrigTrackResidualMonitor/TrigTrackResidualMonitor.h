@@ -17,7 +17,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "GaudiKernel/ITHistSvc.h"
 
 
@@ -47,7 +47,6 @@
 
 class AtlasDetectorID;
 class Track;
-class IInDetConditionsSvc;
 class PixelID;
 class SCT_ID;
 

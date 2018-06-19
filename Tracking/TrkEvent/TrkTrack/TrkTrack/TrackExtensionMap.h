@@ -9,7 +9,7 @@
 #include <map>
 #include "TrkTrack/Track.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
  /** @brief AUTO - An Undocumented Tracking Object */
 

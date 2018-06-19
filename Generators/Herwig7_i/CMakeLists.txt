@@ -3,6 +3,10 @@
 # Package: Herwig7_i
 ################################################################################
 
+if( CMAKE_COMPILER_IS_GNUCXX AND ( NOT ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 7.0 ) )
+   return()
+endif()
+
 # Declare the package name:
 atlas_subdir( Herwig7_i )
 

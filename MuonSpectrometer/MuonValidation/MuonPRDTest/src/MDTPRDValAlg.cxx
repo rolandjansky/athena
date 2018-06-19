@@ -55,10 +55,10 @@ using namespace MuonGM;
 MDTPRDValAlg::MDTPRDValAlg(const std::string& name, 
 			     ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  mdttree(0),
-  event_counter(0),
-  histo_flag(false),
-  descriptor(0),
+  m_mdttree(0),
+  m_event_counter(0),
+  m_histo_flag(false),
+  m_descriptor(0),
   m_pMuonMgr(0),
   m_mdtIdHelper(0),
   m_log(0),
@@ -66,7 +66,7 @@ MDTPRDValAlg::MDTPRDValAlg(const std::string& name,
   m_verbose(false),
   m_sgSvc(0),
 
-  counter_ValHitNumber(-99),
+  m_counter_ValHitNumber(-99),
   m_Validation_MDT_Type(-99),
   m_Validation_MDT_NumberOfHits(-99),
   m_Validation_MDT_EventNumber(-99),
@@ -216,7 +216,7 @@ StatusCode MDTPRDValAlg::initialize()
 
       std::string mdttreePath = mdtStreamAndPath+"/"+mdttreeName;
 
-      mdttree = new TTree(TString(mdttreeName), "Muon MDT Hits output");
+      m_mdttree = new TTree(TString(mdttreeName), "Muon MDT Hits output");
       
       StatusCode status;
       ITHistSvc* hSvc=0;
@@ -227,7 +227,7 @@ StatusCode MDTPRDValAlg::initialize()
 	return sc;
       }
       
-      status=ToolRootHistSvc()->regTree(mdttreePath, mdttree);
+      status=ToolRootHistSvc()->regTree(mdttreePath, m_mdttree);
 
       if(status.isFailure()) {
 	*m_log << MSG::DEBUG << "MDTPRDValAlg:: Unable to register TTreeTuple : " << mdttreePath << endmsg;
@@ -255,71 +255,71 @@ StatusCode MDTPRDValAlg::initialize()
 	 Local X, Y, Z is the respective coordinate of the hit with reference point the middle of the wire, R the drift radius of the hit.
       */
 
-      mdttree->Branch("MDT_NumberOfHits",  &m_Validation_MDT_NumberOfHits, "MDT_NumberOfHits/I");
-      mdttree->Branch("MDT_EventNumber",  &m_Validation_MDT_EventNumber, "MDT_EventNumber/I");
-      mdttree->Branch("MDT_Type",  &m_Validation_MDT_Type, "MDT_type/I");
-      mdttree->Branch("MDT_RunNumber",  &m_Validation_MDT_RunNumber, "MDT_RunNumber/I");
-      mdttree->Branch("MDT_pdg",  &m_Validation_MDT_pdg, "MDT_pdg/I");
+      m_mdttree->Branch("MDT_NumberOfHits",  &m_Validation_MDT_NumberOfHits, "MDT_NumberOfHits/I");
+      m_mdttree->Branch("MDT_EventNumber",  &m_Validation_MDT_EventNumber, "MDT_EventNumber/I");
+      m_mdttree->Branch("MDT_Type",  &m_Validation_MDT_Type, "MDT_type/I");
+      m_mdttree->Branch("MDT_RunNumber",  &m_Validation_MDT_RunNumber, "MDT_RunNumber/I");
+      m_mdttree->Branch("MDT_pdg",  &m_Validation_MDT_pdg, "MDT_pdg/I");
 
-      mdttree->Branch("MDT_phi",  &m_Validation_MDT_phi, "MDT_phi/D");
-      mdttree->Branch("MDT_theta",  &m_Validation_MDT_theta, "MDT_theta/D");
-      mdttree->Branch("MDT_eta",  &m_Validation_MDT_eta, "MDT_eta/D");
-      mdttree->Branch("MDT_qp",  &m_Validation_MDT_qp, "MDT_qp/D");
-      mdttree->Branch("MDT_MEX",  &m_Validation_MDT_MEX, "MDT_MEX/D");
-      mdttree->Branch("MDT_MEY",  &m_Validation_MDT_MEY, "MDT_MEY/D");
-      mdttree->Branch("MDT_MEZ",  &m_Validation_MDT_MEZ, "MDT_MEZ/D");
-      mdttree->Branch("MDT_Exit_qp",  &m_Validation_MDT_Exit_qp, "MDT_Exit_qp/D");
-      mdttree->Branch("MDT_ExitX",  &m_Validation_MDT_ExitX, "MDT_ExitX/D");
-      mdttree->Branch("MDT_ExitY",  &m_Validation_MDT_ExitY, "MDT_ExitY/D");
-      mdttree->Branch("MDT_ExitZ",  &m_Validation_MDT_ExitZ, "MDT_ExitZ/D");
+      m_mdttree->Branch("MDT_phi",  &m_Validation_MDT_phi, "MDT_phi/D");
+      m_mdttree->Branch("MDT_theta",  &m_Validation_MDT_theta, "MDT_theta/D");
+      m_mdttree->Branch("MDT_eta",  &m_Validation_MDT_eta, "MDT_eta/D");
+      m_mdttree->Branch("MDT_qp",  &m_Validation_MDT_qp, "MDT_qp/D");
+      m_mdttree->Branch("MDT_MEX",  &m_Validation_MDT_MEX, "MDT_MEX/D");
+      m_mdttree->Branch("MDT_MEY",  &m_Validation_MDT_MEY, "MDT_MEY/D");
+      m_mdttree->Branch("MDT_MEZ",  &m_Validation_MDT_MEZ, "MDT_MEZ/D");
+      m_mdttree->Branch("MDT_Exit_qp",  &m_Validation_MDT_Exit_qp, "MDT_Exit_qp/D");
+      m_mdttree->Branch("MDT_ExitX",  &m_Validation_MDT_ExitX, "MDT_ExitX/D");
+      m_mdttree->Branch("MDT_ExitY",  &m_Validation_MDT_ExitY, "MDT_ExitY/D");
+      m_mdttree->Branch("MDT_ExitZ",  &m_Validation_MDT_ExitZ, "MDT_ExitZ/D");
 
-      mdttree->Branch("MDT_HitX",  &m_Validation_MDT_HitX, "MDT_HitX/D");
-      mdttree->Branch("MDT_HitY",  &m_Validation_MDT_HitY, "MDT_HitY/D");
-      mdttree->Branch("MDT_HitZ",  &m_Validation_MDT_HitZ, "MDT_HitZ/D");
-      mdttree->Branch("MDT_HitR",  &m_Validation_MDT_HitR, "MDT_HitR/D");
+      m_mdttree->Branch("MDT_HitX",  &m_Validation_MDT_HitX, "MDT_HitX/D");
+      m_mdttree->Branch("MDT_HitY",  &m_Validation_MDT_HitY, "MDT_HitY/D");
+      m_mdttree->Branch("MDT_HitZ",  &m_Validation_MDT_HitZ, "MDT_HitZ/D");
+      m_mdttree->Branch("MDT_HitR",  &m_Validation_MDT_HitR, "MDT_HitR/D");
 
-      mdttree->Branch("MDT_ExX",  &m_Validation_MDT_ExX, "MDT_ExX/D");
-      mdttree->Branch("MDT_ExY",  &m_Validation_MDT_ExY, "MDT_ExY/D");
-      mdttree->Branch("MDT_ExZ",  &m_Validation_MDT_ExZ, "MDT_ExZ/D");
-      mdttree->Branch("MDT_ExR",  &m_Validation_MDT_ExR, "MDT_ExR/D");
+      m_mdttree->Branch("MDT_ExX",  &m_Validation_MDT_ExX, "MDT_ExX/D");
+      m_mdttree->Branch("MDT_ExY",  &m_Validation_MDT_ExY, "MDT_ExY/D");
+      m_mdttree->Branch("MDT_ExZ",  &m_Validation_MDT_ExZ, "MDT_ExZ/D");
+      m_mdttree->Branch("MDT_ExR",  &m_Validation_MDT_ExR, "MDT_ExR/D");
 
-      mdttree->Branch("MDT_StationName",  m_Validation_MDT_StationName, "MDT_StationName/C");
-      mdttree->Branch("MDT_StationEta",  &m_Validation_MDT_StationEta, "MDT_StationEta/I");
-      mdttree->Branch("MDT_StationPhi",  &m_Validation_MDT_StationPhi, "MDT_StationPhi/I");		
-      mdttree->Branch("MDT_IDMultiLayer",  &m_Validation_MDT_IDMultiLayer, "MDT_IDMultiLayer/I");
-      mdttree->Branch("MDT_IDLayer",  &m_Validation_MDT_IDLayer, "MDT_IDLayer/I");   
-      mdttree->Branch("MDT_IDTube",  &m_Validation_MDT_IDTube, "MDT_IDTube/I");
-      mdttree->Branch("MDT_GeoSign",  &m_Validation_MDT_GeoSign, "MDT_GeoSign/I");
-      mdttree->Branch("MDT_BESL",  &m_Validation_MDT_BESL, "MDT_BESL/I");
+      m_mdttree->Branch("MDT_StationName",  m_Validation_MDT_StationName, "MDT_StationName/C");
+      m_mdttree->Branch("MDT_StationEta",  &m_Validation_MDT_StationEta, "MDT_StationEta/I");
+      m_mdttree->Branch("MDT_StationPhi",  &m_Validation_MDT_StationPhi, "MDT_StationPhi/I");		
+      m_mdttree->Branch("MDT_IDMultiLayer",  &m_Validation_MDT_IDMultiLayer, "MDT_IDMultiLayer/I");
+      m_mdttree->Branch("MDT_IDLayer",  &m_Validation_MDT_IDLayer, "MDT_IDLayer/I");   
+      m_mdttree->Branch("MDT_IDTube",  &m_Validation_MDT_IDTube, "MDT_IDTube/I");
+      m_mdttree->Branch("MDT_GeoSign",  &m_Validation_MDT_GeoSign, "MDT_GeoSign/I");
+      m_mdttree->Branch("MDT_BESL",  &m_Validation_MDT_BESL, "MDT_BESL/I");
 	
-      mdttree->Branch("MDT_LocalX",  &m_Validation_MDT_LocalX, "MDT_LocalX/D");
-      mdttree->Branch("MDT_LocalY",  &m_Validation_MDT_LocalY, "MDT_LocalY/D");
-      mdttree->Branch("MDT_LocalZ",  &m_Validation_MDT_LocalZ, "MDT_LocalZ/D");  
-      mdttree->Branch("MDT_LocalR",  &m_Validation_MDT_LocalR, "MDT_LocalR/D");
-      mdttree->Branch("MDT_Res_LocalX",  &m_Validation_MDT_Res_LocalX, "MDT_Res_LocalX/D");
-      mdttree->Branch("MDT_Res_LocalY",  &m_Validation_MDT_Res_LocalY, "MDT_Res_LocalY/D");
-      mdttree->Branch("MDT_ResEloss_LocalX",  &m_Validation_MDT_ResEloss_LocalX, "MDT_ResEloss_LocalX/D");
-      mdttree->Branch("MDT_ResEloss_LocalY",  &m_Validation_MDT_ResEloss_LocalY, "MDT_ResEloss_LocalY/D");
-      mdttree->Branch("MDT_dtheta_dLocX",  &m_Validation_MDT_dtheta_dLocX, "MDT_dtheta_dLocX/D");
-      mdttree->Branch("MDT_dtheta_dLocY",  &m_Validation_MDT_dtheta_dLocY, "MDT_dtheta_dLocY/D");
-      mdttree->Branch("MDT_dphi_dLocX",  &m_Validation_MDT_dphi_dLocX, "MDT_dphi_dLocX/D");
-      mdttree->Branch("MDT_dphi_dLocY",  &m_Validation_MDT_dphi_dLocY, "MDT_dphi_dLocY/D");
-      mdttree->Branch("MDT_dtheta",  &m_Validation_MDT_dtheta, "MDT_dtheta/D");
-      mdttree->Branch("MDT_3DdistME",  &m_Validation_MDT_3DdistME, "MDT_3DdistME/D");
-      mdttree->Branch("MDT_ploss",  &m_Validation_MDT_ploss, "MDT_ploss/D");
-      mdttree->Branch("MDT_3DdistExit",  &m_Validation_MDT_3DdistExit, "MDT_3DdistExit/D");
-      mdttree->Branch("MDT_last",  &m_Validation_MDT_last, "MDT_last/I");
+      m_mdttree->Branch("MDT_LocalX",  &m_Validation_MDT_LocalX, "MDT_LocalX/D");
+      m_mdttree->Branch("MDT_LocalY",  &m_Validation_MDT_LocalY, "MDT_LocalY/D");
+      m_mdttree->Branch("MDT_LocalZ",  &m_Validation_MDT_LocalZ, "MDT_LocalZ/D");  
+      m_mdttree->Branch("MDT_LocalR",  &m_Validation_MDT_LocalR, "MDT_LocalR/D");
+      m_mdttree->Branch("MDT_Res_LocalX",  &m_Validation_MDT_Res_LocalX, "MDT_Res_LocalX/D");
+      m_mdttree->Branch("MDT_Res_LocalY",  &m_Validation_MDT_Res_LocalY, "MDT_Res_LocalY/D");
+      m_mdttree->Branch("MDT_ResEloss_LocalX",  &m_Validation_MDT_ResEloss_LocalX, "MDT_ResEloss_LocalX/D");
+      m_mdttree->Branch("MDT_ResEloss_LocalY",  &m_Validation_MDT_ResEloss_LocalY, "MDT_ResEloss_LocalY/D");
+      m_mdttree->Branch("MDT_dtheta_dLocX",  &m_Validation_MDT_dtheta_dLocX, "MDT_dtheta_dLocX/D");
+      m_mdttree->Branch("MDT_dtheta_dLocY",  &m_Validation_MDT_dtheta_dLocY, "MDT_dtheta_dLocY/D");
+      m_mdttree->Branch("MDT_dphi_dLocX",  &m_Validation_MDT_dphi_dLocX, "MDT_dphi_dLocX/D");
+      m_mdttree->Branch("MDT_dphi_dLocY",  &m_Validation_MDT_dphi_dLocY, "MDT_dphi_dLocY/D");
+      m_mdttree->Branch("MDT_dtheta",  &m_Validation_MDT_dtheta, "MDT_dtheta/D");
+      m_mdttree->Branch("MDT_3DdistME",  &m_Validation_MDT_3DdistME, "MDT_3DdistME/D");
+      m_mdttree->Branch("MDT_ploss",  &m_Validation_MDT_ploss, "MDT_ploss/D");
+      m_mdttree->Branch("MDT_3DdistExit",  &m_Validation_MDT_3DdistExit, "MDT_3DdistExit/D");
+      m_mdttree->Branch("MDT_last",  &m_Validation_MDT_last, "MDT_last/I");
  
-      mdttree->Branch("MDT_ExNomWireR",  &m_Validation_MDT_ExNomWireR, "MDT_ExNomWireR/D");
-      mdttree->Branch("MDT_ExNomWireZ",  &m_Validation_MDT_ExNomWireZ, "MDT_ExNomWireZ/D");
-      mdttree->Branch("MDT_ExSagWireR",  &m_Validation_MDT_ExSagWireR,  "MDT_ExSagWireR/D");
-      mdttree->Branch("MDT_ExSagWireZ",  &m_Validation_MDT_ExSagWireZ,  "MDT_ExSagWireZ/D");
-      mdttree->Branch("MDT_ExSagRotR",   &m_Validation_MDT_ExSagRotR,  "MDT_ExSagRotR/D");
-      mdttree->Branch("MDT_ExSagRotZ",   &m_Validation_MDT_ExSagRotZ,  "MDT_ExSagRotZ/D");
-      mdttree->Branch("MDT_SimRadius",   &m_Validation_MDT_SimRadius,  "MDT_SimRadius/D");
-      mdttree->Branch("MDT_SdoRadius",   &m_Validation_MDT_SdoRadius,  "MDT_SdoRadius/D");
-      mdttree->Branch("MDT_RotRadius",   &m_Validation_MDT_RotRadius,  "MDT_RotRadius/D");
-      mdttree->Branch("MDT_WireLen",     &m_Validation_MDT_WireLen,    "MDT_WireLen/D");
+      m_mdttree->Branch("MDT_ExNomWireR",  &m_Validation_MDT_ExNomWireR, "MDT_ExNomWireR/D");
+      m_mdttree->Branch("MDT_ExNomWireZ",  &m_Validation_MDT_ExNomWireZ, "MDT_ExNomWireZ/D");
+      m_mdttree->Branch("MDT_ExSagWireR",  &m_Validation_MDT_ExSagWireR,  "MDT_ExSagWireR/D");
+      m_mdttree->Branch("MDT_ExSagWireZ",  &m_Validation_MDT_ExSagWireZ,  "MDT_ExSagWireZ/D");
+      m_mdttree->Branch("MDT_ExSagRotR",   &m_Validation_MDT_ExSagRotR,  "MDT_ExSagRotR/D");
+      m_mdttree->Branch("MDT_ExSagRotZ",   &m_Validation_MDT_ExSagRotZ,  "MDT_ExSagRotZ/D");
+      m_mdttree->Branch("MDT_SimRadius",   &m_Validation_MDT_SimRadius,  "MDT_SimRadius/D");
+      m_mdttree->Branch("MDT_SdoRadius",   &m_Validation_MDT_SdoRadius,  "MDT_SdoRadius/D");
+      m_mdttree->Branch("MDT_RotRadius",   &m_Validation_MDT_RotRadius,  "MDT_RotRadius/D");
+      m_mdttree->Branch("MDT_WireLen",     &m_Validation_MDT_WireLen,    "MDT_WireLen/D");
 
 
 
@@ -340,7 +340,7 @@ StatusCode MDTPRDValAlg::initialize()
       return sc;
     }
 
-    event_counter=0;
+    m_event_counter=0;
   
     *m_log << MSG::INFO << "MDTPRDValAlg:: Initialisation ended  " << endmsg;
     return StatusCode::SUCCESS;
@@ -835,7 +835,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
   m_Validation_MDT_RunNumber = numrun;
 
   /**Enter MDT hits loop, initialize the hits counter*/
-  counter_ValHitNumber =0 ;
+  m_counter_ValHitNumber =0 ;
   
   if( m_debug ) *m_log << MSG::DEBUG << " Event number: " <<  evt << endmsg;
   if( m_debug ) *m_log << MSG::DEBUG << "Looping over muons: " << muonMdtHitMap.size() << endmsg;
@@ -1085,12 +1085,12 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
       }
 
       // increase hit counter
-      ++counter_ValHitNumber;
+      ++m_counter_ValHitNumber;
       /**AANtuple variables
 	 Fill the AANtuple variables with a value obtained for each hit within the event
       */
       m_Validation_MDT_Type=1;
-      m_Validation_MDT_NumberOfHits=counter_ValHitNumber;
+      m_Validation_MDT_NumberOfHits=m_counter_ValHitNumber;
       m_Validation_MDT_EventNumber=evt;			
       m_Validation_MDT_pdg =  pdgcode;
 
@@ -1277,7 +1277,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 
 
       /**After proccessing each hit, dump the info in the tree*/  
-      mdttree->Fill();		
+      m_mdttree->Fill();		
       
     }
   }

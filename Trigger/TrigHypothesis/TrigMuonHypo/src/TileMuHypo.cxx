@@ -315,7 +315,7 @@ HLT::ErrorCode TileMuHypo::hltExecute(const HLT::TriggerElement* outputTE,
   m_hypoDelEtaTrkTR	= here_hypoDelEtaTrkTR;
   m_hypoDelPhiTrk	= here_hypoDelPhiTrk;
   m_hypoDelPhiTrkTR	= here_hypoDelPhiTrkTR;
-  m_hypo_absPtTrk_Pre	= here_hypo_absPtTrk_Pre;;
+  m_hypo_absPtTrk_Pre	= here_hypo_absPtTrk_Pre;
 
   pass = result;
   

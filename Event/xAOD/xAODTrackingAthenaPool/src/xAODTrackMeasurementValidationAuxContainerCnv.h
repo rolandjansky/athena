@@ -30,13 +30,11 @@ typedef T_AthenaPoolCustomCnv< xAOD::TrackMeasurementValidationAuxContainer,
 class xAODTrackMeasurementValidationAuxContainerCnv :
    public xAODTrackMeasurementValidationAuxContainerCnvBase {
 
-   // Declare the factory as our friend:
-   friend class CnvFactory< xAODTrackMeasurementValidationAuxContainerCnv >;
-
-protected:
+public:
    /// Converter constructor
    xAODTrackMeasurementValidationAuxContainerCnv( ISvcLocator* svcLoc );
 
+protected:
    /// Function preparing the container to be written out
    virtual xAOD::TrackMeasurementValidationAuxContainer*
    createPersistent( xAOD::TrackMeasurementValidationAuxContainer* trans );

@@ -80,6 +80,8 @@ else
             PP="$PP"'|Reading file'
             # ignore root collect key 
             PP="$PP"'|NewEventCollection.root, recovered'
+            # ignore new file catalog messages
+            PP="$PP"'|registerPFN'
 
             jobdiff=`basename ${joblog}`-todiff
             refdiff=`basename ${reflog}`-todiff

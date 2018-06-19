@@ -20,7 +20,6 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "PoolSvc/IPoolSvc.h"
 #include <string>
 
 // fwd declarations
@@ -55,9 +54,6 @@ class VP1EventProd: public AthAlgorithm,
   bool m_createDestinationDir;
   int m_maxProducedFiles;
   int m_nEvent; // Internal counter for the number of processed events
-
-  // service handle
-  ServiceHandle<IPoolSvc> m_poolSvc;
 };
 
 #endif

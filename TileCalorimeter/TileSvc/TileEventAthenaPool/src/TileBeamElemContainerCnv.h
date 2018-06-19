@@ -13,9 +13,10 @@ typedef TileBeamElemContainer_p1  TileBeamElemContainer_PERS;
 
 class TileBeamElemContainerCnv  : public T_AthenaPoolCustomCnv<TileBeamElemContainer, TileBeamElemContainer_PERS > {
   friend class CnvFactory<TileBeamElemContainerCnv>;
-protected:
+public:
   TileBeamElemContainerCnv(ISvcLocator* svcloc) :
         T_AthenaPoolCustomCnv<TileBeamElemContainer, TileBeamElemContainer_PERS >( svcloc) {}
+protected:
   TileBeamElemContainer_PERS*  createPersistent(TileBeamElemContainer* transCont);
   TileBeamElemContainer*       createTransient ();
 };

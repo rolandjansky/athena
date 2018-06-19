@@ -9,16 +9,14 @@
 // author R.Seuster <seuster@cern.ch>
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-#include "GaudiKernel/CnvFactory.h"
 
 template<class T, class P, class C>
 class LArRawEventContainerCnv : public T_AthenaPoolCustomCnv<T, P>
 {
-  friend class CnvFactory<LArRawEventContainerCnv<T, P, C> >;
-
- protected:
+public:
   LArRawEventContainerCnv(ISvcLocator* svcloc) : T_AthenaPoolCustomCnv<T, P>( svcloc) {}
   
+ protected:
   virtual P*  createPersistent(T* transCont);
   virtual T*  createTransient ();
   

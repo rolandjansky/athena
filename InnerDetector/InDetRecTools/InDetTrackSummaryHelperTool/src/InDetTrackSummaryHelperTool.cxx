@@ -100,6 +100,9 @@ StatusCode InDet::InDetTrackSummaryHelperTool::initialize()
          msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endmsg;
       }
    }
+   else {
+     m_assoTool.disable();
+   }
 
    if ( !m_pixeldedxtool.empty() && m_pixeldedxtool.retrieve().isFailure() ) {
       ATH_MSG_ERROR ("Failed to retrieve pixel dEdx tool " << m_pixeldedxtool);

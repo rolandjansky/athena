@@ -70,8 +70,6 @@ namespace InDet
 			ToolHandle <Trk::ITrackSummaryTool>         m_trackSumTool;    //!< Pointer to track summary tool
 			ToolHandle <Trk::IAlignModuleTool>          m_alignModuleTool; //!< Pointer to AlignmModuleTool
 
-			const InDetDD::TRT_DetectorManager * m_trtDetManager; //!< Pointer to trt detector manager
-
 			const TRT_ID * m_idHelper;
 
 			TFile * m_file;
@@ -217,8 +215,6 @@ namespace InDet
 			double * m_hit_derivy_bowy;    //!< derivatives of Y-residual wrt. rotation Y
 			double * m_hit_derivy_bowz;    //!< derivatives of Y-residual wrt. rotation Y
 
-			int m_totaltrks;
-			int m_totalhits;
 			int m_max_hits; //!< max number of hits on track stored in ntuple
 
 			bool m_storeDerivatives;

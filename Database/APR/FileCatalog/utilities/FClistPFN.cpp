@@ -2,33 +2,28 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: FClistPFN.cpp 778462 2016-10-14 12:29:52Z mnowak $
 /**FClistPFN.cpp -- FileCatalog command line tool to list the PFN entries from the catalog
    @author: Zhen Xie
    @author: Maria Girone
-   @date: 02/03/2005 Z.X.
-   set default logging to Warning if no POOL_OUTMSG_LEVEL is set; 
-   separate logging stream to std::cerr, output stream to std::cout.
 */
+
 #include "FileCatalog/CommandLine.h"
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/FCException.h"
-#include "FileCatalog/IFCAction.h"
-#include "FileCatalog/IFCContainer.h"
-#include "FileCatalog/FCSystemTools.h"
+#include "FileCatalog/URIParser.h"
 #include "POOLCore/Exception.h"
-#include "CoralBase/MessageStream.h"
-#include "CoralBase/MessageStream.h"
+#include "POOLCore/SystemTools.h"
 #include <memory>
 #include <vector>
 #include <string>
 #include <cstdlib>
+
 using namespace pool;
+
 void printUsage(){
-  std::cout<<"usage: FClistPFN [-l lfname -q query -u contactstring -m maxcache(default 1000) -t -h]" <<std::endl; 
+  std::cout<<"usage: FClistPFN [-l lfname] [-u contactstring] [-t -h]" <<std::endl; 
 }
 
-static const char* opts[] = {"t","l","q","u","m","h",0};
+static const char* opts[] = {"t","l","u","f","h",0};
 
 
 class contactParser{
@@ -58,10 +53,11 @@ private:
 
 int main(int argc, char** argv)
 {
+  SystemTools::initGaudi();
+  
   std::string  myuri;
   std::string  mylfn;
-  unsigned int maxcache=1000;
-  std::string query(""); 
+  std::string  myfid;
   bool printall=false;
   try{
     CommandLine commands(argc,argv);
@@ -70,13 +66,13 @@ int main(int argc, char** argv)
     if( commands.Exists("u") ){
       myuri=commands.GetByName("u");
     }else{
-      myuri=FCSystemTools::GetEnvStr("POOL_CATALOG");
+      myuri=SystemTools::GetEnvStr("POOL_CATALOG");
     }    
     if( commands.Exists("l") ){
       mylfn=commands.GetByName("l");
     }
-    if( commands.Exists("q") ){
-      query=commands.GetByName("q");
+    if( commands.Exists("f") ){
+      myfid=commands.GetByName("f");
     }
     if( commands.Exists("t") ){
       printall=true;
@@ -85,21 +81,18 @@ int main(int argc, char** argv)
       printUsage();
       exit(0);
     }
-    if( commands.Exists("m") ){
-      maxcache=atoi(commands.GetByName("m").c_str());
-   }
   }catch(std::string& strError){
     std::cerr << "Error: command parsing error "<<strError<<std::endl;
     exit(0);
   }
 
-  if(!query.empty()&&!mylfn.empty()){
-    std::cerr<< "Warning: list PFN by LFN..." <<std::endl;
-  }
   try{
     std::auto_ptr<IFileCatalog> mycatalog(new IFileCatalog);
-    if(myuri.empty()){
-      mycatalog->addReadCatalog(myuri);
+    if(myuri.empty()) {
+       // get default
+       pool::URIParser p;
+       p.parse();
+       mycatalog->addReadCatalog(p.contactstring());
     }else{
       contactParser parser(myuri);
       std::vector<std::string> uris;
@@ -108,36 +101,33 @@ int main(int argc, char** argv)
         mycatalog->addReadCatalog(*i);
       }
     }
-    FClookup l;
-    mycatalog->setAction(l);
     mycatalog->connect();
     mycatalog->start();
-    PFNContainer mypfns( mycatalog.get(), maxcache );
-    if( !mylfn.empty() ){
-      l.lookupPFNByLFN(mylfn,mypfns);
-    }else{
-      l.lookupPFNByQuery(query,mypfns);
-    }
-    while(mypfns.hasNext()){
-      PFNEntry pentry;
-      pentry=mypfns.Next();
-      std::string pf=pentry.pfname();
-      std::string filetype=pentry.filetype();
-      if(printall){
-        if(filetype.empty()){
-          std::cout<<pf<<"    NULL"<<std::endl;
-        }else{
-          std::cout<<pf<<"    "<<filetype<<std::endl;
-        }
-      }else{
-        std::cout<<pf<<std::endl;
-      }
+    pool::IFileCatalog::Strings fids;
+    if( !mylfn.empty() ) {
+       fids.push_back( mycatalog->lookupLFN( mylfn ) );
+    } else if( !myfid.empty() ) {
+       fids.push_back( myfid );
+    } else {
+       // go through all FIDs in the catalog
+       mycatalog->getFIDs( fids );
+    } 
+    for( const auto& fid: fids ) {
+       pool::IFileCatalog::Files files;
+       mycatalog->getPFNs( fid, files );
+       for( const auto& file: files ) {
+          std::string pf = file.first;
+          std::string filetype = (file.second.empty()? std::string("NULL") : file.second);
+          if( printall ) {
+             std::cout<<pf<<"    "<<filetype<<std::endl;
+          }else{
+             std::cout<<pf<<std::endl;
+          }
+       }
     }
     mycatalog->commit();  
     mycatalog->disconnect();
   }catch (const pool::Exception& er){
-    //er.printOut(std::cerr);
-    //std::cerr << std::endl;
     std::cerr<<er.what()<<std::endl;
     exit(1);
   }catch (const std::exception& er){

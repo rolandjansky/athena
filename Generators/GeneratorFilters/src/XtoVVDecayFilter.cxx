@@ -3,7 +3,6 @@
 */
 
 #include "GeneratorFilters/XtoVVDecayFilter.h"
-#include "GaudiKernel/AlgFactory.h"
 
 
 XtoVVDecayFilter::XtoVVDecayFilter(const std::string& name, ISvcLocator* pSvcLocator)

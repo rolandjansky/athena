@@ -311,7 +311,10 @@ loopOverConversions(std::vector<Trk::Track*> &v_usedTrks)
 
 	  if(!m_doElectronMon) continue;
 	  //Vertex cuts
-	  if(trkTag->vertex()->nTrackParticles() != 2) continue;
+	  //  the following statement (checking number of TrackParticles in the *primary* vertex of this track)
+	  //  appears to be a logic error; instead check the nnumber TrackParticles in the conversion vertex
+	  //if(trkTag->vertex()->nTrackParticles() != 2) continue;
+	  if (vertex->nTrackParticles() != 2) continue;
 	  if( chi2 >= 5 ) continue;
 	  if( r <= 40 ) continue;
 	  const xAOD::TrackParticle* trkProbe = *tpLinks.at((i+1) % 2);
@@ -526,8 +529,8 @@ bool
 TRT_Electron_Monitoring_Tool::
 muonQualityCuts(const xAOD::Muon *muon)
 {
-  const xAOD::TrackParticle* trkM = muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
   if(!muon) return false;
+  const xAOD::TrackParticle* trkM = muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
   if(!trkM) return false;
   uint8_t dummy(-1);
   int nTRT = trkM->summaryValue(  dummy , xAOD::numberOfTRTHits  )? dummy :-1;

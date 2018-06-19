@@ -25,8 +25,8 @@
 // Plottable adaptor for two Function1D's                                           //
 //                                                                                  //
 //----------------------------------------------------------------------------------//
-#ifndef _PLOTORBIT_H_
-#define _PLOTORBIT_H_
+#ifndef QATPLOTTING_PLOTORBIT_H
+#define QATPLOTTING_PLOTORBIT_H
 class AbsFunction;
 #include "QatPlotting/Plotable.h"
 #include "QatPlotting/PlotOrbitProperties.h"
@@ -82,7 +82,7 @@ public:
 protected:
 
   class Clockwork;
-  std::unique_ptr<Clockwork> c;
+  std::unique_ptr<Clockwork> m_c;
   
 
 };

@@ -36,7 +36,7 @@ class ReadAlignTrans: public AthAlgorithm
 
  private:
   IGeoModelSvc* p_geomodelsvc;
-  const InDetDD::SiDetectorManager* p_sidetman[2];
+  const InDetDD::SiDetectorManager* m_sidetman[2];
   std::vector<Identifier> m_identcache;
   std::vector<Amg::Vector3D> m_poscache;
 };

@@ -39,8 +39,8 @@ namespace SG {
 
     // If container does not exist, then create it in the store
     //   otherwise cache pointer to container    
-    if (m_store->contains< MetaCont<T> > (Gaudi::DataHandle::objKey())) {      
-      if (m_store->retrieve(m_cont, Gaudi::DataHandle::objKey()).isFailure()) {
+    if (m_store->contains< MetaCont<T> > (SG::VarHandleKey::key())) {
+      if (m_store->retrieve(m_cont, SG::VarHandleKey::key()).isFailure()) {
         MsgStream msg(Athena::getMessageSvc(), "MetaHandleKey");
         msg << MSG::ERROR 
             << "MetaHandleKey::init(): unable to retrieve MetaCont of "
@@ -49,8 +49,8 @@ namespace SG {
         return StatusCode::FAILURE;
       }
     } else {
-      m_cont = new MetaCont<T>(Gaudi::DataHandle::fullKey());
-      if (m_store->record(m_cont, Gaudi::DataHandle::objKey()).isFailure()) {
+      m_cont = new MetaCont<T>(SG::VarHandleKey::key());
+      if (m_store->record(m_cont, SG::VarHandleKey::key()).isFailure()) {
         MsgStream msg(Athena::getMessageSvc(), "MetaHandleKey");
         msg << MSG::ERROR 
             << "MetaHandleKey::init(): unable to record empty MetaCont of " 

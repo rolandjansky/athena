@@ -6,7 +6,7 @@
 
 
 from RecExConfig.AutoConfiguration import *
-from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.Logging import logging
 

@@ -22,7 +22,9 @@ class TrigMissingETContainerCnv : public TrigMissingETContainerCnvBase {
  
   protected:
    
+public:
   TrigMissingETContainerCnv( ISvcLocator *svcloc ) : TrigMissingETContainerCnvBase(svcloc) {}
+protected:
    
    virtual TrigMissingETContainer_PERS *createPersistent( TrigMissingETContainer *transObj);
    virtual TrigMissingETContainer      *createTransient();

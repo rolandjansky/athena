@@ -12,11 +12,9 @@
 #include "CollectionBase/ICollection.h"
 #include "CollectionBase/ICollectionMetadata.h"
 
-#include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/IFCAction.h"
-
 #include "CoralBase/MessageStream.h"
 #include "POOLCore/Exception.h"
+#include "POOLCore/SystemTools.h"
 
 #include "CollectionUtilities/Args2Container.h"
 #include "CollectionUtilities/SrcInfo.h"
@@ -26,11 +24,7 @@
 #include <xercesc/dom/DOM.hpp> 
 #include <xercesc/dom/DOMImplementation.hpp> 
 #include <xercesc/dom/DOMImplementationLS.hpp> 
-#if XERCES_VERSION_MAJOR < 3
-#include <xercesc/dom/DOMWriter.hpp>
-#else
 #include <xercesc/dom/DOMLSSerializer.hpp>
-#endif
 #include <xercesc/dom/DOMNode.hpp> 
 #include <xercesc/parsers/XercesDOMParser.hpp> 
  
@@ -50,7 +44,6 @@
 
 XERCES_CPP_NAMESPACE_USE 
 
-#include <iostream>
 using namespace std;
 using namespace pool;
 
@@ -58,7 +51,8 @@ int main(int argc, const char *argv[])
 {
    string thisProgram("CollListMetadata");
    string file("CollMetadata.xml");
-   
+   SystemTools::initGaudi();
+  
    try
    { 
       coral::MessageStream log( thisProgram );
@@ -194,33 +188,6 @@ int main(int argc, const char *argv[])
                      ++metit;
                   }
                }
-
-#if XERCES_VERSION_MAJOR < 3
-               // get a writer instance
-               DOMWriter         *theSerializer = ((DOMImplementationLS*)impl)->createDOMWriter();
-
-               if (theSerializer->canSetFeature(XMLUni::fgDOMWRTDiscardDefaultContent, true))
-                  theSerializer->setFeature(XMLUni::fgDOMWRTDiscardDefaultContent, true);
-
-               if (theSerializer->canSetFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true))
-                  theSerializer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
-
-               if (theSerializer->canSetFeature(XMLUni::fgDOMWRTBOM, true))
-                  theSerializer->setFeature(XMLUni::fgDOMWRTBOM, true);
-
-               // set a target as the file argument
-               //std::string file("CollMetadata.xml");
-               std::cout << "About to write summary file " << file << std::endl;
-               XMLFormatTarget* myFormTarget = new LocalFileFormatTarget(file.c_str());
-
-               // write document to target
-               theSerializer->writeNode(myFormTarget, *newDocument);
-
-               // clean up the mess
-               if (theSerializer!=NULL && theSerializer!=0) delete theSerializer;
-               if (myFormTarget!=NULL && myFormTarget!=0)   delete myFormTarget;
-               if (newDocument!=NULL && newDocument!=0)     delete newDocument;
-#else
                // get a writer instance
                DOMLSSerializer   *theSerializer = ((DOMImplementationLS*)impl)->createLSSerializer();
 
@@ -249,7 +216,6 @@ int main(int argc, const char *argv[])
                if (theOutput!=NULL) delete theOutput;
                if (myFormTarget!=NULL)   delete myFormTarget;
                if (newDocument!=NULL)     delete newDocument;
-#endif
             }
             catch (const SAXException& e) {
                std::cout << "xml error: " << e.getMessage( ) << "\n";

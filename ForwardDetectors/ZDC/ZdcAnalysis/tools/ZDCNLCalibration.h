@@ -214,7 +214,7 @@ private:
 
       for (size_t power = 0; power < calib.weights[module].size(); power++) {
 	energy += calib.weights[module][power]*ampPow;
-	ampPow *= amp;;
+	ampPow *= amp;
       }
     }
 

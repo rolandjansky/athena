@@ -30,10 +30,10 @@ class TestCoolRecRead : public AthAlgorithm
   std::vector<std::string> m_folders;
   std::vector<int> m_ftypes;
   std::vector<std::string> m_auxfiles;
-  bool par_checkmatch;
-  int par_delay;
-  int par_dumpchan;
-  std::string par_dumpfile;
+  bool m_par_checkmatch;
+  int m_par_delay;
+  int m_par_dumpchan;
+  std::string m_par_dumpfile;
 
   StoreGateSvc* p_detstore;
   std::vector<TestCoolRecFolder> m_folderlist;

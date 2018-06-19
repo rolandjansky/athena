@@ -8,9 +8,7 @@ atlas_subdir( AFP_RawEv )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
-			  Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+			  Control/AthenaKernel
                           Simulation/HitManagement
                           PRIVATE
                           Control/StoreGate

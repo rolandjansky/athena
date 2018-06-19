@@ -70,7 +70,7 @@ if l1caloRawMon:
         #dbpath = "/afs/cern.ch/user/l/l1ccalib/w0/DaemonData/reference/calibJuly.sqlite"
         #import os.path
         #if os.path.isfile(dbpath):
-        #from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
+        #from AthenaServices.AthenaServicesConf import MetaDataSvc
         #svcMgr += MetaDataSvc("MetaDataSvc")
         #svcMgr.IOVDbSvc.Folders += ["<dbConnection>sqlite://;schema=;dbname=L1CALO</dbConnection>/TRIGGER/L1Calo/V1/References/FineTimeReferences"]
                 

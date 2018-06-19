@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoModel/GeoPixelEnvelope.h"
@@ -75,7 +75,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   }
   const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoLogVol* envelopeLog = new GeoLogVol("Pixel",envelopeShape,air);
-  GeoFullPhysVol* envelopePhys = new GeoFullPhysVol(envelopeLog);;
+  GeoFullPhysVol* envelopePhys = new GeoFullPhysVol(envelopeLog);
 
   GeoPixelServices * pixServices = 0;
   if(m_gmt_mgr->DoServices() ) {

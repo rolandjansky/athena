@@ -9,10 +9,10 @@
 #include <string>
 #include "TrigHLTJetRec/TrigHLTEnergyDensity.h"
 #include "EventShapeTools/EventDensityTool.h"
-#include "TrigHLTJetRec/ITriggerPseudoJetGetter.h"
+#include "TrigHLTJetRec/ITriggerPseudoJetGetter2.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "TrigHLTJetRec/AnyToPseudoJet.h"
-#include "TrigHLTJetRec/ClusterToPseudoJetConverter.h"
+// #include "TrigHLTJetRec/AnyToPseudoJet.h"
+// #include "TrigHLTJetRec/ClusterToPseudoJetConverter.h"
 #include "xAODEventShape/EventShape.h"
 
 
@@ -48,11 +48,11 @@ StatusCode sc;
  if (sc.isSuccess()) {
    ATH_MSG_INFO("Retrieved  energyDensityTool "
                 <<  m_energyDensityTool -> name());
-  }else{
+ }else{
    ATH_MSG_ERROR("Unable to retrieve the energyDensityTool.");
    return HLT::ERROR;
  }
-
+ 
  if  (m_pseudoJetGetter.retrieve().isSuccess()){
    ATH_MSG_INFO("Retrieved  shared PseudoJetGetter "
                 <<  m_pseudoJetGetter->name());
@@ -61,16 +61,17 @@ StatusCode sc;
    return HLT::ERROR;
  }
  
-  ATH_MSG_INFO("Tool retrieval completed.");
+ 
+ ATH_MSG_INFO("Tool retrieval completed.");
   
-  ATH_MSG_INFO("    " << m_energyDensityTool->name());
-  m_energyDensityTool->print();
-  
-  ATH_MSG_INFO("  Shared PseudoJetGetter:");
-  ATH_MSG_INFO("    " << m_pseudoJetGetter->name());
-  
-  ATH_MSG_INFO("  EventShape storegate key: " << m_eventShapeSGKey);
-  return HLT::OK;
+ ATH_MSG_INFO("    " << m_energyDensityTool->name());
+ m_energyDensityTool->print();
+ 
+ ATH_MSG_INFO("  Shared PseudoJetGetter:");
+ ATH_MSG_INFO("    " << m_pseudoJetGetter->name());
+
+ ATH_MSG_INFO("  EventShape storegate key: " << m_eventShapeSGKey);
+ return HLT::OK;
 }
 
 
@@ -110,25 +111,25 @@ TrigHLTEnergyDensity::hltExecute(const HLT::TriggerElement* inputTE,
   
   ATH_MSG_DEBUG("Number of incoming clusters: " << clusterContainer->size());
   
-  jet::LabelIndex* indexMap = new jet::LabelIndex("PseudoJetLabelMapTrigger");
-  indexMap->addLabel("Topo");
-  // setup CaloCluster to PseudoJet convertor
-  AnyToPseudoJet<const xAOD::CaloCluster*> ctpj(indexMap);
-  jet::PseudoJetVector pjv;
+  // jet::LabelIndex* indexMap = new jet::LabelIndex("PseudoJetLabelMapTrigger");
+  // indexMap->addLabel("Topo");
+  //// setup CaloCluster to PseudoJet convertor
+  // AnyToPseudoJet<const xAOD::CaloCluster*> ctpj(indexMap);
+  // jet::PseudoJetVector pjv;
 
-  auto status = this -> getPseudoJets(clusterContainer, indexMap, pjv);
-  if (status == HLT::OK) {
-    ATH_MSG_DEBUG("Obtained pseudojets");
-  } else {
-    ATH_MSG_ERROR("Failed to get pseudojets ");
-    return status;
-  }
+  // auto status = this -> getPseudoJets(clusterContainer, indexMap, pjv);
+  // if (status == HLT::OK) {
+  //  ATH_MSG_DEBUG("Obtained pseudojets");
+  // } else {
+  //  ATH_MSG_ERROR("Failed to get pseudojets ");
+  //   return status;
+  // }
 
-  ATH_MSG_DEBUG("No of pseudojets: " << pjv.size());
-  // Load the pseudo jets into the TriggerSPseudoJetGetter tool
+  // ATH_MSG_DEBUG("No of pseudojets: " << pjv.size());
+  // // Load the pseudo jets into the TriggerSPseudoJetGetter tool
   // Despite the name, we push the pseudojets into the tool. This is
   // in contrast to offline PseudoJetGetters which fetch the pseudojets.
-  m_pseudoJetGetter->prime(&pjv);  
+  m_pseudoJetGetter->prime(clusterContainer);  
   m_pseudoJetGetter->print();
   
   ATH_MSG_DEBUG("Executing tool " << m_energyDensityTool->name());
@@ -159,42 +160,42 @@ TrigHLTEnergyDensity::hltExecute(const HLT::TriggerElement* inputTE,
  m_energyDensity = energyDensity; //  double -> float
  ATH_MSG_DEBUG("EventDensity " << m_energyDensity);
  
-  delete indexMap;
+ // delete indexMap;
   
   return HLT::OK;
 }
 
 
-HLT::ErrorCode 
-TrigHLTEnergyDensity::getPseudoJets(const xAOD::CaloClusterContainer* ic,
-                                    jet::LabelIndex* indexMap,
-                                    jet::PseudoJetVector& pjv){
+// HLT::ErrorCode 
+// TrigHLTEnergyDensity::getPseudoJets(const xAOD::CaloClusterContainer* ic,
+//                                     jet::LabelIndex* indexMap,
+//                                     jet::PseudoJetVector& pjv){
 
-  // convert elements of DataVector<CaloCluster> to pseudojets
-  // after switching the state of the CaloCluster objects to
-  // the calibration determined by clusterCalib, which is
-  // set when the Algorithm is configured.
-
-  auto uncalibrated = m_clusterCalib == "EM" ? true : false;
-
-  indexMap->addLabel(m_clusterCalib + "Topo");
-  AnyToPseudoJet<xAOD::CaloClusterContainer::const_value_type> apj(indexMap);
-  
-  ClusterToPseudoJetConverter converter(apj, uncalibrated);
-
+//   // convert elements of DataVector<CaloCluster> to pseudojets
+//   // after switching the state of the CaloCluster objects to
+//   // the calibration determined by clusterCalib, which is
+//   // set when the Algorithm is configured.
+// 
+//   auto uncalibrated = m_clusterCalib == "EM" ? true : false;
+// 
+//   indexMap->addLabel(m_clusterCalib + "Topo");
+//   AnyToPseudoJet<xAOD::CaloClusterContainer::const_value_type> apj(indexMap);
+//   
+//   ClusterToPseudoJetConverter converter(apj, uncalibrated);
+// 
   // create the pseudojets
-  std::transform(ic->cbegin(),
-                 ic->cend(),
-                 std::back_inserter(pjv),
-                 converter);
+//   std::transform(ic->cbegin(),
+//                  ic->cend(),
+//                  std::back_inserter(pjv),
+//                  converter);
 
-  ATH_MSG_DEBUG("No of pseudojets: " << pjv.size());
-  for(auto ps : pjv) {ATH_MSG_VERBOSE("PseudoJetDump " << ps.Et() << " "
-                                      << std::boolalpha
-                                      << uncalibrated << " "
-                                      << m_clusterCalib);}
-
-  return HLT::OK;
-}
+//   ATH_MSG_DEBUG("No of pseudojets: " << pjv.size());
+//   for(auto ps : pjv) {ATH_MSG_VERBOSE("PseudoJetDump " << ps.Et() << " "
+//                                       << std::boolalpha
+//                                       << uncalibrated << " "
+//                                       << m_clusterCalib);}
+// 
+//   return HLT::OK;
+// }
 
 

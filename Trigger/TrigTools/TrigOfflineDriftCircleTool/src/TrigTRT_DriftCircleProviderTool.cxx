@@ -119,7 +119,7 @@ StatusCode TrigTRT_DriftCircleProviderTool::initialize()
 //-------------------------------------------------------------------------
 
 StatusCode TrigTRT_DriftCircleProviderTool::fillCollections(const IRoiDescriptor &roi)
-{ //std::cout<<" in TrigTRT_DriftCircleProviderTool::convertBStoDCColl "<<std::endl;;
+{ //std::cout<<" in TrigTRT_DriftCircleProviderTool::convertBStoDCColl "<<std::endl;
 
   m_time_regsel  = 0.0;
   m_time_robprov = 0.0;
@@ -229,7 +229,7 @@ StatusCode TrigTRT_DriftCircleProviderTool::fillCollections(const IRoiDescriptor
 //-------------------------------------------------------------------------
 
 StatusCode TrigTRT_DriftCircleProviderTool::fillCollections(std::vector<IdentifierHash> listOfTRTIds,std::vector<const ROBF*> v)
-{ //std::cout<<" in TrigTRT_DriftCircleProviderTool::convertBStoDCColl "<<std::endl;;
+{ //std::cout<<" in TrigTRT_DriftCircleProviderTool::convertBStoDCColl "<<std::endl;
 
   m_time_regsel  = 0.0;
   m_time_robprov = 0.0;

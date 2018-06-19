@@ -36,13 +36,11 @@ typedef T_AthenaPoolCustomCnv< xAOD::BTaggingAuxContainer,
 class xAODBTaggingAuxContainerCnv :
    public xAODBTaggingAuxContainerCnvBase {
 
-   // Declare the factory as our friend:
-   friend class CnvFactory< xAODBTaggingAuxContainerCnv >;
-
-protected:
-   /// Converter constructor
+public:
+  /// Converter constructor
    xAODBTaggingAuxContainerCnv( ISvcLocator* svcLoc );
 
+protected:
    /// Function preparing the container to be written out
    virtual xAOD::BTaggingAuxContainer*
    createPersistent( xAOD::BTaggingAuxContainer* trans );

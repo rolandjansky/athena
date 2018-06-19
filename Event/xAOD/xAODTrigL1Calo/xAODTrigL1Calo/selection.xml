@@ -150,18 +150,9 @@
   <!-- Moving onto Run2 EDM -->
     
   <!--   TriggerTower -->
-  <class name="xAOD::TriggerTower_v2" >
-    <field name="m_p4" transient="true"/>
-    <field name="m_p4Cached" transient="true"/>
-  </class>
+  <class name="xAOD::TriggerTower_v2" />
   <class name="xAOD::TriggerTowerContainer_v2"
          id="730DE7B8-C24A-4567-A66D-0386DC50E9AC" />
-  <read sourceClass="xAOD::TriggerTower_v2" version="[2-]"
-        targetClass="xAOD::TriggerTower_v2" source="" target="m_p4Cached" >
-    <![CDATA[
-       m_p4Cached = false;
-     ]]>
-  </read>
   <class name="xAOD::TriggerTowerAuxContainer_v2"
          id="07FF691A-A920-43B2-A4E7-637D335E6929" />  
   

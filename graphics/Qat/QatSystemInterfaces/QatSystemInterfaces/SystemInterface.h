@@ -129,7 +129,7 @@ class DASystem : public QObject{
   DASystem & operator=(const DASystem &);
 
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
   
 };
 

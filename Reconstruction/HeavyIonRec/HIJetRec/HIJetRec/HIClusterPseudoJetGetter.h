@@ -19,7 +19,7 @@ class HIClusterPseudoJetGetter : public PseudoJetGetter {
 public:
   HIClusterPseudoJetGetter(const std::string &name);
 
-  virtual int appendTo(PseudoJetVector& psjs, const LabelIndex* pli) const;
+  // virtual int appendTo(PseudoJetVector& psjs, const LabelIndex* pli) const;
 
 };
 

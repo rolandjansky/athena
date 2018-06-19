@@ -19,7 +19,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigAnalysis/TrigObjectMatching
                           Trigger/TrigEvent/TrigSteeringEvent
                           PRIVATE
-                          Control/SGTools
                           Control/StoreGate
                           Event/xAOD/xAODTrigger
                           PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
@@ -43,12 +42,12 @@ atlas_add_library( TriggerD3PDMakerLib
                    PUBLIC_HEADERS TriggerD3PDMaker
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils EventKernel FourMomUtils GaudiKernel D3PDMakerUtils TrigSteeringEvent TrigDecisionToolLib TrigObjectMatchingLib StoreGateLib SGtests TriggerMenuAnalysisLib TrigConfigSvcLib
-                   PRIVATE_LINK_LIBRARIES SGTools xAODTrigger AnalysisTriggerEvent TriggerMenuNtuple TrigConfHLTData TrigConfL1Data TrigMonitoringEvent TrigT1Interfaces TrigT1Result )
+                   PRIVATE_LINK_LIBRARIES xAODTrigger AnalysisTriggerEvent TriggerMenuNtuple TrigConfHLTData TrigConfL1Data TrigMonitoringEvent TrigT1Interfaces TrigT1Result )
 
 atlas_add_component( TriggerD3PDMaker
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils EventKernel FourMomUtils GaudiKernel D3PDMakerUtils TrigDecisionToolLib TrigObjectMatchingLib TrigSteeringEvent SGTools StoreGateLib SGtests xAODTrigger AnalysisTriggerEvent TriggerMenuAnalysisLib TriggerMenuNtuple TrigConfHLTData TrigConfL1Data TrigConfigSvcLib TrigMonitoringEvent TrigT1Interfaces TrigT1Result TriggerD3PDMakerLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils EventKernel FourMomUtils GaudiKernel D3PDMakerUtils TrigDecisionToolLib TrigObjectMatchingLib TrigSteeringEvent StoreGateLib SGtests xAODTrigger AnalysisTriggerEvent TriggerMenuAnalysisLib TriggerMenuNtuple TrigConfHLTData TrigConfL1Data TrigConfigSvcLib TrigMonitoringEvent TrigT1Interfaces TrigT1Result TriggerD3PDMakerLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -77,7 +77,7 @@ StatusCode xAOD2NtupLumiSvc::finish(){
     }
    }
    
-   if( evt.finishWritingTo( outFile ).isFailure() ) return StatusCode::FAILURE;;
+   if( evt.finishWritingTo( outFile ).isFailure() ) return StatusCode::FAILURE;
    
    TTree* metatree = dynamic_cast<TTree*>(outFile->Get("MetaData"))->CloneTree(); 
    metatree->SetDirectory(0);

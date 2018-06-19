@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoModel/GeoPixelLadder.h"
@@ -57,7 +57,7 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
   
   const GeoShape * ladderShape = 0;
 
-  // If upper and lower thicknesses area within 100 um. Make them the same.
+  // If upper and lower thicknesses are within 100 um. Make them the same.
   if (std::abs(m_thicknessP - m_thicknessN) < 0.1*CLHEP::mm) {
     m_thicknessP = std::max(m_thicknessP,m_thicknessN); 
     m_thicknessN = m_thicknessP;
@@ -106,7 +106,7 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
       m_gmt_mgr->msg(MSG::ERROR)<<"No ladder shape could be defined "<<endmsg;      
     }
 
-  if(ladderShape==0)
+  if(not ladderShape)
   { 
      m_gmt_mgr->msg(MSG::ERROR)<<"No ladder shape could be defined in "<<__FILE__<<endmsg;
      exit(EXIT_FAILURE);

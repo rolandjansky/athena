@@ -36,8 +36,8 @@ public:
   {
     m_suppressed.insert (auxid);
     m_selected = getAuxIDs();
-    for (SG::auxid_t auxid : m_suppressed)
-      m_selected.erase (auxid);
+    for (SG::auxid_t supid : m_suppressed)
+      m_selected.erase (supid);
   }
 
   virtual const SG::auxid_set_t& getSelectedAuxIDs() const

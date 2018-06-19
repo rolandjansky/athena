@@ -9,7 +9,7 @@
 #ifndef PIXELCLUSTERERRORDATA_H
 #define PIXELCLUSTERERRORDATA_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <string>
 #include <vector>
 

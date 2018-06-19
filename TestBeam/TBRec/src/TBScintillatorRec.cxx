@@ -12,7 +12,6 @@
 #include "TBEvent/TBScintillatorCont.h"
 #include "TBEvent/TBScintillatorRawCont.h"
 
-//#include "GaudiKernel/AlgFactory.h"
 // static const AlgFactory<TBScintillatorRec> s_factory;
 // const IAlgFactory& TBScintillatorRecFactory = s_factory;
 

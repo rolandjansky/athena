@@ -40,7 +40,9 @@ class Lvl1ResultCnv : public Lvl1ResultCnvBase {
 
  protected:
 
+public:
   Lvl1ResultCnv (ISvcLocator* svcloc);
+protected:
 
   ~Lvl1ResultCnv();
 

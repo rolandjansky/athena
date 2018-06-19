@@ -32,8 +32,9 @@
 //  based on Barton & Nackman's "Scientific and Engineering C++"            //
 //                                                                          //
 // -------------------------------------------------------------------------//
-#ifndef _QUERY_H_
-#define _QUERY_H_
+#ifndef QATDATAANALYSIS_QUERY_H
+#define QATDATAANALYSIS_QUERY_H
+
 template <class T> 
 class Query {
   
@@ -53,8 +54,8 @@ public:
 
 private:
   
-  bool _failed;
-  T    _instance;
+  bool m_failed;
+  T    m_instance;
 
 };
 #include "QatDataAnalysis/Query.icc"

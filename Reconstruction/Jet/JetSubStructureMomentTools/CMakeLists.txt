@@ -20,6 +20,7 @@ atlas_depends_on_subdirs(
   Reconstruction/Jet/JetInterface
   Reconstruction/Jet/JetRec
   PRIVATE
+  Control/CxxUtils
   Event/xAOD/xAODMuon
   Reconstruction/Jet/JetEDM
   Reconstruction/Jet/JetSubStructureUtils
@@ -43,7 +44,7 @@ atlas_add_library( JetSubStructureMomentToolsLib
    PUBLIC_HEADERS JetSubStructureMomentTools
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS}
    LINK_LIBRARIES AsgTools xAODCaloEvent xAODJet JetInterface JetRecLib
-   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} xAODMuon
+   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} xAODMuon CxxUtils
    JetEDM JetSubStructureUtils ${extra_libs} )
 
 if( NOT XAOD_STANDALONE )

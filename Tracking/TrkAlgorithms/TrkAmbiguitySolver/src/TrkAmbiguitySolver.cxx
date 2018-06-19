@@ -31,9 +31,10 @@ Trk::TrkAmbiguitySolver::initialize()
 {
   ATH_MSG_INFO( "TrkAmbiguitySolver::initialize(). " );
 
-  if (!m_resolveTracks)
+  if (!m_resolveTracks) {
     ATH_MSG_INFO( "ATTENTION: Resolving tracks turned off! " );
-  else {
+    m_ambiTool.disable();
+  } else {
     // Get Tools sevices
     if (m_ambiTool.retrieve().isFailure()) {
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_ambiTool << endmsg;

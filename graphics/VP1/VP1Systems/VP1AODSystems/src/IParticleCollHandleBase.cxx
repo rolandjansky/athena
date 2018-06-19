@@ -69,7 +69,7 @@ public:
 IParticleCollHandleBase::IParticleCollHandleBase( AODSysCommonData * cd,
 const QString& name,
 xAOD::Type::ObjectType type)
-  : AODCollHandleBase(cd,name,type), d(new Imp), // Need to add back ObjectType once simple way to create string is added to xAODBase
+  : AODCollHandleBase(cd,name,type), m_d(new Imp), // Need to add back ObjectType once simple way to create string is added to xAODBase
   m_cut_allowedPtSq(VP1Interval()),
   m_cut_allowedEta(VP1Interval()),
   m_cut_allowedPhi(QList<VP1Interval>()),
@@ -78,7 +78,7 @@ xAOD::Type::ObjectType type)
   m_cut_phi_allowall(false),
   m_cut_etaptphi_allwillfail(true)
 {
-  d->theclass = this;
+  m_d->theclass = this;
 }
 
 //____________________________________________________________________
@@ -86,22 +86,22 @@ IParticleCollHandleBase::~IParticleCollHandleBase()
 {
   messageVerbose("destructor start");
   
-  d->handles.clear();
+  m_d->handles.clear();
   
   // clean the QList<handle>
-  foreach(AODHandleBase* handle, d->handlesList) {
+  foreach(AODHandleBase* handle, m_d->handlesList) {
     delete handle;
   }
   
   // delete the Imp instance
-  delete d;
+  delete m_d;
   messageVerbose("destructor end");
 }
 
 //____________________________________________________________________
 void IParticleCollHandleBase::hintNumberOfHandlesInEvent(unsigned n)
 {
-  d->handles.reserve(n);
+  m_d->handles.reserve(n);
 }
 
 //____________________________________________________________________
@@ -112,31 +112,31 @@ void IParticleCollHandleBase::addHandle(AODHandleBase* ah)
     message("ERROR - wrong handle type passed to IParticleCollHandleBase::addHandle!");
     return;
   }
-  d->handles.push_back(handle); // for the vector<handle>
-  d->handlesList << handle; // for the QList<handle>
+  m_d->handles.push_back(handle); // for the vector<handle>
+  m_d->handlesList << handle; // for the QList<handle>
 }
 
 //____________________________________________________________________
 void IParticleCollHandleBase::handleIterationBegin()
 {
-  d->itHandles = d->handles.begin();
-  d->itHandlesEnd = d->handles.end();
+  m_d->itHandles = m_d->handles.begin();
+  m_d->itHandlesEnd = m_d->handles.end();
 }
 
 //____________________________________________________________________
 AODHandleBase* IParticleCollHandleBase::getNextHandle() {
-  if (d->itHandles==d->itHandlesEnd)
-  // if (d->itHandles==d->itHandlesEnd || d->itHandles!=d->handles.begin()) // Only use first handle (for debugging)
+  if (m_d->itHandles==m_d->itHandlesEnd)
+  // if (m_d->itHandles==m_d->itHandlesEnd || m_d->itHandles!=m_d->handles.begin()) // Only use first handle (for debugging)
     return 0;
   else
-    return *(d->itHandles++);
+    return *(m_d->itHandles++);
 }
 
 //____________________________________________________________________
 QList<AODHandleBase*> IParticleCollHandleBase::getHandlesList() const
 {
   messageVerbose("AODCollHandleBase::getHandlesList()");
-  return d->handlesList;
+  return m_d->handlesList;
 }
 
 //____________________________________________________________________
@@ -314,7 +314,7 @@ void IParticleCollHandleBase::setState(const QByteArray&state)
   bool vis = des.restoreBool();
 
   QByteArray matState = des.restoreByteArray();
-  // d->matButton->restoreFromState(matState);
+  // m_d->matButton->restoreFromState(matState);
   QByteArray extraWidgetState = des.version()>=1 ? des.restoreByteArray() : QByteArray();
   setVisible(vis);
 
@@ -327,7 +327,7 @@ QByteArray IParticleCollHandleBase::persistifiableState() const
 {
   messageDebug("IParticleCollHandleBase::persistifiableState() - start...");
 
-  // if (!d->matButton) {
+  // if (!m_d->matButton) {
   //   message("ERROR: persistifiableState() called before init()");
   //   return QByteArray();
   // }
@@ -338,8 +338,8 @@ QByteArray IParticleCollHandleBase::persistifiableState() const
   serialise.save(visible());
 
   // SAVE THE MATERIAL BUTTON
-  // Q_ASSERT(d->matButton&&"Did you forget to call init() on this VP1StdCollection?");
-  // serialise.save(d->matButton->saveState());
+  // Q_ASSERT(m_d->matButton&&"Did you forget to call init() on this VP1StdCollection?");
+  // serialise.save(m_d->matButton->saveState());
 
   // SAVE THE EXTRA-STATES
   serialise.save(extraWidgetsState());//version 1+

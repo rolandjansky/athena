@@ -18,6 +18,7 @@
 #include "xAODEgamma/Electron.h"
  
 #include "EgammaAnalysisInterfaces/IAsgForwardElectronIsEMSelector.h"
+#include "PATCore/AcceptData.h"
 
 #include <algorithm> 
 #include <math.h>
@@ -217,11 +218,11 @@ StatusCode egammaForwardBuilder::execute()
     size_t size = m_forwardelectronIsEMselectors.size();
     
     for (size_t i = 0; i<size;++i) {
-      const Root::TAccept& accept = m_forwardelectronIsEMselectors[i]->accept(el);
+      asg::AcceptData accept = m_forwardelectronIsEMselectors[i]->accept(el);
       //save the bool result
       el->setPassSelection(static_cast<bool>(accept), m_forwardelectronIsEMselectorResultNames[i]);
       //save the isem
-      el->setSelectionisEM(m_forwardelectronIsEMselectors[i]->IsemValue(), "isEM"+m_forwardelectronIsEMselectorResultNames[i]);
+      el->setSelectionisEM(accept.getCutResultInverted(), "isEM"+m_forwardelectronIsEMselectorResultNames[i]);
       
     }
   }

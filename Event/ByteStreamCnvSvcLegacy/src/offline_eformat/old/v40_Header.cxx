@@ -32,8 +32,10 @@ offline_eformat::v40::Header::~Header()
 }
 
 offline_eformat::v40::Header& offline_eformat::v40::Header::operator= (const offline_eformat::v40::Header& other)
-{ 
-  m_top = other.m_top; 
+{
+  if (this != &other) {
+    m_top = other.m_top;
+  }
   return *this; 
 }
 

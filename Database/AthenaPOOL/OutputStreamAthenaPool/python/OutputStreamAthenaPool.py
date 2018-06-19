@@ -9,12 +9,11 @@
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaServices.AthenaServicesConf import AthenaOutputStream
-from OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
+from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
 
 def createOutputStream( streamName, fileName = "", asAlg = False, noTag = True ):
    # define athena output stream
-   writingTool = AthenaPoolOutputStreamTool( streamName + "Tool" )
-   writingTool.DataHeaderSatellites = [ "basic/:EventInfo#*" ]
+   writingTool = AthenaOutputStreamTool( streamName + "Tool" )
    outputStream = AthenaOutputStream(
       streamName,
       WritingTool = writingTool,
@@ -55,6 +54,25 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = True )
       streamInfoTool = MakeEventStreamInfo( streamName + "_MakeEventStreamInfo" )
       streamInfoTool.Key = streamName
       outputStream.HelperTools = [ streamInfoTool ]
+
+   # Set the list of transient items based on what we know is in the transient
+   # store.  The output algorithm will then declare input dependencies
+   # for objects which are both listed here and in the ItemList.
+   # (We do it like this because ItemList is typically configured to include
+   # everything which might possibly be output.  If this gets cleaned up,
+   # then we can remove this.)
+   # Some builds don't include RecExConfig, so don't crash in that case.
+   # FIXME: Rather than using ObjKeyStore, we could scan all algorithms
+   # and look for write handles.
+   try:
+      tlist = []
+      from RecExConfig.ObjKeyStore import objKeyStore
+      for typ, klist in objKeyStore['transient'].getProperties().items():
+         for k in klist:
+            tlist.append (typ + '#' + k)
+      outputStream.TransientItems += tlist
+   except ImportError:
+      pass
 
    return outputStream
 

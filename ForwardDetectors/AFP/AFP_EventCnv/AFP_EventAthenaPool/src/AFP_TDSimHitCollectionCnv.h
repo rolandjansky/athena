@@ -18,7 +18,9 @@ class AFP_TDSimHitCollectionCnv : public T_AthenaPoolCustomCnv <AFP_TDSimHitColl
 	friend class CnvFactory<AFP_TDSimHitCollectionCnv>;
 
 protected:
+public:
 	AFP_TDSimHitCollectionCnv(ISvcLocator* svcloc) : T_AthenaPoolCustomCnv <AFP_TDSimHitCollection, AFP_TDSimHitCollection_PERS >(svcloc) {}
+protected:
 
 	AFP_TDSimHitCollection_PERS* createPersistent (AFP_TDSimHitCollection *transCont);
 	AFP_TDSimHitCollection* createTransient ();

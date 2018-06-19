@@ -7,11 +7,11 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigInterfaces/FexAlgo.h"
-#include "JetEDM/LabelIndex.h"
-#include "JetEDM/PseudoJetVector.h"
+// #include "JetEDM/LabelIndex.h"
+// #include "JetEDM/PseudoJetVector.h"
 
 class IEventShapeTool;
-class ITriggerPseudoJetGetter;
+class ITriggerPseudoJetGetter2;
 
 class TrigHLTEnergyDensity: public HLT::FexAlgo {
 
@@ -31,7 +31,7 @@ private:
 
   /* A PseudojetGetter shared by this algorithm and the IEventShapeTool
      The algorithm loads the psg, the iest processes them. */
-  ToolHandle<ITriggerPseudoJetGetter>  m_pseudoJetGetter;
+  ToolHandle<ITriggerPseudoJetGetter2>  m_pseudoJetGetter;
 
   // allow fetching and monitoring of the energy density calculated
   // by the tool.
@@ -45,9 +45,9 @@ private:
 
   float m_energyDensity;  // allow monitoring.
 
-  HLT::ErrorCode getPseudoJets(const xAOD::CaloClusterContainer*,
-                               jet::LabelIndex*,
-                               jet::PseudoJetVector&);
+  // HLT::ErrorCode getPseudoJets(const xAOD::CaloClusterContainer*,
+  //                              jet::LabelIndex*,
+  //                              jet::PseudoJetVector&);
 
 }; 
 #endif

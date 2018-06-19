@@ -182,7 +182,7 @@ namespace Trig {
       typedef const typename LINK::value_type* ptr_type;
       static ptr_type get_ptr(const LINK& link){return link.cptr();}
       static void do_it(const LINK& link, bool /*do_flatten*/){
-	//std::cout << "container at" << link.cptr() << " has size " << link.cptr()->size() << std::endl;;
+	//std::cout << "container at" << link.cptr() << " has size " << link.cptr()->size() << std::endl;
 	for(unsigned int j=0;j<link.cptr()->size();++j){
 	  //std::cout << "  ----element " << j << ": " << link.cptr()->at(j) << std::endl;
 	}

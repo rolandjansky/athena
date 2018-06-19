@@ -10,7 +10,7 @@
   #ifndef CMXCPTob_H
   #define CMXCPTob_H
   
-  #include "CLIDSvc/CLASS_DEF.h"
+  #include "AthenaKernel/CLASS_DEF.h"
 
 
   #include <iostream>

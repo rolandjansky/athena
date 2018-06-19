@@ -51,6 +51,7 @@ public:
   ReadHandleKey (const std::string& key = "",
                  const std::string& storeName = StoreID::storeName(StoreID::EVENT_STORE));
 
+
   /**
    * @brief auto-declaring Property Constructor.
    * @param name name of the Property
@@ -64,15 +65,12 @@ public:
    */
   template <class OWNER, class K,
             typename = typename std::enable_if<std::is_base_of<IProperty, OWNER>::value>::type>
-  inline ReadHandleKey( OWNER* owner,
-                        std::string name,
-                        const K& key={},
-                        std::string doc="") :
-    ReadHandleKey<T>( key ) {
-    auto p = owner->declareProperty(std::move(name), *this, std::move(doc));
-    p->template setOwnerType<OWNER>();
-  }
-      
+  ReadHandleKey( OWNER* owner,
+                 const std::string& name,
+                 const K& key = {},
+                 const std::string& doc = "");
+
+  
   /**
    * @brief Change the key of the object to which we're referring.
    * @param sgkey The StoreGate key for the object.
@@ -82,6 +80,21 @@ public:
    * the store is not changed.
    */
   ReadHandleKey& operator= (const std::string& sgkey);
+
+
+protected:
+  /**
+   * @brief Constructor with explicit CLID.
+   * @param clid The CLID for the referenced object.
+   * @param key The StoreGate key for the object.
+   * @param storeName Name to use for the store, if it's not encoded in sgkey.
+   *
+   * This is meant to be used by @c ReadDecorHandleKey, to allow fixing the
+   * CLID to a base class to avoid scheduler issues.
+   */
+  ReadHandleKey (CLID clid,
+                 const std::string& key,
+                 const std::string& storeName);
 };
 
 

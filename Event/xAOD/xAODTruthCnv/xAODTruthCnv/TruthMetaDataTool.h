@@ -13,7 +13,7 @@
 // Gaudi/Athena include(s):
 #include "AsgTools/AsgMetadataTool.h"
 #ifdef ASGTOOL_ATHENA
-#   include "AthenaPoolKernel/IMetaDataTool.h"
+#   include "AthenaKernel/IMetaDataTool.h"
 #endif // ASGTOOL_ATHENA
 
 // EDM include(s):
@@ -50,6 +50,8 @@ namespace xAODMaker {
       /// Function collecting the configuration metadata from the input
       /// file
       virtual StatusCode beginInputFile();
+
+      virtual StatusCode endInputFile();
 
       /// Function writing out the collected metadata
       virtual StatusCode metaDataStop();

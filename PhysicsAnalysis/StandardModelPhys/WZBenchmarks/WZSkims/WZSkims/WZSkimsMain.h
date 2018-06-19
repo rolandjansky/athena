@@ -86,8 +86,8 @@ class WZSkimsMain:public AthFilterAlgorithm {
    /** a handle on Store Gate for access to the Event Store */
    StoreGateSvc* m_storeGate;
    
-   long n_events;
-   long n_good_events;
+   long m_n_events;
+   long m_n_good_events;
    
    bool m_doSkim;
 

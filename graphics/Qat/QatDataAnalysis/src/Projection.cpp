@@ -34,19 +34,19 @@ public:
   
   // Constructor:
   ProjectionStore(TupleStoreConstLink StoreA, AttributeListConstLink BList, const std::vector<int> & Dist):
-    opA(StoreA),bList(BList),ssize(-1),dist(Dist){
+    m_opA(StoreA),m_bList(BList),m_ssize(-1),m_dist(Dist){
 
   }
 
   // For input:
   virtual TupleConstLink operator [](size_t i) const {
 
-    TupleConstLink t = ((*opA)[i]);
+    TupleConstLink t = ((*m_opA)[i]);
     if (!t) return NULL;
     
-    TupleLink xt = new Tuple(bList);
-    for (unsigned int i=0;i<dist.size();i++) {
-      xt->valueList().add(t->valueList()[dist[i]]);
+    TupleLink xt = new Tuple(m_bList);
+    for (unsigned int i=0;i<m_dist.size();i++) {
+      xt->valueList().add(t->valueList()[m_dist[i]]);
     }
     return xt;
   }
@@ -54,10 +54,10 @@ public:
   // Get the size:
   virtual size_t size() const {
     
-    if (ssize<0) {
-      ssize=opA->size();
+    if (m_ssize<0) {
+      m_ssize=m_opA->size();
     }
-    return ssize;
+    return m_ssize;
   }
 
 private:
@@ -66,10 +66,10 @@ private:
   virtual ~ProjectionStore() {
   }
 
-  TupleStoreConstLink           opA;
-  AttributeListConstLink        bList;
-  mutable int                   ssize;
-  std::vector<int>              dist;
+  TupleStoreConstLink           m_opA;
+  AttributeListConstLink        m_bList;
+  mutable int                   m_ssize;
+  std::vector<int>              m_dist;
 
 
  // Silence compiler warnings about solitude
@@ -88,7 +88,7 @@ Table Projection::operator * (const Table & table) const
 
   for (AttributeList::ConstIterator a = table.attributeList()->begin();a!= table.attributeList()->end();a++) {
     std::string name = (*a).name();
-    if (std::find(_nameList.begin(),_nameList.end(),name)!=_nameList.end()) {
+    if (std::find(m_nameList.begin(),m_nameList.end(),name)!=m_nameList.end()) {
       
       //int distance = a-table.attributeList()->begin();
       dist.push_back((*a).attrId());
@@ -121,7 +121,7 @@ Table Projection::operator * (const Table & table) const
 
 Projection::Projection ()
 {
-  _nameList.insert(std::string("Entry"));
+  m_nameList.insert(std::string("Entry"));
 }
 
 Projection::~Projection () {
@@ -129,17 +129,17 @@ Projection::~Projection () {
 }
 
 Projection::Projection(const Projection & projection):
-  _nameList(projection._nameList) 
+  m_nameList(projection.m_nameList) 
 {
 }
 
 Projection & Projection::operator = (const Projection & projection) {
   if (&projection != this) {
-    _nameList=projection._nameList;
+    m_nameList=projection.m_nameList;
   }
   return *this;
 }
 
 void Projection::add (const std::string & name) {
-  _nameList.insert (name);
+  m_nameList.insert (name);
 }

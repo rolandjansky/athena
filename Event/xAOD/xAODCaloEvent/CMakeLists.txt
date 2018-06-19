@@ -26,6 +26,7 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( Eigen )
+find_package( ROOT COMPONENTS Core GenVector )
 
 # Extra source(s), based on what environment we are in:
 if( NOT XAOD_ANALYSIS AND NOT SIMULATIONBASE )
@@ -37,7 +38,7 @@ atlas_add_library( xAODCaloEvent
    xAODCaloEvent/*.h xAODCaloEvent/versions/*.h Root/*.cxx ${extra_sources}
    PUBLIC_HEADERS xAODCaloEvent
    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-   LINK_LIBRARIES ${EIGEN_LIBRARIES} CaloGeoHelpers AthContainers
+   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers AthContainers
    CxxUtils GeoPrimitives xAODBase xAODCore AthLinks ${extra_libs} )
 
 atlas_add_dictionary( xAODCaloEventDict

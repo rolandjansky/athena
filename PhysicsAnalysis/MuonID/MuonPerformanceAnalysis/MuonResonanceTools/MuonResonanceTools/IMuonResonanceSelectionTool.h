@@ -13,7 +13,6 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODBase/IParticleContainer.h"
 #include "xAODTracking/Vertex.h"
-#include "MuonPerformanceHistUtils/ProbeContainer.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"

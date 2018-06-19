@@ -9,6 +9,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
 #include "TrkVertexSeedFinderUtils/VertexImage.h"
+#include "xAODEventInfo/EventInfo.h"
 
 //class IBeamCondSvc; //Beam spot constraint from here
 
@@ -59,6 +60,7 @@ namespace Trk
     virtual std::vector<Amg::Vector3D> findMultiSeeds(const std::vector<const Trk::TrackParameters*>& parametersList,const xAOD::Vertex * constraint=0);
 
   private:
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey { this, "EventInfo", "EventInfo", "key for retrieval of EventInfo" };
 
     //Tool that actually makes the image to process
     ToolHandle< Trk::IVertexImageMaker > m_vertexImageMaker;

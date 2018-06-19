@@ -49,4 +49,49 @@ ReadHandleKey<T>& ReadHandleKey<T>::operator= (const std::string& sgkey)
 }
 
 
+/**
+ * @brief auto-declaring Property Constructor.
+ * @param name name of the Property
+ * @param key  default StoreGate key for the object.
+ *
+ * will associate the named Property with this RHK via declareProperty
+ *
+ * The provided key may actually start with the name of the store,
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
+ * the store named by @c storeName is used.
+ */
+template <class T>
+template <class OWNER, class K,
+          typename /*= typename std::enable_if<std::is_base_of<IProperty, OWNER>::value>::type*/>
+inline
+ReadHandleKey<T>::ReadHandleKey( OWNER* owner,
+                                 const std::string& name,
+                                 const K& key /* ={}*/,
+                                 const std::string& doc /*= ""*/)
+  : ReadHandleKey<T>( key )
+{
+  auto p = owner->declareProperty(name, *this, doc);
+  p->template setOwnerType<OWNER>();
+}
+
+
+/**
+ * @brief Constructor with explicit CLID.
+ * @param clid The CLID for the referenced object.
+ * @param key The StoreGate key for the object.
+ * @param storeName Name to use for the store, if it's not encoded in sgkey.
+ *
+ * This is meant to be used by @c ReadDecorHandleKey, to allow fixing the
+ * CLID to a base class to avoid scheduler issues.
+ */
+template <class T>
+inline
+ReadHandleKey<T>::ReadHandleKey (CLID clid,
+                                 const std::string& key,
+                                 const std::string& storeName)
+  : VarHandleKey (clid, key, Gaudi::DataHandle::Reader, storeName)
+{
+}
+
+
 } // namespace SG

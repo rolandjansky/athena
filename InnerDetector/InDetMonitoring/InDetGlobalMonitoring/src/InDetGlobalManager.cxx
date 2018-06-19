@@ -26,9 +26,6 @@
 #include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/ServiceHandle.h" 
 
-
-#include "TrkTrack/TrackCollection.h"
-#include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetRawData/InDetTimeCollection.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
@@ -43,15 +40,9 @@ InDetGlobalManager::InDetGlobalManager(
     const std::string &name, 
     ISvcLocator *pSvcLocator)
     : AthenaMonManager(name, pSvcLocator),
-      m_CombinedTracks(0),
-      m_doTopBottom(false)
+      m_CombinedTracks(0)
 {
-    declareProperty("SCTTrackName",         m_SCTTracksName);
-    declareProperty("TRTTrackName",         m_TRTTracksName);
-    declareProperty("PixelTrackName",       m_PIXTracksName);
-    declareProperty("CombinedTrackName",    m_CombinedTracksName="ExtendedTracks");
-    declareProperty("TRT_DriftCircleName",  m_TRT_DriftCircleName);
-    declareProperty("doTopBottom",          m_doTopBottom);
+ 
 }
 
 //--------------------------------------------------------------------------
@@ -102,6 +93,18 @@ StatusCode InDetGlobalManager::initialize()
       }
     }
     
+    ATH_CHECK( m_CombinedTracksName.initialize() );
+    ATH_CHECK( m_TRT_DriftCircleName.initialize(m_doTRT) );
+    ATH_CHECK( m_BCM_RDOs.initialize(m_doBCM) );
+    ATH_CHECK( m_PixelRDOs.initialize(m_doPixel) );
+    ATH_CHECK( m_SCT_RDOs.initialize(m_doSCT) );
+    ATH_CHECK( m_PixelLVL1ID.initialize(m_doPixel && m_doTiming) );
+    ATH_CHECK( m_SCT_LVL1ID.initialize(m_doSCT && m_doTiming) );
+    ATH_CHECK( m_TRT_LVL1ID.initialize(m_doTRT && m_doTiming) );
+    ATH_CHECK( m_PixelBCID.initialize(m_doPixel && m_doTiming) );
+    ATH_CHECK( m_SCT_BCID.initialize(m_doSCT && m_doTiming) );
+    ATH_CHECK( m_TRT_BCID.initialize(m_doTRT && m_doTiming) );
+    ATH_CHECK( m_TRT_Phase.initialize(m_doTRT && m_doTRTPhase) );
     
     return StatusCode::SUCCESS;
 }
@@ -115,206 +118,208 @@ StatusCode InDetGlobalManager::execute()
   // Avoid to retrieve several times the same object in the different 
   // monitoring tools
   //----------------------------------------------------------------------
-  
-  const TrackCollection *sct_tracks = 0;
-  if (evtStore()->contains<TrackCollection>(m_SCTTracksName)) {
-    StatusCode sc = evtStore()->retrieve(sct_tracks, m_SCTTracksName);
-    if  ( msgLvl(MSG::DEBUG) ){
-      if ( sc.isFailure()) {
-	msg(MSG::DEBUG) <<"No SCT segments in StoreGate"<<endmsg;
-      } else {
-	msg(MSG::DEBUG) <<"found SCT segments in StoreGate " 
-			<<m_SCTTracksName<<" "<<sct_tracks->size()<<endmsg;
-      }
-    }
+ 
+  SG::ReadHandle<TrackCollection> combined_tracks (m_CombinedTracksName);
+  if (combined_tracks.isValid()){
+    msg(MSG::DEBUG) <<"found combined tracks in StoreGate " 
+		    <<m_CombinedTracksName.key()<<" "<<combined_tracks->size()<<endmsg;
   }
-  
-  const TrackCollection *pix_tracks = 0;
-  if ( evtStore()->contains<TrackCollection>(m_PIXTracksName) ) {
-    StatusCode sc = evtStore()->retrieve(pix_tracks, m_PIXTracksName);
-    if  ( msgLvl(MSG::DEBUG) ) {
-      if ( sc.isFailure() ) { 
-	msg(MSG::DEBUG) <<"No PIX segments in StoreGate"<<endmsg;
-      } else {
-	msg(MSG::DEBUG) <<"found PIX segments in StoreGate "  
-			<<m_PIXTracksName<<" "<<pix_tracks->size()<<endmsg;
-      }
-    }
-  }
-  
-  const TrackCollection *trt_tracks = 0;
-  if ( evtStore()->contains<TrackCollection>(m_TRTTracksName) ) {
-    StatusCode sc = evtStore()->retrieve(trt_tracks, m_TRTTracksName);
-    if  ( msgLvl(MSG::DEBUG) ) {
-      if  ( sc.isFailure()) { 
-	msg(MSG::DEBUG) <<"No TRT segments in StoreGate "
-			<< m_TRTTracksName<<endmsg;
-      } else { 	    
-	msg(MSG::DEBUG) <<"found TRT segments in StoreGate "
-			<<m_TRTTracksName <<" "<<trt_tracks->size()<<endmsg;
-      }
-    }
-  }
-  
-  const TrackCollection *combined_tracks = 0;
-  if ( evtStore()->contains<TrackCollection>(m_CombinedTracksName) ) {
-    StatusCode sc = evtStore()->retrieve(combined_tracks,m_CombinedTracksName);
-    if ( msgLvl(MSG::DEBUG) ) {
-      if ( sc.isFailure()) {
-	msg(MSG::DEBUG) <<"No combined tracks in StoreGate "
-			<< m_CombinedTracksName<<endmsg; 
-      } else {                 
-	msg(MSG::DEBUG)    <<"found combined tracks in StoreGate "
-			   <<m_CombinedTracksName <<" "
-			   <<combined_tracks->size()<<endmsg;
-      }
-    }
-  }
-    
-  //m_tracks=m_combined_tracks;   
-  
-  const BCM_RDO_Container* bcmRdoContainer=0;
-  if ( evtStore()->contains<BCM_RDO_Container>("BCM_RDOs") ) {
-    StatusCode sc = evtStore()->retrieve( bcmRdoContainer, "BCM_RDOs" );
-    if  ( msgLvl(MSG::DEBUG) ) {
-      if (sc.isFailure() || !bcmRdoContainer) {
-        msg(MSG::DEBUG) <<"No BCM RDOs in StoreGate "<<endmsg;
-      } else {
-        msg(MSG::DEBUG)
-          <<"found BCM RDOs in StoreGate " <<endmsg;
-      }
-    }
-  }
+  else{
+    msg(MSG::ERROR) <<"No combined tracks in StoreGate"<<endmsg;
+    return StatusCode::FAILURE;
+  } 
 
-  const PixelRDO_Container* pixRdoContainer=0;
-  if ( evtStore()->contains<PixelRDO_Container>("PixelRDOs") ) {
-    StatusCode sc = evtStore()->retrieve( pixRdoContainer, "PixelRDOs" );
-    if  ( msgLvl(MSG::DEBUG) ) {
-      if (sc.isFailure() || !pixRdoContainer) {
-	msg(MSG::DEBUG) <<"No Pixel RDOs in StoreGate "<<endmsg;
-      } else {
-	msg(MSG::DEBUG)
-	  <<"found Pixel RDOs in StoreGate " <<endmsg;
-      }
+  const BCM_RDO_Container * int_BCM_RDOs;
+  
+  if(m_doBCM){
+
+    SG::ReadHandle<BCM_RDO_Container> bcmRdoContainer (m_BCM_RDOs);
+    if (bcmRdoContainer.isValid()){
+      msg(MSG::DEBUG) <<"found BCM RDOs in StoreGate " 
+		      <<endmsg;
+      int_BCM_RDOs = bcmRdoContainer.cptr();
+    }
+    else{
+      msg(MSG::ERROR) <<"No BCM RDOs in StoreGate"<<endmsg;
+      return StatusCode::FAILURE;
     }
   }
   
-  const SCT_RDO_Container* sctRdoContainer=0;
-  if ( evtStore()->contains<SCT_RDO_Container>("SCT_RDOs") ) {
-    StatusCode sc = evtStore()->retrieve( sctRdoContainer, "SCT_RDOs" );
-    if  ( msgLvl(MSG::DEBUG) ){
-      if (sc.isFailure() || !sctRdoContainer) {
-	msg(MSG::DEBUG) <<"No SCT RDOs in StoreGate "<<endmsg;
-      } else {
-	msg(MSG::DEBUG)
-	  <<"found SCT RDOs in StoreGate " <<endmsg;
-      }
-    }
+  else{
+    int_BCM_RDOs = NULL; 
   }
   
   
-  const InDet::TRT_DriftCircleContainer* driftCircleContainer = 0;  
-  if ( evtStore()->contains<InDet::TRT_DriftCircleContainer>(m_TRT_DriftCircleName) ) {
-    StatusCode sc = evtStore()->retrieve(driftCircleContainer, m_TRT_DriftCircleName);
-    if  ( msgLvl(MSG::DEBUG) ) { 
-      if (sc.isFailure() || !driftCircleContainer) {
-	msg(MSG::DEBUG) <<"No TRT RDO in StoreGate "<<endmsg;
-      } else {
-	msg(MSG::DEBUG) 
-	  <<"found TRT driftcircles in StoreGate " <<endmsg; 
-      }
+  const PixelRDO_Container * int_Pixel_RDOs;
+  const InDetTimeCollection * int_Pixel_LVL1ID;
+  const InDetTimeCollection * int_Pixel_BCID;
+  
+  if(m_doPixel){
+    SG::ReadHandle<PixelRDO_Container> pixRdoContainer (m_PixelRDOs);
+    if (pixRdoContainer.isValid()){
+      msg(MSG::DEBUG) <<"found Pixel RDOs in StoreGate " 
+		      <<endmsg;
+      int_Pixel_RDOs = pixRdoContainer.cptr();
+    }
+    else{
+      msg(MSG::ERROR) <<"No Pixel RDOs in StoreGate"<<endmsg;
+      return StatusCode::FAILURE;
+    }
+    if(m_doTiming){
+    SG::ReadHandle<InDetTimeCollection> pixel_LVL1IDColl (m_PixelLVL1ID);
+    if (pixel_LVL1IDColl.isValid()){
+      msg(MSG::DEBUG) <<"found Pixel LVL1ID information in StoreGate " 
+		      <<endmsg;
+      int_Pixel_LVL1ID = pixel_LVL1IDColl.cptr();
+    }
+    else{
+      msg(MSG::ERROR) <<"No Pixel LVL1ID information in StoreGate"<<endmsg;
+      return StatusCode::FAILURE;
+    }
+    
+    SG::ReadHandle<InDetTimeCollection> pixel_BCIDColl (m_PixelBCID);
+    if (pixel_BCIDColl.isValid()){
+      msg(MSG::DEBUG) <<"found Pixel BCID information in StoreGate " 
+		      <<endmsg;
+      int_Pixel_BCID = pixel_BCIDColl.cptr();
+    }
+    else{
+      msg(MSG::ERROR) <<"No Pixel BCID information in StoreGate"<<endmsg;
+      return StatusCode::FAILURE;
+    }
+    }
+    else{
+      int_Pixel_LVL1ID = NULL;
+      int_Pixel_BCID = NULL; 
     }
   }
   
-  const InDetTimeCollection *pixel_LVL1IDColl = 0;
-  if ( evtStore()->contains<InDetTimeCollection>("PixelLVL1ID") ){
-    StatusCode sc = evtStore()->retrieve(pixel_LVL1IDColl, "PixelLVL1ID");
-    if  ( msgLvl(MSG::DEBUG) ) {
-      if (sc.isFailure() || !pixel_LVL1IDColl) {
-	msg(MSG::DEBUG) << "No Pixel LVL1ID information in StoreGate "<<endmsg;
-      } else {
-	msg(MSG::DEBUG)
-	  << "found Pixel LVL1ID information in StoreGate " <<endmsg;
-      }
+  else{
+    int_Pixel_RDOs = NULL;
+    int_Pixel_LVL1ID = NULL;
+    int_Pixel_BCID = NULL;
+  }
+  
+  
+  const SCT_RDO_Container * int_SCT_RDOs;
+  const InDetTimeCollection * int_SCT_LVL1ID;
+  const InDetTimeCollection * int_SCT_BCID;
+  
+  if(m_doSCT){
+    SG::ReadHandle<SCT_RDO_Container> sctRdoContainer (m_SCT_RDOs);
+    if (sctRdoContainer.isValid()){
+      msg(MSG::DEBUG) <<"found SCT RDOs in StoreGate " 
+		      <<endmsg;
+      int_SCT_RDOs = sctRdoContainer.cptr();
+    }
+    else{
+      msg(MSG::ERROR) <<"No SCT RDOs in StoreGate"<<endmsg;
+      return StatusCode::FAILURE;
+    } 
+  
+    if(m_doTiming){
+    SG::ReadHandle<InDetTimeCollection> sct_LVL1IDColl (m_SCT_LVL1ID);
+    if (sct_LVL1IDColl.isValid()){
+      msg(MSG::DEBUG) <<"found SCT LVL1ID information in StoreGate " 
+		      <<endmsg;
+      int_SCT_LVL1ID = sct_LVL1IDColl.cptr();
+    }
+    else{
+      msg(MSG::ERROR) <<"No SCT LVL1ID information in StoreGate"<<endmsg;
+      return StatusCode::FAILURE;
+    }
+    
+    SG::ReadHandle<InDetTimeCollection> sct_BCIDColl (m_SCT_BCID);
+    if (sct_BCIDColl.isValid()){
+      msg(MSG::DEBUG) <<"found SCT BCID information in StoreGate " 
+		      <<endmsg;
+      int_SCT_BCID = sct_BCIDColl.cptr();
+    }
+    else{
+      msg(MSG::ERROR) <<"No SCT BCID information in StoreGate"<<endmsg;
+      return StatusCode::FAILURE;
+    }
+    }
+    else{
+     int_SCT_LVL1ID= NULL;
+    int_SCT_BCID = NULL;  
     }
   }
   
-  const InDetTimeCollection *sct_LVL1IDColl = 0;
-  if ( evtStore()->contains<InDetTimeCollection>("SCT_LVL1ID") ){
-    StatusCode sc = evtStore()->retrieve(sct_LVL1IDColl, "SCT_LVL1ID");
-    if  ( msgLvl(MSG::DEBUG) ) {
-      if (sc.isFailure() || !sct_LVL1IDColl) {
-	msg(MSG::DEBUG) << "No SCT LVL1ID information in StoreGate "<<endmsg;
-      } else {
-	msg(MSG::DEBUG)
-	  << "found SCT LVL1ID information in StoreGate " <<endmsg;
-      }
-    }
+  else{
+    int_SCT_RDOs = NULL;
+    int_SCT_LVL1ID= NULL;
+    int_SCT_BCID = NULL;
   }
   
-  const InDetTimeCollection *trt_LVL1IDColl = 0;
-  if ( evtStore()->contains<InDetTimeCollection>("TRT_LVL1ID") ){
-    StatusCode sc = evtStore()->retrieve(trt_LVL1IDColl, "TRT_LVL1ID");
-    if  ( msgLvl(MSG::DEBUG) ) {
-      if (sc.isFailure() || !trt_LVL1IDColl) {
-	msg(MSG::DEBUG) << "No TRT LVL1ID information in StoreGate "<<endmsg;
-      } else {
-	msg(MSG::DEBUG)
-	  << "found TRT LVL1ID information in StoreGate " <<endmsg;
-      }
-    }
-  }
   
-  const InDetTimeCollection *pixel_BCIDColl = 0;
-  if ( evtStore()->contains<InDetTimeCollection>("PixelBCID") ){
-    StatusCode sc = evtStore()->retrieve(pixel_BCIDColl, "PixelBCID");
-    if  ( msgLvl(MSG::DEBUG) ) {
-      if (sc.isFailure() || !pixel_BCIDColl) {
-	msg(MSG::DEBUG) << "No Pixel BCID information in StoreGate "<<endmsg;
-      } else {
-	msg(MSG::DEBUG)
-	  << "found Pixel BCID information in StoreGate " <<endmsg;
-      }
-    }
-  }
+  const InDet::TRT_DriftCircleContainer * int_DriftCircles;
+  const InDetTimeCollection * int_TRT_LVL1ID;
+  const InDetTimeCollection * int_TRT_BCID;
+  const ComTime * int_TRT_Phase;
   
-  const InDetTimeCollection *sct_BCIDColl = 0;
-  if ( evtStore()->contains<InDetTimeCollection>("SCT_BCID") ){
-    StatusCode sc = evtStore()->retrieve(sct_BCIDColl, "SCT_BCID");
-    if  ( msgLvl(MSG::DEBUG) ) {
-      if (sc.isFailure() || !sct_BCIDColl) {
-	msg(MSG::DEBUG) << "No SCT BCID information in StoreGate "<<endmsg;
-      } else {
-	msg(MSG::DEBUG)
-	  << "found SCT BCID information in StoreGate " <<endmsg;
-      }
+  if(m_doTRT){
+    
+    SG::ReadHandle<InDet::TRT_DriftCircleContainer> driftCircleContainer (m_TRT_DriftCircleName);
+    if (driftCircleContainer.isValid()){
+      msg(MSG::DEBUG) <<"found TRT driftcircles in StoreGate " 
+		      <<endmsg;
+      int_DriftCircles = driftCircleContainer.cptr();
     }
-  }
+    else{
+      msg(MSG::ERROR) <<"No TRT driftcircles in StoreGate"<<endmsg;
+      return StatusCode::FAILURE;
+    }
+    
+    if(m_doTiming){
+    SG::ReadHandle<InDetTimeCollection> trt_LVL1IDColl (m_TRT_LVL1ID);
+    if (trt_LVL1IDColl.isValid()){
+      msg(MSG::DEBUG) <<"found TRT LVL1ID information in StoreGate " 
+		      <<endmsg;
+      int_TRT_LVL1ID = trt_LVL1IDColl.cptr();
+    }
+    else{
+      msg(MSG::ERROR) <<"No TRT LVL1ID information in StoreGate"<<endmsg;
+      return StatusCode::FAILURE;
+    }
+    
+    SG::ReadHandle<InDetTimeCollection> trt_BCIDColl (m_TRT_BCID);
+    if (trt_BCIDColl.isValid()){
+      msg(MSG::DEBUG) <<"found TRT BCID information in StoreGate " 
+		      <<endmsg;
+      int_TRT_BCID = trt_BCIDColl.cptr();
+    }
+    else{
+      msg(MSG::ERROR) <<"No TRT BCID information in StoreGate"<<endmsg;
+      return StatusCode::FAILURE;
+    }
+    }
+    else{
+      int_TRT_LVL1ID = NULL;
+       int_TRT_BCID = NULL;
+    }
+
+    if(m_doTRTPhase){
+    SG::ReadHandle<ComTime> trtPhase (m_TRT_Phase);
+    if (trtPhase.isValid()){
+      msg(MSG::DEBUG) <<"found TRT event phase information in StoreGate " 
+		      <<endmsg;
+      int_TRT_Phase = trtPhase.cptr();
+    }
+    
+    else{
+      msg(MSG::ERROR) <<"No TRT event phase information in StoreGate"<<endmsg;
+      return StatusCode::FAILURE;
+    }
+    }
+    else int_TRT_Phase = NULL;
+}
   
-  const InDetTimeCollection *trt_BCIDColl = 0;
-  if ( evtStore()->contains<InDetTimeCollection>("TRT_BCID") ){
-    StatusCode sc = evtStore()->retrieve(trt_BCIDColl, "TRT_BCID");
-    if  ( msgLvl(MSG::DEBUG) ) {
-      if (sc.isFailure() || !trt_BCIDColl) {
-	msg(MSG::DEBUG) << "No TRT BCID information in StoreGate "<<endmsg;
-      } else {
-	msg(MSG::DEBUG)
-	  << "found TRT BCID information in StoreGate " <<endmsg;
-      }
-    }
-  }
-  
-  const ComTime *trtPhase = 0;
-  if ( evtStore()->contains<ComTime>("TRT_Phase") ){
-    StatusCode sc = evtStore()->retrieve(trtPhase, "TRT_Phase");
-    if  ( msgLvl(MSG::DEBUG) ) {
-      if (sc.isFailure() || !trtPhase) {
-	msg(MSG::DEBUG) << "No TRT event phase information in StoreGate "<<endmsg;
-      } else {
-	msg(MSG::DEBUG)
-	  << "found TRT event phase information in StoreGate " <<endmsg;
-      }
-    }
+  else{
+    int_DriftCircles = NULL;
+    int_TRT_LVL1ID = NULL;
+    int_TRT_BCID = NULL;
+    int_TRT_Phase = NULL;
   }
   
   //------------------------------------------------------------------
@@ -323,25 +328,22 @@ StatusCode InDetGlobalManager::execute()
   ToolHandleArray<IMonitorToolBase>::iterator monToolsEnd = m_monTools.end();
   for( ToolHandleArray<IMonitorToolBase>::iterator i = m_monTools.begin(); 
        i != monToolsEnd; ++i ) {
-      ToolHandle<IMonitorToolBase>& tool = *i;
-      IMonitorToolBase* mon = tool.operator->();
-      InDetGlobalMotherMonTool* managed = 
-	  dynamic_cast<InDetGlobalMotherMonTool*>( mon );
-      
-      if( managed != 0 ) {
-	  if ( msgLvl(MSG::DEBUG) )    msg(MSG::DEBUG) 
-	      <<"Loop over InDetGlobalMonTool " <<managed << endmsg;
-	  managed->fillTracks(sct_tracks, trt_tracks, 
-			      combined_tracks, pix_tracks);
-	  managed->fillRDOContainers(bcmRdoContainer, pixRdoContainer, sctRdoContainer, driftCircleContainer);	      
-	  managed->fillTimeContainers( pixel_LVL1IDColl,sct_LVL1IDColl,trt_LVL1IDColl,
-				       pixel_BCIDColl, sct_BCIDColl, trt_BCIDColl,
-				       trtPhase );
-      }
+    ToolHandle<IMonitorToolBase>& tool = *i;
+    IMonitorToolBase* mon = tool.operator->();
+    InDetGlobalMotherMonTool* managed = 
+      dynamic_cast<InDetGlobalMotherMonTool*>( mon );
+    
+    if( managed != 0 ) {
+      if ( msgLvl(MSG::DEBUG) )    msg(MSG::DEBUG) 
+				     <<"Loop over InDetGlobalMonTool " <<managed << endmsg;
+      managed->fillTracks(combined_tracks.cptr());
+      managed->fillRDOContainers(int_BCM_RDOs, int_Pixel_RDOs, int_SCT_RDOs, int_DriftCircles);	      
+      managed->fillTimeContainers( int_Pixel_LVL1ID,int_SCT_LVL1ID,int_TRT_LVL1ID, int_Pixel_BCID, int_SCT_BCID, int_TRT_BCID, int_TRT_Phase );
+    }
   }
   return AthenaMonManager::execute(); 
 }
-    
+
 //------------------------------------------------------------------------
 StatusCode InDetGlobalManager::finalize()
 {

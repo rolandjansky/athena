@@ -70,7 +70,7 @@ int qrat_correction(CscPlane plane, double qrat, double& cor, double& dcordqrat)
       pfac.push_back(-5.483);
       pfac.push_back(130.6);
       pfac.push_back(-1296.);
-      pfac.push_back(5994.);;
+      pfac.push_back(5994.);
       pfac.push_back(-10580.);
     } else if ( qrat < 0.30 ) {
       pfac.push_back(-0.9225);

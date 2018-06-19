@@ -139,6 +139,13 @@ StatusCode TileJetMonTool::initialize() {
     ATH_MSG_DEBUG("TileJetMonTool: initialized JetCleaningTool");
 #endif
   }
+  else {
+#ifdef JVT
+    m_jvt.disable();
+    m_cleaningTool.disable();
+#endif
+  }    
+
   return TileFatherMonTool::initialize();
 }
 

@@ -70,7 +70,14 @@ TauJetTagTool::TauJetTagTool (const std::string& type, const std::string& name,
 /** initialization - called once at the begginning */
 StatusCode  TauJetTagTool::initialize() {
   ATH_MSG_DEBUG( "in intialize()" );
-  ATH_CHECK( m_eleOLR.retrieve() );
+  ATH_CHECK(m_eleBDTLoose.retrieve());
+  ATH_CHECK(m_eleBDTMedium.retrieve());
+  ATH_CHECK(m_eleBDTTight.retrieve());
+  ATH_CHECK(m_muonVeto.retrieve());	
+  ATH_CHECK(m_jetBDTLoose.retrieve());
+  ATH_CHECK(m_jetBDTMedium.retrieve());
+  ATH_CHECK(m_jetBDTTight.retrieve());
+  ATH_CHECK(m_eleOLR.retrieve());
   return StatusCode::SUCCESS;
 }
 

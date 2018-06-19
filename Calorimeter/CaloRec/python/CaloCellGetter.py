@@ -43,34 +43,15 @@ class CaloCellGetter (Configured)  :
         # handle tile
 
         if doStandardCellReconstruction:
-            # handle LAr
-            import traceback
-            try:
-                from LArROD.LArRODFlags import larRODFlags
-                from AthenaCommon.GlobalFlags import globalflags
-                if larRODFlags.readDigits() and globalflags.DataSource() == 'data':
-                    from AthenaCommon.KeyStore import CfgItemList
-                    CfgItemList("KeyStore_inputFile").removeItem("LArRawChannelContainer#LArRawChannels")
-                if (not larRODFlags.readDigits()) and globalflags.InputFormat() == 'bytestream':
-                    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-                    try:
-                        if not "LArRawChannelContainer/LArRawChannels" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
-                            svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArRawChannelContainer/LArRawChannels"]
-                    except:
-                        mlog.warning("Cannot remove LArRawChannelContainer/LArRawChannels from bytestream list")
-                from LArROD.LArRawChannelGetter import LArRawChannelGetter
-                theLArRawChannelGetter = LArRawChannelGetter()
-            except:
-                mlog.error("could not get handle to LArRawChannel Quit")
-                print traceback.format_exc()
-                return False
-
-            if not theLArRawChannelGetter.usable():
-                if not self.ignoreConfigError():
-                    mlog.error("LArRawChannelGetter unusable. Quit.")
-                    return False
-                else:
-                    mlog.error("LArRawChannelGetter unusable. Continue nevertheless")
+            from LArROD.LArRODFlags import larRODFlags
+            from AthenaCommon.GlobalFlags import globalflags
+            if larRODFlags.readDigits() and globalflags.DataSource() == 'data':
+                from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+                if not "LArRawChannelContainer/LArRawChannels" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
+                    svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArRawChannelContainer/LArRawChannels"]
+                from LArROD.LArRawChannelBuilderDefault import LArRawChannelBuilderDefault
+                LArRawChannelBuilderDefault()
+          
         
         # writing of thinned digits
         if jobproperties.CaloCellFlags.doLArThinnedDigits.statusOn and jobproperties.CaloCellFlags.doLArThinnedDigits():
@@ -106,6 +87,9 @@ class CaloCellGetter (Configured)  :
             from RecExConfig.RecFlags import rec
 
             if rec.doLArg():
+                from LArCabling.LArCablingAccess import LArOnOffIdMapping
+                LArOnOffIdMapping()
+
                 try:
                     from LArCellRec.LArCellRecConf import LArCellBuilderFromLArRawChannelTool
                     theLArCellBuilder = LArCellBuilderFromLArRawChannelTool()
@@ -115,17 +99,7 @@ class CaloCellGetter (Configured)  :
                     return False
 
                 if jobproperties.CaloCellFlags.doLArCreateMissingCells():
-                    # bad channel tools
-                    try:
-                        from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-                        theLArBadChannelTool = LArBadChanTool()
-                    except:
-                        mlog.error("could not access bad channel tool Quit")
-                        print traceback.format_exc()
-                        return False
-                    ToolSvc += theLArBadChannelTool
                     theLArCellBuilder.addDeadOTX = True
-                    theLArCellBuilder.badChannelTool = theLArBadChannelTool
 
                 # add the tool to list of tool ( should use ToolHandle eventually) 
                 theCaloCellMaker += theLArCellBuilder
@@ -375,7 +349,6 @@ class CaloCellGetter (Configured)  :
                     mlog.error("could not access bad channel tool Quit")
                     print traceback.format_exc()
                     return False
-                theLArSporadicNoiseMasker.TheLArBadChanTool = theLArBadChannelTool
                 theLArSporadicNoiseMasker.DoMasking = True
                 theLArSporadicNoiseMasker.ProblemsToMask = ["sporadicBurstNoise"]
                 ToolSvc += theLArSporadicNoiseMasker
@@ -389,7 +362,6 @@ class CaloCellGetter (Configured)  :
                     mlog.error("could not access bad channel tool Quit")
                     print traceback.format_exc()
                     return False
-                theLArNoiseMasker.TheLArBadChanTool = theLArBadChannelTool
                 theLArNoiseMasker.DoMasking=True
                 theLArNoiseMasker.ProblemsToMask= ["highNoiseHG","highNoiseMG","highNoiseLG","deadReadout","deadPhys"]
                 ToolSvc+=theLArNoiseMasker
@@ -520,8 +492,7 @@ class CaloCellGetter (Configured)  :
                doPedestalCorr = True
                mlog.info("Apply cell level pedestal shift correction")
 
-        import os
-        if doPedestalCorr and os.getenv("CMTPATH") and "AtlasTrigger" in os.getenv("CMTPATH"):
+        if doPedestalCorr:
             try:
                 from CaloCellCorrection.CaloCellPedestalCorrDefault import CaloCellPedestalCorrDefault
                 theCaloCellPedestalCorr = CaloCellPedestalCorrDefault()
@@ -776,8 +747,10 @@ class CaloCellGetter (Configured)  :
 
         # register output in objKeyStore
         from RecExConfig.ObjKeyStore import objKeyStore
-
         objKeyStore.addStreamESD(self.outputType(),self.outputKey())
+
+        # Also note that we produce it as a transient output.
+        objKeyStore.addTransient (self.outputType(),self.outputKey())
 
 
         

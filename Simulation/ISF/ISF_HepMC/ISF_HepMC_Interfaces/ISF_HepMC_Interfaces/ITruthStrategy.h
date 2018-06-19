@@ -34,6 +34,9 @@ namespace ISF {
       
       /** true if the ITruthStrategy implementation applies to the given ITruthIncident */
       virtual bool pass( ITruthIncident& incident) const = 0;
+      /** returns true if this truth strategy should be applied to the
+          region indicated by geoID*/
+      virtual bool appliesToRegion(unsigned short geoID) const = 0;
   };
 
 } // end of namespace

@@ -57,10 +57,10 @@ protected:
     void paintEvent(QPaintEvent *event);
 
 private:
-    QFont displayFont;
-    int columns;
-    int lastKey;
-    int squareSize;
+    QFont m_displayFont;
+    int m_columns;
+    int m_lastKey;
+    int m_squareSize;
 };
 
 #endif

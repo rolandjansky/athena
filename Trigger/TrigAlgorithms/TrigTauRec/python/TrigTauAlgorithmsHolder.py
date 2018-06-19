@@ -246,14 +246,12 @@ def getTauAdaptiveVertexFitter():
     ToolSvc += TauSequentialVertexSmoother
      
     from TrkVertexFitters.TrkVertexFittersConf import Trk__AdaptiveVertexFitter
-    from TrigInDetConf.TrigInDetRecVtxTools import InDetTrigVxEdmCnv
     TauAdaptiveVertexFitter = Trk__AdaptiveVertexFitter(name = _name, 
                                                         SeedFinder=getTauCrossDistancesSeedFinder(), 
                                                         ImpactPoint3dEstimator=TauInDetImpactPoint3dEstimator, 
                                                         VertexSmoother=TauSequentialVertexSmoother, 
                                                         AnnealingMaker=TauDetAnnealingMaker,
-                                                        LinearizedTrackFactory=getTauFullLinearizedTrackFactory(),
-                                                        XAODConverter=InDetTrigVxEdmCnv)
+                                                        LinearizedTrackFactory=getTauFullLinearizedTrackFactory())
     
     cached_instances[_name] = TauAdaptiveVertexFitter
     ToolSvc +=TauAdaptiveVertexFitter
@@ -329,19 +327,15 @@ def getTauVertexVariables():
         return cached_instances[_name]
 
     from tauRec.tauRecFlags import jobproperties
-    useOldSeedFinderAPI = jobproperties.tauRecFlags.useOldVertexFitterAPI()
 
     from tauRecTools.tauRecToolsConf import TauVertexVariables
-    from TrigInDetConf.TrigInDetRecVtxTools import InDetTrigVxEdmCnv
     TauVertexVariables = TauVertexVariables(  name = _name,
                                             PrimaryVertexKey  = _DefaultVertexContainer,                                            
                                             TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
                                             VertexFitter = getTauAdaptiveVertexFitter(),
                                             #VertexFitter = "Trk::AdaptiveVertexFitter/InDetAdaptiveVxFitterTool",
                                             SeedFinder = getTauCrossDistancesSeedFinder(),
-                                            XAODConverter = InDetTrigVxEdmCnv, # ATM only needed in case old API is used
                                             TrackParticleContainer = _DefaultTrackContainer, # ATM only needed in case old API is used
-                                            useOldSeedFinderAPI = useOldSeedFinderAPI,
                                             #OutputLevel = 2                                            
                                               )
     

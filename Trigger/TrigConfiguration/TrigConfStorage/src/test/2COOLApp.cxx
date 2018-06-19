@@ -233,65 +233,65 @@ class JobConfig {
   enum ETriggerLevel { NONE = 0, LVL1 = 1, HLT = 2, BOTH = 3 };
 
   JobConfig() :
-    fTest(false),
-    fCoolConnection(""),
-    fTriggerDBConnection(""),
-    fUseFrontier(false),
-    fTriggerRunRanges(), // to superseed run number
-    fTriggerLumiblock(0),
-    fTriggerConfigKey(-1),
-    fTriggerHltPsConfigKey(-1),
-    fTriggerLvl1PsConfigKey(-1),
-    fTriggerLvl1BgKey(1),
-    fTriggerLevel(NONE),
-    fTriggerLVL1XML(""),
-    fTriggerHltMenuXML(""),
-    fLogfileName(""),
-    fInfIOV(false),
-    fWriteXML(""),
-    fNewSchemaVersion(0),
-    fExclusiveFolders()
+    m_test(false),
+    m_coolConnection(""),
+    m_triggerDBConnection(""),
+    m_useFrontier(false),
+    m_triggerRunRanges(), // to superseed run number
+    m_triggerLumiblock(0),
+    m_triggerConfigKey(-1),
+    m_triggerHltPsConfigKey(-1),
+    m_triggerLvl1PsConfigKey(-1),
+    m_triggerLvl1BgKey(1),
+    m_triggerLevel(NONE),
+    m_triggerLVL1XML(""),
+    m_triggerHltMenuXML(""),
+    m_logfileName(""),
+    m_infIOV(false),
+    m_writeXML(""),
+    m_newSchemaVersion(0),
+    m_exclusiveFolders()
   {}
 
   ~JobConfig(){}
 
-  bool CreateDBSchema() { return fEnvironment.find("create") != std::string::npos; }
-  bool DropDBSchema() { return fEnvironment.find("drop") != std::string::npos; }
-  bool PrintDBSchema() { return fEnvironment.find("printschema") != std::string::npos; }
-  bool PrintSchemaVersion() { return fEnvironment.find("schemaversion") != std::string::npos; }
-  bool WriteConfiguration() { return fEnvironment.find("write") != std::string::npos; }
-  bool ReadConfiguration() { return fEnvironment.find("read") != std::string::npos; }
+  bool CreateDBSchema() { return m_environment.find("create") != std::string::npos; }
+  bool DropDBSchema() { return m_environment.find("drop") != std::string::npos; }
+  bool PrintDBSchema() { return m_environment.find("printschema") != std::string::npos; }
+  bool PrintSchemaVersion() { return m_environment.find("schemaversion") != std::string::npos; }
+  bool WriteConfiguration() { return m_environment.find("write") != std::string::npos; }
+  bool ReadConfiguration() { return m_environment.find("read") != std::string::npos; }
   void AddEnvironment(const std::string & e) { 
-    if(fEnvironment.size()>0) fEnvironment.append(" ");
-    fEnvironment.append(e);
+    if(m_environment.size()>0) m_environment.append(" ");
+    m_environment.append(e);
   }
 
   ETriggerLevel WriteLevel() { 
-    if(fEnvironment.find("writel1") != std::string::npos) return LVL1;
-    if(fEnvironment.find("writehlt") != std::string::npos) return HLT;
-    if(fEnvironment.find("write") != std::string::npos) return BOTH;
+    if(m_environment.find("writel1") != std::string::npos) return LVL1;
+    if(m_environment.find("writehlt") != std::string::npos) return HLT;
+    if(m_environment.find("write") != std::string::npos) return BOTH;
     return NONE;
   }
-  bool UseTestDefaults() const { return fTest; }
-  void SetUseTestDefaults(bool x=true) { fTest = x; }
+  bool UseTestDefaults() const { return m_test; }
+  void SetUseTestDefaults(bool x=true) { m_test = x; }
 
-  bool UseInfIOV() const { return fInfIOV; }
-  void SetUseInfIOV(bool x=true) { fInfIOV = x; }
+  bool UseInfIOV() const { return m_infIOV; }
+  void SetUseInfIOV(bool x=true) { m_infIOV = x; }
 
-  void SetCoolConnection(const std::string & x) { fCoolConnection = x; }
+  void SetCoolConnection(const std::string & x) { m_coolConnection = x; }
   std::string CoolConnection() const {
     if(UseTestDefaults()) return test_cool_connection;
-    return fCoolConnection;
+    return m_coolConnection;
   }
 
-  void SetTriggerDbConnection(const std::string & x) { fTriggerDBConnection = x; }
+  void SetTriggerDbConnection(const std::string & x) { m_triggerDBConnection = x; }
   std::string TriggerDbConnection() const {
-     return fTriggerDBConnection;
+     return m_triggerDBConnection;
   }
 
-  void SetUseFrontier(bool useFrontier = true) { fUseFrontier = useFrontier; } 
+  void SetUseFrontier(bool useFrontier = true) { m_useFrontier = useFrontier; } 
   bool UseFrontier() const { 
-    return fUseFrontier; 
+    return m_useFrontier; 
   } 
 
   void SetTriggerRunRanges(const std::string & runs) {
@@ -302,65 +302,65 @@ class JobConfig {
       std::vector<std::string> startend = splitpath((*rrIt), "-");
       unsigned int first = (unsigned int)convertStringToInt(startend[0]);
       unsigned int last  = (unsigned int)startend.size()==1?first:convertStringToInt(startend[1]);
-      fTriggerRunRanges.push_back(std::pair<unsigned int,unsigned int>(first,last));
+      m_triggerRunRanges.push_back(std::pair<unsigned int,unsigned int>(first,last));
     }
   }
-  const std::vector<std::pair<unsigned int,unsigned int> >& RunRanges() const { return fTriggerRunRanges; }
+  const std::vector<std::pair<unsigned int,unsigned int> >& RunRanges() const { return m_triggerRunRanges; }
 
-  void SetTriggerLumiblockNumber(int x) { fTriggerLumiblock = x; }
+  void SetTriggerLumiblockNumber(int x) { m_triggerLumiblock = x; }
   int LumiblockNumber() const {
-    if(UseTestDefaults() && fTriggerLumiblock==-1) return 0;
-    return fTriggerLumiblock;
+    if(UseTestDefaults() && m_triggerLumiblock==-1) return 0;
+    return m_triggerLumiblock;
   }
 
-  void SetTriggerConfigKey(int x) { fTriggerConfigKey = x; }
+  void SetTriggerConfigKey(int x) { m_triggerConfigKey = x; }
   int ConfigKey() const {
-    if(UseTestDefaults() && fTriggerConfigKey==-1) return 1;
-    return fTriggerConfigKey;
+    if(UseTestDefaults() && m_triggerConfigKey==-1) return 1;
+    return m_triggerConfigKey;
   }
 
-  void SetTriggerHltPsConfigKey(int x) { fTriggerHltPsConfigKey = x; }
+  void SetTriggerHltPsConfigKey(int x) { m_triggerHltPsConfigKey = x; }
   int HltPsConfigKey() const {
-    if(UseTestDefaults() && fTriggerHltPsConfigKey==-1) return 1;
-    return fTriggerHltPsConfigKey;
+    if(UseTestDefaults() && m_triggerHltPsConfigKey==-1) return 1;
+    return m_triggerHltPsConfigKey;
   }
 
-  void SetTriggerLvl1PsConfigKey(int x) { fTriggerLvl1PsConfigKey = x; }
+  void SetTriggerLvl1PsConfigKey(int x) { m_triggerLvl1PsConfigKey = x; }
   int Lvl1PsConfigKey() const {
-    if(UseTestDefaults() && fTriggerLvl1PsConfigKey==-1) return 1;
-    return fTriggerLvl1PsConfigKey;
+    if(UseTestDefaults() && m_triggerLvl1PsConfigKey==-1) return 1;
+    return m_triggerLvl1PsConfigKey;
   }
 
-  void SetTriggerLvl1BunchGroupKey(int x) { fTriggerLvl1BgKey = x; }
+  void SetTriggerLvl1BunchGroupKey(int x) { m_triggerLvl1BgKey = x; }
   int BunchGroupKey() const {
-    return fTriggerLvl1BgKey;
+    return m_triggerLvl1BgKey;
   }
   
 
-  void SetTriggerLevel(enum ETriggerLevel x) { fTriggerLevel = x; }
+  void SetTriggerLevel(enum ETriggerLevel x) { m_triggerLevel = x; }
   enum ETriggerLevel TriggerLevel() const {
     if(UseTestDefaults()) return HLT;
-    return fTriggerLevel;
+    return m_triggerLevel;
   }
 
   bool UseXML() { return (HltMenuXML() != "") || (LVL1XML() != ""); }
-  void SetTriggerHltMenuXML(const std::string & x) { fTriggerHltMenuXML = x; }
-  const std::string & HltMenuXML() const { return fTriggerHltMenuXML; }
+  void SetTriggerHltMenuXML(const std::string & x) { m_triggerHltMenuXML = x; }
+  const std::string & HltMenuXML() const { return m_triggerHltMenuXML; }
 
-  void SetTriggerLVL1XML(const std::string & x) { fTriggerLVL1XML = x; }
-  const std::string & LVL1XML() const { return fTriggerLVL1XML; }
+  void SetTriggerLVL1XML(const std::string & x) { m_triggerLVL1XML = x; }
+  const std::string & LVL1XML() const { return m_triggerLVL1XML; }
 
-  void SetLogfileName(const std::string & fn) { fLogfileName = fn; }
-  const std::string & LogfileName() const { return fLogfileName; }
+  void SetLogfileName(const std::string & fn) { m_logfileName = fn; }
+  const std::string & LogfileName() const { return m_logfileName; }
 
-  void SetNewSchemaVersion(int sv) { fNewSchemaVersion = sv; }
-  int NewSchemaVersion() const { return fNewSchemaVersion; }
+  void SetNewSchemaVersion(int sv) { m_newSchemaVersion = sv; }
+  int NewSchemaVersion() const { return m_newSchemaVersion; }
 
-  void SetWriteXML(const std::string& s) { fWriteXML = s; }
-  const std::string& WriteXML() const { return fWriteXML; }
+  void SetWriteXML(const std::string& s) { m_writeXML = s; }
+  const std::string& WriteXML() const { return m_writeXML; }
 
-  void AddWriteFolder(const std::string& s) { fExclusiveFolders.push_back(s); }
-	const std::vector<std::string>& ListOfWriteFolders() const { return fExclusiveFolders; }
+  void AddWriteFolder(const std::string& s) { m_exclusiveFolders.push_back(s); }
+	const std::vector<std::string>& ListOfWriteFolders() const { return m_exclusiveFolders; }
 	
   void CheckForCompleteSetup();
 
@@ -368,26 +368,26 @@ class JobConfig {
   void PrintCompleteSetup(std::ostream & log, std::ostream& (*lineend) ( std::ostream& os ));
 
  private:
-  bool               fTest;
+  bool               m_test;
 
-  std::string        fEnvironment;
-  std::string        fCoolConnection;
-  std::string        fTriggerDBConnection;  
-  bool               fUseFrontier;
-  std::vector<std::pair<unsigned int,unsigned int> > fTriggerRunRanges;
-  int                fTriggerLumiblock; 
-  int                fTriggerConfigKey; 
-  int                fTriggerHltPsConfigKey;
-  int                fTriggerLvl1PsConfigKey;
-  unsigned int       fTriggerLvl1BgKey;
-  enum ETriggerLevel fTriggerLevel;  
-  std::string        fTriggerLVL1XML;
-  std::string        fTriggerHltMenuXML;
-  std::string        fLogfileName;
-  bool               fInfIOV;
-  std::string        fWriteXML;
-  int                fNewSchemaVersion;
-  std::vector<std::string> fExclusiveFolders;
+  std::string        m_environment;
+  std::string        m_coolConnection;
+  std::string        m_triggerDBConnection;  
+  bool               m_useFrontier;
+  std::vector<std::pair<unsigned int,unsigned int> > m_triggerRunRanges;
+  int                m_triggerLumiblock; 
+  int                m_triggerConfigKey; 
+  int                m_triggerHltPsConfigKey;
+  int                m_triggerLvl1PsConfigKey;
+  unsigned int       m_triggerLvl1BgKey;
+  enum ETriggerLevel m_triggerLevel;  
+  std::string        m_triggerLVL1XML;
+  std::string        m_triggerHltMenuXML;
+  std::string        m_logfileName;
+  bool               m_infIOV;
+  std::string        m_writeXML;
+  int                m_newSchemaVersion;
+  std::vector<std::string> m_exclusiveFolders;
 
 } gConfig;
 
@@ -421,7 +421,7 @@ void JobConfig::CheckForCompleteSetup() {
         throw TrigConfError(std::string("No config key specified, use option '--configkey'"), 2); // incomplete setup: code 2
       if( HltPsConfigKey()<0 ) // if it is equal 0 then HLT menu will not be written
         throw TrigConfError(std::string("No HLT prescale configuration key specified, use option '--prescalekeyhlt'"), 2); // incomplete setup: code 2
-      if(fEnvironment!="writehlt") {
+      if(m_environment!="writehlt") {
         if( Lvl1PsConfigKey()<0 ) // if it is equal 0 then L1 prescales (nor keys) will be written
           throw TrigConfError(std::string("No LVL1 prescale configuration key specified, use option '--prescalekeylvl1'"), 2); // incomplete setup: code 2
       }

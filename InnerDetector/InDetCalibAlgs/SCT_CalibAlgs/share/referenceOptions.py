@@ -275,33 +275,21 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 InDetFlags.useDCS = UseDCS #True if run HVTrip search
 include( "InDetRecExample/InDetRecConditionsAccess.py" )
 
-#--- for MajorityConditionsSvc
+#--- for MajorityConditionsTool
+from  SCT_ConditionsTools.SCT_MajorityConditionsToolSetup import SCT_MajorityConditionsToolSetup
+sct_MajorityConditionsToolSetup = SCT_MajorityConditionsToolSetup()
 year=int(projectName[4:6])
 if (year > 13):
-    conddb.addFolder('',"<db>COOLOFL_DCS/CONDBR2</db> /SCT/DCS/MAJ", className="CondAttrListCollection")
+    sct_MajorityConditionsToolSetup.setFolderDb("<db>COOLOFL_DCS/CONDBR2</db> /SCT/DCS/MAJ")
 else:
-    conddb.addFolder('',"<db>COOLOFL_DCS/COMP200</db> /SCT/DCS/MAJ", className="CondAttrListCollection")
-
-#--- For Conditions algorithm for Athena MT (start)
-from IOVSvc.IOVSvcConf import CondSvc
-ServiceMgr += CondSvc()
-from AthenaCommon.AlgSequence import AthSequencer
-condSeq = AthSequencer("AthCondSeq")
-from IOVSvc.IOVSvcConf import CondInputLoader
-condSeq += CondInputLoader("CondInputLoader")
-import StoreGate.StoreGateConf as StoreGateConf
-ServiceMgr += StoreGateConf.StoreGateSvc("ConditionStore")
-from  SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MajorityCondAlg
-condSeq += SCT_MajorityCondAlg("SCT_MajorityCondAlg")
-#--- For Conditions algorithm for Athena MT (end)
-
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MajorityConditionsSvc
-InDetSCT_MajorityConditionsSvc = SCT_MajorityConditionsSvc( name = "InDetSCT_MajorityConditionsSvc" )
-InDetSCT_MajorityConditionsSvc.UseOverall       = True
-InDetSCT_MajorityConditionsSvc.MajorityFraction = 0.9
-ServiceMgr += InDetSCT_ConfigurationConditionsSvc
+    sct_MajorityConditionsToolSetup.setFolderDb("<db>COOLOFL_DCS/COMP200</db> /SCT/DCS/MAJ")
+sct_MajorityConditionsToolSetup.setFolder("/SCT/DCS/MAJ")
+sct_MajorityConditionsToolSetup.setup()
+InDetSCT_MajorityConditionsTool = sct_MajorityConditionsToolSetup.getTool()
+InDetSCT_MajorityConditionsTool.UseOverall       = True
+InDetSCT_MajorityConditionsTool.MajorityFraction = 0.9
 if ( InDetFlags.doPrintConfigurables() ):
-    print InDetSCT_MajorityConditionsSvc
+    print InDetSCT_MajorityConditionsTool
 
 #--- conditions tag
 conddb.setGlobalTag( globalflags.ConditionsTag() ) 

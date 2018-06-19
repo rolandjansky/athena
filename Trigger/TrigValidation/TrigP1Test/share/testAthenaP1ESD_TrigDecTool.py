@@ -89,6 +89,7 @@ TrigDecChecker.MonitoredChains=[]
 from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
 tdt = Trig__TrigDecisionTool("TrigDecisionTool")
 ToolSvc += tdt
+ToolSvc.TrigDecisionTool.TrigConfigSvc = "Trig::TrigConfigSvc/TrigConfigSvc"
 
 
 from TrigEDMConfig.TriggerEDM import EDMLibraries

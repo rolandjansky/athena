@@ -5,40 +5,13 @@ InDetAODList = []
 
 # Add Vertices and Particles.
 # -----------------------------
-#if rec.doWriteAOD:
-#   InDetAODList+=["VxContainer#"+InDetKeys.PrimaryVertices()]
-#   InDetAODList+=["V0Container#"+InDetKeys.V0Candidates()]
-#   InDetAODList+=["V0Container#"+InDetKeys.SimpleV0Candidates()]
-#   InDetAODList+=["VxContainer#"+InDetKeys.SecVertices()]
-#   InDetAODList+=["VxContainer#"+InDetKeys.Conversions()]
-#   InDetAODList+=["Rec::TrackParticleContainer#"+InDetKeys.TrackParticles()]
-#   InDetAODList+=["TrackParticleTruthCollection#"+InDetKeys.TrackParticlesTruth()]
-#   InDetAODList+=["Rec::TrackParticleContainer#"+InDetKeys.ResolvedForwardTrackParticles()]
-#   InDetAODList+=["TrackParticleTruthCollection#"+InDetKeys.ResolvedForwardTrackParticlesTruth()]
-
-#if InDetFlags.doLowBetaFinder():
-#   InDetAODList+=["InDet::InDetLowBetaContainer#"+InDetKeys.LowBetaCandidates()]
-
-# if AODall is on the iPat and xKal (if on) are written to ESD/AOD
-#if InDetFlags.AODall():
-#   InDetAODList+=["VxContainer#"+InDetKeys.IPatPrimaryVertices()]
-#   InDetAODList+=["Rec::TrackParticleContainer#"+InDetKeys.IPatParticles()]
-#   InDetAODList+=["TrackParticleTruthCollection#"+InDetKeys.IPatParticlesTruth()]
-#   InDetAODList+=["VxContainer#"+InDetKeys.XKalPrimaryVertices()]
-#   InDetAODList+=["Rec::TrackParticleContainer#"+InDetKeys.XKalParticles()]
-#   InDetAODList+=["TrackParticleTruthCollection#"+InDetKeys.XKalParticlesTruth()]
-
-# Add bytestream errors (needed in order to re-run InDetTestBLayer tool)
-#if globalflags.InputFormat()=='bytestream':
-#   InDetAODList+=['InDetBSErrContainer#'+InDetKeys.PixelByteStreamErrs()]
-#   InDetAODList+=['InDetBSErrContainer#'+InDetKeys.SCT_ByteStreamErrs()]
-#   InDetAODList+=['TRT_BSErrContainer#'+InDetKeys.TRT_ByteStreamErrs()]
-#   InDetAODList+=['TRT_BSIdErrContainer#'+InDetKeys.TRT_ByteStreamIdErrs()]
 
 if InDetFlags.doxAOD():
   excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation."
   if not InDetFlags.KeepFirstParameters() :
           excludedAuxData += '-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition'
+
+  excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
 
   if InDetFlags.keepAdditionalHitsOnTrackParticle():
    excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation"  
@@ -48,17 +21,17 @@ if InDetFlags.doxAOD():
    InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODForwardTrackParticleContainer()]
    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODForwardTrackParticleContainer()+'Aux.' + excludedAuxData]
   InDetAODList+=['xAOD::VertexContainer#'+InDetKeys.xAODVertexContainer()]
-  InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODVertexContainer()+'Aux.-vxTrackAtVertex']
+  InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODVertexContainer()+'Aux.' + excludedVertexAuxData]
   InDetAODList+=['xAOD::VertexContainer#'+InDetKeys.xAODV0VertexContainer()]
-  InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODV0VertexContainer()+'Aux.-vxTrackAtVertex']
+  InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODV0VertexContainer()+'Aux.' + excludedVertexAuxData]
   InDetAODList+=['xAOD::VertexContainer#'+InDetKeys.xAODKshortVertexContainer()]
-  InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODKshortVertexContainer()+'Aux.-vxTrackAtVertex']
+  InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODKshortVertexContainer()+'Aux.' + excludedVertexAuxData]
   InDetAODList+=['xAOD::VertexContainer#'+InDetKeys.xAODLambdaVertexContainer()]
-  InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODLambdaVertexContainer()+'Aux.-vxTrackAtVertex']
+  InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODLambdaVertexContainer()+'Aux.' + excludedVertexAuxData]
   InDetAODList+=['xAOD::VertexContainer#'+InDetKeys.xAODLambdabarVertexContainer()]
-  InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODLambdabarVertexContainer()+'Aux.-vxTrackAtVertex']
+  InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODLambdabarVertexContainer()+'Aux.' + excludedVertexAuxData]
   InDetAODList+=['xAOD::VertexContainer#'+InDetKeys.Conversions()]
-  InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.Conversions() +'Aux.-vxTrackAtVertex']
+  InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.Conversions() +'Aux.' + excludedVertexAuxData]
   if InDetFlags.doTrackSegmentsPixel():
     InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelTrackParticleContainer()]
     InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelTrackParticleContainer()+'Aux.' + excludedAuxData]

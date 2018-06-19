@@ -12,7 +12,6 @@
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonIdHelpers/RpcIdHelper.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/MsgStream.h"
 
 //#include "StoreGate/StoreGate.h"

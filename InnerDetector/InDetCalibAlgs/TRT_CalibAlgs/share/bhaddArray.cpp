@@ -906,8 +906,8 @@ int main(int argc, char *argv[]){
 	
 	int npointsX =  reshist1->GetNbinsX();
 	int npointsY =  treshist1->GetNbinsY();
-	TH1D** hslizesX = new TH1D*[npointsX];;
-	TH1D** hslizesY = new TH1D*[npointsY];;
+	TH1D** hslizesX = new TH1D*[npointsX];
+	TH1D** hslizesY = new TH1D*[npointsY];
 	
 	TVectorD tbins(npointsX);
 	TVectorD rbins(npointsY);

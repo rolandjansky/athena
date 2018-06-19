@@ -24,3 +24,5 @@ addService("LArG4EC.LArG4ECConfig.getEMECPosOuterWheelCorrOffCalculator","EMECPo
 addService("LArG4EC.LArG4ECConfig.getEMECNegOuterWheelCorrOffCalculator","EMECNegOuterWheelCorrOffCalculator")
 addService("LArG4EC.LArG4ECConfig.getEMECBackOuterBarretteCorrOffCalculator","EMECBackOuterBarretteCorrOffCalculator")
 addService("LArG4EC.LArG4ECConfig.getEMECPresamplerCalculator","EMECPresamplerCalculator")
+
+addService("LArG4EC.LArG4ECConfig.getEMECPresamplerGeometry","EMECPresamplerGeometry")

@@ -52,8 +52,8 @@ StatusCode PixelMainMon::bookSpacePointMon(void) {
 }
 
 StatusCode PixelMainMon::fillSpacePointMon(void) {
-  StatusCode sc = evtStore()->retrieve(m_Pixel_spcontainer, m_Pixel_SpacePointsName);
-  if (sc.isFailure() || !m_Pixel_spcontainer) {
+  auto pixel_spcontainer = SG::makeHandle(m_Pixel_SpacePointsName);
+  if (!(pixel_spcontainer.isValid())) {
     ATH_MSG_WARNING("SpacePoint container for Pixels not found");
     if (m_storegate_errors) m_storegate_errors->Fill(2., 3.);
     return StatusCode::SUCCESS;
@@ -66,7 +66,7 @@ StatusCode PixelMainMon::fillSpacePointMon(void) {
   int nhits = 0;
 
   //loop over Pixel space points collections
-  for (SpacePointContainer::const_iterator it = m_Pixel_spcontainer->begin(); it != m_Pixel_spcontainer->end(); ++it) {
+  for (SpacePointContainer::const_iterator it = pixel_spcontainer->begin(); it != pixel_spcontainer->end(); ++it) {
     const SpacePointCollection* colNext = &(**it);
     if (!colNext) {
       if (m_storegate_errors) m_storegate_errors->Fill(2., 5.);  // first entry is for SP, second is for data problem

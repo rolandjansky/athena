@@ -311,7 +311,10 @@ def loadJobOptionsCatalogue( cfg_fname ):
          # In Gaudi v28, the second argument of the ctor is passed by move,
          # which pyroot doesn't handle correctly.  Do this as a workaround.
          p = gaudi.StringProperty( n, '' )
-         p.fromString(v).ignore()
+         try:
+            p.fromString(v).ignore()
+         except:
+            print "Failed to convert",n,v
 
          if not josvc.addPropertyToCatalogue( client, p ).isSuccess():
             raise RuntimeError( 'could not add property [%s.%s = %s]' % (client, n, v) )

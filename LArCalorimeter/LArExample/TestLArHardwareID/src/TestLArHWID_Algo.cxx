@@ -7,7 +7,6 @@
 #include <fstream>
 #include "TestLArHardwareID/TestLArHWID_Algo.h"
 
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"

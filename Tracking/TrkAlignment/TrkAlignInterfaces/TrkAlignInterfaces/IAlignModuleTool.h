@@ -7,7 +7,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "TrkAlignEvent/AlignModuleList.h"
 #include "TrkAlignEvent/AlignModule.h"

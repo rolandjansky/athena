@@ -22,6 +22,10 @@
 #define INDETPRIVXFINDER_INDETPRIVXFINDER_H
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "TrkTrack/TrackCollection.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexAuxContainer.h"
 
 /** Primary Vertex Finder.
   InDetPriVxFinder uses the InDetPrimaryVertexFinderTool in the package
@@ -35,7 +39,6 @@ namespace Trk
 {
   class IVertexMergingTool;
   class IVertexCollectionSortingTool;
-  class IVxCandidateXAODVertex;  
 }
 
 namespace InDet
@@ -51,17 +54,17 @@ namespace InDet
     StatusCode execute();
     StatusCode finalize();
   private:
-    std::string m_tracksName;             //!< Name of track container in StoreGate
-    std::string m_vxCandidatesOutputName; //!< Name of output container to store results
-    std::string m_vxCandidatesOutputNameAuxPostfix; //!< Postfix of output auxiliary container to store results (xAOD only)
+    SG::ReadHandleKey<TrackCollection> m_trkTracksName{this,"TrkTracksName","Tracks","Trk::Track Collection used in Vertexing"};
+    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracksName{this,"TracksName","InDetTrackParticles","xAOD::TrackParticle Collection used in Vertexing"};
+    SG::WriteHandleKey<xAOD::VertexContainer> m_vxCandidatesOutputName{this,"VxCandidatesOutputName","PrimaryVertices","Output Vertex Collection"};
 
     ToolHandle< IVertexFinder > m_VertexFinderTool;
     ToolHandle<Trk::IVertexMergingTool > m_VertexMergingTool;
     ToolHandle<Trk::IVertexCollectionSortingTool > m_VertexCollectionSortingTool;
-    ToolHandle< Trk::IVxCandidateXAODVertex > m_VertexEdmFactory;
     
     bool m_doVertexMerging;
     bool m_doVertexSorting;
+    bool m_useTrackParticles;//use TrackParticles or Trk::Tracks as input
 
     // for summary output at the end
     unsigned int m_numEventsProcessed;

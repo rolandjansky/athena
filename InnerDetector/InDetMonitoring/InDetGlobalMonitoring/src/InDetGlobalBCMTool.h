@@ -17,6 +17,10 @@
 
 //Local includes
 #include "InDetGlobalMotherMonTool.h"
+//Framework
+#include "StoreGate/ReadHandleKey.h"
+#include "VxVertex/VxContainer.h"
+#include "EventInfo/EventInfo.h"
 //Standard c++
 #include <string>
 //Predeclarations
@@ -37,6 +41,9 @@ public:
     ///Virtual destructor
     virtual ~InDetGlobalBCMTool() {}
 
+    ///Initialisation
+    virtual StatusCode initialize();
+
     ///@name Book, fill and proc histograms
     ///@{
   
@@ -52,7 +59,8 @@ private:
     
     std::string m_detector;
     std::string m_histFolder;
-    std::string m_vxContainerName;
+    SG::ReadHandleKey<VxContainer> m_vxContainerName{this, "vxContainerName","VxPrimaryCandidate","Vertex Container for BCM Global Monitoring"};
+    SG::ReadHandleKey<EventInfo> m_eventInfoKey{this, "EventInfoKey","EventInfo","Event Info Key for BCM Global Monitoring"};
 
     /// Example histogram
     TH1F*  m_nExamplePlot;

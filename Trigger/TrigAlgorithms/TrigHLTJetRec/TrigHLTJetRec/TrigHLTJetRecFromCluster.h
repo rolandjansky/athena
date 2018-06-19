@@ -20,6 +20,7 @@ public TrigHLTJetRecBase<xAOD::CaloClusterContainer>{
 
  protected:
 
+  /*
   HLT::ErrorCode getPseudoJets(const xAOD::CaloClusterContainer*,
                                jet::LabelIndex* indexMap,
                                jet::PseudoJetVector& pjv) override;
@@ -29,16 +30,15 @@ public TrigHLTJetRecBase<xAOD::CaloClusterContainer>{
                                       jet::LabelIndex* indexMap,
                                       jet::PseudoJetVector& pjv_secondary) override;
 
-  HLT::ErrorCode retrieveSecondaryPseudoJetGetter();
-  
   HLT::ErrorCode getSecondaryPseudoJets(const HLT::TriggerElement* inputTE,
                                jet::LabelIndex* indexMap,
                                jet::PseudoJetVector& pjv);
   HLT::ErrorCode loadSecondaryPseudoJets(
                                jet::PseudoJetVector& pjv);
+  */
+  
 
-  const xAOD::JetContainer* build() const override; 
-
+  HLT::ErrorCode build(fastjet::ClusterSequence*&, xAOD::JetContainer*&) const override;
  
  private:
  /* A secondary PseudojetGetter shared by this algorithm and the IJetBuildTool for tracks

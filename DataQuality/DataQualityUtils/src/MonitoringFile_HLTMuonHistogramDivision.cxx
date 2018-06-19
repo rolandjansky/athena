@@ -2366,7 +2366,7 @@ namespace dqutils {
       TH1F* h1tmpf(0);
       TH1F* h1num(0);
       TH1F* h1den(0);
-      TGraphAsymmErrors* h1tmpfg = new TGraphAsymmErrors();;
+      TGraphAsymmErrors* h1tmpfg = new TGraphAsymmErrors();
       TString stmp = seff + seffg;
       h1num = 0;
       mf.get(sdir + "NumDenom/" + snum, h1num);

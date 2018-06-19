@@ -51,7 +51,7 @@ void RtSpline::_init() {
 double RtSpline::radius(double t) const {
 //check for t_min and t_max
   if( t > p_sp3->GetXmax()) return p_sp3->Eval(p_sp3->GetXmax());
-  if ( t < p_sp3->GetXmin() ) return p_sp3->Eval(p_sp3->GetXmin());;
+  if ( t < p_sp3->GetXmin() ) return p_sp3->Eval(p_sp3->GetXmin());
   double r=p_sp3->Eval(t);
   return r >= 0 ? r : 0;
 }

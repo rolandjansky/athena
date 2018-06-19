@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/CLIDSvc
                           Control/SGTools
                           Control/StoreGate
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/DetDescrCond/DetDescrConditions
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           GaudiKernel
@@ -40,4 +40,4 @@ atlas_add_component( LArGeoAlgsNV
 
 # Install files from the package:
 atlas_install_headers( LArGeoAlgsNV )
-
+atlas_install_python_modules( python/*.py )

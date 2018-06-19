@@ -281,138 +281,134 @@ void VP1CaloCellSystem::Clockwork::FillManagers()
 	// For events with no Calo Cells do nothing
 	if(!calocells) return;
 
-	// loop over all calo cells in the calo cell container
-	CaloCellContainer::const_iterator i_cell=calocells->begin();
-
-	for(; i_cell!=calocells->end(); ++i_cell) {
-		const CaloCell* _cell = *i_cell;
+	for(const CaloCell* cell : *calocells) {
 
 		// for each cell:
 		//   1. determine its type
 		//   2. build VP1CaloCell of appropriate type
 		//   3. add it to the appropriate manager
 		try {
-			if(calo_id->is_em_barrel(_cell->ID())) {
+			if(calo_id->is_em_barrel(cell->ID())) {
 				// ------- EMB ----------
-				VP1CC_LArEMB* _embCC = new VP1CC_LArEMB(_cell,&sepHelperMap);
+				VP1CC_LArEMB* embCC = new VP1CC_LArEMB(cell,&sepHelperMap);
 
-				switch(calo_id->sampling(_cell->ID())) {
+				switch(calo_id->sampling(cell->ID())) {
 				case 0: {
-					cell_managers[VP1CC_SelTypeEMB0]->add(_embCC);
+					cell_managers[VP1CC_SelTypeEMB0]->add(embCC);
 					break;
 				}
 				case 1: {
-					cell_managers[VP1CC_SelTypeEMB1]->add(_embCC);
+					cell_managers[VP1CC_SelTypeEMB1]->add(embCC);
 					break;
 				}
 				case 2: {
-					cell_managers[VP1CC_SelTypeEMB2]->add(_embCC);
+					cell_managers[VP1CC_SelTypeEMB2]->add(embCC);
 					break;
 				}
 				case 3: {
-					cell_managers[VP1CC_SelTypeEMB3]->add(_embCC);
+					cell_managers[VP1CC_SelTypeEMB3]->add(embCC);
 					break;
 				}
 				default: { //unknown case, tidy up
-				  delete _embCC; _embCC=nullptr;
+				  delete embCC; embCC=nullptr;
 				  break;
 				}
 				}
 				// ------- EMB ----------
 			}
-			else if(calo_id->is_em_endcap(_cell->ID()) || calo_id->is_hec(_cell->ID())) {
-				VP1CC_LArEMECHEC* _emechecCC = new VP1CC_LArEMECHEC(_cell,calo_id,&sepHelperMap);
+			else if(calo_id->is_em_endcap(cell->ID()) || calo_id->is_hec(cell->ID())) {
+				VP1CC_LArEMECHEC* emechecCC = new VP1CC_LArEMECHEC(cell,calo_id,&sepHelperMap);
 
-				if(calo_id->is_em_endcap(_cell->ID())) {
+				if(calo_id->is_em_endcap(cell->ID())) {
 					// ------- EMEC ----------
-					switch(calo_id->sampling(_cell->ID())) {
+					switch(calo_id->sampling(cell->ID())) {
 					case 0: {
-						cell_managers[VP1CC_SelTypeEMEC0]->add(_emechecCC);
+						cell_managers[VP1CC_SelTypeEMEC0]->add(emechecCC);
 						break;
 					}
 					case 1: {
-						cell_managers[VP1CC_SelTypeEMEC1]->add(_emechecCC);
+						cell_managers[VP1CC_SelTypeEMEC1]->add(emechecCC);
 						break;
 					}
 					case 2: {
-						cell_managers[VP1CC_SelTypeEMEC2]->add(_emechecCC);
+						cell_managers[VP1CC_SelTypeEMEC2]->add(emechecCC);
 						break;
 					}
 					case 3: {
-						cell_managers[VP1CC_SelTypeEMEC3]->add(_emechecCC);
+						cell_managers[VP1CC_SelTypeEMEC3]->add(emechecCC);
 						break;
 					}
 					default: { //unknown case, tidy up
-					  delete _emechecCC; _emechecCC=nullptr;
+					  delete emechecCC; emechecCC=nullptr;
 					  break;
 					}
 					}
 					// ------- EMEC ----------
 				} else {
 					// ------- HEC ----------
-					switch(calo_id->sampling(_cell->ID())) {
+					switch(calo_id->sampling(cell->ID())) {
 					case 0: {
-						cell_managers[VP1CC_SelTypeHEC0]->add(_emechecCC);
+						cell_managers[VP1CC_SelTypeHEC0]->add(emechecCC);
 						break;
 					}
 					case 1: {
-						cell_managers[VP1CC_SelTypeHEC1]->add(_emechecCC);
+						cell_managers[VP1CC_SelTypeHEC1]->add(emechecCC);
 						break;
 					}
 					case 2: {
-						cell_managers[VP1CC_SelTypeHEC2]->add(_emechecCC);
+						cell_managers[VP1CC_SelTypeHEC2]->add(emechecCC);
 						break;
 					}
 					case 3: {
-						cell_managers[VP1CC_SelTypeHEC3]->add(_emechecCC);
+						cell_managers[VP1CC_SelTypeHEC3]->add(emechecCC);
 						break;
 					}
 					default: { //unknown case, tidy up
-					  delete _emechecCC; _emechecCC=nullptr;
+					  delete emechecCC; emechecCC=nullptr;
 					  break;
 					}
 					}
 					// ------- EMEC ----------
 				}
 			}
-			else if(calo_id->is_fcal(_cell->ID())) {
+			else if(calo_id->is_fcal(cell->ID())) {
 				// ------- FCAL ----------
-				VP1CC_LArFCAL* _fcalCC = new VP1CC_LArFCAL(_cell,&sepHelperMap);
+				VP1CC_LArFCAL* fcalCC = new VP1CC_LArFCAL(cell,&sepHelperMap);
 
-				switch(calo_id->sampling(_cell->ID())) {
+				switch(calo_id->sampling(cell->ID())) {
 				case 1: {
-					cell_managers[VP1CC_SelTypeFCAL1]->add(_fcalCC);
+					cell_managers[VP1CC_SelTypeFCAL1]->add(fcalCC);
 					break;
 				}
 				case 2: {
-					cell_managers[VP1CC_SelTypeFCAL2]->add(_fcalCC);
+					cell_managers[VP1CC_SelTypeFCAL2]->add(fcalCC);
 					break;
 				}
 				case 3: {
-					cell_managers[VP1CC_SelTypeFCAL3]->add(_fcalCC);
+					cell_managers[VP1CC_SelTypeFCAL3]->add(fcalCC);
 					break;
 				}
 				default: { //unknown case, tidy up
-					  delete _fcalCC; _fcalCC=nullptr;
+					  delete fcalCC; fcalCC=nullptr;
 					  break;
 					}
 				}
 				// ------- FCAL ----------
 			}
-			else if(!calo_id->is_tile_gapscin(_cell->ID())) {
+			else if(!calo_id->is_tile_gapscin(cell->ID())) {
 				// ------- Tile Barrel EC ----------
-				VP1CC_TileBarEc* _tileCC = new VP1CC_TileBarEc(_cell,tile_id,&sepHelperMap);
+				VP1CC_TileBarEc* tileCC = new VP1CC_TileBarEc(cell,tile_id,&sepHelperMap);
 
-				if(calo_id->is_tile_barrel(_cell->ID()))
-					cell_managers[VP1CC_SelTypeTileB]->add(_tileCC);
+				if(calo_id->is_tile_barrel(cell->ID()))
+					cell_managers[VP1CC_SelTypeTileB]->add(tileCC);
 				else
-					cell_managers[VP1CC_SelTypeTileEC]->add(_tileCC);
+					cell_managers[VP1CC_SelTypeTileEC]->add(tileCC);
 			}
-			else if(calo_id->is_tile_gapscin(_cell->ID())) {
+			else if(calo_id->is_tile_gapscin(cell->ID())) {
 				// ------- Tile Crack ----------
-				VP1CC_TileCrack* _tilecrackCC = new VP1CC_TileCrack(_cell,tile_id,&sepHelperMap);
+				VP1CC_TileCrack* tilecrackCC = new VP1CC_TileCrack(cell,tile_id,&sepHelperMap);
 
-				cell_managers[VP1CC_SelTypeTileCrack]->add(_tilecrackCC);
+				cell_managers[VP1CC_SelTypeTileCrack]->add(tilecrackCC);
 			}
 		}
 		catch(std::runtime_error& err) {
@@ -452,37 +448,37 @@ std::string VP1CaloCellSystem::Clockwork::SearchTileRawchanKeys(const std::vecto
 
 VP1CaloCellSystem::VP1CaloCellSystem()
 :IVP13DSystemSimple("Cells","Display energy of CaloCell objects","tsulaia@mail.cern.ch or rbianchi@cern.ch"),
- _clockwork(new Clockwork())
+ m_clockwork(new Clockwork())
 {
 }
 
 VP1CaloCellSystem::~VP1CaloCellSystem()
 {
-	delete _clockwork;
+	delete m_clockwork;
 }
 
 QWidget* VP1CaloCellSystem::buildController()
 {
 	// Standard stuff
-	_clockwork->controller = new VP1CaloCellController(this);
+	m_clockwork->controller = new VP1CaloCellController(this);
 
 	// Connect controller signals to various slots
 	// Energy mode
-	connect(_clockwork->controller,SIGNAL(energyModeEtChanged(bool)),
+	connect(m_clockwork->controller,SIGNAL(energyModeEtChanged(bool)),
 			this,SLOT(energyMode()));
 
 	// Mbts
-  _clockwork->mbtsHelper->setController(_clockwork->controller);
-	connect(_clockwork->controller,SIGNAL(selectionMbtsChanged(VP1Interval)),
-			_clockwork->mbtsHelper,SLOT(selectionUpdated(VP1Interval)));
-	connect(_clockwork->controller,SIGNAL(showVolumeOutLinesChanged(bool)),
-			_clockwork->mbtsHelper,SLOT(outlineUpdate(bool)));
-  if (_clockwork->controller->customTourEditor()){
+  m_clockwork->mbtsHelper->setController(m_clockwork->controller);
+	connect(m_clockwork->controller,SIGNAL(selectionMbtsChanged(VP1Interval)),
+			m_clockwork->mbtsHelper,SLOT(selectionUpdated(VP1Interval)));
+	connect(m_clockwork->controller,SIGNAL(showVolumeOutLinesChanged(bool)),
+			m_clockwork->mbtsHelper,SLOT(outlineUpdate(bool)));
+  if (m_clockwork->controller->customTourEditor()){
     std::cout <<" Connecting to CVRC" <<std::endl;
-    connect(_clockwork->controller->customTourEditor(),SIGNAL(clipVolumeRadiusChanged(double)),
-			_clockwork->mbtsHelper,SLOT(clipVolumeRadiusChanged(double)));
+    connect(m_clockwork->controller->customTourEditor(),SIGNAL(clipVolumeRadiusChanged(double)),
+			m_clockwork->mbtsHelper,SLOT(clipVolumeRadiusChanged(double)));
   }
-	return _clockwork->controller;
+	return m_clockwork->controller;
 }
 
 void VP1CaloCellSystem::systemcreate(StoreGateSvc* detstore)
@@ -491,87 +487,87 @@ void VP1CaloCellSystem::systemcreate(StoreGateSvc* detstore)
 	SoGenericBox::initClass();
 
 	// ------------- DD Managers and ID Helpers -------------
-	StatusCode status = detstore->retrieve(_clockwork->calo_dd_man);
-	if(status.isFailure() || _clockwork->calo_dd_man==0) {
-		_clockwork->noCalo = true;
+	StatusCode status = detstore->retrieve(m_clockwork->calo_dd_man);
+	if(status.isFailure() || m_clockwork->calo_dd_man==0) {
+		m_clockwork->noCalo = true;
 		messageDebug("Unable to retrieve Calo DD Manager");
 		return;
 	}
 
-	status = detstore->retrieve(_clockwork->tile_dd_man);
-	if(status.isFailure() || _clockwork->tile_dd_man==0) {
-		_clockwork->noCalo = true;
+	status = detstore->retrieve(m_clockwork->tile_dd_man);
+	if(status.isFailure() || m_clockwork->tile_dd_man==0) {
+		m_clockwork->noCalo = true;
 		messageDebug("Unable to retrieve Tile DD Manager");
 		return;
 	}
 
-	_clockwork->calo_id = _clockwork->calo_dd_man->getCaloCell_ID();
-	if(_clockwork->calo_id==0) {
-		_clockwork->noCalo = true;
+	m_clockwork->calo_id = m_clockwork->calo_dd_man->getCaloCell_ID();
+	if(m_clockwork->calo_id==0) {
+		m_clockwork->noCalo = true;
 		messageDebug("0 pointer to Calo ID Helper");
 		return;
 	}
 
-	_clockwork->tile_id = _clockwork->tile_dd_man->get_id();
-	if(_clockwork->tile_id ==0) {
-		_clockwork->noCalo = true;
+	m_clockwork->tile_id = m_clockwork->tile_dd_man->get_id();
+	if(m_clockwork->tile_id ==0) {
+		m_clockwork->noCalo = true;
 		messageDebug("0 pointer to Tile ID Helper");
 		return;
 	}
 
-	status = detstore->retrieve(_clockwork->tile_hw_id);
-	if(status.isFailure() || _clockwork->tile_hw_id==0) {
+	status = detstore->retrieve(m_clockwork->tile_hw_id);
+	if(status.isFailure() || m_clockwork->tile_hw_id==0) {
 		messageDebug("Unable to retireve Tile HWID");
-		_clockwork->tile_hw_id = 0;
-		_clockwork->noTileDigitsGlobal = true;
+		m_clockwork->tile_hw_id = 0;
+		m_clockwork->noTileDigitsGlobal = true;
 	}
 	// ------------- DD Managers and ID Helpers -------------
 
 
 	// ------------- Tools/Services -------------
-	status = detstore->retrieve(_clockwork->tile_info,"TileInfo");
-	if(status.isFailure() || _clockwork->tile_info==0) {
+	status = detstore->retrieve(m_clockwork->tile_info,"TileInfo");
+	if(status.isFailure() || m_clockwork->tile_info==0) {
 		messageDebug("Unable to retrieve Tile Info");
-		_clockwork->tile_info = 0;
-		_clockwork->noTileDigitsGlobal = true;
+		m_clockwork->tile_info = 0;
+		m_clockwork->noTileDigitsGlobal = true;
 	}
 
-	_clockwork->tile_cabling = TileCablingService::getInstance();
-	if(_clockwork->tile_cabling==0) {
+	m_clockwork->tile_cabling = TileCablingService::getInstance();
+	if(m_clockwork->tile_cabling==0) {
 		messageDebug("0 pointer to TileCabling");
-		_clockwork->noTileDigitsGlobal = true;
+		m_clockwork->noTileDigitsGlobal = true;
 	}
 
-	status = toolSvc()->retrieveTool("LArCablingService",_clockwork->lar_cabling);
-	if (status.isFailure() || _clockwork->lar_cabling == 0) {
+	status = toolSvc()->retrieveTool("LArCablingService",m_clockwork->lar_cabling);
+	if (status.isFailure() || m_clockwork->lar_cabling == 0) {
 		messageDebug("Failed to locate LAr Cabling Service");
-		_clockwork->lar_cabling = 0;
-		_clockwork->noLArDigitsGlobal = true;
+		m_clockwork->lar_cabling = 0;
+		m_clockwork->noLArDigitsGlobal = true;
 	}
 
-	status = detstore->retrieve(_clockwork->lar_onlineID,"LArOnlineID");
-	if (status.isFailure() || _clockwork->lar_onlineID == 0) {
+	status = detstore->retrieve(m_clockwork->lar_onlineID,"LArOnlineID");
+	if (status.isFailure() || m_clockwork->lar_onlineID == 0) {
 		messageDebug("Failed to retrieve LAr online ID");
-		_clockwork->lar_onlineID = 0;
+		m_clockwork->lar_onlineID = 0;
 	}
 
 
-	status = toolSvc()->retrieveTool("CaloBadChanTool",_clockwork->calo_badchannel);
-	if (status.isFailure() || _clockwork->calo_badchannel == 0) {
+	status = toolSvc()->retrieveTool("CaloBadChanTool",m_clockwork->calo_badchannel);
+	if (status.isFailure() || m_clockwork->calo_badchannel == 0) {
 		messageDebug("Failed to locate Calo Bad Channel Tool");
-		_clockwork->calo_badchannel = 0;
+		m_clockwork->calo_badchannel = 0;
 	}
 
 	// Pass retrieved pointers to the controller (for Tile Pulse display)
-	_clockwork->controller->initTilePulse(_clockwork->tile_hw_id,
-			_clockwork->tile_info,
-			_clockwork->tile_cabling);
+	m_clockwork->controller->initTilePulse(m_clockwork->tile_hw_id,
+			m_clockwork->tile_info,
+			m_clockwork->tile_cabling);
 	// ------------- Tools/Services -------------
 
 
 	// -------------- MBTS ----------------
 	try {
-		_clockwork->mbtsHelper->systemcreate(detstore);
+		m_clockwork->mbtsHelper->systemcreate(detstore);
 	} catch(std::runtime_error& err) {
 		message (err.what());
 	}
@@ -581,37 +577,37 @@ void VP1CaloCellSystem::systemcreate(StoreGateSvc* detstore)
 void VP1CaloCellSystem::systemerase()
 {
 	// Clear node 2 CC map
-	_clockwork->node2ccMap.clear();
+	m_clockwork->node2ccMap.clear();
 
 	// Delete Cell Managers and clear the map
-	VP1CCManagerContainer::iterator it = _clockwork->cell_managers.begin();
-	for(; it!=_clockwork->cell_managers.end(); it++)
+	VP1CCManagerContainer::iterator it = m_clockwork->cell_managers.begin();
+	for(; it!=m_clockwork->cell_managers.end(); it++)
 		if(it->second) delete it->second;
 
-	_clockwork->cell_managers.clear();
-	_clockwork->calocells = 0;
+	m_clockwork->cell_managers.clear();
+	m_clockwork->calocells = 0;
 
 	// delete separator helpers and clear the separator helper map
-	VP1CC_SeparatorMap::iterator itSepHelper = _clockwork->sepHelperMap.begin();
-	for(; itSepHelper!= _clockwork->sepHelperMap.end(); itSepHelper++)
+	VP1CC_SeparatorMap::iterator itSepHelper = m_clockwork->sepHelperMap.begin();
+	for(; itSepHelper!= m_clockwork->sepHelperMap.end(); itSepHelper++)
 		if(itSepHelper->second) delete itSepHelper->second;
-	_clockwork->sepHelperMap.clear();
+	m_clockwork->sepHelperMap.clear();
 
 	// MBTS
-	_clockwork->mbtsHelper->systemerase();
+	m_clockwork->mbtsHelper->systemerase();
 }
 
 void VP1CaloCellSystem::systemuncreate()
 {
 	messageDebug("VP1CaloCellSystem::systemuncreate()...");
-	_clockwork->controller->DeleteDigitForms();
+	m_clockwork->controller->DeleteDigitForms();
 }
 
 void VP1CaloCellSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root)
 {
-	if(_clockwork->noCalo) return;
+	if(m_clockwork->noCalo) return;
 
-	root->addChild(_clockwork->controller->drawOptions());
+	root->addChild(m_clockwork->controller->drawOptions());
 
 	// Iterators for SG keys
 	std::vector<std::string>::const_iterator firstKey, lastKey;
@@ -626,20 +622,20 @@ void VP1CaloCellSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root
 	if(firstKey!=lastKey) {
 		// Some keys found
 		std::string keyCaloCell = *firstKey;
-		StatusCode status = sg->retrieve(_clockwork->calocells,keyCaloCell);
-		if(status.isSuccess() && _clockwork->calocells!=0) {
+		StatusCode status = sg->retrieve(m_clockwork->calocells,keyCaloCell);
+		if(status.isSuccess() && m_clockwork->calocells!=0) {
 			// Build a basis for the scene graph
 			//   1. Create one Separator and one Material for each member of VP1CC_SeparatorTypes
 			//   2. Also create Separator Helper objects
-			VP1CC_SeparatorTypesSet::iterator itSepType=_clockwork->sepTypes.begin();
-			for(; itSepType!=_clockwork->sepTypes.end(); itSepType++) {
+			VP1CC_SeparatorTypesSet::iterator itSepType=m_clockwork->sepTypes.begin();
+			for(; itSepType!=m_clockwork->sepTypes.end(); itSepType++) {
 				SoSeparator* childSep = new SoSeparator();
 				VP1ExtraSepLayerHelper* sepHelper = new VP1ExtraSepLayerHelper(childSep);
 
-				root->addChild(_clockwork->controller->GetMaterial(*itSepType));
+				root->addChild(m_clockwork->controller->GetMaterial(*itSepType));
 				root->addChild(childSep);
 
-				_clockwork->sepHelperMap[*itSepType] = sepHelper;
+				m_clockwork->sepHelperMap[*itSepType] = sepHelper;
 			}
 
 			setupEnergyMode();
@@ -655,20 +651,20 @@ void VP1CaloCellSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root
 	// ---------------- Retrieve calo cells from SG ---------------------
 
 	// -------------------------- Digits ---------------------------------
-	_clockwork->controller->ClearHideDigitForms();
-	_clockwork->controller->EnableDigitsCheckbox(false);
-	_clockwork->noLArDigitsEvent = _clockwork->noLArDigitsGlobal;
-	_clockwork->noTileDigitsEvent = _clockwork->noTileDigitsGlobal;
+	m_clockwork->controller->ClearHideDigitForms();
+	m_clockwork->controller->EnableDigitsCheckbox(false);
+	m_clockwork->noLArDigitsEvent = m_clockwork->noLArDigitsGlobal;
+	m_clockwork->noTileDigitsEvent = m_clockwork->noTileDigitsGlobal;
 
 
 	/*
-  if(_clockwork->calo_badchannel == 0)
-    _clockwork->mainController->chbxEnableBadChannels->setEnabled(false);
+  if(m_clockwork->calo_badchannel == 0)
+    m_clockwork->mainController->chbxEnableBadChannels->setEnabled(false);
   else
-    _clockwork->mainController->chbxEnableBadChannels->setEnabled(true);
+    m_clockwork->mainController->chbxEnableBadChannels->setEnabled(true);
 	 */
 
-	if(!_clockwork->noLArDigitsEvent) {
+	if(!m_clockwork->noLArDigitsEvent) {
 		// Get keys for LArDigitContainers in the Store Gate
 		// If we have more than one container then it means we have All and/or Thinned and/or IIC -> use All if available, otherwise use Thinned
 		std::vector<std::string> strLArDigitKeys = sg->keys<LArDigitContainer>();
@@ -677,7 +673,7 @@ void VP1CaloCellSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root
 
 		if(firstKey==lastKey){
 			message("No LAr Digits in Store Gate for this event");
-			_clockwork->noLArDigitsEvent = true;
+			m_clockwork->noLArDigitsEvent = true;
 		} else {
 			std::string strLArDigitKeys(""), tagThinned(""), tagIIC(""), tagFirstOther("");
 
@@ -700,22 +696,22 @@ void VP1CaloCellSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root
 			QString mess = QString("Retrieving LArDigitContainer with the key ") + QString(strLArDigitKeys.c_str());
 			messageDebug(mess);
 
-			StatusCode status = sg->retrieve(_clockwork->lar_digits,strLArDigitKeys);
+			StatusCode status = sg->retrieve(m_clockwork->lar_digits,strLArDigitKeys);
 
-			if(status.isSuccess() && _clockwork->lar_digits != 0) {
-				_clockwork->controller->EnableDigitsCheckbox(true);
+			if(status.isSuccess() && m_clockwork->lar_digits != 0) {
+				m_clockwork->controller->EnableDigitsCheckbox(true);
 				std::ostringstream numLarDigits;
-				numLarDigits << _clockwork->lar_digits->size();
+				numLarDigits << m_clockwork->lar_digits->size();
 				message("Number of LAr digits for this event " + QString(numLarDigits.str().c_str()));
 			} else {
 				message("Unable to retrieve LAr digits from Store Gate for this event");
-				_clockwork->lar_digits = 0;
-				_clockwork->noLArDigitsEvent = true;
+				m_clockwork->lar_digits = 0;
+				m_clockwork->noLArDigitsEvent = true;
 			}
 		} // LArDigits found in the SG
 	}
 
-	if(!_clockwork->noTileDigitsEvent) {
+	if(!m_clockwork->noTileDigitsEvent) {
 		// Get keys for TileDigitContainers in the Store Gate
 		// If we have more than one container then use the first one and issue a warning message
 		std::vector<std::string> strTileDigitKeys = sg->keys<TileDigitsContainer>();
@@ -724,17 +720,17 @@ void VP1CaloCellSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root
 
 		if(firstKey==lastKey){
 			message("No Tile Digits in Store Gate for this event");
-			_clockwork->noTileDigitsEvent = true;
+			m_clockwork->noTileDigitsEvent = true;
 		} else {
 			std::string keyTileDigits = *firstKey;
-			StatusCode status = sg->retrieve(_clockwork->tile_digits,keyTileDigits);
+			StatusCode status = sg->retrieve(m_clockwork->tile_digits,keyTileDigits);
 
-			if(status.isFailure() || _clockwork->tile_digits==0){
+			if(status.isFailure() || m_clockwork->tile_digits==0){
 				message("Unable to retrieve Tile digits from Store Gate for this event");
-				_clockwork->tile_digits = 0;
-				_clockwork->noTileDigitsEvent = true;
+				m_clockwork->tile_digits = 0;
+				m_clockwork->noTileDigitsEvent = true;
 			} else {
-				_clockwork->controller->EnableDigitsCheckbox(true);
+				m_clockwork->controller->EnableDigitsCheckbox(true);
 
 				// ------------ Tile Raw Channels (pulses) ------------------
 				std::vector<std::string> strTileRawchanKeys = sg->keys<TileRawChannelContainer>();
@@ -743,9 +739,9 @@ void VP1CaloCellSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root
 
 				if(firstKey==lastKey) {
 					message("No Tile Raw Channels in Store Gate for this event");
-					_clockwork->noTileDigitsEvent = true;
+					m_clockwork->noTileDigitsEvent = true;
 				} else {
-					std::string keyTileRawChan = _clockwork->SearchTileRawchanKeys(strTileRawchanKeys);
+					std::string keyTileRawChan = m_clockwork->SearchTileRawchanKeys(strTileRawchanKeys);
 
 					// If no keys found from the specified order then just try the fisr one
 					if(keyTileRawChan=="")
@@ -754,10 +750,10 @@ void VP1CaloCellSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root
 					QString mess = QString("Retrieving Tile Raw Channels with the key ") + QString(keyTileRawChan.c_str());
 					messageDebug(mess);
 
-					status = sg->retrieve(_clockwork->tile_rawchannel,keyTileRawChan);
-					if(status.isFailure() || _clockwork->tile_rawchannel==0) {
+					status = sg->retrieve(m_clockwork->tile_rawchannel,keyTileRawChan);
+					if(status.isFailure() || m_clockwork->tile_rawchannel==0) {
 						message("Unable to retrieve Tile raw channels from Store Gate for this event");
-						_clockwork->tile_rawchannel = 0;
+						m_clockwork->tile_rawchannel = 0;
 					}
 				}
 			} // Digits retrieved successfully
@@ -768,14 +764,14 @@ void VP1CaloCellSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root
 
 	// -------------------------- MBTS ---------------------------------
 	// -- material
-	root->addChild(_clockwork->controller->GetMaterial(VP1CC_SepMBTS));
+	root->addChild(m_clockwork->controller->GetMaterial(VP1CC_SepMBTS));
 
 	// -- separator
 	SoSeparator* mbtsSeparator = new SoSeparator;
 	root->addChild(mbtsSeparator);
 	try {
-		_clockwork->mbtsHelper->buildEventSceneGraph(sg,mbtsSeparator);
-		_clockwork->mbtsHelper->refreshGraph(_clockwork->controller->selectionMbts());
+		m_clockwork->mbtsHelper->buildEventSceneGraph(sg,mbtsSeparator);
+		m_clockwork->mbtsHelper->refreshGraph(m_clockwork->controller->selectionMbts());
 	} catch(std::runtime_error& err) {
 		message (err.what());
 	}
@@ -787,52 +783,52 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 {
 	messageDebug("VP1CaloCellSystem::userPickedNode()");
 
-	SoNode* _tail = pickedPath->getTail();
+	SoNode* tail = pickedPath->getTail();
 
 	// Find the VP1CC object which correspond to the selected 3D object
-	VP1CC_SoNode2CCMap::iterator itNode2CC = _clockwork->node2ccMap.find(_tail);
+	VP1CC_SoNode2CCMap::iterator itNode2CC = m_clockwork->node2ccMap.find(tail);
 
-	if(itNode2CC!=_clockwork->node2ccMap.end()){
+	if(itNode2CC!=m_clockwork->node2ccMap.end()){
 		// VP1CC object found.
 
 		std::string channel_string = "";
-		if ( _clockwork->lar_cabling && _clockwork->lar_onlineID ) {
+		if ( m_clockwork->lar_cabling && m_clockwork->lar_onlineID ) {
 			VP1CC_LAr* larCC = dynamic_cast<VP1CC_LAr*>((*itNode2CC).second);
 			if(larCC) {
 				Identifier cellOffline = larCC->getID();
 
 				std::ostringstream idstring;
-				if ( _clockwork->calo_id->is_em(cellOffline) || _clockwork->calo_id->is_hec(cellOffline) ) {
-					idstring <<"(b_ec=" << _clockwork->calo_id->pos_neg(cellOffline) << ", samp="
-							<< _clockwork->calo_id->sampling(cellOffline) << ", reg="
-							<< _clockwork->calo_id->region(cellOffline) << ", eta="
-							<< _clockwork->calo_id->eta(cellOffline) << ", phi="
-							<< _clockwork->calo_id->phi(cellOffline) << ") ";
+				if ( m_clockwork->calo_id->is_em(cellOffline) || m_clockwork->calo_id->is_hec(cellOffline) ) {
+					idstring <<"(b_ec=" << m_clockwork->calo_id->pos_neg(cellOffline) << ", samp="
+							<< m_clockwork->calo_id->sampling(cellOffline) << ", reg="
+							<< m_clockwork->calo_id->region(cellOffline) << ", eta="
+							<< m_clockwork->calo_id->eta(cellOffline) << ", phi="
+							<< m_clockwork->calo_id->phi(cellOffline) << ") ";
 				}
-				else if ( _clockwork->calo_id->is_fcal(cellOffline) ) {
-					idstring <<"(pos_neg=" << _clockwork->calo_id->pos_neg(cellOffline) << ",mod="
-							<< _clockwork->calo_id->sampling(cellOffline) << ",eta="
-							<< _clockwork->calo_id->eta(cellOffline) << ",phi="
-							<< _clockwork->calo_id->phi(cellOffline) << ") ";
+				else if ( m_clockwork->calo_id->is_fcal(cellOffline) ) {
+					idstring <<"(pos_neg=" << m_clockwork->calo_id->pos_neg(cellOffline) << ",mod="
+							<< m_clockwork->calo_id->sampling(cellOffline) << ",eta="
+							<< m_clockwork->calo_id->eta(cellOffline) << ",phi="
+							<< m_clockwork->calo_id->phi(cellOffline) << ") ";
 				}
 				channel_string = idstring.str();
 
 				HWIdentifier hwId;
 				try {
-					hwId = _clockwork->lar_cabling->createSignalChannelID(cellOffline);
+					hwId = m_clockwork->lar_cabling->createSignalChannelID(cellOffline);
 				} catch(LArID_Exception&) {
 					message("LArID Exception caught while creating signal channel id");
-					_clockwork->controller->ClearHideDigitForms();
+					m_clockwork->controller->ClearHideDigitForms();
 					return;
 				}
-				channel_string += _clockwork->lar_onlineID->channel_name(hwId);
+				channel_string += m_clockwork->lar_onlineID->channel_name(hwId);
 			}
 		}
 
 		// Print information to the log window
 		std::vector<std::string> msg;
 		try {
-			msg = (*itNode2CC).second->ToString(_clockwork->calo_id, channel_string);
+			msg = (*itNode2CC).second->ToString(m_clockwork->calo_id, channel_string);
 		} catch(std::runtime_error& err) {
 			message(err.what());
 			return;
@@ -842,7 +838,7 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 			message((msg[ii]).c_str());
 
 		// Digits
-		if(_clockwork->controller->showDigits()) {
+		if(m_clockwork->controller->showDigits()) {
 
 			messageDebug("showDigits() is checked...");
 
@@ -851,25 +847,25 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 			VP1CC_LAr* larCC = dynamic_cast<VP1CC_LAr*>((*itNode2CC).second);
 			if(larCC) {
 				messageDebug("LAr node selected");
-				if(!_clockwork->noLArDigitsEvent) {
+				if(!m_clockwork->noLArDigitsEvent) {
 					Identifier cellOffline = larCC->getID();
 					HWIdentifier hwId;
 					try {
-						hwId = _clockwork->lar_cabling->createSignalChannelID(cellOffline);
+						hwId = m_clockwork->lar_cabling->createSignalChannelID(cellOffline);
 					} catch(LArID_Exception& e) {
 						message("EXCEPTION!! LArIDException caught while creating signal channel id!!");
-						_clockwork->controller->ClearHideDigitForms();
+						m_clockwork->controller->ClearHideDigitForms();
 						return;
 					}
 
-					LArDigitContainer::const_iterator itLArDig=_clockwork->lar_digits->begin();
-					for(;itLArDig!=_clockwork->lar_digits->end(); itLArDig++) {
+					LArDigitContainer::const_iterator itLArDig=m_clockwork->lar_digits->begin();
+					for(;itLArDig!=m_clockwork->lar_digits->end(); itLArDig++) {
 						if((*itLArDig)->hardwareID()==hwId) {
 
 							message("displaying LAr digits...");
 
 							try {
-								_clockwork->controller->displayLArDigits( (*itLArDig)->nsamples(),
+								m_clockwork->controller->displayLArDigits( (*itLArDig)->nsamples(),
 										(*itLArDig)->samples(),
 										msg);
 							} catch (std::exception& e) {
@@ -878,7 +874,7 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 								QString title = "ERROR!!! Exception caught!";
 								QString mex = "While displaying LAr digits, an exception has been caught!\n\nException details:\n\n" + QString::fromStdString(e.what());
 								messageDebug("Clearing the DigitForm and returning...");
-								_clockwork->controller->ClearHideDigitForms();
+								m_clockwork->controller->ClearHideDigitForms();
 								messageDebug("Displaying the QMessageBox...");
 								QWidget* widget = 0; // the message box will be parentless
 								QMessageBox::warning( widget, title,
@@ -902,7 +898,7 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 
 				// Since we are here, hide digits widgets
 				messageDebug("LAr. Clearing digits form...");
-				_clockwork->controller->ClearHideDigitForms();
+				m_clockwork->controller->ClearHideDigitForms();
 				messageDebug("Cleared. Returning...");
 				return;
 			}// we are in LAr CC
@@ -912,45 +908,45 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 			VP1CC_TileBarEc* tileCC = dynamic_cast<VP1CC_TileBarEc*>((*itNode2CC).second);
 			if(tileCC) {
 				messageDebug("Tile Barrel & End Cap");
-				if(!_clockwork->noTileDigitsEvent) {
-					int _frag1, _channel1, _frag2, _channel2;
-					if((tileCC->GetFragChannel(_clockwork->tile_hw_id,false,_frag1,_channel1)==0) &&
-							(tileCC->GetFragChannel(_clockwork->tile_hw_id,true,_frag2,_channel2)==0)) {
+				if(!m_clockwork->noTileDigitsEvent) {
+					int frag1, channel1, frag2, channel2;
+					if((tileCC->GetFragChannel(m_clockwork->tile_hw_id,false,frag1,channel1)==0) &&
+							(tileCC->GetFragChannel(m_clockwork->tile_hw_id,true,frag2,channel2)==0)) {
 
 						// ----------------- Plot digits -------------------
 						const TileDigits* digits1 = 0;
-						TileDigitsContainer::const_iterator itTileDig = _clockwork->tile_digits->begin();
+						TileDigitsContainer::const_iterator itTileDig = m_clockwork->tile_digits->begin();
 
 						// loop over Tile digits
-						for(;itTileDig!=_clockwork->tile_digits->end();itTileDig++) {
-							if((*itTileDig)->size() >0 && (*itTileDig)->identify()==_frag1) {
+						for(;itTileDig!=m_clockwork->tile_digits->end();itTileDig++) {
+							if((*itTileDig)->size() >0 && (*itTileDig)->identify()==frag1) {
 								messageDebug("Baa");
-								digits1 = (**itTileDig)[_channel1];
+								digits1 = (**itTileDig)[channel1];
 
 								// search for another container when we are in D0
 								const TileDigits* digits2 = 0;
-								if(_channel2==_channel1) {
-									itTileDig = _clockwork->tile_digits->begin();
+								if(channel2==channel1) {
+									itTileDig = m_clockwork->tile_digits->begin();
 
-									for(;itTileDig!=_clockwork->tile_digits->end();itTileDig++) {
-										if((*itTileDig)->size() >0 && (*itTileDig)->identify()==_frag2) {
-											digits2 = (**itTileDig)[_channel2];
+									for(;itTileDig!=m_clockwork->tile_digits->end();itTileDig++) {
+										if((*itTileDig)->size() >0 && (*itTileDig)->identify()==frag2) {
+											digits2 = (**itTileDig)[channel2];
 											break;
 										}
 									}
 								} else {  // D0
 									messageDebug("CCC");
-									digits2 = (**itTileDig)[_channel2];
+									digits2 = (**itTileDig)[channel2];
 								}
 
 								if(digits2==0) {
 									messageDebug("DDD");
 									message("Unable to find digits for the PMT 1");
-									_clockwork->controller->ClearHideDigitForms();
+									m_clockwork->controller->ClearHideDigitForms();
 									return;
 								}
 								messageDebug("Displaying Tile digits...");
-								_clockwork->controller->displayTileDigits(digits1->NtimeSamples(),
+								m_clockwork->controller->displayTileDigits(digits1->NtimeSamples(),
 										digits1->samples(),
 										digits2->samples(),
 										msg);
@@ -961,39 +957,39 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 
 						if(digits1==0) {
 							message("Unable to find digits for the PMT 0");
-							_clockwork->controller->ClearHideDigitForms();
+							m_clockwork->controller->ClearHideDigitForms();
 							return;
 						}
 						// ----------------- Plot digits -------------------
 
 						// ---------------- Plot pulse --------------------
 						messageDebug("Tile BB & EC plot pulse");
-						TileRawChannelContainer::const_iterator itTileRawCh = _clockwork->tile_rawchannel->begin();
+						TileRawChannelContainer::const_iterator itTileRawCh = m_clockwork->tile_rawchannel->begin();
 						const TileRawChannel* rawchannel1 = 0;
 						// loop over Tile channels
-						for(;itTileRawCh!=_clockwork->tile_rawchannel->end();itTileRawCh++) {
+						for(;itTileRawCh!=m_clockwork->tile_rawchannel->end();itTileRawCh++) {
 
-							if((*itTileRawCh)->size()>0 && (*itTileRawCh)->identify()==_frag1) {
-								rawchannel1 = (**itTileRawCh)[_channel1];
+							if((*itTileRawCh)->size()>0 && (*itTileRawCh)->identify()==frag1) {
+								rawchannel1 = (**itTileRawCh)[channel1];
 
 								// find Raw Channel 2
 								const TileRawChannel* rawchannel2 = 0;
-								if(_channel2==_channel1) {
+								if(channel2==channel1) {
 									messageDebug("channel2==_channel1");
 									// D0
-									itTileRawCh = _clockwork->tile_rawchannel->begin();
-									for(;itTileRawCh!=_clockwork->tile_rawchannel->end();itTileRawCh++)
-										if((*itTileRawCh)->size()>0 && (*itTileRawCh)->identify()==_frag2) {
+									itTileRawCh = m_clockwork->tile_rawchannel->begin();
+									for(;itTileRawCh!=m_clockwork->tile_rawchannel->end();itTileRawCh++)
+										if((*itTileRawCh)->size()>0 && (*itTileRawCh)->identify()==frag2) {
 											messageDebug("Get channel2...");
 											//the following value is never used, gets immediately overwritten after the 
 											// break from loop
-											//rawchannel2 = (**itTileRawCh)[_channel2];
+											//rawchannel2 = (**itTileRawCh)[channel2];
 											break;
 										}
 								} else{
 									messageDebug("channel2!=_channel1. Get channel2...");
 								}
-								rawchannel2 = (**itTileRawCh)[_channel2];
+								rawchannel2 = (**itTileRawCh)[channel2];
 
 								if(rawchannel2==0) {
 									message("Unable to get raw channel for PMT1");
@@ -1002,19 +998,19 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 
 								messageDebug("Displaying Tile pulse...");
 								std::cout << "debug vars :" << rawchannel1 << " - " <<  rawchannel2 << std::endl;
-								std::cout << _clockwork->tile_rawchannel << std::endl;
+								std::cout << m_clockwork->tile_rawchannel << std::endl;
 								std::cout << digits1->samples().size() << std::endl;
 
 								// note: the controller is the VP1CaloCellController class
 								try {
-									_clockwork->controller->displayTilePulse(rawchannel1,rawchannel2,_clockwork->tile_rawchannel,digits1->samples().size());
+									m_clockwork->controller->displayTilePulse(rawchannel1,rawchannel2,m_clockwork->tile_rawchannel,digits1->samples().size());
 								} catch (TileCalib::InvalidRawChanUnit& e) {
 									message("Exception caught!!");
 									std::cout << "ERROR!!! Exception caught from Tile! --> " << e.what() << std::endl;
 									QString title = "ERROR!!! Exception caught!";
 									QString mex = "While displaying Tile Pulse, an exception has been caught!\n\nException details:\n\n" + QString::fromStdString(e.what());
 									messageDebug("Clearing the DigitForm and returning...");
-									_clockwork->controller->ClearHideDigitForms();
+									m_clockwork->controller->ClearHideDigitForms();
 									messageDebug("Displaying the QMessageBox...");
 									QWidget* widget = 0; // the message box will be parentless
 									QMessageBox::warning( widget, title,
@@ -1045,7 +1041,7 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 
 
 				messageDebug("clearing...");
-				_clockwork->controller->ClearHideDigitForms();
+				m_clockwork->controller->ClearHideDigitForms();
 				messageDebug("cleared. Return...");
 				return;
 			}
@@ -1055,17 +1051,17 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 			VP1CC_TileCrack* tileCrack = dynamic_cast<VP1CC_TileCrack*>((*itNode2CC).second);
 			if(tileCrack) {
 				messageDebug("Tile Crack");
-				if(!_clockwork->noTileDigitsEvent) {
-					int _frag, _channel;
-					if(tileCrack->GetFragChannel(_clockwork->tile_hw_id,false,_frag,_channel)==0) {
+				if(!m_clockwork->noTileDigitsEvent) {
+					int frag, channel;
+					if(tileCrack->GetFragChannel(m_clockwork->tile_hw_id,false,frag,channel)==0) {
 						// ----------------- Plot digits -------------------
 						const TileDigits* digits = 0;
-						TileDigitsContainer::const_iterator itTileDig = _clockwork->tile_digits->begin();
-						for(;itTileDig!=_clockwork->tile_digits->end();itTileDig++) {
-							if((*itTileDig)->size() >0 && (*itTileDig)->identify()==_frag) {
-								digits = (**itTileDig)[_channel];
+						TileDigitsContainer::const_iterator itTileDig = m_clockwork->tile_digits->begin();
+						for(;itTileDig!=m_clockwork->tile_digits->end();itTileDig++) {
+							if((*itTileDig)->size() >0 && (*itTileDig)->identify()==frag) {
+								digits = (**itTileDig)[channel];
 
-								_clockwork->controller->displayTileDigits(digits->NtimeSamples(),
+								m_clockwork->controller->displayTileDigits(digits->NtimeSamples(),
 										digits->samples(),
 										msg);
 								break;
@@ -1073,19 +1069,19 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 						}
 						if(digits==0) {
 							message("Unable to find digits");
-							_clockwork->controller->ClearHideDigitForms();
+							m_clockwork->controller->ClearHideDigitForms();
 							return;
 						}
 						// ----------------- Plot digits -------------------
 
 						// ---------------- Plot pulse --------------------
-						TileRawChannelContainer::const_iterator itTileRawCh = _clockwork->tile_rawchannel->begin();
+						TileRawChannelContainer::const_iterator itTileRawCh = m_clockwork->tile_rawchannel->begin();
 						const TileRawChannel* rawchannel = 0;
-						for(;itTileRawCh!=_clockwork->tile_rawchannel->end();itTileRawCh++) {
+						for(;itTileRawCh!=m_clockwork->tile_rawchannel->end();itTileRawCh++) {
 							messageDebug("Tile Crack plot pulse");
-							if((*itTileRawCh)->size()>0 && (*itTileRawCh)->identify()==_frag) {
-								rawchannel = (**itTileRawCh)[_channel];
-								_clockwork->controller->displayTilePulse(rawchannel,_clockwork->tile_rawchannel,digits->samples().size());
+							if((*itTileRawCh)->size()>0 && (*itTileRawCh)->identify()==frag) {
+								rawchannel = (**itTileRawCh)[channel];
+								m_clockwork->controller->displayTilePulse(rawchannel,m_clockwork->tile_rawchannel,digits->samples().size());
 							}
 						}
 						if(rawchannel==0)
@@ -1097,7 +1093,7 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 				} else
 					message("Tile digit display not available");
 
-				_clockwork->controller->ClearHideDigitForms();
+				m_clockwork->controller->ClearHideDigitForms();
 
 				return;
 			}
@@ -1109,7 +1105,7 @@ void VP1CaloCellSystem::userPickedNode(SoNode* pickedNode, SoPath *pickedPath)
 	messageDebug("out of the big loop on nodes...");
 
 	// Maybe MBTS has been selected?
-	std::vector<std::string> msg = _clockwork->mbtsHelper->userPickedNode(pickedNode);
+	std::vector<std::string> msg = m_clockwork->mbtsHelper->userPickedNode(pickedNode);
 	for(unsigned int ii=0; ii<msg.size(); ii++)
 		message((msg[ii]).c_str());
 }
@@ -1121,7 +1117,7 @@ QByteArray VP1CaloCellSystem::saveState()
 
 	ensureBuildController();
 
-	serialise.save(_clockwork->controller->saveSettings());
+	serialise.save(m_clockwork->controller->saveSettings());
 
 	serialise.disableUnsavedChecks();
 	return serialise.result();
@@ -1139,7 +1135,7 @@ void VP1CaloCellSystem::restoreFromState(QByteArray ba)
 
 	IVP13DSystemSimple::restoreFromState(state.restoreByteArray());
 
-	_clockwork->controller->restoreSettings(state.restoreByteArray());
+	m_clockwork->controller->restoreSettings(state.restoreByteArray());
 
 	state.disableUnrestoredChecks();
 }
@@ -1147,20 +1143,20 @@ void VP1CaloCellSystem::restoreFromState(QByteArray ba)
 void VP1CaloCellSystem::energyMode()
 {
 	// Remove objects from 3D scene
-	while(_clockwork->node2ccMap.begin()!=_clockwork->node2ccMap.end()) {
-		VP1CC_SoNode2CCMap::iterator it_node2cc = _clockwork->node2ccMap.begin();
-		it_node2cc->second->remove3DObjects(&_clockwork->node2ccMap);
+	while(m_clockwork->node2ccMap.begin()!=m_clockwork->node2ccMap.end()) {
+		VP1CC_SoNode2CCMap::iterator it_node2cc = m_clockwork->node2ccMap.begin();
+		it_node2cc->second->remove3DObjects(&m_clockwork->node2ccMap);
 	}
 
 	// Clear node 2 CC map
-	_clockwork->node2ccMap.clear();
+	m_clockwork->node2ccMap.clear();
 
 	// Delete Cell Managers and clear the map
-	VP1CCManagerContainer::iterator it_ccman = _clockwork->cell_managers.begin();
-	for(; it_ccman!=_clockwork->cell_managers.end(); it_ccman++)
+	VP1CCManagerContainer::iterator it_ccman = m_clockwork->cell_managers.begin();
+	for(; it_ccman!=m_clockwork->cell_managers.end(); it_ccman++)
 		if(it_ccman->second) delete it_ccman->second;
 
-	_clockwork->cell_managers.clear();
+	m_clockwork->cell_managers.clear();
 
 	// Setup new managers from scratch in the new energy mode
 	setupEnergyMode();
@@ -1169,25 +1165,25 @@ void VP1CaloCellSystem::energyMode()
 void VP1CaloCellSystem::setupEnergyMode()
 {
 	// Prepare Separator Helpers for large changes
-	VP1CC_SeparatorMap::iterator itSepHelp = _clockwork->sepHelperMap.begin();
-	for(;itSepHelp != _clockwork->sepHelperMap.end(); itSepHelp++)
+	VP1CC_SeparatorMap::iterator itSepHelp = m_clockwork->sepHelperMap.begin();
+	for(;itSepHelp != m_clockwork->sepHelperMap.end(); itSepHelp++)
 		itSepHelp->second->largeChangesBegin();
 
 	// Create Managers
-	_clockwork->BuildCellManagers();
+	m_clockwork->BuildCellManagers();
 
 	// Assign Cells to Managers
-	_clockwork->FillManagers();
+	m_clockwork->FillManagers();
 
 	// Update scene with initial values of controller objects
-	const VP1CCIntervalMap& intervals = _clockwork->controller->selectionIntervals();
-	VP1CCManagerContainer::iterator it = _clockwork->cell_managers.begin();
-	for(; it!=_clockwork->cell_managers.end(); it++)
+	const VP1CCIntervalMap& intervals = m_clockwork->controller->selectionIntervals();
+	VP1CCManagerContainer::iterator it = m_clockwork->cell_managers.begin();
+	for(; it!=m_clockwork->cell_managers.end(); it++)
 		it->second->selectionUpdated(intervals);
 
 	// Large changes over
-	itSepHelp = _clockwork->sepHelperMap.begin();
-	for(;itSepHelp != _clockwork->sepHelperMap.end(); itSepHelp++)
+	itSepHelp = m_clockwork->sepHelperMap.begin();
+	for(;itSepHelp != m_clockwork->sepHelperMap.end(); itSepHelp++)
 		itSepHelp->second->largeChangesEnd();
 
 	updateGUI();

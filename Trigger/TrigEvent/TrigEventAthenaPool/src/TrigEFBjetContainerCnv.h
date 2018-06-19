@@ -44,7 +44,9 @@ class TrigEFBjetContainerCnv : public TrigEFBjetContainerCnvBase
  
   protected:
    
+public:
   TrigEFBjetContainerCnv( ISvcLocator *svcloc );
+protected:
   ~TrigEFBjetContainerCnv();
   
   

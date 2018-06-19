@@ -20,6 +20,7 @@ ISF::ValidationTruthStrategy::ValidationTruthStrategy(const std::string& t, cons
 {
     // parent particle minimum momentum
     declareProperty("ParentMinP"        , m_minParentP2     );
+    declareProperty("Regions"                   , m_regionListProperty );
 }
 
 /** Destructor **/
@@ -36,6 +37,13 @@ StatusCode  ISF::ValidationTruthStrategy::initialize()
     // -> compute p^2 for fast comparison
     m_minParentP2 *= m_minParentP2;
 
+    for(auto region : m_regionListProperty.value()) {
+      if(region < AtlasDetDescr::fFirstAtlasRegion || region >= AtlasDetDescr::fNumAtlasRegions) {
+        ATH_MSG_ERROR("Unknown Region (" << region << ") specified. Please check your configuration.");
+        return StatusCode::FAILURE;
+      }
+    }
+
     return StatusCode::SUCCESS;
 }
 
@@ -51,4 +59,11 @@ bool ISF::ValidationTruthStrategy::pass( ITruthIncident& ti) const {
   bool pass =  ( ti.parentP2() >= m_minParentP2 );
 
   return pass;
+}
+
+bool ISF::ValidationTruthStrategy::appliesToRegion(unsigned short geoID) const
+{
+  return std::find( m_regionListProperty.begin(),
+                    m_regionListProperty.end(),
+                    geoID ) != m_regionListProperty.end();
 }

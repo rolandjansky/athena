@@ -56,7 +56,7 @@ class RPC_SimHitToPrdCBNTAlgo : public AthAlgorithm
 
   const MuonGM::MuonDetectorManager*           m_muonMgr     ;
   const RpcIdHelper* 			       m_rpcIdHelper; //offline id helper
-  RpcHitIdHelper*                              muonHelper; // simulation id helper
+  RpcHitIdHelper*                              m_muonHelper; // simulation id helper
  
   bool m_doMCtruth;
   bool m_doRPCSimHit;
@@ -70,7 +70,7 @@ class RPC_SimHitToPrdCBNTAlgo : public AthAlgorithm
   // Define variables in the Ntuple:
 
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
   /*
   int m_npartStored;

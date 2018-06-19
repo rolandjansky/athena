@@ -49,7 +49,9 @@ HLT.
    - SCT_TestCablingAlg: A test algorithm which instantiates the cabling service and loops over all possible
    modules, calling methods to show the online Id and serial number for each one.
  
+@internal
 @image html structureDiag.png "SCT_Cabling class structure" width=8cm
+@endinternal
    
 @section SCT_Cabling_SCT_CablingSvcDetail SCT_CablingSvc in Detail
   SCT_CablingSvc is accessed by clients through its ISCT_CablingSvc interface. This provides access only to the 'getter' methods. In addition, it inherits from the IIncidentListener so that it can fill data (if appropriate) at the BeginRun incident. The 'setter' method is only accessible to users of the full class, in this case the fillers: SCT_FillCablingFromText and SCT_FillCablingFromCoraCool. These share a common baseclass and they are passed a pointer to the full SCT_CablingSvc to enable them to fill it. The decision as to which filler is to be instantiated is made by job options: the property 'DataSource' may be set to CORACOOL, in which case the database filler is used, or to a text filename, in which case the text filler is used.

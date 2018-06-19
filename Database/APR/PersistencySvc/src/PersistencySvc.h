@@ -29,13 +29,13 @@ namespace pool {
 
       PersistencySvc (const PersistencySvc&) = delete;
       PersistencySvc& operator= (const PersistencySvc&) = delete;
-
+/*
       /// Returns the file catalog in use
       IFileCatalog& fileCatalog();
 
       /// Set the attached file catalog
       void setFileCatalog( IFileCatalog& catalog );
-
+*/
       /** Retrieves an object from persistent store and return with type information
        *  The handle to the reflection class is necessary to later delete the object.
        *  The Guid of the transient class is assumed to be the classID of the token
@@ -64,18 +64,6 @@ namespace pool {
                                const void* object,
                                const RootType& type );
       
-      /** Deletes an object from the persistent store
-       *
-       * @param  token        [IN]  reference to the token for the object
-       *
-       * @return bool   Indicates whether operation was successfull.
-       *
-       */
-      bool destroyObject( const Token& token );
-      
-      /// Returns the container name for object
-      std::string getContName( const Token& token );
-
       /// Returns the underlying global session
       ISession& session();
 

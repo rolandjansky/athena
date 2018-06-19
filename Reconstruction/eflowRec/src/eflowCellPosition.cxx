@@ -17,9 +17,9 @@ CREATED:  18th Aug, 2005
 #include "eflowRec/eflowAbstractCellList.h"
 #include "eflowRec/eflowDatabase.h"
 
-#include "eflowRec/cycle.h"
-
 #include "CaloEvent/CaloCell.h"
+
+#include "FourMomUtils/xAODP4Helpers.h"
 
 //C++ Headers
 #include <cmath>
@@ -51,7 +51,7 @@ bool eflowCellPosition::operator<(const eflowCellPosition& rhs) const {
 
     if (fabs(r1 - r2) < 1.0e-12) {
       if (fabs(m_eta - rhs.m_eta) < 1.0e-6) {
-        return (cycle(m_phi, rhs.m_phi) < rhs.m_phi);
+	return  CxxUtils::fpcompare::greater(xAOD::P4Helpers::deltaPhi(m_phi,rhs.m_phi),0);
       } else {
         return (m_eta < rhs.m_eta);
       }

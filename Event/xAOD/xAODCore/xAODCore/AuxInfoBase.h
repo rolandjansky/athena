@@ -15,6 +15,7 @@
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
 #include "AthContainersInterfaces/IAuxStoreHolder.h"
+#include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/tools/threading.h"
 #ifndef XAOD_STANDALONE
 #   include "AthenaKernel/ILockable.h"
@@ -167,8 +168,9 @@ namespace xAOD {
    protected:
       /// Register one of the persistent variables internally
       template< typename T >
-      void regAuxVar( const std::string& name,
-                      T& info );
+      auxid_t regAuxVar( const std::string& name,
+                         T& info,
+                         SG::AuxTypeRegistry::Flags flags = SG::AuxTypeRegistry::Flags::None );
 
    private:
       /// Dynamic attributes selection implementation

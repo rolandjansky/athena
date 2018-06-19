@@ -15,7 +15,7 @@ decription           : Class holding an element link to a track and pointer to t
 #ifndef TrkRefittedTrackPair_H
 #define TrkRefittedTrackPair_H
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 

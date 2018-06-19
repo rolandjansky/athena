@@ -54,112 +54,112 @@ public:
 
 
 inline size_t Hist2D::ii(size_t i, size_t j) const {
-  return c->nBinsX*j + i;
+  return m_c->nBinsX*j + i;
 }
 
-inline std::string & Hist2D::name() { return c->name;}
+inline std::string & Hist2D::name() { return m_c->name;}
 
-inline const std::string & Hist2D::name() const { return c->name;}
+inline const std::string & Hist2D::name() const { return m_c->name;}
 
-inline size_t Hist2D::nBinsX() const { return c->nBinsX;}
-inline size_t Hist2D::nBinsY() const { return c->nBinsY;}
+inline size_t Hist2D::nBinsX() const { return m_c->nBinsX;}
+inline size_t Hist2D::nBinsY() const { return m_c->nBinsY;}
 
-inline double Hist2D::minX() const {return c->minX;}
-inline double Hist2D::minY() const {return c->minY;}
+inline double Hist2D::minX() const {return m_c->minX;}
+inline double Hist2D::minY() const {return m_c->minY;}
 
-inline double Hist2D::maxX() const {return c->maxX;}
-inline double Hist2D::maxY() const {return c->maxY;}
+inline double Hist2D::maxX() const {return m_c->maxX;}
+inline double Hist2D::maxY() const {return m_c->maxY;}
 
-inline double Hist2D::binWidthX () const {return c->binWidthX;}
-inline double Hist2D::binWidthY () const {return c->binWidthY;}
+inline double Hist2D::binWidthX () const {return m_c->binWidthX;}
+inline double Hist2D::binWidthY () const {return m_c->binWidthY;}
 
-inline double Hist2D::binUpperEdgeX(unsigned int i, unsigned int  ) const {return c->minX + (i+1)*c->binWidthX;}
-inline double Hist2D::binUpperEdgeY(unsigned int  , unsigned int j) const {return c->minY + (j+1)*c->binWidthY;}
+inline double Hist2D::binUpperEdgeX(unsigned int i, unsigned int  ) const {return m_c->minX + (i+1)*m_c->binWidthX;}
+inline double Hist2D::binUpperEdgeY(unsigned int  , unsigned int j) const {return m_c->minY + (j+1)*m_c->binWidthY;}
 
-inline double Hist2D::binLowerEdgeX(unsigned int i, unsigned int  ) const {return c->minX + i*c->binWidthX;}
-inline double Hist2D::binLowerEdgeY(unsigned int  , unsigned int j) const {return c->minY + j*c->binWidthY;}
+inline double Hist2D::binLowerEdgeX(unsigned int i, unsigned int  ) const {return m_c->minX + i*m_c->binWidthX;}
+inline double Hist2D::binLowerEdgeY(unsigned int  , unsigned int j) const {return m_c->minY + j*m_c->binWidthY;}
 
-inline double Hist2D::binCenterX(unsigned int i, unsigned int  ) const { return c->minX + (i+0.5)*c->binWidthX;}
-inline double Hist2D::binCenterY(unsigned int  , unsigned int j) const { return c->minY + (j+0.5)*c->binWidthY;}
+inline double Hist2D::binCenterX(unsigned int i, unsigned int  ) const { return m_c->minX + (i+0.5)*m_c->binWidthX;}
+inline double Hist2D::binCenterY(unsigned int  , unsigned int j) const { return m_c->minY + (j+0.5)*m_c->binWidthY;}
 
-inline double Hist2D::bin(unsigned int i, unsigned int j) const {return c->contents[ii(i,j)];}
+inline double Hist2D::bin(unsigned int i, unsigned int j) const {return m_c->contents[ii(i,j)];}
 
-inline double Hist2D::binError(unsigned int i, unsigned int j) const {return sqrt(c->errors[ii(i,j)]);}
+inline double Hist2D::binError(unsigned int i, unsigned int j) const {return sqrt(m_c->errors[ii(i,j)]);}
 
 
-inline size_t Hist2D::overflow() const {return c->overflow;}
+inline size_t Hist2D::overflow() const {return m_c->overflow;}
 
 inline size_t Hist2D::overflow(Hist2D::OVF a, Hist2D::OVF b) const { 
-  return c->overUnderFlow[a][b];
+  return m_c->overUnderFlow[a][b];
 }
 
 inline double Hist2D::varianceX()  const { 
-  if (c->sumWeight==0) {
+  if (m_c->sumWeight==0) {
     return 0;
   }
   else {
-    return  c->xxW/c->sumWeight-(c->xW*c->xW/c->sumWeight/c->sumWeight);
+    return  m_c->xxW/m_c->sumWeight-(m_c->xW*m_c->xW/m_c->sumWeight/m_c->sumWeight);
   }
 }
 inline double Hist2D::varianceY()  const { 
-  if (c->sumWeight==0) {
+  if (m_c->sumWeight==0) {
     return 0;
   }
   else {
-    return  c->yyW/c->sumWeight-(c->yW*c->yW/c->sumWeight/c->sumWeight);
+    return  m_c->yyW/m_c->sumWeight-(m_c->yW*m_c->yW/m_c->sumWeight/m_c->sumWeight);
   }
 }
 inline double Hist2D::varianceXY() const { 
-  if (c->sumWeight==0) {
+  if (m_c->sumWeight==0) {
     return 0;
   }
   else {
-    return  c->xyW/c->sumWeight-(c->xW*c->yW/c->sumWeight/c->sumWeight);
+    return  m_c->xyW/m_c->sumWeight-(m_c->xW*m_c->yW/m_c->sumWeight/m_c->sumWeight);
   }
 }
 
 inline double Hist2D::meanX() const { 
-  if (c->sumWeight==0) {
+  if (m_c->sumWeight==0) {
     return 0;
   }
   else {
-    return  c->xW/c->sumWeight;
+    return  m_c->xW/m_c->sumWeight;
   }  
 }
 
 inline double Hist2D::meanY() const { 
-  if (c->sumWeight==0) {
+  if (m_c->sumWeight==0) {
     return 0;
   }
   else {
-    return  c->yW/c->sumWeight;
+    return  m_c->yW/m_c->sumWeight;
   }  
 }
 
-inline double Hist2D::sum() const { return c->sumWeight;}
+inline double Hist2D::sum() const { return m_c->sumWeight;}
 
 inline double Hist2D::minContents () const { 
-  if (c->minContents==0) {
+  if (m_c->minContents==0) {
     if (entries()!=0) {
-      std::vector<double>::const_iterator min = std::min_element(c->contents.begin(),c->contents.end());
-      if (min!=c->contents.end()) {
-	c->minContents=*min;
+      std::vector<double>::const_iterator min = std::min_element(m_c->contents.begin(),m_c->contents.end());
+      if (min!=m_c->contents.end()) {
+	m_c->minContents=*min;
       }
     }
   }
-  return c->minContents;
+  return m_c->minContents;
 }
 
 inline double Hist2D::maxContents() const {
-  if (c->maxContents==0) {
+  if (m_c->maxContents==0) {
     if (entries()!=0) {
-      std::vector<double>::const_iterator max = std::max_element(c->contents.begin(),c->contents.end());
-      if (max!=c->contents.end()) {
-	c->maxContents=*max;
+      std::vector<double>::const_iterator max = std::max_element(m_c->contents.begin(),m_c->contents.end());
+      if (max!=m_c->contents.end()) {
+	m_c->maxContents=*max;
       }
     }
   }
-  return c->maxContents;
+  return m_c->maxContents;
 }
 
-inline size_t Hist2D::entries() const {return c->overUnderFlow[InRange][InRange];}
+inline size_t Hist2D::entries() const {return m_c->overUnderFlow[InRange][InRange];}

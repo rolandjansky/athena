@@ -15,6 +15,7 @@ decription           : Class for describing multiple scattering effects only.
 #ifndef Trk_MultipleScatteringUpdator_H
 #define Trk_MultipleScatteringUpdator_H
 
+#include "TrkExInterfaces/IMultipleScatteringUpdator.h"
 #include "TrkExInterfaces/IMaterialEffectsUpdator.h"
 #include "TrkExUtils/MaterialUpdateMode.h"
 #include "TrkEventPrimitives/PropDirection.h"
@@ -28,7 +29,6 @@ namespace Trk{
 
 class Layer;
 class MaterialProperties;
-class IMultipleScatteringUpdator;
 
 
 class MultipleScatterUpdator : public AthAlgTool, virtual public IMaterialEffectsUpdator {
@@ -93,7 +93,8 @@ class MultipleScatterUpdator : public AthAlgTool, virtual public IMaterialEffect
 
  private:
   int                     m_outputlevel;                      //!< to cache current output level
-  ToolHandle< IMultipleScatteringUpdator > m_msUpdator; //!< AlgoTool for MultipleScatterin effects  
+  PublicToolHandle< IMultipleScatteringUpdator > m_msUpdator
+     {this,"MultipleScatteringUpdator","Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator",""}; //!< AlgoTool for MultipleScatterin effects
  
  protected:
   static ParticleMasses   s_particleMasses;

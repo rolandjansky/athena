@@ -25,7 +25,6 @@ atlas_add_root_dictionary( FileStagerLib
 atlas_add_library( FileStagerLib
                    Root/*.cxx
                    src/*.cxx
-                   src/components/*.cxx
                    ${FileStagerLibDictSource}
                    PUBLIC_HEADERS FileStager
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}

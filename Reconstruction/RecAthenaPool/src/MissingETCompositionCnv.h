@@ -22,12 +22,12 @@ class MissingETCompositionCnv : public MissingETCompositionCnvBase
 {
   friend class CnvFactory<MissingETCompositionCnv>;
   
- protected:
-
+ public:
   MissingETCompositionCnv (ISvcLocator* svcloc) : MissingETCompositionCnvBase(svcloc)
     , m_TPconverter_p2(0)
     { };
 
+ protected:
   virtual ~MissingETCompositionCnv() { delete m_TPconverter_p2; };
 
   virtual MissingETComposition_PERS*   createPersistent (MissingETComposition* transObj);

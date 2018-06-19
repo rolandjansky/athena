@@ -57,7 +57,7 @@ class ICaloTowerBuilderToolBase : virtual public IAlgTool
    */
   virtual StatusCode execute(CaloTowerContainer* theContainer,
                              const CaloCellContainer* theCell=0,
-                             const CaloTowerSeg::SubSeg* subseg = 0) = 0;
+                             const CaloTowerSeg::SubSeg* subseg = 0) const = 0;
   virtual StatusCode initialize() =0;
 
   virtual StatusCode initializeTool() = 0;

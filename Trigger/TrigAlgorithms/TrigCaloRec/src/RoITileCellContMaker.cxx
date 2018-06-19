@@ -56,6 +56,8 @@ StatusCode RoITileCellContMaker::initialize(){
 
     std::cout << name() << " Two-Gaussian noise for Tile set to " << (m_twogaussiannoise ? "true" : "false") << std::endl;
 
+  } else {
+    m_noiseTool.disable();
   }
 
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {

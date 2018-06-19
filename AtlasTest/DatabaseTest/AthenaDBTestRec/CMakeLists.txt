@@ -19,6 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/APR/CollectionUtilities
                           Database/APR/PersistencySvc
                           Database/APR/StorageSvc
+                          Database/APR/FileCatalog
                           Database/AthenaPOOL/AthenaPoolCnvSvc
                           Database/CoraCool
                           Database/PersistentDataModel

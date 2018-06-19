@@ -18,14 +18,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
-#include "TrkMaterialOnTrack/MaterialEffectsBase.h"
-#include "TrkSurfaces/Surface.h"
-#include "TrkParameters/TrackParameters.h"
-#include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "TrkMeasurementBase/MeasurementBase.h"
-#include "TrkDetElementBase/TrkDetElementBase.h"
-
-#include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 
 //-----------------------------------------------------------------------------
 // Constructor
@@ -49,25 +41,23 @@ TrackCollectionCnv::~TrackCollectionCnv()
 //-----------------------------------------------------------------------------
 StatusCode TrackCollectionCnv::initialize()
 {
-    StatusCode sc = TrackCollectionCnvBase::initialize();
-    if( sc.isFailure() ) {
-        m_log << MSG::FATAL << "Could not initialize cnv base" << endmsg;
-        return sc;
-    }
+   // leaving empty method for future use
+   return TrackCollectionCnvBase::initialize();
+}
 
-    //-------------------------------------------------------------------------
-    // Set up the message stream
-    //-------------------------------------------------------------------------
-    m_log.setLevel( MSG::VERBOSE );
 
-    // m_log.setLevel( m_msgSvc->outputLevel() );
-    m_log << MSG::VERBOSE << "TrackCollectionCnv::initialize()" << endmsg;
+void TrackCollectionCnv::initializeOldExtConverters()
+{
+   if( m_oldExtCnvInitialized )  return;
+
+   // m_log.setLevel( m_msgSvc->outputLevel() );
+   m_log << MSG::INFO << "TrackCollectionCnv::initializeOldExtConverters()" << endmsg;
+
+   bool doInDet(true);
+   bool doMuon(true);
+   bool doCalo(true);
 
     IConverter	*converter =  m_athenaPoolCnvSvc->converter( CLID(17001567) );
-    bool doInDet(true);
-    bool doMuon(true);
-    bool doCalo(true);
-
     if(converter != 0) registerExtendingCnv( converter );    
     else doInDet=false;
 
@@ -86,8 +76,7 @@ StatusCode TrackCollectionCnv::initialize()
         m_log << MSG::WARNING << "Could not get any of the extending convertors, and so might have problems later on.";
         m_log << endmsg;
     }
-
-    return StatusCode::SUCCESS;
+    m_oldExtCnvInitialized = true;
 }
 
 
@@ -96,7 +85,7 @@ TrackCollection_PERS * TrackCollectionCnv::createPersistent( TrackCollection *tr
 {
     m_log.setLevel( m_msgSvc->outputLevel() );
     updateLog(); // Make m_log indicate the current key
-    return m_TPConverterForPER.createPersistent( transCont, m_log );
+    return m_TPConverter.createPersistent( transCont, m_log );
 }
 
 //-----------------------------------------------------------------------------
@@ -105,6 +94,7 @@ TrackCollection_PERS * TrackCollectionCnv::createPersistent( TrackCollection *tr
 TrackCollection *TrackCollectionCnv::createTransient()
 {
     m_log.setLevel( m_msgSvc->outputLevel() );
+    static pool::Guid p6_guid( "3228B252-2C5D-11E8-B170-0800271C02BC" );
     static pool::Guid p5_guid( "436E4996-9D6E-11E3-AD2A-6C3BE51AB9F1" );
     static pool::Guid p4_guid( "3BEB819F-6ED2-48F6-9F95-E65E1759E781" );
     static pool::Guid p3_guid( "A1E9FDCB-2F4A-4AC8-BF4E-2D70B9C70F8A" );
@@ -113,29 +103,32 @@ TrackCollection *TrackCollectionCnv::createTransient()
     static pool::Guid p0_guid( "70ECEBFC-BE00-46C2-8B35-4CC12D18DE39" );
 
     TrackCollection *p_collection = 0;
-    if( compareClassGuid( p5_guid )){
-      poolReadObject< Trk::TrackCollection_tlp5 >( m_TPConverterForPER);
-      p_collection = m_TPConverterForPER.createTransient( m_log );
+    if( compareClassGuid( p6_guid )){
+      poolReadObject< TrackCollection_PERS >( m_TPConverter );
+      p_collection = m_TPConverter.createTransient( m_log );
+    }
+    else if( compareClassGuid( p5_guid )){
+      initializeOldExtConverters();
+      poolReadObject< Trk::TrackCollection_tlp5 >( m_TPConverter_tlp5);
+      p_collection = m_TPConverter_tlp5.createTransient( m_log );
     }   
     else if( compareClassGuid( p4_guid )){
+      initializeOldExtConverters();
       poolReadObject< Trk::TrackCollection_tlp4 >( m_TPConverter_tlp4);
       p_collection = m_TPConverter_tlp4.createTransient( m_log );
     }
     else if( compareClassGuid( p3_guid )){
+      initializeOldExtConverters();
       poolReadObject< Trk::TrackCollection_tlp3 >( m_TPConverter_tlp3);
       p_collection = m_TPConverter_tlp3.createTransient( m_log );
     }
     else if( compareClassGuid( p2_guid ) ) {
+      initializeOldExtConverters();
       poolReadObject< Trk::TrackCollection_tlp2 >( m_TPConverter_tlp2 );
       p_collection = m_TPConverter_tlp2.createTransient( m_log );
     }
     else if( compareClassGuid( p1_guid ) )  {
-        /*
-       usingTPCnvForReading( m_TPConverter );
-       std::unique_ptr< TrackCollection_PERS >
-	  p_coll( poolReadObject< TrackCollection_PERS >() );
-       p_collection = m_TPConverter.createTransient( p_coll.get(), m_log );
-       */
+       initializeOldExtConverters();
        poolReadObject< Trk::TrackCollection_tlp1 >( m_TPConverter_tlp1 );
        p_collection = m_TPConverter_tlp1.createTransient( m_log );
     }

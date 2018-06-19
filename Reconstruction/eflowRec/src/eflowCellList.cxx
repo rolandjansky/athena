@@ -17,9 +17,10 @@ CREATED:  18th Aug, 2005
 #include "eflowRec/eflowCellList.h"
 #include "eflowRec/eflowCellPosition.h"
 #include "eflowRec/eflowTrackCaloPoints.h"
-#include "eflowRec/cycle.h"
 
 #include "CaloEvent/CaloCell.h"
+
+#include "FourMomUtils/xAODP4Helpers.h"
 
 //C++ Headers
 
@@ -81,7 +82,7 @@ void eflowCellList::reorderWithoutLayers() {
 double eflowCellList::dR2(double eta, double phi, eflowCaloENUM layer) const {
   if (eflowCalo::Unknown != layer) {
     double dEta = eta - m_etaFF[layer];
-    double dPhi = cycle(phi, m_phiFF[layer]) - m_phiFF[layer];
+    double dPhi = xAOD::P4Helpers::deltaPhi(phi, m_phiFF[layer]);
     return dEta * dEta + dPhi * dPhi;
   } else {
     return -999.0;

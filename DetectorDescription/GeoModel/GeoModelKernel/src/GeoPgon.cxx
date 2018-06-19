@@ -31,8 +31,8 @@ double GeoPgon::volume () const
   double sinAlpha = sin(alpha);
   
   for (size_t s = 0; s < getNPlanes () - 1; s++) {
-    double z2 = getZPlane (s);;
-    double z1 = getZPlane (s + 1);;
+    double z2 = getZPlane (s);
+    double z1 = getZPlane (s + 1);
     double fRmin1 = getRMinPlane (s + 1);
     double fRmin2 = getRMinPlane (s);
     double fRmax1 = getRMaxPlane (s + 1);

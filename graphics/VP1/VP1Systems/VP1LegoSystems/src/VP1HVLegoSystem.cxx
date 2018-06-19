@@ -54,14 +54,14 @@ public:
 
 VP1HVLegoSystem::VP1HVLegoSystem()
   :IVP13DSystemSimple("HVLego","Display the readout in an eta-phi view","boudreau@pitt.edu"),
-   _clockwork(new Clockwork())
+   m_clockwork(new Clockwork())
 {
 }
 
 VP1HVLegoSystem::~VP1HVLegoSystem()
 {
-  delete _clockwork;
-  _clockwork = 0;
+  delete m_clockwork;
+  m_clockwork = 0;
 }
 
 QWidget* VP1HVLegoSystem::buildController()
@@ -76,14 +76,14 @@ QWidget* VP1HVLegoSystem::buildController()
   }
 
   // Populate Check Box Names Map
-  _clockwork->checkBoxNamesMap.insert(ui.chbxEMB, "EMB");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxEMEC, "EMEC");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxEMB, "EMB");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxEMEC, "EMEC");
 
   // Populate Check Box Map and connect slots
-  foreach(QCheckBox* cb,_clockwork->checkBoxNamesMap.keys())
+  foreach(QCheckBox* cb,m_clockwork->checkBoxNamesMap.keys())
   {
     connect(cb,SIGNAL(toggled(bool)),this,SLOT(checkboxChanged()));
-    _clockwork->checkBoxMap.insert(_clockwork->checkBoxNamesMap[cb],cb);
+    m_clockwork->checkBoxMap.insert(m_clockwork->checkBoxNamesMap[cb],cb);
   }
 
   return controller;
@@ -100,34 +100,34 @@ void VP1HVLegoSystem::buildPermanentSceneGraph(StoreGateSvc */*detStore*/, SoSep
     return;
 
   for (int i=0;i<3;i++) {
-    _clockwork->fcalSwitch[i] = new SoSwitch();
-    root->addChild(_clockwork->fcalSwitch[i]);
+    m_clockwork->fcalSwitch[i] = new SoSwitch();
+    root->addChild(m_clockwork->fcalSwitch[i]);
   }
 
   for (int i=0;i<4;i++) {
-    _clockwork->embSwitch[i] = new SoSwitch();
-    root->addChild(_clockwork->embSwitch[i]);
+    m_clockwork->embSwitch[i] = new SoSwitch();
+    root->addChild(m_clockwork->embSwitch[i]);
 
-    _clockwork->emecSwitch[i] = new SoSwitch();
-    root->addChild(_clockwork->emecSwitch[i]);
+    m_clockwork->emecSwitch[i] = new SoSwitch();
+    root->addChild(m_clockwork->emecSwitch[i]);
 
-    _clockwork->hecSwitch[i] = new SoSwitch();
-    root->addChild(_clockwork->hecSwitch[i]);
+    m_clockwork->hecSwitch[i] = new SoSwitch();
+    root->addChild(m_clockwork->hecSwitch[i]);
   }
-  _clockwork->switchMap["EMB0"] = _clockwork->embSwitch[0];
-  _clockwork->switchMap["EMB1"] = _clockwork->embSwitch[1];
-  _clockwork->switchMap["EMB2"] = _clockwork->embSwitch[2];
-  _clockwork->switchMap["EMB3"] = _clockwork->embSwitch[3];
+  m_clockwork->switchMap["EMB0"] = m_clockwork->embSwitch[0];
+  m_clockwork->switchMap["EMB1"] = m_clockwork->embSwitch[1];
+  m_clockwork->switchMap["EMB2"] = m_clockwork->embSwitch[2];
+  m_clockwork->switchMap["EMB3"] = m_clockwork->embSwitch[3];
 
-  _clockwork->switchMap["EMEC0"] = _clockwork->emecSwitch[0];
-  _clockwork->switchMap["EMEC1"] = _clockwork->emecSwitch[1];
-  _clockwork->switchMap["EMEC2"] = _clockwork->emecSwitch[2];
-  _clockwork->switchMap["EMEC3"] = _clockwork->emecSwitch[3];
+  m_clockwork->switchMap["EMEC0"] = m_clockwork->emecSwitch[0];
+  m_clockwork->switchMap["EMEC1"] = m_clockwork->emecSwitch[1];
+  m_clockwork->switchMap["EMEC2"] = m_clockwork->emecSwitch[2];
+  m_clockwork->switchMap["EMEC3"] = m_clockwork->emecSwitch[3];
 
-  _clockwork->switchMap["HEC0"] = _clockwork->hecSwitch[0];
-  _clockwork->switchMap["HEC1"] = _clockwork->hecSwitch[1];
-  _clockwork->switchMap["HEC2"] = _clockwork->hecSwitch[2];
-  _clockwork->switchMap["HEC3"] = _clockwork->hecSwitch[3];
+  m_clockwork->switchMap["HEC0"] = m_clockwork->hecSwitch[0];
+  m_clockwork->switchMap["HEC1"] = m_clockwork->hecSwitch[1];
+  m_clockwork->switchMap["HEC2"] = m_clockwork->hecSwitch[2];
+  m_clockwork->switchMap["HEC3"] = m_clockwork->hecSwitch[3];
 
 
   const LArElectrodeID* elecId(0);
@@ -165,21 +165,21 @@ void VP1HVLegoSystem::checkboxChanged()
     return;
   // Get ChB pointer
   QCheckBox* cb = dynamic_cast<QCheckBox*>(sender());
-  if(cb && _clockwork->checkBoxNamesMap.contains(cb))
+  if(cb && m_clockwork->checkBoxNamesMap.contains(cb))
   {
     // Get technology name
-    QString swName = _clockwork->checkBoxNamesMap[cb];
+    QString swName = m_clockwork->checkBoxNamesMap[cb];
 
-    if(_clockwork->switchMap.contains(swName))
+    if(m_clockwork->switchMap.contains(swName))
     {
-      // Get swtich
-      SoSwitch* _switch = _clockwork->switchMap[swName];
+      // Get switch
+      SoSwitch* sw = m_clockwork->switchMap[swName];
       if(cb->isChecked())
       {
-	_switch->whichChild = SO_SWITCH_ALL;
+	sw->whichChild = SO_SWITCH_ALL;
       }
       else
-	_switch->whichChild = SO_SWITCH_NONE;
+	sw->whichChild = SO_SWITCH_NONE;
     }
   }
 }
@@ -196,7 +196,7 @@ QByteArray VP1HVLegoSystem::saveState()
   serialise.save(IVP13DSystemSimple::saveState());
 
   //Checkboxes (by name for greater stability in case we change content of map):
-  QMapIterator<QString,QCheckBox*> it(_clockwork->checkBoxMap);
+  QMapIterator<QString,QCheckBox*> it(m_clockwork->checkBoxMap);
   QMap<QString,bool> checkboxstate;
   while (it.hasNext()) {
     it.next();
@@ -225,7 +225,7 @@ void VP1HVLegoSystem::restoreFromState(QByteArray ba)
 
   //Checkboxes (by name for greater stability in case we change content of map):
   QMap<QString,bool> checkboxstate(state.restore<QMap<QString,bool> >());
-  QMapIterator<QString,QCheckBox*> it(_clockwork->checkBoxMap);
+  QMapIterator<QString,QCheckBox*> it(m_clockwork->checkBoxMap);
   while (it.hasNext()) {
     it.next();
     state.widgetHandled(it.value());

@@ -84,6 +84,6 @@ private:
    std::vector<std::string> m_freeMetaDataStrings;
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(ByteStreamMetadata, 170625359, 1)
 #endif

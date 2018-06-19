@@ -7,9 +7,13 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "SiPropertiesSvc/ISiPropertiesTool.h"
+#include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 
 #include <vector>
 
@@ -20,10 +24,9 @@ namespace InDetDD{
   class SiDetectorElement;
 }
 
-class ISiLorentzAngleSvc;
 class ISiliconConditionsSvc;
 class ISiPropertiesSvc;
-class AtlasDetectorID;
+class ISiLorentzAngleSvc;
 class AtlasDetectorID;
 class PixelID;
 class SCT_ID;
@@ -53,6 +56,10 @@ public:
   ServiceHandle<ISiLorentzAngleSvc> m_siLorentzAngleSvc;
   ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
   ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc;
+  bool m_useConditionsTools;
+  ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Silicon conditions tool"};
+  ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "SiPropertiesTool", "Silicon properties tool"};
+  ToolHandle<ISiLorentzAngleTool> m_siLorentzAngleTool{this, "SiLorentzAngleTool", "SiLorentzAngleTool", "Silicon Lorentz anglet tool"};
 
   // Other
   const InDetDD::SiDetectorManager * m_manager;

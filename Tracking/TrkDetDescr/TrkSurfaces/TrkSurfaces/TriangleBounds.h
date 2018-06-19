@@ -29,7 +29,9 @@ namespace Trk {
 
     Bounds for a triangular, planar surface.
 
+    @internal
     @image html TriangularBounds.gif
+    @endinternal
     
     @author sarka.todorova@cern.ch */
 

@@ -34,14 +34,8 @@ class CpByteStreamV1Tool;
  */
 
 class CpByteStreamV1Cnv: public Converter {
-
-  friend class CnvFactory<CpByteStreamV1Cnv>;
-
-protected:
-
-  CpByteStreamV1Cnv(ISvcLocator* svcloc);
-
 public:
+  CpByteStreamV1Cnv(ISvcLocator* svcloc);
 
   ~CpByteStreamV1Cnv();
 

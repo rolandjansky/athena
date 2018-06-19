@@ -46,7 +46,9 @@ class xAODEmTauRoIAuxContainerCnv :
 
 protected:
    /// Converter constructor
+public:
    xAODEmTauRoIAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::EmTauRoIAuxContainer*

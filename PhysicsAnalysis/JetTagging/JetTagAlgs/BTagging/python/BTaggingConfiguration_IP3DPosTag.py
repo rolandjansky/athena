@@ -189,7 +189,7 @@ def toolIP3DPosTrackSelector(name, useBTagFlagsDefaults = True, **options):
 
 #---------------------------------------------------------------------
 
-metaIP3DPosNewLikelihoodTool = { 'CalibrationFolders' : ['IP3D',],
+metaIP3DPosNewLikelihoodTool = { 'CalibrationTaggers' : ['IP3D',],
                                  'DependsOn'          : ['BTagCalibrationBrokerTool',],
                                  'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                                  'ToolCollection'     : 'IP3DPosTag' }

@@ -54,9 +54,11 @@ offline_eformat::v40::FullEventFragment::~FullEventFragment ()
 
 offline_eformat::v40::FullEventFragment& offline_eformat::v40::FullEventFragment::operator=
 (const offline_eformat::v40::FullEventFragment& other)
-{ 
-  Header::operator=(other);
-  m_start=other.m_start; 
+{
+  if (this != &other) {
+    Header::operator=(other);
+    m_start=other.m_start;
+  }
   return *this; 
 }
 

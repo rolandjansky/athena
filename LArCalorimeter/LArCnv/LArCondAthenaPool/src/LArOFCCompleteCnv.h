@@ -29,7 +29,9 @@ typedef T_AthenaPoolCoolMultChanCnv<LArOFCComplete, LArOFCTransType, LArOFCPersT
 class LArOFCCompleteCnv : public LArOFCCompleteCnvBase {
 friend class CnvFactory<LArOFCCompleteCnv >;
 protected:
+public:
     LArOFCCompleteCnv (ISvcLocator* svcloc) : LArOFCCompleteCnvBase(svcloc) {}
+protected:
     virtual LArOFCPersType*    createPersistent (LArOFCTransType* transObj);
     virtual LArOFCTransType*   createTransient();
     LArOFCTransType*           createTransient(LArConditionsSubset<LArOFCP>* );

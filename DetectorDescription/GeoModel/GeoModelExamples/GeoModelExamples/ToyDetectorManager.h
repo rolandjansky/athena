@@ -54,9 +54,9 @@ class ToyDetectorManager : public GeoVDetectorManager  {
   ToyDetectorManager(const ToyDetectorManager &right);
   
   
-  std::vector<const CentralScrutinizer *> centralScrutinizer;
-  std::vector<const ForwardScrutinizer *> forwardScrutinizer;
-  std::vector<PVLink> volume;
+  std::vector<const CentralScrutinizer *> m_centralScrutinizer;
+  std::vector<const ForwardScrutinizer *> m_forwardScrutinizer;
+  std::vector<PVLink> m_volume;
 };
 
 // Class ToyDetectorManager 

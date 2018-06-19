@@ -3,7 +3,7 @@
 */
 
 #include "MSVertexTrackletTool.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "TrkParameters/TrackParameters.h"
 #include "xAODTracking/TrackParticle.h"
@@ -713,7 +713,9 @@ namespace Muon {
 	  float mdt_y = sqrt(sq(mdts.at(i)->globalPosition().x())+sq(mdts.at(i)->globalPosition().y()));
 	  float mdt_z = mdts.at(i)->globalPosition().z();
 	  float yPi = -(mdt_z-zc)*sin(alpha) + (mdt_y-yc)*cos(alpha) - d;
-	  float signR = -1*yPi/fabs(yPi);
+	  float signR;
+	  if(fabs(yPi) < 1.0e-8) signR = 1.;
+	  else signR = -1.*yPi/fabs(yPi);
 	  float sigma2 = sq(Amg::error(mdts.at(i)->localCovariance(),Trk::locR));
 	  float ri = signR*mdts.at(i)->localPosition()[Trk::locR];
 	  ////

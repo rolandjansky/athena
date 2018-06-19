@@ -35,8 +35,8 @@ StoreGateSvc* pStore(0);
 
 typedef TrigSerializeConverter<TestBContainer> TestBContainerSerCnv;
 typedef TrigSerializeConverter<TestAuxB> TestAuxBSerCnv;
-DECLARE_CONVERTER_FACTORY (TestBContainerSerCnv)
-DECLARE_CONVERTER_FACTORY (TestAuxBSerCnv)
+DECLARE_CONVERTER (TestBContainerSerCnv)
+DECLARE_CONVERTER (TestAuxBSerCnv)
 
 template<class HTYPE> 
 bool reg( HTYPE* full, const char* name, int idx, ITypeProxy* /*aux*/, typename HTYPE::base_type*& base_holder,
@@ -106,7 +106,7 @@ bool add_operation(bool wihtAux) {
   Holder<TestBContainer>* cch(0);
   if ( !reg( new HolderImp<TestBContainer, TestBContainer>(), "TestB", 11, deco, cch) ) REPORT_AND_STOP("It should have failed before");
 
-  TestBContainer* dav0 = new TestBContainer;;
+  TestBContainer* dav0 = new TestBContainer;
   dav0->push_back(new TestB(6));
   REPORT_AND_CONTINUE( "adding simple vec" );
   HLT::TriggerElement::ObjectIndex single = cch->add(dav0, false);

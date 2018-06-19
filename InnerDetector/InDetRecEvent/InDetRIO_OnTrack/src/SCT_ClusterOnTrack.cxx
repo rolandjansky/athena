@@ -69,10 +69,6 @@ InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack( const ElementLinkToIDCSCT_Cluster
 {}
 
 
-// Destructor:
-InDet::SCT_ClusterOnTrack::~SCT_ClusterOnTrack()
-{}
-
 // Default constructor:
 InDet::SCT_ClusterOnTrack::SCT_ClusterOnTrack():
   SiClusterOnTrack(),

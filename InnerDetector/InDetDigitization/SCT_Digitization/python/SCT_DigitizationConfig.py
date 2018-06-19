@@ -34,57 +34,29 @@ def getSCT_Amp(name="SCT_Amp", **kwargs):
 ######################################################################################
 def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs):
     ## Set up services used by SCT_SurfaceChargesGenerator
-    ## TODO remove all this stuff and see if PixelDigitization works without it.
-    # Setup the DCS folders and Svc used in the sctSiliconConditionsSvc
-    from IOVDbSvc.CondDB import conddb
-    sctDCSStateFolder = '/SCT/DCS/CHANSTAT'
-    sctDCSTempFolder = '/SCT/DCS/MODTEMP'
-    sctDCSHVFolder = '/SCT/DCS/HV'
-    if not conddb.folderRequested(sctDCSStateFolder):
-        conddb.addFolder("DCS_OFL", sctDCSStateFolder, className="CondAttrListCollection")
-    if not conddb.folderRequested(sctDCSTempFolder):
-        conddb.addFolder("DCS_OFL", sctDCSTempFolder, className="CondAttrListCollection")
-    if not conddb.folderRequested(sctDCSHVFolder):
-        conddb.addFolder("DCS_OFL", sctDCSHVFolder, className="CondAttrListCollection")
-    ## SCT_DCSConditionsSvc - used by SCT_SurfaceChargesGenerator
-    from AthenaCommon.AppMgr import ServiceMgr
-    if not hasattr(ServiceMgr, "InDetSCT_DCSConditionsSvc"):
-        from AthenaCommon.AlgSequence import AthSequencer
-        condSeq = AthSequencer("AthCondSeq")
-        if not hasattr(condSeq, "SCT_DCSConditionsHVCondAlg"):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
-            condSeq += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
-                                                  ReadKey = sctDCSHVFolder)
-        if not hasattr(condSeq, "SCT_DCSConditionsStatCondAlg"):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
-            condSeq += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
-                                                    ReadKeyHV = sctDCSHVFolder,
-                                                    ReadKeyState = sctDCSStateFolder)
-        if not hasattr(condSeq, "SCT_DCSConditionsTempCondAlg"):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
-            condSeq += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
-                                                    ReadKey = sctDCSTempFolder)
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
-        InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name = "InDetSCT_DCSConditionsSvc")
-        ServiceMgr += InDetSCT_DCSConditionsSvc
-    ## SCT_SiPropertiesSvc - used by SCT_SurfaceChargesGenerator
-    if not hasattr(ServiceMgr, "SCT_SiPropertiesSvc"):
-        # Lorentz Angle Service
-        from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc
-        # Silicon conditions service (set up by LorentzAngleSvcSetup)
-        sctSiliconConditionsSvc = ServiceMgr.SCT_SiliconConditionsSvc
-        # Silicon properties service
-        from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc;
-        sctSiPropertiesSvc = SiPropertiesSvc(name = "SCT_SiPropertiesSvc",
-                                             DetectorName="SCT",
-                                             SiConditionsServices = sctSiliconConditionsSvc)
-        ServiceMgr += sctSiPropertiesSvc
-    ## Charge trapping service - used by SCT_SurfaceChargesGenerator
-    if not hasattr(ServiceMgr, "InDetSCT_RadDamageSummarySvc"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_RadDamageSummarySvc
-        InDetSCT_RadDamageSummarySvc = SCT_RadDamageSummarySvc(name = "InDetSCT_RadDamageSummarySvc")
-        ServiceMgr += InDetSCT_RadDamageSummarySvc
-    ## END OF JUNK
+    # Set up SCT_DCSConditiosnTool
+    from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+    sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+    sct_DCSConditionsToolSetup.setup()
+    # Set up SCT_SiliconConditionsTool
+    from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
+    sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
+    sct_SiliconConditionsToolSetup.setDcsTool(sct_DCSConditionsToolSetup.getTool())
+    sct_SiliconConditionsToolSetup.setup()
+    # Set up SCT_SiPropertiesTool
+    from SiPropertiesSvc.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
+    sct_SiPropertiesToolSetup = SCT_SiPropertiesToolSetup()
+    sct_SiPropertiesToolSetup.setSiliconTool(sct_SiliconConditionsToolSetup.getTool())
+    sct_SiPropertiesToolSetup.setup()
+    ## Charge trapping tool - used by SCT_SurfaceChargesGenerator
+    from AthenaCommon.AppMgr import ToolSvc
+    if not hasattr(ToolSvc, "InDetSCT_RadDamageSummaryTool"):
+        from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_RadDamageSummaryTool
+        ToolSvc += SCT_RadDamageSummaryTool(name = "InDetSCT_RadDamageSummaryTool")
+    ## SiLorentzAngleTool for SCT_SurfaceChargesGenerator
+    if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+        from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+        sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
     kwargs.setdefault("FixedTime", -999)
     kwargs.setdefault("SubtractTime", -999)
@@ -93,8 +65,12 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     kwargs.setdefault("SmallStepLength", 5)
     kwargs.setdefault("DepletionVoltage", 70)
     kwargs.setdefault("BiasVoltage", 150)
+    kwargs.setdefault("SiPropertiesTool", sct_SiPropertiesToolSetup.getTool())
+    kwargs.setdefault("LorentzAngleTool", ToolSvc.SCTLorentzAngleTool)
     from AthenaCommon.GlobalFlags import globalflags
     kwargs.setdefault("isOverlay", globalflags.isOverlay())
+
+    # kwargs.setdefault("doTrapping", True) # ATL-INDET-INT-2016-019
 
     from Digitization.DigitizationFlags import digitizationFlags
     if 'doDetailedSurfChargesGen' in digitizationFlags.experimentalDigi():
@@ -108,74 +84,51 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
         return SCT_DetailedSurfaceChargesGenerator(name, **kwargs)
     else:
         from SCT_Digitization.SCT_DigitizationConf import SCT_SurfaceChargesGenerator
+        kwargs.setdefault("RadDamageSummaryTool", getattr(ToolSvc, "InDetSCT_RadDamageSummaryTool"))
         return SCT_SurfaceChargesGenerator(name, **kwargs)
-
 
 ######################################################################################
 def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
     #Setup noise treament in SCT_FrontEnd
+    # To set the mean noise values for the different module types
+    # Default values set at 0 degrees, plus/minus ~5 enc per plus/minus degree
+    kwargs.setdefault("NoiseBarrel", 1500.0)
+    kwargs.setdefault("NoiseBarrel3", 1541.0)
+    kwargs.setdefault("NoiseInners", 1090.0)
+    kwargs.setdefault("NoiseMiddles", 1557.0)
+    kwargs.setdefault("NoiseShortMiddles", 940.0)
+    kwargs.setdefault("NoiseOuters", 1618.0)
+    kwargs.setdefault("NOBarrel", 1.5e-5)
+    kwargs.setdefault("NOBarrel3", 2.1e-5)
+    kwargs.setdefault("NOInners", 5.0e-9)
+    kwargs.setdefault("NOMiddles", 2.7e-5)
+    kwargs.setdefault("NOShortMiddles", 2.0e-9)
+    kwargs.setdefault("NOOuters", 3.5e-5)
     # If noise is turned off:
     if not digitizationFlags.doInDetNoise.get_Value():
         ###kwargs.setdefault("OnlyHitElements", True)
         print 'SCT_Digitization:::: Turned off Noise in SCT_FrontEnd'
-        kwargs.setdefault("NoiseBarrel", 0.0)
-        kwargs.setdefault("NoiseBarrel3", 0.0)
-        kwargs.setdefault("NoiseInners", 0.0)
-        kwargs.setdefault("NoiseMiddles", 0.0)
-        kwargs.setdefault("NoiseShortMiddles", 0.0)
-        kwargs.setdefault("NoiseOuters", 0.0)
-        kwargs.setdefault("NOBarrel", 0.0)
-        kwargs.setdefault("NOBarrel3", 0.0)
-        kwargs.setdefault("NOInners", 0.0)
-        kwargs.setdefault("NOMiddles", 0.0)
-        kwargs.setdefault("NOShortMiddles", 0.0)
-        kwargs.setdefault("NOOuters", 0.0)
         kwargs.setdefault("NoiseOn", False)
-        # To set the mean noise values for the different module types
-        # Default values set at 0 degrees, plus/minus ~5 enc per plus/minus degree
+        kwargs.setdefault("AnalogueNoiseOn", False)
     else:
-        kwargs.setdefault("NoiseBarrel", 1500.0)
-        kwargs.setdefault("NoiseBarrel3", 1541.0)
-        kwargs.setdefault("NoiseInners", 1090.0)
-        kwargs.setdefault("NoiseMiddles", 1557.0)
-        kwargs.setdefault("NoiseShortMiddles", 940.0)
-        kwargs.setdefault("NoiseOuters", 1618.0)
-        kwargs.setdefault("NOBarrel", 1.5e-5)
-        kwargs.setdefault("NOBarrel3", 2.1e-5)
-        kwargs.setdefault("NOInners", 5.0e-9)
-        kwargs.setdefault("NOMiddles", 2.7e-5)
-        kwargs.setdefault("NOShortMiddles", 2.0e-9)
-        kwargs.setdefault("NOOuters", 3.5e-5)
         kwargs.setdefault("NoiseOn", True)
+        kwargs.setdefault("AnalogueNoiseOn", True)
+    # In overlay MC, only analogue noise is on. Noise hits are not added.
+    from AthenaCommon.GlobalFlags import globalflags
+    if globalflags.isOverlay() and globalflags.DataSource == 'geant4':
+        kwargs["NoiseOn"] = False
+        kwargs["AnalogueNoiseOn"] = True
     # Use Calibration data from Conditions DB, still for testing purposes only
     kwargs.setdefault("UseCalibData", True)
+
     # Setup the ReadCalibChip folders and Svc
-    from IOVDbSvc.CondDB import conddb
-    from AthenaCommon.AlgSequence import AthSequencer
-    condSeq = AthSequencer("AthCondSeq")
-    sctGainFolder = "/SCT/DAQ/Calibration/ChipGain"
-    sctGainCondAlg = "SCT_ReadCalibChipGainCondAlg"
-    if not conddb.folderRequested(sctGainFolder):
-        conddb.addFolderSplitMC("SCT", sctGainFolder, sctGainFolder, className="CondAttrListCollection")
-    if not hasattr(condSeq, sctGainCondAlg):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipGainCondAlg
-        condSeq += SCT_ReadCalibChipGainCondAlg(name=sctGainCondAlg, ReadKey=sctGainFolder)
-    sctNoiseFolder = "/SCT/DAQ/Calibration/ChipNoise"
-    sctNoiseCondAlg = "SCT_ReadCalibChipNoiseCondAlg"
-    if not conddb.folderRequested(sctNoiseFolder):
-        conddb.addFolderSplitMC("SCT", sctNoiseFolder, sctNoiseFolder, className="CondAttrListCollection")
-    if not hasattr(condSeq, sctNoiseCondAlg):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipNoiseCondAlg
-        condSeq += SCT_ReadCalibChipNoiseCondAlg(name=sctNoiseCondAlg, ReadKey=sctNoiseFolder)
-    from AthenaCommon.AppMgr import ServiceMgr
-    if not hasattr(ServiceMgr, "InDetSCT_ReadCalibChipDataSvc"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipDataSvc
-        InDetSCT_ReadCalibChipDataSvc = SCT_ReadCalibChipDataSvc(name = "InDetSCT_ReadCalibChipDataSvc")
-        ServiceMgr += InDetSCT_ReadCalibChipDataSvc
+    from SCT_ConditionsTools.SCT_ReadCalibChipDataToolSetup import SCT_ReadCalibChipDataToolSetup
+    sct_ReadCalibChipDataToolSetup = SCT_ReadCalibChipDataToolSetup()
+    sct_ReadCalibChipDataToolSetup.setup()
+    kwargs.setdefault("SCT_ReadCalibChipDataTool", sct_ReadCalibChipDataToolSetup.getTool())
     # DataCompressionMode: 1 is level mode x1x (default), 2 is edge mode 01x, 3 is expanded any hit xxx
     from AthenaCommon.BeamFlags import jobproperties
-    from AthenaCommon.GlobalFlags import globalflags
     if digitizationFlags.PileUpPremixing:
         kwargs.setdefault("DataCompressionMode", 3)
     elif globalflags.isOverlay() and globalflags.DataSource == 'geant4':
@@ -184,7 +137,6 @@ def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
         kwargs.setdefault("DataCompressionMode", 1) 
     else: 
         kwargs.setdefault("DataCompressionMode", 3) 
-        kwargs.setdefault("NoiseExpandedMode", True)
     # DataReadOutMode: 0 is condensed mode and 1 is expanded mode
     if globalflags.isOverlay() and globalflags.DataSource == 'geant4':
         kwargs.setdefault("DataReadOutMode", 0)

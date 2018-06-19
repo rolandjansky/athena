@@ -18,7 +18,6 @@
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/MsgStream.h"
@@ -246,5 +245,7 @@ StatusCode SCT_ClusterContainerCnv_p2::initialize(MsgStream &log) {
    return StatusCode::SUCCESS;
 }
 
-
-
+// Method for test/SCT_ClusterContainerCnv_p2_test.cxx
+void SCT_ClusterContainerCnv_p2::setIdHelper(const SCT_ID* sct_id) {
+  m_sctId = sct_id;
+}

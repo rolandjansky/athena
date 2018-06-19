@@ -45,9 +45,12 @@ CollectionGetterToolImpl::CollectionGetterToolImpl (const std::string& type,
 StatusCode CollectionGetterToolImpl::initialize()
 {
   // If a label was provided, add ourselves to the registry.
-  CHECK( m_registry.retrieve() );
   if (!m_label.empty()) {
+    CHECK( m_registry.retrieve() );
     CHECK( m_registry->add (m_label, this) );
+  }
+  else {
+    m_registry.disable();
   }
   return ObjGetterToolImpl::initialize();
 }

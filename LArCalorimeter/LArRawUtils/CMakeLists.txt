@@ -30,5 +30,5 @@ atlas_add_library( LArRawUtilsLib
 
 atlas_add_component( LArRawUtils
                      src/components/*.cxx
-                     LINK_LIBRARIES CaloIdentifier CaloTTDetDescr AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier GaudiKernel LArIdentifier LArRawEvent CaloTriggerToolLib AtlasDetDescr LArToolsLib LArRawUtilsLib )
+                     LINK_LIBRARIES LArRawUtilsLib )
 

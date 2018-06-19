@@ -6,8 +6,8 @@
 #include "TrigT1CaloEvent/CPMHits.h"
 #endif
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 
 CLASS_DEF( LVL1::CPMHits , 242253504 , 1 )
 CLASS_DEF( DataVector<LVL1::CPMHits> , 110337239 , 1 )

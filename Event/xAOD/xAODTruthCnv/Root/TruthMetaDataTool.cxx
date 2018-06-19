@@ -83,6 +83,10 @@ namespace xAODMaker {
       return StatusCode::SUCCESS;
    }
 
+   StatusCode TruthMetaDataTool::endInputFile() {
+      return StatusCode::SUCCESS;
+   }
+
    StatusCode TruthMetaDataTool::metaDataStop() {
 
       // The output may already have trigger configuration metadata in it.

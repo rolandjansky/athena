@@ -136,8 +136,6 @@ multipleELM = Service("MultipleEventLoopMgr")
 
 
 EventSelector = Service( "EventSelector" )
-
-EventSelector.CollectionType = "SeekableROOT"
 EventSelector.InputCollections += [ "rfio:/castor/cern.ch/user/h/haertel/ESD/InDetESD_01SinglePiPlus_1000GeV1.root" ]
 # Number of events to be processed (default is 10)
 theApp.EvtMax  = 1

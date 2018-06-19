@@ -19,6 +19,10 @@ log = logging.getLogger("InDetTrigConfigRecLoadTools.py")
 
 from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
 
+# SiLorentzAngleTool for SCT
+if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
 #
 # common ClusterMakerTool
@@ -31,6 +35,7 @@ InDetTrigClusterMakerTool = \
                              PixelOfflineCalibSvc = PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                              #pixLorentzAnleSvc = "InDetTrigPixLorentzAngleSvc",
                              #UseLorentzAngleCorrections = False
+                             SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool
                              )
 if (InDetTrigFlags.doPrintConfigurables()):
   print InDetTrigClusterMakerTool
@@ -60,12 +65,17 @@ ToolSvc +=  SCT_TrigSpacePointTool
 #
 
 if InDetTrigFlags.loadRotCreator():
+  # SiLorentzAngleTool
+  if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
   #4 clusterOnTrack Tools
   #
   from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
   SCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("SCT_ClusterOnTrackTool",
                                                           CorrectionStrategy = 0,  # do correct position bias
-                                                          ErrorStrategy      = 2)  # do use phi dependent errors
+                                                          ErrorStrategy      = 2,  # do use phi dependent errors
+                                                          LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
   ToolSvc += SCT_ClusterOnTrackTool
   if (InDetTrigFlags.doPrintConfigurables()):
     print SCT_ClusterOnTrackTool
@@ -87,7 +97,8 @@ if InDetTrigFlags.loadRotCreator():
   InDetTrigBroadSCT_ClusterOnTrackTool = \
       InDet__SCT_ClusterOnTrackTool ("InDetTrigBroadSCT_ClusterOnTrackTool",
                                      CorrectionStrategy = 0,  # do correct position bias
-                                     ErrorStrategy      = 0)  # do use broad errors
+                                     ErrorStrategy      = 0,  # do use broad errors
+                                     LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
   ToolSvc += InDetTrigBroadSCT_ClusterOnTrackTool
   if (InDetTrigFlags.doPrintConfigurables()):
     print InDetTrigBroadSCT_ClusterOnTrackTool
@@ -578,18 +589,18 @@ if InDetTrigFlags.loadFitter():
 
 
 if DetFlags.haveRIO.pixel_on():
-  from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummarySvc
+  from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
   from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
-  InDetTrigPixelConditionsSummarySvc = PixelConditionsSummarySvc(PixelConditionsSetup.instanceName('PixelConditionsSummarySvc'))
+  InDetTrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(PixelConditionsSetup.instanceName('PixelConditionsSummaryTool'))
 else:
-  InDetTrigPixelConditionsSummarySvc = None
+  InDetTrigPixelConditionsSummaryTool = None
 
 if DetFlags.haveRIO.SCT_on():
-  from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
   from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
-  InDetTrigSCTConditionsSummarySvc = SCT_ConditionsSummarySvc(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummarySvc'))
+  from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
+  InDetTrigSCTConditionsSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryTool'))
 else:
-  InDetTrigSCTConditionsSummarySvc = None
+  InDetTrigSCTConditionsSummaryTool = None
 
 #
 # ------load association tool from Inner Detector to handle pixel ganged ambiguities
@@ -611,11 +622,11 @@ if InDetTrigFlags.loadSummaryTool():
 
   # Load Pixel Layer tool
   from InDetTestPixelLayer.InDetTestPixelLayerConf import InDet__InDetTestPixelLayerTool
-  InDetTrigTestPixelLayerTool = InDet__InDetTestPixelLayerTool(name            = "InDetTrigTestPixelLayerTool",
-                                                               PixelSummarySvc = InDetTrigPixelConditionsSummarySvc,
-                                                               Extrapolator    = InDetTrigExtrapolator,
-                                                               CheckActiveAreas= True,
-                                                               CheckDeadRegions= True)
+  InDetTrigTestPixelLayerTool = InDet__InDetTestPixelLayerTool(name             = "InDetTrigTestPixelLayerTool",
+                                                               PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
+                                                               Extrapolator     = InDetTrigExtrapolator,
+                                                               CheckActiveAreas = True,
+                                                               CheckDeadRegions = True)
   ToolSvc += InDetTrigTestPixelLayerTool
   if (InDetTrigFlags.doPrintConfigurables()):
     print  InDetTrigTestPixelLayerTool
@@ -630,8 +641,8 @@ if InDetTrigFlags.loadSummaryTool():
                                                             Extrapolator = InDetTrigExtrapolator,
                                                             usePixel      = DetFlags.haveRIO.pixel_on(),
                                                             useSCT        = DetFlags.haveRIO.SCT_on(),
-                                                            PixelSummarySvc = InDetTrigPixelConditionsSummarySvc,
-                                                            SctSummarySvc = InDetTrigSCTConditionsSummarySvc,
+                                                            PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
+                                                            SctSummaryTool = InDetTrigSCTConditionsSummaryTool,
                                                             PixelLayerTool=InDetTrigTestPixelLayerTool,
                                                             )
                                                             #Commissioning = InDetTrigFlags.doCommissioning()) #renamed
@@ -644,7 +655,7 @@ if InDetTrigFlags.loadSummaryTool():
   # Load BLayer tool
   from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
   InDetTrigTestBLayerTool = InDet__InDetTestBLayerTool(name            = "InDetTrigTestBLayerTool",
-                                                       PixelSummarySvc = InDetTrigPixelConditionsSummarySvc,
+                                                       PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
                                                        Extrapolator    = InDetTrigExtrapolator,
                                                        CheckActiveAreas= True)
   ToolSvc += InDetTrigTestBLayerTool
@@ -878,8 +889,8 @@ if InDetTrigFlags.doNewTracking():
                                                                  useSCT           = DetFlags.haveRIO.SCT_on(),   
                                                                  PixelClusterContainer = 'PixelTrigClusters',
                                                                  SCT_ClusterContainer = 'SCT_TrigClusters',
-                                                                 PixelSummarySvc = InDetTrigPixelConditionsSummarySvc,
-                                                                 SctSummarySvc = InDetTrigSCTConditionsSummarySvc
+                                                                 PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
+                                                                 SctSummaryTool = InDetTrigSCTConditionsSummaryTool
                                                                  )															
   ToolSvc += InDetTrigSiComTrackFinder
   #to here

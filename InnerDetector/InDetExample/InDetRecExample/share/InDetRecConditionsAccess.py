@@ -1,21 +1,23 @@
+
 # block include of file, this is used by many packages
 include.block ("InDetRecExample/InDetRecConditionsAccess.py")
 
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 isData = (globalflags.DataSource == 'data')
 
 eventInfoKey = "ByteStreamEventInfo"
 if not isData:
-  eventInfoKey = "McEventInfo"
-if globalflags.isOverlay() and isData :
-  if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
-    from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    eventInfoKey = (overlayFlags.dataStore() + '+' + eventInfoKey).replace("StoreGateSvc+","")
-  else :
     eventInfoKey = "McEventInfo"
+if globalflags.isOverlay() and isData :
+    if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        eventInfoKey = (overlayFlags.dataStore() + '+' + eventInfoKey).replace("StoreGateSvc+","")
+    else :
+        eventInfoKey = "McEventInfo"
 
 if not ('conddb' in dir()):
-  IOVDbSvc = Service("IOVDbSvc")
-  from IOVDbSvc.CondDB import conddb
+    IOVDbSvc = Service("IOVDbSvc")
+    from IOVDbSvc.CondDB import conddb
 
 # Conditions sequence for Athena MT
 from AthenaCommon.AlgSequence import AthSequencer
@@ -29,6 +31,11 @@ if DetFlags.haveRIO.pixel_on():
     from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummarySvc
     InDetPixelConditionsSummarySvc = PixelConditionsSummarySvc()
   
+    #Tool version for athenaMT
+#    from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummaryTool
+    from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
+    InDetPixelConditionsSummaryTool = PixelConditionsSummaryTool()
+
     # Load pixel calibration service
     if not athenaCommonFlags.isOnline():
         if not conddb.folderRequested('/PIXEL/PixCalib'):
@@ -42,27 +49,41 @@ if DetFlags.haveRIO.pixel_on():
     # Load pixel special pixel map services
     if athenaCommonFlags.isOnline() :
        InDetPixelConditionsSummarySvc.UseSpecialPixelMap = False
+       InDetPixelConditionsSummaryTool.UseSpecialPixelMap = False
     else:
         InDetPixelConditionsSummarySvc.UseSpecialPixelMap = True
+        InDetPixelConditionsSummaryTool.UseSpecialPixelMap = True
         if not conddb.folderRequested('/PIXEL/PixMapShort'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapShort")
+            conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapShort", className='CondAttrListCollection')
         if not conddb.folderRequested('/PIXEL/PixMapLong'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapLong")
+            conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapLong", className='CondAttrListCollection')
         if not conddb.folderRequested('/PIXEL/NoiseMapShort'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/NoiseMapShort")
+            conddb.addFolder("PIXEL_OFL","/PIXEL/NoiseMapShort", className='CondAttrListCollection')
         if not conddb.folderRequested('/PIXEL/NoiseMapLong'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/NoiseMapLong")
+            conddb.addFolder("PIXEL_OFL","/PIXEL/NoiseMapLong", className='CondAttrListCollection')
         if not conddb.folderRequested('/PIXEL/PixMapOverlay'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapOverlay")
+            conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
         from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapSvc
         InDetSpecialPixelMapSvc = SpecialPixelMapSvc(DBFolders           = [ "/PIXEL/PixMapShort", "/PIXEL/PixMapLong" , "/PIXEL/NoiseMapShort", "/PIXEL/NoiseMapLong" ] ,
                                                      SpecialPixelMapKeys = [ "SpecialPixelMap", "SpecialPixelMapLong", "NoiseMapShort", "NoiseMapLong" ] ,
                                                      OverlayFolder       = "/PIXEL/PixMapOverlay",
-                                                     OverlayKey          = "PixMapOverlay")
+                                                     OverlayKey          = "PixMapOverlay", RegisterCallback = True)
         ServiceMgr += InDetSpecialPixelMapSvc
         if InDetFlags.doPrintConfigurables():
             print InDetSpecialPixelMapSvc
-    
+
+        InDetPixelConditionsSummarySvc.DisableCallback = False
+        #Alg is suppose to replace service, sync withh service for now
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import SpecialPixelMapCondAlg
+        InDetSpecialPixelMapCondAlg = SpecialPixelMapCondAlg(name="InDetSpecialPixelMapCondAlg",
+               DBFolders  = InDetSpecialPixelMapSvc.DBFolders,
+               SpecialPixelMapKeys = InDetSpecialPixelMapSvc.SpecialPixelMapKeys ,
+               OverlayFolder       = InDetSpecialPixelMapSvc.OverlayFolder,
+               OverlayKey          = InDetSpecialPixelMapSvc.OverlayKey)
+        condSeq += InDetSpecialPixelMapCondAlg
+        if InDetFlags.doPrintConfigurables():
+            print InDetSpecialPixelMapSvc
+
     # Load pixel DCS information
     from SiLorentzAngleSvc.PixelLorentzAngleSvcSetup import pixelLorentzAngleSvcSetup
     if InDetFlags.usePixelDCS():
@@ -87,9 +108,10 @@ if DetFlags.haveRIO.pixel_on():
                 conddb.addFolder("DCS_OFL","/PIXEL/DCS/FSMSTATUS")
             if not conddb.folderRequested('/PIXEL/DCS/FSMSTATE'):
                 conddb.addFolder("DCS_OFL","/PIXEL/DCS/FSMSTATE")
-            from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
-            if (rec.doMonitoring() and globalflags.DataSource() == 'data' and geoFlags.Run() == "RUN2" and conddb.dbdata == "CONDBR2"): 
-                # geoFlags.isIBL() == True may work too instead of geoFlags.Run() == "RUN2"
+            from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
+            # from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as idGeoFlags
+            if (rec.doMonitoring() and globalflags.DataSource() == 'data' and ( geoFlags.Run() in ["RUN2", "RUN3"] ) and conddb.dbdata == "CONDBR2"):
+                # idGeoFlags.isIBL() == True may work too instead of ( geoFlags.Run() in ["RUN2", "RUN3"] )
                 if not conddb.folderRequested('/PIXEL/DCS/PIPES'):
                     conddb.addFolder("DCS_OFL","/PIXEL/DCS/PIPES")
                 if not conddb.folderRequested('/PIXEL/DCS/LV'):
@@ -118,24 +140,29 @@ if DetFlags.haveRIO.pixel_on():
         InDetPixelConditionsSummarySvc.UseDCS         = isData
         InDetPixelConditionsSummarySvc.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
         InDetPixelConditionsSummarySvc.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
-        # Force Lorentz angle calculation to use DCS for data
-        if (globalflags.DataSource() == 'data'):
-            pixelLorentzAngleSvcSetup.forceUseDB()
+
+        InDetPixelConditionsSummaryTool.UseDCS        = isData
+        InDetPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
+        InDetPixelConditionsSummaryTool.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
     else:
-        pixelLorentzAngleSvcSetup.forceUseGeoModel()
+        pixelLorentzAngleSvcSetup.usePixelDefaults = True
+        from PixelConditionsServices.PixelConditionsServicesConf import PixelSiliconConditionsSvc
+        PixelSiliconConditionsSvc.UseDB = False
 
     # Load Pixel BS errors service
     if ( globalflags.DataSource == 'geant4' ) :
         # Due to a "feature" in the BS encoder for simulation,
         # the information of the BS error service
         # is not reliable on MC.
-        InDetPixelConditionsSummarySvc.UseByteStream = False 
+        InDetPixelConditionsSummarySvc.UseByteStream = False
+        InDetPixelConditionsSummaryTool.UseByteStream = False
     else :
         from PixelConditionsServices.PixelConditionsServicesConf import PixelByteStreamErrorsSvc
         InDetPixelByteStreamErrorsSvc = PixelByteStreamErrorsSvc()
         if ( globalflags.InputFormat != 'bytestream' ):
             InDetPixelByteStreamErrorsSvc.ReadingESD = True
         InDetPixelConditionsSummarySvc.UseByteStream = True
+        InDetPixelConditionsSummaryTool.UseByteStream = True
 
         ServiceMgr += InDetPixelByteStreamErrorsSvc
         if (InDetFlags.doPrintConfigurables()):
@@ -171,11 +198,24 @@ if DetFlags.haveRIO.pixel_on():
     ServiceMgr += InDetPixelConditionsSummarySvc
     if (InDetFlags.doPrintConfigurables()):
         print InDetPixelConditionsSummarySvc
-    
+    ToolSvc += InDetPixelConditionsSummaryTool
+    if (InDetFlags.doPrintConfigurables()):
+        print InDetPixelConditionsSummaryTool
 #
 # --- Load SCT Conditions Services
 #
 if DetFlags.haveRIO.SCT_on():
+
+    # Load conditions summary tool
+    from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
+    sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
+    sct_ConditionsSummaryToolSetup.setup()
+    InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
+    if (InDetFlags.doPrintConfigurables()):
+        print InDetSCT_ConditionsSummaryTool
+    
+    # Load conditions configuration service and load folders and algorithm for it
+    # Load folders that have to exist for both MC and Data
     SCTConfigurationFolderPath='/SCT/DAQ/Config/'
     #if its COMP200, use old folders...
     if (conddb.dbdata == "COMP200"):
@@ -192,201 +232,150 @@ if DetFlags.haveRIO.SCT_on():
             SCTConfigurationFolderPath='/SCT/DAQ/Config/'
     except:
         pass
-        
     try:
         if (InDetFlags.ForceCoolVectorPayload() and InDetFlags.ForceCoraCool()):
             print '*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****'
             SCTConfigurationFolderPath=''
     except:
         pass
-    # Load folders that have to exist for both MC and Data
-    SCTChipConfigurationPath=SCTConfigurationFolderPath+'Chip'
-    SCTModuleConfigurationPath=SCTConfigurationFolderPath+'Module'
-    SCTMurConfigurationPath=SCTConfigurationFolderPath+'MUR'
-    if not conddb.folderRequested(SCTChipConfigurationPath):
-        conddb.addFolderSplitMC("SCT", SCTChipConfigurationPath, SCTChipConfigurationPath, className="CondAttrListVec")
-    if not conddb.folderRequested(SCTModuleConfigurationPath):
-        conddb.addFolderSplitMC("SCT", SCTModuleConfigurationPath, SCTModuleConfigurationPath, className="CondAttrListVec")
-    if not conddb.folderRequested(SCTMurConfigurationPath):
-        conddb.addFolderSplitMC("SCT", SCTMurConfigurationPath, SCTMurConfigurationPath, className="CondAttrListVec")
-    if not hasattr(condSeq, "SCT_ConfigurationCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationCondAlg
-        condSeq += SCT_ConfigurationCondAlg(name = "SCT_ConfigurationCondAlg",
-                                            ReadKeyChannel = SCTChipConfigurationPath,
-                                            ReadKeyModule = SCTModuleConfigurationPath,
-                                            ReadKeyMur = SCTMurConfigurationPath)
+    from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
+    sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
+    sct_ConfigurationConditionsToolSetup.setChannelFolder(SCTConfigurationFolderPath+"Chip")
+    sct_ConfigurationConditionsToolSetup.setModuleFolder(SCTConfigurationFolderPath+"Module")
+    sct_ConfigurationConditionsToolSetup.setMurFolder(SCTConfigurationFolderPath+"MUR")
+    sct_ConfigurationConditionsToolSetup.setup()
+    InDetSCT_ConfigurationConditionsTool = sct_ConfigurationConditionsToolSetup.getTool()
+    if (InDetFlags.doPrintConfigurables()):
+        print InDetSCT_ConfigurationConditionsTool
 
-    sctGainDefectFolder="/SCT/DAQ/Calibration/NPtGainDefects"
-    if not conddb.folderRequested(sctGainDefectFolder):
-        conddb.addFolderSplitMC("SCT", sctGainDefectFolder, sctGainDefectFolder, className="CondAttrListCollection")
-    sctNoiseDefectFolder="/SCT/DAQ/Calibration/NoiseOccupancyDefects"
-    if not conddb.folderRequested(sctNoiseDefectFolder):
-        conddb.addFolderSplitMC("SCT", sctNoiseDefectFolder, sctNoiseDefectFolder, className="CondAttrListCollection")
-
+    # Load calibration conditions tool
+    from SCT_ConditionsTools.SCT_ReadCalibDataToolSetup import SCT_ReadCalibDataToolSetup
+    sct_ReadCalibDataToolSetup = SCT_ReadCalibDataToolSetup()
+    sct_ReadCalibDataToolSetup.setup()
+    InDetSCT_ReadCalibDataTool = sct_ReadCalibDataToolSetup.getTool()
+    if (InDetFlags.doPrintConfigurables()):
+        print InDetSCT_ReadCalibDataTool
+    
+    # Load flagged condition tool
+    from SCT_ConditionsTools.SCT_FlaggedConditionToolSetup import SCT_FlaggedConditionToolSetup
+    sct_FlaggedConditionToolSetup = SCT_FlaggedConditionToolSetup()
+    sct_FlaggedConditionToolSetup.setup()
+    InDetSCT_FlaggedConditionTool = sct_FlaggedConditionToolSetup.getTool()
+    if (InDetFlags.doPrintConfigurables()):
+        print InDetSCT_FlaggedConditionTool
+    
+    # Load conditions Monitoring tool
     if not athenaCommonFlags.isOnline():
-        sctDerivedMonitoringFolder = '/SCT/Derived/Monitoring'
-        if not conddb.folderRequested(sctDerivedMonitoringFolder):
-            conddb.addFolder("SCT_OFL", sctDerivedMonitoringFolder, className="CondAttrListCollection")
-            if not hasattr(condSeq, "SCT_MonitorConditionsCondAlg"):
-                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsCondAlg
-                condSeq += SCT_MonitorConditionsCondAlg(name = "SCT_MonitorConditionsCondAlg",
-                                                        ReadKey = sctDerivedMonitoringFolder)
-    
-    # Load conditions summary service
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
-    InDetSCT_ConditionsSummarySvc = SCT_ConditionsSummarySvc(name = "InDetSCT_ConditionsSummarySvc")
-    ServiceMgr += InDetSCT_ConditionsSummarySvc
-    if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_ConditionsSummarySvc
-    
-    # Load conditions configuration service
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationConditionsSvc
-    InDetSCT_ConfigurationConditionsSvc = SCT_ConfigurationConditionsSvc(name = "InDetSCT_ConfigurationConditionsSvc")
-    ServiceMgr += InDetSCT_ConfigurationConditionsSvc
-    if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_ConfigurationConditionsSvc
-
-    # Load calibration conditions service
-    if not hasattr(condSeq, "SCT_ReadCalibDataCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataCondAlg
-        condSeq += SCT_ReadCalibDataCondAlg(name = "SCT_ReadCalibDataCondAlg",
-                                            ReadKeyGain = sctGainDefectFolder,
-                                            ReadKeyNoise = sctNoiseDefectFolder)
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataSvc
-    InDetSCT_ReadCalibDataSvc = SCT_ReadCalibDataSvc(name = "InDetSCT_ReadCalibDataSvc")
-    ServiceMgr += InDetSCT_ReadCalibDataSvc
-    if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_ReadCalibDataSvc
-    
-    # Load flagged condition service
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_FlaggedConditionSvc
-    InDetSCT_FlaggedConditionSvc = SCT_FlaggedConditionSvc(name = "InDetSCT_FlaggedConditionSvc")
-    ServiceMgr += InDetSCT_FlaggedConditionSvc
-    if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_FlaggedConditionSvc
-    
-    # Load conditions Monitoring service
-    if not athenaCommonFlags.isOnline():
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsSvc
-        InDetSCT_MonitorConditionsSvc = SCT_MonitorConditionsSvc(name          = "InDetSCT_MonitorConditionsSvc",
-                                                                 OutputLevel   = INFO)
-        ServiceMgr += InDetSCT_MonitorConditionsSvc
+        from SCT_ConditionsTools.SCT_MonitorConditionsToolSetup import SCT_MonitorConditionsToolSetup
+        sct_MonitorConditionsToolSetup = SCT_MonitorConditionsToolSetup()
+        sct_MonitorConditionsToolSetup.setOutputLevel(INFO)
+        sct_MonitorConditionsToolSetup.setup()
+        InDetSCT_MonitorConditionsTool = sct_MonitorConditionsToolSetup.getTool()
         if (InDetFlags.doPrintConfigurables()):
-            print InDetSCT_MonitorConditionsSvc
+            print InDetSCT_MonitorConditionsTool
 
     if InDetFlags.doSCTModuleVeto():
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ModuleVetoSvc
-      InDetSCT_ModuleVetoSvc = SCT_ModuleVetoSvc(name = "InDetSCT_ModuleVetoSvc")
-      ServiceMgr += InDetSCT_ModuleVetoSvc
-      if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_ModuleVetoSvc
+        from SCT_ConditionsTools.SCT_ModuleVetoToolSetup import SCT_ModuleVetoToolSetup
+        sct_ModuleVetoToolSetup = SCT_ModuleVetoToolSetup()
+        sct_ModuleVetoToolSetup.setup()
+        InDetSCT_ModuleVetoTool = sct_ModuleVetoToolSetup.getTool()
+        if (InDetFlags.doPrintConfigurables()):
+            print InDetSCT_ModuleVetoTool
 
-    # Load bytestream errors service (use default instance without "InDet")
-    # @TODO find a better to solution to get the correct service for the current job.
-    if not hasattr(ServiceMgr, "SCT_ByteStreamErrorsSvc"):
-        include( 'InDetRecExample/InDetRecCabling.py' )
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ByteStreamErrorsSvc
-        SCT_ByteStreamErrorsSvc = SCT_ByteStreamErrorsSvc(name = "SCT_ByteStreamErrorsSvc")
-        ServiceMgr += SCT_ByteStreamErrorsSvc
+    # Load bytestream errors tool (use default instance without "InDet")
+    # @TODO find a better to solution to get the correct tool for the current job.
+    from SCT_ConditionsTools.SCT_ByteStreamErrorsToolSetup import SCT_ByteStreamErrorsToolSetup
+    sct_ByteStreamErrorsToolSetup = SCT_ByteStreamErrorsToolSetup()
+    sct_ByteStreamErrorsToolSetup.setConfigTool(InDetSCT_ConfigurationConditionsTool)
+    sct_ByteStreamErrorsToolSetup.setup()
+    include( 'InDetRecExample/InDetRecCabling.py' )
     if (InDetFlags.doPrintConfigurables()):
-        print ServiceMgr.SCT_ByteStreamErrorsSvc
+        print sct_ByteStreamErrorsToolSetup.getTool()
     
     if InDetFlags.useSctDCS():
-        sctDCSStateFolder = '/SCT/DCS/CHANSTAT'
-        sctDCSTempFolder = '/SCT/DCS/MODTEMP'
-        sctDCSHVFolder = '/SCT/DCS/HV'
-        if not conddb.folderRequested(sctDCSStateFolder):
-            conddb.addFolder("DCS_OFL", sctDCSStateFolder, className="CondAttrListCollection")
-        if not conddb.folderRequested(sctDCSTempFolder):
-            conddb.addFolder("DCS_OFL", sctDCSTempFolder, className="CondAttrListCollection")
-        if not conddb.folderRequested(sctDCSHVFolder):
-            conddb.addFolder("DCS_OFL", sctDCSHVFolder, className="CondAttrListCollection")
-        if not hasattr(condSeq, "SCT_DCSConditionsHVCondAlg"):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
-            condSeq += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
-                                                  ReadKey = sctDCSHVFolder)
-        if not hasattr(condSeq, "SCT_DCSConditionsStatCondAlg"):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
-            condSeq += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
-                                                    ReadKeyHV = sctDCSHVFolder,
-                                                    ReadKeyState = sctDCSStateFolder)
-        if not hasattr(condSeq, "SCT_DCSConditionsTempCondAlg"):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
-            condSeq += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
-                                                    ReadKey = sctDCSTempFolder)
-        
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
-        InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name = "InDetSCT_DCSConditionsSvc")        
+        from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+        sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+        sct_DCSConditionsToolSetup.setup()
+        InDetSCT_DCSConditionsTool = sct_DCSConditionsToolSetup.getTool()
         if InDetFlags.useHVForSctDCS():
-            SCT_DCSConditionsStatCondAlg.UseDefaultHV = True  #Hack to use ~20V cut for SCT DCS rather than ChanStat for startup
-        ServiceMgr += InDetSCT_DCSConditionsSvc
+            sct_DCSConditionsToolSetup.getStateAlg().UseDefaultHV = True  #Hack to use ~20V cut for SCT DCS rather than ChanStat for startup
         if (InDetFlags.doPrintConfigurables()):
-            print InDetSCT_DCSConditionsSvc
-    print "Conditions db instance is ", conddb.dbdata
-    # Load Tdaq enabled services for data only and add some to summary svc for data only
-    tdaqFolder = '/TDAQ/EnabledResources/ATLAS/SCT/Robins'
-    if (conddb.dbdata == "CONDBR2"):
-      tdaqFolder = '/TDAQ/Resources/ATLAS/SCT/Robins'
+            print InDetSCT_DCSConditionsTool
     
     if (globalflags.DataSource() == 'data'):       
-        # Load TdaqEnabled service
-        if not conddb.folderRequested(tdaqFolder):
-            conddb.addFolder("TDAQ",tdaqFolder,className="CondAttrListCollection")
-            if not hasattr(condSeq, "SCT_TdaqEnabledCondAlg"):
-                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledCondAlg
-                condSeq += SCT_TdaqEnabledCondAlg(name = "SCT_TdaqEnabledCondAlg",
-                                                  ReadKey = tdaqFolder,
-                                                  EventInfoKey = eventInfoKey)
-
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledSvc
-        InDetSCT_TdaqEnabledSvc = SCT_TdaqEnabledSvc(name = "InDetSCT_TdaqEnabledSvc",
-                                                     EventInfoKey = eventInfoKey)
-
-        ServiceMgr += InDetSCT_TdaqEnabledSvc
+        print "Conditions db instance is ", conddb.dbdata
+        # Load Tdaq enabled tools for data only and add some to summary tool for data only
+        tdaqFolder = '/TDAQ/EnabledResources/ATLAS/SCT/Robins'
+        if (conddb.dbdata == "CONDBR2"):
+            tdaqFolder = '/TDAQ/Resources/ATLAS/SCT/Robins'
+        # Load TdaqEnabled tool
+        from SCT_ConditionsTools.SCT_TdaqEnabledToolSetup import SCT_TdaqEnabledToolSetup
+        sct_TdaqEnabledToolSetup = SCT_TdaqEnabledToolSetup()
+        sct_TdaqEnabledToolSetup.setFolder(tdaqFolder)
+        sct_TdaqEnabledToolSetup.setEventInfoKey(eventInfoKey)
+        sct_TdaqEnabledToolSetup.setup()
+        InDetSCT_TdaqEnabledTool = sct_TdaqEnabledToolSetup.getTool()
         if (InDetFlags.doPrintConfigurables()):
-            print InDetSCT_TdaqEnabledSvc
+            print InDetSCT_TdaqEnabledTool
         
-        # Configure summary service
-        InDetSCT_ConditionsSummarySvc.ConditionsServices= [ "InDetSCT_ConfigurationConditionsSvc",
-                                                            "InDetSCT_FlaggedConditionSvc",
-                                                            "SCT_ByteStreamErrorsSvc",
-                                                            "InDetSCT_ReadCalibDataSvc",
-                                                            "InDetSCT_TdaqEnabledSvc"]
+        # Configure summary tool
+        InDetSCT_ConditionsSummaryTool.ConditionsTools= [ sct_ConfigurationConditionsToolSetup.getTool().getFullName(),
+                                                          sct_FlaggedConditionToolSetup.getTool().getFullName(),
+                                                          sct_ByteStreamErrorsToolSetup.getTool().getFullName(),
+                                                          sct_ReadCalibDataToolSetup.getTool().getFullName(),
+                                                          sct_TdaqEnabledToolSetup.getTool().getFullName()]
         if not athenaCommonFlags.isOnline():
-            InDetSCT_ConditionsSummarySvc.ConditionsServices += [ "InDetSCT_MonitorConditionsSvc" ]
+            InDetSCT_ConditionsSummaryTool.ConditionsTools += [ sct_MonitorConditionsToolSetup.getTool().getFullName() ]
 
         if InDetFlags.useSctDCS():
-            InDetSCT_ConditionsSummarySvc.ConditionsServices += ["InDetSCT_DCSConditionsSvc"]
+            InDetSCT_ConditionsSummaryTool.ConditionsTools += [ sct_DCSConditionsToolSetup.getTool().getFullName() ]
        
     # switch conditions off for SLHC usage
     elif InDetFlags.doSLHC():
-        InDetSCT_ConditionsSummarySvc.ConditionsServices= []
+        InDetSCT_ConditionsSummaryTool.ConditionsTools= []
       
     else :
-        InDetSCT_ConditionsSummarySvc.ConditionsServices= [ "InDetSCT_ConfigurationConditionsSvc",
-                                                            "InDetSCT_FlaggedConditionSvc",
-                                                            "InDetSCT_MonitorConditionsSvc",
-                                                            "SCT_ByteStreamErrorsSvc",
-                                                            "InDetSCT_ReadCalibDataSvc"]
+        InDetSCT_ConditionsSummaryTool.ConditionsTools= [ sct_ConfigurationConditionsToolSetup.getTool().getFullName(),
+                                                          sct_FlaggedConditionToolSetup.getTool().getFullName(),
+                                                          sct_MonitorConditionsToolSetup.getTool().getFullName(),
+                                                          sct_ReadCalibDataToolSetup.getTool().getFullName()]
 
 
     if InDetFlags.doSCTModuleVeto():
-      InDetSCT_ConditionsSummarySvc.ConditionsServices += ["InDetSCT_ModuleVetoSvc"]
+        InDetSCT_ConditionsSummaryTool.ConditionsTools += [ sct_MonitorConditionsToolSetup.getTool().getFullName() ]
         
     
     if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_ConditionsSummarySvc
+        print InDetSCT_ConditionsSummaryTool
+
+    # Conditions summary tool without InDetSCT_FlaggedConditionTool
+    sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup()
+    sct_ConditionsSummaryToolSetupWithoutFlagged.setToolName("InDetSCT_ConditionsSummaryToolWithoutFlagged")
+    sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
+    InDetSCT_ConditionsSummaryToolWithoutFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()    
+    condTools = []
+    for condToolHandle in InDetSCT_ConditionsSummaryTool.ConditionsTools:
+        condTool = condToolHandle.typeAndName
+        if condTool not in condTools:
+            if condTool != InDetSCT_FlaggedConditionTool.getFullName():
+                condTools.append(condTool)
+    InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools = condTools
         
-    # Setup Lorentz angle service.
-    from SiLorentzAngleSvc.SCTLorentzAngleSvcSetup import sctLorentzAngleSvcSetup
-    
+    # Setup Lorentz angle tool.
+    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+
+    forceUseDB = False
+    forceUseGeoModel = False
     if InDetFlags.useSctDCS():
         # Force Lorentz angle calculation to use DCS for data
         # (Not actually using DCS yet but rather temperature and voltage from joboptions.)
-        if (globalflags.DataSource() == 'data'):            
-            sctLorentzAngleSvcSetup.forceUseDB()
+        if (globalflags.DataSource() == 'data'):
+            forceUseDB = True
     else:
-        sctLorentzAngleSvcSetup.forceUseGeoModel()
+        forceUseGeoModel = True
+
+    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup(forceUseDB=forceUseDB, forceUseGeoModel=forceUseGeoModel)
+    SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool
             
 #
 # --- Load necessary TRT conditions folders
@@ -398,19 +387,22 @@ if DetFlags.haveRIO.TRT_on():
             conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress")
 
     # Calibration constants
-    # Block folders if they are to be read in from text files
+    # Block folders if they are to be read from or written to text files
     #conddb.blockFolder("/TRT/Calib/RT")
     #conddb.blockFolder("/TRT/Calib/T0")
 
     if not conddb.folderRequested('/TRT/Calib/RT'):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT",className='TRTCond::RtRelationMultChanContainer')
+
     if not conddb.folderRequested('/TRT/Calib/T0'):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/T0","/TRT/Calib/T0",className='TRTCond::StrawT0MultChanContainer')
+
     if not conddb.folderRequested('/TRT/Calib/errors2d'):
         TRTErrorsFolder = conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors2d","/TRT/Calib/errors2d",className='TRTCond::RtRelationMultChanContainer')
+
     if not conddb.folderRequested('/TRT/Calib/slopes'):
         TRTSlopesFolder = conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/slopes","/TRT/Calib/slopes",className='TRTCond::RtRelationMultChanContainer')
-        
+
     if not conddb.folderRequested('/TRT/Calib/ToTCalib'):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib")
 
@@ -420,34 +412,21 @@ if DetFlags.haveRIO.TRT_on():
     # Calibration DB Service
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
     InDetTRTCalDbSvc = TRT_CalDbSvc()
-    InDetTRTCalDbSvc.ErrorReadKeyName = TRTErrorsFolder
-    InDetTRTCalDbSvc.SlopeReadKeyName = TRTSlopesFolder
     ServiceMgr += InDetTRTCalDbSvc
     if(InDetFlags.doPrintConfigurables()):
         print InDetTRTCalDbSvc
 
-    # Calibration folder management
-    # Use this for reading folders from text files
 
-    #from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTCondWrite
-    #TRTCondWrite = TRTCondWrite( name = "TRTCondWrite",
-    #                                            CalibInputFile = "dbconst.336630.txt",
-    #                                            CalibOutputFile = "")
-    # use as CalibOutputFile the name calibout_n, where n=0,1,2,3 is the format
-    #
-    #topSequence += TRTCondWrite
-    #if (InDetFlags.doPrintConfigurables()):
-    #   print TRTCondWrite
-
-    
     # Dead/Noisy Straw Lists
     if not conddb.folderRequested('/TRT/Cond/Status'):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/Status","/TRT/Cond/Status")
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/Status","/TRT/Cond/Status",className='TRTCond::StrawStatusMultChanContainer')
+
     if not conddb.folderRequested('/TRT/Cond/StatusPermanent'):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusPermanent","/TRT/Cond/StatusPermanent")
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusPermanent","/TRT/Cond/StatusPermanent",className='TRTCond::StrawStatusMultChanContainer')
+
     # Argon straw list
     if not conddb.folderRequested('/TRT/Cond/StatusHT'):
-       conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT")
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT",className='TRTCond::StrawStatusMultChanContainer')
 
     # DCS Data Folders
     if (globalflags.InputFormat() == 'bytestream' and globalflags.DataSource() == 'data'):
@@ -500,8 +479,12 @@ if DetFlags.haveRIO.TRT_on():
     InDetTRTConditionsServices=[]
 
     # Dead/Noisy Straw Service
+    useOldStyle = False
+    if DetFlags.simulate.any_on() or athenaCommonFlags.EvtMax==1:
+         useOldStyle = True
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
-    InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc")
+    InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc",
+                                                              isGEANT4 = useOldStyle)
     ServiceMgr += InDetTRTStrawStatusSummarySvc
     if (InDetFlags.doPrintConfigurables()):
         print InDetTRTStrawStatusSummarySvc
@@ -512,7 +495,7 @@ if DetFlags.haveRIO.TRT_on():
                     
         # DCS Conditions Service
         if InDetFlags.useTrtDCS():
-
+           
             # Hardware Mapping Service
             from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_HWMappingSvc
             InDetTRT_HWMappingSvc = TRT_HWMappingSvc(name="InDetTRT_HWMappingSvc")

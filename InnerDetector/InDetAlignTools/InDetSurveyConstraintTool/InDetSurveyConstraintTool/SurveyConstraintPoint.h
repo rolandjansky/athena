@@ -48,39 +48,39 @@ public:
   bool operator!=( const SurveyConstraintPoint& ) const;
   
   // Selectors (const)
-  const Amg::Vector3D& survey() const { return _survey; };
-  const Amg::Vector3D& current() const { return _current; };
+  const Amg::Vector3D& survey() const { return m_survey; };
+  const Amg::Vector3D& current() const { return m_current; };
   
 // non-const
-  Amg::Vector3D& survey() { return _survey; };
-  Amg::Vector3D& current() { return _current; };
+  Amg::Vector3D& survey() { return m_survey; };
+  Amg::Vector3D& current() { return m_current; };
   
   // Modifiers
   void setSurvey( const Amg::Vector3D& point ) { 
-    _survey = point;
+    m_survey = point;
   }
  
   void setCurrent( const Amg::Vector3D& point ) { 
-    _current = point;
+    m_current = point;
   }
 // trasform both points
   void moveTo( const Amg::Transform3D& trans ) { 
-    _survey  = trans * _survey;
-    _current = trans * _current;
+    m_survey  = trans * m_survey;
+    m_current = trans * m_current;
   }
 
   void moveFrom( const Amg::Transform3D& trans ) { 
-    _survey  =  (trans.inverse()) * _survey ;
-    _current =  (trans.inverse()) * _current;
+    m_survey  =  (trans.inverse()) * m_survey ;
+    m_current =  (trans.inverse()) * m_current;
   }
 
   void scaleZ( float scale ) {
-    //float before = _survey.z();
-    float zs = _survey.z() * scale;
-    float zc = _current.z() * scale;
-    _survey[2] = zs;
-    _current[2] = zc;
-    //    cout << "scale, before, after, after = " << scale << "," << before << "," << zs << "," << _survey.z() << endl;
+    //float before = m_survey.z();
+    float zs = m_survey.z() * scale;
+    float zc = m_current.z() * scale;
+    m_survey[2] = zs;
+    m_current[2] = zc;
+    //    cout << "scale, before, after, after = " << scale << "," << before << "," << zs << "," << m_survey.z() << endl;
   }
 
   
@@ -91,8 +91,8 @@ protected:
 private:
 
   // Data members
-  Amg::Vector3D _survey;  //Points
-  Amg::Vector3D _current; //Points
+  Amg::Vector3D m_survey;  //Points
+  Amg::Vector3D m_current; //Points
 
 };
 

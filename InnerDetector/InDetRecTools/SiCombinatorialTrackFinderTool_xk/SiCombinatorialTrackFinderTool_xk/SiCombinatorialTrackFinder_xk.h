@@ -30,7 +30,6 @@
 #include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLink_xk.h"
 
 class MsgStream          ;
-class IInDetConditionsSvc;
 
 namespace InDet{
 
@@ -111,8 +110,9 @@ namespace InDet{
       // Protected Data
       ///////////////////////////////////////////////////////////////////
 
-      ServiceHandle<IInDetConditionsSvc>    m_pixelCondSummarySvc;
-      ServiceHandle<IInDetConditionsSvc>    m_sctCondSummarySvc  ;
+      ToolHandle<IInDetConditionsTool>        m_pixelCondSummaryTool;
+      ToolHandle<IInDetConditionsTool>    m_sctCondSummaryTool{this, "SctSummaryTool",
+          "InDetSCT_ConditionsSummaryTool/SCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions summary"};
       ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
       ToolHandle<Trk::IPatternParametersPropagator> m_proptool   ;
       ToolHandle<Trk::IPatternParametersUpdator>    m_updatortool;

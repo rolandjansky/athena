@@ -9,7 +9,7 @@
 #ifndef PIXELCLUSTERONTRACKERRORDATA_H
 #define PIXELCLUSTERONTRACKERRORDATA_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <string>
 #include <vector>
 

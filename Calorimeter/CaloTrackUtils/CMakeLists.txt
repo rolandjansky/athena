@@ -36,5 +36,5 @@ atlas_add_library( CaloTrackUtilsLib
 atlas_add_component( CaloTrackUtils
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} CaloRecLib GaudiKernel GeoPrimitives xAODCaloEvent Particle TrkSurfaces TrkParameters TrkParticleBase VxVertex TrkExInterfaces CaloTrackUtilsLib )
+                     LINK_LIBRARIES CaloTrackUtilsLib )
 

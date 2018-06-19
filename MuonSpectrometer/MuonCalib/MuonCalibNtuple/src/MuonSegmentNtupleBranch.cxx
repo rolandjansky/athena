@@ -17,24 +17,24 @@
 
 namespace MuonCalib {
   
-  MuonSegmentNtupleBranch::MuonSegmentNtupleBranch(std::string branchName) : m_branchName(branchName),  branchesInit(false), 
-    m_first(true), index(0)
+  MuonSegmentNtupleBranch::MuonSegmentNtupleBranch(std::string branchName) : m_branchName(branchName),  m_branchesInit(false), 
+    m_first(true), m_index(0)
   {}
 
   //  bool MuonSegmentNtupleBranch::fillBranch(const MuonCalibSegment &seg, const int patternIndex) {
   bool MuonSegmentNtupleBranch::fillBranch(const MuonCalibSegment &seg) {
-    // check if branches where initialized
-    if( !branchesInit ) {
-      //std::cout << "MuonSegmentNtupleBranch::fillBranch  ERROR <branches where not initialized>"
+    // check if branches were initialized
+    if( !m_branchesInit ) {
+      //std::cout << "MuonSegmentNtupleBranch::fillBranch  ERROR <branches were not initialized>"
       //	<<  std::endl;
       return false;
     }
 
     // check if segment index out of range (m_blockSize is size of segment data arrays) 
-    if( index >= m_blockSize || index < 0 ) {
+    if( m_index >= m_blockSize || m_index < 0 ) {
       if (m_first == true) {
- 	//std::cout << "MuonSegmentNtupleBranch::fillBranch  ERROR <index out of range, seg not added to ntuple> "
-	//  << index << std::endl;
+ 	//std::cout << "MuonSegmentNtupleBranch::fillBranch  ERROR <index out of range; seg not added to ntuple> "
+	//  << m_index << std::endl;
 	m_first = false;
       }
       return false;
@@ -93,37 +93,37 @@ namespace MuonCalib {
     if( phi < 0 ) phi += 2*CLHEP::pi;
 
     // copy values 
-    //    patIndex[index]   = patternIndex;
-    author[index]     = seg.author();
-    quality[index]    = seg.qualityFlag();
-    chi2[index]       = seg.chi2();
-    fittedT0[index]   = seg.hasFittedT0() ? seg.fittedT0() : -99999.;
-    gPosX[index]      = seg.globalPosition().x();
-    gPosY[index]      = seg.globalPosition().y();
-    gPosZ[index]      = seg.globalPosition().z();
-    gDirX[index]      = seg.globalDirection().x();
-    gDirY[index]      = seg.globalDirection().y();
-    gDirZ[index]      = seg.globalDirection().z();
-    posX[index]       = seg.position().x();
-    posY[index]       = seg.position().y();
-    posZ[index]       = seg.position().z();
-    dirX[index]       = seg.direction().x();
-    dirY[index]       = seg.direction().y();
-    dirZ[index]       = seg.direction().z();
-    nHits[index]      = seg.hitsOnTrack();
-    nMdtHits[index]   = seg.mdtHitsOnTrack();
-    nRpcHits[index]   = seg.rpcHitsOnTrack();
-    nCscHits[index]   = seg.cscHitsOnTrack();
-    nTgcHits[index]   = seg.tgcHitsOnTrack();
-    transPhi[index]   = phi;
-    transTheta[index] = theta;
-    transPsi[index]   = psi;
-    transX[index]     = translation.x();
-    transY[index]     = translation.y();
-    transZ[index]     = translation.z();
+    //    patIndex[m_index]   = patternIndex;
+    m_author[m_index]     = seg.author();
+    m_quality[m_index]    = seg.qualityFlag();
+    m_chi2[m_index]       = seg.chi2();
+    m_fittedT0[m_index]   = seg.hasFittedT0() ? seg.fittedT0() : -99999.;
+    m_gPosX[m_index]      = seg.globalPosition().x();
+    m_gPosY[m_index]      = seg.globalPosition().y();
+    m_gPosZ[m_index]      = seg.globalPosition().z();
+    m_gDirX[m_index]      = seg.globalDirection().x();
+    m_gDirY[m_index]      = seg.globalDirection().y();
+    m_gDirZ[m_index]      = seg.globalDirection().z();
+    m_posX[m_index]       = seg.position().x();
+    m_posY[m_index]       = seg.position().y();
+    m_posZ[m_index]       = seg.position().z();
+    m_dirX[m_index]       = seg.direction().x();
+    m_dirY[m_index]       = seg.direction().y();
+    m_dirZ[m_index]       = seg.direction().z();
+    m_nHits[m_index]      = seg.hitsOnTrack();
+    m_nMdtHits[m_index]   = seg.mdtHitsOnTrack();
+    m_nRpcHits[m_index]   = seg.rpcHitsOnTrack();
+    m_nCscHits[m_index]   = seg.cscHitsOnTrack();
+    m_nTgcHits[m_index]   = seg.tgcHitsOnTrack();
+    m_transPhi[m_index]   = phi;
+    m_transTheta[m_index] = theta;
+    m_transPsi[m_index]   = psi;
+    m_transX[m_index]     = translation.x();
+    m_transY[m_index]     = translation.y();
+    m_transZ[m_index]     = translation.z();
 
     // increment segment index
-    ++index;
+    ++m_index;
   
     return true;
   }  //end MuonSegmentNtupleBranch::fillBranch
@@ -142,42 +142,42 @@ namespace MuonCalib {
     std::string index_name = "nSegments";
 
     // create a branch for every data member
-    branchCreator.createBranch( tree, index_name, &index, "/I");
+    branchCreator.createBranch( tree, index_name, &m_index, "/I");
 
     // all entries of same size, the number of hits in the event
     std::string array_size( std::string("[") + m_branchName + index_name + std::string("]") );
 
     // create the branches
-    //    branchCreator.createBranch( tree, "patIndex",   &patIndex,   array_size + "/I" );
-    branchCreator.createBranch( tree, "author",     &author,     array_size + "/I" );
-    branchCreator.createBranch( tree, "quality",    &quality,    array_size + "/I" );
-    branchCreator.createBranch( tree, "chi2",       &chi2,       array_size + "/F" );
-    branchCreator.createBranch( tree, "fittedT0",   &fittedT0,   array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosX",      &gPosX,      array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosY",      &gPosY,      array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosZ",      &gPosZ,      array_size + "/F" );
-    branchCreator.createBranch( tree, "gDirX",      &gDirX,      array_size + "/F" );
-    branchCreator.createBranch( tree, "gDirY",      &gDirY,      array_size + "/F" );
-    branchCreator.createBranch( tree, "gDirZ",      &gDirZ,      array_size + "/F" );
-    branchCreator.createBranch( tree, "posX",       &posX,       array_size + "/F" );
-    branchCreator.createBranch( tree, "posY",       &posY,       array_size + "/F" );
-    branchCreator.createBranch( tree, "posZ",       &posZ,       array_size + "/F" );
-    branchCreator.createBranch( tree, "dirX",       &dirX,       array_size + "/F" );
-    branchCreator.createBranch( tree, "dirY",       &dirY,       array_size + "/F" );
-    branchCreator.createBranch( tree, "dirZ",       &dirZ,       array_size + "/F" );
-    branchCreator.createBranch( tree, "nHits",      &nHits,      array_size + "/I" );
-    branchCreator.createBranch( tree, "nMdtHits",   &nMdtHits,   array_size + "/I" );
-    branchCreator.createBranch( tree, "nRpcHits",   &nRpcHits,   array_size + "/I" );
-    branchCreator.createBranch( tree, "nTgcHits",   &nTgcHits,   array_size + "/I" );
-    branchCreator.createBranch( tree, "nCscHits",   &nCscHits,   array_size + "/I" );
-    branchCreator.createBranch( tree, "transPhi",   &transPhi,   array_size + "/D" );
-    branchCreator.createBranch( tree, "transTheta", &transTheta, array_size + "/D" );
-    branchCreator.createBranch( tree, "transPsi",   &transPsi,   array_size + "/D" );
-    branchCreator.createBranch( tree, "transX",     &transX,     array_size + "/D" );
-    branchCreator.createBranch( tree, "transY",     &transY,     array_size + "/D" );
-    branchCreator.createBranch( tree, "transZ",     &transZ,     array_size + "/D" );
+    //    branchCreator.createBranch( tree, "patIndex",   &m_patIndex,   array_size + "/I" );
+    branchCreator.createBranch( tree, "author",     &m_author,     array_size + "/I" );
+    branchCreator.createBranch( tree, "quality",    &m_quality,    array_size + "/I" );
+    branchCreator.createBranch( tree, "chi2",       &m_chi2,       array_size + "/F" );
+    branchCreator.createBranch( tree, "fittedT0",   &m_fittedT0,   array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosX",      &m_gPosX,      array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosY",      &m_gPosY,      array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosZ",      &m_gPosZ,      array_size + "/F" );
+    branchCreator.createBranch( tree, "gDirX",      &m_gDirX,      array_size + "/F" );
+    branchCreator.createBranch( tree, "gDirY",      &m_gDirY,      array_size + "/F" );
+    branchCreator.createBranch( tree, "gDirZ",      &m_gDirZ,      array_size + "/F" );
+    branchCreator.createBranch( tree, "posX",       &m_posX,       array_size + "/F" );
+    branchCreator.createBranch( tree, "posY",       &m_posY,       array_size + "/F" );
+    branchCreator.createBranch( tree, "posZ",       &m_posZ,       array_size + "/F" );
+    branchCreator.createBranch( tree, "dirX",       &m_dirX,       array_size + "/F" );
+    branchCreator.createBranch( tree, "dirY",       &m_dirY,       array_size + "/F" );
+    branchCreator.createBranch( tree, "dirZ",       &m_dirZ,       array_size + "/F" );
+    branchCreator.createBranch( tree, "nHits",      &m_nHits,      array_size + "/I" );
+    branchCreator.createBranch( tree, "nMdtHits",   &m_nMdtHits,   array_size + "/I" );
+    branchCreator.createBranch( tree, "nRpcHits",   &m_nRpcHits,   array_size + "/I" );
+    branchCreator.createBranch( tree, "nTgcHits",   &m_nTgcHits,   array_size + "/I" );
+    branchCreator.createBranch( tree, "nCscHits",   &m_nCscHits,   array_size + "/I" );
+    branchCreator.createBranch( tree, "transPhi",   &m_transPhi,   array_size + "/D" );
+    branchCreator.createBranch( tree, "transTheta", &m_transTheta, array_size + "/D" );
+    branchCreator.createBranch( tree, "transPsi",   &m_transPsi,   array_size + "/D" );
+    branchCreator.createBranch( tree, "transX",     &m_transX,     array_size + "/D" );
+    branchCreator.createBranch( tree, "transY",     &m_transY,     array_size + "/D" );
+    branchCreator.createBranch( tree, "transZ",     &m_transZ,     array_size + "/D" );
 
-    branchesInit = true;
+    m_branchesInit = true;
 
     // reset branch
     reset();

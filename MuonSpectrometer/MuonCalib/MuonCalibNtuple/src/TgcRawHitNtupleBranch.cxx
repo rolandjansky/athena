@@ -13,46 +13,46 @@
 
 namespace MuonCalib {
 
-  TgcRawHitNtupleBranch::TgcRawHitNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false)
-   , index(-1), index_Curr(-1), index_Prev(-1), index_Next(-1)
+  TgcRawHitNtupleBranch::TgcRawHitNtupleBranch(std::string branchName) : m_branchName(branchName), m_branchesInit(false)
+   , m_index(-1), m_index_Curr(-1), m_index_Prev(-1), m_index_Next(-1)
   {}
 
   bool TgcRawHitNtupleBranch::fillBranch(const MuonCalibRawTgcHit &hit) {
-    // check if branches where initialized
-    if( !branchesInit )
+    // check if branches were initialized
+    if( !m_branchesInit )
       return false;    
     
     // check if index not out of range 
-    if( index >= m_blockSize || index < 0 )
+    if( m_index >= m_blockSize || m_index < 0 )
       return false;
 
     //    Trk::GlobalPosition global = hit.globalP
-    num_Prev[index] = index_Prev;
-    num_Curr[index] = index_Curr;
-    num_Next[index] = index_Next;
+    m_num_Prev[m_index] = m_index_Prev;
+    m_num_Curr[m_index] = m_index_Curr;
+    m_num_Next[m_index] = m_index_Next;
  
     // copy values 
-    occupancy[index]  = hit.occupancy();
-    id[index]         = hit.identify().getIdInt();
-    station[index]    = hit.station();
-    eta[index]        = hit.eta();
-    phi[index]        = hit.phi();
-    gasGap[index]     = hit.gasGap();
-    isStrip[index]    = hit.isStrip();
-    channel[index]    = hit.channel();
-    shortWidth[index] = hit.shortWidth();
-    longWidth[index]  = hit.longWidth();
-    width[index]      = hit.width() ;
-    length[index]     = hit.length() ;
-    gPosX[index]      = hit.globalPosition().x();
-    gPosY[index]      = hit.globalPosition().y();
-    gPosZ[index]      = hit.globalPosition().z();
-    bcTag[index] = hit.bcTag();
-    ++index;
+    m_occupancy[m_index]  = hit.occupancy();
+    m_id[m_index]         = hit.identify().getIdInt();
+    m_station[m_index]    = hit.station();
+    m_eta[m_index]        = hit.eta();
+    m_phi[m_index]        = hit.phi();
+    m_gasGap[m_index]     = hit.gasGap();
+    m_isStrip[m_index]    = hit.isStrip();
+    m_channel[m_index]    = hit.channel();
+    m_shortWidth[m_index] = hit.shortWidth();
+    m_longWidth[m_index]  = hit.longWidth();
+    m_width[m_index]      = hit.width() ;
+    m_length[m_index]     = hit.length() ;
+    m_gPosX[m_index]      = hit.globalPosition().x();
+    m_gPosY[m_index]      = hit.globalPosition().y();
+    m_gPosZ[m_index]      = hit.globalPosition().z();
+    m_bcTag[m_index] = hit.bcTag();
+    ++m_index;
 
-    if(     hit.bcTag()==1) ++index_Prev;
-    else if(hit.bcTag()==2) ++index_Curr;
-    else if(hit.bcTag()==3) ++index_Next;
+    if(     hit.bcTag()==1) ++m_index_Prev;
+    else if(hit.bcTag()==2) ++m_index_Curr;
+    else if(hit.bcTag()==3) ++m_index_Next;
 
     return true;
   }  //end TgcRawHitNtupleBranch::fillBranch
@@ -72,37 +72,37 @@ namespace MuonCalib {
     std::string index_name_All  ="nRTgc_All_Bunch";
 
     // create a branch for every data member
-    branchCreator.createBranch( tree, index_name,      &index_Curr, "/I");
-    branchCreator.createBranch( tree, index_name_Prev, &index_Prev, "/I");
-    branchCreator.createBranch( tree, index_name_Next, &index_Next, "/I");
-    branchCreator.createBranch( tree, index_name_All,  &index, "/I");
+    branchCreator.createBranch( tree, index_name,      &m_index_Curr, "/I");
+    branchCreator.createBranch( tree, index_name_Prev, &m_index_Prev, "/I");
+    branchCreator.createBranch( tree, index_name_Next, &m_index_Next, "/I");
+    branchCreator.createBranch( tree, index_name_All,  &m_index, "/I");
 
     // all entries of same size, the number of hits in the event
     std::string array_size( std::string("[") + m_branchName + index_name_All + std::string("]") );
 
     // create the branches
-    branchCreator.createBranch( tree, "bcTag",      &bcTag,      array_size + "/I" );
-    branchCreator.createBranch( tree, "num_Prev",   &num_Prev,   array_size + "/I" );
-    branchCreator.createBranch( tree, "num_Curr",   &num_Curr,   array_size + "/I" );
-    branchCreator.createBranch( tree, "num_Next",   &num_Next,   array_size + "/I" );
+    branchCreator.createBranch( tree, "bcTag",      &m_bcTag,      array_size + "/I" );
+    branchCreator.createBranch( tree, "num_Prev",   &m_num_Prev,   array_size + "/I" );
+    branchCreator.createBranch( tree, "num_Curr",   &m_num_Curr,   array_size + "/I" );
+    branchCreator.createBranch( tree, "num_Next",   &m_num_Next,   array_size + "/I" );
 
-    branchCreator.createBranch( tree, "occupancy",  &occupancy,  array_size + "/I" );
-    branchCreator.createBranch( tree, "id",         &id,         array_size + "/I" );
-    branchCreator.createBranch( tree, "station",    &station,    array_size + "/I" );
-    branchCreator.createBranch( tree, "eta",        &eta,        array_size + "/I" );
-    branchCreator.createBranch( tree, "phi",        &phi,        array_size + "/I" );
-    branchCreator.createBranch( tree, "gasGap",     &gasGap,     array_size + "/I" );
-    branchCreator.createBranch( tree, "isStrip",    &isStrip,    array_size + "/I" );
-    branchCreator.createBranch( tree, "channel",    &channel,    array_size + "/I" );
-    branchCreator.createBranch( tree, "shortWidth", &shortWidth, array_size + "/F" );
-    branchCreator.createBranch( tree, "longWidth",  &longWidth,  array_size + "/F" );
-    branchCreator.createBranch( tree, "width",      &width,      array_size + "/F" );
-    branchCreator.createBranch( tree, "length",     &length,     array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosX",      &gPosX,      array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosY",      &gPosY,      array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosZ",      &gPosZ,      array_size + "/F" );
+    branchCreator.createBranch( tree, "occupancy",  &m_occupancy,  array_size + "/I" );
+    branchCreator.createBranch( tree, "id",         &m_id,         array_size + "/I" );
+    branchCreator.createBranch( tree, "station",    &m_station,    array_size + "/I" );
+    branchCreator.createBranch( tree, "eta",        &m_eta,        array_size + "/I" );
+    branchCreator.createBranch( tree, "phi",        &m_phi,        array_size + "/I" );
+    branchCreator.createBranch( tree, "gasGap",     &m_gasGap,     array_size + "/I" );
+    branchCreator.createBranch( tree, "isStrip",    &m_isStrip,    array_size + "/I" );
+    branchCreator.createBranch( tree, "channel",    &m_channel,    array_size + "/I" );
+    branchCreator.createBranch( tree, "shortWidth", &m_shortWidth, array_size + "/F" );
+    branchCreator.createBranch( tree, "longWidth",  &m_longWidth,  array_size + "/F" );
+    branchCreator.createBranch( tree, "width",      &m_width,      array_size + "/F" );
+    branchCreator.createBranch( tree, "length",     &m_length,     array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosX",      &m_gPosX,      array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosY",      &m_gPosY,      array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosZ",      &m_gPosZ,      array_size + "/F" );
 
-    branchesInit = true;
+    m_branchesInit = true;
   
     // reset branch
     reset();

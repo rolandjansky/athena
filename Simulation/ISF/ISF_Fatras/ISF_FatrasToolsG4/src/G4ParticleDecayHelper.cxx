@@ -65,7 +65,7 @@ iFatras::G4ParticleDecayHelper::G4ParticleDecayHelper(const std::string& t, cons
   declareProperty("ParticleTruthSvc",         m_truthRecordSvc,       "ISF Particle Truth Svc");
   // random number initializations 
   declareProperty("RandomNumberService",      m_rndmSvc,              "Random number generator");
-  declareProperty("RandomStreamName",         m_randomEngineName,     "Name of the random number stream");;
+  declareProperty("RandomStreamName",         m_randomEngineName,     "Name of the random number stream");
   declareProperty("G4RandomStreamName",       m_G4RandomEngineName,   "Name of the random number stream for G4 tools");
   
   // tool declarations -------------------------------------------------
@@ -133,6 +133,10 @@ iFatras::G4ParticleDecayHelper::initialize()
   } else {
     std::cout <<"f4dec: g4RunManagerHelper retrieved:"<< m_g4RunManagerHelper<< std::endl;
   }
+
+  // Disable auto-retrieve of this tool: Geant will raise an exception
+  // if this happens before the run manager is created.
+  m_pdgToG4Conv.disable();
 
   ATH_MSG_INFO("initialize() successful");
   return StatusCode::SUCCESS;

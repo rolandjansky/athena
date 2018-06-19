@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -189,14 +189,10 @@ namespace Muon {
       // parametrised error function
       double parametrisedSigma( double r ) const;
       
-      void fillMboyParametrisedErrors();
-      float mBoyParametrisedSigma(double r) const; // TODO - merge into parametrisedSigma? EJWM
-      
       double mooreErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
       double mooreErrorStrategyMC(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
       double mooreErrorStrategyLoose(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
       double mooreErrorStrategyTight(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
-      double mboyErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR) const;
       
       double muonErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
       
@@ -235,8 +231,6 @@ namespace Muon {
       bool                                m_doIndividualChamberReweights; //!< Deweight individual chambers
       bool                                m_isMC; //!< toggle between MC and data alignment errors (to be removed in rel. 21!)
       bool                                m_looseErrors; //!< toggle between loose errors (initial before alignment) and tight after alignment
-      // Additions for Mboy errors 
-      std::vector<float>                  m_mboyParametrisedErrors;//!< Holds the error values copied from MuonboyCore's fredigint.F90
     };
 
 } // End of muon namewpace

@@ -13,7 +13,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 
 // GeoModel
 #include "MuonReadoutGeometry/TgcReadoutParams.h"
@@ -23,15 +22,12 @@
 
 #include "Identifier/Identifier.h"
 
-#include "xAODEventInfo/EventInfo.h"
-
 // MuonRDO
 #include "MuonRDO/TgcRdo.h"
 #include "MuonRDO/TgcRdoIdHash.h"
 #include "MuonRDO/TgcRdoContainer.h"
 
 #include "MuonDigitContainer/TgcDigitContainer.h"
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
@@ -60,10 +56,6 @@ TgcRawDataValAlg::TgcRawDataValAlg( const std::string & type, const std::string 
   :ManagedMonitorToolBase( type, name, parent )
 {
   // Declare the properties 
-  declareProperty("TgcPrepDataContainer",         m_tgcPrepDataContainerName = "TGC_Measurements");
-  declareProperty("TgcPrepDataPreviousContainer", m_tgcPrepDataPreviousContainerName="TGC_MeasurementsPriorBC");
-  declareProperty("TgcPrepDataNextContainer",     m_tgcPrepDataNextContainerName="TGC_MeasurementsNextBC");
-  declareProperty("OutputCoinCollection", m_outputCoinCollectionLocation = "TrigT1CoinDataCollection" );
   m_nEvent=0;
   m_numberingVersion=0; 
 }
@@ -81,18 +73,6 @@ TgcRawDataValAlg::initialize(){
 
   ATH_CHECK( ManagedMonitorToolBase::initialize() );
   
-  /*
-  // Store Gate store
-  sc = serviceLocator()->service("StoreGateSvc", _eventStore);
-  if (sc != StatusCode::SUCCESS ) {
-  m_log << MSG::ERROR << " Cannot get StoreGateSvc " << endmsg;
-  return sc ;
-  }
-  */
-
-  // Retrieve the Active Store
-  ATH_CHECK(  serviceLocator()->service("ActiveStoreSvc", m_activeStore) );
-
   // Retrieve the MuonDetectorManager  
   ATH_CHECK(  detStore()->retrieve(m_muonMgr) );
   ATH_MSG_DEBUG( " Found the MuonDetectorManager from detector store. "  );
@@ -113,6 +93,12 @@ TgcRawDataValAlg::initialize(){
   //do not monitor profile histograms
   //m_mon_profile=false;
   m_mon_profile=true;
+
+  ATH_CHECK(m_tgcPrepDataContainerName.initialize());
+  ATH_CHECK(m_tgcPrepDataPreviousContainerName.initialize());
+  ATH_CHECK(m_tgcPrepDataNextContainerName.initialize());
+  ATH_CHECK(m_outputCoinCollectionLocation.initialize());
+  ATH_CHECK(m_eventInfo.initialize());
   
   return StatusCode::SUCCESS;
 } 
@@ -169,20 +155,17 @@ TgcRawDataValAlg::fillHistograms(){
   
   /////////////////////////////////////
   // Get TGC Hit PRD Containers
-  const Muon::TgcPrepDataContainer* tgc_previous_prd_container(0);
-  const Muon::TgcPrepDataContainer* tgc_current_prd_container(0);
-  const Muon::TgcPrepDataContainer* tgc_next_prd_container(0);
+  SG::ReadHandle<Muon::TgcPrepDataContainer> tgc_previous_prd_container(m_tgcPrepDataContainerName);
+  SG::ReadHandle<Muon::TgcPrepDataContainer> tgc_current_prd_container(m_tgcPrepDataPreviousContainerName);
+  SG::ReadHandle<Muon::TgcPrepDataContainer> tgc_next_prd_container(m_tgcPrepDataNextContainerName);
   
   // Previous
-  ATH_CHECK( (*m_activeStore)->retrieve(tgc_previous_prd_container, m_tgcPrepDataPreviousContainerName) );
   ATH_MSG_DEBUG( "****** tgc previous prd container size() : " << tgc_previous_prd_container->size()  );
   
   // Current
-  ATH_CHECK( (*m_activeStore)->retrieve(tgc_current_prd_container, m_tgcPrepDataContainerName) );
   ATH_MSG_DEBUG( "****** tgc current prd container size() : " << tgc_current_prd_container->size()  );
   
   // Next
-  ATH_CHECK(  (*m_activeStore)->retrieve(tgc_next_prd_container, m_tgcPrepDataNextContainerName) );
   ATH_MSG_DEBUG( "****** tgc next prd container size() : " << tgc_next_prd_container->size()  );
   
   
@@ -195,9 +178,9 @@ TgcRawDataValAlg::fillHistograms(){
   // Get Data from TGC Containers
   clearVectorsArrays();
   // fill vectors and arrays from TgcPrepData
-  readTgcPrepDataContainer(tgc_previous_prd_container, PREV);
-  readTgcPrepDataContainer( tgc_current_prd_container, CURR);
-  readTgcPrepDataContainer(    tgc_next_prd_container, NEXT);
+  readTgcPrepDataContainer(tgc_previous_prd_container.cptr(), PREV);
+  readTgcPrepDataContainer( tgc_current_prd_container.cptr(), CURR);
+  readTgcPrepDataContainer(    tgc_next_prd_container.cptr(), NEXT);
   
   
   ///////////////////////////////////////////////////////////////////////////
@@ -341,8 +324,7 @@ TgcRawDataValAlg::fillEventInfo(){
 
   //get Event Info
   //const DataHandle<EventInfo> evt;
-  const xAOD::EventInfo* evt(0);
-  ATH_CHECK( (*m_activeStore)->retrieve(evt) );
+  SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo);
 
   m_lumiblock = evt->lumiBlock() ;
   m_event     = evt->eventNumber() ;

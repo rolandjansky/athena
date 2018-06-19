@@ -26,8 +26,8 @@
 // with respect to some histogram.                             //
 //                                                             //
 //-------------------------------------------------------------//
-#ifndef _HistLikelihoodFunctional_h_
-#define _HistLikelihoodFunctional_h_
+#ifndef QATDATAMODELING_HISTLIKELIHOODFUNCTIONAL_H
+#define QATDATAMODELING_HISTLIKELIHOODFUNCTIONAL_H
 #include "CLHEP/GenericFunctions/AbsFunctional.hh"
 class Hist1D;
 class HistLikelihoodFunctional:public Genfun::AbsFunctional {
@@ -51,20 +51,20 @@ public:
 
 private:
   
-  const Hist1D       *_histogram;  // does not own this histogram.
-  double              _minValue;   // min bin value for fit.
-  double              _maxValue;   // max bin value for fit.
-  bool                _integrate;  // integration flag.
+  const Hist1D       *m_histogram;  // does not own this histogram.
+  double              m_minValue;   // min bin value for fit.
+  double              m_maxValue;   // max bin value for fit.
+  bool                m_integrate;  // integration flag.
 
   // These are caches for Histogram-like quantities. They are 
   // held here because they are expensive to extract from the
   // histogram:
 
-  int   _nBins;
-  float _min;
-  float _max;
-  float _delta;
-  float _width;
+  int   m_nBins;
+  float m_min;
+  float m_max;
+  float m_delta;
+  float m_width;
   
   
   // Assignment is illegal:

@@ -5,9 +5,10 @@
 #ifndef G4USERACTIONS_G4UA__PHOTONKILLERTOOL_H
 #define G4USERACTIONS_G4UA__PHOTONKILLERTOOL_H
 
-#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
-#include "G4AtlasInterfaces/IG4TrackingActionTool.h"
+// Infrastructure includes
 #include "G4AtlasTools/UserActionToolBase.h"
+
+// Local includes
 #include "G4UserActions/PhotonKiller.h"
 
 namespace G4UA

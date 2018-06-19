@@ -40,6 +40,8 @@
 #include "TrkVolumes/BoundarySurface.h"
 #include "TrkVolumes/BoundarySurfaceFace.h"
 #include "TrkSurfaces/DiscBounds.h"
+#include "TrkSurfaces/DiamondBounds.h"
+#include "TrkSurfaces/RotatedDiamondBounds.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
@@ -218,11 +220,17 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
           Identifier nswId = m_muonStationTypeBuilder->identifyNSW(oName, vols[ish].second[0]);
 
           // get bounds and transform from readout geometry
-	  const Trk::RotatedTrapezoidBounds* rtrd=0;
+	  const Trk::RotatedTrapezoidBounds* rtrd=nullptr;
+	  const Trk::TrapezoidBounds* trd=nullptr;
+	  const Trk::DiamondBounds* dia=nullptr;
+	  const Trk::RotatedDiamondBounds* rdia=nullptr;
 	  Amg::Transform3D layTransf(Trk::s_idTransform);
 	  if (m_muonMgr->stgcIdHelper()->is_stgc(nswId)) {
 	    const MuonGM::sTgcReadoutElement* stgc=m_muonMgr->getsTgcReadoutElement(nswId);
 	    if (stgc) rtrd = dynamic_cast<const Trk::RotatedTrapezoidBounds*> (&stgc->bounds(nswId));
+	    if (stgc) trd = dynamic_cast<const Trk::TrapezoidBounds*> (&stgc->bounds(nswId));
+	    if (stgc) dia = dynamic_cast<const Trk::DiamondBounds*> (&stgc->bounds(nswId));
+	    if (stgc) rdia = dynamic_cast<const Trk::RotatedDiamondBounds*> (&stgc->bounds(nswId));
             if (stgc) layTransf = stgc->transform(nswId);
             if(stgc) ATH_MSG_DEBUG( " STGC readout element " );
             if(!stgc) ATH_MSG_DEBUG( " STGC and NO readout element " );
@@ -242,7 +250,9 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 
 	  const Trk::Layer* layer=0;
 
-          if (!rtrd ) {    // translate from GeoModel ( spacer & non-identified stuff )
+          if (!rtrd && !dia && !trd && !rdia) {    // translate from GeoModel ( spacer & non-identified stuff )
+            // This used to be a !rtrd check as we either had a rotatedTrap or nothing
+            // Now we included trapezoid and diamond shape for the sTGC
 	    ATH_MSG_DEBUG( " translate from GeoModel " << protoName );
 
 	    Amg::Transform3D ident(Trk::s_idTransform);
@@ -254,6 +264,30 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
               if (layer) layer->moveLayer(vols[ish].second[0]);
               delete trObject;
 	    }
+	  } else if (dia) {
+	    // create active layer for diamond shape of NSW-sTGC QL3
+	    Trk::DiamondBounds* tbounds = new Trk::DiamondBounds(dia->minHalflengthX(),dia->medHalflengthX(),dia->maxHalflengthX(),dia->halflengthY1(),dia->halflengthY2());
+	    Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
+	    Trk::OverlapDescriptor* od=0;
+	    double thickness=(mat.fullMaterial(layTransf.translation()))->thickness();
+	    layer = new Trk::PlaneLayer(new Amg::Transform3D(layTransf*Amg::AngleAxis3D(-0.5*M_PI,Amg::Vector3D(0.,0.,1.))),
+				bounds, mat,thickness, od, 1 );
+	  } else if (rdia) {
+	    // create active layer for diamond shape of NSW-sTGC QL3
+	    Trk::DiamondBounds* tbounds = new Trk::DiamondBounds(rdia->minHalflengthX(),rdia->medHalflengthX(),rdia->maxHalflengthX(),rdia->halflengthY1(),rdia->halflengthY2());
+	    Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
+	    Trk::OverlapDescriptor* od=0;
+	    double thickness=(mat.fullMaterial(layTransf.translation()))->thickness();
+	    layer = new Trk::PlaneLayer(new Amg::Transform3D(layTransf*Amg::AngleAxis3D(-0.5*M_PI,Amg::Vector3D(0.,0.,1.))),
+				bounds, mat,thickness, od, 1 );
+	  } else if (trd) {
+	    // create active layer for trapezoid shape of rest of NSW-sTGC
+	    Trk::TrapezoidBounds* tbounds = new Trk::TrapezoidBounds(trd->minHalflengthX(),trd->maxHalflengthX(),trd->halflengthY());
+	    Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
+	    Trk::OverlapDescriptor* od=0;
+	    double thickness=(mat.fullMaterial(layTransf.translation()))->thickness();
+	    layer = new Trk::PlaneLayer(new Amg::Transform3D(layTransf*Amg::AngleAxis3D(-0.5*M_PI,Amg::Vector3D(0.,0.,1.))),
+					bounds, mat,thickness, od, 1 );
 	  } else {
 	    // create active layer
 	    // change of boundary type ( VP1 problems with rotated trapezoid )   
@@ -273,7 +307,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	    if (isLargeSector) sectorL.push_back(layer);
 	    else sectorS.push_back(layer);
 	    if(isLargeSector) ATH_MSG_INFO( "new prototype build for Large sector: " << protoName <<","<<vols[ish].second.size() );
-	    if(!isLargeSector) ATH_MSG_INFO( "new prototype build for Large sector: " << protoName <<","<<vols[ish].second.size() );
+	    if(!isLargeSector) ATH_MSG_INFO( "new prototype build for Small sector: " << protoName <<","<<vols[ish].second.size() );
 	  }
 	} // end new object
 
@@ -298,6 +332,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	    // clone station from prototype :: CHECK z<0 side, probably turns in wrong direction
 	    Amg::Transform3D ntransf( Amg::AngleAxis3D(it*0.25*M_PI, Amg::Vector3D(0.,0.,1.)));
 	    const Trk::DetachedTrackingVolume* newStat = typeL->clone("NSWL",ntransf);
+	    ATH_MSG_DEBUG( "cloned 1 NSWL station:"<<newStat->trackingVolume()->center() );
             // no detailed identification of NSW layer representation
             const std::vector<const Trk::Layer*>* lays=newStat->trackingVolume()->confinedArbitraryLayers();
             for (unsigned int il=0; il<lays->size(); il++) {
@@ -309,7 +344,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		//std::cout <<"recalculating:"<< m_muonMgr->mmIdHelper()->stationName(id)<<","<< m_muonMgr->mmIdHelper()->stationEta(id)<<","<<
 		//  m_muonMgr->mmIdHelper()->stationPhi(id)<<","<< m_muonMgr->mmIdHelper()->multilayer(id)<<","<< m_muonMgr->mmIdHelper()->gasGap(id)<<std::endl;
 		Identifier nid(0);
-		if (m_muonMgr->mmIdHelper()->is_stgc(id)) {
+		if (m_muonMgr->stgcIdHelper()->is_stgc(id)) {
 		  nid = m_muonMgr->stgcIdHelper()->channelID(m_muonMgr->stgcIdHelper()->stationName(id),
 							     m_muonMgr->stgcIdHelper()->stationEta(id),
 							     m_muonMgr->stgcIdHelper()->stationPhi(id)+it,
@@ -337,6 +372,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
           if (nClones==16) { // have to mirror stations as well
 	    Amg::Transform3D ntransf(Amg::AngleAxis3D(M_PI,Amg::Vector3D(1.,0.,0.)));
 	    const Trk::DetachedTrackingVolume* mtypeL = typeL->clone("NSWL",ntransf);
+	    ATH_MSG_DEBUG( "cloned 2 NSWL station mtypeL :"<<mtypeL->trackingVolume()->center() );
 	    //std::cout <<"cloned NSW station:"<<mtypeL->trackingVolume()->center()<<std::endl;   
             // recalculate identifier
             const std::vector<const Trk::Layer*>* lays=mtypeL->trackingVolume()->confinedArbitraryLayers();
@@ -349,7 +385,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		//std::cout <<"recalculating:"<< m_muonMgr->mmIdHelper()->stationName(id)<<","<< m_muonMgr->mmIdHelper()->stationEta(id)<<","<<
 		//  m_muonMgr->mmIdHelper()->stationPhi(id)<<","<< m_muonMgr->mmIdHelper()->multilayer(id)<<","<< m_muonMgr->mmIdHelper()->gasGap(id)<<std::endl;
 		Identifier nid(0);
-		if (m_muonMgr->mmIdHelper()->is_stgc(id)) {
+		if (m_muonMgr->stgcIdHelper()->is_stgc(id)) {
 		  nid = m_muonMgr->stgcIdHelper()->channelID(m_muonMgr->stgcIdHelper()->stationName(id),
 							     -m_muonMgr->stgcIdHelper()->stationEta(id),
 							     m_muonMgr->stgcIdHelper()->stationPhi(id),
@@ -376,7 +412,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	      // clone station from prototype :: CHECK z<0 side, probably turns in wrong direction
 	      Amg::Transform3D ntransf(Amg::AngleAxis3D(it*0.25*M_PI,Amg::Vector3D(0.,0.,1.)));
 	      const Trk::DetachedTrackingVolume* newStat = mtypeL->clone("NSWL",ntransf);
-	      ATH_MSG_DEBUG( "cloned NSW station:"<<newStat->trackingVolume()->center() );
+	      ATH_MSG_DEBUG( "cloned 3 NSWL station:"<<newStat->trackingVolume()->center() );
 	      // recalculate identifiers
 	      const std::vector<const Trk::Layer*>* lays=newStat->trackingVolume()->confinedArbitraryLayers();
 	      for (unsigned int il=0; il<lays->size(); il++) {
@@ -388,7 +424,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		  //std::cout <<"recalculating:"<< m_muonMgr->mmIdHelper()->stationName(id)<<","<< m_muonMgr->mmIdHelper()->stationEta(id)<<","<<
 		  //  m_muonMgr->mmIdHelper()->stationPhi(id)<<","<< m_muonMgr->mmIdHelper()->multilayer(id)<<","<< m_muonMgr->mmIdHelper()->gasGap(id)<<std::endl;
 		  Identifier nid(0);
-		  if (m_muonMgr->mmIdHelper()->is_stgc(id)) {
+		  if (m_muonMgr->stgcIdHelper()->is_stgc(id)) {
 		    nid = m_muonMgr->stgcIdHelper()->channelID(m_muonMgr->stgcIdHelper()->stationName(id),
 							       m_muonMgr->stgcIdHelper()->stationEta(id),
 							       m_muonMgr->stgcIdHelper()->stationPhi(id)+it,
@@ -422,7 +458,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	    // clone station from prototype
 	    Amg::Transform3D ntransf(Amg::AngleAxis3D(it*0.25*M_PI,Amg::Vector3D(0.,0.,1.)));
 	    const Trk::DetachedTrackingVolume* newStat = typeS->clone("NSWS",ntransf);
-	    ATH_MSG_DEBUG( "cloned NSWS station:"<<newStat->trackingVolume()->center() );
+	    ATH_MSG_DEBUG( "cloned 1 NSWS station:"<<newStat->trackingVolume()->center() );
             // recalculate identifiers
             const std::vector<const Trk::Layer*>* lays=newStat->trackingVolume()->confinedArbitraryLayers();
             for (unsigned int il=0; il<lays->size(); il++) {
@@ -434,7 +470,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		//std::cout <<"recalculating:"<< m_muonMgr->mmIdHelper()->stationName(id)<<","<< m_muonMgr->mmIdHelper()->stationEta(id)<<","<<
 		//  m_muonMgr->mmIdHelper()->stationPhi(id)<<","<< m_muonMgr->mmIdHelper()->multilayer(id)<<","<< m_muonMgr->mmIdHelper()->gasGap(id)<<std::endl;
 		Identifier nid(0);
-		if (m_muonMgr->mmIdHelper()->is_stgc(id)) {
+		if (m_muonMgr->stgcIdHelper()->is_stgc(id)) {
 		  nid = m_muonMgr->stgcIdHelper()->channelID(m_muonMgr->stgcIdHelper()->stationName(id),
 							     m_muonMgr->stgcIdHelper()->stationEta(id),
 							     m_muonMgr->stgcIdHelper()->stationPhi(id)+it,
@@ -466,7 +502,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 				     Amg::AngleAxis3D(+M_PI,Amg::Vector3D(1.,0.,0.))*
 				     Amg::AngleAxis3D(-phiS,Amg::Vector3D(0.,0.,1.)));
 	    const Trk::DetachedTrackingVolume* mtypeS = typeS->clone("NSWL",ntransf);
-	    ATH_MSG_DEBUG( "cloned NSWS station:"<<mtypeS->trackingVolume()->center() );
+	    ATH_MSG_DEBUG( "cloned 2 NSWS station:"<<mtypeS->trackingVolume()->center() );
             // recalculate identifiers
             const std::vector<const Trk::Layer*>* lays=mtypeS->trackingVolume()->confinedArbitraryLayers();
             for (unsigned int il=0; il<lays->size(); il++) {
@@ -478,7 +514,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		//std::cout <<"recalculating:"<< m_muonMgr->mmIdHelper()->stationName(id)<<","<< m_muonMgr->mmIdHelper()->stationEta(id)<<","<<
 		//  m_muonMgr->mmIdHelper()->stationPhi(id)<<","<< m_muonMgr->mmIdHelper()->multilayer(id)<<","<< m_muonMgr->mmIdHelper()->gasGap(id)<<std::endl;
 		Identifier nid(0);
-		if (m_muonMgr->mmIdHelper()->is_stgc(id)) {
+		if (m_muonMgr->stgcIdHelper()->is_stgc(id)) {
 		  nid = m_muonMgr->stgcIdHelper()->channelID(m_muonMgr->stgcIdHelper()->stationName(id),
 							     -m_muonMgr->stgcIdHelper()->stationEta(id),
 							     m_muonMgr->stgcIdHelper()->stationPhi(id),
@@ -505,7 +541,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	      // clone station from prototype :: CHECK z<0 side, probably turns in wrong direction
 	      Amg::Transform3D ntransf( Amg::AngleAxis3D(it*0.25*M_PI, Amg::Vector3D(0.,0.,1.)));
 	      const Trk::DetachedTrackingVolume* newStat = mtypeS->clone("NSWL",ntransf);
-	      ATH_MSG_DEBUG( "cloned NSWS station:"<<newStat->trackingVolume()->center() );
+	      ATH_MSG_DEBUG( "cloned 3 NSWS station:"<<newStat->trackingVolume()->center() );
 	      // recalculate identifiers
 	      const std::vector<const Trk::Layer*>* lays=newStat->trackingVolume()->confinedArbitraryLayers();
 	      for (unsigned int il=0; il<lays->size(); il++) {
@@ -517,7 +553,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		  //std::cout <<"recalculating:"<< m_muonMgr->mmIdHelper()->stationName(id)<<","<< m_muonMgr->mmIdHelper()->stationEta(id)<<","<<
 		  //  m_muonMgr->mmIdHelper()->stationPhi(id)<<","<< m_muonMgr->mmIdHelper()->multilayer(id)<<","<< m_muonMgr->mmIdHelper()->gasGap(id)<<std::endl;
 		  Identifier nid(0);
-		  if (m_muonMgr->mmIdHelper()->is_stgc(id)) {
+		  if (m_muonMgr->stgcIdHelper()->is_stgc(id)) {
 		    nid = m_muonMgr->stgcIdHelper()->channelID(m_muonMgr->stgcIdHelper()->stationName(id),
 							       m_muonMgr->stgcIdHelper()->stationEta(id),
 							       m_muonMgr->stgcIdHelper()->stationPhi(id)+it,
@@ -547,7 +583,6 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 
 	// clean up prototypes
 	//for (unsigned int it = 0; it < objs.size(); it++)  delete objs[it].first; 
-	
       } // end NSW!
 
       if (vname.size()>7 && vname.substr(vname.size()-7,7) =="Station" && 
@@ -1374,10 +1409,10 @@ void Muon::MuonStationBuilder::getObjsForTranslation(const GeoVPhysVol* pv, std:
 {
   // subcomponents 
   unsigned int nc = pv->getNChildVols();
-  //std::cout << "getObjsForTranslation from:"<< pv->getLogVol()->getName()<<","<<pv->getLogVol()->getMaterial()->getName()<<", looping over "<< nc << " children" << std::endl;
   double thick = 2*m_muonStationTypeBuilder->get_x_size(pv);
   double vol = m_muonStationTypeBuilder->getVolume(pv->getLogVol()->getShape()); 
   Trk::MaterialProperties matComb = m_muonStationTypeBuilder->getAveragedLayerMaterial(pv,vol,thick);
+  ATH_MSG_VERBOSE("getObjsForTranslation from:"<< pv->getLogVol()->getName()<<","<<pv->getLogVol()->getMaterial()->getName()<<", looping over "<< nc << " children" << " thick " << thick );
   //if (matComb) std::cout << "thickness, averaged x0:"<< matComb->thickness()<<","<< matComb->x0()<< std::endl;
   //double dInX0 = matComb->thickness()/matComb->x0(); 
   for (unsigned int ic=0; ic<nc; ic++) {
@@ -1387,23 +1422,26 @@ void Muon::MuonStationBuilder::getObjsForTranslation(const GeoVPhysVol* pv, std:
     std::string childName = clv->getName();
     bool matMode = false;
     if (childName=="") childName="Spacer";
+    ATH_MSG_VERBOSE("Inside child:" << childName << " " << 2*m_muonStationTypeBuilder->get_x_size(cv)<<" vol "<<vol);
     if (childName.size()>9 && childName.substr(childName.size()-9,9)=="Sensitive") {
       std::stringstream st;
       st << ic; 
       childName=childName+st.str();
       matMode = true;
+      ATH_MSG_VERBOSE(" keep material from mother volume ");
     }
     if (!matMode )  {  //don't take material from mother volume
       thick = 2*m_muonStationTypeBuilder->get_x_size(cv);
       vol = m_muonStationTypeBuilder->getVolume(cv->getLogVol()->getShape()); 
-      //std::cout <<"collecting material for daughter volume:"<<thick<<","<<vol<<std::endl;
+      ATH_MSG_VERBOSE("collecting material from child volume:" << cv->getLogVol()->getName() << " " <<thick<<" vol "<<vol);
       matComb = m_muonStationTypeBuilder->getAveragedLayerMaterial(cv,vol,thick);
-      //std::cout << "thickness, averaged x0:"<< matComb->thickness()<<","<< matComb->x0()<< std::endl;
+      //if(matComb) std::cout << "thickness, averaged x0:"<< matComb->thickness()<<","<< matComb->x0()<< std::endl;
       //dInX0 = matComb->thickness()/matComb->x0();
     }
 
     std::string cName = childName.substr(0,3)=="NSW" || childName.substr(0,8)=="NewSmall"? name : name+childName;
-    //std::cout << "child number,name,position:"<< ic<<":"<<clv->getName() <<":"<< (transform*transf).translation().perp() <<","<<(transform*transf).translation().z()<<","<<(transform*transf).translation().phi() << std::endl;
+    ATH_MSG_VERBOSE("child number,name,position:"<< ic<<":"<<clv->getName() <<":"<< (transform*transf).translation().perp() <<","<<(transform*transf).translation().z()<<","<<(transform*transf).translation().phi());
+
     if (!cv->getNChildVols()) {
       bool found = false;
       for (unsigned int is = 0; is < vols.size(); is++) {
@@ -1415,7 +1453,8 @@ void Muon::MuonStationBuilder::getObjsForTranslation(const GeoVPhysVol* pv, std:
             if ( phiTr>-0.001 && phiTr<0.4 ) {
               vols[is].second.insert(vols[is].second.begin(),transform*transf);
             } else vols[is].second.push_back(transform*transf);
-	    //std::cout << "clone?" << clv->getName() <<","<<(transform*transf).translation().perp()<<","<<(transform*transf).translation().z()<<","<<phiTr << std::endl;
+	    ATH_MSG_VERBOSE(" volume found " << clv->getName() <<" R "<<(transform*transf).translation().perp()<<" z "<<(transform*transf).translation().z()<<","<<phiTr << " thicknessInX0() " << vols[is].first.second->thicknessInX0());
+
 	    break;
 	   }
 	}
@@ -1430,8 +1469,8 @@ void Muon::MuonStationBuilder::getObjsForTranslation(const GeoVPhysVol* pv, std:
 	std::pair<const GeoLogVol*,Trk::MaterialProperties*> cpair(clv,nMat);
 	vols.push_back(std::pair<std::pair<const GeoLogVol*,Trk::MaterialProperties*>,std::vector<Amg::Transform3D> > (cpair,volTr) );
         volNames.push_back(cName);
-	//std::cout << "new volume added:"<< cName <<","<<clv->getMaterial()->getName()<<","<< volTr.back().translation().z()<<","<<volTr.back().translation().phi()<<":mat:"<<matComb->thicknessInX0()<<std::endl;
-	//printInfo(cv);
+	ATH_MSG_VERBOSE("new volume added:"<< cName <<","<<clv->getMaterial()->getName()<< " R " <<  volTr.back().translation().perp() <<" z  "<< volTr.back().translation().z()<<" phi "<<volTr.back().translation().phi()<<" matComb thicknessInXn :"<<nMat->thicknessInX0());
+	//printInfo(cv)
       }
     } else {
       getObjsForTranslation(cv, cName, transform*transf, vols, volNames);
@@ -1488,3 +1527,4 @@ void Muon::MuonStationBuilder::getObjsForTranslation(const GeoVPhysVol* pv, std:
   }
 }
 */
+

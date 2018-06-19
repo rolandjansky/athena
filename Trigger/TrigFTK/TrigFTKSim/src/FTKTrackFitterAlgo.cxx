@@ -31,7 +31,6 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   m_IBLMode(0), m_fixEndcapL0(false),
   m_ITkMode(false),
   m_nbanks(0), m_nsubregions(1),
-  m_verbosity(0),
   m_chi2cut(17),
   m_chi2cut_maj(14),
   m_chi2cut_vetmaj(-1),

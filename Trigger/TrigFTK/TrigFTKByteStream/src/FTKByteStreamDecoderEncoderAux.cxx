@@ -93,7 +93,10 @@ namespace FTK {
 
     payload.push_back(0);
     unsigned int word = (unsigned int) cluster.getHitCoord();
-    word += cluster.getHitWidth()<<12;
+    unsigned int width = cluster.getHitWidth();
+    if (width>0) width-=1; // store packed with 0-7 representing cluster widths 1-8
+    if (width>7) width=7;
+    word += width<<12;
     payload.push_back(word);
 
   }

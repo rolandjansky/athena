@@ -44,7 +44,9 @@ class TrigEFBphysContainerCnv : public TrigEFBphysContainerCnvBase
  
   protected:
    
+public:
   TrigEFBphysContainerCnv( ISvcLocator *svcloc );
+protected:
   ~TrigEFBphysContainerCnv();
   
   

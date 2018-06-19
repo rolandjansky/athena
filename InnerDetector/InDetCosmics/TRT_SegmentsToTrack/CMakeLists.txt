@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
 			  Control/StoreGate
+                          Control/AthContainers
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
@@ -37,7 +38,7 @@ atlas_add_component( TRT_SegmentsToTrack
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel AtlasDetDescr GeoPrimitives Identifier EventPrimitives InDetIdentifier InDetPrepRawData InDetRIO_OnTrack TrkSurfaces TrkEventUtils TrkParameters TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkSegment TrkTrack TrkTruthData TrkExInterfaces TrkFitterInterfaces )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthContainers AthenaBaseComps GaudiKernel AtlasDetDescr GeoPrimitives Identifier EventPrimitives InDetIdentifier InDetPrepRawData InDetRIO_OnTrack TrkSurfaces TrkEventUtils TrkParameters TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkSegment TrkTrack TrkTruthData TrkExInterfaces TrkFitterInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TRT_SegmentsToTrack )

@@ -45,6 +45,10 @@ class CoraCoolFolder {
   // destructor
   ~CoraCoolFolder();
 
+  // Disallow, since we manage resources.
+  CoraCoolFolder (const CoraCoolFolder&) = delete;
+  CoraCoolFolder& operator= (const CoraCoolFolder&) = delete;
+
   // properties of the folder
   std::string coralTableName() const;
   const std::string& coralFKey() const;

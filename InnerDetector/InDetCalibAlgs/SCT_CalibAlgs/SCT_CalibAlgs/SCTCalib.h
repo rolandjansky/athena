@@ -36,6 +36,7 @@
 
 // Gaudi
 #include "GaudiKernel/ServiceHandle.h" //member
+#include "GaudiKernel/ToolHandle.h" //member
 #include "GaudiKernel/IIncidentSvc.h" //template parameter, so not fwd declared
 #include "GaudiKernel/IIncidentListener.h" //baseclass
 #include "StoreGate/StoreGateSvc.h"
@@ -57,11 +58,9 @@
 #include "InDetIdentifier/SCT_ID.h"
 
 // SCT Conditions
-#include "SCT_ConditionsServices/ISCT_DCSConditionsSvc.h" //template parameter
-#include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h" //template parameter
-#include "SCT_ConditionsServices/ISCT_ReadCalibDataSvc.h"  //template parameter
-#include "SCT_ConditionsServices/ISCT_DetectorLevelConditionsSvc.h" //template parameter
-#include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"  //template parameter
+#include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h" //template parameter
+#include "SCT_ConditionsTools/ISCT_ReadCalibDataTool.h"  //template parameter
+#include "SCT_ConditionsTools/ISCT_DetectorLevelConditionsTool.h" //template parameter
 
 // SCT Cabling
 #include "SCT_Cabling/ISCT_CablingSvc.h"  //template parameter
@@ -111,10 +110,9 @@ class SCTCalib : public AthAlgorithm {
         const InDetDD::SCT_DetectorManager*             m_pManager;
 
         ServiceHandle<SCTCalibWriteSvc>                 m_pCalibWriteSvc;
-        ServiceHandle<ISCT_DCSConditionsSvc>            m_DCSConditionsSvc;
-        ServiceHandle<ISCT_ConfigurationConditionsSvc>  m_ConfigurationConditionsSvc;
-        ServiceHandle<ISCT_ReadCalibDataSvc>            m_ReadCalibDataSvc;
-        ServiceHandle<ISCT_DetectorLevelConditionsSvc>  m_MajorityConditionsSvc;
+        ToolHandle<ISCT_ConfigurationConditionsTool>    m_ConfigurationConditionsTool{this, "SCT_ConfigurationConditionsTool", "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration"};
+        ToolHandle<ISCT_ReadCalibDataTool>              m_ReadCalibDataTool{this, "SCT_ReadCalibDataTool", "SCT_ReadCalibDataTool/InDetSCT_ReadCalibDataTool", "Tool to retrieve SCT calibration data"};
+        ToolHandle<ISCT_DetectorLevelConditionsTool>    m_MajorityConditionsTool{this, "SCT_MajorityConditionsTool", "SCT_MajorityConditionsTool", "Tool to retrieve the majority conditions of SCT"};
         ServiceHandle<ISCT_CablingSvc>                  m_CablingSvc;
 
         //shaun added

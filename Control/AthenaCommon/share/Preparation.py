@@ -29,17 +29,8 @@ from AthenaCommon.Logging import log
 
 # load all entries so far into the workspace of include()
 
-if 3 < len(opts.preconfig) and opts.preconfig[-3:] == ".py":   # user provided
-   _msg.warning("Bootstrap and preconfig are no longer needed. "
-                "Please update your scripts !")
-   include(opts.preconfig)
-else:
-   if opts.preconfig != 'AthenaCommon':
-      _msg.warning("Bootstrap and preconfig are no longer needed. "
-                   "Please update your scripts !")
-   include( "%s/Bootstrap.py" % opts.preconfig )
-   if not opts.run_batch:                               # i.e. interactive
-      theApp.EventLoop = "PyAthenaEventLoopMgr"         # from AthenaServices
+if not opts.run_batch:                               # i.e. interactive
+   theApp.EventLoop = "PyAthenaEventLoopMgr"         # from AthenaServices
 
 ## create the application manager and start in a non-initialised state
 from AthenaCommon.AppMgr import ToolSvc, ServiceMgr, theAuditorSvc

@@ -32,8 +32,8 @@ atlas_add_library( VP1Gui VP1Gui/*.h src/*.h src/*.cxx src/*.qrc
    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${SOQT_INCLUDE_DIRS}
    ${CMAKE_CURRENT_BINARY_DIR}
    LINK_LIBRARIES VP1Base Qt5::Core Qt5::OpenGL Qt5::Gui VP1UtilsBase
-   Qt5::Network Qt5::PrintSupport
-   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${SOQT_LIBRARIES}  )
+   Qt5::PrintSupport
+   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${SOQT_LIBRARIES} Qt5::Network )
 
    
 # Install files from the package:

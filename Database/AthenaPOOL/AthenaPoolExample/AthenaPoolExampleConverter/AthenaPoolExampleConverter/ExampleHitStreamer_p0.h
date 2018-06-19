@@ -13,11 +13,7 @@
  **/
 
 #include "AthenaPoolServices/T_AthenaRootConverter.h"
-#define private public
-#define protected public
 #include "AthenaPoolExampleData/ExampleHit.h"
-#undef private
-#undef protected
 #include "ExampleHit_p0.h"
 
 /** @class ExampleHitStreamer_p0
@@ -29,10 +25,10 @@ public:
       SetClassNameAndChecksum("ExampleHit", 306442982U);
    }
    void CopyOldToNew(const ExampleHit_p0& old_obj, ExampleHit& new_obj) {
-      new_obj.m_vec.setX(old_obj.m_x);
-      new_obj.m_vec.setY(old_obj.m_y);
-      new_obj.m_vec.setZ(old_obj.m_z);
-      new_obj.m_detector = old_obj.m_detector;
+      new_obj.setX(old_obj.m_x);
+      new_obj.setY(old_obj.m_y);
+      new_obj.setZ(old_obj.m_z);
+      new_obj.setDetector( old_obj.m_detector );
    }
 };
 #endif

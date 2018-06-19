@@ -14,7 +14,7 @@
 #define POOL_ROOTSTORAGESVC_ROOTOODB_H 1
 
 // Framework include files
-#include "StorageSvc/OODatabaseImp.h"
+#include "StorageSvc/IOODatabase.h"
 
 #include "Gaudi/PluginService.h"
 
@@ -35,7 +35,7 @@ namespace pool  {
     * @author  M.Frank
     * @version 1.0
     */
-  class RootOODb  : public OODatabaseImp  {
+  class RootOODb  : public IOODatabase  {
   public:
     typedef Gaudi::PluginService::Factory<IOODatabase*> Factory;
 
@@ -43,9 +43,14 @@ namespace pool  {
     RootOODb(DbType typ=ROOT_StorageType);
     /// Standard Destructor
     virtual ~RootOODb();
+
+    /// Name of the Database implementation
+    virtual const std::string&  name () const;
+
     /// Label of the specific class
     static const char* catalogLabel()  {   return "ROOT_All";       }
-    /// Create Root Domain object
+
+/// Create Root Domain object
     IDbDomain* createDomain();
     /// Create Root Database object (TFile)
     IDbDatabase* createDatabase();

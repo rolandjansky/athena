@@ -45,7 +45,6 @@
 
 // Framework Related Headers:-
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/Algorithm.h"
 
 #include "GeneratorObjects/McEventCollection.h"

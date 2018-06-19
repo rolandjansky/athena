@@ -22,6 +22,8 @@ public:
   EtaEtConditionTest() {
 
     auto factory = TLorentzVectorFactory();
+    m_eta0 = 0.5;
+    m_et0 = 100.;
     m_tl0 = factory.make(m_eta0, m_et0);
 
     m_eps = 0.00001;

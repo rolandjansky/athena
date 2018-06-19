@@ -4,7 +4,6 @@
 
 #include "TrigL2MuonSA/MuFastPatternFinder.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "MuonCalibEvent/MdtCalibHit.h"

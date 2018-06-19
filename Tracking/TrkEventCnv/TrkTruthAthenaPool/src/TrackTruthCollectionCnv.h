@@ -25,7 +25,9 @@ class TrackTruthCollectionCnv : public TrackTruthCollectionCnvBase
 {
   friend class CnvFactory<TrackTruthCollectionCnv>;
 protected:
+public:
    TrackTruthCollectionCnv(ISvcLocator* svcloc);
+protected:
   virtual TrackTruthCollection* createTransient();
   virtual TrackTruthCollectionPERS* createPersistent(TrackTruthCollection*);
 private:

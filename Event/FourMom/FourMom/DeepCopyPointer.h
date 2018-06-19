@@ -25,12 +25,27 @@ public:
     if (other.m_theData) m_theData = new T( *other); else m_theData = 0;
   }
 
+  DeepCopyPointer (DeepCopyPointer&& other)
+  {
+    m_theData = other.m_theData;
+    other.m_theData = nullptr;
+  }
+
   ~DeepCopyPointer() { delete m_theData;}
 
   DeepCopyPointer& operator=( const DeepCopyPointer& other) {
     if ( this != &other && m_theData != other.m_theData) {
       delete m_theData;
       if (other.m_theData) m_theData = new T( *other); else m_theData = 0;
+    }
+    return *this;
+  }
+
+  DeepCopyPointer& operator=( DeepCopyPointer&& other) {
+    if ( this != &other && m_theData != other.m_theData) {
+      delete m_theData;
+      m_theData = other.m_theData;
+      other.m_theData = nullptr;
     }
     return *this;
   }

@@ -15,7 +15,7 @@ namespace IDPVM {
     // Check whether truthParticleLink exists.
     if (track.isAvailable<ElementTruthLink_t>("truthParticleLink")) {
       // If so, get linked xAOD::TruthParticle.
-      const ElementTruthLink_t ptruthContainer = \
+      const ElementTruthLink_t ptruthContainer =
         track.auxdata<ElementTruthLink_t>("truthParticleLink");
       if (ptruthContainer.isValid()) {
         result = *ptruthContainer;

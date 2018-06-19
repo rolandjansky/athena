@@ -26,7 +26,7 @@ MuonConditionsTestAlg::MuonConditionsTestAlg(
 
 MuonConditionsTestAlg::~MuonConditionsTestAlg()
 {
-  msg(MSG::INFO) << "Calling destructor" << endmsg;
+  ATH_MSG_VERBOSE( "Calling destructor"  );
 }
 
 //Initialize

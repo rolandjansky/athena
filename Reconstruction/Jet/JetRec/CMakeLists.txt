@@ -24,6 +24,7 @@ atlas_depends_on_subdirs(
   Reconstruction/Jet/JetEDM
   Reconstruction/Jet/JetInterface
   PRIVATE
+  Control/CxxUtils
   Event/xAOD/xAODBase
   Event/xAOD/xAODCore
   Event/xAOD/xAODEventInfo
@@ -35,6 +36,7 @@ find_package( FastJet COMPONENTS fastjetplugins fastjettools siscone
   siscone_spherical )
 find_package( FastJetContrib COMPONENTS VariableR RecursiveTools )
 find_package( ROOT COMPONENTS Core )
+find_package( GTest )
 
 # Component(s) in the package:
 atlas_add_library( JetRecLib
@@ -45,7 +47,7 @@ atlas_add_library( JetRecLib
   LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AthLinks AsgTools
   xAODCaloEvent xAODJet xAODMuon EventShapeInterface JetEDM
   JetInterface
-  PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} xAODBase xAODCore
+  PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} CxxUtils xAODBase xAODCore
   xAODEventInfo xAODTracking )
 
 if( NOT XAOD_STANDALONE )
@@ -59,6 +61,38 @@ atlas_add_dictionary( JetRecDict
    JetRec/selection.xml
    LINK_LIBRARIES JetRecLib )
 
+# Test(s) in the package:
+atlas_add_test( TestTests
+ SOURCES
+ # test/all_tests.cx
+ test/TestTest.cxx
+ INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+ LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
+
+atlas_add_test(JetTests
+  SOURCES
+  test/JetTest.cxx
+  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+  LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
+
+atlas_add_test(PseudoJetContainerOffline
+  SOURCES
+  test/PseudoJetContainerOfflineTest.cxx
+  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+  LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
+
+atlas_add_test(PseudoJetContainerTrigger
+  SOURCES
+  test/PseudoJetContainerTriggerTest.cxx
+  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+  LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
+
+atlas_add_test(ExtractorUnitTests
+  SOURCES
+    test/ExtractorTest.cxx
+    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+    LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} JetRecLib )
+  
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )

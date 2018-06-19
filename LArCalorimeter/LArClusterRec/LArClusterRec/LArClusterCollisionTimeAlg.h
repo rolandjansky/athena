@@ -5,21 +5,28 @@
 #ifndef LARCLUSTERCOLLISIONTIMEALG_H
 #define LARCLUSTERCOLLISIONTIMEALG_H
 
+#include "GaudiKernel/Property.h"
+
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+
+#include "LArRecEvent/LArCollisionTime.h"
+
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 
 class LArClusterCollisionTimeAlg : public AthAlgorithm {
  public:
   LArClusterCollisionTimeAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  ~LArClusterCollisionTimeAlg();
+  virtual ~LArClusterCollisionTimeAlg();
     
   /** standard Athena-Algorithm method */
-  StatusCode          initialize();
+  StatusCode          initialize() override final;
   /** standard Athena-Algorithm method */
-  StatusCode          execute();
+  StatusCode          execute() override final;
   /** standard Athena-Algorithm method */
-  StatusCode          finalize();
+  StatusCode          finalize() override final;
 
  private:
 
@@ -39,11 +46,17 @@ class LArClusterCollisionTimeAlg : public AthAlgorithm {
   //---------------------------------------------------
   // Member variables
   //---------------------------------------------------
-  unsigned m_nEvt, m_nCollEvt;
-  float m_timeCut;
-  size_t m_maxClusters;
-  std::string m_clusterContainerName;
-  std::string m_outputName;
+  unsigned m_nEvt;
+  unsigned m_nCollEvt;
+
+  //---------------------------------------------------
+  // Properties
+  //--------------------------------------------------- 
+  Gaudi::Property<float> m_timeCut { this, "timeDiffCut", 2., "max |A-C| time difference tu pass the filter" };
+  Gaudi::Property<size_t> m_maxClusters { this, "maxNClusters", 3, "how many clusters taken into sum" };
+
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clusterContainerName;
+  SG::WriteHandleKey<LArCollisionTime> m_outputName;
   
 };
 #endif

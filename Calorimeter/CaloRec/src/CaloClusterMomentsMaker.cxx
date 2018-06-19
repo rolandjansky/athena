@@ -248,8 +248,7 @@ StatusCode CaloClusterMomentsMaker::initialize()
   
   CHECK(m_caloDepthTool.retrieve());
 
-  if (m_calculateSignificance) {
-    
+  if (m_calculateSignificance) { 
     if(m_noiseTool.retrieve().isFailure()){
       msg(MSG::WARNING)
 	  << "Unable to find Noise Tool" << endmsg;
@@ -258,9 +257,11 @@ StatusCode CaloClusterMomentsMaker::initialize()
       msg(MSG::INFO) << "Noise Tool retrieved" << endmsg;
     }
   }
+  else {
+    m_noiseTool.disable();
+  }
 
-  if (m_calculateLArHVFraction) {
-    
+  if (m_calculateLArHVFraction) { 
     if(m_larHVScaleRetriever.retrieve().isFailure()){
       msg(MSG::WARNING)
 	  << "Unable to find LAr HV Scale Retriever Tool" << endmsg;
@@ -269,7 +270,9 @@ StatusCode CaloClusterMomentsMaker::initialize()
       msg(MSG::INFO) << "LAr HV Scale Retriever Tool retrieved" << endmsg;
     }
   }
-
+  else {
+    m_larHVScaleRetriever.disable();
+  }
   return StatusCode::SUCCESS;
   
 }

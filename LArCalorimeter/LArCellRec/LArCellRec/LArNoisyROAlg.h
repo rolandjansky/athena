@@ -23,7 +23,11 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloInterface/ILArNoisyROTool.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
+class CaloCellContainer;
+class LArNoisyROSummary; 
 
 class LArNoisyROAlg : public AthAlgorithm
 {
@@ -36,12 +40,10 @@ class LArNoisyROAlg : public AthAlgorithm
 
  
  private: 
-  //unsigned m_event_counter;
-
   ToolHandle<ILArNoisyROTool> m_noisyROTool;
-
-  std::string m_CaloCellContainerName;
-  std::string m_outputKey;
+ 
+  SG::ReadHandleKey<CaloCellContainer> m_CaloCellContainerName;
+  SG::WriteHandleKey<LArNoisyROSummary> m_outputKey;
 
 };
 

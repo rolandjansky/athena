@@ -100,7 +100,7 @@ void VolumeTreeModel::Imp::defineSubSystem(VP1GeoFlags::SubSystemFlag subsysflag
 
 //____________________________________________________________________
 VolumeTreeModel::VolumeTreeModel( QObject * parent )
-  : QAbstractItemModel(parent), d(new Imp())
+  : QAbstractItemModel(parent), m_d(new Imp())
 {
   if (Imp::section2string.empty()) {
     Imp::section2string[Imp::UNKNOWN] = "Unknown";
@@ -143,19 +143,19 @@ VolumeTreeModel::VolumeTreeModel( QObject * parent )
 void VolumeTreeModel::cleanup()
 {
   //This is where we delete all SectionInfo/SubSystem pointers (and thus also all VolumeHandles):
-  std::map<VP1GeoFlags::SubSystemFlag,Imp::SubSystem*>::iterator it, itE = d->flag2subsystems.end();
-  for (it = d->flag2subsystems.begin();it!=itE;++it)
+  std::map<VP1GeoFlags::SubSystemFlag,Imp::SubSystem*>::iterator it, itE = m_d->flag2subsystems.end();
+  for (it = m_d->flag2subsystems.begin();it!=itE;++it)
     disableSubSystem(it->first);
-  for (it = d->flag2subsystems.begin();it!=itE;++it)
+  for (it = m_d->flag2subsystems.begin();it!=itE;++it)
     delete it->second;
-  foreach (Imp::SectionInfo* section, d->allSections)
+  foreach (Imp::SectionInfo* section, m_d->allSections)
     delete section;
 }
 
 //____________________________________________________________________
 VolumeTreeModel::~VolumeTreeModel()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -168,7 +168,7 @@ void VolumeTreeModel::addSubSystem( VP1GeoFlags::SubSystemFlag flag,
 
   //Check whether we added this subsystem already:
   bool found(false);
-  foreach(Imp::SectionInfo* section, d->allSections) {
+  foreach(Imp::SectionInfo* section, m_d->allSections) {
     foreach(Imp::SubSystem* subsys,(section->enabledSubSystems+section->disabledSubSystems)) {
       if (subsys->subsysflag==flag) {
 	found=true;
@@ -195,7 +195,7 @@ void VolumeTreeModel::addSubSystem( VP1GeoFlags::SubSystemFlag flag,
   //needed - i.e. if this is the first subsystem in a given section):
   Imp::SectionInfo* section(0);
   found = false;
-  foreach(Imp::SectionInfo* sec, d->allSections) {
+  foreach(Imp::SectionInfo* sec, m_d->allSections) {
 	  if (sec->sectionflag==sectionflag) {
 		  //std::cout << "added section: " << sec->sectionflag << std::endl;
 		  section = sec;
@@ -210,8 +210,8 @@ void VolumeTreeModel::addSubSystem( VP1GeoFlags::SubSystemFlag flag,
       section->name = "Unknown Section Flag";
     else
       section->name = Imp::section2string[sectionflag];
-    d->allSections<<section;
-    //We dont add it to d->activeSections since the subsystem (and
+    m_d->allSections<<section;
+    //We dont add it to m_d->activeSections since the subsystem (and
     //thus the section since it has no other subsystems) is considered
     //disabled until enabled by a call to enableSubSystem().
   }
@@ -228,7 +228,7 @@ void VolumeTreeModel::addSubSystem( VP1GeoFlags::SubSystemFlag flag,
 
   //Add the subsystem pointer to the relevant maps:
   section->disabledSubSystems << subsys;
-  d->flag2subsystems[flag]=subsys;
+  m_d->flag2subsystems[flag]=subsys;
 }
 
 //____________________________________________________________________
@@ -237,14 +237,14 @@ void VolumeTreeModel::enableSubSystem(VP1GeoFlags::SubSystemFlag flag)
   beginResetModel(); // see: http://doc.qt.io/qt-5/qabstractitemmodel-obsolete.html
 
   //Check the subsystem was added previously:
-  if (d->flag2subsystems.find(flag)==d->flag2subsystems.end()) {
+  if (m_d->flag2subsystems.find(flag)==m_d->flag2subsystems.end()) {
     std::cout<<"VolumeTreeModel::enableSubSystem Error: System never added!"<<std::endl;
     return;
   }
-  Imp::SubSystem * subsys = d->flag2subsystems[flag];
+  Imp::SubSystem * subsys = m_d->flag2subsystems[flag];
   //Find the appropriate section:
   Imp::SectionInfo* section(0);
-  foreach(Imp::SectionInfo* sec, d->allSections) {
+  foreach(Imp::SectionInfo* sec, m_d->allSections) {
     if (sec->enabledSubSystems.contains(subsys)) {
       //It is already enabled
       assert(!sec->disabledSubSystems.contains(subsys));
@@ -266,12 +266,12 @@ void VolumeTreeModel::enableSubSystem(VP1GeoFlags::SubSystemFlag flag)
   section->disabledSubSystems.removeAll(subsys);
   //If the newly added subsystem is the only enabled subsystem, the section needs to be enabled as well:
   if (section->enabledSubSystems.count()==1) {
-    assert(!d->activeSections.contains(section));
-    d->activeSections << section;//Fixme: Ordering.
+    assert(!m_d->activeSections.contains(section));
+    m_d->activeSections << section;//Fixme: Ordering.
   }
   //Put volume handle pointers into quick subsystem access map:
   foreach (VolumeHandle* volhandle, subsys->volhandlelist ) {
-    d->volhandle2subsystem[volhandle] = subsys;
+    m_d->volhandle2subsystem[volhandle] = subsys;
   }
 
   endResetModel();
@@ -284,13 +284,13 @@ void VolumeTreeModel::disableSubSystem(VP1GeoFlags::SubSystemFlag flag)
 	beginResetModel(); // see: http://doc.qt.io/qt-5/qabstractitemmodel-obsolete.html
 
   //If it was not even added previously we can just return:
-  if (d->flag2subsystems.find(flag)==d->flag2subsystems.end())
+  if (m_d->flag2subsystems.find(flag)==m_d->flag2subsystems.end())
     return;
 
-  Imp::SubSystem * subsys = d->flag2subsystems[flag];
+  Imp::SubSystem * subsys = m_d->flag2subsystems[flag];
   //Find the appropriate section:
   Imp::SectionInfo* section(0);
-  foreach(Imp::SectionInfo* sec, d->allSections) {
+  foreach(Imp::SectionInfo* sec, m_d->allSections) {
     if (sec->disabledSubSystems.contains(subsys)) {
       //It is already disabled
       assert(!sec->enabledSubSystems.contains(subsys));
@@ -313,14 +313,14 @@ void VolumeTreeModel::disableSubSystem(VP1GeoFlags::SubSystemFlag flag)
   section->enabledSubSystems.removeAll(subsys);
   //If the newly disabled subsystem was the only enabled subsystem, the section needs to be disabled as well:
   if (section->enabledSubSystems.count()==0) {
-    assert(d->activeSections.contains(section));
-    d->activeSections.removeAll(section);
+    assert(m_d->activeSections.contains(section));
+    m_d->activeSections.removeAll(section);
   }
 
   //Remove volume handle pointers from quick subsystem access map:
   foreach (VolumeHandle* volhandle, subsys->volhandlelist ) {
-    Q_ASSERT(d->volhandle2subsystem.find(volhandle)!=d->volhandle2subsystem.end());
-    d->volhandle2subsystem.erase(d->volhandle2subsystem.find(volhandle));
+    Q_ASSERT(m_d->volhandle2subsystem.find(volhandle)!=m_d->volhandle2subsystem.end());
+    m_d->volhandle2subsystem.erase(m_d->volhandle2subsystem.find(volhandle));
   }
 
   endResetModel();
@@ -331,9 +331,9 @@ void VolumeTreeModel::disableSubSystem(VP1GeoFlags::SubSystemFlag flag)
 void VolumeTreeModel::getRootHandles(std::vector<std::pair<VolumeHandle::VolumeHandleListItr,VolumeHandle::VolumeHandleListItr> >& out) const
 {
   out.clear();
-  out.reserve(d->flag2subsystems.size());
-  std::map<VP1GeoFlags::SubSystemFlag,Imp::SubSystem*>::iterator it, itE = d->flag2subsystems.end();
-  for (it = d->flag2subsystems.begin();it!=itE;++it)
+  out.reserve(m_d->flag2subsystems.size());
+  std::map<VP1GeoFlags::SubSystemFlag,Imp::SubSystem*>::iterator it, itE = m_d->flag2subsystems.end();
+  for (it = m_d->flag2subsystems.begin();it!=itE;++it)
     out.push_back(std::pair<VolumeHandle::VolumeHandleListItr,VolumeHandle::VolumeHandleListItr>
 		  (it->second->volhandlelist.begin(),it->second->volhandlelist.end()));
 
@@ -348,8 +348,8 @@ QModelIndex VolumeTreeModel::index(int row, int column, const QModelIndex &paren
 
   if (!parent.isValid()) {
     //We must return the index of a section label:
-    Q_ASSERT(row<d->activeSections.count());
-    return createIndex(row, column, d->activeSections.at(row));
+    Q_ASSERT(row<m_d->activeSections.count());
+    return createIndex(row, column, m_d->activeSections.at(row));
   }
 
   VolumeHandle * parentHandle = Imp::handlePointer(parent);
@@ -389,8 +389,8 @@ QModelIndex VolumeTreeModel::parent(const QModelIndex& index) const
       return createIndex(parentHandle->childNumber(), 0, parentHandle);
 
     //childHandle has 0 parent pointer => parent must be a subsystem label:
-    Q_ASSERT(d->volhandle2subsystem.find(childHandle)!=d->volhandle2subsystem.end());
-    Imp::SubSystem * subsys = d->volhandle2subsystem[childHandle];
+    Q_ASSERT(m_d->volhandle2subsystem.find(childHandle)!=m_d->volhandle2subsystem.end());
+    Imp::SubSystem * subsys = m_d->volhandle2subsystem[childHandle];
     Q_ASSERT(subsys);
     Q_ASSERT(subsys->section->enabledSubSystems.contains(subsys));
     return createIndex(subsys->section->enabledSubSystems.indexOf(subsys), 0, subsys);
@@ -399,8 +399,8 @@ QModelIndex VolumeTreeModel::parent(const QModelIndex& index) const
 
   if (Imp::isSubSystemPointer(childHandle)) {
       //Index is a SubSystem => parent must be a section label:
-      Q_ASSERT(d->activeSections.contains(Imp::subSystemPointer(childHandle)->section));
-      return createIndex(d->activeSections.indexOf(Imp::subSystemPointer(childHandle)->section), 0, Imp::subSystemPointer(childHandle)->section);
+      Q_ASSERT(m_d->activeSections.contains(Imp::subSystemPointer(childHandle)->section));
+      return createIndex(m_d->activeSections.indexOf(Imp::subSystemPointer(childHandle)->section), 0, Imp::subSystemPointer(childHandle)->section);
   }
 
   //Must be SectionInfo => parent is root (i.e. invalid):
@@ -415,7 +415,7 @@ int VolumeTreeModel::rowCount(const QModelIndex& parent) const
     return 0;
 
   if (!parent.isValid())
-    return d->activeSections.size();//Number of active sections
+    return m_d->activeSections.size();//Number of active sections
 
   VolumeHandle * parentHandle = Imp::handlePointer(parent);
 

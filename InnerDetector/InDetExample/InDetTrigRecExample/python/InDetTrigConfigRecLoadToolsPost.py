@@ -23,7 +23,7 @@ if InDetTrigFlags.doNewTracking():
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator,InDetTrigTrackSelectorTool
   import AthenaCommon.SystemOfUnits as Units
 
-  from TrigInDetConf.TrigInDetRecVtxTools import InDetTrigLinFactory, InDetTrigVxEdmCnv
+  from TrigInDetConf.TrigInDetRecVtxTools import InDetTrigLinFactory
 
 
   if InDetTrigFlags.primaryVertexSetup() == 'DefaultAdaptiveFinding' or \
@@ -124,7 +124,6 @@ if InDetTrigFlags.doNewTracking():
                                                    LinearizedTrackFactory       = InDetTrigLinFactory,
                                                    Extrapolator = InDetTrigExtrapolator )
 
-  InDetTrigVxFitterTool.XAODConverter = InDetTrigVxEdmCnv
   ToolSvc += InDetTrigVxFitterTool
   if (InDetTrigFlags.doPrintConfigurables()):
      print  InDetTrigVxFitterTool    
@@ -205,9 +204,9 @@ if InDetTrigFlags.doNewTracking():
                                                    VertexFitterTool = InDetTrigVxFitterTool,
                                                    TrackSelector = InDetTrigTrackSelectorTool,
                                                    useBeamConstraint = InDetTrigFlags.useBeamConstraint(),
-                                                   selectiontype = 0,
-                                                   InternalEdmFactory =InDetTrigVxEdmCnv
-                                                   )
+                                                   selectiontype = 0
+                                                 )
+
   elif InDetTrigFlags.primaryVertexSetup() == 'IterativeFinding':
     from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetIterativePriVxFinderTool
     InDetTrigPriVxFinderTool = \
@@ -221,7 +220,6 @@ if InDetTrigFlags.doNewTracking():
                                              significanceCutSeeding = 12,
                                              maximumChi2cutForSeeding = 49,
                                              maxVertices = 200,
-                                             InternalEdmFactory =InDetTrigVxEdmCnv
                                              )
 
   else:
@@ -231,7 +229,6 @@ if InDetTrigFlags.doNewTracking():
                                      VertexFitterTool = InDetTrigVxFitterTool,
                                      TrackSelector = InDetTrigTrackSelectorTool,
                                      useBeamConstraint = InDetTrigFlags.useBeamConstraint(),
-                                     InternalEdmFactory =InDetTrigVxEdmCnv
                                      )
         
     #from AthenaCommon.BeamFlags import jobproperties

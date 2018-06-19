@@ -12,6 +12,7 @@
 #include "AthenaKernel/IStringPool.h"
 #include "AthenaKernel/IHiveStore.h"
 #include "AthenaKernel/DataObjectSharedPtr.h"
+#include "AthenaKernel/SourceID.h"
 #include "GaudiKernel/INamedInterface.h"
 #include "GaudiKernel/ClassID.h"
 #include <string>
@@ -191,8 +192,21 @@ public:
                                 DataObject*& refpObject);
 
 
-  virtual IProxyDict* hiveProxyDict() override
-  { return this; }
+  /**
+   * @brief Return the current event-slot-specific store.
+   *
+   * The default version just returns this.
+   */
+  virtual IProxyDict* hiveProxyDict() override;
+
+
+  /**
+   * @brief Return the metadata source ID for the current event slot.
+   *        Returns an empty string if no source has been set.
+   *
+   *        The default version always returns an empty string.
+   */
+  virtual SG::SourceID sourceID() const;
 };
 
 

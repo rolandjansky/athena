@@ -5,7 +5,6 @@
 // TBCondRunParTool.cxx
 // Richard Hawkings, started 2/7/04
 
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "EventInfo/EventID.h"

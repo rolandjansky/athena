@@ -43,7 +43,9 @@ class TrigT2JetCnv : public TrigT2JetCnvBase
  
   protected:
    
+public:
   TrigT2JetCnv( ISvcLocator *svcloc );
+protected:
   ~TrigT2JetCnv();
  
    

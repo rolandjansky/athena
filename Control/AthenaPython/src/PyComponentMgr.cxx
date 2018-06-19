@@ -20,13 +20,12 @@ SG_BASES1(PyObject, SG::NoBase);
 
 // AthenaPython includes
 #include "PyComponentMgr.h"
-#include "PyAthenaGILStateEnsure.h"
+#include "AthenaPython/PyAthenaGILStateEnsure.h"
 
 // STL includes
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/SvcFactory.h"
 #include "AthenaPython/IPyComponent.h"
 
 // PyROOT includes

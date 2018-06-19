@@ -3,7 +3,6 @@
 */
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
@@ -304,7 +303,7 @@ StatusCode LArHECNoise::execute() {
                  for(unsigned l=0; l<lraw->size(); ++l) {
                     if((*lraw)[l].identify() == hid) {
                        m_nt_e = (*lraw)[l].energy();
-                       m_nt_t = (*lraw)[l].time()*1e-3;;
+                       m_nt_t = (*lraw)[l].time()*1e-3;
                        m_nt_quality = (*lraw)[l].quality();
                        break;
                     }

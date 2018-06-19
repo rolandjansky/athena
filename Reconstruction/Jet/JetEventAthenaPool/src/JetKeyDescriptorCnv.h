@@ -23,7 +23,9 @@ class JetKeyDescriptorCnv : public JetKeyDescriptorCnvBase
   
  protected:
 
+public:
   JetKeyDescriptorCnv (ISvcLocator* svcloc) : JetKeyDescriptorCnvBase(svcloc) {};
+protected:
   virtual JetKeyDescriptor_PERS*   createPersistent (JetKeyDescriptor* transObj);
   virtual JetKeyDescriptor*        createTransient ();
 };

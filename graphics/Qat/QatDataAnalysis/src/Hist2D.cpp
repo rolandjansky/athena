@@ -24,62 +24,62 @@
 #include <stdexcept>
 Hist2D::Hist2D(const std::string & name, size_t nBinsX, double minX, double maxX,
 	                                  size_t nBinsY, double minY, double maxY):
-  c(new Clockwork)
+  m_c(new Clockwork)
 {
-  c->name=name;
-  c->nBinsX=nBinsX;
-  c->nBinsY=nBinsY;
-  c->minX=minX;
-  c->maxX=maxX;
-  c->minY=minY;
-  c->maxY=maxY;
-  c->binWidthX=(maxX-minX)/nBinsX;
-  c->binWidthY=(maxY-minY)/nBinsY;
-  c->overUnderFlow[0][0]=c->overUnderFlow[0][1]=c->overUnderFlow[0][2]=0;
-  c->overUnderFlow[1][0]=c->overUnderFlow[1][1]=c->overUnderFlow[1][2]=0;
-  c->overUnderFlow[2][0]=c->overUnderFlow[2][1]=c->overUnderFlow[2][2]=0;
-  c->overflow=0;
-  c->xW=0;
-  c->xxW=0; 
-  c->yW=0;
-  c->yyW=0;
-  c->xyW=0;
-  c->sumWeight=0;
-  c->minContents=0;
-  c->maxContents=0;
-  c->contents.resize(nBinsX*nBinsY);
-  c->errors.resize(nBinsX*nBinsY);
+  m_c->name=name;
+  m_c->nBinsX=nBinsX;
+  m_c->nBinsY=nBinsY;
+  m_c->minX=minX;
+  m_c->maxX=maxX;
+  m_c->minY=minY;
+  m_c->maxY=maxY;
+  m_c->binWidthX=(maxX-minX)/nBinsX;
+  m_c->binWidthY=(maxY-minY)/nBinsY;
+  m_c->overUnderFlow[0][0]=m_c->overUnderFlow[0][1]=m_c->overUnderFlow[0][2]=0;
+  m_c->overUnderFlow[1][0]=m_c->overUnderFlow[1][1]=m_c->overUnderFlow[1][2]=0;
+  m_c->overUnderFlow[2][0]=m_c->overUnderFlow[2][1]=m_c->overUnderFlow[2][2]=0;
+  m_c->overflow=0;
+  m_c->xW=0;
+  m_c->xxW=0; 
+  m_c->yW=0;
+  m_c->yyW=0;
+  m_c->xyW=0;
+  m_c->sumWeight=0;
+  m_c->minContents=0;
+  m_c->maxContents=0;
+  m_c->contents.resize(nBinsX*nBinsY);
+  m_c->errors.resize(nBinsX*nBinsY);
 }
 
 void Hist2D::clear() {
-  c->overUnderFlow[0][0]=c->overUnderFlow[0][1]=c->overUnderFlow[0][2]=0;
-  c->overUnderFlow[1][0]=c->overUnderFlow[1][1]=c->overUnderFlow[1][2]=0;
-  c->overUnderFlow[2][0]=c->overUnderFlow[2][1]=c->overUnderFlow[2][2]=0;
-  c->overflow=0;
-  c->xW=0;
-  c->xxW=0; 
-  c->yW=0;
-  c->yyW=0;
-  c->xyW=0;
-  c->sumWeight=0;
-  c->minContents=0;
-  c->maxContents=0;
-  std::fill(c->contents.begin(),c->contents.end(), 0);
-  std::fill(c->errors.begin(),  c->errors.end(),   0);}
+  m_c->overUnderFlow[0][0]=m_c->overUnderFlow[0][1]=m_c->overUnderFlow[0][2]=0;
+  m_c->overUnderFlow[1][0]=m_c->overUnderFlow[1][1]=m_c->overUnderFlow[1][2]=0;
+  m_c->overUnderFlow[2][0]=m_c->overUnderFlow[2][1]=m_c->overUnderFlow[2][2]=0;
+  m_c->overflow=0;
+  m_c->xW=0;
+  m_c->xxW=0; 
+  m_c->yW=0;
+  m_c->yyW=0;
+  m_c->xyW=0;
+  m_c->sumWeight=0;
+  m_c->minContents=0;
+  m_c->maxContents=0;
+  std::fill(m_c->contents.begin(),m_c->contents.end(), 0);
+  std::fill(m_c->errors.begin(),  m_c->errors.end(),   0);}
 
 
 Hist2D::~Hist2D() {
-  delete c;
+  delete m_c;
 }
 
 void Hist2D::accumulate(double x, double y, double weight) {
 
-  int    nx = c->nBinsX, ny=c->nBinsY;
+  int    nx = m_c->nBinsX, ny=m_c->nBinsY;
 
   OVF a,b;
-  int binX = int((x-c->minX)/c->binWidthX);
-  int binY = int((y-c->minY)/c->binWidthY);
-  if (x<c->minX) {
+  int binX = int((x-m_c->minX)/m_c->binWidthX);
+  int binY = int((y-m_c->minY)/m_c->binWidthY);
+  if (x<m_c->minX) {
     a=Underflow;
   }
   else if (binX<nx) {
@@ -88,7 +88,7 @@ void Hist2D::accumulate(double x, double y, double weight) {
   else {
     a=Overflow;
   }
-  if (y<c->minY) {
+  if (y<m_c->minY) {
     b=Underflow;
   }
   else if (binY<ny) {
@@ -97,55 +97,55 @@ void Hist2D::accumulate(double x, double y, double weight) {
   else {
     b=Overflow;
   }
-  c->overUnderFlow[a][b]++;
+  m_c->overUnderFlow[a][b]++;
 
   if (a==InRange && b==InRange) {
     
-    c->xW        +=  x*weight;
-    c->xxW       += (x*x*weight);
-    c->yW        += (y*weight);
-    c->yyW       += (y*y*weight);
-    c->xyW       += (x*y*weight);
-    c->sumWeight += weight;
-    c->minContents = 0;
-    c->maxContents = 0;
-    c->contents[ii(binX,binY)]+= weight;
-    c->errors[ii(binX,binY)]  += weight*weight;
+    m_c->xW        +=  x*weight;
+    m_c->xxW       += (x*x*weight);
+    m_c->yW        += (y*weight);
+    m_c->yyW       += (y*y*weight);
+    m_c->xyW       += (x*y*weight);
+    m_c->sumWeight += weight;
+    m_c->minContents = 0;
+    m_c->maxContents = 0;
+    m_c->contents[ii(binX,binY)]+= weight;
+    m_c->errors[ii(binX,binY)]  += weight*weight;
   }
 }
 
 Hist2D & Hist2D::operator += (const Hist2D & source) {
-  if ((c->nBinsX!=source.c->nBinsX) ||
-      (c->minX  !=source.c->minX)   ||
-      (c->maxX  !=source.c->maxX)   ||
-      (c->nBinsY!=source.c->nBinsY) ||
-      (c->minY  !=source.c->minY)   ||
-      (c->maxY  !=source.c->maxY)) 
+  if ((m_c->nBinsX!=source.m_c->nBinsX) ||
+      (m_c->minX  !=source.m_c->minX)   ||
+      (m_c->maxX  !=source.m_c->maxX)   ||
+      (m_c->nBinsY!=source.m_c->nBinsY) ||
+      (m_c->minY  !=source.m_c->minY)   ||
+      (m_c->maxY  !=source.m_c->maxY)) 
     {
       throw (std::runtime_error("Incompatible histograms are added"));
     }
   else 
     {
-    c->overflow  += source.c->overflow;
+    m_c->overflow  += source.m_c->overflow;
     for (int i=0;i<3;i++) {
       for (int j=0;j<3;j++) {
-	c->overUnderFlow[i][j]+=source.c->overUnderFlow[i][j];
+	m_c->overUnderFlow[i][j]+=source.m_c->overUnderFlow[i][j];
       }
     }
 
-    c->xW        += source.c->xW;
-    c->yW        += source.c->yW;
-    c->xxW       += source.c->xxW;
-    c->yyW       += source.c->yyW;
-    c->xyW       += source.c->xyW;
-    c->sumWeight += source.c->sumWeight;
-    c->minContents = 0;
-    c->maxContents = 0;
-    for (size_t i=0;i<c->nBinsX;i++) {
-      for (size_t j=0; j<c->nBinsY;j++) {
+    m_c->xW        += source.m_c->xW;
+    m_c->yW        += source.m_c->yW;
+    m_c->xxW       += source.m_c->xxW;
+    m_c->yyW       += source.m_c->yyW;
+    m_c->xyW       += source.m_c->xyW;
+    m_c->sumWeight += source.m_c->sumWeight;
+    m_c->minContents = 0;
+    m_c->maxContents = 0;
+    for (size_t i=0;i<m_c->nBinsX;i++) {
+      for (size_t j=0; j<m_c->nBinsY;j++) {
 	size_t k = ii(i,j);
-	c->contents[k] += source.c->contents[k];
-	c->errors[k]   += source.c->errors[k];
+	m_c->contents[k] += source.m_c->contents[k];
+	m_c->errors[k]   += source.m_c->errors[k];
       }
     }
   }
@@ -155,22 +155,22 @@ Hist2D & Hist2D::operator += (const Hist2D & source) {
 
 // Get the internals:
 const Hist2D::Clockwork *Hist2D::clockwork() const {
-  return c;
+  return m_c;
 }
   
 // Remake this from the interals:
 Hist2D::Hist2D(const Clockwork * cw) {
-  c  = new Clockwork(*cw);
+  m_c  = new Clockwork(*cw);
 }
 
 Hist2D::Hist2D( const Hist2D & source) {
-  c = new Clockwork(*source.c);
+  m_c = new Clockwork(*source.m_c);
 }
 
 Hist2D & Hist2D::operator = (const Hist2D & source ) {
   if (this!=&source) {
-    delete c;
-    c = new Clockwork(*source.c);
+    delete m_c;
+    m_c = new Clockwork(*source.m_c);
   }
   return *this;
 }

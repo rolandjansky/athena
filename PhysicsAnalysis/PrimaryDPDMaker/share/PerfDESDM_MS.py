@@ -363,9 +363,9 @@ AlignmentTriggerMuonStream.AddItem(["Muon::TgcCoinDataContainer#TrigT1CoinDataCo
 AlignmentTriggerMuonStream.AddItem(["xAOD::TruthParticleContainer#MuonTruthParticles"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TruthParticleAuxContainer#MuonTruthParticlesAux."])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleContainer#InDetTrackParticles"]) #Really want to skim/slim this guy //for ID Alignment
-AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."]) #Really want to skim/slim this guy
+AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."+trackParticleAuxExclusions]) #Really want to skim/slim this guy
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleContainer#MSOnlyExtrapolatedMuonTrackParticles"])
-AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#MSOnlyExtrapolatedMuonTrackParticlesAux."])
+AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#MSOnlyExtrapolatedMuonTrackParticlesAux."+trackParticleAuxExclusions])
 
 AlignmentTriggerMuonStream.AddItem(["TileDigitsContainer#MuRcvDigitsCnt"])
 AlignmentTriggerMuonStream.AddItem(["TileRawChannelContainer#MuRcvRawChCnt"])

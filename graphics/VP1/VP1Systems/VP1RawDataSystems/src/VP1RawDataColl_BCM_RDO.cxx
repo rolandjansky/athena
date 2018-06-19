@@ -38,9 +38,9 @@ public:
 
 //____________________________________________________________________
 VP1RawDataColl_BCM_RDO::VP1RawDataColl_BCM_RDO(VP1RawDataCommonData*common,const QString& key)
-  : VP1RawDataCollBase(common,key), d(new Imp)
+  : VP1RawDataCollBase(common,key), m_d(new Imp)
 {
-  d->useSpecialBCMHighAttMaterial = true;
+  m_d->useSpecialBCMHighAttMaterial = true;
 
   connect(common->controller(),SIGNAL(useSpecialBCMHighAttMaterialChanged(bool)),
 	  this,SLOT(setUseSpecialBCMHighAttMaterial(bool)));
@@ -50,7 +50,7 @@ VP1RawDataColl_BCM_RDO::VP1RawDataColl_BCM_RDO(VP1RawDataCommonData*common,const
 //____________________________________________________________________
 VP1RawDataColl_BCM_RDO::~VP1RawDataColl_BCM_RDO()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -116,15 +116,15 @@ bool VP1RawDataColl_BCM_RDO::cut(VP1RawDataHandleBase*)
 //____________________________________________________________________
 bool VP1RawDataColl_BCM_RDO::useSpecialBCMHighAttMaterial() const
 {
-  return d->useSpecialBCMHighAttMaterial;
+  return m_d->useSpecialBCMHighAttMaterial;
 }
 
 //____________________________________________________________________
 void VP1RawDataColl_BCM_RDO::setUseSpecialBCMHighAttMaterial(bool b)
 {
-  if (d->useSpecialBCMHighAttMaterial==b)
+  if (m_d->useSpecialBCMHighAttMaterial==b)
     return;
-  d->useSpecialBCMHighAttMaterial=b;
+  m_d->useSpecialBCMHighAttMaterial=b;
 
   std::vector<VP1RawDataHandleBase*>::iterator it(getHandles().begin()),itE(getHandles().end());
   for (;it!=itE;++it) {

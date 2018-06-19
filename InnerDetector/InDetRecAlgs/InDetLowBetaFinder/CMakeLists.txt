@@ -18,9 +18,8 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecEvent/InDetLowBetaInfo
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           InnerDetector/InDetRecTools/TRT_ToT_Tools
-                          Reconstruction/Particle
                           Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkParticleBase
+                          Event/xAOD/xAODTracking
                           Tracking/TrkEvent/TrkRIO_OnTrack
                           Tracking/TrkEvent/TrkTrack )
 
@@ -32,7 +31,7 @@ atlas_add_component( InDetLowBetaFinder
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel TRT_ConditionsServicesLib MagFieldInterfaces StoreGateLib SGtests TRT_ConditionsData InDetIdentifier InDetLowBetaInfo InDetRIO_OnTrack Particle TrkParameters TrkParticleBase TrkRIO_OnTrack TrkTrack )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel TRT_ConditionsServicesLib MagFieldInterfaces StoreGateLib SGtests TRT_ConditionsData InDetIdentifier InDetLowBetaInfo InDetRIO_OnTrack TrkParameters xAODTracking TrkRIO_OnTrack TrkTrack )
 
 # Install files from the package:
 atlas_install_headers( InDetLowBetaFinder )

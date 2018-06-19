@@ -3,7 +3,6 @@
 */
 
 #include <iostream>
-#include "GaudiKernel/ToolFactory.h"
 #include "TrigMuonBackExtrapolator/TrigMuonBackExtrapolator.h"
 #include "TrigMuonBackExtrapolator/BackExtrapolator.h"
 

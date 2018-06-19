@@ -25,7 +25,9 @@ typedef T_AthenaPoolCoolMultChanCnv<LArDSPThresholdsComplete, LArDSPThrTransType
 class LArDSPThresholdsCompleteCnv : public LArDSPThresholdsCompleteCnvBase {
 friend class CnvFactory<LArDSPThresholdsCompleteCnv >;
 protected:
+public:
     LArDSPThresholdsCompleteCnv (ISvcLocator* svcloc) : LArDSPThresholdsCompleteCnvBase(svcloc) {}
+protected:
     virtual LArDSPThrPersType*   createPersistent (LArDSPThrTransType* transObj);
     virtual LArDSPThrTransType*  createTransient ();
 };

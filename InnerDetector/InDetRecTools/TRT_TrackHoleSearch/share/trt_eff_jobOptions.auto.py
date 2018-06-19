@@ -51,7 +51,7 @@ if do_grl and sample == 'data':
     ToolSvc += theLumiBlockMetaDataTool
     
     # add ToolSvc.LumiBlockMetaDataTool to MetaDataSvc
-    from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
+    from AthenaServices.AthenaServicesConf import MetaDataSvc
     theMetaDataSvc = MetaDataSvc( "MetaDataSvc" )
     theMetaDataSvc.MetaDataTools += [ theLumiBlockMetaDataTool ]
     svcMgr += theMetaDataSvc

@@ -18,7 +18,9 @@ class AFP_SiDigiCollectionCnv : public T_AthenaPoolCustomCnv <AFP_SiDigiCollecti
 	friend class CnvFactory<AFP_SiDigiCollectionCnv>;
 
 protected:
+public:
 	AFP_SiDigiCollectionCnv(ISvcLocator* svcloc) : T_AthenaPoolCustomCnv <AFP_SiDigiCollection, AFP_SiDigiCollection_PERS >(svcloc) {}
+protected:
 
 	AFP_SiDigiCollection_PERS* createPersistent (AFP_SiDigiCollection *transCont);
 	AFP_SiDigiCollection* createTransient ();

@@ -20,7 +20,7 @@ bool EventShapeStore::get(const EventShapes::EventShapeType& type, double& value
 // bool EventShapeStore::get(const EventShapes::EventShapeType& type, 
 // 			  std::vector<double>& values, unsigned int index) const
 // {
-//   value.clear();;
+//   value.clear();
 //   for(store_Citer it=m_store.begin(); it!=m_store.end(); ++it )
 //     if(it->getType()==type)
 //       {

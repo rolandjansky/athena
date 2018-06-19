@@ -36,14 +36,17 @@ namespace HLTTest {
 
   private: 
     TestRecoAlg();
-    std::string m_fileName;
 
     typedef std::pair< std::string, float > Prop_t;
     typedef std::vector< Prop_t > Obj_t;
     typedef std::vector< Obj_t > Event_t;
     std::vector< Event_t > m_data;
-    SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_output;
-    SG::ReadHandleKey<xAOD::TrigCompositeContainer>  m_input;
+    StringProperty m_fileName { this, "FileName", "Input file with fake objects"};
+    
+    SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_output { this, "Output",   "Output collection name" };
+    SG::ReadHandleKey<xAOD::TrigCompositeContainer>  m_input  { this, "Input",    "Input collection name" };
+
+    
   }; 
 
 } //> end namespace HLTTest

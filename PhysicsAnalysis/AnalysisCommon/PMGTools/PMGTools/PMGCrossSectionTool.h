@@ -66,7 +66,7 @@ namespace PMGTools {
   private:
       
     // store vector of structures, each structure contains full info for DSID
-    std::map<int,PMGTools::AllSampleInfo> fStoreSampleInfo;
+    std::map<int,PMGTools::AllSampleInfo> m_storeSampleInfo;
     std::string m_InputFileName;
     
   }; // class PMGCrossSectionTool

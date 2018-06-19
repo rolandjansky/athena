@@ -25,6 +25,10 @@ void sTGCHandler::ElementHandle()
 	vvv.push_back(getAttributeAsDouble("Length",ret));
 	vvv.push_back(getAttributeAsDouble("Tck",ret));
 	vvv.push_back(getAttributeAsDouble("yCutout",0.));
+	vvv.push_back(getAttributeAsDouble("stripPitch",0.));
+	vvv.push_back(getAttributeAsDouble("wirePitch",0.));
+	vvv.push_back(getAttributeAsDouble("stripWidth",0.));
+	vvv.push_back(getAttributeAsDouble("yCutoutCathode",0.));
 	
 	//double ttt=getAttributeAsDouble("yCutout",0.);
 	//std::cout<<"+++++++++++++++++++++++> yCutout "<<ttt<<std::endl;

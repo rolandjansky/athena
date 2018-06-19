@@ -13,24 +13,24 @@
 namespace MuonCalib {
 
   MuonCalibRpcSectorLogicBranch::MuonCalibRpcSectorLogicBranch(std::string branchName)
-     : m_branchName(branchName), branchesInit(false), m_first(true) , index(0), index2(0), index3(0)
+     : m_branchName(branchName), m_branchesInit(false), m_first(true) , m_index(0), m_index2(0), m_index3(0)
   {}        
 
   bool MuonCalibRpcSectorLogicBranch::fillBranch(const RpcSectorLogicContainer &slContainer) {
-    // check if branches where initialized
-    if( !branchesInit ){
+    // check if branches were initialized
+    if( !m_branchesInit ){
       //std::cout << "MuonCalibRpcSectorLogicBranch::fillBranch "
-      //	<< " ERROR <branches where not initialized>"
+      //	<< " ERROR <branches were not initialized>"
       //	<<  std::endl;
       return false;    
     }
 
-    // check if index not out of range 
-    if( index >= m_blockSize || index < 0 ){
+    // check if m_index not out of range 
+    if( m_index >= m_blockSize || m_index < 0 ){
       if (m_first == true) {
 	//std::cout << "MuonCalibRpcSectorLogicBranch::fillBranch  " 
-	//<< " ERROR <index out of range, entry not added to ntuple> "
-	//  <<  index << std::endl;
+	//<< " ERROR <index out of range; entry not added to ntuple> "
+	//  <<  m_index << std::endl;
 	m_first = false;
       }
       return false;
@@ -40,41 +40,41 @@ namespace MuonCalib {
     RpcSectorLogicContainer::const_iterator slit = slContainer.begin();
     RpcSectorLogicContainer::const_iterator slit_end = slContainer.end();
     for( ;slit!=slit_end;++slit ) {
-      if(index >= m_blockSize || index<0) return false;
+      if(m_index >= m_blockSize || m_index<0) return false;
       const RpcSectorLogic &slLogic = **slit;
 
       // sector logic information
-      sectorId[index] = slLogic.sectorId();
-      bcid[index] = slLogic.bcid();
-      lvl1Id[index] = slLogic.fel1Id();
-      errorCode[index] = slLogic.errorCode();
-      crc[index] = slLogic.crc();
-      hasMoreThan2TriggerCand[index] = slLogic.hasMoreThan2TriggerCand();
+      m_sectorId[m_index] = slLogic.sectorId();
+      m_bcid[m_index] = slLogic.bcid();
+      m_lvl1Id[m_index] = slLogic.fel1Id();
+      m_errorCode[m_index] = slLogic.errorCode();
+      m_crc[m_index] = slLogic.crc();
+      m_hasMoreThan2TriggerCand[m_index] = slLogic.hasMoreThan2TriggerCand();
 
       // loop over RpcSLTriggerHits 
       RpcSectorLogic::const_iterator hitIt = slLogic.begin();
       RpcSectorLogic::const_iterator hitIt_end = slLogic.end();
       for( ;hitIt != hitIt_end; ++hitIt ){
 
-	if( index3 >= m_blockSize3 || index3 < 0 ) break;
+	if( m_index3 >= m_blockSize3 || m_index3 < 0 ) break;
 
 	const RpcSLTriggerHit &slHit = **hitIt;
 	
-	slIndex2[index3]    = slLogic.sectorId();
-	rowinBcid[index3]   = slHit.rowinBcid();
-	triggerBcid[index3] = slHit.triggerBcid();
-	padId[index3]       = slHit.padId();
-	ptId[index3]        = slHit.ptId();
-	roi[index3]         = slHit.roi();
-	isInput[index3]     = slHit.isInput();
+	m_slIndex2[m_index3]    = slLogic.sectorId();
+	m_rowinBcid[m_index3]   = slHit.rowinBcid();
+	m_triggerBcid[m_index3] = slHit.triggerBcid();
+	m_padId[m_index3]       = slHit.padId();
+	m_ptId[m_index3]        = slHit.ptId();
+	m_roi[m_index3]         = slHit.roi();
+	m_isInput[m_index3]     = slHit.isInput();
 	
-	outerPlane[index3]  = slHit.outerPlane();
-	overlapPhi[index3]  = slHit.overlapPhi();
-	overlapEta[index3]  = slHit.overlapEta();
+	m_outerPlane[m_index3]  = slHit.outerPlane();
+	m_overlapPhi[m_index3]  = slHit.overlapPhi();
+	m_overlapEta[m_index3]  = slHit.overlapEta();
 	
-	++index3;
+	++m_index3;
       }
-      ++index;
+      ++m_index;
     }
     return true;
   }  //end MuonCalibRpcSectorLogicBranch::fillBranch
@@ -93,55 +93,55 @@ namespace MuonCalib {
     std::string index_name = "_nSectors";
 
     // create a branch for every data member
-    branchCreator.createBranch( tree, index_name, &index, "/I");
+    branchCreator.createBranch( tree, index_name, &m_index, "/I");
 
     // all entries of same size, the number of hits in the event
     std::string array_size( std::string("[") + m_branchName + index_name + std::string("]") );
 
     // create the branches sl logic
-    branchCreator.createBranch( tree, "_sectorId",  &sectorId,  array_size + "/I" );
-    branchCreator.createBranch( tree, "_lvl1id",    &lvl1Id,    array_size + "/I" );
-    branchCreator.createBranch( tree, "_bcid",      &bcid,      array_size + "/I" );
-    branchCreator.createBranch( tree, "_errorCode", &errorCode, array_size + "/I" );
-    branchCreator.createBranch( tree, "_crc",       &crc,       array_size + "/I" );
-    branchCreator.createBranch( tree, "_hasMoreThan2TriggerCand", &hasMoreThan2TriggerCand, array_size + "/I" );
+    branchCreator.createBranch( tree, "_sectorId",  &m_sectorId,  array_size + "/I" );
+    branchCreator.createBranch( tree, "_lvl1id",    &m_lvl1Id,    array_size + "/I" );
+    branchCreator.createBranch( tree, "_bcid",      &m_bcid,      array_size + "/I" );
+    branchCreator.createBranch( tree, "_errorCode", &m_errorCode, array_size + "/I" );
+    branchCreator.createBranch( tree, "_crc",       &m_crc,       array_size + "/I" );
+    branchCreator.createBranch( tree, "_hasMoreThan2TriggerCand", &m_hasMoreThan2TriggerCand, array_size + "/I" );
 
     /**
     // second branch for vector properties
     std::string index_name2 = "nLogicsTimes";
 
     // create a branch for every data member
-    branchCreator.createBranch( tree, index_name2, &index2, "/I");
+    branchCreator.createBranch( tree, index_name2, &m_index2, "/I");
 
     // all entries of same size, the number of hits in the event
     std::string array_size2( std::string("[") + m_branchName + index_name2 + std::string("]") );
 
-    branchCreator.createBranch( tree, "slIndex",       &slIndex,      array_size2 + "/I" );          
-    branchCreator.createBranch( tree, "triggerRates",  &triggerRates, array_size2 + "/F" );
-    branchCreator.createBranch( tree, "counters",      &counters,     array_size2 + "/I" );
+    branchCreator.createBranch( tree, "slIndex",       &m_slIndex,      array_size2 + "/I" );          
+    branchCreator.createBranch( tree, "triggerRates",  &m_triggerRates, array_size2 + "/F" );
+    branchCreator.createBranch( tree, "counters",      &m_counters,     array_size2 + "/I" );
     */
 
     // third branch for RpcSLTriggerHit properties
     std::string index_name3 = "nTriggerHits";
 
     // create a branch for every data member
-    branchCreator.createBranch( tree, index_name3, &index3, "/I");
+    branchCreator.createBranch( tree, index_name3, &m_index3, "/I");
 
     // all entries of same size, the number of hits in the event
     std::string array_size3( std::string("[") + m_branchName + index_name3 + std::string("]") );
 
-    branchCreator.createBranch( tree, "hit_sector",      &slIndex2,    array_size3 + "/I" );
-    branchCreator.createBranch( tree, "hit_rowinBcid",   &rowinBcid,   array_size3 + "/I" );
-    branchCreator.createBranch( tree, "hit_padId",       &padId,       array_size3 + "/I" );
-    branchCreator.createBranch( tree, "hit_ptId",        &ptId,        array_size3 + "/I" );
-    branchCreator.createBranch( tree, "hit_roi",         &roi,         array_size3 + "/I" );
-    branchCreator.createBranch( tree, "hit_outerPlane",  &outerPlane,  array_size3 + "/I" );
-    branchCreator.createBranch( tree, "hit_overlapPhi",  &overlapPhi,  array_size3 + "/I" );
-    branchCreator.createBranch( tree, "hit_overlapEta",  &overlapEta,  array_size3 + "/I" );
-    branchCreator.createBranch( tree, "hit_triggerBcid", &triggerBcid, array_size3 + "/I" );
-    branchCreator.createBranch( tree, "hit_isInput",     &isInput,     array_size3 + "/I" );
+    branchCreator.createBranch( tree, "hit_sector",      &m_slIndex2,    array_size3 + "/I" );
+    branchCreator.createBranch( tree, "hit_rowinBcid",   &m_rowinBcid,   array_size3 + "/I" );
+    branchCreator.createBranch( tree, "hit_padId",       &m_padId,       array_size3 + "/I" );
+    branchCreator.createBranch( tree, "hit_ptId",        &m_ptId,        array_size3 + "/I" );
+    branchCreator.createBranch( tree, "hit_roi",         &m_roi,         array_size3 + "/I" );
+    branchCreator.createBranch( tree, "hit_outerPlane",  &m_outerPlane,  array_size3 + "/I" );
+    branchCreator.createBranch( tree, "hit_overlapPhi",  &m_overlapPhi,  array_size3 + "/I" );
+    branchCreator.createBranch( tree, "hit_overlapEta",  &m_overlapEta,  array_size3 + "/I" );
+    branchCreator.createBranch( tree, "hit_triggerBcid", &m_triggerBcid, array_size3 + "/I" );
+    branchCreator.createBranch( tree, "hit_isInput",     &m_isInput,     array_size3 + "/I" );
 
-    branchesInit = true;
+    m_branchesInit = true;
 
     // reset branch
     reset();

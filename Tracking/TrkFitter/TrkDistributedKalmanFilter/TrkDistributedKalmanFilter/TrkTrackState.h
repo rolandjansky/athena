@@ -12,8 +12,8 @@
 // D.Emeliyanov@rl.ac.uk
 ///////////////////////////////////////////////////////////////////
 
-#ifndef __TRK_TRACKSTATE_H__
-#define __TRK_TRACKSTATE_H__
+#ifndef TRKDISTRIBUTEDKALMANFILTER_TRK_TRACKSTATE_H
+#define TRKDISTRIBUTEDKALMANFILTER_TRK_TRACKSTATE_H
 
 
 namespace Trk {	
@@ -27,32 +27,32 @@ namespace Trk {
       TrkTrackState(double[5]);
       TrkTrackState(const TrkTrackState*);
       ~TrkTrackState(){};
-      void m_report();
-      void m_resetCovariance();
-      void m_serialize(char fileName[]);
-      TrkPlanarSurface* m_getSurface();
-      void m_attachToSurface(TrkPlanarSurface*);
-      void m_setScatteringMode(int);
-      int m_getScatteringMode();
-      void m_applyMaterialEffects();
-      void m_updateTrackState(double*);
-      void m_updateTrackCovariance(double*);
-      void m_setTrackCovariance(double A[5][5]);
-      void m_setTrackState(double A[5]);
-      void m_setSmootherGain(double A[5][5]);
-      void m_setPreviousState(TrkTrackState*);
-      void m_runSmoother();
-      void m_applyMultipleScattering();
-      void m_applyEnergyLoss(int);
-      inline double m_getTrackState(int i)
+      void report();
+      void resetCovariance();
+      void serialize(char fileName[]);
+      TrkPlanarSurface* getSurface();
+      void attachToSurface(TrkPlanarSurface*);
+      void setScatteringMode(int);
+      int getScatteringMode();
+      void applyMaterialEffects();
+      void updateTrackState(double*);
+      void updateTrackCovariance(double*);
+      void setTrackCovariance(double A[5][5]);
+      void setTrackState(double A[5]);
+      void setSmootherGain(double A[5][5]);
+      void setPreviousState(TrkTrackState*);
+      void runSmoother();
+      void applyMultipleScattering();
+      void applyEnergyLoss(int);
+      inline double getTrackState(int i)
 	{
 	  return m_Rk[i];
 	}
-      inline double m_getTrackCovariance(int i, int j)
+      inline double getTrackCovariance(int i, int j)
 	{
 	  return m_Gk[i][j];
 	}
-      inline int m_getStateSize()
+      inline int getStateSize()
 	{
 	  return 5;
 	}

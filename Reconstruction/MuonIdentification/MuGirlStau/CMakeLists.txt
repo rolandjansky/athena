@@ -10,9 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloEvent
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthContainers
                           DetectorDescription/GeoPrimitives
                           Event/EventInfo
                           GaudiKernel
@@ -52,19 +50,19 @@ atlas_add_library( MuGirlStauLib
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel DataModel SGTools GeoPrimitives EventInfo GaudiKernel MuonRIO_OnTrack MuonSegment MuonRecToolInterfaces MuGirlInterfaces TrkEventPrimitives TrkTrack TrkToolInterfaces StoreGateLib SGtests MdtCalibSvcLib
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel AthContainers GeoPrimitives EventInfo GaudiKernel MuonRIO_OnTrack MuonSegment MuonRecToolInterfaces MuGirlInterfaces TrkEventPrimitives TrkTrack TrkToolInterfaces StoreGateLib SGtests MdtCalibSvcLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils Identifier xAODTracking MdtCalibData ParticleCaloExtension RecoToolInterfaces PathResolver )
 
 atlas_add_component( MuGirlStau
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel DataModel SGTools GeoPrimitives EventInfo GaudiKernel MuonRIO_OnTrack MuonSegment MuonRecToolInterfaces MuGirlInterfaces TrkEventPrimitives TrkTrack TrkToolInterfaces CxxUtils StoreGateLib SGtests Identifier xAODTracking MdtCalibData MdtCalibSvcLib ParticleCaloExtension RecoToolInterfaces PathResolver MuGirlStauLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel AthContainers GeoPrimitives EventInfo GaudiKernel MuonRIO_OnTrack MuonSegment MuonRecToolInterfaces MuGirlInterfaces TrkEventPrimitives TrkTrack TrkToolInterfaces CxxUtils StoreGateLib SGtests Identifier xAODTracking MdtCalibData MdtCalibSvcLib ParticleCaloExtension RecoToolInterfaces PathResolver MuGirlStauLib )
 
 atlas_add_dictionary( iMuGirlStauDict
                       MuGirlStau/MuGirlStauDict.h
                       MuGirlStau/selection.xml
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel DataModel SGTools GeoPrimitives EventInfo GaudiKernel MuonRIO_OnTrack MuonSegment MuonRecToolInterfaces MuGirlInterfaces TrkEventPrimitives TrkTrack TrkToolInterfaces CxxUtils StoreGateLib SGtests Identifier xAODTracking MdtCalibData MdtCalibSvcLib ParticleCaloExtension RecoToolInterfaces PathResolver MuGirlStauLib
+                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel AthContainers GeoPrimitives EventInfo GaudiKernel MuonRIO_OnTrack MuonSegment MuonRecToolInterfaces MuGirlInterfaces TrkEventPrimitives TrkTrack TrkToolInterfaces CxxUtils StoreGateLib SGtests Identifier xAODTracking MdtCalibData MdtCalibSvcLib ParticleCaloExtension RecoToolInterfaces PathResolver MuGirlStauLib
                       DATA_LINKS MuGirlNS::StauContainer
                       ELEMENT_LINKS StauCollection )
 

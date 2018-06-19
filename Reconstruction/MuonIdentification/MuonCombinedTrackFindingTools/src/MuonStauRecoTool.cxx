@@ -1061,7 +1061,7 @@ namespace MuonCombined {
 
       // copy content of the candidate for reference
       LayerDataVec layerDataVec = candidate->layerDataVec; 
-      Muon::TimePointBetaFit::HitVec hits = candidate->hits;;
+      Muon::TimePointBetaFit::HitVec hits = candidate->hits;
 
       // loop over maximumDataVec of the layer
       for( const auto& maximumData : layerData.maximumDataVec ){

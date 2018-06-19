@@ -63,7 +63,7 @@ class T2CaloJetGridFromFEBHeader : public T2CaloJetBaseTool
                           DETID detectorID, int sampling,
                           bool prepare);
  private:
-   ITrigDataAccess *m_data;
+  //   ITrigDataAccess *m_data;
    Trig3Momentum* m_gridElement;
    std::vector<int>* m_usedfeb;
    std::map<std::string, TrigTimer*> m_timers;
@@ -71,9 +71,6 @@ class T2CaloJetGridFromFEBHeader : public T2CaloJetBaseTool
 protected:
    ITrigTimerSvc* m_timerSvc;
    bool m_doTiming;
-
-   MsgStream * m_log;
-
 
   // New way with TrigDataAccess doing BS conversion
   // iterators to LArFEBEnergy. Note the different type from the above

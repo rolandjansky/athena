@@ -57,7 +57,7 @@ HLT::ErrorCode MucombStauHypo::hltInitialize(){
   if ( sc.isFailure() )
   {
     msg() << MSG::ERROR << "Could not retrieve "<<m_backExtrapolator<< endmsg;
-    return HLT::BAD_JOB_SETUP;;
+    return HLT::BAD_JOB_SETUP;
   } else
   {
     msg() << MSG::INFO << "Retrieved tool " << m_backExtrapolator << endmsg;

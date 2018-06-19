@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           AtlasTest/TestTools
                           Control/AthContainers
+                          Control/AthLinks
                           Control/CxxUtils )
 
 # External dependencies:
@@ -23,7 +24,7 @@ atlas_add_library( AthContainersRoot
                    src/*.cxx
                    PUBLIC_HEADERS AthContainersRoot
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers RootUtils )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks RootUtils )
 
 
 atlas_add_dictionary( AthContainersRootTestDict

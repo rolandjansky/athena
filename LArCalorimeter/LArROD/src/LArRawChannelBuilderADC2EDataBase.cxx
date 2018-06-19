@@ -39,13 +39,20 @@ LArRawChannelBuilderADC2EDataBase::LArRawChannelBuilderADC2EDataBase(const std::
   declareProperty("ADC2MeVTool",               m_adc2mevTool);
 }
 
-StatusCode LArRawChannelBuilderADC2EDataBase::initTool()
-{
-  if( m_adc2mevTool.retrieve().isFailure() ){
+StatusCode LArRawChannelBuilderADC2EDataBase::initialize() {
+
+   if( m_adc2mevTool.retrieve().isFailure() ){
     msg(MSG::ERROR) << "Could not retrieve LArADC2MeVTool" << endmsg;
     return StatusCode::FAILURE;
   }
-
+   else 
+     msg(MSG::DEBUG) << "Retrieved LArADC2MeVTool" << endmsg;
+  return StatusCode::SUCCESS;
+}
+  
+StatusCode LArRawChannelBuilderADC2EDataBase::initTool()
+{
+ 
   if ( m_isSC ) {
      const LArOnline_SuperCellID* lonlID;
      CHECK( detStore()->retrieve(lonlID, "LArOnline_SuperCellID") );

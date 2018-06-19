@@ -7,9 +7,9 @@ atlas_subdir( VxVertex )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthLinks
+                          Control/AthContainers
                           DetectorDescription/GeoPrimitives
                           Event/EventPrimitives
                           Tracking/TrkEvent/TrkEventPrimitives
@@ -29,13 +29,13 @@ atlas_add_library( VxVertex
                    PUBLIC_HEADERS VxVertex
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} DataModel SGTools GeoPrimitives EventPrimitives TrkEventPrimitives TrkNeutralParameters
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthLinks AthContainers GeoPrimitives EventPrimitives TrkEventPrimitives TrkNeutralParameters
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel TrkParameters )
 
 atlas_add_dictionary( VxVertexDict
                       VxVertex/VxVertexDict.h
                       VxVertex/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} DataModel SGTools GeoPrimitives EventPrimitives TrkEventPrimitives TrkNeutralParameters GaudiKernel TrkParameters VxVertex
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthLinks AthContainers GeoPrimitives EventPrimitives TrkEventPrimitives TrkNeutralParameters GaudiKernel TrkParameters VxVertex
                       ELEMENT_LINKS VxContainer )
 

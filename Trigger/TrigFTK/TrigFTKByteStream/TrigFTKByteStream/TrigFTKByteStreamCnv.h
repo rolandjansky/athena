@@ -18,7 +18,6 @@
  **********************************************************************************/
 
 #include "GaudiKernel/Converter.h"
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
@@ -84,8 +83,6 @@ namespace FTK {
     static const CLID& classID(); //!< CLID
 
     long repSvcType() const { return i_repSvcType(); } //!< return repSvcType
-
-    friend class CnvFactory<TrigFTKByteStreamCnv>; //!< declare factory as friend
 
   private:
 

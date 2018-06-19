@@ -54,18 +54,16 @@ StatusCode
 ToolTestMonitoringPlots::fillHistograms() {
   ATH_MSG_DEBUG("Filling hists " << name() << "...");
   // retrieve trackParticle container
-  // auto ptracks = getContainer<xAOD::TrackParticleContainer>(m_trkParticleName);
-  // if ((!ptracks) ) return StatusCode::FAILURE;
+  // SG::ReadHandle ptracksm_trkParticleName);
+  // if (!ptracks.isValid() ) return StatusCode::FAILURE;
   // retrieve truthParticle container
-  // auto ptruth = getContainer<xAOD::TruthParticleContainer>(m_truthParticleName);
-  // if ((!ptruth) ) return StatusCode::FAILURE;
+  // .h: SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthContainerName = "TruthParticles";
+  // SG::ReadHandle<xAOD::TruthParticleContainer> ptruth(m_truthParticleName);
+  // if (!ptruth.isValid() ) return StatusCode::FAILURE;
 
   // const unsigned int nTracks(ptracks->size());
   // const unsigned int nTruth(ptruth->size());
 
-  // std::string m_truthContainerName = "TruthParticles";
-  // const xAOD::TruthParticleContainer* truthParticles =
-  // getContainer<xAOD::TruthParticleContainer>(m_truthContainerName);
 
   // Main track loop, filling Track-only, Track 'n' Truth with good matching probability (meas, res, & pull), and Fakes
   const xAOD::TrackParticle p;

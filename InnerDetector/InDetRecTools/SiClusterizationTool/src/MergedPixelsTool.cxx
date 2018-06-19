@@ -35,7 +35,7 @@
 #include "InDetRecToolInterfaces/IPixelClusterSplitter.h"
 #include "InDetIdentifier/PixelID.h"
 #include "SiClusterizationTool/ClusterMakerTool.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
 #include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
@@ -210,7 +210,7 @@ namespace InDet {
     int clusterNumber = 0;
     
     // If module is bad, do not create a cluster collection
-    if (m_useModuleMap &&  !(m_summarySvc->isGood(idHash))) 
+    if (m_useModuleMap &&  !(m_summaryTool->isGood(idHash))) 
       return 0;
     
     
@@ -244,7 +244,7 @@ namespace InDet {
       {
 	Identifier rdoID= (*nextRDO)->identify();
 	// if a pixel is not skip it in clusterization
-	if ( m_usePixelMap && !(m_summarySvc->isGood(idHash,rdoID)) ) continue;
+	if ( m_usePixelMap && !(m_summaryTool->isGood(idHash,rdoID)) ) continue;
 	int tot = (*nextRDO)->getToT();
  	int layerIndex = pixelID.layer_disk(rdoID);
  	if (layerIndex>=4)     { layerIndex=6; }                 // ITk 5th layer
@@ -541,7 +541,7 @@ namespace InDet {
 		    
 		    int rowMin = int(2*(element->width()/element->phiPitch()))+1;
 		    int rowMax = 0;
-		    int colMin = int(2*(element->length()/element->etaPitch()))+1;;
+		    int colMin = int(2*(element->length()/element->etaPitch()))+1;
 		    int colMax = 0;
 		    
 		    for (; rdosBegin!= rdosEnd; ++rdosBegin)
@@ -705,7 +705,7 @@ PixelCluster* MergedPixelsTool::makeCluster
 			ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of MergedPixelsTool.");
 			return nullptr;
 		}
-    int rowMin = int(2*(design->width()/design->phiPitch()))+1;;
+    int rowMin = int(2*(design->width()/design->phiPitch()))+1;
     int rowMax = 0;
     int colMin = int(2*(design->length()/design->etaPitch()))+1;
     int colMax = 0;

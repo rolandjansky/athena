@@ -13,42 +13,42 @@
 
 namespace MuonCalib {
 
-  RpcCalibHitNtupleBranch::RpcCalibHitNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false), index(0)
+  RpcCalibHitNtupleBranch::RpcCalibHitNtupleBranch(std::string branchName) : m_branchName(branchName), m_branchesInit(false), m_index(0)
   {}
 
   bool RpcCalibHitNtupleBranch::fillBranch(const RpcCalibHitBase &hit, const int segmentIndex) {
-    // check if branches where initialized
-    if( !branchesInit ){
-      //std::cout << "RpcCalibHitNtupleBranch::fillBranch  ERROR <branches where not initialized>"
+    // check if branches were initialized
+    if( !m_branchesInit ){
+      //std::cout << "RpcCalibHitNtupleBranch::fillBranch  ERROR <branches were not initialized>"
       //	<<  std::endl;
       return false;    
     }
 
     // check if index not out of range 
-    if( index >= m_blockSize || index < 0 ){
-//       std::cout << "RpcCalibHitNtupleBranch::fillBranch  ERROR <index out of range, hit not added to ntuple> "
-// 		<<  index << std::endl;
+    if( m_index >= m_blockSize || m_index < 0 ){
+//       std::cout << "RpcCalibHitNtupleBranch::fillBranch  ERROR <index out of range; hit not added to ntuple> "
+// 		<<  m_index << std::endl;
       return false;
     }
 
     // copy values 
-    segIndex[index]   = segmentIndex;
-    id[index]         = (hit.identify()).getIdInt();
-    nStrips[index]    = hit.nStrips();
-    stripWidth[index] = hit.stripWidth();
-    stripLength[index]= hit.stripLength();
-    time[index]       = hit.time();
-    error[index]      = hit.error();
-    posX[index]       = hit.localPosition().x();
-    posY[index]       = hit.localPosition().y();
-    posZ[index]       = hit.localPosition().z();
-    gPosX[index]      = hit.globalPosition().x();
-    gPosY[index]      = hit.globalPosition().y();
-    gPosZ[index]      = hit.globalPosition().z();
-    distanceToRO[index] = hit.distanceToRO();
+    m_segIndex[m_index]   = segmentIndex;
+    m_id[m_index]         = (hit.identify()).getIdInt();
+    m_nStrips[m_index]    = hit.nStrips();
+    m_stripWidth[m_index] = hit.stripWidth();
+    m_stripLength[m_index]= hit.stripLength();
+    m_time[m_index]       = hit.time();
+    m_error[m_index]      = hit.error();
+    m_posX[m_index]       = hit.localPosition().x();
+    m_posY[m_index]       = hit.localPosition().y();
+    m_posZ[m_index]       = hit.localPosition().z();
+    m_gPosX[m_index]      = hit.globalPosition().x();
+    m_gPosY[m_index]      = hit.globalPosition().y();
+    m_gPosZ[m_index]      = hit.globalPosition().z();
+    m_distanceToRO[m_index] = hit.distanceToRO();
 
     // increment hit index
-    ++index;
+    ++m_index;
   
     return true;
   }  //end RpcCalibHitNtupleBranch::fillBranch
@@ -67,28 +67,28 @@ namespace MuonCalib {
     std::string index_name ="nRpcHits";
 
     // create a branch for every data member
-    branchCreator.createBranch( tree, index_name, &index, "/I");
+    branchCreator.createBranch( tree, index_name, &m_index, "/I");
 
     // all entries of same size, the number of hits in the event
     std::string array_size( std::string("[") + m_branchName + index_name + std::string("]") );
 
     // create the branches
-    branchCreator.createBranch( tree, "segIndex",    &segIndex,    array_size + "/I" );
-    branchCreator.createBranch( tree, "id",          &id,          array_size + "/I" );
-    branchCreator.createBranch( tree, "nStrips",     &nStrips,     array_size + "/I" );
-    branchCreator.createBranch( tree, "stripWidth",  &stripWidth,  array_size + "/F" );
-    branchCreator.createBranch( tree, "stripLength", &stripLength, array_size + "/F" );
-    branchCreator.createBranch( tree, "error",       &error,       array_size + "/F" );
-    branchCreator.createBranch( tree, "time",        &time,        array_size + "/F" );
-    branchCreator.createBranch( tree, "posX",        &posX,        array_size + "/F" );
-    branchCreator.createBranch( tree, "posY",        &posY,        array_size + "/F" );
-    branchCreator.createBranch( tree, "posZ",        &posZ,        array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosX",       &gPosX,       array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosY",       &gPosY,       array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosZ",       &gPosZ,       array_size + "/F" );
-    branchCreator.createBranch( tree, "distanceToRO",&distanceToRO,array_size + "/F" );
+    branchCreator.createBranch( tree, "segIndex",    &m_segIndex,    array_size + "/I" );
+    branchCreator.createBranch( tree, "id",          &m_id,          array_size + "/I" );
+    branchCreator.createBranch( tree, "nStrips",     &m_nStrips,     array_size + "/I" );
+    branchCreator.createBranch( tree, "stripWidth",  &m_stripWidth,  array_size + "/F" );
+    branchCreator.createBranch( tree, "stripLength", &m_stripLength, array_size + "/F" );
+    branchCreator.createBranch( tree, "error",       &m_error,       array_size + "/F" );
+    branchCreator.createBranch( tree, "time",        &m_time,        array_size + "/F" );
+    branchCreator.createBranch( tree, "posX",        &m_posX,        array_size + "/F" );
+    branchCreator.createBranch( tree, "posY",        &m_posY,        array_size + "/F" );
+    branchCreator.createBranch( tree, "posZ",        &m_posZ,        array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosX",       &m_gPosX,       array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosY",       &m_gPosY,       array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosZ",       &m_gPosZ,       array_size + "/F" );
+    branchCreator.createBranch( tree, "distanceToRO",&m_distanceToRO,array_size + "/F" );
 
-    branchesInit = true;
+    m_branchesInit = true;
   
     // reset branch
     reset();

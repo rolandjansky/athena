@@ -102,6 +102,9 @@ StatusCode CaloTopoTowerAlg::initialize()
     ATH_CHECK( m_noiseTool.retrieve() );
     ATH_MSG_INFO( "Noise Tool retrieved"  );
   }
+  else {
+    m_noiseTool.disable();
+  }
 
   // Report some information regarding the noise tool
   if ( m_useNoiseTool && m_usePileUpNoise) {

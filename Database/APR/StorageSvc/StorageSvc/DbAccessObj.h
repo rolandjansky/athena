@@ -16,6 +16,7 @@
 // Framework include files
 #include "StorageSvc/pool.h"
 #include "StorageSvc/DbType.h"
+#include "StorageSvc/IOODatabase.h"
 
 // STL include files
 #include <map>
@@ -25,9 +26,6 @@
  *  POOL namespace declaration
  */
 namespace pool    {
-
-  // Forward declarations
-  class IOODatabase;
 
   /** @class DbAccessObj DbAccessObj.h StorageSvc/DbAccessObj.h
     *
@@ -65,9 +63,9 @@ namespace pool    {
     /// Constructor with initializing arguments
     DbAccessObj(const std::string& n, DbAccessMode m, const DbType& t, IOODatabase* s=0)
     : m_refCount(0), m_mode(m), m_name(n), m_type(t), m_pool(s)
-    {}
+    { if( m_pool )  m_pool->addRef(); }
     /// Standard destructor
-    virtual ~DbAccessObj()            {                               }
+    virtual ~DbAccessObj()            {      releasePtr( m_pool );    }
     /// Access the instance name
     const std::string& name()  const  {      return m_name;           }
     /// Access the instance name

@@ -82,7 +82,7 @@ StatusCode VtxBasedFilterTool::buildMcAod( const McEventCollection* in,
       msg(MSG::WARNING)
         << "Could not launch filtering procedure for GenEvent number ["
         << iEvt << "] from McEventCollection ["
-        << m_mcEventsName << " !!"
+        << m_mcEventsReadHandleKey.key() << " !!"
         << endmsg
         << "  inEvt: " << inEvt << endmsg;
       continue;
@@ -104,7 +104,7 @@ StatusCode VtxBasedFilterTool::buildMcAod( const McEventCollection* in,
     if ( buildGenEvent( inEvt, outEvt ).isFailure() ) {
       msg(MSG::ERROR)
 	<< "Could filter GenEvent number [" << iEvt 
-	<< "] from McEventCollection ["     << m_mcEventsName 
+	<< "] from McEventCollection ["     << m_mcEventsReadHandleKey.key() 
 	<< "] !!" << endmsg;
       delete outEvt;
       outEvt = 0;

@@ -15,9 +15,6 @@
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
-// #include "GaudiKernel/CnvFactory.h"
-// #include "GaudiKernel/StatusCode.h"
-// #include "GaudiKernel/Service.h"
 
 // Athena
 #include "StoreGate/StoreGateSvc.h"
@@ -246,7 +243,7 @@ void  Muon::MMPrepDataContainerCnv_p1::persToTrans(const Muon::MMPrepDataContain
       // int result = m_MMId->get_detectorElement_hash(chan->identify(), deIDHash);
       // if (result&&log.level() <= MSG::WARNING) 
       //   log << MSG::WARNING<< " Muon::MMPrepDataContainerCnv_p1::persToTrans: problem converting Identifier to DE hash "<<endmsg;
-          // chan->m_detEl = m_muonDetMgr->getMMReadoutElement(deIDHash);;
+          // chan->m_detEl = m_muonDetMgr->getMMReadoutElement(deIDHash);
       log << MSG::DEBUG<<"chan identify(): "<<chan->identify()<<endmsg;
 
       chan->setHashAndIndex(collIDHash, chanIndex); 
@@ -277,7 +274,7 @@ Muon::MMPrepDataContainer* Muon::MMPrepDataContainerCnv_p1::createTransient(cons
       return 0;
     } 
   }
-  std::auto_ptr<Muon::MMPrepDataContainer> trans(new Muon::MMPrepDataContainer(m_MMId->detectorElement_hash_max()));
+  std::auto_ptr<Muon::MMPrepDataContainer> trans(new Muon::MMPrepDataContainer(m_MMId->module_hash_max()));
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 }

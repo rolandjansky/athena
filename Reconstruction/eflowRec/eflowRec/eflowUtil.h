@@ -28,10 +28,7 @@ public:
     adjustRange();
     return m_value;
   }
-//  inline eflowAzimuth operator =(const eflowAzimuth& other) {
-//    m_value = other.m_value;
-//    return *this;
-//  }
+
   inline eflowAzimuth operator +=(double deltaPhi) {
     m_value += deltaPhi;
     adjustRange();
@@ -43,8 +40,6 @@ public:
     return *this;
   }
 
-//  inline double signedDifference(const eflowAzimuth& other) { return adjustRange(m_value - other.m_value); }
-//  inline double signedDifference(double phi) { return adjustRange(m_value - phi); }
   inline double getAbsDifference(const eflowAzimuth& other) const {
     double plainAbsDifference = fabs(m_value - other.m_value);
     return plainAbsDifference <= M_PI ? plainAbsDifference : 2*M_PI - plainAbsDifference;

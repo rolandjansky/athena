@@ -6,8 +6,8 @@
 #include "TrigT1CaloEvent/JetElement.h"
 #endif
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 
 CLASS_DEF(LVL1::JetElement,  6202, 1)
 CLASS_DEF(DataVector<LVL1::JetElement>,  6203, 1)

@@ -1,0 +1,82 @@
+/*
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+ */
+// $Id$
+/**
+ * @file AthenaKernel/MetaContDataBucket.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Jan, 2018
+ * @brief Allow converting MetaCont<T> to T.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Return the contents of the @c DataBucket,
+ *        converted to type given by @a clid.  Note that only
+ *        derived->base conversions are allowed here.
+ * @param clid The class ID to which to convert.
+ * @param irt To be called if we make a new instance.
+ * @param isConst True if the object being converted is regarded as const.
+ */
+template <class T>
+void* MetaContDataBucket<T>::cast (CLID clid,
+                                   IRegisterTransient* irt /*= 0*/,
+                                   bool isConst /*= true*/)
+{
+  // First try normal conversion.
+  if (void* ret = DataBucket<T>::cast (clid, irt, isConst)) {
+    return ret;
+  }
+
+  // Otherwise, try to retrieve the payload and cast it as requested.
+  typename T::Payload_t* payload = nullptr;
+  if (this->ptr()->find (getSID(), payload)) {
+    return SG::BaseInfo<typename T::Payload_t>::cast (payload, clid);
+  }
+  return nullptr;
+}
+
+  
+/**
+ * @brief Return the contents of the @c DataBucket,
+ *        converted to type given by @a std::type_info.  Note that only
+ *        derived->base conversions are allowed here.
+ * @param clid The @a std::type_info of the type to which to convert.
+ * @param irt To be called if we make a new instance.
+ * @param isConst True if the object being converted is regarded as const.
+ */
+template <class T>
+void* MetaContDataBucket<T>::cast (const std::type_info& tinfo,
+                                   IRegisterTransient* irt /*= 0*/,
+                                   bool isConst /*= true*/)
+{
+  if (void* ret = DataBucket<T>::cast (tinfo, irt, isConst)) {
+    return ret;
+  }
+  // Otherwise, try to retrieve the payload and cast it as requested.
+  typename T::Payload_t* payload = nullptr;
+  if (this->ptr()->find (getSID(), payload)) {
+    return SG::BaseInfo<typename T::Payload_t>::cast (payload, tinfo);
+  }
+  return nullptr;
+}
+
+
+/**
+ * @brief Return the metadata source id for the current event store.
+ *        Returns an empty string if there's no source ID set.
+ */
+template <class T>
+const SourceID MetaContDataBucket<T>::getSID() const
+{
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  const IProxyDict* store = 
+    ctx.getExtension<Atlas::ExtendedEventContext>()->proxy();
+  return store->sourceID();
+}
+
+
+} // namespace SG

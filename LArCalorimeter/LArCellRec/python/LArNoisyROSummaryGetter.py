@@ -3,6 +3,8 @@
 from RecExConfig.Configured import Configured
 from LArCellRec.LArNoisyROFlags import larNoisyROFlags
 
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+
 class LArNoisyROSummaryGetter ( Configured )  :
     _outputType = "LArNoisyROSummary"
     _output = { _outputType : "LArNoisyROSummary" }
@@ -28,7 +30,9 @@ class LArNoisyROSummaryGetter ( Configured )  :
                 return False
             else:
                 mlog.error("CaloCellGetter unusable. Continue nevertheless")
-           
+         
+        LArOnOffIdMapping() # Set up cabling cond algo
+  
         # now configure the algorithm
         # cannot have same name
         try:        
@@ -38,8 +42,7 @@ class LArNoisyROSummaryGetter ( Configured )  :
             print traceback.format_exc()
             return False
 
-        theLArNoisyROTool=LArNoisyROTool(PrintSummary=True,
-                                         CellQualityCut=larNoisyROFlags.CellQualityCut(),
+        theLArNoisyROTool=LArNoisyROTool(CellQualityCut=larNoisyROFlags.CellQualityCut(),
                                          BadChanPerFEB=larNoisyROFlags.BadChanPerFEB(),
                                          BadFEBCut=larNoisyROFlags.BadFEBCut(),
                                          KnownMNBFEBs=larNoisyROFlags.KnownMNBFEBs(),

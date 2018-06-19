@@ -44,7 +44,9 @@ class NeutrinoContainerCnv: public T_AthenaPoolCustomCnv<
 
   /** Create the converter from the service locator
    */
+public:
   NeutrinoContainerCnv(ISvcLocator* svcloc);
+protected:
 
   /** Build the persistent representation from the transient one.
    */

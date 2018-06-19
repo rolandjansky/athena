@@ -28,7 +28,7 @@ class TLorentzVectorAsIJet: public HypoJet::IJet {
   double e() const override  {return m_e;}
   double et() const override  {return m_et;}
   double rapidity() const override  {return m_eta;}
-  const TLorentzVector & p4() const override  {return m_tl;}
+  TLorentzVector p4() const override  {return m_tl;}
   unsigned int position() const override {return m_position;}
   bool getAttribute(const std::string&, float&) const {return true;}
   std::string toString() const {return "TLorentzVectorAsIJet";}

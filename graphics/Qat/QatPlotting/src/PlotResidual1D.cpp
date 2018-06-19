@@ -83,16 +83,16 @@ public:
 
 
 PlotResidual1D::PlotResidual1D(const Hist1D & histogram, Genfun::GENFUNCTION function):
-  Plotable(),c(new Clockwork())
+  Plotable(),m_c(new Clockwork())
 {
-  c->histogram=&histogram;
-  c->function = function.clone();
+  m_c->histogram=&histogram;
+  m_c->function = function.clone();
   double yMin=FLT_MAX;
   double yMax=FLT_MIN;
   for (unsigned int i=0;i<histogram.nBins();i++) {
     double x      = histogram.binCenter(i);
-    double yplus  = histogram.bin(i) -(*c->function)(x)+ histogram.binError(i);
-    double yminus = histogram.bin(i) -(*c->function)(x)- histogram.binError(i);
+    double yplus  = histogram.bin(i) -(*m_c->function)(x)+ histogram.binError(i);
+    double yminus = histogram.bin(i) -(*m_c->function)(x)- histogram.binError(i);
     yMin = std::min(yMin,yminus);
     yMax = std::max(yMax,yplus);
   }   
@@ -109,15 +109,15 @@ PlotResidual1D::PlotResidual1D(const Hist1D & histogram, Genfun::GENFUNCTION fun
 
   QPointF lowerRight(histogram.min(),yMin);
   QPointF upperLeft (histogram.max(),yMax);
-  c->nRectangle.setLeft  (histogram.min());
-  c->nRectangle.setRight(histogram.max());
-  c->nRectangle.setTop(yMin);
-  c->nRectangle.setBottom(yMax);
+  m_c->nRectangle.setLeft  (histogram.min());
+  m_c->nRectangle.setRight(histogram.max());
+  m_c->nRectangle.setTop(yMin);
+  m_c->nRectangle.setBottom(yMax);
 }
 
 // Copy constructor:
 PlotResidual1D::PlotResidual1D(const PlotResidual1D & source):
-  Plotable(),c(new Clockwork(*(source.c)))
+  Plotable(),m_c(new Clockwork(*(source.m_c)))
 {
  
 }
@@ -127,7 +127,7 @@ PlotResidual1D & PlotResidual1D::operator=(const PlotResidual1D & source)
 {
   if (&source!=this) {
     Plotable::operator=(source);
-    c.reset(new Clockwork(*(source.c)));
+    m_c.reset(new Clockwork(*(source.m_c)));
   }
   return *this;
 } 
@@ -135,12 +135,12 @@ PlotResidual1D & PlotResidual1D::operator=(const PlotResidual1D & source)
 
 // Destructor
 PlotResidual1D::~PlotResidual1D(){
-  //delete c;
+  //delete m_c;
 }
 
 
 const QRectF  PlotResidual1D::rectHint() const {
-  return c->nRectangle;
+  return m_c->nRectangle;
 }
 
 
@@ -155,11 +155,11 @@ void PlotResidual1D::describeYourselfTo(AbsPlotter *plotter) const {
 
   QMatrix m=plotter->matrix(),mInverse=m.inverted();
 
-  for (unsigned int i=0;i<c->histogram->nBins();i++) {
-    double x = plotter->isLogX() ? (*toLogX) (c->histogram->binCenter(i)) : c->histogram->binCenter(i);
-    double y = plotter->isLogY() ? (*toLogY) (c->histogram->bin(i)-(*c->function)(x)) : c->histogram->bin(i)-(*c->function)(x);
-    double  ydyp = plotter->isLogY() ? (*toLogY)(c->histogram->bin(i)-(*c->function)(x)+c->histogram->binError(i)) : c->histogram->bin(i)-(*c->function)(x)+c->histogram->binError(i);
-    double  ydym = plotter->isLogY() ? (*toLogY)(c->histogram->bin(i)-(*c->function)(x)-c->histogram->binError(i)) : c->histogram->bin(i)-(*c->function)(x)-c->histogram->binError(i);
+  for (unsigned int i=0;i<m_c->histogram->nBins();i++) {
+    double x = plotter->isLogX() ? (*toLogX) (m_c->histogram->binCenter(i)) : m_c->histogram->binCenter(i);
+    double y = plotter->isLogY() ? (*toLogY) (m_c->histogram->bin(i)-(*m_c->function)(x)) : m_c->histogram->bin(i)-(*m_c->function)(x);
+    double  ydyp = plotter->isLogY() ? (*toLogY)(m_c->histogram->bin(i)-(*m_c->function)(x)+m_c->histogram->binError(i)) : m_c->histogram->bin(i)-(*m_c->function)(x)+m_c->histogram->binError(i);
+    double  ydym = plotter->isLogY() ? (*toLogY)(m_c->histogram->bin(i)-(*m_c->function)(x)-m_c->histogram->binError(i)) : m_c->histogram->bin(i)-(*m_c->function)(x)-m_c->histogram->binError(i);
     
     QPointF loc(x, y );
     QSizeF  siz(symbolSize,symbolSize);
@@ -315,30 +315,30 @@ void PlotResidual1D::describeYourselfTo(AbsPlotter *plotter) const {
 }
 
 std::string PlotResidual1D::title() const {
-  return c->histogram->name();
+  return m_c->histogram->name();
 }
 
 // Get the histogram:
 const Hist1D *PlotResidual1D::histogram() const {
-  return c->histogram;
+  return m_c->histogram;
 }
 
 // Get the function:
 const Genfun::AbsFunction *PlotResidual1D::function() const {
-  return c->function->clone(); //cloned because the raw pointer is owned by this class
+  return m_c->function->clone(); //cloned because the raw pointer is owned by this class
 }
 
 const PlotResidual1D::Properties  PlotResidual1D::properties() const { 
-  return c->myProperties ? *c->myProperties : c->defaultProperties;
+  return m_c->myProperties ? *m_c->myProperties : m_c->defaultProperties;
 }
 
 void PlotResidual1D::setProperties(const Properties &  properties) { 
-  delete c->myProperties;
-  c->myProperties = new Properties(properties);
+  delete m_c->myProperties;
+  m_c->myProperties = new Properties(properties);
 }
 
 void PlotResidual1D::resetProperties() {
-  delete c->myProperties;
-  c->myProperties=nullptr;
+  delete m_c->myProperties;
+  m_c->myProperties=nullptr;
 }
 

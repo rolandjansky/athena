@@ -10,7 +10,7 @@
 #include "InDetAmbiTrackSelectionTool/InDetAmbiTrackSelectionTool.h"
 #include "InDetIdentifier/SiliconID.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrkTrack/Track.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -101,6 +101,9 @@ StatusCode InDet::InDetAmbiTrackSelectionTool::initialize()
     } else {
       msg(MSG::INFO) << "Retrieved tool " << m_selectortool << endmsg;
     }
+  }
+  else {
+    m_selectortool.disable(); 
   }
 
   sc = detStore()->retrieve(m_detID, "SiliconID" );

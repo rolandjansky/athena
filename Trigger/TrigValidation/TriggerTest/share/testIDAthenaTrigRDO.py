@@ -38,6 +38,10 @@ rec.doTruth.set_Value_and_Lock(False)
 include("RecExCond/RecExCommon_flags.py")
 #-----------------------------------------------------------
 
+rec.AutoConfiguration = ['everything']
+import RecExConfig.AutoConfiguration as auto
+auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
+
 TriggerFlags.readHLTconfigFromXML=False
 TriggerFlags.readLVL1configFromXML=False
 

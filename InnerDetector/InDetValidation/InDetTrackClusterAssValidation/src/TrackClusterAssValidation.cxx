@@ -142,7 +142,7 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
 StatusCode InDet::TrackClusterAssValidation::execute_r(const EventContext& ctx) const
 {
 
-  if(!m_usePIX && !m_useSCT) return StatusCode::SUCCESS;;
+  if(!m_usePIX && !m_useSCT) return StatusCode::SUCCESS;
   EventData_t event_data(m_tracklocation.size() );
 
   std::vector<SG::ReadHandle<PRD_MultiTruthCollection> > read_handle;

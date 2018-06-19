@@ -39,15 +39,10 @@ CaloTowerBuilderTool::CaloTowerBuilderTool(const std::string& name,
   m_includedCalos[3] = "TILE";
   // common properties
   declareProperty("IncludedCalos",m_includedCalos);
-  // initialize intermediate store
-  m_cellStore = new CaloTowerStore();
-  m_firstEvent = true;
-
 }
 
 CaloTowerBuilderTool::~CaloTowerBuilderTool()
 { 
-  delete m_cellStore; 
 }
 
 /////////////////////////////
@@ -56,19 +51,7 @@ CaloTowerBuilderTool::~CaloTowerBuilderTool()
 
 // protected!
 StatusCode CaloTowerBuilderTool::initializeTool() {
-  // convert to enumerators
-
-  for (unsigned int iCalos = 0; iCalos < m_includedCalos.size(); iCalos++) {
-    if (m_includedCalos[iCalos] == "LAREM") {
-      m_caloIndices.push_back(CaloCell_ID::LAREM);
-    } else if (m_includedCalos[iCalos] == "LARHEC") {
-      m_caloIndices.push_back(CaloCell_ID::LARHEC);
-    } else if (m_includedCalos[iCalos] == "LARFCAL") {
-      m_caloIndices.push_back(CaloCell_ID::LARFCAL);
-    } else if (m_includedCalos[iCalos] == "TILE") {
-      m_caloIndices.push_back(CaloCell_ID::TILE);
-    }
-  }
+  m_caloIndices = parseCalos (m_includedCalos);
   return this->checkSetup(msg());
 }
 
@@ -82,7 +65,7 @@ void
 CaloTowerBuilderTool::addTower (const CaloTowerStore::tower_iterator tower_it,
                                 const CaloCellContainer* cells,
                                 IProxyDict* sg,
-                                CaloTower* tower)
+                                CaloTower* tower) const
 {
   CaloTowerStore::cell_iterator firstC = tower_it.firstCell();
   CaloTowerStore::cell_iterator lastC = tower_it.lastCell();
@@ -115,11 +98,11 @@ inline
 void
 CaloTowerBuilderTool::iterateFull (CaloTowerContainer* towers,
                                    const CaloCellContainer* cells,
-                                   IProxyDict* sg)
+                                   IProxyDict* sg) const
 {
   size_t sz = towers->size();
-  assert(m_cellStore->size() ==  sz);
-  CaloTowerStore::tower_iterator tower_it = m_cellStore->towers();
+  assert(m_cellStore.size() ==  sz);
+  CaloTowerStore::tower_iterator tower_it = m_cellStore.towers();
 
   for (unsigned int t = 0; t < sz; ++t, ++tower_it) {
     CaloTower* aTower = towers->getTower(t);
@@ -133,11 +116,11 @@ void
 CaloTowerBuilderTool::iterateSubSeg (CaloTowerContainer* towers,
                                      const CaloCellContainer* cells,
                                      IProxyDict* sg,
-                                     const CaloTowerSeg::SubSeg* subseg)
+                                     const CaloTowerSeg::SubSeg* subseg) const
 {
   size_t sz = towers->size();
   assert(subseg->size() ==  sz);
-  CaloTowerStore::tower_subseg_iterator tower_it = m_cellStore->towers(*subseg);
+  CaloTowerStore::tower_subseg_iterator tower_it = m_cellStore.towers(*subseg);
 
 #if 0
   for (unsigned int t = 0; t < sz; ++t, ++tower_it) {
@@ -183,32 +166,17 @@ CaloTowerBuilderTool::iterateSubSeg (CaloTowerContainer* towers,
 StatusCode
 CaloTowerBuilderTool::execute(CaloTowerContainer* theTowers,
                               const CaloCellContainer* theCells /*= 0*/,
-                              const CaloTowerSeg::SubSeg* subseg /*= 0*/)
+                              const CaloTowerSeg::SubSeg* subseg /*= 0*/) const
 {
-  // only once
-  if (!m_cacheValid) {
-
-    ATH_MSG_DEBUG(
-        " m_cacheValid is false on first event... Building cell look up ");
-
-    bool ok = false;
-    if (m_theTowerSeg.neta() == 0 || m_theTowerSeg.nphi() == 0) {
-      ok = m_cellStore->buildLookUp(theTowers->towerseg(), m_caloIndices);
-    } else {
-      ok = m_cellStore->buildLookUp(m_theTowerSeg, m_caloIndices);
-    }
-    if (!ok) {
-      ATH_MSG_ERROR("cannot construct cell fragment lookup, fatal!");
-      return StatusCode::FAILURE;
-    }
-    m_cacheValid = true;
+  if (m_cellStore.size() == 0) {
+    ATH_MSG_ERROR("Cell store not initialized.");
+    return StatusCode::FAILURE;
   }
 
   // CaloCellContainer
   if (!theCells) {
-    if (evtStore()->retrieve(theCells, m_cellContainerName).isFailure()) {
-      ATH_MSG_WARNING("no CaloCellContainer with key <"
-          << m_cellContainerName<< "> found, skip tool!");
+    theCells = getCells();
+    if (!theCells) {
       return StatusCode::SUCCESS;
     }
   }
@@ -240,6 +208,25 @@ CaloTowerBuilderTool::execute(CaloTowerContainer* theTowers,
   return StatusCode::SUCCESS;
 }
 
+
+/**
+ * @brief Run tower building and add results to the tower container.
+ * @param theContainer The tower container to fill.
+ *
+ * If the segmentation hasn't been set, take it from the tower container.
+ * This is for use by converters.
+ */
+StatusCode CaloTowerBuilderTool::execute (CaloTowerContainer* theContainer)
+{
+  if (m_cellStore.size() == 0) {
+    setTowerSeg (theContainer->towerseg());
+    ATH_CHECK( rebuildLookup() );
+  }
+
+  return execute (theContainer, nullptr, nullptr);
+}
+
+
 //////////////////////
 // Internal Helpers //
 //////////////////////
@@ -265,26 +252,80 @@ StatusCode CaloTowerBuilderTool::checkSetup(MsgStream& /*log*/) {
   return StatusCode::SUCCESS;
 }
 
-void CaloTowerBuilderTool::setCalos(
-    const std::vector<CaloCell_ID::SUBCALO>& v) {
+void CaloTowerBuilderTool::setCalos(const std::vector<CaloCell_ID::SUBCALO>& v)
+{
   if (m_caloIndices != v) {
-    ATH_MSG_WARNING(" caloIndices to be changed, setting cacheValid to false");
-    m_cacheValid = false;
+    if (m_cellStore.size() > 0) {
+      if (rebuildLookup().isFailure()) {
+        ATH_MSG_ERROR("rebuildLookup failed.");
+      }
+    }
     m_caloIndices = v;
   }
 }
 
 void CaloTowerBuilderTool::handle(const Incident&) {
   ATH_MSG_DEBUG("In Incident-handle");
-  if (m_cacheValid) {
-    ATH_MSG_DEBUG("Cached data already computed.");
-    return;
-  }
-  if (!m_cellStore->buildLookUp(m_theTowerSeg, m_caloIndices)) {
-    ATH_MSG_ERROR("cannot construct cell fragment lookup, fatal!");
-    m_cacheValid = false;
-  } else {
-    m_cacheValid = true;
-  }
-  ATH_MSG_DEBUG("after building cell store lookup " << m_cacheValid);
 }
+
+
+/**
+ * @brief Convert calorimeter strings to enums.
+ * @param includedCalos Property with calorimeter strings.
+ */
+std::vector<CaloCell_ID::SUBCALO>
+CaloTowerBuilderTool::parseCalos 
+  (const std::vector<std::string>& includedCalos) const
+{
+  // convert to enumerators
+  std::vector<CaloCell_ID::SUBCALO> indices;
+
+  for (const std::string& s : includedCalos) {
+    if (s == "LAREM") {
+      indices.push_back(CaloCell_ID::LAREM);
+    } else if (s == "LARHEC") {
+      indices.push_back(CaloCell_ID::LARHEC);
+    } else if (s == "LARFCAL") {
+      indices.push_back(CaloCell_ID::LARFCAL);
+    } else if (s == "TILE") {
+      indices.push_back(CaloCell_ID::TILE);
+    }
+  }
+
+  return indices;
+}
+
+
+/**
+ * @brief Rebuild the cell lookup table.
+ */
+StatusCode CaloTowerBuilderTool::rebuildLookup()
+{
+  if (towerSeg().neta() != 0 && towerSeg().nphi() != 0) {
+    if (m_cellStore.buildLookUp(towerSeg(), m_caloIndices)) {
+      return StatusCode::SUCCESS;
+    }
+  }
+  return StatusCode::FAILURE;
+}
+
+
+/**
+ * @brief Mark that cached data are invalid.
+ *
+ * Called when calibrations are updated.
+ */
+StatusCode CaloTowerBuilderTool::invalidateCache()
+{
+  // FIXME: We don't currently handle changing alignments during a run.
+  //        This could be done if caloDD is updated to the new alignment
+  //        scheme.  Otherwise, it's incompatible with MT.
+  if (m_cellStore.size() > 0) {
+    ATH_MSG_ERROR("Cell store already filled.  FIXME: changing alignments is not handled.");
+    return StatusCode::FAILURE;
+  }
+
+  ATH_CHECK( rebuildLookup() );
+  return StatusCode::SUCCESS;
+}
+

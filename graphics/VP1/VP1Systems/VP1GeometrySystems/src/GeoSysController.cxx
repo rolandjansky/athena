@@ -12,6 +12,8 @@
 //                                                            //
 ////////////////////////////////////////////////////////////////
 
+#define VP1IMPVARNAME m_d
+
 #include "VP1GeometrySystems/GeoSysController.h"
 #include "VP1GeometrySystems/ZappedVolumeListModel.h"
 #include "VP1Base/VP1Serialise.h"
@@ -65,222 +67,222 @@ public:
 
 //____________________________________________________________________
 GeoSysController::GeoSysController(IVP1System * sys)
-  : VP1Controller(sys,"GeoSysController"), d(new Imp)
+  : VP1Controller(sys,"GeoSysController"), m_d(new Imp)
 {
-  d->theclass = this;
-  d->ui.setupUi(this);
+  m_d->theclass = this;
+  m_d->ui.setupUi(this);
 
-  initDialog(d->ui_disp, d->ui.pushButton_settings_display);
-  initDialog(d->ui_iconisedvols, d->ui.pushButton_settings_iconisedvols);
-  initDialog(d->ui_int, d->ui.pushButton_settings_interactions);
-  initDialog(d->ui_misc, d->ui.pushButton_settings_misc);
-  initDialog(d->ui_muon, d->ui.pushButton_settings_muonchambers);
-  initDialog(d->ui_treebrowser, d->ui.pushButton_settings_treebrowser);
+  initDialog(m_d->ui_disp, m_d->ui.pushButton_settings_display);
+  initDialog(m_d->ui_iconisedvols, m_d->ui.pushButton_settings_iconisedvols);
+  initDialog(m_d->ui_int, m_d->ui.pushButton_settings_interactions);
+  initDialog(m_d->ui_misc, m_d->ui.pushButton_settings_misc);
+  initDialog(m_d->ui_muon, m_d->ui.pushButton_settings_muonchambers);
+  initDialog(m_d->ui_treebrowser, m_d->ui.pushButton_settings_treebrowser);
 
-  //  d->ui_disp.widget_drawOptions->setLineWidthsDisabled();
-  d->ui_disp.widget_drawOptions->setPointSizesDisabled();
-//   d->ui_disp.widget_drawOptions->setBaseLightingDisabled();
-  d->ui_disp.widget_drawOptions->setComplexity(0.6);
+  //  m_d->ui_disp.widget_drawOptions->setLineWidthsDisabled();
+  m_d->ui_disp.widget_drawOptions->setPointSizesDisabled();
+//   m_d->ui_disp.widget_drawOptions->setBaseLightingDisabled();
+  m_d->ui_disp.widget_drawOptions->setComplexity(0.6);
 
-  d->pickStyle = new SoPickStyle;
-  d->pickStyle->ref();
+  m_d->pickStyle = new SoPickStyle;
+  m_d->pickStyle->ref();
 
   //Possibly hide parts of gui, depending on job configuration:
   if (!VP1JobConfigInfo::hasGeoModelExperiment()) {
-    d->ui.groupBox_innerdetector->setVisible(false);
-    d->ui.groupBox_calorimeters->setVisible(false);
-    d->ui.groupBox_muonsystems->setVisible(false);
-    d->ui.pushButton_settings_muonchambers->setEnabled(false);
-    d->ui_misc.groupBox_pixelactivemodules->setVisible(false);
-    d->ui_misc.groupBox_sctactivemodules->setVisible(false);
-    d->ui.groupBox_misc->setVisible(false);
-    d->ui_muon.groupBox_muonchamberconfig->setVisible(false);
-    d->ui_int.checkBox_AutomaticMuonChamberEndViews->setVisible(false);
+    m_d->ui.groupBox_innerdetector->setVisible(false);
+    m_d->ui.groupBox_calorimeters->setVisible(false);
+    m_d->ui.groupBox_muonsystems->setVisible(false);
+    m_d->ui.pushButton_settings_muonchambers->setEnabled(false);
+    m_d->ui_misc.groupBox_pixelactivemodules->setVisible(false);
+    m_d->ui_misc.groupBox_sctactivemodules->setVisible(false);
+    m_d->ui.groupBox_misc->setVisible(false);
+    m_d->ui_muon.groupBox_muonchamberconfig->setVisible(false);
+    m_d->ui_int.checkBox_AutomaticMuonChamberEndViews->setVisible(false);
     message("GeoModel not properly initialised.");
   } else {
-    d->ui.groupBox_innerdetector->setVisible(VP1JobConfigInfo::hasPixelGeometry()
+    m_d->ui.groupBox_innerdetector->setVisible(VP1JobConfigInfo::hasPixelGeometry()
 					      || VP1JobConfigInfo::hasSCTGeometry()
 					      || VP1JobConfigInfo::hasTRTGeometry()
 					      || VP1JobConfigInfo::hasInDetServiceMaterialGeometry());
-    d->ui_misc.groupBox_pixelactivemodules->setVisible(VP1JobConfigInfo::hasPixelGeometry());
-    d->ui_misc.groupBox_sctactivemodules->setVisible(VP1JobConfigInfo::hasSCTGeometry());
-    d->ui.groupBox_calorimeters->setVisible(VP1JobConfigInfo::hasLArGeometry()
+    m_d->ui_misc.groupBox_pixelactivemodules->setVisible(VP1JobConfigInfo::hasPixelGeometry());
+    m_d->ui_misc.groupBox_sctactivemodules->setVisible(VP1JobConfigInfo::hasSCTGeometry());
+    m_d->ui.groupBox_calorimeters->setVisible(VP1JobConfigInfo::hasLArGeometry()
 					     ||VP1JobConfigInfo::hasTileGeometry());
-    d->ui.groupBox_muonsystems->setVisible(VP1JobConfigInfo::hasMuonGeometry());
-    d->ui.pushButton_settings_muonchambers->setEnabled(VP1JobConfigInfo::hasMuonGeometry());
-    d->ui_int.checkBox_print_muonstationinfo->setVisible(VP1JobConfigInfo::hasMuonGeometry());
-    d->ui_muon.groupBox_muonchamberconfig->setVisible(VP1JobConfigInfo::hasMuonGeometry());
-    d->ui_int.checkBox_AutomaticMuonChamberEndViews->setVisible(VP1JobConfigInfo::hasMuonGeometry());
+    m_d->ui.groupBox_muonsystems->setVisible(VP1JobConfigInfo::hasMuonGeometry());
+    m_d->ui.pushButton_settings_muonchambers->setEnabled(VP1JobConfigInfo::hasMuonGeometry());
+    m_d->ui_int.checkBox_print_muonstationinfo->setVisible(VP1JobConfigInfo::hasMuonGeometry());
+    m_d->ui_muon.groupBox_muonchamberconfig->setVisible(VP1JobConfigInfo::hasMuonGeometry());
+    m_d->ui_int.checkBox_AutomaticMuonChamberEndViews->setVisible(VP1JobConfigInfo::hasMuonGeometry());
   }
 
 
-  d->zappedVolumeListModel = new ZappedVolumeListModel(d->ui_iconisedvols.listView_iconisedvolumes);
-  d->ui_iconisedvols.listView_iconisedvolumes->setUniformItemSizes(true);
-  d->ui_iconisedvols.listView_iconisedvolumes->setSelectionMode(QAbstractItemView::ExtendedSelection);
-  d->ui_iconisedvols.listView_iconisedvolumes->setModel(d->zappedVolumeListModel);
+  m_d->zappedVolumeListModel = new ZappedVolumeListModel(m_d->ui_iconisedvols.listView_iconisedvolumes);
+  m_d->ui_iconisedvols.listView_iconisedvolumes->setUniformItemSizes(true);
+  m_d->ui_iconisedvols.listView_iconisedvolumes->setSelectionMode(QAbstractItemView::ExtendedSelection);
+  m_d->ui_iconisedvols.listView_iconisedvolumes->setModel(m_d->zappedVolumeListModel);
 
-  connect(d->ui_iconisedvols.listView_iconisedvolumes,SIGNAL(activated(const QModelIndex&)),
-	  d->zappedVolumeListModel,SLOT(activated(const QModelIndex&)));
+  connect(m_d->ui_iconisedvols.listView_iconisedvolumes,SIGNAL(activated(const QModelIndex&)),
+	  m_d->zappedVolumeListModel,SLOT(activated(const QModelIndex&)));
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //  Setup connections which monitor changes in the controller so that we may emit signals as appropriate:  //
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   addUpdateSlot(SLOT(updatePickStyle()));
-  connectToLastUpdateSlot(d->ui_int.checkBox_geomselectable);
+  connectToLastUpdateSlot(m_d->ui_int.checkBox_geomselectable);
 
   addUpdateSlot(SLOT(possibleChange_showVolumeOutLines()));
-  connectToLastUpdateSlot(d->ui_disp.checkBox_showVolumeOutLines);
+  connectToLastUpdateSlot(m_d->ui_disp.checkBox_showVolumeOutLines);
 
   addUpdateSlot(SLOT(possibleChange_transparency()));
-  connectToLastUpdateSlot(d->ui_disp.spinBox_transp);
+  connectToLastUpdateSlot(m_d->ui_disp.spinBox_transp);
 
   addUpdateSlot(SLOT(possibleChange_muonChamberAdaptionStyle()));
-  connectToLastUpdateSlot(d->ui_muon.checkBox_muonadapt_openmdtchambers);
-  connectToLastUpdateSlot(d->ui_muon.checkBox_muonadapt_hidetubes);
-  connectToLastUpdateSlot(d->ui_muon.checkBox_muonadapt_hiderpcvolumes);
-  connectToLastUpdateSlot(d->ui_muon.checkBox_muonadapt_opencscchambers);
-  connectToLastUpdateSlot(d->ui_muon.checkBox_muonadapt_opentgcchambers);
+  connectToLastUpdateSlot(m_d->ui_muon.checkBox_muonadapt_openmdtchambers);
+  connectToLastUpdateSlot(m_d->ui_muon.checkBox_muonadapt_hidetubes);
+  connectToLastUpdateSlot(m_d->ui_muon.checkBox_muonadapt_hiderpcvolumes);
+  connectToLastUpdateSlot(m_d->ui_muon.checkBox_muonadapt_opencscchambers);
+  connectToLastUpdateSlot(m_d->ui_muon.checkBox_muonadapt_opentgcchambers);
 
   initLastVars();
 
   //Connections for state-less signals:
 
-  connect(d->ui_disp.pushButton_saveChangedMaterials,SIGNAL(clicked()),this,SLOT(saveMaterialsRequested()));
-  connect(d->ui_disp.pushButton_loadMaterials,SIGNAL(clicked()),this,SLOT(loadMaterialsRequested()));
+  connect(m_d->ui_disp.pushButton_saveChangedMaterials,SIGNAL(clicked()),this,SLOT(saveMaterialsRequested()));
+  connect(m_d->ui_disp.pushButton_loadMaterials,SIGNAL(clicked()),this,SLOT(loadMaterialsRequested()));
 
-  connect(d->ui_misc.pushButton_nonStandardShapes_Iconify,SIGNAL(clicked()),
+  connect(m_d->ui_misc.pushButton_nonStandardShapes_Iconify,SIGNAL(clicked()),
 	  this,SLOT(emit_actionOnAllNonStandardVolumes()));
-  connect(d->ui_misc.pushButton_nonStandardShapes_Expand,SIGNAL(clicked()),
+  connect(m_d->ui_misc.pushButton_nonStandardShapes_Expand,SIGNAL(clicked()),
 	  this,SLOT(emit_actionOnAllNonStandardVolumes()));
 
-  connect(d->ui_misc.lineEdit_expand_vols_matname,SIGNAL(returnPressed()),this,SLOT(emit_autoExpandByVolumeOrMaterialName()));
-  connect(d->ui_misc.pushButton_expand_vols_matname,SIGNAL(clicked()),this,SLOT(emit_autoExpandByVolumeOrMaterialName()));
-  connect(d->ui_misc.lineEdit_expand_vols_volname,SIGNAL(returnPressed()),this,SLOT(emit_autoExpandByVolumeOrMaterialName()));
-  connect(d->ui_misc.pushButton_expand_vols_volname,SIGNAL(clicked()),this,SLOT(emit_autoExpandByVolumeOrMaterialName()));
+  connect(m_d->ui_misc.lineEdit_expand_vols_matname,SIGNAL(returnPressed()),this,SLOT(emit_autoExpandByVolumeOrMaterialName()));
+  connect(m_d->ui_misc.pushButton_expand_vols_matname,SIGNAL(clicked()),this,SLOT(emit_autoExpandByVolumeOrMaterialName()));
+  connect(m_d->ui_misc.lineEdit_expand_vols_volname,SIGNAL(returnPressed()),this,SLOT(emit_autoExpandByVolumeOrMaterialName()));
+  connect(m_d->ui_misc.pushButton_expand_vols_volname,SIGNAL(clicked()),this,SLOT(emit_autoExpandByVolumeOrMaterialName()));
 
-  connect(d->ui_muon.pushButton_muonadapt_adapttoevtdata,SIGNAL(clicked()),this,SLOT(emit_adaptMuonChambersToEventData()));
+  connect(m_d->ui_muon.pushButton_muonadapt_adapttoevtdata,SIGNAL(clicked()),this,SLOT(emit_adaptMuonChambersToEventData()));
 
-  connect(d->ui_misc.toolButton_pixelmod_adapt,SIGNAL(clicked(bool)),this,SLOT(emit_autoAdaptPixelsOrSCT()));
-  connect(d->ui_misc.toolButton_sctmod_adapt,SIGNAL(clicked(bool)),this,SLOT(emit_autoAdaptPixelsOrSCT()));
+  connect(m_d->ui_misc.toolButton_pixelmod_adapt,SIGNAL(clicked(bool)),this,SLOT(emit_autoAdaptPixelsOrSCT()));
+  connect(m_d->ui_misc.toolButton_sctmod_adapt,SIGNAL(clicked(bool)),this,SLOT(emit_autoAdaptPixelsOrSCT()));
 
-  connect(d->ui_misc.toolButton_pixelmod_reset,SIGNAL(clicked(bool)),this,SLOT(emit_resetSubSystems()));
-  connect(d->ui_misc.toolButton_sctmod_reset,SIGNAL(clicked(bool)),this,SLOT(emit_resetSubSystems()));
-  connect(d->ui_muon.pushButton_muonadapt_resetToAllChambers,SIGNAL(clicked()),this,SLOT(emit_resetSubSystems()));
+  connect(m_d->ui_misc.toolButton_pixelmod_reset,SIGNAL(clicked(bool)),this,SLOT(emit_resetSubSystems()));
+  connect(m_d->ui_misc.toolButton_sctmod_reset,SIGNAL(clicked(bool)),this,SLOT(emit_resetSubSystems()));
+  connect(m_d->ui_muon.pushButton_muonadapt_resetToAllChambers,SIGNAL(clicked()),this,SLOT(emit_resetSubSystems()));
 
   setLastSelectedVolume(0);
 
   // INNER DETECTOR
-  d->subSysCheckBoxMap[VP1GeoFlags::Pixel] = d->ui.checkBox_Pixel;
-  d->subSysCheckBoxMap[VP1GeoFlags::SCT] = d->ui.checkBox_SCT;
-  d->subSysCheckBoxMap[VP1GeoFlags::TRT] = d->ui.checkBox_TRT;
-  d->subSysCheckBoxMap[VP1GeoFlags::InDetServMat] = d->ui.checkBox_InDetServMat;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::Pixel] = m_d->ui.checkBox_Pixel;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::SCT] = m_d->ui.checkBox_SCT;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::TRT] = m_d->ui.checkBox_TRT;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::InDetServMat] = m_d->ui.checkBox_InDetServMat;
 
   // CALO
-  d->subSysCheckBoxMap[VP1GeoFlags::LAr] = d->ui.checkBox_LAr;
-  d->subSysCheckBoxMap[VP1GeoFlags::Tile] = d->ui.checkBox_Tile;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::LAr] = m_d->ui.checkBox_LAr;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::Tile] = m_d->ui.checkBox_Tile;
 
   // MUON TOROID
-  d->subSysCheckBoxMap[VP1GeoFlags::BarrelToroid] = d->ui.checkBox_MuonBarrelToroid;
-  d->subSysCheckBoxMap[VP1GeoFlags::ToroidECA] = d->ui.checkBox_MuonECAToroid;
-  // d->subSysCheckBoxMap[VP1GeoFlags::ToroidECC] = d->ui.checkBox_MuonECCToroid;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::BarrelToroid] = m_d->ui.checkBox_MuonBarrelToroid;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::ToroidECA] = m_d->ui.checkBox_MuonECAToroid;
+  // m_d->subSysCheckBoxMap[VP1GeoFlags::ToroidECC] = m_d->ui.checkBox_MuonECCToroid;
   // MUON MISC
-  d->subSysCheckBoxMap[VP1GeoFlags::MuonFeet] = d->ui.checkBox_MuonFeet;
-  d->subSysCheckBoxMap[VP1GeoFlags::MuonShielding] = d->ui.checkBox_MuonShielding;
-  d->subSysCheckBoxMap[VP1GeoFlags::MuonToroidsEtc] = d->ui.checkBox_MuonEtc; // this is the "Services" checkbox in the GUI
+  m_d->subSysCheckBoxMap[VP1GeoFlags::MuonFeet] = m_d->ui.checkBox_MuonFeet;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::MuonShielding] = m_d->ui.checkBox_MuonShielding;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::MuonToroidsEtc] = m_d->ui.checkBox_MuonEtc; // this is the "Services" checkbox in the GUI
   // MUON CHAMBERS
-  d->subSysCheckBoxMap[VP1GeoFlags::MuonEndcapStationCSC] = d->ui.checkBox_MuonEndcapStationCSC;
-  d->subSysCheckBoxMap[VP1GeoFlags::MuonEndcapStationTGC] = d->ui.checkBox_MuonEndcapStationTGC;
-  d->subSysCheckBoxMap[VP1GeoFlags::MuonEndcapStationMDT] = d->ui.checkBox_MuonEndcapStationMDT;
-  d->subSysCheckBoxMap[VP1GeoFlags::MuonNSW] = d->ui.checkBox_NSW;
-  d->subSysCheckBoxMap[VP1GeoFlags::MuonBarrelStationInner] = d->ui.checkBox_MuonBarrelStationInner;
-  d->subSysCheckBoxMap[VP1GeoFlags::MuonBarrelStationMiddle] = d->ui.checkBox_MuonBarrelStationMiddle;
-  d->subSysCheckBoxMap[VP1GeoFlags::MuonBarrelStationOuter] = d->ui.checkBox_MuonBarrelStationOuter;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::MuonEndcapStationCSC] = m_d->ui.checkBox_MuonEndcapStationCSC;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::MuonEndcapStationTGC] = m_d->ui.checkBox_MuonEndcapStationTGC;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::MuonEndcapStationMDT] = m_d->ui.checkBox_MuonEndcapStationMDT;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::MuonNSW] = m_d->ui.checkBox_NSW;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::MuonBarrelStationInner] = m_d->ui.checkBox_MuonBarrelStationInner;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::MuonBarrelStationMiddle] = m_d->ui.checkBox_MuonBarrelStationMiddle;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::MuonBarrelStationOuter] = m_d->ui.checkBox_MuonBarrelStationOuter;
 
   // MISCELLANEOUS
-  d->subSysCheckBoxMap[VP1GeoFlags::CavernInfra] = d->ui.checkBox_CavernInfra;
-  d->subSysCheckBoxMap[VP1GeoFlags::BeamPipe] = d->ui.checkBox_BeamPipe;
-  d->subSysCheckBoxMap[VP1GeoFlags::LUCID] = d->ui.checkBox_LUCID;
-  d->subSysCheckBoxMap[VP1GeoFlags::ZDC] = d->ui.checkBox_ZDC;
-  d->subSysCheckBoxMap[VP1GeoFlags::ALFA] = d->ui.checkBox_ALFA;
-  d->subSysCheckBoxMap[VP1GeoFlags::ForwardRegion] = d->ui.checkBox_ForwardRegion;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::CavernInfra] = m_d->ui.checkBox_CavernInfra;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::BeamPipe] = m_d->ui.checkBox_BeamPipe;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::LUCID] = m_d->ui.checkBox_LUCID;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::ZDC] = m_d->ui.checkBox_ZDC;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::ALFA] = m_d->ui.checkBox_ALFA;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::ForwardRegion] = m_d->ui.checkBox_ForwardRegion;
   // OTHER
-  d->subSysCheckBoxMap[VP1GeoFlags::AllUnrecognisedVolumes] = d->ui.checkBox_other;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::AllUnrecognisedVolumes] = m_d->ui.checkBox_other;
 
   // -> labels
   addUpdateSlot(SLOT(possibleChange_labels()));
-  connectToLastUpdateSlot(d->ui_disp.groupBox_labels);
-  connectToLastUpdateSlot(d->ui_disp.checkBox_labels_names);
-  connectToLastUpdateSlot(d->ui_disp.checkBox_labels_mooret0s);
-  connectToLastUpdateSlot(d->ui_disp.checkBox_labels_mboyt0s);
-  connectToLastUpdateSlot(d->ui_disp.checkBox_labels_hits);
+  connectToLastUpdateSlot(m_d->ui_disp.groupBox_labels);
+  connectToLastUpdateSlot(m_d->ui_disp.checkBox_labels_names);
+  connectToLastUpdateSlot(m_d->ui_disp.checkBox_labels_mooret0s);
+  connectToLastUpdateSlot(m_d->ui_disp.checkBox_labels_mboyt0s);
+  connectToLastUpdateSlot(m_d->ui_disp.checkBox_labels_hits);
   
   addUpdateSlot(SLOT(possibleChange_labelPosOffset()));
-  connectToLastUpdateSlot(d->ui_disp.horizontalSlider_labels_xOffset);
-  connectToLastUpdateSlot(d->ui_disp.horizontalSlider_labels_yOffset);
-  connectToLastUpdateSlot(d->ui_disp.horizontalSlider_labels_zOffset);
+  connectToLastUpdateSlot(m_d->ui_disp.horizontalSlider_labels_xOffset);
+  connectToLastUpdateSlot(m_d->ui_disp.horizontalSlider_labels_yOffset);
+  connectToLastUpdateSlot(m_d->ui_disp.horizontalSlider_labels_zOffset);
   
-  d->last_labels=0;
+  m_d->last_labels=0;
 }
 
 //____________________________________________________________________
 GeoSysController::~GeoSysController()
 {
-  d->pickStyle->unref();
-  delete d;
+  m_d->pickStyle->unref();
+  delete m_d;
 }
 
 //____________________________________________________________________
 void GeoSysController::setGeometrySelectable(bool b)
 {
-  d->ui_int.checkBox_geomselectable->setChecked(b);
+  m_d->ui_int.checkBox_geomselectable->setChecked(b);
   updatePickStyle();
 }
 
 //____________________________________________________________________
 void GeoSysController::setComplexity(double c)
 {
-  d->ui_disp.widget_drawOptions->setComplexity(c);
+  m_d->ui_disp.widget_drawOptions->setComplexity(c);
 }
 
 //____________________________________________________________________
 void GeoSysController::setZoomToVolumeOnClick(bool b)
 {
-  d->ui_int.checkBox_zoomToVolumes->setChecked(b);
+  m_d->ui_int.checkBox_zoomToVolumes->setChecked(b);
 }
 
 //____________________________________________________________________
 void GeoSysController::setOrientViewToMuonChambersOnClick(bool b)
 {
-  d->ui_int.checkBox_AutomaticMuonChamberEndViews->setChecked(b);
+  m_d->ui_int.checkBox_AutomaticMuonChamberEndViews->setChecked(b);
 }
 
 //____________________________________________________________________
 void GeoSysController::setAutoAdaptMuonChambersToEventData(bool b)
 {
-  d->ui_muon.checkBox_muonadapt_autoadapt->setChecked(b);
+  m_d->ui_muon.checkBox_muonadapt_autoadapt->setChecked(b);
 }
 
 //____________________________________________________________________
 void GeoSysController::setLastSelectedVolume(VolumeHandle*vh)
 {
-  d->lastSelectedVolHandle = vh;
-  d->ui_disp.matButton_lastSel->setEnabled(vh!=0);
+  m_d->lastSelectedVolHandle = vh;
+  m_d->ui_disp.matButton_lastSel->setEnabled(vh!=0);
   if (vh) {
-    QList<SoMaterial*> mats = d->ui_disp.matButton_lastSel->handledMaterials();
+    QList<SoMaterial*> mats = m_d->ui_disp.matButton_lastSel->handledMaterials();
     if (mats.isEmpty()||mats.at(0)!=vh->material()) {
-      d->ui_disp.matButton_lastSel->clearHandledMaterials();
-      d->ui_disp.matButton_lastSel->setMaterial(vh->material());
+      m_d->ui_disp.matButton_lastSel->clearHandledMaterials();
+      m_d->ui_disp.matButton_lastSel->setMaterial(vh->material());
     }
   } else {
-    d->ui_disp.matButton_lastSel->clearHandledMaterials();
+    m_d->ui_disp.matButton_lastSel->clearHandledMaterials();
   }
 }
 
 //____________________________________________________________________
 VolumeHandle* GeoSysController::lastSelectedVolume() const
 {
-  return d->lastSelectedVolHandle;
+  return m_d->lastSelectedVolHandle;
 }
 
 //____________________________________________________________________
@@ -291,9 +293,9 @@ void GeoSysController::saveMaterialsRequested()
 
   QString filename
     = QFileDialog::getSaveFileName(this, "Select geometry material file to save",
-				   (d->lastSaveMaterialsFile.isEmpty()?
+				   (m_d->lastSaveMaterialsFile.isEmpty()?
 				    VP1Settings::defaultFileSelectDirectory()
-				    :d->lastSaveMaterialsFile),
+				    :m_d->lastSaveMaterialsFile),
 				   "VP1 geometry material files (*.vp1geomat)",
 				   0,QFileDialog::DontResolveSymlinks);
 
@@ -303,7 +305,7 @@ void GeoSysController::saveMaterialsRequested()
   if (!filename.endsWith(".vp1geomat"))
     filename += ".vp1geomat";
 
-  d->lastSaveMaterialsFile = filename;
+  m_d->lastSaveMaterialsFile = filename;
 
   messageVerbose("Emitting saveMaterialsToFile(\""+filename+"\","+str(onlyChangedMaterials)+")");
   emit saveMaterialsToFile(filename,onlyChangedMaterials);
@@ -314,15 +316,15 @@ void GeoSysController::saveMaterialsRequested()
 void GeoSysController::loadMaterialsRequested()
 {
   QString filename = QFileDialog::getOpenFileName(this, "Select geometry material file to load",
-						  (d->lastLoadMaterialsFile.isEmpty()?
+						  (m_d->lastLoadMaterialsFile.isEmpty()?
 						   VP1Settings::defaultFileSelectDirectory()
-						   :d->lastLoadMaterialsFile),
+						   :m_d->lastLoadMaterialsFile),
 						  "VP1 geometry material files (*.vp1geomat)",
 						  0,QFileDialog::DontResolveSymlinks);
   if(filename.isEmpty())
     return;
 
-  d->lastLoadMaterialsFile = filename;
+  m_d->lastLoadMaterialsFile = filename;
 
   messageVerbose("Emitting loadMaterialsFromFile(\""+filename+"\")");
   emit loadMaterialsFromFile(filename);
@@ -331,147 +333,147 @@ void GeoSysController::loadMaterialsRequested()
 //____________________________________________________________________
 QCheckBox * GeoSysController::subSystemCheckBox(VP1GeoFlags::SubSystemFlag f) const
 {
-  std::map<VP1GeoFlags::SubSystemFlag,QCheckBox*>::const_iterator it = d->subSysCheckBoxMap.find(f);
-  return it==d->subSysCheckBoxMap.end() ? 0 : it->second;
+  std::map<VP1GeoFlags::SubSystemFlag,QCheckBox*>::const_iterator it = m_d->subSysCheckBoxMap.find(f);
+  return it==m_d->subSysCheckBoxMap.end() ? 0 : it->second;
 }
 
 //____________________________________________________________________
 SoGroup * GeoSysController::drawOptions() const
 {
-  return d->ui_disp.widget_drawOptions->drawOptionsGroup();
+  return m_d->ui_disp.widget_drawOptions->drawOptionsGroup();
 }
 
 //____________________________________________________________________
 SoPickStyle * GeoSysController::pickStyle() const
 {
-  return d->pickStyle;
+  return m_d->pickStyle;
 }
 
 //____________________________________________________________________
 VP1GeoTreeView * GeoSysController::volumeTreeBrowser() const
 {
-  return d->ui_treebrowser.treeView_volumebrowser;
+  return m_d->ui_treebrowser.treeView_volumebrowser;
 }
 
 //____________________________________________________________________
 PhiSectionWidget * GeoSysController::phiSectionWidget() const
 {
-  return d->ui_disp.phisectionwidget;
+  return m_d->ui_disp.phisectionwidget;
 }
 
 //____________________________________________________________________
 ZappedVolumeListModel * GeoSysController::zappedVolumeListModel() const
 {
-  return d->zappedVolumeListModel;
+  return m_d->zappedVolumeListModel;
 }
 
 //____________________________________________________________________
 bool GeoSysController::zoomToVolumeOnClick() const
 {
-  return d->ui_int.checkBox_zoomToVolumes->isChecked();
+  return m_d->ui_int.checkBox_zoomToVolumes->isChecked();
 }
 
 //____________________________________________________________________
 bool GeoSysController::orientViewToMuonChambersOnClick() const
 {
-  return d->ui_int.checkBox_AutomaticMuonChamberEndViews->isChecked();
+  return m_d->ui_int.checkBox_AutomaticMuonChamberEndViews->isChecked();
 }
 
 //____________________________________________________________________
 bool GeoSysController::printInfoOnClick_Shape() const
 {
-  return d->ui_int.checkBox_print_shape->isChecked();
+  return m_d->ui_int.checkBox_print_shape->isChecked();
 }
 
 //____________________________________________________________________
 bool GeoSysController::printInfoOnClick_Material() const
 {
-  return d->ui_int.checkBox_print_material->isChecked();
+  return m_d->ui_int.checkBox_print_material->isChecked();
 }
 
 //____________________________________________________________________
 bool GeoSysController::printInfoOnClick_CopyNumber() const
 {
-  return d->ui_int.checkBox_print_copyno->isChecked();
+  return m_d->ui_int.checkBox_print_copyno->isChecked();
 }
 
 //____________________________________________________________________
 bool GeoSysController::printInfoOnClick_Transform() const
 {
-  return d->ui_int.checkBox_print_transform->isChecked();
+  return m_d->ui_int.checkBox_print_transform->isChecked();
 }
 
 //____________________________________________________________________
 bool GeoSysController::printInfoOnClick_Tree() const
 {
-  return d->ui_int.checkBox_print_tree->isChecked();
+  return m_d->ui_int.checkBox_print_tree->isChecked();
 }
 
 //____________________________________________________________________
 bool GeoSysController::printInfoOnClick_Mass() const
 {
-  return d->ui_int.checkBox_print_mass->isChecked();
+  return m_d->ui_int.checkBox_print_mass->isChecked();
 }
 
 //____________________________________________________________________
 bool GeoSysController::printInfoOnClick_MuonStationInfo() const
 {
-  return d->ui_int.checkBox_print_muonstationinfo->isChecked();
+  return m_d->ui_int.checkBox_print_muonstationinfo->isChecked();
 }
 
 //____________________________________________________________________
 bool GeoSysController::autoAdaptMuonChambersToEventData() const
 {
-  return d->ui_muon.checkBox_muonadapt_autoadapt->isChecked();
+  return m_d->ui_muon.checkBox_muonadapt_autoadapt->isChecked();
 }
 
 //_____________________________________________________________________________________
 void GeoSysController::updatePickStyle()
 {
-  d->pickStyle->style = d->ui_int.checkBox_geomselectable->isChecked()
+  m_d->pickStyle->style = m_d->ui_int.checkBox_geomselectable->isChecked()
     ? SoPickStyle::SHAPE : SoPickStyle::UNPICKABLE;
 }
 
 //____________________________________________________________________
 float GeoSysController::transparency() const
 {
-  int v(d->ui_disp.spinBox_transp->value());
+  int v(m_d->ui_disp.spinBox_transp->value());
   return (v>=100?1.0:(v<=0?0.0:v/100.0));
 }
 
 //____________________________________________________________________
 bool GeoSysController::showVolumeOutLines() const
 {
-  return d->ui_disp.checkBox_showVolumeOutLines->isChecked();
+  return m_d->ui_disp.checkBox_showVolumeOutLines->isChecked();
 }
 
 //____________________________________________________________________
 VP1GeoFlags::MuonChamberAdaptionStyleFlags GeoSysController::muonChamberAdaptionStyle() const
 {
   VP1GeoFlags::MuonChamberAdaptionStyleFlags f(0);
-  if (d->ui_muon.checkBox_muonadapt_openmdtchambers->isChecked())
+  if (m_d->ui_muon.checkBox_muonadapt_openmdtchambers->isChecked())
     f |= VP1GeoFlags::OpenMDTChambers;
-  if (d->ui_muon.checkBox_muonadapt_hidetubes->isChecked())
+  if (m_d->ui_muon.checkBox_muonadapt_hidetubes->isChecked())
     f |= VP1GeoFlags::HideMDTTubes;
-  if (d->ui_muon.checkBox_muonadapt_hiderpcvolumes->isChecked())
+  if (m_d->ui_muon.checkBox_muonadapt_hiderpcvolumes->isChecked())
     f |= VP1GeoFlags::HideRPCVolumes;
-  if (d->ui_muon.checkBox_muonadapt_opencscchambers->isChecked())
+  if (m_d->ui_muon.checkBox_muonadapt_opencscchambers->isChecked())
     f |= VP1GeoFlags::OpenCSCChambers;
-  if (d->ui_muon.checkBox_muonadapt_opentgcchambers->isChecked())
+  if (m_d->ui_muon.checkBox_muonadapt_opentgcchambers->isChecked())
     f |= VP1GeoFlags::OpenTGCChambers;
   return f;
 }
 
 //void GeoSysController::setAvailableLabels(IVP1System* sys, QStringList providedLabels){
 //  messageVerbose("setAvailableLabels for "+sys->name() );
-//  if (d->labelProvidingSystems.find(sys->name())!=d->labelProvidingSystems.end())
+//  if (m_d->labelProvidingSystems.find(sys->name())!=m_d->labelProvidingSystems.end())
 //    return;
 //  QList<QCheckBox*> checkboxes;
 //  foreach(QString label, providedLabels) {
 //    QCheckBox *checkbox = new QCheckBox(label, this);
 //    checkboxes.append(checkbox);
 //  }
-//  d->labelProvidingSystems[sys->name()]= checkboxes;
+//  m_d->labelProvidingSystems[sys->name()]= checkboxes;
 ////  std::map<QString, QList<QCheckBox*> > labelProvidingSystems; //!< First is name of system, second is list of types of information provided (system stores actual information)
 //
 //}
@@ -479,19 +481,19 @@ VP1GeoFlags::MuonChamberAdaptionStyleFlags GeoSysController::muonChamberAdaption
 void GeoSysController::setLabelsEnabled(bool t0s, bool hits){
   // make sure that when labels are enabled, only the systems which we have are enabled too
   if (t0s) {
-    connect(d->ui_disp.groupBox_labels,SIGNAL(toggled(bool)),
-                   d->ui_disp.checkBox_labels_mooret0s,SLOT(setEnabled(bool)));
-    connect(d->ui_disp.groupBox_labels,SIGNAL(toggled(bool)),
-            d->ui_disp.checkBox_labels_mboyt0s,SLOT(setEnabled(bool)));
+    connect(m_d->ui_disp.groupBox_labels,SIGNAL(toggled(bool)),
+                   m_d->ui_disp.checkBox_labels_mooret0s,SLOT(setEnabled(bool)));
+    connect(m_d->ui_disp.groupBox_labels,SIGNAL(toggled(bool)),
+            m_d->ui_disp.checkBox_labels_mboyt0s,SLOT(setEnabled(bool)));
   } else {
-    d->ui_disp.checkBox_labels_mooret0s->setEnabled(false);
-    d->ui_disp.checkBox_labels_mboyt0s->setEnabled(false);
+    m_d->ui_disp.checkBox_labels_mooret0s->setEnabled(false);
+    m_d->ui_disp.checkBox_labels_mboyt0s->setEnabled(false);
   }
   if (hits) {
-    connect(d->ui_disp.groupBox_labels,SIGNAL(toggled(bool)),
-                   d->ui_disp.checkBox_labels_hits,SLOT(setEnabled(bool)));
+    connect(m_d->ui_disp.groupBox_labels,SIGNAL(toggled(bool)),
+                   m_d->ui_disp.checkBox_labels_hits,SLOT(setEnabled(bool)));
   } else {
-    d->ui_disp.checkBox_labels_hits->setEnabled(false);
+    m_d->ui_disp.checkBox_labels_hits->setEnabled(false);
   }
 
   messageVerbose("setLabelsEnabled() t0s="+str(t0s)+", hits="+str(hits));
@@ -499,22 +501,22 @@ void GeoSysController::setLabelsEnabled(bool t0s, bool hits){
 
 
 int GeoSysController::labels() const {
-  if (!d->ui_disp.groupBox_labels->isChecked()) return 0;
+  if (!m_d->ui_disp.groupBox_labels->isChecked()) return 0;
   int labels=0;
-  if (d->ui_disp.checkBox_labels_names->isChecked())    labels|=0x1;
-  if (d->ui_disp.checkBox_labels_mooret0s->isChecked()) labels|=0x2;
-  if (d->ui_disp.checkBox_labels_mboyt0s->isChecked())  labels|=0x4;
+  if (m_d->ui_disp.checkBox_labels_names->isChecked())    labels|=0x1;
+  if (m_d->ui_disp.checkBox_labels_mooret0s->isChecked()) labels|=0x2;
+  if (m_d->ui_disp.checkBox_labels_mboyt0s->isChecked())  labels|=0x4;
   // leaving space for another t0 type, if necessary
-  if (d->ui_disp.checkBox_labels_hits->isChecked())     labels|=0x10;
+  if (m_d->ui_disp.checkBox_labels_hits->isChecked())     labels|=0x10;
   return labels;
 }
 
 QList<int> GeoSysController::labelPosOffset() 
 {
   QList<int> values;
-  values << d->ui_disp.horizontalSlider_labels_xOffset->value();
-  values << d->ui_disp.horizontalSlider_labels_yOffset->value();
-  values << d->ui_disp.horizontalSlider_labels_zOffset->value();
+  values << m_d->ui_disp.horizontalSlider_labels_xOffset->value();
+  values << m_d->ui_disp.horizontalSlider_labels_yOffset->value();
+  values << m_d->ui_disp.horizontalSlider_labels_zOffset->value();
   return values;
 }
 
@@ -528,15 +530,15 @@ void GeoSysController::emit_adaptMuonChambersToEventData()
 //____________________________________________________________________
 void GeoSysController::emit_autoAdaptPixelsOrSCT()
 {
-  bool pixel(sender()==d->ui_misc.toolButton_pixelmod_adapt);
-  bool brl = pixel ? d->ui_misc.checkBox_pixelmod_barrel->isChecked()
-    : d->ui_misc.checkBox_sctmod_barrel->isChecked();
-  bool ecA = pixel ? d->ui_misc.checkBox_pixelmod_endcapA->isChecked()
-    : d->ui_misc.checkBox_sctmod_endcapA->isChecked();
-  bool ecC = pixel ? d->ui_misc.checkBox_pixelmod_endcapC->isChecked()
-    : d->ui_misc.checkBox_sctmod_endcapC->isChecked();
-  bool bcmA = pixel ? d->ui_misc.checkBox_bcmMod_Aside->isChecked() : false;
-  bool bcmC = pixel ? d->ui_misc.checkBox_bcmMod_Cside->isChecked() : false;
+  bool pixel(sender()==m_d->ui_misc.toolButton_pixelmod_adapt);
+  bool brl = pixel ? m_d->ui_misc.checkBox_pixelmod_barrel->isChecked()
+    : m_d->ui_misc.checkBox_sctmod_barrel->isChecked();
+  bool ecA = pixel ? m_d->ui_misc.checkBox_pixelmod_endcapA->isChecked()
+    : m_d->ui_misc.checkBox_sctmod_endcapA->isChecked();
+  bool ecC = pixel ? m_d->ui_misc.checkBox_pixelmod_endcapC->isChecked()
+    : m_d->ui_misc.checkBox_sctmod_endcapC->isChecked();
+  bool bcmA = pixel ? m_d->ui_misc.checkBox_bcmMod_Aside->isChecked() : false;
+  bool bcmC = pixel ? m_d->ui_misc.checkBox_bcmMod_Cside->isChecked() : false;
 
   messageVerbose ("Emitting autoAdaptPixelsOrSCT("+str(pixel)+", "+str(brl)+","+str(ecA)+","+str(ecC)+","+str(bcmA)+","+str(bcmC)+")");
   emit autoAdaptPixelsOrSCT(pixel,brl,ecA,ecC,bcmA,bcmC);
@@ -545,10 +547,10 @@ void GeoSysController::emit_autoAdaptPixelsOrSCT()
 //____________________________________________________________________
 void GeoSysController::emit_autoExpandByVolumeOrMaterialName()
 {
-  bool volname(sender()==d->ui_misc.pushButton_expand_vols_volname
-	       ||sender()==d->ui_misc.lineEdit_expand_vols_volname);
-  QString name(volname?d->ui_misc.lineEdit_expand_vols_volname->text()
-	       :d->ui_misc.lineEdit_expand_vols_matname->text());
+  bool volname(sender()==m_d->ui_misc.pushButton_expand_vols_volname
+	       ||sender()==m_d->ui_misc.lineEdit_expand_vols_volname);
+  QString name(volname?m_d->ui_misc.lineEdit_expand_vols_volname->text()
+	       :m_d->ui_misc.lineEdit_expand_vols_matname->text());
   if (name.isEmpty())
     return;
   messageVerbose("emitting autoExpandByVolumeOrMaterialName("+str(!volname)+", "+name+")");
@@ -557,7 +559,7 @@ void GeoSysController::emit_autoExpandByVolumeOrMaterialName()
 
 //____________________________________________________________________
 void GeoSysController::emit_actionOnAllNonStandardVolumes() {
-  bool zap(sender()==d->ui_misc.pushButton_nonStandardShapes_Iconify);
+  bool zap(sender()==m_d->ui_misc.pushButton_nonStandardShapes_Iconify);
   messageVerbose("emitting actionOnAllNonStandardVolumes("+str(zap)+")");
   emit actionOnAllNonStandardVolumes(zap);
 }
@@ -566,11 +568,11 @@ void GeoSysController::emit_actionOnAllNonStandardVolumes() {
 void GeoSysController::emit_resetSubSystems()
 {
   VP1GeoFlags::SubSystemFlags f(0);
-  if (sender()==d->ui_misc.toolButton_pixelmod_reset)
+  if (sender()==m_d->ui_misc.toolButton_pixelmod_reset)
     f = VP1GeoFlags::Pixel;
-  else if (sender()==d->ui_misc.toolButton_sctmod_reset)
+  else if (sender()==m_d->ui_misc.toolButton_sctmod_reset)
     f = VP1GeoFlags::SCT;
-  else if (sender()==d->ui_muon.pushButton_muonadapt_resetToAllChambers)
+  else if (sender()==m_d->ui_muon.pushButton_muonadapt_resetToAllChambers)
     f = VP1GeoFlags::AllMuonChambers;
   messageVerbose(" Emitting resetSubSystems("+str(f)+")");
   emit resetSubSystems(f);
@@ -585,51 +587,51 @@ int GeoSysController::currentSettingsVersion() const
 //____________________________________________________________________
 void GeoSysController::actualSaveSettings(VP1Serialise&s) const
 {
-  s.save(d->ui_disp.phisectionwidget);//version <=1 saved in old format
-  s.save(d->ui_disp.spinBox_transp);
-  s.save(d->ui_muon.checkBox_muonadapt_autoadapt);
-  s.save(d->ui_muon.checkBox_muonadapt_openmdtchambers);
-  s.save(d->ui_muon.checkBox_muonadapt_hidetubes);
-  s.save(d->ui_muon.checkBox_muonadapt_hiderpcvolumes);
-  s.save(d->ui_muon.checkBox_muonadapt_opencscchambers);
-  s.save(d->ui_muon.checkBox_muonadapt_opentgcchambers);
-  s.save(d->ui_misc.checkBox_pixelmod_barrel);
-  s.save(d->ui_misc.checkBox_pixelmod_endcapA);
-  s.save(d->ui_misc.checkBox_pixelmod_endcapC);
-  s.save(d->ui_misc.checkBox_sctmod_barrel);
-  s.save(d->ui_misc.checkBox_sctmod_endcapA);
-  s.save(d->ui_misc.checkBox_sctmod_endcapC);
-  s.save(d->ui_disp.widget_drawOptions);
-  s.save(d->ui_misc.lineEdit_expand_vols_matname);
-  s.save(d->ui_misc.lineEdit_expand_vols_volname);
-  s.save(d->ui_int.checkBox_geomselectable);
-  s.save(d->ui_int.checkBox_print_shape);
-  s.save(d->ui_int.checkBox_print_material);
-  s.save(d->ui_int.checkBox_print_transform);
-  s.save(d->ui_int.checkBox_print_mass);
-  s.save(d->ui_int.checkBox_print_copyno);
-  s.save(d->ui_int.checkBox_print_tree);
-  s.save(d->ui_int.checkBox_print_muonstationinfo);
-  s.save(d->ui_int.checkBox_zoomToVolumes);
-  s.save(d->ui_int.checkBox_AutomaticMuonChamberEndViews);
-  s.save(d->ui_disp.checkBox_showVolumeOutLines);//version 1+
-  s.save(d->ui_misc.checkBox_bcmMod_Aside);//version 3+
-  s.save(d->ui_misc.checkBox_bcmMod_Cside);//version 3+
+  s.save(m_d->ui_disp.phisectionwidget);//version <=1 saved in old format
+  s.save(m_d->ui_disp.spinBox_transp);
+  s.save(m_d->ui_muon.checkBox_muonadapt_autoadapt);
+  s.save(m_d->ui_muon.checkBox_muonadapt_openmdtchambers);
+  s.save(m_d->ui_muon.checkBox_muonadapt_hidetubes);
+  s.save(m_d->ui_muon.checkBox_muonadapt_hiderpcvolumes);
+  s.save(m_d->ui_muon.checkBox_muonadapt_opencscchambers);
+  s.save(m_d->ui_muon.checkBox_muonadapt_opentgcchambers);
+  s.save(m_d->ui_misc.checkBox_pixelmod_barrel);
+  s.save(m_d->ui_misc.checkBox_pixelmod_endcapA);
+  s.save(m_d->ui_misc.checkBox_pixelmod_endcapC);
+  s.save(m_d->ui_misc.checkBox_sctmod_barrel);
+  s.save(m_d->ui_misc.checkBox_sctmod_endcapA);
+  s.save(m_d->ui_misc.checkBox_sctmod_endcapC);
+  s.save(m_d->ui_disp.widget_drawOptions);
+  s.save(m_d->ui_misc.lineEdit_expand_vols_matname);
+  s.save(m_d->ui_misc.lineEdit_expand_vols_volname);
+  s.save(m_d->ui_int.checkBox_geomselectable);
+  s.save(m_d->ui_int.checkBox_print_shape);
+  s.save(m_d->ui_int.checkBox_print_material);
+  s.save(m_d->ui_int.checkBox_print_transform);
+  s.save(m_d->ui_int.checkBox_print_mass);
+  s.save(m_d->ui_int.checkBox_print_copyno);
+  s.save(m_d->ui_int.checkBox_print_tree);
+  s.save(m_d->ui_int.checkBox_print_muonstationinfo);
+  s.save(m_d->ui_int.checkBox_zoomToVolumes);
+  s.save(m_d->ui_int.checkBox_AutomaticMuonChamberEndViews);
+  s.save(m_d->ui_disp.checkBox_showVolumeOutLines);//version 1+
+  s.save(m_d->ui_misc.checkBox_bcmMod_Aside);//version 3+
+  s.save(m_d->ui_misc.checkBox_bcmMod_Cside);//version 3+
 
   // labels - version 4+
-  s.save(d->ui_disp.groupBox_labels);
-  s.save(d->ui_disp.horizontalSlider_labels_xOffset);
-  s.save(d->ui_disp.horizontalSlider_labels_yOffset);
-  s.save(d->ui_disp.horizontalSlider_labels_zOffset);
-  s.save(d->ui_disp.checkBox_labels_names);
+  s.save(m_d->ui_disp.groupBox_labels);
+  s.save(m_d->ui_disp.horizontalSlider_labels_xOffset);
+  s.save(m_d->ui_disp.horizontalSlider_labels_yOffset);
+  s.save(m_d->ui_disp.horizontalSlider_labels_zOffset);
+  s.save(m_d->ui_disp.checkBox_labels_names);
   //version 5+
-  s.save(d->ui_disp.checkBox_labels_mboyt0s);
-  s.save(d->ui_disp.checkBox_labels_mooret0s);
-  s.save(d->ui_disp.checkBox_labels_hits); 
+  s.save(m_d->ui_disp.checkBox_labels_mboyt0s);
+  s.save(m_d->ui_disp.checkBox_labels_mooret0s);
+  s.save(m_d->ui_disp.checkBox_labels_hits); 
   
-  s.ignoreWidget(d->ui_disp.matButton_lastSel);
-  std::map<VP1GeoFlags::SubSystemFlag,QCheckBox*>::const_iterator it,itE(d->subSysCheckBoxMap.end());
-  for (it=d->subSysCheckBoxMap.begin();it!=itE;++it)
+  s.ignoreWidget(m_d->ui_disp.matButton_lastSel);
+  std::map<VP1GeoFlags::SubSystemFlag,QCheckBox*>::const_iterator it,itE(m_d->subSysCheckBoxMap.end());
+  for (it=m_d->subSysCheckBoxMap.begin();it!=itE;++it)
     s.ignoreWidget(it->second);
 }
 
@@ -643,65 +645,65 @@ void GeoSysController::actualRestoreSettings(VP1Deserialise& s)
 
   if (s.version()<=1) {
     s.ignoreObsoletePhiSectionWidgetState();
-    s.ignoreWidget(d->ui_disp.phisectionwidget);
+    s.ignoreWidget(m_d->ui_disp.phisectionwidget);
   } else {
-    s.restore(d->ui_disp.phisectionwidget);
+    s.restore(m_d->ui_disp.phisectionwidget);
   }
-  s.restore(d->ui_disp.spinBox_transp);
-  s.restore(d->ui_muon.checkBox_muonadapt_autoadapt);
-  s.restore(d->ui_muon.checkBox_muonadapt_openmdtchambers);
-  s.restore(d->ui_muon.checkBox_muonadapt_hidetubes);
-  s.restore(d->ui_muon.checkBox_muonadapt_hiderpcvolumes);
-  s.restore(d->ui_muon.checkBox_muonadapt_opencscchambers);
-  s.restore(d->ui_muon.checkBox_muonadapt_opentgcchambers);
-  s.restore(d->ui_misc.checkBox_pixelmod_barrel);
-  s.restore(d->ui_misc.checkBox_pixelmod_endcapA);
-  s.restore(d->ui_misc.checkBox_pixelmod_endcapC);
-  s.restore(d->ui_misc.checkBox_sctmod_barrel);
-  s.restore(d->ui_misc.checkBox_sctmod_endcapA);
-  s.restore(d->ui_misc.checkBox_sctmod_endcapC);
-  s.restore(d->ui_disp.widget_drawOptions);
-  s.restore(d->ui_misc.lineEdit_expand_vols_matname);
-  s.restore(d->ui_misc.lineEdit_expand_vols_volname);
-  s.restore(d->ui_int.checkBox_geomselectable);
-  s.restore(d->ui_int.checkBox_print_shape);
-  s.restore(d->ui_int.checkBox_print_material);
-  s.restore(d->ui_int.checkBox_print_transform);
-  s.restore(d->ui_int.checkBox_print_mass);
-  s.restore(d->ui_int.checkBox_print_copyno);
-  s.restore(d->ui_int.checkBox_print_tree);
-  s.restore(d->ui_int.checkBox_print_muonstationinfo);
-  s.restore(d->ui_int.checkBox_zoomToVolumes);
-  s.restore(d->ui_int.checkBox_AutomaticMuonChamberEndViews);
+  s.restore(m_d->ui_disp.spinBox_transp);
+  s.restore(m_d->ui_muon.checkBox_muonadapt_autoadapt);
+  s.restore(m_d->ui_muon.checkBox_muonadapt_openmdtchambers);
+  s.restore(m_d->ui_muon.checkBox_muonadapt_hidetubes);
+  s.restore(m_d->ui_muon.checkBox_muonadapt_hiderpcvolumes);
+  s.restore(m_d->ui_muon.checkBox_muonadapt_opencscchambers);
+  s.restore(m_d->ui_muon.checkBox_muonadapt_opentgcchambers);
+  s.restore(m_d->ui_misc.checkBox_pixelmod_barrel);
+  s.restore(m_d->ui_misc.checkBox_pixelmod_endcapA);
+  s.restore(m_d->ui_misc.checkBox_pixelmod_endcapC);
+  s.restore(m_d->ui_misc.checkBox_sctmod_barrel);
+  s.restore(m_d->ui_misc.checkBox_sctmod_endcapA);
+  s.restore(m_d->ui_misc.checkBox_sctmod_endcapC);
+  s.restore(m_d->ui_disp.widget_drawOptions);
+  s.restore(m_d->ui_misc.lineEdit_expand_vols_matname);
+  s.restore(m_d->ui_misc.lineEdit_expand_vols_volname);
+  s.restore(m_d->ui_int.checkBox_geomselectable);
+  s.restore(m_d->ui_int.checkBox_print_shape);
+  s.restore(m_d->ui_int.checkBox_print_material);
+  s.restore(m_d->ui_int.checkBox_print_transform);
+  s.restore(m_d->ui_int.checkBox_print_mass);
+  s.restore(m_d->ui_int.checkBox_print_copyno);
+  s.restore(m_d->ui_int.checkBox_print_tree);
+  s.restore(m_d->ui_int.checkBox_print_muonstationinfo);
+  s.restore(m_d->ui_int.checkBox_zoomToVolumes);
+  s.restore(m_d->ui_int.checkBox_AutomaticMuonChamberEndViews);
   if (s.version()>=1)
-    s.restore(d->ui_disp.checkBox_showVolumeOutLines);
+    s.restore(m_d->ui_disp.checkBox_showVolumeOutLines);
 
   if (s.version()>=3) {
-    s.restore(d->ui_misc.checkBox_bcmMod_Aside);
-    s.restore(d->ui_misc.checkBox_bcmMod_Cside);
+    s.restore(m_d->ui_misc.checkBox_bcmMod_Aside);
+    s.restore(m_d->ui_misc.checkBox_bcmMod_Cside);
   }
 
   // labels
   if (s.version()>=4){
-    s.restore(d->ui_disp.groupBox_labels);
-    s.restore(d->ui_disp.horizontalSlider_labels_xOffset);
-    s.restore(d->ui_disp.horizontalSlider_labels_yOffset);
-    s.restore(d->ui_disp.horizontalSlider_labels_zOffset);
-    s.restore(d->ui_disp.checkBox_labels_names);
+    s.restore(m_d->ui_disp.groupBox_labels);
+    s.restore(m_d->ui_disp.horizontalSlider_labels_xOffset);
+    s.restore(m_d->ui_disp.horizontalSlider_labels_yOffset);
+    s.restore(m_d->ui_disp.horizontalSlider_labels_zOffset);
+    s.restore(m_d->ui_disp.checkBox_labels_names);
   }  
   if (s.version()>=5){
-    s.restore(d->ui_disp.checkBox_labels_mboyt0s);
-    s.restore(d->ui_disp.checkBox_labels_mooret0s);
-    s.restore(d->ui_disp.checkBox_labels_hits);
+    s.restore(m_d->ui_disp.checkBox_labels_mboyt0s);
+    s.restore(m_d->ui_disp.checkBox_labels_mooret0s);
+    s.restore(m_d->ui_disp.checkBox_labels_hits);
   }
 
-  s.ignoreWidget(d->ui_disp.matButton_lastSel);
-  std::map<VP1GeoFlags::SubSystemFlag,QCheckBox*>::const_iterator it,itE(d->subSysCheckBoxMap.end());
-  for (it=d->subSysCheckBoxMap.begin();it!=itE;++it)
+  s.ignoreWidget(m_d->ui_disp.matButton_lastSel);
+  std::map<VP1GeoFlags::SubSystemFlag,QCheckBox*>::const_iterator it,itE(m_d->subSysCheckBoxMap.end());
+  for (it=m_d->subSysCheckBoxMap.begin();it!=itE;++it)
     s.ignoreWidget(it->second);
 
-  d->ui_int.groupBox_printOnSelection->setEnabled(d->ui_int.checkBox_geomselectable->isChecked());
-  d->ui_int.groupBox_automaticViewReorientations->setEnabled(d->ui_int.checkBox_geomselectable->isChecked());
+  m_d->ui_int.groupBox_printOnSelection->setEnabled(m_d->ui_int.checkBox_geomselectable->isChecked());
+  m_d->ui_int.groupBox_automaticViewReorientations->setEnabled(m_d->ui_int.checkBox_geomselectable->isChecked());
 
 }
 

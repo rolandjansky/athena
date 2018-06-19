@@ -6,7 +6,6 @@
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/NTuple.h"
 
 #include "CaloEvent/CaloCell.h"

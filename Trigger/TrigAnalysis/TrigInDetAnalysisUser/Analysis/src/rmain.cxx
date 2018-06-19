@@ -491,6 +491,7 @@ int main(int argc, char** argv)
 
   double Rmatch = 0.1;
 
+  int ntracks = 0;
 
   //bool printflag = false;  // JK removed (unused)
 
@@ -533,6 +534,11 @@ int main(int argc, char** argv)
   if ( inputdata.isTagDefined("expectBL") ) expectBL = ( inputdata.GetValue("expectBL") > 0.5 ? true : false );
   if ( inputdata.isTagDefined("nsct") )     nsct     = inputdata.GetValue("nsct");
   if ( inputdata.isTagDefined("nbl") )      nbl      = inputdata.GetValue("nbl");
+  if ( inputdata.isTagDefined("chi2prob") ) chi2prob = inputdata.GetValue("chi2prob");
+
+  if ( inputdata.isTagDefined("ntracks") )  ntracks  = inputdata.GetValue("ntracks")+0.5; // rounding necessary ?
+
+
   if ( inputdata.isTagDefined("chi2prob") ) chi2prob = inputdata.GetValue("chi2prob");
 
   /// only if not set from the command line
@@ -653,11 +659,12 @@ int main(int argc, char** argv)
   std::vector<double> _lumiblocks;
   lumiParser  goodrunslist;
 
-  
+
   if ( inputdata.isTagDefined("GRL") )  { 
     /// read the (xml?) GRL 
-    std::cout << "Reading GRL from: " <<  inputdata.GetString("GRL") << std::endl;
-    goodrunslist.read( inputdata.GetString("GRL") );
+    std::vector<std::string> grlvector = inputdata.GetStringVector("GRL");
+    std::cout << "Reading GRL from: " << grlvector << std::endl;
+    for ( size_t igrl=0 ; igrl<grlvector.size() ; igrl++ ) goodrunslist.read( grlvector[igrl] );
     //    std::cout << goodrunslist << std::endl;
   }
   else if ( inputdata.isTagDefined("LumiBlocks") )  { 
@@ -926,10 +933,11 @@ int main(int argc, char** argv)
   }
   else { 
     if      ( refChain=="Offline" )             refFilter = &filter_off;
-    else if ( contains( refChain,"Electrons") ) refFilter = &filter_off;
-    else if ( contains( refChain, "Muons" ) )   refFilter = &filter_muon;
-    else if ( contains( refChain,"1Prong" ) )   refFilter = &filter_off;  // tau ref chains
-    else if ( contains( refChain,"3Prong" ) )   refFilter = &filter_off;  // tau ref chains
+    else if ( contains( refChain, "Electrons") ) refFilter = &filter_off;
+    else if ( contains( refChain, "Muons"  ) )   refFilter = &filter_muon;
+    else if ( contains( refChain, "Taus"   ) )   refFilter = &filter_off;  // tau ref chains
+    else if ( contains( refChain, "1Prong" ) )   refFilter = &filter_off;  // tau ref chains
+    else if ( contains( refChain, "3Prong" ) )   refFilter = &filter_off;  // tau ref chains
     else if ( refChain=="Truth" && pdgId!=0 )   refFilter = &filter_truth;
     else if ( refChain=="Truth" && pdgId==0 )   refFilter = &filter_off;
     else { 
@@ -1049,14 +1057,23 @@ int main(int argc, char** argv)
 
   /// track selectors for efficiencies
 
-  bool fullyContainTracks = true;
+  bool fullyContainTracks = false;
 
   if ( inputdata.isTagDefined("FullyContainTracks") ) { 
     fullyContainTracks = ( inputdata.GetValue("FullyContainTracks")==0 ? false : true ); 
   }
 
-  dynamic_cast<Filter_Combined*>(refFilter)->setDebug(debugPrintout);
-  dynamic_cast<Filter_Combined*>(refFilter)->containtracks(fullyContainTracks);
+  bool containTracksPhi = true;
+
+  if ( inputdata.isTagDefined("ContainTracksPhi") ) { 
+    containTracksPhi = ( inputdata.GetValue("ContainTracksPhi")==0 ? false : true ); 
+  }
+
+  if ( dynamic_cast<Filter_Combined*>(refFilter) ) { 
+    dynamic_cast<Filter_Combined*>(refFilter)->setDebug(debugPrintout);
+    dynamic_cast<Filter_Combined*>(refFilter)->containtracks(fullyContainTracks);
+    dynamic_cast<Filter_Combined*>(refFilter)->containtracksPhi(containTracksPhi);
+  }    
 
   NtupleTrackSelector  refTracks( refFilter );
   NtupleTrackSelector  offTracks( testFilter );
@@ -1069,7 +1086,6 @@ int main(int argc, char** argv)
   //    NtupleTrackSelector  refTracks(  &filter_pdgtruth);
   //    NtupleTrackSelector  testTracks( &filter_off );
   //    NtupleTrackSelector testTracks(&filter_roi);
-
 
   /// do we want to filter the RoIs ? 
 
@@ -1871,14 +1887,18 @@ int main(int argc, char** argv)
 	      double dzsintheta = std::fabs( (vx.z()-tr->z0()) * std::sin(theta_) );
 	      if( dzsintheta < 1.5 ) trackcount++;
 	    }
-
-	    vertices_roi.push_back( TIDA::Vertex( vx.x(), vx.y(), vx.z(),  
-						  vx.dx(), vx.dy(), vx.dz(),
-						  trackcount, 
-						  vx.chi2(), vx.ndof() ) ); // ndof not valid for only Roi tracks 
-
-	    //	    std::cout << "\t \t" << vertices_roi.back() << std::endl;
-
+	    
+	    /// don't add vertices with no matching tracks - remember the 
+	    /// tracks are filtered by Roi already so some vertices may have 
+	    /// no tracks in the Roi - ntracks set to 0 by default
+	    if ( trackcount>=ntracks ) { 
+	      vertices_roi.push_back( TIDA::Vertex( vx.x(), vx.y(), vx.z(),  
+						    vx.dx(), vx.dy(), vx.dz(),
+						    trackcount, 
+						    vx.chi2(), vx.ndof() ) ); // ndof not valid for only Roi tracks 
+	      
+	      //	    std::cout << "\t \t" << vertices_roi.back() << std::endl;
+	    }
 	  }
 	  
 	}
@@ -1903,7 +1923,10 @@ int main(int argc, char** argv)
 	ConfVtxAnalysis* vtxanal = 0;
 	analitr->second->store().find( vtxanal, "rvtx" );
 
-	if ( vtxanal ) {	  
+	/// NB: because ntracks = 0 by default, this second clause should 
+	///     always be true unless ntracks has been set to some value
+	if ( vtxanal && ( refp.size() >= size_t(ntracks) ) ) {	  
+
 	  /// AAAAAARGH!!! because you cannot cast vector<T> to const vector<const T>
 	  ///  we first need to copy the actual elements from the const vector, to a normal
 	  ///  vector. This is because if we take the address of elements of a const vector<T>
@@ -1926,7 +1949,7 @@ int main(int argc, char** argv)
 	  
 	  //	  std::cout << "vertex size :" << vtxp_test.size() << "\tvertex key " << vtxanal->name() << std::endl;
 
-	  vtxanal->execute( vtxp, vtxp_test, track_ev );
+	  if ( vtxp.size()>0 ) vtxanal->execute( vtxp, vtxp_test, track_ev );
 
 	}
 

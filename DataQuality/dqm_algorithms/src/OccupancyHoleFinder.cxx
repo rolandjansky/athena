@@ -136,7 +136,7 @@ dqm_algorithms::OccupancyHoleFinder::execute(	const std::string & name,
       std::string chamber_name = getChamberName(histo, (*itr).first);
       if(writes>100) break;
       if( (int) lbns.size() == active_lbns ){
-	//      out << "Completely dead chamber " << chamber_name << std::endl;;
+	//      out << "Completely dead chamber " << chamber_name << std::endl;
 	tags[TString::Format("Dead %s", chamber_name.c_str()).Data()] = -1;
 	writes++;
       }
@@ -271,8 +271,13 @@ dqm_algorithms::OccupancyHoleFinder::getMedian(const TH2* histo)
 std::string
 dqm_algorithms::OccupancyHoleFinder::getChamberName(const TH2* histo, int biny){
   char char16 = histo->GetName()[16];
-  std::string crate = histo->GetName();
-  crate = crate.substr(14,4);	
+  std:: string hname=histo->GetName();
+  std::size_t found = hname.find("ontrack");
+  std::string crate;
+  if (found!=std::string::npos){
+    char16 = histo->GetName()[24];
+    crate = hname.substr(22,4);        
+  }  else        crate = hname.substr(14,4);	
   if(m_name == "MDT" && char16 != '0' ) return getMDTChamberName(histo, biny);
   if(m_name == "MDT" && char16 == '0' ) return getMDTChamberNameByCrate(biny, crate);
   if(std::string(histo->GetYaxis()->GetBinLabel(biny)).size()) return histo->GetYaxis()->GetBinLabel(biny);
@@ -280,6 +285,8 @@ dqm_algorithms::OccupancyHoleFinder::getChamberName(const TH2* histo, int biny){
   ss << biny;
   return ss.str();
 }
+
+
 
 std::string
 dqm_algorithms::OccupancyHoleFinder::getMDTChamberName(const TH2* histo, int biny){

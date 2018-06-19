@@ -14,7 +14,6 @@
 
 //#include "GaudiKernel/Algorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/AlgFactory.h"
 
 #include <map>
 

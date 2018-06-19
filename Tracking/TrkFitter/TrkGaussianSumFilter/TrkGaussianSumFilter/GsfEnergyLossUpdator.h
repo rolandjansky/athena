@@ -15,6 +15,7 @@ decription           : Class for describing energy loss effects only.
 #ifndef TrkGsfEnergyLossUpdator_H
 #define TrkGsfEnergyLossUpdator_H
 
+#include "TrkExInterfaces/IEnergyLossUpdator.h"
 #include "TrkExInterfaces/IMaterialEffectsUpdator.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkExUtils/MaterialUpdateMode.h"
@@ -28,7 +29,6 @@ namespace Trk{
 
 class Layer;
 class MaterialProperties;
-class IEnergyLossUpdator;
 
 class GsfEnergyLossUpdator : public AthAlgTool, virtual public IMaterialEffectsUpdator {
 
@@ -93,7 +93,8 @@ class GsfEnergyLossUpdator : public AthAlgTool, virtual public IMaterialEffectsU
  private:
     
   int                            m_outputlevel;       //!< to cache current output level
-  ToolHandle<IEnergyLossUpdator> m_EnergyLossUpdator;
+  PublicToolHandle<IEnergyLossUpdator> m_EnergyLossUpdator
+     {this,"EnergyLossUpdator","Trk::EnergyLossUpdator/AtlasEnergyLossUpdator",""};
   static ParticleMasses          s_particleMasses;
   
 

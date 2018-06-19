@@ -10,6 +10,7 @@
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArMiniFCAL_ID.h"
+#include "CaloIdentifier/TileID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 
@@ -23,6 +24,7 @@ FCS_StepInfoSD::FCS_StepInfoSD(G4String a_name, const FCS_Param::Config& config)
   , m_larFcalID(nullptr)
   , m_larHecID(nullptr)
   , m_larMiniFcalID(nullptr)
+  , m_tileID(nullptr)
   , m_calo_dd_man(nullptr)
 {
   m_calo_dd_man  = CaloDetDescrManager::instance(); //FIXME Move somewhere else!!

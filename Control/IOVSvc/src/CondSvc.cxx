@@ -4,7 +4,6 @@
 #include "IOVSvc/CondSvc.h"
 #include "AthenaKernel/CondCont.h"
 #include "GaudiKernel/EventIDBase.h"
-#include "GaudiKernel/SvcFactory.h"
 #include "AthenaKernel/StoreID.h"
 #include "SGTools/BaseInfo.h"
 
@@ -330,8 +329,8 @@ CondSvc::isValidID(const EventContext& ctx, const DataObjID& id) const {
   if (m_sgs->contains<CondContBase>( sk ) ) {
     CondContBase *cib;
     if (m_sgs->retrieve(cib, sk).isSuccess()) {
-      ATH_MSG_DEBUG("CondSvc::isValidID:  now: " << ctx.eventID() << "  id : " 
-                    << id << ": T");
+      ATH_MSG_VERBOSE("CondSvc::isValidID:  now: " << ctx.eventID() << "  id : " 
+                    << id << (cib->valid(now) ? ": T" : ": F") );
       return cib->valid(now);
     }
   }

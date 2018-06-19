@@ -37,7 +37,9 @@ class CaloClusterContainerCnv : public CaloClusterContainerCnvBase
 {
   friend class CnvFactory<CaloClusterContainerCnv>;
  protected:
+public:
   CaloClusterContainerCnv(ISvcLocator*);
+protected:
   virtual CaloClusterContainer* createTransient();
   virtual CaloClusterContainerPERS* createPersistent(CaloClusterContainer*);
  private:

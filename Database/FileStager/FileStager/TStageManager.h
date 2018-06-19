@@ -32,7 +32,6 @@
 #include <map>
 #include <algorithm>
 
-using namespace std ;
 
 class TStagerInfo;
 
@@ -49,7 +48,7 @@ class TStageManager : public TObject
   void releaseFile(const char* fname);
   void releaseAll();
   const char* getFile(const char* fname);
-  const string getTmpFilename(const char* filename);
+  const std::string getTmpFilename(const char* filename);
   TStageFileInfo::Status getStatusOf(const char* filename, bool update=true);
 
   void setBaseTmpdir(const char* baseTmpdir);
@@ -61,15 +60,15 @@ class TStageManager : public TObject
   void setLogfileDir(const char* logfileDir);
   void addPrefixFix(const char* in, const char* out);
 
-  void verbose(bool v=true) { _verbose=v; }
-  void verboseWait(bool v=true) { _verbwait=v; }
-  void tryInfRestage(bool t=true) { _tryInfRestage=t; }
-  void firstFileAlreadyStaged(bool f=true) { _firstFileANDAlreadyStaged=f; }
-  void keepLogfiles(bool k=true) { _keepLogfiles=k; }
-  void setPidInLognames(bool p=true) { _pidInLognames=p; }
-  void keepStagedfiles(bool k=true) { _keepStagedfiles=k; }
-  void checkForPreviousStage(bool c=true) { _checkForPreviousStage=c; }
-  void setInteractive(bool i=true) { _keepLogfiles=i; _keepStagedfiles=i; _checkForPreviousStage=i; }
+  void verbose(bool v=true) { m_verbose=v; }
+  void verboseWait(bool v=true) { m_verbwait=v; }
+  void tryInfRestage(bool t=true) { m_tryInfRestage=t; }
+  void firstFileAlreadyStaged(bool f=true) { m_firstFileANDAlreadyStaged=f; }
+  void keepLogfiles(bool k=true) { m_keepLogfiles=k; }
+  void setPidInLognames(bool p=true) { m_pidInLognames=p; }
+  void keepStagedfiles(bool k=true) { m_keepStagedfiles=k; }
+  void checkForPreviousStage(bool c=true) { m_checkForPreviousStage=c; }
+  void setInteractive(bool i=true) { m_keepLogfiles=i; m_keepStagedfiles=i; m_checkForPreviousStage=i; }
   void print();
   void printProblemFiles();
 
@@ -93,29 +92,29 @@ class TStageManager : public TObject
 
   void stageNext(bool forceStage=false);
   void updateStatus();
-  void trim(string& input);
-  void removePrefixOf(string& filename);
-  void removeFile(string filename);
-  void fixRootInPrefix(string& tmpname);
+  void trim(std::string& input);
+  void removePrefixOf(std::string& filename);
+  void removeFile(std::string filename);
+  void fixRootInPrefix(std::string& tmpname);
 
   void submitStageMonitor();
-  bool _submittedStageMonitor;
+  bool m_submittedStageMonitor;
 
   bool fileExists(const char* fileName);
 
-  list< string > _toBeStagedList;
-  map<string,TStageFileInfo> _stageMap;
+  std::list< std::string > m_toBeStagedList;
+  std::map<std::string,TStageFileInfo> m_stageMap;
 
-  static TStagerInfo _stagerInfo;
+  static TStagerInfo s_stagerInfo;
 
-  bool _verbose;
-  bool _verbwait;
-  bool _tryInfRestage;
-  bool _firstFileANDAlreadyStaged;
-  bool _keepLogfiles;
-  bool _pidInLognames;
-  bool _keepStagedfiles;
-  bool _checkForPreviousStage;
+  bool m_verbose;
+  bool m_verbwait;
+  bool m_tryInfRestage;
+  bool m_firstFileANDAlreadyStaged;
+  bool m_keepLogfiles;
+  bool m_pidInLognames;
+  bool m_keepStagedfiles;
+  bool m_checkForPreviousStage;
 
   ClassDef(TStageManager,1)
 } ;

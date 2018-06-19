@@ -49,11 +49,11 @@ namespace DerivationFramework {
         
           // Retrieve data
           const xAOD::TriggerTowerContainer* triggertowers(nullptr);
-          CHECK( evtStore()->retrieve( triggertowers , m_collName ) );
+          CHECK( evtStore()->retrieve( triggertowers , m_collName ), false );
           
           if( !triggertowers ) {
             ATH_MSG_ERROR("Couldn't retrieve triggertower container with key: " << m_collName);
-            return StatusCode::FAILURE;
+            return false;
           }
           // LOOP OVER TRIGGERTOWERS
           int adcvalue(0);

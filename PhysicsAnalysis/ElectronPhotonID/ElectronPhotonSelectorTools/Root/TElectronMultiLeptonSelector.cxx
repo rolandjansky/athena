@@ -21,7 +21,6 @@ Description: Electron selector tool to select objects in pure ROOT using the mul
 // Constructor
 //=============================================================================
 Root::TElectronMultiLeptonSelector::TElectronMultiLeptonSelector(const char* name) :
-  TSelectorToolBase(name),
   asg::AsgMessaging(std::string(name)),
   GeV(1000.0),
   m_cutPosition_Coverage(-9),
@@ -55,73 +54,73 @@ Root::TElectronMultiLeptonSelector::~TElectronMultiLeptonSelector()
 //=============================================================================
 // Initialize this selector tool
 //=============================================================================
-int Root::TElectronMultiLeptonSelector::initialize()
+StatusCode Root::TElectronMultiLeptonSelector::initialize()
 {
-  // use an int as a StatusCode
-  int sc(1);
+
+  StatusCode sc(StatusCode::SUCCESS);
 
   // --------------------------------------------------------------------------
   // Register the cuts and check that the registration worked:
   // NOTE: THE ORDER IS IMPORTANT!!! Cut0 corresponds to bit 0, Cut1 to bit 1,...
-  // if ( m_cutPosition_nSCTMin < 0 ) sc = 0; // Exceeded the number of allowed cuts (32)
+  // if ( m_cutPosition_nSCTMin < 0 ) sc = StatusCode::FAILURE; // Exceeded the number of allowed cuts (32)
 
 
   // RHad
-  m_cutPosition_Coverage = m_accept.addCut( "Coverage", "Coverage" );
-  if ( m_cutPosition_Coverage < 0 ) sc = 0; 
+  m_cutPosition_Coverage = m_acceptInfo.addCut( "Coverage", "Coverage" );
+  if ( m_cutPosition_Coverage < 0 ) sc = StatusCode::FAILURE; 
 
   // RHad
-  m_cutPosition_RHad = m_accept.addCut( "RHad", "RHad" );
-  if ( m_cutPosition_RHad < 0 ) sc = 0; 
+  m_cutPosition_RHad = m_acceptInfo.addCut( "RHad", "RHad" );
+  if ( m_cutPosition_RHad < 0 ) sc = StatusCode::FAILURE; 
 
   // f3
-  m_cutPosition_F3 = m_accept.addCut( "F3", "F3" );
-  if ( m_cutPosition_F3 < 0 ) sc = 0; 
+  m_cutPosition_F3 = m_acceptInfo.addCut( "F3", "F3" );
+  if ( m_cutPosition_F3 < 0 ) sc = StatusCode::FAILURE; 
 
   // Reta
-  m_cutPosition_Reta = m_accept.addCut( "Reta", "Reta" );
-  if ( m_cutPosition_Reta < 0 ) sc = 0; 
+  m_cutPosition_Reta = m_acceptInfo.addCut( "Reta", "Reta" );
+  if ( m_cutPosition_Reta < 0 ) sc = StatusCode::FAILURE; 
 
   // w2
-  m_cutPosition_W2 = m_accept.addCut( "W2", "W2" );
-  if ( m_cutPosition_W2 < 0 ) sc = 0; 
+  m_cutPosition_W2 = m_acceptInfo.addCut( "W2", "W2" );
+  if ( m_cutPosition_W2 < 0 ) sc = StatusCode::FAILURE; 
 
   // Check the energy in the strips before cutting on it
-  m_cutPosition_Wstot = m_accept.addCut( "Wstot", "Wstot" );
-  if ( m_cutPosition_Wstot < 0 ) sc = 0; 
+  m_cutPosition_Wstot = m_acceptInfo.addCut( "Wstot", "Wstot" );
+  if ( m_cutPosition_Wstot < 0 ) sc = StatusCode::FAILURE; 
 
   // Eratio
-  m_cutPosition_Eratio = m_accept.addCut( "Eratio", "Eratio" );
-  if ( m_cutPosition_Eratio < 0 ) sc = 0; 
+  m_cutPosition_Eratio = m_acceptInfo.addCut( "Eratio", "Eratio" );
+  if ( m_cutPosition_Eratio < 0 ) sc = StatusCode::FAILURE; 
 
   // Delta Eta
-  m_cutPosition_DeltaEta = m_accept.addCut( "DeltaEta", "DeltaEta" );
-  if ( m_cutPosition_DeltaEta < 0 ) sc = 0; 
+  m_cutPosition_DeltaEta = m_acceptInfo.addCut( "DeltaEta", "DeltaEta" );
+  if ( m_cutPosition_DeltaEta < 0 ) sc = StatusCode::FAILURE; 
 
   // Rescale deltaPhi
-  m_cutPosition_DeltaPhiRes = m_accept.addCut( "DeltaPhiRes", "DeltaPhiRes" );
-  if ( m_cutPosition_DeltaPhiRes < 0 ) sc = 0; 
+  m_cutPosition_DeltaPhiRes = m_acceptInfo.addCut( "DeltaPhiRes", "DeltaPhiRes" );
+  if ( m_cutPosition_DeltaPhiRes < 0 ) sc = StatusCode::FAILURE; 
 
   // Si
-  m_cutPosition_NSilicon = m_accept.addCut( "NSilicon", "NSilicon" );
-  if ( m_cutPosition_NSilicon < 0 ) sc = 0; 
+  m_cutPosition_NSilicon = m_acceptInfo.addCut( "NSilicon", "NSilicon" );
+  if ( m_cutPosition_NSilicon < 0 ) sc = StatusCode::FAILURE; 
 
   //Pix
-  m_cutPosition_NPixel = m_accept.addCut( "NPixel", "NPixel" );
-  if ( m_cutPosition_NPixel < 0 ) sc = 0; 
+  m_cutPosition_NPixel = m_acceptInfo.addCut( "NPixel", "NPixel" );
+  if ( m_cutPosition_NPixel < 0 ) sc = StatusCode::FAILURE; 
 
   //Blayer
   
-  m_cutPosition_NBlayer = m_accept.addCut( "NBLayer", "NBLayer" );
-  if ( m_cutPosition_NBlayer < 0 ) sc = 0; 
+  m_cutPosition_NBlayer = m_acceptInfo.addCut( "NBLayer", "NBLayer" );
+  if ( m_cutPosition_NBlayer < 0 ) sc = StatusCode::FAILURE; 
 
   //TRT Ratio in crack
-  m_cutPosition_TR = m_accept.addCut( "TR", "TR" );
-  if ( m_cutPosition_TR < 0 ) sc = 0; 
+  m_cutPosition_TR = m_acceptInfo.addCut( "TR", "TR" );
+  if ( m_cutPosition_TR < 0 ) sc = StatusCode::FAILURE; 
 
   //Tight deltaPhi
-  m_cutPosition_TightDeltaPhi = m_accept.addCut( "TightDeltaPhi", "TightDeltaPhi" );
-  if ( m_cutPosition_TightDeltaPhi < 0 ) sc = 0; 
+  m_cutPosition_TightDeltaPhi = m_acceptInfo.addCut( "TightDeltaPhi", "TightDeltaPhi" );
+  if ( m_cutPosition_TightDeltaPhi < 0 ) sc = StatusCode::FAILURE; 
 
   return sc;
 }
@@ -130,33 +129,33 @@ int Root::TElectronMultiLeptonSelector::initialize()
 //=============================================================================
 // Calculate the actual accept of each cut individually.
 //=============================================================================
-const Root::TAccept& Root::TElectronMultiLeptonSelector::accept( const double eta,
-                                                                 const double eT,
-                                                                 const double rHad,
-                                                                 const double rHad1,
-                                                                 const double Reta,
-                                                                 const double w2, 
-                                                                 const double f1,
-                                                                 const double f3,
-                                                                 const double wstot,
-                                                                 const double DEmaxs1, 
-                                                                 const double deltaEta,
-                                                                 const int nSi,
-                                                                 const int nSiDeadSensors,
-                                                                 const int nPix, 
-                                                                 const int nPixDeadSensors, 
-                                                                 const double deltaPhiRes,
-                                                                 const double dpOverp, 
-                                                                 const double TRratio,
-                                                                 const int nTRTTotal,
-                                                                 const int nBlayerHits,
-                                                                 const bool expectBlayer
-                                                                 )  const
+asg::AcceptData Root::TElectronMultiLeptonSelector::accept( const double eta,
+                                                            const double eT,
+                                                            const double rHad,
+                                                            const double rHad1,
+                                                            const double Reta,
+                                                            const double w2, 
+                                                            const double f1,
+                                                            const double f3,
+                                                            const double wstot,
+                                                            const double DEmaxs1, 
+                                                            const double deltaEta,
+                                                            const int nSi,
+                                                            const int nSiDeadSensors,
+                                                            const int nPix, 
+                                                            const int nPixDeadSensors, 
+                                                            const double deltaPhiRes,
+                                                            const double dpOverp, 
+                                                            const double TRratio,
+                                                            const int nTRTTotal,
+                                                            const int nBlayerHits,
+                                                            const bool expectBlayer
+                                                            )  const
 {
-  // Reset the cut result bits to zero (= fail cut)
-  m_accept.clear();
 
   // -----------------------------------------------------------
+  // Setup return accept with AcceptInfo
+  asg::AcceptData acceptData(&m_acceptInfo);
 
   
   //Get eta/et bins
@@ -172,74 +171,74 @@ const Root::TAccept& Root::TElectronMultiLeptonSelector::accept( const double et
   // Coverage
   bool doPassCoverage = (fabs(eta)>2.47 ) ? false : true ;
   if(  !doPassCoverage ){ ATH_MSG_DEBUG("Failed Coverage, et=" << eT << ", eta=" << eta);}
-  m_accept.setCutResult( m_cutPosition_Coverage, doPassCoverage );
+  acceptData.setCutResult( m_cutPosition_Coverage, doPassCoverage );
 
   // RHad
   bool doPassRHad = ( passRHad(rHad,rHad1,eTBin,etaBin) ) ? true : false ;
   if(  !doPassRHad ){ ATH_MSG_DEBUG("Failed RHad, et=" << eT << ", eta=" << eta);}
-  m_accept.setCutResult( m_cutPosition_RHad, doPassRHad );
+  acceptData.setCutResult( m_cutPosition_RHad, doPassRHad );
 
   // f3
   bool doPassF3 = ( eT>=90*GeV || passF3(f3,eTBin,etaBin) ) ? true : false ;
   if(  !doPassF3 ){ ATH_MSG_DEBUG("Failed F3, et=" << eT << ", eta=" << eta);}
-  m_accept.setCutResult( m_cutPosition_F3, doPassF3 );
+  acceptData.setCutResult( m_cutPosition_F3, doPassF3 );
 
   // Reta
   bool doPassReta = ( passReta(Reta,eTBin,etaBin) ) ? true : false ;
   if(  !doPassReta ){ ATH_MSG_DEBUG("Failed Reta, et=" << eT << ", eta=" << eta);}
-  m_accept.setCutResult( m_cutPosition_Reta, doPassReta );
+  acceptData.setCutResult( m_cutPosition_Reta, doPassReta );
 
   // w2
   bool doPassW2 = ( passW2(w2,eTBin,etaBin) ) ? true : false ;
   if(  !doPassW2 ){ ATH_MSG_DEBUG("Failed W2, et=" << eT << ", eta=" << eta);}
-  m_accept.setCutResult( m_cutPosition_W2, doPassW2 );
+  acceptData.setCutResult( m_cutPosition_W2, doPassW2 );
 
   // Check the energy in the strips before cutting on it
   bool doPassWstot = ( f1 <= 0.005 || passWstot(wstot,eTBin,etaBin) ) ? true : false ;
   if(  !doPassWstot ){ ATH_MSG_DEBUG("Failed Wstot, et=" << eT << ", eta=" << eta );}
-  m_accept.setCutResult( m_cutPosition_Wstot, doPassWstot );
+  acceptData.setCutResult( m_cutPosition_Wstot, doPassWstot );
 
   // Eratio
   bool doPassEratio = ( f1 <= 0.005 || passEratio(DEmaxs1,eTBin,etaBin) ) ? true : false ;
   if(  !doPassEratio ){ ATH_MSG_DEBUG("Failed Eratio, et=" << eT << ", eta=" << eta );}
-  m_accept.setCutResult( m_cutPosition_Eratio, doPassEratio );
+  acceptData.setCutResult( m_cutPosition_Eratio, doPassEratio );
   
   // Delta Eta
   bool doPassDeltaEta = ( passDeltaEta(deltaEta, eTBin, etaBin) ) ? true : false ;
   if(  !doPassDeltaEta ){ ATH_MSG_DEBUG("Failed DeltaEta, et=" << eT << ", eta=" << eta );}
-  m_accept.setCutResult( m_cutPosition_DeltaEta, doPassDeltaEta );
+  acceptData.setCutResult( m_cutPosition_DeltaEta, doPassDeltaEta );
 
   // Rescale deltaPhi
   bool doPassDeltaPhiRes = ( passDeltaPhiRes(deltaPhiRes, isBrem, eTBin, etaBin) ) ? true : false ;
   if(  !doPassDeltaPhiRes ){ ATH_MSG_DEBUG("Failed DeltaPhiRes, et=" << eT << ", eta=" << eta );}
-  m_accept.setCutResult( m_cutPosition_DeltaPhiRes, doPassDeltaPhiRes );
+  acceptData.setCutResult( m_cutPosition_DeltaPhiRes, doPassDeltaPhiRes );
   
   //Si
   bool doPassNSilicon = ( (nSi + nSiDeadSensors) < 7 ) ? false : true ;
   if(  !doPassNSilicon ){ ATH_MSG_DEBUG("Failed NSilicon, et=" << eT << ", eta=" << eta );}
-  m_accept.setCutResult( m_cutPosition_NSilicon, doPassNSilicon );
+  acceptData.setCutResult( m_cutPosition_NSilicon, doPassNSilicon );
 
   //Pix
   bool doPassNPixel = ( (nPix+nPixDeadSensors) < 2 ) ? false : true ;
   if(  !doPassNPixel ){ ATH_MSG_DEBUG("Failed NPixel, et=" << eT << ", eta=" << eta );}
-  m_accept.setCutResult( m_cutPosition_NPixel, doPassNPixel );
+  acceptData.setCutResult( m_cutPosition_NPixel, doPassNPixel );
  
   //BLayer
   bool doPassNBLayer = (expectBlayer && nBlayerHits < 1) ? false : true ;
   if(  !doPassNBLayer ){ ATH_MSG_DEBUG("Failed NBLayer, et=" << eT << ", eta=" << eta );}
-  m_accept.setCutResult( m_cutPosition_NBlayer, doPassNBLayer ); 
+  acceptData.setCutResult( m_cutPosition_NBlayer, doPassNBLayer ); 
   
   //TRT Ratio in crack
   bool doPassTR = (passTR(TRratio,eta,nTRTTotal) ) ? true : false ;
   if(  !doPassTR ){ ATH_MSG_DEBUG("Failed TR, et=" << eT << ", eta=" << eta );}
-  m_accept.setCutResult( m_cutPosition_TR, doPassTR );
+  acceptData.setCutResult( m_cutPosition_TR, doPassTR );
 
   //TightDeltaPhi cut 
   bool doPassTightDeltaPhi = ( passTightDeltaPhi(deltaPhiRes,  expectBlayer, nBlayerHits ,eTBin, etaBin) ) ? true : false ;
   if(  !doPassTightDeltaPhi ){ ATH_MSG_DEBUG("Failed TightDeltaPhi, et=" << eT << ", eta=" << eta );}
-  m_accept.setCutResult( m_cutPosition_TightDeltaPhi, doPassTightDeltaPhi );
+  acceptData.setCutResult( m_cutPosition_TightDeltaPhi, doPassTightDeltaPhi );
 
-  return m_accept;
+  return acceptData;
 }
 
 

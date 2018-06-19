@@ -33,13 +33,12 @@ template <class TYPE> class CnvFactory;
 extern long ByteStream_StorageType;
 
 class MdtCsmContByteStreamCnv: public Converter {
-  friend class CnvFactory<MdtCsmContByteStreamCnv>;
 
  protected:
-  MdtCsmContByteStreamCnv(ISvcLocator* svcloc);
   ~MdtCsmContByteStreamCnv();
 
  public:
+  MdtCsmContByteStreamCnv(ISvcLocator* svcloc);
 
   typedef Muon::IMDT_RDOtoByteStreamTool  BYTESTREAMTOOL ; 
 

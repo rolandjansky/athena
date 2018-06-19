@@ -136,7 +136,6 @@ MergeMcEventCollTool::MergeMcEventCollTool(const std::string& type,
   m_addBackgroundCollisionVertices(true),
   m_signal_event_number(0)
 {
-  declareInterface<IPileUpTool>(this);
   declareProperty("TruthCollKey",   m_truthCollKey=std::string("TruthEvent"));
   declareProperty("KeepUnstable",   m_keepUnstable=false, "do not cut unstable particles");
   declareProperty("AbsEtaMax",      m_absEtaMax=5.0);
@@ -215,7 +214,7 @@ StatusCode MergeMcEventCollTool::processAllSubEvents() {
     msg(MSG::ERROR)
       << "execute: Can not find TimedTruthList with key "
       << m_truthCollKey.value() << endmsg;
-    return StatusCode::RECOVERABLE;;
+    return StatusCode::RECOVERABLE;
   }
 
   //clear the background classification map

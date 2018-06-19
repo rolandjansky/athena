@@ -27,7 +27,6 @@
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "TrkToolInterfaces/IUpdator.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "StoreGate/ReadHandle.h"
 
@@ -44,8 +43,6 @@ TRTStrawEfficiency::TRTStrawEfficiency(const std::string& name, ISvcLocator* pSv
 	  m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc", name),
 	  m_tree(0),
 	  m_TRT_ID(0),
-	  m_updator("Trk::KalmanUpdator/TrkKalmanUpdator"),
-	  m_trigDec( "Trig::ITrigDecisionTool/TrigDecisionTool"),
 	  m_num_events(0),
 	  m_num_tracks(0),
 	  m_num_preselected_tracks(0),

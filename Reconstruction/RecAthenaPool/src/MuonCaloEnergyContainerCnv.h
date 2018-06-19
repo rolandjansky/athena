@@ -9,7 +9,6 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
 // RecTPCnv includes
-// #include "RecTPCnv/MuonCaloEnergyContainer_tlp1.h"
 #include "RecTPCnv/MuonCaloEnergyContainer_p1.h"
 
 // muonEvent includes
@@ -17,14 +16,15 @@
 
 // the latest persistent representation type of DataCollection:
 typedef MuonCaloEnergyContainer_p1  MuonCaloEnergyContainer_PERS;
-//typedef MuonCaloEnergyContainer_tlp1  MuonCaloEnergyContainer_PERS;
 
 class MuonCaloEnergyContainerCnv: public T_AthenaPoolCustomCnv<  MuonCaloEnergyContainer,  MuonCaloEnergyContainer_PERS > {
   friend class CnvFactory<MuonCaloEnergyContainerCnv>;
 
  protected:
 
+public:
   MuonCaloEnergyContainerCnv(ISvcLocator* svcloc);
+protected:
 
   virtual MuonCaloEnergyContainer_PERS* createPersistent( MuonCaloEnergyContainer* transCont );
 

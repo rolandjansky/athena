@@ -5,7 +5,7 @@
 #ifndef EGAMMAINTERFACES_IEMCLUSTERTOOL_H
 #define EGAMMAINTERFACES_IEMCLUSTERTOOL_H
 
-#include "egammaInterfaces/IegammaBaseTool.h"
+#include "GaudiKernel/IAlgTool.h"
 #include "xAODCaloEvent/CaloCluster.h" // cannot use CaloClusterFwd b/c of ClusterSize
 #include "xAODEgamma/EgammaEnums.h"
 #include "xAODEgamma/ElectronContainerFwd.h"
@@ -19,7 +19,7 @@
 
 static const InterfaceID IID_IEMClusterTool("IEMClusterTool", 1, 0);
 
-class IEMClusterTool : virtual public IegammaBaseTool {
+class IEMClusterTool : virtual public IAlgTool {
 
  public:
   /** @brief Virtual destructor*/

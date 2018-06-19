@@ -445,7 +445,7 @@ void ZDCNLCalibration::TestCalibration(int side, std::string name)
 	
 	for (size_t power = 0; power < calib.weights[module].size(); power++) {
 	  calibAmpModule[module] += calib.weights[module][power]*ampPow;
-	  ampPow *= amp;;
+	  ampPow *= amp;
 	}
 	
 	double energy = calibAmpModule[module];

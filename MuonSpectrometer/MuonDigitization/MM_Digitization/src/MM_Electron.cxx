@@ -6,64 +6,38 @@
 
 using namespace std;
 
-MM_Electron::MM_Electron() : time(-99999), charge(-99999) {}
+MM_Electron::MM_Electron() : m_time(-99999), m_charge(-99999) {}
 
-MM_Electron::MM_Electron(float _x, float _y) : initialPosition(_x,_y), time(-99999), charge(-99999) {
-  
-  //  PolyaFunction = unique_ptr<TF1>(new TF1("polya","(1./[1])*(TMath::Power([0]+1,[0]+1)/TMath::Gamma([0]+1))*TMath::Power(x,[0])*TMath::Exp(-([0]+1)*x)", 0., 4.));  
-  // The typical widths are 0.036 and 0.019, so [-1, 1] should be a safe interval.
-  //  LongitudinalDiffusionFunction = unique_ptr<TF1>(new TF1("longdiff","gaus", -1., 10.));
-  //  TransverseDiffusionFunction = unique_ptr<TF1>(new TF1("transdiff", "1.*TMath::Exp(-TMath::Power(x,2.)/(2.*[0]*[0])) + 0.001*TMath::Exp(-TMath::Power(x,2)/(2.*[1]*[1]))", -1., 1.));
-    
-}  
-
-MM_Electron::MM_Electron(const MM_Electron& /* _MM_Electron */) : time(-99999), charge(-99999) {
-
-  //  PolyaFunction = unique_ptr<TF1>((TF1*) _MM_Electron.PolyaFunction->Clone());
-  //  LongitudinalDiffusionFunction = unique_ptr<TF1>((TF1*) _MM_Electron.LongitudinalDiffusionFunction->Clone());
-  //  TransverseDiffusionFunction = unique_ptr<TF1>((TF1*) _MM_Electron.TransverseDiffusionFunction->Clone());
+MM_Electron::MM_Electron(float x, float y) : m_initialPosition(x,y), m_time(-99999), m_charge(-99999) {
 
 }
 
-void MM_Electron::diffuseElectron(float LongitudinalSigma, float TransverseSigma, TRandom3* rndm) {
-  
-  LongitudinalDiffusionFunction->SetParameters(1.0, initialPosition.Y(), initialPosition.Y()*LongitudinalSigma);
-  
-  if (LongitudinalSigma == 0 || TransverseSigma == 0) {
-    TransverseDiffusionFunction->SetParameters(initialPosition.Y()*TransverseSigma, 0.0);
-  } else {
-    TransverseDiffusionFunction->SetParameters(initialPosition.Y()*TransverseSigma, 1.0);
-  }
-  gRandom = rndm;
-  offsetPosition.Set(TransverseDiffusionFunction->GetRandom(), LongitudinalDiffusionFunction->GetRandom());
+MM_Electron::MM_Electron(const MM_Electron& /* MM_Electron */) : m_time(-99999), m_charge(-99999) {
 
 }
-void MM_Electron::setOffsetPosition(float x, float y) { offsetPosition.Set(x, y);}
-    
-void MM_Electron::propagateElectron(float driftVelx, float driftVely, float driftVel) {
 
-  if (driftVely != 0.)
-    offsetPosition.Set(offsetPosition.X() + driftVelx*offsetPosition.Y()/driftVely, offsetPosition.Y());
+void MM_Electron::setOffsetPosition(float x, float y) { m_offsetPosition.Set(x, y);}
+
+void MM_Electron::propagateElectron(float lorentzAngle, float driftVel) {
+
+  float tanLorentzAngle = TMath::Tan(lorentzAngle);
+  if (tanLorentzAngle == tanLorentzAngle) // checking that it's not NAN
+    m_offsetPosition.Set(m_offsetPosition.X() + tanLorentzAngle * ( m_offsetPosition.Y() + m_initialPosition.Y() ) , m_offsetPosition.Y() - m_initialPosition.Y()  );
+
   if (driftVel > 0.)
-    time = offsetPosition.Mod()/driftVel;
+    m_time = m_offsetPosition.Mod()/driftVel;
   else
-    time = -1.;
-  
+    m_time = -1.;
+
 }
 
-void MM_Electron::avalancheElectron(float gain, TRandom3* rndm) {
-  
-  PolyaFunction->SetParameters(2.3, 1.0);
-  gRandom = rndm;
-  charge = gain*PolyaFunction->GetRandom();
-  
-}
+void MM_Electron::setTime(float Time) {m_time = Time;}
+void MM_Electron::setCharge(float Charge) {m_charge = Charge;}
 
-void MM_Electron::setTime(float Time) {time = Time;}
-void MM_Electron::setCharge(float Charge) {charge = Charge;}
-
-float MM_Electron::getCharge() const { return charge; }
-float MM_Electron::getTime() const { return time; }
-float MM_Electron::getX() const { return offsetPosition.X() + initialPosition.X(); }
-float MM_Electron::getInitialX() const { return initialPosition.X(); }
-float MM_Electron::getInitialY() const { return initialPosition.Y(); }
+TVector2 MM_Electron::getOffsetPosition() const { return m_offsetPosition; }
+float MM_Electron::getCharge() const { return m_charge; }
+float MM_Electron::getTime() const { return m_time; }
+float MM_Electron::getX() const { return m_offsetPosition.X() + m_initialPosition.X(); }
+float MM_Electron::getY() const { return m_offsetPosition.Y() + m_initialPosition.Y(); }
+float MM_Electron::getInitialX() const { return m_initialPosition.X(); }
+float MM_Electron::getInitialY() const { return m_initialPosition.Y(); }

@@ -24,7 +24,7 @@ class CSC(DCSC_DefectTranslate_Subdetector):
     dead_fraction_bad = 0.1
 
     def __init__(self, *args, **kwargs):
-        kwargs['keep_dcsofl'] = True
+        #kwargs['keep_dcsofl'] = True
         super(CSC, self).__init__(*args, **kwargs)
         self.translators = [CSC.color_to_defect_translator(flag, defect)
                             for flag, defect in ((CSCEA, 'MS_CSC_EA_STANDBY_HV'),

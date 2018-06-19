@@ -16,9 +16,10 @@ typedef TrackRecordCollection_p2  TrackRecordCollection_PERS;
 
 class TrackRecordCollectionCnv  : public T_AthenaPoolCustomCnv<TrackRecordCollection, TrackRecordCollection_PERS > {
   friend class CnvFactory<TrackRecordCollectionCnv>;
-protected:
+public:
   TrackRecordCollectionCnv(ISvcLocator* svcloc) :
         T_AthenaPoolCustomCnv<TrackRecordCollection, TrackRecordCollection_PERS >( svcloc) {}
+protected:
   TrackRecordCollection_PERS* createPersistent(TrackRecordCollection* transCont);
   TrackRecordCollection*   createTransient ();
 };

@@ -13,7 +13,6 @@
 
 #include "DataModel/DataVector.h"
 
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IRegistry.h"

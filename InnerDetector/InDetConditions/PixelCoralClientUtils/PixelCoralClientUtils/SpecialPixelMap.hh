@@ -55,7 +55,7 @@ class DetectorSpecialPixelMap : public std::vector<ModuleSpecialPixelMap*>{
 
    DetectorSpecialPixelMap& operator=(const DetectorSpecialPixelMap& spm);
    DetectorSpecialPixelMap& operator+=(const DetectorSpecialPixelMap& spm);     //!< merge two pixel maps into one
-   void merge(DetectorSpecialPixelMap* spm);  //!< operation equivalent to operator+=, but more convenient for pointers
+   void merge(const DetectorSpecialPixelMap* spm);  //!< operation equivalent to operator+=, but more convenient for pointers
 
    const ModuleSpecialPixelMap* module(unsigned int moduleHash) const; //!< const access to a ModuleSpecialPixelMap*
 
@@ -125,7 +125,7 @@ class ModuleSpecialPixelMap : private std::map<unsigned int, unsigned int>{
    ModuleSpecialPixelMap& operator+=(ModuleSpecialPixelMap mspm); 
    //!< merge two pixel maps into one
    
-   void merge(ModuleSpecialPixelMap* mspm); //!< operation equivalent to operator+=, but more convenient for pointers
+   void merge(const ModuleSpecialPixelMap* mspm); //!< operation equivalent to operator+=, but more convenient for pointers
 
    unsigned int pixelStatus(unsigned int pixelID) const;              //!< retrieve pixel status as unsigned int
    bool pixelStatusBit(unsigned int pixelID, unsigned int bit) const; //!< retrieve a single status bit

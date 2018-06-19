@@ -21,8 +21,8 @@
 #include "StorageSvc/DbInstanceCount.h"
 #include "StorageSvc/DataCallBack.h"
 #include "StorageSvc/DbArray.h"
-#include "StorageSvc/DbPrint.h"
-#include "StorageSvc/DbTransaction.h"
+#include "POOLCore/DbPrint.h"
+#include "StorageSvc/Transaction.h"
 #include "StorageSvc/DbReflex.h"
 
 // Local implementation files
@@ -129,8 +129,8 @@ static IntDbArray   s_int_Blob;
 //using namespace std;
 
 
-RootTreeContainer::RootTreeContainer(IOODatabase* idb)
-: DbContainerImp(idb), m_tree(nullptr), m_type(0), m_dbH(POOL_StorageType), 
+RootTreeContainer::RootTreeContainer()
+: m_tree(nullptr), m_type(0), m_dbH(POOL_StorageType), 
   m_rootDb(nullptr), m_branchName(), m_ioBytes(0), m_treeFillMode(false),
   m_isDirty(false)
 {
@@ -206,17 +206,14 @@ DbStatus RootTreeContainer::writeObject(TransactionStack::value_type& ent) {
                    // cout << "---    store object= " <<hex << store <<dec << " in " << dsc.branch->GetName()  <<endl;
                    // cout << "       obj=" << hex << dsc.object << dec << "  offset=" <<  dsc.aux_iostore_IFoffset << endl;
                    log << DbPrintLvl::Debug << "       Attributes= " << store->getSelectedAuxIDs().size() << DbPrint::endmsg;
-                   // Need to make a copy in case it changes.
-                   // FIXME: may be able to get rid of this copy
-                   // if we switch to a thread-safe container.
-                   const SG::auxid_set_t ids = store->getSelectedAuxIDs();
-                   for(SG::auxid_t id : ids ) {
+                   for(SG::auxid_t id : store->getSelectedAuxIDs()) {
                       BranchDesc&       newBrDsc( m_auxBranchMap[id] );
                       if( !newBrDsc.branch ) {
                          auto &reg = SG::AuxTypeRegistry::instance();
                          // we have a new attribute, create a branch for it
                          log << "   Creating branch for new dynamic attribute, Id=" << id << ": type="
-                             << store->getIOType(id)->name() << ", " << reg.getName(id) << DbPrint::endmsg;
+                             << SG::normalizedTypeinfoName( *(store->getIOType(id)) )
+                             << ", " << reg.getName(id) << DbPrint::endmsg;
                          sc = addAuxBranch(reg.getName(id), store->getIOType(id), newBrDsc);
                          if( !sc.isSuccess() )  {
                             p.ptr = nullptr;  // trigger an Error
@@ -887,6 +884,7 @@ DbStatus  RootTreeContainer::addAuxBranch(const std::string& attribute,
                                           const type_info* typeinfo,
                                           BranchDesc& dsc)
 {
+   string error_type("is unknown");
    string typenam = SG::normalizedTypeinfoName(*typeinfo);
    string branch_name = RootAuxDynIO::auxBranchName(attribute, m_branchName);
    dsc.branch = nullptr;
@@ -917,16 +915,20 @@ DbStatus  RootTreeContainer::addAuxBranch(const std::string& attribute,
          createBasicAuxBranch(branch_name, attribute + "/C", dsc);
       else {
          TClass* cl = TClass::GetClass(typenam.c_str());
-         if( cl ) {
+         if( !cl ) {
+            error_type =" has no TClass";
+         } else if( !cl->GetStreamerInfo() )  {
+            error_type =" has no streamer";
+         } else if( !cl->HasDictionary() ) {
+            error_type =" has no dictionary";
+         } else {
             dsc.clazz = cl;
-            if( cl->GetStreamerInfo() )  {
-               int split = cl->CanSplit() ? 1 : 0;
-               dsc.branch  = m_tree->Branch(branch_name.c_str(),   // Branch name
-                                            cl->GetName(),         // Object class
-                                            (void*)&dsc.buffer,    // Object address
-                                            8192,                  // Buffer size
-                                            split);                // Split Mode (Levels) 
-            }
+            int split = cl->CanSplit() ? 1 : 0;
+            dsc.branch  = m_tree->Branch(branch_name.c_str(),   // Branch name
+                                         cl->GetName(),         // Object class
+                                         (void*)&dsc.buffer,    // Object address
+                                         8192,                  // Buffer size
+                                         split);                // Split Mode (Levels)
          }
       }
    }
@@ -952,10 +954,8 @@ DbStatus  RootTreeContainer::addAuxBranch(const std::string& attribute,
    }
    
    DbPrint log("RootStorageSvc::addAuxBranch");
-   if( typenam.empty() ) typenam = System::typeinfoName( *typeinfo );
    log << DbPrintLvl::Error << "Failed to create Auxiliary branch '" << branch_name << "'."
-       << " Class " << typenam << " is unknown."
-       << DbPrint::endmsg;
+       << " Class " << typenam << error_type << DbPrint::endmsg;
    return Error;
 }
 
@@ -1213,44 +1213,24 @@ DbStatus RootTreeContainer::setOption(const DbOption& opt)  {
 }
 
 
-/// Execute object modification requests during a transaction
-DbStatus RootTreeContainer::endTransaction(DbTransaction& refTr)  {
-  DbStatus status = Success;
-  switch(refTr.state()) {
-  case Transaction::TRANSACT_COMMIT:
-    break;
-  case Transaction::TRANSACT_FLUSH:
-     if( m_tree )  {
-        DbPrint log(m_name);
-        if( isBranchContainer() ) {
-           log << DbPrintLvl::Debug << "endTransaction: go to finish" << DbPrint::endmsg;
-           status = finishTransAct();
-        } else {
-           log << DbPrintLvl::Debug << "endTransaction:  tree AutoSave" << DbPrint::endmsg;
-           m_tree->AutoSave();
-        }
-     }
-     else {
-        status = Error;
-     }
-     break;
-  case Transaction::TRANSACT_START:
-    break;
-  case Transaction::TRANSACT_ROLLBACK:
-    break;
-  default:
-    status = Error;
-    break;
-  }
-  return status;
-}
+/// Execute transaction action
+DbStatus RootTreeContainer::transAct(Transaction::Action action) 
+{
+   // execure action on the base class first
+   DbStatus status = DbContainerImp::transAct(action);
+   if( !status.isSuccess() ) return status;
 
-DbStatus RootTreeContainer::finishTransAct()    {
+   if( action != Transaction::TRANSACT_FLUSH ) return Success;
+   if( !m_tree ) return Error;
+   if( !isBranchContainer() ) {
+      m_tree->AutoSave();
+      return Success;
+   }
+   // check if all TTree branches were filled and write the TTree
    Branches::const_iterator k;
    for(k=m_branches.begin(); k !=m_branches.end(); ++k) {
       Long64_t branchEntries = k->branch->GetEntries();
       Long64_t treeEntries = m_tree->GetEntries();
-      // cout << "  +++  End Transaction. Tree rows=" << treeEntries << " , Branch " << k->branch->GetName() << " " << branchEntries << endl;
       if (branchEntries > treeEntries) {
          TIter next(m_tree->GetListOfBranches());
          TBranch * b = nullptr;

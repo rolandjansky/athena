@@ -78,18 +78,18 @@ public:
 
 
 PlotHist2D::PlotHist2D(const Hist2D & histogram):
-  Plotable(),c(new Clockwork())
+  Plotable(),m_c(new Clockwork())
 {
-  c->histogram=&histogram;
-  c->nRectangle.setLeft  (histogram.minX());
-  c->nRectangle.setRight(histogram.maxX());
-  c->nRectangle.setTop(histogram.minY());
-  c->nRectangle.setBottom(histogram.maxY());
+  m_c->histogram=&histogram;
+  m_c->nRectangle.setLeft  (histogram.minX());
+  m_c->nRectangle.setRight(histogram.maxX());
+  m_c->nRectangle.setTop(histogram.minY());
+  m_c->nRectangle.setBottom(histogram.maxY());
 }
 
 // Copy constructor:
 PlotHist2D::PlotHist2D(const PlotHist2D & source):
-  Plotable(),c(new Clockwork(*(source.c)))
+  Plotable(),m_c(new Clockwork(*(source.m_c)))
 {
   
 }
@@ -98,7 +98,7 @@ PlotHist2D::PlotHist2D(const PlotHist2D & source):
 PlotHist2D & PlotHist2D::operator=(const PlotHist2D & source)
 {
   if (&source!=this) {
-    c.reset(new Clockwork(*(source.c)));
+    m_c.reset(new Clockwork(*(source.m_c)));
   }
   return *this;
 } 
@@ -106,12 +106,12 @@ PlotHist2D & PlotHist2D::operator=(const PlotHist2D & source)
 
 // Destructor
 PlotHist2D::~PlotHist2D(){
-  //delete c;
+  //delete m_c;
 }
 
 
 const QRectF  PlotHist2D::rectHint() const {
-  return c->nRectangle;
+  return m_c->nRectangle;
 }
 
 
@@ -124,7 +124,7 @@ void PlotHist2D::describeYourselfTo(AbsPlotter *plotter) const {
   if (plotter->isLogX()) return;
   if (plotter->isLogY()) return;
 
-  const auto & theHistogram=*(c->histogram);
+  const auto & theHistogram=*(m_c->histogram);
   const double max = theHistogram.maxContents(); 
   const double inverseMax=1.0/max;
   const double wx = theHistogram.binWidthX();
@@ -181,20 +181,20 @@ void PlotHist2D::describeYourselfTo(AbsPlotter *plotter) const {
 
 // Get the histogram:
 const Hist2D *PlotHist2D::histogram() const {
-  return c->histogram;
+  return m_c->histogram;
 }
 
 const PlotHist2D::Properties  PlotHist2D::properties() const { 
-  return c->myProperties ? *c->myProperties : c->defaultProperties;
+  return m_c->myProperties ? *m_c->myProperties : m_c->defaultProperties;
 }
 
 void PlotHist2D::setProperties(const Properties &  properties) { 
-  delete c->myProperties;
-  c->myProperties = new Properties(properties);
+  delete m_c->myProperties;
+  m_c->myProperties = new Properties(properties);
 }
 
 void PlotHist2D::resetProperties() {
-  delete c->myProperties;
-  c->myProperties=nullptr;
+  delete m_c->myProperties;
+  m_c->myProperties=nullptr;
 }
 

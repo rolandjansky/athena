@@ -9,9 +9,9 @@ using namespace std;
 
 /** the constructor should know the dimensione of the space */
 FTKRoadKDTree::FTKRoadKDTree(int dim, FTKRoad *road, int pos,
-			     int depth, FTKRoadKDTree *parent) :
+			     int depth, FTKRoadKDTree */*parent*/) :
   m_dim(dim), m_depth(depth), m_node(road), m_pos(pos),
-  m_parent(parent), m_left(0), m_right(0),
+  m_left(0), m_right(0),
   m_maxdepth(0), m_maxdepth_l(0), m_maxdepth_r(0)
 {
   // determine the SS that splits the hyper-space

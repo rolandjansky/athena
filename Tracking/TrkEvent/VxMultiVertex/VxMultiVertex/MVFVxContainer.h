@@ -5,9 +5,9 @@
 #ifndef VXMULTIVERTEX_VXCONTAINER_H
 #define VXMULTIVERTEX_VXCONTAINER_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "VxMultiVertex/MVFVxCandidate.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 
 /**

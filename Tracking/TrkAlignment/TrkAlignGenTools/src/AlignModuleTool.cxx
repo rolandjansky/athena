@@ -33,9 +33,6 @@ namespace Trk {
     
     declareProperty("AlignModuleListType", m_alignModuleListType = Trk::L3);
 
-    std::cout<<"m_alignModuleMaps size: "<<m_alignModuleMaps.size()
-       <<std::endl;
-
     m_logStream = 0;
   }
 

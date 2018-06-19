@@ -1,11 +1,10 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // TruthPseudoJetGetter.cxx
 
 #include "JetSimTools/TruthPseudoJetGetter.h"
 #include "xAODTruth/TruthParticleContainer.h"
+#include "JetRec/PseudoJetContainer.h"
+#include "JetSimTools/TruthParticleExtractor.h"
+
 
 //**********************************************************************
 
@@ -13,6 +12,8 @@ TruthPseudoJetGetter::TruthPseudoJetGetter(const std::string &name)
 : PseudoJetGetter(name),
   m_selector("JetTruthParticleSelectorTool") {
   declareProperty("TruthSelector", m_selector);
+  declareProperty("InputContainer", m_incolltruth);
+  declareProperty("OutputContainer", m_outcoll);
 }
 
 //**********************************************************************
@@ -24,31 +25,103 @@ StatusCode TruthPseudoJetGetter::initialize() {
     ATH_MSG_ERROR( "Unable to retrieve TruthSelector.");
     return sc;
   }
+  m_incolltruth = m_incoll.key();
+  ATH_CHECK( m_incolltruth.initialize() );
+  ATH_CHECK( m_outcoll.initialize() );
+
+  m_outcollRead = m_outcoll.key();
+  ATH_CHECK( m_outcollRead.initialize() );
+
   return StatusCode::SUCCESS;
+
 }
 
 //**********************************************************************
 
-int TruthPseudoJetGetter::
-appendTo(PseudoJetVector& psjs, const LabelIndex* pli) const {
-  if ( ! evtStore()->contains<xAOD::TruthParticleContainer>(m_incoll) ) {
-    ATH_MSG_ERROR("Unable to find truth particle container: " << m_incoll);
-    return 1;
+const PseudoJetContainer* TruthPseudoJetGetter::getC() const {
+  ATH_MSG_DEBUG("Getting TruthPseudoJetContainer...");
+  std::vector<PseudoJet> vpj;
+  const PseudoJetContainer * pjcont;
+
+  // check if not already existing
+  auto handle_inOut = SG::makeHandle (m_outcollRead);
+  if ( handle_inOut.isValid() ) {
+    ATH_MSG_DEBUG("Fetching existing pseudojets." << m_outcollRead.key());
+    pjcont = handle_inOut.cptr();
+    return pjcont;
   }
-  ATH_MSG_DEBUG("Found TruthParticleContainer "<< m_incoll);
-  const xAOD::TruthParticleContainer* truthParts = 0;
-  evtStore()->retrieve(truthParts,m_incoll);
-  std::vector<const xAOD::TruthParticle*> filteredParts(SG::VIEW_ELEMENTS);
-  filteredParts.reserve(truthParts->size());
-  const JetTruthParticleSelectorTool& selector = *m_selector;
-  selector.setupEvent();
-  int count = 0;
-  for ( const xAOD::TruthParticle* truthp: *truthParts ) {
-    if ( selector(truthp) ) {
-      filteredParts.push_back(truthp);
-    }
-    ++count;
+  // else we build and record the container
+  // retrieve the input.
+  const xAOD::TruthParticleContainer* cont;
+  auto handle_in = SG::makeHandle(m_incolltruth);
+  if ( handle_in.isValid() ) {
+    ATH_MSG_DEBUG("Retrieving xAOD container " << m_incolltruth.key());
+    // retrieve the input.
+    cont = handle_in.cptr();
+  } else {
+    ATH_MSG_ERROR("Unable to find input collection: " << m_incolltruth.key());
+    ATH_MSG_ERROR("Error creating pseudojets.");
+    return nullptr;
   }
-  ATH_MSG_DEBUG( " Truth Filtering done.  outsize="<<filteredParts.size() << " / "<< truthParts->size()  );
-  return append(filteredParts, psjs, pli);
+
+  // create PseudoJets
+  int index=0;
+  for(const xAOD::TruthParticle* part: *cont) {
+    vpj.push_back( PseudoJet(part->p4()));
+    vpj.back().set_user_index(index); // Set the index !!
+    index++;
+  }
+
+
+  // "Ghost" in outout collection name? If so is a ghost collection.
+  bool isGhost = (m_outcoll.key()).find("Ghost") != std::string::npos;
+
+  // create an extractor
+  TruthParticleExtractor* extractor = new TruthParticleExtractor(cont,
+                                                                 m_label, 
+                                                                 isGhost);
+
+  // ghostify the pseudojets if necessary
+  if(isGhost){
+    for(PseudoJet& pj : vpj) {pj *= 1e-40;}
+  }
+
+  // Put the PseudoJetContainer together :
+  pjcont = new PseudoJetContainer(extractor, vpj);
+  std::unique_ptr<const PseudoJetContainer> pjcont_ptr(pjcont);
+  
+  // record
+  SG::WriteHandle<PseudoJetContainer> handle_out(m_outcoll);
+  ATH_MSG_DEBUG("New PseudoJetContainer in event store with extractor: " 
+                << extractor->toString(0));
+  if ( ! handle_out.put(std::move(pjcont_ptr))) {
+    ATH_MSG_ERROR("Unable to write new PseudoJetContainer to event store collection: " << m_outcoll.key());
+  } else {
+    ATH_MSG_DEBUG("Created new PseudoJetContainer in event store collection: " << m_outcoll.key());
+  }
+
+  return pjcont;
+
+}
+
+
+StatusCode TruthPseudoJetGetter::createAndRecord() const {
+  // Use const pointer for now, but can change to unique pointer when
+  // we move to DataVector and when MR 2431 is complete:
+  // https://gitlab.cern.ch/atlas/athena/merge_requests/2431
+
+  // should rename getC createAndRecord once get() is removed.
+  const PseudoJetContainer* pjc = this->getC();
+  if (!pjc) return StatusCode::FAILURE;
+
+  return StatusCode::SUCCESS;
+}
+
+
+const PseudoJetVector* TruthPseudoJetGetter::get() const {
+  // Kept for backward compatibity
+  ATH_MSG_DEBUG("Getting TruthPseudoJetContainer as PseudoJetVector ...");
+  const PseudoJetContainer* cont = this->getC();
+  const PseudoJetVector* vpj = cont->casVectorPseudoJet(); 
+  return vpj;
 }

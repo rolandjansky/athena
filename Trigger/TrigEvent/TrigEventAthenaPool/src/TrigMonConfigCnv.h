@@ -21,7 +21,9 @@ class TrigMonConfigCnv : public T_AthenaPoolCustomCnv<TrigMonConfig, TrigMonConf
 
  protected:
   
+public:
   TrigMonConfigCnv(ISvcLocator* svcloc);
+protected:
   virtual ~TrigMonConfigCnv();
 
   TrigMonConfig_PERS*  createPersistent(TrigMonConfig* transObj);  

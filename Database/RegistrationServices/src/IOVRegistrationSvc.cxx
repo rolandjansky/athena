@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,7 +17,7 @@
 
 #include "IOVRegistrationSvc.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
+//#include "GaudiKernel/DeclareFactoryEntries.h"
 
 // Athena includes
 #include "StoreGate/StoreGate.h"
@@ -28,7 +28,7 @@
 
 // Gaudi includes
 #include "GaudiKernel/IAddressCreator.h"
-//#include "GaudiKernel/IConversionSvc.h"
+#include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IConverter.h"
 
@@ -47,8 +47,6 @@
 #include "CoolKernel/Record.h"
 
 //<<<<<< METHOD DEFINITIONS
-
-DECLARE_SERVICE_FACTORY(IOVRegistrationSvc)
 
 //--------------------------------------------------------------------------
 
@@ -599,7 +597,7 @@ StatusCode IOVRegistrationSvc::registerIOVCOOL( const std::string& typeName,
 	  sc = m_persSvc->convertAddress(addr, saddr);   
 	  if (sc.isFailure()) {
 	    ATH_MSG_WARNING ("Could not get string from IOpaqueAddress for clid " << clid
-                             << " is BAD_STORAGE_TYPE: " << (sc == IConverter::BAD_STORAGE_TYPE));
+                         << " is BAD_STORAGE_TYPE: " << (sc == IConversionSvc::Status::BAD_STORAGE_TYPE));
 	  return( StatusCode::FAILURE);
 	  }
 	  ATH_MSG_DEBUG ("String address = \"" << saddr << "\"");

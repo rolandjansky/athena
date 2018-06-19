@@ -25,7 +25,7 @@
 namespace xAOD {
 
    TruthParticle_v1::TruthParticle_v1()
-   : IParticle(), m_p4(), m_p4Cached( false ) {
+   : IParticle() {
 
    }
 
@@ -140,14 +140,14 @@ namespace xAOD {
 
       // Calculate the pseudo-rapidity using TLorentzVector.
       // Could do something more lightweight later on.
-      return p4().Eta();
+      return genvecP4().Eta();
    }
 
    double TruthParticle_v1::phi() const {
 
       // Calculate the azimuth angle using TLorentzVector.
       // Could do something more lightweight later on.
-      return p4().Phi();
+      return genvecP4().Phi();
    }
 
    AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TruthParticle_v1, float, double, m )
@@ -155,18 +155,16 @@ namespace xAOD {
 
    double TruthParticle_v1::rapidity() const {
 
-      return p4().Rapidity();
+      return genvecP4().Rapidity();
    }
 
-   const TruthParticle_v1::FourMom_t& TruthParticle_v1::p4() const {
+   TruthParticle_v1::FourMom_t TruthParticle_v1::p4() const {
+     return FourMom_t(px(), py(), pz(), e() );
+   }
 
-      // Cache the 4-momentum if it's not already:
-      if( ! m_p4Cached ) {
-         m_p4.SetPxPyPzE( px(), py(), pz(), e() );
-         m_p4Cached = true;
-      }
-
-      return m_p4;
+   // not very different in this case; just adding for uniformity
+   TruthParticle_v1::GenVecFourMom_t TruthParticle_v1::genvecP4() const {
+     return GenVecFourMom_t(px(), py(), pz(), e() );
    }
 
    Type::ObjectType TruthParticle_v1::type() const {
@@ -192,43 +190,21 @@ namespace xAOD {
       return std::abs( rapidity() );
    }
 
-   AUXSTORE_PRIMITIVE_GETTER( TruthParticle_v1, float, px )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TruthParticle_v1, float, px, setPx )
 
-   void TruthParticle_v1::setPx( float value ) {
-      static Accessor< float > acc( "px" );
-      m_p4Cached = false;
-      acc( *this ) = value;
-      return;
-   }
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TruthParticle_v1, float, py, setPy )
 
-   AUXSTORE_PRIMITIVE_GETTER( TruthParticle_v1, float, py )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TruthParticle_v1, float, pz, setPz )
 
-   void TruthParticle_v1::setPy( float value ) {
-      static Accessor< float > acc( "py" );
-      m_p4Cached = false;
-      acc( *this ) = value;
-      return;
-   }
 
-   AUXSTORE_PRIMITIVE_GETTER( TruthParticle_v1, float, pz )
-
-   void TruthParticle_v1::setPz( float value ) {
-      static Accessor< float > acc( "pz" );
-      m_p4Cached = false;
-      acc( *this ) = value;
-      return;
-   }
-   
    void TruthParticle_v1::setE( float value ) {
       static Accessor< float > acc( "e" );
-      m_p4Cached = false;
       acc( *this ) = value;
       return;
    }
    
    void TruthParticle_v1::setM( float value ) {
       static Accessor< float > acc( "m" );
-      // note: this does not invalidate the cache
       acc( *this ) = value;
       return;
    }

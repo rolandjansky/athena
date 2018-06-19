@@ -16,7 +16,6 @@
 # Existing modifiers can be found in "TriggerRelease/python/Modifiers.py"
 #
 class opt :
-    FilesInput       = None           # Input files (string or list of strings)
     setupForMC       = None           # force MC setup
     setLVL1XML       = 'TriggerMenuXML/LVL1config_Physics_pp_v7.xml'
     setDetDescr      = None           # force geometry tag
@@ -31,8 +30,7 @@ class opt :
     doDBConfig       = None           # dump trigger configuration
     trigBase         = None           # file name for trigger config dump
     enableCostD3PD   = False          # enable cost monitoring
-    EvtMax           = -1             # events to process
-    SkipEvents       =  0             # events to skip
+    doL1Unpacking    = True
 #
 ################################################################################
 
@@ -63,8 +61,7 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 import TriggerRelease.Modifiers
 
 # Input format and file for athena running
-if opt.FilesInput is not None:
-    athenaCommonFlags.FilesInput = [opt.FilesInput] if isinstance(opt.FilesInput,str) else opt.FilesInput
+if athenaCommonFlags.FilesInput is not None:
     from RecExConfig.AutoConfiguration import ConfigureFromListOfKeys, GetRunNumber
     ConfigureFromListOfKeys(['everything'])
     TriggerRelease.Modifiers._run_number = GetRunNumber()
@@ -311,13 +308,14 @@ from TrigConfigSvc.TrigConfigSvcConfig import LVL1ConfigSvc, findFileInXMLPATH
 svcMgr += LVL1ConfigSvc()
 svcMgr.LVL1ConfigSvc.XMLMenuFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
 
-if globalflags.InputFormat.is_bytestream():
-    from TrigUpgradeTest.TestUtils import L1DecoderTest
+if opt.doL1Unpacking:
+    if globalflags.InputFormat.is_bytestream():
+        from TrigUpgradeTest.TestUtils import L1DecoderTest
     #topSequence += L1DecoderTest(OutputLevel = opt.HLTOutputLevel)
-    topSequence += L1DecoderTest(OutputLevel = DEBUG)
-else:
-    from TrigUpgradeTest.TestUtils import L1EmulationTest
-    topSequence += L1EmulationTest(OutputLevel = opt.HLTOutputLevel)
+        topSequence += L1DecoderTest(OutputLevel = DEBUG)
+    else:
+        from TrigUpgradeTest.TestUtils import L1EmulationTest
+        topSequence += L1EmulationTest(OutputLevel = opt.HLTOutputLevel)
 
 # ---------------------------------------------------------------
 # Monitoring
@@ -340,13 +338,6 @@ else:
         svcMgr.MessageSvc.useErsError = ['*']
         svcMgr.MessageSvc.alwaysUseMsgStream = True
 
-# ----------------------------------------------------------------
-# Number of events to be processed - for athena
-# ----------------------------------------------------------------
-theApp.EvtMax = opt.EvtMax
-if hasattr(svcMgr,"EventSelector"):
-    svcMgr.EventSelector.SkipEvents = opt.SkipEvents 
-    
 #-------------------------------------------------------------
 # Apply modifiers
 #-------------------------------------------------------------

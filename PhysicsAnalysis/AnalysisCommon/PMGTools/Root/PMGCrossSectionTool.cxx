@@ -71,7 +71,7 @@ namespace PMGTools {
 	sample.filterEff = filterEff;
 	sample.kFactor = kFactor;
 	//sample.containerName = containerName;
-	fStoreSampleInfo[sample.dsid] = sample;
+	m_storeSampleInfo[sample.dsid] = sample;
       }
 
       delete xsecTree;
@@ -116,7 +116,7 @@ namespace PMGTools {
   double PMGCrossSectionTool::getFilterEff(const int dsid) const
   {
   
-    for (const auto& info : fStoreSampleInfo){
+    for (const auto& info : m_storeSampleInfo){
       if(dsid == info.second.dsid)
 	return info.second.filterEff;
     }
@@ -131,7 +131,7 @@ namespace PMGTools {
   std::string PMGCrossSectionTool::getSampleName(const int dsid) const
   {
   
-    for (const auto& info : fStoreSampleInfo){
+    for (const auto& info : m_storeSampleInfo){
       if(dsid == info.second.dsid)
 	return info.second.containerName;
     }
@@ -146,7 +146,7 @@ namespace PMGTools {
   double PMGCrossSectionTool::getGeneratorXsection(const int dsid) const
   {
 
-    for (const auto& info : fStoreSampleInfo){
+    for (const auto& info : m_storeSampleInfo){
       if(dsid == info.second.dsid)
 	return info.second.genXsec;
     }
@@ -160,7 +160,7 @@ namespace PMGTools {
   double PMGCrossSectionTool::getKfactor(const int dsid) const
   {
 
-    for (const auto& info : fStoreSampleInfo){
+    for (const auto& info : m_storeSampleInfo){
       if(dsid == info.second.dsid)
 	return info.second.kFactor;
     }
@@ -174,7 +174,7 @@ namespace PMGTools {
   double PMGCrossSectionTool::getSampleXsection(const int dsid) const
   {
 
-    for (const auto& info : fStoreSampleInfo){
+    for (const auto& info : m_storeSampleInfo){
       if(dsid == info.second.dsid)
 	return info.second.genXsec * info.second.kFactor * info.second.filterEff;
     }
@@ -187,7 +187,7 @@ namespace PMGTools {
 
   std::vector<int> PMGCrossSectionTool::getLoadedDSIDs() const {
     std::vector<int> dsids;
-    for (const auto& info : fStoreSampleInfo){
+    for (const auto& info : m_storeSampleInfo){
       dsids.push_back(info.second.dsid);
     }
     return dsids;

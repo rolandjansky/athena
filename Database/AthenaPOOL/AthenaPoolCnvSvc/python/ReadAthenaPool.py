@@ -49,9 +49,11 @@ def _configureReadAthenaPool():
 
     # Enable IOVDbSvc to read MetaData
     svcMgr.MetaDataSvc.MetaDataContainer = "MetaDataHdr"
-    svcMgr.MetaDataSvc.MetaDataTools += [ "IOVDbMetaDataTool" ]
-    if not hasattr (svcMgr.ToolSvc, 'IOVDbMetaDataTool'):
-        svcMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
+    svcMgr.MetaDataSvc.MetaDataTools += [  CfgMgr.IOVDbMetaDataTool() ]
+    
+    #svcMgr.MetaDataSvc.MetaDataTools += [ "IOVDbMetaDataTool" ]
+    #if not hasattr (svcMgr.ToolSvc, 'IOVDbMetaDataTool'):
+    #    svcMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
 
     # Add in EventSelector
     svcMgr += CfgMgr.EventSelectorAthenaPool ("EventSelector")

@@ -29,13 +29,13 @@ namespace JiveXML {
    **/
    TruthMuonTrackRetriever::TruthMuonTrackRetriever(const std::string& type ,const std::string& name,const IInterface* parent):
      base_class(type, name, parent),
-     typeName("SMTr") {
+     m_typeName("SMTr") {
      //Fill the list with the names of track record collections to try
-     TrackRecCollNames.push_back("MuonEntryLayer");
-     TrackRecCollNames.push_back("MuonEntryRecord");
+     m_TrackRecCollNames.push_back("MuonEntryLayer");
+     m_TrackRecCollNames.push_back("MuonEntryRecord");
 
      //Declare the properties
-     declareProperty("TrackRecCollNames",TrackRecCollNames,"List of track records collections to try in this order - only one is retrieved");
+     declareProperty("TrackRecCollNames",m_TrackRecCollNames,"List of track records collections to try in this order - only one is retrieved");
 
    }
 
@@ -61,8 +61,8 @@ namespace JiveXML {
     const TrackRecordCollection* TrackRecordColl = NULL ;
     //Loop over all the collections and try a retrieve (more efficenct than
     //contain-retrieve combination)
-    std::vector<std::string>::const_iterator CollNameItr = TrackRecCollNames.begin();
-    for (auto CollNameItr : TrackRecCollNames ) {
+    std::vector<std::string>::const_iterator CollNameItr = m_TrackRecCollNames.begin();
+    for (auto CollNameItr : m_TrackRecCollNames ) {
       //be verbose
       ATH_MSG_DEBUG( "Trying to retrieve " << CollNameItr );
       //try to retrive
@@ -72,7 +72,7 @@ namespace JiveXML {
 
     //If we didnt' get any, return
     if (TrackRecordColl == NULL ) {
-      ATH_MSG_WARNING( "Unable to retrieve any track collection from " << TrackRecCollNames );
+      ATH_MSG_WARNING( "Unable to retrieve any track collection from " << m_TrackRecCollNames );
       return StatusCode::RECOVERABLE;
     }
 

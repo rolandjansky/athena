@@ -1,7 +1,7 @@
 #ifndef TRIGT1CAL_CPCMXTOPODATACOLLECTION_H
 #define TRIGT1CAL_CPCMXTOPODATACOLLECTION_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrigT1CaloEvent/CPCMXTopoData.h"
 
 /** Container class for CPCMXTopoData objects.

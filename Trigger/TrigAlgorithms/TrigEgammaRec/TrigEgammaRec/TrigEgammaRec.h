@@ -36,7 +36,7 @@
 #include "egammaInterfaces/IEMConversionBuilder.h"
 #include "egammaInterfaces/IEMShowerBuilder.h"
 #include "egammaInterfaces/IEMFourMomBuilder.h"
-#include "LumiBlockComps/ILuminosityTool.h" 
+#include "LumiBlockComps/ILumiBlockMuTool.h" 
 
 #include "xAODPrimitives/IsolationType.h"
 #include "RecoToolInterfaces/IsolationCommon.h"
@@ -110,7 +110,7 @@ private:
   ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_topoIsolationTool;
   
   /** Luminosity Tool */
-  ToolHandle<ILuminosityTool>  m_lumiTool; 
+  ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool; 
   // booleans to run specific parts of offline reconstruction
   bool m_doConversions;
   bool m_doTrackMatching;

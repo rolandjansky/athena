@@ -24,7 +24,7 @@ namespace JiveXML {
    **/
   TruthTrackRetriever::TruthTrackRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     base_class(type,name,parent),
-    typeName("STr")
+    m_typeName("STr")
   {
     declareProperty("StoreGateKey", m_McEvtCollName = "TruthEvent", "Name of the McEventCollection");
     declareProperty("UnstableMinPtCut",     m_MinPtCut = 100*Gaudi::Units::MeV, "Minimum pT for an unstable particle to get accepted");

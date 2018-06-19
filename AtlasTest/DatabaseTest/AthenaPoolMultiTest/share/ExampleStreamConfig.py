@@ -50,12 +50,12 @@ exampleMetadataList += ["LumiBlockCollection#*"]
 #   - does not disrupt further stream transforms
 
 def ExampleStreamConfig(streamname):
-   streamname.WritingTool = "AthenaPoolOutputStreamTool"
+   streamname.WritingTool = "AthenaOutputStreamTool"
    streamname.ItemList += exampleItemList
    return
 
 def ExampleStreamConfig2(streamname,tag):
-   streamname.WritingTool = "AthenaPoolOutputStreamTool"
+   streamname.WritingTool = "AthenaOutputStreamTool"
 #   streamname.ItemList += exampleItemList
    streamname.TakeItemsFromInput = True
    streamname.ProcessingTag = tag

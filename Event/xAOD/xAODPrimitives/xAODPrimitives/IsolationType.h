@@ -72,7 +72,7 @@ namespace xAOD {
 
       }; // enum IsolationType
       
-      static inline const char* toString(IsolationType type)
+      static inline const char* toCString(IsolationType type)
       {
           switch (type)
           {

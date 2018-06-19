@@ -65,7 +65,6 @@ namespace Trk {
     //m_useSparse
     //m_diagonalize
     //m_eigenvaluethreshold
-    , m_nDoF{}
     //m_solveOption
     //m_modcut
     //m_minNumHits
@@ -88,8 +87,6 @@ namespace Trk {
     //m_runLocal
     , m_scale(-1.)
     //m_scaleMatrix
-    , m_matVersion{}
-    , m_vecVersion{}
     //m_softEigenmodeCut
     //m_removeSpurious
     //m_calculateFullCovariance
@@ -1731,7 +1728,7 @@ namespace Trk {
       DataVector<AlignPar>::const_iterator ipar     = alignPars->begin();
       DataVector<AlignPar>::const_iterator ipar_end = alignPars->end();
       for ( ; ipar != ipar_end; ++ipar) {
-        AlignPar * par = *ipar;
+        const AlignPar * par = *ipar;
         os << std::setw(10) << par->dumpType()
            << std::setw(12) << par->par() << " +/- " << std::setw(12) << par->err()
            << std::endl;
@@ -2021,10 +2018,10 @@ namespace Trk {
 
       // create a pull vector for the alignment corrections in diagonal basis (db_pulls)
       //int nDoF=m_alignModuleTool->nAlignParameters();
-      AlVec* m_Align_db = new AlVec(size);
-      AlVec* m_Align_error_db = new AlVec(size);
-      AlVec* m_AlignPull = new AlVec(size);
-      ATH_MSG_DEBUG("AlignPull vector size is: "<< (*m_AlignPull).size());
+      AlVec* Align_db = new AlVec(size);
+      AlVec* Align_error_db = new AlVec(size);
+      AlVec* AlignPull = new AlVec(size);
+      ATH_MSG_DEBUG("AlignPull vector size is: "<< (*AlignPull).size());
 
       m_modcut = 0;
       bool wm_stop = false;
@@ -2034,21 +2031,21 @@ namespace Trk {
       // compute alignment pulls for corrections in diagonal basis (db)
       for(int i=0; i<size; i++) {
 
-        (*m_Align_db)[i] = (-D[i]/w[i]);
-        (*m_Align_error_db)[i] = sqrt(1.0/w[i]/m_scale);
+        (*Align_db)[i] = (-D[i]/w[i]);
+        (*Align_error_db)[i] = sqrt(1.0/w[i]/m_scale);
 
         if (w[i]<eigenvalue_threshold) {
           ATH_MSG_INFO("  + EigenMode " << i
                          << " removed as eigenvalue lower than the threshold " << eigenvalue_threshold
                          << ": " << w[i]);
-          (*m_AlignPull)[i] = 0.0;
+          (*AlignPull)[i] = 0.0;
           m_modcut++;
         }
         else
-          (*m_AlignPull)[i] = (*m_Align_db)[i] / (*m_Align_error_db)[i];
+          (*AlignPull)[i] = (*Align_db)[i] / (*Align_error_db)[i];
 
-        ATH_MSG_DEBUG(i << ". AlignPar: " << (*m_Align_db)[i] << " +- " << (*m_Align_error_db)[i]
-                        << " (pull: " << (*m_AlignPull)[i]  << ") ; w[i]: " << w[i]);
+        ATH_MSG_DEBUG(i << ". AlignPar: " << (*Align_db)[i] << " +- " << (*Align_error_db)[i]
+                        << " (pull: " << (*AlignPull)[i]  << ") ; w[i]: " << w[i]);
       }
       ATH_MSG_INFO(" +++ Weak Mode removal ++ stop after mode "<< m_modcut << " (First pass)");
       // -----------------------------------------------------------------------
@@ -2059,10 +2056,10 @@ namespace Trk {
       for(int i=m_modcut; (i<size && !wm_stop); i++) {
 
         // if the error is greater than the correction -> cut this mode
-        if (fabs((*m_AlignPull)[i])<m_pullcut) {
+        if (fabs((*AlignPull)[i])<m_pullcut) {
           ATH_MSG_INFO("  + EigenMode " << i
                          << " removed as pull is lower than " << m_pullcut << ": "
-                         << (*m_AlignPull)[i]);
+                         << (*AlignPull)[i]);
           m_modcut++;
         }
         else
@@ -2103,7 +2100,7 @@ namespace Trk {
       for(int i=m_modcut; (i<size && !wm_stop); i++) {
 
         // if the next eigenvalues is far away -> cut this mode
-        if ( fabs((*m_Align_db)[i]) > m_Align_db_step*fabs((*m_Align_db)[i+1]) ) {
+        if ( fabs((*Align_db)[i]) > m_Align_db_step*fabs((*Align_db)[i+1]) ) {
           ATH_MSG_INFO("  + EigenMode " << i
                          << " removed as diff between corrections, " << w[i] << " and " << w[i+1]
                          << ", is greater than "
@@ -2119,12 +2116,12 @@ namespace Trk {
 
       // Free memory and clear the pointer to
       // prevent using invalid memory reference
-      delete m_Align_db;
-      delete m_Align_error_db;
-      delete m_AlignPull;
-      m_Align_db = 0;
-      m_Align_error_db = 0;
-      m_AlignPull = 0;
+      delete Align_db;
+      delete Align_error_db;
+      delete AlignPull;
+      Align_db = 0;
+      Align_error_db = 0;
+      AlignPull = 0;
 
     } // end of if(m_modcut == -1)
 

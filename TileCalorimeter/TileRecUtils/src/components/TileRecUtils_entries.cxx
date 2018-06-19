@@ -14,7 +14,7 @@
 #include "TileRecUtils/TileRawChannelMaker.h"
 #include "TileRecUtils/TileRawChannelVerify.h"
 #include "TileRecUtils/TileRawCorrelatedNoise.h"
-#include "TileRecUtils/TileTowerBuilderTool.h"
+#include "../TileTowerBuilderTool.h"
 #include "TileRecUtils/TileCellNoiseFilter.h"
 #include "TileRecUtils/TileRawChannelNoiseFilter.h"
 #include "TileRecUtils/TileRawChannelOF1Corrector.h"

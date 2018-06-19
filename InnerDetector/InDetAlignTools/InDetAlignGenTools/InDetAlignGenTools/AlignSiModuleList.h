@@ -9,9 +9,7 @@
 // Encapsulation of vector of AlignSiModules and modlist 
 // for InDetAlignGenAlgs allowing it to be stored in TDS
 
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 #include <vector>
 #include <map>
 #include "InDetAlignTrkInfo/AlignSiModule.h"

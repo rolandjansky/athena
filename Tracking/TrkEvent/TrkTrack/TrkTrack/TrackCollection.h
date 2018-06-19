@@ -5,9 +5,9 @@
 #ifndef TRKTRACK_TRACKCOLLECTION_H
 #define TRKTRACK_TRACKCOLLECTION_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrkTrack/Track.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /**This typedef represents a collection of Trk::Track objects. 
 It is a DataVector. It can be saved

@@ -5,10 +5,10 @@
 #include "PFONeutralValidationPlots.h"
 
 PFONeutralValidationPlots::PFONeutralValidationPlots(PlotBase* pParent, std::string sDir,  std::string sPFOContainerName) : PlotBase(pParent, sDir),
-													     m_PFOPlots(this,"PFO_JetETMiss/",sPFOContainerName),
-													     m_PFOClusterMomentPlots(this,"PFO_JetETMiss/",sPFOContainerName),
-													     m_PFOAttributePlots(this,"PFO_JetETMiss/",sPFOContainerName),
-													     m_PFOEMPlots(this,"PFO_JetETMiss/",sPFOContainerName)
+													     m_PFOPlots(this,"",sPFOContainerName),
+													     m_PFOClusterMomentPlots(this,"",sPFOContainerName),
+													     m_PFOAttributePlots(this,"",sPFOContainerName),
+													     m_PFOEMPlots(this,"",sPFOContainerName)
 {}
 
 void PFONeutralValidationPlots::fill(const xAOD::PFO& thePFO){

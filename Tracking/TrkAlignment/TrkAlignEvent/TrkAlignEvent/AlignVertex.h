@@ -8,9 +8,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "DataModel/DataVector.h"
-  
-
 #include "TrkTrack/Track.h"
 #include "VxVertex/VxCandidate.h"
 #include "xAODTracking/Vertex.h"
@@ -18,7 +15,7 @@
 
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include <vector>
 #include <fstream>
 

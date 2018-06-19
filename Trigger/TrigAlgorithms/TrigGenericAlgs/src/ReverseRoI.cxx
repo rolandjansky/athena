@@ -46,7 +46,7 @@ HLT::ErrorCode ReverseRoI::hltExecute(const HLT::TriggerElement* /* te_in */,
   while (newPhiMinus < -M_PI) newPhiMinus += 2. * M_PI;  // this while is executed once -- it is cheaper than the "if" statement  !
   while (newPhiMinus > M_PI)  newPhiMinus -= 2. * M_PI;
 
-  double newPhiPlus = roiDescriptor->phiPlus() + m_phi_shift;;
+  double newPhiPlus = roiDescriptor->phiPlus() + m_phi_shift;
   while (newPhiPlus < -M_PI) newPhiPlus += 2. * M_PI;  // this while is executed once -- it is cheaper than the "if" statement  !
   while (newPhiPlus > M_PI)  newPhiPlus -= 2. * M_PI;
   

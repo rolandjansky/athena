@@ -4,7 +4,9 @@ from AthenaCommon.KeyStore import CfgItemList
 
 # for the FileMetaData for MC
 from RecExConfig.InputFilePeeker import inputFileSummary
-if inputFileSummary['evt_type'][0] == 'IS_SIMULATION':
+if (inputFileSummary['evt_type'][0] == 'IS_SIMULATION' and
+    inputFileSummary['metadata'] and
+    '/Simulation/Parameters' in inputFileSummary['metadata']):
   svcMgr.IOVDbSvc.Folders += ['/Simulation/Parameters']
 
 # ESD
@@ -12,6 +14,10 @@ recoMetadataItemList = CfgItemList("RecoMetadata",
                                     items = ["IOVMetaDataContainer#*",
                                              "xAOD::LumiBlockRangeContainer#*",
 	                                     "xAOD::LumiBlockRangeAuxContainer#*",
+#                                             "xAOD::CutBookkeeperContainer#IncompleteCutBookkeepers",
+#                                             "xAOD::CutBookkeeperAuxContainer#IncompleteCutBookkeepersAux.",
+#                                             "xAOD::CutBookkeeperContainer#CutBookkeepers",
+#                                             "xAOD::CutBookkeeperAuxContainer#CutBookkeepersAux.",
                                              "xAOD::CutBookkeeperContainer#*",
                                              "xAOD::CutBookkeeperAuxContainer#*",
                                              "ByteStreamMetadataContainer#*",

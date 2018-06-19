@@ -17,3 +17,4 @@ DECLARE_COMPONENT( HLTTest::TestRecoAlg )
 DECLARE_COMPONENT( HLTTest::TestRoRSeqFilter )
 DECLARE_COMPONENT( HLTTest::TestMerger )
 DECLARE_COMPONENT( HLTTest::TestComboHypoAlg )
+

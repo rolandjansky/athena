@@ -6,7 +6,8 @@
 #define IOVSVC_METACONT_H 1
 
 #include <iostream>
-#include <set>
+#include <sstream>
+#include <map>
 #include <vector>
 #include <typeinfo>
 #include <mutex>
@@ -14,8 +15,11 @@
 
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/DataObjID.h"
-
-//#include "PersistentDataModel/Guid.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/BaseInfo.h"
+#include "AthenaKernel/SourceID.h"
+#include "AthenaKernel/DataBucketTraitFwd.h"
+#include "AthenaKernel/MetaContDataBucket.h"
 
 namespace SG {
   class DataProxy;
@@ -28,7 +32,7 @@ namespace SG {
 class MetaContBase {
 //typedef Guid SourceID;
 public:
-  typedef std::string SourceID;
+  typedef SG::SourceID SourceID;
   MetaContBase() {};
   virtual ~MetaContBase(){};
 
@@ -53,6 +57,8 @@ private:
 template <typename T>
 class MetaCont: public MetaContBase {
 public:
+
+  typedef T Payload_t;
 
   friend SG::ReadMetaHandle<T>;
   friend SG::WriteMetaHandle<T>;
@@ -81,11 +87,8 @@ public:
 
 private:
 
-  //bool findEntry(const EventIDBase& t, const IOVEntryT<T>*&) const;
-
   mutable std::mutex m_mut;
 
-  //typedef std::set<IOVEntryT<T>, typename IOVEntryT<T>::IOVEntryTStartCritereon > MetaContSet;
   typedef std::map<SourceID,T*> MetaContSet;
   MetaContSet m_metaSet;
 
@@ -95,16 +98,34 @@ private:
 
 };
 
+
+namespace SG {
+
+
+/**
+ * @brief Metafunction to find the proper @c DataBucket class for @c T.
+ *
+ * Specialize this for @c MetaCont.
+ * See AthenaKernel/StorableConversions.h for an explanation.
+ */
+template <class T, class U>
+struct DataBucketTrait<MetaCont<T>, U>
+{
+  typedef MetaContDataBucket<U> type;
+  static void init() {}
+};
+
+
+} // namespace SG
+
+
 //
 ///////////////////////////////////////////////////////////////////////////
 //
 
 template <typename T>
 MetaCont<T>::~MetaCont<T>() {
-  //  std::cout << "cleaning up - " << typeid( T ).name() << std::endl;
-  
   for (auto itr=m_metaSet.begin(); itr != m_metaSet.end(); ++itr) {
-    //delete itr->objPtr();
     delete itr->second;
   }
   m_metaSet.clear();
@@ -171,50 +192,15 @@ bool MetaCont<T>::find(const SourceID& it, T*& t) const {
     t=itr->second;
     return true;
   }
-/*
   else {
-    t=0;
-    typename MetaContSet::const_iterator it=m_metaSet.begin();
-    for (; it != m_metaSet.end(); ++it) {
-      std::cerr << "Container has SID=" << it->first << std::endl;
-    }
-  }
-*/
-  return false;
-}
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-/*
-template <typename T>
-bool MetaCont<T>::findEntry(const EventIDBase& it, const IOVEntryT<T>*& t) const {
-  typename MetaContSet::const_iterator itr;
-  
-  std::lock_guard<std::mutex> lock(m_mut);
-
-  // if EventID is BOTH, we need to look in both sets
-  if (it.isRunEvent()) {
-    itr = m_condSet_RE.begin();
-    for (; itr != m_condSet_RE.end(); ++itr) {
-      if ( itr->range().isInRange( it ) ) {
-        t = &(*itr);
-        return true;
-      }
-    }
-  }
-  if (it.isTimeStamp()) {
-    itr = m_condSet_clock.begin();
-    for (; itr != m_condSet_clock.end(); ++itr) {
-      if ( itr->range().isInRange( it ) ) {
-        t = &(*itr);
-        return true;
-      }
+    for (const auto& elt : m_metaSet) {
+      std::cerr << "Container has SID=" << elt.first << std::endl;
     }
   }
 
   return false;
 }
-*/
+
     
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -258,8 +244,14 @@ MetaCont<T>::sources() const {
 
 #include "SGTools/CLASS_DEF.h"
 CLASS_DEF( MetaContBase , 34480469 , 1 )
-//#include "SGTools/BaseInfo.h"
-//SG_BASE( MetaCont<Cont>, MetaContBase )
+
+
+/// Declare a metadata container along with its CLID:
+//    METACONT_DEF(TYPE, CLID);
+//
+#define METACONT_DEF(T, CLID) \
+  CLASS_DEF( MetaCont<T>, CLID, 1 )             \
+  SG_BASE( MetaCont<T>, MetaContBase )
 
 #endif
 

@@ -30,15 +30,15 @@ public:
 
 //____________________________________________________________________
 VP1HttpGetFile::VP1HttpGetFile(QObject * parent)
-  : QObject(parent), d(new Imp)
+  : QObject(parent), m_d(new Imp)
 {
 }
 
 //____________________________________________________________________
 VP1HttpGetFile::~VP1HttpGetFile()
 {
-  d->dead = true;
-  foreach( VP1HttpGetFile_DownloadThread * thread, d->activeDownloadThreads) {
+  m_d->dead = true;
+  foreach( VP1HttpGetFile_DownloadThread * thread, m_d->activeDownloadThreads) {
     thread->blockSignals(true);
     QString urltofile = thread->urltofile();
     QString localtargetfile = thread->localtargetfile();
@@ -48,25 +48,25 @@ VP1HttpGetFile::~VP1HttpGetFile()
     thread->wait();
     thread->deleteLater();
   }
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
 void VP1HttpGetFile::setMaxNumberOfPendingDownloads(unsigned n)
 {
-  d->maxDownloads = n;
+  m_d->maxDownloads = n;
 }
 
 //____________________________________________________________________
 unsigned VP1HttpGetFile::maxNumberOfPendingDownloads() const
 {
-  return d->maxDownloads;
+  return m_d->maxDownloads;
 }
 
 //____________________________________________________________________
 unsigned VP1HttpGetFile::numberOfPendingDownloads() const
 {
-  return d->activeDownloadThreads.size();
+  return m_d->activeDownloadThreads.size();
 }
 
 //____________________________________________________________________
@@ -75,7 +75,7 @@ QString VP1HttpGetFile::startDownload( const QString& urltofile,
 				       const QString& md5sum,
 				       const QString& data )
 {
-  if (d->maxDownloads>0 && unsigned(d->activeDownloadThreads.count()) >= d->maxDownloads)
+  if (m_d->maxDownloads>0 && unsigned(m_d->activeDownloadThreads.count()) >= m_d->maxDownloads)
     return "Too many simultaneous downloads requested";
 
   if (isDownloadingTo(localtargetfile))
@@ -84,7 +84,7 @@ QString VP1HttpGetFile::startDownload( const QString& urltofile,
   VP1HttpGetFile_DownloadThread * thread = new VP1HttpGetFile_DownloadThread( urltofile, localtargetfile, md5sum, data);
   connect(thread,SIGNAL(finished()),this,SLOT(downloadThreadFinished()));
   connect(thread,SIGNAL(terminated()),this,SLOT(downloadThreadTerminated()));
-  d->activeDownloadThreads << thread;
+  m_d->activeDownloadThreads << thread;
   thread->start();
 
   return "";//Download started succesfully.
@@ -93,12 +93,12 @@ QString VP1HttpGetFile::startDownload( const QString& urltofile,
 //____________________________________________________________________
 void VP1HttpGetFile::downloadThreadFinished()
 {
-  if (d->dead)
+  if (m_d->dead)
     return;
   VP1HttpGetFile_DownloadThread * thread = dynamic_cast<VP1HttpGetFile_DownloadThread *>(sender());
   if (!thread)
     return;
-  d->activeDownloadThreads.removeAll(thread);
+  m_d->activeDownloadThreads.removeAll(thread);
   const QString urltofile = thread->urltofile();
   const QString localtargetfile = thread->localtargetfile();
   const QString data = thread->data();
@@ -115,12 +115,12 @@ void VP1HttpGetFile::downloadThreadFinished()
 //____________________________________________________________________
 void VP1HttpGetFile::downloadThreadTerminated()
 {
-  if (d->dead)
+  if (m_d->dead)
     return;
   VP1HttpGetFile_DownloadThread * thread = dynamic_cast<VP1HttpGetFile_DownloadThread *>(sender());
   if (!thread)
     return;
-  d->activeDownloadThreads.removeAll(thread);
+  m_d->activeDownloadThreads.removeAll(thread);
   const QString urltofile = thread->urltofile();
   const QString localtargetfile = thread->localtargetfile();
   const QString data = thread->data();
@@ -136,7 +136,7 @@ void VP1HttpGetFile::downloadThreadTerminated()
 //____________________________________________________________________
 bool VP1HttpGetFile::isDownloading(const QString& urltofile) const
 {
-  foreach( VP1HttpGetFile_DownloadThread * thread, d->activeDownloadThreads)
+  foreach( VP1HttpGetFile_DownloadThread * thread, m_d->activeDownloadThreads)
     if (urltofile==thread->urltofile()) {
       QTimer::singleShot(0, thread, SLOT(checkForStall()));
       return true;
@@ -147,7 +147,7 @@ bool VP1HttpGetFile::isDownloading(const QString& urltofile) const
 //____________________________________________________________________
 bool VP1HttpGetFile::isDownloadingTo(const QString& localtargetfile) const
 {
-  foreach( VP1HttpGetFile_DownloadThread * thread, d->activeDownloadThreads)
+  foreach( VP1HttpGetFile_DownloadThread * thread, m_d->activeDownloadThreads)
     if (localtargetfile==thread->localtargetfile()) {
       QTimer::singleShot(0, thread, SLOT(checkForStall()));
       return true;

@@ -687,7 +687,7 @@ private:
  * @class WritableArray<N>
  * @brief Read-write multidimensional array, specialized for @c N=0.
  *
- * This class derives from @Array<0>.  It allows writing into
+ * This class derives from Array<0>.  It allows writing into
  * the (single) element, but otherwise works in the same way.
  */
 template <>

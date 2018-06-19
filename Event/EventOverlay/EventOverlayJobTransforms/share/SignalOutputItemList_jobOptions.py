@@ -112,22 +112,7 @@ if DetFlags.overlay.LVL1_on():
                            "DataVector<LVL1::JEMEtSums>#*",
                            "LVL1::CMMRoI#*"]
 
-#options for writing the MetaData into the output file
-MetaDataStore=ServiceMgr.MetaDataStore
-from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-StreamRDO_MC_FH =  AthenaPoolOutputStream( "StreamRDO_MC_FH" )
-from AthenaCommon.AthenaCommonFlags import jobproperties
-StreamRDO_MC_FH.OutputFile = "ROOTTREE:"+SignalCollection
-StreamRDO_MC_FH.Store = MetaDataStore
-StreamRDO_MC_FH.WriteOnExecute = False
-StreamRDO_MC_FH.WriteOnFinalize = True
 # Write all IOV meta data containers
-StreamRDO_MC_FH.ItemList += [ "IOVMetaDataContainer#*" ]
-StreamRDO_MC_FH.ItemList += [ "LumiBlockCollection#*" ]
-
-from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
-StreamRDO_MC_FHTool = AthenaPoolOutputStreamTool("StreamRDO_MC_FHTool")
-StreamRDO_MC_FHTool.OutputCollection = "MetaDataHdr";
-StreamRDO_MC_FHTool.PoolContainerPrefix = "MetaData"
-StreamRDO_MC_FH.WritingTool = StreamRDO_MC_FHTool
+StreamRDO_MC.MetadataItemList += [ "IOVMetaDataContainer#*" ]
+StreamRDO_MC.MetadataItemList += [ "LumiBlockCollection#*" ]
 

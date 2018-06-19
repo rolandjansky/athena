@@ -12,6 +12,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexContainer.h"
 
 
 namespace InDet {
@@ -38,6 +39,9 @@ namespace InDet {
    private:
       /// StoreGate key for the track container to investigate
       SG::ReadHandleKey<xAOD::TrackParticleContainer> m_sgKey;
+
+     SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", 
+	                                                    "reconstructed vertex container" };
 
       /// Connection to the selection tool
       ToolHandle< IInDetTrackSelectionTool > m_selTool;

@@ -100,38 +100,38 @@ public:
 
 //____________________________________________________________________
 IParticleHandle_Jet::IParticleHandle_Jet(IParticleCollHandleBase* ch, const xAOD::Jet *jet)
-: IParticleHandleBase(ch), d(new Imp)
+: IParticleHandleBase(ch), m_d(new Imp)
 { 
 	//	VP1Msg::messageVerbose("IParticleHandle_Jet::IParticleHandle_Jet() - constructor");
-	d->theclass = this;
-	d->m_jet = jet;
+	m_d->theclass = this;
+	m_d->m_jet = jet;
 
-	d->sep = 0;
-	d->cone = 0;
-	d->m_randomMat = 0;
-	d->m_bTagged = 0;
-	d->m_bTaggingCollSwitch = new SoSwitch();
+	m_d->sep = 0;
+	m_d->cone = 0;
+	m_d->m_randomMat = 0;
+	m_d->m_bTagged = 0;
+	m_d->m_bTaggingCollSwitch = new SoSwitch();
 
 	// get b-tagging weights for different taggers
-	d->m_bTagWeightMV1 = getBTaggingWeight("MV1");
-	d->m_bTagWeightMV2c20 = getBTaggingWeight("MV2c20");
-	d->m_bTagWeightMV2c10 = getBTaggingWeight("MV2c10");
-	d->m_JetFitterCombNN_pb = getBTaggingWeight("JetFitterCombNN_pb");
-	d->m_JetFitterCombNN_pc = getBTaggingWeight("JetFitterCombNN_pc");
-	d->m_JetFitterCombNN_pu = getBTaggingWeight("JetFitterCombNN_pu");
+	m_d->m_bTagWeightMV1 = getBTaggingWeight("MV1");
+	m_d->m_bTagWeightMV2c20 = getBTaggingWeight("MV2c20");
+	m_d->m_bTagWeightMV2c10 = getBTaggingWeight("MV2c10");
+	m_d->m_JetFitterCombNN_pb = getBTaggingWeight("JetFitterCombNN_pb");
+	m_d->m_JetFitterCombNN_pc = getBTaggingWeight("JetFitterCombNN_pc");
+	m_d->m_JetFitterCombNN_pu = getBTaggingWeight("JetFitterCombNN_pu");
 
 
-//	d->theCollHandle = dynamic_cast<const IParticleCollHandle_Jet*>(collHandle());
+//	m_d->theCollHandle = dynamic_cast<const IParticleCollHandle_Jet*>(collHandle());
 }
 
 //____________________________________________________________________
 IParticleHandle_Jet::~IParticleHandle_Jet()
 {
 	//	VP1Msg::messageVerbose("IParticleHandle_Jet::~IParticleHandle_Jet() - destructor");
-	if (d->m_randomMat) d->m_randomMat->unref();
-	if (d->cone) d->cone->unref();
-	if (d->sep) d->sep->unref();
-	delete d;
+	if (m_d->m_randomMat) m_d->m_randomMat->unref();
+	if (m_d->cone) m_d->cone->unref();
+	if (m_d->sep) m_d->sep->unref();
+	delete m_d;
 }
 
 
@@ -139,19 +139,19 @@ IParticleHandle_Jet::~IParticleHandle_Jet()
 
 // Setter
 //____________________________________________________________________
-void IParticleHandle_Jet::setScale( const double& sc) { d->scale = sc; }
+void IParticleHandle_Jet::setScale( const double& sc) { m_d->scale = sc; }
 
 //____________________________________________________________________
-void IParticleHandle_Jet::setMaxR(const double& maxR) { d->maxR = maxR * Gaudi::Units::m; }
+void IParticleHandle_Jet::setMaxR(const double& maxR) { m_d->maxR = maxR * Gaudi::Units::m; }
 
 //____________________________________________________________________
-void IParticleHandle_Jet::rerandomiseMaterial() {d->rerandomiseMaterial(); }
+void IParticleHandle_Jet::rerandomiseMaterial() {m_d->rerandomiseMaterial(); }
 
 //____________________________________________________________________
 bool IParticleHandle_Jet::has3DObjects()
 {
 	//	VP1Msg::messageVerbose("IParticleHandle_Jet::has3DObjects()");
-	return 0 != d->sep;
+	return 0 != m_d->sep;
 }
 
 
@@ -159,17 +159,17 @@ bool IParticleHandle_Jet::has3DObjects()
 void IParticleHandle_Jet::clear3DObjects(){
 	//	VP1Msg::messageVerbose("IParticleHandle_Jet::clear3DObjects()");
 
-	if (d->m_randomMat) {
-		d->m_randomMat->unref();
-		d->m_randomMat = 0;
+	if (m_d->m_randomMat) {
+		m_d->m_randomMat->unref();
+		m_d->m_randomMat = 0;
 	}
-	if (d->cone) {
-		d->cone->unref();
-		d->cone = 0;
+	if (m_d->cone) {
+		m_d->cone->unref();
+		m_d->cone = 0;
 	}
-	if (d->sep) {
-		d->sep->unref();
-		d->sep = 0;
+	if (m_d->sep) {
+		m_d->sep->unref();
+		m_d->sep = 0;
 	}
 
 }
@@ -184,29 +184,29 @@ SoNode* IParticleHandle_Jet::nodes(){
 
 	VP1Msg::messageVerbose("IParticleHandle_Jet::nodes()");
 
-	if (d->sep) {
-		VP1Msg::messageVerbose("d->sep already defined (" + VP1Msg::str(d->sep) + "). Returning d->sep.");
-		return d->sep; // FIXME - do we need to check if anything need to be redrawn?
+	if (m_d->sep) {
+		VP1Msg::messageVerbose("d->sep already defined (" + VP1Msg::str(m_d->sep) + "). Returning d->sep.");
+		return m_d->sep; // FIXME - do we need to check if anything need to be redrawn?
 	}
-	if (!d->sep) {
+	if (!m_d->sep) {
 		VP1Msg::messageVerbose("d->sep not defined. Creating shapes and a new d->sep.");
-		d->sep = new SoSeparator();
-		d->sep->ref();
+		m_d->sep = new SoSeparator();
+		m_d->sep->ref();
 	}
 
 	const IParticleCollHandle_Jet* collHandleJet = dynamic_cast<const IParticleCollHandle_Jet*>(collHandle());
-  if (not collHandleJet) return d->sep; //would nullptr be better?
+  if (not collHandleJet) return m_d->sep; //would nullptr be better?
 	SbVec3f origin(0.,0.,0.);
 	/* TODO: ask if origin info is present in xAOD, like in the old Jet class
-	if ( d->m_jet->origin() ) {
-		origin.setValue(d->m_jet->origin()->position().x(),
-				d->m_jet->origin()->position().y(),
-				d->m_jet->origin()->position().z());
+	if ( m_d->m_jet->origin() ) {
+		origin.setValue(m_d->m_jet->origin()->position().x(),
+				m_d->m_jet->origin()->position().y(),
+				m_d->m_jet->origin()->position().z());
 	}
 	 */
   
   const xAOD::Vertex * vtx; 
-  bool exists = d->m_jet->getAssociatedObject(xAOD::JetAttribute::OriginVertex, vtx);
+  bool exists = m_d->m_jet->getAssociatedObject(xAOD::JetAttribute::OriginVertex, vtx);
 
   if( exists && vtx ) {
     origin.setValue(vtx->position().x(),vtx->position().y(),vtx->position().z());
@@ -217,17 +217,17 @@ SoNode* IParticleHandle_Jet::nodes(){
 
 
 	/*
-	 * Here the 3D cone (SoCone) for the jet has to be created (and d->sep is updated)
+	 * Here the 3D cone (SoCone) for the jet has to be created (and m_d->sep is updated)
 	 */
-	d->createShapeFromJetParameters(collHandleJet, d->coneR(), d->eta(), d->phi(), d->energyForLengthAndCuts(), origin);
+	m_d->createShapeFromJetParameters(collHandleJet, m_d->coneR(), m_d->eta(), m_d->phi(), m_d->energyForLengthAndCuts(), origin);
 
 
-	return d->sep;
+	return m_d->sep;
 }
 
 //____________________________________________________________________
 void IParticleHandle_Jet::updateHeight() {
-	d->updateConeHeightParameters();
+	m_d->updateConeHeightParameters();
 }
 
 
@@ -399,7 +399,7 @@ void IParticleHandle_Jet::Imp::updateConeHeightParameters() const {
 //____________________________________________________________________
 Amg::Vector3D IParticleHandle_Jet::momentum() const
 {
-  const Trk::Perigee& p = d->trackparticle->perigeeParameters();
+  const Trk::Perigee& p = m_d->trackparticle->perigeeParameters();
   return p.momentum();
 }
  */
@@ -407,14 +407,14 @@ Amg::Vector3D IParticleHandle_Jet::momentum() const
 //____________________________________________________________________
 const xAOD::IParticle& IParticleHandle_Jet::iParticle() const
 {
-	return *(d->m_jet);
+	return *(m_d->m_jet);
 }
 
 
 //____________________________________________________________________
 double IParticleHandle_Jet::charge() const
 {
-	//return d->trackparticle->charge(); // TODO: check in Jet interface if a "charge" is defined
+	//return m_d->trackparticle->charge(); // TODO: check in Jet interface if a "charge" is defined
 	return 0; // FIXME: dummy value now
 }
 
@@ -429,7 +429,7 @@ double IParticleHandle_Jet::charge() const
 unsigned IParticleHandle_Jet::summaryValue(xAOD::SummaryType type) const
 { 
 	uint8_t num = 0;
-	if (d->trackparticle->summaryValue(num,type)){
+	if (m_d->trackparticle->summaryValue(num,type)){
 		return num;
 	}
 	// else...
@@ -451,33 +451,33 @@ QStringList IParticleHandle_Jet::clicked() const
 
 	//l << IParticleHandleBase::baseInfo();
 
-	l += "   - pt: " + QString::number(d->pt());
-    l += "   - e: " + QString::number(d->energy());
-	l += "   - eta: " + QString::number(d->eta());
-	l += "   - phi: " + QString::number(d->phi());
-	l += "   - m: " + QString::number(d->m_jet->m());
-	l += "   - rapidity: " + QString::number(d->m_jet->rapidity());
-	l += "   - type: " + QString::number(d->m_jet->type());
-	l += "   - px: " + QString::number(d->m_jet->px());
-	l += "   - py: " + QString::number(d->m_jet->py());
-	l += "   - pz: " + QString::number(d->m_jet->pz());
-	l += "   - numConstituents: " + QString::number(d->m_jet->numConstituents());
+	l += "   - pt: " + QString::number(m_d->pt());
+    l += "   - e: " + QString::number(m_d->energy());
+	l += "   - eta: " + QString::number(m_d->eta());
+	l += "   - phi: " + QString::number(m_d->phi());
+	l += "   - m: " + QString::number(m_d->m_jet->m());
+	l += "   - rapidity: " + QString::number(m_d->m_jet->rapidity());
+	l += "   - type: " + QString::number(m_d->m_jet->type());
+	l += "   - px: " + QString::number(m_d->m_jet->px());
+	l += "   - py: " + QString::number(m_d->m_jet->py());
+	l += "   - pz: " + QString::number(m_d->m_jet->pz());
+	l += "   - numConstituents: " + QString::number(m_d->m_jet->numConstituents());
 
-	l += "   - SizeParameter: " + QString::number(d->m_jet->getSizeParameter());
-//	l += "   - SizeParameter: " + QString::number(int(d->m_jet->getSizeParameter()*10));
+	l += "   - SizeParameter: " + QString::number(m_d->m_jet->getSizeParameter());
+//	l += "   - SizeParameter: " + QString::number(int(m_d->m_jet->getSizeParameter()*10));
 
-	xAOD::JetAlgorithmType::ID jetAlgID =  d->m_jet->getAlgorithmType();
+	xAOD::JetAlgorithmType::ID jetAlgID =  m_d->m_jet->getAlgorithmType();
 	std::string algName = xAOD::JetAlgorithmType::algName(jetAlgID);
 	l += "   - AlgorithmType: " + QString::fromStdString( algName );
 
-	 xAOD::JetInput::Type jetAlgType = d->m_jet->getInputType();
+	 xAOD::JetInput::Type jetAlgType = m_d->m_jet->getInputType();
 	std::string inputType =  xAOD::JetInput::typeName(jetAlgType);
 	l += "   - InputType: " + QString::fromStdString( inputType );
 
 
-	l += "   - 'MV2c20' b-tagging weight: " + QString::number( d->m_bTagWeightMV2c20 );
-	l += "   - 'MV2c10' b-tagging weight: " + QString::number( d->m_bTagWeightMV2c10 );
-	l += "   - 'MV1' b-tagging weight: " + QString::number( d->m_bTagWeightMV1 );
+	l += "   - 'MV2c20' b-tagging weight: " + QString::number( m_d->m_bTagWeightMV2c20 );
+	l += "   - 'MV2c10' b-tagging weight: " + QString::number( m_d->m_bTagWeightMV2c10 );
+	l += "   - 'MV1' b-tagging weight: " + QString::number( m_d->m_bTagWeightMV1 );
 
 
 	l << "------";
@@ -494,13 +494,13 @@ QString IParticleHandle_Jet::shortInfo() const
 
 	QString l;
 
-    l += "pt: " + QString::number(d->pt());
-	l += ", e: " + QString::number(d->energy());
-	l += ", eta: " + QString::number(d->eta());
-	l += ", phi: " + QString::number(d->phi());
-	l += ", MV2c20: " + QString::number( d->m_bTagWeightMV2c20 );
-	l += ", MV2c10: " + QString::number( d->m_bTagWeightMV2c10 );
-	l += ", MV1: " + QString::number( d->m_bTagWeightMV1 );
+    l += "pt: " + QString::number(m_d->pt());
+	l += ", e: " + QString::number(m_d->energy());
+	l += ", eta: " + QString::number(m_d->eta());
+	l += ", phi: " + QString::number(m_d->phi());
+	l += ", MV2c20: " + QString::number( m_d->m_bTagWeightMV2c20 );
+	l += ", MV2c10: " + QString::number( m_d->m_bTagWeightMV2c10 );
+	l += ", MV1: " + QString::number( m_d->m_bTagWeightMV1 );
 
 	return l;
 }
@@ -527,17 +527,17 @@ void IParticleHandle_Jet::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfIte
 	//
 
 	dParameters+="pt: ";
-	dParameters+=QString::number(d->pt());
+	dParameters+=QString::number(m_d->pt());
 	dParameters+=", e: ";
-	dParameters+=QString::number(d->energy());
+	dParameters+=QString::number(m_d->energy());
 	dParameters+=", eta: ";
-	dParameters+=QString::number(d->eta());
+	dParameters+=QString::number(m_d->eta());
 	dParameters+=", phi: ";
-	dParameters+=QString::number(d->phi());
+	dParameters+=QString::number(m_d->phi());
 	dParameters+=", m: ";
-	dParameters+=QString::number(d->m_jet->m());
+	dParameters+=QString::number(m_d->m_jet->m());
 	dParameters+=", rapidity: ";
-	dParameters+=QString::number(d->m_jet->rapidity());
+	dParameters+=QString::number(m_d->m_jet->rapidity());
 
 	dParameters+="";
 
@@ -556,27 +556,27 @@ void IParticleHandle_Jet::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfIte
 //____________________________________________________________________
 double IParticleHandle_Jet::phi() const {
 	/*VP1Msg::messageVerbose("phi: " + QString::number(m_jet->phi()) );*/
-	return d->phi();
+	return m_d->phi();
 }
 
 
 //____________________________________________________________________
 double IParticleHandle_Jet::eta() const {
 	/*VP1Msg::messageVerbose("eta: " + QString::number(m_jet->eta()) );*/
-	return d->eta();
+	return m_d->eta();
 }
 
 
 //____________________________________________________________________
-double IParticleHandle_Jet::energy() const { return d->energy(); }
+double IParticleHandle_Jet::energy() const { return m_d->energy(); }
 
 
 //____________________________________________________________________
-double IParticleHandle_Jet::energyForCuts() const { return d->energyForLengthAndCuts(); }
+double IParticleHandle_Jet::energyForCuts() const { return m_d->energyForLengthAndCuts(); }
 
 
 //____________________________________________________________________
-double IParticleHandle_Jet::transverseEnergy() const { return d->transverseEnergy(); } //sin(2*atan(exp(-fabs(eta()))))*energy();
+double IParticleHandle_Jet::transverseEnergy() const { return m_d->transverseEnergy(); } //sin(2*atan(exp(-fabs(eta()))))*energy();
 
 
 //____________________________________________________________________
@@ -635,20 +635,20 @@ void IParticleHandle_Jet::updateMaterial(bool isRandomColors)
 	VP1Msg::messageVerbose("IParticleHandle_Jet::Imp::updateMaterial()");
 
 	// check if we have 3D objects; if not, return
-	if ( d->sep == 0 )
+	if ( m_d->sep == 0 )
 		return;
 
-	if (!isRandomColors && !d->m_randomMat)
+	if (!isRandomColors && !m_d->m_randomMat)
 		return;//m_randomMat can never have been attached
 
-	if (isRandomColors && !d->m_randomMat) {
-		d->m_randomMat = new SoMaterial;
-		d->m_randomMat->ref();
+	if (isRandomColors && !m_d->m_randomMat) {
+		m_d->m_randomMat = new SoMaterial;
+		m_d->m_randomMat->ref();
 		rerandomiseMaterial();
 	}
 
 
-	int i = d->sep->findChild(d->m_randomMat);
+	int i = m_d->sep->findChild(m_d->m_randomMat);
 
 	if ( (i>=0) == isRandomColors ) {
 		VP1Msg::messageVerbose("(i>=0)==isRandomColors. Returning.");
@@ -656,9 +656,9 @@ void IParticleHandle_Jet::updateMaterial(bool isRandomColors)
 	}
 
 	if (!isRandomColors )
-		d->sep->removeChild(d->m_randomMat);
+		m_d->sep->removeChild(m_d->m_randomMat);
 	else
-		d->sep->insertChild(d->m_randomMat, d->sep->getNumChildren()-1);
+		m_d->sep->insertChild(m_d->m_randomMat, m_d->sep->getNumChildren()-1);
 }
 
 
@@ -667,17 +667,17 @@ void IParticleHandle_Jet::updateBTaggingSwitch(SoSwitch *bTaggingSwitch)
 {
 	VP1Msg::messageVerbose("IParticleHandle_Jet::updateBTaggingSwitch()");
 
-	std::cout << "old switch: " << d->m_bTaggingCollSwitch << " - new: " << bTaggingSwitch << std::endl;
+	std::cout << "old switch: " << m_d->m_bTaggingCollSwitch << " - new: " << bTaggingSwitch << std::endl;
 
 	// remove the old switch
-	d->m_bTagged->removeChild(d->m_bTaggingCollSwitch);
+	m_d->m_bTagged->removeChild(m_d->m_bTaggingCollSwitch);
 
 	// updating the jet switch with the Coll switch
-	d->m_bTaggingCollSwitch = 0;
-	d->m_bTaggingCollSwitch = bTaggingSwitch;
+	m_d->m_bTaggingCollSwitch = 0;
+	m_d->m_bTaggingCollSwitch = bTaggingSwitch;
 
 	// add the new switch to the internal b-tagging switch
-	d->m_bTagged->addChild( bTaggingSwitch );
+	m_d->m_bTagged->addChild( bTaggingSwitch );
 
 }
 
@@ -691,19 +691,19 @@ void IParticleHandle_Jet::updateBTagging(const std::string& bTaggingTagger, cons
 	//double bTaggingWeight = 0.99; // dummy value for debug only!!!
 	double bTaggingWeight = getBTaggingWeight(bTaggingTagger); // actual value
 
-    std::cout << "B-TAG UPDATE - jet eta: " << d->eta() << ", phi: " << d->phi() << " - tagger: " << bTaggingTagger << " - cut: " << bTaggingCut << " - weight: " << bTaggingWeight;
+    std::cout << "B-TAG UPDATE - jet eta: " << m_d->eta() << ", phi: " << m_d->phi() << " - tagger: " << bTaggingTagger << " - cut: " << bTaggingCut << " - weight: " << bTaggingWeight;
 
 	if (bTaggingWeight > bTaggingCut) {
-		d->m_bTagged->whichChild = SO_SWITCH_ALL;
+		m_d->m_bTagged->whichChild = SO_SWITCH_ALL;
 		std::cout << " ON" << std::endl;
 	}
 	else {
-		d->m_bTagged->whichChild = SO_SWITCH_NONE;
+		m_d->m_bTagged->whichChild = SO_SWITCH_NONE;
 		std::cout << " OFF" << std::endl;
 	}
 
 	// for debug: dumping the content of the whole node
-	// SoTools::dumpNode(d->sep);
+	// SoTools::dumpNode(m_d->sep);
 }
 
 //____________________________________________________________________
@@ -712,10 +712,10 @@ double IParticleHandle_Jet::getBTaggingWeight(std::string tagger)
     double weight = 0.0;
 
 	const xAOD::BTagging * myBTag = nullptr;
-    myBTag = d->m_jet->btagging();
+    myBTag = m_d->m_jet->btagging();
 
    if (myBTag == nullptr) {
-    VP1Msg::messageWarningRed("It was not possible to access the pointer to b-tagging info, for the selected collection! Returning 'weight': 0.0"); //("It was not possible to access the tagger '"+ tagger +"' for the selected collection: " + d->m_jet->getInputType() + d->m_jet->getAlgorithmType() );
+    VP1Msg::messageWarningRed("It was not possible to access the pointer to b-tagging info, for the selected collection! Returning 'weight': 0.0"); //("It was not possible to access the tagger '"+ tagger +"' for the selected collection: " + m_d->m_jet->getInputType() + m_d->m_jet->getAlgorithmType() );
     return weight;
    }
     
@@ -752,10 +752,10 @@ double IParticleHandle_Jet::getBTaggingWeight(std::string tagger)
 }
 
 void IParticleHandle_Jet::dumpToJSON( std::ofstream& str) const {
-  str << "\"coneR\":"<<d->coneR() <<", ";
-  str << "\"phi\":" <<d->phi() <<", ";
-  str << "\"eta\":" <<d->eta() <<", ";
-  str << "\"energy\":" <<d->energyForLengthAndCuts();
+  str << "\"coneR\":"<<m_d->coneR() <<", ";
+  str << "\"phi\":" <<m_d->phi() <<", ";
+  str << "\"eta\":" <<m_d->eta() <<", ";
+  str << "\"energy\":" <<m_d->energyForLengthAndCuts();
 }
 
 

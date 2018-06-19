@@ -35,7 +35,7 @@ EvtTauola::EvtTauola() {
   // Set the Tauola engine to a null pointer at first.
   // When we do the decay, we retrieve the pointer to the Tauola engine
   // and use that for all decays. All clones will use the same Tauola engine.
-  _tauolaEngine = 0;
+  m_tauolaEngine = 0;
 
 }
 
@@ -71,12 +71,12 @@ void EvtTauola::decay( EvtParticle *p ){
   // This should only create the full Tauola engine once, and all clones will 
   // point to the same engine.
 
-  if (_tauolaEngine == 0) {
-    _tauolaEngine = EvtExternalGenFactory::getInstance()->getGenerator(EvtExternalGenFactory::TauolaGenId);
+  if (m_tauolaEngine == 0) {
+    m_tauolaEngine = EvtExternalGenFactory::getInstance()->getGenerator(EvtExternalGenFactory::TauolaGenId);
   }
     
-  if (_tauolaEngine != 0) {
-    _tauolaEngine->doDecay(p);
+  if (m_tauolaEngine != 0) {
+    m_tauolaEngine->doDecay(p);
   }
 
 }

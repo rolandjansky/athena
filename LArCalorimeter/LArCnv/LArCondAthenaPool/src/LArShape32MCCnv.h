@@ -30,7 +30,9 @@ class LArShape32MCCnv : public LArShape32MCCnvBase {
 friend class CnvFactory<LArShape32MCCnv >;
 
 protected:
+public:
     LArShape32MCCnv (ISvcLocator* svcloc) : LArShape32MCCnvBase(svcloc) {}
+protected:
     virtual LArShapePersType*   createPersistent (LArShapeTransType* transObj);
     virtual LArShapeTransType*  createTransient ();
     LArConditionsSubset<LArShapeP1>* createTransient(LArConditionsSubset<LArShapeP>* orig);

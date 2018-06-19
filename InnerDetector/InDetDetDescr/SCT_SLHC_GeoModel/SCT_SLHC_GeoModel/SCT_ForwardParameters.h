@@ -63,11 +63,11 @@ public:
   int getRingMapIndex(int iWheel, int iRingIndex) const;
   InDetDD::PairIndexMap m_wheelRingIndexMap;
 
-  IRDBRecordset_ptr SctFwdGeneral;
-  IRDBRecordset_ptr SctFwdWheel;
-  IRDBRecordset_ptr SctFwdRing;
-  IRDBRecordset_ptr SctFwdWheelRingMap;
-  IRDBRecordset_ptr SctFwdDiscSupport;
+  IRDBRecordset_ptr m_SctFwdGeneral;
+  IRDBRecordset_ptr m_SctFwdWheel;
+  IRDBRecordset_ptr m_SctFwdRing;
+  IRDBRecordset_ptr m_SctFwdWheelRingMap;
+  IRDBRecordset_ptr m_SctFwdDiscSupport;
 };
 }
 #endif //SCT_SLHC_GeoModel_SCT_ForwardParameters_H

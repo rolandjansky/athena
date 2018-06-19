@@ -40,13 +40,8 @@ class JepByteStreamV2Tool;
 template <typename Container>
 class JepReadByteStreamV1V2Cnv: public Converter {
 
-  friend class CnvFactory<JepReadByteStreamV1V2Cnv<Container> >;
-
-protected:
-
-  JepReadByteStreamV1V2Cnv(ISvcLocator* svcloc);
-
 public:
+  JepReadByteStreamV1V2Cnv(ISvcLocator* svcloc);
 
   ~JepReadByteStreamV1V2Cnv();
 

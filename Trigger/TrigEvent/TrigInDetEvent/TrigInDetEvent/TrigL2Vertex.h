@@ -29,7 +29,7 @@
 
    NB: a user should not modify TrigL2Vertex directly but rather use methods provided by TrigVertexingTool
 
-   Vertex fitting loop in the TrigL2VertexFitter basically consists of alternate calls of m_getChi2Distance 
+   Vertex fitting loop in the TrigL2VertexFitter basically consists of alternate calls of getChi2Distance 
 and m_updateVertex methods of TrigVertexFittingNodes (i.e. tracks and constraints) 
 
 */
@@ -39,9 +39,9 @@ class TrigVertexFittingNode
  public:
   TrigVertexFittingNode(){};
   virtual ~TrigVertexFittingNode(){};
-  virtual double m_getChi2Distance(class TrigL2Vertex*) = 0;//!< abstract method
-  virtual void m_updateVertex(class TrigL2Vertex*) = 0;//!< abstract method
-  virtual MsgStream& m_report( MsgStream& ) const = 0;   
+  virtual double getChi2Distance(class TrigL2Vertex*) = 0;//!< abstract method
+  virtual void updateVertex(class TrigL2Vertex*) = 0;//!< abstract method
+  virtual MsgStream& report( MsgStream& ) const = 0;   
  protected:
   double m_resid[2];
   double m_V[2][2];
@@ -50,12 +50,12 @@ class TrigVertexFittingNode
 
 inline MsgStream& operator << ( MsgStream& msg, const TrigVertexFittingNode& node)
 { 
-  return node.m_report(msg); 
+  return node.report(msg); 
 }
 
 inline MsgStream& operator << ( MsgStream& msg, const TrigVertexFittingNode* node)
 { 
-  return node->m_report(msg); 
+  return node->report(msg); 
 }
 
 class TrigVertexFitInputTrack : public TrigVertexFittingNode
@@ -64,21 +64,21 @@ class TrigVertexFitInputTrack : public TrigVertexFittingNode
   TrigVertexFitInputTrack(const TrigInDetTrack*, double);//!< constructor for L2 tracks 
   TrigVertexFitInputTrack(const Trk::Track*, double);//!< constructor for EF (offline) tracks
   ~TrigVertexFitInputTrack();
-  const TrigInDetTrack* m_getTrigTrack();//!< getter for L2 tracks 
-  const Trk::Track* m_getTrkTrack();//!< getter for EF (offline) tracks
-  void m_initializeVertex(class TrigL2Vertex*);//!< resets and fills its part of the covariance and parameter vector
-  bool m_linearize(class TrigL2Vertex*);//!< re-calculates linearization of the measurement model in the vicinity of parameters provided by input TrigL2Vertex
-  virtual double m_getChi2Distance(class TrigL2Vertex*);//!< implementation of abstract method from the base class
-  virtual void m_updateVertex(class TrigL2Vertex*);//!< implementation of abstract method from the base class
-  virtual MsgStream& m_report( MsgStream& ) const;
-  void m_setIndex(int);//!< to be used by TrigVertexingTool
-  int m_getIndex() const;//!< to be used by TrigVertexingTool
-  int m_getTrackType();//!< 0: L2 track, 1: EF(offline) track
-  bool m_isActive();//!< if true this track will be used in the vertex fit otherwise it will be masked
-  void m_activate();//!< sets m_isActive to true
-  void m_mask();//!< sets m_isActive to false
-  void m_setMass(double);//!< sets a mass of this particle
-  double m_getMass() const {return m_mass;}//!< gets a mass of this particle
+  const TrigInDetTrack* getTrigTrack();//!< getter for L2 tracks 
+  const Trk::Track* getTrkTrack();//!< getter for EF (offline) tracks
+  void initializeVertex(class TrigL2Vertex*);//!< resets and fills its part of the covariance and parameter vector
+  bool linearize(class TrigL2Vertex*);//!< re-calculates linearization of the measurement model in the vicinity of parameters provided by input TrigL2Vertex
+  virtual double getChi2Distance(class TrigL2Vertex*);//!< implementation of abstract method from the base class
+  virtual void updateVertex(class TrigL2Vertex*);//!< implementation of abstract method from the base class
+  virtual MsgStream& report( MsgStream& ) const;
+  void setIndex(int);//!< to be used by TrigVertexingTool
+  int getIndex() const;//!< to be used by TrigVertexingTool
+  int getTrackType();//!< 0: L2 track, 1: EF(offline) track
+  bool isActive();//!< if true this track will be used in the vertex fit otherwise it will be masked
+  void activate();//!< sets isActive to true
+  void mask();//!< sets isActive to false
+  void setMass(double);//!< sets a mass of this particle
+  double getMass() const {return m_mass;}//!< gets a mass of this particle
   const double* Perigee() const;//!< track parameters at the perigee
   double PerigeeCovariance(int,int) const;//!< covariance of track parameters at the perigee
  private:
@@ -108,12 +108,12 @@ class TrigVertexFitConstraint : public TrigVertexFittingNode
   TrigVertexFitConstraint(double,const TrigVertexFitInputTrack*, const TrigVertexFitInputTrack*,
 			  const TrigVertexFitInputTrack*);//!< three-track mass constraint
   ~TrigVertexFitConstraint();
-  virtual double m_getChi2Distance(class TrigL2Vertex*);//!< implementation of abstract method from the base class
-  virtual void m_updateVertex(class TrigL2Vertex*);//!< implementation of abstract method from the base class
-  virtual MsgStream& m_report( MsgStream& ) const;
-  double m_getValue();//!< returns a mass of the constraint
+  virtual double getChi2Distance(class TrigL2Vertex*);//!< implementation of abstract method from the base class
+  virtual void updateVertex(class TrigL2Vertex*);//!< implementation of abstract method from the base class
+  virtual MsgStream& report( MsgStream& ) const;
+  double getValue();//!< returns a mass of the constraint
  private:
-  double m_calculateInvariantMass(TrigL2Vertex* pV);
+  double calculateInvariantMass(TrigL2Vertex* pV);
   std::list<const TrigVertexFitInputTrack*> m_trackList;
   double m_value;
 };
@@ -147,36 +147,36 @@ class TrigL2Vertex
  public:
   TrigL2Vertex();
   ~TrigL2Vertex();
-  bool m_prepareForFit();//!< resets all internal structures + initialization of the covariance
-  void m_reset();//!< resets all internal structures
+  bool prepareForFit();//!< resets all internal structures + initialization of the covariance
+  void reset();//!< resets all internal structures
   double chi2();//!< returns accumulated \f$\chi^2\f$ of the fit
   int    ndof();//!< returns accumulated number-of-degree-of-freedom of the fit
   double mass();//!< returns calculated mass of the vertex
   double massVariance();//!< returns variance of the calculated mass of the vertex
 
-  void m_addChi2(double);//!< increments accumulated \f$\chi^2\f$ of the fit
-  void m_addNdof(int);//!< increments accumulated number-of-degree-of-freedom of the fit
-  void m_setMass(double);//!< sets calculated mass of the vertex
-  void m_setMassVariance(double);//!< sets variance of the calculated mass of the vertex
-  int m_getNumberOfTracks();
-  double* m_getParametersVector();//!< returns vector of vertex fit parameters: vertex position + refitted track momenta at-perigee (sic !)
+  void addChi2(double);//!< increments accumulated \f$\chi^2\f$ of the fit
+  void addNdof(int);//!< increments accumulated number-of-degree-of-freedom of the fit
+  void setMass(double);//!< sets calculated mass of the vertex
+  void setMassVariance(double);//!< sets variance of the calculated mass of the vertex
+  int getNumberOfTracks();
+  double* getParametersVector();//!< returns vector of vertex fit parameters: vertex position + refitted track momenta at-perigee (sic !)
   //TrigVertexCovariance* m_getCovariance();
   //void m_setCovariance(TrigVertexCovariance*);
 
-  bool m_isVertexFitted();//!< vertex status
-  bool m_isMassEstimated();//!< vertex status
-  bool m_isReadyForFit();//!< vertex status
+  bool isVertexFitted();//!< vertex status
+  bool isMassEstimated();//!< vertex status
+  bool isReadyForFit();//!< vertex status
 
-  const TrigVertexFitInputTrack* m_contains(const TrigInDetTrack*);//!< checks whether L2 track is in the vertex
-  const TrigVertexFitInputTrack* m_contains(const Trk::Track*);//!< checks whether ofline track is in the vertex
+  const TrigVertexFitInputTrack* contains(const TrigInDetTrack*);//!< checks whether L2 track is in the vertex
+  const TrigVertexFitInputTrack* contains(const Trk::Track*);//!< checks whether ofline track is in the vertex
 
-  std::list<TrigVertexFitConstraint*>* m_getConstraints();//!< lists of all constraints imposed on the vertex
-  std::list<TrigVertexFitInputTrack*>* m_getTracks();//!< lists of tracks in the vertex
-  void m_setStatus(int);//!< sets vertex status flag
-  int m_getStatus();//!< returns vertex status flag
-  void m_setMotherTrack(TrigInDetTrackFitPar*);//!< sets mother particle parameters after kinematical fitting
-  const TrigInDetTrackFitPar* m_getMotherTrack();//!< returns mother particle parameters if  m_isMassEstimated() is true
-  MsgStream& m_report( MsgStream& ) const;
+  std::list<TrigVertexFitConstraint*>* getConstraints();//!< lists of all constraints imposed on the vertex
+  std::list<TrigVertexFitInputTrack*>* getTracks();//!< lists of tracks in the vertex
+  void setStatus(int);//!< sets vertex status flag
+  int getStatus();//!< returns vertex status flag
+  void setMotherTrack(TrigInDetTrackFitPar*);//!< sets mother particle parameters after kinematical fitting
+  const TrigInDetTrackFitPar* getMotherTrack();//!< returns mother particle parameters if  m_isMassEstimated() is true
+  MsgStream& report( MsgStream& ) const;
   double m_Gk[MAX_SIZE_VERT_COVM][MAX_SIZE_VERT_COVM];
 
  private:
@@ -197,12 +197,12 @@ class TrigL2Vertex
 
 inline MsgStream& operator << ( MsgStream& msg, const TrigL2Vertex& vrt)
 { 
-  return vrt.m_report(msg); 
+  return vrt.report(msg); 
 }
 
 inline MsgStream& operator << ( MsgStream& msg, const TrigL2Vertex* vrt)
 { 
-  return vrt->m_report(msg); 
+  return vrt->report(msg); 
 }
 
 #endif

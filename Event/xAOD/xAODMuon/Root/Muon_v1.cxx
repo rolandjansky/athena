@@ -27,12 +27,11 @@
 namespace xAOD {
 
   Muon_v1::Muon_v1()
-  : m_p4(), m_p4Cached1( false ) {
+  : IParticle() {
   }
   
   Muon_v1::Muon_v1(const Muon_v1& rhs)
-    : IParticle(rhs), //IParticle does not have a copy constructor. AuxElement has one with same behavior as default ctor
-       m_p4(rhs.m_p4), m_p4Cached1( rhs.m_p4Cached1 )
+    : IParticle(rhs) //IParticle does not have a copy constructor. AuxElement has one with same behavior as default ctor
   {
     this->makePrivateStore(rhs);
   }
@@ -44,9 +43,6 @@ namespace xAOD {
        makePrivateStore();
     }
     this->IParticle::operator=( rhs );
-    
-    m_p4       = rhs.m_p4;
-    m_p4Cached1 = rhs.m_p4Cached1;
     
     return *this;
   }
@@ -63,7 +59,7 @@ namespace xAOD {
   
   double Muon_v1::e() const {
     // FIXME - optimise?
-    return p4().E();
+    return genvecP4().E();
   }
   
   double Muon_v1::m() const {
@@ -77,22 +73,21 @@ namespace xAOD {
     acc1( *this )=pt;
     acc2( *this )=eta;
     acc3( *this )=phi;
-    m_p4Cached1=false;
   }
 
   double Muon_v1::rapidity() const {
-    return p4().Rapidity();
+    return genvecP4().Rapidity();
   }
 
-  const Muon_v1::FourMom_t& Muon_v1::p4() const {
-    using namespace std;
-  // Check if we need to reset the cached object:
-    if( ! m_p4Cached1 ) {
-      m_p4.SetPtEtaPhiM( pt(), eta(), phi(), m() ); 
-      m_p4Cached1 = true;
-    }
-  // Return the cached object:
-    return m_p4;
+  Muon_v1::FourMom_t Muon_v1::p4() const {
+    Muon_v1::FourMom_t p4;
+    p4.SetPtEtaPhiM( pt(), eta(), phi(), m() ); 
+    return p4;
+  }
+
+  // depend on return value optimization
+  Muon_v1::GenVecFourMom_t Muon_v1::genvecP4() const {
+    return GenVecFourMom_t(pt(), eta(), phi(), m());
   }
 
 //  float Muon_v1::charge() const {

@@ -38,18 +38,6 @@ class ViewSubgraphAlg
   virtual StatusCode  initialize();
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
  private: 
 
   /// Default constructor: 
@@ -59,19 +47,13 @@ class ViewSubgraphAlg
   
   // vars
   ServiceHandle< IScheduler > m_scheduler { this, "Scheduler", "AvalancheSchedulerSvc", "The Athena scheduler" };
-  SG::WriteHandleKey< std::vector< SG::View* > > m_w_views { this, "AllViews", "all_views", "All views" };
+  SG::WriteHandleKey< ViewContainer > m_w_views { this, "AllViews", "all_views", "All views" };
   SG::WriteHandleKey< int > m_w_int { this, "ViewStart", "view_start", "A number to start off the view" };
   Gaudi::Property< std::string > m_viewBaseName { this, "ViewBaseName", "", "Name to use for all views - number will be appended" };
   Gaudi::Property< std::string > m_viewNodeName { this, "ViewNodeName", "", "Name of CF node to attach views to" };
   Gaudi::Property< int > m_viewNumber { this, "ViewNumber", 0, "Total number of views to make" };
 }; 
 
-// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 } //> end namespace AthViews
 

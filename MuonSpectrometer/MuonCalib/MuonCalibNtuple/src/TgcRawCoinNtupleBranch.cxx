@@ -13,120 +13,120 @@
 
 namespace MuonCalib {
 
-  TgcRawCoinNtupleBranch::TgcRawCoinNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false), 
-    index(0), index_Curr(0), index_Prev(0), index_Next(0), index_tracklet(0), index_highpt(0), index_sl(0), 
-    index_tracklet_Curr(0), index_tracklet_Prev(0), index_tracklet_Next(0), index_highpt_Curr(0), index_highpt_Prev(0), 
-    index_highpt_Next(0), index_sl_Curr(0), index_sl_Prev(0), index_sl_Next(0)
+  TgcRawCoinNtupleBranch::TgcRawCoinNtupleBranch(std::string branchName) : m_branchName(branchName), m_branchesInit(false), 
+    m_index(0), m_index_Curr(0), m_index_Prev(0), m_index_Next(0), m_index_tracklet(0), m_index_highpt(0), m_index_sl(0), 
+    m_index_tracklet_Curr(0), m_index_tracklet_Prev(0), m_index_tracklet_Next(0), m_index_highpt_Curr(0), m_index_highpt_Prev(0), 
+    m_index_highpt_Next(0), m_index_sl_Curr(0), m_index_sl_Prev(0), m_index_sl_Next(0)
   {}
 
   bool TgcRawCoinNtupleBranch::fillBranch(const MuonCalibRawTgcCoin& coin) {
-    // check if branches where initialized
-    if( !branchesInit )
+    // check if branches were initialized
+    if( !m_branchesInit )
       return false;    
     
     // check if index not out of range 
-    if( index >= m_blockSize || index < 0 )
+    if( m_index >= m_blockSize || m_index < 0 )
       return false;
 
-    num_tracklet_Prev[index] = index_tracklet_Prev;
-    num_tracklet_Curr[index] = index_tracklet_Curr;
-    num_tracklet_Next[index] = index_tracklet_Next;
-    num_highpt_Prev[index] = index_highpt_Prev;
-    num_highpt_Curr[index] = index_highpt_Curr;
-    num_highpt_Next[index] = index_highpt_Next;
-    num_sl_Prev[index] = index_sl_Prev;
-    num_sl_Curr[index] = index_sl_Curr;
-    num_sl_Next[index] = index_sl_Next;
+    m_num_tracklet_Prev[m_index] = m_index_tracklet_Prev;
+    m_num_tracklet_Curr[m_index] = m_index_tracklet_Curr;
+    m_num_tracklet_Next[m_index] = m_index_tracklet_Next;
+    m_num_highpt_Prev[m_index] = m_index_highpt_Prev;
+    m_num_highpt_Curr[m_index] = m_index_highpt_Curr;
+    m_num_highpt_Next[m_index] = m_index_highpt_Next;
+    m_num_sl_Prev[m_index] = m_index_sl_Prev;
+    m_num_sl_Curr[m_index] = m_index_sl_Curr;
+    m_num_sl_Next[m_index] = m_index_sl_Next;
  
     // copy values 
     if(coin.type()==0){
-      bcTag_tracklet[index_tracklet] = coin.bcTag();
+      m_bcTag_tracklet[m_index_tracklet] = coin.bcTag();
 
-      id_tracklet[index_tracklet] = coin.identify().getIdInt();
-      gPosInX_tracklet[index_tracklet] = coin.gPosIn().x();
-      gPosInY_tracklet[index_tracklet] = coin.gPosIn().y();
-      gPosInZ_tracklet[index_tracklet] = coin.gPosIn().z();
-      gPosOutX_tracklet[index_tracklet] = coin.gPosOut().x();
-      gPosOutY_tracklet[index_tracklet] = coin.gPosOut().y();
-      gPosOutZ_tracklet[index_tracklet] = coin.gPosOut().z();
-      eta_tracklet[index_tracklet] = coin.eta();
-      phi_tracklet[index_tracklet] = coin.phi();
-      sector_tracklet[index_tracklet] = coin.sector();
-      isForward_tracklet[index_tracklet] = coin.isForward();
-      isStrip_tracklet[index_tracklet] = coin.isStrip();
-      trackletId_tracklet[index_tracklet] = coin.trackletId();
-      widthIn_tracklet[index_tracklet] = coin.widthIn();
-      widthOut_tracklet[index_tracklet] = coin.widthOut();
-      delta_tracklet[index_tracklet] = coin.delta();
-      sub_tracklet[index_tracklet] = coin.sub();
+      m_id_tracklet[m_index_tracklet] = coin.identify().getIdInt();
+      m_gPosInX_tracklet[m_index_tracklet] = coin.gPosIn().x();
+      m_gPosInY_tracklet[m_index_tracklet] = coin.gPosIn().y();
+      m_gPosInZ_tracklet[m_index_tracklet] = coin.gPosIn().z();
+      m_gPosOutX_tracklet[m_index_tracklet] = coin.gPosOut().x();
+      m_gPosOutY_tracklet[m_index_tracklet] = coin.gPosOut().y();
+      m_gPosOutZ_tracklet[m_index_tracklet] = coin.gPosOut().z();
+      m_eta_tracklet[m_index_tracklet] = coin.eta();
+      m_phi_tracklet[m_index_tracklet] = coin.phi();
+      m_sector_tracklet[m_index_tracklet] = coin.sector();
+      m_isForward_tracklet[m_index_tracklet] = coin.isForward();
+      m_isStrip_tracklet[m_index_tracklet] = coin.isStrip();
+      m_trackletId_tracklet[m_index_tracklet] = coin.trackletId();
+      m_widthIn_tracklet[m_index_tracklet] = coin.widthIn();
+      m_widthOut_tracklet[m_index_tracklet] = coin.widthOut();
+      m_delta_tracklet[m_index_tracklet] = coin.delta();
+      m_sub_tracklet[m_index_tracklet] = coin.sub();
 
-      ++index_tracklet;
+      ++m_index_tracklet;
     }
     if(coin.type()==1){
-      bcTag_highpt[index_highpt] = coin.bcTag();
+      m_bcTag_highpt[m_index_highpt] = coin.bcTag();
 
-      id_highpt[index_highpt] = coin.identify().getIdInt();
-      gPosInX_highpt[index_highpt] = coin.gPosIn().x();
-      gPosInY_highpt[index_highpt] = coin.gPosIn().y();
-      gPosInZ_highpt[index_highpt] = coin.gPosIn().z();
-      gPosOutX_highpt[index_highpt] = coin.gPosOut().x();
-      gPosOutY_highpt[index_highpt] = coin.gPosOut().y();
-      gPosOutZ_highpt[index_highpt] = coin.gPosOut().z();
-      eta_highpt[index_highpt] = coin.eta();
-      phi_highpt[index_highpt] = coin.phi();
-      sector_highpt[index_highpt] = coin.sector();
-      isForward_highpt[index_highpt] = coin.isForward();
-      isStrip_highpt[index_highpt] = coin.isStrip();
-      trackletId_highpt[index_highpt] = coin.trackletId();
-      widthIn_highpt[index_highpt] = coin.widthIn();
-      widthOut_highpt[index_highpt] = coin.widthOut();
-      delta_highpt[index_highpt] = coin.delta();
-      sub_highpt[index_highpt] = coin.sub();
+      m_id_highpt[m_index_highpt] = coin.identify().getIdInt();
+      m_gPosInX_highpt[m_index_highpt] = coin.gPosIn().x();
+      m_gPosInY_highpt[m_index_highpt] = coin.gPosIn().y();
+      m_gPosInZ_highpt[m_index_highpt] = coin.gPosIn().z();
+      m_gPosOutX_highpt[m_index_highpt] = coin.gPosOut().x();
+      m_gPosOutY_highpt[m_index_highpt] = coin.gPosOut().y();
+      m_gPosOutZ_highpt[m_index_highpt] = coin.gPosOut().z();
+      m_eta_highpt[m_index_highpt] = coin.eta();
+      m_phi_highpt[m_index_highpt] = coin.phi();
+      m_sector_highpt[m_index_highpt] = coin.sector();
+      m_isForward_highpt[m_index_highpt] = coin.isForward();
+      m_isStrip_highpt[m_index_highpt] = coin.isStrip();
+      m_trackletId_highpt[m_index_highpt] = coin.trackletId();
+      m_widthIn_highpt[m_index_highpt] = coin.widthIn();
+      m_widthOut_highpt[m_index_highpt] = coin.widthOut();
+      m_delta_highpt[m_index_highpt] = coin.delta();
+      m_sub_highpt[m_index_highpt] = coin.sub();
 
-      ++index_highpt;
+      ++m_index_highpt;
     }
     if(coin.type()==2){
-      bcTag_sl[index_sl] = coin.bcTag();
+      m_bcTag_sl[m_index_sl] = coin.bcTag();
 
-      id_sl[index_sl] = coin.identify().getIdInt();
-      gPosOutX_sl[index_sl] = coin.gPosOut().x();
-      gPosOutY_sl[index_sl] = coin.gPosOut().y();
-      gPosOutZ_sl[index_sl] = coin.gPosOut().z();
-      eta_sl[index_sl] = coin.eta();
-      phi_sl[index_sl] = coin.phi();
-      sector_sl[index_sl] = coin.sector();
-      isForward_sl[index_sl] = coin.isForward();
-      trackletId_sl[index_sl] = coin.trackletId();
-      trackletIdStrip_sl[index_sl] = coin.trackletIdStrip();
-      widthR_sl[index_sl] = coin.widthR();
-      widthPhi_sl[index_sl] = coin.widthPhi();
-      roi_sl[index_sl] = coin.roi();
-      pt_sl[index_sl] = coin.pt();
-      isPositiveDeltaR_sl[index_sl] = coin.isPositiveDeltaR();
+      m_id_sl[m_index_sl] = coin.identify().getIdInt();
+      m_gPosOutX_sl[m_index_sl] = coin.gPosOut().x();
+      m_gPosOutY_sl[m_index_sl] = coin.gPosOut().y();
+      m_gPosOutZ_sl[m_index_sl] = coin.gPosOut().z();
+      m_eta_sl[m_index_sl] = coin.eta();
+      m_phi_sl[m_index_sl] = coin.phi();
+      m_sector_sl[m_index_sl] = coin.sector();
+      m_isForward_sl[m_index_sl] = coin.isForward();
+      m_trackletId_sl[m_index_sl] = coin.trackletId();
+      m_trackletIdStrip_sl[m_index_sl] = coin.trackletIdStrip();
+      m_widthR_sl[m_index_sl] = coin.widthR();
+      m_widthPhi_sl[m_index_sl] = coin.widthPhi();
+      m_roi_sl[m_index_sl] = coin.roi();
+      m_pt_sl[m_index_sl] = coin.pt();
+      m_isPositiveDeltaR_sl[m_index_sl] = coin.isPositiveDeltaR();
 
-      ++index_sl;
+      ++m_index_sl;
     }
 
     if(coin.bcTag()==1){
-      type_Prev[index_Prev] = coin.type(); ++index_Prev;
-      if(coin.type()==0){ type_bcTag[index] = 1; ++index_tracklet_Prev; }
-      if(coin.type()==1){ type_bcTag[index] = 2; ++index_highpt_Prev;   }
-      if(coin.type()==2){ type_bcTag[index] = 3; ++index_sl_Prev;       }
+      m_type_Prev[m_index_Prev] = coin.type(); ++m_index_Prev;
+      if(coin.type()==0){ m_type_bcTag[m_index] = 1; ++m_index_tracklet_Prev; }
+      if(coin.type()==1){ m_type_bcTag[m_index] = 2; ++m_index_highpt_Prev;   }
+      if(coin.type()==2){ m_type_bcTag[m_index] = 3; ++m_index_sl_Prev;       }
     }
     if(coin.bcTag()==2){
-      type[index_Curr] = coin.type(); ++index_Curr;
-      if(coin.type()==0){ type_bcTag[index] = 4; ++index_tracklet_Curr; }
-      if(coin.type()==1){ type_bcTag[index] = 5; ++index_highpt_Curr;   }
-      if(coin.type()==2){ type_bcTag[index] = 6; ++index_sl_Curr;       }
+      m_type[m_index_Curr] = coin.type(); ++m_index_Curr;
+      if(coin.type()==0){ m_type_bcTag[m_index] = 4; ++m_index_tracklet_Curr; }
+      if(coin.type()==1){ m_type_bcTag[m_index] = 5; ++m_index_highpt_Curr;   }
+      if(coin.type()==2){ m_type_bcTag[m_index] = 6; ++m_index_sl_Curr;       }
     }
     if(coin.bcTag()==3){
-      type_Next[index_Next] = coin.type(); ++index_Next;
-      if(coin.type()==0){ type_bcTag[index] = 7; ++index_tracklet_Next; }
-      if(coin.type()==1){ type_bcTag[index] = 8; ++index_highpt_Next;   }
-      if(coin.type()==2){ type_bcTag[index] = 9; ++index_sl_Next;       }
+      m_type_Next[m_index_Next] = coin.type(); ++m_index_Next;
+      if(coin.type()==0){ m_type_bcTag[m_index] = 7; ++m_index_tracklet_Next; }
+      if(coin.type()==1){ m_type_bcTag[m_index] = 8; ++m_index_highpt_Next;   }
+      if(coin.type()==2){ m_type_bcTag[m_index] = 9; ++m_index_sl_Next;       }
     }
     
-    index++;
+    m_index++;
     
     return true;
   }  //end TgcRawCoinNtupleBranch::fillBranch
@@ -157,22 +157,22 @@ namespace MuonCalib {
     std::string index_name_All ="nRTgc_All";
 
     // create a branch for every data member
-    branchCreator.createBranch( tree, index_name_Curr,          &index_Curr,          "/I");
-    branchCreator.createBranch( tree, index_name_Prev,          &index_Prev,          "/I");
-    branchCreator.createBranch( tree, index_name_Next,          &index_Next,          "/I");
-    branchCreator.createBranch( tree, index_name_tracklet,      &index_tracklet,      "/I");
-    branchCreator.createBranch( tree, index_name_highpt,        &index_highpt,        "/I");
-    branchCreator.createBranch( tree, index_name_sl,            &index_sl,            "/I");
-    branchCreator.createBranch( tree, index_name_tracklet_Curr, &index_tracklet_Curr, "/I");
-    branchCreator.createBranch( tree, index_name_tracklet_Prev, &index_tracklet_Prev, "/I");
-    branchCreator.createBranch( tree, index_name_tracklet_Next, &index_tracklet_Next, "/I");
-    branchCreator.createBranch( tree, index_name_highpt_Curr,   &index_highpt_Curr,   "/I");
-    branchCreator.createBranch( tree, index_name_highpt_Prev,   &index_highpt_Prev,   "/I");
-    branchCreator.createBranch( tree, index_name_highpt_Next,   &index_highpt_Next,   "/I");
-    branchCreator.createBranch( tree, index_name_sl_Curr,       &index_sl_Curr,       "/I");
-    branchCreator.createBranch( tree, index_name_sl_Prev,       &index_sl_Prev,       "/I");
-    branchCreator.createBranch( tree, index_name_sl_Next,       &index_sl_Next,       "/I");
-    branchCreator.createBranch( tree, index_name_All,           &index,               "/I");
+    branchCreator.createBranch( tree, index_name_Curr,          &m_index_Curr,          "/I");
+    branchCreator.createBranch( tree, index_name_Prev,          &m_index_Prev,          "/I");
+    branchCreator.createBranch( tree, index_name_Next,          &m_index_Next,          "/I");
+    branchCreator.createBranch( tree, index_name_tracklet,      &m_index_tracklet,      "/I");
+    branchCreator.createBranch( tree, index_name_highpt,        &m_index_highpt,        "/I");
+    branchCreator.createBranch( tree, index_name_sl,            &m_index_sl,            "/I");
+    branchCreator.createBranch( tree, index_name_tracklet_Curr, &m_index_tracklet_Curr, "/I");
+    branchCreator.createBranch( tree, index_name_tracklet_Prev, &m_index_tracklet_Prev, "/I");
+    branchCreator.createBranch( tree, index_name_tracklet_Next, &m_index_tracklet_Next, "/I");
+    branchCreator.createBranch( tree, index_name_highpt_Curr,   &m_index_highpt_Curr,   "/I");
+    branchCreator.createBranch( tree, index_name_highpt_Prev,   &m_index_highpt_Prev,   "/I");
+    branchCreator.createBranch( tree, index_name_highpt_Next,   &m_index_highpt_Next,   "/I");
+    branchCreator.createBranch( tree, index_name_sl_Curr,       &m_index_sl_Curr,       "/I");
+    branchCreator.createBranch( tree, index_name_sl_Prev,       &m_index_sl_Prev,       "/I");
+    branchCreator.createBranch( tree, index_name_sl_Next,       &m_index_sl_Next,       "/I");
+    branchCreator.createBranch( tree, index_name_All,           &m_index,               "/I");
 
     // all entries of same size, the number of coins in the event
     std::string array_size_Curr( std::string("[") + m_branchName + index_name_Curr + std::string("]") );
@@ -184,76 +184,76 @@ namespace MuonCalib {
     std::string array_size_All( std::string("[") + m_branchName + index_name_All + std::string("]") );
 
     // create the branches
-    branchCreator.createBranch( tree, "bcTag_tracklet",       &bcTag_tracklet,       array_size_tracklet + "/I" );
-    branchCreator.createBranch( tree, "bcTag_highpt",         &bcTag_highpt,         array_size_highpt + "/I" );
-    branchCreator.createBranch( tree, "bcTag_sl",             &bcTag_sl,             array_size_sl + "/I" );
-    branchCreator.createBranch( tree, "type",                 &type,                 array_size_Curr + "/I" );
-    branchCreator.createBranch( tree, "type_Prev",            &type_Prev,            array_size_Prev + "/I" );
-    branchCreator.createBranch( tree, "type_Next",            &type_Next,            array_size_Next + "/I" );
-    branchCreator.createBranch( tree, "type_bcTag",           &type_bcTag,           array_size_All + "/I");
-    branchCreator.createBranch( tree, "num_tracklet_Prev",    &num_tracklet_Prev,    array_size_All + "/I");
-    branchCreator.createBranch( tree, "num_tracklet_Curr",    &num_tracklet_Curr,    array_size_All + "/I");
-    branchCreator.createBranch( tree, "num_tracklet_Next",    &num_tracklet_Next,    array_size_All + "/I");
-    branchCreator.createBranch( tree, "num_highpt_Prev",      &num_highpt_Prev,      array_size_All + "/I");
-    branchCreator.createBranch( tree, "num_highpt_Curr",      &num_highpt_Curr,      array_size_All + "/I");
-    branchCreator.createBranch( tree, "num_highpt_Next",      &num_highpt_Next,      array_size_All + "/I");
-    branchCreator.createBranch( tree, "num_sl_Prev",          &num_sl_Prev,          array_size_All + "/I");
-    branchCreator.createBranch( tree, "num_sl_Curr",          &num_sl_Curr,          array_size_All + "/I");
-    branchCreator.createBranch( tree, "num_sl_Next",          &num_sl_Next,          array_size_All + "/I");
+    branchCreator.createBranch( tree, "bcTag_tracklet",       &m_bcTag_tracklet,       array_size_tracklet + "/I" );
+    branchCreator.createBranch( tree, "bcTag_highpt",         &m_bcTag_highpt,         array_size_highpt + "/I" );
+    branchCreator.createBranch( tree, "bcTag_sl",             &m_bcTag_sl,             array_size_sl + "/I" );
+    branchCreator.createBranch( tree, "type",                 &m_type,                 array_size_Curr + "/I" );
+    branchCreator.createBranch( tree, "type_Prev",            &m_type_Prev,            array_size_Prev + "/I" );
+    branchCreator.createBranch( tree, "type_Next",            &m_type_Next,            array_size_Next + "/I" );
+    branchCreator.createBranch( tree, "type_bcTag",           &m_type_bcTag,           array_size_All + "/I");
+    branchCreator.createBranch( tree, "num_tracklet_Prev",    &m_num_tracklet_Prev,    array_size_All + "/I");
+    branchCreator.createBranch( tree, "num_tracklet_Curr",    &m_num_tracklet_Curr,    array_size_All + "/I");
+    branchCreator.createBranch( tree, "num_tracklet_Next",    &m_num_tracklet_Next,    array_size_All + "/I");
+    branchCreator.createBranch( tree, "num_highpt_Prev",      &m_num_highpt_Prev,      array_size_All + "/I");
+    branchCreator.createBranch( tree, "num_highpt_Curr",      &m_num_highpt_Curr,      array_size_All + "/I");
+    branchCreator.createBranch( tree, "num_highpt_Next",      &m_num_highpt_Next,      array_size_All + "/I");
+    branchCreator.createBranch( tree, "num_sl_Prev",          &m_num_sl_Prev,          array_size_All + "/I");
+    branchCreator.createBranch( tree, "num_sl_Curr",          &m_num_sl_Curr,          array_size_All + "/I");
+    branchCreator.createBranch( tree, "num_sl_Next",          &m_num_sl_Next,          array_size_All + "/I");
 
-    branchCreator.createBranch( tree, "id_tracklet",          &id_tracklet,          array_size_tracklet + "/I" );
-    branchCreator.createBranch( tree, "gPosInX_tracklet",     &gPosInX_tracklet,     array_size_tracklet + "/F" );
-    branchCreator.createBranch( tree, "gPosInY_tracklet",     &gPosInY_tracklet,     array_size_tracklet + "/F" );
-    branchCreator.createBranch( tree, "gPosInZ_tracklet",     &gPosInZ_tracklet,     array_size_tracklet + "/F" );
-    branchCreator.createBranch( tree, "gPosOutX_tracklet",    &gPosOutX_tracklet,    array_size_tracklet + "/F" );
-    branchCreator.createBranch( tree, "gPosOutY_tracklet",    &gPosOutY_tracklet,    array_size_tracklet + "/F" );
-    branchCreator.createBranch( tree, "gPosOutZ_tracklet",    &gPosOutZ_tracklet,    array_size_tracklet + "/F" );
-    branchCreator.createBranch( tree, "eta_tracklet",         &eta_tracklet,         array_size_tracklet + "/I" );
-    branchCreator.createBranch( tree, "phi_tracklet",         &phi_tracklet,         array_size_tracklet + "/I" );
-    branchCreator.createBranch( tree, "sector_tracklet",      &sector_tracklet,      array_size_tracklet + "/I" );
-    branchCreator.createBranch( tree, "isForward_tracklet",   &isForward_tracklet,   array_size_tracklet + "/I" );
-    branchCreator.createBranch( tree, "isStrip_tracklet",     &isStrip_tracklet,     array_size_tracklet + "/I" );
-    branchCreator.createBranch( tree, "trackletId_tracklet",  &trackletId_tracklet,  array_size_tracklet + "/I" );
-    branchCreator.createBranch( tree, "widthIn_tracklet",     &widthIn_tracklet,     array_size_tracklet + "/F" );
-    branchCreator.createBranch( tree, "widthOut_tracklet",    &widthOut_tracklet,    array_size_tracklet + "/F" );
-    branchCreator.createBranch( tree, "delta_tracklet",       &delta_tracklet,       array_size_tracklet + "/I" );
-    branchCreator.createBranch( tree, "sub_tracklet",         &sub_tracklet,         array_size_tracklet + "/I" );
+    branchCreator.createBranch( tree, "id_tracklet",          &m_id_tracklet,          array_size_tracklet + "/I" );
+    branchCreator.createBranch( tree, "gPosInX_tracklet",     &m_gPosInX_tracklet,     array_size_tracklet + "/F" );
+    branchCreator.createBranch( tree, "gPosInY_tracklet",     &m_gPosInY_tracklet,     array_size_tracklet + "/F" );
+    branchCreator.createBranch( tree, "gPosInZ_tracklet",     &m_gPosInZ_tracklet,     array_size_tracklet + "/F" );
+    branchCreator.createBranch( tree, "gPosOutX_tracklet",    &m_gPosOutX_tracklet,    array_size_tracklet + "/F" );
+    branchCreator.createBranch( tree, "gPosOutY_tracklet",    &m_gPosOutY_tracklet,    array_size_tracklet + "/F" );
+    branchCreator.createBranch( tree, "gPosOutZ_tracklet",    &m_gPosOutZ_tracklet,    array_size_tracklet + "/F" );
+    branchCreator.createBranch( tree, "eta_tracklet",         &m_eta_tracklet,         array_size_tracklet + "/I" );
+    branchCreator.createBranch( tree, "phi_tracklet",         &m_phi_tracklet,         array_size_tracklet + "/I" );
+    branchCreator.createBranch( tree, "sector_tracklet",      &m_sector_tracklet,      array_size_tracklet + "/I" );
+    branchCreator.createBranch( tree, "isForward_tracklet",   &m_isForward_tracklet,   array_size_tracklet + "/I" );
+    branchCreator.createBranch( tree, "isStrip_tracklet",     &m_isStrip_tracklet,     array_size_tracklet + "/I" );
+    branchCreator.createBranch( tree, "trackletId_tracklet",  &m_trackletId_tracklet,  array_size_tracklet + "/I" );
+    branchCreator.createBranch( tree, "widthIn_tracklet",     &m_widthIn_tracklet,     array_size_tracklet + "/F" );
+    branchCreator.createBranch( tree, "widthOut_tracklet",    &m_widthOut_tracklet,    array_size_tracklet + "/F" );
+    branchCreator.createBranch( tree, "delta_tracklet",       &m_delta_tracklet,       array_size_tracklet + "/I" );
+    branchCreator.createBranch( tree, "sub_tracklet",         &m_sub_tracklet,         array_size_tracklet + "/I" );
 
-    branchCreator.createBranch( tree, "id_highpt",            &id_highpt,            array_size_highpt + "/I" );
-    branchCreator.createBranch( tree, "gPosInX_highpt",       &gPosInX_highpt,       array_size_highpt + "/F" );
-    branchCreator.createBranch( tree, "gPosInY_highpt",       &gPosInY_highpt,       array_size_highpt + "/F" );
-    branchCreator.createBranch( tree, "gPosInZ_highpt",       &gPosInZ_highpt,       array_size_highpt + "/F" );
-    branchCreator.createBranch( tree, "gPosOutX_highpt",      &gPosOutX_highpt,      array_size_highpt + "/F" );
-    branchCreator.createBranch( tree, "gPosOutY_highpt",      &gPosOutY_highpt,      array_size_highpt + "/F" );
-    branchCreator.createBranch( tree, "gPosOutZ_highpt",      &gPosOutZ_highpt,      array_size_highpt + "/F" );
-    branchCreator.createBranch( tree, "eta_highpt",           &eta_highpt,           array_size_highpt + "/I" );
-    branchCreator.createBranch( tree, "phi_highpt",           &phi_highpt,           array_size_highpt + "/I" );
-    branchCreator.createBranch( tree, "sector_highpt",        &sector_highpt,        array_size_highpt + "/I" );
-    branchCreator.createBranch( tree, "isForward_highpt",     &isForward_highpt,     array_size_highpt + "/I" );
-    branchCreator.createBranch( tree, "isStrip_highpt",       &isStrip_highpt,       array_size_highpt + "/I" );
-    branchCreator.createBranch( tree, "trackletId_highpt",    &trackletId_highpt,    array_size_highpt + "/I" );
-    branchCreator.createBranch( tree, "widthIn_highpt",       &widthIn_highpt,       array_size_highpt + "/F" );
-    branchCreator.createBranch( tree, "widthOut_highpt",      &widthOut_highpt,      array_size_highpt + "/F" );
-    branchCreator.createBranch( tree, "delta_highpt",         &delta_highpt,         array_size_highpt + "/I" );
-    branchCreator.createBranch( tree, "sub_highpt",           &sub_highpt,           array_size_highpt + "/I" );
+    branchCreator.createBranch( tree, "id_highpt",            &m_id_highpt,            array_size_highpt + "/I" );
+    branchCreator.createBranch( tree, "gPosInX_highpt",       &m_gPosInX_highpt,       array_size_highpt + "/F" );
+    branchCreator.createBranch( tree, "gPosInY_highpt",       &m_gPosInY_highpt,       array_size_highpt + "/F" );
+    branchCreator.createBranch( tree, "gPosInZ_highpt",       &m_gPosInZ_highpt,       array_size_highpt + "/F" );
+    branchCreator.createBranch( tree, "gPosOutX_highpt",      &m_gPosOutX_highpt,      array_size_highpt + "/F" );
+    branchCreator.createBranch( tree, "gPosOutY_highpt",      &m_gPosOutY_highpt,      array_size_highpt + "/F" );
+    branchCreator.createBranch( tree, "gPosOutZ_highpt",      &m_gPosOutZ_highpt,      array_size_highpt + "/F" );
+    branchCreator.createBranch( tree, "eta_highpt",           &m_eta_highpt,           array_size_highpt + "/I" );
+    branchCreator.createBranch( tree, "phi_highpt",           &m_phi_highpt,           array_size_highpt + "/I" );
+    branchCreator.createBranch( tree, "sector_highpt",        &m_sector_highpt,        array_size_highpt + "/I" );
+    branchCreator.createBranch( tree, "isForward_highpt",     &m_isForward_highpt,     array_size_highpt + "/I" );
+    branchCreator.createBranch( tree, "isStrip_highpt",       &m_isStrip_highpt,       array_size_highpt + "/I" );
+    branchCreator.createBranch( tree, "trackletId_highpt",    &m_trackletId_highpt,    array_size_highpt + "/I" );
+    branchCreator.createBranch( tree, "widthIn_highpt",       &m_widthIn_highpt,       array_size_highpt + "/F" );
+    branchCreator.createBranch( tree, "widthOut_highpt",      &m_widthOut_highpt,      array_size_highpt + "/F" );
+    branchCreator.createBranch( tree, "delta_highpt",         &m_delta_highpt,         array_size_highpt + "/I" );
+    branchCreator.createBranch( tree, "sub_highpt",           &m_sub_highpt,           array_size_highpt + "/I" );
 
-    branchCreator.createBranch( tree, "id_sl",               &id_sl,               array_size_sl + "/I" );
-    branchCreator.createBranch( tree, "gPosOutX_sl",         &gPosOutX_sl,         array_size_sl + "/F" );
-    branchCreator.createBranch( tree, "gPosOutY_sl",         &gPosOutY_sl,         array_size_sl + "/F" );
-    branchCreator.createBranch( tree, "gPosOutZ_sl",         &gPosOutZ_sl,         array_size_sl + "/F" );
-    branchCreator.createBranch( tree, "eta_sl",              &eta_sl,              array_size_sl + "/I" );
-    branchCreator.createBranch( tree, "phi_sl",              &phi_sl,              array_size_sl + "/I" );
-    branchCreator.createBranch( tree, "sector_sl",           &sector_sl,           array_size_sl + "/I" );
-    branchCreator.createBranch( tree, "isForward_sl",        &isForward_sl,        array_size_sl + "/I" );
-    branchCreator.createBranch( tree, "trackletId_sl",       &trackletId_sl,       array_size_sl + "/I" );
-    branchCreator.createBranch( tree, "trackletIdStrip_sl",  &trackletIdStrip_sl,  array_size_sl + "/I" );
-    branchCreator.createBranch( tree, "widthR_sl",           &widthR_sl,           array_size_sl + "/F" );
-    branchCreator.createBranch( tree, "widthPhi_sl",         &widthPhi_sl,         array_size_sl + "/F" );
-    branchCreator.createBranch( tree, "roi_sl",              &roi_sl,              array_size_sl + "/I" );
-    branchCreator.createBranch( tree, "pt_sl",               &pt_sl,               array_size_sl + "/I" );
-    branchCreator.createBranch( tree, "isPositiveDeltaR_sl", &isPositiveDeltaR_sl, array_size_sl + "/I" );
+    branchCreator.createBranch( tree, "id_sl",               &m_id_sl,               array_size_sl + "/I" );
+    branchCreator.createBranch( tree, "gPosOutX_sl",         &m_gPosOutX_sl,         array_size_sl + "/F" );
+    branchCreator.createBranch( tree, "gPosOutY_sl",         &m_gPosOutY_sl,         array_size_sl + "/F" );
+    branchCreator.createBranch( tree, "gPosOutZ_sl",         &m_gPosOutZ_sl,         array_size_sl + "/F" );
+    branchCreator.createBranch( tree, "eta_sl",              &m_eta_sl,              array_size_sl + "/I" );
+    branchCreator.createBranch( tree, "phi_sl",              &m_phi_sl,              array_size_sl + "/I" );
+    branchCreator.createBranch( tree, "sector_sl",           &m_sector_sl,           array_size_sl + "/I" );
+    branchCreator.createBranch( tree, "isForward_sl",        &m_isForward_sl,        array_size_sl + "/I" );
+    branchCreator.createBranch( tree, "trackletId_sl",       &m_trackletId_sl,       array_size_sl + "/I" );
+    branchCreator.createBranch( tree, "trackletIdStrip_sl",  &m_trackletIdStrip_sl,  array_size_sl + "/I" );
+    branchCreator.createBranch( tree, "widthR_sl",           &m_widthR_sl,           array_size_sl + "/F" );
+    branchCreator.createBranch( tree, "widthPhi_sl",         &m_widthPhi_sl,         array_size_sl + "/F" );
+    branchCreator.createBranch( tree, "roi_sl",              &m_roi_sl,              array_size_sl + "/I" );
+    branchCreator.createBranch( tree, "pt_sl",               &m_pt_sl,               array_size_sl + "/I" );
+    branchCreator.createBranch( tree, "isPositiveDeltaR_sl", &m_isPositiveDeltaR_sl, array_size_sl + "/I" );
 
-    branchesInit = true;
+    m_branchesInit = true;
   
     // reset branch
     reset();

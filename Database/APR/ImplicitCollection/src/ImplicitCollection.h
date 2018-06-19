@@ -8,10 +8,7 @@
 #include "CollectionBase/ICollection.h"
 #include "CollectionBase/CollectionDescription.h"
 
-#ifdef HAVE_GAUDI_PLUGINSVC  
 #include "Gaudi/PluginService.h"
-#endif 
-#include "GAUDI_VERSION.h"
 
 namespace pool {
 
@@ -29,13 +26,7 @@ namespace pool {
   class ImplicitCollection : virtual public ICollection
   {
   public:
-#ifdef HAVE_GAUDI_PLUGINSVC  
-  #if GAUDI_VERSION > CALC_GAUDI_VERSION(25, 3) 
     typedef Gaudi::PluginService::Factory<ICollection*, const ICollectionDescription*, ICollection::OpenMode, ISession*> Factory;  
-  #else  
-    typedef Gaudi::PluginService::Factory3<ICollection*, const ICollectionDescription*, ICollection::OpenMode, ISession*> Factory;  
-  #endif
-#endif 
 
     /** Constructor - old style
        Throws POOL exception.

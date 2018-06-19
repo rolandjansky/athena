@@ -11,12 +11,14 @@
 //====================================================================
 #ifndef POOL_IDBCONTAINER_H
 #define POOL_IDBCONTAINER_H
-// $Header: /cvs/PF/pool/StorageSvc/StorageSvc/IDbContainer.h,v 1.22 2009/09/15 12:08:42 frankb Exp $
 
 // Framework include files
 #include "PersistentDataModel/Token.h"
 #include "StorageSvc/DbObject.h"
 #include "StorageSvc/DbSection.h"
+#include "StorageSvc/Transaction.h"
+
+#include <vector>
 
 /*
  *   POOL namespace declaration
@@ -28,7 +30,6 @@ namespace pool    {
   class DbDatabase;
   class DbContainer;
   class DataCallBack;
-  class DbTransaction;
   class DbOption;
   class DbSelect;
 
@@ -152,12 +153,8 @@ namespace pool    {
       */
     virtual DbStatus destroy( const Token::OID_t& linkH) = 0;
 
-    /// Start/Commit/Rollback Database Transaction
-    /** @param refTransaction [IN/OUT]  Transaction context.
-      *
-      * @return DbStatus code indicating success or failure.  
-      */
-    virtual DbStatus transAct(DbTransaction& refTransaction) = 0;
+    /// Execute Transaction Action
+    virtual DbStatus transAct(Transaction::Action) = 0;
 
     /// Query the pending transaction stack
     virtual bool updatesPending() const = 0;

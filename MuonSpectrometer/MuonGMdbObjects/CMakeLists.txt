@@ -7,7 +7,7 @@ atlas_subdir( MuonGMdbObjects )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
-                          Database/AthenaPOOL/RDBAccessSvc )
+                          Database/RDBAccessSvc )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )

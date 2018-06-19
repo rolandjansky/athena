@@ -18,11 +18,6 @@
 // // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
-// #include "GaudiKernel/CnvFactory.h"
-// #include "GaudiKernel/StatusCode.h"
-// #include "GaudiKernel/Service.h"
-// #include "GaudiKernel/MsgStream.h"
-// #include "GaudiKernel/IIncidentSvc.h"
 
 // Athena
 #include "StoreGate/StoreGateSvc.h"
@@ -174,7 +169,7 @@ void  Muon::RpcCoinDataContainerCnv_p1::persToTrans(const RpcCoinDataContainerCn
               int result = m_RpcId->get_detectorElement_hash(clusId, deIDHash);
               if (result) log << MSG::WARNING  << " Muon::MdtPrepDataContainerCnv_p2::persToTrans: problem converting Identifier to DE hash "<<endmsg;
               const MuonGM::RpcReadoutElement* detEl =
-                m_muonDetMgr->getRpcReadoutElement(deIDHash);;
+                m_muonDetMgr->getRpcReadoutElement(deIDHash);
 
               auto chan = CxxUtils::make_unique<Muon::RpcCoinData>
                 (chanCnv.createRpcCoinData (pchan,

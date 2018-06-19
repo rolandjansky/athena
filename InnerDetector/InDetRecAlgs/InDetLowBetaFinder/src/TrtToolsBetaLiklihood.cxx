@@ -448,7 +448,7 @@ void TrtToolBetaLiklihood::TRT_LoadPriors(std::string priorFileName) {
         for (j=0; j<24; j++) {
           LBitProb[l][i][k][j] = tmp->GetBinContent(j+1);
           if (LBitProb[l][i][k][j] == 0) {
-            LBitProb[l][i][k][j] = 1.E-6;;
+            LBitProb[l][i][k][j] = 1.E-6;
           }
         }
       }

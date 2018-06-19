@@ -750,7 +750,7 @@ void LArRodBlockPhysicsV6::setNextEnergy(const int channel, const int32_t energy
  //In the latter case, we fill up the missing  channels with zero
  if (rcNb<m_EnergyIndex) {
    //*m_logstr << MSG::ERROR  << "LArRODBlockStructure ERROR: Internal error. Channels not ordered correctly. rcNb=" << rcNb
-   //          << " m_EnergyIndex=" << m_EnergyIndex << endmsg;;
+   //          << " m_EnergyIndex=" << m_EnergyIndex << endmsg;
    return;
  }
 
@@ -813,7 +813,7 @@ void LArRodBlockPhysicsV6::setNextEnergy(const uint16_t energy,const int16_t tim
 {
   if (m_EnergyIndex>=m_channelsPerFEB)        //Use m_EIndex to count total number of channels
     {//*m_logstr << MSG::ERROR  << "LArRodBlockStructure ERROR: Attempt to write Energy for channel "
-     //       << m_EnergyIndex << " channels into a FEB!" <<endmsg;;
+     //       << m_EnergyIndex << " channels into a FEB!" <<endmsg;
       return;
     }
   //LARBSDBG("LArRodBlockStructure: Setting Energy for channel " << m_EnergyIndex << ". E=" << energy);

@@ -466,7 +466,7 @@ StatusCode HLTMonTool::fillResultAndConsistencyHistograms(const std::string& key
         if (isAccepted) rhist->Fill(2); 
         if (isPassThrough) rhist->Fill(3);
     }
-    return sc_trigDec || sc_hltResult;
+    return sc_trigDec | sc_hltResult;
 }
 
 StatusCode HLTMonTool::fillLvl1Histograms(){

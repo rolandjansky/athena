@@ -21,10 +21,7 @@ TrigmuCombHypoAlg::TrigmuCombHypoAlg( const std::string& name,
 				      ISvcLocator* pSvcLocator ) :
   ::AthReentrantAlgorithm( name, pSvcLocator )
 {
-   declareProperty("Decisions", m_decisionsKey = std::string("Decisions"), "Decision on muCombHypo to write in");
-   declareProperty("MuonSADecisions", m_muonDecisionsKey = std::string("MuonSADecisions"), "Decisions from MufastHypo to read in");
-   declareProperty("ViewRoIs", m_viewsKey = std::string("ViewRoIs"), "MUViewRoIs to read in");
-   declareProperty("MuCombContainer", m_combinedKey = std::string("MuCombContainer"), "xAOD::L2CombinedMuonContainer to read in");
+
 } 
 
 TrigmuCombHypoAlg::~TrigmuCombHypoAlg() 
@@ -94,7 +91,7 @@ StatusCode TrigmuCombHypoAlg::execute_r(const EventContext& context) const
   // retrieve views created on l2muCombViewsCreator
   auto viewsHandle = SG::makeHandle(m_viewsKey, context);
   if (!viewsHandle.isValid()) {
-    ATH_MSG_ERROR("ReadHandle for std::vector< SG::View*> key:" << m_viewsKey.key() << " is failed");
+    ATH_MSG_ERROR("ReadHandle for ViewContainer key:" << m_viewsKey.key() << " is failed");
     return StatusCode::FAILURE;
   }
 

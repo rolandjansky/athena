@@ -29,7 +29,7 @@ shower library using the ShowerLib::ShowerLib class.
   The hit information collected by the test action is contained in the
   LArG4ShowerLib package. The entry point is the
   ShowerLib::StepInfoCollection class.
-  
+
 @section LArG4GenShowerLib_LArG4GenShowerLibJobOptions Job Options
   For both algorithms dedicated job options are supplied which are used by the script
   generateShowerLib.py.
@@ -49,7 +49,7 @@ shower library using the ShowerLib::ShowerLib class.
 
 
 @section LArG4GenShowerLib_LArG4GenShowerLibDefaultSettings Default Settings
-  
+
   The default settings of the library generation process are stored in
   @include generate_libs.txt.
 

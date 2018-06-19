@@ -4,7 +4,6 @@
 
 #include "TBCaloPosTool.h"
 
-#include "GaudiKernel/ToolFactory.h"
 
 // Gaudi includes
 #include "GaudiKernel/MsgStream.h"

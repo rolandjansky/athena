@@ -687,7 +687,7 @@ void TrigHLTPSvsFSDiagnostics::jetsCheck(){
 
     //!--- deltaR, deltaE to RoI center -------------------------
     double min_deltaRoI = minDeltaRoI(PS_Jet->eta(), PS_Jet->phi());
-    double fabs_Et = fabs(((PS_Jet->p4()).Et()-(FSmatchJet->p4()).Et())/(FSmatchJet->p4()).Et());;
+    double fabs_Et = fabs(((PS_Jet->p4()).Et()-(FSmatchJet->p4()).Et())/(FSmatchJet->p4()).Et());
     m_hMapProf["tot_deltaRvsCenter_Jets"]->Fill(min_deltaRoI,min_delta_R);
     m_hMapProf["tot_deltaEtvsCenter_Jets"]->Fill(min_deltaRoI,fabs_Et);
 

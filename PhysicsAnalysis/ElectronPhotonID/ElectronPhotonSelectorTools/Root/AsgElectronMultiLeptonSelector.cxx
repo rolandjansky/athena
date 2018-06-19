@@ -54,62 +54,67 @@ AsgElectronMultiLeptonSelector::~AsgElectronMultiLeptonSelector()
 //=============================================================================
 StatusCode AsgElectronMultiLeptonSelector::initialize()
 {
-  // We need to initialize the underlying ROOT TSelectorTool
+
+  ATH_MSG_INFO ("Initialize ");
+    
+
+    // We need to initialize the underlying ROOT TSelectorTool
   m_rootTool->msg().setLevel(this->msg().level());
-  if ( 0 == m_rootTool->initialize() )
+  if ( m_rootTool->initialize().isFailure() )
     {
       ATH_MSG_ERROR ( "ERROR! Could not initialize the TElectronMultiLeptonSelector!" );
       return StatusCode::FAILURE;
     }
 
-  // Copy the now filled TAccept to the dummy
-  m_acceptDummy = m_rootTool->getTAccept();
-
+  ATH_MSG_INFO ("Initialize end ");
+  
   return StatusCode::SUCCESS ;
 }
 
 
 
 //=============================================================================
-// Asgena finalize method (now called by destructor)
+// finalize method (now called by destructor)
 //=============================================================================
 StatusCode AsgElectronMultiLeptonSelector::finalize()
 {
-  if ( !(m_rootTool->finalize()) )
-    {
-      ATH_MSG_ERROR ( "ERROR! Something went wrong at finalize!" );
-      return StatusCode::FAILURE;
-    }
-
   return StatusCode::SUCCESS;
 }
 
 
+//=============================================================================
+// return the accept info object
+//=============================================================================
+
+const asg::AcceptInfo& AsgElectronMultiLeptonSelector::getAcceptInfo() const
+{
+    return m_rootTool->getAcceptInfo();
+}
 
 
 //=============================================================================
 // The main accept method: the actual cuts are applied here 
 //=============================================================================
-const Root::TAccept& AsgElectronMultiLeptonSelector::accept( const xAOD::Electron* eg ) const
+asg::AcceptData AsgElectronMultiLeptonSelector::accept( const xAOD::Electron* eg ) const
 {
   if ( !eg )
     {
       ATH_MSG_DEBUG ("Failed, no egamma object.");
-      return m_acceptDummy;
+      return m_rootTool->accept();
     }
   
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster )
     {
       ATH_MSG_DEBUG ("Failed, no cluster.");
-      return m_acceptDummy;
+      return m_rootTool->accept();
     }  
   
   float eta = fabsf(cluster->etaBE(2)); 
   if ( eta > 100.0 )
     {
       ATH_MSG_DEBUG ("Failed, eta range.");
-      return m_acceptDummy;
+      return m_rootTool->accept();
     }
   
   // transverse energy of the electron (using the track eta) 
@@ -203,7 +208,7 @@ const Root::TAccept& AsgElectronMultiLeptonSelector::accept( const xAOD::Electro
   if (!allFound) {
      // if object is bad then use the bit for "bad eta"
     ATH_MSG_WARNING("Have some variables missing.");
-    return m_acceptDummy;
+    return m_rootTool->accept();
   }
 
   // Get the answer from the underlying ROOT tool
@@ -221,7 +226,7 @@ const Root::TAccept& AsgElectronMultiLeptonSelector::accept( const xAOD::Electro
 }
 
 
-const Root::TAccept& AsgElectronMultiLeptonSelector::accept(const xAOD::IParticle* part) const
+asg::AcceptData AsgElectronMultiLeptonSelector::accept(const xAOD::IParticle* part) const
 {
   ATH_MSG_DEBUG("Entering accept( const IParticle* part )");
   if(part->type()==xAOD::Type::Electron){
@@ -230,7 +235,7 @@ const Root::TAccept& AsgElectronMultiLeptonSelector::accept(const xAOD::IParticl
   }
   else{
     ATH_MSG_ERROR("AsgElectronMultiLeptonSelector::could not convert argument to accept");
-    return m_acceptDummy;
+    return m_rootTool->accept();
   }
 }
 
@@ -239,8 +244,4 @@ const Root::TAccept& AsgElectronMultiLeptonSelector::accept(const xAOD::IParticl
 //=============================================================================
 std::string AsgElectronMultiLeptonSelector::getOperatingPointName() const{
   return "MultiLepton";
-}
-
-const Root::TAccept& AsgElectronMultiLeptonSelector::getTAccept( ) const{
-  return m_rootTool->getTAccept();
 }

@@ -14,31 +14,31 @@
 namespace MuonCalib {
 
   CscRawHitNtupleBranch::CscRawHitNtupleBranch(std::string branchName) : 
-    m_branchName(branchName), branchesInit(false), index(0)
+    m_branchName(branchName), m_branchesInit(false), m_index(0)
   {}
 
   bool CscRawHitNtupleBranch::fillBranch(const MuonCalibRawCscHit &hit ) {
-    // check if branches where initialized
-    if( !branchesInit )
+    // check if branches were initialized
+    if( !m_branchesInit )
       return false;    
     
     // check if index not out of range 
-    if( index >= m_blockSize || index < 0 )
+    if( m_index >= m_blockSize || m_index < 0 )
       return false;
 
     //    Trk::GlobalPosition global = hit.globalP
  
     // copy values 
-    occupancy[index] = hit.occupancy() ;
-    id[index]        = hit.identify().getIdInt();
-    width[index]     = hit.width() ;
-    charge[index]    = hit.charge() ;
-    t[index]         = hit.t() ;
-    gPosX[index]     = hit.globalPosition().x();
-    gPosY[index]     = hit.globalPosition().y();
-    gPosZ[index]     = hit.globalPosition().z();
+    m_occupancy[m_index] = hit.occupancy() ;
+    m_id[m_index]        = hit.identify().getIdInt();
+    m_width[m_index]     = hit.width() ;
+    m_charge[m_index]    = hit.charge() ;
+    m_t[m_index]         = hit.t() ;
+    m_gPosX[m_index]     = hit.globalPosition().x();
+    m_gPosY[m_index]     = hit.globalPosition().y();
+    m_gPosZ[m_index]     = hit.globalPosition().z();
 
-    ++index;   
+    ++m_index;   
     return true;
   }  //end CscRawHitNtupleBranch::fillBranch
 
@@ -53,22 +53,22 @@ namespace MuonCalib {
     std::string index_name ="nRCsc";
 
     // create a branch for every data member
-    branchCreator.createBranch( tree, index_name, &index, "/I");
+    branchCreator.createBranch( tree, index_name, &m_index, "/I");
 
     // all entries of same size, the number of hits in the event
     std::string array_size( std::string("[") + m_branchName + index_name + std::string("]") );
 
     // create the branches
-    branchCreator.createBranch( tree, "occupancy", &occupancy, array_size + "/I" );
-    branchCreator.createBranch( tree, "id",        &id,        array_size + "/I" );
-    branchCreator.createBranch( tree, "width",     &width,     array_size + "/F" );
-    branchCreator.createBranch( tree, "charge",    &charge,    array_size + "/F" );
-    branchCreator.createBranch( tree, "t",         &t,         array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosX",     &gPosX,     array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosY",     &gPosY,     array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosZ",     &gPosZ,     array_size + "/F" );
+    branchCreator.createBranch( tree, "occupancy", &m_occupancy, array_size + "/I" );
+    branchCreator.createBranch( tree, "id",        &m_id,        array_size + "/I" );
+    branchCreator.createBranch( tree, "width",     &m_width,     array_size + "/F" );
+    branchCreator.createBranch( tree, "charge",    &m_charge,    array_size + "/F" );
+    branchCreator.createBranch( tree, "t",         &m_t,         array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosX",     &m_gPosX,     array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosY",     &m_gPosY,     array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosZ",     &m_gPosZ,     array_size + "/F" );
 
-    branchesInit = true;
+    m_branchesInit = true;
   
     // reset branch
     reset();

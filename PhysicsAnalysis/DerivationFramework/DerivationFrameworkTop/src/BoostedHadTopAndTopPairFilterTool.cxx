@@ -30,7 +30,7 @@ StatusCode BoostedHadTopAndTopPairFilterTool::initialize() {ATH_MSG_INFO("Initia
 StatusCode BoostedHadTopAndTopPairFilterTool::finalize() {return StatusCode::SUCCESS;}
 
 //--------------------------------------------------------------------------
-  int BoostedHadTopAndTopPairFilterTool::filterFlag(double m_tHadPtCut, double m_tPairPtCut) const {
+  int BoostedHadTopAndTopPairFilterTool::filterFlag(double tHadPtCut, double tPairPtCut) const {
 
 
   // if true, the event pass the filter :
@@ -130,12 +130,12 @@ StatusCode BoostedHadTopAndTopPairFilterTool::finalize() {return StatusCode::SUC
   double TTBarChildrenSysPt = sqrt( pow( topChildrenPx + topbarChildrenPx , 2 ) + pow( topChildrenPy + topbarChildrenPy , 2 ));
 
   if (m_cutPtOf == 0){ // cut on the pT of top on the truth list
-    if (hadtopPt   >= m_tHadPtCut || hadtopbarPt >= m_tHadPtCut )   passTopHad  = true;
-    if (TTBarSysPt >= m_tPairPtCut )  passTopPair = true;
+    if (hadtopPt   >= tHadPtCut || hadtopbarPt >= tHadPtCut )   passTopHad  = true;
+    if (TTBarSysPt >= tPairPtCut )  passTopPair = true;
   }
   else if( m_cutPtOf == 1){ // cut on the pT of top decay products (b, q, qbar') on the truth list
-    if (hadtopChildrenPt   >= m_tHadPtCut  )  passTopHad  = true;
-    if (TTBarChildrenSysPt >= m_tPairPtCut )  passTopPair = true;
+    if (hadtopChildrenPt   >= tHadPtCut  )  passTopHad  = true;
+    if (TTBarChildrenSysPt >= tPairPtCut )  passTopPair = true;
   }
 
 

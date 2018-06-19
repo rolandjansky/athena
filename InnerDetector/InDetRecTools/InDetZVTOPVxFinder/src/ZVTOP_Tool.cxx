@@ -21,7 +21,7 @@
 #include "VxVertex/VxTrackAtVertex.h"
 #include "TrkTrack/LinkToTrack.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkParticleBase/TrackParticleBaseCollection.h"
 #include "TrkTrack/TrackCollection.h"

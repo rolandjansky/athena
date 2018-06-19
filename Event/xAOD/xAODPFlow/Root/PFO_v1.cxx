@@ -42,12 +42,10 @@ namespace xAOD {
     }//getAccessor
   };
 
-  PFO_v1::PFO_v1()
-    : IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false) {
-    
+  PFO_v1::PFO_v1() : IParticle() {
   }
 
-  PFO_v1::PFO_v1(const PFO_v1& other) :  IParticle(), m_p4(), m_p4Cached( false ), m_p4EM(),  m_p4EMCached(false) {
+  PFO_v1::PFO_v1(const PFO_v1& other) : IParticle(){
     this->makePrivateStore(other);
   }
 
@@ -62,17 +60,23 @@ namespace xAOD {
 
    double PFO_v1::eta() const {
 
-     return p4().Eta();
+     const static Accessor<float> accEta("eta");
+     float eta = accEta(*this);
+     return eta;
    }
 
    double PFO_v1::phi() const {
 
-     return p4().Phi();
+     const static Accessor<float> accPhi("phi");
+     float phi = accPhi(*this);
+     return phi;
    }
 
    double PFO_v1::m() const {
 
-     return p4().M();
+     const static Accessor<float> accM("m");
+     float M = accM(*this);
+     return M;
    }
 
    double PFO_v1::e() const {
@@ -80,40 +84,24 @@ namespace xAOD {
      const static Accessor<float> accPt("pt");
      float pt = accPt(*this);
 
-     if (pt < 0.0) return -p4().E();
-     else return p4().E();
+     if (pt < 0.0) return -genvecP4().E();
+     else return genvecP4().E();
    }
 
    double PFO_v1::rapidity() const {
 
-     return p4().Rapidity();
+     return genvecP4().Rapidity();
    }
 
-   const PFO_v1::FourMom_t& PFO_v1::p4() const {
-
-     // Check if we need to reset the cached object:
-     if( ! m_p4Cached ) {
-
-       const static Accessor<float> accPt("pt");
-       float pt = accPt(*this);
-
-       const static Accessor<float> accEta("eta");
-       float eta = accEta(*this);
-
-       const static Accessor<float> accPhi("phi");
-       float phi = accPhi(*this);
-
-       const static Accessor<float> accM("m");
-       float M = accM(*this);
-
-       m_p4.SetPtEtaPhiM(pt,eta,phi,M);
-       m_p4Cached = true;
-     }
-
-     // Return the cached object:
-     return m_p4;
+   PFO_v1::FourMom_t PFO_v1::p4() const {
+     FourMom_t p4;
+     p4.SetPtEtaPhiM( pt(), eta(), phi(),m()); 
+     return p4;	
    }
 
+   PFO_v1::GenVecFourMom_t PFO_v1::genvecP4() const {
+     return GenVecFourMom_t( pt(), eta(), phi(),m()); 
+   }
   
 
   /// set the 4-vec
@@ -131,8 +119,6 @@ namespace xAOD {
     const static Accessor<float> accM("m");
     accM(*this) = vec.M();
 
-    m_p4Cached = false;
-
   }
 	 
   /// set the 4-vec
@@ -149,8 +135,6 @@ namespace xAOD {
 
     const static Accessor<float> accM("m");
     accM(*this) = m;
-
-    m_p4Cached = false;
   }
   
 
@@ -158,23 +142,33 @@ namespace xAOD {
       return Type::ParticleFlow;
    }
 
-  const PFO_v1::FourMom_t& PFO_v1::p4EM() const { 
+  PFO_v1::FourMom_t PFO_v1::p4EM() const { 
 
-    if (fabs(this->charge()) > FLT_MIN) return this->p4();
+    if (fabs(this->charge()) > FLT_MIN) return p4();
 
-    if (!m_p4EMCached){
+    FourMom_t p4EM;
 
-      //change to use pt, eta, phi ,e 
-      const static Accessor<float> accPt("ptEM");
-      const static Accessor<float> accEta("eta");
-      const static Accessor<float> accPhi("phi");
-      const static Accessor<float> accM("mEM");
+    //change to use pt, eta, phi ,e 
+    const static Accessor<float> accPt("ptEM");
+    const static Accessor<float> accEta("eta");
+    const static Accessor<float> accPhi("phi");
+    const static Accessor<float> accM("mEM");
+    
+    p4EM.SetPtEtaPhiM(accPt(*this), accEta(*this), accPhi(*this), accM(*this));
+    return p4EM;
+  }
 
-      m_p4EM.SetPtEtaPhiM(accPt(*this), accEta(*this), accPhi(*this), accM(*this));
-      m_p4EMCached = true;
-    }
+  PFO_v1::GenVecFourMom_t PFO_v1::genvecP4EM() const { 
 
-    return m_p4EM;
+    if (fabs(this->charge()) > FLT_MIN) return genvecP4();
+
+    //change to use pt, eta, phi ,e 
+    const static Accessor<float> accPt("ptEM");
+    const static Accessor<float> accEta("eta");
+    const static Accessor<float> accPhi("phi");
+    const static Accessor<float> accM("mEM");
+    
+    return GenVecFourMom_t(accPt(*this), accEta(*this), accPhi(*this), accM(*this));
   }
 
   void PFO_v1::setP4EM(const FourMom_t& p4EM) {
@@ -189,8 +183,6 @@ namespace xAOD {
 
     const static Accessor<float> accM("mEM");
     accM(*this) = p4EM.M();
-
-    m_p4EMCached = false;
 
   }
 
@@ -208,7 +200,6 @@ namespace xAOD {
     const static Accessor<float> accM("mEM");
     accM(*this) = m;
 
-    m_p4Cached = false;
   }
 
    double PFO_v1::ptEM() const {
@@ -221,25 +212,23 @@ namespace xAOD {
      return pt;
    }
 
-   double PFO_v1::etaEM() const {
-          
-     if (fabs(this->charge()) > FLT_MIN) return this->eta();
-
-     return p4EM().Eta();
+   // JM: this seem to be idetical to eta(), right?
+   double PFO_v1::etaEM() const {     
+     return eta();
    }
 
+   // JM: this seem to be idetical to phi(), right?
    double PFO_v1::phiEM() const {
-
-     if (fabs(this->charge()) > FLT_MIN) return this->phi();
-
-     return p4EM().Phi();
+     return phi();
    }
 
    double PFO_v1::mEM() const {
 
      if (fabs(this->charge()) > FLT_MIN) return this->m();
+     const static Accessor<float> accM("mEM");
+     float M = accM(*this);
 
-     return p4EM().M();
+     return M;
    }
 
    double PFO_v1::eEM() const {
@@ -258,7 +247,9 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, float, centerMag, setCenterMag)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, float, charge, setCharge)
 
-
+  bool PFO_v1::isCharged() const{
+     return (fabs(this->charge())>FLT_MIN);
+  }
 
   /** specaial implementations for floats, for eflowRec JetETMiss variables, to reduce disk space usage */
 

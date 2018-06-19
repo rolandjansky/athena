@@ -124,7 +124,7 @@ void VP1Authenticator::Imp::displayError(QString message)
 //__________________________ Main Class __________________________________
 VP1Authenticator::VP1Authenticator(QWidget* parent, QString fileInfoUrl)
   : QDialog(parent)
-  , d(new Imp(this,fileInfoUrl))
+  , m_d(new Imp(this,fileInfoUrl))
 {
   setupUi(this);
   setFixedSize(400,200);
@@ -143,24 +143,24 @@ VP1Authenticator::VP1Authenticator(QWidget* parent, QString fileInfoUrl)
 
 VP1Authenticator::~VP1Authenticator()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________ Https/SSL slots________________
 
 bool VP1Authenticator::connectToServer()
 { 
-  QUrl fileinfoUrl(d->m_fileInfoUrl);
+  QUrl fileinfoUrl(m_d->m_fileInfoUrl);
   QNetworkRequest netrequest(fileinfoUrl);
-  d->m_netreply = d->m_netmanager->get(netrequest);
-  d->connectToAuthenticator(this);
+  m_d->m_netreply = m_d->m_netmanager->get(netrequest);
+  m_d->connectToAuthenticator(this);
 
   return true;
 }
 
 void VP1Authenticator::finished()
 {
-  QString message("\n\nVP1Authenticator done. STAGE " + QString::number(d->stage) + "\n");
+  QString message("\n\nVP1Authenticator done. STAGE " + QString::number(m_d->stage) + "\n");
   
   QUrl redirectionUrl;
   QList<QNetworkCookie> cookielist;
@@ -168,7 +168,7 @@ void VP1Authenticator::finished()
   // ******** Collect some information for the log ********
 
   // ** Headers
-  QVariant val = d->m_netreply->header(QNetworkRequest::SetCookieHeader);
+  QVariant val = m_d->m_netreply->header(QNetworkRequest::SetCookieHeader);
   if(val.type()==QVariant::Invalid) {
     message += QString("  No set cookies\n");
   } else if (!val.canConvert<QList<QNetworkCookie> >()){
@@ -176,18 +176,18 @@ void VP1Authenticator::finished()
   } else {
     cookielist = val.value<QList<QNetworkCookie> >();
     for(int ii=0; ii<cookielist.size(); ++ii) {
-      const QNetworkCookie& _cookie = cookielist.at(ii);
+      const QNetworkCookie& cookie = cookielist.at(ii);
       message += ("  Received cookie #" + QString::number(ii) + "\n");
-      message += ("  *** Path:    " + _cookie.path() + "\n");
-      message += ("  *** Domain:  " + _cookie.domain() + "\n");
-      message += (QString("  *** Secure:  ") + (_cookie.isSecure() ? "YES" : "NO") + "\n");
-      message += (QString("  *** Session: ") + (_cookie.isSessionCookie() ? "YES" : "NO") + "\n");
-      message += ("  *** Name:    " + QString(_cookie.name().constData()) + "\n");
-      message += ("  *** Value:   " + QString(_cookie.value().constData()) + "\n");
+      message += ("  *** Path:    " + cookie.path() + "\n");
+      message += ("  *** Domain:  " + cookie.domain() + "\n");
+      message += (QString("  *** Secure:  ") + (cookie.isSecure() ? "YES" : "NO") + "\n");
+      message += (QString("  *** Session: ") + (cookie.isSessionCookie() ? "YES" : "NO") + "\n");
+      message += ("  *** Name:    " + QString(cookie.name().constData()) + "\n");
+      message += ("  *** Value:   " + QString(cookie.value().constData()) + "\n");
     }
   }
 
-  val = d->m_netreply->header(QNetworkRequest::ContentTypeHeader);
+  val = m_d->m_netreply->header(QNetworkRequest::ContentTypeHeader);
   if(val.type()==QVariant::Invalid) {
     message += QString("  No ContentType\n");
   } else if (!val.canConvert<QString>()) {
@@ -197,7 +197,7 @@ void VP1Authenticator::finished()
     message += QString("  Content type: " + conttype  + "\n");
   }
 
-  val = d->m_netreply->header(QNetworkRequest::ContentLengthHeader);
+  val = m_d->m_netreply->header(QNetworkRequest::ContentLengthHeader);
   if(val.type()==QVariant::Invalid) {
     message += QString("  No ContentLength\n");
   } else if (!val.canConvert<int>()) {
@@ -207,18 +207,18 @@ void VP1Authenticator::finished()
     message += QString("  Content Length: " + QString::number(contlength) + "\n");
   }
 
-  val = d->m_netreply->header(QNetworkRequest::LocationHeader);
+  val = m_d->m_netreply->header(QNetworkRequest::LocationHeader);
   if(val.type()==QVariant::Invalid) {
     message += QString("  No Location\n");
   } else if (!val.canConvert<QUrl>()) {
     message += QString("  Cannot convert Content Length to QUrl\n");
   } else {
-    QUrl _url = val.value<QUrl>();
-    message += QString("  Location URL " + _url.toString() + "\n");
+    QUrl url = val.value<QUrl>();
+    message += QString("  Location URL " + url.toString() + "\n");
   }
 
   // ** Attributes
-  val = d->m_netreply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+  val = m_d->m_netreply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
   if(val.type()==QVariant::Invalid) {
     message += QString("  No StatusCode Attribute\n");
   } else if (!val.canConvert<int>()) {
@@ -228,7 +228,7 @@ void VP1Authenticator::finished()
     message += QString("  StatusCode : " +QString::number(sc) + "\n");
   }
 
-  val = d->m_netreply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+  val = m_d->m_netreply->attribute(QNetworkRequest::RedirectionTargetAttribute);
   if(val.type()==QVariant::Invalid) {
     message += QString("  No Redirection Attribute\n");
   } else if (!val.canConvert<QUrl>()) {
@@ -243,11 +243,11 @@ void VP1Authenticator::finished()
   QByteArray logMessage(message.toStdString().c_str());
 
   // ** Write reply to log **
-  QByteArray ba = d->m_netreply->readAll();
+  QByteArray ba = m_d->m_netreply->readAll();
   logMessage = logMessage.append(ba);
   logMessage = logMessage.append("\n<<<<< HTML response\n\n\n");
-  if(d->m_log)
-    d->m_log->write(logMessage);
+  if(m_d->m_log)
+    m_d->m_log->write(logMessage);
 
 
   // *** Stage 5:
@@ -256,49 +256,49 @@ void VP1Authenticator::finished()
   // authorized to access the requested resource
   //
   // Check that...
-  if(d->stage==5) {
+  if(m_d->stage==5) {
     QString replyBody(ba.data());
     if(replyBody.contains("authorization failed", Qt::CaseInsensitive)) {
       QString errMessage("Authorization Failed");
-      d->displayError(errMessage);
-      d->m_netmanager->deleteLater();
-      d->m_netmanager = new QNetworkAccessManager();
-      d->stage=1;
-      d->m_netreply=0;
+      m_d->displayError(errMessage);
+      m_d->m_netmanager->deleteLater();
+      m_d->m_netmanager = new QNetworkAccessManager();
+      m_d->stage=1;
+      m_d->m_netreply=0;
       return;
     } 
     
-    if(d->m_netreply->error()==QNetworkReply::NoError) 
-      authenticationSuccessful(d->m_netmanager);
+    if(m_d->m_netreply->error()==QNetworkReply::NoError) 
+      authenticationSuccessful(m_d->m_netmanager);
   }
 
   // ** Check for errors **
-  if(d->m_netreply->error()!=QNetworkReply::NoError) {
+  if(m_d->m_netreply->error()!=QNetworkReply::NoError) {
       QString errMessage("Network error occured during authentication phase\n");
-      errMessage += QString("Error code " + QString::number((int)d->m_netreply->error()) + "\nExplanation on http://doc.trolltech.com/4.4/qnetworkreply.html#NetworkError-enum");
-      d->displayError(errMessage);
-      d->stage=1;
+      errMessage += QString("Error code " + QString::number((int)m_d->m_netreply->error()) + "\nExplanation on http://doc.trolltech.com/4.4/qnetworkreply.html#NetworkError-enum");
+      m_d->displayError(errMessage);
+      m_d->stage=1;
       return;
   }
 
   // *** Stage 1:
   // Received a reply redirecting us to login.cern.ch
   // Take the redirection URL and issue GET request for it
-  if(d->stage==1) {
-    if(redirectionUrl.isEmpty() || redirectionUrl.host() != d->m_loginServer) {
-      QString errMessage("Wrong URL: " + d->m_fileInfoUrl + "\nPlease fix the URL and restart the job");
-      d->displayError(errMessage);	
-      d->stage=1;
+  if(m_d->stage==1) {
+    if(redirectionUrl.isEmpty() || redirectionUrl.host() != m_d->m_loginServer) {
+      QString errMessage("Wrong URL: " + m_d->m_fileInfoUrl + "\nPlease fix the URL and restart the job");
+      m_d->displayError(errMessage);	
+      m_d->stage=1;
       return;
     } else {
       QNetworkRequest netrequest(redirectionUrl);
-      d->m_netreply = d->m_netmanager->get(netrequest);
-      if(d->m_log) {
+      m_d->m_netreply = m_d->m_netmanager->get(netrequest);
+      if(m_d->m_log) {
 	QByteArray baLog("Get request sent\n_______________________________________________________\n\n");
-	d->m_log->write(baLog);
+	m_d->m_log->write(baLog);
       }
-      d->connectToAuthenticator(this);
-      d->stage++;
+      m_d->connectToAuthenticator(this);
+      m_d->stage++;
       return;
     }
   }
@@ -307,7 +307,7 @@ void VP1Authenticator::finished()
   // Received authentication form
   // Parse contents of the authentication form
   // look for input tags and collect their attributes
-  if(d->stage==2) {
+  if(m_d->stage==2) {
     QString replyBody(ba.data());
 
     QString newRequestBody("__EVENTTARGET=&__EVENTARGUMENT=&__LASTFOCUS=");
@@ -324,9 +324,9 @@ void VP1Authenticator::finished()
       else {
 	// Let's parse it
 	QString tag = replyBody.mid(inputStart,inputEnd-inputStart);
-	QString typeVal = d->getTagAttributeVal(tag,"type");
-	QString nameVal = d->getTagAttributeVal(tag,"name");
-	QString valueVal = d->getTagAttributeVal(tag,"value").replace(" ","+");
+	QString typeVal = m_d->getTagAttributeVal(tag,"type");
+	QString nameVal = m_d->getTagAttributeVal(tag,"name");
+	QString valueVal = m_d->getTagAttributeVal(tag,"value").replace(" ","+");
 	
 	if(QString::compare(typeVal,"text",Qt::CaseInsensitive)==0)
 	  valueVal = inpPers->text();
@@ -360,7 +360,7 @@ void VP1Authenticator::finished()
 
     // Get form action
     // !!! Hardwire this for now:
-    QString actionUrlString("https://"+d->m_loginServer);
+    QString actionUrlString("https://"+m_d->m_loginServer);
 
     QStringMatcher actionStartMatcher("action=\"",Qt::CaseInsensitive);
     QStringMatcher actionEndMatcher("\"");
@@ -381,13 +381,13 @@ void VP1Authenticator::finished()
     QNetworkRequest netrequest(QUrl(actionUrlStringDecoded.replace("&amp;","&")));
     netrequest.setHeader(QNetworkRequest::ContentTypeHeader,"application/x-www-form-urlencoded");
     netrequest.setHeader(QNetworkRequest::ContentLengthHeader,newBody.size());
-    d->m_netreply = d->m_netmanager->post(netrequest,newBody);
-    if(d->m_log) {
+    m_d->m_netreply = m_d->m_netmanager->post(netrequest,newBody);
+    if(m_d->m_log) {
       QByteArray baLog(logMessage.toStdString().c_str());
-      d->m_log->write(baLog);
+      m_d->m_log->write(baLog);
     }
-    d->connectToAuthenticator(this);
-    d->stage++;
+    m_d->connectToAuthenticator(this);
+    m_d->stage++;
     return;
   }
 
@@ -403,13 +403,13 @@ void VP1Authenticator::finished()
   // If the authentication considered successfull then parse contents of the 
   // response, look for input tags and collect their attributes
   // and compose a new POST request
-  if(d->stage==3) {
+  if(m_d->stage==3) {
 
     if(cookielist.size()==0) {
       // Authentication failed
       QString errMessage("Authentication failed, please try again\n");
-      d->displayError(errMessage);
-      d->stage=1;
+      m_d->displayError(errMessage);
+      m_d->stage=1;
       return;
     }
 
@@ -452,9 +452,9 @@ void VP1Authenticator::finished()
       else {
 	// Let's parse it
 	QString tag = replyBody.mid(inputStart,inputEnd-inputStart);
-	QString typeVal = d->getTagAttributeVal(tag,"type");
-	QString nameVal = d->getTagAttributeVal(tag,"name");
-	QString valueVal = d->getTagAttributeVal(tag,"value");
+	QString typeVal = m_d->getTagAttributeVal(tag,"type");
+	QString nameVal = m_d->getTagAttributeVal(tag,"name");
+	QString valueVal = m_d->getTagAttributeVal(tag,"value");
 
 	if(QString::compare(typeVal,"text",Qt::CaseInsensitive)==0)
 	  valueVal = inpPers->text();
@@ -502,52 +502,52 @@ void VP1Authenticator::finished()
     netrequest.setUrl(actionUrlString);
     netrequest.setHeader(QNetworkRequest::ContentTypeHeader,"application/x-www-form-urlencoded");
     netrequest.setHeader(QNetworkRequest::ContentLengthHeader,newBody.size());
-    d->m_netreply = d->m_netmanager->post(netrequest,newBody);
+    m_d->m_netreply = m_d->m_netmanager->post(netrequest,newBody);
     logMessage += ("\n\nPost request sent\n_______________________________________________________\n\n");
-    if(d->m_log) {
+    if(m_d->m_log) {
       QByteArray baLog(logMessage.toStdString().c_str());
-      d->m_log->write(baLog);
+      m_d->m_log->write(baLog);
     }
-    d->connectToAuthenticator(this);
-    d->stage++;
+    m_d->connectToAuthenticator(this);
+    m_d->stage++;
     return;
   }
 
   // *** Stage 4:
   // Recieved a final redirection to the requested resource
   // Just try to get it
-  if(d->stage==4) {
+  if(m_d->stage==4) {
     QNetworkRequest netrequest(redirectionUrl);
-    d->m_netreply = d->m_netmanager->get(netrequest);
-    if(d->m_log) {
+    m_d->m_netreply = m_d->m_netmanager->get(netrequest);
+    if(m_d->m_log) {
       QByteArray baLog("Get request sent\n_______________________________________________________\n\n");
-      d->m_log->write(baLog);
+      m_d->m_log->write(baLog);
     }
-    d->connectToAuthenticator(this);
-    d->stage++;
+    m_d->connectToAuthenticator(this);
+    m_d->stage++;
     return;
   }
 }
 
 void VP1Authenticator::error(QNetworkReply::NetworkError err)
 {
-  if(d->m_log) {
-    QString message("VP1Authenticator error. STAGE " + QString::number(d->stage) + ", error code: " + QString::number((int)err) + "\n");
+  if(m_d->m_log) {
+    QString message("VP1Authenticator error. STAGE " + QString::number(m_d->stage) + ", error code: " + QString::number((int)err) + "\n");
     QByteArray ba(message.toStdString().c_str());
-    d->m_log->write(ba);
+    m_d->m_log->write(ba);
   }
 }
 
 void VP1Authenticator::sslErrors(const QList<QSslError>& errlist) 
 {
-  if(d->m_log) {
-    QString message("VP1Authenticator SSL errors. STAGE " + QString::number(d->stage) + "\n");
+  if(m_d->m_log) {
+    QString message("VP1Authenticator SSL errors. STAGE " + QString::number(m_d->stage) + "\n");
     for(int ii=0; ii<errlist.size(); ++ii)
       message += ("   " + QString::number((int)errlist.at(ii).error()) + ", " + errlist.at(ii).errorString() + "\n");
     QByteArray ba(message.toStdString().c_str());
-    d->m_log->write(ba);
+    m_d->m_log->write(ba);
   }
-  d->m_netreply->ignoreSslErrors();
+  m_d->m_netreply->ignoreSslErrors();
 }
 
 //____________ GUI slots________________
@@ -579,5 +579,5 @@ void VP1Authenticator::loginClicked()
 
 QNetworkAccessManager* VP1Authenticator::networkAccessManager()
 {
-  return d->m_netmanager;
+  return m_d->m_netmanager;
 }

@@ -9,24 +9,17 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "Identifier/Identifier.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloEvent/CaloCell.h"
-#include "CaloEvent/CaloCellContainer.h"
-#include "LArRecEvent/LArCollisionTime.h"
 
 
 //Constructor
 LArCollisionTimeAlg:: LArCollisionTimeAlg(const std::string& name, ISvcLocator* pSvcLocator):
     AthAlgorithm(name,pSvcLocator),
-    m_noiseTool("CaloNoiseTool/calonoisetool"),m_isMC(false),m_iterCut(true),m_timeCut(5.),m_minCells(2),m_cellsContName("AllCalo"),
-    m_calo_id(NULL)
+    m_nevt(0),
+    m_calo_id(nullptr),m_noiseTool("CaloNoiseTool/calonoise")
   {
-    declareProperty("NoiseTool",m_noiseTool);
-    declareProperty("timeDiffCut",m_timeCut);
-    declareProperty("isMC",m_isMC);
-    declareProperty("nCells",m_minCells);
-    declareProperty("cutIteration",m_iterCut);   // cut on OFC iteration will not work for Online
-    declareProperty("cellContainerName",m_cellsContName);
-    m_nevt=0;
+    declareProperty("NoiseTool", m_noiseTool);
+    declareProperty("cellContainerName", m_cellsContName="AllCalo" );
+    declareProperty("collisionTime", m_collTimeName="LArCollisionTime" );
   }
   
 //__________________________________________________________________________
@@ -39,19 +32,20 @@ LArCollisionTimeAlg:: LArCollisionTimeAlg(const std::string& name, ISvcLocator* 
 //__________________________________________________________________________
 StatusCode LArCollisionTimeAlg::initialize()
   {
-    ATH_MSG_INFO ("LArCollisionTimeAlg initialize()");
+    ATH_MSG_DEBUG ("LArCollisionTimeAlg initialize()");
 
     //retrieve ID helpers 
     ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
     m_calo_id      = m_caloIdMgr->getCaloCell_ID();
 
 
-// get calonoise tool 
+    // get calonoise tool 
     if (m_noiseTool) {
       ATH_CHECK( m_noiseTool.retrieve() );
     }
 
-    m_nevt=0;
+    ATH_CHECK( m_cellsContName.initialize() );
+    ATH_CHECK( m_collTimeName.initialize() );
 
     return StatusCode::SUCCESS; 
 
@@ -73,79 +67,82 @@ StatusCode LArCollisionTimeAlg::execute()
 
    m_nevt++;
 
-// Loop over CaloCells
-  const CaloCellContainer* cell_container;
-  if(evtStore()->retrieve(cell_container,m_cellsContName).isFailure())
-  {
+  // Get the CaloCellContainer
+  SG::ReadHandle<CaloCellContainer> cell_container (m_cellsContName);
+
+  if(!cell_container.isValid()) {
       ATH_MSG_INFO (" Could not get pointer to Cell Container ");
-      LArCollisionTime * larTime = new LArCollisionTime();
-      ATH_CHECK( evtStore()->record(larTime,"LArCollisionTime") );
+      // Construct the output object
+      SG::WriteHandle<LArCollisionTime> larTime (m_collTimeName);
+      ATH_CHECK( larTime.record (std::make_unique<LArCollisionTime>()) );
+
       return StatusCode::SUCCESS;
-   }
+  }
 
-   int ncellA=0;
-   int ncellC=0;
-   float energyA=0.;
-   float energyC=0.;
-   float timeA=0.;
-   float timeC=0.;
+  // Loop over the CaloCellContainer
+  int ncellA=0;
+  int ncellC=0;
+  float energyA=0.;
+  float energyC=0.;
+  float timeA=0.;
+  float timeC=0.;
 
-   CaloCellContainer::const_iterator first_cell = cell_container->begin();
-   CaloCellContainer::const_iterator end_cell   = cell_container->end();
-   ATH_MSG_DEBUG ("*** Start loop over CaloCells in MyLArCollisionTimeAlg");
-   for (; first_cell != end_cell; ++first_cell)
-   {
-       Identifier cellID = (*first_cell)->ID();
-       if (m_calo_id->is_tile(cellID)) continue;
+  CaloCellContainer::const_iterator first_cell = cell_container->begin();
+  CaloCellContainer::const_iterator end_cell   = cell_container->end();
+  ATH_MSG_DEBUG ("*** Start loop over CaloCells in LArCollisionTimeAlg");
+  for (; first_cell != end_cell; ++first_cell)
+  {
+      Identifier cellID = (*first_cell)->ID();
+      if (m_calo_id->is_tile(cellID)) continue;
 
-       double eta   =  (*first_cell)->eta();
-       if (std::fabs(eta)<1.5) continue;
+      double eta   =  (*first_cell)->eta();
+      if (std::fabs(eta)<1.5) continue;
 
-       uint16_t provenance = (*first_cell)->provenance();
+      uint16_t provenance = (*first_cell)->provenance();
 //
 // check time correctly available
 //   for Data:    offline Iteration   0x2000 time available, 0x0100 Iteration converted, not 0x0200 and not 0x0400 (bad cells), 0x00A5 (correctly calibrated)
 //                DSP time  0x1000 : cell from DSP, 0x2000 time available, not 0x0200 and not 0x0400
 //   for MC   check time available  0x2000, and not bad cel
 
-       uint16_t mask1 = 0x3DFF;
-       if (!m_iterCut) mask1 = 0x3CFF;
-       uint16_t cut1 = 0x21A5;
-       if (!m_iterCut) cut1 = 0x20A5;
+      uint16_t mask1 = 0x3DFF;
+      if (!m_iterCut) mask1 = 0x3CFF;
+      uint16_t cut1 = 0x21A5;
+      if (!m_iterCut) cut1 = 0x20A5;
 
-       if ( (provenance & mask1) != cut1 && (provenance & 0x3C00) != 0x3000 && !m_isMC) continue;
-       if ( (provenance & 0x2C00) != 0x2000 && m_isMC) continue;
+      if ( (provenance & mask1) != cut1 && (provenance & 0x3C00) != 0x3000 && !m_isMC) continue;
+      if ( (provenance & 0x2C00) != 0x2000 && m_isMC) continue;
 
-       double energy=  (*first_cell)->energy();
-       double noise = -1;
-       if (!m_noiseTool.empty()) {
-         noise = m_noiseTool->totalNoiseRMS((*first_cell));
-       }
-       double signif=9999.;
-       if (noise>0.) signif = energy/noise;
-       if (signif < 5.) continue;
+      double energy=  (*first_cell)->energy();
+      double noise = -1;
+      if (!m_noiseTool.empty()) {
+        noise = m_noiseTool->totalNoiseRMS((*first_cell));
+      }
+      double signif=9999.;
+      if (noise>0.) signif = energy/noise;
+      if (signif < 5.) continue;
 
-       double ecut=-1;
-       if (m_calo_id->is_lar_fcal(cellID) && m_calo_id->calo_sample(cellID)==CaloCell_ID::FCAL0) ecut=1200.;
-       if (m_calo_id->is_em_endcap_inner(cellID) ) ecut=250.;
+      double ecut=-1;
+      if (m_calo_id->is_lar_fcal(cellID) && m_calo_id->calo_sample(cellID)==CaloCell_ID::FCAL0) ecut=1200.;
+      if (m_calo_id->is_em_endcap_inner(cellID) ) ecut=250.;
 
-       if (ecut<0.) continue;
-       if (energy<ecut) continue;
+      if (ecut<0.) continue;
+      if (energy<ecut) continue;
 
-       double time = (*first_cell)->time();
+      double time = (*first_cell)->time();
 
-       if (eta>0.) {
-           ncellA += 1;
-           energyA += energy;
-           timeA += time;
-       }
-       else {
-           ncellC += 1;
-           energyC += energy;
-           timeC += time;
-       }
-           
-   }
+      if (eta>0.) {
+          ncellA += 1;
+          energyA += energy;
+          timeA += time;
+      }
+      else {
+          ncellC += 1;
+          energyC += energy;
+          timeC += time;
+      }
+          
+  }
 
   if (ncellA>0) timeA = timeA/((float)(ncellA));
   if (ncellC>0) timeC = timeC/((float)(ncellC));
@@ -154,8 +151,13 @@ StatusCode LArCollisionTimeAlg::execute()
   else                        setFilterPassed(false);
 
   //std::cout << " ncellA, ncellA, energyA, energyC, timeA, timeC  " << ncellA << " " << ncellC << " " << energyA << " " << energyC << " " << timeA << " " << timeC << std::endl;
-  LArCollisionTime * larTime = new LArCollisionTime(ncellA,ncellC,energyA,energyC,timeA,timeC);
-  ATH_CHECK( evtStore()->record(larTime,"LArCollisionTime") );
+  auto tmplarTime = std::make_unique<LArCollisionTime>(ncellA,ncellC,energyA,energyC,timeA,timeC);
+  // Construct the output object
+  SG::WriteHandle<LArCollisionTime> larTime (m_collTimeName);
+  if (! larTime.put (std::move (tmplarTime))  )  {
+     ATH_MSG_WARNING( "Could not record the LArCollisionTime object with key "<<m_collTimeName );
+
+  }
 
   return StatusCode::SUCCESS;
 }

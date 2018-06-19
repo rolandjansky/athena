@@ -18,9 +18,9 @@
 // #include "GaudiKernel/Bootstrap.h"
 // #include "GaudiKernel/ServiceHandle.h"
 
+#include "TH1.h"
+#include "TH2.h"
 class TProfile;
-class TH1;
-class TH2;
 
 class DigiTestToolBase : public extends<AthAlgTool, IDigiTestTool> {
 public:

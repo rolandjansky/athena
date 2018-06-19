@@ -28,7 +28,7 @@
 
 EvtPHOTOS::EvtPHOTOS() {
 
-  _photosEngine = 0;
+  m_photosEngine = 0;
   
 }
 
@@ -38,12 +38,12 @@ EvtPHOTOS::~EvtPHOTOS() {
 
 void EvtPHOTOS::doRadCorr(EvtParticle *p) {
 
-  if (_photosEngine == 0) {
-    _photosEngine = EvtExternalGenFactory::getInstance()->getGenerator(EvtExternalGenFactory::PhotosGenId);
+  if (m_photosEngine == 0) {
+    m_photosEngine = EvtExternalGenFactory::getInstance()->getGenerator(EvtExternalGenFactory::PhotosGenId);
   }
 
-  if (_photosEngine != 0) {
-    _photosEngine->doDecay(p);
+  if (m_photosEngine != 0) {
+    m_photosEngine->doDecay(p);
   }
   
 }

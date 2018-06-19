@@ -566,7 +566,7 @@ bool OverlapRemovalTool::objectsOverlap(const xAOD::IParticle* p1,
   if(dR2 < (dRMax*dRMax) && dR2 >= (dRMin*dRMin)){
     // Is this the best place for setting the link?
     if(m_linkOverlapObjects){
-      ATH_CHECK( addOverlapObjectLink(p1, p2) );
+      ATH_CHECK( addOverlapObjectLink(p1, p2), false );
     }
     return true;
   }

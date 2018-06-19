@@ -14,6 +14,10 @@
 class AtlasDetectorID;
 class Identifier;
 
+namespace Muon{
+  class MuonIdHelperTool;
+}
+
 namespace Trk {
 
   class Track;
@@ -80,6 +84,9 @@ namespace Trk {
 
     /**holds the PRDs associated with each Track (i.e. the Track* is the key)*/
     IPRD_AssociationTool::TrackPrepRawDataMap m_trackPrepRawDataMap;
+
+    ToolHandle<Muon::MuonIdHelperTool>    m_idHelperTool;
+
 };
 
   inline bool Trk::PRD_AssociationTool::isUsed(const PrepRawData& prd) const

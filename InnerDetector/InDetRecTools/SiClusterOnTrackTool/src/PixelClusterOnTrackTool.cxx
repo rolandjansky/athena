@@ -158,6 +158,9 @@ InDet::PixelClusterOnTrackTool::initialize() {
   if (m_applyNNcorrection){
     ATH_CHECK(m_NnClusterizationFactory.retrieve());
   }
+  else {
+    m_NnClusterizationFactory.disable();
+  }
 
 
   // get the module distortions tool

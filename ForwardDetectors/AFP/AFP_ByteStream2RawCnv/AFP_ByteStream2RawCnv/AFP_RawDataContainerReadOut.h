@@ -25,18 +25,18 @@ private:
   uint32_t m_DetEventType;
   uint32_t m_timestamp;
   uint32_t m_BCId;
-  static const uint32_t FullEVmarker = 0xaa1234aa;
-  static const uint32_t ROBmarker = 0xdd1234dd;
-  static const uint32_t RODmarker = 0xee1234ee;
-  static const uint32_t RODheadersize = 0x00000009;
-  static const uint32_t RODversion = 0x03010000;
+  static const uint32_t FULLEVMARKER = 0xaa1234aa;
+  static const uint32_t ROBMARKER = 0xdd1234dd;
+  static const uint32_t RODMARKER = 0xee1234ee;
+  static const uint32_t RODHEADERSIZE = 0x00000009;
+  static const uint32_t RODVERSION = 0x03010000;
 
 public:
   AFP_RawDataContainerReadOut();
   ~AFP_RawDataContainerReadOut();
-  bool is_FullEVmarker() { return m_wordMarker == FullEVmarker; };
-  bool is_ROBmarker() { return m_wordMarker == ROBmarker; };
-  bool is_RODmarker() { return m_wordMarker == RODmarker; };
+  bool is_FullEVmarker() { return m_wordMarker == FULLEVMARKER; };
+  bool is_ROBmarker() { return m_wordMarker == ROBMARKER; };
+  bool is_RODmarker() { return m_wordMarker == RODMARKER; };
 
 
 

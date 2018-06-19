@@ -21,7 +21,7 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
 
-#include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
+#include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "SCT_Cabling/SCT_OnlineId.h"
 
@@ -45,7 +45,7 @@ namespace DerivationFramework {
     
       const SCT_ID*          m_sctId;
 
-      ServiceHandle<ISCT_ByteStreamErrorsSvc> m_byteStreamErrSvc;
+      ToolHandle<ISCT_ByteStreamErrorsTool> m_byteStreamErrTool{this, "ByteStreamErrTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
       ServiceHandle<ISCT_CablingSvc> m_cabling;
 
   }; 

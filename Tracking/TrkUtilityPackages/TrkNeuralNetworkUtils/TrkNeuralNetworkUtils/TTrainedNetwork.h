@@ -129,13 +129,15 @@ private:
   // storing classes within classes in root is ugly
   std::vector<Double_t> m_input_node_offset; 
   std::vector<Double_t> m_input_node_scale; 
-    
+
   std::map<std::string,int> m_inputStringToNode; 
 
   std::vector<Int_t> mnHiddenLayerSize;
 
   std::vector<TVectorD*> mThresholdVectors;
   std::vector<TMatrixD*> mWeightMatrices;
+
+  unsigned int   m_bufferSizeMax;              //! cache of the maximum needed size, not persisitified
 
   Int_t mActivationFunction;
 
@@ -150,6 +152,7 @@ private:
   // assertions to check for nonsense initialization 
   bool is_consistent() const; 
   bool check_norm_size(unsigned size) const; 
+
 
   ClassDef( TTrainedNetwork, 3 )
   

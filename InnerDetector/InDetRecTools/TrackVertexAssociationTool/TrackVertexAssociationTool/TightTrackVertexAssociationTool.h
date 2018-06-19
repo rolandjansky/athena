@@ -12,8 +12,7 @@
 
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
-#include "xAODTracking/VertexFwd.h"
-#include "xAODTracking/VertexContainerFwd.h"
+#include "xAODTracking/VertexContainer.h"
 #include "TrackVertexAssociationTool/TrackVertexAssociationMap.h"
 
 #include <string>
@@ -65,10 +64,20 @@ namespace CP
       MatchStatus doTightMatch(const xAOD::TrackParticle &trk, const xAOD::Vertex &vx, float & dz) const;
       const xAOD::Vertex* getUniqueMatchVx( const xAOD::TrackParticle &trk, const xAOD::VertexContainer &vxCont) const;  // return the  vertex matched with the tracks in the vx_list
 
+      // check whether TrackParticle is used in the fit of a given vertex
+      bool trackParticleUsedInVertexFit(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx) const;
+
+      // check whether TrackParticle is used in the fit of ANY vertex
+      bool trackParticleUsedInVertexFit(const xAOD::TrackParticle& trk) const;
+
       float m_dz_cut;
       float m_d0_cut;
       bool m_doPV;
       bool m_dod0sel;
+      
+      SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", 
+	                                                     "container for reconstructed primary vertices" };
+
   };
 }
 

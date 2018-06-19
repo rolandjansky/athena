@@ -25,8 +25,8 @@
 // Plottable adaptor for Function1D's                                               //
 //                                                                                  //
 //----------------------------------------------------------------------------------//
-#ifndef _PLOTFUNCTION1D_H_
-#define _PLOTFUNCTION1D_H_
+#ifndef QATPLOTTING_PLOTFUNCTION1D_H
+#define QATPLOTTING_PLOTFUNCTION1D_H
 #include "QatPlotting/Plotable.h"
 #include "QatPlotting/PlotFunction1DProperties.h"
 #include "CLHEP/GenericFunctions/CutBase.hh"
@@ -84,7 +84,7 @@ public:
 protected:
 
   class Clockwork;
-  std::unique_ptr<Clockwork> c;
+  std::unique_ptr<Clockwork> m_c;
   
 
 };

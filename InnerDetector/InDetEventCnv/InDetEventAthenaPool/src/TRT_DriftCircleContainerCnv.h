@@ -34,7 +34,9 @@ class TRT_DriftCircleContainerCnv : public TRT_DriftCircleContainerCnvBase
   StoreGateSvc*  m_storeGate;
 
 protected:
+public:
   TRT_DriftCircleContainerCnv (ISvcLocator* svcloc);
+protected:
   ~TRT_DriftCircleContainerCnv();
   virtual TRT_DriftCircleContainer_PERS*   createPersistent (InDet::TRT_DriftCircleContainer* transCont);
   virtual InDet::TRT_DriftCircleContainer* createTransient ();

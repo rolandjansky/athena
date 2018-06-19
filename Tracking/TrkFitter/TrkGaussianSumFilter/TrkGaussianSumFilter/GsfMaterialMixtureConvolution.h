@@ -14,6 +14,8 @@ decription           : Class description for convolution of GSF material mixture
 #ifndef TrkGsfMaterialMixtureConvolution_H
 #define TrkGsfMaterialMixtureConvolution_H
 
+#include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
+#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IMaterialMixtureConvolution.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -22,8 +24,6 @@ decription           : Class description for convolution of GSF material mixture
 namespace Trk{
 
 class IMultiStateMaterialEffectsUpdator;
-class IMultiComponentStateAssembler;
-class IMultiComponentStateCombiner;
 class MultiComponentState;
 class Layer;
 
@@ -72,8 +72,10 @@ class GsfMaterialMixtureConvolution : public AthAlgTool, virtual public IMateria
   
   ToolHandle<IMultiStateMaterialEffectsUpdator>  m_updator;            //!< Material effects updator
 
-  ToolHandle<IMultiComponentStateCombiner>       m_stateCombiner;      //!< State combiner
-  ToolHandle<IMultiComponentStateAssembler>      m_stateAssembler;     //!< State assembler
+  PublicToolHandle<IMultiComponentStateCombiner>       m_stateCombiner
+     {this,"MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/MultiComponentStateCombiner",""};      //!< State combiner
+  PublicToolHandle<IMultiComponentStateAssembler>      m_stateAssembler
+     {this,"MultiComponentStateAssembler","Trk::MultiComponentStateAssembler/MaterialConvolutionAssembler",""};     //!< State assembler
 
 };
 

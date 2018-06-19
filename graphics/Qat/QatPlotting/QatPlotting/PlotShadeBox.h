@@ -25,8 +25,8 @@
 // Plottable ShadeBox                                                                //
 //                                                                                  //
 //----------------------------------------------------------------------------------//
-#ifndef _PLOTSHADEBOX_H_
-#define _PLOTSHADEBOX_H_
+#ifndef QATPLOTTING_PLOTSHADEBOX_H
+#define QATPLOTTING_PLOTSHADEBOX_H
 #include "QatPlotting/Plotable.h"
 #include "PlotShadeBoxProperties.h"
 #include <QtCore/QRectF>
@@ -75,7 +75,7 @@ private:
   PlotShadeBox & operator=(const PlotShadeBox &); 
 
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 
 };

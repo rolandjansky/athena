@@ -17,7 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/HitManagement
                           PRIVATE
                           Control/AthenaKernel
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/GeometryDBSvc
                           Event/EventInfo

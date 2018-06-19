@@ -24,13 +24,15 @@ typedef T_AthenaPoolCustomCnv<RODHeaderCollection, RODHeaderCollection_PERS> ROD
 class RODHeaderCollectionCnv: public RODHeaderCollectionCnvBase {
 friend class CnvFactory<RODHeaderCollectionCnv>;
 
-protected:
+public:
 
   RODHeaderCollectionCnv (ISvcLocator* svcloc) :
     RODHeaderCollectionCnvBase(svcloc),
     m_msgSvc( msgSvc() ),
     m_log( m_msgSvc, "RODHeaderCollectionCnv" )
      {}
+
+protected:
   
   ~RODHeaderCollectionCnv() {}
   

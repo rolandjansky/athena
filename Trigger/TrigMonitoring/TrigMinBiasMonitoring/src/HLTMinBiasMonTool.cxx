@@ -303,6 +303,12 @@ StatusCode HLTMinBiasMonTool::init()
 	m_effSelTool[5] = &m_perfEffSelTool;
 	m_effSelTool[6] = &m_hmtEffSelTool;
 	
+
+	for (auto* th : m_effSelTool) {
+	  ATH_CHECK(th->retrieve());
+	}
+
+	ATH_CHECK(m_purSelTool.retrieve());
 	return sc;
 }
 

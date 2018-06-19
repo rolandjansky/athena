@@ -132,12 +132,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::initialize()
   ATH_CHECK(m_outputprepdataKeys.initialize());
  
   // Get TgcRawDataProviderTool
-  if(m_useBStoRdoTool && m_rawDataProviderTool.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Failed to retrieve tool " << m_rawDataProviderTool);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("Retrieved Tool " << m_rawDataProviderTool);
-  }
+  ATH_CHECK( m_rawDataProviderTool.retrieve( DisableTool{ !m_useBStoRdoTool } ));
   
   // check if initializing of DataHandle objects success
   ATH_CHECK( m_rdoContainerKey.initialize() );

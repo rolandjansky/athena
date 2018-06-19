@@ -133,8 +133,12 @@ StatusCode TileRawChannelBuilderFitFilterCool::initialize() {
 
   if (m_idocis) {
     CHECK( m_tileToolLeak100Shape.retrieve() );
-    CHECK(  m_tileToolLeak5p2Shape.retrieve() );
+    CHECK( m_tileToolLeak5p2Shape.retrieve() );
     CHECK( m_tileToolPulse5p2Shape.retrieve() );
+  } else {
+    m_tileToolLeak100Shape.disable();
+    m_tileToolLeak5p2Shape.disable();
+    m_tileToolPulse5p2Shape.disable();
   }
 
   //=== TileCondToolNoiseSample

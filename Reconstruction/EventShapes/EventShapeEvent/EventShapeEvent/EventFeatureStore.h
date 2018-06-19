@@ -7,9 +7,9 @@
 #ifndef EVENTSHAPEEVENT_EVENTFEATURESTORE_H
 #define EVENTSHAPEEVENT_EVENTFEATURESTORE_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "EventShapeEvent/EventFeature.h"
 

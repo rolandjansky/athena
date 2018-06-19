@@ -38,10 +38,10 @@ namespace CP {
     TH1F *m_zCorrection;
 
     /// Static Decorators
-    static SG::AuxElement::Decorator<float> zvertex;
-    static SG::AuxElement::Decorator<float> errz;
-    static SG::AuxElement::Decorator<float> HPV_zvertex;
-    static SG::AuxElement::Decorator<float> HPV_errz;
+    static const SG::AuxElement::Decorator<float> s_zvertex;
+    static const SG::AuxElement::Decorator<float> s_errz;
+    static const SG::AuxElement::Decorator<float> s_HPV_zvertex;
+    static const SG::AuxElement::Decorator<float> s_HPV_errz;
 
   private:
     ///

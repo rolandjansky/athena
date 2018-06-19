@@ -11,7 +11,6 @@
 
 #include "GeneratorFilters/BoostedHadTopAndTopPair.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 #include <iostream>
 #include <cmath>
 

@@ -21,12 +21,8 @@ StatusCode STGC_DigitToRDO::initialize()
 {
   ATH_MSG_DEBUG( " in initialize()"  );
   ATH_CHECK( m_rdoContainer.initialize() );
-  ATH_CHECK( m_digitContainer.initialize() );
-  
-  if ( detStore()->retrieve(m_idHelper, "STGCIDHELPER").isFailure()) {
-    ATH_MSG_FATAL ( "Could not get sTGC IdHelper !" );
-    return StatusCode::FAILURE;
-  } 
+  ATH_CHECK( m_digitContainer.initialize() );  
+  ATH_CHECK ( detStore()->retrieve(m_idHelper, "STGCIDHELPER") );
   
   return StatusCode::SUCCESS;
 }
@@ -39,21 +35,25 @@ StatusCode STGC_DigitToRDO::execute()
   SG::ReadHandle<sTgcDigitContainer> digits (m_digitContainer);
   ATH_CHECK( rdos.record(std::unique_ptr<STGC_RawDataContainer>(new STGC_RawDataContainer(m_idHelper->module_hash_max())) ) );
 
-  for (auto digitColl : *digits ){
-    // Making some assumptions here that digit hash == RDO hash. 
-    IdentifierHash hash = digitColl->identifierHash();
-    STGC_RawDataCollection* coll = new STGC_RawDataCollection(hash);
-    if (rdos->addCollection(coll,hash).isFailure() ){
-      ATH_MSG_WARNING("Failed to add collection with hash " << (int)hash );
-      delete coll;
-      continue;
-    }
+  if (digits.isValid() ){
+    for (const sTgcDigitCollection* digitColl : *digits ){
+      // Making some assumptions here that digit hash == RDO hash. 
+      IdentifierHash hash = digitColl->identifierHash();
+      STGC_RawDataCollection* coll = new STGC_RawDataCollection(hash);
+      if (rdos->addCollection(coll,hash).isFailure() ){
+        ATH_MSG_WARNING("Failed to add collection with hash " << (int)hash );
+        delete coll;
+        continue;
+      }
     
-    for (auto digit : *digitColl ){
-      Identifier id = digit->identify();
-      STGC_RawData* rdo = new STGC_RawData(id);
-      coll->push_back(rdo);
+      for (const sTgcDigit* digit : *digitColl ){
+        Identifier id = digit->identify();
+        STGC_RawData* rdo = new STGC_RawData(id);
+        coll->push_back(rdo);
+      }
     }
+  } else {
+    ATH_MSG_WARNING("Unable to find STGC digits");
   }
     
   ATH_MSG_DEBUG( "done execute()"  );

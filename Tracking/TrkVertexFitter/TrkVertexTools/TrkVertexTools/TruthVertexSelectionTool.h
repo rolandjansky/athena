@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVertexFitterInterfaces/IVertexSelectionTool.h"
+#include "GeneratorObjects/McEventCollection.h"
 
  /**
   * @class Trk::TruthVertexSelectionTool 
@@ -55,8 +56,7 @@
     
              
   private:
-    std::string m_mcContainerName;
- 
+    SG::ReadHandleKey<McEventCollection> m_mcEventCollectionKey { this, "mcContainerName", "GEN_AOD", "key to retrieve MC truth" };
  
   }; //end of class description
  }//end of namespace definition

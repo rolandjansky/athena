@@ -36,7 +36,6 @@
 //Gaudi includes
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ObjectVector.h"

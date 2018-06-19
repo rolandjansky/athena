@@ -36,8 +36,8 @@ using namespace std;
 hltca::HLTCountOHReceiver::HLTCountOHReceiver() 
 {
    // 6000 is the current maximum of LB's in one run
-   fCountStore[0].resize(6000);
-   fCountStore[1].resize(6000);
+   m_countStore[0].resize(6000);
+   m_countStore[1].resize(6000);
 }
 
 
@@ -80,7 +80,7 @@ hltca::HLTCountOHReceiver::updateInternalStore(const OHRootHistogram & h) {
    Stat_t hsum = hist2d->GetSum();
    std::cout << "   " << (level==0?"L2":"EF") << " sum for lb " << lb << " : " << hsum << std::endl;
 
-   Content& content = fCountStore[level][lb];
+   Content& content = m_countStore[level][lb];
    if(content.h==0) {
       std::string newname(Form("SignatureAcceptance_%s_%i_store", (level==0?"L2":"EF"), lb));
       content.h = (TH2I*) h.histogram->Clone(newname.c_str());
@@ -102,7 +102,7 @@ hltca::HLTCountOHReceiver::updateInternalStore(const OHRootHistogram & h) {
    if(!HLTCounter::hasBinsSet())
       HLTCounter::setBins(h.histogram->GetYaxis());
 
-   if(fChainCounters[level].size()==0) {
+   if(m_chainCounters[level].size()==0) {
       SetChainCounterBins(h.histogram->GetXaxis(),level);
    }
 
@@ -111,14 +111,14 @@ hltca::HLTCountOHReceiver::updateInternalStore(const OHRootHistogram & h) {
 void
 hltca::HLTCountOHReceiver::SetChainCounterBins(TAxis *axis, int level) {
    int n(axis->GetLast());
-   fChainCounters[level].resize(n+1,0);
+   m_chainCounters[level].resize(n+1,0);
    for(int i=1; i<=n; ++i) {
       const char * p(axis->GetBinLabel(i)); // label has the form "<ChainName>_ChCo_<chaincounter>"
       if(*p!='L' and *p!='E') continue;
       const char * u(p);
       while(*++p!='\0') if(*p=='_') u=p;
       int cc = atoi(++u);
-      fChainCounters[level][i] = cc;
+      m_chainCounters[level][i] = cc;
    }
 }
 
@@ -144,7 +144,7 @@ hltca::HLTCountOHReceiver::CopyHistContent(const TH2& src, TH2& dest) {
 const vector<hltca::HLTCounter>&
 hltca::HLTCountOHReceiver::hltCounters(int lumiblock, HLTCounter::TriggerLevel level) {
    int levelIndex = (level==HLTCounter::L2)?0:1;
-   Content& c = fCountStore[levelIndex][lumiblock];
+   Content& c = m_countStore[levelIndex][lumiblock];
    updateHLTCounters(c, level);
    std::cout << "After updating LB " << lumiblock << " (level " << ((level==HLTCounter::L2)?"2":"3") << "): " << c.sum << std::endl;
    return c.counters;
@@ -156,7 +156,7 @@ hltca::HLTCountOHReceiver::updateHLTCounters(Content& c, HLTCounter::TriggerLeve
    int levelIndex = (level==HLTCounter::L2)?0:1;
    c.counters.clear();
    for(int binx = 1; binx <= c.h->GetNbinsX(); binx++) {
-      int chain_counter = fChainCounters[levelIndex][binx];
+      int chain_counter = m_chainCounters[levelIndex][binx];
       if(chain_counter==0) continue; // groups and streams
       c.counters.push_back(HLTCounter(chain_counter,level));
       c.counters.back().setContent(c.h, binx);
@@ -168,15 +168,15 @@ hltca::HLTCountOHReceiver::updateHLTCounters(Content& c, HLTCounter::TriggerLeve
 void
 hltca::HLTCountOHReceiver::ClearStorage() {
    for(int i=0; i<2; ++i) {
-      fCountStore[i].clear();
-      fChainCounters[i].clear();
-      fCountStore[i].resize(6000);
+      m_countStore[i].clear();
+      m_chainCounters[i].clear();
+      m_countStore[i].resize(6000);
    }
 }
 
 int
 hltca::HLTCountOHReceiver::last_LB() const {
-   int testlb = fCountStore[0].size()-1;
-   while(testlb>=0 && !fCountStore[0][testlb].filled) testlb--;
+   int testlb = m_countStore[0].size()-1;
+   while(testlb>=0 && !m_countStore[0][testlb].filled) testlb--;
    return testlb;
 }

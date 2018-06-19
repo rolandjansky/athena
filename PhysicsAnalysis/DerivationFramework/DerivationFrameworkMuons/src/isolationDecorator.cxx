@@ -15,6 +15,7 @@
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackingPrimitives.h"
+#include "xAODPrimitives/IsolationHelpers.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "ExpressionEvaluation/MultipleProxyLoader.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"

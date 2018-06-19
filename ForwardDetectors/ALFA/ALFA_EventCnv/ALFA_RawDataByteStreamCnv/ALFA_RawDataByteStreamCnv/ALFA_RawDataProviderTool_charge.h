@@ -11,12 +11,11 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 
 #include "ByteStreamData/RawEvent.h" 
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "ALFA_RawEv/ALFA_RawDataContainer_charge.h"
 #include "ALFA_RawEv/ALFA_RawDataCollection_charge.h"

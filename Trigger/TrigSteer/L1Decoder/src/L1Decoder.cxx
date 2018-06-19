@@ -23,7 +23,7 @@ StatusCode L1Decoder::initialize() {
   CHECK( m_ctpUnpacker.retrieve() );
   CHECK( m_roiUnpackers.retrieve() );
   CHECK( m_prescaler.retrieve() );
-
+  CHECK( m_rerunRoiUnpackers.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -75,11 +75,20 @@ StatusCode L1Decoder::execute_r (const EventContext& ctx) const {
 
   CHECK( saveChainsInfo( rerunChains, chainsInfo.get(), "rerun" ) );
 
-
+  ATH_MSG_DEBUG( "Unpacking RoIs" );  
   HLT::IDSet activeChainSet( activeChains.begin(), activeChains.end() );
   for ( auto unpacker: m_roiUnpackers ) {
     CHECK( unpacker->unpack( ctx, *roib, activeChainSet ) );
   }
+  
+
+  ATH_MSG_DEBUG( "Unpacking RoIs for re-running" );      
+  HLT::IDSet rerunChainSet( rerunChains.begin(), rerunChains.end() );
+  for ( auto unpacker: m_rerunRoiUnpackers ) {
+    CHECK( unpacker->unpack( ctx, *roib, rerunChainSet ) );
+  }
+  
+
   ATH_MSG_DEBUG("Recording chains");
 
   auto handle = SG::makeHandle( m_chainsKey, ctx );

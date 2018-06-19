@@ -13,8 +13,8 @@ public:
   virtual int addToIt(int soFar) = 0;
   virtual StatusCode saySomething(std::string& message) = 0;
    static const InterfaceID& interfaceID() {
-     static const InterfaceID _IHelloToolID( "IHelloTool", 1, 0 );
-     return _IHelloToolID;
+     static const InterfaceID IHelloToolID( "IHelloTool", 1, 0 );
+     return IHelloToolID;
    }
 };
 #endif // !ATHEXHELLOWORLD_IHELLOTOOL_H

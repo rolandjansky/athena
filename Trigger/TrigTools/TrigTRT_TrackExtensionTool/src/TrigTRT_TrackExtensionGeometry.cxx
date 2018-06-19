@@ -328,7 +328,7 @@ std::vector<TrigTRT_Straw*>* TrigTRT_TrackExtensionLayer::getVectorOfStraws(int 
     {
       double deltaPhi=phiPitch*i-0.5*phiPitch*(pEE->nStraws()-1);
       //double deltaPhi=phiPitch*i-0.5*phiPitch*(pEE->nStraws());
-      locPos=pTS->m_getTrackState(0)*sin(deltaPhi)/cos(deltaPhi);
+      locPos=pTS->getTrackState(0)*sin(deltaPhi)/cos(deltaPhi);
       m_vpStraws[i]->setLocalCoordinate(locPos);
       m_vpStraws[i]->setDC(NULL);
       /*
@@ -346,11 +346,11 @@ bool TrigTRT_TrackExtensionLayer::isInAcceptance(Trk::TrkTrackState* pTS)
   if(m_type==0)
   {
     width=0.5*(m_maxBound-m_minBound);
-    return (fabs(pTS->m_getTrackState(1))<width);
+    return (fabs(pTS->getTrackState(1))<width);
   }
   else
   {
-    return ((pTS->m_getTrackState(0)>m_minBound)&&(pTS->m_getTrackState(0)<m_maxBound));
+    return ((pTS->getTrackState(0)>m_minBound)&&(pTS->getTrackState(0)<m_maxBound));
   }
 }
 
@@ -715,7 +715,7 @@ void TrigTRT_DetElementPoint::updateTrackState(Trk::TrkTrackState* pTS, TrigTRT_
   // printf("pColl=%x sector=%d\n",pColl,(*deIt)->getSectorId());
       
   std::vector<TrigTRT_Straw*>* pVS=m_pTRT_Layer->getVectorOfStraws(detectorElement()->getSectorId(),
-								     pTS->m_getSurface()->m_getCenter(),pTS);
+								     pTS->getSurface()->getCenter(),pTS);
   if(pColl!=NULL)
     {
       for(DataVector<InDet::TRT_DriftCircle>::const_iterator dcIt=pColl->begin();

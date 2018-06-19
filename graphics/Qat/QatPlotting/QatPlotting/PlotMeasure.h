@@ -25,8 +25,8 @@
 // Plottable Measure                                                                //
 //                                                                                  //
 //----------------------------------------------------------------------------------//
-#ifndef _PLOTMEASURE_H_
-#define _PLOTMEASURE_H_
+#ifndef QATPLOTTING_PLOTMEASURE_H
+#define QATPLOTTING_PLOTMEASURE_H
 #include "QatPlotting/Plotable.h"
 //#include "PlotMeasureProperties.h"
 //#include <QtCore/QRectF>
@@ -76,7 +76,7 @@ private:
   PlotMeasure  operator=(const PlotMeasure &); 
 
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 
 };

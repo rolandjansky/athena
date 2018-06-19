@@ -57,9 +57,8 @@ public:
 
 
 private:
-  IRDBRecordset_ptr SctBrlSensor;
-  IRDBRecordset_ptr SctBrlModule; 
-
+  IRDBRecordset_ptr m_SctBrlSensor;
+  IRDBRecordset_ptr m_SctBrlModule;
 };
 
 }

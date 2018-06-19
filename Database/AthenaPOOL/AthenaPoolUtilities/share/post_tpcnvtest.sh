@@ -233,6 +233,11 @@ PP="$PP"'|Cannot convert TrigRNNOutput'
 # New warnings from GeoModelSvc.
 PP="$PP"'|GeoModelSvc.*WARNING  Getting .* with default tag'
 
+# Verbosity removed from TrackCollection in 22.0.1
+PP="$PP"'|TrackCollectionCnv::initialize'
+
+# Ignore dumps from CondInputLoader.
+PP="$PP"'|ConditionStore\+/'
 
 
 test=$1
@@ -241,7 +246,9 @@ if [ -z "$testStatus" ]; then
 else 
     # check exit status
     joblog=${test}.log
-    if [ "$testStatus" = 0 ]; then
+    if [ -r ${test}-SKIPPED ]; then
+        echo "WARNING: Test skipped because required libraries are not available."
+    elif [ "$testStatus" = 0 ]; then
 	reflog=../../share/${test}.ref
         if [ ! -r $reflog ]; then
 	  reflog=../share/${test}.ref

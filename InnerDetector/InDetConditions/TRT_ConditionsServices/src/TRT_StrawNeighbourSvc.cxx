@@ -193,7 +193,7 @@ StatusCode TRT_StrawNeighbourSvc::initialize()
     
     
     dummy1.clear();
-    dummy12.clear();;
+    dummy12.clear();
     while(layer == 0) {
       const IRDBRecord* RDBVars__TRTElec = (*RDB_TRTElec)[straw];
       layer =  RDBVars__TRTElec->getInt("LAYER");
@@ -219,7 +219,7 @@ StatusCode TRT_StrawNeighbourSvc::initialize()
     
     
     dummy2.clear();
-    dummy22.clear();;
+    dummy22.clear();
     previous_pad=1;
     while(layer == 1) {
       const IRDBRecord* RDBVars__TRTElec = (*RDB_TRTElec)[straw];
@@ -247,7 +247,7 @@ StatusCode TRT_StrawNeighbourSvc::initialize()
     
     
     dummy3.clear();
-    dummy32.clear();;
+    dummy32.clear();
     previous_pad=1;
     while(layer == 2) {
       if (straw>1641) break;// return StatusCode::SUCCESS;

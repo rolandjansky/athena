@@ -86,7 +86,7 @@ StatusCode BarrelSecondCoordinatePreparationTool::initialize(void) {
   ATH_CHECK( toolSvc()->retrieveTool("MuonCalib::IdToFixedIdTool",
 			       "MuonCalib_IdToFixedIdTool", m_id_tool) );
 
-  write_rpc_hits = false;
+  m_write_rpc_hits = false;
 
   if((m_rpcHitsFile=fopen("RpcHits.txt","w"))==NULL) {
     ATH_MSG_INFO( "can't open file" );
@@ -150,7 +150,7 @@ void BarrelSecondCoordinatePreparationTool::prepareSegments(
       raw_hits.push_back(*it1);
     }
 
-    if(write_rpc_hits) fprintf(m_rpcHitsFile,"START %i %s %i %i\n", 
+    if(m_write_rpc_hits) fprintf(m_rpcHitsFile,"START %i %s %i %i\n", 
 			       event->eventInfo().eventNumber(),
 			       it->second->mdtHOT()[0]->identify().stationNameString().c_str(),
 			       it->second->mdtHOT()[0]->identify().phi(),
@@ -185,7 +185,7 @@ bool BarrelSecondCoordinatePreparationTool::handleRPChits(MuonCalibSegment & MDT
   Amg::Transform3D Segment2Global(MDT_segment.localToGlobal());
   Amg::Transform3D Global2Segment((MDT_segment.localToGlobal()).inverse());
   
-  if(write_rpc_hits) {
+  if(m_write_rpc_hits) {
     Amg::Vector3D old_point = Amg::Vector3D(seg_pos.x(), 0.0, seg_pos.z());
     Amg::Vector3D old_vector = Amg::Vector3D(seg_dir.x()/seg_dir.z(), 0, 1.0);
     old_point = Segment2Global*old_point;
@@ -262,7 +262,7 @@ bool BarrelSecondCoordinatePreparationTool::handleRPChits(MuonCalibSegment & MDT
     diff = hit_pos.y() - (seg_pos.y() + (hit_pos.z()-seg_pos.z())*seg_dir.y()/seg_dir.z());
     if(!(fabs(diff)<((*raw_it)->length()+400.0))) bad_hit = true;
 
-    if(write_rpc_hits){
+    if(m_write_rpc_hits){
       if(ID.rpcMeasuresPhi()==1){
 	fprintf(m_rpcHitsFile,"%i %i %i x=%11.3f y=%11.3f z=%11.3f %i\n",
 		ID.stationName(), ID.phi(), ID.eta(), glb_pos.x(), 
@@ -353,7 +353,7 @@ bool BarrelSecondCoordinatePreparationTool::handleRPChits(MuonCalibSegment & MDT
 
   MDT_segment.set(MDT_segment.chi2(), seg_pos, seg_dir);
 
-  if(write_rpc_hits) {
+  if(m_write_rpc_hits) {
     Amg::Vector3D fit_point = Amg::Vector3D(alph[0], 0, 0);
     Amg::Vector3D fit_vector = Amg::Vector3D(alph[1], 0, 1.0);
     fit_point = Segment2Global*fit_point;

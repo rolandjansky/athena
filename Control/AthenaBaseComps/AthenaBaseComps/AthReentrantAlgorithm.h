@@ -169,6 +169,22 @@ class AthReentrantAlgorithm
   virtual StatusCode execute_r (const EventContext& ctx) const = 0;
 #endif
 
+
+  /** Specify if the algorithm is clonable
+   *
+   * Reentrant algorithms are clonable.
+   */
+  virtual bool isClonable() const override;
+
+
+  /** Cardinality (Maximum number of clones that can exist)
+   *  special value 0 means that algorithm is reentrant
+   *
+   * Override this to return 0 for reentrant algorithms.
+   */
+  virtual unsigned int cardinality() const override;
+
+
 private:  
   // to keep track of VarHandleKeyArrays for data dep registration
 
@@ -242,7 +258,7 @@ public:
   /**
    * @brief Declare a new Gaudi property.
    * @param name Name of the property.
-   * @param property Object holding the property value.
+   * @param hndl Object holding the property value.
    * @param doc Documentation string for the property.
    *
    * This is the version for types that derive from @c SG::VarHandleKey.
@@ -266,7 +282,7 @@ public:
   /**
    * @brief Declare a new Gaudi property.
    * @param name Name of the property.
-   * @param property Object holding the property value.
+   * @param hndl Object holding the property value.
    * @param doc Documentation string for the property.
    *
    * This is the version for types that derive from @c SG::VarHandleBase.

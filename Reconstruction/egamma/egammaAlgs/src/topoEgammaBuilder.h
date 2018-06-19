@@ -1,14 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAALGS_TOPOEGAMMABUILDER_H
 #define EGAMMAALGS_TOPOEGAMMABUILDER_H
 /**
   @class topoEgammaBuilder 
-
-  The main electron and photon reconstruction algorithm, based on topoclusters. It attempts to recover electrons that emit brem photons by creating "superclusters."  Superclusters can also be used in photons to especially help converted photons. This is the default egamma algorithm for central electrons and photons as of release 21.  
-
+  The main electron and photon reconstruction algorithm, based on topoclusters. 
+  It attempts to recover electrons that emit brem photons by creating "superclusters."  
+  Superclusters can also be used in photons to especially help converted photons. 
+  This is the default egamma algorithm for central electrons and photons as of release 21.  
 */
 
 // INCLUDE HEADER FILES:
@@ -28,101 +29,108 @@
 #include "egammaRecEvent/egammaRecContainer.h"
 
 #include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
+#include "egammaInterfaces/IEMClusterTool.h" 
 #include "egammaInterfaces/IegammaBaseTool.h" 
-
 class egammaRec;
 
 class topoEgammaBuilder : public AthAlgorithm
 {
- public:
+public:
 
-  /** @brief Default constructor*/
-  topoEgammaBuilder(const std::string& name, ISvcLocator* pSvcLocator);
+    /** @brief Default constructor*/
+    topoEgammaBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
-  /** @brief initialize method*/
-  StatusCode initialize();
-  /** @brief finalize method*/
-  StatusCode finalize();
-  /** @brief execute method*/
-  StatusCode execute();
-  
- private:
+    /** @brief initialize method*/
+    StatusCode initialize();
+    /** @brief finalize method*/
+    StatusCode finalize();
+    /** @brief execute method*/
+    StatusCode execute();
 
-  /** @brief Vector of tools for dressing electrons and photons **/
-  ToolHandleArray<IegammaBaseTool> m_egammaTools {this,
-      "egammaTools", {}, "Tools for dressing electrons and photons"};
-  
-  /** @brief Vector of tools for dressing ONLY electrons **/
-  ToolHandleArray<IegammaBaseTool> m_electronTools {this,
-      "ElectronTools", {}, "Tools for dressing ONLY electrons"};
+private:
 
-  /** @brief Vector of tools for dressing ONLY photons **/
-  ToolHandleArray<IegammaBaseTool> m_photonTools {this,
-      "PhotonTools", {}, "Tools for dressing ONLY photons"};
+    /** @brief Vector of tools for dressing electrons and photons **/
+    ToolHandleArray<IegammaBaseTool> m_egammaTools {this,
+        "egammaTools", {}, "Tools for dressing electrons and photons"};
 
-  /** @brief Retrieve each tool in the given vector **/
-  StatusCode RetrieveTools(ToolHandleArray<IegammaBaseTool>& tools);
+    /** @brief Vector of tools for dressing ONLY electrons **/
+    ToolHandleArray<IegammaBaseTool> m_electronTools {this,
+        "ElectronTools", {}, "Tools for dressing ONLY electrons"};
 
-  /** Given an egammaRec object, a pointer to the electron container and the author, 
-   * create and dress an electron, pushing it back to the container and 
-   * calling the relevant tools **/
-  
-  bool getElectron(const egammaRec* egRec, xAOD::ElectronContainer *electronContainer,
-		   const unsigned int author, const uint8_t type);
+    /** @brief Vector of tools for dressing ONLY photons **/
+    ToolHandleArray<IegammaBaseTool> m_photonTools {this,
+        "PhotonTools", {}, "Tools for dressing ONLY photons"};
 
-  /** Given an egammaRec object, a pointer to the photon container and the author, 
-   * create and dress a photon, pushing it back to the container and 
-   * calling the relevant tools **/
-  bool getPhoton(const egammaRec* egRec, xAOD::PhotonContainer *photonContainer,
-		 const unsigned int author, uint8_t type);
-  
+    /** @brief Tool to do the final electron/photon cluster building */
+    ToolHandle<IEMClusterTool> m_clusterTool {this, 
+        "EMClusterTool", "EMClusterTool", 
+        "Tool that does electron/photon final cluster building"};
 
-  /** @brief Do the final ambiguity **/  
-  StatusCode doAmbiguityLinks(xAOD::ElectronContainer *electronContainer, 
-			      xAOD::PhotonContainer *photonContainer);
+    /** @brief Tool to resolve electron/photon ambiguity */
+    ToolHandle<IEGammaAmbiguityTool> m_ambiguityTool {this, 
+        "AmbiguityTool", "EGammaAmbiguityTool", 
+        "Tool that does electron/photon ambiguity resolution"};
 
-  /** @brief Call a tool using contExecute and electrons, photon containers if given **/
-  StatusCode CallTool(ToolHandle<IegammaBaseTool>& tool, 
-                      xAOD::ElectronContainer *electronContainer = 0, 
-                      xAOD::PhotonContainer *photonContainer = 0);
 
-  /** @brief retrieve EMAmbiguityTool **/
-  StatusCode RetrieveAmbiguityTool();
+    /** @brief Retrieve each tool in the given vector **/
+    StatusCode RetrieveTools(ToolHandleArray<IegammaBaseTool>& tools);
 
-  /** @brief Name of the electron output collection*/
-  SG::WriteHandleKey<xAOD::ElectronContainer> m_electronOutputKey {this,
-      "ElectronOutputName", "ElectronContainer", 
-      "Name of Electron Container to be created"};
+    /** @brief retrieve EMClusterTool **/
+    StatusCode RetrieveEMClusterTool();
 
-  /** @brief Name of the photon output collection */
-  SG::WriteHandleKey<xAOD::PhotonContainer> m_photonOutputKey {this,
-      "PhotonOutputName", "PhotonContainer",
-      "Name of Photon Container to be created"};
+    /** @brief retrieve EMAmbiguityTool **/
+    StatusCode RetrieveAmbiguityTool();
 
-  /** @brief Name of input super cluster electron egammaRec container */
-  SG::ReadHandleKey<EgammaRecContainer> m_electronSuperClusterRecContainerKey {this,
-      "SuperElectronRecCollectionName", 
-      "ElectronSuperRecCollection",
-      "Input container for electron  Super Cluster  egammaRec objects"};
 
-  /** @brief Name of input super cluster photon egammaRec container */
-  SG::ReadHandleKey<EgammaRecContainer> m_photonSuperClusterRecContainerKey {this,
-      "SuperPhotonRecCollectionName",
-      "PhotonSuperRecCollection",
-      "Input container for electron  Super Cluster  egammaRec objects"};
-  //
-  // The tools
-  //
-  /** @brief Tool to resolve electron/photon ambiguity */
-  ToolHandle<IEGammaAmbiguityTool> m_ambiguityTool {this, 
-      "AmbiguityTool", "EGammaAmbiguityTool", 
-      "Tool that does electron/photon ambiguity resolution"};
+    /** Given an egammaRec object, a pointer to the electron container and the author, 
+     * create and dress an electron, pushing it back to the container and 
+     * calling the relevant tools **/
 
-  //
-  // Other properties.
-  //
-  // others:
-  IChronoStatSvc* m_timingProfile;
+    bool getElectron(const egammaRec* egRec, xAOD::ElectronContainer *electronContainer,
+            const unsigned int author, const uint8_t type);
+
+    /** Given an egammaRec object, a pointer to the photon container and the author, 
+     * create and dress a photon, pushing it back to the container and 
+     * calling the relevant tools **/
+    bool getPhoton(const egammaRec* egRec, xAOD::PhotonContainer *photonContainer,
+            const unsigned int author, uint8_t type);
+
+
+    /** @brief Do the final ambiguity **/  
+    StatusCode doAmbiguityLinks(xAOD::ElectronContainer *electronContainer, 
+            xAOD::PhotonContainer *photonContainer);
+
+    /** @brief Call a tool using contExecute and electrons, photon containers if given **/
+    StatusCode CallTool(ToolHandle<IegammaBaseTool>& tool, 
+            xAOD::ElectronContainer *electronContainer = 0, 
+            xAOD::PhotonContainer *photonContainer = 0);
+
+    /** @brief Name of the electron output collection*/
+    SG::WriteHandleKey<xAOD::ElectronContainer> m_electronOutputKey {this,
+        "ElectronOutputName", "ElectronContainer", 
+        "Name of Electron Container to be created"};
+
+    /** @brief Name of the photon output collection */
+    SG::WriteHandleKey<xAOD::PhotonContainer> m_photonOutputKey {this,
+        "PhotonOutputName", "PhotonContainer",
+        "Name of Photon Container to be created"};
+
+    /** @brief Name of input super cluster electron egammaRec container */
+    SG::ReadHandleKey<EgammaRecContainer> m_electronSuperClusterRecContainerKey {this,
+        "SuperElectronRecCollectionName", 
+        "ElectronSuperRecCollection",
+        "Input container for electron  Super Cluster  egammaRec objects"};
+
+    /** @brief Name of input super cluster photon egammaRec container */
+    SG::ReadHandleKey<EgammaRecContainer> m_photonSuperClusterRecContainerKey {this,
+        "SuperPhotonRecCollectionName",
+        "PhotonSuperRecCollection",
+        "Input container for electron  Super Cluster  egammaRec objects"};
+    //
+    // Other properties.
+    //
+    // others:
+    IChronoStatSvc* m_timingProfile;
 };
 
 #endif

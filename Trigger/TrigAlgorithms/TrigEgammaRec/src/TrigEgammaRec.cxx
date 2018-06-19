@@ -99,7 +99,7 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     HLT::FexAlgo(name, pSvcLocator),
     m_electronContainerName("egamma_Electrons"),
     m_photonContainerName("egamma_Photons"),
-    m_lumiTool("LuminosityTool")
+    m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
 {
 
     // The following default properties are configured in TrigEgammaRecConfig using Factories
@@ -136,7 +136,7 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     declareProperty("doCaloTopoIsolation",           m_doTopoIsolation = false,    "Handle of the calo topo IsolationTool");
 
     /** Luminosity tool */
-    declareProperty("LuminosityTool", m_lumiTool, "Luminosity Tool");
+    declareProperty("LuminosityTool", m_lumiBlockMuTool, "Luminosity Tool");
 
     /** @brief Track to track assoc after brem, set to false. If true and no GSF original track in cone */
     declareProperty("useBremAssoc",                    m_useBremAssoc          = false, "use track to track assoc after brem"); 
@@ -293,6 +293,8 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
             ATH_MSG_DEBUG("Retrieved Tool "<<m_trackMatchBuilder);
             if (timerSvc()) m_timerTool1 = addTimer("EMTrackMatchBuilder");
         }
+    } else {
+      m_trackMatchBuilder.disable();
     }
 
     if(m_doTrackMatching && m_doConversions){
@@ -309,7 +311,10 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
             ATH_MSG_DEBUG("Retrieved Tool "<<m_conversionBuilder);
             if (timerSvc()) m_timerTool2 = addTimer("EMConversionBuilder");
         }
+    } else {
+      m_conversionBuilder.disable();
     }
+
     if (m_ambiguityTool.empty()) {
         ATH_MSG_ERROR("EGammaAmbiguityTool is empty");
         return HLT::BAD_JOB_SETUP;
@@ -395,9 +400,9 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
     }
 
     // For now, we don't try to retrieve the lumi tool
-    if (m_lumiTool.retrieve().isFailure()) {                                     
-        ATH_MSG_DEBUG("Unable to retrieve Luminosity Tool"); 
-        // 244            return HLT::ERROR;                                                         
+    if (m_lumiBlockMuTool.retrieve().isFailure()) {                                     
+        ATH_MSG_FATAL("Unable to retrieve Luminosity Tool"); 
+        return HLT::ERROR;                                                         
     } else {                                                                     
         ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
     }      
@@ -478,7 +483,10 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
                 if (timerSvc()) m_timerIsoTool1 = addTimer("TrackIsolationTool");
             }
         }
+    } else {
+      m_trackIsolationTool.disable();
     }
+
     if(m_doCaloCellIsolation){
         if (!m_caloCellIsolationTool.empty() && runIsoType.find("etcone") != runIsoType.end()) {
             ATH_MSG_DEBUG("Retrieve CaloIsolationTool is empty");
@@ -490,7 +498,11 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
                 ATH_MSG_DEBUG("Retrieved Tool "<<m_caloCellIsolationTool);
                 if (timerSvc()) m_timerIsoTool2 = addTimer("CaloCellIsolationTool");
             }
+        } else {
+          m_caloCellIsolationTool.disable();
         }
+    } else {
+      m_caloCellIsolationTool.disable();
     }
     if(m_doTopoIsolation){
         if (!m_topoIsolationTool.empty() && runIsoType.find("topoetcone") != runIsoType.end()) {
@@ -503,7 +515,11 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
                 ATH_MSG_DEBUG("Retrieved Tool "<<m_topoIsolationTool);
                 if (timerSvc()) m_timerIsoTool3 = addTimer("topoIsolationTool");
             }
+        } else {
+          m_topoIsolationTool.disable();
         }
+    } else {
+      m_topoIsolationTool.disable();
     }
     //print summary info
     ATH_MSG_INFO("REGTEST: xAOD Reconstruction for Run2" );
@@ -519,7 +535,7 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
     ATH_MSG_INFO("REGTEST: ElectronPID tool: "  <<      m_electronPIDBuilder); 
     ATH_MSG_INFO("REGTEST: ElectronCaloPID tool: " <<   m_electronCaloPIDBuilder); 
     ATH_MSG_INFO("REGTEST: PhotonPID tool: "    <<      m_photonPIDBuilder);
-    ATH_MSG_INFO("REGTEST: LumiTool "           <<      m_lumiTool);
+    ATH_MSG_INFO("REGTEST: LumiTool "           <<      m_lumiBlockMuTool);
 
 
     ATH_MSG_DEBUG("REGTEST: Check properties");

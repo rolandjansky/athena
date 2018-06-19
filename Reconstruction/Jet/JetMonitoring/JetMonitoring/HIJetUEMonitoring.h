@@ -18,8 +18,6 @@
 #include "TH2.h"
 #include "TProfile.h"
 
-using namespace xAOD;
-
 class HIJetUEMonitoring : public JetHistoBase {
   ASG_TOOL_CLASS0(HIJetUEMonitoring);
  public:
@@ -31,16 +29,15 @@ class HIJetUEMonitoring : public JetHistoBase {
   //  virtual int getEventShape();
 
  private:
-  std::string container_key;
+  std::string m_container_key;
   const xAOD::HIEventShapeContainer* m_eventShape;
-  const xAOD::Jet* refContainer;
 
   /// Centrality
   float m_FCalET;
   float m_psiN_FCal;
   float m_vN_fcal;
-  unsigned int n;
-  unsigned int harmonic;
+  unsigned int m_n;
+  unsigned int m_harmonic;
   float m_ptcut=60.0;
 
  protected:

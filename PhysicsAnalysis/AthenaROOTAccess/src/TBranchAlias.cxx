@@ -45,7 +45,7 @@ void mergeAuxStore (const SG::IConstAuxStore& orig,
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
 
   // The auxiliary IDs that the original container has:
-  SG::auxid_set_t auxids = orig.getAuxIDs();
+  const SG::auxid_set_t& auxids = orig.getAuxIDs();
 
   copy.resize (size);
   

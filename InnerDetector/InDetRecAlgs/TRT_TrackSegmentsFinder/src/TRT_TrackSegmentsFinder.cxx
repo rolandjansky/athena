@@ -74,8 +74,9 @@ StatusCode InDet::TRT_TrackSegmentsFinder::initialize()
     } else {
       msg(MSG::INFO) << "Retrieved tool " << m_roadtool << endmsg;
     }
-  } 
-
+  } else {
+    m_roadtool.disable();
+  }
 
   // Get output print level
   //

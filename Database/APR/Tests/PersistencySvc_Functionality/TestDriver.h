@@ -16,9 +16,6 @@ class Token;
 
 namespace pool {
   class IFileCatalog;
-}
-
-namespace pool {
 
   class TestDriver {
   public:

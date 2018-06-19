@@ -150,6 +150,25 @@ StatusCode AthReentrantAlgorithm::execute()
 #endif
 
 
+/** Specify if the algorithm is clonable
+ */
+bool AthReentrantAlgorithm::isClonable() const
+{
+  // Reentrant algorithms are clonable.
+  return true;
+}
+
+/** Cardinality (Maximum number of clones that can exist)
+ *  special value 0 means that algorithm is reentrant
+ *
+ * Override this to return 0 for reentrant algorithms.
+ */
+unsigned int AthReentrantAlgorithm::cardinality() const
+{
+  return 0;
+}
+
+
 /**
  * @brief Perform system initialization for an algorithm.
  *
@@ -201,7 +220,7 @@ void AthReentrantAlgorithm::renounceArray( SG::VarHandleKeyArray& vh ) {
 }
 
 /**
- * @briefS Return this algorithm's input handles.
+ * @brief Return this algorithm's input handles.
  *
  * We override this to include handle instances from key arrays
  * if they have not yet been declared.

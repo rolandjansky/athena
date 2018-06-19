@@ -71,13 +71,9 @@ private:
   bool m_read_clusters; //Read Clusters from FTKIP File? Default is false
   bool m_clustering; //Perform clustering? Default is true
 
-  bool m_SCTTrkMode;
   std::string m_scttrk_tracklist;
   std::string m_scttrk_roadlist;
   std::string m_scttrk_sectormap_path;
-  int m_scttrk_nlayers;
-  int m_scttrk_nsubs;
-  int m_scttrk_lastlayer;
 
   // set the use of the TSP DB banks
   bool m_useTSPBank;
@@ -126,15 +122,12 @@ private:
   // region map used in this session
   FTKRegionMap *m_rmap;
   FTKRegionMap *m_rmap_unused;
-  int m_CUR_REGION;
   // Super-strip map, this object transform an hit in a SS index
   FTKSSMap *m_ssmap;
   FTKSSMap *m_ssmap_unused;
   FTKSSMap *m_ssmap_tsp;
   // require presence of first layer (pixel B-layer)
   bool m_require_first;
-  // 4L,8L -> 11L lookup map
-  FTKSectorMap *m_scttrk_sectormap;
   
   // HW-like SS encoding falg
   unsigned int m_HWModeSS;

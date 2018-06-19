@@ -573,12 +573,12 @@
 * Check End of Line
 ********************
       LOGICAL FUNCTION EOL(INPUT_LINE)
-      CHARACTER*100 INPUT_LINE
+      CHARACTER*(*) INPUT_LINE
       INTEGER K
       SAVE
 
       EOL = .FALSE.
-      DO 16 K=1,100
+      DO 16 K=1,LEN(INPUT_LINE)
         IF (INPUT_LINE(K:K).eq.';') EOL = .TRUE.
 16    CONTINUE
       RETURN

@@ -20,7 +20,6 @@
 #include <cmath>
 #include <iostream>
 #include <list>
-//#include "GaudiKernel/ToolFactory.h"
 //#include "StoreGate/DataHandle.h"
 
 #include "TrigInDetEvent/TrigInDetTrack.h"

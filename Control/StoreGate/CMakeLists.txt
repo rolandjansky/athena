@@ -30,7 +30,7 @@ atlas_add_library( StoreGateLib src/*.cxx
    PUBLIC_HEADERS StoreGate
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${TBB_LIBRARIES} ${CORAL_LIBRARIES} AthAllocators AthenaKernel
-   SGTools GaudiKernel
+   SGTools GaudiKernel PersistentDataModel
    PRIVATE_LINK_LIBRARIES CxxUtils TestTools )
 
 atlas_add_component( StoreGate src/components/*.cxx

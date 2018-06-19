@@ -57,6 +57,9 @@ protected:
   // decrement the number of builder
   void decNumOfBuilder();
 
+  //return last "length" characters of a std::string
+  std::string tail(const std::string& source, const unsigned int length) const;
+
   // test if this is the last builder 
   bool lastBuilder();
 

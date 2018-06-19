@@ -8,8 +8,8 @@
 
 
 #include "MuonRDO/CscRawData.h"
-#include "DataModel/DataVector.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "Identifier/IdentifierHash.h"
 #include <map>
 

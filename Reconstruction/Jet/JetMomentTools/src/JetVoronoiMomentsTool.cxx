@@ -53,7 +53,7 @@ int JetVoronoiMomentsTool::modify(xAOD::JetContainer& jets) const {
         ATH_MSG_WARNING("Could not calculate Voronoi diagram");
     }
     for ( xAOD::Jet *jet : jets ) modifyJet(*jet,voro);
-  return StatusCode::SUCCESS;
+    return 0;
 }
 
 int JetVoronoiMomentsTool::modifyJet(xAOD::Jet&) const {

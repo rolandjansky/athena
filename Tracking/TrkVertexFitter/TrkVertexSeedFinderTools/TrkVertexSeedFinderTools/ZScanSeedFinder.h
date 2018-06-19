@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include <unordered_map>
 
@@ -61,6 +62,8 @@ namespace Trk
     virtual std::vector<Amg::Vector3D> findMultiSeeds(const std::vector<const Trk::TrackParameters*>& perigeeList,const xAOD::Vertex * constraint=0);
 
   private:
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey { this, "EventInfo", "EventInfo", "key for EventInfo retrieval" };
+
     ToolHandle< IMode1dFinder > m_mode1dfinder;
 
     ToolHandle< ITrackToVertexIPEstimator > m_IPEstimator;

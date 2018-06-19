@@ -15,7 +15,6 @@
 #include <algorithm>//for transform
 #include <cctype> //for toupper
 #include <inttypes.h> 
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -1281,7 +1280,7 @@ namespace MuonCalib {
       const DataHandle<TagInfo> tagInfo;
       if(detStore->retrieve(tagInfo).isFailure()) {
         m_log << MSG::WARNING << "Could not retrieve tag info from TDS in ignore bad multilayer..." 
-          << endmsg;;
+          << endmsg;
         return false;
       }
 

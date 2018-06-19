@@ -9,6 +9,7 @@
 #include "MuonLayerEvent/MuonLayerRecoData.h"
 #include "MuonPrepRawDataProviderTools/MuonLayerHashProviderTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
+#include "xAODTracking/VertexContainer.h"
 
 #include <vector>
 
@@ -101,6 +102,9 @@ namespace MuonCombined {
     /** id pt cut */
     double m_idTrackMinPt;
     bool m_ignoreSiAssocated;
+
+    // vertex container key
+    SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", "vertex container key" };
   };
 }
 

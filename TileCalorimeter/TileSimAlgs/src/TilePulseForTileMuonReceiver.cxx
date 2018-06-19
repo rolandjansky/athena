@@ -118,7 +118,7 @@ StatusCode TilePulseForTileMuonReceiver::initialize() {
   //
   m_cablingService = TileCablingService::getInstance();
 
-  if (m_cablingService->getCablingType() != TileCablingService::RUN2Cabling) {
+  if (! m_cablingService->isRun2Cabling() ) {
     ATH_MSG_INFO("TilePulseForTileMuonReceiver should not be used for RUN1 simulations");
     m_run2 = false;
     return StatusCode::SUCCESS;

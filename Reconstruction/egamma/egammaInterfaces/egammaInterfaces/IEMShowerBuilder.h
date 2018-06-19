@@ -39,9 +39,9 @@ class IEMShowerBuilder : virtual public IegammaBaseTool
   /** @brief initialize method*/
   virtual StatusCode initialize() = 0;
   /** @brief execute method*/
-  virtual StatusCode execute(xAOD::Egamma*) = 0;
+  virtual StatusCode execute(xAOD::Egamma*) const = 0;
   /** @brief execute method*/
-  virtual  StatusCode recoExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll) = 0;
+  virtual  StatusCode recoExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll) const = 0;
   /** @brief finalize method*/
   virtual StatusCode finalize() = 0;
 

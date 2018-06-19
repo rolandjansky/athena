@@ -183,6 +183,7 @@ class MuonStandalone(ConfiguredMuonRec):
                                                                       xAODTrackParticlesFromTracksContainerName = "MuonSpectrometerTrackParticles",
                                                                       AODContainerName = "",
                                                                       AODTruthContainerName = "",
+                                                                      xAODTruthLinkVector =  "",
                                                                       ConvertTrackParticles = False,
                                                                       ConvertTracks = True)
 

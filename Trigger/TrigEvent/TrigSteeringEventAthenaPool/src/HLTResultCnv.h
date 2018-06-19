@@ -43,7 +43,9 @@ class HLTResultCnv : public HLTResultCnvBase {
   
  protected:
 
+public:
   HLTResultCnv (ISvcLocator* svcloc);
+protected:
 
   ~HLTResultCnv();
 

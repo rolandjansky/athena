@@ -116,11 +116,11 @@ namespace JiveXML {
     std::string adcCountsStr="adcCounts multiple=\"0\"";
     StatusCode scTileDigit = StatusCode::FAILURE;
     StatusCode scTileRawChannel = StatusCode::FAILURE;
-    const TileDigitsContainer *tileDigits;
-    const TileRawChannelContainer* RawChannelCnt = 0;
+    const TileDigitsContainer *tileDigits = nullptr;
+    const TileRawChannelContainer* RawChannelCnt = nullptr;
     const TileHWID* tileHWID;
     const TileInfo* tileInfo;
-    const TileCablingService* cabling=0;
+    const TileCablingService* cabling=nullptr;
     ToolHandle<TileCondToolEmscale> tileToolEmscale("TileCondToolEmscale"); //!< main Tile Calibration tool
     TileRawChannelUnit::UNIT RChUnit = TileRawChannelUnit::ADCcounts;  //!< Unit for TileRawChannels (ADC, pCb, etc.)
     cabling = TileCablingService::getInstance();

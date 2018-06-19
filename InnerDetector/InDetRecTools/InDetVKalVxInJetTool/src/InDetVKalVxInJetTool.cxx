@@ -11,7 +11,6 @@
 //
 //-------------------------------------------------
 // Other stuff
-#include "GaudiKernel/ToolFactory.h"
 //#include "GaudiKernel/MsgStream.h"
 //
 #include<iostream>

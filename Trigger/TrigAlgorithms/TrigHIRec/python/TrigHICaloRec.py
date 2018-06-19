@@ -53,12 +53,7 @@ class TrigCaloTowerMaker_hijet (TrigCaloTowerMakerBase):
 
         tilecmbtwrbldr = TileTowerBuilderTool("TileCmbTwrBldr",
                                               CellContainerName = "AllCalo",
-                                              DumpTowers        = FALSE,
-                                              DumpWeightMap     = FALSE
                                               )
-        #tilecmbtwrbldr.CellContainerName = "RoIEMCalo"
-        #tilecmbtwrbldr.DumpTowers        = FALSE
-        #tilecmbtwrbldr.DumpWeightMap     = FALSE
 
 
         self +=larcmbtwrbldr

@@ -27,9 +27,9 @@ static dqm_algorithms::TRTHistogramHasNonZeroEntries staticInstance;
 namespace dqm_algorithms
 {
 
-TRTHistogramHasNonZeroEntries::TRTHistogramHasNonZeroEntries(): name("TRTHistogram_Has_NonZero_Entries")
+TRTHistogramHasNonZeroEntries::TRTHistogramHasNonZeroEntries(): m_name("TRTHistogram_Has_NonZero_Entries")
 {
-    dqm_core::AlgorithmManager::instance().registerAlgorithm(name, this);
+    dqm_core::AlgorithmManager::instance().registerAlgorithm(m_name, this);
 }
 
 TRTHistogramHasNonZeroEntries::~TRTHistogramHasNonZeroEntries()
@@ -79,7 +79,7 @@ dqm_core::Result *TRTHistogramHasNonZeroEntries::execute(const std::string &name
 
 void TRTHistogramHasNonZeroEntries::printDescription(std::ostream& out)
 {
-    out << name << ": Checks if histogram has entries that are not zero." << std::endl;
+    out << m_name << ": Checks if histogram has entries that are not zero." << std::endl;
 }
 
 } // namespace dqm_algorithms

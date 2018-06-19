@@ -11,7 +11,6 @@
 //
 //-----------------------------------------------------------------------------
 #include "AthenaPoolUtilities/TPObjRef.h"
-#include "TrkEventTPCnv/TrkEventPrimitives/HepPoint3D_p1.h"
 
 
 namespace InDet

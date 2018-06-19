@@ -4,8 +4,8 @@
 
 //implementation
 
-#ifndef __TRIG_FTK_CLUSTER_CONVERTER_TOOL_H__
-#define __TRIG_FTK_CLUSTER_CONVERTER_TOOL_H__
+#ifndef TRIGFTKTRACKCONVERTER_TRIGFTKCLUSTERCONVERTERTOOL_H
+#define TRIGFTKTRACKCONVERTER_TRIGFTKCLUSTERCONVERTERTOOL_H
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -53,12 +53,12 @@ class TrigFTKClusterConverterTool : public AthAlgTool, virtual public ITrigFTKCl
   InDet::SCT_Cluster*  createSCT_Cluster(IdentifierHash , float , int);
   InDet::PixelCluster* createPixelCluster(IdentifierHash , float , float , float , float , float );
   StatusCode getMcTruthCollections();
-  void createSCT_Truth(Identifier id, const MultiTruth& mt, PRD_MultiTruthCollection *sctTruth, const McEventCollection*  m_mcEventCollection, StoreGateSvc* m_evtStore, std::string m_mcTruthName);
-  void createPixelTruth(Identifier id, const MultiTruth& mt, PRD_MultiTruthCollection *pxlTruth, const McEventCollection*  m_mcEventCollection, StoreGateSvc* m_evtStore, std::string m_mcTruthName);
+  void createSCT_Truth(Identifier id, const MultiTruth& mt, PRD_MultiTruthCollection *sctTruth, const McEventCollection*  mcEventCollection, StoreGateSvc* evtStore, std::string mcTruthName);
+  void createPixelTruth(Identifier id, const MultiTruth& mt, PRD_MultiTruthCollection *pxlTruth, const McEventCollection*  mcEventCollection, StoreGateSvc* evtStore, std::string mcTruthName);
 
   InDet::SCT_ClusterCollection*  getCollection(InDet::SCT_ClusterContainer*, IdentifierHash); 
   InDet::PixelClusterCollection*  getCollection(InDet::PixelClusterContainer*, IdentifierHash); 
-  StatusCode getMcTruthCollections(  StoreGateSvc* m_evtStore, const McEventCollection*  m_mcEventCollection,  std::string m_ftkPixelTruthName,   std::string m_ftkSctTruthName, std::string m_mcTruthName);
+  StatusCode getMcTruthCollections(  StoreGateSvc* evtStore, const McEventCollection*  mcEventCollection,  std::string ftkPixelTruthName,   std::string ftkSctTruthName, std::string mcTruthName);
 
 private:
 

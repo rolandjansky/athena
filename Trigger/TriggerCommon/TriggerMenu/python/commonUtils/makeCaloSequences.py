@@ -1,16 +1,18 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import sys
-import os
-import collections
-# stop noise from imports - output to /dev/null
+import traceback
 
-oldout = sys.stdout
-olderr = sys.stderr
 
-f = open(os.devnull, 'w')
-sys.stdout = f
-sys.stderr = f
+def exc2string2():
+    """Provide traceback ehen an exception has been raised"""
+    llist = sys.exc_info()
+    errmsg = str(llist[0])
+    errmsg += str(llist[1])
+    errmsg += ' '.join(traceback.format_tb(llist[2]))
+    return errmsg
+
+
 
 try:
     from TriggerMenu.commonUtils.LeptonIsoEDConfig import TrigHLTEnergyDensityCentral, TrigHLTEnergyDensityForward
@@ -26,21 +28,11 @@ try:
                                             TrigCaloCellMaker_eGamma_cells)
     from TrigEgammaRec.TrigEgammaToolFactories import TrigCaloClusterMaker_slw
     
-    # import BadImportWillFail
 except Exception, e:
-    # reinstate output
-    sys.stdout = oldout
-    sys.stderr = olderr
-
     print 'makeCaloSequences: import failed'
     print e
+    print  exc2string2()
     sys.exit(1)
-else:
-    # reinstate output
-    sys.stdout = oldout
-    sys.stderr = olderr
-    
-    
 
 class SequenceSpecifier(object):
     def __init__(self, te_in, te_out, alglist):
@@ -90,6 +82,7 @@ def getFullScanCaloSequences():
     For isolation chains, these need to also add to sequence 
     the dummy merger, to merge full scan back to RoI sequence (not available here)
     '''
+    import collections
     caloSeqMap = collections.OrderedDict()
     theDummyRoiCreator=DummyAlgo('RoiCreator')
     cellMaker=TrigCaloCellMaker_jet_fullcalo('TriggerCaloCellMaker_FS',

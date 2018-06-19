@@ -160,6 +160,30 @@ _setup_python_package( flake8
    DEPENDS pyflakes
    SINGLE_VERSION )
 
+# Install configparser:
+_setup_python_package( configparser
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/configparser-3.5.0.tar.gz
+   cfdd915a5b7a6c09917a64a573140538
+   SINGLE_VERSION )
+
+# Install enum34:
+_setup_python_package( enum34
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/enum34-1.1.6.tar.gz
+   5f13a0841a61f7fc295c514490d120d0
+   SINGLE_VERSION )
+
+# Install mccabe:
+_setup_python_package( mccabe
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/mccabe-0.6.1.tar.gz
+   723df2f7b1737b8887475bac4c763e1e
+   SINGLE_VERSION )
+
+# Install :
+_setup_python_package( pycodestyle 
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/pycodestyle-2.3.1.tar.gz
+   240e342756af30cae0983b16303a2055
+   SINGLE_VERSION )
+
 # Install pyinotify:
 _setup_python_package( pyinotify
    ${CMAKE_CURRENT_SOURCE_DIR}/src/pyinotify-0.9.1.tar.gz
@@ -179,15 +203,17 @@ _setup_python_package( simplejson
    2f8351f6e6fe7ef25744805dfa56c0d5
    )
 
-
 # Install gcovr:
 _setup_python_package( gcovr
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/gcovr-3.3.tar.gz
-   85af705ca6e1187d2bae967d26810c55
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/gcovr-3.4.tar.gz
+   0e8aece2bd438530853e7e10968efd56
    SINGLE_VERSION )
 
-
-
+# Install scandir:
+_setup_python_package( scandir
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/scandir-1.6.tar.gz
+   0180ddb97c96cbb2d4f25d2ae11c64ac
+   )
 
 # Clean up:
 unset( _setup_python_package )

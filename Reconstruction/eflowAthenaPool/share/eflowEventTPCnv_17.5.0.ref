@@ -2,7 +2,6 @@ Wed Mar 16 20:10:53 CET 2016
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO using release [AtlasOffline-21.0.0] [x86_64-slc6-gcc49-dbg] [21.X.Y-VAL/rel_3] -- built on [2016-03-15 22:41]
-Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Warning in <TInterpreter::ReadRootmapFile>: class  CaloSampling found in CaloEventDict.so  is already in libISF_FastCaloSimParametrizationLib.so 
 Py:Athena            INFO executing ROOT6Setup

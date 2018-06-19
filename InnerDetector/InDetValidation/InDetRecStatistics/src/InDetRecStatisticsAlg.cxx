@@ -517,6 +517,8 @@ StatusCode InDet :: InDetRecStatisticsAlg :: getServices ()
      } else {
        ATH_MSG_INFO("Retrieved tool " << m_trkSummaryTool);
      }
+   } else {
+     m_trkSummaryTool.disable();
    }
 
    if (m_doSharedHits) {
@@ -526,6 +528,8 @@ StatusCode InDet :: InDetRecStatisticsAlg :: getServices ()
      } else {
        ATH_MSG_INFO("Retrieved tool " << m_assoTool);
      }
+   } else {
+     m_assoTool.disable();
    }
 
    // AG: init truthToTrack
@@ -536,6 +540,8 @@ StatusCode InDet :: InDetRecStatisticsAlg :: getServices ()
      } else {
        ATH_MSG_INFO("Retrieved tool " << m_truthToTrack);
      }
+   } else {
+     m_truthToTrack.disable();
    }
    
    //adding track selector tool
@@ -546,6 +552,8 @@ StatusCode InDet :: InDetRecStatisticsAlg :: getServices ()
      } else {
        ATH_MSG_INFO("Retrieved tool " << m_trackSelectorTool);
      }
+   } else {
+     m_trackSelectorTool.disable();
    }
    return StatusCode :: SUCCESS;
 }

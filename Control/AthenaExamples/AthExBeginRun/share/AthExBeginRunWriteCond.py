@@ -46,8 +46,8 @@ theApp.EvtMax = 1
 # Define output stream for POOL file
 theApp.OutStream = []
 from AthenaCommon.AppMgr import ToolSvc
-from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
-ToolSvc += AthenaPoolOutputStreamTool("AthExCondStream", OutputFile = "AthExCondStream.root")
+from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
+ToolSvc += AthenaOutputStreamTool("AthExCondStream", OutputFile = "AthExCondStream.root")
 
 # Print job configuration
 print job

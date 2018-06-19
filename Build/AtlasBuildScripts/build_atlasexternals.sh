@@ -14,7 +14,8 @@ set -o pipefail
 # Function printing the usage information for the script
 usage() {
     echo "Usage: build_atlasexternals.sh <-s source dir> <-b build dir> " \
-        "<-i install dir> [-p project] [-r RPM dir] [-t build type]"
+        "<-i install dir> [-p project] [-r RPM dir] [-t build type] [-d (debug output)]" \
+        "[-e extra CMake arguments]"
 }
 
 # Parse the command line arguments:
@@ -25,7 +26,9 @@ PROJECT="AthenaExternals"
 RPMDIR=""
 BUILDTYPE="Release"
 PROJECTVERSION=""
-while getopts ":s:b:i:p:r:t:v:h" opt; do
+DEBUGCMAKE=""
+EXTRACMAKE=""
+while getopts ":s:b:i:p:r:t:v:h:x:d" opt; do
     case $opt in
         s)
             SOURCEDIR=$OPTARG
@@ -44,6 +47,13 @@ while getopts ":s:b:i:p:r:t:v:h" opt; do
             ;;
         t)
             BUILDTYPE=$OPTARG
+            ;;
+        x)
+            EXTRACMAKE=$OPTARG
+            ;;
+        d)
+            DEBUGCMAKE="--trace"
+            echo "Using the '--trace' option to debug the CMake configuration --> Verbose output!"
             ;;
         v)
             PROJECTVERSION=$OPTARG
@@ -86,8 +96,9 @@ fi
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
  rm -f CMakeCache.txt
- cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
+ cmake ${DEBUGCMAKE} -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
     ${EXTRACONF} \
+    ${EXTRACMAKE} \
     ${SOURCEDIR}/Projects/${PROJECT}/ || touch $error_stamp
 } 2>&1 | tee cmake_config.log 
 test -f $error_stamp && ((ERROR_COUNT++)) 

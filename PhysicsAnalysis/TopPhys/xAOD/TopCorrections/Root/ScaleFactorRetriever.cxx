@@ -685,7 +685,7 @@ namespace top {
       return 1.0;
     }
 
-    return x.auxdataConst<float>(decoration);;
+    return x.auxdataConst<float>(decoration);
 
   }
 

@@ -936,6 +936,7 @@ public:
     RunTimer (boost::timer::cpu_timer& timer) : m_timer (&timer)
     { timer.resume(); }
     RunTimer (RunTimer&& other) : m_timer (other.m_timer) { other.m_timer = nullptr; }
+    RunTimer& operator= (const RunTimer&) = delete;
     ~RunTimer() { if (m_timer) m_timer->stop(); }
   private:
     boost::timer::cpu_timer* m_timer;

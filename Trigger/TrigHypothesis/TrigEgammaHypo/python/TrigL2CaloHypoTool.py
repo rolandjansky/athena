@@ -121,7 +121,7 @@ def _MultTool(name):
 
 def decodeThreshold( threshold ):
     """ decodes the thresholds of the form e10, 2e10, e10e15, ... """
-    print "decoding ", threshold
+    print "TrigL2CaloHypoToolFromName: decoding threshold ", threshold
     if threshold[0].isdigit(): # is if the from NeX, return as list [X,X,X...N times...]
         assert threshold[1] == 'e', "Two digit multiplicity not supported"
         return [ threshold[2:] ] * int( threshold[0] )
@@ -140,13 +140,15 @@ def TrigL2CaloHypoToolFromName( name ):
     threshold = bname[1]
     sel = bname[2]
 
+    print "TrigL2CaloHypoToolFromName: name = %s, threshold = %s, sel =%s"%(name,threshold,sel)
+    
     dt = decodeThreshold( threshold )
     assert len(dt) >= 1, "Threshold "+ threshold +" not decoded properly"
 
     if len( dt ) > 1:
         tool = _MultTool(name) 
         for cutNumber, th in enumerate( dt ):
-            print "cut and threshold ", cutNumber, th
+            print "TrigL2CaloHypoToolFromName: cut and threshold ", cutNumber, th
             tool.SubTools += [ _IncTool( name+"_"+str(cutNumber), th, sel ) ]
         for t in tool.SubTools:
             t.OutputLevel=DEBUG
@@ -188,4 +190,4 @@ if __name__ == "__main__":
     assert len(t.SubTools) == 2, "Sub-tools not configured"
     #print t    
 
-    print ( "\n\nALL OK\n\n" )
+    print ( "\n\n TrigL2CaloHypoToolFromName ALL OK\n\n" )

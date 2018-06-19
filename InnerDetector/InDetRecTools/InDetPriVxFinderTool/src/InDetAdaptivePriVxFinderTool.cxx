@@ -39,7 +39,7 @@
 //#include "VxVertex/VxContainer.h"
 #include "VxVertex/RecVertex.h"
 #include "VxVertex/VxTrackAtVertex.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
 
@@ -55,7 +55,6 @@
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
-#include "TrkVxEdmCnv/IVxCandidateXAODVertex.h"
 
 namespace InDet
 {
@@ -75,14 +74,12 @@ InDetAdaptivePriVxFinderTool::InDetAdaptivePriVxFinderTool(const std::string& t,
         : AthAlgTool(t,n,p),
           m_iVertexFitter("Trk::AdaptiveVertexFitter"),
 	  m_trkFilter("InDet::InDetTrackSelection"),
-	  m_VertexEdmFactory("Trk::VertexInternalEdmFactory"),
           m_iBeamCondSvc("BeamCondSvc",n)
 {
     declareInterface<IVertexFinder>(this);//by GP: changed from InDetAdaptivePriVxFinderTool to IPriVxFinderTool
     /* Retrieve StoreGate container and tool names from job options */
     declareProperty("VertexFitterTool", m_iVertexFitter);
     declareProperty("TrackSelector",m_trkFilter);
-    declareProperty("InternalEdmFactory", m_VertexEdmFactory);
     declareProperty("BeamPositionSvc", m_iBeamCondSvc);
     /* Cuts for track preselection */
 }
@@ -109,10 +106,6 @@ StatusCode InDetAdaptivePriVxFinderTool::initialize()
 
     if(m_trkFilter.retrieve().isFailure()) {
       msg(MSG::ERROR) <<" Unable to retrieve "<<m_trkFilter<<endmsg;
-      return StatusCode::FAILURE;
-    }
-    if ( m_VertexEdmFactory.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrievel tool " << m_VertexEdmFactory);
       return StatusCode::FAILURE;
     }
    

@@ -22,7 +22,7 @@ void UbeamHandler::ElementHandle()
 	double w=getAttributeAsDouble("width",res);
 	double sw=getAttributeAsDouble("small_width",res);
 	double h=getAttributeAsDouble("heigth",res);
-	double sh=getAttributeAsDouble("small_heigth",res);;
+	double sh=getAttributeAsDouble("small_heigth",res);
 	
 	AGDDUbeam *b=new AGDDUbeam(name);
 	b->SetMaterial(material);

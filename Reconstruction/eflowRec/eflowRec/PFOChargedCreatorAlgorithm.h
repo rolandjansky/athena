@@ -29,7 +29,7 @@ private:
   /** Create the charged PFO */ 
   void createChargedPFO(const eflowCaloObject& energyFlowCaloObject, bool addClusters, SG::WriteHandle<xAOD::PFOContainer>& chargedPFOContainerWriteHandle);
   /** Function to add links to the vertex to which a charged PFO is matched (using the tracking CP loose vertex association tool) */
-  void addVertexLinksToChargedPFO(const xAOD::VertexContainer& theVertexContainer, SG::WriteHandle<xAOD::PFOContainer>& chargedPFOContainerWriteHandle);
+  void addVertexLinksToChargedPFO(const xAOD::VertexContainer* theVertexContainer, SG::WriteHandle<xAOD::PFOContainer>& chargedPFOContainerWriteHandle);
 
   /** Toggle EOverP algorithm mode, whereby no charged shower subtraction is performed */
   Gaudi::Property<bool> m_eOverPMode{this,"EOverPMode",false,"Toggle EOverP algorithm mode, whereby no charged shower subtraction is performed"};

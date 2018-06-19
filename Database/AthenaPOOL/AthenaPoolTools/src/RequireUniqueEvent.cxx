@@ -12,7 +12,6 @@
 // the user data-class defintions
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/AlgFactory.h"
                                                           
 #include "StoreGate/StoreGateSvc.h"
 

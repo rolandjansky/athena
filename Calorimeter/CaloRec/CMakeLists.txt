@@ -21,7 +21,6 @@ atlas_depends_on_subdirs(
    AtlasTest/TestTools
    Control/CxxUtils
    Control/AthAllocators
-   Control/SGTools
    DetectorDescription/IdDictParser
    DetectorDescription/Identifier
    Event/EventKernel
@@ -56,7 +55,7 @@ atlas_add_library( CaloRecLib
    Identifier xAODCaloEvent GaudiKernel CaloDetDescrLib CaloUtilsLib
    StoreGateLib LArToolsLib
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES}
-   ${EIGEN_LIBRARIES} AthAllocators DataModel SGTools IdDictParser EventKernel
+   ${EIGEN_LIBRARIES} AthAllocators DataModel IdDictParser EventKernel
    FourMom NavFourMom )
 
 atlas_add_component( CaloRec

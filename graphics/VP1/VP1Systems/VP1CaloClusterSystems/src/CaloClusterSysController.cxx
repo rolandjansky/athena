@@ -12,6 +12,8 @@
 //                                                            //
 ////////////////////////////////////////////////////////////////
 
+#define VP1IMPVARNAME m_d
+
 #include "VP1CaloClusterSystems/CaloClusterSysController.h"
 #include "VP1CaloClusterSystems/VP1CaloClusterCollection.h"
 #include "ui_vp1caloclustercontrollerform.h"
@@ -51,64 +53,64 @@ QString CaloClusterSysController::toString( const QPair<bool,double>& par )
 
 //____________________________________________________________________
 CaloClusterSysController::CaloClusterSysController(IVP1System * sys)
-  : VP1Controller(sys,"CaloClusterSysController"), d(new Imp)
+  : VP1Controller(sys,"CaloClusterSysController"), m_d(new Imp)
 {
-  d->ui.setupUi(this);
-  d->gui_mostEnergetic = 0;
+  m_d->ui.setupUi(this);
+  m_d->gui_mostEnergetic = 0;
 
-  d->collWidget = new VP1CollectionWidget;
-  setupCollWidgetInScrollArea(d->ui.collWidgetScrollArea,d->collWidget);
+  m_d->collWidget = new VP1CollectionWidget;
+  setupCollWidgetInScrollArea(m_d->ui.collWidgetScrollArea,m_d->collWidget);
 
-  initDialog(d->ui_display, d->ui.pushButton_settings_display);
-  initDialog(d->ui_int, d->ui.pushButton_settings_interactions);
-  initDialog(d->ui_cuts, d->ui.pushButton_settings_cuts);
+  initDialog(m_d->ui_display, m_d->ui.pushButton_settings_display);
+  initDialog(m_d->ui_int, m_d->ui.pushButton_settings_interactions);
+  initDialog(m_d->ui_cuts, m_d->ui.pushButton_settings_cuts);
 
-  d->ui_display.widget_drawOptions->setLineWidths(2.0);
-  d->ui_display.widget_drawOptions->setPointSizesDisabled();
-  d->ui_display.widget_drawOptions->setBaseLightingDisabled();
-  d->ui_display.widget_drawOptions->setComplexityDisabled();
+  m_d->ui_display.widget_drawOptions->setLineWidths(2.0);
+  m_d->ui_display.widget_drawOptions->setPointSizesDisabled();
+  m_d->ui_display.widget_drawOptions->setBaseLightingDisabled();
+  m_d->ui_display.widget_drawOptions->setComplexityDisabled();
 
-  d->ui_cuts.etaPhiCutWidget->setEtaCutEnabled(false);
+  m_d->ui_cuts.etaPhiCutWidget->setEtaCutEnabled(false);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //  Setup connections which monitor changes in the controller so that we may emit signals as appropriate:  //
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // -> Eta cut presets:
-  connect(d->ui_cuts.toolButton_quicketa_barrel,SIGNAL(clicked()),this,SLOT(etaCutPresetButtonTriggered()));
-  connect(d->ui_cuts.toolButton_quicketa_endcapA,SIGNAL(clicked()),this,SLOT(etaCutPresetButtonTriggered()));
-  connect(d->ui_cuts.toolButton_quicketa_endcapC,SIGNAL(clicked()),this,SLOT(etaCutPresetButtonTriggered()));
+  connect(m_d->ui_cuts.toolButton_quicketa_barrel,SIGNAL(clicked()),this,SLOT(etaCutPresetButtonTriggered()));
+  connect(m_d->ui_cuts.toolButton_quicketa_endcapA,SIGNAL(clicked()),this,SLOT(etaCutPresetButtonTriggered()));
+  connect(m_d->ui_cuts.toolButton_quicketa_endcapC,SIGNAL(clicked()),this,SLOT(etaCutPresetButtonTriggered()));
 
   // -> scale:
   addUpdateSlot(SLOT(possibleChange_scale()));
-  connectToLastUpdateSlot(d->ui_display.checkBox_logscale);
-  connectToLastUpdateSlot(d->ui_display.radioButton_relativeScale);
-  connectToLastUpdateSlot(d->ui_display.doubleSpinBox_lengthOfMostEnergetic);
-  connectToLastUpdateSlot(d->ui_display.doubleSpinBox_lengthOf10GeV);
+  connectToLastUpdateSlot(m_d->ui_display.checkBox_logscale);
+  connectToLastUpdateSlot(m_d->ui_display.radioButton_relativeScale);
+  connectToLastUpdateSlot(m_d->ui_display.doubleSpinBox_lengthOfMostEnergetic);
+  connectToLastUpdateSlot(m_d->ui_display.doubleSpinBox_lengthOf10GeV);
 
   // -> cutAllowedEnergies:
   addUpdateSlot(SLOT(possibleChange_cutAllowedEnergies()));
-  connectToLastUpdateSlot(d->ui_cuts.checkBox_Emin);
-  connectToLastUpdateSlot(d->ui_cuts.checkBox_Emax);
-  connectToLastUpdateSlot(d->ui_cuts.doubleSpinBox_Emin);
-  connectToLastUpdateSlot(d->ui_cuts.doubleSpinBox_Emax);
+  connectToLastUpdateSlot(m_d->ui_cuts.checkBox_Emin);
+  connectToLastUpdateSlot(m_d->ui_cuts.checkBox_Emax);
+  connectToLastUpdateSlot(m_d->ui_cuts.doubleSpinBox_Emin);
+  connectToLastUpdateSlot(m_d->ui_cuts.doubleSpinBox_Emax);
 
   // -> cutAllowedEta:
   addUpdateSlot(SLOT(possibleChange_cutAllowedEta()));
-  connectToLastUpdateSlot(d->ui_cuts.etaPhiCutWidget,SIGNAL(allowedEtaChanged(const VP1Interval&)));
+  connectToLastUpdateSlot(m_d->ui_cuts.etaPhiCutWidget,SIGNAL(allowedEtaChanged(const VP1Interval&)));
 
   // -> cutAllowedPhi:
   addUpdateSlot(SLOT(possibleChange_cutAllowedPhi()));
-  connectToLastUpdateSlot(d->ui_cuts.etaPhiCutWidget,SIGNAL(allowedPhiChanged(const QList<VP1Interval>&)));
+  connectToLastUpdateSlot(m_d->ui_cuts.etaPhiCutWidget,SIGNAL(allowedPhiChanged(const QList<VP1Interval>&)));
 
   // -> showVolumeOutLines
   addUpdateSlot(SLOT(possibleChange_showVolumeOutLines()));
-  connectToLastUpdateSlot(d->ui_display.checkBox_showVolumeOutLines);
+  connectToLastUpdateSlot(m_d->ui_display.checkBox_showVolumeOutLines);
 
   // -> useTransverseEnergies
   addUpdateSlot(SLOT(possibleChange_useTransverseEnergies()));
-  connectToLastUpdateSlot(d->ui.radioButton_energyMode_Et);
-  connectToLastUpdateSlot(d->ui.radioButton_energyMode_E);
+  connectToLastUpdateSlot(m_d->ui.radioButton_energyMode_Et);
+  connectToLastUpdateSlot(m_d->ui.radioButton_energyMode_E);
 
   initLastVars();
 }
@@ -116,7 +118,7 @@ CaloClusterSysController::CaloClusterSysController(IVP1System * sys)
 //____________________________________________________________________
 CaloClusterSysController::~CaloClusterSysController()
 {
-  delete d;
+  delete m_d;
 }
 
 
@@ -130,21 +132,21 @@ int CaloClusterSysController::currentSettingsVersion() const
 void CaloClusterSysController::actualSaveSettings(VP1Serialise&s) const
 {
   //version 0 had an integer here
-  s.save(d->ui_display.checkBox_logscale);
-  s.save(d->ui_display.radioButton_relativeScale,d->ui_display.radioButton_absoluteScale);
-  s.save(d->ui_display.doubleSpinBox_lengthOfMostEnergetic);
-  s.save(d->ui_display.doubleSpinBox_lengthOf10GeV);
-  s.save(d->ui_cuts.checkBox_Emin);
-  s.save(d->ui_cuts.doubleSpinBox_Emin);
-  s.save(d->ui_cuts.checkBox_Emax);
-  s.save(d->ui_cuts.doubleSpinBox_Emax);
-  s.save(d->ui_cuts.etaPhiCutWidget);
-  s.save(d->ui_int.checkBox_printinfo);//Version 1+
-  s.save(d->ui_int.checkBox_printinfo_verbose);//Version 1+
-  s.save(d->ui_int.checkBox_zoom);//Version 1+
-  s.save(d->ui_display.checkBox_showVolumeOutLines);//Version 2+
-  s.save(d->ui_display.widget_drawOptions);//Version 2+
-  s.save(d->ui.radioButton_energyMode_Et,d->ui.radioButton_energyMode_E);//Version 3+
+  s.save(m_d->ui_display.checkBox_logscale);
+  s.save(m_d->ui_display.radioButton_relativeScale,m_d->ui_display.radioButton_absoluteScale);
+  s.save(m_d->ui_display.doubleSpinBox_lengthOfMostEnergetic);
+  s.save(m_d->ui_display.doubleSpinBox_lengthOf10GeV);
+  s.save(m_d->ui_cuts.checkBox_Emin);
+  s.save(m_d->ui_cuts.doubleSpinBox_Emin);
+  s.save(m_d->ui_cuts.checkBox_Emax);
+  s.save(m_d->ui_cuts.doubleSpinBox_Emax);
+  s.save(m_d->ui_cuts.etaPhiCutWidget);
+  s.save(m_d->ui_int.checkBox_printinfo);//Version 1+
+  s.save(m_d->ui_int.checkBox_printinfo_verbose);//Version 1+
+  s.save(m_d->ui_int.checkBox_zoom);//Version 1+
+  s.save(m_d->ui_display.checkBox_showVolumeOutLines);//Version 2+
+  s.save(m_d->ui_display.widget_drawOptions);//Version 2+
+  s.save(m_d->ui.radioButton_energyMode_Et,m_d->ui.radioButton_energyMode_E);//Version 3+
 }
 
 //____________________________________________________________________
@@ -156,32 +158,32 @@ void CaloClusterSysController::actualRestoreSettings(VP1Deserialise& s)
   }
   if (s.version()==0)
     s.ignoreInt();
-  s.restore(d->ui_display.checkBox_logscale);
-  s.restore(d->ui_display.radioButton_relativeScale,d->ui_display.radioButton_absoluteScale);
-  s.restore(d->ui_display.doubleSpinBox_lengthOfMostEnergetic);
-  s.restore(d->ui_display.doubleSpinBox_lengthOf10GeV);
-  s.restore(d->ui_cuts.checkBox_Emin);
-  s.restore(d->ui_cuts.doubleSpinBox_Emin);
-  s.restore(d->ui_cuts.checkBox_Emax);
-  s.restore(d->ui_cuts.doubleSpinBox_Emax);
-  s.restore(d->ui_cuts.etaPhiCutWidget);
+  s.restore(m_d->ui_display.checkBox_logscale);
+  s.restore(m_d->ui_display.radioButton_relativeScale,m_d->ui_display.radioButton_absoluteScale);
+  s.restore(m_d->ui_display.doubleSpinBox_lengthOfMostEnergetic);
+  s.restore(m_d->ui_display.doubleSpinBox_lengthOf10GeV);
+  s.restore(m_d->ui_cuts.checkBox_Emin);
+  s.restore(m_d->ui_cuts.doubleSpinBox_Emin);
+  s.restore(m_d->ui_cuts.checkBox_Emax);
+  s.restore(m_d->ui_cuts.doubleSpinBox_Emax);
+  s.restore(m_d->ui_cuts.etaPhiCutWidget);
   if (s.version()>=1) {
-    s.restore(d->ui_int.checkBox_printinfo);
-    s.restore(d->ui_int.checkBox_printinfo_verbose);
-    s.restore(d->ui_int.checkBox_zoom);
+    s.restore(m_d->ui_int.checkBox_printinfo);
+    s.restore(m_d->ui_int.checkBox_printinfo_verbose);
+    s.restore(m_d->ui_int.checkBox_zoom);
   }
   if (s.version()>=2) {
-    s.restore(d->ui_display.checkBox_showVolumeOutLines);
-    s.restore(d->ui_display.widget_drawOptions);
+    s.restore(m_d->ui_display.checkBox_showVolumeOutLines);
+    s.restore(m_d->ui_display.widget_drawOptions);
   }
   if (s.version()>=3)
-    s.restore(d->ui.radioButton_energyMode_Et,d->ui.radioButton_energyMode_E);
+    s.restore(m_d->ui.radioButton_energyMode_Et,m_d->ui.radioButton_energyMode_E);
 }
 
 //____________________________________________________________________
 VP1CollectionWidget * CaloClusterSysController::collWidget() const
 {
-  return d->collWidget;
+  return m_d->collWidget;
 }
 
 
@@ -189,51 +191,51 @@ VP1CollectionWidget * CaloClusterSysController::collWidget() const
 void CaloClusterSysController::etaCutPresetButtonTriggered()
 {
   const double cracketa = VP1CaloClusterCollection::crackEta();
-  bool save = d->ui_cuts.etaPhiCutWidget->blockSignals(true);
+  bool save = m_d->ui_cuts.etaPhiCutWidget->blockSignals(true);
 
-  if (sender()==d->ui_cuts.toolButton_quicketa_barrel)
-    d->ui_cuts.etaPhiCutWidget->setEtaCut(cracketa);
-  else if (sender()==d->ui_cuts.toolButton_quicketa_endcapA)
-    d->ui_cuts.etaPhiCutWidget->setEtaCut(cracketa,9.0);
-  else if (sender()==d->ui_cuts.toolButton_quicketa_endcapC)
-    d->ui_cuts.etaPhiCutWidget->setEtaCut(-9.0,-cracketa);
+  if (sender()==m_d->ui_cuts.toolButton_quicketa_barrel)
+    m_d->ui_cuts.etaPhiCutWidget->setEtaCut(cracketa);
+  else if (sender()==m_d->ui_cuts.toolButton_quicketa_endcapA)
+    m_d->ui_cuts.etaPhiCutWidget->setEtaCut(cracketa,9.0);
+  else if (sender()==m_d->ui_cuts.toolButton_quicketa_endcapC)
+    m_d->ui_cuts.etaPhiCutWidget->setEtaCut(-9.0,-cracketa);
   else
     message("ERROR: Unknown sender() in etaCutPresetButtonTriggered() slot.");
 
-  d->ui_cuts.etaPhiCutWidget->blockSignals(save);
+  m_d->ui_cuts.etaPhiCutWidget->blockSignals(save);
   possibleChange_cutAllowedEta();
 }
 
 //____________________________________________________________________
 SoGroup * CaloClusterSysController::drawOptions() const
 {
-  return d->ui_display.widget_drawOptions->drawOptionsGroup();
+  return m_d->ui_display.widget_drawOptions->drawOptionsGroup();
 }
 
 //____________________________________________________________________
-bool CaloClusterSysController::printInfoOnClick() const { return d->ui_int.checkBox_printinfo->isChecked(); }
-bool CaloClusterSysController::printVerboseInfoOnClick() const { return d->ui_int.checkBox_printinfo_verbose->isChecked(); }
-bool CaloClusterSysController::zoomOnClick() const { return d->ui_int.checkBox_zoom->isChecked(); }
+bool CaloClusterSysController::printInfoOnClick() const { return m_d->ui_int.checkBox_printinfo->isChecked(); }
+bool CaloClusterSysController::printVerboseInfoOnClick() const { return m_d->ui_int.checkBox_printinfo_verbose->isChecked(); }
+bool CaloClusterSysController::zoomOnClick() const { return m_d->ui_int.checkBox_zoom->isChecked(); }
 
 //____________________________________________________________________
 QPair<bool,double> CaloClusterSysController::scale() const
 {
-  const bool relative = d->ui_display.radioButton_relativeScale->isChecked();
-  const bool logscale = d->ui_display.checkBox_logscale->isChecked();
+  const bool relative = m_d->ui_display.radioButton_relativeScale->isChecked();
+  const bool logscale = m_d->ui_display.checkBox_logscale->isChecked();
 
   double highestvisibleenergy=0*CLHEP::eV;
-  foreach(VP1StdCollection* stdcol, d->collWidget->visibleStdCollections()) {
+  foreach(VP1StdCollection* stdcol, m_d->collWidget->visibleStdCollections()) {
     VP1CaloClusterCollection* col = dynamic_cast<VP1CaloClusterCollection*>(stdcol);
     if ( col && highestvisibleenergy < col->highestVisibleClusterEnergy() )
       highestvisibleenergy = col->highestVisibleClusterEnergy();
   }
-  if (d->gui_mostEnergetic!=highestvisibleenergy) {
-    d->gui_mostEnergetic=highestvisibleenergy;
-    d->ui_display.label_current_most_energetic->setText("Current value: "+QString::number(d->gui_mostEnergetic/CLHEP::GeV,'f',2)+" GeV");
+  if (m_d->gui_mostEnergetic!=highestvisibleenergy) {
+    m_d->gui_mostEnergetic=highestvisibleenergy;
+    m_d->ui_display.label_current_most_energetic->setText("Current value: "+QString::number(m_d->gui_mostEnergetic/CLHEP::GeV,'f',2)+" GeV");
   }
 
-  const double length = (relative ? d->ui_display.doubleSpinBox_lengthOfMostEnergetic->value()*CLHEP::m
-			 : d->ui_display.doubleSpinBox_lengthOf10GeV->value()*CLHEP::m );
+  const double length = (relative ? m_d->ui_display.doubleSpinBox_lengthOfMostEnergetic->value()*CLHEP::m
+			 : m_d->ui_display.doubleSpinBox_lengthOf10GeV->value()*CLHEP::m );
   const double energy = relative ? highestvisibleenergy : 10*CLHEP::GeV;
   const double minscale = 1*CLHEP::mm/(1*CLHEP::GeV);
   const double maxscale = 1*CLHEP::m/(1*CLHEP::MeV);
@@ -252,8 +254,8 @@ QPair<bool,double> CaloClusterSysController::scale() const
 //____________________________________________________________________
 VP1Interval CaloClusterSysController::cutAllowedEnergies() const
 {
-  const double min = (d->ui_cuts.checkBox_Emin->isChecked() ? d->ui_cuts.doubleSpinBox_Emin->value()*CLHEP::GeV : -std::numeric_limits<double>::infinity());
-  const double max = (d->ui_cuts.checkBox_Emax->isChecked() ? d->ui_cuts.doubleSpinBox_Emax->value()*CLHEP::GeV : std::numeric_limits<double>::infinity());
+  const double min = (m_d->ui_cuts.checkBox_Emin->isChecked() ? m_d->ui_cuts.doubleSpinBox_Emin->value()*CLHEP::GeV : -std::numeric_limits<double>::infinity());
+  const double max = (m_d->ui_cuts.checkBox_Emax->isChecked() ? m_d->ui_cuts.doubleSpinBox_Emax->value()*CLHEP::GeV : std::numeric_limits<double>::infinity());
   if (max<min)
     return VP1Interval();
   return VP1Interval( min, max );
@@ -262,24 +264,24 @@ VP1Interval CaloClusterSysController::cutAllowedEnergies() const
 //____________________________________________________________________
 VP1Interval CaloClusterSysController::cutAllowedEta() const
 {
-  return d->ui_cuts.etaPhiCutWidget->allowedEta();
+  return m_d->ui_cuts.etaPhiCutWidget->allowedEta();
 }
 
 //____________________________________________________________________
 QList<VP1Interval> CaloClusterSysController::cutAllowedPhi() const
 {
-  return d->ui_cuts.etaPhiCutWidget->allowedPhi();
+  return m_d->ui_cuts.etaPhiCutWidget->allowedPhi();
 }
 
 //____________________________________________________________________
 bool CaloClusterSysController::showVolumeOutLines() const
 {
-  return d->ui_display.checkBox_showVolumeOutLines->isChecked();
+  return m_d->ui_display.checkBox_showVolumeOutLines->isChecked();
 }
 
 bool CaloClusterSysController::useTransverseEnergies() const
 {
-  return d->ui.radioButton_energyMode_Et->isChecked();
+  return m_d->ui.radioButton_energyMode_Et->isChecked();
 }
 
 ///////////////////////////////////////////////////////////////////////////

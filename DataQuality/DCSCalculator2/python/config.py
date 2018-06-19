@@ -28,6 +28,9 @@ def parse_options(argv):
     O('-s', '--system', dest="systems", action="append", metavar="system", 
       help="Valid systems: %s. Specify once for each system. (Default: all)" % SYS_NAMES)
                     
+    O('-d', '--input-database', default="CONDBR2",
+      help="Database instance to use for input (Default: CONDBR2)")
+
     O('-o', '--output-database', default="None",
       help="(Default: None. Other valid input: any COOL connection string, "
            "or sqlite filename)")
@@ -56,6 +59,9 @@ def parse_options(argv):
       
     O('--check-input-time', action="store_true",
       help="Print statistics on when input IoVs became available")
+
+    O('--email-on-failure', action="store_true",
+      help="Send an email to atlas-dqm-core if a system fails")
 
     global opts, args                
     opts, args = optp.parse_args(argv)

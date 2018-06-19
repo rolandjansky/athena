@@ -24,7 +24,6 @@
       This algorithm includes the Occupancy inside event info....
 
 Documentation being updated (Jan 2009)
-      @Alex
 
 */
 

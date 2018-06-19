@@ -77,17 +77,17 @@ using HepGeom::RotateZ3D;
 
 
 LArGeo::LArDetectorConstructionH62003::LArDetectorConstructionH62003():
-H62003EnvelopePhysical(NULL),
-_fcalVisLimit(-1),
-_axisVisState(false),
-pAccessSvc(NULL){}
+m_H62003EnvelopePhysical(NULL),
+m_fcalVisLimit(-1),
+m_axisVisState(false),
+m_pAccessSvc(NULL){}
 
 LArGeo::LArDetectorConstructionH62003::~LArDetectorConstructionH62003() {}
 
 GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 {
 
-  if (H62003EnvelopePhysical) return H62003EnvelopePhysical;
+  if (m_H62003EnvelopePhysical) return m_H62003EnvelopePhysical;
 
   ISvcLocator *svcLocator = Gaudi::svcLocator();
   IMessageSvc * msgSvc;
@@ -111,7 +111,7 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) return 0;
 
   StatusCode sc;
-  sc=svcLocator->service("RDBAccessSvc",pAccessSvc);
+  sc=svcLocator->service("RDBAccessSvc",m_pAccessSvc);
   if (sc != StatusCode::SUCCESS) {
     throw std::runtime_error ("Cannot locate RDBAccessSvc!!");
   }
@@ -198,18 +198,18 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
   const GeoLogVol* H62003MotherLogical =
     new GeoLogVol(H62003MotherName, H62003MotherShape, Air);
   
-  H62003EnvelopePhysical = new GeoFullPhysVol(H62003MotherLogical);
-  H62003EnvelopePhysical->add( new GeoNameTag("LArEndcapPos") );
+  m_H62003EnvelopePhysical = new GeoFullPhysVol(H62003MotherLogical);
+  m_H62003EnvelopePhysical->add( new GeoNameTag("LArEndcapPos") );
   
-  // number of volumes added to H62003EnvelopePhysical.
+  // number of volumes added to m_H62003EnvelopePhysical.
   // Every time a volume is added to H62003EP, increment.  Used for debugging
   unsigned int NH6EP = 0; 
 
   // Tubular axis, dummy; used for dedugging
   // Make it a jobOption.
-  if ( _axisVisState ) {
+  if ( m_axisVisState ) {
     std::cout << "Axis is ON" << std::endl;
-    createAxis(H62003EnvelopePhysical, Air);
+    createAxis(m_H62003EnvelopePhysical, Air);
   }
 
   // Cryostat
@@ -224,7 +224,7 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
   if(LArPhysical != 0)
     {
       IRDBRecordset_ptr larTBPos = 
-	pAccessSvc->getRecordsetPtr("LArTBPosition", detectorKey, detectorNode);
+	m_pAccessSvc->getRecordsetPtr("LArTBPosition", detectorKey, detectorNode);
           
       LArG4TBPosOptions *posOptions = NULL;
       StatusCode status = detStore->retrieve(posOptions,"LArG4TBPosOptions");
@@ -245,7 +245,7 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 	//	{CryoXPos = -18.0*cm;}
      
       log << MSG::DEBUG << "TB2003 Cryostat Position is " 
-	  << nickname << endmsg;;
+	  << nickname << endmsg;
       log << MSG::DEBUG << "CryoXPos = "  
 	  << CryoXPos << endmsg;
       
@@ -253,7 +253,7 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
       double CryoXRot = -90.0*deg;
       //double CryoRotateY =  0.0*deg;
       
-      H62003EnvelopePhysical->add( new GeoIdentifierTag( 1 ) );
+      m_H62003EnvelopePhysical->add( new GeoIdentifierTag( 1 ) );
       GeoAlignableTransform  *xf = 
 	new GeoAlignableTransform(Transform3D(
                                               Translate3D(CryoXPos,
@@ -287,8 +287,8 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 	}
       }
       
-      H62003EnvelopePhysical->add(xf);
-      H62003EnvelopePhysical->add(cryoPhys);
+      m_H62003EnvelopePhysical->add(xf);
+      m_H62003EnvelopePhysical->add(cryoPhys);
       NH6EP++;
            
       // Add the bathtub
@@ -384,7 +384,7 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
       // FCAL:
       // See notes in LArGeoFcal
       static FCALConstruction fcalConstruction;
-      fcalConstruction.setFCALVisLimit(_fcalVisLimit);
+      fcalConstruction.setFCALVisLimit(m_fcalVisLimit);
       // Only need one FCal    
       bool isPositive(false); // C side for TB 2003; C side is negative
       GeoVFullPhysVol* fcalEnvelope = fcalConstruction.GetEnvelope(isPositive);
@@ -395,9 +395,9 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 
       // uses LArGeoFcal/FCALConstruction.cxx: */
       IRDBRecordset_ptr fcalMod = 
-	pAccessSvc->getRecordsetPtr("FCalMod", detectorKey,detectorNode);
+	m_pAccessSvc->getRecordsetPtr("FCalMod", detectorKey,detectorNode);
       if (fcalMod->size()==0) {
-	fcalMod=pAccessSvc->getRecordsetPtr("FCalMod", "FCalMod-00");
+	fcalMod=m_pAccessSvc->getRecordsetPtr("FCalMod", "FCalMod-00");
 	if (fcalMod->size()==0) {
 	  throw std::runtime_error("Error getting FCAL Module parameters from database");
 	}
@@ -493,7 +493,7 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 
   // Beam chambers
   IRDBRecordset_ptr ScintGeom = 
-	  pAccessSvc->getRecordsetPtr("LArScintTB",detectorKey, detectorNode); 
+	  m_pAccessSvc->getRecordsetPtr("LArScintTB",detectorKey, detectorNode); 
   // If nothing is in the database, we don't build. 
   if (ScintGeom->size()!=0) {    
 	  
@@ -553,14 +553,14 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 			  new GeoLogVol(ScintName,ScintShape,PStyrene);
 		  GeoPhysVol* ScintPhysical = new GeoPhysVol(ScintLogical);
 		  
-		  H62003EnvelopePhysical->add(new GeoIdentifierTag(1));
-		  H62003EnvelopePhysical->
+		  m_H62003EnvelopePhysical->add(new GeoIdentifierTag(1));
+		  m_H62003EnvelopePhysical->
 			  add(new GeoTransform(Translate3D(v_ScintXPos[i], 
                                                            v_ScintYPos[i], 
                                                            //zside*(trans+v_ScintZPos[i]))));
 												  trans-v_ScintZPos[i])));
-												  H62003EnvelopePhysical->add( new GeoNameTag(ScintName));
-												  H62003EnvelopePhysical->add(ScintPhysical);
+												  m_H62003EnvelopePhysical->add( new GeoNameTag(ScintName));
+												  m_H62003EnvelopePhysical->add(ScintPhysical);
 												  NH6EP++;
       } 
 	  
@@ -638,15 +638,15 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 		  GeoPhysVol* TableScintPhysical = 
 			  new GeoPhysVol( TableScintLogical );
 		  
-		  //	H62003EnvelopePhysical->add( new GeoIdentifierTag( 1 ) );
-		  H62003EnvelopePhysical->
+		  //	m_H62003EnvelopePhysical->add( new GeoIdentifierTag( 1 ) );
+		  m_H62003EnvelopePhysical->
 			  add(new GeoTransform(Translate3D(v_TableScintXPos[i], 
                                                            (tableHeight + 
                                                             v_TableScintYPos[i]), 
                                                            trans -  
                                                            v_TableScintZPos[i])));
-		  H62003EnvelopePhysical->add(new GeoNameTag(TableScintName));
-		  H62003EnvelopePhysical->add(TableScintPhysical);
+		  m_H62003EnvelopePhysical->add(new GeoNameTag(TableScintName));
+		  m_H62003EnvelopePhysical->add(TableScintPhysical);
 		  NH6EP++;
       }
 
@@ -669,12 +669,12 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 	  const GeoLogVol* VetoLog = new GeoLogVol(VetoName, &VetoShape, PStyrene);
 	  GeoPhysVol* VetoPhys = new GeoPhysVol(VetoLog);
 	  
-	  H62003EnvelopePhysical->
+	  m_H62003EnvelopePhysical->
 		  add(new GeoTransform(Translate3D(VetoXPos, 
                                                    tableHeight + VetoYPos, 
                                                    trans-VetoZPos)));
-	  H62003EnvelopePhysical->add( new GeoNameTag(VetoName));
-	  H62003EnvelopePhysical->add(VetoPhys);
+	  m_H62003EnvelopePhysical->add( new GeoNameTag(VetoName));
+	  m_H62003EnvelopePhysical->add(VetoPhys);
 	  NH6EP++;
 	  
 	  // Muon Counter.  Made the same size as the Scintillators for now.
@@ -694,12 +694,12 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 		  new GeoLogVol(MuonCtrName,MuonCtrShape,PStyrene);
 	  GeoPhysVol* MuonCtrPhysical = new GeoPhysVol(MuonCtrLogical);
 	  
-	  H62003EnvelopePhysical->
+	  m_H62003EnvelopePhysical->
 		  add(new GeoTransform(Translate3D(MuonCtrXPos, 
                                                    MuonCtrYPos, 
                                                    trans-MuonCtrZPos)));
-	  H62003EnvelopePhysical->add( new GeoNameTag(MuonCtrName));
-	  H62003EnvelopePhysical->add(MuonCtrPhysical);
+	  m_H62003EnvelopePhysical->add( new GeoNameTag(MuonCtrName));
+	  m_H62003EnvelopePhysical->add(MuonCtrPhysical);
 	  NH6EP++;
 	  
 	  // Tail Catcher
@@ -741,7 +741,7 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 	  GeoSerialDenominator *TCIronName = 
 		  new GeoSerialDenominator(TCIronLogName);
 	  
-	  H62003EnvelopePhysical->add(TCScintName);      
+	  m_H62003EnvelopePhysical->add(TCScintName);      
 	  for(int i = 0; i<6; i++)
       {
 		  GeoPhysVol* TCScintPhysical = new GeoPhysVol(TCScintLogical);
@@ -752,13 +752,13 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
                                                                 (2*i+1)*(TCIronZDim
                                                                          +TCScintZDim)
                                                                 -TCScintZPos));
-		  H62003EnvelopePhysical->add(new GeoNameTag(TCScintLogName));
-		  H62003EnvelopePhysical->add(TCScintTrans);
-		  H62003EnvelopePhysical->add(TCScintPhysical);
+		  m_H62003EnvelopePhysical->add(new GeoNameTag(TCScintLogName));
+		  m_H62003EnvelopePhysical->add(TCScintTrans);
+		  m_H62003EnvelopePhysical->add(TCScintPhysical);
 		  NH6EP++;
       }
     
-	  H62003EnvelopePhysical->add(TCIronName);
+	  m_H62003EnvelopePhysical->add(TCIronName);
 	  for(int i = 0; i<6; i++)
       {
 		  GeoPhysVol* TCIronPhysical = new GeoPhysVol(TCIronLogical);
@@ -768,9 +768,9 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 													   trans+
 													   2*i*(TCScintZDim+TCIronZDim)
 													   -TCIronZPos));
-		  H62003EnvelopePhysical->add(TCIronTrans);
-		  H62003EnvelopePhysical->add(new GeoNameTag(TCIronLogName));
-		  H62003EnvelopePhysical->add(TCIronPhysical);
+		  m_H62003EnvelopePhysical->add(TCIronTrans);
+		  m_H62003EnvelopePhysical->add(new GeoNameTag(TCIronLogName));
+		  m_H62003EnvelopePhysical->add(TCIronPhysical);
 		  NH6EP++;
       }
 	  
@@ -806,13 +806,13 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 		  new GeoLogVol(IronWallName, &IronWallShape, Iron);
 	  GeoPhysVol* IronWallPhysical   = new GeoPhysVol(IronWallLogical);
 	  
-	  H62003EnvelopePhysical->
+	  m_H62003EnvelopePhysical->
 		  add(new GeoTransform(Translate3D(
                                                    IronWallXPos, 
                                                    IronWallYPos, 
                                                    trans-IronWallZPos)));
-	  H62003EnvelopePhysical->add(new GeoNameTag(IronWallName));
-	  H62003EnvelopePhysical->add(IronWallPhysical);
+	  m_H62003EnvelopePhysical->add(new GeoNameTag(IronWallName));
+	  m_H62003EnvelopePhysical->add(IronWallPhysical);
 	  NH6EP++;
 	  
 	  // Concrete Walls behind cryostat.    
@@ -833,12 +833,12 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 		  new GeoLogVol(ConcreteWallAName,ConAShape,Concrete);
 	  GeoPhysVol* ConAPhysical = new GeoPhysVol(ConALogical);
 	  
-	  H62003EnvelopePhysical->
+	  m_H62003EnvelopePhysical->
 		  add(new GeoTransform(Translate3D(ConAXPos,
                                                    ConAYPos, 
                                                    trans-ConAZPos)));
-	  H62003EnvelopePhysical->add(new GeoNameTag(ConcreteWallAName));
-	  H62003EnvelopePhysical->add(ConAPhysical);
+	  m_H62003EnvelopePhysical->add(new GeoNameTag(ConcreteWallAName));
+	  m_H62003EnvelopePhysical->add(ConAPhysical);
 	  NH6EP++;
 	  
 	  std::string ConcreteWallBName = baseName + "::ConcreteWallB"; 
@@ -847,11 +847,11 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 		  new GeoLogVol(ConcreteWallBName, ConBShape, Concrete);
 	  GeoPhysVol* ConBPhysical = new GeoPhysVol(ConBLogical);
 	  
-	  H62003EnvelopePhysical->add(new GeoTransform(Translate3D(ConBXPos,
+	  m_H62003EnvelopePhysical->add(new GeoTransform(Translate3D(ConBXPos,
                                                                    ConBYPos, 
                                                                    trans-ConBZPos)));
-	  H62003EnvelopePhysical->add(new GeoNameTag(ConcreteWallBName));
-	  H62003EnvelopePhysical->add(ConBPhysical);
+	  m_H62003EnvelopePhysical->add(new GeoNameTag(ConcreteWallBName));
+	  m_H62003EnvelopePhysical->add(ConBPhysical);
 	  NH6EP++;
 
 	  //For Debugging: Get x,y,z position of beamline detectors
@@ -859,17 +859,17 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
       { 
 		  log << MSG::DEBUG
 		  << "The beamline material " 
-		  << H62003EnvelopePhysical->getNameOfChildVol(i).c_str() 
+		  << m_H62003EnvelopePhysical->getNameOfChildVol(i).c_str() 
 		  << " is located at: "
 		  << "\n"
 		  << "x =  " 
-		  << H62003EnvelopePhysical->getXToChildVol(i).getTranslation().x()
+		  << m_H62003EnvelopePhysical->getXToChildVol(i).getTranslation().x()
 		  << "\n"
 		  << "y =  " 
-		  << H62003EnvelopePhysical->getXToChildVol(i).getTranslation().y()
+		  << m_H62003EnvelopePhysical->getXToChildVol(i).getTranslation().y()
 		  << "\n"
 		  << "z =  " 
-		  << H62003EnvelopePhysical->getXToChildVol(i).getTranslation().z()
+		  << m_H62003EnvelopePhysical->getXToChildVol(i).getTranslation().z()
 		  << "\n"
 		  << endmsg;
       }
@@ -878,7 +878,7 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
   
   // End beamline detectors
   
-  return H62003EnvelopePhysical;
+  return m_H62003EnvelopePhysical;
 }
 
 void LArGeo::LArDetectorConstructionH62003::createAxis(GeoFullPhysVol* H62003EnvelopePhysical, GeoMaterial* mat)

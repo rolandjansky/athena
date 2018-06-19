@@ -8,7 +8,7 @@ atlas_subdir( TrkEventCnvTools )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          Control/DataModel
+                          Control/AthLinks
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/GeoPrimitives
@@ -31,7 +31,7 @@ atlas_add_component( TrkEventCnvTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps DataModel StoreGateLib SGtests AthenaPoolUtilities GeoPrimitives Identifier GaudiKernel TrkDetDescrUtils TrkSurfaces TrkParametersBase TrkPrepRawData TrkRIO_OnTrack AtlasDetDescr TrkMeasurementBase )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthLinks StoreGateLib SGtests AthenaPoolUtilities GeoPrimitives Identifier GaudiKernel TrkDetDescrUtils TrkSurfaces TrkParametersBase TrkPrepRawData TrkRIO_OnTrack AtlasDetDescr TrkMeasurementBase )
 
 # Install files from the package:
 atlas_install_headers( TrkEventCnvTools )

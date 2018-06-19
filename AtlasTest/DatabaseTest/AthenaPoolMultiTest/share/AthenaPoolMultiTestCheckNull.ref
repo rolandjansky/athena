@@ -23,7 +23,6 @@ FullColl            DEBUG Retrieved IncidentSvc
 FullColl            DEBUG Added MetaDataStop listener
 FullColl            DEBUG  Not class requested by Tool, skipping (40774348,"RunEventTag") 
 FullColl            DEBUG  Not class requested by Tool, skipping (222376821,"*") 
-FullColl            DEBUG Adding cmd key Default
 FullColl            DEBUG End initialize 
 FullColl            DEBUG input handles: 0
 FullColl            DEBUG output handles: 0

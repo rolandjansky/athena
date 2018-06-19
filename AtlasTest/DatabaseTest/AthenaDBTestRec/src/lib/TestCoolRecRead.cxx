@@ -19,17 +19,17 @@
 TestCoolRecRead::TestCoolRecRead(const std::string& name, 
   ISvcLocator* pSvcLocator) :
    AthAlgorithm(name,pSvcLocator),  
-   par_checkmatch(true),par_delay(0),
-   par_dumpchan(0),par_dumpfile("iovdump.txt"),
+   m_par_checkmatch(true),m_par_delay(0),
+   m_par_dumpchan(0),m_par_dumpfile("iovdump.txt"),
    p_detstore(0),m_nbadaux(0),m_dumpf(0)
 {
   declareProperty("Folders",m_folders); 
   declareProperty("FTypes",m_ftypes);
   declareProperty("AuxFiles",m_auxfiles);
-  declareProperty("CheckMatch",par_checkmatch);
-  declareProperty("Delay",par_delay);
-  declareProperty("DumpChannels",par_dumpchan);
-  declareProperty("DumpFile",par_dumpfile);
+  declareProperty("CheckMatch",m_par_checkmatch);
+  declareProperty("Delay",m_par_delay);
+  declareProperty("DumpChannels",m_par_dumpchan);
+  declareProperty("DumpFile",m_par_dumpfile);
 }
 
 TestCoolRecRead::~TestCoolRecRead() {}
@@ -50,12 +50,12 @@ StatusCode TestCoolRecRead::initialize() {
   }
 
   // setup dumpfile if needed
-  if (par_dumpchan!=0) {
-    ATH_MSG_INFO("First " << par_dumpchan << 
-      " channels will be dumped on file " << par_dumpfile << 
+  if (m_par_dumpchan!=0) {
+    ATH_MSG_INFO("First " << m_par_dumpchan << 
+      " channels will be dumped on file " << m_par_dumpfile << 
 		 " for each event");
     // attempt to open output file
-    m_dumpf=new std::ofstream(par_dumpfile.c_str());
+    m_dumpf=new std::ofstream(m_par_dumpfile.c_str());
     if (m_dumpf==0) {
       ATH_MSG_FATAL("Cannot open output file");
     }
@@ -74,14 +74,14 @@ StatusCode TestCoolRecRead::initialize() {
     for (std::vector<const SG::DataProxy*>::const_iterator pitr=
 	 proxylist.begin();pitr!=proxylist.end();++pitr) {
       m_folderlist.push_back(TestCoolRecFolder((*pitr)->name(),3,*pitr,
-					       par_dumpchan,m_dumpf));
+					       m_par_dumpchan,m_dumpf));
     }
   } else {
     // setup list of folders from input
     for (unsigned int i=0;i<m_folders.size();++i) {
       m_folderlist.push_back(TestCoolRecFolder(m_folders[i],
 					       m_ftypes[i],0,
-					       par_dumpchan,m_dumpf));
+					       m_par_dumpchan,m_dumpf));
     }
   }
   for (std::vector<TestCoolRecFolder>::iterator itr=m_folderlist.begin();
@@ -92,8 +92,8 @@ StatusCode TestCoolRecRead::initialize() {
       ATH_MSG_ERROR("Failed to register callback for folder " << 
 		    itr->name());
   }
-  if (par_checkmatch) ATH_MSG_INFO("Conditions data matchup will be checked for consistency");
-  if (par_delay>0) ATH_MSG_INFO("Delay for " << par_delay << 
+  if (m_par_checkmatch) ATH_MSG_INFO("Conditions data matchup will be checked for consistency");
+  if (m_par_delay>0) ATH_MSG_INFO("Delay for " << m_par_delay << 
 				" seconds at end of each event");
 
   if (m_auxfiles.size()>0) m_nbadaux=readAuxFiles();
@@ -124,10 +124,10 @@ StatusCode TestCoolRecRead::execute() {
 	StatusCode::SUCCESS)
       ATH_MSG_ERROR("Retrieve for class folder "+ifolder->name()+" failed");
   }
-  if (par_delay>0) {
-    ATH_MSG_INFO("Delaying for " << par_delay << " seconds");
+  if (m_par_delay>0) {
+    ATH_MSG_INFO("Delaying for " << m_par_delay << " seconds");
     char commstr[32];
-    sprintf(commstr,"sleep %d\n",par_delay);
+    sprintf(commstr,"sleep %d\n",m_par_delay);
     system(commstr);
   }
   return StatusCode::SUCCESS;
@@ -149,7 +149,7 @@ StatusCode TestCoolRecRead::finalize() {
       ATH_MSG_ERROR("Folder " << ifolder->name() << " had " << 
 		    ifolder->nError() << " access errors");
     }
-    if (ifolder->nMisMatch()>0 && par_checkmatch) {
+    if (ifolder->nMisMatch()>0 && m_par_checkmatch) {
       ATH_MSG_ERROR("Folder " << ifolder->name() << " had " <<
 	ifolder->nMisMatch() << " data mismatches");
       ++nmismatchfold;
@@ -161,7 +161,7 @@ StatusCode TestCoolRecRead::finalize() {
   }
   msg(MSG::INFO) << "TestCoolRecReadSummary: "; 
   if (nerrorfold>0 || nemptyfold>0 || m_nbadaux>0 || 
-      (nmismatchfold>0 && par_checkmatch)) {
+      (nmismatchfold>0 && m_par_checkmatch)) {
     msg()  << "BAD (" << nerrorfold << "," << nemptyfold << "," << nmismatchfold
 	  << "," << m_nbadaux << 
        ") error, empty folders, msimatched folders, bad files " << endmsg;

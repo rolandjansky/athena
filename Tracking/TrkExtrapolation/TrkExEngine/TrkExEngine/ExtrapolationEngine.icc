@@ -48,7 +48,7 @@ template <class T> Trk::ExtrapolationCode Trk::ExtrapolationEngine::extrapolateT
                                                           
 template <class T> Trk::ExtrapolationCode Trk::ExtrapolationEngine::initNavigation(Trk::ExtrapolationCell<T>& eCell,
                                                                                    const Trk::Surface* sf,
-                                                                                   Trk::PropDirection dir) const throw (GaudiException)
+                                                                                   Trk::PropDirection dir) const
 {
     // initialize the Navigation stream ----------------------------------------------------------------------------------------
     //

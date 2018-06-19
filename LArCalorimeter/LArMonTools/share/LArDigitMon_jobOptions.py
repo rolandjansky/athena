@@ -48,11 +48,7 @@ theLArDigitMon = LArDigitMon(name="LArDigitMon",
                              Streams = StreamsToMonitor
                              )
 
-from AthenaCommon.BeamFlags import jobproperties
-if jobproperties.Global.DataSource.get_Value() == 'data':
-    theLArDigitMon.LArPedestalKey='Pedestal'
-else:
-    theLArDigitMon.LArPedestalKey='LArPedestal'
+theLArDigitMon.LArPedestalKey='LArPedestal'
                 
 
 ToolSvc += theLArDigitMon

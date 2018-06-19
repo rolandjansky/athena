@@ -40,7 +40,6 @@ class IdDictManager;
  */
 
 class IdDictDetDescrCnv: public DetDescrConverter {
-    friend class CnvFactory<IdDictDetDescrCnv>;
 
 public:
     virtual long int   repSvcType() const;
@@ -52,7 +51,6 @@ public:
     static long int     storageType();
     static const CLID&  classID();
 
-protected:
     IdDictDetDescrCnv(ISvcLocator* svcloc);
 
 private:
@@ -82,10 +80,6 @@ private:
     /// Create and (re)initialize the IdDictManager - only create the
     /// first time
     StatusCode parseXMLDescription();
-
-    /// We hold on to the manager to be able to reinitialize it if the
-    /// dictionary changes
-    IdDictManager* m_dictMgr;
 
     /// The xml parser for the dictionary descriptions
     IdDictParser*  m_parser;

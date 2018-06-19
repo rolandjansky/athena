@@ -8,8 +8,6 @@
    i.e. position, surface, weights, intersection, derivatives, residual etc
  ***************************************************************************/
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -38,8 +36,6 @@
 
 namespace Trk{
   
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-
 // MeasurementBase
 FitMeasurement::FitMeasurement (int		       	hitIndex,
 				HitOnTrack*		hitOnTrack,
@@ -1016,8 +1012,6 @@ FitMeasurement::~FitMeasurement (void)
 	&& ! m_measurementBase)	delete m_surface;
     if (m_materialEffects && m_materialEffectsOwner) delete m_materialEffects;
 }
-
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 void
 FitMeasurement::intersection (ExtrapolationType type,

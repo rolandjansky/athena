@@ -90,7 +90,7 @@ namespace CP {
   private:
 
     /// Get the charge flip rate rate given pt, eta, histogram
-    float getChargeFlipRate( double eta, double pt, TH2D *hrates, double& flipRate) const;
+    float getChargeFlipRate( double eta, double pt, TH2 *hrates, double& flipRate) const;
 
     /// Get the charge of the original electron
     CP::CorrectionCode getEleTruthCharge( const xAOD::Electron& ele, int& truthcharge) const;
@@ -106,8 +106,8 @@ namespace CP {
     std::string m_eventInfoCollectionName;
 
     /// Histogram that holds the correction rates for Monte Carlo
-    std::map<std::string, std::vector<TH2D*> > m_SF_SS;     // keys (e.g. RunNumber223333_319200_Nvtx0_10_Phi1.5_1.6) mapping to vector of SF histograms --> vector m_SF: 0=nominal, 1=stat, 2,3,4...n=syst
-    std::map<std::string, std::vector<TH2D*> > m_SF_OS;     // keys (e.g. RunNumber223333_319200_Nvtx0_10_Phi1.5_1.6) mapping to vector of SF histograms --> vector m_SF: 0=nominal, 1=stat, 2,3,4...n=syst
+    std::map<std::string, std::vector<TH2*> > m_SF_SS;     // keys (e.g. RunNumber223333_319200_Nvtx0_10_Phi1.5_1.6) mapping to vector of SF histograms --> vector m_SF: 0=nominal, 1=stat, 2,3,4...n=syst
+    std::map<std::string, std::vector<TH2*> > m_SF_OS;     // keys (e.g. RunNumber223333_319200_Nvtx0_10_Phi1.5_1.6) mapping to vector of SF histograms --> vector m_SF: 0=nominal, 1=stat, 2,3,4...n=syst
 
     //cuts // further variables to bin in
     std::vector<unsigned int> m_RunNumbers;

@@ -25,7 +25,6 @@ namespace DerivationFramework {
     m_sgName(""),
     m_containerName(""),
     m_sctId(0),  
-    m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc",name),
     m_cabling("SCT_CablingSvc",name)
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
@@ -51,6 +50,8 @@ namespace DerivationFramework {
       return StatusCode::FAILURE; 
     } 
 
+    CHECK ( m_byteStreamErrTool.retrieve() );
+
     return StatusCode::SUCCESS;
   }
 
@@ -66,8 +67,6 @@ namespace DerivationFramework {
     const xAOD::EventInfo* eventInfo;
     CHECK( evtStore()->retrieve( eventInfo, m_containerName ) );
 
-    CHECK ( m_byteStreamErrSvc.retrieve() );
-
     std::vector<int> scterr_Ntot;
     std::vector<int> scterr_bec;
     std::vector<int> scterr_layer;
@@ -81,7 +80,7 @@ namespace DerivationFramework {
 
     // fill BS error information
     for (int n_type=0; n_type < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++n_type) {
-      const std::set<IdentifierHash>* errorSet = m_byteStreamErrSvc->getErrorSet(n_type);
+      const std::set<IdentifierHash>* errorSet = m_byteStreamErrTool->getErrorSet(n_type);
       if (errorSet != 0) {
         int eta=0,phi=0,bec=0,layer=0,side=0;
         std::set<IdentifierHash>::const_iterator it = errorSet->begin();

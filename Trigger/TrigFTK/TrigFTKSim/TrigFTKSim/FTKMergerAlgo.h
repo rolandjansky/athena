@@ -105,7 +105,6 @@ private:
   std::string m_ftrtrack_tomerge_bfname;
   std::string m_ftkroad_tomerge_bfname;
   int m_MergeRegion;
-  unsigned int m_nStreamsToMerge;
   TTree ***m_ftktrack_tomerge_tree;  
   TFile ***m_ftktrack_tomerge_file;
   TBranch ***m_ftktrack_tomerge_branch;
@@ -115,7 +114,6 @@ private:
   std::string m_ftktrack_mergeFileRoot;
 
   TBranch ***m_ftkroad_tomerge_branch;
-  FTKTrackStream ***m_ftkroad_tomerge_stream;
   std::string m_ftkroad_mergeoutput;
   std::string m_ftkroad_mergeInputPath;
   std::string m_ftkroad_mergeFileRoot;
@@ -136,7 +134,6 @@ private:
   std::vector< std::string > m_ftktrack_paths_merged;
   // chain  of ftk merged tracks
   TChain *m_mergedtracks_chain;
-  TTree *m_mergedtracks_tree;
   // streams with the merged tracks;
   FTKTrackStream *m_mergedtracks_stream;
   FTKRoadStream ***m_srbanks; // old roads
@@ -235,7 +232,6 @@ private:
 
   std::string                  m_out_trackPC_Name;
   Rec::TrackParticleContainer*      m_out_trackPC;
-  const VxContainer*                m_primcontainer;
   std::string m_vxCandidatesPrimaryName;
 
   std::vector< std::string > m_truthFileNames; // if not blank, vector of paths of files with truth info in it, to store in output
@@ -244,7 +240,6 @@ private:
   std::string m_offlineTreeName; // if not = "", name of offline tree, to store in output
   int m_saveTruthTree;
   std::string                  m_out_convTrackPC_Name;
-  Rec::TrackParticleContainer*      m_out_convTrackPC;
 
   // map containing for each event the entry where the tracks 
   // found by the FTK (the event number is used as a key to 

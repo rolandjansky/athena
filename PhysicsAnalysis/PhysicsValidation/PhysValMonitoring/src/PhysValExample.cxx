@@ -231,8 +231,8 @@ namespace PhysVal {
 	return StatusCode::SUCCESS;
       }
       
-      bool m_recoInclPers(true);
-      if (m_recoInclPers) {
+      bool recoInclPers(true);
+      if (recoInclPers) {
 	if ((*recTiming).size() > 0) 
 	  recoTime=*((*recTiming).rbegin());
       } else {

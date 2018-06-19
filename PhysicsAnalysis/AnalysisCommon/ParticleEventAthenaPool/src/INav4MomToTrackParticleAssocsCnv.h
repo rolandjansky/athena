@@ -39,14 +39,16 @@ class INav4MomToTrackParticleAssocsCnv
   // make the factory for this converter our friend
   friend class CnvFactory<INav4MomToTrackParticleAssocsCnv>;
 
+public:
+  /** Create the converter from the service locator
+   */
+  INav4MomToTrackParticleAssocsCnv(ISvcLocator* svcloc);
+
   /////////////////////////////////////////////////////////////////// 
   // Protected methods: 
   /////////////////////////////////////////////////////////////////// 
  protected:
 
-  /** Create the converter from the service locator
-   */
-  INav4MomToTrackParticleAssocsCnv(ISvcLocator* svcloc);
 
   /** Build the persistent representation from the transient one.
    */

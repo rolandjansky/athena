@@ -22,8 +22,8 @@ public:
 	
  private:
     
-    int  _fcalVisLimit;
-    bool _axisVisState;
+    int  m_fcalVisLimit;
+    bool m_axisVisState;
 };
 
 #endif 

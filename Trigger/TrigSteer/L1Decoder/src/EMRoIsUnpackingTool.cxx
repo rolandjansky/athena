@@ -99,10 +99,13 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
       ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord << MSG::dec );      
 
       auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput.get() );
-      
+
+      std::vector<unsigned> passedThresholdIDs;
       for ( auto th: m_emThresholds ) {
+	
 	ATH_MSG_VERBOSE( "Checking if the threshold " << th->name() << " passed" );
 	if ( recRoI->passedThreshold( th->thresholdNumber() ) ) {
+	  passedThresholdIDs.push_back( HLT::Identifier( th->name() ) );
 	  ATH_MSG_DEBUG( "Passed Threshold name " << th->name() );
 	  addChainsToDecision( HLT::Identifier( th->name() ), decision, activeChains );
 	  ATH_MSG_DEBUG( "Labeled object with chains: " << [&](){ 
@@ -111,9 +114,7 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
 	      return std::vector<TrigCompositeUtils::DecisionID>( ids.begin(), ids.end() ); }() );
 	}
       }
-      
-
-      // TODO would be nice to have this. Requires modifying the TC class: decision->setDetail( "Thresholds", passedThresholds ); // record passing threshold names ( for easy debugging )            
+      decision->setDetail( "thresholds", passedThresholdIDs );
       decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
       decision->setObjectLink( "initialRecRoI", ElementLink<DataVector<LVL1::RecEmTauRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
     }     
@@ -121,6 +122,7 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
   for ( auto roi: *trigRoIs ) {
     ATH_MSG_DEBUG( "RoI Eta: " << roi->eta() << " Phi: " << roi->phi() << " RoIWord: " << roi->roiWord() );
   }
+
   // monitoring
   {
     using namespace Monitored;

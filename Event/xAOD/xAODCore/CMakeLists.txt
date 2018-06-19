@@ -22,6 +22,7 @@ atlas_depends_on_subdirs(
    Control/AthContainersInterfaces
    Control/AthLinks
    Control/CxxUtils
+   AtlasTest/TestTools
    ${extra_deps} )
 
 # External dependencies:
@@ -74,6 +75,10 @@ atlas_add_test( ut_xaodcore_safedeepcopy_test
 
 atlas_add_test( ut_xaodcore_auxcontainerbase_test
    SOURCES test/ut_xaodcore_auxcontainerbase_test.cxx
+   LINK_LIBRARIES AthContainers xAODCore )
+
+atlas_add_test( ut_xaodcore_auxinfobase_test
+   SOURCES test/ut_xaodcore_auxinfobase_test.cxx
    LINK_LIBRARIES AthContainers xAODCore )
 
 if( XAOD_STANDALONE )

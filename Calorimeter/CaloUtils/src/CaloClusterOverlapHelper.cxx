@@ -2,11 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CaloUtils/CaloClusterOverlapHelper.h"
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/IMessageSvc.h"
 #include <iostream>
 
-//#include "FourMomUtils/P4Helpers.h"
-
-#include "CaloUtils/CaloClusterOverlapHelper.h"
 using xAOD::CaloCluster;
 
 bool CaloClusterOverlapHelper::getOverlap(const CaloCluster* pClus1,
@@ -165,4 +167,15 @@ bool CaloClusterOverlapHelper::isNear(const CaloCluster* pClus1,
 {
   //return P4Helpers::deltaR(pClus1,pClus2) < deltaR;
   return pClus1->p4().DeltaR(pClus2->p4()) < deltaR;
+}
+
+void CaloClusterOverlapHelper::warnMoment (const char* name)
+{
+  IMessageSvc* theMsgSvc = nullptr;
+  if (Gaudi::svcLocator()->service("MessageSvc",theMsgSvc).isFailure()) {
+    std::cout <<  "Cannot locate MessageSvc" << std::endl;
+  }
+
+  MsgStream msg (theMsgSvc, "CaloClusterOverlapHelper");
+  msg << MSG::WARNING << "Cannot find cluster moment " << name << endmsg;
 }

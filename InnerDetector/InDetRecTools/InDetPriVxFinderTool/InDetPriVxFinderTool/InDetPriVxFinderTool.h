@@ -119,7 +119,6 @@ private:
     ToolHandle < InDet::IMultiPVSeedFinder > m_iPriVxSeedFinder;
     ToolHandle < Trk::IVertexFitter > m_iVertexFitter;
     ToolHandle< InDet::IInDetTrackSelectionTool > m_trkFilter;
-    ToolHandle< Trk::IVxCandidateXAODVertex > m_VertexEdmFactory;
 
     ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; //!< pointer to the beam condition service
     

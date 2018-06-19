@@ -15,29 +15,18 @@ namespace xAOD {
     TruthParticlesInConeTool::TruthParticlesInConeTool (const std::string& type, const std::string& name, const IInterface* parent)
         :	AthAlgTool(type, name, parent){
         declareInterface<ITruthParticlesInConeTool>(this);
-        declareProperty("TruthParticleLocation",m_truthParticleLocation = "TruthParticles");
     }
 
     TruthParticlesInConeTool::~TruthParticlesInConeTool(){
     }
 
     StatusCode TruthParticlesInConeTool::initialize() {
+        ATH_CHECK(m_truthParticleLocation.initialize());
         return StatusCode::SUCCESS;
     }
 
     StatusCode TruthParticlesInConeTool::finalize() {
         return StatusCode::SUCCESS;
-    }
-
-    const TruthParticleContainer* TruthParticlesInConeTool::retrieveTruthParticleContainer() const {
-        const TruthParticleContainer* truthParticles = 0;
-        if(evtStore()->contains<TruthParticleContainer>(m_truthParticleLocation)) {
-            if(evtStore()->retrieve(truthParticles,m_truthParticleLocation).isFailure()) {
-                ATH_MSG_FATAL( "Unable to retrieve " << m_truthParticleLocation );
-                return 0;
-            }
-        }
-        return truthParticles;
     }
 
     const TruthParticlesInConeTool::LookUpTable* TruthParticlesInConeTool::getTable() const{
@@ -46,8 +35,12 @@ namespace xAOD {
         if (rh.isValid()){
             return &*rh;
         }
-        const TruthParticleContainer* truthParticles = retrieveTruthParticleContainer();
-        if( !truthParticles ) {return nullptr;}
+	SG::ReadHandle<TruthParticleContainer> truthParticles(m_truthParticleLocation);
+        if( !truthParticles.isValid() ) {
+	  ATH_MSG_ERROR("Could not open a TruthParticle container with key " << 
+			m_truthParticleLocation.key());
+	  return nullptr;
+	}
         auto lut = std::make_unique<LookUpTable>();
         lut->init(*truthParticles);
         SG::WriteHandle<LookUpTable> wh (tableName);

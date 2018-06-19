@@ -1,1 +1,1 @@
-__all__=[ 'ComponentAccumulator', ]
+__all__=[ 'ComponentAccumulator', 'ConfigFlags']

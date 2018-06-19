@@ -45,7 +45,7 @@ class CaloClusterCellLink;
    @author C. Anastopoulos
 */
 
-class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
+class EMClusterTool : public AthAlgTool, virtual public IEMClusterTool {
 
  public:
 

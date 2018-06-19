@@ -4,7 +4,6 @@
 
 #include "HiveTool.h"
 
-#include "GaudiKernel/SvcFactory.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 

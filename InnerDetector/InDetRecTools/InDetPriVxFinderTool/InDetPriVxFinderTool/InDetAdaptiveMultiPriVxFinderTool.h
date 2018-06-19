@@ -154,7 +154,6 @@ namespace InDet
     ToolHandle< Trk::AdaptiveMultiVertexFitter > m_MultiVertexFitter;
     ToolHandle< Trk::IVertexSeedFinder > m_SeedFinder;
     ToolHandle< InDet::IInDetTrackSelectionTool > m_trkFilter;
-    ToolHandle< Trk::IVxCandidateXAODVertex > m_VertexEdmFactory;
 
     ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; //!< pointer to the beam condition service
 
@@ -293,6 +292,11 @@ namespace InDet
    
    double estimateDeltaZ(const Trk::TrackParameters& myPerigee, const Amg::Vector3D& myTransvVertex);
 
+   /**
+    * Clean decorator data from a vertex candidate (to avoid memory leaks) and then delete it and set to zero
+    */
+   
+   void releaseCandidate(xAOD::Vertex*& candidate);
    
 
  };//end of class

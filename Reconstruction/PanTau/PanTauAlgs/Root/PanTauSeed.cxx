@@ -153,7 +153,7 @@ double PanTau::PanTauSeed2::rapidity() const {
   return p4().Rapidity(); 
 }
 
-const PanTau::PanTauSeed2::FourMom_t& PanTau::PanTauSeed2::p4() const {
+PanTau::PanTauSeed2::FourMom_t PanTau::PanTauSeed2::p4() const {
   if( ! m_p4Cached ) {
     m_p4.SetPtEtaPhiM( pt(), eta(), phi(),m()); 
     m_p4Cached=true;

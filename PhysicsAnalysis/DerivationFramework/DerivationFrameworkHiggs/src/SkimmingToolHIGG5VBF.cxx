@@ -105,7 +105,7 @@ bool DerivationFramework::SkimmingToolHIGG5VBF::eventPassesFilter() const
   m_goodCentralJets.clear();
   
   const xAOD::JetContainer *jets(0); 
-  ATH_CHECK(evtStore()->retrieve(jets, m_jetSGKey));
+  ATH_CHECK(evtStore()->retrieve(jets, m_jetSGKey), false);
   xAOD::JetContainer::const_iterator jet_itr(jets->begin());
   xAOD::JetContainer::const_iterator jet_end(jets->end());
   for(; jet_itr != jet_end; ++jet_itr) {
@@ -133,7 +133,7 @@ bool DerivationFramework::SkimmingToolHIGG5VBF::eventPassesFilter() const
   double maxPhPt=0.;
   if(m_reqPh){
     const xAOD::PhotonContainer *phots(0);
-    ATH_CHECK(evtStore()->retrieve(phots, m_phSGKey));
+    ATH_CHECK(evtStore()->retrieve(phots, m_phSGKey), false);
     for (const auto* ph : *phots){
       if(abs(ph->eta())<m_centralPhEtaCut)
 	if(ph->pt()>maxPhPt) maxPhPt = ph->pt();

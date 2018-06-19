@@ -1,7 +1,7 @@
 #ifndef TRIGT1CAL_JEMRoICOLLECTION_H
 #define TRIGT1CAL_JEMRoICOLLECTION_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrigT1CaloEvent/JEMRoI.h"
 
 /** Container class for JEMRoIs */

@@ -25,8 +25,8 @@ public:
   QString lastInputDir;
 };
 
-VP1PartSpectController::Imp::Imp(VP1PartSpectController* _theclass)
-  :theclass(_theclass)
+VP1PartSpectController::Imp::Imp(VP1PartSpectController* the_class)
+  :theclass(the_class)
   ,last_particleType(VP1PartSpect::Neutron)
   ,lastInputDir(VP1Settings::defaultFileSelectDirectory())
 {
@@ -38,30 +38,30 @@ VP1PartSpectController::Imp::~Imp()
 
 VP1PartSpectController::VP1PartSpectController(IVP1System* sys)
   :VP1Controller(sys,"PartSpectController")
-  ,d(new Imp(this))
+  ,m_d(new Imp(this))
 {
-  d->theclass = this;
-  d->ui.setupUi(this);
+  m_d->theclass = this;
+  m_d->ui.setupUi(this);
 
-  d->ui.lblFileName->setText("...");
-  connect(d->ui.pbtnOpenFile, SIGNAL(clicked()), this, SLOT(openFile()));
+  m_d->ui.lblFileName->setText("...");
+  connect(m_d->ui.pbtnOpenFile, SIGNAL(clicked()), this, SLOT(openFile()));
 
-  connect(d->ui.rbtnBaryon, SIGNAL(toggled(bool)), this, SLOT(particleType()));
-  connect(d->ui.rbtnE, SIGNAL(toggled(bool)), this, SLOT(particleType()));
-  connect(d->ui.rbtnGamma, SIGNAL(toggled(bool)), this, SLOT(particleType()));
-  connect(d->ui.rbtnLepton, SIGNAL(toggled(bool)), this, SLOT(particleType()));
-  connect(d->ui.rbtnMeson, SIGNAL(toggled(bool)), this, SLOT(particleType()));
-  connect(d->ui.rbtnNeutron, SIGNAL(toggled(bool)), this, SLOT(particleType()));
-  connect(d->ui.rbtnNucleus, SIGNAL(toggled(bool)), this, SLOT(particleType()));
-  connect(d->ui.rbtnPi, SIGNAL(toggled(bool)), this, SLOT(particleType()));
-  connect(d->ui.rbtnProton, SIGNAL(toggled(bool)), this, SLOT(particleType()));
-  d->ui.rbtnNeutron->setChecked(true);
-  d->last_particleType = VP1PartSpect::Neutron;
+  connect(m_d->ui.rbtnBaryon, SIGNAL(toggled(bool)), this, SLOT(particleType()));
+  connect(m_d->ui.rbtnE, SIGNAL(toggled(bool)), this, SLOT(particleType()));
+  connect(m_d->ui.rbtnGamma, SIGNAL(toggled(bool)), this, SLOT(particleType()));
+  connect(m_d->ui.rbtnLepton, SIGNAL(toggled(bool)), this, SLOT(particleType()));
+  connect(m_d->ui.rbtnMeson, SIGNAL(toggled(bool)), this, SLOT(particleType()));
+  connect(m_d->ui.rbtnNeutron, SIGNAL(toggled(bool)), this, SLOT(particleType()));
+  connect(m_d->ui.rbtnNucleus, SIGNAL(toggled(bool)), this, SLOT(particleType()));
+  connect(m_d->ui.rbtnPi, SIGNAL(toggled(bool)), this, SLOT(particleType()));
+  connect(m_d->ui.rbtnProton, SIGNAL(toggled(bool)), this, SLOT(particleType()));
+  m_d->ui.rbtnNeutron->setChecked(true);
+  m_d->last_particleType = VP1PartSpect::Neutron;
 }
 
 VP1PartSpectController::~VP1PartSpectController()
 {
-  delete d;
+  delete m_d;
 }
 
 void VP1PartSpectController::actualRestoreSettings(VP1Deserialise& s)
@@ -71,15 +71,15 @@ void VP1PartSpectController::actualRestoreSettings(VP1Deserialise& s)
     return;
   }
 
-  s.restore(d->ui.rbtnBaryon
-	    ,d->ui.rbtnE
-	    ,d->ui.rbtnGamma
-	    ,d->ui.rbtnLepton
-	    ,d->ui.rbtnMeson
-	    ,d->ui.rbtnNeutron
-	    ,d->ui.rbtnNucleus
-	    ,d->ui.rbtnPi
-	    ,d->ui.rbtnProton);
+  s.restore(m_d->ui.rbtnBaryon
+	    ,m_d->ui.rbtnE
+	    ,m_d->ui.rbtnGamma
+	    ,m_d->ui.rbtnLepton
+	    ,m_d->ui.rbtnMeson
+	    ,m_d->ui.rbtnNeutron
+	    ,m_d->ui.rbtnNucleus
+	    ,m_d->ui.rbtnPi
+	    ,m_d->ui.rbtnProton);
   particleType();
 }
 
@@ -91,65 +91,65 @@ int VP1PartSpectController::currentSettingsVersion() const
 
 void VP1PartSpectController::actualSaveSettings(VP1Serialise& s) const
 {
-  s.save(d->ui.rbtnBaryon
-	 ,d->ui.rbtnE
-	 ,d->ui.rbtnGamma
-	 ,d->ui.rbtnLepton
-	 ,d->ui.rbtnMeson
-	 ,d->ui.rbtnNeutron
-	 ,d->ui.rbtnNucleus
-	 ,d->ui.rbtnPi
-	 ,d->ui.rbtnProton);
+  s.save(m_d->ui.rbtnBaryon
+	 ,m_d->ui.rbtnE
+	 ,m_d->ui.rbtnGamma
+	 ,m_d->ui.rbtnLepton
+	 ,m_d->ui.rbtnMeson
+	 ,m_d->ui.rbtnNeutron
+	 ,m_d->ui.rbtnNucleus
+	 ,m_d->ui.rbtnPi
+	 ,m_d->ui.rbtnProton);
 }
 
 VP1PartSpect::ParticleType VP1PartSpectController::getParticleType()
 {
-  return d->last_particleType;
+  return m_d->last_particleType;
 }
 
 void VP1PartSpectController::openFile()
 {
   QString fileName = QFileDialog::getOpenFileName(NULL
 						  ,tr("Open File")
-						  ,d->lastInputDir
+						  ,m_d->lastInputDir
 						  ,tr("Root files (*.root)"));
   if(!fileName.isEmpty()) {
     QFileInfo fileInfo(fileName);
-    d->ui.lblFileName->setText(fileInfo.fileName());
+    m_d->ui.lblFileName->setText(fileInfo.fileName());
     fileUpdated(fileName);
-    d->lastInputDir = fileInfo.absolutePath();
+    m_d->lastInputDir = fileInfo.absolutePath();
   }
 }
 
 void VP1PartSpectController::particleType()
 {
-  if(d->ui.rbtnBaryon->isChecked()) {
+  if(m_d->ui.rbtnBaryon->isChecked()) {
     particleTypeChanged(VP1PartSpect::Baryon);
-    d->last_particleType = VP1PartSpect::Baryon;
-  } else if(d->ui.rbtnE->isChecked()) {
+    m_d->last_particleType = VP1PartSpect::Baryon;
+  } else if(m_d->ui.rbtnE->isChecked()) {
     particleTypeChanged(VP1PartSpect::E);
-    d->last_particleType = VP1PartSpect::E;
-  } else if(d->ui.rbtnGamma->isChecked()) {
+    m_d->last_particleType = VP1PartSpect::E;
+  } else if(m_d->ui.rbtnGamma->isChecked()) {
     particleTypeChanged(VP1PartSpect::Gamma);
-    d->last_particleType = VP1PartSpect::Gamma;
-  }else if(d->ui.rbtnLepton->isChecked()) {
+    m_d->last_particleType = VP1PartSpect::Gamma;
+  }else if(m_d->ui.rbtnLepton->isChecked()) {
     particleTypeChanged(VP1PartSpect::Lepton);
-    d->last_particleType = VP1PartSpect::Lepton;
-  }else if(d->ui.rbtnMeson->isChecked()) {
+    m_d->last_particleType = VP1PartSpect::Lepton;
+  }else if(m_d->ui.rbtnMeson->isChecked()) {
     particleTypeChanged(VP1PartSpect::Meson);
-    d->last_particleType = VP1PartSpect::Meson;
-  }else if(d->ui.rbtnNeutron->isChecked()) {
+    m_d->last_particleType = VP1PartSpect::Meson;
+  }else if(m_d->ui.rbtnNeutron->isChecked()) {
     particleTypeChanged(VP1PartSpect::Neutron);
-    d->last_particleType = VP1PartSpect::Neutron;
-  }else if(d->ui.rbtnNucleus->isChecked()) {
+    m_d->last_particleType = VP1PartSpect::Neutron;
+  }else if(m_d->ui.rbtnNucleus->isChecked()) {
     particleTypeChanged(VP1PartSpect::Nucleus);
-    d->last_particleType = VP1PartSpect::Nucleus;
-  }else if(d->ui.rbtnPi->isChecked()) {
+    m_d->last_particleType = VP1PartSpect::Nucleus;
+  }else if(m_d->ui.rbtnPi->isChecked()) {
     particleTypeChanged(VP1PartSpect::Pi);
-    d->last_particleType = VP1PartSpect::Pi;
-  }else { // if(d->ui.rbtnProton->isChecked()) {
+    m_d->last_particleType = VP1PartSpect::Pi;
+  }else { // if(m_d->ui.rbtnProton->isChecked()) {
     particleTypeChanged(VP1PartSpect::Proton);
-    d->last_particleType = VP1PartSpect::Proton;
+    m_d->last_particleType = VP1PartSpect::Proton;
   }
 }
 

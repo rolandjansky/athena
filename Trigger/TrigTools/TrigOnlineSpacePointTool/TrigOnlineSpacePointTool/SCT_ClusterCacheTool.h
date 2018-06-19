@@ -14,7 +14,6 @@
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "SiClusterizationTool/ISCT_ClusteringTool.h"
 
-#include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
 #include "TrigOnlineSpacePointTool/FastSCT_RodDecoder.h"
 #include "Identifier/IdContext.h" 
 #include "InDetReadoutGeometry/SiDetectorManager.h"
@@ -52,20 +51,20 @@ private:
 
   ISCT_CablingSvc* m_cablingSvc;
 
-  const InDetDD::SCT_DetectorManager * p_indet_mgr;
+  const InDetDD::SCT_DetectorManager * m_indet_mgr;
   const SCT_ID* m_sct_id;
   std::string m_containerName;
   IdContext m_cntx_sct;
 
-  FastSCT_RodDecoder* m_decoder;
+  ToolHandle<FastSCT_RodDecoder> m_decoder{this, "FastSCT_RodDecoder", "FastSCT_RodDecoder", "Fast SCT ROD decoder"};
   ToolHandle<ISCT_RodDecoder> m_offlineDecoder;
   bool m_useOfflineDecoder;
   bool m_useOfflineClustering;
-  ServiceHandle<ISCT_ByteStreamErrorsSvc> m_byteStreamErrSvc;
   ToolHandle<InDet::ISCT_ClusteringTool> m_clusteringTool;
   SCT_RDO_Container* m_rdoContainer;
   std::string m_rdoContainerName;
-
+  std::string m_bsErrContainerName;
+  std::string m_bsFracContainerName;
   bool m_doBS;
 
 #define SCT_CL_CACHE_NTIMERS 5

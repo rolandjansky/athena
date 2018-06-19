@@ -49,7 +49,7 @@ private:
   std::unique_ptr<IDistanceProvider> m_distanceProvider;
   double m_matchCut;
    /** This stores the parameters to vary DR cut with Pt */
-  float m_drcut_par[8][3];
+  float m_drcut_par[9][3];
 
   /** This sets the parameters in the above array */
   void setDRParameters();
@@ -159,7 +159,7 @@ template<class ClusterType>
   if (std::abs(clusEta)>=0.6 && std::abs(clusEta)<1.6) ieta = 1 + int((std::abs(clusEta) - 0.6)/0.2) ;
   if (std::abs(clusEta)>=1.6 && std::abs(clusEta)<2.0) ieta = 6 ;
   if (std::abs(clusEta)>=2.0 && std::abs(clusEta)<2.5) ieta = 7 ;
-  if (std::abs(clusEta)>=2.5) ieta = 7 ; 
+  if (std::abs(clusEta)>=2.5) ieta = 8 ; 
 
   double clusterEnergy = theCluster->e()/1000.0;
 

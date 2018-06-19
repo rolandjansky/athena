@@ -32,6 +32,7 @@ public: // Non-static members
    ByteStreamMetadata_p1& operator=(const ByteStreamMetadata_p1& rhs);
 
 friend class ByteStreamMetadataCnv_p1;
+friend class PoolFilePeeker;
 
 private:
    unsigned int m_runNumber;

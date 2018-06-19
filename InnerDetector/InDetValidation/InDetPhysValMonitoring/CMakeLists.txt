@@ -22,6 +22,8 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthToolSupport/AsgTools
                           Control/AthenaKernel
+                          Control/AthContainers
+                          Control/StoreGate
                           DetectorDescription/GeoPrimitives
                           Event/EventPrimitives
                           Event/xAOD/xAODBase
@@ -54,7 +56,8 @@ atlas_add_library( InDetPhysValMonitoringLib
                    AthenaBaseComps AthenaMonitoringLib AtlasDetDescr xAODTracking xAODTruth GaudiKernel InDetIdentifier InDetReadoutGeometry
                    InDetTrackSelectionToolLib PATCoreLib TrkValHistUtils
                    PRIVATE_LINK_LIBRARIES AsgTools AthenaKernel GeoPrimitives EventPrimitives 
-                   xAODBase xAODEventInfo xAODJet InDetPrepRawData InDetRIO_OnTrack 
+                   xAODBase xAODEventInfo xAODJet InDetPrepRawData InDetRIO_OnTrack
+                   AthContainers StoreGateLib
                    MCTruthClassifierLib PathResolver TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces )
 
 atlas_add_component( InDetPhysValMonitoring

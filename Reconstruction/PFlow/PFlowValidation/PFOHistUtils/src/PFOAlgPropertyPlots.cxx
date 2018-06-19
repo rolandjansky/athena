@@ -13,17 +13,17 @@ namespace PFO {
 
   void PFOAlgPropertyPlots::initializePlots(){
 
-    m_PFO_isInDenseEnvironment = Book1D("PFO_isInDenseEnvironment",m_sPFOContainerName+"PFO_isInDenseEnvironment",3,-1,2);
-    m_PFO_tracksExpectedEnergyDeposit = Book1D("PFO_tracksExpectedEnergyDeposit",m_sPFOContainerName+"PFO_tracksExpectedEnergyDeposit",11,-1,10);
+    m_PFO_isInDenseEnvironment = Book1D("_isInDenseEnvironment",m_sPFOContainerName+"_isInDenseEnvironment",3,-1,2);
+    m_PFO_tracksExpectedEnergyDeposit = Book1D("_tracksExpectedEnergyDeposit",m_sPFOContainerName+"_tracksExpectedEnergyDeposit",11,-1,10);
 
-    m_PFO_isInDenseEnvironment_etaBinA = Book1D("PFO_isInDenseEnvironment_binA",m_sPFOContainerName+"PFO_isInDenseEnvironment (|eta| < 1)",3,-1,2);
-    m_PFO_tracksExpectedEnergyDeposit_etaBinA = Book1D("PFO_tracksExpectedEnergyDeposit_binA)",m_sPFOContainerName+"PFO_tracksExpectedEnergyDeposit (|eta| < 1)",11,-1,10);
+    m_PFO_isInDenseEnvironment_etaBinA = Book1D("_isInDenseEnvironment_binA",m_sPFOContainerName+"_isInDenseEnvironment (|eta| < 1)",3,-1,2);
+    m_PFO_tracksExpectedEnergyDeposit_etaBinA = Book1D("_tracksExpectedEnergyDeposit_binA)",m_sPFOContainerName+"_tracksExpectedEnergyDeposit (|eta| < 1)",11,-1,10);
 
-    m_PFO_isInDenseEnvironment_etaBinB = Book1D("PFO_isInDenseEnvironment_binB",m_sPFOContainerName+"PFO_isInDenseEnvironment (1 <= |eta| < 2)",3,-1,2);
-    m_PFO_tracksExpectedEnergyDeposit_etaBinB = Book1D("PFO_tracksExpectedEnergyDeposit_binB",m_sPFOContainerName+"PFO_tracksExpectedEnergyDeposit (1 <= |eta| < 2)",11,-1,10);
+    m_PFO_isInDenseEnvironment_etaBinB = Book1D("_isInDenseEnvironment_binB",m_sPFOContainerName+"_isInDenseEnvironment (1 <= |eta| < 2)",3,-1,2);
+    m_PFO_tracksExpectedEnergyDeposit_etaBinB = Book1D("_tracksExpectedEnergyDeposit_binB",m_sPFOContainerName+"_tracksExpectedEnergyDeposit (1 <= |eta| < 2)",11,-1,10);
 
-    m_PFO_isInDenseEnvironment_etaBinC = Book1D("PFO_isInDenseEnvironment_binC",m_sPFOContainerName+"PFO_isInDenseEnvironment (|eta| >= 2)",3,-1,2);
-    m_PFO_tracksExpectedEnergyDeposit_etaBinC = Book1D("PFO_tracksExpectedEnergyDeposit_binC",m_sPFOContainerName+"PFO_tracksExpectedEnergyDeposit (|eta| >= 2)",11,-1,10);
+    m_PFO_isInDenseEnvironment_etaBinC = Book1D("_isInDenseEnvironment_binC",m_sPFOContainerName+"_isInDenseEnvironment (|eta| >= 2)",3,-1,2);
+    m_PFO_tracksExpectedEnergyDeposit_etaBinC = Book1D("_tracksExpectedEnergyDeposit_binC",m_sPFOContainerName+"_tracksExpectedEnergyDeposit (|eta| >= 2)",11,-1,10);
     
     
   }

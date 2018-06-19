@@ -68,7 +68,7 @@ public:
   virtual TileGeoG4LookupBuilder* GetLookupBuilder() const override final;
 
   /// Method used by TileFastCaloSim/TileFCSmStepToTileHitVec
-  virtual void pmtEdepFromFCS_StepInfo(TileHitData& hitData, double ene, double yLocal, double halfYLocal, double zLocal, int Ushape) const override final;
+  virtual void pmtEdepFromFCS_StepInfo(TileHitData& hitData, double ene, double yLocal, double halfYLocal, double zLocal, int uShape) const override final;
 private:
   void CreateScintHit(int pmt, TileHitData& hitData) const;
   void UpdateScintHit(int pmt, TileHitData& hitData) const;

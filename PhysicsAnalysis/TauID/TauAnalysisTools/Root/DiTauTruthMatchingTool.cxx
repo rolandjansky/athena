@@ -154,7 +154,7 @@ StatusCode DiTauTruthMatchingTool::checkTruthMatch (const xAOD::DiTauJet& xDiTau
   if ( accNSubjets(xDiTau) < 2) {
     decIsTruthMatched(xDiTau) = (char)false;
     decIsTruthHadronic(xDiTau) = (char)false;
-    return StatusCode::SUCCESS;;
+    return StatusCode::SUCCESS;
   }
 
   bool bTruthMatched = true;

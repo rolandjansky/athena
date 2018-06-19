@@ -51,7 +51,8 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
 
         from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory
 
-        if not "R2" in globalflags.DetDescrVersion() and not "IBL3D25" in globalflags.DetDescrVersion():
+        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
+        if ( not geoFlags.Run() in ["RUN2", "RUN3"] ) :
             NnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "NnClusterizationFactory",
                                                                       NetworkToHistoTool   = NeuralNetworkToHistoTool,
                                                                       doRunI = True,
@@ -172,11 +173,16 @@ if InDetFlags.loadRotCreator():
         PixelClusterOnTrackToolDigital = None
 
     if DetFlags.haveRIO.SCT_on():
+        # SiLorentzAngleTool
+        if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+            from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+            sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
         from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
         SCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("InDetSCT_ClusterOnTrackTool",
                                                                 #CorrectionStrategy = -1,  # no position correction (test for bug #56477)
                                                                 CorrectionStrategy = 0,  # do correct position bias
-                                                                ErrorStrategy      = 2)  # do use phi dependent errors
+                                                                ErrorStrategy      = 2,  # do use phi dependent errors
+                                                                LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
         ToolSvc += SCT_ClusterOnTrackTool
         if (InDetFlags.doPrintConfigurables()):
             print SCT_ClusterOnTrackTool
@@ -251,6 +257,10 @@ if InDetFlags.loadRotCreator():
         BroadPixelClusterOnTrackTool = None
     
     if DetFlags.haveRIO.SCT_on():
+        # SiLorentzAngleTool
+        if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+            from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+            sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
         #
         # tool to always make conservative sct cluster errors
         #
@@ -258,7 +268,8 @@ if InDetFlags.loadRotCreator():
         BroadSCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("InDetBroadSCT_ClusterOnTrackTool",
                                                                      #CorrectionStrategy = -1,  # no position correction (test for bug #56477)
                                                                      CorrectionStrategy = 0,  # do correct position bias
-                                                                     ErrorStrategy      = 0)  # do use broad errors
+                                                                     ErrorStrategy      = 0,  # do use broad errors
+                                                                     LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
         ToolSvc += BroadSCT_ClusterOnTrackTool
         if (InDetFlags.doPrintConfigurables()):
             print BroadSCT_ClusterOnTrackTool
@@ -861,9 +872,9 @@ if InDetFlags.loadSummaryTool():
                                                           PixelLayerTool = InDetTestPixelLayerTool)
 
     if (DetFlags.haveRIO.SCT_on()):
-      InDetHoleSearchTool.SctSummarySvc = InDetSCT_ConditionsSummarySvc
+      InDetHoleSearchTool.SctSummaryTool = InDetSCT_ConditionsSummaryTool
     else:
-      InDetHoleSearchTool.SctSummarySvc = None
+      InDetHoleSearchTool.SctSummaryTool = None
 
     if InDetFlags.doCosmics:
         InDetHoleSearchTool.Cosmics = True
@@ -879,7 +890,7 @@ if InDetFlags.loadSummaryTool():
     if DetFlags.haveRIO.pixel_on() :
         from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
         InDetRecTestBLayerTool = InDet__InDetTestBLayerTool(name            = "InDetRecTestBLayerTool",
-                                                            PixelSummarySvc = InDetPixelConditionsSummarySvc,
+                                                            PixelSummaryTool = InDetPixelConditionsSummaryTool,
                                                             Extrapolator    = InDetExtrapolator)
         ToolSvc += InDetRecTestBLayerTool
         if (InDetFlags.doPrintConfigurables()):
@@ -910,22 +921,10 @@ if InDetFlags.loadSummaryTool():
          print InDetTRT_ElectronPidTool
 
 
-    InDetTRT_dEdxTool = None
-    if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC() and not InDetFlags.doHighPileup() :
-        from TRT_ToT_Tools.TRT_ToT_ToolsConf import  TRT_ToT_dEdx
-        InDetTRT_dEdxTool = TRT_ToT_dEdx(name="InDetTRT_dEdxTool",
-                                         TRT_dEdx_whichToTEstimatorAlgo=2,  # default is 2
-                                         TRT_dEdx_useTrackPartWithGasType=3, # default is 3
-                                         TRT_dEdx_toolScenario=0, # default is 0
-                                         TRT_dEdx_applyMimicToXeCorrection=False, # default is False
-                                         TRT_dEdx_trackConfig_maxRtrack=1.9, # default is 1.9
-                                         TRT_dEdx_trackConfig_minRtrack=0.01, # default is 0.01
-                                         TRT_dEdx_useZeroRHitCut=True) # default is True
-        ToolSvc += InDetTRT_dEdxTool
-
-        if (InDetFlags.doPrintConfigurables()):
-           print InDetTRT_dEdxTool
-        
+    import InDetRecExample.TRTCommon
+    InDetTRT_dEdxTool = InDetRecExample.TRTCommon.getInDetTRT_dEdxTool()
+    if (InDetTRT_dEdxTool != None and InDetFlags.doPrintConfigurables()):
+        print InDetTRT_dEdxTool
 
 
     #
@@ -1147,16 +1146,15 @@ if InDetFlags.doPattern():
                                                                         PixelClusterContainer = InDetKeys.PixelClusters(),
                                                                         SCT_ClusterContainer  = InDetKeys.SCT_Clusters(),
                                                                         MagneticFieldMode     = "NoField",
-                                                                        SctSummarySvc         = None,
                                                                         TrackQualityCut       = 9.3
                                                                         )
         ToolSvc += InDetSiComTrackFinderDBM
     if InDetFlags.doDBMstandalone():
         InDetSiComTrackFinder.MagneticFieldMode     =  "NoField"
     if (DetFlags.haveRIO.SCT_on()):
-      InDetSiComTrackFinder.SctSummarySvc = InDetSCT_ConditionsSummarySvc
+      InDetSiComTrackFinder.SctSummaryTool = InDetSCT_ConditionsSummaryTool
     else:
-      InDetSiComTrackFinder.SctSummarySvc = None
+      InDetSiComTrackFinder.SctSummaryTool = None
 
     ToolSvc += InDetSiComTrackFinder
     if (InDetFlags.doPrintConfigurables()):
@@ -1354,15 +1352,6 @@ if InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring() or 
     if (InDetFlags.doPrintConfigurables()):
         print InDetTrackSelectorTool
 
-    #
-    # --- load internal EDM converter tool
-    #
-    from TrkVxEdmCnv.TrkVxEdmCnvConf import Trk__VxCandidateXAODVertex
-    InDetVxEdmCnv = Trk__VxCandidateXAODVertex(name="VertexInternalEdmFactory")
-    ToolSvc += InDetVxEdmCnv
-    if (InDetFlags.doPrintConfigurables()):
-        print InDetVxEdmCnv
-
 
 if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) or InDetFlags.doSplitVertexFindingForMonitoring() and InDetFlags.primaryVertexSetup() != 'DummyVxFinder':
   #
@@ -1375,8 +1364,6 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
   if (InDetFlags.doPrintConfigurables()):
     print InDetLinFactory
 
-  #Update also internal vertex Edm Tool
-  InDetVxEdmCnv.LinearizedTrackFactory=InDetLinFactory
     
   #
   # --- load other tools if needed
@@ -1384,11 +1371,22 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
   if (InDetFlags.primaryVertexSetup() == 'DefaultAdaptiveFinding' or
       InDetFlags.primaryVertexSetup() == 'IterativeFinding' or
       InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding' or
-      InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding' ):
+      InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding' or 
+      InDetFlags.primaryVertexSetup() == 'GaussIterativeFinding' or
+      InDetFlags.primaryVertexSetup() == 'GaussAdaptiveMultiFinding'):
     #
     # --- load configured Seed finder
     #
-    if (InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding'):
+    if (InDetFlags.primaryVertexSetup() == 'GaussIterativeFinding' or
+        InDetFlags.primaryVertexSetup() == 'GaussAdaptiveMultiFinding'):
+      from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__GaussianTrackDensity
+      GaussDensityEstimator = Trk__GaussianTrackDensity( name = "GaussianDensity" )
+      ToolSvc += GaussDensityEstimator
+
+      from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__TrackDensitySeedFinder
+      InDetVtxSeedFinder = Trk__TrackDensitySeedFinder( name = "GaussianDensitySeedFinder",
+                                                        DensityEstimator = GaussDensityEstimator )
+    elif (InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding'):
       from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__LocalMax1DClusterFinder, Trk__VertexImageMaker
       InDetMedImgClusterFinder = Trk__LocalMax1DClusterFinder( name            = "InDetMedImgClusterFinder",
                                                                weightThreshold = 1500.0,
@@ -1566,7 +1564,8 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
   if (InDetFlags.primaryVertexSetup() == 'DefaultKalmanFinding' or
       InDetFlags.primaryVertexSetup() == 'DefaultAdaptiveFinding' or
       InDetFlags.primaryVertexSetup() == 'IterativeFinding' or
-      InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding' ):
+      InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding' or
+      InDetFlags.primaryVertexSetup() == 'GaussIterativeFinding' ):
     from TrkVertexFitters.TrkVertexFittersConf import Trk__SequentialVertexSmoother
     InDetVertexSmoother = Trk__SequentialVertexSmoother(name = "InDetSequentialVertexSmoother")
     ToolSvc += InDetVertexSmoother
@@ -1580,8 +1579,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     from TrkVertexBilloirTools.TrkVertexBilloirToolsConf import Trk__FastVertexFitter
     InDetVxFitterTool = Trk__FastVertexFitter(name                   = "InDetFastVertexFitterTool",
                                               LinearizedTrackFactory = InDetLinFactory,
-                                              Extrapolator           = InDetExtrapolator,
-                                              XAODConverter = InDetVxEdmCnv)
+                                              Extrapolator           = InDetExtrapolator)
 
   elif InDetFlags.primaryVertexSetup() == 'DefaultFullFinding':
     #
@@ -1600,9 +1598,8 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     from TrkVertexFitters.TrkVertexFittersConf import Trk__SequentialVertexFitter
     InDetVxFitterTool = Trk__SequentialVertexFitter(name                   = "InDetSequentialVxFitterTool",
                                                     LinearizedTrackFactory = InDetLinFactory,
-                                                    VertexSmoother         = InDetVertexSmoother,
+                                                    VertexSmoother         = InDetVertexSmoother
                                                     #VertexUpdator   = # no setting required 
-                                                    XAODConverter = InDetVxEdmCnv
                                                     )
   elif (InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding') :
 
@@ -1624,11 +1621,11 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                     LinearizedTrackFactory       = InDetLinFactory,
                                                     ImpactPoint3dEstimator       = InDetImpactPoint3dEstimator,
                                                     AnnealingMaker               = InDetAnnealingMaker,
-                                                    VertexSmoother               = InDetVertexSmoother,
-                                                    XAODConverter                = InDetVxEdmCnv)
+                                                    VertexSmoother               = InDetVertexSmoother)
 
   elif (InDetFlags.primaryVertexSetup() == 'DefaultAdaptiveFinding' or 
-        InDetFlags.primaryVertexSetup() == 'IterativeFinding') : 
+        InDetFlags.primaryVertexSetup() == 'IterativeFinding' or
+        InDetFlags.primaryVertexSetup() == 'GaussIterativeFinding' ) : 
     #
     # --- load configured adaptive vertex fitter
     #
@@ -1638,10 +1635,10 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                   LinearizedTrackFactory       = InDetLinFactory,
                                                   ImpactPoint3dEstimator       = InDetImpactPoint3dEstimator,
                                                   AnnealingMaker               = InDetAnnealingMaker,
-                                                  VertexSmoother               = InDetVertexSmoother,
-                                                  XAODConverter                = InDetVxEdmCnv)
+                                                  VertexSmoother               = InDetVertexSmoother)
 
-  elif InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding':
+  elif (InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding' or
+        InDetFlags.primaryVertexSetup() == 'GaussAdaptiveMultiFinding'):
     #
     # --- load adaptive multi vertex fitter
     #
@@ -1672,7 +1669,9 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
   if (not (InDetFlags.primaryVertexSetup() == 'IterativeFinding') and
       not (InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding') and
       not (InDetFlags.primaryVertexSetup() == 'DefaultVKalVrtFinding') and
-      not (InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding' ) ):
+      not (InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding' ) and
+      not (InDetFlags.primaryVertexSetup() == 'GaussIterativeFinding' ) and
+      not (InDetFlags.primaryVertexSetup() == 'GaussAdaptiveMultiFinding' ) ):
     #
     # --- load primary vertex finder tool
     #
@@ -1684,8 +1683,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                        maxChi2PerTrack   = InDetPrimaryVertexingCuts.MaxChi2PerTrack(),
                                                        chi2CutMethod     = InDetPrimaryVertexingCuts.chi2CutMethod(),
                                                        enableMultipleVertices = InDetPrimaryVertexingCuts.enableMultipleVertices(),
-                                                       useBeamConstraint = InDetFlags.useBeamConstraint(),
-                                                       InternalEdmFactory= InDetVxEdmCnv)
+                                                       useBeamConstraint = InDetFlags.useBeamConstraint())
 
   elif (InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding') :
     #
@@ -1699,10 +1697,10 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                             ImpactPoint3dEstimator       = InDetImpactPoint3dEstimator,
                                                             useBeamConstraint            = InDetFlags.useBeamConstraint(),
                                                             significanceCutSeeding       = 12,
-                                                            maxVertices                  = 200,
-                                                            InternalEdmFactory           = InDetVxEdmCnv)
+                                                            maxVertices                  = 200)
 
-  elif InDetFlags.primaryVertexSetup() == 'IterativeFinding':
+  elif ( (InDetFlags.primaryVertexSetup() == 'IterativeFinding') or
+         (InDetFlags.primaryVertexSetup() == 'GaussIterativeFinding' ) ):
     #
     # --- load adaptive primary vertex finder
     #
@@ -1717,12 +1715,12 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                                 significanceCutSeeding   = 12,
                                                                 maximumChi2cutForSeeding = 49,
                                                                 maxVertices              = 200,
-                                                                InternalEdmFactory       = InDetVxEdmCnv,
                                                                 doMaxTracksCut           = InDetPrimaryVertexingCuts.doMaxTracksCut(),
                                                                 MaxTracks                = InDetPrimaryVertexingCuts.MaxTracks()
                                                                 )
 
-  elif InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding':
+  elif (InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding' or
+        InDetFlags.primaryVertexSetup() == 'GaussAdaptiveMultiFinding' ):
     #
     # --- load adaptive multi primary vertex finder
     #
@@ -1733,8 +1731,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                                     TrackSelector     = InDetTrackSelectorTool,
                                                                     useBeamConstraint = InDetFlags.useBeamConstraint(),
                                                                     selectiontype     = 0,
-                                                                    do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding(),
-                                                                    InternalEdmFactory= InDetVxEdmCnv)
+                                                                    do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding())
   
   elif InDetFlags.primaryVertexSetup() == 'DefaultVKalVrtFinding':
     #

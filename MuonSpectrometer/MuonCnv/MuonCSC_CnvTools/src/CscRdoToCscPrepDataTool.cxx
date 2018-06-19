@@ -86,10 +86,7 @@ StatusCode CscRdoToCscPrepDataTool::initialize(){
   ATH_MSG_INFO("The Geometry version is " << m_muonMgr->get_DBMuonVersion());
 
   // Get CscRawDataProviderTool
-  if (m_useBStoRdoTool && m_rawDataProviderTool.retrieve().isFailure()) {
-    ATH_MSG_FATAL ( "Failed to retrieve serive " << m_rawDataProviderTool );
-    return StatusCode::FAILURE;
-  }     
+  ATH_CHECK(m_rawDataProviderTool.retrieve( DisableTool{ !m_useBStoRdoTool }));
   
   // get cscCalibTool
   if (m_cscCalibTool.retrieve().isFailure()){

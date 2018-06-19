@@ -1,8 +1,8 @@
 #ifndef TRIGT1CALO_JEPBSCOLLECTION_H
 #define TRIGT1CALO_JEPBSCOLLECTION_H
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 
 namespace LVL1 {
 

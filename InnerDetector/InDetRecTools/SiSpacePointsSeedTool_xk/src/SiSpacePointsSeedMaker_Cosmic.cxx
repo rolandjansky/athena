@@ -149,6 +149,8 @@ StatusCode InDet::SiSpacePointsSeedMaker_Cosmic::initialize()
     } else {
       msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endmsg;
     }
+  } else {
+    m_assoTool.disable();
   }
 
   // Build framework

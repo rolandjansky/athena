@@ -13,17 +13,15 @@ using namespace std;
 
 FTKAMSplit::FTKAMSplit() :
     m_DCSplit(0), m_DCThreshold(0),
-    m_AMPatternThreshold(4194304), m_deltaThresholdBin(-1),
-    m_totalDeltaPatterns(0), m_BankVolume(0),
-    m_volumeReduction(0)
+    m_deltaThresholdBin(-1),
+    m_totalDeltaPatterns(0)
 {}
 
 
-FTKAMSplit::FTKAMSplit(int AMSplit, int maxAMAfterSplit, int /*minDVolOverDNPatt*/) :
+FTKAMSplit::FTKAMSplit(int AMSplit, int /*maxAMAfterSplit*/, int /*minDVolOverDNPatt*/) :
     m_DCSplit (AMSplit), m_DCThreshold(AMSplit),
-    m_AMPatternThreshold(maxAMAfterSplit), m_deltaThresholdBin(-1),
-    m_totalDeltaPatterns(0), m_BankVolume(0),
-    m_volumeReduction(0)
+    m_deltaThresholdBin(-1),
+    m_totalDeltaPatterns(0)
 {}
 
 void FTKAMSplit::mergeClusters(pair<int, int> /*merge*/)

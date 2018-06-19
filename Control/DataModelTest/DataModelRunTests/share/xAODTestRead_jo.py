@@ -31,6 +31,15 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 #--------------------------------------------------------------
 svcMgr.EventSelector.InputCollections        = [ "xaoddata.root" ]
 
+from IOVSvc.IOVSvcConf import MetaInputLoader
+metain = MetaInputLoader()
+metain.Dump = True
+metain.Load = [('DMTest::S1', 'MetaS1'),
+               ('DMTest::C', 'MetaC'),
+               ('DMTest::CInfoAuxContainer', 'MetaCAux.'),
+              ]
+topSequence += metain
+
 #--------------------------------------------------------------
 # Define output
 #--------------------------------------------------------------
@@ -102,7 +111,8 @@ theApp.EvtMax = 20
 #--------------------------------------------------------------
 
 from DataModelTestDataCommon.DataModelTestDataCommonConf import \
-     DMTest__xAODTestDecor
+     DMTest__xAODTestDecor, \
+     DMTest__MetaReaderAlg
 from DataModelTestDataRead.DataModelTestDataReadConf import \
      DMTest__xAODTestReadCVec, \
      DMTest__xAODTestReadCInfo, \
@@ -112,6 +122,8 @@ from DataModelTestDataRead.DataModelTestDataReadConf import \
      DMTest__xAODTestClearDecor, \
      DMTest__xAODTestShallowCopy
 
+
+topSequence += DMTest__MetaReaderAlg()
 
 topSequence += DMTest__xAODTestReadCVec ('xAODTestReadCVec',
                                          WriteKey = 'copy_cvec')
@@ -189,7 +201,6 @@ ChronoStatSvc.StatPrintOutTable   = FALSE
 
 #svcMgr.ExceptionSvc.Catch = "None"
 
-# Explicitly specify the output file catalog
-# to avoid races when running tests in parallel.
-PoolSvc = Service( "PoolSvc" )
-PoolSvc.WriteCatalog = "file:xAODTestRead_catalog.xml"
+# Avoid races when running tests in parallel.
+FILECATALOG = 'xAODTestRead_catalog.xml'
+include ('DataModelRunTests/setCatalog.py')

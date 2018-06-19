@@ -61,6 +61,8 @@ StatusCode RoILArEMCellContMaker::initialize(){
     StatusCode sc=toolSvc()->retrieveTool("LArCablingService",m_cablingSvc);
     if (sc!=StatusCode::SUCCESS) return sc;
 
+  } else {
+    m_noiseTool.disable();
   }
 
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {

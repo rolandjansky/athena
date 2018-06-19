@@ -115,7 +115,7 @@ class PhysValTau
     std::vector<size_t> m_matched_itr;
 
     /** Object to define Truth Handler Tool*/
-    TruthHandler truthHandler;
+    TruthHandler m_truthHandler;
 
   //Histograms
   // general tau all prongs plots

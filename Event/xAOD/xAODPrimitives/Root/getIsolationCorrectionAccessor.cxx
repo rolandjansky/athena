@@ -32,7 +32,7 @@ namespace xAOD {
 
     if (sAccessors.find(type)==sAccessors.end()){
       // create Accessor
-      std::string name(Iso::toString(type));
+      std::string name(Iso::toCString(type));
       name+="CorrBitset";
       sAccessors[type] = SmartPointerUint_t( new SG::AuxElement::Accessor< uint32_t >( name ) ) ;
     }
@@ -48,13 +48,13 @@ namespace xAOD {
 
       assert (0 <= static_cast<int>(param) && static_cast<int>(param) < xAOD::Iso::NumCorrParameters);
       if (sAccessors.find(hash)==sAccessors.end()){                                                                   
-        std::string name(Iso::toString(type));                                                                      
+        std::string name(Iso::toCString(type));                                                                      
         if (corr == Iso::coreCone || corr == Iso::coreConeSC)
-	  name+=toString(corr); 
+	  name+=toCString(corr); 
 	else
-	  name = toString(corr);
+	  name = toCString(corr);
         if (param==xAOD::Iso::coreEnergy || param==xAOD::Iso::coreArea){
-          name+=toString(param );    
+          name+=toCString(param );    
         }else{
           throw std::runtime_error("IsolationCorrectionParameter out of bounds");
         }
@@ -71,8 +71,8 @@ namespace xAOD {
       static std::map<uint32_t, SmartPointer_t > sAccessors;
       uint32_t hash = (static_cast<uint8_t>(type)<<16)+(static_cast<uint8_t>(corr)<<8);
       if (sAccessors.find(hash)==sAccessors.end()){
-        std::string name(Iso::toString(type));
-        name+=toString(corr);
+        std::string name(Iso::toCString(type));
+        name+=toCString(corr);
         name+="Correction";
         
         sAccessors[hash] = SmartPointer_t( new SG::AuxElement::Accessor< float >( name ) ) ;
@@ -86,8 +86,8 @@ namespace xAOD {
       uint32_t hash = (static_cast<uint8_t>(type)<<16)+(static_cast<uint8_t>(corr)<<8);  
                                                                                                                        
       if (sAccessors.find(hash)==sAccessors.end()){                                                                    
-        std::string name(Iso::toString(type));                                                                         
-        name+=toString(corr);    
+        std::string name(Iso::toCString(type));                                                                         
+        name+=toCString(corr);    
         name+="Correction";
                                                                                               
         sAccessors[hash] = SmartPointer_t( new SG::AuxElement::Accessor< float >( name ) ) ;                           

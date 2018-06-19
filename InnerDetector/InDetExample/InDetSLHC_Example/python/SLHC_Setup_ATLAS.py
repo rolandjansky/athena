@@ -12,13 +12,13 @@ __all__    = [ "SLHC_PathSetting" ]
 import os
 from os.path import exists, join
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
+from PyJobTransformsCore.envutil import *
 
 class SLHC_Setup :
     # constructor requires the SLHC_Flags
     def __init__(self):
 
         import os, shutil
-        from PyJobTransformsCore.envutil import *
         
         #--------------------------------------------------------------
         # XML reader

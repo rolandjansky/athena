@@ -14,7 +14,7 @@
 // Framework include files
 #include "PersistentDataModel/Guid.h"
 #include "PersistentDataModel/Token.h"
-#include "StorageSvc/DbPrint.h"
+#include "POOLCore/DbPrint.h"
 #include "StorageSvc/DbSelect.h"
 #include "StorageSvc/DbDatabase.h"
 #include "StorageSvc/DbContainer.h"

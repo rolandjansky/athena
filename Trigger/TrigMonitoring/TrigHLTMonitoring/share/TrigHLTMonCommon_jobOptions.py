@@ -7,20 +7,24 @@ from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 
 from RecExConfig.RecFlags import rec
-from RecExConfig.AutoConfiguration import GetProjectName,GetRunNumber,ConfigureTriggerStream,ConfigureSimulationOrRealData,ConfigureBeamType
+from RecExConfig.AutoConfiguration import GetProjectName,GetRunNumber,ConfigureTriggerStream,ConfigureSimulationOrRealData,ConfigureBeamType,ConfigureFieldAndGeo,ConfigureConditionsTag
 
 from AthenaCommon.BeamFlags import jobproperties
 runNb=GetRunNumber()
 projectName=GetProjectName()
+rec.projectName=projectName
+ConfigureFieldAndGeo()
 ConfigureTriggerStream()
 ConfigureSimulationOrRealData()
 ConfigureBeamType()
+ConfigureConditionsTag()
 
 data_type=globalflags.InputFormat.get_Value()
 beam_type=jobproperties.Beam.beamType.get_Value()
 #evt_type=inputFileSummary['evt_type']
 log.info("Run Number %s",runNb)
 log.info("Project name %s",projectName)
+log.info("DetDescription %s", globalflags.DetDescrVersion())
 log.info("File type %s",data_type)
 log.info("Beam type %s",beam_type)
 log.info("Trigger stream %s",rec.triggerStream())
@@ -57,6 +61,13 @@ log.info('RecFlags %s', rec)
 
 if not 'HLTMonFlags' in dir():
     from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags
+
+if HLTMonFlags.doBphys:
+    #extra parts of the geometry needed for the extrapolation
+    include("RecExCond/RecExCommon_DetFlags.py")
+    DetFlags.detdescr.Forward_setOff()   #prevent scheduling of alfa conditions 
+    include("RecExCond/AllDet_detDescr.py")
+    
 #-- set up job ------------------------------------------------------------------------------
 if data_type == 'bytestream':
     log.info('BS to HIST Monitoring')

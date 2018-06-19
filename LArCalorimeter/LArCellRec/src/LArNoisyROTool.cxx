@@ -11,28 +11,24 @@
 // LArCellRec includes
 #include "LArCellRec/LArNoisyROTool.h"
 
-// FrameWork includes
-//#include "GaudiKernel/IToolSvc.h"
-
 #include "CaloEvent/CaloCellContainer.h"
 #include "LArRecEvent/LArNoisyROSummary.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h" 
-#include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRecEvent/LArNoisyROSummary.h"
+#include "StoreGate/ReadCondHandle.h"
 
 LArNoisyROTool::LArNoisyROTool( const std::string& type, 
 				const std::string& name, 
 				const IInterface* parent ) : 
   ::AthAlgTool  ( type, name, parent   ),
   m_calo_id(0), m_onlineID(0), 
-  m_cablingService("LArCablingService"),
-  m_invocation_counter(0),m_SaturatedCellTightCutEvents(0),
+  m_cablingKey("LArOnOffIdMap"),
   m_partitionMask({{LArNoisyROSummary::EMECAMask,LArNoisyROSummary::EMBAMask,LArNoisyROSummary::EMBCMask,LArNoisyROSummary::EMECCMask}}) //beware: The order matters! 
 {
   declareInterface<ILArNoisyROTool >(this);
   declareProperty( "BadChanPerFEB", m_BadChanPerFEB=30 );
-  //  declareProperty( "BadChanPerPA", m_BadChanPerPA=2 );
   declareProperty( "CellQualityCut", m_CellQualityCut=4000 );
   declareProperty( "IgnoreMaskedCells", m_ignore_masked_cells=false );
   declareProperty( "IgnoreFrontInnerWheelCells", m_ignore_front_innerwheel_cells=true );
@@ -68,13 +64,9 @@ LArNoisyROTool::LArNoisyROTool( const std::string& type,
   declareProperty( "MNBLooseCut",m_MNBLooseCut=5,"Number of cells above CellQualityCut");
   declareProperty( "MNBTightCut",m_MNBTightCut=17,"Number of cells above CellQualityCut");
 
-  
-  declareProperty( "OutputKey", m_outputKey="LArNoisyROSummary");
   declareProperty( "SaturatedCellQualityCut", m_SaturatedCellQualityCut=65535);
   declareProperty( "SaturatedCellEnergyTightCut", m_SaturatedCellEnergyTightCut=1000.);
   declareProperty( "SaturatedCellTightCut", m_SaturatedCellTightCut=20);
-  declareProperty( "PrintSummary", m_printSummary=false);
-
 }
 
 // Destructor
@@ -96,9 +88,9 @@ StatusCode LArNoisyROTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  CHECK(detStore()->retrieve(m_calo_id,"CaloCell_ID"));
-  CHECK(detStore()->retrieve(m_onlineID,"LArOnlineID"));
-  ATH_CHECK( m_cablingService.retrieve() );
+  ATH_CHECK(detStore()->retrieve(m_calo_id,"CaloCell_ID"));
+  ATH_CHECK(detStore()->retrieve(m_onlineID,"LArOnlineID"));
+  ATH_CHECK( m_cablingKey.initialize() );
 
   //convert std::vector (jobO) to std::set (internal representation)
   m_knownBadFEBs.insert(m_knownBadFEBsVec.begin(),m_knownBadFEBsVec.end());
@@ -111,10 +103,13 @@ StatusCode LArNoisyROTool::initialize() {
 
 
 
-std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContainer* cellContainer) {
+std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContainer* cellContainer) const{
 
-  ++m_invocation_counter;
   std::unique_ptr<LArNoisyROSummary> noisyRO(new LArNoisyROSummary);
+
+  SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl(m_cablingKey);
+  const LArOnOffIdMapping* cabling=*larCablingHdl;
+
   
   FEBEvtStatMap FEBStats; //counter per FEB
 
@@ -163,7 +158,7 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
     if ( m_calo_id->is_em(id) ) 
     {
       // get FEB ID and channel number
-      HWIdentifier hwid = m_cablingService->createSignalChannelID(id);
+      HWIdentifier hwid = cabling->createSignalChannelID(id);
       HWIdentifier febid = m_onlineID->feb_Id(hwid);
       unsigned int FEBindex = febid.get_identifier32().get_compact();
       unsigned int channel = m_onlineID->channel(hwid);    
@@ -179,19 +174,11 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
   bool badSaturatedTightCut = (SatTightPartitions != 0);
   if ( badSaturatedTightCut ) noisyRO-> SetSatTightFlaggedPartitions(SatTightPartitions);
 
-  // Too many saturated cells ?
-  if ( badSaturatedTightCut ) {
-    //ATH_MSG_INFO( "Too many saturated cells "  );
-    m_SaturatedCellTightCutEvents++;
-  }
-
   // are there any bad FEB or preamp ?
   for ( FEBEvtStatMapCstIt it = FEBStats.begin(); it != FEBStats.end(); it++ ) {
     ATH_MSG_DEBUG(" bad FEB " << it->first << " with " << it->second.badChannels() << " bad channels");
     if ( it->second.badChannels() > m_BadChanPerFEB ) {
       noisyRO->add_noisy_feb(HWIdentifier(it->first));
-      if (m_printSummary) m_badFEB_counters[it->first]++;
-      //BadFEBCount++;
     }
 
     // Tight MNBs
@@ -316,26 +303,6 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
 
 
 StatusCode LArNoisyROTool::finalize() {
-
-  if (m_printSummary) {
-
-    ATH_MSG_INFO( "List of bad FEBs found in all events "  );
-    for ( std::unordered_map<unsigned int, unsigned int>::const_iterator it = m_badFEB_counters.begin(); it != m_badFEB_counters.end(); it++ ) {
-      ATH_MSG_INFO( "FEB " << it->first << " declared noisy in " << it->second << " events "  );
-    }
-
-//    ATH_MSG_INFO( "List of bad preamps found in at least max(2,0.1%) events"  );
-//    unsigned int cut = static_cast<unsigned int>(0.001*static_cast<float>(m_invocation_counter));
-//    if ( cut < 2 ) cut = 2;
-//    uint64_t PAfactor = 1000000000L;
-//    for ( std::map<uint64_t, unsigned int>::const_iterator it = m_badPA_counters.begin(); it != m_badPA_counters.end(); it++ )
-//      {
-//	if ( it->second > cut )
-//          ATH_MSG_INFO( "Preamplifier " << (it->first)/PAfactor << " of FEB " << (it->first)%PAfactor << " declared noisy in " << it->second << " events "  );
-//      }
-    
-    ATH_MSG_INFO( "Number of events with too many saturated QFactor cells (Tight cuts): " << m_SaturatedCellTightCutEvents  );
-  }
 
   return StatusCode::SUCCESS;
 }

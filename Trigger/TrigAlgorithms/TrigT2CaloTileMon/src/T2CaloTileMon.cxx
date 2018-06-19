@@ -129,7 +129,7 @@ HLT::ErrorCode T2CaloTileMon::hltExecute(const HLT::TriggerElement* inputTE,
    {
 
      //      if ((*it)->execute(*ptrigEmCluster,etamin,etamax,phimin,phimax).isFailure() )
-     if ((*it)->execute(*ptrigEmCluster,newroi).isFailure() )
+     if ((*it)->execute(*ptrigEmCluster,newroi, caloDDENull, nullptr).isFailure() )
        {
          ATH_MSG_WARNING( "T2Calo AlgToolTileMon returned Failure"  );
          return HLT::TOOL_FAILURE;

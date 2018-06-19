@@ -22,6 +22,7 @@
 #include "xAODTracking/TrackParticle.h"
 #include "egammaMVACalib/egammaMVACalib.h"
 #include "MVAUtils/BDT.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "TMVA/MethodBase.h"
 #include "TMVA/IMethod.h"
@@ -164,6 +165,8 @@ namespace Analysis
     float  m_sm_mu_sv_dR  		;  
 
     float m_my_smt;
+
+    SG::ReadHandleKey<xAOD::TrackParticleContainer > m_TrackParticles {this, "TrackParticlesName", "InDetTrackParticles", "Input track particle container to find SV with a muon"};
 
     /** Storage for the primary vertex. Can be removed when JetTag provides origin(). */
     // this pointer does not need to be deleted in the destructor (because it

@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoModel/GeoModelKernel
                           GaudiKernel
                           PRIVATE
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelUtilities )
 
 # External dependencies:

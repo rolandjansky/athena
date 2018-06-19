@@ -4,7 +4,6 @@
 
 #include "TBRec/TBBeamQualityMC.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/AlgFactory.h"
 
 #include "TBEvent/TBEventInfo.h"
 #include "TBEvent/TBTrack.h"

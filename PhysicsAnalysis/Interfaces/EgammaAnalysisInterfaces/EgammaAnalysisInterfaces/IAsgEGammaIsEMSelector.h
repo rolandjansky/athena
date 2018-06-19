@@ -18,43 +18,36 @@
 */
 
 // Include the interfaces
-#include "PATCore/IAsgSelectionTool.h"
-// Forward declarations
-namespace Root{
-  class TAccept;
-}
+#include "AsgAnalysisInterfaces/ISelectionTool.h"
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODEgamma/ElectronFwd.h"
 
-class IAsgEGammaIsEMSelector : virtual public IAsgSelectionTool
+class IAsgEGammaIsEMSelector : virtual public CP::ISelectionTool
 {
 
   ASG_TOOL_INTERFACE(IAsgEGammaIsEMSelector)
 
 public:
 
-  /// @name IAsgEGammaIsEMSelector methods in Addition to the IAsgSelectionTool
+  /// @name IAsgEGammaIsEMSelector methods in Addition to the ISelectionTool
   /// @{
 
-  /// accept with pointer to  IParticle  so as to not hide the IAsgSelectionTool one
-  virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const = 0;
+  /// accept with pointer to  IParticle  so as to not hide the ISelectionTool one
+  virtual asg::AcceptData accept( const xAOD::IParticle* part ) const = 0;
 
 
   /// accept with pointer to Egamma object 
-  virtual const Root::TAccept& accept( const xAOD::Egamma* part) const = 0;
+  virtual asg::AcceptData accept( const xAOD::Egamma* part) const = 0;
 
   /// accept with Photon pointer
-  virtual const Root::TAccept& accept( const xAOD::Photon* part ) const = 0;
+  virtual asg::AcceptData accept( const xAOD::Photon* part ) const = 0;
 
   /// accept with Electron reference
-  virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
+  virtual asg::AcceptData accept( const xAOD::Electron* part ) const = 0;
 
-  ///Add a legacy execute method 
-  virtual StatusCode execute(const xAOD::Egamma* eg) const =0;
-
-  ///Return the egamma IsEM decision as unsigned int
-  virtual unsigned int IsemValue() const =0;
+  ///Add a legacy execute method - return isEM value
+  virtual StatusCode execute(const xAOD::Egamma* eg, unsigned int& isEM) const =0;
 
   /// Report the current operating point
   virtual std::string getOperatingPointName( ) const =0;

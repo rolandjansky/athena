@@ -10,7 +10,6 @@
 #include "EventCount.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/DataHeader.h"

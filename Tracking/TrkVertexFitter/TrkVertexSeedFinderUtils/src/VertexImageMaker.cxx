@@ -26,7 +26,8 @@ namespace Trk
     m_angularCutoffParameter(   0.75      ) ,
     m_x_min(0), m_x_max(0), m_y_min(0), m_y_max(0), m_z_min(0), m_z_max(0),
     m_wx(0.0f), m_wy(0.0f), m_wz(0.0f), m_filttot(0), 
-    m_histRS(NULL), m_histFS(NULL)          {
+    m_histRS(NULL), m_histFS(NULL),
+    m_plan_r2c(NULL), m_plan_c2r(NULL)	          {
 
     declareProperty("xbins"                   , m_xbins                    );
     declareProperty("ybins"                   , m_ybins                    );

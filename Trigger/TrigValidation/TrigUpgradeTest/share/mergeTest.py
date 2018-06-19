@@ -97,6 +97,8 @@ TopHLTSeq += addSteps(steps)
 
 theApp.EvtMax = 4
 
+from AthenaCommon.AlgSequence import dumpMasterSequence
+dumpMasterSequence()
 
 
 

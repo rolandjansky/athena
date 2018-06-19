@@ -37,8 +37,8 @@ namespace xAOD {
       AuxPersVector( vector_type vec )
         : SG::AuxTypeVectorHolder<T, VEC> (&vec, false) {}
 
-      virtual SG::IAuxTypeVector* clone() const {
-        return new AuxPersVector<T, VEC>(*this);
+      virtual std::unique_ptr<SG::IAuxTypeVector> clone() const {
+        return std::make_unique<AuxPersVector<T, VEC> >(*this);
       }
 
    }; // class AuxPersVector

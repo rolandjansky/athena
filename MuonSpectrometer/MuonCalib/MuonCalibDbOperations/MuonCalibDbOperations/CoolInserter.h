@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MuonCalib__CoolInserter_h
-#define MuonCalib__CoolInserter_h
+#ifndef MuonCalib_CoolInserter_h
+#define MuonCalib_CoolInserter_h
 
 //this
 #include "MuonCalibDbOperations/IConditionsStorage.h"
@@ -89,7 +89,7 @@ class CoolInserter : public AthAlgorithm {
   cool::IDatabasePtr m_db;
   std::vector<cool::IFolderPtr> m_mdtt0_fld;
   std::vector<cool::IFolderPtr> m_mdtrt_fld;
-  cool::Application app;
+  cool::Application m_app;
   std::map<bool, coral::AttributeList> m_mdtt0_cool_row;
   std::map<bool, coral::AttributeList> m_mdtrt_cool_row;
   //flags for cool status

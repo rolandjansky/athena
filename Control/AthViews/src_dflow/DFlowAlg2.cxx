@@ -19,6 +19,7 @@
 #include "CxxUtils/make_unique.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
+#include "StoreGate/UpdateHandle.h"
 
 namespace AthViews {
 
@@ -32,7 +33,8 @@ DFlowAlg2::DFlowAlg2( const std::string& name,
 			  ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
   m_r_int( "dflow_int" ),
-  m_ints( "dflow_ints" )
+  m_ints( "dflow_ints" ),
+  m_testUpdate( "testUpdate" )
 {
   //
   // Property declaration
@@ -42,6 +44,8 @@ DFlowAlg2::DFlowAlg2( const std::string& name,
   declareProperty( "RIntFlow", m_r_int, "Data flow of int" );
 
   declareProperty( "IntsFlow", m_ints, "Data flow of integers" );
+
+  declareProperty( "TestUpdate", m_testUpdate, "Test update handle" );
 }
 
 // Destructor
@@ -57,6 +61,7 @@ StatusCode DFlowAlg2::initialize()
 
   CHECK( m_r_int.initialize() );
   CHECK( m_ints.initialize() );
+  CHECK( m_testUpdate.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -106,6 +111,14 @@ StatusCode DFlowAlg2::execute()
   {
     ATH_MSG_INFO( "val[" << i << "]= " << outputHandle->at( i ) );
   }
+
+  // Test update handles
+  SG::UpdateHandle< HiveDataObj > testUpdate( m_testUpdate, ctx );
+  ATH_MSG_INFO( "Update handle before: " << testUpdate->val() );
+  testUpdate->val( 1234 );
+  ATH_MSG_INFO( "Update handle after: " << testUpdate->val() );
+  *testUpdate = 4321;
+  ATH_MSG_INFO( "Update handle new: " << testUpdate->val() );
 
   return StatusCode::SUCCESS;
 }

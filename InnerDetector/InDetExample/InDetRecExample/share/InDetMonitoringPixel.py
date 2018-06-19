@@ -7,7 +7,8 @@ from InDetRecExample.InDetKeys import InDetKeys
 
 if doAllHits:
   doDCS = False
-  if  (globalflags.DataSource() == 'data' and geoFlags.Run() == "RUN2" and conddb.dbdata == "CONDBR2"):
+  from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+  if  (globalflags.DataSource() == 'data' and ( CommonGeometryFlags.Run() in ["RUN2", "RUN3"] ) and conddb.dbdata == "CONDBR2"):
      doDCS = True 
   InDetPixelMainsMon=PixelMainMon(name                = "InDetPixelMonitoringAllHits",
                                   onTrack             = False,
@@ -79,7 +80,7 @@ if doHitsOnTrack:
                                          doSpacePoint        = True,      #Turn on/off histograms with Spacepoint information                              
                                          doCluster           = True,      #Turn on/off histograms with Cluster information
                                          doTrack             = True,      #Turn on/off histograms with Track information                                   
-                                         doStatus            = False,     #Turn on/off histograms with Module Status information                           
+                                         doStatus            = True,     #Turn on/off histograms with Module Status information                           
                                          doDCS               = False,
                                         
                                          ##Names of storegate containers                                                                                                     

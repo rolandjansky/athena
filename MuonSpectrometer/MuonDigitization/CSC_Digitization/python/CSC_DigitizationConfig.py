@@ -38,7 +38,7 @@ def CscDigitizationTool(name="CscDigitizationTool", **kwargs):
         kwargs.setdefault("LastXing",  CSC_LastXing() ) 
 
     kwargs.setdefault("InputObjectName", "CSC_Hits") 	 
-    kwargs.setdefault("OutputObjectName", "csc_digits") 	 
+    kwargs.setdefault("OutputObjectName", "CSC_DIGITS") 	 
     kwargs.setdefault("pedestal", 0.0) 	 
     kwargs.setdefault("WindowLowerOffset", -25.0) #-50.0,	 
     kwargs.setdefault("WindowUpperOffset",  25.0) #50.0  	 

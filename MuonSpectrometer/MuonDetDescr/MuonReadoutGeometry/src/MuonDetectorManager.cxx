@@ -703,7 +703,7 @@ const MMReadoutElement* MuonDetectorManager::getMMRElement_fromIdFields   (int i
 }
 void MuonDetectorManager::addMMReadoutElement_withIdFields   (const MMReadoutElement* x,  int iStname, int iStEta, int iStPhi, int imL)
 {
-  std::cout<<" Willing to add MM RE with IdFields: iStName, iStEta, iStPhi, imL = "<<iStname<<" "<<iStEta<<" "<<iStPhi<<" "<<imL<<std::endl;
+//std::cout<<" Willing to add MM RE with IdFields: iStName, iStEta, iStPhi, imL = "<<iStname<<" "<<iStEta<<" "<<iStPhi<<" "<<imL<<std::endl;
   int stname_index = iStname;
   int steta_index = iStEta+NMMcStEtaOffset;
   if (iStEta>0) steta_index = steta_index-1;
@@ -738,11 +738,11 @@ void MuonDetectorManager::addMMReadoutElement_withIdFields   (const MMReadoutEle
   }
     
   //  m_mdtArray[stName][stEta+8][stPhi+8][ml] = x;
-  std::cout<<" ... using internal indices  ["
+/*std::cout<<" ... using internal indices  ["
 	   <<stname_index<<"]["
 	   <<steta_index<< "]["
 	   <<stphi_index<< "]["
-	   <<ml_index<<    "]"<<std::endl;
+	   <<ml_index<<    "]"<<std::endl;*/
   if (m_mmcArray[stname_index][steta_index][stphi_index][ml_index] != NULL)
     {
       std::cerr<<"addMMRaedoutElement - this place is taken ["
@@ -760,7 +760,7 @@ void MuonDetectorManager::addMMReadoutElement_withIdFields   (const MMReadoutEle
 }
 void MuonDetectorManager::addsTgcReadoutElement_withIdFields   (const sTgcReadoutElement* x,  int iStname, int iStEta, int iStPhi, int imL)
 {
-  std::cout<<" Willing to add sTGC RE with IdFields: iStName, iStEta, iStPhi, imL = "<<iStname<<" "<<iStEta<<" "<<iStPhi<<" "<<imL<<std::endl;
+//std::cout<<" Willing to add sTGC RE with IdFields: iStName, iStEta, iStPhi, imL = "<<iStname<<" "<<iStEta<<" "<<iStPhi<<" "<<imL<<std::endl;
   int stname_index = iStname;
   int steta_index = iStEta+NsTgStEtaOffset;
   if (iStEta>0) steta_index = steta_index-1;
@@ -795,11 +795,11 @@ void MuonDetectorManager::addsTgcReadoutElement_withIdFields   (const sTgcReadou
   }
     
 
-  std::cout<<" ... using internal indices  ["
+/*std::cout<<" ... using internal indices  ["
 	   <<stname_index<<"]["
 	   <<steta_index<< "]["
 	   <<stphi_index<< "]["
-	   <<ml_index<<    "]"<<std::endl;
+	   <<ml_index<<    "]"<<std::endl;*/
   if (m_stgArray[stname_index][steta_index][stphi_index][ml_index] != NULL)
     {
       std::cerr<<"addsTgcReadoutElement - this place is taken ["

@@ -1214,8 +1214,8 @@ int main(int argc, char *argv[]){
 	
 	int npointsX =  reshist1->GetNbinsX();
 	int npointsY =  treshist1->GetNbinsY();
-	TH1D** hslizesX = new TH1D*[npointsX];;
-	TH1D** hslizesY = new TH1D*[npointsY];;
+	TH1D** hslizesX = new TH1D*[npointsX];
+	TH1D** hslizesY = new TH1D*[npointsY];
 	
 	TVectorD tbins(npointsX);
 	TVectorD rbins(npointsY);
@@ -1451,8 +1451,8 @@ int main(int argc, char *argv[]){
 
 
 
-        TH1D** hslizesArX = new TH1D*[npointsX];;
-        TH1D** hslizesArY = new TH1D*[npointsY];;
+        TH1D** hslizesArX = new TH1D*[npointsX];
+        TH1D** hslizesArY = new TH1D*[npointsY];
         TVectorD tbinsAr(npointsX);
         TVectorD rbinsAr(npointsY);
         for (int i=0;i<npointsX;i++) {

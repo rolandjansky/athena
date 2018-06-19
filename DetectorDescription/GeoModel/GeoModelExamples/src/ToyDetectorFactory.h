@@ -30,9 +30,9 @@ class ToyDetectorFactory : public GeoVDetectorFactory  {
   ToyDetectorFactory(const ToyDetectorFactory &right);
   
   // The manager:
-  ToyDetectorManager       *detectorManager;
+  ToyDetectorManager       *m_detectorManager;
   
-  StoreGateSvc             *detectorStore;
+  StoreGateSvc             *m_detectorStore;
 };
 
 // Class ToyDetectorFactory 

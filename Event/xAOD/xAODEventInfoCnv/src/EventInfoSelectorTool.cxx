@@ -45,15 +45,16 @@ namespace xAODMaker {
       }
 
       // Create the xAOD object(s):
-      xAOD::EventAuxInfo* aux = new xAOD::EventAuxInfo();
       xAOD::EventInfo* xaod = new xAOD::EventInfo();
+      CHECK( evtStore()->record( xaod, m_xaodKey ) );
+      
+      xAOD::EventAuxInfo* aux = new xAOD::EventAuxInfo();
+      CHECK( evtStore()->record( aux, m_xaodKey + "Aux." ) );
+      
       xaod->setStore( aux );
 
       // Do the translation:
       CHECK( const_cast<EventInfoSelectorTool*>(this)->convert( aod, xaod ) );
-      CHECK( evtStore()->record( aux, m_xaodKey + "Aux." ) );
-      CHECK( evtStore()->record( xaod, m_xaodKey ) );
-
       return StatusCode::SUCCESS;
    }
    //__________________________________________________________________________

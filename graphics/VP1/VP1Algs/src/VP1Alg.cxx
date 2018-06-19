@@ -147,8 +147,8 @@ StatusCode VP1Alg::execute()
     unsigned time = evt->event_ID()->time_stamp();//0 means no info.
 
     // Get L1 trigger type
-    TriggerInfo* _trig = evt->trigger_info();
-    unsigned int trigType = _trig ? _trig->level1TriggerType() : 0;
+    TriggerInfo* trig = evt->trigger_info();
+    unsigned int trigType = trig ? trig->level1TriggerType() : 0;
 
     if (m_noGui||m_vp1gui->executeNewEvent(runNumber,eventNumber,trigType,time)) {
       return StatusCode::SUCCESS;

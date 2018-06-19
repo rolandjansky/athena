@@ -3,12 +3,14 @@
 */
 
 #include <iostream>
+#include <mutex>
 #include <math.h>
 #include <float.h>
 #include "JetSubStructureMomentTools/NSubjettinessTool.h"
 #include "JetEDM/JetConstituentFiller.h"
 #include "JetSubStructureUtils/Nsubjettiness.h"
 #include "fastjet/ClusterSequence.hh"
+#include "CxxUtils/ubsan_suppress.h"
 
 using namespace std;
 using fastjet::PseudoJet;
@@ -21,6 +23,14 @@ NSubjettinessTool::NSubjettinessTool(std::string name) :
 
 int NSubjettinessTool::modifyJet(xAOD::Jet &jet) const {
   if(checkForConstituents(jet) == false) return 1;
+
+  // Supress a warning about undefined behavior in the fastjet
+  // WTA_KT_Axes ctor:
+  // .../fastjet/contrib/AxesDefinition.hh:551:43: runtime error: member access within address 0x7ffd770850d0 which does not point to an object of type 'WTA_KT_Axes'
+  // 0x7ffd770850d0: note: object has invalid vptr
+  std::once_flag oflag;
+  std::call_once (oflag, CxxUtils::ubsan_suppress,
+                  []() { fastjet::contrib::WTA_KT_Axes x; });
 
   fastjet::contrib::NormalizedCutoffMeasure normalized_measure(m_Alpha, jet.getSizeParameter(), 1000000);
 

@@ -25,6 +25,7 @@ Updated:
 
 #ifndef XAOD_ANALYSIS
 #include "GaudiKernel/ToolHandle.h"
+#include "GeneratorObjects/xAODTruthParticleLink.h"
 #include "ParticlesInConeTools/ITruthParticlesInConeTool.h"
 namespace HepMC {
  class GenParticle;
@@ -132,8 +133,11 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
                                               Info* info) const;
 #endif
    //
-   void findAllJetMothers(const xAOD::TruthParticle* thePart,std::set<const xAOD::TruthParticle*>&) const;
-   static double deltaR(const xAOD::TruthParticle& v1, const xAOD::Jet & v2) ;
+   void findAllJetMothers(const xAOD::TruthParticle*,std::set<const xAOD::TruthParticle*>&) const;
+   void findParticleDaughters(const xAOD::TruthParticle*, std::set<const xAOD::TruthParticle*>&) const;
+   double fracParticleInJet(const xAOD::TruthParticle*, const xAOD::Jet*, bool DR, bool nparts) const;
+   void findJetConstituents(const xAOD::Jet*, std::set<const xAOD::TruthParticle*>& constituents, bool DR) const;
+   static double deltaR(const xAOD::TruthParticle& v1, const xAOD::Jet & v2);
    MCTruthPartClassifier::ParticleOrigin defJetOrig(std::set<const xAOD::TruthParticle*>) const;
    //
   
@@ -148,7 +152,7 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
 #ifndef XAOD_ANALYSIS
    ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
    ToolHandle<xAOD::ITruthParticlesInConeTool> m_truthInConeTool;
-   std::string m_truthLinkVecName;             
+   SG::ReadHandleKey<xAODTruthParticleLinkVector> m_truthLinkVecReadHandleKey{this,"xAODTruthLinkVector","xAODTruthLinks","ReadHandleKey for xAODTruthParticleLinkVector"};
    float m_FwdElectronTruthExtrEtaCut;
    float m_FwdElectronTruthExtrEtaWindowCut;
    float m_partExtrConeEta;
@@ -161,7 +165,7 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
    bool  m_ROICone;
 #endif
 
-   std::string m_xaodTruthParticleContainerName ;
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleContainerKey{this,"xAODTruthParticleContainerName","TruthParticles","ReadHandleKey for xAOD::TruthParticleContainer"};
    float m_deltaRMatchCut;
    float m_deltaPhiMatchCut;
    int   m_NumOfSiHitsCut;

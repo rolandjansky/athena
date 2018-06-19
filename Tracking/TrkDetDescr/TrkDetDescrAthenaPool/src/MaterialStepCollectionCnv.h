@@ -33,7 +33,9 @@ class MaterialStepCollectionCnv : public MaterialStepCollectionCnvBase {
  
  protected:
  
+public:
   MaterialStepCollectionCnv( ISvcLocator *svcloc );
+protected:
   ~MaterialStepCollectionCnv();
   
   virtual StatusCode initialize();

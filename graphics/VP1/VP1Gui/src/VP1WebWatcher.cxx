@@ -175,14 +175,14 @@ public:
 
 //____________________________________________________________________
 VP1WebWatcher::VP1WebWatcher(int recheckInterval_ms, QObject * parent)
-  : QObject(parent), d(new Imp(this,recheckInterval_ms))
+  : QObject(parent), m_d(new Imp(this,recheckInterval_ms))
 {
   startTimer(recheckInterval_ms);
 }
 
 //____________________________________________________________________
 VP1WebWatcher::VP1WebWatcher(const QStringList& urls, int recheckInterval_ms, QObject * parent)
-  : QObject(parent), d(new Imp(this,recheckInterval_ms))
+  : QObject(parent), m_d(new Imp(this,recheckInterval_ms))
 {
   addUrls(urls);
   startTimer(recheckInterval_ms);
@@ -191,19 +191,19 @@ VP1WebWatcher::VP1WebWatcher(const QStringList& urls, int recheckInterval_ms, QO
 //____________________________________________________________________
 VP1WebWatcher::~VP1WebWatcher()
 {
-  while(!d->watchedUrls.isEmpty())
-    removeUrl(d->watchedUrls.front()->url);
-  delete d;
+  while(!m_d->watchedUrls.isEmpty())
+    removeUrl(m_d->watchedUrls.front()->url);
+  delete m_d;
 }
 
 //____________________________________________________________________
 void VP1WebWatcher::httpRequestDone(bool error)
 {
-  foreach(Imp::WatchedUrl*wu, d->watchedUrls)
+  foreach(Imp::WatchedUrl*wu, m_d->watchedUrls)
     if (wu->thread && wu->thread->handleDone(error, sender())) {
       bool changed = wu->lastResult != wu->thread->result();
       wu->lastResult = wu->thread->result();
-      d->ensureEndThread(wu->thread);
+      m_d->ensureEndThread(wu->thread);
       if (changed)
 	emit urlChanged(wu->url);
       return;
@@ -215,7 +215,7 @@ void VP1WebWatcher::httpRequestDone(bool error)
 //____________________________________________________________________
 bool VP1WebWatcher::isWatchingUrl(const QString&u) const
 {
-  foreach (Imp::WatchedUrl*wu, d->watchedUrls) {
+  foreach (Imp::WatchedUrl*wu, m_d->watchedUrls) {
     if (wu->url == u)
       return true;
   }
@@ -228,8 +228,8 @@ void VP1WebWatcher::addUrl(const QString&/*u*/)
   // if (isWatchingUrl(u))
   //   return;
   // Imp::WatchedUrl * wu = new Imp::WatchedUrl(u);
-  // d->watchedUrls << wu;
-  // d->startDownload(wu);
+  // m_d->watchedUrls << wu;
+  // m_d->startDownload(wu);
 }
 
 //____________________________________________________________________
@@ -243,7 +243,7 @@ void VP1WebWatcher::addUrls(const QStringList&/*l*/)
 QStringList VP1WebWatcher::urls() const
 {
   QStringList l;
-  // foreach(Imp::WatchedUrl*wu,d->watchedUrls)
+  // foreach(Imp::WatchedUrl*wu,m_d->watchedUrls)
   //   l << wu->url;
   return l;
 }
@@ -251,9 +251,9 @@ QStringList VP1WebWatcher::urls() const
 //____________________________________________________________________
 void VP1WebWatcher::removeUrl(const QString&/*u*/)
 {
-  // foreach(Imp::WatchedUrl*wu,d->watchedUrls)
+  // foreach(Imp::WatchedUrl*wu,m_d->watchedUrls)
   //   if (wu->url == u) {
-  //     d->watchedUrls.removeAll(wu);
+  //     m_d->watchedUrls.removeAll(wu);
   //     delete wu;
   //     return;
   //   }
@@ -270,18 +270,18 @@ void VP1WebWatcher::removeUrls(const QStringList&/*l*/)
 void VP1WebWatcher::timerEvent(QTimerEvent*)
 {
   // const unsigned currentTime = QDateTime::currentDateTime().toTime_t();
-  // foreach(Imp::WatchedUrl*wu,d->watchedUrls) {
+  // foreach(Imp::WatchedUrl*wu,m_d->watchedUrls) {
   //   if (!wu->thread) {
-  //     d->startDownload(wu);
+  //     m_d->startDownload(wu);
   //   } else {
   //     //Thread is running. Check that it didn't run for too long.
   //     //
   //     //(No matter what, we never restart running thread that have been
   //     //running for less than a second, or no less than twice the
   //     //recheckInterval!)
-  //     if (wu->thread->httpStartTime()>0 && currentTime - wu->thread->httpStartTime() > (unsigned(d->recheckInterval_ms) * 1000 * 2 + 1000)) {
-	// d->ensureEndThread(wu->thread);
-	// d->startDownload(wu);
+  //     if (wu->thread->httpStartTime()>0 && currentTime - wu->thread->httpStartTime() > (unsigned(m_d->recheckInterval_ms) * 1000 * 2 + 1000)) {
+	// m_d->ensureEndThread(wu->thread);
+	// m_d->startDownload(wu);
   //     }
   //   }
   // }
@@ -290,7 +290,7 @@ void VP1WebWatcher::timerEvent(QTimerEvent*)
 //____________________________________________________________________
 VP1WebWatcher::RESULT VP1WebWatcher::lastResult(const QString& url)
 {
-  foreach(Imp::WatchedUrl*wu, d->watchedUrls)
+  foreach(Imp::WatchedUrl*wu, m_d->watchedUrls)
     if (wu->url==url) {
       if (wu->lastResult==VP1WebWatcher_UrlInvalid)
 	return INVALID_URL;
@@ -324,7 +324,7 @@ QString VP1WebWatcher::lastResultToString(const QString& url)
 //____________________________________________________________________
 QDateTime VP1WebWatcher::lastModTime(const QString& url)
 {
-  foreach(Imp::WatchedUrl*wu, d->watchedUrls)
+  foreach(Imp::WatchedUrl*wu, m_d->watchedUrls)
     if (wu->url==url) {
       if (wu->lastResult.startsWith(VP1WebWatcher_PREFIX))
 	return QDateTime();//invalid

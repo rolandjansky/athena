@@ -99,7 +99,7 @@ from IOVDbSvc.CondDB import conddb
 conddb.setGlobalTag('CONDBR2-BLKPA-2014-03') ###########
 #conddb.blockFolder("/PIXEL/PixCalib");conddb.addFolder("PIXEL_OFL","/PIXEL/PixCalib <tag>PixCalib-IBL3D25DBM-04-01</tag>",force=True,forceMC=True);
 
-include("PixelConditionsServices/SpecialPixelMapSvc_jobOptions.py")
+include("SpecialPixelMapSvc_jobOptions.py")
 
 if not 'doValidate' in dir() :
   doValidate=False
@@ -147,7 +147,7 @@ ServiceMgr.PixelConditionsSummarySvc.UseByteStream = True
 if globalflags.InputFormat() == 'pool':
   import AthenaPoolCnvSvc.ReadAthenaPool
   ServiceMgr.EventSelector.InputCollections = collection
-  include("PixelConditionsServices/PixelByteStreamErrorsSvc_jobOptions.py")
+  include("PixelByteStreamErrorsSvc_jobOptions.py")
 elif globalflags.InputFormat() == 'bytestream':
   include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
   include("InDetRecExample/InDetReadBS_jobOptions.py")

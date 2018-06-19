@@ -28,9 +28,10 @@ typedef TRT_HitCollectionCnv_p3  TRT_HitCollectionCnv_PERS;
 
 class TRTUncompressedHitCollectionCnv  : public T_AthenaPoolCustomCnv<TRTUncompressedHitCollection, TRT_HitCollection_PERS > {
   friend class CnvFactory<TRTUncompressedHitCollectionCnv>;
-protected:
+public:
   TRTUncompressedHitCollectionCnv(ISvcLocator* svcloc) :
         T_AthenaPoolCustomCnv<TRTUncompressedHitCollection, TRT_HitCollection_PERS >( svcloc) {}
+protected:
   TRT_HitCollection_PERS*  createPersistent(TRTUncompressedHitCollection* transCont);
   TRTUncompressedHitCollection*       createTransient ();
 };

@@ -4,7 +4,6 @@
 
 #include "TrigROBDataProviderSvc_RTT.h"
 
-#include "GaudiKernel/ThreadGaudi.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/Property.h"
@@ -560,7 +559,7 @@ void TrigROBDataProviderSvc_RTT::handle(const Incident& incident)
 
 
   // *-- booking path
-  std::string path = std::string("/EXPERT/")+getGaudiThreadGenericName(name())+"/";
+  std::string path = std::string("/EXPERT/")+name()+"/";
   //
   m_hist_missingRequestedROBsPerAlgo = new TH1F (m_histProp_missingRequestedROBsPerAlgo.value().title().c_str(),
 						 (m_histProp_missingRequestedROBsPerAlgo.value().title()+";").c_str(), 

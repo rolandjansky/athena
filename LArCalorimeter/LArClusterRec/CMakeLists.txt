@@ -20,7 +20,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloUtils
                           Control/AthContainers
                           DetectorDescription/Identifier
-                          LArCalorimeter/LArRawEvent )
+                          LArCalorimeter/LArRawEvent 
+			  LArCalorimeter/LArRecConditions)
 
 # Component(s) in the package:
 atlas_add_component( LArClusterRec

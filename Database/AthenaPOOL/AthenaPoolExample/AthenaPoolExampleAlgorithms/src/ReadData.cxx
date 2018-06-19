@@ -14,8 +14,6 @@
 #include "AthenaPoolExampleData/ExampleHitContainer.h"
 #include "AthenaPoolExampleData/ExampleTrackContainer.h"
 
-#include "DBDataModel/CollectionMetadata.h"
-
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventStreamInfo.h"
@@ -26,7 +24,7 @@
 using namespace AthPoolEx;
 
 //___________________________________________________________________________
-ReadData::ReadData(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator), p_SGinMeta("StoreGateSvc/InputMetaDataStore", name), p_SGtagMeta("StoreGateSvc/TagMetaDataStore", name), p_SGmeta("StoreGateSvc/MetaDataStore", name) {
+ReadData::ReadData(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator), p_SGinMeta("StoreGateSvc/InputMetaDataStore", name), p_SGmeta("StoreGateSvc/MetaDataStore", name) {
 }
 //___________________________________________________________________________
 ReadData::~ReadData() {
@@ -40,12 +38,8 @@ StatusCode ReadData::initialize() {
       ATH_MSG_ERROR("Could not find Input MetaData StoreGateSvc");
       return StatusCode::FAILURE;
    }
-   if (!p_SGtagMeta.retrieve().isSuccess()) {
+   if (!p_SGmeta.retrieve().isSuccess()) {
       ATH_MSG_ERROR("Could not find Tag MetaData StoreGateSvc");
-      return StatusCode::FAILURE;
-   }
-   if (!p_SGtagMeta.retrieve().isSuccess()) {
-      ATH_MSG_ERROR("Could not find MetaData StoreGateSvc");
       return StatusCode::FAILURE;
    }
    return StatusCode::SUCCESS;
@@ -54,18 +48,6 @@ StatusCode ReadData::initialize() {
 StatusCode ReadData::execute() {
    ATH_MSG_DEBUG("in execute()");
 
-   if (p_SGtagMeta->contains<CollectionMetadata>("CollectionMetadata")) {
-      const DataHandle<CollectionMetadata> cm;
-      if (p_SGtagMeta->retrieve(cm, "CollectionMetadata").isFailure()) {
-         ATH_MSG_FATAL("Could not find CollectionMetadata");
-         return StatusCode::FAILURE;
-      }
-      for (CollectionMetadata::const_iterator iter = cm->begin(), iterEnd = cm->end();
-		      iter != iterEnd; iter++) {
-         ATH_MSG_INFO("CollectionMetadata, key = " << iter->first << ", value = " << iter->second);
-      }
-   }
-   // Get the event streamheader, print out 
    const DataHandle<EventStreamInfo> esi1, esi2;
    if (p_SGinMeta->retrieve(esi1, esi2).isFailure() || esi1 == esi2) {
       ATH_MSG_WARNING("Could not find EventStreamInfo");

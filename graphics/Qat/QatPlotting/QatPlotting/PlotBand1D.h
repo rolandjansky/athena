@@ -25,8 +25,8 @@
 // Plottable adaptor for Function1D's                                               //
 //                                                                                  //
 //----------------------------------------------------------------------------------//
-#ifndef _PLOTBAND1D_H_
-#define _PLOTBAND1D_H_
+#ifndef QATPLOTTING_PLOTBAND1D_H
+#define QATPLOTTING_PLOTBAND1D_H
 
 #include "QatPlotting/Plotable.h"
 //#include "QatPlotting/PlotBand1DProperties.h"
@@ -87,7 +87,7 @@ public:
 private:
 
   class Clockwork;
-  std::unique_ptr<Clockwork> c;
+  std::unique_ptr<Clockwork> m_c;
   
 
 };

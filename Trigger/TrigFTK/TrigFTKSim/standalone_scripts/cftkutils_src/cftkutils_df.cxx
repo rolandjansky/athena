@@ -437,7 +437,7 @@ string myTimeString(double time) {
 void *CS_loopmonitor(void *ptr) {
   FTKTreeObject *ftktree = (FTKTreeObject*) ptr;
 
-  time_t starttime = time(NULL);;
+  time_t starttime = time(NULL);
   sleep(30);
   const unsigned int diskunit = 1024*1024; // MB
   while (!ftktree->loopbreak) {
@@ -807,7 +807,7 @@ PyObject *FTKTreeObject_CollectStats(FTKTreeObject* self, PyObject *args)
   self->loopbreak = false;
   self->totnbytes = 0;
   pthread_create(&ctrlthread, NULL, &CS_loopmonitor, (void*) self);
-  time_t starttime = time(NULL);;
+  time_t starttime = time(NULL);
 
   long int istep = (maxevent+9)/10;
 

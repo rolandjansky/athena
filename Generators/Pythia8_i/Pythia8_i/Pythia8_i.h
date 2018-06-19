@@ -17,12 +17,14 @@
 
 #include <stdexcept>
 
+using std::string;
 
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 /**
  *  Author: James Monk (jmonk@cern.ch)
 */
-
-using std::string;
 
 class IAtRndmGenSvc;
 
@@ -58,14 +60,14 @@ private:
 class Pythia8_i: public GenModule{
 
 public:
-  Pythia8_i(const string &name, ISvcLocator *pSvcLocator);
+  Pythia8_i(const std::string &name, ISvcLocator *pSvcLocator);
   
   ~Pythia8_i();
 
   class CommandException : public std::runtime_error{
   public:
     
-  CommandException(const string &cmd): std::runtime_error("Cannot interpret command: " + cmd){
+  CommandException(const std::string &cmd): std::runtime_error("Cannot interpret command: " + cmd){
     }
   };
     
@@ -79,9 +81,11 @@ public:
   static std::string    pythia_stream;
     
 protected:
+
+  bool useRndmGenSvc() const { return m_useRndmGenSvc; }
   
   // make these protected so that Pythia8B can access them
-  Pythia8::Pythia m_pythia;
+  std::unique_ptr<Pythia8::Pythia> m_pythia;
   HepMC::Pythia8ToHepMC m_pythiaToHepMC;
 
 private:
@@ -98,7 +102,7 @@ private:
   std::vector<std::string> m_userParams;
   std::vector<std::string> m_userModes;
   
-  enum PDGID {PROTON=2212, ANTIPROTON=-2212, ELECTRON=11, POSITRON=-11, INVALID=0};
+  enum PDGID {PROTON=2212, ANTIPROTON=-2212, NEUTRON=2112, ANTINEUTRON=-2112, MUON=13, ANTIMUON=-13, ELECTRON=11, POSITRON=-11, INVALID=0};
   
   double m_collisionEnergy;
   bool m_useRndmGenSvc;
@@ -109,7 +113,8 @@ private:
   std::string m_beam2;
 
   std::string m_lheFile;
-  
+
+  bool m_storeLHE;
   bool m_doCKKWLAcceptance;
   double m_nAccepted;
   double m_nMerged;
@@ -129,6 +134,7 @@ private:
   std::string m_userHook;
   
   Pythia8::UserHooks *m_userHookPtr;
+  //std::vector<Pythia8::UserHooks*> m_userHooksPtrs;
   
   std::string m_userResonances;
   
@@ -139,8 +145,10 @@ private:
   std::string m_particleDataFile;
   std::string m_outputParticleDataFile;
   
-  std::vector<string> m_weightIDs;
+  std::vector<std::string> m_weightIDs;
   bool m_doLHE3Weights;
+  std::vector<std::string> m_weightCommands;
+  std::vector<std::string> m_showerWeightNames;
   
   static int s_allowedTunes(double version);
 

@@ -64,8 +64,6 @@ private:
 
   unsigned int m_HWModeSS; // check the format of the SS-ID: 0 is global, 1 is local (tower based), 2 is local compressed
 
-  int m_event; // current event
-
   int m_MaxMissingSctPairs; // maximum number of missing SCT pairs
 			    // Note that each missing pair will count
 			    // as ONE missing plane for the purpose of

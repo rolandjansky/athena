@@ -101,7 +101,7 @@ T2TrackClusterer::cluster( const TrackCollection& tracks )
   if ( tracks.empty() )
     {
       // FIXME: unusedTracks = tracks;
-      return *m_cluster.asDataVector();;
+      return *m_cluster.asDataVector();
     }
 
   const Trk::Track* seedTrack = *tracks.begin();

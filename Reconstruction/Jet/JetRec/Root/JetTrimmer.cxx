@@ -45,12 +45,15 @@ StatusCode JetTrimmer::initialize() {
     ATH_MSG_ERROR("Unable to retrieve jet builder.");
     return StatusCode::FAILURE;
   }
+  ATH_CHECK( m_bld.retrieve() );
   return StatusCode::SUCCESS;
 }
 
 //**********************************************************************
 
-int JetTrimmer::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) const {
+int JetTrimmer::groom(const xAOD::Jet& jin,
+                      const PseudoJetContainer& pjContainer,
+                      xAOD::JetContainer& jets) const {
   if ( pseudojetRetriever() == nullptr ) {
     ATH_MSG_WARNING("Pseudojet retriever is null.");
     return 1;
@@ -68,7 +71,7 @@ int JetTrimmer::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) const {
   ATH_MSG_VERBOSE(" Trimmed cluster sequence: " << pjtrim.associated_cluster_sequence());
   int nptrim = pjtrim.pieces().size();
   // Add jet to collection.
-  xAOD::Jet* pjet = m_bld->add(pjtrim, jets, &jin);
+  xAOD::Jet* pjet = m_bld->add(pjtrim, pjContainer, jets, &jin);
   pjet->setAttribute<int>("TransformType", xAOD::JetTransform::Trim);
   pjet->setAttribute("RClus", m_rclus);
   pjet->setAttribute("PtFrac", m_ptfrac);

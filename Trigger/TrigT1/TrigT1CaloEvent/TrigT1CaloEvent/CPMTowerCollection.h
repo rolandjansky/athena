@@ -1,7 +1,7 @@
 #ifndef TRIGT1CAL_CPMTowerCOLLECTION_H
 #define TRIGT1CAL_CPMTowerCOLLECTION_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrigT1CaloEvent/CPMTower.h"
 
 /** Container class for CPMTowers.

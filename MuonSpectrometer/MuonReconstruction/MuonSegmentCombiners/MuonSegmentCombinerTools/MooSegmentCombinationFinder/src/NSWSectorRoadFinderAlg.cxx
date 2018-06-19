@@ -17,7 +17,6 @@ NSWSectorRoadFinderAlg::NSWSectorRoadFinderAlg(const std::string& name, ISvcLoca
 {  
   declareProperty("MMPrepDataContainer", m_keyMM);
   declareProperty("sTgcPrepDataContainer", m_keysTgc);
-  //
   declareProperty("PatternOutputLocation",m_patternLocation);
 }
 
@@ -28,14 +27,7 @@ NSWSectorRoadFinderAlg::~NSWSectorRoadFinderAlg()
 
 StatusCode NSWSectorRoadFinderAlg::initialize()
 {
-  if (AthAlgorithm::initialize().isFailure()) {
-    return StatusCode::FAILURE;
-  }
-  if( m_idHelper.retrieve().isFailure() ){
-    ATH_MSG_ERROR("Could not retrieve " << m_idHelper);
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK( m_idHelper.retrieve() );
   ATH_CHECK( m_keysTgc.initialize() );
   ATH_CHECK( m_keyMM.initialize() );
   ATH_CHECK( m_patternLocation.initialize() );

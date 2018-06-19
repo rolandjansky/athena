@@ -35,14 +35,14 @@ public:
 
 //____________________________________________________________________
 VP1RawDataColl_SCT_RDO::VP1RawDataColl_SCT_RDO(VP1RawDataCommonData*common,const QString& key)
-  : VP1RawDataCollBase(common,key), d(new Imp)
+  : VP1RawDataCollBase(common,key), m_d(new Imp)
 {
 }
 
 //____________________________________________________________________
 VP1RawDataColl_SCT_RDO::~VP1RawDataColl_SCT_RDO()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________

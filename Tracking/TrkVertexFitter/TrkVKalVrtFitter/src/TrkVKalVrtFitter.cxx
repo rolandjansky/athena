@@ -39,10 +39,10 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     m_IterationPrecision(0),
     m_IDsizeR(1150.),
     m_IDsizeZ(3000.),
-    m_extPropagator("DefaultVKalPropagator"),                     // Internal propagator
-//    m_extPropagator("Trk::Extrapolator/InDetExtrapolator")     // External propagator
-//    m_magFieldAthenaSvc("MagFieldAthenaSvc",name),       //Athena magnetic field---old version
-    m_magFieldAthenaSvc("AtlasFieldSvc", name),            //Athena magnetic field
+    m_extPropagator("DefaultVKalPropagator"),                   // Internal propagator
+    // m_extPropagator("Trk::Extrapolator/InDetExtrapolator"),  // External propagator
+    // m_magFieldAthenaSvc("MagFieldAthenaSvc",name),           //Athena magnetic field---old version
+    m_magFieldAthenaSvc("AtlasFieldSvc", name),                 //Athena magnetic field
     m_firstMeasuredPoint(false),
     m_firstMeasuredPointLimit(false),
     m_makeExtendedVertex(false),
@@ -53,7 +53,12 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     m_useZPointingCnst(false),
     m_usePassNear(false),
     m_usePassWithTrkErr(false),
-    m_useMagFieldRotation(false)
+    m_useMagFieldRotation(false),
+    m_Charge(0),
+    m_Chi2(0.),
+    m_cascadeSize(0),
+    m_timingProfile(nullptr),
+    m_ErrMtx(nullptr)
    {
     declareInterface<IVertexFitter>(this);
     declareInterface<ITrkVKalVrtFitter>(this);
@@ -227,10 +232,12 @@ StatusCode TrkVKalVrtFitter::initialize()
 //
     if (m_extPropagator.name() == "DefaultVKalPropagator" ){
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "External propagator is not supplied - use internal one"<<endmsg;
+      m_extPropagator.disable();
     }else{
       if (m_extPropagator.retrieve().isFailure()) {
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Could not find external propagator=" <<m_extPropagator<<endmsg;
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "TrkVKalVrtFitter will uses internal propagator" << endmsg;
+        m_extPropagator.disable();
       }else{
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "External propagator="<<m_extPropagator<<" retrieved" << endmsg;
         const IExtrapolator * tmp =& (*m_extPropagator);

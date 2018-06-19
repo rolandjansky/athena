@@ -21,7 +21,7 @@ atlas_depends_on_subdirs( PRIVATE
                           TileCalorimeter/TileConditions
                           TileCalorimeter/TileEvent
                           TileCalorimeter/TileIdentifier
-                          Tools/AtlasDoxygen
+                          
                           Tools/LWHists
                           Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigConfiguration/TrigConfL1Data

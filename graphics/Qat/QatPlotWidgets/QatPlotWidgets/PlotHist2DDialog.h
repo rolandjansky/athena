@@ -1,5 +1,5 @@
-#ifndef _PlotHist2DDialog_h_
-#define _PlotHist2DDialog_h_
+#ifndef QATPLOTWIDGETS_PLOTHIST2DDIALOG_H
+#define QATPLOTWIDGETS_PLOTHIST2DDIALOG_H
 #include <QtGui/QDialog>
 class PlotHist2D;
 class PlotHist2DDialog: public QDialog {
@@ -32,7 +32,7 @@ class PlotHist2DDialog: public QDialog {
 
   
   class Clockwork;
-  Clockwork *c; 
+  Clockwork *m_c;
 
 }; 
 

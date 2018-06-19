@@ -24,13 +24,15 @@ typedef T_AthenaPoolCustomCnv<JEMTobRoICollection, JEMTobRoICollection_PERS> JEM
 class JEMTobRoICollectionCnv: public JEMTobRoICollectionCnvBase {
 friend class CnvFactory<JEMTobRoICollectionCnv>;
 
-protected:
+public:
 
   JEMTobRoICollectionCnv (ISvcLocator* svcloc) :
     JEMTobRoICollectionCnvBase(svcloc),
     m_msgSvc( msgSvc() ),
     m_log( m_msgSvc, "JEMTobRoICollectionCnv" )
      {}
+
+protected:
   
   ~JEMTobRoICollectionCnv() {}
   

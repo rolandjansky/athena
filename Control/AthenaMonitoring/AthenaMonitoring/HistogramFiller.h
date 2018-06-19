@@ -10,6 +10,7 @@
 #include <memory>
 #include <vector>
 
+
 #include "TH1.h"
 #include "TH2.h"
 #include "TProfile.h"
@@ -64,32 +65,7 @@ namespace Monitored {
   
   class HistogramFillerFactory {
   private:
-    class MonitoringGroup {
-    public:
-      enum Level { debug, expert, shift, express, runsum, runstat = runsum };
-    private:
-      std::string level2string(Level l) const;
-    public:
-      MonitoringGroup(const ServiceHandle<ITHistSvc>& histSvc, std::string groupName, Level l);
-    
-      StatusCode regHist(TH1* h);
-      StatusCode deregHist(TH1* h);
-      
-      template <class T>
-      T* getHist(const std::string& hname) const {
-        T* h(0);
-        const std::string name = level2string(m_level) + m_groupName + "/" + hname;
-        if (m_histSvc->exists(name)) {
-          m_histSvc->getHist(name, h).ignore();
-        }
-        return h;
-      }
-    private:
-      ServiceHandle<ITHistSvc> m_histSvc;
-      std::string m_groupName;
-      Level m_level;
-    };
-    
+
   public:
     HistogramFillerFactory(const ServiceHandle<ITHistSvc>& histSvc, std::string groupName);
     virtual ~HistogramFillerFactory();
@@ -111,8 +87,7 @@ namespace Monitored {
     static void setLabels(TH1* hist, const std::vector<std::string>& labels);
     
     ServiceHandle<ITHistSvc> m_histSvc;
-    std::string m_groupName;
-    std::map<std::string, MonitoringGroup*> m_histogramCategory; //!< predefined categories (drive booking paths)
+    std::string m_groupName; //!< defines location of histograms
   };
   
   /**

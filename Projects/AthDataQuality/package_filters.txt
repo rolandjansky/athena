@@ -10,4 +10,6 @@
 + DataQuality/DCSCalculator2
 + DataQuality/ZLumiScripts
 + Database/CoraCool
++ Tools/ART
++ Tools/AthDataQuality
 - .*

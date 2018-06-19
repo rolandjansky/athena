@@ -13,7 +13,6 @@
 #include "ByteStreamData/ROBData.h"
 
 #include "AthenaKernel/errorcheck.h"
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IRegistry.h"

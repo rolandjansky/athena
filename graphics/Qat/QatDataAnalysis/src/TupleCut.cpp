@@ -24,28 +24,28 @@
 #include <set>
 TupleCut::TupleCut (const TupleCut & right):
   Cut<Tuple>(),
-  _f(right._f->clone()),
-  _t(right._t),
-  _v1(right._v1),
-  _v2(right._v2)
+  m_f(right.m_f->clone()),
+  m_t(right.m_t),
+  m_v1(right.m_v1),
+  m_v2(right.m_v2)
 {}
 
 TupleCut::TupleCut(Genfun::GENFUNCTION f, double min, double max):
-  _f(f.clone()),
-  _t(NA),
-  _v1(min),
-  _v2(max) {}
+  m_f(f.clone()),
+  m_t(NA),
+  m_v1(min),
+  m_v2(max) {}
 
 TupleCut::TupleCut(Genfun::GENFUNCTION f, Type t, double val):
-_f(f.clone()),
-_t(t),
-_v1(val),
-_v2(0)
+m_f(f.clone()),
+m_t(t),
+m_v1(val),
+m_v2(0)
 {
 }
 
 TupleCut::~TupleCut() {
-  delete _f;
+  delete m_f;
 }
 
 TupleCut *TupleCut::clone(void) const {
@@ -54,18 +54,18 @@ TupleCut *TupleCut::clone(void) const {
 
 bool TupleCut::operator () (const Tuple & t) const {
 
-  double fx = (*_f)(t.asDoublePrec());
-  switch (_t) {
+  double fx = (*m_f)(t.asDoublePrec());
+  switch (m_t) {
   case NA:
-    return fx >= _v1 && fx <= _v2;
+    return fx >= m_v1 && fx <= m_v2;
   case GT:
-    return fx > _v1;
+    return fx > m_v1;
   case LT:
-    return fx < _v1;
+    return fx < m_v1;
   case GE:
-    return fx >= _v1;
+    return fx >= m_v1;
   case LE:
-    return fx <= _v1;
+    return fx <= m_v1;
   }
   return false;
 } 

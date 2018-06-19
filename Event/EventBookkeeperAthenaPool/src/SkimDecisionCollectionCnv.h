@@ -24,7 +24,9 @@ class SkimDecisionCollectionCnv : public SkimDecisionCollectionCnvBase
 {
   friend class CnvFactory<SkimDecisionCollectionCnv >;
  protected:
+public:
   SkimDecisionCollectionCnv (ISvcLocator* svcloc) : SkimDecisionCollectionCnvBase(svcloc) {}
+protected:
   virtual SkimDecisionCollection_PERS*  createPersistent (SkimDecisionCollection* transCont);
   virtual SkimDecisionCollection*     createTransient ();
 

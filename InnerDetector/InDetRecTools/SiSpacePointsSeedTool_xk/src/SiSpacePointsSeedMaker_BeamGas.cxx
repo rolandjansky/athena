@@ -185,6 +185,8 @@ StatusCode InDet::SiSpacePointsSeedMaker_BeamGas::initialize()
     } else {
       msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endmsg;
     }
+  } else {
+    m_assoTool.disable();
   }
 
   // Build framework

@@ -5,7 +5,6 @@
 // BeamCondSvc.cxx - service giving beamspot data
 // Richard Hawkings, started 16/6/05
 
-#include "GaudiKernel/SvcFactory.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "CoralBase/AttributeListException.h"
 #include "EventPrimitives/EventPrimitives.h"

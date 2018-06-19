@@ -16,7 +16,7 @@ decription           : Collection of refitted track pairs
 
 #include "TrkTrack/RefittedTrackPair.h"
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 typedef DataVector< Trk::RefittedTrackPair > RefittedTrackPairCollection;
 

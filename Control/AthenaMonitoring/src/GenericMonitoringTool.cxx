@@ -22,10 +22,7 @@ const InterfaceID& GenericMonitoringTool::interfaceID() {
 }
 
 GenericMonitoringTool::GenericMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent)
-  : AthAlgTool(type, name, parent), 
-    m_histSvc("THistSvc", name) { 
-  declareProperty("Histograms", m_histograms, "Definitions of histograms");
-  declareProperty("HistPath", m_histoPath, "Histogram base path");
+  : AthAlgTool(type, name, parent) { 
   declareInterface<GenericMonitoringTool>(this);
 }
 
@@ -33,13 +30,24 @@ GenericMonitoringTool::~GenericMonitoringTool() { }
 
 StatusCode GenericMonitoringTool::initialize() {
   ATH_CHECK(m_histSvc.retrieve());
+  if ( not m_explicitBooking ) {
+    ATH_MSG_DEBUG("Proceeding to histograms booking");
+    return book();
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode GenericMonitoringTool::book() {
 
   // If no histogram path given use parent or our own name
   if (m_histoPath.empty()) {
     auto named = dynamic_cast<const INamedInterface*>(parent());
     m_histoPath = named ? named->name() : name();
-  }
+  } 
   
+  ATH_MSG_DEBUG("Booking hostograms in path:" << m_histoPath << ":");
+
   HistogramFillerFactory factory(m_histSvc, m_histoPath);
 
   m_fillers.reserve(m_histograms.size());
@@ -100,4 +108,8 @@ vector<HistogramFiller*> GenericMonitoringTool::getHistogramsFillers(vector<refe
   }
 
   return result;
+}
+
+void GenericMonitoringTool::setPath( const std::string& newPath ) {
+  m_histoPath = newPath;
 }

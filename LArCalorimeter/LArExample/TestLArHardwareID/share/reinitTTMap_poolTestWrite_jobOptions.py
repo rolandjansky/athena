@@ -65,8 +65,8 @@ import AthenaPoolCnvSvc.WriteAthenaPool
 theApp.OutStream = []
 
 #from AthenaCommon.AppMgr import ToolSvc
-from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
-ToolSvc += AthenaPoolOutputStreamTool("CondStream1", OutputFile = "LArTTCellMap-HadFcalFix.pool.root")
+from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
+ToolSvc += AthenaOutputStreamTool("CondStream1", OutputFile = "LArTTCellMap-HadFcalFix.pool.root")
 
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )

@@ -38,13 +38,8 @@ class JepRoiByteStreamV2Tool;
 
 class CmxRoIByteStreamAuxCnv: public Converter, public ::AthMessaging {
 
-  friend class CnvFactory<CmxRoIByteStreamAuxCnv>;
-
-protected:
-
-  CmxRoIByteStreamAuxCnv(ISvcLocator* svcloc);
-
 public:
+  CmxRoIByteStreamAuxCnv(ISvcLocator* svcloc);
 
   virtual ~CmxRoIByteStreamAuxCnv(){};
 

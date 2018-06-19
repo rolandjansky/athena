@@ -155,11 +155,10 @@ def toolVxInternalEdmFactory(name, useBTagFlagsDefaults = True, **options):
 #--------------------------------------------------------------------------
 
 metaJetFitterSequentialVertexFitter = { 'DependsOn'      : ['JetFitterSequentialVertexSmoother',
-                                                            'JetFitterFullLinearizedTrackFactory',
-                                                            'VxInternalEdmFactory'],
+                                                            'JetFitterFullLinearizedTrackFactory'] ,
                                         'PassByPointer'  : {'VertexSmoother'         : 'JetFitterSequentialVertexSmoother',
-                                                            'LinearizedTrackFactory' : 'JetFitterFullLinearizedTrackFactory',
-                                                            'XAODConverter'          : 'VxInternalEdmFactory' },
+                                                            'LinearizedTrackFactory' : 'JetFitterFullLinearizedTrackFactory'},
+
                                         'ToolCollection' : 'JetFitterCollection' }
 
 def toolJetFitterSequentialVertexFitter(name, useBTagFlagsDefaults = True, **options):
@@ -445,7 +444,7 @@ def toolNeuralNetworkToHistoToolNN(name, useBTagFlagsDefaults = True, **options)
 
 #-------------------------------------------------------------------------
 
-metaJetFitterNNTool = { 'CalibrationFolders' : ['JetFitter',],
+metaJetFitterNNTool = { 'CalibrationTaggers' : ['JetFitter',],
                         'DependsOn'          : ['NeuralNetworkToHistoToolNN',
                                                 'BTagCalibrationBrokerTool'],
                         'PassByPointer'      : {'calibrationTool'          : 'BTagCalibrationBrokerTool',
@@ -586,7 +585,7 @@ def toolNeuralNetworkToHistoToolCOMBNN(name, useBTagFlagsDefaults = True, **opti
 
 #-----------------------------------------------------------------------------
 
-metaJetFitterCOMBNNTool = { 'CalibrationFolders' : ['JetFitter',],
+metaJetFitterCOMBNNTool = { 'CalibrationTaggers' : ['JetFitter',],
                             'DependsOn'          : ['NeuralNetworkToHistoToolCOMBNN',
                                                     'BTagCalibrationBrokerTool'],
                             'PassByPointer'      : {'calibrationTool'          : 'BTagCalibrationBrokerTool',

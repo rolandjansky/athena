@@ -7,11 +7,13 @@
 //#include "TROOT.h"
 //#include "TEnv.h"
 
+using std::string;
+
 ClassImp(TCopyFile)
 
-bool TCopyFile::_originalTFile=true;
-std::string TCopyFile::_prefixin;
-std::string TCopyFile::_prefixout;
+bool TCopyFile::s_originalTFile=true;
+std::string TCopyFile::s_prefixin;
+std::string TCopyFile::s_prefixout;
 
 
 TCopyFile::TCopyFile()
@@ -22,7 +24,7 @@ TCopyFile::TCopyFile()
 
 TCopyFile::TCopyFile(const char *fname, Option_t *option, const char *ftitle, Int_t compress) 
   : TFile(GetCopyFile(fname),option,ftitle,compress)
-  , _inFile(fname)
+  , m_inFile(fname)
 {
 }
 
@@ -30,23 +32,21 @@ TCopyFile::TCopyFile(const char *fname, Option_t *option, const char *ftitle, In
 TCopyFile::~TCopyFile()
 {
   //this->TFile::~TFile();
-  if (_originalTFile) return;
+  if (s_originalTFile) return;
 
   TStageManager& manager(TStageManager::instance());
-  manager.releaseFile(_inFile.c_str());
+  manager.releaseFile(m_inFile.c_str());
 }
 
 
 const char* 
 TCopyFile::GetCopyFile(const char* fname) 
 {
-  string filename(fname);
-
   //cout << "TCopyFile::GetCopyFile fname = " << (!filename.empty()?filename:"<null>") << endl ;
-  if (_originalTFile) return filename.c_str();
+  if (s_originalTFile) return fname;
 
   TStageManager& manager(TStageManager::instance());
-  return manager.getFile(filename.c_str());
+  return manager.getFile(fname);
 }
 
 

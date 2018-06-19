@@ -324,7 +324,7 @@ StatusCode iFatras::PlanarDetLayerBuilder::finalize()
 /** LayerBuilder interface method - returning Barrel-like layers */
 const std::vector<const iFatras::PlanarDetElement*>* iFatras::PlanarDetLayerBuilder::CreateElements(unsigned int layerCounter, bool isCylinder) const {
 
-  std::vector<iFatras::PlanarDetElement*>* cElements = new std::vector<iFatras::PlanarDetElement*>();;
+  std::vector<iFatras::PlanarDetElement*>* cElements = new std::vector<iFatras::PlanarDetElement*>();
 
   if (isCylinder){
 
@@ -445,7 +445,7 @@ iFatras::PlanarDetElement* iFatras::PlanarDetLayerBuilder::CylinderDetElement(un
     stereo = m_layerStereo[layerCounter]*TMath::Pi()/180.;
 
   if (isTilted && !m_layerTiltedStereo.empty())
-    stereo = m_layerTiltedStereo[layerCounter]*TMath::Pi()/180.;;    
+    stereo = m_layerTiltedStereo[layerCounter]*TMath::Pi()/180.;
 
   double tilt = TMath::Pi()/180. * (isTilted ? m_layerTiltedTilt[layerCounter] : m_layerTilt[layerCounter]);
   

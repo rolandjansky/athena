@@ -113,8 +113,8 @@ StatusCode MuonTruthAssociationAlg::execute()
 	    ElementLink< xAOD::TruthParticleContainer > muonTruthLink = ElementLink< xAOD::TruthParticleContainer >(truthParticle, *muonTruthParticleRecoLink);
 	    muonTruthLink.toPersistent();
 	    muonTruthParticleLink(*muon)=muonTruthLink;
-	    muonTruthParticleOrigin(muonInd)=tp->auxdata<int>("truthType");
-	    muonTruthParticleType(muonInd)=tp->auxdata<int>("truthOrigin");
+	    muonTruthParticleOrigin(muonInd)=tp->auxdata<int>("truthOrigin");
+	    muonTruthParticleType(muonInd)=tp->auxdata<int>("truthType");
 	    if(muon->author()==1 || muon->author()==5 || muon->author()==6){ //only match hits for muons with MS tracks
 	      if(!truthParticle->isAvailable<std::vector<unsigned long long> >("truthMdtHits")){
 		ATH_MSG_DEBUG("muon with author "<<muon->author()<<" has no truth hits vector in the truth association alg");

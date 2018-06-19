@@ -143,6 +143,8 @@ StatusCode SCT_FastDigitizationTool::initialize()
   //locate the PileUpMergeSvc and initialize our local ptr
   CHECK(m_mergeSvc.retrieve());
 
+  CHECK(m_lorentzAngleTool.retrieve());
+
   return StatusCode::SUCCESS ;
 }
 
@@ -416,11 +418,12 @@ StatusCode SCT_FastDigitizationTool::digitize()
           //InDetDD::SiCellId intersectionCellId = hitSiDetElement->cellIdFromIdentifier(intersectionId);
 
           // apply the lorentz correction
-          const double tanLorAng     = m_sctTanLorentzAngleScalor*hitSiDetElement->getTanLorentzAnglePhi();
+          const IdentifierHash detElHash = hitSiDetElement->identifyHash();
+          const double tanLorAng     = m_sctTanLorentzAngleScalor*m_lorentzAngleTool->getTanLorentzAngle(detElHash);
           const int lorentzDirection = tanLorAng > 0. ? 1 : -1;
           const bool useLorentzDrift = fabs(tanLorAng) > 0.01;
           // shift parameters
-          const double shift = hitSiDetElement->getLorentzCorrection();
+          const double shift = m_lorentzAngleTool->getLorentzShift(detElHash);
           // lorenz angle effects : offset goes against the lorentzAngle
           const double xLoffset  = -lorentzDirection*thickness*tanLorAng;
 

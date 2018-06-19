@@ -46,7 +46,9 @@ class xAODEnergySumRoIAuxInfoCnv :
 
 protected:
    /// Converter constructor
+public:
    xAODEnergySumRoIAuxInfoCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::EnergySumRoIAuxInfo*

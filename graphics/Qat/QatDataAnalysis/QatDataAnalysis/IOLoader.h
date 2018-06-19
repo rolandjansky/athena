@@ -20,8 +20,8 @@
 // --------------------------------------------------------------------------//
 
 
-#ifndef _IOLoader_h_
-#define _IOLoader_h_
+#ifndef QATDATAANALYSIS_IOLOADER_H
+#define QATDATAANALYSIS_IOLOADER_H
 
 #include <string>
 class  IODriver;
@@ -47,7 +47,7 @@ class IOLoader {
 
   // Private member data:
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 };
 

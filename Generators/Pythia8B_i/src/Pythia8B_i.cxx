@@ -25,7 +25,6 @@ IAtRndmGenSvc*  Pythia8B_i::p_AtRndmGenSvc  = 0;
 // User properties not defined by Pythia8_i
 Pythia8B_i::Pythia8B_i
 (const std::string &name, ISvcLocator *pSvcLocator): Pythia8_i(name,pSvcLocator) {
-    declareProperty("useRndmGenSvc", m_useRndmGenSvc = true);
     declareProperty("NHadronizationLoops", m_had=1);
     declareProperty("NDecayLoops", m_dec=1);
     declareProperty("SelectBQuarks",m_selectBQuarks=true);
@@ -105,7 +104,7 @@ StatusCode Pythia8B_i::genInitialize() {
     ATH_MSG_INFO("genInitialize() from Pythia8B_i");
     if (m_doSuppressSmallPT) {
         m_SuppressSmallPT = new Pythia8::SuppressSmallPT(m_pt0timesMPI,m_numberAlphaS,m_sameAlphaSAsMPI);
-        Pythia8_i::m_pythia.setUserHooksPtr(m_SuppressSmallPT);
+        Pythia8_i::m_pythia->setUserHooksPtr(m_SuppressSmallPT);
     }
 
     // Call the base class genInitialize()
@@ -153,7 +152,7 @@ StatusCode Pythia8B_i::callGenerator(){
         return StatusCode::SUCCESS;
     }
     
-    if(m_useRndmGenSvc && Pythia8B_i::p_AtRndmGenSvc){
+    if(useRndmGenSvc() && Pythia8B_i::p_AtRndmGenSvc){
         // Save the random number seeds in the event
         CLHEP::HepRandomEngine*  engine  = Pythia8B_i::p_AtRndmGenSvc->GetEngine(Pythia8_i::pythia_stream);
         const long* s =  engine->getSeeds();
@@ -163,7 +162,7 @@ StatusCode Pythia8B_i::callGenerator(){
     }
     
     // Generator. Shorthand for event.
-    Pythia8::Event& event = Pythia8_i::m_pythia.event;
+    Pythia8::Event& event = Pythia8_i::m_pythia->event;
     
     // Begin event loop.
     int iEvent(0);
@@ -171,7 +170,7 @@ StatusCode Pythia8B_i::callGenerator(){
         
         ++m_totalPythiaCalls;
         ATH_MSG_DEBUG("Throwing the dice....");
-        if (!Pythia8_i::m_pythia.next()) continue;
+        if (!Pythia8_i::m_pythia->next()) continue;
         
         // Find b(c)/antib(c) quarks and enforce cuts as required
         int nbBeforeSelection(0);
@@ -260,7 +259,7 @@ StatusCode Pythia8B_i::callGenerator(){
         // Switch off decays of species of interest if requested (only for repeated decays)
         bool doRepeatedDecays(false); if (m_dec>1) doRepeatedDecays=true;
         if (doRepeatedDecays) {
-            for (unsigned int iC = 0; iC < m_bcodes.size(); ++iC) Pythia8_i::m_pythia.particleData.mayDecay( m_bcodes[iC], false);
+            for (unsigned int iC = 0; iC < m_bcodes.size(); ++iC) Pythia8_i::m_pythia->particleData.mayDecay( m_bcodes[iC], false);
         }
         
         //  REPEATED HADRONIZATION LOOP
@@ -275,7 +274,7 @@ StatusCode Pythia8B_i::callGenerator(){
             // Repeated hadronization: restore saved event record.
             if (iRepeat > 0) event = eventCopy;
             // Repeated hadronization: do HadronLevel (repeatedly).
-            if (!Pythia8_i::m_pythia.forceHadronLevel()) continue;
+            if (!Pythia8_i::m_pythia->forceHadronLevel()) continue;
             repeatHadronizedEvents.push_back(event); // save the events for selections
         }
         
@@ -283,12 +282,12 @@ StatusCode Pythia8B_i::callGenerator(){
         std::vector<Pythia8::Event> savedEvents;
         if (doRepeatedDecays) {
             // switch decays back on
-            for (unsigned int iC = 0; iC < m_bcodes.size(); ++iC) Pythia8_i::m_pythia.particleData.mayDecay( m_bcodes[iC], true);
+            for (unsigned int iC = 0; iC < m_bcodes.size(); ++iC) Pythia8_i::m_pythia->particleData.mayDecay( m_bcodes[iC], true);
             // Loop over repeatedly hadronized events
             for (eventItr=repeatHadronizedEvents.begin(); eventItr!=repeatHadronizedEvents.end(); ++eventItr) {
                 for (unsigned int iRepeat = 0; iRepeat < m_dec; ++iRepeat) {
                     event = (*eventItr);
-                    if (!Pythia8_i::m_pythia.moreDecays()) break;
+                    if (!Pythia8_i::m_pythia->moreDecays()) break;
                     savedEvents.push_back(event);
                 }
             }
@@ -363,11 +362,11 @@ StatusCode Pythia8B_i::fillEvt(HepMC::GenEvent *evt){
     //m_pythiaToHepMC.put_pdf_info(evt, m_pythia, false);
     
     // set the randomseeds
-    if(m_useRndmGenSvc && Pythia8B_i::p_AtRndmGenSvc)
+    if(useRndmGenSvc() && Pythia8B_i::p_AtRndmGenSvc)
         evt->set_random_states(m_seeds);
     
     // set the event weight
-    evt->weights().push_back(m_pythia.info.weight());
+    evt->weights().push_back(m_pythia->info.weight());
     
     // Units correction
 #ifdef HEPMC_HAS_UNITS
@@ -397,9 +396,9 @@ StatusCode Pythia8B_i::genFinalize(){
     
     ATH_MSG_INFO(">>> Pythia8B_i from genFinalize");
     
-    Pythia8_i::m_pythia.stat();
+    Pythia8_i::m_pythia->stat();
     
-    Pythia8::Info info = Pythia8_i::m_pythia.info;
+    Pythia8::Info info = Pythia8_i::m_pythia->info;
     double xs = info.sigmaGen();// in mb
     xs *= 1000. * 1000.;//convert to nb
     

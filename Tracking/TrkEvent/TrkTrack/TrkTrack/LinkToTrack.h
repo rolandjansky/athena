@@ -6,7 +6,7 @@
 #define TRKTRACK_LINKTOTRACK_H
 
 #include "TrkTrackLink/ITrackLink.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkNeutralParameters/NeutralParameters.h" 

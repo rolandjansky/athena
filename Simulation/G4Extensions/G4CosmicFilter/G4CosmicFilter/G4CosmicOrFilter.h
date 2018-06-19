@@ -30,8 +30,6 @@ namespace G4UA
         std::string collectionName3 = "TRTBarrelEntryLayer";
       };
 
-      G4CosmicOrFilter(const Config& config);
-
       struct Report
       {
         int ntot = 0;
@@ -41,6 +39,8 @@ namespace G4UA
           npass += rep.npass;
         }
       };
+
+      G4CosmicOrFilter(const Config& config);
 
       const Report& getReport() const
       { return m_report; }

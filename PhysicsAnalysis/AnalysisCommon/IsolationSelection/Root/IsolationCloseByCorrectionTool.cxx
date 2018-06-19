@@ -273,7 +273,7 @@ namespace CP {
         }
         IsoHelperMap::const_iterator Itr = m_isohelpers.find(type);
         if (Itr == m_isohelpers.end() || Itr->second->backupIsolation(par) == CorrectionCode::Error || Itr->second->getOrignalIsolation(par, correction) == CorrectionCode::Error) {
-            ATH_MSG_WARNING("Could not retrieve the isolation variable " << xAOD::Iso::toString(type));
+            ATH_MSG_WARNING("Could not retrieve the isolation variable " << xAOD::Iso::toCString(type));
             return CorrectionCode::Error;
         } else if (!CloseByPars) {
             ATH_MSG_DEBUG("No container given for getCloseByCaloCorrection");
@@ -377,13 +377,13 @@ namespace CP {
         if (!m_isInitialised) {
             ATH_MSG_WARNING("The IsolationCloseByCorrectionTool was not initialised!!!");
         } else if (!isTrackIso(type)) {
-            ATH_MSG_ERROR("Invalid isolation type " << xAOD::Iso::toString(type));
+            ATH_MSG_ERROR("Invalid isolation type " << xAOD::Iso::toCString(type));
             return CorrectionCode::Error;
         }
         IsoHelperMap::const_iterator Itr = m_isohelpers.find(type);
 
         if (Itr == m_isohelpers.end() || Itr->second->backupIsolation(par) == CorrectionCode::Error || Itr->second->getOrignalIsolation(par, correction) == CorrectionCode::Error) {
-            ATH_MSG_WARNING("Could not retrieve the isolation variable " << xAOD::Iso::toString(type));
+            ATH_MSG_WARNING("Could not retrieve the isolation variable " << xAOD::Iso::toCString(type));
             return CorrectionCode::Error;
         } else if (tracks.empty()) return CorrectionCode::Ok;
 
@@ -391,15 +391,15 @@ namespace CP {
         TrackCollection ToExclude = getAssociatedTracks(par);
 
         const xAOD::IParticle* Ref = trackIsoRefPart(par);
-        ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of " << particleName(par) << " with pt: " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " before correction: " << correction / 1.e3 << " GeV");
+        ATH_MSG_DEBUG(xAOD::Iso::toCString(type) << " of " << particleName(par) << " with pt: " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " before correction: " << correction / 1.e3 << " GeV");
 
         for (auto& T : tracks) {
             if (overlap(Ref, T, MaxDR) && !isElementInList(ToExclude, T)) {
-                ATH_MSG_VERBOSE("Subtract track with " << T->pt() / 1.e3 << " GeV, eta: " << T->eta() << ", phi: " << T->phi() << " with dR: " << sqrt(deltaR2(Ref, T)) << " from the isolation cone " << xAOD::Iso::toString(type) << " " << (correction / 1.e3) << " GeV.");
+                ATH_MSG_VERBOSE("Subtract track with " << T->pt() / 1.e3 << " GeV, eta: " << T->eta() << ", phi: " << T->phi() << " with dR: " << sqrt(deltaR2(Ref, T)) << " from the isolation cone " << xAOD::Iso::toCString(type) << " " << (correction / 1.e3) << " GeV.");
                 correction -= T->pt();
             }
         }
-        ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of " << particleName(par) << " with pt: " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " after correction: " << correction / 1.e3 << " GeV");
+        ATH_MSG_DEBUG(xAOD::Iso::toCString(type) << " of " << particleName(par) << " with pt: " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " after correction: " << correction / 1.e3 << " GeV");
 
         return CorrectionCode::Ok;
     }
@@ -418,7 +418,7 @@ namespace CP {
         //Disable the correction of already isolated objects
         else if (correction <= 0.0) return CorrectionCode::Ok;
 
-        ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of " << particleName(par) << " with pt " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " before correction: " << correction / 1.e3 << " GeV");
+        ATH_MSG_DEBUG(xAOD::Iso::toCString(type) << " of " << particleName(par) << " with pt " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " before correction: " << correction / 1.e3 << " GeV");
         const xAOD::IParticle* Ref = topoEtIsoRefPart(par);
         if (!Ref) {
             ATH_MSG_ERROR("Could not find a reference particle for " << particleName(par) << " with pt " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi());
@@ -440,7 +440,7 @@ namespace CP {
                 correction -= clusterEtMinusTile(cluster);
             }
         }
-        ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of " << particleName(par) << " with pt " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " after correction: " << correction / 1.e3 << " GeV");
+        ATH_MSG_DEBUG(xAOD::Iso::toCString(type) << " of " << particleName(par) << " with pt " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " after correction: " << correction / 1.e3 << " GeV");
         return CorrectionCode::Ok;
     }
     float IsolationCloseByCorrectionTool::caloCorrectionFraction(const xAOD::IParticle* P, const xAOD::IParticle* P1, float coneSize, int Model) const {
@@ -550,7 +550,7 @@ namespace CP {
         for (unsigned int i = 0; i < getIsolationTypes(&x)->size(); i++) {
             SG::AuxElement::Accessor<float> *acc = xAOD::getIsolationAccessor(getIsolationTypes(&x)->at(i));
             float old = acc->operator()(x);
-            ATH_MSG_DEBUG("Correcting " << xAOD::Iso::toString(getIsolationTypes(&x)->at(i)) << " from " << old << " to " << corrections.at(i));
+            ATH_MSG_DEBUG("Correcting " << xAOD::Iso::toCString(getIsolationTypes(&x)->at(i)) << " from " << old << " to " << corrections.at(i));
             strPar.isolationValues[getIsolationTypes(&x)->at(i)] = corrections.at(i);
         }
         accept = m_selectorTool->accept(strPar);

@@ -24,7 +24,7 @@ typedef T_AthenaPoolCustomCnv<CPMTobRoICollection, CPMTobRoICollection_PERS> CPM
 class CPMTobRoICollectionCnv: public CPMTobRoICollectionCnvBase {
 friend class CnvFactory<CPMTobRoICollectionCnv>;
 
-protected:
+public:
 
   CPMTobRoICollectionCnv (ISvcLocator* svcloc) :
     CPMTobRoICollectionCnvBase(svcloc),
@@ -32,6 +32,8 @@ protected:
     m_log( m_msgSvc, "CPMTobRoICollectionCnv" )
      {}
   
+protected:
+
   ~CPMTobRoICollectionCnv() {}
   
   virtual CPMTobRoICollection_PERS*   createPersistent (CPMTobRoICollection* transCont);

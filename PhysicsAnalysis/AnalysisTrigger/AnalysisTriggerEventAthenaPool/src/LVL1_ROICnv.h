@@ -34,7 +34,9 @@ class LVL1_ROICnv : public LVL1_ROICnvBase {
   friend class CnvFactory< LVL1_ROICnv >;
 
 protected:
+public:
   LVL1_ROICnv( ISvcLocator* svcloc ) : LVL1_ROICnvBase( svcloc ) {}
+protected:
 
   virtual LVL1_ROI_PERS* createPersistent( LVL1_ROI* transObj );
   virtual LVL1_ROI*      createTransient();

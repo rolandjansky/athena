@@ -30,7 +30,9 @@ typedef T_AthenaPoolCoolMultChanCnv<LArPedestalComplete, LArPedTransType, LArPed
 class LArPedestalCompleteCnv : public LArPedestalCompleteCnvBase {
 friend class CnvFactory<LArPedestalCompleteCnv >;
 protected:
+public:
     LArPedestalCompleteCnv (ISvcLocator* svcloc) : LArPedestalCompleteCnvBase(svcloc) {}
+protected:
     virtual LArPedPersType*   createPersistent (LArPedTransType* transObj);
     virtual LArPedTransType*  createTransient ();
     LArPedTransType*          createTransient(LArConditionsSubset<LArPedestalP>* orig);

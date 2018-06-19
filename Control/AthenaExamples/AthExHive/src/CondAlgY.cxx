@@ -78,11 +78,7 @@ StatusCode CondAlgY::execute() {
   SG::WriteCondHandle<CondDataObjY> wch2(m_wch2);
 
   // do we have a valid m_wch for current time?
-  if ( wch1.isValid(now) ) {
-    // in theory this should never be called
-    wch1.updateStore();
-
-  } else {
+  if ( !wch1.isValid(now) ) {
 
     ATH_MSG_DEBUG("  CondHandle " << wch1.key() 
                   << " not valid. Getting new info for dbKey \"" 
@@ -108,11 +104,7 @@ StatusCode CondAlgY::execute() {
   }
 
   // do we have a valid wch for current time?
-  if ( wch2.isValid(now) ) {
-    // in theory this should never be called
-    wch2.updateStore();
-
-  } else {
+  if ( !wch2.isValid(now) ) {
 
     ATH_MSG_DEBUG("  CondHandle " << wch2.key() 
                   << " not valid. Getting new info for dbKey \"" 

@@ -3,7 +3,6 @@
 */
 
 #include "TrkJiveXML/TrackRetriever.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ListItem.h"
 
@@ -21,8 +20,8 @@
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "TrkTruthData/TrackTruthKey.h"
 #include "TrkEventUtils/TrackStateOnSurfaceComparisonFunction.h"
-#include "DataModel/ElementLink.h"
-#include "DataModel/DataVector.h"
+#include "AthLinks/ElementLink.h"
+#include "AthContainers/DataVector.h"
 
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"

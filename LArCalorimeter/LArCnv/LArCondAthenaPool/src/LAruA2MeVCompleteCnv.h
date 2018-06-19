@@ -24,7 +24,9 @@ typedef LArSingleFloatConverter<LAruA2MeVComplete> LAruA2MeVCompleteCnvBase;
 class LAruA2MeVCompleteCnv : public LAruA2MeVCompleteCnvBase {
 friend class CnvFactory<LAruA2MeVCompleteCnv >;
 protected:
+public:
     LAruA2MeVCompleteCnv (ISvcLocator* svcloc) : LAruA2MeVCompleteCnvBase(svcloc) {}
+protected:
     virtual LArConditionsSubset<LArSingleFloatP>*  createTransient ();
     LArConditionsSubset<LArSingleFloatP>*          createTransient(LArConditionsSubset<LAruA2MeVP>* orig);
 };

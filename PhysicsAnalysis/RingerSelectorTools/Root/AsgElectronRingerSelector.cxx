@@ -38,6 +38,7 @@
 #include "RingerSelectorTools/tools/IRedirectMsgStream.h"
 #include "RingerSelectorTools/tools/cxx/RingerUseNewCppFeatures.h"
 #include "RingerSelectorTools/tools/cxx/errorcheck.h"
+#include "PATCore/AcceptData.h"
 
 // Root framework includes:
 #include <TFile.h>

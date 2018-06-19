@@ -3,6 +3,7 @@
 #include "../DFlowAlg3.h"
 #include "../ViewMergeAlg.h"
 #include "../ViewSubgraphAlg.h"
+#include "../DigiDemoSetupAlg.h"
 
 
 DECLARE_COMPONENT( AthViews::DFlowAlg1 )
@@ -10,4 +11,5 @@ DECLARE_COMPONENT( AthViews::DFlowAlg2 )
 DECLARE_COMPONENT( AthViews::DFlowAlg3 )
 DECLARE_COMPONENT( AthViews::ViewMergeAlg )
 DECLARE_COMPONENT( AthViews::ViewSubgraphAlg )
+DECLARE_COMPONENT( AthViews::DigiDemoSetupAlg )
 

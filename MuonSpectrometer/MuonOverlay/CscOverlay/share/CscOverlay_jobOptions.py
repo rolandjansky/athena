@@ -1,5 +1,6 @@
 from Digitization.DigitizationFlags import digitizationFlags
 from AthenaCommon.CfgGetter import getPublicTool
+from OverlayCommonAlgs.OverlayFlags import overlayFlags
 getPublicTool("CscDigitToCscRDOTool")
 
 from CscOverlay.CscOverlayConf import CscOverlay
@@ -8,6 +9,7 @@ job.CscOverlay.mainInputCSC_Name         = "CSCRDO"
 job.CscOverlay.overlayInputCSC_Name      = "CSCRDO"
 job.CscOverlay.DigitizationTool          = getPublicTool("CscDigitizationTool") #CscDigitizationTool
 job.CscOverlay.DigitizationTool.EvtStore = job.CscOverlay.MCStore
+job.CscOverlay.DigitizationTool.OutputObjectName = overlayFlags.evtStore() + "+CSC_DIGITS"
 job.CscOverlay.MakeRDOTool2              = ToolSvc.CscDigitToCscRDOTool.clone("CscDigitToCscRDOTool2") # consider a separate random number stream
 job.CscOverlay.MakeRDOTool2.EvtStore     = job.CscOverlay.MCStore
 job.CscOverlay.MakeRDOTool2.addNoise     = False

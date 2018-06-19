@@ -2,21 +2,16 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: FCrenamePFN.cpp 509054 2012-07-05 13:33:16Z mnowak $
 /**FCrenamePFN.cpp -- FileCatalog command line tool to rename PFN. Used in the case the file has been moved.
   @author: Zhen Xie
-  @date: 02/03/2005 Z.X.
-  set default logging to Warning if no POOL_OUTMSG_LEVEL is set; 
-  separate logging stream to std::cerr, output stream to std::cout
 */
 #include "FileCatalog/CommandLine.h"
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/FCException.h"
-#include "FileCatalog/IFCAction.h"
+#include "FileCatalog/URIParser.h"
 #include "POOLCore/Exception.h"
-#include "CoralBase/MessageStream.h"
-#include "CoralBase/MessageStream.h"
+#include "POOLCore/SystemTools.h"
 #include <memory>
+
 using namespace pool;
 
 void printUsage(){
@@ -28,6 +23,8 @@ static const char* opts[] = {"p","n","u","h",0};
 
 int main(int argc, char** argv)
 {
+  SystemTools::initGaudi();
+  
   std::string  myuri;
   std::string  mypfn;
   std::string  mynewpfn;
@@ -60,17 +57,15 @@ int main(int argc, char** argv)
   }
   try{
     std::auto_ptr<IFileCatalog> mycatalog(new IFileCatalog);
-    mycatalog->setWriteCatalog(myuri);
-    FCregister r;
-    mycatalog->setAction(r);
+    pool::URIParser p( myuri );
+    p.parse();
+    mycatalog->setWriteCatalog( p.contactstring() );
     mycatalog->connect();
     mycatalog->start();
-    r.renamePFN(mypfn,mynewpfn);
+    mycatalog->renamePFN(mypfn, mynewpfn);
     mycatalog->commit();  
     mycatalog->disconnect();
   }catch (const pool::Exception& er){
-    //er.printOut(std::cerr);
-    //std::cerr << std::endl;
     std::cerr<<er.what()<<std::endl;
     exit(1);
   }catch (const std::exception& er){

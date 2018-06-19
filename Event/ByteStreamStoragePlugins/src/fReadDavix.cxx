@@ -33,13 +33,13 @@ static int TDavixFile_http_authn_cert_X509(void *userdata, const Davix::SessionI
 fReadDavix::fReadDavix()
 {
   m_pfd = 0;
-  fOffset = 0;
-  fd = nullptr;
+  m_offset = 0;
+  m_fd = nullptr;
 
-  davixParam = new Davix::RequestParams();
-  err = NULL;
-  pos = new Davix::DavPosix(&c);
-  //pos = &c;
+  m_davixParam = new Davix::RequestParams();
+  m_err = NULL;
+  m_pos = new Davix::DavPosix(&m_c);
+  //m_pos = &m_c;
 
 
   // enableGridMode
@@ -47,10 +47,10 @@ fReadDavix::fReadDavix()
   if( ( env_var = std::getenv("X509_CERT_DIR")) == NULL){
     env_var = "/etc/grid-security/certificates/";
   }
-  davixParam->addCertificateAuthorityPath(env_var);
-  davixParam->setTransparentRedirectionSupport(true);
-  cert = new Davix::X509Credential();
-  davixParam->setClientCertCallbackX509(&TDavixFile_http_authn_cert_X509, NULL);
+  m_davixParam->addCertificateAuthorityPath(env_var);
+  m_davixParam->setTransparentRedirectionSupport(true);
+  m_cert = new Davix::X509Credential();
+  m_davixParam->setClientCertCallbackX509(&TDavixFile_http_authn_cert_X509, NULL);
 
 }
 
@@ -73,23 +73,23 @@ bool fReadDavix::isEoF()
 bool fReadDavix::fileExists(std::string fName) const
 {
   Davix::DavixError* err2 = NULL;
-  DAVIX_FD* pfd = pos->open(davixParam, fName.c_str(), O_RDONLY, &err2);
+  DAVIX_FD* pfd = m_pos->open(m_davixParam, fName.c_str(), O_RDONLY, &err2);
   if(pfd == 0) return false;
-  pos->close(pfd, &err2);
+  m_pos->close(pfd, &err2);
   return true;
 }
 
 void fReadDavix::openFile(std::string fName)
 {
   if(this->isOpen()) this->closeFile();
-  fd = pos->open(davixParam, fName.c_str(), O_RDONLY, &err);
-  fOffset = 0;
+  m_fd = m_pos->open(m_davixParam, fName.c_str(), O_RDONLY, &m_err);
+  m_offset = 0;
   m_pfd = 1;
 }
 
 void fReadDavix::closeFile()
 {
-  if(m_pfd != 0) pos->close(fd, &err);
+  if(m_pfd != 0) m_pos->close(m_fd, &m_err);
   m_pfd = 0;
 }
 
@@ -101,16 +101,16 @@ void fReadDavix::readData(char *buffer, unsigned int sizeBytes)
     unsigned int totalRead=0,ntry=0;
     while(sizeBytes > totalRead)
     {
-      ssize_t ret = pos->pread(fd, buffer, sizeBytes, fOffset, &err);
+      ssize_t ret = m_pos->pread(m_fd, buffer, sizeBytes, m_offset, &m_err);
       if (ret < 0) {
         std::stringstream mystream;
-	mystream << "fReadDavix::readData: can not read data with davix " << err->getErrMsg().c_str() << " "  << err->getStatus();
-	Davix::DavixError::clearError(&err);
+	mystream << "fReadDavix::readData: can not read data with davix " << m_err->getErrMsg().c_str() << " "  << m_err->getStatus();
+	Davix::DavixError::clearError(&m_err);
         EventStorage::ReadingIssue ci(ERS_HERE, mystream.str().c_str());
         ers::warning(ci);
         return;
       } else {
-	fOffset += ret;
+	m_offset += ret;
       }
       totalRead += ret; ++ntry;
       if(ntry>5) {
@@ -129,22 +129,22 @@ void fReadDavix::readData(char *buffer, unsigned int sizeBytes)
 
 int64_t fReadDavix::getPosition()
 {
-  if(this->isOpen()) return fOffset;
+  if(this->isOpen()) return m_offset;
  
   return -1;
 }
 
 void fReadDavix::setPosition(int64_t p)
 {
-  if(this->isOpen()) fOffset = p;
+  if(this->isOpen()) m_offset = p;
 }
 
 void fReadDavix::setPositionFromEnd(int64_t p)
 {
   dav_off_t ret;
   if(this->isOpen()) {
-    ret = pos->lseek64(fd, p, SEEK_END, &err);
-    fOffset = ret;
+    ret = m_pos->lseek64(m_fd, p, SEEK_END, &m_err);
+    m_offset = ret;
   }
 }
 

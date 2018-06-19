@@ -11,7 +11,6 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthenaKernel
    Control/CxxUtils
-   Control/SGTools
    Control/StoreGate
    Event/xAOD/xAODEventInfo
    GaudiKernel
@@ -26,7 +25,7 @@ atlas_add_library( AthenaBaseComps
    AthenaBaseComps/*.h src/*.cxx
    PUBLIC_HEADERS AthenaBaseComps
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel CxxUtils SGTools xAODEventInfo GaudiKernel
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel CxxUtils xAODEventInfo GaudiKernel
    StoreGateLib )
 
 # Test(s) in the package:

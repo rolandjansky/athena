@@ -39,7 +39,9 @@ class TrigVertexCountsCollectionCnv : public TrigVertexCountsCollectionCnvBase
  
   protected:
    
+public:
   TrigVertexCountsCollectionCnv( ISvcLocator *svcloc );
+protected:
   ~TrigVertexCountsCollectionCnv();
    
    virtual TrigVertexCountsCollection_PERS *createPersistent( TrigVertexCountsCollection *transObj);

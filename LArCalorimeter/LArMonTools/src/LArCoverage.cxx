@@ -15,11 +15,15 @@
 //                        Bad calibration at FEB level
 // ********************************************************************
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/IToolSvc.h"
+#include "LArCoverage.h"
+#include "LArCoverageFCALBins.h"
 
 #include "Identifier/IdentifierHash.h"
+
+#include "LWHists/TH2I_LW.h"
+#include "LWHists/TProfile_LW.h"
+#include "TMath.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include <sstream>
 #include <iomanip>
@@ -30,15 +34,6 @@
 #include <functional>
 #include <map>
 #include <utility>
-
-#include "LWHists/TH2I_LW.h"
-#include "LWHists/TProfile_LW.h"
-#include "TMath.h"
-#include "xAODEventInfo/EventInfo.h"
-
-
-#include "LArMonTools/LArCoverage.h"
-#include "LArMonTools/LArCoverageFCALBins.h"
 
 using namespace std;
 
@@ -658,7 +653,7 @@ LArCoverage::fillHistograms()
 	m_hCaloNoiseToolHEC[sampling]->Fill(etaChan, noise);
       }
       if(m_LArOnlineIDHelper->isFCALchannel(id)){
-	int sampling = m_LArFCAL_IDHelper->module(offlineID);;
+	int sampling = m_LArFCAL_IDHelper->module(offlineID);
 	m_hCaloNoiseToolFCAL[sampling]->Fill(etaChan, noise);
       }
 

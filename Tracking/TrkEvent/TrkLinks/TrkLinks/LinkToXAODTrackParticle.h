@@ -6,7 +6,7 @@
 #define TRKTRACK_LINKTOXAODTRACKPARTICLE_H
 
 #include "TrkTrackLink/ITrackLink.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
 #include "TrkParameters/TrackParameters.h"

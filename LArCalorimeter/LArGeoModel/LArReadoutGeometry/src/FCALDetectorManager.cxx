@@ -41,7 +41,7 @@ FCALDetectorManager::~FCALDetectorManager()
 {
   for (int s=0;s<2;s++) {
     for (int m=0;m<3;m++) {
-      delete m_Module[s][m];;
+      delete m_Module[s][m];
     }
   }
   for (unsigned int i=0;i<getNumTreeTops();i++) getTreeTop(i)->unref();

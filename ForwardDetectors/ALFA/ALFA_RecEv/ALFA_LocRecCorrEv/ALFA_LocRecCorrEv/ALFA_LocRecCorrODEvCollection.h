@@ -5,13 +5,10 @@
 #ifndef ALFA_LocRecCorrODEvCollection_h
 #define ALFA_LocRecCorrODEvCollection_h
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "ALFA_LocRecCorrEv/ALFA_LocRecCorrODEvent.h"
 
-#ifndef __CINT__
-  #include "CLIDSvc/CLASS_DEF.h"
-#endif
 
 class ALFA_LocRecCorrODEvCollection: public DataVector<ALFA_LocRecCorrODEvent> {
   

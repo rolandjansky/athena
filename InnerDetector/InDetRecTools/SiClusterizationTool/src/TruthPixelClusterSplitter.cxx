@@ -149,7 +149,7 @@ std::vector<InDet::PixelClusterParts> InDet::TruthPixelClusterSplitter::splitClu
     if (!pixelIDp->is_blayer(pixelId))
     {
       //return empty object...
-      ATH_MSG_VERBOSE(" Cluster not on b-layer. Return empty object-->back to default clustering." );;
+      ATH_MSG_VERBOSE(" Cluster not on b-layer. Return empty object-->back to default clustering." );
       
       return std::vector<InDet::PixelClusterParts>();
     }
@@ -180,7 +180,7 @@ std::vector<InDet::PixelClusterParts> InDet::TruthPixelClusterSplitter::splitClu
 
   double splitProb3=splitProb3rel/(splitProb3rel+splitProb2);
 
-  ATH_MSG_VERBOSE( " SplitProb -->2 " << splitProb2 << " SplitProb -->3 " << splitProb3 );;
+  ATH_MSG_VERBOSE( " SplitProb -->2 " << splitProb2 << " SplitProb -->3 " << splitProb3 );
 
   int nParticles=1;
   
@@ -197,7 +197,7 @@ std::vector<InDet::PixelClusterParts> InDet::TruthPixelClusterSplitter::splitClu
   }
 
 
-  ATH_MSG_VERBOSE( " Decided for n. particles: " << nParticles << "." );;
+  ATH_MSG_VERBOSE( " Decided for n. particles: " << nParticles << "." );
 
   std::vector<Amg::Vector2D>      allLocalPositions;
   std::vector<Amg::MatrixX>       allErrorMatrix;

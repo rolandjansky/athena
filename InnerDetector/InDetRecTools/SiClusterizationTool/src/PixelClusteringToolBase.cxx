@@ -11,7 +11,7 @@
 #include "SiClusterizationTool/PixelClusteringToolBase.h"
 #include "SiClusterizationTool/ClusterMakerTool.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
+
 
 namespace InDet
 {
@@ -25,7 +25,7 @@ namespace InDet
       m_errorStrategy(1),
       m_acceptDiagonalClusters(1),
       m_splitClusters(0),
-      m_summarySvc("PixelConditionsSummarySvc", name),
+      m_summaryTool("PixelConditionsSummaryTool", this),
       m_useModuleMap(true),
       m_usePixelMap(true)
   {
@@ -36,7 +36,7 @@ namespace InDet
     declareProperty("splitClusters", m_splitClusters);
     declareProperty("UsePixelModuleMap",m_useModuleMap,"Use bad modules map");
     declareProperty("UseSpecialPixelMap",m_usePixelMap,"Use bad pixel map");
-    declareProperty("PixelConditionsSummarySvc",m_summarySvc);
+    declareProperty("PixelConditionsSummaryTool",m_summaryTool);
   }
 
   StatusCode PixelClusteringToolBase::initialize()
@@ -52,16 +52,16 @@ namespace InDet
       msg(MSG::INFO) << m_clusterMaker.propertyName() << ": Retrieved tool " << m_clusterMaker.type() << endmsg;
     }
 
-   StatusCode sc = m_summarySvc.retrieve();
-   if (sc.isFailure() || !m_summarySvc) {
-      msg(MSG::WARNING) <<  m_summarySvc.type() << " not found! "<< endmsg;
+   StatusCode sc = m_summaryTool.retrieve();
+   if (sc.isFailure() || !m_summaryTool) {
+      msg(MSG::WARNING) <<  m_summaryTool.type() << " not found! "<< endmsg;
       if ( m_usePixelMap || m_useModuleMap ) {
-	msg(MSG::FATAL) << m_summarySvc.type() << " is compulsory with this tool configuration" << endmsg;
+	msg(MSG::FATAL) << m_summaryTool.type() << " is compulsory with this tool configuration" << endmsg;
 	return StatusCode::FAILURE;
       }
    }
    else{
-      msg(MSG::INFO) << "Retrieved service " <<  m_summarySvc.type() << endmsg;
+      msg(MSG::INFO) << "Retrieved service " <<  m_summaryTool.type() << endmsg;
    }
    
     return StatusCode::SUCCESS;

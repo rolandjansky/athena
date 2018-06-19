@@ -4,7 +4,6 @@
 
 #include "TBCnv/ReadTBLArCalibDigits.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "GaudiKernel/AlgFactory.h"
 #include <vector>
 
 ReadTBLArCalibDigits::ReadTBLArCalibDigits(const std::string& name, ISvcLocator* pSvcLocator)

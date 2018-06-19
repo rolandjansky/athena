@@ -69,8 +69,8 @@ StatusCode TileMuonFillerTool::initialize(){
 
     //THIS NEEDS TO MODIFY TO WORK ON xAODs
     // MONTE CARLO EVENT COLLECTION
-    truthRetrieved = m_storeGate->retrieve(m_MCtruth,m_MCeventCollection);
-    if(truthRetrieved.isFailure()) if(m_LevelOfDetails > 6) ATH_MSG_ERROR("NO TRUTH INFORMATION");
+    m_truthRetrieved = m_storeGate->retrieve(m_MCtruth,m_MCeventCollection);
+    if(m_truthRetrieved.isFailure()) if(m_LevelOfDetails > 6) ATH_MSG_ERROR("NO TRUTH INFORMATION");
 
     // RETRIEVE CALORIMETER EXTRAPOLATION TOOLS
     if(m_LevelOfDetails > 3){
@@ -214,7 +214,7 @@ StatusCode TileMuonFillerTool::book2()
     } // IF
 
     if(m_LevelOfDetails > 4){
-        if(truthRetrieved.isSuccess() && m_MCtruth){
+        if(m_truthRetrieved.isSuccess() && m_MCtruth){
             CHECK( addVariable("truth_deltaR",                 m_truth_deltaR,                     "", m_defaultValue));
             CHECK( addVariable("truth_vtxX",                   m_truth_vtxX,                       "", m_defaultValue));
             CHECK( addVariable("truth_vtxY",                   m_truth_vtxY,                       "", m_defaultValue));
@@ -380,7 +380,7 @@ StatusCode TileMuonFillerTool::fill(const xAOD::Muon& p){
 /*  //THIS NEEDS TO MODIFY TO WORK ON xAODs
     if(m_LevelOfDetails > 4){
     // STORE MONTE CARLO TRUTH INFORMATION IF AVAILABLE
-        if(truthRetrieved.isSuccess() && m_MCtruth){
+        if(m_truthRetrieved.isSuccess() && m_MCtruth){
             McEventCollection::const_iterator MCitr          = m_MCtruth->begin();
             HepMC::GenEvent::particle_const_iterator particle_itr  = (*MCitr)->particles_begin();
             HepMC::GenEvent::particle_const_iterator particle_eitr = (*MCitr)->particles_end();

@@ -27,15 +27,15 @@ StatusCode FilterUsingSpacePoints::initialize()
 StatusCode FilterUsingSpacePoints::execute()
 {
   //Get the space point container
-  const SpacePointContainer* m_SpacePointContainer;
+  const SpacePointContainer* spacePointContainer;
 
-  ATH_CHECK( evtStore()->retrieve(m_SpacePointContainer,  m_SpacePointContainerName) );
+  ATH_CHECK( evtStore()->retrieve(spacePointContainer,  m_SpacePointContainerName) );
 
   unsigned long NSpacePoints = 0;
 
   //Get an iterator over the SpacePoint container itself  
-  SpacePointContainer::const_iterator SpacePointCollItr = m_SpacePointContainer->begin();
-  for (; SpacePointCollItr!=  m_SpacePointContainer->end(); ++SpacePointCollItr)
+  SpacePointContainer::const_iterator SpacePointCollItr = spacePointContainer->begin();
+  for (; SpacePointCollItr!=  spacePointContainer->end(); ++SpacePointCollItr)
        NSpacePoints += (**SpacePointCollItr).size();
 
 

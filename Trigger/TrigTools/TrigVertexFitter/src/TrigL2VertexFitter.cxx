@@ -88,9 +88,9 @@ StatusCode TrigL2VertexFitter::fit(TrigL2Vertex* pV)
 
   if(m_timers) m_timer[0]->start();
 
-  ATH_MSG_DEBUG("vertex has "<<pV->m_getTracks()->size()<<" tracks" );
+  ATH_MSG_DEBUG("vertex has "<<pV->getTracks()->size()<<" tracks" );
 
-  if(pV->m_getTracks()->size()<2)
+  if(pV->getTracks()->size()<2)
     {
       ATH_MSG_WARNING("vertex has less than 2 tracks - fit failed" );
       if(m_timers) m_timer[0]->stop();
@@ -102,14 +102,14 @@ StatusCode TrigL2VertexFitter::fit(TrigL2Vertex* pV)
   if (msgLvl(MSG::VERBOSE) )
     {
       ATH_MSG_VERBOSE("Track list:" );
-      for(it=pV->m_getTracks()->begin();it!=pV->m_getTracks()->end();++it)
+      for(it=pV->getTracks()->begin();it!=pV->getTracks()->end();++it)
 	{
 	  ATH_MSG_VERBOSE((*it) );
 	}
     }
 
   double V[3],dist=-999.0;
-  it1=pV->m_getTracks()->begin();it2=it1;++it2;
+  it1=pV->getTracks()->begin();it2=it1;++it2;
 
   if(m_timers) m_timer[1]->start();
   dist=m_vertexingTool->FindClosestApproach((*it1),(*it2),V);
@@ -124,20 +124,20 @@ StatusCode TrigL2VertexFitter::fit(TrigL2Vertex* pV)
 
   if (msgLvl( MSG::DEBUG))
     {
-      if ((*it1)->m_getTrigTrack() && (*it2)->m_getTrigTrack()) {
-        ATH_MSG_DEBUG("Track 1 AlgId="<<(*it1)->m_getTrigTrack()->algorithmId() );
-        ATH_MSG_DEBUG("Track 2 AlgId="<<(*it2)->m_getTrigTrack()->algorithmId() );
+      if ((*it1)->getTrigTrack() && (*it2)->getTrigTrack()) {
+        ATH_MSG_DEBUG("Track 1 AlgId="<<(*it1)->getTrigTrack()->algorithmId() );
+        ATH_MSG_DEBUG("Track 2 AlgId="<<(*it2)->getTrigTrack()->algorithmId() );
       }
       ATH_MSG_DEBUG("Min dist "<<dist<<" x="<<V[0]<<" y="<<V[1]<<" z="<<V[2] );
     }
 
   if(m_timers) m_timer[2]->start();
-  pV->m_prepareForFit();
-  for(it=pV->m_getTracks()->begin();it!=pV->m_getTracks()->end();++it)
+  pV->prepareForFit();
+  for(it=pV->getTracks()->begin();it!=pV->getTracks()->end();++it)
     {
-      (*it)->m_initializeVertex(pV);
+      (*it)->initializeVertex(pV);
     }
-  for(i=0;i<3;i++) pV->m_getParametersVector()[i]=V[i];
+  for(i=0;i<3;i++) pV->getParametersVector()[i]=V[i];
   if(m_timers) m_timer[2]->stop();
 
   if(m_timers) 
@@ -150,26 +150,26 @@ StatusCode TrigL2VertexFitter::fit(TrigL2Vertex* pV)
 
   for(iter=0;iter<m_numIter;iter++)
   {
-    pV->m_reset();
+    pV->reset();
     pV->m_Gk[0][0]=100.0;
     pV->m_Gk[1][1]=100.0;
     pV->m_Gk[2][2]=400.0;
-    for(it=pV->m_getTracks()->begin();it!=pV->m_getTracks()->end();++it)
+    for(it=pV->getTracks()->begin();it!=pV->getTracks()->end();++it)
       {
 	if(m_timers) m_timer[3]->resume();
-	double dchi2=(*it)->m_getChi2Distance(pV);
+	double dchi2=(*it)->getChi2Distance(pV);
 	if(m_timers) m_timer[3]->pause();
 
-        ATH_MSG_VERBOSE("Track "<<(*it)->m_getIndex()<<" dchi2="<<dchi2 );
+        ATH_MSG_VERBOSE("Track "<<(*it)->getIndex()<<" dchi2="<<dchi2 );
 	if(std::isnan(dchi2)||(dchi2<0.0)||(dchi2>m_maxChi2Increase))
 	  {
 	    fitFailed=true;
 	    break;
 	  }
-	pV->m_addChi2(dchi2);
-	pV->m_addNdof(2);
+	pV->addChi2(dchi2);
+	pV->addNdof(2);
 	if(m_timers) m_timer[4]->resume();
-	(*it)->m_updateVertex(pV);
+	(*it)->updateVertex(pV);
 	if(m_timers) m_timer[4]->pause();
         ATH_MSG_VERBOSE("Updated vertex" << pV);
       }
@@ -183,7 +183,7 @@ StatusCode TrigL2VertexFitter::fit(TrigL2Vertex* pV)
       m_timer[3]->stop();
       m_timer[4]->stop();
     }
-  if(!fitFailed) pV->m_setStatus(1);
+  if(!fitFailed) pV->setStatus(1);
   else return StatusCode::FAILURE;
   return StatusCode::SUCCESS;
 }
@@ -194,9 +194,9 @@ StatusCode TrigL2VertexFitter::fitWithConstraints(TrigL2Vertex* pV)
   bool fitFailed=false;
 
   if(m_timers) m_timer[0]->start();
-  ATH_MSG_DEBUG("vertex has "<<pV->m_getTracks()->size()<<" tracks" );
+  ATH_MSG_DEBUG("vertex has "<<pV->getTracks()->size()<<" tracks" );
 
-  if(pV->m_getTracks()->size()<2)
+  if(pV->getTracks()->size()<2)
     {
       ATH_MSG_WARNING("vertex has less than 2 tracks - fit failed" );
       if(m_timers) m_timer[0]->stop();
@@ -208,14 +208,14 @@ StatusCode TrigL2VertexFitter::fitWithConstraints(TrigL2Vertex* pV)
   if (msgLvl(MSG::VERBOSE))
     {
       ATH_MSG_VERBOSE("Track list:" );
-      for(it=pV->m_getTracks()->begin();it!=pV->m_getTracks()->end();++it)
+      for(it=pV->getTracks()->begin();it!=pV->getTracks()->end();++it)
 	{
 	  ATH_MSG_VERBOSE((*it) );
 	}
     }
 
   double V[3],dist=-999.0;
-  it1=pV->m_getTracks()->begin();it2=it1;++it2;
+  it1=pV->getTracks()->begin();it2=it1;++it2;
 
   if(m_timers) m_timer[1]->start();
   dist=m_vertexingTool->FindClosestApproach((*it1),(*it2),V);
@@ -230,12 +230,12 @@ StatusCode TrigL2VertexFitter::fitWithConstraints(TrigL2Vertex* pV)
 
   ATH_MSG_DEBUG("Min dist "<<dist<<" x="<<V[0]<<" y="<<V[1]<<" z="<<V[2] );
   if(m_timers) m_timer[2]->start();
-  pV->m_prepareForFit();
-  for(it=pV->m_getTracks()->begin();it!=pV->m_getTracks()->end();++it)
+  pV->prepareForFit();
+  for(it=pV->getTracks()->begin();it!=pV->getTracks()->end();++it)
     {
-      (*it)->m_initializeVertex(pV);
+      (*it)->initializeVertex(pV);
     }
-  for(i=0;i<3;i++) pV->m_getParametersVector()[i]=V[i];
+  for(i=0;i<3;i++) pV->getParametersVector()[i]=V[i];
   if(m_timers) m_timer[2]->stop();
   if(m_timers) 
     {
@@ -246,46 +246,46 @@ StatusCode TrigL2VertexFitter::fitWithConstraints(TrigL2Vertex* pV)
     }
   for(iter=0;iter<m_numIter;iter++)
     {
-      pV->m_reset();
+      pV->reset();
       pV->m_Gk[0][0]=100.0;
       pV->m_Gk[1][1]=100.0;
       pV->m_Gk[2][2]=400.0;
       
-      for(it=pV->m_getTracks()->begin();it!=pV->m_getTracks()->end();++it)
+      for(it=pV->getTracks()->begin();it!=pV->getTracks()->end();++it)
 	{
 	  m_timer[3]->resume();
-	  double dchi2=(*it)->m_getChi2Distance(pV);
+	  double dchi2=(*it)->getChi2Distance(pV);
 	  m_timer[3]->pause();
-          ATH_MSG_VERBOSE("Track "<<(*it)->m_getIndex()<<" dchi2="<<dchi2 );
+          ATH_MSG_VERBOSE("Track "<<(*it)->getIndex()<<" dchi2="<<dchi2 );
 	  if(std::isnan(dchi2)||(dchi2<0.0)||(dchi2>m_maxChi2Increase))
 	    {
 	      fitFailed=true;
 	      break;
 	    }
-	  pV->m_addChi2(dchi2);
-	  pV->m_addNdof(2);
+	  pV->addChi2(dchi2);
+	  pV->addNdof(2);
 	  if(m_timers) m_timer[4]->resume();
-	  (*it)->m_updateVertex(pV);
+	  (*it)->updateVertex(pV);
 	  if(m_timers) m_timer[4]->pause();
           ATH_MSG_VERBOSE("Updated vertex" << pV);
 	}
       if(fitFailed) break;
-      for(std::list<TrigVertexFitConstraint*>::iterator itC=pV->m_getConstraints()->begin();
-	  itC!=pV->m_getConstraints()->end();++itC)
+      for(std::list<TrigVertexFitConstraint*>::iterator itC=pV->getConstraints()->begin();
+	  itC!=pV->getConstraints()->end();++itC)
 	{
 	  if(m_timers) m_timer[5]->resume();
-	  double dchi2=(*itC)->m_getChi2Distance(pV);
+	  double dchi2=(*itC)->getChi2Distance(pV);
 	  if(m_timers) m_timer[5]->pause();
-          ATH_MSG_VERBOSE("Constraint "<<(*itC)->m_getValue()<<" dchi2="<<dchi2 );
+          ATH_MSG_VERBOSE("Constraint "<<(*itC)->getValue()<<" dchi2="<<dchi2 );
 	  if((dchi2<0.0)||std::isnan(dchi2))
 	    {
 	      fitFailed=true;
 	      break;
 	    }
-	  pV->m_addChi2(dchi2);
-	  pV->m_addNdof(1);
+	  pV->addChi2(dchi2);
+	  pV->addNdof(1);
 	  if(m_timers) m_timer[6]->resume();
-	  (*itC)->m_updateVertex(pV);
+	  (*itC)->updateVertex(pV);
 	  if(m_timers) m_timer[6]->pause();
           ATH_MSG_VERBOSE("Updated vertex" << pV);
 	}
@@ -301,7 +301,7 @@ StatusCode TrigL2VertexFitter::fitWithConstraints(TrigL2Vertex* pV)
       m_timer[5]->stop();
       m_timer[6]->stop();
     }
-  if(!fitFailed) pV->m_setStatus(1);
+  if(!fitFailed) pV->setStatus(1);
   else return StatusCode::FAILURE;
   return StatusCode::SUCCESS;
 }

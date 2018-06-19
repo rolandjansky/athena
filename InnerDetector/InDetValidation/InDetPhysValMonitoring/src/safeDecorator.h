@@ -13,10 +13,16 @@
 
 
 
-#include "xAODTracking/TrackParticle.h"
-#include "xAODTruth/TruthParticle.h"
+#include "AthContainers/AuxElement.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "StoreGate/WriteDecorHandle.h"
+#include "StoreGate/ReadDecorHandleKey.h"
+#include "StoreGate/ReadDecorHandle.h"
+#include "GaudiKernel/EventContext.h"
 
 #include <iostream>
+#include <utility>
+#include <vector>
 
 
 namespace IDPVM {
@@ -32,81 +38,143 @@ namespace IDPVM {
     DO_NOTHING, REJECT_QUIETLY, REJECT_WITH_WARNING, REJECT_WARN_IF_UNEQUAL
   };
 
-  /// Safe decorator for TrackParticles
-  template <class T>
-  void
-  safeDecorator(const xAOD::TrackParticle& particle, const std::string& decorName, const T& value,
-                const DuplicateBehaviour duplicate = REJECT_WITH_WARNING) {
-    switch (duplicate) {
-    //
-    case REJECT_WITH_WARNING:
-      if (particle.template isAvailable<T>(decorName)) {
-        std::cout << "WARNING IDPVM::safeDecorator: " << decorName <<
-          " Already exists on this object; update rejected.\n";
-      } else {
-        particle.template auxdecor<T>(decorName) = value;
-      }
-      break;
-
-    //
-    case REJECT_WARN_IF_UNEQUAL:
-      if (particle.template isAvailable<T>(decorName)) {
-        const T existing = particle.template auxdata<T>(decorName);
-        if (not IDPVM::roughlyEqual(existing, value)) {
-          std::cout << "WARNING IDPVM::safeDecorator: " << decorName <<
-            " Already exists on this object with a different value.\n";
-        }
-      } else {
-        particle.template auxdecor<T>(decorName) = value;
-      }
-      break;
-
-    //
-    case REJECT_QUIETLY:
-      if (not (particle.template isAvailable<T>(decorName))) {
-        particle.template auxdecor<T>(decorName) = value;
-      }
-      break;
-
-    default: // corresponds to DO_NOTHING
-      particle.template auxdecor<T>(decorName) = value;
-      break;
+  // create a pair composed of a WriteDecorHandleKey to create a decorator handle
+  // and an accessor to check the availablilty of a decoration
+  template <class T_Parent, class T_Cont, class T>
+  void createDecoratorKeysAndAccessor(T_Parent &parent,
+                                      const SG::ReadHandleKey<T_Cont> &container_key,
+                                      const std::string &prefix,
+                                      const std::vector<std::string> &decor_names,
+                                      std::vector<std::pair<SG::WriteDecorHandleKey<T_Cont>, SG::AuxElement::ConstAccessor<T> > > &decor_out) {
+    decor_out.clear();
+    decor_out.reserve(decor_names.size());
+    for (const std::string &a_decor_name: decor_names) {
+      decor_out.push_back(std::make_pair(SG::WriteDecorHandleKey<T_Cont>(container_key.key()+"."+prefix+a_decor_name),
+                                         SG::AuxElement::ConstAccessor<T>(a_decor_name)));
+      parent.declare(decor_out.back().first);
+      decor_out.back().first.setOwner(&parent);
+      decor_out.back().first.initialize().ignore();
     }
   }
 
-  /// Safe decorator for TruthParticles
-  template <class T>
-  void
-  safeDecorator(const xAOD::TruthParticle& particle, const std::string& decorName, const T& value,
-                const DuplicateBehaviour duplicate = REJECT_WITH_WARNING) {
-    switch (duplicate) {
-    //
-    case REJECT_WITH_WARNING:
-      if (particle.template isAvailable<T>(decorName)) {
-        std::cout << "WARNING IDPVM::safeDecorator: " << decorName << " Already exists on this object.\n";
-      } else {
-        particle.template auxdecor<T>(decorName) = value;
+  template <class T_Cont, class T>
+  std::vector<std::pair<SG::WriteDecorHandle<T_Cont,T>, const SG::AuxElement::ConstAccessor<T> &> >
+  createDecoratorsWithAccessor(const std::vector<std::pair<SG::WriteDecorHandleKey<T_Cont>,
+                                                           SG::AuxElement::ConstAccessor<T> > > &keys,
+                               const EventContext &ctx) {
+    std::vector<std::pair<SG::WriteDecorHandle<T_Cont,T>, const SG::AuxElement::ConstAccessor<T> &> > out;
+    out.reserve(keys.size());
+    for( const std::pair<SG::WriteDecorHandleKey<T_Cont>, SG::AuxElement::ConstAccessor<T> > &a_key : keys) {
+      out.push_back(std::make_pair(SG::WriteDecorHandle<T_Cont,T>(a_key.first,ctx), a_key.second));
+      if (not out.back().first.isValid()) {
+        std::stringstream msg;
+        msg << "Failed to create decorator handdle " << a_key.first.key();
+        throw std::runtime_error( msg.str() );
       }
-      break;
+    }
+    return std::move(out);
+  }
 
-    //
-    case REJECT_WARN_IF_UNEQUAL:
-      if (particle.template isAvailable<T>(decorName)) {
-        const T existing = particle.template auxdata<T>(decorName);
-        if (not IDPVM::roughlyEqual(existing, value)) {
-          std::cout << "WARNING IDPVM::safeDecorator: " << decorName <<
-            " Already exists on this object with a different value.\n";
-        }
-      } else {
-        particle.template auxdecor<T>(decorName) = value;
+
+  template <class T_Cont, class T>
+  std::vector<SG::WriteDecorHandle<T_Cont,T> >
+  createDecorators(  const std::vector<SG::WriteDecorHandleKey<T_Cont> > &keys,
+                     const EventContext &ctx) {
+    std::vector<SG::WriteDecorHandle<T_Cont,T> > out;
+    out.reserve(keys.size());
+    for( const SG::WriteDecorHandleKey<T_Cont> &a_key : keys) {
+      out.push_back(SG::WriteDecorHandle<T_Cont,T>(a_key,ctx));
+      if (not out.back().isValid()) {
+        std::stringstream msg;
+        msg << "Failed to create decorator handdle " << a_key.key();
+        throw std::runtime_error( msg.str() );
       }
-      break;
+    }
+    return std::move(out);
+  }
 
-    //
-    default: // corresponds to DO_NOTHING
-      particle.template auxdecor<T>(decorName) = value;
-      break;
+
+  // convenience method to create several decorators
+  template<class T_Parent, class T_Cont>
+  void createDecoratorKeys(T_Parent &parent,
+                        const SG::ReadHandleKey<T_Cont> &container_key,
+                        const std::string &prefix,
+                        const std::vector<std::string> &decor_names,
+                        std::vector<SG::WriteDecorHandleKey<T_Cont> > &decor_out) {
+    decor_out.clear();
+    decor_out.reserve(decor_names.size());
+    for (const std::string &a_decor_name : decor_names) {
+      assert( !a_decor_name.empty() );
+      decor_out.push_back(SG::WriteDecorHandleKey<T_Cont>(container_key.key()+"."+prefix+a_decor_name) );
+      // need to declare handles, otherwise the scheduler would not pick up the data dependencies
+      // introduced by the decorations
+      parent.declare(decor_out.back());
+      decor_out.back().setOwner(&parent);
+      decor_out.back().initialize().ignore();
     }
   }
+
+
+  template<class T_Parent, class T_Cont>
+  void addReadDecoratorHandleKeys(T_Parent &parent,
+                                  const SG::ReadHandleKey<T_Cont> &container_key,
+                                  const std::string &prefix,
+                                  const std::vector<std::string> &decor_names,
+                                  std::vector<SG::ReadDecorHandleKey<T_Cont> > &decor_out) {
+    decor_out.reserve(decor_out.size() + decor_names.size());
+    for (const std::string &a_decor_name : decor_names) {
+      decor_out.push_back( SG::ReadDecorHandleKey<T_Cont>(container_key.key()+"."+prefix+a_decor_name) );
+      parent.declare(decor_out.back());
+      decor_out.back().setOwner(&parent);
+      decor_out.back().initialize().ignore();
+    }
+  }
+
+  /// Safe decorators
+  template <class T_Cont, class T_Cont_Elm, class T>
+  void decorateOrRejectWithWarning(const T_Cont_Elm& particle,
+                                   std::pair<SG::WriteDecorHandle<T_Cont,T>, const SG::AuxElement::ConstAccessor<T> &> &decorator,
+                                   const T& value) {
+    if (decorator.second.isAvailable(particle)) {
+      std::cout << "WARNING IDPVM::safeDecorator: " << decorator.first.key() <<
+        " Already exists on this object; update rejected.\n";
+    } else {
+      decorator.first(particle) = value;
+    }
+  }
+
+  template <class T_Cont, class T_Cont_Elm, class T>
+  void decorateOrWarnIfUnequal(const T_Cont_Elm& particle,
+                                   std::pair<SG::WriteDecorHandle<T_Cont,T>, const SG::AuxElement::ConstAccessor<T> &> &decorator,
+                                   const T& value) {
+    if (decorator.second.isAvailable(particle)) {
+      const T existing = decorator.second(particle);
+      if (not IDPVM::roughlyEqual(existing, value)) {
+        std::cout << "WARNING IDPVM::safeDecorator: " << decorator.first.key() <<
+          " Already exists on this object with a different value.\n";
+      }
+    } else {
+      decorator.first(particle) = value;
+    }
+  }
+
+  template <class T_Cont, class T_Cont_Elm, class T>
+  void decorateOrRejectQuietly(const T_Cont_Elm& particle,
+                                   std::pair<SG::WriteDecorHandle<T_Cont,T>, const SG::AuxElement::ConstAccessor<T> &> &decorator,
+                                   const T& value) {
+      if (not decorator.second.isAvailable(particle)) {
+        decorator.first(particle) = value;
+      }
+  }
+
+  // unsafe method for convenience
+  template <class T_Cont, class T_Cont_Elm, class T>
+  void decorate(const T_Cont_Elm& particle,
+                std::pair<SG::WriteDecorHandle<T_Cont,T>, const SG::AuxElement::ConstAccessor<T> &> &decorator,
+                const T& value) {
+    decorator.first(particle) = value;
+  }
+
+
 }
 #endif

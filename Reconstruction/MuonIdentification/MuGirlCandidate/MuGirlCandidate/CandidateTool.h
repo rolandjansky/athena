@@ -277,6 +277,7 @@ private:
                 msg(MSG::ERROR) << "Cannot retrieve tool " << pHandle << endmsg;
             else
                 msg(MSG::WARNING) << "Cannot retrieve tool " << pHandle << endmsg;
+            pHandle.disable();
         }
         else
             msg(MSG::INFO) << "Retrieved tool " << pHandle << endmsg;

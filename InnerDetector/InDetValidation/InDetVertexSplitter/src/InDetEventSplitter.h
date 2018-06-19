@@ -44,8 +44,8 @@ namespace InDet {
     
     std::vector<std::string> m_trackKeys;
     
-    bool isOdd;
-    int addToVx;
+    bool m_isOdd;
+    int m_addToVx;
 
     StatusCode split_vertices();
     
@@ -57,7 +57,7 @@ namespace InDet {
     bool m_savetpb;
     int m_rndSeed;
 
-    int eventN;
+    int m_eventN;
   };
 }
 

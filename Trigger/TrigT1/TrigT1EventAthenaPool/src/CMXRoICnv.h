@@ -25,14 +25,15 @@ typedef T_AthenaPoolCustomCnv<LVL1::CMXRoI, CMXRoI_PERS> CMXRoICnvBase;
 class CMXRoICnv: public CMXRoICnvBase {
 friend class CnvFactory<CMXRoICnv>;
 
-protected:
-
+public:
   CMXRoICnv (ISvcLocator* svcloc) :
     CMXRoICnvBase(svcloc),
     m_msgSvc( msgSvc() ),
     m_log( m_msgSvc, "CMXRoICnv" )
      {}
   
+protected:
+
   ~CMXRoICnv() {}
   
   virtual CMXRoI_PERS*   createPersistent (LVL1::CMXRoI* transCont);

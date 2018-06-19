@@ -587,6 +587,12 @@ namespace Muon {
       }
 // skip outliers
 //      if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) continue;
+
+      // Skip AEOTs that are already present, as they will be added above already
+      if((*tsit)->alignmentEffectsOnTrack()){
+	ATH_MSG_DEBUG("makeAEOTs: Skipping insertion of old AEOT!");
+	continue;
+      }
       trackStateOnSurfaces->push_back( (*tsit)->clone());
     }
 

@@ -22,6 +22,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTracking
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
    PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonMomentumCorrections
+   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
    ${extra_deps} )
 
 # Externals used by the package:

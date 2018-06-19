@@ -144,7 +144,7 @@ double  LArPedestal::get_rms(const unsigned isample) const
     return 0;
   //const int nsamples = m_sum.size();
   const double x = m_sum[isample]/double(m_nped);
-  const double y = m_sumSquares[isample]/double(m_nped);;
+  const double y = m_sumSquares[isample]/double(m_nped);
   return sqrt(y-x*x);
 }
 

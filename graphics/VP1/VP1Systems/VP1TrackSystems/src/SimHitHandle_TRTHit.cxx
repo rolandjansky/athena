@@ -60,8 +60,8 @@ Amg::Vector3D SimHitHandle_TRTHit::momentumDirection() const
   if (VP1Msg::verbose()&&posStart()==posEnd())
     VP1Msg::messageVerbose("SimHitHandle_SiHit::momentumDirection() ERROR: posStart()==posEnd()");
   Amg::Vector3D u((posEnd()-posStart()).unit());
-//  return Trk::GlobalMomentum(u.x(),u.y(),u.z());;
-  return Amg::Vector3D(u.x(),u.y(),u.z());;
+//  return Trk::GlobalMomentum(u.x(),u.y(),u.z());
+  return Amg::Vector3D(u.x(),u.y(),u.z());
 }
 
 //____________________________________________________________________

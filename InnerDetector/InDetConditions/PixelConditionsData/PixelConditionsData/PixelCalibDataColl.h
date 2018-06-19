@@ -4,9 +4,9 @@
 
 #ifndef PIXELCALIBDATACOLL_H
 #define PIXELCALIBDATACOLL_H
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "PixelConditionsData/PixelCalibData.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /** This typedef represents a collection of PixelCalibData objects. 
 It is a DataVector. It can be saved

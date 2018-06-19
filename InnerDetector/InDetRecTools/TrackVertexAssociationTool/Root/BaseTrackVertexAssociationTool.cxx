@@ -25,6 +25,8 @@ BaseTrackVertexAssociationTool::BaseTrackVertexAssociationTool(std::string name)
 
 StatusCode BaseTrackVertexAssociationTool::initialize()
 {
+  ATH_CHECK( m_eventInfo.initialize() );
+
   ATH_MSG_INFO("Cut on d0 significance: " << m_d0sig_cut << "\t(d0sig_cut)");
   ATH_MSG_INFO("Cut on Δz * sin θ: " << m_dzSinTheta_cut << "\t(dzSinTheta_cut)");
 
@@ -108,8 +110,8 @@ bool BaseTrackVertexAssociationTool::isMatch(const xAOD::TrackParticle &trk,
     return false;
   }
 
-  const xAOD::EventInfo *evt{0};
-  if (evtStore()->retrieve(evt, "EventInfo").isFailure()) {
+  SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo);
+  if (!evt.isValid()) {
     throw std::runtime_error("Could not retrieve EventInfo");
   }
 

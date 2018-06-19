@@ -130,10 +130,10 @@ void SegmentRawdataSelector::prepareSegments(const MuonCalibEvent *&event, std::
     }
   }
   for(std::set<NtupleStationId> ::iterator it=to_delte.begin(); it!=to_delte.end(); it++) {
-    std::map<NtupleStationId, MuonCalibSegment *>::iterator m_it(segments.find(*it));
-    if(m_it!=segments.end()) {
-      delete m_it->second;
-      segments.erase(m_it);
+    std::map<NtupleStationId, MuonCalibSegment *>::iterator map_it(segments.find(*it));
+    if(map_it!=segments.end()) {
+      delete map_it->second;
+      segments.erase(map_it);
     }
   }
 }  //end SegmentRawdataSelector::prepareSegments

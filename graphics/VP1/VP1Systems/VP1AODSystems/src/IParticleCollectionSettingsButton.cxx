@@ -74,45 +74,45 @@ void IParticleCollectionSettingsButton::Imp::initEditWindow()
 }
 
 void IParticleCollectionSettingsButton::initEditWindow(){
-  d->initEditWindow();
+  m_d->initEditWindow();
 }
 
 
 //____________________________________________________________________
 void IParticleCollectionSettingsButton::setText(const QString& t)
 {
-  if (d->editwindow)
-    d->editwindow->setWindowTitle(t);
+  if (m_d->editwindow)
+    m_d->editwindow->setWindowTitle(t);
   setToolTip(t);
 }
 
 //____________________________________________________________________
-IParticleCollectionSettingsButton::IParticleCollectionSettingsButton(QWidget * parent,int _dim)
-  : VP1MaterialButtonBase(parent,0,"VP1MaterialButton"), d(new Imp)
+IParticleCollectionSettingsButton::IParticleCollectionSettingsButton(QWidget * parent,int dim)
+  : VP1MaterialButtonBase(parent,0,"VP1MaterialButton"), m_d(new Imp)
 {
-  d->dim = _dim;
+  m_d->dim = dim;
   
-  d->theclass = this;
-  d->initEditWindow();
+  m_d->theclass = this;
+  m_d->initEditWindow();
     
   // -> cutAllowedP/Pt
-  connect(d->editwindow_ui.checkBox_cut_minpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
-  connect(d->editwindow_ui.checkBox_cut_maxpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
-  connect(d->editwindow_ui.doubleSpinBox_cut_minpt_gev,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedPt()));
-  connect(d->editwindow_ui.doubleSpinBox_cut_maxpt_gev,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedPt()));
-  connect(d->editwindow_ui.checkBox_cut_minpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
-  connect(d->editwindow_ui.comboBox_momtype,SIGNAL(currentIndexChanged(int)),this,SLOT(possibleChange_cutAllowedPt()));
+  connect(m_d->editwindow_ui.checkBox_cut_minpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
+  connect(m_d->editwindow_ui.checkBox_cut_maxpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
+  connect(m_d->editwindow_ui.doubleSpinBox_cut_minpt_gev,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedPt()));
+  connect(m_d->editwindow_ui.doubleSpinBox_cut_maxpt_gev,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedPt()));
+  connect(m_d->editwindow_ui.checkBox_cut_minpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
+  connect(m_d->editwindow_ui.comboBox_momtype,SIGNAL(currentIndexChanged(int)),this,SLOT(possibleChange_cutAllowedPt()));
 
   // -> cutAllowedEta
-  connect(d->editwindow_ui.etaPhiCutWidget,SIGNAL(allowedEtaChanged(const VP1Interval&)),this,SLOT(possibleChange_cutAllowedEta()));
+  connect(m_d->editwindow_ui.etaPhiCutWidget,SIGNAL(allowedEtaChanged(const VP1Interval&)),this,SLOT(possibleChange_cutAllowedEta()));
   
   // -> cutAllowedPhi
-  connect(d->editwindow_ui.etaPhiCutWidget,SIGNAL(allowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(possibleChange_cutAllowedPhi()));
+  connect(m_d->editwindow_ui.etaPhiCutWidget,SIGNAL(allowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(possibleChange_cutAllowedPhi()));
   
   connect(this,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
-  connect(d->editwindow_ui.pushButton_close,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
-  connect(d->matButton,SIGNAL(lastAppliedChanged()),this,SLOT(updateButton()));
-  connect(d->matButton,SIGNAL(lastAppliedChanged()),this,SIGNAL(lastAppliedChanged()));
+  connect(m_d->editwindow_ui.pushButton_close,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
+  connect(m_d->matButton,SIGNAL(lastAppliedChanged()),this,SLOT(updateButton()));
+  connect(m_d->matButton,SIGNAL(lastAppliedChanged()),this,SIGNAL(lastAppliedChanged()));
   setAcceptDrops(true);
   
   QTimer::singleShot(0, this, SLOT(updateButton()));
@@ -120,89 +120,89 @@ IParticleCollectionSettingsButton::IParticleCollectionSettingsButton(QWidget * p
 }
 
 // QWidget& IParticleCollectionSettingsButton::editWindow() {
-//   if (!d->editwindow)
+//   if (!m_d->editwindow)
 //     initEditWindow();
-//   return *(d->editwindow);
+//   return *(m_d->editwindow);
 // } 
 IParticleCollectionSettingsButton::~IParticleCollectionSettingsButton()
 {
-  delete d->editwindow;
-  d->trackDrawStyle->unref();
-  d->lightModel->unref();
-  delete d;
+  delete m_d->editwindow;
+  m_d->trackDrawStyle->unref();
+  m_d->lightModel->unref();
+  delete m_d;
 }
 
 void IParticleCollectionSettingsButton::updateButton()
 {
   if (objectName().isEmpty())
     setObjectName("IParticleCollectionSettingsButton");
-  messageVerbose("setColButtonProperties: color=" + str(d->matButton->lastAppliedDiffuseColour()));
-  VP1ColorSelectButton::setColButtonProperties(this,d->matButton->lastAppliedDiffuseColour(),d->dim);
+  messageVerbose("setColButtonProperties: color=" + str(m_d->matButton->lastAppliedDiffuseColour()));
+  VP1ColorSelectButton::setColButtonProperties(this,m_d->matButton->lastAppliedDiffuseColour(),m_d->dim);
 }
 
-void IParticleCollectionSettingsButton::setDimension(int _dim)
+void IParticleCollectionSettingsButton::setDimension(int dim)
 {
-  if (d->dim == _dim)
+  if (m_d->dim == dim)
     return;
-  d->dim = _dim;
+  m_d->dim = dim;
   updateButton();
 }
 
 void IParticleCollectionSettingsButton::showEditMaterialDialog()
 {
-  if (!d->editwindow)
-    d->initEditWindow();
+  if (!m_d->editwindow)
+    m_d->initEditWindow();
 
-  if (d->editwindow->isHidden())
-    d->editwindow->show();
+  if (m_d->editwindow->isHidden())
+    m_d->editwindow->show();
   else
-    d->editwindow->hide();
+    m_d->editwindow->hide();
 }
 
 bool IParticleCollectionSettingsButton::setMaterial(SoMaterial*mat)
 {  
-  if (!d->matButton) d->initEditWindow();
-  d->matButton->setMaterial(mat);
+  if (!m_d->matButton) m_d->initEditWindow();
+  m_d->matButton->setMaterial(mat);
   return true;
 }
 
 void IParticleCollectionSettingsButton::copyValuesFromMaterial(SoMaterial*mat)
 {
-  if (!d->matButton) d->initEditWindow();
-  d->matButton->setMaterial(mat);
+  if (!m_d->matButton) m_d->initEditWindow();
+  m_d->matButton->setMaterial(mat);
 }
 double IParticleCollectionSettingsButton::lastAppliedTransparency() const 
 {
-  if (!d->matButton) d->initEditWindow();
-  return d->matButton->lastAppliedTransparency();
+  if (!m_d->matButton) m_d->initEditWindow();
+  return m_d->matButton->lastAppliedTransparency();
 }
 double IParticleCollectionSettingsButton::lastAppliedShininess() const  
 {
-  if (!d->matButton) d->initEditWindow();
-  return d->matButton->lastAppliedShininess();
+  if (!m_d->matButton) m_d->initEditWindow();
+  return m_d->matButton->lastAppliedShininess();
 }
 double IParticleCollectionSettingsButton::lastAppliedBrightness() const
 {
-  if (!d->matButton) d->initEditWindow();
-  return d->matButton->lastAppliedBrightness();
+  if (!m_d->matButton) m_d->initEditWindow();
+  return m_d->matButton->lastAppliedBrightness();
 }
 
 
 void IParticleCollectionSettingsButton::updateDrawStyle()
 {
-  // double val = VP1QtInventorUtils::getValueLineWidthSlider(d->editwindow_ui.horizontalSlider_trackWidth);
-  // if (d->trackDrawStyle->lineWidth.getValue()!=val)
-  //   d->trackDrawStyle->lineWidth = val;
+  // double val = VP1QtInventorUtils::getValueLineWidthSlider(m_d->editwindow_ui.horizontalSlider_trackWidth);
+  // if (m_d->trackDrawStyle->lineWidth.getValue()!=val)
+  //   m_d->trackDrawStyle->lineWidth = val;
 }
 
 void IParticleCollectionSettingsButton::updateLightModel(bool base)
 {
-  if (d->lightModel->model.getValue()!=(base?SoLightModel::BASE_COLOR:SoLightModel::PHONG)) {
+  if (m_d->lightModel->model.getValue()!=(base?SoLightModel::BASE_COLOR:SoLightModel::PHONG)) {
     messageVerbose("lightModel changed (base = "+str(base));
     if (base)
-      d->lightModel->model.setValue(SoLightModel::BASE_COLOR);
+      m_d->lightModel->model.setValue(SoLightModel::BASE_COLOR);
     else
-      d->lightModel->model.setValue(SoLightModel::PHONG);
+      m_d->lightModel->model.setValue(SoLightModel::PHONG);
   }
 }
 
@@ -210,12 +210,12 @@ void IParticleCollectionSettingsButton::updateLightModel(bool base)
 
 SoDrawStyle * IParticleCollectionSettingsButton::drawStyle() const
 {
-  return d->trackDrawStyle;
+  return m_d->trackDrawStyle;
 }
 
 SoLightModel * IParticleCollectionSettingsButton::lightModel() const
 {
-  return d->lightModel;
+  return m_d->lightModel;
 }
 
 
@@ -223,7 +223,7 @@ SoLightModel * IParticleCollectionSettingsButton::lightModel() const
 void IParticleCollectionSettingsButton::mousePressEvent(QMouseEvent *event)
 {
   if (event->button() == Qt::LeftButton)
-    d->dragStartPosition = event->pos();
+    m_d->dragStartPosition = event->pos();
   QPushButton::mousePressEvent(event);
 }
 
@@ -239,7 +239,7 @@ void IParticleCollectionSettingsButton::mouseMoveEvent(QMouseEvent *event)
 {
   if (!(event->buttons() & Qt::LeftButton))
     return;
-  if ((event->pos() - d->dragStartPosition).manhattanLength()
+  if ((event->pos() - m_d->dragStartPosition).manhattanLength()
       < QApplication::startDragDistance())
     return;
 
@@ -261,22 +261,22 @@ void IParticleCollectionSettingsButton::mouseMoveEvent(QMouseEvent *event)
   // ////////////////////////////////////////////////////////
   // 
   // QString s = "SoMaterial * mat = new SoMaterial;\n";
-  // QString str_ambient = d->toSbColTxt(d->lastapplied_ambient);
+  // QString str_ambient = m_d->toSbColTxt(m_d->lastapplied_ambient);
   // if (str_ambient!="SbColor(0.2,0.2,0.2)")
   //   s += "mat->ambientColor.setValue("+str_ambient+");\n";
-  // QString str_diffuse = d->toSbColTxt(d->lastapplied_diffuse);
+  // QString str_diffuse = m_d->toSbColTxt(m_d->lastapplied_diffuse);
   // if (str_diffuse!="SbColor(0.8,0.8,0.8)")
   //   s += "mat->diffuseColor.setValue("+str_diffuse+");\n";
-  // QString str_specular = d->toSbColTxt(d->lastapplied_specular);
+  // QString str_specular = m_d->toSbColTxt(m_d->lastapplied_specular);
   // if (str_specular!="SbColor(0,0,0)")
   //   s += "mat->specularColor.setValue("+str_specular+");\n";
-  // QString str_emissive = d->toSbColTxt(d->lastapplied_emissive);
+  // QString str_emissive = m_d->toSbColTxt(m_d->lastapplied_emissive);
   // if (str_emissive!="SbColor(0,0,0)")
   //   s += "mat->emissiveColor.setValue("+str_emissive+");\n";
-  // QString str_shininess = d->printFloat(d->lastapplied_shininess/100.0);
+  // QString str_shininess = m_d->printFloat(m_d->lastapplied_shininess/100.0);
   // if (str_shininess!="0.2")
   //   s +=     "mat->shininess.setValue("+str_shininess+");\n";
-  // QString str_transparency = d->printFloat(d->lastapplied_transparency/100.0);
+  // QString str_transparency = m_d->printFloat(m_d->lastapplied_transparency/100.0);
   // if (str_transparency!="0")
   //   s +=     "mat->transparency.setValue("+str_transparency+");\n";
   // mimeData->setText(s);
@@ -297,10 +297,10 @@ void IParticleCollectionSettingsButton::dropEvent(QDropEvent *event)
 
 QByteArray IParticleCollectionSettingsButton::saveState() const{
   // messageVerbose("getState");
-  // if (d->editwindow_ui.checkBox_tracksUseBaseLightModel->isChecked()) messageVerbose("checked!");
+  // if (m_d->editwindow_ui.checkBox_tracksUseBaseLightModel->isChecked()) messageVerbose("checked!");
   VP1Serialise serialise(1/*version*/);
   
-  serialise.save(d->matButton);  
+  serialise.save(m_d->matButton);  
   // serialise.disableUnsavedChecks();
 	// FIXME - what about eta/phi?
 	
@@ -314,7 +314,7 @@ void IParticleCollectionSettingsButton::restoreFromState( const QByteArray& ba){
   VP1Deserialise state(ba,systemBase());
   if (state.version()<0||state.version()>1)
     return;//Ignore silently
-  state.restore(d->matButton);
+  state.restore(m_d->matButton);
   state.widgetHandled(this);
   state.warnUnrestored(this);
   updateButton();
@@ -324,7 +324,7 @@ void IParticleCollectionSettingsButton::restoreFromState( const QByteArray& ba){
 //____________________________________________________________________
 VP1Interval IParticleCollectionSettingsButton::cutAllowedPt() const
 {
-  if (!d->editwindow_ui.checkBox_cut_minpt)
+  if (!m_d->editwindow_ui.checkBox_cut_minpt)
     return VP1Interval();
 
   // will set range to negative if we have momcut=P
@@ -332,19 +332,19 @@ VP1Interval IParticleCollectionSettingsButton::cutAllowedPt() const
   // if minCut set, and Pt selected, then min=-minCut
   // if minCut set, and P selected, then min=-maxCut
   // etc
-  bool isPCut = d->editwindow_ui.comboBox_momtype->currentText()=="P";
+  bool isPCut = m_d->editwindow_ui.comboBox_momtype->currentText()=="P";
   
-  const double minFromInterface=d->editwindow_ui.doubleSpinBox_cut_minpt_gev->value()*1000;
-  const double maxFromInterface=d->editwindow_ui.doubleSpinBox_cut_maxpt_gev->value()*1000;
+  const double minFromInterface=m_d->editwindow_ui.doubleSpinBox_cut_minpt_gev->value()*1000;
+  const double maxFromInterface=m_d->editwindow_ui.doubleSpinBox_cut_maxpt_gev->value()*1000;
   
   double min=0.0,max=0.0;
   if (!isPCut) {
     //Pt cut
-    min = (d->editwindow_ui.checkBox_cut_minpt->isChecked() ? minFromInterface : -std::numeric_limits<double>::infinity());
-    max = (d->editwindow_ui.checkBox_cut_maxpt->isChecked() ? maxFromInterface : std::numeric_limits<double>::infinity());
+    min = (m_d->editwindow_ui.checkBox_cut_minpt->isChecked() ? minFromInterface : -std::numeric_limits<double>::infinity());
+    max = (m_d->editwindow_ui.checkBox_cut_maxpt->isChecked() ? maxFromInterface : std::numeric_limits<double>::infinity());
   } else {
-    min = (d->editwindow_ui.checkBox_cut_maxpt->isChecked() ? -maxFromInterface : -std::numeric_limits<double>::infinity());
-    max = (d->editwindow_ui.checkBox_cut_minpt->isChecked() ? -minFromInterface : std::numeric_limits<double>::infinity());
+    min = (m_d->editwindow_ui.checkBox_cut_maxpt->isChecked() ? -maxFromInterface : -std::numeric_limits<double>::infinity());
+    max = (m_d->editwindow_ui.checkBox_cut_minpt->isChecked() ? -minFromInterface : std::numeric_limits<double>::infinity());
   }
   
   //message("cutAllowedPt: min,max="+QString::number(min)+","+QString::number(max));
@@ -358,39 +358,39 @@ VP1Interval IParticleCollectionSettingsButton::cutAllowedPt() const
 //____________________________________________________________________
 VP1Interval IParticleCollectionSettingsButton::cutAllowedEta() const
 {
-  return d->editwindow_ui.etaPhiCutWidget->allowedEta();
+  return m_d->editwindow_ui.etaPhiCutWidget->allowedEta();
 }
 
 //____________________________________________________________________
 QList<VP1Interval> IParticleCollectionSettingsButton::cutAllowedPhi() const
 {
-  return d->editwindow_ui.etaPhiCutWidget->allowedPhi();
+  return m_d->editwindow_ui.etaPhiCutWidget->allowedPhi();
 }
 
 void IParticleCollectionSettingsButton::possibleChange_cutAllowedPt()
 {
   messageVerbose("IParticleCollectionSettingsButton::possibleChange_cutAllowedPt() ");
   
-  if (d->last_cutAllowedPt==cutAllowedPt()) return;
+  if (m_d->last_cutAllowedPt==cutAllowedPt()) return;
   messageVerbose("cutAllowedPt() changed");
-  d->last_cutAllowedPt = cutAllowedPt();
-  emit cutAllowedPtChanged(d->last_cutAllowedPt);
+  m_d->last_cutAllowedPt = cutAllowedPt();
+  emit cutAllowedPtChanged(m_d->last_cutAllowedPt);
 }
 
 void IParticleCollectionSettingsButton::possibleChange_cutAllowedEta()
 {
-  if (d->last_cutAllowedEta==cutAllowedEta()) return;
+  if (m_d->last_cutAllowedEta==cutAllowedEta()) return;
   messageVerbose("cutAllowedEta() changed");
-  d->last_cutAllowedEta=cutAllowedEta();
-  emit cutAllowedEtaChanged(d->last_cutAllowedEta);
+  m_d->last_cutAllowedEta=cutAllowedEta();
+  emit cutAllowedEtaChanged(m_d->last_cutAllowedEta);
 }
 
 void IParticleCollectionSettingsButton::possibleChange_cutAllowedPhi()
 {
-  if (d->last_cutAllowedPhi==cutAllowedPhi()) return;
+  if (m_d->last_cutAllowedPhi==cutAllowedPhi()) return;
   messageVerbose("cutAllowedPhi() changed");
-  d->last_cutAllowedPhi=cutAllowedPhi();
-  emit cutAllowedPhiChanged(d->last_cutAllowedPhi);
+  m_d->last_cutAllowedPhi=cutAllowedPhi();
+  emit cutAllowedPhiChanged(m_d->last_cutAllowedPhi);
 }
 
 

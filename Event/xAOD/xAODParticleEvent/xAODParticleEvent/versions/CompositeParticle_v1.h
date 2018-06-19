@@ -29,7 +29,8 @@
 #include "xAODParticleEvent/IParticleLink.h"
 #include "xAODParticleEvent/IParticleLinkContainer.h"
 
-
+// ROOT include(s):
+#include "Math/Vector4D.h"
 
 namespace xAOD {
 
@@ -67,7 +68,14 @@ namespace xAOD {
     typedef IParticle::FourMom_t FourMom_t;
 
     /// The full 4-momentum of the particle
-    virtual const FourMom_t& p4() const;
+    virtual FourMom_t        p4() const;
+
+    /// Base 4 Momentum type (GenVector)
+    typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > GenVecFourMom_t;
+    
+    /// The full 4-momentum of the particle : GenVector form
+    /// Note: can be slower than just p4 for this class; added for consistency
+    GenVecFourMom_t          genvecP4() const;
 
     ///  The type of the object as a simple enumeration
     virtual Type::ObjectType type() const;
@@ -132,21 +140,21 @@ namespace xAOD {
     /// @{
 
     /// The total 4-momentum
-    const FourMom_t& p4( const std::vector<int>& partIndices ) const;
+    FourMom_t p4( const std::vector<int>& partIndices ) const;
 
     /// Get the four-momentum with two indices.
     /// This specialization to the above method is needed since ROOT 6.02 doesn't
     /// yet support C++11 in the TFormula stuff with JIT compilation, see:
     /// https://sft.its.cern.ch/jira/browse/ROOT-5083
-    inline const FourMom_t& p4( int partIndexA, int partIndexB ) const {
+    inline FourMom_t p4( int partIndexA, int partIndexB ) const {
       return this->p4( std::vector<int>{partIndexA, partIndexB} );
     }
     /// Get the four-momentum with three indices.
-    inline const FourMom_t& p4( int partIndexA, int partIndexB, int partIndexC ) const {
+    inline FourMom_t p4( int partIndexA, int partIndexB, int partIndexC ) const {
       return this->p4( std::vector<int>{partIndexA, partIndexB, partIndexC} );
     }
     /// Get the four-momentum with four indices.
-    inline const FourMom_t& p4( int partIndexA, int partIndexB, int partIndexC, int partIndexD ) const {
+    inline FourMom_t p4( int partIndexA, int partIndexB, int partIndexC, int partIndexD ) const {
       return this->p4( std::vector<int>{partIndexA, partIndexB, partIndexC, partIndexD} );
     }
 
@@ -591,12 +599,6 @@ namespace xAOD {
     /// Function preparing the object to be persistified
     void toPersistent();
 
-  private:
-    /// Cached 4-momentum object
-    mutable FourMom_t m_p4;
-
-    /// Cache state of the internal 4-momentum (reset from the streamer)
-    mutable bool m_p4Cached;
 
   }; // class CompositeParticle_v1
 

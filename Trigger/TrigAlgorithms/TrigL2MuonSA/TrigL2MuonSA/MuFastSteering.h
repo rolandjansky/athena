@@ -105,20 +105,45 @@ class MuFastSteering : public HLT::FexAlgo,
      Called at the end of the algorithm processing to set the steering
      navigation properly
   */
-  bool updateOutput(const LVL1::RecMuonRoI*                  roi,
-		    const TrigRoiDescriptor*                 roids,
-		    const TrigL2MuonSA::MuonRoad&            muonRoad,
-		    const TrigL2MuonSA::MdtRegion&           mdtRegion,
-		    const TrigL2MuonSA::RpcHits&             rpcHits,
-		    const TrigL2MuonSA::TgcHits&             /*tgcHits*/,
-		    const TrigL2MuonSA::RpcFitResult&        rpcFitResult,
-		    const TrigL2MuonSA::TgcFitResult&        tgcFitResult,
-		    const TrigL2MuonSA::MdtHits&             mdtHits,
-		    const TrigL2MuonSA::CscHits&             cscHits,
-		    std::vector<TrigL2MuonSA::TrackPattern>& m_trackPatterns,
-                    DataVector<xAOD::L2StandAloneMuon>&      outputTracks,
-		    TrigRoiDescriptorCollection&  	     outoutID,
-		    TrigRoiDescriptorCollection&	     outputMS);
+  bool updateOutputObjects(const LVL1::RecMuonRoI*                        roi,
+                           const TrigRoiDescriptor*                       roids,
+                           const TrigL2MuonSA::MuonRoad&                  muonRoad,
+                           const TrigL2MuonSA::MdtRegion&                 mdtRegion,
+                           const TrigL2MuonSA::RpcHits&                   rpcHits,
+                           const TrigL2MuonSA::TgcHits&                   tgcHits,
+                           const TrigL2MuonSA::RpcFitResult&              rpcFitResult,
+                           const TrigL2MuonSA::TgcFitResult&              tgcFitResult,
+                           const TrigL2MuonSA::MdtHits&                   mdtHits,
+                           const TrigL2MuonSA::CscHits&                   cscHits,
+                           const std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns,
+			   DataVector<xAOD::L2StandAloneMuon>&	          outputTracks,
+			   TrigRoiDescriptorCollection&  	          outputID,
+			   TrigRoiDescriptorCollection&   	          outputMS);
+ 
+  bool storeMuonSA(const LVL1::RecMuonRoI*             roi,
+                   const TrigRoiDescriptor*            roids,
+               	   const TrigL2MuonSA::MuonRoad&       muonRoad,
+               	   const TrigL2MuonSA::MdtRegion&      mdtRegion,
+               	   const TrigL2MuonSA::RpcHits&        rpcHits,
+               	   const TrigL2MuonSA::TgcHits&        tgcHits,
+               	   const TrigL2MuonSA::RpcFitResult&   rpcFitResult,
+               	   const TrigL2MuonSA::TgcFitResult&   tgcFitResult,
+               	   const TrigL2MuonSA::MdtHits&        mdtHits,
+               	   const TrigL2MuonSA::CscHits&        cscHits,
+               	   const TrigL2MuonSA::TrackPattern&   pattern,
+                   DataVector<xAOD::L2StandAloneMuon>& outputTracks);
+
+  bool storeMSRoiDescriptor(const TrigRoiDescriptor*                  roids,
+		            const TrigL2MuonSA::TrackPattern&         pattern,
+                            const DataVector<xAOD::L2StandAloneMuon>& outputTracks,
+		            TrigRoiDescriptorCollection&	      outputMS);
+
+
+  bool storeIDRoiDescriptor(const TrigRoiDescriptor*                  roids,
+		            const TrigL2MuonSA::TrackPattern&         pattern,
+                            const DataVector<xAOD::L2StandAloneMuon>& outputTracks,
+		            TrigRoiDescriptorCollection&	      outputID);
+
   /**
      Update monitoring variables
   */
@@ -133,29 +158,37 @@ class MuFastSteering : public HLT::FexAlgo,
   ServiceHandle<StoreGateSvc> m_storeGate;
   
   /** Timers */
-  ITrigTimerSvc* m_timerSvc;
-  std::vector<TrigTimer*> m_timers;
+  ServiceHandle<ITrigTimerSvc> m_timerSvc;
+  std::vector<TrigTimer*> m_timingTimers;
 
-  IRegSelSvc*        m_regionSelector;
+  ServiceHandle<IRegSelSvc> m_regionSelector;
   
   // Tools
-  ToolHandle<TrigL2MuonSA::MuFastDataPreparator>     m_dataPreparator;
-  ToolHandle<TrigL2MuonSA::MuFastPatternFinder>      m_patternFinder;
-  ToolHandle<TrigL2MuonSA::MuFastStationFitter>      m_stationFitter;
-  ToolHandle<TrigL2MuonSA::MuFastTrackFitter>        m_trackFitter;
-  ToolHandle<TrigL2MuonSA::MuFastTrackExtrapolator>  m_trackExtrapolator;
+  ToolHandle<TrigL2MuonSA::MuFastDataPreparator>     m_dataPreparator {
+	this, "DataPreparator", "TrigL2MuonSA::MuFastDataPreparator", "data preparator" };
+  ToolHandle<TrigL2MuonSA::MuFastPatternFinder>      m_patternFinder {
+	this, "PatternFinder", "TrigL2MuonSA::MuFastPatternFinder", "pattern finder" };
+  ToolHandle<TrigL2MuonSA::MuFastStationFitter>      m_stationFitter {
+	this, "StationFitter", "TrigL2MuonSA::MuFastStationFitter", "station fitter" };
+  ToolHandle<TrigL2MuonSA::MuFastTrackFitter>        m_trackFitter {
+	this, "TrackFitter", "TrigL2MuonSA::MuFastTrackFitter", "track fitter" };
+  ToolHandle<TrigL2MuonSA::MuFastTrackExtrapolator>  m_trackExtrapolator {
+	this, "TrackExtrapolator", "TrigL2MuonSA::MuFastTrackExtrapolator", "track extrapolator" };
 
   /** Handle to MuonBackExtrapolator tool */
-  ToolHandle<ITrigMuonBackExtrapolator> m_backExtrapolatorTool;
+  ToolHandle<ITrigMuonBackExtrapolator> m_backExtrapolatorTool {
+	this, "BackExtrapolator", "TrigMuonBackExtrapolator", "public tool for back extrapolating the muon tracks to the IV" };
   
   // calibration streamer tool
-  ToolHandle<TrigL2MuonSA::MuCalStreamerTool>        m_calStreamer;
+  ToolHandle<TrigL2MuonSA::MuCalStreamerTool> m_calStreamer {
+	this, "CalibrationStreamer", "TrigL2MuonSA::MuCalStreamerTool", "" };
 
   // Utils
   TrigL2MuonSA::RecMuonRoIUtils  m_recMuonRoIUtils;
 
   //Tools for CSC
-  ToolHandle<TrigL2MuonSA::CscSegmentMaker> m_cscsegmaker;
+  ToolHandle<TrigL2MuonSA::CscSegmentMaker> m_cscsegmaker {
+	this, "CscSegmentMaker", "TrigL2MuonSA::CscSegmentMaker", "" };
 
 
  private:
@@ -169,33 +202,44 @@ class MuFastSteering : public HLT::FexAlgo,
   TrigL2MuonSA::MdtHits      m_mdtHits_overlap;
   TrigL2MuonSA::CscHits      m_cscHits;
   
-  float m_scaleRoadBarrelInner;
-  float m_scaleRoadBarrelMiddle;
-  float m_scaleRoadBarrelOuter;
+  // Property
+  Gaudi::Property< float > m_scaleRoadBarrelInner { this, "Scale_Road_BarrelInner", 1, "" };
+  Gaudi::Property< float > m_scaleRoadBarrelMiddle { this, "Scale_Road_BarrelMiddle", 1, "" };
+  Gaudi::Property< float > m_scaleRoadBarrelOuter { this, "Scale_Road_BarrelOuter", 1, "" };
   
-  BooleanProperty  m_use_timer;
-  BooleanProperty  m_use_mcLUT;
-  BooleanProperty  m_use_new_segmentfit;
-  BooleanProperty  m_use_rpc;
-  BooleanProperty  m_use_mdtcsm;
-  BooleanProperty  m_use_RoIBasedDataAccess_MDT;
-  BooleanProperty  m_use_RoIBasedDataAccess_RPC;
-  BooleanProperty  m_use_RoIBasedDataAccess_TGC;
-  BooleanProperty  m_use_RoIBasedDataAccess_CSC;
-  BooleanProperty  m_doCalStream;
-  BooleanProperty  m_calDataScouting;
-  BooleanProperty  m_rpcErrToDebugStream;
-  BooleanProperty  m_use_endcapInnerFromBarrel;
+  Gaudi::Property< bool > m_use_timer { this, "Timing", false, "" };
+  Gaudi::Property< bool > m_use_mcLUT { this, "UseLUTForMC", true, ""};
+  Gaudi::Property< bool > m_use_new_segmentfit { this, "USE_NEW_SEGMENTFIT", true, ""};
+  Gaudi::Property< bool > m_use_rpc { this, "USE_RPC", true, ""};
+  Gaudi::Property< bool > m_use_mdtcsm { this, "USE_MDTCSM", false, ""};
+  Gaudi::Property< bool > m_use_RoIBasedDataAccess_MDT { this, "USE_ROIBASEDACCESS_MDT", true, ""};
+  Gaudi::Property< bool > m_use_RoIBasedDataAccess_RPC { this, "USE_ROIBASEDACCESS_RPC", true, ""};
+  Gaudi::Property< bool > m_use_RoIBasedDataAccess_TGC { this, "USE_ROIBASEDACCESS_TGC", true, ""};
+  Gaudi::Property< bool > m_use_RoIBasedDataAccess_CSC { this, "USE_ROIBASEDACCESS_CSC", true, ""};
+  Gaudi::Property< bool > m_doCalStream { this, "DoCalibrationStream", false, ""};
+  Gaudi::Property< bool > m_calDataScouting { this, "MuonCalDataScouting", false, ""};
+  Gaudi::Property< bool > m_rpcErrToDebugStream { this, "RpcErrToDebugStream", false, ""};
+  Gaudi::Property< bool > m_use_endcapInnerFromBarrel { this, "UseEndcapInnerFromBarrel", false, ""};
   
-  IntegerProperty m_esd_rpc_size;
-  IntegerProperty m_esd_tgc_size;
-  IntegerProperty m_esd_mdt_size;      
-  IntegerProperty m_esd_csc_size;      
+  Gaudi::Property< int > m_esd_rpc_size { this, "ESD_RPC_size", 100, "" };
+  Gaudi::Property< int > m_esd_tgc_size { this, "ESD_TGC_size", 50, "" };
+  Gaudi::Property< int > m_esd_mdt_size { this, "ESD_MDT_size", 100, "" };
+  Gaudi::Property< int > m_esd_csc_size { this, "ESD_CSC_size", 100, "" };
   
-  DoubleProperty m_rWidth_RPC_Failed;
-  DoubleProperty m_rWidth_TGC_Failed;
+  Gaudi::Property< double > m_rWidth_RPC_Failed { this, "R_WIDTH_RPC_FAILED", 400, "" };
+  Gaudi::Property< double > m_rWidth_TGC_Failed { this, "R_WIDTH_TGC_FAILED", 200, "" };
 
-  DoubleProperty m_winPt;
+  Gaudi::Property< double > m_winPt { this, "WinPt", 4.0, "" };
+
+  //ECRegions whichECRegion(const float eta, const float phi) const;
+  float getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* muonSA);
+
+  // calibration streamer properties
+  ServiceHandle<IJobOptionsSvc> m_jobOptionsSvc;
+
+  Gaudi::Property< bool > m_allowOksConfig { this, "AllowOksConfig", true, ""};
+  Gaudi::Property< std::string > m_calBufferName { this, "MuonCalBufferName", "/tmp/testOutput", ""};
+  Gaudi::Property< int > m_calBufferSize { this, "MuonCalBufferSize", 1024*1024, ""};
 
   //adding a part of DataHandle for AthenaMT
   //ReadHandle MURoIs
@@ -208,34 +252,22 @@ class MuFastSteering : public HLT::FexAlgo,
 
   //WriteHandle <xAOD::L2StandAloneMuonContainer>
   SG::WriteHandleKey<xAOD::L2StandAloneMuonContainer> m_muFastContainerKey{
-	this, "MuFastDecisions", "MuFastAlg_MuonData", "Name of the output data on xAOD::L2StandAloneMuonContainer"};
+	this, "MuonL2SAInfo", "MuonL2SAInfo", "Name of the output data on xAOD::L2StandAloneMuonContainer"};
 
   //WriteHandle <xAOD::L2StandAloneMuonContainer>
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_muCompositeContainerKey{
-	this, "MuFastComposite", "MuFastAlg_Decisions", "Name of the decisions object attached by MuFastSteering"};
+	this, "MuonCalibrationStream", "MuonCalibrationStream", "Name of the decisions object attached by MuFastSteering"};
 
   //WriteHandle <TrigRoiDescriptor> for ID
   SG::WriteHandleKey<TrigRoiDescriptorCollection> m_muIdContainerKey{
-	this, "MuFastForID", "MuFastAlg_IdData", "Name of the output data for Inner Detector"};
+	this, "forID", "forID", "Name of the output data for Inner Detector"};
 
   //WriteHandle <TrigRoiDescriptor> for MS
   SG::WriteHandleKey<TrigRoiDescriptorCollection> m_muMsContainerKey{
-	this, "MuFastForMS", "MuFastAlg_MsData", "Name of the output data for MS"};
+	this, "forMS", "forMS", "Name of the output data for MS"};
 
   // Monitor system
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
-
-  int m_currentStage;  // The last stage reached during the processing of a given RoI
-
-  ECRegions whichECRegion(const float eta, const float phi) const;
-  float getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* muonSA);
-
-  // calibration streamer properties
-  IJobOptionsSvc*       m_jobOptionsSvc;
-  BooleanProperty m_allowOksConfig; 
-  StringProperty  m_calBufferName;
-  int m_calBufferSize;
- 
 };
 
 #endif // MUFASTSTEERING_H

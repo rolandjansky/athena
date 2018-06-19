@@ -2,10 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h"
-
-#include "StoreGate/StoreGateSvc.h"
-
 #include "MuonIdHelpers/CscIdHelper.h"
 
 #include "MuonIdHelpersAlgs/CscHashId.h"
@@ -80,15 +76,15 @@ StatusCode CscHashId::cscHash() {
     Identifier id = *firstId;
     if (m_cscId->validElement(id)) {
       if(!m_cscId->get_hash(id, moduleHashId, &moduleContext)) {
-	std::cout << "The CSC Chamber hash id is " << moduleHashId
-	    << " for " << m_cscId->show_to_string(id,&moduleContext) << std::endl;
-        std::cout << "*****The strips in this Chamber ********************" << std::endl;
+	ATH_MSG_INFO( "The CSC Chamber hash id is " << moduleHashId
+	    << " for " << m_cscId->show_to_string(id,&moduleContext) );
+        ATH_MSG_INFO( "*****The strips in this Chamber ********************" );
         std::vector<Identifier> vect;
         m_cscId->idChannels(id, vect);
         for (unsigned int i=0; i<vect.size(); ++i) {
            if(!m_cscId->get_hash(vect[i], channelHashId, &channelContext)) {
-	      std::cout << "The CSC strip hash id is " << channelHashId
-	          << " for " << m_cscId->show_to_string(vect[i],&channelContext) << std::endl;
+	      ATH_MSG_INFO( "The CSC strip hash id is " << channelHashId
+	          << " for " << m_cscId->show_to_string(vect[i],&channelContext) );
            }
         } 
       }

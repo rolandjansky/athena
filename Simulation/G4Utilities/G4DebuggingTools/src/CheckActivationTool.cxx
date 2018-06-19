@@ -11,25 +11,17 @@ namespace G4UA
   CheckActivationTool::CheckActivationTool(const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent)
-    : ActionToolBase<CheckActivation>(type, name, parent)
+    : UserActionToolBase<CheckActivation>(type, name, parent)
   {
   }
 
-  std::unique_ptr<CheckActivation> CheckActivationTool::makeAction()
+  std::unique_ptr<CheckActivation>
+  CheckActivationTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
-    ATH_MSG_DEBUG("makeAction");
+    ATH_MSG_DEBUG("Constructing a CheckActivation action");
     auto action = CxxUtils::make_unique<CheckActivation>();
+    actionList.eventActions.push_back( action.get() );
     return action;
-  }
-
-  StatusCode CheckActivationTool::queryInterface(const InterfaceID& riid, void** ppvIf)
-  {
-    if(riid == IG4EventActionTool::interfaceID()) {
-      *ppvIf = (IG4EventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    return ActionToolBase<CheckActivation>::queryInterface(riid, ppvIf);
   }
 
 } // namespace G4UA

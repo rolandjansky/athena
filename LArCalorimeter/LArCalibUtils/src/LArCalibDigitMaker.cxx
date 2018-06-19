@@ -4,7 +4,6 @@
 
 #include "LArCalibUtils/LArCalibDigitMaker.h"
 
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "xAODEventInfo/EventInfo.h"

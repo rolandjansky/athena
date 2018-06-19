@@ -431,7 +431,7 @@ TrigConf::operator<<(std::ostream & o, const TrigConf::HLTChain & c) {
    for (; streamTag   != c.m_streams.end();   ++streamTag)   o << *(*streamTag);
 
    vector<TrigConf::HLTSignature*>::const_iterator signature = c.m_HLTSignatureList.begin();
-   for (; signature   != c.m_HLTSignatureList.end();   ++signature)   o << *(*signature);;
+   for (; signature   != c.m_HLTSignatureList.end();   ++signature)   o << *(*signature);
    o << "- ---------------------------------------------------------- " << endl;
 
    o.precision(dp);

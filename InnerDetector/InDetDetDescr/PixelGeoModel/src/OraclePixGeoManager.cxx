@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoModel/OraclePixGeoManager.h"
@@ -240,6 +240,7 @@ OraclePixGeoManager::~OraclePixGeoManager()
   delete m_gangedIndexMap;
   delete m_diskRingIndexMap;
   delete m_zPositionMap;
+  delete m_frameElementMap;
 }
 
 

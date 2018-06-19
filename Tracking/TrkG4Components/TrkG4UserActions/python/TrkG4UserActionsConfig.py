@@ -9,7 +9,6 @@ def getMaterialStepRecorderTool(name="G4UA::MaterialStepRecorderTool", **kwargs)
     from TrkG4UserActions.TrkG4UserActionsConf import G4UA__MaterialStepRecorderTool
     return G4UA__MaterialStepRecorderTool(name, **kwargs)
 
-
 def getEnergyLossRecorderTool(name="G4UA::EnergyLossRecorderTool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     # example custom configuration

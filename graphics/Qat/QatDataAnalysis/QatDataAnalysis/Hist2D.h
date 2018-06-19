@@ -105,7 +105,7 @@ class Hist2D {
 
  private:
 
-  Clockwork           *c;
+  Clockwork           *m_c;
  
 
 };

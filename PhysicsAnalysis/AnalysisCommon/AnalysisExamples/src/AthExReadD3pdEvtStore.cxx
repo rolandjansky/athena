@@ -45,7 +45,7 @@ ReadD3pdEvtStore::ReadD3pdEvtStore( const std::string& name,
   m_runnbr = "RunNumber";
   m_evtnbr = "EventNumber"; 
   m_el_n   = "el_n";
-  m_el_eta = "el_eta";;
+  m_el_eta = "el_eta";
   m_el_jetcone_dr = "el_jetcone_dr";
   
 }

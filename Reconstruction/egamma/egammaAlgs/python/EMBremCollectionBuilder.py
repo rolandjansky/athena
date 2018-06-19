@@ -59,14 +59,14 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
                                                                  useSCT        = DetFlags.haveRIO.SCT_on(),
                                                                  CountDeadModulesAfterLastHit = True)
 
-        from AthenaCommon.AppMgr import ServiceMgr
         if (DetFlags.haveRIO.SCT_on()):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
-            InDetSCT_ConditionsSummarySvc = SCT_ConditionsSummarySvc(name = "InDetSCT_ConditionsSummarySvc")
-            ServiceMgr += InDetSCT_ConditionsSummarySvc
-            GSFBuildHoleSearchTool.SctSummarySvc = ServiceMgr.InDetSCT_ConditionsSummarySvc
+            from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
+            sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
+            sct_ConditionsSummaryToolSetup.setup()
+            InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
+            GSFBuildHoleSearchTool.SctSummaryTool = InDetSCT_ConditionsSummaryTool
         else:
-            GSFBuildHoleSearchTool.SctSummarySvc = None
+            GSFBuildHoleSearchTool.SctSummaryTool = None
             
         ToolSvc += GSFBuildHoleSearchTool
         #
@@ -75,10 +75,10 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
         GSFBuildTestBLayerTool = None
         if DetFlags.haveRIO.pixel_on() :
             from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
-            from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummarySvc
-            ServiceMgr += PixelConditionsSummarySvc()            
+            from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
+            ToolSvc += PixelConditionsSummaryTool()            
             GSFBuildTestBLayerTool = InDet__InDetTestBLayerTool(name            = "GSFBuildTestBLayerTool",
-                                                                PixelSummarySvc = ServiceMgr.PixelConditionsSummarySvc,
+                                                                PixelSummaryTool = ToolSvc.PixelConditionsSummaryTool,
                                                                 Extrapolator    = GSFBuildInDetExtrapolator)
             ToolSvc += GSFBuildTestBLayerTool
 

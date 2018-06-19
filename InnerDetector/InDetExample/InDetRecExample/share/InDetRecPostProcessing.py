@@ -99,7 +99,6 @@ if InDetFlags.doVertexFindingForMonitoring():
                                                                               maximumChi2cutForSeeding = 49,
                                                                               maxVertices              = 200,
                                                                               createSplitVertices      = False,
-                                                                              InternalEdmFactory       = InDetVxEdmCnv,
                                                                               doMaxTracksCut           = InDetPrimaryVertexingCuts.doMaxTracksCut(),
                                                                               MaxTracks                = InDetPrimaryVertexingCuts.MaxTracks()  )
   ToolSvc += InDetPriVxFinderToolNoBeamConstraint
@@ -112,8 +111,8 @@ if InDetFlags.doVertexFindingForMonitoring():
                                                              TracksName                  = InDetKeys.xAODTrackParticleContainer(),
                                                              VxCandidatesOutputName      = InDetKeys.PrimaryVerticesWithoutBeamConstraint(),
                                                              VertexCollectionSortingTool = VertexCollectionSortingTool,
-                                                             doVertexSorting             = True,
-                                                             InternalEdmFactory          = InDetVxEdmCnv)
+                                                             doVertexSorting             = True)
+
   topSequence += InDetPriVxFinderNoBeamConstraint
   if InDetFlags.doPrintConfigurables():
     print InDetPriVxFinderNoBeamConstraint
@@ -134,7 +133,6 @@ if InDetFlags.doSplitVertexFindingForMonitoring():
                                                                     maximumChi2cutForSeeding = 49,
                                                                     maxVertices              = 25,
                                                                     createSplitVertices      = True,
-                                                                    InternalEdmFactory       = InDetVxEdmCnv,
                                                                     doMaxTracksCut           = InDetPrimaryVertexingCuts.doMaxTracksCut(),
                                                                     MaxTracks                = InDetPrimaryVertexingCuts.MaxTracks())
   ToolSvc += InDetPriVxFinderToolSplit
@@ -147,8 +145,7 @@ if InDetFlags.doSplitVertexFindingForMonitoring():
                                                  TracksName                  = InDetKeys.xAODTrackParticleContainer(),
                                                  VxCandidatesOutputName      = InDetKeys.PrimaryVerticesSplitStream(),
                                                  VertexCollectionSortingTool = VertexCollectionSortingTool,
-                                                 doVertexSorting             = False,
-                                                 InternalEdmFactory          = InDetVxEdmCnv)
+                                                 doVertexSorting             = False)
   topSequence += InDetPriVxFinderSplit
   if InDetFlags.doPrintConfigurables():
     print InDetPriVxFinderSplit
@@ -162,11 +159,9 @@ if InDetFlags.doSplitVertexFindingForMonitoring():
 if InDetFlags.doLowBetaFinder():
   include ("InDetRecExample/ConfiguredLowBetaFinder.py")
   from AthenaCommon.GlobalFlags import globalflags
-  if (globalflags.DataSource is not "data"):
-    InDetLowBetaTrkAlgorithm = ConfiguredLowBetaFinder(InDetKeys.TrackParticles(), True)
-  else:
-    InDetLowBetaTrkAlgorithm = ConfiguredLowBetaFinder(InDetKeys.TrackParticles(), False)
-          
+  InDetLowBetaTrkAlgorithm = ConfiguredLowBetaFinder(InDetKeys.xAODTrackParticleContainer(),
+                                                     True if (globalflags.DataSource is not "data") else False,
+                                                     InDetKeys.UnslimmedTracks())
 
 # -------------------------------------------------------------------------
 #
@@ -474,17 +469,6 @@ if InDetFlags.doParticleCreation() and not InDetFlags.useExistingTracksAsInput()
         trackToVertexTool = Reco__TrackToVertex('TrackToVertex')
         ToolSvc += trackToVertexTool
      
- from InDetPriVxFinder.InDetPriVxFinderConf import InDet__InDetVxLinksToTrackParticles
- InDetVxLinkSetter = InDet__InDetVxLinksToTrackParticles(name          = "InDetVxLinkSetter",
-                                                         TracksName    = InDetKeys.xAODTrackParticleContainer(),
-                                                         VerticesName  = InDetKeys.xAODVertexContainer(),
-                                                         TrackToVertex = trackToVertexTool)
-
- topSequence += InDetVxLinkSetter
-
- if InDetFlags.doPrintConfigurables():
-  print InDetVxLinkSetter
-
 if rec.doPhysicsValidationAugmentation() :
   try:
     import InDetPhysValMonitoring.InDetPhysValDecoration

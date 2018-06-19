@@ -45,7 +45,7 @@ namespace InDetDD {
           void setSolenoidFrame(const HepGeom::Transform3D & transform) const; 
           void setLorentzAngleSvc(const ServiceHandle<ISiLorentzAngleSvc> & lorentzAngleSvc);
           ISiLorentzAngleSvc * lorentzAngleSvc() const;
-        
+
           //Declaring the Message method for further use
           MsgStream& msg (MSG::Level lvl) const { return m_msg.get() << lvl; }
         

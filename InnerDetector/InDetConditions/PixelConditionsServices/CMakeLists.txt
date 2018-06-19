@@ -18,7 +18,7 @@ atlas_depends_on_subdirs(
    PRIVATE
    Control/SGTools
    Control/StoreGate
-   Database/AthenaPOOL/RDBAccessSvc
+   Database/RDBAccessSvc
    Database/CoralDB
    DetectorDescription/GeoModel/GeoModelInterfaces
    DetectorDescription/GeoModel/GeoModelUtilities

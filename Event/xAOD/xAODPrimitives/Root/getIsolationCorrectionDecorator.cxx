@@ -32,7 +32,7 @@ namespace xAOD {
 
     if (sDecorators.find(type)==sDecorators.end()){
       // create Decorator
-      std::string name(Iso::toString(type));
+      std::string name(Iso::toCString(type));
       name+="CorrBitset";
       sDecorators[type] = SmartPointerUint_t( new SG::AuxElement::Decorator< uint32_t >( name ) ) ;
     }
@@ -48,13 +48,13 @@ namespace xAOD {
 
       assert (0 <= static_cast<int>(param) && static_cast<int>(param) < xAOD::Iso::NumCorrParameters);
       if (sDecorators.find(hash)==sDecorators.end()){                                                                   
-        std::string name(Iso::toString(type));                                                                      
+        std::string name(Iso::toCString(type));                                                                      
         if (corr == Iso::coreCone || corr == Iso::coreConeSC)
-	  name+=toString(corr); 
+	  name+=toCString(corr); 
 	else
-	  name = toString(corr);
+	  name = toCString(corr);
         if (param==xAOD::Iso::coreEnergy || param==xAOD::Iso::coreArea){
-          name+=toString(param );    
+          name+=toCString(param );    
         }else{
           throw std::runtime_error("IsolationCorrectionParameter out of bounds");
         }
@@ -71,8 +71,8 @@ namespace xAOD {
       static std::map<uint32_t, SmartPointer_t > sDecorators;
       uint32_t hash = (static_cast<uint8_t>(type)<<16)+(static_cast<uint8_t>(corr)<<8);
       if (sDecorators.find(hash)==sDecorators.end()){
-        std::string name(Iso::toString(type));
-        name+=toString(corr);
+        std::string name(Iso::toCString(type));
+        name+=toCString(corr);
         name+="Correction";
         
         sDecorators[hash] = SmartPointer_t( new SG::AuxElement::Decorator< float >( name ) ) ;
@@ -86,8 +86,8 @@ namespace xAOD {
       uint32_t hash = (static_cast<uint8_t>(type)<<16)+(static_cast<uint8_t>(corr)<<8);  
                                                                                                                        
       if (sDecorators.find(hash)==sDecorators.end()){                                                                    
-        std::string name(Iso::toString(type));                                                                         
-        name+=toString(corr);    
+        std::string name(Iso::toCString(type));                                                                         
+        name+=toCString(corr);    
         name+="Correction";
                                                                                               
         sDecorators[hash] = SmartPointer_t( new SG::AuxElement::Decorator< float >( name ) ) ;                           

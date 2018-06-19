@@ -34,14 +34,12 @@ extern long ByteStream_StorageType;
 */
 class TgcRdoContByteStreamCnv: public Converter
 {
-  friend class CnvFactory<TgcRdoContByteStreamCnv>;
 
 protected:
-  TgcRdoContByteStreamCnv(ISvcLocator* svcloc);
   ~TgcRdoContByteStreamCnv();
 
 public:
-
+  TgcRdoContByteStreamCnv(ISvcLocator* svcloc);
 
   virtual StatusCode initialize();
 

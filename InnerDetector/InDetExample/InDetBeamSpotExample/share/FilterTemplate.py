@@ -47,7 +47,6 @@ if 'zRange' in jobConfig:
     FilterUtils.filterSeq += FilterUtils.ZFilter(jobConfig['zRange'])
 
 topSequence.StreamAOD.OutputFile = jobConfig['outputfile']
-#topSequence.StreamAOD_FH.OutputFile = jobConfig['outputfile']
 
 # Reduce verbosity
 theApp.setOutputLevel = jobConfig['outputlevel']

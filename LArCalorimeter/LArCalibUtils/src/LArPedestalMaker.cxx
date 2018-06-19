@@ -23,7 +23,6 @@
 // Include files
 #include "LArCalibUtils/LArPedestalMaker.h"
 
-//#include "GaudiKernel/AlgFactory.h"
 #include "LArIdentifier/LArOnlineID.h"
 
 #include <math.h>

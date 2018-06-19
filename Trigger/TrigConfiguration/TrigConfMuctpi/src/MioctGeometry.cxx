@@ -44,7 +44,7 @@ MioctGeometry::writeXML(std::ostream & xmlfile, int indentLevel, int indentWidth
 	xtmp.append(", ");
     }
 
-  mioctIndent(xmlfile, indentLevel+1, indentWidth) <<xtmp << " -->"<<endl;;
+  mioctIndent(xmlfile, indentLevel+1, indentWidth) <<xtmp << " -->"<<endl;
   for(std::vector<MioctSectorGeometry>::const_iterator isec = m_Sectors.begin(); isec < m_Sectors.end(); ++isec)
     isec->writeXML(xmlfile, indentLevel+1, indentWidth);
 

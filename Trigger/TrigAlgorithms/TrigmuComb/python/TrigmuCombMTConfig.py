@@ -6,7 +6,7 @@
 ##############################
 
 
-from TrigmuComb.TrigmuCombConf import TrigmuCombMTConfig
+from TrigmuComb.TrigmuCombConf import muCombMT
 from AthenaCommon.SystemOfUnits import GeV
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.GlobalFlags import globalflags

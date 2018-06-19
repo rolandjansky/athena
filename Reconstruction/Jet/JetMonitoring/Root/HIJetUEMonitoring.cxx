@@ -17,7 +17,7 @@
 
 HIJetUEMonitoring::HIJetUEMonitoring(const std::string& name)
   : JetHistoBase(name), m_histoDef(this), m_jetScale(xAOD::JetAssignedScaleMomentum) {
-  declareProperty("HIEventShapeContainerName", container_key="CaloSums");
+  declareProperty("HIEventShapeContainerName", m_container_key="CaloSums");
   declareProperty("HistoDef", m_histoDef, "The list of HistoDefinitionTool defining the histos to be used in this tool"); 
   declareProperty("RefContainer", m_refContainerName);
 }
@@ -144,10 +144,10 @@ int HIJetUEMonitoring::fillHistosFromJet(const xAOD::Jet &j){
     return 1;
   }
 
-  n=2;
-  harmonic=n-1;
+  m_n=2;
+  m_harmonic=m_n-1;
   m_eventShape=nullptr;
-  evtStore()->retrieve(m_eventShape,container_key);
+  evtStore()->retrieve(m_eventShape,m_container_key);
   m_FCalET=0;
   m_psiN_FCal=0;
   //  m_vN_fcal=0;
@@ -156,9 +156,9 @@ int HIJetUEMonitoring::fillHistosFromJet(const xAOD::Jet &j){
     if(sh->isAvailable<std::string>("Summary")) summary=sh->auxdata<std::string>("Summary");
     if(summary.compare("FCal")==0){
       m_FCalET=sh->et()*toTeV;
-      float qx=sh->etCos().at(harmonic);
-      float qy=sh->etSin().at(harmonic);
-      m_psiN_FCal=std::atan2(qy,qx)/float(n); // Psi2 (n=2)
+      float qx=sh->etCos().at(m_harmonic);
+      float qy=sh->etSin().at(m_harmonic);
+      m_psiN_FCal=std::atan2(qy,qx)/float(m_n); // Psi2 (m_n=2)
       m_vN_fcal=std::sqrt(qx+qx+qy*qy)/m_FCalET;
       break;
     }

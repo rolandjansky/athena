@@ -39,13 +39,14 @@ class TRT_RDO_ContainerCnv : public TRT_RDO_ContainerCnvBase {
   // Should not be needed at some point.
   StoreGateSvc*  m_storeGate;
 
-protected:
+public:
   TRT_RDO_ContainerCnv (ISvcLocator* svcloc)
     : TRT_RDO_ContainerCnvBase(svcloc, "TRT_RDO_ContainerCnv"),
       m_converter_p1(),
       m_converter_p0(),
       m_storeGate(nullptr)
   {}
+protected:
   virtual TRT_RDO_Container_PERS*   createPersistent (TRT_RDO_Container* transCont);
   virtual TRT_RDO_Container* createTransient ();
 

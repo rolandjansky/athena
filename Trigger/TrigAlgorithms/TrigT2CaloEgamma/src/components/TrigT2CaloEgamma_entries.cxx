@@ -1,5 +1,6 @@
 #include "TrigT2CaloEgamma/T2CaloEgamma.h"
 #include "TrigT2CaloEgamma/T2CaloEgammaFastAlgo.h"
+#include "TrigT2CaloEgamma/T2CaloEgammaReFastAlgo.h"
 //#include "TrigT2CaloEgamma/T2CaloEgammaMon.h"
 //#include "TrigT2CaloEgamma/T2CaloEgammaSamp1.h"
 #include "TrigT2CaloEgamma/EgammaSamp2Fex.h"
@@ -13,6 +14,7 @@
 
 DECLARE_COMPONENT( T2CaloEgamma )
 DECLARE_COMPONENT( T2CaloEgammaFastAlgo )
+DECLARE_COMPONENT( T2CaloEgammaReFastAlgo )
 //DECLARE_COMPONENT( T2CaloEgammaSamp1 )
 //DECLARE_COMPONENT( T2CaloSwSeed )
 //DECLARE_COMPONENT( T2CaloSwCluster )

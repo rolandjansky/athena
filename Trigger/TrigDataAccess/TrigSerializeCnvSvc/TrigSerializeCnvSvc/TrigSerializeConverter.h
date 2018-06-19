@@ -273,9 +273,6 @@ public:
    virtual long int repSvcType() const;
    static long int storageType();
 
-protected:
-   friend class CnvFactory< TrigSerializeConverter< DATA > >;
-
    TrigSerializeConverter( ISvcLocator* svcloc )
       : Converter( storageType(), classID(), svcloc ),
         m_convHelper( "TrigSerializeConvHelper/TrigSerializeConvHelper" ),
@@ -284,6 +281,8 @@ protected:
 
       m_log = new MsgStream( msgSvc(), "TrigSerializeConverter" );
    }
+
+protected:
 
    ~TrigSerializeConverter(){
       delete m_log;

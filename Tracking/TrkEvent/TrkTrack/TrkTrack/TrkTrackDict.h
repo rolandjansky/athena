@@ -13,7 +13,7 @@
 #include "TrkTrack/RefittedTrackPairCollection.h"
 #include "TrkTrack/LinkToTrack.h"
 #include "Identifier/Identifier.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 // We need to instantiate some templates here to be able to create the
 // dictionary for them

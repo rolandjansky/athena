@@ -16,25 +16,25 @@ ReadWriteCoolStrFile::ReadWriteCoolStrFile(const std::string& name,
   ISvcLocator* pSvcLocator) :AthAlgorithm(name,pSvcLocator),
    p_coolsvc(0),
    m_done(false),
-   par_read(false),
-   par_extract(false),
-   par_write(false),
-   par_chan(1),
-   par_tech(0),
-   par_folder("/TEST/COOLSTR"),
-   par_rfile(""),
-   par_wfile("coolstrfile.dat")
+   m_par_read(false),
+   m_par_extract(false),
+   m_par_write(false),
+   m_par_chan(1),
+   m_par_tech(0),
+   m_par_folder("/TEST/COOLSTR"),
+   m_par_rfile(""),
+   m_par_wfile("coolstrfile.dat")
 {
   // declare properties
 
-  declareProperty("Read",par_read);
-  declareProperty("Extract",par_extract);
-  declareProperty("Write",par_write);
-  declareProperty("Channel",par_chan);
-  declareProperty("Tech",par_tech);
-  declareProperty("Folder",par_folder);
-  declareProperty("RFile",par_rfile);
-  declareProperty("WFile",par_wfile);
+  declareProperty("Read",m_par_read);
+  declareProperty("Extract",m_par_extract);
+  declareProperty("Write",m_par_write);
+  declareProperty("Channel",m_par_chan);
+  declareProperty("Tech",m_par_tech);
+  declareProperty("Folder",m_par_folder);
+  declareProperty("RFile",m_par_rfile);
+  declareProperty("WFile",m_par_wfile);
 }
 
 ReadWriteCoolStrFile::~ReadWriteCoolStrFile() {}
@@ -51,11 +51,11 @@ StatusCode ReadWriteCoolStrFile::initialize()
 }
 
 StatusCode ReadWriteCoolStrFile::execute() {
-  if (par_write) {
+  if (m_par_write) {
     // only write data to TDS once
     if (!m_done) writeData();
   }
-  if (par_read) readData();
+  if (m_par_read) readData();
   m_done=true;
   return StatusCode::SUCCESS;
 }
@@ -65,20 +65,20 @@ StatusCode ReadWriteCoolStrFile::finalize() {
 }
 
 void ReadWriteCoolStrFile::writeData() {
-  ATH_MSG_INFO("Write data from file "+par_wfile+" to folder "+
-	       par_folder+" at channel " << par_chan);
+  ATH_MSG_INFO("Write data from file "+m_par_wfile+" to folder "+
+	       m_par_folder+" at channel " << m_par_chan);
 
-  if (StatusCode::SUCCESS!=p_coolsvc->putFile(par_folder,par_wfile,par_chan,
-       par_tech))
+  if (StatusCode::SUCCESS!=p_coolsvc->putFile(m_par_folder,m_par_wfile,m_par_chan,
+       m_par_tech))
     ATH_MSG_ERROR("putFile failed");
 }
 
 void ReadWriteCoolStrFile::readData() {
-  ATH_MSG_INFO("Read data from folder "+par_folder+" channel " << par_chan);
+  ATH_MSG_INFO("Read data from folder "+m_par_folder+" channel " << m_par_chan);
   std::string data;
-  if (StatusCode::SUCCESS!=p_coolsvc->getString(par_folder,par_chan,data)) {
+  if (StatusCode::SUCCESS!=p_coolsvc->getString(m_par_folder,m_par_chan,data)) {
     ATH_MSG_INFO("CoolStrFileSvc getString fails for folder " << 
-		 par_folder << " channel " << par_chan);
+		 m_par_folder << " channel " << m_par_chan);
   } else {
     ATH_MSG_INFO("Data read is " << data);
   }
@@ -89,9 +89,9 @@ void ReadWriteCoolStrFile::readData() {
   ATH_MSG_INFO("Read string1:" << a << " string2:" << b << " string3:" << c);
 
   // do read of data into file if requested on first event
-  if (par_extract && !m_done) {
-    if (StatusCode::SUCCESS!=p_coolsvc->getFile(par_folder,par_chan,par_rfile))
+  if (m_par_extract && !m_done) {
+    if (StatusCode::SUCCESS!=p_coolsvc->getFile(m_par_folder,m_par_chan,m_par_rfile))
       ATH_MSG_ERROR("CoolStrFileSvc getFile fails for folder "+
-		    par_folder+" channel " << par_chan);
+		    m_par_folder+" channel " << m_par_chan);
   }
 }

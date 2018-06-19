@@ -144,7 +144,9 @@ StatusCode CaloLCOutOfClusterTool::weight(CaloCluster *theCluster) const
 
   double pi0Prob = 0;
   if ( m_useEmProbability || m_useHadProbability) {
-    theCluster->retrieveMoment(CaloCluster::EM_PROBABILITY,pi0Prob);
+    if (!theCluster->retrieveMoment(CaloCluster::EM_PROBABILITY,pi0Prob)) {
+      ATH_MSG_WARNING ("Cannot find cluster moment EM_PROBABILITY");
+    }
   }
   else if (theCluster->recoStatus().checkStatus(CaloRecoStatus::TAGGEDEM)) {
     pi0Prob = 1.;

@@ -3,7 +3,6 @@
 */
 
 #include "LArClusterRec/LArClusterCollisionTimeAlg.h"
-#include "LArRecEvent/LArCollisionTime.h"
 
 #include <algorithm>
 
@@ -13,8 +12,6 @@ LArClusterCollisionTimeAlg:: LArClusterCollisionTimeAlg(const std::string& name,
     m_nEvt(0),
     m_nCollEvt(0)
   {
-    declareProperty("timeDiffCut",m_timeCut=2);
-    declareProperty("maxNClusters",m_maxClusters=3);
     declareProperty("InputName", m_clusterContainerName="LArClusterEM");
     declareProperty("OutputName",m_outputName="LArClusterCollTime"); 
   }
@@ -29,7 +26,9 @@ LArClusterCollisionTimeAlg:: LArClusterCollisionTimeAlg(const std::string& name,
 //__________________________________________________________________________
 StatusCode LArClusterCollisionTimeAlg::initialize()
   {
-    ATH_MSG_INFO ("LArClusterCollisionTimeAlg initialize()");
+    ATH_MSG_DEBUG ("LArClusterCollisionTimeAlg initialize()");
+    ATH_CHECK( m_clusterContainerName.initialize() );
+    ATH_CHECK( m_outputName.initialize() );
     return StatusCode::SUCCESS; 
 
   }
@@ -53,7 +52,7 @@ LArClusterCollisionTimeAlg::perSide_t LArClusterCollisionTimeAlg::analyseCluster
   //Sort clusters by Energy
   std::sort(clusters.begin(),clusters.end(),[](const xAOD::CaloCluster* o1, const xAOD::CaloCluster* o2) {return o1->e() > o2->e();}); 
 
-  result.nClusters=std::min(m_maxClusters,clusters.size());
+  result.nClusters=std::min(m_maxClusters.value(),clusters.size());
   
   if (result.nClusters>0) {
     for (size_t i=0;i<result.nClusters;++i) {
@@ -75,8 +74,15 @@ StatusCode LArClusterCollisionTimeAlg::execute() {
 
   m_nEvt++;
   
-  const xAOD::CaloClusterContainer* cluster_container=0;
-  ATH_CHECK( evtStore()->retrieve(cluster_container, m_clusterContainerName) );
+  // Get the cluster container
+  SG::ReadHandle<xAOD::CaloClusterContainer> cluster_container (m_clusterContainerName);
+  if( !cluster_container.isValid()) { // record empty object
+     ATH_MSG_INFO (" Could not get pointer to ClusterContainer ");
+     // Construct the output object
+     SG::WriteHandle<LArCollisionTime> larTime (m_outputName);
+     ATH_CHECK( larTime.record (std::make_unique<LArCollisionTime>()) );
+     return StatusCode::SUCCESS;
+  }
 
   std::vector<const xAOD::CaloCluster*> clustersEMECA,clustersEMECC;
 
@@ -94,8 +100,12 @@ StatusCode LArClusterCollisionTimeAlg::execute() {
   const perSide_t sideA=analyseClustersPerSide(clustersEMECA);
   const perSide_t sideC=analyseClustersPerSide(clustersEMECC);
 
-  LArCollisionTime * larTime = new LArCollisionTime(sideA.nClusters,sideC.nClusters,sideA.energy,sideC.energy,sideA.time,sideC.time);
-  ATH_CHECK( evtStore()->record(larTime,m_outputName) );
+  auto tmplarTime = std::make_unique<LArCollisionTime>(sideA.nClusters,sideC.nClusters,sideA.energy,sideC.energy,sideA.time,sideC.time);
+  // Construct the output object
+  SG::WriteHandle<LArCollisionTime> larTime (m_outputName);
+  if (! larTime.put (std::move (tmplarTime))  )  {
+     ATH_MSG_WARNING( "Could not record the LArCollisionTime object with key "<<m_outputName );
+  }
 
   ATH_MSG_DEBUG("Number/Time/Energy, Side A: " << sideA.nClusters << "/" << sideA.time << "/" << sideA.energy);
   ATH_MSG_DEBUG("Number/Time/Energy, Side C: " << sideC.nClusters << "/" << sideC.time << "/" << sideC.energy);

@@ -116,10 +116,14 @@ public:
   StatusCode initialize();
   StatusCode finalize();
   //StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster, double etamin, double etamax, double phimin, double phimax);
-  StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi);
+  StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi,
+				const CaloDetDescrElement*& /*caloDDE*/,
+                                const EventContext* /*context*/);
 
 private: // Representation
-    
+  
+  SG::WriteHandleKey<xAOD::TrigRingerRings> m_ringsKey{ this, "RingsKey", "", "Key for outputting the rings, should not be set for the non-MT running" };
+  
   std::string m_hlt_feature;
   std::string m_feature;
   std::string m_key;
@@ -196,7 +200,7 @@ public:
   }
   
 private:
-
+  
   /**
    * Calculates based on the RoI input and on the center previously calculated.
    *

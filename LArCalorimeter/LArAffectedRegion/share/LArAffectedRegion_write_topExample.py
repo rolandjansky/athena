@@ -124,7 +124,7 @@ theApp.EvtSel = "EventSelector"
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 StreamESD=AthenaPoolOutputStream("StreamESD",athenaCommonFlags.PoolESDOutput(),True)
 StreamESD.ForceRead = True
-# Put MetaData in ESD stream via StreamESD_FH.
+# Put MetaData in ESD stream
 StreamESD.MetadataItemList += [ "LumiBlockCollection#*" ]
 
 include ("EventAthenaPool/EventAthenaPoolItemList_joboptions.py")

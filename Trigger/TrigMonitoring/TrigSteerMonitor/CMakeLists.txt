@@ -17,6 +17,7 @@ atlas_depends_on_subdirs(
    Trigger/TrigDataAccess/TrigDataAccessMonitoring
    Trigger/TrigMonitoring/TrigMonitorBase
    Trigger/TrigSteer/TrigSteering
+   Trigger/TrigSteer/DecisionHandling
    Control/StoreGate
    Event/xAOD/xAODEventInfo
    MagneticField/MagFieldInterfaces
@@ -44,7 +45,7 @@ atlas_add_component( TrigSteerMonitor
    GaudiKernel TrigDataAccessMonitoringLib TrigMonitorBaseLib TrigSteeringLib
    StoreGateLib MagFieldInterfaces LumiBlockCompsLib TrigConfHLTData
    TrigConfL1Data TrigNavigationLib TrigSteeringEvent TrigInterfacesLib
-   TrigT1Interfaces TrigT1Result )
+   TrigT1Interfaces TrigT1Result DecisionHandlingLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

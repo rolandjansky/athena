@@ -10,12 +10,9 @@
 #include "TMath.h"
 
 #include "AthenaBaseComps/AthMessaging.h"
+#include "StoreGate/ReadHandle.h"
 #include "TrkEventPrimitives/ParamDefs.h"
-#include "VxVertex/VxContainer.h"
-#include "VxVertex/VxCandidate.h"
-#include "VxVertex/VxTrackAtVertex.h"
 
-#include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
@@ -63,17 +60,11 @@ InDetGlobalPrimaryVertexMonTool::InDetGlobalPrimaryVertexMonTool( const std::str
    m_hVrt_split_dist_tag(0),
    m_hVrt_split_dist_probe(0),
    m_histFolder("InDetGlobal/PrimaryVertex"),
-   m_vxContainerName("VxPrimaryCandidate"),
-   m_vxContainerNameWithoutBeamConstraint("VxCandidatesWithoutBeamConstraint"),
-   m_vxContainerNameSplit("SplitVxCandidates"),
    m_splitVertexTrkInvFraction(2),
    m_distanceSplitVxMatch(5.0),
    m_splitMatchingMetric(3),
    m_doEnhancedMonitoring(false)
 {
-  declareProperty("vxContainerName", m_vxContainerName);
-  declareProperty("vxContainerNameWithOutBeamConstraint", m_vxContainerNameWithoutBeamConstraint);
-  declareProperty("vxContainerNameSplit"                , m_vxContainerNameSplit);
   declareProperty("histFolder", m_histFolder);
   declareProperty("splitVertexTrkInvFraction", m_splitVertexTrkInvFraction, "inverse fraction to split tracks (1:N)");
   declareProperty("distanceSplitVertexMatch", m_distanceSplitVxMatch, "Distance for matching split-original Vertex in selection efficiency");
@@ -87,6 +78,10 @@ StatusCode InDetGlobalPrimaryVertexMonTool::initialize() {
   StatusCode sc;
   sc = ManagedMonitorToolBase::initialize();
   if(!sc.isSuccess()) return sc;
+
+  ATH_CHECK( m_vxContainerName.initialize() );
+  ATH_CHECK( m_vxContainerNameWithoutBeamConstraint.initialize() );
+  ATH_CHECK( m_vxContainerNameSplit.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -195,14 +190,13 @@ StatusCode InDetGlobalPrimaryVertexMonTool::bookHistogramsRecurrent() {
 StatusCode InDetGlobalPrimaryVertexMonTool::fillHistograms() {
 
   // Basic primary vertex monitoring
-  const xAOD::VertexContainer_v1* vxContainer = 0;
-  if (evtStore()->contains<xAOD::VertexContainer_v1>(m_vxContainerName)) {
-    if (evtStore()->retrieve(vxContainer,m_vxContainerName).isFailure() ) {
-      ATH_MSG_DEBUG ("Could not retrieve primary vertex container with key "+m_vxContainerName);
-      return StatusCode::SUCCESS;
-    }
-  } else {
-    ATH_MSG_DEBUG ("StoreGate doesn't contain primary vertex container with key "+m_vxContainerName);
+  SG::ReadHandle<xAOD::VertexContainer> vxContainer(m_vxContainerName);
+  if (!vxContainer.isPresent()) {
+    ATH_MSG_DEBUG ("StoreGate doesn't contain primary vertex container with key "+m_vxContainerName.key());
+    return StatusCode::SUCCESS;
+  }
+  if (!vxContainer.isValid()) {
+    ATH_MSG_DEBUG ("Could not retrieve primary vertex container with key "+m_vxContainerName.key());
     return StatusCode::SUCCESS;
   }
 
@@ -215,7 +209,7 @@ StatusCode InDetGlobalPrimaryVertexMonTool::fillHistograms() {
   }
   int nPriVtx = 0;
   int nPileupVtx = 0;
-  for (xAOD::VertexContainer_v1::const_iterator vxIter = vxContainer->begin(); vxIter != vxContainer->end(); ++vxIter)
+  for (xAOD::VertexContainer::const_iterator vxIter = vxContainer->begin(); vxIter != vxContainer->end(); ++vxIter)
   {
     // Count different types of vertices
       if ((*vxIter)->vertexType() == xAOD::VxType::PriVtx) nPriVtx++;
@@ -255,29 +249,27 @@ StatusCode InDetGlobalPrimaryVertexMonTool::fillHistograms() {
   if (m_doEnhancedMonitoring)
   {
     // Check for primary vertex with out beam constraint
-      const xAOD::VertexContainer_v1* vxContainerWithoutBeamConstraint = 0;
-    if (evtStore()->contains<xAOD::VertexContainer_v1>(m_vxContainerNameWithoutBeamConstraint)) {
-      if (evtStore()->retrieve(vxContainerWithoutBeamConstraint,m_vxContainerNameWithoutBeamConstraint).isFailure() ) {
-        ATH_MSG_DEBUG ("Could not retrieve primary vertex (done without beam constraint) with key "+m_vxContainerNameWithoutBeamConstraint);
-        return StatusCode::SUCCESS;
-      }
-    } else {
-      ATH_MSG_DEBUG ("No primary vertex (done without beam constraint) with key "+m_vxContainerNameWithoutBeamConstraint+" in storegate.");
+    SG::ReadHandle<xAOD::VertexContainer> vxContainerWithoutBeamConstraint(m_vxContainerNameWithoutBeamConstraint);
+    if (!vxContainerWithoutBeamConstraint.isPresent()) {
+      ATH_MSG_DEBUG ("No primary vertex (done without beam constraint) with key "+m_vxContainerNameWithoutBeamConstraint.key()+" in storegate.");
+      return StatusCode::SUCCESS;
+    }
+    if (!vxContainerWithoutBeamConstraint.isValid()) {
+      ATH_MSG_DEBUG ("Could not retrieve primary vertex (done without beam constraint) with key "+m_vxContainerNameWithoutBeamConstraint.key());
       return StatusCode::SUCCESS;
     }
   
-    const xAOD::VertexContainer_v1* vxContainerSplit = 0;
-    if (evtStore()->contains<xAOD::VertexContainer_v1>(m_vxContainerNameSplit)) {
-      if (evtStore()->retrieve(vxContainerSplit,m_vxContainerNameSplit).isFailure() ) {
-        ATH_MSG_DEBUG ("Could not retrieve split primary vertex with key "+m_vxContainerNameSplit);
-        return StatusCode::SUCCESS;
-      }
-    } else {
-      ATH_MSG_DEBUG ("No split primary vertex with key "+m_vxContainerNameSplit+" in storegate.");
+    SG::ReadHandle<xAOD::VertexContainer> vxContainerSplit(m_vxContainerNameSplit);
+    if (!vxContainerSplit.isPresent()) {
+      ATH_MSG_DEBUG ("No split primary vertex with key "+m_vxContainerNameSplit.key()+" in storegate.");
+      return StatusCode::SUCCESS;
+    }
+    if (!vxContainerSplit.isValid()) {
+      ATH_MSG_DEBUG ("Could not retrieve split primary vertex with key "+m_vxContainerNameSplit.key());
       return StatusCode::SUCCESS;
     }
   
-    for (xAOD::VertexContainer_v1::const_iterator vxIter = vxContainerWithoutBeamConstraint->begin(); vxIter != vxContainerWithoutBeamConstraint->end(); ++vxIter)
+    for (xAOD::VertexContainer::const_iterator vxIter = vxContainerWithoutBeamConstraint->begin(); vxIter != vxContainerWithoutBeamConstraint->end(); ++vxIter)
     {
   
       // Select primary vertex
@@ -315,32 +307,24 @@ StatusCode InDetGlobalPrimaryVertexMonTool::fillHistograms() {
   
     if (vxContainerSplit->size() >= 3) // you need two split vertices and there is the dummy
     {
-      const xAOD::Vertex_v1* splitVxCandiate1 = vxContainerSplit->at(0);
-      const xAOD::Vertex_v1* splitVxCandiate2 = vxContainerSplit->at(1);
+      const xAOD::Vertex* splitVxCandiate1 = vxContainerSplit->at(0);
+      const xAOD::Vertex* splitVxCandiate2 = vxContainerSplit->at(1);
   
       // consider the first two split vertices for K-factor and reconstruction efficiency calculation
       if (splitVxCandiate1 != 0 and splitVxCandiate2 != 0)
       {
         // calculate reconstruction efficiency
         // we ask only one reconstructed vertex (no Beamspot-Constrained) and two split vertices
-        //ATH_MSG(DEBUG) << "vxContainerWithoutBeamConstraint.size = " << vxContainerWithoutBeamConstraint->size() << endmsg;
-        const xAOD::Vertex_v1* origVertexNoBC = vxContainerWithoutBeamConstraint->at(0);
-        //ATH_MSG(DEBUG) << "origVertexNoBC.vertexType = " << origVertexNoBC->vertexType() << endmsg;
-        //ATH_MSG(DEBUG) << "vxContainerSplit.size = " << vxContainerSplit->size() << endmsg;
-        //ATH_MSG(DEBUG) << "splitVxCandiate1.vertexType = " <<  splitVxCandiate1->vertexType() << endmsg;
-        //ATH_MSG(DEBUG) << "splitVxCandiate2.vertexType = " <<  splitVxCandiate2->vertexType() << endmsg;
-        //for (auto vxSIter = vxContainerSplit->begin(); vxSIter != vxContainerSplit->end(); ++vxSIter)
-        //  (*vxSIter)->dump(msg(MSG::DEBUG));
+        const xAOD::Vertex* origVertexNoBC = vxContainerWithoutBeamConstraint->at(0);
         if ( vxContainerWithoutBeamConstraint->size() == 2 and  // 1 vtx + 1 dummy
             origVertexNoBC->vertexType() == xAOD::VxType::PriVtx and // good vertex
-            //	     vxContainerSplit->size() == 2 and // 2 split vertices, no dummy in this container
+           
             vxContainerSplit->size() == 4 and // 2 split vertices, 2 dummy in this container
             splitVxCandiate1->vertexType() == xAOD::VxType::PriVtx) // tag vertex needs to be reconstructed
         {
           // calculate number of tracks at probe vertex -- needs to be discussed
           int nTrackAtOrigVertex = origVertexNoBC->vxTrackAtVertex().size();
           int nTracksForEff =  nTrackAtOrigVertex * (m_splitVertexTrkInvFraction - 1) / (m_splitVertexTrkInvFraction);
-          //ATH_MSG(DEBUG) << "nTracksForEff = " << nTracksForEff << endmsg;
   
           // fill tag histogram (denominator of efficiency)
           m_hVrt_split_tag_ntrk->Fill(nTracksForEff);
@@ -486,7 +470,7 @@ void InDetGlobalPrimaryVertexMonTool::makeAndRegisterDummyTGraph(MonGroup& mon, 
 }
 
 
-double InDetGlobalPrimaryVertexMonTool::GetSplitMatchDistance(const xAOD::Vertex_v1* splitVx, const xAOD::Vertex_v1* originalVx)
+double InDetGlobalPrimaryVertexMonTool::GetSplitMatchDistance(const xAOD::Vertex* splitVx, const xAOD::Vertex* originalVx)
 {
   // Get difference in position
   double dx = splitVx->position().x() - originalVx->position().x();

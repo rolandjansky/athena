@@ -59,9 +59,7 @@ FCalCmbTwrBldr = LArFCalTowerBuilderTool( name              = 'FCalCmbTwrBldr',
 
 from TileRecUtils.TileRecUtilsConf import TileTowerBuilderTool
 TileCmbTwrBldr = TileTowerBuilderTool( name = 'TileCmbTwrBldr',
-                                       CellContainerName = "AllCalo",
-                                       DumpTowers        = False,
-                                       DumpWeightMap     = False);
+                                       CellContainerName = "AllCalo")
 
 #CmbTowerBldr.TowerBuilderTools+=[ TileCmbTwrBldr.getFullName() ]
 CmbTowerBldr +=  TileCmbTwrBldr

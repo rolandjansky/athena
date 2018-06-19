@@ -5,9 +5,9 @@
 #ifndef MUONCALIB_MUONCALIBPATTERNCOLLECTION_H
 #define MUONCALIB_MUONCALIBPATTERNCOLLECTION_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "MuonCalibEventBase/MuonCalibPattern.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /**
    @class MuonCalibPatternCollection

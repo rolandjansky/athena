@@ -14,6 +14,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "TrkParameters/TrackParameters.h"
 #include <vector>
 #include <map>
@@ -21,7 +22,6 @@
 class AtlasDetectorID;
 class Identifier;
 class AtlasID;
-class IInDetConditionsSvc;
 namespace InDet {class IInDetTestPixelLayerTool; }
 class IGeoModelSvc;
 
@@ -111,8 +111,11 @@ namespace InDet
       /** Pointer to Extrapolator AlgTool*/
       ToolHandle< Trk::IExtrapolator >  m_extrapolator;
 
-      /** Handles to IConditionsSummaryServices for Pixels and SCT*/
-      ServiceHandle <IInDetConditionsSvc> m_pixelCondSummarySvc, m_sctCondSummarySvc;
+      /** Handles to IConditionsSummaryTools for Pixels and SCT*/
+      ToolHandle <IInDetConditionsTool> m_sctCondSummaryTool{this, "SctSummaryTool",
+          "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions summary"};
+      ToolHandle <IInDetConditionsTool> m_pixelCondSummaryTool;
+      
       ToolHandle< IInDetTestPixelLayerTool >  m_pixelLayerTool;
 
       /** Handle for IGeoModelSvc to retrieve geo model information */

@@ -1080,11 +1080,11 @@ namespace top{
   {
     
     //this avoids code duplication
-    std::unordered_map<std::string,std::set<std::string>>& base_names = isTrackJet ? bTag_base_names_trkJet : bTag_base_names;
-    std::unordered_map<std::string,std::set<std::string>>& named_systs = isTrackJet ? bTag_named_systs_trkJet : bTag_named_systs;
-    std::unordered_map<std::string,unsigned int>& eigen_B = isTrackJet ? bTag_eigen_B_trkJet : bTag_eigen_B;
-    std::unordered_map<std::string,unsigned int>& eigen_C = isTrackJet ? bTag_eigen_C_trkJet : bTag_eigen_C;
-    std::unordered_map<std::string,unsigned int>& eigen_light = isTrackJet ? bTag_eigen_light_trkJet : bTag_eigen_light;
+    std::unordered_map<std::string,std::set<std::string>>& base_names = isTrackJet ? m_bTag_base_names_trkJet : m_bTag_base_names;
+    std::unordered_map<std::string,std::set<std::string>>& named_systs = isTrackJet ? m_bTag_named_systs_trkJet : m_bTag_named_systs;
+    std::unordered_map<std::string,unsigned int>& eigen_B = isTrackJet ? m_bTag_eigen_B_trkJet : m_bTag_eigen_B;
+    std::unordered_map<std::string,unsigned int>& eigen_C = isTrackJet ? m_bTag_eigen_C_trkJet : m_bTag_eigen_C;
+    std::unordered_map<std::string,unsigned int>& eigen_light = isTrackJet ? m_bTag_eigen_light_trkJet : m_bTag_eigen_light;
     
     //names of all systematics
     base_names[WP] = btagging_SF_names;

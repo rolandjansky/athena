@@ -3,7 +3,6 @@
 */
 
 #include "LArRecUtils/LArAutoCorrTotalTool.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "LArElecCalib/LArConditionsException.h"
 #include "StoreGate/StoreGateSvc.h"

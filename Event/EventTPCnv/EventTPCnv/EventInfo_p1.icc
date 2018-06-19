@@ -21,4 +21,50 @@ EventInfo_p1::~EventInfo_p1()
 }
 
 
+inline
+EventInfo_p1::EventInfo_p1 (const EventInfo_p1& other)
+  : m_event_ID (other.m_event_ID),
+    m_event_type (other.m_event_type),
+    m_trigger_info (other.m_trigger_info ? new TriggerInfo_p1 (*other.m_trigger_info) : 0)
+{
+}
 
+
+inline
+EventInfo_p1& EventInfo_p1::operator= (const EventInfo_p1& other)
+{
+  if (this != &other) {
+    m_event_ID = other.m_event_ID;
+    m_event_type = other.m_event_type;
+    if (other.m_trigger_info) {
+      m_trigger_info = new TriggerInfo_p1 (*other.m_trigger_info);
+    }
+    else {
+      m_trigger_info = nullptr;
+    }
+  }
+  return *this;
+}
+
+
+inline
+EventInfo_p1::EventInfo_p1 (EventInfo_p1&& other)
+  : m_event_ID (other.m_event_ID),
+    m_event_type (other.m_event_type),
+    m_trigger_info (other.m_trigger_info)
+{
+  other.m_trigger_info = nullptr;
+}
+
+
+inline
+EventInfo_p1& EventInfo_p1::operator= (EventInfo_p1&& other)
+{
+  if (this != &other) {
+    m_event_ID = other.m_event_ID;
+    m_event_type = other.m_event_type;
+    m_trigger_info = other.m_trigger_info;
+    other.m_trigger_info = nullptr;
+  }
+  return *this;
+}

@@ -72,7 +72,6 @@ MCTruthClassifier::MCTruthClassifier(const std::string& type)
 #ifndef XAOD_ANALYSIS // Add properties used/available only in Athena
   declareProperty("ParticleCaloExtensionTool",   m_caloExtensionTool );
   declareProperty("TruthInConeTool",               m_truthInConeTool );
-  declareProperty("xAODTruthLinkVector"            , m_truthLinkVecName="xAODTruthLinks");
   declareProperty("FwdElectronTruthExtrEtaCut" , m_FwdElectronTruthExtrEtaCut = 2.4, 
                   "Cut on the eta of the truth Particles to be extrapolated for Fwd electrons");
   declareProperty("FwdElectronTruthExtrEtaWindowCut" , m_FwdElectronTruthExtrEtaWindowCut = 0.15, 
@@ -88,7 +87,6 @@ MCTruthClassifier::MCTruthClassifier(const std::string& type)
 #endif
   //
   //Properties Available in Athena, AtheAnalysisBase and AnalysisBase
-  declareProperty("xAODTruthParticleContainerName" , m_xaodTruthParticleContainerName  = "TruthParticles");
   declareProperty("deltaRMatchCut"   , m_deltaRMatchCut   = 0.2);
   declareProperty("deltaPhiMatchCut" , m_deltaPhiMatchCut = 0.2);
   declareProperty("NumOfSiHitsCut"   , m_NumOfSiHitsCut   = 3);
@@ -114,6 +112,9 @@ StatusCode MCTruthClassifier::initialize(){
 
   ATH_MSG_INFO( " Initializing MCTruthClassifier" );
 
+  ATH_CHECK(m_truthLinkVecReadHandleKey.initialize());
+  ATH_CHECK(m_truthParticleContainerKey.initialize());
+  
   //define barcode scheme
   m_barcodeShift=1000000;
   if(m_barcodeG4Shift==1000001) {m_barcodeShift=10000000;}
@@ -158,14 +159,14 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::TruthParticle  *thePart,
   //retrieve collection and get a pointer
   if(!thePart) return std::make_pair(partType,partOrig);
 
-  const xAOD::TruthParticleContainer  * xTruthParticleContainer;
-  StatusCode sc = evtStore()->retrieve(xTruthParticleContainer, m_xaodTruthParticleContainerName);
-  if (sc.isFailure()||!xTruthParticleContainer){
-    ATH_MSG_WARNING( "No  xAODTruthParticleContainer "<<m_xaodTruthParticleContainerName<<" found" ); 
+  SG::ReadHandle<xAOD::TruthParticleContainer> truthParticleContainerReadHandle(m_truthParticleContainerKey);
+
+  if (!truthParticleContainerReadHandle.isValid()){
+    ATH_MSG_WARNING(" Invalid ReadHandle for xAOD::TruthParticleContainer with key: " << truthParticleContainerReadHandle.key());
     return std::make_pair(partType,partOrig);
   }
-
-  ATH_MSG_DEBUG( "xAODTruthParticleContainer  " << m_xaodTruthParticleContainerName<<" successfully retrieved " );
+  
+  ATH_MSG_DEBUG( "xAODTruthParticleContainer with key  " << truthParticleContainerReadHandle.key() << " has valid ReadHandle " );
 
   int iParticlePDG = thePart->pdgId();
   //status=10902 in Pythia? 
@@ -237,21 +238,21 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::TruthParticle  *thePart,
   if(partOriVert==0 && MC::PID::isElectron(iParticlePDG))  {
     // to define electron out come  status
     bool isPrompt = false;
-    partOrig =  defOrigOfElectron(xTruthParticleContainer,thePart,isPrompt,info);
+    partOrig =  defOrigOfElectron(truthParticleContainerReadHandle.ptr(),thePart,isPrompt,info);
     return std::make_pair(UnknownElectron,partOrig);     
   } else  if(partOriVert==0 && MC::PID::isMuon(iParticlePDG)) {
     // to define electron out come  status
     bool isPrompt = false;
-    partOrig =  defOrigOfMuon(xTruthParticleContainer,thePart,isPrompt,info);
+    partOrig =  defOrigOfMuon(truthParticleContainerReadHandle.ptr(),thePart,isPrompt,info);
     return std::make_pair(UnknownMuon,partOrig);
   } else  if(partOriVert==0 && MC::PID::isTau(iParticlePDG)) {
     // to define electron out come  status
-    partOrig =  defOrigOfTau(xTruthParticleContainer,thePart,motherPDG,info); 
+    partOrig =  defOrigOfTau(truthParticleContainerReadHandle.ptr(),thePart,motherPDG,info); 
     return std::make_pair(UnknownTau,partOrig);
   } else  if(partOriVert==0 && MC::PID::isPhoton(iParticlePDG)) {
     // to define photon out come 
     bool isPrompt = false;
-    partOrig =  defOrigOfPhoton(xTruthParticleContainer,thePart,isPrompt,info);
+    partOrig =  defOrigOfPhoton(truthParticleContainerReadHandle.ptr(),thePart,isPrompt,info);
     return std::make_pair(UnknownPhoton,partOrig);
   }
   else if(partOriVert==0 && MC::PID::isNeutrino(iParticlePDG))  {
@@ -292,22 +293,22 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::TruthParticle  *thePart,
   
   if(MC::PID::isElectron(iParticlePDG)){
     bool isPrompt = false;
-    partOrig =  defOrigOfElectron(xTruthParticleContainer,thePart,isPrompt,info);
+    partOrig =  defOrigOfElectron(truthParticleContainerReadHandle.ptr(),thePart,isPrompt,info);
     partType =  defTypeOfElectron(partOrig,isPrompt);
   } else if(MC::PID::isMuon(iParticlePDG)) {
     bool isPrompt = false;
-    partOrig =  defOrigOfMuon(xTruthParticleContainer,thePart,isPrompt,info);
+    partOrig =  defOrigOfMuon(truthParticleContainerReadHandle.ptr(),thePart,isPrompt,info);
     partType =  defTypeOfMuon(partOrig,isPrompt);
   } else if(MC::PID::isTau(iParticlePDG)) {
-    partOrig =  defOrigOfTau(xTruthParticleContainer,thePart,motherPDG,info);
+    partOrig =  defOrigOfTau(truthParticleContainerReadHandle.ptr(),thePart,motherPDG,info);
     partType =  defTypeOfTau(partOrig);
   } else if(MC::PID::isPhoton(iParticlePDG)){
     bool isPrompt = false;
-    partOrig =  defOrigOfPhoton(xTruthParticleContainer,thePart,isPrompt,info);
+    partOrig =  defOrigOfPhoton(truthParticleContainerReadHandle.ptr(),thePart,isPrompt,info);
     partType =  defTypeOfPhoton( partOrig);
   } else if(MC::PID::isNeutrino(iParticlePDG))  {
     bool isPrompt = false;
-    partOrig =  defOrigOfNeutrino(xTruthParticleContainer,thePart,isPrompt,info);
+    partOrig =  defOrigOfNeutrino(truthParticleContainerReadHandle.ptr(),thePart,isPrompt,info);
     partType = Neutrino;
   }
 
@@ -508,7 +509,7 @@ std::pair<ParticleType,ParticleOrigin>
 MCTruthClassifier::particleTruthClassifier(const xAOD::Jet* jet, bool DR,
                                            Info* info /*= nullptr*/) const {
   //-----------------------------------------------------------------------------------------
-  
+
   ATH_MSG_DEBUG( "Executing Classifier with jet Input" );
 
   if (info){
@@ -519,6 +520,7 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::Jet* jet, bool DR,
   ParticleOrigin partorig     = NonDefined;
   ParticleType   tempparttype = UnknownJet;
   std::set<const xAOD::TruthParticle*>     allJetMothers;
+  std::set<const xAOD::TruthParticle*>     constituents;
   std::pair<ParticleType,ParticleOrigin>   res;
 
   if(!jet){
@@ -526,62 +528,152 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::Jet* jet, bool DR,
   }
 
   allJetMothers.clear();
+  constituents.clear();
+  findJetConstituents(jet,constituents,DR);
 
-  if (!DR) { 
-
-  } else { 
-    // use a DR matching scheme (default)
-    // retrieve collection and get a pointer 
-    const xAOD::TruthParticleContainer  * xTruthParticleContainer;
-    StatusCode sc = evtStore()->retrieve(xTruthParticleContainer, m_xaodTruthParticleContainerName);
-    if (sc.isFailure()||!xTruthParticleContainer){
-      ATH_MSG_WARNING( "No  xAODTruthParticleContainer "<<m_xaodTruthParticleContainerName<<" found" ); 
-      return std::make_pair(parttype,partorig);
+  // find the matching truth particles
+  std::set<const xAOD::TruthParticle*>::iterator it;
+  for (it=constituents.begin(); it!=constituents.end(); ++it) {
+    const xAOD::TruthParticle* thePart = (*it);
+    // determine jet origin
+    findAllJetMothers(thePart,allJetMothers);
+    // determine jet type
+    if(thePart->status()==3) continue;
+    // determine jet type
+    tempparttype = particleTruthClassifier(thePart, info).first;
+    if(tempparttype==Hadron) tempparttype=defTypeOfHadron(thePart->pdgId());
+    // classify the jet
+    if (tempparttype==BBbarMesonPart || tempparttype==BottomMesonPart || tempparttype==BottomBaryonPart) {
+      parttype = BJet;
     }
+    else if (tempparttype==CCbarMesonPart || tempparttype==CharmedMesonPart || tempparttype==CharmedBaryonPart ) {
+      if (parttype==BJet) {}
+      else { parttype = CJet;}
+    }
+    else if (tempparttype==StrangeBaryonPart||tempparttype==LightBaryonPart||tempparttype==StrangeMesonPart||tempparttype==LightMesonPart) {
+      if (parttype==BJet||parttype==CJet) {}
+      else { parttype = LJet;}
+    }
+    else {
+      if (parttype==BJet||parttype==CJet||parttype==LJet) {}
+      else { parttype = UnknownJet;}
+    }
+  } // end loop over jet constituents
 
-    ATH_MSG_DEBUG( "xAODTruthParticleContainer  " << m_xaodTruthParticleContainerName<<" successfully retrieved " );
-
-    // find the matching truth particles
-    for(const auto thePart : *xTruthParticleContainer){
-      // do not look at intermediate particles
-      if(thePart->status()!=2&&thePart->status()!=3&&thePart->status()!=10902) continue;
-      // match truth particles to the jet
-      if (deltaR((*thePart),(*jet)) > m_jetPartDRMatch) continue;
-      // determine jet origin
-      findAllJetMothers(thePart,allJetMothers);
-      // determine jet type
-      if(thePart->status()==3) continue;
-      // determine jet type
-      tempparttype = particleTruthClassifier(thePart, info).first;
-      if(tempparttype==Hadron) tempparttype=defTypeOfHadron(thePart->pdgId());
-      // classify the jet
-      if (tempparttype==BBbarMesonPart || tempparttype==BottomMesonPart || tempparttype==BottomBaryonPart) 
-            {parttype = BJet;}
-      else if (tempparttype==CCbarMesonPart || tempparttype==CharmedMesonPart || tempparttype==CharmedBaryonPart ) 
-            {if (parttype==BJet) {} else { parttype = CJet;}}
-      else if (tempparttype==StrangeBaryonPart||tempparttype==LightBaryonPart||tempparttype==StrangeMesonPart||tempparttype==LightMesonPart) 
-            {if (parttype==BJet||parttype==CJet) {} else { parttype = LJet;}}
-      else {if (parttype==BJet||parttype==CJet||parttype==LJet) {} else { parttype = UnknownJet;}}
-
-    } // end loop over truth particles  
-
-  }// end DR scheme
-  
   // clasify the jet origin
   partorig = defJetOrig(allJetMothers);
 
   allJetMothers.clear();
+  constituents.clear();
 
-  ATH_MSG_DEBUG( " jet Classifier succeeded" );  
+  ATH_MSG_DEBUG( " jet Classifier succeeded" );
   return std::make_pair(parttype,partorig);
 }
 
-double MCTruthClassifier::deltaR(const xAOD::TruthParticle& v1, const xAOD::Jet & v2) {
-  double dphi = std::fabs(v1.phi()-v2.phi()) ;
-  dphi = (dphi<=M_PI)? dphi : 2*M_PI-dphi;
-  double deta = std::fabs(v1.eta()-v2.eta()) ;
-  return std::sqrt(dphi*dphi+deta*deta) ;
+
+// Now that we use TLorentzVector for the momentum base class, this is straightforward
+double MCTruthClassifier::deltaR(const xAOD::TruthParticle& v1, const xAOD::Jet& v2){
+  // Should this use delta y though?
+  return v1.p4().DeltaR(v2.p4());
 }
+
+
+void MCTruthClassifier::findJetConstituents(const xAOD::Jet* jet, std::set<const xAOD::TruthParticle*>& constituents, bool DR) const{
+
+  if(DR){
+    // use a DR matching scheme (default)
+    // retrieve collection and get a pointer
+
+    SG::ReadHandle<xAOD::TruthParticleContainer> truthParticleContainerReadHandle(m_truthParticleContainerKey);
+
+    if (!truthParticleContainerReadHandle.isValid()){
+      ATH_MSG_WARNING(" Invalid ReadHandle for xAOD::TruthParticleContainer with key: " << truthParticleContainerReadHandle.key());
+      return;
+    }
+
+    ATH_MSG_DEBUG( "xAODTruthParticleContainer with key  " << truthParticleContainerReadHandle.key() << " has valid ReadHandle " );
+
+    // find the matching truth particles
+    for(const auto thePart : *truthParticleContainerReadHandle){
+      // match truth particles to the jet 
+      if (thePart->status() == 1 &&
+          deltaR((*thePart),(*jet)) < m_jetPartDRMatch){
+        constituents.insert(thePart);
+      }
+    }
+  } // end if DR
+  else {
+    xAOD::JetConstituentVector vec = jet->getConstituents();
+    for(auto it = vec.begin(); it != vec.end(); ++it){
+      const xAOD::JetConstituent* particle0 = *it;
+      const xAOD::TruthParticle* thePart = dynamic_cast<const xAOD::TruthParticle*>(particle0->rawConstituent());
+      if(thePart->status() == 1){
+        constituents.insert(thePart);
+      }
+    }
+  } // end if !DR
+  return;
+}
+
+
+void MCTruthClassifier::findParticleDaughters(const xAOD::TruthParticle* thePart, std::set<const xAOD::TruthParticle*>& daughters) const {
+
+  // Get descendants
+  const xAOD::TruthVertex* endVtx = thePart->decayVtx();
+  if(endVtx!=0){
+    for(unsigned int i=0;i<endVtx->nOutgoingParticles();i++){
+      const xAOD::TruthParticle* theDaughter=endVtx->outgoingParticle(i);
+      if( theDaughter == 0 ) continue;
+      if( theDaughter->status() == 1 && theDaughter->barcode() < 200000){
+        // Add descendants with status code 1
+        daughters.insert(theDaughter);
+      }
+      findParticleDaughters(theDaughter,daughters);
+    }
+  }
+  return;
+}
+
+
+double MCTruthClassifier::fracParticleInJet(const xAOD::TruthParticle* thePart, const xAOD::Jet* jet, bool DR, bool nparts) const {
+
+  // Get jet constituents
+  std::set<const xAOD::TruthParticle*> constituents;
+  constituents.clear();
+  findJetConstituents(jet,constituents,DR);
+
+  // Get all particle daughters
+  std::set<const xAOD::TruthParticle*> daughters;
+  daughters.clear();
+  findParticleDaughters(thePart,daughters);
+  if( daughters.size() == 0 ) daughters.insert(thePart);
+
+  // Get the intersection of constituents and daughters
+  std::set<const xAOD::TruthParticle*> intersect;
+  std::set_intersection(constituents.begin(),constituents.end(),
+                        daughters.begin(),daughters.end(),
+                        std::inserter(intersect,intersect.begin()));
+
+  double frac = 0;
+  if( nparts ){
+    frac = 1.0*intersect.size()/daughters.size();
+  }
+  else{
+    double tot = 0;
+    for(auto it=daughters.begin(); it!=daughters.end(); ++it) {
+      const xAOD::TruthParticle* daughter = (*it);
+      tot+=1.0*daughter->pt();
+    }
+    for(auto it=intersect.begin(); it!=intersect.end(); ++it) {
+      const xAOD::TruthParticle* particle = (*it);
+
+      frac += 1.0*particle->pt()/tot;
+    }
+  }
+
+  return frac;
+}
+
 
 //---------------------------------------------------------------------------------
 ParticleOrigin MCTruthClassifier::defJetOrig(std::set<const xAOD::TruthParticle*> allJetMothers) const {
@@ -2825,15 +2917,15 @@ MCTruthClassifier::checkOrigOfBkgElec(const xAOD::TruthParticle* theEle,
  
   if(theEle==0) return part;
 
-  const xAOD::TruthParticleContainer  * xTruthParticleContainer;
-  StatusCode sc = evtStore()->retrieve(xTruthParticleContainer, m_xaodTruthParticleContainerName);
-  if (sc.isFailure()||!xTruthParticleContainer){
-    ATH_MSG_WARNING( "No  xAODTruthParticleContainer "<<m_xaodTruthParticleContainerName<<" found" ); 
+  SG::ReadHandle<xAOD::TruthParticleContainer> truthParticleContainerReadHandle(m_truthParticleContainerKey);
+
+  if (!truthParticleContainerReadHandle.isValid()){
+    ATH_MSG_WARNING(" Invalid ReadHandle for xAOD::TruthParticleContainer with key: " << truthParticleContainerReadHandle.key());
     return part;
   }
-  ATH_MSG_DEBUG( "xAODTruthParticleContainer  " << m_xaodTruthParticleContainerName<<" successfully retrieved " );
-
-
+  
+  ATH_MSG_DEBUG( "xAODTruthParticleContainer with key  " << truthParticleContainerReadHandle.key() << " has valid ReadHandle " );
+  
   Info tmpinfo;
   if (!info)
     info = &tmpinfo;
@@ -2849,7 +2941,7 @@ MCTruthClassifier::checkOrigOfBkgElec(const xAOD::TruthParticle* theEle,
       isHadron(info->photonMother)) // Note: local isHadron rejects beam protons
       && info->photonMotherStatus<3){
     do {
-      const xAOD::TruthParticle *theMotherPart = barcode_to_particle(xTruthParticleContainer,info->photonMotherBarcode%m_barcodeShift);
+      const xAOD::TruthParticle *theMotherPart = barcode_to_particle(truthParticleContainerReadHandle.ptr(),info->photonMotherBarcode%m_barcodeShift);
       if(theMotherPart==0 || theMotherPart==thePart) break;
       thePart = theMotherPart;
 
@@ -2863,7 +2955,7 @@ MCTruthClassifier::checkOrigOfBkgElec(const xAOD::TruthParticle* theEle,
     if(part.first == BkgElectron&& part.second==PhotonConv) {
       // in case of photon from gen particle  classify photon
       //part=particleTruthClassifier(mother); 
-      thePart = barcode_to_particle(xTruthParticleContainer,info->motherBarcode%m_barcodeShift);
+      thePart = barcode_to_particle(truthParticleContainerReadHandle.ptr(),info->motherBarcode%m_barcodeShift);
       if(thePart!=0) part=particleTruthClassifier(thePart, info);
 
     } else if(part.first == GenParticle&&isHadron(thePart)){
@@ -2873,7 +2965,7 @@ MCTruthClassifier::checkOrigOfBkgElec(const xAOD::TruthParticle* theEle,
 
   } else {
     // in case of photon from gen particle  classify photon
-    thePart = barcode_to_particle(xTruthParticleContainer,info->motherBarcode%m_barcodeShift);
+    thePart = barcode_to_particle(truthParticleContainerReadHandle.ptr(),info->motherBarcode%m_barcodeShift);
     if(thePart!=0) part=particleTruthClassifier(thePart, info);
   }
 

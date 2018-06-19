@@ -6,15 +6,15 @@
 
 using namespace std;
 
-semilCorr::semilCorr(TString fIn, string suffix, bool DebugIn){
-  Debug = DebugIn;
-  f = TFile::Open(fIn);
-  etas.push_back(0);
-  etas.push_back(0.8);
-  etas.push_back(1.2);
-  etas.push_back(1.7);
-  etas.push_back(2.1);
-  etas.push_back(2.5);
+semilCorr::semilCorr(TString fIn, string /*suffix*/, bool DebugIn){
+  m_Debug = DebugIn;
+  m_f = TFile::Open(fIn);
+  m_etas.push_back(0);
+  m_etas.push_back(0.8);
+  m_etas.push_back(1.2);
+  m_etas.push_back(1.7);
+  m_etas.push_back(2.1);
+  m_etas.push_back(2.5);
 
   vector<string> etastr;
   etastr.push_back("_e0");
@@ -37,7 +37,7 @@ semilCorr::semilCorr(TString fIn, string suffix, bool DebugIn){
   for(unsigned int j = 0; j<prefix.size(); j++){
     vector<TH1F*> corr;
     for(unsigned int i = 0; i<etastr.size(); i++){
-      corr.push_back((TH1F*) f->Get((prefix[j]+etastr[i]).c_str())); 
+      corr.push_back((TH1F*) m_f->Get((prefix[j]+etastr[i]).c_str())); 
     }
     m_histos.push_back(corr);
   }
@@ -50,8 +50,8 @@ semilCorr::~semilCorr(){
       delete m_histos[i][j]; // TH2F's that store response info
     }
   }
-  f->Close();
-  delete f;
+  m_f->Close();
+  delete m_f;
 }
 
 float semilCorr::getSemilCorrToIncl(TLorentzVector jet, TLorentzVector mu)
@@ -105,8 +105,8 @@ float semilCorr::getResponse(float pt, float eta, vector<TH1F*> h)
 {
   float usePt = pt;
   int histbin = -1;
-  for(unsigned int i = 0; i<etas.size()-1; i++){
-    if(fabs(eta)>=etas[i] && fabs(eta)<etas[i+1])
+  for(unsigned int i = 0; i<m_etas.size()-1; i++){
+    if(fabs(eta)>=m_etas[i] && fabs(eta)<m_etas[i+1])
       histbin = i;
   }
   

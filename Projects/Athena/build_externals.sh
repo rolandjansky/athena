@@ -5,12 +5,14 @@
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c]"
+    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c] [-d] [-x]"
     echo " -f: Force rebuild of externals from scratch, otherwise if script"
     echo "     finds an external build present it will only do an incremental"
     echo "     build"
     echo " -c: Build the externals for the continuous integration (CI) system,"
     echo "     skipping the build of the externals RPMs."
+    echo " -d: For debugging the CMake configuration: run 'cmake' with the '--trace' option (very verbose output!)" 
+    echo " -x: To pass arbitrary extra arguments to the CMake configuration"
     echo "If a build_dir is not given the default is '../build'"
     echo "relative to the athena checkout"
 }
@@ -20,7 +22,9 @@ BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
 FORCE=""
 CI=""
-while getopts ":t:b:fch" opt; do
+DEBUG_CMAKE_CONFIG=""
+EXTRACMAKE=""
+while getopts ":t:b:fchdx:" opt; do
     case $opt in
         t)
             BUILDTYPE=$OPTARG
@@ -33,6 +37,12 @@ while getopts ":t:b:fch" opt; do
             ;;
         c)
             CI="1"
+            ;;
+        d)
+            DEBUG_CMAKE_CONFIG="-d"
+            ;;
+        x)
+            EXTRACMAKE="-x $OPTARG"
             ;;
         h)
             usage
@@ -135,25 +145,30 @@ ${scriptsdir}/checkout_atlasexternals.sh \
 
 # log analyzer never affects return status in the parent shell:
 {
- branch=$(basename $(cd .. ; pwd)) #FIXME: should be taken from env.
- timestamp_tmp=@@__`date "+%Y-%m-%dT%H%M"`__@@ #to be used until the final stamp from ReleaseData is available
-
  test "X${NIGHTLY_STATUS}" != "X" && {
+    branch=$(basename $(cd .. ; pwd)) #FIXME: should be taken from env.
+    timestamp_tmp=` basename ${BUILDDIR}/../.@@__* 2>/dev/null | sed 's,^\.,,' ` #to be used until the final stamp from ReleaseData is available
+    test "X$timestamp_tmp" != "X" || {
+        timestamp_tmp=@@__`date "+%Y-%m-%dT%H%M"`__@@ 
+        touch ${BUILDDIR}/../.${timestamp_tmp}
+    }
    (set +e 
-    touch ${BUILDDIR}/.${timestamp_tmp}
     ${scriptsdir_nightly_status}/checkout_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" AthenaExternals ${BUILDDIR}/src/checkout.AthenaExternals.log
    )
  } || true
 }
 
-# Build AthenaExternals:
+
+## Build AthenaExternals:
 export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthenaExternals
 ${scriptsdir}/build_atlasexternals.sh \
     -s ${BUILDDIR}/src/AthenaExternals \
     -b ${BUILDDIR}/build/AthenaExternals \
     -i ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION} \
     -p AthenaExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
-    -v ${NICOS_PROJECT_VERSION}
+    -v ${NICOS_PROJECT_VERSION} \
+    ${DEBUG_CMAKE_CONFIG} \
+    ${EXTRACMAKE}
 
 {
  test "X${NIGHTLY_STATUS}" != "X" && {
@@ -191,7 +206,7 @@ ${scriptsdir}/build_Gaudi.sh \
     -b ${BUILDDIR}/build/GAUDI \
     -i ${BUILDDIR}/install/GAUDI/${NICOS_PROJECT_VERSION} \
     -e ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION}/InstallArea/${platform} \
-    -p AthenaExternals -f ${platform} ${RPMOPTIONS} -t ${BUILDTYPE}
+    -p AthenaExternals -f ${platform} ${RPMOPTIONS} -t ${BUILDTYPE} ${EXTRACMAKE}
 
 {
  test "X${NIGHTLY_STATUS}" != "X" && {

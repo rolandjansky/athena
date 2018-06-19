@@ -36,7 +36,9 @@ class xAODCaloClusterTrigAuxContainerCnv :
 
 protected:
    /// Converter constructor
+public:
    xAODCaloClusterTrigAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::CaloClusterTrigAuxContainer*

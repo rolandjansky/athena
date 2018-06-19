@@ -7,10 +7,12 @@ atlas_subdir( InDetByteStreamErrors )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           DetectorDescription/Identifier )
+
+# External dependencies:
+find_package( Boost COMPONENTS filesystem thread system )
 
 # this line failed automatic conversion in cmt2cmake :
 # use AtlasReflex          AtlasReflex-*              External - no_auto_imports
@@ -19,7 +21,13 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_dictionary( InDetByteStreamErrorsDict
                       InDetByteStreamErrors/InDetByteStreamErrorsDict.h
                       InDetByteStreamErrors/selection.xml
-                      LINK_LIBRARIES DataModel SGTools Identifier )
+                      LINK_LIBRARIES AthContainers Identifier )
+
+atlas_add_library( InDetByteStreamErrors
+                   src/*.cxx
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                   PUBLIC_HEADERS InDetByteStreamErrors
+                   LINK_LIBRARIES AthenaKernel )
 
 # Install files from the package:
 atlas_install_headers( InDetByteStreamErrors )

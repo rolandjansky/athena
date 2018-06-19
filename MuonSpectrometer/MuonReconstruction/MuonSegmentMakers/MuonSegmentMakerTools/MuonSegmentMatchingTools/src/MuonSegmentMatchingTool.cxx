@@ -64,18 +64,18 @@ namespace Muon {
     declareProperty("DoMatchingCutsBIBM_S", m_matchingbibm_sphisec = 0.015, "Cut on sumDeltaYZ, segments in BI and BM, small phi sec"); 
     declareProperty("DoMatchingCutsBIBO_S", m_matchingbibo_sphisec = 0.015, "Cut on sumDeltaYZ, segments in BI and BO, small phi sec"); 
     declareProperty("DoMatchingCutsBMBO_S", m_matchingbmbo_sphisec = 0.015, "Cut on sumDeltaYZ, segments in BM and BO, small phi sec");
-    declareProperty("DoMatchingCutsEIEM_S", m_matchingeiem_sphisec = 0.010, "Cut on sumDeltaYZ, segments in EI and EM, small phi sec");  
-    declareProperty("DoMatchingCutsEIEO_S", m_matchingeieo_sphisec = 0.020, "Cut on sumDeltaYZ, segments in EI and EO, small phi sec"); 
+    declareProperty("DoMatchingCutsEIEM_S", m_matchingeiem_sphisec = 0.010*2, "Cut on sumDeltaYZ, segments in EI and EM, small phi sec");  
+    declareProperty("DoMatchingCutsEIEO_S", m_matchingeieo_sphisec = 0.020*2, "Cut on sumDeltaYZ, segments in EI and EO, small phi sec"); 
     declareProperty("DoMatchingCutsEMEO_S", m_matchingemeo_sphisec = 0.002, "Cut on sumDeltaYZ, segments in EM and EO, small phi sec");
     declareProperty("DoMatchingCutsBIBM_L", m_matchingbibm_lphisec = 0.005, "Cut on sumDeltaYZ, segments in BI and BM, large phi sec"); 
     declareProperty("DoMatchingCutsBIBO_L", m_matchingbibo_lphisec = 0.015, "Cut on sumDeltaYZ, segments in BI and BO, large phi sec"); 
     declareProperty("DoMatchingCutsBMBO_L", m_matchingbmbo_lphisec = 0.010, "Cut on sumDeltaYZ, segments in BM and BO, large phi sec");
-    declareProperty("DoMatchingCutsEIEM_L", m_matchingeiem_lphisec = 0.015, "Cut on sumDeltaYZ, segments in EI and EM, large phi sec");  
-    declareProperty("DoMatchingCutsEIEO_L", m_matchingeieo_lphisec = 0.025, "Cut on sumDeltaYZ, segments in EI and EO, large phi sec"); 
+    declareProperty("DoMatchingCutsEIEM_L", m_matchingeiem_lphisec = 0.015*2, "Cut on sumDeltaYZ, segments in EI and EM, large phi sec");  
+    declareProperty("DoMatchingCutsEIEO_L", m_matchingeieo_lphisec = 0.025*2, "Cut on sumDeltaYZ, segments in EI and EO, large phi sec"); 
     declareProperty("DoMatchingCutsEMEO_L", m_matchingemeo_lphisec = 0.002, "Cut on sumDeltaYZ, segments in EM and EO, large phi sec");     
     declareProperty("UseEndcapExtrapolationMatching", m_useEndcapExtrapolationMatching = true );
     declareProperty("DrExtrapolationRMS", m_drExtrapRMS = 10 );
-    declareProperty("DThetaExtrapolationRMS", m_dthetaExtrapRMS = 0.01 );
+    declareProperty("DThetaExtrapolationRMS", m_dthetaExtrapRMS = 0.01*2 );
     declareProperty("DrExtrapolationAlignementOffset", m_drExtrapAlignmentOffset = 50 );
     declareProperty("MagFieldSvc",    m_magFieldSvc );
 }
@@ -361,7 +361,7 @@ namespace Muon {
 	      << " " << result.angleBC
 	      << " " << result.angleAB
 	      << std::endl;
-      return true; // to get the maximum statistics and not be hindered by current cuts
+//      return true; // to get the maximum statistics and not be hindered by current cuts
     }    
   
     ATH_MSG_VERBOSE( "matching " << m_idHelperTool->chamberNameString(result.chid_a)
@@ -380,6 +380,7 @@ namespace Muon {
     // First: loose selection
     if ( !useTightCuts ) {
       if ( isCSC_a || isCSC_b ) {
+         ATH_MSG_VERBOSE( " check CSC result ");
         if ( result.phiSector_a != result.phiSector_b ) {
 	  return false;
         }
@@ -388,6 +389,7 @@ namespace Muon {
       }
       // BEE
       else if ( isBEE_a || isBEE_b ) {
+         ATH_MSG_VERBOSE( " check BEE result ");
 	if ( result.deltaTheta > 0.300 ) {
 	  return false;
 	} else {
@@ -396,6 +398,7 @@ namespace Muon {
       }
       // Barrel/endcap overlap  
       else if ( isEndcap_a != isEndcap_b ) {
+        ATH_MSG_VERBOSE( " check B-E result ");
 	if ( result.deltaTheta > 0.300 ) {
 	  return false;
 	} else {
@@ -404,7 +407,9 @@ namespace Muon {
       }
       // Phi-sector overlap  
       else if ( result.phiSector_a != result.phiSector_b ) {
+        ATH_MSG_VERBOSE( " check phiSector result ");
 	if ( result.deltaTheta > 0.300 ) {
+          ATH_MSG_VERBOSE( " check phiSector reject ");
 	  return false;
 	} else {
 	  return true;
@@ -413,6 +418,7 @@ namespace Muon {
       // Barrel inner to middle station 
       else if ( station_a == MuonStationIndex::BI &&
 		station_b == MuonStationIndex::BM ) {
+        ATH_MSG_VERBOSE( " check BI BM result ");
 	if ( result.phiSector_a%2==0) {
 	  if ( result.deltaTheta > 6.67*m_matchingbibm_sphisec ) {
 	    return false;
@@ -431,6 +437,7 @@ namespace Muon {
       // Barrel inner to outer station 
       else if ( station_a == MuonStationIndex::BI &&
 		station_b == MuonStationIndex::BO ) {
+        ATH_MSG_VERBOSE( " check BI BO result ");
 	if ( result.phiSector_a%2==0) {
 	  if ( result.deltaTheta > 6.67*m_matchingbibo_sphisec ) {
 	    return false;
@@ -449,6 +456,7 @@ namespace Muon {
       
       // Barrel middle to outer station 
       else if ( station_a == MuonStationIndex::BM && station_b == MuonStationIndex::BO ) {
+        ATH_MSG_VERBOSE( " check BM BO result ");
 	if ( result.phiSector_a%2==0) {
 	  if ( result.deltaTheta > 6.67*m_matchingbmbo_sphisec ) {
 	    return false;
@@ -467,8 +475,10 @@ namespace Muon {
       // Endcap inner to middle station 
       else if ( station_a == MuonStationIndex::EI &&
 		(station_b == MuonStationIndex::EM ) ) {
+        ATH_MSG_VERBOSE( " check EI EM result ");
 	if ( result.phiSector_a%2==0) {
 	  if ( result.deltaTheta > 6.67*m_matchingeiem_sphisec ) {
+            ATH_MSG_VERBOSE( " reject EI EM S result ");
 	    return false;
 	  } else {
 	    return endcapExtrapolationMatch(seg1,seg2,useTightCuts);
@@ -476,6 +486,7 @@ namespace Muon {
 	}
 	else if ( result.phiSector_a%2==1) {
 	  if ( result.deltaTheta > 6.67*m_matchingeiem_lphisec ) {
+            ATH_MSG_VERBOSE( " reject EI EM L result ");
 	    return false;
 	  } else {
 	    return endcapExtrapolationMatch(seg1,seg2,useTightCuts);
@@ -485,8 +496,10 @@ namespace Muon {
      // Endcap inner to outer station 
       else if ( station_a == MuonStationIndex::EI &&
 		(station_b == MuonStationIndex::EO) ) {
+        ATH_MSG_VERBOSE( " check EI EO result ");
 	if ( result.phiSector_a%2==0) {
 	  if ( result.deltaTheta > 6.67*m_matchingeieo_sphisec ) {
+            ATH_MSG_VERBOSE( " reject EI EO S result ");
 	    return false;
 	  } else {
 	    return endcapExtrapolationMatch(seg1,seg2,useTightCuts);
@@ -494,6 +507,7 @@ namespace Muon {
 	}
 	else if ( result.phiSector_a%2==1) {
 	  if ( result.deltaTheta > 6.67*m_matchingeieo_lphisec ) {
+            ATH_MSG_VERBOSE( " reject EI EO L result ");
 	    return false;
 	  } else {
 	    return endcapExtrapolationMatch(seg1,seg2,useTightCuts);
@@ -503,6 +517,7 @@ namespace Muon {
       // Endcap middle to outer station 
       else if ( station_a == MuonStationIndex::EM && station_b == MuonStationIndex::EO ) {
 	// 5 mrad
+        ATH_MSG_VERBOSE( " check EM EO result ");
 	if ( result.phiSector_a%2==0) {
 	  if ( result.deltaTheta > 6.67*m_matchingemeo_sphisec ) {
 	    return false;
@@ -522,7 +537,8 @@ namespace Muon {
       return true;
     }
     
-    
+    ATH_MSG_VERBOSE( " check further matching result ");
+
     // Second: tight selection if only if requested
     if( m_onlySameSectorIfTight && result.phiSector_a != result.phiSector_b ){
       ATH_MSG_VERBOSE(" rejection pair as in different sector and using tight cuts");
@@ -699,7 +715,6 @@ namespace Muon {
     bool isEndcap_b   = m_idHelperTool->isEndcap( result.chid_b );
        
     if ( m_dumpAngles ) {
-	 
       std::cout << "SegmentPositionChange Phi"
 		<< " " << m_idHelperTool->chamberNameString(result.chid_a)
 		<< " " << m_idHelperTool->chamberNameString(result.chid_b)
@@ -712,7 +727,7 @@ namespace Muon {
 		<< " shorttube_a " << result.shorttube_a
 		<< " shorttube_b " << result.shorttube_b
 		<< std::endl;
-      return true; // to get the maximum statistics and not be hindered by current cuts
+//      return true; // to get the maximum statistics and not be hindered by current cuts
     }    
   
     //Keep segments only if they are in the same or adjacent phi sectors
@@ -817,7 +832,8 @@ namespace Muon {
 	  }
 	  if ( station_a == MuonStationIndex::EI &&
 	       station_b == MuonStationIndex::EM ) {
-	    if(result.shorttube_a > 3500){
+// MM or STGC have result.shorttube = 99999.
+	    if(result.shorttube_a > 3500 && result.shorttube_a != 99999.){
 	      return false;
 	    } else {
 	      return true;
@@ -825,7 +841,7 @@ namespace Muon {
 	  }
 	  if ( station_a == MuonStationIndex::EI &&
 	       station_b == MuonStationIndex::EO ) {
-	    if(result.shorttube_a > 3500){
+	    if(result.shorttube_a > 3500 && result.shorttube_a != 99999.){
 	      return false;
 	    } else {
 	      return true;
@@ -975,7 +991,7 @@ namespace Muon {
 	  }
 	  if ( station_a == MuonStationIndex::EI &&
 	       station_b == MuonStationIndex::EM ) {
-	    if(result.shorttube_a > 3500){
+	    if(result.shorttube_a > 3500 && result.shorttube_a != 99999.){
 	      return false;
 	    } else {
 	      return true;
@@ -983,7 +999,7 @@ namespace Muon {
 	  }
 	  if ( station_a == MuonStationIndex::EI &&
 	       station_b == MuonStationIndex::EO ) {
-	    if(result.shorttube_a > 3500){
+	    if(result.shorttube_a > 3500 && result.shorttube_a != 99999.){
 	      return false;
 	    } else {
 	      return true;

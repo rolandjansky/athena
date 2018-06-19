@@ -12,7 +12,6 @@
 ////////////////////////////////////////////////////////////////////////////////////
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 
 // MuonDetDesc
 #include "MuonReadoutGeometry/MuonDetectorManager.h"

@@ -840,133 +840,125 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
   re = m_newRfi_Sorted.end();
 
   std::vector<bypass_struct> tmp_prod_bypass;
+  std::vector<const Trk::SpacePoint *> vrp;
+  std::vector<double> rk;
+  std::vector<long> geo_info;
+  std::vector<double> zSP;
   tmp_prod_bypass.reserve(spcount);
-  Trk::SpacePoint const**vrp = new Trk::SpacePoint const*[spcount]{};
-  double *rk = new double[spcount]{};
-  long *geo_info = new long[spcount]{};
-  double *zSP = new double[spcount]{};
+  vrp.reserve(spcount);
+  rk.reserve(spcount);
+  geo_info.reserve(spcount);
+  zSP.reserve(spcount);
 
-  if (vrp != 0 && rk != 0 && geo_info != 0 && zSP != 0) {
+  // // // // // // <Fill m_prod_bypass and the local array // // // //
+  for (; r != re; r++) {
+	  const Trk::SpacePoint *vrpi = (*r).first;
 
-    // // // // // // <Fill m_prod_bypass and the local array // // // //
-    for (long i = 0; r != re; i++, r++) {
-      const Trk::SpacePoint *vrpi = (*r).first;
-
-      geo_info[i] = (*r).second;
-      vrp[i] = vrpi;
-      rk[i] = vrpi->r();
+	  geo_info.push_back((*r).second);
+	  vrp.push_back(vrpi);
+	  rk.push_back(vrpi->r());
       
-      double X = vrpi->globalPosition().x() - x0;
-      double Y = vrpi->globalPosition().y() - y0;
-      double zSPi = vrpi->globalPosition().z();
-      zSP[i] = zSPi;
-      double Z = zSPi - z0;
+	  double X = vrpi->globalPosition().x() - x0;
+	  double Y = vrpi->globalPosition().y() - y0;
+	  double zSPi = vrpi->globalPosition().z();
+	  zSP.push_back(zSPi);
+	  double Z = zSPi - z0;
 
-      double RR = X*X + Y*Y;
-      double R = sqrt(RR);
-      double invR = 1.0/R;
+	  double RR = X*X + Y*Y;
+	  double R = sqrt(RR);
+	  double invR = 1.0/R;
 
-      double a = X*invR;
-      double b = Y*invR;
-     
-      tmp_prod_bypass.push_back(bypass_struct()); 
-      tmp_prod_bypass.back().X = X;
-      tmp_prod_bypass.back().Y = Y;
-      tmp_prod_bypass.back().Z = Z;
+	  double a = X*invR;
+	  double b = Y*invR;
+
+	  tmp_prod_bypass.push_back(bypass_struct()); 
+	  tmp_prod_bypass.back().X = X;
+	  tmp_prod_bypass.back().Y = Y;
+	  tmp_prod_bypass.back().Z = Z;
       
-      tmp_prod_bypass.back().R = R;
-      tmp_prod_bypass.back().invR = invR;
+	  tmp_prod_bypass.back().R = R;
+	  tmp_prod_bypass.back().invR = invR;
 
-      tmp_prod_bypass.back().a = a;
-      tmp_prod_bypass.back().b = b;
-    }
+	  tmp_prod_bypass.back().a = a;
+	  tmp_prod_bypass.back().b = b;
+  }
 
-    // // // // // // Fill m_prod_bypass and the local array> // // // //
+  // // // // // // Fill m_prod_bypass and the local array> // // // //
     
-    ///////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////
 
-    if (m_doCosmics) { // no need to check this every time in the loop
-      for (long i = 0; i < (long)spcount; i++) {
-	SpToPair = 0;
-	const Trk::SpacePoint *up = vrp[i];
-	for (long j = i + 1; j < (long)spcount; j++) {
-	  const Trk::SpacePoint *bp = vrp[j];
-	  SpToPair = bp;
-	  m_outputListBuffer.push_back(std::make_pair(up, SpToPair));
-	}
-	if(!SpToPair) {
-	  m_outputListBuffer.push_back(std::make_pair(up, up));
-	}
-      }
-    }
-    else { // (!m_doCosmics)
-      for (long i = 0; i < (long)spcount; i++) {
-	SpToPair = 0;
-	const Trk::SpacePoint *up = vrp[i];
-	double R = rk[i];
-	if(R<m_r12min) {
-	  continue;
-	}   
-	double Z = zSP[i];
-	long geoi = geo_info[i];
-	int isBU = (geoi >> 4)-3;
-	int eleU = geoi & 15;
+  if (m_doCosmics) { // no need to check this every time in the loop
+	  for (long i = 0; i < (long)spcount; i++) {
+		  SpToPair = 0;
+		  const Trk::SpacePoint *up = vrp[i];
+		  for (long j = i + 1; j < (long)spcount; j++) {
+			  const Trk::SpacePoint *bp = vrp[j];
+			  SpToPair = bp;
+			  m_outputListBuffer.push_back(std::make_pair(up, SpToPair));
+		  }
+		  if(!SpToPair) {
+			  m_outputListBuffer.push_back(std::make_pair(up, up));
+		  }
+	  }
+  }
+  else { // (!m_doCosmics)
+	  for (long i = 0; i < (long)spcount; i++) {
+		  SpToPair = 0;
+		  const Trk::SpacePoint *up = vrp[i];
+		  double R = rk[i];
+		  if(R<m_r12min) {
+			  continue;
+		  }   
+		  double Z = zSP[i];
+		  long geoi = geo_info[i];
+		  int isBU = (geoi >> 4)-3;
+		  int eleU = geoi & 15;
     
-	for (long j = i + 1; j < (long)spcount; j++) {
-	  const Trk::SpacePoint *bp = vrp[j];
-	  double Zb = zSP[j];
-	  double Rb = rk[j];
-	  long geoj = geo_info[j];
-	  int isBB = (geoj >> 4)-3;
-	  int eleB = geoj & 15;
-	  // // // // // // // // // // // // // // // // // // // // // //
+		  for (long j = i + 1; j < (long)spcount; j++) {
+			  const Trk::SpacePoint *bp = vrp[j];
+			  double Zb = zSP[j];
+			  double Rb = rk[j];
+			  long geoj = geo_info[j];
+			  int isBB = (geoj >> 4)-3;
+			  int eleB = geoj & 15;
+			  // // // // // // // // // // // // // // // // // // // // // //
 	
-	  // Equivalent to  {
-	  // if ((isBU == 0) && (isBB != isBU)) continue;
-	  // if((isBU == isBB) && (eleU <= eleB)) continue;
-	  // }
-	  // Rather cryptic but 2 to 3 times faster 
-	  // than the 4 branches above...
+			  // Equivalent to  {
+			  // if ((isBU == 0) && (isBB != isBU)) continue;
+			  // if((isBU == isBB) && (eleU <= eleB)) continue;
+			  // }
+			  // Rather cryptic but 2 to 3 times faster 
+			  // than the 4 branches above...
 
-	  int Bd = (isBU - isBB) | (isBB - isBU);
-	  int Ed = (eleB - eleU);
-	  int BUzero = (isBU | -isBU);
-	  if (((BUzero | ~Bd) & (Bd | Ed) & (((unsigned)(-1) >> 1) + 1))
-	      == 0) {
-	    continue;
-	  }	
+			  int Bd = (isBU - isBB) | (isBB - isBU);
+			  int Ed = (eleB - eleU);
+			  int BUzero = (isBU | -isBU);
+			  if (((BUzero | ~Bd) & (Bd | Ed) & (((unsigned)(-1) >> 1) + 1))
+			      == 0) {
+				  continue;
+			  }	
 	  
-	  // // // // // // // // // // // // // // // // // // // // // //
-	  double dR = R - Rb;
-	  double dZ = Z - Zb;
-	  double dz_min = m_dzdrmin*dR;
-	  double dz_max = m_dzdrmax*dR;
-	  if (dZ < dz_min || dZ > dz_max) {
-	    continue;//Should be within the +-2.5 pseudorapidity range
+			  // // // // // // // // // // // // // // // // // // // // // //
+			  double dR = R - Rb;
+			  double dZ = Z - Zb;
+			  double dz_min = m_dzdrmin*dR;
+			  double dz_max = m_dzdrmax*dR;
+			  if (dZ < dz_min || dZ > dz_max) {
+				  continue;//Should be within the +-2.5 pseudorapidity range
+			  }
+			  if(m_fieldServiceHandle->solenoidOn()) {
+				  if(!cutTPb(tmp_invar_bypass, tmp_prod_bypass,i, j, H[2])) {
+					  continue;
+				  }
+			  }
+			  SpToPair = bp;
+			  m_outputListBuffer.push_back(std::make_pair(up, SpToPair));
+		  }
+		  if(!SpToPair) {
+			  m_outputListBuffer.push_back(std::make_pair(up, up));
+		  }
 	  }
-	  if(m_fieldServiceHandle->solenoidOn()) {
-	    if(!cutTPb(tmp_invar_bypass, tmp_prod_bypass,i, j, H[2])) {
-	      continue;
-	    }
-	  }
-	  SpToPair = bp;
-	  m_outputListBuffer.push_back(std::make_pair(up, SpToPair));
-	}
-	if(!SpToPair) {
-	  m_outputListBuffer.push_back(std::make_pair(up, up));
-	}
-      }
-    }
   }
-  else { // from  if (m_prod_bypass != 0 &&...)
-    // Not enough memory
-    // Do nothing; release the memory and return
-  }
-
-  delete []zSP;
-  delete []geo_info;
-  delete []rk;
-  delete []vrp;
 
   m_newRfi_Sorted.erase(m_newRfi_Sorted.begin(),m_newRfi_Sorted.end());
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,6 +27,7 @@
 #include "InDetRawData/InDetTimeCollection.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
+#include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
@@ -46,8 +47,7 @@ class SCTRawDataProvider : public AthAlgorithm
   SCTRawDataProvider(const std::string &name, ISvcLocator *pSvcLocator);
 
   //! Destructur
-  ~SCTRawDataProvider() {
-  }
+  ~SCTRawDataProvider() = default;
 
   //! Initialize
   virtual StatusCode initialize() override;
@@ -70,6 +70,7 @@ class SCTRawDataProvider : public AthAlgorithm
   SG::WriteHandleKey<InDetTimeCollection> m_lvl1CollectionKey;
   SG::WriteHandleKey<InDetTimeCollection> m_bcidCollectionKey;
   SG::WriteHandleKey<InDetBSErrContainer> m_bsErrContainerKey;
+  SG::WriteHandleKey<SCT_ByteStreamFractionContainer> m_bsFracContainerKey;
   SG::UpdateHandleKey<SCT_RDO_Cache> m_rdoContainerCacheKey;
 };
 

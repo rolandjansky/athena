@@ -33,7 +33,6 @@
  */
 
 class CaloIdMgrDetDescrCnv: public DetDescrConverter {
-    friend class CnvFactory<CaloIdMgrDetDescrCnv>;
 
 public:
     virtual long int   repSvcType() const;
@@ -46,7 +45,6 @@ public:
     /** class ID (used by CnvFactory) */
     static const CLID& classID();
 
-protected:
     CaloIdMgrDetDescrCnv(ISvcLocator* svcloc);
 
 private:

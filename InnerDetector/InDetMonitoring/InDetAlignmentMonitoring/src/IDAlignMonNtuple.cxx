@@ -44,8 +44,6 @@
 
 #include "VxVertex/VxContainer.h"
 
-#include "TrkToolInterfaces/IUpdator.h"
-#include "TrkExInterfaces/IPropagator.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 
 static const int s_n_maxTracks = 1500;
@@ -68,8 +66,6 @@ IDAlignMonNtuple::IDAlignMonNtuple( const std::string & type, const std::string 
    m_ntupleSvc(0),
    m_ntuple(0)
 {
-  m_iUpdator = ToolHandle<Trk::IUpdator>("Trk::KalmanUpdator");
-  m_propagator = ToolHandle<Trk::IPropagator>("Trk::RungeKuttaPropagator");
   m_truthToTrack = ToolHandle<Trk::ITruthToTrack>("Trk::TruthToTrack/InDetTruthToTrack");
   m_residualPullCalculator = ToolHandle<Trk::IResidualPullCalculator>("Trk::ResidualPullCalculator/ResidualPullCalculator");
 

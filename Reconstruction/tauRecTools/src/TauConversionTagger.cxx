@@ -59,7 +59,9 @@ TauConversionTagger::~TauConversionTagger() {
 //-----------------------------------------------------------------------------
 
 StatusCode TauConversionTagger::initialize() {
-    return StatusCode::SUCCESS;
+
+  ATH_CHECK(m_trackToVertexTool.retrieve());
+  return StatusCode::SUCCESS;
 }
 
 
@@ -76,14 +78,6 @@ StatusCode TauConversionTagger::finalize() {
 // Execution
 //-----------------------------------------------------------------------------
 StatusCode TauConversionTagger::execute(xAOD::TauJet& pTau) {
-
-  StatusCode sc;
-
-  sc = m_trackToVertexTool.retrieve();
-  if(sc.isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve TrackToVertexTool");
-    return StatusCode::FAILURE;
-  } 
 
   //2012 data reporocessing bug
   //events with no vertices had taus w/ associated tracks

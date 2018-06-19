@@ -28,8 +28,7 @@ FTKDetectorTool::FTKDetectorTool(const std::string &algname,const std::string &n
   , m_SCT_mgr( 0 )
   , m_pixelContainer( 0 )
   , m_sctContainer( 0 )
-  , m_pixelCondSummarySvc("PixelConditionsSummarySvc",name)
-  , m_sctCondSummarySvc("InDetSCT_ConditionsSummarySvc",name)
+  , m_pixelCondSummaryTool("PixelConditionsSummaryTool",this)
   , m_pixelId( 0 )
   , m_sctId( 0 )
   , m_pixelClustersName( "PixelClusters" )
@@ -52,8 +51,7 @@ FTKDetectorTool::FTKDetectorTool(const std::string &algname,const std::string &n
   declareProperty("DumpPath",                 m_dumppath);
   declareProperty("pixelClustersName",        m_pixelClustersName);
   declareProperty("SCT_ClustersName",         m_sctClustersName);
-  declareProperty("PixelSummarySvc" ,         m_pixelCondSummarySvc);
-  declareProperty("SctSummarySvc" ,           m_sctCondSummarySvc);
+  declareProperty("PixelSummaryTool" ,         m_pixelCondSummaryTool);
   declareProperty("FTK_BadModuleMapPath" ,    m_FTK_BadModuleMapPath );
   declareProperty("ATLAS_BadModuleMapPath" ,  m_ATLAS_BadModuleMapPath );
   declareProperty("pmap_path",                m_pmap_path);
@@ -97,12 +95,12 @@ StatusCode FTKDetectorTool::initialize()
     m_log << MSG::ERROR << "Unable to retrieve SCT helper from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
-  if ( m_pixelCondSummarySvc.retrieve().isFailure() ) {
-    m_log << MSG::FATAL << "Failed to retrieve tool " << m_pixelCondSummarySvc << endmsg;
+  if ( m_pixelCondSummaryTool.retrieve().isFailure() ) {
+    m_log << MSG::FATAL << "Failed to retrieve tool " << m_pixelCondSummaryTool << endmsg;
     return StatusCode::FAILURE;
   }
-  if ( m_sctCondSummarySvc.retrieve().isFailure() ) {
-    m_log << MSG::FATAL << "Failed to retrieve tool " << m_sctCondSummarySvc << endmsg;
+  if ( m_sctCondSummaryTool.retrieve().isFailure() ) {
+    m_log << MSG::FATAL << "Failed to retrieve tool " << m_sctCondSummaryTool << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -151,7 +149,7 @@ void FTKDetectorTool::makeBadModuleMap(){
     const InDetDD::SiDetectorElement* sielement( *i );
     Identifier id = sielement->identify();
     IdentifierHash idhash = sielement->identifyHash();
-    bool is_bad = !(m_pixelCondSummarySvc->isGood( idhash ));
+    bool is_bad = !(m_pixelCondSummaryTool->isGood( idhash ));
     if(m_dumpAllModules) is_bad =true;
     if(is_bad){
       FTKRawHit tmpmodraw;
@@ -176,7 +174,7 @@ void FTKDetectorTool::makeBadModuleMap(){
     const InDetDD::SiDetectorElement* sielement( *i );
     Identifier id = sielement->identify();
     IdentifierHash idhash = sielement->identifyHash();
-    bool is_bad = !(m_sctCondSummarySvc->isGood( idhash ));
+    bool is_bad = !(m_sctCondSummaryTool->isGood( idhash ));
     if(m_dumpAllModules) is_bad =true;
     if(is_bad){
       FTKRawHit tmpmodraw;
@@ -229,7 +227,7 @@ void FTKDetectorTool::dumpDeadModuleSummary()
     const InDetDD::SiDetectorElement* sielement( *i );
     Identifier id = sielement->identify();
     IdentifierHash idhash = sielement->identifyHash();
-    bool is_bad = !(m_pixelCondSummarySvc->isGood( idhash ));
+    bool is_bad = !(m_pixelCondSummaryTool->isGood( idhash ));
     if(m_dumpAllModules) is_bad =true;
     if(is_bad){
 
@@ -248,7 +246,7 @@ void FTKDetectorTool::dumpDeadModuleSummary()
     const InDetDD::SiDetectorElement* sielement( *i );
     Identifier id = sielement->identify();
     IdentifierHash idhash = sielement->identifyHash();
-    bool is_bad = !(m_sctCondSummarySvc->isGood( idhash ));
+    bool is_bad = !(m_sctCondSummaryTool->isGood( idhash ));
     if(m_dumpAllModules) is_bad =true;
     if(is_bad){
       mapfile_ATLAS_BadModuleMap  << "B\t"
@@ -438,7 +436,7 @@ void FTKDetectorTool::dumpIDMap()
     const InDetDD::SiDetectorElement* sielement( *i );
     Identifier id = sielement->identify();
     IdentifierHash idhash = sielement->identifyHash();
-    const bool is_bad = !(m_pixelCondSummarySvc->isGood( idhash ));
+    const bool is_bad = !(m_pixelCondSummaryTool->isGood( idhash ));
 
     mapfile << ftk::PIXEL << "\t" << 0 << "\t";
     mapfile << m_pixelId->barrel_ec(id) << "\t";
@@ -462,7 +460,7 @@ void FTKDetectorTool::dumpIDMap()
     const InDetDD::SiDetectorElement* sielement( *i );
     Identifier id = sielement->identify();
     IdentifierHash idhash = sielement->identifyHash();
-    const bool is_bad = !(m_sctCondSummarySvc->isGood( idhash ));
+    const bool is_bad = !(m_sctCondSummaryTool->isGood( idhash ));
 
     mapfile << ftk::SCT << "\t" << (sielement->isStereo() ? 1 : 0) << "\t";
     mapfile << m_sctId->barrel_ec(id) << "\t";
@@ -610,7 +608,7 @@ void FTKDetectorTool::dumpModulePositions() {
          z[1]=sielement->zMax();
          phi[0]=sielement->phiMin();
          phi[1]=sielement->phiMax();
-         isbad=m_sctCondSummarySvc->isGood( idhash ) ? 0 : 1;
+         isbad=m_sctCondSummaryTool->isGood( idhash ) ? 0 : 1;
          t->Fill();
       }
    }

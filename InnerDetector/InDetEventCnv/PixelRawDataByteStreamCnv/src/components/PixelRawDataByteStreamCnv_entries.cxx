@@ -1,5 +1,5 @@
 #include "../PixelRawContByteStreamCnv.h"
-DECLARE_CONVERTER_FACTORY( PixelRawContByteStreamCnv )
+DECLARE_CONVERTER( PixelRawContByteStreamCnv )
 
 #include "../PixelRawContByteStreamTool.h"
 DECLARE_COMPONENT( PixelRawContByteStreamTool )

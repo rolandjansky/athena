@@ -34,6 +34,7 @@ class eflowDepthCalculator {
     EME1, EME2, EME3, EME_back,
     HEC1, HEC2, HEC3, HEC4, HEC_back,
     Tile1, TileGap12, Tile2, TileGap23, Tile3, Tile_back,
+    FCAL0, FCAL1, FCAL2,
     Unknown=999
   };
 
@@ -44,11 +45,13 @@ class eflowDepthCalculator {
   static const double m_LArGap;
   static const double m_preEMEat19eta;
   static const double m_preHEC;
+  static const double m_preFCAL;
   static const double m_tileGapAt1eta;
   static const double m_inclusivePreTileExt;
   
   static const double m_EMBlambdaPerUnitLength;
   static const double m_tileLambdaPerUnitLength;
+  static const double m_fcalLambdaPerUnitLength[3];
   
   static const double m_EMBlayerR[4];
   static const double m_EMBzMin;
@@ -61,6 +64,10 @@ class eflowDepthCalculator {
   static const double m_HECrMin;
   static const double m_HECrMax;
   static const double m_HEClayerZ[5];
+
+  static const double m_FCALrMin;
+  static const double m_FCALrMax;
+  static const double m_FCALlayerZ[4];
   
   static const double m_tileBarLayerR[4];
   static const double m_tileBarZmin;
@@ -84,7 +91,7 @@ class eflowDepthCalculator {
 
   double lengthThroughBox(double theta, double zMin, double zMax, double rMin, double rMax) const;
   
-  static const int m_nDepth = Tile_back;  // number of region bounds
+  static const int m_nDepth = FCAL2;//Tile_back;  // number of region bounds
   static const DEPTHLAYER m_layerDepthMap[eflowCalo::nRegions];
 
   double m_layerDepth[m_nDepth+1];

@@ -20,7 +20,7 @@
 
 // =============================================================
 EMClusterTool::EMClusterTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  egammaBaseTool(type, name, parent), 
+  AthAlgTool(type, name, parent),
   m_doTopoSeededContainer(false)
 {
   declareInterface<IEMClusterTool>(this);

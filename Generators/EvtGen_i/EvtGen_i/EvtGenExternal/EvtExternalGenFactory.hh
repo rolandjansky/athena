@@ -58,8 +58,8 @@ private:
 
   EvtExternalGenFactory(const EvtExternalGenFactory&) {};
 
-  ExtGenMap _extGenMap;
-  ExtGenCommandMap _extGenCommandMap;
+  ExtGenMap m_extGenMap;
+  ExtGenCommandMap m_extGenCommandMap;
 
 };
 

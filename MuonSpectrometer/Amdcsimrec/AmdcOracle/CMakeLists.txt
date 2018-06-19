@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
                           PRIVATE
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           MuonSpectrometer/Amdcsimrec/AmdcDb )
 
 # External dependencies:

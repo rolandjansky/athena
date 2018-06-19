@@ -21,6 +21,7 @@
 #include "InDetGlobalTopBottomMonTool.h"
 //Framework
 #include "GaudiKernel/StatusCode.h"
+#include "StoreGate/ReadHandleKey.h"
 //Standard c++
 #include <string>
 //Root 
@@ -91,23 +92,37 @@ InDetGlobalTopBottomMonTool::InDetGlobalTopBottomMonTool(
      m_Bottom_dphi(),
      m_Bottom_dd0(),
      m_Bottom_dz0(),
-     m_sct_tracks_up(0),
-     m_trt_tracks_up(0),
-     m_pix_tracks_up(0),
-     m_combined_tracks_up(0),
-     m_sct_tracks_low(0),
-     m_trt_tracks_low(0),
-     m_pix_tracks_low(0),
-     m_combined_tracks_low(0),
      m_doTopBottom(false)
 {
-    declareProperty("SCTTrackName",         m_SCTTracksName);
-    declareProperty("TRTTrackName",         m_TRTTracksName);
-    declareProperty("PixelTrackName",       m_PIXTracksName);
+    declareProperty("SCTTrackName",         m_SCTTracksName="ResolvedSCTTracks");
+    declareProperty("TRTTrackName",         m_TRTTracksName="StandaloneTRTTracks");
+    declareProperty("PixelTrackName",       m_PIXTracksName="ResolvedPixelTracks");
     declareProperty("CombinedTrackName",    m_CombinedTracksName="CombinedInDetTracks");
-    declareProperty("TRT_DriftCircleName",  m_TRT_DriftCircleName);
     declareProperty("doTopBottom",          m_doTopBottom);
     declareProperty("Detector", m_detector); 
+}
+
+
+StatusCode InDetGlobalTopBottomMonTool::initialize() {
+    m_sctTracksUpKey = m_SCTTracksName + "Up";
+    m_sctTracksLowKey = m_SCTTracksName + "Low";
+    m_trtTracksUpKey = m_TRTTracksName + "Up";
+    m_trtTracksLowKey = m_TRTTracksName + "Low";
+    m_pixTracksUpKey = m_PIXTracksName + "Up";
+    m_pixTracksLowKey = m_PIXTracksName + "Low";
+    m_combinedTracksUpKey = m_CombinedTracksName + "Up";
+    m_combinedTracksLowKey = m_CombinedTracksName + "Low";
+
+    ATH_CHECK( m_sctTracksUpKey.initialize(m_detector == "sct") );
+    ATH_CHECK( m_sctTracksLowKey.initialize(m_detector == "sct") );
+    ATH_CHECK( m_trtTracksUpKey.initialize(m_detector == "trt") );
+    ATH_CHECK( m_trtTracksLowKey.initialize(m_detector == "trt") );
+    ATH_CHECK( m_pixTracksUpKey.initialize(m_detector == "pixel") );
+    ATH_CHECK( m_pixTracksLowKey.initialize(m_detector == "pixel") );
+    ATH_CHECK( m_combinedTracksUpKey.initialize(m_detector == "ID") );
+    ATH_CHECK( m_combinedTracksLowKey.initialize(m_detector == "ID") );
+
+    return StatusCode::SUCCESS;
 }
 
 
@@ -255,139 +270,107 @@ StatusCode InDetGlobalTopBottomMonTool::fillHistograms()
 {
 	
 	
-	StatusCode sc;
-	
-		if ( evtStore()->contains<TrackCollection>(m_SCTTracksName+"Up") ) {
-			sc=evtStore()->retrieve(m_sct_tracks_up,m_SCTTracksName+"Up");
-			if ( msgLvl(MSG::DEBUG) ) {
-				if (sc.isFailure()) {
-					msg(MSG::DEBUG) 
-					<<"No SCT segments in StoreGate " <<endmsg;
-				} else {
-					msg(MSG::DEBUG) <<"found SCT segments in StoreGate "  
-					<<m_SCTTracksName<<"Up "
-					<<m_sct_tracks_up->size()<<endmsg;
-				}
-			}
-		}
-		
-		if ( evtStore()->contains<TrackCollection>(m_SCTTracksName+"Low") ) {
-			sc = evtStore()->retrieve(m_sct_tracks_low, m_SCTTracksName+"Low");
-			if ( msgLvl(MSG::DEBUG) ) {
-				if ( sc.isFailure()) {
-					msg(MSG::DEBUG)
-					<<"No SCT segments in StoreGate " <<endmsg;
-				} else {
-					msg(MSG::DEBUG) <<"found SCT segments in StoreGate "  
-					<<m_SCTTracksName<<"Low "
-					<<m_sct_tracks_low->size()<<endmsg;
-				}
-			}
-		}
-		
-		if ( evtStore()->contains<TrackCollection>(m_PIXTracksName+"Up") ) {
-			sc = evtStore()->retrieve(m_pix_tracks_up, m_PIXTracksName+"Up");
-			if ( msgLvl(MSG::DEBUG) ) {
-				if ( sc.isFailure()) {
-					msg(MSG::DEBUG) 
-					<<"No PIX segments in StoreGate " <<endmsg;
-				} else {
-					msg(MSG::DEBUG) <<"found PIX segments in StoreGate "  
-					<<m_PIXTracksName<<"Up "
-					<<m_pix_tracks_up->size()<<endmsg;
-				}
-			}
-		}
-		if ( evtStore()->contains<TrackCollection>(m_PIXTracksName+"Low")) {
-			sc = evtStore()->retrieve(m_pix_tracks_low, m_PIXTracksName+"Low");
-			if  ( msgLvl(MSG::DEBUG) ) {
-				if ( sc.isFailure()) {
-					msg(MSG::DEBUG) 
-					<<"No PIX segments in StoreGate " <<endmsg;
-				} else {
-					msg(MSG::DEBUG) << "found PIX segments in StoreGate"
-					<< m_PIXTracksName<<"Low "
-					<< m_pix_tracks_low->size()<<endmsg; 
-				}
-			}
-		}
-		
-		if ( evtStore()->contains<TrackCollection>(m_TRTTracksName+"Up") ) {
-			sc = evtStore()->retrieve(m_trt_tracks_up, m_TRTTracksName+"Up");
-			if ( msgLvl(MSG::DEBUG) ) {
-				if ( sc.isFailure()) {
-					msg(MSG::DEBUG) <<"No TRT segments in StoreGate "
-					<<m_TRTTracksName<<"Up"<<endmsg;
-				} else {
-					msg(MSG::DEBUG) <<"found TRT segments in StoreGate "
-					<<m_TRTTracksName<<"Up "<<m_trt_tracks_up->size()
-					<<endmsg;
-				}
-			}
-		}
-		
-		if ( evtStore()->contains<TrackCollection>(m_TRTTracksName+"Low") ) {
-			sc = evtStore()->retrieve(m_trt_tracks_low, m_TRTTracksName+"Low");
-			if ( msgLvl(MSG::DEBUG) ) {
-				if ( sc.isFailure()) {
-					msg(MSG::DEBUG) <<"No TRT segments in StoreGate "
-					<<m_TRTTracksName<<"Low"<<endmsg;
-				} else {
-					msg(MSG::DEBUG)   <<"found TRT segments in StoreGate "
-					<<m_TRTTracksName<<"Low "
-					<<m_trt_tracks_low->size()<<endmsg;
-				}
-			}
-		}
-		
-		if (evtStore()->contains<TrackCollection>(m_CombinedTracksName+"Up")){
-			sc = evtStore()->retrieve(m_combined_tracks_up, m_CombinedTracksName+"Up");
-			if  ( msgLvl(MSG::DEBUG) ) {
-				if ( sc.isFailure()) { 
-					msg(MSG::DEBUG) <<"No combined tracks in StoreGate   "
-					<<m_CombinedTracksName<<"Up"<<endmsg;
-				} else {
-					msg(MSG::DEBUG) <<"found combined tracks in StoreGate "
-					<<m_CombinedTracksName<<"Up"<<" "
-					<<m_combined_tracks_up->size()<<endmsg;
-				}
-			}
-		}
-		
-		if(evtStore()->contains<TrackCollection>(m_CombinedTracksName+"Low")){
-			sc = evtStore()->retrieve(m_combined_tracks_low, m_CombinedTracksName+"Low");
-			if ( msgLvl(MSG::DEBUG) ) {
-				if ( sc.isFailure()) {
-					msg(MSG::DEBUG) <<"No combined tracks in StoreGate "
-					<<m_CombinedTracksName+"Low"<<endmsg;
-				} else {
-					msg(MSG::DEBUG) <<"found combined tracks in StoreGate "
-					<<m_CombinedTracksName+"Low"<<" "
-					<<m_combined_tracks_low->size()<<endmsg;
-				}
-			}
-		}
-	 
-	
-	
-	
-    if (m_detector == "sct") { 
-	m_tracks_top=m_sct_tracks_up; 
-	m_tracks_bottom=m_sct_tracks_low;      
-    } else if (m_detector == "trt") { 
-	m_tracks_top=m_trt_tracks_up; 
-	m_tracks_bottom=m_trt_tracks_low;      
-    } else if (m_detector == "pixel") {
-	m_tracks_top=m_pix_tracks_up; 
-	m_tracks_bottom=m_pix_tracks_low;    
-    } else if (m_detector == "ID" ) { 
-	m_tracks_top=m_combined_tracks_up; 
-	m_tracks_bottom=m_combined_tracks_low; 
-    } else { 
-	m_tracks_top=0; 
-	m_tracks_bottom=0; 
+  StatusCode sc;
+
+  if (m_detector == "sct") { 
+    
+    SG::ReadHandle<TrackCollection> sctTracksUp(m_sctTracksUpKey);
+    if (!sctTracksUp.isValid()) {
+      ATH_MSG_DEBUG("No SCT segments in StoreGate ");
+      return StatusCode::SUCCESS;
+    } else {
+      ATH_MSG_ERROR("found SCT segments in StoreGate " <<
+		    m_sctTracksUpKey.key() << " " << sctTracksUp->size());
     }
- 
+    
+    SG::ReadHandle<TrackCollection> sctTracksLow(m_sctTracksLowKey);
+    if (!sctTracksLow.isValid()) {
+      ATH_MSG_DEBUG("No SCT segments in StoreGate ");
+      return StatusCode::SUCCESS;
+    } else {
+      ATH_MSG_DEBUG("found SCT segments in StoreGate " <<
+		    m_sctTracksLowKey.key() << " " << sctTracksLow->size());
+    }
+    
+    m_tracks_top = sctTracksUp.get();
+    m_tracks_bottom = sctTracksLow.get();
+    
+  }
+  
+  else if (m_detector == "pixel") { 
+
+  SG::ReadHandle<TrackCollection> pixTracksUp(m_pixTracksUpKey);
+  if (!pixTracksUp.isValid()) {
+    ATH_MSG_DEBUG("No PIX segments in StoreGate ");
+    return StatusCode::SUCCESS;
+  } else {
+    ATH_MSG_DEBUG("found PIX segments in StoreGate " <<
+		  m_pixTracksUpKey.key() << " " << pixTracksUp->size());
+  }
+  
+  SG::ReadHandle<TrackCollection> pixTracksLow(m_pixTracksLowKey);
+  if (!pixTracksLow.isValid()) {
+    ATH_MSG_DEBUG("No PIX segments in StoreGate ");
+    return StatusCode::SUCCESS;
+  } else {
+    ATH_MSG_DEBUG("found PIX segments in StoreGate " <<
+		  m_pixTracksLowKey.key() << " " << pixTracksLow->size());
+  }
+  
+  m_tracks_top = pixTracksUp.get();
+  m_tracks_bottom = pixTracksLow.get();
+  
+  }
+
+  else if(m_detector=="trt"){  
+
+  SG::ReadHandle<TrackCollection> trtTracksUp(m_trtTracksUpKey);
+  if (!trtTracksUp.isValid()) {
+    ATH_MSG_DEBUG("No TRT segments in StoreGate ");
+    return StatusCode::SUCCESS;
+  } else {
+    ATH_MSG_DEBUG("found TRT segments in StoreGate " <<
+		  m_trtTracksUpKey.key() << " " << trtTracksUp->size());
+  }
+  
+  SG::ReadHandle<TrackCollection> trtTracksLow(m_trtTracksLowKey);
+  if (!trtTracksLow.isValid()) {
+    ATH_MSG_DEBUG("No TRT segments in StoreGate ");
+    return StatusCode::SUCCESS;
+  } else {
+    ATH_MSG_DEBUG("found TRT segments in StoreGate " <<
+		  m_trtTracksLowKey.key() << " " << trtTracksLow->size());
+  }
+  
+  
+  m_tracks_top = trtTracksUp.get();
+  m_tracks_bottom = trtTracksLow.get();
+
+  }
+
+  else{
+
+  SG::ReadHandle<TrackCollection> combinedTracksUp(m_combinedTracksUpKey);
+  if (!combinedTracksUp.isValid()) {
+    ATH_MSG_DEBUG("No combined segments in StoreGate ");
+    if(m_detector=="ID") return StatusCode::SUCCESS;
+  } else {
+    ATH_MSG_DEBUG("found combined segments in StoreGate " <<
+		  m_combinedTracksUpKey.key() << " " << combinedTracksUp->size());
+  }
+  
+  SG::ReadHandle<TrackCollection> combinedTracksLow(m_combinedTracksLowKey);
+  if (!combinedTracksLow.isValid()) {
+    ATH_MSG_DEBUG("No combined segments in StoreGate ");
+    if(m_detector=="ID") return StatusCode::SUCCESS;
+  } else {
+    ATH_MSG_DEBUG("found combined segments in StoreGate " <<
+		  m_combinedTracksLowKey.key() << " " << combinedTracksLow->size());
+  }
+  m_tracks_top = 0; 
+  m_tracks_bottom = 0; 
+  }
+  
     //------------ Loop over bottom segments ------------------
   
     unsigned int nBottomTracks=0;

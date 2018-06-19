@@ -33,13 +33,13 @@ private:
   bool m_bit16;
   bool m_error_bit17;
   bool m_bit18;
-  std::vector<uint32_t> ToT;
+  std::vector<uint32_t> m_ToT;
 
-  static const uint16_t headerPos = 28;
-  static const uint16_t headerBits = 0xf;
-  static const uint16_t BOTvalue = 0xa;
-  static const uint16_t EOTvalue = 0xc;
-  static const uint16_t TSMvalue = 0x3;
+  static const uint16_t HEADERPOS = 28;
+  static const uint16_t HEADERBITS = 0xf;
+  static const uint16_t BOTVALUE = 0xa;
+  static const uint16_t EOTVALUE = 0xc;
+  static const uint16_t TSMVALUE = 0x3;
 
 public:
   AFP_RawDataReadOut();
@@ -47,11 +47,11 @@ public:
 
   void decodeWord(uint32_t dataWord);
 
-  bool is_BOT() { return (m_wordHeader == BOTvalue); };
+  bool is_BOT() { return (m_wordHeader == BOTVALUE); };
 
-  bool is_EOT() { return (m_wordHeader == EOTvalue); };
+  bool is_EOT() { return (m_wordHeader == EOTVALUE); };
 
-  bool is_TDCt() { return (m_wordHeader == TSMvalue); };
+  bool is_TDCt() { return (m_wordHeader == TSMVALUE); };
 
   uint16_t Column() { return m_Column; }
   uint16_t SlotId() { return m_SlotId; }
@@ -72,7 +72,7 @@ public:
   uint16_t bit26_27() { return m_bit26_27; }
   uint16_t bit24_27() { return m_bit24_27; }
 
-  std::vector<uint32_t> HitChan() const { return ToT; }
+  std::vector<uint32_t> HitChan() const { return m_ToT; }
 
 private:
   void setZero();

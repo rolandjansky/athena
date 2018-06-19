@@ -156,7 +156,7 @@ class TileMuonFillerTool:public D3PD::BlockFillerTool<xAOD::Muon>{
         float *m_Tile_cone40;
 
         // MONTE CARLO TRUTH VARIABLES
-        StatusCode truthRetrieved;
+        StatusCode m_truthRetrieved;
         float *m_truth_deltaR;
         float *m_truth_vtxX;
         float *m_truth_vtxY;

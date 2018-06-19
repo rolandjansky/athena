@@ -27,13 +27,13 @@ class fReadDavix : public fRead
 
  private:
   int  m_pfd; // current file, used as bool to check if file is open
-  int64_t fOffset;
-  Davix::Context c;
-  Davix::RequestParams *davixParam;
-  Davix::DavixError* err;
-  Davix::DavPosix *pos;
-  Davix::X509Credential *cert;
-  DAVIX_FD* fd; // davix pointer to current file
+  int64_t m_offset;
+  Davix::Context m_c;
+  Davix::RequestParams *m_davixParam;
+  Davix::DavixError* m_err;
+  Davix::DavPosix *m_pos;
+  Davix::X509Credential *m_cert;
+  DAVIX_FD* m_fd; // davix pointer to current file
 
 };
 

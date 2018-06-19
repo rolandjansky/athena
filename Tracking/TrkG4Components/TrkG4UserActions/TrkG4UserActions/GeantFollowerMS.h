@@ -12,8 +12,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
-#include <string>
-#include <vector>
 
 #include "G4UserEventAction.hh"
 #include "G4UserRunAction.hh"
@@ -29,18 +27,22 @@ namespace Trk {
   class TrackingGeometry;
 }
 
-namespace G4UA{
+namespace G4UA
+{
 
-
-  class GeantFollowerMS: public G4UserEventAction, public G4UserRunAction,  public G4UserSteppingAction
+  class GeantFollowerMS: public G4UserEventAction, public G4UserRunAction, public G4UserSteppingAction
   {
 
   public:
 
     struct Config
     {
-      ToolHandle<Trk::IGeantFollowerMSHelper>  helper=ToolHandle<Trk::IGeantFollowerMSHelper>("Trk::GeantFollowerMSHelper/GeantFollowerMSHelper");
-      ServiceHandle<Trk::ITrackingGeometrySvc> trackingGeometrySvc=ServiceHandle<Trk::ITrackingGeometrySvc>("AtlasTrackingGeometrySvc","GeantFollowerMS");
+      // FIXME: public tool handle in thread-local action!
+      // See ATLASSIM-3561.
+      ToolHandle<Trk::IGeantFollowerMSHelper> helper =
+        ToolHandle<Trk::IGeantFollowerMSHelper>("Trk::GeantFollowerMSHelper/GeantFollowerMSHelper");
+      ServiceHandle<Trk::ITrackingGeometrySvc> trackingGeometrySvc =
+        ServiceHandle<Trk::ITrackingGeometrySvc>("AtlasTrackingGeometrySvc","GeantFollowerMS");
     };
 
     GeantFollowerMS(const Config& config);
@@ -48,14 +50,18 @@ namespace G4UA{
     virtual void EndOfEventAction(const G4Event*) override;
     virtual void BeginOfRunAction(const G4Run*) override;
     virtual void UserSteppingAction(const G4Step*) override;
+
   private:
+
     Config m_config;
-    /** tracking geometry */
+
+    /** tracking geometry
+        FIXME: mutables in thread-local action! ATLASSIM-3561.
+    */
     mutable const Trk::TrackingGeometry*         m_trackingGeometry;
     mutable const Trk::IGeantFollowerMSHelper*   m_helperPointer;
 
   }; // class GeantFollowerMS
-
 
 } // namespace G4UA
 

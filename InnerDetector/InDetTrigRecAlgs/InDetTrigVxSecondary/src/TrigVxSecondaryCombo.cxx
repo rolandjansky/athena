@@ -42,7 +42,6 @@ namespace InDet {
 
   TrigVxSecondaryCombo::TrigVxSecondaryCombo(const std::string &name, ISvcLocator *pSvcLocator):
     HLT::ComboAlgo(name, pSvcLocator),
-    m_trackJetFinderTool("TrigTrackJetFinderTool",this),
     m_secVertexFinderToolsHandleArray(),
     //m_nVxCandidates(0),
     //m_nVxContainers(0),

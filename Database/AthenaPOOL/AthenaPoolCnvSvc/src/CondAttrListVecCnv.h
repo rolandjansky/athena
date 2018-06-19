@@ -26,8 +26,6 @@ template <class TYPE> class CnvFactory;
  *
  **/
 class CondAttrListVecCnv : public Converter {
-   friend class CnvFactory<CondAttrListVecCnv>;
-
 public:
    /// Destructor
    virtual ~CondAttrListVecCnv();
@@ -53,7 +51,6 @@ public:
    /// @return class ID.
    static const CLID& classID();
 
-protected:
    /// Constructor
    CondAttrListVecCnv(ISvcLocator* svcloc);
 };

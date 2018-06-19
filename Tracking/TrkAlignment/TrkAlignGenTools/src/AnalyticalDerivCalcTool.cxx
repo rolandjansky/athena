@@ -413,21 +413,19 @@ namespace Trk {
     std::vector<int> matrixIndices(nMeas);
 
     int imeas(-1);
-    std::vector<const TrackStateOnSurface *>::const_iterator tsos     = alignTrack->trackStateOnSurfaces()->begin();
-    std::vector<const TrackStateOnSurface *>::const_iterator tsos_end = alignTrack->trackStateOnSurfaces()->end();
-    for (; tsos!=tsos_end; ++tsos) {
+    for (const TrackStateOnSurface* tsos : *alignTrack->trackStateOnSurfaces()){
 
-      ATH_MSG_DEBUG("tsos:  "<<(*tsos)->dumpType());
+      ATH_MSG_DEBUG("tsos:  "<<tsos->dumpType());
 
       // get tsos and make sure it is a RIO_OnTrack
-      if ((*tsos)->type(TrackStateOnSurface::Outlier))
+      if (tsos->type(TrackStateOnSurface::Outlier))
         continue;
 
       // RIO
-      if (!(*tsos)->type(TrackStateOnSurface::Scatterer)) {
+      if (!tsos->type(TrackStateOnSurface::Scatterer)) {
         ATH_MSG_DEBUG("not scatterer, trying rio");
 
-        const MeasurementBase      * mesb = (*tsos)->measurementOnTrack();
+        const MeasurementBase      * mesb = tsos->measurementOnTrack();
         const RIO_OnTrack          * rio  = dynamic_cast<const RIO_OnTrack *>(mesb);
         const CompetingRIOsOnTrack * crio = dynamic_cast<const CompetingRIOsOnTrack *>(mesb);
         if (!rio && crio)
@@ -444,16 +442,15 @@ namespace Trk {
 
         // get matching alignTSOS and store track index in goodMatrixIndices      
         int iameas(0);
-        std::vector<AlignTSOS *>::const_iterator atsos=alignTSOSCollection->begin();
-        for (; atsos != alignTSOSCollection->end(); ++atsos) {
+        for (const AlignTSOS* atsos : *alignTSOSCollection) {
 
-          if (!(*atsos)->isValid())
+          if (!atsos->isValid())
             continue;
 
-          if ((*atsos)->type(TrackStateOnSurface::Scatterer))
+          if (atsos->type(TrackStateOnSurface::Scatterer))
             ATH_MSG_ERROR("can't use scatterers on AlignTrack yet for analytical derivatives!");
 
-          const RIO_OnTrack * atsos_rio = (*atsos)->rio();
+          const RIO_OnTrack * atsos_rio = atsos->rio();
           if (atsos_rio) {
 //            ATH_MSG_DEBUG("tsosId / atsosId  :  "<<tsosId<<" / "<<atsos_rio->identify());
 
@@ -462,7 +459,7 @@ namespace Trk {
               ATH_MSG_DEBUG("matrixIndices["<<imeas<<"]="<<iameas);
 
               // for Pixel we have two measurements
-              if ((*atsos)->nResDim()>1)
+              if (atsos->nResDim()>1)
               {
                 imeas++;
                 iameas++;
@@ -472,7 +469,7 @@ namespace Trk {
               break;
             }
             // for Pixel we have two measurements
-            else if((*atsos)->nResDim()>1)
+            else if(atsos->nResDim()>1)
               iameas++;
           }
           iameas++;
@@ -615,7 +612,7 @@ namespace Trk {
     for(int i(0); i<nAlignPar+3; ++i) derivatives[i].setZero();
 
     int imeas(0);
-    AlignTSOSCollection::const_iterator iatsos = alignTrack->firstAtsos();
+    AlignTSOSCollection::iterator iatsos = alignTrack->firstAtsos();
     for (; iatsos != alignTrack->lastAtsos(); ++iatsos) {
       
       AlignTSOS * alignTSOS = *iatsos;
@@ -848,7 +845,7 @@ namespace Trk {
     // get first AlignTSOS of the AlignTrack
     // this assumes that for unbiased or DCA residuals the scatterers
     // and energy deposits are not included in the AlignTSOSSollection
-    AlignTSOS * atsos = *(alignTrack->firstAtsos());
+    const AlignTSOS * atsos = *(alignTrack->firstAtsos());
 
     // get residual type of the first residual
     m_residualType = atsos->firstResidual()->residualType();

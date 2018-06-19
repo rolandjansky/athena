@@ -43,10 +43,10 @@ namespace Trk
     if(m_Rk[3]>M_PI) m_Rk[3]-=M_PI;
     m_pSurface=NULL;m_scattMode=0;
     m_isScattered=false;m_pPrevState=NULL;
-    m_resetCovariance();
+    resetCovariance();
   }
 
-  void TrkTrackState::m_resetCovariance()
+  void TrkTrackState::resetCovariance()
   {
     memset(m_Gk,0,sizeof(m_Gk));
     m_Gk[0][0]=100.0;m_Gk[1][1]=100.0;m_Gk[2][2]=0.01;m_Gk[3][3]=0.01;m_Gk[4][4]=1e-5;
@@ -65,7 +65,7 @@ namespace Trk
     m_isScattered=false;m_pPrevState=NULL;
   }
 
-  void TrkTrackState::m_serialize(char fileName[])
+  void TrkTrackState::serialize(char fileName[])
   {
     FILE *pFile;
     
@@ -77,14 +77,14 @@ namespace Trk
 	for(int j=0;j<5;j++)
 	  {
 	    if(j<i) fprintf(pFile,"          ");
-	    else fprintf(pFile,"%f ",m_getTrackCovariance(i,j));
+	    else fprintf(pFile,"%f ",getTrackCovariance(i,j));
 	  }
 	fprintf(pFile,"\n");
       }
     fclose(pFile);
   }
 
-  void TrkTrackState::m_report()
+  void TrkTrackState::report()
   {
     printf("STATE x0=%f y0=%f phi=%f theta=%f qOverP=%f pT=%f\n",
 	   m_Rk[0],m_Rk[1],m_Rk[2],m_Rk[3],m_Rk[4],sin(m_Rk[3])/m_Rk[4]);    
@@ -99,17 +99,17 @@ namespace Trk
       }
   }
 
-  void TrkTrackState::m_attachToSurface(TrkPlanarSurface* pS)
+  void TrkTrackState::attachToSurface(TrkPlanarSurface* pS)
   {
     m_pSurface=pS;m_isScattered=false;
   }
 
-  TrkPlanarSurface* TrkTrackState::m_getSurface()
+  TrkPlanarSurface* TrkTrackState::getSurface()
   {
     return m_pSurface;
   }
 
-  void TrkTrackState::m_updateTrackState(double* pUpd)
+  void TrkTrackState::updateTrackState(double* pUpd)
   {
     for(int i=0;i<5;i++) m_Rk[i]+=pUpd[i];
     if(m_Rk[2]>M_PI) m_Rk[2]-=2*M_PI;
@@ -118,7 +118,7 @@ namespace Trk
     if(m_Rk[3]>M_PI) m_Rk[3]-=M_PI; 
   }
 
-  void TrkTrackState::m_updateTrackCovariance(double* pUpd)
+  void TrkTrackState::updateTrackCovariance(double* pUpd)
   {
     int idx=0;
     for(int i=0;i<5;i++)
@@ -131,39 +131,39 @@ namespace Trk
       }
   }
 
-  void TrkTrackState::m_setScatteringMode(int mode)
+  void TrkTrackState::setScatteringMode(int mode)
   {
     m_scattMode=mode;
   }
 
-  int TrkTrackState::m_getScatteringMode()
+  int TrkTrackState::getScatteringMode()
   {
     return m_scattMode;
   }
-  void TrkTrackState::m_setTrackState(double R[5])
+  void TrkTrackState::setTrackState(double R[5])
   {
     for(int i=0;i<5;i++) m_Re[i]=m_Rk[i]=R[i];
   }
   
-  void TrkTrackState::m_setTrackCovariance(double G[5][5])
+  void TrkTrackState::setTrackCovariance(double G[5][5])
   {
     for(int i=0;i<5;i++) 
       for(int j=0;j<5;j++)
 	m_Ge[i][j]=m_Gk[i][j]=G[i][j];
   }
   
-  void TrkTrackState::m_setPreviousState(TrkTrackState* pTS)
+  void TrkTrackState::setPreviousState(TrkTrackState* pTS)
   {
     m_pPrevState=pTS;
   }
 
-  void TrkTrackState::m_setSmootherGain(double A[5][5])
+  void TrkTrackState::setSmootherGain(double A[5][5])
   {
     for(int i=0;i<5;i++) 
       for(int j=0;j<5;j++)
 	m_A[i][j]=A[i][j];
   }
-  void TrkTrackState::m_applyMultipleScattering()
+  void TrkTrackState::applyMultipleScattering()
   {
     double lenCorr,sigmaMS,s2,a2,radLength,lV[3],gV[3],a;
     TrkPlanarSurface* pS=m_pSurface;
@@ -171,9 +171,9 @@ namespace Trk
     gV[0]=sin(m_Re[3])*cos(m_Re[2]);
     gV[1]=sin(m_Re[3])*sin(m_Re[2]);
     gV[2]=cos(m_Re[3]);
-    pS->m_rotateVectorToLocal(gV,lV);
+    pS->rotateVectorToLocal(gV,lV);
     lenCorr=1.0/fabs(lV[2]);
-    radLength=m_pSurface->m_getRadLength()*lenCorr;
+    radLength=m_pSurface->getRadLength()*lenCorr;
     sigmaMS=13.6*fabs(m_Re[4])*sqrt(radLength)*(1.0+0.038*log(radLength));
     s2=sigmaMS*sigmaMS;a=1.0/sin(m_Rk[3]);a2=a*a;
     m_Ge[2][2]+=s2*a2;m_Ge[3][3]+=s2;m_Ge[2][3]+=s2*a;
@@ -182,7 +182,7 @@ namespace Trk
     m_Gk[3][2]=m_Ge[3][2];m_Gk[3][3]=m_Ge[3][3];
   }
   
-  void TrkTrackState::m_applyEnergyLoss(int dir)
+  void TrkTrackState::applyEnergyLoss(int dir)
   {
     double lenCorr,effLength,lV[3],gV[3];
     TrkPlanarSurface* pS=m_pSurface;
@@ -190,9 +190,9 @@ namespace Trk
     gV[0]=sin(m_Re[3])*cos(m_Re[2]);
     gV[1]=sin(m_Re[3])*sin(m_Re[2]);
     gV[2]=cos(m_Re[3]);
-    pS->m_rotateVectorToLocal(gV,lV);
+    pS->rotateVectorToLocal(gV,lV);
     lenCorr=1.0/fabs(lV[2]);
-    effLength=m_pSurface->m_getRadLength()*lenCorr;
+    effLength=m_pSurface->getRadLength()*lenCorr;
 
     if(abs(dir)==1)
       {
@@ -207,18 +207,18 @@ namespace Trk
       }
   }
 
-  void TrkTrackState::m_applyMaterialEffects()
+  void TrkTrackState::applyMaterialEffects()
   {
-    if(m_scattMode!=0) m_applyMultipleScattering();
-    if(m_scattMode==-2) m_applyEnergyLoss(-1);
-    else if(m_scattMode==2) m_applyEnergyLoss(1);
+    if(m_scattMode!=0) applyMultipleScattering();
+    if(m_scattMode==-2) applyEnergyLoss(-1);
+    else if(m_scattMode==2) applyEnergyLoss(1);
     if(m_pSurface!=NULL)
       {
-	if(m_pSurface->m_isBreakPoint()) m_applyEnergyLoss(2);
+	if(m_pSurface->isBreakPoint()) applyEnergyLoss(2);
       }
   }
 
-  void TrkTrackState::m_runSmoother()
+  void TrkTrackState::runSmoother()
   {
     double dR[5],dG[5][5],B[5][5];
     int i,j,m;

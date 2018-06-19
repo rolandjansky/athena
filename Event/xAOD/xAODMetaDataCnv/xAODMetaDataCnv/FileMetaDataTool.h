@@ -15,7 +15,7 @@
 // Infrastructure include(s):
 #include "AsgTools/AsgMetadataTool.h"
 #ifdef ASGTOOL_ATHENA
-#   include "AthenaPoolKernel/IMetaDataTool.h"
+#   include "AthenaKernel/IMetaDataTool.h"
 #endif // ASGTOOL_ATHENA
 
 // EDM include(s):
@@ -60,6 +60,9 @@ namespace xAODMaker {
 
       /// Function collecting the metadata from a new input file
       virtual StatusCode beginInputFile();
+
+      /// Function collecting the metadata from a new input file
+      virtual StatusCode endInputFile();
 
       /// Function making sure that BeginInputFile incidents are not missed
       virtual StatusCode beginEvent();

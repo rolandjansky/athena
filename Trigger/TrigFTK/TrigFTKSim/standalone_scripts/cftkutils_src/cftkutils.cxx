@@ -1479,7 +1479,7 @@ static PyObject *FTKTreeObject_PrintSummary(FTKTreeObject* self, PyObject *args)
 {
   cout << self->id << " Output dir: " << basename(PyString_AsString(self->outdir));
   if (!self->isEnabled) {
-    cout << "(disabled)" << endl;;    
+    cout << "(disabled)" << endl;
   }
   else {
     cout << endl;

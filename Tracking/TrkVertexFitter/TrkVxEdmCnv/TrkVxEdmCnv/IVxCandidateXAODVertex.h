@@ -16,10 +16,6 @@
 
 // Forward declaration
 #include "xAODTracking/Vertex.h"
-#include "xAODTracking/VertexContainer.h"
-#include "xAODTracking/VertexAuxContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODTracking/TrackParticle.h"
 namespace Trk {
   class VxCandidate;
@@ -74,25 +70,6 @@ class IVxCandidateXAODVertex
    * @param xAODVx return object, owned by the clients
    */
   virtual StatusCode createXAODVertex(const Trk::VxCandidate &vxVertex, xAOD::Vertex* &xAODVx) = 0;
-
-  /**
-   * Convert a xAOD::VertexContainer to a VxContainer
-   * @param xAODVxContainer input container of xAOD::Vertex objects
-   * @param vxContainer output container of Trk::VxCandidate objects
-   * @param vxCandidateContainerName register output to storegate if different from null string
-   */
-  virtual StatusCode createVxContainer(const xAOD::VertexContainer &xAODVxContainer, VxContainer* &vxContainer, std::string vxCandidateContainerName="") = 0;
-
-  /** Convert a VxContainer to a xAOD::VertexContainer with its own aux store.
-   * @param vxContainer input @c VxContainer object
-   * @param xAODVxContainer output @c xAOD::VertexContainer object
-   * @param xAODAuxContainer output @c xAOD::VertexAuxContainer object
-   * @param xAODContainerName output container key, will be used to store it in StoreGate if provided
-   */
-  virtual StatusCode createXAODVertexContainer(const VxContainer &vxContainer, 
-					       xAOD::VertexContainer* &xAODVxContainer, xAOD::VertexAuxContainer* &xAODVxAuxContainer, 
-					       std::string xAODContainerName="") = 0;
-
 }; 
 
 } //namespace Trk

@@ -63,6 +63,7 @@ class EvtRangeProcessor : public AthenaMPToolBase
   bool m_isPileup;        // Are we doing pile-up digitization?
   int  m_rankId;          // Each worker has its own unique RankID from the range (0,...,m_nprocs-1) 
   int  m_nEventsBeforeFork;
+  std::string m_inpFile;  // Cached name of the input file. To avoid reopening
 
   ServiceHandle<IChronoStatSvc>     m_chronoStatSvc;
   ServiceHandle<IIncidentSvc>       m_incidentSvc;

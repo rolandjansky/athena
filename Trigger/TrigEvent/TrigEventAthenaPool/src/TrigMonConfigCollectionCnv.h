@@ -21,9 +21,10 @@ class TrigMonConfigCollectionCnv
 
   friend class CnvFactory<TrigMonConfigCollectionCnv>;
 
- protected:
-  
+public:
   TrigMonConfigCollectionCnv(ISvcLocator* svcloc);
+
+ protected:
   virtual ~TrigMonConfigCollectionCnv();
 
   TrigMonConfigCollection_PERS*  createPersistent(TrigMonConfigCollection* transObj);

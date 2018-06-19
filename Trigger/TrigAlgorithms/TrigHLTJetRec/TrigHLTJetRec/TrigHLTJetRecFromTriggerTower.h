@@ -17,7 +17,7 @@ public TrigHLTJetRecBase<xAOD::TriggerTowerContainer>{
   ~TrigHLTJetRecFromTriggerTower();
 
 
-  const xAOD::JetContainer* build() const override;
+  HLT::ErrorCode build(fastjet::ClusterSequence*&, xAOD::JetContainer*&) const override;
 
 }; 
 #endif

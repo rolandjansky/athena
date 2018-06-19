@@ -16,7 +16,6 @@
 
 #include "IOVSvc/IOVSvc.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -892,13 +891,14 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
   ATH_MSG_DEBUG( " SG::Storable_cast to obj: " << v );
   
   EventIDRange r2 = range;
-  
-  if (!ccb->typelessInsert (r2, v)) {
+
+  StatusCode sc = ccb->typelessInsert (r2, v);
+  if (!sc.isSuccess()) {
     ATH_MSG_ERROR("unable to insert Object at " << v << " into CondCont " 
                   << ccb->id() << " for range " << r2 );
     return StatusCode::FAILURE;
   }
  
-  return StatusCode::SUCCESS;
+  return sc;
 
 }

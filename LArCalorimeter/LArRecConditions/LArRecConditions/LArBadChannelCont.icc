@@ -1,9 +1,8 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArRecConditions/LArBadChannelCont.h"
 
 //Constructor with payload
 template<class LArBC_t>
@@ -19,6 +18,12 @@ void LArBadXCont<LArBC_t>::add(const HWIdentifier hwid, const LArBC_t stat) {
   return;
 }
 
+template<class LArBC_t>
+void LArBadXCont<LArBC_t>::setOflVec(BadChanVec& input) {
+  m_oflCont.swap(input);
+  std::sort(m_oflCont.begin(), m_oflCont.end(), ChannelLess());
+  return;
+}
 
 //Sorting method (call before recording!) 
 template<class LArBC_t>
@@ -50,6 +55,23 @@ LArBC_t LArBadXCont<LArBC_t>::status(const HWIdentifier hwid) const {
     std::lower_bound( m_cont.begin(), m_cont.end(), BadChanEntry( channel,(LArBC_t) 0),
 		      ChannelLess());
   if (i != m_cont.end() && i->first == channel) {
+    return i->second;
+  }
+  else {
+    return LArBC_t(0);
+  }
+}
+
+//Client acess method: Check the bad-channel status by offline id
+template<class LArBC_t>
+LArBC_t LArBadXCont<LArBC_t>::offlineStatus(const Identifier id) const {
+
+  const ChanId_t channel=id.get_identifier32().get_compact();
+
+  const_iterator i = 
+    std::lower_bound( m_oflCont.begin(), m_oflCont.end(), BadChanEntry( channel,(LArBC_t) 0),
+		      ChannelLess());
+  if (i != m_oflCont.end() && i->first == channel) {
     return i->second;
   }
   else {

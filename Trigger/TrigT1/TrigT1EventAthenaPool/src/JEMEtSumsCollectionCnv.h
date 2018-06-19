@@ -24,7 +24,7 @@ typedef T_AthenaPoolCustomCnv<JEMEtSumsCollection, JEMEtSumsCollection_PERS> JEM
 class JEMEtSumsCollectionCnv: public JEMEtSumsCollectionCnvBase {
 friend class CnvFactory<JEMEtSumsCollectionCnv>;
 
-protected:
+public:
 
   JEMEtSumsCollectionCnv (ISvcLocator* svcloc) :
     JEMEtSumsCollectionCnvBase(svcloc),
@@ -32,6 +32,8 @@ protected:
     m_log( m_msgSvc, "JEMEtSumsCollectionCnv" )
      {}
   
+protected:
+
   ~JEMEtSumsCollectionCnv() {}
   
   virtual JEMEtSumsCollection_PERS*   createPersistent (JEMEtSumsCollection* transCont);

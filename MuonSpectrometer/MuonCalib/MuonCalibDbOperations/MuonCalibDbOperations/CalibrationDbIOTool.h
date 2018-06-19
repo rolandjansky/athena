@@ -63,7 +63,7 @@ class CalibrationDbIOTool : public AthAlgTool, virtual public CalibrationIOTool 
   std::string m_sitename;
   /** pointer to region selection service */
   RegionSelectionSvc *p_reg_sel_svc;
-  std::vector<MuonCalib::NtupleStationId> region_ids;
+  std::vector<MuonCalib::NtupleStationId> m_region_ids;
   /** pointer to db connection */
   CalibDbConnection * m_connection;
   CalibDbConnection * m_data_connections[2];

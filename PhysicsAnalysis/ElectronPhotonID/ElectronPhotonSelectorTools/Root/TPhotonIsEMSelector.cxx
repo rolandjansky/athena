@@ -22,12 +22,10 @@ UPDATED:
 #include <cmath>
 
 Root::TPhotonIsEMSelector::TPhotonIsEMSelector(const char* name) :
-  TSelectorToolBase(name),
   asg::AsgMessaging(std::string(name)),
-  isEMMask(0),//All will pass if not defined
-  forceConvertedPhotonPID(false),
-  forceNonConvertedPhotonPID(false),
-  m_isEM(~0),
+  m_isEMMask(0),//All will pass if not defined
+  m_forceConvertedPhotonPID(false),
+  m_forceNonConvertedPhotonPID(false),
   /** @brief cluster eta range */
   m_cutPositionClusterEtaRange_Photon(0),
   /** @brief energy fraction in the third layer */
@@ -110,26 +108,25 @@ Root::TPhotonIsEMSelector::TPhotonIsEMSelector(const char* name) :
   /** @brief tracker isolation for photon selection */
   m_cutNameTrackIsolation_Photon("TrackIsolation_Photon")
 {
-  m_isEM = 0;
-  m_cutPositionClusterEtaRange_Photon = 0;
+  m_cutPositionClusterEtaRange_Photon           = 0;
   m_cutPositionClusterBackEnergyFraction_Photon = 0;
-  m_cutPositionClusterHadronicLeakage_Photon = 0;
-  m_cutPositionClusterMiddleEnergy_Photon = 0;
-  m_cutPositionClusterMiddleEratio37_Photon = 0;
-  m_cutPositionClusterMiddleEratio33_Photon = 0;
-  m_cutPositionClusterMiddleWidth_Photon = 0;
-  m_cutPositionClusterStripsEratio_Photon = 0;
+  m_cutPositionClusterHadronicLeakage_Photon    = 0;
+  m_cutPositionClusterMiddleEnergy_Photon       = 0;
+  m_cutPositionClusterMiddleEratio37_Photon     = 0;
+  m_cutPositionClusterMiddleEratio33_Photon     = 0;
+  m_cutPositionClusterMiddleWidth_Photon        = 0;
+  m_cutPositionClusterStripsEratio_Photon       = 0;
   //m_cutPositionClusterStripsDeltaEmax2_Photon = 0;
-  m_cutPositionClusterStripsDeltaE_Photon = 0;
-  m_cutPositionClusterStripsWtot_Photon = 0;
-  m_cutPositionClusterStripsFracm_Photon = 0;
-  m_cutPositionClusterStripsWeta1c_Photon = 0;
-  m_cutPositionClusterStripsDEmaxs1_Photon = 0;
-  m_cutPositionTrackMatchEoverP_Photon = 0;
-  m_cutPositionAmbiguityResolution_Photon = 0;
-  m_cutPositionIsolation_Photon = 0;
-  m_cutPositionClusterIsolation_Photon = 0;
-  m_cutPositionTrackIsolation_Photon = 0;
+  m_cutPositionClusterStripsDeltaE_Photon       = 0;
+  m_cutPositionClusterStripsWtot_Photon         = 0;
+  m_cutPositionClusterStripsFracm_Photon        = 0;
+  m_cutPositionClusterStripsWeta1c_Photon       = 0;
+  m_cutPositionClusterStripsDEmaxs1_Photon      = 0;
+  m_cutPositionTrackMatchEoverP_Photon          = 0;
+  m_cutPositionAmbiguityResolution_Photon       = 0;
+  m_cutPositionIsolation_Photon                 = 0;
+  m_cutPositionClusterIsolation_Photon          = 0;
+  m_cutPositionTrackIsolation_Photon            = 0;
 }
 // =================================================================
 Root::TPhotonIsEMSelector::~TPhotonIsEMSelector() 
@@ -137,10 +134,10 @@ Root::TPhotonIsEMSelector::~TPhotonIsEMSelector()
 }
 
 // =================================================================
-int Root::TPhotonIsEMSelector::initialize() 
+StatusCode Root::TPhotonIsEMSelector::initialize() 
 {
 
-   int sc(1);
+   StatusCode sc(StatusCode::SUCCESS);
 
   // --------------------------------------------------------------------------
   // Register the cuts and check that the registration worked:
@@ -148,227 +145,227 @@ int Root::TPhotonIsEMSelector::initialize()
 
   /** @brief cluster eta range, bit 0*/
   m_cutPositionClusterEtaRange_Photon = 
-    m_accept.addCut(m_cutNameClusterEtaRange_Photon, "Photon within eta range");
-  if (m_cutPositionClusterEtaRange_Photon < 0) sc = 0;
+    m_acceptInfo.addCut(m_cutNameClusterEtaRange_Photon, "Photon within eta range");
+  if (m_cutPositionClusterEtaRange_Photon < 0) sc = StatusCode::FAILURE;
 
-  int voidcutpos = m_accept.addCut("VOID1", "No Cut"); // bit 1 is not used
-  if (voidcutpos < 0) sc = 0;
+  int voidcutpos = m_acceptInfo.addCut("VOID1", "No Cut"); // bit 1 is not used
+  if (voidcutpos < 0) sc = StatusCode::FAILURE;
 
-  voidcutpos = m_accept.addCut("VOID2", "No Cut"); // bit 2 is not used
-  if (voidcutpos < 0) sc = 0;
+  voidcutpos = m_acceptInfo.addCut("VOID2", "No Cut"); // bit 2 is not used
+  if (voidcutpos < 0) sc = StatusCode::FAILURE;
 
-  voidcutpos = m_accept.addCut("VOID3", "No Cut"); // bit 3 is not used
-  if (voidcutpos < 0) sc = 0;
+  voidcutpos = m_acceptInfo.addCut("VOID3", "No Cut"); // bit 3 is not used
+  if (voidcutpos < 0) sc = StatusCode::FAILURE;
 
-  voidcutpos = m_accept.addCut("VOID4", "No Cut"); // bit 4 is not used
-  if (voidcutpos < 0) sc = 0;
+  voidcutpos = m_acceptInfo.addCut("VOID4", "No Cut"); // bit 4 is not used
+  if (voidcutpos < 0) sc = StatusCode::FAILURE;
 
-  voidcutpos = m_accept.addCut("VOID5", "No Cut"); // bit 5 is not used
-  if (voidcutpos < 0) sc = 0;
+  voidcutpos = m_acceptInfo.addCut("VOID5", "No Cut"); // bit 5 is not used
+  if (voidcutpos < 0) sc = StatusCode::FAILURE;
 
-  voidcutpos = m_accept.addCut("VOID6", "No Cut"); // bit 6 is not used
-  if (voidcutpos < 0) sc = 0;
+  voidcutpos = m_acceptInfo.addCut("VOID6", "No Cut"); // bit 6 is not used
+  if (voidcutpos < 0) sc = StatusCode::FAILURE;
 
   /** @brief energy fraction in the third layer (f3), bit 7 */
   m_cutPositionClusterBackEnergyFraction_Photon = 
-    m_accept.addCut(m_cutNameClusterBackEnergyFraction_Photon, "f3 < Cut");
-  if (m_cutPositionClusterBackEnergyFraction_Photon < 0) sc = 0;
+    m_acceptInfo.addCut(m_cutNameClusterBackEnergyFraction_Photon, "f3 < Cut");
+  if (m_cutPositionClusterBackEnergyFraction_Photon < 0) sc = StatusCode::FAILURE;
   
-  voidcutpos = m_accept.addCut("VOID7", "No Cut"); // bit 8 is not used
-  if (voidcutpos < 0) sc = 0;
+  voidcutpos = m_acceptInfo.addCut("VOID7", "No Cut"); // bit 8 is not used
+  if (voidcutpos < 0) sc = StatusCode::FAILURE;
 
-  voidcutpos = m_accept.addCut("VOID8", "No Cut"); // bit 9 is not used
-  if (voidcutpos < 0) sc = 0;
+  voidcutpos = m_acceptInfo.addCut("VOID8", "No Cut"); // bit 9 is not used
+  if (voidcutpos < 0) sc = StatusCode::FAILURE;
 
   /** @brief cluster leakage into the hadronic calorimeter, bit 10 */
   m_cutPositionClusterHadronicLeakage_Photon = 
-    m_accept.addCut(m_cutNameClusterHadronicLeakage_Photon, "Had leakage < Cut");
-  if (m_cutPositionClusterHadronicLeakage_Photon < 0) sc = 0;
+    m_acceptInfo.addCut(m_cutNameClusterHadronicLeakage_Photon, "Had leakage < Cut");
+  if (m_cutPositionClusterHadronicLeakage_Photon < 0) sc = StatusCode::FAILURE;
 
   /** @brief energy in 2nd sampling (e277), bit 11 */
   m_cutPositionClusterMiddleEnergy_Photon = 
-    m_accept.addCut(m_cutNameClusterMiddleEnergy_Photon, "Energy in second sampling (E277) > Cut");
-  if (m_cutPositionClusterMiddleEnergy_Photon < 0) sc = 0;
+    m_acceptInfo.addCut(m_cutNameClusterMiddleEnergy_Photon, "Energy in second sampling (E277) > Cut");
+  if (m_cutPositionClusterMiddleEnergy_Photon < 0) sc = StatusCode::FAILURE;
 
   /** @brief energy ratio in 2nd sampling, bit 12 */
   m_cutPositionClusterMiddleEratio37_Photon = 
-    m_accept.addCut(m_cutNameClusterMiddleEratio37_Photon, "E237/E277 > Cut");
-  if (m_cutPositionClusterMiddleEratio37_Photon < 0) sc = 0;
+    m_acceptInfo.addCut(m_cutNameClusterMiddleEratio37_Photon, "E237/E277 > Cut");
+  if (m_cutPositionClusterMiddleEratio37_Photon < 0) sc = StatusCode::FAILURE;
 
   /** @brief energy ratio in 2nd sampling for photons, bit 13 */
   m_cutPositionClusterMiddleEratio33_Photon = 
-    m_accept.addCut(m_cutNameClusterMiddleEratio33_Photon, "E233/E237 > Cut");
-  if (m_cutPositionClusterMiddleEratio33_Photon < 0) sc = 0;
+    m_acceptInfo.addCut(m_cutNameClusterMiddleEratio33_Photon, "E233/E237 > Cut");
+  if (m_cutPositionClusterMiddleEratio33_Photon < 0) sc = StatusCode::FAILURE;
 
   /** @brief width in the second sampling, bit 14 */
   m_cutPositionClusterMiddleWidth_Photon = 
-    m_accept.addCut(m_cutNameClusterMiddleWidth_Photon, "Weta2 < Cut");
-  if (m_cutPositionClusterMiddleWidth_Photon < 0) sc = 0;
+    m_acceptInfo.addCut(m_cutNameClusterMiddleWidth_Photon, "Weta2 < Cut");
+  if (m_cutPositionClusterMiddleWidth_Photon < 0) sc = StatusCode::FAILURE;
   
   /** @brief fraction of energy found in 1st sampling, bit 15 */
   m_cutPositionClusterStripsEratio_Photon = 
-    m_accept.addCut(m_cutNameClusterStripsEratio_Photon, "f1 > Cut");
-  if (m_cutPositionClusterStripsEratio_Photon < 0) sc = 0;
+    m_acceptInfo.addCut(m_cutNameClusterStripsEratio_Photon, "f1 > Cut");
+  if (m_cutPositionClusterStripsEratio_Photon < 0) sc = StatusCode::FAILURE;
 
   /** @brief energy of 2nd maximum in 1st sampling ~e2tsts1/(1000+const_lumi*et), bit 16 */
   //m_cutPositionClusterStripsDeltaEmax2_Photon = 
-  //  m_accept.addCut(m_cutNameClusterStripsDeltaEmax2_Photon, "DeltaEmax2 < Cut");
-  //if (m_cutPositionClusterStripsDeltaEmax2_Photon < 0) sc = 0;
-  voidcutpos = m_accept.addCut("VOID9", "No Cut"); // bit 16 is not used
-  if (voidcutpos < 0) sc = 0;
+  //  m_acceptInfo.addCut(m_cutNameClusterStripsDeltaEmax2_Photon, "DeltaEmax2 < Cut");
+  //if (m_cutPositionClusterStripsDeltaEmax2_Photon < 0) sc = StatusCode::FAILURE;
+  voidcutpos = m_acceptInfo.addCut("VOID9", "No Cut"); // bit 16 is not used
+  if (voidcutpos < 0) sc = StatusCode::FAILURE;
 
   /** @brief difference between 2nd maximum and 1st minimum in strips (e2tsts1-emins1), bit 17 */
   m_cutPositionClusterStripsDeltaE_Photon = 
-    m_accept.addCut(m_cutNameClusterStripsDeltaE_Photon, 
+    m_acceptInfo.addCut(m_cutNameClusterStripsDeltaE_Photon, 
 		    "difference between 2nd maximum and 1st minimum in strips < Cut");
-  if (m_cutPositionClusterStripsDeltaE_Photon < 0) sc = 0;
+  if (m_cutPositionClusterStripsDeltaE_Photon < 0) sc = StatusCode::FAILURE;
 
   /** @brief shower width in 1st sampling, bit 18 */
   m_cutPositionClusterStripsWtot_Photon = 
-    m_accept.addCut(m_cutNameClusterStripsWtot_Photon, "Wtot < Cut");
-  if (m_cutPositionClusterStripsWtot_Photon < 0) sc = 0;
+    m_acceptInfo.addCut(m_cutNameClusterStripsWtot_Photon, "Wtot < Cut");
+  if (m_cutPositionClusterStripsWtot_Photon < 0) sc = StatusCode::FAILURE;
 
   /** @brief shower shape in shower core 1st sampling, bit 19 */
   m_cutPositionClusterStripsFracm_Photon = 
-    m_accept.addCut(m_cutNameClusterStripsFracm_Photon, "Fracm < Cut");
-  if (m_cutPositionClusterStripsFracm_Photon < 0) sc = 0;
+    m_acceptInfo.addCut(m_cutNameClusterStripsFracm_Photon, "Fracm < Cut");
+  if (m_cutPositionClusterStripsFracm_Photon < 0) sc = StatusCode::FAILURE;
 
   /** @brief shower width weighted by distance from the maximum one, bit 20 */
   m_cutPositionClusterStripsWeta1c_Photon = 
-    m_accept.addCut(m_cutNameClusterStripsWeta1c_Photon, "Weta1c < Cut");
-  if (m_cutPositionClusterStripsWeta1c_Photon < 0) sc = 0;
+    m_acceptInfo.addCut(m_cutNameClusterStripsWeta1c_Photon, "Weta1c < Cut");
+  if (m_cutPositionClusterStripsWeta1c_Photon < 0) sc = StatusCode::FAILURE;
 
   /** @brief difference between max and 2nd max in strips, bit 21 */
   m_cutPositionClusterStripsDEmaxs1_Photon = 
-    m_accept.addCut(m_cutNameClusterStripsDEmaxs1_Photon, 
+    m_acceptInfo.addCut(m_cutNameClusterStripsDEmaxs1_Photon, 
 		    "difference between max and 2nd max in strips > Cut");
-  if (m_cutPositionClusterStripsDEmaxs1_Photon < 0) sc = 0;
+  if (m_cutPositionClusterStripsDEmaxs1_Photon < 0) sc = StatusCode::FAILURE;
   
   /** @brief energy-momentum match for photon selection, bit 22 */
   m_cutPositionTrackMatchEoverP_Photon = 
-    m_accept.addCut(m_cutNameTrackMatchEoverP_Photon, "E/p within allowed range (conversions only)");
-  if (m_cutPositionTrackMatchEoverP_Photon < 0) sc = 0;
+    m_acceptInfo.addCut(m_cutNameTrackMatchEoverP_Photon, "E/p within allowed range (conversions only)");
+  if (m_cutPositionTrackMatchEoverP_Photon < 0) sc = StatusCode::FAILURE;
   
   /** @brief ambiguity resolution for photon (vs electron), bit 23 */
   m_cutPositionAmbiguityResolution_Photon = 
-    m_accept.addCut(m_cutNameAmbiguityResolution_Photon, 
+    m_acceptInfo.addCut(m_cutNameAmbiguityResolution_Photon, 
 		    "Passes tighter ambiguity resolution vs electron");
-  if (m_cutPositionAmbiguityResolution_Photon < 0) sc = 0;
+  if (m_cutPositionAmbiguityResolution_Photon < 0) sc = StatusCode::FAILURE;
 
-  voidcutpos = m_accept.addCut("VOID10", "No Cut"); // bit 24 is not used
-  if (voidcutpos < 0) sc = 0;
+  voidcutpos = m_acceptInfo.addCut("VOID10", "No Cut"); // bit 24 is not used
+  if (voidcutpos < 0) sc = StatusCode::FAILURE;
 
-  voidcutpos = m_accept.addCut("VOID11", "No Cut"); // bit 25 is not used
-  if (voidcutpos < 0) sc = 0;
+  voidcutpos = m_acceptInfo.addCut("VOID11", "No Cut"); // bit 25 is not used
+  if (voidcutpos < 0) sc = StatusCode::FAILURE;
 
-  voidcutpos = m_accept.addCut("VOID12", "No Cut"); // bit 26 is not used
-  if (voidcutpos < 0) sc = 0;
+  voidcutpos = m_acceptInfo.addCut("VOID12", "No Cut"); // bit 26 is not used
+  if (voidcutpos < 0) sc = StatusCode::FAILURE;
 
-  voidcutpos = m_accept.addCut("VOID13", "No Cut"); // bit 27 is not used
-  if (voidcutpos < 0) sc = 0;
+  voidcutpos = m_acceptInfo.addCut("VOID13", "No Cut"); // bit 27 is not used
+  if (voidcutpos < 0) sc = StatusCode::FAILURE;
 
-  voidcutpos = m_accept.addCut("VOID14", "No Cut"); // bit 28 is not used
-  if (voidcutpos < 0) sc = 0;
+  voidcutpos = m_acceptInfo.addCut("VOID14", "No Cut"); // bit 28 is not used
+  if (voidcutpos < 0) sc = StatusCode::FAILURE;
   
   /** @brief isolation, bit 29 */
   m_cutPositionIsolation_Photon = 
-    m_accept.addCut(m_cutNameIsolation_Photon, "Track and calorimetric isolation");
-  if (m_cutPositionIsolation_Photon < 0) sc = 0;
+    m_acceptInfo.addCut(m_cutNameIsolation_Photon, "Track and calorimetric isolation");
+  if (m_cutPositionIsolation_Photon < 0) sc = StatusCode::FAILURE;
 
   /** @brief calorimetric isolation for photon selection, bit 30 */
   m_cutPositionClusterIsolation_Photon = 
-    m_accept.addCut(m_cutNameClusterIsolation_Photon, "calorimetric isolation only");
-  if (m_cutPositionClusterIsolation_Photon < 0) sc = 0;
+    m_acceptInfo.addCut(m_cutNameClusterIsolation_Photon, "calorimetric isolation only");
+  if (m_cutPositionClusterIsolation_Photon < 0) sc = StatusCode::FAILURE;
 
   /** @brief tracker isolation for photon selection, bit 31 */
   m_cutPositionTrackIsolation_Photon = 
-    m_accept.addCut(m_cutNameTrackIsolation_Photon, "track isolation only");
-  if (m_cutPositionTrackIsolation_Photon < 0) sc = 0;
+    m_acceptInfo.addCut(m_cutNameTrackIsolation_Photon, "track isolation only");
+  if (m_cutPositionTrackIsolation_Photon < 0) sc = StatusCode::FAILURE;
 
-  if (sc == 0) {
+  if (sc == StatusCode::FAILURE) {
     ATH_MSG_ERROR("Exceeded the number of allowed cuts in TPhotonIsEMSelector");
   }
 
   return sc;
 }
 
-const Root::TAccept& Root::TPhotonIsEMSelector::fillAccept()
+asg::AcceptData Root::TPhotonIsEMSelector::fillAccept(unsigned int isEM)
 { 
+  asg::AcceptData acceptData(&m_acceptInfo);
   for (int i = 0; i < 32; i++) {
-    const unsigned int mask = (0x1 << i) & isEMMask;
-    m_accept.setCutResult(i, (m_isEM & mask) == 0);
+    const unsigned int mask = (0x1 << i) & m_isEMMask;
+    acceptData.setCutResult(i, (isEM & mask) == 0);
   }
   
-  return m_accept;
+  return acceptData;
 }
 
 //=============================================================================
 // Calculate the actual accept of each cut individually.
 //=============================================================================
-const Root::TAccept& Root::TPhotonIsEMSelector::accept( 
-						       // eta position in second sampling
-						       float eta2,
-						       // transverse energy in calorimeter (using eta position in second sampling)
-						       double et,
-						       // transverse energy in 1st scintillator of hadronic calorimeter/ET
-						       float Rhad1,
-						       // transverse energy in hadronic calorimeter/ET
-						       float Rhad,
-						       // E(7*7) in 2nd sampling
-						       float e277,
-						       // E(3*7)/E(7*7) in 2nd sampling
-						       float Reta,
-						       // E(3*3)/E(3*7) in 2nd sampling
-						       float Rphi,
-						       // shower width in 2nd sampling
-						       float weta2c,
-						       // fraction of energy reconstructed in strips
-						       float f1,
-						       // (E of 1st max in strips-E of 2nd max)/(E of 1st max+E of 2nd max)
-						       float Eratio,
-						       // E(2nd max)-E(min) in strips
-						       float DeltaE,
-						       //  E of 2nd max between max and min in strips
-						       // float emax2,
-						       // shower width in 3 strips in 1st sampling
-						       float weta1c,
-						       // total shower width in strips
-						       float wtot,
-						       // E(+/-3)-E(+/-1)/E(+/-1)
-						       float fracm,
-						       // fraction of energy reconstructed in the 3rd sampling
-						       float f3,
-						       // E/p
-						       double ep,
-						       // is it a conversion
-						       bool isConversion)
+asg::AcceptData
+Root::TPhotonIsEMSelector::accept( 
+    // eta position in second sampling
+    float eta2,
+    // transverse energy in calorimeter (using eta position in second sampling)
+    double et,
+    // transverse energy in 1st scintillator of hadronic calorimeter/ET
+    float Rhad1,
+    // transverse energy in hadronic calorimeter/ET
+    float Rhad,
+    // E(7*7) in 2nd sampling
+    float e277,
+    // E(3*7)/E(7*7) in 2nd sampling
+    float Reta,
+    // E(3*3)/E(3*7) in 2nd sampling
+    float Rphi,
+    // shower width in 2nd sampling
+    float weta2c,
+    // fraction of energy reconstructed in strips
+    float f1,
+    // (E of 1st max in strips-E of 2nd max)/(E of 1st max+E of 2nd max)
+    float Eratio,
+    // E(2nd max)-E(min) in strips
+    float DeltaE,
+    //  E of 2nd max between max and min in strips
+    // float emax2,
+    // shower width in 3 strips in 1st sampling
+    float weta1c,
+    // total shower width in strips
+    float wtot,
+    // E(+/-3)-E(+/-1)/E(+/-1)
+    float fracm,
+    // fraction of energy reconstructed in the 3rd sampling
+    float f3,
+    // E/p
+    double ep,
+    // is it a conversion
+    bool isConversion)
 {
-  // Reset the cut result bits to zero (= pass cut)
-  m_accept.clear();
 
   // -----------------------------------------------------------
   // Do the actual selection
 
-  m_isEM = calcIsEm(eta2,
-		    et,
-		    Rhad1,
-		    Rhad,
-		    e277,
-		    Reta,
-		    Rphi,
-		    weta2c,
-		    f1,
-		    Eratio,
-		    DeltaE,
-		    //emax2,
-		    weta1c,
-		    wtot,
-		    fracm,
-		    f3,
-		    ep,
-		    isConversion);
+    unsigned int isEM = calcIsEm(eta2,
+                                 et,
+                                 Rhad1,
+                                 Rhad,
+                                 e277,
+                                 Reta,
+                                 Rphi,
+                                 weta2c,
+                                 f1,
+                                 Eratio,
+                                 DeltaE,
+                                 //emax2,
+                                 weta1c,
+                                 wtot,
+                                 fracm,
+                                 f3,
+                                 ep,
+                                 isConversion);
 
-  return fillAccept();
+  return fillAccept(isEM);
 }
 
 
@@ -416,7 +413,7 @@ unsigned int Root::TPhotonIsEMSelector::calcIsEm(
   unsigned int iflag = 0;
 
   // apply calorimeter selection for photons
-  if (forceConvertedPhotonPID) {
+  if (m_forceConvertedPhotonPID) {
     // force to test converted photon hypothesis
     iflag = calocuts_photonsConverted(eta2,
 				      et,
@@ -437,7 +434,7 @@ unsigned int Root::TPhotonIsEMSelector::calcIsEm(
 				      ep,
 				      iflag);
     
-  } else if (forceNonConvertedPhotonPID || !isConversion) {
+  } else if (m_forceNonConvertedPhotonPID || !isConversion) {
     iflag = calocuts_photonsNonConverted(eta2,
 					 et,
 					 Rhad1,
@@ -522,15 +519,15 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
 
   int ibine = 0;
   // loop on ET range
-  for (unsigned int ibe=1;ibe<=CutBinEnergy_photonsNonConverted.size();ibe++) {
-    if ( ibe <CutBinEnergy_photonsNonConverted.size() ) {
-      if ( et >= CutBinEnergy_photonsNonConverted[ibe-1] && 
-	   et < CutBinEnergy_photonsNonConverted[ibe] ) {
+  for (unsigned int ibe=1;ibe<=m_cutBinEnergy_photonsNonConverted.size();ibe++) {
+    if ( ibe <m_cutBinEnergy_photonsNonConverted.size() ) {
+      if ( et >= m_cutBinEnergy_photonsNonConverted[ibe-1] && 
+	   et < m_cutBinEnergy_photonsNonConverted[ibe] ) {
 	ibine = ibe;
       }
     }
-    else if ( ibe == CutBinEnergy_photonsNonConverted.size() ) {
-      if ( et >= CutBinEnergy_photonsNonConverted[ibe-1] ) {
+    else if ( ibe == m_cutBinEnergy_photonsNonConverted.size() ) {
+      if ( et >= m_cutBinEnergy_photonsNonConverted[ibe-1] ) {
 	ibine = ibe;
       }
     }
@@ -538,30 +535,30 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
       
   int ibinEta = -1;
   // loop on eta range
-  for (unsigned int ibin=0;ibin<CutBinEta_photonsNonConverted.size();ibin++) {
+  for (unsigned int ibin=0;ibin<m_cutBinEta_photonsNonConverted.size();ibin++) {
     if ( ibin == 0 ){
-      if ( eta2 < CutBinEta_photonsNonConverted[0] ) {
+      if ( eta2 < m_cutBinEta_photonsNonConverted[0] ) {
 	ibinEta = 0;
       }
     }
     else {
-      if ( eta2 >= CutBinEta_photonsNonConverted[ibin-1] && 
-	   eta2 < CutBinEta_photonsNonConverted[ibin] ) {
+      if ( eta2 >= m_cutBinEta_photonsNonConverted[ibin-1] && 
+	   eta2 < m_cutBinEta_photonsNonConverted[ibin] ) {
 	ibinEta = ibin;
       }
     }
   }
 
   // check the bin number
-  const int ibin_combined =  ibine*CutBinEta_photonsNonConverted.size()+ibinEta;
+  const int ibin_combined =  ibine*m_cutBinEta_photonsNonConverted.size()+ibinEta;
   
   //
   // second sampling cuts  
   //
-  if ((e277_photonsNonConverted.size()==0 ) ) {
+  if ((m_e277_photonsNonConverted.size()==0 ) ) {
     ATH_MSG_WARNING("e277 needs to  be set ");
   }
-  if (e277_photonsNonConverted.size()>0 && e277 >= e277_photonsNonConverted[0] ) {
+  if (m_e277_photonsNonConverted.size() > 0 && e277 >= m_e277_photonsNonConverted[0] ) {
     if (ibinEta==-1) {
       //std::cout << " pb with eta range = " << eta2 << std::endl;
       iflag |= ( 0x1 << egammaPID::ClusterEtaRange_Photon);
@@ -569,43 +566,43 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
     }
 
     // hadronic leakage
-    if (CheckVar(CutHadLeakage_photonsNonConverted,23)) {
+    if (checkVar(m_cutHadLeakage_photonsNonConverted,23)) {
       if (eta2 < 0.8) {
-	if (Rhad1>CutHadLeakage_photonsNonConverted[ibin_combined])
+	if (Rhad1 > m_cutHadLeakage_photonsNonConverted[ibin_combined])
 	  iflag |= ( 0x1 << egammaPID::ClusterHadronicLeakage_Photon);
       } else if (eta2 >= 0.8 && eta2 < 1.37) {
-	if (Rhad>CutHadLeakage_photonsNonConverted[ibin_combined])
+	if (Rhad > m_cutHadLeakage_photonsNonConverted[ibin_combined])
 	  iflag |= ( 0x1 << egammaPID::ClusterHadronicLeakage_Photon);
       } else {
-	if (Rhad1>CutHadLeakage_photonsNonConverted[ibin_combined])
+	if (Rhad1 > m_cutHadLeakage_photonsNonConverted[ibin_combined])
 	  iflag |= ( 0x1 << egammaPID::ClusterHadronicLeakage_Photon);
       }
     }
 
     // F3
-    if (CheckVar(CutF3_photonsNonConverted,23)) {
-      if (f3 > CutF3_photonsNonConverted[ibin_combined] ) {
+    if (checkVar(m_cutF3_photonsNonConverted,23)) {
+      if (f3 > m_cutF3_photonsNonConverted[ibin_combined] ) {
 	iflag |= ( 0x1 << egammaPID::ClusterBackEnergyFraction_Photon);
       }
     }
     
     // E237/E277
-    if (CheckVar(Reta37_photonsNonConverted,23)) {
-      if (Reta < Reta37_photonsNonConverted[ibin_combined] ) {
+    if (checkVar(m_Reta37_photonsNonConverted,23)) {
+      if (Reta < m_Reta37_photonsNonConverted[ibin_combined] ) {
 	iflag |= ( 0x1 << egammaPID::ClusterMiddleEratio37_Photon);
       }
     }
 
     // E233/E237
-    if (CheckVar(Rphi33_photonsNonConverted,23)) {
-      if (Rphi < Rphi33_photonsNonConverted[ibin_combined] ) {
+    if (checkVar(m_Rphi33_photonsNonConverted,23)) {
+      if (Rphi < m_Rphi33_photonsNonConverted[ibin_combined] ) {
 	iflag |= ( 0x1 << egammaPID::ClusterMiddleEratio33_Photon);
       }
     }
     
     // width in 2n sampling
-    if (CheckVar(weta2_photonsNonConverted,23)) {
-      if (weta2c > weta2_photonsNonConverted[ibin_combined]  ) {
+    if (checkVar(m_weta2_photonsNonConverted,23)) {
+      if (weta2c > m_weta2_photonsNonConverted[ibin_combined]  ) {
 	iflag |= ( 0x1 << egammaPID::ClusterMiddleWidth_Photon);
       }
     }
@@ -617,19 +614,19 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
   //
   // first sampling cuts  
   //
-  if (CutBinEtaStrips_photonsNonConverted.size()>0) {
+  if (m_cutBinEtaStrips_photonsNonConverted.size() > 0) {
 
     int ibineStrips = 0;
     // loop on ET range
-    for (unsigned int ibe=1;ibe<=CutBinEnergyStrips_photonsNonConverted.size();ibe++) {
-      if ( ibe <CutBinEnergyStrips_photonsNonConverted.size() ) {
-	if ( et >= CutBinEnergyStrips_photonsNonConverted[ibe-1] && 
-	     et < CutBinEnergyStrips_photonsNonConverted[ibe] ) {
+    for (unsigned int ibe=1;ibe<=m_cutBinEnergyStrips_photonsNonConverted.size();ibe++) {
+      if ( ibe <m_cutBinEnergyStrips_photonsNonConverted.size() ) {
+	if ( et >= m_cutBinEnergyStrips_photonsNonConverted[ibe-1] && 
+	     et < m_cutBinEnergyStrips_photonsNonConverted[ibe] ) {
 	  ibineStrips = ibe;
 	}
       }
-      else if ( ibe == CutBinEnergyStrips_photonsNonConverted.size() ) {
-	if ( et >= CutBinEnergyStrips_photonsNonConverted[ibe-1] ) {
+      else if ( ibe == m_cutBinEnergyStrips_photonsNonConverted.size() ) {
+	if ( et >= m_cutBinEnergyStrips_photonsNonConverted[ibe-1] ) {
 	  ibineStrips = ibe;
 	}
       }
@@ -637,15 +634,15 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
     
     int ibinEtaStrips = -1;
     // loop on eta range
-    for (unsigned int ibin=0;ibin<CutBinEtaStrips_photonsNonConverted.size();ibin++) {
+    for (unsigned int ibin=0;ibin<m_cutBinEtaStrips_photonsNonConverted.size();ibin++) {
       if ( ibin == 0 ){
-	if ( eta2 < CutBinEtaStrips_photonsNonConverted[0] ) {
+	if ( eta2 < m_cutBinEtaStrips_photonsNonConverted[0] ) {
 	  ibinEtaStrips = 0;
 	}
       }
       else {
-	if ( eta2 >= CutBinEtaStrips_photonsNonConverted[ibin-1] && 
-	     eta2 < CutBinEtaStrips_photonsNonConverted[ibin] ) {
+	if ( eta2 >= m_cutBinEtaStrips_photonsNonConverted[ibin-1] && 
+	     eta2 < m_cutBinEtaStrips_photonsNonConverted[ibin] ) {
 	  ibinEtaStrips = ibin;
 	}
       }
@@ -657,51 +654,51 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsNonConverted(
       return iflag;
     }
     
-    const int ibin_combinedStrips =  ibineStrips*CutBinEtaStrips_photonsNonConverted.size()+ibinEtaStrips;
+    const int ibin_combinedStrips =  ibineStrips*m_cutBinEtaStrips_photonsNonConverted.size()+ibinEtaStrips;
     
-    if (CheckVar(f1_photonsNonConverted,0)) {
-      if (f1<f1_photonsNonConverted[0] ) {
+    if (checkVar(m_f1_photonsNonConverted,0)) {
+      if (f1 < m_f1_photonsNonConverted[0] ) {
 	iflag |= ( 0x1 << egammaPID::ClusterStripsEratio_Photon);
       }
     }
     
     // Rmax2
-    // if (CheckVar(emax2r_photonsNonConverted,26)) {
+    // if (checkVar(emax2r_photonsNonConverted,26)) {
     //   if (deltaemax2 > emax2r_photonsNonConverted[ibin_combinedStrips] ) {
     //     iflag |= ( 0x1 << egammaPID::ClusterStripsDeltaEmax2_Photon);
     //   }
     // }
     
     // Delta E
-    if (CheckVar(deltae_photonsNonConverted,26)) {
-      if (DeltaE > deltae_photonsNonConverted[ibin_combinedStrips]) {
+    if (checkVar(m_deltae_photonsNonConverted,26)) {
+      if (DeltaE > m_deltae_photonsNonConverted[ibin_combinedStrips]) {
 	iflag |= ( 0x1 << egammaPID::ClusterStripsDeltaE_Photon);
       }
     }
     
     // Eratio
-    if (CheckVar(DEmaxs1_photonsNonConverted,26)) {
-      if (Eratio<=DEmaxs1_photonsNonConverted[ibin_combinedStrips])
+    if (checkVar(m_DEmaxs1_photonsNonConverted,26)) {
+      if (Eratio<=m_DEmaxs1_photonsNonConverted[ibin_combinedStrips])
 	iflag |= ( 0x1 << egammaPID::ClusterStripsDEmaxs1_Photon);    
     }
     
     // total width in strips
-    if (CheckVar(wtot_photonsNonConverted,26)) {
-      if (wtot > wtot_photonsNonConverted[ibin_combinedStrips]   ) {
+    if (checkVar(m_wtot_photonsNonConverted,26)) {
+      if (wtot > m_wtot_photonsNonConverted[ibin_combinedStrips]   ) {
 	iflag |= ( 0x1 << egammaPID::ClusterStripsWtot_Photon);
       }
     }
     
     // (E(+/-3)-E(+/-1))/E(+/-1)
-    if (CheckVar(fracm_photonsNonConverted,26)) {
-      if (fracm > fracm_photonsNonConverted[ibin_combinedStrips] ) {
+    if (checkVar(m_fracm_photonsNonConverted,26)) {
+      if (fracm > m_fracm_photonsNonConverted[ibin_combinedStrips] ) {
 	iflag |= ( 0x1 << egammaPID::ClusterStripsFracm_Photon);
       }
     }
     
     // width in 3 strips
-    if (CheckVar(w1_photonsNonConverted,26)) {
-      if (weta1c > w1_photonsNonConverted[ibin_combinedStrips]) {
+    if (checkVar(m_w1_photonsNonConverted,26)) {
+      if (weta1c > m_w1_photonsNonConverted[ibin_combinedStrips]) {
 	iflag |= ( 0x1 << egammaPID::ClusterStripsWeta1c_Photon);
       }
     }
@@ -751,15 +748,15 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
 {
   int ibine = 0;
   // loop on ET range
-  for (unsigned int ibe=1;ibe<=CutBinEnergy_photonsConverted.size();ibe++) {
-    if ( ibe <CutBinEnergy_photonsConverted.size() ) {
-      if ( et >= CutBinEnergy_photonsConverted[ibe-1] && 
-	   et < CutBinEnergy_photonsConverted[ibe] ) {
+  for (unsigned int ibe=1;ibe<=m_cutBinEnergy_photonsConverted.size();ibe++) {
+    if ( ibe <m_cutBinEnergy_photonsConverted.size() ) {
+      if ( et >= m_cutBinEnergy_photonsConverted[ibe-1] && 
+	   et < m_cutBinEnergy_photonsConverted[ibe] ) {
 	ibine = ibe;
       }
     }
-    else if ( ibe == CutBinEnergy_photonsConverted.size() ) {
-      if ( et >= CutBinEnergy_photonsConverted[ibe-1] ) {
+    else if ( ibe == m_cutBinEnergy_photonsConverted.size() ) {
+      if ( et >= m_cutBinEnergy_photonsConverted[ibe-1] ) {
 	ibine = ibe;
       }
     }
@@ -767,30 +764,30 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
       
   int ibinEta = -1;
   // loop on eta range
-  for (unsigned int ibin=0;ibin<CutBinEta_photonsConverted.size();ibin++) {
+  for (unsigned int ibin=0;ibin<m_cutBinEta_photonsConverted.size();ibin++) {
     if ( ibin == 0 ){
-      if ( eta2 < CutBinEta_photonsConverted[0] ) {
+      if ( eta2 < m_cutBinEta_photonsConverted[0] ) {
 	ibinEta = 0;
       }
     }
     else {
-      if ( eta2 >= CutBinEta_photonsConverted[ibin-1] && 
-	   eta2 < CutBinEta_photonsConverted[ibin] ) {
+      if ( eta2 >= m_cutBinEta_photonsConverted[ibin-1] && 
+	   eta2 < m_cutBinEta_photonsConverted[ibin] ) {
 	ibinEta = ibin;
       }
     }
   }
 
   // check the bin number
-  const int ibin_combined =  ibine*CutBinEta_photonsConverted.size()+ibinEta;
+  const int ibin_combined =  ibine*m_cutBinEta_photonsConverted.size()+ibinEta;
   
   //
   // second sampling cuts  
   //
-  if ( (e277_photonsConverted.size()==0) ) {
+  if ( (m_e277_photonsConverted.size()==0) ) {
     ATH_MSG_WARNING("e277 needs to  be set ");
   }
-  if (e277_photonsConverted.size()>0 && e277 >= e277_photonsConverted[0] ) {
+  if (m_e277_photonsConverted.size() > 0 && e277 >= m_e277_photonsConverted[0] ) {
     
     if (ibinEta==-1) {
       iflag |= ( 0x1 << egammaPID::ClusterEtaRange_Photon);
@@ -798,43 +795,43 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
     }
 
     // hadronic leakage
-    if (CheckVar(CutHadLeakage_photonsConverted,13)) {
+    if (checkVar(m_cutHadLeakage_photonsConverted,13)) {
       if (eta2 < 0.8) {
-	if (Rhad1>CutHadLeakage_photonsConverted[ibin_combined])
+	if (Rhad1 > m_cutHadLeakage_photonsConverted[ibin_combined])
 	  iflag |= ( 0x1 << egammaPID::ClusterHadronicLeakage_Photon);
       } else if (eta2 >= 0.8 && eta2 < 1.37) {
-	if (Rhad>CutHadLeakage_photonsConverted[ibin_combined])
+	if (Rhad > m_cutHadLeakage_photonsConverted[ibin_combined])
 	  iflag |= ( 0x1 << egammaPID::ClusterHadronicLeakage_Photon);
       } else {
-	if (Rhad1>CutHadLeakage_photonsConverted[ibin_combined])
+	if (Rhad1 > m_cutHadLeakage_photonsConverted[ibin_combined])
 	  iflag |= ( 0x1 << egammaPID::ClusterHadronicLeakage_Photon);
       }
     }
 
     // F3
-    if (CheckVar(CutF3_photonsConverted,13)) {
-      if (f3 > CutF3_photonsConverted[ibin_combined] ) {
+    if (checkVar(m_cutF3_photonsConverted,13)) {
+      if (f3 > m_cutF3_photonsConverted[ibin_combined] ) {
 	iflag |= ( 0x1 << egammaPID::ClusterBackEnergyFraction_Photon);
       }
     }
 
     // E237/E277
-    if (CheckVar(Reta37_photonsConverted,13)) {
-      if (Reta < Reta37_photonsConverted[ibin_combined] ) {
+    if (checkVar(m_Reta37_photonsConverted,13)) {
+      if (Reta < m_Reta37_photonsConverted[ibin_combined] ) {
 	iflag |= ( 0x1 << egammaPID::ClusterMiddleEratio37_Photon);
       }
     }
 
     // E233/E237
-    if (CheckVar(Rphi33_photonsConverted,13)) {
-      if (Rphi < Rphi33_photonsConverted[ibin_combined] ) {
+    if (checkVar(m_Rphi33_photonsConverted,13)) {
+      if (Rphi < m_Rphi33_photonsConverted[ibin_combined] ) {
 	iflag |= ( 0x1 << egammaPID::ClusterMiddleEratio33_Photon);
       }
     }
     
     // width in 2n sampling
-    if (CheckVar(weta2_photonsConverted,13)) {
-      if (weta2c > weta2_photonsConverted[ibin_combined]  ) {
+    if (checkVar(m_weta2_photonsConverted,13)) {
+      if (weta2c > m_weta2_photonsConverted[ibin_combined]  ) {
 	iflag |= ( 0x1 << egammaPID::ClusterMiddleWidth_Photon);
       }
     }
@@ -846,19 +843,19 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
   //
   // first sampling cuts  
   //
-  if (CutBinEtaStrips_photonsConverted.size()>0) {
+  if (m_cutBinEtaStrips_photonsConverted.size() > 0) {
 
     int ibineStrips = 0;
     // loop on ET range
-    for (unsigned int ibe=1;ibe<=CutBinEnergyStrips_photonsConverted.size();ibe++) {
-      if ( ibe <CutBinEnergyStrips_photonsConverted.size() ) {
-	if ( et >= CutBinEnergyStrips_photonsConverted[ibe-1] && 
-	     et < CutBinEnergyStrips_photonsConverted[ibe] ) {
+    for (unsigned int ibe=1;ibe<=m_cutBinEnergyStrips_photonsConverted.size();ibe++) {
+      if ( ibe <m_cutBinEnergyStrips_photonsConverted.size() ) {
+	if ( et >= m_cutBinEnergyStrips_photonsConverted[ibe-1] && 
+	     et < m_cutBinEnergyStrips_photonsConverted[ibe] ) {
 	  ibineStrips = ibe;
 	}
       }
-      else if ( ibe == CutBinEnergyStrips_photonsConverted.size() ) {
-	if ( et >= CutBinEnergyStrips_photonsConverted[ibe-1] ) {
+      else if ( ibe == m_cutBinEnergyStrips_photonsConverted.size() ) {
+	if ( et >= m_cutBinEnergyStrips_photonsConverted[ibe-1] ) {
 	  ibineStrips = ibe;
 	}
       }
@@ -866,15 +863,15 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
     
     int ibinEtaStrips = -1;
     // loop on eta range
-    for (unsigned int ibin=0;ibin<CutBinEtaStrips_photonsConverted.size();ibin++) {
+    for (unsigned int ibin=0;ibin<m_cutBinEtaStrips_photonsConverted.size();ibin++) {
       if ( ibin == 0 ){
-	if ( eta2 < CutBinEtaStrips_photonsConverted[0] ) {
+	if ( eta2 < m_cutBinEtaStrips_photonsConverted[0] ) {
 	  ibinEtaStrips = 0;
 	}
       }
       else {
-	if ( eta2 >= CutBinEtaStrips_photonsConverted[ibin-1] && 
-	     eta2 < CutBinEtaStrips_photonsConverted[ibin] ) {
+	if ( eta2 >= m_cutBinEtaStrips_photonsConverted[ibin-1] && 
+	     eta2 < m_cutBinEtaStrips_photonsConverted[ibin] ) {
 	  ibinEtaStrips = ibin;
 	}
       }
@@ -886,51 +883,51 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
       return iflag;
     }
 
-    const int ibin_combinedStrips =  ibineStrips*CutBinEtaStrips_photonsConverted.size()+ibinEtaStrips;
+    const int ibin_combinedStrips =  ibineStrips*m_cutBinEtaStrips_photonsConverted.size()+ibinEtaStrips;
     
-    if (CheckVar(f1_photonsConverted,0)) {
-      if (f1<f1_photonsConverted[0] ) {
+    if (checkVar(m_f1_photonsConverted,0)) {
+      if (f1 < m_f1_photonsConverted[0] ) {
 	iflag |= ( 0x1 << egammaPID::ClusterStripsEratio_Photon);
       }  
     }
     
     // Rmax2
-    // if (CheckVar(emax2r_photonsConverted,16)) {
+    // if (checkVar(emax2r_photonsConverted,16)) {
     //   if (deltaemax2 > emax2r_photonsConverted[ibin_combinedStrips] ) {
     //     iflag |= ( 0x1 << egammaPID::ClusterStripsDeltaEmax2_Photon);
     //   }
     // }
     
     // Delta E
-    if (CheckVar(deltae_photonsConverted,16)) {
-      if (DeltaE > deltae_photonsConverted[ibin_combinedStrips]) {
+    if (checkVar(m_deltae_photonsConverted,16)) {
+      if (DeltaE > m_deltae_photonsConverted[ibin_combinedStrips]) {
 	iflag |= ( 0x1 << egammaPID::ClusterStripsDeltaE_Photon);
       }
     }
     
     // Eratio
-    if (CheckVar(DEmaxs1_photonsConverted,16)) {
-      if (Eratio<=DEmaxs1_photonsConverted[ibin_combinedStrips])
+    if (checkVar(m_DEmaxs1_photonsConverted,16)) {
+      if (Eratio <= m_DEmaxs1_photonsConverted[ibin_combinedStrips])
 	iflag |= ( 0x1 << egammaPID::ClusterStripsDEmaxs1_Photon);    
     }
     
     // total width in strips
-    if (CheckVar(wtot_photonsConverted,16)) {
-      if (wtot > wtot_photonsConverted[ibin_combinedStrips]   ) {
+    if (checkVar(m_wtot_photonsConverted,16)) {
+      if (wtot > m_wtot_photonsConverted[ibin_combinedStrips]   ) {
 	iflag |= ( 0x1 << egammaPID::ClusterStripsWtot_Photon);
       }
     }
     
     // (E(+/-3)-E(+/-1))/E(+/-1)
-    if (CheckVar(fracm_photonsConverted,16)) {
-      if (fracm > fracm_photonsConverted[ibin_combinedStrips] ) {
+    if (checkVar(m_fracm_photonsConverted,16)) {
+      if (fracm > m_fracm_photonsConverted[ibin_combinedStrips] ) {
 	iflag |= ( 0x1 << egammaPID::ClusterStripsFracm_Photon);
       }
     }
     
     // width in 3 strips
-    if (CheckVar(w1_photonsConverted,16)) {
-      if (weta1c > w1_photonsConverted[ibin_combinedStrips]) {
+    if (checkVar(m_w1_photonsConverted,16)) {
+      if (weta1c > m_w1_photonsConverted[ibin_combinedStrips]) {
 	iflag |= ( 0x1 << egammaPID::ClusterStripsWeta1c_Photon);
       }
     }
@@ -938,10 +935,10 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
    
   // cut on E/p
   //
-  if (CheckVar(CutminEp_photonsConverted,13) && 
-      CheckVar(CutmaxEp_photonsConverted,13)) {
-    if ( ep < CutminEp_photonsConverted[ibin_combined] || 
-	 ep > CutmaxEp_photonsConverted[ibin_combined] ) 
+  if (checkVar(m_cutminEp_photonsConverted,13) && 
+      checkVar(m_cutmaxEp_photonsConverted,13)) {
+    if ( ep < m_cutminEp_photonsConverted[ibin_combined] || 
+	 ep > m_cutmaxEp_photonsConverted[ibin_combined] ) 
       iflag |= ( 0x1 << egammaPID::TrackMatchEoverP_Photon); 
   }
   
@@ -949,7 +946,7 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
 }
 
 // ==============================================================
-bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) const
+bool Root::TPhotonIsEMSelector::checkVar(std::vector<float> vec, int choice) const
 {
   //
   // check vector size
@@ -972,9 +969,9 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
 
   // selection of non converted objects
   unsigned int etaNB_photonsNonConv = 
-    CutBinEta_photonsNonConverted.size();
+    m_cutBinEta_photonsNonConverted.size();
   unsigned int etNB_photonsNonConv  = 
-    CutBinEnergy_photonsNonConverted.size();
+    m_cutBinEnergy_photonsNonConverted.size();
   unsigned int combinedNB_photonsNonConv = 0;
   if (etNB_photonsNonConv>0) 
     combinedNB_photonsNonConv = 
@@ -988,9 +985,9 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   //    << std::endl;
   
   unsigned int etaStripsNB_photonsNonConv = 
-    CutBinEtaStrips_photonsNonConverted.size();
+    m_cutBinEtaStrips_photonsNonConverted.size();
   unsigned int etStripsNB_photonsNonConv = 
-    CutBinEnergyStrips_photonsNonConverted.size();
+    m_cutBinEnergyStrips_photonsNonConverted.size();
   unsigned int combinedStripsNB_photonsNonConv = 0;
   if (etStripsNB_photonsNonConv>0)
     combinedStripsNB_photonsNonConv = 
@@ -1006,9 +1003,9 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   
   // selection of  converted objects
   unsigned int etaNB_photonsConv = 
-    CutBinEta_photonsConverted.size();
+    m_cutBinEta_photonsConverted.size();
   unsigned int etNB_photonsConv  = 
-    CutBinEnergy_photonsConverted.size();
+    m_cutBinEnergy_photonsConverted.size();
   unsigned int combinedNB_photonsConv = 0;
   if (etNB_photonsConv>0) 
     combinedNB_photonsConv = 
@@ -1023,9 +1020,9 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   //    << std::endl;
 
   unsigned int etaStripsNB_photonsConv = 
-    CutBinEtaStrips_photonsConverted.size();
+    m_cutBinEtaStrips_photonsConverted.size();
   unsigned int etStripsNB_photonsConv = 
-    CutBinEnergyStrips_photonsConverted.size();
+    m_cutBinEnergyStrips_photonsConverted.size();
   unsigned int combinedStripsNB_photonsConv = 0;
   if (etStripsNB_photonsConv>0)
     combinedStripsNB_photonsConv =
@@ -1175,7 +1172,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
 }
 
 // ==============================================================
-bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
+bool Root::TPhotonIsEMSelector::checkVar(std::vector<int> vec, int choice) const
 {
   //
   // check vector size
@@ -1215,7 +1212,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
   case 11:
     {
       const unsigned int etaNB_photonsConv = 
-	CutBinEta_photonsConverted.size();
+	m_cutBinEta_photonsConverted.size();
       if ( vec.size() != etaNB_photonsConv ) {
 	ATH_MSG_ERROR("vector size is " 
 		       << vec.size() << " but needs etaNB_photonsConv " 
@@ -1230,7 +1227,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
   case 12:
     {
       const unsigned int etNB_photonsConv  = 
-	CutBinEnergy_photonsConverted.size();
+	m_cutBinEnergy_photonsConverted.size();
       if ( vec.size() != etNB_photonsConv ) {
 	ATH_MSG_ERROR("vector size is " 
 		       << vec.size() << " but needs etNB_photonsConv=" 
@@ -1245,9 +1242,9 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
   case 13:
     {
       const unsigned int etaNB_photonsConv = 
-	CutBinEta_photonsConverted.size();
+	m_cutBinEta_photonsConverted.size();
       const unsigned int etNB_photonsConv  = 
-	CutBinEnergy_photonsConverted.size();
+	m_cutBinEnergy_photonsConverted.size();
       unsigned int combinedNB_photonsConv = 0;
       if (etNB_photonsConv>0) 
 	combinedNB_photonsConv = 
@@ -1269,7 +1266,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
   case 14:
     {
       const unsigned int etaStripsNB_photonsConv = 
-	CutBinEtaStrips_photonsConverted.size();
+	m_cutBinEtaStrips_photonsConverted.size();
       if ( vec.size() != etaStripsNB_photonsConv ) {
 	ATH_MSG_ERROR("vector size is " 
 		       << vec.size() << " but needs etaStripsNB_photonsConv=" 
@@ -1284,7 +1281,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
   case 15:
     {
       const unsigned int etStripsNB_photonsConv = 
-	CutBinEnergyStrips_photonsConverted.size();
+	m_cutBinEnergyStrips_photonsConverted.size();
       if ( vec.size() != etStripsNB_photonsConv ) {
 	ATH_MSG_ERROR("vector size is " 
 		       << vec.size() << " but needs etStripsNB_photonsConv=" 
@@ -1299,9 +1296,9 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
   case 16:
     {
       const unsigned int etaStripsNB_photonsConv = 
-	CutBinEtaStrips_photonsConverted.size();
+	m_cutBinEtaStrips_photonsConverted.size();
       const unsigned int etStripsNB_photonsConv = 
-	CutBinEnergyStrips_photonsConverted.size();
+	m_cutBinEnergyStrips_photonsConverted.size();
       unsigned int combinedStripsNB_photonsConv = 0;
       if (etStripsNB_photonsConv>0)
 	combinedStripsNB_photonsConv =
@@ -1323,7 +1320,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
   case 21:
     {
       const unsigned int etaNB_photonsNonConv = 
-	CutBinEta_photonsNonConverted.size();     
+	m_cutBinEta_photonsNonConverted.size();     
       if ( vec.size() != etaNB_photonsNonConv ) {
 	ATH_MSG_ERROR("vector size is " 
 		       << vec.size() << " but needs etaNB_photonsNonConv " 
@@ -1338,7 +1335,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
   case 22:
     {
       const unsigned int etNB_photonsNonConv  = 
-	CutBinEnergy_photonsNonConverted.size();
+	m_cutBinEnergy_photonsNonConverted.size();
       if ( vec.size() != etNB_photonsNonConv ) {
 	ATH_MSG_ERROR("vector size is " 
 		       << vec.size() << " but needs etNB_photonsNonConv=" 
@@ -1352,9 +1349,9 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
   case 23:
     {
       const unsigned int etaNB_photonsNonConv = 
-	CutBinEta_photonsNonConverted.size();     
+	m_cutBinEta_photonsNonConverted.size();     
       const unsigned int etNB_photonsNonConv  = 
-	CutBinEnergy_photonsNonConverted.size();
+	m_cutBinEnergy_photonsNonConverted.size();
       unsigned int combinedNB_photonsNonConv = 0;
       if (etNB_photonsNonConv>0) 
 	combinedNB_photonsNonConv = 
@@ -1376,7 +1373,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
   case 24:
     {
       const unsigned int etaStripsNB_photonsNonConv = 
-	CutBinEtaStrips_photonsNonConverted.size();
+	m_cutBinEtaStrips_photonsNonConverted.size();
       if ( vec.size() != etaStripsNB_photonsNonConv ) {
 	ATH_MSG_ERROR("vector size is " 
 		       << vec.size() << " but needs etaStripsNB_photonsNonConv=" 
@@ -1391,7 +1388,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
   case 25:
     {
       const unsigned int etStripsNB_photonsNonConv = 
-	CutBinEnergyStrips_photonsNonConverted.size();
+	m_cutBinEnergyStrips_photonsNonConverted.size();
       if ( vec.size() != etStripsNB_photonsNonConv ) {
 	ATH_MSG_ERROR("vector size is " 
 		       << vec.size() << " but needs etStripsNB_photonsNonConv=" 
@@ -1406,9 +1403,9 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
   case 26:
     {
       const unsigned int etaStripsNB_photonsNonConv = 
-	CutBinEtaStrips_photonsNonConverted.size();
+	m_cutBinEtaStrips_photonsNonConverted.size();
       const unsigned int etStripsNB_photonsNonConv = 
-	CutBinEnergyStrips_photonsNonConverted.size();
+	m_cutBinEnergyStrips_photonsNonConverted.size();
       unsigned int combinedStripsNB_photonsNonConv = 0;
       if (etStripsNB_photonsNonConv>0)
 	combinedStripsNB_photonsNonConv = 

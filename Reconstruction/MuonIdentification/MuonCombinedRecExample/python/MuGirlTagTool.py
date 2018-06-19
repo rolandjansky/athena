@@ -4,6 +4,7 @@
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.CfgGetter import getPublicTool,getService
+from AthenaCommon.GlobalFlags import globalflags
 
 from RecExConfig.RecFlags import rec
 
@@ -48,6 +49,8 @@ def MuonLayerAmbiguitySolverTool( name="MuonLayerAmbiguitySolverTool",**kwargs):
    return CfgMgr.Muon__MuonLayerAmbiguitySolverTool(name,**kwargs)
 
 def MuonRecoValidationTool( name="MuonRecoValidationTool",**kwargs):
+   if globalflags.DataSource() != 'data':
+      kwargs.setdefault("isMC",True)
    return CfgMgr.Muon__MuonRecoValidationTool(name,**kwargs)
 
 def DCMathStauSegmentMaker( name="DCMathStauSegmentMaker", **kwargs ):

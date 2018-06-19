@@ -5,8 +5,8 @@
 #ifndef TRANSVERSEENERGYCONTAINER_H
 #define TRANSVERSEENERGYCONTAINER_H
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include <vector>
 
 #include "HadronicRecoilData/TransverseEnergy.h"

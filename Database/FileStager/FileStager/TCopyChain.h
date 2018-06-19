@@ -29,18 +29,18 @@ class TCopyChain : public TChain
   virtual Int_t	Add(const char* name, Long64_t nentries = kBigNumber);
   //virtual Int_t	AddFile(const char* name, Long64_t nentries = kBigNumber, const char* tname = "");
 
-  static  void SetOriginalTChain(bool originalTChain=true) { _originalTChain=originalTChain; }
-  virtual bool IsNewFile(){ return _isNewFile; }
+  static  void SetOriginalTChain(bool originalTChain=true) { s_originalTChain=originalTChain; }
+  virtual bool IsNewFile(){ return m_isNewFile; }
   virtual TString GetCurrentLocalFileName();
 
  private:
-  static bool _originalTChain;
-  bool _releasedLastFile;
-  int _bigNumber;
+  static bool s_originalTChain;
+  bool m_releasedLastFile;
+  int m_bigNumber;
 
-  TFile* _curFile; //!
-  TString _prevFileName;
-  bool _isNewFile;
+  TFile* m_curFile; //!
+  TString m_prevFileName;
+  bool m_isNewFile;
 
   ClassDef(TCopyChain,1)
 };

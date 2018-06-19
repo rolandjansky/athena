@@ -20,14 +20,15 @@
 #include "PATCore/IAsgSelectionTool.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "InDetPhysValMonitoring/IAthSelectionTool.h"
 //#include "src/TrackTruthSelectionTool.h"
 
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticle.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "TDatabasePDG.h"
 #include "TParticlePDG.h"
 #include "xAODTracking/TrackParticle.h"
-#include "InDetPhysValMonitoring/IInDetPhysValDecoratorTool.h"
 
 //fwd declaration
 class IInDetPhysValDecoratorTool;
@@ -38,6 +39,7 @@ class InDetRttLargeD0Plots;
  * Tool to book and fill inner detector histograms for physics validation
  */
 class InDetPhysValLargeD0Tool:public ManagedMonitorToolBase{
+  InDetPhysValLargeD0Tool() = delete;
  public:
   ///Constructor with parameters
   InDetPhysValLargeD0Tool(const std::string & type, const std::string & name, const IInterface* parent);
@@ -63,16 +65,19 @@ class InDetPhysValLargeD0Tool:public ManagedMonitorToolBase{
   //@}
  private:
   ///prevent default construction
-  InDetPhysValLargeD0Tool();
   ///TrackParticle container's name
-  std::string m_trkParticleName;
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trkParticleName
+    {this, "TrackParticleContainerName", "InDetTrackParticles", "" };
   ///TruthParticle container's name
-  std::string m_truthParticleName;
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleName
+    {this, "TruthParticleContainerName",  "TruthParticles", "" };
   ///Primary vertex container's name
-  std::string m_vertexContainerName;
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainerName
+    {this, "VertexContainerName", "PrimaryVertices", "" };
   ///EventInfo container name
-  std::string m_eventInfoContainerName;
-  
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoContainerName
+    {this, "EventInfoContainerName", "EventInfo", "" };
+
   /* @asogaard */
   std::string      m_LLP;
   std::vector<int> m_signalIds; 
@@ -84,8 +89,7 @@ class InDetPhysValLargeD0Tool:public ManagedMonitorToolBase{
   bool m_onlyInsideOutTracks;
   //ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool;
   ToolHandle<IAsgSelectionTool> m_trackSelectionTool; // @asogaard
-  
-  ToolHandle<IAsgSelectionTool> m_truthSelectionTool;
+  ToolHandle<IAthSelectionTool> m_truthSelectionTool;
   
   //bool m_TrackTruthSelectionTool;
   //ToolHandle<TrackTruthSelectionTool> m_TrackTruthSelectionTool;
@@ -96,18 +100,6 @@ class InDetPhysValLargeD0Tool:public ManagedMonitorToolBase{
   std::string m_folder;
   bool m_fillTIDEPlots;
   bool m_fillExtraTIDEPlots;
-    
-  template<class T>
-    const T* getContainer( const std::string & containerName);
 };
-
-template<class T>
-const T* InDetPhysValLargeD0Tool::getContainer(const std::string & containerName){
-  const T * ptr = evtStore()->retrieve< const T >( containerName );
-  if (!ptr) {
-    ATH_MSG_ERROR("Container '"<<containerName<<"' could not be retrieved");
-  }
-  return ptr;
-}
 
 #endif

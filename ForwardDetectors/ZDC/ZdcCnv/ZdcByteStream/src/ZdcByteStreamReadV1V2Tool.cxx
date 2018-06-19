@@ -963,7 +963,7 @@ StatusCode ZdcByteStreamReadV1V2Tool::processPpmStandardR3V1_() {
         m_subBlockHeader.module(),
         lut.first,
         lut.second,
-        m_ppFadcs[lut.first]));;
+        m_ppFadcs[lut.first]));
     }
     return StatusCode::SUCCESS;
 }

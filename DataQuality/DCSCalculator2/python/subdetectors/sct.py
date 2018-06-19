@@ -16,7 +16,7 @@ class DCSC_Variable_SCT_Config(DCSC_Variable_With_Mapping):
     zero or one elements.
     """
     
-    input_db = "COOLONL_SCT/COMP200"
+    input_db = "COOLONL_SCT/CONDBR2"
     is_config_variable = True
     
     # This is an instruction to fetch_iovs to get the "group" and "id" 
@@ -46,7 +46,7 @@ def make_sct_mapping():
     """
     from DQUtils.db import Databases
     from DQUtils.channel_mapping import get_channel_ids_names
-    f = Databases.get_folder("/SCT/DCS/HV", "COOLOFL_DCS/COMP200")
+    f = Databases.get_folder("/SCT/DCS/HV", "COOLOFL_DCS/CONDBR2")
     cids, cnames, cmap = get_channel_ids_names(f)
     
     mapping = {}
@@ -85,8 +85,8 @@ class SCT(DCSC_DefectTranslate_Subdetector):
         numbers for the configuration need mapping onto input ids.
         """
         self.mapping = make_sct_mapping()
-        if 'keep_dcsofl' not in kwargs:
-            kwargs['keep_dcsofl'] = True
+        #if 'keep_dcsofl' not in kwargs:
+        #    kwargs['keep_dcsofl'] = True
         super(SCT, self).__init__(*args, **kwargs)
 
         sct_sn_to_cool_ids = resource_string("DCSCalculator2.subdetectors.data", 
@@ -105,6 +105,7 @@ class SCT(DCSC_DefectTranslate_Subdetector):
         rv = []
         for since, until, states in process_iovs(*flag_iovs.by_channel.values()):
             if any(state.Code != GREEN for state in states):
+                # This line of code is awful!
                 badfrac = 'Bad fractions: ' + ', '.join('%s %.3f' % (defectmap[state.channel], state.deadFrac) for state in sorted(states, key=lambda x: x.channel))
                 rv.append(DefectIOV(since=since, until=until,
                                     channel='SCT_GLOBAL_STANDBY', present=True,

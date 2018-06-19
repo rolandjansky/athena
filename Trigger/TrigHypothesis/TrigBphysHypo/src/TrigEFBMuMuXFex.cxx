@@ -4050,8 +4050,8 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
 
   	  const std::vector<xAOD::Vertex*> cascadeVertices = result->vertices();
 
-          VertexX[0]     = cascadeVertices[0]->x(); VertexX[1]     = cascadeVertices[0]->y();; VertexX[2]     = cascadeVertices[0]->z();
-          VertexXMuMu[0] = cascadeVertices[1]->x(); VertexXMuMu[1] = cascadeVertices[1]->y();; VertexXMuMu[2] = cascadeVertices[1]->z();
+          VertexX[0]     = cascadeVertices[0]->x(); VertexX[1]     = cascadeVertices[0]->y(); VertexX[2]     = cascadeVertices[0]->z();
+          VertexXMuMu[0] = cascadeVertices[1]->x(); VertexXMuMu[1] = cascadeVertices[1]->y(); VertexXMuMu[2] = cascadeVertices[1]->z();
 
 	  ATH_MSG(DEBUG) << " " << "Bc -> Ds Casc., VertexX     = " << VertexX[0] << " " << VertexX[1] << " " << VertexX[2] << endmsg;
 	  ATH_MSG(DEBUG) << " " << "Bc -> Ds Casc., VertexXMuMu = " << VertexXMuMu[0] << " " << VertexXMuMu[1] << " " << VertexXMuMu[2] << endmsg;
@@ -4306,8 +4306,8 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDplus(const ElementLink<xAOD::Track
 
   	  const std::vector<xAOD::Vertex*> cascadeVertices = result->vertices();
 
-          VertexX[0]     = cascadeVertices[0]->x(); VertexX[1]     = cascadeVertices[0]->y();; VertexX[2]     = cascadeVertices[0]->z();
-          VertexXMuMu[0] = cascadeVertices[1]->x(); VertexXMuMu[1] = cascadeVertices[1]->y();; VertexXMuMu[2] = cascadeVertices[1]->z();
+          VertexX[0]     = cascadeVertices[0]->x(); VertexX[1]     = cascadeVertices[0]->y(); VertexX[2]     = cascadeVertices[0]->z();
+          VertexXMuMu[0] = cascadeVertices[1]->x(); VertexXMuMu[1] = cascadeVertices[1]->y(); VertexXMuMu[2] = cascadeVertices[1]->z();
 
 	  ATH_MSG(DEBUG) << " " << "Bc -> Dplus Casc., VertexX     = " << VertexX[0] << " " << VertexX[1] << " " << VertexX[2] << endmsg;
 	  ATH_MSG(DEBUG) << " " << "Bc -> Dplus Casc., VertexXMuMu = " << VertexXMuMu[0] << " " << VertexXMuMu[1] << " " << VertexXMuMu[2] << endmsg;
@@ -4605,8 +4605,8 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
 
   	  const std::vector<xAOD::Vertex*> cascadeVertices = result->vertices();
 
-          VertexX[0]     = cascadeVertices[0]->x(); VertexX[1]     = cascadeVertices[0]->y();; VertexX[2]     = cascadeVertices[0]->z();
-          VertexXMuMu[0] = cascadeVertices[1]->x(); VertexXMuMu[1] = cascadeVertices[1]->y();; VertexXMuMu[2] = cascadeVertices[1]->z();
+          VertexX[0]     = cascadeVertices[0]->x(); VertexX[1]     = cascadeVertices[0]->y(); VertexX[2]     = cascadeVertices[0]->z();
+          VertexXMuMu[0] = cascadeVertices[1]->x(); VertexXMuMu[1] = cascadeVertices[1]->y(); VertexXMuMu[2] = cascadeVertices[1]->z();
 
 	  ATH_MSG(DEBUG) << " " << "Bc -> Dstar Casc., VertexX     = " << VertexX[0] << " " << VertexX[1] << " " << VertexX[2] << endmsg;
 	  ATH_MSG(DEBUG) << " " << "Bc -> Dstar Casc., VertexXMuMu = " << VertexXMuMu[0] << " " << VertexXMuMu[1] << " " << VertexXMuMu[2] << endmsg;
@@ -4892,8 +4892,8 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuD0(const ElementLink<xAOD::TrackPar
 
   	  const std::vector<xAOD::Vertex*> cascadeVertices = result->vertices();
 
-          VertexX[0]     = cascadeVertices[0]->x(); VertexX[1]     = cascadeVertices[0]->y();; VertexX[2]     = cascadeVertices[0]->z();
-          VertexXMuMu[0] = cascadeVertices[1]->x(); VertexXMuMu[1] = cascadeVertices[1]->y();; VertexXMuMu[2] = cascadeVertices[1]->z();
+          VertexX[0]     = cascadeVertices[0]->x(); VertexX[1]     = cascadeVertices[0]->y(); VertexX[2]     = cascadeVertices[0]->z();
+          VertexXMuMu[0] = cascadeVertices[1]->x(); VertexXMuMu[1] = cascadeVertices[1]->y(); VertexXMuMu[2] = cascadeVertices[1]->z();
 
 	  ATH_MSG(DEBUG) << " " << "Bc -> D0 Casc., VertexX     = " << VertexX[0] << " " << VertexX[1] << " " << VertexX[2] << endmsg;
 	  ATH_MSG(DEBUG) << " " << "Bc -> D0 Casc., VertexXMuMu = " << VertexXMuMu[0] << " " << VertexXMuMu[1] << " " << VertexXMuMu[2] << endmsg;
@@ -5143,8 +5143,8 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkLbMuMuLambda(const ElementLink<xAOD::Trac
 
   	  const std::vector<xAOD::Vertex*> cascadeVertices = result->vertices();
 
-          VertexX[0]     = cascadeVertices[0]->x(); VertexX[1]     = cascadeVertices[0]->y();; VertexX[2]     = cascadeVertices[0]->z();
-          VertexXMuMu[0] = cascadeVertices[1]->x(); VertexXMuMu[1] = cascadeVertices[1]->y();; VertexXMuMu[2] = cascadeVertices[1]->z();
+          VertexX[0]     = cascadeVertices[0]->x(); VertexX[1]     = cascadeVertices[0]->y(); VertexX[2]     = cascadeVertices[0]->z();
+          VertexXMuMu[0] = cascadeVertices[1]->x(); VertexXMuMu[1] = cascadeVertices[1]->y(); VertexXMuMu[2] = cascadeVertices[1]->z();
 
 	  ATH_MSG(DEBUG) << " " << "Lb -> Lambda Casc., VertexX     = " << VertexX[0] << " " << VertexX[1] << " " << VertexX[2] << endmsg;
 	  ATH_MSG(DEBUG) << " " << "Lb -> Lambda Casc., VertexXMuMu = " << VertexXMuMu[0] << " " << VertexXMuMu[1] << " " << VertexXMuMu[2] << endmsg;

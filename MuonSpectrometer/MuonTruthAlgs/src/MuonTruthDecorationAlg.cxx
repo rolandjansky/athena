@@ -331,7 +331,7 @@ namespace Muon {
 	}
 	if( firstPos && secondPos ){
           Amg::Vector3D gpos = (*firstPos+*secondPos)/2.;
-          Amg::Vector3D gdir = (*firstPos-*secondPos).unit();
+          Amg::Vector3D gdir = (*secondPos-*firstPos).unit();
 	  ATH_MSG_DEBUG(" got position : r " << gpos.perp() << " z " << gpos.z()  
                         << "  and direction: theta " << gdir.theta() << " phi " << gdir.phi() );
           segment->setPosition(gpos.x(),gpos.y(),gpos.z());

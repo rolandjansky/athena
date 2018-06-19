@@ -25,7 +25,9 @@ class ZDC_SimStripHit_CollectionCnv  : public ZDC_SimStripHit_CollectionCnvBase 
 
 protected:
 
+public:
   ZDC_SimStripHit_CollectionCnv(ISvcLocator* svcloc) : ZDC_SimStripHit_CollectionCnvBase ( svcloc) {}
+protected:
   virtual ZDC_SimStripHit_Collection_PERS*  createPersistent(ZDC_SimStripHit_Collection* transCont);
   virtual ZDC_SimStripHit_Collection*       createTransient ();
 

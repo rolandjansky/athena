@@ -14,7 +14,6 @@ if( XAOD_ANALYSIS )
       Control/AthenaKernel
       Control/StoreGate
       Control/xAODRootAccess
-      Database/AthenaPOOL/AthenaPoolKernel
       Event/xAOD/xAODLuminosity
       GaudiKernel
       PRIVATE
@@ -30,7 +29,6 @@ else()
       Control/AthenaKernel
       Control/StoreGate
       Control/xAODRootAccess
-      Database/AthenaPOOL/AthenaPoolKernel
       Database/CoolLumiUtilities
       Event/xAOD/xAODLuminosity
       GaudiKernel

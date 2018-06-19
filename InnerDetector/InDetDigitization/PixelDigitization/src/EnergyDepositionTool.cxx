@@ -47,7 +47,6 @@ EnergyDepositionTool::EnergyDepositionTool(const std::string& type, const std::s
   m_doBichselBetaGammaCut(0.1),        // replace momentum cut
   m_doDeltaRay(false),                 // need validation
   m_doPU(true),
-  m_pixDistoTool("PixelDistortionsTool"),
   m_rndmSvc("AtDSFMTGenSvc",name),
   m_rndmEngineName("PixelDigitization"),
   m_rndmEngine(0)

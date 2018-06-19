@@ -233,7 +233,7 @@ class GaudiHandlePropertyProxyBase(PropertyProxy):
                   self.__set__( obj, default )
             else:
                return default
-         except AttributeError,e:
+         except AttributeError as e:
             import traceback
             traceback.print_exc()
             # change type of exception to avoid false error message
@@ -308,7 +308,7 @@ class GaudiHandlePropertyProxyBase(PropertyProxy):
             try:
                conf = self.getDefaultConfigurable(typeAndName, self.fullPropertyName(obj))
 #               print self.fullPropertyName(obj) + ": Setting default private configurable (from default handle): %r" % conf 
-            except AttributeError,e:
+            except AttributeError as e:
                # change type of exception to avoid false error message
                raise RuntimeError(*e.args)
             if conf is None:

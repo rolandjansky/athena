@@ -4,7 +4,13 @@
 
 #include "TrackParticleTPCnv/TrackParticleContainerCnv_tlp2.h"
 
-TrackParticleContainerCnv_tlp2::TrackParticleContainerCnv_tlp2() {
+TrackParticleContainerCnv_tlp2::TrackParticleContainerCnv_tlp2()
+{
+    // Add all converters defined in this top level converter.
+    // HEY YOU --- YES YOU --- READ THIS!!!!!!!
+    // NEVER change the order of the addTPConverter calls!
+    // NEVER delete an addTPConverter call!
+    // NEVER add an addTPConverter call in the middle --- only at the end!
 
     addMainTPConverter();
 
@@ -54,6 +60,9 @@ TrackParticleContainerCnv_tlp2::TrackParticleContainerCnv_tlp2() {
 
     addTPConverter( &m_trackParticleCnv_p2);
 
+    addTPConverter( &m_rotatedDiamondBoundsCnv);
+
+    // HEY YOU --- YES YOU --- READ THE COMMENT AT THE START OF THIS FUNCTION!!!
 }
 
 void TrackParticleContainerCnv_tlp2::setPStorage( Rec::TrackParticleContainer_tlp2 *storage )
@@ -99,8 +108,9 @@ void TrackParticleContainerCnv_tlp2::setPStorage( Rec::TrackParticleContainer_tl
 
     m_surfacesCnv.		setPStorage( &storage->m_surfaces );              
     m_cylinderBoundsCnv.	setPStorage( &storage->m_cylinderBounds );        
-    m_diamondBoundsCnv.	setPStorage( &storage->m_diamondBounds );         
-    m_discBoundsCnv.	setPStorage( &storage->m_discBounds );            
+    m_diamondBoundsCnv.	        setPStorage( &storage->m_diamondBounds );         
+    m_rotatedDiamondBoundsCnv.  setPStorage( &storage->m_rotatedDiamondBounds );         
+    m_discBoundsCnv.	        setPStorage( &storage->m_discBounds );            
     m_rectangleBoundsCnv.	setPStorage( &storage->m_rectangleBounds );       
     m_trapesoidBoundsCnv.	setPStorage( &storage->m_trapesoidBounds );      
     m_rotatedTrapesoidBoundsCnv.   setPStorage( &storage->m_rotatedTrapesoidBounds); 

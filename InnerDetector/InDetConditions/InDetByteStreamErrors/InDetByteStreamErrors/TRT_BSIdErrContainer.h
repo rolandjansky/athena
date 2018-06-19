@@ -12,8 +12,8 @@
 #define TRT_BYTESTREAMERRORS_TRT_BSIDERRCONTAINER_H
 
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include <stdint.h>
 

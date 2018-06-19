@@ -422,7 +422,7 @@ void Viewer::DoButton() {
         break;}
     case 22:                    // create PNG
         {//if(fCanvas)
-        char pngFileName[50]="BarrelTrack.png";;
+        char pngFileName[50]="BarrelTrack.png";
         //sprintf(pngFileName,"BarrelTrack%d.png",int(m_entryNumber));
         fCanvas->Print( pngFileName,"png");
         //}

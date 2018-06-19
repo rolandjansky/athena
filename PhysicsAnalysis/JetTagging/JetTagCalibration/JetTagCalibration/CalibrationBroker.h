@@ -25,8 +25,9 @@ namespace Analysis {
   @ class CalibrationBroker
 
   This class retrieves or stores calibration histograms in COOL for the taggers.
-  Each tagger corresponds to a folder in COOL. The folders are subdivided in 
-  channels, each channel being associated to a jet type (Cone4Topo, Kt6, etc).
+  A single COOL folder is defined for all the taggers.
+  Each tagger is subdivided in channels, each channel being associated to a jet type
+   (Cone4Topo, Kt6, etc).
 
   Any further substructure (track categories, signal/background) is hidden to COOL 
   and is defined by the actual name of the histogram.
@@ -54,15 +55,15 @@ public:
   virtual StatusCode initialize();
   virtual StatusCode finalize();
   virtual StatusCode registerCallBack();
-  void registerHistogram(const std::string& folder, 
+  void registerHistogram(const std::string& tagger, 
                          const std::string& histoname);
   template <class T> std::pair<T*,bool> retrieveTObject(const std::string& folder, 
                                                  const std::string& channel,
                                                  const std::string& objectname) const;
-  std::pair<TH1*,bool> retrieveHistogram(const std::string& folder, 
+  std::pair<TH1*,bool> retrieveHistogram(const std::string& tagger, 
                                          const std::string& channel,
                                          const std::string& histoname) const;
-  void updateHistogramStatus(const std::string& folder, 
+  void updateHistogramStatus(const std::string& tagger, 
                              const std::string& channel,
                              const std::string& histoname,
 			     bool status);
@@ -82,12 +83,14 @@ public:
   std::map<std::string, calibMV2> m_calibMap;
   inline void storeCalib(const std::string& folder, const std::string& channel, const std::string& histoname,
 		       std::vector<std::string> inputVars, std::string str, TObject* obj ) {
-    std::string key = folder + channel + histoname;
+    std::string channelAlias = this->channelAlias(channel);
+    std::string key = folder + channelAlias + histoname;
     calibMV2 calib;    calib.inputVars = inputVars;    calib.str=str;    calib.obj=obj;
     m_calibMap[key] = calib;
   }
   inline calibMV2 getCalib(const std::string& folder, const std::string& channel, const std::string& histoname) {
-    std::string key = folder + channel + histoname;
+    std::string channelAlias = this->channelAlias(channel);
+    std::string key = folder + channelAlias + histoname;
     return m_calibMap[key];
   }
   
@@ -96,19 +99,16 @@ public:
   // helper functions:
   std::string channelName(const std::string& fullHistoName) const;
   std::string histoName(const std::string& fullHistoName) const ;
-  std::string taggerName(const std::string& folderName) const ;
   std::string fullHistoName(const std::string& channel, const std::string& histoName) const;
   std::string channelAlias(const std::string& originalChannel) const;
   void updateHistoStatusTaggerList(const std::string& longfolder, const std::string& fname);
   void updateHistogramStatusPerTagger(const std::string& folder, 
 				      const std::string& channel, 
 				      const std::string& hname, 
-				      bool status, 
-				      const std::string& taggerName);
+				      bool status);
   bool updatedTagger(const std::string& folder, 
 		     const std::string& channel, 
-		     const std::string& hname, 
-		     const std::string& taggerName);
+		     const std::string& hname); 
 
 private:
 
@@ -122,7 +122,7 @@ private:
   static const unsigned int s_nmax_callbacks;
 
   std::string m_folderRoot;
-  std::vector< std::string > m_folders; 
+  std::vector< std::string > m_taggers; 
   std::vector< std::string > m_channels;
   std::vector< std::string > m_originalChannels;
   /* aliases for channels: 
@@ -134,7 +134,7 @@ private:
   std::string m_singleFolderName;
   std::map< std::string, std::string > m_channelAliasesMap;
   std::map< std::string, std::vector<std::string> >  m_channelAliasesMultiMap;
-  std::vector<std::vector<std::string> > m_foldersHists;
+  std::vector<std::vector<std::string> > m_taggersHists;
   /* all the histograms associated with a flag to know if they have been updated recently: */
   std::vector< std::map<std::string, std::pair<TObject*, bool> > > m_histos;
 

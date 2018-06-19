@@ -355,14 +355,14 @@ namespace MuonCalib {
 	      foundIds.insert(id);
 	    }else{
 	      if( measuresPhi ) sharedPhiLayers.insert(layerId);
-	      else              sharedEtaLayers.insert(layerId);;
+	      else              sharedEtaLayers.insert(layerId);
 	      foundIds.insert(layerId);
 	    }
 	  }else{
 	    if( !id.is_mdt() && foundIds.count(layerId) ) continue;
 	    //std::cout << " only on this track " << std::endl;
 	    if( measuresPhi ) firstPhiLayers.insert(layerId);
-	    else              firstEtaLayers.insert(layerId);;
+	    else              firstEtaLayers.insert(layerId);
 	  }
 	}
 	std::vector<const MuonCalibHit_E*>::const_iterator it2 = pos->second.begin();

@@ -4,7 +4,6 @@
 
 #include "MuonCombinePatternTools/MuonCombinePatternTool.h"
 
-#include "GaudiKernel/ToolFactory.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "CxxUtils/sincos.h"
@@ -65,20 +64,13 @@ StatusCode MuonCombinePatternTool::initialize()
 
   ATH_MSG_DEBUG("MuonCombinePatternTool::initialize");
 
-  StatusCode sc = detStore()->retrieve( m_detMgr );
+  ATH_CHECK( detStore()->retrieve( m_detMgr ) );
 
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR(" Cannot retrieve MuonDetDescrMgr " );
-    return sc;
-  } 
-  else 
-  {
-    m_mdtIdHelper = m_detMgr->mdtIdHelper();
-    m_cscIdHelper = m_detMgr->cscIdHelper();    
-    m_rpcIdHelper = m_detMgr->rpcIdHelper();
-    m_tgcIdHelper = m_detMgr->tgcIdHelper();
-    ATH_MSG_DEBUG(" Retrieved IdHelpers: (mdt, csc, rpc and tgc) ");
-  }
+  m_mdtIdHelper = m_detMgr->mdtIdHelper();
+  m_cscIdHelper = m_detMgr->cscIdHelper();    
+  m_rpcIdHelper = m_detMgr->rpcIdHelper();
+  m_tgcIdHelper = m_detMgr->tgcIdHelper();
+  ATH_MSG_DEBUG(" Retrieved IdHelpers: (mdt, csc, rpc and tgc) ");
 
   if (m_use_cosmics == false) {
     m_splitpatterns = false;
@@ -86,10 +78,12 @@ StatusCode MuonCombinePatternTool::initialize()
   if (m_use_cosmics == true) {
     m_bestphimatch = true;
   }
+
+  ATH_CHECK( m_idHelper.retrieve() );
   
   ATH_MSG_DEBUG(" UseCosmics: " << m_use_cosmics << " Split Patterns: " << m_splitpatterns << " NoDiscarding: " << m_nodiscarding << " BestPhiMatch: " << m_bestphimatch );
 
-  return sc;
+  return StatusCode::SUCCESS;
 
 }
 

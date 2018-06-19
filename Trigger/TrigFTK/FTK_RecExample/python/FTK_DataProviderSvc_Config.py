@@ -134,7 +134,6 @@ class ConfiguredFTK_DataProviderSvc(FTK_DataProviderSvc) :
                                              #onlyzseed = ,
                                              )
 
-        FTK_VxFitterTool.XAODConverter = InDetTrigVxEdmCnv
         ToolSvc += FTK_VxFitterTool
 
         from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetIterativePriVxFinderTool
@@ -147,8 +146,7 @@ class ConfiguredFTK_DataProviderSvc(FTK_DataProviderSvc) :
                                                                    useBeamConstraint = True,
                                                                    significanceCutSeeding = 12,
                                                                    maximumChi2cutForSeeding = 49,
-                                                                   maxVertices = 200,
-                                                                   InternalEdmFactory =InDetTrigVxEdmCnv
+                                                                   maxVertices = 200
                                                                    )
         ToolSvc += FTK_PriVxFinderTool
 

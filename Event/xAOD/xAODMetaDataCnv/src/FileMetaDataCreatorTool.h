@@ -16,7 +16,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IIOVSvc.h"
 #include "AsgTools/AsgMetadataTool.h"
-#include "AthenaPoolKernel/IMetaDataTool.h"
+#include "AthenaKernel/IMetaDataTool.h"
 
 // EDM include(s):
 #include "xAODMetaData/FileMetaData.h"
@@ -63,6 +63,9 @@ namespace xAODMaker {
 
       /// Function collecting the metadata from a new input file
       virtual StatusCode beginInputFile();
+
+      /// Function collecting the metadata from a new input file
+      virtual StatusCode endInputFile();
 
       /// Function writing the collected metadata to the output
       virtual StatusCode metaDataStop();

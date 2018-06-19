@@ -658,7 +658,6 @@ class scriptExecutor(transformExecutor):
 
         try:
             p = subprocess.Popen(self._cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
-            
             if self._memMonitor:
                 try:
                     self._memSummaryFile = 'mem.summary.' + self._name + '.json'
@@ -1305,22 +1304,7 @@ class athenaExecutor(scriptExecutor):
                 else:
                     msg.info('Valgrind not engaged')
                     # run Athena command
-                    if 'checkpoint' in self.conf.argdict and self.conf._argdict['checkpoint'].value is True:
-                        for port in range(7770,7790):
-                            if bind_port("127.0.0.1",port)==0:
-                                break
-                        msg.info("Using port %s for dmtcp_launch."%port)
-                        print >>wrapper,'dmtcp_launch -p %s'%port, ' '.join(self._cmd)
-                    elif 'restart' in self.conf.argdict and self.conf._argdict['restart'].value is not None and 'MergeAthenaMP' not in self.name:
-                        restartTarball = self.conf._argdict['restart'].value
-                        print >>wrapper, 'tar -xf %s -C .' % restartTarball
-                        for port in range(7770,7790):
-                            if bind_port("127.0.0.1",port)==0:
-                                break
-                        msg.info("Using port %s for dmtcp_launch."%port)
-                        print >>wrapper, './dmtcp_restart_script.sh -p %s -h 127.0.0.1'%port
-                    else:
-                        print >>wrapper, ' '.join(self._cmd)
+                    print >>wrapper, ' '.join(self._cmd)
             os.chmod(self._wrapperFile, 0755)
         except (IOError, OSError) as e:
             errMsg = 'error writing athena wrapper {fileName}: {error}'.format(
@@ -1890,12 +1874,23 @@ class archiveExecutor(scriptExecutor):
                 elif self.conf.argdict['compressionType'] == 'none':
                     pass
         elif self._exe == 'zip':
-            self._cmd = [self._exe]
-            if 'compressionLevel' in self.conf.argdict:
-                self._cmd.append(self.conf.argdict['compressionLevel'])
-            self._cmd.extend([self.conf.argdict['outputArchFile'].value[0]])
-            if '.' not in self.conf.argdict['outputArchFile'].value[0]:
-                errmsg = 'Output filename must end in ".", ".zip" or ".anyname" '
-                raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'), errmsg)
-        self._cmd.extend(self.conf.argdict['inputDataFile'].value)
+            self._cmd = ['python']
+            try:
+                with open('zip_wrapper.py', 'w') as zip_wrapper:
+                    print >> zip_wrapper, "import zipfile"
+                    print >> zip_wrapper, "zf = zipfile.ZipFile('{}', mode='w', allowZip64=True)".format(self.conf.argdict['outputArchFile'].value[0])
+                    print >> zip_wrapper, "for f in {}:".format(self.conf.argdict['inputDataFile'].value)
+                    print >> zip_wrapper, "   print 'Zipping file {}'.format(f)"
+                    print >> zip_wrapper, "   zf.write(f, compress_type=zipfile.ZIP_STORED)"
+                    print >> zip_wrapper, "zf.close()"
+                os.chmod('zip_wrapper.py', 0755)
+            except (IOError, OSError) as e:
+                errMsg = 'error writing zip wrapper {fileName}: {error}'.format(fileName = 'zip_wrapper.py',
+                    error = e
+                )
+                msg.error(errMsg)
+                raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_SETUP_WRAPPER'),
+                    errMsg
+                )
+        self._cmd.append('zip_wrapper.py')
         super(archiveExecutor, self).preExecute(input=input, output=output)

@@ -18,7 +18,6 @@
 // This class' header
 #include "PrimaryDPDMaker/ThinContainers.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "AthLinks/ElementLink.h"
