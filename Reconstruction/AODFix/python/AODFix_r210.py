@@ -2,6 +2,7 @@
 
 
 from AthenaCommon.Logging import logging
+from AthenaCommon import CfgMgr
 
 logAODFix_r210 = logging.getLogger( 'AODFix_r210' )
 
@@ -22,7 +23,7 @@ class AODFix_r210(AODFix_base):
     def latestAODFixVersion():
         """The latest version of the AODFix. Moving to new AODFix version scheme"""
 
-        metadataList = [item.split("_")[0] for item in sorted(AODFix_r210.__dict__.keys()) 
+        metadataList = [item.split("_")[0] for item in sorted(AODFix_r210.__dict__.keys())
                         if ("_" in item and "__" not in item)]
 
         return metadataList
@@ -39,7 +40,7 @@ class AODFix_r210(AODFix_base):
 
             from AthenaCommon.AlgSequence import AlgSequence
             topSequence = AlgSequence()
-            
+
             oldMetadataList = self.prevAODFix.split("-")
             if "trklinks" not in oldMetadataList:
                 self.trklinks_postSystemRec(topSequence)
@@ -58,9 +59,16 @@ class AODFix_r210(AODFix_base):
             if "phIso" not in oldMetadataList:
                 self.phIso_postSystemRec(topSequence)
                 pass
-    
+
             if "btagging" not in oldMetadataList and not self.isHI:
                 self.btagging_postSystemRec(topSequence)
+                pass
+
+            if "muonDecor" not in oldMetadataList:
+                self.muonDecor_postSystemRec( topSequence )
+                pass
+            if "inDetVars" not in oldMetadataList:
+                self.inDetVars_postSystemRec( topSequence )
                 pass
 
             from tauRec.tauRecFlags import tauAODFlags
@@ -70,7 +78,6 @@ class AODFix_r210(AODFix_base):
                     pass
 
             # Reset all of the ElementLinks. To be safe.
-            from AthenaCommon import CfgMgr
             topSequence += \
                 CfgMgr.xAODMaker__ElementLinkResetAlg( "AODFix_ElementLinkReset" )
             pass
@@ -81,12 +88,11 @@ class AODFix_r210(AODFix_base):
     # Below are the individual AODfixes, split up and documented
     # Name must follow format: <fixID>_<whereCalled>
 
- 
+
     def trklinks_postSystemRec(self, topSequence):
         """This fixes the links to tracks in muons and btagging
         JIRA: https://its.cern.ch/jira/browse/ATLASRECTS-3988
         """
-        from AthenaCommon import CfgMgr
         if self.isHI:
             containers = ["CombinedMuonTrackParticlesAux.","MuonsAux."]
         else:
@@ -157,17 +163,17 @@ class AODFix_r210(AODFix_base):
         Please update postSystemRec to call if you want to run it.
         """
         pass
-        
+
 
     def elIso_postSystemRec (self, topSequence):
-        from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter               
-        isoAODFixGetter("Electrons")        
+        from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter
+        isoAODFixGetter("Electrons")
     def felIso_postSystemRec (self, topSequence):
-        from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter               
-        isoAODFixGetter("ForwardElectrons")        
+        from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter
+        isoAODFixGetter("ForwardElectrons")
     def phIso_postSystemRec (self, topSequence):
-        from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter               
-        isoAODFixGetter("Photons")        
+        from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter
+        isoAODFixGetter("Photons")
 
     from tauRec.tauRecFlags import tauAODFlags
     if tauAODFlags.doTauIDAODFix():
@@ -208,3 +214,35 @@ class AODFix_r210(AODFix_base):
             # Calculate RNN-ID and set working points
             from tauRec.TauRecAODBuilder import TauRecAODProcessor_RNN_ID
             TauRecAODProcessor_RNN_ID()
+
+    def muonDecor_postSystemRec( self, topSequence ):
+        """Fix the issue with muon decorations, described in ATLASRECTS-4499.
+
+        It simply schedules an algorithm that turns the variables, which should
+        not be in the primary AOD, into decorations. So that derivation jobs
+        could freely overwrite them.
+        """
+
+        topSequence += \
+            CfgMgr.xAODMaker__DynVarToDecorationAlg( "AODFix_MuonDecorFixer",
+                                                     ContainerName = "MuonsAux.",
+                                                     AuxVariableNames = [
+                                                       "DFCommonMuonsLoose",
+                                                       "DFCommonMuonsMedium",
+                                                       "DFCommonMuonsTight",
+                                                       "DFCommonGoodMuon",
+                                                     ] )
+        return
+
+    def inDetVars_postSystemRec( self, topSequence ):
+        """Fix for the inconsistently filled track particle variables.
+
+        Using the same @c xAODMaker::DynVarFixerAlg algorithm that's used in
+        @c trklinks_postSystemRec as well.
+        """
+
+        topSequence += \
+            CfgMgr.xAODMaker__DynVarFixerAlg( "AODFix_InDetTrackParticlesFixer",
+                                              Containers = [
+                                                "InDetTrackParticlesAux." ] )
+        return
