@@ -11,7 +11,7 @@
 
 TileDigitsContainer_PERS* TileDigitsContainerCnv::createPersistent(TileDigitsContainer* transCont) {
     MsgStream mlog(msgSvc(), "TileDigitsContainerConverter" );
-    TileDigitsContainerCnv_p3   converter;
+    TileDigitsContainerCnv_p1   converter;
     TileDigitsContainer_PERS *persObj = converter.createPersistent( transCont, mlog );
     return persObj;
 }
