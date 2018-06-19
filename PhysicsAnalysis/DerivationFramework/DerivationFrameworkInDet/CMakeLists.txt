@@ -55,7 +55,8 @@ atlas_depends_on_subdirs(
    Tracking/TrkEvent/TrkRIO_OnTrack
    Tracking/TrkExtrapolation/TrkExInterfaces
    Tracking/TrkTools/TrkToolInterfaces
-   Tracking/TrkVertexFitter/TrkVertexFitterInterfaces )
+   Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
+   InnerDetector/InDetRecTools/InDetTrackSelectionTool )
 
 # External dependencies:
 find_package( CLHEP )
@@ -77,7 +78,7 @@ atlas_add_library( DerivationFrameworkInDetLib
    xAODMuon xAODTau xAODPFlow xAODTruth xAODCaloEvent GaudiKernel
    InDetRIO_OnTrack LArRecEvent TrkCompetingRIOsOnTrack TrkEventPrimitives
    TrkEventUtils TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkExInterfaces
-   TrkToolInterfaces TrkVertexFitterInterfaces )
+   TrkToolInterfaces TrkVertexFitterInterfaces InDetTrackSelectionToolLib )
 
 atlas_add_component( DerivationFrameworkInDet
    src/components/*.cxx
