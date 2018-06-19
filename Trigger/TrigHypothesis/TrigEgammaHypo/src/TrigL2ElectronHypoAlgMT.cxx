@@ -58,8 +58,10 @@ StatusCode TrigL2ElectronHypoAlgMT::execute_r( const EventContext& context ) con
   std::map<const xAOD::TrigEMCluster*, size_t> clusterToIndexMap;
   size_t clusterCounter = 0;
   for ( auto previousDecision : *previousDecisionsHandle){
-    ElementLink<xAOD::TrigEMClusterContainer> clusterLink;
-    recursivelyFindFeature(previousDecision, clusterLink);
+    TrigCompositeUtils::LinkInfo<xAOD::TrigEMClusterContainer> linkInfo = 
+      TrigCompositeUtils::findLink<xAOD::TrigEMClusterContainer>(previousDecision, "feature");
+    ElementLink<xAOD::TrigEMClusterContainer> clusterLink = linkInfo.link;
+
     ATH_CHECK( clusterLink.isValid() );    
     const xAOD::TrigEMCluster* cluster = *clusterLink;
     clusterToIndexMap.insert( std::make_pair( cluster, clusterCounter ) );
@@ -132,18 +134,6 @@ StatusCode TrigL2ElectronHypoAlgMT::execute_r( const EventContext& context ) con
   return StatusCode::SUCCESS;
 }
 
-bool TrigL2ElectronHypoAlgMT::recursivelyFindFeature( const TrigCompositeUtils::Decision* start, ElementLink<xAOD::TrigEMClusterContainer>& clusterlink) const{
-    //recursively find in the seeds
-    if ( start->hasObjectLink( "feature" ) ) {
-      clusterlink=start->objectLink<xAOD::TrigEMClusterContainer>( "feature" );
-      return true;
-    }
-    if  (TrigCompositeUtils::hasLinkToPrevious(start) ){
-      auto thelinkToPrevious =TrigCompositeUtils::linkToPrevious( start);      
-      return recursivelyFindFeature( *thelinkToPrevious, clusterlink);
-    }
-    return false;
-  }
 
 
 
