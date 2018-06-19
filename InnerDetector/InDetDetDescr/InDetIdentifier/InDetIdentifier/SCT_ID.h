@@ -375,6 +375,9 @@ SCT_ID::module_id ( const Identifier& wafer_id ) const
     //  Reset the side and strip fields
     m_side_impl.reset(result);
     m_strip_impl.reset(result);
+    if (m_hasRows) {
+      m_row_impl.reset(result);
+    }
     return (result);
 }
 
@@ -416,6 +419,9 @@ SCT_ID::wafer_id ( const Identifier& strip_id ) const
     Identifier result(strip_id);
     // reset the strip field
     m_strip_impl.reset(result);
+    if (m_hasRows) {
+      m_row_impl.reset(result);
+    }
     return (result);
 }
 
@@ -460,10 +466,10 @@ SCT_ID::strip_id ( int barrel_ec,
     m_eta_mod_impl.pack  (eta_module,          result);
     m_side_impl.pack     (side,                result);
     m_strip_impl.pack    (strip,               result);
-
+ 
     // Do checks
     if(m_do_checks) {
-        strip_id_checks ( barrel_ec, layer_disk, phi_module, eta_module, side, strip );
+      strip_id_checks ( barrel_ec, layer_disk, phi_module, eta_module, side, strip );
     }
     return result;
 }
@@ -732,7 +738,8 @@ SCT_ID::side            (const Identifier& id) const
 inline int
 SCT_ID::row           (const Identifier& id) const
 {
-      return (m_row_impl.unpack(id));
+  if (m_hasRows) return(m_row_impl.unpack(id));
+  else return -1;
 }
 
 
@@ -740,7 +747,7 @@ SCT_ID::row           (const Identifier& id) const
 inline int 
 SCT_ID::strip           (const Identifier& id) const
 {
-    return (m_strip_impl.unpack(id));
+  return (m_strip_impl.unpack(id));
 }
 
 
