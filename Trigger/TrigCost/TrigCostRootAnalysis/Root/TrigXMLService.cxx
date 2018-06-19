@@ -886,6 +886,11 @@ namespace TrigCostRootAnalysis {
     return (Bool_t) m_badLumiBlocks.count(_lb);
   }
 
+  Float_t TrigXMLService::getLBMuValue(Int_t _lb){
+    Float_t mu=m_muPerLB[_lb];
+    return mu;
+  }
+
   /**
    * @return if we managed to parse the run XML, unlocks XML bunchgroup info and nEvent/LB info
    */

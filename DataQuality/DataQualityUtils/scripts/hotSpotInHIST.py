@@ -264,6 +264,13 @@ if (objectType == "NumberTightFwdElectrons"):
   histoKeys = ["single"]
   histoType = "1d_integralAbove"
   histoName = "Number of tight forward electrons"
+if (objectType == "forwardElectronEtaPhi"):
+  histoPath  = {"single":"run_%d/egamma/forwardElectrons/forwardElectronEtaPhi"%(runNumber)}
+  histoLegend = {"single":"All candidates"}
+  histoColor = {"single":color0}
+  histoKeys = ["single"]
+  histoType = "2d_etaPhiHotSpot"
+  histoName = "Forward electrons"
 # HLT Jet
 if (objectType == "NumberHLTJet"):
   histoPath  = {"HLTJet":"run_%d/HLT/JetMon/HLT/10j40_L14J20/HLTJet_n"%(runNumber)}

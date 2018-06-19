@@ -92,7 +92,10 @@ for jc in ["AntiKt4EMTopoJets"]:
 #put custom jet names here
 OutputJets["FTAG2"] = ["AntiKt4EMTopoJets",
                        "AntiKtVR30Rmax4Rmin02TrackJets",
-                       "AntiKt4EMPFlowJets",]
+                       "AntiKt4EMPFlowJets",
+                       "AntiKt8EMTopoJets",
+                       "AntiKt8EMTopoExKt2SubJets",
+                       "AntiKt8EMTopoExKt3SubJets"]
 
 
 reducedJetList = ["AntiKt2PV0TrackJets",
@@ -165,8 +168,6 @@ FTAG2SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                     "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
                                     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJFVtx",
-                                    "AntiKt8EMTopoExKt2SubJets",
-                                    "AntiKt8EMTopoExKt3SubJets",
                                     "BTagging_AntiKt8EMTopoExKt2Sub",
                                     "BTagging_AntiKt8EMTopoExKt3Sub",
                                     "BTagging_AntiKt4EMTopo",
@@ -207,7 +208,7 @@ FTAG2SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "AntiKt4EMPFlowJets.Jvt.JvtRpt.JvtJvfcorr",
                                        "AntiKt4EMPFlowJets.NumTrkPt1000.NumTrkPt500.SumPtTrkPt500.SumPtTrkPt1000",
                                        "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
-                                       "AntiKt8EMTopoJets.pt.eta.phi.e.m"]
+                                       ]
 
 #----------------------------------------------------------------------
 # Add needed dictionary stuff

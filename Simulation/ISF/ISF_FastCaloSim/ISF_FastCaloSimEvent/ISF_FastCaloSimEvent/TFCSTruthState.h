@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSTruthState_h
@@ -19,11 +19,17 @@ class TFCSTruthState:public TLorentzVector {
     int    pdgid() const {return m_pdgid;};
     double Ekin() const {return E()-M();};
     const TLorentzVector& vertex() const {return m_vertex;};
+
+    void Print(Option_t *option="") const;
   private:
     int m_pdgid;
     TLorentzVector m_vertex;
 
   ClassDef(TFCSTruthState,1)  //TFCSTruthState
 };
+
+#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
+#pragma link C++ class TFCSTruthState+;
+#endif
 
 #endif

@@ -14,8 +14,14 @@ from JetRec.JetRecConf import JetAlgorithm
 #===================================================================
 
 # make exkt subjet finding tool
-def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal","GhostCHadronsFinal"] , min_subjet_pt_mev = 0):
+def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal", "GhostCHadronsFinal"], min_subjet_pt_mev = 0):
+    #
+    # a full list of ExGhostLabels = ["GhostBHadronsFinal", "GhostBHadronsInitial", "GhostBQuarksFinal", "GhostCHadronsFinal", "GhostCHadronsInitial",
+    # "GhostCQuarksFinal", "GhostHBosons", "GhostPartons", "GhostTQuarksFinal", "GhostTausFinal", "GhostTruth", "GhostTrack"]
+    #
+
     from JetRec.JetRecStandard import jtm
+
     subjetlabel = "Ex%s%iSubJets" % (subjet_mode, nsubjet)
     doCoM = False
     algj = "Kt"
@@ -38,14 +44,6 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
 
         from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import SubjetFinderTool
         from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import SubjetRecorderTool
-        if ExGhostLabels == None:
-          if subjet_mode == "CoM":
-            ExGhostLabels = []
-          else:
-            ExGhostLabels = ["GhostBHadronsFinal", "GhostBHadronsInitial", "GhostBQuarksFinal", "GhostCHadronsFinal", "GhostCHadronsInitial", "GhostCQuarksFinal", "GhostHBosons", "GhostPartons", "GhostTQuarksFinal", "GhostTausFinal", "GhostTruth"]
-            if "Track" not in JetCollectionName:
-              ExGhostLabels += ["GhostTrack"]
-
 
         subjetrecorder = SubjetRecorderTool("subjetrecorder_%s%i_%s" % (subjet_mode, nsubjet, JetCollectionName))
         ToolSvc += subjetrecorder
@@ -85,12 +83,13 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
 #===================================================================
 # Build ExKt Subjets
 #===================================================================
-def addExKt(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJet, ExGhostLabels = ["GhostBHadronsFinal","GhostCHadronsFinal"] , min_subjet_pt_mev = 0):
+def addExKt(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal","GhostCHadronsFinal"], min_subjet_pt_mev = 0):
     from JetRec.JetRecStandard import jtm
     ExKtJetCollection__SubJet = []
     for JetCollectionExKt in ExKtJetCollection__FatJet:
         # build ExKtbbTagTool instance
         (ExKtbbTagToolInstance, SubjetContainerName) = buildExclusiveSubjets(ToolSvc, JetCollectionExKt, "Kt", nSubjets, doTrackSubJet, ExGhostLabels, min_subjet_pt_mev)
+
         ExKtJetCollection__SubJet += [SubjetContainerName]
 
         exktAlgName = "jfind_%s" % (SubjetContainerName)
@@ -161,15 +160,17 @@ def addExKt(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJe
 #===================================================================
 # Build CoM Subjets
 #===================================================================
-def addExCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJet, ExGhostLabels = ["GhostBHadronsFinal","GhostCHadronsFinal"] , min_subjet_pt_mev = 0):
+def addExCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal","GhostCHadronsFinal"], min_subjet_pt_mev = 0):
     from JetRec.JetRecStandard import jtm
     ExCoMJetCollection__SubJet = []
     for JetCollectionExCoM in ExKtJetCollection__FatJet:
         (ExCoMbbTagToolInstance, SubjetContainerName) = buildExclusiveSubjets(ToolSvc, JetCollectionExCoM, "CoM", nSubjets, doTrackSubJet, ExGhostLabels, min_subjet_pt_mev)
+
         ExCoMJetCollection__SubJet += [SubjetContainerName]
 
 
         excomELresetName = "ELreset_subjet_%s" % (SubjetContainerName.replace("Jets", ""))
+        excomELresetNameLJet = "ELreset_Large_jet_%s" % (JetCollectionExCoM.replace("Jets", ""))
         excomAlgName = "jfind_%s" % (SubjetContainerName)
         excomJetRecToolName = "%s" % (SubjetContainerName)
         excomBTagName = "BTagging_%s" % (SubjetContainerName.replace("Jets", ""))
@@ -184,6 +185,7 @@ def addExCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJ
                 sequence += DFJetAlgs[excomAlgName]
                 sequence += CfgMgr.xAODMaker__ElementLinkResetAlg(excomELresetName, SGKeys=[SubjetContainerName+"Aux."])
                 sequence += DFJetAlgs[excomAlgName+"_btag"]
+                sequence += CfgMgr.xAODMaker__ElementLinkResetAlg(excomELresetNameLJet,SGKeys=[JetCollectionExCoM+"Aux."])
         else:
             print " Algorithm ExCoM ", excomAlgName, " to be built sequence ", sequence
             if hasattr(jtm, excomJetRecToolName):
@@ -530,6 +532,18 @@ def addVRJetsTCC(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadi
     jetassoctool = getJetExternalAssocTool('AntiKt10TrackCaloCluster', LargeRJetPrefix, MomentPrefix='', ListOfOldLinkNames=[VRGhostLabel])
     applyJetAugmentation('AntiKt10TrackCaloCluster', LinkTransferAlg, sequence, jetassoctool)
 
+##################################################################
+# Build variable-R calorimeter jets
+##################################################################
+def addVRCaloJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
+    if DerivationFrameworkIsMonteCarlo and dotruth:
+        addTrimmedJets('AntiKt', 1.0, 'Truth', rclus=0.2, ptfrac=0.05, variableRMassScale=600000, variableRMinRadius=0.2, mods="truth_groomed",
+                       algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
+    addTrimmedJets('AntiKt', 1.0, 'PV0Track', rclus=0.2, ptfrac=0.05, variableRMassScale=600000, variableRMinRadius=0.2, mods="groomed",
+                   algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
+    addTrimmedJets('AntiKt', 1.0, 'LCTopo', rclus=0.2, ptfrac=0.05, variableRMassScale=600000, variableRMinRadius=0.2, mods="lctopo_groomed",
+                   algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
+
 #===================================================================
 # Utils: Copy Jets
 #===================================================================
@@ -558,13 +572,25 @@ def addCopyJet(FTAG5Seq, ToolSvc, InputJetCollectionName, OutputJetCollectionNam
 #========================================================================
 # Hbb Tagger
 #========================================================================
-def addHbbTagger(sequence, ToolSvc, logger=None,
-                 output_level=WARNING,
-                 jet_collection="AntiKt10LCTopoTrimmedPtFrac5SmallR20"):
+def get_unique_name(strings):
+    clean_strings = []
+    for string in strings:
+        chars = []
+        for char in string:
+            chars += char if (char.isalpha() or char.isdigit()) else '_'
+        clean_strings.append(''.join(chars))
+    return '_'.join(clean_strings)
+
+def addHbbTagger(
+        sequence, ToolSvc, logger=None,
+        output_level=WARNING,
+        jet_collection="AntiKt10LCTopoTrimmedPtFrac5SmallR20",
+        nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/Apr13HbbNetwork.json",
+        nn_config_file="BoostedJetTaggers/HbbTaggerDNN/PreliminaryConfigNovember2017.json"):
     if logger is None:
         logger = Logging.logging.getLogger('HbbTaggerLog')
 
-    fat_calibrator_name = "HbbCalibrator"
+    fat_calibrator_name = get_unique_name(["HbbCalibrator", jet_collection])
     is_data = not DerivationFrameworkIsMonteCarlo
     if not hasattr(ToolSvc, fat_calibrator_name):
         fatCalib = CfgMgr.JetCalibrationTool(
@@ -579,21 +605,26 @@ def addHbbTagger(sequence, ToolSvc, logger=None,
         logger.info('set up {}'.format(fatCalib))
     else:
         logger.info('took {} from tool svc'.format(fat_calibrator_name))
+        fatCalib = getattr(ToolSvc, fat_calibrator_name)
 
-    hbb_tagger_name = "HbbTagger"
-    config_file_name = (
-        "BoostedJetTaggers/HbbTagger/Summer2018/Apr13HbbNetwork.json")
+    # short name for naming tools
+    nn_short_file = nn_file_name.split('/')[-1].split('.')[0]
+
+    hbb_tagger_name = get_unique_name(["HbbTagger",nn_short_file])
     if not hasattr(ToolSvc, hbb_tagger_name):
         hbbTagger = CfgMgr.HbbTaggerDNN(
             hbb_tagger_name,
             OutputLevel=output_level,
-            neuralNetworkFile=config_file_name)
+            neuralNetworkFile=nn_file_name,
+            configurationFile=nn_config_file)
         ToolSvc += hbbTagger
         logger.info('set up {}'.format(hbbTagger))
     else:
         logger.info('took {} from tool svc'.format(hbb_tagger_name))
+        hbbTagger = getattr(ToolSvc, hbb_tagger_name)
 
-    tagger_alg_name = "HbbTaggerAlg"
+    tagger_alg_name = get_unique_name(
+        ["HbbTaggerAlg",jet_collection, nn_short_file])
     if not hasattr(sequence, tagger_alg_name):
         if tagger_alg_name in DFJetAlgs:
             sequence += DFJetAlgs[tagger_alg_name]
@@ -603,7 +634,6 @@ def addHbbTagger(sequence, ToolSvc, logger=None,
                 tagger_alg_name,
                 OutputLevel=output_level,
                 jetCollectionName=(jet_collection + "Jets"),
-                decorationName="HbbScore",
                 minPt=250e3,
                 maxEta=2.0,
                 tagger=hbbTagger,
@@ -619,8 +649,8 @@ def addHbbTagger(sequence, ToolSvc, logger=None,
 # Large-R RC jets w/ ExKt 2 & 3 subjets
 #===================================================================
 def addRCDoubleTaggerJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetConfigs, ExKtJetCollection__FatJet, ExKtJetCollection__SubJet):#, jetToolName, algoName):
-   jetToolName = "FTAGReclustertingTool"
-   algoName = "FTAGJetReclusteringAlgo"
+   jetToolName = "DFReclustertingTool"
+   algoName = "DFJetReclusteringAlgo"
    ExKtJetCollection__FatJetConfigs = {
                                     "AntiKt8EMTopoJets"         : {"doTrackSubJet": True},#False},
                                      }

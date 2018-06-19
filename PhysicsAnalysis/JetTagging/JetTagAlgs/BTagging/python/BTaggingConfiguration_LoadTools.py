@@ -67,6 +67,7 @@ def Initiate(ConfInstance=None):
 
   if ConfInstance._name == "Trig":
     BTaggingFlags.MV2c20=True
+    BTaggingFlags.MV2c00=True
   
   if ConfInstance.getTool("BTagCalibrationBrokerTool"):
     print ConfInstance.BTagTag()+' - INFO - BTagCalibrationBrokerTool already exists prior to default initialization; assuming user set up entire initialization him/herself. Note however that if parts of the initalization were not set up, and a later tool requires them, they will be set up at that point automatically with default settings.'

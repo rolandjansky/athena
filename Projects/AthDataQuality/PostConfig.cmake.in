@@ -9,3 +9,7 @@ set( TDAQ-COMMON_ROOT "@TDAQ-COMMON_ROOT@" )
 
 set( DQM-COMMON_VERSION "@DQM-COMMON_VERSION@" )
 set( DQM-COMMON_ROOT "@DQM-COMMON_ROOT@" )
+
+# we need this in order to avoid linking Gaudi in AtlasTest/TestTools
+set( XAOD_STANDALONE TRUE CACHE BOOL
+   "Flag specifying that this is a standalone build" )

@@ -42,6 +42,7 @@ SCT_DetectorTool::SCT_DetectorTool( const std::string& type,
     m_initialLayout(false),
     m_alignable(true),
     m_cosmic(false),
+    m_useDynamicAlignFolders(false),
     m_manager(0), 
     m_athenaComps(0),
     m_geoModelSvc("GeoModelSvc",name),
@@ -58,6 +59,7 @@ SCT_DetectorTool::SCT_DetectorTool( const std::string& type,
   declareProperty("GeometryDBSvc", m_geometryDBSvc);
   declareProperty("GeoModelSvc", m_geoModelSvc);
   declareProperty("LorentzAngleSvc", m_lorentzAngleSvc);
+  declareProperty("useDynamicAlignFolders", m_useDynamicAlignFolders);
 }
 
 //
@@ -171,7 +173,7 @@ SCT_DetectorTool::create( StoreGateSvc* detStore )
       SCT_Options options;
       
       options.setAlignable(m_alignable);
-      
+      options.setDynamicAlignFolders(m_useDynamicAlignFolders);
       
       m_manager = 0;
 
@@ -296,7 +298,7 @@ SCT_DetectorTool::registerCallback( StoreGateSvc* detStore)
   StatusCode sc = StatusCode::FAILURE;
   if (m_alignable) {
 
-    {
+    if (m_useDynamicAlignFolders) {
       std::string folderName = "/Indet/AlignL1/ID";
       if (detStore->contains<CondAttrListCollection>(folderName)) {
 	msg(MSG::DEBUG) << "Registering callback on global Container with folder " << folderName << endreq;
@@ -348,7 +350,7 @@ SCT_DetectorTool::registerCallback( StoreGateSvc* detStore)
     }
 
 
-    {
+    else {
       std::string folderName = "/Indet/Align";
       if (detStore->contains<AlignableTransformContainer>(folderName)) {
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endreq;
