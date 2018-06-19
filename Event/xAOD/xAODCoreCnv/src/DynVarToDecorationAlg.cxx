@@ -47,8 +47,8 @@ namespace xAODMaker {
    StatusCode DynVarToDecorationAlg::initialize() {
 
       // Greet the user:
-      ATH_MSG_INFO( "Removing the following variables from \""
-                    << m_containerName << "\":" );
+      ATH_MSG_INFO( "Making following variables from \""
+                    << m_containerName << "\" into decorations:" );
       ATH_MSG_INFO( "   " << m_auxVariableNames );
 
       // Check that some configuration was provided:
