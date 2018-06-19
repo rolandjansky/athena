@@ -70,7 +70,7 @@ DECLARE_TPCNV_FACTORY(LArNoisyROSummaryCnv_p3,
 DECLARE_TPCNV_FACTORY(LArNoisyROSummaryCnv_p4,
                       LArNoisyROSummary,
                       LArNoisyROSummary_p4,
-                      Athena::TPCnvVers::Current)
+                      Athena::TPCnvVers::Old)
 
 DECLARE_TPCNV_FACTORY(LArNoisyROSummaryCnv_p5,
                       LArNoisyROSummary,
