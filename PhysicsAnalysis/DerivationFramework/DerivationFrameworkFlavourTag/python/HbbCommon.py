@@ -14,9 +14,8 @@ from JetRec.JetRecConf import JetAlgorithm
 #===================================================================
 
 # make exkt subjet finding tool
-def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTrackSubJet, ExGhostLabels=None):
+def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal","GhostCHadronsFinal"] , min_subjet_pt_mev = 0):
     from JetRec.JetRecStandard import jtm
-
     subjetlabel = "Ex%s%iSubJets" % (subjet_mode, nsubjet)
     doCoM = False
     algj = "Kt"
@@ -64,7 +63,7 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
           name = ExKtbbTagToolName,
           JetAlgorithm = algj,
           JetRadius = 10.0,
-          PtMin = 1000,
+          PtMin = min_subjet_pt_mev,
           ExclusiveNJets = nsubjet,
           doTrack = doTrackSubJet,
           InputJetContainerName = JetCollectionName,
@@ -86,12 +85,12 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
 #===================================================================
 # Build ExKt Subjets
 #===================================================================
-def addExKt(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJet):
+def addExKt(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJet, ExGhostLabels = ["GhostBHadronsFinal","GhostCHadronsFinal"] , min_subjet_pt_mev = 0):
     from JetRec.JetRecStandard import jtm
     ExKtJetCollection__SubJet = []
     for JetCollectionExKt in ExKtJetCollection__FatJet:
         # build ExKtbbTagTool instance
-        (ExKtbbTagToolInstance, SubjetContainerName) = buildExclusiveSubjets(ToolSvc, JetCollectionExKt, "Kt", nSubjets, doTrackSubJet)
+        (ExKtbbTagToolInstance, SubjetContainerName) = buildExclusiveSubjets(ToolSvc, JetCollectionExKt, "Kt", nSubjets, doTrackSubJet, ExGhostLabels, min_subjet_pt_mev)
         ExKtJetCollection__SubJet += [SubjetContainerName]
 
         exktAlgName = "jfind_%s" % (SubjetContainerName)
@@ -162,11 +161,11 @@ def addExKt(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJe
 #===================================================================
 # Build CoM Subjets
 #===================================================================
-def addExCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJet):
+def addExCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJet, ExGhostLabels = ["GhostBHadronsFinal","GhostCHadronsFinal"] , min_subjet_pt_mev = 0):
     from JetRec.JetRecStandard import jtm
     ExCoMJetCollection__SubJet = []
     for JetCollectionExCoM in ExKtJetCollection__FatJet:
-        (ExCoMbbTagToolInstance, SubjetContainerName) = buildExclusiveSubjets(ToolSvc, JetCollectionExCoM, "CoM", nSubjets, doTrackSubJet)
+        (ExCoMbbTagToolInstance, SubjetContainerName) = buildExclusiveSubjets(ToolSvc, JetCollectionExCoM, "CoM", nSubjets, doTrackSubJet, ExGhostLabels, min_subjet_pt_mev)
         ExCoMJetCollection__SubJet += [SubjetContainerName]
 
 
