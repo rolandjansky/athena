@@ -62,8 +62,12 @@ int main (int argc, char **argv)
   ANA_CHECK (event.readFrom (inputFile.get()));
 
   // Open and attach output file
-  TFile outputFile(outputFileName.c_str(), "RECREATE");
-  ANA_CHECK (event.writeTo(&outputFile));
+  std::unique_ptr<TFile> outputFile;
+  if (outputFileName != "no_output")
+  {
+    outputFile = std::make_unique<TFile> (outputFileName.c_str(), "RECREATE");
+    ANA_CHECK (event.writeTo(outputFile.get()));
+  }
 
   // Create a new QuickAna tool
   ana::QuickAna *quickAna = new ana::QuickAna ("quickana");
@@ -96,26 +100,31 @@ int main (int argc, char **argv)
   ANA_CHECK (quickAna->setSystematics(sysList));
 
   // The master output tool for analysis xAODs
-  ana::MasterOutputToolXAOD outputTool("OutputTool");
+  std::unique_ptr<ana::MasterOutputToolXAOD> outputTool;
+  if (outputFile)
+  {
+    outputTool = std::make_unique<ana::MasterOutputToolXAOD> ("OutputTool");
 
-  // Assign a subset of object types to write out
-  std::vector<ana::ObjectType> outputTypes = {
-    ana::OBJECT_EVENTINFO, ana::OBJECT_MUON,
-    ana::OBJECT_ELECTRON, ana::OBJECT_JET, ana::OBJECT_MET
-  };
-  ANA_CHECK (outputTool.setProperty("OutputTypes", outputTypes));
+    // Assign a subset of object types to write out
+    std::vector<ana::ObjectType> outputTypes = {
+      ana::OBJECT_EVENTINFO, ana::OBJECT_MUON,
+      ana::OBJECT_ELECTRON, ana::OBJECT_JET, ana::OBJECT_MET
+    };
 
-  // Configure output tool with the EventData
-  ANA_CHECK (outputTool.setProperty("EventData", quickAna->getEventData()));
+    ANA_CHECK (outputTool->setProperty("OutputTypes", outputTypes));
 
-  // Initialize the output tool
-  ANA_CHECK (outputTool.initialize());
+    // Configure output tool with the EventData
+    ANA_CHECK (outputTool->setProperty("EventData", quickAna->getEventData()));
 
-  // Specify the aux-item list to write out
-  event.setAuxItemList("EventInfoAux.","mcChannelNumber.mcEventNumber.mcEventWeights");
-  event.setAuxItemList("ElectronsAux.", "pt.eta.phi.m");
-  event.setAuxItemList("MuonsAux.", "pt.eta.phi.m");
-  event.setAuxItemList("AntiKt4LCTopoJetsAux.", "pt.eta.phi.JVF");
+    // Initialize the output tool
+    ANA_CHECK (outputTool->initialize());
+
+    // Specify the aux-item list to write out
+    event.setAuxItemList("EventInfoAux.","mcChannelNumber.mcEventNumber.mcEventWeights");
+    event.setAuxItemList("ElectronsAux.", "pt.eta.phi.m");
+    event.setAuxItemList("MuonsAux.", "pt.eta.phi.m");
+    event.setAuxItemList("AntiKt4LCTopoJetsAux.", "pt.eta.phi.JVF");
+  }
 
   Long64_t entries = event.getEntries();
   // Small number of entries for testing
@@ -138,6 +147,8 @@ int main (int argc, char **argv)
 
     event.getEntry (entry);
 
+    ANA_MSG_INFO ("pre event processing");
+
     for (auto sys : quickAna->systematics())
     {
       // Apply systematic variation
@@ -147,18 +158,31 @@ int main (int argc, char **argv)
       ANA_CHECK (quickAna->process(event));
     }
 
-    // Write analysis objects to output store
-    ANA_CHECK (outputTool.write());
+    ANA_MSG_INFO ("post event processing");
 
-    // Save this event
-    ANA_CHECK (event.fill() > 0);
+    if (outputTool)
+    {
+      ANA_MSG_INFO ("pre output tool write");
+
+      // Write analysis objects to output store
+      ANA_CHECK (outputTool->write());
+
+      // Save this event
+      ANA_CHECK (event.fill() > 0);
+
+      ANA_MSG_INFO ("post output tool write");
+    }
 
     store.clear ();
   }
+  ANA_MSG_INFO ("finished event loop");
 
-  // Finalize output
-  ANA_CHECK (event.finishWritingTo(&outputFile));
-  ANA_MSG_INFO ("processed file: " << inputFileName);
+  if (outputFile)
+  {
+    // Finalize output
+    ANA_CHECK (event.finishWritingTo(outputFile.get()));
+    ANA_MSG_INFO ("processed file: " << inputFileName);
+  }
 
   return EXIT_SUCCESS;
 }

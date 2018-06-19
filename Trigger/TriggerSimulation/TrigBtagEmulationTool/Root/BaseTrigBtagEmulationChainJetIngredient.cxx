@@ -163,7 +163,7 @@ void TrigBtagEmulationChainJetIngredient_L1::initialize() {
   else input = m_triggerName.substr( 3 , m_triggerName.length() - 3);
 
   std::vector< std::unique_ptr< TriggerFeature > > m_features;
-  // MJJ triggers are ALWAYS L1_MJJ-XXX
+  // MJJ triggers are ALWAYS L1_MJJ-XXX-KKK
   if ( input.find("MJJ")!=std::string::npos ) {
     m_features.push_back( this->setINVM( input ) );
     input = "";
@@ -220,8 +220,9 @@ std::unique_ptr< TriggerFeature > TrigBtagEmulationChainJetIngredient_L1::setINV
   int min_invm = 0;
   this->extract(input,"MJJ-",min_invm);
 
-  if ( input.find("CF")==std::string::npos ) return std::unique_ptr< TriggerFeature >( new TriggerFeatureInvm(msg(),"L1","MJJ",min_invm) );
-  else return std::unique_ptr< TriggerFeature >( new TriggerFeatureInvmCF(msg(),"L1","MJJ",min_invm) );
+  if ( input.find("CF")!=std::string::npos ) return std::unique_ptr< TriggerFeature >( new TriggerFeatureInvmCF(msg(),"L1","MJJ",min_invm) );
+  else if ( input.find("NFF")!=std::string::npos ) return std::unique_ptr< TriggerFeature >( new TriggerFeatureInvmNFF(msg(),"L1","MJJ",min_invm) );
+  else return std::unique_ptr< TriggerFeature >( new TriggerFeatureInvm(msg(),"L1","MJJ",min_invm) );
 }
 
 //**********************************************************************
@@ -263,8 +264,8 @@ void TrigBtagEmulationChainJetIngredient_HLT::initialize() {
     if (subString.find("b")!=std::string::npos) this->setBTAG( subString );     
     else if (subString.find("ht")!=std::string::npos) m_features.push_back( this->setHT( subString ) );
     else if (subString.find("eta")!=std::string::npos) this->setEta( subString );
-    else if (subString.find("j")!=std::string::npos) this->setPT( subString );
     else if (subString.find("invm")!=std::string::npos) m_features.push_back( this->setINVM( subString ) );
+    else if (subString.find("j")!=std::string::npos) this->setPT( subString );
 
   }
 
@@ -276,10 +277,8 @@ void TrigBtagEmulationChainJetIngredient_HLT::initialize() {
 }
 
 bool TrigBtagEmulationChainJetIngredient_HLT::overlaps(const TrigBtagEmulationChainJetIngredient_HLT& other) const {
-  bool isOnlyHT_this  = m_min_pt == 0 && hasFeature("HT") && !hasFeature("INVM");
-  bool isOnlyHT_other = other.m_min_pt == 0 && other.hasFeature("HT") && !other.hasFeature("INVM");
+  if ( m_min_pt == 0 || other.m_min_pt == 0 ) return false;
 
-  if (isOnlyHT_this || isOnlyHT_other) return false;
   if (other.m_min_eta >= this->m_min_eta && other.m_min_eta < this->m_max_eta) return true;
   if (other.m_max_eta > this->m_min_eta && other.m_max_eta <= this->m_max_eta) return true;
   if (other.m_min_eta <= this->m_min_eta && other.m_max_eta >= this->m_max_eta) return true;
@@ -333,8 +332,12 @@ std::unique_ptr< TriggerFeature > TrigBtagEmulationChainJetIngredient_HLT::setHT
 }
 std::unique_ptr< TriggerFeature > TrigBtagEmulationChainJetIngredient_HLT::setINVM(const std::string& input) { 
   int min_invm = 0;
+  int min_pTlist = 0;
+
+  if ( input.find("j") != std::string::npos ) this->extract(input,"j",min_pTlist);
   this->extract(input,"invm",min_invm);
-  return std::unique_ptr< TriggerFeature >( new TriggerFeatureInvm(msg(),"HLT","INVM",min_invm * 1e3) );
+
+  return std::unique_ptr< TriggerFeature >( new TriggerFeatureInvm(msg(),"HLT","INVM",min_invm * 1e3,min_pTlist * 1e3) );
 }
 void TrigBtagEmulationChainJetIngredient_HLT::setBTAG(const std::string& input) {
 
@@ -534,10 +537,10 @@ void TrigBtagEmulationChainJetIngredient_L1::print() const {
   TrigBtagEmulationChainJetIngredient_L1 emul = *this;
 
   ATH_MSG_INFO( "### L1 Trigger ["<< getName() <<"]" );
-  ATH_MSG_INFO( "   : min_pt  ="<< getPtThreshold() <<" [GeV]" );
-  ATH_MSG_INFO( "   : min_eta ="<< getMinEtaThreshold() );
-  ATH_MSG_INFO( "   : max_eta ="<< getMaxEtaThreshold() );
-  ATH_MSG_INFO( "   : mult    ="<< getMulteplicity() <<"/"<< getMulteplicityThreshold() );
+  ATH_MSG_INFO( "   : min_pt  = "<< getPtThreshold() <<" [MeV]" );
+  ATH_MSG_INFO( "   : min_eta = "<< getMinEtaThreshold() );
+  ATH_MSG_INFO( "   : max_eta = "<< getMaxEtaThreshold() );
+  ATH_MSG_INFO( "   : mult    = "<< getMulteplicity() <<"/"<< getMulteplicityThreshold() );
 
   printFeatures();
 }
@@ -546,10 +549,10 @@ void TrigBtagEmulationChainJetIngredient_L1_JJ::print() const {
   TrigBtagEmulationChainJetIngredient_L1 emul = *this;
 
   ATH_MSG_INFO( "### L1 JJ Trigger ["<< getName() <<"]" );
-  ATH_MSG_INFO( "   : min_pt  ="<< getPtThreshold() <<" [GeV]" );
-  ATH_MSG_INFO( "   : min_eta ="<< getMinEtaThreshold() );
-  ATH_MSG_INFO( "   : max_eta ="<< getMaxEtaThreshold() );
-  ATH_MSG_INFO( "   : mult    ="<< getMulteplicity() <<"/"<< getMulteplicityThreshold() );
+  ATH_MSG_INFO( "   : min_pt  = "<< getPtThreshold() <<" [MeV]" );
+  ATH_MSG_INFO( "   : min_eta = "<< getMinEtaThreshold() );
+  ATH_MSG_INFO( "   : max_eta = "<< getMaxEtaThreshold() );
+  ATH_MSG_INFO( "   : mult    = "<< getMulteplicity() <<"/"<< getMulteplicityThreshold() );
 
   printFeatures();
 }
@@ -558,10 +561,10 @@ void TrigBtagEmulationChainJetIngredient_HLT::print() const {
   TrigBtagEmulationChainJetIngredient_HLT emul = *this;
 
   ATH_MSG_INFO( "### HLT Trigger ["<< getName() <<"]" );
-  ATH_MSG_INFO( "   : min_pt  ="<< getPtThreshold() <<" [GeV]"  );
-  ATH_MSG_INFO( "   : min_eta ="<< getMinEtaThreshold() );
-  ATH_MSG_INFO( "   : max_eta ="<< getMaxEtaThreshold() );
-  ATH_MSG_INFO( "   : mult    ="<< getMulteplicity() <<"/"<< getMulteplicityThreshold() );
+  ATH_MSG_INFO( "   : min_pt  = "<< getPtThreshold() <<" [MeV]"  );
+  ATH_MSG_INFO( "   : min_eta = "<< getMinEtaThreshold() );
+  ATH_MSG_INFO( "   : max_eta = "<< getMaxEtaThreshold() );
+  ATH_MSG_INFO( "   : mult    = "<< getMulteplicity() <<"/"<< getMulteplicityThreshold() );
 
   printFeatures();
 }
@@ -570,12 +573,12 @@ void TrigBtagEmulationChainJetIngredient_GSC::print() const {
   TrigBtagEmulationChainJetIngredient_GSC emul = *this;
 
   ATH_MSG_INFO( "### GSC Trigger ["<< getName() <<"]" );
-  ATH_MSG_INFO( "   : min_pt  ="<< getPtThreshold() <<" [GeV]" );
-  ATH_MSG_INFO( "   : min_gsc ="<< getGscThreshold() );
-  ATH_MSG_INFO( "   : min_eta ="<< getMinEtaThreshold() );
-  ATH_MSG_INFO( "   : max_eta ="<< getMaxEtaThreshold() );
-  ATH_MSG_INFO( "   : mult    ="<< getMulteplicity() <<"/"<< getMulteplicityThreshold() );
-  ATH_MSG_INFO( "   : mult_gsc="<< getMulteplicityGsc() <<"/"<< getMulteplicityThreshold() );
+  ATH_MSG_INFO( "   : min_pt  = "<< getPtThreshold() <<" [MeV]" );
+  ATH_MSG_INFO( "   : min_gsc = "<< getGscThreshold() );
+  ATH_MSG_INFO( "   : min_eta = "<< getMinEtaThreshold() );
+  ATH_MSG_INFO( "   : max_eta = "<< getMaxEtaThreshold() );
+  ATH_MSG_INFO( "   : mult    = "<< getMulteplicity() <<"/"<< getMulteplicityThreshold() );
+  ATH_MSG_INFO( "   : mult_gsc= "<< getMulteplicityGsc() <<"/"<< getMulteplicityThreshold() );
 
   printFeatures();
 }

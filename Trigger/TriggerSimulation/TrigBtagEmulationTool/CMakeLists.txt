@@ -20,8 +20,10 @@ elseif ( XAOD_ANALYSIS )
    set( extra_include_public_libs AthContainers 
    				  StoreGateLib )
 
-   set( extra_include_private_dirs Control/AthenaBaseComps )
-   set( extra_include_private_libs AthenaBaseComps )
+   set( extra_include_private_dirs Control/AthenaBaseComps 
+   				   Control/AthAnalysisBaseComps )
+   set( extra_include_private_libs AthenaBaseComps 
+   				   AthAnalysisBaseCompsLib )
 
 else() 
    set( extra_include_public_dirs Control/AthContainers 
@@ -31,9 +33,11 @@ else()
    				  StoreGateLib 
 				  BTaggingLib )
 
-   set( extra_include_private_dirs Control/AthenaBaseComps 
+   set( extra_include_private_dirs Control/AthenaBaseComps
+   				   Control/AthAnalysisBaseComps 
    				   GaudiKernel )
    set( extra_include_private_libs AthenaBaseComps 
+   				   AthAnalysisBaseCompsLib
    				   GaudiKernel )
 endif() 
 

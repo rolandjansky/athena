@@ -7,7 +7,6 @@
 
 // EDM include(s):
 #include "AsgTools/AsgMetadataTool.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthMetaData.h"
 #include "xAODTruth/TruthMetaDataContainer.h"
@@ -68,14 +67,14 @@ namespace PMGTools
     /// Loads weight information from xAOD::TruthMetaDataContainer
     virtual StatusCode loadMetaData();
 
-    /// Loads weight information from HepMCWeightNames
-    virtual StatusCode loadMetaData(const std::map<std::string, int>& hepMCWeightNamesMap);
+    /// Loads weight information from POOL using HepMCWeightNames
+    virtual StatusCode loadPOOLMetaData();
 
     /// Validate weight caches
-    virtual StatusCode validateWeightCaches() const;
+    virtual StatusCode validateWeightLocationCaches() const;
 
     /// Clear caches
-    virtual void clearWeightCaches();
+    virtual void clearWeightLocationCaches();
 
     /// Stores the meta data record name
     std::string m_metaName;
@@ -86,17 +85,18 @@ namespace PMGTools
     /// Ptr to the meta data container for this file
     const xAOD::TruthMetaDataContainer* m_metaDataContainer;
 
-    /// Ptr to the event info for the current event
-    const xAOD::EventInfo* m_evtInfo;
-
     /// Flag to indicate whether the xAOD::TruthMetaData objects have incorrect McChannelNumber
-    mutable bool m_hasInvalidMcChannel;
+    mutable bool m_useChannelZeroInMetaData;
 
-    /// List of available weight names
+    /// Available weight names for this file
     std::vector<std::string> m_weightNames;
 
-    /// List of indices for available weights
+    /// Indices of available weights in this file
     std::unordered_map<std::string, int> m_weightIndices;
+
+    /// Values of weights in this event
+    std::vector<float> m_weights;
+
   };
 } // namespace PMGTools
 

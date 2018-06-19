@@ -44,7 +44,7 @@ StatusCode TauEfficiencyTriggerTool::initialize()
       ATH_MSG_FATAL("Could not open file " << sInputFilePath.c_str());
       return StatusCode::FAILURE;
     }
-    ReadInputs(fSF);
+    ReadInputs(*fSF);
     fSF->Close();
   }
 

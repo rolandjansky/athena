@@ -15,6 +15,7 @@
 #include <xAODEgamma/ElectronContainer.h>
 #include <xAODJet/JetContainer.h>
 #include <xAODMuon/MuonContainer.h>
+#include <xAODTau/TauJetContainer.h>
 
 //
 // method implementations
@@ -35,20 +36,26 @@ namespace CP
 
       // using a macro is a bit awkward, but doing this as a template
       // is not practical either
-#define COPY(TYPE,IN,OUT)                                               \
-      const TYPE *IN = dynamic_cast<const TYPE*> (inputObject);         \
-      if (IN) {                                                         \
-        TYPE *OUT = nullptr;                                            \
-        if (!ShallowCopy<TYPE>::getCopy (msgStream, store, OUT, IN,        \
-                                         outputName, auxName).isSuccess()) \
-        return StatusCode::FAILURE;                                     \
-        object = OUT;                                                   \
-        return StatusCode::SUCCESS; }
+#define COPY( TYPE )                                                    \
+       do {                                                             \
+          const TYPE *in = dynamic_cast< const TYPE* >( inputObject );  \
+          if( in ) {                                                    \
+             TYPE *out = nullptr;                                       \
+             if( ! ShallowCopy<TYPE>::getCopy( msgStream, store, out, in, \
+                                               outputName,              \
+                                               auxName ).isSuccess() ) { \
+                return StatusCode::FAILURE;                             \
+             }                                                          \
+             object = out;                                              \
+             return StatusCode::SUCCESS;                                \
+          }                                                             \
+       } while( false )
 
-      COPY (xAOD::JetContainer, jetsInput, jetsOutput);
-      COPY (xAOD::MuonContainer, muonsInput, muonsOutput);
-      COPY (xAOD::ElectronContainer, electronsInput, electronsOutput);
-      COPY (xAOD::PhotonContainer, photonsInput, photonsOutput);
+      COPY( xAOD::JetContainer );
+      COPY( xAOD::MuonContainer );
+      COPY( xAOD::ElectronContainer );
+      COPY( xAOD::PhotonContainer );
+      COPY( xAOD::TauJetContainer );
 
 #undef COPY
 

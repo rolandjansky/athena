@@ -30,9 +30,7 @@ namespace CP
         (m_decorationName);
     }
       
-#ifndef NDEBUG
     m_isInitialized = true;
-#endif
     return StatusCode::SUCCESS;
   }
 

@@ -17,7 +17,7 @@
 namespace {
 
    /// Helper variable to only print warning about missing variables once
-   static std::set< std::string > mentionnedVariableNames;
+   static std::set< std::string > mentionedVariableNames;
 
 } // private namespace
 
@@ -99,12 +99,12 @@ namespace xAOD {
                SG::AuxTypeRegistry::instance().findAuxID( *name_itr );
             if( auxid != SG::null_auxid ) {
                // Add this variable if it exists:
-               if( fullset.find( auxid ) != fullset.end() ) {
+               if( fullset.test( auxid ) ) {
                   m_auxids.insert( auxid );
                }
             } else {
                // Check if a warning should be printed at this time or not:
-               if( ::mentionnedVariableNames.insert( *name_itr ).second ) {
+               if( ::mentionedVariableNames.insert( *name_itr ).second ) {
                   // Apparently we didn't complain about this name yet...
                   std::cerr << "xAOD::AuxSelection WARNING Selected dynamic "
                             << "Aux atribute \"" << *name_itr
@@ -116,15 +116,13 @@ namespace xAOD {
          // Start from the full list:
          m_auxids = fullset;
          // ...and check which variables should be removed:
-         SG::auxid_set_t::const_iterator id_itr = fullset.begin();
-         SG::auxid_set_t::const_iterator id_end = fullset.end();
-         for( ; id_itr != id_end; ++id_itr ) {
+         for (SG::auxid_t id : fullset) {
             // Construct the name that we need to look for:
             const std::string attrname =
-               "-" + SG::AuxTypeRegistry::instance().getName( *id_itr );
+               "-" + SG::AuxTypeRegistry::instance().getName( id );
             // Check if it is in the list to be removed:
             if( m_names.find( attrname ) != m_names.end() ) {
-               m_auxids.erase( *id_itr );
+               m_auxids.erase( id );
             }
          }
       }

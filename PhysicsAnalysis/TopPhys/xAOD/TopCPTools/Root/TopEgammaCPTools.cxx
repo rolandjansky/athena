@@ -250,7 +250,7 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   const std::string trigger_string = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_"
                                      "OR_e60_lhmedium_"
                                      "OR_e120_lhloose_"
-                                     "2016_e26_lhtight_nod0_ivarloose_"
+                                     "2016_2017_e26_lhtight_nod0_ivarloose_"
                                      "OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
 
   // Define the data type variable - 0 : Data, 1 : MC FullSim, 3 : MC AFII
@@ -391,24 +391,20 @@ std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std
 std::string EgammaCPTools::electronSFMapFilePath(const std::string& type) {
     // Store here the paths to maps which may be updated with new recommendations
     // Currently can use maps for reco, id, iso, trigger but not ChargeID
-    // Temporary: Take away constness of path since we have a mixture for rel20 and 21 at the moment.
-    std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v1/";
+    const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/";
 
     std::string file_path;
     if(type == "reco") {
-      file_path = "map0.txt";
+      file_path = "map5.txt";
     }
     else if(type == "ID"){
-      file_path = "map0.txt";
+      file_path = "map5.txt";
     }
     else if(type == "isolation"){
-      file_path = "map0.txt";
+      file_path = "map5.txt";
     }
     else if(type == "trigger"){
-      // Need to still use old path for triggers
-      el_calib_path = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v3/";
-      file_path = "map1.txt";
-      ATH_MSG_WARNING("Still using rel20 trigger maps.");
+      file_path = "map5.txt";
     }
     else if(type == "ChargeID") {
       ATH_MSG_ERROR("Use electronSFFilePath method until ChargeID is supported by maps");

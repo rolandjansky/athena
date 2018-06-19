@@ -200,9 +200,11 @@ StatusCode TrigBtagEmulationTool::initialize() {
     ATH_MSG_ERROR( "Could not initialize lowest unprescaled Trigger Chains!" );
     return StatusCode::FAILURE;
   }
-  if (m_autoconfiguredMenu == "2015Menu" || m_autoconfiguredMenu == "2016Menu" || m_autoconfiguredMenu == "2017Menu" ||
-      m_autoconfiguredMenu == "2015+2016Menu" ||  m_autoconfiguredMenu == "2015+2017Menu" || m_autoconfiguredMenu == "2016+2017Menu" ||
-      m_autoconfiguredMenu == "2015+2016+2017Menu" ) {
+
+  if ( m_autoconfiguredMenu.find("2015") != std::string::npos || 
+       m_autoconfiguredMenu.find("2016") != std::string::npos ||
+       m_autoconfiguredMenu.find("2017") != std::string::npos || 
+       m_autoconfiguredMenu.find("2018") != std::string::npos ) {
     ATH_MSG_INFO( "Automatic configuration of Trigger Chains for " << m_autoconfiguredMenu );
     ATH_MSG_INFO( "For full list of trigger chains automatically loaded look here : 'https://twiki.cern.ch/twiki/bin/view/Atlas/TrigBjetEmulation'" );
     this->addEmulatedChain( m_autoconfiguredMenu );
@@ -222,6 +224,8 @@ StatusCode TrigBtagEmulationTool::initialize() {
 	triggerSubComponents = std::get< TriggerMenu::YEAR_2016 >( m_triggerMenus ).at( chainDefinition.at(0) );
       else if ( std::get< TriggerMenu::YEAR_2017 >( m_triggerMenus ).find( chainDefinition.at(0) ) != std::get< TriggerMenu::YEAR_2017 >( m_triggerMenus ).end() )
 	triggerSubComponents = std::get< TriggerMenu::YEAR_2017 >( m_triggerMenus ).at( chainDefinition.at(0) );
+      else if ( std::get< TriggerMenu::YEAR_2018 >( m_triggerMenus ).find( chainDefinition.at(0) ) != std::get< TriggerMenu::YEAR_2018 >( m_triggerMenus ).end() )
+	triggerSubComponents = std::get< TriggerMenu::YEAR_2018 >( m_triggerMenus ).at( chainDefinition.at(0) );
 
       std::istringstream sname( triggerSubComponents );
       std::string token;
@@ -343,8 +347,8 @@ StatusCode TrigBtagEmulationTool::execute() {
   // BACKUP NON-CENTRAL JET INFO FOR SPLIT CHAINS  
   m_manager_ef->merge( m_manager_split );
   m_manager_split->merge( m_manager_ef );
-  m_manager_ef->merge( m_manager_HT,15 * 1e3 );
-  m_manager_split->merge( m_manager_HT,15 * 1e3 ); 
+  m_manager_ef->merge( m_manager_HT );
+  m_manager_split->merge( m_manager_HT );
 
   if ( this->hasGSC() ) m_manager_split_gsc->merge( m_manager_HT,15 * 1e3 ); 
 
@@ -387,6 +391,7 @@ StatusCode TrigBtagEmulationTool::execute() {
     // DUMP SPLIT JETS
     ATH_MSG_INFO ("SPLIT jets");
     for (std::unique_ptr< TrigBtagEmulationJet >& jet : m_manager_split->getJets()) {
+      if ( jet->pt()*1e-3 < 15 ) continue;
       ATH_MSG_INFO ("  Jet --- pt=" << jet->pt()*1e-3 << " eta=" << jet->eta() << " phi=" << jet->phi());
       for (auto & weight : jet->weights())
 	ATH_MSG_INFO ("      " << weight.first << " " << weight.second);
@@ -395,6 +400,7 @@ StatusCode TrigBtagEmulationTool::execute() {
     // DUMP GSC JETS
     ATH_MSG_INFO ("GSC jets");
     for (std::unique_ptr< TrigBtagEmulationJet >& jet : m_manager_gsc->getJets()) {
+      if ( jet->pt()*1e-3 < 15 ) continue;
       ATH_MSG_INFO ("  Jet --- pt=" << jet->pt()*1e-3 << " eta=" << jet->eta());
       for (auto & weight : jet->weights())
 	ATH_MSG_INFO ("      " << weight.first << " " << weight.second);
@@ -453,6 +459,7 @@ StatusCode TrigBtagEmulationTool::initTriggerChainsMenu() {
   if ( initTriggerChainsMenu( 2015 ).isFailure() ) return StatusCode::FAILURE;
   if ( initTriggerChainsMenu( 2016 ).isFailure() ) return StatusCode::FAILURE;
   if ( initTriggerChainsMenu( 2017 ).isFailure() ) return StatusCode::FAILURE;
+  if ( initTriggerChainsMenu( 2018 ).isFailure() ) return StatusCode::FAILURE;
   return StatusCode::SUCCESS;
 }
 
@@ -479,6 +486,8 @@ StatusCode TrigBtagEmulationTool::initTriggerChainsMenu(const int year) {
       std::get< TriggerMenu::YEAR_2016 >( m_triggerMenus ).insert( std::make_pair(chainName,chainComponents) );
     else if (year == 2017)
       std::get< TriggerMenu::YEAR_2017 >( m_triggerMenus ).insert( std::make_pair(chainName,chainComponents) );
+    else if (year == 2018)
+      std::get< TriggerMenu::YEAR_2018 >( m_triggerMenus ).insert( std::make_pair(chainName,chainComponents) );
   }
   file.close();
 
@@ -499,6 +508,9 @@ std::vector<std::string> TrigBtagEmulationTool::addEmulatedChain(const std::stri
   if ( triggerMenu.find("2017")!=std::string::npos )
     configuration.insert( std::get< TriggerMenu::YEAR_2017 >( m_triggerMenus ).begin(),
 			  std::get< TriggerMenu::YEAR_2017 >( m_triggerMenus ).end() );
+  if ( triggerMenu.find("2018")!=std::string::npos )
+    configuration.insert( std::get< TriggerMenu::YEAR_2018 >( m_triggerMenus ).begin(),
+			  std::get< TriggerMenu::YEAR_2018 >( m_triggerMenus ).end() );
 
   // Load specific chains in the menus
   if ( configuration.size() == 0 ) {
@@ -508,6 +520,8 @@ std::vector<std::string> TrigBtagEmulationTool::addEmulatedChain(const std::stri
       configuration[ triggerMenu ] = std::get< TriggerMenu::YEAR_2016 >( m_triggerMenus ).at( triggerMenu );
     else if ( std::get< TriggerMenu::YEAR_2017 >( m_triggerMenus ).find(triggerMenu) != std::get< TriggerMenu::YEAR_2017 >( m_triggerMenus ).end() )
       configuration[ triggerMenu ] = std::get< TriggerMenu::YEAR_2017 >( m_triggerMenus ).at( triggerMenu );
+    else if ( std::get< TriggerMenu::YEAR_2018 >( m_triggerMenus ).find(triggerMenu) != std::get< TriggerMenu::YEAR_2018 >( m_triggerMenus ).end() )
+      configuration[ triggerMenu ] = std::get< TriggerMenu::YEAR_2018 >( m_triggerMenus ).at( triggerMenu );
   }
   
   std::vector<std::string> output;

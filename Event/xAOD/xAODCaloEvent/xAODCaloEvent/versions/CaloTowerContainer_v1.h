@@ -11,7 +11,6 @@
 #include "xAODBase/IParticleContainer.h"
 #include "xAODCaloEvent/versions/CaloTower_v1.h"
 
-DATAVECTOR_BASE( xAOD::CaloTower_v1, xAOD::IParticle );
 
 namespace xAOD {
 
