@@ -31,6 +31,7 @@
 #include <TH1.h>
 #include <TStopwatch.h>
 #include <TTree.h>
+#include <TDirectory.h>
 #include <iostream>
 #include <memory>
 
@@ -84,6 +85,18 @@ namespace EL
 	m_file->Close ();
 	m_file = 0;
       }
+    };
+
+    /// Helper class for managing the current ROOT directory during operations
+    class DirectoryReset {
+    public:
+       /// Constructor, capturing which directory we need to return to
+       DirectoryReset() : m_dir( *gDirectory ) {}
+       /// Destructor, returning to the original directory
+       ~DirectoryReset() { m_dir.cd(); }
+    private:
+       /// The directory we need to return to
+       TDirectory& m_dir;
     };
   }
 
@@ -207,6 +220,59 @@ namespace EL
     if (iter == m_outputFiles.end())
       return 0;
     return iter->second->file();
+  }
+
+
+
+  ::StatusCode Worker::
+  addTree( const TTree& tree, const std::string& stream )
+  {
+     RCU_READ_INVARIANT( this );
+
+     // Do not change the user's "current directory" during any of the
+     // following...
+     DirectoryReset dirReset;
+
+     // Access the output file with this stream/label name.
+     TFile* file = getOutputFileNull( stream );
+     if( ! file ) {
+        RCU_ERROR_MSG( "No output file with stream name \"" + stream +
+                       "\" found" );
+        return ::StatusCode::FAILURE;
+     }
+
+     // Make a clone of the tree, and make the output file own it from here
+     // on out.
+     file->cd();
+     TTree* clone = dynamic_cast< TTree* >( tree.Clone() );
+     if( ! clone ) {
+        RCU_ERROR_MSG( "Unexpected error while cloning TTree" );
+        return ::StatusCode::FAILURE;
+     }
+     clone->SetDirectory( file );
+
+     // Hold on to the pointer of the tree in our internal cache.
+     m_outputTreeMap[ std::make_pair( stream,
+                                      std::string( clone->GetName() ) ) ] = clone;
+
+     // Return gracefully:
+     return ::StatusCode::SUCCESS;
+  }
+
+
+
+  TTree *Worker::
+  getOutputTree( const std::string& name, const std::string& stream ) const
+  {
+     RCU_READ_INVARIANT( this );
+     auto key = std::make_pair( stream, name );
+     auto itr = m_outputTreeMap.find( key );
+     if( itr == m_outputTreeMap.end() ) {
+        RCU_THROW_MSG( "No tree with name \"" + name + "\" in stream \"" +
+                       stream + "\"" );
+     }
+     RCU_ASSERT( itr->second != nullptr );
+     return itr->second;
   }
 
 

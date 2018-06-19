@@ -134,13 +134,14 @@ BPHY10BdJpsiKst = Analysis__JpsiPlus2Tracks(
     ExcludeCrossJpsiTracks  = False,   #setting this to False rejects the muons from J/psi candidate
     TrkVertexFitterTool	    = BdKstVertexFit,
     TrackSelectorTool	    = BPHY10_VertexTools.InDetTrackSelectorTool,
+    VertexPointEstimator        = BPHY10_VertexTools.VtxPointEstimator,
     UseMassConstraint	    = True,
     #DiTrackMassUpper        = 1500.,
     #DiTrackMassLower        = 500.,
     Chi2Cut                 = 10.0,
     DiTrackPt               = 500.,
-    TrkQuadrupletMassLower  = 4300.0,
-    TrkQuadrupletMassUpper  = 6300.0,
+    TrkQuadrupletMassLower  = 3500.0,
+    TrkQuadrupletMassUpper  = 6800.0,
     #FinalDiTrackMassUpper   = 1000.,
     #FinalDiTrackMassLower   = 800.,
     #TrkDeltaZ               = 20., #Normally, this cut should not be used since it is lifetime-dependent
@@ -156,7 +157,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY10BdKstSelectAndWrite  = DerivationFramework__Reco_dimuTrkTrk(
     name                   = "BPHY10BdKstSelectAndWrite",
     Jpsi2PlusTrackName     = BPHY10BdJpsiKst,
-    OutputVtxContainerName = "BdJpsiKstCandidates",
+    OutputVtxContainerName = "BPHY10BdJpsiKstCandidates",
     PVContainerName        = "PrimaryVertices",
     RefPVContainerName     = "BPHY10RefittedPrimaryVertices",
     RefitPV                = True,
@@ -171,7 +172,7 @@ print      BPHY10BdKstSelectAndWrite
 BPHY10_Select_Bd2JpsiKst = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY10_Select_Bd2JpsiKst",
     HypothesisName             = "Bd",
-    InputVtxContainerName      = "BdJpsiKstCandidates",
+    InputVtxContainerName      = "BPHY10BdJpsiKstCandidates",
     TrkMasses                  = [105.658, 105.658, 493.677, 139.570],
     VtxMassHypo                = 5279.6,
     MassMin                    = 100.0,      #no mass cuts here
@@ -186,7 +187,7 @@ print      BPHY10_Select_Bd2JpsiKst
 BPHY10_Select_Bd2JpsiKstbar = DerivationFramework__Select_onia2mumu(
     name                       = "BPHY10_Select_Bd2JpsiKstbar",
     HypothesisName             = "Bdbar",
-    InputVtxContainerName      = "BdJpsiKstCandidates",
+    InputVtxContainerName      = "BPHY10BdJpsiKstCandidates",
     TrkMasses                  = [105.658, 105.658, 139.570, 493.677],
     VtxMassHypo                = 5279.6,
     MassMin                    = 100.0,      #no mass cuts here
@@ -212,10 +213,10 @@ BPHY10_Reco_V0Finder   = DerivationFramework__Reco_V0Finder(
     name                   = "BPHY10_Reco_V0Finder",
     V0FinderTool           = BPHY10_V0FinderTools.V0FinderTool,
     #OutputLevel            = DEBUG,
-    V0ContainerName        = "RecoV0Candidates",
-    KshortContainerName    = "RecoKshortCandidates",
-    LambdaContainerName    = "RecoLambdaCandidates",
-    LambdabarContainerName = "RecoLambdabarCandidates",
+    V0ContainerName        = "BPHY10RecoV0Candidates",
+    KshortContainerName    = "BPHY10RecoKshortCandidates",
+    LambdaContainerName    = "BPHY10RecoLambdaCandidates",
+    LambdabarContainerName = "BPHY10RecoLambdabarCandidates",
     CheckVertexContainers  = ['BPHY10JpsiCandidates'])
 
 ToolSvc += BPHY10_Reco_V0Finder
@@ -253,8 +254,8 @@ BPHY10JpsiKshort            = DerivationFramework__JpsiPlusV0Cascade(
     RefitPV                 = True,
     RefPVContainerName      = "BPHY10RefittedPrimaryVertices",
     JpsiVertices            = "BPHY10JpsiCandidates",
-    CascadeVertexCollections= ["JpsiKshortCascadeSV2", "JpsiKshortCascadeSV1"],
-    V0Vertices              = "RecoV0Candidates")
+    CascadeVertexCollections= ["BPHY10JpsiKshortCascadeSV2", "BPHY10JpsiKshortCascadeSV1"],
+    V0Vertices              = "BPHY10RecoV0Candidates")
 
 ToolSvc += BPHY10JpsiKshort
 print BPHY10JpsiKshort
@@ -276,8 +277,8 @@ BPHY10JpsiLambda            = DerivationFramework__JpsiPlusV0Cascade(
     RefitPV                 = True,
     RefPVContainerName      = "BPHY10RefittedPrimaryVertices",
     JpsiVertices            = "BPHY10JpsiCandidates",
-    CascadeVertexCollections= ["JpsiLambdaCascadeSV2", "JpsiLambdaCascadeSV1"],
-    V0Vertices              = "RecoV0Candidates")
+    CascadeVertexCollections= ["BPHY10JpsiLambdaCascadeSV2", "BPHY10JpsiLambdaCascadeSV1"],
+    V0Vertices              = "BPHY10RecoV0Candidates")
 
 ToolSvc += BPHY10JpsiLambda
 print BPHY10JpsiLambda
@@ -299,8 +300,8 @@ BPHY10JpsiLambdabar         = DerivationFramework__JpsiPlusV0Cascade(
     RefitPV                 = True,
     RefPVContainerName      = "BPHY10RefittedPrimaryVertices",
     JpsiVertices            = "BPHY10JpsiCandidates",
-    CascadeVertexCollections= ["JpsiLambdabarCascadeSV2", "JpsiLambdabarCascadeSV1"],
-    V0Vertices              = "RecoV0Candidates")
+    CascadeVertexCollections= ["BPHY10JpsiLambdabarCascadeSV2", "BPHY10JpsiLambdabarCascadeSV1"],
+    V0Vertices              = "BPHY10RecoV0Candidates")
 
 ToolSvc += BPHY10JpsiLambdabar
 print BPHY10JpsiLambdabar
@@ -316,8 +317,8 @@ if not isSimulation: #Only Skim Data
    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
    BPHY10_SelectBdJpsiKstEvent = DerivationFramework__xAODStringSkimmingTool(
      name = "BPHY10_SelectBdJpsiKstEvent",
-     #expression = "(count(BdJpsiKstCandidates.passed_Bd > 0) + count(BdJpsiKstCandidates.passed_BdBar > 0) + count(RecoV0Candidates) + count(RecoKshortContainerName) + count(RecoLambdaContainerName) + count(RecoLambdabarContainerName) ) > 0")
-     expression = "(count(BdJpsiKstCandidates.passed_Bd > 0) + count(BdJpsiKstCandidates.passed_Bdbar > 0) + count(JpsiKshortCascadeSV1.x > -999) + count(JpsiLambdaCascadeSV1.x > -999) + count(JpsiLambdabarCascadeSV1.x > -999) ) > 0")
+     #expression = "(count(BPHY10BdJpsiKstCandidates.passed_Bd > 0) + count(BPHY10BdJpsiKstCandidates.passed_BdBar > 0) + count(BPHY10RecoV0Candidates) + count(RecoKshortContainerName) + count(RecoLambdaContainerName) + count(RecoLambdabarContainerName) ) > 0")
+     expression = "(count(BPHY10BdJpsiKstCandidates.passed_Bd > 0) + count(BPHY10BdJpsiKstCandidates.passed_Bdbar > 0) + count(BPHY10JpsiKshortCascadeSV1.x > -999) + count(BPHY10JpsiLambdaCascadeSV1.x > -999) + count(BPHY10JpsiLambdabarCascadeSV1.x > -999) ) > 0")
    
    ToolSvc += BPHY10_SelectBdJpsiKstEvent
    print BPHY10_SelectBdJpsiKstEvent
@@ -340,7 +341,7 @@ BPHY10_thinningTool_Tracks = DerivationFramework__Thin_vtxTrk(
   name                       = "BPHY10_thinningTool_Tracks",
   ThinningService            = "BPHY10ThinningSvc",
   TrackParticleContainerName = "InDetTrackParticles",
-  VertexContainerNames       = ["BdJpsiKstCandidates","JpsiKshortCascadeSV1","JpsiKshortCascadeSV2","JpsiLambdaCascadeSV1","JpsiLambdaCascadeSV2","JpsiLambdabarCascadeSV1","JpsiLambdabarCascadeSV2"],
+  VertexContainerNames       = ["BPHY10BdJpsiKstCandidates","BPHY10JpsiKshortCascadeSV1","BPHY10JpsiKshortCascadeSV2","BPHY10JpsiLambdaCascadeSV1","BPHY10JpsiLambdaCascadeSV2","BPHY10JpsiLambdabarCascadeSV1","BPHY10JpsiLambdabarCascadeSV2"],
   PassFlags                  = ["passed_Bd", "passed_Bdbar"] )
 
 ToolSvc += BPHY10_thinningTool_Tracks
@@ -349,7 +350,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY10_thinningTool_PV = DerivationFramework__BPhysPVThinningTool(
   name                       = "BPHY10_thinningTool_PV",
   ThinningService            = "BPHY10ThinningSvc",
-  CandidateCollections       = ["BdJpsiKstCandidates","JpsiKshortCascadeSV1","JpsiKshortCascadeSV2","JpsiLambdaCascadeSV1","JpsiLambdaCascadeSV2","JpsiLambdabarCascadeSV1","JpsiLambdabarCascadeSV2"],
+  CandidateCollections       = ["BPHY10BdJpsiKstCandidates","BPHY10JpsiKshortCascadeSV1","BPHY10JpsiKshortCascadeSV2","BPHY10JpsiLambdaCascadeSV1","BPHY10JpsiLambdaCascadeSV2","BPHY10JpsiLambdabarCascadeSV1","BPHY10JpsiLambdabarCascadeSV2"],
   KeepPVTracks  =True
  )
 
@@ -446,14 +447,14 @@ StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY10Jpsi
 StaticContent += ["xAOD::VertexContainer#%s"        %                 BPHY10BdKstSelectAndWrite.OutputVtxContainerName]
 StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY10BdKstSelectAndWrite.OutputVtxContainerName]
 
-StaticContent += ["xAOD::VertexContainer#%s"        %                 'RecoV0Candidates']
-StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'RecoV0Candidates']
-StaticContent += ["xAOD::VertexContainer#%s"        %                 'RecoKshortCandidates']
-StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'RecoKshortCandidates']
-StaticContent += ["xAOD::VertexContainer#%s"        %                 'RecoLambdaCandidates']
-StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'RecoLambdaCandidates']
-StaticContent += ["xAOD::VertexContainer#%s"        %                 'RecoLambdabarCandidates']
-StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'RecoLambdabarCandidates']
+StaticContent += ["xAOD::VertexContainer#%s"        %                 'BPHY10RecoV0Candidates']
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'BPHY10RecoV0Candidates']
+StaticContent += ["xAOD::VertexContainer#%s"        %                 'BPHY10RecoKshortCandidates']
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'BPHY10RecoKshortCandidates']
+StaticContent += ["xAOD::VertexContainer#%s"        %                 'BPHY10RecoLambdaCandidates']
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'BPHY10RecoLambdaCandidates']
+StaticContent += ["xAOD::VertexContainer#%s"        %                 'BPHY10RecoLambdabarCandidates']
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'BPHY10RecoLambdabarCandidates']
 
 for cascades in CascadeCollections:
    StaticContent += ["xAOD::VertexContainer#%s"   %     cascades]

@@ -108,6 +108,9 @@ namespace CP {
 
       std::string m_configFile;
       int m_NTrackCut;
+      double m_slope;
+      double m_intercept;
+      std::string m_cuttype;
 
       asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
       asg::AnaToolHandle<InDet::IInDetTrackTruthFilterTool> m_trkTruthFilterTool;

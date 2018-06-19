@@ -568,13 +568,25 @@ def addCopyJet(FTAG5Seq, ToolSvc, InputJetCollectionName, OutputJetCollectionNam
 #========================================================================
 # Hbb Tagger
 #========================================================================
-def addHbbTagger(sequence, ToolSvc, logger=None,
-                 output_level=WARNING,
-                 jet_collection="AntiKt10LCTopoTrimmedPtFrac5SmallR20"):
+def get_unique_name(strings):
+    clean_strings = []
+    for string in strings:
+        chars = []
+        for char in string:
+            chars += char if (char.isalpha() or char.isdigit()) else '_'
+        clean_strings.append(''.join(chars))
+    return '_'.join(clean_strings)
+
+def addHbbTagger(
+        sequence, ToolSvc, logger=None,
+        output_level=WARNING,
+        jet_collection="AntiKt10LCTopoTrimmedPtFrac5SmallR20",
+        nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/Apr13HbbNetwork.json",
+        nn_config_file="BoostedJetTaggers/HbbTaggerDNN/PreliminaryConfigNovember2017.json"):
     if logger is None:
         logger = Logging.logging.getLogger('HbbTaggerLog')
 
-    fat_calibrator_name = "HbbCalibrator"
+    fat_calibrator_name = get_unique_name(["HbbCalibrator", jet_collection])
     is_data = not DerivationFrameworkIsMonteCarlo
     if not hasattr(ToolSvc, fat_calibrator_name):
         fatCalib = CfgMgr.JetCalibrationTool(
@@ -589,21 +601,26 @@ def addHbbTagger(sequence, ToolSvc, logger=None,
         logger.info('set up {}'.format(fatCalib))
     else:
         logger.info('took {} from tool svc'.format(fat_calibrator_name))
+        fatCalib = getattr(ToolSvc, fat_calibrator_name)
 
-    hbb_tagger_name = "HbbTagger"
-    config_file_name = (
-        "BoostedJetTaggers/HbbTagger/Summer2018/Apr13HbbNetwork.json")
+    # short name for naming tools
+    nn_short_file = nn_file_name.split('/')[-1].split('.')[0]
+
+    hbb_tagger_name = get_unique_name(["HbbTagger",nn_short_file])
     if not hasattr(ToolSvc, hbb_tagger_name):
         hbbTagger = CfgMgr.HbbTaggerDNN(
             hbb_tagger_name,
             OutputLevel=output_level,
-            neuralNetworkFile=config_file_name)
+            neuralNetworkFile=nn_file_name,
+            configurationFile=nn_config_file)
         ToolSvc += hbbTagger
         logger.info('set up {}'.format(hbbTagger))
     else:
         logger.info('took {} from tool svc'.format(hbb_tagger_name))
+        hbbTagger = getattr(ToolSvc, hbb_tagger_name)
 
-    tagger_alg_name = "HbbTaggerAlg"
+    tagger_alg_name = get_unique_name(
+        ["HbbTaggerAlg",jet_collection, nn_short_file])
     if not hasattr(sequence, tagger_alg_name):
         if tagger_alg_name in DFJetAlgs:
             sequence += DFJetAlgs[tagger_alg_name]
@@ -613,7 +630,6 @@ def addHbbTagger(sequence, ToolSvc, logger=None,
                 tagger_alg_name,
                 OutputLevel=output_level,
                 jetCollectionName=(jet_collection + "Jets"),
-                decorationName="HbbScore",
                 minPt=250e3,
                 maxEta=2.0,
                 tagger=hbbTagger,

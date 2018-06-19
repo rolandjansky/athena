@@ -6,13 +6,10 @@
 #define V0TOOLS_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "EventKernel/PdtPdg.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "EventPrimitives/EventPrimitives.h"
-#include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "xAODTracking/Vertex.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "CLHEP/Vector/LorentzVector.h"
+#include "xAODTracking/TrackParticle.h"
 
 /**
  *  @class V0Tools
@@ -23,9 +20,12 @@
  *  e.bouhova@cern.ch
  */
 
+namespace CLHEP{
+    class HepLorentzVector;
+}
+ 
 namespace Trk
 {
- class TrackParticleBase;
  class IExtrapolator;
 
  static const InterfaceID IID_V0Tools("V0Tools", 1, 1);
@@ -387,6 +387,8 @@ namespace Trk
   xAOD::Vertex* kshortLink(xAOD::Vertex * vxCandidate) const;
   xAOD::Vertex* lambdaLink(xAOD::Vertex * vxCandidate) const;
   xAOD::Vertex* lambdabarLink(xAOD::Vertex * vxCandidate) const;
+ 
+  Amg::MatrixX makeV0Cov(const xAOD::Vertex * vxCandidate) const;
  
   private:
 

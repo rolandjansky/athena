@@ -299,8 +299,7 @@ MUON1Seq += CfgMgr.DerivationFramework__DerivationKernel("MUON1Kernel",
 alg_name = "MUONVertexDecorationAlg"
 if not hasattr(DerivationFrameworkJob, alg_name ): 
     from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import VertexDecoratorAlg
-    from MuonPerformanceAlgs.IsolationBuilder import setupTrackSelectionTool
-    from InDetRecTools.InDetRecToolsConf import InDet__InDetTrackSelectionTool
+    from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
    
     the_alg = VertexDecoratorAlg(alg_name)
     InDetTool = InDet__InDetTrackSelectionTool("TrackSelectionTool_VertexDecoration")
