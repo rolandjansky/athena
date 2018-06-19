@@ -61,7 +61,7 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
           name = ExKtbbTagToolName, 
           JetAlgorithm = algj,
           JetRadius = 10.0,
-          PtMin = 1000,
+          PtMin = 0,
           ExclusiveNJets = nsubjet,
           doTrack = doTrackSubJet,
           InputJetContainerName = JetCollectionName,
@@ -168,6 +168,7 @@ def addExCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJ
 
 
         excomELresetName = "ELreset_subjet_%s" % (SubjetContainerName.replace("Jets", ""))
+        excomELresetNameLJet = "ELreset_largejet_%s" % (SubjetContainerName.replace("Jets", ""))
         excomAlgName = "jfind_%s" % (SubjetContainerName)
         excomJetRecToolName = "%s" % (SubjetContainerName)
         excomBTagName = "BTagging_%s" % (SubjetContainerName.replace("Jets", ""))
@@ -182,6 +183,7 @@ def addExCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJ
                 sequence += DFJetAlgs[excomAlgName]
                 sequence += CfgMgr.xAODMaker__ElementLinkResetAlg(excomELresetName, SGKeys=[SubjetContainerName+"Aux."])
                 sequence += DFJetAlgs[excomAlgName+"_btag"]
+                sequence += CfgMgr.xAODMaker__ElementLinkResetAlg(excomELresetNameLJet, SGKeys=[JetCollectionExCoM+"Aux."])
         else:
             print " Algorithm ExCoM ", excomAlgName, " to be built sequence ", sequence
             if hasattr(jtm, excomJetRecToolName):
@@ -245,6 +247,7 @@ def addExCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJ
                                     )
             sequence += jetalg_excom_btag
             DFJetAlgs[excomAlgName+"_btag"] = jetalg_excom_btag
+            sequence += CfgMgr.xAODMaker__ElementLinkResetAlg(excomELresetNameLJet, SGKeys=[JetCollectionExCoM+"Aux."])
 
     return ExCoMJetCollection__SubJet
 
