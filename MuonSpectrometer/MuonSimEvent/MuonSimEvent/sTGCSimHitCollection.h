@@ -1,5 +1,5 @@
 /*
-  2018-05-29, Jing
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef sTGCSimHitCollection_H

@@ -1,5 +1,5 @@
 /*
-  Jing, 12/06/2018 
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STGCSIMHITCOLLECTION_P1_H
