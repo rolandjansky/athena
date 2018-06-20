@@ -61,7 +61,7 @@ template<typename T> class TFCS1DFunction_Array
   public:
     TFCS1DFunction_Array() {};
     TFCS1DFunction_Array(std::size_t count) {resize(count);};
-    ~TFCS1DFunction_Array() {
+    virtual ~TFCS1DFunction_Array() {
       if(m_content) delete[] m_content;
     };
 
