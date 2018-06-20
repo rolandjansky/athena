@@ -2,7 +2,7 @@
 from TrigUpgradeTest.HLTSignatureConfig import TestHypoTool, MuTestHypoTool, ElTestHypoTool
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoToolInc, TrigL2CaloHypoToolMult, TrigL2ElectronHypoTool 
 #from TrigEgammaHypo.TrigL2CaloHypoTool import *
-from TrigMuonHypo.TrigMuonHypoConf import TrigMufastHypoTool
+from TrigMuonHypo.TrigMuonHypoConf import TrigMufastHypoTool, TrigmuCombHypoTool
 
 def createHypoTool(hypoToolClassName, hypoToolName):
     try:
@@ -37,3 +37,15 @@ def TrigMufastHypoToolConf(name):
     #hypotool= TrigMufastHypoConfig.TrigMufastHypoToolFromName(name)
     hypotool.OutputLevel = DEBUG
     return hypotool
+
+def TrigmuCombHypoToolConf(name):
+    from AthenaCommon.Constants import DEBUG
+    from TrigMuonHypo.testTrigMuonHypoConfig import TrigMufastHypoToolFromName
+    print "in TrigMufastHypoToolConf"
+    #TrigMufastHypoToolFromName
+    hypotool= TrigMufastHypoToolFromName(name)
+    #hypotool= TrigMufastHypoConfig.TrigMufastHypoToolFromName(name)
+    hypotool.OutputLevel = DEBUG
+    return hypotool
+
+   

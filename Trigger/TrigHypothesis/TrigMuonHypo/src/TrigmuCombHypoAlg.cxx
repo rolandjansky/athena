@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
+#include "AthLinks/ElementLink.h" 
 
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h" 
@@ -19,10 +20,8 @@ using namespace TrigCompositeUtils;
 
 TrigmuCombHypoAlg::TrigmuCombHypoAlg( const std::string& name,
 				      ISvcLocator* pSvcLocator ) :
-  ::AthReentrantAlgorithm( name, pSvcLocator )
-{
-
-} 
+  ::HypoBase( name, pSvcLocator )
+{} 
 
 TrigmuCombHypoAlg::~TrigmuCombHypoAlg() 
 {}
@@ -35,14 +34,8 @@ StatusCode TrigmuCombHypoAlg::initialize()
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
   ATH_CHECK(m_hypoTools.retrieve());
 
-  ATH_CHECK(m_decisionsKey.initialize());
-
-  ATH_CHECK(m_muonDecisionsKey.initialize());
-
-  ATH_CHECK(m_viewsKey.initialize());
-
-  renounce(m_combinedKey);
-  ATH_CHECK(m_combinedKey.initialize());
+  renounce(m_muCombKey);
+  ATH_CHECK(m_muCombKey.initialize());
 
   ATH_MSG_INFO( "Initialization completed successfully" );
   return StatusCode::SUCCESS;
@@ -64,92 +57,99 @@ StatusCode TrigmuCombHypoAlg::finalize()
 StatusCode TrigmuCombHypoAlg::execute_r(const EventContext& context) const
 {
 
+  // common for all Hypos, to move in the base class
   ATH_MSG_DEBUG("StatusCode TrigmuCombHypoAlg::execute_r start");
+  auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context);
+  if ( not previousDecisionsHandle.isValid() ) {//implicit
+    ATH_MSG_DEBUG( "No implicit ReadHandles for previous decisions " << decisionInput().key() << ": is this expected?");
+    return StatusCode::SUCCESS;
+  }
+  ATH_MSG_DEBUG( "Running with " << previousDecisionsHandle->size() << " implicit ReadHandles for previous decisions");
 
-  // prepare decisions container
   auto decisions = std::make_unique<DecisionContainer>();
   auto aux = std::make_unique<DecisionAuxContainer>();
   decisions->setStore(aux.get());
+  // end of common
 
-  // extract mapping of cluster pointer to an index in the cluster decision collection
-  auto clusterDecisionsHandle= SG::makeHandle( m_muonDecisionsKey, context );
-  std::map<const xAOD::L2StandAloneMuon*, size_t> clusterToIndexMap;
+  std::vector<TrigmuCombHypoTool::CombinedMuonInfo> toolInput;
+  // loop over previous decisions
+  size_t counter = 0; 
 
-  size_t clusterCounter = 0;
-  for (auto cluIter = clusterDecisionsHandle->begin(); cluIter != clusterDecisionsHandle->end(); ++cluIter) {
-    ATH_CHECK((*cluIter)->hasObjectLink("feature"));
-    const xAOD::L2StandAloneMuon* cluster = (*cluIter)->object<xAOD::L2StandAloneMuon>("feature");
-    clusterToIndexMap.insert(std::make_pair(cluster, clusterCounter));
- 
-    ++clusterCounter;
-  }
-  ATH_MSG_DEBUG( "Cluster ptr to decision map has size " << clusterToIndexMap.size() );
+  for ( auto previousDecision: *previousDecisionsHandle )  {
+    // get L2MuonSA Feature
+    //ATH_CHECK( previousDecision->hasObjectLink("feature") );
+    //auto muFastEL = previousDecision->objectLink<xAOD::L2StandAloneMuonContainer>("feature");
+    //ATH_CHECK( muFastEL.isValid() );
+    //const xAOD::L2StandAloneMuon* muFast = *muFastEL;
 
-  // prepare imput for tools  
-  std::vector<TrigmuCombHypoTool::CombinedMuonInfo> hypoToolInput;
+    TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer> linkInfo = 
+       TrigCompositeUtils::findLink<xAOD::L2StandAloneMuonContainer>(previousDecision, "feature");
+    ElementLink<xAOD::L2StandAloneMuonContainer> muFastLink = linkInfo.link;
+    ATH_CHECK( muFastLink.isValid() );        
+    const xAOD::L2StandAloneMuon* muFast = *muFastLink;
 
-  // retrieve views created on l2muCombViewsCreator
-  auto viewsHandle = SG::makeHandle(m_viewsKey, context);
-  if (!viewsHandle.isValid()) {
-    ATH_MSG_ERROR("ReadHandle for ViewContainer key:" << m_viewsKey.key() << " is failed");
-    return StatusCode::FAILURE;
-  }
 
-  for (auto view: *viewsHandle) {
-    size_t muonCounter = 0;
+    // get View
+    ATH_CHECK( previousDecision->hasObjectLink("view") );
+    auto viewEL = previousDecision->objectLink<ViewContainer>("view");
+    ATH_CHECK( viewEL.isValid() );
+    const SG::View* view_const = *viewEL;
+    SG::View* view = const_cast<SG::View*>(view_const); // CHECK THIS!
+    ATH_MSG_INFO("DEBUG: view name = " << view->name() );
 
-    // retrieve xAOD::CombinedMuonContaier created on muComb algorithm
-    auto muonHandle = SG::makeHandle(m_combinedKey, context);
-    ATH_CHECK(muonHandle.setProxyDict(view));
-    if(!muonHandle.isValid()) {
-      ATH_MSG_ERROR("ReadHandle for xAOD::L2CombinedMuonContainer key:" << m_combinedKey.key() << " is failed");
-      return StatusCode::FAILURE;
-    }
+    // get info
+    auto muCombHandle = SG::makeHandle( m_muCombKey, context ); 
+    ATH_CHECK( muCombHandle.setProxyDict(view) );
+    //ATH_CHECK( muCombHandle.isValid() );
+    ATH_MSG_DEBUG( "Muinfo handle size: " << muCombHandle->size() << "...");
 
-    xAOD::L2CombinedMuonContainer::const_iterator muIter;
-    for (muIter = muonHandle->begin(); muIter != muonHandle->end(); ++muIter) {
-      auto d = newDecisionIn(decisions.get());
-      auto element = ElementLink<xAOD::L2CombinedMuonContainer>(view->name()+"_"+m_combinedKey.key(), muonCounter);
-      d->setObjectLink("feature", element);
+    //auto muCombEL = ElementLink<xAOD::L2CombinedMuonContainer> ( view->name()+"_"+m_muCombKey.key(), counter);
+    auto muCombEL = ElementLink<xAOD::L2CombinedMuonContainer> ( view->name()+"_"+m_muCombKey.key(), 0 );
+    ATH_CHECK( muCombEL.isValid() );
+    const xAOD::L2CombinedMuon* muComb = *muCombEL;
+    
+    // create new decisions
+    auto newd = newDecisionIn( decisions.get() );
 
-      // get muSATracks from xAOD::CombinedMuonContainer
-      auto clusterPtr = (*muIter)->muSATrack();
-      ATH_CHECK(clusterPtr != nullptr);
+    toolInput.emplace_back( TrigmuCombHypoTool::CombinedMuonInfo{ newd, muComb, muFast, previousDecision} );
 
-      ATH_MSG_DEBUG("REGTEST: muSATrack pt in " << m_combinedKey.key() << " = " << clusterPtr->pt() << " GeV");
-      ATH_MSG_DEBUG("REGTEST: muSATrack eta/phi in " << m_combinedKey.key() << " = " << clusterPtr->eta() << "/" << clusterPtr->phi());
-      
-      ATH_MSG_DEBUG("REGTEST: muCBTrack pt in " << m_combinedKey.key() << " = " << (*muIter)->pt() << " GeV");
-      ATH_MSG_DEBUG("REGTEST: muCBTrack eta/phi in " << m_combinedKey.key() << " = " << (*muIter)->eta() << "/" << (*muIter)->phi());
-      
-      // now find matching cluster could use geometric matching 
-      // but in fact the cluster owned by the decision object and the cluster owned by the electron should be the same       
-      // since we have a map made in advance we can make use of the index lookup w/o the need for additional loop 
-      auto origCluster = clusterToIndexMap.find(clusterPtr);
-      ATH_CHECK(origCluster != clusterToIndexMap.end());
-      linkToPrevious(d, m_muonDecisionsKey.key(), origCluster->second);
+    // set objectLink
+    newd->setObjectLink( "feature", muCombEL );
+    //newd->setObjectLink( "", muFast );
+    TrigCompositeUtils::linkToPrevious( newd, decisionInput().key(), counter);
 
-      // now we have DecisionObject ready to be passed to hypo tool. 
-      // it has link to electron, and decisions on clusters 
-      // we shall avoid calling the tools for chains which were already rejected on certain cluster, but this is left to hypo tools
-      DecisionIDContainer clusterDecisionIDs;
-      decisionIDs(clusterDecisionsHandle->at(origCluster->second), clusterDecisionIDs);
-      
-      auto el = TrigmuCombHypoTool::CombinedMuonInfo{d, *muIter, origCluster->first, clusterDecisionIDs}; 
-      hypoToolInput.emplace_back(el);
-    } 
-    ++muonCounter;
+    // DEBUG
+    auto muFastInfo = (*muCombEL)->muSATrack(); 
+    ATH_MSG_DEBUG("REGTEST: muSATrack pt in " << m_muCombKey.key() << " = " << muFastInfo->pt() << " GeV");
+    ATH_MSG_DEBUG("REGTEST: muSATrack eta/phi in " << m_muCombKey.key() << " = " << muFastInfo->eta() << "/" << muFastInfo->phi());
+    
+    ATH_MSG_DEBUG("REGTEST: muCBTrack pt in " << m_muCombKey.key() << " = " << (*muCombEL)->pt() << " GeV");
+    ATH_MSG_DEBUG("REGTEST: muCBTrack eta/phi in " << m_muCombKey.key() << " = " << (*muCombEL)->eta() << "/" << (*muCombEL)->phi());
+    ATH_MSG_DEBUG("Added view, features, previous decision to new decision "<<counter <<" for view "<<view->name()  );
+
+    counter++;
   }
 
-  // hypo tools
   for ( auto & tool: m_hypoTools ) {
     ATH_MSG_DEBUG("Go to " << tool);
-    ATH_CHECK( tool->decide( hypoToolInput ) );
+    ATH_CHECK( tool->decide( toolInput ) );
   }
 
-  // recorded decision objects on TrigmuCombHypo
-  auto handle =  SG::makeHandle( m_decisionsKey, context );
-  ATH_CHECK( handle.record( std::move( decisions ), std::move( aux ) ) );
+  {// make output handle and debug, in the base class
+    auto outputHandle =  SG::makeHandle( decisionOutput(), context );
+    ATH_CHECK( outputHandle.record( std::move( decisions ), std::move( aux ) ) );
+    ATH_MSG_DEBUG( "Exit with " << outputHandle->size() << " decisions");
+    TrigCompositeUtils::DecisionIDContainer allPassingIDs;
+    if ( outputHandle.isValid() ) {
+      for ( auto decisionObject: *outputHandle ) {
+        TrigCompositeUtils::decisionIDs ( decisionObject, allPassingIDs );
+      }
+      for ( TrigCompositeUtils::DecisionID id: allPassingIDs ) {
+        ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
+      }
+    }
+  }
+
 
   ATH_MSG_DEBUG("StatusCode TrigmuCombHypoAlg::execute_r success");
   return StatusCode::SUCCESS;

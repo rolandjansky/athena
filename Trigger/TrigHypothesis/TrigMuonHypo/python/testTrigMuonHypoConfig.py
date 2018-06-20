@@ -413,6 +413,32 @@ def TrigMufastHypoToolFromName( thresholdHLT ):
     return tool
 
 
+def TrigmuCombHypoToolFromName( thresholdHLT ):	
+        
+    name = "TrigmuCombHypoTool"
+    config = TrigmuCombHypoConfig()
+    
+    # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
+    bname = thresholdHLT.split('_') 
+    threshold = bname[1]
+    thresholds = config.decodeThreshold( threshold )
+    print "TrigmuCombHypoConfig: Decoded ", thresholdHLT, " to ", thresholds
+
+    tool=config.ConfigurationHypoTool( thresholdHLT, thresholds )
+    
+    # Setup MonTool for monitored variables in AthenaMonitoring package
+    TriggerFlags.enableMonitoring = ["Validation"]
+
+    try:
+            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
+                tool.MonTool = TrigmuCombHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
+    except AttributeError:
+            tool.MonTool = ""
+            print name, ' Monitoring Tool failed'
+
+    return tool
+
+
 class TrigMufastHypoConfig():
 
     def decodeThreshold( self, threshold ):
@@ -484,44 +510,25 @@ class TrigMufastHypoConfig():
     
 
 
-# This class is copied from MucombHypoConfig.
-class TrigmuCombHypoConfig(TrigmuCombHypoAlg):
+class TrigmuCombHypoConfig():
 
-    __slots__ = []
+    def decodeThreshold( self, threshold ):
+        """ decodes the thresholds of the form mu6, 2mu6, ... """
+        print "decoding ", threshold
 
-    # thresholdHLT: name threshold, for example HLT_mu6 etc
-    def TrigmuCombHypoToolFromName( self, name, thresholdHLT ):
-
-        from AthenaCommon.Constants import DEBUG
-        tool = TrigmuCombHypoTool( thresholdHLT )  
-        tool.OutputLevel = DEBUG
-
-        # Separete HLT_NmuX to bname[0]=HLT and bname[1]=NmuX
-        bname = thresholdHLT.split('_') 
-
-        threshold = bname[1]
-        thresholds = TrigMufastHypoConfig().decodeThreshold( threshold )
-        tight = False
-
-        TrigmuCombHypoConfig().ConfigrationHypoTool( name, thresholdHLT, thresholds, tight )
-        print """ Configration SUCCESS: Configure threshold """, threshold, """ at TrigmuCombHypoTool """
-
-        # Setup MonTool for monitored variables in AthenaMonitoring package
-        TriggerFlags.enableMonitoring = ["Validation"]
-
-        try:
-            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
-                tool.MonTool = TrigmuCombHypoMonitoring( name + "Monitoring_" + thresholdHLT ) 
-        except AttributeError:
-            tool.MonTool = ""
-            print name, ' Monitoring Tool failed'
-
-        return tool
+        if threshold[0].isdigit():  # If the form is NmuX, return as list [X,X,X...N times...]
+            assert threshold[1:3] == "mu", "Two digit multiplicity not supported"
+            return [ threshold[3:] ] * int( threshold[0] )
+    
+        if threshold.count('mu') > 1:  # If theform is muXmuY, return as [X,Y]
+            return threshold.strip('mu').split('mu')
+    
+        # If the form is muX(inclusive), return as 1 element list
+        return [ threshold[2:] ]        
  
     def ConfigrationHypoTool( self, name, thresholdHLT, thresholds, tight ):
 
         tool = TrigmuCombHypoTool( thresholdHLT )
-        print 'MucombHypoConfig configured for threshold: ',thresholds
 
         datayear = "2017"
 
@@ -556,7 +563,7 @@ class TrigmuCombHypoConfig(TrigmuCombHypoAlg):
                 tool.MaxPtToApplyPik      = 25.
                 tool.MaxChi2IDPik         = 3.5
 
-        return thvaluename
+        return tool 
 
 
 class MufastHypoConfig(MufastHypo) :
