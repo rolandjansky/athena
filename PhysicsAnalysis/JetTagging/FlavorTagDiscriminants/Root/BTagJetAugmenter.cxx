@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include <cmath>
 #include "FlavorTagDiscriminants/BTagJetAugmenter.h"
 
@@ -115,7 +119,7 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
     jf_theta = jf_fittedPosition(*btag).at(4);
     flightDir.SetMagThetaPhi(1, jf_theta, jf_phi);
 
-    for (unsigned jf_vtx_index = 0; jf_vtx_index < jf_vertices(*btag).size() && jf_vtx_index < jf_fittedPosition(*btag).size() - 5; jf_vtx_index++) {
+    for (size_t jf_vtx_index = 0; jf_vtx_index < jf_vertices(*btag).size() && jf_vtx_index < jf_fittedPosition(*btag).size() - 5; jf_vtx_index++) {
       if ( ! jf_vertices(*btag).at(jf_vtx_index).isValid()) {
         continue;
       }
@@ -139,7 +143,7 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
   secondaryVtx_L3d(*btag) = min_jf_vtx_L3d;
   secondaryVtx_Lxy(*btag) = min_jf_vtx_L3d * sinf(jf_theta);
 
-  unsigned track_number = 0;
+  unsigned int track_number = 0;
   double track_E_total = 0;
   double min_track_flightDirRelEta = NAN;
   double max_track_flightDirRelEta = NAN;

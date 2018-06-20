@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef BTAG_JET_AUGMENTER_HH
 #define BTAG_JET_AUGMENTER_HH
 
