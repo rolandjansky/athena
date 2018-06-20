@@ -5,7 +5,6 @@
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
 
 import concurrent.futures
-import errno
 import logging
 import os
 import shlex
@@ -15,6 +14,11 @@ import sys
 from datetime import datetime
 
 MODULE = "art.misc"
+EOS_MGM_URL = 'root://eosatlas.cern.ch/'
+
+KByte = 1024
+MByte = KByte * 1024
+GByte = MByte * 1024
 
 
 def set_log(kwargs):
@@ -166,15 +170,94 @@ def make_executable(path):
     os.chmod(path, mode)
 
 
-def mkdir_p(path):
+def mkdir(path):
     """Make (missing) directories."""
+    log = logging.getLogger(MODULE)
+    if path.startswith('/eos'):
+        mkdir_cmd = 'eos ' + EOS_MGM_URL + ' mkdir -p'
+    else:
+        mkdir_cmd = 'mkdir -p'
+
+    if mkdir_cmd is not None:
+        (exit_code, out, err, command, start_time, end_time) = run_command(' '.join((mkdir_cmd, path)))
+        if exit_code != 0:
+            log.error("Mkdir Error: %d %s %s", exit_code, out, err)
+            return exit_code
+
+    return 0
+
+
+def ls(path):
+    """List files in directroy."""
+    if path.startswith('/eos'):
+        ls_cmd = 'eos ' + EOS_MGM_URL + ' ls ' + path + '/'
+    else:
+        ls_cmd = 'ls ' + path + '/'
+
+    (exit_code, out, err, command, start_time, end_time) = run_command(ls_cmd)
+    if exit_code == 0:
+        print out
+        print err
+
+    return exit_code
+
+
+def cp(src, dst):
+    """Copy files to directory."""
+    log = logging.getLogger(MODULE)
+    if dst.startswith('/eos'):
+        # check which xrdcp we are running
+        (exit_code, out, err, command, start_time, end_time) = run_command('which xrdcp')
+        print out
+        print err
+
+        # check which version of xrdcp we are running
+        (exit_code, out, err, command, start_time, end_time) = run_command('xrdcp --version')
+        print out
+        print err
+
+        cmd = ' '.join(('xrdcp -f -N -r -p -v', src, EOS_MGM_URL + dst + '/'))
+    else:
+        cmd = ' '.join(('xrdcp -f -N -r -p -v', src, dst + '/'))
+
+    # run the actual command
+    log.info("Using: %s", cmd)
+    (exit_code, exit_out, exit_err, command, start_time, end_time) = run_command(cmd)
+    if exit_code != 0:
+        log.error("COPY to DST Error: %d %s %s", exit_code, exit_out, exit_err)
+
+    return exit_code
+
+
+def count_files(path):
+    """Count number of files."""
+    log = logging.getLogger(MODULE)
+    if path.startswith('/eos'):
+        cmd = ' '.join(('eos', EOS_MGM_URL, 'find', path, '|', 'wc', '-l'))
+    else:
+        cmd = ' '.join(('find', path, '|', 'wc', '-l'))
+
+    (exit_code, out, err, command, start_time, end_time) = run_command(cmd)
+    if exit_code == 0:
+        nFiles = int(out)
+        return nFiles
+
+    log.error("Error retrieving number of files on %s, %s", path, err)
+    return -1
+
+
+def touch(fname, times=None):
+    """Touch a file."""
+    with open(fname, 'a'):
+        os.utime(fname, times)
+
+
+def rm(fname):
+    """Remove a file."""
     try:
-        os.makedirs(path)
-    except OSError as exc:  # Python >2.5
-        if exc.errno == errno.EEXIST and os.path.isdir(path):
-            pass
-        else:
-            raise
+        os.remove(fname)
+    except OSError:
+        pass
 
 
 def which(program):
@@ -191,3 +274,8 @@ def which(program):
                 return exe_file
 
     return None
+
+
+def memory(scale=1):
+    """Return free memory."""
+    return os.sysconf('SC_PHYS_PAGES') * os.sysconf('SC_PAGE_SIZE') / scale
