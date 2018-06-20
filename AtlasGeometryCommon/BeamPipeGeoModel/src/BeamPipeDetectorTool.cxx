@@ -15,7 +15,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
-#include "CLIDSvc/tools/ClassID_traits.h"
+#include "AthenaKernel/ClassID_traits.h"
 #include "SGTools/DataProxy.h"
 
 BeamPipeDetectorTool::BeamPipeDetectorTool( const std::string& type, 
