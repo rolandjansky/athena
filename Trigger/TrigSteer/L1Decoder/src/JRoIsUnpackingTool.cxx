@@ -21,7 +21,8 @@ StatusCode JRoIsUnpackingTool::initialize() {
   ATH_CHECK( m_trigRoIsKey.initialize() );
   ATH_CHECK( m_trigFSRoIsKey.initialize() );
   ATH_CHECK( m_recRoIsKey.initialize() );
-
+  ATH_CHECK( m_trigFSRoIsKey.initialize() ) ;
+  ATH_CHECK( m_fsDecisions.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -55,14 +56,17 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
   fsDecisionOutput->setStore( fsDecisionAux.get() );  
   Decision* fsDecision = newDecisionIn( fsDecisionOutput.get() );
   fsDecision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigFSRoIsKey.key(), 0 ) );
-  for ( auto thresholdChainsPair: m_thresholdToChainMapping )
-    for ( auto chain: thresholdChainsPair.second )
-      addChainsToDecision( chain, fsDecision, activeChains );
 
-  for ( const auto id: decisionIDs( fsDecision ) ) { // it is suboptimal to make this loop if we are not in debug mode, fixme
-    ATH_MSG_DEBUG( "FS Jet RoI tagged with decision " <<  HLT::Identifier( id ) );
-  } 
-  
+  // here we attempt to add all jet chains to FS RoI, it will be trimmed by the set of active chains
+  for ( auto thresholdChainsPair: m_thresholdToChainMapping ) {
+    addChainsToDecision( thresholdChainsPair.first, fsDecision, activeChains );    
+  }
+  ATH_MSG_DEBUG( "Stored "  << decisionIDs( fsDecision ).size() << "  decision in FS RoI" );
+  for ( auto chain : decisionIDs( fsDecision ) ) {
+    ATH_MSG_DEBUG( "Chain decision stored for FS RoI " <<  HLT::Identifier( chain ) );      
+  }
+
+
   // RoIBResult contains vector of TAU fragments
   for ( auto& jetFragment : roib.jetEnergyResult() ) {
     for ( auto& roi : jetFragment.roIVec() ) {
