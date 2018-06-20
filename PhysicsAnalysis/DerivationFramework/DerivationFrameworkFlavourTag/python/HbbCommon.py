@@ -153,6 +153,8 @@ def addExKt(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJe
                                     )
             sequence += jetalg_exkt
             DFJetAlgs[exktAlgName] = jetalg_exkt
+        exktELresetNameLJet = "ELreset_largejet_%s" %(SubjetContainerName.replace("Jets", ""))
+        sequence += CfgMgr.xAODMaker__ElementLinkResetAlg(exktELresetNameLJet,SGKeys=[JetCollectionExKt+"Aux."])
 
     return ExKtJetCollection__SubJet
 
