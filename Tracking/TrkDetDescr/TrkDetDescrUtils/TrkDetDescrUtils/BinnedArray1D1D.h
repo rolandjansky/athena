@@ -104,7 +104,7 @@ namespace Trk {
 
               // assign the items
               for (size_t isteer=0; isteer<m_steeringBinUtility->bins(0); ++isteer)
-                  for (size_t isingle =0; isingle<(*m_singleBinUtilities)[isteer]->bins(0); ++isteer)
+                  for (size_t isingle =0; isingle<(*m_singleBinUtilities)[isteer]->bins(0); ++isingle)
                       (*((*m_array)[isteer]))[isingle] = (*((*barr.m_array)[isteer]))[isingle];
 
           }

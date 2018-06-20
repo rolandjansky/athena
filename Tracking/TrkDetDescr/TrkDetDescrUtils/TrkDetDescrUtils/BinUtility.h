@@ -32,7 +32,8 @@ namespace Trk {
     - building up a multidimensional BinUtility has to be done with the 
       operator +=
         
-    @author Andreas.Salzburger@cern.ch 
+    @author Andreas.Salzburger@cern.ch
+ 
   */
    
    class BinUtility {
@@ -89,11 +90,11 @@ namespace Trk {
         }
 	  
     /** Constructor for arbitrary */
-    BinUtility(std::vector<float>& bValues, BinningOption opt = closed, BinningValue value = binPhi) :
+   BinUtility(std::vector<float>& bValues, BinningOption opt = closed, BinningValue value = binPhi, float refPhi=0., float stepPhi=0.) :
 	  m_binningData()
 	{
 	  m_binningData.reserve(3);
-	  size_t nBins =  opt==0 ? bValues.size()-1 : bValues.size();
+	  size_t nBins =  ( opt==0 || value==Trk::BinningValue::modZ ) ? bValues.size()-1 : bValues.size(); 
 
 	  m_binningData.push_back(Trk::BinningData(Trk::arbitrary, 
 						   opt,
@@ -101,28 +102,31 @@ namespace Trk {
 						   nBins,
 						   bValues[0],
 						   bValues.back(), 
-						   (bValues.back()-bValues[0])/(nBins),
-						   0.,
+						   stepPhi,
+						   refPhi,
 						   bValues ));
 	}
 
 	/** Constructor for binH */
-	  BinUtility(float phiRef, std::vector<std::pair<int,float> >& bValues) :
+   BinUtility(float phiRef, std::vector<std::pair<int,float> >& bValues, BinningValue value = binH, float step=1.) :
 	    m_binningData()
         {
             m_binningData.reserve(3);
-            m_binningData.push_back(Trk::BinningData(Trk::open,phiRef,bValues));
+            m_binningData.push_back(Trk::BinningData(Trk::open,phiRef,bValues, value, step));
         }
         
         /** Copy constructor */
         BinUtility(const BinUtility& sbu ) :
-         m_binningData(sbu.m_binningData)
-       {}
+         m_binningData()
+       {    m_binningData.reserve(3);
+            for (unsigned int i=0; i<sbu.m_binningData.size(); i++)
+	      m_binningData.push_back(Trk::BinningData(sbu.m_binningData[i]));
+       }
         
         /** Assignment operator Constructor */
         BinUtility& operator=(const BinUtility& sbu ){
             if ( this != &sbu )
-                m_binningData = sbu.m_binningData;
+	      m_binningData = std::vector<BinningData>(sbu.m_binningData);
             return (*this);
         }
         
@@ -242,26 +246,34 @@ namespace Trk {
             return (m_binningData[ba].binPosition( bin, pos ));
 	}
 
+
+	BinPath binPath(const Amg::Vector3D& position, const Amg::Vector3D& direction,
+			float min=-1.e-05, float max=1.e05, size_t ba=0) const {
+	  if (ba >= m_binningData.size()) 
+                throw GaudiException("BinUtility", "dimension out of bounds", StatusCode::FAILURE); 
+          return m_binningData[ba].binPath(position, direction, min, max);
+	}
+
         /** Clear the data. */
         void clear() { m_binningData.clear(); }
                   
         /** Output Method for MsgStream, to be overloaded by child classes */
         MsgStream& dump(MsgStream& sl) const {
-           sl << "BinUtility for " << m_binningData.size() << "-dimensional array:" << endreq;
+           sl << "BinUtility for " << m_binningData.size() << "-dimensional array:" << endmsg;
            std::vector<BinningData>::const_iterator bdIter = m_binningData.begin();
            for (size_t ibd = 0 ; bdIter != m_binningData.end(); ++bdIter, ++ibd ){
-               sl << "dimension     : " << ibd << endreq                                << endreq;
-               sl << " - type       : " << size_t((*bdIter).type)                       << endreq;
-               sl << " - option     : " << size_t((*bdIter).option)                     << endreq;
-               sl << " - value      : " << size_t((*bdIter).binvalue)                   << endreq;
-               sl << " - bins       : " << (*bdIter).bins                               << endreq;
-               sl << " - min/max    : " << (*bdIter).min << " / " << (*bdIter).max      << endreq;
-               sl << " - step/sub   : " << (*bdIter).step << " / " << (*bdIter).subStep << endreq;
+               sl << "dimension     : " << ibd << endmsg                                << endmsg;
+               sl << " - type       : " << size_t((*bdIter).type)                       << endmsg;
+               sl << " - option     : " << size_t((*bdIter).option)                     << endmsg;
+               sl << " - value      : " << size_t((*bdIter).binvalue)                   << endmsg;
+               sl << " - bins       : " << (*bdIter).bins                               << endmsg;
+               sl << " - min/max    : " << (*bdIter).min << " / " << (*bdIter).max      << endmsg;
+               sl << " - step/sub   : " << (*bdIter).step << " / " << (*bdIter).subStep << endmsg;
                sl << " - boundaries : | ";
                std::vector<float>::const_iterator bIter = (*bdIter).boundaries.begin();
                for ( ; bIter != (*bdIter).boundaries.end(); ++bIter )
                    sl << (*bIter) << " | ";
-               sl << endreq;
+               sl << endmsg;
            }
            return sl;
        }

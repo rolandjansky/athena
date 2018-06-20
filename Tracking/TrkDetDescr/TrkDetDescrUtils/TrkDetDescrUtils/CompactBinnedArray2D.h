@@ -46,7 +46,7 @@ namespace Trk {
         // check compatibility
         // size of the index array must correspond to the number of bins in the BinUtility
         if (indexarray.size() != bingen->bins() )
-	  std::cout <<" problem in construction of CompactBinnedArray2D: index array not compatible with BinUtility:"<< indexarray.size() <<"!="<< bingen->bins()<< std::endl;
+	   throw GaudiException("CompactBinnedArray2D", "dimension of index array out of bounds:", StatusCode::FAILURE); 
         // maximal index must stay within the range of available objects
         size_t iMax = 0;
 	for (size_t i=0; i<indexarray.size(); i++) {
@@ -54,8 +54,8 @@ namespace Trk {
 	    if (indexarray[i][j]>iMax) iMax = indexarray[i][j];
 	  }
 	}
-	if (iMax > tclassvector.size()-1)  std::cout <<" problem in construction of CompactBinnedArray2D:runaway index:"<< iMax
-						     <<","<< tclassvector.size()<<std::endl;     
+	if (iMax > tclassvector.size()-1)      
+	  throw GaudiException("CompactBinnedArray2D", "runaway index", StatusCode::FAILURE); 
       }
   
       /**Copy Constructor - copies only pointers !*/
@@ -176,6 +176,33 @@ namespace Trk {
 
      /** Return the layer bin*/
      size_t layerBin(const Amg::Vector3D& pos) const { return(layerBinUtility(pos)->bin(pos)); }
+
+    /** access to objects */
+     Trk::BinMap<T> binMap(const Amg::Vector3D& gp, const Amg::Vector3D& dir,
+			   float min=-1.e-05, float max=1.e05 ) const{
+       Trk::BinPath pTop = m_binUtility->binPath(gp,dir,min, max);
+       float lmin = min; float lmax = max;       
+       Trk::BinMap<T> merged(lmin,lmax);
+       double shift=0.;
+       for (unsigned int ibu = 0; ibu<pTop.steps.size()-1; ibu++) {
+         if (pTop.steps[ibu].first>0.) shift = pTop.steps[ibu].first;
+         if (pTop.steps[ibu].second<0) continue;
+         Trk::BinUtility* bu = m_buVec[pTop.steps[ibu].second];
+         Amg::Vector3D probe = gp+shift*dir;
+         Trk::BinPath bpath = bu->binPath(probe,dir,pTop.steps[ibu].first-shift,pTop.steps[ibu+1].first-shift);
+	 std::vector<T*> bObj;
+         for (unsigned int il = 0; il<bpath.steps.size(); il++) {
+	   if (bpath.steps[il].second>=0 && bpath.steps[il].second<int(m_array[pTop.steps[ibu].second].size())) {
+	     bObj.push_back(m_arrayObjects[m_array[pTop.steps[ibu].second][bpath.steps[il].second]]);
+	   } else {
+	     bObj.push_back(0);
+	   }
+	 }
+	 Trk::BinMap<T> bmap(bObj,bpath);
+         merged.mergeIn(bmap,shift);
+       }
+       return merged;
+     }
 
     private:
      const std::vector< std::vector<size_t> >                   m_array;        //!< vector of indices to objects

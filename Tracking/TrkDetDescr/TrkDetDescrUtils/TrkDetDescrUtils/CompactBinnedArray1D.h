@@ -11,6 +11,7 @@
 
 #include "TrkDetDescrUtils/CompactBinnedArray.h"
 #include "TrkDetDescrUtils/BinUtility.h"
+#include "TrkDetDescrUtils/BinMap.h"
 
 //STL
 #include <vector>
@@ -21,8 +22,8 @@ namespace Trk {
 
 /** @class CompactBinnedArray1D
 
-    1-dimensional binned arry based on a sorting
-    given by the BinUtitlity.
+    1-dimensional binned array with compact packing.
+    Does not take ownership of stored objects.
 
    @author sarka.todorova@cern.ch
    */
@@ -36,20 +37,20 @@ namespace Trk {
       m_binUtility(0){}
     
     /**Constructor with std::vector and a BinUtility */
-    CompactBinnedArray1D(const std::vector< const T*>& tclassvector, const std::vector<size_t>& indexvector,  BinUtility* bingen) throw (GaudiException) :
+    CompactBinnedArray1D(const std::vector< const T*>& tclassvector,const std::vector<size_t>& indexvector,  BinUtility* bingen) throw (GaudiException) :
       CompactBinnedArray<T>(),
       m_array(indexvector),
       m_arrayObjects(tclassvector),
       m_binUtility(bingen)
       {    
-        // check compatibility
-        // size of the index vector must correspond to the number of bins in the BinUtility
-        if (indexvector.size() != bingen->bins() )
-	  std::cout <<" problem in construction of CompactBinnedArray1D: number of indexes not compatible with BinUtility:"<< indexvector.size() <<"!="<< bingen->bins()<< std::endl;
+	// size of the index vector must correspond to the number of bins in the BinUtility
+         if (indexvector.size() != bingen->bins() ) 
+	   throw GaudiException("CompactBinnedArray1D", "dimension of index vector out of bounds:", StatusCode::FAILURE); 
         // maximal index must stay within the range of available objects
         unsigned int iMax = 0;
 	for (unsigned int i=0; i<indexvector.size(); i++) if (indexvector[i]>iMax) iMax = indexvector[i];
-	if (iMax > tclassvector.size()-1)  std::cout <<" problem in construction of CompactBinnedArray1D:runaway index:"<< iMax<<","<< tclassvector.size()<<std::endl;    
+	if (iMax > tclassvector.size()-1) 
+	  throw GaudiException("CompactBinnedArray1D", "runaway index", StatusCode::FAILURE);    
       }
 
      /**Copy Constructor - copies only pointers !*/
@@ -103,8 +104,16 @@ namespace Trk {
       */
      const T* object(const Amg::Vector3D& gp) const
      {
-       if (m_binUtility) 
-	 return m_arrayObjects[m_array[m_binUtility->bin(gp, 0)]];
+       if (m_binUtility) {
+         size_t bin = m_binUtility->bin(gp, 0);
+         if (bin<0 || bin>=m_array.size()) {
+           return 0;
+	 }         
+         if (m_array[bin]<0 || m_array[bin]>=m_arrayObjects.size()) {
+           return 0;
+	 }         
+	 return m_arrayObjects[m_array[bin]];
+       }
        return 0; 
      }
 
@@ -142,6 +151,26 @@ namespace Trk {
 
      /** Return the layer bin*/
      size_t layerBin(const Amg::Vector3D& pos) const { return(m_binUtility->bin(pos)); }
+
+    /** access to objects */
+     Trk::BinMap<T> binMap(const Amg::Vector3D& gp, const Amg::Vector3D& dir, 
+			   float min=-1.e-05, float max=1.e05 ) const{
+
+      Trk::BinPath path = m_binUtility->binPath(gp,dir,min,max);
+
+       std::vector<T*> objects;
+       for (unsigned int i=0; i<path.steps.size(); i++)  {
+         if (path.steps[i].second>=0 && path.steps[i].second<int(m_array.size())) {
+	   objects.push_back(m_arrayObjects[m_array[path.steps[i].second]]);
+         } else {
+	   objects.push_back(0);
+	 }
+       }
+
+       Trk::BinMap<T> map(objects,path);
+       //map.check();
+       return map;
+     }
 
     private:
      const std::vector<size_t >                          m_array;        //!< vector of indices to objects
