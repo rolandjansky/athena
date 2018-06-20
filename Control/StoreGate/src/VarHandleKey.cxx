@@ -50,8 +50,8 @@ VarHandleKey::VarHandleKey (CLID clid,
     m_storeHandle (storeName, "VarHandleKey")
 {
   parseKey (sgkey, storeName);
-  m_isEventStore =  (storeName == StoreID::storeName(StoreID::EVENT_STORE) ||
-                     storeName == StoreID::storeName(StoreID::PILEUP_STORE));
+  m_isEventStore =  (m_storeHandle.name() == StoreID::storeName(StoreID::EVENT_STORE) ||
+                     m_storeHandle.name() == StoreID::storeName(StoreID::PILEUP_STORE));
 }
 
 
