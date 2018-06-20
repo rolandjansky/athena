@@ -40,11 +40,11 @@ def TrigMufastHypoToolConf(name):
 
 def TrigmuCombHypoToolConf(name):
     from AthenaCommon.Constants import DEBUG
-    from TrigMuonHypo.testTrigMuonHypoConfig import TrigMufastHypoToolFromName
-    print "in TrigMufastHypoToolConf"
-    #TrigMufastHypoToolFromName
-    hypotool= TrigMufastHypoToolFromName(name)
-    #hypotool= TrigMufastHypoConfig.TrigMufastHypoToolFromName(name)
+    from TrigMuonHypo.testTrigMuonHypoConfig import TrigmuCombHypoToolFromName
+    print "in TrigmuCombHypoToolConf"
+    #TrigmuCombHypoToolFromName
+    hypotool= TrigmuCombHypoToolFromName(name)
+    #hypotool= TrigmuCombHypoConfig.TrigmuCombHypoToolFromName(name)
     hypotool.OutputLevel = DEBUG
     return hypotool
 

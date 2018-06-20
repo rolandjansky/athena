@@ -424,7 +424,8 @@ def TrigmuCombHypoToolFromName( thresholdHLT ):
     thresholds = config.decodeThreshold( threshold )
     print "TrigmuCombHypoConfig: Decoded ", thresholdHLT, " to ", thresholds
 
-    tool=config.ConfigurationHypoTool( thresholdHLT, thresholds )
+    tight = False
+    tool=config.ConfigurationHypoTool( thresholdHLT, thresholds, tight )
     
     # Setup MonTool for monitored variables in AthenaMonitoring package
     TriggerFlags.enableMonitoring = ["Validation"]
@@ -526,7 +527,7 @@ class TrigmuCombHypoConfig():
         # If the form is muX(inclusive), return as 1 element list
         return [ threshold[2:] ]        
  
-    def ConfigrationHypoTool( self, name, thresholdHLT, thresholds, tight ):
+    def ConfigurationHypoTool( self, thresholdHLT, thresholds, tight ):
 
         tool = TrigmuCombHypoTool( thresholdHLT )
 
