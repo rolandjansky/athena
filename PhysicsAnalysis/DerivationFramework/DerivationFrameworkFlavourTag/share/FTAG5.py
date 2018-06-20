@@ -173,7 +173,11 @@ FTAG5Seq += CfgMgr.BTagJetAugmenterAlg(
 # Add Hbb tagger
 #================================================================
 
-addHbbTagger(FTAG5Seq, ToolSvc, ftag5_log, output_level=INFO)
+addHbbTagger(FTAG5Seq, ToolSvc, ftag5_log)
+addHbbTagger(
+    FTAG5Seq, ToolSvc, ftag5_log,
+    nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/MulticlassNetwork.json",
+    nn_config_file="BoostedJetTaggers/HbbTaggerDNN/MulticlassConfigJune2018.json")
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
@@ -212,6 +216,7 @@ FTAG5SlimmingHelper.ExtraVariables += [
     "InDetTrackParticles.hitPattern.radiusOfFirstHit",
     "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet",
     "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore"
 ]
 

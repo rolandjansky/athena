@@ -168,7 +168,7 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
                                                                        SGKey                   = "AntiKt4EMTopoJets",
                                                                        TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                                        SelectionString         = "AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 7*GeV",
-                                                                       AdditionalClustersKey = ["EMOriginTopoClusters"] )
+                                                                       AdditionalClustersKey = ["EMOriginTopoClusters","LCOriginTopoClusters","CaloCalTopoClusters"] )
   ToolSvc += TOPQAK4CCThinningTool
   thinningTools.append(TOPQAK4CCThinningTool)
   print TOPQname+".py", TOPQname+"AK4CCThinningTool: ", TOPQAK4CCThinningTool
@@ -180,7 +180,7 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
                                                                            SGKey                   = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                                                            TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                                            SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 7*GeV",
-                                                                           AdditionalClustersKey = ["EMOriginTopoClusters","LCOriginTopoClusters"] )
+                                                                           AdditionalClustersKey = ["EMOriginTopoClusters","LCOriginTopoClusters","CaloCalTopoClusters"] )
   ToolSvc += TOPQLargeJetCCThinningTool
   thinningTools.append(TOPQLargeJetCCThinningTool)
   print TOPQname+".py", TOPQname+"LargeJetCCThinningTool: ", TOPQLargeJetCCThinningTool
@@ -303,6 +303,18 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
     ToolSvc += TOPQTruthThinningTool
     thinningTools.append(TOPQTruthThinningTool)
     print TOPQname+".py", TOPQname+"TruthThinningTool: ", TOPQTruthThinningTool
+
+    if TOPQname == 'TOPQ5':
+      # Only save truth informtion directly associated with Onia 
+      from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning 
+      TOPQOniaTruthThinningTool = DerivationFramework__GenericTruthThinning(name                    = TOPQname + "OniaTruthThinningTool",
+                                                                            ThinningService         = TOPQThinningSvc,      
+                                                                            ParticleSelectionString = "TruthParticles.pdgId == 443 || TruthParticles.pdgId == 100443 || TruthParticles.pdgId == 553 || TruthParticles.pdgId == 100553 || TruthParticles.pdgId == 200553",      
+                                                                            PreserveDescendants     = True,                                                          
+                                                                            PreserveAncestors      = True) 
+      ToolSvc += TOPQOniaTruthThinningTool
+      thinningTools.append(TOPQOniaTruthThinningTool)
+      print TOPQname+".py", TOPQname+"OniaTruthThinningTool: ", TOPQOniaTruthThinningTool
 
     #==============================================================================
     # Thinning the photon truth collection : no photons from pi0 (origin=42)

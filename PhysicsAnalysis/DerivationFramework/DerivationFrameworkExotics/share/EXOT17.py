@@ -125,6 +125,7 @@ EXOT17SlimmingHelper = SlimmingHelper("EXOT17SlimmingHelper")
 EXOT17SlimmingHelper.StaticContent = EXOT9Content
 EXOT17SlimmingHelper.AllVariables = EXOT9AllVariables
 EXOT17SlimmingHelper.SmartCollections = EXOT9SmartCollections
+EXOT17SlimmingHelper.ExtraVariables += EXOT9Extravariables
 EXOT17SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 EXOT17SlimmingHelper.IncludeEGammaTriggerContent = False
 EXOT17SlimmingHelper.IncludeMuonTriggerContent = True
