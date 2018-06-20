@@ -15,13 +15,12 @@ namespace Muon
     
     unsigned int        m_id; //!< FIXME! Remove this eventually
     
-    /// readout channel Id
-    int m_channel;
-    /// tdc counts
-    int m_time;
-    /// adc counts
-    int m_charge;
+    /// writing out channel id, time and charge
+    unsigned int m_channel;
     
+    unsigned int m_time;
+    
+    unsigned int m_charge;
     
   };
 }
