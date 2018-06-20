@@ -403,8 +403,9 @@ if TriggerFlags.doMuon:
     l2muCombViewNode += muCombAlg
 
     ### set up muCombHypo algorithm ###
-    from TrigMuonHypo.TrigMuonHypoConfig import TrigmuCombHypoConfig
-    trigmuCombHypo = TrigmuCombHypoConfig("L2muCombHypoAlg")
+    from TrigMuonHypo.TrigMuonHypoConf import TrigmuCombHypoAlg
+    #trigmuCombHypo = TrigmuCombHypoAlg("L2muCombHypoAlg") # avoid to have "Comb" string in the name due to HLTCFConfig.py. 
+    trigmuCombHypo = TrigmuCombHypoAlg("L2muHypoAlg")
     trigmuCombHypo.OutputLevel = DEBUG
     trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = muCombAlg.L2CombinedMuonContainerName 
   
