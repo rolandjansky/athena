@@ -21,23 +21,6 @@ CLID CondContBase::clid() const
 
 
 /**
- * @brief Internal constructor.
- * @param rcusvc RCU service instance.
- * @param CLID of the most-derived @c CondCont.
- * @param id CLID+key for this object.
- * @param proxy @c DataProxy for this object.
- */
-inline
-CondContBase::CondContBase (Athena::IRCUSvc& /*rcusvc*/,
-                            CLID clid,
-                            const DataObjID& /*id*/,
-                            SG::DataProxy* /*proxy*/)
-  : m_clid (clid)
-{
-}
-
-
-/**
  * @brief Do pointer conversion for the payload type.
  * @param clid CLID for the desired pointer type.
  * @param ptr Pointer of type @c T*.
@@ -357,7 +340,7 @@ StatusCode CondCont<T>::insert (const EventIDRange& r,
     return StatusCode::FAILURE;
   }
 
-  return StatusCode::SUCCESS;
+  return this->inserted (ctx);
 }
 
 

@@ -618,8 +618,6 @@ int main( int argc, char* argv[] ) {
 
    log << "TrigConfConsistencyChecker:       Starting tests" << std::endl;        
 
-   std::vector<TrigConf::TrigConfTest* >::iterator testIt;
-   
    for( TrigConfTest* T: mt.tests() ) {
 
       if ( gConfig.DisabledTests().count( T->name() ) != 0 ) T->enable(false);

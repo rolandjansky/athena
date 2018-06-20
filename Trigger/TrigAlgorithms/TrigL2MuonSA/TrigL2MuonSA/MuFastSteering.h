@@ -158,10 +158,10 @@ class MuFastSteering : public HLT::FexAlgo,
   ServiceHandle<StoreGateSvc> m_storeGate;
   
   /** Timers */
-  ITrigTimerSvc* m_timerSvc;
-  std::vector<TrigTimer*> m_timers;
+  ServiceHandle<ITrigTimerSvc> m_timerSvc;
+  std::vector<TrigTimer*> m_timingTimers;
 
-  IRegSelSvc*        m_regionSelector;
+  ServiceHandle<IRegSelSvc> m_regionSelector;
   
   // Tools
   ToolHandle<TrigL2MuonSA::MuFastDataPreparator>     m_dataPreparator {
@@ -235,8 +235,8 @@ class MuFastSteering : public HLT::FexAlgo,
   float getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* muonSA);
 
   // calibration streamer properties
-  IJobOptionsSvc*       m_jobOptionsSvc;
-  //ServiceHandle<IJobOptionsSvc> m_jobOptionsSvc("JobOptionsSvc");
+  ServiceHandle<IJobOptionsSvc> m_jobOptionsSvc;
+
   Gaudi::Property< bool > m_allowOksConfig { this, "AllowOksConfig", true, ""};
   Gaudi::Property< std::string > m_calBufferName { this, "MuonCalBufferName", "/tmp/testOutput", ""};
   Gaudi::Property< int > m_calBufferSize { this, "MuonCalBufferSize", 1024*1024, ""};

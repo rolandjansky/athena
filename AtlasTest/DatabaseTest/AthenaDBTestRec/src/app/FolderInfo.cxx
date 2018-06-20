@@ -22,7 +22,7 @@ FolderInfo::FolderInfo(const std::string name,
   m_name(name), m_dbconn(dbconn), m_ndbconn(ndbconn),
   m_nchan(nchan), m_ptime(ptime), m_ptype(ptype),
   m_ncol(ncol), m_size(size), m_period(period), m_noisychan(), 
-  m_noisyperiod(0.1), m_tag(tag), m_paytable(payloadTable), m_poolplace(0) {
+  m_tag(tag), m_paytable(payloadTable), m_poolplace(0) {
   // construct tag
   if (m_ptime==RUNC || m_ptime==RUNP) {
     // construct tag from foldername - removing / and adding explicit -<tag>

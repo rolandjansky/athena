@@ -58,15 +58,10 @@ if not hasattr (svcMgr, 'MetaDataStore'):
 
 # enable IOVDbSvc to read metadata
 svcMgr.MetaDataSvc.MetaDataContainer = "MetaDataHdr"
-svcMgr.MetaDataSvc.MetaDataTools += [ "IOVDbMetaDataTool" ]
-
-if not hasattr (svcMgr.ToolSvc, 'IOVDbMetaDataTool'):
-    svcMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
+svcMgr.MetaDataSvc.MetaDataTools += [  CfgMgr.IOVDbMetaDataTool() ]
 
 # Enable ByteStream to read MetaData
-svcMgr.MetaDataSvc.MetaDataTools += [ "ByteStreamMetadataTool" ]
-if not hasattr (svcMgr.ToolSvc, 'ByteStreamMetadataTool'):
-    svcMgr.ToolSvc += CfgMgr.ByteStreamMetadataTool()
+svcMgr.MetaDataSvc.MetaDataTools += [ CfgMgr.ByteStreamMetadataTool() ]
 
 # User metadata in FMD
 if not hasattr (svcMgr, 'ByteStreamAttListMetadataSvc'):

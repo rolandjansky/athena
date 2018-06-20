@@ -16,6 +16,7 @@
 #include <math.h>
 #include <float.h> //for DBL_EPSILON
 #include <stdint.h>
+#include <stdexcept>
 
 #include <TMatrixDSparse.h>
 
@@ -41,7 +42,7 @@ AlSymMat::AlSymMat()
   m_matrix_type = 1;
   m_size = 0;
   m_nele = 0;
-  m_ptr_data = NULL;  // set pointer to null
+  m_ptr_data = nullptr;  // set pointer to null
   m_pathbin="./";
   m_pathtxt="./";
 }
@@ -105,7 +106,7 @@ AlSymMat& AlSymMat::operator=(const AlSpaMat& m)
 //______________________________________________________________________________
 AlSymMat::~AlSymMat()
 {
-  if( m_ptr_data != NULL ) delete [] m_ptr_data;
+  if( m_ptr_data != nullptr ) delete [] m_ptr_data;
   //ptr_map.clear();
 }
 
@@ -114,8 +115,7 @@ void AlSymMat::copy(const AlSymMat& m)
 {
   // this one implements the fast copy alg.
   if( size() != m.size()) {
-    std::cerr << "AlSymMat::copy: size do not match!" << std::endl;
-    return;
+    throw std::range_error( "AlSymMat::copy: size do not match!" );
   }
 
   double * p = m_ptr_data + m_nele;
@@ -130,8 +130,7 @@ void AlSymMat::copy(const AlSpaMat& m)
 {
   //
   if( size() != m.size()) {
-    std::cerr << "AlSymMat::copy: size do not match!" << std::endl;
-    return;
+    throw std::range_error( "AlSymMat::copy: size do not match!" );
   }
 
   (*this) = 0.;
@@ -152,8 +151,7 @@ void AlSymMat::copy(const AlMat& m)
   // copy the lower triangle only!
   int  si = size();
   if( si != m.nrow() || si != m.ncol() ) {
-    std::cerr << "AlSymMat::copy: sizes do not match!" << std::endl;
-    return;
+    throw std::range_error("AlSymMat::copy: sizes do not match!" );
   }
 
   for( int i=0; i<si; i++ )
@@ -178,8 +176,7 @@ AlSymMat& AlSymMat::operator=(const AlSymMat& m)
 AlSymMat& AlSymMat::operator=(const AlMat& m)
 {
   if( m.nrow() != m.ncol() ) {
-    std::cerr << "AlSymMat::operator=: a squared matrix is required!" << std::endl;
-    return *this;
+    throw std::range_error( "AlSymMat::operator=: a squared matrix is required!" );
   }
 
   reSize(m.nrow());
@@ -201,8 +198,7 @@ AlSymMat& AlSymMat::operator=(const double& d)
 AlSymMat AlSymMat::operator+(const AlSymMat& m) const
 {
   if( size() != m.size()) {
-    std::cerr << "AlSymMat::operator+: size do not match!" << std::endl;
-    return *this;
+    throw std::range_error( "AlSymMat::operator+: size do not match!" );
   }
 
   AlSymMat b(size());
@@ -218,8 +214,7 @@ AlSymMat AlSymMat::operator+(const AlSymMat& m) const
 AlSymMat&  AlSymMat::operator+=(const AlSymMat& m)
 {
   if( size() != m.size()){
-    std::cerr << "AlSymMat::operator+=: size do not match!" << std::endl;
-    return *this;
+    throw std::range_error( "AlSymMat::operator+=: size do not match!" );
   }
 
   double * p = m_ptr_data + m_nele;
@@ -233,8 +228,7 @@ AlSymMat&  AlSymMat::operator+=(const AlSymMat& m)
 AlSymMat AlSymMat::operator-(const AlSymMat& m) const
 {
   if( size() != m.size()) {
-    std::cerr << "AlSymMat::operator-: size do not match!" << std::endl;
-    return *this;
+    throw std::range_error( "AlSymMat::operator-: size do not match!" );
   }
 
   AlSymMat b(size());
@@ -250,8 +244,7 @@ AlSymMat AlSymMat::operator-(const AlSymMat& m) const
 AlSymMat&  AlSymMat::operator-=(const AlSymMat& m)
 {
   if( size() != m.size()) {
-    std::cerr << "AlSymMat::operator-=: size do not match!" << std::endl;
-    return *this;
+    throw std::range_error( "AlSymMat::operator-=: size do not match!" );
   }
 
   double * p = m_ptr_data + m_nele;
@@ -265,9 +258,7 @@ AlSymMat&  AlSymMat::operator-=(const AlSymMat& m)
 AlMat AlSymMat::operator*(const AlSymMat& m) const
 {
   if( size() != m.size() ) {
-    std::cerr << "AlSymMat::operator*: size do not match!" << std::endl;
-    AlMat b( size(), m.size());
-    return b;
+    throw std::range_error( "AlSymMat::operator*: size do not match!" );
   }
 
   AlMat b( size(), size());
@@ -305,8 +296,7 @@ AlMat AlSymMat::operator*(const AlSymMat& m) const
 AlMat AlSymMat::operator*(const AlMat& m) const
 {
   if( size() != m.nrow() ) {
-    std::cerr << "AlSymMat::operator*: size do not match!" << std::endl;
-    return m;
+    throw std::range_error("AlSymMat::operator*: size do not match!" );
   }
 
   AlMat b( size(), m.ncol());
@@ -334,8 +324,7 @@ AlMat AlSymMat::operator*(const AlMat& m) const
 AlVec AlSymMat::operator*(const AlVec& v) const
 {
   if( size() != v.size() ) {
-    std::cerr << "AlSymMat::operator*: size do not match! " << std::endl;
-    return v;
+    throw std::range_error( "AlSymMat::operator*: size do not match! " );
   }
 
   AlVec b(size());
@@ -512,12 +501,10 @@ int AlSymMat::RemoveCollsRows(std::vector<int> indices)
 {
   int n = indices.size();
   if (n==0) {
-    std::cerr<<"Vector of indices to remove is empty."<<std::endl;
     return m_size;
   }
   if (n>m_size) {
-    std::cerr<<"Vector of indices larger than matrix size."<<std::endl;
-    return m_size;
+    throw std::range_error("Vector of indices larger than matrix size.");
   }
 
   // first sort the list of indices descending
@@ -534,8 +521,7 @@ int AlSymMat::RemoveCollsRows(std::vector<int> indices)
   for (int i=0;i<n;i++) {
     int index = indices[i];
     if (index > m_size-1) {
-      std::cerr<<"Index "<<index<<" goes beyond matrix (size "<<m_size<<")."<<std::endl;
-      continue;
+      throw std::out_of_range("AlSymMat::RemoveCollsRows: Index goes beyond matrix.");
     }
 
     for (int j=index; j<m_size-1; j++)
@@ -811,20 +797,16 @@ double& AlSymMat::elemr(long int i,long int j)
 {
 #ifdef _DEBUG
   if( i<0 ) {
-    std::cerr << "AlSymMat::elemr: Index 1 < zero! " << i << std::endl;
-    return *(m_ptr_data);
+    throw std::underflow_error( "AlSymMat::elemr: Index 1 < zero!" );
   }
   if( i>=size() ) {
-    std::cerr << "AlSymMat::elemr: Index 1 too large! " << i << std::endl;
-    return *(m_ptr_data);
+    throw std::overflow_error( "AlSymMat::elemr: Index 1 too large!" );
   }
   if( j<0 ) {
-    std::cerr << "AlSymMat::elemr: Index 2 < zero! " << j << std::endl;
-    return *(m_ptr_data);
+    throw std::underflow_error( "AlSymMat::elemr: Index 2 < zero!" );
   }
   if( j>=size() ) {
-    std::cerr << "AlSymMat::elemr: Index 2 too large! " << j << std::endl;
-    return *(m_ptr_data);
+    throw std::overflow_error( "AlSymMat::elemr: Index 2 too large!" );
   }
 #endif
   if( j<=i )
@@ -838,20 +820,16 @@ double AlSymMat::elemc(long int i,long int j) const
 {
 #ifdef _DEBUG
   if( i<0 ) {
-    std::cerr << "AlSymMat::elemc: Index 1 < zero! " << i << std::endl;
-    return *(m_ptr_data);
+    throw std::underflow_error( "AlSymMat::elemc: Index 1 < zero!" );
   }
   if( i>=size() ) {
-    std::cerr << "AlSymMat::elemc: Index 1 too large! " << i << std::endl;
-    return *(m_ptr_data);
+    throw std::overflow_error( "AlSymMat::elemc: Index 1 too large!" );
   }
   if( j<0 ) {
-    std::cerr << "AlSymMat::elemc: Index 2 < zero! " << j << std::endl;
-    return *(m_ptr_data);
+    throw std::underflow_error( "AlSymMat::elemc: Index 2 < zero!" );
   }
   if( j>=size() ) {
-    std::cerr << "AlSymMat::elemc: Index 2 too large! " << j << std::endl;
-    return *(m_ptr_data);
+    throw std::overflow_error( "AlSymMat::elemc: Index 2 too large!" );
   }
 #endif
   if( j<=i )

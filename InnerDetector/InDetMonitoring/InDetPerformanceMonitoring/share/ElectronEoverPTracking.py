@@ -19,14 +19,18 @@ topSequence = AlgSequence()
 #######                  Tracking Realted Packaages                    ########
 ###############################################################################
 ###############################################################################
+# SiLorentzAngleTool
+if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 #
 # load SCT ROT creator, we overwrite the defaults for it
 #
 from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
 SCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("SCT_ClusterOnTrackTool",
-                                                          CorrectionStrategy = 0,  # do correct position bias
-                                                          ErrorStrategy      = 2)  # do use phi dependent errors
-from AthenaCommon.AppMgr import ToolSvc
+                                                        CorrectionStrategy = 0,  # do correct position bias
+                                                        ErrorStrategy      = 2,  # do use phi dependent errors
+                                                        orentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
 ToolSvc += SCT_ClusterOnTrackTool
 #
 # default ROT creator, not smart !

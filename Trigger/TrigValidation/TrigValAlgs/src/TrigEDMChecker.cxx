@@ -13,6 +13,8 @@
 
 #include "xAODTrigger/TrigPassBitsContainer.h"
 #include "xAODTrigger/TrigPassBits.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
+#include "AthContainers/debug.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetConstituentVector.h"
 #include "xAODTrigMissingET/TrigMissingETAuxContainer.h"
@@ -140,6 +142,7 @@ TrigEDMChecker::TrigEDMChecker(const std::string& name, ISvcLocator* pSvcLocator
 	declareProperty("doDumpxAODVertex", m_doDumpxAODVertex = false);
 	declareProperty("doDumpxAODTauJetContainer", m_doDumpxAODTauJetContainer = false);
 	declareProperty("doDumpxAODTrigMinBias", m_doDumpxAODTrigMinBias = false);
+	declareProperty("dumpTrigCompositeContainers", m_dumpTrigCompositeContainers, "List of TC to dump" );
 }
 
 
@@ -187,8 +190,8 @@ StatusCode TrigEDMChecker::initialize() {
 	ATH_MSG_INFO("REGTEST m_doDumpxAODVertex                = " <<  m_doDumpxAODVertex );
 	ATH_MSG_INFO("REGTEST m_doDumpxAODTauJetContainer          = " << m_doDumpxAODTauJetContainer );
 	ATH_MSG_INFO("REGTEST m_doDumpxAODTrigMinBias          = " << m_doDumpxAODTrigMinBias );
-
-
+	ATH_MSG_INFO("REGTEST dumpTrigCompositeContainers          = " << m_dumpTrigCompositeContainers );
+	
 //      puts this here for the moment
     maxRepWarnings = 5;
 	ATH_MSG_INFO("maxRepWarning      = " <<  maxRepWarnings );
@@ -490,7 +493,9 @@ StatusCode TrigEDMChecker::execute() {
         ATH_MSG_ERROR("The method dumpTrigPassBits() failed");
       }      
 	}
-
+	
+	ATH_CHECK( dumpTrigComposite() );
+	
 	return StatusCode::SUCCESS;
 
 }
@@ -3931,4 +3936,34 @@ StatusCode TrigEDMChecker::dumpxAODVertex() {
 	ATH_MSG_DEBUG("dumpxAODVertex() succeeded");
 
 	return StatusCode::SUCCESS;
+}
+
+StatusCode TrigEDMChecker::dumpTrigComposite() {
+  ATH_MSG_INFO( "REGTEST ==========END of xAOD::TrigCompositeContainer DUMP===========" );
+  for ( const std::string & key: m_dumpTrigCompositeContainers ) {
+    // get the collection
+    if ( not evtStore()->contains<xAOD::TrigCompositeContainer>(key) ) {    
+      ATH_MSG_INFO("Absent TrigCompositeContainer: " << key );
+      continue;
+    }
+    ATH_MSG_DEBUG( "Dumping container of : " << key );
+    const xAOD::TrigCompositeContainer* cont= nullptr;
+    ATH_CHECK( evtStore()->retrieve( cont, key ) );
+    
+    for ( auto tc: *cont ) {
+      ATH_MSG_DEBUG("name: " << tc->name());
+
+      // one gets a bit of info but is not that useful, we need to develop 
+      //SGdebug::print_aux_vars( *tc );
+      //SGdebug::dump_aux_vars( *tc );
+
+      // find the EL and check them
+      ATH_MSG_DEBUG( "Link col names   : " << tc->linkColNames() );
+      ATH_MSG_DEBUG( "Link col keys    : " << tc->linkColKeys() );
+      ATH_MSG_DEBUG( "Link col CLIDs   : " << tc->linkColClids() );
+      ATH_MSG_DEBUG( "Link col indices : " << tc->linkColIndices() );
+    }
+  }
+  ATH_MSG_INFO( "REGTEST ==========END of xAOD::TrigCompositeContainer DUMP===========" );
+  return StatusCode::SUCCESS;
 }

@@ -9,7 +9,7 @@
 /////////////////////////////////////////////////////////////////// 
 
 // CaloCondPhysAlgs includes
-#include "CaloCondPhysAlgs/CaloCellCalcEnergyCorr.h"
+#include "CaloCellCalcEnergyCorr.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/ToolHandle.h"

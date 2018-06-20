@@ -566,18 +566,15 @@ class TRTConditionsServicesSetup:
     if self._print:
         print InDetTRTCalDbSvc
 
-
     # Dead/Noisy Straw Lists
-    if not (conddb.folderRequested('/TRT/Cond/Status') or conddb.folderRequested('/TRT/Onl/Cond/Status')):
-      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/Status", "/TRT/Cond/Status")
-    #there used to be an additional tag here!
-    #conddb.addFolder("TRT","/TRT/Cond/StatusPermanent<tag>TrtStrawStatusPermanent-01</tag>")
-    if not (conddb.folderRequested('/TRT/Cond/StatusPermanent') or conddb.folderRequested('/TRT/Onl/Cond/StatusPermanent')):
-      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusPermanent", "/TRT/Cond/StatusPermanent")
+    if not conddb.folderRequested('/TRT/Cond/Status'):
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/Status","/TRT/Cond/Status",className='TRTCond::StrawStatusMultChanContainer')
+    if not conddb.folderRequested('/TRT/Cond/StatusPermanent'):
+       conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusPermanent","/TRT/Cond/StatusPermanent",className='TRTCond::StrawStatusMultChanContainer')
 
-    #high threshold capabilities
-    if not (conddb.folderRequested('/TRT/Cond/StatusHT') or conddb.folderRequested('/TRT/Onl/Cond/StatusHT')):
-      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT", "/TRT/Cond/StatusHT")
+    # Argon straw list
+    if not conddb.folderRequested('/TRT/Cond/StatusHT'):
+      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT",className='TRTCond::StrawStatusMultChanContainer')
 
 
     # DCS Data Folders

@@ -19,6 +19,10 @@ log = logging.getLogger("InDetTrigConfigRecLoadTools.py")
 
 from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
 
+# SiLorentzAngleTool for SCT
+if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
 #
 # common ClusterMakerTool
@@ -31,6 +35,7 @@ InDetTrigClusterMakerTool = \
                              PixelOfflineCalibSvc = PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                              #pixLorentzAnleSvc = "InDetTrigPixLorentzAngleSvc",
                              #UseLorentzAngleCorrections = False
+                             SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool
                              )
 if (InDetTrigFlags.doPrintConfigurables()):
   print InDetTrigClusterMakerTool
@@ -60,12 +65,17 @@ ToolSvc +=  SCT_TrigSpacePointTool
 #
 
 if InDetTrigFlags.loadRotCreator():
+  # SiLorentzAngleTool
+  if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
   #4 clusterOnTrack Tools
   #
   from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
   SCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("SCT_ClusterOnTrackTool",
                                                           CorrectionStrategy = 0,  # do correct position bias
-                                                          ErrorStrategy      = 2)  # do use phi dependent errors
+                                                          ErrorStrategy      = 2,  # do use phi dependent errors
+                                                          LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
   ToolSvc += SCT_ClusterOnTrackTool
   if (InDetTrigFlags.doPrintConfigurables()):
     print SCT_ClusterOnTrackTool
@@ -87,7 +97,8 @@ if InDetTrigFlags.loadRotCreator():
   InDetTrigBroadSCT_ClusterOnTrackTool = \
       InDet__SCT_ClusterOnTrackTool ("InDetTrigBroadSCT_ClusterOnTrackTool",
                                      CorrectionStrategy = 0,  # do correct position bias
-                                     ErrorStrategy      = 0)  # do use broad errors
+                                     ErrorStrategy      = 0,  # do use broad errors
+                                     LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
   ToolSvc += InDetTrigBroadSCT_ClusterOnTrackTool
   if (InDetTrigFlags.doPrintConfigurables()):
     print InDetTrigBroadSCT_ClusterOnTrackTool

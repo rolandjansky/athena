@@ -15,9 +15,7 @@
 
 // Framework includes
 #include "GaudiKernel/Property.h"
-#ifndef REENTRANT_GAUDI
 #include "GaudiKernel/ThreadLocalContext.h"
-#endif
 
 
 #include "./VHKASupport.h"
@@ -166,6 +164,19 @@ bool AthReentrantAlgorithm::isClonable() const
 unsigned int AthReentrantAlgorithm::cardinality() const
 {
   return 0;
+}
+
+
+/**
+ * @brief Return the current event context.
+ *
+ * Override this because the base class version won't work correctly
+ * for reentrant algorithms.  (We shouldn't really be using this
+ * for reentrant algorithms, but just in case.).
+ */
+const EventContext& AthReentrantAlgorithm::getContext() const
+{
+  return Gaudi::Hive::currentContext();
 }
 
 

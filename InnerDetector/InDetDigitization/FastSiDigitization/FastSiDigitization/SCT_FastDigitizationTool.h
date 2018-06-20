@@ -42,6 +42,8 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "StoreGate/WriteHandle.h"
 
+#include "InDetCondServices/ISiLorentzAngleTool.h"
+
 #include <vector>
 #include <list>
 #include <utility> /* pair */
@@ -133,6 +135,7 @@ private:
   TimedHitCollection<SiHit>* m_thpcsi;
 
   ToolHandle<InDet::ClusterMakerTool>  m_clusterMaker;
+  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
   IntegerProperty  m_vetoThisBarcode;
 
   typedef std::multimap<IdentifierHash, const InDet::SCT_Cluster*> SCT_detElement_RIO_map;

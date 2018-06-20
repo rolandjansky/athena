@@ -34,7 +34,7 @@ class SCT_ElectricFieldTool: public extends<AthAlgTool, ISCT_ElectricFieldTool>
                                   double fluence,
                                   double depletionVoltage,
                                   double sensorThickness,
-                                  double biasVoltage) override;
+                                  double biasVoltage) const override;
  private:
   enum FieldModel{UNIFORM_FIELD, FLAT_DIODE};
 

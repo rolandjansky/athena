@@ -10,10 +10,7 @@ def LArCellBuilderCfg(configFlags):
     theLArCellBuilder = LArCellBuilderFromLArRawChannelTool()
 
     theLArCellBuilder.addDeadOTX = False #Create flag? Requires bad-feb DB access
-    result.addAlgTool(theLArCellBuilder)
-
-    
-    return result
+    return result,theLArCellBuilder
 
 
 
@@ -47,11 +44,7 @@ def LArCellCorrectorCfg(configFlags):
     #Many more tools to be added, eg HV correction
 
     
-    result.clearAlgTools()
-    for t in correctionTools:
-        result.addAlgTool(t)
-
-    return result
+    return [result,]+correctionTools
         
         
         

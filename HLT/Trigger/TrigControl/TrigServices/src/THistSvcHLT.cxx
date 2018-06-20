@@ -33,8 +33,6 @@
 // local headers
 #include "THistSvcHLT.h"
 
-DECLARE_COMPONENT( THistSvcHLT )
-
 namespace
 {
   template <typename InputIterator, typename OutputIterator, typename UnaryOperation, typename UnaryPredicate>

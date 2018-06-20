@@ -50,10 +50,10 @@ def LArBadChannelMaskerCfg(configFlags,problemsToMask,doMasking=True,
      result=ComponentAccumulator()
      result.addConfig(LArBadChannelCfg,configFlags)
      
-     result.addAlgTool(LArBadChannelMasker(ToolName,ProblemsToMask=problemsToMask,
-                                           DoMasking=doMasking))
+     bcMasker=LArBadChannelMasker(ToolName,ProblemsToMask=problemsToMask,
+                                  DoMasking=doMasking)
 
-     return result
+     return result,bcMasker
                     
 
 

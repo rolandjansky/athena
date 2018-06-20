@@ -2,26 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArMonTools/LArRawChannelMonTool.h"
-
-// --- stl ---
-#include <algorithm>
-#include <cfloat>
-#include <climits>
-#include <cmath>
-#include <deque>
-#include <iostream>
-#include <iomanip>
-#include <iterator>
-#include <stdexcept>
-#include <typeinfo>
-#include <utility>
-
-// --- boost ---
-#include <boost/assign/list_of.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
-#define foreach BOOST_FOREACH
+#include "LArRawChannelMonTool.h"
+#include "LArOnlineIDStrHelper.h"
 
 // --- athena ---
 #include "CaloDetDescr/CaloDetDescrManager.h"
@@ -36,12 +18,10 @@
 #include "Identifier/Range.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnlID_Exception.h"
-#include "LArMonTools/LArOnlineIDStrHelper.h"
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 //#include "LArRecEvent/LArNoisyROSummary.h"
 #include "LArRecEvent/LArEventBitInfo.h"
-#include "StoreGate/DataHandle.h"
 #include "AthenaKernel/Units.h"
 
 #include "LWHists/TH1F_LW.h"
@@ -51,6 +31,27 @@
 #include "LWHists/TProfile2D_LW.h"
 #include "LWHists/TProfile_LW.h"
 #include "LWHistFactory.h"
+
+
+// --- boost ---
+#include <boost/assign/list_of.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/foreach.hpp>
+#define foreach BOOST_FOREACH
+
+
+// --- stl ---
+#include <algorithm>
+#include <cfloat>
+#include <climits>
+#include <cmath>
+#include <deque>
+#include <iostream>
+#include <iomanip>
+#include <iterator>
+#include <stdexcept>
+#include <typeinfo>
+#include <utility>
 
 
 namespace Units = Athena::Units;

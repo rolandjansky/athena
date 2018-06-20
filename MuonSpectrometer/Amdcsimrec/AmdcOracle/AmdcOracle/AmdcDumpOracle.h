@@ -63,19 +63,7 @@ private:
    void DumpWRPC( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
    void DumpACUT( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
    void DumpATYP( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpAGDD( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
    void DumpAMDC( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpABRT( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpAECT( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpECST( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpFEET( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpGENV( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpJDSH( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpJFSH( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpJTSH( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-   void DumpMBAP( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd , int& Kwarn, int& Kchck );
-
-   void DumpAgddXMLVariables( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd ,int& Kwarn, int& Kchck );
 
    void DumpHwSwIdMapping( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd ,int& Kwarn, int& Kchck );
 

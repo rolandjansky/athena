@@ -13,8 +13,7 @@ SiCommonItems::SiCommonItems(const AtlasDetectorID* const idHelper)
      m_idHelper(idHelper), 
      m_lorentzAngleSvcHandle("", "SiDetectorElement"),
      m_lorentzAngleSvc(0),
-     m_lorentzAngleSvcInit(false),
-     m_lorentzAngleTool(nullptr)
+     m_lorentzAngleSvcInit(false)
 {}
 
 void   
@@ -29,12 +28,6 @@ SiCommonItems::setLorentzAngleSvc(const ServiceHandle<ISiLorentzAngleSvc> & lore
   m_lorentzAngleSvcHandle = lorentzAngleSvc;
 }
   
-void
-SiCommonItems::setLorentzAngleTool(const ISiLorentzAngleTool* lorentzAngleTool)
-{
-  m_lorentzAngleTool = lorentzAngleTool;
-}
-
 ISiLorentzAngleSvc * 
 SiCommonItems::lorentzAngleSvc() const 
 {
@@ -50,11 +43,4 @@ SiCommonItems::lorentzAngleSvc() const
   }
   return m_lorentzAngleSvc;
 }
-
-const ISiLorentzAngleTool*
-SiCommonItems::lorentzAngleTool() const
-{
-  return m_lorentzAngleTool;
-}
-
 } // End namespace InDetDD

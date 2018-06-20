@@ -13,7 +13,6 @@
 //Gaudi Includes
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
-#include "GaudiKernel/ContextSpecificPtr.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ICondSvc.h"
@@ -103,6 +102,7 @@ class TRT_CalDbSvc: public AthService , virtual public ITRT_CalDbSvc
   StatusCode writeTextFile_Format3(std::ostream&) const;
 
   /// read calibration from text file into TDS
+  StatusCode checkTextFile(const std::string& file, int& format);
   StatusCode readTextFile(const std::string& file, int& format);
   StatusCode readTextFile_Format0(std::istream&) ;
   StatusCode readTextFile_Format1(std::istream&) ;
@@ -122,12 +122,11 @@ class TRT_CalDbSvc: public AthService , virtual public ITRT_CalDbSvc
   RtRelationContainer* getErrContainer() const ;
   RtRelationContainer* getSlopeContainer() const ;
   StrawT0Container* getT0Container() const ;
-  // Access via a cached ContextSpecificPtr is used for text file input
+  // Access via a cached pointer is used for text file input
   void setRtContainer(RtRelationContainer* rc);
   void setErrContainer(RtRelationContainer* rc);
   void setSlopeContainer(RtRelationContainer* rc);
   void setT0Container(StrawT0Container* rc);
-  void useCachedPtr(const bool& useit);
 
   
  private:
@@ -142,17 +141,19 @@ class TRT_CalDbSvc: public AthService , virtual public ITRT_CalDbSvc
   ServiceHandle<StoreGateSvc> m_detstore;
 
   ServiceHandle<ICondSvc> m_condSvc;
+  // used in case of text file input
+  RtRelationContainer* m_rtContainer;
+  RtRelationContainer* m_errContainer;
+  RtRelationContainer* m_slopeContainer;
+  StrawT0Container* m_t0Container;
+
+
   //  ReadHandle  keys
   SG::ReadCondHandleKey<RtRelationContainer> m_rtReadKey{this,"RtReadKeyName","/TRT/Calib/RT","r-t relation in-key"};
   SG::ReadCondHandleKey<RtRelationContainer> m_errReadKey{this,"ErrorReadKeyName","/TRT/Calib/errors2d","error on r in-key"};
   SG::ReadCondHandleKey<RtRelationContainer> m_slopeReadKey{this,"SlopeReadKeyName","/TRT/Calib/slopes","slope of error in-key"};
   SG::ReadCondHandleKey<StrawT0Container> m_t0ReadKey{this,"T0ReadKeyName","/TRT/Calib/T0","t0 in-key"};
 
-  bool m_useCachedPtr;  
-  Gaudi::Hive::ContextSpecificPtr<RtRelationContainer> m_rtContainer;
-  Gaudi::Hive::ContextSpecificPtr<RtRelationContainer> m_errContainer;
-  Gaudi::Hive::ContextSpecificPtr<RtRelationContainer> m_slopeContainer;
-  Gaudi::Hive::ContextSpecificPtr<StrawT0Container> m_t0Container;
   
 
   /// Keep track of the number of instances
@@ -238,11 +239,6 @@ TRT_CalDbSvc::setRtSlopes( const TRTCond::ExpandedIdentifier& id, const TRTCond:
   getSlopeContainer()->set( id,const_cast<TRTCond::RtRelation*>(rtr));
 }
 
-inline void
-TRT_CalDbSvc::useCachedPtr( const bool& useit)
-{
-  m_useCachedPtr=useit;
-}
 
 
 /// Query Interface

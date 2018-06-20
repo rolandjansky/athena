@@ -29,7 +29,9 @@ class SCT_ClusterContainerCnv_p3 : public T_AthenaPoolTPCnvBase<InDet::SCT_Clust
 			    MsgStream &log) ;
 
   virtual InDet::SCT_ClusterContainer* createTransient(const InDet::SCT_ClusterContainer_p3* persObj, MsgStream& log);
-  
+
+  // Method for test/SCT_ClusterContainerCnv_p3_test.cxx
+  void setIdHelper(const SCT_ID* sct_id);
 
  private:
    const SCT_ID *m_sctId;

@@ -2,6 +2,7 @@
 # block include of file, this is used by many packages
 include.block ("InDetRecExample/InDetRecConditionsAccess.py")
 
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 isData = (globalflags.DataSource == 'data')
 
 eventInfoKey = "ByteStreamEventInfo"
@@ -386,19 +387,22 @@ if DetFlags.haveRIO.TRT_on():
             conddb.addFolder("TRT_ONL","/TRT/Onl/ROD/Compress")
 
     # Calibration constants
-    # Block folders if they are to be read in from text files
+    # Block folders if they are to be read from or written to text files
     #conddb.blockFolder("/TRT/Calib/RT")
     #conddb.blockFolder("/TRT/Calib/T0")
 
     if not conddb.folderRequested('/TRT/Calib/RT'):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/RT","/TRT/Calib/RT",className='TRTCond::RtRelationMultChanContainer')
+
     if not conddb.folderRequested('/TRT/Calib/T0'):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/T0","/TRT/Calib/T0",className='TRTCond::StrawT0MultChanContainer')
+
     if not conddb.folderRequested('/TRT/Calib/errors2d'):
         TRTErrorsFolder = conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors2d","/TRT/Calib/errors2d",className='TRTCond::RtRelationMultChanContainer')
+
     if not conddb.folderRequested('/TRT/Calib/slopes'):
         TRTSlopesFolder = conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/slopes","/TRT/Calib/slopes",className='TRTCond::RtRelationMultChanContainer')
-        
+
     if not conddb.folderRequested('/TRT/Calib/ToTCalib'):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib")
 
@@ -408,34 +412,21 @@ if DetFlags.haveRIO.TRT_on():
     # Calibration DB Service
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
     InDetTRTCalDbSvc = TRT_CalDbSvc()
-    InDetTRTCalDbSvc.ErrorReadKeyName = TRTErrorsFolder
-    InDetTRTCalDbSvc.SlopeReadKeyName = TRTSlopesFolder
     ServiceMgr += InDetTRTCalDbSvc
     if(InDetFlags.doPrintConfigurables()):
         print InDetTRTCalDbSvc
 
-    # Calibration folder management
-    # Use this for reading folders from text files
 
-    #from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTCondWrite
-    #TRTCondWrite = TRTCondWrite( name = "TRTCondWrite",
-    #                                            CalibInputFile = "dbconst.336630.txt",
-    #                                            CalibOutputFile = "")
-    # use as CalibOutputFile the name calibout_n, where n=0,1,2,3 is the format
-    #
-    #topSequence += TRTCondWrite
-    #if (InDetFlags.doPrintConfigurables()):
-    #   print TRTCondWrite
-
-    
     # Dead/Noisy Straw Lists
     if not conddb.folderRequested('/TRT/Cond/Status'):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/Status","/TRT/Cond/Status")
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/Status","/TRT/Cond/Status",className='TRTCond::StrawStatusMultChanContainer')
+
     if not conddb.folderRequested('/TRT/Cond/StatusPermanent'):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusPermanent","/TRT/Cond/StatusPermanent")
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusPermanent","/TRT/Cond/StatusPermanent",className='TRTCond::StrawStatusMultChanContainer')
+
     # Argon straw list
     if not conddb.folderRequested('/TRT/Cond/StatusHT'):
-       conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT")
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT",className='TRTCond::StrawStatusMultChanContainer')
 
     # DCS Data Folders
     if (globalflags.InputFormat() == 'bytestream' and globalflags.DataSource() == 'data'):
@@ -488,8 +479,12 @@ if DetFlags.haveRIO.TRT_on():
     InDetTRTConditionsServices=[]
 
     # Dead/Noisy Straw Service
+    useOldStyle = False
+    if DetFlags.simulate.any_on() or athenaCommonFlags.EvtMax==1:
+         useOldStyle = True
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
-    InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc")
+    InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc",
+                                                              isGEANT4 = useOldStyle)
     ServiceMgr += InDetTRTStrawStatusSummarySvc
     if (InDetFlags.doPrintConfigurables()):
         print InDetTRTStrawStatusSummarySvc
@@ -500,7 +495,7 @@ if DetFlags.haveRIO.TRT_on():
                     
         # DCS Conditions Service
         if InDetFlags.useTrtDCS():
-
+           
             # Hardware Mapping Service
             from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_HWMappingSvc
             InDetTRT_HWMappingSvc = TRT_HWMappingSvc(name="InDetTRT_HWMappingSvc")

@@ -126,7 +126,8 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   
 
   template<typename T, typename G, typename M >
-    StatusCode createIfMissing( const EventContext& context, const ConstHandlesGroup<T>& handles, G generator, M merger ) const;
+    StatusCode createIfMissing( const EventContext& context, const ConstHandlesGroup<T>& handles, 
+				G& generator, M merger ) const;
 
 
   template<typename T>
