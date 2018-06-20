@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include "TH1.h"
 #include "TH2.h"
 #include "TProfile.h"
@@ -18,16 +18,7 @@
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
-//#include "HepPDT/ParticleData.hh"
 #include "HepMC/GenParticle.h"
-
-//#include "IdDictDetDescr/IdDictManager.h"
-// #include "InDetIdentifier/PixelID.h"
-// #include "InDetIdentifier/SCT_ID.h"
-// #include "InDetIdentifier/TRT_ID.h"
-// #include "InDetReadoutGeometry/PixelDetectorManager.h"
-// #include "InDetReadoutGeometry/SCT_DetectorManager.h"
-// #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTruthData/TrackTruth.h"
@@ -36,22 +27,11 @@
 #include "InDetPrepRawData/SiCluster.h"
 
 
-//#include "Particle/TrackParticleContainer.h"
-//#include "Particle/TrackParticle.h"
-
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 
-// #include "VxVertex/VxContainer.h"
-// #include "VxVertex/VxCandidate.h"
-// #include "VxVertex/RecVertex.h"
-// #include "VxVertex/Vertex.h"
-// #include "VxVertex/VxTrackAtVertex.h"
-
-//#include "AthenaMonitoring/AthenaMonManager.h"
 #include "IDAlignMonTruthComparison.h"
 
-//#include "TrkTruthToTrack/TruthToTrack.h"
 #include "TrkToolInterfaces/ITruthToTrack.h"
 #include "TrackSelectionTool.h"
 
@@ -119,8 +99,6 @@ StatusCode IDAlignMonTruthComparison::bookHistograms()
   std::string outputDirName = "IDAlignMon/" + m_tracksName + "_NoTriggerSelection/TruthComparison";
   MonGroup al_mon ( this, outputDirName, run );
 
-  //if ( newLowStatFlag() ) {    }
-  //if ( newLumiBlockFlag() ) {   }
   if( newRunFlag() ) { 
     
     // increase d0 and z0 range for cosmics
@@ -457,9 +435,6 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
 		  
 		  if(genparptr->pdg_id() == 0){
 		    msg(MSG::WARNING) <<" Particle with PDG ID = 0! Status "<<endmsg; 
-		    //msg(MSG::WARNING) <<" Particle with PDG ID = 0! Status "<<genparptr->status()<<" mass "<< genparptr->momentum().m() <<" pt "<<genparptr->momentum().et()<<" eta "
-		    // <<genparptr->momentum().eta()<<" phi "<<genparptr->momentum().phi()<<" Gen Vertex barcode "<<genparptr->production_vertex()->barcode()<<"Gen Vertex Position x"
-		    // <<genparptr->production_vertex()->position().x()<< " y "<<genparptr->production_vertex()->position().y()<<" z "<<genparptr->production_vertex()->position().z()<<endmsg;                    
 		  }else{
 		    
 		    const Trk::TrackParameters* generatedTrackPerigee = m_truthToTrack->makePerigeeParameters(genparptr);
