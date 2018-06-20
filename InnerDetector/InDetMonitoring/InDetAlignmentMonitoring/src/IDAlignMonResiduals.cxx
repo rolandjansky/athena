@@ -196,7 +196,6 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
   m_trtcaldbSvc("TRT_CalDbSvc",name),
   m_hWeightInFile(0),
   m_etapTWeight(0)
-
 {
 	m_iUpdator               = ToolHandle<Trk::IUpdator>("Trk::KalmanUpdator");
 	m_propagator             = ToolHandle<Trk::IPropagator>("Trk::RungeKuttaPropagator");
@@ -206,6 +205,7 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
 	m_hitQualityTool       = ToolHandle<IInDetAlignHitQualSelTool>("");
 	m_trt_b_hist  = new TRTBarrelHistograms();
 	m_trt_ec_hist = new TRTEndcapHistograms();
+	
 	m_tracksName  = "ExtendedTracks";
 	m_triggerChainName = "NoTriggerSelection";
 	m_z_fix = 366.5; // IBL Stave fixing screw position [mm]
