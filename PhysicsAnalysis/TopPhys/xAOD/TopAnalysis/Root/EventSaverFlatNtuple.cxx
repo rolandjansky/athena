@@ -1232,6 +1232,11 @@ namespace top {
        m_upgradeTreeManager->makeOutputVariable(m_el_phi, "el_phi");
        m_upgradeTreeManager->makeOutputVariable(m_el_e, "el_e");
        m_upgradeTreeManager->makeOutputVariable(m_el_charge, "el_charge");
+       m_upgradeTreeManager->makeOutputVariable(m_el_true_type,      "el_true_type");
+       m_upgradeTreeManager->makeOutputVariable(m_el_true_origin,    "el_true_origin");
+       //m_upgradeTreeManager->makeOutputVariable(m_el_true_firstEgMotherTruthType,   "el_true_firstEgMotherTruthType");
+       //m_upgradeTreeManager->makeOutputVariable(m_el_true_firstEgMotherTruthOrigin, "el_true_firstEgMotherTruthOrigin");
+       //m_upgradeTreeManager->makeOutputVariable(m_el_true_isPrompt, "el_true_isPrompt");
        if (m_config->HLLHCFakes()) m_upgradeTreeManager->makeOutputVariable(m_el_faketype, "el_faketype"); // 0 true 2 hfake
 
        // muons
@@ -1240,6 +1245,9 @@ namespace top {
        m_upgradeTreeManager->makeOutputVariable(m_mu_phi, "mu_phi");
        m_upgradeTreeManager->makeOutputVariable(m_mu_e, "mu_e");
        m_upgradeTreeManager->makeOutputVariable(m_mu_charge, "mu_charge");
+       m_upgradeTreeManager->makeOutputVariable(m_mu_true_type,   "mu_true_type");
+       m_upgradeTreeManager->makeOutputVariable(m_mu_true_origin, "mu_true_origin");
+       m_upgradeTreeManager->makeOutputVariable(m_mu_true_isPrompt, "mu_true_isPrompt");
 
        // jets
        m_upgradeTreeManager->makeOutputVariable(m_jet_pt, "jet_pt");
@@ -3206,6 +3214,11 @@ namespace top {
        m_el_phi.resize(upgradeEvent.m_electrons->size());
        m_el_e.resize(upgradeEvent.m_electrons->size());
        m_el_charge.resize(upgradeEvent.m_electrons->size());
+       m_el_true_type.resize(upgradeEvent.m_electrons->size());
+       m_el_true_origin.resize(upgradeEvent.m_electrons->size());
+       //m_el_true_firstEgMotherTruthOrigin.resize(upgradeEvent.m_electrons->size());
+       //m_el_true_firstEgMotherTruthType.resize(upgradeEvent.m_electrons->size());
+       //m_el_true_isPrompt.resize(upgradeEvent.m_electrons->size());
        if (m_config->HLLHCFakes()) m_el_faketype.resize(upgradeEvent.m_electrons->size());
 
        for (const auto  elPtr : * upgradeEvent.m_electrons) {
@@ -3214,13 +3227,73 @@ namespace top {
          m_el_phi[i] = elPtr->phi();
          m_el_e[i] = elPtr->e();
          m_el_charge[i] = elPtr->charge();
-         if (m_config->HLLHCFakes()) {
- 	   if (elPtr->isAvailable<int>("FakeType")) {
- 	     m_el_faketype[i] = elPtr->auxdata<int>("FakeType");
-            } else {
-              top::check(false, "Could not obtain FakeType decoration for electron!");
-            }
- 	 }
+
+	 m_el_true_type[i] = 0;
+	 m_el_true_origin[i] = 0;
+	 //m_el_true_firstEgMotherTruthType[i] = 0;
+	 //m_el_true_firstEgMotherTruthOrigin[i] = 0;
+	 //m_el_true_isPrompt[i] = 0;
+	 if (!m_config->HLLHCFakes()) {
+	     if (elPtr->isAvailable<unsigned int>("particleType")) {
+	         m_el_true_type[i] = elPtr->auxdata<unsigned int>("particleType");
+	     } else if (elPtr->isAvailable<unsigned int>("classifierParticleType")) {
+	         m_el_true_type[i] = elPtr->auxdata<unsigned int>("classifierParticleType");
+	     } else {
+	         top::check(false, "Could not obtain truth Type decoration for electron!");
+	     }
+	     if (elPtr->isAvailable<unsigned int>("particleOrigin")) {
+	         m_el_true_origin[i] = elPtr->auxdata<unsigned int>("particleOrigin");
+	     } else if (elPtr->isAvailable<unsigned int>("classifierParticleOrigin")) {
+	         m_el_true_origin[i] = elPtr->auxdata<unsigned int>("classifierParticleOrigin");
+	     } else {
+	         top::check(false, "Could not obtain truth Origin decoration for electron!");
+	     }
+	     //if (elPtr->isAvailable<unsigned int>("firstEgMotherTruthType")) {
+	     //    m_el_true_firstEgMotherTruthType[i] = elPtr->auxdata<unsigned int>("firstEgMotherTruthType");
+	     //} else {
+	     //    top::check(false, "Could not obtain mother's truth Type decoration for electron!");
+	     //}
+	     //if (elPtr->isAvailable<unsigned int>("firstEgMotherTruthOrigin")) {
+	     //    m_el_true_firstEgMotherTruthOrigin[i] = elPtr->auxdata<unsigned int>("firstEgMotherTruthOrigin");
+	     //} else {
+	     //    top::check(false, "Could not obtain mother's truth Origin decoration for electron!");
+	     //}
+	     //m_el_true_isPrompt[i] = isPromptElectron(m_el_true_type[i], m_el_true_origin[i], m_el_true_firstEgMotherTruthType[i], m_el_true_firstEgMotherTruthOrigin[i]);
+	 } else {
+	   if (elPtr->isAvailable<int>("FakeType")) {
+	     m_el_faketype[i] = elPtr->auxdata<int>("FakeType");
+	   } else {
+	     top::check(false, "Could not obtain FakeType decoration for electron!");
+	   }
+	   if (m_el_faketype[i] == 0) { // truthType/Origin only available for true electron (also for electron fake, but we are not interested in its truth info)
+	     if (elPtr->isAvailable<unsigned int>("particleType")) {
+	         m_el_true_type[i] = elPtr->auxdata<unsigned int>("particleType");
+	     } else if (elPtr->isAvailable<unsigned int>("classifierParticleType")) {
+	         m_el_true_type[i] = elPtr->auxdata<unsigned int>("classifierParticleType");
+	     } else {
+	         top::check(false, "Could not obtain truth Type decoration for electron!");
+	     }
+	     if (elPtr->isAvailable<unsigned int>("particleOrigin")) {
+	         m_el_true_origin[i] = elPtr->auxdata<unsigned int>("particleOrigin");
+	     } else if (elPtr->isAvailable<unsigned int>("classifierParticleOrigin")) {
+	         m_el_true_origin[i] = elPtr->auxdata<unsigned int>("classifierParticleOrigin");
+	     } else {
+	         top::check(false, "Could not obtain truth Origin decoration for electron!");
+	     }
+	     //if (elPtr->isAvailable<unsigned int>("firstEgMotherTruthType")) {
+	     //    m_el_true_firstEgMotherTruthType[i] = elPtr->auxdata<unsigned int>("firstEgMotherTruthType");
+	     //} else {
+	     //    top::check(false, "Could not obtain mother's truth Type decoration for electron!");
+	     //}
+	     //if (elPtr->isAvailable<unsigned int>("firstEgMotherTruthOrigin")) {
+	     //    m_el_true_firstEgMotherTruthOrigin[i] = elPtr->auxdata<unsigned int>("firstEgMotherTruthOrigin");
+	     //} else {
+	     //    top::check(false, "Could not obtain mother's truth Origin decoration for electron!");
+	     //}
+	     //m_el_true_isPrompt[i] = isPromptElectron(m_el_true_type[i], m_el_true_origin[i], m_el_true_firstEgMotherTruthType[i], m_el_true_firstEgMotherTruthOrigin[i]);
+	   }
+	 }
+
          ++i;
        }
 
@@ -3231,6 +3304,9 @@ namespace top {
        m_mu_phi.resize(upgradeEvent.m_muons->size());
        m_mu_e.resize(upgradeEvent.m_muons->size());
        m_mu_charge.resize(upgradeEvent.m_muons->size());
+       m_mu_true_type.resize(upgradeEvent.m_muons->size());
+       m_mu_true_origin.resize(upgradeEvent.m_muons->size());
+       m_mu_true_isPrompt.resize(upgradeEvent.m_muons->size());
 
        for (const auto  muPtr : * upgradeEvent.m_muons) {
          m_mu_pt[i] = muPtr->pt();
@@ -3238,6 +3314,26 @@ namespace top {
          m_mu_phi[i] = muPtr->phi();
          m_mu_e[i] = muPtr->e();
          m_mu_charge[i] = muPtr->charge();
+
+	 m_mu_true_type[i] = 0;
+	 m_mu_true_origin[i] = 0;
+	 m_mu_true_isPrompt[i] = 0;
+	 if (muPtr->isAvailable<unsigned int>("particleType")) {
+	     m_mu_true_type[i] = muPtr->auxdata<unsigned int>("particleType");
+	 } else if (muPtr->isAvailable<unsigned int>("classifierParticleType")) {
+	     m_mu_true_type[i] = muPtr->auxdata<unsigned int>("classifierParticleType");
+	 } else {
+	     top::check(false, "Could not obtain truth Type decoration for muon!");
+	 }
+	 if (muPtr->isAvailable<unsigned int>("particleOrigin")) {
+	     m_mu_true_origin[i] = muPtr->auxdata<unsigned int>("particleOrigin");
+	 } else if (muPtr->isAvailable<unsigned int>("classifierParticleOrigin")) {
+	     m_mu_true_origin[i] = muPtr->auxdata<unsigned int>("classifierParticleOrigin");
+	 } else {
+	     top::check(false, "Could not obtain truth Origin decoration for muon!");
+	 }
+	 m_mu_true_isPrompt[i] = isPromptMuon(m_mu_true_type[i], m_mu_true_origin[i]);
+
          ++i;
        }
 

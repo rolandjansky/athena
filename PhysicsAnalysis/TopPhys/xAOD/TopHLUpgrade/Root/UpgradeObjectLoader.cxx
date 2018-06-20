@@ -42,7 +42,6 @@ UpgradeObjectLoader::UpgradeObjectLoader( const std::shared_ptr<top::TopConfig> 
     std::cout << "Upgrade level reconstruction is enabled; telling you how I am configured:" << '\n';
     //asg::setProperty(m_upgrade, "Layout", UpgradePerformanceFunctionsxAOD::Step1p6) , "Failed to setProperty" );
     m_upgrade.reset( new UpgradePerformanceFunctionsxAOD("UpgradePerformanceFunctionsxAOD"));
-    std::cout << "Upgrade level reconstruction is enabled; telling you how I am configured:" << '\n';
     top::check(m_upgrade->setProperty("Layout", UpgradePerformanceFunctionsxAOD::Step1p6) , "Failed to setProperty" );
     top::check(m_upgrade->setProperty("AvgMu", 200) , "Failed to setProperty" );
     top::check(m_upgrade->setProperty("ElectronWorkingPoint", UpgradePerformanceFunctionsxAOD::mediumElectron) , "Failed to setProperty" );
