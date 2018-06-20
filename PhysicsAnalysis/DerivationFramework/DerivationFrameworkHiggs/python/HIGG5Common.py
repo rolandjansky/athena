@@ -59,30 +59,35 @@ def filterContentList(pattern, content_list) :
 
 def getTruth3Collections(kernel) :
 
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
-
     #STEP 1do the prejet augmentations by hand 
     decorationDressing='dressedPhoton'
-    DFCommonTruthElectronDressingTool.decorationName = decorationDressing
-    DFCommonTruthMuonDressingTool.decorationName = decorationDressing
+    import DerivationFrameworkMCTruth.TruthDerivationTools
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc.DFCommonTruthElectronDressingTool.decorationName = decorationDressing
+    ToolSvc.DFCommonTruthMuonDressingTool.decorationName = decorationDressing
 
     if not hasattr(kernel,'MCTruthCommonPreJetKernel'):
-        augmentationToolsList = [ DFCommonTruthClassificationTool,
-                                  DFCommonTruthMuonTool,DFCommonTruthElectronTool,
-                                  DFCommonTruthPhotonToolSim,
-                                  DFCommonTruthNeutrinoTool,
-                                  DFCommonTruthTopTool,
-                                  DFCommonTruthBosonTool,
-                                  DFCommonTruthBSMTool,
-                                  DFCommonTruthElectronDressingTool, DFCommonTruthMuonDressingTool,
-                                  DFCommonTruthElectronIsolationTool1, DFCommonTruthElectronIsolationTool2,
-                                  DFCommonTruthMuonIsolationTool1, DFCommonTruthMuonIsolationTool2,
-                                  DFCommonTruthPhotonIsolationTool1, DFCommonTruthPhotonIsolationTool2]
+        augmentationToolsList = [ ToolSvc.DFCommonTruthClassificationTool,
+                                  ToolSvc.DFCommonTruthMuonTool,ToolSvc.DFCommonTruthElectronTool,
+                                  ToolSvc.DFCommonTruthPhotonToolSim,
+                                  ToolSvc.DFCommonTruthNeutrinoTool,
+                                  ToolSvc.DFCommonTruthTopTool,
+                                  ToolSvc.DFCommonTruthBosonTool,
+                                  ToolSvc.DFCommonTruthBSMTool,
+                                  ToolSvc.DFCommonTruthElectronDressingTool, ToolSvc.DFCommonTruthMuonDressingTool,
+                                  ToolSvc.DFCommonTruthElectronIsolationTool1, ToolSvc.DFCommonTruthElectronIsolationTool2,
+                                  ToolSvc.DFCommonTruthMuonIsolationTool1, ToolSvc.DFCommonTruthMuonIsolationTool2,
+                                  ToolSvc.DFCommonTruthPhotonIsolationTool1, ToolSvc.DFCommonTruthPhotonIsolationTool2]
         from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+        from AthenaCommon import CfgMgr
         kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonPreJetKernel",
                                                                  AugmentationTools = augmentationToolsList
                                                                  )
     #STEP2 rest of addStandardTruth
+    from DerivationFrameworkMCTruth.MCTruthCommon import addTruthJets,addTruthMET
+    from DerivationFrameworkMCTruth.MCTruthCommon import schedulePostJetMCTruthAugmentations
+    from DerivationFrameworkMCTruth.MCTruthCommon import addHFAndDownstreamParticles,addBosonsAndDownstreamParticles,addTopQuarkAndDownstreamParticles
+    from DerivationFrameworkMCTruth.MCTruthCommon import addHardScatterCollection,addPVCollection,addTruthCollectionNavigationDecorations
     # Jets and MET
     addTruthJets(kernel, decorationDressing)
     addTruthMET(kernel)
