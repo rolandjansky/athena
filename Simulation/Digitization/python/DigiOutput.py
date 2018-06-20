@@ -34,7 +34,7 @@ def getStreamRDO_ItemList(log):
         if standardDigiConfig():
             noFastDigi = set(keys).isdisjoint(set(digitizationFlags.experimentalDigi()))
         else:
-            noFastDigi = set(['SplitNoMergeFFPileUpToolsAlg', 'SplitNoMergeSFPileUpToolsAlg', 'SplitNoMergeFSPileUpToolsAlg', 'FastPileUpToolsAlg']).isdisjoint(set([digitizationFlags.digiSteeringConf.get_Value()]))
+            noFastDigi = set(['SplitNoMergeFFPileUpToolsAlg', 'SplitNoMergeSFPileUpToolsAlg', 'SplitNoMergeFSPileUpToolsAlg', 'FastPileUpToolsAlg', 'SplitSFPileUpToolsAlg']).isdisjoint(set([digitizationFlags.digiSteeringConf.get_Value()]))
         return not noFastDigi
 
     def fastPixelDigiOutputExpected():

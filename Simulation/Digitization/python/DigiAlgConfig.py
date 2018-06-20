@@ -179,6 +179,22 @@ def getSplitInDetPileUpTools():
         PileUpToolsList += [ "TRTDigitizationToolPU" ]
     return PileUpToolsList
 
+def getSplitSFInDetPileUpTools():
+    from AthenaCommon.DetFlags import DetFlags
+    PileUpToolsList = []
+    if DetFlags.digitize.BCM_on():
+        PileUpToolsList += [ "BCM_DigitizationTool" ]
+    if DetFlags.digitize.pixel_on():
+        PileUpToolsList += [ "PixelDigitizationToolHS" ]
+        PileUpToolsList += [ "PixelFastDigitizationToolPU" ]
+    if DetFlags.digitize.SCT_on():
+        PileUpToolsList += [ "SCT_DigitizationToolHS" ]
+        PileUpToolsList += [ "SCT_FastDigitizationToolPU" ]
+    if DetFlags.digitize.TRT_on():
+        PileUpToolsList += [ "TRTDigitizationToolHS" ]
+        PileUpToolsList += [ "TRTFastDigitizationToolPU" ]
+    return PileUpToolsList
+
 def getSplitNoMergeInDetPileUpTools():
     """ This is for testing the fast chain with full digitization in split PU mode without
 merging pileup
@@ -379,6 +395,22 @@ def getSplitPileUpToolsList():
     PileUpToolsList += [ "MergeRecoTimingObjTool" ]
     return PileUpToolsList
 
+def getSplitSFPileUpToolsList():
+    PileUpToolsList = []
+    ## Truth information
+    PileUpToolsList += getStandardTruthPileUpTools()
+    ## Forward Detector Digitization
+    PileUpToolsList += getStandardForwardPileUpTools()
+    ## Inner Detector Digitization - non-standard
+    PileUpToolsList += getSplitSFInDetPileUpTools()
+    ## Calo Digitization
+    PileUpToolsList += getStandardCaloPileUpTools()
+    ## Muon System Digitization
+    PileUpToolsList += getStandardMuonPileUpTools()
+    ## RecoTimingObj
+    PileUpToolsList += [ "MergeRecoTimingObjTool" ]
+    return PileUpToolsList
+
 def getSplitNoMergePileUpToolsList():
     PileUpToolsList = []
     ## Truth information
@@ -457,6 +489,10 @@ def getFastPileUpToolsAlg(name="FastPileUpToolsAlg", **kwargs):
 
 def getSplitPileUpToolsAlg(name="SplitPileUpToolsAlg", **kwargs):
     kwargs.setdefault('PileUpTools', getSplitPileUpToolsList() )
+    return getStandardPileUpToolsAlg(name, **kwargs)
+
+def getSplitSFPileUpToolsAlg(name="SplitSFPileUpToolsAlg", **kwargs):
+    kwargs.setdefault('PileUpTools', getSplitSFPileUpToolsList() )
     return getStandardPileUpToolsAlg(name, **kwargs)
 
 def getStandardSignalOnlyTruthPileUpToolsAlg(name="StandardSignalOnlyTruthPileUpToolsAlg", **kwargs):
