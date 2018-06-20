@@ -19,6 +19,7 @@ StatusCode JRoIsUnpackingTool::initialize() {
   ATH_CHECK( RoIsUnpackingToolBase::initialize() );
   ATH_CHECK( m_configSvc.retrieve() );
   ATH_CHECK( m_trigRoIsKey.initialize() );
+  ATH_CHECK( m_trigFSRoIsKey.initialize() );
   ATH_CHECK( m_recRoIsKey.initialize() );
 
   return StatusCode::SUCCESS;
@@ -46,6 +47,22 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
   auto recRoIs  = std::make_unique< DataVector<LVL1::RecJetRoI> >();
 
 
+  // Additional FS RoI tagged with the decisions of all chains
+  auto trigFSRoIs = std::make_unique< TrigRoiDescriptorCollection >();
+  trigFSRoIs->push_back( new TrigRoiDescriptor() ); // the argument-less c'tor is crating the FS RoI
+  auto fsDecisionOutput = std::make_unique<DecisionContainer>();
+  auto fsDecisionAux    = std::make_unique<DecisionAuxContainer>();
+  fsDecisionOutput->setStore( fsDecisionAux.get() );  
+  Decision* fsDecision = newDecisionIn( fsDecisionOutput.get() );
+  fsDecision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_trigFSRoIsKey.key(), 0 ) );
+  for ( auto thresholdChainsPair: m_thresholdToChainMapping )
+    for ( auto chain: thresholdChainsPair.second )
+      addChainsToDecision( chain, fsDecision, activeChains );
+
+  for ( const auto id: decisionIDs( fsDecision ) ) { // it is suboptimal to make this loop if we are not in debug mode, fixme
+    ATH_MSG_DEBUG( "FS Jet RoI tagged with decision " <<  HLT::Identifier( id ) );
+  } 
+  
   // RoIBResult contains vector of TAU fragments
   for ( auto& jetFragment : roib.jetEnergyResult() ) {
     for ( auto& roi : jetFragment.roIVec() ) {
@@ -111,6 +128,15 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
     auto handle = SG::makeHandle( m_decisionsKey, ctx );
     ATH_CHECK ( handle.record( std::move( decisionOutput ), std::move( decisionAux )  ) );
   }
+  {
+    auto handle = SG::makeHandle( m_trigFSRoIsKey, ctx );
+    ATH_CHECK( handle.record ( std::move( trigFSRoIs ) ) );
+  }
+  {
+    auto handle = SG::makeHandle( m_fsDecisions, ctx );
+    ATH_CHECK( handle.record ( std::move( fsDecisionOutput ), std::move( fsDecisionAux ) ) );
+  }
+
 
   return StatusCode::SUCCESS; // what else
 }
