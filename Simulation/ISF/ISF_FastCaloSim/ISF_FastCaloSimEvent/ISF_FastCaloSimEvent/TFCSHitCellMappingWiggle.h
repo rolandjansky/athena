@@ -17,7 +17,7 @@ public:
   
   void initialize(TFCS1DFunction* func);
 
-  void initialize(TH1* histogram);
+  void initialize(TH1* histogram,float xscale=1);
 
   /// modify one hit position to emulate the LAr accordeon shape
   /// and then fills all hits into calorimeter cells

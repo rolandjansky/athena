@@ -29,10 +29,14 @@ void TFCSHitCellMappingWiggle::initialize(TFCS1DFunction* func)
   m_function=func;
 }
 
-void TFCSHitCellMappingWiggle::initialize(TH1* histogram)
+void TFCSHitCellMappingWiggle::initialize(TH1* histogram,float xscale)
 {
   if(!histogram) return;
-  initialize(new TFCS1DFunctionInt32Histogram(histogram));
+  TFCS1DFunctionInt32Histogram* func=new TFCS1DFunctionInt32Histogram(histogram);
+  if(xscale!=1) {
+    for(auto& ele : func->get_HistoBordersx()) ele*=xscale;
+  }
+  initialize(func);
 }
 
 void TFCSHitCellMappingWiggle::simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
