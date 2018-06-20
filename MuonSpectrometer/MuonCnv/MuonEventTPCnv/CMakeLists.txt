@@ -65,7 +65,8 @@ atlas_add_tpcnv_library( MuonEventTPCnv
    MuonEventTPCnv/MuonTrigCoinData/*.h src/MuonTrigCoinData/*.cxx
    MuonEventTPCnv/MuonSegment/*.h src/MuonSegment/*.cxx
    MuonEventTPCnv/MuonChamberT0s/*.h src/MuonChamberT0s/*.cxx
-   MuonEventTPCnv/MuonDigitContainer/*.h src/MuonDigitContainer/*.cxx src/MuonRDO/*.cxx
+   MuonEventTPCnv/MuonDigitContainer/*.h src/MuonDigitContainer/*.cxx 
+   MuonEventTPCnv/MuonRDO/*.h src/MuonRDO/*.cxx
    PUBLIC_HEADERS MuonEventTPCnv
    LINK_LIBRARIES AthAllocators AthLinks DataModelAthenaPoolLib AthenaPoolCnvSvcLib
    AthenaPoolUtilities Identifier GaudiKernel GeneratorObjectsTPCnv
@@ -119,6 +120,7 @@ foreach( name CscMcDataCnv_p1_test CscSimDataCnv_p1_test
       MM_DigitCnv_p2_test
       MM_DigitContainerCnv_p1_test
       MM_DigitContainerCnv_p2_test
+      MM_RawDataContainerCnv_p1_test
       STGC_DigitCnv_p1_test
       STGC_DigitContainerCnv_p1_test
       STGC_RawDataContainerCnv_p1_test
