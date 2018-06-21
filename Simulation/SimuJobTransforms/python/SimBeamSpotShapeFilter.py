@@ -79,9 +79,6 @@ class SimBeamSpotShapeFilter( PyAthena.AthFilterAlgorithm ):
 
     # Calculate the prob a event falling in the window given the original and target widths
     def calcScale(self, sigmaO, sigmaT, x):
-        if sigmaO == sigmaT:
-          return 1
-        
         if sigmaO < sigmaT:
           self.msg.error( 'This will not work target width larger than original width: %f <  %f'  %(sigmaO, sigmaT) )
           return 1.
