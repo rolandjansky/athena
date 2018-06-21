@@ -677,7 +677,7 @@ namespace CP {
         return xAOD::Iso::IsolationFlavour::ptvarcone == xAOD::Iso::isolationFlavour(Iso);
     }
     bool IsolationCloseByCorrectionTool::isTrackIso(xAOD::Iso::IsolationType Iso) const {
-        return isVarTrackIso(Iso) || isFixedTrackIso(Iso);
+        return isVarTrackIso(Iso) || isFixedTrackIso(Iso) || isTrackIsoTTVA(Iso);
     }
     bool IsolationCloseByCorrectionTool::isTopoEtIso(xAOD::Iso::IsolationType Iso) const {
         return xAOD::Iso::IsolationFlavour::topoetcone == xAOD::Iso::isolationFlavour(Iso);
@@ -753,4 +753,16 @@ namespace CP {
         ATH_MSG_WARNING("No cluster was found");
         return nullptr;
     }
+    bool IsolationCloseByCorrectionTool::isFixedTrackIsoTTVA(xAOD::Iso::IsolationType Iso) const {
+        xAOD::Iso::IsolationFlavour flavour = xAOD::Iso::isolationFlavour(Iso);
+        return xAOD::Iso::IsolationFlavour::ptcone_TightTTVA_pt500 == flavour || xAOD::Iso::IsolationFlavour::ptcone_TightTTVA_pt1000 == flavour;        
+    }
+    bool IsolationCloseByCorrectionTool::isVarTrackIsoTTVA(xAOD::Iso::IsolationType Iso) const {
+        xAOD::Iso::IsolationFlavour flavour = xAOD::Iso::isolationFlavour(Iso);
+        return xAOD::Iso::IsolationFlavour::ptvarcone_TightTTVA_pt500 == flavour || xAOD::Iso::IsolationFlavour::ptvarcone_TightTTVA_pt1000 == flavour;        
+    }
+    bool IsolationCloseByCorrectionTool::isTrackIsoTTVA(xAOD::Iso::IsolationType Iso) const {
+        return isFixedTrackIsoTTVA(Iso) || isVarTrackIsoTTVA(Iso);
+    }
+            
 }

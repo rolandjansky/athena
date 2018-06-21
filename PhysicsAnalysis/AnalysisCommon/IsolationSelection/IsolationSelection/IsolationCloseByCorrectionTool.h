@@ -103,7 +103,14 @@ namespace CP {
 
             bool isFixedTrackIso(xAOD::Iso::IsolationType Iso) const;
             bool isVarTrackIso(xAOD::Iso::IsolationType Iso) const;
+            
+            bool isFixedTrackIsoTTVA(xAOD::Iso::IsolationType Iso) const;
+            bool isVarTrackIsoTTVA(xAOD::Iso::IsolationType Iso) const;
+            
             bool isTrackIso(xAOD::Iso::IsolationType Iso) const;
+            bool isTrackIsoTTVA(xAOD::Iso::IsolationType Iso) const;
+            
+            
             bool isTopoEtIso(xAOD::Iso::IsolationType Iso) const;
 
             bool isEgamma(const xAOD::IParticle*  particle) const;
