@@ -1,16 +1,7 @@
 // Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-// System include(s):
-#include <regex>
-#include <algorithm>
-#include <functional>
-#include <sstream>
-
-// ROOT include(s):
-#include <TClass.h>
-#include <TTree.h>
-#include <TBranch.h>
-#include <TVirtualCollectionProxy.h>
+// Local include(s):
+#include "AsgAnalysisAlgorithms/AsgxAODNTupleMakerAlg.h"
 
 // EDM include(s):
 #include "AthContainersInterfaces/IAuxTypeVectorFactory.h"
@@ -21,8 +12,17 @@
 // Framework include(s):
 #include "SystematicsHandles/Helpers.h"
 
-// Local include(s):
-#include "AsgAnalysisAlgorithms/AsgxAODNTupleMakerAlg.h"
+// ROOT include(s):
+#include <TClass.h>
+#include <TTree.h>
+#include <TBranch.h>
+#include <TVirtualCollectionProxy.h>
+
+// System include(s):
+#include <regex>
+#include <algorithm>
+#include <functional>
+#include <sstream>
 
 namespace {
 
@@ -147,7 +147,7 @@ namespace {
 
    /// Get a standalone xAOD object from the event store
    ///
-   /// This is the "standalone implementation" of the function.
+   /// This is the "Athena implementation" of the function.
    ///
    const SG::AuxElement* getElement( const std::string& key,
                                      IProxyDict& evtStore,
@@ -248,11 +248,13 @@ namespace {
          case 'b':
             return 'O';
             break;
+         default:
+            // If we didn't find this type:
+            msg << MSG::ERROR << "Received an unknown type: " << typeidType
+                << endmsg;
+            return '\0';
+            break;
       }
-
-      // If we didn't find this type:
-      msg << MSG::ERROR << "Received an unknown type: " << typeidType << endmsg;
-      return '\0';
    }
 
 } // private namespace
@@ -307,7 +309,16 @@ namespace CP {
          // Iterate over the branch specifications.
          for( const std::string& branchDecl : m_branches ) {
 
-            // The regular expression used to extract the needed info.
+            // The regular expression used to extract the needed info. The logic
+            // is supposed to be:
+            //
+            // (match[1]).(match[2])<any whitespace>-><any whitespace>(match[3])
+            //
+            // Like:
+            //    "Electrons.eta  -> el_eta"
+            //
+            // , where we would pick up "Electrons", "eta" and "el_eta" as the
+            // three words using this regexp.
             static const std::regex
                re( "\\s*([\\w%]+)\\.([\\w%]+)\\s*->\\s*([\\w%]+)" );
 
