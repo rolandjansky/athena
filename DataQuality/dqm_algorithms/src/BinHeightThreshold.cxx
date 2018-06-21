@@ -32,16 +32,16 @@ namespace
 }
 
 dqm_algorithms::BinHeightThreshold::BinHeightThreshold( const std::string & name )
-  : name_( name )
+  : m_name( name )
 {
-  precision_=1e-4;
+  m_precision=1e-4;
   dqm_core::AlgorithmManager::instance().registerAlgorithm("BinHeight_"+name+"_Threshold", this);
 }
 
 dqm_algorithms::BinHeightThreshold * 
 dqm_algorithms::BinHeightThreshold::clone()
 {  
-  return new BinHeightThreshold(name_);
+  return new BinHeightThreshold(m_name);
 }
 
 
@@ -92,17 +92,17 @@ dqm_algorithms::BinHeightThreshold::execute(	const std::string &  name,
     grayValue.second=-1;
   }
   try {
-    precision_ = dqm_algorithms::tools::GetFirstFromMap( "EqualityPrecision", config.getParameters(),1e-4);
+    m_precision = dqm_algorithms::tools::GetFirstFromMap( "EqualityPrecision", config.getParameters(),1e-4);
   }
   catch ( dqm_core::Exception & ex ) {
-    precision_=1e-4;
+    m_precision=1e-4;
   }
 
 
   //check if the provided parameter values make sense
-  if(precision_<0) {
+  if(m_precision<0) {
     ERS_INFO("'EqualityPrecision cannot be negative: it will be re-set to its absolute value.");
-    precision_=fabs(precision_);
+    m_precision=fabs(m_precision);
   }
   if(window_size<=0) {
       ERS_INFO("You set search window size (WindowSize) <= 0: I will search the whole histogram.");
@@ -117,8 +117,8 @@ dqm_algorithms::BinHeightThreshold::execute(	const std::string &  name,
     ERS_INFO("You set the minimum number of bins for throwing error/warning (NBins) <= 0: in this way the algorithm would always return error. Setting NBins=1 (default value).");
     n_bins=1;
   }
-  CheckThresholds(name_,gthreshold,rthreshold);
-  grayValue.first=checkUndefinedStatusValue(name_,gthreshold,rthreshold,grayValue);
+  CheckThresholds(m_name,gthreshold,rthreshold);
+  grayValue.first=checkUndefinedStatusValue(m_name,gthreshold,rthreshold,grayValue);
 
   dqm_core::Result* result = new dqm_core::Result();
   TH1* resulthisto;
@@ -160,7 +160,7 @@ dqm_algorithms::BinHeightThreshold::execute(	const std::string &  name,
     while(iLB>=1 && (window_size<0 || (i_currentLB-iLB)<window_size))
        {
 	double content=histogram->GetBinContent(iLB);
-	dqm_algorithms::BinHeightThreshold::binStatus LBstatus=CompareBinHeightThreshold(name_,content, gthreshold , rthreshold,grayValue);
+	dqm_algorithms::BinHeightThreshold::binStatus LBstatus=CompareBinHeightThreshold(m_name,content, gthreshold , rthreshold,grayValue);
 	if(LBstatus==dqm_algorithms::BinHeightThreshold::binStatus::aYellowBin) 
 	{
 	  countYellow++;
@@ -340,10 +340,10 @@ dqm_algorithms::BinHeightThreshold::equalWithinPrecision(double a,double b)
   else if (a == 0 || b == 0 || diff < DBL_MIN) {
     // a or b is zero or both are extremely close to it
     // relative error is less meaningful here
-    return diff < (precision_ * DBL_MIN);
+    return diff < (m_precision * DBL_MIN);
   } 
   else { // use relative error
-    return (diff / std::min((absA + absB), DBL_MAX)) < precision_;
+    return (diff / std::min((absA + absB), DBL_MAX)) < m_precision;
   }
 }
 
@@ -351,29 +351,29 @@ void
 dqm_algorithms::BinHeightThreshold::printDescription(std::ostream& out)
 {
   TString redCond,yellowCond;
-  if(name_=="redEqual_yellowGreaterThan" || name_=="redEqual_yellowLessThan" || name_=="Equal")
+  if(m_name=="redEqual_yellowGreaterThan" || m_name=="redEqual_yellowLessThan" || m_name=="Equal")
     {
       redCond="bin_content==redThreshold";
-      if(name_=="Equal")
+      if(m_name=="Equal")
 	yellowCond="bin_content==yellowThreshold && bin_content!=redThreshold";
-      else if(name_=="redEqual_yellowGreaterThan")
+      else if(m_name=="redEqual_yellowGreaterThan")
 	yellowCond="bin_content>yellowThreshold && bin_content!=redThreshold";
       else
 	yellowCond="bin_content<yellowThreshold && bin_content!=redThreshold";
     }
   else
     {
-      if(name_=="GreaterThan")
+      if(m_name=="GreaterThan")
 	{
 	  redCond="bin_content>redThreshold";
 	  yellowCond="redThreshold>=bin_content>yellowThreshold";
 	}
-      else if(name_=="LessThan")
+      else if(m_name=="LessThan")
 	{
 	  redCond="bin_content<redThreshold";
 	  yellowCond="redThreshold<=bin_content<yellowThreshold";
 	}
-      else if(name_=="GreaterThanEqual")
+      else if(m_name=="GreaterThanEqual")
 	{
 	  redCond="bin_content>=redThreshold";
 	  yellowCond="redThreshold>bin_content>=yellowThreshold";
@@ -384,9 +384,9 @@ dqm_algorithms::BinHeightThreshold::printDescription(std::ostream& out)
 	  yellowCond="redThreshold<bin_content<=yellowThreshold";
 	}
     }
-  out << "BinHeight_" << name_ << "_Threshold checks the bin height of a TH1. Ideally, a quantity as a function of LB. LB is expected to be on x axis, the quantity of interest is the bin content." << std::endl;
-  out << "BinHeight_" << name_ << "_Threshold defines 'red' and 'yellow' bins depending on the value of the bin content:\n \t-if " << redCond << ": the bin is 'red'.\n \t-if " << yellowCond << ": the bin is 'yellow'.\n \t-if (OPTIONAL) an 'UndefinedStatus' value is set and bin_content==UndefinedStatus, the bin is 'gray'.";
-  if(name_!="GreaterThan" && name_!="LessThan")
+  out << "BinHeight_" << m_name << "_Threshold checks the bin height of a TH1. Ideally, a quantity as a function of LB. LB is expected to be on x axis, the quantity of interest is the bin content." << std::endl;
+  out << "BinHeight_" << m_name << "_Threshold defines 'red' and 'yellow' bins depending on the value of the bin content:\n \t-if " << redCond << ": the bin is 'red'.\n \t-if " << yellowCond << ": the bin is 'yellow'.\n \t-if (OPTIONAL) an 'UndefinedStatus' value is set and bin_content==UndefinedStatus, the bin is 'gray'.";
+  if(m_name!="GreaterThan" && m_name!="LessThan")
     out << " Note that if 'UndefinedStatus' is equal to 'redThreshold' or 'yellowThreshold', the bin will be 'red'/'yellow' rather than 'gray'.";
   out << "\n \t-otherwise the bin is 'green'" << std::endl;
   out << "The algorithm checks all the bins in a window of size 'WindowSize', starting from:\n \t a) the last but X bin.\n \t b) the last non-zero bin.\n Oprion a) or b) is chosen by the parameter 'StartFromLast': if('StartFromLast'>=0), (a) holds and X is equal to 'StartFromLast', while (b) holds if 'StartFromLast'<0." << std::endl;
