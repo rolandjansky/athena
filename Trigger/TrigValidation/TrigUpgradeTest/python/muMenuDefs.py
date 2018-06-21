@@ -399,7 +399,7 @@ if TriggerFlags.doMuon:
 
     l2muComb_HLTSequence = HLTRecoSequence("l2muComb_HLTSequence",
                                           Sequence=l2muCombSequence,
-                                          Maker=l2MuViewsMaker,
+                                          Maker=l2muCombViewsMaker,
                                           Seed="L1MU")
 
     muCombStep = MenuSequence("muCombStep", 

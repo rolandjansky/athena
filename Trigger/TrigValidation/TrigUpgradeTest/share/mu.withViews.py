@@ -426,7 +426,6 @@ if TriggerFlags.doMuon:
     trigmuCombHypo = TrigmuCombHypoConfig("L2muCombHypoAlg")
     trigmuCombHypo.OutputLevel = DEBUG 
     trigmuCombHypo.HypoOutputDecisions = "MuonL2CBDecisions"
-    #trigmuCombHypo.HypoInputDecisions = trigMufastHypo.HypoOutputDecisions
     trigmuCombHypo.HypoInputDecisions = l2muCombViewsMaker.InputMakerOutputDecisions[0]
     trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = muCombAlg.L2CombinedMuonContainerName 
     trigmuCombHypo.HypoTools = [ trigmuCombHypo.TrigmuCombHypoToolFromName( "L2muCombHypoTool", c ) for c in testChains ] 
