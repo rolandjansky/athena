@@ -248,48 +248,107 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
             m_jetReclusteringTool.at(hash_factor*m_config->nominalHashValue())->execute();
     }
 
-      if (m_useJSS){     
+    if (m_useJSS){     
        // get the rcjets
        xAOD::JetContainer* myJets(nullptr);
        top::check(evtStore()->retrieve(myJets,m_OutputJetContainer),"Failed to retrieve RC JetContainer");
-   
+
+       // // get the clusters (directly we so can try using the LCTopo clusters)
+       const xAOD::CaloClusterContainer* myClusters(nullptr);
+       top::check(evtStore()->retrieve(myClusters, "CaloCalTopoClusters"), "Failed to retrieve CaloCalTopoClusters");
+       
        // get the subjets and clusters of the rcjets
        for (auto rcjet : *myJets){
        
- 	std::vector<fastjet::PseudoJet> clusters;
- 	clusters.clear();
+	 std::vector<fastjet::PseudoJet> clusters;
+	 clusters.clear();
+       // 	for (auto cluster : *myClusters){
+       // 	  //const xAOD::CaloCluster* cluster_raw = static_cast<const xAOD::CaloCluster*>(cluster->rawConstituents());
+
+       // 	  // std::cout << "Cluster E default = " << cluster->e() <<  std::endl;
+       // 	  // std::cout << "Cluster Eta default = " << cluster->eta() <<  std::endl;
+
+       // 	  // std::cout <<" Cluster E getCalE = " << cluster->calE() << std::endl;
+       // 	  // std::cout <<" Cluster E getCalEta = " << cluster->calEta() << std::endl;
+	  
+       // 	  // std::cout <<"Cluster cal pt(E) = " << cluster->e(xAOD::CaloCluster_v1::State(1)) << std::endl;
+
+
+	 // LCTOPO CLUSTERS
  
- 	for (auto subjet : rcjet->getConstituents() ){
- 	  const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());
- 
- 	  // Make sure we don't try to access jets that have had the clusters thinned
-	  bool hasConstituents=true;
-	  auto links = subjet_raw->constituentLinks();
-	  for(auto link : links) {
-	    if(!link.isValid()) {
-	      ATH_MSG_WARNING("Some of the RC Jet Constituents have been thinned - will not be included in RCJet JSS calculation");
-	      hasConstituents=false;
-	      break;
-	    }
-	  }
-	  if (!hasConstituents) {continue;}
- 
- 	  for (auto clus_itr : subjet_raw->getConstituents() ){
- 	    if(clus_itr->e() > 0){
- 	      TLorentzVector temp_p4;
- 	      temp_p4.SetPtEtaPhiM(clus_itr->pt(), clus_itr->eta(), clus_itr->phi(), clus_itr->m());
- 	      clusters.push_back(fastjet::PseudoJet(temp_p4.Px(),temp_p4.Py(),temp_p4.Pz(),temp_p4.E()));
-	    }
- 	  }	
- 	}
+	   for (auto cluster : *myClusters){
+	     for (auto subjet : rcjet->getConstituents() ){
+	       const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());
+	  
+		 // 	  //const xAOD::CaloCluster* cluster_raw = static_cast<const xAOD::CaloCluster*>(cluster->rawConstituents());
+       	      float dR = subjet_raw->p4().DeltaR(cluster->p4());
+       	      if (dR < 0.4){
+		TLorentzVector temp_p4;
+       		temp_p4.SetPtEtaPhiE(cluster->pt((xAOD::CaloCluster_v1::State(1))), cluster->eta((xAOD::CaloCluster_v1::State(1))), cluster->phi((xAOD::CaloCluster_v1::State(1))), cluster->e((xAOD::CaloCluster_v1::State(1))));
+       		clusters.push_back(fastjet::PseudoJet(temp_p4.Px(),temp_p4.Py(),temp_p4.Pz(),temp_p4.E()));
+       		break;
+       	      }
+	     }
+	   }
+
+	  
+	   //SCALED CLUSTERS
+	   // for (auto subjet : rcjet->getConstituents() ){
+	   //   const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());
+
+ 	  // // Make sure we don't try to access jets that have had the clusters thinned
+	  // bool hasConstituents=true;
+	  // auto links = subjet_raw->constituentLinks();
+	  // for(auto link : links) {
+	  //   if(!link.isValid()) {
+	  //     ATH_MSG_WARNING("Some of the RC Jet Constituents have been thinned - will not be included in RCJet JSS calculation");
+	  //     hasConstituents=false;
+	  //     break;
+	  //   }
+	  // }
+	  // if (!hasConstituents) {continue;}
+
+	  // for (auto clus_itr : subjet_raw->getConstituents() ){
+	  //   if(clus_itr->e() > 0){
+	  //     TLorentzVector temp_p4;
+	  
+	  //std::cout << "SubJetRaw ConstitScale pt = " << subjet_raw->jetP4(xAOD::JetEMScaleMomentum).pt() << std::endl;
+	  //std::cout << "SubJetRaw ConstitScale pt = " << subjet_raw->jetP4(xAOD::JetConstitScaleMomentum).pt() << std::endl;
+	  //std::cout << "SubJetRaw calibrated pt   = " << subjet_raw->jetP4().pt() << std::endl;
+
+	  //	      const xAOD::CaloCluster* clus_raw = static_cast<const xAOD::CaloCluster*>(clus_itr->rawConstituent());
+
+	  // std::cout << "Cluster is a " << typeid(clus_itr).name() << std::endl;
+	  // std::cout <<"Cluster E = " << clus_itr->e() << std::endl;
+	  //std::cout <<"Cluster raw type = " << clus_raw->type() << std::endl;
+	     
+
+	  //std::cout <<"Cluster EM E = " << clus_raw->getRawE() << std::endl;
+	  //std::cout <<"Cluster LC E = " << clus_raw->calE() << std::endl;
+	      
+	  //std::cout <<"Cluster raw pt = " << clus_itr->pt(xAOD::CaloCluster_v1::State(0)) << std::endl;
+	  //std::cout <<"Cluster cal pt = " << clus_raw->pt(xAOD::CaloCluster_v1::State(1)) << std::endl;
+
+	  //std::cout <<"Cluster EM pT = " << clus_itr->pt() << std::endl;
+	  //std::cout <<"Cluster LC pT = " << clus_itr->pt() << std::endl;
+	      	  
+	  //double sf = subjet_raw->jetP4().pt() / subjet_raw->jetP4(xAOD::JetEMScaleMomentum).pt();
+	  //std::cout << "SF = " << sf << std::endl;
+	  //temp_p4.SetPtEtaPhiM(clus_itr->pt()*sf, clus_itr->eta(), clus_itr->phi(), clus_itr->m());
+
+	  //clusters.push_back(fastjet::PseudoJet(temp_p4.Px(),temp_p4.Py(),temp_p4.Pz(),temp_p4.E()));
+	       
+       
+    
+       
             
- 	// Now rebuild the large jet from the small jet constituents aka the original clusters
- 	fastjet::ClusterSequence clust_seq_rebuild = fastjet::ClusterSequence(clusters, *m_jet_def_rebuild);
- 	std::vector<fastjet::PseudoJet> my_pjets =  fastjet::sorted_by_pt(clust_seq_rebuild.inclusive_jets(0.0) );
+	 // Now rebuild the large jet from the small jet constituents aka the original clusters
+	 fastjet::ClusterSequence clust_seq_rebuild = fastjet::ClusterSequence(clusters, *m_jet_def_rebuild);
+	 std::vector<fastjet::PseudoJet> my_pjets =  fastjet::sorted_by_pt(clust_seq_rebuild.inclusive_jets(0.0) );
  
- 	fastjet::PseudoJet correctedJet;
- 	correctedJet = my_pjets[0];
- 	//Sometimes fastjet splits the jet into two, so need to correct for that!!
+	 fastjet::PseudoJet correctedJet;
+	 correctedJet = my_pjets[0];
+	 //Sometimes fastjet splits the jet into two, so need to correct for that!!
  	if(my_pjets.size() > 1)
  	  correctedJet += my_pjets[1]; 
  
