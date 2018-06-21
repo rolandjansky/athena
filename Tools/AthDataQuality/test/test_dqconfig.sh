@@ -3,6 +3,7 @@
 # art-description: Test hcfg file for top level hists, git hash
 # art-type: build
 # art-ci: 21.0
+# art-include: 21.0/AthDataQuality
 
 #Check the hcfg file for git hash
 check_hcfg_hash()
