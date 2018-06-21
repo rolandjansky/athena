@@ -34,8 +34,15 @@ Trk::MagneticFieldProperties& Trk::MagneticFieldProperties::operator=(const Trk:
   return(*this);
 }
 
+Trk::MagneticFieldProperties& Trk::MagneticFieldProperties::operator=(Trk::MagneticFieldProperties&& magprop)
+{
+  if (this != &magprop){
+    m_magneticFieldMode = magprop.m_magneticFieldMode;
+    m_magneticField     = std::move(magprop.m_magneticField);
+  }
+  return(*this);
+}
 
- 
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
 MsgStream& Trk::operator<<( MsgStream& sl, const Trk::MagneticFieldProperties& mprop)
 {
