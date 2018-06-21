@@ -57,7 +57,7 @@ StatusCode ActsAlignedExtrapAlg::initialize() {
   pgCfg.pID = 11;
   pgCfg.mass = 0.51099891 * Acts::units::_MeV;
   pgCfg.charge = -1.;
-  pgCfg.etaRange = {-6, 6};
+  pgCfg.etaRange = {1.5, 4};
 
   m_particleGun = std::make_unique<ParticleGun>(
       pgCfg, ACTS_ATH_LOGGER("ParticleGun"));

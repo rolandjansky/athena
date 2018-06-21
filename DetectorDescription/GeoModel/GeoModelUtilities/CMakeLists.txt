@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/GeoModel/GeoModelKernel
+                          DetectorDescription/GeoModel/GeoPrimitives
                           PRIVATE
                           GaudiKernel )
 
@@ -19,12 +20,13 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
+find_package( Eigen )
 
 # Component(s) in the package:
 atlas_add_library( GeoModelUtilities
                    src/*.cxx
                    PUBLIC_HEADERS GeoModelUtilities
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GeoModelKernel
                    PRIVATE_LINK_LIBRARIES GaudiKernel )

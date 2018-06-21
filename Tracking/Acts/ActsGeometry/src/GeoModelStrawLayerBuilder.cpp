@@ -3,6 +3,7 @@
 
 // ATHENA
 #include "InDetReadoutGeometry/TRT_Numerology.h"
+#include "InDetIdentifier/TRT_ID.h"
 
 // ACTS
 #include "Acts/Tools/ILayerBuilder.hpp"
@@ -49,22 +50,18 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
   size_t    nBarrelRings  = trtNums->getNBarrelRings();
   size_t    nBarrelPhiSectors = trtNums->getNBarrelPhi();
 
+  TRT_ID idHelper;
+
   ACTS_VERBOSE("- Numerology reports: - " << nBarrelRings << " barrel rings");
   ACTS_VERBOSE("                      - " << nBarrelPhiSectors << " barrel phi sectors");
 
   Acts::LayerVector layers;
-
-  //size_t nVtx = 0;
-  //std::ofstream objout;
-  //objout.open("trt.obj");
-  //objout << "mtllib master.mtl" << std::endl;
 
   std::vector<ProtoLayer> protoLayers;
 
   for(size_t iring=0; iring < nBarrelRings;iring++) {
     ACTS_VERBOSE("- Collecting elements for ring " << iring);
   
-
     // were calculating min/max radius while were at it.
     ProtoLayer pl;
     pl.minR = std::numeric_limits<double>::max();
@@ -96,9 +93,10 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
           for(int istraw=0;istraw<nStraws;istraw++) {
 
             auto trf = std::make_shared<const Transform3D>(brlElem->strawTransform(istraw));
+            Identifier straw_id = idHelper.straw_id(brlElem->identify(), istraw);
             // @TODO: ID IS WRONG!!!!! all straws get the same ID
             auto elem = std::make_shared<const Acts::GeoModelDetectorElement>(
-                trf, brlElem, m_cfg.trackingGeometrySvc);
+                trf, brlElem, straw_id, m_cfg.trackingGeometrySvc);
 
             m_cfg.elementStore->push_back(elem);
 
@@ -116,13 +114,6 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
             pl.minZ = std::min(pl.minZ, ctr.z() - length);
 
             layerSurfaces.push_back(straw);
-
-            //PolyhedronRepresentation ph = cylinder->polyhedronRepresentation(6);
-            //objout << "usemtl straw" << std::endl;
-            //objout << ph.objString(nVtx);
-            //nVtx += ph.vertices.size();
-            
-
           }
         }
       }
@@ -141,27 +132,9 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
 
     protoLayers.push_back(pl);
 
-    //objout << "usemtl green" << std::endl;
-    //auto idTrf = std::make_shared<const Transform3D>(Transform3D::Identity());
-    //CylinderSurface inner(idTrf, pl.minR-pl.envR.first, pl.maxZ+pl.envZ.second);
-    //PolyhedronRepresentation ph = inner.polyhedronRepresentation(100);
-    //objout << ph.objString(nVtx);
-    //nVtx += ph.vertices.size();
-
-    //objout << "usemtl red" << std::endl;
-    //CylinderSurface outer(idTrf, pl.maxR+pl.envR.second, pl.maxZ+pl.envZ.second);
-    //ph = outer.polyhedronRepresentation(100);
-    //objout << ph.objString(nVtx);
-    //nVtx += ph.vertices.size();
-
   }
 
-    
-  //objout.close();
-
-
   return layers;
-  //return {};
 }
 
 const Acts::LayerVector
@@ -173,17 +146,12 @@ Acts::GeoModelStrawLayerBuilder::endcapLayers(int side)
   size_t    nEndcapWheels  = trtNums->getNEndcapWheels();
   size_t    nEndcapPhiSectors = trtNums->getNEndcapPhi();
 
+  TRT_ID idHelper;
+
   ACTS_VERBOSE("- Numerology reports: - " << nEndcapWheels<< " endcap wheels");
   ACTS_VERBOSE("                      - " << nEndcapPhiSectors << " endcap phi sectors");
 
   Acts::LayerVector layers;
-
-  //size_t nVtx = 0;
-  //std::ofstream objout;
-  //objout.open("trt.obj");
-  //objout << "mtllib master.mtl" << std::endl;
-
-  //std::vector<ProtoLayer> protoLayers;
 
   for(size_t iwheel=0;iwheel<nEndcapWheels;++iwheel) {
     ACTS_VERBOSE("- Collecting elements for wheel " << iwheel);
@@ -213,9 +181,9 @@ Acts::GeoModelStrawLayerBuilder::endcapLayers(int side)
         for(int istraw=0;istraw<nStraws;istraw++) {
 
           auto trf = std::make_shared<const Transform3D>(ecElem->strawTransform(istraw));
-          // @TODO: ID IS WRONG!!!!!
+          Identifier straw_id = idHelper.straw_id(ecElem->identify(), istraw);
           auto elem = std::make_shared<const Acts::GeoModelDetectorElement>(
-              trf, ecElem, m_cfg.trackingGeometrySvc);
+              trf, ecElem, straw_id, m_cfg.trackingGeometrySvc);
 
           m_cfg.elementStore->push_back(elem);
 
@@ -232,11 +200,6 @@ Acts::GeoModelStrawLayerBuilder::endcapLayers(int side)
           pl.envZ = {radius/2., radius/2.};
 
           wheelSurfaces.push_back(straw);
-
-          //PolyhedronRepresentation ph = cylinder->polyhedronRepresentation(6);
-          //objout << "usemtl straw" << std::endl;
-          //objout << ph.objString(nVtx);
-          //nVtx += ph.vertices.size();
         }
       }
 
@@ -251,8 +214,6 @@ Acts::GeoModelStrawLayerBuilder::endcapLayers(int side)
   }
   
   ACTS_VERBOSE(" - Built " << layers.size() << " straw endcap layers");
-
-  //objout.close();
   return layers;
 }
 

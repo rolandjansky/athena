@@ -52,6 +52,19 @@ from AthenaCommon.AppMgr import ServiceMgr
 import AthenaPoolCnvSvc.ReadAthenaPool 
 ServiceMgr.EventSelector.InputCollections =  ["MaterialStepFile_1e6.root"]
 
+
+
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.OutputLevel( INFO )
+AlgScheduler.ShowControlFlow( True )
+AlgScheduler.ShowDataDependencies( True )
+AlgScheduler.EnableConditions( True )
+# AlgScheduler.setDataLoaderAlg( "SGInputLoader" )
+
+
+from IOVSvc.IOVSvcConf import CondSvc
+svcMgr += CondSvc( OutputLevel=INFO )
+
 # ServiceMgr += CfgMgr.THistSvc()
 # ServiceMgr.THistSvc.Output += ["MATTRACKVAL DATAFILE='MaterialTracks.root' OPT='RECREATE'"]
 # ServiceMgr.ToolSvc.OutputLevel = VERBOSE
@@ -75,6 +88,14 @@ mTrackWriterSvc.FilePath = "MaterialTracks_mapping.root"
 # mTrackWriterSvc.MaxQueueSize = 10
 ServiceMgr += mTrackWriterSvc
 
+from ActsAlignment import ActsAlignmentConf
+
+## SET UP ALIGNMENT CONDITIONS ALGORITHM
+from AthenaCommon.AlgSequence import AthSequencer 
+condSeq = AthSequencer("AthCondSeq") 
+condSeq += ActsAlignmentConf.NominalAlignmentCondAlg("NominalAlignmentCondAlg", 
+                                                     OutputLevel=VERBOSE)
+## END OF CONDITIONS SETUP
 
 # Set up algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence

@@ -20,7 +20,7 @@ svcMgr.EventSelector.RunNumber=1
 svcMgr.EventSelector.InitialTimeStamp=0
 svcMgr.EventSelector.TimeStampInterval=1
 svcMgr.EventSelector.FirstLB=1
-svcMgr.EventSelector.EventsPerLB = 3000
+svcMgr.EventSelector.EventsPerLB = 5000
 
 #
 ## Override Setup for Hive
@@ -135,6 +135,7 @@ from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq") 
 
 condSeq+=ActsAlignmentConf.GeomShiftCondAlg("GeomShiftCondAlg_1",
+                                            ZShiftPerLB=0.5,
                                             OutputLevel=VERBOSE)
 
 

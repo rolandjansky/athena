@@ -66,7 +66,7 @@ Acts::GeoModelLayerBuilder::getDetectorElements() const
   //}
   //else {
     //throw std::domain_error("GeoModelLayerBuilder does not know how "
-                            //"to operator on this type of Detector Manager");
+                            //"to operate on this type of Detector Manager");
   //}
 
   return elements;
@@ -82,26 +82,13 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
   std::map<std::pair<int, int>, std::vector<const Surface*>> layers;
 
   for (const auto &element : elements) {
-    //const InDetDD::SiDetectorElement* siDetElement = *iter;
 
-    //auto element
-      //= std::make_shared<const GeoModelDetectorElement>(siDetElement);
-
-    // std::cout << "ELEMENT: ";
-    // std::cout << element->bec() << " ";
-    // std::cout << element->layer_disk() << " ";;
-    // std::cout << element->eta_module() << " ";
-    // std::cout << element->phi_module() << " ";
-    // std::cout << "Z = " << element->surface().center().z() << std::endl;
-
-    //IdentityHelper id(element);
     IdentityHelper id = element->identityHelper();
 
     // wrong subdetector
-    //if (m_cfg.subdetector != element->det()) continue;
     // want barrel but not barrel
     if (type == 0 && id.bec() != 0) continue;
-
+    // want endcap but is barrel
     if (type != 0 && id.bec() == 0) continue;
     // want endcap, but wrong side
     if (type != 0 && type * id.bec() < 0) continue;

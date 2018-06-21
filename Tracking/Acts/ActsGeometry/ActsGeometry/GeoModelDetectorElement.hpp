@@ -32,7 +32,9 @@
 #include "Acts/Surfaces/TrapezoidBounds.hpp"
 
 #include "GaudiKernel/ContextSpecificPtr.h"
+#include "GeoModelUtilities/GeoAlignmentStore.h"
 
+#include <mutex>
 
 
 
@@ -59,6 +61,7 @@ public:
   /// @param transform Transform to the straw system
   GeoModelDetectorElement(std::shared_ptr<const Transform3D> trf, 
                           const InDetDD::TRT_BaseElement* detElem,
+                          const Identifier& id, // we need explicit ID here b/c of straws
                           const TrackingGeometrySvc* trkSvc);
 
   ///  Destructor
@@ -101,7 +104,51 @@ public:
 
 
 private:
-  /// DD4hep detector element, just linked - not owned
+
+  struct GetTransformVisitor : public boost::static_visitor<Transform3D> {
+    explicit GetTransformVisitor(GeoAlignmentStore* store, bool def, const Transform3D* fallback)
+      : m_store(store), m_default(def), m_fallback(fallback)
+    {}
+
+    Transform3D operator()(const InDetDD::SiDetectorElement* detElem) const
+    {
+      HepGeom::Transform3D g2l;
+      if (m_default) g2l = detElem->getMaterialGeom()->getDefAbsoluteTransform(m_store);
+      else g2l = detElem->getMaterialGeom()->getAbsoluteTransform(m_store);
+
+      return Amg::CLHEPTransformToEigen(g2l * detElem->recoToHitTransform());
+    }
+
+    Transform3D operator()(const InDetDD::TRT_BaseElement*) const
+    {
+      return *m_fallback;
+    }
+
+    GeoAlignmentStore* m_store;
+    bool m_default;
+    const Transform3D* m_fallback;
+  };
+  
+  struct IdVisitor : public boost::static_visitor<Identifier>
+  {
+    explicit IdVisitor(const Identifier& id) : m_explicitIdentifier(id) {}
+
+    Identifier operator()(const InDetDD::SiDetectorElement* detElem) const
+    {
+      return detElem->identify(); // easy, det element has identifier
+    }
+
+    Identifier operator()(const InDetDD::TRT_BaseElement*) const
+    {
+      // we got the identifier in constructrion, because it identifies
+      // the STRAW
+      return m_explicitIdentifier;
+    }
+
+    Identifier m_explicitIdentifier;
+  };
+
+  /// Detector element as variant
   DetElemVariant m_detElement;
   /// Boundaries of the detector element
   std::shared_ptr<const SurfaceBounds> m_bounds;
@@ -111,12 +158,17 @@ private:
   std::shared_ptr<const Surface> m_surface;
   std::vector<std::shared_ptr<const Surface>> m_surfaces;
 
-  std::shared_ptr<const Transform3D> m_transform;
+  // this is pretty much only used single threaded, so
+  // the mutex does not hurt
+  mutable std::mutex m_cacheMutex;
+  mutable std::shared_ptr<const Transform3D> m_defTransform;
 
   const TrackingGeometrySvc* m_trackingGeometrySvc;
+  
+  Identifier m_explicitIdentifier;
 
   // this is threadsafe!
-  mutable Gaudi::Hive::ContextSpecificData<Transform3D> m_ctxSpecificTransform;
+  //mutable Gaudi::Hive::ContextSpecificData<Transform3D> m_ctxSpecificTransform;
 
 
 };

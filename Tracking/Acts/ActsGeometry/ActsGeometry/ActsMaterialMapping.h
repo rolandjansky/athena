@@ -25,6 +25,10 @@
 #include "ActsGeometry/ObjWriterTool.h"
 #include "ActsGeometry/IExCellWriterSvc.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "GeoModelUtilities/GeoAlignmentStore.h"
+
 // STL
 #include <memory>
 #include <vector>
@@ -90,6 +94,9 @@ private:
   SG::ReadHandleKey<Trk::MaterialStepCollection> m_inputMaterialStepCollection{this, "InputMaterialStepCollection", "StoreGateSvc+MaterialStepRecords"};
 
   std::unique_ptr<Acts::MaterialMapper> m_materialMapper;
+  
+  // we need alignment, even though it should be nominal
+  SG::ReadCondHandleKey<GeoAlignmentStore> m_rch {this, "PixelAlignmentKey", "PixelAlignment", "cond read key"};
 };
 
 #endif // ActsGeometry_ActsMaterialMapping_h

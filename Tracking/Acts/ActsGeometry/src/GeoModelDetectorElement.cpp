@@ -9,6 +9,7 @@
 #include <boost/variant.hpp>
 #include <boost/variant/get.hpp>
 
+#include <mutex>
 
 #include "InDetReadoutGeometry/TRT_EndcapElement.h"
 #include "InDetReadoutGeometry/TRT_BarrelElement.h"
@@ -66,7 +67,11 @@ Acts::GeoModelDetectorElement::GeoModelDetectorElement(
 
     m_surface
       = std::make_shared<const PlaneSurface>(rectangleBounds, *this, id);
+
   } else if (boundsType == Trk::SurfaceBounds::Trapezoid) {
+
+    std::string shapeString = detElem->getMaterialGeom()->getLogVol()->getShape()->type();
+    //std::cout << __FUNCTION__ << "tapezoid, GeoLogVol -> shape says: " << shapeString << std::endl;
 
     const InDetDD::SiDetectorDesign &design = detElem->design();
 
@@ -90,11 +95,13 @@ Acts::GeoModelDetectorElement::GeoModelDetectorElement(
 Acts::GeoModelDetectorElement::GeoModelDetectorElement(
     std::shared_ptr<const Transform3D> trf,
     const InDetDD::TRT_BaseElement* detElem,
+    const Identifier& id,
     const Acts::TrackingGeometrySvc* trkSvc)
   : m_trackingGeometrySvc(trkSvc)
 {
   m_detElement = detElem;
-  m_transform = trf;
+  m_defTransform = trf;
+  m_explicitIdentifier = id;
   
   // we know this is a straw
   double length = detElem->strawLength()/2.;
@@ -109,10 +116,6 @@ Acts::GeoModelDetectorElement::GeoModelDetectorElement(
   else {
     innerTubeRadius = brlElem->getDescriptor()->innerTubeRadius();
   }
-
-
-
-
   
   auto lineBounds = std::make_shared<const Acts::LineBounds>(innerTubeRadius, length);
   m_bounds = lineBounds;
@@ -143,116 +146,40 @@ const Acts::Transform3D&
 Acts::GeoModelDetectorElement::transform(const Identifier&) const
 {
 
-  struct get_transform_visitor : public boost::static_visitor<Transform3D> {
-
-    explicit get_transform_visitor(GeoAlignmentStore* store, bool default, const Transform3D* fallback)
-      : m_store(store), m_default(default), m_fallback(fallback)
-    {}
-
-    Transform3D operator()(const InDetDD::SiDetectorElement* detElem) const
-    {
-      HepGeom::Transform3D g2l;
-      if (m_default) g2l = detElem->getMaterialGeom()->getDefAbsoluteTransform(m_store);
-      else g2l = detElem->getMaterialGeom()->getAbsoluteTransform(m_store);
-
-      return clhep2eigen(g2l * detElem->recoToHitTransform());
-    }
-
-    Transform3D operator()(const InDetDD::TRT_BaseElement* detElem) const
-    {
-      return *m_fallback;
-    }
-
-    GeoAlignmentStore* m_store;
-    bool m_default;
-    const Transform3D* m_fallback;
-  };
-
-  auto get_transform = [this](GeoAlignmentStore* store, bool default) {
-    return boost::apply_visitor(get_transform_visitor(store, default), m_detElement);
+  auto get_transform = [this](GeoAlignmentStore* store, bool def) -> Transform3D {
+    return boost::apply_visitor(GetTransformVisitor(store, def, m_defTransform.get()), m_detElement);
   };
 
   auto ctx = Gaudi::Hive::currentContext();
 
   if (!ctx.valid()) {
-    return get_transform(nullptr, true); // no store, default transform
+    // this is really only the case single threaded, but let's be safe and lock it down
+    std::lock_guard<std::mutex> guard(m_cacheMutex);
+    if (m_defTransform) return *m_defTransform;
+    m_defTransform = std::make_shared<const Transform3D>(get_transform(nullptr, true));
+    return *m_defTransform;
   }
 
   // ctx is valid
-
   SG::ReadCondHandle<GeoAlignmentStore> rch(m_trackingGeometrySvc->alignmentCondHandleKey());
+
+  if (!rch.isValid()) {
+    return *m_defTransform;
+  }
+
+  // since we "cache" in GAS for this IOV, we need this to be mutable.
+  // @TODO: find out if this breaks something
   GeoAlignmentStore* alignmentStore = const_cast<GeoAlignmentStore*>(*rch);
 
   // early return if cache is valid for IOV
-  Transform3D* trf = alignmentStore->getTransform(this);
-  if (trf != nullptr) return *trf;
+  const Transform3D* cachedTrf = alignmentStore->getTransform(this);
+  if (cachedTrf != nullptr) return *cachedTrf;
 
-
-
-
-  // unpack context specific storage
-  //Transform3D& trf = m_ctxSpecificTransform;
-
-
-  // OLD default way to get transform
-  size_t which = m_detElement.which();
-  const GeoVFullPhysVol* physVol;
+  // no trf cached
+  Transform3D trf = get_transform(alignmentStore, false);
+  alignmentStore->setTransform(this, trf);
+  return *(alignmentStore->getTransform(this));
   
-  Transform3D recoToHit = Transform3D::Identity();
-
-  auto clhep2eigen = [](auto const &trf) { return Amg::CLHEPTransformToEigen(trf); };
-
-  if (which == 0) {
-    auto de = boost::get<const InDetDD::SiDetectorElement*>(m_detElement);
-    physVol = de->getMaterialGeom();
-    trf = clhep2eigen(physVol->getDefAbsoluteTransform());
-    trf = trf * clhep2eigen(de->recoToHitTransform());
-    recoToHit = clhep2eigen(de->recoToHitTransform());
-  }
-  else {
-    auto de = boost::get<const InDetDD::TRT_BaseElement*>(m_detElement);
-    physVol = de->getMaterialGeom();
-    //nominal = &de->transform();
-    trf = *m_transform;
-  }
-  
-
-
-
-  if (!ctx.valid()) {
-    // don't have valid context yet, this is probably geometry construction
-    //trans = physVol->getDefAbsoluteTransform();
-    //return *(new Transform3D(Amg::CLHEPTransformToEigen(trans)));
-    return trf; // def transform
-  }
-
-  // have valid context, get aligned transform
-  //const ShiftCondObj *shift = *rch;
-  // this is obviously not great
-  
-  HepGeom::Transform3D trans = physVol->getAbsoluteTransform(alignmentStore);
-
-  //std::cout << __FUNCTION__ << " alignmentStore: " << alignmentStore << std::endl;
-
-  //if (shift != 0) {
-    //std::cout << "  read CH: " << rch.key() << " = " << *shift << std::endl;
-  //} else {
-    //std::cout << "  CDO ptr for " << rch.key() << " == zero" << std::endl;
-  //}
-
-  // build fake shift along z
-  //Transform3D shiftTrf;
-  //shiftTrf = Translation3D(Vector3D::UnitZ() * shift->val());
-  //trf = shiftTrf * trf;
-  
-  // @TODO: This is SUPER EVIL! Only temporary
-  //trans = physVol->getAbsoluteTransform();
-  //Transform3D* aligned = new Transform3D(shiftTrf * Amg::CLHEPTransformToEigen(trans));
-
-  trf = clhep2eigen(trans) * recoToHit;
-
-  return trf;
-
 }
 
 const Acts::Surface&
@@ -260,7 +187,6 @@ Acts::GeoModelDetectorElement::surface(const Identifier&) const
 {
   return (*m_surface);
 }
-
 
 double
 Acts::GeoModelDetectorElement::thickness() const
@@ -271,11 +197,7 @@ Acts::GeoModelDetectorElement::thickness() const
 Identifier
 Acts::GeoModelDetectorElement::identify() const
 {
-  size_t which = m_detElement.which();
-  if (which == 0) {
-    return boost::get<const InDetDD::SiDetectorElement*>(m_detElement)->identify();
-  }
-  else {
-    return boost::get<const InDetDD::TRT_BaseElement*>(m_detElement)->identify();
-  }
+  
+
+  return boost::apply_visitor(IdVisitor(m_explicitIdentifier), m_detElement);
 }

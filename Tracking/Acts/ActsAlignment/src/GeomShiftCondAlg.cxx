@@ -174,7 +174,7 @@ StatusCode GeomShiftCondAlg::execute() {
     unsigned int intvl_length = 1000;
     unsigned int intvl_num = evt->event_ID()->lumi_block();
 
-    double val = intvl_num * 2;
+    double val = intvl_num * double(m_zShiftPerLB);
 
     EventIDBase start(1, EventIDBase::UNDEFEVT);
     EventIDBase end(1, EventIDBase::UNDEFEVT);
