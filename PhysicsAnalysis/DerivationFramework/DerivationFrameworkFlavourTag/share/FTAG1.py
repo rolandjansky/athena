@@ -178,7 +178,6 @@ FTAG1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 FTAG1Stream.AcceptAlgs(["FTAG1SkimKernel"])
 FTAG1SlimmingHelper = SlimmingHelper("FTAG1SlimmingHelper")
 
-
 # nb: BTagging_AntiKt4EMTopo smart collection includes both AntiKt4EMTopoJets and BTagging_AntiKt4EMTopo
 # container variables. Thus BTagging_AntiKt4EMTopo is needed in SmartCollections as well as AllVariables
 FTAG1SlimmingHelper.SmartCollections = ["Electrons","Muons",

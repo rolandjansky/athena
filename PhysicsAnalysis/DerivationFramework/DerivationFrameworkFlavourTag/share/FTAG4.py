@@ -139,7 +139,6 @@ FTAG4Stream.AcceptAlgs(["FTAG4SkimKernel"])
 
 FTAG4SlimmingHelper = SlimmingHelper("FTAG4SlimmingHelper")
 
-
 # nb: BTagging_AntiKt4EMTopo smart collection includes both AntiKt4EMTopoJets and BTagging_AntiKt4EMTopo
 # container variables. Thus BTagging_AntiKt4EMTopo is needed in SmartCollections as well as AllVariables
 FTAG4SlimmingHelper.SmartCollections = ["Electrons","Muons",

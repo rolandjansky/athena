@@ -187,7 +187,7 @@ def addExCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJ
                 sequence += DFJetAlgs[excomAlgName]
                 sequence += CfgMgr.xAODMaker__ElementLinkResetAlg(excomELresetName, SGKeys=[SubjetContainerName+"Aux."])
                 sequence += DFJetAlgs[excomAlgName+"_btag"]
-                sequence += CfgMgr.xAODMaker__ElementLinkResetAlg(excomELresetNameLJet,SGKeys=[JetCollectionExCoM+"Aux."])
+                sequence += CfgMgr.xAODMaker__ElementLinkResetAlg(excomELresetNameLJet, SGKeys=[JetCollectionExCoM+"Aux."])
         else:
             print " Algorithm ExCoM ", excomAlgName, " to be built sequence ", sequence
             if hasattr(jtm, excomJetRecToolName):
@@ -251,6 +251,7 @@ def addExCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJ
                                     )
             sequence += jetalg_excom_btag
             DFJetAlgs[excomAlgName+"_btag"] = jetalg_excom_btag
+            sequence += CfgMgr.xAODMaker__ElementLinkResetAlg(excomELresetNameLJet, SGKeys=[JetCollectionExCoM+"Aux."])
 
     return ExCoMJetCollection__SubJet
 

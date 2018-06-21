@@ -204,7 +204,6 @@ if not "HIGG5D1Jets" in OutputJets:
     replaceAODReducedJets(reducedJetList, higg5d1Seq, "HIGG5D1Jets")
 
     addDefaultTrimmedJets(higg5d1Seq,"HIGG5D1Jets");
-
     if jetFlags.useTruth:
       HIGG5Common.addTrimmedTruthWZJets(higg5d1Seq,'HIGG5D1Jets')
 
@@ -219,20 +218,6 @@ if not "HIGG5D1Jets" in OutputJets:
     runTCCReconstruction(higg5d1Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
     from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
     addTCCTrimmedJets(higg5d1Seq, "HIGG5D1Jets")
-
-
-#
-# Adding ExKt and ExCoM sub-jets for each trimmed large-R jet
-#
-ExKtJetCollection__FatJet = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-doTrackJet = False
-ExKtJetCollection__SubJet = addExKt(higg5d1Seq, ToolSvc, ExKtJetCollection__FatJet, 2, doTrackJet)
-ExCoMJetCollection__SubJet = addExCoM(higg5d1Seq, ToolSvc, ExKtJetCollection__FatJet, 2, doTrackJet)
-
-BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
-                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
-    
-
 
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
@@ -293,35 +278,11 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkHiggs.HIGG5D1ExtraContent import *
 HIGG5D1SlimmingHelper = SlimmingHelper("HIGG5D1SlimmingHelper")
 
-#
-# ExKt and ExCoM sub-jets
-for JetCollectionExKtCoM in ExKtJetCollection__SubJet + ExCoMJetCollection__SubJet:
-    JetName = JetCollectionExKtCoM[:-4]
-    HIGG5D1SlimmingHelper.StaticContent.append("xAOD::JetContainer#"+JetCollectionExKtCoM)
-    ## "Parent" link is broken after deep copy of parent jet in b-tagging module
-    HIGG5D1SlimmingHelper.StaticContent.append("xAOD::JetAuxContainer#"+JetCollectionExKtCoM+"Aux.-Parent")
-    # b-tagging #
-    HIGG5D1SlimmingHelper.StaticContent.append("xAOD::BTaggingContainer#BTagging_"+JetName)
-    HIGG5D1SlimmingHelper.StaticContent.append("xAOD::BTaggingAuxContainer#BTagging_" + JetName + "Aux.")
-    HIGG5D1SlimmingHelper.StaticContent.append("xAOD::VertexContainer#BTagging_" + JetName + "SecVtx")
-    HIGG5D1SlimmingHelper.StaticContent.append("xAOD::VertexAuxContainer#BTagging_" + JetName + "SecVtx" + "Aux.")
-    HIGG5D1SlimmingHelper.StaticContent.append("xAOD::BTagVertexContainer#BTagging_" + JetName + "JFVtx")
-    HIGG5D1SlimmingHelper.StaticContent.append("xAOD::BTagVertexAuxContainer#BTagging_" + JetName + "JFVtx" + "Aux.")
-
-
 HIGG5D1SlimmingHelper.AppendToDictionary = {
   "AntiKtVR30Rmax4Rmin02TrackJets"               :   "xAOD::JetContainer"        ,
   "AntiKtVR30Rmax4Rmin02TrackJetsAux"            :   "xAOD::JetAuxContainer"     ,
   "BTagging_AntiKtVR30Rmax4Rmin02Track"          :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"       :   "xAOD::BTaggingAuxContainer",
-  "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets"                 :   "xAOD::JetContainer"        ,
-  "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJetsAux"              :   "xAOD::JetAuxContainer"     ,
-  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub"            :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubAux"         :   "xAOD::BTaggingAuxContainer",
-  "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"                 :   "xAOD::JetContainer"        ,
-  "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJetsAux"              :   "xAOD::JetAuxContainer"     ,
-  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub"            :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubAux"         :   "xAOD::BTaggingAuxContainer",
   }
 
 HIGG5D1SlimmingHelper.SmartCollections = [ "Electrons",
