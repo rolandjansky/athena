@@ -5,7 +5,7 @@
 #define DECISIONHANDLING_COMBOHYPO_H
 
 // Framework includes
-#include "DecisionHandling/InputMakerBase.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 
 // STL includes
@@ -21,7 +21,7 @@
  * the multiplicity specification like this:
  * "HLT_4e10_2mu7_j100" : [ 4, 2, 1 ] will apply respectively requirement of 4, 2, 1 positive decisions in electron, muon and jet inputs
  **/
-class ComboHypo : public InputMakerBase {
+class ComboHypo : public ::AthReentrantAlgorithm {
 public:
   ComboHypo(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~ComboHypo() override;
@@ -31,7 +31,13 @@ public:
   virtual StatusCode finalize() override;
 
 private:
-  Gaudi::Property< std::map<std::string, std::vector<int>>> m_multiplicitiesMap{this, "MultiplicitiesMap", {}, "Map from the chain name to implicities required at each input"};
+  SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_inputs { this, "HypoInputDecisions", {}, "Input Decisions" };
+  /// output decisions
+  SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputs { this, "HypoOutputDecisions", {}, "Ouput Decisions" };
+
+
+  typedef std::map<std::string, std::vector<int>> MultiplicityReqMap;
+  Gaudi::Property< MultiplicityReqMap > m_multiplicitiesReqMap{this, "MultiplicitiesMap", {}, "Map from the chain name to implicities required at each input"};
 
   //!< iterates over the inputs and for every object (no filtering) crates output object linked to input moving the decisions that are mentioned in the passing set
   StatusCode copyDecisions( const TrigCompositeUtils::DecisionIDContainer& passing ) const;
