@@ -124,7 +124,7 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 # Add Large-R RC jets w/ ExKt 2 & 3 subjets
 #===================================================================
 
-addRCDoubleTaggerJets(FTAG2Seq, ToolSvc)
+addExKtDoubleTaggerRCJets(FTAG2Seq, ToolSvc)
 
 
 #===================================================================

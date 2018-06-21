@@ -651,7 +651,7 @@ def addHbbTagger(
 #====================================================================
 # Large-R RC jets w/ ExKt 2 & 3 subjets
 #===================================================================
-def addRCDoubleTaggerJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetConfigs, ExKtJetCollection__FatJet, ExKtJetCollection__SubJet):#, jetToolName, algoName):
+def addExKtDoubleTaggerRCJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetConfigs, ExKtJetCollection__FatJet, ExKtJetCollection__SubJet):#, jetToolName, algoName):
    jetToolName = "DFReclustertingTool"
    algoName = "DFJetReclusteringAlgo"
    ExKtJetCollection__FatJetConfigs = {
@@ -687,7 +687,7 @@ def addRCDoubleTaggerJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetConfigs
 
    sequence += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterSubjetBuild", SGKeys=[name+"Aux." for name in ExKtJetCollection__SubJet])
 
-   from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+   from BTagging.BTaggingFlags import BTaggingFlags
    BTaggingFlags.CalibrationChannelAliases += [ jetname[:-4].replace("PV0", "")+"->AntiKt4EMTopo" for jetname in ExKtJetCollection__FatJet ]
    BTaggingFlags.CalibrationChannelAliases += [ jetname[:-4].replace("PV0", "")+"->AntiKt4EMTopo" for jetname in ExKtJetCollection__SubJet ]
 

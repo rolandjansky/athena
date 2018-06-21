@@ -137,7 +137,7 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR2
 # Add Large-R RC jets w/ ExKt 2 & 3 subjets
 #===================================================================
 
-addRCDoubleTaggerJets(FTAG1Seq, ToolSvc)
+addExKtDoubleTaggerRCJets(FTAG1Seq, ToolSvc)
 
 #===================================================================
 # Variable Radius (VR) Jets
