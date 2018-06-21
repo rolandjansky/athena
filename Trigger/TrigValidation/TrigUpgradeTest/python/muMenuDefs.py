@@ -90,7 +90,7 @@ if TriggerFlags.doMuon:
   from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
   if doL2SA:
-    l2MuViewNode = seqAND("l2MuViewNode")
+    l2MuViewNode = parOR("l2MuViewNode")
     l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker", OutputLevel=DEBUG)
     l2MuViewsMaker.ViewFallThrough = True
     l2MuViewsMaker.RoIsLink = "initialRoI" # -||-
@@ -294,18 +294,6 @@ if TriggerFlags.doMuon:
         efMuViewNode += MuonClusterAlg 
 
 
-  ### muon thresholds ###
-  #testChains = ["HLT_mu6", "HLT_2mu6"]
-
-  ### set up L1RoIsFilter ###
-  #from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
-  #filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
-  #filterL1RoIsAlg.Input = ["MURoIDecisions"]
-  #filterL1RoIsAlg.Output = ["FilteredMURoIDecisions"]
-  #filterL1RoIsAlg.Chains = testChains
-  #filterL1RoIsAlg.OutputLevel = DEBUG
-
-
 # ===========================================
 #          SET L2MUONSA               
 # ===========================================
@@ -347,14 +335,8 @@ if TriggerFlags.doMuon:
 #          SET L2MUCOMB
 # ===========================================
   if doL2CB:
-    ### RoRSeqFilter step2 ###
-    #filterL2SAAlg = RoRSeqFilter("filterL2SAAlg")
-    #filterL2SAAlg.Input = [trigMufastHypo.Decisions]
-    #filterL2SAAlg.Output = ["Filtered"+trigMufastHypo.Decisions]
-    #filterL2SAAlg.Chains = testChains
-    #filterL2SAAlg.OutputLevel = DEBUG
-
-    l2muCombViewNode = seqAND("l2muCombViewNode")
+    ### set up step2 ###
+    l2muCombViewNode = parOR("l2muCombViewNode")
     l2muCombViewsMaker = EventViewCreatorAlgorithm("l2muCombViewsMaker", OutputLevel=DEBUG)
     l2muCombViewsMaker.ViewFallThrough = True
     l2muCombViewsMaker.RoIsLink = "roi" # -||-
