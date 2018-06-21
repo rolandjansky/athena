@@ -46,12 +46,11 @@ from AthenaCommon.CFElements import parOR, seqAND, seqOR, stepSeq
 doL2SA=True
 doL2CB=True
 doEFSA=False
-#TriggerFlags.doID=False
+TriggerFlags.doID=True
 
-# ===============================================================================================
-#               Setup PrepData                                                                    
-# ===============================================================================================
- 
+# ===========================================
+#          SET PREPARATOR DATA               
+# ===========================================
 ### Used the algorithms as Step2 "muComb step" ###
 if TriggerFlags.doID:
 
@@ -113,7 +112,7 @@ if TriggerFlags.doMuon:
     efMuViewsMaker.ViewNodeName = efMuViewNode.name()
 
   if doEFSA or doL2SA:
-    ### ==================== Data prepartion needed for the EF and L2 SA #######################333
+    ### ==================== Data prepartion needed for the EF and L2 SA ==================== ###
     ### CSC RDO data ###
     if muonRecFlags.doCSCs():
       from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscROD_Decoder
@@ -307,10 +306,9 @@ if TriggerFlags.doMuon:
   #filterL1RoIsAlg.OutputLevel = DEBUG
 
 
-# ===============================================================================================
-#               Setup L2MuonSA
-# ===============================================================================================
- 
+# ===========================================
+#          SET L2MUONSA               
+# ===========================================
   if doL2SA:
     ### set up MuFastSteering ###
     from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAMTConfig
@@ -328,7 +326,7 @@ if TriggerFlags.doMuon:
     muFastAlg.forID = "forID"
     muFastAlg.forMS = "forMS"
 
-    # set up MuFastHypo
+    ### set up MuFastHypo ###
     from TrigMuonHypo.TrigMuonHypoConf import TrigMufastHypoAlg
     trigMufastHypo = TrigMufastHypoAlg("L2MufastHypoAlg")
     trigMufastHypo.OutputLevel = DEBUG
@@ -345,11 +343,9 @@ if TriggerFlags.doMuon:
                                       Hypo=trigMufastHypo,
                                       HypoToolClassName="TrigMufastHypoToolConf")
 
-    
-# ===============================================================================================
-#               Setup muComb                                                                    
-# ===============================================================================================
- 
+# ===========================================
+#          SET L2MUCOMB
+# ===========================================
   if doL2CB:
     ### RoRSeqFilter step2 ###
     #filterL2SAAlg = RoRSeqFilter("filterL2SAAlg")
@@ -357,17 +353,6 @@ if TriggerFlags.doMuon:
     #filterL2SAAlg.Output = ["Filtered"+trigMufastHypo.Decisions]
     #filterL2SAAlg.Chains = testChains
     #filterL2SAAlg.OutputLevel = DEBUG
-
-    #l2muCombViewNode = AthSequencer("l2muCombViewNode", Sequential=False, ModeOR=False, StopOverride=False)
-    #l2muCombViewsMaker = EventViewCreatorAlgorithm("l2muCombViewsMaker", OutputLevel=DEBUG)
-    #l2muCombViewsMaker.ViewFallThrough = True
- 
-    #l2muCombViewsMaker.InputMakerInputDecisions = [ filterL2SAAlg.Output[0] ] # Output of TrigMufastHypo
-    #l2muCombViewsMaker.InputMakerOutputDecisions = [ filterL2SAAlg.Output[0]+"Comb" ] # Output of TrigMufastHypo
-    #l2muCombViewsMaker.RoIsLink = "roi" # -||-
-    #l2muCombViewsMaker.InViewRoIs = "MUTrkRoIs" # contract with the consumer
-    #l2muCombViewsMaker.Views = "MUTrkViewRoIs"
-    #l2muCombViewsMaker.ViewNodeName = l2muCombViewNode.name()
 
     l2muCombViewNode = seqAND("l2muCombViewNode")
     l2muCombViewsMaker = EventViewCreatorAlgorithm("l2muCombViewsMaker", OutputLevel=DEBUG)
@@ -412,7 +397,7 @@ if TriggerFlags.doMuon:
     l2muCombSequence = seqAND("l2muCombSequence", eventAlgs + [l2muCombViewsMaker, l2muCombViewNode ] )
 
 
-    l2muComb_HLTSequence = HLTRecoSequence("l2muFast_HLTSequence",
+    l2muComb_HLTSequence = HLTRecoSequence("l2muComb_HLTSequence",
                                           Sequence=l2muCombSequence,
                                           Maker=l2MuViewsMaker,
                                           Seed="L1MU")
@@ -423,10 +408,9 @@ if TriggerFlags.doMuon:
                                       HypoToolClassName="TrigmuCombHypoToolConf")
 
 
-# ===============================================================================================
-#               Setup EFMuonSA                                                                    
-# ===============================================================================================
-
+# ===========================================
+#          SET EFMUON
+# ===========================================
   ### It cannot be used because it has not yet been migrated for muon menu ###
 
 #  if doEFSA:

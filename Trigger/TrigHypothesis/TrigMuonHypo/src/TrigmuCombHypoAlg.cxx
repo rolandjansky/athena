@@ -56,7 +56,6 @@ StatusCode TrigmuCombHypoAlg::finalize()
 
 StatusCode TrigmuCombHypoAlg::execute_r(const EventContext& context) const
 {
-
   // common for all Hypos, to move in the base class
   ATH_MSG_DEBUG("StatusCode TrigmuCombHypoAlg::execute_r start");
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context);
@@ -77,17 +76,11 @@ StatusCode TrigmuCombHypoAlg::execute_r(const EventContext& context) const
 
   for ( auto previousDecision: *previousDecisionsHandle )  {
     // get L2MuonSA Feature
-    //ATH_CHECK( previousDecision->hasObjectLink("feature") );
-    //auto muFastEL = previousDecision->objectLink<xAOD::L2StandAloneMuonContainer>("feature");
-    //ATH_CHECK( muFastEL.isValid() );
-    //const xAOD::L2StandAloneMuon* muFast = *muFastEL;
-
     TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer> linkInfo = 
        TrigCompositeUtils::findLink<xAOD::L2StandAloneMuonContainer>(previousDecision, "feature");
     ElementLink<xAOD::L2StandAloneMuonContainer> muFastLink = linkInfo.link;
     ATH_CHECK( muFastLink.isValid() );        
     const xAOD::L2StandAloneMuon* muFast = *muFastLink;
-
 
     // get View
     ATH_CHECK( previousDecision->hasObjectLink("view") );
@@ -100,10 +93,9 @@ StatusCode TrigmuCombHypoAlg::execute_r(const EventContext& context) const
     // get info
     auto muCombHandle = SG::makeHandle( m_muCombKey, context ); 
     ATH_CHECK( muCombHandle.setProxyDict(view) );
-    //ATH_CHECK( muCombHandle.isValid() );
+    ATH_CHECK( muCombHandle.isValid() );
     ATH_MSG_DEBUG( "Muinfo handle size: " << muCombHandle->size() << "...");
 
-    //auto muCombEL = ElementLink<xAOD::L2CombinedMuonContainer> ( view->name()+"_"+m_muCombKey.key(), counter);
     auto muCombEL = ElementLink<xAOD::L2CombinedMuonContainer> ( view->name()+"_"+m_muCombKey.key(), 0 );
     ATH_CHECK( muCombEL.isValid() );
     const xAOD::L2CombinedMuon* muComb = *muCombEL;
@@ -115,7 +107,6 @@ StatusCode TrigmuCombHypoAlg::execute_r(const EventContext& context) const
 
     // set objectLink
     newd->setObjectLink( "feature", muCombEL );
-    //newd->setObjectLink( "", muFast );
     TrigCompositeUtils::linkToPrevious( newd, decisionInput().key(), counter);
 
     // DEBUG
@@ -129,12 +120,10 @@ StatusCode TrigmuCombHypoAlg::execute_r(const EventContext& context) const
 
     counter++;
   }
-
   for ( auto & tool: m_hypoTools ) {
     ATH_MSG_DEBUG("Go to " << tool);
     ATH_CHECK( tool->decide( toolInput ) );
   }
-
   {// make output handle and debug, in the base class
     auto outputHandle =  SG::makeHandle( decisionOutput(), context );
     ATH_CHECK( outputHandle.record( std::move( decisions ), std::move( aux ) ) );
@@ -149,7 +138,6 @@ StatusCode TrigmuCombHypoAlg::execute_r(const EventContext& context) const
       }
     }
   }
-
 
   ATH_MSG_DEBUG("StatusCode TrigmuCombHypoAlg::execute_r success");
   return StatusCode::SUCCESS;
