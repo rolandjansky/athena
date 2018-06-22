@@ -63,6 +63,13 @@ namespace xAODMaker {
 
    StatusCode DynVarToDecorationAlg::execute() {
 
+      // If we already processed an event, and found that no auxiliary variable
+      // needs to be massaged for the current job, then just exit early.
+      if( m_auxIDsInitialized && ( ! m_auxIDs.size() ) ) {
+         ATH_MSG_VERBOSE( "No auxiliary IDs need to be processed" );
+         return StatusCode::SUCCESS;
+      }
+
       // Unfortunately we can't just retrieve an SG::IAuxStoreHolder pointer
       // from StoreGate, so let's use more concrete types instead:
       if( evtStore()->contains< xAOD::AuxContainerBase >( m_containerName ) ) {
@@ -106,19 +113,20 @@ namespace xAODMaker {
       // If the auxiliary IDs were not deduced yet, do that now. We have to
       // delay this as much as possible, since the container has to be read in
       // before the type registry would know about these variable names.
-      if( ! m_auxIDs.size() ) {
+      if( ! m_auxIDsInitialized ) {
          for( const std::string& name : m_auxVariableNames ) {
             SG::auxid_t auxid =
                   SG::AuxTypeRegistry::instance().findAuxID( name );
             if( auxid == SG::null_auxid ) {
-               ATH_MSG_FATAL( "Could not find an auxiliary ID for variable: \""
-                              << name << "\"" );
-               return StatusCode::FAILURE;
+               ATH_MSG_INFO( "Could not find an auxiliary ID for variable \""
+                             << name << "\", not considering it further" );
+               continue;
             }
             ATH_MSG_VERBOSE( "Using auxid " << auxid << " for variable \""
                              << name << "\"" );
             m_auxIDs.insert( auxid );
          }
+         m_auxIDsInitialized = true;
       }
 
       // Now that we have the pointer to it, update it:

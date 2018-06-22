@@ -64,6 +64,8 @@ namespace xAODMaker {
 
       /// @}
 
+      /// Flag showing whether the auxiliary ID set is initialised already
+      bool m_auxIDsInitialized = false;
       /// Auxiliary IDs for the variables to be removed from the container
       SG::auxid_set_t m_auxIDs;
 
