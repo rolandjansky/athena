@@ -139,56 +139,61 @@ ToolSvc += EGAMCOM_caloFillRect711
 # AUGMENTATION TOOLS
 #====================================================================
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__AsgSelectionToolWrapper
+from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGSelectionToolWrapper
 
 # decorate electrons with the output of LH very loose
-ElectronPassLHVeryLoose = DerivationFramework__AsgSelectionToolWrapper( name = "ElectronPassLHVeryLoose",
-                                                                        AsgSelectionTool = ElectronLHSelectorVeryLoose,
-                                                                        CutType = "",
-                                                                        StoreGateEntryName = "DFCommonElectronsLHVeryLoose",
-                                                                        ContainerName = "Electrons")
+ElectronPassLHVeryLoose = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassLHVeryLoose",
+                                                                       EGammaSelectionTool = ElectronLHSelectorVeryLoose,
+                                                                       EGammaFudgeMCTool = "",
+                                                                       CutType = "",
+                                                                       StoreGateEntryName = "DFCommonElectronsLHVeryLoose",
+                                                                       ContainerName = "Electrons")
 ToolSvc += ElectronPassLHVeryLoose
 print ElectronPassLHVeryLoose
 
 # decorate electrons with the output of LH loose
-ElectronPassLHLoose = DerivationFramework__AsgSelectionToolWrapper( name = "ElectronPassLHLoose",
-                                                                    AsgSelectionTool = ElectronLHSelectorLoose,
-                                                                    CutType = "",
-                                                                    StoreGateEntryName = "DFCommonElectronsLHLoose",
-                                                                    ContainerName = "Electrons")
+ElectronPassLHLoose = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassLHLoose",
+                                                                   EGammaSelectionTool = ElectronLHSelectorLoose,
+                                                                   EGammaFudgeMCTool = "",
+                                                                   CutType = "",
+                                                                   StoreGateEntryName = "DFCommonElectronsLHLoose",
+                                                                   ContainerName = "Electrons")
 ToolSvc += ElectronPassLHLoose
 print ElectronPassLHLoose
 
 # decorate electrons with the output of LH loose+BL
-ElectronPassLHLooseBL = DerivationFramework__AsgSelectionToolWrapper( name = "ElectronPassLHLooseBL",
-                                                                    AsgSelectionTool = ElectronLHSelectorLooseBL,
-                                                                    CutType = "",
-                                                                    StoreGateEntryName = "DFCommonElectronsLHLooseBL",
-                                                                    ContainerName = "Electrons")
+ElectronPassLHLooseBL = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassLHLooseBL",
+                                                                     EGammaSelectionTool = ElectronLHSelectorLooseBL,
+                                                                     EGammaFudgeMCTool = "",
+                                                                     CutType = "",
+                                                                     StoreGateEntryName = "DFCommonElectronsLHLooseBL",
+                                                                     ContainerName = "Electrons")
 ToolSvc += ElectronPassLHLooseBL
 print ElectronPassLHLooseBL
 
 # decorate electrons with the output of LH medium
-ElectronPassLHMedium = DerivationFramework__AsgSelectionToolWrapper( name = "ElectronPassLHMedium",
-                                                                     AsgSelectionTool = ElectronLHSelectorMedium,
-                                                                     CutType = "",
-                                                                     StoreGateEntryName = "DFCommonElectronsLHMedium",
-                                                                     ContainerName = "Electrons")
+ElectronPassLHMedium = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassLHMedium",
+                                                                    EGammaSelectionTool = ElectronLHSelectorMedium,
+                                                                    EGammaFudgeMCTool = "",
+                                                                    CutType = "",
+                                                                    StoreGateEntryName = "DFCommonElectronsLHMedium",
+                                                                    ContainerName = "Electrons")
 ToolSvc += ElectronPassLHMedium
 print ElectronPassLHMedium
 
 # decorate electrons with the output of LH tight
-ElectronPassLHTight = DerivationFramework__AsgSelectionToolWrapper( name = "ElectronPassLHTight",
-                                                                    AsgSelectionTool = ElectronLHSelectorTight,
-                                                                    CutType = "",
-                                                                    StoreGateEntryName = "DFCommonElectronsLHTight",
-                                                                    ContainerName = "Electrons")
+ElectronPassLHTight = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassLHTight",
+                                                                   EGammaSelectionTool = ElectronLHSelectorTight,
+                                                                   EGammaFudgeMCTool = "",
+                                                                   CutType = "",
+                                                                   StoreGateEntryName = "DFCommonElectronsLHTight",
+                                                                   ContainerName = "Electrons")
 ToolSvc += ElectronPassLHTight
 print ElectronPassLHTight
 
 
 # decorate photons with the output of IsEM loose
 # on MC, fudge the shower shapes before computing the ID (but the original shower shapes are not overridden)
-from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGSelectionToolWrapper
 if isFullSim:
     PhotonPassIsEMLoose = DerivationFramework__EGSelectionToolWrapper( name = "PhotonPassIsEMLoose",
                                                                        EGammaSelectionTool = PhotonIsEMSelectorLoose,
