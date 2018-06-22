@@ -150,6 +150,13 @@ protected:
      */
     std::shared_ptr<top::TreeManager> particleLevelTreeManager();
 
+    /*!
+     * @brief Return a shared pointer to the top::TreeManager object that is
+     * used for the upgrade level output tree.
+     * @returns A shared pointer to the top::TreeManager object that is used to
+     * write out the upgrade level event data.
+     */
+    std::shared_ptr<top::TreeManager> upgradeTreeManager();
 
    /**
     * @brief Return a shared pointer to the top::ScaleFactorRetriever object
@@ -238,6 +245,7 @@ private:
     ///    .first  --- The name of the selection
     ///    .second --- The variable used for storing into the TTree
     std::vector< std::pair<std::string,int> > m_particleLevel_SelectionDecisions;
+    std::vector< std::pair<std::string,int> > m_upgrade_SelectionDecisions;
 
     /// TreeManager for upgrade analysis data output
     std::shared_ptr<top::TreeManager> m_upgradeTreeManager;
@@ -455,6 +463,7 @@ private:
     std::vector<float> m_el_phi;
     std::vector<float> m_el_e;
     std::vector<float> m_el_charge;
+    std::vector<float> m_el_faketype;
     std::vector<float> m_el_topoetcone20;
     std::vector<float> m_el_ptvarcone20;
     std::vector<char>  m_el_isTight;
@@ -488,6 +497,9 @@ private:
     std::vector<float> m_ph_eta;
     std::vector<float> m_ph_phi;
     std::vector<float> m_ph_e;
+    std::vector<float> m_ph_true_type;
+    std::vector<float> m_ph_true_origin;
+    std::vector<float> m_ph_faketype;
     std::vector<float> m_ph_iso;
 
     //taus
@@ -1029,6 +1041,7 @@ protected:
   const std::vector<float>& el_cl_eta() const { return m_el_cl_eta;}
   const std::vector<float>& el_phi() const { return m_el_phi;}
   const std::vector<float>& el_e() const { return m_el_e;}
+  const std::vector<float>& el_faketype() const { return m_el_faketype;}
   const std::vector<float>& el_charge() const { return m_el_charge;}
   const std::vector<float>& el_topoetcone20() const { return m_el_topoetcone20;}
   const std::vector<float>& el_ptvarcone20() const { return m_el_ptvarcone20;}
@@ -1064,6 +1077,9 @@ protected:
   const std::vector<float>& ph_eta() const { return m_ph_eta;}
   const std::vector<float>& ph_phi() const { return m_ph_phi;}
   const std::vector<float>& ph_e() const { return m_ph_e;}
+  const std::vector<float>& ph_true_type() const { return m_ph_true_type;}
+  const std::vector<float>& ph_true_origin() const { return m_ph_true_origin;}
+  const std::vector<float>& ph_faketype() const { return m_ph_faketype;}
   const std::vector<float>& ph_iso() const { return m_ph_iso;}
 
   //taus
