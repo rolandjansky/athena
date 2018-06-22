@@ -6,9 +6,12 @@
 
 TrackParticleContainerCnv_tlp1::TrackParticleContainerCnv_tlp1()
 {
+   // Add all converters defined in this top level converter.
+   // HEY YOU --- YES YOU --- READ THIS!!!!!!!
+   // NEVER change the order of the addTPConverter calls!
+   // NEVER delete an addTPConverter call!
+   // NEVER add an addTPConverter call in the middle --- only at the end!
 
-// Add all converters defined in this top level converter:
-// never change the order of adding converters!
    addMainTPConverter();
    
 //    addTPConverter( &m_trackParticleBaseCnv);
@@ -52,7 +55,6 @@ TrackParticleContainerCnv_tlp1::TrackParticleContainerCnv_tlp1()
    addTPConverter( &m_surfacesCnv);
    addTPConverter( &m_cylinderBoundsCnv);
    addTPConverter( &m_diamondBoundsCnv);
-   addTPConverter( &m_rotatedDiamondBoundsCnv);
    addTPConverter( &m_discBoundsCnv);
    addTPConverter( &m_rectangleBoundsCnv);
    addTPConverter( &m_trapesoidBoundsCnv);
@@ -75,6 +77,9 @@ TrackParticleContainerCnv_tlp1::TrackParticleContainerCnv_tlp1()
    //Added with TrackParticleTPCnv-00-02-06          
    addTPConverter( &m_indetTrackSummaryCnv );
 
+   addTPConverter( &m_rotatedDiamondBoundsCnv);
+
+   // HEY YOU --- YES YOU --- READ THE COMMENT AT THE START OF THIS FUNCTION!!!!
 
 // REMOVE LATER END
 }
