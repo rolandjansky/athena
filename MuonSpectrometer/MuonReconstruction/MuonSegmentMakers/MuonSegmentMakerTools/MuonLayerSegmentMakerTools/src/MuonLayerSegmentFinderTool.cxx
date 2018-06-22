@@ -31,6 +31,7 @@ namespace Muon {
     m_csc2dSegmentFinder("Csc2dSegmentMaker/Csc2dSegmentMaker"),
     m_csc4dSegmentFinder("Csc4dSegmentMaker/Csc4dSegmentMaker"),
     m_clusterSegmentFinder("Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder"),
+    m_clusterSegMakerNSW("Muon::MuonClusterSegmentFinderTool/MuonClusterSegmentFinderTool"),
     m_layerHoughTool("Muon::MuonLayerHoughTool/MuonLayerHoughTool"),
     m_recoValidationTool("") // ("Muon::MuonRecoValidationTool/MuonRecoValidationTool")
 
@@ -65,6 +66,7 @@ namespace Muon {
     ATH_CHECK(m_csc2dSegmentFinder.retrieve());
     ATH_CHECK(m_csc4dSegmentFinder.retrieve());
     ATH_CHECK(m_clusterSegmentFinder.retrieve());
+    ATH_CHECK(m_clusterSegMakerNSW.retrieve());
     ATH_CHECK(m_layerHoughTool.retrieve());
     if( !m_recoValidationTool.empty() ) ATH_CHECK(m_recoValidationTool.retrieve());
 
@@ -90,10 +92,12 @@ namespace Muon {
 
     // run cluster hit based segment finding on PRDs
     findClusterSegments(intersection,layerPrepRawData,segments);
+    ATH_MSG_VERBOSE(" findClusterSegments " << segments.size() );
 
     // run standard MDT/Trigger hit segment finding either from Hough or hits
-    if( !m_layerHoughTool.empty() ) findMdtSegmentsFromHough(intersection,layerPrepRawData,segments);
-    else                            findMdtSegments(intersection,layerPrepRawData,segments);
+    // if( !m_layerHoughTool.empty() ) findMdtSegmentsFromHough(intersection,layerPrepRawData,segments);
+    // else                            findMdtSegments(intersection,layerPrepRawData,segments);
+    findMdtSegments(intersection,layerPrepRawData,segments);
 
   }
 
@@ -287,7 +291,7 @@ namespace Muon {
     }
   }
 
-  void MuonLayerSegmentFinderTool::findClusterSegments( const MuonSystemExtension::Intersection& /*intersection*/,
+  void MuonLayerSegmentFinderTool::findClusterSegments( const MuonSystemExtension::Intersection& intersection,
                                                         const MuonLayerPrepRawData& layerPrepRawData,
                                                         std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments ) const {
 
@@ -298,6 +302,44 @@ namespace Muon {
     //if( !layerPrepRawData.tgcs.empty() && intersection.layerSurface.layerIndex == MuonStationIndex::Middle ) {
     //  m_clusterSegmentFinder->findSegments(layerPrepRawData.tgcs,segments);
     //}
+
+    if( layerPrepRawData.stgcs.empty() && layerPrepRawData.mms.empty() ) return;
+
+    // NSW segment finding
+    MuonLayerROTs layerROTs;
+    if( !m_muonPRDSelectionTool->calibrateAndSelect( intersection, layerPrepRawData, layerROTs ) ){
+        ATH_MSG_WARNING("Failed to calibrate and select layer data");
+       return;
+    }
+
+    ATH_MSG_DEBUG( " MM prds " << layerPrepRawData.mms.size() << " STGC prds " << layerPrepRawData.stgcs.size());
+
+     // get STGC and MM clusters
+    const std::vector<const MuonClusterOnTrack*>&    clustersSTGC = layerROTs.getClusters(MuonStationIndex::STGC);
+    const std::vector<const MuonClusterOnTrack*>&    clustersMM   = layerROTs.getClusters(MuonStationIndex::MM);
+
+    std::vector<const MuonClusterOnTrack*> clusters;
+    if( clustersSTGC.size()>0 )  {
+       ATH_MSG_DEBUG( " STGC clusters " << clustersSTGC.size());
+       for( auto cl : clustersSTGC ){
+         clusters.push_back(cl);
+       }
+    }
+    if( clustersMM.size()>0 )  {
+       ATH_MSG_DEBUG( " MM clusters " << clustersMM.size());
+       for( auto cl : clustersMM ){
+         clusters.push_back(cl);
+       }
+    }
+
+     std::unique_ptr< std::vector<const MuonSegment*> > foundSegments ( m_clusterSegMakerNSW->find(clusters) );
+     if( foundSegments )  {
+         for( auto seg : *foundSegments ){
+            ATH_MSG_DEBUG( " NSW segment " << m_printer->print(*seg) );
+            segments.push_back( std::shared_ptr<const MuonSegment>(seg) );
+            ATH_MSG_DEBUG( " total segments " << segments.size() );
+         }
+     }
   }
 
   void MuonLayerSegmentFinderTool::findCscSegments( const MuonLayerPrepRawData& layerPrepRawData, std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments ) const {
