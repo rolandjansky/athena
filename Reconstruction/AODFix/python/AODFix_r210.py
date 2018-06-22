@@ -64,8 +64,8 @@ class AODFix_r210(AODFix_base):
                 self.btagging_postSystemRec(topSequence)
                 pass
 
-            if "muonDecor" not in oldMetadataList:
-                self.muonDecor_postSystemRec( topSequence )
+            if "removeMuonDecor" not in oldMetadataList:
+                self.removeMuonDecor_postSystemRec( topSequence )
                 pass
             if "inDetVars" not in oldMetadataList:
                 self.inDetVars_postSystemRec( topSequence )
@@ -215,7 +215,7 @@ class AODFix_r210(AODFix_base):
             from tauRec.TauRecAODBuilder import TauRecAODProcessor_RNN_ID
             TauRecAODProcessor_RNN_ID()
 
-    def muonDecor_postSystemRec( self, topSequence ):
+    def removeMuonDecor_postSystemRec( self, topSequence ):
         """Fix the issue with muon decorations, described in ATLASRECTS-4499.
 
         It simply schedules an algorithm that turns the variables, which should
