@@ -79,11 +79,11 @@ ClassIDSvc.OutputLevel = DEBUG
 # ==============================================================================
 # Event selector and input service
 # ==============================================================================
-from TrigServices.TrigServicesConf import TrigByteStreamInputSvc
+from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigByteStreamInputSvc
 inputSvc = TrigByteStreamInputSvc("ByteStreamInputSvc")
 svcMgr += inputSvc
 
-from TrigServices.TrigServicesConf import TrigEventSelectorByteStream
+from TrigByteStreamCnvSvc.TrigByteStreamCnvSvcConf import TrigEventSelectorByteStream
 evtSel = TrigEventSelectorByteStream("EventSelector")
 evtSel.ByteStreamInputSvc = inputSvc
 svcMgr += evtSel

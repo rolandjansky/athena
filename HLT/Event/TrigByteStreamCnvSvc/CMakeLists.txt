@@ -6,10 +6,18 @@
 atlas_subdir( TrigByteStreamCnvSvc )
 
 # Declare the package's dependencies
-atlas_depends_on_subdirs( PRIVATE Event/ByteStreamCnvSvc )
+atlas_depends_on_subdirs(
+  PUBLIC
+    Control/AthenaBaseComps
+    Event/ByteStreamData
+  PRIVATE
+    Event/ByteStreamCnvSvc
+    Event/EventInfo
+    HLT/Trigger/TrigControl/TrigKernel
+)
 
 # External dependencies
-find_package( tdaq COMPONENTS eformat_write hltinterface )
+find_package( tdaq-common COMPONENTS eformat_write hltinterface )
 
 # Libraries in the package
 atlas_add_library(
@@ -18,12 +26,16 @@ atlas_add_library(
     src/*.cxx
   PUBLIC_HEADERS
     TrigByteStreamCnvSvc
+  LINK_LIBRARIES
+    AthenaBaseComps
+    ByteStreamData
   PRIVATE_INCLUDE_DIRS
     ${TDAQ-COMMON_INCLUDE_DIRS}
   PRIVATE_LINK_LIBRARIES
     ${TDAQ-COMMON_LIBRARIES}
-    AthenaBaseComps
     ByteStreamCnvSvc
+    EventInfo
+    TrigKernel
 )
 
 # Components in the package
