@@ -2749,6 +2749,13 @@ const Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const Trk::TrackingV
   const Trk::CuboidVolumeBounds* cubBounds= dynamic_cast<const Trk::CuboidVolumeBounds*> (&(trVol->volumeBounds()));
   const Trk::TrapezoidVolumeBounds* trdBounds= dynamic_cast<const Trk::TrapezoidVolumeBounds*> (&(trVol->volumeBounds()));
   const Trk::DoubleTrapezoidVolumeBounds* dtrdBounds= dynamic_cast<const Trk::DoubleTrapezoidVolumeBounds*> (&(trVol->volumeBounds()));
+  const Trk::SimplePolygonBrepVolumeBounds* pbBounds = dynamic_cast<const Trk::SimplePolygonBrepVolumeBounds*> (&(trVol->volumeBounds()));
+
+  if(cubBounds) ATH_MSG_VERBOSE( "before loop -- cubBounds " );
+  else if(trdBounds) ATH_MSG_VERBOSE("before loop -- trdBounds " );
+  else if(dtrdBounds) ATH_MSG_VERBOSE("before loop -- dtrdBounds " );
+  else if(pbBounds) ATH_MSG_VERBOSE("before loop -- pbBounds " );
+  else ATH_MSG_VERBOSE("before loop -- no Bounds " );
 
   Amg::Transform3D subt(Trk::s_idTransform);
 
@@ -2756,22 +2763,38 @@ const Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const Trk::TrackingV
   if (subBounds) {    
     subt *= Amg::AngleAxis3D(0.5*M_PI,Amg::Vector3D(0.,1.,0.))* Amg::AngleAxis3D(0.5*M_PI,Amg::Vector3D(0.,0.,1.));
     while (subBounds) {
-      //std::cout << "looping over subtracted volume bounds:outer,inner position:"<< subBounds->outer()->center()<<"," << subBounds->inner()->center() << std::endl;
-      cubBounds= dynamic_cast<const Trk::CuboidVolumeBounds*> (&(subBounds->outer()->volumeBounds()));
-      trdBounds= dynamic_cast<const Trk::TrapezoidVolumeBounds*> (&(subBounds->outer()->volumeBounds()));
-      dtrdBounds= dynamic_cast<const Trk::DoubleTrapezoidVolumeBounds*> (&(subBounds->outer()->volumeBounds()));
-      subBounds= dynamic_cast<const Trk::SubtractedVolumeBounds*> (&(subBounds->outer()->volumeBounds()));
+      ATH_MSG_VERBOSE( "looping over subtracted volume bounds:outer,inner position:"<< subBounds->outer()->center()<<"," << subBounds->inner()->center() );
+      const Trk::CuboidVolumeBounds*           ocubBounds = dynamic_cast<const Trk::CuboidVolumeBounds*> (&(subBounds->outer()->volumeBounds()));
+      const Trk::TrapezoidVolumeBounds*        otrdBounds = dynamic_cast<const Trk::TrapezoidVolumeBounds*> (&(subBounds->outer()->volumeBounds()));
+      const Trk::DoubleTrapezoidVolumeBounds*  odtrdBounds= dynamic_cast<const Trk::DoubleTrapezoidVolumeBounds*> (&(subBounds->outer()->volumeBounds()));
+      const Trk::SimplePolygonBrepVolumeBounds* opbBounds = dynamic_cast<const Trk::SimplePolygonBrepVolumeBounds*> (&(subBounds->outer()->volumeBounds()));
+      ATH_MSG_VERBOSE( "outer volume:box,trd,dtrd,spb,subtr:" <<ocubBounds<<"," << otrdBounds<<"," <<odtrdBounds << "," << opbBounds <<","<< subBounds );
+      if(ocubBounds)  cubBounds  = ocubBounds;
+      if(otrdBounds)  trdBounds  = otrdBounds;
+      if(odtrdBounds) dtrdBounds = odtrdBounds;
+      if(opbBounds)   pbBounds = opbBounds;
 
-      /*
-      if (&(subBounds->inner()->volumeBounds()) ) {
-	const Trk::CuboidVolumeBounds* icubBounds= dynamic_cast<const Trk::CuboidVolumeBounds*> (&(subBounds->inner()->volumeBounds()));
-	//const Trk::TrapezoidVolumeBounds* itrdBounds= dynamic_cast<const Trk::TrapezoidVolumeBounds*> (&(subBounds->inner()->volumeBounds()));
-	//const Trk::DoubleTrapezoidVolumeBounds* idtrdBounds= dynamic_cast<const Trk::DoubleTrapezoidVolumeBounds*> (&(subBounds->inner()->volumeBounds()));
-	//const Trk::SubtractedVolumeBounds* isubBounds= dynamic_cast<const Trk::SubtractedVolumeBounds*> (&(subBounds->inner()->volumeBounds()));
-	//std::cout << "inner volume:box,trd,subtr:" <<icubBounds<<"," << itrdBounds<<"," << isubBounds << std::endl;
-      }
-      */
+//      if (&(subBounds->inner()->volumeBounds()) ) {
+//        const Trk::CuboidVolumeBounds* icubBounds= dynamic_cast<const Trk::CuboidVolumeBounds*> (&(subBounds->inner()->volumeBounds()));
+//        const Trk::TrapezoidVolumeBounds* itrdBounds= dynamic_cast<const Trk::TrapezoidVolumeBounds*> (&(subBounds->inner()->volumeBounds()));
+//        const Trk::DoubleTrapezoidVolumeBounds* idtrdBounds= dynamic_cast<const Trk::DoubleTrapezoidVolumeBounds*> (&(subBounds->inner()->volumeBounds()));
+//        const Trk::SubtractedVolumeBounds* isubBounds= dynamic_cast<const Trk::SubtractedVolumeBounds*> (&(subBounds->inner()->volumeBounds()));
+//        std::cout << "inner volume:box,trd,dtrd,subtr:" <<icubBounds<<"," << itrdBounds<<"," <<idtrdBounds << ","<< isubBounds << std::endl;
+//        if(icubBounds&&!cubBounds)  cubBounds   = icubBounds;
+//        if(itrdBounds&&!trdBounds)  trdBounds   = itrdBounds;
+//        if(idtrdBounds&&!dtrdBounds) dtrdBounds = idtrdBounds;
+//      }
+      subBounds= dynamic_cast<const Trk::SubtractedVolumeBounds*> (&(subBounds->outer()->volumeBounds()));
     }
+  }
+
+  if(cubBounds) ATH_MSG_VERBOSE( "after loop -- cubBounds " );
+  else if(trdBounds) ATH_MSG_VERBOSE("after loop -- trdBounds " );
+  else if(dtrdBounds) ATH_MSG_VERBOSE("after loop -- dtrdBounds " );
+  else if(pbBounds) ATH_MSG_VERBOSE("after loop -- pbBounds " );
+  else {
+    ATH_MSG_VERBOSE("after loop -- no Bounds ");
+    return layRepr;
   }
 
   const Trk::PlaneLayer* layer = 0;
@@ -2838,6 +2861,9 @@ const Trk::Layer* Muon::MuonStationTypeBuilder::createLayer(const Trk::TrackingV
     layer = new Trk::PlaneLayer(new Amg::Transform3D(trVol->transform()),
                                 bounds, mat, thickness, od, 1 );
     delete surfs;
+  } else if (pbBounds) {
+    ATH_MSG_WARNING( " no implementatiom for SimplePolygonBrepBounds " );
+    return layRepr;
   }
 
   //std::cout << "station:"<<trVol->volumeName()<<",thickness:"<<layer->thickness()<<std::endl;
@@ -2881,7 +2907,7 @@ Trk::MaterialProperties Muon::MuonStationTypeBuilder::collectStationMaterial(con
 	double scale = rect ? 4*rect->halflengthX()*rect->halflengthY()/sf 
 	  : 2*(trap->minHalflengthX()+trap->maxHalflengthX())*trap->halflengthY()/sf;
         // protect nan
-        if (mLay && lays[il]->thickness()>0 && mLay->material().x0()>0.) {
+        if (lays[il]->thickness()>0 && mLay->material().x0()>0.) {
           layMat.addMaterial(mLay->material(),scale*lays[il]->thickness()/mLay->material().x0());
           ATH_MSG_VERBOSE(" collectStationMaterial after add confined sub lay " << layMat );
         }
@@ -2896,8 +2922,11 @@ Trk::MaterialProperties Muon::MuonStationTypeBuilder::collectStationMaterial(con
 	const std::vector<const Trk::Layer*> lays = subVols[iv]->confinedLayers()->arrayObjects();
 	for (unsigned il=0; il<lays.size(); il++) {
 	  const Trk::MaterialProperties* mLay = lays[il]->layerMaterialProperties()->fullMaterial(lays[il]->surfaceRepresentation().center());
-          if (mLay) layMat.addMaterial(mLay->material(),lays[il]->thickness()/mLay->material().x0());
-          if (mLay) ATH_MSG_VERBOSE(" collectStationMaterial after add confined vol " << layMat );
+          // protect nan
+          if (mLay && lays[il]->thickness()>0 && mLay->material().x0()>0.) {
+            layMat.addMaterial(mLay->material(),lays[il]->thickness()/mLay->material().x0());
+            ATH_MSG_VERBOSE(" collectStationMaterial after add confined vol " << layMat );
+          }
         }
       } 
       if (subVols[iv]->confinedArbitraryLayers()){
@@ -2910,8 +2939,11 @@ Trk::MaterialProperties Muon::MuonStationTypeBuilder::collectStationMaterial(con
 	  if ((rect || trap) && mLay) {
 	    double scale = rect ? 4*rect->halflengthX()*rect->halflengthY()/sf
 	      : 2*(trap->minHalflengthX()+trap->maxHalflengthX())*trap->halflengthY()/sf;
-	    layMat.addMaterial(mLay->material(),scale*lays[il]->thickness()/mLay->material().x0());
-            ATH_MSG_VERBOSE(" collectStationMaterial after add sub vols " << layMat );
+            // protect nan
+            if (lays[il]->thickness()>0 && mLay->material().x0()>0.) {
+              layMat.addMaterial(mLay->material(),scale*lays[il]->thickness()/mLay->material().x0());
+              ATH_MSG_VERBOSE(" collectStationMaterial after add sub vols " << layMat );
+            }
 	  }
         }
       }     
