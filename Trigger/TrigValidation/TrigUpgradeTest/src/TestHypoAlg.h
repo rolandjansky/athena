@@ -44,7 +44,6 @@ namespace HLTTest {
     SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_recoInput  { this, "Input", "Input", "Key for reco input"};
     StringProperty m_linkName {this, "LinkName", "initialRoI",  "name of the link to the features in the decision, e.g. 'feature', 'initialRoI'"};
 
-     bool  recursivelyFindFeature( const TrigCompositeUtils::Decision* d, ElementLink<FeatureContainer>& featurelink) const;
   }; 
 
 } //> end namespace HLTTest

@@ -47,8 +47,8 @@ namespace HLTTest {
     // find features:
     std::vector<const FeatureOBJ*> featureFromDecision;
     for ( auto previousDecision: *previousDecisionsHandle ) {
-      ElementLink<FeatureContainer> featureLink;
-      recursivelyFindFeature(previousDecision, featureLink);
+      TrigCompositeUtils::LinkInfo<FeatureContainer> linkInfo = TrigCompositeUtils::findLink<FeatureContainer>(previousDecision, m_linkName.value());
+      ElementLink<FeatureContainer> featureLink = linkInfo.link;
       //auto featureLink = (previousDecision)->objectLink<FeatureContainer>( m_linkName.value() );
       CHECK( featureLink.isValid() );
       const FeatureOBJ* feature = *featureLink;
@@ -120,22 +120,6 @@ namespace HLTTest {
 
     return StatusCode::SUCCESS;
   }
-
-
-bool TestHypoAlg::recursivelyFindFeature( const TrigCompositeUtils::Decision* start, ElementLink<FeatureContainer>& featurelink) const{
-    //recursively find in the seeds
-    if ( start->hasObjectLink( m_linkName.value() ) ) {
-      featurelink=start->objectLink<FeatureContainer>( m_linkName.value() );
-      return true;
-    }
-    if  (TrigCompositeUtils::hasLinkToPrevious(start) ){
-      auto thelinkToPrevious =TrigCompositeUtils::linkToPrevious( start);      
-      return recursivelyFindFeature( *thelinkToPrevious, featurelink);
-    }
-    return false;
-  }
-
-
 
   
 } //> end namespace HLTTest

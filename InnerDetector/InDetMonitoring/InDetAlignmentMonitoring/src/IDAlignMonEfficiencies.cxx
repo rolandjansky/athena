@@ -6,11 +6,8 @@
 // IDAlignMonEfficiencies.cxx
 // AUTHORS: Beate Heinemann, Tobias Golling, John Alison, Lauren Tompkins
 // **********************************************************************
-#include <sstream>
-#include <math.h>
 
 #include "xAODEventInfo/EventInfo.h"
-//#include "EventInfo/EventID.h"
 
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -19,6 +16,7 @@
 
 #include "TH1.h"
 #include "TH2.h"
+#include "TH3.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
 #include "TMath.h"
@@ -37,27 +35,16 @@
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetPrepRawData/SiCluster.h"
 
-//#include "Particle/TrackParticleContainer.h"
-//#include "Particle/TrackParticle.h"
-
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkTrackSummary/TrackSummary.h"
-// #include "VxVertex/VxContainer.h"
-// #include "VxVertex/VxCandidate.h"
-// #include "VxVertex/RecVertex.h"
-// #include "VxVertex/Vertex.h"
-// #include "VxVertex/VxTrackAtVertex.h"
 
-//#include "AthenaMonitoring/AthenaMonManager.h"
-//#include "InDetAlignmentMonitoring/IDAlignMonEfficiencies.h"
 #include "IDAlignMonEfficiencies.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
-//#include "TrkTrackSummary/TrackSummary.h"
-//#include "TrkExInterfaces/IExtrapolator.h"
+
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "InDetAlignGenTools/IInDetAlignHitQualSelTool.h"
 #include "TrackSelectionTool.h"
@@ -127,8 +114,6 @@ struct IDAlignMonEfficiencies::TRTBarrelHistograms{
       outliers_eff_vs_phiSector[lay] = 0;
       hits_eff_vs_phiSector[lay] = 0;
       tubeHits_eff_vs_phiSector[lay] = 0;
-
-
     }
     
   
@@ -446,8 +431,6 @@ StatusCode IDAlignMonEfficiencies::bookHistograms()
   
   
 
-  //if ( newLowStatFlag() ) {    }
-  //if ( newLumiBlockFlag() ) {  }
   if ( newRunFlag() ) {  
     
     //if user environment specified we don't want to book new histograms at every run boundary
@@ -691,9 +674,7 @@ StatusCode IDAlignMonEfficiencies::bookHistograms()
 
 /** Convert from an int to a string */
 std::string IDAlignMonEfficiencies::intToString(int input){
-  std::ostringstream stm;
-  stm << input;
-  return stm.str();
+  return std::to_string(input);
 }
 
 /** Make Histograms */
@@ -793,7 +774,6 @@ void IDAlignMonEfficiencies::RegisterHisto(MonGroup& mon, TH2* histo) {
 
 void IDAlignMonEfficiencies::RegisterHisto(MonGroup& mon, TProfile2D* histo) {
   
-  //histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
     if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot book TProfile2D Histogram:" << endmsg;
@@ -834,49 +814,20 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
   DataVector<Trk::Track>::const_iterator trksItrE = trks->end();
   for (; trksItr != trksItrE; ++trksItr) {
     
-    //float trkd0          = -999;
-    //float trkz0          = -999;
-    //float trkphi         = -999;
-    //float trktheta       = -999;
-    //float trketa         = -999;
+  
     float qOverP         = -999;
     float trkpt          = -999;
     float charge         = 0;
     float abs_trkpt      = -999;     //charge*trkpt
 
-    // get fit quality and chi2 probability of track
-    // chi2Prob = TMath::Prob(chi2,DoF) ROOT function
-    //const Trk::Perigee* startPerigee = (*trksItr)->perigeeParameters();
-    //const Trk::MeasuredPerigee* measPer = dynamic_cast<const Trk::MeasuredPerigee*>( startPerigee );
     
-    //if (measPer==0) {
-    //  if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endmsg; 
-    //}
-    //else{  
-    //  CLHEP::HepVector perigeeParams = measPer->parameters();    
-    //  trkd0    = perigeeParams[Trk::d0];  
-    //  trkz0    = perigeeParams[Trk::z0];    
-    //  trkphi   = perigeeParams[Trk::phi0];  
-    //  trktheta = perigeeParams[Trk::theta];
-    //  trketa   = measPer->eta(); 
-    //  qOverP   = perigeeParams[Trk::qOverP]*1000.;  
-    //  trkpt    = measPer->pT()/1000.;  
-    //  if (qOverP<0) charge=-1;
-    //  else charge=+1; 
-    //  abs_trkpt = charge*trkpt;                     
-    //}
-
 
     const Trk::Perigee* measPer = (*trksItr)->perigeeParameters();
     const AmgSymMatrix(5)* covariance = measPer ? measPer->covariance() : NULL;
     
     if (measPer && covariance) {
       AmgVector(5) perigeeParams = measPer->parameters();
-      //trkd0    = perigeeParams(Trk::d0);  	      
-      //trkz0    = perigeeParams(Trk::z0);    	      
-      //trkphi   = perigeeParams(Trk::phi0);  	      
-      //trktheta = perigeeParams(Trk::theta);	      
-      //trketa   = measPer->eta(); 		      
+      	      
       qOverP   = perigeeParams(Trk::qOverP)*1000.;  
       trkpt    = measPer->pT()/1000.;  	      
       if (qOverP<0) charge=-1;		      
@@ -887,19 +838,6 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
       {
 	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endmsg; 
       }
-    //if (trkphi<0) trkphi+=2*m_Pi;
-    
-//     //some good quality requirements (will need to refine them later)
-//     bool good=(fabs(trketa<2.5)&&fabs(trkz0)<150 && trkpt>1);
-    
-//     if (!good) continue;
-
-    
-    // holes + outliers + measurements + etc.
-    // these two are identical in the ID:
-    ////const Trk::Track* trackWithHoles = m_holeSearchTool->getTrackWithHoles(**trksItr);
-    //const Trk::Track* trackWithHoles = m_holeSearchTool->getTrackWithHolesAndOutliers(**trksItr);
-    ////if (trackWithHoles!=NULL) TSOS = trackWithHoles->trackStateOnSurfaces();
 
     // loop over all hits on track
     const DataVector<const Trk::TrackStateOnSurface>* TSOS;
@@ -1113,7 +1051,6 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	  } // end of PIX barrel 
 	  
 	  else if (barrelEC == 2){	    
-	    //msg(MSG::WARNING) <<"Pix eca, layer_disk=" << m_pixelID->layer_disk(surfaceID) << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) <<endmsg;
 	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found pixel eca hit"<<endmsg;
 	    m_measurements_vs_layer_eca -> Fill(layerDisk);
 	    m_noholes_vs_layer_eca -> Fill(layerDisk);
@@ -1134,7 +1071,6 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	  } // ECA
 	  else if (barrelEC == -2){ 
 	    
-	    //msg(MSG::WARNING) <<"Pix ecc, layer_disk=" << layerDisk << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) <<endmsg;
 	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found pixel ecc hit"<<endmsg;
 	    m_measurements_vs_layer_ecc -> Fill(layerDisk);
 	    m_noholes_vs_layer_ecc -> Fill(layerDisk);
@@ -1187,7 +1123,6 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	  }//barrel
 	  else if (barrelEC == 2){ 
 	    
-	    //msg(MSG::WARNING) <<"SCT eca, layer_disk=" << m_sctID->layer_disk(surfaceID) << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << m_sctID->phi_module(surfaceID) << ", side=" << m_sctID->side(surfaceID) <<endmsg;
 	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct eca hit"<<endmsg;
 	    m_measurements_vs_layer_eca -> Fill(3 + 2*layerDisk + sctSide);
 	    m_noholes_vs_layer_eca -> Fill(3 + 2*layerDisk + sctSide);
@@ -1212,7 +1147,6 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	  }//ECA
 	  else if (barrelEC == -2){
 	    
-	    //msg(MSG::WARNING) <<"SCT ecc, layer_disk=" << layerDisk << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << m_sctID->phi_module(surfaceID) << ", side=" << sctSide <<endmsg;
 	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found sct ecc hit"<<endmsg;
 	    m_measurements_vs_layer_ecc -> Fill(3 + 2*layerDisk + sctSide);
 	    m_noholes_vs_layer_ecc -> Fill(3 + 2*layerDisk + sctSide);
@@ -1249,7 +1183,6 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	// --- pixel
 	if (detType==0){
 	  if (barrelEC == 0){ 	    
-	    // msg(MSG::WARNING) << " ** OULIER FOUND ** Pix barrel layer_disk=" << layerDisk << ", eta=" << modEta << ", phi=" << modPhi <<endmsg;   
 	    m_outliers_vs_layer_barrel -> Fill(layerDisk);
 	    m_noholes_vs_layer_barrel -> Fill(layerDisk);
 	    m_outliers_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta, modPhi);
@@ -1278,7 +1211,6 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	// --- sct -- outliers in SCT
 	else if (detType==1){
 	  if (barrelEC == 0){ 
-	    //msg(MSG::WARNING) <<"SCT barrel outlier, layer_disk=" << layerDisk << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << m_sctID->phi_module(surfaceID) << ", side=" << sctSide <<endmsg;
 	    
 	    m_outliers_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk + sctSide);
 	    m_noholes_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk + sctSide);
@@ -1311,6 +1243,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
     const Trk::TrackSummary* summary = m_trackSumTool->createSummary(**trksItr);
     if( !summary->get(Trk::numberOfPixelHits) && !summary->get(Trk::numberOfSCTHits) && (summary->get(Trk::numberOfPixelHoles)==0) && (summary->get(Trk::numberOfSCTHoles)==0) && (m_doHoleSearch)){
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Pixel or SCT hits skip hole search" << endmsg;
+      delete summary;
       continue;
     }
     delete summary;
@@ -1420,7 +1353,6 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	else if (detType==1){
 	  if (barrelEC == 0)
 	    { 
-	      //msg(MSG::WARNING) <<"SCT barrel hole, layer_disk=" << m_sctID->layer_disk(surfaceID) << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << modPhi << ", side=" << m_sctID->side(surfaceID) << endmsg;
 
 	      m_hits_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk + sctSide);
 	      
@@ -1440,7 +1372,6 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	  }
 	  else if (barrelEC == -2){ 
 	    m_hits_vs_layer_ecc -> Fill(3 + 2*layerDisk + sctSide);
-	    //if(layerDisk == 0)   ???? (PF: why this is here?)
 	    m_hits_vs_Phi_sct_ecc[layerDisk] -> Fill(modPhi);	  
 	    m_hits_vs_Eta_Phi_sct_ecc -> Fill(layerDisk, modPhi);
 	  }
@@ -1646,7 +1577,6 @@ void IDAlignMonEfficiencies::makeEffHisto(TH1F_LW* h_num, TH1F_LW* h_denom, TPro
     int Nfail = int(h_denom->GetBinContent(bin+1)) - Npass;
     
     float binSize = (h_denom->getXMax() - h_denom->getXMin())/h_denom->GetNbinsX();
-    //double x = h_denom->GetBinCenter(bin+1);
     double x = h_denom->getXMin() + binSize * bin + binSize/2;
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Npass is  " << Npass << endmsg;
     for (int pass=0; pass<Npass; ++pass) {
@@ -1735,12 +1665,10 @@ void IDAlignMonEfficiencies::makeEffHisto(TH2F* h_num, TH2F* h_denom, TH2F* h_ef
       if (NExpected >  10) doComputeEff = true; 
       if (NSeenHits >  5) doComputeEff = true;
       if (doComputeEff) {
-	myEff = NSeenHits / NExpected;
-	if (myEff < 0.01) myEff = 0.01; //trick to distinguish between few entries and not working modules or too low statistics (doComputeEff = false --> Eff = 0 % )
-	h_eff->SetBinContent(bin+1,binY+1, myEff);
+	      myEff = NSeenHits / NExpected;
+	      if (myEff < 0.01) myEff = 0.01; //trick to distinguish between few entries and not working modules or too low statistics (doComputeEff = false --> Eff = 0 % )
+	      h_eff->SetBinContent(bin+1,binY+1, myEff);
       }
-      // std::cout << " -- SALVA -- eff for module ( " << bin << ", " << binY << ")  Nseen= " << NSeenHits << "  NExpected= " << NExpected;
-      // std::cout << "  ComputeEff= " << doComputeEff;
       if (doComputeEff) std::cout << "  Eff= " << myEff;
       std::cout << std::endl;
     }
@@ -1757,7 +1685,6 @@ void IDAlignMonEfficiencies::makeEffHistoWithCut(TH2F* h_num, TH2F* h_denom, TPr
   int Nbins = h_num->GetNbinsX();
   int NbinsY = h_num->GetNbinsY();
   float NSeenHits, NExpected;
-  float myEff = 0.; // default is 0%
   bool doComputeEff = false;
 
   for (int bin=0; bin!=Nbins; ++bin) {
@@ -1768,24 +1695,15 @@ void IDAlignMonEfficiencies::makeEffHistoWithCut(TH2F* h_num, TH2F* h_denom, TPr
       if (NExpected > 10) doComputeEff = true; 
       if (NSeenHits >  3) doComputeEff = true;
       if (doComputeEff) {
-	myEff = NSeenHits / NExpected;
-	if (myEff < 0.01) myEff = 0.01; // trick to distinguish between few entries and not working modules (dead modules).
-	// h_eff->SetBinContent(bin+1,binY+1, myEff);
-	float this_x = h_denom->GetXaxis()->GetBinCenter(bin+1);
-	float this_y = h_denom->GetYaxis()->GetBinCenter(binY+1);
-
-	for (int i=0; i<NExpected; i++) {
-	  if (i < NSeenHits) {
-	    h_eff->Fill(this_x, this_y, 1.);
-	  }
-	  else {
-	    h_eff->Fill(this_x, this_y, 0.);
-	  }
-	}
+        float this_x = h_denom->GetXaxis()->GetBinCenter(bin+1);
+        float this_y = h_denom->GetYaxis()->GetBinCenter(binY+1);
+        for (int i=0; i<NExpected; i++) {
+          const float fillValue = (i < NSeenHits) ? 1. : 0.;
+          h_eff->Fill(this_x, this_y, fillValue);
+        }
       }
       std::cout << " -- SALVA -- eff for module ( " << bin << ", " << binY << ")  Nseen= " << NSeenHits << "  NExpected= " << NExpected;
       std::cout << "  ComputeEff= " << doComputeEff;
-      // if (doComputeEff) std::cout << "  Eff= " << myEff;
       if (doComputeEff) std::cout << "  Eff= " << h_eff->GetBinContent(bin, binY);
       std::cout << std::endl;
     }
@@ -1797,8 +1715,6 @@ void IDAlignMonEfficiencies::makeEffHistoWithCut(TH2F* h_num, TH2F* h_denom, TPr
 StatusCode IDAlignMonEfficiencies::procHistograms()
 {
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In procHistograms" << endmsg;
-  //if( endOfLowStatFlag() ) {  }
-  //if( endOfLumiBlockFlag() ) {  }
   if( endOfRunFlag() || ( ( AthenaMonManager::environment() == AthenaMonManager::online ) && endOfLumiBlockFlag() ) ) {
     // -----------------------------------------------------------------------
     //
@@ -2007,134 +1923,7 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Done TRT Processing" << endmsg;
     //========================
   
-    
-    
-//     // normalize: divide outliers by number of hits
-//     for (int i=1;i<=m_hits_vs_Eta_Phi_pix_b0->GetNbinsX();i++){
-//       for (int j=1;j<=m_hits_vs_Eta_Phi_pix_b0->GetNbinsY();j++){
-// 	float measurements=m_measurements_vs_Eta_Phi_pix_b0->GetBinContent(i,j);
-// 	float outliers=m_outliers_vs_Eta_Phi_pix_b0->GetBinContent(i,j);
-// 	float holes=m_holes_vs_Eta_Phi_pix_b0->GetBinContent(i,j);
-// 	float hits=m_hits_vs_Eta_Phi_pix_b0->GetBinContent(i,j);
-// 	if(hits > 0){ 
-// 	  m_measurements_vs_Eta_Phi_pix_b0->SetBinContent(i,j,measurements / hits);
-// 	  m_outliers_vs_Eta_Phi_pix_b0->SetBinContent(i,j,outliers / hits);
-// 	  m_holes_vs_Eta_Phi_pix_b0->SetBinContent(i,j,holes / hits);
-// 	} else {
-// 	  m_measurements_vs_Eta_Phi_pix_b0->SetBinContent(i,j,0.);
-// 	  m_outliers_vs_Eta_Phi_pix_b0->SetBinContent(i,j,0.);
-// 	  m_holes_vs_Eta_Phi_pix_b0->SetBinContent(i,j,0.);
-// 	}
-//       }
-//     }
 
-//     for (int i=1;i<=m_hits_vs_Eta_Phi_pix_b1->GetNbinsX();i++){
-//       for (int j=1;j<=m_hits_vs_Eta_Phi_pix_b1->GetNbinsY();j++){
-// 	float measurements=m_measurements_vs_Eta_Phi_pix_b1->GetBinContent(i,j);
-// 	float outliers=m_outliers_vs_Eta_Phi_pix_b1->GetBinContent(i,j);
-// 	float holes=m_holes_vs_Eta_Phi_pix_b1->GetBinContent(i,j);
-// 	float hits=m_hits_vs_Eta_Phi_pix_b1->GetBinContent(i,j);
-// 	if(hits > 0){ 
-// 	  m_measurements_vs_Eta_Phi_pix_b1->SetBinContent(i,j,measurements / hits);
-// 	  m_outliers_vs_Eta_Phi_pix_b1->SetBinContent(i,j,outliers / hits);
-// 	  m_holes_vs_Eta_Phi_pix_b1->SetBinContent(i,j,holes / hits);
-// 	} else {
-// 	  m_measurements_vs_Eta_Phi_pix_b1->SetBinContent(i,j,0.);
-// 	  m_outliers_vs_Eta_Phi_pix_b1->SetBinContent(i,j,0.);
-// 	  m_holes_vs_Eta_Phi_pix_b1->SetBinContent(i,j,0.);
-// 	}
-//       }
-//     }
-
-//     for (int i=1;i<=m_hits_vs_Eta_Phi_pix_b2->GetNbinsX();i++){
-//       for (int j=1;j<=m_hits_vs_Eta_Phi_pix_b2->GetNbinsY();j++){
-// 	float measurements=m_measurements_vs_Eta_Phi_pix_b2->GetBinContent(i,j);
-// 	float outliers=m_outliers_vs_Eta_Phi_pix_b2->GetBinContent(i,j);
-// 	float holes=m_holes_vs_Eta_Phi_pix_b2->GetBinContent(i,j);
-// 	float hits=m_hits_vs_Eta_Phi_pix_b2->GetBinContent(i,j);
-// 	if(hits > 0){ 
-// 	  m_measurements_vs_Eta_Phi_pix_b2->SetBinContent(i,j,measurements / hits);
-// 	  m_outliers_vs_Eta_Phi_pix_b2->SetBinContent(i,j,outliers / hits);
-// 	  m_holes_vs_Eta_Phi_pix_b2->SetBinContent(i,j,holes / hits);
-// 	} else {
-// 	  m_measurements_vs_Eta_Phi_pix_b2->SetBinContent(i,j,0.);
-// 	  m_outliers_vs_Eta_Phi_pix_b2->SetBinContent(i,j,0.);
-// 	  m_holes_vs_Eta_Phi_pix_b2->SetBinContent(i,j,0.);
-// 	}
-//       }
-//     }
-
-//     for (int i=1;i<=m_hits_vs_Eta_Phi_sct_b0->GetNbinsX();i++){
-//       for (int j=1;j<=m_hits_vs_Eta_Phi_sct_b0->GetNbinsY();j++){
-// 	float measurements=m_measurements_vs_Eta_Phi_sct_b0->GetBinContent(i,j);
-// 	float outliers=m_outliers_vs_Eta_Phi_sct_b0->GetBinContent(i,j);
-// 	float holes=m_holes_vs_Eta_Phi_sct_b0->GetBinContent(i,j);
-// 	float hits=m_hits_vs_Eta_Phi_sct_b0->GetBinContent(i,j);
-// 	if(hits > 0){ 
-// 	  m_measurements_vs_Eta_Phi_sct_b0->SetBinContent(i,j,measurements / hits);
-// 	  m_outliers_vs_Eta_Phi_sct_b0->SetBinContent(i,j,outliers / hits);
-// 	  m_holes_vs_Eta_Phi_sct_b0->SetBinContent(i,j,holes / hits);
-// 	} else {
-// 	  m_measurements_vs_Eta_Phi_sct_b0->SetBinContent(i,j,0.);
-// 	  m_outliers_vs_Eta_Phi_sct_b0->SetBinContent(i,j,0.);
-// 	  m_holes_vs_Eta_Phi_sct_b0->SetBinContent(i,j,0.);
-// 	}
-//       }
-//     }
-
-//     for (int i=1;i<=m_hits_vs_Eta_Phi_sct_b1->GetNbinsX();i++){
-//       for (int j=1;j<=m_hits_vs_Eta_Phi_sct_b1->GetNbinsY();j++){
-// 	float measurements=m_measurements_vs_Eta_Phi_sct_b1->GetBinContent(i,j);
-// 	float outliers=m_outliers_vs_Eta_Phi_sct_b1->GetBinContent(i,j);
-// 	float holes=m_holes_vs_Eta_Phi_sct_b1->GetBinContent(i,j);
-// 	float hits=m_hits_vs_Eta_Phi_sct_b1->GetBinContent(i,j);
-// 	if(hits > 0){ 
-// 	  m_measurements_vs_Eta_Phi_sct_b1->SetBinContent(i,j,measurements / hits);
-// 	  m_outliers_vs_Eta_Phi_sct_b1->SetBinContent(i,j,outliers / hits);
-// 	  m_holes_vs_Eta_Phi_sct_b1->SetBinContent(i,j,holes / hits);
-// 	} else {
-// 	  m_measurements_vs_Eta_Phi_sct_b1->SetBinContent(i,j,0.);
-// 	  m_outliers_vs_Eta_Phi_sct_b1->SetBinContent(i,j,0.);
-// 	  m_holes_vs_Eta_Phi_sct_b1->SetBinContent(i,j,0.);
-// 	}
-//       }
-//     }
-
-//     for (int i=1;i<=m_hits_vs_Eta_Phi_sct_b2->GetNbinsX();i++){
-//       for (int j=1;j<=m_hits_vs_Eta_Phi_sct_b2->GetNbinsY();j++){
-// 	float measurements=m_measurements_vs_Eta_Phi_sct_b2->GetBinContent(i,j);
-// 	float outliers=m_outliers_vs_Eta_Phi_sct_b2->GetBinContent(i,j);
-// 	float holes=m_holes_vs_Eta_Phi_sct_b2->GetBinContent(i,j);
-// 	float hits=m_hits_vs_Eta_Phi_sct_b2->GetBinContent(i,j);
-// 	if(hits > 0){ 
-// 	  m_measurements_vs_Eta_Phi_sct_b2->SetBinContent(i,j,measurements / hits);
-// 	  m_outliers_vs_Eta_Phi_sct_b2->SetBinContent(i,j,outliers / hits);
-// 	  m_holes_vs_Eta_Phi_sct_b2->SetBinContent(i,j,holes / hits);
-// 	} else {
-// 	  m_measurements_vs_Eta_Phi_sct_b2->SetBinContent(i,j,0.);
-// 	  m_outliers_vs_Eta_Phi_sct_b2->SetBinContent(i,j,0.);
-// 	  m_holes_vs_Eta_Phi_sct_b2->SetBinContent(i,j,0.);
-// 	}
-//       }
-//     }
-
-//     for (int i=1;i<=m_hits_vs_Eta_Phi_sct_b3->GetNbinsX();i++){
-//       for (int j=1;j<=m_hits_vs_Eta_Phi_sct_b3->GetNbinsY();j++){
-// 	float measurements=m_measurements_vs_Eta_Phi_sct_b3->GetBinContent(i,j);
-// 	float outliers=m_outliers_vs_Eta_Phi_sct_b3->GetBinContent(i,j);
-// 	float holes=m_holes_vs_Eta_Phi_sct_b3->GetBinContent(i,j);
-// 	float hits=m_hits_vs_Eta_Phi_sct_b3->GetBinContent(i,j);
-// 	if(hits > 0){ 
-// 	  m_measurements_vs_Eta_Phi_sct_b3->SetBinContent(i,j,measurements / hits);
-// 	  m_outliers_vs_Eta_Phi_sct_b3->SetBinContent(i,j,outliers / hits);
-// 	  m_holes_vs_Eta_Phi_sct_b3->SetBinContent(i,j,holes / hits);
-// 	} else {
-// 	  m_measurements_vs_Eta_Phi_sct_b3->SetBinContent(i,j,0.);
-// 	  m_outliers_vs_Eta_Phi_sct_b3->SetBinContent(i,j,0.);
-// 	  m_holes_vs_Eta_Phi_sct_b3->SetBinContent(i,j,0.);
-// 	}
-//       }
-//     }
     
   }
   
@@ -2309,8 +2098,6 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
       }
     }
 
-    //const Trk::TrackParameters* trackParameter = tsos2->trackParameters();
-    //const Trk::MeasuredTrackParameters* measuredTrackParameter = dynamic_cast<const Trk::MeasuredTrackParameters*>(trackParameter);
 
     const Trk::TrackParameters* TrackParameters = tsos2->trackParameters();
     if (!TrackParameters)
@@ -2376,9 +2163,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
       }
       if(close){  //end add by TG
 	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "***** identified local X overlap" << endmsg;
-	//	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "original module radius = " << radius << endmsg;
 	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "original module phi, eta  = " << modEta <<", "<<modPhi<< endmsg;
-	//if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "overlap module radius = " << radius2 << endmsg;
 	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "second module phi, eta  = " << modEta2 <<", "<<modPhi2<< endmsg;
 	xOverlap = (tsos2);
       } //added by LT
@@ -2387,8 +2172,6 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
     if(modEta-modEta2 == 1 && modPhi==modPhi2){
       
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "***** identified local Y overlap" << endmsg;
-      //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "original module radius = " << radius << endmsg;
-      //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "overlap module radius = " << radius2 << endmsg;
       yOverlap = (tsos2);
     }
     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "modEta2 = " << modEta2 << endmsg;
@@ -2658,11 +2441,7 @@ void IDAlignMonEfficiencies::makePIXEndCapsHistograms(MonGroup& al_mon){
 	      //efficiencies for endcaps
 	      m_measurements_eff_vs_Phi_pix_eca.push_back(new  TProfile(("measurements_eff_vs_Phi_pix_eca"+intToString(iWheel)).c_str(),("measurements per possible hits vs. Phi-ID in Pixel eca layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5, 0., 1.));  
 	      RegisterHisto(al_mon,m_measurements_eff_vs_Phi_pix_eca[iWheel]) ; 
-	      
-
-	      
-
-	      
+	 
 	    }
 	  if (iSide<0)
 	    {
@@ -2744,8 +2523,6 @@ void IDAlignMonEfficiencies::makeSCTBarrelHistograms(MonGroup &al_mon){
 	  //ATH_MSG_INFO("iEta= " << iEta);
 	}
       float EtaModules= m_SCT_Mgr->numerology().endEtaModuleForLayer(iLayer) - m_SCT_Mgr->numerology().beginEtaModuleForLayer(iLayer); //(i put float in order to divide by 2. I am not skipping the empty layer. It might be nice to see the separation)
-      //m_measurements_eff_vs_Eta_Phi_sct_b.push_back(new TProfile2D(("measurements_eff_vs_Eta_Phi_sct_b"+intToString(iLayer)).c_str(),("hit eff. vs. Eta-Phi-ID in Sct barrel layer"+intToString(iLayer)).c_str(),EtaModules,-EtaModules/2.,EtaModules/2.,maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5,0.,1.));
-      //RegisterHisto(al_mon,m_measurements_eff_vs_Eta_Phi_sct_b[iLayer]);
       m_measurements_eff_vs_Eta_Phi_sct_b.push_back(new TProfile2D(("measurements_eff_vs_Eta_Phi_sct_b"+intToString(iLayer)).c_str(),("hit eff. vs. Eta-Phi-ID in Sct barrel layer "+intToString(iLayer)).c_str(),EtaModules,-EtaModules/2.,EtaModules/2.,maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer,0.,1.));
       RegisterHisto(al_mon,m_measurements_eff_vs_Eta_Phi_sct_b[iLayer]);    
       //all hits
@@ -2770,7 +2547,6 @@ void IDAlignMonEfficiencies::makeSCTBarrelHistograms(MonGroup &al_mon){
 
       
       for (int side=0; side < 2; side++) {
-	// std::cout << " -- Salva -- hit map of SCT BAR layer " <<  iLayer << " side: " << side << "  Name: " << ("measurements_vs_Eta_Phi_sct_b"+intToString(iLayer)+"_s"+intToString(side)).c_str() << std::endl;
 	if (side == 0) {
 	  // posible hits
 	  m_hits_vs_Eta_Phi_sct_s0_b.push_back(new TH2F(("expectedHits_vs_Eta_Phi_sct_b"+intToString(iLayer)+"_s"+intToString(side)).c_str(),("measurements per possible hits vs. Eta-Phi-ID in SCT barrel layer "+intToString(iLayer)+" side "+intToString(side)).c_str(),EtaModules,-EtaModules/2.,EtaModules/2.,maxPhiModulesPerLayer,-0.5,maxPhiModulesPerLayer-0.5));  

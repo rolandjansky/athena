@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <string>
+#include <exception>
 
 class StatusCode;
 
@@ -129,14 +130,14 @@ inline AlMat::AlMat_row_const AlMat::operator[] (int r) const{
 
 inline double &AlMat::AlMat_row::operator[](int c){
   if(m_r<0||m_r>=m_a.nrow() || c<0||c>=m_a.ncol())
-    std::cerr << "Range error in AlMat::operator[][]" << std::endl;
+    throw std::out_of_range( "Range error in AlMat::operator[][]" );
 
   return *(m_a.m_ptr_data+m_r*m_a.ncol()+c);
 }
 
 inline const double & AlMat::AlMat_row_const::operator[](int c) const {
   if(m_r<0||m_r>=m_a.nrow() || c<0||c>=m_a.ncol())
-    std::cerr << "Range error in AlMat::operator[][]" << std::endl;
+    throw std::out_of_range( "Range error in AlMat::operator[][]" );
 
   return *(m_a.m_ptr_data+m_r*m_a.ncol()+c);
 }
