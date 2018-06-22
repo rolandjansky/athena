@@ -1,9 +1,11 @@
 /*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+/*
  *  RootRunBuster.c
  *  RootMacroAnalysis
  *
  *  Created by Austin Basye on 6/27/12.
- *  Copyright 2012 by UIUC ATLAS Group. All rights reserved.
  *
  */
 
