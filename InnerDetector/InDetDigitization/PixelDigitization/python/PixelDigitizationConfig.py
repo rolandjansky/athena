@@ -311,6 +311,11 @@ def PixelGeantinoTruthDigitizationTool(name="PixelGeantinoTruthDigitizationTool"
 
 def PixelDigitizationToolHS(name="PixelDigitizationToolHS", **kwargs):
     kwargs.setdefault("HardScatterSplittingMode", 1)
+    from IOVDbSvc.CondDB import conddb
+    if conddb.dbmc == "OFLP200" and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
+      conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg")
+    if not conddb.folderRequested('PIXEL/PixReco'):
+      conddb.addFolder('PIXEL_OFL','/PIXEL/PixReco')
     return BasicPixelDigitizationTool(name, **kwargs)
 
 def PixelDigitizationToolPU(name="PixelDigitizationToolPU", **kwargs):
