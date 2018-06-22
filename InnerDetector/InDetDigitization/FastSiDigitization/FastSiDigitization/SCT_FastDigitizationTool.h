@@ -152,8 +152,10 @@ private:
   bool m_sctRotateEC;
  
   bool m_mergeCluster; //!< enable the merging of neighbour SCT clusters >  
-  double m_DiffusionShiftX;
-  double m_DiffusionShiftY;
+  double m_DiffusionShiftX_barrel;
+  double m_DiffusionShiftY_barrel;
+  double m_DiffusionShiftX_endcap;
+  double m_DiffusionShiftY_endcap;
   double m_sctMinimalPathCut;        //!< the 1. model parameter: minimal 3D path in strip
   bool m_needsMcEventCollHelper;
 
