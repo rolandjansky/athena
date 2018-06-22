@@ -654,10 +654,8 @@ def addHbbTagger(
 def addExKtDoubleTaggerRCJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetConfigs, ExKtJetCollection__FatJet, ExKtJetCollection__SubJet):#, jetToolName, algoName):
    jetToolName = "DFReclustertingTool"
    algoName = "DFJetReclusteringAlgo"
-   ExKtJetCollection__FatJetConfigs = {
-                                    "AntiKt8EMTopoJets"         : {"doTrackSubJet": True},#False},
-                                     }
-   ExKtJetCollection__FatJet = ExKtJetCollection__FatJetConfigs.keys()
+   
+   ExKtJetCollection__FatJet = ["AntiKt8EMTopoJets"]
    ExKtJetCollection__SubJet = []
 
    if jetToolName not in DFJetAlgs:
@@ -676,14 +674,12 @@ def addExKtDoubleTaggerRCJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetCon
 
      sequence += CfgMgr.AthJetReclusteringAlgo(algoName, JetReclusteringTool = getattr(ToolSvc,jetToolName))
      DFJetAlgs[jetToolName] = getattr(ToolSvc,jetToolName)
+   
    # build subjets
-
-   for key, config in ExKtJetCollection__FatJetConfigs.items():
-     # N=2 subjets
-     ExKtJetCollection__SubJet += addExKt(sequence, ToolSvc, [key], nSubjets=2, **config)
-     # N=3 subjets
-     if "RNNCone" not in key:
-       ExKtJetCollection__SubJet += addExKt(sequence, ToolSvc, [key], nSubjets=3, **config)
+   # N=2 subjets
+   ExKtJetCollection__SubJet += addExKt(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=2, doTrackSubJet=True)
+   # N=3 subjets
+   ExKtJetCollection__SubJet += addExKt(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=3, doTrackSubJet=True)
 
    sequence += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterSubjetBuild", SGKeys=[name+"Aux." for name in ExKtJetCollection__SubJet])
 
