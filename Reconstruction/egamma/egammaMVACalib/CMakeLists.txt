@@ -27,6 +27,7 @@ atlas_depends_on_subdirs(
    Reconstruction/MVAUtils
    Control/CxxUtils
    Tools/PathResolver
+   Reconstruction/egamma/egammaInterfaces
    ${extra_dep} )
 
 # External dependencies:
@@ -44,7 +45,7 @@ atlas_add_library( egammaMVACalibLib
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( egammaMVACalib
-      src/components/*.cxx
+      src/*.cxx src/components/*.cxx
       LINK_LIBRARIES GaudiKernel egammaMVACalibLib )
 endif()
 
