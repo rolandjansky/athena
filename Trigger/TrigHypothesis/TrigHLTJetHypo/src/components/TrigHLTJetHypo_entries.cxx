@@ -11,6 +11,9 @@
 #include "../TrigJetHypoAlg.h"
 #include "../TrigJetHypoTool_EtaEt.h"
 
+#include "../TrigJetHypoToolConfig_EtaEt.h"
+#include "../TrigJetHypoToolMT.h"
+
 DECLARE_COMPONENT( TrigHLTJetHypo2 )
 DECLARE_COMPONENT( TrigJetHypoAlg )
 
@@ -24,3 +27,6 @@ DECLARE_COMPONENT( TrigHLTJetHypo_TLATool )
 
 
 DECLARE_COMPONENT( TrigJetHypoTool_EtaEt )
+
+DECLARE_COMPONENT(TrigJetHypoToolMT)
+DECLARE_COMPONENT(TrigJetHypoToolConfig_EtaEt)
