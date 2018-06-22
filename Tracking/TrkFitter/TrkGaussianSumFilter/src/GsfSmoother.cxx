@@ -45,22 +45,13 @@ StatusCode Trk::GsfSmoother::initialize()
 
   m_outputlevel = msg().level()-MSG::DEBUG;   // save the threshold for debug printout in private member
   
-  // Retrieve an instance of the component merger
-  if ( m_merger.retrieve().isFailure() ){
-    ATH_MSG_FATAL("Could not retrieve the component merger tool... Exiting!");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_merger.retrieve());
 
-  // Request an instance of the state combiner
-  if ( m_combiner.retrieve().isFailure() ){
-    ATH_MSG_FATAL("Could not retrieve an instance of the multi component state combiner... Exiting!");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_combiner.retrieve());
   
   ATH_MSG_INFO("Initialisation of " << name() << " was successful");
 
   return StatusCode::SUCCESS;
-
 }
 
 StatusCode Trk::GsfSmoother::finalize()
@@ -94,18 +85,18 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
   // Check that extrapolator and updator are instansiated
   if (!m_updator) {
     ATH_MSG_ERROR("The measurement updator is not configured... Exiting!");
-    return 0;
+    return nullptr;
   }
 
   if (!m_extrapolator) {
     ATH_MSG_ERROR("The extrapolator is not configured... Exiting!");
-    return 0;
+    return nullptr;
   }
 
   // Check that the forward trajectory is filled
   if ( forwardTrajectory.empty() ){
     ATH_MSG_ERROR("Attempting to smooth an empty forward trajectory... Exiting!");
-    return 0;
+    return nullptr;
   }
   
   if (m_outputlevel<0){
@@ -158,7 +149,7 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
 
   if ( !firstSmootherMeasurementOnTrack ){
     ATH_MSG_WARNING("Initial state on surface in smoother does not have an associated MeasurementBase object... returning 0");
-    return 0;
+    return nullptr;
   }
 
   std::unique_ptr<Trk::FitQualityOnSurface> fitQuality;
@@ -171,7 +162,7 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
       delete smootherPredictionMultiState;
 
     ATH_MSG_DEBUG("First GSF smoothing update failed... Exiting!");
-    return 0;
+    return nullptr;
   }
 
   // ========================
@@ -206,7 +197,7 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
 
   if ( !firstSmoothedState->isMeasured() ){
     ATH_MSG_WARNING("Updated state is not measured. Rejecting smoothed state... returning 0");
-    return 0;
+    return nullptr;
   }
 
   // Generate a large prediction for extrapolation. This way there is no dependance on error of prediction
@@ -217,7 +208,7 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
 
   if ( !smoothedStateWithScaledError ){
     ATH_MSG_WARNING("Covariance scaling could not be performed... returning 0");
-    return 0;
+    return nullptr;
   }
 
   // Perform a measurement update on this new state
@@ -226,7 +217,7 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
 
   if ( !updatedState ){
     ATH_MSG_WARNING("Smoother prediction could not be determined... returning 0");
-    return 0;
+    return nullptr;
   }
 
   // Clear rioOnTrack pointer
@@ -291,7 +282,7 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
 
     if (!extrapolatedState) {
       ATH_MSG_DEBUG( "Extrapolation to measurement surface failed... rejecting track!");
-      return 0;
+      return nullptr;
     }
 
     if (m_outputlevel<=0){
@@ -333,7 +324,7 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
 
     if (!updatedState) {
       ATH_MSG_WARNING("Could not update the multi-component state... rejecting track!");
-      return 0;
+      return nullptr;
     }
 
     if (m_outputlevel<=0){
@@ -390,7 +381,7 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
         // delete updatedState;
         // delete measurement;
         // delete smoothedTrajectory;
-        return 0;
+        return nullptr;
       }
             
       const Trk::FitQualityOnSurface* combinedFitQuality = m_updator->fitQuality( *combinedState2, *measurement );
@@ -449,18 +440,14 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
 const Trk::MultiComponentState* Trk::GsfSmoother::combine (const Trk::MultiComponentState& forwardsMultiState, const Trk::MultiComponentState& smootherMultiState) const
 {
 
-  Trk::MultiComponentState* combinedMultiState = new MultiComponentState();
-  
+  std::unique_ptr<Trk::MultiComponentState> combinedMultiState = std::make_unique<MultiComponentState>();
   /* ================================================
      Loop over all components in forwards multi-state
      ================================================ */
 
-  Trk::MultiComponentState::const_iterator forwardsComponent = forwardsMultiState.begin();
-
-  for ( ; forwardsComponent != forwardsMultiState.end(); ++forwardsComponent ) {
-
+  for ( auto& forwardsComponent : forwardsMultiState ) {
     // Need to check that all components have associated weight matricies
-    const AmgSymMatrix(5)* forwardMeasuredCov = forwardsComponent->first->covariance();
+    const AmgSymMatrix(5)* forwardMeasuredCov = forwardsComponent.first->covariance();
 
     if ( !forwardMeasuredCov )
       ATH_MSG_DEBUG("No measurement associated with forwards component... continuing for now");
@@ -469,23 +456,19 @@ const Trk::MultiComponentState* Trk::GsfSmoother::combine (const Trk::MultiCompo
        Loop over all components in the smoother multi-state
        ==================================================== */
 
-    Trk::MultiComponentState::const_iterator smootherComponent = smootherMultiState.begin();
-    
-    for ( ; smootherComponent != smootherMultiState.end(); ++smootherComponent ) {
-
+    for ( auto& smootherComponent: smootherMultiState ) {    
       // Need to check that all components have associated weight matricies
-      const AmgSymMatrix(5)* smootherMeasuredCov = smootherComponent->first->covariance();
+      const AmgSymMatrix(5)* smootherMeasuredCov = smootherComponent.first->covariance();
 
       if ( !smootherMeasuredCov && !forwardMeasuredCov ){
         ATH_MSG_WARNING("Cannot combine two components both without associated errors... returning 0");
-	delete combinedMultiState;
         return nullptr;
       }
 
       if ( !forwardMeasuredCov ){
         if (m_outputlevel<=0) 
           ATH_MSG_DEBUG("Forwards state without error matrix... using smoother state only");
-        Trk::ComponentParameters smootherComponentOnly( smootherComponent->first->clone(), smootherComponent->second );
+        Trk::ComponentParameters smootherComponentOnly( smootherComponent.first->clone(), smootherComponent.second );
         combinedMultiState->push_back( smootherComponentOnly );
         continue;
       }
@@ -493,7 +476,7 @@ const Trk::MultiComponentState* Trk::GsfSmoother::combine (const Trk::MultiCompo
       if ( !smootherMeasuredCov ){
         if (m_outputlevel<=0) 
           ATH_MSG_DEBUG("Smoother state withour error matrix... using forwards state only");
-        Trk::ComponentParameters forwardComponentOnly( forwardsComponent->first->clone(), forwardsComponent->second );
+        Trk::ComponentParameters forwardComponentOnly( forwardsComponent.first->clone(), forwardsComponent.second );
         combinedMultiState->push_back( forwardComponentOnly );
         continue;
       }
@@ -502,38 +485,25 @@ const Trk::MultiComponentState* Trk::GsfSmoother::combine (const Trk::MultiCompo
       
       const AmgSymMatrix(5) K = *forwardMeasuredCov * summedCovariance.inverse();
 
-      //if (matrixInversionError) {
-      //  ATH_MSG_WARNING("Matrix inversion failed... Exiting!");
-      //  return 0;
-      //}
+      const Amg::VectorX newParameters = forwardsComponent.first->parameters() + K * ( smootherComponent.first->parameters() - forwardsComponent.first->parameters() );
 
-      const Amg::VectorX newParameters = forwardsComponent->first->parameters() + K * ( smootherComponent->first->parameters() - forwardsComponent->first->parameters() );
-
-      const Amg::VectorX parametersDiff = forwardsComponent->first->parameters() - smootherComponent->first->parameters();
+      const Amg::VectorX parametersDiff = forwardsComponent.first->parameters() - smootherComponent.first->parameters();
 
       AmgSymMatrix(5)* covarianceOfNewParameters = new AmgSymMatrix(5)(K * *smootherMeasuredCov);
 
-      const Trk::TrackParameters* combinedTrackParameters = (forwardsComponent->first)->associatedSurface().createTrackParameters( newParameters[Trk::loc1],newParameters[Trk::loc2],newParameters[Trk::phi],newParameters[Trk::theta],newParameters[Trk::qOverP], covarianceOfNewParameters );
+      const Trk::TrackParameters* combinedTrackParameters = (forwardsComponent.first)->associatedSurface().createTrackParameters( newParameters[Trk::loc1],newParameters[Trk::loc2],newParameters[Trk::phi],newParameters[Trk::theta],newParameters[Trk::qOverP], covarianceOfNewParameters );
 
       // Covariance matrix object now owned by TrackParameters object. Reset pointer to prevent delete
       covarianceOfNewParameters = 0;
 
-      // Determine weighting exponential term for the baysian smoother
-      //matrixInversionError = 0;
-
       const AmgSymMatrix(5) invertedSummedCovariance = summedCovariance.inverse();
-
-      //if ( matrixInversionError ){
-      //  ATH_MSG_WARNING("Matrix inversion failed... exiting");
-      //  return 0;
-      //}
 
       // Determine the scaling factor for the new weighting. Determined from the PDF of the many-dimensional gaussian
       double exponent = parametersDiff.transpose() * invertedSummedCovariance * parametersDiff;
 
       double weightScalingFactor = exp( -0.5 * exponent );
 
-      double combinedWeight = smootherComponent->second * forwardsComponent->second * weightScalingFactor;
+      double combinedWeight = smootherComponent.second * forwardsComponent.second * weightScalingFactor;
 
       const Trk::ComponentParameters combinedComponent(combinedTrackParameters, combinedWeight);
 
@@ -544,16 +514,12 @@ const Trk::MultiComponentState* Trk::GsfSmoother::combine (const Trk::MultiCompo
   }
   
   // Component reduction on the combined state
-  const Trk::MultiComponentState* mergedState = m_merger->merge(*combinedMultiState);
-
-  if ( mergedState != combinedMultiState )
-    delete combinedMultiState;
+  std::unique_ptr<const Trk::MultiComponentState> mergedState( m_merger->merge(*combinedMultiState) );
+  assert( mergedState.get() != combinedMultiState.get());
 
   // Before return the weights of the states need to be renormalised to one.
   const Trk::MultiComponentState* renormalisedMergedState = mergedState->clonedRenormalisedState();
-
-  if ( renormalisedMergedState != mergedState )
-    delete mergedState;
+  assert( renormalisedMergedState != mergedState.get());
 
   if (m_outputlevel<0) 
     ATH_MSG_VERBOSE("Size of combined state from smoother: " << renormalisedMergedState->size());
@@ -596,7 +562,7 @@ const Trk::MultiComponentState* Trk::GsfSmoother::addCCOT( const Trk::TrackState
   // Extrapolation Failed continue
   if( !extrapolatedState || extrapolatedState == currentMultiComponentState ){
     ATH_MSG_DEBUG("Extrapolation to the CCOT failed .. now not being taken in account");
-    return 0;
+    return nullptr;
   } 
 
   // Update newly extrapolated state with MeasurementBase measurement
@@ -607,7 +573,7 @@ const Trk::MultiComponentState* Trk::GsfSmoother::addCCOT( const Trk::TrackState
   if( !updatedState || updatedState == extrapolatedState){
     ATH_MSG_DEBUG("Update of extrapolated state with CCOT failed .. now not being taken in account"); 
     delete extrapolatedState;
-    return 0;
+    return nullptr;
   } 
 
   //std::cout << "\n After  Extrapolarion update -- Weight "<<(extrapolatedState->front().second) << "\n" << *(extrapolatedState->front().first) <<std::endl; 
@@ -637,7 +603,7 @@ const Trk::MultiComponentState* Trk::GsfSmoother::addCCOT( const Trk::TrackState
   if (!extrapolatedState || extrapolatedState == updatedState){
     ATH_MSG_DEBUG("Extrapolation from CCOT to 1st measurement failed .. now not being taken in account");
     delete updatedMCSOS;
-    return 0;
+    return nullptr;
   }
   
   //std::cout << "\nBefore Addition -- Weight "<<(currentMultiComponentState->front().second) << "\n" << *(currentMultiComponentState->front().first) <<std::endl; 
