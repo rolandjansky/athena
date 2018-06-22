@@ -117,7 +117,6 @@ private:
   StatusCode objectTDirExists(const std::string& histname, TFile* file);
   StatusCode getTObject(const std::string& histname, TFile* file, TObject*& hist);
   std::vector<std::string> tokenize(std::string str, std::string delim);
-  TFile* getFile(const std::string& guid);
 
   //ServiceHandle<IIOVDbSvc>  m_IOVDbSvc;
   IPoolSvc* m_poolsvc;

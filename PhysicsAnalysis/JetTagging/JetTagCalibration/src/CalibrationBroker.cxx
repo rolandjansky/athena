@@ -7,7 +7,6 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "AthenaPoolUtilities/CondMultChanCollection.h"
 #include "PoolSvc/IPoolSvc.h"
 #include "FileCatalog/IFileCatalog.h"
 #include "TH1.h"
@@ -461,50 +460,6 @@ namespace Analysis {
      return StatusCode::SUCCESS;
    }
 
-TFile* CalibrationBroker::getFile(const std::string& sguid) {
-  ATH_MSG_DEBUG("getFile - lookup PFN for GUID "+sguid);
-  std::string pfname, tech;
-  m_poolsvc->catalog()->getFirstPFN( sguid, pfname, tech );
-  if( !pfname.empty() ) {
-    // now try to open file
-    TFile* tfile;
-    try {
-      tfile=TFile::Open(pfname.c_str(),"READ");
-      if (tfile==0 || !tfile->IsOpen()) {
-	delete tfile;
-	ATH_MSG_ERROR("Problems opening input file "+pfname);
-	return 0;
-      }
-    }
-    catch (std::exception& e) {
-      ATH_MSG_ERROR("Exception thrown when trying to open input file "+pfname);
-      return 0;
-    }
-    // check file has correct internal GUID
-    TObjString* fguid;
-    tfile->GetObject("fileGUID",fguid);
-    if (fguid==0) {
-      ATH_MSG_ERROR("Input file "+pfname+" has no fileGUID object");
-      return 0;
-    }
-    std::string fguidstr=(fguid->GetString().Data());
-    delete fguid;
-    ATH_MSG_DEBUG("GUID retrieved from file is "+fguidstr+
-		  " expecting "+sguid);
-    if (fguidstr!=sguid) {
-      // GUIDs do not match
-      ATH_MSG_ERROR("GUID retrieved from file "+fguidstr+
-		    " does not match that in catalogue "+sguid);
-      return 0;
-    }
-    // file is successfully opened - return ptr
-    return tfile;
-  } else {
-    ATH_MSG_ERROR("No PFN found in catalogue for GUID "+sguid);
-    return 0;
-  }
-}
-
   StatusCode CalibrationBroker::callBack( IOVSVC_CALLBACK_ARGS_P(/*I*/,keys) ) {
  
     // printout the list of keys invoked - will normally only be for our
@@ -537,8 +492,15 @@ TFile* CalibrationBroker::getFile(const std::string& sguid) {
             const std::string coolguid=citr->second["fileGUID"].data<std::string>();
             ATH_MSG_DEBUG("#BTAG# Folder key "+folder+" has current file GUID "+coolguid);
     
-            // check if this file is already open
-            TFile* pfile=getFile(coolguid);
+            // Open the file
+            std::string pfname, tech;
+            m_poolsvc->catalog()->getFirstPFN(coolguid, pfname, tech );
+            TFile* pfile = TFile::Open(pfname.c_str(),"READ");
+            if (pfile==0 || !pfile->IsOpen()) {
+              delete pfile;
+              ATH_MSG_WARNING("Problems opening input file "+pfname);
+              return StatusCode::FAILURE;
+            }
 
             if(0 == m_nrefresh || m_recreateHistoMap){
               StatusCode sc = createHistoMap(pfile);
@@ -585,19 +547,17 @@ TFile* CalibrationBroker::getFile(const std::string& sguid) {
 	      }
 	    } //end loop histos
         } // end loop taggers
-        // close the file, catch exceptions just in case they have gone stale
-        try {
-          pfile->Close();
-        }
-        catch (std::exception& e) {
-          ATH_MSG_ERROR("Exception closing histogram file:" << e.what());
-        } 
-     }// loop on keys
-     }
-     }
-          else {
-            ATH_MSG_DEBUG(  "#BTAG# The multiple folders DB schema has been deprecated in Run2. Contact Flavour Tagging software team if you get this message.");
-          }
+        
+        // close the file
+        pfile->Close();
+        delete pfile;
+
+        }// loop on keys
+      }
+    }
+    else {
+      ATH_MSG_DEBUG(  "#BTAG# The multiple folders DB schema has been deprecated in Run2. Contact Flavour Tagging software team if you get this message.");
+    }
     return StatusCode::SUCCESS;
   }
 
