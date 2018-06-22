@@ -1151,6 +1151,31 @@ namespace top {
           m_particleLevelTreeManager->makeOutputVariable(m_rcjetsub_e,   "rcjetsub_e");
           m_particleLevelTreeManager->makeOutputVariable(m_rcjetsub_Ghosts_BHadron_Final_Count, "rcjetsub_nGhosts_bHadron");
           m_particleLevelTreeManager->makeOutputVariable(m_rcjetsub_Ghosts_CHadron_Final_Count, "rcjetsub_nGhosts_cHadron");
+	  
+	  if (m_useRCJSS){
+		m_particleLevelTreeManager->makeOutputVariable(m_rrcjet_pt,     "rrcjet_pt");
+		m_particleLevelTreeManager->makeOutputVariable(m_rrcjet_eta,    "rrcjet_eta");
+		m_particleLevelTreeManager->makeOutputVariable(m_rrcjet_phi,    "rrcjet_phi");
+		m_particleLevelTreeManager->makeOutputVariable(m_rrcjet_e,      "rrcjet_e");
+ 
+		// RCJet SS from Clusters
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_tau32_clstr,  "rcjet_tau32_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_tau21_clstr,  "rcjet_tau21_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_tau3_clstr,  "rcjet_tau3_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_tau2_clstr,  "rcjet_tau2_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_tau1_clstr,  "rcjet_tau1_clstr");
+ 
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_D2_clstr,    "rcjet_D2_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_ECF1_clstr,  "rcjet_ECF1_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_ECF2_clstr,  "rcjet_ECF2_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_ECF3_clstr,  "rcjet_ECF3_clstr");
+ 
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_d12_clstr,  "rcjet_d12_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_d23_clstr,  "rcjet_d23_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_Qw_clstr,  "rcjet_Qw_clstr");
+	      }
+
+	  
         }
 
         //met
@@ -2994,6 +3019,26 @@ namespace top {
             static SG::AuxElement::ConstAccessor<float> RCSplit12("Split12");
             static SG::AuxElement::ConstAccessor<float> RCSplit23("Split23");
 
+	    // re-clustered jet substructure from clusters
+	    static SG::AuxElement::ConstAccessor<float> Tau21_clstr("Tau21_clstr");
+	    static SG::AuxElement::ConstAccessor<float> Tau32_clstr("Tau32_clstr");
+	    static SG::AuxElement::ConstAccessor<float> Tau3_clstr("Tau3_clstr");
+	    static SG::AuxElement::ConstAccessor<float> Tau2_clstr("Tau2_clstr");
+	    static SG::AuxElement::ConstAccessor<float> Tau1_clstr("Tau1_clstr");
+	    static SG::AuxElement::ConstAccessor<float> D2_clstr("D2_clstr");
+	    static SG::AuxElement::ConstAccessor<float> ECF1_clstr("ECF1_clstr");
+	    static SG::AuxElement::ConstAccessor<float> ECF2_clstr("ECF2_clstr");
+	    static SG::AuxElement::ConstAccessor<float> ECF3_clstr("ECF3_clstr");
+	    static SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
+	    static SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
+	    static SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
+	    // store also the jet that is rebuilt to calculate the JSS
+	    static SG::AuxElement::ConstAccessor<float> RRCJet_pt("RRCJet_pt");
+	    static SG::AuxElement::ConstAccessor<float> RRCJet_eta("RRCJet_eta");
+	    static SG::AuxElement::ConstAccessor<float> RRCJet_phi("RRCJet_phi");
+	    static SG::AuxElement::ConstAccessor<float> RRCJet_e("RRCJet_e");
+
+	  
             // Initialize the vectors to be saved as branches
             unsigned int sizeOfRCjets(rc_jets_particle->size());
 
@@ -3010,6 +3055,21 @@ namespace top {
             m_rcjetsub_Ghosts_BHadron_Final_Count.clear();
             m_rcjetsub_Ghosts_CHadron_Final_Count.clear();
 
+     
+	    m_rcjet_tau32_clstr.clear();
+	    m_rcjet_tau21_clstr.clear();
+	    m_rcjet_tau3_clstr.clear();
+	    m_rcjet_tau2_clstr.clear();
+	    m_rcjet_tau1_clstr.clear();
+	    m_rcjet_D2_clstr.clear();
+	    m_rcjet_ECF1_clstr.clear();
+	    m_rcjet_ECF2_clstr.clear();
+	    m_rcjet_ECF3_clstr.clear();
+	    m_rcjet_d12_clstr.clear();
+	    m_rcjet_d23_clstr.clear();    
+	    m_rcjet_Qw_clstr.clear();
+
+	  
             m_rcjet_pt.resize(sizeOfRCjets,-999.);
             m_rcjet_eta.resize(sizeOfRCjets,-999.);
             m_rcjet_phi.resize(sizeOfRCjets,-999.);
@@ -3023,6 +3083,27 @@ namespace top {
             m_rcjetsub_Ghosts_BHadron_Final_Count.resize(sizeOfRCjets, std::vector<int>());
             m_rcjetsub_Ghosts_CHadron_Final_Count.resize(sizeOfRCjets, std::vector<int>());
 
+	    if (m_useRCJSS){
+	      m_rrcjet_pt.resize(sizeOfRCjets,-999.);
+	      m_rrcjet_eta.resize(sizeOfRCjets,-999.);
+	      m_rrcjet_phi.resize(sizeOfRCjets,-999.);
+	      m_rrcjet_e.resize(sizeOfRCjets,-999.);
+     
+	      m_rcjet_tau32_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_tau21_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_tau1_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_tau2_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_tau3_clstr.resize(sizeOfRCjets,-999.);
+ 	  
+	      m_rcjet_D2_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_ECF1_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_ECF2_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_ECF3_clstr.resize(sizeOfRCjets,-999.);
+ 
+	      m_rcjet_d12_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_d23_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_Qw_clstr.resize(sizeOfRCjets,-999.);
+	    }
             unsigned int i = 0;
             std::vector<int> rc_particle_selected_jets;
             rc_particle_selected_jets.clear();
@@ -3042,6 +3123,26 @@ namespace top {
                 m_rcjet_d12[i] = (RCSplit12.isAvailable(*rc_jet)) ? RCSplit12(*rc_jet) : -999.;
                 m_rcjet_d23[i] = (RCSplit23.isAvailable(*rc_jet)) ? RCSplit23(*rc_jet) : -999.;
 
+		if (m_useRCJSS){
+		  m_rrcjet_pt[i]   =  (RRCJet_pt.isAvailable(*rc_jet))  ? RRCJet_pt(*rc_jet) : -999.;
+		  m_rrcjet_eta[i]  =  (RRCJet_eta.isAvailable(*rc_jet)) ? RRCJet_eta(*rc_jet) : -999.;
+		  m_rrcjet_phi[i]  =  (RRCJet_phi.isAvailable(*rc_jet)) ? RRCJet_phi(*rc_jet) : -999.;
+		  m_rrcjet_e[i]    =  (RRCJet_e.isAvailable(*rc_jet))   ? RRCJet_e(*rc_jet) : -999.;
+
+		  m_rcjet_tau32_clstr[i] = (Tau32_clstr.isAvailable(*rc_jet)) ? Tau32_clstr(*rc_jet) : -999.;
+		  m_rcjet_tau21_clstr[i] = (Tau21_clstr.isAvailable(*rc_jet)) ? Tau21_clstr(*rc_jet) : -999.;
+		  m_rcjet_tau3_clstr[i] = (Tau3_clstr.isAvailable(*rc_jet)) ? Tau3_clstr(*rc_jet) : -999.;
+		  m_rcjet_tau2_clstr[i] = (Tau2_clstr.isAvailable(*rc_jet)) ? Tau2_clstr(*rc_jet) : -999.;
+		  m_rcjet_tau1_clstr[i] = (Tau1_clstr.isAvailable(*rc_jet)) ? Tau1_clstr(*rc_jet) : -999.;
+		  m_rcjet_D2_clstr[i] = (D2_clstr.isAvailable(*rc_jet)) ? D2_clstr(*rc_jet) : -999.;
+		  m_rcjet_ECF1_clstr[i] = (ECF1_clstr.isAvailable(*rc_jet)) ? ECF1_clstr(*rc_jet) : -999.;
+		  m_rcjet_ECF2_clstr[i] = (ECF2_clstr.isAvailable(*rc_jet)) ? ECF2_clstr(*rc_jet) : -999.;
+		  m_rcjet_ECF3_clstr[i] = (ECF3_clstr.isAvailable(*rc_jet)) ? ECF3_clstr(*rc_jet) : -999.;
+		  m_rcjet_d12_clstr[i] = (d12_clstr.isAvailable(*rc_jet)) ? d12_clstr(*rc_jet) : -999.;
+		  m_rcjet_d23_clstr[i] = (d23_clstr.isAvailable(*rc_jet)) ? d23_clstr(*rc_jet) : -999.;
+		  m_rcjet_Qw_clstr[i] = (Qw_clstr.isAvailable(*rc_jet)) ? Qw_clstr(*rc_jet) : -999.;
+		}
+	    
                 // loop over subjets
                 m_rcjetsub_pt[i].clear();     // clear the vector size (otherwise it grows out of control!)
                 m_rcjetsub_eta[i].clear();
@@ -3075,6 +3176,28 @@ namespace top {
             m_rcjetsub_Ghosts_BHadron_Final_Count.resize(i, std::vector<int>());
             m_rcjetsub_Ghosts_CHadron_Final_Count.resize(i, std::vector<int>());
 
+	    if (m_useRCJSS){
+	      m_rrcjet_pt.resize(i);
+	      m_rrcjet_eta.resize(i);
+	      m_rrcjet_phi.resize(i);
+	      m_rrcjet_e.resize(i);
+
+	      m_rcjet_tau21_clstr.resize(i);
+	      m_rcjet_tau32_clstr.resize(i);
+	      m_rcjet_tau1_clstr.resize(i);
+	      m_rcjet_tau2_clstr.resize(i);
+	      m_rcjet_tau3_clstr.resize(i);
+ 	  
+	      m_rcjet_D2_clstr.resize(i);
+	      m_rcjet_ECF1_clstr.resize(i);
+	      m_rcjet_ECF2_clstr.resize(i);
+	      m_rcjet_ECF3_clstr.resize(i);
+ 
+	      m_rcjet_d12_clstr.resize(i);
+	      m_rcjet_d23_clstr.resize(i);
+	      m_rcjet_Qw_clstr.resize(i);
+	    }
+	    
         }
 
         //met
