@@ -209,7 +209,8 @@ StatusCode PixelMainMon::fillTrackMon(void) {
         continue;
         // working only with real hits (not outliers or holes) from now on
       }
-
+      //need the mesb to be sensible before dereferencing it
+      if (not mesb) continue;
       const InDetDD::SiDetectorElement *side = dynamic_cast<const InDetDD::SiDetectorElement *>(mesb->associatedSurface().associatedDetectorElement());
       const InDet::SiClusterOnTrack *clus = dynamic_cast<const InDet::SiClusterOnTrack *>(mesb);
       if (!side || !clus) continue;
