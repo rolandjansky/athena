@@ -71,7 +71,6 @@ StatusCode sTGCSimHitVariables::fillVariables()
       //  convert simHit id to offline id; make sanity checks; retrieve the associated detector element.
       Identifier offId = simToOffline.convert(hit.GenericId());
       
-      if( type == 2 && abs(m_sTgcIdHelper->stationEta(offId)) < 3 ) continue;
 
       std::string stName   = m_sTgcIdHelper->stationNameString(m_sTgcIdHelper->stationName(offId));
       int off_stationEta   = m_sTgcIdHelper->stationEta(offId); 
@@ -83,11 +82,15 @@ StatusCode sTGCSimHitVariables::fillVariables()
 
       int isSmall = stName[2] == 'S';
 
+      if( type == 2 && off_channel == 63) {
+      	ATH_MSG_DEBUG("Found sTGC Wire Sim Hit with channel number 63 (dead region), skipping this hit");
+      	continue;
+      }
+
       const MuonGM::sTgcReadoutElement* detEl = m_detManager->getsTgcReadoutElement(offId);
       if( !detEl ){
         ATH_MSG_WARNING("sTGC geometry, failed to retrieve detector element for: isSmall " << isSmall << " eta " << m_sTgcIdHelper->stationEta(offId)
                         << " phi " << m_sTgcIdHelper->stationPhi(offId) << " ml " << m_sTgcIdHelper->multilayer(offId) );
-        continue;
       }
 
       if( !m_sTgcIdHelper->is_stgc(offId) ){
