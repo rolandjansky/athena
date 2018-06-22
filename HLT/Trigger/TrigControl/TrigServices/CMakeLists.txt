@@ -27,7 +27,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigEvent/TrigNavigation
                           Trigger/TrigMonitoring/TrigMonitorBase
-                          Trigger/TrigSteer/TrigInterfaces )
+                          Trigger/TrigSteer/TrigInterfaces
+                          HLT/Event/TrigByteStreamCnvSvc )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -43,7 +44,7 @@ atlas_add_library( TrigServicesLib
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${TDAQ_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                    LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} AthenaBaseComps AthenaKernel ByteStreamCnvSvc ByteStreamData EventInfo xAODEventInfo GaudiKernel TrigKernel TrigSteeringEvent StoreGateLib SGtests ByteStreamCnvSvcBaseLib ByteStreamData_test TrigDataAccessMonitoringLib TrigROBDataProviderSvcLib TrigNavigationLib TrigMonitorBaseLib TrigInterfacesLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} SGTools AthenaPoolUtilities )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} SGTools AthenaPoolUtilities TrigByteStreamCnvSvc )
 
 atlas_add_component( TrigServices
                      src/components/*.cxx
