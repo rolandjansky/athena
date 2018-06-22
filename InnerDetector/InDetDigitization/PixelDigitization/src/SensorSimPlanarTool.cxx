@@ -50,7 +50,7 @@ SensorSimPlanarTool::~SensorSimPlanarTool() { }
 //    I N I T I A L I Z E
 //===============================================
 StatusCode SensorSimPlanarTool::initialize() {
-  CHECK(SensorSimTool::initialize()); 
+  ATH_CHECK(SensorSimTool::initialize()); 
   ATH_MSG_DEBUG ( "SensorSimPlanarTool::initialize()");
   return StatusCode::SUCCESS;
 }
@@ -87,7 +87,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
   //Set up physical detector properties, switch on detector material
   ATH_MSG_DEBUG("Applying planar sensor simulation");
   double sensorThickness = Module.design().thickness();
-  const InDet::SiliconProperties & siProperties = m_siPropertiesSvc->getSiProperties(Module.identifyHash());
+  const InDet::SiliconProperties & siProperties = m_siPropertiesTool->getSiProperties(Module.identifyHash());
   double eleholePairEnergy = 0;
   double smearRand = 0;
 

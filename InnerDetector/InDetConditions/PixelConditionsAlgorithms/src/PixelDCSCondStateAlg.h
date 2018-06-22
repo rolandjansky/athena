@@ -11,7 +11,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "StoreGate/WriteCondHandleKey.h"
-#include "PixelConditionsData/PixelDCSCondData.h"
+#include "PixelConditionsData/PixelDCSConditionsData.h"
 
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
@@ -20,17 +20,18 @@ class PixelDCSCondStateAlg : public AthAlgorithm {
   public:
     PixelDCSCondStateAlg(const std::string& name, ISvcLocator* pSvcLocator);
     virtual ~PixelDCSCondStateAlg() = default;
-    StatusCode initialize() override;
-    StatusCode execute() override;
-    StatusCode finalize() override;
+
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute() override;
+    virtual StatusCode finalize() override;
 
   private:
-    SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyState;
-    SG::WriteCondHandleKey<PixelDCSCondData> m_writeKeyState;
+    SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyState   {this, "ReadKeyState",   "/PIXEL/DCS/FSMSTATE",    "Key of input (raw) State conditions folder"};
+    SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyStatus  {this, "ReadKeyStatus",  "/PIXEL/DCS/FSMSTATUS",   "Key of input (raw) Status conditions folder"};
+    SG::WriteCondHandleKey<PixelDCSConditionsData> m_writeKeyState {this, "WriteKeyState",  "PixelDCSStateCondData",  "Key of output (derived) State conditions folder"};
+    SG::WriteCondHandleKey<PixelDCSConditionsData> m_writeKeyStatus{this, "WriteKeyStatus", "PixelDCSStatusCondData", "Key of output (derived) Status conditions folder"};
 
     ServiceHandle<ICondSvc> m_condSvc;
-
-    BooleanProperty m_readAllDBFolders;
 };
 
 #endif // PIXELDCSCONDSTATEALG

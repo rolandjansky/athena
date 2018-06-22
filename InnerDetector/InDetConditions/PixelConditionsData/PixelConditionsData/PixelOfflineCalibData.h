@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -91,7 +91,7 @@ inline PixelOfflineCalibData& PixelOfflineCalibData::operator=(const PixelOfflin
   }
   return (*this);
 }
-                                                                   
+
 inline bool PixelOfflineCalibData::update(const PixelClusterErrorData& idat){
   *m_clustererrordata = idat;
   return true;
@@ -134,13 +134,5 @@ delete m_clusterontrackerrordata;
 CLASS_DEF(PixelCalib::PixelOfflineCalibData, 209342487, 1)
 CLASS_DEF(CondCont<PixelCalib::PixelOfflineCalibData> , 213651723 , 1)
 
-
 #endif 
-
-
-
-
-
-
-
 
