@@ -63,13 +63,15 @@ StatusCode IsolationCPTools::setupIsolation() {
   // Muon Isolation WPs
   std::set<std::string> muon_isolations = {"LooseTrackOnly", "Loose",
                                             "Gradient", "GradientLoose",
+                                            "FixedCutTight",
                                             "FixedCutTightTrackOnly",
-                                            "FixedCutLoose"};
+                                            "FixedCutLoose",
+                                            "FixedCutHighMuTight",
+                                            "FixedCutHighMuLoose"};
   // Electron Isolation WPs include all of those defined for
-  // muons + FixedCutTight
+  // muons + FixedCutHighPtCaloOnly
   std::set<std::string> electron_isolations;
   electron_isolations.insert(muon_isolations.begin(), muon_isolations.end());
-  electron_isolations.insert("FixedCutTight");
   electron_isolations.insert("FixedCutHighPtCaloOnly");
 
   // Photon Isolation WPs

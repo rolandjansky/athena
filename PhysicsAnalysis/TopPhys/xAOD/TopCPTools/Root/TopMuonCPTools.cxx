@@ -215,9 +215,9 @@ StatusCode MuonCPTools::setupScaleFactors() {
     *    Note: if isolation WP is None, then don't setup the tool
     ************************************************************/
   // If we don't want isolation then we don't need the tool
-  if (m_config->muonIsolation() != "None") {
+  if (m_config->muonIsolationSF() != "None") {
     // Add iso as a suffix (see above for consistency between tools :) )
-    std::string muon_isolation = m_config->muonIsolation();
+    std::string muon_isolation = m_config->muonIsolationSF();
     muon_isolation += "Iso";
     m_muonEfficiencyCorrectionsToolIso = 
       setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolIso",
@@ -225,10 +225,10 @@ StatusCode MuonCPTools::setupScaleFactors() {
   }
 
   // Do we have isolation on our loose muons? If not no need for the tool...
-  if (m_config->muonIsolationLoose() != "None") {
+  if (m_config->muonIsolationSFLoose() != "None") {
     // Add iso as a suffix (see above for consistency between tools :) )
     // Note: now loose isolation
-    std::string muon_isolation = m_config->muonIsolationLoose();
+    std::string muon_isolation = m_config->muonIsolationSFLoose();
     muon_isolation += "Iso";
     m_muonEfficiencyCorrectionsToolLooseIso =
       setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolLooseIso",
@@ -247,8 +247,8 @@ StatusCode MuonCPTools::setupScaleFactors() {
 
   // WARNING - The PromptLeptonIsolation scale factors are only derived with respect to the loose PID
   //         - Hence we need to fail if this has occured
-  if( (m_config->muonQuality() != "Loose" && m_config->muonIsolation() == "PromptLepton")
-      || (m_config->muonQualityLoose() !="Loose" && m_config->muonIsolationLoose() == "PromptLepton") ){
+  if( (m_config->muonQuality() != "Loose" && m_config->muonIsolationSF() == "PromptLepton")
+      || (m_config->muonQualityLoose() !="Loose" && m_config->muonIsolationSFLoose() == "PromptLepton") ){
     ATH_MSG_ERROR("Cannot use PromptLeptonIsolation on muons without using Loose quality - Scale factors are not available");
     return StatusCode::FAILURE;
   }
