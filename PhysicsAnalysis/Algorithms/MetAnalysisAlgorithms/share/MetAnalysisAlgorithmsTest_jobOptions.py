@@ -25,8 +25,7 @@ algSeq += sysLoader
 
 # Include, and then set up the met analysis algorithm sequence:
 from MetAnalysisAlgorithms.MetAnalysisSequence import makeMetAnalysisSequence
-metSequence = makeMetAnalysisSequence( dataType )
-metSequence.configure( inputName = 'Mets', outputName = 'AnalysisMets' )
+metSequence = makeMetAnalysisSequence( dataType, "AntiKt4EMTopoJets", "(^$)", [["Muons", "(^$)", 8, "RefMuon"], ["Electrons", "(^$)", 6, "RefEle"]] )
 print( metSequence ) # For debugging
 
 # Add the sequence to the job:
