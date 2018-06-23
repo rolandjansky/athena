@@ -16,7 +16,7 @@ Muon::STGC_RawData::STGC_RawData(const Identifier id)
 
 Muon::STGC_RawData::STGC_RawData(const Identifier id, const uint16_t bcTag, const float time, 
 				 const float charge, const bool isDead)
-  :m_id(id), m_bcTag(bcTag), m_time(time), m_charge(charge), m_isDead(isDead)
+  :m_id(id), m_time(time), m_charge(charge), m_bcTag(bcTag), m_isDead(isDead)
 {
 }
 
