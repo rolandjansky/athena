@@ -45,7 +45,7 @@ UpgradeObjectLoader::UpgradeObjectLoader( const std::shared_ptr<top::TopConfig> 
     top::check(m_upgrade->setProperty("Layout", UpgradePerformanceFunctionsxAOD::Step1p6) , "Failed to setProperty" );
     top::check(m_upgrade->setProperty("AvgMu", 200) , "Failed to setProperty" );
     top::check(m_upgrade->setProperty("ElectronWorkingPoint", UpgradePerformanceFunctionsxAOD::mediumElectron) , "Failed to setProperty" );
-    top::check(m_upgrade->setProperty("ElectronRadomSeed", 171) , "Failed to setProperty" );
+    top::check(m_upgrade->setProperty("ElectronRandomSeed", 171) , "Failed to setProperty" );
     top::check(m_upgrade->setProperty("MuonWorkingPoint", UpgradePerformanceFunctionsxAOD::tightMuon), "Failed to setProperty" );
     top::check(m_upgrade->setProperty("METRandomSeed", 986), "Failed to setProperty" );
     top::check(m_upgrade->setProperty("METFile", "UpgradePerformanceFunctions/CalibArea-00-01/sumetPU_mu200_ttbar_gold.root"), "Failed to setProperty" );
