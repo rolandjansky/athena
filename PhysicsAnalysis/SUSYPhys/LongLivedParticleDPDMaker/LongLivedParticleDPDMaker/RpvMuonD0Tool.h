@@ -1,0 +1,53 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////
+// RpvMuonD0Tool.h  (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+#ifndef DERIVATIONFRAMEWORK_RPVMUOND0TOOL_H
+#define DERIVATIONFRAMEWORK_RPVMUOND0TOOL_H 1
+
+#include<string>
+
+// Gaudi & Athena basics
+#include "AthenaBaseComps/AthAlgTool.h"
+
+// DerivationFramework includes
+#include "DerivationFrameworkInterfaces/IAugmentationTool.h"
+
+namespace DerivationFramework {
+
+  /** @class RpvMuonD0Tool
+ 
+      the code used in this implementation is kindly stolen from:
+      atlasoff:: ISF/ISF_Core/ISF_Tools
+
+      @author Michael Flowerdew -at- cern.ch
+     */
+  class RpvMuonD0Tool : public AthAlgTool, public IAugmentationTool {
+   
+  public: 
+    /** Constructor with parameters */
+    RpvMuonD0Tool( const std::string& t, const std::string& n, const IInterface* p );
+   
+    /** Destructor */
+    ~RpvMuonD0Tool();
+   
+    // Athena algtool's Hooks
+    StatusCode  initialize();
+    StatusCode  finalize();
+ 
+    /** Check that the current event passes this filter */
+    virtual StatusCode addBranches() const;
+
+  private:
+    std::string m_collName;
+    std::string m_sgPrefix;
+
+  }; 
+ 
+}
+
+#endif

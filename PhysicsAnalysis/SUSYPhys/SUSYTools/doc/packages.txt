@@ -1,0 +1,4 @@
+#for running on Base,2.4.33
+#
+# No packages required against .33!  If a package were required, you would list it like:
+#atlasoff/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-00-02-51

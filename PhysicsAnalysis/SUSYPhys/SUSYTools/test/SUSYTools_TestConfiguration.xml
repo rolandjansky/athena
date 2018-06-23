@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+<unifiedTestConfiguration>
+
+  <atn>
+    <!--- AthAnalysisBase tests -->
+    <TEST name="SUSYTools_minimalExampleJobOptions_mc" type="athena" suite="SUSYTools">
+      <options_atn>SUSYTools/minimalExampleJobOptions_mc.py || { rm monitoring.mc.root;exit 1; }</options_atn>
+      <timelimit>15</timelimit>
+      <author> SUSY Background Forum conveners </author>
+      <mailto> atlas-phys-susy-bgforum-conveners@cern.ch </mailto>
+      <project_exclude>AnalysisBase</project_exclude>
+      <postscript>rootcomp.py --html --atnMode --output rootcomp_monitoring.mc.root monitoring.mc.root
+      </postscript>
+      <expectations>
+        <errorMessage>FAILURE (ERROR)</errorMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+    <TEST name="SUSYTools_minimalExampleJobOptions_atlfast" type="athena" suite="SUSYTools">
+      <options_atn>SUSYTools/minimalExampleJobOptions_atlfast.py || { rm monitoring.atlfast.root;exit 1; }</options_atn>
+      <timelimit>15</timelimit>
+      <author> SUSY Background Forum conveners </author>
+      <mailto> atlas-phys-susy-bgforum-conveners@cern.ch </mailto>
+      <!--- For the moment exclude 21.X release AF2 test (no test file -->
+      <nightly_exclude>2.6.X</nightly_exclude>
+      <nightly_exclude>21.2</nightly_exclude>
+      <project_exclude>AnalysisBase</project_exclude>
+      <postscript>rootcomp.py --html --atnMode --output rootcomp_monitoring.atlfast.root monitoring.atlfast.root
+      </postscript>
+      <expectations>
+        <errorMessage>FAILURE (ERROR)</errorMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+    <TEST name="SUSYTools_minimalExampleJobOptions_data" type="athena" suite="SUSYTools">
+      <options_atn>SUSYTools/minimalExampleJobOptions_data.py || { rm monitoring.data.root;exit 1; }</options_atn>
+      <timelimit>15</timelimit>
+      <author> SUSY Background Forum conveners </author>
+      <mailto> atlas-phys-susy-bgforum-conveners@cern.ch </mailto>
+      <project_exclude>AnalysisBase</project_exclude>
+      <postscript>rootcomp.py --html --atnMode --output rootcomp_monitoring.data.root monitoring.data.root
+      </postscript>
+      <expectations>
+        <errorMessage>FAILURE (ERROR)</errorMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+    <TEST name="SUSYTools_applyST" type="athena" suite="SUSYTools">
+      <options_atn>SUSYTools/applyST.py || { rm DAOD_AST.topaod_jul20.pool.root;exit 1; }</options_atn>
+      <timelimit>15</timelimit>
+      <author> SUSY Background Forum conveners </author>
+      <mailto> atlas-phys-susy-bgforum-conveners@cern.ch </mailto>
+      <project_exclude>AnalysisBase</project_exclude>
+      <expectations>
+        <errorMessage>FAILURE (ERROR)</errorMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+
+    <!--- AnalysisBase tests -->
+    <TEST name="SUSYTools_makecheck" type="makecheck" suite="SUSYTools">
+      <package>SUSYTools</package>
+      <timelimit>15</timelimit>
+      <author> SUSY Background Forum conveners </author>
+      <mailto> atlas-phys-susy-bgforum-conveners@cern.ch </mailto>
+      <project_exclude>AthAnalysisBase</project_exclude>
+      <expectations>
+        <errorMessage>FAILURE (ERROR)</errorMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+    
+  </atn>
+
+  <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+
+    <rttContactPerson>SUSY Background Forum conveners</rttContactPerson>
+    <mailto>atlas-phys-susy-bgforum-conveners@cern.ch</mailto>
+
+    <jobList>
+      <classification>
+        <displayClass>OfflineValidation</displayClass>
+        <displayProcess>Reco</displayProcess>
+        <displayComponent>Athena-Core</displayComponent>
+      </classification>
+
+      <jobTransform userJobId="STT_MC15_SUSY1">
+    <doc>Test SUSYToolsTester on RTT DAOD_MC15SUSY1</doc>
+    <jobTransformJobName>STT_MC15_SUSY1</jobTransformJobName>
+    <jobTransformCmd>
+      SUSYToolsTester.exe doRTT=1 SUSYx=1 isData=0 isAtlfast=0 Debug=0 NoSyst=0 &gt; SUSY_rtt_val_MC15SUSY1_rel_1.log 2&gt;&amp;1
+    </jobTransformCmd>
+    <group>QuickAnaAthTest</group>
+    <queue>medium</queue>
+    <keepFilePattern  info="STT test output">SUSY_rtt_val_MC15SUSY1_rel_1.log</keepFilePattern>
+
+      </jobTransform>
+    </jobList>
+
+    <jobGroups>
+      <jobGroup name="QuickAnaAthTest" parent="Transform">
+     </jobGroup>
+      <jobGroup name="TrfRecPerf" parent="Transform">
+     </jobGroup>
+    </jobGroups>
+
+  </rtt>
+
+</unifiedTestConfiguration>
