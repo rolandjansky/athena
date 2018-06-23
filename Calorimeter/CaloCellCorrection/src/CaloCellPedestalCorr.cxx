@@ -165,7 +165,7 @@ StatusCode CaloCellPedestalCorr::updateMap(IOVSVC_CALLBACK_ARGS_K(keys) )
 // ============================================================================
 
 void CaloCellPedestalCorr::MakeCorrection (CaloCell* theCell,
-                                           const EventContext& ctx) const
+                                           const EventContext& /*ctx*/) const
 {
 
   float pedestal=0.;
@@ -185,11 +185,6 @@ void CaloCellPedestalCorr::MakeCorrection (CaloCell* theCell,
   }
 
   if (!m_caloLumiBCIDTool.empty() ) {
-    // FIXME: CaloLumiBCIDTool has threading issues.
-    //        Refuse to proceed if we're running with multiple threads.
-    if (ctx.slot() > 1) {
-      std::abort();
-    }
     pedestal = pedestal + m_caloLumiBCIDTool->average(theCell,0);
   }
 
