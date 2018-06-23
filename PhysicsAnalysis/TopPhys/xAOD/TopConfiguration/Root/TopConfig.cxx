@@ -159,6 +159,8 @@ namespace top{
     m_electronPtcut(25000.),
     m_electronIsolation("SetMe"),
     m_electronIsolationLoose("SetMe"),
+    m_electronIsolationSF("SetMe"),
+    m_electronIsolationSFLoose("SetMe"),
     m_electronIsoSFs(true),
     m_electronIDDecoration("SetMe"),
     m_electronIDLooseDecoration("SetMe"),
@@ -170,6 +172,8 @@ namespace top{
     m_muonQualityLoose("SetMe"),
     m_muonIsolation("SetMe"),
     m_muonIsolationLoose("SetMe"),
+    m_muonIsolationSF("SetMe"),
+    m_muonIsolationSFLoose("SetMe"),
 
     // Jet configuration
     m_jetPtcut(25000.),
@@ -632,16 +636,24 @@ namespace top{
     this->egammaSystematicModel( settings->value("EgammaSystematicModel") );
     this->electronID( settings->value("ElectronID") );
     this->electronIDLoose( settings->value("ElectronIDLoose") );
-    this->electronIsolation( settings->value("ElectronIsolation") );
-    this->electronIsolationLoose( settings->value("ElectronIsolationLoose") );
+    {
+      std::string const & cut_wp = settings->value("ElectronIsolation");
+      std::string const & sf_wp = settings->value("ElectronIsolationSF");
+      this->electronIsolation(cut_wp);
+      this->electronIsolationSF(sf_wp == " " ? cut_wp : sf_wp);
+    }
+    {
+      std::string const & cut_wp = settings->value("ElectronIsolationLoose");
+      std::string const & sf_wp = settings->value("ElectronIsolationSFLoose");
+      this->electronIsolationLoose(cut_wp);
+      this->electronIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
+    }
     // Print out a warning for FixedCutHighPtCaloOnly
     if (this->electronIsolation() == "FixedCutHighPtCaloOnly" || this->electronIsolationLoose() == "FixedCutHighPtCaloOnly"){
       std::cout << "TopConfig - ElectronIsolation - FixedCutHighPtCaloOnly can only be used with an electron pT cut > 60 GeV" << std::endl;
     }
 
     this->electronPtcut( std::stof(settings->value("ElectronPt")) );
-    if( settings->value("ElectronIsoSFs") == "False" )
-      this->m_electronIsoSFs = false;
 
     m_electronIDDecoration = "AnalysisTop_" + m_electronID;
     m_electronIDLooseDecoration = "AnalysisTop_" + m_electronIDLoose;
@@ -661,8 +673,18 @@ namespace top{
     this->muonEtacut( std::stof(settings->value("MuonEta")) );
     this->muonQuality( settings->value("MuonQuality") );
     this->muonQualityLoose( settings->value("MuonQualityLoose") );
-    this->muonIsolation( settings->value("MuonIsolation") );
-    this->muonIsolationLoose( settings->value("MuonIsolationLoose") );
+    {
+      std::string const & cut_wp = settings->value("MuonIsolation");
+      std::string const & sf_wp = settings->value("MuonIsolationSF");
+      this->muonIsolation(cut_wp);
+      this->muonIsolationSF(sf_wp == " " ? cut_wp : sf_wp);
+    }
+    {
+      std::string const & cut_wp = settings->value("MuonIsolationLoose");
+      std::string const & sf_wp = settings->value("MuonIsolationSFLoose");
+      this->muonIsolationLoose(cut_wp);
+      this->muonIsolationSFLoose(sf_wp == " " ? cut_wp : sf_wp);
+    }
 
     if (settings->value("UseAntiMuons") == "True")
       this->m_useAntiMuons = true;
