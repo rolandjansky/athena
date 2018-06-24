@@ -87,6 +87,7 @@ Muon::MuonInertMaterialBuilder::MuonInertMaterialBuilder(const std::string& t, c
   m_buildRails(1),
   m_buildShields(true),
   m_buildSupports(true),
+  m_buildNSWInert(true),
   m_blendLimit(3e+09),
   m_materialConverter(0),
   m_geoShapeConverter(0),
@@ -241,9 +242,11 @@ const std::vector<std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::
 	const GeoLogVol* clv = cv->getLogVol();
 	std::string vname = clv->getName();
 	
-        if ( vname.size()<8 && vname.substr(0,3)=="NSW" ) {   // do nothing, probably NSW station
-	} else if ( vname.size()>=8 && vname.substr(0,8)=="NewSmall" ) {  // do nothing, probably NSW station
-	} else 	if ( vname.size()>7 && vname.substr(vname.size()-7,7) =="Station") { // do nothing, active station
+//	if ( vname.size()<8 && vname.substr(0,3)=="NSW" && vname.substr(1,4)=="sTGC" ) {   // do nothing NSW sTGC station
+//	} else if ( vname.size()<8 && vname.substr(0,3)=="NSW" && vname.substr(1,2)=="MM" ) {   // do nothing NSW MM station
+//	} else if ( vname.size()>=8 && vname.substr(0,8)=="NewSmall" && vname.substr(1,4)=="sTGC" ) {  // do nothing, probably NSW station
+//	} else if ( vname.size()>=8 && vname.substr(0,8)=="NewSmall" && vname.substr(1,2)=="MM" ) {  // do nothing, probably NSW station
+	if ( vname.size()>7 && vname.substr(vname.size()-7,7) =="Station") { // do nothing, active station
 	} else {
 
 	  //std::cout << " INERT muon object found:" << vname << std::endl;
@@ -255,8 +258,14 @@ const std::vector<std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::
 	  else if ( vname.substr(0,4)=="Feet" || ( vname.size()>7 && 
 			 (vname.substr(3,4)=="Feet" || vname.substr(4,4)=="Feet" ) ) ) accepted = m_buildFeets ? true : false; 
 	  else if ( vname.substr(0,4)=="Rail" ) accepted = m_buildRails>0 ? true : false; 
-	  else if ( vname.substr(0,1)!="J" )  accepted = m_buildSupports>0 ? true : false; 
-	  else if ( vname.substr(0,1)=="J" )  accepted = m_buildShields>0 ? true : false; 
+	  else if ( vname.substr(0,1)=="J" )  accepted = m_buildShields>0 ? true : false;
+	  // NSW build inertmaterial for spacer frame, aluminium HUB, NJD disk and A plate
+	  else if ( vname.substr(0,3)=="NSW" && vname.substr(1,6)=="Spacer") accepted = m_buildNSWInert ? true : false;
+	  else if ( vname.substr(0,3)=="NSW" && vname.substr(1,2)=="Al")     accepted = m_buildNSWInert ? true : false;
+	  else if ( vname.substr(0,3)=="NJD")                                accepted = m_buildNSWInert ? true : false;
+	  else if ( vname.substr(0,1)=="A" && vname.substr(1,5)=="Plate")    accepted = m_buildNSWInert ? true : false;
+	  // strange NSW will be anyway build
+	  else if ( vname.substr(0,1)!="J" )  accepted = m_buildSupports>0 ? true : false;
 
           //if ( vname=="EdgeBTVoussoir" && accepted && m_simplify ) accepted = false;
 
@@ -290,6 +299,10 @@ const std::vector<std::pair<const Trk::DetachedTrackingVolume*,std::vector<Amg::
 	    
 	    std::string protoName = vname;
 	    if (!simpleTree) protoName = vname+(vols[ish].first->getName());
+	    std::string pName = vols[ish].first->getName();
+	    ATH_MSG_VERBOSE(" check in pName " << pName << ", made of "<<vols[ish].first->getMaterial()->getName()<< " x0 " << vols[ish].first->getMaterial()->getRadLength() <<","<<vols[ish].first->getShape()->type());
+	    // if(pName.substr(0,6)=="sTGC_1") continue;
+	    // if(pName.substr(0,4)=="MM_1") continue;
 	    
 	    bool found = false;
 	    for (unsigned int ip=0; ip<objs.size();ip++) {
@@ -574,7 +587,7 @@ void Muon::MuonInertMaterialBuilder::getObjsForTranslation(const GeoVPhysVol* pv
 {
   // subcomponents 
   unsigned int nc = pv->getNChildVols();
-  //std::cout << "getObjsForTranslation from:"<< pv->getLogVol()->getName()<<","<<pv->getLogVol()->getMaterial()->getName()<<", looping over "<< nc << " children" << std::endl;
+  ATH_MSG_VERBOSE( " INERT getObjsForTranslation from:"<< pv->getLogVol()->getName()<<","<<pv->getLogVol()->getMaterial()->getName()<<", looping over "<< nc << " children" );
   for (unsigned int ic=0; ic<nc; ic++) {
     Amg::Transform3D transf = Amg::CLHEPTransformToEigen(pv->getXToChildVol(ic));
     const GeoVPhysVol* cv = &(*(pv->getChildVol(ic)));
@@ -592,8 +605,8 @@ void Muon::MuonInertMaterialBuilder::getObjsForTranslation(const GeoVPhysVol* pv
 	std::vector<Amg::Transform3D > volTr;
 	volTr.push_back(transform*transf); 
 	vols.push_back(std::pair<const GeoLogVol*,std::vector<Amg::Transform3D> > (clv,volTr) );
-//	std::cout << "new volume added:"<< clv->getName() <<","<<clv->getMaterial()->getName()<<std::endl;
-//	printInfo(cv);
+	ATH_MSG_VERBOSE( "INERT new volume added:"<< clv->getName() <<","<<clv->getMaterial()->getName() );
+	if( msg().level() <= MSG::VERBOSE ) printInfo(cv);
       }
     } else {
       getObjsForTranslation(cv, transform*transf, vols);
