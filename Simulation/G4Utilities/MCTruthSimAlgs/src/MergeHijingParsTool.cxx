@@ -26,7 +26,7 @@ StatusCode MergeHijingParsTool::prepareEvent(unsigned int nInputEvents) {
   return StatusCode::SUCCESS;
 }
 
-StatusCode MergeHijingParsTool::processBunchXing(int,
+StatusCode MergeHijingParsTool::processBunchXing(int bunchXing,
                                                  SubEventIterator bSubEvents,
                                                  SubEventIterator eSubEvents)
 {
@@ -39,44 +39,44 @@ StatusCode MergeHijingParsTool::processBunchXing(int,
   SubEventIterator iEvt = bSubEvents;
   for (; iEvt!=eSubEvents; iEvt++)
     {
-      StoreGateSvc& seStore(*bSubEvents->ptr()->evtStore());
-      if (seStore.contains<HijingEventParams>(m_outputObject.name()))
-        {
-          const HijingEventParams *hijing_pars(nullptr);
-          ATH_CHECK(seStore.retrieve(hijing_pars, m_outputObject.name()));
-          // create new container for overlayed event
-          m_outputObject = CxxUtils::make_unique<HijingEventParams>(hijing_pars->get_np(),
-                                                                    hijing_pars->get_nt(),
-                                                                    hijing_pars->get_n0(),
-                                                                    hijing_pars->get_n01(),
-                                                                    hijing_pars->get_n10(),
-                                                                    hijing_pars->get_n11(),
-                                                                    hijing_pars->get_natt(),
-                                                                    hijing_pars->get_jatt(),
-                                                                    hijing_pars->get_b(),
-                                                                    hijing_pars->get_bphi());
-          // FIXME Why is there no copy constructor for this class?!
-          // add in setting Psi angles manually.
-          for(int n=1;n<7;++n)
-            {
-              m_outputObject->set_psi(n,hijing_pars->get_psi(n));
-            }
+      const HijingEventParams *hijing_pars(nullptr);
+      if (m_pMergeSvc->retrieveSingleSubEvtData(m_outputObject.name(), hijing_pars,
+						 bunchXing, iEvt).isSuccess()){
 
-          if(m_firstSubEvent)
-            {
-              ATH_MSG_DEBUG( "processBunchXing: copied original event HijingEventParams" );
-            }
-          else
-            {
-              ATH_MSG_DEBUG( "processBunchXing: copied background event HijingEventParams" );
-            }
-          return StatusCode::SUCCESS;
-        }
+
+	m_outputObject = CxxUtils::make_unique<HijingEventParams>(hijing_pars->get_np(),
+								  hijing_pars->get_nt(),
+								  hijing_pars->get_n0(),
+								  hijing_pars->get_n01(),
+								  hijing_pars->get_n10(),
+								  hijing_pars->get_n11(),
+								  hijing_pars->get_natt(),
+								  hijing_pars->get_jatt(),
+								  hijing_pars->get_b(),
+								  hijing_pars->get_bphi());
+	// FIXME Why is there no copy constructor for this class?!
+	// add in setting Psi angles manually.
+	for(int n=1;n<7;++n)
+	  {
+	    m_outputObject->set_psi(n,hijing_pars->get_psi(n));
+	  }
+	
+	if(m_firstSubEvent)
+	  {
+	    ATH_MSG_DEBUG( "processBunchXing: copied original event HijingEventParams" );
+	  }
+	else
+	  {
+	    ATH_MSG_DEBUG( "processBunchXing: copied background event HijingEventParams" );
+	  }
+	return StatusCode::SUCCESS;
+      }
+
       if(m_firstSubEvent)
-        {
-          ATH_MSG_VERBOSE("processBunchXing: No HijingEventParams found in the signal eventStore." );
-          m_firstSubEvent=false;
-        }
+	{
+	  ATH_MSG_VERBOSE("processBunchXing: No HijingEventParams found in the signal eventStore." );
+	  m_firstSubEvent=false;
+	}
     }
   return StatusCode::SUCCESS;
 }
