@@ -19,5 +19,5 @@ public
 
 macro_append ROOT_linkopts " -lMatrix"
 
-library TrkAlgebraUtils *.cxx -s=../***REMOVED*** *.f
+library TrkAlgebraUtils *.cxx
 apply_pattern installed_library
