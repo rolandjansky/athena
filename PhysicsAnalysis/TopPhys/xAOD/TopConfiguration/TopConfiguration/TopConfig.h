@@ -107,6 +107,14 @@ class TopConfig final {
   inline bool isAFII() const {return m_isAFII;}
   inline void setIsAFII(const bool value) {if(!m_configFixed){m_isAFII = value;}}
 
+  // Generators name
+  inline std::string getGenerators() const {return m_generators;}
+  inline void setGenerators(const std::string value) {if(!m_configFixed){m_generators = value;}}
+
+  // AMITag
+  inline std::string getAMITag() const {return m_AMITag;}
+  inline void setAMITag(const std::string value) {if(!m_configFixed){m_AMITag = value;}}
+
   // Is this a Primary xAOD?
   inline bool isPrimaryxAOD() const {return m_isPrimaryxAOD;}
   inline void setIsPrimaryxAOD(const bool value) {if(!m_configFixed){m_isPrimaryxAOD = value;}}
@@ -967,6 +975,8 @@ class TopConfig final {
 
   bool m_isMC;
   bool m_isAFII;
+  std::string m_generators;
+  std::string m_AMITag;
   bool m_isPrimaryxAOD;
   bool m_isTruthDxAOD = false;
   std::string m_derivationStream;
