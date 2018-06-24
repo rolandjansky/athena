@@ -42,8 +42,8 @@ if (not 'TileCablingType' in dir()):
         except:
             msg.info("No Run Number available - assume latest cabling")
 
-    from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
-    if geoFlags.Run()=="RUN1":
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
+    if ( geoFlags.Run() in ["RUN1", "RUN3", "RUN4"] ) :
         if rn>219651: # choose RUN2 cabling for old geometry tags starting from 26-MAR-2013 
             TileCablingType = 4 
             msg.warning("Forcing RUN2 cabling for run %s with geometry %s" % (rn,gbltg) )
