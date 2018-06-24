@@ -50,7 +50,7 @@ StatusCode InDet::InDetBeamSpotFinder::initialize() {
   }
   ATH_CHECK( service("THistSvc",m_thistSvc) );
   ATH_CHECK( m_toolSvc.retrieve() );
-  ATH_CHECK( m_bcTool.retrieve() );
+  if( m_useFilledBCIDsOnly ) ATH_CHECK( m_bcTool.retrieve() );
   for ( unsigned int i = 0; i < m_beamSpotToolList.size(); i++){ ATH_CHECK( m_beamSpotToolList[i].retrieve() );}
   if( m_writeVertexNtuple ){ ATH_CHECK(setupVertexTree()); }
   ATH_CHECK( setupBeamSpotTree() );
