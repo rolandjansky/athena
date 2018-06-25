@@ -575,6 +575,8 @@ namespace top{
 	  std::cout << "We will attempt to read the IsAFII flag from your config." << std::endl;
 	  this->ReadIsAFII(settings);
 	  std::cout << "Unfortunately, we can not read MC generators and AMITag without valid MetaData." << std::endl;
+          this->setGenerators("unknown");
+          this->setAMITag("unknown");
 	}
       }
       else{
@@ -819,7 +821,13 @@ namespace top{
     // -----------------------------------------------]]]
 
     // Upgrade studies
-    if(settings->value("HLLHC")=="True") this->HLLHC( true );
+    if(settings->value("HLLHC")=="True"){
+       this->HLLHC( true );
+       if(settings->value("TDPPath").compare("dev/AnalysisTop/TopDataPreparation/XSection-MC15-13TeV.data")==0){
+          std::cout<<"TopConfig::setConfigSettings  HLLHC is set to True, but the TDPPath is set to default "<<settings->value("TDPPath")<<". Changing to dev/AnalysisTop/TopDataPreparation/XSection-MC15-14TeV.data"<<std::endl;
+          this->setTDPPath("dev/AnalysisTop/TopDataPreparation/XSection-MC15-14TeV.data");
+       }
+    }
     if(settings->value("HLLHCFakes")=="True") this->HLLHCFakes( true );
 
     // LHAPDF Reweighting configuration
