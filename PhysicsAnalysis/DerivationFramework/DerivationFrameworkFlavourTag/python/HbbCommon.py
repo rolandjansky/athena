@@ -84,6 +84,9 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
 # Build ExKt or CoM Subjets, default is ExKt
 #===================================================================
 def addExKtCoM(sequence, ToolSvc, JetCollectionExCoM, nSubjets, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal","GhostCHadronsFinal"], min_subjet_pt_mev = 0, subjetAlgName = "Kt"):
+    if(subjetAlgName != "Kt" and subjetAlgName != "CoM"):
+      print "WARNING:  Subjet type must be Kt or CoM.  Using Kt as default!"
+      subjetAlgName = "Kt"
     from JetRec.JetRecStandard import jtm
     ExCoMJetCollection__SubJet = []
     
