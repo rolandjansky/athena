@@ -173,15 +173,9 @@ namespace ST {
 			   ) override final;
 
     StatusCode GetMETSig(xAOD::MissingETContainer& met,
-                      double& metSignificance,
-		      const xAOD::JetContainer* jet,
-                      const xAOD::ElectronContainer* elec = 0,
-                      const xAOD::MuonContainer* muon = 0,
-                      const xAOD::PhotonContainer* gamma = 0,
-                      const xAOD::TauJetContainer* taujet = 0,
-                      bool doTST = true, bool doJVTCut = true,
-		      const xAOD::IParticleContainer* invis = 0
-		      ) override final;
+                         double& metSignificance,
+                         bool doTST = true, bool doJVTCut = true
+		         ) override final;
 
     bool IsSignalJet(const xAOD::Jet& input, const float ptcut, const float etacut) const override final;
 
@@ -605,6 +599,7 @@ namespace ST {
     bool   m_orRemoveCaloMuons;
     std::string m_orBtagWP;
     std::string m_orInputLabel;
+    double m_orBJetPtUpperThres;
 
     bool   m_orDoFatjets;
     double m_EleFatJetDR;
