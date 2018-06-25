@@ -42,6 +42,9 @@ namespace InDet {
     
     //Copy Constructor
     InDetBeamSpotRooFit( const InDetBeamSpotRooFit& rhs );
+    
+    //assignment
+    InDetBeamSpotRooFit & operator =(const InDetBeamSpotRooFit & other) =default;
  
     //These are the member functions to keep:
     virtual StatusCode initialize();

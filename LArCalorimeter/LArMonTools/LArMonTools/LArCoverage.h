@@ -115,6 +115,8 @@ class LArCoverage: public ManagedMonitorToolBase
   int m_nsigma;
   int m_nevents;
 
+  bool m_monitorMNBFEBs;
+
   // Other things
   int m_eventsCounter;
   std::map<HWIdentifier,int> m_noisycells;
@@ -141,7 +143,7 @@ class LArCoverage: public ManagedMonitorToolBase
   TH2I_LW*   m_hBadChannelsEndcapA;
   TH2I_LW*   m_hBadChannelsEndcapC;
 
-  // Bad Channels from DB
+  // Bad MNB FEBs from DB
   TH2I_LW*   m_hSuspiciousMNBFEBsBarrelA;
   TH2I_LW*   m_hSuspiciousMNBFEBsBarrelC;
   TH2I_LW*   m_hSuspiciousMNBFEBsEndcapA;

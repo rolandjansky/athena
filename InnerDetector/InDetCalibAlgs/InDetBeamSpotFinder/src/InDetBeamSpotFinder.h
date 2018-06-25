@@ -9,23 +9,32 @@
 // Contact: btamadio@lbl.gov
 // Main Algorithm: Determine the Beamspot position
 //////////////////////////////
+
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "InDetBeamSpotFinder/IInDetBeamSpotTool.h" //for BeamSpot::Event
+//#include "InDetBeamSpotVertex.h"
+//#include "InDetBeamSpotRooFit.h"
+#include "InDetBeamSpotFinder/BeamSpotStatusCode.h" 
+//#include "TTree.h"
+#include "xAODEventInfo/EventInfo.h" //typedef, can't fwd declare
+#include "xAODTracking/VertexContainer.h" //typedef, can't fwd declare
+#include "xAODTracking/TrackingPrimitives.h" //for xAOD::VxType
+//#include "xAODTracking/Vertex.h"
+#include "BeamSpotID.h"
 #include <string>
 #include <vector>
 #include <map>
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
-#include "InDetBeamSpotVertex.h"
-#include "InDetBeamSpotRooFit.h"
-#include "InDetBeamSpotFinder/BeamSpotStatusCode.h" 
-#include "TTree.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "xAODTracking/VertexContainer.h"
-#include "xAODTracking/Vertex.h"
-#include "BeamSpotID.h"
 
 class ITHistSvc;
-class ToolSvc;
+class IToolSvc;
+class IInDetBeamSpotTool;
+class TTree;
+namespace Trig{
+  class IBunchCrossingTool;
+}
+
 
 namespace InDet {
   class InDetBeamSpotFinder : public AthAlgorithm {
@@ -57,19 +66,19 @@ namespace InDet {
     TTree * m_root_vrt=0;
 
     struct beamSpotNtuple_struct{
-      int pileup, bcid, defectWord, fill, lbEnd, lbStart;
-      int nEvents, nValid, nVtxAll, nVtxPrim;
-      int run, separation, status, timeEnd, timeStart, runEnd;
-      std::map<std::string,double>paramMap;
-      std::map<std::string,double>covMap;
+      int pileup{}, bcid{}, defectWord{}, fill{}, lbEnd{}, lbStart{};
+      int nEvents{}, nValid{}, nVtxAll{}, nVtxPrim{};
+      int run{}, separation{}, status{}, timeEnd{}, timeStart{}, runEnd{};
+      std::map<std::string,double>paramMap{};
+      std::map<std::string,double>covMap{};
     };
 
     struct vertexNtuple_struct{
-      double x,y,z,vxx,vxy,vyy,vzz;
-      xAOD::VxType::VertexType vType;
-      unsigned int run, lb, bcid, pileup, nTracks;
-      unsigned long long eventNumber, eventTime, eventTime_NS;
-      bool passed, valid;
+      double x{},y{},z{},vxx{},vxy{},vyy{},vzz{};
+      xAOD::VxType::VertexType vType{};
+      unsigned int run{}, lb{}, bcid{}, pileup{}, nTracks{};
+      unsigned long long eventNumber{}, eventTime{}, eventTime_NS{};
+      bool passed{}, valid{};
     };
 
     beamSpotNtuple_struct m_beamSpotNtuple;
@@ -98,45 +107,45 @@ namespace InDet {
 
     void convertVtxTypeNames();
 
-    bool m_sortByPileup;
-    bool m_sortByBCID;
-    int m_pileup;
+    bool m_sortByPileup{};
+    bool m_sortByBCID{};
+    int m_pileup{};
     
     // Parameters for vertex selection criteria
-    int m_minTrackNum;         //min Tracks in a vertex to be added
-    int m_maxTrackNum;         //max Tracks in a vertex to be added
-    double m_maxChi2Vertex;    //maxChi2 of vertex
-    double m_maxTransverseError; // max transverse vertex resolution
-    double m_minVtxProb; // probability cut on chi2/ndf
-    unsigned int m_minVertexNum;        //min vertex count for solution
+    int m_minTrackNum{};         //min Tracks in a vertex to be added
+    int m_maxTrackNum{};         //max Tracks in a vertex to be added
+    double m_maxChi2Vertex{};    //maxChi2 of vertex
+    double m_maxTransverseError{}; // max transverse vertex resolution
+    double m_minVtxProb{}; // probability cut on chi2/ndf
+    unsigned int m_minVertexNum{};        //min vertex count for solution
 
-    std::string m_vertexContainerName;
+    std::string m_vertexContainerName{};
 
-    std::vector<std::string> m_vertexTypeNames; //names of vertexTypes
-    std::vector<xAOD::VxType::VertexType> m_vertexTypes;
+    std::vector<std::string> m_vertexTypeNames{}; //names of vertexTypes
+    std::vector<xAOD::VxType::VertexType> m_vertexTypes{};
 
     IInDetBeamSpotTool * cloneTool( int );
     bool passVertexSelection(const xAOD::Vertex * );    
     //For forcing a specific run number
-    bool m_useForcedRun;
-    unsigned int m_forcedRunNumber, m_forcedRunRange; 
-    int m_lbRangeOffset;
+    bool m_useForcedRun{};
+    unsigned int m_forcedRunNumber{}, m_forcedRunRange{}; 
+    int m_lbRangeOffset{};
 
-    bool m_setLBwithViewedEvents;
-    bool m_setLBwithAcceptedEvents;
+    bool m_setLBwithViewedEvents{};
+    bool m_setLBwithAcceptedEvents{};
 
     //    bool m_groupFitsByBCID; // each bcid is fitted separately
-    bool m_useFilledBCIDsOnly; // Only use filled BCIDs not empty ones (data)
-    std::string m_fitSortingKey;
-    bool m_groupFitsByPileup;
+    bool m_useFilledBCIDsOnly{}; // Only use filled BCIDs not empty ones (data)
+    std::string m_fitSortingKey{};
+    bool m_groupFitsByPileup{};
 
-    bool m_writeAllVertices;
+    bool m_writeAllVertices{};
     //std::map<unsigned int,long> m_nEvents;
     //std::map<BeamSpot::ID, long> m_nEvents;
-    unsigned int m_pileupMin;
-    unsigned int m_pileupMax;
+    unsigned int m_pileupMin{};
+    unsigned int m_pileupMax{};
    
-    unsigned long m_secondsPerFit; 
+    unsigned long m_secondsPerFit{}; 
    };
 }//end namespace 
 

@@ -68,7 +68,6 @@ int DRM::alulof(double *ps, double *pi, double *pf){
 double DRM::alupcm(double em0, double em1, double em2){
 
   double ret_val;
-  double sqrt(double);
   static double emd, ems;
   
   //ems = abs(em1 + em2);
@@ -97,7 +96,6 @@ double DRM::alupcm(double em0, double em1, double em2){
 
 int DRM::rescms(double *p, double *p1, double *p2, double m1, double m2){
 
-  double sqrt(double);
   static double m;
   static int il;
   static double mo1, mo2, po1[5], po2[5], pcm, pcmo;

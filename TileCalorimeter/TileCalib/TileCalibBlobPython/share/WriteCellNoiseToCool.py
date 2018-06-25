@@ -347,21 +347,25 @@ if run>=0 and len(iovList)>0:
 #== update only one IOV from input DB if we are reading numbers from file
 if (ncell>0 and nval>2):
   if (run>0):
-    if (len(iovList)>1): 
-      print "Updating only single IOV"
-      iovList = iovList[0:1]
-    iov=iovList[0]
-    since = (run, lumi)
-    until = iov[1]
-    iov = (since, until)
-    iovList = [ iov ]
+    if begin<-1:
+      iovList=iovList[0:-begin]
+      print "Updating",len(iovList),"IOVs"
+    else:
+      if (len(iovList)>1):
+        print "Updating only single IOV"
+        iovList = iovList[0:1]
+      iov=iovList[0]
+      since = (run, lumi)
+      until = iov[1]
+      iov = (since, until)
+      iovList = [ iov ]
   else:
     if (len(iovList)>1): 
       print "Updating only last IOV"
       iovList = iovList[len(iovList)-1:]
 
 if begin>=0 and len(iovList)>1:
-    raise Exception("-z flag can not be used with multiple IOVs, please provide run number inside one IOV")
+    raise Exception("-begin flag can not be used with multiple IOVs, please provide run number inside one IOV")
 
 if not tile:
   modName="LAr %2d" % chan

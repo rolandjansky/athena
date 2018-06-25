@@ -1,10 +1,13 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+import os
 from AthenaCommon import Logging
+from ..external import ExternalPHOTOS
 from ..powheg_V2 import PowhegV2
 
 ## Get handle to Athena logging
 logger = Logging.logging.getLogger("PowhegControl")
+
 
 class Z_EW(PowhegV2):
     """! Default Powheg configuration for single Z-boson production with electroweak corrections.
@@ -168,7 +171,13 @@ class Z_EW(PowhegV2):
         self.add_keyword("Zwidth")
 
     def validate_decays(self):
-        """! Validate vdecaymode keyword."""
+        """! Validate vdecaymode keyword and check that 'no_ew' is compatible with 'PHOTOS_enabled'."""
+        # If PHOTOS is disabled but EW effects are on, any subsequent PHOTOS process will have to run in vetoed mode which is not supported
+        if not self.externals["PHOTOS"].parameters_by_keyword("PHOTOS_enabled")[0].value and self.parameters_by_keyword("no_ew")[0].value == 0:
+            logger.error("Attempting to run with native PHOTOS disabled but with EW corrections on.")
+            logger.error("This would require any later PHOTOS generation to run in vetoed mode.")
+            logger.error("Please change 'PHOTOS_enabled' and/or 'no_ew' in your jobOptions.")
+            raise ValueError("Incompatible options. Please change 'PHOTOS_enabled' and/or 'no_ew' in your jobOptions.")
         self.expose()  # convenience call to simplify syntax
         self.check_decay_mode(self.decay_mode, self.allowed_decay_modes)
         # Calculate appropriate decay mode numbers

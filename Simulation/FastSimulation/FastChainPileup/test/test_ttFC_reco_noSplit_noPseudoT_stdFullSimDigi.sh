@@ -61,9 +61,9 @@ echo "art-result: $? AOD step"
 #add an additional payload from the job (corollary file).
 # art-output: InDetStandardPlots.root
 
-#ArtPackage=$1
-#ArtJobName=$2
-#art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}  
+ArtPackage=$1
+ArtJobName=$2
+art.py compare grid --entries 10 --imf=False ${ArtPackage} ${ArtJobName}
 echo  "art-result: $? regression"
 
 

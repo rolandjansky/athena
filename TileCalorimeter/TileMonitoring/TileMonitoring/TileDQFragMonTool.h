@@ -110,6 +110,12 @@ class TileDQFragMonTool: public TileFatherMonTool {
 
     TH2S* m_hist_BadChannelJump2D_nonmask[4];
     TH2S* m_hist_BadChannelNeg2D_nonmask[4];
+
+    /* tibor.zenis@cern.ch */
+    TH1I* m_hist_EventinfoError_LB;
+    TH2I* m_hist_nConsecBad_LB;
+    TH1I* m_hist_nConsecBad;
+
     std::vector<std::string> m_ErrorsLabels, m_PartitionsLabels;
     std::vector<std::string> m_moduleLabel[NumPart]; // array of module names
     std::vector<std::string> m_cellchLabel[NumPart]; // array of cell-channels names
