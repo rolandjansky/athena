@@ -60,6 +60,10 @@ namespace top{
     m_isMC(false),
     // Is AFII
     m_isAFII(false),
+    // Generators
+    m_generators("SetMe"),
+    // AMITag
+    m_AMITag("SetMe"),
     // Is Primary xAOD
     m_isPrimaryxAOD(false),
     // Is Truth xAOD
@@ -559,11 +563,20 @@ namespace top{
 	  bool aodMetaDataIsAFII = m_aodMetaData->isAFII();
 	  std::cout << "AodMetaData :: Simulation Type " << simulatorName << " -> " << "Setting IsAFII to " << aodMetaDataIsAFII << std::endl;
 	  this->setIsAFII(aodMetaDataIsAFII);
+	  auto generatorsName     = m_aodMetaData->get("/TagInfo","generators");
+	  std::cout << "AodMetaData :: Generators Type " << generatorsName << std::endl;
+	  this->setGenerators(generatorsName);
+	  auto AMITagName     = m_aodMetaData->get("/TagInfo","AMITag");
+	  std::cout << "AodMetaData :: AMITag " << AMITagName << std::endl;
+	  this->setAMITag(AMITagName);
 	}
 	catch(std::logic_error aodMetaDataError){
 	  std::cout << "An error was encountered handling AodMetaData : " << aodMetaDataError.what() << std::endl;
 	  std::cout << "We will attempt to read the IsAFII flag from your config." << std::endl;
 	  this->ReadIsAFII(settings);
+	  std::cout << "Unfortunately, we can not read MC generators and AMITag without valid MetaData." << std::endl;
+          this->setGenerators("unknown");
+          this->setAMITag("unknown");
 	}
       }
       else{
@@ -808,7 +821,13 @@ namespace top{
     // -----------------------------------------------]]]
 
     // Upgrade studies
-    if(settings->value("HLLHC")=="True") this->HLLHC( true );
+    if(settings->value("HLLHC")=="True"){
+       this->HLLHC( true );
+       if(settings->value("TDPPath").compare("dev/AnalysisTop/TopDataPreparation/XSection-MC15-13TeV.data")==0){
+          std::cout<<"TopConfig::setConfigSettings  HLLHC is set to True, but the TDPPath is set to default "<<settings->value("TDPPath")<<". Changing to dev/AnalysisTop/TopDataPreparation/XSection-MC15-14TeV.data"<<std::endl;
+          this->setTDPPath("dev/AnalysisTop/TopDataPreparation/XSection-MC15-14TeV.data");
+       }
+    }
     if(settings->value("HLLHCFakes")=="True") this->HLLHCFakes( true );
 
     // LHAPDF Reweighting configuration

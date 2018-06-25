@@ -1,24 +1,25 @@
 #!/bin/env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-import ROOT, os
+import ROOT
+import os
 
-#def main(filename, **args):
-def main(**args):
+
+def main(**args):  # def main(filename, **args):
 
     tool = ROOT.PMGTools.PMGCrossSectionTool('MyXSectionTool')
 
-    tool.readInfosFromDir(os.getenv('ROOTCOREBIN')+'/data/PMGTools/')
-    
-    #take a ttbar sample as example ( user should get this from the EventInfo of course )
+    tool.readInfosFromFiles('/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PMGTools/PMGxsecDB_mc16.txt')
+
+    # take a ttbar sample as example ( users should get this from the EventInfo )
     sample_id = 410000
 
     print
-    print 'sample name     = ',tool.getSampleName(sample_id)
-    print 'xsection [pb]   = ',tool.getSampleXsection(sample_id)
-    print 'filter eff      = ',tool.getFilterEff(sample_id)
-    print 'branching ratio = ',tool.getBR(sample_id)
-    print 'k factor        = ',tool.getKfactor(sample_id)
+    print 'Sample name          = ', tool.getSampleName(sample_id)
+    print 'xsection [pb]        = ', tool.getSampleXsection(sample_id)
+    print 'filter eff           = ', tool.getFilterEff(sample_id)
+    print 'k factor             = ', tool.getKfactor(sample_id)
+    print 'xsection uncertainty = ', tool.getXsectionUncertainty(sample_id)
     print
 
 if __name__ == '__main__':
