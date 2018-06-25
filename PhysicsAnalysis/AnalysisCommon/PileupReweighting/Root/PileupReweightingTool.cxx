@@ -79,7 +79,6 @@ PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPi
 //rootcore can't do this yet!
 void PileupReweightingTool::updateHandler(Property& p) {
    //call the original update handler 
-   this->msg_update_handler(p);
    EnableDebugging(this->msgLvl(MSG::DEBUG));
 }
 #endif
