@@ -26,7 +26,7 @@ class TFCSFunction
    
   private:
 
-  ClassDef(TFCSFunction,1)  //TFCSFunction
+  ClassDef(TFCSFunction,2)  //TFCSFunction
 
 };
 
