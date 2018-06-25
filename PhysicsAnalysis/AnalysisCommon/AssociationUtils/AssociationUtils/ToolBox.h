@@ -41,11 +41,7 @@ namespace ORUtils
     public:
 
       /// Aliases
-#ifdef ROOTCORE
-      using parentType_t = asg::AsgTool;
-#else
       using parentType_t = INamedInterface;
-#endif
       using MasterHandle_t = asg::AnaToolHandle<IOverlapRemovalTool>;
       using OverlapHandle_t = asg::AnaToolHandle<IOverlapTool>;
 
