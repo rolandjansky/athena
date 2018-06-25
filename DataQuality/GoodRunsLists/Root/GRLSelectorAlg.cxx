@@ -3,11 +3,11 @@
 */
 
 // GoodRunsLists includes
-#include "GRLSelectorAlg.h"
+#include <GoodRunsLists/GRLSelectorAlg.h>
 
 #include "xAODEventInfo/EventInfo.h"
 
-GRLSelectorAlg::GRLSelectorAlg( const std::string& name, ISvcLocator* pSvcLocator ) : AthAlgorithm( name, pSvcLocator )
+GRLSelectorAlg::GRLSelectorAlg( const std::string& name, ISvcLocator* pSvcLocator ) : AnaAlgorithm( name, pSvcLocator )
 										    , m_grlTool("GoodRunsListSelectionTool")
 {
 
@@ -23,7 +23,7 @@ StatusCode GRLSelectorAlg::initialize() {
   //ATH_MSG_INFO ("Initializing " << name() << "...");
   m_total=0;
   m_passed=0;
-  CHECK( m_grlTool.retrieve() );
+  ANA_CHECK( m_grlTool.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -40,7 +40,7 @@ StatusCode GRLSelectorAlg::execute() {
 
   m_total++;
   const xAOD::EventInfo* evtInfo = 0;
-  CHECK( evtStore()->retrieve( evtInfo ) );
+  ANA_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
   if(!m_grlTool->passRunLB(*evtInfo)) return StatusCode::SUCCESS;
 
   m_passed++;
