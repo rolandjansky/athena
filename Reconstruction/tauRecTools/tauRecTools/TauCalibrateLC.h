@@ -39,8 +39,6 @@ public:
 
 private:
     std::string m_configPath;
-    std::string m_tauContainerKey;
-    std::string m_vertexContainerKey;
     std::string m_calibrationFile; //!< energy calibration file
 
     static const int s_nProngBins = 2;
@@ -62,7 +60,8 @@ private:
     bool m_printMissingContainerINFO;
     bool m_isCaloOnly;   //!< switch for CaloOnly corrections
 
-    double m_clusterCone; //obsolete
+    SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
+
 };
 
 #endif

@@ -102,6 +102,7 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix=''):
                                     doAxisCorrection = correctAxis,
                                     doPtResponse = True,
                                     countOnlyPileupVertices = True,
+                                    Key_vertexInputContainer = _DefaultVertexContainer 
                                     )
             
     cached_instances[_name] = TauCalibrateLC                

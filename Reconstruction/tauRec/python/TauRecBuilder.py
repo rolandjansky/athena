@@ -110,7 +110,7 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             tools.append(taualgs.getTauAxis())
             tools.append(taualgs.getTauTrackFinder(removeDuplicateTracks=(not doMVATrackClassification) ))
             if doMVATrackClassification : tools.append(taualgs.getTauTrackClassifier())
-            #tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
+            tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
             #tools.append(taualgs.getCellVariables())
             #tools.append(taualgs.getElectronVetoVars())
             #
