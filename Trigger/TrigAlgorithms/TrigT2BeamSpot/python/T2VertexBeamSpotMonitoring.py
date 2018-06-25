@@ -130,7 +130,7 @@ class T2VertexBeamSpotOnlineMonitoring(TrigGenericMonitoringToolConfig):
             # Total number of bins: 25
             self.Histograms += [ defineHistogram('NvtxPass', type='TH1F',
                                                  title="NvtxPass; N accepted vertices per event; Number of events",
-                                                 xbins=25, xmin=0.0, xmax=25.0, opt='kLBN') ]
+                                                 xbins=30, xmin=0.0, xmax=30.0, opt='kLBN') ]
 
             # Number of tracks per vertex
             # Total number of bins: 100
@@ -281,7 +281,7 @@ class T2VertexBeamSpotOnlineMonitoring(TrigGenericMonitoringToolConfig):
 
             self.Histograms += [ defineHistogram('NClusters', type='TH1F',
                                                  title="NClusters; Number of clusters per event; Number of events",
-                                                 xbins=25, xmin=0.0, xmax=25.0) ]
+                                                 xbins=30, xmin=0.0, xmax=30.0) ]
             self.Histograms += [ defineHistogram('ClusterNTracks', type='TH1F',
                                                  title="ClusterNTracks; Number tracks per cluster; Number of events",
                                                  xbins=100, xmin=0.0, xmax=100.0) ]
