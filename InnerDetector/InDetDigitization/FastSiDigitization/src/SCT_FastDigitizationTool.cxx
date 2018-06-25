@@ -385,7 +385,7 @@ StatusCode SCT_FastDigitizationTool::digitize()
       HepGeom::Point3D<double> localStartPosition = hitSiDetElement->hitLocalToLocal3D(currentSiHit->localStartPosition());
       HepGeom::Point3D<double> localEndPosition = hitSiDetElement->hitLocalToLocal3D(currentSiHit->localEndPosition());
       
-      bool diffusion = Diffuse(localStartPosition,localEndPosition, shiftX * Gaudi::Units::micrometer, shiftY * Gaudi::Units::micrometer);
+      Diffuse(localStartPosition,localEndPosition, shiftX * Gaudi::Units::micrometer, shiftY * Gaudi::Units::micrometer);
       
       const double localEntryX = localStartPosition.x();
       const double localEntryY = localStartPosition.y();
@@ -1069,7 +1069,7 @@ bool SCT_FastDigitizationTool::NeighbouringClusters(const std::vector<Identifier
 }
 
 
-bool SCT_FastDigitizationTool::Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shiftX, double shiftY ) const{
+void SCT_FastDigitizationTool::Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shiftX, double shiftY ) const{
     
     double localEntryX = localEntry.x();
     double localExitX = localExit.x();
@@ -1090,7 +1090,5 @@ bool SCT_FastDigitizationTool::Diffuse(HepGeom::Point3D<double>& localEntry, Hep
     //Check the effect in the endcap
     localEntry.setY(localEntryY);
     localExit.setY(localExitY);
-    
-    return true;
-    
+        
 }
