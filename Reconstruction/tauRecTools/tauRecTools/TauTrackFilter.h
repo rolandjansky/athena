@@ -45,6 +45,8 @@ private:
     int m_nProng;
     int m_flag;
 
+    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleInputContainer{this,"Key_trackParticleInputContainer","InDetTrackParticles","track key"};
+
 };
 
 #endif

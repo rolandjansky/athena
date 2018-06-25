@@ -712,7 +712,7 @@ def getTauTrackFinder(removeDuplicateTracks=True):
 def getTauTrackFilter():
     _name = sPrefix + 'TauTrackFilter'
     from tauRecTools.tauRecToolsConf import TauTrackFilter
-    TauTrackFilter = TauTrackFilter(name = _name, TrackContainerName=_DefaultTrackContainer)
+    TauTrackFilter = TauTrackFilter(name = _name, Key_trackParticleInputContainer = _DefaultTrackContainer)
     cached_instances[_name] = TauTrackFilter
     return TauTrackFilter
 

@@ -67,7 +67,7 @@ TauTrackFilter::~TauTrackFilter() {
 
 StatusCode TauTrackFilter::initialize() {
     ATH_MSG_VERBOSE("TauTrackFilter Initialising");
-
+    ATH_CHECK( m_trackParticleInputContainer.initialize() );
     return StatusCode::SUCCESS;
 }
 
@@ -91,14 +91,15 @@ StatusCode TauTrackFilter::execute(xAOD::TauJet& pTau) {
 
     StatusCode sc;
 
-    const xAOD::TrackParticleContainer *trackContainer;
-
-    //TODO: trigger uses getObject
-    sc = evtStore()->retrieve(trackContainer, m_trackContainerName);
-    if (sc.isFailure() || !trackContainer) {
-        ATH_MSG_DEBUG(" No track container found in TDS !!");
-        return StatusCode::SUCCESS;
+    // get track particle container
+    // wait - is this even used?
+    const xAOD::TrackParticleContainer *trackContainer = NULL;
+    SG::ReadHandle<xAOD::TrackParticleContainer> trackParticleInHandle( m_trackParticleInputContainer );
+    if (!trackParticleInHandle.isValid()) {
+      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << trackParticleInHandle.key());
+      return StatusCode::FAILURE;
     }
+    trackContainer = trackParticleInHandle.cptr();
 
     TLorentzVector tau;
     tau.SetPtEtaPhiE(pTau.pt()/1000, //GeV
@@ -173,10 +174,18 @@ StatusCode TauTrackFilter::execute(xAOD::TauJet& pTau) {
     }
     m_nProng = nProng;
     m_flag = flag;
+    
+    // Get track container via link from tau - instead of storegate retrieve
+    // Check that size > 0
+    ElementLink< xAOD::TauTrackContainer > link;
+    xAOD::TauTrackContainer* tauTracks = 0;
+
+    if (pTau.allTauTrackLinks().size() > 0) {
+      link = pTau.allTauTrackLinks().at(0);//we don't care about this specific link, just the container
+      tauTracks = link.getDataNonConstPtr();
+    }
 
     // Set values in EDM
-    xAOD::TauTrackContainer* tauTracks = 0;
-    ATH_CHECK(evtStore()->retrieve(tauTracks, m_tauTrackConName));
     for (unsigned int numTrack=0; numTrack<m_TrkPass.size(); numTrack++) {
       xAOD::TauTrack* tauTrk = xAOD::TauHelpers::tauTrackNonConst(&pTau, tauTracks, numTrack); //pTau.trackNonConst(numTrack);
       tauTrk->setFlag(xAOD::TauJetParameters::failTrackFilter, !m_TrkPass.at(numTrack));
