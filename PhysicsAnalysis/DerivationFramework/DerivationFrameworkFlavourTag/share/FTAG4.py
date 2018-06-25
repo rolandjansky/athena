@@ -12,7 +12,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-from DerivationFrameworkFlavourTag.HbbCommon import addVRJets, addExCoM
+from DerivationFrameworkFlavourTag.HbbCommon import addVRJets, addExKtCoM
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
@@ -95,7 +95,7 @@ addDefaultTrimmedJets(FTAG4Seq,"FTAG4",dotruth=True)
 # Adding ExCoM sub-jets for each trimmed large-R jet
 #
 ExCoMJetCollection__FatJet = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-ExCoMJetCollection__SubJet = addExCoM(FTAG4Seq, ToolSvc, ExCoMJetCollection__FatJet, 2, False)
+ExCoMJetCollection__SubJet = addExKtCoM(FTAG4Seq, ToolSvc, ExCoMJetCollection__FatJet, 2, False, subjetAlgName="CoM")
 
 BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
 

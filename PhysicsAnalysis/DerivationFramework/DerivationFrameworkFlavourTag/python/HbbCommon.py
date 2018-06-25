@@ -81,120 +81,44 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
     return (ExKtbbTagToolInstance, SubjetContainerName)
 
 #===================================================================
-# Build ExKt Subjets
+# Build ExKt or CoM Subjets, default is ExKt
 #===================================================================
-def addExKt(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal","GhostCHadronsFinal"], min_subjet_pt_mev = 0):
-    from JetRec.JetRecStandard import jtm
-    ExKtJetCollection__SubJet = []
-    for JetCollectionExKt in ExKtJetCollection__FatJet:
-        # build ExKtbbTagTool instance
-        (ExKtbbTagToolInstance, SubjetContainerName) = buildExclusiveSubjets(ToolSvc, JetCollectionExKt, "Kt", nSubjets, doTrackSubJet, ExGhostLabels, min_subjet_pt_mev)
-
-        ExKtJetCollection__SubJet += [SubjetContainerName]
-
-        exktAlgName = "jfind_%s" % (SubjetContainerName)
-        exktJetRecToolName = "%s" % (SubjetContainerName)
-        exktBTagName = "BTagging_%s" % (SubjetContainerName.replace("Jets", ""))
-
-        if exktAlgName in DFJetAlgs:
-            print " Algorithm ExKt ", exktAlgName, "already built before"
-            if hasattr(sequence, exktAlgName):
-                print " sequence ExKt ", sequence, "already has an instance of algorithm", exktAlgName
-            else:
-                print " Add algorithm ExKt ", exktAlgName, "to sequence", sequence
-                sequence += DFJetAlgs[exktAlgName]
-        else:
-            print " Algorithm ExKt ", exktAlgName, " to be built sequence ", sequence
-            if hasattr(jtm, exktJetRecToolName):
-                jetrec = jtm [ exktJetRecToolName ]
-                print " ExKtJetRecTool ", exktJetRecToolName, " is found in jtm.tools sequence ", sequence
-            else:
-                # build subjet collection through JetRecTool
-                from JetRec.JetRecConf import JetRecTool
-                jetrec = JetRecTool(
-                                     name = exktJetRecToolName,
-                                     OutputContainer = JetCollectionExKt,
-                                     InputContainer = JetCollectionExKt,
-                                     JetModifiers = [ExKtbbTagToolInstance],
-                                   )
-                jtm.add( jetrec )
-                ToolSvc += jetrec
-                print " ExKtJetRecTool ", exktJetRecToolName, " is now built, sequence ", sequence
-
-            exktJetRecBTagToolName = str( "%s_sub"%exktJetRecToolName )
-            if hasattr(jtm, exktJetRecBTagToolName):
-                print " ExKtJetRecBTagTool ", exktJetRecBTagToolName, " is already built, sequence ", sequence
-                jetrec_btagging = jtm [ exktJetRecBTagToolName ]
-            else:
-                from BTagging.BTaggingFlags import BTaggingFlags
-                btag_exkt = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection=exktJetRecToolName.replace("Jets", ""), AddToToolSvc=True, Verbose=True,
-                             options={"name"         : exktBTagName.lower(),
-                                      "BTagName"     : exktBTagName,
-                                      "BTagJFVtxName": "JFVtx",
-                                      "BTagSVName"   : "SecVtx",
-                                      },
-                             SetupScheme = "",
-                             TaggerList = BTaggingFlags.StandardTaggers,
-                             )
-                from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
-                mods = [defaultTrackAssoc, defaultMuonAssoc, btag_exkt]
-                jetrec_btagging = JetRecTool( name = exktJetRecBTagToolName,
-                                          InputContainer  = SubjetContainerName,
-                                          OutputContainer = SubjetContainerName,
-                                          JetModifiers    = mods)
-                jtm.add( jetrec_btagging )
-                ToolSvc += jetrec_btagging
-                print " ExKtJetRecBTagTool ", exktJetRecBTagToolName, " is now built, sequence ", sequence
-
-
-            jetalg_exkt = JetAlgorithm(
-                                     name = exktAlgName,
-                                     Tools = [jetrec,jetrec_btagging],
-                                    )
-            sequence += jetalg_exkt
-            DFJetAlgs[exktAlgName] = jetalg_exkt
-        exktELresetNameLJet = "ELreset_largejet_%s" %(SubjetContainerName.replace("Jets", ""))
-        sequence += CfgMgr.xAODMaker__ElementLinkResetAlg(exktELresetNameLJet,SGKeys=[JetCollectionExKt+"Aux."])
-
-    return ExKtJetCollection__SubJet
-
-
-#===================================================================
-# Build CoM Subjets
-#===================================================================
-def addExCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal","GhostCHadronsFinal"], min_subjet_pt_mev = 0):
+def addExKtCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJet, ExGhostLabels=["GhostBHadronsFinal","GhostCHadronsFinal"], min_subjet_pt_mev = 0, subjetAlgName = "Kt"):
     from JetRec.JetRecStandard import jtm
     ExCoMJetCollection__SubJet = []
+    #subjetAlgName = "Kt"
+    #if(doCoM): subjetAlgName = "CoM"
+    
     for JetCollectionExCoM in ExKtJetCollection__FatJet:
-        (ExCoMbbTagToolInstance, SubjetContainerName) = buildExclusiveSubjets(ToolSvc, JetCollectionExCoM, "CoM", nSubjets, doTrackSubJet, ExGhostLabels, min_subjet_pt_mev)
+        (ExCoMbbTagToolInstance, SubjetContainerName) = buildExclusiveSubjets(ToolSvc, JetCollectionExCoM, subjetAlgName, nSubjets, doTrackSubJet, ExGhostLabels, min_subjet_pt_mev)
 
         ExCoMJetCollection__SubJet += [SubjetContainerName]
 
 
         excomELresetName = "ELreset_subjet_%s" % (SubjetContainerName.replace("Jets", ""))
-        excomELresetNameLJet = "ELreset_Large_jet_%s" % (JetCollectionExCoM.replace("Jets", ""))
+        excomELresetNameLJet = "ELreset_Large_%sjet_%s" % (SubjetContainerName.replace("Jets", ""),JetCollectionExCoM.replace("Jets", ""))
         excomAlgName = "jfind_%s" % (SubjetContainerName)
         excomJetRecToolName = "%s" % (SubjetContainerName)
         excomBTagName = "BTagging_%s" % (SubjetContainerName.replace("Jets", ""))
 
         if excomAlgName in DFJetAlgs:
-            print " Algorithm ExCoM ", excomAlgName, "already built before sequence ", sequence
+            print " Algorithm Ex%s "%subjetAlgName, excomAlgName, "already built before sequence ", sequence
 
             if hasattr(sequence, excomAlgName):
-                print " sequence ExCoM ", sequence, "already has an instance of algorithm", excomAlgName
+                print " sequence Ex%s "%subjetAlgName, sequence, "already has an instance of algorithm", excomAlgName
             else:
-                print " Add algorithm ExCoM ", excomAlgName, "to sequence", sequence
+                print " Add algorithm Ex%s "%subjetAlgName, excomAlgName, "to sequence", sequence
                 sequence += DFJetAlgs[excomAlgName]
                 sequence += CfgMgr.xAODMaker__ElementLinkResetAlg(excomELresetName, SGKeys=[SubjetContainerName+"Aux."])
                 sequence += DFJetAlgs[excomAlgName+"_btag"]
                 sequence += CfgMgr.xAODMaker__ElementLinkResetAlg(excomELresetNameLJet, SGKeys=[JetCollectionExCoM+"Aux."])
         else:
-            print " Algorithm ExCoM ", excomAlgName, " to be built sequence ", sequence
+            print " Algorithm Ex%s "%subjetAlgName, excomAlgName, " to be built sequence ", sequence
             if hasattr(jtm, excomJetRecToolName):
-                print " ExCoMJetRecTool ", excomJetRecToolName, " already built sequence ",  sequence
+                print " Ex%sJetRecTool "%subjetAlgName, excomJetRecToolName, " already built sequence ",  sequence
                 jetrec = jtm [ excomJetRecToolName ]
             else:
-                print " ExCoM tool ", excomJetRecToolName, " to be built sequence ", sequence
+                print " Ex%s tool "%subjetAlgName, excomJetRecToolName, " to be built sequence ", sequence
                 from JetRec.JetRecConf import JetRecTool
                 jetrec = JetRecTool(
                                      name = excomJetRecToolName,
@@ -207,10 +131,10 @@ def addExCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJ
 
             excomJetRecBTagToolName = str( "%s_sub"%excomJetRecToolName )
             if hasattr(jtm, excomJetRecBTagToolName):
-                print " ExCoMJetRecBTagTool ", excomJetRecBTagToolName, " already built sequence ",  sequence
+                print " Ex%sJetRecBTagTool "%subjetAlgName, excomJetRecBTagToolName, " already built sequence ",  sequence
                 jetrec_btagging = jtm [ excomJetRecBTagToolName ]
             else:
-                print " ExCoMJetRecBTagTool ", excomJetRecBTagToolName, " to be built sequence ",  sequence
+                print " Ex%sJetRecBTagTool "%subjetAlgName, excomJetRecBTagToolName, " to be built sequence ",  sequence
 
                 #make the btagging tool for excom jets
                 from BTagging.BTaggingFlags import BTaggingFlags
@@ -224,8 +148,9 @@ def addExCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets, doTrackSubJ
                              TaggerList = BTaggingFlags.StandardTaggers,
                              )
                 # running association + b-tagging on subjets now
-                from BTagging.BTaggingConfiguration import comTrackAssoc, comMuonAssoc
-                mods = [comTrackAssoc, comMuonAssoc, btag_excom]
+                from BTagging.BTaggingConfiguration import comTrackAssoc, comMuonAssoc, defaultTrackAssoc, defaultMuonAssoc
+                mods = [defaultTrackAssoc, defaultMuonAssoc, btag_excom]
+                if(subjetAlgName=="CoM"): mods = [comTrackAssoc, comMuonAssoc, btag_excom]
 
                 jetrec_btagging = JetRecTool( name = excomJetRecBTagToolName,
                                           InputContainer  = SubjetContainerName,
@@ -677,9 +602,9 @@ def addExKtDoubleTaggerRCJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetCon
    
    # build subjets
    # N=2 subjets
-   ExKtJetCollection__SubJet += addExKt(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=2, doTrackSubJet=True)
+   ExKtJetCollection__SubJet += addExKtCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=2, doTrackSubJet=True)
    # N=3 subjets
-   ExKtJetCollection__SubJet += addExKt(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=3, doTrackSubJet=True)
+   ExKtJetCollection__SubJet += addExKtCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=3, doTrackSubJet=True)
 
    sequence += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterSubjetBuild", SGKeys=[name+"Aux." for name in ExKtJetCollection__SubJet])
 
