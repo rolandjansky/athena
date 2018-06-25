@@ -11,6 +11,7 @@
 
 #include "TrkDetDescrUtils/BinnedArray.h"
 #include "TrkDetDescrUtils/BinUtility.h"
+#include "TrkDetDescrUtils/BinMap.h"
 
 //STL
 #include <vector>
@@ -22,9 +23,11 @@ namespace Trk {
 /** @class CompactBinnedArray
 
    defines common utilities needed for implementation of binned material
+   and navigation through binned array
 
    @author sarka.todorova@cern.ch
    */
+
 
   template <class T> class CompactBinnedArray : public BinnedArray<T> {
 
@@ -45,6 +48,10 @@ namespace Trk {
 
     /** layer bin  */
     virtual size_t layerBin(const Amg::Vector3D& gp) const = 0;
+
+    /** access to objects */
+    virtual Trk::BinMap<T> binMap(const Amg::Vector3D& gp, const Amg::Vector3D& dir, 
+				  float min=-1.e-05, float max=1.e05 ) const = 0;
 
   };
 

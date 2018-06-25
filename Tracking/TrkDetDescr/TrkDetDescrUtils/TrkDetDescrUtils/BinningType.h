@@ -33,7 +33,7 @@ namespace Trk {
   enum BinningOption { open, closed };
 
   /**  how to take the global / local position */                        
-  enum BinningValue { binX, binY, binZ, binR, binPhi, binRPhi, binH, binEta };
+  enum BinningValue { binX, binY, binZ, binR, binPhi, binRPhi, binH, binEta, modZ, modPhi, HmodPhi, XmodPhi };
   
   
 }
