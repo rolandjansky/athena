@@ -305,6 +305,17 @@ namespace top{
     // - index of the particle in your original collection (for convenience)
     // - for jets:
     //   * bool isBtagged : mandatory only if you want to use b-tagging in the fit
+
+
+    // To allow KLFitter to run on multiple non-orthogonal selections, we set/check a decorator
+    std::cout<<event.m_info->eventNumber()<<std::endl;
+    if( (event.m_info->isAvailable< int >( "KLFitterHasRun" ) ) ){
+std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
+       if( ( event.m_info->auxdata< int >("KLFitterHasRun") )!=0 ) return StatusCode::SUCCESS;     
+       event.m_info->auxdecor< int >( "KLFitterHasRun" ) = 1;
+    }
+    else event.m_info->auxdecor< int >( "KLFitterHasRun" ) = 1;
+
   
     KLFitter::Particles * myParticles = new KLFitter::Particles{};
 
@@ -718,21 +729,20 @@ namespace top{
   void KLFitterTool::retrieveEfficiencies(const xAOD::Jet& jet, float* efficiency, float* inefficiency) {
     *efficiency = .7725;        // dummy values
     *inefficiency = 1./125.93;  // dummy values
-    
-    auto pretend_to_be_b = new xAOD::Jet(jet);
-    auto pretend_to_be_light = new xAOD::Jet(jet);
-
-    pretend_to_be_b->setAttribute("HadronConeExclTruthLabelID", 5);
-    pretend_to_be_light->setAttribute("HadronConeExclTruthLabelID", 0);
-
-    top::check(m_btagging_eff_tool->getMCEfficiency(*pretend_to_be_b, *efficiency),
+   //copy jet
+   xAOD::JetContainer jets;
+   xAOD::JetAuxContainer jetsAux;
+   jets.setStore( &jetsAux );
+   xAOD::Jet* jet_copy = new xAOD::Jet(jet);
+   jets.push_back(jet_copy);
+   //treat jet as b-tagged
+   jet_copy->setAttribute("HadronConeExclTruthLabelID", 5);
+   top::check(m_btagging_eff_tool->getMCEfficiency(*jet_copy, *efficiency),
                "Could not retrieve tagging efficiency for b-jet");
-    top::check(m_btagging_eff_tool->getMCEfficiency(*pretend_to_be_light, *inefficiency),
+   //treat jet as light
+   jet_copy->setAttribute("HadronConeExclTruthLabelID", 0);
+   top::check(m_btagging_eff_tool->getMCEfficiency(*jet_copy, *inefficiency),
                "Could not retrieve tagging efficiency for light jet");
-
-    delete pretend_to_be_b;
-    delete pretend_to_be_light;
-
   }
 
 

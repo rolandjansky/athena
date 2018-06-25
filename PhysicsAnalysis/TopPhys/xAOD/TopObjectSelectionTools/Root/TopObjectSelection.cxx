@@ -644,7 +644,7 @@ StatusCode TopObjectSelection::applyOverlapRemoval(xAOD::SystematicEvent* curren
   currentSystematic->setGoodLargeRJets( goodLargeRJets );
   currentSystematic->setGoodTrackJets( goodTrackJets );
     
-  decorateEventInfoPostOverlapRemoval(hash, goodJets.size(), currentSystematic->isLooseEvent());
+  decorateEventInfoPostOverlapRemoval(goodJets.size(), currentSystematic->isLooseEvent());
     
   return StatusCode::SUCCESS;
 }
@@ -744,7 +744,7 @@ void TopObjectSelection::decorateMuonsPostOverlapRemoval(const xAOD::MuonContain
   return;
 }
 
-void TopObjectSelection::decorateEventInfoPostOverlapRemoval(std::size_t hash, int nGoodJets, bool isLoose){
+void TopObjectSelection::decorateEventInfoPostOverlapRemoval(int nGoodJets, bool isLoose){
     ///-- Decorate event info with number of nominal jets for flavour composition
     // Only continue if this is nominal processing
     if(!m_executeNominal) return;
