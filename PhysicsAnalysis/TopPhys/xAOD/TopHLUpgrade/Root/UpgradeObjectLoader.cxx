@@ -294,8 +294,13 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
 
       // first work out jet flavour
       char type = 'L';
-      if(jet->auxdata<int>("GhostBQuarksFinalCount") > 0) type = 'B';
-      else if(jet->auxdata<int>("GhostCQuarksFinalCount") > 0) type = 'C';
+      try {
+        if(jet->auxdata<int>("GhostBHadronsFinalCount") > 0) type = 'B';
+        else if(jet->auxdata<int>("GhostCHadronsFinalCount") > 0) type = 'C';
+      } catch (SG::ExcBadAuxVar e) {
+        //didn't find any ghost b-hadron info, have to assume it's a light jet
+        ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
+      }
 
       // now get b-tagging efficiency - update to mv2c10 but name remains same (mv1TagEff)
       const double MV1tagEff = m_upgrade->getFlavourTagEfficiency(jet->pt(), jet->eta(), type, "mv2c10", 70, m_upgrade->getPileupTrackConfSetting());
