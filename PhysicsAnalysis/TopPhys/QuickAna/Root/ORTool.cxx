@@ -245,6 +245,7 @@ namespace
   QUICK_ANA_OR_DEFINITION_MAKER( "boostedHF_JVT", makeORTool(args, "bjet_OR", "both", true) )
   QUICK_ANA_OR_DEFINITION_MAKER( "boostedMuHF_JVT", makeORTool(args, "bjet_OR", "muon", true) )
   QUICK_ANA_OR_DEFINITION_MAKER( "zzllvv", makeORTool(args, "", "", true, true) )
+  QUICK_ANA_OR_DEFINITION_MAKER( "zzllvv_nojvt", makeORTool(args, "", "", false, true) )
   QUICK_ANA_OR_DEFINITION_MAKER( "zzllll", makeORTool(args, "", "", true, true, true) )
 
 } // anonymous namespace
