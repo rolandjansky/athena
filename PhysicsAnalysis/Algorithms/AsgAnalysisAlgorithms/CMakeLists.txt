@@ -27,6 +27,7 @@ atlas_add_library( AsgAnalysisAlgorithmsLib
    PUBLIC_HEADERS AsgAnalysisAlgorithms
    LINK_LIBRARIES xAODBase SelectionHelpersLib SystematicsHandlesLib
      PATInterfaces AnaAlgorithmLib AsgAnalysisInterfaces PATCoreLib
+     AssociationUtilsLib
    PRIVATE_LINK_LIBRARIES AsgTools RootCoreUtils
      xAODJet xAODMuon xAODEgamma xAODTau )
 
@@ -42,3 +43,5 @@ if( NOT XAOD_STANDALONE )
 endif()
 
 atlas_install_python_modules( python/*.py )
+atlas_install_joboptions( share/*_jobOptions.py )
+atlas_install_scripts( share/*_eljob.py )
