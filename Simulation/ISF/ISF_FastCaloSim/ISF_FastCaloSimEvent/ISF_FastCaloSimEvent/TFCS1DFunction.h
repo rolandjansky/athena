@@ -23,10 +23,10 @@ class TFCS1DFunction:public TFCSFunction
     ///Function gets array of random numbers rnd[] in the range [0,1) as arguments 
     ///and returns function value in array value.
     ///For a n-dimensional function, value and rnd should both have n elements.
-    virtual void rnd_to_fct(float value[],const float rnd[]);
+    virtual void rnd_to_fct(float value[],const float rnd[]) const;
    
     ///Function gets random number rnd in the range [0,1) as argument and returns function value
-    virtual double rnd_to_fct(double rnd) = 0;
+    virtual double rnd_to_fct(double rnd) const = 0;
 
     static double get_maxdev(TH1* , TH1* );
 

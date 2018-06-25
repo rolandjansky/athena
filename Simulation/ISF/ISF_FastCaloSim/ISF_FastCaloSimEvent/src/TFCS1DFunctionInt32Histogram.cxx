@@ -17,7 +17,7 @@
 
 const TFCS1DFunctionInt32Histogram::HistoContent_t TFCS1DFunctionInt32Histogram::s_MaxValue=UINT32_MAX;
 
-void TFCS1DFunctionInt32Histogram::Initialize(TH1* hist)
+void TFCS1DFunctionInt32Histogram::Initialize(const TH1* hist)
 {
   Int_t nbinsx = hist->GetNbinsX();
   Int_t nbins  = nbinsx;
@@ -57,7 +57,7 @@ void TFCS1DFunctionInt32Histogram::Initialize(TH1* hist)
   }  
 }
 
-double TFCS1DFunctionInt32Histogram::rnd_to_fct(double rnd)
+double TFCS1DFunctionInt32Histogram::rnd_to_fct(double rnd) const
 {
   if(m_HistoContents.size()==0) {
     return 0;

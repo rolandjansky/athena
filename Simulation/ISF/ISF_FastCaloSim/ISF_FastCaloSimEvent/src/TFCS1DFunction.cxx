@@ -14,14 +14,9 @@
 //======= TFCS1DFunction =========
 //=============================================
 
-void TFCS1DFunction::rnd_to_fct(float value[],const float rnd[])
+void TFCS1DFunction::rnd_to_fct(float value[],const float rnd[]) const
 {
   value[0]=rnd_to_fct(rnd[0]);
-}
-
-double TFCS1DFunction::rnd_to_fct(double)
-{
-  return 0;
 }
 
 double TFCS1DFunction::get_maxdev(TH1* h_input1, TH1* h_approx1)
@@ -107,6 +102,7 @@ TH1* TFCS1DFunction::generate_histogram_random_gauss(int nbinsx,int ntoy,double 
 
 void TFCS1DFunction::unit_test(TH1* hist,TFCS1DFunction* rtof,int nrnd,TH1* histfine)
 {
+  std::cout<<"========= "<<hist->GetName()<<" funcsize="<<rtof->MemorySize()<<" ========"<<std::endl;
   int nbinsx=hist->GetNbinsX();
   double integral=hist->Integral();
   
@@ -146,7 +142,7 @@ void TFCS1DFunction::unit_test(TH1* hist,TFCS1DFunction* rtof,int nrnd,TH1* hist
     float val=hist_diff->GetBinContent(ix);
     float err=hist_diff->GetBinError(ix);
     if(err>0) hist_pull->Fill(val/err);
-    std::cout<<"x="<<hist->GetBinCenter(ix)<<" : pull val="<<val<<" err="<<err<<std::endl;
+    //std::cout<<"x="<<hist->GetBinCenter(ix)<<" : pull val="<<val<<" err="<<err<<std::endl;
   }
   
 //Screen output in athena won't make sense and would require linking of additional libraries

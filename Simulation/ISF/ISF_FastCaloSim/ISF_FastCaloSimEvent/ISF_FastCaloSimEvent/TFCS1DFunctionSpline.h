@@ -30,7 +30,7 @@ class TFCS1DFunctionSpline:public TFCS1DFunction
     
     ///Function gets random number rnd in the range [0,1) as argument 
     ///and returns function value according to a histogram distribution
-    virtual double rnd_to_fct(double rnd);
+    virtual double rnd_to_fct(double rnd) const;
 
     const TSpline3& spline() const {return m_spline;};
     TSpline3& spline() {return m_spline;};

@@ -13,10 +13,10 @@ class TH2;
 class TFCS1DFunctionInt32Histogram:public TFCS1DFunction
 {
   public:
-    TFCS1DFunctionInt32Histogram(TH1* hist=nullptr) {if(hist) Initialize(hist);};
+    TFCS1DFunctionInt32Histogram(const TH1* hist=nullptr) {if(hist) Initialize(hist);};
     ~TFCS1DFunctionInt32Histogram() {};
 
-    virtual void Initialize(TH1* hist);
+    virtual void Initialize(const TH1* hist);
 
     using TFCS1DFunction::rnd_to_fct;
     
@@ -25,7 +25,7 @@ class TFCS1DFunctionInt32Histogram:public TFCS1DFunction
 
     ///Function gets random number rnd in the range [0,1) as argument 
     ///and returns function value according to a histogram distribution
-    virtual double rnd_to_fct(double rnd);
+    virtual double rnd_to_fct(double rnd) const;
 
     const std::vector<float>& get_HistoBordersx() const {return m_HistoBorders;};
     std::vector<float>& get_HistoBordersx() {return m_HistoBorders;};

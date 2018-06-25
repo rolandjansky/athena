@@ -321,7 +321,7 @@ double TFCS1DFunctionSpline::get_maxdev(const TH1* hist,const TSpline3& sp,doubl
   return maxdev; 
 }
 
-double TFCS1DFunctionSpline::rnd_to_fct(double rnd)
+double TFCS1DFunctionSpline::rnd_to_fct(double rnd) const
 {
   return m_spline.Eval(rnd);
 }
