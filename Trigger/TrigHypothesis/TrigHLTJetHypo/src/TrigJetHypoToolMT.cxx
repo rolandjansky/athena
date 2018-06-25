@@ -42,6 +42,8 @@ TrigJetHypoToolMT::~TrigJetHypoToolMT(){
 }
 
 StatusCode TrigJetHypoToolMT::initialize(){
+  // get the conditions objects for the chain.
+  // as these hav no state, they can be created once per job.
   m_conditions = m_config->getConditions();
   return StatusCode::SUCCESS;
 }
@@ -61,7 +63,7 @@ StatusCode TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
                  hypoJets.begin(),
                  xAODJetAsIJetFactory());
  
-  // make a new CleanerMatcher every event
+  // make a new TrigHLTJetHypoHelper2 every event
   auto matcher = groupsMatcherFactory(m_conditions);
   auto grouper = m_config->getJetGrouper();
   auto helper = TrigHLTJetHypoHelper2(m_cleaners, 
@@ -98,34 +100,6 @@ StatusCode TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
   return StatusCode::SUCCESS;
 }
 
-StatusCode
-TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
-                                std::unique_ptr<DecisionContainer>& nDecisions,
-                                const DecisionContainer* oDecisions) const{
-
-  if(oDecisions->size() != 1) {
-    ATH_MSG_ERROR ("expected 1 previous decision, found "<< oDecisions->size());
-    return StatusCode::FAILURE;
-  }
-  
-  auto previousDecision = (*oDecisions)[0];
-  
-  const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs{
-    TrigCompositeUtils::decisionIDs(previousDecision).begin(), 
-      TrigCompositeUtils::decisionIDs( previousDecision ).end()
-      };
-  
-  if (TrigCompositeUtils::passed(m_decisionId.numeric(), previousDecisionIDs)){
-    bool pass;
-    CHECK(decide(jets, pass));
-    if (pass) {
-      auto decision = TrigCompositeUtils::newDecisionIn(nDecisions.get());
-      TrigCompositeUtils::addDecisionID(m_decisionId, decision);
-    }
-  }
-  
-  return StatusCode::SUCCESS;
-}
 
 
 void  TrigJetHypoToolMT::setCleaners() {
@@ -213,3 +187,8 @@ void TrigJetHypoToolMT::writeDebug(bool pass,
   }
   
 }
+
+
+const HLT::Identifier& TrigJetHypoToolMT::getId() const{
+  return m_decisionId;
+} 

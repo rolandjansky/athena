@@ -32,24 +32,6 @@ StatusCode TrigJetHypoAlgMT::finalize() {
   return StatusCode::SUCCESS;
 }
 
-  /*
-OLD
-    ITC -> get 1 RoI/TC
-    loop over views
-       make one TC per view
-       get RoIs of view - from RoI input
-       get clusters of view -from View input
-       map the roi to a decision - from input decisions
-       create new decision with one cluster, one roi, one view
-
-NEW
-    loop over ITC
-       get RoI and view of TC
-       get cluster of that view
-       create new decision with one cluster, one roi, one view
-
-   */
-
 StatusCode TrigJetHypoAlgMT::execute_r( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
 
@@ -82,12 +64,10 @@ StatusCode TrigJetHypoAlgMT::execute_r( const EventContext& context ) const {
 
   const JetContainer* jets = h_jets.get();
 
-  // Pass the jet collection and the decision objects to each hypo tool.
-  // There is a tool for each chain. The tol will decide whether the
-  // chain passes, and update the various decision objects accordingly.
-  // The updates will be seen by this Algorithm.
+  // Test whether the  hypo tools pass the event, and update the decision
+  // containers accordingly.
   for (const auto& tool: m_hypoTools) {
-    CHECK(tool->decide(jets, newDecisions, prevDecisions));
+    CHECK(decide(jets, newDecisions, prevDecisions, tool));
   }
  
   // output the decisions for all chains for this event.
@@ -107,5 +87,42 @@ StatusCode TrigJetHypoAlgMT::execute_r( const EventContext& context ) const {
   }
 
 
+  return StatusCode::SUCCESS;
+}
+
+
+
+StatusCode
+TrigJetHypoAlgMT::decide(const xAOD::JetContainer* jets,
+                         std::unique_ptr<DecisionContainer>& nDecisions,
+                         const DecisionContainer* oDecisions,
+                         const ToolHandle<ITrigJetHypoToolMT>& tool) const{
+
+  if(oDecisions->size() != 1) {
+    ATH_MSG_ERROR ("expected 1 previous decision, found "<< oDecisions->size());
+    return StatusCode::FAILURE;
+  }
+  
+  auto previousDecision = (*oDecisions)[0];
+  
+  const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs{
+    TrigCompositeUtils::decisionIDs(previousDecision).begin(), 
+      TrigCompositeUtils::decisionIDs( previousDecision ).end()
+      };
+
+  auto decisionId = tool->getId();
+  if (TrigCompositeUtils::passed(decisionId.numeric(),
+                                 previousDecisionIDs)){
+    bool pass;
+    CHECK(tool->decide(jets, pass));
+    if (pass) {
+      // create a new Decision object. This object has been placed in the
+      // nDecisions container.
+      auto decision = TrigCompositeUtils::newDecisionIn(nDecisions.get());
+      TrigCompositeUtils::addDecisionID(decisionId, decision);
+    }
+    // what if does not pass?
+  }
+  
   return StatusCode::SUCCESS;
 }

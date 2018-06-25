@@ -39,17 +39,19 @@ class TrigJetHypoToolMT: public extends<AthAlgTool, ITrigJetHypoToolMT> {
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 
- protected:
   // ITrigJetHypoToolMT interface
-  virtual StatusCode decide(const xAOD::JetContainer*,
-                            std::unique_ptr<DecisionContainer>&,
-                            const DecisionContainer*) const override;
-
+  virtual StatusCode
+    decide(const xAOD::JetContainer*, bool& pass) const override;
+  virtual const HLT::Identifier& getId() const override; 
  private:
-  
-  HLT::Identifier m_decisionId;
-  
-   Conditions m_conditions;
+
+  // Identifier is used to keep track of which tool made which decision.
+  // The information is stored in the event store.
+  HLT::Identifier m_decisionId;  
+
+
+  // Paraphanalia needed for the Jet Hypo Helper class:
+  Conditions m_conditions;
 
   bool m_dumpJets{false};
   
@@ -58,14 +60,15 @@ class TrigJetHypoToolMT: public extends<AthAlgTool, ITrigJetHypoToolMT> {
   void writeDebug(bool,
                   const HypoJetVector&,
                   const HypoJetVector&) const;
- 
-  StatusCode decide(const xAOD::JetContainer*, bool& pass) const;
+
   
 
  private:
 
  std::vector<CleanerBridge> m_cleaners;
- 
+
+ // Used to generate helper objects foe TrigHLTJetHelper
+ // from user supplied values
  ToolHandle<ITrigJetHypoToolConfig> m_config {
    this, "HypoConfigurer", {}, "Configurer to set up TrigHLTJetHypoHelper2"}; 
 

@@ -29,7 +29,13 @@ class TrigJetHypoAlgMT : public ::HypoBase {
   virtual StatusCode  execute_r( const EventContext& context ) const override;
   virtual StatusCode  finalize() override;
  
- private: 
+ private:
+
+  StatusCode decide(const xAOD::JetContainer*,
+                    std::unique_ptr<DecisionContainer>&,
+                    const DecisionContainer*,
+                    const ToolHandle<ITrigJetHypoToolMT>&xs) const;
+
 
   ToolHandleArray<ITrigJetHypoToolMT> m_hypoTools {
     this, "HypoTools", {}, "Hypo tools"};

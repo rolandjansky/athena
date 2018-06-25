@@ -13,13 +13,21 @@
 using TrigCompositeUtils::Decision;
 using TrigCompositeUtils::DecisionContainer;
 
+namespace HLT{
+  class Identifier;
+}
+
 class ITrigJetHypoToolMT : virtual public ::IAlgTool {
     
 public:
   DeclareInterfaceID(ITrigJetHypoToolMT, 1, 0);
   virtual ~ITrigJetHypoToolMT(){};
-  virtual StatusCode decide(const xAOD::JetContainer*,
-                            std::unique_ptr<DecisionContainer>&,
-                            const DecisionContainer*) const = 0;
+  // make a decision (yes/no) based on the jets in the jet container,
+  // set the new decision object according to this decision, and previous
+  // devicsion objects. Jets typically have only a decision object
+  // generated at L1.
+  virtual StatusCode decide(const xAOD::JetContainer*, bool& pass) const = 0;
+  virtual const HLT::Identifier& getId() const = 0; 
+
 };
 #endif
