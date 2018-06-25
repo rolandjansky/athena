@@ -527,6 +527,7 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
          DECLARE_SE_TYPE( MinimumBias );
          DECLARE_SE_TYPE( Cavern );
          DECLARE_SE_TYPE( HaloGas );
+         DECLARE_SE_TYPE( HighPtMinimumBias );
          DECLARE_SE_TYPE( ZeroBias );
 
 #undef DECLARE_SE_TYPE
