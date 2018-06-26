@@ -296,7 +296,8 @@ from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionToo
 InDetTRT_DriftFunctionTool = TRT_DriftFunctionTool(name = "InDetTRT_DriftFunctionTool",
                                                    AllowDataMCOverride = True,
                                                    TRTCalDbTool=TRTCalSvc,
-                                                   ForceData = True)
+                                                   ForceData = True,
+                                                   IsMC=(globalflags.DataSource == 'geant4'))
 
 ToolSvc += InDetTRT_DriftFunctionTool
 print InDetTRT_DriftFunctionTool

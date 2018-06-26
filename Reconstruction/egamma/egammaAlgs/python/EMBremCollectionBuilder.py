@@ -86,9 +86,19 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
         #
         GSFBuildTRT_ElectronPidTool = None
         if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC() and not InDetFlags.doHighPileup() :
+         
+            isMC = False
+            if globalflags.DataSource == "geant4" :
+                isMC = True
+            from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
+            InDetTRT_DriftFunctionTool = TRT_DriftFunctionTool(name      = "InDetTRT_DriftFunctionTool",
+                                                               IsMC      = isMC)
+            ToolSvc += InDetTRT_DriftFunctionTool
             
+   
             from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
-            GSFBuildTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="GSF_TRT_LocalOccupancy")
+            GSFBuildTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="GSF_TRT_LocalOccupancy",
+                                                                   TRTDriftFunctionTool = InDetTRT_DriftFunctionTool)
             ToolSvc += GSFBuildTRT_LocalOccupancy
                 
             from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2
