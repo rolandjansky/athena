@@ -1251,6 +1251,9 @@ int main(int argc, char** argv) {
 	    std::cout << "Class TProf: " << htest->GetName() << std::endl; 
 	  }
 
+    for ( size_t i=0 ; i<panel.size() ; i++ ) {
+      
+      HistDetails histo = panel[i];
 
 
 	  if ( !noreftmp && hreft==0 ) { 
@@ -1334,6 +1337,8 @@ int main(int argc, char** argv) {
 	  }
 	}
 
+	  if ( bsigma ) { htest = (TH1F*)rtest.Sigma()->Clone("rtest_sigma"); htest->SetDirectory(0); }
+	  if ( bmean  ) {  htest = (TH1F*)rtest.Mean()->Clone("rtest_mean");  htest->SetDirectory(0); }
 
 	if ( _bayes ) { 
 
@@ -1431,7 +1436,7 @@ int main(int argc, char** argv) {
 	  else href->GetYaxis()->SetTitle(yaxis.c_str());
 	}	
 
-	if ( fulldbg ) std::cout << __LINE__ << std::endl;
+	  if ( fulldbg ) std::cout << __LINE__ << std::endl;
 
 #if 1
 	if ( contains(histo.name(),"ntracks") ) {

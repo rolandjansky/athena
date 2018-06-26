@@ -487,7 +487,10 @@ StatusCode FTKTrackFitterAlgo::initialize(){
 	vector<vector<int>> moduleIDvec;
 	moduleIDvec.clear();
 
-	for(Int_t isec=0;isec<bank8->getNSectors();isec++){
+	Int_t Max_1stStage_sectors = 16383;
+        for(Int_t isec=0;isec<Max_1stStage_sectors;isec++){
+	  
+	  if((int)sector->getNSimilarSectors(isec) == 0 )break;
 
 	  for(Int_t Nconn=0; Nconn< (int)sector->getNSimilarSectors(isec); Nconn++){
 	    if(Nconn >3 ) break;
