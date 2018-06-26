@@ -36,7 +36,7 @@ namespace Analysis {
   CalibrationBroker::CalibrationBroker(const std::string& type, 
 				       const std::string& name, const IInterface* parent) :
     AthAlgTool(type, name, parent), 
-    m_poolsvc(0),
+    m_poolsvc(nullptr),
     m_nrefresh(0),
     m_callBackRegistered(false) {
     declareInterface<CalibrationBroker>(this);
@@ -399,7 +399,7 @@ namespace Analysis {
 	for(uint j=0;j<m_channels.size();j++) {
 	  if(this->channelAlias(m_channels[j])==m_channels[j]) { // skip aliased channels
 	    std::string fname = this->fullHistoName(m_channels[j],hname);
-	    TObject* dummy = 0;
+	    TObject* dummy = nullptr;
 	    m_histos[i].insert(std::make_pair(fname, std::make_pair(dummy, false)));
 	  } else {
 	    ATH_MSG_DEBUG( "#BTAG# " << m_channels[j] << " is aliased to " << this->channelAlias(m_channels[j]) 
@@ -413,15 +413,15 @@ namespace Analysis {
 
   }
 
-  StatusCode CalibrationBroker::objectTDirExists(const std::string& histname, TFile * pfile) {
+  StatusCode CalibrationBroker::objectTDirExists(const std::string& histname, TFile * pfile) const {
     
     ATH_MSG_DEBUG("#BTAG# in objectTDirExists" );
 
      // now read the histogram into memory
      ATH_MSG_DEBUG("Getting object "+histname+" from file");
-     TObject* hist;
+     TObject* hist = nullptr;
      pfile->GetObject(histname.c_str(),hist);
-     if (hist==0) {
+     if (hist==nullptr) {
        ATH_MSG_DEBUG("#BTAG# Could not load TObject " << histname);
        return StatusCode::FAILURE;
      }
@@ -429,11 +429,11 @@ namespace Analysis {
      return StatusCode::SUCCESS;
   }
 
-  StatusCode CalibrationBroker::getTObject(const std::string& histname, TFile * pfile, TObject*& hist) {
+  StatusCode CalibrationBroker::getTObject(const std::string& histname, TFile * pfile, TObject*& hist) const {
      // now read the histogram into memory
      ATH_MSG_DEBUG("Getting object "+histname+" from file");
      pfile->GetObject(histname.c_str(),hist);
-     if (hist==0) {
+     if (hist==nullptr) {
        ATH_MSG_DEBUG("#BTAG# Could not load TObject " << histname);
        return StatusCode::FAILURE;
      }
@@ -442,12 +442,12 @@ namespace Analysis {
        // only for histogram objects, others do not get associated
        // TTrees have special treatment 
        TH1* ihist=dynamic_cast<TH1*>(hist);
-       if (ihist!=0) ihist->SetDirectory(0);
+       if (ihist!=nullptr) ihist->SetDirectory(0);
        // if it is a TDirectory, also need special treatment to unassociate parent
        TDirectory* idir=dynamic_cast<TDirectory*>(hist);
-       if (idir!=0) {
+       if (idir!=nullptr) {
          TDirectory* mdir=idir->GetMotherDir();
-         if (mdir!=0) {
+         if (mdir!=nullptr) {
            ATH_MSG_DEBUG("Disconnecting TDirectory "+histname+" from parent");
            mdir->GetList()->Remove(idir);
            idir->SetMother(0);
@@ -477,7 +477,7 @@ namespace Analysis {
             ATH_MSG_DEBUG( "#BTAG# Key and actual folder match: " << (*itr));
 
             // Get the GUID
-            const CondAttrListCollection* atrcol = 0;
+            const CondAttrListCollection* atrcol = nullptr;
             if (StatusCode::SUCCESS!=detStore()->retrieve(atrcol,folder)) {
               ATH_MSG_DEBUG("#BTAG# Cannot retrieve CondAttrListCollection for " << folder);
               return StatusCode::FAILURE;
@@ -496,7 +496,7 @@ namespace Analysis {
             std::string pfname, tech;
             m_poolsvc->catalog()->getFirstPFN(coolguid, pfname, tech );
             TFile* pfile = TFile::Open(pfname.c_str(),"READ");
-            if (pfile==0 || !pfile->IsOpen()) {
+            if (pfile==nullptr || !pfile->IsOpen()) {
               delete pfile;
               ATH_MSG_WARNING("Problems opening input file "+pfname);
               return StatusCode::FAILURE;
@@ -524,7 +524,7 @@ namespace Analysis {
 	      hFullName+="/"; hFullName+=channel; 
 	      hFullName+="/"; hFullName+=hname;
 	      ATH_MSG_DEBUG( "#BTAG#     histo name in physical file= " << hFullName );
-	      TObject* hPointer = 0;
+	      TObject* hPointer = nullptr;
               if (getTObject(hFullName, pfile, hPointer)) {
               
 

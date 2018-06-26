@@ -114,11 +114,10 @@ public:
 private:
 
   StatusCode createHistoMap(TFile* file);
-  StatusCode objectTDirExists(const std::string& histname, TFile* file);
-  StatusCode getTObject(const std::string& histname, TFile* file, TObject*& hist);
+  StatusCode objectTDirExists(const std::string& histname, TFile* file) const;
+  StatusCode getTObject(const std::string& histname, TFile* file, TObject*& hist) const;
   std::vector<std::string> tokenize(std::string str, std::string delim);
 
-  //ServiceHandle<IIOVDbSvc>  m_IOVDbSvc;
   IPoolSvc* m_poolsvc;
   int m_nrefresh;
   bool m_callBackRegistered;
