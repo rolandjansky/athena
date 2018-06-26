@@ -118,13 +118,13 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
   
   // Load event info object directly into the particleEvent
   top::check( evtStore()->retrieve( particleEvent.m_info, m_config->sgKeyEventInfo() ),
-	      "xAOD::TEvent::retrieve failed for EventInfo" );
+      "xAOD::TEvent::retrieve failed for EventInfo" );
 
   /* ------------------------------ Muons -----------------------------------------------------------*/
   // Get muons
   const xAOD::TruthParticleContainer * origmuons(0);
   top::check( evtStore()->retrieve( origmuons, m_config->sgKeyTruthMuons() ),
-	    "xAOD::TEvent::retrieve failed for Truth Muons" );
+      "xAOD::TEvent::retrieve failed for Truth Muons" );
 
   // Shallow copy 
   std::pair< xAOD::TruthParticleContainer*, xAOD::ShallowAuxContainer* > muons_shallowCopy = xAOD::shallowCopyContainer( *origmuons );
@@ -168,7 +168,7 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
   // Get electrons
   const xAOD::TruthParticleContainer * origelectrons(0);
   top::check( evtStore()->retrieve( origelectrons, m_config->sgKeyTruthElectrons() ),
-	    "xAOD::TEvent::retrieve failed for Truth Electrons" );
+      "xAOD::TEvent::retrieve failed for Truth Electrons" );
   
   // Shallow copy 
   std::pair< xAOD::TruthParticleContainer*, xAOD::ShallowAuxContainer* > electrons_shallowCopy = xAOD::shallowCopyContainer( *origelectrons );
@@ -202,10 +202,10 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
       if(m_upgrade->getRandom3()->Uniform() < fakeEff) {
         xAOD::TruthParticle *fakePhoton = new xAOD::TruthParticle();
         fakePhotons->push_back( fakePhoton );
-	*fakePhoton = *electron;
-	fakePhoton->auxdata<int>("passReco") = 1;
-	fakePhoton->auxdata<int>("FakeType") = 1; // faketype 0:true, 1:e->y, 2:j->y
-	electron->auxdata<bool>("FakingPhoton") = true; //add auxdata to identify the electron that is used as fake photon
+        *fakePhoton = *electron;
+        fakePhoton->auxdata<int>("passReco") = 1;
+        fakePhoton->auxdata<int>("FakeType") = 1; // faketype 0:true, 1:e->y, 2:j->y
+        electron->auxdata<bool>("FakingPhoton") = true; //add auxdata to identify the electron that is used as fake photon
       } else electron->auxdata<bool>("FakingPhoton") = false; //add auxdata to identify the electron that is used as fake photon
     }
 
@@ -238,7 +238,7 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
   // Get jets
   const xAOD::JetContainer * origjets(0);
   top::check( evtStore()->retrieve( origjets, m_config->sgKeyTruthJets() ),
-	    "xAOD::TEvent::retrieve failed for Truth Jets" );
+      "xAOD::TEvent::retrieve failed for Truth Jets" );
 
   // Shallow copy 
   std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > jets_shallowCopy = xAOD::shallowCopyContainer( *origjets );
@@ -259,18 +259,18 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
         fakeElectrons->push_back( fakeElectron );
         m_upgrade->smearFakeElectron(*fakeElectron, *jet);
         fakeElectron->auxdata<int>("passReco") = 1;
-	fakeElectron->auxdata<int>("FakeType") = 2; // faketype 0:true, 2:j->e
+        fakeElectron->auxdata<int>("FakeType") = 2; // faketype 0:true, 2:j->e
         continue;
       }
       if(m_config->useTruthPhotons()){
         //fake photon efficiency
         const float fakeEff2 = m_upgrade->getPhotonFakeRate(jet->pt());
         if(m_upgrade->getRandom3()->Uniform() < fakeEff2) {
-	  xAOD::TruthParticle *fakePhoton = new xAOD::TruthParticle();
+          xAOD::TruthParticle *fakePhoton = new xAOD::TruthParticle();
           fakePhotons->push_back( fakePhoton );
           m_upgrade->smearFakePhoton(*fakePhoton, *jet);
-	  fakePhoton->auxdata<int>("passReco") = 1;
-	  fakePhoton->auxdata<int>("FakeType") = 2; // faketype 0:true, 1:e->y, 2:j->y
+          fakePhoton->auxdata<int>("passReco") = 1;
+          fakePhoton->auxdata<int>("FakeType") = 2; // faketype 0:true, 1:e->y, 2:j->y
           continue;
         }
       }
@@ -329,18 +329,18 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
         fakeElectrons->push_back( fakeElectron );
         m_upgrade->smearFakeElectron(*fakeElectron, puJet);
         fakeElectron->auxdata<int>("passReco") = 1;
-	fakeElectron->auxdata<int>("FakeType") = 2; // faketype 0:true, 2:j->e
+        fakeElectron->auxdata<int>("FakeType") = 2; // faketype 0:true, 2:j->e
         continue;
       }
       if(m_config->useTruthPhotons()){
         //fake photon efficiency
         const float fakeEff2 = m_upgrade->getPhotonFakeRate(puJet.Pt());
         if(m_upgrade->getRandom3()->Uniform() < fakeEff2) {//TODO: are we going to use uniform?
-	  xAOD::TruthParticle *fakePhoton = new xAOD::TruthParticle();
+          xAOD::TruthParticle *fakePhoton = new xAOD::TruthParticle();
           fakePhotons->push_back( fakePhoton );
           m_upgrade->smearFakePhoton(*fakePhoton, puJet);
           fakePhoton->auxdata<int>("passReco") = 1;
-	  fakePhoton->auxdata<int>("FakeType") = 2; // faketype 0:true, 1:e->y, 2:j->y
+          fakePhoton->auxdata<int>("FakeType") = 2; // faketype 0:true, 1:e->y, 2:j->y
           continue;
         }
       }
@@ -448,7 +448,7 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
 
       // apply all cuts
       if( m_objectSelector_Photon->apply( *photon ) ){
-	if (m_dofakes) photon->auxdata<int>("FakeType") = 0; // faketype 0:true, 1:e->y, 2:j->y
+        if (m_dofakes) photon->auxdata<int>("FakeType") = 0; // faketype 0:true, 1:e->y, 2:j->y
         xAOD::TruthParticle *newPh = new xAOD::TruthParticle();
         m_selectedPhotons->push_back( newPh ); //particle acquires the selectedPhotons auxStore
         *newPh = *photon; //deep copy
@@ -496,7 +496,7 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
   /* ----------------------------- MET ------------------------------------------*/
   const xAOD::MissingETContainer * origmetcont(0);
   top::check( evtStore()->retrieve( origmetcont, m_config->sgKeyTruthMET() ),
-	    "xAOD::TEvent::retrieve failed for Truth MET" );  
+      "xAOD::TEvent::retrieve failed for Truth MET" );
 
   ATH_MSG_DEBUG("N(MET) = " << origmetcont->size());
 
