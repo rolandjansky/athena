@@ -306,7 +306,7 @@ namespace top{
     // - for jets:
     //   * bool isBtagged : mandatory only if you want to use b-tagging in the fit
 
-
+/*
     // To allow KLFitter to run on multiple non-orthogonal selections, we set/check a decorator
     std::cout<<event.m_info->eventNumber()<<std::endl;
     if( (event.m_info->isAvailable< int >( "KLFitterHasRun" ) ) ){
@@ -315,7 +315,7 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
        event.m_info->auxdecor< int >( "KLFitterHasRun" ) = 1;
     }
     else event.m_info->auxdecor< int >( "KLFitterHasRun" ) = 1;
-
+*/
   
     KLFitter::Particles * myParticles = new KLFitter::Particles{};
 
@@ -416,7 +416,10 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
     }
 
     // set the jets, depending on the Jet Selection Mode
-    setJets(event, myParticles); 
+    if(!setJets(event, myParticles)){
+       std::cout<<"KLFitterTool::execute: error at event "<<event.m_info->eventNumber()<<". It was not possible to properly fill the jets. Are you trying to use a KLeadingX Jet Selection mode with a signal region with less than X jets? Please check your configuration!\n";
+       return StatusCode::FAILURE;
+    }
     
     // add the particles to the fitter
     if (!m_myFitter->SetParticles(myParticles)) {
@@ -733,8 +736,9 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
    xAOD::JetContainer jets;
    xAOD::JetAuxContainer jetsAux;
    jets.setStore( &jetsAux );
-   xAOD::Jet* jet_copy = new xAOD::Jet(jet);
+   xAOD::Jet* jet_copy = new xAOD::Jet();
    jets.push_back(jet_copy);
+   *jet_copy = jet;
    //treat jet as b-tagged
    jet_copy->setAttribute("HadronConeExclTruthLabelID", 5);
    top::check(m_btagging_eff_tool->getMCEfficiency(*jet_copy, *efficiency),
@@ -747,70 +751,64 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
 
 
 
-  void KLFitterTool::setJets(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJets(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingThree) {
-      setJetskLeadingThree( event , inputParticles );
-    }
-    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingFour) {
-      setJetskLeadingFour( event , inputParticles );
-    }
-    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingFive) {
-      setJetskLeadingFive( event , inputParticles );
-    } 
-    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingSix) {
-      setJetskLeadingSix( event , inputParticles );
-    }
-    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingSeven) {
-      setJetskLeadingSeven( event , inputParticles );
-    }
-    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPriorityThreeJets) {
-      setJetskBtagPriorityThreeJets( event , inputParticles );
-    }
-    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPriorityFourJets) {
-      setJetskBtagPriorityFourJets( event , inputParticles );
-    }
-    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPriorityFiveJets) {
-      setJetskBtagPriorityFiveJets( event , inputParticles );
-    }     
-    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPrioritySixJets) {
-      setJetskBtagPrioritySixJets( event , inputParticles );
-    }
-    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPrioritySevenJets) {
-      setJetskBtagPrioritySevenJets( event , inputParticles );
-    }
-
-
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingThree)
+      return setJetskLeadingThree( event , inputParticles );
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingFour)
+      return setJetskLeadingFour( event , inputParticles );
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingFive)
+      return setJetskLeadingFive( event , inputParticles );
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingSix)
+      return setJetskLeadingSix( event , inputParticles );
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingSeven)
+      return setJetskLeadingSeven( event , inputParticles );
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPriorityThreeJets)
+      return setJetskBtagPriorityThreeJets( event , inputParticles );
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPriorityFourJets)
+      return setJetskBtagPriorityFourJets( event , inputParticles );
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPriorityFiveJets)
+      return setJetskBtagPriorityFiveJets( event , inputParticles );
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPrioritySixJets)
+      return setJetskBtagPrioritySixJets( event , inputParticles );
+    if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kBtagPrioritySevenJets)
+      return setJetskBtagPrioritySevenJets( event , inputParticles );
+    return false;
   }
   
-  void KLFitterTool::setJetskLeadingThree(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJetskLeadingThree(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    setJetskLeadingX(event, inputParticles, 3);
+    return setJetskLeadingX(event, inputParticles, 3);
   }
 
-  void KLFitterTool::setJetskLeadingFour(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJetskLeadingFour(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    setJetskLeadingX(event, inputParticles, 4);
+    return setJetskLeadingX(event, inputParticles, 4);
   }
 
-  void KLFitterTool::setJetskLeadingFive(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJetskLeadingFive(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    setJetskLeadingX(event, inputParticles, 5);
+    return setJetskLeadingX(event, inputParticles, 5);
   }
 
-  void KLFitterTool::setJetskLeadingSix(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJetskLeadingSix(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    setJetskLeadingX(event, inputParticles, 6);
+    return setJetskLeadingX(event, inputParticles, 6);
   }
 
-  void KLFitterTool::setJetskLeadingSeven(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJetskLeadingSeven(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    setJetskLeadingX(event, inputParticles, 7);
+    return setJetskLeadingX(event, inputParticles, 7);
   }
 
-  void KLFitterTool::setJetskLeadingX(const top::Event& event,KLFitter::Particles* inputParticles, int njets)
+  bool KLFitterTool::setJetskLeadingX(const top::Event& event,KLFitter::Particles* inputParticles, const unsigned int njets)
   {
-    int index(0);
+    unsigned int index(0);
+    //If container has less jets than required, raise error
+    if(event.m_jets.size()<njets){
+       std::cout<<"KLFitterTool::setJetskLeadingX: You required "<<njets<<" jets. Event has "<<event.m_jets.size()<<" jets!\n";
+       return false;
+    }
     for (const auto& jet : event.m_jets) {
       if (index > njets-1) break;
 
@@ -827,38 +825,45 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
                                   isTagged, eff, 1./ineff, KLFitter::Particles::kNone, weight);
       ++index;
     }
+    return true;
   }
 
   
-  void KLFitterTool::setJetskBtagPriorityThreeJets(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJetskBtagPriorityThreeJets(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    setJetskBtagPriority( event , inputParticles , 3 );
+    return setJetskBtagPriority( event , inputParticles , 3 );
   }
   
-  void KLFitterTool::setJetskBtagPriorityFourJets(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJetskBtagPriorityFourJets(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    setJetskBtagPriority( event , inputParticles , 4 );
+    return setJetskBtagPriority( event , inputParticles , 4 );
   }
   
-  void KLFitterTool::setJetskBtagPriorityFiveJets(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJetskBtagPriorityFiveJets(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    setJetskBtagPriority( event , inputParticles , 5 );
+    return setJetskBtagPriority( event , inputParticles , 5 );
   }  
 
-  void KLFitterTool::setJetskBtagPrioritySixJets(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJetskBtagPrioritySixJets(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    setJetskBtagPriority( event , inputParticles , 6 );
+    return setJetskBtagPriority( event , inputParticles , 6 );
   }
   
-  void KLFitterTool::setJetskBtagPrioritySevenJets(const top::Event& event,KLFitter::Particles* inputParticles)
+  bool KLFitterTool::setJetskBtagPrioritySevenJets(const top::Event& event,KLFitter::Particles* inputParticles)
   {
-    setJetskBtagPriority( event , inputParticles , 7 );
+    return setJetskBtagPriority( event , inputParticles , 7 );
   }
   
-  void KLFitterTool::setJetskBtagPriority(const top::Event& event,KLFitter::Particles* inputParticles,const unsigned int maxJets)
+  bool KLFitterTool::setJetskBtagPriority(const top::Event& event,KLFitter::Particles* inputParticles,const unsigned int maxJets)
   {
     // kBtagPriority mode first adds the b jets, then the light jets                                                                                                                    
     // If your 6th or 7th jet is a b jet, then you probably want this option                                                                                                    
+
+    //If container has less jets than required, raise error
+    if(event.m_jets.size()<maxJets){
+       std::cout<<"KLFitterTool::setJetskBtagPriority: You required "<<maxJets<<" jets. Event has "<<event.m_jets.size()<<" jets!\n";
+       return false;
+    }
 
     unsigned int totalJets(0);
 
@@ -901,7 +906,7 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
       
       ++index;
     }  // for (jet)                                                                                                                                                                   
-    
+    return true;
   }
 
      

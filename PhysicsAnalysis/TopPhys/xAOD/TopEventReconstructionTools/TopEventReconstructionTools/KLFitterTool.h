@@ -76,23 +76,23 @@ namespace top{
     private:
       
       // set jets depending on selection mode 
-      void setJets(const top::Event&,KLFitter::Particles* inputParticles);
-      void setJetskLeadingThree(const top::Event&,KLFitter::Particles* inputParticles);
-      void setJetskLeadingFour(const top::Event&,KLFitter::Particles* inputParticles);
-      void setJetskLeadingFive(const top::Event&,KLFitter::Particles* inputParticles);
-      void setJetskLeadingSix(const top::Event&,KLFitter::Particles* inputParticles);
-      void setJetskLeadingSeven(const top::Event&,KLFitter::Particles* inputParticles);
+      bool  setJets(const top::Event&,KLFitter::Particles* inputParticles);
+      bool  setJetskLeadingThree(const top::Event&,KLFitter::Particles* inputParticles);
+      bool  setJetskLeadingFour(const top::Event&,KLFitter::Particles* inputParticles);
+      bool  setJetskLeadingFive(const top::Event&,KLFitter::Particles* inputParticles);
+      bool  setJetskLeadingSix(const top::Event&,KLFitter::Particles* inputParticles);
+      bool  setJetskLeadingSeven(const top::Event&,KLFitter::Particles* inputParticles);
 
-      void setJetskLeadingX(const top::Event& event,KLFitter::Particles* inputParticles, int);
+      bool  setJetskLeadingX(const top::Event& event,KLFitter::Particles* inputParticles, const unsigned int);
 
 
-      void setJetskBtagPriorityThreeJets(const top::Event&,KLFitter::Particles* inputParticles);
-      void setJetskBtagPriorityFourJets(const top::Event&,KLFitter::Particles* inputParticles);
-      void setJetskBtagPriorityFiveJets(const top::Event&,KLFitter::Particles* inputParticles);
-      void setJetskBtagPrioritySixJets(const top::Event&,KLFitter::Particles* inputParticles);
-      void setJetskBtagPrioritySevenJets(const top::Event&,KLFitter::Particles* inputParticles);
+      bool  setJetskBtagPriorityThreeJets(const top::Event&,KLFitter::Particles* inputParticles);
+      bool  setJetskBtagPriorityFourJets(const top::Event&,KLFitter::Particles* inputParticles);
+      bool  setJetskBtagPriorityFiveJets(const top::Event&,KLFitter::Particles* inputParticles);
+      bool  setJetskBtagPrioritySixJets(const top::Event&,KLFitter::Particles* inputParticles);
+      bool  setJetskBtagPrioritySevenJets(const top::Event&,KLFitter::Particles* inputParticles);
 
-      void setJetskBtagPriority(const top::Event&,KLFitter::Particles* inputParticles,const unsigned int maxJets);
+      bool  setJetskBtagPriority(const top::Event&,KLFitter::Particles* inputParticles,const unsigned int maxJets);
       
       // configuration
       std::shared_ptr<top::TopConfig> m_config;
