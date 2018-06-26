@@ -76,6 +76,12 @@ TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1SkimmingKern
 from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
 addStandardJetsForTop(TOPQ1Sequence,'TOPQ1')
 
+if DerivationFrameworkIsMonteCarlo:
+  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=TOPQ1Sequence, outputGroup="TOPQ1", writeUngroomed=True)
+
+addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], TOPQ1Sequence, "TOPQ1", ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed")
+addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1, algseq=TOPQ1Sequence, outputGroup="TOPQ1", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
+
 #Then apply jet calibration
 DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
 DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",TOPQ1Sequence)
@@ -122,6 +128,8 @@ JetTagConfig.ConfigureAntiKt4PV0TrackJets(TOPQ1Sequence, 'TOPQ1')
 TOPQ1Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
 TOPQ1Sequence += JetTagConfig.GetDecoratePromptTauAlgs()
 
+
+
 # Finally, add the private sequence to the main job
 DerivationFrameworkJob += TOPQ1Sequence
 
@@ -130,3 +138,10 @@ DerivationFrameworkJob += TOPQ1Sequence
 #====================================================================
 import DerivationFrameworkTop.TOPQCommonSlimming
 DerivationFrameworkTop.TOPQCommonSlimming.setup('TOPQ1', TOPQ1Stream)
+
+TOPQ1Stream.AddItem("xAOD::JetContainer#AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets")
+TOPQ1Stream.AddItem("xAOD::JetAuxContainer#AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux.")
+
+if DerivationFrameworkIsMonteCarlo:
+  TOPQ1Stream.AddItem("xAOD::JetContainer#AntiKt10TruthSoftDropBeta100Zcut10Jets")
+  TOPQ1Stream.AddItem("xAOD::JetAuxContainer#AntiKt10TruthSoftDropBeta100Zcut10JetsAux.")
