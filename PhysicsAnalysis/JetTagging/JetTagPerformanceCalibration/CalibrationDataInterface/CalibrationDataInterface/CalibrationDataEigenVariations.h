@@ -28,7 +28,7 @@ namespace Analysis
     typedef std::set<size_t> IndexSet;
     typedef std::set<IndexSet> IndexSuperSet;
 
-    CalibrationDataEigenVariations(const CalibrationDataHistogramContainer* cnt);
+    CalibrationDataEigenVariations(const CalibrationDataHistogramContainer* cnt, bool excludeRecommended = false);
     ~CalibrationDataEigenVariations();
 
     /** exclude the source of uncertainty indicated by  name  from eigenvector calculations */

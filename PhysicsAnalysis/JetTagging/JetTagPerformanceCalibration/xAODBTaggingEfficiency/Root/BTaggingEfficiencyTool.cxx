@@ -134,10 +134,15 @@ BTaggingEfficiencyTool::BTaggingEfficiencyTool( const std::string & name) : asg:
   declareProperty("EfficiencyCCalibrations",             m_EffNames["C"] = "default",   "(semicolon-separated) name(s) of c-jet efficiency object(s)");
   declareProperty("EfficiencyTCalibrations",             m_EffNames["T"] = "default",   "(semicolon-separated) name(s) of tau-jet efficiency object(s)");
   declareProperty("EfficiencyLightCalibrations",         m_EffNames["Light"] = "default", "(semicolon-separated) name(s) of light-flavour-jet efficiency object(s)");
+  declareProperty("UncertaintyBSuffix",                  m_uncertaintySuffixes["B"] = "","optional suffix for b-jet uncertainty naming");
+  declareProperty("UncertaintyCSuffix",                  m_uncertaintySuffixes["C"] = "","optional suffix for c-jet uncertainty naming");
+  declareProperty("UncertaintyTSuffix",                  m_uncertaintySuffixes["T"] = "","optional suffix for tau-jet uncertainty naming");
+  declareProperty("UncertaintyLightSuffix",              m_uncertaintySuffixes["Light"] = "","optional suffix for light-flavour-jet uncertainty naming");
   declareProperty("ExcludeFromEigenVectorTreatment",     m_excludeFromEV = "",          "(semicolon-separated) names of uncertainties to be excluded from all eigenvector decompositions (if used)");
   declareProperty("ExcludeFromEigenVectorBTreatment",    m_excludeFlvFromEV["B"] = "",  "(semicolon-separated) names of uncertainties to be excluded from b-jet eigenvector decomposition (if used)");
   declareProperty("ExcludeFromEigenVectorCTreatment",    m_excludeFlvFromEV["C"] = "",  "(semicolon-separated) names of uncertainties to be excluded from c-jet eigenvector decomposition (if used)");
   declareProperty("ExcludeFromEigenVectorLightTreatment",m_excludeFlvFromEV["Light"] = "", "(semicolon-separated) names of uncertainties to be excluded from light-flavour-jet eigenvector decomposition (if used)");
+  declareProperty("ExcludeRecommendedFromEigenVectorTreatment", m_useRecommendedEVExclusions = false, "specify whether or not to add recommended lists to the user specified eigenvector decomposition exclusion lists");
   // declareProperty("ExcludeJESFromEVTreatment",        m_excludeJESFromEV = true,     "specify whether or not to exclude JES uncertainties from eigenvector decomposition (if used)");
   declareProperty("SystematicsStrategy",                 m_systStrategy = "SFEigen",    "name of systematics model; presently choose between 'SFEigen' and 'Envelope'");
   declareProperty("ConeFlavourLabel",                    m_coneFlavourLabel = true,     "specify whether or not to use the cone-based flavour labelling instead of the default ghost association based labelling");
@@ -278,7 +283,10 @@ StatusCode BTaggingEfficiencyTool::initialize() {
 						     EffNames,                                  // names of the efficiency calibrations to be used (can be multiple per flavour)
 						     excludeFromEVCov,                          // names of systematic uncertainties to be excluded from the EV decomposition
 						     EVRedStrategies,                           // strategies for eigenvector reductions
-						     m_systStrategy != "Envelope");             // assume that eigenvector variations will be used unless the "Envelope" model is used
+						     m_systStrategy != "Envelope",              // assume that eigenvector variations will be used unless the "Envelope" model is used
+						     true,                                      // use MC/MC scale factors
+						     false,                                     // do not use topology rescaling (only relevant for pseudo-continuous tagging)
+						     m_useRecommendedEVExclusions);             // if true, add pre-set lists of uncertainties to be excluded from EV decomposition
 
   setMapIndex("Light",0);
   setMapIndex("C",0);
@@ -286,6 +294,17 @@ StatusCode BTaggingEfficiencyTool::initialize() {
   setMapIndex("T",0);
 
   ATH_MSG_INFO( "Using systematics model " << m_systStrategy);
+  if (m_systStrategy != "Envelope" && m_useRecommendedEVExclusions) ATH_MSG_INFO( "excluding pre-set uncertainties from eigenvector decomposition");
+
+  // We have a double loop over flavours here.. not nice but this is to ensure that the suffixes are always well determined before using them
+  std::vector<std::string> suffixes;
+  for (int i = 0; i < 4; ++i) {
+    std::string flav = flavours[i]; if (flav == "T") flav = "C";
+    // add an underscore to any specified suffix (if specified and if not already starting with a suffix)
+    std::string test = trim(m_uncertaintySuffixes[flav]);
+    if (test.length() > 0 && test[0] != '_') test.insert(0,"_");
+    suffixes.push_back(test);
+  }
 
   // If the tool has not already been initialised and m_OP and m_jetAuthor have been set - ie via the properties "OperatingPoint" and "JetAuthor"
   // then autmatically set things up to use these by default
@@ -299,6 +318,7 @@ StatusCode BTaggingEfficiencyTool::initialize() {
       return StatusCode::FAILURE;
     }
     int id = mapIter->second;
+
     // Implement the different strategies for dealing with uncertainties here.
     if (m_systStrategy == "SFEigen") {
       //
@@ -313,12 +333,14 @@ StatusCode BTaggingEfficiencyTool::initialize() {
       // Replace any spaces with underscores (this is to make ROOT browsing happy).
       // Also, remove the "extrapolation" uncertainty from the list (it will be added later under Extrapolation rather than SFNamed).
       bool hasExtrapolation = false;
-      for (unsigned int i = 0, n = systematics.size(); i < n; ++i) {
+      for (unsigned int i = 0; i < systematics.size(); ++i) {
 	if (systematics[i] == "extrapolation") {
           hasExtrapolation = true;
-          systematics.erase(systematics.begin() + i);
+          systematics.erase(systematics.begin() + i--); // don't forget to decrement i
 	} else {
 	  std::replace_if(systematics[i].begin(), systematics[i].end(), [] (char c) { return c == ' '; }, '_');
+	  // This is also where we add the suffix as specified/seen by the user
+	  systematics[i].append(suffixes[i]);
 	}
       }
       if (!addSystematics(systematics, flavourID, SFNamed)) {
@@ -328,14 +350,14 @@ StatusCode BTaggingEfficiencyTool::initialize() {
       // Add here the extrapolation uncertainty (if it exists -- which ought to be the case).
       // "Cosmetic" fix: the outside world wants to see "FT_EFF_" prefixes.
       if (hasExtrapolation) {
-        std::vector<std::string> extrapSyst; extrapSyst.push_back("FT_EFF_extrapolation");
+        std::vector<std::string> extrapSyst; extrapSyst.push_back(std::string("FT_EFF_extrapolation").append(suffixes[i]));
         if (! addSystematics(extrapSyst, flavourID, Extrapolation)) {
-          ATH_MSG_ERROR("Envelope model: error adding extrapolation uncertainty for flavour " << getLabel(flavourIDRef) << ", invalid initialization");
+          ATH_MSG_ERROR("SFEigen model: error adding extrapolation uncertainty for flavour " << getLabel(flavourIDRef) << ", invalid initialization");
           return StatusCode::FAILURE;
         }
       }
       // And then the eigenvector variations
-      std::vector<std::string> eigenSysts = makeEigenSyst(getLabel(flavourIDRef),m_CDI->getNumVariations(idRef, SFEigen));
+      std::vector<std::string> eigenSysts = makeEigenSyst(getLabel(flavourIDRef),m_CDI->getNumVariations(idRef, SFEigen), suffixes[i]);
       if (!addSystematics(eigenSysts, flavourID, SFEigen)) {
 	ATH_MSG_ERROR("SFEigen model: error adding eigenvector systematics for flavour " << getLabel(flavourIDRef) << ", invalid initialization");
 	return StatusCode::FAILURE;
@@ -347,7 +369,7 @@ StatusCode BTaggingEfficiencyTool::initialize() {
 	// And from this list extract only this particular uncertainty (if it exists)
 	const std::string s_tau_extrap = "extrapolation from charm";
 	if (std::find(all_systematics.begin(), all_systematics.end(), s_tau_extrap) != all_systematics.end()) {
-	  std::string entry = "FT_EFF_extrapolation_from_charm";
+	  std::string entry = "FT_EFF_extrapolation_from_charm"; entry.append(suffixes[i]);
 	  std::vector<std::string> extrapSyst; extrapSyst.push_back(entry);
 	  if (! addSystematics(extrapSyst, flavourID, TauExtrapolation)) {
 	    ATH_MSG_ERROR("SFEigen model: error adding charm->tau systematics for flavour " << getLabel(flavourID) << ", invalid initialization");
@@ -376,16 +398,16 @@ StatusCode BTaggingEfficiencyTool::initialize() {
 		      << ", invalid initialization");
 	return StatusCode::FAILURE;
       }
-      std::vector<std::string> totalSyst; totalSyst.push_back("FT_EFF_" + getLabel(flavourIDRef) + "_" + s_total);
+      std::vector<std::string> totalSyst; totalSyst.push_back("FT_EFF_" + getLabel(flavourIDRef) + "_" + s_total + suffixes[i]);
       if (! addSystematics(totalSyst, flavourID, Total)) {
 	  ATH_MSG_ERROR("Envelope model: error adding systematics uncertainty for flavour " << getLabel(flavourIDRef)
 		      << ", invalid initialization");
 	return StatusCode::FAILURE;
       }
-      // Second, handle the extrapolation variations; these are shared between flavours
+      // Second, handle the extrapolation variations; these are shared between flavours (unless different suffixes are specified)
       const std::string s_extrap = "extrapolation";
       if (std::find(all_ref_systematics.begin(), all_ref_systematics.end(), s_extrap) != all_ref_systematics.end()) {
-	std::vector<std::string> extrapSyst; extrapSyst.push_back("FT_EFF_" + s_extrap);
+	std::vector<std::string> extrapSyst; extrapSyst.push_back("FT_EFF_" + s_extrap + suffixes[i]);
 	if (! addSystematics(extrapSyst, flavourID, Extrapolation)) {
 	  ATH_MSG_ERROR("Envelope model: error adding extrapolation uncertainty for flavour " << getLabel(flavourIDRef)
 		      << ", invalid initialization");
@@ -399,7 +421,7 @@ StatusCode BTaggingEfficiencyTool::initialize() {
 	// And from this list extract only this particular uncertainty (if it exists)
 	const std::string s_tau_extrap = "extrapolation from charm";
 	if (std::find(all_systematics.begin(), all_systematics.end(), s_tau_extrap) != all_systematics.end()) {
-	  std::vector<std::string> extrapSyst; extrapSyst.push_back("FT_EFF_extrapolation_from_charm");
+	  std::vector<std::string> extrapSyst; extrapSyst.push_back("FT_EFF_extrapolation_from_charm" + suffixes[i]);
 	  if (! addSystematics(extrapSyst, flavourID, TauExtrapolation)) {
 	    ATH_MSG_ERROR("Envelope model: error adding charm->tau systematics for flavour " << getLabel(flavourID) << ", invalid initialization");
 	    return StatusCode::FAILURE;
@@ -985,11 +1007,11 @@ BTaggingEfficiencyTool::setMapIndex(const std::string& label, unsigned int index
 // private method to generate the list of eigenvector variations
 // internally these are not named, they are just numbered
 // but the systematics framework needs names
-std::vector<std::string> BTaggingEfficiencyTool::makeEigenSyst(const std::string & flav, int number) {
+std::vector<std::string> BTaggingEfficiencyTool::makeEigenSyst(const std::string & flav, int number, const std::string& suffix) {
   std::vector<std::string> systStrings;
   for(int i=0;i<number;++i) {
     std::ostringstream ost;
-    ost << flav << "_" << i;
+    ost << flav << "_" << i << suffix;
     std::string basename="FT_EFF_Eigen_"+ost.str();
     systStrings.push_back(basename);
   }
@@ -1054,8 +1076,8 @@ bool BTaggingEfficiencyTool::addSystematics(const std::vector<std::string> & sys
       SystInfo info = iter->second; // make a copy
       std::map<unsigned int, unsigned int>::const_iterator indIter = info.indexMap.find(flavourID);
       if (indIter != info.indexMap.end()) {
-	ATH_MSG_ERROR("addSystematics : flavourID is already in the map! " << flavourID);
-	return false;
+	ATH_MSG_ERROR("addSystematics : flavourID " << flavourID << " is already in the map for uncertainty '" << systName << "', ignoring");
+	continue;
       } else {
 	info.indexMap[flavourID] = i;
 	m_systematicsInfo[up] = info;

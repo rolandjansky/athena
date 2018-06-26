@@ -287,6 +287,7 @@ ClassImp(Analysis::CalibrationDataInterfaceROOT)
 // local utility function: trim leading and trailing whitespace in the configuration .env file
 
 namespace {
+  // local utility function: trim leading and trailing whitespace in the property strings
   std::string trim(const std::string& str,
 		   const std::string& whitespace = " \t") {
     const auto strBegin = str.find_first_not_of(whitespace);
@@ -298,11 +299,27 @@ namespace {
 
     return str.substr(strBegin, strRange);
   }
+
+  // local utility function: split string into a vector of substrings separated by a specified separator
+  std::vector<std::string> split(const std::string& str, char token = ';') {
+    std::vector<std::string> result;
+    if (str.size() > 0) {
+      std::string::size_type end;
+      std::string tmp(str);
+      do {
+	end = tmp.find(token);
+	std::string entry = trim(tmp.substr(0,end));
+	if (entry.size() > 0) result.push_back(entry); 
+	if (end != std::string::npos) tmp = tmp.substr(end+1);
+      } while (end != std::string::npos);
+    }
+    return result;
+  }
 }
 
 //________________________________________________________________________________
 Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const string& taggerName, string configname, string pathname)
-:     m_runEigenVectorMethod(false), m_absEtaStrategy(GiveUp), m_otherStrategy(Flag)
+  :     m_runEigenVectorMethod(false), m_useRecommendedEVExclusions(false), m_absEtaStrategy(GiveUp), m_otherStrategy(Flag)
 {
   // Normal constructor.
   //
@@ -354,16 +371,7 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
   std::map<string, std::vector<string> > effNames;
   for (auto const& flavour : flavours) {
     string test(testPrefix); test += "EfficiencyCalibration"; test += flavour; test += "Name";
-    string calibrationName(trim(string(env.GetValue(test.c_str(), "default"))));
-    std::vector<string> names;
-    if (calibrationName.size() > 0) {
-      do {
-	end = calibrationName.find(";");
-	names.push_back(trim(calibrationName.substr(0,end)));
-	if (end != string::npos) calibrationName = calibrationName.substr(end+1);
-      } while (end != string::npos);
-    }
-    effNames[flavour] = names;
+    effNames[flavour] = split(string(env.GetValue(test.c_str(), "default")));
   }
   setEffCalibrationNames(effNames);
 
@@ -371,8 +379,7 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
   std::map<string, string> SFNames;
   for (auto const& flavour : flavours) {
     string test(testPrefix); test += "ScaleFactorCalibration"; test += flavour; test += "Name";
-    string calibrationName(trim(string(env.GetValue(test.c_str(), "default"))));
-    SFNames[flavour] = calibrationName;
+    SFNames[flavour] = trim(string(env.GetValue(test.c_str(), "default")));
   }
   setSFCalibrationNames(SFNames);
 
@@ -405,31 +412,14 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
     // We do this in two steps: first, for backward compatibility reasons, a flavour-independent list is scanned.
     // Second, flavour-specific lists are scanned.
     test = "excludeFromCovMatrix";
-    string uncList(env.GetValue(test.c_str(), ""));
-    string::size_type end2;
-    std::vector<std::string> to_exclude;
-    if (uncList.size() > 0) {
-      do {
-        end2 = uncList.find(";");
-        to_exclude.push_back(trim(uncList.substr(0,end2)));
-        if (end2 != string::npos) uncList = uncList.substr(end2+1);
-      } while (end2 != string::npos);
-    }
+    std::vector<std::string> to_exclude = split(env.GetValue(test.c_str(), ""));
     // Copy the resulting list to all flavours
     for (auto const& flavour : flavours) {
       m_excludeFromCovMatrix[flavour] = to_exclude;
     }
     for (auto const& flavour : flavours) {
-      to_exclude.clear();
       test = "excludeFrom"; test += flavour; test += "CovMatrix";
-      uncList = env.GetValue(test.c_str(), "");
-      if (uncList.size() > 0) {
-	do {
-	  end2 = uncList.find(";");
-	  to_exclude.push_back(trim(uncList.substr(0,end2)));
-	  if (end2 != string::npos) uncList = uncList.substr(end2+1);
-	} while (end2 != string::npos);
-      }
+      to_exclude = split(env.GetValue(test.c_str(), ""));
       // Append to the existing list
       m_excludeFromCovMatrix[flavour].insert(m_excludeFromCovMatrix[flavour].end(), to_exclude.begin(), to_exclude.end());
     }
@@ -452,6 +442,10 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
     }
     cout << endl;
 
+    // The following determines whether also pre-determined (recommended) lists of uncertainties are to be excluded from EV decomposition.
+    // These lists are stored with the CalibrationDataContainers, which have not been instantiated yet (so we cannot show them at this point).
+    m_useRecommendedEVExclusions = (bool) env.GetValue("ExcludeRecommendedFromEigenVectorTreatment", false);
+    
     // determine also the eigenvector reduction strategies
     std::map<string, EVReductionStrategy> mappings;
     mappings["Loose"] = Loose;
@@ -509,9 +503,12 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const std::
 								     const std::map<std::string, std::vector<std::string> >& EffNames,
 								     const std::map<std::string, std::vector<std::string> >& excludeFromEV,
 								     const std::map<std::string, EVReductionStrategy> EVReductions,
-								     bool useEV, bool useMCMCSF, bool useTopologyRescaling) :
+								     bool useEV, bool useMCMCSF, bool useTopologyRescaling,
+								     bool useRecommendedEEVExclusions) :
   m_filenameSF(fileSF), m_filenameEff(""),
-  m_runEigenVectorMethod(useEV), m_EVReductions(EVReductions), m_useMCMCSF(useMCMCSF), m_useTopologyRescaling(useTopologyRescaling),
+  m_runEigenVectorMethod(useEV), m_EVReductions(EVReductions),
+  m_useRecommendedEVExclusions(useRecommendedEEVExclusions),
+  m_useMCMCSF(useMCMCSF), m_useTopologyRescaling(useTopologyRescaling),
   m_maxAbsEta(2.5), m_absEtaStrategy(GiveUp),
   m_otherStrategy(Flag), m_maxTagWeight(10.0)
 {
@@ -1245,7 +1242,7 @@ Analysis::CalibrationDataInterfaceROOT::getInefficiencyScaleFactor(const Calibra
   if (effStatus == Analysis::kError) return effStatus;
 
   double eff = std::min(effResult.first, 1.);
-  double efferr = effResult.second;
+  //  double efferr = effResult.second; // not needed as (per the code change indicated below) we are not doing anything with MC statistical uncertainties
   double sf = sfResult.first; 
   double sferr = sfResult.second; 
 
@@ -1262,7 +1259,10 @@ Analysis::CalibrationDataInterfaceROOT::getInefficiencyScaleFactor(const Calibra
       result.second = valDown;
       return sfStatus;
     }
-    err = pow((1. - sf) / (1. - eff) * efferr, 2) + pow(eff*sferr, 2);
+    // When using eigenvector (or named) variations (as above), only scale factor variations are considered.
+    // For the sake of consistency, it has been decided (see https://its.cern.ch/jira/browse/AFT-350) to remove them also when EV variations aren't used
+    //err = pow((1. - sf) / (1. - eff) * efferr, 2) + pow(eff*sferr, 2);
+    err = pow(eff*sferr, 2);
     if (err > 0.)
       err = 1./(1. - eff) * TMath::Sqrt(err);
     // cout << "btag Calib Ineff err=" << err << endl;
@@ -2445,24 +2445,28 @@ Analysis::CalibrationDataInterfaceROOT::retrieveContainer(const string& dir, con
       cout << "btag Calib: retrieveContainer: warning: unable to apply MC/MC scale factors for container "
 	   << name << " with hadronisation reference = '" << spec << "'" << endl;
 
-  // Initialize the Eigenvector variation object corresponding to this object, if applicable. Note that the
-  // dual use of "isSF" (both referring to the file and to the object, see above) requires another protection here.
+  // Initialize the Eigenvector variation object corresponding to this object, if applicable. Notes:
+  // - the dual use of "isSF" (both referring to the file and to the object, see above) requires another protection here
+  // - the constructor's second argument is used to determine whether to exclude a pre-determined set of uncertainties from the EV decomposition
   if (m_runEigenVectorMethod && isSF && name.find("_SF") != string::npos) {
     const CalibrationDataHistogramContainer* histoContainer=dynamic_cast<const CalibrationDataHistogramContainer*>(cnt);
     if (histoContainer==0) {
       cerr << "Could not cast Container to a HistogramContainer. " << endl;
       return 0;
     }
-    CalibrationDataEigenVariations* newEigenVariation=new CalibrationDataEigenVariations(histoContainer);
+    CalibrationDataEigenVariations* newEigenVariation=new CalibrationDataEigenVariations(histoContainer, m_useRecommendedEVExclusions);
 
     // At this point we may also want to reduce the number of eigenvector variations.
     // The choices are stored with the container object; but first we need to know what flavour we are dealing with.
     string flavour = dir.substr(dir.find_last_of("/")+1);
 
-    auto const listEnd  = m_excludeFromCovMatrix[flavour].end();
+    // auto const listEnd  = m_excludeFromCovMatrix[flavour].end();
     //    for (std::vector<std::string>::const_iterator listIter= m_excludeFromCovMatrix[flavour].begin(); listIter != listEnd; ++listIter) {
-    for (auto listIter= m_excludeFromCovMatrix[flavour].begin(); listIter != listEnd; ++listIter) {
-      newEigenVariation->excludeNamedUncertainty(*listIter);
+    // for (auto listIter= m_excludeFromCovMatrix[flavour].begin(); listIter != listEnd; ++listIter) {
+    //   newEigenVariation->excludeNamedUncertainty(*listIter);
+    // }
+    for (auto entry : m_excludeFromCovMatrix[flavour]) {
+      newEigenVariation->excludeNamedUncertainty(entry);
     }
 
     newEigenVariation->initialize();
