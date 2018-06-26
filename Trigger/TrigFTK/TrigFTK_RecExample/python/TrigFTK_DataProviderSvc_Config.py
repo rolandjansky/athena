@@ -12,7 +12,7 @@ class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
         from AthenaCommon.AppMgr import ToolSvc
 
 
-        from TrigInDetConf.TrigInDetRecToolsFTK import InDetTrigTrackFitterFTK, InDetTrigRotCreatorFTK, \
+        from TrigInDetConf.TrigInDetRecToolsFTK import InDetTrigTrackFitterFTK, InDetTrigRotCreatorFTK, TrigFTK_VertexCollectionSortingTool, \
         TrigFTK_UncertaintyTool,TrigFTK_RawVertexFinderTool,InDetTrigTrackParticleCreatorToolFTK,InDetTrigTrackSummaryToolFTK
         from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import InDetTrigPriVxFinderTool
         
@@ -33,6 +33,7 @@ class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
         self.TrackParticleCreatorTool=InDetTrigTrackParticleCreatorToolFTK
         self.RawVertexFinderTool=TrigFTK_RawVertexFinderTool
         self.VertexFinderTool=InDetTrigPriVxFinderTool
+        self.VertexCollectionSortingTool=TrigFTK_VertexCollectionSortingTool
         self.ROTcreatorTool= InDetTrigRotCreatorFTK 
 
 

@@ -52,9 +52,7 @@ namespace Trk {
   class ITrackSummaryTool;
   class ITrackParticleCreatorTool;
   class IRIO_OnTrackCreator;
-  //  class RIO_OnTrack;
-  //  class VxCandidate;
-  //class IVxCandidateXAODVertex;
+  class IVertexCollectionSortingTool;
 }
 
 namespace InDetDD {
@@ -173,6 +171,7 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   ToolHandle<Trk::ITrackSummaryTool> m_trackSumTool;
   ToolHandle< Trk::ITrackParticleCreatorTool > m_particleCreatorTool;
   ToolHandle< InDet::IVertexFinder > m_VertexFinderTool;
+  ToolHandle<Trk::IVertexCollectionSortingTool > m_VertexCollectionSortingTool;
   ToolHandle< IFTK_VertexFinderTool > m_RawVertexFinderTool;
   ToolHandle< Trk::IRIO_OnTrackCreator >      m_ROTcreator;
   ToolHandle< IFTK_DuplicateTrackRemovalTool > m_DuplicateTrackRemovalTool;
@@ -262,6 +261,7 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   std::vector<unsigned int> m_nMissingPixelClusters;
 
   bool m_reverseIBLlocx;
+  bool m_doVertexSorting;
 
 };
 
