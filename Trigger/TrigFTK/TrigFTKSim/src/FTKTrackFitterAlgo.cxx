@@ -35,7 +35,8 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   m_chi2cut(17),
   m_chi2cut_maj(14),
   m_chi2cut_vetmaj(-1),
-  m_chi2dofcut(4),
+  m_chi2dofcutAux(4),
+  m_chi2dofcutSSB(4),
   m_doAuxFW(false),
   m_HitWarrior(2),
   m_KeepRejected(0), 
@@ -79,7 +80,8 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   declareProperty("Chi2Cut",m_chi2cut);
   declareProperty("Chi2Cut_Maj",m_chi2cut_maj);
   declareProperty("Chi2Cut_VetoMaj",m_chi2cut_vetmaj);
-  declareProperty("Chi2DofCut",m_chi2dofcut);
+  declareProperty("Chi2DofCutAux",m_chi2dofcutAux);
+  declareProperty("Chi2DofCutSSB",m_chi2dofcutSSB);
   declareProperty("doAuxFW", m_doAuxFW);
   declareProperty("HitWarrior", m_HitWarrior);
   declareProperty("KeepRejected", m_KeepRejected);
@@ -344,7 +346,8 @@ StatusCode FTKTrackFitterAlgo::initialize(){
   m_tfpobj->setHitWarrior(m_HitWarrior);
   m_tfpobj->setChi2Cut_maj(m_chi2cut_maj);
   m_tfpobj->setChi2Cut_vetomaj(m_chi2cut_vetmaj);
-  m_tfpobj->setChi2DofCut(m_chi2dofcut);
+  m_tfpobj->setChi2DofCutAux(m_chi2dofcutAux);
+  m_tfpobj->setChi2DofCutSSB(m_chi2dofcutSSB);
   m_tfpobj->setKeepRejected(m_KeepRejected); 
   m_tfpobj->setFitRemoved(m_FitRemoved);
   m_tfpobj->setHWNDiff(m_HWNDiff);
