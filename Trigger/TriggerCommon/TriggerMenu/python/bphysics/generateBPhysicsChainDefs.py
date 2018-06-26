@@ -1619,7 +1619,7 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
     myTopoString = ''
     for mtopo in topoAlgs:
         myTopoString =myTopoString+'_'+mtopo
-    L2TEname = "L2_" + TEname+myTopoString+'_'+chainDict['L1item'].replace(",","")
+    L2TEname = "L2_" + chainDict['chainName'] + "_Beex"  # TEname+myTopoString+'_'+chainDict['L1item'].replace(",","")
     EFTEname = "EF_" + chainDict['chainName']
 
 
@@ -1645,8 +1645,7 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
     from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
     L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiE"+fexNameExt)  # this FEX does not use muons, so changing the name is sufficient
     L2Fex.setElectronTrackThresholds( trkelectrons )   # however, we need only energetic tracks unlike in muons.
-    L2Fex.trkMass= 0.511 # otherwise mass cut will not remove comversions
-
+    
     if  'bBeexv2' in topoAlgs  : #  here we have only L2 with MultiTrack doL2MultiTrack :
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Bmumux
         L2Hypo = EFMultiMuHypo_Bmumux("EFMultiMuHypo_Beexv2")    # this Hypo cuts only on mass of Bphys object, so not important to separate muons and electrons
@@ -1710,6 +1709,17 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
         theChainDef.addSequence([EFFexE],inputTEsEF, EFTEname+"_eCounter")
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname+"_eCounter"])    
 
+        EFFexM = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_EFDiE"+fexNameExt) 
+        EFFexM.setElectronTrackThresholds( trkelectrons )
+        EFFexM.trackCollectionKey = "BphysElectronCounter"
+        EFFexM.outputTrackCollectionKey = "EFEMultiTrkFex"
+        from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu6000
+        EFHypoM = EFMultiMuHypo_DiMu6000("EFMultiMuHypo_EFBeeM6000")    # 
+        EFHypoM.bphysCollectionKey = "MultiTrkFex"
+        theChainDef.addSequence([EFFexM, EFHypoM],EFTEname+"_eCounter", EFTEname+"_EFMass")
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname+"_EFMass"])    
+
+        
 
     return theChainDef
 

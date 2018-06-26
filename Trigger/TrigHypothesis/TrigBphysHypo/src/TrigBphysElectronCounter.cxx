@@ -17,7 +17,7 @@
 #include "TrigBphysElectronCounter.h"
 
 #include "xAODEgamma/ElectronContainer.h"
-#include "TrigTimeAlgs/TrigTimerSvc.h"
+#include "TrigTimeAlgs/TrigTimerSvc.h" 
 #include "FourMomUtils/P4Helpers.h"
 
 
@@ -28,7 +28,6 @@
 #define ACCEPT_PassIsEM           3
 
 
-
 TrigBphysElectronCounter::TrigBphysElectronCounter(const std::string & name, ISvcLocator* pSvcLocator):
   HLT::AllTEAlgo(name, pSvcLocator)
   ,m_BmmHypTot(0)
@@ -37,7 +36,8 @@ TrigBphysElectronCounter::TrigBphysElectronCounter(const std::string & name, ISv
   , m_ptElectronMin()
   , m_mindR(0.005)
   , m_electronCollectionKey()
-  , m_IsEMrequiredBits(0xF2)
+  , m_outputTrackCollectionKey()
+  , m_IsEMrequiredBits(0xF2) 
   , m_applyIsEM(true)
   , m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
   //counters
@@ -51,6 +51,7 @@ TrigBphysElectronCounter::TrigBphysElectronCounter(const std::string & name, ISv
   declareProperty("ptElectronMin"     ,    m_ptElectronMin      );
   declareProperty("overlapdR"     ,        m_mindR    = 0.01  );  
   declareProperty("electronCollectionKey", m_electronCollectionKey  = "" );
+  declareProperty("outputTrackCollectionKey", m_outputTrackCollectionKey  = "BphysElectronCounter" );
   declareProperty("ApplyIsEM",             m_applyIsEM = true);
   declareProperty("IsEMrequiredBits",      m_IsEMrequiredBits = 0xF2);
 
@@ -197,12 +198,39 @@ HLT::ErrorCode TrigBphysElectronCounter::hltExecute(std::vector<std::vector<HLT:
   m_mon_nEFElectrons = m_nEfElectron;
 
 
+  xAOD::TrackParticleContainer* outputTrackColl = new xAOD::TrackParticleContainer();
+  xAOD::TrackParticleAuxContainer outputTrackCollAuxCont;
+  outputTrackColl->setStore( &outputTrackCollAuxCont );
+  outputTrackColl->reserve(m_nEfElectron);
+    for( auto elec : efelectrons ){
+      xAOD::TrackParticle *trk1 = new xAOD::TrackParticle();
+      trk1->makePrivateStore( (*elec)->trackParticle());
+      outputTrackColl->push_back(trk1);
+    }
+    ATH_MSG_DEBUG("size of output Track collection " << outputTrackColl->size() );
+
+  
   // record collection now
   if ( timerSvc() )  m_BmmHypTot->stop();
     
   HLT::TriggerElement* outputTE = addRoI(output);     
   outputTE->setActiveState(true);
+  
   m_countPassedEvents++;
+  // add also containter with tracks for seeded EF Muon
+  if (m_outputTrackCollectionKey!= "" && outputTrackColl && outputTrackColl->size()) {
+    ATH_MSG_DEBUG("REGTEST: Store Bphys track Collection size: " << outputTrackColl->size() );
+    HLT::ErrorCode sc = attachFeature(outputTE, outputTrackColl, m_outputTrackCollectionKey );
+    if(sc != HLT::OK) {
+      ATH_MSG_WARNING("Failed to store bphys track  Collection" );
+      delete outputTrackColl; outputTrackColl = nullptr; // assume deletion responsibility
+      afterExecMonitors().ignore();   
+      return HLT::ERROR;
+    }
+  } else {
+    ATH_MSG_DEBUG("REGTEST: no bphys track collection to store "  );
+    delete outputTrackColl; outputTrackColl = nullptr;
+  }
 
 
   // stop monitoring
