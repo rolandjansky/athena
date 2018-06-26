@@ -25,6 +25,9 @@ FullListOfSmartContainers = [
    "AntiKt6LCTopoJets",
    "AntiKt7LCTopoJets",
    "AntiKt8LCTopoJets",
+   "AntiKt8EMTopoJets",
+   "AntiKt8EMTopoExKt2SubJets",
+   "AntiKt8EMTopoExKt3SubJets",
    "BTagging_AntiKt4LCTopo",
    "BTagging_AntiKt4EMTopo",
    "BTagging_AntiKt4EMPFlow",
@@ -33,6 +36,8 @@ FullListOfSmartContainers = [
    "BTagging_AntiKt4Track",
    "BTagging_AntiKtVR30Rmax4Rmin02Track",
    "BTagging_AntiKtVR30Rmax4Rmin02Track_expert",
+   "BTagging_AntiKt8EMTopoExKt2Sub",
+   "BTagging_AntiKt8EMTopoExKt3Sub",
    "InDetTrackParticles",
    "PrimaryVertices",
    "HLT_xAOD__MuonContainer_MuonEFInfo",
@@ -43,6 +48,4 @@ FullListOfSmartContainers = [
    "HLT_xAOD__BTaggingContainer_HLTBjetFex",
    "HLT_xAOD__TrigBphysContainer_EFBMuMuFex",
    "HLT_xAOD__TrigVertexCountsContainer_vertexcounts"
-]  
-
-     
+]
