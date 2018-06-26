@@ -16,7 +16,6 @@
 #include "MuonGeoModel/Tgc.h"
 #include "MuonGeoModel/Rpc.h"
 #include "MuonGeoModel/Ded.h"
-#include "MuonGeoModel/Sup.h"
 #include "MuonGeoModel/Spacer.h"
 #include "MuonGeoModel/SpacerBeam.h"
 #include "MuonGeoModel/Cutout.h"
@@ -1065,15 +1064,14 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
                 
     } else if (type=="SUP" && manager->MinimalGeoFlag() == 0) {
         ypos = -thickness/2. + c->posz;
-        SupComponent* csup = (SupComponent*)c;
-        double zpos = -length/2. + c->posy+c->dy/2. - csup->zAMDB0();
-        ypos = ypos - csup->xAMDB0();
-        double xpos = c->posx - csup->yAMDB0();
+        double zpos = -length/2. + c->posy+c->dy/2. - SupComponent::zAMDB0(*c);
+        ypos = ypos - SupComponent::xAMDB0(*c);
+        double xpos = c->posx - SupComponent::yAMDB0(*c);
         //            log<<MSG::DEBUG
         //               <<" show AMDB origin with respect to phys vol centre: "
-        //               <<csup->xAMDB0()<<" "
-        //               <<csup->yAMDB0()<<" "
-        //               <<csup->zAMDB0()<<endmsg;
+        //               <<SupCompoent::xAMDB0(*c)<<" "
+        //               <<SupCompoent::yAMDB0(*c)<<" "
+        //               <<SupCompoent::zAMDB0(*c)<<endmsg;
         //            log<<MSG::DEBUG<<" z transform done"<<endmsg;
         //            log<<MSG::DEBUG<<" ypos = "<<ypos<<endmsg;
         //            log<<MSG::DEBUG<<" y transform done"<<endmsg;
@@ -1623,8 +1621,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       }
 
       if (lvs && RPCON) {
-        SupComponent* csup = (SupComponent*)c;
-        std::string cname = csup->name;
+        std::string cname = c->name;
         if (verbose) log << MSG::VERBOSE
                            << " yes, the component is a SupComponent named "
                            << cname << endmsg;

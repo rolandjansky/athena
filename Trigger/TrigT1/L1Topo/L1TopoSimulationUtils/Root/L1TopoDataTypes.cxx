@@ -1,8 +1,10 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /*********************************
  * L1TopoDataTypes.cpp
  * author : Ignacio Aracena <ignacio.aracena@cern.ch>
  * Created June 2015
- * Copyright (c) 2015 Ignacio Aracena. All rights reserved.
  *
  * @brief Tools for handling fixed point Qm.n numbers
  *

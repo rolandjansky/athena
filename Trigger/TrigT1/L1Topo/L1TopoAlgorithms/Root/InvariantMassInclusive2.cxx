@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /*********************************
  * InvariantMassInclusive2.cpp
  * Created by V SOrin 2014.
- * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
  *
  * @brief algorithm calculates the sqr of the INVMASS between  two lists and applies invmass criteria
  *

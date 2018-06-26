@@ -192,6 +192,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   }
 
   Amg::Vector3D particle_position =  isfp.position();
+  /*
   float eta_isfp = particle_position.eta();             // isfp eta and phi, in case we need them
   //float phi_isfp = particle_position.phi();  
   if(abs(eta_isfp) > 0.3 || abs(eta_isfp) < 0.15) //somewhat enlarged to not cut off too many particles
@@ -199,6 +200,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
     ATH_MSG_INFO("ISF particle is out of eta range: "<<eta_isfp<<". Go to next Particle.");
     return StatusCode::SUCCESS; 
   }
+  */
 
   if(!(pdgid==22 || pdgid==211 || pdgid==11))
   {
@@ -207,11 +209,13 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   } 
 
   TFCSTruthState truth(isfp.momentum().x(),isfp.momentum().y(),isfp.momentum().z(),sqrt(pow(isfp.ekin(),2)+pow(isfp.mass(),2)),isfp.pdgCode());
-  TFCSExtrapolationState result;
-  m_FastCaloSimCaloExtrapolation->extrapolate(result,&truth);
+  truth.set_vertex(particle_position[Amg::x], particle_position[Amg::y], particle_position[Amg::z]);
+
+  TFCSExtrapolationState extrapol;
+  m_FastCaloSimCaloExtrapolation->extrapolate(extrapol,&truth);
   TFCSSimulationState simulstate;
 
-  m_param->simulate(simulstate, &truth, &result);
+  m_param->simulate(simulstate, &truth, &extrapol);
 
   ATH_MSG_INFO("Energy returned: " << simulstate.E());
   ATH_MSG_INFO("Energy fraction for layer: ");

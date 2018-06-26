@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /*********************************
  * RatioSum.cpp
  * Created by Joerg Stelzer on 11/16/12.
- * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
  *
  * @brief algorithm to select W tag-and-probe events using MET/sumET
  *
