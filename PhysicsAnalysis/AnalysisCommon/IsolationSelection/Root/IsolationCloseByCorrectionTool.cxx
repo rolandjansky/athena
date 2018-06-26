@@ -409,7 +409,7 @@ printIsolationCones(m_electron_isoTypes, xAOD::Type::ObjectType::Electron);
 
         for (const auto T : tracks) {
            //Checks for the Pile-up robust isolation WP's
-           if (T->pt() < TrackPtCut(type)) continue; 
+           if (T->pt() < trackPtCut(type)) continue; 
            if (isTrackIsoTTVA(type) && !m_ttvaTool->isCompatible(*T,*m_Vtx)) continue;  
                      
            if (overlap(Ref, T, MaxDR) && !isElementInList(ToExclude, T)) {
@@ -795,7 +795,7 @@ printIsolationCones(m_electron_isoTypes, xAOD::Type::ObjectType::Electron);
             ATH_MSG_INFO("     --- "<<xAOD::Iso::toString(cone));
         }
     }
-    float IsolationCloseByCorrectionTool::TrackPtCut(xAOD::Iso::IsolationType Iso) const {
+    float IsolationCloseByCorrectionTool::trackPtCut(xAOD::Iso::IsolationType Iso) const {
         if (!isTrackIsoTTVA(Iso)) return -1;        
         xAOD::Iso::IsolationFlavour flavour = xAOD::Iso::isolationFlavour(Iso);
         if (flavour == xAOD::Iso::IsolationFlavour::ptcone_TightTTVA_pt500) return 500;

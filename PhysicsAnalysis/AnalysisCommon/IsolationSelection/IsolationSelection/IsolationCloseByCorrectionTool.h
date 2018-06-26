@@ -111,7 +111,7 @@ namespace CP {
             bool isTrackIso(xAOD::Iso::IsolationType Iso) const;
             bool isTrackIsoTTVA(xAOD::Iso::IsolationType Iso) const;
             
-            float TrackPtCut(xAOD::Iso::IsolationType Iso) const;
+            float trackPtCut(xAOD::Iso::IsolationType Iso) const;
             
             bool isTopoEtIso(xAOD::Iso::IsolationType Iso) const;
 
