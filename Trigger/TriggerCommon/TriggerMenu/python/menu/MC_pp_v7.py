@@ -960,7 +960,7 @@ def setupMenu():
 	  # ATR-17807
 	  ['tau80_tightRNN_tracktwoMVA_L1TAU60',                  'L1_TAU60', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
 	  ['tau60_tightRNN_tracktwoMVA',                  'L1_TAU40', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-	  ['tau40_tightRNN_tracktwoMVA',                  'L1_TAU25IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+	  ['tau40_tightRNN_tracktwoMVA',                  'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
 	  ['tau35_tightRNN_tracktwoMVA',                  'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
 	  ['tau35_tightRNN_tracktwoMVA_L1TAU12IM',                  'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
 	  ['tau25_tightRNN_tracktwoMVA_L1TAU12',                  'L1_TAU12', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
@@ -982,7 +982,7 @@ def setupMenu():
         ['tau35_tightRNN_tracktwoMVA_tau25_tightRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25',   'L1_DR-TAU20ITAU12I-J25',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_tightRNN_tracktwoMVA","tau25_tightRNN_tracktwoMVA"]]],
         ['tau80_tightRNN_tracktwoMVA_L1TAU60_tau60_tightRNN_tracktwoMVA_L1TAU40',   'L1_TAU60_2TAU40',['L1_TAU60','L1_TAU40'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau80_tightRNN_tracktwoMVA_L1TAU60","tau60_tightRNN_tracktwoMVA_L1TAU40"]]],
         ['tau80_tightRNN_tracktwoMVA_L1TAU60_tau35_tightRNN_tracktwoMVA_L1TAU12IM_L1TAU60_DR-TAU20ITAU12I',   'L1_TAU60_DR-TAU20ITAU12I',['L1_TAU60','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau80_tightRNN_tracktwoMVA_L1TAU60","tau35_tightRNN_tracktwoMVA_L1TAU12IM"]]],
-        ['tau40_tightRNN_tracktwoMVA_tau35_tightRNN_tracktwoMVA',   'L1_TAU25IM_2TAU20IM_2J25_3J20',['L1_TAU25IM', 'L1_TAU20IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau40_tightRNN_tracktwoMVA","tau35_tightRNN_tracktwoMVA"]]],
+        ['tau40_tightRNN_tracktwoMVA_tau35_tightRNN_tracktwoMVA',   'L1_TAU25IM_2TAU20IM_2J25_3J20',['L1_TAU20IM', 'L1_TAU20IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau40_tightRNN_tracktwoMVA","tau35_tightRNN_tracktwoMVA"]]],
 
         # Works now
         ['tau35_medium1_tracktwo_L1TAU20_tau25_medium1_tracktwo_L1TAU12',   'L1_TAU20_2TAU12',['L1_TAU20','L1_TAU12'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_medium1_tracktwo_L1TAU20","tau25_medium1_tracktwo_L1TAU12"]]],
