@@ -51,6 +51,7 @@
 #include "TopEventSelectionTools/TrigMatchSelector.h"
 #include "TopEventSelectionTools/RunNumberSelector.h"
 #include "TopEventSelectionTools/NLargeJetSelector.h"
+#include "TopEventSelectionTools/NRCJetSelector.h"
 
 #include "TopConfiguration/TopConfig.h"
 
@@ -77,6 +78,8 @@ namespace top {
         return new top::NJetBtagSelector(param,config);
     else if (toolname == "LJET_N")
         return new top::NLargeJetSelector(param);
+    else if (toolname == "RCJET_N")
+        return new top::NRCJetSelector(param);
     else if (toolname == "MV1_N")
         return new top::MV1Selector(param);
     else if (toolname == "MV2C20_N")
