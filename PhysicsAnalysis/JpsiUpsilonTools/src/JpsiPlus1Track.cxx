@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ****************************************************************************
@@ -271,7 +271,7 @@ namespace Analysis {
 
                 if (m_trkTrippletPt>0 && JpsiUpsilonCommon::getPt(jpsiTP1, jpsiTP2, theThirdTP) < m_trkTrippletPt ) continue; // track tripplet pT cut (daniel Scheirich)
                 if(m_trkDeltaZ>0 &&
-                   fabs(theThirdTP->z0() - (*jpsiItr)->z()) > m_trkDeltaZ )
+                   fabs(theThirdTP->z0() + theThirdTP->vz() - (*jpsiItr)->z()) > m_trkDeltaZ )
                     continue;
                     // apply mass cut on track tripplet if requested
                 bool passRoughMassCuts(true);
