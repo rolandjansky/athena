@@ -33,6 +33,7 @@ namespace InDet {
     class IInDetTrackSelectionTool;
 }
 namespace CP {
+    class ITrackVertexAssociationTool;
     
     //For tracks it does not matter whether we're using a set of a vector
     typedef std::set<const xAOD::TrackParticle*> TrackCollection;
@@ -174,7 +175,9 @@ namespace CP {
             std::string m_backup_prefix;
 
             asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_trkselTool;
+            asg::AnaToolHandle<CP::ITrackVertexAssociationTool> m_ttvaTool;
             mutable IsoHelperMap m_isohelpers;
+            mutable const xAOD::Vertex* m_Vtx;
 
     };
 

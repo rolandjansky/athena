@@ -11,6 +11,8 @@
 #include <IsolationSelection/IsolationSelectionTool.h>
 #include <InDetTrackSelectionTool/IInDetTrackSelectionTool.h>
 
+#include <TrackVertexAssociationTool/ITrackVertexAssociationTool.h>
+
 #include <xAODBase/ObjectType.h>
 #include <xAODBase/IParticleHelpers.h>
 
@@ -50,12 +52,16 @@ namespace CP {
                 m_acc_ToCorrect(),
                 m_backup_prefix(),
                 m_trkselTool(),
-                m_isohelpers() {
+                m_ttvaTool(),
+                m_isohelpers(),
+                m_Vtx(nullptr){
         //IMPORTANT USER PROPERTIES
         declareProperty("IsolationSelectionTool", m_selectorTool, "Please give me your configured IsolationSelectionTool!");
-
+        
         //OPTIONAL PROPERTIES
         m_trkselTool.declarePropertyFor(this, "TrackSelectionTool", "TrackSelectionTool to select tracks which made it actually into the isolation"); // Makes the track selection tool a settable property of this tool
+        m_ttvaTool.declarePropertyFor(this, "TTVASelectionTool", "TTVASelectionTool to correct for the pile-up robust WPs"); 
+        
         declareProperty("SelectionDecorator", m_quality_name, "Name of the char auxdata defining whether the particle shall be considered for iso correction");
         declareProperty("PassoverlapDecorator", m_passOR_name, "Does the particle also need to pass the overlap removal?");
         declareProperty("IsolationSelectionDecorator", m_isoSelection_name, "Name of the final isolation decorator.");
@@ -124,16 +130,16 @@ namespace CP {
             ATH_MSG_ERROR("The IsolationCloseByCorrectionTool was not initialised!!!");
             return CorrectionCode::Error;
         }
-        const xAOD::Vertex* Vtx = retrieveIDBestPrimaryVertex();
-        if (!Vtx) {
+        m_Vtx = retrieveIDBestPrimaryVertex();
+        if (!m_Vtx) {
             ATH_MSG_ERROR("No vertex was found");
             return CorrectionCode::Error;
         }
         //Retrieve all tracks associated with the objects
         TrackCollection Tracks;
-        getTrackCandidates(Electrons, Vtx, Tracks);
-        getTrackCandidates(Muons, Vtx, Tracks);
-        getTrackCandidates(Photons, Vtx, Tracks);
+        getTrackCandidates(Electrons, m_Vtx, Tracks);
+        getTrackCandidates(Muons, m_Vtx, Tracks);
+        getTrackCandidates(Photons, m_Vtx, Tracks);
         //Now grep every cluster with dR< m_CoreCone to the object
         ClusterCollection Clusters;
         if (topoetconeModel == TopoConeCorrectionModel::DirectCaloClusters) {
@@ -390,6 +396,7 @@ namespace CP {
         ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of " << particleName(par) << " with pt: " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " before correction: " << correction / 1.e3 << " GeV. "<<ToExclude.size()<<" tracks will be excluded.");
 
         for (const auto T : tracks) {
+//            if (m_ttvaTool->isCompatible(*T,*input.vertex))
             if (overlap(Ref, T, MaxDR) && !isElementInList(ToExclude, T)) {
                 ATH_MSG_DEBUG("Subtract track with " << T->pt() / 1.e3 << " GeV, eta: " << T->eta() << ", phi: " << T->phi() << " with dR: " << sqrt(deltaR2(Ref, T)) << " from the isolation cone " << xAOD::Iso::toString(type) << " " << (correction / 1.e3) << " GeV. Ptr address: "<<T);
                 correction -= T->pt();
