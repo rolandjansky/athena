@@ -203,7 +203,7 @@ function highlightDiffs(clear) {
 
 function setDiffCount(diffs) {
   if (diffs>0) {        
-    document.getElementById('nDiffs').textContent = diffs+' differences';
+    document.getElementById('nDiffs').innerHTML = '<a href=\"https://gitlab.cern.ch/atlas/athena/compare/nightly%2F21.1%2F'+document.DiffForm.rel.value+'...nightly%2F21.1%2F'+thisRelease+'\">'+diffs+' differences! click here for GitLab diff</a>';
   }
   else {
     document.getElementById('nDiffs').textContent = '';
@@ -216,7 +216,7 @@ function loadPage() {
   if (diffRelease != thisRelease) {
     // Load second summary page in hidden iframe
     var url = window.document.location.href;
-    iframe.src = url.replace(/rel_[0-6]/, diffRelease);
+    iframe.src = url.replace(/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9][0-9][0-9]/, diffRelease);
   }
   else {
     highlightDiffs(true);  // remove all highlighting
@@ -225,7 +225,7 @@ function loadPage() {
 
 function setRelease() {
   var url = window.document.location.href;
-  thisRelease = url.match(/rel_[0-6]/);
+  thisRelease = url.match(/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9][0-9][0-9]/);
   if (thisRelease) {
     thisRelease = thisRelease[0];
     document.DiffForm.rel.value = thisRelease;
@@ -289,53 +289,25 @@ function showBuildFailures(failures,link) {
     print HTMLOUT "                 echo \"<option value='\" . \$full_link . \"../../\" . \$nightly . \"/$test_suite/\" . \"'>\".\$nightly.\"</option>\";\n";
     print HTMLOUT "    }\n";
     print HTMLOUT "?>\n";
-    print HTMLOUT "</select>\n";
-    print HTMLOUT "</p>\n";
+    print HTMLOUT "</select></p>\n";
 
-    # Link to GitLab diff between today's and yesterday's release
-    my $fmt="%Y-%m-%dT%H%M";
-    my $date = new Date::Manip::Date;
-    $date->parse_format($fmt,$release);
-    my $delta = $date->new_delta();
-    $delta->set(d => -1);  # minus 1 day
-    my $yesterday = $date->calc($delta); 
-    my $prevrel = $yesterday->printf($fmt);
-    my $gitdiff = "https://gitlab.cern.ch/atlas/athena/compare/nightly%2F$gitbranch%2F$prevrel...nightly%2F$gitbranch%2F$release";	
-    print HTMLOUT "<p><a href=\"$gitdiff\">GitLab diff (link may not work if hour and minutes are different in the build timestamp)</a></p>\n";
+    print HTMLOUT "<p>Check differences: <select name=\"rel\" size=\"1\" onchange=\"loadPage()\">\n";
+    print HTMLOUT "<option value=\"\" selected=\"selected\">-----</option>\n";
+    print HTMLOUT "<?php\n";
+    print HTMLOUT "             \$nightlies = glob(dirname(__FILE__) . '/../../*');\n";
+    print HTMLOUT "             \$nightlies = array_reverse(\$nightlies);\n";
+    print HTMLOUT "             \$current_page_link = \"\$_SERVER[REQUEST_URI]\";\n";
+    print HTMLOUT "             // protect against multiple slashes in a row\n";
+    print HTMLOUT "             \$current_page_link = preg_replace('#/+#','/',\$current_page_link);\n";
+    print HTMLOUT "             \$full_link = (isset(\$_SERVER['HTTPS']) ? \"https\" : \"http\") . \"://\$_SERVER[HTTP_HOST]\" . \$current_page_link;\n";
+    print HTMLOUT "             foreach(\$nightlies as \$nightly){\n";
+    print HTMLOUT "                 \$nightly = basename(\$nightly);\n";
+    print HTMLOUT "                 echo \"<option value='\".\$nightly.\"'>\".\$nightly.\"</option>\";\n";
+    print HTMLOUT "    }\n";
+    print HTMLOUT "?>\n";
+    print HTMLOUT "</select> <span id='nDiffs' style='font-weight:bold'></span>
+</form><script type=\"text/javascript\">setRelease();</script></p>";
 
-#
-#	print HTMLOUT "<br>Other nightlies: ";
-#    if (defined $no_of_nightlies_exceptions{$project}){
-#        $no_of_nightlies=$no_of_nightlies_exceptions{$project};
-#        print "$project exceptionally has $no_of_nightlies nightly builds\n";
-#    } else {
-#        print "$project normally has $no_of_nightlies nightly builds\n";
-#    }
-#
-#    my @dow = ('Sun','Mon','Tue','Wed','Thu','Fri','Sat');
-#	for (my $i=0; $i<$no_of_nightlies; $i++){
-#	    if ("rel_$i" eq $atn_rel){
-#            print HTMLOUT " $dow[$i] ";
-#	    } else {
-#            my $p=getrelpath();
-#            $p =~ s/rel_\d/rel_$i/;
-#            $p =~ s/rel_nightly/rel_$i/;
-#            print HTMLOUT " <a href=\"$p\">$dow[$i]</a> ";
-#	    }
-#	}
-#
-#	print HTMLOUT "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-#<a href=\"$gitdiff\">GitLab diff</a>
-#&nbsp;&nbsp;&nbsp;&nbsp;Diff results: <select name=\"rel\" size=\"1\" onchange=\"loadPage()\">
-#<option value='rel_0'>Sun</option>
-#<option value='rel_1'>Mon</option>
-#<option value='rel_2'>Tue</option>
-#<option value='rel_3'>Wed</option>
-#<option value='rel_4'>Thu</option>
-#<option value='rel_5'>Fri</option>
-#<option value='rel_6'>Sat</option>
-#</select> <span id='nDiffs' style='font-weight:bold'></span>
-#</form><script type=\"text/javascript\">setRelease();</script></p>";
 
     print HTMLOUT "\n<table class=\"sortable\" id=\"ATNResults\" border=1><thead><tr>
 <th title=\"Click to sort by test suite\">Test name</th> 
