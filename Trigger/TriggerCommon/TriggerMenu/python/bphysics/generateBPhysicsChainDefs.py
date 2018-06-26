@@ -1642,9 +1642,9 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
     # Note - may need to change oppsign and vtx requirements
     # noL2 option to skip dimuon selection at L2
 
-    from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
-    L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiE"+fexNameExt)  # this FEX does not use muons, so changing the name is sufficient
-    L2Fex.setElectronTrackThresholds( trkelectrons )   # however, we need only energetic tracks unlike in muons.
+    from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiE
+    L2Fex = TrigMultiTrkFex_DiE("TrigMultiTrkFex_DiE"+fexNameExt)  
+    L2Fex.setElectronTrackThresholds( trkelectrons )   
     
     if  'bBeexv2' in topoAlgs  : #  here we have only L2 with MultiTrack doL2MultiTrack :
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Bmumux
@@ -1710,7 +1710,7 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname+"_eCounter"])    
 
         if  'bBeexM6000t' in topoAlgs :
-            EFFexM = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_EFDiE"+fexNameExt) 
+            EFFexM = TrigMultiTrkFex_DiE("TrigMultiTrkFex_EFDiE"+fexNameExt) 
             EFFexM.setElectronTrackThresholds( trkelectrons )
             EFFexM.trackCollectionKey = "BphysElectronCounter"
             EFFexM.outputTrackCollectionKey = "EFEMultiTrkFex"
