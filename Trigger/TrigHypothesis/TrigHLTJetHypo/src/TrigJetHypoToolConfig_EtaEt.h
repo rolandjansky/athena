@@ -54,10 +54,7 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
 
   Gaudi::Property<std::vector<int>>
     m_asymmetricEtas{this, "asymmetricEtas", {}, "Apply asym. eta cuts"};
-  
-  Gaudi::Property<std::string>
-    m_matchingAlg{this, "matchingAlg", {}, "matcher alg"};
-  
+    
 
 
 
