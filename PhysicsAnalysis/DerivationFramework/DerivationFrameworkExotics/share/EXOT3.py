@@ -11,6 +11,7 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import ElectronsCPDetailedContent
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
@@ -400,6 +401,7 @@ EXOT3SlimmingHelper = SlimmingHelper("EXOT3SlimmingHelper")
 # /DerivationFramework/DerivationFrameworkExamples/trunk/share/SlimmingExample.py#L38
 EXOT3SlimmingHelper.SmartCollections = EXOT3SmartContent
 EXOT3SlimmingHelper.ExtraVariables = EXOT3ExtraVariables
+EXOT3SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 
 # Keep all variables for containers which we don't want to smart slim and were
 # not created in the derivation
