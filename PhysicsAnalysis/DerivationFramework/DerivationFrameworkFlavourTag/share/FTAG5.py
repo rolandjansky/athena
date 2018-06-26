@@ -33,6 +33,8 @@ from DerivationFrameworkFlavourTag.HbbCommon import addVRJets, addHbbTagger
 from DerivationFrameworkFlavourTag import BTaggingContent as bvars
 from DerivationFrameworkJetEtMiss.JSSVariables import JSSHighLevelVariables
 
+from FlavorTagDiscriminants.discriminants import complex_jet_discriminants
+
 # logging
 from AthenaCommon import Logging
 ftag5_log = Logging.logging.getLogger('FTAG5LOG')
@@ -162,6 +164,11 @@ for jc in OutputJets["FTAG5"]:
        SaveTrackVectors = True,
    )
 
+# also add some b-tagging jet-wise information
+FTAG5Seq += CfgMgr.BTagJetAugmenterAlg(
+    "FTAG5JetAugmenter",
+    JetCollectionName="AntiKtVR30Rmax4Rmin02TrackJets")
+
 #================================================================
 # Add Hbb tagger
 #================================================================
@@ -212,6 +219,10 @@ FTAG5SlimmingHelper.ExtraVariables += [
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore"
 ]
+
+# add the extra varialbes that come from the BTagJetAugmenterAlg
+FTAG5SlimmingHelper.ExtraVariables.append('.'.join([
+    "BTagging_AntiKtVR30Rmax4Rmin02Track"] + complex_jet_discriminants))
 
 # add some more extra variables for ghost associated particles
 ghost_particles = [

@@ -104,8 +104,10 @@ BPHY8cf.BlindingKey     = "0b04087bdac4564252fd778ac351"
 # 0 - simple vertex thinning using Thin_vtxTrk.
 # 1 - thinning subdecay vertex candidates using Thin_vtxTrk.
 # 2 - thinning subdecay vertex candidates using BmumuThinningTool.
+# 3 - thinning subdecay vertex candidates using BmumuThinningTool,
+#     but keeping all PVs and refittedPVs
 #
-BPHY8cf.thinLevel = 2
+BPHY8cf.thinLevel = 3
 #
 # Track particle collection
 BPHY8cf.TrkPartContName = "InDetTrackParticles"
@@ -1577,8 +1579,8 @@ if BPHY8cf.thinLevel > 1:
         ThinMuons                  = True,
         CloseTrackBranchPrefixes   = BPHY8cf.BranchPrefixes,
         CloseTrackBranchBaseName   = BPHY8_IsoTools["TrackVtxCt"].BranchBaseName,
-        ThinPVs                    = True,
-        ThinRefittedPVs            = True,
+        ThinPVs                    = (BPHY8cf.thinLevel == 2),
+        ThinRefittedPVs            = (BPHY8cf.thinLevel == 2),
         ThinTracks                 = True,
         KeepTracksForSelectedPVs   = False,
         OutputLevel                = INFO)
