@@ -111,6 +111,7 @@ namespace CP {
             bool isTrackIso(xAOD::Iso::IsolationType Iso) const;
             bool isTrackIsoTTVA(xAOD::Iso::IsolationType Iso) const;
             
+            float TrackPtCut(xAOD::Iso::IsolationType Iso) const;
             
             bool isTopoEtIso(xAOD::Iso::IsolationType Iso) const;
 
@@ -131,6 +132,9 @@ namespace CP {
             float clusterEtMinusTile(const xAOD::CaloCluster* C) const;
 
             std::string particleName(const xAOD::IParticle* C) const;
+            std::string particleName(xAOD::Type::ObjectType T) const;
+            void printIsolationCones(const IsoVector& types, xAOD::Type::ObjectType T) const;
+            
 
             ToolHandle<CP::IIsolationSelectionTool> m_selectorTool;
 

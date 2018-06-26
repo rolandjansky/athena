@@ -51,7 +51,7 @@ if "nevents" in globals():
     print "Only run on %i events"%( int(nevents))
     theApp.EvtMax = int (nevents)
 ## Configure an isolation selection tool with your desired working points
-ToolSvc += CfgMgr.CP__IsolationSelectionTool("MySelectionTool", MuonWP = "FixedCutLoose", ElectronWP = "Loose", PhotonWP = "FixedCutTightCaloOnly")
+ToolSvc += CfgMgr.CP__IsolationSelectionTool("MySelectionTool", MuonWP = "FixedCutHighMuTight", ElectronWP = "Loose", PhotonWP = "FixedCutTightCaloOnly")
 
 
 ## Configure CorrectionTool, feeding it our selection tool

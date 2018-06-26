@@ -81,7 +81,8 @@ namespace CP {
 
     StatusCode IsolationCloseByCorrectionTool::initialize() {
 
-        //set default properties of track selection tool, if the user hasn't configured it
+printIsolationCones(m_electron_isoTypes, xAOD::Type::ObjectType::Electron);
+                //set default properties of track selection tool, if the user hasn't configured it
         if (!m_trkselTool.isUserConfigured()) {
             m_trkselTool.setTypeAndName("InDet::InDetTrackSelectionTool/TrackParticleSelectionTool");
             ATH_MSG_INFO("No TrackSelectionTool provided, so I will create and configure my own, called: " << m_trkselTool.name());
@@ -89,11 +90,22 @@ namespace CP {
             ATH_CHECK(m_trkselTool.setProperty("minPt", 1000.));
             ATH_CHECK(m_trkselTool.setProperty("CutLevel", "Loose"));
         }
+        if (!m_ttvaTool.isUserConfigured()){
+            m_ttvaTool.setTypeAndName("CP::TightTrackVertexAssociationTool/ttva_selection_tool");
+            ATH_CHECK(m_ttvaTool.setProperty("dzSinTheta_cut", 3.));
+            ATH_CHECK(m_ttvaTool.setProperty("doPV",true));
+        }
         ATH_CHECK(m_trkselTool.retrieve());
+        ATH_CHECK(m_ttvaTool.retrieve());
         ATH_CHECK(m_selectorTool.retrieve());
         isoTypesFromWP(m_selectorTool->getElectronWPs(), m_electron_isoTypes);
         isoTypesFromWP(m_selectorTool->getMuonWPs(), m_muon_isoTypes);
         isoTypesFromWP(m_selectorTool->getPhotonWPs(), m_photon_isoTypes);
+        
+        printIsolationCones(m_electron_isoTypes, xAOD::Type::ObjectType::Electron);
+        printIsolationCones(m_muon_isoTypes, xAOD::Type::ObjectType::Muon);
+        printIsolationCones(m_photon_isoTypes, xAOD::Type::ObjectType::Photon);
+        
         if (!m_quality_name.empty()) {
             m_acc_quality = SelectionAccessor(new CharAccessor(m_quality_name));
             m_quality_name.clear();
@@ -396,8 +408,11 @@ namespace CP {
         ATH_MSG_DEBUG(xAOD::Iso::toString(type) << " of " << particleName(par) << " with pt: " << par->pt() / 1.e3 << " GeV, eta: " << par->eta() << ", phi: " << par->phi() << " before correction: " << correction / 1.e3 << " GeV. "<<ToExclude.size()<<" tracks will be excluded.");
 
         for (const auto T : tracks) {
-//            if (m_ttvaTool->isCompatible(*T,*input.vertex))
-            if (overlap(Ref, T, MaxDR) && !isElementInList(ToExclude, T)) {
+           //Checks for the Pile-up robust isolation WP's
+           if (T->pt() < TrackPtCut(type)) continue; 
+           if (isTrackIsoTTVA(type) && !m_ttvaTool->isCompatible(*T,*m_Vtx)) continue;  
+                     
+           if (overlap(Ref, T, MaxDR) && !isElementInList(ToExclude, T)) {
                 ATH_MSG_DEBUG("Subtract track with " << T->pt() / 1.e3 << " GeV, eta: " << T->eta() << ", phi: " << T->phi() << " with dR: " << sqrt(deltaR2(Ref, T)) << " from the isolation cone " << xAOD::Iso::toString(type) << " " << (correction / 1.e3) << " GeV. Ptr address: "<<T);
                 correction -= T->pt();
             }
@@ -728,12 +743,15 @@ namespace CP {
         }
         return false;
     }
-    std::string IsolationCloseByCorrectionTool::particleName(const xAOD::IParticle* particle) const {
-        if (particle->type() == xAOD::Type::ObjectType::Electron) return "Electron";
-        if (particle->type() == xAOD::Type::ObjectType::Photon) return "Photon";
-        if (particle->type() == xAOD::Type::ObjectType::Muon) return "Muon";
-        if (particle->type() == xAOD::Type::ObjectType::TrackParticle) return "Track";
-        if (particle->type() == xAOD::Type::ObjectType::CaloCluster) return "Cluster";
+    std::string IsolationCloseByCorrectionTool::particleName(const xAOD::IParticle* C) const {
+        return particleName(C->type());
+    }          
+    std::string IsolationCloseByCorrectionTool::particleName(xAOD::Type::ObjectType T) const {
+        if (T == xAOD::Type::ObjectType::Electron) return "Electron";
+        if (T == xAOD::Type::ObjectType::Photon) return "Photon";
+        if (T == xAOD::Type::ObjectType::Muon) return "Muon";
+        if (T == xAOD::Type::ObjectType::TrackParticle) return "Track";
+        if (T == xAOD::Type::ObjectType::CaloCluster) return "Cluster";
         return "Unknown";
     }
     const xAOD::IParticle* IsolationCloseByCorrectionTool::topoEtIsoRefPart(const xAOD::IParticle* particle) const {
@@ -741,9 +759,9 @@ namespace CP {
             ATH_MSG_WARNING("topoEtIsoRefPart(): Nullptr given");
             return nullptr;
         }
-//Use for Muons the associated track particle
+        //Use for Muons the associated track particle
 //        if (particle->type() == xAOD::Type::ObjectType::Muon) return getTrackParticle(P);
-//Electrons and photons shall use the cluster as reference
+        //Electrons and photons shall use the cluster as reference
         if (isEgamma(particle)) return getCluster(particle);
         return particle;
     }
@@ -770,6 +788,21 @@ namespace CP {
     }
     bool IsolationCloseByCorrectionTool::isTrackIsoTTVA(xAOD::Iso::IsolationType Iso) const {
         return isFixedTrackIsoTTVA(Iso) || isVarTrackIsoTTVA(Iso);
+    }
+    void IsolationCloseByCorrectionTool::printIsolationCones(const IsoVector & types, xAOD::Type::ObjectType T) const {
+        ATH_MSG_INFO("The following cones are considered for "<<particleName(T));
+        for (const auto& cone : types) {
+            ATH_MSG_INFO("     --- "<<xAOD::Iso::toString(cone));
+        }
+    }
+    float IsolationCloseByCorrectionTool::TrackPtCut(xAOD::Iso::IsolationType Iso) const {
+        if (!isTrackIsoTTVA(Iso)) return -1;        
+        xAOD::Iso::IsolationFlavour flavour = xAOD::Iso::isolationFlavour(Iso);
+        if (flavour == xAOD::Iso::IsolationFlavour::ptcone_TightTTVA_pt500) return 500;
+        else if (flavour == xAOD::Iso::IsolationFlavour::ptvarcone_TightTTVA_pt500) return 500;
+        else if (flavour == xAOD::Iso::IsolationFlavour::ptcone_TightTTVA_pt1000) return 1000;
+        else if (flavour == xAOD::Iso::IsolationFlavour::ptvarcone_TightTTVA_pt1000) return 1000;
+        return -1;
     }
             
 }
