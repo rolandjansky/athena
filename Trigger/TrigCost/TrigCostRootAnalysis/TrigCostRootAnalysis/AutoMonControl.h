@@ -33,9 +33,9 @@ namespace TrigCostRootAnalysis {
     void split(const std::string& s, char delim, Out result) const;
     std::vector<std::string> split(const std::string& s, char delim) const;
 
-    void parseExamXml(TXMLEngine* _xml, XMLNodePointer_t _examNode);
-    void parseTestXml(TXMLEngine* _xml, XMLNodePointer_t _node);
-    void parseControlOptionsXml(TXMLEngine* _xml, XMLNodePointer_t _listNode);
+    void parseExamXml(TXMLEngine* xml, XMLNodePointer_t examNode);
+    void parseTestXml(TXMLEngine* xml, XMLNodePointer_t node);
+    void parseControlOptionsXml(TXMLEngine* xml, XMLNodePointer_t listNode);
     void loadXml();
 
     void bankTest(const AutoMonTest test);

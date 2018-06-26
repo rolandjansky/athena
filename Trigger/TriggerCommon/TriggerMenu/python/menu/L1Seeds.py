@@ -461,6 +461,9 @@ def getSpecificL1Seeds(l1seedname, l1itemobject):
 
     elif (l1seedname == 'L1_BS'):
         L1Seed = getL1BSSeed(l1items)
+
+    elif (l1seedname == 'L1_FTK-EM-MU-J'):
+        L1Seed = 'L1_FTK-EM,L1_FTK-MU,L1_FTK-J'
         
     elif (l1seedname in ['L1_MinBias', 'L1_MinBias_EMPTY']):
         L1Seed = getL1MinBiasSeed(l1seedname, l1itemobject)
