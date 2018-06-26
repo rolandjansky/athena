@@ -23,18 +23,22 @@ namespace top{
     m_bTagCutValue(9999.9), 
     m_transferFunctionsPathPrefix("SetMe"),
     m_transferFunctionsPath("SetMe"),
+    m_selectionName("SetMe"),
     m_leptonType("SetMe"),
     m_LHType("SetMe"),
     m_myFitter(nullptr)
   {
+std::cout<<"CIAO SONO IL TUO AMICHEVOLE KLFITTER DI QUARTIERE E MI CHIAMO COSI': "<<name<<std::endl;
     declareProperty( "config" , m_config , "Set the configuration" );
     declareProperty( "LeptonType", m_leptonType = "kUndefined" , "Define the lepton type" );
+    declareProperty( "SelectionName", m_selectionName = "kUndefined" , "Define the name of the selection" );
     declareProperty( "LHType",     m_LHType = "kUndefined" , "Define the Likelihood type" );
   }
   
   /// Function initialising the tool
   StatusCode KLFitterTool::initialize()
   {    
+std::cout<<"CIAO SONO IL TUO AMICHEVOLE KLFITTER DI QUARTIERE E LA SELEZIONE E' "<<m_selectionName<<std::endl;
     // Have you set the config??
     if (m_config == nullptr) {
       ATH_MSG_ERROR("Please set the top::TopConfig");
@@ -306,16 +310,14 @@ namespace top{
     // - for jets:
     //   * bool isBtagged : mandatory only if you want to use b-tagging in the fit
 
-/*
     // To allow KLFitter to run on multiple non-orthogonal selections, we set/check a decorator
-    std::cout<<event.m_info->eventNumber()<<std::endl;
+    std::cout<<"INIZIO TUTTO "<<event.m_info->eventNumber()<<std::endl;
     if( (event.m_info->isAvailable< int >( "KLFitterHasRun" ) ) ){
 std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
        if( ( event.m_info->auxdata< int >("KLFitterHasRun") )!=0 ) return StatusCode::SUCCESS;     
        event.m_info->auxdecor< int >( "KLFitterHasRun" ) = 1;
     }
     else event.m_info->auxdecor< int >( "KLFitterHasRun" ) = 1;
-*/
   
     KLFitter::Particles * myParticles = new KLFitter::Particles{};
 
@@ -451,6 +453,10 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
       // create a result 
       xAOD::KLFitterResult* result = new xAOD::KLFitterResult{};
       resultContainer->push_back( result );
+
+      //Set name hash. This is because it seems std::string is not supported by AuxContainers...
+      std::hash<std::string> hash_string;
+      result->setSelectionCode( hash_string(m_selectionName) );
       
       unsigned int ConvergenceStatusBitWord = m_myFitter->ConvergenceStatus();
       bool MinuitDidNotConverge = (ConvergenceStatusBitWord & m_myFitter->MinuitDidNotConvergeMask) != 0;
@@ -665,15 +671,13 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
     
     // Save all
     if (m_config->KLFitterSaveAllPermutations()) {   
-      xAOD::TReturnCode save = evtStore()->tds()->record( resultContainer ,outputSGKey  );
-      xAOD::TReturnCode saveAux = evtStore()->tds()->record( resultAuxContainer , outputSGKeyAux );
-      if( !save || !saveAux ){
-        return StatusCode::FAILURE;
-      }    
+      top::check(evtStore()->tds()->record( resultContainer ,outputSGKey  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultContainer");
+      top::check(evtStore()->tds()->record( resultAuxContainer ,outputSGKeyAux  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultAuxContainer");
     }
     
     // Save only the best
     if (!m_config->KLFitterSaveAllPermutations()) {
+std::cout<<"Son qui!\n";
       // create the xAOD::KLFitterResultContainer
       xAOD::KLFitterResultAuxContainer* bestAuxContainer = new xAOD::KLFitterResultAuxContainer{};
       xAOD::KLFitterResultContainer* bestContainer = new xAOD::KLFitterResultContainer{};
@@ -686,17 +690,14 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
           bestContainer->push_back( result );
         }
       }
-      
-      xAOD::TReturnCode save = evtStore()->tds()->record( bestContainer ,outputSGKey  );
-      xAOD::TReturnCode saveAux = evtStore()->tds()->record( bestAuxContainer , outputSGKeyAux );
-      if( !save || !saveAux ){
-        return StatusCode::FAILURE;
-      }       
+      top::check(evtStore()->tds()->record( bestContainer ,outputSGKey  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultContainer");
+      top::check(evtStore()->tds()->record( bestAuxContainer ,outputSGKeyAux  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultAuxContainer");
       
       // watch out for memory leaks!
       // raw pointers have not been put into a DataVector
       // we still actually own them
       // AnalysisTop will actually do some memory management (which is very wierd and we don't like it) 
+      //TODO why is it here? Shouldn't we delete the best ones?
       delete resultContainer;
       delete resultAuxContainer;
     }

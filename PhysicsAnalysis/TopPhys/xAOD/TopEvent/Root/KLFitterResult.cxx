@@ -14,6 +14,8 @@ namespace xAOD{
   KLFitterResultAuxContainer::KLFitterResultAuxContainer() :
     AuxContainerBase() 
   {
+    AUX_VARIABLE( selectionCode );
+
     AUX_VARIABLE( minuitDidNotConverge );
     AUX_VARIABLE( fitAbortedDueToNaN );
     AUX_VARIABLE( atLeastOneFitParameterAtItsLimit );
@@ -128,6 +130,8 @@ namespace xAOD{
     SG::AuxElement()
   {        
   } 
+
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , int , selectionCode , setSelectionCode )
   
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , short , minuitDidNotConverge , setMinuitDidNotConverge )
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , short , fitAbortedDueToNaN , setFitAbortedDueToNaN )

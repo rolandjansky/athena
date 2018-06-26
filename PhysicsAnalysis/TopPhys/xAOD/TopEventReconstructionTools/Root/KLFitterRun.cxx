@@ -15,7 +15,7 @@
 
 namespace top{
 
-  KLFitterRun::KLFitterRun(const std::string& kLeptonType,std::shared_ptr<top::TopConfig> config) :
+  KLFitterRun::KLFitterRun(const std::string& kSelectionName, const std::string& kLeptonType,std::shared_ptr<top::TopConfig> config) :
     m_name("RECO::KLFitterRun_" + kLeptonType),
     m_myFitter(nullptr)
   {
@@ -23,6 +23,7 @@ namespace top{
     m_myFitter = std::unique_ptr<top::KLFitterTool> ( new top::KLFitterTool( m_name ) ); 
     top::check( m_myFitter->setProperty("config", config ), "Failed to setProperty of KLFitterTool" );
     top::check( m_myFitter->setProperty("LeptonType",kLeptonType), "Failed to setProperty of KLFitterTool" );
+    top::check( m_myFitter->setProperty("SelectionName",kSelectionName), "Failed to setProperty of KLFitterTool" );
     top::check( m_myFitter->initialize() , "Failed to initialize KLFitterTool" );        
   }
   

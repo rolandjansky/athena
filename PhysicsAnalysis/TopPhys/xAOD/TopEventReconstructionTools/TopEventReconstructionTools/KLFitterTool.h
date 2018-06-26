@@ -108,6 +108,7 @@ namespace top{
       std::string m_transferFunctionsPathPrefix;
       std::string m_transferFunctionsPath;
       
+      std::string m_selectionName;
       std::string m_leptonType;
       std::string m_LHType;
       KLFitter::LikelihoodTopLeptonJets::LeptonType m_leptonTypeKLFitterEnum;      
