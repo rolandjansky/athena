@@ -4,7 +4,7 @@
 
 // GoodRunsLists includes
 #include <GoodRunsLists/GRLSelectorAlg.h>
-
+#include <AsgTools/MessageCheck.h>
 #include "xAODEventInfo/EventInfo.h"
 
 GRLSelectorAlg::GRLSelectorAlg( const std::string& name, ISvcLocator* pSvcLocator ) : AnaAlgorithm( name, pSvcLocator )
