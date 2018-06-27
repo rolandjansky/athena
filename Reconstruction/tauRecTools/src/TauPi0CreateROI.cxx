@@ -38,15 +38,11 @@ TauPi0CreateROI::TauPi0CreateROI(   const string& name ) :
     , m_cellMakerTool("")
     , m_calo_dd_man(NULL)
     , m_calo_id(NULL)
-    , m_caloCellContainerName("AllCalo")
     , m_pPi0CellContainer(NULL)
-    , m_pi0CellContainerName("TauCommonPi0Cells")
 {
     declareProperty("CellMakerTool", m_cellMakerTool);
-    declareProperty("CaloCellContainerName",   m_caloCellContainerName);
-    declareProperty("Pi0CellContainerName",    m_pi0CellContainerName);
 }
-
+   
 //-------------------------------------------------------------------------
 // Destructor
 //-------------------------------------------------------------------------
@@ -118,7 +114,6 @@ StatusCode TauPi0CreateROI::execute(xAOD::TauJet& pTau) {
     }
     const CaloCellContainer *pCellContainer = NULL;
     pCellContainer = caloCellInHandle.cptr();
-    //ATH_MSG_INFO("  read: " << caloCellInHandle.key() << " = " << "..." );      
     
     // get only EM cells within dR<0.4
     vector<CaloCell_ID::SUBCALO> emSubCaloBlocks;

@@ -53,13 +53,9 @@ private:
     /** @brief calo cell navigation */
     const CaloDetDescrManager* m_calo_dd_man;
     const CaloCell_ID* m_calo_id;
- 
-    /** @brief all calo cell container name */
-    std::string m_caloCellContainerName;
   
-    /** @brief output cell container and name*/ 
+    /** @brief output cell container*/ 
     CaloCellContainer *m_pPi0CellContainer;
-    std::string m_pi0CellContainerName;
 
     /** @brief hash map in order to keep track, which cells have been added to output cell container*/
     std::vector<CaloCell*> m_addedCellsMap;

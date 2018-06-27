@@ -119,9 +119,9 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             #
             #tools.append(taualgs.getPi0EflowCreateROI())
             tools.append(taualgs.getTauShotFinder()) 
-            #if self.doPi0Clus:
-            #    tools.append(taualgs.getPi0ClusterFinder())
-
+            if self.doPi0Clus:
+                tools.append(taualgs.getPi0ClusterFinder())
+            
             #####################################################################
             ## Tau Conversation Finder (found no one talking here...)
             ## TODO: talk with KG about the status of the new PhotonConversionFinder 

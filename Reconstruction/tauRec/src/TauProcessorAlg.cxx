@@ -215,7 +215,6 @@ StatusCode TauProcessorAlg::execute() {
     xAOD::JetContainer::const_iterator itSE = pSeedContainer->end();
 
     ATH_MSG_VERBOSE("Number of seeds in the container: " << pSeedContainer->size());
-    ATH_MSG_INFO("TEST");
     for (; itS != itSE; ++itS) {
 
       const xAOD::Jet *pSeed = (*itS);

@@ -386,7 +386,9 @@ def getPi0ClusterFinder():
                                       #        CaloWeightTool = getCellWeightTool(),
                                       #        ExtrapolateToCaloTool = getExtrapolateToCaloTool(),
                                       CellMakerTool = TauCellContainerFinalizer,
-                                      Key_caloCellInputContainer="AllCalo", Key_tauCaloOutputContainer="TauCommonPi0Cells")
+                                      Key_caloCellInputContainer="AllCalo", 
+                                      Key_tauCaloOutputContainer="TauCommonPi0Cells"
+                                      )
     
     cached_instances[_name] = TauPi0CreateROI
     return TauPi0CreateROI
