@@ -65,6 +65,10 @@ private:
 
   StatusCode initOutputContainer(const std::string& sgkey);
 
+  StatusCode buildAthenaInterface(const std::string& inputName,
+                                  const std::string& outputName,
+                                  const SG::SourceID& sid);
+
   /// Fill Cutflow information
   StatusCode addCutFlow();
  
@@ -80,10 +84,13 @@ private:
   /// The name of the CutFlowSvc CutBookkeeperContainer
   std::string m_cutflowCollName;
 
-  /// List of source ids which have reached end file
-  std::set<SG::SourceID> m_completes;
-
   bool m_cutflowTaken;
+  bool m_markIncomplete;
+
+  /// List of source ids which have reached end file
+  std::set<SG::SourceID> m_fullreads;
+  std::set<SG::SourceID> m_read;
+  std::set<SG::SourceID> m_written;
 
 };
 

@@ -29,7 +29,8 @@
 
 BookkeeperTool::BookkeeperTool(const std::string& name)
   : asg::AsgMetadataTool(name),
-    m_cutflowTaken(false)
+    m_cutflowTaken(false),
+    m_markIncomplete(true)
 {
   declareProperty("OutputCollName", m_outputCollName="CutBookkeepers",  
     "The default name of the xAOD::CutBookkeeperContainer for output files");
@@ -37,6 +38,8 @@ BookkeeperTool::BookkeeperTool(const std::string& name)
     "The default name of the xAOD::CutBookkeeperContainer for input files");
   declareProperty("CutFlowCollName", m_cutflowCollName = "CutBookkeepersFile",
     "The default name of the xAOD::CutBookkeeperContainer for CutFlowSvc");
+  declareProperty("MarkIncomplete", m_markIncomplete = true, 
+    "Defaults to filling both complete and incomplete bookkeepers");
 #ifdef ASGTOOL_ATHENA
   declareInterface< ::IMetaDataTool >( this );
 #endif // ASGTOOL_ATHENA
@@ -102,9 +105,6 @@ StatusCode BookkeeperTool::beginInputFile()
     ATH_MSG_WARNING("incomplete collection already exists");
   }
 
-  // reset cutflow taken marker
-  m_cutflowTaken = false;
-
   // Get the incomplete bookkeeper collection of the input metadata store
   const xAOD::CutBookkeeperContainer* input_inc = 0;
   // Construct input and output incomplete names
@@ -153,6 +153,9 @@ StatusCode BookkeeperTool::beginInputFile()
     }
     ATH_MSG_DEBUG("Successfully copied complete bookkeepers to temp container");
   }
+
+  // reset cutflow taken marker
+  m_cutflowTaken = false;
   
   return StatusCode::SUCCESS;
 }
@@ -167,74 +170,25 @@ StatusCode BookkeeperTool::beginInputFile(const SG::SourceID& sid)
   //    2a) if incomplete from input, directly propagate to output
   //    2b) if complete from input, wait for EndInputFile to decide what to do in output
 
-  std::string tmp_name = m_outputCollName+"tmpCont";
-  std::string inc_name = "Incomplete"+m_outputCollName+"Cont"; 
-  //  IF NO METACONT IN OUTPUT STORE YET
-  //     Initialize MetaCont for incomplete and tmp containers in output store
-  //
-  if( !(outputMetaStore()->contains<MetaCont<xAOD::CutBookkeeperContainer> >(m_outputCollName)) ) {
-    ATH_CHECK(this->initOutputContainer(tmp_name));
-  }
-  else {
-    ATH_MSG_WARNING("complete collection already exists");
-  }
-  if( !(outputMetaStore()->contains<MetaCont<xAOD::CutBookkeeperContainer> >(inc_name)) ) {
-    ATH_CHECK(this->initOutputContainer(inc_name));
-  }
-  else {
-    ATH_MSG_WARNING("incomplete collection already exists");
-  }
+  if (m_inputCollName != "") {  // are there inputs
+    //  IF NO METACONT IN OUTPUT STORE YET
+    //     Initialize MetaCont for incomplete and tmp containers in output store
+    //
+    std::string tmp_name = m_outputCollName+"tmp";
+    ATH_CHECK(buildAthenaInterface(m_inputCollName,tmp_name,sid));
 
-  // Now retrieve pointers for the MetaConts
-  MetaCont<xAOD::CutBookkeeperContainer>* tmp;
-  MetaCont<xAOD::CutBookkeeperContainer>* inc;
-  ATH_CHECK(outputMetaStore()->retrieve(tmp,tmp_name));
-  ATH_CHECK(outputMetaStore()->retrieve(inc,inc_name));
-
-  // Make sure sid does not already exist in container
-  if (std::find(tmp->sources().begin(),tmp->sources().end(),sid)!=tmp->sources().end() ||  
-      std::find(inc->sources().begin(),inc->sources().end(),sid)!=inc->sources().end() ) {
-    ATH_MSG_ERROR("Metadata already exists for sid " << sid);
-    return StatusCode::FAILURE;
-  }
+    // Do the following if we want incomplete processings marked
+    if (m_markIncomplete) {
+      std::string inc_name = "Incomplete"+m_outputCollName; 
+      std::string input_inc_name = "Incomplete"+m_inputCollName;
+      ATH_CHECK(buildAthenaInterface(input_inc_name,inc_name,sid));
+    }
+  } // inputCollName if
 
   // reset cutflow taken marker
   m_cutflowTaken = false;
 
-  // NOW GET NEW INFORMATION FROM INPUT STORE
-  //
-  // Get the incomplete bookkeeper collection of the input metadata store
-  std::string inCollName = "Incomplete" + m_inputCollName;
-  xAOD::CutBookkeeperContainer* input_inc = 0;
-  if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>(inCollName) ) {
-    StatusCode ssc = inputMetaStore()->retrieve( input_inc, inCollName );
-    if (ssc.isSuccess()) {
-      // retrieve the incomplete output container
-      if ( !inc->insert(sid,input_inc) ) {
-        ATH_MSG_ERROR("Unable to insert " << inCollName << " for " << sid << " with key " << inc_name);
-      }
-    }
-  }
-  else {
-    ATH_MSG_INFO("No incomplete bookkeepers in this file " << inCollName);
-  }
-
-  // Get the complete bookkeeper collection of the input metadata store
-  inCollName = m_inputCollName;
-  xAOD::CutBookkeeperContainer* input_com = 0;
-  if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>(inCollName) ) {
-    if ( (inputMetaStore()->retrieve( input_com, inCollName )).isSuccess() ) {
-      // retrieve the incomplete output container
-      if ( !tmp->insert(sid,input_com) ) {
-        ATH_MSG_ERROR("Unable to insert " << inCollName << " for " << sid << "with key " << tmp_name);
-      }
-    }
-    else {
-      ATH_MSG_WARNING("tmp collection already exists");
-      return StatusCode::SUCCESS;
-    }
-    ATH_MSG_DEBUG("Successfully copied complete bookkeepers to temp container");
-  }
+  m_read.insert(sid);
   
   return StatusCode::SUCCESS;
 }
@@ -263,88 +217,132 @@ StatusCode BookkeeperTool::endInputFile()
 StatusCode BookkeeperTool::endInputFile(const SG::SourceID& sid)
 {
   // Add the sid to the list of complete sids
-  m_completes.insert(sid);
+  if (m_inputCollName != "") {  // are there inputs
+    m_fullreads.insert(sid);
+  }
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode BookkeeperTool::metaDataStop(const SG::SourceID&)
 {
-  //TERMINATING THE JOB (EndRun)
-  //Things to do:
-  // 1) Create new incomplete CutBookkeepers if relevant
-  // 2) Print cut flow summary
-  // 3) Write root file if requested
-  // Now retrieve pointers for the MetaConts
-  std::string tmp_name = m_outputCollName+"tmpCont";
-  std::string inc_name = "Incomplete"+m_outputCollName+"Cont"; 
-  MetaCont<xAOD::CutBookkeeperContainer>* tmp;
-  MetaCont<xAOD::CutBookkeeperContainer>* inc;
-  ATH_CHECK(outputMetaStore()->retrieve(tmp,tmp_name));
-  ATH_CHECK(outputMetaStore()->retrieve(inc,inc_name));
+  if (m_inputCollName != "") {  // are there inputs
+    //TERMINATING THE JOB (EndRun)
+    //Things to do:
+    // 1) Create new incomplete CutBookkeepers if relevant
+    // 2) Print cut flow summary
+    // 3) Write root file if requested
+    // Now retrieve pointers for the MetaConts
+    std::string tmp_name = m_outputCollName+"tmpCont";
+    const MetaCont<xAOD::CutBookkeeperContainer>* tmp;
+    ATH_CHECK(outputMetaStore()->retrieve(tmp,tmp_name));
+    xAOD::CutBookkeeperContainer* outcom = new xAOD::CutBookkeeperContainer();
+    xAOD::CutBookkeeperAuxContainer* outcom_aux = new xAOD::CutBookkeeperAuxContainer();
+    outcom->setStore(outcom_aux);
 
-  // Output containers
-  xAOD::CutBookkeeperContainer* outcom = new xAOD::CutBookkeeperContainer();
-  xAOD::CutBookkeeperContainer* outinc = new xAOD::CutBookkeeperContainer();
-  xAOD::CutBookkeeperAuxContainer* outcom_aux = new xAOD::CutBookkeeperAuxContainer();
-  xAOD::CutBookkeeperAuxContainer* outinc_aux = new xAOD::CutBookkeeperAuxContainer();
-  outcom->setStore(outcom_aux);
-  outinc->setStore(outinc_aux);
-  // Incomplete can just be merged
-  auto sids_inc = inc->sources();
-  xAOD::CutBookkeeperContainer* contptr(nullptr);
-  for (auto it = sids_inc.begin(); it != sids_inc.end(); ++it) {
-    if (!inc->find(*it,contptr)) {
-      ATH_MSG_ERROR("Container sid list did not match contents");
-    } else {
-      ATH_CHECK(updateContainer(outinc,contptr));
-    }
-    contptr = nullptr; 
-  }
-  // Loop over containers and mark complete/incomplete based on end files seen
-  auto sids_tmp = tmp->sources();
-  contptr = nullptr;
-  for (auto it = sids_tmp.begin(); it != sids_tmp.end(); ++it) {
-    if (!inc->find(*it,contptr)) {
-      ATH_MSG_ERROR("Container sid list did not match contents");
-    } else {
-      if (std::find(m_completes.begin(), 
-                    m_completes.end(),
-                    *it) == m_completes.end()) {
-        ATH_CHECK(updateContainer(outinc,contptr));
-      } else {
-        ATH_CHECK(updateContainer(outcom,contptr));
+    if (m_markIncomplete) {
+      std::string inc_name = "Incomplete"+m_outputCollName+"Cont"; 
+      const MetaCont<xAOD::CutBookkeeperContainer>* inc;
+      ATH_CHECK(outputMetaStore()->retrieve(inc,inc_name));
+      xAOD::CutBookkeeperContainer* outinc = new xAOD::CutBookkeeperContainer();
+      xAOD::CutBookkeeperAuxContainer* outinc_aux = new xAOD::CutBookkeeperAuxContainer();
+      outinc->setStore(outinc_aux);
+
+      // Incomplete inputs can just be merged
+      auto sids_inc = inc->sources();
+      xAOD::CutBookkeeperContainer* contptr(nullptr);
+      for (auto it = sids_inc.begin(); it != sids_inc.end(); ++it) {
+        if (!inc->find(*it,contptr)) {
+          ATH_MSG_ERROR("Container sid list did not match contents");
+        } else {
+          ATH_CHECK(updateContainer(outinc,contptr));
+        }
+        contptr = nullptr; 
+      }
+
+      // Loop over containers and mark based on end files seen
+      auto sids_tmp = tmp->sources();
+      contptr = nullptr;
+      for (auto it = sids_tmp.begin(); it != sids_tmp.end(); ++it) {
+        if (!tmp->find(*it,contptr)) {
+          ATH_MSG_ERROR("Container sid list did not match contents");
+        } else {
+          bool complete = std::find(m_fullreads.begin(),
+                       m_fullreads.end(),
+                       *it) != m_fullreads.end();
+          bool not_written = std::find(m_written.begin(),
+                          m_written.end(),
+                          *it) == m_written.end();
+          if (complete && not_written) {
+            ATH_CHECK(updateContainer(outcom,contptr));
+          } else {
+            ATH_CHECK(updateContainer(outinc,contptr));
+          }
+        }
+      }
+
+      std::string incout_name = "Incomplete"+m_outputCollName;
+      // Do any cleanup
+      if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>(incout_name) ) {
+        ATH_MSG_INFO("Cleaning up xAOD::CutBookkeeperContainer for " << incout_name);
+        const xAOD::CutBookkeeperContainer* tmpBook(nullptr);
+        if ( outputMetaStore()->retrieve(tmpBook,incout_name).isSuccess() ) {
+          const SG::IConstAuxStore* tmpBookAux = tmpBook->getConstStore();
+          ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpBook));
+          ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpBookAux));
+        }
+        else ATH_MSG_ERROR("StoreGate failed retrieve after contains=true");
+      }
+      ATH_CHECK(outputMetaStore()->record(outinc,incout_name));
+      ATH_CHECK(outputMetaStore()->record(outinc_aux,incout_name+"Aux."));
+    }  // markIncomplete
+    else {
+      auto sids_tmp = tmp->sources();
+      xAOD::CutBookkeeperContainer* contptr(nullptr);
+      // just merge complete inputs into complete/output container
+      for (auto it = sids_tmp.begin(); it != sids_tmp.end(); ++it) {
+        if (!tmp->find(*it,contptr)) {
+          ATH_MSG_ERROR("Container sid list did not match contents");
+        } else {
+          // default to not worrying about marking
+          ATH_CHECK(updateContainer(outcom,contptr));
+        }
       }
     }
-  }
-  // Record container objects directly in store for output
-  std::string incout_name = "Incomplete"+m_outputCollName;
-  // Do any cleanup
-  if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>(incout_name) ) {
-    ATH_MSG_INFO("Cleaning up xAOD::CutBookkeeperContainer for " << incout_name);
-    const xAOD::CutBookkeeperContainer* tmpBook(nullptr);
-    if ( outputMetaStore()->retrieve(tmpBook,incout_name).isSuccess() ) {
-      const SG::IConstAuxStore* tmpBookAux = tmpBook->getConstStore();
-      ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpBook));
-      ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpBookAux));
-    }
-    else ATH_MSG_ERROR("StoreGate failed retrieve after contains=true");
-  }
-  if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>(m_outputCollName) ) {
-    ATH_MSG_INFO("Cleaning up xAOD::CutBookkeeperContainer for " << m_outputCollName);
-    const xAOD::CutBookkeeperContainer* tmpBook(nullptr);
-    if ( outputMetaStore()->retrieve(tmpBook,m_outputCollName).isSuccess() ) {
-      const SG::IConstAuxStore* tmpBookAux = tmpBook->getConstStore();
-      ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpBook));
-      ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpBookAux));
-    }
-    else ATH_MSG_ERROR("StoreGate failed retrieve after contains=true");
-  }
-  ATH_CHECK(outputMetaStore()->record(outinc,incout_name));
-  ATH_CHECK(outputMetaStore()->record(outinc_aux,incout_name+"Aux."));
-  ATH_CHECK(outputMetaStore()->record(outcom,m_outputCollName));
-  ATH_CHECK(outputMetaStore()->record(outcom_aux,m_outputCollName+"Aux."));
 
+    // Record container objects directly in store for output
+    if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>(m_outputCollName) ) {
+      ATH_MSG_INFO("Cleaning up xAOD::CutBookkeeperContainer for " << m_outputCollName);
+      const xAOD::CutBookkeeperContainer* tmpBook(nullptr);
+      if ( outputMetaStore()->retrieve(tmpBook,m_outputCollName).isSuccess() ) {
+        const SG::IConstAuxStore* tmpBookAux = tmpBook->getConstStore();
+        ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpBook));
+        ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpBookAux));
+      }
+      else ATH_MSG_ERROR("StoreGate failed retrieve after contains=true");
+    }
+    ATH_CHECK(outputMetaStore()->record(outcom,m_outputCollName));
+    ATH_CHECK(outputMetaStore()->record(outcom_aux,m_outputCollName+"Aux."));
+
+/*
+    if (m_markIncomplete) {
+      std::string incout_name = "Incomplete"+m_outputCollName;
+      // Do any cleanup
+      if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>(incout_name) ) {
+        ATH_MSG_INFO("Cleaning up xAOD::CutBookkeeperContainer for " << incout_name);
+        const xAOD::CutBookkeeperContainer* tmpBook(nullptr);
+        if ( outputMetaStore()->retrieve(tmpBook,incout_name).isSuccess() ) {
+          const SG::IConstAuxStore* tmpBookAux = tmpBook->getConstStore();
+          ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpBook));
+          ATH_CHECK(outputMetaStore()->removeDataAndProxy(tmpBookAux));
+        }
+        else ATH_MSG_ERROR("StoreGate failed retrieve after contains=true");
+      }
+      ATH_CHECK(outputMetaStore()->record(outinc,incout_name));
+      ATH_CHECK(outputMetaStore()->record(outinc_aux,incout_name+"Aux."));
+    }
+*/
+  } // inputCollName if
 
   if (!m_cutflowTaken) {
     if (addCutFlow().isFailure()) {
@@ -357,6 +355,20 @@ StatusCode BookkeeperTool::metaDataStop(const SG::SourceID&)
 
   // Reset after metadata stop
   m_cutflowTaken = false;
+
+  if (m_inputCollName != "") {  // are there inputs
+    // Copy read files into written files
+    //std::copy(m_read.begin(),m_read.end(),back_inserter(m_written));
+    for (auto it = m_read.begin(); it != m_read.end(); ++it) {
+      m_written.insert(*it);
+    }
+    // Remove completes from read
+    for (auto it = m_fullreads.begin(); it != m_fullreads.end(); ++it) {
+      m_read.erase(*it);
+      //std::remove(m_read.begin(); m_read.end(), *it);
+    }
+    m_fullreads.clear();
+  } // inputCollName if
   
   return StatusCode::SUCCESS;
 }
@@ -417,6 +429,52 @@ StatusCode BookkeeperTool::initOutputContainer( const std::string& sgkey)
             auxkey,
             ClassID_traits<xAOD::CutBookkeeperAuxContainer>::ID()
           ));
+
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode BookkeeperTool::buildAthenaInterface(const std::string& inputName,
+                                                const std::string& outputName,
+                                                const SG::SourceID& sid)
+{
+  std::string inc_name = outputName+"Cont"; 
+  ATH_MSG_INFO("BLARG " << inc_name);
+  if( !(outputMetaStore()->contains<MetaCont<xAOD::CutBookkeeperContainer> >(inc_name)) ) {
+    ATH_CHECK(this->initOutputContainer(inc_name));
+  }
+  else {
+    ATH_MSG_WARNING("incomplete collection already exists");
+  }
+  ATH_MSG_INFO("BLARG " << outputMetaStore()->dump());
+
+  // Now retrieve pointers for the MetaConts
+  MetaCont<xAOD::CutBookkeeperContainer>* inc;
+  ATH_CHECK(outputMetaStore()->retrieve(inc,inc_name));
+
+  // Make sure sid does not already exist in container
+  if ( std::find(inc->sources().begin(),inc->sources().end(),sid) 
+                                        != inc->sources().end() ) {
+    ATH_MSG_ERROR("Metadata already exists for sid " << sid);
+    return StatusCode::FAILURE;
+  }
+
+  // NOW GET NEW INFORMATION FROM INPUT STORE
+  //
+  // Get the incomplete bookkeeper collection of the input metadata store
+  xAOD::CutBookkeeperContainer* input_inc = 0;
+  if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>(inputName) ) {
+    StatusCode ssc = inputMetaStore()->retrieve( input_inc, inputName );
+    if (ssc.isSuccess()) {
+      // retrieve the incomplete output container
+      if ( !inc->insert(sid,input_inc) ) {
+        ATH_MSG_ERROR("Unable to insert " << inputName << " for " << sid << " with key " << inc_name);
+      }
+    }
+  }
+  else {
+    ATH_MSG_INFO("No " << inputName << " bookkeepers in this file ");
+  }
 
   return StatusCode::SUCCESS;
 }
