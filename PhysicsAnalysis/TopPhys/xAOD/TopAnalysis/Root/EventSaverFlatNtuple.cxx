@@ -2509,20 +2509,15 @@ namespace top {
             }
 
             if (validKLFitter) {
-                for (const auto* const klPtr : *event.m_KLFitterResults) 
-std::cout<<"CIAO! SONO KLFITTER IN FLATNTUPLE!!!\n\n\n\n\n\n\nQUESTO E' IL MERAVIGLIOSO HASH!\n\n\n\n"<<klPtr->selectionCode()<<"\n";
                 for (const auto* const klPtr : *event.m_KLFitterResults) {
-std::cout<<"CIAO! SONO KLFITTER IN FLATNTUPLE!!!\n\n\n\n\n\n\nQUESTO E' IL MERAVIGLIOSO HASH!\n\n\n\n"<<klPtr->selectionCode()<<"\n";
                     m_klfitter_selection[iPerm] = "unknown";
                     std::hash<std::string> st_hash;
                     for(unsigned int s=0; s<m_config->allSelectionNames()->size(); ++s){
-std::cout<<m_config->allSelectionNames()->at(s)<<"->"<<st_hash(m_config->allSelectionNames()->at(s))<<std::endl;
                        if(st_hash(m_config->allSelectionNames()->at(s))==klPtr->selectionCode()){
                           m_klfitter_selection[iPerm] = m_config->allSelectionNames()->at(s);
                      //     break;
                        }
                     }
-std::cout<<m_klfitter_selection[iPerm]<<std::endl;
                     m_klfitter_minuitDidNotConverge[iPerm] = klPtr->minuitDidNotConverge();
                     m_klfitter_fitAbortedDueToNaN[iPerm] = klPtr->fitAbortedDueToNaN();
                     m_klfitter_atLeastOneFitParameterAtItsLimit[iPerm] = klPtr->atLeastOneFitParameterAtItsLimit();
@@ -2536,8 +2531,6 @@ std::cout<<m_klfitter_selection[iPerm]<<std::endl;
                     m_klfitter_logLikelihood[iPerm] = klPtr->logLikelihood();
                     m_klfitter_eventProbability[iPerm] = klPtr->eventProbability();
                     m_klfitter_parameters[iPerm] = klPtr->parameters();
-for(int i=0; i<klPtr->parameters().size(); ++i)
-std::cout<<"Parametri: "<<klPtr->parameters().at(i)<<std::endl;
                     m_klfitter_parameterErrors[iPerm] = klPtr->parameterErrors();
 
                     /// Model

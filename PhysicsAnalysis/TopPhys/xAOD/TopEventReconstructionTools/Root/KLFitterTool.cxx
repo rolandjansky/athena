@@ -28,7 +28,6 @@ namespace top{
     m_LHType("SetMe"),
     m_myFitter(nullptr)
   {
-std::cout<<"CIAO SONO IL TUO AMICHEVOLE KLFITTER DI QUARTIERE E MI CHIAMO COSI': "<<name<<std::endl;
     declareProperty( "config" , m_config , "Set the configuration" );
     declareProperty( "LeptonType", m_leptonType = "kUndefined" , "Define the lepton type" );
     declareProperty( "SelectionName", m_selectionName = "kUndefined" , "Define the name of the selection" );
@@ -38,7 +37,6 @@ std::cout<<"CIAO SONO IL TUO AMICHEVOLE KLFITTER DI QUARTIERE E MI CHIAMO COSI':
   /// Function initialising the tool
   StatusCode KLFitterTool::initialize()
   {    
-std::cout<<"CIAO SONO IL TUO AMICHEVOLE KLFITTER DI QUARTIERE E LA SELEZIONE E' "<<m_selectionName<<std::endl;
     // Have you set the config??
     if (m_config == nullptr) {
       ATH_MSG_ERROR("Please set the top::TopConfig");
@@ -261,6 +259,7 @@ std::cout<<"CIAO SONO IL TUO AMICHEVOLE KLFITTER DI QUARTIERE E LA SELEZIONE E' 
     
     // 6) Figure out the b tagging working point
     // All the blame for this horrible code rests with the b-tagging people
+    //TODO: if we pass the desided btagging algorithm as a long string, we can allow multiple b-tagging algorithms definitions!
     if (m_config->bTagWP_available().size() != 1) {
       ATH_MSG_INFO(m_config->bTagWP_available().size()<<" b-tagging WP - cannot pick b-jets. Please select only 1 WP if you are using KLFitter");
     }
@@ -310,14 +309,11 @@ std::cout<<"CIAO SONO IL TUO AMICHEVOLE KLFITTER DI QUARTIERE E LA SELEZIONE E' 
     // - for jets:
     //   * bool isBtagged : mandatory only if you want to use b-tagging in the fit
 
-    // To allow KLFitter to run on multiple non-orthogonal selections, we set/check a decorator
-    std::cout<<"INIZIO TUTTO "<<event.m_info->eventNumber()<<" "<<m_selectionName<<std::endl;
-/*    if( (event.m_info->isAvailable< int >( "KLFitterHasRun" ) ) ){
-std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
+/*
+    FIXME: this may be useful to cache results, that's why I am not deleting this piece of commented code
+           maybe we could concatenate the full KLFitter selection and then calculate an hash...
+    if( (event.m_info->isAvailable< int >( "KLFitterHasRun" ) ) )
        if( ( event.m_info->auxdata< int >("KLFitterHasRun") )!=0 ) return StatusCode::SUCCESS;     
-       event.m_info->auxdecor< int >( "KLFitterHasRun" ) = 1;
-    }
-    else event.m_info->auxdecor< int >( "KLFitterHasRun" ) = 1;
 */  
     KLFitter::Particles * myParticles = new KLFitter::Particles{};
 
@@ -447,24 +443,20 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
       outputSGKey = m_config->sgKeyKLFitterLoose( event.m_hashValue );
     }    
     std::string outputSGKeyAux = outputSGKey + "Aux.";
-std::cout<<"PRIMAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n\n";
     // create or retrieve (if existent) the xAOD::KLFitterResultContainer
     xAOD::KLFitterResultAuxContainer* resultAuxContainer = nullptr;
     xAOD::KLFitterResultContainer* resultContainer = nullptr;
     if ((!m_config->KLFitterSaveAllPermutations())||((m_config->KLFitterSaveAllPermutations())&&(!evtStore()->tds()->contains<xAOD::KLFitterResultContainer>(outputSGKey)))){
-std::cout<<"PIPPOPOPPOPOPO\n";
        resultAuxContainer = new xAOD::KLFitterResultAuxContainer{};
        resultContainer = new xAOD::KLFitterResultContainer{};
        resultContainer->setStore( resultAuxContainer );
     }
     else
        top::check(evtStore()->tds()->retrieve(resultContainer,outputSGKey),"KLFitterTools::execute(): can not retrieve xAOD::KLFitterResultContainer from evtStore()");
-std::cout<<"DOPOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\n\n";
     
     // loop over all permutations
     const int nperm = m_myFitter->Permutations()->NPermutations();
     for (int iperm  = 0; iperm < nperm; ++iperm) {
-std::cout<<"CONTIAMO LE PERMUTAZIONI: "<<nperm<<" "<<iperm<<std::endl;
       // Perform the fit
       m_myFitter->Fit(iperm); 
       // create a result 
@@ -679,7 +671,6 @@ std::cout<<"CONTIAMO LE PERMUTAZIONI: "<<nperm<<" "<<iperm<<std::endl;
     
     // Save all
     if (m_config->KLFitterSaveAllPermutations()) {   
-std::cout<<"EHI FINALMENTE SON QUI FELICE FELICISSIMO\n\n\n\n\n\n\n\n\n";
       if (!evtStore()->tds()->contains<xAOD::KLFitterResultContainer>(outputSGKey)){
          top::check(evtStore()->tds()->record( resultContainer ,outputSGKey  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultContainer");
          top::check(evtStore()->tds()->record( resultAuxContainer ,outputSGKeyAux  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultAuxContainer");
