@@ -878,11 +878,6 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 	  if (debug) Info(APP_NAME, "METSignificance CST?");
 	  ANA_CHECK( objTool.GetMETSig(*metcst,
 				       metsig_cst,
-	  			       jets,
-	  			       electrons,
-	  			       muons,
-	  			       photons,
-	  			       taus, // taus
 				       false,
 				       false) );
 
@@ -893,16 +888,12 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 				    muons,
 				    photons,
 				    taus,
+				    true,
 				    true) );
 
 	  if (debug) Info(APP_NAME, "METSignificance TST?");
 	  ANA_CHECK( objTool.GetMETSig(*mettst,
 				       metsig_tst,
-	  			       jets,
-	  			       electrons,
-	  			       muons,
-	  			       photons,
-	  			       taus, // taus
 				       true,
 				       true) );
 
@@ -921,11 +912,6 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 	  if (debug) Info(APP_NAME, "METSignificance CST?");
 	  ANA_CHECK( objTool.GetMETSig(*metcst,
 				       metsig_cst,
-	  			       jets,
-	  			       electrons,
-	  			       muons,
-	  			       photons,
-	  			       0, // taus
 				       false,
 				       false) );
 
@@ -936,21 +922,17 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
                                     muons,
                                     photons,
                                     0, // taus,
-                                    true) );
+                                    true,
+				    true) );
 
 	  if (debug) Info(APP_NAME, "METSignificance TST?");
 	  ANA_CHECK( objTool.GetMETSig(*mettst,
 				       metsig_tst,
-	  			       jets,
-	  			       electrons,
-	  			       muons,
-	  			       photons,
-	  			       0, // taus
 				       true,
 				       true) );
 
-
         }
+
         if (debug) Info(APP_NAME, "MET done");
       }
 
