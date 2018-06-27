@@ -1113,7 +1113,7 @@ Amg::Vector3D PixelFastDigitizationTool::CalculateIntersection(const Amg::Vector
   return Intersection;
 }
 
-bool PixelFastDigitizationTool::Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shiftX, double shiftY) const{
+void PixelFastDigitizationTool::Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shiftX, double shiftY) const{
 
   double localEntryX = localEntry.x();
   double localEntryY = localEntry.y();
@@ -1133,5 +1133,4 @@ bool PixelFastDigitizationTool::Diffuse(HepGeom::Point3D<double>& localEntry, He
   localExit.setX(localExitX);
   localExit.setY(localExitY);
 
-  return true;
 }

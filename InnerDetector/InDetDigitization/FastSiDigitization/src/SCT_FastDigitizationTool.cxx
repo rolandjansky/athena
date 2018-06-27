@@ -82,8 +82,10 @@ SCT_FastDigitizationTool::SCT_FastDigitizationTool(const std::string& type,
   m_sctErrorStrategy(2),
   m_sctRotateEC(true),
   m_mergeCluster(true),
-  m_DiffusionShiftX(7),
-  m_DiffusionShiftY(7),
+  m_DiffusionShiftX_barrel(4),
+  m_DiffusionShiftY_barrel(4),
+  m_DiffusionShiftX_endcap(15),
+  m_DiffusionShiftY_endcap(15),
   m_sctMinimalPathCut(90.)
 {
   declareInterface<ISCT_FastDigitizationTool>(this);
@@ -102,8 +104,10 @@ SCT_FastDigitizationTool::SCT_FastDigitizationTool(const std::string& type,
   declareProperty("SCT_ErrorStrategy"             , m_sctErrorStrategy);
   declareProperty("SCT_RotateEndcapClusters"      , m_sctRotateEC);
   declareProperty("SCT_MinimalPathLength"         , m_sctMinimalPathCut);
-  declareProperty("DiffusionShiftX"								, m_DiffusionShiftX);
-	declareProperty("DiffusionShiftY"								, m_DiffusionShiftY);
+  declareProperty("DiffusionShiftX_barrel", m_DiffusionShiftX_barrel);
+  declareProperty("DiffusionShiftY_barrel", m_DiffusionShiftY_barrel);
+  declareProperty("DiffusionShiftX_endcap", m_DiffusionShiftX_endcap);
+  declareProperty("DiffusionShiftY_endcap", m_DiffusionShiftY_endcap);
   declareProperty("HardScatterSplittingMode"      , m_HardScatterSplittingMode, "Control pileup & signal splitting" );
   declareProperty("ParticleBarcodeVeto"           , m_vetoThisBarcode, "Barcode of particle to ignore");
   declareProperty("UseMcEventCollectionHelper",   m_needsMcEventCollHelper = false);
@@ -368,8 +372,20 @@ StatusCode SCT_FastDigitizationTool::digitize()
       
       const double hitDepth  = hitSiDetElement->hitDepthDirection();
       
+      double shiftX,shiftY;
+      if (hitSiDetElement->isBarrel()){
+          shiftX=m_DiffusionShiftX_barrel;
+          shiftY=m_DiffusionShiftY_barrel;
+      }
+      else{
+          shiftX=m_DiffusionShiftX_endcap;
+          shiftY=m_DiffusionShiftY_endcap;
+      }
+    
       HepGeom::Point3D<double> localStartPosition = hitSiDetElement->hitLocalToLocal3D(currentSiHit->localStartPosition());
       HepGeom::Point3D<double> localEndPosition = hitSiDetElement->hitLocalToLocal3D(currentSiHit->localEndPosition());
+      
+      Diffuse(localStartPosition,localEndPosition, shiftX * Gaudi::Units::micrometer, shiftY * Gaudi::Units::micrometer);
       
       const double localEntryX = localStartPosition.x();
       const double localEntryY = localStartPosition.y();
@@ -1053,7 +1069,7 @@ bool SCT_FastDigitizationTool::NeighbouringClusters(const std::vector<Identifier
 }
 
 
-bool SCT_FastDigitizationTool::Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shiftX, double shiftY ) const{
+void SCT_FastDigitizationTool::Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shiftX, double shiftY ) const{
     
     double localEntryX = localEntry.x();
     double localExitX = localExit.x();
@@ -1074,7 +1090,5 @@ bool SCT_FastDigitizationTool::Diffuse(HepGeom::Point3D<double>& localEntry, Hep
     //Check the effect in the endcap
     localEntry.setY(localEntryY);
     localExit.setY(localExitY);
-    
-    return true;
-    
+        
 }
