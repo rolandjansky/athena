@@ -66,7 +66,7 @@ job.algsAdd( sysLoader )
 
 # Include, and then set up the met analysis algorithm sequence:
 from MetAnalysisAlgorithms.MetAnalysisSequence import makeMetAnalysisSequence
-metSequence = makeMetAnalysisSequence( dataType, "AntiKt4EMTopoJets", "(^$)", [["Muons", "(^$)", 8, "RefMuon"], ["Electrons", "(^$)", 6, "RefEle"]] )
+metSequence = makeMetAnalysisSequence( dataType, "AntiKt4EMTopoJets", "(^$)", [{"containerName":"Muons", "regex":"(^$)", "type":8, "termName":"RefMuon"}, {"containerName":"Electrons", "regex":"(^$)", "type":6, "termName":"RefEle"}] )
 print( metSequence ) # For debugging
 
 # Add all algorithms to the job:
