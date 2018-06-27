@@ -104,8 +104,8 @@ JetCleaningTool::JetCleaningTool(const std::string& name)
   , m_cutLevel(LooseBad)
   , m_doUgly(false)
   , m_jetCleanDFName("")
-  , m_acc_jetClean("")
-  , m_acc_looseClean("")
+  , m_acc_jetClean("DFCommonJets_jetClean_LooseBad")
+  , m_acc_looseClean("DFCommonJets_jetClean_LooseBad")
   , m_hotCellsFile("")
   , m_hotCellsMap(NULL)
 {
@@ -171,7 +171,7 @@ StatusCode JetCleaningTool::initialize()
   ATH_MSG_INFO( "Configured with cut level " << getCutName( m_cutLevel ) );
   m_jetCleanDFName = "DFCommonJets_jetClean_"+getCutName(m_cutLevel);
   m_acc_jetClean = m_jetCleanDFName;
-  if(TightBad==m_cutLevel) m_acc_looseClean = "DFCommonJets_jetClean_"+getCutName(LooseBad);
+  m_acc_looseClean = "DFCommonJets_jetClean_"+getCutName(LooseBad);
   ATH_MSG_DEBUG( "Initialized decorator name: " << m_jetCleanDFName );
 
   m_accept.addCut( "Cleaning", "Cleaning of the jet" );
@@ -360,12 +360,12 @@ const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
   //start jet cleaning 
   int isJetClean = 0; 
   if(m_acc_jetClean.isAvailable(jet)) { //look for the decoration that corresponds to your configured cleaning (Loose or Tight) 
-	  isJetClean = m_acc_jetClean(jet);
-	  return accept (isJetClean, FracSamplingMaxIndex);
+          isJetClean = m_acc_jetClean(jet);
+          return accept (isJetClean, FracSamplingMaxIndex);
   }
   else if(TightBad==m_cutLevel && m_acc_looseClean.isAvailable(jet)){ //if you configured tight but don't have the Tight jetClean decoration
-	  isJetClean = m_acc_looseClean(jet);
-	  return accept (isJetClean, sumpttrk, FracSamplingMax, jet.eta(), jet.pt(), FracSamplingMaxIndex);
+          isJetClean = m_acc_looseClean(jet);
+          return accept (isJetClean, sumpttrk, FracSamplingMax, jet.eta(), jet.pt(), FracSamplingMaxIndex);
   }
   else{  
 	  ATH_MSG_DEBUG("DFCommon jet cleaning variable not available ... Using jet cleaning tool");
