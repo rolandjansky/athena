@@ -437,8 +437,8 @@ EXOT3SlimmingHelper.ExtraVariables += [
     "BTagging_AntiKtVR30Rmax4Rmin02Track.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP",
     "LCOriginTopoClusters.calEta.calPhi",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD",
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore"
-
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore",
+    "Muons.EnergyLoss.energyLossType"
 ]
 
 if globalflags.DataSource()=='geant4':
