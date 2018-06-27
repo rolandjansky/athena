@@ -40,8 +40,17 @@ StatusCode STGC_DigitToRDO::execute()
 
   if (digits.isValid() ){
     for (const sTgcDigitCollection* digitColl : *digits ){
-      // Making some assumptions here that digit hash == RDO hash. 
-      IdentifierHash hash = digitColl->identifierHash();
+
+      // Transform the hash id ( digit collection use detector element ID hash, RDO's use 
+      // module Id hash
+      Identifier digitId = digitColl->identify();
+      IdentifierHash hash;
+      int getRdoCollHash = m_idHelper->get_module_hash(digitId,hash);
+      if ( getRdoCollHash !=0 ) {
+	ATH_MSG_ERROR("Could not get the module hash Id");
+	continue;
+      } 
+
       STGC_RawDataCollection* coll = new STGC_RawDataCollection(hash);
       if (rdos->addCollection(coll,hash).isFailure() ){
         ATH_MSG_WARNING("Failed to add collection with hash " << (int)hash );
