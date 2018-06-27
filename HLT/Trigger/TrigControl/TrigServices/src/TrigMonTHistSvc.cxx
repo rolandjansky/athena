@@ -29,7 +29,6 @@
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 TrigMonTHistSvc::TrigMonTHistSvc( const std::string& name, ISvcLocator* svc ) 
     : THistSvcHLT(name, svc),
-      AthMessaging(msgSvc(), name),
       m_excludeType("()"), 
       m_includeType(".+"),
       m_excludeName(".*\\..*"),                                            
