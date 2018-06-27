@@ -5,7 +5,7 @@ from AnaAlgorithm.AlgSequence import AlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
 def makeOverlapAnalysisSequence( dataType ):
-    """Create a PRW analysis algorithm sequence
+    """Create an overlap removal analysis algorithm sequence
 
     Keyword arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")
