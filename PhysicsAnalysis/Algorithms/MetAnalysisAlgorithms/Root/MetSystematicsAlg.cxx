@@ -24,7 +24,7 @@ namespace CP
   MetSystematicsAlg (const std::string& name, 
                      ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)
-    , m_systematicsTool ("METMaker", this)
+    , m_systematicsTool ("met::METSystematicsTool", this)
   {
     declareProperty ("systematicsTool", m_systematicsTool, "the systematics tool we apply");
     declareProperty ("softTerm", m_softTerm, "the key for the soft term");

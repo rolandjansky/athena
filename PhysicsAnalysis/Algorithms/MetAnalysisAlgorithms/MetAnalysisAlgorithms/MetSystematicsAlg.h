@@ -50,7 +50,7 @@ namespace CP
 
     /// \brief the key for the soft term
   private:
-    std::string m_softTerm {"SoftClus"};
+    std::string m_softTerm {"PVSoftTrk"};
   };
 }
 

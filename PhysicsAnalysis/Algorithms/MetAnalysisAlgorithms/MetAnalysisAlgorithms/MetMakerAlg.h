@@ -86,7 +86,7 @@ namespace CP
 
     /// \brief the soft term key
   private:
-    std::string m_softTerm {"SoftClus"};
+    std::string m_softTerm {"PVSoftTrk"};
 
     /// \brief whether to use track-met instead of jet-met
   private:
@@ -94,7 +94,7 @@ namespace CP
 
     /// \brief whether to do jet JVT
   private:
-    bool m_doJetJVT {false};
+    bool m_doJetJVT {true};
 
     /// \brief the met collection we run on
   private:

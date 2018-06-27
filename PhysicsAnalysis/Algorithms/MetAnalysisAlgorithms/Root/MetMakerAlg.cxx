@@ -26,7 +26,7 @@ namespace CP
     : AnaAlgorithm (name, pSvcLocator)
     , m_makerTool ("METMaker", this)
   {
-    declareProperty ("makerTool", m_makerTool, "the calibration and smearing tool we apply");
+    declareProperty ("makerTool", m_makerTool, "the METMaker tool we apply");
     declareProperty ("metCore", m_metCoreName, "the name of the core MissingETContainer");
     declareProperty ("metAssociation", m_metAssociationName, "the name of the core MissingETContainer");
     declareProperty ("particlesType", m_particlesType, "the type of the particle container in particles");
@@ -51,12 +51,12 @@ namespace CP
 
     if (m_particlesType.size() != m_particlesHandle.size())
     {
-      ANA_MSG_ERROR ("size missmatch between particles ( " << m_particlesHandle.size() << ") and particlesType (" << m_particlesType.size() << ") properties does not match");
+      ANA_MSG_ERROR ("size mismatch between particles ( " << m_particlesHandle.size() << ") and particlesType (" << m_particlesType.size() << ") properties");
       return StatusCode::FAILURE;
     }
     if (m_particlesKey.size() != m_particlesHandle.size())
     {
-      ANA_MSG_ERROR ("size missmatch between particles ( " << m_particlesHandle.size() << ") and particlesKey (" << m_particlesKey.size() << ") properties does not match");
+      ANA_MSG_ERROR ("size mismatch between particles ( " << m_particlesHandle.size() << ") and particlesKey (" << m_particlesKey.size() << ") properties");
       return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;

@@ -59,7 +59,7 @@ namespace CP
 
     /// \brief the key for the soft term
   private:
-    std::string m_softTermName {"SoftClus"};
+    std::string m_softTermName {"PVSoftTrk"};
 
     /// \brief the decoration for the significance
   private:
