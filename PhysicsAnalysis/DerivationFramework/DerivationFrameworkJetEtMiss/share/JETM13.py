@@ -82,6 +82,8 @@ JETM13SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                      "JetETMissChargedParticleFlowObjects",
                                      "JetETMissNeutralParticleFlowObjects",
                                      "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape",
+                                     "TruthParticles",
+                                     "TruthEvents",
                                      ]
 
 for truthc in [
