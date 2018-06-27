@@ -28,7 +28,7 @@ The documentation is on the twiki here:
 
 This procedure applies to all of Run 2. 
 
--rshall@lbl.gov-----------------------------
+------------------------------
 Checkout & Setup in Release 21
 ------------------------------
 
