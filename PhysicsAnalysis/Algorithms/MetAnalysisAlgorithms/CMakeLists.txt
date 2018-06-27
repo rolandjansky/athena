@@ -14,6 +14,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/D3PDTools/AnaAlgorithm
    PhysicsAnalysis/Interfaces/METInterface
    Reconstruction/MET/METInterface
+   Reconstruction/MET/METUtilities
    PRIVATE )
 
 atlas_add_library( MetAnalysisAlgorithmsLib
@@ -21,7 +22,7 @@ atlas_add_library( MetAnalysisAlgorithmsLib
    PUBLIC_HEADERS MetAnalysisAlgorithms
    LINK_LIBRARIES xAODMissingET
    SystematicsHandlesLib AnaAlgorithmLib METInterface
-   SelectionHelpersLib
+   SelectionHelpersLib METUtilitiesLib
    PRIVATE_LINK_LIBRARIES  )
 
 atlas_add_dictionary( MetAnalysisAlgorithmsDict

@@ -73,13 +73,6 @@ def makeMetAnalysisSequence( dataType, jetContainer, jetSystematics,
     # Set up the met builder algorithm:
     alg = createAlgorithm( 'CP::MetBuilderAlg',
                            'MetBuilderAlg' )
-    addPrivateTool( alg, 'makerTool',
-                    'met::METMaker' )
-    alg.makerTool.ORCaloTaggedMuons = True
-    alg.makerTool.DoSetMuonJetEMScale = False
-    alg.makerTool.DoMuonEloss = False
-    alg.makerTool.DoPFlow = False
-    alg.makerTool.JetSelection = "Tight"
     alg.met = metName
     alg.metRegex = metSys
     seq += alg

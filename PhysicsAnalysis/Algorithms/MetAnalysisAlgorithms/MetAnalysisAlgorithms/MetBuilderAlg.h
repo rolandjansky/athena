@@ -35,10 +35,6 @@ namespace CP
     
 
 
-    /// \brief the smearing tool
-  private:
-    ToolHandle<IMETMaker> m_makerTool;
-
     /// \brief the systematics list we run
   private:
     SysListHandle m_systematicsList {this};

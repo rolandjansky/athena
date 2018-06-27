@@ -12,6 +12,7 @@
 
 #include <MetAnalysisAlgorithms/MetBuilderAlg.h>
 
+#include <METUtilities/METMaker.h>
 #include <xAODMissingET/MissingETAuxContainer.h>
 
 //
@@ -24,9 +25,7 @@ namespace CP
   MetBuilderAlg (const std::string& name, 
                      ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)
-    , m_makerTool ("METMaker", this)
   {
-    declareProperty ("makerTool", m_makerTool, "the METMaker tool we apply");
     declareProperty ("finalKey", m_finalKey, "the key for the final met term");
     declareProperty ("softTerm", m_softTerm, "the key for the soft term");
   }
@@ -36,7 +35,6 @@ namespace CP
   StatusCode MetBuilderAlg ::
   initialize ()
   {
-    ANA_CHECK (m_makerTool.retrieve());
     m_systematicsList.addHandle (m_metHandle);
     ANA_CHECK (m_systematicsList.initialize());
     return StatusCode::SUCCESS;
@@ -57,7 +55,7 @@ namespace CP
           ANA_MSG_ERROR ("could not find MET soft-term: " << m_softTerm);
           return StatusCode::FAILURE;
         }
-        ATH_CHECK (m_makerTool->buildMETSum (m_finalKey, met, softTerm->source()));
+        ATH_CHECK (met::buildMETSum (m_finalKey, met, softTerm->source()));
 
         return StatusCode::SUCCESS;
       });
