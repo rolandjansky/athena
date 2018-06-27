@@ -1707,17 +1707,21 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
         from TrigBphysHypo.TrigBphysElectronCounterConfig import  TrigBphysElectronCounter_bBee
         EFFexE = TrigBphysElectronCounter_bBee("TrigBphysECounter"+chainDict['chainName'], trkelectrons, pid,  4650. )
         EFFexE.setEFElectronThresholds( trkelectrons, 4650. )
+        EFFexE.outputTrackCollectionKey = "BphysElectronCounter" 
+    
         theChainDef.addSequence([EFFexE],inputTEsEF, EFTEname+"_eCounter")
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname+"_eCounter"])    
 
         if  'bBeexM6000t' in topoAlgs :
             EFFexM = TrigMultiTrkFex_DiE("TrigMultiTrkFex_EFDiE"+fexNameExt) 
             EFFexM.setElectronTrackThresholds( trkelectrons )
-            EFFexM.trackCollectionKey = "BphysElectronCounter"
-            EFFexM.outputTrackCollectionKey = "EFEMultiTrkFex_DiE"
+            EFFexM.trackCollectionKey = EFFexE.outputTrackCollectionKey  # these are input tracks, we want to use those identified by BphysElectronContainer
+            EFFexM.outputTrackCollectionKey = "EFEMultiTrkFex_DiE"  # these are selected tracks for monitoring
+            EFFexM.bphysCollectionKey = "EFEMultiTrkFex_DiE" # this is output container with Bphys objects that will be used in Hypo
+
             from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu6000
             EFHypoM = EFMultiMuHypo_DiMu6000("EFMultiMuHypo_EFBeeM6000")    # 
-            EFHypoM.bphysCollectionKey = "EFEMultiTrkFex_DiE"
+            EFHypoM.bphysCollectionKey = EFFexM.bphysCollectionKey 
             theChainDef.addSequence([EFFexM, EFHypoM],EFTEname+"_eCounter", EFTEname+"_EFMass")
             theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname+"_EFMass"])    
 

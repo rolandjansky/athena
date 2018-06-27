@@ -109,8 +109,8 @@ declareProperty("maxNOutputObject", m_maxNOutputObject  = 5000 ); // set this to
   declareMonitoredVariable("NTrkHighPt_accepted",  m_mon_accepted_highptNTrk); 
   declareMonitoredVariable("NPair_all",           m_mon_NPair); 
   declareMonitoredVariable("NPair_accepted",      m_mon_acceptedNPair); 
-  declareMonitoredVariable("NCombinations_processed",           m_mon_NComb); 
-  declareMonitoredVariable("NCombinations_accepted",      m_mon_acceptedNComb); 
+  declareMonitoredVariable("logNCombinations_processed",           m_mon_NComb); 
+  declareMonitoredVariable("logNCombinations_accepted",      m_mon_acceptedNComb); 
 }
 
 TrigMultiTrkFex::~TrigMultiTrkFex()
