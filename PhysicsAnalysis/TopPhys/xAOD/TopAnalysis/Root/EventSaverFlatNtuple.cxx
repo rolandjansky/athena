@@ -2385,7 +2385,8 @@ namespace top {
             if (event.m_KLFitterResults != nullptr) {
                 validKLFitter = true;
                 m_klfitter_selected = 1;
-                nPermutations = event.m_KLFitterResults->size();
+                //FIXME: there is something strange happening with the KLFitter result... This is a temporary patch
+                nPermutations = event.m_KLFitterResults->size()*( (event.m_KLFitterResults->at(0))->parameters().size());
             }
 
             m_klfitter_selection.resize(nPermutations);
@@ -2508,6 +2509,8 @@ namespace top {
             }
 
             if (validKLFitter) {
+                for (const auto* const klPtr : *event.m_KLFitterResults) 
+std::cout<<"CIAO! SONO KLFITTER IN FLATNTUPLE!!!\n\n\n\n\n\n\nQUESTO E' IL MERAVIGLIOSO HASH!\n\n\n\n"<<klPtr->selectionCode()<<"\n";
                 for (const auto* const klPtr : *event.m_KLFitterResults) {
 std::cout<<"CIAO! SONO KLFITTER IN FLATNTUPLE!!!\n\n\n\n\n\n\nQUESTO E' IL MERAVIGLIOSO HASH!\n\n\n\n"<<klPtr->selectionCode()<<"\n";
                     m_klfitter_selection[iPerm] = "unknown";
@@ -2516,7 +2519,7 @@ std::cout<<"CIAO! SONO KLFITTER IN FLATNTUPLE!!!\n\n\n\n\n\n\nQUESTO E' IL MERAV
 std::cout<<m_config->allSelectionNames()->at(s)<<"->"<<st_hash(m_config->allSelectionNames()->at(s))<<std::endl;
                        if(st_hash(m_config->allSelectionNames()->at(s))==klPtr->selectionCode()){
                           m_klfitter_selection[iPerm] = m_config->allSelectionNames()->at(s);
-                          break;
+                     //     break;
                        }
                     }
 std::cout<<m_klfitter_selection[iPerm]<<std::endl;
@@ -2533,6 +2536,8 @@ std::cout<<m_klfitter_selection[iPerm]<<std::endl;
                     m_klfitter_logLikelihood[iPerm] = klPtr->logLikelihood();
                     m_klfitter_eventProbability[iPerm] = klPtr->eventProbability();
                     m_klfitter_parameters[iPerm] = klPtr->parameters();
+for(int i=0; i<klPtr->parameters().size(); ++i)
+std::cout<<"Parametri: "<<klPtr->parameters().at(i)<<std::endl;
                     m_klfitter_parameterErrors[iPerm] = klPtr->parameterErrors();
 
                     /// Model
@@ -2641,7 +2646,8 @@ std::cout<<m_klfitter_selection[iPerm]<<std::endl;
                     }
 
 
-                    ++iPerm;
+                    //++iPerm;
+                    iPerm+=klPtr->parameters().size();
                 }
 
                 // now take the best permutation and build the tops and the ttbar system!

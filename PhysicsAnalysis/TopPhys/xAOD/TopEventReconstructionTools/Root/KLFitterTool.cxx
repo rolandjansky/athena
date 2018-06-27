@@ -311,14 +311,14 @@ std::cout<<"CIAO SONO IL TUO AMICHEVOLE KLFITTER DI QUARTIERE E LA SELEZIONE E' 
     //   * bool isBtagged : mandatory only if you want to use b-tagging in the fit
 
     // To allow KLFitter to run on multiple non-orthogonal selections, we set/check a decorator
-    std::cout<<"INIZIO TUTTO "<<event.m_info->eventNumber()<<std::endl;
-    if( (event.m_info->isAvailable< int >( "KLFitterHasRun" ) ) ){
+    std::cout<<"INIZIO TUTTO "<<event.m_info->eventNumber()<<" "<<m_selectionName<<std::endl;
+/*    if( (event.m_info->isAvailable< int >( "KLFitterHasRun" ) ) ){
 std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
        if( ( event.m_info->auxdata< int >("KLFitterHasRun") )!=0 ) return StatusCode::SUCCESS;     
        event.m_info->auxdecor< int >( "KLFitterHasRun" ) = 1;
     }
     else event.m_info->auxdecor< int >( "KLFitterHasRun" ) = 1;
-  
+*/  
     KLFitter::Particles * myParticles = new KLFitter::Particles{};
 
     if(m_LHType == "ttbar"){
@@ -438,16 +438,33 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
       ATH_MSG_ERROR( "KLFitter: Error adding MET to fitter..." );
       return StatusCode::FAILURE;
     }    
-    
-    // create the xAOD::KLFitterResultContainer
-    xAOD::KLFitterResultAuxContainer* resultAuxContainer = new xAOD::KLFitterResultAuxContainer{};
-    xAOD::KLFitterResultContainer* resultContainer = new xAOD::KLFitterResultContainer{};
-    resultContainer->setStore( resultAuxContainer );
-    
+    // define StoreGate names
+    std::string outputSGKey("SetMe");
+    if (!event.m_isLoose) {
+      outputSGKey = m_config->sgKeyKLFitter( event.m_hashValue );
+    }
+    if (event.m_isLoose) {
+      outputSGKey = m_config->sgKeyKLFitterLoose( event.m_hashValue );
+    }    
+    std::string outputSGKeyAux = outputSGKey + "Aux.";
+std::cout<<"PRIMAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n\n";
+    // create or retrieve (if existent) the xAOD::KLFitterResultContainer
+    xAOD::KLFitterResultAuxContainer* resultAuxContainer = nullptr;
+    xAOD::KLFitterResultContainer* resultContainer = nullptr;
+    if ((!m_config->KLFitterSaveAllPermutations())||((m_config->KLFitterSaveAllPermutations())&&(!evtStore()->tds()->contains<xAOD::KLFitterResultContainer>(outputSGKey)))){
+std::cout<<"PIPPOPOPPOPOPO\n";
+       resultAuxContainer = new xAOD::KLFitterResultAuxContainer{};
+       resultContainer = new xAOD::KLFitterResultContainer{};
+       resultContainer->setStore( resultAuxContainer );
+    }
+    else
+       top::check(evtStore()->tds()->retrieve(resultContainer,outputSGKey),"KLFitterTools::execute(): can not retrieve xAOD::KLFitterResultContainer from evtStore()");
+std::cout<<"DOPOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\n\n";
     
     // loop over all permutations
     const int nperm = m_myFitter->Permutations()->NPermutations();
     for (int iperm  = 0; iperm < nperm; ++iperm) {
+std::cout<<"CONTIAMO LE PERMUTAZIONI: "<<nperm<<" "<<iperm<<std::endl;
       // Perform the fit
       m_myFitter->Fit(iperm); 
       // create a result 
@@ -657,31 +674,29 @@ std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
     
 
     // Save to StoreGate / TStore
-    std::string outputSGKey("SetMe");
-    if (!event.m_isLoose) {
-      outputSGKey = m_config->sgKeyKLFitter( event.m_hashValue );
-    }
-    if (event.m_isLoose) {
-      outputSGKey = m_config->sgKeyKLFitterLoose( event.m_hashValue );
-    }    
-    
-    std::string outputSGKeyAux = outputSGKey + "Aux.";
     
     // Save all permutations or only the highest event probability?
     
     // Save all
     if (m_config->KLFitterSaveAllPermutations()) {   
-      top::check(evtStore()->tds()->record( resultContainer ,outputSGKey  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultContainer");
-      top::check(evtStore()->tds()->record( resultAuxContainer ,outputSGKeyAux  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultAuxContainer");
+std::cout<<"EHI FINALMENTE SON QUI FELICE FELICISSIMO\n\n\n\n\n\n\n\n\n";
+      if (!evtStore()->tds()->contains<xAOD::KLFitterResultContainer>(outputSGKey)){
+         top::check(evtStore()->tds()->record( resultContainer ,outputSGKey  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultContainer");
+         top::check(evtStore()->tds()->record( resultAuxContainer ,outputSGKeyAux  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultAuxContainer");
+      }
     }
-    
     // Save only the best
-    if (!m_config->KLFitterSaveAllPermutations()) {
-std::cout<<"Son qui!\n";
-      // create the xAOD::KLFitterResultContainer
-      xAOD::KLFitterResultAuxContainer* bestAuxContainer = new xAOD::KLFitterResultAuxContainer{};
-      xAOD::KLFitterResultContainer* bestContainer = new xAOD::KLFitterResultContainer{};
-      bestContainer->setStore( bestAuxContainer );      
+    else{
+      // create ore retrieve the xAOD::KLFitterResultContainer
+      xAOD::KLFitterResultAuxContainer* bestAuxContainer = nullptr;
+      xAOD::KLFitterResultContainer* bestContainer = nullptr;
+      if (!evtStore()->tds()->contains<xAOD::KLFitterResultContainer>(outputSGKey)){
+         bestAuxContainer = new xAOD::KLFitterResultAuxContainer{};
+         bestContainer = new xAOD::KLFitterResultContainer{};
+         bestContainer->setStore( bestAuxContainer );      
+      }
+      else
+         top::check(evtStore()->tds()->retrieve(bestContainer,outputSGKey),"KLFitterTools::execute(): can not retrieve xAOD::KLFitterResultContainer from evtStore()");
       
       for (auto x : *resultContainer) {
         if (x->bestPermutation() == 1) {
@@ -690,14 +705,14 @@ std::cout<<"Son qui!\n";
           bestContainer->push_back( result );
         }
       }
-      top::check(evtStore()->tds()->record( bestContainer ,outputSGKey  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultContainer");
-      top::check(evtStore()->tds()->record( bestAuxContainer ,outputSGKeyAux  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultAuxContainer");
-      
+      if (!evtStore()->tds()->contains<xAOD::KLFitterResultContainer>(outputSGKey)){
+         top::check(evtStore()->tds()->record( bestContainer ,outputSGKey  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultContainer with best permutation");
+         top::check(evtStore()->tds()->record( bestAuxContainer ,outputSGKeyAux  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultAuxContainer with best permutation");
+      }
       // watch out for memory leaks!
       // raw pointers have not been put into a DataVector
       // we still actually own them
       // AnalysisTop will actually do some memory management (which is very wierd and we don't like it) 
-      //TODO why is it here? Shouldn't we delete the best ones?
       delete resultContainer;
       delete resultAuxContainer;
     }
