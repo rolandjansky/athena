@@ -2494,8 +2494,6 @@ def setupMenu():
         ['2mu6_bDimu_novtx_noos_L1LFV-MU6',       'L1_LFV-MU6',     ['L1_2MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
 
         ['2mu6_bJpsimumu_L1LFV-MU6',              'L1_LFV-MU6',     ['L1_2MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
-        ['2mu6_bJpsimumu_L1BPH-2M9-2MU6',                'L1_BPH-2M9-2MU6',     ['L1_2MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
-        ['2mu6_bUpsimumu_L1BPH-8M15-2MU6',              'L1_BPH-8M15-2MU6',     ['L1_2MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
         ['mu6_mu4_bUpsimumu_L1BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-B', 'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-B',['L1_MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
 
         ['2mu4_bBmumu_L1BPH-2M9-2MU4_BPH-0DR15-2MU4',         'L1_BPH-2M9-2MU4_BPH-0DR15-2MU4', ['L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
@@ -3451,11 +3449,13 @@ def setupMenu():
         ['2g3_loose_mb_sptrk_vetombts2in_L1ALFA_ELAS', 'L1_ALFA_ELAS', ['2EM3',''], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1, ['serial', -1, ['2g3_loose', 'mb_sptrk_vetombts2in_L1ALFA_ELAS']]], 
         ['2g3_loose_mb_sptrk_vetombts2in_L1ALFA_SYST', 'L1_ALFA_SYS', ['2EM3',''], ['MinBias'], [ 'RATE:ALFA','BW:Detector'],  -1, ['serial', -1, ['2g3_loose', 'mb_sptrk_vetombts2in_L1ALFA_SYST']]], 
 
-	 
         ['e9_lhvloose_nod0_e5_lhvloose_nod0_bBeexM6000_mu6_nomucomb_L1BPH-0M9-EM7-EM5_MU6',  'L1_BPH-0M9-EM7-EM5_MU6',   ['L1_EM7','L1_EM3','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1,['parallel',-1,[] ]],
         ['e5_lhvloose_nod0_bBeexM6000_mu6_nomucomb_L1BPH-0DR3-EM7J15_MU6',  'L1_BPH-0DR3-EM7J15_MU6',   ['L1_EM7','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1,['parallel',-1,[] ]],
         ['e9_lhvloose_nod0_e5_lhvloose_nod0_bBeexM6000_2mu4_nomucomb_L1BPH-0M9-EM7-EM5_2MU4',  'L1_BPH-0M9-EM7-EM5_2MU4',   ['L1_EM7','L1_EM3','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1,['parallel',-1,[] ]],
         ['e5_lhvloose_nod0_bBeexM6000_2mu4_nomucomb_L1BPH-0DR3-EM7J15_2MU4',  'L1_BPH-0DR3-EM7J15_2MU4',   ['L1_EM7','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1,['parallel',-1,[] ]],
+
+        ['e9_lhvloose_nod0_e5_lhvloose_nod0_bBeexM6000_mu4_nomucomb_L1BPH-0M9-EM7-EM5_MU4',  'L1_BPH-0M9-EM7-EM5_MU4',   ['L1_EM7','L1_EM3','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1,['parallel',-1,[] ]],
+        ['e5_lhvloose_nod0_bBeexM6000_mu4_nomucomb_L1BPH-0DR3-EM7J15_MU4',  'L1_BPH-0DR3-EM7J15_MU4',   ['L1_EM7','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1,['parallel',-1,[] ]],
 			 ]
 
 
