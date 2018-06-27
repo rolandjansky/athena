@@ -23,14 +23,12 @@ namespace top{
     m_bTagCutValue(9999.9), 
     m_transferFunctionsPathPrefix("SetMe"),
     m_transferFunctionsPath("SetMe"),
-    m_selectionName("SetMe"),
     m_leptonType("SetMe"),
     m_LHType("SetMe"),
     m_myFitter(nullptr)
   {
     declareProperty( "config" , m_config , "Set the configuration" );
     declareProperty( "LeptonType", m_leptonType = "kUndefined" , "Define the lepton type" );
-    declareProperty( "SelectionName", m_selectionName = "kUndefined" , "Define the name of the selection" );
     declareProperty( "LHType",     m_LHType = "kUndefined" , "Define the Likelihood type" );
   }
   
@@ -259,7 +257,6 @@ namespace top{
     
     // 6) Figure out the b tagging working point
     // All the blame for this horrible code rests with the b-tagging people
-    //TODO: if we pass the desided btagging algorithm as a long string, we can allow multiple b-tagging algorithms definitions!
     if (m_config->bTagWP_available().size() != 1) {
       ATH_MSG_INFO(m_config->bTagWP_available().size()<<" b-tagging WP - cannot pick b-jets. Please select only 1 WP if you are using KLFitter");
     }
@@ -309,12 +306,17 @@ namespace top{
     // - for jets:
     //   * bool isBtagged : mandatory only if you want to use b-tagging in the fit
 
-/*
-    FIXME: this may be useful to cache results, that's why I am not deleting this piece of commented code
-           maybe we could concatenate the full KLFitter selection and then calculate an hash...
-    if( (event.m_info->isAvailable< int >( "KLFitterHasRun" ) ) )
+
+    // To allow KLFitter to run on multiple non-orthogonal selections, we set/check a decorator
+    std::cout<<event.m_info->eventNumber()<<std::endl;
+    if( (event.m_info->isAvailable< int >( "KLFitterHasRun" ) ) ){
+std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
        if( ( event.m_info->auxdata< int >("KLFitterHasRun") )!=0 ) return StatusCode::SUCCESS;     
-*/  
+       event.m_info->auxdecor< int >( "KLFitterHasRun" ) = 1;
+    }
+    else event.m_info->auxdecor< int >( "KLFitterHasRun" ) = 1;
+
+  
     KLFitter::Particles * myParticles = new KLFitter::Particles{};
 
     if(m_LHType == "ttbar"){
@@ -434,25 +436,12 @@ namespace top{
       ATH_MSG_ERROR( "KLFitter: Error adding MET to fitter..." );
       return StatusCode::FAILURE;
     }    
-    // define StoreGate names
-    std::string outputSGKey("SetMe");
-    if (!event.m_isLoose) {
-      outputSGKey = m_config->sgKeyKLFitter( event.m_hashValue );
-    }
-    if (event.m_isLoose) {
-      outputSGKey = m_config->sgKeyKLFitterLoose( event.m_hashValue );
-    }    
-    std::string outputSGKeyAux = outputSGKey + "Aux.";
-    // create or retrieve (if existent) the xAOD::KLFitterResultContainer
-    xAOD::KLFitterResultAuxContainer* resultAuxContainer = nullptr;
-    xAOD::KLFitterResultContainer* resultContainer = nullptr;
-    if ((!m_config->KLFitterSaveAllPermutations())||((m_config->KLFitterSaveAllPermutations())&&(!evtStore()->tds()->contains<xAOD::KLFitterResultContainer>(outputSGKey)))){
-       resultAuxContainer = new xAOD::KLFitterResultAuxContainer{};
-       resultContainer = new xAOD::KLFitterResultContainer{};
-       resultContainer->setStore( resultAuxContainer );
-    }
-    else
-       top::check(evtStore()->tds()->retrieve(resultContainer,outputSGKey),"KLFitterTools::execute(): can not retrieve xAOD::KLFitterResultContainer from evtStore()");
+    
+    // create the xAOD::KLFitterResultContainer
+    xAOD::KLFitterResultAuxContainer* resultAuxContainer = new xAOD::KLFitterResultAuxContainer{};
+    xAOD::KLFitterResultContainer* resultContainer = new xAOD::KLFitterResultContainer{};
+    resultContainer->setStore( resultAuxContainer );
+    
     
     // loop over all permutations
     const int nperm = m_myFitter->Permutations()->NPermutations();
@@ -462,10 +451,6 @@ namespace top{
       // create a result 
       xAOD::KLFitterResult* result = new xAOD::KLFitterResult{};
       resultContainer->push_back( result );
-
-      //Set name hash. This is because it seems std::string is not supported by AuxContainers...
-      std::hash<std::string> hash_string;
-      result->setSelectionCode( hash_string(m_selectionName) );
       
       unsigned int ConvergenceStatusBitWord = m_myFitter->ConvergenceStatus();
       bool MinuitDidNotConverge = (ConvergenceStatusBitWord & m_myFitter->MinuitDidNotConvergeMask) != 0;
@@ -666,28 +651,33 @@ namespace top{
     
 
     // Save to StoreGate / TStore
+    std::string outputSGKey("SetMe");
+    if (!event.m_isLoose) {
+      outputSGKey = m_config->sgKeyKLFitter( event.m_hashValue );
+    }
+    if (event.m_isLoose) {
+      outputSGKey = m_config->sgKeyKLFitterLoose( event.m_hashValue );
+    }    
+    
+    std::string outputSGKeyAux = outputSGKey + "Aux.";
     
     // Save all permutations or only the highest event probability?
     
     // Save all
     if (m_config->KLFitterSaveAllPermutations()) {   
-      if (!evtStore()->tds()->contains<xAOD::KLFitterResultContainer>(outputSGKey)){
-         top::check(evtStore()->tds()->record( resultContainer ,outputSGKey  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultContainer");
-         top::check(evtStore()->tds()->record( resultAuxContainer ,outputSGKeyAux  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultAuxContainer");
-      }
+      xAOD::TReturnCode save = evtStore()->tds()->record( resultContainer ,outputSGKey  );
+      xAOD::TReturnCode saveAux = evtStore()->tds()->record( resultAuxContainer , outputSGKeyAux );
+      if( !save || !saveAux ){
+        return StatusCode::FAILURE;
+      }    
     }
+    
     // Save only the best
-    else{
-      // create ore retrieve the xAOD::KLFitterResultContainer
-      xAOD::KLFitterResultAuxContainer* bestAuxContainer = nullptr;
-      xAOD::KLFitterResultContainer* bestContainer = nullptr;
-      if (!evtStore()->tds()->contains<xAOD::KLFitterResultContainer>(outputSGKey)){
-         bestAuxContainer = new xAOD::KLFitterResultAuxContainer{};
-         bestContainer = new xAOD::KLFitterResultContainer{};
-         bestContainer->setStore( bestAuxContainer );      
-      }
-      else
-         top::check(evtStore()->tds()->retrieve(bestContainer,outputSGKey),"KLFitterTools::execute(): can not retrieve xAOD::KLFitterResultContainer from evtStore()");
+    if (!m_config->KLFitterSaveAllPermutations()) {
+      // create the xAOD::KLFitterResultContainer
+      xAOD::KLFitterResultAuxContainer* bestAuxContainer = new xAOD::KLFitterResultAuxContainer{};
+      xAOD::KLFitterResultContainer* bestContainer = new xAOD::KLFitterResultContainer{};
+      bestContainer->setStore( bestAuxContainer );      
       
       for (auto x : *resultContainer) {
         if (x->bestPermutation() == 1) {
@@ -696,10 +686,13 @@ namespace top{
           bestContainer->push_back( result );
         }
       }
-      if (!evtStore()->tds()->contains<xAOD::KLFitterResultContainer>(outputSGKey)){
-         top::check(evtStore()->tds()->record( bestContainer ,outputSGKey  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultContainer with best permutation");
-         top::check(evtStore()->tds()->record( bestAuxContainer ,outputSGKeyAux  ),"KLFitterTools: ERROR! Was not able to write KLFitterResultAuxContainer with best permutation");
-      }
+      
+      xAOD::TReturnCode save = evtStore()->tds()->record( bestContainer ,outputSGKey  );
+      xAOD::TReturnCode saveAux = evtStore()->tds()->record( bestAuxContainer , outputSGKeyAux );
+      if( !save || !saveAux ){
+        return StatusCode::FAILURE;
+      }       
+      
       // watch out for memory leaks!
       // raw pointers have not been put into a DataVector
       // we still actually own them
@@ -743,9 +736,8 @@ namespace top{
    xAOD::JetContainer jets;
    xAOD::JetAuxContainer jetsAux;
    jets.setStore( &jetsAux );
-   xAOD::Jet* jet_copy = new xAOD::Jet();
+   xAOD::Jet* jet_copy = new xAOD::Jet(jet);
    jets.push_back(jet_copy);
-   *jet_copy = jet;
    //treat jet as b-tagged
    jet_copy->setAttribute("HadronConeExclTruthLabelID", 5);
    top::check(m_btagging_eff_tool->getMCEfficiency(*jet_copy, *efficiency),
@@ -808,14 +800,11 @@ namespace top{
     return setJetskLeadingX(event, inputParticles, 7);
   }
 
-  bool KLFitterTool::setJetskLeadingX(const top::Event& event,KLFitter::Particles* inputParticles, const unsigned int njets)
+  bool KLFitterTool::setJetskLeadingX(const top::Event& event,KLFitter::Particles* inputParticles, int njets)
   {
-    unsigned int index(0);
+    int index(0);
     //If container has less jets than required, raise error
-    if(event.m_jets.size()<njets){
-       std::cout<<"KLFitterTool::setJetskLeadingX: You required "<<njets<<" jets. Event has "<<event.m_jets.size()<<" jets!\n";
-       return false;
-    }
+    if(event.m_jets->size()<njets) return false;
     for (const auto& jet : event.m_jets) {
       if (index > njets-1) break;
 
@@ -867,10 +856,7 @@ namespace top{
     // If your 6th or 7th jet is a b jet, then you probably want this option                                                                                                    
 
     //If container has less jets than required, raise error
-    if(event.m_jets.size()<maxJets){
-       std::cout<<"KLFitterTool::setJetskBtagPriority: You required "<<maxJets<<" jets. Event has "<<event.m_jets.size()<<" jets!\n";
-       return false;
-    }
+    if(event.m_jets->size()<njets) return false;
 
     unsigned int totalJets(0);
 
