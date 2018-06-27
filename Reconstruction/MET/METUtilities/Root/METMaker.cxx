@@ -38,6 +38,8 @@
 
 namespace met {
 
+  ANA_MSG_SOURCE (msgMET, "MetUtilities")
+
   using std::vector;
 
   using xAOD::MissingET;
@@ -1121,10 +1123,12 @@ namespace met {
 
   // **** Sum up MET terms ****
 
-  StatusCode METMaker::buildMETSum(const std::string& totalName,
-				   xAOD::MissingETContainer* metCont,
-				   MissingETBase::Types::bitmask_t softTermsSource)
+  StatusCode buildMETSum(const std::string& totalName,
+                         xAOD::MissingETContainer* metCont,
+                         MissingETBase::Types::bitmask_t softTermsSource)
   {
+    using namespace msgMET;
+
     ATH_MSG_DEBUG("Build MET total: " << totalName);
 
     MissingET* metFinal = nullptr;
@@ -1155,12 +1159,20 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
+  StatusCode METMaker::buildMETSum(const std::string& totalName,
+				   xAOD::MissingETContainer* metCont,
+				   MissingETBase::Types::bitmask_t softTermsSource)
+  {
+    return met::buildMETSum (totalName, metCont, softTermsSource);
+  }
+
   //this is used to not create a private store
   //it puts the given new MET object into the container
-  StatusCode METMaker::fillMET(xAOD::MissingET *& met,
+  StatusCode fillMET(xAOD::MissingET *& met,
 			       xAOD::MissingETContainer * metCont,
 			       const std::string& metKey,
 			       const MissingETBase::Types::bitmask_t metSource){
+    using namespace msgMET;
     if(met != nullptr){
       ATH_MSG_ERROR("You can't fill a filled MET value");
       return StatusCode::FAILURE;
@@ -1181,6 +1193,12 @@ namespace met {
     met->setSource(metSource);
 
     return StatusCode::SUCCESS;
+  }
+  StatusCode METMaker::fillMET(xAOD::MissingET *& met,
+			       xAOD::MissingETContainer * metCont,
+			       const std::string& metKey,
+			       const MissingETBase::Types::bitmask_t metSource){
+    return met::fillMET (met, metCont, metKey, metSource);
   }
 
   // Accept Track
