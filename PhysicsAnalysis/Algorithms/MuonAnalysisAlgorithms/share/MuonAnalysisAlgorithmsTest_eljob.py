@@ -71,6 +71,18 @@ for alg in muonSequence:
     job.algsAdd( alg )
     pass
 
+# Add an ntuple dumper algorithm:
+ntupleMaker = AnaAlgorithmConfig( 'CP::AsgxAODNTupleMakerAlg/NTupleMaker' )
+ntupleMaker.TreeName = 'muons'
+ntupleMaker.Branches = [ 'EventInfo.runNumber     -> runNumber',
+                         'EventInfo.eventNumber   -> eventNumber',
+                         'AnalysisMuons_NOSYS.eta -> mu_eta',
+                         'AnalysisMuons_NOSYS.phi -> mu_phi',
+                         'AnalysisMuons_%SYS%.pt  -> mu_%SYS%_pt', ]
+ntupleMaker.systematicsRegex = '(^MUON_.*)'
+job.algsAdd( ntupleMaker )
+job.outputAdd( ROOT.EL.OutputStream( 'ANALYSIS' ) )
+
 # Find the right output directory:
 submitDir = options.submission_dir
 if options.unit_test:
