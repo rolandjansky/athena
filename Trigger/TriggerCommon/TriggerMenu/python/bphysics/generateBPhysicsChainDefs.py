@@ -1614,7 +1614,7 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
     #L2ChainName = "L2_" + chainDict['chainName']
     #EFChainName = "EF_" + chainDict['chainName']
     topoAlgs = chainDict["topo"]
-    TEname = findL2teBaseName(chainDict['chainName'],topoAlgs)
+    #TEname = findL2teBaseName(chainDict['chainName'],topoAlgs)
     
     myTopoString = ''
     for mtopo in topoAlgs:
