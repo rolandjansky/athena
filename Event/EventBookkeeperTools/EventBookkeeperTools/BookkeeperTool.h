@@ -61,8 +61,6 @@ private:
   StatusCode updateContainer( xAOD::CutBookkeeperContainer* contToUpdate,
                               const xAOD::CutBookkeeperContainer* otherCont );
 
-  StatusCode copyContainerToOutput(const SG::SourceID& sid = "Serial", const std::string& outname = "");
-
   StatusCode initOutputContainer(const std::string& sgkey);
 
   StatusCode buildAthenaInterface(const std::string& inputName,
