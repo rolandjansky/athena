@@ -385,7 +385,11 @@ namespace MuonGM {
   inline double MuonChannelDesign::channelWidth( Amg::Vector2D /*pos*/ ) const {
     // TODO : calculate for TGCs
 
-    return inputWidth;
+   // sTGC block:     
+    if (type==MuonChannelDesign::etaStrip && inputPitch == 3.2) return inputPitch; // if sTGC strips return 3.2mm which is stored as pitch, not width (2.7mm)     
+    if (type==MuonChannelDesign::phiStrip && inputPitch == 1.8 && groupWidth == 20) // if sTGC wires        
+      return groupWidth * inputPitch; // if sTGC wires return width of full wire group     else return inputWidth;
+    else return inputWidth;
 
   }
 
