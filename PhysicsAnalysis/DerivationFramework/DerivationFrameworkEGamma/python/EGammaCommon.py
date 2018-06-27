@@ -298,7 +298,7 @@ if  rec.doTruth():
     EGAugmentationTools.append(TruthEgptIsolationTool)
     
     # Compute the truth-particle-level energy density in the central eta region
-    from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAlg
+    from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAthAlg
     from JetRec.JetRecStandard import jtm
     tc=configEventDensityTool("EDTruthCentralTool", jtm.truthget,
                               0.5,
@@ -321,8 +321,8 @@ if  rec.doTruth():
     # Schedule the two energy density tools for running
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
-    topSequence += EventDensityAlg("EDTruthCentralAlg", EventDensityTool = tc )
-    topSequence += EventDensityAlg("EDTruthForwardAlg", EventDensityTool = tf )
+    topSequence += EventDensityAthAlg("EDTruthCentralAlg", EventDensityTool = tc )
+    topSequence += EventDensityAthAlg("EDTruthForwardAlg", EventDensityTool = tf )
 
 
 #=======================================
