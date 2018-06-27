@@ -32,6 +32,8 @@ class TauIDVarCalculator: public TauRecToolBase
 
   virtual StatusCode execute(xAOD::TauJet&);
 
+  virtual StatusCode executeCaloClus(xAOD::TauJet&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
+
   virtual StatusCode finalize();
 
   static const float LOW_NUMBER;

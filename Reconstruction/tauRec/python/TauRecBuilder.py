@@ -115,10 +115,10 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             tools.append(taualgs.getElectronVetoVars())
             #
             tools.append(taualgs.getTauTrackFilter())
-            #tools.append(taualgs.getTauGenericPi0Cone())
+            tools.append(taualgs.getTauGenericPi0Cone())
             #
-            ### already commented out#tools.append(taualgs.getPi0EflowCreateROI())
-            #tools.append(taualgs.getTauShotFinder()) 
+            #tools.append(taualgs.getPi0EflowCreateROI())
+            tools.append(taualgs.getTauShotFinder()) 
             #if self.doPi0Clus:
             #    tools.append(taualgs.getPi0ClusterFinder())
 

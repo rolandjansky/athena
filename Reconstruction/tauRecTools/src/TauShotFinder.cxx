@@ -42,11 +42,7 @@ using std::string;
 TauShotFinder::TauShotFinder(   const string& name ) :
     TauRecToolBase(name)
     , m_caloWeightTool("H1WeightToolCSC12Generic")
-    , m_caloCellContainerName("AllCalo")
-    , m_shotClusterContainer(NULL)
-    , m_shotClusterContainerName("TauShotClusters")
     , m_PFOShotContainer(0)
-    , m_shotPFOContainerName("TauShotParticleFlowObjects")
     , m_PFOShotAuxStore(0)
     , m_calo_dd_man(NULL)
     , m_calo_id(NULL)
@@ -55,9 +51,6 @@ TauShotFinder::TauShotFinder(   const string& name ) :
     , m_pt5(0)
 {
     declareProperty("CaloWeightTool", m_caloWeightTool);
-    declareProperty("CaloCellContainerName", m_caloCellContainerName); 
-    declareProperty("ShotClusterContainerName", m_shotClusterContainerName);
-    declareProperty("ShotPFOContainerName",  m_shotPFOContainerName);
 //    declareProperty("ReaderOption",          m_readerOption);
 //    declareProperty("BDTWeightFile_barrel",  m_weightfile_barrel);
 //    declareProperty("BDTWeightFile_endcap1", m_weightfile_endcap1);
@@ -80,6 +73,9 @@ StatusCode TauShotFinder::initialize() {
     // retrieve tools
     ATH_MSG_DEBUG( "Retrieving tools" );
     CHECK( m_caloWeightTool.retrieve() );
+
+    ATH_CHECK( m_caloCellInputContainer.initialize() );
+    ATH_CHECK( m_tauPFOOutputContainer.initialize() );
 
     // initialize calo cell geo
     m_calo_dd_man  = CaloDetDescrManager::instance();
@@ -131,27 +127,20 @@ StatusCode TauShotFinder::finalize()
 
 StatusCode TauShotFinder::eventInitialize() {
 
-    //---------------------------------------------------------------------
-    // Create Shot ClusterContainer and register in StoreGate
-    //---------------------------------------------------------------------
-    m_shotClusterContainer = CaloClusterStoreHelper::makeContainer(&*evtStore(),   
-								 m_shotClusterContainerName,    
-								 msg()                  
-								 );
+  // Shot cluster container created in TauProcessorAlg    
 
-    //---------------------------------------------------------------------
-    // Create Shot PFO container
-    //---------------------------------------------------------------------
-    m_PFOShotContainer = new xAOD::PFOContainer();
-    CHECK( evtStore()->record(m_PFOShotContainer, m_shotPFOContainerName ) );
-    m_PFOShotAuxStore = new xAOD::PFOAuxContainer();
-    CHECK( evtStore()->record( m_PFOShotAuxStore, m_shotPFOContainerName + "Aux." ) );
-    m_PFOShotContainer->setStore(m_PFOShotAuxStore);
+  //---------------------------------------------------------------------
+  // Create Shot PFO container
+  //---------------------------------------------------------------------
+  m_PFOShotContainer = new xAOD::PFOContainer();
+  m_PFOShotAuxStore = new xAOD::PFOAuxContainer();
+  m_PFOShotContainer->setStore(m_PFOShotAuxStore); 
 
-    return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
+
 }
 
-StatusCode TauShotFinder::execute(xAOD::TauJet& pTau) {
+StatusCode TauShotFinder::executeCaloClus(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& tauShotClusterContainer) {
 
     // Any tau needs to have shot PFO vectors. Set empty vectors before nTrack cut
     vector<ElementLink<xAOD::PFOContainer> > empty;
@@ -170,8 +159,13 @@ StatusCode TauShotFinder::execute(xAOD::TauJet& pTau) {
     // retrieve cells around tau 
     //---------------------------------------------------------------------
     // get all calo cell container
+    SG::ReadHandle<CaloCellContainer> caloCellInHandle( m_caloCellInputContainer );
+    if (!caloCellInHandle.isValid()) {
+      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << caloCellInHandle.key());
+      return StatusCode::FAILURE;
+    }
     const CaloCellContainer *pCellContainer = NULL;
-    CHECK( evtStore()->retrieve(pCellContainer, m_caloCellContainerName) );
+    pCellContainer = caloCellInHandle.cptr();
     
     // get only EM cells within dR<0.2
     // TODO: might be possible to select only EM1 cells, but probbaly wont 
@@ -280,7 +274,7 @@ StatusCode TauShotFinder::execute(xAOD::TauJet& pTau) {
         for( ; cellItr!=windowNeighbours.end(); ++cellItr)
             shotCluster->addCell(pCellContainer->findIndex((*cellItr)->caloDDE()->calo_hash()),1.0);
         CaloClusterKineHelper::calculateKine(shotCluster,true,true);
-        m_shotClusterContainer->push_back(shotCluster);
+        tauShotClusterContainer.push_back(shotCluster);
         
         // create shot PFO and store it in output container
         xAOD::PFO* shot = new xAOD::PFO();
@@ -310,7 +304,7 @@ StatusCode TauShotFinder::execute(xAOD::TauJet& pTau) {
         shot->setCenterMag( (float) center_mag);
         
         ElementLink<xAOD::CaloClusterContainer> clusElementLink;
-        clusElementLink.toContainedElement( *m_shotClusterContainer, shotCluster );
+        clusElementLink.toContainedElement( tauShotClusterContainer, shotCluster );
         shot->setClusterLink( clusElementLink );
         shot->setAttribute<int>(xAOD::PFODetails::PFOAttributes::tauShots_nCellsInEta, m_nCellsInEta);
         shot->setAttribute<int>(xAOD::PFODetails::PFOAttributes::tauShots_seedHash, seedHash);
@@ -421,12 +415,12 @@ StatusCode TauShotFinder::execute(xAOD::TauJet& pTau) {
 }
 
 StatusCode TauShotFinder::eventFinalize() {
-    CHECK( CaloClusterStoreHelper::finalizeClusters(&*evtStore(),
-                            m_shotClusterContainer,
-                            m_shotClusterContainerName,
-                            msg()) );
+    
+  SG::WriteHandle<xAOD::PFOContainer> tauPFOHandle( m_tauPFOOutputContainer );
+  ATH_MSG_DEBUG("  write: " << tauPFOHandle.key() << " = " << "..." );
+  ATH_CHECK(tauPFOHandle.record(std::unique_ptr<xAOD::PFOContainer>{m_PFOShotContainer}, std::unique_ptr<xAOD::PFOAuxContainer>{m_PFOShotAuxStore}));
 
-    return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 std::vector<const CaloCell*> TauShotFinder::getNeighbours(const CaloCellContainer* pCellContainer, 

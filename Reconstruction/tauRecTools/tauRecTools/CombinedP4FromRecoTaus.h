@@ -72,6 +72,7 @@ class CombinedP4FromRecoTaus
   bool GetUseCaloPtFlag(const xAOD::TauJet* tau);
 
   StatusCode execute(xAOD::TauJet& xTau); 
+  StatusCode executeCaloClus(xAOD::TauJet&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
 
  private:
   /*std::vector< std::vector<TH1F*> >  m_resHists_tauRec;

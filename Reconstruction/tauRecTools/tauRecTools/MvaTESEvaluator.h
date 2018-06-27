@@ -24,6 +24,7 @@ class MvaTESEvaluator
   StatusCode initialize();
   StatusCode eventInitialize();
   StatusCode execute(xAOD::TauJet& xTau);
+  StatusCode executeCaloClus(xAOD::TauJet&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
   StatusCode finalize() { delete m_reader; return StatusCode::SUCCESS;}
   
  private:

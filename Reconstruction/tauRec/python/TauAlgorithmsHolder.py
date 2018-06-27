@@ -490,16 +490,18 @@ def getTauShotFinder():
     
     from tauRecTools.tauRecToolsConf import TauShotFinder
     TauShotFinder = TauShotFinder(name = _name,
-        CaloWeightTool = getCellWeightTool(),
-        #ReaderOption = "Silent:!Color",
-        #BDTWeightFile_barrel =  "TauShotsBDTWeights.xml",
-        #BDTWeightFile_endcap1 = "TauShotsBDTWeights.xml",
-        #BDTWeightFile_endcap2 = "TauShotsBDTWeights.xml",
-        NCellsInEta           = 5,
-        MinPtCut              = shotPtCut_1Photon,
-        AutoDoubleShotCut     = shotPtCut_2Photons,
-        MergedBDTScoreCut     = (-9999999.,-9999999.,-9999999.,-9999999.,-9999999.),
-        )
+                                  CaloWeightTool = getCellWeightTool(),
+                                  #ReaderOption = "Silent:!Color",
+                                  #BDTWeightFile_barrel =  "TauShotsBDTWeights.xml",
+                                  #BDTWeightFile_endcap1 = "TauShotsBDTWeights.xml",
+                                  #BDTWeightFile_endcap2 = "TauShotsBDTWeights.xml",
+                                  NCellsInEta           = 5,
+                                  MinPtCut              = shotPtCut_1Photon,
+                                  AutoDoubleShotCut     = shotPtCut_2Photons,
+                                  MergedBDTScoreCut     = (-9999999.,-9999999.,-9999999.,-9999999.,-9999999.),
+                                  Key_caloCellInputContainer="AllCalo",
+                                  Key_tauPFOOutputContainer="TauShotParticleFlowObjects"
+                                  )
     cached_instances[_name] = TauShotFinder
     return TauShotFinder
 

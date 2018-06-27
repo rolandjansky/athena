@@ -25,6 +25,7 @@ class LockTauContainers : public TauRecToolBase
         virtual StatusCode initialize();
         virtual StatusCode finalize();  
         virtual StatusCode execute(xAOD::TauJet&)      { return StatusCode::SUCCESS; }
+	virtual StatusCode executeCaloClus(xAOD::TauJet&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
         virtual StatusCode eventFinalize();
 	virtual StatusCode eventInitialize() { return StatusCode::SUCCESS; }
 

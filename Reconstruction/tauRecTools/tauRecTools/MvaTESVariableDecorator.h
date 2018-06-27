@@ -23,6 +23,7 @@ class MvaTESVariableDecorator
     
   StatusCode eventInitialize();
   StatusCode execute(xAOD::TauJet& xTau);
+  StatusCode executeCaloClus(xAOD::TauJet&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
   StatusCode eventFinalize();
   
  private:

@@ -38,6 +38,7 @@ class ITauToolBase : virtual public asg::IAsgTool
   //! Execute - called for each tau candidate
   //-----------------------------------------------------------------
   virtual StatusCode execute(xAOD::TauJet& pTau) = 0;
+  virtual StatusCode executeCaloClus(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& tauShotClusterContainer) = 0;
 
   //-----------------------------------------------------------------
   //! Event finalizer - called at the end of each event

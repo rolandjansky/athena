@@ -23,10 +23,11 @@ class TauSubstructureVariables : public TauRecToolBase
 
         TauSubstructureVariables(const std::string& name="TauSubstructureVariables");
 	ASG_TOOL_CLASS2(TauSubstructureVariables, TauRecToolBase, ITauToolBase)
-	
+
         ~TauSubstructureVariables();
 
         virtual StatusCode execute(xAOD::TauJet& pTau);
+	virtual StatusCode executeCaloClus(xAOD::TauJet&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
 
         virtual StatusCode initialize();
         virtual StatusCode finalize();

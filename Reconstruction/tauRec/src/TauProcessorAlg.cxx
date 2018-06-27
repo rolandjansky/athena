@@ -98,6 +98,7 @@ StatusCode TauProcessorAlg::initialize() {
     ATH_CHECK( m_jetInputContainer.initialize() );
     ATH_CHECK( m_tauOutputContainer.initialize() );
     ATH_CHECK( m_tauTrackOutputContainer.initialize() );
+    ATH_CHECK( m_tauShotClusOutputContainer.initialize() );
 
     return StatusCode::SUCCESS;
 }
@@ -198,6 +199,15 @@ StatusCode TauProcessorAlg::execute() {
     const xAOD::JetContainer *pSeedContainer = 0;
     pSeedContainer = jetHandle.cptr();
 
+    // The calo cluster containter must be registered to storegate here, in order to set links in shot finder tool
+    // Will still allow changes to the container within this algorithm
+    SG::WriteHandle<xAOD::CaloClusterContainer> tauShotClusHandle( m_tauShotClusOutputContainer );
+    xAOD::CaloClusterContainer* tauShotClusContainer = new xAOD::CaloClusterContainer();
+    xAOD::CaloClusterAuxContainer* tauShotClusAuxStore = new xAOD::CaloClusterAuxContainer();
+    tauShotClusContainer->setStore(tauShotClusAuxStore);
+    ATH_MSG_DEBUG("  write: " << tauShotClusHandle.key() << " = " << "..." );
+    ATH_CHECK(tauShotClusHandle.record(std::unique_ptr<xAOD::CaloClusterContainer>{tauShotClusContainer}, std::unique_ptr<xAOD::CaloClusterAuxContainer>{tauShotClusAuxStore}));
+
     //---------------------------------------------------------------------                                                        
     // Loop over seeds
     //---------------------------------------------------------------------                                                 
@@ -205,6 +215,7 @@ StatusCode TauProcessorAlg::execute() {
     xAOD::JetContainer::const_iterator itSE = pSeedContainer->end();
 
     ATH_MSG_VERBOSE("Number of seeds in the container: " << pSeedContainer->size());
+    ATH_MSG_INFO("TEST");
     for (; itS != itSE; ++itS) {
 
       const xAOD::Jet *pSeed = (*itS);
@@ -237,7 +248,13 @@ StatusCode TauProcessorAlg::execute() {
       ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
       for (; itT != itTE; ++itT) {
 	ATH_MSG_INFO("ProcessorAlg Invoking tool " << (*itT)->name());
-	sc = (*itT)->execute(*pTau);
+	
+	if ( (*itT)->name().find("ShotFinder") != std::string::npos){
+	  sc = (*itT)->executeCaloClus(*pTau, *tauShotClusContainer);
+	}
+	else {
+	  sc = (*itT)->execute(*pTau);
+	}
 	if (sc.isFailure())
 	  break;
       }

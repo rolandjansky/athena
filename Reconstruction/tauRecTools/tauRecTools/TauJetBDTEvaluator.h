@@ -29,6 +29,7 @@ class TauJetBDTEvaluator
     
   StatusCode initialize();
   StatusCode execute(xAOD::TauJet& xTau);
+  StatusCode executeCaloClus(xAOD::TauJet&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
   StatusCode finalize();// { delete myBdt; delete m_outputVar; return StatusCode::SUCCESS;}
   
  private:

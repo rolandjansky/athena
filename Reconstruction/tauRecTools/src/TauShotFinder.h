@@ -42,7 +42,8 @@ public:
 
     virtual StatusCode initialize();
     virtual StatusCode eventInitialize();
-    virtual StatusCode execute(xAOD::TauJet& pTau);
+    virtual StatusCode executeCaloClus(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& tauShotClusterContainer);
+    virtual StatusCode execute(xAOD::TauJet&){ return StatusCode::SUCCESS; };
     virtual StatusCode eventFinalize();
     virtual StatusCode finalize();
 
@@ -53,19 +54,14 @@ private:
 
     /** @brief tool handles */
     ToolHandle<IHadronicCalibrationTool> m_caloWeightTool;
-
-    /** @brief all calo cell container name */
-    std::string m_caloCellContainerName;
+    
     /** @brief new shot cluster container and name */ 
     xAOD::CaloClusterContainer* m_shotClusterContainer;
-    std::string m_shotClusterContainerName;
 
     /** @brief new shot PFO container and name */
     xAOD::PFOContainer* m_PFOShotContainer;
-    std::string m_shotPFOContainerName;
     xAOD::PFOAuxContainer* m_PFOShotAuxStore;
-
-
+    xAOD::CaloClusterAuxContainer* m_shotClusterAuxStore; 
     /** @brief calo cell navigation */
     const CaloDetDescrManager* m_calo_dd_man;
     const CaloCell_ID* m_calo_id;
@@ -160,6 +156,9 @@ private:
     float G_DELTAPT_MIN;
     */
 
+    SG::ReadHandleKey<CaloCellContainer> m_caloCellInputContainer{this,"Key_caloCellInputContainer", "AllCalo", "input vertex container key"};
+    SG::WriteHandleKey<xAOD::PFOContainer> m_tauPFOOutputContainer{this,"Key_tauPFOOutputContainer", "TauShotParticleFlowObjects", "tau pfo out key"};
+    
 };
 
 #endif	/* TAUSHOTFINDER_H */

@@ -29,6 +29,7 @@ public:
     virtual StatusCode finalize();
     virtual StatusCode eventInitialize();
     virtual StatusCode execute(xAOD::TauJet& pTau);
+    virtual StatusCode executeCaloClus(xAOD::TauJet&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode eventFinalize();
 
     virtual void print() const { }

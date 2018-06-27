@@ -28,6 +28,7 @@ public:
 
     virtual ~TauElectronVetoVariables();
     virtual StatusCode execute(xAOD::TauJet& pTau);
+    virtual StatusCode executeCaloClus(xAOD::TauJet&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode initialize();
     virtual StatusCode finalize();
     virtual StatusCode eventInitialize();
