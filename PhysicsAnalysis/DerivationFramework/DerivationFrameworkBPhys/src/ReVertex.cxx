@@ -142,7 +142,7 @@ StatusCode ReVertex::addBranches() const {
     // retrieve primary vertices
     //----------------------------------------------------
     const xAOD::VertexContainer* pvContainer = nullptr;
-    CHECK(evtStore()->retrieve(pvContainer, m_pvContainerName));
+    ATH_CHECK(evtStore()->retrieve(pvContainer, m_pvContainerName));
 
     if(m_refitPV) {
         //----------------------------------------------------
@@ -152,15 +152,15 @@ StatusCode ReVertex::addBranches() const {
         xAOD::VertexAuxContainer* refPvAuxContainer = nullptr;
         if(evtStore()->contains<xAOD::VertexContainer>(m_refPVContainerName)) {
           // refitted PV container exists. Get it from the store gate
-          CHECK(evtStore()->retrieve(refPvContainer   , m_refPVContainerName       ));
-          CHECK(evtStore()->retrieve(refPvAuxContainer, m_refPVContainerName + "Aux."));
+          ATH_CHECK(evtStore()->retrieve(refPvContainer   , m_refPVContainerName       ));
+          ATH_CHECK(evtStore()->retrieve(refPvAuxContainer, m_refPVContainerName + "Aux."));
         } else {
           // refitted PV container does not exist. Create a new one.
           refPvContainer = new xAOD::VertexContainer;
           refPvAuxContainer = new xAOD::VertexAuxContainer;
           refPvContainer->setStore(refPvAuxContainer);
-          CHECK(evtStore()->record(refPvContainer   , m_refPVContainerName));
-          CHECK(evtStore()->record(refPvAuxContainer, m_refPVContainerName+"Aux."));
+          ATH_CHECK(evtStore()->record(refPvContainer   , m_refPVContainerName));
+          ATH_CHECK(evtStore()->record(refPvAuxContainer, m_refPVContainerName+"Aux."));
         }
 
         if(vtxContainer->size() >0){

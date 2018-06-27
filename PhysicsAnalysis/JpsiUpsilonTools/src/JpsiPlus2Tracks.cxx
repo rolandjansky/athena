@@ -114,7 +114,8 @@ namespace Analysis {
     m_finalDiTrackMassUpper(-1.0),
     m_finalDiTrackMassLower(-1.0),
     m_finalDiTrackPt(-1.0),
-    m_trkDeltaZ(-1.0),m_requiredNMuons(0)
+    m_trkDeltaZ(-1.0),
+    m_requiredNMuons(0)
     {
         declareInterface<JpsiPlus2Tracks>(this);
         declareProperty("pionpionHypothesis",m_pipiMassHyp);
