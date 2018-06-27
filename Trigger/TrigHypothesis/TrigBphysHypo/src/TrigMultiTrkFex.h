@@ -118,8 +118,8 @@ class TrigMultiTrkFex: public HLT::AllTEAlgo  {
   int m_mon_NPair;
   int m_mon_acceptedNPair;
   std::vector<float> m_mon_pairMass;
-  int m_mon_NComb;
-  int m_mon_acceptedNComb;
+  float m_mon_NComb;
+  float m_mon_acceptedNComb;
   
 
 };
