@@ -32,6 +32,13 @@ namespace {
    ///
    /// This is the "standalone implementation" of the function.
    ///
+   /// @param key The name of the container in the event store
+   /// @param evtStore The value of evtStore() from the algorithm
+   /// @param allowMissing Set to @c true to print an error message in case
+   ///                     of a failure
+   /// @param msg Reference to the caller's @c MsgStream object
+   /// @return A pointer to the container if successful, @c nullptr if not
+   ///
    const SG::AuxVectorBase* getVector( const std::string& key,
                                        asg::SgTEvent& evtStore,
                                        bool allowMissing,
@@ -52,6 +59,13 @@ namespace {
    /// Get a standalone xAOD object from the event store
    ///
    /// This is the "standalone implementation" of the function.
+   ///
+   /// @param key The name of the container in the event store
+   /// @param evtStore The value of evtStore() from the algorithm
+   /// @param allowMissing Set to @c true to print an error message in case
+   ///                     of a failure
+   /// @param msg Reference to the caller's @c MsgStream object
+   /// @return A pointer to the container if successful, @c nullptr if not
    ///
    const SG::AuxElement* getElement( const std::string& key,
                                      asg::SgTEvent& evtStore,
@@ -90,6 +104,13 @@ namespace {
    /// Get an xAOD container from the event store
    ///
    /// This is the "Athena implementation" of the function.
+   ///
+   /// @param key The name of the container in the event store
+   /// @param evtStore The value of evtStore() from the algorithm
+   /// @param allowMissing Set to @c true to print an error message in case
+   ///                     of a failure
+   /// @param msg Reference to the caller's @c MsgStream object
+   /// @return A pointer to the container if successful, @c nullptr if not
    ///
    const SG::AuxVectorBase* getVector( const std::string& key,
                                        IProxyDict& evtStore,
@@ -149,6 +170,13 @@ namespace {
    ///
    /// This is the "Athena implementation" of the function.
    ///
+   /// @param key The name of the container in the event store
+   /// @param evtStore The value of evtStore() from the algorithm
+   /// @param allowMissing Set to @c true to print an error message in case
+   ///                     of a failure
+   /// @param msg Reference to the caller's @c MsgStream object
+   /// @return A pointer to the container if successful, @c nullptr if not
+   ///
    const SG::AuxElement* getElement( const std::string& key,
                                      IProxyDict& evtStore,
                                      bool allowMissing,
@@ -207,7 +235,8 @@ namespace {
    /// from SFrame... :-P
    ///
    /// @param typeidType The type name coming from typeid(...).name()
-   /// @return The character describing this type for TTree::Branch(...)
+   /// @param msg The caller's @c MsgStream object
+   /// @return The character describing this type for @c TTree::Branch
    ///
    char rootType( char typeidType, MsgStream& msg ) {
 
@@ -268,6 +297,8 @@ namespace CP {
       // Declare the algorithm's properties.
       declareProperty( "TreeName", m_treeName = "physics",
                        "Name of the tree to write" );
+      declareProperty( "TreeAutoFlush", m_treeAutoFlush = 200,
+                       "AutoFlush value for the output tree" );
       declareProperty( "Branches", m_branches,
                        "Branches to write to the output tree" );
    }
@@ -288,7 +319,7 @@ namespace CP {
                         << "\"" );
          return StatusCode::FAILURE;
       }
-      m_tree->SetAutoFlush( 200 );
+      m_tree->SetAutoFlush( m_treeAutoFlush );
       ATH_MSG_INFO( "Created xAOD->NTuple tree: " << m_treeName );
 
       // Set up the systematics list.
@@ -305,101 +336,8 @@ namespace CP {
 
       // Initialise the processor objects on the first event.
       if( ! m_isInitialized ) {
-
-         // Iterate over the branch specifications.
-         for( const std::string& branchDecl : m_branches ) {
-
-            // The regular expression used to extract the needed info. The logic
-            // is supposed to be:
-            //
-            // (match[1]).(match[2])<any whitespace>-><any whitespace>(match[3])
-            //
-            // Like:
-            //    "Electrons.eta  -> el_eta"
-            //
-            // , where we would pick up "Electrons", "eta" and "el_eta" as the
-            // three words using this regexp.
-            static const std::regex
-               re( "\\s*([\\w%]+)\\.([\\w%]+)\\s*->\\s*([\\w%]+)" );
-
-            // Interpret this branch declaration.
-            std::smatch match;
-            if( ! std::regex_match( branchDecl, match, re ) ) {
-               ATH_MSG_ERROR( "Expression \"" << branchDecl
-                              << "\" doesn't match \"<object>.<variable> ->"
-                                 " <branch>\"" );
-               return StatusCode::FAILURE;
-            }
-
-            // Flag keeping track whether any branch was set up for this rule.
-            bool branchCreated = false;
-
-            // Consider all systematics.
-            auto sysVector = m_systematicsList.systematicsVector();
-            for( const auto& sys : sysVector ) {
-
-               // Event store key for the object under consideration.
-               const std::string key = makeSystematicsName( match[ 1 ], sys );
-               // Auxiliary variable name for the object under consideration.
-               const std::string auxName = makeSystematicsName( match[ 2 ],
-                                                                sys );
-               // Branch name for the variable.
-               const std::string brName = makeSystematicsName( match[ 3 ],
-                                                               sys );
-
-               // Check that we use the %SYS% pattern reasonably in the names.
-               if( ( ( key == match[ 1 ] ) && ( auxName == match[ 2 ] ) &&
-                     ( brName != match[ 3 ] ) ) ||
-                   ( ( ( key != match[ 1 ] ) || ( auxName != match[ 2 ] ) ) &&
-                     ( brName == match[ 3 ] ) ) ) {
-                  ATH_MSG_ERROR( "The systematic variation pattern is used "
-                                 "inconsistently in: \"" << branchDecl
-                                 << "\"" );
-                  return StatusCode::FAILURE;
-               }
-
-               // Decide whether the specified key belongs to a container or
-               // a standalone object.
-               static const bool ALLOW_MISSING = true;
-               if( getVector( key, *( evtStore() ), ALLOW_MISSING,
-                              msg() ) ) {
-                  ATH_CHECK( m_containers[ key ].addBranch( *m_tree,
-                                                            auxName,
-                                                            brName ) );
-                  ATH_MSG_DEBUG( "Writing branch \"" << brName
-                                 << "\" from container/variable \"" << key
-                                 << "." << auxName << "\"" );
-                  branchCreated = true;
-               } else if( getElement( key, *( evtStore() ),
-                                      ALLOW_MISSING, msg() ) ) {
-                  ATH_CHECK( m_elements[ key ].addBranch( *m_tree,
-                                                          auxName,
-                                                          brName ) );
-                  ATH_MSG_DEBUG( "Writing branch \"" << brName
-                                 << "\" from object/variable \"" << key
-                                 << "." << auxName << "\"" );
-                  branchCreated = true;
-               } else {
-                  ATH_MSG_DEBUG( "Container \"" << key
-                                 << "\" not readable for expression: \""
-                                 << branchDecl << "\"" );
-               }
-
-               // If the %SYS% pattern was not used in this setup, then stop
-               // after the first iteration.
-               if( ( key == match[ 1 ] ) && ( auxName == match[ 2 ] ) &&
-                   ( brName == match[ 3 ] ) ) {
-                  break;
-               }
-            }
-
-            // Check if the rule was meaningful or not:
-            if( ! branchCreated ) {
-               ATH_MSG_WARNING( "No branch was created for rule: \""
-                                << branchDecl << "\"" );
-            }
-         }
-
+         // Call the setup function.
+         ATH_CHECK( setupTree() );
          // The processor objects are now set up.
          m_isInitialized = true;
       }
@@ -447,6 +385,107 @@ namespace CP {
    }
 
    StatusCode AsgxAODNTupleMakerAlg::finalize() {
+
+      // Return gracefully.
+      return StatusCode::SUCCESS;
+   }
+
+   StatusCode AsgxAODNTupleMakerAlg::setupTree() {
+
+      // Iterate over the branch specifications.
+      for( const std::string& branchDecl : m_branches ) {
+
+         // The regular expression used to extract the needed info. The logic
+         // is supposed to be:
+         //
+         // (match[1]).(match[2])<any whitespace>-><any whitespace>(match[3])
+         //
+         // Like:
+         //    "Electrons.eta  -> el_eta"
+         //
+         // , where we would pick up "Electrons", "eta" and "el_eta" as the
+         // three words using this regexp.
+         static const std::regex
+            re( "\\s*([\\w%]+)\\.([\\w%]+)\\s*->\\s*([\\w%]+)" );
+
+         // Interpret this branch declaration.
+         std::smatch match;
+         if( ! std::regex_match( branchDecl, match, re ) ) {
+            ATH_MSG_ERROR( "Expression \"" << branchDecl
+                           << "\" doesn't match \"<object>.<variable> ->"
+                           " <branch>\"" );
+            return StatusCode::FAILURE;
+         }
+
+         // Flag keeping track whether any branch was set up for this rule.
+         bool branchCreated = false;
+
+         // Consider all systematics. Not usin CP::SysListHandle::foreach, to
+         // be able to exit the for-loop early if necessary.
+         auto sysVector = m_systematicsList.systematicsVector();
+         for( const auto& sys : sysVector ) {
+
+            // Event store key for the object under consideration.
+            const std::string key = makeSystematicsName( match[ 1 ], sys );
+            // Auxiliary variable name for the object under consideration.
+            const std::string auxName = makeSystematicsName( match[ 2 ],
+                                                             sys );
+            // Branch name for the variable.
+            const std::string brName = makeSystematicsName( match[ 3 ],
+                                                            sys );
+
+            // Check that we use the %SYS% pattern reasonably in the names.
+            if( ( ( key == match[ 1 ] ) && ( auxName == match[ 2 ] ) &&
+                  ( brName != match[ 3 ] ) ) ||
+                ( ( ( key != match[ 1 ] ) || ( auxName != match[ 2 ] ) ) &&
+                  ( brName == match[ 3 ] ) ) ) {
+                  ATH_MSG_ERROR( "The systematic variation pattern is used "
+                                 "inconsistently in: \"" << branchDecl
+                                 << "\"" );
+                  return StatusCode::FAILURE;
+               }
+
+            // Decide whether the specified key belongs to a container or
+            // a standalone object.
+            static const bool ALLOW_MISSING = true;
+            if( getVector( key, *( evtStore() ), ALLOW_MISSING,
+                           msg() ) ) {
+               ATH_CHECK( m_containers[ key ].addBranch( *m_tree,
+                                                         auxName,
+                                                         brName ) );
+               ATH_MSG_DEBUG( "Writing branch \"" << brName
+                              << "\" from container/variable \"" << key
+                              << "." << auxName << "\"" );
+               branchCreated = true;
+            } else if( getElement( key, *( evtStore() ),
+                                   ALLOW_MISSING, msg() ) ) {
+               ATH_CHECK( m_elements[ key ].addBranch( *m_tree,
+                                                       auxName,
+                                                       brName ) );
+               ATH_MSG_DEBUG( "Writing branch \"" << brName
+                              << "\" from object/variable \"" << key
+                              << "." << auxName << "\"" );
+               branchCreated = true;
+            } else {
+               ATH_MSG_DEBUG( "Container \"" << key
+                              << "\" not readable for expression: \""
+                              << branchDecl << "\"" );
+            }
+
+            // If the %SYS% pattern was not used in this setup, then stop
+            // after the first iteration.
+            if( ( key == match[ 1 ] ) && ( auxName == match[ 2 ] ) &&
+                ( brName == match[ 3 ] ) ) {
+               break;
+            }
+         }
+
+         // Check if the rule was meaningful or not:
+         if( ! branchCreated ) {
+            ATH_MSG_WARNING( "No branch was created for rule: \""
+                             << branchDecl << "\"" );
+         }
+      }
 
       // Return gracefully.
       return StatusCode::SUCCESS;
