@@ -10,7 +10,7 @@ from DerivationFrameworkEGamma.EGammaCommon            import *
 from DerivationFrameworkMuons.MuonsCommon              import *
 from DerivationFrameworkFlavourTag.HbbCommon           import *
 from DerivationFrameworkCore.WeightMetadata            import *
-
+from DerivationFrameworkFlavourTag.FlavourTagCommon    import FlavorTagInit
 from JetRec.JetRecFlags import jetFlags
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
