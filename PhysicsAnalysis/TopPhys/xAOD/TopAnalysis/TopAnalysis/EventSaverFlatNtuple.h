@@ -628,6 +628,8 @@ private:
 
     //KLFitter
     short m_klfitter_selected;
+    /// Selection
+    std::vector<std::string> m_klfitter_selection;
     /// Error flags
     std::vector<short> m_klfitter_minuitDidNotConverge;
     std::vector<short> m_klfitter_fitAbortedDueToNaN;
@@ -1180,6 +1182,8 @@ protected:
 
   ///KLFitter
   const short& klfitter_selected() const { return m_klfitter_selected;}
+  /// Selection
+  const std::vector<std::string> klfitter_selection() const { return m_klfitter_selection;}
   /// Error flags
   const std::vector<short>& klfitter_minuitDidNotConverge() const { return m_klfitter_minuitDidNotConverge;}
   const std::vector<short>& klfitter_fitAbortedDueToNaN() const { return m_klfitter_fitAbortedDueToNaN;}

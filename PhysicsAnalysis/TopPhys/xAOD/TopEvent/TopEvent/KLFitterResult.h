@@ -37,7 +37,7 @@ namespace xAOD{
       KLFitterResultAuxContainer();
     private:
       /// Name of selection run
-      std::vector<int> selectionCode;      
+      std::vector<std::size_t> selectionCode;      
 
       /// Error flags
       std::vector<short> minuitDidNotConverge;
@@ -165,9 +165,9 @@ namespace xAOD{
       virtual ~KLFitterResult(){}
       
       /// get selectionName
-      int selectionCode() const;
+      std::size_t selectionCode() const;
       /// set selectionName
-      void setSelectionCode(int);
+      void setSelectionCode(std::size_t);
       
       /// get minuitDidNotConverge
       short minuitDidNotConverge() const;

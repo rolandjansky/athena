@@ -131,7 +131,7 @@ namespace xAOD{
   {        
   } 
 
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , int , selectionCode , setSelectionCode )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , std::size_t , selectionCode , setSelectionCode )
   
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , short , minuitDidNotConverge , setMinuitDidNotConverge )
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , short , fitAbortedDueToNaN , setFitAbortedDueToNaN )

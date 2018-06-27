@@ -830,6 +830,7 @@ namespace top {
                 // If FULL information is requested
                 if( m_config->KLFitterOutput() == "FULL"){
                   /// Debugging information
+                  systematicTree->makeOutputVariable(m_klfitter_selection,"klfitter_selection");
                   systematicTree->makeOutputVariable(m_klfitter_minuitDidNotConverge,"klfitter_minuitDidNotConverge");
                   systematicTree->makeOutputVariable(m_klfitter_fitAbortedDueToNaN,"klfitter_fitAbortedDueToNaN");
                   systematicTree->makeOutputVariable(m_klfitter_atLeastOneFitParameterAtItsLimit,"klfitter_atLeastOneFitParameterAtItsLimit");
@@ -2387,6 +2388,7 @@ namespace top {
                 nPermutations = event.m_KLFitterResults->size();
             }
 
+            m_klfitter_selection.resize(nPermutations);
             m_klfitter_minuitDidNotConverge.resize(nPermutations);
             m_klfitter_fitAbortedDueToNaN.resize(nPermutations);
             m_klfitter_atLeastOneFitParameterAtItsLimit.resize(nPermutations);
@@ -2507,6 +2509,17 @@ namespace top {
 
             if (validKLFitter) {
                 for (const auto* const klPtr : *event.m_KLFitterResults) {
+std::cout<<"CIAO! SONO KLFITTER IN FLATNTUPLE!!!\n\n\n\n\n\n\nQUESTO E' IL MERAVIGLIOSO HASH!\n\n\n\n"<<klPtr->selectionCode()<<"\n";
+                    m_klfitter_selection[iPerm] = "unknown";
+                    std::hash<std::string> st_hash;
+                    for(unsigned int s=0; s<m_config->allSelectionNames()->size(); ++s){
+std::cout<<m_config->allSelectionNames()->at(s)<<"->"<<st_hash(m_config->allSelectionNames()->at(s))<<std::endl;
+                       if(st_hash(m_config->allSelectionNames()->at(s))==klPtr->selectionCode()){
+                          m_klfitter_selection[iPerm] = m_config->allSelectionNames()->at(s);
+                          break;
+                       }
+                    }
+std::cout<<m_klfitter_selection[iPerm]<<std::endl;
                     m_klfitter_minuitDidNotConverge[iPerm] = klPtr->minuitDidNotConverge();
                     m_klfitter_fitAbortedDueToNaN[iPerm] = klPtr->fitAbortedDueToNaN();
                     m_klfitter_atLeastOneFitParameterAtItsLimit[iPerm] = klPtr->atLeastOneFitParameterAtItsLimit();
