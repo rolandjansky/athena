@@ -127,18 +127,19 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             ## TODO: talk with KG about the status of the new PhotonConversionFinder 
             ## new PhotonConversionFinder is currently disabled (time consumption!)
             ## old one is still in use
-            #import tauRec.TauConversionAlgorithms
-            #from tauRec.tauRecFlags import jobproperties
-            #if jobproperties.tauRecFlags.useNewPIDBasedConvFinder():
+            import tauRec.TauConversionAlgorithms
+            from tauRec.tauRecFlags import jobproperties
+            if jobproperties.tauRecFlags.useNewPIDBasedConvFinder():
                 #Needs to run alone
-                #tools.append(tauRec.TauConversionAlgorithms.getTauConversionTaggerTool())
-            #else:
+                tools.append(tauRec.TauConversionAlgorithms.getTauConversionTaggerTool())
+            # are these even used? Probably not any more
+            # else:
                 #Need to run together, they will select either PID or vertex based on another flag
                 #tools.append(tauRec.TauConversionAlgorithms.getPhotonConversionTool())
                 #tools.append(tauRec.TauConversionAlgorithms.getTauConversionFinderTool())
             
-            ##already commented out#tools.append(taualgs.getContainerLock())
-            
+            #tools.append(taualgs.getContainerLock())
+                
             from tauRec.tauRecFlags import tauFlags
             tools+=tauFlags.tauRecToolsDevToolList()
             TauRecConfigured.AddToolsToToolSvc(self, tools)
