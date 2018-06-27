@@ -9,6 +9,8 @@
 
 #include "TopHLUpgrade/UpgradePhotonObjectSelector.h"
 
+#include "TopEvent/EventTools.h"
+
 using namespace top;
 
 UpgradePhotonObjectSelector::UpgradePhotonObjectSelector( Options opt /* = Options() */ )
@@ -16,6 +18,7 @@ UpgradePhotonObjectSelector::UpgradePhotonObjectSelector( Options opt /* = Optio
 
 /* virtual */ bool
 UpgradePhotonObjectSelector::apply( const xAOD::TruthParticle & truthParticle ) {
+  top::check(truthParticle.isAvailable<int>("FakeType"), "missing faketype KF1.6");
 
   // --------------------------------------------------
   // Always require 'reco' to pass
@@ -30,6 +33,7 @@ UpgradePhotonObjectSelector::apply( const xAOD::TruthParticle & truthParticle ) 
   // Apply kinematic cut on the eta:
   //     must be less than or equal to 2.5
   if ( std::abs( truthParticle.eta() ) > m_opt.eta_max ){ return false; }
+  top::check(truthParticle.isAvailable<int>("FakeType"), "missing faketype KF1.7");
 
   // --------------------------------------------------
   // Everything that reaches this point has passed the selection
