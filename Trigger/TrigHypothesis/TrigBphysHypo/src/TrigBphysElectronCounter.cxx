@@ -24,8 +24,8 @@
 // Define the bins for acceptance-monitoring histogram
 #define ACCEPT_hltExecute         0
 #define ACCEPT_PassNElectrons     1
-#define ACCEPT_PassPtcut          2
-#define ACCEPT_PassIsEM           3
+#define ACCEPT_PassPtcut          3
+#define ACCEPT_PassIsEM           2
 
 
 TrigBphysElectronCounter::TrigBphysElectronCounter(const std::string & name, ISvcLocator* pSvcLocator):

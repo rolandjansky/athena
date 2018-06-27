@@ -1649,17 +1649,18 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
     if  'bBeexv2' in topoAlgs  : #  here we have only L2 with MultiTrack doL2MultiTrack :
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Bmumux
         L2Hypo = EFMultiMuHypo_Bmumux("EFMultiMuHypo_Beexv2")    # this Hypo cuts only on mass of Bphys object, so not important to separate muons and electrons
-        L2Hypo.bphysCollectionKey = "MultiTrkFex"
+        L2Hypo.bphysCollectionKey = "MultiTrkFex_DiE"
         
     elif  'bBeexM2700' in topoAlgs  : #  here we have only L2 with MultiTrack doL2MultiTrack :
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu2700
         L2Hypo = EFMultiMuHypo_DiMu2700("EFMultiMuHypo_BeeM2700")    # 
-        L2Hypo.bphysCollectionKey = "MultiTrkFex"
+        L2Hypo.bphysCollectionKey = "MultiTrkFex_DiE"
         
     elif  'bBeexM6000' in topoAlgs or 'bBeexM6000t' in topoAlgs  : #  here we have only L2 with MultiTrack doL2MultiTrack :
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu6000
         L2Hypo = EFMultiMuHypo_DiMu6000("EFMultiMuHypo_BeeM6000")    # 
-        L2Hypo.bphysCollectionKey = "MultiTrkFex"
+        L2Hypo.bphysCollectionKey = "MultiTrkFex_DiE"
+                    
     else :
         log.error( " Unknown Bphysics B->eeX chain "+ chainDict['chainName']+" do not know how to set up")
         return theChainDef
@@ -1713,10 +1714,10 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
             EFFexM = TrigMultiTrkFex_DiE("TrigMultiTrkFex_EFDiE"+fexNameExt) 
             EFFexM.setElectronTrackThresholds( trkelectrons )
             EFFexM.trackCollectionKey = "BphysElectronCounter"
-            EFFexM.outputTrackCollectionKey = "EFEMultiTrkFex"
+            EFFexM.outputTrackCollectionKey = "EFEMultiTrkFex_DiE"
             from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu6000
             EFHypoM = EFMultiMuHypo_DiMu6000("EFMultiMuHypo_EFBeeM6000")    # 
-            EFHypoM.bphysCollectionKey = "MultiTrkFex"
+            EFHypoM.bphysCollectionKey = "EFEMultiTrkFex_DiE"
             theChainDef.addSequence([EFFexM, EFHypoM],EFTEname+"_eCounter", EFTEname+"_EFMass")
             theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname+"_EFMass"])    
 

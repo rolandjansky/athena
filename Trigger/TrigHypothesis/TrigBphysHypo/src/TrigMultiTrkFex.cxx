@@ -109,6 +109,8 @@ declareProperty("maxNOutputObject", m_maxNOutputObject  = 5000 ); // set this to
   declareMonitoredVariable("NTrkHighPt_accepted",  m_mon_accepted_highptNTrk); 
   declareMonitoredVariable("NPair_all",           m_mon_NPair); 
   declareMonitoredVariable("NPair_accepted",      m_mon_acceptedNPair); 
+  declareMonitoredVariable("NCombinations_processed",           m_mon_NComb); 
+  declareMonitoredVariable("NCombinations_accepted",      m_mon_acceptedNComb); 
 }
 
 TrigMultiTrkFex::~TrigMultiTrkFex()
@@ -319,6 +321,8 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
   m_mon_acceptedNPair = 0;
   m_mon_pairMass.clear();
 
+  m_mon_acceptedNComb = 0;
+  m_mon_NComb = 0;
 
     m_mon_Acceptance.push_back( ACCEPT_hltExecute );
     ATH_MSG_DEBUG(" In TrigMultiTrk hltExecute" );
@@ -452,6 +456,8 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
     std::unordered_set<int> index_0;
     index_0.reserve(NtracksTotal);
     do {
+      m_mon_NComb += 1;
+      
       thisIterationTracks.clear();
       thisIterationTracksIndex.clear();
       
@@ -610,9 +616,11 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 	 ATH_MSG_DEBUG("Problems with vertex fit in TrigMultiTrkFex"  );
 	 continue;
        }else{
-	 // check chi2 
+	 // check chi2
+	 float chi2 = xaodobj->fitchi2();
+	 m_mon_NTrkChi2.push_back(chi2);
+	 m_mon_NTrkFitMass.push_back( xaodobj->mass() );
 	 if( m_nTrkVertexChi2 >= 0 ){
-	   float chi2 = xaodobj->fitchi2();
 	   if( chi2 > m_nTrkVertexChi2 ){  
 	     ATH_MSG_DEBUG(" nTrk Vertex chi2  "<< chi2 << " required "<<m_nTrkVertexChi2 << " thus fail" );
 	     //delete created object
@@ -622,9 +630,11 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 	   }else{
 	     ATH_MSG_DEBUG(  " nTrk Vertex chi2  "<< chi2 << " required "<<m_nTrkVertexChi2 << " is good" );
 	     index_0.insert( thisIterationTracksIndex.begin(), thisIterationTracksIndex.end()  );
+	     m_mon_acceptedNComb +=1 ;
 	   }
 	 }else{
 	     index_0.insert( thisIterationTracksIndex.begin(), thisIterationTracksIndex.end()  );    
+	     m_mon_acceptedNComb +=1 ;
 	 }
        } // end of vertexFit.isFailure
 
@@ -642,6 +652,10 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 
     } while (std::prev_permutation(bitmask.begin(), bitmask.end()));
   //------------- end of combination loop
+    if( m_mon_NComb > 0 ) m_mon_NComb = log10(m_mon_NComb);
+    if( m_mon_acceptedNComb > 0 ) m_mon_acceptedNComb = log10(m_mon_acceptedNComb);
+
+    
 
     if(  passHighPtTrack )   m_mon_Acceptance.push_back( ACCEPT_HighPtTrack );
     if(  passNTrkCharge  )   m_mon_Acceptance.push_back( ACCEPT_NTrkCharge  );

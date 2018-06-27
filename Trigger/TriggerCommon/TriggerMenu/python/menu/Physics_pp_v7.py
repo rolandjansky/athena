@@ -2358,7 +2358,7 @@ def setupMenu():
         ['e9_lhloose_bBeexM6000_L1BPH-0DR3-EM7J15',  'L1_BPH-0DR3-EM7J15',   ['L1_EM7'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
 
         # ATR-18361
-        ['e5_lhvloose_nod0_bBeexM6000_L1EM3',  '',   ['L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e5_lhvloose_nod0_bBeexM6000',  '',   ['L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
         ['2e5_lhvloose_nod0_bBeexM6000',  '',   ['L1_EM3','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
 
         	 ]
