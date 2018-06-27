@@ -2607,7 +2607,7 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="309" partition="1" name="L1_AFP_A_AND_C_MBTS_2" complex_deadtime="0" definition="(AFP_NSA[x1]&amp;AFP_FSA_SIT[x1]&amp;AFP_NSC[x1]&amp;AFP_FSC_SIT[x1]&amp;(MBTS_A[x2]|MBTS_C[x2]|MBTS_A[x1])&amp;(MBTS_A[x2]|MBTS_C[x2]|MBTS_C[x1])&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="309" partition="1" name="L1_AFP_A_AND_C_MBTS_2" complex_deadtime="0" definition="(AFP_NSA[x1]&amp;AFP_FSA_SIT[x1]&amp;(AFP_NSC[x1]|AFP_FSC_SIT[x1])&amp;(MBTS_A[x2]|MBTS_C[x2]|MBTS_A[x1])&amp;(MBTS_A[x2]|MBTS_C[x2]|MBTS_C[x1])&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="AFP_NSA_x1" triggerthreshold="AFP_NSA"/>
         <TriggerCondition multi="1" name="AFP_FSA_SIT_x1" triggerthreshold="AFP_FSA_SIT"/>
@@ -3698,10 +3698,12 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="435" partition="1" name="L1_AFP_C_BGRP0" complex_deadtime="0" definition="(AFP_NSC[x1]&amp;AFP_FSC_SIT[x1]&amp;BGRP0)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="435" partition="1" name="L1_AFP_C_BGRP0" complex_deadtime="0" definition="((AFP_NSC[x1]|AFP_FSC_SIT[x1])&amp;BGRP0)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="AFP_NSC_x1" triggerthreshold="AFP_NSC"/>
-        <TriggerCondition multi="1" name="AFP_FSC_SIT_x1" triggerthreshold="AFP_FSC_SIT"/>
+        <OR>
+          <TriggerCondition multi="1" name="AFP_NSC_x1" triggerthreshold="AFP_NSC"/>
+          <TriggerCondition multi="1" name="AFP_FSC_SIT_x1" triggerthreshold="AFP_FSC_SIT"/>
+        </OR>
         <InternalTrigger name="BGRP0"/>
       </AND>
     </TriggerItem>
