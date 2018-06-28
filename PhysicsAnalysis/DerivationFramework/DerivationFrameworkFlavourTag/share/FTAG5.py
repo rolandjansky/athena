@@ -19,9 +19,9 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import (
 
 # JetEtMiss
 from DerivationFrameworkJetEtMiss.JetCommon import (
-    OutputJets, addJetOutputs)
+    OutputJets, addJetOutputs, addSoftDropJets)
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
-    addDefaultTrimmedJets, replaceAODReducedJets)
+    addDefaultTrimmedJets, replaceAODReducedJets, addConstModJets)
 from JetRec.JetRecStandard import jtm
 
 # tracking
@@ -137,6 +137,18 @@ replaceAODReducedJets(reducedJetList,FTAG5Seq,"FTAG5", extendedFlag)
 addDefaultTrimmedJets(FTAG5Seq,"FTAG5",dotruth=True)
 
 #===================================================================
+# Add SoftDrop Jets
+#===================================================================
+
+addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], FTAG5Seq, "FTAG5",
+                ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed")
+addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1,
+                algseq=FTAG5Seq, outputGroup="FTAG5",
+                writeUngroomed=True, mods="lctopo_groomed",
+                constmods=["CS", "SK"])
+
+
+#===================================================================
 # Variable Radius (VR) Jets
 #===================================================================
 
@@ -235,6 +247,17 @@ ghost_counts = ['Ghost' + gp + 'Count' for gp in ghost_particles]
 ghost_pts = ['Ghost' + gp + 'Pt' for gp in ghost_particles]
 FTAG5SlimmingHelper.ExtraVariables.append(
     '.'.join(['AntiKt10LCTopoJets'] + ghost_counts + ghost_pts))
+
+# Also add in some SoftDrip things
+#
+# NOTE: replace with smart collections and CollecitonsOnTheFly
+#
+FTAG5SlimmingHelper.AppendToDictionary = {
+    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets":"xAOD::JetContainer",
+    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux":"xAOD::JetAuxContainer",
+}
+FTAG5SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"]
+
 
 
 FTAG5SlimmingHelper.IncludeMuonTriggerContent = False
