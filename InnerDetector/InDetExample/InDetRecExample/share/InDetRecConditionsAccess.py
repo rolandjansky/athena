@@ -429,13 +429,6 @@ if DetFlags.haveRIO.TRT_on():
     if not conddb.folderRequested('/TRT/Cond/StatusHT'):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT",className='TRTCond::StrawStatusMultChanContainer')
 
-    # DCS Data Folders
-    if (globalflags.InputFormat() == 'bytestream' and globalflags.DataSource() == 'data'):
-        if InDetFlags.useTrtDCS():
-            conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/BARREL <cache>600</cache>")
-            conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/ENDCAPA <cache>600</cache>")
-            conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/ENDCAPC <cache>600</cache>")
-
     # TRT PID tools        
     if not conddb.folderRequested( "/TRT/Calib/PID" ):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID","/TRT/Calib/PID")
