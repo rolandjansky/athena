@@ -41,7 +41,7 @@ protected:
 
 private:
 
-  std::vector<PseudoJet> 
+  std::vector<fastjet::PseudoJet> 
   createPseudoJets(const xAOD::TrackParticleContainer*) const;
 
   const PseudoJetContainer* getC() const;
