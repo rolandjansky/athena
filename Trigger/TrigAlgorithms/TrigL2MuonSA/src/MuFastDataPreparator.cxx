@@ -32,7 +32,7 @@ TrigL2MuonSA::MuFastDataPreparator::MuFastDataPreparator(const std::string& type
   AthAlgTool(type,name,parent),
   m_recRPCRoiSvc("LVL1RPC::RPCRecRoiSvc",""),
   m_options(),
-  m_regionSelector("RegSelSvc", this->name()),
+  m_regionSelector("RegSelSvc", this->name() ),
   m_rpcDataPreparator("TrigL2MuonSA::RpcDataPreparator"),
   m_tgcDataPreparator("TrigL2MuonSA::TgcDataPreparator"),
   m_mdtDataPreparator("TrigL2MuonSA::MdtDataPreparator"),
