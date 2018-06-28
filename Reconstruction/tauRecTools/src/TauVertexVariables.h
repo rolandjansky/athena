@@ -39,7 +39,7 @@ public:
     virtual StatusCode executeCaloClus(xAOD::TauJet&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode eventInitialize();
     virtual StatusCode finalize();
-    virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
+    virtual StatusCode eventFinalize();
 
     virtual void print() const { }
     
@@ -50,8 +50,6 @@ public:
     double trFlightPathSig(const xAOD::TauJet& pTau, const xAOD::Vertex& secVertex);
 
 private:
-    std::string m_primaryVertexKey;
-    std::string m_inputTrackParticleContainerName;
     bool m_AODmode;
     ToolHandle< Trk::ITrackToVertexIPEstimator > m_trackToVertexIPEstimator;
     ToolHandle< Trk::IVertexFitter >     m_fitTool; //!< Pointer to the base class of the fit algtools
@@ -59,6 +57,12 @@ private:
 
     xAOD::VertexContainer* m_pSecVtxContainer;
     xAOD::VertexAuxContainer* m_pSecVtxAuxContainer;
+    
+    SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
+    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackPartInputContainer{this,"Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};
+    SG::WriteHandleKey<xAOD::VertexContainer> m_vertexOutputContainer{this,"Key_vertexOutputContainer", "TauSecondaryVertices", "input vertex container key"};
+
+
 };
 
 #endif	/* TAUREC_TAUVERTEXVARIABLES_H */

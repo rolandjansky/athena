@@ -293,14 +293,15 @@ def getTauVertexVariables():
 
     from tauRecTools.tauRecToolsConf import TauVertexVariables
     TauVertexVariables = TauVertexVariables(  name = _name,
-                                            PrimaryVertexKey  = _DefaultVertexContainer,                                            
-                                            TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
-                                            VertexFitter = getTauAdaptiveVertexFitter(),
-                                            #VertexFitter = "Trk::AdaptiveVertexFitter/InDetAdaptiveVxFitterTool",
-                                            SeedFinder = getTauCrossDistancesSeedFinder(),
-                                            TrackParticleContainer = _DefaultTrackContainer, # ATM only needed in case old API is used
-                                            runOnAOD = bAODmode,
-                                            #OutputLevel = 2                                            
+                                              TrackToVertexIPEstimator = getTauTrackToVertexIPEstimator(),
+                                              VertexFitter = getTauAdaptiveVertexFitter(),
+                                              #VertexFitter = "Trk::AdaptiveVertexFitter/InDetAdaptiveVxFitterTool",
+                                              SeedFinder = getTauCrossDistancesSeedFinder(),
+                                              runOnAOD = bAODmode,
+                                              Key_vertexInputContainer = _DefaultVertexContainer,
+                                              Key_trackPartInputContainer = _DefaultTrackContainer, # ATM only needed in case old API is used
+                                              Key_vertexOutputContainer = "TauSecondaryVertices"
+                                              #OutputLevel = 2                                            
                                               )
     
     cached_instances[_name] = TauVertexVariables    

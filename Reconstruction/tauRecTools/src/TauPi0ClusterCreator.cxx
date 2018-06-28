@@ -295,17 +295,17 @@ StatusCode TauPi0ClusterCreator::eventFinalize()
 
     // write PFO container
     SG::WriteHandle<xAOD::PFOContainer> neutralPFOHandle( m_neutralPFOOutputContainer );
-    ATH_MSG_INFO("  write: " << neutralPFOHandle.key() << " = " << "..." );
+    ATH_MSG_DEBUG("  write: " << neutralPFOHandle.key() << " = " << "..." );
     ATH_CHECK(neutralPFOHandle.record(std::unique_ptr<xAOD::PFOContainer>{m_neutralPFOContainer}, std::unique_ptr<xAOD::PFOAuxContainer>{m_neutralPFOAuxStore}));
 
     // write PFO container
     SG::WriteHandle<xAOD::PFOContainer> hadronicPFOHandle( m_hadronicPFOOutputContainer );
-    ATH_MSG_INFO("  write: " << hadronicPFOHandle.key() << " = " << "..." );
+    ATH_MSG_DEBUG("  write: " << hadronicPFOHandle.key() << " = " << "..." );
     ATH_CHECK(hadronicPFOHandle.record(std::unique_ptr<xAOD::PFOContainer>{m_hadronicClusterPFOContainer}, std::unique_ptr<xAOD::PFOAuxContainer>{m_hadronicClusterPFOAuxStore}));
 
     // write calo cluster
     SG::WriteHandle<xAOD::CaloClusterContainer> pi0ClusHandle( m_pi0ClusterOutputContainer );
-    ATH_MSG_INFO("  write: " << pi0ClusHandle.key() << " = " << "..." );
+    ATH_MSG_DEBUG("  write: " << pi0ClusHandle.key() << " = " << "..." );
     ATH_CHECK(pi0ClusHandle.record(std::unique_ptr<xAOD::CaloClusterContainer>{m_pi0CaloClusterContainer}, std::unique_ptr<xAOD::CaloClusterAuxContainer>{m_pi0CaloClusterAuxContainer}));
   
     return StatusCode::SUCCESS;

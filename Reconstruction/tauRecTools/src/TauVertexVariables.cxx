@@ -26,13 +26,10 @@
 
 TauVertexVariables::TauVertexVariables(const std::string &name ) :
   TauRecToolBase(name),
-  m_primaryVertexKey("PrimaryVertices"),
   m_fitTool("Trk::AdaptiveVertexFitter"),
   m_SeedFinder("Trk::CrossDistancesSeedFinder"),
   m_pSecVtxContainer(0),
   m_pSecVtxAuxContainer(0){
-  declareProperty("PrimaryVertexKey", m_primaryVertexKey);
-  declareProperty("TrackParticleContainer", m_inputTrackParticleContainerName = "InDetTrackParticles");
   declareProperty("TrackToVertexIPEstimator", m_trackToVertexIPEstimator);
   declareProperty("VertexFitter", m_fitTool);
   declareProperty("SeedFinder", m_SeedFinder);
@@ -56,6 +53,10 @@ StatusCode TauVertexVariables::initialize() {
   CHECK( m_fitTool.retrieve() );
   CHECK( m_SeedFinder.retrieve() );
 
+  ATH_CHECK(m_vertexInputContainer.initialize() );
+  ATH_CHECK(m_trackPartInputContainer.initialize() );
+  ATH_CHECK(m_vertexOutputContainer.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -72,12 +73,12 @@ StatusCode TauVertexVariables::eventInitialize() {
 	m_pSecVtxAuxContainer = new xAOD::VertexAuxContainer();
 	m_pSecVtxContainer->setStore( m_pSecVtxAuxContainer );
       
-	CHECK( evtStore()->record( m_pSecVtxContainer, "TauSecondaryVertices" ) );
-	CHECK( evtStore()->record( m_pSecVtxAuxContainer, "TauSecondaryVerticesAux." ) );
+	// CHECK( evtStore()->record( m_pSecVtxContainer, "TauSecondaryVertices" ) );
+	// CHECK( evtStore()->record( m_pSecVtxAuxContainer, "TauSecondaryVerticesAux." ) );
       }
       else {
-	CHECK( evtStore()->retrieve( m_pSecVtxContainer, "TauSecondaryVertices") );
-	CHECK( evtStore()->retrieve( m_pSecVtxAuxContainer, "TauSecondaryVerticesAux.") );
+	// CHECK( evtStore()->retrieve( m_pSecVtxContainer, "TauSecondaryVertices") );
+	// CHECK( evtStore()->retrieve( m_pSecVtxAuxContainer, "TauSecondaryVerticesAux.") );
       }
     }
   
@@ -85,6 +86,14 @@ StatusCode TauVertexVariables::eventInitialize() {
 
 }
 
+StatusCode TauVertexVariables::eventFinalize() {
+
+  SG::WriteHandle<xAOD::VertexContainer> vertOutHandle( m_vertexOutputContainer );
+  ATH_MSG_DEBUG("  write: " << vertOutHandle.key() << " = " << "..." );
+  ATH_CHECK(vertOutHandle.record(std::unique_ptr<xAOD::VertexContainer>{m_pSecVtxContainer}, std::unique_ptr<xAOD::VertexAuxContainer>{m_pSecVtxAuxContainer}));
+  
+  return StatusCode::SUCCESS;
+}
 
 
 //-----------------------------------------------------------------------------
@@ -168,25 +177,23 @@ StatusCode TauVertexVariables::execute(xAOD::TauJet& pTau) {
     return StatusCode::SUCCESS;
   }
 
-  const xAOD::VertexContainer* vxContainer = 0;
-  StatusCode sc=StatusCode::SUCCESS;
-  if (sc.isSuccess() && inTrigger)   sc = tauEventData()->getObject("VxPrimaryCandidate", vxContainer);
   // retrieve vertex container, exit if not found
-  else sc = evtStore()->retrieve(vxContainer, m_primaryVertexKey);
-
-  if (sc.isFailure() || !vxContainer) {
-    ATH_MSG_WARNING("No vertex container found. Skipping secondary vertex fitting.");
-    return StatusCode::SUCCESS;
+  const xAOD::VertexContainer* vxContainer = 0;
+  SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
+  if (!vertexInHandle.isValid()) {
+    ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " <<vertexInHandle.key());
+    return StatusCode::FAILURE;
   }
+  vxContainer = vertexInHandle.cptr();
 
+  // retrieve track particle container, exit if not found 
   const xAOD::TrackParticleContainer* trackParticleCont = 0;
-  if (inTrigger)   sc = tauEventData()->getObject( "TrackContainer", trackParticleCont );
-  // retrieve track particle container, exit if not found
-  else sc = evtStore()->retrieve(trackParticleCont, m_inputTrackParticleContainerName);
-  if (sc.isFailure() || !trackParticleCont) {
-    ATH_MSG_WARNING("No track particle container found. Skipping secondary vertex fitting.");
-    return StatusCode::SUCCESS;
+  SG::ReadHandle<xAOD::TrackParticleContainer> trackPartInHandle( m_trackPartInputContainer );
+  if (!trackPartInHandle.isValid()) {
+    ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " <<trackPartInHandle.key());
+    return StatusCode::FAILURE;
   }
+  trackParticleCont = trackPartInHandle.cptr();
 
   // get xAOD TrackParticles and Trk::Tracks
   std::vector<const xAOD::TrackParticle*> xaodTracks;

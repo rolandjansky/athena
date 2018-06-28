@@ -146,6 +146,14 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
 
             ###############################
 
+            ### TauRecVariablesProcessor ###
+            # Tools in this section were originally in TauRecVariablesProcessor
+            if InDetFlags.doVertexFinding():
+                tools.append(taualgs.getTauVertexVariables())
+
+
+            ################################
+
             from tauRec.tauRecFlags import tauFlags
             tools+=tauFlags.tauRecToolsDevToolList()
             TauRecConfigured.AddToolsToToolSvc(self, tools)
