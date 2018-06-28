@@ -58,6 +58,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PhysicsAnalysis/Interfaces/FTagAnalysisInterfaces
+   PhysicsAnalysis/Interfaces/JetAnalysisInterfaces
    PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
    PhysicsAnalysis/Interfaces/TriggerAnalysisInterfaces
    PhysicsAnalysis/JetMissingEtID/JetSelectorTools

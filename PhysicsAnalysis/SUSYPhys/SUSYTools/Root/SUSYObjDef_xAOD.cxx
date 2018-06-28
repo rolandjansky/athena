@@ -27,7 +27,7 @@
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetModifier.h"
-#include "JetJvtEfficiency/IJetJvtEfficiency.h"
+#include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 
 #include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
 #include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
@@ -222,6 +222,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_orRemoveCaloMuons(true),
     m_orBtagWP(""),
     m_orInputLabel(""),
+    m_orBJetPtUpperThres(-999.),
     m_orDoFatjets(false),
     m_EleFatJetDR(-999.),
     m_JetFatJetDR(-999.),
@@ -364,6 +365,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "ORMuJetInnerDR", m_orMuJetInnerDR );
   declareProperty( "ORJetTrkPtRatio", m_orMuJetTrkPtRatio);
   declareProperty( "ORInputLabel", m_orInputLabel);
+  declareProperty( "ORBJetPtUpperThres", m_orBJetPtUpperThres);
 
   declareProperty( "DoFatJetOR", m_orDoFatjets);
   declareProperty( "OREleFatJetDR", m_EleFatJetDR);
@@ -1050,7 +1052,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleIdExpert, "Ele.IdExpert", rEnv, false);
   configFromFile(m_EG_corrModel, "Ele.EffNPcorrModel", rEnv, "TOTAL");
   configFromFile(m_electronTriggerSFStringSingle, "Ele.TriggerSFStringSingle", rEnv, "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0");
-  configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/map2.txt"); 
+  configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/map5.txt"); 
   configFromFile(m_trig2015combination_singleLep, "Trig.Singlelep2015", rEnv, "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15_OR_mu50"); 
   configFromFile(m_trig2016combination_singleLep, "Trig.Singlelep2016", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
   configFromFile(m_trig2017combination_singleLep, "Trig.Singlelep2017", rEnv, "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium_OR_mu50"); 
@@ -1092,7 +1094,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_photonTriggerName, "Photon.TriggerName", rEnv, "HLT_g20_tight_icalovloose_L1EM15VHI"); // how is it changed across years?
   configFromFile(m_photonCrackVeto, "Photon.CrackVeto", rEnv, true);
   configFromFile(m_photonAllowLate, "Photon.AllowLate", rEnv, false);
-  configFromFile(m_photonEffMapFilePath, "Photon.EffMapFilePath", rEnv, "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/map0.txt");
+  configFromFile(m_photonEffMapFilePath, "Photon.EffMapFilePath", rEnv, "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v2/map2.txt");
   //
   configFromFile(m_tauPrePtCut, "Tau.PrePtCut", rEnv, 0.);
   configFromFile(m_tauPt, "Tau.Pt", rEnv, 20000.);
@@ -1166,6 +1168,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orMuJetInnerDR, "OR.MuJetInnerDR", rEnv, -999.);
   configFromFile(m_orBtagWP, "OR.BtagWP", rEnv, "FixedCutBEff_85");
   configFromFile(m_orInputLabel, "OR.InputLabel", rEnv, "selected"); //"baseline"
+  configFromFile(m_orBJetPtUpperThres, "OR.BJetPtUpperThres", rEnv, -1.); // upper pt threshold of b-jet in OR in unit of MeV, -1 means no pt threshold
   //
   configFromFile(m_orDoFatjets, "OR.DoFatJets", rEnv, false);
   configFromFile(m_EleFatJetDR, "OR.EleFatJetDR", rEnv, -999.);

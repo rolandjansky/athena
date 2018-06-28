@@ -18,7 +18,7 @@
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetModifier.h"
-#include "JetJvtEfficiency/IJetJvtEfficiency.h"
+#include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 
 #include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
@@ -327,8 +327,7 @@ namespace ST {
     }
 
     if (m_useBtagging && !m_orBtagWP.empty()) {
-      bool isbjet_loose = m_btagSelTool_OR->accept(input); //note : b-tag applies only to jet with eta < 2.5
-      dec_bjet_loose(input) = isbjet_loose;
+      dec_bjet_loose(input) = this->IsBJetLoose(input);
     }
   
     if (m_debug) {
@@ -357,8 +356,9 @@ namespace ST {
 
 
   bool SUSYObjDef_xAOD::IsBJetLoose(const xAOD::Jet& input) const {
-    bool isbjet_loose = m_btagSelTool_OR->accept(input); 
-    dec_bjet_loose(input) = isbjet_loose; 
+    bool isbjet_loose = false;
+    if (m_orBJetPtUpperThres < 0 || m_orBJetPtUpperThres > input.pt())
+      isbjet_loose = m_btagSelTool_OR->accept(input); //note : b-tag applies only to jet with eta < 2.5
     return isbjet_loose; 
   }
   
