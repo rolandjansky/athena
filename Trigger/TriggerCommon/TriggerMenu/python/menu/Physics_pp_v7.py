@@ -1136,6 +1136,11 @@ def setupMenu():
 		['j60_gsc85_bmv2c1085_split_L1J20',      'L1_J20', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
 		['j85_gsc100_bmv2c1085_split_L1J20',      'L1_J20', [], [PhysicsStream], ['RATE:SingleBJet',  'BW:BJet'], -1],
 		
+		#VBF Chains
+        ['j70_j50_0eta490_invm1100j70_dphi20_deta45_L1MJJ-500-NFF', 'L1_MJJ-500-NFF',[], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j70_j50_0eta490_invm1100j70_dphi24_deta45_L1MJJ-500-NFF', 'L1_MJJ-500-NFF',[], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j70_j50_0eta490_invm1100j70_dphi20_deta40_L1MJJ-500-NFF', 'L1_MJJ-500-NFF',[], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
+        ['j70_j50_0eta490_invm1100j70_dphi24_deta40_L1MJJ-500-NFF', 'L1_MJJ-500-NFF',[], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 		
 			 ]
    
