@@ -98,17 +98,13 @@ namespace Analysis {
 	  std::vector<std::string> hvect;
 	  m_taggersHists.push_back(hvect);
     }
+
     // get PoolSvc
-    if (StatusCode::SUCCESS!=service("PoolSvc",m_poolsvc)) {
-      ATH_MSG_FATAL("Cannot get PoolSvc");
-      return StatusCode::FAILURE; 
-    }
+    ATH_CHECK(service("PoolSvc",m_poolsvc));
+
     // Register call back function:
-    if(StatusCode::SUCCESS!=this->registerCallBack()) {
-      ATH_MSG_FATAL("#BTAG# Could not register call back");
-      return StatusCode::FAILURE;
-    }
-    //
+    ATH_CHECK(this->registerCallBack());
+
     return StatusCode::SUCCESS;
   }
 
