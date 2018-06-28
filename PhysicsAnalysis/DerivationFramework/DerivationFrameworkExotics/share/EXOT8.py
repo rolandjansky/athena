@@ -385,8 +385,6 @@ EXOT8SlimmingHelper.StaticContent = [
 EXOT8SlimmingHelper.AppendToDictionary = {
     "AntiKtVR30Rmax4Rmin02TrackJets"                :   "xAOD::JetContainer"        ,
     "AntiKtVR30Rmax4Rmin02TrackJetsAux"             :   "xAOD::JetAuxContainer"     ,
-    #"AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"                :   "xAOD::JetContainer"        ,
-    #"AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux"             :   "xAOD::JetAuxContainer"     ,
     "BTagging_AntiKtVR30Rmax4Rmin02Track"           :   "xAOD::BTaggingContainer"   ,
     "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"        :   "xAOD::BTaggingAuxContainer",
 }
