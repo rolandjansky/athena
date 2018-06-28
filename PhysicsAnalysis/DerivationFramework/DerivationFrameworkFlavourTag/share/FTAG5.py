@@ -29,7 +29,7 @@ from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
     Trk__TrackToVertexIPEstimator)
 
 # flavor tagging
-from DerivationFrameworkFlavourTag.HbbCommon import addVRJets, addHbbTagger, addExKt
+from DerivationFrameworkFlavourTag.HbbCommon import addVRJets, addHbbTagger, addExKtCoM
 from DerivationFrameworkFlavourTag import BTaggingContent as bvars
 from DerivationFrameworkJetEtMiss.JSSVariables import JSSHighLevelVariables
 
@@ -151,9 +151,9 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 #===================================================================
 # ExKt subjets for each trimmed large-R jet
 #===================================================================
-FatJet = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-addExKt(FTAG5Seq, ToolSvc, FatJet, 2, False)
-addExKt(FTAG5Seq, ToolSvc, FatJet, 3, False)
+ExKtJetCollection__FatJet = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+ExKtJetCollection__SubJet = addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 2, False)
+ExKtJetCollection__SubJet3 = addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 3, False)
 
 BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
                                             "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
