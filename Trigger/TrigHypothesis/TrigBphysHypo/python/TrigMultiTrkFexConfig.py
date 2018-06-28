@@ -487,6 +487,7 @@ class TrigMultiTrkFex_DiE (TrigMultiTrkFexPy):
         self.diTrkCharge = -1
         self.outputTrackCollectionKey = "MultiTrkFex_DiE"
         self.bphysCollectionKey = "MultiTrkFex_DiE"
+        self.maxNOutputObject = 10
 
         # muons are not matched to tracks, but still require to be present in TE
         self.nEfMuon = 0

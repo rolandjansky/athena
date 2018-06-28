@@ -222,7 +222,7 @@ HLT::ErrorCode TrigBphysElectronCounter::hltExecute(std::vector<std::vector<HLT:
     ATH_MSG_DEBUG("REGTEST: Store Bphys track Collection size: " << outputTrackColl->size() );
     HLT::ErrorCode sc = attachFeature(outputTE, outputTrackColl, m_outputTrackCollectionKey );
     if(sc != HLT::OK) {
-      ATH_MSG_WARNING("Failed to store bphys track  Collection" );
+      ATH_MSG_ERROR("Failed to store bphys track  Collection" );
       delete outputTrackColl; outputTrackColl = nullptr; // assume deletion responsibility
       afterExecMonitors().ignore();   
       return HLT::ERROR;
