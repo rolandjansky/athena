@@ -8,6 +8,9 @@
 #include "eflowRec/IPFClusterCollectionTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
+/**
+ Inherits from IPFClusterCollectionTool and AthAlgTool. Creates containers of eflowRecClusters or xAOD::CaloCluster, which can be used in the methods to apply LC weights to the neutral PFO objects in PFLCCalibTool. The xAOD::CaloCluster container is also needed to calculate new cluster moments for the modified calorimeter clusters, which is done in PFMomentCalculatorTool.
+*/
 class PFClusterCollectionTool : public extends<AthAlgTool, IPFClusterCollectionTool> {
 
   public:

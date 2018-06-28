@@ -52,7 +52,9 @@ class eflowParameters {
   std::vector<std::unique_ptr<eflowFirstIntParameters> > m_FirstIntParameters;
 };
 
-
+/**
+Inherits from eflowEEtaBinBase. This class adds the infrastructure to store data and its set methods are used in e.g. eflowCellEOverPTool_mc12_JetETMiss. It also calculates an interpolation weight for moving between bins.
+*/
 class eflowEEtaBinnedParameters :  public eflowEEtaBinBase {
  public:
 

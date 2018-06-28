@@ -21,10 +21,10 @@
 #include "eflowRec/eflowLookupExp.h"
 #include "eflowRec/LegendreWeights.h"
 
-/* Enum used as template argument to switch between std::exp and the lookup-table based version */
+/** Enum used as template argument to switch between std::exp and the lookup-table based version */
 enum Exp_t {stdExp = 0, lookupExp};
 
-/* Class to perform a generic recursive Gauss-Legendre Integration, see
+/** Class to perform a generic recursive Gauss-Legendre Integration, see
  * http://en.wikipedia.org/wiki/Gaussian_quadrature#Gauss.E2.80.93Legendre_quadrature
  * Templated in the type of the integrand. All the integrand class needs to have, is an evaluate() method,
  * that takes a double as a parameter and returns a double.
@@ -108,7 +108,7 @@ private:
   int m_depth;
 };
 
-/* Class to represent the 2D Gaussian integrand.
+/** Class to represent the 2D Gaussian integrand.
  * EtaSq is set via a set method, phi is a parameter to the evalutate() method.
  * Hence the class is only the direct integrator of the inner (i.e. phi) integration,
  * while the eflowCell Integrator acts as the integrand for the outer (i.e. eta)
@@ -128,7 +128,7 @@ public:
   inline double evaluateStdExp(double rSq) { return m_norm * exp(-rSq * m_oneOverTwoSigmaSq); }
   inline double evaluateLookupExp(double rSq) { return m_lookupExp->evaluate(rSq * m_oneOverTwoSigmaSq)*m_norm; }
 
-  /* The evaluate method for the integration. The implementation depends on the template parameter */
+  /** The evaluate method for the integration. The implementation depends on the template parameter */
   inline double evaluate(double y);
 
 private:
@@ -140,7 +140,7 @@ private:
 template<> inline double eflowCellIntegrand<stdExp>::evaluate(double phi) { return evaluateStdExp(m_etaSq+phi*phi); }
 template<> inline double eflowCellIntegrand<lookupExp>::evaluate(double phi) { return evaluateLookupExp(m_etaSq+phi*phi); }
 
-/* Class that controls the 2D integration.
+/** Class that controls the 2D integration.
  * Holds two eflowRecursiveGaussLegendreIntegrators, one to perform the outer (i.e. eta)
  * and one to perform the inner (i.e. phi) integration.
  * The class itself acts as the integrand of the outer integration. Its evaluate method
@@ -165,7 +165,7 @@ public:
   }
   ~eflowCellIntegrator() {}
 
-  /* Main method, which starts the integration */
+  /** Main method, which starts the integration */
   inline double integrate(const eflowRange& etaRange, const eflowRange& phiRange) {
     /* Store the phi range for the inner integration */
     m_rangePhi = phiRange;
@@ -173,7 +173,7 @@ public:
     return m_outerIntegrator.integrate(etaRange);
   }
 
-  /* Evaluate method for the outer (i.e. eta) integration (invoked by m_outerIntegrator) */
+  /** Evaluate method for the outer (i.e. eta) integration (invoked by m_outerIntegrator) */
   inline double evaluate(double eta) {
     /* Set the eta (square) value for the inner integration */
     m_integrand2D->setEtaSq(eta*eta);

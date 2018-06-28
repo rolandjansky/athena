@@ -21,6 +21,9 @@ Description: E/P reference at LC scale
 
 class eflowBaseParameters;
 
+/**
+ Class to store reference e/p mean and widths, as well as reference energy density radial profile fit parameters.  The data is input to an eflowEEtaBinnedParameters object in the execute method. Stores data at the Local Hadron Calibration (LC) scale. This inherits from IEFlowCellEOverPTool.
+*/
 class eflowCellEOverPTool_mc12_LC : public IEFlowCellEOverPTool {
 
  public:

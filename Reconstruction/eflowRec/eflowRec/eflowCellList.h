@@ -28,6 +28,9 @@ class eflowTrackCaloPoints;
 
 typedef std::map<eflowCellPosition,std::vector<std::pair<CaloCell*,int> > >::iterator CellIt;
 
+/**
+Concrete class derived class from pure virtual eflowAbstractCellList. This stores information about the calorimeter cells - the main data type is a map between an eflowCellPosition and a pair linking the CaloCell pointer and the index of its xAOD::CaloCluster in the calorimeter cluster container. A DR2 function is provided to calculate the distance between an eflowCellPosition and the track impact point in a given calorimeter layer (eflowCellList also stores a list of track eta,phi impact points for each calorimeter later).
+*/
 class eflowCellList : public eflowAbstractCellList{
 
  public:
