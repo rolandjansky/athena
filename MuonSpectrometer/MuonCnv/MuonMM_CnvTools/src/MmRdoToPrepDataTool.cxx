@@ -239,6 +239,8 @@ StatusCode Muon::MmRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVec
 {
   // clear the output vector of selected data
   idWithDataVect.clear();
+
+  ATH_MSG_DEBUG("Size of the RDO container to be decoded: " << idVect.size() ); 
   
   SetupMM_PrepDataContainerStatus containerRecordStatus = setupMM_PrepDataContainer();
 

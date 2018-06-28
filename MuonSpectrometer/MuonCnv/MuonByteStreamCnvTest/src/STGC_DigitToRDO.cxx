@@ -48,7 +48,7 @@ StatusCode STGC_DigitToRDO::execute()
       int getRdoCollHash = m_idHelper->get_module_hash(digitId,hash);
       if ( getRdoCollHash !=0 ) {
 	ATH_MSG_ERROR("Could not get the module hash Id");
-	continue;
+	return StatusCode::FAILURE;
       } 
 
       STGC_RawDataCollection* coll = new STGC_RawDataCollection(hash);
