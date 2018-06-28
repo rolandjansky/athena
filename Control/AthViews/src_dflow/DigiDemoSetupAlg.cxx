@@ -54,12 +54,7 @@ StatusCode DigiDemoSetupAlg::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
   const EventContext& ctx = getContext();
-#else
-  const EventContext& ctx = *getContext();
-#endif
-
 
   //Get a pointer to the digitisation store
   IProxyDict * digiStorePointer = dynamic_cast< IProxyDict* >( m_digiStore.get() );
