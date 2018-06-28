@@ -488,10 +488,7 @@ StatusCode SUSYToolsAlg::execute() {
 
   CHECK( m_SUSYTools->GetMETSig(*metcst_nominal,
         			metsig_cst,
-                             	jets_nominal,
-                             	electrons_nominal,
-                             	muons_nominal,
-                             	photons_nominal, 0, false, false) );
+                             	false, false) );
 
   ATH_MSG_DEBUG("METSignificance = " << metsig_cst);
 
@@ -515,10 +512,7 @@ StatusCode SUSYToolsAlg::execute() {
 
   CHECK( m_SUSYTools->GetMETSig(*mettst_nominal,
         			metsig_tst,
-                             	jets_nominal,
-                             	electrons_nominal,
-                             	muons_nominal,
-                             	photons_nominal, 0, true, true) );
+                             	true, true) );
 
   ATH_MSG_DEBUG("METSignificance = " << metsig_tst);
 

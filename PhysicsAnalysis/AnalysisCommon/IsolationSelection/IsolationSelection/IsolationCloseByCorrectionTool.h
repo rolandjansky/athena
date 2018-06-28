@@ -33,6 +33,7 @@ namespace InDet {
     class IInDetTrackSelectionTool;
 }
 namespace CP {
+    class ITrackVertexAssociationTool;
     
     //For tracks it does not matter whether we're using a set of a vector
     typedef std::set<const xAOD::TrackParticle*> TrackCollection;
@@ -103,7 +104,15 @@ namespace CP {
 
             bool isFixedTrackIso(xAOD::Iso::IsolationType Iso) const;
             bool isVarTrackIso(xAOD::Iso::IsolationType Iso) const;
+            
+            bool isFixedTrackIsoTTVA(xAOD::Iso::IsolationType Iso) const;
+            bool isVarTrackIsoTTVA(xAOD::Iso::IsolationType Iso) const;
+            
             bool isTrackIso(xAOD::Iso::IsolationType Iso) const;
+            bool isTrackIsoTTVA(xAOD::Iso::IsolationType Iso) const;
+            
+            float trackPtCut(xAOD::Iso::IsolationType Iso) const;
+            
             bool isTopoEtIso(xAOD::Iso::IsolationType Iso) const;
 
             bool isEgamma(const xAOD::IParticle*  particle) const;
@@ -123,6 +132,9 @@ namespace CP {
             float clusterEtMinusTile(const xAOD::CaloCluster* C) const;
 
             std::string particleName(const xAOD::IParticle* C) const;
+            std::string particleName(xAOD::Type::ObjectType T) const;
+            void printIsolationCones(const IsoVector& types, xAOD::Type::ObjectType T) const;
+            
 
             ToolHandle<CP::IIsolationSelectionTool> m_selectorTool;
 
@@ -167,7 +179,9 @@ namespace CP {
             std::string m_backup_prefix;
 
             asg::AnaToolHandle<InDet::IInDetTrackSelectionTool> m_trkselTool;
+            asg::AnaToolHandle<CP::ITrackVertexAssociationTool> m_ttvaTool;
             mutable IsoHelperMap m_isohelpers;
+            mutable const xAOD::Vertex* m_Vtx;
 
     };
 

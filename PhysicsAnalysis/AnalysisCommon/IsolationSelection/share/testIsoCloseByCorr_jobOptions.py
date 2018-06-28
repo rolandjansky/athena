@@ -19,8 +19,12 @@ ROOTFiles = []
 #Cmd to execute the tester:
 # athena.py -c "inputFile='/ptmp/mpp/junggjo9/Datasets/mc16_13TeV.364253.Sherpa_222_NNPDF30NNLO_lllv.deriv.DAOD_SUSY2.e5916_s3126_r9364_r9315_p3354/DAOD_SUSY2.12500474._000035.pool.root.1'" IsolationSelection/testIsoCloseByCorr_jobOptions.py
 #
+## Test algorithm
+from AthenaCommon.AlgSequence import AlgSequence
+job = AlgSequence()
 
-
+import IsolationAlgs.IsoUpdatedTrackCones as isoCones
+job += isoCones.GetUpdatedIsoTrackCones()
 
 
 
@@ -47,7 +51,7 @@ if "nevents" in globals():
     print "Only run on %i events"%( int(nevents))
     theApp.EvtMax = int (nevents)
 ## Configure an isolation selection tool with your desired working points
-ToolSvc += CfgMgr.CP__IsolationSelectionTool("MySelectionTool", MuonWP = "FixedCutLoose", ElectronWP = "Loose", PhotonWP = "FixedCutTightCaloOnly")
+ToolSvc += CfgMgr.CP__IsolationSelectionTool("MySelectionTool", MuonWP = "FixedCutHighMuTight", ElectronWP = "Loose", PhotonWP = "FixedCutTightCaloOnly")
 
 
 ## Configure CorrectionTool, feeding it our selection tool
@@ -60,9 +64,7 @@ ToolSvc += CfgMgr.CP__IsolationCloseByCorrectionTool("IsolationCloseByCorrection
                                                       BackupPrefix = "default"
                                                       )
 
-## Test algorithm
-from AthenaCommon.AlgSequence import AlgSequence
-job = AlgSequence()
+
 from IsolationSelection.IsolationSelectionConf import CP__TestIsolationCloseByCorrAthenaAlg 
 job += CfgMgr.CP__TestIsolationCloseByCorrAthenaAlg("TestAlg",IsoSelectorTool = ToolSvc.MySelectionTool, 
                                                        IsoCloseByCorrTool=ToolSvc.IsolationCloseByCorrectionTool)
