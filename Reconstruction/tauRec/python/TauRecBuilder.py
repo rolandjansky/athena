@@ -138,8 +138,14 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
                 #tools.append(tauRec.TauConversionAlgorithms.getPhotonConversionTool())
                 #tools.append(tauRec.TauConversionAlgorithms.getTauConversionFinderTool())
             
-            #tools.append(taualgs.getContainerLock())
+            # tools.append(taualgs.getContainerLock())
                 
+            ### TauRecPi0EflowProcessor ###
+            # Tools in this section were originally in TauRecPi0EflowProcessor
+            if self.doPi0Clus: tools.append(taualgs.getPi0ClusterCreator())
+
+            ###############################
+
             from tauRec.tauRecFlags import tauFlags
             tools+=tauFlags.tauRecToolsDevToolList()
             TauRecConfigured.AddToolsToToolSvc(self, tools)

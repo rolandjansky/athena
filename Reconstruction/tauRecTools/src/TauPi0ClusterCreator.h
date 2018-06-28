@@ -1,4 +1,4 @@
-/*
+1;4205;0c/*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
@@ -9,6 +9,7 @@
 #include <vector>
 #include "tauRecTools/TauRecToolBase.h"
 #include "xAODPFlow/PFOAuxContainer.h"
+#include "xAODCaloEvent/CaloClusterAuxContainer.h"
 
 
 /**
@@ -66,22 +67,12 @@ private:
     /** @brief get hadronic cluster PFOs*/
     bool setHadronicClusterPFOs(xAOD::TauJet& pTau);
 
-    /** @brief input cluster container of pi0 candidates */
-    // TODO: input cluster container name
-    std::string m_inputPi0ClusterContainerName;
-    
-    /** @brief output cluster container of pi0 candidates */
-    // TODO: output cluster container name
-    std::string m_outputPi0ClusterContainerName;
-
-    /** @brief new neutral PFO container and name */
+    /** @brief new neutral PFO container */
     xAOD::PFOContainer* m_neutralPFOContainer;
-    std::string m_neutralPFOContainerName;
     xAOD::PFOAuxContainer* m_neutralPFOAuxStore;
 
-    /** @brief new hadronic cluster PFO container and name */
+    /** @brief new hadronic cluster PFO container */
     xAOD::PFOContainer* m_hadronicClusterPFOContainer;
-    std::string m_hadronicClusterPFOContainerName;
     xAOD::PFOAuxContainer* m_hadronicClusterPFOAuxStore;
     
 
@@ -92,7 +83,14 @@ private:
     bool m_AODmode;
 
     /** @brief output cluster container */
-    xAOD::CaloClusterContainer*  m_pOutputPi0CaloClusterContainer;
+    xAOD::CaloClusterContainer* m_pi0CaloClusterContainer;
+    xAOD::CaloClusterAuxContainer* m_pi0CaloClusterAuxContainer;
+
+    
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_pi0ClusterInputContainer{this,"Key_Pi0ClusterContainer", "TauPi0SubtractedClusters", "input pi0 cluster"};
+    SG::WriteHandleKey<xAOD::PFOContainer> m_neutralPFOOutputContainer{this,"Key_neutralPFOOutputContainer", "TauNeutralParticleFlowObjects", "tau neutral pfo out key"};
+    SG::WriteHandleKey<xAOD::CaloClusterContainer> m_pi0ClusterOutputContainer{this,"Key_pi0ClusterOutputContainer", "TauPi0Clusters", "tau pi0cluster output"};
+    SG::WriteHandleKey<xAOD::PFOContainer> m_hadronicPFOOutputContainer{this,"Key_hadronicPFOOutputContainer", "TauHadronicParticleFlowObjects", "tau hadronic pfo out key"};
 
 };
 
