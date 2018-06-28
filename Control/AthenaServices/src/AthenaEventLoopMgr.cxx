@@ -661,6 +661,15 @@ StatusCode AthenaEventLoopMgr::executeAlgorithms() {
 //=========================================================================
 StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)    
 {
+  if(true) {
+    StatusCode sc = executeAlgorithms();
+    m_incidentSvc->fireIncident(Incident("EndEvent",IncidentType::EndEvent));
+    ++m_proc;
+    ++m_nev;
+    return sc;
+  }
+
+
   const EventInfo* pEvent(0);
   std::unique_ptr<EventInfo> pEventPtr;
   if ( m_evtContext )

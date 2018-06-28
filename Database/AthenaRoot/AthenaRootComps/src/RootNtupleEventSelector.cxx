@@ -580,6 +580,7 @@ RootNtupleEventSelector::next( IEvtSelector::Context& ctx ) const
 
     // std::cout << "--event-info--" << std::endl;
     // event info
+if(false) {
     EventType* evtType = new EventType;
     const std::size_t runNbr = 0;
     EventInfo* evtInfo = new EventInfo(new EventID(runNbr, m_curEvt-1, 0), evtType);
@@ -604,7 +605,7 @@ RootNtupleEventSelector::next( IEvtSelector::Context& ctx ) const
       CHECK( m_dataStore->record (std::move(ei), "EventInfo") );
       CHECK( m_dataStore->record (std::move(ei_store), "EventInfoAux.") );
     }
-
+}
     // now the data has been loaded into the store, we can
     // notify clients and fire the BeginInputFile incident
    //MOVED TO handle method
