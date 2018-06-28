@@ -2385,8 +2385,10 @@ namespace top {
             if (event.m_KLFitterResults != nullptr) {
                 validKLFitter = true;
                 m_klfitter_selected = 1;
-                //FIXME: there is something strange happening with the KLFitter result... This is a temporary patch
-                nPermutations = event.m_KLFitterResults->size()*( (event.m_KLFitterResults->at(0))->parameters().size());
+                if(event.m_KLFitterResults->size()!=0)
+                  nPermutations = event.m_KLFitterResults->size()*( (event.m_KLFitterResults->at(0))->parameters().size());
+                else
+                  nPermutations = 0;
             }
 
             m_klfitter_selection.resize(nPermutations);
@@ -2515,7 +2517,7 @@ namespace top {
                     for(unsigned int s=0; s<m_config->allSelectionNames()->size(); ++s){
                        if(st_hash(m_config->allSelectionNames()->at(s))==klPtr->selectionCode()){
                           m_klfitter_selection[iPerm] = m_config->allSelectionNames()->at(s);
-                     //     break;
+                          break;
                        }
                     }
                     m_klfitter_minuitDidNotConverge[iPerm] = klPtr->minuitDidNotConverge();
@@ -2639,7 +2641,6 @@ namespace top {
                     }
 
 
-                    //++iPerm;
                     iPerm+=klPtr->parameters().size();
                 }
 

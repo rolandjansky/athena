@@ -15,7 +15,7 @@ namespace top{
   
   class KLFitterRun : public EventSelectorBase {
     public:
-      KLFitterRun(const std::string& kSelectionName, const std::string& kLeptonType,std::shared_ptr<top::TopConfig> config);
+      KLFitterRun(const std::string& kSelectionName, const std::string& kParameters,std::shared_ptr<top::TopConfig> config);
       virtual ~KLFitterRun(){}
       
       virtual bool apply(const top::Event&) const override;

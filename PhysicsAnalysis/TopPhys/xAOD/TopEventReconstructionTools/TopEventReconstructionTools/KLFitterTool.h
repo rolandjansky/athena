@@ -11,6 +11,7 @@
 #include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
+#include "TopConfiguration/Tokenize.h"
 
 
 // KLFitter include(s):
@@ -97,7 +98,8 @@ namespace top{
       // configuration
       std::shared_ptr<top::TopConfig> m_config;
       float m_massTop;   
-      float m_bTagCutValue;      
+      float m_bTagCutValue;
+      bool findOption(std::vector<std::string> full_options, std::string option, std::string& op_value);
 
       // Tools and functions for btagging                                                                                                                                               
       ToolHandle<IBTaggingEfficiencyTool> m_btagging_eff_tool;
@@ -110,6 +112,7 @@ namespace top{
       
       std::string m_selectionName;
       std::string m_leptonType;
+      std::string m_customParameters;
       std::string m_LHType;
       KLFitter::LikelihoodTopLeptonJets::LeptonType m_leptonTypeKLFitterEnum;      
       KLFitter::LikelihoodTTHLeptonJets::LeptonType m_leptonTypeKLFitterEnum_TTH;
