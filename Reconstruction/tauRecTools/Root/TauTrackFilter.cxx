@@ -89,8 +89,6 @@ StatusCode TauTrackFilter::finalize() {
 StatusCode TauTrackFilter::execute(xAOD::TauJet& pTau) {
     ATH_MSG_VERBOSE("TauTrackFilter Executing");
 
-    StatusCode sc;
-
     // get track particle container
     // wait - is this even used?
     const xAOD::TrackParticleContainer *trackContainer = NULL;

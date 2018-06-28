@@ -84,8 +84,6 @@ StatusCode JetSeedBuilder::eventFinalize() {
 
 StatusCode JetSeedBuilder::execute(xAOD::TauJet& pTau) {
 
-	StatusCode sc;
-
 	ATH_MSG_DEBUG("Starting execute");
 
 	bool inTrigger = tauEventData()->inTrigger();
