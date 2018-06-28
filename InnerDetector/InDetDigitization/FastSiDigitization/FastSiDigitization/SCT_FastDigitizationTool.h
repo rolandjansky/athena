@@ -113,7 +113,7 @@ private:
   StatusCode digitize();
   StatusCode createOutputContainers();
   bool NeighbouringClusters(const std::vector<Identifier>& potentialClusterRDOList,  const InDet::SCT_Cluster *existingCluster) const;
-  bool Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shiftX, double shiftY ) const;
+  void Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shiftX, double shiftY ) const;
 
   std::string m_inputObjectName;     //! name of the sub event  hit collections.
 
@@ -152,8 +152,10 @@ private:
   bool m_sctRotateEC;
  
   bool m_mergeCluster; //!< enable the merging of neighbour SCT clusters >  
-  double m_DiffusionShiftX;
-  double m_DiffusionShiftY;
+  double m_DiffusionShiftX_barrel;
+  double m_DiffusionShiftY_barrel;
+  double m_DiffusionShiftX_endcap;
+  double m_DiffusionShiftY_endcap;
   double m_sctMinimalPathCut;        //!< the 1. model parameter: minimal 3D path in strip
   bool m_needsMcEventCollHelper;
 
