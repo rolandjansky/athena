@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONSIMEVENT_sTGCSimHit_H
@@ -23,7 +23,6 @@ class sTGCSimHit {
   // Destructor:
   virtual ~sTGCSimHit();
    sTGCSimHit(HitID id, double time, const Amg::Vector3D& position, const int particleEncoding, const Amg::Vector3D& direction, const double depositEnergy);
-   //sTGCSimHit(HitID id, double time, const Amg::Vector3D& position, const int particleEncoding, const Amg::Vector3D& direction, const double depositEnergy);
  
   //
   // member functions
