@@ -243,14 +243,9 @@ namespace ST {
 				   ) = 0;
 
     virtual StatusCode GetMETSig(xAOD::MissingETContainer& met,
-			      double& metSignificance,
-			      const xAOD::JetContainer* jet,
-			      const xAOD::ElectronContainer* elec = 0,
-			      const xAOD::MuonContainer* muon = 0,
-			      const xAOD::PhotonContainer* gamma = 0,
-			      const xAOD::TauJetContainer* taujet = 0,
-                      	      bool doTST = true, bool doJVTCut = true,
-			      const xAOD::IParticleContainer* invis = 0) = 0;
+			      	 double& metSignificance,
+                      	         bool doTST = true, bool doJVTCut = true
+				 ) = 0;
 
     virtual bool IsSignalJet(const xAOD::Jet& input,  const float ptcut, const float etacut) const = 0;
 

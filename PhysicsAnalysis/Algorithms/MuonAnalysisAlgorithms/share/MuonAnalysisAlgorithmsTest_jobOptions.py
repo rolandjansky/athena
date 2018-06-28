@@ -32,7 +32,18 @@ print( muonSequence ) # For debugging
 # Add the sequence to the job:
 algSeq += muonSequence
 
-# Set up a histogram output file for the job:
+# Add an ntuple dumper algorithm:
+ntupleMaker = CfgMgr.CP__AsgxAODNTupleMakerAlg( 'NTupleMaker' )
+ntupleMaker.TreeName = 'muons'
+ntupleMaker.Branches = [ 'EventInfo.runNumber     -> runNumber',
+                         'EventInfo.eventNumber   -> eventNumber',
+                         'AnalysisMuons_NOSYS.eta -> mu_eta',
+                         'AnalysisMuons_NOSYS.phi -> mu_phi',
+                         'AnalysisMuons_%SYS%.pt  -> mu_%SYS%_pt', ]
+ntupleMaker.systematicsRegex = '(^MUON_.*)'
+algSeq += ntupleMaker
+
+# Set up a histogram/tree output file for the job:
 ServiceMgr += CfgMgr.THistSvc()
 ServiceMgr.THistSvc.Output += [
     "ANALYSIS DATAFILE='MuonAnalysisAlgorithmsTest.hist.root' OPT='RECREATE'"

@@ -550,17 +550,25 @@ namespace top {
         static const std::string decoName{"originalTruthParticle"};
 
         for (const auto & particle : dressedParticles){
-            auto truthProxy = particle->auxdata<ElementLink<xAOD::TruthParticleContainer> >("originalTruthParticle");
+            bool tp_isValid = false;
+            ElementLink<xAOD::TruthParticleContainer> truthProxy;
+            try {
+                truthProxy = particle->auxdata<ElementLink<xAOD::TruthParticleContainer> >("originalTruthParticle");
+                tp_isValid = truthProxy.isValid();
+            } catch (SG::ExcBadAuxVar) {
+              // ExcBadAuxVar can be thrown before checking if proxy is valid
+              tp_isValid = false;
+            }
 
-	    if ( not truthProxy.isValid() ) {
-	        if (particle->p4().DeltaR(photon.p4()) <= dressingCone){
-	            return true;
-	        }
-	    } else {
-	        if ((* truthProxy)->p4().DeltaR(photon.p4()) <= dressingCone){
-	            return true;
-	        }
-	    }
+            if ( not tp_isValid ) {
+              if (particle->p4().DeltaR(photon.p4()) <= dressingCone){
+                return true;
+              }
+            } else {
+              if ((* truthProxy)->p4().DeltaR(photon.p4()) <= dressingCone){
+                return true;
+              }
+            }
 
         }
 
