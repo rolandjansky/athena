@@ -12,7 +12,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-from DerivationFrameworkFlavourTag.HbbCommon import addVRJets, addExCoM
+from DerivationFrameworkFlavourTag.HbbCommon import addVRJets, addExKtCoM
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
@@ -36,11 +36,11 @@ FTAG4Seq = CfgMgr.AthSequencer("FTAG4Sequence")
 # offline lepton skimming : require at least one lepton
 # pt-thresholds were evaluated for lowest single lepton triggers with pt-thresholds of 26 GeV
 # 0 == Muons.muonType correspond to Combined muons. DFCommonGoodMuon cuts on type are quality dependent
-# we assume that mu-channel events will be requested to have combined muon offline. 
+# we assume that mu-channel events will be requested to have combined muon offline.
 # wo type cut, there is a relatively large (+~30%) leakage of mostly CaloTagged (muonType=3) muons
 offlineElec = "(Electrons.pt > 24*GeV) && (Electrons.Medium || Electrons.DFCommonElectronsLHMedium)"
 offlineMuon = "(Muons.pt > 24*GeV) && (Muons.DFCommonGoodMuon) && (0 == Muons.muonType)"
-offlineExpression = "( (count("+offlineElec+") >= 1) ||  (count("+offlineMuon+") >= 1) )" 
+offlineExpression = "( (count("+offlineElec+") >= 1) ||  (count("+offlineMuon+") >= 1) )"
 print 'FTAG4: offline skimming expression : \n', offlineExpression
 
 FTAG4StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "FTAG4StringSkimmingTool",
@@ -51,10 +51,10 @@ print FTAG4StringSkimmingTool
 # triggers used for skimming:
 # single lepton triggers: we want to include lowest un-prescaled
 # we do not hard-code the exact triggers, as these vary with luminosity
-# we however assume that the lowest un-prescaled triggers will have 
+# we however assume that the lowest un-prescaled triggers will have
 # thresholds of 20 GeV <= pt < 1 TeV
 triggers_e = [ "HLT_e[2-9][0-9]_.*", # WARNING: for triggers with 10<=pt<20 GeV, change to HLT_e[1-0][0-9]_.* !
-               "HLT_e[1-9][0-9][0-9]_.*" ] 
+               "HLT_e[1-9][0-9][0-9]_.*" ]
 triggers_mu = [ "HLT_mu[2-9][0-9]_.*", # WARNING: for triggers with 10<=pt<20 GeV, change to HLT_mu[1-0][0-9]_.* !
                 "HLT_mu[1-9][0-9][0-9]_.*" ]
 triggersSkim = triggers_e + triggers_mu
@@ -76,11 +76,12 @@ if globalflags.DataSource()!='data':
     addHFAndDownstreamParticles()
 
 #====================================================================
-# Basic Jet Collections 
+# Basic Jet Collections
 #====================================================================
 
 OutputJets["FTAG4"] = ["AntiKt4EMTopoJets",
-                       "AntiKtVR30Rmax4Rmin02TrackJets","AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"]
+                       "AntiKtVR30Rmax4Rmin02TrackJets",
+                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"]
 
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
@@ -93,8 +94,8 @@ addDefaultTrimmedJets(FTAG4Seq,"FTAG4",dotruth=True)
 #
 # Adding ExCoM sub-jets for each trimmed large-R jet
 #
-ExCoMJetCollection__FatJet = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-ExCoMJetCollection__SubJet = addExCoM(FTAG4Seq, ToolSvc, ExCoMJetCollection__FatJet, 2, False)
+ExCoMJetCollection__FatJet = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+ExCoMJetCollection__SubJet = addExKtCoM(FTAG4Seq, ToolSvc, ExCoMJetCollection__FatJet, 2, False, subjetAlgName="CoM")
 
 BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
 
@@ -102,7 +103,7 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR2
 # Variable Radius (VR) Jets
 #===================================================================
 
-# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
+# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
 addVRJets(FTAG4Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
           VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", #or should this be lctopo?
           ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
@@ -118,7 +119,7 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 FlavorTagInit(scheduleFlipped = True, JetCollections  = ['AntiKt4EMTopoJets'],Sequencer = FTAG4Seq)
 
 #====================================================================
-# Add sequence (with all kernels needed) to DerivationFrameworkJob 
+# Add sequence (with all kernels needed) to DerivationFrameworkJob
 #====================================================================
 
 DerivationFrameworkJob += FTAG4Seq
@@ -154,7 +155,7 @@ FTAG4SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "BTagging_AntiKt4EMTopo",
                                     "BTagging_AntiKt4EMTopoJFVtx",
                                     "BTagging_AntiKt2Track",
-                                    "BTagging_AntiKt2TrackJFVtx", 
+                                    "BTagging_AntiKt2TrackJFVtx",
                                     "TruthVertices",
                                     "TruthEvents",
                                     "MET_Truth",
@@ -217,4 +218,3 @@ FTAG4ThinningHelper.TriggerChains = 'HLT_e[2-9][0-9]_.*|HLT_e[1-9][0-9][0-9]_.*|
 FTAG4ThinningHelper.AppendToStream( FTAG4Stream )
 
 FTAG4SlimmingHelper.AppendContentToStream(FTAG4Stream)
-
