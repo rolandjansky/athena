@@ -114,7 +114,9 @@ namespace DerivationFramework {
 
       // compute the output of the selector
       Root::TAccept theAccept(m_tool->accept(pCopy));
-      unsigned int isEM = m_tool->IsemValue(); // this one should be done only for IsEM selectors..
+      //unsigned int isEM = m_tool->IsemValue(); // this one should be done only for IsEM selectors..
+      unsigned int isEM = (unsigned int) theAccept.getCutResultInvertedBitSet().to_ulong(); // this should work for both the cut-based and the LH selectors
+      
 
       // decorate the original object
       if(m_cut==""){
