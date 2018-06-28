@@ -8,7 +8,7 @@
 #include "TopAnalysis/EventSaverBase.h"
 #include "TopCorrections/ScaleFactorRetriever.h"
 #include "TopEventSelectionTools/TreeManager.h"
-#include "TopObjectSelectionTools/RCJetMC15.h"
+#include "TopEvent/RCJetMC15.h"
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"

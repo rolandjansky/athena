@@ -14,7 +14,7 @@
 // File for initializing and making re-clustered jets.
 //
 ***************************************************************/
-#include "TopObjectSelectionTools/RCJetMC15.h"
+#include "TopEvent/RCJetMC15.h"
 
 #include "TopConfiguration/TopConfig.h"
 #include "AsgTools/AsgTool.h"
