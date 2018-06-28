@@ -5,41 +5,44 @@
 #ifndef TRIGSERVICES_HLTEVENTLOOPMGR_H
 #define TRIGSERVICES_HLTEVENTLOOPMGR_H
 
-#include "TrigKernel/ITrigEventLoopMgr.h"
-#include "EventInfo/EventID.h"  /* number_type */
-
-#include "GaudiKernel/MinimalEventLoopMgr.h"
-#include "GaudiKernel/SmartIF.h"
-#include "GaudiKernel/IEvtSelector.h"
-
-#include "AthenaKernel/Timeout.h"
-
+// Trigger includes
 #include "TrigKernel/IHltTHistSvc.h"
+#include "TrigKernel/ITrigEventLoopMgr.h"
 #include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
 
+// Athena includes
+#include "AthenaBaseComps/AthService.h"
+#include "AthenaKernel/Timeout.h"
+#include "EventInfo/EventID.h" // number_type
+
+// Gaudi includes
+#include "GaudiKernel/IEventProcessor.h"
+#include "GaudiKernel/IEvtSelector.h"
+#include "GaudiKernel/SmartIF.h"
+
+// TDAQ includes
 #include "eformat/write/FullEventFragment.h"
 
-
 // Forward declarations
-class IIncidentSvc;
-class StoreGateSvc;
-class EventInfo;
-class ITHistSvc;
-class IROBDataProviderSvc;
-class CondAttrListCollection;
-class TrigCOOLUpdateHelper;
 namespace coral {
   class AttributeList;
 }
+class CondAttrListCollection;
+class EventInfo;
+class IAlgExecStateSvc;
+class IAlgorithm;
 class IAlgResourcePool;
 class IHiveWhiteBoard;
+class IIncidentSvc;
+class IROBDataProviderSvc;
 class IScheduler;
-class IAlgExecStateSvc;
+class ITHistSvc;
+class StoreGateSvc;
+class TrigCOOLUpdateHelper;
 
 
-class HltEventLoopMgr : public MinimalEventLoopMgr,
-                        virtual public ITrigEventLoopMgr,
-                        virtual public Athena::TimeoutMaster
+class HltEventLoopMgr : public extends2<AthService, ITrigEventLoopMgr, IEventProcessor>,
+                        public Athena::TimeoutMaster
 {
 
 public:
@@ -49,14 +52,23 @@ public:
   /// Standard destructor
   virtual ~HltEventLoopMgr();
 
-  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+  /// Override IInterface::queryInterface to handle multiple interfaces properly
+  /// (should be handled by extends2<base, i, i>, but doesn't work)
+  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 
-  /// @name State transitions
+  /// @name Gaudi state transitions (overriden from AthService)
   ///@{
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode start() override;
+  virtual StatusCode stop() override;
+  virtual StatusCode finalize() override;
+  virtual StatusCode reinitialize() override;
+  virtual StatusCode restart() override;
+  ///@}
 
+  /// @name State transitions of ITrigEventLoopMgr interface
+  ///@{
   virtual StatusCode prepareForRun(const boost::property_tree::ptree& pt);
-
   virtual StatusCode hltUpdateAfterFork(const boost::property_tree::ptree& pt);
   ///@}
 
@@ -77,6 +89,11 @@ public:
    * @param par generic parameter
    */
   virtual StatusCode executeEvent(void* par);
+
+  /**
+   * Implementation of IEventProcessor::stopRun (obsolete for online runnning)
+   */
+  virtual StatusCode stopRun();
 
   [[deprecated]]
   virtual StatusCode
@@ -150,8 +167,6 @@ private:
   SmartIF<IAlgResourcePool> m_algResourcePool;
   /// Reference to the Algorithm Execution State Svc
   SmartIF<IAlgExecStateSvc> m_aess;
-  /// Property interface of ApplicationMgr
-  SmartIF<IProperty> m_appMgrProperty;
   /// A shortcut for the scheduler
   SmartIF<IScheduler> m_schedulerSvc;
 
@@ -175,6 +190,8 @@ private:
   StringProperty m_schedulerName;
   /// Name of the Whiteboard to be used
   StringProperty m_whiteboardName;
+  /// Vector of top level algorithm names
+  Gaudi::Property<std::vector<std::string> > m_topAlgNames;
 
   typedef SimpleProperty< std::vector<uint32_t> > Uint32ArrayProperty;
   /// list of all enabled ROBs which can be retrieved
@@ -201,6 +218,8 @@ private:
   /// Event selector context
   IEvtSelector::Context* m_evtSelContext;
 
+  /// Vector of top level algorithms
+  std::vector<SmartIF<IAlgorithm> > m_topAlgList;
 };
 
 //==============================================================================
