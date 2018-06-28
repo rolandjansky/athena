@@ -16,7 +16,7 @@
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
 #include "CaloEvent/CaloCellContainer.h"
-#include "LArRecUtils/LArHVCorrTool.h"
+#include "LArElecCalib/ILArHVCorrTool.h"
 
 L1CaloHVCorrectionsForDB::L1CaloHVCorrectionsForDB(const std::string& name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
