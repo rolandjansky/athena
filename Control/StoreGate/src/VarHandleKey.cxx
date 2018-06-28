@@ -204,7 +204,7 @@ void VarHandleKey::parseKey (const std::string& key,
     return;
   }
 
-  // StoreName separator is ":"
+  // StoreName separator is "+"
   sp = key.find(storeSeparator);
   if(sp == std::string::npos) {
     m_sgKey = key;
