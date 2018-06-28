@@ -217,6 +217,7 @@
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/CommonTools/ExpressionEvaluation
 + PhysicsAnalysis/D3PDTools/RootCoreUtils
++ PhysicsAnalysis/D3PDTools/AnaAlgorithm
 + PhysicsAnalysis/DerivationFramework/.*
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
