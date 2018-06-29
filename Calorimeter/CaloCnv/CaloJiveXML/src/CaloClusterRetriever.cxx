@@ -89,7 +89,7 @@ namespace JiveXML {
       }
     }else {
       //obtain all collections with keys provided by user: m_otherKeys
-      std::vector<std::string>::const_iterator keyIter,endIter;
+      std::vector<std::string>::const_iterator keyIter;
       for ( keyIter=m_otherKeys.begin(); keyIter!=m_otherKeys.end(); ++keyIter ){
        if ( evtStore()->contains<CaloClusterContainer>(*keyIter) ){ // to avoid some SG dumps
 	if ( !evtStore()->retrieve( ccc, (*keyIter) ).isFailure()) {
