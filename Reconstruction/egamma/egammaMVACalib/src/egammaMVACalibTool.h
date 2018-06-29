@@ -19,6 +19,7 @@
 #include <string>
 #include <memory>
 #include <functional>
+#include <unordered_map>
 
 
 /**
@@ -71,11 +72,14 @@ private:
   std::vector<MVAUtils::BDT> m_BDTs;
 
   /// map of variable string to function (taking calo cluster)
-  std::map<std::string, std::functional<float(const xAOD::CaloCluster&)> m_clusterFuncs;
+  std::unordered_map<std::string, std::functional<float(const xAOD::CaloCluster&)> > m_clusterFuncs;
+  /// map of variable string to function (taking egamma)
+  std::unordered_map<std::string, std::functional<float(const xAOD::Egamma&)> > m_egammaFuncs;
   /// map of variable string to function (taking electron)
-  std::map<std::string, std::functional<float(const xAOD::Electron&)> m_ElectronFuncs;
-  /// map of variable string to function (taking photon)
-  std::map<std::string, std::functional<float(const xAOD::Photon&)> m_PhotonFuncs;
+  std::unordered_map<std::string, std::functional<float(const xAOD::Electron&)> > m_electronFuncs;
+  /// map of variable string to function (taking ConversionHelper)
+  std::unordered_map<std::string,
+		     std::functional<float(const egammaMVATreeHelpers::ConversionHelper&)> > m_convFuncs;
 
   /// initialize the functions needed for electrons
   StatusCode initializeElectronFuncs();
@@ -84,6 +88,11 @@ private:
   /// initialize the functions needed for converted photons
   StatusCode initializeConvertedPhotonFuncs();
 
+  /// a function called by the above functions to setup the cluster funcs
+  StatusCode initializeClusterFuncs(const std::string& prefix);
+
+  /// a function called by the above functions to setup the egamma funcs
+  StatusCode initializeEgammaFuncs(const std::string& prefix);
 };
 
 #endif 
