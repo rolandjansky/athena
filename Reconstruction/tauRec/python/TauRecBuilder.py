@@ -163,9 +163,9 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
 
             # PanTau:
-            # if tauFlags.doPanTau() :
-            # import PanTauAlgs.JobOptions_Main_PanTau as pantau
-            # tools.append(pantau.getPanTau())
+            if tauFlags.doPanTau() :
+                import PanTauAlgs.JobOptions_Main_PanTau as pantau
+                tools.append(pantau.getPanTau())
  
             # these tools need pantau info
             tools.append(taualgs.getCombinedP4FromRecoTaus())
