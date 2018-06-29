@@ -290,7 +290,11 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
 addDefaultTrimmedJets(exot8Seq,"EXOT8")
 
 # Adds a new jet collection for SoftDrop with constituent modifiers CS and SK applied
-addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=0.5, zcut=0.1, algseq=exot8Seq, outputGroup="EXOT8", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
+if globalflags.DataSource()=="geant4":
+  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=exot8Seq, outputGroup="EXOT8", writeUngroomed=True)
+
+addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], exot8Seq, "EXOT8", ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed")
+addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1, algseq=exot8Seq, outputGroup="EXOT8", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
 
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
@@ -371,21 +375,22 @@ EXOT8SlimmingHelper.AllVariables   = ["TruthParticles",
 EXOT8SlimmingHelper.StaticContent = [
                                      "xAOD::JetContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                      "xAOD::JetAuxContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux.",
+                                     "xAOD::JetContainer#AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
+                                     "xAOD::JetAuxContainer#AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux.",
+                                     "xAOD::JetContainer#AntiKt10LCTopoCSSKJets",
+                                     "xAOD::JetAuxContainer#AntiKt10LCTopoCSSKJetsAux.",
                                     ]
 
 # Add VR track-jet collection and its b-tagging container to output stream
 EXOT8SlimmingHelper.AppendToDictionary = {
     "AntiKtVR30Rmax4Rmin02TrackJets"                :   "xAOD::JetContainer"        ,
     "AntiKtVR30Rmax4Rmin02TrackJetsAux"             :   "xAOD::JetAuxContainer"     ,
-    "AntiKt10LCTopoCSSKSoftDropBeta50Zcut10Jets"   :   "xAOD::JetContainer"        ,
-    "AntiKt10LCTopoCSSKSoftDropBeta50Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
     "BTagging_AntiKtVR30Rmax4Rmin02Track"           :   "xAOD::BTaggingContainer"   ,
     "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"        :   "xAOD::BTaggingAuxContainer",
 }
                                
 # Add all variabless for VR track-jets
 EXOT8SlimmingHelper.AllVariables  += ["AntiKtVR30Rmax4Rmin02TrackJets"]
-EXOT8SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta50Zcut10Jets"]
 EXOT8SlimmingHelper.SmartCollections  += ["BTagging_AntiKtVR30Rmax4Rmin02Track"]
 
 # Save certain b-tagging variables for VR track-jet
@@ -404,6 +409,11 @@ if globalflags.DataSource()=="geant4":
                                      "xAOD::JetContainer#AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
                                      "xAOD::JetAuxContainer#AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux.",
                                      ]
+    EXOT8SlimmingHelper.AppendToDictionary = {
+      "AntiKt10TruthSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,
+      "AntiKt10TruthSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+    }
+    EXOT8SlimmingHelper.AllVariables  += ["AntiKt10TruthSoftDropBeta100Zcut10Jets"]
 
 EXOT8SlimmingHelper.IncludeJetTriggerContent = True
 EXOT8SlimmingHelper.IncludeBJetTriggerContent = True
