@@ -177,7 +177,7 @@ for jc in OutputJets["FTAG5"]:
    )
 
 # also add some b-tagging jet-wise information
-for sjc in ["AntiKtVR30Rmax4Rmin02TrackJets"]: # currently missing ExKt2,3
+for sjc in FTAG5BTaggedJets:
     FTAG5Seq += CfgMgr.BTagJetAugmenterAlg(
            "FTAG5JetAugmenter_"+sjc,
            JetCollectionName=sjc
