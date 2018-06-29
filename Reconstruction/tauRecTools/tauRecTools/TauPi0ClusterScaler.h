@@ -33,7 +33,7 @@ public:
     virtual StatusCode finalize();
     virtual StatusCode execute(xAOD::TauJet& pTau);
     virtual StatusCode executeCaloClus(xAOD::TauJet&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
-    virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
+    virtual StatusCode eventFinalize();
 
     virtual void print() const { }
 
@@ -62,11 +62,7 @@ private:
 
     /** @brief new charged PFO container and name */
     xAOD::PFOContainer* m_chargedPFOContainer;
-    std::string m_chargedPFOContainerName;
     xAOD::PFOAuxContainer* m_chargedPFOAuxStore;
-
-    /** @brief run on AOD */
-    bool m_AODmode;
 
     /** @brief sets of EM/Had samplings for track extrapolation */
     //std::set<CaloSampling::CaloSample> m_EMSamplings;
@@ -77,6 +73,8 @@ private:
     //xAOD::PFODetails::PFOAttributes PHIECAL;
     //xAOD::PFODetails::PFOAttributes ETAHCAL;
     //xAOD::PFODetails::PFOAttributes PHIHCAL;
+
+    SG::WriteHandleKey<xAOD::PFOContainer> m_chargedPFOOutputContainer{this,"Key_chargedPFOOutputContainer", "TauChargedParticleFlowObjects", "tau charged pfo out key"};
 
 };
 

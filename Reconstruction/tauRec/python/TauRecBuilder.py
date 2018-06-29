@@ -150,7 +150,15 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             # Tools in this section were originally in TauRecVariablesProcessor
             if InDetFlags.doVertexFinding():
                 tools.append(taualgs.getTauVertexVariables())
+            
+            tools.append(taualgs.getTauCommonCalcVars())
+            tools.append(taualgs.getTauSubstructure())
 
+            if self.doPi0Clus: 
+                tools.append(taualgs.getPi0ClusterScaler())
+                # tools.append(taualgs.getPi0ScoreCalculator())
+                # SWITCHED OFF SELECTOR< SINCE NO CHARGED PFOS AVAILABLE ATM
+                # tools.append(taualgs.getPi0Selector())
 
             ################################
 

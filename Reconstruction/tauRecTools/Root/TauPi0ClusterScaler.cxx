@@ -29,11 +29,8 @@ using std::string;
 TauPi0ClusterScaler::TauPi0ClusterScaler( const string& name ) :
     TauRecToolBase(name)
     , m_chargedPFOContainer(0)
-    , m_chargedPFOContainerName("TauChargedParticleFlowObjects")
     , m_chargedPFOAuxStore(0)
 {
-    declareProperty("ChargedPFOContainerName", m_chargedPFOContainerName); 
-    declareProperty("runOnAOD", m_AODmode=false);
 }
 
 //-------------------------------------------------------------------------
@@ -47,29 +44,21 @@ TauPi0ClusterScaler::~TauPi0ClusterScaler()
 
 StatusCode TauPi0ClusterScaler::initialize()
 {
-    return StatusCode::SUCCESS;
+
+  ATH_CHECK(m_chargedPFOOutputContainer.initialize());
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TauPi0ClusterScaler::eventInitialize() {
 
-    //---------------------------------------------------------------------
-    // Create charged PFO container
-    //---------------------------------------------------------------------
-    if(not m_AODmode){
-        m_chargedPFOContainer = new xAOD::PFOContainer();
-        m_chargedPFOAuxStore = new xAOD::PFOAuxContainer();
-        m_chargedPFOContainer->setStore(m_chargedPFOAuxStore);
-        ASG_CHECK( evtStore()->record(m_chargedPFOContainer, m_chargedPFOContainerName ) );
-        ASG_CHECK( evtStore()->record( m_chargedPFOAuxStore, m_chargedPFOContainerName + "Aux." ) );
-    }
-    else{
-        ATH_MSG_DEBUG("TauPi0ClusterScaler running in AOD mode");
-        ASG_CHECK( evtStore()->retrieve(m_chargedPFOContainer, m_chargedPFOContainerName) );
-        ASG_CHECK( evtStore()->retrieve( m_chargedPFOAuxStore, m_chargedPFOContainerName + "Aux." ) );
-        m_chargedPFOContainer->clear();
-    }
-    return StatusCode::SUCCESS;
-
+  //---------------------------------------------------------------------
+  // Create charged PFO container
+  //---------------------------------------------------------------------
+  m_chargedPFOContainer = new xAOD::PFOContainer();
+  m_chargedPFOAuxStore = new xAOD::PFOAuxContainer();
+  m_chargedPFOContainer->setStore(m_chargedPFOAuxStore);
+  
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TauPi0ClusterScaler::finalize()
@@ -384,4 +373,13 @@ void TauPi0ClusterScaler::subtractChargedEnergyFromNeutralPFOs(xAOD::TauJet& pTa
         ATH_MSG_DEBUG("Neutral PFO pt, orig: " << neutralPFO->pt() << "  new: " << neutralPt); 
         neutralPFO->setP4(neutralPt , neutralPFO->eta(), neutralPFO->phi(), neutralPFO->m());
     }
+}
+
+StatusCode TauPi0ClusterScaler::eventFinalize() {
+  
+  SG::WriteHandle<xAOD::PFOContainer> chargedPFOHandle( m_chargedPFOOutputContainer );
+  ATH_MSG_DEBUG("  write: " << chargedPFOHandle.key() << " = " << "..." );
+  ATH_CHECK(chargedPFOHandle.record(std::unique_ptr<xAOD::PFOContainer>{m_chargedPFOContainer}, std::unique_ptr<xAOD::PFOAuxContainer>{m_chargedPFOAuxStore}));
+
+  return StatusCode::SUCCESS;
 }
