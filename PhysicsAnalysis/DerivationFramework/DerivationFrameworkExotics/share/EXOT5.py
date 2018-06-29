@@ -315,7 +315,22 @@ triggers = [
     'HLT_mu60_0eta105_msonly',
     # new triggers for 2018
     'HLT_xe110_pufit_xe65_L1XE50',
-    'HLT_xe110_pufit_xe70_L1XE5',
+    'HLT_xe110_pufit_xe70_L1XE50',
+    'HLT_xe120_pufit_L1XE50',
+    'HLT_xe100_pufit_xe75_L1XE60',
+    'HLT_xe110_pufit_L1XE55',
+    'HLT_xe110_pufit_L1XE60',
+    'HLT_xe110_pufit_L1XE70',
+    'HLT_xe110_pufit_wEFMu_L1XE55',
+    'HLT_xe110_pufit_xe65_L1XE55',
+    'HLT_xe110_pufit_xe65_L1XE60',
+    'HLT_xe120_mht_xe80_L1XE55',
+    'HLT_xe120_mht_xe80_L1XE60',
+    'HLT_xe120_pufit_L1XE55',
+    'HLT_xe120_pufit_L1XE60',
+    'HLT_xe120_pufit_L1XE70',
+    'HLT_xe120_pufit_wEFMu_L1XE55',
+    'HLT_xe120_pufit_wEFMu_L1XE60',
     ]
 lepton_triggers = [
    # el - y2015
@@ -340,6 +355,16 @@ lepton_triggers = [
    "HLT_e60_lhmedium_nod0_L1EM24VHI",
    "HLT_e140_lhloose_nod0_L1EM24VHI",
    "HLT_e300_etcut_L1EM24VHI",
+   # el - y2018
+   "HLT_e140_lhloose_nod0_L1EM24VHIM",
+   "HLT_e28_lhtight_nod0_ivarloose_L1EM24VHIM",
+   "HLT_e28_lhtight_nod0_noringer_ivarloose",
+   "HLT_e28_lhtight_nod0_noringer_ivarloose_L1EM24VHIM",
+   "HLT_e300_etcut_L1EM24VHIM",
+   "HLT_e32_lhtight_nod0_ivarloose",
+   "HLT_e60_lhmedium_nod0_L1EM24VHIM",
+   "HLT_e80_lhmedium_nod0_L1EM24VHI",
+   "HLT_e80_lhmedium_nod0_L1EM24VHIM",
 
    # mu - y2015
    "HLT_mu20_iloose_L1MU15",
@@ -369,7 +394,12 @@ lepton_triggers = [
    "HLT_mu22_mu8noL1_calotag_0eta010",
    "HLT_mu24_mu8noL1",
    "HLT_mu24_mu8noL1_calotag_0eta010",
-   "HLT_mu26_mu10noL1"
+   "HLT_mu26_mu10noL1",
+   # mu - y2018
+   "HLT_mu28_ivarmedium",
+   "HLT_mu60_msonly_3layersEC",
+   "HLT_mu80",
+   "HLT_mu80_msonly_3layersEC"
     ]
 
 expression = ' || '.join(triggers+lepton_triggers)

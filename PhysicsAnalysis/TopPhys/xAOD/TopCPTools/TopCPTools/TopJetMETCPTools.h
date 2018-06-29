@@ -24,7 +24,7 @@
 #include "JetInterface/IJetModifier.h"
 #include "JetResolution/IJERTool.h"
 #include "JetResolution/IJERSmearingTool.h"
-#include "JetJvtEfficiency/IJetJvtEfficiency.h"
+#include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 #include "JetSelectorTools/IEventCleaningTool.h"
 
 // MET include(s):

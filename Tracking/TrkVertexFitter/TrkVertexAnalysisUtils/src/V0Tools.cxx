@@ -15,11 +15,8 @@
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "VxVertex/VxTrackAtVertex.h"
-#include "EventPrimitives/EventPrimitives.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 
@@ -626,7 +623,6 @@ namespace Trk
   double V0Tools::pTError(const xAOD::Vertex * vxCandidate) const
   {
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
-    Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero(); // no full covariance
     double Px=0., Py=0.; 
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
@@ -648,18 +644,6 @@ namespace Trk
       dpydphi[it]    =  (sin(theta)*cos(phi)*trkCharge)/qOverP;
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
-      const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
-      if (fullCov == 0) {
-        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
-        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
-        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
-        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
-        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
-        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
-        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
-        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
-        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
-      }
     }
     double PTsq = Px*Px+Py*Py;
     double PT = (PTsq>0.) ? sqrt(PTsq) : 0.;
@@ -689,6 +673,7 @@ namespace Trk
         D_vec(5*it+4,0)  = dPTdqOverP[it];
       }
       if (fullCov == 0) {
+        Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         PtErrSq = D_vec.transpose() * V0_cov * D_vec;
       } else {
         PtErrSq = D_vec.transpose() * fullCov->block(0,0,5*NTrk-1,5*NTrk-1) * D_vec;
@@ -785,7 +770,6 @@ namespace Trk
     double dx = vert.x();
     double dy = vert.y();
     double dz = vert.z();
-    Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double Px=0., Py=0., Pz=0.;
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
@@ -811,19 +795,6 @@ namespace Trk
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
-      if (fullCov == 0) {
-        //V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
-        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
-        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
-        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
-        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
-        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
-        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
-        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
-        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
-        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
-        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
-      }
     }
     double P2 = Px*Px+Py*Py+Pz*Pz;
     double B = Px*dx+Py*dy+Pz*dz;
@@ -874,6 +845,7 @@ namespace Trk
       if (fullCov != 0) {
         W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
+        Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
         W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->covariancePosition();
       }
@@ -918,7 +890,6 @@ namespace Trk
     double dx = vert.x();
     double dy = vert.y();
     double dz = vert.z();
-    Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double Px=0., Py=0., Pz=0.;
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
@@ -946,19 +917,6 @@ namespace Trk
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
-      if (fullCov == 0) {
-        //V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
-        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
-        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
-        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
-        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
-        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
-        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
-        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
-        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
-        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
-        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
-      }
     }
     double cosineTheta;
     double a0val;
@@ -1014,6 +972,7 @@ namespace Trk
       if (fullCov != 0) {
         W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
+        Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
         W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->covariancePosition();
       }
@@ -1062,7 +1021,6 @@ namespace Trk
     double dx = vert.x();
     double dy = vert.y();
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
-    Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double Px=0., Py=0.; 
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
@@ -1084,19 +1042,6 @@ namespace Trk
       dpydphi[it]    =  (sin(theta)*cos(phi)*trkCharge)/qOverP;
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
-      if (fullCov == 0) {
-        //V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
-        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
-        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
-        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
-        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
-        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
-        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
-        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
-        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
-        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
-        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
-      }
     }
     double PTsq = Px*Px+Py*Py;
     double PT = (PTsq>0.) ? sqrt(PTsq) : 0.;
@@ -1143,6 +1088,7 @@ namespace Trk
       if (fullCov != 0) {
         W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
+        Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
         W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->covariancePosition();
       }
@@ -1192,7 +1138,6 @@ namespace Trk
     double dy = vert.y();
     double dz = vert.z();
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
-    Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double Px=0., Py=0., Pz=0.; 
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
@@ -1218,19 +1163,6 @@ namespace Trk
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
-      if (fullCov == 0) {
-        //V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
-        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
-        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
-        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
-        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
-        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
-        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
-        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
-        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
-        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
-        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
-      }
     }
     double Psq = Px*Px+Py*Py+Pz*Pz;
     double P = (Psq>0.) ? sqrt(Psq) : 0.;
@@ -1279,6 +1211,7 @@ namespace Trk
       if (fullCov != 0) {
         W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
+        Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
         W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->covariancePosition();
       }
@@ -1388,7 +1321,6 @@ namespace Trk
     double dx = vert.x();
     double dy = vert.y();
     double M = invariantMass(vxCandidate, masses);
-    Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double E=0., Px=0., Py=0., Pz=0.; 
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
@@ -1418,19 +1350,6 @@ namespace Trk
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
-      if (fullCov == 0) {
-        //V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
-        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
-        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
-        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
-        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
-        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
-        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
-        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
-        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
-        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
-        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
-      }
     }
     double LXY = Px*dx+Py*dy;
 
@@ -1481,6 +1400,7 @@ namespace Trk
       if (fullCov != 0) {
         W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
+        Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
         W_mat.block(5*NTrk,5*NTrk,3,3) =  vxCandidate->covariancePosition();
       }
@@ -1545,12 +1465,10 @@ namespace Trk
     double dx = vecsub.x();
     double dy = vecsub.y();
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
-    Amg::MatrixX V0_cov(5*NTrk,1); V0_cov.setZero();
     double Px=0., Py=0.; 
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
     std::vector<double>dPTdtheta(NTrk), dPTdphi(NTrk);
-    std::vector<double>dLXYdqOverP(NTrk);
     std::vector<double>dTaudqOverP(NTrk), dTaudtheta(NTrk), dTaudphi(NTrk);
 
     Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
@@ -1569,19 +1487,6 @@ namespace Trk
       dpydphi[it]    =  (sin(theta)*cos(phi)*trkCharge)/qOverP;
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
-      if (fullCov == 0) {
-        //V0_cov.block(5*it,5*it,5,5) =  *(bPer->covariance());
-        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
-        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
-        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
-        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
-        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
-        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
-        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
-        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
-        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
-        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
-      }
     }
     double LXY = Px*dx+Py*dy;
 
@@ -1629,6 +1534,7 @@ namespace Trk
       if (fullCov != 0) {
         W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
+        Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
         W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->covariancePosition();
       }
@@ -1701,7 +1607,6 @@ namespace Trk
     double dy = vert.y();
     double dz = vert.z();
     double M = invariantMass(vxCandidate, masses);
-    Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double E=0., Px=0., Py=0., Pz=0.; 
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
@@ -1731,19 +1636,6 @@ namespace Trk
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
-      if (fullCov == 0) {
-        //V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
-        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
-        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
-        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
-        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
-        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
-        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
-        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
-        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
-        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
-        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
-      }
     }
     double LXYZ = Px*dx+Py*dy+Pz*dz;
 
@@ -1796,6 +1688,7 @@ namespace Trk
       if (fullCov != 0) {
         W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
+        Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
         W_mat.block(5*NTrk,5*NTrk,3,3) =  vxCandidate->covariancePosition();
       }
@@ -1839,7 +1732,6 @@ namespace Trk
     double dy = vecsub.y();
     double dz = vecsub.z();
     unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
-    Amg::MatrixX V0_cov(5*NTrk,1); V0_cov.setZero();
     double Px=0., Py=0., Pz=0.; 
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
@@ -1865,19 +1757,6 @@ namespace Trk
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
-      if (fullCov == 0) {
-        //V0_cov.block(5*it,5*it,5,5) =  *(bPer->covariance());
-        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
-        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
-        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
-        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
-        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
-        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
-        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
-        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
-        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
-        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
-      }
     }
     double LXYZ = Px*dx+Py*dy+Pz*dz;
 
@@ -1927,6 +1806,7 @@ namespace Trk
       if (fullCov != 0) {
         W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
+        Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
         W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->covariancePosition();
       }
@@ -2629,7 +2509,6 @@ namespace Trk
     double dx = vert.x();
     double dy = vert.y();
     double M = invariantMass(vxCandidate, masses);
-    Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double E=0., Px=0., Py=0., Pz=0.; 
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
@@ -2660,19 +2539,6 @@ namespace Trk
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
-      if (fullCov == 0) {
-        //V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
-        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
-        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
-        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
-        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
-        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
-        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
-        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
-        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
-        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
-        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
-      }
     }
     double LXY = Px*dx+Py*dy;
 
@@ -2727,6 +2593,7 @@ namespace Trk
       if (fullCov != 0) {
         W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
+        Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
         W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->covariancePosition();
       }
@@ -2757,6 +2624,25 @@ namespace Trk
     return V0_err(0,1);
   }
 
+  Amg::MatrixX V0Tools::makeV0Cov(const xAOD::Vertex * vxCandidate) const{
+      unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
+      Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
+      for( unsigned int it=0; it<NTrk; it++){
+          const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
+          const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
+          V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
+          V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
+          V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
+          V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
+          V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
+          V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
+          V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
+          V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
+          V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
+      }
+      return V0_cov;
+  }
+  
   Amg::MatrixX V0Tools::tauMassCovariance(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, const std::vector<double> &masses) const
   {
     // Tau = CONST*M*(Px*dx+Py*dy)/(PT*PT)
@@ -2773,7 +2659,6 @@ namespace Trk
     double dx = vert.x();
     double dy = vert.y();
     double M = invariantMass(vxCandidate, masses);
-    Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
     double E=0., Px=0., Py=0., Pz=0.; 
     std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
     std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
@@ -2804,19 +2689,6 @@ namespace Trk
       Px += bPer->momentum()[Trk::px];
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
-      if (fullCov == 0) {
-        //V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
-        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
-        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
-        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
-        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
-        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
-        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
-        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
-        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
-        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
-        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
-      }
     }
     double LXY = Px*dx+Py*dy;
 
@@ -2870,6 +2742,7 @@ namespace Trk
       if (fullCov != 0) {
         W_mat.block(0,0,ndim,ndim) = *fullCov;
       } else {
+        Amg::MatrixX V0_cov = makeV0Cov(vxCandidate);
         W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
         W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->covariancePosition();
       }

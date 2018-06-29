@@ -11,7 +11,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "HepPDT/ParticleDataTable.hh"
+
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
 #include <vector>
@@ -51,7 +51,6 @@ namespace DerivationFramework {
         double m_MassLower;
         double m_MassUpper;
 
-        const HepPDT::ParticleDataTable*           m_particleDataTable;
         double m_mass_muon;
         double m_mass_pion;
         double m_mass_proton;
@@ -78,8 +77,6 @@ namespace DerivationFramework {
         int         m_PV_max;
         int         m_DoVertexType;
         size_t      m_PV_minNTracks;
-
-        double getParticleMass(int particlecode) const;
 
     public:
         static const InterfaceID& interfaceID() { return IID_JpsiPlusV0Cascade;}

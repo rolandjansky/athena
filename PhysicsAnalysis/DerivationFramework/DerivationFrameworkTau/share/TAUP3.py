@@ -132,7 +132,7 @@ thinningTools += TAUP3TruthThinningTools
 # =============================================
 # Skimming tool
 # =============================================
-muRequirement    = "( count( (Muons.pt > 22.0*GeV) && Muons.DFCommonGoodMuon ) >= 1 )"
+muRequirement    = "( count( (Muons.pt > 22.0*GeV) && Muons.DFCommonGoodMuon && (Muons.muonType==0)) >= 1 )"
 tauRequirement   = "( count( (TauJets.pt > 18.0*GeV || TauJets.ptFinalCalib > 18.0*GeV) && (abs(TauJets.charge)==1.0) && ((TauJets.nTracks == 1) || (TauJets.nTracks == 3)) ) >= 1 )"
 
 expression       = muRequirement + " && " + tauRequirement

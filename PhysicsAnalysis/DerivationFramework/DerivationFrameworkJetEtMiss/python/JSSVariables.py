@@ -5,4 +5,5 @@ JSSHighLevelVariables = [
     "FoxWolfram0", "FoxWolfram2",
     "Split12", "Split23",
     "Qw", "PlanarFlow", "Angularity", "Aplanarity", "ZCut12", "KtDR",
+    "D2","L1","L2","L3","L4","L5"
 ]

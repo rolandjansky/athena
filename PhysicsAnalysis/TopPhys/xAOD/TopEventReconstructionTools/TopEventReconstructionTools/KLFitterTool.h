@@ -9,6 +9,8 @@
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
 #include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODJet/JetAuxContainer.h"
 
 
 // KLFitter include(s):

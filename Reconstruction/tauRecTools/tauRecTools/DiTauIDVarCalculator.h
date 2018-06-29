@@ -120,6 +120,7 @@ private:
   std::string m_DiTauContainerNameAux;
   bool m_bCalcCluserVariables;
   bool m_bMuonTrackRemoval;
+  bool m_bRecalcStandardID;
   std::string m_sTruthTauContainerName;
   std::string m_sDecayChannel;
   enum DecayChannel{ HadHad, HadEl, HadMu, Default };
@@ -143,7 +144,6 @@ private:
   asg::AnaToolHandle<ITauToolBase> m_muonTrackRemoval;
   asg::AnaToolHandle<ITauToolBase> m_tauSubstructureVariables;
   asg::AnaToolHandle<ITauToolBase> m_tauCommonCalcVars;
-  asg::AnaToolHandle<ITauToolBase> m_tauIDVarCalculator;
   asg::AnaToolHandle<ITauToolBase> m_tauJetBDTEvaluator_1P;
   asg::AnaToolHandle<ITauToolBase> m_tauJetBDTEvaluator_3P;
   asg::AnaToolHandle<ITauToolBase> m_tauWPDecorator;

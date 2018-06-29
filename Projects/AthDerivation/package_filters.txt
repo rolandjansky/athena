@@ -233,6 +233,7 @@
 + PhysicsAnalysis/JetTagging/JetTagNonPromptLepton
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/.*
 + PhysicsAnalysis/JetTagging/JetTagTools
++ PhysicsAnalysis/JetTagging/FlavorTagDiscriminants
 + PhysicsAnalysis/JpsiUpsilonTools
 + PhysicsAnalysis/MCTruthClassifier
 + PhysicsAnalysis/MuonID/MuonIDAnalysis/.*
@@ -374,6 +375,7 @@
 + Trigger/TriggerCommon/TriggerJobOpts
 + Trigger/TriggerCommon/TrigTier0
 + Trigger/TriggerCommon/TriggerMenu
++ Trigger/TrigCost/EnhancedBiasWeighter
 + Trigger/TrigDataAccess/TrigSerialize.*
 + Trigger/TrigEvent/Trig.*Event
 + Trigger/TrigEvent/Trig.*TPCnv
