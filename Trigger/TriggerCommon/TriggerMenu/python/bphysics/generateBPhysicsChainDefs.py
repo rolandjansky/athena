@@ -82,7 +82,7 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True, doL2MultiTrack = False)
 
     topoAlgs = chainDict["topo"]
 
-    SameConfigTopos = ['bJpsi', 'bDimu', 'bDimu2700', 'bTau', 'bTauTrk', 'trkTau', 'bTauTight',
+    SameConfigTopos = ['bJpsi', 'bDimu', 'bDimu2700', 'bDimu6000', 'bTau', 'bTauTrk', 'trkTau', 'bTauTight',
                        'bDsPhiXtight','bDsPhiX', 'bPhi', 
                        'bBmumu', 'bJpsimumu', 'bUpsimumu', 'Zmumu','bUpsi',
                        'bNocut', 'bVertex2', 'bVertex3']
@@ -278,6 +278,18 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu2700
         EFFex = EFMultiMuFex_DiMu()
         EFHypo = EFMultiMuHypo_DiMu2700()
+
+    elif (mtopo =='bDimu6000'):
+        from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
+        from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_L26000
+        L2Fex = TrigMultiTrkFex_DiMu("TrigMultiTrkFex_DiMu"+fexNameExt)
+        L2Fex.setTrackThresholds( trkmuons )
+        L2Hypo = EFMultiMuHypo_L26000("L2MultiMuHypo_bDimu6000")
+
+        from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_DiMu
+        from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu6000
+        EFFex = EFMultiMuFex_DiMu()
+        EFHypo = EFMultiMuHypo_DiMu6000()
 
     elif (mtopo == 'bTauTrk'):
 
