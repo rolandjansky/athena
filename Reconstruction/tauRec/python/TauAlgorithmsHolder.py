@@ -896,6 +896,7 @@ def getTauIDVarCalculator():
     _name = sPrefix + 'TauIDVarCalculator'
     from tauRecTools.tauRecToolsConf import TauIDVarCalculator            
     myTauIDVarCalculator = TauIDVarCalculator(name=_name,
+                                              Key_vertexInputContainer=_DefaultVertexContainer
                                               )
     cached_instances[_name] = myTauIDVarCalculator
     return myTauIDVarCalculator

@@ -40,8 +40,9 @@ class TauIDVarCalculator: public TauRecToolBase
   
  private:
 
-  std::string m_vertexContainerKey;
   int m_nVtx;
+
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
 };
 
 #endif

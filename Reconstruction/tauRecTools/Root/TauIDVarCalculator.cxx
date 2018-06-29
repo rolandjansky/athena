@@ -19,40 +19,42 @@ const float TauIDVarCalculator::LOW_NUMBER = -1111.;
 
 TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
   TauRecToolBase(name),
-  m_vertexContainerKey("PrimaryVertices"),
   m_nVtx(1)
 {
-  declareProperty("vertexContainerKey", m_vertexContainerKey);
 }
 
 StatusCode TauIDVarCalculator::eventInitialize()
 {
   if(!inTrigger()){
-    m_nVtx = int(LOW_NUMBER);
-    const xAOD::VertexContainer* vertexContainer = nullptr;
-    if( evtStore()->retrieve( vertexContainer, m_vertexContainerKey ).isFailure() ){
-      ATH_MSG_ERROR("VertexContainer with key " << m_vertexContainerKey << " could not be retrieved.");
-      return StatusCode::FAILURE;
+
+    m_nVtx = int(LOW_NUMBER);    
+    // Get the primary vertex container from StoreGate
+    const xAOD::VertexContainer* vertexContainer = 0;
+    SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
+    if (!vertexInHandle.isValid()) {
+      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
+      return StatusCode::FAILURE;                                                                                                                              
     }
-    if(vertexContainer){
-      m_nVtx = 0;
+    else{
+      vertexContainer = vertexInHandle.cptr();
+      m_nVtx=0;
       for( auto vertex : *vertexContainer ){
 	if(!vertex) continue;
 	int nTrackParticles = vertex->nTrackParticles();
-	if( (nTrackParticles >= 4 && vertex->vertexType() == xAOD::VxType::PriVtx) ||
-	    (nTrackParticles >= 2 && vertex->vertexType() == xAOD::VxType::PileUp)){
-	  m_nVtx++;
-	}
+        if( (nTrackParticles >= 4 && vertex->vertexType() == xAOD::VxType::PriVtx) ||
+            (nTrackParticles >= 2 && vertex->vertexType() == xAOD::VxType::PileUp)){
+          m_nVtx++;
+        }
       }
     }
   }
-  
+ 
   return StatusCode::SUCCESS;
 }
 
 StatusCode TauIDVarCalculator::initialize()
 {
-
+  ATH_CHECK( m_vertexInputContainer.initialize() );
   return StatusCode::SUCCESS;
 }
 
