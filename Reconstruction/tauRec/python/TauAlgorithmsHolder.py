@@ -736,7 +736,8 @@ def getTauGenericPi0Cone():
 def getMvaTESVariableDecorator():
     _name = sPrefix + 'MvaTESVariableDecorator'
     from tauRecTools.tauRecToolsConf import MvaTESVariableDecorator
-    MvaTESVariableDecorator = MvaTESVariableDecorator(name = _name)
+    MvaTESVariableDecorator = MvaTESVariableDecorator(name = _name,
+                                                      Key_vertexInputContainer=_DefaultVertexContainer)
     cached_instances[_name] = MvaTESVariableDecorator
     return MvaTESVariableDecorator
 

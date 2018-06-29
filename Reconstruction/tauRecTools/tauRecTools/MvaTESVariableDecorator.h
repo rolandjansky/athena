@@ -21,6 +21,7 @@ class MvaTESVariableDecorator
   MvaTESVariableDecorator(const std::string& name="MvaTESVariableDecorator");
   virtual ~MvaTESVariableDecorator();
     
+  StatusCode initialize();
   StatusCode eventInitialize();
   StatusCode execute(xAOD::TauJet& xTau);
   StatusCode executeCaloClus(xAOD::TauJet&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
@@ -32,7 +33,8 @@ class MvaTESVariableDecorator
   int m_mu; //!
   int m_nVtxPU; //!
   bool m_emitVertexWarning=true; //!
-  
+
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
 };
 
 
