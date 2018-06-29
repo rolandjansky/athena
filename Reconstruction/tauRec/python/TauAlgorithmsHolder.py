@@ -905,7 +905,7 @@ def getTauEleOLRDecorator():
     _name = sPrefix + 'TauEleOLRDecorator'
     from tauRecTools.tauRecToolsConf import TauEleOLRDecorator
     myTauEleOLRDecorator = TauEleOLRDecorator(name=_name,
-                                              ElectronContainerName="Electrons",
+                                              Key_electronInputContainer="Electrons",
                                               EleOLRFile="eVetoAODfix.root")
     cached_instances[_name] = myTauEleOLRDecorator
     return myTauEleOLRDecorator

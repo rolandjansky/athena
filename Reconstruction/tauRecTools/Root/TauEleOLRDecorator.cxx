@@ -18,12 +18,10 @@ TauEleOLRDecorator::TauEleOLRDecorator(const std::string& name):
   TauRecToolBase(name),
   m_tEMLHTool(nullptr),
   m_xElectronContainer(nullptr),
-  m_sElectronContainerName("Electrons"),
   m_bElectonsAvailable(true),
   m_sEleOLRFilePath("eveto_cutvals.root"),
   m_hCutValues(nullptr)
 {
-  declareProperty("ElectronContainerName", m_sElectronContainerName);
   declareProperty("EleOLRFile", m_sEleOLRFilePath);
 }
 
@@ -33,12 +31,22 @@ TauEleOLRDecorator::~TauEleOLRDecorator(){
 
 StatusCode TauEleOLRDecorator::eventInitialize()
 {
-  return retrieveElectrons();
+  // get electron container                                                                                                                               
+  SG::ReadHandle<xAOD::ElectronContainer> electronInHandle( m_electronInputContainer );
+  if (!electronInHandle.isValid()) {
+    ATH_MSG_FATAL("Electron container with name " << electronInHandle.key() << " was not found in event store, but is needed for electron OLR. Ensure that it is there with the correct name");
+    return StatusCode::FAILURE;
+  }
+  m_xElectronContainer = electronInHandle.cptr();
+  ATH_MSG_DEBUG("  read: " << electronInHandle.key() << " = " << "..." );                                                                                     
+  
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TauEleOLRDecorator::initialize()
 {
   ATH_MSG_INFO( "Initializing TauEleOLRDecorator" );
+  ATH_CHECK( m_electronInputContainer.initialize() );
 
   std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20150712/";
   m_tEMLHTool = CxxUtils::make_unique<AsgElectronLikelihoodTool>(name()+"_ELHTool");
@@ -92,9 +100,6 @@ StatusCode TauEleOLRDecorator::execute(xAOD::TauJet& tau)
   if (m_bElectonsAvailable)
     if (!m_xElectronContainer)
       m_bElectonsAvailable = false;
-  if (!m_bElectonsAvailable)
-    if (retrieveElectrons().isFailure())
-      return StatusCode::FAILURE;
   float fEleMatchPt = -1.;
   // find electron with pt>5GeV within 0.4 cone with largest pt
   for( auto xElectron : *(m_xElectronContainer) )
@@ -161,16 +166,6 @@ StatusCode TauEleOLRDecorator::finalize()
 {
   
   return StatusCode::SUCCESS;
-}
-
-StatusCode TauEleOLRDecorator::retrieveElectrons()
-{
-  if (evtStore()->contains<xAOD::ElectronContainer>(m_sElectronContainerName))
-    if ( evtStore()->retrieve(m_xElectronContainer,m_sElectronContainerName).isSuccess() )
-      return StatusCode::SUCCESS;
-  ATH_MSG_FATAL("Electron container with name " << m_sElectronContainerName << " was not found in event store, but is needed for electron OLR. Ensure that it is there with the\
- correct name");
-  return StatusCode::FAILURE;
 }
 
 float TauEleOLRDecorator::getCutVal(float fEta, float fPt)
