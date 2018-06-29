@@ -58,7 +58,9 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   m_detector_mask(0xffffffff, 0xffffffff, 0, 0),
   m_nevt(0),
   m_threadPoolSize(-1),
-  m_evtSelContext(nullptr)
+  m_evtSelContext(nullptr),
+  m_softTimeoutValue(10000),
+  m_runEventTimer(true)
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
@@ -493,6 +495,17 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree& /*pt*/)
     ATH_MSG_WARNING("Could not retrieve CoreDumpSvc");
   }
 
+  // Start the timeout thread
+  m_timeoutThread.reset(new std::thread(std::bind(&HltEventLoopMgr::runEventTimer,this)));
+
+  // Initialise vector of time points for event timeout monitoring
+  {
+    std::unique_lock<std::mutex> lock(m_timeoutMutex);
+    m_eventTimerStartPoint.clear();
+    m_eventTimerStartPoint.resize(m_whiteboard->getNumberOfStores(), std::chrono::steady_clock::time_point());
+    m_timeoutCond.notify_all();
+  }
+
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;
 }
@@ -512,6 +525,7 @@ StatusCode HltEventLoopMgr::processRoIs(
 
 // =============================================================================
 // Implementation of ITrigEventLoopMgr::timeOutReached
+// DUE TO BE REMOVED
 // =============================================================================
 StatusCode HltEventLoopMgr::timeOutReached(const boost::property_tree::ptree& /*pt*/)
 {
@@ -532,6 +546,17 @@ StatusCode HltEventLoopMgr::executeRun(int maxevt)
   }
 
   // do some cleanup here
+
+  // stop the timer thread - this should be in the stop() transition, but it is not called at the moment
+  {
+    ATH_MSG_DEBUG("Stopping the timeout thread");
+    std::unique_lock<std::mutex> lock(m_timeoutMutex);
+    m_runEventTimer = false;
+    m_timeoutCond.notify_all();
+    m_timeoutThread->join();
+    ATH_MSG_DEBUG("The timeout thread finished");
+  }
+
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return sc;
 }
@@ -606,6 +631,14 @@ StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
         // should we return anything to the DataCollector?
         failedEvent(evtContext,nullptr);
         continue;
+      }
+
+      // set event processing start time for timeout monitoring and reset timeout flag
+      {
+        std::unique_lock<std::mutex> lock(m_timeoutMutex);
+        m_eventTimerStartPoint[evtContext->slot()] = std::chrono::steady_clock::now();
+        resetTimeout(Athena::Timeout::instance(*evtContext));
+        m_timeoutCond.notify_all();
       }
 
       IOpaqueAddress* addr = nullptr;
@@ -1027,6 +1060,33 @@ void HltEventLoopMgr::eventDone(eformat::write::FullEventFragment* hltrFragment)
   }
   ATH_MSG_DEBUG("Sending the HLT result to DataCollector");
   hltinterface::DataCollector::instance()->eventDone(std::move(hltrPtr));
+  ATH_MSG_VERBOSE("end of " << __FUNCTION__);
+}
+
+// ==============================================================================
+void HltEventLoopMgr::runEventTimer()
+{
+  ATH_MSG_VERBOSE("start of " << __FUNCTION__);
+  auto softDuration = std::chrono::milliseconds(m_softTimeoutValue);
+  std::unique_lock<std::mutex> lock(m_timeoutMutex);
+  while (m_runEventTimer) {
+    m_timeoutCond.wait_for(lock,std::chrono::seconds(1));
+    auto now=std::chrono::steady_clock::now();
+    for (size_t i=0; i<m_eventTimerStartPoint.size(); ++i) {
+      // iterate over all slots and check for timeout
+      if (now > m_eventTimerStartPoint.at(i) + softDuration) {
+        EventContext ctx(i,0); // we only need the slot number for Athena::Timeout instance
+        // don't duplicate the actions if the timeout was already reached
+        if (!Athena::Timeout::instance(ctx).reached()) {
+          auto procTime = now - m_eventTimerStartPoint.at(i);
+          auto procTimeMillisec = std::chrono::duration_cast<std::chrono::milliseconds>(procTime);
+          ATH_MSG_WARNING("Soft timeout in slot " << i << ". Processing time = "
+                          << procTimeMillisec.count() << " ms");
+          setTimeout(Athena::Timeout::instance(ctx));
+        }
+      }
+    }
+  }
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
 }
 

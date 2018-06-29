@@ -23,6 +23,13 @@
 // TDAQ includes
 #include "eformat/write/FullEventFragment.h"
 
+// System includes
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
+#include <memory>
+#include <thread>
+
 // Forward declarations
 namespace coral {
   class AttributeList;
@@ -101,6 +108,7 @@ public:
               hltinterface::HLTResult& hlt_result,
               const hltinterface::EventId& evId);
 
+  [[deprecated]]
   virtual StatusCode timeOutReached(const boost::property_tree::ptree& pt);
 
 private:
@@ -141,6 +149,9 @@ private:
 
   /// Send an HLT result FullEventFragment to the DataCollector
   void eventDone(eformat::write::FullEventFragment* hltrFragment) const;
+
+  /// The method executed by the event timeout monitoring thread
+  void runEventTimer();
 
   // ------------------------- Reimplemented AthenaHiveEventLoopMgr helpers ----
   /// Create event context
@@ -220,6 +231,19 @@ private:
 
   /// Vector of top level algorithms
   std::vector<SmartIF<IAlgorithm> > m_topAlgList;
+
+  /// Vector of event start-processing time stamps in each slot
+  std::vector<std::chrono::steady_clock::time_point> m_eventTimerStartPoint;
+  /// Timeout mutex
+  std::mutex m_timeoutMutex;
+  /// Timeout condition variable
+  std::condition_variable m_timeoutCond;
+  /// Timeout thread
+  std::unique_ptr<std::thread> m_timeoutThread;
+  /// Soft timeout value
+  int m_softTimeoutValue;
+  /// Flag set to false if timer thread should be stopped
+  std::atomic<bool> m_runEventTimer;
 };
 
 //==============================================================================
