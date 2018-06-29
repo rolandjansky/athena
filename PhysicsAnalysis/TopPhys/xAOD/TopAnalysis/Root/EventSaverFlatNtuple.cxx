@@ -836,6 +836,7 @@ namespace top {
                   systematicTree->makeOutputVariable(m_klfitter_atLeastOneFitParameterAtItsLimit,"klfitter_atLeastOneFitParameterAtItsLimit");
                   systematicTree->makeOutputVariable(m_klfitter_invalidTransferFunctionAtConvergence,"klfitter_invalidTransferFunctionAtConvergence");
                   /// Global
+                  systematicTree->makeOutputVariable(m_klfitter_parameters_size,"klfitter_parameters_size");
                   systematicTree->makeOutputVariable(m_klfitter_parameters,"klfitter_parameters");
                   systematicTree->makeOutputVariable(m_klfitter_parameterErrors,"klfitter_parameterErrors");
                   systematicTree->makeOutputVariable(m_klfitter_bestPermutation,"klfitter_bestPermutation");
@@ -2385,10 +2386,7 @@ namespace top {
             if (event.m_KLFitterResults != nullptr) {
                 validKLFitter = true;
                 m_klfitter_selected = 1;
-                if(event.m_KLFitterResults->size()!=0)
-                  nPermutations = event.m_KLFitterResults->size()*( (event.m_KLFitterResults->at(0))->parameters().size());
-                else
-                  nPermutations = 0;
+                nPermutations = event.m_KLFitterResults->size();
             }
 
             m_klfitter_selection.resize(nPermutations);
@@ -2401,6 +2399,7 @@ namespace top {
             m_klfitter_bestPermutation.resize(nPermutations);
             m_klfitter_logLikelihood.resize(nPermutations);
             m_klfitter_eventProbability.resize(nPermutations);
+            m_klfitter_parameters_size.resize(nPermutations);
             m_klfitter_parameters.resize(nPermutations);
             m_klfitter_parameterErrors.resize(nPermutations);
 
@@ -2532,6 +2531,7 @@ namespace top {
                     }
                     m_klfitter_logLikelihood[iPerm] = klPtr->logLikelihood();
                     m_klfitter_eventProbability[iPerm] = klPtr->eventProbability();
+                    m_klfitter_parameters_size[iPerm] = klPtr->parameters().size();
                     m_klfitter_parameters[iPerm] = klPtr->parameters();
                     m_klfitter_parameterErrors[iPerm] = klPtr->parameterErrors();
 
@@ -2641,7 +2641,7 @@ namespace top {
                     }
 
 
-                    iPerm+=klPtr->parameters().size();
+                    ++iPerm;
                 }
 
                 // now take the best permutation and build the tops and the ttbar system!

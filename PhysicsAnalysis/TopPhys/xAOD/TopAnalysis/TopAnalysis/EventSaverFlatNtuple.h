@@ -640,6 +640,7 @@ private:
     std::vector<unsigned int> m_klfitter_bestPermutation;
     std::vector<float> m_klfitter_logLikelihood;
     std::vector<float> m_klfitter_eventProbability;
+    std::vector<unsigned int> m_klfitter_parameters_size;
     std::vector<std::vector<double>> m_klfitter_parameters;
     std::vector<std::vector<double>> m_klfitter_parameterErrors;
 
@@ -1193,6 +1194,7 @@ protected:
   const std::vector<unsigned int>& klfitter_bestPermutation() const { return m_klfitter_bestPermutation;}
   const std::vector<float>& klfitter_logLikelihood() const { return m_klfitter_logLikelihood;}
   const std::vector<float>& klfitter_eventProbability() const { return m_klfitter_eventProbability;}
+  const std::vector<unsigned int>& klfitter_parameters_size() const { return m_klfitter_parameters_size;}
   const std::vector<std::vector<double>>& klfitter_parameters() const { return m_klfitter_parameters;}
   const std::vector<std::vector<double>>& klfitter_parameterErrors() const { return m_klfitter_parameterErrors;}
   /// Model
