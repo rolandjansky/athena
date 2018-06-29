@@ -8,31 +8,29 @@ range 300 to 1300
 range 350 to 1350
 range 400 to 1400
 range 450 to 1450
-0/200
-10/200
-20/200
-30/200
-40/200
-50/200
-60/200
-70/200
-80/200
-90/200
-100/200
-110/200
-120/200
-130/200
-140/200
-150/200
-160/200
-170/200
-180/200
-190/200
+0/50
+10/50
+20/50
+30/50
+40/50
 NoLock
-deleted 305487
-countHit 1404513
-fills 2000000
-reads 2000000
+deleted 163825
+countHit 256975
+fills 500000
+reads 492300
+aborted 7700
+0/50
+10/50
+20/50
+30/50
+40/50
+Lock
+deleted 0
+countHit 427500
+fills 500000
+reads 492300
+aborted 7700
 Total elements 500000
 MyDigits left undeleted 0
-no lock time 12.8273
+no lock time 2.60611
+lock time 1.12183
