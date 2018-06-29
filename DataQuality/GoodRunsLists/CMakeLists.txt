@@ -64,6 +64,7 @@ atlas_add_library( GoodRunsListsLib
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${LIBXML2_INCLUDE_DIR}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo AsgAnalysisInterfaces
+   AnaAlgorithmLib
    PRIVATE_LINK_LIBRARIES ${LIBXML2_LIBRARIES} PathResolver )
 
 if( NOT XAOD_STANDALONE )

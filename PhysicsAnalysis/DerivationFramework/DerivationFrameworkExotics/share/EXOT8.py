@@ -10,7 +10,7 @@ from DerivationFrameworkEGamma.EGammaCommon            import *
 from DerivationFrameworkMuons.MuonsCommon              import *
 from DerivationFrameworkFlavourTag.HbbCommon           import *
 from DerivationFrameworkCore.WeightMetadata            import *
-
+from DerivationFrameworkFlavourTag.FlavourTagCommon    import FlavorTagInit
 from JetRec.JetRecFlags import jetFlags
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
@@ -304,6 +304,9 @@ addHbbTagger(exot8Seq, ToolSvc)
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
+#tag pFlow jets
+FlavorTagInit(scheduleFlipped = False, JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = exot8Seq)
+
 #====================================================================
 # Apply jet calibration
 #====================================================================
@@ -375,12 +378,14 @@ EXOT8SlimmingHelper.StaticContent = [
 
 # Add VR track-jet collection and its b-tagging container to output stream
 EXOT8SlimmingHelper.AppendToDictionary = {
-    "AntiKtVR30Rmax4Rmin02TrackJets"                :   "xAOD::JetContainer"        ,
-    "AntiKtVR30Rmax4Rmin02TrackJetsAux"             :   "xAOD::JetAuxContainer"     ,
-    "AntiKt10LCTopoCSSKSoftDropBeta50Zcut10Jets"   :   "xAOD::JetContainer"        ,
-    "AntiKt10LCTopoCSSKSoftDropBeta50Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
-    "BTagging_AntiKtVR30Rmax4Rmin02Track"           :   "xAOD::BTaggingContainer"   ,
-    "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"        :   "xAOD::BTaggingAuxContainer",
+    "AntiKtVR30Rmax4Rmin02TrackJets"                 :   "xAOD::JetContainer"        ,
+    "AntiKtVR30Rmax4Rmin02TrackJetsAux"              :   "xAOD::JetAuxContainer"     ,
+    "AntiKt10LCTopoCSSKSoftDropBeta50Zcut10Jets"     :   "xAOD::JetContainer"        ,
+    "AntiKt10LCTopoCSSKSoftDropBeta50Zcut10JetsAux"  :   "xAOD::JetAuxContainer"     ,
+    "BTagging_AntiKtVR30Rmax4Rmin02Track"            :   "xAOD::BTaggingContainer"   ,
+    "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"         :   "xAOD::BTaggingAuxContainer",
+    "BTagging_AntiKt4EMPFlow"                        :   "xAOD::BTaggingContainer"   , 
+    "BTagging_AntiKt4EMPFlowAux"                     :   "xAOD::BTaggingAuxContainer",
 }
                                
 # Add all variabless for VR track-jets
