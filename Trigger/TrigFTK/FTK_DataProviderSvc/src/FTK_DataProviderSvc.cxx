@@ -728,7 +728,7 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getFastVertices(const ftk::FTK_Track
        }
        sc = m_storeGate->record(vertices.second, cacheName+"Aux.");
        if (sc.isFailure()) {
-	 ATH_MSG_DEBUG( "fillVertexContainerCache: Failed to record VertexAuxCollection " << cacheName );
+	 ATH_MSG_DEBUG( "getFastVertices: Failed to record VertexAuxCollection " << cacheName );
 	 delete(vertices.second);
 	 return userVertex;
        }
@@ -763,7 +763,7 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getFastVertices(const ftk::FTK_Track
 	}
 	sc = m_storeGate->record(vertices.second, cacheName+"Aux.");
 	if (sc.isFailure()) {
-	  ATH_MSG_DEBUG( "fillVertexContainerCache: Failed to record VertexAuxCollection " << cacheName );
+	  ATH_MSG_DEBUG( "getFastVertices: Failed to record VertexAuxCollection " << cacheName );
 	  delete(vertices.second);
 	  return  userVertex;
 	}
@@ -791,7 +791,7 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getFastVertices(const ftk::FTK_Track
          }
 	 sc = m_storeGate->record(vertices.second, cacheName+"Aux.");
 	 if (sc.isFailure()) {
-	   ATH_MSG_DEBUG( "fillVertexContainerCache: Failed to record VertexAuxCollection " << cacheName );
+	   ATH_MSG_DEBUG( "getFastVertices: Failed to record VertexAuxCollection " << cacheName );
 	   delete(vertices.second);
 	   return userVertex;
 	 }
@@ -841,6 +841,7 @@ bool FTK_DataProviderSvc::fillVertexContainerCache(bool withRefit, xAOD::TrackPa
     myVxContainers.first = new  xAOD::VertexContainer();
     myVxContainers.second = new  xAOD::VertexAuxContainer();
     myVxContainers.first->setStore( myVxContainers.second);
+    gotVertices=true;
   }
   
   std::string cacheName= m_vertexCacheName;
@@ -883,6 +884,7 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getVertexContainer(const bool withRe
 #endif
 
    bool doVertexing = m_doVertexing;
+   if (this->nRawTracks() <2) doVertexing = false;
    if (doVertexing) {
      if (fillTrackParticleCache(withRefit).isSuccess()) {
        if (withRefit && m_refit_tp->size()<2) doVertexing=false;
@@ -891,7 +893,7 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getVertexContainer(const bool withRe
    }
    if (!doVertexing) {
 
-     // must always create a VertexContainer in StroreGate
+     // must always create a VertexContainer in StoreGate
      
      std::string cacheName= m_vertexCacheName;
      if (withRefit) cacheName+="Refit";
@@ -901,13 +903,13 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getVertexContainer(const bool withRe
        vertex->setStore(vertexAux);
       StatusCode sc = m_storeGate->record(vertex, cacheName);
       if (sc.isFailure()) {
-	ATH_MSG_DEBUG( "fillVertexContainerCache: Failed to record VertexCollection " << cacheName );
+	ATH_MSG_DEBUG( "getVertexContainer: Failed to record VertexCollection " << cacheName );
 	delete(vertex);
 	delete(vertexAux);
       } else {
 	sc = m_storeGate->record(vertexAux, cacheName+"Aux.");
 	if (sc.isFailure()) {
-	  ATH_MSG_DEBUG( "fillVertexContainerCache: Failed to record VertexAuxCollection " << cacheName );
+	  ATH_MSG_DEBUG( "getVertexContainer: Failed to record VertexAuxCollection " << cacheName );
 	  delete(vertexAux);
 	} else {
 	  ATH_MSG_DEBUG( "recorded empty VertexContainer in storegate");
