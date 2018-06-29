@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // This is a test cxx file for IdentifiableContainerMT. 
 //  
+#include "src/IDC_Wait.cxx"
 #include "EventContainers/IdentifiableContainerMT.h" 
 #include "EventContainers/SelectAllObjectMT.h" 
 #include "ID_ContainerTest.h" 
@@ -11,7 +12,7 @@
 #include "CLIDSvc/CLASS_DEF.h"
 
 // define a bunch of fake data classes 
-
+using namespace std;
 namespace IDC_TEST
 {
 
@@ -596,9 +597,10 @@ int ID_ContainerTest::execute(){
        std::cout << "count is " << count << " should be 20 " << std::endl;
        if(count !=20) std::abort();
     }
-
-
-
+    {
+    MyCollectionContainer::IDC_Lock lock;
+    containerOnline->tryFetch(IdentifierHash(50), lock);
+    }
     delete cache;
     delete containerOnline;
     std::cout << "MyDigits left undeleted " << MyDigit::s_total << std::endl;    
@@ -615,5 +617,6 @@ int main (int /*argc*/, char** /*argv[]*/)
     test.initialize();
     for (unsigned int i = 0; i < 5; i++) test.execute();
     test.finalize();
+    return 0;
 }
 

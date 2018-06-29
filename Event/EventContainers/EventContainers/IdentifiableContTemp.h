@@ -1,3 +1,8 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+
 #ifndef EVENTCONTAINERS_IDENTIFIABLETEMP_H
 #define EVENTCONTAINERS_IDENTIFIABLETEMP_H
 //This is a dummy version of the identifiable container.
