@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        ConfiguredJetCleaningTools
@@ -17,6 +17,7 @@ from AthenaCommon import CfgMgr
 
 # Import the needed stuff specific to the JetCleaning
 from JetSelectorTools.JetSelectorToolsConf import JetCleaningTool
+from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
 from JetSelectorTools.JetCleaningCutDefs import *
 
 
@@ -40,7 +41,15 @@ from JetSelectorTools.JetCleaningCutDefs import *
 #
 #    return tool
 
-
+def recEventCleaningTool(name='EventCleaningTool'):
+    """
+    Arguments:
+      name                  - set the name of the master tool.
+    """
+    # Configure the master tool
+    ecTool = EventCleaningTool(name)
+    
+    return ecTool
 
 
 def ConfiguredJetCleaningTool_Loose( name, **kw ):

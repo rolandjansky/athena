@@ -1,10 +1,12 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TrigTrackSelector.cxx         
 //   
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2014 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TrigTrackSelector.cxx, v0.0   Sun  2 Nov 2014 11:10:06 CET sutt $
 

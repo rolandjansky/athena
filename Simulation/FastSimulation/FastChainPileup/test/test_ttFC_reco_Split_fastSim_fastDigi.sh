@@ -1,4 +1,4 @@
-B41;326;0c#!/usr/bin/env bash
+#!/usr/bin/env bash
 # art-description: test ttFC_fastSim_fastDigi + ttFC_reco_Split_fastSim_fastDigi
 # art-type: grid
 

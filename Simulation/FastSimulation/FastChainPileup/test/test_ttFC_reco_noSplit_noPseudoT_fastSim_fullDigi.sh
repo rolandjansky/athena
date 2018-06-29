@@ -1,4 +1,4 @@
-B41;326;0c#!/usr/bin/env bash
+#!/usr/bin/env bash
 # art-description: test for job configuration ttFC_fastSim_fulldigi _ttFC_reco_noSplit_noPseudoT_fastSim_fullDigi
 # art-type: grid
 #

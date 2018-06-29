@@ -1,11 +1,13 @@
 // emacs: this is -*- c++ -*-  
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    ChainString.cxx         
 //            parse an analysis chain specification
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2015 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: ChainString.h, v0.0   Thu 30 Apr 2015 14:03:50 CEST sutt $
 

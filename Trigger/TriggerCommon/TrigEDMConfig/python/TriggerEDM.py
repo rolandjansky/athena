@@ -88,7 +88,8 @@ UnusedOldTau = ["ipZ0SinThetaSigLeadTrk", "trkWidth2", "numEffTopoClusters", "to
 
 UnusedProperties = ["Likelihood", "SafeLikelihood", "BDTEleScore", "BDTJetScoreSigTrans", "BDTJetScoreBkgTrans",
                     "vetoFlags", "isTauFlags", "trackFlags", "trackFilterProngs", "trackFilterQuality", "trackEtaStrip", "trackPhiStrip",
-                    "TauJetVtxFraction", "LeadClusterFrac", "UpsilonCluster" ]
+                    "TauJetVtxFraction", "LeadClusterFrac", "UpsilonCluster", "ClustersMeanSecondLambda", "ClustersMeanEMProbability", 
+                    "ClustersMeanCenterLambda", "ClustersMeanPresamplerFrac", "mu", "nVtxPU", "ClustersMeanFirstEngDens", "nModifiedIsolationTracks" ]
 
 UnusedFourMom = ["ptIntermediateAxis", "etaIntermediateAxis", "phiIntermediateAxis", "mIntermediateAxis",
                  "ptTauEtaCalib", "etaTauEtaCalib", "phiTauEtaCalib", "mTauEtaCalib", "EM_TES_scale"]
