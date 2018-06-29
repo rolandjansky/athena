@@ -9,20 +9,19 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
+#include "PixelConditionsTools/IPixelDCSConditionsTool.h"
 
 class PixelSiliconConditionsTestAlg : public AthAlgorithm {
   public:
     PixelSiliconConditionsTestAlg(const std::string &name,ISvcLocator *pSvcLocator) ;
     virtual ~PixelSiliconConditionsTestAlg() = default;
 
-    StatusCode initialize() override;
-    StatusCode execute() override;
-    StatusCode finalize() override;
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute() override;
+    virtual StatusCode finalize() override;
 
   private:
-    ToolHandle<ISiliconConditionsTool> m_siliconTool{this, "PixelSiliconConditionsTool", "PixelSiliconConditionsTool", "Tool to retrieve Pixel information"};
-//    ToolHandle<ISiliconConditionsTool> m_siliconTool{this, "SCT_SiliconConditionsTool", "SCT_SiliconConditionsTool", "Tool to retrieve SCT silicon information"};
+    ToolHandle<IPixelDCSConditionsTool> m_siliconTool{this, "PixelDCSConditionsTool", "PixelDCSConditionsTool", "Tool to retrieve Pixel information"};
 };
 
 #endif // PIXELSILICONcONDITIONSTESTALG_H
