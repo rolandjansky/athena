@@ -28,7 +28,7 @@ theLArNoiseCorrelationMon = LArNoiseCorrelationMon(name="LArNoiseCorrelationMon"
                              ProcessNEvents        = EventBlockSize,
                              TriggerChain          = "HLT_noalg_zb_L1ZB, HLT_noalg_cosmiccalo_L1RD1_EMPTY",
                              FEBsToMonitor         = NotNoisyRegionForComparison_FEBs+NoisyRegionsInOuterWheel_FEBs+NewlyNoisy_FEBs+MiniNoiseBurstFlagging_FEBs+FEBs_from_DQ_run_350440,
-                             IsCalibrationRun      = False
+                             IsCalibrationRun      = False,
                              )
 
 
