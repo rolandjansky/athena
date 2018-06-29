@@ -188,7 +188,7 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
                                                            weightsFile="EleBDT1PEnd23.root", minNTracks=1, minAbsTrackEta=2.0, 
                                                            maxAbsTrackEta=3.0, outputVarName="BDTEleScore")) #update config?
                 tools.append(taualgs.getTauWPDecoratorEleBDT())
-                # tools.append(taualgs.getTauEleOLRDecorator())
+                tools.append(taualgs.getTauEleOLRDecorator())
                 
             
             ################################
