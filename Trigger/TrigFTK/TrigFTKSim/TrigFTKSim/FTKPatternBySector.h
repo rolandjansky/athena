@@ -79,6 +79,7 @@ class FTKPatternBySectorReader : public virtual FTKPatternBySectorBase {
    // read patterns (optimized IO), given a minimum number of patterns
    // repeated calls to this function will result in all sectors to be read
    // for sectors appended to the list, all patterns have been read
+   // i.e. the next call with return different sectors or an empty list
    // (use Rewind() to start all over)
    //   returns: next sector to read (or -1)
    virtual int ReadRaw(int firstSector,
@@ -141,7 +142,7 @@ class FTKPatternBySectorWriter : public virtual FTKPatternBySectorBase {
       (TDirectory &dir,WRITERTYPE_t type=kWriterDefault);
    // append patterns from file (down to minCoverage)
    //  the default algorithm merges one sector a time, calling
-   //    AppendMergedPatterns() fro each sector.
+   //    AppendMergedPatterns() for each sector.
    //    This procedure is not optimal for all file formats
    //  For this reason the method is virtual, to allow for
    //    a more efficient implementation

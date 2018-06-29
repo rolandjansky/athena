@@ -80,7 +80,7 @@ def addFTKSimulationArgs(parser):
     parser.add_argument('--ssmapunused_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Location of ssmapunused file', group='TrigFTKSim')
     parser.add_argument('--IBLMode',type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),
-                        help='Enalbe the IBL geometry',group='TrigFTKSim')
+                        help='Enable the IBL geometry',group='TrigFTKSim')
     parser.add_argument('--badmap_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Location of badmap file', group='TrigFTKSim')
     parser.add_argument('--badmap_path_for_hit', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
