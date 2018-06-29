@@ -287,6 +287,8 @@ RootNtupleEventSelector::RootNtupleEventSelector( const std::string& name,
   declareProperty( "ActiveBranches",
                    m_activeBranchNames,
                    "List of branch names to activate" );
+  
+  declareProperty( "CreateEventInfo", m_createEventInfo=false, "Are EventInfo objects created per event or not? .. there is overhead to their creation" );
 }
 
 // Destructor
@@ -419,6 +421,12 @@ StatusCode RootNtupleEventSelector::initialize()
   CHECK( ppSvc.retrieve() );
   ppSvc->addProvider( this );
 
+
+  if(!m_createEventInfo) {
+    //ensure the eventloopmgr has the DoLiteLoop property set, since EventInfo objects will not be created ..
+    ServiceHandle<IProperty> evtLoop("AthenaEventLoopMgr",name());
+    CHECK( evtLoop->setProperty( "DoLiteLoop", "True" ) );
+  }
 
 
   return StatusCode::SUCCESS;
@@ -580,32 +588,32 @@ RootNtupleEventSelector::next( IEvtSelector::Context& ctx ) const
 
     // std::cout << "--event-info--" << std::endl;
     // event info
-if(false) {
-    EventType* evtType = new EventType;
-    const std::size_t runNbr = 0;
-    EventInfo* evtInfo = new EventInfo(new EventID(runNbr, m_curEvt-1, 0), evtType);
-    if ( !m_dataStore->record( evtInfo, "TTreeEventInfo" ).isSuccess() ) {
-      ATH_MSG_ERROR ("Could not record TTreeEventInfo !");
-      delete evtInfo; evtInfo = 0;
-      return StatusCode::FAILURE;
+    if(m_createEventInfo) {
+        EventType* evtType = new EventType;
+        const std::size_t runNbr = 0;
+        EventInfo* evtInfo = new EventInfo(new EventID(runNbr, m_curEvt-1, 0), evtType);
+        if ( !m_dataStore->record( evtInfo, "TTreeEventInfo" ).isSuccess() ) {
+          ATH_MSG_ERROR ("Could not record TTreeEventInfo !");
+          delete evtInfo; evtInfo = 0;
+          return StatusCode::FAILURE;
+        }
+    
+        {
+          auto ei = std::make_unique<xAOD::EventInfo>();
+          auto ei_store = std::make_unique<xAOD::EventAuxInfo>();
+          ei->setStore (ei_store.get());
+          ei->setRunNumber (runNbr);
+          ei->setEventNumber (global_entry);
+    
+          static const SG::AuxElement::Accessor<std::string> tupleName ("tupleName");
+          static const SG::AuxElement::Accessor<std::string> collName ("collectionName");
+          tupleName(*ei) = m_tupleNames[tupleIdx];
+          collName(*ei) = m_inputCollectionsName.value()[m_collIdx];
+          
+          CHECK( m_dataStore->record (std::move(ei), "EventInfo") );
+          CHECK( m_dataStore->record (std::move(ei_store), "EventInfoAux.") );
+        }
     }
-
-    {
-      auto ei = std::make_unique<xAOD::EventInfo>();
-      auto ei_store = std::make_unique<xAOD::EventAuxInfo>();
-      ei->setStore (ei_store.get());
-      ei->setRunNumber (runNbr);
-      ei->setEventNumber (global_entry);
-
-      static const SG::AuxElement::Accessor<std::string> tupleName ("tupleName");
-      static const SG::AuxElement::Accessor<std::string> collName ("collectionName");
-      tupleName(*ei) = m_tupleNames[tupleIdx];
-      collName(*ei) = m_inputCollectionsName.value()[m_collIdx];
-      
-      CHECK( m_dataStore->record (std::move(ei), "EventInfo") );
-      CHECK( m_dataStore->record (std::move(ei_store), "EventInfoAux.") );
-    }
-}
     // now the data has been loaded into the store, we can
     // notify clients and fire the BeginInputFile incident
    //MOVED TO handle method
