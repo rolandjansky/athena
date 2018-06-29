@@ -88,6 +88,7 @@ AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam,
   declareProperty("IntervalInSeconds",  m_intervalInSeconds = 0, 
 		  "heartbeat time interval is seconds rather than events"
 		  "you also get a nice event rate printout then");
+  declareProperty("DoLiteLoop",m_liteLoop=false,"Runs the bare minimum during executeEvent");
   declareProperty("UseDetailChronoStat",m_doChrono=false);
   declareProperty("ClearStorePolicy",
 		  m_clearStorePolicy = "EndEvent",
@@ -661,7 +662,9 @@ StatusCode AthenaEventLoopMgr::executeAlgorithms() {
 //=========================================================================
 StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)    
 {
-  if(true) {
+
+  //This is a lightweight implementation of the executeEvent, used when e.g. processing TTrees with RootNtupleEventSelector
+  if(m_liteLoop) {
     m_incidentSvc->fireIncident(Incident("BeginEvent",IncidentType::BeginEvent));
     StatusCode sc = executeAlgorithms();
     m_incidentSvc->fireIncident(Incident("EndEvent",IncidentType::EndEvent));
