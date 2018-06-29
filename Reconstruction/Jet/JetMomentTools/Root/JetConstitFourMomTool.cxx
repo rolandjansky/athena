@@ -80,9 +80,6 @@ int JetConstitFourMomTool::modify(xAOD::JetContainer& jets) const {
          leadjet.getInputType()==xAOD::JetInput::EMTopoOriginCSSK ||
          leadjet.getInputType()==xAOD::JetInput::EMTopoOriginVorSK ||
          leadjet.getInputType()==xAOD::JetInput::EMTopoOriginTime ||
-         leadjet.getInputType()==xAOD::JetInput::EMTopoOriginTimeSK ||
-         leadjet.getInputType()==xAOD::JetInput::EMTopoOriginTimeCSSK ||
-         leadjet.getInputType()==xAOD::JetInput::EMTopoOriginTimeVorSK ||
          leadjet.getInputType()==xAOD::JetInput::EMTopoOriginSKTime ||
          leadjet.getInputType()==xAOD::JetInput::EMTopoOriginCSSKTime ||
          leadjet.getInputType()==xAOD::JetInput::EMTopoOriginVorSKTime

@@ -82,9 +82,6 @@ namespace xAOD {
       nameToTypemap["EMTopoOriginCSSK"] =      EMTopoOriginCSSK;
       nameToTypemap["EMTopoOriginVorSK"] =     EMTopoOriginVorSK;
       nameToTypemap["EMTopoOriginTime"] =      EMTopoOriginTime;
-      nameToTypemap["EMTopoOriginTimeSK"] =    EMTopoOriginTimeSK;
-      nameToTypemap["EMTopoOriginTimeCSSK"] =  EMTopoOriginTimeCSSK;
-      nameToTypemap["EMTopoOriginTimeVorSK"] = EMTopoOriginTimeVorSK;
       nameToTypemap["EMTopoOriginSKTime"] =    EMTopoOriginSKTime;
       nameToTypemap["EMTopoOriginCSSKTime"] =  EMTopoOriginCSSKTime;
       nameToTypemap["EMTopoOriginVorSKTime"] = EMTopoOriginVorSKTime;
@@ -92,9 +89,6 @@ namespace xAOD {
       nameToTypemap["EMPFlowCSSK"] =           EMPFlowCSSK;
       nameToTypemap["EMPFlowVorSK"] =          EMPFlowVorSK;
       nameToTypemap["EMPFlowTime"] =           EMPFlowTime;
-      nameToTypemap["EMPFlowTimeSK"] =         EMPFlowTimeSK;
-      nameToTypemap["EMPFlowTimeCSSK"] =       EMPFlowTimeCSSK;
-      nameToTypemap["EMPFlowTimeVorSK"] =      EMPFlowTimeVorSK;
       nameToTypemap["EMPFlowSKTime"] =         EMPFlowSKTime;
       nameToTypemap["EMPFlowCSSKTime"] =       EMPFlowCSSKTime;
       nameToTypemap["EMPFlowVorSKTime"] =      EMPFlowVorSKTime;
