@@ -207,9 +207,9 @@ namespace top {
 	  if (config->useRCJetSubstructure() == true)
 	    m_useRCJSS = true;
 	  
-	  m_rc = std::unique_ptr<RCJetMC15> ( new RCJetMC15( "RCJetMC15" ) );
-	  top::check(m_rc->setProperty( "config" , config ) , "Failed to set config property of RCJetMC15");
-	  top::check(m_rc->initialize(),"Failed to initialize RCJetMC15");
+	  //m_rc = std::unique_ptr<RCJetMC15> ( new RCJetMC15( "RCJetMC15" ) );
+	  //top::check(m_rc->setProperty( "config" , config ) , "Failed to set config property of RCJetMC15");
+	  //top::check(m_rc->initialize(),"Failed to initialize RCJetMC15");
 	}
 
 	// variable-R re-clustering (VarRC)
@@ -2066,14 +2066,14 @@ namespace top {
 	if (m_makeRCJets){
 	  // Execute the re-clustering code
 	  // - make jet container of small-r jets in the event, put it in TStore, do re-clustering
-	  top::check(m_rc->execute(event),"Failed to execute RCJetMC15 container");
+	  //top::check(m_rc->execute(event),"Failed to execute RCJetMC15 container");
 
 	  // Get the name of the container of re-clustered jets in TStore
-	  m_RCJetContainer = m_rc->rcjetContainerName(event.m_hashValue,event.m_isLoose);
+	  //m_RCJetContainer = m_rc->rcjetContainerName(event.m_hashValue,event.m_isLoose);
 
 	  // -- Retrieve the re-clustered jets from TStore & save good re-clustered jets -- //
-	  const xAOD::JetContainer* rc_jets(nullptr);
-	  top::check(evtStore()->retrieve(rc_jets,m_RCJetContainer),"Failed to retrieve RC JetContainer");
+	  //const xAOD::JetContainer* rc_jets(nullptr);
+	  //top::check(evtStore()->retrieve(rc_jets,m_RCJetContainer),"Failed to retrieve RC JetContainer");
 
 	  // re-clustered jet substructure
 	  static SG::AuxElement::ConstAccessor<float> RCSplit12("Split12");
@@ -2101,7 +2101,7 @@ namespace top {
  	  static SG::AuxElement::ConstAccessor<float> RRCJet_e("RRCJet_e");
 	  
 	  // Initialize the vectors to be saved as branches
-	  unsigned int sizeOfRCjets(rc_jets->size());
+	  unsigned int sizeOfRCjets(event.m_RCJets.size());
 
 	  m_rcjet_pt.clear();
 	  m_rcjet_eta.clear();
@@ -2170,11 +2170,12 @@ namespace top {
 	    m_rcjet_Qw_clstr.resize(sizeOfRCjets,-999.);
 	  }
 	  unsigned int i = 0;
-	  for (xAOD::JetContainer::const_iterator jet_itr = rc_jets->begin(); jet_itr != rc_jets->end(); ++jet_itr) {
+	  for (xAOD::JetContainer::const_iterator jet_itr = event.m_RCJets.begin(); jet_itr != event.m_RCJets.end(); ++jet_itr) {
+	  //for (xAOD::JetContainer::const_iterator jet_itr = rc_jets->begin(); jet_itr != rc_jets->end(); ++jet_itr) {
 	    const xAOD::Jet* rc_jet = *jet_itr;
 
-            if (!m_rc->passSelection(*rc_jet))
-	      continue;
+            //if (!m_rc->passSelection(*rc_jet))
+	      //continue;
 
             m_rcjet_pt[i]   = rc_jet->pt();
             m_rcjet_eta[i]  = rc_jet->eta();
@@ -2277,26 +2278,29 @@ namespace top {
 	  // Execute the re-clustering code
           // - make jet container, put it in TStore, do re-clustering
           std::string VarRC = "vrcjet";
+	  std::map< std::string,const xAOD::JetContainer* > VarRCJets=event.m_VarRCJets;
 	  for (auto& rho : m_VarRCJetRho){
             for (auto& mass_scale : m_VarRCJetMassScale){
 	      std::replace( rho.begin(), rho.end(), '.', '_');
 	      std::string name = rho+mass_scale;
 
-	      top::check(m_VarRC[name]->execute(event),"Failed to execute RCJetMC15 container");
+	      //top::check(m_VarRC[name]->execute(event),"Failed to execute RCJetMC15 container");
 
-	      // Get the name of the container of re-clustered jets in TStore
-              m_RCJetContainer = m_VarRC[name]->rcjetContainerName(event.m_hashValue,event.m_isLoose);
+	      //// Get the name of the container of re-clustered jets in TStore
+              //m_RCJetContainer = m_VarRC[name]->rcjetContainerName(event.m_hashValue,event.m_isLoose);
 
-	      // -- Retrieve the re-clustered jets from TStore & save good re-clustered jets -- //
-              const xAOD::JetContainer* vrc_jets(nullptr);
-	      top::check(evtStore()->retrieve(vrc_jets,m_RCJetContainer),"Failed to retrieve RC JetContainer");
+	      //// -- Retrieve the re-clustered jets from TStore & save good re-clustered jets -- //
+              //const xAOD::JetContainer* vrc_jets(nullptr);
+	      //top::check(evtStore()->retrieve(vrc_jets,m_RCJetContainer),"Failed to retrieve RC JetContainer");
 
 	      // re-clustered jet substructure
               static SG::AuxElement::ConstAccessor<float> VarRCSplit12("Split12");
 	      static SG::AuxElement::ConstAccessor<float> VarRCSplit23("Split23");
 
 	      // Initialize the vectors to be saved as branches
-              unsigned int sizeOfRCjets(vrc_jets->size());
+	      
+	      const xAOD::JetContainer* vrc_jets = VarRCJets[name];
+              unsigned int sizeOfRCjets = vrc_jets->size();
 	      m_VarRCjetBranches[VarRC+"_"+name+"_pt"].resize(sizeOfRCjets,-999.);
 	      m_VarRCjetBranches[VarRC+"_"+name+"_eta"].resize(sizeOfRCjets,-999.);
 	      m_VarRCjetBranches[VarRC+"_"+name+"_phi"].resize(sizeOfRCjets,-999.);
@@ -2310,11 +2314,13 @@ namespace top {
 	      m_VarRCjetsubBranches[VarRC+"_"+name+"_sub_mv2c10"].resize(sizeOfRCjets, std::vector<float>());
 
 	      unsigned int i = 0;
+	      
 	      for (xAOD::JetContainer::const_iterator jet_itr = vrc_jets->begin(); jet_itr != vrc_jets->end(); ++jet_itr) {
+	      //for (xAOD::JetContainer::const_iterator jet_itr = (event.m_VarRCJets[name]).begin(); jet_itr != (event.m_VarRCJets[name]).end(); ++jet_itr) {
 		const xAOD::Jet* rc_jet = *jet_itr;
 
-		if (!m_VarRC[name]->passSelection(*rc_jet))
-		  continue;
+		//if (!m_VarRC[name]->passSelection(*rc_jet))
+		  //continue;
 
 		m_VarRCjetBranches[VarRC+"_"+name+"_pt"][i]   = rc_jet->pt();
 		m_VarRCjetBranches[VarRC+"_"+name+"_eta"][i]  = rc_jet->eta();

@@ -47,9 +47,9 @@ RCJetMC15::RCJetMC15( const std::string& name ) :
   m_egamma("EG_"),
   m_jetsyst("JET_"),
   m_muonsyst("MUONS_"),
-  m_InJetContainerBase( "AntiKt4EMTopoJets_RC"),
+  m_InJetContainerBase( "AntiKt4EMTopoJets_"),
   m_OutJetContainerBase("AntiKtRCJets"),
-  m_InputJetContainer(  "AntiKt4EMTopoJets_RC"),
+  m_InputJetContainer(  "AntiKt4EMTopoJets_"),
   m_OutputJetContainer( "AntiKtRCJets"),
   m_loose_hashValue(2),
   m_jet_def_rebuild(nullptr),
@@ -144,7 +144,7 @@ StatusCode RCJetMC15::initialize(){
 	  
             if (treeName.second.compare("nominal")!=0) hash_name = treeName.second; // no extra strings for nominal (so all other non-unique systs have same name as nominal)
 
-            m_InputJetContainer  = m_InJetContainerBase+hash_name+m_name;
+            m_InputJetContainer  = m_InJetContainerBase+hash_name;
             m_OutputJetContainer = m_OutJetContainerBase+hash_name+m_name;
 
             // build a jet re-clustering tool for each case
@@ -250,9 +250,10 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
 
       if (m_useJSS){     
        // get the rcjets
+       
        xAOD::JetContainer* myJets(nullptr);
        top::check(evtStore()->retrieve(myJets,m_OutputJetContainer),"Failed to retrieve RC JetContainer");
-   
+      
        // get the subjets and clusters of the rcjets
        for (auto rcjet : *myJets){
        
