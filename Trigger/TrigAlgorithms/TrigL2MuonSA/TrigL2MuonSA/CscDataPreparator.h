@@ -86,18 +86,20 @@ namespace TrigL2MuonSA {
     ServiceHandle<StoreGateSvc>    m_storeGateSvc;
     
     // Cache the ActiveStoreSvc ptr
-    ActiveStoreSvc* p_ActiveStore;
+    ServiceHandle<ActiveStoreSvc> m_activeStore;
 
     // Geometry Services
     const MuonGM::MuonDetectorManager* m_muonMgr;
     const CscIdHelper* m_cscIdHelper;
 
     // Region Selector
-    IRegSelSvc*          m_regionSelector;
+    ServiceHandle<IRegSelSvc>  m_regionSelector;
     
     // CSC PrepDataProvider
-    ToolHandle<Muon::IMuonRdoToPrepDataTool> m_cscPrepDataProvider;
-    ToolHandle<ICscClusterBuilder>           m_cscClusterProvider;
+    ToolHandle<Muon::IMuonRdoToPrepDataTool> m_cscPrepDataProvider {
+	this, "CscPrepDataProvider", "Muon::CscRdoToCscPrepDataTool/CscPrepDataProviderTool", ""};
+    ToolHandle<ICscClusterBuilder> m_cscClusterProvider {
+	this, "CscClusterProvider", "CscThresholdClusterBuilderTool", ""};
 
     SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscPrepContainerKey{
 	this, "CSCPrepDataContainer", "CSC_Clusters", "Name of the CSCContainer to read in"};

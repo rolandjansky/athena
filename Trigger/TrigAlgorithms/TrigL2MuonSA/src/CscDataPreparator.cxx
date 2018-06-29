@@ -36,15 +36,10 @@ TrigL2MuonSA::CscDataPreparator::CscDataPreparator(const std::string& type,
 						   const IInterface*  parent): 
    AthAlgTool(type,name,parent),
    m_storeGateSvc( "StoreGateSvc", name ),
-   p_ActiveStore(0),
-   m_regionSelector(0),
-   m_cscPrepDataProvider("Muon::CscRdoToCscPrepDataTool/CscPrepDataProviderTool"),
-   m_cscClusterProvider("CscThresholdClusterBuilderTool")
+   m_activeStore( "ActiveStoreSvc", name ),
+   m_regionSelector( "RegSelSvc", name )
 {
    declareInterface<TrigL2MuonSA::CscDataPreparator>(this);
-
-   declareProperty("CscPrepDataProvider", m_cscPrepDataProvider);
-   declareProperty("CscClusterProvider",  m_cscClusterProvider);
 }
 
 // --------------------------------------------------------------------------------
@@ -73,11 +68,7 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
    ATH_CHECK( m_storeGateSvc.retrieve() );
 
    // Retrieve ActiveStore
-   sc = serviceLocator()->service("ActiveStoreSvc", p_ActiveStore);
-   if( !sc.isSuccess() || 0 == p_ActiveStore ){
-     ATH_MSG_ERROR(" Could not find ActiveStoreSvc ");
-     return sc;
-   }
+   ATH_CHECK( m_activeStore.retrieve() ); 
 
    ATH_CHECK( m_cscPrepDataProvider.retrieve() );
    ATH_MSG_INFO("Retrieved " << m_cscPrepDataProvider);
@@ -86,34 +77,18 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
    ATH_MSG_INFO("Retrieved " << m_cscClusterProvider);
 
    // Detector Store
-   StoreGateSvc* detStore;
-   sc = serviceLocator()->service("DetectorStore", detStore);
-   if( sc.isFailure() ){
-     ATH_MSG_ERROR("Could not retrieve  DetectorStore.");
-     return sc;
-   }
+   ServiceHandle<StoreGateSvc> detStore("DetectorStore", name());
+   ATH_CHECK( detStore.retrieve() );
    ATH_MSG_DEBUG("Retrieved DetectorStore.");
-
    // CSC ID helper
-   sc = detStore->retrieve( m_muonMgr, "Muon" );
-   if( sc.isFailure() ){
-     ATH_MSG_ERROR(" Cannot retrieve MuonGeoModel ");
-     return sc;
-   }
+   ATH_CHECK( detStore->retrieve(m_muonMgr, "Muon") );
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
    m_cscIdHelper = m_muonMgr->cscIdHelper();
 
-   //
-   std::string serviceName;
-
    // Locate RegionSelector
-   serviceName = "RegionSelector";
-   sc = service("RegSelSvc", m_regionSelector);
-   if(sc.isFailure()) {
-     ATH_MSG_ERROR("Could not retrieve " << serviceName);
-      return sc;
-   }
-   ATH_MSG_DEBUG("Retrieved service " << serviceName);
+   ATH_CHECK( m_regionSelector.retrieve() );
+   ATH_MSG_DEBUG("Retrieved service " << m_regionSelector.name());
+   
 
    ATH_CHECK(m_cscPrepContainerKey.initialize());
 
