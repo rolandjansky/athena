@@ -7,8 +7,6 @@ errorcalolabels = 'NoROIDescr:NoCellCont:EmptyCellCont:NoClustCont:NoClustKey:Em
 
 errortracklabels = 'NoTrkCont:NoVtxCont'
 
-authorlabels = 'AutauRec:Autau13p:AuBoth:AutauRecOnly:Autau13pOnly'
-                    
 class TrigTauRecOnlineMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigTauRecOnlineMonitoring"):
         super(TrigTauRecOnlineMonitoring, self).__init__(name)
@@ -71,12 +69,6 @@ class TrigTauRecOnlineMonitoring(TrigGenericMonitoringToolConfig):
 
         self.Histograms += [ defineHistogram('EF_calo_errors', type='TH1F', title=" EF Calo Errors ;  ; nRoIs", xbins=10, xmin=-0.5, xmax=9.5 , labels=errorcalolabels) ]
         self.Histograms += [ defineHistogram('EF_track_errors', type='TH1F', title=" EF Track Errors ;  ; nRoIs", xbins=2, xmin=-0.5, xmax=2.5 , labels=errortracklabels) ]
-
-        # these don't seem to be used anymore
-        self.Histograms += [ defineHistogram('EF_author', type='TH1F', title=" EF author ;  ; nRoIs", xbins=5, xmin=0.5, xmax=5.5 , labels=authorlabels) ]
-        self.Histograms += [ defineHistogram('EF_deltaZ0coreTrks', type='TH1F', title=" EF delta Z0 coreTrks wrt leadTrk ; #Delta Z0 [mm]; nRoIs x nTracks", xbins=160, xmin=-20, xmax=20) ]
-        self.Histograms += [ defineHistogram('EF_deltaZ0wideTrks', type='TH1F', title=" EF delta Z0 wideTrks wrt leadTrk ; #Delta Z0 [mm]; nRoIs x nTracks", xbins=160, xmin=-20, xmax=20) ]  
-        
 
         # RNN ID
         # scalar inputs
