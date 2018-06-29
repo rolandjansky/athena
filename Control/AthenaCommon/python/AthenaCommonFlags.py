@@ -85,7 +85,7 @@ class AccessMode(JobProperty):
     """The type of read mechanism to use in this athena job"""
     statusOn     = True
     allowedType  = "str"
-    allowedValues = ["TreeAccess","BranchAccess","ClassAccess","AthenaAccess","POOLAccess"]
+    allowedValues = ["TreeAccess","SlowTreeAccess","BranchAccess","ClassAccess","AthenaAccess","POOLAccess"]
     StoredValue  = "ClassAccess"
 
     def _do_action( self, *args, **kwds ):
@@ -106,13 +106,16 @@ class AccessMode(JobProperty):
                     raise ValueError("Cannot switch to %s mode with existing EventSelector of type %s" % (self.StoredValue,AppMgr.ServiceMgr.EventSelector.getType()) )
             else:
                 import AthenaPoolCnvSvc.ReadAthenaPool
-        elif self.StoredValue=="TreeAccess":
+        elif self.StoredValue=="TreeAccess" or self.StoredValue=="SlowTreeAccess":
             if hasattr(AppMgr.ServiceMgr,"EventSelector"):
                 if AppMgr.ServiceMgr.EventSelector.getType()!="Athena::RootNtupleEventSelector": 
                     raise ValueError("Cannot switch to %s mode with existing EventSelector of type %s" % (self.StoredValue,AppMgr.ServiceMgr.EventSelector.getType()) )
             else:
                 import AthenaRootComps.ReadAthenaRoot
             AppMgr.ServiceMgr.EventSelector.TupleName = jobproperties.AthenaCommonFlags.TreeName()
+            if self.StoredValue=="SlowTreeAccess":
+                AppMgr.ServiceMgr.EventSelector.CreateEventInfo = True
+                AppMgr.ServiceMgr.AthenaEventLoopMgr.DoLiteLoop = False
 
 
 class HistOutputs(JobProperty):
