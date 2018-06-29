@@ -68,11 +68,10 @@ if TriggerOn == 1:
     ServiceMgr += TagInfoMgr()
    #ServiceMgr.TagInfoMgr.AddGeoModelTags = False
     from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
-    ToolSvc += IOVDbMetaDataTool( "IOVDbMetaDataTool" )
     from AthenaServices.AthenaServicesConf import MetaDataSvc
     ServiceMgr += MetaDataSvc( "MetaDataSvc" )
     ServiceMgr.MetaDataSvc.MetaDataContainer = "MetaDataHdr"
-    ServiceMgr.MetaDataSvc.MetaDataTools += [ "IOVDbMetaDataTool" ]
+    ServiceMgr.MetaDataSvc.MetaDataTools += [IOVDbMetaDataTool() ]
     import IOVDbSvc.IOVDb
 
 

@@ -23,5 +23,11 @@ if digitizationFlags.RunAndLumiOverrideList.get_Value():
     getService("EvtIdModifierSvc")
 
     #fix iov metadata
-    if not hasattr(svcMgr.ToolSvc, 'IOVDbMetaDataTool'): svcMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
-    svcMgr.ToolSvc.IOVDbMetaDataTool.MinMaxRunNumbers = list(digitizationFlags.RunAndLumiOverrideList.getMinMaxRunNumbers())
+    try:
+        ServiceMgr.MetaDataSvc.MetaDataTools["IOVDbMetaDataTool"]
+    except IndexError:
+        from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
+        ServiceMgr.MetaDataSvc.MetaDataTools+=[IOVDbMetaDataTool()]
+        pass
+
+    svcMgr.MetaDataSvc.MetaDataTools["IOVDbMetaDataTool"].MinMaxRunNumbers = list(digitizationFlags.RunAndLumiOverrideList.getMinMaxRunNumbers())
