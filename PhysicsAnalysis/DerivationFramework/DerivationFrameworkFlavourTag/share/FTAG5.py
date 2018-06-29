@@ -122,7 +122,8 @@ DerivationFrameworkJob += FTAG5Seq
 #====================================================================
 
 #put custom jet names here
-OutputJets["FTAG5"] = ["AntiKtVR30Rmax4Rmin02TrackJets", "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets", "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJets"]
+FTAG5BTaggedJets = ["AntiKtVR30Rmax4Rmin02TrackJets", "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets", "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJets"]
+OutputJets["FTAG5"] = FTAG5BTaggedJets[:]
 
 # I don't understand why we need some of these. We don't use
 # AntiKt4PV0TrackJets in the output, but without them we get a crash
@@ -152,8 +153,8 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 # ExKt subjets for each trimmed large-R jet
 #===================================================================
 ExKtJetCollection__FatJet = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
-ExKtJetCollection__SubJet = addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 2, False)
-ExKtJetCollection__SubJet3 = addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 3, False)
+addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 2, False)
+addExKtCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, 3, False)
 
 BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
                                             "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo"]
@@ -176,9 +177,11 @@ for jc in OutputJets["FTAG5"]:
    )
 
 # also add some b-tagging jet-wise information
-FTAG5Seq += CfgMgr.BTagJetAugmenterAlg(
-    "FTAG5JetAugmenter",
-    JetCollectionName="AntiKtVR30Rmax4Rmin02TrackJets")
+for sjc in ["AntiKtVR30Rmax4Rmin02TrackJets"]: # currently missing ExKt2,3
+    FTAG5Seq += CfgMgr.BTagJetAugmenterAlg(
+           "FTAG5JetAugmenter_"+sjc,
+           JetCollectionName=sjc
+    )
 
 #================================================================
 # Add Hbb tagger
@@ -209,7 +212,6 @@ FTAG5Seq += CfgMgr.DerivationFramework__DerivationKernel(
 FTAG5SlimmingHelper = SlimmingHelper("FTAG5SlimmingHelper")
 
 fatJetCollection = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
-subJetCollection = "AntiKtVR30Rmax4Rmin02TrackJets"
 
 FTAG5SlimmingHelper.SmartCollections = [
     "Muons",
@@ -233,9 +235,10 @@ FTAG5SlimmingHelper.ExtraVariables += [
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore"
 ]
 
-# add the extra varialbes that come from the BTagJetAugmenterAlg
-FTAG5SlimmingHelper.ExtraVariables.append('.'.join([
-	"BTagging_AntiKtVR30Rmax4Rmin02Track","BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub","BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub"] + complex_jet_discriminants))
+# add the extra variables that come from the BTagJetAugmenterAlg
+for jc in FTAG5BTaggedJets:
+    FTAG5SlimmingHelper.ExtraVariables.append('.'.join([
+    	"BTagging_"+jc.replace("Jets","")] + complex_jet_discriminants))
 
 # add some more extra variables for ghost associated particles
 ghost_particles = [
