@@ -747,6 +747,7 @@ def getMvaTESEvaluator():
     _name = sPrefix + 'MvaTESEvaluator'
     from tauRecTools.tauRecToolsConf import MvaTESEvaluator
     MvaTESEvaluator = MvaTESEvaluator(name = _name,
+                                      Key_vertexInputContainer=_DefaultVertexContainer,
                                       WeightFileName = 'MvaTES_20170207_v2_BDTG.weights.root') #update config?
     cached_instances[_name] = MvaTESEvaluator
     return MvaTESEvaluator

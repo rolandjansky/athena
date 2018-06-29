@@ -170,7 +170,7 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             # these tools need pantau info
             tools.append(taualgs.getCombinedP4FromRecoTaus())
             tools.append(taualgs.getMvaTESVariableDecorator())
-            # tools.append(taualgs.getMvaTESEvaluator())
+            tools.append(taualgs.getMvaTESEvaluator())
 
             # if tauFlags.doRunTauDiscriminant():
                # tools.append(taualgs.getTauIDVarCalculator())

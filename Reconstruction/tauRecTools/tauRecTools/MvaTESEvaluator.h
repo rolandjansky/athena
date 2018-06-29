@@ -25,7 +25,8 @@ class MvaTESEvaluator
   StatusCode eventInitialize();
   StatusCode execute(xAOD::TauJet& xTau);
   StatusCode executeCaloClus(xAOD::TauJet&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
-  StatusCode finalize() { delete m_reader; return StatusCode::SUCCESS;}
+  //StatusCode finalize() { delete m_reader; return StatusCode::SUCCESS;}
+  StatusCode finalize() { return StatusCode::SUCCESS; }
   
  private:
    
@@ -67,6 +68,8 @@ class MvaTESEvaluator
   float m_ptDetectorAxis; //!
   float m_truthDecayMode; //!
   float m_PanTau_DecayMode; //!
+
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
 };
 
 #endif // TAURECTOOLSDEV_MVATESEVALUATOR_H
