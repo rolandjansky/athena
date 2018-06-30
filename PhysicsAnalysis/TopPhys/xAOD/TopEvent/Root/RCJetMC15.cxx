@@ -226,7 +226,7 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
         // 22 Feb 2016:
         //   Code significantly shortened to make this container
         //   thanks to email exchange between Davide Gerbaudo & Attila Krasznahorkay
-
+	std::cout << "Warning: m_InputJetContainer not found in event store!" << std::endl;
         typedef ConstDataVector< xAOD::JetContainer > CJets;
         std::unique_ptr< CJets > rcjets( new CJets( event.m_jets.begin(), event.m_jets.end(), SG::VIEW_ELEMENTS ) );
         top::check( evtStore()->tds()->record( std::move( rcjets ), m_InputJetContainer ), "Failed to put jets in TStore for re-clustering" );

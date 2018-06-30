@@ -581,8 +581,6 @@ private:
     std::string m_RCJetContainer;       // name for RC jets container in TStore
     std::vector<std::string> m_VarRCJetRho;
     std::vector<std::string> m_VarRCJetMassScale;
-    std::unique_ptr<RCJetMC15> m_rc;
-    std::map<std::string,std::unique_ptr<RCJetMC15> > m_VarRC;
     std::string m_egamma;      // egamma systematic naming scheme
     std::string m_muonsyst;    // muon systematic naming scheme
     std::string m_jetsyst;     // jet systematic naming scheme

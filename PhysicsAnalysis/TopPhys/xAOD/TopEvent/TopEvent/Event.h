@@ -101,7 +101,6 @@ public:
     xAOD::JetContainer m_RCJets;
     
     /// Containers of variable-R reclustered jets (can be sorted)
-    
     std::map< std::string,const xAOD::JetContainer* > m_VarRCJets;
     
     ///Container of track jets (can be sorted)

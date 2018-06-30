@@ -13,7 +13,7 @@ namespace top{
 
   bool NRCJetSelector::apply(const top::Event& event) const {
     auto func = [&](const xAOD::Jet* jetPtr){return jetPtr->pt() > value();};
-    auto count = std::count_if(event.m_largeJets.begin(), event.m_largeJets.end(), func);
+    auto count = std::count_if(event.m_RCJets.begin(), event.m_RCJets.end(), func);
     return checkInt(count, multiplicity());
   }
 

@@ -207,9 +207,6 @@ namespace top {
 	  if (config->useRCJetSubstructure() == true)
 	    m_useRCJSS = true;
 	  
-	  //m_rc = std::unique_ptr<RCJetMC15> ( new RCJetMC15( "RCJetMC15" ) );
-	  //top::check(m_rc->setProperty( "config" , config ) , "Failed to set config property of RCJetMC15");
-	  //top::check(m_rc->initialize(),"Failed to initialize RCJetMC15");
 	}
 
 	// variable-R re-clustering (VarRC)

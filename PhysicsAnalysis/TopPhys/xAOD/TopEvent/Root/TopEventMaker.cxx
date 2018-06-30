@@ -304,6 +304,9 @@ namespace top {
 	//}
       }
       
+      
+      //std::cout << "evtStore()->contains<xAOD::JetContainer>(m_config->sgKeyJetsTDS(hash,looseJets)): " << evtStore()->contains<xAOD::JetContainer>(m_config->sgKeyJetsTDS(hash,looseJets)) << std::endl;
+      //std::cout << "m_config->sgKeyJetsTDS(hash,looseJets): " << m_config->sgKeyJetsTDS(hash,looseJets) << std::endl;
       //shallow copies aren't sorted!
       //sort only the selected taus (faster)
       event.m_jets.sort(top::descendingPtSorter);
@@ -332,7 +335,6 @@ namespace top {
 	for (auto& mass_scale : m_VarRCJetMassScale){
 	  std::replace( rho.begin(), rho.end(), '.', '_');
 	  std::string name = rho+mass_scale;
-
 	  top::check(m_VarRC[name]->execute(event),"Failed to execute RCJetMC15 container");
 
 	  // Get the name of the container of re-clustered jets in TStore
