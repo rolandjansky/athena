@@ -91,6 +91,7 @@ Run2TriggerTowerMaker::Run2TriggerTowerMaker(const std::string& name, ISvcLocato
   declareProperty("TileTTL1ContainerName",m_TileTTL1ContainerName= "TileTTL1Cnt");
   declareProperty("RequireAllCalos",m_requireAllCalos=true,"Should EM,Had and Tile all be available?");
 
+  declareProperty("IsReprocessing", m_isDataReprocessing = false, "Option to protect against grabbing eventInfo if reprocessing");
   declareProperty("TriggerTowerLocation", m_outputLocation= TrigT1CaloDefs::xAODTriggerTowerLocation);
   declareProperty("CellType", m_cellType = TTL1);
 
@@ -303,8 +304,10 @@ StatusCode LVL1::Run2TriggerTowerMaker::store()
                         m_xaodTowers->end());
   }
 
-  CHECK(evtStore()->record(m_xaodTowers.release(), m_outputLocation));
-  CHECK(evtStore()->record(m_xaodTowersAux.release(), m_outputLocation+"Aux."));
+  if ( !m_isDataReprocessing) {
+      CHECK(evtStore()->record(m_xaodTowers.release(), m_outputLocation));
+      CHECK(evtStore()->record(m_xaodTowersAux.release(), m_outputLocation+"Aux."));
+  }
 
   return StatusCode::SUCCESS;
 } // end of LVL1::Run2TriggerTowerMaker::store(){
@@ -764,10 +767,16 @@ StatusCode LVL1::Run2TriggerTowerMaker::preProcessTower(xAOD::TriggerTower *towe
     TriggerTowers. */
 StatusCode LVL1::Run2TriggerTowerMaker::preProcess()
 {
-  // Pedestal Correction: Get the BCID number
-  const xAOD::EventInfo* evt = nullptr;
-  CHECK(evtStore()->retrieve(evt));
-  auto eventBCID = evt->bcid();
+    float eventBCID = -1;
+    if ( !m_isDataReprocessing ) {
+        // Pedestal Correction: Get the BCID number
+        const xAOD::EventInfo* evt = nullptr;
+        CHECK(evtStore()->retrieve(evt));
+        eventBCID = evt->bcid();
+    } else {
+        eventBCID = -1;
+        ATH_MSG_WARNING ("Preforming TT reprocessing, skipping BCID query and setting eventBCID to -1");
+    }
 
   // Loop over all existing towers and simulate preprocessor functions
   for(auto tower : *m_xaodTowers) {
