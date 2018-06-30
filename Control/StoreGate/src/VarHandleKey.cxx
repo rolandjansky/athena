@@ -20,7 +20,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-static const char* storeSeparator = "+";
+static const char* const storeSeparator = "+";
 
 namespace SG {
 

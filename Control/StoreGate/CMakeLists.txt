@@ -14,11 +14,11 @@ atlas_depends_on_subdirs(
    Control/AthContainers
    Control/AthenaKernel
    Control/SGTools
+   Control/CxxUtils
    Database/PersistentDataModel
    GaudiKernel
    PRIVATE
-   AtlasTest/TestTools
-   Control/CxxUtils )
+   AtlasTest/TestTools )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
