@@ -388,7 +388,7 @@
     <CTSpec ns='v1'>
         <name>"MBTSSI_cable"</name> 
         <type>u16_mult</type>
-        <value>2, 9, 2, 0, 11, 1, 9, 3, 0, 11, 1</value>
+        <value>2, 9, 2, 0, 15, 1, 9, 3, 0, 15, 1</value>
         <comment>"number of cables, slot, connector, start, stop"</comment>
     </CTSpec>
 

@@ -22,6 +22,8 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/xAOD/xAODTrigMuon
                           Event/xAOD/xAODTrigger
                           GaudiKernel
+                          LumiBlock/LumiBlockComps
+                          PhysicsAnalysis/AnalysisCommon/PATCore
                           Generators/GeneratorObjects
                           InnerDetector/InDetConditions/InDetBeamSpotService
 			  PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
