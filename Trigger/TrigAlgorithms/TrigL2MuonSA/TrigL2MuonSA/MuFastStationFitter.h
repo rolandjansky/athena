@@ -64,27 +64,43 @@ class MuFastStationFitter: public AthAlgTool
 
       BooleanProperty m_use_mcLUT;
 		
-      DoubleProperty m_endcapinn_mdt_chi2_limit;    
-      DoubleProperty m_endcapmid_mdt_chi2_limit;   
-      DoubleProperty m_endcapout_mdt_chi2_limit;   
-      DoubleProperty m_endcapee_mdt_chi2_limit;    
+      Gaudi::Property< double > m_endcapinn_mdt_chi2_limit {
+	this, "ENDCAPINN_MDT_CHI2_LIMIT", 20, ""};    
+      Gaudi::Property< double > m_endcapmid_mdt_chi2_limit {
+	this, "ENDCAPMID_MDT_CHI2_LIMIT", 20, ""};   
+      Gaudi::Property< double > m_endcapout_mdt_chi2_limit {
+	this, "ENDCAPOUT_MDT_CHI2_LIMIT", 20, ""};   
+      Gaudi::Property< double > m_endcapee_mdt_chi2_limit {
+	this, "ENDCAPEE_MDT_CHI2_LIMIT",  20, ""};    
 
-      DoubleProperty m_rwidth_Endcapinn_first;  
-      DoubleProperty m_rwidth_Endcapinn_second;  
-      DoubleProperty m_rwidth_Endcapmid_first; 
-      DoubleProperty m_rwidth_Endcapmid_second; 
-      DoubleProperty m_rwidth_Endcapout_first ; 
-      DoubleProperty m_rwidth_Endcapout_second; 
-      DoubleProperty m_rwidth_Endcapee_first;   
-      DoubleProperty m_rwidth_Endcapee_second;  
+      Gaudi::Property< double > m_rwidth_Endcapinn_first {
+	this, "RWIDTH_EndcapINN_FIRST",  150, ""};  
+      Gaudi::Property< double > m_rwidth_Endcapinn_second {
+	this, "RWIDTH_EndcapINN_SECOND", 80, ""};  
+      Gaudi::Property< double > m_rwidth_Endcapmid_first {
+	this, "RWIDTH_EndcapMID_FIRST", 150, ""}; 
+      Gaudi::Property< double > m_rwidth_Endcapmid_second {
+	this, "RWIDTH_EndcapMID_SECOND", 100, ""}; 
+      Gaudi::Property< double > m_rwidth_Endcapout_first {
+	this, "RWIDTH_EndcapOUT_FIRST", 120, ""}; 
+      Gaudi::Property< double > m_rwidth_Endcapout_second {
+	this, "RWIDTH_EndcapOUT_SECOND", 60, ""}; 
+      Gaudi::Property< double > m_rwidth_Endcapee_first {
+	this, "RWIDTH_EndcapEE_FIRST", 150, ""};   
+      Gaudi::Property< double > m_rwidth_Endcapee_second {
+	this, "RWIDTH_EndcapEE_SECOND", 100, ""};  
 
-      DoubleProperty m_mdt_driftspace_uplimit;
-      DoubleProperty m_mdt_driftspace_downlimit;
-      DoubleProperty m_mdt_drifttime_limit;
+      Gaudi::Property< double > m_mdt_driftspace_uplimit {
+	this, "MDT_DRFITSPACE_UPLIMIT", 14.8, ""};
+      Gaudi::Property< double > m_mdt_driftspace_downlimit {
+	this, "MDT_DRFITSPACE_DOWNLIMIT", 0.1, ""};
+      Gaudi::Property< double > m_mdt_drifttime_limit {
+	this, "MDT_DRFITTIME_LIMIT", 1700, ""};
 
-      ToolHandle<ITrigMuonBackExtrapolator> m_backExtrapolator;
+      ToolHandle<ITrigMuonBackExtrapolator> m_backExtrapolator {
+	this, "BackExtrapolator", "TrigMuonBackExtrapolator", "public tool for back extrapolating the muon tracks to the IV"};
 
- private:
+   private:
       float SetDriftSpace(float tdr, float rad, float zeta, float phim, float phiDir);
       void  Xline(float *, float *, float *, int *, int ,
                   float *, float *, float *, float *, float *, float *);
@@ -96,8 +112,9 @@ class MuFastStationFitter: public AthAlgTool
 
       StringProperty                         m_lut_fileName;
       ToolHandle<AlphaBetaEstimate>          m_alphaBetaEstimate;
-      ToolHandle<PtFromAlphaBeta>            m_ptFromAlphaBeta;
-      const TrigL2MuonSA::PtEndcapLUTSvc*    m_ptEndcapLUTSvc;
+      ToolHandle<PtFromAlphaBeta>            m_ptFromAlphaBeta {
+	this, "PtFromAlphaBeta", "TrigL2MuonSA::PtFromAlphaBeta", ""};
+      //const TrigL2MuonSA::PtEndcapLUTSvc*    m_ptEndcapLUTSvc;
 
       void findLayerCombination(std::vector<unsigned int> &a, int n, int r,std::vector<std::vector<unsigned int> > &c, int &nr);
       void findSubLayerCombination(std::vector<unsigned int> &a, int n,int r, std::vector<unsigned int> &b, int index ,int num,

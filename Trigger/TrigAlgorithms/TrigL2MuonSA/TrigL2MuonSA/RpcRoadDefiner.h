@@ -72,6 +72,7 @@ class RpcRoadDefiner: public AthAlgTool
   bool m_use_rpc;
 
   IRegSelSvc* m_regionSelector;
+  //ServiceHandle<IRegSelSvc> m_regionSelector;
   const MdtIdHelper* m_mdtIdHelper;
 };
 

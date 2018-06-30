@@ -131,11 +131,11 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::setMCFlag(BooleanProperty use_mcL
   m_use_mcLUT = use_mcLUT;
 
   if (m_use_mcLUT) {
-    ServiceHandle<TrigL2MuonSA::PtEndcapLUTSvc> ptEndcapLUTSvc("PtEndcapLUTSvc_MC", name()); 
+    const ServiceHandle<TrigL2MuonSA::PtEndcapLUTSvc> ptEndcapLUTSvc("PtEndcapLUTSvc_MC", name()); 
     ATH_CHECK( ptEndcapLUTSvc.retrieve() );
     m_tgcRoadDefiner->setPtLUT(&*ptEndcapLUTSvc);
   } else {
-    ServiceHandle<TrigL2MuonSA::PtEndcapLUTSvc> ptEndcapLUTSvc("PtEndcapLUTSvc", name()); 
+    const ServiceHandle<TrigL2MuonSA::PtEndcapLUTSvc> ptEndcapLUTSvc("PtEndcapLUTSvc", name()); 
     ATH_CHECK( ptEndcapLUTSvc.retrieve() );
     m_tgcRoadDefiner->setPtLUT(&*ptEndcapLUTSvc);
   }

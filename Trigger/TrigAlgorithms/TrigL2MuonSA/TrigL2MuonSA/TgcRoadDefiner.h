@@ -72,6 +72,7 @@ class TgcRoadDefiner: public AthAlgTool
   double m_rWidth_TGC_Failed;
 
   IRegSelSvc* m_regionSelector;
+  //ServiceHandle<IRegSelSvc> m_regionSelector;
   const MdtIdHelper* m_mdtIdHelper;
 
 };

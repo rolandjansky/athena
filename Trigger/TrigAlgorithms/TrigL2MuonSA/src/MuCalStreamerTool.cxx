@@ -49,8 +49,6 @@ TrigL2MuonSA::MuCalStreamerTool::MuCalStreamerTool(const std::string& type,
 
 {
    declareInterface<TrigL2MuonSA::MuCalStreamerTool>(this);
-
-   declareProperty("WriteToFile", m_writeToFile=false);
 }
 
 // --------------------------------------------------------------------------------
@@ -74,17 +72,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::initialize()
 
    // Retrieve the RPC cabling service
    ServiceHandle<IRPCcablingServerSvc> RpcCabGet ("RPCcablingServerSvc", name());
-   //sc = RpcCabGet.retrieve();
-   //if ( sc != StatusCode::SUCCESS ) {
-   //  ATH_MSG_ERROR("Could not retrieve the RPCcablingServerSvc");
-   //  return sc;
-   //}
    ATH_CHECK( RpcCabGet.retrieve() );
-   //sc = RpcCabGet->giveCabling(m_rpcCabling);
-   //if ( sc != StatusCode::SUCCESS ) {
-   //  ATH_MSG_ERROR("Could not retrieve the RPC Cabling Server");
-   //  return sc;
-   //}
    ATH_CHECK( RpcCabGet->giveCabling(m_rpcCabling) );
    m_rpcCablingSvc = m_rpcCabling->getRPCCabling();
    if ( !m_rpcCablingSvc ) {
@@ -110,37 +98,14 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::initialize()
    //  return StatusCode::FAILURE;
    //} 
 
-   //sc = m_tgcDataPreparator.retrieve();
-   //if ( sc.isFailure() ) { 
-   //  ATH_MSG_ERROR("Could not retrieve " << m_tgcDataPreparator);
-   //  return sc;             
-   //} 
    ATH_CHECK( m_tgcDataPreparator.retrieve() );
    ATH_MSG_DEBUG("Retrieved service " << m_tgcDataPreparator); 
 
    // locate the region selector
-   //sc = service("RegSelSvc",m_regionSelector);
-   //if ( sc.isFailure() ) {
-   //  ATH_MSG_ERROR("Could not retrieve the region selector");
-   //  return sc;
-   //} 
    ATH_CHECK( m_regionSelector.retrieve() );
    ATH_MSG_DEBUG("Retrieved the region selector");
 
    // Locate ROBDataProvider
-   //std::string serviceName = "ROBDataProvider";
-   //IService* svc = 0;
-   //sc = service("ROBDataProviderSvc", svc);
-   //if(sc.isFailure()) {
-   //  ATH_MSG_ERROR("Could not retrieve " << serviceName);
-   //  return sc;
-   //}
-   //m_robDataProvider = dynamic_cast<ROBDataProviderSvc*> (svc);
-   //if( m_robDataProvider == 0 ) {
-   //  ATH_MSG_ERROR("Could not cast to ROBDataProviderSvc ");
-   //  return StatusCode::FAILURE;
-   //}
-   //ATH_MSG_DEBUG("Retrieved service " << serviceName); 
    ATH_CHECK( m_robDataProvider.retrieve() );
    ATH_MSG_DEBUG("Retrieved service " << m_robDataProvider.name()); 
 
