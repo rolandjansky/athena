@@ -849,9 +849,11 @@ namespace top{
   {
     unsigned int index(0);
     //If container has less jets than required, raise error
-    if(event.m_jets.size()<njets){
-       std::cout<<"KLFitterTool::setJetskLeadingX: You required "<<njets<<" jets. Event has "<<event.m_jets.size()<<" jets!\n";
-       return false;
+    if(m_config->KLFitterFailOnLessThanXJets()){
+       if(event.m_jets.size()<njets){
+          std::cout<<"KLFitterTool::setJetskLeadingX: You required "<<njets<<" jets. Event has "<<event.m_jets.size()<<" jets!\n";
+          return false;
+       }
     }
     for (const auto& jet : event.m_jets) {
       if (index > njets-1) break;
@@ -904,9 +906,11 @@ namespace top{
     // If your 6th or 7th jet is a b jet, then you probably want this option                                                                                                    
 
     //If container has less jets than required, raise error
-    if(event.m_jets.size()<maxJets){
-       std::cout<<"KLFitterTool::setJetskBtagPriority: You required "<<maxJets<<" jets. Event has "<<event.m_jets.size()<<" jets!\n";
-       return false;
+    if(m_config->KLFitterFailOnLessThanXJets()){
+       if(event.m_jets.size()<maxJets){
+          std::cout<<"KLFitterTool::setJetskBtagPriority: You required "<<maxJets<<" jets. Event has "<<event.m_jets.size()<<" jets!\n";
+          return false;
+       }
     }
 
     unsigned int totalJets(0);
