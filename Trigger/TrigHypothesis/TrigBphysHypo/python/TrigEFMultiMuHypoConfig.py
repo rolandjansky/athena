@@ -248,6 +248,31 @@ class EFMultiMuHypo_2700 (TrigEFMultiMuHypo):
         online = TrigEFMultiMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
+class EFMultiMuHypo_L26000 (TrigEFMultiMuHypo):
+    __slots__ = []
+    def __init__(self, name = "EFMultiMuHypo_L26000"):
+        super( EFMultiMuHypo_L26000, self ).__init__( name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll = False
+
+        # EF bTau cuts
+        self.OppositeSign = False
+        self.ApplyUpperMassCut     = True
+        self.LowerMassCut     = 0.
+        self.UpperMassCut     = 6000.
+        self.ApplyChi2Cut     = True
+        self.Chi2VtxCut       =   50.
+        self.bphysCollectionKey = "MultiTrkFex"
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+
+        validation = TrigEFMultiMuHypoValidationMonitoring()
+        online = TrigEFMultiMuHypoOnlineMonitoring()
+        self.AthenaMonTools = [ validation, online, time ]
+
+
 
 class EFMultiMuHypo_Phi (TrigEFMultiMuHypo):
     __slots__ = []
