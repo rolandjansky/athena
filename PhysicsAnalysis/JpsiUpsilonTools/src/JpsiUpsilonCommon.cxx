@@ -5,6 +5,7 @@
 #include "JpsiUpsilonTools/JpsiUpsilonCommon.h"
 #include "TLorentzVector.h"
 
+
 namespace Analysis {   
     // *********************************************************************************
     
@@ -53,11 +54,7 @@ namespace Analysis {
     // -------------------------------------------------------------------------------------------------
     
     bool JpsiUpsilonCommon::isContainedIn(const xAOD::TrackParticle* theTrack, const std::vector<const xAOD::TrackParticle*> &theColl) {
-        bool isContained(false);
-        for (auto trkItr=theColl.cbegin(); trkItr!=theColl.cend(); ++trkItr) {
-            if ( (*trkItr) == theTrack ) {isContained=true; break;}
-        }
-        return isContained;
+        return std::find(theColl.cbegin(), theColl.cend(), theTrack) != theColl.cend();
     }
     
     bool JpsiUpsilonCommon::isContainedIn(const xAOD::TrackParticle* theTrack, const xAOD::MuonContainer* theColl) {

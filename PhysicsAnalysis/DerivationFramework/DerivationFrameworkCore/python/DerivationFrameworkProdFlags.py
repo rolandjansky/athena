@@ -1986,6 +1986,19 @@ class WriteDAOD_BPHY15Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY15Stream)
 listAODtoDPD.append(WriteDAOD_BPHY15Stream.StreamName)
 
+class WriteDAOD_BPHY16Stream (JobProperty):
+     """BPHY16: Upsilon +2Muons"""
+     statusOn = True
+     allowedTypes = ['bool']
+     StoredValue = False
+     StreamName = 'StreamDAOD_BPHY16'
+     FileName = ''
+     isVirtual = False
+     DPDMakerScript = "DerivationFrameworkBPhys/BPHY16.py"
+     pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY16Stream)
+listAODtoDPD.append(WriteDAOD_BPHY16Stream.StreamName)
+
 ######################################
 # Defined by the MCP group
 ######################################
