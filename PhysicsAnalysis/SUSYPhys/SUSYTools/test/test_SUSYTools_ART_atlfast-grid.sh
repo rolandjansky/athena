@@ -16,7 +16,7 @@ tName="AF2"
 dcubeRef=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ART/References/monitoring.atlfast.root
 dcubeXml=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/ART/xml/dcube_config_master.xml
 
-AtlasProject=Athena /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube ${tName} monitoring.atlfast.root ${dcubeXml} ${dcubeRef}
+/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube ${tName} monitoring.atlfast.root ${dcubeXml} ${dcubeRef}
 
 echo "art-result: $? DCUBE"
 
