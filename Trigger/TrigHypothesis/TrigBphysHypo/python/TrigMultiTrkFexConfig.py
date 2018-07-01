@@ -477,7 +477,7 @@ class TrigMultiTrkFex_DiE (TrigMultiTrkFexPy):
         super( TrigMultiTrkFex_DiE, self ).__init__( name )
         self.nTrk = 2
         self.trkMass =  0.511  # looking for di-electron resonances       
-        self.nTrkVertexChi2 = 40  # set twice worse than for muons
+        self.nTrkVertexChi2 = 20  # set twice worse than for muons
         self.nTrkCharge = 0
         self.nTrkMassMin = [10.]
         self.nTrkMassMax = [9000.] 

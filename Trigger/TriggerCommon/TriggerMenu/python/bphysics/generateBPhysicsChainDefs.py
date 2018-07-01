@@ -1261,11 +1261,13 @@ def bMuTrackPEB(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, do
     from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_Jpsi
     L2Fex = TrigMultiTrkFex_Jpsi("TrigMultiTrkFex_TrkPEB"+fexNameExt)
     L2Fex.setTrackThresholds( trkmuons )
+    L2Fex.bphysCollectionKey = "MultiTrkFex_TrkPEB"
+    L2Fex.outputTrackCollectionKey = "MultiTrkFex_TrkPEB"
     #L2Fex.trackCollectionKey = "InDetTrigTrackingxAODCnv_Bphysics_IDTrig"
 
     from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_Jpsi
     L2Hypo = EFMultiMuHypo_Jpsi("L2MultiMuTrkHypo_Jpsi")
-    L2Hypo.bphysCollectionKey = "MultiTrkFex"
+    L2Hypo.bphysCollectionKey = L2Fex.bphysCollectionKey 
     theChainDef.addSequence([L2Fex, L2Hypo], L2outTEsprec , L2TEname+"MultiTrk")
     theChainDef.addSignatureL2([L2TEname+"MultiTrk"])
 
@@ -1671,8 +1673,8 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
     elif  'bBeexM6000' in topoAlgs or 'bBeexM6000t' in topoAlgs  : #  here we have only L2 with MultiTrack doL2MultiTrack :
         from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu6000
         L2Hypo = EFMultiMuHypo_DiMu6000("EFMultiMuHypo_BeeM6000")    # 
-        L2Hypo.bphysCollectionKey = "MultiTrkFex_DiE"
-                    
+        L2Hypo.bphysCollectionKey = "MultiTrkFex_DiE"  # do not change collection key, as it is output to AOD
+
     else :
         log.error( " Unknown Bphysics B->eeX chain "+ chainDict['chainName']+" do not know how to set up")
         return theChainDef
@@ -1730,6 +1732,7 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
             EFFexM.trackCollectionKey = EFFexE.outputTrackCollectionKey  # these are input tracks, we want to use those identified by BphysElectronContainer
             EFFexM.outputTrackCollectionKey = "EFEMultiTrkFex_DiE"  # these are selected tracks for monitoring
             EFFexM.bphysCollectionKey = "EFEMultiTrkFex_DiE" # this is output container with Bphys objects that will be used in Hypo
+             # do not change collection key, as it is output to AOD
 
             from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu6000
             EFHypoM = EFMultiMuHypo_DiMu6000("EFMultiMuHypo_EFBeeM6000")    # 
