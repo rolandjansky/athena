@@ -243,7 +243,7 @@ private:
 
 
   /// Number of active asynchronous cleaning tasks.
-  std::atomic<int> m_cleanTasks;
+  std::atomic<int> m_cleanTasks {0};
 
   /// Component properties.
   std::unique_ptr<DelayedConditionsCleanerSvcProps> m_props;
