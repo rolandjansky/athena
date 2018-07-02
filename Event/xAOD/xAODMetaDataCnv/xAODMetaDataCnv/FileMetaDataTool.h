@@ -70,6 +70,15 @@ namespace xAODMaker {
       /// Function writing the collected metadata to the output
       virtual StatusCode metaDataStop();
 
+   /// Function collecting the metadata from a new input file
+   virtual StatusCode beginInputFile(const SG::SourceID&) {return beginInputFile();}
+
+   /// Function collecting the metadata from a new input file
+   virtual StatusCode endInputFile(const SG::SourceID&) {return endInputFile();}
+
+   /// Function writing the collected metadata to the output
+   virtual StatusCode metaDataStop(const SG::SourceID&) {return metaDataStop();}
+
       /// @}
 
    private:
