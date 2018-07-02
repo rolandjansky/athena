@@ -1611,8 +1611,6 @@ namespace Trk {
   {
     const AlignModuleList * alignModules = m_alignModuleTool->alignModules1D();
 
-    std::vector<int>::iterator it;
-
     AlignModuleList::const_iterator imod     = alignModules->begin();
     AlignModuleList::const_iterator imod_end = alignModules->end();
     for( ; imod!=imod_end; ++imod) {
