@@ -7,13 +7,14 @@
 #include <cstdio>
 #include <cstring>
 #include <climits>
+#include <atomic>
 
-static const char* fmt_clid = "[CLID=";
-static const char* fmt_tech = "[TECH=%08X]";
-static const char* fmt_oid  = "[OID=%016llX-%016llX]";
-static const char* fmt_oid_old  = "[OID=%08llX-%08llX]";
+static const char* const fmt_clid = "[CLID=";
+static const char* const fmt_tech = "[TECH=%08X]";
+static const char* const fmt_oid  = "[OID=%016llX-%016llX]";
+static const char* const fmt_oid_old  = "[OID=%08llX-%08llX]";
 static const int KEY_MASK = (~0u) << CHAR_BIT;
-static int s_numCount = 0;
+static std::atomic<int> s_numCount { 0 };
 
 int numTokenInstances() { return s_numCount; }
 
@@ -130,10 +131,7 @@ Token& Token::fromString(const std::string& source)    {
          if (::strncmp("[DB=", p1, 4) == 0)  {
             m_dbID.fromString(p1 + 4);
          } else if (::strncmp("[CNT=", p1, 5) == 0) {
-            char* p3mod = const_cast<char*>(p3);
-            *p3mod = 0;
-            m_cntID = p2 + 1;
-            *p3mod = ']';
+            m_cntID.assign (p2+1, p3-p2-1);
          } else if (::strncmp(fmt_oid, p1, 5) == 0) {
             if (::strncmp("]", p1 + 22, 1) == 0) { // 5 + 8(int) + 1(minus) + 8(int) = 22
                ::sscanf(p1, fmt_oid_old, &m_oid.first, &m_oid.second);
@@ -150,11 +148,9 @@ Token& Token::fromString(const std::string& source)    {
             while (*(p2 + 1) == '[' && p3 && *(++p3) != 0 && *p3 != ']') {
                p3 = ::strchr(p3, ']');
             }
-            char* p3mod = const_cast<char*>(p3);
-            if (p3mod) *p3mod = 0;
-            m_auxString += p1;
+            if (!p3) p3 = source.c_str() + source.size();
+            m_auxString.append (p1, p3-p1);
             m_auxString += "]";
-            if (p3mod) *p3mod = ']';
          }
       }
    }
