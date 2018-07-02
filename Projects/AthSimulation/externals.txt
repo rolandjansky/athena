@@ -6,6 +6,6 @@
 # forbidden.
 
 
-AthSimulationExternalsVersion = 1.0.33
+AthSimulationExternalsVersion = 1.0.34
 GaudiVersion = v27r1.019
 
