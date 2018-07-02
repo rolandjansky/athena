@@ -488,7 +488,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
   // -------------------------------------------------------------------------------
   
   // prepare material collection
-  const Trk::MaterialProperties* extMatProp = 0;
+  const Trk::MaterialProperties* extMatProp = nullptr;
   double dInL0 = 0.;
   extMatProp = dynamic_cast<const Trk::MaterialProperties*>(m_matProp);
   dInL0 = extMatProp ? (1-matFraction)*pathCorrection*extMatProp->thicknessInL0() : 
@@ -618,10 +618,25 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
   }
 
   if ( iStatus==1 || iStatus==2 ) {   // interaction
-    
-    ISF::ISFParticleVector childs = iStatus==1 ? interactLay(isp,timeLim.time,*parm,particle,pathLim.process) :
-      m_hadIntProcessor->doHadIntOnLayer(isp, timeLim.time, parm->position(), parm->momentum(),
-					 ( extMatProp ? &extMatProp->material() : 0), particle);
+    ISF::ISFParticleVector childs;
+
+    if (iStatus == 1)
+    {
+      childs = interactLay(isp,timeLim.time,*parm,particle,pathLim.process);
+    }
+    else
+    {
+      if (extMatProp)
+      {
+        childs =
+          m_hadIntProcessor->doHadIntOnLayer(isp,timeLim.time,parm->position(),parm->momentum(),&extMatProp->material(),particle);
+      }
+      else
+      {
+        childs =
+          m_hadIntProcessor->doHadIntOnLayer(isp,timeLim.time,parm->position(),parm->momentum(),0,particle);
+      }
+    }
 
     // save info for locally created particles
     if (m_validationMode && childs.size()>0 && isp!=m_isp) {
