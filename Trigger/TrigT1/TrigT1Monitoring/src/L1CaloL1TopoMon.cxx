@@ -803,11 +803,6 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   }
   m_h_l1topo_1d_ROITobs->Fill(std::min((int)roiTobs.size(),19));
 
-  if (topo_error) {
-    m_h_l1topo_1d_Errors->Fill(topo_error);
-    m_h_l1topo_1d_ErrorsByLumiblock->Fill(m_lumiNo);
-  }
-  
   for (unsigned int i=1; i<=128;++i) {
     float diff=fabs(m_h_l1topo_1d_DAQTriggerBits->GetBinContent(i)-
 		    m_h_l1topo_1d_Simulation->GetBinContent(i));
@@ -860,6 +855,11 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
     }
   }
 
+  if (topo_error) {
+    m_h_l1topo_1d_Errors->Fill(topo_error);
+    m_h_l1topo_1d_ErrorsByLumiblock->Fill(m_lumiNo);
+  }
+  
   return StatusCode::SUCCESS;
 }
 
