@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RATESANALYSIS_RATESANALYSISALG_H
@@ -256,7 +256,6 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
   double m_targetBunches; //!< How many bunches the prediction is targeting
   double m_targetLumi; //!< What instantaneous luminosity the prediction is targeting
   double m_expoScalingFactor; //!< Exponential factor for exponential-in-mu chains
-  bool m_populatedTriggers; //!< Set to true once we enter the event loop. No new triggers can be added from this point.
   bool m_doUniqueRates; //!< What rate is unique to each trigger. More computationally taxing.
   bool m_useBunchCrossingTool; //!< If rates should be done vs. position in the train. Requires DB access
   bool m_currentEventIsUnbiased; //!< If the current event was triggered online by RDx or not. Random seeded HLT chains must only see these

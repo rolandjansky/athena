@@ -17,9 +17,11 @@ StatusCode  ExampleRatesFullMenu::ratesInitialize() {
   // Here we assume a full-ring, other functions are available to change this assumption.
   // @see setTargetLumiMu(const double lumi, const double mu);
   // @see setTargetLumiBunches(const double lumi, const int32_t bunches);
+  // @see setTargetMuBunches(const double mu, const int32_t bunches);
   setTargetLumi( m_lumi );
 
   // Register all triggers in the menu. Will not include any which were prescaled out in Athena.
+  ATH_MSG_INFO("Adding all existing triggers");
   ATH_CHECK( addAllExisting() );
 
   // Or, if you were only interested in part of the menu you could do e.g.
