@@ -156,6 +156,9 @@ public:
        return localModuleCentreRadius() if SCT_StripStereoAnnulusDesign; otherwise -1 */
     virtual double localModuleCentreRadius() const ; 
 
+    /** only relevant for SCT. Return strip1Dim(int strip, int row) if SCT; otherwise -1 */
+    virtual int strip1Dim(int strip, int row) const;
+
     ///////////////////////////////////////////////////////////////////
     // Pure virtual methods:
     ///////////////////////////////////////////////////////////////////
@@ -335,6 +338,10 @@ inline int SiDetectorDesign::readoutSide() const {
 
 inline double SiDetectorDesign::localModuleCentreRadius() const{
     return -1.0; 
+}
+
+inline int SiDetectorDesign::strip1Dim(int strip, int row) const{
+    return -1.0;
 }
 }  // namespace InDetDD
 #endif // INDETREADOUTGEOMETRY_SIDETECTORDESIGN_H

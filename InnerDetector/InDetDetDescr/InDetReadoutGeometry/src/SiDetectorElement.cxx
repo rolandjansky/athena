@@ -1185,7 +1185,16 @@ SiDetectorElement::cellIdFromIdentifier(const Identifier & identifier) const
     } else {
       const SCT_ID * sctIdHelper = static_cast<const SCT_ID *>(getIdHelper());
       if (sctIdHelper) {
-	cellId =  SiCellId(sctIdHelper->strip(identifier));
+        int row = sctIdHelper->row(identifier);
+        int strip = sctIdHelper->strip(identifier);
+        if (row < 0) { // This sensor does not have rows
+          cellId = SiCellId(strip);
+        }
+        else {
+          auto &sctDesign = *m_design; 
+          int strip1D = sctDesign.strip1Dim(strip, row);
+          cellId = SiCellId(strip1D);
+        }
       }
     }
   }
