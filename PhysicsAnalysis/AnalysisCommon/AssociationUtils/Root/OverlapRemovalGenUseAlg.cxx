@@ -6,7 +6,7 @@
 
 // Local includes
 #include "AssociationUtils/OverlapRemovalDefs.h"
-#include "OverlapRemovalGenUseAlg.h"
+#include "AssociationUtils/OverlapRemovalGenUseAlg.h"
 
 namespace
 {
@@ -20,7 +20,7 @@ namespace
 //-----------------------------------------------------------------------------
 OverlapRemovalGenUseAlg::OverlapRemovalGenUseAlg(const std::string& name,
 		ISvcLocator* svcLoc)
-	: AthAlgorithm(name, svcLoc),
+	: EL::AnaAlgorithm(name, svcLoc),
 	m_orTool("OverlapRemovalTool", this)
 {
 	declareProperty("OverlapRemovalTool", m_orTool);
@@ -84,8 +84,8 @@ StatusCode OverlapRemovalGenUseAlg::execute()
   const xAOD::PhotonContainer* photons = 0;
   ATH_CHECK( evtStore()->retrieve(photons, "Photons") );
   applySelection(*photons);
- 
-  // Primary Vertices 
+
+  // Primary Vertices
   const xAOD::VertexContainer* vertices = nullptr;
   int checkVtx = 0;
   if(evtStore()->retrieve(vertices, "PrimaryVertices").isSuccess()) {
@@ -94,13 +94,13 @@ StatusCode OverlapRemovalGenUseAlg::execute()
                 checkVtx = 1;
       }
   }
- 
+
   if(checkVtx==1){
           // Apply the overlap removal
 	  ATH_CHECK( m_orTool->removeOverlaps(electrons, muons, jets, taus, photons) );}
   else{
 	  // Reset all decorations to failing
-	  ATH_MSG_DEBUG("No primary vertices found, cannot do overlap removal! Will return all fails."); 
+	  ATH_MSG_DEBUG("No primary vertices found, cannot do overlap removal! Will return all fails.");
 	  if(electrons) setDefaultDecorations(*electrons);
 	  if(muons)     setDefaultDecorations(*muons);
 	  if(jets)      setDefaultDecorations(*jets);
@@ -110,7 +110,12 @@ StatusCode OverlapRemovalGenUseAlg::execute()
 
   // Dump the objects
   ATH_MSG_VERBOSE("Dumping results");
-  if(msgLevel() >= MSG::VERBOSE){
+#ifdef XAOD_STANDALONE
+    auto msglvl = msg().level();
+#else
+    auto msglvl = msgLevel();
+#endif
+  if(msglvl >= MSG::VERBOSE){
   printObjects(*electrons, "ele");
   printObjects(*muons, "muo");
   printObjects(*taus, "tau");
@@ -128,7 +133,7 @@ void OverlapRemovalGenUseAlg::setDefaultDecorations(const ContainerType& contain
 {
 	static ort::inputDecorator_t defaultDec(m_overlapLabel);
 	for(auto obj : container){
-		defaultDec(*obj) = 1; //default to all objects being overlaps if we can't get primary vertices. Ensures the event cleaning decision fails. 
+		defaultDec(*obj) = 1; //default to all objects being overlaps if we can't get primary vertices. Ensures the event cleaning decision fails.
 	}
 }
 

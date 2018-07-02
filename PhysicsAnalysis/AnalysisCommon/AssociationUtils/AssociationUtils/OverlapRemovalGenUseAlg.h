@@ -2,12 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ASSOCIATIONUTILS_OVERLAPREMOVALGenUseALG_H
-#define ASSOCIATIONUTILS_OVERLAPREMOVALGenUseALG_H
+#ifndef ASSOCIATIONUTILS_OVERLAPREMOVALGENUSEALG_H
+#define ASSOCIATIONUTILS_OVERLAPREMOVALGENUSEALG_H
 
 // Framework includes
-#include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AsgTools/ToolHandle.h"
+#include "AnaAlgorithm/AnaAlgorithm.h"
 
 // EDM includes
 #include "xAODBase/IParticleContainer.h"
@@ -19,7 +19,7 @@
 ///
 /// @author Julia Gonski <j.gonski@cern.ch>
 ///
-class OverlapRemovalGenUseAlg : public AthAlgorithm
+class OverlapRemovalGenUseAlg : public EL::AnaAlgorithm
 {
 
   public:
@@ -42,7 +42,7 @@ class OverlapRemovalGenUseAlg : public AthAlgorithm
     // Reset decorations to failing
     template<class ContainerType>
     void setDefaultDecorations(const ContainerType& container);
-    
+
     /// Simple object selection
     template<class ObjType>
     bool selectObject(const ObjType& obj);
@@ -50,7 +50,7 @@ class OverlapRemovalGenUseAlg : public AthAlgorithm
     /// Print object info
     void printObjects(const xAOD::IParticleContainer& container,
                       const std::string& type);
-    
+
     /// Handle to the tool
     ToolHandle<ORUtils::IOverlapRemovalTool> m_orTool;
 
