@@ -77,7 +77,6 @@ HLTObjectsInRoI* TrigAccessTool::findRoI(int isig,
                  << objs.size() << " objs)");
 
   const std::vector<HLT::TriggerElement*> tmp_tes;
-  const std::vector<HLT::TriggerElement*>::const_iterator p_te;
   HLTObjectsInRoI* x=0;
 
   std::vector<HLTObjectsInRoI*>::iterator p;
