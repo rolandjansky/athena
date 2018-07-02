@@ -15,6 +15,9 @@
 #include <sstream>
 #include <math.h>
 
+/**
+ eflowAzimuth represents phi and has kinematic functions which correctly deal with phi wraparound etc. 
+*/
 class eflowAzimuth {
 public:
  eflowAzimuth(double phi): m_value(phi) { if (phi != -999.) adjustRange(); }
@@ -104,6 +107,9 @@ private:
   eflowAzimuth m_phi;
 };
 
+/**
+eflowRangeBase is an object to represent a length in eta or phi, and this is used in eflowCellIntegrator as a variable in the integrations over eta and phi.
+*/
 template <class T>
 class eflowRangeBase{
 public:
