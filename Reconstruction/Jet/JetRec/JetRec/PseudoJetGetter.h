@@ -40,8 +40,6 @@
 #include "JetEDM/PseudoJetVector.h"
 
 
-using fastjet::PseudoJet;
-
 class PseudoJetGetter
 :  public asg::AsgTool,
   virtual public IPseudoJetGetter {
@@ -119,16 +117,16 @@ private:
   const PseudoJetContainer* getC() const;
 
 
-  std::vector<PseudoJet> 
+  std::vector<fastjet::PseudoJet> 
   createPseudoJets(const xAOD::IParticleContainer* ) const;
 
-  std::vector<PseudoJet> 
+  std::vector<fastjet::PseudoJet> 
   IParticlesToPJs(const xAOD::IParticleContainer*) const;
   
-  std::vector<PseudoJet> 
+  std::vector<fastjet::PseudoJet> 
   EMToposToPJs(const xAOD::IParticleContainer*) const;
     
-  std::vector<PseudoJet> 
+  std::vector<fastjet::PseudoJet> 
   PFlowsToPJs(const xAOD::IParticleContainer*) const;
 
 };

@@ -9,7 +9,7 @@
 
 class InDetRawData_p2 {
  public:
-  InDetRawData_p2()  {};
+  InDetRawData_p2():m_rdoId(0),m_word(0)  {};
 // List of Cnv classes that convert this into Rdo objects
   friend class TRT_LoLumRawDataCnv_p2;
   friend class SCT1_RawDataCnv_p2;

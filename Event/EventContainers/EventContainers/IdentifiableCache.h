@@ -56,6 +56,11 @@ public:
     return reinterpret_cast<const T*> (IdentifiableCacheBase::find (hash));
   }
 
+  const T* findWait (IdentifierHash hash) const
+  {
+    return reinterpret_cast<const T*> (IdentifiableCacheBase::findWait (hash));
+  }
+
   const T* get (IdentifierHash hash)
   {
     return reinterpret_cast<const T*> (IdentifiableCacheBase::get (hash));

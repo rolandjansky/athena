@@ -2,9 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CaloCondPhysAlgs/CaloFillCellPositionShift.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/MsgStream.h"
+#include "CaloFillCellPositionShift.h"
 
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"

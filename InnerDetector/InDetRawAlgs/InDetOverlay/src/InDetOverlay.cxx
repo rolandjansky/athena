@@ -26,7 +26,6 @@
 #include "InDetRawData/TRT_RDORawData.h"
 #include "InDetRawData/TRT_LoLumRawData.h"
 #include "InDetRawData/SCT3_RawData.h"
-//#include "InDetRawData/Pixel1RawData.h"
 
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
@@ -193,15 +192,12 @@ namespace Overlay {
       if (source==InDetOverlay::MCSource) { // MC
         rdo = mc.begin();
         rdoEnd = mc.end();
-      } else if (source==InDetOverlay::DataSource) { // Data
+      } else { // Data
         rdo = data.begin();
         rdoEnd = data.end();
-      } else {
-        parent->msg(MSG::WARNING) << "Invalid source " << source << " in mergeCollectionsNew for SCT" << endmsg;
-        continue;
-      }
+      } 
       // Loop over all RDOs in the wafer
-      for (; rdo!=rdoEnd; rdo++) {
+      for (; rdo!=rdoEnd; ++rdo) {
         const SCT3_RawData* rdo3 = dynamic_cast<const SCT3_RawData*>(*rdo);
         if (!rdo3) {
           std::ostringstream os;

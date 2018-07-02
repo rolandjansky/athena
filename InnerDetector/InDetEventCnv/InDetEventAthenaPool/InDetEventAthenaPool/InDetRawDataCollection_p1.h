@@ -18,6 +18,7 @@ public:
     InDetRawDataCollection_p1() 
             : 
             m_id(0),
+            m_hashId(0),
             m_begin(0),
             m_end(0)
         { } ;

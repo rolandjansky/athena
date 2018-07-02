@@ -9,9 +9,7 @@
  * $Id: PileUpStream.h,v 1.18 2008-10-31 18:34:42 calaf Exp $
  * @author Paolo Calafiura - ATLAS Collaboration
  */
-#include <vector>
-#include <list>
-#include <utility> /* pair */
+
 #include "xAODEventInfo/EventInfo.h"  /*SubEvent*/
 #include "PileUpTools/PileUpToolBase.h"
 #include "TRTDigit.h"
@@ -19,13 +17,13 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetRawData/TRT_RDO_Container.h"
 #include "InDetSimData/InDetSimDataCollection.h"
-//#include "CommissionEvent/ComTime.h"
-#include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
-#include "HepPDT/ParticleDataTable.hh"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
-#include "CLHEP/Random/RandomEngine.h"
+
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/WriteHandle.h"
+#include <vector>
+#include <list>
+#include <set>
+#include <utility> /* pair */
 
 class PileUpMergeSvc;
 class ITRT_PAITool;
@@ -37,6 +35,15 @@ class TRTElectronicsProcessing;
 class TRTDigCondBase;
 class TRTNoise;
 class ITRT_StrawNeighbourSvc;
+class ITRT_StrawStatusSummarySvc;
+
+namespace CLHEP{
+  class HepRandomEngine;
+}
+
+namespace HepPDT{
+  class ParticleDataTable;
+}
 
 #include "HitManagement/TimedHitCollection.h"
 class TRTUncompressedHit;

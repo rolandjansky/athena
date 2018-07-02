@@ -8,11 +8,9 @@
 #include "GeoModelUtilities/GeoModelTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "InDetCondServices/ISiLorentzAngleTool.h"
 
 #include <string>
 
-class ISiLorentzAngleSvc;
 class IGeoDbTagSvc;
 class IRDBAccessSvc;
 class IGeometryDBSvc;
@@ -37,8 +35,6 @@ public:
   // Standard Destructor
   virtual ~SCT_SLHC_DetectorTool() override final;
 
-  virtual StatusCode initialize() override final;
-
   virtual StatusCode create() override final;
   virtual StatusCode clear() override final;
 
@@ -55,7 +51,6 @@ private:
   ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
   ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;
   ServiceHandle< IGeometryDBSvc > m_geometryDBSvc;
-  ToolHandle< ISiLorentzAngleTool > m_lorentzAngleTool{this, "LorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
 };
 
 #endif // SCT_SLHC_GeoModel_SCT_DETECTORTOOL_H

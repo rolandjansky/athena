@@ -29,7 +29,6 @@
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 TrigMonTHistSvc::TrigMonTHistSvc( const std::string& name, ISvcLocator* svc ) 
     : THistSvcHLT(name, svc),
-      AthMessaging(msgSvc(), name),
       m_excludeType("()"), 
       m_includeType(".+"),
       m_excludeName(".*\\..*"),                                            
@@ -58,7 +57,7 @@ StatusCode TrigMonTHistSvc::initialize() {
   CHECK(THistSvcHLT::initialize());
   CHECK(setProperties());
 
-  AthMessaging::msg().setLevel(outputLevel());
+  msg().setLevel(outputLevel());
   // fix summing up flag if not running in separate threads
  
   // Protect against multiple instances of TROOT

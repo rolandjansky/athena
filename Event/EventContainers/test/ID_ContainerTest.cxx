@@ -4,7 +4,7 @@
 
 // This is a test cxx file for IdentifiableContainer. 
 //  
-//#include "src/IdentifiableCacheBase.cxx"
+#include "EventContainers/IdentifiableCacheBase.h"
 #include "EventContainers/IdentifiableContainer.h" 
 #include "EventContainers/SelectAllObject.h" 
 #include "ID_ContainerTest.h" 
@@ -12,7 +12,7 @@
 #include "CLIDSvc/CLASS_DEF.h"
 
 // define a bunch of fake data classes 
-
+using namespace std;
 namespace IDC_TEST
 {
 

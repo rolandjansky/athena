@@ -12,10 +12,7 @@
 // 2007- : Algorithm fully rewritten and optimized by B.Trocme
 // ********************************************************************
 
-//#include "GaudiKernel/SmartDataPtr.h"
-//#include "GaudiKernel/IToolSvc.h"
-
-//#include "StoreGate/DataHandle.h"
+#include "LArFEBMon.h"
 
 #include "LArRecEvent/LArEventBitInfo.h"
 #include "LArRawEvent/LArFebHeaderContainer.h"
@@ -33,18 +30,13 @@
 #include "LWHists/TProfile2D_LW.h"
 #include "LWHists/TProfile_LW.h"
 
-#include "LArMonTools/LArFEBMon.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "LArTrigStreamMatching.h"
 
 #include <stdint.h>
 #include <algorithm>
 #include <math.h>
-//#include <functional>
-//#include <set>
-
 #include <sys/types.h>
-
-#include "xAODEventInfo/EventInfo.h"
-#include "LArTrigStreamMatching.h"
 
 const unsigned nFEBnominal=1524;
 

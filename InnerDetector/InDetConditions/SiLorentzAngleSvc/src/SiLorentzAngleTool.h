@@ -83,9 +83,6 @@ public:
   /** Get depletion voltage */
   virtual double getDepletionVoltage(const IdentifierHash& elementHash) const override;
 
-  /** Retrieve detector manager */
-  virtual StatusCode retrieveDetectorManager() override;
-
 private:
   enum Variable {LorentzShift, LorentzShiftEta, TanLorentzAngle, TanLorentzAngleEta};
 

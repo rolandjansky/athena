@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArMonTools/LArCoverageFCALBins.h"
+#include "LArCoverageFCALBins.h"
 
 int LArCoverageFCALBins::getXBins(int /*iSide*/, int iSamp) {
   static const int nbinsXFCAL[] = {240,216,200};
