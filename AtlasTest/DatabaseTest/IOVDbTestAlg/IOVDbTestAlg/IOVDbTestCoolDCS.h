@@ -26,8 +26,6 @@ class IOVDbTestCoolDCS: public AthAlgorithm
     StatusCode finalize();
 
 private:
-  StoreGateSvc* p_evtstore;
-  StoreGateSvc* p_detstore;
   // list folders to be read as AthenaAttributeList
   std::vector<std::string> m_par_atrlist;   
   // list folders to be read as CondAttrListCollection*
