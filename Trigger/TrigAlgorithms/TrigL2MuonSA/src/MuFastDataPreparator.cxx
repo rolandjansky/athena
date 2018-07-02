@@ -106,8 +106,8 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
    ATH_MSG_DEBUG("Retrieved service " << m_rpcPatFinder);
 
    // set the geometry tools
-   m_rpcRoadDefiner->setMdtGeometry(&*m_regionSelector,m_mdtIdHelper);
-   m_tgcRoadDefiner->setMdtGeometry(&*m_regionSelector,m_mdtIdHelper);
+   m_rpcRoadDefiner->setMdtGeometry(m_regionSelector,m_mdtIdHelper);
+   m_tgcRoadDefiner->setMdtGeometry(m_regionSelector,m_mdtIdHelper);
 
    // 
    return StatusCode::SUCCESS; 

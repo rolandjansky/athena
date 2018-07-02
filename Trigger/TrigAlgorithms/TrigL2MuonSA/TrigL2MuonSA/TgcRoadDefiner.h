@@ -51,7 +51,8 @@ class TgcRoadDefiner: public AthAlgTool
                         TrigL2MuonSA::MuonRoad&      muonRoad,
                         TrigL2MuonSA::TgcFitResult&  tgcFitResult);
 
-  void setMdtGeometry(IRegSelSvc* regionSelector, const MdtIdHelper* mdtIdHelper);
+  void setMdtGeometry(const ServiceHandle<IRegSelSvc>& regionSelector, 
+                      const MdtIdHelper* mdtIdHelper);
   void setPtLUT(const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc);
   void setRoadWidthForFailure(double rWidth_TGC_Failed);
   void setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator);
@@ -71,8 +72,7 @@ class TgcRoadDefiner: public AthAlgTool
 
   double m_rWidth_TGC_Failed;
 
-  IRegSelSvc* m_regionSelector;
-  //ServiceHandle<IRegSelSvc> m_regionSelector;
+  ServiceHandle<IRegSelSvc> m_regionSelector;
   const MdtIdHelper* m_mdtIdHelper;
 
 };
