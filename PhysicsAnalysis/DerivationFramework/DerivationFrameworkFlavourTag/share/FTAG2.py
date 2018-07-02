@@ -55,13 +55,13 @@ if globalflags.DataSource()!='data':
     addStandardTruthContents()
     addHFAndDownstreamParticles()
 
-#====================================================================                                                                                                                   
+#====================================================================
 # AUGMENTATION TOOLS
 # ( AUGMENTATION = adding information to the output DxAOD that is not found in the input file )
-# Create IPE tool, then create augmenter and add to sequence 
-#====================================================================  
+# Create IPE tool, then create augmenter and add to sequence
+#====================================================================
 
-#make IPE tool for BTagTrackAugmenter 
+#make IPE tool for BTagTrackAugmenter
 FTAG2IPETool = Trk__TrackToVertexIPEstimator(name = "FTAG2IPETool")
 ToolSvc += FTAG2IPETool
 print FTAG2IPETool
@@ -94,6 +94,7 @@ OutputJets["FTAG2"] = ["AntiKt4EMTopoJets",
                        "AntiKtVR30Rmax4Rmin02TrackJets",
                        "AntiKt4EMPFlowJets"]
 
+
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
                   "AntiKt10LCTopoJets",
@@ -108,13 +109,14 @@ addDefaultTrimmedJets(FTAG2Seq,"FTAG2",dotruth=True)
 # Variable Radius (VR) Jets
 #===================================================================
 
-# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
+# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
 addVRJets(FTAG2Seq)
 # Also add Hbb Tagger
 addHbbTagger(FTAG2Seq, ToolSvc)
 
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
+
 
 #===================================================================
 # Tag custom or pre-built jet collections
@@ -123,7 +125,7 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 FlavorTagInit(scheduleFlipped = True, JetCollections  = ['AntiKt4EMPFlowJets','AntiKt4EMTopoJets'], Sequencer = FTAG2Seq)
 
 #====================================================================
-# Add sequence (with all kernels needed) to DerivationFrameworkJob  
+# Add sequence (with all kernels needed) to DerivationFrameworkJob
 #====================================================================
 
 DerivationFrameworkJob += FTAG2Seq
@@ -144,7 +146,7 @@ FTAG2Stream.AcceptAlgs(["FTAG2SkimKernel"])
 
 FTAG2SlimmingHelper = SlimmingHelper("FTAG2SlimmingHelper")
 
-# nb: BTagging_AntiKt4EMTopo smart collection includes both AntiKt4EMTopoJets and BTagging_AntiKt4EMTopo 
+# nb: BTagging_AntiKt4EMTopo smart collection includes both AntiKt4EMTopoJets and BTagging_AntiKt4EMTopo
 # container variables. Thus BTagging_AntiKt4EMTopo is needed in SmartCollections as well as AllVariables
 FTAG2SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "InDetTrackParticles",
@@ -161,7 +163,7 @@ FTAG2SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "BTagging_AntiKt4EMPFlow",
                                     "BTagging_AntiKt4EMPFlowJFVtx",
                                     "BTagging_AntiKt2Track",
-                                    "BTagging_AntiKt2TrackJFVtx", 
+                                    "BTagging_AntiKt2TrackJFVtx",
                                     "PrimaryVertices",
                                     "TruthEvents",
                                     "TruthParticles",
@@ -175,7 +177,7 @@ for FT2_bjetTriggerVtx in FTAllVars_bjetTriggerVtx:
 FTAG2SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("AntiKt4EMTopoJetsAux","AntiKt10LCTopoJets"),
                                        "InDetTrackParticles.truthMatchProbability.x.y.z.vx.vy.vz",
                                        "InDetTrackParticles.numberOfContribPixelLayers.numberOfTRTHits.numberOfInnermostPixelLayerSharedHits.numberOfNextToInnermostPixelLayerSharedHits",
-                                       "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits", 
+                                       "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits",
                                        "InDetTrackParticles.hitPattern.radiusOfFirstHit",
                                        #"InDetTrackParticles.FTAG2_unbiased_d0.FTAG2_unbiased_z0.FTAG2_unbiased_d0Sigma.FTAG2_unbiased_z0Sigma",
                                        "CombinedMuonTrackParticles.vx.vy.vz",
@@ -193,13 +195,14 @@ FTAG2SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "AntiKt4EMPFlowJets.EMFrac.HECFrac.LArQuality.HECQuality.FracSamplingMax.NegativeE.AverageLArQF.FracSamplingMaxIndex.HadronConeExclTruthLabelID.GhostTrack",
                                        "AntiKt4EMPFlowJets.Jvt.JvtRpt.JvtJvfcorr",
                                        "AntiKt4EMPFlowJets.NumTrkPt1000.NumTrkPt500.SumPtTrkPt500.SumPtTrkPt1000",
-                                       "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum"]
+                                       "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
+                                       ]
 
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
-FTAG2SlimmingHelper.AppendToDictionary = {      
-  "BTagging_AntiKt4EMPFlow"                        :   "xAOD::BTaggingContainer", 
-  "BTagging_AntiKt4EMPFlowAux"                     :   "xAOD::BTaggingAuxContainer", 
+FTAG2SlimmingHelper.AppendToDictionary = {
+  "BTagging_AntiKt4EMPFlow"                        :   "xAOD::BTaggingContainer",
+  "BTagging_AntiKt4EMPFlowAux"                     :   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKt4EMPFlowJFVtx"                   :   "xAOD::BTagVertexContainer",
   "BTagging_AntiKt4EMPFlowJFVtxAux"                :   "xAOD::BTagVertexAuxContainer",
   "AntiKtVR30Rmax4Rmin02Track"                     :   "xAOD::JetContainer"        ,
@@ -216,8 +219,12 @@ FTAG2SlimmingHelper.AppendToDictionary = {
   "BTagging_AntiKt2TrackJFVtxAux"                  :   "xAOD::BTagVertexAuxContainer",
   "BTagging_AntiKt2TrackSecVtx"                    :   "xAOD::VertexContainer"   ,
   "BTagging_AntiKt2TrackSecVtxAux"                 :   "xAOD::VertexAuxContainer",
+  "AntiKt8EMTopoJets"                              :   "xAOD::JetContainer"        ,
+  "AntiKt8EMTopoJetsAux"                           :   "xAOD::JetAuxContainer"     ,
 }
+
 #----------------------------------------------------------------------
+
 
 addJetOutputs(FTAG2SlimmingHelper,["FTAG2"])
 

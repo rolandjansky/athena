@@ -3,8 +3,10 @@
    <class name="CP::AsgPtEtaSelectionTool" />
    <class name="CP::AsgSelectionAlg" />
    <class name="CP::AsgViewSelectionAlg" />
+   <class name="CP::AsgxAODNTupleMakerAlg" />
    <class name="CP::KinematicHistAlg" />
    <class name="CP::ObjectCutFlowHistAlg" />
+   <class name="CP::OverlapRemovalAlg" />
    <class name="CP::PileupReweightingAlg" />
    <class name="CP::SysListLoaderAlg" />
    

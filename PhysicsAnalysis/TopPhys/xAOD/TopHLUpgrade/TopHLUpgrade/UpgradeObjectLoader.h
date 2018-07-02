@@ -81,7 +81,7 @@ namespace top {
     //std::unique_ptr<xAOD::TruthParticleContainer> m_electrons;
     //std::unique_ptr<xAOD::ShallowAuxContainer> m_electronsShallowAux;
     std::shared_ptr<xAOD::TruthParticleContainer> m_selectedElectrons;
-    std::shared_ptr<xAOD::TruthParticleAuxContainer> m_auxElectronCont;
+    std::shared_ptr<xAOD::AuxContainerBase> m_auxElectronCont;
 
     // jets
     std::unique_ptr<xAOD::JetContainer> m_jets;

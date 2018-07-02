@@ -30,8 +30,8 @@ namespace DerivationFramework {
       virtual StatusCode addBranches() const;
 
     private:
-      //ToolHandle<IAsgSelectionTool> m_tool;
-      ToolHandle<IAsgEGammaIsEMSelector> m_tool; // provides isemValue, but will not work with likelihood..
+      ToolHandle<IAsgSelectionTool> m_tool; // can't use isemValue, but can use TAccept and then getInvertedCutBitSet to retrieve isem-like value for both cut-based and LH selectors
+      //ToolHandle<IAsgEGammaIsEMSelector> m_tool; // provides isemValue, but will not work with likelihood..
       ToolHandle<IElectronPhotonShowerShapeFudgeTool> m_fudgeMCTool;
       std::string m_cut;
       std::string m_sgName;
