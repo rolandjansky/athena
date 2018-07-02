@@ -26,5 +26,6 @@
 #include "AssociationUtils/MuJetGhostDRMatcher.h"
 #include "AssociationUtils/OverlapDecorationHelper.h"
 #include "AssociationUtils/OverlapLinkHelper.h"
+#include "AssociationUtils/OverlapRemovalGenUseAlg.h"
 
 #endif

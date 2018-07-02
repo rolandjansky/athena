@@ -1,5 +1,6 @@
 <lcgdict>
 
+  <!-- Tools -->
   <namespace name="ORUtils" />
   <class name="ORUtils::IOverlapTool" />
   <class name="ORUtils::IOverlapRemovalTool" />
@@ -23,5 +24,8 @@
   <class name="ORUtils::MuJetGhostDRMatcher" />
   <class name="ORUtils::OverlapDecorationHelper" />
   <class name="ORUtils::OverlapLinkHelper" />
+
+  <!-- Dual-use alg -->
+  <class name="OverlapRemovalGenUseAlg" />
 
 </lcgdict>
