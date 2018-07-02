@@ -17,6 +17,8 @@
 #include "xAODTrigRinger/TrigRNNOutputContainer.h"
 #include "xAODTrigRinger/TrigRingerRings.h"
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
+#include "xAODEventInfo/EventInfo.h"
+
 
 
 
@@ -27,7 +29,7 @@
     TrigL2CaloRingerFexMT:: TrigL2CaloRingerFexMT(const std::string & name, ISvcLocator* pSvcLocator)
         :AthAlgorithm(name, pSvcLocator){
 
-                ATH_MSG_DEBUG( "start RingerMT const:" );     
+                ATH_MSG_DEBUG( "start RingerMT const:" << name );     
 	} TrigL2CaloRingerFexMT:: ~TrigL2CaloRingerFexMT(){}
 
 
@@ -189,6 +191,14 @@ StatusCode TrigL2CaloRingerFexMT::execute(){
 
   ATH_MSG_DEBUG( "Et = " << et << " GeV, |eta| = " << eta << " and rnnoutput = " << m_output );
   ///Store outout information for monitoring and studys
+  const xAOD::EventInfo* ei = nullptr; 
+  if ( evtStore()->retrieve( ei ).isFailure() ) { 
+    ATH_MSG_ERROR("No Event info in store" );
+    return StatusCode::FAILURE;
+  }
+      
+  ATH_MSG_DEBUG( "Event " << ei->eventNumber() <<" Et = " << et << " GeV, eta = " << eta << " phi " <<  " and rnnoutput = " << m_output );
+
   std::unique_ptr<xAOD::TrigRNNOutput> rnnOutput( new xAOD::TrigRNNOutput());
   rnnOutput->makePrivateStore();
   rnnOutput->setRnnDecision(m_output);
