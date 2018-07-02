@@ -207,9 +207,6 @@ namespace iFatras {
 
      /** MCTruth process sampling */
      ToolHandle<iFatras::IProcessSamplingTool>    m_samplingTool;
-
-     /** pass geometry signature to offspring */
-     mutable Trk::GeometrySignature               m_geomSignature;
       
      /** hadronic interaction setting */
      bool                                         m_hadInt;
@@ -328,8 +325,6 @@ namespace iFatras {
      /** cache layer properties */
      mutable const Trk::Layer*                             m_layer;
      mutable const Trk::MaterialProperties*                m_matProp;                                                                              
-     mutable const Trk::MaterialProperties*                m_extMatProp;                                                                              
-
      Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;
 
    };
