@@ -146,7 +146,7 @@ SCT_CablingSvc::empty() const {
 
 //
 IdentifierHash 
-SCT_CablingSvc::getHashFromOnlineId(const SCT_OnlineId& onlineId, const bool withWarnings) {
+SCT_CablingSvc::getHashFromOnlineId(const SCT_OnlineId& onlineId, const bool withWarnings) const {
   //is it valid at all?
   if (not onlineId.is_valid()) {
     if (withWarnings) ATH_MSG_WARNING("Invalid online id ("<<std::hex<<onlineId<<") "<<std::dec);
@@ -158,31 +158,19 @@ SCT_CablingSvc::getHashFromOnlineId(const SCT_OnlineId& onlineId, const bool wit
     if (withWarnings) ATH_MSG_WARNING("Invalid online id ("<<std::hex<<onlineId<<") try using the "<<alternative<<std::dec);
     return invalidHash;
   }
-  if (empty() and m_cablingFiller->fillMaps(this).isFailure()) {
-    ATH_MSG_FATAL("Filling the cabling FAILED");
-    return invalidHash;
-  }
 
   return m_data.getHashFromOnlineId(onlineId);
 }
 
 //
 SCT_OnlineId 
-SCT_CablingSvc::getOnlineIdFromHash(const IdentifierHash& hash) {
-  if (empty() and m_cablingFiller->fillMaps(this).isFailure()) {
-    ATH_MSG_FATAL("Filling the cabling FAILED");
-    return invalidId;
-  }
+SCT_CablingSvc::getOnlineIdFromHash(const IdentifierHash& hash) const {
   return m_data.getOnlineIdFromHash(hash);
 }
 
 //
 SCT_OnlineId
-SCT_CablingSvc::getOnlineIdFromOfflineId(const Identifier& offlineId) {
-  if (empty() and m_cablingFiller->fillMaps(this).isFailure()) {
-    ATH_MSG_FATAL("Filling the cabling FAILED");
-    return invalidId;
-  }
+SCT_CablingSvc::getOnlineIdFromOfflineId(const Identifier& offlineId) const {
   if (not offlineId.is_valid()) return invalidId;
   IdentifierHash hash(m_idHelper->wafer_hash(offlineId));
   return getOnlineIdFromHash(hash);
@@ -190,21 +178,13 @@ SCT_CablingSvc::getOnlineIdFromOfflineId(const Identifier& offlineId) {
 
 //
 IdentifierHash
-SCT_CablingSvc::getHashFromSerialNumber(const SCT_SerialNumber& sn) {
-  if (empty() and m_cablingFiller->fillMaps(this).isFailure()) {
-    ATH_MSG_FATAL("Filling the cabling FAILED");
-    return invalidHash;
-  }
+SCT_CablingSvc::getHashFromSerialNumber(const SCT_SerialNumber& sn) const {
   if (not sn.isWellFormed()) return invalidHash;
   return m_data.getHashFromSerialNumber(sn);
 }
 
 SCT_SerialNumber
-SCT_CablingSvc::getSerialNumberFromHash(const IdentifierHash& hash)  {
-  if (empty() and m_cablingFiller->fillMaps(this).isFailure()) {
-    ATH_MSG_FATAL("Filling the cabling FAILED");
-    return invalidSn;
-  }
+SCT_CablingSvc::getSerialNumberFromHash(const IdentifierHash& hash) const {
   if (not hash.is_valid()) return invalidSn;
   //hash must be even
   IdentifierHash evenHash{even(hash)};
@@ -212,11 +192,7 @@ SCT_CablingSvc::getSerialNumberFromHash(const IdentifierHash& hash)  {
 }
 
 void
-SCT_CablingSvc::getHashesForRod(std::vector<IdentifierHash>& usersVector, const std::uint32_t rodId) {
-  if (not SCT_OnlineId::rodIdInRange(rodId)) {
-    ATH_MSG_WARNING("Invalid rod id: "<<std::hex<<"0x"<<rodId<<std::dec<<" asked for associated hashes");
-    return; //users vector remains unfilled
-  }
+SCT_CablingSvc::getHashesForRod(std::vector<IdentifierHash>& usersVector, const std::uint32_t rodId) const {
   SCT_OnlineId firstPossibleId(rodId,SCT_OnlineId::FIRST_FIBRE);
   const bool withWarnings(false);
   for (SCT_OnlineId i(firstPossibleId);i!=SCT_OnlineId::INVALID_ONLINE_ID;++i) {

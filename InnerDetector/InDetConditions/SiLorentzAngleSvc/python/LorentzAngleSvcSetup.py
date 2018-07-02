@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # Usage:
 #
@@ -85,10 +85,6 @@ class LorentzAngleSvcSetup:
         if ( DetFlags.detdescr.SCT_on() ):
             self.sctForceUseDB() 
     
-#    def pixelForceUseDB(self) :
-#        "Force usage of conditions DB for Pixel" 
-#        self.PixelSiliconConditionsSvc.CheckGeoModel = False
-
     def sctForceUseDB(self) :
         "Force usage of conditions DB for SCT"
         self.SCT_SiliconConditionsTool.CheckGeoModel = False
@@ -98,16 +94,8 @@ class LorentzAngleSvcSetup:
     def forceUseGeoModel(self) :
         "Force usage of GeoModel defaults"
         from AthenaCommon.DetFlags      import DetFlags
-#        if ( DetFlags.detdescr.pixel_on() ):
-#            self.pixelForceUseGeoModel()
-
         if ( DetFlags.detdescr.SCT_on() ):
             self.sctForceUseGeoModel() 
-
-
-#    def pixelForceUseGeoModel(self) :
-#        "Force usage of GeoModel defaults for Pixel"
-#        self.PixelSiliconConditionsSvc.ForceUseGeoModel = True
 
     def sctForceUseGeoModel(self) :
         "Force usage of GeoModel defaults for SCT"

@@ -45,13 +45,13 @@ LArBarrelPresamplerCalculator::LArBarrelPresamplerCalculator(const std::string& 
  , m_IflCur(true)
  , m_birksLaw(nullptr)
  , m_detectorName("LArMgr")
-   //, m_testbeam(false)
+ , m_testbeam(false)
  , m_volname("LArMgr::LAr::Barrel::Presampler")
 {
   declareProperty("GeometryCalculator", m_geometry);
   declareProperty("IflCur",m_IflCur);
   declareProperty("DetectorName",m_detectorName);
-  //declareProperty("isTestbeam",m_testbeam);
+  declareProperty("isTestbeam",m_testbeam);
 }
 
 StatusCode LArBarrelPresamplerCalculator::initialize()
@@ -86,7 +86,7 @@ StatusCode LArBarrelPresamplerCalculator::initialize()
       ATH_MSG_INFO(" LArBarrelPresamplerCalculator: Birks' law OFF");
     }
 
-  if(m_detectorName.size()==0) m_volname="LAr::Barrel::Presampler";
+  if(m_detectorName.empty()) m_volname="LAr::Barrel::Presampler";
   else m_volname=m_detectorName+"::LAr::Barrel::Presampler";
 
   ATH_MSG_DEBUG("End of LArBarrelPresamplerCalculator initialization ");
@@ -147,26 +147,15 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
   ATH_MSG_DEBUG(" Detector Name " << m_detectorName);
 #endif
 
-    bool testbeam=false;
-
-  if(m_detectorName=="")
-    for (G4int ii=0;ii<=ndep;ii++) {
-      G4VPhysicalVolume* v1 = g4navigation->GetVolume(ii);
-      // FIXME More efficient to find the comparison volume once and compare pointers?
-      if (v1->GetName()=="LAr::Barrel::Presampler") idep=ii;    // half barrel
-      // FIXME Why are we checking if the geo is test beam every step?
-      if (v1->GetName()=="LAr::TBBarrel::Cryostat::LAr") testbeam=true;  // TB or not ?
-    }
-  else
+    const G4String presamplerName((m_detectorName.empty()) ? "LAr::Barrel::Presampler" :
+                                  m_detectorName+"::LAr::Barrel::Presampler");
     for (G4int ii=0;ii<=ndep;ii++) {
       G4VPhysicalVolume* v1 = g4navigation->GetVolume(ii);
 #ifdef DEBUGSTEP
       ATH_MSG_DEBUG(" Level,VolumeName " << ii << " " << v1->GetName());
 #endif
       // FIXME More efficient to find the comparison volume once and compare pointers?
-      if (v1->GetName()==G4String(m_detectorName+"::LAr::Barrel::Presampler")) idep=ii;
-      // FIXME Why are we checking if the geo is test beam every step?
-      if (v1->GetName()==G4String(m_detectorName+"::LAr::TBBarrel::Cryostat::LAr")) testbeam=true;  // TB or not ?
+      if (v1->GetName()==presamplerName) idep=ii;
     }
 
 #ifdef DEBUGSTEP
@@ -243,7 +232,7 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
 
       // compute cell identifier
       G4int zSide;
-      if (testbeam)
+      if (m_testbeam)
         zSide = 1;
       else
         zSide = ( startPoint.z() > 0.) ? 1 : -1;
@@ -276,7 +265,7 @@ G4bool LArBarrelPresamplerCalculator::Process(const G4Step* a_step, std::vector<
 
       // time computation is not necessarily correct for test beam
       G4double time;
-      if (testbeam)
+      if (m_testbeam)
         {
           time=0.;
         }

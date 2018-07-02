@@ -11,7 +11,6 @@
 */
 
 // INCLUDE HEADER FILES:
-#include <vector>
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IChronoStatSvc.h"
@@ -77,8 +76,8 @@ class CaloClusterROI_Selector : public AthReentrantAlgorithm
   //
   // All booleans
   //
-  bool                              m_CheckHadronicEnergy;
-  bool                              m_CheckReta;
+  bool                              m_CheckHadronicEnergy{};
+  bool                              m_CheckReta{};
   //
   // Other properties.
   //

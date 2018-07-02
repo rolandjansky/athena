@@ -9,6 +9,7 @@ atlas_subdir( TrigT1CaloCalibUtils )
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           Calorimeter/CaloTriggerTool
+                          LArCalorimeter/LArElecCalib
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Database/AthenaPOOL/AthenaPoolUtilities
@@ -33,7 +34,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/CxxUtils
                           Control/StoreGate
                           Event/xAOD/xAODEventInfo
-                          LArCalorimeter/LArRecUtils
                           Trigger/TrigT1/TrigT1CaloToolInterfaces
                           Trigger/TrigT1/TrigT1Interfaces )
 
@@ -50,13 +50,13 @@ atlas_add_library( TrigT1CaloCalibUtilsLib
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} CaloIdentifier AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier EventInfo xAODTrigL1Calo GaudiKernel TrigConfHLTData TrigConfL1Data TrigSteeringEvent TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces CaloTriggerToolLib TrigT1CaloCalibToolsLib TrigT1CaloEventLib TrigT1CaloMonitoringToolsLib TrigT1CaloUtilsLib CaloDetDescrLib StoreGateLib SGtests LArRecUtilsLib
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} CaloIdentifier AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier EventInfo xAODTrigL1Calo GaudiKernel TrigConfHLTData TrigConfL1Data TrigSteeringEvent TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces CaloTriggerToolLib TrigT1CaloCalibToolsLib TrigT1CaloEventLib TrigT1CaloMonitoringToolsLib TrigT1CaloUtilsLib CaloDetDescrLib StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CxxUtils xAODEventInfo TrigT1CaloToolInterfaces TrigT1Interfaces )
 
 atlas_add_component( TrigT1CaloCalibUtils
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} CaloIdentifier CaloTriggerToolLib AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier EventInfo xAODTrigL1Calo GaudiKernel TrigConfHLTData TrigConfL1Data TrigSteeringEvent TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces TrigT1CaloCalibToolsLib TrigT1CaloEventLib TrigT1CaloMonitoringToolsLib TrigT1CaloUtilsLib CaloDetDescrLib CaloEvent CxxUtils StoreGateLib SGtests xAODEventInfo LArRecUtilsLib TrigT1CaloToolInterfaces TrigT1Interfaces TrigT1CaloCalibUtilsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} CaloIdentifier CaloTriggerToolLib AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier EventInfo xAODTrigL1Calo GaudiKernel TrigConfHLTData TrigConfL1Data TrigSteeringEvent TrigT1CaloCalibConditions TrigT1CaloCalibToolInterfaces TrigT1CaloCalibToolsLib TrigT1CaloEventLib TrigT1CaloMonitoringToolsLib TrigT1CaloUtilsLib CaloDetDescrLib CaloEvent CxxUtils StoreGateLib SGtests xAODEventInfo TrigT1CaloToolInterfaces TrigT1Interfaces TrigT1CaloCalibUtilsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

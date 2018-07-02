@@ -193,7 +193,7 @@ namespace xAOD {
     bool isJetETMissFloatForCompression(xAOD::PFODetails::PFOAttributes AttributeType) const;
 
     /** this defines the factor to compress floats by */
-    const static int m_floatCompressionFactor = 1000;
+    const static int s_floatCompressionFactor = 1000;
 
   }; // class PFO
 

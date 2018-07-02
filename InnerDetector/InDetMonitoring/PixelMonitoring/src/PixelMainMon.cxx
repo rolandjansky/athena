@@ -27,12 +27,9 @@
 #include "TrkSpacePoint/SpacePointContainer.h"
 #include "TrkTrack/TrackCollection.h"
 
-#include <stdint.h>
 #include <cstdlib>
 #include <fstream>
-#include <map>
 #include <sstream>
-#include <vector>
 
 #include "GaudiKernel/StatusCode.h"
 #include "InDetIdentifier/PixelID.h"

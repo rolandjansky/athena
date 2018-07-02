@@ -99,19 +99,24 @@ namespace LArG4 {
           std::cout<<"LArHECLocalCalibrationCalculator::Process Volume: "<<hitVolume<<std::endl;
 #endif
           if(hitVolume.contains("::") ) {
-             int last = hitVolume.last(':');
+             const int last = hitVolume.last(':');
              hitVolume.remove(0,last+1);
-          } 
+          }
+          static const G4String sliceVolume("Slice");
+          static const G4String absorberVolume("Absorber");
+          static const G4String electrodeVolume("Electrode");
+          static const G4String copperVolume("Copper");
+          static const G4String tieRodVolume("TieRod");
 	  if(m_geometryType != kLocDead) {
-             if(hitVolume=="Slice" ) {
+             if(hitVolume==sliceVolume) {
                  identifier = m_geometryCalculator->CalculateIdentifier(step, kLocInactive, 0, 4.*CLHEP::mm);
-	     } else if(hitVolume=="Absorber" ) {
+	     } else if(hitVolume==absorberVolume) {
                  identifier = m_geometryCalculator->CalculateIdentifier(step, kLocInactive, 0, 2.*CLHEP::mm, 1.02*CLHEP::mm);
-             } else if(hitVolume=="Electrode") { 
+             } else if(hitVolume==electrodeVolume) { 
                  identifier = m_geometryCalculator->CalculateIdentifier(step, kLocInactive, 1, 4.*CLHEP::mm);
-             } else if(hitVolume=="Copper") {
+             } else if(hitVolume==copperVolume) {
                  identifier = m_geometryCalculator->CalculateIdentifier(step, kLocInactive, 2, 4.*CLHEP::mm);
-             } else if(hitVolume=="TieRod"){ // We should call another functions for TieRods 
+             } else if(hitVolume==tieRodVolume){ // We should call another functions for TieRods 
                  identifier = m_geometryCalculator->CalculateIdentifier(step, kLocActive, -1);
 	     } else identifier = LArG4Identifier();
 	  } else identifier = m_geometryCalculator->CalculateIdentifier(step, m_geometryType, 0, 4.*CLHEP::mm);

@@ -272,7 +272,7 @@ namespace xAOD {
 
   template<> void PFO_v1::setAttribute(PFODetails::PFOAttributes AttributeType, const float& anAttribute) {
     if (this->isJetETMissFloatForCompression(AttributeType)){
-      float dummy = anAttribute*m_floatCompressionFactor;
+      float dummy = anAttribute*s_floatCompressionFactor;
       const static int maxIntSize = 1000000000;
       int internalAttribute = maxIntSize;
       if (dummy < 0) internalAttribute *= -1;//if we had a large -ve energy, then we should set the max size to a -ve value         
@@ -290,7 +290,7 @@ namespace xAOD {
     if (this->isJetETMissFloatForCompression(AttributeType)){
       int internalAttribute;
       isValid = attribute<int>(AttributeType,internalAttribute);
-      if (true == isValid && 0 != internalAttribute) anAttribute = static_cast<float>(internalAttribute)/m_floatCompressionFactor;
+      if (true == isValid && 0 != internalAttribute) anAttribute = static_cast<float>(internalAttribute)/s_floatCompressionFactor;
       else anAttribute = 0.0;
       return isValid;
     }

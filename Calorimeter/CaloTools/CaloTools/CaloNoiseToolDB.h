@@ -30,6 +30,8 @@
 #include <boost/multi_array.hpp>
 #include "GaudiKernel/ToolHandle.h"
 #include "LArElecCalib/ILArCellHVCorrTool.h"
+#include <mutex>
+#include <atomic>
 
 #define sqrt2 1.4142135623730950
 #define invsqrt2 0.707106781186547524
@@ -298,7 +300,7 @@ private:
     std::vector<DataHandle<CondAttrListCollection> > m_noiseAttrListColl;
     std::map<SYSTEM, const CaloCondBlobFlt*> m_noiseBlobMap;
 
-   bool m_cacheValid;
+    std::atomic<bool> m_cacheValid;
 
    std::string   m_ReturnNoiseName;
 
@@ -320,6 +322,10 @@ private:
   bool m_rescaleForHV;
 
   unsigned m_cacheUpdateCounter;
+
+  typedef std::mutex mutex_t;
+  typedef std::lock_guard<mutex_t> lock_t;
+  mutex_t m_mutex;
 };
 
 #endif

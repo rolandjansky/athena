@@ -92,7 +92,7 @@ StatusCode RunEventTagWriter::execute()
   {
     attribList = new AthenaAttributeList(*m_attribListSpec);
   } 
-  catch (std::exception e) 
+  catch (const std::exception& e) 
   {
     ATH_MSG_ERROR( "Caught exception during creation of AthenaAttributeList object."
                    << "Message: " << e.what()  );
@@ -148,7 +148,7 @@ StatusCode RunEventTagWriter::fillTag(const EventInfo* eInfo, AthenaAttributeLis
     (*attribList)["RunNumber"].data<unsigned int>() = runNumber;
     (*attribList)["EventNumber"].data<unsigned int>() = eventNumber;
   } 
-  catch (std::exception e) 
+  catch (const std::exception& e) 
   {
     ATH_MSG_ERROR( "Caught exception from data() when setting AOD global "
                    << "attributes; Message: " << e.what() );
@@ -177,7 +177,7 @@ StatusCode RunEventTagWriter::fillTag(const xAOD::EventInfo* eventInfo, AthenaAt
     (*attribList)["RunNumber"].data<unsigned int>() = runNumber;
     (*attribList)["EventNumber"].data<unsigned int>() = eventNumber;
   } 
-  catch (std::exception e) 
+  catch (const std::exception& e) 
   {
     ATH_MSG_ERROR( "Caught exception from data() when setting AOD global "
                    << "attributes; Message: " << e.what() );

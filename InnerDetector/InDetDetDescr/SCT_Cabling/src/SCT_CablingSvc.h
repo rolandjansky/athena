@@ -64,21 +64,21 @@ class SCT_CablingSvc: virtual public ISCT_CablingSvc, virtual public IIncidentLi
   //@name ISCT_CablingSvc methods implemented, these are visible to clients
   //@{
   /// return offline hash, given the online Id (used by decoders)
-  virtual IdentifierHash getHashFromOnlineId(const SCT_OnlineId& onlineId, const bool withWarnings=true) override;
+  virtual IdentifierHash getHashFromOnlineId(const SCT_OnlineId& onlineId, const bool withWarnings=true) const override;
    
   /// return the online Id, given a hash (used by simulation encoders)
-  virtual SCT_OnlineId getOnlineIdFromHash(const IdentifierHash& hash) override;
+  virtual SCT_OnlineId getOnlineIdFromHash(const IdentifierHash& hash) const override;
   
   /// return the online Id, given an offlineId
-  virtual SCT_OnlineId getOnlineIdFromOfflineId(const Identifier& offlineId) override;
+  virtual SCT_OnlineId getOnlineIdFromOfflineId(const Identifier& offlineId) const override;
   
   /// return the rob/rod Id, given a hash (used by simulation encoders)
-  virtual std::uint32_t getRobIdFromHash(const IdentifierHash& hash) override {
+  virtual std::uint32_t getRobIdFromHash(const IdentifierHash& hash) const override {
     return getOnlineIdFromHash(hash).rod();
   }
     
   /// return the rob/rod Id, given an offlineId (used by simulation encoders)
-  virtual std::uint32_t getRobIdFromOfflineId(const Identifier& offlineId) override {
+  virtual std::uint32_t getRobIdFromOfflineId(const Identifier& offlineId) const override {
     return getOnlineIdFromOfflineId(offlineId).rod();
   }
 
@@ -89,16 +89,16 @@ class SCT_CablingSvc: virtual public ISCT_CablingSvc, virtual public IIncidentLi
   virtual bool empty() const override;
     
   /// get hash from a module serial number, needed in the conditions service because configurations are stored by module s/n
-  virtual IdentifierHash getHashFromSerialNumber(const SCT_SerialNumber& sn) override;
+  virtual IdentifierHash getHashFromSerialNumber(const SCT_SerialNumber& sn) const override;
 
   /// get module serial number from hash, needed during filling of data structure
-  virtual SCT_SerialNumber getSerialNumberFromHash(const IdentifierHash& hash) override;
+  virtual SCT_SerialNumber getSerialNumberFromHash(const IdentifierHash& hash) const override;
 
   /// fill a users vector with all the RodIds
-  virtual void getAllRods(std::vector<std::uint32_t>& usersVector) override { m_data.getRods(usersVector); }
+  virtual void getAllRods(std::vector<std::uint32_t>& usersVector) const override { m_data.getRods(usersVector); }
     
   /// fill a user's vector with all the hash ids which belong to a given rod
-  virtual void getHashesForRod(std::vector<IdentifierHash>& usersVector, const std::uint32_t rodId) override;
+  virtual void getHashesForRod(std::vector<IdentifierHash>& usersVector, const std::uint32_t rodId) const override;
   //@}
 
   /// insert the hashId, onlineId and serial number to the data, used only within this package to fill the data structure

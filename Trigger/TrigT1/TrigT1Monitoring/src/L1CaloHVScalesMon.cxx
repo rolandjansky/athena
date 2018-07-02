@@ -27,8 +27,6 @@
 #include "CaloIdentifier/CaloLVL1_ID.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
 
-#include "LArRecUtils/LArHVCorrTool.h"
-
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "Identifier/HWIdentifier.h"
@@ -50,6 +48,7 @@
 #include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
+#include "LArElecCalib/ILArHVCorrTool.h"
 
 #include "L1CaloHVScalesMon.h"
 // ============================================================================

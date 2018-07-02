@@ -282,10 +282,13 @@ def configureRunNumberOverrides():
         else:
              simMDlog.warning('Will override the settings of the EvtIdModifierSvc that was previously set up!')
         #fix iov metadata
-        if not hasattr(ServiceMgr.ToolSvc, 'IOVDbMetaDataTool'):
+        try:
+            ServiceMgr.MetaDataSvc.MetaDataTools["IOVDbMetaDataTool"]
+        except IndexError:
             from AthenaCommon import CfgMgr
-            ServiceMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
-        ServiceMgr.ToolSvc.IOVDbMetaDataTool.MinMaxRunNumbers = [myRunNumber, 2147483647]
+            ServiceMgr.MetaDataSvc.MetaDataTools += [CfgMgr.IOVDbMetaDataTool()]
+            pass
+        ServiceMgr.MetaDataSvc.MetaDataTools["IOVDbMetaDataTool"].MinMaxRunNumbers = [myRunNumber, 2147483647]
         ## FIXME need to use maxRunNumber = 2147483647 for now to keep overlay working but in the future this should be set properly.
         # Using event numbers to avoid "some very large number" setting
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
