@@ -57,11 +57,17 @@ class OverlapRemovalGenUseAlg : public EL::AnaAlgorithm
     /// Configuration
     std::string m_selectionLabel;
     std::string m_overlapLabel;
+    std::string m_jetKey;
     std::string m_bJetLabel;
+    std::string m_electronKey;
     std::string m_electronLabel;
+    std::string m_photonKey;
     std::string m_photonLabel;
+    std::string m_muonKey;
     std::string m_muonLabel;
+    std::string m_tauKey;
     std::string m_tauLabel;
+    bool m_defaultValue;
     double m_ptCut;
     double m_etaCut;
 
