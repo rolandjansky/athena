@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <string>
+#include <exception>
 
 class StatusCode;
 
@@ -37,8 +38,8 @@ class AlMat {
     inline AlMat_row(AlMat&,int);
     double & operator[](int);
   private:
-    AlMat& _a;
-    int _r;
+    AlMat& m_a;
+    int m_r;
   };
 
   class AlMat_row_const {
@@ -46,8 +47,8 @@ class AlMat {
     inline AlMat_row_const(const AlMat&,int);
     const double & operator[](int) const;
   private:
-    const AlMat& _a;
-    int _r;
+    const AlMat& m_a;
+    int m_r;
   };
   // helper class to implement m[i][j]
 
@@ -104,12 +105,12 @@ class AlMat {
   void copy(const AlSymMatBase&  m);
 
  protected:
-  int _ncol, _nrow;
-  int _nele;
+  int m_ncol, m_nrow;
+  int m_nele;
   std::string m_pathbin;
   std::string m_pathtxt;
-  double* ptr_data;
-  bool transpose;
+  double* m_ptr_data;
+  bool m_transpose;
 
   virtual long int elem(long int, long int) const;
 
@@ -128,41 +129,41 @@ inline AlMat::AlMat_row_const AlMat::operator[] (int r) const{
 }
 
 inline double &AlMat::AlMat_row::operator[](int c){
-  if(_r<0||_r>=_a.nrow() || c<0||c>=_a.ncol())
-    std::cerr << "Range error in AlMat::operator[][]" << std::endl;
+  if(m_r<0||m_r>=m_a.nrow() || c<0||c>=m_a.ncol())
+    throw std::out_of_range( "Range error in AlMat::operator[][]" );
 
-  return *(_a.ptr_data+_r*_a.ncol()+c);
+  return *(m_a.m_ptr_data+m_r*m_a.ncol()+c);
 }
 
 inline const double & AlMat::AlMat_row_const::operator[](int c) const {
-  if(_r<0||_r>=_a.nrow() || c<0||c>=_a.ncol())
-    std::cerr << "Range error in AlMat::operator[][]" << std::endl;
+  if(m_r<0||m_r>=m_a.nrow() || c<0||c>=m_a.ncol())
+    throw std::out_of_range( "Range error in AlMat::operator[][]" );
 
-  return *(_a.ptr_data+_r*_a.ncol()+c);
+  return *(m_a.m_ptr_data+m_r*m_a.ncol()+c);
 }
 
 inline AlMat::AlMat_row::AlMat_row(AlMat &a,int r)
-	     : _a(a), _r(r)
+	     : m_a(a), m_r(r)
 {}
 
 inline AlMat::AlMat_row_const::AlMat_row_const
 (const AlMat&a,int r)
-	     : _a(a), _r(r)
+	     : m_a(a), m_r(r)
 {}
 
 
 inline long int AlMat::nrow() const {
-  if( transpose ) return _ncol;
-  return _nrow;
+  if( m_transpose ) return m_ncol;
+  return m_nrow;
 }
 
 inline long int AlMat::ncol() const {
-  if( transpose ) return _nrow;
-  return _ncol;
+  if( m_transpose ) return m_nrow;
+  return m_ncol;
 }
 
 inline double* AlMat::ptrData() const {
-  return ptr_data;
+  return m_ptr_data;
 }
 
 inline std::string AlMat::pathBin() const {

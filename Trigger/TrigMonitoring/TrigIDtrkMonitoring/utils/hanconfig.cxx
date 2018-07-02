@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    hanconfig.cxx         
 //            navigates through the directory structure of a monitoring 
@@ -5,7 +8,6 @@
 //            
 //   @author M.Sutton
 // 
-//   Copyright (C) 2013 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: hanconfig.cxx, v0.0   Thu  12 March 2015 14:13:47 CEST sutt $
 

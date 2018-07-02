@@ -1,8 +1,6 @@
 ###########################################################################
-#    Copyright (C) 2008 by Miroslav Nozicka
+#    
 #    <nozicka@mail.desy.de>
-#
-# Copyright: See COPYING file that comes with this distribution
 #
 ###########################################################################
 
