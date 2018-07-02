@@ -76,11 +76,7 @@ TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1SkimmingKern
 from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
 addStandardJetsForTop(TOPQ1Sequence,'TOPQ1')
 
-if DerivationFrameworkIsMonteCarlo:
-  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=TOPQ1Sequence, outputGroup="TOPQ1", writeUngroomed=True)
-
-addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], TOPQ1Sequence, "TOPQ1", ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed")
-addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1, algseq=TOPQ1Sequence, outputGroup="TOPQ1", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
+addSoftDropJetsForTop(TOPQ1Sequence, "TOPQ1")
 
 #Then apply jet calibration
 DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
