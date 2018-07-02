@@ -89,7 +89,7 @@ StatusCode Muon::MmRdoToPrepDataTool::initialize()
 
 StatusCode Muon::MmRdoToPrepDataTool::finalize()
 {
-  if (0 != m_mmPrepDataContainer) m_mmPrepDataContainer->release();
+  //  if (0 != m_mmPrepDataContainer) m_mmPrepDataContainer->release();
   return StatusCode::SUCCESS;
 
 }
@@ -112,6 +112,17 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
   else {
     prdColl = new MMPrepDataCollection(hash);
     idWithDataVect.push_back(hash);
+    
+    // set the offline identifier of the collection Id
+    IdContext context = m_mmIdHelper->module_context();
+    Identifier moduleId;
+    int getId = m_mmIdHelper->get_id(hash,moduleId,&context);
+    if ( getId != 0 ) {
+      ATH_MSG_ERROR("Could not convert the hash Id: " << hash << " to identifier");
+    } 
+    else {
+      prdColl->setIdentifier(moduleId);
+    }
 
     if (StatusCode::SUCCESS != m_mmPrepDataContainer->addCollection(prdColl, hash)) {
       ATH_MSG_DEBUG("In processCollection - Couldn't record in the Container MM Collection with hashID = "
@@ -228,6 +239,8 @@ StatusCode Muon::MmRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVec
 {
   // clear the output vector of selected data
   idWithDataVect.clear();
+
+  ATH_MSG_DEBUG("Size of the RDO container to be decoded: " << idVect.size() ); 
   
   SetupMM_PrepDataContainerStatus containerRecordStatus = setupMM_PrepDataContainer();
 

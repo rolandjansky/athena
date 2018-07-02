@@ -50,7 +50,7 @@ StatusCode MM_DigitToRDO::execute()
       int getRdoCollHash = m_idHelper->get_module_hash(digitId,hash);
       if ( getRdoCollHash!=0 ) {
 	ATH_MSG_ERROR("Could not get the module hash Id");
-	continue;
+	return StatusCode::FAILURE;
       }
 
       MM_RawDataCollection* coll = new MM_RawDataCollection(hash);
