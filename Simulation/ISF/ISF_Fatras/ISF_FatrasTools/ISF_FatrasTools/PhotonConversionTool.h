@@ -125,9 +125,6 @@ namespace iFatras {
       /** Switch to use reference material */
       bool                                         m_referenceMaterial;
       
-      /** private member to pass geometry signature */
-      mutable Trk::GeometrySignature               m_geomSignature;
-      
       /** The cut from which on the child products are followed */
       double                                       m_minChildEnergy;
       double                                       m_childEnergyScaleFactor;
