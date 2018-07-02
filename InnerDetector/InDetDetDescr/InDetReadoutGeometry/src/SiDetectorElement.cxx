@@ -288,7 +288,7 @@ SiDetectorElement::updateCache() const
       if (m_design->etaSymmetric()) {
 	m_etaDirection = false;
       } else {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to swap local xEta axis." << endreq;
+	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to swap local xEta axis." << endreq;
       }
     }
     if (std::abs(etaDir) < 0.5) { // Check that it is in roughly the right direction.
@@ -1098,7 +1098,8 @@ Amg::Vector2D
 SiDetectorElement::localPositionOfCell(const Identifier & id) const
 {
   SiCellId cellId = cellIdFromIdentifier(id);
-  Amg::Vector2D pos(m_design->localPositionOfCell(cellId));
+  SiLocalPosition silp = m_design->localPositionOfCell(cellId);
+  Amg::Vector2D pos = hitLocalToLocal(silp.xEta(), silp.xPhi());
   return correctLocalPosition(pos);
 }
 
