@@ -10,7 +10,7 @@ from PathResolver import PathResolver
 from AthenaCommon.Logging import logging
 
 class TriggerAPI:
-    centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20180228.pickle")
+    centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20180412.pickle")
     if centralPickleFile: centralPickleFile = os.path.realpath(centralPickleFile)
     privatePickleFile = "TriggerInfo.pickle"
     dbQueries = None
@@ -98,6 +98,28 @@ class TriggerAPI:
         '''
         cls._loadTriggerPeriod(period,reparse)
         return cls.dbQueries[(period,cls.customGRL)]._getUnprescaled(triggerType, additionalTriggerType, matchPattern, livefraction)
+    
+    @classmethod
+    def getUnprescaledAnyPeriod(cls, period, triggerType=TriggerType.ALL, additionalTriggerType=TriggerType.UNDEFINED, matchPattern="", livefraction=1.0, reparse=False):
+        ''' Returns a list of HLT chains that were unprescaled in at least one of 
+            the subperiods within the given period. The lowest granularity can be seen in TriggerEnums.TriggerPeriod
+            period: see TriggerEnums.TriggerPeriod for all possibilities, recommeded TriggerPeriod.y2017
+            triggerType: see TriggerEnums.TriggerType for all possibilities, example TriggerType.el_single
+            additionalTriggerType: can request additional types to match, use TriggerType.ALL to show combined triggers of any kind
+                                   accepts also a list as input in that case all types have to match
+            matchPattern: provide additionally a regex-like expression to be applied
+            livefraction: accept items that are not unprescaled but have a live fraction above this threshold, example 0.95
+                          The live fraction is only an approximation, weighting the number of lumiblocks by prescale.
+        '''
+        lowset = set()
+        for i, ibin in enumerate(reversed(bin(period)[2:])): #to binary
+            ibin = int(ibin)
+            if not ibin: continue
+            subperiod = 2**i
+            cls._loadTriggerPeriod(subperiod, reparse)
+            subperiodset = set( cls.dbQueries[(subperiod,cls.customGRL)]._getUnprescaled(triggerType, additionalTriggerType, matchPattern, livefraction) )
+            lowset |= subperiodset
+        return list(lowset)
         
     @classmethod
     def getAllHLT(cls, period, triggerType=TriggerType.ALL, additionalTriggerType=TriggerType.UNDEFINED, matchPattern="", reparse=False):
@@ -112,6 +134,20 @@ class TriggerAPI:
         '''
         cls._loadTriggerPeriod(period,reparse)
         return cls.dbQueries[(period,cls.customGRL)]._getAllHLT(triggerType, additionalTriggerType, matchPattern)
+        
+    @classmethod
+    def checkPeriodConsistency(cls, period=TriggerPeriod.future, triggerType=TriggerType.ALL, additionalTriggerType=TriggerType.UNDEFINED, matchPattern="", reparse=False):
+        ''' Returns a list of triggers that are tighter than the lowest unprescaled but are not flagged as primary
+            This only makes sense for future periods, the past is already consistent :)
+            period: see TriggerEnums.TriggerPeriod for all possibilities, recommeded TriggerPeriod.future
+            triggerType: see TriggerEnums.TriggerType for all possibilities, example TriggerType.el_single
+            additionalTriggerType: can request additional types to match, use TriggerType.ALL to show combined triggers of any kind
+                                   accepts also a list as input in that case all types have to match
+            matchPattern: provide additionally a regex-like expression to be applied
+        '''
+        period &= TriggerPeriod.future #Only meaningful for future periods
+        cls._loadTriggerPeriod(period,reparse)
+        return cls.dbQueries[(period,cls.customGRL)]._checkPeriodConsistency(triggerType, additionalTriggerType, matchPattern)
         
     @classmethod
     def _loadTriggerPeriod(cls, period, reparse):

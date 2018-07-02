@@ -49,7 +49,7 @@ namespace Trk
   {
     m_PtrToActualTemperature=0;
     m_isequilibrium=false;
-    msg(MSG::DEBUG)  << "Annealing resetted" << endreq;
+    ATH_MSG_DEBUG("Annealing reset");
   }
 
   void DetAnnealingMaker::anneal() {

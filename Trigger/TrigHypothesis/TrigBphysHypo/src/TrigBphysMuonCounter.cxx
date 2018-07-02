@@ -64,17 +64,13 @@ HLT::ErrorCode TrigBphysMuonCounter::hltInitialize()
 
     std::sort(m_ptMuonMin.begin(),m_ptMuonMin.end(), std::greater<float>());
     
-   if (msgLvl() <= MSG::INFO) {
-
-     msg() << MSG::INFO << "require at least "<< m_nEfMuon <<" EF Muons from with collectionKey  m_muonCollectionKey \"" <<   m_muonCollectionKey << "\" "<< endmsg;
-      msg() << MSG::INFO << " Muons should have  pts ";	
-      for(float pt :  m_ptMuonMin)  msg() << MSG::INFO << pt <<", ";
-      msg() << MSG::INFO << endmsg;
-     
-   }
-   if (msgLvl() <= MSG::INFO) {
-     msg() << MSG::INFO << " Overlap removal dR<"<<m_mindR<< endmsg;
-   }
+     ATH_MSG_INFO("require at least "<< m_nEfMuon <<" EF Muons from with collectionKey  m_muonCollectionKey \"" <<   m_muonCollectionKey << "\" ");
+     if(msgLvl() <= MSG::INFO){
+       msg() << MSG::INFO << " Muons should have  pts ";	
+       for(float pt :  m_ptMuonMin)  msg() << MSG::INFO << pt <<", ";
+       msg() << MSG::INFO << endmsg;
+       msg() << " Overlap removal dR<"<<m_mindR << endmsg;
+     }
 
   if ( timerSvc() ) {
     m_BmmHypTot = addTimer("TrigBphysMuonCounter");
@@ -85,12 +81,12 @@ HLT::ErrorCode TrigBphysMuonCounter::hltInitialize()
 
 HLT::ErrorCode TrigBphysMuonCounter::hltFinalize()
 {
-  msg() << MSG::INFO << "in finalize()" << endmsg;
+  ATH_MSG_INFO("in finalize()" );
   MsgStream log(msgSvc(), name());
   
-  msg() << MSG::INFO << "|----------------------- SUMMARY FROM TrigBphysMuonCounter -------------|" << endmsg;
-  msg() << MSG::INFO << "Run on events " << m_countTotalEvents <<  endmsg;
-  msg() << MSG::INFO << "Passed events " << m_countPassedEvents<<  endmsg;
+  ATH_MSG_INFO("|----------------------- SUMMARY FROM TrigBphysMuonCounter -------------|" );
+  ATH_MSG_INFO("Run on events " << m_countTotalEvents );
+  ATH_MSG_INFO("Passed events " << m_countPassedEvents);
 
   return HLT::OK;
 }
@@ -105,7 +101,7 @@ HLT::ErrorCode TrigBphysMuonCounter::hltExecute(std::vector<std::vector<HLT::Tri
   m_mon_Acceptance.clear();
 
   m_mon_Acceptance.push_back( ACCEPT_hltExecute );
-  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " In TrigBphysMuonCounter hltExecute" << endmsg;
+  ATH_MSG_DEBUG(" In TrigBphysMuonCounter hltExecute" );
 
 
   //========  check if we have enough EF muons :  =====================
@@ -115,11 +111,11 @@ HLT::ErrorCode TrigBphysMuonCounter::hltExecute(std::vector<std::vector<HLT::Tri
 									      inputTE, efmuons,  m_muonCollectionKey, m_mindR);
   if( !passMuon ){
     if ( timerSvc() )  m_BmmHypTot->stop();
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found "<<efmuons.size() <<" EF muons - fail (either number or pts are insufficient)"<<  endmsg; 
+    ATH_MSG_DEBUG("Found "<<efmuons.size() <<" EF muons - fail (either number or pts are insufficient)"); 
     afterExecMonitors().ignore();   
     return HLT::OK;
   }else{
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found "<<efmuons.size() <<" EF muons, require "<<m_nEfMuon<<" - accept "<<  endmsg; 
+    ATH_MSG_DEBUG("Found "<<efmuons.size() <<" EF muons, require "<<m_nEfMuon<<" - accept "); 
   }
   m_mon_Acceptance.push_back( ACCEPT_PassNEFMuons );
   m_mon_nEFMuons = m_nEfMuon;
@@ -137,7 +133,3 @@ HLT::ErrorCode TrigBphysMuonCounter::hltExecute(std::vector<std::vector<HLT::Tri
   afterExecMonitors().ignore();   
   return HLT::OK;
 }
-
-
-
-

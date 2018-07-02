@@ -31,6 +31,11 @@ if( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthDerivation" )
         POST_EXEC_SCRIPT "check_log.pl --config checklogTriggerTest.conf checkL1Menu.log" )
 endif()
 
+atlas_add_test( checkMenuPrimaries SCRIPT scripts/checkMenuPrimaries.py 
+                PROPERTIES TIMEOUT 200 
+                POST_EXEC_SCRIPT "check_log.pl --config checklogTriggerTest.conf checkMenuPrimaries.log" 
+              )
+
 # Function to create lowest-unprescaled lists
 function( atlas_run_lowestunprescaled )
 

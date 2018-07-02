@@ -30,10 +30,6 @@ double InvMass(const std::vector<const Trk::TrackParameters*>&, const std::vecto
 double InvMass(const std::vector<const Trk::Track*>          &, const std::vector<double>&);
 double InvMass(const std::vector<const Trk::Perigee*>        &, const std::vector<double>&);
 
-
-//HLT::ErrorCode GetTrigMuonEFInfoTracks(const TrigMuonEFInfoContainer*, std::vector<const Trk::Track*>&, MsgStream&);
-HLT::ErrorCode GetxAODMuonTracks(const xAOD::MuonContainer*, std::vector<const Trk::Track*>&, MsgStream&);
-
 // JW new methods to help simplify the algorithms
 
 double fabsDeltaPhi(double phi1, double phi2); //! absolute delta phi - correcting for 2pi

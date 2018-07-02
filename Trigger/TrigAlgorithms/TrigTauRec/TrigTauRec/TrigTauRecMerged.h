@@ -223,6 +223,9 @@ class TrigTauRecMerged: public HLT::FexAlgo {
   std::vector<double> m_RNN_cluster_et_log;
   std::vector<double> m_RNN_cluster_dEta;
   std::vector<double> m_RNN_cluster_dPhi;
+  std::vector<double> m_RNN_cluster_CENTER_LAMBDA;
+  std::vector<double> m_RNN_cluster_SECOND_LAMBDA;
+  std::vector<double> m_RNN_cluster_SECOND_R;
 
   int m_RNN_Ntracks;
   std::vector<double> m_RNN_track_pt_log;

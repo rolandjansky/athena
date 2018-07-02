@@ -77,7 +77,6 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
 
   double trackQuality(const Trk::Track* Tr);
   void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT);
-  void convertToTrigInDetTrack(const TrackCollection& offlineTracks, TrigInDetTrackCollection& trigInDetTracks);
 
 protected: 
 
@@ -116,7 +115,6 @@ protected:
   bool m_ftkRefit;//If True: Refit FTK tracks
   bool m_useBeamSpot; 
   bool m_vertexSeededMode;
-  bool m_doTrigInDetTrack;
   bool m_doZFinder;
    bool m_doFTKZFinder;
    bool m_doFTKFastVtxFinder;
@@ -260,8 +258,7 @@ protected:
 
   // Internal bookkeeping
 
-  std::string m_instanceName, m_attachedFeatureName, m_attachedFeatureName_TIDT,
-    m_outputCollectionSuffix;
+  std::string m_instanceName, m_attachedFeatureName, m_outputCollectionSuffix;
 
   unsigned int m_countTotalRoI;
   unsigned int m_countRoIwithEnoughHits;
