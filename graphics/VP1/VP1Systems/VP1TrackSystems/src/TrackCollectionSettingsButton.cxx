@@ -75,15 +75,6 @@ void TrackCollectionSettingsButton::Imp::initEditWindow()
   editwindow = new QWidget(0,Qt::WindowStaysOnTopHint);
   editwindow_ui.setupUi(editwindow);
   matButton = editwindow_ui.pushButton_matButton;  
-
-  // FIXME - remove when cuts implemented
-  // editwindow_ui.checkBox_defaultCuts->hide();  
-  // editwindow_ui.groupBox_cuts_momentum->hide();  
-  // editwindow_ui.groupBox_cuts_reconstructed->hide();  
-  // editwindow_ui.groupBox_cuts_truth_tracks->hide();  
-  // editwindow_ui.checkBox_vertexAssociated->hide();  
-  // editwindow->adjustSize();
-  // std::cout<<" matButton "<<matButton<<std::endl;
 }
 
 //____________________________________________________________________
@@ -128,6 +119,9 @@ TrackCollectionSettingsButton::TrackCollectionSettingsButton(QWidget * parent,in
   // Cuts
   connect(m_d->editwindow_ui.checkBox_defaultCuts,SIGNAL(toggled(bool)),this,SLOT(possibleChange_useDefaultCuts()));
   m_d->last_useDefaultCuts=m_d->editwindow_ui.checkBox_defaultCuts->isChecked();
+  messageVerbose("editwindow_ui.checkBox_defaultCuts->isChecked() L " + str(m_d->editwindow_ui.checkBox_defaultCuts->isChecked()));
+  
+
   // -> cutAllowedP/Pt
   connect(m_d->editwindow_ui.checkBox_cut_minpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
   connect(m_d->editwindow_ui.checkBox_cut_maxpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
@@ -149,10 +143,12 @@ TrackCollectionSettingsButton::TrackCollectionSettingsButton(QWidget * parent,in
   connect(m_d->editwindow_ui.checkBox_cut_nhits_sct,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutRequiredNHits()));
   connect(m_d->editwindow_ui.checkBox_cut_nhits_trt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutRequiredNHits()));
   connect(m_d->editwindow_ui.checkBox_cut_nhits_muon,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutRequiredNHits()));
+  connect(m_d->editwindow_ui.checkBox_cut_nprecisionhits_muon,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutRequiredNHits()));
   connect(m_d->editwindow_ui.spinBox_cut_nhits_pixel,SIGNAL(valueChanged(int)),this,SLOT(possibleChange_cutRequiredNHits()));
   connect(m_d->editwindow_ui.spinBox_cut_nhits_sct,SIGNAL(valueChanged(int)),this,SLOT(possibleChange_cutRequiredNHits()));
   connect(m_d->editwindow_ui.spinBox_cut_nhits_trt,SIGNAL(valueChanged(int)),this,SLOT(possibleChange_cutRequiredNHits()));
   connect(m_d->editwindow_ui.spinBox_cut_nhits_muon,SIGNAL(valueChanged(int)),this,SLOT(possibleChange_cutRequiredNHits()));
+  connect(m_d->editwindow_ui.spinBox_cut_nprecisionhits_muon,SIGNAL(valueChanged(int)),this,SLOT(possibleChange_cutRequiredNHits()));
 
   // -> cutTruthFromIROnly
   connect(m_d->editwindow_ui.checkBox_cut_truthtracks_creationvertexinIR,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutTruthFromIROnly()));
@@ -388,7 +384,7 @@ void TrackCollectionSettingsButton::dropEvent(QDropEvent *event)
 QByteArray TrackCollectionSettingsButton::saveState() const{
   // messageVerbose("getState");
   // if (m_d->editwindow_ui.checkBox_tracksUseBaseLightModel->isChecked()) messageVerbose("checked!");
-  VP1Serialise serialise(1/*version*/);
+  VP1Serialise serialise(2/*version*/);
   
   serialise.save(m_d->matButton);  
   // serialise.disableUnsavedChecks();
@@ -398,6 +394,31 @@ QByteArray TrackCollectionSettingsButton::saveState() const{
   serialise.save(m_d->editwindow_ui.checkBox_tracksUseBaseLightModel);
   serialise.save(m_d->editwindow_ui.checkBox_hideactualpaths);
   serialise.save(m_d->editwindow_ui.checkBox_defaultCuts);
+  serialise.save(m_d->editwindow_ui.checkBox_defaultCuts);
+
+  serialise.save(m_d->editwindow_ui.checkBox_cut_minpt);
+  serialise.save(m_d->editwindow_ui.checkBox_cut_maxpt);
+  serialise.save(m_d->editwindow_ui.doubleSpinBox_cut_minpt_gev);
+  serialise.save(m_d->editwindow_ui.doubleSpinBox_cut_maxpt_gev);
+  serialise.save(m_d->editwindow_ui.checkBox_cut_minpt);
+  serialise.save(m_d->editwindow_ui.comboBox_momtype);
+  serialise.save(m_d->editwindow_ui.etaPhiCutWidget);
+  serialise.save(m_d->editwindow_ui.etaPhiCutWidget);
+  serialise.save(m_d->editwindow_ui.checkBox_cut_nhits_pixel);
+  serialise.save(m_d->editwindow_ui.checkBox_cut_nhits_sct);
+  serialise.save(m_d->editwindow_ui.checkBox_cut_nhits_trt);
+  serialise.save(m_d->editwindow_ui.checkBox_cut_nhits_muon);
+  serialise.save(m_d->editwindow_ui.checkBox_cut_nprecisionhits_muon);
+  serialise.save(m_d->editwindow_ui.spinBox_cut_nhits_pixel);
+  serialise.save(m_d->editwindow_ui.spinBox_cut_nhits_sct);
+  serialise.save(m_d->editwindow_ui.spinBox_cut_nhits_trt);
+  serialise.save(m_d->editwindow_ui.spinBox_cut_nhits_muon);
+  serialise.save(m_d->editwindow_ui.spinBox_cut_nprecisionhits_muon);
+  serialise.save(m_d->editwindow_ui.checkBox_cut_truthtracks_creationvertexinIR);
+  serialise.save(m_d->editwindow_ui.checkBox_cut_truthtracks_excludebarcode0);
+  serialise.save(m_d->editwindow_ui.checkBox_cut_truthtracks_excludeneutrals);
+  serialise.save(m_d->editwindow_ui.checkBox_vertexAssociated);
+  
   serialise.widgetHandled(this);
   serialise.warnUnsaved(this);
   return serialise.result();
@@ -415,6 +436,29 @@ void TrackCollectionSettingsButton::restoreFromState( const QByteArray& ba){
   state.restore(m_d->editwindow_ui.checkBox_tracksUseBaseLightModel);
   state.restore(m_d->editwindow_ui.checkBox_hideactualpaths);
   state.restore(m_d->editwindow_ui.checkBox_defaultCuts);
+
+  state.restore(m_d->editwindow_ui.checkBox_cut_minpt);
+  state.restore(m_d->editwindow_ui.checkBox_cut_maxpt);
+  state.restore(m_d->editwindow_ui.doubleSpinBox_cut_minpt_gev);
+  state.restore(m_d->editwindow_ui.doubleSpinBox_cut_maxpt_gev);
+  state.restore(m_d->editwindow_ui.checkBox_cut_minpt);
+  state.restore(m_d->editwindow_ui.comboBox_momtype);
+  state.restore(m_d->editwindow_ui.etaPhiCutWidget);
+  state.restore(m_d->editwindow_ui.etaPhiCutWidget);
+  state.restore(m_d->editwindow_ui.checkBox_cut_nhits_pixel);
+  state.restore(m_d->editwindow_ui.checkBox_cut_nhits_sct);
+  state.restore(m_d->editwindow_ui.checkBox_cut_nhits_trt);
+  state.restore(m_d->editwindow_ui.checkBox_cut_nhits_muon);
+  state.restore(m_d->editwindow_ui.checkBox_cut_nprecisionhits_muon);
+  state.restore(m_d->editwindow_ui.spinBox_cut_nhits_pixel);
+  state.restore(m_d->editwindow_ui.spinBox_cut_nhits_sct);
+  state.restore(m_d->editwindow_ui.spinBox_cut_nhits_trt);
+  state.restore(m_d->editwindow_ui.spinBox_cut_nhits_muon);
+  state.restore(m_d->editwindow_ui.spinBox_cut_nprecisionhits_muon);
+  state.restore(m_d->editwindow_ui.checkBox_cut_truthtracks_creationvertexinIR);
+  state.restore(m_d->editwindow_ui.checkBox_cut_truthtracks_excludebarcode0);
+  state.restore(m_d->editwindow_ui.checkBox_cut_truthtracks_excludeneutrals);
+  state.restore(m_d->editwindow_ui.checkBox_vertexAssociated);
 
   state.widgetHandled(this);
   state.warnUnrestored(this);
@@ -478,10 +522,11 @@ QList<unsigned> TrackCollectionSettingsButton::cutRequiredNHits() const
   unsigned nsct = m_d->editwindow_ui.checkBox_cut_nhits_sct->isChecked() ? m_d->editwindow_ui.spinBox_cut_nhits_sct->value() : 0;
   unsigned ntrt = m_d->editwindow_ui.checkBox_cut_nhits_trt->isChecked() ? m_d->editwindow_ui.spinBox_cut_nhits_trt->value() : 0;
   unsigned nmuon = m_d->editwindow_ui.checkBox_cut_nhits_muon->isChecked() ? m_d->editwindow_ui.spinBox_cut_nhits_muon->value() : 0;
+  unsigned nprecmuon = m_d->editwindow_ui.checkBox_cut_nprecisionhits_muon->isChecked() ? m_d->editwindow_ui.spinBox_cut_nprecisionhits_muon->value() : 0;
   QList<unsigned> l;
-  if (!npixel&&!nsct&&!ntrt&&!nmuon)
+  if (!npixel&&!nsct&&!ntrt&&!nmuon&&!nprecmuon)
     return l;
-  l << npixel << nsct << ntrt << nmuon;
+  l << npixel << nsct << ntrt << nmuon << nprecmuon;
   return l;
 }
 
@@ -542,8 +587,9 @@ void TrackCollectionSettingsButton::possibleChange_cutAllowedPhi()
 }
 //____________________________________________________________________
 void TrackCollectionSettingsButton::possibleChange_cutRequiredNHits()
-{
-  if (m_d->last_cutRequiredNHits!=cutRequiredNHits()) return;
+{  
+  messageVerbose("TrackCollectionSettingsButton::possibleChange_cutRequiredNHits");
+  if (m_d->last_cutRequiredNHits==cutRequiredNHits()) return;
   messageVerbose("cutRequiredNHits() changed");
   m_d->last_cutRequiredNHits=cutRequiredNHits();
   emit cutRequiredNHitsChanged(m_d->last_cutRequiredNHits);
@@ -551,7 +597,7 @@ void TrackCollectionSettingsButton::possibleChange_cutRequiredNHits()
 //____________________________________________________________________
 void TrackCollectionSettingsButton::possibleChange_cutTruthFromIROnly()
 {
-  if (m_d->last_cutTruthFromIROnly!=cutTruthFromIROnly()) return;
+  if (m_d->last_cutTruthFromIROnly==cutTruthFromIROnly()) return;
   messageVerbose("cutTruthFromIROnly() changed");
   m_d->last_cutTruthFromIROnly=cutTruthFromIROnly();
   emit cutTruthFromIROnlyChanged(m_d->last_cutTruthFromIROnly);
@@ -559,7 +605,7 @@ void TrackCollectionSettingsButton::possibleChange_cutTruthFromIROnly()
 //____________________________________________________________________
 void TrackCollectionSettingsButton::possibleChange_cutExcludeBarcodeZero()
 {
-  if (m_d->last_cutExcludeBarcodeZero!=cutExcludeBarcodeZero()) return;
+  if (m_d->last_cutExcludeBarcodeZero==cutExcludeBarcodeZero()) return;
   messageVerbose("cutExcludeBarcodeZero() changed");
   m_d->last_cutExcludeBarcodeZero=cutExcludeBarcodeZero();
   emit cutExcludeBarcodeZeroChanged(m_d->last_cutExcludeBarcodeZero);
@@ -568,7 +614,7 @@ void TrackCollectionSettingsButton::possibleChange_cutExcludeBarcodeZero()
 //____________________________________________________________________
 void TrackCollectionSettingsButton::possibleChange_cutTruthExcludeNeutrals()
 {
-  if (m_d->last_cutTruthExcludeNeutrals!=cutTruthExcludeNeutrals()) return;
+  if (m_d->last_cutTruthExcludeNeutrals==cutTruthExcludeNeutrals()) return;
   messageVerbose("cutTruthExcludeNeutrals() changed");
   m_d->last_cutTruthExcludeNeutrals=cutTruthExcludeNeutrals();
   emit cutTruthExcludeNeutralsChanged(m_d->last_cutTruthExcludeNeutrals);
@@ -577,7 +623,7 @@ void TrackCollectionSettingsButton::possibleChange_cutTruthExcludeNeutrals()
 //____________________________________________________________________
 void TrackCollectionSettingsButton::possibleChange_cutOnlyVertexAssocTracks()
 {
-  if (m_d->last_cutOnlyVertexAssocTracks!=cutOnlyVertexAssocTracks()) return;
+  if (m_d->last_cutOnlyVertexAssocTracks==cutOnlyVertexAssocTracks()) return;
   messageVerbose("cutOnlyVertexAssocTracks() changed");
   m_d->last_cutOnlyVertexAssocTracks=cutOnlyVertexAssocTracks();
   emit cutOnlyVertexAssocTracksChanged(m_d->last_cutOnlyVertexAssocTracks);

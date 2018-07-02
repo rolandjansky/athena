@@ -481,10 +481,12 @@ TrackSystemController::TrackSystemController(IVP1System * sys)
   connectToLastUpdateSlot(m_d->ui_cuts.checkBox_cut_nhits_sct);
   connectToLastUpdateSlot(m_d->ui_cuts.checkBox_cut_nhits_trt);
   connectToLastUpdateSlot(m_d->ui_cuts.checkBox_cut_nhits_muon);
+  connectToLastUpdateSlot(m_d->ui_cuts.checkBox_cut_nprecisionhits_muon);
   connectToLastUpdateSlot(m_d->ui_cuts.spinBox_cut_nhits_pixel);
   connectToLastUpdateSlot(m_d->ui_cuts.spinBox_cut_nhits_sct);
   connectToLastUpdateSlot(m_d->ui_cuts.spinBox_cut_nhits_trt);
   connectToLastUpdateSlot(m_d->ui_cuts.spinBox_cut_nhits_muon);
+  connectToLastUpdateSlot(m_d->ui_cuts.spinBox_cut_nprecisionhits_muon);
 
   // -> cutTruthFromIROnly
   addUpdateSlot(SLOT(possibleChange_cutTruthFromIROnly()));
@@ -1846,10 +1848,12 @@ QList<unsigned> TrackSystemController::cutRequiredNHits() const
   unsigned nsct = m_d->ui_cuts.checkBox_cut_nhits_sct->isChecked() ? m_d->ui_cuts.spinBox_cut_nhits_sct->value() : 0;
   unsigned ntrt = m_d->ui_cuts.checkBox_cut_nhits_trt->isChecked() ? m_d->ui_cuts.spinBox_cut_nhits_trt->value() : 0;
   unsigned nmuon = m_d->ui_cuts.checkBox_cut_nhits_muon->isChecked() ? m_d->ui_cuts.spinBox_cut_nhits_muon->value() : 0;
+  unsigned nprecmuon = m_d->ui_cuts.checkBox_cut_nprecisionhits_muon->isChecked() ? m_d->ui_cuts.spinBox_cut_nprecisionhits_muon->value() : 0;
+    
   QList<unsigned> l;
-  if (!npixel&&!nsct&&!ntrt&&!nmuon)
+  if (!npixel&&!nsct&&!ntrt&&!nmuon&&!nprecmuon)
     return l;
-  l << npixel << nsct << ntrt << nmuon;
+  l << npixel << nsct << ntrt << nmuon << nprecmuon;
   return l;
 }
 
@@ -1903,15 +1907,15 @@ bool TrackSystemController::Imp::updateComboBoxContents(QComboBox*cb,QStringList
       //AtlasExtrapolater over... whatever (same for fitters):
       int i_vp1(-1), i_atlas(-1);
       for (int j = 0; j <cb->count();++j) {
-	if (i_vp1==-1&&cb->itemText(j).contains("vp1",Qt::CaseInsensitive))
-	  i_vp1 = j;
-	if (i_atlas==-1&&cb->itemText(j).contains("atlas",Qt::CaseInsensitive))
-	  i_atlas = j;
+      	if (i_vp1==-1&&cb->itemText(j).contains("vp1",Qt::CaseInsensitive))
+      	  i_vp1 = j;
+      	if (i_atlas==-1&&cb->itemText(j).contains("atlas",Qt::CaseInsensitive))
+      	  i_atlas = j;
       }
       if (i_vp1>=0)
-	cb->setCurrentIndex(i_vp1);
+      	cb->setCurrentIndex(i_vp1);
       else if (i_atlas>=0)
-	cb->setCurrentIndex(i_atlas);
+      	cb->setCurrentIndex(i_atlas);
     }
     //m_d->ui_extrap.radioButton_athenaExtrapolator->setEnabled(true);
     enabled = true;

@@ -249,7 +249,22 @@ if (vp1ForwardRegion): DetFlags.FwdRegion_setOn()
 else:          DetFlags.FwdRegion_setOff()
 if (vp1ZDC): DetFlags.ZDC_setOn()
 else:          DetFlags.ZDC_setOff()
-if (vp1NSW): DetFlags.Micromegas_setOn() #FIXME - sTGC?
+if (vp1NSW): 
+    DetFlags.Micromegas_setOn()
+    DetFlags.sTGC_setOn()
+    from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+    GeoModelSvc = GeoModelSvc()
+    GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.08.01-NSW"
+    
+    from MuonAGDD.MuonAGDDConf import NSWAGDDTool
+    nTool=NSWAGDDTool('NewSmallWheel')
+    nTool.ReadAGDD=False
+    nTool.XMLFiles += ["stations.v2.03.xml"]
+    nTool.DefaultDetector="Muon"
+    nTool.Locked=False
+    nTool.Volumes += ["NewSmallWheel"]
+    ToolSvc+=nTool
+    
 DetFlags.Print()
 
 # --- GeoModel
