@@ -287,6 +287,10 @@ namespace top{
       }
       btagWP = m_config->bTagWP_available()[0];
     }  
+    if(btagWP.find("Continuous")!=std::string::npos){
+      ATH_MSG_ERROR("KLFitter is not able to run with (pseudo)continuous b-tagging! Please specify a different WP either in your configuration file or in your selection!");
+      return StatusCode::FAILURE;
+    }
     m_btagging_eff_tool = "BTaggingEfficiencyTool_"+btagWP+"_"+m_config->sgKeyJets();
     top::check( m_btagging_eff_tool.retrieve(), "Failed to retrieve b-tagging Efficiency tool" );
     
@@ -452,7 +456,7 @@ namespace top{
 
     // set the jets, depending on the Jet Selection Mode
     if(!setJets(event, myParticles)){
-       std::cout<<"KLFitterTool::execute: error at event "<<event.m_info->eventNumber()<<". It was not possible to properly fill the jets. Are you trying to use a KLeadingX Jet Selection mode with a signal region with less than X jets? Please check your configuration!\n";
+       ATH_MSG_INFO("KLFitterTool::execute: error at event "<<event.m_info->eventNumber()<<". It was not possible to properly fill the jets. Are you trying to use a KLeadingX Jet Selection mode with a signal region with less than X jets? Please check your configuration!");
        return StatusCode::FAILURE;
     }
     
@@ -783,6 +787,7 @@ namespace top{
    xAOD::Jet* jet_copy = new xAOD::Jet();
    jets.push_back(jet_copy);
    *jet_copy = jet;
+   jet_copy->setJetP4(jet.jetP4());
    //treat jet as b-tagged
    jet_copy->setAttribute("HadronConeExclTruthLabelID", 5);
    top::check(m_btagging_eff_tool->getMCEfficiency(*jet_copy, *efficiency),
@@ -851,7 +856,7 @@ namespace top{
     //If container has less jets than required, raise error
     if(m_config->KLFitterFailOnLessThanXJets()){
        if(event.m_jets.size()<njets){
-          std::cout<<"KLFitterTool::setJetskLeadingX: You required "<<njets<<" jets. Event has "<<event.m_jets.size()<<" jets!\n";
+          ATH_MSG_INFO("KLFitterTool::setJetskLeadingX: You required "<<njets<<" jets. Event has "<<event.m_jets.size()<<" jets!");
           return false;
        }
     }
@@ -908,7 +913,7 @@ namespace top{
     //If container has less jets than required, raise error
     if(m_config->KLFitterFailOnLessThanXJets()){
        if(event.m_jets.size()<maxJets){
-          std::cout<<"KLFitterTool::setJetskBtagPriority: You required "<<maxJets<<" jets. Event has "<<event.m_jets.size()<<" jets!\n";
+          ATH_MSG_INFO("KLFitterTool::setJetskBtagPriority: You required "<<maxJets<<" jets. Event has "<<event.m_jets.size()<<" jets!");
           return false;
        }
     }
