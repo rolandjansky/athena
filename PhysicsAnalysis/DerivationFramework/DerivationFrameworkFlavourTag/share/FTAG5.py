@@ -153,6 +153,13 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 # Add SoftDrop Jets
 #===================================================================
 
+# this is a nasty hack: we add the ghost label pseudojetgetter
+# (defined in addVRJets above) to all subsequent LCTopo jet
+# collections.
+VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet"
+jtm.gettersMap["LCTopo".lower()].append(VRGhostLabel.lower())
+
+# from here on things are a bit more standard
 addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], FTAG5Seq, "FTAG5",
                 ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed")
 addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1,
@@ -175,9 +182,7 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR2
 #==================================================================
 
 FTAG5Seq += CfgMgr.BTagVertexAugmenter()
-for jc in OutputJets["FTAG5"]:
-   if 'Truth' in jc:
-       continue
+for jc in FTAG5BTaggedJets:
    FTAG5Seq += CfgMgr.BTagTrackAugmenter(
        "BTagTrackAugmenter_" + jc,
        OutputLevel=INFO,
@@ -269,8 +274,12 @@ FTAG5SlimmingHelper.ExtraVariables.append(
 FTAG5SlimmingHelper.AppendToDictionary = {
     "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets":"xAOD::JetContainer",
     "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux":"xAOD::JetAuxContainer",
+    "AntiKt10LCTopoCSSKJets":"xAOD::JetContainer",
+    "AntiKt10LCTopoCSSKJetsAux":"xAOD::JetAuxContainer",
 }
-FTAG5SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"]
+FTAG5SlimmingHelper.AllVariables  += [
+    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
+    "AntiKt10LCTopoCSSKJets"]
 
 
 
