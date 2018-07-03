@@ -90,6 +90,20 @@ namespace xAOD {
       /// Function used by PROOF to set the number of processed events correctly
       virtual ::Long64_t GetNumEvents() const;
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION( 6, 14, 0 )
+      // new methods (ROOT 6.14) - need forwarding to the original TPerfStats
+      virtual void PrintBasketInfo(Option_t *option = "") const;
+      virtual void SetLoaded(TBranch *b, size_t basketNumber);
+      virtual void SetLoaded(size_t bi, size_t basketNumber);
+      virtual void SetLoadedMiss(TBranch *b, size_t basketNumber);
+      virtual void SetLoadedMiss(size_t bi, size_t basketNumber);
+      virtual void SetMissed(TBranch *b, size_t basketNumber);
+      virtual void SetMissed(size_t bi, size_t basketNumber);
+      virtual void SetUsed(TBranch *b, size_t basketNumber);
+      virtual void SetUsed(size_t bi, size_t basketNumber);
+      virtual void UpdateBranchIndices(TObjArray *branches);
+#endif
+
       /// @}
 
    protected:
