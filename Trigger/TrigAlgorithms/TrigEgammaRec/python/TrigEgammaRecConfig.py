@@ -32,7 +32,10 @@ from TrigEgammaRec.TrigEgammaToolFactories import (TrigCaloIsolationTool,
         TrigElectronCaloPIDBuilder,
         TrigPhotonPIDBuilder,
         TrigEMTrackMatchBuilder,
-        TrigEMShowerBuilder
+        TrigEMShowerBuilder,
+        TrigEgammaTopoClusterCopier,
+        TrigElectronSuperClusterBuilder, 
+        TrigPhotonSuperClusterBuilder
         )
 
 def configureTrigEgammaMonitoring(tool):
@@ -79,6 +82,54 @@ TrigEgammaRec = Factory(TrigEgammaRecConf.TrigEgammaRec, name="TrigEgammaRec",do
     ConversionBuilderTool = EMConversionBuilder, 
     AmbiguityTool = EGammaAmbiguityTool,
     FourMomBuilderTool = EMFourMomBuilder,
+    
+    # Flags
+    doTrackMatching = True,
+    doConversions = False,
+    
+    # Called after instantiation
+    postInit = [configureTrigEgammaMonitoring],
+)
+
+# Same but for TrigTopoEgammaBuilder
+TrigTopoEgammaBuilder = Factory(TrigEgammaRecConf.TrigTopoEgammaBuilder, name="TrigTopoEgammaBuilder",doAdd=False,doPrint=True,
+    # Keys
+    ElectronContainerName="egamma_SC_Electrons", 
+    PhotonContainerName="egamma_SC_Photons",
+    
+    # Tools with non-default configuration
+    TrackMatchBuilderTool = TrigEMTrackMatchBuilder,
+    ShowerBuilderTool = TrigEMShowerBuilder,
+    
+    # Set the isolation tools
+    TrackIsolationTool = TrigTrackIsolationTool, 
+    CaloCellIsolationTool = TrigCaloIsolationTool, 
+    CaloTopoIsolationTool = TrigCaloTopoIsolationTool, 
+    # Configure types -- define all needed
+    # Decreasing order for pt/etcone (what about topocone?)
+    IsoTypes = TrigEgammaIsoTypes,
+    # Run isolation, easier to config than isotypes
+    doTrackIsolation = True,
+    doCaloCellIsolation = True,
+    doCaloTopoIsolation = False,
+
+    # Names of tools loaded must remain static and are set in TrigEgammaHypo/python/TrigEgammaPidTools.py
+    ElectronPIDBuilder = TrigElectronPIDBuilder,
+    ElectronCaloPIDBuilder = TrigElectronCaloPIDBuilder,
+    PhotonPIDBuilder = TrigPhotonPIDBuilder,
+    
+    # Tools with default configuration    
+#     VertexBuilderTool = EMVertexBuilder,
+    ConversionBuilderTool = EMConversionBuilder, 
+    AmbiguityTool = EGammaAmbiguityTool,
+    FourMomBuilderTool = EMFourMomBuilder,
+
+    #Now the tools for SuperClusters
+    TopoClusterCopierTool=TrigEgammaTopoClusterCopier,
+    ElectronSuperClusterBuilderTool=TrigElectronSuperClusterBuilder,
+    PhotonSuperClusterBuilderTool=TrigPhotonSuperClusterBuilder,
+
+    
     
     # Flags
     doTrackMatching = True,

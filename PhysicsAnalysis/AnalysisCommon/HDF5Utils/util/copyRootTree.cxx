@@ -85,7 +85,26 @@ namespace H5Utils {
     private:
       std::vector<std::vector<T> >* m_buffer;
     };
+
+
+    // Selection function 
+    //
+    // Define a bool function that returns false if event doesn't
+    // pass TTreeFormula cut.
+    bool passTTreeCut(TTreeFormula* selection) {
+      // GetNdim looks to see how many valid arguements there are.
+      // Returns false for none.
+      if ( !selection || !selection->GetNdim()) return true;
+      Int_t ndata = selection->GetNdata();
+      for(Int_t current = 0; current < ndata; current++) {
+        if (selection->EvalInstance(current) == 0) return false;
+      }
+      return true;
+    }
+
+
   } // close anonymous namespace
+
 // _____________________________________________________________________
 // main copy root tree function
 //
@@ -159,45 +178,46 @@ namespace H5Utils {
       if (!keep) continue;
 
       leaf = tt.GetLeaf(lname.c_str());
+      std::string branchName = leaf->GetBranch()->GetName();
       std::string leaf_type = leaf->GetTypeName();
       if (leaf_type == "Int_t") {
-        buffers.emplace_back(new Buffer<int>(vars, tt, lname));
+        buffers.emplace_back(new Buffer<int>(vars, tt, branchName));
       } else if (leaf_type == "Float_t") {
-        buffers.emplace_back(new Buffer<float>(vars, tt, lname));
+        buffers.emplace_back(new Buffer<float>(vars, tt, branchName));
       } else if (leaf_type == "Double_t") {
-        buffers.emplace_back(new Buffer<double>(vars, tt, lname));
+        buffers.emplace_back(new Buffer<double>(vars, tt, branchName));
       } else if (leaf_type == "Bool_t") {
-        buffers.emplace_back(new Buffer<bool>(vars, tt, lname));
+        buffers.emplace_back(new Buffer<bool>(vars, tt, branchName));
       } else if (leaf_type == "Long64_t") {
-        buffers.emplace_back(new Buffer<long long>(vars, tt, lname));
+        buffers.emplace_back(new Buffer<long long>(vars, tt, branchName));
       } else if (leaf_type == "UInt_t") {
-        buffers.emplace_back(new Buffer<unsigned int>(vars, tt, lname));
+        buffers.emplace_back(new Buffer<unsigned int>(vars, tt, branchName));
       } else if (leaf_type == "UChar_t") {
-        buffers.emplace_back(new Buffer<unsigned char>(vars, tt, lname));
+        buffers.emplace_back(new Buffer<unsigned char>(vars, tt, branchName));
       } else if (leaf_type == "vector<float>") {
-        buffers.emplace_back(new VBuf<float>(vars2d, idx, tt, lname, NAN));
+        buffers.emplace_back(new VBuf<float>(vars2d, idx, tt, branchName, NAN));
       } else if (leaf_type == "vector<double>") {
-        buffers.emplace_back(new VBuf<double>(vars2d, idx, tt, lname, NAN));
+        buffers.emplace_back(new VBuf<double>(vars2d, idx, tt, branchName, NAN));
       } else if (leaf_type == "vector<int>") {
-        buffers.emplace_back(new VBuf<int>(vars2d, idx, tt, lname, 0));
+        buffers.emplace_back(new VBuf<int>(vars2d, idx, tt, branchName, 0));
       } else if (leaf_type == "vector<unsigned int>") {
-        buffers.emplace_back(new VBuf<unsigned int>(vars2d, idx, tt, lname, 0));
+        buffers.emplace_back(new VBuf<unsigned int>(vars2d, idx, tt, branchName, 0));
       } else if (leaf_type == "vector<unsigned char>") {
-        buffers.emplace_back(new VBuf<unsigned char>(vars2d, idx, tt, lname, 0));
+        buffers.emplace_back(new VBuf<unsigned char>(vars2d, idx, tt, branchName, 0));
       } else if (leaf_type == "vector<bool>") {
-        buffers.emplace_back(new VBuf<bool>(vars2d, idx, tt, lname, 0));
+        buffers.emplace_back(new VBuf<bool>(vars2d, idx, tt, branchName, 0));
       } else if (leaf_type == "vector<vector<int> >") {
-        buffers.emplace_back(new VVBuf<int>(vars3d, idx2, tt, lname, 0));
+        buffers.emplace_back(new VVBuf<int>(vars3d, idx2, tt, branchName, 0));
       } else if (leaf_type == "vector<vector<unsigned int> >") {
-        buffers.emplace_back(new VVBuf<unsigned int>(vars3d, idx2, tt, lname, 0));
+        buffers.emplace_back(new VVBuf<unsigned int>(vars3d, idx2, tt, branchName, 0));
       } else if (leaf_type == "vector<vector<unsigned char> >") {
-        buffers.emplace_back(new VVBuf<unsigned char>(vars3d, idx2, tt, lname, 0));
+        buffers.emplace_back(new VVBuf<unsigned char>(vars3d, idx2, tt, branchName, 0));
       } else if (leaf_type == "vector<vector<float> >") {
-        buffers.emplace_back(new VVBuf<float>(vars3d, idx2, tt, lname, NAN));
+        buffers.emplace_back(new VVBuf<float>(vars3d, idx2, tt, branchName, NAN));
       } else if (leaf_type == "vector<vector<double> >") {
-        buffers.emplace_back(new VVBuf<double>(vars3d, idx2, tt, lname, NAN));
+        buffers.emplace_back(new VVBuf<double>(vars3d, idx2, tt, branchName, NAN));
       } else if (leaf_type == "vector<vector<bool> >") {
-        buffers.emplace_back(new VVBuf<bool>(vars3d, idx2, tt, lname, 0));
+        buffers.emplace_back(new VVBuf<bool>(vars3d, idx2, tt, branchName, 0));
       } else {
         skipped.insert(leaf_type);
       }
@@ -247,12 +267,25 @@ namespace H5Utils {
     // Very little actually happens here since the buffers are already
     // defined, as are the HDF5 reader functions.
     //
+    
+    // Get the selection string and build a new TTreeFormula
+    std::string cut_string = opts.selection;
+    const char * cut_char = cut_string.c_str();
+    TTreeFormula *cut =0;
+    if(!cut_string.empty()){
+      // This is so a cut can be applied without requiring the 
+      // branch to be output to the hdf5 file.
+      tt.SetBranchStatus("*", true);
+      cut = new TTreeFormula("selection", cut_char, &tt);
+    }
+
     size_t n_entries = tt.GetEntries();
     if (opts.n_entries) n_entries = std::min(n_entries, opts.n_entries);
     int print_interval = opts.print_interval;
     if (print_interval == -1) {
       print_interval = std::max(1UL, n_entries / 100);
     }
+
     for (size_t iii = 0; iii < n_entries; iii++) {
       if (print_interval && (iii % print_interval == 0)) {
         std::cout << "events processed: " << iii
@@ -260,6 +293,8 @@ namespace H5Utils {
                   << n_entries << ")" << std::endl;
       }
       tt.GetEntry(iii);
+      if(cut) cut->UpdateFormulaLeaves();
+      if (!passTTreeCut(cut)) continue;
       if (writer1d) writer1d->fillWhileIncrementing();
       if (writer2d) writer2d->fillWhileIncrementing(idx);
       if (writer3d) writer3d->fillWhileIncrementing(idx2);

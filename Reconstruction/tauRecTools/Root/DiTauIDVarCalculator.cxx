@@ -20,6 +20,8 @@
 #include "xAODTau/DiTauJetAuxContainer.h"
 #include "xAODTau/TauJetContainer.h"
 
+#include "xAODEventInfo/EventInfo.h"
+
 #include "xAODEgamma/ElectronContainer.h"
 
 #include "xAODMuon/MuonContainer.h"
@@ -38,6 +40,8 @@
 #include "tauRecTools/MuonTrackRemoval.h"
 #include "tauRecTools/TauSubstructureVariables.h"
 #include "tauRecTools/TauCommonCalcVars.h"
+#include "tauRecTools/TauJetBDTEvaluator.h"
+#include "tauRecTools/TauWPDecorator.h"
 
 #include "PATCore/TResult.h"
 // fastjet
@@ -88,12 +92,16 @@ DiTauIDVarCalculator::DiTauIDVarCalculator( const std::string& name )
   , m_muonTrackRemoval                       ("MuonTrackRemoval")
   , m_tauSubstructureVariables               ("TauSubstructureVaribales")
   , m_tauCommonCalcVars                      ("TauCommonCalcVars")
+  , m_tauJetBDTEvaluator_1P                  ("TauJetBDTEvaluator_1P")
+  , m_tauJetBDTEvaluator_3P                  ("TauJetBDTEvaluator_3P")
+  , m_tauWPDecorator                         ("TauWPDecorator")
 {
   declareProperty( "DefaultValue", m_dDefault = 0);
   declareProperty( "DiTauContainerName", m_sDiTauContainerName = "DiTauJets");
   declareProperty( "doCalcCluserVariables", m_bCalcCluserVariables = false);
   declareProperty( "DiTauDecayChannel", m_sDecayChannel = "HadHad");
   declareProperty( "MuonTrackRemoval", m_bMuonTrackRemoval = true);
+  declareProperty( "RecalcStandardID", m_bRecalcStandardID = false);
 }
 
 //______________________________________________________________________________
@@ -169,9 +177,31 @@ StatusCode DiTauIDVarCalculator::initialize()
 
         ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tauCommonCalcVars, TauCommonCalcVars));
         ATH_CHECK(m_tauCommonCalcVars.initialize());
+
+        ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tauJetBDTEvaluator_1P, TauJetBDTEvaluator));
+        ATH_CHECK(m_tauJetBDTEvaluator_1P.setProperty("weightsFile", "tauRecTools/00-02-00/vars2016_pt_gamma_1p_isofix.root"));
+        ATH_CHECK(m_tauJetBDTEvaluator_1P.setProperty("minNTracks", 0));
+        ATH_CHECK(m_tauJetBDTEvaluator_1P.setProperty("maxNTracks", 1));
+        ATH_CHECK(m_tauJetBDTEvaluator_1P.setProperty("outputVarName", "BDTScoreRecalc"));
+        ATH_CHECK(m_tauJetBDTEvaluator_1P.initialize());
+
+        ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tauJetBDTEvaluator_3P, TauJetBDTEvaluator));
+        ATH_CHECK(m_tauJetBDTEvaluator_3P.setProperty("weightsFile", "tauRecTools/00-02-00/vars2016_pt_gamma_3p_isofix.root"));
+        ATH_CHECK(m_tauJetBDTEvaluator_3P.setProperty("minNTracks", 2));
+        ATH_CHECK(m_tauJetBDTEvaluator_3P.setProperty("maxNTracks", 1000));
+        ATH_CHECK(m_tauJetBDTEvaluator_3P.setProperty("outputVarName", "BDTScoreRecalc"));
+        ATH_CHECK(m_tauJetBDTEvaluator_3P.initialize());
+        
+        ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tauWPDecorator, TauWPDecorator));
+        ATH_CHECK(m_tauWPDecorator.setProperty("flatteningFile1Prong", "tauRecTools/00-02-00/FlatJetBDT1Pv2.root"));
+        ATH_CHECK(m_tauWPDecorator.setProperty("flatteningFile3Prong", "tauRecTools/00-02-00/FlatJetBDT3Pv2.root"));
+        ATH_CHECK(m_tauWPDecorator.setProperty("ScoreName", "BDTScoreRecalc"));
+        ATH_CHECK(m_tauWPDecorator.setProperty("NewScoreName", "BDTScoreFlatRecalc"));
+        ATH_CHECK(m_tauWPDecorator.setProperty("DefineWPs", false));
+        ATH_CHECK(m_tauWPDecorator.initialize());
       }
   }
-  if(m_eDecayChannel == DecayChannel::HadEl){
+  if(m_eDecayChannel == DecayChannel::HadEl || m_eDecayChannel == DecayChannel::HadHad){
     std::string confDir = "ElectronPhotonSelectorTools/offline/mc16_20170828/";
     ATH_CHECK(ASG_MAKE_ANA_TOOL(m_electronLikeliHoodTool_medium, AsgElectronLikelihoodTool));
     ATH_CHECK(m_electronLikeliHoodTool_medium.setProperty("ConfigFile",confDir+"ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"));
@@ -224,44 +254,47 @@ StatusCode DiTauIDVarCalculator::calculateHadHadIDVariables(const xAOD::DiTauJet
   
   xDiTau.auxdecor< int >("n_subjets") = n_subjets(xDiTau);
   ATH_CHECK( decorNtracks(xDiTau) );
-  xDiTau.auxdecor< double >( "ditau_pt") = ditau_pt(xDiTau);
-  xDiTau.auxdecor< double >( "f_core_lead" ) = f_core(xDiTau, 0);
-  xDiTau.auxdecor< double >( "f_core_subl" ) = f_core(xDiTau, 1);
-  xDiTau.auxdecor< double >( "f_subjet_lead" ) = f_subjet(xDiTau, 0);
-  xDiTau.auxdecor< double >( "f_subjet_subl" ) = f_subjet(xDiTau, 1);
-  xDiTau.auxdecor< double >( "f_subjets") = f_subjets(xDiTau);
-  xDiTau.auxdecor< double >( "f_track_lead") = f_track(xDiTau, 0);
-  xDiTau.auxdecor< double >( "f_track_subl") = f_track(xDiTau, 1);
-  xDiTau.auxdecor< double >( "R_max_lead") = R_max(xDiTau, 0);
-  xDiTau.auxdecor< double >( "R_max_subl") = R_max(xDiTau, 1);
+  xDiTau.auxdecor< float >( "ditau_pt") = ditau_pt(xDiTau);
+  xDiTau.auxdecor< float >( "f_core_lead" ) = f_core(xDiTau, 0);
+  xDiTau.auxdecor< float >( "f_core_subl" ) = f_core(xDiTau, 1);
+  xDiTau.auxdecor< float >( "f_subjet_lead" ) = f_subjet(xDiTau, 0);
+  xDiTau.auxdecor< float >( "f_subjet_subl" ) = f_subjet(xDiTau, 1);
+  xDiTau.auxdecor< float >( "f_subjets") = f_subjets(xDiTau);
+  xDiTau.auxdecor< float >( "f_track_lead") = f_track(xDiTau, 0);
+  xDiTau.auxdecor< float >( "f_track_subl") = f_track(xDiTau, 1);
+  xDiTau.auxdecor< float >( "R_max_lead") = R_max(xDiTau, 0);
+  xDiTau.auxdecor< float >( "R_max_subl") = R_max(xDiTau, 1);
   xDiTau.auxdecor< int >( "n_track" ) = n_track(xDiTau);
   xDiTau.auxdecor< int >( "n_tracks_lead" ) = n_tracks(xDiTau, 0);
   xDiTau.auxdecor< int >( "n_tracks_subl" ) = n_tracks(xDiTau, 1);
   xDiTau.auxdecor< int >( "n_isotrack" ) = n_isotrack(xDiTau);
   xDiTau.auxdecor< int >( "n_othertrack" ) = n_othertrack(xDiTau);
-  xDiTau.auxdecor< double >( "R_track" ) = R_track(xDiTau);
-  xDiTau.auxdecor< double >( "R_track_core" ) = R_track_core(xDiTau);
-  xDiTau.auxdecor< double >( "R_track_all" ) = R_track_all(xDiTau);
-  xDiTau.auxdecor< double >( "R_isotrack" ) = R_isotrack(xDiTau);
-  xDiTau.auxdecor< double >( "R_core_lead" ) = R_core(xDiTau, 0);
-  xDiTau.auxdecor< double >( "R_core_subl" ) = R_core(xDiTau, 1);
-  xDiTau.auxdecor< double >( "R_tracks_lead" ) = R_tracks(xDiTau, 0);
-  xDiTau.auxdecor< double >( "R_tracks_subl" ) = R_tracks(xDiTau, 1);
-  xDiTau.auxdecor< double >( "m_track" ) = mass_track(xDiTau);
-  xDiTau.auxdecor< double >( "m_track_core" ) = mass_track_core(xDiTau);
-  xDiTau.auxdecor< double >( "m_core_lead" ) = mass_core(xDiTau, 0);
-  xDiTau.auxdecor< double >( "m_core_subl" ) = mass_core(xDiTau, 1);
-  xDiTau.auxdecor< double >( "m_track_all" ) = mass_track_all(xDiTau);
-  xDiTau.auxdecor< double >( "m_tracks_lead" ) = mass_tracks(xDiTau, 0);
-  xDiTau.auxdecor< double >( "m_tracks_subl" ) = mass_tracks(xDiTau, 1);
-  xDiTau.auxdecor< double >( "E_frac_subl" ) = E_frac(xDiTau,1);
-  xDiTau.auxdecor< double >( "E_frac_subsubl") = E_frac(xDiTau, 2);
-  xDiTau.auxdecor< double >( "R_subjets_subl") = R_subjets(xDiTau, 1);
-  xDiTau.auxdecor< double >( "R_subjets_subsubl") = R_subjets(xDiTau, 2);
-  xDiTau.auxdecor< double >( "d0_leadtrack_lead") = d0_leadtrack(xDiTau, 0);
-  xDiTau.auxdecor< double >( "d0_leadtrack_subl") = d0_leadtrack(xDiTau, 1);
-  xDiTau.auxdecor< double >( "f_isotracks" ) = f_isotracks(xDiTau);
+  xDiTau.auxdecor< float >( "R_track" ) = R_track(xDiTau);
+  xDiTau.auxdecor< float >( "R_track_core" ) = R_track_core(xDiTau);
+  xDiTau.auxdecor< float >( "R_track_all" ) = R_track_all(xDiTau);
+  xDiTau.auxdecor< float >( "R_isotrack" ) = R_isotrack(xDiTau);
+  xDiTau.auxdecor< float >( "R_core_lead" ) = R_core(xDiTau, 0);
+  xDiTau.auxdecor< float >( "R_core_subl" ) = R_core(xDiTau, 1);
+  xDiTau.auxdecor< float >( "R_tracks_lead" ) = R_tracks(xDiTau, 0);
+  xDiTau.auxdecor< float >( "R_tracks_subl" ) = R_tracks(xDiTau, 1);
+  xDiTau.auxdecor< float >( "m_track" ) = mass_track(xDiTau);
+  xDiTau.auxdecor< float >( "m_track_core" ) = mass_track_core(xDiTau);
+  xDiTau.auxdecor< float >( "m_core_lead" ) = mass_core(xDiTau, 0);
+  xDiTau.auxdecor< float >( "m_core_subl" ) = mass_core(xDiTau, 1);
+  xDiTau.auxdecor< float >( "m_track_all" ) = mass_track_all(xDiTau);
+  xDiTau.auxdecor< float >( "m_tracks_lead" ) = mass_tracks(xDiTau, 0);
+  xDiTau.auxdecor< float >( "m_tracks_subl" ) = mass_tracks(xDiTau, 1);
+  xDiTau.auxdecor< float >( "E_frac_subl" ) = E_frac(xDiTau,1);
+  xDiTau.auxdecor< float >( "E_frac_subsubl") = E_frac(xDiTau, 2);
+  xDiTau.auxdecor< float >( "R_subjets_subl") = R_subjets(xDiTau, 1);
+  xDiTau.auxdecor< float >( "R_subjets_subsubl") = R_subjets(xDiTau, 2);
+  xDiTau.auxdecor< float >( "d0_leadtrack_lead") = d0_leadtrack(xDiTau, 0);
+  xDiTau.auxdecor< float >( "d0_leadtrack_subl") = d0_leadtrack(xDiTau, 1);
+  xDiTau.auxdecor< float >( "f_isotracks" ) = f_isotracks(xDiTau);
   xDiTau.auxdecor< int >( "n_iso_ellipse" ) = n_iso_ellipse(xDiTau);
+  xDiTau.auxdecor< int >( "leadjet_elid" ) = subjetLeadElectronID(xDiTau, 0);
+  xDiTau.auxdecor< int >( "subleadjet_elid" ) = subjetLeadElectronID(xDiTau, 1);
+
   
   if (m_bCalcCluserVariables)
   {
@@ -269,16 +302,16 @@ StatusCode DiTauIDVarCalculator::calculateHadHadIDVariables(const xAOD::DiTauJet
     
     xDiTau.auxdecor< int >( "n_antikt_subjets" ) = n_antikt_subjets(vClusters);
     xDiTau.auxdecor< int >( "n_ca_subjets" ) = n_ca_subjets(vClusters);
-    xDiTau.auxdecor< double >( "f_clusters" ) = f_clusters(xDiTau, vClusters);
+    xDiTau.auxdecor< float >( "f_clusters" ) = f_clusters(xDiTau, vClusters);
     mass_drop(xDiTau, vClusters);
   }
   else 
   {
     xDiTau.auxdecor< int >( "n_antikt_subjets" ) = m_dDefault;
     xDiTau.auxdecor< int >( "n_ca_subjets" ) = m_dDefault;
-    xDiTau.auxdecor< double >( "f_clusters" ) = m_dDefault;
-    xDiTau.auxdecor< double >( "mu_massdrop" ) = m_dDefault;
-    xDiTau.auxdecor< double >( "y_massdrop" ) = m_dDefault;
+    xDiTau.auxdecor< float >( "f_clusters" ) = m_dDefault;
+    xDiTau.auxdecor< float >( "mu_massdrop" ) = m_dDefault;
+    xDiTau.auxdecor< float >( "y_massdrop" ) = m_dDefault;
   }
 
 
@@ -299,7 +332,10 @@ StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet&
   static const SG::AuxElement::ConstAccessor<float>  acc_trFlightPathSig    ("trFlightPathSig")   ;
   static const SG::AuxElement::ConstAccessor<float>  acc_massTrkSys         ("massTrkSys")        ;
   static const SG::AuxElement::ConstAccessor<float>  acc_ChPiEMEOverCaloEME ("ChPiEMEOverCaloEME");
-  
+
+  static const SG::AuxElement::ConstAccessor<float>  acc_BDTScoreRecalc     ("BDTScoreRecalc");
+  static const SG::AuxElement::ConstAccessor<float>  acc_BDTScoreFlatRecalc ("BDTScoreFlatRecalc");
+
   static const SG::AuxElement::Decorator<float>  dec_centFrac           ("centFrac")          ;
   static const SG::AuxElement::Decorator<float>  dec_massTrkSys         ("massTrkSys")        ;
   static const SG::AuxElement::Decorator<float>  dec_etOverPtLeadTrk    ("etOverPtLeadTrk")   ;
@@ -313,6 +349,9 @@ StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet&
   static const SG::AuxElement::Decorator<float>  dec_trFlightPathSig    ("trFlightPathSig")   ;
   static const SG::AuxElement::Decorator<float>  dec_ChPiEMEOverCaloEME ("ChPiEMEOverCaloEME");
 
+  static const SG::AuxElement::Decorator<float>  dec_BDTScoreRecalc     ("TauJetBDTScoreRecalc");
+  static const SG::AuxElement::Decorator<float>  dec_BDTScoreFlatRecalc ("TauJetBDTScoreFlatRecalc");
+  
   static const SG::AuxElement::Decorator<int>    dec_tau_ntrack         ("tau_ntrack");
   
   static const SG::AuxElement::Decorator<char>   acc_mu_isoGL     ("mu_isoGL");
@@ -334,7 +373,8 @@ StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet&
   static const SG::AuxElement::Decorator<int>   acc_MuonQuality   ("MuonQuality");
   static const SG::AuxElement::Decorator<int>   acc_MuonType      ("MuonType");
   static const SG::AuxElement::Decorator<char>  acc_validMuon     ("validMuon");
- 
+
+
   const xAOD::TauJet* pTau  = *acc_tauLink(xDiTau);
   const xAOD::Muon*   pMuon = *acc_muonLink(xDiTau);
   std::unique_ptr<xAOD::TauJet> pTauCopy;
@@ -344,8 +384,44 @@ StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet&
     pTauCopy->makePrivateStore(*pTau);
     m_data.clear();
     ATH_CHECK(m_muonTrackRemoval->execute(*pTauCopy));
+
+    // set variables to default values, if last track of tau was removed
+    if (pTauCopy->nTracks() == 0) {
+      pTauCopy->setDetail( xAOD::TauJetParameters::etOverPtLeadTrk, static_cast<float>( -1111 ) );
+      pTauCopy->setDetail( xAOD::TauJetParameters::dRmax, static_cast<float>( -1111 ) );
+      pTauCopy->setDetail( xAOD::TauJetParameters::massTrkSys, static_cast<float>( -1111 ) );
+      pTauCopy->setDetail( xAOD::TauJetParameters::innerTrkAvgDist, static_cast<float>( -1111 ) );
+    }
+    
     ATH_CHECK(m_tauSubstructureVariables->execute(*pTauCopy));
     ATH_CHECK(m_tauCommonCalcVars->execute(*pTauCopy));
+
+    if(m_bRecalcStandardID){
+      // recalculate and decorate output of standard Tau ID after muon track removal:
+      // set some input variables for standard Tau ID:
+      
+      static const SG::AuxElement::Accessor<int> acc_numTrack("NUMTRACK");
+      acc_numTrack(*pTauCopy) = pTauCopy->nTracks();
+      const xAOD::EventInfo* xEventInfo;
+      static const SG::AuxElement::Accessor<float> acc_mu("MU");
+      ATH_CHECK( evtStore()->retrieve(xEventInfo,"EventInfo") );
+
+      static const SG::AuxElement::Accessor<float> acc_absEtaLead("ABS_ETA_LEAD_TRACK");
+      
+      if(pTauCopy->nTracks()>0)
+        acc_absEtaLead(*pTauCopy) = pTauCopy->track(0)->eta();
+      else
+        acc_absEtaLead(*pTauCopy) = 0;
+      
+      acc_mu(*pTauCopy) = xEventInfo->averageInteractionsPerCrossing();
+      
+      ATH_CHECK(m_tauJetBDTEvaluator_1P->execute(*pTauCopy));
+      ATH_CHECK(m_tauJetBDTEvaluator_3P->execute(*pTauCopy));
+      ATH_CHECK(m_tauWPDecorator->execute(*pTauCopy));
+    
+      dec_BDTScoreRecalc    (xDiTau) = acc_BDTScoreRecalc    (*pTauCopy);
+      dec_BDTScoreFlatRecalc(xDiTau) = acc_BDTScoreFlatRecalc(*pTauCopy);
+    }
     pTau = &*pTauCopy;
   }
     
@@ -682,6 +758,50 @@ StatusCode DiTauIDVarCalculator::calculateHadElIDVariables(const xAOD::DiTauJet&
   return StatusCode::SUCCESS;
 }
 
+int DiTauIDVarCalculator::subjetLeadElectronID(const xAOD::DiTauJet& xDiTau, int iSubjet) const {
+  if(xDiTau.auxdata<int>("n_subjets") < iSubjet)
+    return -1;
+  
+  const xAOD::ElectronContainer* electrons = evtStore()->retrieve<const xAOD::ElectronContainer>("Electrons");
+  
+  TLorentzVector p4LeadElectron;
+  p4LeadElectron.SetPtEtaPhiM(5000,0,0,0);
+  const xAOD::Electron* leadElectron = nullptr;
+  
+  TLorentzVector p4Subjet;
+  p4Subjet.SetPtEtaPhiE(xDiTau.subjetPt(iSubjet),
+                        xDiTau.subjetEta(iSubjet),
+                        xDiTau.subjetPhi(iSubjet),
+                        xDiTau.subjetE(iSubjet));
+  
+  for(auto electron : *electrons){
+    TLorentzVector p4Electron = electron->p4();
+    if(p4Subjet.DeltaR(p4Electron) < 0.1){
+      if(p4Electron.Pt() > p4LeadElectron.Pt()){
+        p4LeadElectron = p4Electron;
+        leadElectron = electron;
+      }
+    }
+  }
+  
+  int IDSelection = -1;
+  
+  if(leadElectron){
+    if(m_electronLikeliHoodTool_veryloose->accept(leadElectron))
+      IDSelection++;
+    if(m_electronLikeliHoodTool_loose->accept(leadElectron))
+      IDSelection++;
+    if(m_electronLikeliHoodTool_loose_CutBL->accept(leadElectron))
+      IDSelection++;
+    if(m_electronLikeliHoodTool_medium->accept(leadElectron))
+      IDSelection++;
+    if(m_electronLikeliHoodTool_tight->accept(leadElectron))
+      IDSelection++;
+  }
+  
+  return IDSelection;
+}
+
 std::string DiTauIDVarCalculator::getDecayMode(){
   return m_sDecayChannel;
 }
@@ -696,7 +816,7 @@ float DiTauIDVarCalculator::getElectronInfo(const xAOD::Electron* el, const xAOD
   return val;
 }
 
-double DiTauIDVarCalculator::n_subjets(const xAOD::DiTauJet& xDiTau) const
+float DiTauIDVarCalculator::n_subjets(const xAOD::DiTauJet& xDiTau) const
 {
   int nSubjet = 0;
   while (xDiTau.subjetPt(nSubjet) > 0. )
@@ -708,7 +828,7 @@ double DiTauIDVarCalculator::n_subjets(const xAOD::DiTauJet& xDiTau) const
 }
 
 
-double DiTauIDVarCalculator::ditau_pt(const xAOD::DiTauJet& xDiTau) const
+float DiTauIDVarCalculator::ditau_pt(const xAOD::DiTauJet& xDiTau) const
 {
   if (xDiTau.auxdata<int>("n_subjets") < 2 ) {
     return m_dDefault;
@@ -719,7 +839,7 @@ double DiTauIDVarCalculator::ditau_pt(const xAOD::DiTauJet& xDiTau) const
 
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::f_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const 
+float DiTauIDVarCalculator::f_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const 
 {
   if (iSubjet < 0 || iSubjet >= xDiTau.auxdata<int>("n_subjets")) {
     return m_dDefault;
@@ -730,7 +850,7 @@ double DiTauIDVarCalculator::f_core(const xAOD::DiTauJet& xDiTau, int iSubjet) c
 
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::f_subjet(const xAOD::DiTauJet& xDiTau, int iSubjet) const
+float DiTauIDVarCalculator::f_subjet(const xAOD::DiTauJet& xDiTau, int iSubjet) const
 {
   if (iSubjet < 0 || iSubjet >= xDiTau.auxdata<int>("n_subjets")) {
     return m_dDefault;
@@ -741,7 +861,7 @@ double DiTauIDVarCalculator::f_subjet(const xAOD::DiTauJet& xDiTau, int iSubjet)
 
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::f_subjets(const xAOD::DiTauJet& xDiTau) const
+float DiTauIDVarCalculator::f_subjets(const xAOD::DiTauJet& xDiTau) const
 {
   if (xDiTau.auxdata<int>("n_subjets") < 2 ) {
     return m_dDefault;
@@ -752,7 +872,7 @@ double DiTauIDVarCalculator::f_subjets(const xAOD::DiTauJet& xDiTau) const
 
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::f_track(const xAOD::DiTauJet& xDiTau, int iSubjet) const
+float DiTauIDVarCalculator::f_track(const xAOD::DiTauJet& xDiTau, int iSubjet) const
 {
   if (iSubjet < 0 || iSubjet >= xDiTau.auxdata<int>("n_subjets")) {
     return m_dDefault;
@@ -801,7 +921,7 @@ double DiTauIDVarCalculator::f_track(const xAOD::DiTauJet& xDiTau, int iSubjet) 
 
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::R_max(const xAOD::DiTauJet& xDiTau, int iSubjet) const
+float DiTauIDVarCalculator::R_max(const xAOD::DiTauJet& xDiTau, int iSubjet) const
 { 
   if (iSubjet < 0 || iSubjet >= xDiTau.auxdata<int>("n_subjets")) {
     return m_dDefault;
@@ -900,7 +1020,7 @@ int DiTauIDVarCalculator::n_othertrack(const xAOD::DiTauJet& xDiTau) const
 }
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::R_tracks(const xAOD::DiTauJet& xDiTau, int iSubjet) const
+float DiTauIDVarCalculator::R_tracks(const xAOD::DiTauJet& xDiTau, int iSubjet) const
 {
   double R_sum = 0;
   double pt = 0;
@@ -948,7 +1068,7 @@ double DiTauIDVarCalculator::R_tracks(const xAOD::DiTauJet& xDiTau, int iSubjet)
 }
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::R_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const
+float DiTauIDVarCalculator::R_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const
 {
   double R_sum = 0;
   double pt = 0;
@@ -994,7 +1114,7 @@ double DiTauIDVarCalculator::R_core(const xAOD::DiTauJet& xDiTau, int iSubjet) c
 }
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::R_track_core(const xAOD::DiTauJet& xDiTau) const
+float DiTauIDVarCalculator::R_track_core(const xAOD::DiTauJet& xDiTau) const
 {
   double R_sum = 0;
   double pt = 0;
@@ -1044,7 +1164,7 @@ double DiTauIDVarCalculator::R_track_core(const xAOD::DiTauJet& xDiTau) const
 }
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::R_track(const xAOD::DiTauJet& xDiTau) const
+float DiTauIDVarCalculator::R_track(const xAOD::DiTauJet& xDiTau) const
 {
   double R_sum = 0;
   double pt = 0;
@@ -1092,7 +1212,7 @@ double DiTauIDVarCalculator::R_track(const xAOD::DiTauJet& xDiTau) const
   return R_sum / pt;
 }
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::R_track_all(const xAOD::DiTauJet& xDiTau) const
+float DiTauIDVarCalculator::R_track_all(const xAOD::DiTauJet& xDiTau) const
 {
   double R_sum = 0;
   double pt = 0;
@@ -1139,7 +1259,7 @@ double DiTauIDVarCalculator::R_track_all(const xAOD::DiTauJet& xDiTau) const
 }
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::R_isotrack(const xAOD::DiTauJet& xDiTau) const
+float DiTauIDVarCalculator::R_isotrack(const xAOD::DiTauJet& xDiTau) const
 {
   double R_sum = 0;
   double pt = 0;
@@ -1190,7 +1310,7 @@ double DiTauIDVarCalculator::R_isotrack(const xAOD::DiTauJet& xDiTau) const
 }
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::mass_track_core(const xAOD::DiTauJet& xDiTau) const
+float DiTauIDVarCalculator::mass_track_core(const xAOD::DiTauJet& xDiTau) const
 {
 
   if (!xDiTau.isAvailable< TrackParticleLinks_t >("trackLinks") )
@@ -1239,7 +1359,7 @@ double DiTauIDVarCalculator::mass_track_core(const xAOD::DiTauJet& xDiTau) const
 }
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::mass_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const
+float DiTauIDVarCalculator::mass_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const
 {
 
   if (!xDiTau.isAvailable< TrackParticleLinks_t >("trackLinks") )
@@ -1286,7 +1406,7 @@ double DiTauIDVarCalculator::mass_core(const xAOD::DiTauJet& xDiTau, int iSubjet
 }
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::mass_tracks(const xAOD::DiTauJet& xDiTau, int iSubjet) const
+float DiTauIDVarCalculator::mass_tracks(const xAOD::DiTauJet& xDiTau, int iSubjet) const
 {
 
   if (!xDiTau.isAvailable< TrackParticleLinks_t >("trackLinks") )
@@ -1330,7 +1450,7 @@ double DiTauIDVarCalculator::mass_tracks(const xAOD::DiTauJet& xDiTau, int iSubj
   return tlvallTracks.M();
 }
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::mass_track(const xAOD::DiTauJet& xDiTau) const
+float DiTauIDVarCalculator::mass_track(const xAOD::DiTauJet& xDiTau) const
 {
 
   if (!xDiTau.isAvailable< TrackParticleLinks_t >("trackLinks") )
@@ -1361,7 +1481,7 @@ double DiTauIDVarCalculator::mass_track(const xAOD::DiTauJet& xDiTau) const
   return tlvallTracks.M();
 }
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::mass_track_all(const xAOD::DiTauJet& xDiTau) const
+float DiTauIDVarCalculator::mass_track_all(const xAOD::DiTauJet& xDiTau) const
 {
 
   if (!xDiTau.isAvailable< TrackParticleLinks_t >("trackLinks") )
@@ -1409,7 +1529,7 @@ double DiTauIDVarCalculator::mass_track_all(const xAOD::DiTauJet& xDiTau) const
 }
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::E_frac(const xAOD::DiTauJet& xDiTau, int iSubjet) const
+float DiTauIDVarCalculator::E_frac(const xAOD::DiTauJet& xDiTau, int iSubjet) const
 { 
   if ( iSubjet < 0 || iSubjet >= xDiTau.auxdata<int>("n_subjets")) {
     return m_dDefault;
@@ -1419,7 +1539,7 @@ double DiTauIDVarCalculator::E_frac(const xAOD::DiTauJet& xDiTau, int iSubjet) c
 }
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::R_subjets(const xAOD::DiTauJet& xDiTau, int iSubjet) const
+float DiTauIDVarCalculator::R_subjets(const xAOD::DiTauJet& xDiTau, int iSubjet) const
 {
 
   if ( iSubjet < 0 || iSubjet >= xDiTau.auxdata<int>("n_subjets")) {
@@ -1446,7 +1566,7 @@ double DiTauIDVarCalculator::R_subjets(const xAOD::DiTauJet& xDiTau, int iSubjet
 }
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::d0_leadtrack(const xAOD::DiTauJet& xDiTau, int iSubjet) const
+float DiTauIDVarCalculator::d0_leadtrack(const xAOD::DiTauJet& xDiTau, int iSubjet) const
 {
   double pt_leadtrk = 0;
   double d0 = m_dDefault;
@@ -1489,7 +1609,7 @@ double DiTauIDVarCalculator::d0_leadtrack(const xAOD::DiTauJet& xDiTau, int iSub
 }
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::f_isotracks(const xAOD::DiTauJet& xDiTau) const
+float DiTauIDVarCalculator::f_isotracks(const xAOD::DiTauJet& xDiTau) const
 {
   double iso_pt = 0;
   if (!xDiTau.isAvailable< TrackParticleLinks_t >("isoTrackLinks") )
@@ -1669,7 +1789,7 @@ void DiTauIDVarCalculator::mass_drop(const xAOD::DiTauJet& xDiTau, std::vector<P
 }
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::f_clusters(const xAOD::DiTauJet& xDiTau, std::vector<PseudoJet> vClusters) const
+float DiTauIDVarCalculator::f_clusters(const xAOD::DiTauJet& xDiTau, std::vector<PseudoJet> vClusters) const
 {
   double e_clust = 0;
   double e_all = 0;
@@ -1722,7 +1842,7 @@ StatusCode DiTauIDVarCalculator::decorNtracks (const xAOD::DiTauJet& xDiTau)
 
   int nSubjets = xDiTau.auxdata<int>("n_subjets");
 
-  double Rsubjet = xDiTau.auxdata<float>("R_subjet");
+  float Rsubjet = xDiTau.auxdata<float>("R_subjet");
   std::vector<int> nTracks(nSubjets, 0);
 
   TrackParticleLinks_t xTracks = xDiTau.trackLinks();

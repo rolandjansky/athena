@@ -42,7 +42,10 @@ namespace top{
     }
     m_config->setKLFitter();
     m_LHType = m_config -> KLFitterLH();
-    m_transferFunctionsPathPrefix = PathResolverFindCalibDirectory( "KLFitter/transferfunctions/" );
+
+    // Find KLFitter ATLAS transfer functions. As of May '18, stored in
+    // AnalysisTop group data area on cvmfs.
+    m_transferFunctionsPathPrefix = PathResolverFindCalibDirectory( "dev/AnalysisTop/KLFitterTFs/" );
     m_transferFunctionsPath = m_config->KLFitterTransferFunctionsPath();
     
     std::string transferFunctionAbsPath = m_transferFunctionsPathPrefix + m_transferFunctionsPath + "/";
@@ -302,6 +305,17 @@ namespace top{
     // - index of the particle in your original collection (for convenience)
     // - for jets:
     //   * bool isBtagged : mandatory only if you want to use b-tagging in the fit
+
+
+    // To allow KLFitter to run on multiple non-orthogonal selections, we set/check a decorator
+    std::cout<<event.m_info->eventNumber()<<std::endl;
+    if( (event.m_info->isAvailable< int >( "KLFitterHasRun" ) ) ){
+std::cout<<event.m_info->auxdata< int >("KLFitterHasRun")<<std::endl;
+       if( ( event.m_info->auxdata< int >("KLFitterHasRun") )!=0 ) return StatusCode::SUCCESS;     
+       event.m_info->auxdecor< int >( "KLFitterHasRun" ) = 1;
+    }
+    else event.m_info->auxdecor< int >( "KLFitterHasRun" ) = 1;
+
   
     KLFitter::Particles * myParticles = new KLFitter::Particles{};
 
@@ -356,7 +370,7 @@ namespace top{
           for (unsigned int i = 0; i < 3; ++i) {
             const auto& electron = event.m_electrons.at(i);
             el.SetPtEtaPhiE(electron->pt() / 1.e3, electron->eta(), electron->phi(), electron->e() / 1.e3);
-            myParticles->AddParticle(&el, el.Eta(), KLFitter::Particles::kElectron, "", i);
+            myParticles->AddParticle(&el, electron->caloCluster()->etaBE(2), KLFitter::Particles::kElectron, "", i);
           }
         } else {
           // Trivial case of mixed lepton flavours. Use ttbar->l+jets likelihood and only add the single lepton.
@@ -715,21 +729,20 @@ namespace top{
   void KLFitterTool::retrieveEfficiencies(const xAOD::Jet& jet, float* efficiency, float* inefficiency) {
     *efficiency = .7725;        // dummy values
     *inefficiency = 1./125.93;  // dummy values
-    
-    auto pretend_to_be_b = new xAOD::Jet(jet);
-    auto pretend_to_be_light = new xAOD::Jet(jet);
-
-    pretend_to_be_b->setAttribute("HadronConeExclTruthLabelID", 5);
-    pretend_to_be_light->setAttribute("HadronConeExclTruthLabelID", 0);
-
-    top::check(m_btagging_eff_tool->getMCEfficiency(*pretend_to_be_b, *efficiency),
+   //copy jet
+   xAOD::JetContainer jets;
+   xAOD::JetAuxContainer jetsAux;
+   jets.setStore( &jetsAux );
+   xAOD::Jet* jet_copy = new xAOD::Jet(jet);
+   jets.push_back(jet_copy);
+   //treat jet as b-tagged
+   jet_copy->setAttribute("HadronConeExclTruthLabelID", 5);
+   top::check(m_btagging_eff_tool->getMCEfficiency(*jet_copy, *efficiency),
                "Could not retrieve tagging efficiency for b-jet");
-    top::check(m_btagging_eff_tool->getMCEfficiency(*pretend_to_be_light, *inefficiency),
+   //treat jet as light
+   jet_copy->setAttribute("HadronConeExclTruthLabelID", 0);
+   top::check(m_btagging_eff_tool->getMCEfficiency(*jet_copy, *inefficiency),
                "Could not retrieve tagging efficiency for light jet");
-
-    delete pretend_to_be_b;
-    delete pretend_to_be_light;
-
   }
 
 

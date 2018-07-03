@@ -104,9 +104,8 @@ TrackIsoTool.TrackSelectionTool.minPt= 1000.
 TrackIsoTool.TrackSelectionTool.CutLevel= "Loose"
 ToolSvc += TrackIsoTool
 
-isMC = not globalflags.DataSource()=='data'
 from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectionTool
-IsoCorrectionTool = CP__IsolationCorrectionTool ("NewLeakageCorrTool",IsMC = isMC)
+IsoCorrectionTool = CP__IsolationCorrectionTool ("NewLeakageCorrTool",IsMC = DerivationFrameworkIsMonteCarlo)
 ToolSvc += IsoCorrectionTool
 
 # tool to collect topo clusters in cone
@@ -223,8 +222,6 @@ if DerivationFrameworkIsMonteCarlo:
 # SKIMMING TOOL 
 #====================================================================
 
-from DerivationFrameworkSUSY.SUSY6TriggerList import *
-
 dimuonTriggers       = SUSY6dimuonTriggers
 jetxeTriggers        = SUSY6jetxeTriggers
 singleEleTriggers    = SUSY6singleEleTriggers
@@ -337,17 +334,20 @@ SeqSUSY6 += CfgMgr.DerivationFramework__DerivationKernel(
 #====================================================================
 
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
+from DerivationFrameworkSUSY.SUSY6ContentList import *
 SUSY6SlimmingHelper = SlimmingHelper("SUSY6SlimmingHelper")
 SUSY6SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "AntiKt4EMTopoJets",
 "AntiKt4EMPFlowJets",
  "MET_Reference_AntiKt4EMTopo",
 "MET_Reference_AntiKt4EMPFlow",
- "PrimaryVertices"]
-SUSY6SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "InDetTrackParticles", "MET_Reference_AntiKt4EMTopo",
-"MET_Reference_AntiKt4EMPFlow",
+ "PrimaryVertices",
+ "MET_Reference_AntiKt4EMTopo",
+ "MET_Reference_AntiKt4EMPFlow",
+ "InDetTrackParticles"
+ ]
+SUSY6SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth",
  "MET_Core_AntiKt4EMTopo","METAssoc_AntiKt4EMTopo", "InDetPixelPrdAssociationTrackParticles"]
-SUSY6SlimmingHelper.ExtraVariables = [ "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500",
-          "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID"]
+SUSY6SlimmingHelper.ExtraVariables = SUSY6ExtraVariables
 SUSY6SlimmingHelper.IncludeMuonTriggerContent = True
 SUSY6SlimmingHelper.IncludeEGammaTriggerContent = True
 #SUSY6SlimmingHelper.IncludeJetTauEtMissTriggerContent = True

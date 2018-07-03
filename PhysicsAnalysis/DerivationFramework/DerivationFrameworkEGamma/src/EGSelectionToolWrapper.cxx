@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ namespace DerivationFramework {
   StatusCode EGSelectionToolWrapper::initialize()
   {
     if (m_sgName=="") {
-      ATH_MSG_ERROR("No SG name provided for the output of invariant mass tool!");
+      ATH_MSG_ERROR("No SG name provided for the output of EGSelectionToolWrapper!");
       return StatusCode::FAILURE;
     }
     if (m_containerName!="Photons" && m_containerName!="Electrons") {
@@ -114,7 +114,9 @@ namespace DerivationFramework {
 
       // compute the output of the selector
       Root::TAccept theAccept(m_tool->accept(pCopy));
-      unsigned int isEM = m_tool->IsemValue(); // this one should be done only for IsEM selectors..
+      //unsigned int isEM = m_tool->IsemValue(); // this one should be done only for IsEM selectors..
+      unsigned int isEM = (unsigned int) theAccept.getCutResultInvertedBitSet().to_ulong(); // this should work for both the cut-based and the LH selectors
+      
 
       // decorate the original object
       if(m_cut==""){

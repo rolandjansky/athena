@@ -110,7 +110,7 @@ if globalflags.DataSource()=='geant4':
 #====================================================================
 
 muonsRequirements = '(Muons.pt >= 4*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonMuonsPreselection) && (Muons.DFCommonGoodMuon)'
-electronsRequirements = '(Electrons.pt > 11*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.DFCommonElectronsIsEMLoose) || (Electrons.DFCommonElectronsLHLoose))'
+electronsRequirements = '(Electrons.pt > 11*GeV) && (abs(Electrons.eta) < 2.6) && (Electrons.DFCommonElectronsLHLoose)'
 muonOnlySelection = 'count('+muonsRequirements+') >=2'
 electronOnlySelection = 'count('+electronsRequirements+') >= 2'
 electronMuonSelection = '(count('+electronsRequirements+') + count('+muonsRequirements+')) >= 2'

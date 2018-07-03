@@ -100,7 +100,7 @@ def findUnneededRun2():
 
 def findRequiredItemsFromXML():
     
-    menus = ['Physics_pp_v7','MC_pp_v7','Physics_pp_v6','MC_pp_v6', 'MC_PhaseII']
+    menus = ['Physics_pp_v7','MC_pp_v7', 'MC_PhaseII']
 
     from TriggerMenu.l1.XMLReader import L1MenuXMLReader
 
@@ -180,8 +180,8 @@ def main():
         
         generateL1Menu(menu="Physics_pp_v7",doFTK=FTKFlag)
         generateL1Menu(menu="MC_pp_v7",doFTK=FTKFlag)
-        generateL1Menu(menu="Physics_pp_v6",doFTK=FTKFlag)
-        generateL1Menu(menu="MC_pp_v6",doFTK=FTKFlag)
+#        generateL1Menu(menu="Physics_pp_v6",doFTK=FTKFlag)
+#        generateL1Menu(menu="MC_pp_v6",doFTK=FTKFlag)
         generateL1Menu(menu="MC_PhaseII",doFTK=FTKFlag)
 #        generateL1Menu(menu="LS1_v1" )
         #generateL1Menu(menu="DC14")

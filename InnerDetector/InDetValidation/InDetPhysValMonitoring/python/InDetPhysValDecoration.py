@@ -68,7 +68,7 @@ def getMetaData() :
       from RecExConfig.InputFilePeeker import inputFileSummary
       try:
           # print 'DEBUG InDetPhysValMonitoring getMetaData %s' % inputFileSummary['metadata']
-          return inputFileSummary['metadata']['/TagInfo'][metaDataKey()]
+          return inputFileSummary['tag_info'][metaDataKey()]
       except Exception :
           pass
    return ''

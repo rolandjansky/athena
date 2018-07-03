@@ -136,6 +136,10 @@ class HLTMuonMonTool : public IHLTMonTool
   StatusCode procMuonEFDQA();
   StatusCode procMuGirlDQA();
   StatusCode procMuZTPDQA();
+
+  //sub functions in each HLT algorithm
+  StatusCode fillEFSingleChainHistos(const std::vector<std::string> & triggerlist);
+
   
   // private functions
   float getPtThresTrigMuonEFSA(const int thres, const float eta);
@@ -181,6 +185,7 @@ class HLTMuonMonTool : public IHLTMonTool
   std::vector<std::string> m_chainsMI;  // added tomoe
   std::vector<std::string> m_chainsGeneric;  // added YY 21 Feb 2012
   std::vector<std::string> m_chainsEFFS;  
+  std::vector<std::string> m_chainsLowpt;  
   bool m_HI_pp_mode;
   std::vector<std::string> m_histChainGeneric;  
   std::vector<std::string> m_histChainEFiso;  

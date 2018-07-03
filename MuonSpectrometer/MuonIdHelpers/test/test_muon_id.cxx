@@ -64,7 +64,14 @@ check_muon_decoding(IdDictMgr& idd)
 
 }
 
-
+/**
+ * @brief      Tests the ATLAS Id xml files, i.e. updates of the MuonSpectrometer IdDict files
+ *
+ * @param[in]  argc  Length of argv
+ * @param[in]  argv  Here, the second argument after the name of the executable has to be the ’top-level’ xml file: IdDictParser/ATLAS_IDS.xml
+ *
+ * @return     Returns 0 if the MuonIdHelpers classes were initialized successfully, otherwise 1.
+ */
 int main (int argc, char* argv[])  
 {  
     if (argc < 2) return (1);  

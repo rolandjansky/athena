@@ -40,6 +40,12 @@ namespace top{
      	     ttbarPartonHistory->auxdecor< float >( "MC_ttbar_beforeFSR_phi" ) = temp.Phi();
      	     fillEtaBranch(ttbarPartonHistory,"MC_ttbar_beforeFSR_eta", temp);
      	     
+             temp = t_after+tbar_after;
+             ttbarPartonHistory->auxdecor< float >( "MC_ttbar_afterFSR_beforeDecay_m" ) = temp.M();
+             ttbarPartonHistory->auxdecor< float >( "MC_ttbar_afterFSR_beforeDecay_pt" ) = temp.Pt();
+             ttbarPartonHistory->auxdecor< float >( "MC_ttbar_afterFSR_beforeDecay_phi" ) = temp.Phi();
+             fillEtaBranch(ttbarPartonHistory,"MC_ttbar_afterFSR_beforeDecay_eta", temp);
+
      	     temp = WmDecay1+WmDecay2+b + WpDecay1+WpDecay2+bbar;
      	     ttbarPartonHistory->auxdecor< float >( "MC_ttbar_afterFSR_m" ) = temp.M();
      	     ttbarPartonHistory->auxdecor< float >( "MC_ttbar_afterFSR_pt" ) = temp.Pt();

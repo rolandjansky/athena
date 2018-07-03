@@ -20,7 +20,7 @@
 // Local includes
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "JetInterface/IJetUpdateJvt.h"

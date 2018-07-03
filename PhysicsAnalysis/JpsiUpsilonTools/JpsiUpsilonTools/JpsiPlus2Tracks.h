@@ -15,15 +15,12 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
-#include "DataModel/DataVector.h"
-#include "HepPDT/ParticleDataTable.hh"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 
 #include <vector>
-#include <cmath>
 #include <string>
 /////////////////////////////////////////////////////////////////////////////
 
@@ -68,10 +65,11 @@ namespace Analysis {
         //-------------------------------------------------------------------------------------
         
     private:
-        //const HepPDT::ParticleDataTable *m_particleDataTable;
         bool m_pipiMassHyp;
         bool m_kkMassHyp;
         bool m_kpiMassHyp;
+        bool m_kpMassHyp;
+        bool m_oppChargesOnly;
         double m_trkThresholdPt;
         double m_trkMaxEta;
         double m_BThresholdPt;
@@ -105,7 +103,8 @@ namespace Analysis {
         double m_finalDiTrackPt;          // pT of the hadronic track after fit
         double m_trkDeltaZ;               // DeltaZ between the JPsi vertex and hadronic tracks Z0
         // (to reduce the pileup contribution before vertexing)
-        
+        std::vector<double> m_manualMassHypo;
+        int m_requiredNMuons;
     };
 } // end of namespace
 #endif

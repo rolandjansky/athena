@@ -82,6 +82,8 @@ from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import Dipolarity
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import PlanarFlowTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KtMassDropTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorTool
+from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorGeneralizedTool
+from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorGeneralizedRatiosTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import CenterOfMassShapesTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetPullTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetChargeTool
@@ -187,8 +189,10 @@ jtm += TrackVertexAssociationTool(
 #--------------------------------------------------------------
 
 if jetFlags.useTruth:
+    from MCTruthClassifier.MCTruthClassifierConfig import firstSimCreatedBarcode
     truthClassifier = MCTruthClassifier(name = "JetMCTruthClassifier",
-                                       ParticleCaloExtensionTool="")
+                                        barcodeG4Shift=firstSimCreatedBarcode(),
+                                        ParticleCaloExtensionTool="")
     jtm += truthClassifier
 
     # Extra config: make sure if we are using EVNT that we don't try to check sim metadata 
@@ -776,6 +780,12 @@ jtm += KtMassDropTool("ktmassdrop")
 
 # Energy correlations.
 jtm += EnergyCorrelatorTool("encorr", Beta = 1.0)
+
+# Generalized energy correlations
+jtm += EnergyCorrelatorGeneralizedTool("energycorrelatorgeneralized")
+
+# ... & their ratios
+jtm += EnergyCorrelatorGeneralizedRatiosTool("energycorrelatorgeneralizedratios")
 
 # COM shapes.
 jtm += CenterOfMassShapesTool("comshapes")

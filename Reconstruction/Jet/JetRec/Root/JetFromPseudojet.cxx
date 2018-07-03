@@ -71,21 +71,29 @@ buildAndSetEMScaleMom(xAOD::Jet* jet,
               (inputtype == xAOD::JetInput::LCTopo) ||
               (inputtype == xAOD::JetInput::LCPFlow)|| 
               (inputtype == xAOD::JetInput::EMCPFlow) ||
-              (inputtype == xAOD::JetInput::EMTopoOriginSK) ||
-              (inputtype == xAOD::JetInput::EMTopoOriginCSSK) ||
-              (inputtype == xAOD::JetInput::EMTopoOriginVorSK) ||
-              (inputtype == xAOD::JetInput::EMTopoOriginTime) ||
-              (inputtype == xAOD::JetInput::EMTopoOriginSKTime) ||
-              (inputtype == xAOD::JetInput::EMTopoOriginCSSKTime) ||
-              (inputtype == xAOD::JetInput::EMTopoOriginVorSKTime) ||
-              (inputtype == xAOD::JetInput::EMPFlowSK) ||
-              (inputtype == xAOD::JetInput::EMPFlowCSSK) ||
-              (inputtype == xAOD::JetInput::EMPFlowVorSK) ||
-              (inputtype == xAOD::JetInput::EMPFlowTime) ||
-              (inputtype == xAOD::JetInput::EMPFlowSKTime) ||
-              (inputtype == xAOD::JetInput::EMPFlowCSSKTime) ||
-              (inputtype == xAOD::JetInput::EMPFlowVorSKTime)
-            ) {
+	      (inputtype == xAOD::JetInput::EMTopoOriginSK) ||
+              (inputtype == xAOD::JetInput::LCTopoOriginSK) ||
+	      (inputtype == xAOD::JetInput::EMTopoOriginSKTime) ||
+	      (inputtype == xAOD::JetInput::EMTopoOriginCS) ||
+              (inputtype == xAOD::JetInput::LCTopoOriginCS) ||
+	      (inputtype == xAOD::JetInput::EMTopoOriginCSTime) ||
+	      (inputtype == xAOD::JetInput::EMTopoOriginVor) ||
+              (inputtype == xAOD::JetInput::LCTopoOriginVor) ||
+	      (inputtype == xAOD::JetInput::EMTopoOriginCSSK) ||
+              (inputtype == xAOD::JetInput::LCTopoOriginCSSK) ||
+	      (inputtype == xAOD::JetInput::EMTopoOriginCSSKTime) ||
+	      (inputtype == xAOD::JetInput::EMTopoOriginVorSK) ||
+              (inputtype == xAOD::JetInput::LCTopoOriginVorSK) ||
+	      (inputtype == xAOD::JetInput::EMTopoOriginVorSKTime) ||
+	      (inputtype == xAOD::JetInput::EMPFlowSK) ||
+	      (inputtype == xAOD::JetInput::EMPFlowSKTime) ||
+	      (inputtype == xAOD::JetInput::EMPFlowCS) ||
+	      (inputtype == xAOD::JetInput::EMPFlowVor) ||
+	      (inputtype == xAOD::JetInput::EMPFlowCSSK) ||
+	      (inputtype == xAOD::JetInput::EMPFlowCSSKTime) ||
+	      (inputtype == xAOD::JetInput::EMPFlowVorSK) ||
+	      (inputtype == xAOD::JetInput::EMPFlowVorSKTime)
+	      ) {
     // fetch and sum the uncalibrated constituent momenta
     xAOD::JetConstituentVector vec = jet->getConstituents();
     if(! vec.isValid() ) {

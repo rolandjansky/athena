@@ -22,6 +22,10 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODEventInfo
    PhysicsAnalysis/AnalysisCommon/PATCore
    Tools/PathResolver
+   Trigger/TrigAnalysis/TriggerMatchingTool
+   #Trigger/TrigEvent/TrigDecisionInterface
+   Trigger/TrigAnalysis/TrigDecisionTool
+   Trigger/TrigConfiguration/TrigConfInterfaces
    ${athena_subdirs}
 )
 
@@ -33,7 +37,7 @@ atlas_add_library( TrigGlobalEfficiencyCorrectionLib
    #PUBLIC_HEADERS TrigGlobalEfficiencyCorrection/TrigGlobalEfficiencyCorrectionTool.h
    PUBLIC_HEADERS TrigGlobalEfficiencyCorrection
    PRIVATE_INCLUDE_DIRS ${BOOST_INCLUDE_DIRS}
-   LINK_LIBRARIES AsgTools xAODEgamma xAODMuon EgammaAnalysisInterfacesLib MuonAnalysisInterfacesLib TriggerAnalysisInterfacesLib xAODEventInfo PathResolver
+   LINK_LIBRARIES AsgTools xAODEgamma xAODMuon EgammaAnalysisInterfacesLib MuonAnalysisInterfacesLib TriggerAnalysisInterfacesLib xAODEventInfo PathResolver TriggerMatchingToolLib
    PRIVATE_LINK_LIBRARIES ${BOOST_LIBRARIES}
 )
 
@@ -58,13 +62,19 @@ endif()
 foreach(example TrigGlobEffCorrExample0 TrigGlobEffCorrExample1
 TrigGlobEffCorrExample2 TrigGlobEffCorrExample3a TrigGlobEffCorrExample3b
 TrigGlobEffCorrExample3c TrigGlobEffCorrExample3d TrigGlobEffCorrExample3e
-TrigGlobEffCorrExample4)
+TrigGlobEffCorrExample4 TrigGlobEffCorrExample5a TrigGlobEffCorrExample5b)
    atlas_add_executable( ${example}
       SOURCES examples/${example}.cxx
 	  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
 	  LINK_LIBRARIES TrigGlobalEfficiencyCorrectionLib ${pool_lib}
    )
 endforeach()
+
+atlas_add_executable( TrigGlobEffCorrExample6
+   SOURCES examples/TrigGlobEffCorrExample6.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES TrigGlobalEfficiencyCorrectionLib ${pool_lib}
+)
 
 atlas_add_executable( TrigGlobEffCorrValidation
    SOURCES util/TrigGlobEffCorrValidation.cxx

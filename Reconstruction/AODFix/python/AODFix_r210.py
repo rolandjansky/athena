@@ -2,6 +2,7 @@
 
 
 from AthenaCommon.Logging import logging
+from AthenaCommon import CfgMgr
 
 logAODFix_r210 = logging.getLogger( 'AODFix_r210' )
 
@@ -22,7 +23,7 @@ class AODFix_r210(AODFix_base):
     def latestAODFixVersion():
         """The latest version of the AODFix. Moving to new AODFix version scheme"""
 
-        metadataList = [item.split("_")[0] for item in sorted(AODFix_r210.__dict__.keys()) 
+        metadataList = [item.split("_")[0] for item in sorted(AODFix_r210.__dict__.keys())
                         if ("_" in item and "__" not in item)]
 
         return metadataList
@@ -39,7 +40,7 @@ class AODFix_r210(AODFix_base):
 
             from AthenaCommon.AlgSequence import AlgSequence
             topSequence = AlgSequence()
-            
+
             oldMetadataList = self.prevAODFix.split("-")
             if "trklinks" not in oldMetadataList:
                 self.trklinks_postSystemRec(topSequence)
@@ -49,12 +50,34 @@ class AODFix_r210(AODFix_base):
                 self.egammaStrips_postSystemRec(topSequence)
                 pass
 
+            if "elIso" not in oldMetadataList:
+                self.elIso_postSystemRec(topSequence)
+                pass
+            if "felIso" not in oldMetadataList and not self.isHI:
+                self.felIso_postSystemRec(topSequence)
+                pass
+            if "phIso" not in oldMetadataList:
+                self.phIso_postSystemRec(topSequence)
+                pass
+
             if "btagging" not in oldMetadataList and not self.isHI:
                 self.btagging_postSystemRec(topSequence)
                 pass
 
+            if "removeMuonDecor" not in oldMetadataList:
+                self.removeMuonDecor_postSystemRec( topSequence )
+                pass
+            if "inDetVars" not in oldMetadataList:
+                self.inDetVars_postSystemRec( topSequence )
+                pass
+
+            from tauRec.tauRecFlags import tauAODFlags
+            if tauAODFlags.doTauIDAODFix():
+                if "tauidtest" not in oldMetadataList:
+                    self.tauidtest_postSystemRec(topSequence)
+                    pass
+
             # Reset all of the ElementLinks. To be safe.
-            from AthenaCommon import CfgMgr
             topSequence += \
                 CfgMgr.xAODMaker__ElementLinkResetAlg( "AODFix_ElementLinkReset" )
             pass
@@ -65,12 +88,11 @@ class AODFix_r210(AODFix_base):
     # Below are the individual AODfixes, split up and documented
     # Name must follow format: <fixID>_<whereCalled>
 
- 
+
     def trklinks_postSystemRec(self, topSequence):
         """This fixes the links to tracks in muons and btagging
         JIRA: https://its.cern.ch/jira/browse/ATLASRECTS-3988
         """
-        from AthenaCommon import CfgMgr
         if self.isHI:
             containers = ["CombinedMuonTrackParticlesAux.","MuonsAux."]
         else:
@@ -84,9 +106,21 @@ class AODFix_r210(AODFix_base):
         This fixes the uptodate BTagging calibration conditions tag.
         """
 
-        from AthenaCommon.AppMgr import ToolSvc
 
         JetCollectionList = [ 'AntiKt4EMTopoJets',]
+
+        from AthenaCommon.AppMgr import ToolSvc
+        from ParticleJetTools.ParticleJetToolsConf import JetAssocConstAlg
+        from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
+
+        assocalg = \
+            JetAssocConstAlg(
+                "BTaggingParticleAssocAlg",
+                JetCollections=JetCollectionList,
+                Associators=[defaultTrackAssoc, defaultMuonAssoc]
+            )
+
+        topSequence += assocalg
 
         SA = 'AODFix_'
         from BTagging.BTaggingConfiguration import getConfiguration
@@ -129,6 +163,86 @@ class AODFix_r210(AODFix_base):
         Please update postSystemRec to call if you want to run it.
         """
         pass
-        
 
-                
+
+    def elIso_postSystemRec (self, topSequence):
+        from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter
+        isoAODFixGetter("Electrons")
+    def felIso_postSystemRec (self, topSequence):
+        from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter
+        isoAODFixGetter("ForwardElectrons")
+    def phIso_postSystemRec (self, topSequence):
+        from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter
+        isoAODFixGetter("Photons")
+
+    from tauRec.tauRecFlags import tauAODFlags
+    if tauAODFlags.doTauIDAODFix():
+        def tauidtest_postSystemRec(self, topSequence):
+            """
+            This fix recalculates the RNN-based tau identification algorithm.
+            Currently it is disabled by default and has to be enabled via a
+            pre-exec by setting the 'doTauIDAODFix' flag.
+            """
+            from AthenaCommon.AppMgr import ToolSvc
+            from RecExConfig.AutoConfiguration import IsInInputFile
+            from JetRec.JetRecConf import JetAlgorithm
+            from JetRecTools.JetRecToolsConf import CaloClusterConstituentsOrigin
+            from JetRecTools.JetRecToolsConf import JetConstituentModSequence
+
+            # Rebuild LCOriginTopoClusters container if not present in input
+            if not IsInInputFile("xAOD::CaloClusterContainer",
+                                 "LCOriginTopoClusters"):
+                xAOD_Type_CaloCluster = 1
+                clusterOrigin = CaloClusterConstituentsOrigin(
+                    "CaloClusterConstitOrigin_tau_AODFix",
+                    InputType=xAOD_Type_CaloCluster)
+                ToolSvc += clusterOrigin
+
+                jetConstitModSeq = JetConstituentModSequence(
+                    "JetConstitModSeq_tau_AODFix",
+                    InputContainer="CaloCalTopoClusters",
+                    OutputContainer="LCOriginTopoClusters",
+                    InputType=xAOD_Type_CaloCluster,
+                    Modifiers=[clusterOrigin]
+                )
+                ToolSvc += jetConstitModSeq
+
+                # See also: ATLJETMET-958
+                jetAlg = JetAlgorithm("jetalgTCOriginLC", Tools=[jetConstitModSeq])
+                topSequence += jetAlg
+
+            # Calculate RNN-ID and set working points
+            from tauRec.TauRecAODBuilder import TauRecAODProcessor_RNN_ID
+            TauRecAODProcessor_RNN_ID()
+
+    def removeMuonDecor_postSystemRec( self, topSequence ):
+        """Fix the issue with muon decorations, described in ATLASRECTS-4499.
+
+        It simply schedules an algorithm that turns the variables, which should
+        not be in the primary AOD, into decorations. So that derivation jobs
+        could freely overwrite them.
+        """
+
+        topSequence += \
+            CfgMgr.xAODMaker__DynVarToDecorationAlg( "AODFix_MuonDecorFixer",
+                                                     ContainerName = "MuonsAux.",
+                                                     AuxVariableNames = [
+                                                       "DFCommonMuonsLoose",
+                                                       "DFCommonMuonsMedium",
+                                                       "DFCommonMuonsTight",
+                                                       "DFCommonGoodMuon",
+                                                     ] )
+        return
+
+    def inDetVars_postSystemRec( self, topSequence ):
+        """Fix for the inconsistently filled track particle variables.
+
+        Using the same @c xAODMaker::DynVarFixerAlg algorithm that's used in
+        @c trklinks_postSystemRec as well.
+        """
+
+        topSequence += \
+            CfgMgr.xAODMaker__DynVarFixerAlg( "AODFix_InDetTrackParticlesFixer",
+                                              Containers = [
+                                                "InDetTrackParticlesAux." ] )
+        return

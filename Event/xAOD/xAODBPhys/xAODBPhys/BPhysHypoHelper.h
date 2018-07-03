@@ -174,7 +174,21 @@ namespace xAOD {
       bool setTauErr(const float val, 
                      const pv_type vertexType = BPhysHelper::PV_MIN_A0,
                      const tau_type tauType = BPhysHypoHelper::TAU_CONST_MASS);  //!< proper decay time error
-      
+//3D values
+      float tau3d(const pv_type vertexType = BPhysHelper::PV_MIN_A0,
+                const tau_type tauType = BPhysHypoHelper::TAU_CONST_MASS);  //!< proper decay time
+                    
+      float tau3dErr(const pv_type vertexType = BPhysHelper::PV_MIN_A0,
+                   const tau_type tauType = BPhysHypoHelper::TAU_CONST_MASS);  //!< proper decay time error
+
+      bool setTau3d(const float val,
+                  const pv_type vertexType = BPhysHelper::PV_MIN_A0,
+                  const tau_type tauType = BPhysHypoHelper::TAU_CONST_MASS);  //!< proper decay time
+                    
+      bool setTau3dErr(const float val, 
+                     const pv_type vertexType = BPhysHelper::PV_MIN_A0,
+                     const tau_type tauType = BPhysHypoHelper::TAU_CONST_MASS);  //!< proper decay time error
+
       /** @} */
       /************************************************************************/
 

@@ -336,6 +336,16 @@ namespace ana
     return pimpl->objects->jets();
   }
 
+
+  xAOD::JetContainer *QuickAna ::
+  pflow_jets () const
+  {
+    RCU_READ_INVARIANT (this);
+    RCU_REQUIRE2 (pimpl->objects->pflow_jets(), "pflow jets are defined in this analysis");
+    return pimpl->objects->pflow_jets();
+  }
+
+
   xAOD::JetContainer *QuickAna ::
   fat_jets () const
   {

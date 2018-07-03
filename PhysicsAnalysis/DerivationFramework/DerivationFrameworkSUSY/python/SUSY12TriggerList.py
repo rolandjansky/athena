@@ -3,6 +3,23 @@
 #the Lowest unprescaled triggers for the individual periods are listed
 
 triggers_met = [
+    #2018
+    'HLT_xe100_pufit_xe75_L1XE60',
+    'HLT_xe110_pufit_L1XE55',
+    'HLT_xe110_pufit_L1XE60',
+    'HLT_xe110_pufit_L1XE70',
+    'HLT_xe110_pufit_wEFMu_L1XE55',
+    'HLT_xe110_pufit_xe65_L1XE55',
+    'HLT_xe110_pufit_xe65_L1XE60',
+    'HLT_xe110_pufit_xe70_L1XE50',
+    'HLT_xe120_mht_xe80_L1XE55',
+    'HLT_xe120_mht_xe80_L1XE60',
+    'HLT_xe120_pufit_L1XE55',
+    'HLT_xe120_pufit_L1XE60',
+    'HLT_xe120_pufit_L1XE70',
+    'HLT_xe120_pufit_wEFMu_L1XE55',
+    'HLT_xe120_pufit_wEFMu_L1XE60',
+
     #2017
     'HLT_xe90_pufit_L1XE50',
     'HLT_xe100_pufit_L1XE50',
@@ -56,6 +73,21 @@ triggers_ele = [
     'HLT_e140_lhloose_nod0_L1EM24VHI',
     'HLT_e300_etcut',
     'HLT_e300_etcut_L1EM24VHI',
+
+    #2018
+    'HLT_e140_lhloose_nod0_L1EM24VHI',
+    'HLT_e140_lhloose_nod0_L1EM24VHIM',
+    'HLT_e28_lhtight_nod0_ivarloose',
+    'HLT_e28_lhtight_nod0_ivarloose_L1EM24VHIM',
+    'HLT_e28_lhtight_nod0_noringer_ivarloose',
+    'HLT_e28_lhtight_nod0_noringer_ivarloose_L1EM24VHIM',
+    'HLT_e300_etcut',
+    'HLT_e300_etcut_L1EM24VHIM',
+    'HLT_e32_lhtight_nod0_ivarloose',
+    'HLT_e60_lhmedium_nod0_L1EM24VHI',
+    'HLT_e60_lhmedium_nod0_L1EM24VHIM',
+    'HLT_e80_lhmedium_nod0_L1EM24VHI',
+    'HLT_e80_lhmedium_nod0_L1EM24VHIM',
     ]
 
 triggers_muon = [
@@ -81,8 +113,41 @@ triggers_muon = [
     'HLT_mu50',
     'HLT_mu60',
     'HLT_mu60_0eta105_msonly',
+
+    #2018
+    'HLT_mu26_ivarmedium',
+    'HLT_mu28_ivarmedium',
+    'HLT_mu60',
+    'HLT_mu60_0eta105_msonly',
+    'HLT_mu60_msonly_3layersEC',
+    'HLT_mu80',
+    'HLT_mu80_msonly_3layersEC',
     ]
 
+triggers_photon = [
+    #2015
+    'HLT_g120_loose',
+    'HLT_g200_etcut',
+
+    #2016
+    'HLT_g140_loose',
+    'HLT_g300_etcut',        
+    
+    #2017
+    'HLT_g140_loose',
+    'HLT_g140_tight',
+    'HLT_g200_loose',
+    'HLT_g300_etcut',
+    'HLT_g300_etcut_L1EM24VHI',        
+
+    #2018
+    'HLT_g140_tight',
+    'HLT_g140_tight_L1EM24VHIM',
+    'HLT_g200_loose',
+    'HLT_g200_loose_L1EM24VHIM',
+    'HLT_g300_etcut_L1EM24VHI',
+    'HLT_g300_etcut_L1EM24VHIM',
+]
 
 
 

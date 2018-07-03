@@ -300,6 +300,8 @@ namespace CP {
 
       double GetRunAverageMu(int run) { return m_runs[run].inputHists["None"]->GetMean(); }
 
+      
+
   protected:
       virtual bool runLbnOK(Int_t /*runNbr*/, Int_t /*lbn*/) { return true; } //override in the ASG tool
       virtual bool passTriggerBeforePrescale(const TString& trigger) const { 
@@ -437,7 +439,9 @@ public:
          Double_t lumi; //total data in run
          std::map<UInt_t, std::pair<Double_t,Double_t> > lumiByLbn; //key=lbn, value = <lumi,mu>
          std::unique_ptr< TH1 > muDist; //mu distribution for this run
+         bool nominalFromHists = false; //flag if nominal 'None' hist came from histogram files (rather than lumicalc files)
       };
+      std::map<UInt_t, Run>& GetRunMap() { return m_runs; }
 protected:
       /// List physically holding (owning) period objects
       std::list< Period > m_periodList;

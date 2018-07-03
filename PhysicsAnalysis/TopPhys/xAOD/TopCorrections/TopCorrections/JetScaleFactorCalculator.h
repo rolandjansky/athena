@@ -28,7 +28,7 @@
 // Systematic include(s):
 #include "PATInterfaces/SystematicSet.h"
 
-#include "JetJvtEfficiency/IJetJvtEfficiency.h"
+#include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 
 // CP Tool include(s):
 // #include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"

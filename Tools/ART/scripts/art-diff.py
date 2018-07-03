@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 """
 ART  - ATLAS Release Tester - Diff.
 
 Usage:
-  art-diff.py [--diff-type=<diff_type> --exclude=<pattern>... --platform-ref=<platform> --entries=<entries>] <nightly_release_ref> <platform_ref> <nightly_tag_ref> <package>
+  art-diff.py [--diff-type=<diff_type> --exclude=<pattern>... --platform-ref=<platform> --entries=<entries>] <nightly_release_ref> <project_ref> <nightly_tag_ref> <package>
   art-diff.py [--diff-type=<diff_type> --exclude=<pattern>... --entries=<entries>] <path> <ref_path>
 
 Options:
@@ -74,11 +74,11 @@ class ArtDiff(object):
 
             nightly_release_ref = arguments['<nightly_release_ref>']
             project_ref = arguments['<project_ref>']
-            platform_ref = arguments['--platform_ref']
+            platform_ref = arguments['--platform-ref']
             nightly_tag_ref = arguments['<nightly_tag_ref>']
 
             package = arguments['<package>']
-
+            print nightly_release, project, platform, nightly_tag, nightly_release_ref, project_ref, platform_ref, nightly_tag_ref 
             exit(self.diff(nightly_release, project, platform, nightly_tag, nightly_release_ref, project_ref, platform_ref, nightly_tag_ref, package, diff_type, excludes, entries=entries))
 
         # directory compare
@@ -107,8 +107,8 @@ class ArtDiff(object):
 
     def diff(self, nightly_release, project, platform, nightly_tag, nightly_release_ref, project_ref, platform_ref, nightly_tag_ref, package, diff_type, excludes=[], entries=DEFAULT_ENTRIES):
         """Run difference between two results."""
-        path = os.path.join(ArtDiff.EOS_OUTPUT_DIR, nightly_release, nightly_tag, project, platform, package)
-        ref_path = os.path.join(ArtDiff.EOS_OUTPUT_DIR, nightly_release_ref, nightly_tag_ref, project_ref, platform_ref, package)
+        path = os.path.join(ArtDiff.EOS_OUTPUT_DIR, nightly_release, project, platform, nightly_tag, package)
+        ref_path = os.path.join(ArtDiff.EOS_OUTPUT_DIR, nightly_release_ref, project_ref, platform_ref, nightly_tag_ref, package)
         return self.diff_dirs(path, ref_path, diff_type, excludes, entries=entries)
 
     def diff_dirs(self, path, ref_path, diff_type, excludes=[], entries=DEFAULT_ENTRIES):

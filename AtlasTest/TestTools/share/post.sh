@@ -150,6 +150,12 @@ PP="$PP"'|DEBUG input handles:|DEBUG output handles:|DEBUG Data Deps for|DEBUG P
 PP="$PP"'|^(StoreGateSvc|[^ ]+Store) +(INFO|VERBOSE) (Stop|stop|Start)'
 
 
+# Ignore warning stemming from apparent bug in ReadRootmapFile; gives messages
+# like
+#  Warning in <TInterpreter::ReadRootmapFile>: enum  xAOD::Type::ObjectType found in libxAODBaseDict.so  libEventKernelDict.so  libxAODBaseDict.so  libEventKernelDict.so  is already in libxAODBaseDict.so  libEventKernelDict.so 
+PP="$PP"'|Warning in <TInterpreter::ReadRootmapFile>: enum'
+
+
 if [ "$extrapatterns" != "" ]; then
  PP="$PP""|$extrapatterns"
 fi

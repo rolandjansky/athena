@@ -94,6 +94,9 @@ namespace ana
     /// various working points
     STEP_SPREAD_SELECT,
 
+    /// description: apply the Event-Level Jet Cleaning
+    STEP_CLEANING,
+
     /// description: apply the MET correction
     STEP_MET,
 
@@ -111,6 +114,7 @@ namespace ana
     OBJECT_EVENTINFO,
     OBJECT_EVENT_SELECT,
     OBJECT_JET,
+    OBJECT_PFLOW_JET,
     OBJECT_FAT_JET,
     OBJECT_ELECTRON,
     OBJECT_PHOTON,
@@ -118,6 +122,7 @@ namespace ana
     OBJECT_TAU,
     OBJECT_MET,
     OBJECT_MET2,
+    OBJECT_CLEANING,
     OBJECT_OVERLAP_REMOVAL,
     OBJECT_TRIGGER,
     OBJECT_NONE
@@ -129,7 +134,7 @@ namespace ana
 
     /// \brief the number of object types that have actual objects
     /// associated
-    static const unsigned dataSize = unsigned (OBJECT_OVERLAP_REMOVAL);
+    static const unsigned dataSize = unsigned (OBJECT_CLEANING);
   };
 
   /// \brief the type used for accept/select decorations

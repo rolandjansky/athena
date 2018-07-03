@@ -89,6 +89,14 @@ Trig::TrigDecisionTool::~TrigDecisionTool() {
     delete m_navigation;
   }
 #endif
+
+  // If the finalize() function was not called, let's remove the tool's name
+  // from the static list here. So that "standalone" jobs could skip calling
+  // finalize() as long as they at least delete the tool correctly.
+  auto it = std::find( s_instances.begin(), s_instances.end(), name() );
+  if( it != s_instances.end() ) {
+     s_instances.erase( it );
+  }
 }
 
 StatusCode

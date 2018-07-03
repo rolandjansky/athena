@@ -73,7 +73,13 @@ class JetReclusteringTool : public asg::AsgTool, virtual public IJetExecuteTool 
     // enable to add area attributes form
     bool m_doArea;
     std::string m_areaAttributes;
-
+  /* for ghost tracks */
+    std::string m_ghostTracksInputContainer;
+    std::string m_ghostTracksVertexAssociationName;
+    float m_ghostScale;
+    /* for truth matching */
+    std::string m_ghostTruthInputBContainer;
+    std::string m_ghostTruthInputCContainer;
     // make sure someone only calls a function once
     bool m_isInitialized = false;
     // this is for filtering input jets
@@ -81,6 +87,7 @@ class JetReclusteringTool : public asg::AsgTool, virtual public IJetExecuteTool 
     asg::AnaToolHandle<IJetExecuteTool> m_inputJetFilterTool;
     // this is for reclustering using filtered input jets
     asg::AnaToolHandle<IPseudoJetGetter> m_pseudoJetGetterTool;
+    asg::AnaToolHandle<IPseudoJetGetter> m_pseudoGhostTrackJetGetterTool;
     asg::AnaToolHandle<IJetFromPseudojet> m_jetFromPseudoJetTool;
     asg::AnaToolHandle<IJetFinder> m_jetFinderTool;
     asg::AnaToolHandle<IJetExecuteTool> m_reclusterJetTool;
@@ -101,6 +108,8 @@ class JetReclusteringTool : public asg::AsgTool, virtual public IJetExecuteTool 
     asg::AnaToolHandle<IJetModifier> m_dipolarityTool;
     asg::AnaToolHandle<IJetModifier> m_centerOfMassShapesTool;
     asg::AnaToolHandle<IJetModifier> m_nSubjettinessTool;
+    asg::AnaToolHandle<IPseudoJetGetter> m_pseudoTruthParticleBJetGetterTool;
+    asg::AnaToolHandle<IPseudoJetGetter> m_pseudoTruthParticleCJetGetterTool;
 };
 
 #endif

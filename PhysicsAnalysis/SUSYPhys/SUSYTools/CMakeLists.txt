@@ -58,7 +58,9 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PhysicsAnalysis/Interfaces/FTagAnalysisInterfaces
+   PhysicsAnalysis/Interfaces/JetAnalysisInterfaces
    PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
+   PhysicsAnalysis/Interfaces/TriggerAnalysisInterfaces
    PhysicsAnalysis/JetMissingEtID/JetSelectorTools
    PhysicsAnalysis/TauID/TauAnalysisTools
    Reconstruction/Jet/JetCPInterfaces
@@ -83,18 +85,19 @@ find_package( GTest )
 
 # Libraries in the package:
 atlas_add_library( SUSYToolsLib
-   SUSYTools/*.h Root/*.cxx
-   PUBLIC_HEADERS SUSYTools
+   SUSYTools/*.h Root/*.cxx src/SUSYToolsAlg.cxx src/SUSYToolsAlg.h
+   PUBLIC_HEADERS SUSYTools src
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS}
    LINK_LIBRARIES AsgTools xAODCore xAODEgamma xAODEventInfo
    xAODJet xAODMissingET xAODMuon xAODTau xAODTracking xAODTruth
    AssociationUtilsLib PATInterfaces TrigDecisionToolLib 
    MCTruthClassifierLib JetJvtEfficiencyLib JetSubStructureUtils
+   AnaAlgorithmLib
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${BOOST_LIBRARIES}
    AthContainers EventPrimitives FourMomUtils xAODBTagging xAODBase
    xAODPrimitives IsolationSelectionLib PileupReweightingLib
    EgammaAnalysisInterfacesLib EgammaAnalysisHelpersLib		
-   IsolationCorrectionsLib JetSelectorToolsLib
+   IsolationCorrectionsLib JetSelectorToolsLib TriggerAnalysisInterfacesLib
    FTagAnalysisInterfacesLib TauAnalysisToolsLib
    JetCPInterfaces JetCalibToolsLib JetInterface JetResolutionLib
    JetUncertaintiesLib JetMomentToolsLib METInterface METUtilitiesLib
@@ -104,6 +107,7 @@ atlas_add_library( SUSYToolsLib
 if( NOT XAOD_STANDALONE )
    atlas_add_component( SUSYTools
       src/*.h src/*.cxx src/components/*.cxx
+      NOCLID
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel
       AthenaKernel AthAnalysisBaseCompsLib xAODEventInfo xAODMuon xAODPrimitives
@@ -201,4 +205,4 @@ endif()
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_data( data/* )
-
+atlas_install_scripts( scripts/TestSUSYToolsAlg.py )

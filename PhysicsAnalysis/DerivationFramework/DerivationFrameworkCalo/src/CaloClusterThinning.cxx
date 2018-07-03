@@ -1,380 +1,358 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-/////////////////////////////////////////////////////////////////
-// CaloClusterThinning.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// Author: Simone Mazza (simone.mazza@mi.infn.it)
+// ROOT include(s):
+#include <TLorentzVector.h>
 
+// EDM include(s):
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODBase/IParticle.h"
+#include "xAODEgamma/Egamma.h"
+#include "xAODMuon/Muon.h"
+#include "xAODTau/TauJet.h"
+
+// Local include(s):
 #include "DerivationFrameworkCalo/CaloClusterThinning.h"
 #include "DerivationFrameworkCalo/ClustersInCone.h"
 
-#include "ExpressionEvaluation/ExpressionParser.h"
-#include "ExpressionEvaluation/SGxAODProxyLoader.h"
-#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
-#include "ExpressionEvaluation/MultipleProxyLoader.h"
-#include "xAODEgamma/PhotonContainer.h"
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODMuon/MuonContainer.h"
-#include "xAODCaloEvent/CaloCluster.h"
-#include "xAODEgamma/EgammaContainer.h"
-#include "xAODTau/TauJetContainer.h"
-#include "xAODJet/JetContainer.h"
+namespace DerivationFramework {
 
-#include <vector>
-#include <string>
-#include <algorithm>
+   CaloClusterThinning::CaloClusterThinning( const std::string& type,
+                                             const std::string& name,
+                                             const IInterface* parent )
+      : AthAlgTool( type, name, parent ),
+        m_thinningSvc( "ThinningSvc", name ) {
 
-// Constructor
-DerivationFramework::CaloClusterThinning::CaloClusterThinning(const std::string& t,
-							      const std::string& n,
-							      const IInterface* p ) :
-  AthAlgTool(t,n,p),
-  m_thinningSvc("ThinningSvc",n),
-  m_ntot(0),
-  m_ntotTopo(0),
-  m_npass(0),
-  m_npassTopo(0),
-  m_is_muons(false),
-  m_is_egamma(false),
-  m_is_tau(false),
-  m_run_calo(false),
-  m_run_topo(false),
-  m_sgKey(""),
-  m_CaloClSGKey(""),
-  m_TopoClSGKey(""),
-  m_selectionString(""),
-  m_coneSize(-1.0),
-  m_and(false),
-  m_parser(0)
-{
-  declareInterface<DerivationFramework::IThinningTool>(this);
-  declareProperty("ThinningService", m_thinningSvc);
-  declareProperty("SGKey", m_sgKey);
-  declareProperty("CaloClCollectionSGKey", m_CaloClSGKey);
-  declareProperty("TopoClCollectionSGKey", m_TopoClSGKey);
-  declareProperty("SelectionString", m_selectionString);
-  declareProperty("ConeSize", m_coneSize);
-  declareProperty("ApplyAnd", m_and);
-}
+      // Declare the tool's interface to the framework:
+      declareInterface< DerivationFramework::IThinningTool >( this );
 
-// Destructor
-DerivationFramework::CaloClusterThinning::~CaloClusterThinning() {
-}
+      // Set up the tool's properties:
+      declareProperty( "ThinningService", m_thinningSvc,
+                       "The thinning service to use" );
+      declareProperty( "SGKey", m_sgKey,
+                       "StoreGate key of the lepton container to use" );
+      declareProperty( "CaloClCollectionSGKey", m_CaloClSGKey,
+                       "StoreGate key of the calo cluster container to thin" );
+      declareProperty( "TopoClCollectionSGKey", m_TopoClSGKey,
+                       "StoreGate key of the topo cluster container to thin" );
+      declareProperty( "SelectionString", m_selectionString,
+                       "Selection string for the e/gamma objects" );
+      declareProperty( "ConeSize", m_coneSize,
+                       "Size of cone to select clusters in" );
+      declareProperty( "ApplyAnd", m_and,
+                       "Use IThinningSvc::Operator::And instead of "
+                       "IThinningSvc::Operator::Or" );
+   }
 
-// Athena initialize and finalize
-StatusCode DerivationFramework::CaloClusterThinning::initialize()
-{
-  // Decide which collections need to be checked for ID TrackParticles
-  ATH_MSG_VERBOSE("initialize() ...");
+   StatusCode CaloClusterThinning::initialize() {
 
-  if (m_CaloClSGKey!=""){
-    m_run_calo = true;
-    ATH_MSG_INFO("Using " << m_CaloClSGKey << "as the source collection for calo clusters");
-  }
-  if (m_TopoClSGKey!=""){
-    m_run_topo = true;
-    ATH_MSG_INFO("Using " << m_TopoClSGKey << "as the source collection for topo calo clusters");
-  }
-  if (m_CaloClSGKey=="" && m_TopoClSGKey==""){
-    ATH_MSG_FATAL("No CalCaloTopoCluster or CaloCluster collection provided for thinning.");
-    return StatusCode::FAILURE;
-  }
+      // Decide which collections need to be checked for calo clusters
+      ATH_MSG_VERBOSE( "initialize() ..." );
 
-  if (m_sgKey=="") {
-    ATH_MSG_FATAL("No particle collection provided for thinning.");
-    return StatusCode::FAILURE;
-  } else { ATH_MSG_INFO("Calo clusters associated with objects in " << m_sgKey << " will be retained in this format with the rest being thinned away");}
-
-  // Set up the text-parsing machinery for selectiong the photon directly according to user cuts
-  if (m_selectionString!="") {
-    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
-    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
-    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
-    if (m_selectionString!="") {
-      m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
-      m_parser->loadExpression(m_selectionString);
-    }
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode DerivationFramework::CaloClusterThinning::finalize()
-{
-  ATH_MSG_VERBOSE("finalize() ...");
-  ATH_MSG_INFO("Processed "<< m_ntot <<" clusters, of which "<< m_npass<< " were retained ");
-  ATH_MSG_INFO("Processed "<< m_ntotTopo <<" topo clusters, of which "<< m_npassTopo << " were retained ");
-  if (m_selectionString!="") {
-    delete m_parser;
-    m_parser = 0;
-  }
-  return StatusCode::SUCCESS;
-}
-
-// The thinning itself
-StatusCode DerivationFramework::CaloClusterThinning::doThinning() const
-{
-  m_is_muons = false;
-  m_is_egamma = false;
-  m_is_tau = false;
-
-  // Retrieve egCluster collection
-  const xAOD::CaloClusterContainer* importedCaloCluster;
-  if(m_run_calo){
-    if (evtStore()->retrieve(importedCaloCluster,m_CaloClSGKey).isFailure()) {
-      ATH_MSG_ERROR("No CaloCluster collection with name " << m_CaloClSGKey << " found in StoreGate!");
-      return StatusCode::FAILURE;
-    }
-  }
-
-  // Retrieve CalCaloTopo collection if required
-  const xAOD::CaloClusterContainer* importedTopoCaloCluster;
-  if(m_run_topo){
-    if (evtStore()->retrieve(importedTopoCaloCluster,m_TopoClSGKey).isFailure()) {
-      ATH_MSG_ERROR("No CalCaloTopo collection with name " << m_TopoClSGKey << " found in StoreGate!");
-      return StatusCode::FAILURE;
-    }
-  }
-  // Check the event contains tracks
-  unsigned int nClusters = 0;
-  if(m_run_calo) {
-    nClusters = importedCaloCluster->size();
-  }
-  unsigned int nTopoClusters = 0;
-  if(m_run_topo) {
-    nTopoClusters = importedTopoCaloCluster->size();
-  }
-  if (nClusters==0 && nTopoClusters==0 ) {
-    return StatusCode::SUCCESS;
-  }
-
-  // Set up a mask with the same entries as the full TrackParticle collection(s)
-  std::vector<bool> mask(nClusters,false), topomask(nTopoClusters,false);
-  m_ntot += nClusters;
-  m_ntotTopo += nTopoClusters;
-
-  // Retrieve particle container
-  const xAOD::IParticleContainer* importedParticles(0);
-  if (evtStore()->retrieve(importedParticles,m_sgKey).isFailure()) {
-    ATH_MSG_ERROR("No collection with name " << m_sgKey << " found in StoreGate!");
-    return StatusCode::FAILURE;
-  }
-
-  //No particles in the input
-  unsigned int nEgammas(importedParticles->size());
-  if (nEgammas==0) {
-    return StatusCode::SUCCESS;
-  }
-
-  m_is_egamma =false;
-  m_is_muons=false;
-
-  // Are we dealing with a compatible collection?
-  const xAOD::ElectronContainer* testElectrons = dynamic_cast<const xAOD::ElectronContainer*>(importedParticles);
-  const xAOD::PhotonContainer* testPhotons = dynamic_cast<const xAOD::PhotonContainer*>(importedParticles);
-  if (testElectrons || testPhotons) {
-    m_is_egamma = true;
-  }
-  const xAOD::MuonContainer* testMuons = dynamic_cast<const xAOD::MuonContainer*>(importedParticles);
-  if (testMuons) {
-    m_is_muons  = true;
-  }
-  const xAOD::TauJetContainer* testTaus = dynamic_cast<const xAOD::TauJetContainer*>(importedParticles);
-  if (testTaus) {
-    m_is_tau = true;
-  }
-  
-  if( !(m_is_egamma || m_is_muons || m_is_tau) ) {
-    ATH_MSG_ERROR("This tool only works with Egamma, Muons and Taus, " << m_sgKey << " is not a compatible collection");
-    return StatusCode::FAILURE;
-  }
-
-  //Selection 
-  // Execute the text parsers if requested
-  if (m_selectionString!="") {
-    std::vector<int> entries =  m_parser->evaluateAsVector();
-    unsigned int nEntries = entries.size();
-    // check the sizes are compatible
-    if (nEgammas!= nEntries ) {
-      ATH_MSG_ERROR("Sizes incompatible! Are you sure your selection string used e-gamma objects??");
-      return StatusCode::FAILURE;
-    }
-    std::vector< const xAOD::IParticle* > particlesToCheck ={}; 
-    // identify which e-gammas to keep for the thinning check
-    for (unsigned int i=0; i<nEgammas; ++i) {
-      if (entries[i]==true) {
-	particlesToCheck.push_back((*importedParticles)[i]);
+      if( m_CaloClSGKey != "" ) {
+         ATH_MSG_INFO( "Using " << m_CaloClSGKey
+                       << " as the source collection for calo clusters" );
       }
-    }
-    ////
-    for (auto particle : particlesToCheck){  
-      if(m_run_calo) { 
-	// Always keep own particle clusters
-	if( particleCluster(mask, particle, importedCaloCluster) != StatusCode::SUCCESS ) {
-	  return StatusCode::FAILURE;
-	}
-	if( setClustersMask(mask, particle, importedCaloCluster) != StatusCode::SUCCESS ) {
-	  return StatusCode::FAILURE;
-	}
+      if( m_TopoClSGKey != "" ) {
+         ATH_MSG_INFO( "Using " << m_TopoClSGKey
+                       << " as the source collection for topo calo clusters" );
       }
-      if(m_run_topo) {
-	if( particleCluster(topomask, particle, importedTopoCaloCluster) != StatusCode::SUCCESS ) {
-	  return StatusCode::FAILURE;
-	}
-	if( setClustersMask(topomask, particle, importedTopoCaloCluster) != StatusCode::SUCCESS ) {
-	  return StatusCode::FAILURE;
-	}
+      if( ( m_CaloClSGKey == "" ) && ( m_TopoClSGKey == "" ) ){
+         ATH_MSG_FATAL( "No CalCaloTopoCluster or CaloCluster collection "
+                        "provided for thinning." );
+         return StatusCode::FAILURE;
       }
-    }
-  }
-  else{//No selection string provided
-    for (auto particle : *importedParticles){
-      if(m_run_calo) {
-	if( particleCluster(mask, particle, importedCaloCluster) != StatusCode::SUCCESS ) {
-	  return StatusCode::FAILURE;
-	}
-	if( setClustersMask(mask, particle, importedCaloCluster) != StatusCode::SUCCESS ) {
-	  return StatusCode::FAILURE;
-	}
-      }
-      if(m_run_topo) {
-	if( particleCluster(topomask, particle, importedTopoCaloCluster) != StatusCode::SUCCESS ) {
-	  return StatusCode::FAILURE;
-	}
-	if( setClustersMask(topomask, particle, importedTopoCaloCluster) != StatusCode::SUCCESS ) {
-	  return StatusCode::FAILURE;
-	}
-      }
-    }
-  }
-  //
-  // Count up the mask contents
-  for (unsigned int i=0; i<nClusters; ++i) {
-    if (mask[i]) ++m_npass;
-  }
-  for (unsigned int i=0; i<nTopoClusters; ++i) {
-    if (topomask[i]) ++m_npassTopo;
-  }
-  //
-  // Execute the thinning service based on the mask. Finish.
-  if (m_and) {
-    if(m_run_calo){
-      if (m_thinningSvc->filter(*importedCaloCluster, mask, IThinningSvc::Operator::And).isFailure()) {
-	ATH_MSG_ERROR("Application of thinning service failed! ");
-	return StatusCode::FAILURE;
-      }
-    }
-    if(m_run_topo) {
-      if (m_thinningSvc->filter(*importedTopoCaloCluster, topomask, IThinningSvc::Operator::And).isFailure()) {
-	ATH_MSG_ERROR("Application of thinning service failed! ");
-	return StatusCode::FAILURE;
-      }
-    }
-  }
-  if (!m_and) {
-    if(m_run_calo){
-      if (m_thinningSvc->filter(*importedCaloCluster, mask, IThinningSvc::Operator::Or).isFailure()) {
-	ATH_MSG_ERROR("Application of thinning service failed! ");
-	return StatusCode::FAILURE;
-      }
-    }
-    if(m_run_topo) {
-      if (m_thinningSvc->filter(*importedTopoCaloCluster, topomask, IThinningSvc::Operator::Or).isFailure()) {
-	ATH_MSG_ERROR("Application of thinning service failed! ");
-	return StatusCode::FAILURE;
-      }
-    }
-  }
-  return StatusCode::SUCCESS;
-}
 
-StatusCode DerivationFramework::CaloClusterThinning::setClustersMask( std::vector<bool>& mask,
-                                                                const xAOD::IParticle* particle,
-                                                                const xAOD::CaloClusterContainer* cps) const{
-
-  if(!cps) {
-    ATH_MSG_ERROR("Cluster collection not found");
-    return StatusCode::FAILURE;
-  }
-   
-  if(m_is_egamma){
-    const xAOD::Egamma* egamma = dynamic_cast<const xAOD::Egamma*>(particle);
-    if(!egamma) {
-      ATH_MSG_ERROR("Egamma cast failed");
-      return StatusCode::FAILURE;
-    }
-    DerivationFramework::ClustersInCone::select(egamma, m_coneSize, cps, mask); 
-  }    
-  if(m_is_muons){
-    const xAOD::Muon* muon = dynamic_cast<const xAOD::Muon*>(particle);
-    if(!muon) {
-      ATH_MSG_ERROR("Muon cast failed");
-      return StatusCode::FAILURE;
-    }
-    DerivationFramework::ClustersInCone::select(muon, m_coneSize, cps, mask); 
-  }
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode DerivationFramework::CaloClusterThinning::particleCluster(  std::vector<bool>& mask,
-								       const xAOD::IParticle* particle,
-								       const xAOD::CaloClusterContainer* cps) const{
-  if(!cps) {
-    ATH_MSG_ERROR("Cluster collection not found");
-    return StatusCode::FAILURE;
-  }
-
-  if (m_is_egamma){
-    const xAOD::Egamma* egamma = dynamic_cast<const xAOD::Egamma*>(particle);
-    if(!egamma) {
-      ATH_MSG_ERROR("Egamma cast failed");
-      return StatusCode::FAILURE;
-    }
-    auto it = std::find (cps->begin(), cps->end(), egamma->caloCluster());
-    if(it != cps->end()){
-      int ItsCluster = std::distance(cps->begin(), it);
-      mask[ItsCluster] = true;
-    }
-  }
-    
-  if (m_is_muons){
-    const xAOD::Muon* muon = dynamic_cast<const xAOD::Muon*>(particle);
-    if(!muon) {
-      ATH_MSG_ERROR("Muon cast failed");
-      return StatusCode::FAILURE;
-    }
-    auto it = std::find (cps->begin(), cps->end(), muon->cluster());
-    if(it != cps->end()){
-      int ItsCluster = std::distance(cps->begin(), it);
-      mask[ItsCluster] = true;
-    }
-  }
-
-  if (m_is_tau){
-    const xAOD::TauJet* tau = dynamic_cast<const xAOD::TauJet*> (particle);
-    if(!tau){
-      ATH_MSG_ERROR("TauJet cast failed");
-      return StatusCode::FAILURE;
-    }
-    xAOD::JetConstituentVector vec = tau->jet()->getConstituents();
-    xAOD::JetConstituentVector::iterator it = vec.begin();
-    xAOD::JetConstituentVector::iterator itE = vec.end();
-    TLorentzVector LC_P4=tau->p4(xAOD::TauJetParameters::DetectorAxis);    
-    for( ; it!=itE; it++){
-      TLorentzVector cluster_P4;
-      cluster_P4.SetPtEtaPhiM(1,(*it)->Eta(),(*it)->Phi(),1);
-      if(LC_P4.DeltaR(cluster_P4)>0.2) continue;
-      const xAOD::CaloCluster* cl = dynamic_cast<const xAOD::CaloCluster *>( (*it)->rawConstituent() );
-      auto it_cps = std::find(cps->begin(), cps->end(), cl);
-      if( it_cps != cps->end()){
-	int ItsCluster = std::distance(cps->begin(), it_cps);
-	mask[ItsCluster] = true;
+      if( m_sgKey == "" ) {
+         ATH_MSG_FATAL( "No particle collection provided for thinning." );
+         return StatusCode::FAILURE;
       }
-    }
-  }
+      ATH_MSG_INFO( "Calo clusters associated with objects in " << m_sgKey
+                    << " will be retained in this format with the rest being "
+                       "thinned away" );
 
-  return StatusCode::SUCCESS;
-}
+      // Set up the text-parsing machinery for selectiong the particles directly
+      // according to user cuts
+      if( m_selectionString != "" ) {
+         m_parser.reset( new ExpressionParserHelper( evtStore() ) );
+         if( ! m_parser->parser().loadExpression( m_selectionString ) ) {
+            ATH_MSG_FATAL( "Failed to interpret expression: "
+                           << m_selectionString );
+            return StatusCode::FAILURE;
+         }
+      }
+
+      // Access the thinning service:
+      ATH_CHECK( m_thinningSvc.retrieve() );
+
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
+
+   StatusCode CaloClusterThinning::finalize() {
+
+      // Print some statistics:
+      ATH_MSG_VERBOSE( "finalize() ..." );
+      ATH_MSG_INFO( "Processed " << m_ntot << " clusters, of which "
+                    << m_npass << " were retained" );
+      ATH_MSG_INFO( "Processed "<< m_ntotTopo << " topo clusters, of which "
+                    << m_npassTopo << " were retained" );
+
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
+
+   StatusCode CaloClusterThinning::doThinning() const {
+
+      // Retrieve egCluster collection
+      const xAOD::CaloClusterContainer* importedCaloCluster = nullptr;
+      if( m_CaloClSGKey.size() ) {
+         ATH_CHECK( evtStore()->retrieve( importedCaloCluster,
+                                          m_CaloClSGKey ) );
+      }
+
+      // Retrieve CalCaloTopo collection if required
+      const xAOD::CaloClusterContainer* importedTopoCaloCluster = nullptr;
+      if( m_TopoClSGKey.size() ) {
+         ATH_CHECK( evtStore()->retrieve( importedTopoCaloCluster,
+                                          m_TopoClSGKey ) );
+      }
+
+      // Check the event contains clusters
+      const size_t nClusters = ( importedCaloCluster ?
+                                 importedCaloCluster->size() : 0 );
+      const size_t nTopoClusters = ( importedTopoCaloCluster ?
+                                     importedTopoCaloCluster->size() : 0 );
+      if( ( nClusters == 0 ) && ( nTopoClusters == 0 ) ) {
+         return StatusCode::SUCCESS;
+      }
+
+      // Set up a mask with the same entries as the full cluster collection(s)
+      std::vector< bool > mask( nClusters, false ),
+                          topomask( nTopoClusters, false );
+      m_ntot += nClusters;
+      m_ntotTopo += nTopoClusters;
+
+      // Retrieve particle container
+      const xAOD::IParticleContainer* importedParticles = nullptr;
+      ATH_CHECK( evtStore()->retrieve( importedParticles, m_sgKey ) );
+
+      //No particles in the input
+      const size_t nParticles = importedParticles->size();
+      if( nParticles == 0 ) {
+         return StatusCode::SUCCESS;
+      }
+
+      // Check whether we'll be able to use the container:
+      const xAOD::Type::ObjectType oType = importedParticles->at( 0 )->type();
+      if( ( oType != xAOD::Type::Electron ) &&
+          ( oType != xAOD::Type::Photon ) &&
+          ( oType != xAOD::Type::Muon ) &&
+          ( oType != xAOD::Type::Tau ) && ( m_coneSize < 0.0 ) ) {
+         ATH_MSG_ERROR( "This tool is designed for Egamma, Muons and Taus and "
+                        << m_sgKey << " is not a one of these collections. "
+                        << "For general iParticles dR needs to be specified" );
+         return StatusCode::FAILURE;
+      }
+
+      // Select the particles to use:
+      std::vector< const xAOD::IParticle* > particlesToCheck;
+      if( m_parser ) {
+         const std::vector< int > entries =
+               m_parser->parser().evaluateAsVector();
+         unsigned int nEntries = entries.size();
+         // check the sizes are compatible
+         if( nParticles != nEntries ) {
+            ATH_MSG_ERROR( "Sizes incompatible! Are you sure your selection "
+                           "string used the right container??");
+            return StatusCode::FAILURE;
+         }
+         // identify which particles to keep for the thinning check
+         for( size_t i = 0; i < nParticles; ++i ) {
+            if( entries.at( i ) == 1 ) {
+               particlesToCheck.push_back( importedParticles->at( i ) );
+            }
+         }
+      } else {
+         // If no selection was specified, use all the particles:
+         for( const xAOD::IParticle* p : *importedParticles ) {
+            particlesToCheck.push_back( p );
+         }
+      }
+
+      // Process the particles:
+      for( const xAOD::IParticle* particle : particlesToCheck ) {
+         if( importedCaloCluster ) {
+            ATH_CHECK( particleCluster( mask, particle, importedCaloCluster ) );
+            ATH_CHECK( setClustersMask( mask, particle, importedCaloCluster ) );
+         }
+         if( importedTopoCaloCluster ) {
+            ATH_CHECK( particleCluster( topomask, particle,
+                                        importedTopoCaloCluster ) );
+            ATH_CHECK( setClustersMask( topomask, particle,
+                                        importedTopoCaloCluster ) );
+         }
+      }
+
+      // Count up the mask contents
+      for( bool bit : mask ) {
+         if( bit ) {
+            ++m_npass;
+         }
+      }
+      for( bool bit : topomask ) {
+         if( bit ) {
+            ++m_npassTopo;
+         }
+      }
+
+      // Tell the thinning service what to do:
+      const IThinningSvc::Operator::Type opType =
+         ( m_and ? IThinningSvc::Operator::And : IThinningSvc::Operator::Or );
+      if( importedCaloCluster ) {
+         ATH_CHECK( m_thinningSvc->filter( *importedCaloCluster, mask,
+                                           opType ) );
+      }
+      if( importedTopoCaloCluster ) {
+         ATH_CHECK( m_thinningSvc->filter( *importedTopoCaloCluster, topomask,
+                                           opType ) );
+      }
+
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
+
+   StatusCode CaloClusterThinning::
+   setClustersMask( std::vector< bool >& mask,
+                    const xAOD::IParticle* particle,
+                    const xAOD::CaloClusterContainer* cps ) const {
+
+      switch( particle->type() ) {
+
+         case xAOD::Type::Electron:
+         case xAOD::Type::Photon:
+            {
+               const xAOD::Egamma* eg =
+                     static_cast< const xAOD::Egamma* >( particle );
+               ClustersInCone::select( eg, m_coneSize, cps, mask );
+            }
+            break;
+
+         case xAOD::Type::Muon:
+            {
+               const xAOD::Muon* mu =
+                     static_cast< const xAOD::Muon* >( particle );
+               ClustersInCone::select( mu, m_coneSize, cps, mask );
+            }
+            break;
+
+         case xAOD::Type::Tau:
+            break;
+
+         default:
+            ClustersInCone::select( particle, m_coneSize, cps, mask );
+            break;
+      }
+
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
+
+   StatusCode CaloClusterThinning::
+   particleCluster( std::vector< bool >& mask,
+                    const xAOD::IParticle* particle,
+                    const xAOD::CaloClusterContainer* cps ) const {
+
+      // Decide how to treat the particle:
+      switch( particle->type() ) {
+
+         case xAOD::Type::Electron:
+         case xAOD::Type::Photon:
+            {
+               // Do a quick cast:
+               const xAOD::Egamma* eg =
+                     static_cast< const xAOD::Egamma* >( particle );
+               // Check that the e/gamma has a cluster:
+               if( ! eg->caloCluster() ) {
+                  break;
+               }
+               // Check whether the e/gamma's cluster is in the container
+               // specified:
+               if( eg->caloCluster()->container() != cps ) {
+                  ATH_MSG_DEBUG( "E/gamma cluster is not from the specified "
+                                 "container" );
+                  break;
+               }
+               // If it is, then update the mask:
+               mask.at( eg->caloCluster()->index() ) = true;
+            }
+            break;
+
+         case xAOD::Type::Muon:
+            {
+               // Do a quick cast:
+               const xAOD::Muon* mu =
+                     static_cast< const xAOD::Muon* >( particle );
+               // Check that the muon has a cluster:
+               if( ! mu->cluster() ) {
+                  break;
+               }
+               // Check whether the muon's cluster is in the container
+               // specified:
+               if( mu->cluster()->container() != cps ) {
+                  ATH_MSG_DEBUG( "Muon cluster is not from the specified "
+                                 "container" );
+                  break;
+               }
+               // If it is, then update the mask:
+               mask.at( mu->cluster()->index() ) = true;
+            }
+            break;
+
+         case xAOD::Type::Tau:
+            {
+               // Do a quick cast:
+               const xAOD::TauJet* tau =
+                     static_cast< const xAOD::TauJet* >( particle );
+               // Skip taus with no jets:
+               if( ! tau->jet() ) {
+                  break;
+               }
+               // Get the 4-momentum of the tau:
+               const TLorentzVector& tauP4 =
+                     tau->p4( xAOD::TauJetParameters::DetectorAxis );
+               // Iterate over all constituents of the associated jet:
+               const xAOD::JetConstituentVector vec =
+                     tau->jet()->getConstituents();
+               for( const xAOD::JetConstituent* jc : vec ) {
+                  // Get the 4-momentum of the constituent, and check whether
+                  // it's "close enough" to the tau or not:
+                  TLorentzVector cP4;
+                  cP4.SetPtEtaPhiM( 1.0, jc->Eta(), jc->Phi(), 1.0 );
+                  if( cP4.DeltaR( tauP4 ) > 0.2 ) {
+                     continue;
+                  }
+                  // If it is, then make sure that it's a cluster coming from
+                  // the expected container:
+                  const xAOD::IParticle* rawC = jc->rawConstituent();
+                  if( rawC->container() != cps ) {
+                     ATH_MSG_DEBUG( "Tau cluster is not from the specified "
+                                    "container" );
+                     continue;
+                  }
+                  // If all is well, update the mask:
+                  mask.at( rawC->index() ) = true;
+               }
+            }
+            break;
+
+         default:
+            break;
+      }
+
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
+
+} // namespace DerivationFramework

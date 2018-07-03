@@ -82,17 +82,18 @@ namespace { vector<string> split_comma_delimited(const std::string&); }
 int main(int argc, char* argv[])
 {
     const char* filename = nullptr;
-    bool debug = false, cmdline_error = false;
+    bool debug = false, cmdline_error = false, toys = false;
     for(int i=1;i<argc;++i)
     {
         if(string(argv[i]) == "--debug") debug = true;
+        else if(string(argv[i]) == "--toys") toys = true;
         else if(!filename && *argv[i]!='-') filename = argv[i];
         else cmdline_error = true;
     }
     if(!filename || cmdline_error)
     {
         Error(MSGSOURCE, "No file name received!");
-        Error(MSGSOURCE, "  Usage: %s [--debug] [DxAOD file name]", argv[0]);
+        Error(MSGSOURCE, "  Usage: %s [--debug] [--toys] [DxAOD file name]", argv[0]);
         return 1;
     }
     #ifdef XAOD_STANDALONE
@@ -147,8 +148,7 @@ int main(int argc, char* argv[])
         {"e17_lhvloose_nod0", "*,PID1,PID2", "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0", "LooseBLayer", ""},
      };
 
-    const char* mapPath = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/"
-            "ElectronEfficiencyCorrection/2015_2016/"
+    const char* mapPath = "ElectronEfficiencyCorrection/2015_2016/"
             "rel20.7/Moriond_February2017_v3/map1.txt";
     for(auto& cfg : toolConfigs) /// one instance per trigger leg x working point
     for(int j=0;j<2;++j) /// two instances: 0 -> MC efficiencies, 1 -> SFs
@@ -194,7 +194,7 @@ int main(int argc, char* argv[])
     /// For property 'MuonTools':
     ToolHandleArray<CP::IMuonTriggerScaleFactors> muonTools;
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> muonTool("CP::MuonTriggerScaleFactors/MuonTrigEff");
-    muonTool.setProperty("CalibrationRelease", "180216_Moriond21").ignore();
+    muonTool.setProperty("CalibrationRelease", "180312_TriggerUpdate").ignore();
     muonTool.setProperty("MuonQuality", "Tight").ignore();
     muonTool.setProperty("useRel207", true).ignore();
     // muonTool.setProperty("Isolation", "GradientLoose").ignore();
@@ -225,6 +225,7 @@ int main(int argc, char* argv[])
     myTool.setProperty("ListOfLegsPerTag", legsPerTag).ignore();
 
     if(debug) myTool.setProperty("OutputLevel", MSG::DEBUG).ignore();
+    if(toys) myTool.setProperty("NumberOfToys", 1000).ignore();
     if(myTool.initialize() != StatusCode::SUCCESS)
     {
         Error(MSGSOURCE, "Unable to initialize the TrigGlob tool!");
@@ -319,8 +320,8 @@ int main(int argc, char* argv[])
 
         /// Finally retrieve the global trigger scale factor
         double sf = 1.;
-        auto cc = myTool->getEfficiencyScaleFactor(runNumber,
-                myTriggeringElectrons, myTriggeringMuons, sf);
+        auto cc = myTool->getEfficiencyScaleFactor(myTriggeringElectrons,
+            myTriggeringMuons, sf);
         if(cc==CP::CorrectionCode::Ok)
         {
             nSuitableEvents += 1;

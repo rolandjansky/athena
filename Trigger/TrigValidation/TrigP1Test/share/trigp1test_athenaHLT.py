@@ -44,6 +44,8 @@ def main():
   parser = OptionParser()
   parser.add_option("--nfiles", help="Number of input files",
         type='int', default=1) 
+  parser.add_option("--nevents", help="Number of max events",
+        type='int', default=-1)
   parser.add_option("--modifiers", help="Modifiers", default='')
   parser.add_option("--dir", help="eos directory", default='/eos/atlas/atlastier0/rucio/data16_13TeV/physics_Main/')
   (opts, args) = parser.parse_args()
@@ -55,7 +57,7 @@ def main():
     subset.append('root://eosatlas//' + last_run_files[i])
   print subset 
 
-  trigCmd = "athenaHLT.py -f \"" + str(subset) + "\" -c \"" + opts.modifiers + "\" TriggerRelease/runHLT_standalone.py"
+  trigCmd = "athenaHLT.py -n " + str(opts.nevents) + " -f \"" + str(subset) + "\" -c \"" + opts.modifiers + "\" TriggerRelease/runHLT_standalone.py"
   trigCmdEsc = trigCmd.replace("\\","\\\\").replace("\"","\\\"")#For output to echo
   check_call("echo \"" + trigCmdEsc + "\"", shell=True)#Call echo rather than print so that it completes first
   check_call(trigCmd, shell=True)

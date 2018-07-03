@@ -16,6 +16,8 @@ from DerivationFrameworkTop.TOPQCommonExtraContent import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addOriginCorrectedClusters
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 
@@ -58,6 +60,8 @@ def setup(TOPQname, stream):
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_ExtrapolatedMuonTrackParticles
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_MuonSpectrometerTrackParticles
   # additional variables for inner detector
+  TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_InDetTrackParticles
+  TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_PrimaryVertices
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_InDetForwardTrackParticles
   # additional variables for tau
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_Taus
@@ -72,6 +76,9 @@ def setup(TOPQname, stream):
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_CaloCalTopoClusters;
   # MET
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_MET_Track;
+  # electron and photon shower information
+  TOPQSlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
+  TOPQSlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 
   # Also write the origin-corrected clusters for both EMTopo (small-R-jets) and
   # LCTopo (large-R-jets).
@@ -107,6 +114,9 @@ def setup(TOPQname, stream):
     TOPQSlimmingHelper.ExtraVariables +  TOPQExtraVariables_LVL1EnergySumRoI
   # at truth level
   if DFisMC:
+    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4TruthJets
+    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4TruthWZJets
+    #TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10TruthJets
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TruthEvents  
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TruthParticles  
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TruthVertices
@@ -152,7 +162,7 @@ def setup(TOPQname, stream):
   # needs to be after where AllVariables[] and StaticContent[] are created
   # adds METAssoc_XXXX, MET_Core_XXXX, and MET_Reference_XXXX
   # uses DerivationFrameworkJetEtMiss.METCommon.py
-  addMETOutputs(TOPQSlimmingHelper,["AntiKt4EMPFlow"], [TOPQname])
+  addMETOutputs(TOPQSlimmingHelper, [TOPQname], ["AntiKt4EMTopo","AntiKt4EMPFlow"])
 
   #=======================
   # ADD CUSTOM JET OUTPUT 

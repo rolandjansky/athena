@@ -153,6 +153,18 @@ if DerivationFrameworkIsMonteCarlo:
   ToolSvc += SUSY8TruthThinningTool
   thinningTools.append(SUSY8TruthThinningTool)
 
+  truth_expression = '(((abs(TruthParticles.pdgId) >= 1000000) && (abs(TruthParticles.pdgId) <= 1000040)) || ((abs(TruthParticles.pdgId) >= 2000000) && (abs(TruthParticles.pdgId) <= 2000040)))'
+  from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
+  SUSY8TruthSUSYThinningTool = DerivationFramework__GenericTruthThinning( name                         = "SUSY8TruthSUSYThinningTool",
+                                                                          ThinningService              = SUSY8ThinningHelper.ThinningSvc(),
+                                                                          ParticleSelectionString      = truth_expression,
+                                                                          PreserveDescendants          = True,
+                                                                          PreserveGeneratorDescendants = False,
+                                                                          SimBarcodeOffset             = DerivationFrameworkSimBarcodeOffset
+                                                                         )
+  ToolSvc += SUSY8TruthSUSYThinningTool
+  thinningTools.append(SUSY8TruthSUSYThinningTool)
+
 
 #====================================================================
 # TrackParticleCaloCellDecoration

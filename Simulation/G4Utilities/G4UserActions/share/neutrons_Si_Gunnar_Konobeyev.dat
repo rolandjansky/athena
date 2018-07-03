@@ -1,0 +1,24 @@
+#A. Vasilescu (INPE Bucharest) and G. Lindstroem (University of Hamburg), Displacement damage in silicon, on-line compilation, http://sesam.desy.de/members/gunnar/Si-dfuncs.html
+# E_kin (MeV)  D/(95MeVmb)
+2.000E+01 2.071E+00
+2.500E+01 2.049E+00
+3.000E+01 2.041E+00
+4.000E+01 2.012E+00
+5.000E+01 1.805E+00
+6.000E+01 1.644E+00
+7.000E+01 1.499E+00
+8.000E+01 1.378E+00
+9.000E+01 1.264E+00
+1.000E+02 1.168E+00
+1.300E+02 9.740E-01
+1.600E+02 8.650E-01
+2.000E+02 7.910E-01
+2.500E+02 7.330E-01
+3.000E+02 6.960E-01
+3.500E+02 6.930E-01
+4.000E+02 6.850E-01
+4.500E+02 6.850E-01
+5.000E+02 6.810E-01
+6.000E+02 6.790E-01
+7.000E+02 6.770E-01
+8.000E+02 6.720E-01

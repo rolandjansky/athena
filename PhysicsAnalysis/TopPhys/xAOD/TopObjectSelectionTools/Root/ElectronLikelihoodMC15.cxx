@@ -114,6 +114,28 @@ namespace top {
 
     }
 
+    //WARNING: There has been a bug previously in our derivations where looseLH failed, but tighter WP succeed
+    //WARNING: This results in a "good" electron with no clusters (due to thinning), and then we crash and burn
+    //WARNING: We are therefore going to test whether the looseLH WP is also passed before we check the cluster eta
+    //WARNING: If it does not (and we passed ID checks above) then this is a dodgy electron
+    //WARNING: So we print a warning to alert the user that this was found, but then we proceed as normal
+    //WARNING: and this electron is vetoed from the selection
+    try {
+      if (el.auxdataConst<int>("DFCommonElectronsLHLoose") != 1){
+	std::cerr << "This electron fails the DFCommonElectronsLHLoose and has an incorrect decoration." << std::endl;
+	std::cerr << " pt ("<< el.pt() << "), eta (" << el.eta() << ")" << std::endl;
+	return false;
+      }
+    }
+    catch(const SG::ExcAuxTypeMismatch& e) {
+      if (el.auxdataConst<char>("DFCommonElectronsLHLoose") != 1){
+	std::cerr << "This electron fails the DFCommonElectronsLHLoose and has an incorrect decoration." << std::endl;
+	std::cerr << " pt ("<< el.pt() << "), eta (" << el.eta() << ")" << std::endl;
+	return false;
+      }
+    }
+
+
     //WARNING: Not all electrons keep clusters in the derivation
     //i.e. bad electrons (which is why we moved the check on the likelihood
     //before the check on the calo cluster)

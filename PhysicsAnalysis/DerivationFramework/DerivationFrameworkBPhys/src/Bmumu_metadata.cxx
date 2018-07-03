@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -35,9 +35,17 @@ namespace DerivationFramework {
     
     // blind search
     recordPropertyB("doBmumuBlinding", true);
-
+    recordPropertyB("doCutBlinded"   , true);
+    recordPropertyS("BlindingKey"    , "");
+    recordPropertyS("BlindedVars"    , "");
+    recordPropertyS("BlindingFlag"   , "");
+    
     // include trigger
     recordPropertyB("doTriggerInfo"  , true);
+
+    // trigger navigation thinning
+    recordPropertyB("doTrigNavThinning", true);
+    recordPropertyVS("TrigNavThinList" , {});
 
     // wide mumu mass range
     recordPropertyB("doUseWideMuMuMassRange", false);
@@ -133,6 +141,9 @@ namespace DerivationFramework {
 
     // mode of minLogChi2ToAnyPV calculation
     recordPropertyI("AddMinChi2ToAnyPVMode", 0);
+
+    // record 3-dimensional proper time in addition
+    recordPropertyB("do3dProperTime", false);
     
     // thinning level
     recordPropertyI("thinLevel", 0);

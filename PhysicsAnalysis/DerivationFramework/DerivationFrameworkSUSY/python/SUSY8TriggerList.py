@@ -6,10 +6,10 @@ SUSY8JetMETTriggers = [
 
 SUSY8MuonTriggers = [
 		'HLT_mu20_iloose_L1MU15',
-		'HLT_mu20_ivarloose_L1MU15'
+		'HLT_mu20_ivarloose_L1MU15',
 		'HLT_mu24',
 		'HLT_mu24_imedium',
-		'HLT_mu24_ivarmedium'
+		'HLT_mu24_ivarmedium',
                 'HLT_mu24_L1MU15',
                 'HLT_mu24_idperf',
                 'HLT_mu24_L2Star_idperf',
@@ -21,9 +21,14 @@ SUSY8MuonTriggers = [
                 'HLT_mu26',
 		'HLT_mu26_imedium',
 		'HLT_mu26_ivarmedium',
+		'HLT_mu28_ivarmedium',
 		'HLT_mu40',
 		'HLT_mu50',
-		'HLT_mu60_0eta105_msonly'
+		'HLT_mu60',
+		'HLT_mu60_0eta105_msonly',
+		'HLT_mu60_msonly_3layersEC',
+                'HLT_mu80',
+                'HLT_mu80_msonly_3layersEC'
 ]
 
 SUSY8LateMuonTriggers = [
@@ -37,13 +42,32 @@ SUSY8DimuonTriggers = [
 		'HLT_2mu10_nomucomb',
                 'HLT_2mu14',
 		'HLT_2mu14_nomucomb',
+		'HLT_mu22_mu8noL1',
+                'HLT_mu22_mu8noL1_calotag_0eta010',
+                'HLT_mu24_mu8noL1',
+                'HLT_mu24_mu8noL1_calotag_0eta010',
+                'HLT_mu26_mu10noL1',
+                'HLT_2mu15_L12MU10',
 		'HLT_mu18_mu8noL1',
 		'HLT_mu20_mu8noL1',
-		'HLT_mu22_mu8noL1'
+		'HLT_mu22_mu8noL1',
+		'HLT_mu24_mu12noL1',
+                'HLT_mu24_mu10noL1',
+                'HLT_mu24_mu8noL1',
+                'HLT_mu26_mu10noL1',
+                'HLT_mu26_mu8noL1',
+                'HLT_mu28_mu8noL1'
 ]
 
 SUSY8METTriggers = [
 		'HLT_xe130_mht_L1XE50',
+		'HLT_xe120_mht_xe80_L1XE55',
+                'HLT_xe120_mht_xe80_L1XE60',
+                'HLT_xe120_pufit_L1XE55',
+                'HLT_xe120_pufit_L1XE60',
+                'HLT_xe120_pufit_L1XE70',
+                'HLT_xe120_pufit_wEFMu_L1XE55',
+                'HLT_xe120_pufit_wEFMu_L1XE60',
 		'HLT_xe120',
 		'HLT_xe120_tc_lcw',
 		'HLT_xe120_tc_em',
@@ -59,8 +83,15 @@ SUSY8METTriggers = [
 		'HLT_xe120_pueta_L1XE50',
 		'HLT_xe120_pufit_L1XE50'
 		'HLT_xe110_pueta_L1XE50',
-		'HLT_xe110_pufit_L1XE50',
 		'HLT_xe110_pufit_L1XE55',
+		'HLT_xe110_pufit_L1XE60',
+                'HLT_xe110_pufit_L1XE70',
+		'HLT_xe110_pufit_wEFMu_L1XE55',
+                'HLT_xe110_pufit_xe65_L1XE55',
+                'HLT_xe110_pufit_xe65_L1XE60',
+                'HLT_xe110_pufit_xe70_L1XE50',
+                'HLT_xe110_pufit_L1XE50',
+                'HLT_xe110_pufit_L1XE55',
 		'HLT_xe110_L1XE50',
 		'HLT_xe110_tc_em_L1XE50',
 		'HLT_xe110_wEFMu_L1XE50',
@@ -73,6 +104,7 @@ SUSY8METTriggers = [
 		'HLT_xe110_mht_L1XE50',
 		'HLT_xe110_mht_L1XE50_AND_xe70_L1XE50',
 		'HLT_xe110_mht_L1XE50_AND_xe70_L1XE55',
+		'HLT_xe100_pufit_xe75_L1XE60',
 		'HLT_xe100_L1XE50',
 		'HLT_xe100_tc_lcw_L1XE50',
 		'HLT_xe100_tc_em_L1XE50',

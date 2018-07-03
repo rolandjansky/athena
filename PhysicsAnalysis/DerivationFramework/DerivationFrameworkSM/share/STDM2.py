@@ -10,6 +10,7 @@ from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 from AthenaCommon.GlobalFlags import globalflags
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
@@ -191,6 +192,15 @@ augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 svcMgr += createThinningSvc( svcName="STDM2ThinningSvc", outStreams=[evtStream] )
 
+
+#====================================================================
+# Jet reconstruction/retagging
+#====================================================================
+
+#re-tag PFlow jets so they have b-tagging info.
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = STDM2Sequence)
+
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
@@ -202,6 +212,8 @@ STDM2SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
                                         "AntiKt4EMTopoJets",
                                         "BTagging_AntiKt4EMTopo",
+                                        "AntiKt4EMPFlowJets",
+                                        "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 
@@ -217,13 +229,29 @@ STDM2SlimmingHelper.ExtraVariables += [
 STDM2SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"]
 STDM2SlimmingHelper.AllVariables = ExtraContainersJets + ["CaloCalTopoClusters"] #+ExtraContainers6Jets #do not exist for now
 
+# add photon shower shape variables
+from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
+STDM2SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
+
+# add isolation variable needed to study AODfix
+STDM2SlimmingHelper.ExtraVariables += ["Photons.core57cellsEnergyCorrection"]
+
+# add new TTVA isolation variables 
+import IsolationAlgs.IsoUpdatedTrackCones as isoCones
+if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
+    DerivationFrameworkJob += isoCones.GetUpdatedIsoTrackCones()
+STDM2SlimmingHelper.ExtraVariables += ["Photons.ptcone20_TightTTVA_pt1000.ptcone20_TightTTVA_pt500.ptvarcone30_TightTTVA_pt1000.ptvarcone30_TightTTVA_pt500"]
+
 # # btagging variables
 from  DerivationFrameworkFlavourTag.BTaggingContent import *
 
 STDM2SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMTopoJets")
+STDM2SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMPFlowJets")
 STDM2SlimmingHelper.AppendToDictionary.update({
         "BTagging_AntiKt4EMTopo":    "xAOD::BTaggingContainer",
-        "BTagging_AntiKt4EMTopoAux": "xAOD::BTaggingAuxContainer"})
+        "BTagging_AntiKt4EMTopoAux": "xAOD::BTaggingAuxContainer",
+        "BTagging_AntiKt4EMPFlow":   "xAOD::BTaggingContainer",
+        "BTagging_AntiKt4EMPFlowAux":"xAOD::BTaggingAuxContainer"})
 
 if DerivationFrameworkIsMonteCarlo:
     STDM2SlimmingHelper.ExtraVariables += ExtraElectronsTruth+ExtraPhotonsTruth#+ExtraVariablesTruthEventShape

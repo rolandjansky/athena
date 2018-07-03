@@ -46,7 +46,6 @@ bool MuonExtrapolationTool::extrapolateAndDecorateTrackParticle(const xAOD::Trac
 
   // decorators used to access or store the information 
   static SG::AuxElement::Decorator< char > Decorated ("DecoratedPivotEtaPhi");
-  static SG::AuxElement::Decorator< std::string > DecoOutcome ("DecorationOutcome");
   static SG::AuxElement::Decorator< float > Eta ("EtaTriggerPivot");
   static SG::AuxElement::Decorator< float > Phi ("PhiTriggerPivot");
 
@@ -55,12 +54,10 @@ bool MuonExtrapolationTool::extrapolateAndDecorateTrackParticle(const xAOD::Trac
       const Trk::TrackParameters* pTag = extrapolateToTriggerPivotPlane(*particle);
       if(!pTag) {
         Decorated(*particle) = false;
-        DecoOutcome(*particle) = "Extrapolation Failed";
         return false;
       }
       Eta(*particle) = pTag->position().eta();
       Phi(*particle) = pTag->position().phi();
-      DecoOutcome(*particle) = "Extrapolation Success";
       Decorated(*particle) = true;
       delete pTag;
     }

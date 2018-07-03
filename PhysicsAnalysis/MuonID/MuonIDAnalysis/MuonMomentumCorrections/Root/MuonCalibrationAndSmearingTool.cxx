@@ -36,7 +36,7 @@ namespace CP {
     declareProperty("Year", m_year = "Data16" );
     declareProperty("Algo", m_algo = "muons" );
     declareProperty("SmearingType", m_type = "q_pT" );
-    declareProperty("Release", m_release = "Recs2017_08_02" );
+    declareProperty("Release", m_release = "Recs2018_05_20" );
     declareProperty("ToroidOff", m_toroidOff = false );
     declareProperty("FilesPath", m_FilesPath = "" );
     declareProperty("StatComb", m_useStatComb = false);
@@ -161,7 +161,7 @@ namespace CP {
     declareProperty( "Year", m_year = "Data16" );
     declareProperty( "Algo", m_algo = "muons" );
     declareProperty( "SmearingType", m_type = "q_pT" );
-    declareProperty( "Release", m_release = "Recs2017_08_02" );
+    declareProperty( "Release", m_release = "Recs2018_05_20" );
     declareProperty( "ToroidOff", m_toroidOff = false );
     declareProperty( "FilesPath", m_FilesPath = "" );
 
@@ -677,6 +677,7 @@ namespace CP {
         double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, true ) * muonInfo.ptcb;
         double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, true ) * muonInfo.ptcb;
         double denominator = (  muonInfo.ptcb  ) * sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
+        //double res= denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
         double res= denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
 
         if(m_currentParameters->SagittaRho==MCAST::SystVariation::Up){
@@ -1965,17 +1966,17 @@ namespace CP {
 
   }
 
-  double MuonCalibrationAndSmearingTool::expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc ) const {
+  double MuonCalibrationAndSmearingTool::expectedResolution( const std::string& DetType, const xAOD::Muon& mu, const bool mc ) const {
     // Expected resolution in data (or unsmeared MC if second argument is true)
     return ExpectedResolution(DetType, mu, mc);
   }
 
-  double MuonCalibrationAndSmearingTool::expectedResolution( const int& DetType, xAOD::Muon& mu, const bool mc ) const {
+  double MuonCalibrationAndSmearingTool::expectedResolution( const int& DetType, const xAOD::Muon& mu, const bool mc ) const {
     // Expected resolution in data (or unsmeared MC if second argument is true)
     return ExpectedResolution(DetType, mu, mc);
   }
 
-  double MuonCalibrationAndSmearingTool::ExpectedResolution( const std::string &DetType, xAOD::Muon& mu, const bool mc ) const {
+  double MuonCalibrationAndSmearingTool::ExpectedResolution( const std::string &DetType, const xAOD::Muon& mu, const bool mc ) const {
     // Expected resolution in data (or unsmeared MC if second argument is true)
     if( DetType == "MS" ) {
       return ExpectedResolution( MCAST::DetectorType::MS, mu, mc );
@@ -1992,7 +1993,7 @@ namespace CP {
     }
   }
 
-  double MuonCalibrationAndSmearingTool::ExpectedResolution( const int DetType,xAOD::Muon& mu, const bool mc ) const {
+  double MuonCalibrationAndSmearingTool::ExpectedResolution( const int DetType,const xAOD::Muon& mu, const bool mc ) const {
 
     // get the pt measurements from the xAOD::Muon object
 
@@ -2119,7 +2120,8 @@ namespace CP {
       double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, mc ) * loc_ptms;
       ATH_MSG_VERBOSE("sigmaID,sigmaMS = "<<sigmaID<<"  "<<sigmaMS);
       double denominator = ( loc_ptcb ) * sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
-      return denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
+      //return denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
+      return denominator ?  sigmaID * sigmaMS / denominator : 0.;
     }
     else {
       ATH_MSG_ERROR( "wrong DetType in input "<<DetType );

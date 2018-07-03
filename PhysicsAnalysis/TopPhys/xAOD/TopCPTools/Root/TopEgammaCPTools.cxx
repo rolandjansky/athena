@@ -216,8 +216,8 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   electronID.replace(electronID.find("LH"), 2, "LLH");  // that way people do not have to change their cuts file
   std::string electronIDLoose = m_config->electronIDLoose();
   electronIDLoose.replace(electronIDLoose.find("LH"), 2, "LLH"); // that way people do not have to change their cuts file
-  std::string electronIsolation = m_config->electronIsolation();
-  std::string electronIsolationLoose = m_config->electronIsolationLoose();
+  std::string electronIsolation = m_config->electronIsolationSF();
+  std::string electronIsolationLoose = m_config->electronIsolationSFLoose();
 
   // Retrieve full path to maps for different types of tool
   m_electronEffSFRecoFile         = electronSFMapFilePath("reco");
@@ -232,25 +232,11 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   m_electronEffTriggerLooseFile   = electronSFMapFilePath("trigger");
   m_electronEffSFIsoLooseFile     = electronSFMapFilePath("isolation");
 
-  // Perform check on the isolation WP and identify if there are cases where the SF is not available
-  if( (electronIsolation != "None" && m_electronEffSFIsoFile == "") || (electronIsolationLoose != "None" && m_electronEffSFIsoLooseFile == "") ){
-    ATH_MSG_WARNING("Electron isolation configuration not found");
-    if (m_config->electronIsoSFs()) {
-      ATH_MSG_WARNING("If you really want to run with this electron "
-                      "ID/Isolation setup then you can add:"
-                      "\tElectronIsoSFs False\tto your config file");
-      return StatusCode::FAILURE;
-    }
-    else{
-      ATH_MSG_INFO("Isolation SFs will be set to 1.0");
-    }
-  }
-
   // Define the trigger string for scale factors
   const std::string trigger_string = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_"
                                      "OR_e60_lhmedium_"
                                      "OR_e120_lhloose_"
-                                     "2016_e26_lhtight_nod0_ivarloose_"
+                                     "2016_2017_e26_lhtight_nod0_ivarloose_"
                                      "OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
 
   // Define the data type variable - 0 : Data, 1 : MC FullSim, 3 : MC AFII
@@ -391,24 +377,20 @@ std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std
 std::string EgammaCPTools::electronSFMapFilePath(const std::string& type) {
     // Store here the paths to maps which may be updated with new recommendations
     // Currently can use maps for reco, id, iso, trigger but not ChargeID
-    // Temporary: Take away constness of path since we have a mixture for rel20 and 21 at the moment.
-    std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v1/";
+    const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v2/";
 
     std::string file_path;
     if(type == "reco") {
-      file_path = "map0.txt";
+      file_path = "map5.txt";
     }
     else if(type == "ID"){
-      file_path = "map0.txt";
+      file_path = "map5.txt";
     }
     else if(type == "isolation"){
-      file_path = "map0.txt";
+      file_path = "map5.txt";
     }
     else if(type == "trigger"){
-      // Need to still use old path for triggers
-      el_calib_path = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v3/";
-      file_path = "map1.txt";
-      ATH_MSG_WARNING("Still using rel20 trigger maps.");
+      file_path = "map5.txt";
     }
     else if(type == "ChargeID") {
       ATH_MSG_ERROR("Use electronSFFilePath method until ChargeID is supported by maps");

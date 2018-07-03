@@ -34,9 +34,9 @@ DerivationFrameworkJob += SeqSUSY12
 #====================================================================
 # Trigger navigation thinning
 #====================================================================
-from DerivationFrameworkSUSY.SUSY12TriggerList import triggers_met, triggers_ele, triggers_muon
+from DerivationFrameworkSUSY.SUSY12TriggerList import triggers_met, triggers_ele, triggers_muon, triggers_photon
 
-triggers = triggers_met + triggers_ele + triggers_muon
+triggers = triggers_met + triggers_ele + triggers_muon + triggers_photon
 
 SUSY12ThinningHelper.TriggerChains = '(' + ' | '.join(triggers) + ')' #triggerRegEx
 SUSY12ThinningHelper.AppendToStream( SUSY12Stream )
@@ -45,9 +45,6 @@ SUSY12ThinningHelper.AppendToStream( SUSY12Stream )
 #====================================================================
 # THINNING TOOL
 #====================================================================\
-
-# B.M.: likely not used
-#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 
 #SUSY12TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY12TPThinningTool",
 #                                 ThinningService     = SUSY12ThinningHelper.ThinningSvc(),
@@ -87,13 +84,13 @@ ToolSvc += SUSY12JetTPThinningTool
 thinningTools.append(SUSY12JetTPThinningTool)
 
 # TrackParticles associated with photons
-#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-#SUSY12PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                        = "SUSY12PhotonTPThinningTool",
-#                                                                                 ThinningService         = SUSY12ThinningHelper.ThinningSvc(),
-#                                                                                 SGKey                   = "Photons",
-#                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
-#ToolSvc += SUSY12PhotonTPThinningTool
-#thinningTools.append(SUSY12PhotonTPThinningTool)
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+SUSY12PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                        = "SUSY12PhotonTPThinningTool",
+                                                                                 ThinningService         = SUSY12ThinningHelper.ThinningSvc(),
+                                                                                 SGKey                   = "Photons",
+                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
+ToolSvc += SUSY12PhotonTPThinningTool
+thinningTools.append(SUSY12PhotonTPThinningTool)
 
 # TrackParticles associated with taus
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
@@ -104,6 +101,15 @@ SUSY12TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name   
                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY12TauTPThinningTool
 thinningTools.append(SUSY12TauTPThinningTool)
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
+SUSY12PhotonThinningTool = DerivationFramework__GenericObjectThinning( name             = "SUSY12PhotonThinningTool",
+                                                                      ThinningService  = SUSY12ThinningHelper.ThinningSvc(),
+                                                                      ContainerName    = "Photons",
+                                                                      ApplyAnd         = False,
+                                                                      SelectionString  = "Photons.pt > 10*GeV")
+ToolSvc += SUSY12PhotonThinningTool
+thinningTools.append(SUSY12PhotonThinningTool)
 
 # Calo Clusters associated with Photons
 #from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
@@ -184,6 +190,7 @@ if DerivationFrameworkIsMonteCarlo:
 jet_prefab = 'count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > XPT*GeV && (abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < XETA))'
 ele_prefab = 'count(Electrons.pt > XPT*GeV && abs(Electrons.eta) < XETA && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose)))'
 muon_prefab = 'count(Muons.pt > XPT*GeV && abs(Muons.eta) < XETA && (Muons.DFCommonMuonsPreselection))'
+photon_prefab = 'count((DFCommonPhotons_et > XPT*GeV) && (abs(DFCommonPhotons_eta) < 2.6))'
 
 count_jet_hard = jet_prefab.replace("XPT", "150.").replace("XETA", "2.8")
 count_jet_soft = jet_prefab.replace("XPT", "80.").replace("XETA", "2.8")
@@ -192,6 +199,7 @@ count_ele_soft = ele_prefab.replace("XPT", "20.").replace("XETA", "2.6")
 count_muon_soft = muon_prefab.replace("XPT", "20.").replace("XETA", "2.8")
 #count_ele_verysoft = ele_prefab.replace("XPT", "8.").replace("XETA", "2.6")
 #count_muon_verysoft = muon_prefab.replace("XPT", "8.").replace("XETA", "2.6")
+count_photon_hard = photon_prefab.replace("XPT", "100.").replace("XETA", "2.6")
 
 expression_trigger_met = "(" + " || ".join(triggers_met) + ")"
 expression_jetele = "(" +count_jet_hard + " + " + count_ele_hard + " >= 1)" # && " + count_jet_soft + " + " + count_ele_soft + " >= 2
@@ -201,57 +209,15 @@ expression_trigger_lep = "(" + " || ".join(triggers_met+triggers_ele+triggers_mu
 expression_lep = "(" + count_ele_soft + " + " + count_muon_soft + " >= 2 && " + count_jet_soft + " >= 1)" # && " + count_ele_soft + " + " + count_muon_soft + " >= 2)"
 expression_leptrig = "(" + expression_trigger_lep + " && " + expression_lep + ")"
 
-expression = expression_jeteletrig + " || " + expression_leptrig
+expression_trigger_photon = "(" + " || ".join(triggers_photon) + ")"
+expression_photon = "(" + count_photon_hard + " >= 1 && " + count_jet_soft + " >= 1)" 
+expression_photontrig = "(" + expression_trigger_photon + " && " + expression_photon + ")"
 
-print "expression = '" + expression + "'"
-print
+expression = expression_jeteletrig + " || " + expression_leptrig + " || " + expression_photontrig 
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 SUSY12SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY12SkimmingTool", expression = expression)
 ToolSvc += SUSY12SkimmingTool
-
-
-
-#====================================================================
-# ISOLATION TOOL
-#====================================================================
-#Track selection
-#from IsolationTool.IsolationToolConf import xAOD__TrackIsolationTool
-#TrackIsoTool = xAOD__TrackIsolationTool("TrackIsoTool")
-#TrackIsoTool.TrackSelectionTool.maxZ0SinTheta= 3.
-#TrackIsoTool.TrackSelectionTool.minPt= 1000.
-#TrackIsoTool.TrackSelectionTool.CutLevel= "Loose"
-#ToolSvc += TrackIsoTool
-
-#TrackIsoTool500 = xAOD__TrackIsolationTool("TrackIsoTool500")
-#TrackIsoTool500.TrackSelectionTool.maxZ0SinTheta= 3.
-#TrackIsoTool500.TrackSelectionTool.minPt= 500.
-#TrackIsoTool500.TrackSelectionTool.CutLevel= "Loose"
-#ToolSvc += TrackIsoTool500
-
-#from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__trackIsolationDecorator
-#import ROOT, PyCintex
-#PyCintex.loadDictionary('xAODCoreRflxDict')
-#PyCintex.loadDictionary('xAODPrimitivesDict')
-#isoPar = ROOT.xAOD.Iso
-#Pt1000IsoTrackDecorator = DerivationFramework__trackIsolationDecorator(name = "Pt1000IsoTrackDecorator",
-#                                                                TrackIsolationTool = TrackIsoTool,
-#                                                                TargetContainer = "InDetTrackParticles",
-#                                                                ptcones = [isoPar.ptcone40,isoPar.ptcone30,isoPar.ptcone20],
-#                                                                Prefix = 'TrkIsoPt1000_'
-#                                                               )
-#Pt500IsoTrackDecorator = DerivationFramework__trackIsolationDecorator(name = "Pt500IsoTrackDecorator",
-#                                                                TrackIsolationTool = TrackIsoTool500,
-#                                                                TargetContainer = "InDetTrackParticles",
-#                                                                ptcones = [isoPar.ptcone40,isoPar.ptcone30,isoPar.ptcone20],
-#                                                                Prefix = 'TrkIsoPt500_'
-#                                                               )
-#ToolSvc += Pt1000IsoTrackDecorator
-#ToolSvc += Pt500IsoTrackDecorator
-#
-#AugmentationTools.append(Pt1000IsoTrackDecorator)
-#AugmentationTools.append(Pt500IsoTrackDecorator)
-
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM  
@@ -330,6 +296,7 @@ SUSY12SlimmingHelper.SmartCollections = [
                                          #"AntiKt4EMPFlowJets",
                                          #"AntiKt4LCTopoJets",
                                          "Electrons",
+                                         "Photons",
                                          "Muons",
                                          "TauJets",
                                          "PrimaryVertices", 
@@ -363,6 +330,7 @@ SUSY12SlimmingHelper.ExtraVariables = [
                                        "TruthParticles.px.py.pz.m.e.status.pdgId.charge.barcode.prodVtxLink.decayVtxLink",
                                        "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
                                        "BTagging_AntiKt4EMTopo.MV2cl100_discriminant",
+                                       "Photons.author.Loose.Tight",
                                        #"TruthTaus.px.py.pz.m.e.status.pdgId.charge.barcode.prodVtxLink.decayVtxLink",
                                        #"TruthVertices.id.barcode.incomingParticleLinks.outgoingParticleLinks.x.y.z.t",
                                        #"BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
@@ -398,10 +366,6 @@ if DerivationFrameworkIsMonteCarlo:
                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 
-  SUSY12SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthTop", "TruthBSM", "TruthBoson"]   
-
-
-#addJetOutputs(SUSY12SlimmingHelper, ["SmallR", "SUSY12"], ["AntiKt4EMTopoJets"], ["AntiKt4LCTopoJets", "AntiKt4TruthJets"]) #"AntiKt3PV0TrackJets", "AntiKt2PV0TrackJets", "AntiKt4EMPFlowJets", 
-#addJetOutputs(SUSY12SlimmingHelper, [], ["AntiKt4EMTopoJets", "AntiKt4LCTopoJets", "AntiKt4TruthJets","AntiKt4PV0TrackJets","AntiKt3PV0TrackJets", "AntiKt2PV0TrackJets", "AntiKt4EMPFlowJets"]) #,
+  SUSY12SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthTop", "TruthBSM", "TruthBoson"]   
 
 SUSY12SlimmingHelper.AppendContentToStream(SUSY12Stream)

@@ -5,7 +5,6 @@
 /***************************************************************************
  Rpc Readout Element properties
  -----------------------------------------
- Copyright (C) 2004 by ATLAS Collaboration
 ***************************************************************************/
 
 //<doc><file>	$Id: RpcReadoutElement.h,v 1.3 2009-03-03 00:27:38 dwright Exp $
@@ -66,6 +65,7 @@ namespace MuonGM {
   */
 
   class MuonDetectorManager;
+  class RpcReadoutSet;
  
   class RpcReadoutElement: public MuonClusterReadoutElement 
   {
@@ -274,6 +274,7 @@ namespace MuonGM {
 
     std::vector<MuonStripDesign> m_phiDesigns;
     std::vector<MuonStripDesign> m_etaDesigns;
+    std::unique_ptr<RpcReadoutSet> m_set;
     
   };
   

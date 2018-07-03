@@ -49,9 +49,10 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("ElectronIDLoose", "Type of electron for background. IsEM : Loose, Medium, Tight or Likelihood LooseAndBLayerLH, MediumLH, TightLH","MediumLH");
     registerParameter("ElectronPt", "Electron pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
     registerParameter("EgammaSystematicModel","Egamma Systematic model : FULL_v1 , FULL_ETACORRELATED_v1 , 1NP_v1 (default)","1NP_v1");
-    registerParameter("ElectronIsolation","Isolation to use : Gradient, GradientLoose, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, LooseTrackOnly, Loose, Tight, FixedCutHighPtCaloOnly,  None","Gradient");
-    registerParameter("ElectronIsolationLoose","Isolation to use : Gradient, GradientLoose, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, LooseTrackOnly, Loose, Tight, FixedCutHighPtCaloOnly, None","None");
-    registerParameter("ElectronIsoSFs", "True/False. Set to False to allow unsupported ID/isolation WP combinations to be used.", "True");
+    registerParameter("ElectronIsolation","Isolation to use : Gradient, GradientLoose, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, LooseTrackOnly, Loose, Tight, FixedCutHighPtCaloOnly, FixedCutHighMuTight, FixedCutHighMuLoose, None","Gradient");
+    registerParameter("ElectronIsolationLoose","Isolation to use : Gradient, GradientLoose, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, LooseTrackOnly, Loose, Tight, FixedCutHighPtCaloOnly, FixedCutHighMuTight, FixedCutHighMuLoose, None","None");
+    registerParameter("ElectronIsolationSF", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
+    registerParameter("ElectronIsolationSFLoose", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("ElectronVetoLArCrack", "True/False. Set to False to disable LAr crack veto (not recommended).", "True");
 
     registerParameter("PhotonPt", "Photon pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
@@ -66,8 +67,10 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("MuonEta", "Absolute Muon eta cut for object selection. Default 2.5.", "2.5" );
     registerParameter("MuonQuality", "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight", "Medium");
     registerParameter("MuonQualityLoose", "Muon quality cut for object selection. Options are VeryLoose, Loose, Medium (default) and Tight", "Medium");
-    registerParameter("MuonIsolation","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTightTrackOnly, FixedCutLoose, PromptLepton, None","Gradient");
-    registerParameter("MuonIsolationLoose","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTightTrackOnly, FixedCutLoose, PromptLepton, None,","None");
+    registerParameter("MuonIsolation","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, FixedCutHighMuTight, FixedCutHighMuLoose, PromptLepton, None","Gradient");
+    registerParameter("MuonIsolationLoose","Isolation to use : Gradient, GradientLoose, Tight, Loose, LooseTrackOnly, FixedCutTight, FixedCutTightTrackOnly, FixedCutLoose, FixedCutHighMuTight, FixedCutHighMuLoose, PromptLepton, None","None");
+    registerParameter("MuonIsolationSF", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
+    registerParameter("MuonIsolationSFLoose", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("UseAntiMuons", "Use AntiMuons for fake estimate. Default: false", "false");
 
     registerParameter("JetPt", "Jet pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
@@ -81,6 +84,11 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("JetUncertainties_QGFracFile","To specify a root file with quark/gluon fractions,"
                       " in order to reduce FlavourComposition and response uncertainties."
                       " Default: None (i.e. no file is used and default flat 50+/-50% fraction is used).","None");
+    registerParameter("JetUncertainties_QGHistPatterns","To specify a pattern for the name of the quark/gluon fractions histograms, or a list of DSIDs which will have their specific histogram."
+                      " Two syntaxes are possible, either a single string or a list of DSIDs separated by commas:"
+                      "   \"MyQGHisto\" (the histograms with \"MyQGHisto\" in their names will be used for all DSIDs),"
+                      "   \"410470,410472,345873,345874,345875\" (for the listed DSIDs, histograms with the processed DSID will be used, while the flat 50+/-50% fraction will be used for the other DSIDs)."
+                      " Default: None (i.e. no specific pattern is looked for in the name of the provided histograms).","None");
     registerParameter("LargeRSmallRCorrelations",
                       "Do large-small R jet correlation systematics - True or False (default)",
                       "False");
@@ -97,8 +105,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 		      "Variables to be varied with JES uncertainties. Options:D2Beta1,Tau21WTA,Tau32WTA,Split12,Split23,Qw ( default Split23,Tau32WTA)",
 		      "Split23,Tau32WTA");
     registerParameter("LargeRJESJMSConfig",
-		      "Calibration for large-R JES/JMS. CombinedMass or CaloMass (default CombinedMass).",
-                      "CombinedMass");
+		      "Calibration for large-R JES/JMS. CombMass or CaloMass (default CombMass).",
+                      "CombMass");
     registerParameter("LargeRToptaggingConfigFile",
                       "Configuration file for top tagging (default or NFC). default=d23,tau32 (recommended) NFC=m,tau32"
                       "(alternative not optimized on large-R jet containing a truth top)",
@@ -170,13 +178,16 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("Systematics", "What to run? Nominal (just the nominal), All(do all systematics) " , "Nominal");
 
     registerParameter("LibraryNames", "Names of any libraries that need loading");
-    registerParameter("UseAodMetaData", "Whether to read xAOD meta-data from input files (default: False)", "False");
+    registerParameter("UseAodMetaData", "Whether to read xAOD meta-data from input files (default: True)", "True");
     registerParameter("WriteTrackingData", "Whether to generate and store analysis-tracking data (default: True)", "True");
     registerParameter("ObjectSelectionName", "Code used to define objects, e.g. ObjectLoaderStandardCuts");
     registerParameter("OutputFormat", "Format, can be user defined, e.g. top::EventSaverFlatNtuple");
     registerParameter("OutputEvents", "AllEvents (saves all events + decison bits), SelectedEvents (saves only the events passing your cuts)");
     registerParameter("OutputFilename", "The file that will contain the output histograms and trees");
-    registerParameter("OutputFileSetAutoFlushZero", "setAutoFlush(0) on EventSaverFlatNtuple for ANALYSISTO-44 workaround. Default False","False");
+    registerParameter("OutputFileSetAutoFlushZero", "setAutoFlush(0) on EventSaverFlatNtuple for ANALYSISTO-44 workaround. (default: False)","False");
+    registerParameter("OutputFileNEventAutoFlush", "Set the number of events after which the TTree cache is optimised, ie setAutoFlush(nEvents). (default: 1000)" , "1000");
+    registerParameter("OutputFileBasketSizePrimitive", "Set the TTree basket size for primitive objects (int, float, ...). (default: 4096)" , "4096");
+    registerParameter("OutputFileBasketSizeVector", "Set the TTree basket size for vector objects. (default: 40960)" , "40960");   
 
     registerParameter("EventVariableSaveList", "The list of event variables to save (EventSaverxAODNext only).", "runNumber.eventNumber.eventTypeBitmask.averageInteractionsPerCrossing");
     registerParameter("PhotonVariableSaveList", "The list of photon variables to save (EventSaverxAODNext only).", "pt.eta.phi.m.charge.ptvarcone20.topoetcone20.passPreORSelection");
@@ -202,7 +213,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("ApplyTightSFsInLooseTree","Special: in Loose trees, calculate lepton SFs with tight leptons only, and considering they are tight: True or False (default)", "False");
 
     registerParameter("ApplyElectronInJetSubtraction","Subtract electrons close to jets for boosted analysis : True or False(top default)", "False");
-    registerParameter("TopPartonHistory","ttbar, tb, Wtb, False (default)", "False");
+    registerParameter("TopPartonHistory","ttbar, tb, Wtb, ttz, False (default)", "False");
 
     registerParameter("TopParticleLevel", "Perform particle level selection? True or False", "False");
     registerParameter("DoParticleLevelOverlapRemoval",
@@ -291,7 +302,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 
     registerParameter("MuonTriggerSF", "Muon trigger SFs to calculate", "HLT_mu20_iloose_L1MU15_OR_HLT_mu50");
 
-    registerParameter("KLFitterTransferFunctionsPath","Select the transfer functions to use","8TeV/ttbar/mc12_LCJets_v1");
+    registerParameter("KLFitterTransferFunctionsPath","Select the transfer functions to use","mc12a/akt4_LCtopo_PP6");
     registerParameter("KLFitterOutput","Select the KLFitter output (FULL, FITTEDTOPS_ONLY, JETPERM_ONLY)","FULL");
     registerParameter("KLFitterJetSelectionMode","kLeadingThree , kLeadingFour , kLeadingFive , kLeadingSix , kLeadingSeven , kBtagPriorityThreeJets , kBtagPriorityFourJets , kBtagPriorityFiveJets, kBtagPrioritySixJets , kBtagPrioritySevenJets","kBtagPriorityFourJets");
     registerParameter("KLFitterBTaggingMethod","Recommend use kNotag or kVetoNoFit - see KLFitter TWiki","kNotag");
@@ -314,6 +325,11 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
                      "True or False (default False)",
                      "False");
 
+    registerParameter("HLLHCFakes",
+                      "Set to enable Fakes HL-LHC studies,"
+                      "True or False (default False)",
+                      "False");
+
     registerParameter("SaveBootstrapWeights", "Set to true in order to save Poisson bootstrap weights,"
 		      "True or False (default False)", "False");
     
@@ -322,6 +338,13 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 
     registerParameter("UseEventLevelJetCleaningTool", "Switch to turn on event-level jet cleaning tool (for testing), True or False (default False)", "False");
 
+    registerParameter("UseGlobalLeptonTriggerSF", "Switch to activate event-level trigger scale factors allowing multiple OR of single-, di-, tri- lepton triggers, True or False (default False)", "False");
+    registerParameter("ElectronTriggers",         "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)", "None");
+    registerParameter("ElectronTriggersLoose",    "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)", "None");
+    registerParameter("MuonTriggers",             "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)", "None");
+    registerParameter("MuonTriggersLoose",        "Trigger list for GlobalLeptonTriggerSF - Format as 2015@trig1,trig2 2016@trig3,trig4 : Separate periods defined with @ using whitespace, triggers with comma (default: None)","None");
+
+    registerParameter("KillExperimental", "Disable some specific experimental feature.", " ");
 }
 
 ConfigurationSettings* ConfigurationSettings::get() {
@@ -429,6 +452,16 @@ void ConfigurationSettings::loadFromFile(const std::string& filename) {
         m_selections.push_back({sel.name, sel.cuts});
     }
 
+    {
+       auto const & it = strings_.find("KillExperimental");
+       m_killedFeatures.clear();
+       if (it != strings_.end() && it->second.m_set) {
+          std::string strValue(it->second.m_data);
+          boost::trim(strValue);
+          boost::split(m_killedFeatures, strValue, boost::is_any_of(" "));
+       }
+    }
+
     input.close();
     m_configured = true;
 }
@@ -494,6 +527,13 @@ bool ConfigurationSettings::retrieve(std::string const & key, bool & value) cons
         return true;
     }
     throw std::invalid_argument(std::string("expected boolean value for configuration setting ") + key);
+}
+
+bool ConfigurationSettings::feature(std::string const & name) const {
+   /* We search a list of strings, not a particularly efficient implementation.
+    * If need be, we could abuse the aux registry and use integers instead of
+    * strings. Anyhow, in most cases, the list should be empty. */
+   return (m_killedFeatures.empty() || std::find(m_killedFeatures.begin(), m_killedFeatures.end(), name) == m_killedFeatures.end());
 }
 
 }

@@ -28,11 +28,11 @@ namespace Trig {
   public:
 
     /// Constructor with signature name 
-    TrigBtagEmulationChain(const std::vector<std::string>& chainDefinition, ToolHandle<Trig::TrigDecisionTool>& trigDec);    
+    TrigBtagEmulationChain(MsgStream&,const std::vector<std::string>& chainDefinition, ToolHandle<Trig::TrigDecisionTool>& trigDec);    
 
     /// Trigger decision ingredient definition
-    void addDecisionIngredient(std::string decision);
-    void addDecisionIngredient(BaseTrigBtagEmulationChainJetIngredient* decision);
+    void addDecisionIngredient(const std::string&);
+    void addDecisionIngredient(std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient >);
 
     /// Jet Evaluation
     void evaluate();
@@ -41,10 +41,10 @@ namespace Trig {
     bool isPassed();
 
     // Dump
-    void Print();
+    void print();
 
     // Utilities
-    bool hasFeature(std::string feature);
+    bool hasFeature(const std::string&);
 
     /// Event cleanup
     void clear();
@@ -56,12 +56,13 @@ namespace Trig {
     bool isAutoConfigured() const;
     std::vector< std::string > retrieveAutoConfiguration() const;
 
-    bool addJet(std::string item,std::vector< TrigBtagEmulationJet* >& jets);
-
   protected:
-    bool parseChainName( std::string,std::vector< BaseTrigBtagEmulationChainJetIngredient* >& );
-    std::vector< BaseTrigBtagEmulationChainJetIngredient* > processL1trigger (std::string);
-    std::vector< BaseTrigBtagEmulationChainJetIngredient* > processHLTtrigger (std::string);
+    bool parseChainName( std::string,std::vector< std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient > >& );
+    std::vector< std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient > > processL1trigger (std::string);
+    std::vector< std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient > > processHLTtrigger (std::string);
+
+    MsgStream& msg() const;
+    MsgStream& msg( const MSG::Level lvl ) const;
 
   private:
     // Chain name
@@ -69,13 +70,15 @@ namespace Trig {
 
     // Chain selections
     std::vector< std::string > m_ingredientsDecision;
-    std::vector< BaseTrigBtagEmulationChainJetIngredient* >  m_ingredientsJet;
+    std::vector< std::unique_ptr< BaseTrigBtagEmulationChainJetIngredient > >  m_ingredientsJet;
 
     // Trigger decision
     ToolHandle<Trig::TrigDecisionTool>& m_trigDec;
 
     bool m_correctlyConfigured;
     bool m_autoConfigured;
+
+    MsgStream &m_msg;
   };
 
 } //namespace

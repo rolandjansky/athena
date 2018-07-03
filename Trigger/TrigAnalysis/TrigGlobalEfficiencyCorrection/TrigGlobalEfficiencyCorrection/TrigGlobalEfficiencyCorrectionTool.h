@@ -13,7 +13,9 @@
 #include "AsgTools/ToolHandleArray.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 #include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 #include "AthContainers/AuxElement.h"
+#include "TriggerMatchingTool/IMatchingTool.h"
 
 #include <string>
 #include <vector>
@@ -46,6 +48,9 @@ public:
 	virtual CP::CorrectionCode getEfficiency(const std::vector<const xAOD::Electron*>& electrons, const std::vector<const xAOD::Muon*>& muons, double& efficiencyData, double& efficiencyMc) override;
 	virtual CP::CorrectionCode getEfficiency(unsigned runNumber, const std::vector<const xAOD::Electron*>& electrons, const std::vector<const xAOD::Muon*>& muons, double& efficiencyData, double& efficiencyMc) override;
 	
+	virtual CP::CorrectionCode getEfficiencyScaleFactor(const std::vector<const xAOD::Photon*>& photons, double& efficiencyScaleFactor) override;
+	virtual CP::CorrectionCode getEfficiency(const std::vector<const xAOD::Photon*>& photons, double& efficiencyData, double& efficiencyMc) override;
+	
 	virtual CP::CorrectionCode getEfficiencyScaleFactor(const std::vector<const xAOD::IParticle*>& particles, double& efficiencyScaleFactor) override;
 	virtual CP::CorrectionCode getEfficiencyScaleFactor(unsigned runNumber, const std::vector<const xAOD::IParticle*>& particles, double& efficiencyScaleFactor) override;
 	virtual CP::CorrectionCode getEfficiency(const std::vector<const xAOD::IParticle*>& particles, double& efficiencyData, double& efficiencyMc) override;
@@ -56,6 +61,10 @@ public:
 	virtual CP::SystematicSet recommendedSystematics() const override;
 	virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet& systConfig) override;
 
+	virtual CP::CorrectionCode checkTriggerMatching(bool& matched, const std::vector<const xAOD::IParticle*>& particles) override;
+	virtual CP::CorrectionCode checkTriggerMatching(bool& matched, const std::vector<const xAOD::Electron*>& electrons, const std::vector<const xAOD::Muon*>& muons) override;
+	virtual CP::CorrectionCode checkTriggerMatching(bool& matched, const std::vector<const xAOD::Photon*>& photons) override;
+	
 	static CP::CorrectionCode suggestElectronMapKeys(const std::map<std::string,std::string>& triggerCombination,
 		const std::string& version, std::map<std::string,std::string>& legsPerKey);
 	
@@ -85,6 +94,8 @@ private:
 	/// Properties:
 	ToolHandleArray<IAsgElectronEfficiencyCorrectionTool> m_suppliedElectronEfficiencyTools;
 	ToolHandleArray<IAsgElectronEfficiencyCorrectionTool> m_suppliedElectronScaleFactorTools;
+	ToolHandleArray<IAsgPhotonEfficiencyCorrectionTool> m_suppliedPhotonEfficiencyTools;
+	ToolHandleArray<IAsgPhotonEfficiencyCorrectionTool> m_suppliedPhotonScaleFactorTools;
 	ToolHandleArray<CP::IMuonTriggerScaleFactors> m_suppliedMuonTools;
 	std::map<std::string, std::string> m_legsPerTool;
 	std::map<std::string, std::string> m_triggerCb;
@@ -97,16 +108,20 @@ private:
 	std::map<std::string, std::string> m_overrideThresholds;
 	unsigned long m_numberOfToys;
 	bool m_useInternalSeed;
+	ToolHandle<Trig::IMatchingTool> m_trigMatchTool;
 
 	std::hash<std::string> m_hasher; //!
 	std::map<std::size_t,float > m_thresholds; //!
 	std::multimap<std::size_t, CachedRanking> m_cachedLegRankings; //!
 	std::map<std::size_t, ToolHandle<IAsgElectronEfficiencyCorrectionTool>* > m_electronSfTools; //!
 	std::map<std::size_t, ToolHandle<IAsgElectronEfficiencyCorrectionTool>* > m_electronEffTools; //!
+	std::map<std::size_t, ToolHandle<IAsgPhotonEfficiencyCorrectionTool>* > m_photonSfTools; //!
+	std::map<std::size_t, ToolHandle<IAsgPhotonEfficiencyCorrectionTool>* > m_photonEffTools; //!
 	std::map<std::size_t, ToolHandle<CP::IMuonTriggerScaleFactors>* > m_muonTools; //!
 	std::set<std::size_t> m_validLegTagPairs; //!
 	bool m_checkElectronLegTag; //!
 	bool m_checkMuonLegTag; //!
+	bool m_checkPhotonLegTag; //!
 	std::map<std::size_t, std::string> m_dictionary; //!
 	
 	std::vector<Hierarchy> m_hierarchyMeta; //!
@@ -115,10 +130,10 @@ private:
 	bool m_initialized = false; //!
 	CP::CorrectionCode m_cpCode = CP::CorrectionCode::Ok; //!
 	unsigned long m_seed;
+	bool m_validTrigMatchTool; //!
 	
 	std::vector<TagDecorator> m_leptonTagDecorators; //!
 	SG::AuxElement::Decorator<unsigned int> m_runNumberDecorator; //!
-	SG::AuxElement::Decorator<unsigned long> m_eventNumberDecorator; //!
 	std::unique_ptr<TrigGlobEffCorr::Calculator> m_calculator; //!
 	
 	template<typename Key> using flat_set = boost::container::flat_set<Key>;
@@ -128,9 +143,9 @@ private:
 	template<class CPTool> bool enumerateTools(ToolHandleArray<CPTool>& suppliedTools,
 		std::map<std::size_t, ToolHandle<CPTool>* >& indexedTools, flat_set<std::size_t>& collectedTags);
 	bool parseTagString(const std::string& tagstring, flat_set<std::size_t>& tags);
-	bool loadTriggerCombination(TrigGlobEffCorr::ImportData& data, bool useDefaultTools);
-	bool loadTagDecorators(const flat_set<std::size_t>& collectedElectronTags, const flat_set<std::size_t>& collectedMuonTags);
-	bool loadListOfLegsPerTag(const flat_set<std::size_t>& collectedElectronTags, const flat_set<std::size_t>& collectedMuonTags);
+	bool loadTriggerCombination(TrigGlobEffCorr::ImportData& data, bool useDefaultElectronTools, bool useDefaultPhotonTools);
+	bool loadTagDecorators(const flat_set<std::size_t>& collectedElectronTags, const flat_set<std::size_t>& collectedMuonTags, const flat_set<std::size_t>& collectedPhotonTags);
+	bool loadListOfLegsPerTag(const flat_set<std::size_t>& collectedElectronTags, const flat_set<std::size_t>& collectedMuonTags, const flat_set<std::size_t>& collectedPhotonTags);
 	bool processDeprecatedProperties();
 	
 	/// Internal methods (II) -- core task
@@ -147,8 +162,10 @@ private:
 	void updateMuonTriggerNames(std::size_t leg, const std::string& name);
 	bool getTriggerLegEfficiencies(const xAOD::Electron* p, std::size_t leg, std::size_t tag, TrigGlobEffCorr::Efficiencies& efficiencies);
 	bool getTriggerLegEfficiencies(const xAOD::Muon* p, std::size_t leg, std::size_t tag, TrigGlobEffCorr::Efficiencies& efficiencies);
+	bool getTriggerLegEfficiencies(const xAOD::Photon* p, std::size_t leg, std::size_t tag, TrigGlobEffCorr::Efficiencies& efficiencies);
 	CP::CorrectionCode getEfficiencyScaleFactor(unsigned runNumber, const LeptonList& leptons, double& efficiencyScaleFactor);
 	CP::CorrectionCode getEfficiency(unsigned runNumber, const LeptonList& leptons, double& efficiencyData, double& efficiencyMc);
+	CP::CorrectionCode checkTriggerMatching(bool& matched, const LeptonList& leptons);
 	std::size_t getCombinedHash(const flat_set<std::size_t>& legs);
 	std::size_t getCombinedHash(std::size_t leg1, std::size_t leg2);
 	static inline constexpr const flat_set<std::size_t>& forwardLegs(const flat_set<std::size_t>& legs);

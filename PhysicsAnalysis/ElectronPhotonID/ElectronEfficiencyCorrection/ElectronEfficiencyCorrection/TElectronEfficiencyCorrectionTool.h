@@ -1,3 +1,5 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
    Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
@@ -22,8 +24,8 @@
 #include <map>
 //Root fwd declares
 class TKey;
-class TH1D;
-class TH2D;
+class TH1;
+class TH2;
 // ROOT includes
 #include "TRandom3.h"
 #include "TObjArray.h"
@@ -108,7 +110,7 @@ namespace Root {
         int setupHistogramsInFolder( const TObjArray& dirNameArray, 
                 int lastIdx );
 
-        void calcDetailLevels(const TH1D *eig,
+        void calcDetailLevels(const TH1 *eig,
                 std::array<int,detailLevelEnd>& sLevel,
                 int& nSys) const ;
 
@@ -118,16 +120,16 @@ namespace Root {
                 const TObjArray& uncorr, 
                 const std::vector<TObjArray> &corr);
 
-        std::vector<TH2D*> buildSingleToyMC(const TH2D* sf, 
-                const TH2D* stat, 
-                const TH2D* uncorr, 
+        std::vector<TH2*> buildSingleToyMC(const TH2* sf, 
+                const TH2* stat, 
+                const TH2* uncorr, 
                 const TObjArray& corr,
                 const std::array<int,detailLevelEnd> sLevel,
                 int& randomCounter);
 
-        TH2D* buildSingleCombToyMC(const TH2D *sf, 
-                const TH2D* stat, 
-                const TH2D* uncorr, 
+        TH2* buildSingleCombToyMC(const TH2 *sf, 
+                const TH2* stat, 
+                const TH2* uncorr, 
                 const TObjArray& corr,
                 const std::array<int,detailLevelEnd> sLevel,
                 const int nSys,
@@ -185,4 +187,3 @@ namespace Root {
 } // End: namespace Root
 
 #endif
-

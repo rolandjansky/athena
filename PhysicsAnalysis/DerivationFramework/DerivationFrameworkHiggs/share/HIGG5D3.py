@@ -5,9 +5,9 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
-# from DerivationFrameworkJetEtMiss.JetMomentFix import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 
@@ -17,7 +17,6 @@ if DerivationFrameworkIsMonteCarlo:
 
 # running on data or MC
 from AthenaCommon.GlobalFlags import globalflags
-# print "DEBUG is MC ? ",DerivationFrameworkIsMonteCarlo
 
 if DerivationFrameworkIsMonteCarlo :
   from DerivationFrameworkHiggs.TruthCategories import *
@@ -46,11 +45,12 @@ HIGG5D3ThinningHelper.AppendToStream(HIGG5D3Stream)
 
 import DerivationFrameworkHiggs.HIGG5Common as HIGG5Common
 thinningTools.append( HIGG5Common.getInDetTrackParticleThinning(        'HIGG5D3',HIGG5D3ThinningHelper) )
-
 thinningTools.append( HIGG5Common.getAntiKt4EMTopoTrackParticleThinning('HIGG5D3',HIGG5D3ThinningHelper,   ApplyAnd=True) )
 thinningTools.append( HIGG5Common.getMuonTrackParticleThinning(         'HIGG5D3',HIGG5D3ThinningHelper) )
 thinningTools.append( HIGG5Common.getElectronTrackParticleThinning(     'HIGG5D3',HIGG5D3ThinningHelper) )
 thinningTools.append( HIGG5Common.getPhotonTrackParticleThinning(       'HIGG5D3',HIGG5D3ThinningHelper) )
+thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('HIGG5D3',HIGG5D3ThinningHelper) )
+thinningTools.append( HIGG5Common.getAntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Thinning('HIGG5D3',HIGG5D3ThinningHelper) )
 
 
 
@@ -91,6 +91,7 @@ Run2DataTriggers=['HLT_2j35_bmv2c2070_2j35_L13J25.0ETA23',
                   'HLT_2j75_bmedium_j75',
                   'HLT_2j75_bmedium_split_j75',
                   'HLT_j0_perf_bperf_L1MU10',
+
                   'HLT_mu4_4j40_dr05_L1MU4_3J15',
                   'HLT_mu4_4j40_dr05_L1MU4_3J20',
                   'HLT_mu4_j40_dr05_3j40_L14J20',
@@ -100,6 +101,7 @@ Run2DataTriggers=['HLT_2j35_bmv2c2070_2j35_L13J25.0ETA23',
                   'HLT_mu6_2j40_0eta490_invm800_L1MU6_J30.0ETA49_2J20.0ETA49',
                   'HLT_mu26_imedium_2j35_boffperf_split', # added on May 2016
                   'HLT_mu26_imedium_2j35_bperf',
+
                   'HLT_e26_tight_iloose_2j35_bperf',
                   'HLT_g20_loose_L1EM18VH_2j40_0eta490_3j25_0eta490',
                   'HLT_g20_loose_L1EM18VH_2j40_0eta490_3j25_0eta490_invm700',
@@ -110,9 +112,12 @@ Run2DataTriggers=['HLT_2j35_bmv2c2070_2j35_L13J25.0ETA23',
                   'HLT_g25_medium_L1EM22VHI', # added on Aug 2016
                   'HLT_g25_medium_L1EM22VHI_4j35_0eta490_invm700',
                   'HLT_g25_medium_L1EM22VHI_4j35_0eta490_invm1000', # added on Aug 2016
+                  'HLT_g20_tight_icaloloose_j35_bmv2c1077_split_3j35_0eta490_invm500',
+                  'HLT_g20_tight_icaloloose_j15_gsc35_bmv2c1077_split_3j35_0eta490_invm500',
                   # 'HLT_g25_medium_L1EM22VHI_j35_0eta490_bmv2c2077_3j25_0eta490_invm700',
                   'HLT_g25_medium_L1EM22VHI_j35_0eta490_bmv2c2077_3j35_0eta490_invm700', # modified on Jan 2016
                   'HLT_g25_medium_L1EM22VHI_2j35_0eta490_bmv2c2077_2j35_0eta490',
+                  'HLT_g25_medium_L1EM22VHI_2j35_0eta490_bmv2c1077_split_2j35_0eta490',
                   'HLT_g25_loose_L1EM20VH_4j35_0eta490', # added on Oct 2015
                   'HLT_g10_loose',
                   'HLT_g15_loose_L1EM7',
@@ -129,17 +134,54 @@ Run2DataTriggers=['HLT_2j35_bmv2c2070_2j35_L13J25.0ETA23',
                   'HLT_g120_loose', # added on Jan 2016
                   'HLT_g25_medium_L1EM22VHI_j35_0eta490_bmv2c2077_split_3j35_0eta490_invm700',
                   'HLT_g25_medium_L1EM22VHI_2j35_0eta490_bmv2c2077_split_2j35_0eta490', # added on Apr 2016
+                  'HLT_g25_medium_L1EM22VHI_2j35_0eta490_bmv2c1077_split_2j35_0eta490',
                   'HLT_2g20_tight',
                   'HLT_2g22_tight',
                   'HLT_g35_loose_g25_loose',
                   'HLT_g35_medium_g25_medium', # added on Aug 2016
-                  'HLT_j225_bmv2c2060_split',
+
                   'HLT_j150_bmv2c2060_split_j50_bmv2c2060_split',
                   'HLT_j100_2j55_bmv2c2060_split',
                   'HLT_j55_bmv2c2060_ht500_L14J15',
                   'HLT_j55_bmv2c2060_split_ht500_L14J15',
+                  'HLT_j175_gsc225_bmv2c1040_split',#Single b-jet
+                  'HLT_j225_gsc275_bmv2c1060_split',
+                  'HLT_j225_gsc275_bmv2c1070_split',
+                  'HLT_j225_gsc300_bmv2c1070_split',
+                  'HLT_j225_gsc300_bmv2c1077_split',
+                  'HLT_j225_gsc360_bmv2c1077_split',
+                  'HLT_j225_gsc360_bmv2c1085_split',
+                  'HLT_j175_bmv2c2040_split',
+                  'HLT_j225_bmv2c2060_split',
+                  'HLT_j275_bmv2c2070_split',
+                  'HLT_j300_bmv2c2077_split',
+                  'HLT_j360_bmv2c2085_split',
                   'HLT_j225_bloose',
                   'HLT_j175_bmedium',
+                  'HLT_j55_gsc80_bmv2c1070_split_j45_gsc60_bmv2c1085_split_j45_320eta490',#b+j,2017-2018
+                  'HLT_j35_gsc55_bmv2c1070_split_2j45_320eta490_L1J25.0ETA23_2J15.31ETA49',
+                  'HLT_j45_gsc55_bmv2c1070_split_2j45_320eta490_L1J25.0ETA23_2J15.31ETA49',
+                  'HLT_ht300_2j40_0eta490_invm700_L1HT150-J20s5.ETA31_MJJ-400-CF_AND_2j25_gsc45_bmv2c1070_split',
+                  'HLT_ht300_2j40_0eta490_invm700_L1HT150-J20s5.ETA31_MJJ-400-CF_AND_2j35_gsc45_bmv2c1070_split',
+                  'HLT_2j35_bmv2c1060_split_2j35_L14J15.0ETA25',
+                  'HLT_2j15_gsc35_bmv2c1040_split_2j15_gsc35_boffperf_split_L14J15.0ETA25',
+                  'HLT_2j15_gsc35_bmv2c1050_split_2j15_gsc35_boffperf_split_L14J15.0ETA25',
+                  'HLT_2j25_gsc45_bmv2c1050_split_2j25_gsc45_boffperf_split_L14J15.0ETA25',
+                  'HLT_2j25_gsc45_bmv2c1060_split_2j25_gsc45_boffperf_split_L14J15.0ETA25', 
+                  'HLT_2j35_gsc45_bmv2c1050_split_2j35_gsc45_boffperf_split_L14J15.0ETA25',
+                  'HLT_2j35_gsc55_bmv2c1050_split_ht300_L1HT190-J15s5.ETA21',
+                  'HLT_2j35_gsc55_bmv2c1060_split_2j35_gsc55_boffperf_split_L14J15.0ETA25',
+                  'HLT_2j35_gsc55_bmv2c1060_split_ht300_L1HT190-J15s5.ETA21',
+                  'HLT_2j35_gsc55_bmv2c1070_split_2j35_gsc55_boffperf_split_L14J15.0ETA25',
+                  'HLT_2j35_gsc55_bmv2c2060_split_2j35_gsc55_boffperf_split_L14J15.0ETA25',
+                  'HLT_2j35_gsc55_bmv2c2070_split_2j35_gsc55_boffperf_split_L14J15.0ETA25',
+                  'HLT_2j45_gsc55_bmv2c1060_split_2j45_gsc55_boffperf_split_L14J15.0ETA25',
+                  'HLT_j110_gsc150_boffperf_split_2j35_gsc55_bmv2c1070_split_L1J85_3J30',
+                  'HLT_j110_gsc150_boffperf_split_2j35_gsc55_bmv2c1077_split_L1J85_3J30',
+                  'HLT_j110_gsc150_boffperf_split_2j45_gsc55_bmv2c1070_split_L1J85_3J30',
+                  'HLT_j80_0eta240_j60_j45_320eta490_AND_2j25_gsc45_bmv2c1070_split',
+                  'HLT_j80_0eta240_j60_j45_320eta490_AND_2j35_gsc45_bmv2c1070_split',
+
                   'HLT_j100_2j55_bmedium',
                   'HLT_j150_bmedium_j50_bmedium', # added on May 2016
                   'HLT_j80_bmv2c2085_split_2j60_320eta490',
@@ -163,16 +205,6 @@ Run2MCTriggers=["L1_3J20_4J20.0ETA49_MJJ-400",
                 "L1_J100",
                 "L1_J75_3J20"] # added on May 2016
 
-
-# Run2MCTriggers=["HLT_2j55_bloose_L13J20_4J20.0ETA49_MJJ-400",
-#                 "HLT_2j55_bmedium_2j55_L13J25.ETA23",
-#                 "HLT_2j45_btight_2j45_L13J25.ETA23",
-#                 "HLT_2j55_bloose_L1J30_2J20_4J20.0ETA49_MJJ-400",
-#                 "HLT_mu4_3j35_dr05_j35_bloose_L13J15_BTAG-MU4J15",
-#                 "HLT_mu4_3j35_dr05_j35_bloose_L14J20",
-#                 "HLT_g20_loose_2j40_0eta490_3j25_0eta490_L1MJJ-700",
-#                 "HLT_g20_loose_2j40_0eta490_3j25_0eta490_L1MJJ-700",
-#                 "HLT_g20_loose_2j40_0eta490_3j25_0eta490"]
 
 from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__SkimmingToolHIGG5VBF
 if DerivationFrameworkIsMonteCarlo :
@@ -257,6 +289,21 @@ if not "HIGG5D3Jets" in OutputJets:
     if jetFlags.useTruth:
         reducedJetList += ['AntiKt4TruthJets']
     replaceAODReducedJets(reducedJetList, higg5d3Seq, "HIGG5D3Jets")
+    from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
+    # Set up geometry and BField
+    import AthenaCommon.AtlasUnixStandardJob
+
+    include("RecExCond/AllDet_detDescr.py")
+    runTCCReconstruction(higg5d3Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
+    addTCCTrimmedJets(higg5d3Seq, "HIGG5D3Jets")
+
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+higg5d3Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
+addDefaultTrimmedJets(higg5d3Seq,"HIGG5D3Jets");
+# Also add Hbb Tagger
+addVRJets(higg5d3Seq)
+addHbbTagger(higg5d3Seq, ToolSvc)
 
 higg5d3Seq += CfgMgr.DerivationFramework__DerivationKernel(
     "HIGG5D3Kernel",
@@ -271,42 +318,31 @@ higg5d3Seq += CfgMgr.DerivationFramework__DerivationKernel(
 # Jet calibration should come after fat jets
 # applyJetCalibration_xAODColl(jetalg="AntiKt4EMTopo", sequence=higg5d3Seq)
 
-#====================================================================
-# Add non-prompt lepton tagging
-#====================================================================
-# import the JetTagNonPromptLepton config and add to the private sequence 
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
-higg5d3Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
-
-
 DerivationFrameworkJob += higg5d3Seq
-
-
-# # Thinning
-# from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-# augStream = MSMgr.GetStream( streamName )
-# evtStream = augStream.GetEventStream()
-# svcMgr += createThinningSvc( svcName=HIGG5D3ThinningHelper.ThinningSvc(), outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #===================o=================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-#from DerivationFrameworkHiggs.HIGG5D3ContentList import HIGG5D3Content
 from DerivationFrameworkHiggs.HIGG5D3ExtraContent import *
 HIGG5D3SlimmingHelper = SlimmingHelper("HIGG5D3SlimmingHelper")
+HIGG5D3SlimmingHelper.AppendToDictionary = {
+  "AntiKtVR30Rmax4Rmin02TrackJets"                :   "xAOD::JetContainer"        ,
+  "AntiKtVR30Rmax4Rmin02TrackJetsAux"             :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKtVR30Rmax4Rmin02Track"           :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"        :   "xAOD::BTaggingAuxContainer",
+  }
 
 HIGG5D3SlimmingHelper.SmartCollections = [ "Electrons",
                                            "Photons",
                                            "Muons",
+                                           "TauJets",
                                            "MET_Reference_AntiKt4EMTopo",
                                            "AntiKt4EMTopoJets",
-#                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                           "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                            "AntiKt4TruthJets",
                                            "BTagging_AntiKt4EMTopo",
                                            "BTagging_AntiKt2Track",
-#                                           "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-#                                           "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                            "InDetTrackParticles",
                                            "PrimaryVertices" ]
 if DerivationFrameworkIsMonteCarlo :
@@ -319,20 +355,24 @@ if DerivationFrameworkIsMonteCarlo :
 
 
 HIGG5D3SlimmingHelper.ExtraVariables = ExtraContent
+HIGG5D3SlimmingHelper.ExtraVariables.append(
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore.KtDR.Dip12.ZCut12.ThrustMin.ThrustMaj.Angularity.Aplanarity.Sphericity.PlanarFlow.FoxWolfram2.FoxWolfram0")
 HIGG5D3SlimmingHelper.AllVariables = ExtraContainers
 if DerivationFrameworkIsMonteCarlo :
     HIGG5D3SlimmingHelper.ExtraVariables += ExtraContentTruth
     HIGG5D3SlimmingHelper.AllVariables += ExtraContainersTruth
 HIGG5D3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 
+
+
 # Add the jet containers to the stream
 slimmed_content=["HIGG5D3Jets",
-#                 ,"AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+                "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
                 ]
 if DerivationFrameworkIsMonteCarlo :
     slimmed_content+=[
              "AntiKt4TruthJets",
-#              "AntiKt4TruthWZJets"
+             "AntiKt4TruthWZJets"
              ]
 # AntiKt4PV0TrackJets are needed in conjunction with AntiKt10LCTopoJets, but the can be removed from the
 # output

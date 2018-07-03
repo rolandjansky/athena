@@ -328,7 +328,7 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::finalize()
 //
 
 CP::CorrectionCode
-CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::IParticle& part, double& sf) const {
+CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electron& part, double& sf) const {
   ATH_MSG_DEBUG("In CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::IParticle& part, double& sf) const");
   if ( part.type() != xAOD::Type::Electron ){
     ATH_MSG_ERROR("This function requires an electron to be passed. Failing!");
@@ -527,7 +527,7 @@ ATH_MSG_VERBOSE("DONE");
 
 
 CP::CorrectionCode
-CP::ElectronChargeEfficiencyCorrectionTool::applyEfficiencyScaleFactor(const xAOD::IParticle& part) const {
+CP::ElectronChargeEfficiencyCorrectionTool::applyEfficiencyScaleFactor(const xAOD::Electron& part) const {
   ATH_MSG_DEBUG("In CP::ElectronChargeEfficiencyCorrectionTool::applyEfficiencyScaleFactor(const xAOD::IParticle& part) const");
   double sf = 0.0;
   CP::CorrectionCode result = this->getEfficiencyScaleFactor(part,sf);
@@ -535,6 +535,11 @@ CP::ElectronChargeEfficiencyCorrectionTool::applyEfficiencyScaleFactor(const xAO
   (*m_sfDec)(part) = static_cast<float>(sf);
   return result;
 
+}
+
+int CP::ElectronChargeEfficiencyCorrectionTool::systUncorrVariationIndex( const xAOD::Electron&) const {
+  ATH_MSG_WARNING("systUncorrVariationIndex is not implemented in ElectronChargeEfficiencyCorrectionTool");
+  return 0;
 }
 
 

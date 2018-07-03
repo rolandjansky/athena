@@ -728,6 +728,8 @@ namespace MissingEtDQA {
 
     for (const auto& type : types){
       std::string name_met = "MET_Reference_" + type;
+      double JvtCut = 0.59;
+      if (type == "AntiKt4EMPFlow") JvtCut = 0.2;
     
       // Retrieve Reference MET
       const xAOD::MissingETContainer* met_Ref = 0;
@@ -931,7 +933,7 @@ namespace MissingEtDQA {
     	ATH_MSG_WARNING("Building MET FinalClus sum failed.");
       }
 
-      // Fill MET_Ref
+      // Fill MET_Reb
       for(const auto& it : *met_Reb) {
     	std::string name = it->name();
     	if(name == "RefEle"){
@@ -1004,59 +1006,63 @@ namespace MissingEtDQA {
 
       double leadPt = 0., subleadPt = 0., leadPhi = 0., subleadPhi = 0.;
 
-      xAOD::JetContainer::const_iterator jet_itr = jets->begin();
-      xAOD::JetContainer::const_iterator jet_end = jets->end();
+      unsigned int jetcount = 0;
 
-      for( ; jet_itr != jet_end; ++jet_itr ) {
-    	if((*jet_itr)->pt() > subleadPt) {
-    	  subleadPt = (*jet_itr)->pt();
-    	  subleadPhi = (*jet_itr)->phi();
-    	}
-    	if((*jet_itr)->pt() > leadPt) {
-    	  subleadPt = leadPt;
-    	  subleadPhi = leadPhi;
-    	  leadPt = (*jet_itr)->pt();
-    	  leadPhi = (*jet_itr)->phi();
-    	}
+      for (auto jet_itr = jets->begin(); jet_itr != jets->end(); ++jet_itr) {
+	if ((*jet_itr)->pt() > leadPt && Accept(*jet_itr,JvtCut)) {
+	  subleadPt = leadPt;
+	  subleadPhi = leadPhi;
+	  leadPt = (*jet_itr)->pt();
+	  leadPhi = (*jet_itr)->phi();
+ 	  jetcount++;
+	}
+	else if ((*jet_itr)->pt() > subleadPt && Accept(*jet_itr,JvtCut)) {
+	  subleadPt = (*jet_itr)->pt();
+	  subleadPhi = (*jet_itr)->phi();
+ 	  jetcount++;
+	}
       }
 
-      (m_MET_dPhi_Ref[type]).at(0)->Fill( -remainder( leadPhi - (*met_Reb)["FinalClus"]->phi(), 2*M_PI ) );
-      (m_MET_dPhi_Ref[type]).at(1)->Fill( -remainder( subleadPhi - (*met_Reb)["FinalClus"]->phi(), 2*M_PI ) );
-      (m_MET_dPhi_Ref[type]).at(3)->Fill( -remainder( leadPhi - (*met_Reb)["FinalTrk"]->phi(), 2*M_PI ) );
-      (m_MET_dPhi_Ref[type]).at(4)->Fill( -remainder( subleadPhi - (*met_Reb)["FinalTrk"]->phi(), 2*M_PI ) );
-    
-      (m_MET_dPhi_Reb[type]).at(0)->Fill( -remainder( leadPhi - (*met_Reb)["FinalClus"]->phi(), 2*M_PI ) );
-      (m_MET_dPhi_Reb[type]).at(1)->Fill( -remainder( subleadPhi - (*met_Reb)["FinalClus"]->phi(), 2*M_PI ) );
-      (m_MET_dPhi_Reb[type]).at(3)->Fill( -remainder( leadPhi - (*met_Reb)["FinalTrk"]->phi(), 2*M_PI ) );
-      (m_MET_dPhi_Reb[type]).at(4)->Fill( -remainder( subleadPhi - (*met_Reb)["FinalTrk"]->phi(), 2*M_PI ) );
-  
+      if(jetcount>0){
+	(m_MET_dPhi_Reb[type]).at(0)->Fill( -remainder( leadPhi - (*met_Reb)["FinalClus"]->phi(), 2*M_PI ) );
+	(m_MET_dPhi_Reb[type]).at(3)->Fill( -remainder( leadPhi - (*met_Reb)["FinalTrk"]->phi(), 2*M_PI ) );
+	(m_MET_dPhi_Ref[type]).at(0)->Fill( -remainder( leadPhi - (*met_Ref)["FinalClus"]->phi(), 2*M_PI ) );
+	(m_MET_dPhi_Ref[type]).at(3)->Fill( -remainder( leadPhi - (*met_Ref)["FinalTrk"]->phi(), 2*M_PI ) );
+      }
+
+      if(jetcount>1){
+	(m_MET_dPhi_Reb[type]).at(1)->Fill( -remainder( subleadPhi - (*met_Reb)["FinalClus"]->phi(), 2*M_PI ) );
+	(m_MET_dPhi_Reb[type]).at(4)->Fill( -remainder( subleadPhi - (*met_Reb)["FinalTrk"]->phi(), 2*M_PI ) );
+	(m_MET_dPhi_Ref[type]).at(1)->Fill( -remainder( subleadPhi - (*met_Ref)["FinalClus"]->phi(), 2*M_PI ) );
+	(m_MET_dPhi_Ref[type]).at(4)->Fill( -remainder( subleadPhi - (*met_Ref)["FinalTrk"]->phi(), 2*M_PI ) );
+      }
 
       leadPt = 0.; leadPhi = 0.;
 
-      xAOD::MuonContainer::const_iterator muon_itr = muons->begin();
-      xAOD::MuonContainer::const_iterator muon_end = muons->end();
+      unsigned int lepcount = 0;
 
-      for( ; muon_itr != muon_end; ++muon_itr ) {
-    	if((*muon_itr)->pt() > leadPt) {
-    	  leadPt = (*muon_itr)->pt();
-    	  leadPhi = (*muon_itr)->phi();
-    	}
+      for (auto muon_itr = muons->begin(); muon_itr != muons->end(); ++muon_itr) {
+	if ((*muon_itr)->pt() > leadPt && Accept(*muon_itr)) {
+	  leadPt = (*muon_itr)->pt();
+	  leadPhi = (*muon_itr)->phi();
+ 	  lepcount++;
+	}
       }
 
-      xAOD::ElectronContainer::const_iterator electron_itr = electrons->begin();
-      xAOD::ElectronContainer::const_iterator electron_end = electrons->end();
-
-      for( ; electron_itr != electron_end; ++electron_itr ) {
-    	if((*electron_itr)->pt() > leadPt) {
-    	  leadPt = (*electron_itr)->pt();
-    	  leadPhi = (*electron_itr)->phi();
-    	}
+      for (auto electron_itr = electrons->begin(); electron_itr != electrons->end(); ++electron_itr) {
+	if ((*electron_itr)->pt() > leadPt && Accept(*electron_itr)) {
+	  leadPt = (*electron_itr)->pt();
+	  leadPhi = (*electron_itr)->phi();
+ 	  lepcount++;
+	}
       }
 
-      (m_MET_dPhi_Ref[type]).at(2)->Fill( -remainder( leadPhi - (*met_Ref)["FinalClus"]->phi(), 2*M_PI ) );
-      (m_MET_dPhi_Ref[type]).at(5)->Fill( -remainder( leadPhi - (*met_Ref)["FinalTrk"]->phi(), 2*M_PI ) );
-      (m_MET_dPhi_Reb[type]).at(2)->Fill( -remainder( leadPhi - (*met_Reb)["FinalClus"]->phi(), 2*M_PI ) );
-      (m_MET_dPhi_Reb[type]).at(5)->Fill( -remainder( leadPhi - (*met_Reb)["FinalTrk"]->phi(), 2*M_PI ) );
+      if(lepcount>0){
+	(m_MET_dPhi_Ref[type]).at(2)->Fill( -remainder( leadPhi - (*met_Ref)["FinalClus"]->phi(), 2*M_PI ) );
+	(m_MET_dPhi_Ref[type]).at(5)->Fill( -remainder( leadPhi - (*met_Ref)["FinalTrk"]->phi(), 2*M_PI ) );
+	(m_MET_dPhi_Reb[type]).at(2)->Fill( -remainder( leadPhi - (*met_Reb)["FinalClus"]->phi(), 2*M_PI ) );
+	(m_MET_dPhi_Reb[type]).at(5)->Fill( -remainder( leadPhi - (*met_Reb)["FinalTrk"]->phi(), 2*M_PI ) );
+      }
     
     
       //Fill Correlation Plots
@@ -1201,8 +1207,6 @@ namespace MissingEtDQA {
       // For rebuilt MET add only jets with pT>20e3 and JVT cut
       TLorentzVector jetReb_tlv;
       double sum_jetReb = 0;
-      double JvtCut = 0.59;
-      if (type == "AntiKt4EMPFlow") JvtCut = 0.2;
       for(const auto jet : metJetsOR) {
     	if(Accept(jet, JvtCut)) {
     	  jetReb_tlv += jet->p4();

@@ -150,13 +150,21 @@ protected:
      */
     std::shared_ptr<top::TreeManager> particleLevelTreeManager();
 
+    /*!
+     * @brief Return a shared pointer to the top::TreeManager object that is
+     * used for the upgrade level output tree.
+     * @returns A shared pointer to the top::TreeManager object that is used to
+     * write out the upgrade level event data.
+     */
+    std::shared_ptr<top::TreeManager> upgradeTreeManager();
 
    /**
     * @brief Return a shared pointer to the top::ScaleFactorRetriever object
     * which allows us to easily access the SF decorations
     * @returns A shared pointer to the top::ScaleFactorRetriever object
     */
-    std::shared_ptr<top::ScaleFactorRetriever> scaleFactorRetriever();
+    //std::shared_ptr<top::ScaleFactorRetriever> scaleFactorRetriever();
+    top::ScaleFactorRetriever* scaleFactorRetriever();
 
     /*!
      * @brief Function to access the branch filters - cf ANALYSISTO-61
@@ -220,7 +228,8 @@ private:
     std::shared_ptr<top::TopConfig> m_config;
 
     ///Scale factors
-    std::shared_ptr<top::ScaleFactorRetriever> m_sfRetriever;
+    //std::shared_ptr<top::ScaleFactorRetriever> m_sfRetriever;
+    top::ScaleFactorRetriever* m_sfRetriever;
 
     ///The file where everything goes
     TFile* m_outputFile;
@@ -236,6 +245,7 @@ private:
     ///    .first  --- The name of the selection
     ///    .second --- The variable used for storing into the TTree
     std::vector< std::pair<std::string,int> > m_particleLevel_SelectionDecisions;
+    std::vector< std::pair<std::string,int> > m_upgrade_SelectionDecisions;
 
     /// TreeManager for upgrade analysis data output
     std::shared_ptr<top::TreeManager> m_upgradeTreeManager;
@@ -306,6 +316,14 @@ private:
     float m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN;
     float m_weight_leptonSF_MU_SF_TTVA_SYST_UP;
     float m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN;
+    // Additional global event calculated trigger SF + systematics
+    float m_weight_globalLeptonTriggerSF;
+    float m_weight_globalLeptonTriggerSF_EL_Trigger_UP;
+    float m_weight_globalLeptonTriggerSF_EL_Trigger_DOWN;
+    float m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP;
+    float m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN;
+    float m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP;
+    float m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN;
 
     ///-- individual components for lepton SF --///
     float m_weight_indiv_SF_EL_Trigger;
@@ -445,6 +463,7 @@ private:
     std::vector<float> m_el_phi;
     std::vector<float> m_el_e;
     std::vector<float> m_el_charge;
+    std::vector<float> m_el_faketype;
     std::vector<float> m_el_topoetcone20;
     std::vector<float> m_el_ptvarcone20;
     std::vector<char>  m_el_isTight;
@@ -454,8 +473,9 @@ private:
     std::vector<float> m_el_delta_z0_sintheta;
     std::vector<int>   m_el_true_type;
     std::vector<int>   m_el_true_origin;
-    std::vector<int>   m_el_true_typebkg;
-    std::vector<int>   m_el_true_originbkg;
+    std::vector<int>   m_el_true_firstEgMotherTruthType;
+    std::vector<int>   m_el_true_firstEgMotherTruthOrigin;
+    std::vector<char>  m_el_true_isPrompt;
 
     //muons
     std::vector<float> m_mu_pt;
@@ -471,11 +491,15 @@ private:
     std::vector<float> m_mu_delta_z0_sintheta;
     std::vector<int>   m_mu_true_type;
     std::vector<int>   m_mu_true_origin;
+    std::vector<char>  m_mu_true_isPrompt;
     //photons
     std::vector<float> m_ph_pt;
     std::vector<float> m_ph_eta;
     std::vector<float> m_ph_phi;
     std::vector<float> m_ph_e;
+    std::vector<float> m_ph_true_type;
+    std::vector<float> m_ph_true_origin;
+    std::vector<float> m_ph_faketype;
     std::vector<float> m_ph_iso;
 
     //taus
@@ -872,7 +896,15 @@ protected:
   const float& weight_leptonSF_MU_SF_TTVA_STAT_DOWN() const { return m_weight_leptonSF_MU_SF_TTVA_STAT_DOWN;}
   const float& weight_leptonSF_MU_SF_TTVA_SYST_UP() const { return m_weight_leptonSF_MU_SF_TTVA_SYST_UP;}
   const float& weight_leptonSF_MU_SF_TTVA_SYST_DOWN() const { return m_weight_leptonSF_MU_SF_TTVA_SYST_DOWN;}
-
+  // Special global lepton trigger SF + systematics
+  const float& weight_globalLeptonTriggerSF() const { return m_weight_globalLeptonTriggerSF; }
+  const float& weight_globalLeptonTriggerSF_EL_Trigger_UP() const { return m_weight_globalLeptonTriggerSF_EL_Trigger_UP; }
+  const float& weight_globalLeptonTriggerSF_EL_Trigger_DOWN() const { return m_weight_globalLeptonTriggerSF_EL_Trigger_DOWN; }
+  const float& weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP() const { return m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_UP; }
+  const float& weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN() const { return m_weight_globalLeptonTriggerSF_MU_Trigger_STAT_DOWN; }
+  const float& weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP() const { return m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_UP; }
+  const float& weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN() const { return m_weight_globalLeptonTriggerSF_MU_Trigger_SYST_DOWN; }
+  
   ///-- individual components for lepton SF --///
   const float& weight_indiv_SF_EL_Trigger() const { return m_weight_indiv_SF_EL_Trigger;}
   const float& weight_indiv_SF_EL_Trigger_UP() const { return m_weight_indiv_SF_EL_Trigger_UP;}
@@ -1009,6 +1041,7 @@ protected:
   const std::vector<float>& el_cl_eta() const { return m_el_cl_eta;}
   const std::vector<float>& el_phi() const { return m_el_phi;}
   const std::vector<float>& el_e() const { return m_el_e;}
+  const std::vector<float>& el_faketype() const { return m_el_faketype;}
   const std::vector<float>& el_charge() const { return m_el_charge;}
   const std::vector<float>& el_topoetcone20() const { return m_el_topoetcone20;}
   const std::vector<float>& el_ptvarcone20() const { return m_el_ptvarcone20;}
@@ -1019,8 +1052,9 @@ protected:
   const std::vector<float>& el_delta_z0_sintheta() const { return m_el_delta_z0_sintheta;}
   const std::vector<int>& el_true_type() const { return m_el_true_type;}
   const std::vector<int>& el_true_origin() const { return m_el_true_origin;}
-  const std::vector<int>& el_true_typebkg() const { return m_el_true_typebkg;}
-  const std::vector<int>& el_true_originbkg() const { return m_el_true_originbkg;}
+  const std::vector<int>& el_true_firstEgMotherTruthType() const { return m_el_true_firstEgMotherTruthType;}
+  const std::vector<int>& el_true_firstEgMotherTruthOrigin() const { return m_el_true_firstEgMotherTruthOrigin;}
+  const std::vector<char>& el_true_isPrompt() const { return m_el_true_isPrompt;}
 
   //muons
   const std::vector<float>& mu_pt() const { return m_mu_pt;}
@@ -1036,12 +1070,16 @@ protected:
   const std::vector<float>& mu_delta_z0_sintheta() const { return m_mu_delta_z0_sintheta;}
   const std::vector<int>& mu_true_type() const { return m_mu_true_type;}
   const std::vector<int>& mu_true_origin() const { return m_mu_true_origin;}
+  const std::vector<char>& mu_true_isPrompt() const { return m_mu_true_isPrompt;}
 
   //photons
   const std::vector<float>& ph_pt() const { return m_ph_pt;}
   const std::vector<float>& ph_eta() const { return m_ph_eta;}
   const std::vector<float>& ph_phi() const { return m_ph_phi;}
   const std::vector<float>& ph_e() const { return m_ph_e;}
+  const std::vector<float>& ph_true_type() const { return m_ph_true_type;}
+  const std::vector<float>& ph_true_origin() const { return m_ph_true_origin;}
+  const std::vector<float>& ph_faketype() const { return m_ph_faketype;}
   const std::vector<float>& ph_iso() const { return m_ph_iso;}
 
   //taus
@@ -1310,6 +1348,10 @@ protected:
   // This can be expanded as required
   // This is just a first pass at doing this sort of thing
   const std::unordered_map<std::string,int*>& extraTruthVars_int() const { return m_extraTruthVars_int;}
+
+  // Prompt lepton definition for event saver
+  bool isPromptElectron(int type, int origin, int egMotherType, int egMotherOrigin);
+  bool isPromptMuon(int type, int origin);
 
   ClassDef(top::EventSaverFlatNtuple, 0);
 };

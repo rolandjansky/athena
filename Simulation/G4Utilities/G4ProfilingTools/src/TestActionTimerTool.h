@@ -41,7 +41,7 @@ namespace G4UA{
 
     /// Query interface for gaudi
     virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
-
+    virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
 
   protected:

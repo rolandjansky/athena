@@ -8,6 +8,9 @@ import ROOT
 from PathResolver import PathResolver
 import subprocess, sys, shlex, random, shutil, os
 
+# Create empty PoolFileCatalog
+os.system('art.py createpoolfile')
+
 # -- Settings --
 cutfilename   = "validation-cuts.txt"
 inputfilename = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/AnalysisTop/ContinuousIntegration/MC/p3390/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.deriv.DAOD_TOPQ1.e6337_e5984_s3126_r9364_r9315_p3390/DAOD_TOPQ1.12720282._000339.pool.root.1"

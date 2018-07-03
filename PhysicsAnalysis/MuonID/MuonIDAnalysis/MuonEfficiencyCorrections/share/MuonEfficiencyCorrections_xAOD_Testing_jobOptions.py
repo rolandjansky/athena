@@ -6,7 +6,7 @@ include("MuonEfficiencyCorrections/CommonToolSetup.py")
 
 # a simple testing macro for the MuonEfficiencyCorrections_xAOD package in athena
 #
-# Usage: athena -c "inputFile='<input file>'" MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py
+# Usage: athena --filesInput <InputFile> MuonEfficiencyCorrections/MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py
 
 # Access the algorithm sequence:
 AssembleIO("MUONEFFTESTER")
@@ -17,28 +17,28 @@ theJob = AlgSequence()
 from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonEfficiencyCorrections_TestAlg
 alg = CP__MuonEfficiencyCorrections_TestAlg("EffiTestAlg")
 alg.PileupReweightingTool = GetPRWTool()
-alg.DefaultRelease="cRecommendationsSep17"
-alg.ValidationRelease="cRecommendationsToday"
+alg.DefaultRelease="cPreRecs"
+alg.ValidationRelease="cCaloFix"
 
 WPs = [
          # reconstruction WPs
         # "LowPt",
-         "Loose", 
-         "Medium", 
-         "Tight", 
-         "HighPt",
+        # "Loose", 
+        # "Medium", 
+        # "Tight", 
+        # "HighPt",
          # track-to-vertex-association WPs
          "TTVA",
          # BadMuon veto SFs
-         "BadMuonVeto_HighPt",
+        # "BadMuonVeto_HighPt",
          # isolation WPs
-         "FixedCutLooseIso", "LooseTrackOnlyIso", "LooseIso", "GradientIso", "GradientLooseIso",
-         "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso", "FixedCutTightIso"
+        # "FixedCutLooseIso", "LooseTrackOnlyIso", "LooseIso", "GradientIso", "GradientLooseIso",
+        # "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso", "FixedCutTightIso"
         ]
 
 for WP in WPs: 
-    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP)]
-    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="MoriondTest", CustomInput = "/afs/cern.ch/user/j/jojungge/public/MCP/ScaleFactorFiles/180214_Moriond21")]
+    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release = "170916_Rel21PreRec")]
+    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="CaloTest", CustomInput = "/afs/cern.ch/user/j/jojungge/public/MCP/ScaleFactorFiles/180516_HighEtaUpdate")]
 theJob += alg
 
 # Do some additional tweaking:

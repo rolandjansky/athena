@@ -74,6 +74,9 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
   // The default is set to false to maintain the backwards compatibility
   m_nTrkwTrk_4PFlow = m_config->GetValue("nTrkwTrk4PFlow", false);
 
+  // For AFII calibrations, EM3 correction should be applied up to |eta|=3.2
+  m_EM3MaxEtaBin = m_config->GetValue("EM3MaxEtaBin", 35);
+
   if ( !m_config ) { ATH_MSG_FATAL("Config file not specified. Aborting."); return StatusCode::FAILURE; }
   if ( m_jetAlgo.EqualTo("") ) { ATH_MSG_FATAL("No jet algorithm specified. Aborting."); return StatusCode::FAILURE; }
 
@@ -310,7 +313,7 @@ double GlobalSequentialCorrection::getPunchThroughResponse(double E, double eta_
     //this could probably be improved, but to avoid a seg fault...
     return 1;
   }
-  double PunchThroughResponse = readPtJetPropertyHisto(E,log(Nsegments),m_respFactorsPunchThrough[etabin]);
+  double PunchThroughResponse = readPtJetPropertyHisto(E,Nsegments,m_respFactorsPunchThrough[etabin]);
   if(!m_pTResponseRequirementOff && PunchThroughResponse>1) return 1;
   return PunchThroughResponse;
 }

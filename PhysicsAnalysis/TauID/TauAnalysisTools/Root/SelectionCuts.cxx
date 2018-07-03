@@ -506,10 +506,8 @@ SelectionCutEleOLR::~SelectionCutEleOLR()
 //______________________________________________________________________________
 void SelectionCutEleOLR::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
 {
-  // run this to get ele_match_lhscore decoration
-  getEvetoPass(xTau);
-  SG::AuxElement::ConstAccessor<float> accEleMatchLhscore(m_sEleOlrLhScoreDecorationName.c_str());
-  hHist.Fill(accEleMatchLhscore(xTau));
+  // run this to get EleMatchLikelihoodScore decoration
+  hHist.Fill(xTau.discriminant(xAOD::TauJetParameters::EleMatchLikelihoodScore));
 }
 
 //______________________________________________________________________________

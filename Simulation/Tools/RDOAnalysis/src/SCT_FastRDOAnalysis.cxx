@@ -56,44 +56,44 @@ SCT_FastRDOAnalysis::SCT_FastRDOAnalysis(const std::string& name, ISvcLocator* p
   , m_locpos_y(0)
   , m_rdoID_prd(0)
 
-  , h_hitsTimeBin3(0)
-  , h_siCol(0)
-  , h_siRow(0)
-  , h_siPhiR(0)
-  , h_siZ(0)
-  , h_siPos_x(0)
-  , h_siPos_y(0)
-  , h_siPos_z(0)
-  , h_siGangPix(0)
-  , h_siDetID(0)
-  , h_siDetPix(0)
-  , h_siDetSCT(0)
-  , h_siDetBrl(0)
-  , h_siDetEc(0)
-  , h_siDetBlay(0)
-  , h_siDetInPixLay(0)
-  , h_siDetNtInPixLay(0)
-  , h_siDetDBM(0)
-  , h_siDetHitDepthDir(0)
-  , h_siDetHitPhiDir(0)
-  , h_siDetHitEtaDir(0)
-  , h_siDetMinR(0)
-  , h_siDetMaxR(0)
-  , h_siDetMinZ(0)
-  , h_siDetMaxZ(0)
-  , h_siDetMinPhi(0)
-  , h_siDetMaxPhi(0)
-  , h_siDetWidth(0)
-  , h_siDetMinWidth(0)
-  , h_siDetMaxWidth(0)
-  , h_siDetLength(0)
-  , h_siDetThick(0)
-  , h_siDetEtaPitch(0)
-  , h_siDetPhiPitch(0)
-  , h_clusID(0)
-  , h_locpos_x(0)
-  , h_locpos_y(0)
-  , h_rdoID_prd(0)
+  , m_h_hitsTimeBin3(0)
+  , m_h_siCol(0)
+  , m_h_siRow(0)
+  , m_h_siPhiR(0)
+  , m_h_siZ(0)
+  , m_h_siPos_x(0)
+  , m_h_siPos_y(0)
+  , m_h_siPos_z(0)
+  , m_h_siGangPix(0)
+  , m_h_siDetID(0)
+  , m_h_siDetPix(0)
+  , m_h_siDetSCT(0)
+  , m_h_siDetBrl(0)
+  , m_h_siDetEc(0)
+  , m_h_siDetBlay(0)
+  , m_h_siDetInPixLay(0)
+  , m_h_siDetNtInPixLay(0)
+  , m_h_siDetDBM(0)
+  , m_h_siDetHitDepthDir(0)
+  , m_h_siDetHitPhiDir(0)
+  , m_h_siDetHitEtaDir(0)
+  , m_h_siDetMinR(0)
+  , m_h_siDetMaxR(0)
+  , m_h_siDetMinZ(0)
+  , m_h_siDetMaxZ(0)
+  , m_h_siDetMinPhi(0)
+  , m_h_siDetMaxPhi(0)
+  , m_h_siDetWidth(0)
+  , m_h_siDetMinWidth(0)
+  , m_h_siDetMaxWidth(0)
+  , m_h_siDetLength(0)
+  , m_h_siDetThick(0)
+  , m_h_siDetEtaPitch(0)
+  , m_h_siDetPhiPitch(0)
+  , m_h_clusID(0)
+  , m_h_locpos_x(0)
+  , m_h_locpos_y(0)
+  , m_h_rdoID_prd(0)
 
   , m_tree(0)
   , m_ntupleFileName("/ntuples/file1")
@@ -172,157 +172,157 @@ StatusCode SCT_FastRDOAnalysis::initialize() {
   }
 
   // HISTOGRAMS
-  h_hitsTimeBin3 = new TH1F("h_hitsTimeBin3", "hitsTimeBine3", 100, 0, 2);
-  h_hitsTimeBin3->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_hitsTimeBin3->GetName(), h_hitsTimeBin3));
+  m_h_hitsTimeBin3 = new TH1F("h_hitsTimeBin3", "hitsTimeBine3", 100, 0, 2);
+  m_h_hitsTimeBin3->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_hitsTimeBin3->GetName(), m_h_hitsTimeBin3));
 
-  h_siCol = new TH1F("h_siCol", "siCol", 100, 0, 25);
-  h_siCol->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siCol->GetName(), h_siCol));
+  m_h_siCol = new TH1F("h_siCol", "siCol", 100, 0, 25);
+  m_h_siCol->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siCol->GetName(), m_h_siCol));
 
-  h_siRow = new TH1F("h_siRow", "siRow", 100, 0, 2);
-  h_siRow->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siRow->GetName(), h_siRow));
+  m_h_siRow = new TH1F("h_siRow", "siRow", 100, 0, 2);
+  m_h_siRow->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siRow->GetName(), m_h_siRow));
 
-  h_siPhiR = new TH1F("h_siPhiR", "siPhiR", 100, 0, 3.5);
-  h_siPhiR->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siPhiR->GetName(), h_siPhiR));
+  m_h_siPhiR = new TH1F("h_siPhiR", "siPhiR", 100, 0, 3.5);
+  m_h_siPhiR->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siPhiR->GetName(), m_h_siPhiR));
 
-  h_siZ = new TH1F("h_siZ", "siZ", 100, 0, 130);
-  h_siZ->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siZ->GetName(), h_siZ));
+  m_h_siZ = new TH1F("h_siZ", "siZ", 100, 0, 130);
+  m_h_siZ->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siZ->GetName(), m_h_siZ));
 
-  h_siPos_x = new TH1F("h_siPos_x", "siPos_x", 100, -600, 600);
-  h_siPos_x->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siPos_x->GetName(), h_siPos_x));
+  m_h_siPos_x = new TH1F("h_siPos_x", "siPos_x", 100, -600, 600);
+  m_h_siPos_x->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siPos_x->GetName(), m_h_siPos_x));
 
-  h_siPos_y = new TH1F("h_siPos_y", "siPos_y", 100, -600, 600);
-  h_siPos_y->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siPos_y->GetName(), h_siPos_y));
+  m_h_siPos_y = new TH1F("h_siPos_y", "siPos_y", 100, -600, 600);
+  m_h_siPos_y->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siPos_y->GetName(), m_h_siPos_y));
 
-  h_siPos_z = new TH1F("h_siPos_z", "siPos_z", 100, -3000, 3000);
-  h_siPos_z->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siPos_z->GetName(), h_siPos_z));
+  m_h_siPos_z = new TH1F("h_siPos_z", "siPos_z", 100, -3000, 3000);
+  m_h_siPos_z->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siPos_z->GetName(), m_h_siPos_z));
 
-  h_siGangPix = new TH1F("h_siGangPix", "siGangPix", 100, 0, 2);
-  h_siGangPix->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siGangPix->GetName(), h_siGangPix));
+  m_h_siGangPix = new TH1F("h_siGangPix", "siGangPix", 100, 0, 2);
+  m_h_siGangPix->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siGangPix->GetName(), m_h_siGangPix));
 
-  h_siDetID = new TH1F("h_siDetID", "siDetID", 100, 0, 1e18);
-  h_siDetID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetID->GetName(), h_siDetID));
+  m_h_siDetID = new TH1F("h_siDetID", "siDetID", 100, 0, 1e18);
+  m_h_siDetID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetID->GetName(), m_h_siDetID));
 
-  h_siDetPix = new TH1F("h_siDetPix", "siDetPix", 100, 0, 2);
-  h_siDetPix->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetPix->GetName(), h_siDetPix));
+  m_h_siDetPix = new TH1F("h_siDetPix", "siDetPix", 100, 0, 2);
+  m_h_siDetPix->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetPix->GetName(), m_h_siDetPix));
 
-  h_siDetSCT = new TH1F("h_siDetSCT", "siDetSCT", 100, 0, 2);
-  h_siDetSCT->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetSCT->GetName(), h_siDetSCT));
+  m_h_siDetSCT = new TH1F("h_siDetSCT", "siDetSCT", 100, 0, 2);
+  m_h_siDetSCT->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetSCT->GetName(), m_h_siDetSCT));
 
-  h_siDetBrl = new TH1F("h_siDetBrl", "siDetBrl", 100, 0, 2);
-  h_siDetBrl->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetBrl->GetName(), h_siDetBrl));
+  m_h_siDetBrl = new TH1F("h_siDetBrl", "siDetBrl", 100, 0, 2);
+  m_h_siDetBrl->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetBrl->GetName(), m_h_siDetBrl));
 
-  h_siDetEc = new TH1F("h_siDetEc", "siDetEc", 100, 0, 2);
-  h_siDetEc->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetEc->GetName(), h_siDetEc));
+  m_h_siDetEc = new TH1F("h_siDetEc", "siDetEc", 100, 0, 2);
+  m_h_siDetEc->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetEc->GetName(), m_h_siDetEc));
 
-  h_siDetBlay = new TH1F("h_siDetBlay", "siDetBlay", 100, 0, 2);
-  h_siDetBlay->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetBlay->GetName(), h_siDetBlay));
+  m_h_siDetBlay = new TH1F("h_siDetBlay", "siDetBlay", 100, 0, 2);
+  m_h_siDetBlay->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetBlay->GetName(), m_h_siDetBlay));
 
-  h_siDetInPixLay = new TH1F("h_siDetInPixLay", "siDetInPixLay", 100, 0, 2);
-  h_siDetInPixLay->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetInPixLay->GetName(), h_siDetInPixLay));
+  m_h_siDetInPixLay = new TH1F("h_siDetInPixLay", "siDetInPixLay", 100, 0, 2);
+  m_h_siDetInPixLay->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetInPixLay->GetName(), m_h_siDetInPixLay));
 
-  h_siDetNtInPixLay = new TH1F("h_siDetNtInPixLay", "siDetNtInPixLay", 100, 0, 2);
-  h_siDetNtInPixLay->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetNtInPixLay->GetName(), h_siDetNtInPixLay));
+  m_h_siDetNtInPixLay = new TH1F("h_siDetNtInPixLay", "siDetNtInPixLay", 100, 0, 2);
+  m_h_siDetNtInPixLay->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetNtInPixLay->GetName(), m_h_siDetNtInPixLay));
 
-  h_siDetDBM = new TH1F("h_siDetDBM", "siDetDBM", 100, 0, 2);
-  h_siDetDBM->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetDBM->GetName(), h_siDetDBM));
+  m_h_siDetDBM = new TH1F("h_siDetDBM", "siDetDBM", 100, 0, 2);
+  m_h_siDetDBM->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetDBM->GetName(), m_h_siDetDBM));
 
-  h_siDetHitDepthDir = new TH1F("h_siDetHitDepthDir", "siDetHitDepthDir", 100, -2, 2);
-  h_siDetHitDepthDir->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetHitDepthDir->GetName(), h_siDetHitDepthDir));
+  m_h_siDetHitDepthDir = new TH1F("h_siDetHitDepthDir", "siDetHitDepthDir", 100, -2, 2);
+  m_h_siDetHitDepthDir->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetHitDepthDir->GetName(), m_h_siDetHitDepthDir));
 
-  h_siDetHitPhiDir = new TH1F("h_siDetHitPhiDir", "siDetHitPhiDir", 100, -2, 2);
-  h_siDetHitPhiDir->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetHitPhiDir->GetName(), h_siDetHitPhiDir));
+  m_h_siDetHitPhiDir = new TH1F("h_siDetHitPhiDir", "siDetHitPhiDir", 100, -2, 2);
+  m_h_siDetHitPhiDir->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetHitPhiDir->GetName(), m_h_siDetHitPhiDir));
 
-  h_siDetHitEtaDir = new TH1F("h_siDetHitEtaDir", "siDetHitEtaDir", 100, -2, 2);
-  h_siDetHitEtaDir->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetHitEtaDir->GetName(), h_siDetHitEtaDir));
+  m_h_siDetHitEtaDir = new TH1F("h_siDetHitEtaDir", "siDetHitEtaDir", 100, -2, 2);
+  m_h_siDetHitEtaDir->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetHitEtaDir->GetName(), m_h_siDetHitEtaDir));
 
-  h_siDetMinR = new TH1F("h_siDetMinR", "siDetMinR", 100, 0, 600);
-  h_siDetMinR->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetMinR->GetName(), h_siDetMinR));
+  m_h_siDetMinR = new TH1F("h_siDetMinR", "siDetMinR", 100, 0, 600);
+  m_h_siDetMinR->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetMinR->GetName(), m_h_siDetMinR));
 
-  h_siDetMaxR = new TH1F("h_siDetMaxR", "siDetMaxR", 100, 0, 600);
-  h_siDetMaxR->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetMaxR->GetName(), h_siDetMaxR));
+  m_h_siDetMaxR = new TH1F("h_siDetMaxR", "siDetMaxR", 100, 0, 600);
+  m_h_siDetMaxR->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetMaxR->GetName(), m_h_siDetMaxR));
 
-  h_siDetMinZ = new TH1F("h_siDetMinZ", "siDetMinZ", 100, -3000, 3000);
-  h_siDetMinZ->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetMinZ->GetName(), h_siDetMinZ));
+  m_h_siDetMinZ = new TH1F("h_siDetMinZ", "siDetMinZ", 100, -3000, 3000);
+  m_h_siDetMinZ->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetMinZ->GetName(), m_h_siDetMinZ));
 
-  h_siDetMaxZ = new TH1F("h_siDetMaxZ", "siDetMaxZ", 100, -3000, 3000);
-  h_siDetMaxZ->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetMaxZ->GetName(), h_siDetMaxZ));
+  m_h_siDetMaxZ = new TH1F("h_siDetMaxZ", "siDetMaxZ", 100, -3000, 3000);
+  m_h_siDetMaxZ->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetMaxZ->GetName(), m_h_siDetMaxZ));
 
-  h_siDetMinPhi = new TH1F("h_siDetMinPhi", "siDetMinPhi", 100, -3.5, 3.5);
-  h_siDetMinPhi->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetMinPhi->GetName(), h_siDetMinPhi));
+  m_h_siDetMinPhi = new TH1F("h_siDetMinPhi", "siDetMinPhi", 100, -3.5, 3.5);
+  m_h_siDetMinPhi->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetMinPhi->GetName(), m_h_siDetMinPhi));
 
-  h_siDetMaxPhi = new TH1F("h_siDetMaxPhi", "siDetMaxPhi", 100, 3.5, 3.5);
-  h_siDetMaxPhi->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetMaxPhi->GetName(), h_siDetMaxPhi));
+  m_h_siDetMaxPhi = new TH1F("h_siDetMaxPhi", "siDetMaxPhi", 100, 3.5, 3.5);
+  m_h_siDetMaxPhi->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetMaxPhi->GetName(), m_h_siDetMaxPhi));
 
-  h_siDetWidth = new TH1F("h_siDetWidth", "siDetWidth", 100, 0, 75);
-  h_siDetWidth->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetWidth->GetName(), h_siDetWidth));
+  m_h_siDetWidth = new TH1F("h_siDetWidth", "siDetWidth", 100, 0, 75);
+  m_h_siDetWidth->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetWidth->GetName(), m_h_siDetWidth));
 
-  h_siDetMinWidth = new TH1F("h_siDetMinWidth", "siDetMinWidth", 100, 0, 75);
-  h_siDetMinWidth->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetMinWidth->GetName(), h_siDetMinWidth));
+  m_h_siDetMinWidth = new TH1F("h_siDetMinWidth", "siDetMinWidth", 100, 0, 75);
+  m_h_siDetMinWidth->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetMinWidth->GetName(), m_h_siDetMinWidth));
 
-  h_siDetMaxWidth = new TH1F("h_siDetMaxWidth", "siDetMaxWidth", 100, 0, 75);
-  h_siDetMaxWidth->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetMaxWidth->GetName(), h_siDetMaxWidth));
+  m_h_siDetMaxWidth = new TH1F("h_siDetMaxWidth", "siDetMaxWidth", 100, 0, 75);
+  m_h_siDetMaxWidth->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetMaxWidth->GetName(), m_h_siDetMaxWidth));
 
-  h_siDetLength = new TH1F("h_siDetLength", "siDetLength", 100, 0, 150);
-  h_siDetLength->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetLength->GetName(), h_siDetLength));
+  m_h_siDetLength = new TH1F("h_siDetLength", "siDetLength", 100, 0, 150);
+  m_h_siDetLength->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetLength->GetName(), m_h_siDetLength));
 
-  h_siDetThick = new TH1F("h_siDetThick", "siDetThick", 100, 0, 1);
-  h_siDetThick->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetThick->GetName(), h_siDetThick));
+  m_h_siDetThick = new TH1F("h_siDetThick", "siDetThick", 100, 0, 1);
+  m_h_siDetThick->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetThick->GetName(), m_h_siDetThick));
 
-  h_siDetEtaPitch = new TH1F("h_siDetEtaPitch", "siDetEtaPitch", 100, 0, 150);
-  h_siDetEtaPitch->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetEtaPitch->GetName(), h_siDetEtaPitch));
+  m_h_siDetEtaPitch = new TH1F("h_siDetEtaPitch", "siDetEtaPitch", 100, 0, 150);
+  m_h_siDetEtaPitch->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetEtaPitch->GetName(), m_h_siDetEtaPitch));
 
-  h_siDetPhiPitch = new TH1F("h_siDetPhiPitch", "siDetPhiPitch", 100, 0, 0.1);
-  h_siDetPhiPitch->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_siDetPhiPitch->GetName(), h_siDetPhiPitch));
+  m_h_siDetPhiPitch = new TH1F("h_siDetPhiPitch", "siDetPhiPitch", 100, 0, 0.1);
+  m_h_siDetPhiPitch->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_siDetPhiPitch->GetName(), m_h_siDetPhiPitch));
 
-  h_clusID = new TH1F("h_clusID", "clusID", 100, 0, 1e18);
-  h_clusID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_clusID->GetName(), h_clusID));
+  m_h_clusID = new TH1F("h_clusID", "clusID", 100, 0, 1e18);
+  m_h_clusID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_clusID->GetName(), m_h_clusID));
 
-  h_locpos_x = new TH1F("h_locpos_x", "locpos_x", 100, -40, 40);
-  h_locpos_x->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_locpos_x->GetName(), h_locpos_x));
+  m_h_locpos_x = new TH1F("h_locpos_x", "locpos_x", 100, -40, 40);
+  m_h_locpos_x->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_locpos_x->GetName(), m_h_locpos_x));
 
-  h_locpos_y = new TH1F("h_locpos_y", "locpos_y", 100, -1, 1);
-  h_locpos_y->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_locpos_y->GetName(), h_locpos_y));
+  m_h_locpos_y = new TH1F("h_locpos_y", "locpos_y", 100, -1, 1);
+  m_h_locpos_y->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_locpos_y->GetName(), m_h_locpos_y));
 
-  h_rdoID_prd = new TH1F("h_rdoID_prd", "rdoID_prd", 100, 0, 1e18);
-  h_rdoID_prd->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_rdoID_prd->GetName(), h_rdoID_prd));
+  m_h_rdoID_prd = new TH1F("h_rdoID_prd", "rdoID_prd", 100, 0, 1e18);
+  m_h_rdoID_prd->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_rdoID_prd->GetName(), m_h_rdoID_prd));
 
   return StatusCode::SUCCESS;
 }
@@ -387,7 +387,7 @@ StatusCode SCT_FastRDOAnalysis::execute() {
         const uint16_t hitsTimeBin3((*clus_itr)->hitsInThirdTimeBin());
         m_hitsTimeBin3->push_back(hitsTimeBin3);
 
-        h_hitsTimeBin3->Fill(hitsTimeBin3);
+        m_h_hitsTimeBin3->Fill(hitsTimeBin3);
 
         // SiCluster
         const InDet::SiWidth& siWidth((*clus_itr)->SiCluster::width());
@@ -469,39 +469,39 @@ StatusCode SCT_FastRDOAnalysis::execute() {
         m_siDetEtaPitch->push_back(siDetEtaPitch);
         m_siDetPhiPitch->push_back(siDetPhiPitch);
 
-        h_siCol->Fill(siCol);
-        h_siRow->Fill(siRow);
-        h_siPhiR->Fill(siPhiR);
-        h_siZ->Fill(siZ);
-        h_siPos_x->Fill(siPos_x);
-        h_siPos_y->Fill(siPos_y);
-        h_siPos_z->Fill(siPos_z);
-        h_siGangPix->Fill(siGangPix);
-        h_siDetID->Fill(siDetID_int);
-        h_siDetPix->Fill(siDetPix);
-        h_siDetSCT->Fill(siDetSCT);
-        h_siDetBrl->Fill(siDetBrl);
-        h_siDetEc->Fill(siDetEc);
-        h_siDetBlay->Fill(siDetBlay);
-        h_siDetInPixLay->Fill(siDetInPixLay);
-        h_siDetNtInPixLay->Fill(siDetNtInPixLay);
-        h_siDetDBM->Fill(siDetDBM);
-        h_siDetHitDepthDir->Fill(siDetHitDepthDir);
-        h_siDetHitPhiDir->Fill(siDetHitPhiDir);
-        h_siDetHitEtaDir->Fill(siDetHitEtaDir);
-        h_siDetMinR->Fill(siDetMinR);
-        h_siDetMaxR->Fill(siDetMaxR);
-        h_siDetMinZ->Fill(siDetMinZ);
-        h_siDetMaxZ->Fill(siDetMaxZ);
-        h_siDetMinPhi->Fill(siDetMinPhi);
-        h_siDetMaxPhi->Fill(siDetMaxPhi);
-        h_siDetWidth->Fill(siDetWidth);
-        h_siDetMinWidth->Fill(siDetMinWidth);
-        h_siDetMaxWidth->Fill(siDetMaxWidth);
-        h_siDetLength->Fill(siDetLength);
-        h_siDetThick->Fill(siDetThick);
-        h_siDetEtaPitch->Fill(siDetEtaPitch);
-        h_siDetPhiPitch->Fill(siDetPhiPitch);
+        m_h_siCol->Fill(siCol);
+        m_h_siRow->Fill(siRow);
+        m_h_siPhiR->Fill(siPhiR);
+        m_h_siZ->Fill(siZ);
+        m_h_siPos_x->Fill(siPos_x);
+        m_h_siPos_y->Fill(siPos_y);
+        m_h_siPos_z->Fill(siPos_z);
+        m_h_siGangPix->Fill(siGangPix);
+        m_h_siDetID->Fill(siDetID_int);
+        m_h_siDetPix->Fill(siDetPix);
+        m_h_siDetSCT->Fill(siDetSCT);
+        m_h_siDetBrl->Fill(siDetBrl);
+        m_h_siDetEc->Fill(siDetEc);
+        m_h_siDetBlay->Fill(siDetBlay);
+        m_h_siDetInPixLay->Fill(siDetInPixLay);
+        m_h_siDetNtInPixLay->Fill(siDetNtInPixLay);
+        m_h_siDetDBM->Fill(siDetDBM);
+        m_h_siDetHitDepthDir->Fill(siDetHitDepthDir);
+        m_h_siDetHitPhiDir->Fill(siDetHitPhiDir);
+        m_h_siDetHitEtaDir->Fill(siDetHitEtaDir);
+        m_h_siDetMinR->Fill(siDetMinR);
+        m_h_siDetMaxR->Fill(siDetMaxR);
+        m_h_siDetMinZ->Fill(siDetMinZ);
+        m_h_siDetMaxZ->Fill(siDetMaxZ);
+        m_h_siDetMinPhi->Fill(siDetMinPhi);
+        m_h_siDetMaxPhi->Fill(siDetMaxPhi);
+        m_h_siDetWidth->Fill(siDetWidth);
+        m_h_siDetMinWidth->Fill(siDetMinWidth);
+        m_h_siDetMaxWidth->Fill(siDetMaxWidth);
+        m_h_siDetLength->Fill(siDetLength);
+        m_h_siDetThick->Fill(siDetThick);
+        m_h_siDetEtaPitch->Fill(siDetEtaPitch);
+        m_h_siDetPhiPitch->Fill(siDetPhiPitch);
 
         // Trk::PrepRawData
         const Identifier clusID((*clus_itr)->PrepRawData::identify());
@@ -519,12 +519,12 @@ StatusCode SCT_FastRDOAnalysis::execute() {
         for (size_t k = 0; k != rdoID_v.size(); ++k) {
           const unsigned long long rdoID_prd_int = rdoID_v.at(k).get_compact();
           m_rdoID_prd->push_back(rdoID_prd_int);
-          h_rdoID_prd->Fill(rdoID_prd_int);
+          m_h_rdoID_prd->Fill(rdoID_prd_int);
         }
 
-        h_clusID->Fill(clusID_int);
-        h_locpos_x->Fill(locpos_x);
-        h_locpos_y->Fill(locpos_y);
+        m_h_clusID->Fill(clusID_int);
+        m_h_locpos_x->Fill(locpos_x);
+        m_h_locpos_y->Fill(locpos_y);
       }
     }
   }

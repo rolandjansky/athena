@@ -8,6 +8,7 @@
 // Include what you use
 #include <vector>
 #include <string>
+#include <cstdlib>
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
@@ -23,7 +24,7 @@
 #include "JetInterface/IJetModifier.h"
 #include "JetResolution/IJERTool.h"
 #include "JetResolution/IJERSmearingTool.h"
-#include "JetJvtEfficiency/IJetJvtEfficiency.h"
+#include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 #include "JetSelectorTools/IEventCleaningTool.h"
 
 // MET include(s):
@@ -56,6 +57,9 @@ class JetMETCPTools final : public asg::AsgTool {
 
   std::string m_jetAntiKt4_MCAFII_ConfigFile;
   std::string m_jetAntiKt4_MCAFII_CalibSequence;
+
+  std::string m_jetAntiKt4_MCAFII_PFlow_ConfigFile;
+  std::string m_jetAntiKt4_MCAFII_PFlow_CalibSequence;
 
   std::string m_jetAntiKt4_PFlow_MCFS_ConfigFile;
   std::string m_jetAntiKt4_PFlow_MCFS_CalibSequence;

@@ -137,6 +137,8 @@ void InitialiseLHAPDFWeights(AnalysisTopTools, bool);
 void ReprocessLHE3Weights(AnalysisTopTools, bool);
 /// Preselection check
 bool PassPreselection(AnalysisTopTools);
+/// Function to create objects
+void CreateObjectCollection(AnalysisTopTools, bool);
 /// Function for checking and saving tight reco event
 void ProcessRecoEventTight(AnalysisTopTools, unsigned int&);
 /// Function for checking and saving loose reco event
@@ -510,9 +512,12 @@ std::shared_ptr<top::ObjectCollectionMaker> CreateObjectCollectionMaker(std::sha
 
 std::shared_ptr<top::TopObjectSelection> CreateTopObjectSelection(std::shared_ptr<top::TopConfig> topConfig){
 
-  // Setup object definitions
-  std::shared_ptr<top::TopObjectSelection> objectSelection(top::loadObjectSelection(topConfig));
-  objectSelection->print(std::cout);
+  // Setup object definitions - not needed by HLUpgrade code
+  std::shared_ptr<top::TopObjectSelection> objectSelection;
+  if(!topConfig->HLLHC()) {
+    objectSelection.reset(top::loadObjectSelection(topConfig));
+    objectSelection->print(std::cout);
+  }
   return objectSelection;
 }
 
@@ -742,6 +747,10 @@ void RunEventLoop(std::vector<std::string> filenames, AnalysisTopTools analysisT
       // Run preselection and cutflows - if failed preselection, get next event
       if( !PassPreselection(analysisTopTools) )
         continue;
+      // Run nominal object creation and selection
+      CreateObjectCollection(analysisTopTools, true);
+      // Run systematic object creation and selection
+      CreateObjectCollection(analysisTopTools, false);
       // Process reconstruction level event which passed preselection - Tight selection
       if (topConfig->doTightEvents()) {
         ProcessRecoEventTight(analysisTopTools, eventSavedReco);
@@ -1092,21 +1101,29 @@ bool PassPreselection(AnalysisTopTools analysisTopTools){
   bool passAnyTriggerVeto = analysisTopTools.topEventCleaningSelection->applyTrigger();
   if (!passAnyTriggerVeto)
     return false;
+    
+  return true;
+  }
+
+void CreateObjectCollection(AnalysisTopTools analysisTopTools, bool executeNominal){
+
+  // Get the config object                                               
+  std::shared_ptr<top::TopConfig> topConfig = analysisTopTools.topConfig;
 
   ///-- Calibrate objects and make all required systematic copies --///
-  top::check( analysisTopTools.topObjectCollectionMaker->execute() , "Failed to execute systObjMaker" );
+  top::check( analysisTopTools.topObjectCollectionMaker->execute(executeNominal) , "Failed to execute systObjMaker" );
 
   ///-- Object selection (e.g. good electrons, muons, jets etc.). Event selection cuts comes later --///
-  top::check( analysisTopTools.topObjectSelection->execute() , "Failed to execute objectSelection" );
+  top::check( analysisTopTools.topObjectSelection->execute(executeNominal) , "Failed to execute objectSelection" );
 
   ///-- Recalculate MissingET based on object selection --///
-  top::check( analysisTopTools.topObjectCollectionMaker->recalculateMET() , "Failed to recalculateMET with systObjMaker" );
+  top::check( analysisTopTools.topObjectCollectionMaker->recalculateMET(executeNominal) , "Failed to recalculateMET with systObjMaker" );
 
   ///-- Scale Factor calculation --///
-  if (topConfig->isMC())
+  if (topConfig->isMC() && !executeNominal)
     top::check( analysisTopTools.topScaleFactorCalculator->execute() , "Failed to calculate scale factors" );
 
-  return true;
+  return;
 }
 
 void ProcessRecoEventTight(AnalysisTopTools analysisTopTools, unsigned int &eventSavedReco){

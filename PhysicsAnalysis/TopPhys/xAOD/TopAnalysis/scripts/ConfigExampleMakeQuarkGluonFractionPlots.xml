@@ -1,0 +1,32 @@
+<configuration>
+<!-- Configuration file to compute the gluon fraction -->
+   <!-- Paths configuration. If folder attribute is empty, assume folder="JetFlavorPlots" if scalefactor attribute is empty, assume scalefactor="1.0" -->
+   <!-- Path to nominal input file or txt list (this is valid for any path) -->
+   <nominal path="./nominal_list.txt" folder="JetFlavorPlots" />
+   <!-- If you want the Loose selection, just specify in the folder field, like: -->
+   <!--
+   <nominal path="/afs/cern.ch/user/m/mscornaj/QGFPlots/prova.root" folder="JetFlavorPlots_Loose" />
+   -->
+   <!-- Systematic uncertainties (you can add as much as you want) -->
+   <!-- one point systematic example: delta=scalefactor*abs(central-variation)/central -->
+   <systematic1point name="GeneratorSyst1P" central="./nominal.root" variation="./alternative_generator.root" scalefactor="1.0" folder_variation="JetFlavorPlots" folder_central="JetFlavorPlots" />
+   <systematic1point name="PartonShowerSyst1P" central="./nominal.root" variation="./alternative_shower_list.txt" scalefactor="1.0" folder_variation="JetFlavorPlots" folder_central="JetFlavorPlots" />
+   <!-- two point systematic example: delta_up=scalefactor*abs(central-variation_up)/central delta_down=scalefactor*abs(central-variation_down)/central -->
+   <systematic2point name="IFSRSyst2P" central="./nominal_list.txt" folder_central="JetFlavorPlots" variation_up="./IFSR_UP.root" folder_up="JetFlavorPlots_RadHigh" variation_down="./IFSR_DOWN.root" folder_down="JetFlavorPlots_RadLow" scalefactor="1.0" />
+   <!-- Path to output file -->
+   <output path="FlavourComposition.root" />
+   <!-- End paths configuration -->
+   <!-- Channel list (add as much as you want) -->
+   <channel name="mumu_2016" />
+   <channel name="mumu_2015" />
+   <channel name="ee_2015" />
+   <channel name="ee_2016" />
+   <!-- Merge different channels in single QGF histogram -->
+   <mergechannels value="false" />
+   <!-- Run the extended configuration? -->
+   <detailed value="false" />
+   <!-- Compute the gluon fraction taking into account only light quarks or also heavy quarks ( light, lightC(default) or lightCB ) -->
+   <gluon_vs_flavour value="lightC" />
+   <!-- Save histograms as PS files -->
+   <do_ps value="true" />
+</configuration>

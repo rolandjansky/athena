@@ -23,6 +23,9 @@
 #include "JetRec/JetFinder.h"
 #include "JetRec/JetTrimmer.h"
 #include "JetRec/JetPseudojetRetriever.h"
+#ifndef XAOD_STANDALONE
+#include "JetRecTools/TrackPseudoJetGetter.h"
+#endif
 #include "JetReclustering/EffectiveRTool.h"
 #include "JetSubStructureMomentTools/JetChargeTool.h"
 #include "JetSubStructureMomentTools/JetPullTool.h"
@@ -39,6 +42,9 @@ JetReclusteringTool::JetReclusteringTool(std::string name) :
   m_jetFilterTool("JetFilterTool/JetFilterTool_" + this->name()),
   m_inputJetFilterTool("JetRecTool/JetRec_InputJetFilterTool_" + this->name()),
   m_pseudoJetGetterTool("PseudoJetGetter/PseudoJetGetterTool_" + this->name()),
+  m_pseudoGhostTrackJetGetterTool("TrackPseudoJetGetter/PseudoGhostTrackJetGetterTool_" + this->name()),
+  m_pseudoTruthParticleBJetGetterTool("PseudoJetGetter/PseudoJetGetterTool_BTruth_" + this->name()),
+  m_pseudoTruthParticleCJetGetterTool("PseudoJetGetter/PseudoJetGetterTool_CTruth_" + this->name()),
   m_jetFromPseudoJetTool("JetFromPseudojet/JetFromPseudoJetTool_" + this->name()),
   m_jetFinderTool("JetFinder/JetFinderTool_" + this->name()),
   m_reclusterJetTool("JetRecTool/JetRec_JetReclusterTool_" + this->name()),
@@ -57,18 +63,23 @@ JetReclusteringTool::JetReclusteringTool(std::string name) :
 {
 
 
-  declareProperty("InputJetContainer",  m_inputJetContainer = "");
-  declareProperty("OutputJetContainer", m_outputJetContainer = "");
-  declareProperty("ReclusterRadius",    m_radius = 1.0);
-  declareProperty("ReclusterAlgorithm", m_rc_alg = "AntiKt");
-  declareProperty("VariableRMinRadius", m_varR_minR =-1.0);
-  declareProperty("VariableRMassScale", m_varR_mass =-1.0);
-  declareProperty("InputJetPtMin",      m_ptMin_input = 25.0);
-  declareProperty("RCJetPtMin",         m_ptMin_rc = 50.0);
-  declareProperty("RCJetPtFrac",        m_ptFrac = 0.05);
-  declareProperty("RCJetSubjetRadius",  m_subjet_radius = 0.2);
-  declareProperty("DoArea",             m_doArea = false);
-  declareProperty("AreaAttributes",     m_areaAttributes = "ActiveArea ActiveArea4vec");
+  declareProperty("InputJetContainer",         m_inputJetContainer = "");
+  declareProperty("OutputJetContainer",        m_outputJetContainer = "");
+  declareProperty("ReclusterRadius",           m_radius = 1.0);
+  declareProperty("ReclusterAlgorithm",        m_rc_alg = "AntiKt");
+  declareProperty("VariableRMinRadius",        m_varR_minR =-1.0);
+  declareProperty("VariableRMassScale",        m_varR_mass =-1.0);
+  declareProperty("InputJetPtMin",             m_ptMin_input = 25.0);
+  declareProperty("RCJetPtMin",                m_ptMin_rc = 50.0);
+  declareProperty("RCJetPtFrac",               m_ptFrac = 0.05);
+  declareProperty("RCJetSubjetRadius",         m_subjet_radius = 0.2);
+  declareProperty("DoArea",                    m_doArea = false);
+  declareProperty("AreaAttributes",            m_areaAttributes = "ActiveArea ActiveArea4vec");
+  declareProperty("GhostTracksInputContainer", m_ghostTracksInputContainer = "");
+  declareProperty("GhostTruthInputBContainer",   m_ghostTruthInputBContainer = "");
+  declareProperty("GhostTruthInputCContainer",   m_ghostTruthInputCContainer = "");
+  declareProperty("GhostTracksVertexAssociationName",  m_ghostTracksVertexAssociationName = "");
+  declareProperty("GhostScale",                m_ghostScale = 1e-20);
 
 }
 
@@ -148,6 +159,54 @@ StatusCode JetReclusteringTool::initialize(){
   ASG_CHECK(m_pseudoJetGetterTool.setProperty("OutputLevel", msg().level() ) );
   ASG_CHECK(m_pseudoJetGetterTool.retrieve());
   getterArray.push_back(m_pseudoJetGetterTool.getHandle());
+  #ifndef XAOD_STANDALONE
+  //    - do we need ghost tracks too?
+  if(!m_ghostTracksInputContainer.empty()){
+    ATH_MSG_INFO( "GhostTracks PseudoJet Builder initializing..." );
+    if(m_ghostTracksVertexAssociationName.empty()){
+      ATH_MSG_ERROR( "You must set the GhostTracksVertexAssoctiationName as well!" );
+      return StatusCode::FAILURE;
+    }
+    ASG_CHECK( ASG_MAKE_ANA_TOOL( m_pseudoGhostTrackJetGetterTool, TrackPseudoJetGetter) );
+    ASG_CHECK(m_pseudoGhostTrackJetGetterTool.setProperty("InputContainer", m_ghostTracksInputContainer));
+    ASG_CHECK(m_pseudoGhostTrackJetGetterTool.setProperty("OutputContainer", "GhostTracks"+name()));
+    ASG_CHECK(m_pseudoGhostTrackJetGetterTool.setProperty("Label", "GhostTrack"));
+    ASG_CHECK(m_pseudoGhostTrackJetGetterTool.setProperty("SkipNegativeEnergy", true));
+    ASG_CHECK(m_pseudoGhostTrackJetGetterTool.setProperty("GhostScale", m_ghostScale));
+    ASG_CHECK(m_pseudoGhostTrackJetGetterTool.setProperty("TrackVertexAssociation", m_ghostTracksVertexAssociationName));
+    ASG_CHECK(m_pseudoGhostTrackJetGetterTool.setProperty("OutputLevel", msg().level() ) );
+    ASG_CHECK(m_pseudoGhostTrackJetGetterTool.retrieve());
+    getterArray.push_back(m_pseudoGhostTrackJetGetterTool.getHandle());
+  }
+  #else
+  ATH_MSG_INFO( "Ghost track association is ATHENA ONLY, setting the option is doing nothing." );
+  #endif
+  if(!m_ghostTruthInputBContainer.empty()){
+       ATH_MSG_INFO( "GhostTracks PseudoJet Builder initializing..." );
+       ASG_CHECK( ASG_MAKE_ANA_TOOL( m_pseudoTruthParticleBJetGetterTool, PseudoJetGetter) );
+       ASG_CHECK(m_pseudoTruthParticleBJetGetterTool.setProperty("InputContainer",  "TruthLabel" + m_ghostTruthInputBContainer));
+       ASG_CHECK(m_pseudoTruthParticleBJetGetterTool.setProperty("OutputContainer", "GhostBTruthParticles"+name()));
+       ASG_CHECK(m_pseudoTruthParticleBJetGetterTool.setProperty("Label", "Ghost"+ m_ghostTruthInputBContainer));
+       ASG_CHECK(m_pseudoTruthParticleBJetGetterTool.setProperty("SkipNegativeEnergy", true));
+       ASG_CHECK(m_pseudoTruthParticleBJetGetterTool.setProperty("GhostScale", m_ghostScale));
+       ASG_CHECK(m_pseudoTruthParticleBJetGetterTool.setProperty("OutputLevel", msg().level() ) );
+       ASG_CHECK(m_pseudoTruthParticleBJetGetterTool.retrieve());
+       getterArray.push_back(m_pseudoTruthParticleBJetGetterTool.getHandle());
+   }
+   if(!m_ghostTruthInputCContainer.empty()){
+       ATH_MSG_INFO( "GhostTracks PseudoJet Builder initializing..." );
+       ASG_CHECK( ASG_MAKE_ANA_TOOL( m_pseudoTruthParticleCJetGetterTool, PseudoJetGetter) );
+       ASG_CHECK(m_pseudoTruthParticleCJetGetterTool.setProperty("InputContainer",  "TruthLabel" + m_ghostTruthInputCContainer));
+       ASG_CHECK(m_pseudoTruthParticleCJetGetterTool.setProperty("OutputContainer", "GhostCTruthParticles"+name()));
+       ASG_CHECK(m_pseudoTruthParticleCJetGetterTool.setProperty("Label", "Ghost"+ m_ghostTruthInputCContainer));
+       ASG_CHECK(m_pseudoTruthParticleCJetGetterTool.setProperty("SkipNegativeEnergy", true));
+       ASG_CHECK(m_pseudoTruthParticleCJetGetterTool.setProperty("GhostScale", m_ghostScale));
+       ASG_CHECK(m_pseudoTruthParticleCJetGetterTool.setProperty("OutputLevel", msg().level() ) );
+       ASG_CHECK(m_pseudoTruthParticleCJetGetterTool.retrieve());
+       getterArray.push_back(m_pseudoTruthParticleCJetGetterTool.getHandle());
+    }
+
+
   ATH_CHECK(getterArray.retrieve() );
   //    - create a Jet builder
   ATH_MSG_INFO( "Jet Builder initializing..." );

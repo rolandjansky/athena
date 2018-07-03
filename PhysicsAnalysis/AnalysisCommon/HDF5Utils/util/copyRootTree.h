@@ -13,6 +13,8 @@ namespace H5 {
   class Group;
 }
 
+bool passTTreeCut(TTreeFormula& cut);
+
 namespace H5Utils {
   void copyRootTree(TTree& tt, H5::Group& fg, const TreeCopyOpts& opts);
 }

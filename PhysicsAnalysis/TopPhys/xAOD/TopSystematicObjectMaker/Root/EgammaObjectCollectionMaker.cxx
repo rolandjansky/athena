@@ -7,6 +7,7 @@
 #include "TopConfiguration/TopConfig.h"
 #include "TopEvent/EventTools.h"
 
+#include "AthContainers/AuxElement.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/ElectronAuxContainer.h"
@@ -42,6 +43,8 @@ namespace top{
     m_isolationTool_FixedCutTightCaloOnly("CP::IsolationTool_FixedCutTightCaloOnly"),
     m_isolationTool_FixedCutLoose("CP::IsolationTool_FixedCutLoose"),
     m_isolationTool_FixedCutHighPtCaloOnly("CP::IsolationTool_FixedCutHighPtCaloOnly"),
+    m_isolationTool_FixedCutHighMuTight("CP::IsolationTool_FixedCutHighMuTight"),
+    m_isolationTool_FixedCutHighMuLoose("CP::IsolationTool_FixedCutHighMuLoose"),
     m_isolationCorr("CP::IsolationCorrectionTool")
   {
     declareProperty( "config" , m_config ); 
@@ -57,6 +60,8 @@ namespace top{
     declareProperty( "IsolationTool_FixedCutTightCaloOnly" , m_isolationTool_FixedCutTightCaloOnly );
     declareProperty( "IsolationTool_FixedCutLoose" , m_isolationTool_FixedCutLoose );
     declareProperty( "IsolationTool_FixedCutHighPtCaloOnly", m_isolationTool_FixedCutHighPtCaloOnly );
+    declareProperty( "IsolationTool_FixedCutHighMuTight" , m_isolationTool_FixedCutHighMuTight );
+    declareProperty( "IsolationTool_FixedCutHighMuLoose" , m_isolationTool_FixedCutHighMuLoose );
     declareProperty( "IsolationCorrectionTool", m_isolationCorr );
   } 
   
@@ -89,6 +94,8 @@ namespace top{
       top::check( m_isolationTool_FixedCutTight.retrieve() , "Failed to retrieve Isolation Tool" );
       top::check( m_isolationTool_FixedCutTightTrackOnly.retrieve() , "Failed to retrieve Isolation Tool" );
       top::check( m_isolationTool_FixedCutLoose.retrieve() , "Failed to retrieve Isolation Tool" );
+      top::check( m_isolationTool_FixedCutHighMuTight.retrieve() , "Failed to retrieve Isolation Tool" );
+      top::check( m_isolationTool_FixedCutHighMuLoose.retrieve() , "Failed to retrieve Isolation Tool" );
     }
     
     top::check( m_isolationCorr.retrieve() , "Failed to retrieve Isolation Correction Tool" );
@@ -126,7 +133,7 @@ namespace top{
     return StatusCode::SUCCESS;
   }
   
-  StatusCode EgammaObjectCollectionMaker::executePhotons()
+  StatusCode EgammaObjectCollectionMaker::executePhotons(bool executeNominal)
   {
     ///-- Get base photons from xAOD --///
     const xAOD::PhotonContainer* xaod(nullptr);
@@ -134,7 +141,11 @@ namespace top{
 
     ///-- Loop over all systematics --///
     for( auto systematic : m_specifiedSystematicsPhotons ){
-      
+        
+      ///-- if executeNominal, skip other systematics (and vice-versa) --///
+      if(executeNominal && !m_config->isSystNominal( m_config->systematicName(systematic.hash()) )) continue;
+      if(!executeNominal && m_config->isSystNominal( m_config->systematicName(systematic.hash()) )) continue;
+
       ///-- Tell tool which systematic to use --///
       top::check( m_calibrationTool->applySystematicVariation( systematic ) , "Failed to applySystematicVariation" ); 
       
@@ -202,8 +213,11 @@ namespace top{
     return StatusCode::SUCCESS;
   }   
     
-  StatusCode EgammaObjectCollectionMaker::executeElectrons()
+  StatusCode EgammaObjectCollectionMaker::executeElectrons(bool executeNominal)
   {
+    static SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVA_pt1000("ptvarcone30_TightTTVA_pt1000");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FixedCutHighMuTight("AnalysisTop_Isol_FixedCutHighMuTight");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_FixedCutHighMuLoose("AnalysisTop_Isol_FixedCutHighMuLoose");
 
     const xAOD::EventInfo* eventInfo(nullptr);
     top::check( evtStore()->retrieve( eventInfo, m_config->sgKeyEventInfo() ), "Failed to retrieve EventInfo");
@@ -218,6 +232,10 @@ namespace top{
     ///-- Loop over all systematics --///
     for( auto systematic : m_specifiedSystematicsElectrons ){
       
+      ///-- if executeNominal, skip other systematics (and vice-versa) --///                                 
+      if(executeNominal && !m_config->isSystNominal( m_config->systematicName(systematic.hash()) )) continue;
+      if(!executeNominal && m_config->isSystNominal( m_config->systematicName(systematic.hash()) )) continue;
+
       ///-- Tell tool which systematic to use -///
       top::check( m_calibrationTool->applySystematicVariation( systematic ) , "Failed to applySystematicVariation" );
       
@@ -274,6 +292,11 @@ namespace top{
 	electron->auxdecor<char>("AnalysisTop_Isol_FixedCutTightTrackOnly") = passIsol_FixedCutTightTrackOnly;
 	electron->auxdecor<char>("AnalysisTop_Isol_FixedCutLoose")          = passIsol_FixedCutLoose;
 	electron->auxdecor<char>("AnalysisTop_Isol_FixedCutHighPtCaloOnly") = passIsol_FixedCutHighPtCaloOnly;
+
+        if (ptvarcone30_TightTTVA_pt1000.isAvailable(*electron)) {
+          AnalysisTop_Isol_FixedCutHighMuTight(*electron) = (m_isolationTool_FixedCutHighMuTight->accept(*electron) ? 1 : 0);
+          AnalysisTop_Isol_FixedCutHighMuLoose(*electron) = (m_isolationTool_FixedCutHighMuLoose->accept(*electron) ? 1 : 0);
+        }
 
 	// For electron prompt isolation tagger, check a cut on the tagger and also loose isolation
 	electron->auxdecor<char>("AnalysisTop_Isol_PromptLepton") = (electron->auxdata<float>("PromptLeptonIso_TagWeight") < -0.5) ? 1 : 0;

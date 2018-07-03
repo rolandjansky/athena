@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to <OBJECT>
@@ -18,7 +18,7 @@
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 #include "JetInterface/IJetUpdateJvt.h"
 #include "JetInterface/IJetModifier.h"
-#include "JetJvtEfficiency/IJetJvtEfficiency.h"
+#include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 
 #include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
@@ -242,7 +242,7 @@ namespace ST {
       }
       else{
         ATH_CHECK( m_jetFatCalibTool->applyCalibration(input) );
-        dec_baseline(input) = input.pt() > 20e3;
+	dec_baseline(input) = ( input.pt() > m_jetPt ) || ( input.pt() > 20e3 ); // Allows for setting m_jetPt < 20e3
         dec_bad(input) = false;
         dec_signal(input) = false;
         dec_bjet_loose(input) = false;
@@ -289,7 +289,7 @@ namespace ST {
       else this->IsBJetContinuous(input);
     }
 
-    if (input.pt() > 15e3) {
+    if ( (input.pt() > m_jetPt) || (input.pt() > 15e3) ) {
       if(!isFat){
         CP::CorrectionCode result = m_jetUncertaintiesTool->applyCorrection(input);
         switch (result) {
@@ -310,7 +310,7 @@ namespace ST {
     if ( m_jerSmearingTool->applyCorrection(input) != CP::CorrectionCode::Ok) ATH_MSG_ERROR("Failed to apply JER smearing ");
 
     dec_passJvt(input) = !m_applyJVTCut || m_jetJvtEfficiencyTool->passesJvtCut(input);
-    dec_baseline(input) = input.pt() > 20e3;
+    dec_baseline(input) = ( input.pt() > m_jetPt ) || ( input.pt() > 20e3 ); // Allows for setting m_jetPt < 20e3
     dec_bad(input) = false;
     dec_signal_less_JVT(input) = false;
     dec_signal(input) = false;
@@ -327,8 +327,7 @@ namespace ST {
     }
 
     if (m_useBtagging && !m_orBtagWP.empty()) {
-      bool isbjet_loose = m_btagSelTool_OR->accept(input); //note : b-tag applies only to jet with eta < 2.5
-      dec_bjet_loose(input) = isbjet_loose;
+      dec_bjet_loose(input) = this->IsBJetLoose(input);
     }
   
     if (m_debug) {
@@ -357,8 +356,9 @@ namespace ST {
 
 
   bool SUSYObjDef_xAOD::IsBJetLoose(const xAOD::Jet& input) const {
-    bool isbjet_loose = m_btagSelTool_OR->accept(input); 
-    dec_bjet_loose(input) = isbjet_loose; 
+    bool isbjet_loose = false;
+    if (m_orBJetPtUpperThres < 0 || m_orBJetPtUpperThres > input.pt())
+      isbjet_loose = m_btagSelTool_OR->accept(input); //note : b-tag applies only to jet with eta < 2.5
     return isbjet_loose; 
   }
   
@@ -429,12 +429,25 @@ namespace ST {
     if ( !acc_passOR(input) ) return false;
 
     float ptcut = 20e3;
+    if ( m_jetPt < ptcut ) ptcut = m_jetPt;
+
     bool  isPileup = !acc_passJvt(input);
 
     if ( input.pt() <= ptcut || isPileup ) return false;
 
-    dec_bad(input) = m_jetCleaningTool.empty() ? false : !m_jetCleaningTool->keep(input);
-
+    if (m_jetInputType == xAOD::JetInput::EMTopo) { //--- Jet cleaning only well defined for EMTopo jets!
+      if (m_acc_jetClean.isAvailable(input)) {
+	dec_bad(input) = !m_acc_jetClean(input);
+      } else {
+	ATH_MSG_VERBOSE("DFCommon jet cleaning variable not available ... Using jet cleaning tool");
+	dec_bad(input) = m_jetCleaningTool.empty() ? false : !m_jetCleaningTool->keep(input);
+      }
+    }
+    else {
+      dec_bad(input) = false;
+      ATH_MSG_VERBOSE("Jet cleaning is available only for EMTopo jet collection (InputType == 1), your jet collection: " << m_jetInputType );
+    }
+  
     ATH_MSG_VERBOSE( "JET isbad?: " << (int) acc_bad(input) );
 
     return acc_bad(input);

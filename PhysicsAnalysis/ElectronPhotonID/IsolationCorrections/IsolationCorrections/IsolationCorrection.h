@@ -33,16 +33,13 @@ class IsolationCorrection : public asg::AsgMessaging{
     typedef enum { ELECTRON=0, PHOTON=1 } ParticleType;
     typedef enum { REL17=1, REL17_2=2, REL20=6, REL20_2=7, REL21=8 } Version;
 
-    void SetCorrectionFile( std::string corr_file, std::string corr_ddshift_2017_file, std::string corr_ddsmearing_file, 
-                            std::string corr_ddshift_2015_2016_file);
+    void SetCorrectionFile( std::string corr_file, std::string corr_ddshift_file, std::string corr_ddsmearing_file);
     void SetToolVer(CP::IsolationCorrection::Version);
 
     float GetPtCorrectedIsolation(const xAOD::Egamma&, const xAOD::Iso::IsolationType);
     float GetPtCorrection(const xAOD::Egamma&, const xAOD::Iso::IsolationType) const;
     
-    float GetDDCorrection_2017(const xAOD::Egamma&, const xAOD::Iso::IsolationType) const;
-    float GetDDCorrection_2015_2016(const xAOD::Egamma&, const xAOD::Iso::IsolationType) const;
-    float GetDDCorrection_2015(const xAOD::Egamma&, const xAOD::Iso::IsolationType) const;
+    float GetDDCorrection(const xAOD::Egamma&, const xAOD::Iso::IsolationType, std::string year);
 
     float GetEtaPointing(const xAOD::Egamma*);
 
@@ -63,18 +60,14 @@ class IsolationCorrection : public asg::AsgMessaging{
     const unsigned int m_nBinsEtaFine;
     const unsigned int m_nBinsEtaCoarse;
     std::string m_corr_file;
-    std::string m_corr_ddshift_2015_file; // For Rel 20.2 corrections derived in 2015 
-    std::string m_corr_ddshift_2015_2016_file; // For Rel 21 corrections derived in Jan 2018 for 2015+2016 Data
-    std::string m_corr_ddshift_2017_file; 	   // For Rel 21 corrections derived in Jan 2018 for 2017 Data
-    std::string m_corr_ddshift_file;	 	   // For Rel<20.2 corrections derived in 2012 
+    std::string m_corr_ddshift_file;
     std::string m_corr_ddsmearing_file;
 
     // for v3+ DD : absolute eta
-    unsigned int m_nBinsfEtaDD_2015;
-    unsigned int m_nBinsfEtaDD_2017;
-    
     std::vector<float> m_feta_bins_dd_2015;
     std::vector<float> m_feta_bins_dd_2017;
+
+    StatusCode setupDD(std::string year);
     
     bool m_is_mc;
     bool m_AFII_corr;
@@ -83,6 +76,16 @@ class IsolationCorrection : public asg::AsgMessaging{
     bool m_trouble_categories;
 
     CP::ShowerDepthTool* m_shower;
+
+    std::string m_previousYear;
+    bool m_corrInitialized[3][2];
+    int m_crackBin;
+    // follow the period (2015, rel20 / 2015_2016, 2017, rel21) dedicated vectors (in case different mc periods in a same job. But probably never happens, right ??)
+    std::vector<float>* m_feta_bins_dd; //!
+    std::vector<TGraph*>* m_graph_dd_cone40_unconv_photon_shift; //!
+    std::vector<TGraph*>* m_graph_dd_cone40_conv_photon_shift;   //!
+    std::vector<TGraph*>* m_graph_dd_cone20_unconv_photon_shift; //!
+    std::vector<TGraph*>* m_graph_dd_cone20_conv_photon_shift;   //!
 
     template <class T> void FreeClear( T & cntr );
 
@@ -139,18 +142,11 @@ class IsolationCorrection : public asg::AsgMessaging{
     void set2012Corr();
     void set2015Corr();
     
-    void setDDCorr();
-    void setDDCorr_2015();
-    void setDDCorr_2015_2016();
-    void setDDCorr_2017();
-
     void load2012Corr();
     void load2015Corr();
     
+    void setDDCorr(); // dedicated to run I, because there is an additional smearing in run I
     void loadDDCorr();
-    void load2015DDCorr();
-    void load20152016DDCorr();
-    void load2017DDCorr();
 
     float getPtAtFirstMeasurement( const xAOD::TrackParticle* tp) const;
     int GetConversionType(int conversion_flag, float conv_radius, float conv_ratio) const;
@@ -188,6 +184,11 @@ class IsolationCorrection : public asg::AsgMessaging{
     std::vector<TGraph*> m_graph_dd_2017_cone20_unconv_photon_shift;
     std::vector<TGraph*> m_graph_dd_2017_cone20_conv_photon_shift;
 
+    std::vector<TGraph*> m_graph_afIIdd_2017_cone40_unconv_photon_shift;
+    std::vector<TGraph*> m_graph_afIIdd_2017_cone40_conv_photon_shift;
+    std::vector<TGraph*> m_graph_afIIdd_2017_cone20_unconv_photon_shift;
+    std::vector<TGraph*> m_graph_afIIdd_2017_cone20_conv_photon_shift;
+
     // -------------------------------------------------------------------------------------------
     // ------------- data-driven corrections based on 2015+2016 data ----------------------------------
     // corrections recomputed for topological isolation, 0.4/0.2 cone. special eta binning -------
@@ -197,6 +198,11 @@ class IsolationCorrection : public asg::AsgMessaging{
     std::vector<TGraph*> m_graph_dd_2015_2016_cone40_conv_photon_shift;
     std::vector<TGraph*> m_graph_dd_2015_2016_cone20_unconv_photon_shift;
     std::vector<TGraph*> m_graph_dd_2015_2016_cone20_conv_photon_shift;
+    
+    std::vector<TGraph*> m_graph_afIIdd_2015_2016_cone40_unconv_photon_shift;
+    std::vector<TGraph*> m_graph_afIIdd_2015_2016_cone40_conv_photon_shift;
+    std::vector<TGraph*> m_graph_afIIdd_2015_2016_cone20_unconv_photon_shift;
+    std::vector<TGraph*> m_graph_afIIdd_2015_2016_cone20_conv_photon_shift;
     
     // -------------------------------------------------------------------------------------------
     // ------------- data-driven corrections based on 2015 data ONLY ----------------------------------

@@ -15,36 +15,45 @@ namespace Trig {
 
   class BaseTrigBtagEmulationChainJetIngredient {
   public:
-    BaseTrigBtagEmulationChainJetIngredient(std::string triggerName = "");
+    BaseTrigBtagEmulationChainJetIngredient(MsgStream&,std::string triggerName = "",std::string jetCollection = "");
     BaseTrigBtagEmulationChainJetIngredient(const BaseTrigBtagEmulationChainJetIngredient&);
     virtual ~BaseTrigBtagEmulationChainJetIngredient();
 
     std::string getName() const;
-
-    bool evaluate();
-    virtual void Print() = 0;
-    virtual bool isPassed(); 
-    virtual bool hasFeature(std::string) const; 
-    virtual void clear(); 
-
-    virtual bool needsJet(std::string);
-    bool addJet(std::string,std::vector< TrigBtagEmulationJet* >&);
+    double getPtThreshold() const;
+    double getMinEtaThreshold() const;
+    double getMaxEtaThreshold() const;
+    virtual int getMulteplicityThreshold() const;
+    int getMulteplicity() const;
 
     virtual void initialize() = 0;
 
+    bool evaluate();
+    virtual void print() const = 0;
+    virtual bool isPassed() const; 
+    virtual bool hasFeature(const std::string&) const; 
+    virtual void clear(); 
+
+    virtual bool needsJet(const std::string&) const;
+
   protected:
-    virtual bool evaluateJet(TrigBtagEmulationJet*); 
-    void addFeature(std::string,TriggerFeature*); 
+    virtual bool evaluateJet(const TrigBtagEmulationJet&); 
+    void addFeature(std::string,std::unique_ptr< TriggerFeature >&);
 
-    virtual void setPT(std::string&)   = 0;
-    virtual void setEta(std::string&)  = 0;
-    virtual TriggerFeature* setHT(std::string&)   = 0;
-    virtual TriggerFeature* setINVM(std::string&) = 0;  
+    virtual void setPT(const std::string&)   = 0;
+    virtual void setEta(const std::string&)  = 0;
+    virtual std::unique_ptr< TriggerFeature > setHT(const std::string&) = 0;
+    virtual std::unique_ptr< TriggerFeature > setINVM(const std::string&) = 0;  
 
-    template<typename T> void extract(std::string,std::string,T &valA);
-    template<typename T,typename U> void extract(std::string,std::string,T &valA,U &valB);
-       
-  public:
+    template<typename T> void extract(const std::string&,const std::string&,T &valA);
+    template<typename T,typename U> void extract(const std::string&,const std::string&,T &valA,U &valB);
+
+    void printFeatures() const;
+
+    MsgStream& msg() const;
+    MsgStream& msg( const MSG::Level lvl ) const;
+
+  protected:
     std::string m_triggerName;
     double m_min_pt;
     double m_min_eta;
@@ -52,12 +61,20 @@ namespace Trig {
     int m_min_mult;
     int m_count;
 
-    std::vector< std::pair<std::string,TriggerFeature*> > m_type_THRESHOLD_features;
-    std::vector< std::pair<std::string,TriggerFeature*> > m_type_SELECTION_features;
+    std::map< std::string,std::unique_ptr< TriggerFeature > > m_type_THRESHOLD_features;
+    std::map< std::string,std::unique_ptr< TriggerFeature > > m_type_SELECTION_features;
+
+    std::string m_neededJetCollection;
+    
+    MsgStream &m_msg;
 
   public:
-    std::map< std::string,std::string > m_neededJetCollection;
-    std::map< std::string,std::vector< TrigBtagEmulationJet* > > m_jetCollection;
+    static bool addJet(std::string,std::vector< std::unique_ptr< TrigBtagEmulationJet > >);
+    static void clearJet();
+
+  protected:
+    static std::map< std::string,std::vector< std::unique_ptr< TrigBtagEmulationJet > > > m_jetCollection;
+
   };
 
   // ==========================================================================
@@ -66,18 +83,18 @@ namespace Trig {
 
   class TrigBtagEmulationChainJetIngredient_L1 : public BaseTrigBtagEmulationChainJetIngredient {
   public:
-    TrigBtagEmulationChainJetIngredient_L1(std::string triggerName = "");
+    TrigBtagEmulationChainJetIngredient_L1(MsgStream&,std::string triggerName = "");
     TrigBtagEmulationChainJetIngredient_L1(const TrigBtagEmulationChainJetIngredient_L1&);
     virtual ~TrigBtagEmulationChainJetIngredient_L1();
 
-    virtual void Print();
+    virtual void print() const;
     virtual void initialize();
 
   protected:
-    virtual void setPT(std::string&);
-    virtual void setEta(std::string&);
-    virtual TriggerFeature* setHT(std::string&);
-    virtual TriggerFeature* setINVM(std::string&);
+    virtual void setPT(const std::string&);
+    virtual void setEta(const std::string&);
+    virtual std::unique_ptr< TriggerFeature > setHT(const std::string&);
+    virtual std::unique_ptr< TriggerFeature > setINVM(const std::string&);
   };  
 
   // ==========================================================================
@@ -86,11 +103,11 @@ namespace Trig {
 
   class TrigBtagEmulationChainJetIngredient_L1_JJ : public TrigBtagEmulationChainJetIngredient_L1 {
   public:
-    TrigBtagEmulationChainJetIngredient_L1_JJ(std::string triggerName = "");
+    TrigBtagEmulationChainJetIngredient_L1_JJ(MsgStream&,std::string triggerName = "");
     TrigBtagEmulationChainJetIngredient_L1_JJ(const TrigBtagEmulationChainJetIngredient_L1_JJ&);
     virtual ~TrigBtagEmulationChainJetIngredient_L1_JJ();
 
-    virtual void Print();
+    virtual void print() const;
   };
 
   // ==========================================================================
@@ -99,24 +116,24 @@ namespace Trig {
 
   class TrigBtagEmulationChainJetIngredient_HLT : public BaseTrigBtagEmulationChainJetIngredient {
   public:
-    TrigBtagEmulationChainJetIngredient_HLT(std::string triggerName = "");
+    TrigBtagEmulationChainJetIngredient_HLT(MsgStream&,std::string triggerName = "");
     TrigBtagEmulationChainJetIngredient_HLT(const TrigBtagEmulationChainJetIngredient_HLT&);
     virtual ~TrigBtagEmulationChainJetIngredient_HLT();
 
-    virtual void Print();
+    virtual void print() const;
     virtual void initialize();
 
-    virtual bool overlaps(const TrigBtagEmulationChainJetIngredient_HLT*) const;
-    virtual bool contains(const TrigBtagEmulationChainJetIngredient_HLT*) const;
-    bool isContained(const TrigBtagEmulationChainJetIngredient_HLT*) const;
-    virtual void addJetsMulteplicity(const TrigBtagEmulationChainJetIngredient_HLT*); 
+    virtual bool overlaps(const TrigBtagEmulationChainJetIngredient_HLT&) const;
+    virtual bool contains(const TrigBtagEmulationChainJetIngredient_HLT&) const;
+    bool isContained(const TrigBtagEmulationChainJetIngredient_HLT&) const;
+    virtual void addJetsMulteplicity(const TrigBtagEmulationChainJetIngredient_HLT&); 
 
   protected:
-    virtual void setPT(std::string&);
-    virtual void setEta(std::string&);
-    virtual TriggerFeature* setHT(std::string&);
-    virtual TriggerFeature* setINVM(std::string&);
-    virtual void setBTAG(std::string&);
+    virtual void setPT(const std::string&);
+    virtual void setEta(const std::string&);
+    virtual std::unique_ptr< TriggerFeature > setHT(const std::string&);
+    virtual std::unique_ptr< TriggerFeature > setINVM(const std::string&);
+    virtual void setBTAG(const std::string&);
   };
 
   // ==========================================================================
@@ -125,30 +142,36 @@ namespace Trig {
 
   class TrigBtagEmulationChainJetIngredient_GSC : public TrigBtagEmulationChainJetIngredient_HLT {
   public:
-    TrigBtagEmulationChainJetIngredient_GSC(std::string triggerName = "");
+    TrigBtagEmulationChainJetIngredient_GSC(MsgStream&,std::string triggerName = "");
     TrigBtagEmulationChainJetIngredient_GSC(const TrigBtagEmulationChainJetIngredient_GSC&);
     virtual ~TrigBtagEmulationChainJetIngredient_GSC();
 
-    virtual void Print();
-    virtual bool isPassed();
-    virtual bool hasFeature(std::string) const;
+    virtual void print() const;
+    virtual bool isPassed() const;
+    virtual bool hasFeature(const std::string&) const;
     virtual void clear();
-    virtual bool needsJet(std::string);
+    virtual bool needsJet(const std::string&) const;
     virtual void initialize();
-    virtual bool evaluateJet(TrigBtagEmulationJet*);
+    virtual bool evaluateJet(const TrigBtagEmulationJet&);
 
-    virtual void addJetsMulteplicity(const TrigBtagEmulationChainJetIngredient_HLT*);
+    virtual void addJetsMulteplicity(const TrigBtagEmulationChainJetIngredient_HLT&);
+
+    double getGscThreshold() const;
+    virtual int getMulteplicityThreshold() const;
+    int getMulteplicityGsc() const;
 
   protected:
-    virtual void setPT(std::string&);
+    virtual void setPT(const std::string&);
 
   private:
-    unsigned int matchingJets(const TrigBtagEmulationJet*);
+    unsigned int matchingJets(const TrigBtagEmulationJet&);
 
-  public:
+  protected:
     double m_min_gsc;
     int m_min_mult_gsc;
     int m_count_gsc;
+
+    std::string m_supportingJetCollection;
   };
   
 }//namespace
