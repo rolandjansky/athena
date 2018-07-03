@@ -22,9 +22,12 @@ public:
 
   virtual ~IegammaMVASvc() override {};
 
-  virtual StatusCode execute(xAOD::CaloCluster* cluster,const xAOD::Egamma* eg)=0;
-  virtual StatusCode execute(xAOD::CaloCluster* cluster,const xAOD::EgammaParameters::EgammaType egType)=0;
-  virtual StatusCode hltexecute(xAOD::CaloCluster* cluster, const std::string& egType)=0;
+  virtual StatusCode execute(xAOD::CaloCluster* cluster,
+			     const xAOD::Egamma* eg) const = 0;
+  virtual StatusCode execute(xAOD::CaloCluster* cluster,
+			     const xAOD::EgammaParameters::EgammaType egType) const = 0;
+  virtual StatusCode hltexecute(xAOD::CaloCluster* cluster,
+				const std::string& egType) const =0;
 
 };
 

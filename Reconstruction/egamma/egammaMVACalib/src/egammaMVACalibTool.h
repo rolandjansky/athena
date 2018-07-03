@@ -14,6 +14,8 @@
 // Framework includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TH2Poly.h"
+#include "TObject.h"
+#inlcude "TString.h"
 
 // STL includes
 #include <string>
@@ -41,6 +43,9 @@ public:
 		  MEAN10TOTRUE, MEAN20TOTRUE, MEDIAN10TOTRUE, MEDIAN20TOTRUE, 
 		  NSHIFTCORRECTIONS};
 
+  float getEnergy(const xAOD::Egamma* eg,
+		  const xAOD::CaloCluster* clus) const override final;
+
 private:
   Gaudi::Property<int> m_particleType {this, 
       "ParticleType", xAOD::EgammaParameters::electron,
@@ -67,19 +72,22 @@ private:
       "use_layer_corrected", true,
       "whether to use layer corrections"};
 
+  /// A TH2Poly used to extract bin numbers. Note there is an offset of 1
   std::unique_ptr<TH2Poly> m_hPoly;
 
+  /// Where the BDTs are stored
   std::vector<MVAUtils::BDT> m_BDTs;
 
-  /// map of variable string to function (taking calo cluster)
-  std::unordered_map<std::string, std::functional<float(const xAOD::CaloCluster&)> > m_clusterFuncs;
-  /// map of variable string to function (taking egamma)
-  std::unordered_map<std::string, std::functional<float(const xAOD::Egamma&)> > m_egammaFuncs;
-  /// map of variable string to function (taking electron)
-  std::unordered_map<std::string, std::functional<float(const xAOD::Electron&)> > m_electronFuncs;
-  /// map of variable string to function (taking ConversionHelper)
+  /// where the pointers to the funcs to calculate the vars per BDT
+  std::vector<std::vector<std::function<float(const xAOD::Egamma*, const xAOD::CaloCluster*)> > > m_funcs;
+
+  /// shifts for mean10
+  std::vector<TFormula> > m_shifts;
+
+
+  /// A dictionary of all available functions
   std::unordered_map<std::string,
-		     std::functional<float(const egammaMVATreeHelpers::ConversionHelper&)> > m_convFuncs;
+		     std::function<float(const xAOD::Egamma*, const xAOD::CaloCluster*)> > m_funcLibrary;
 
   /// initialize the functions needed for electrons
   StatusCode initializeElectronFuncs();
@@ -93,6 +101,11 @@ private:
 
   /// a function called by the above functions to setup the egamma funcs
   StatusCode initializeEgammaFuncs(const std::string& prefix);
+
+  /// a utility to get a TString out of an TObjString pointer
+  const TString& egammaMVACalibTools::getString(TObject* obj) const
+
+  
 };
 
 #endif 

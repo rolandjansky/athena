@@ -29,113 +29,18 @@ StatusCode egammaMVASvc::initialize()
   ATH_CHECK(m_mvaUnconvertedPhoton.retrieve());
   ATH_CHECK(m_mvaConvertedPhoton.retrieve());
 
-  // ATH_MSG_DEBUG("initializing egammaMVACalib for electrons");
-  // m_mvaElectron = std::make_unique<egammaMVACalib>(egammaMVACalib::egELECTRON, // particle type
-  // 							true, // use new BDT (not TMVA)
-  // 							m_folder, // folder with weight files
-  // 							"BDTG", // method
-  // 							1, // Full Calib
-  // 							false, // not debugging
-  // 							"", // that
-  // 							"",
-  // 							"",
-  // 							"", // file pattern of xml files
-  // 							true // ignore spectators
-  // 							);
-  // m_mvaElectron->msg().setLevel(this->msg().level());
-  // ATH_MSG_INFO(std::string(m_use_layer_corrected ? "U" : "Not u") + "sing layer correction");  // j4f
-  // {
-  //   const std::string filename = PathResolverFindCalibFile(m_folder + "/MVACalib_electron.weights.root");
-  //   ATH_MSG_DEBUG("configuration does not contain list of variables, try to guess:"); // TODO: because it is not implemented
-  //   std::set<std::string> el_variables = guess_variables(filename);
-  //   el_variables.insert({"el_cl_E", "el_cl_eta", "el_rawcl_Es0", "el_rawcl_Es1", "el_rawcl_Es2", "el_rawcl_Es3"}); // used for binning
-  //   for (const auto var : el_variables) { ATH_MSG_DEBUG("  " << var); }
-  //   ATH_MSG_INFO(el_variables.size() << " variables for electrons");
-
-  //   m_MVATreeElectron = std::make_unique<egammaMVATreeElectron>("MVATreeElectron", el_variables, m_use_layer_corrected);
-  //   m_MVATreeElectron->msg().setLevel(this->msg().level());
-  //   m_mvaElectron->InitTree(m_MVATreeElectron.get());
-  // }
-
-  // ATH_MSG_DEBUG("initializing egammaMVACalib for photons");
-  // m_mvaPhoton = std::make_unique<egammaMVACalib>(egammaMVACalib::egPHOTON, // particle type
-  // 						      true, // use new BDT (not TMVA)
-  // 						      m_folder, // folder with weight files
-  // 						      "BDTG", // method
-  // 						      1 , // Full Calib
-  // 						      false, // not debugging
-  // 						      "", // that
-  // 						      "",
-  // 						      "",
-  // 						      "", // file pattern of xml files
-  // 						      true // ignore spectators
-  // 						      );
-  // m_mvaPhoton->msg().setLevel(this->msg().level());
-  // {
-  //   const std::string filename_unconv = PathResolverFindCalibFile(m_folder + "/MVACalib_unconvertedPhoton.weights.root");
-  //   const std::string filename_conv = PathResolverFindCalibFile(m_folder + "/MVACalib_convertedPhoton.weights.root");
-  //   ATH_MSG_INFO("configuration does not contain list of variables, try to guess:"); // TODO: because it is not implemented
-  //   const std::set<std::string> ph_unconv_variables = guess_variables(filename_unconv);
-  //   const std::set<std::string> ph_conv_variables = guess_variables(filename_conv);
-  //   std::set<std::string> ph_variables = ph_unconv_variables;
-  //   ph_variables.insert(ph_conv_variables.begin(), ph_conv_variables.end());
-  //   ph_variables.insert({"ph_cl_E", "ph_cl_eta", "ph_rawcl_Es0", "ph_rawcl_Es1", "ph_rawcl_Es2", "ph_rawcl_Es3"}); // used for binning
-  //   ATH_MSG_INFO(ph_variables.size() << " variables for photons");
-  //   for (const auto var : ph_variables) { ATH_MSG_INFO("  " << var); }
-
-  //   m_MVATreePhoton = CxxUtils::make_unique<egammaMVATreePhoton>("MVATreePhoton", ph_variables, m_use_layer_corrected, true);
-  //   m_MVATreePhoton->msg().setLevel(this->msg().level());
-  //   m_mvaPhoton->InitTree(m_MVATreePhoton.get());
-  // }
-
   return StatusCode::SUCCESS;
 }
 
-std::set<std::string> egammaMVASvc::guess_variables(const std::string& filename)
-{
-  TFile f(filename.c_str());
-  std::unique_ptr<TObjArray> formulae(dynamic_cast<TObjArray*>(f.Get("formulae")));
-  formulae->SetOwner(true);  // by default TObjArray doesn't own elements
-  if (not formulae) { ATH_MSG_FATAL("cannot find formulae in " << filename); }
-
-  // TODO: use regex parsing (regex supported only in gcc 4.9, TPRegexp sucks)
-  const std::vector<std::string> all_possible_variables = {
-    "el_cl_E", "el_cl_eta", "el_cl_phi", "el_charge", "el_author",
-    "el_rawcl_Es0", "el_rawcl_Es1", "el_rawcl_Es2", "el_rawcl_Es3", "el_cl_E_TileGap3",
-    "el_cl_etaCalo", "el_cl_phiCalo", "el_rawcl_calibHitsShowerDepth", "el_wtots1",
-    "ph_cl_E", "ph_cl_eta", "ph_cl_phi", "ph_author",
-    "ph_rawcl_Es0", "ph_rawcl_Es1", "ph_rawcl_Es2", "ph_rawcl_Es3", "ph_cl_E_TileGap3", "ph_wtots1",
-    "ph_cl_etaCalo", "ph_cl_phiCalo", "ph_rawcl_calibHitsShowerDepth",
-    "el_charge", "el_tracketa", "el_trackpt", "el_trackz0", "el_refittedTrack_qoverp", "el_author",
-    "ph_Rconv", "ph_zconv", "ph_pt1conv", "ph_pt2conv", "ph_ptconv", "ph_convtrk1nPixHits", "ph_convtrk2nPixHits", "ph_convtrk1nSCTHits", "ph_convtrk2nSCTHits",
-  };
-
-  std::set<std::string> variables_found;
-  TIter iter(formulae.get());
-  while (TNamed* obj = dynamic_cast<TNamed*>(iter())) {
-    const std::string expression = obj->GetTitle();
-    ATH_MSG_DEBUG("searching variables in " << expression);
-    for (const auto var : all_possible_variables) {
-      const auto pos = expression.find(var);
-      if (pos != std::string::npos) {
-        if (pos + var.size() < expression.size()) {
-          const char next_char = expression[pos + var.size()];
-          if (isalnum(next_char) or next_char == '_') continue;
-        }
-        ATH_MSG_DEBUG("found variable '" << var << "' in '" << expression << "'");
-        variables_found.insert(var);
-      }
-    }
-  }
-  return variables_found;
-}
 
 StatusCode egammaMVASvc::finalize(){
   ATH_MSG_DEBUG( "in finalize" );
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammaMVASvc::execute(xAOD::CaloCluster* cluster,const xAOD::Egamma* eg){
+StatusCode egammaMVASvc::execute(xAOD::CaloCluster* cluster,
+				 const xAOD::Egamma* eg) const
+{
   if (!eg || !cluster) {
     ATH_MSG_ERROR("Invalid Pointer to egamma or cluster object");
     return StatusCode::FAILURE;
@@ -153,7 +58,9 @@ StatusCode egammaMVASvc::execute(xAOD::CaloCluster* cluster,const xAOD::Egamma* 
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammaMVASvc::execute(xAOD::CaloCluster* cluster, const xAOD::EgammaParameters::EgammaType egType){
+StatusCode egammaMVASvc::execute(xAOD::CaloCluster* cluster,
+				 const xAOD::EgammaParameters::EgammaType egType) const
+{
   if (!cluster) {
     ATH_MSG_ERROR("Invalid Pointer to egamma or cluster object");
     return StatusCode::FAILURE;
@@ -169,7 +76,8 @@ StatusCode egammaMVASvc::execute(xAOD::CaloCluster* cluster, const xAOD::EgammaP
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammaMVASvc::hltexecute(xAOD::CaloCluster* cluster, const std::string& egType) {
+StatusCode egammaMVASvc::hltexecute(xAOD::CaloCluster* cluster, const std::string& egType) const
+{
   if(!cluster){
     ATH_MSG_ERROR("Invalid Pointer to cluster object");
     return StatusCode::FAILURE;

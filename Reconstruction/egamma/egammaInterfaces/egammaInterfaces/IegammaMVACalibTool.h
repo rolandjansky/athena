@@ -15,6 +15,10 @@ public:
   DeclareInterfaceID(IegammaMVACalibTool, 1, 0);
 
   virtual ~IegammaMVACalibTool() override {};
+
+  virtual float getEnergy(const xAOD::Egamma* eg,
+			  const xAOD::CaloCluster* clus) const = 0;
+
 }; 
 
 #endif

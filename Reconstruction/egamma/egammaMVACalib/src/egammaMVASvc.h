@@ -27,7 +27,7 @@ public:
   virtual StatusCode initialize() override;
 
   /** @brief finalize method*/
-  virtual StatusCode finalize() override;;
+  virtual StatusCode finalize() override;
 
   /** Main execute. We need to calibrate the cluster.
       Use full egamma object instead of Type
@@ -35,12 +35,16 @@ public:
       This method needs to be valid also for reconstruction
   */
 
-  StatusCode execute(xAOD::CaloCluster* cluster,const xAOD::Egamma* eg) override;
-  StatusCode execute(xAOD::CaloCluster* cluster, const xAOD::EgammaParameters::EgammaType egType) override;
-  StatusCode hltexecute(xAOD::CaloCluster* cluster, const std::string& egType) override;
+  StatusCode execute(xAOD::CaloCluster* cluster,
+		     const xAOD::Egamma* eg) const override final;
+
+  StatusCode execute(xAOD::CaloCluster* cluster,
+		     const xAOD::EgammaParameters::EgammaType egType) const override final;
+
+  StatusCode hltexecute(xAOD::CaloCluster* cluster,
+			const std::string& egType) override final;
 
 private:
-  std::set<std::string> guess_variables(const std::string& filename);
 
   /// MVA tool for electron
   ToolHandle<IegammaMVACalibTool> m_mvaElectron {this,
