@@ -43,16 +43,17 @@ namespace G4UA
   }
 
   //---------------------------------------------------------------------------
-  StoppedParticleAction::StoppedParticleAction()
+  StoppedParticleAction::StoppedParticleAction(const int condition)
     : AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc"),
-                   "StoppedParticleAction"),
-      m_fsSD(0), m_init(false)
+                   "StoppedParticleAction")
+    , m_fsSD(0)
+    , m_init(false)
+    , m_stoppingCondition(condition)
   {}
 
   //---------------------------------------------------------------------------
   void StoppedParticleAction::UserSteppingAction(const G4Step* aStep)
   {
-
     // Trigger if the energy is below our threshold or if the R-hadron is decaying
     int id = std::abs(aStep->GetTrack()->GetDynamicParticle()->GetDefinition()->GetPDGEncoding());
 
@@ -69,8 +70,21 @@ namespace G4UA
         }
       }
 
+      // Stopping condition based on m_stoppingCondition
+      // Normal condition, #1: Stop all particles below threshold
+      bool stop = aStep->GetPostStepPoint()->GetVelocity()<0.15*std::pow(minA,-2./3.)*CLHEP::c_light;
+      // Condition 2: Stop only negatively charged particles
+      if (stop && abs(m_stoppingCondition)==2) stop = stop && aStep->GetTrack()->GetDynamicParticle()->GetCharge()<-0.1;
+      // Negative condition: Ignore gas
+      // Can't be true if stop is false
+      if (stop && m_stoppingCondition<0){
+        stop = stop && mat->GetDensity()>1e-2*6.24151e+18;
+        // dry air is 1.225 x10-3 g/cm3; set threshold ~10x higher
+        // unit conversion in G4: g/cm3 ( g/cm3) = 6.24151e+18
+      }
+
       // Stopping condition
-      if (aStep->GetPostStepPoint()->GetVelocity()>0.15*std::pow(minA,-2./3.)*CLHEP::c_light && // Stopping condition or...
+      if (!stop && // Stopping condition or...
            ( !aStep->GetPostStepPoint()->GetProcessDefinedStep() || // null pointer?
              aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessType()!=fDecay) ) // Decaying particle (does not fire for hadronic interactions)
         return;

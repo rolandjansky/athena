@@ -1,12 +1,12 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon import Logging
-from ...decorators import timed
-from ...utility import LHE, ProcessManager, SingleProcessThread
 import glob
 import os
 import re
 import shutil
+from AthenaCommon import Logging
+from ...decorators import timed
+from ...utility import LHE, ProcessManager, SingleProcessThread
 from xml.etree import ElementTree
 
 
@@ -97,6 +97,8 @@ def run_NNLOPS_executable(NNLO_executable, NNLO_reweighting_inputs, NNLO_weight_
         f_input_card.write("</initrwgt>\n")
 
     # Run the executable until finished
+    if not os.path.isfile(NNLO_executable):
+        raise OSError("NNLO reweighting executable {} not found!".format(NNLO_executable))
     manager = ProcessManager([SingleProcessThread(NNLO_executable)])
     while manager.monitor():
         pass

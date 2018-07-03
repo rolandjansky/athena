@@ -88,7 +88,7 @@ StatusCode Muon::sTgcRdoToPrepDataTool::initialize()
 
 StatusCode Muon::sTgcRdoToPrepDataTool::finalize()
 {
-  if (0 != m_stgcPrepDataContainer) m_stgcPrepDataContainer->release();
+  //  if (0 != m_stgcPrepDataContainer) m_stgcPrepDataContainer->release();
   return StatusCode::SUCCESS;
 
 }
@@ -111,6 +111,17 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
   else {
     prdColl = new sTgcPrepDataCollection(hash);
     idWithDataVect.push_back(hash);
+
+    // set the offline identifier of the collection Id
+    IdContext context = m_stgcIdHelper->module_context();
+    Identifier moduleId;
+    int getId = m_stgcIdHelper->get_id(hash,moduleId,&context);
+    if ( getId != 0 ) {
+      ATH_MSG_ERROR("Could not convert the hash Id: " << hash << " to identifier");
+    } 
+    else {
+      prdColl->setIdentifier(moduleId);
+    }
 
     if (StatusCode::SUCCESS != m_stgcPrepDataContainer->addCollection(prdColl, hash)) {
       ATH_MSG_DEBUG("In processCollection - Couldn't record in the Container MM Collection with hashID = "
@@ -155,6 +166,23 @@ StatusCode Muon::sTgcRdoToPrepDataTool::processCollection(const STGC_RawDataColl
     ATH_MSG_DEBUG("Adding a new STGC PRD, gasGap: " << gasGap << " channel: " << channel 
 		  << " type: " << channelType );
 
+
+    if (channelType ==0) { // Pads
+      const MuonGM::MuonPadDesign* design = detEl->getPadDesign(rdoId);
+      if (!design) ATH_MSG_WARNING("Failed to get design for sTGC pad" );
+      else
+        width = design->channelWidth(localPos,true);  //channelWidth returns the Phi Angle for pads, does not account for staggering.
+    }
+    else if (channelType == 1 || channelType == 2) { // Strips and Wires
+      const MuonGM::MuonChannelDesign* design = detEl->getDesign(rdoId);
+      if (!design) ATH_MSG_WARNING("Failed to get design for sTGC strip or wire" );
+      else width = design->channelWidth(localPos);
+    }
+    else {
+      ATH_MSG_ERROR("Invalid channel Type for sTGC");
+      return StatusCode::FAILURE;
+    }
+    
     double resolution = width/sqrt(12.); 
 
     Amg::MatrixX* cov = new Amg::MatrixX(1,1);

@@ -118,9 +118,11 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   m_pixModuleDistortion(true), // default: false
   m_pixDistortionTool("PixelDistortionsTool/PixelDistortionsTool"),
   m_pixErrorStrategy(2),
-  m_DiffusionShiftX(0.003),
-  m_DiffusionShiftY(0.003),
-  m_ThrConverted(45000),
+  m_pixDiffShiftBarrX(0.005),
+  m_pixDiffShiftBarrY(0.005),
+  m_pixDiffShiftEndCX(0.008),
+  m_pixDiffShiftEndCY(0.008),
+  m_ThrConverted(50000),
   m_mergeCluster(true),
   m_splitClusters(0),
   m_acceptDiagonalClusters(true),
@@ -155,8 +157,10 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   declareProperty("ParticleBarcodeVeto"           , m_vetoThisBarcode, "Barcode of particle to ignore");
   declareProperty("UseMcEventCollectionHelper"    , m_needsMcEventCollHelper = false);
   declareProperty("DigitizationStepper",     m_digitizationStepper);
-  declareProperty("DiffusionShiftX", m_DiffusionShiftX);
-  declareProperty("DiffusionShiftY", m_DiffusionShiftY);
+  declareProperty("PixDiffShiftBarrX", m_pixDiffShiftBarrX);
+  declareProperty("PixDiffShiftBarrY", m_pixDiffShiftBarrY);
+  declareProperty("PixDiffShiftEndCX", m_pixDiffShiftEndCX);
+  declareProperty("PixDiffShiftEndCY", m_pixDiffShiftEndCY);
   declareProperty("ThrConverted", m_ThrConverted);
 }
 
@@ -573,6 +577,16 @@ StatusCode PixelFastDigitizationTool::digitize()
       localStartPosition = hitSiDetElement->hitLocalToLocal3D(localStartPosition);
       localEndPosition = hitSiDetElement->hitLocalToLocal3D(localEndPosition);
 
+	  int isEndcap = (barrelEC==0) ? 0:1;
+
+      double shiftX = isEndcap ? m_pixDiffShiftEndCX : m_pixDiffShiftBarrX;
+      double shiftY = isEndcap ? m_pixDiffShiftEndCY : m_pixDiffShiftBarrY;
+
+//       std::cout<<"Thr "<<m_ThrConverted<<std::endl;
+
+      //New function to tune the cluster size
+      Diffuse(localStartPosition, localEndPosition, shiftX, shiftY);
+	  
       const Amg::Vector3D localDirection(localEndPosition.x()-localStartPosition.x(), localEndPosition.y()-localStartPosition.y(), localEndPosition.z()-localStartPosition.z());
       
       Amg::Vector3D entryPoint(localStartPosition.x(),localStartPosition.y(),localStartPosition.z());

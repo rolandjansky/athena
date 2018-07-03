@@ -1,11 +1,13 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    TIDAFeature.h        
 //
 //            wrapper class to wrap objects such that they can be added 
 //            to a generic store                     
 //  
-//   Copyright (C) 2015 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: TrackFeature.h, v0.0   Fri  7 Aug 2015 10:28:29 CEST sutt $
 

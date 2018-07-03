@@ -129,6 +129,13 @@ namespace xAOD
     std::vector<ElementLink<xAOD::AFPTrackContainer_v1> > afpTrack_l4;
     std::vector<std::vector<ElementLink<xAOD::AFPTrackContainer_v1> > > afpTrack_l5;
 
+    xAOD::AFPProtonContainer_v1 afpProton_c1;
+    DataLink<xAOD::AFPProtonContainer_v1> afpProton_l1;
+    std::vector<DataLink<xAOD::AFPProtonContainer_v1> > afpProton_l2;
+    ElementLink<xAOD::AFPProtonContainer_v1> afpProton_l3;
+    std::vector<ElementLink<xAOD::AFPProtonContainer_v1> > afpProton_l4;
+    std::vector<std::vector<ElementLink<xAOD::AFPProtonContainer_v1> > > afpProton_l5;
+
   };
 
   struct GCCXML_DUMMY_INSTANTIATION_ALFA_XAOD

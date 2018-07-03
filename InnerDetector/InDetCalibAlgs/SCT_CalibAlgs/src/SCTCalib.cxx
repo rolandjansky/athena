@@ -1727,7 +1727,7 @@ StatusCode SCTCalib::getEfficiency() {
                   //--- For Efficiency _not_ averaged over modules
                   IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
                   SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
-                  outFile << xmlChannelEfficiencyDataString(waferId, eff, sn)<<endl;
+                  outFile << xmlChannelEfficiencyDataString(waferId, eff, sn, iSide)<<endl;
                   //--- DB writing
                   if( m_writeToCool ) {
                      if( m_pCalibWriteSvc->createListEff(waferId, m_pSCTHelper, eff_entry, eff).isFailure() ) {
@@ -1756,7 +1756,7 @@ StatusCode SCTCalib::getEfficiency() {
                //--- For Efficiency _not_ averaged over modules
                IdentifierHash   waferHash = m_pSCTHelper->wafer_hash( waferId );
                SCT_SerialNumber sn        = m_CablingSvc->getSerialNumberFromHash( waferHash );
-               outFile << xmlChannelEfficiencyDataString(waferId, eff, sn)<<endl;
+               outFile << xmlChannelEfficiencyDataString(waferId, eff, sn, iSide)<<endl;
                //--- DB writing
                if( m_writeToCool ) {
                   if( m_pCalibWriteSvc->createListEff(waferId, m_pSCTHelper, eff_entry, eff).isFailure() ) {
@@ -2755,7 +2755,7 @@ SCTCalib::xmlChannelNoiseOccDataString(const Identifier & waferId,  const float 
 //agasconb 02.02.2015: block for Efficiency output
 //requested by Naoki Ishijima
 std::string
-SCTCalib::xmlChannelEfficiencyDataString(const Identifier & waferId,  const float efficiency, const SCT_SerialNumber & serial) {
+SCTCalib::xmlChannelEfficiencyDataString(const Identifier & waferId,  const float efficiency, const SCT_SerialNumber & serial, const int side) {
    ostringstream os;
    os<<"   <module>"<<endl
      //    os<<xmlOpenChannel(waferId.get_identifier32().get_compact(), m_iovStart.re_time(), m_iovStop.re_time())<<endl
@@ -2766,6 +2766,7 @@ SCTCalib::xmlChannelEfficiencyDataString(const Identifier & waferId,  const floa
      <<"  "<<xmlValue("Eta",  m_pSCTHelper->eta_module( waferId ) )<<endl
      <<"  "<<xmlValue("Phi",  m_pSCTHelper->phi_module( waferId ) )<<endl
      <<"  "<<xmlValue("Efficiency", efficiency)<<endl
+     <<"  "<<xmlValue("Side",  side )<<endl
      <<"   </module>";
    //      <<"  "<<xmlCloseChannel();
    return os.str();

@@ -24,7 +24,7 @@ athena.py -c 'fileList=["AOD.pool.root"]' -b TrigAnalysisTest/testAthenaTrigAOD_
 echo "art-result: ${PIPESTATUS[0]} ${TDT_LOG%.*}"
 echo $(date "+%FT%H:%M %Z")"     Running checklog"
 timeout 1m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${TDT_LOG} | tee checklog.TrigDecTool.log
-echo "art-result: ${PIPESTATUS[0]} ${TDT_LOG%.*}.CheckLog"
+echo "art-result: ${PIPESTATUS[0]} CheckLog.TrigDecTool"
 
 echo "##############################"
 echo $(date "+%FT%H:%M %Z")"     Test AthenaTrigAOD_TrigEDMCheck"
@@ -33,7 +33,7 @@ athena.py -c 'fileList=["AOD.pool.root"]' -b TrigAnalysisTest/testAthenaTrigAOD_
 echo "art-result: ${PIPESTATUS[0]} ${EDM_LOG%.*}"
 echo $(date "+%FT%H:%M %Z")"     Running checklog"
 timeout 1m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${EDM_LOG} | tee checklog.TrigEDMCheck.log
-echo "art-result: ${PIPESTATUS[0]} ${EDM_LOG%.*}.CheckLog"
+echo "art-result: ${PIPESTATUS[0]} CheckLog.TrigEDMCheck"
 
 echo "##############################"
 echo $(date "+%FT%H:%M %Z")"     Test AthenaTrigAOD_TrigEDMAuxCheck"
@@ -42,7 +42,7 @@ athena.py -c 'fileList=["AOD.pool.root"]' -b TrigAnalysisTest/testAthenaTrigAOD_
 echo "art-result: ${PIPESTATUS[0]} ${EDMAUX_LOG%.*}"
 echo $(date "+%FT%H:%M %Z")"     Running checklog"
 timeout 1m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${EDMAUX_LOG} | tee checklog.TrigEDMAuxCheck.log
-echo "art-result: ${PIPESTATUS[0]} ${EDMAUX_LOG%.*}.CheckLog"
+echo "art-result: ${PIPESTATUS[0]} CheckLog.TrigEDMAuxCheck"
 
 echo "################################"
 echo $(date "+%FT%H:%M %Z")"     Test AthenaTrigAOD_TrigHLTMon"
@@ -51,7 +51,7 @@ TrigHLTMon_tf.py --inputAODFile  AOD.pool.root --outputHISTFile myHIST.root | te
 echo "art-result: ${PIPESTATUS[0]} ${TRIGHLTMON_LOG%.*}"
 echo $(date "+%FT%H:%M %Z")"     Running checklog"
 timeout 1m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${TRIGHLTMON_LOG} | tee checklog.TrigHLTMon.log
-echo "art-result: ${PIPESTATUS[0]} ${TRIGHLTMON_LOG%.*}.CheckLog"
+echo "art-result: ${PIPESTATUS[0]} CheckLog.TrigHLTMon"
 
 echo "################################"
 echo $(date "+%FT%H:%M %Z")"     Test AthenaTrigESD_HLTMonitoring"
@@ -60,12 +60,12 @@ athena.py -c 'fileList=["ESD.pool.root"]' -b TrigAnalysisTest/testAthenaTrigESD_
 echo "art-result: ${PIPESTATUS[0]} ${HLTMON_LOG%.*}"
 echo $(date "+%FT%H:%M %Z")"     Running checklog"
 timeout 1m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${HLTMON_LOG} | tee checklog.HLTMonitoring.log
-echo "art-result: ${PIPESTATUS[0]} ${HLTMON_LOG%.*}.CheckLog"
+echo "art-result: ${PIPESTATUS[0]} CheckLog.HLTMonitoring"
 mv histo.root expert-monitoring.root 
 if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Running rootcomp"
   timeout 10m rootcomp.py ${REF_FOLDER}/expert-monitoring.root | tee rootcompout.HLTMonitoring.log
-  echo "art-result: ${PIPESTATUS[0]} ${HLTMON_LOG%.*}.RootComp"
+  echo "art-result: ${PIPESTATUS[0]} RootComp.HLTMonitoring"
 else
   echo $(date "+%FT%H:%M %Z")"     No reference expert-monitoring.root found in ${REF_FOLDER}"
 fi
@@ -77,14 +77,14 @@ athena.py -c 'TestType="RSegamma";useCONDBR2=False;' -b TrigAnalysisTest/testAth
 echo "art-result: ${PIPESTATUS[0]} ${SLIM_LOG%.*}"
 echo $(date "+%FT%H:%M %Z")"     Running checklog"
 timeout 1m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${SLIM_LOG} | tee checklog.TrigNavSlimming.log
-echo "art-result: ${PIPESTATUS[0]} ${SLIM_LOG%.*}.CheckLog"
+echo "art-result: ${PIPESTATUS[0]} CheckLog.TrigNavSlimming"
 if [ -f AOD.pool.root ]; then 
   echo $(date "+%FT%H:%M %Z")"     Running CheckFile on AOD"
-  timeout 10m checkFile.py AOD.pool.root | tee .pool.root.checkFile
-  echo "art-result: ${PIPESTATUS[0]} ${SLIM_LOG%.*}.CheckFileAOD"
+  timeout 10m checkFile.py AOD.pool.root | tee AOD.pool.root.checkFile
+  echo "art-result: ${PIPESTATUS[0]} CheckFileAOD.TrigNavSlimming"
   echo $(date "+%FT%H:%M %Z")"     Running CheckxAOD AOD"
   timeout 10m checkxAOD.py AOD.pool.root | tee AOD.pool.root.checkxAODFile
-  echo "art-result: ${PIPESTATUS[0]} ${SLIM_LOG%.*}.CheckXAOD"
+  echo "art-result: ${PIPESTATUS[0]} CheckFileXAOD.TrigNavSlimming"
 else 
   echo $(date "+%FT%H:%M %Z")"     No AOD.pool.root to check"
 fi
@@ -94,10 +94,13 @@ if [ -f AOD.pool.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Test checkFileTrigSize_RTT"
   export TRIGSIZE_LOG=${JOB_LOG%%.*}.TrigEDMSize.${JOB_LOG#*.}
   timeout 10m checkFileTrigSize_RTT.py | tee ${TRIGSIZE_LOG}
-  echo "art-result: ${PIPESTATUS[0]} ${TRIGSIZE_LOG%.*}"
+  echo "art-result: ${PIPESTATUS[0]} TrigEDMSize"
 else
   echo $(date "+%FT%H:%M %Z")"     No AOD.pool.root to check with checkFileTrigSize_RTT"
 fi
+
+echo  $(date "+%FT%H:%M %Z")"     Files in directory:"
+ls -lh
 
 echo $(date "+%FT%H:%M %Z")"     Done executing TrigAnalysisTest post processing for test ${NAME}"
 
