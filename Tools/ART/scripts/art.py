@@ -78,7 +78,7 @@ Tests are called with:
 """
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
-__version__ = '0.10.20'
+__version__ = '0.10.21'
 
 import logging
 import os
