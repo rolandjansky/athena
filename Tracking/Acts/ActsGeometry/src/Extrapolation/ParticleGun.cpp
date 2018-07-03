@@ -16,8 +16,8 @@
 #include "CLHEP/Random/RandomEngine.h"
 
 ParticleGun::ParticleGun(const ParticleGun::Config& cfg,
-    std::unique_ptr<const Acts::Logger> _logger)
-  : m_cfg(cfg), m_logger(std::move(_logger))
+    std::unique_ptr<const Acts::Logger> logger_)
+  : m_cfg(cfg), m_logger(std::move(logger_))
 {
   // Print chosen configuration
   ACTS_DEBUG("Particle gun settings: ");

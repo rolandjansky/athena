@@ -50,9 +50,9 @@ Acts::ExtrapolationTool::initialize()
     using RKEngine = Acts::RungeKuttaEngine<BField_t>;
     typename RKEngine::Config propConfig;
     propConfig.fieldService = bField;
-    auto _propEngine = std::make_shared<RKEngine>(propConfig);
-    _propEngine->setLogger(ACTS_ATH_LOGGER("RungeKuttaEngine"));
-    propEngine = _propEngine;
+    auto propEngine_ = std::make_shared<RKEngine>(propConfig);
+    propEngine_->setLogger(ACTS_ATH_LOGGER("RungeKuttaEngine"));
+    propEngine = propEngine_;
   }
   else if (m_fieldMode == "Constant") {
     std::vector<double> constantFieldVector = m_constantFieldVector;
@@ -66,9 +66,9 @@ Acts::ExtrapolationTool::initialize()
     using RKEngine = Acts::RungeKuttaEngine<BField_t>;
     typename RKEngine::Config propConfig;
     propConfig.fieldService = bField;
-    auto _propEngine = std::make_shared<RKEngine>(propConfig);
-    _propEngine->setLogger(ACTS_ATH_LOGGER("RungeKuttaEngine"));
-    propEngine = _propEngine;
+    auto propEngine_ = std::make_shared<RKEngine>(propConfig);
+    propEngine_->setLogger(ACTS_ATH_LOGGER("RungeKuttaEngine"));
+    propEngine = propEngine_;
   }
 
   ATH_CHECK( m_trackingGeometrySvc.retrieve() );

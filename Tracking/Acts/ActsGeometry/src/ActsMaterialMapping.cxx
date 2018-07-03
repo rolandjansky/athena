@@ -259,7 +259,7 @@ ActsMaterialMapping::makeInputTrack(const Trk::MaterialStepCollection& materialS
     return inputTrack;
 }
 
-StatusCode ActsMaterialMapping::execute_r(const EventContext& ctx) const
+StatusCode ActsMaterialMapping::execute_r(const EventContext& /*ctx*/) const
 {
 
   Acts::MaterialMapper::Cache& mapCache = m_ctxSpecificMapperCache;
