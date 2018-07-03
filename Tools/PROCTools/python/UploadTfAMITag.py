@@ -192,7 +192,7 @@ def GetProcessConfigs(release):
         'outputs': {'outputAOD_MRGFile': {'dstype': 'AOD'}
                     #'outputTAGFile': {'dstype': 'TAG', 'ifMatch': '(?!.*calibration.*)'}
                     },
-        'phconfig': {'autoConfiguration': 'everything'},
+        'phconfig': {'autoConfiguration': 'everything','preExec': {'all': ['from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags;athenaCommonFlags.UseLZMA.set_Value_and_Lock(True)']}},
         'transformation': 'AODMerge_tf.py',
         'tasktransinfo': {'trfpath': 'AODMerge_tf.py',
                           'trfsetupcmd':  setupScript+' '+rel+' '+specialT0Setup },
