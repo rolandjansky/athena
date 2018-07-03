@@ -107,6 +107,9 @@ if DFisMC:
 
 DerivationFrameworkTop.TOPQCommonJets.addMSVVariables("AntiKt4EMTopoJets", TOPQ1Sequence, ToolSvc)
 
+# add for TOPQDERIV-62 (see enf of TOPQCommonJets.py)
+DerivationFrameworkTop.TOPQCommonJets.addExKtDoubleTagVariables(TOPQ1Sequence, ToolSvc)
+
 # Then apply thinning
 TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1Kernel", ThinningTools = thinningTools)
 

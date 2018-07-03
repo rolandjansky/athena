@@ -15,6 +15,7 @@
 #   TOPQExtraVariables_CaloCalTopoClusters
 #   TOPQExtraVariables_egammaClusters
 #   TOPQExtraVariables_AntiKt4EMTopoJets
+#   TOPQExtraVariables_AntiKt4EMTopoJets_ForTOPQ1
 #   TOPQExtraVariables_AntiKt4EMPFlowJets
 #   TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
 #   TOPQExtraVariables_AntiKt2PV0TrackJets 
@@ -345,6 +346,64 @@ TOPQExtraVariables_AntiKt4EMTopoJets =  ["AntiKt4EMTopoJets."
                                          + "btaggingLink."
                                          + "isBJet."
                                          + "selected"]
+
+# for TOPQDERIV-62
+TOPQExtraVariables_AntiKt4EMTopoJets_ForTOPQ1 =  ["AntiKt4EMTopoJets."
+                                                  + "DoubleTagBDTOutput."
+                                                  + "LargeJetLabel."
+                                                  + "ExKtbb_MaxMV2c10."
+                                                  + "ExKtbb_MaxMV2c10rnn."
+                                                  + "ExKtbb_MaxDL1_pb."
+                                                  + "ExKtbb_MaxDL1_pc."
+                                                  + "ExKtbb_MaxDL1_pu."
+                                                  + "ExKtbb_MaxDL1rnn_pb."
+                                                  + "ExKtbb_MaxDL1rnn_pc."
+                                                  + "ExKtbb_MaxDL1rnn_pu."
+                                                  + "ExKtbb_MinMV2c10."
+                                                  + "ExKtbb_MinMV2c10rnn."
+                                                  + "ExKtbb_MinDL1_pb."
+                                                  + "ExKtbb_MinDL1_pc."
+                                                  + "ExKtbb_MinDL1_pu."
+                                                  + "ExKtbb_MinDL1rnn_pb."
+                                                  + "ExKtbb_MinDL1rnn_pc."
+                                                  + "ExKtbb_MinDL1rnn_pu."
+                                                  + "ExKtbb_SubjetDR."
+                                                  + "ExKtbb_SubjetPtAsym."
+                                                  + "ExKt3bb_MaxMV2c10."
+                                                  + "ExKt3bb_MinMV2c10."
+                                                  + "ExKt3bb_j1_MV2c10rnn."
+                                                  + "ExKt3bb_j1_DL1_pb."
+                                                  + "ExKt3bb_j1_DL1_pc."
+                                                  + "ExKt3bb_j1_DL1_pu."
+                                                  + "ExKt3bb_j1_DL1rnn_pb."
+                                                  + "ExKt3bb_j1_DL1rnn_pc."
+                                                  + "ExKt3bb_j1_DL1rnn_pu."
+                                                  + "ExKt3bb_j2_MV2c10rnn."
+                                                  + "ExKt3bb_j2_DL1_pb."
+                                                  + "ExKt3bb_j2_DL1_pc."
+                                                  + "ExKt3bb_j2_DL1_pu."
+                                                  + "ExKt3bb_j2_DL1rnn_pb."
+                                                  + "ExKt3bb_j2_DL1rnn_pc."
+                                                  + "ExKt3bb_j2_DL1rnn_pu."
+                                                  + "ExKt3bb_j3_MV2c10rnn."
+                                                  + "ExKt3bb_j3_DL1_pb."
+                                                  + "ExKt3bb_j3_DL1_pc."
+                                                  + "ExKt3bb_j3_DL1_pu."
+                                                  + "ExKt3bb_j3_DL1rnn_pb."
+                                                  + "ExKt3bb_j3_DL1rnn_pc."
+                                                  + "ExKt3bb_j3_DL1rnn_pu."
+                                                  + "ExKt3bb_SubjetDR."
+                                                  + "ExKt3bb_SubjetPtAsym."
+                                                  + "ExKtbb_leadingPtNBHadrons."
+                                                  + "ExKtbb_leadingPtNCHadrons."
+                                                  + "ExKtbb_subleadingPtNBHadrons."
+                                                  + "ExKtbb_subleadingPtNCHadrons."
+                                                  + "ExKt3bb_leadingMV2c10NBHadrons."
+                                                  + "ExKt3bb_leadingMV2c10NCHadrons."
+                                                  + "ExKt3bb_subleadingMV2c10NBHadrons."
+                                                  + "ExKt3bb_subleadingMV2c10NCHadrons"
+                                                  ]
+                                                  
 
 # list of default variables : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/python/AntiKt4EMPFlowJetsCPContent.py
 TOPQExtraVariables_AntiKt4EMPFlowJets = ["AntiKt4EMPFlowJets."
