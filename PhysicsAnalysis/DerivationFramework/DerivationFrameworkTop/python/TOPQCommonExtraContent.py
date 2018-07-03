@@ -535,7 +535,7 @@ TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets = ["AntiKt10LCTopoTr
                                                                + "L5"]
 
 
-TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets = ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets."
+TOPQExtraVariables_AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets = ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets."
                                                                + "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux."
                                                                + "ActiveArea."
                                                                + "ActiveArea4vec_eta."
@@ -599,11 +599,11 @@ TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets = ["AntiKt10LCTopoCS
                                                                + "WidthPhi."
                                                                + "ZCut12."
                                                                + "ZCut23."
-                                                               + "ZCut34"
-                                                               + "L1"
-                                                               + "L2"
-                                                               + "L3"
-                                                               + "L4"
+                                                               + "ZCut34."
+                                                               + "L1."
+                                                               + "L2."
+                                                               + "L3."
+                                                               + "L4."
                                                                + "L5"]
 
 
@@ -1320,7 +1320,7 @@ TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_Truth = ["AntiKt10LC
                                                                      + "L4"
                                                                      + "L5"]
 
-TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_Truth = ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets."
+TOPQExtraVariables_AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets_Truth = ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets."
                                                                      + "GhostBHadronsFinal."
                                                                      + "GhostBHadronsFinalCount."
                                                                      + "GhostBHadronsFinalPt."
@@ -1364,11 +1364,11 @@ TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_Truth = ["AntiKt10LC
                                                                      + "GhostZBosonsPt."
                                                                      + "TruthLabelDeltaR_B."
                                                                      + "TruthLabelDeltaR_C."
-                                                                     + "TruthLabelDeltaR_T"
-                                                                     + "L1"
-                                                                     + "L2"
-                                                                     + "L3"
-                                                                     + "L4"
+                                                                     + "TruthLabelDeltaR_T."
+                                                                     + "L1."
+                                                                     + "L2."
+                                                                     + "L3."
+                                                                     + "L4."
                                                                      + "L5"]
 
 #===========================================
@@ -1657,9 +1657,8 @@ TOPQExtraVariables_MET_TruthRegions = ["MET_TruthRegions."
 TOPQStaticContent      = ['xAOD::JetContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets',
                           'xAOD::JetAuxContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux.',
                           'xAOD::JetContainer#AntiKt10TruthTrimmedPtFrac5SmallR20Jets',
-                          'xAOD::JetAuxContainer#AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux.']
-
-TOPQStaticContent      = ['xAOD::JetContainer#AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets',
+                          'xAOD::JetAuxContainer#AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux.',
+                          'xAOD::JetContainer#AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets',
                           'xAOD::JetAuxContainer#AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux.',
                           'xAOD::JetContainer#AntiKt10TruthSoftDropBeta100Zcut10Jets',
                           'xAOD::JetAuxContainer#AntiKt10TruthSoftDropBeta100Zcut10JetsAux.']
