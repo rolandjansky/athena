@@ -1138,8 +1138,8 @@ protected:
   const std::string& RCJetContainer() const { return m_RCJetContainer;} // name for RC jets container in TStore
   const std::vector<std::string>& VarRCJetRho() const { return m_VarRCJetRho;}
   const std::vector<std::string>& VarRCJetMassScale() const { return m_VarRCJetMassScale;}
-  const std::unique_ptr<RCJetMC15>& rc() const { return m_rc;}
-  const std::map<std::string,std::unique_ptr<RCJetMC15> >& VarRC() const { return m_VarRC;}
+  //const std::unique_ptr<RCJetMC15>& rc() const { return m_rc;}
+  //const std::map<std::string,std::unique_ptr<RCJetMC15> >& VarRC() const { return m_VarRC;}
   const std::string& egamma() const { return m_egamma;} // egamma systematic naming scheme
   const std::string& muonsyst() const { return m_muonsyst;} // muon systematic naming scheme
   const std::string& jetsyst() const { return m_jetsyst;} // jet systematic naming scheme

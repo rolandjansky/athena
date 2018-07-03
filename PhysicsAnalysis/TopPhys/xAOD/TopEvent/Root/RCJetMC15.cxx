@@ -186,7 +186,7 @@ StatusCode RCJetMC15::initialize(){
         else{
 
 
-	  m_InputJetContainer  = m_InJetContainerBase+m_name;
+	  m_InputJetContainer  = m_InJetContainerBase;
 	  m_OutputJetContainer = m_OutJetContainerBase+m_name;
 
 	  // map of container names to access in event saver
@@ -248,11 +248,16 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
             m_jetReclusteringTool.at(hash_factor*m_config->nominalHashValue())->execute();
     }
 
-      if (m_useJSS){     
-       // get the rcjets
+    // get the rcjets
        
-       xAOD::JetContainer* myJets(nullptr);
-       top::check(evtStore()->retrieve(myJets,m_OutputJetContainer),"Failed to retrieve RC JetContainer");
+    xAOD::JetContainer* myJets(nullptr);
+    top::check(evtStore()->retrieve(myJets,m_OutputJetContainer),"Failed to retrieve RC JetContainer");
+    for (auto rcjet : *myJets){
+      rcjet->auxdecor<bool>("PassedSelection") = passSelection(*rcjet);
+    }
+
+      if (m_useJSS){     
+       
       
        // get the subjets and clusters of the rcjets
        for (auto rcjet : *myJets){

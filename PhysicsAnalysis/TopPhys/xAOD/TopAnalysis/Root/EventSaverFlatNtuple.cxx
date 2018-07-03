@@ -218,18 +218,6 @@ namespace top {
 	  boost::split(m_VarRCJetRho, config->VarRCJetRho(), boost::is_any_of(","));
 	  boost::split(m_VarRCJetMassScale, config->VarRCJetMassScale(), boost::is_any_of(","));
 
-	  for (auto& rho : m_VarRCJetRho){
-            for (auto& mass_scale : m_VarRCJetMassScale){
-	      std::replace( rho.begin(), rho.end(), '.', '_');
-	      std::string name = rho+mass_scale;
-	      m_VarRC[name] = std::unique_ptr<RCJetMC15> ( new RCJetMC15( "VarRCJetMC15_"+name ) );
-	      top::check(m_VarRC[name]->setProperty( "config" , config ) , "Failed to set config property of VarRCJetMC15");
-	      top::check(m_VarRC[name]->setProperty( "VarRCjets", true ) , "Failed to set VarRCjets property of VarRCJetMC15");
-	      top::check(m_VarRC[name]->setProperty( "VarRCjets_rho",  rho ) , "Failed to set VarRCjets rho property of VarRCJetMC15");
-	      top::check(m_VarRC[name]->setProperty( "VarRCjets_mass_scale", mass_scale ) , "Failed to set VarRCjets mass scale property of VarRCJetMC15");
-	      top::check(m_VarRC[name]->initialize(),"Failed to initialize VarRCJetMC15");
-            } // end loop over mass scale parameters (e.g., top mass, w mass, etc.)
-	  } // end loop over mass scale multiplies (e.g., 1.,2.,etc.)
 	} // end make VarRC jets
 
 
@@ -2275,7 +2263,7 @@ namespace top {
 	  // Execute the re-clustering code
           // - make jet container, put it in TStore, do re-clustering
           std::string VarRC = "vrcjet";
-	  std::map< std::string,const xAOD::JetContainer* > VarRCJets=event.m_VarRCJets;
+	  std::map< std::string,xAOD::JetContainer* > VarRCJets=event.m_VarRCJets;
 	  for (auto& rho : m_VarRCJetRho){
             for (auto& mass_scale : m_VarRCJetMassScale){
 	      std::replace( rho.begin(), rho.end(), '.', '_');
@@ -2296,7 +2284,7 @@ namespace top {
 
 	      // Initialize the vectors to be saved as branches
 	      
-	      const xAOD::JetContainer* vrc_jets = VarRCJets[name];
+	      xAOD::JetContainer* vrc_jets = VarRCJets[name];
               unsigned int sizeOfRCjets = vrc_jets->size();
 	      m_VarRCjetBranches[VarRC+"_"+name+"_pt"].resize(sizeOfRCjets,-999.);
 	      m_VarRCjetBranches[VarRC+"_"+name+"_eta"].resize(sizeOfRCjets,-999.);
@@ -2316,8 +2304,8 @@ namespace top {
 	      //for (xAOD::JetContainer::const_iterator jet_itr = (event.m_VarRCJets[name]).begin(); jet_itr != (event.m_VarRCJets[name]).end(); ++jet_itr) {
 		const xAOD::Jet* rc_jet = *jet_itr;
 
-		//if (!m_VarRC[name]->passSelection(*rc_jet))
-		  //continue;
+		std::cout << name << " index: " << i << " " << sizeOfRCjets << " " << m_VarRCjetBranches[VarRC+"_"+name+"_pt"][i]<< std::endl;
+		std::cout << rc_jet->pt() << std::endl;
 
 		m_VarRCjetBranches[VarRC+"_"+name+"_pt"][i]   = rc_jet->pt();
 		m_VarRCjetBranches[VarRC+"_"+name+"_eta"][i]  = rc_jet->eta();
@@ -2358,17 +2346,6 @@ namespace top {
 
 	      } // end for-loop over re-clustered jets
 
-	      m_VarRCjetBranches[VarRC+"_"+name+"_pt"].resize(i);
-	      m_VarRCjetBranches[VarRC+"_"+name+"_eta"].resize(i);
-	      m_VarRCjetBranches[VarRC+"_"+name+"_phi"].resize(i);
-	      m_VarRCjetBranches[VarRC+"_"+name+"_e"].resize(i);
-	      m_VarRCjetBranches[VarRC+"_"+name+"_d12"].resize(i);
-	      m_VarRCjetBranches[VarRC+"_"+name+"_d23"].resize(i);
-	      m_VarRCjetsubBranches[VarRC+"_"+name+"_sub_pt"].resize(i, std::vector<float>());
-	      m_VarRCjetsubBranches[VarRC+"_"+name+"_sub_eta"].resize(i, std::vector<float>());
-	      m_VarRCjetsubBranches[VarRC+"_"+name+"_sub_phi"].resize(i, std::vector<float>());
-	      m_VarRCjetsubBranches[VarRC+"_"+name+"_sub_e"].resize(i, std::vector<float>());
-	      m_VarRCjetsubBranches[VarRC+"_"+name+"_sub_mv2c10"].resize(i, std::vector<float>());
 	    } // end loop over mass parameters
 	  } // end loop over multipliers for mass scale
 	} // end if make VarRC jets

@@ -281,6 +281,7 @@ namespace top {
       xAOD::JetContainer* calibratedJetsTDS(nullptr);
       top::check(evtStore()->retrieve(calibratedJetsTDS, m_config->sgKeyJetsTDS(hash,looseJets) ), "Failed to retrieve taus");  
       
+      
       for (auto index : currentSystematic.goodJets()) {
         auto jet = calibratedJetsTDS->at(index);
 
@@ -297,11 +298,13 @@ namespace top {
         }
 
         top::check( jet->isAvailable<char>("passJVT") , " Can't find jet decoration \"passJVT\" - we need it to decide if we should keep the jet in the top::Event instance or not!");
-        if (jet->auxdataConst<char>( "passJVT" ))
+        if (jet->auxdataConst<char>( "passJVT" )){
           event.m_jets.push_back(calibratedJetsTDS->at(index));
+	}
 	//else{
 	  //if(calibratedJetsTDS->at(index)->pt() > 60000.)std::cout << "Jet didn't passed JVT cut: Jet pt : " << calibratedJetsTDS->at(index)->pt() << std::endl;
 	//}
+	if(jet->eta() > 2.5) std::cout << "Found jet with eta higher than 2.5" << std::endl;
       }
       
       
@@ -319,15 +322,10 @@ namespace top {
       std::string rcJetContainerName = m_rc->rcjetContainerName(event.m_hashValue,event.m_isLoose);
       const xAOD::JetContainer* rc_jets(nullptr);
       top::check(evtStore()->retrieve(rc_jets,rcJetContainerName),"Failed to retrieve RC JetContainer");
-      //Object selection, temporary implementation
-      //for (xAOD::JetContainer::const_iterator jet_itr = rc_jets->begin(); jet_itr != rc_jets->end(); ++jet_itr){
-	//const xAOD::Jet* rc_jet = *jet_itr;
-	//if (!m_rc->passSelection(*rc_jet))continue;
-	//xAOD::Jet* goodJet = new xAOD::Jet();
-	//event.m_RCJets.push_back(goodJet);
-	//*goodJet = *rc_jet;
-      //}
-      event.m_RCJets=*rc_jets;
+      //Object selection
+      for (auto rcjet : *rc_jets){
+	if(rcjet->auxdataConst<bool>("PassedSelection"))event.m_RCJets.push_back((xAOD::Jet*)rcjet);
+      }
     }
     // Variable-R reclustered jets
     if (m_config->useVarRCJets()){
@@ -343,7 +341,15 @@ namespace top {
 	  // -- Retrieve the re-clustered jets from TStore & save good re-clustered jets -- //
 	  const xAOD::JetContainer* vrc_jets(nullptr);
 	  top::check(evtStore()->retrieve(vrc_jets,varRCJetContainerName),"Failed to retrieve RC JetContainer");
-	  event.m_VarRCJets[name]= vrc_jets;
+	  
+	  auto goodVarRCJets = std::make_unique<xAOD::JetContainer>();
+	  auto goodVarRCJetsAux = std::make_unique<xAOD::AuxContainerBase>();
+	  goodVarRCJets->setStore (goodVarRCJetsAux.get()); //< Connect the two
+	  for (auto vrcjet : *vrc_jets){
+	    if(vrcjet->auxdataConst<bool>("PassedSelection"))goodVarRCJets->push_back((xAOD::Jet*)vrcjet);
+	    //std::cout << vrcjet->pt() << std :: endl;
+	  }
+	  event.m_VarRCJets[name]=goodVarRCJets.get();
 	}
       }
     }

@@ -17,10 +17,11 @@ namespace top{
     return checkInt(count, multiplicity());
   }
 
-  bool NRCJetSelector::applyParticleLevel(const top::ParticleLevelEvent& event) const {
-    auto func = [&](const xAOD::Jet* jetPtr){return jetPtr->pt() > value();};
-    auto count = std::count_if(event.m_largeRJets->begin(), event.m_largeRJets->end(), func);
-    return checkInt(count, multiplicity());
+  bool NRCJetSelector::applyParticleLevel(const top::ParticleLevelEvent& /*event*/) const { // To be implemented
+    //auto func = [&](const xAOD::Jet* jetPtr){return jetPtr->pt() > value();};
+    //auto count = std::count_if(event.m_largeRJets->begin(), event.m_largeRJets->end(), func);
+    //return checkInt(count, multiplicity());
+    return true; 
   }
 
 }
