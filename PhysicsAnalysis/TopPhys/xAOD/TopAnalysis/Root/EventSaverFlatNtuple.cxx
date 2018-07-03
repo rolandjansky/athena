@@ -183,6 +183,11 @@ namespace top {
         return m_sfRetriever;
     }
 
+    std::shared_ptr<top::TreeManager> EventSaverFlatNtuple::upgradeTreeManager()
+    {
+        return m_upgradeTreeManager;
+    }
+
     std::vector<top::TreeManager::BranchFilter> & EventSaverFlatNtuple::branchFilters()
     {
         return m_branchFilters;
@@ -1211,6 +1216,10 @@ namespace top {
 
         m_upgradeTreeManager->makeOutputVariable(m_weight_mc, "weight_mc");
 
+        if (m_config->doMCGeneratorWeights()) {
+            m_upgradeTreeManager->makeOutputVariable(m_mc_generator_weights, "mc_generator_weights");
+	}
+
         //event info
         m_upgradeTreeManager->makeOutputVariable(m_eventNumber, "eventNumber");
         m_upgradeTreeManager->makeOutputVariable(m_runNumber, "runNumber");
@@ -1223,6 +1232,12 @@ namespace top {
        m_upgradeTreeManager->makeOutputVariable(m_el_phi, "el_phi");
        m_upgradeTreeManager->makeOutputVariable(m_el_e, "el_e");
        m_upgradeTreeManager->makeOutputVariable(m_el_charge, "el_charge");
+       m_upgradeTreeManager->makeOutputVariable(m_el_true_type,      "el_true_type");
+       m_upgradeTreeManager->makeOutputVariable(m_el_true_origin,    "el_true_origin");
+       //m_upgradeTreeManager->makeOutputVariable(m_el_true_firstEgMotherTruthType,   "el_true_firstEgMotherTruthType");
+       //m_upgradeTreeManager->makeOutputVariable(m_el_true_firstEgMotherTruthOrigin, "el_true_firstEgMotherTruthOrigin");
+       //m_upgradeTreeManager->makeOutputVariable(m_el_true_isPrompt, "el_true_isPrompt");
+       if (m_config->HLLHCFakes()) m_upgradeTreeManager->makeOutputVariable(m_el_faketype, "el_faketype"); // 0 true 2 hfake
 
        // muons
        m_upgradeTreeManager->makeOutputVariable(m_mu_pt, "mu_pt");
@@ -1230,6 +1245,9 @@ namespace top {
        m_upgradeTreeManager->makeOutputVariable(m_mu_phi, "mu_phi");
        m_upgradeTreeManager->makeOutputVariable(m_mu_e, "mu_e");
        m_upgradeTreeManager->makeOutputVariable(m_mu_charge, "mu_charge");
+       m_upgradeTreeManager->makeOutputVariable(m_mu_true_type,   "mu_true_type");
+       m_upgradeTreeManager->makeOutputVariable(m_mu_true_origin, "mu_true_origin");
+       m_upgradeTreeManager->makeOutputVariable(m_mu_true_isPrompt, "mu_true_isPrompt");
 
        // jets
        m_upgradeTreeManager->makeOutputVariable(m_jet_pt, "jet_pt");
@@ -1258,11 +1276,23 @@ namespace top {
            m_upgradeTreeManager->makeOutputVariable(m_ph_eta, "ph_eta");
            m_upgradeTreeManager->makeOutputVariable(m_ph_phi, "ph_phi");
            m_upgradeTreeManager->makeOutputVariable(m_ph_e, "ph_e");
+	   m_upgradeTreeManager->makeOutputVariable(m_ph_true_type,      "ph_true_type");
+	   m_upgradeTreeManager->makeOutputVariable(m_ph_true_origin,    "ph_true_origin");
+	   if (m_config->HLLHCFakes()) m_upgradeTreeManager->makeOutputVariable(m_ph_faketype,       "ph_faketype"); // 0 true 1 efake 2 hfake
        }
 
        // MET
        m_upgradeTreeManager->makeOutputVariable(m_met_met, "met_met");
        m_upgradeTreeManager->makeOutputVariable(m_met_phi, "met_phi");
+
+        m_upgrade_SelectionDecisions.reserve( m_extraBranches.size() );
+        for ( const auto & selection : m_extraBranches ){
+            m_upgrade_SelectionDecisions.push_back( std::make_pair( selection, int() ) );
+        }
+
+        for ( auto & selectionDecision : m_upgrade_SelectionDecisions ){
+            m_upgradeTreeManager->makeOutputVariable( selectionDecision.second, selectionDecision.first );
+        }
    }//setupUpgradeTreeManager
 
     void EventSaverFlatNtuple::recordSelectionDecision(const top::Event& event) {
@@ -2948,8 +2978,15 @@ namespace top {
                 m_jet_phi[i] = jetPtr->phi();
                 m_jet_e[i] = jetPtr->e();
 
-                m_jet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
-                m_jet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
+                try {
+                  m_jet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
+                  m_jet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
+                } catch (SG::ExcBadAuxVar e) {
+                  //didn't find any ghost b-hadron info, have to assume it's a light jet
+                  ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
+                  m_jet_Ghosts_BHadron_Final_Count[i] = 0;
+                  m_jet_Ghosts_CHadron_Final_Count[i] = 0;
+                }
 
                 ++i;
             }
@@ -2971,8 +3008,15 @@ namespace top {
                 m_ljet_phi[i] = jetPtr->phi();
                 m_ljet_e[i] = jetPtr->e();
 
-                m_ljet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
-                m_ljet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
+                try {
+                  m_ljet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
+                  m_ljet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
+                } catch (SG::ExcBadAuxVar e) {
+                  //didn't find any ghost b-hadron info, have to assume it's a light jet
+                  ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
+                  m_ljet_Ghosts_BHadron_Final_Count[i] = 0;
+                  m_ljet_Ghosts_CHadron_Final_Count[i] = 0;
+                }
 
                 ++i;
             }
@@ -3055,8 +3099,15 @@ namespace top {
                     m_rcjetsub_eta[i].push_back(subjet->eta());
                     m_rcjetsub_phi[i].push_back(subjet->phi());
                     m_rcjetsub_e[i].push_back(subjet->e());
-                    m_rcjetsub_Ghosts_BHadron_Final_Count[i].push_back(subjet->auxdata<int>( "GhostBHadronsFinalCount" ));
-                    m_rcjetsub_Ghosts_CHadron_Final_Count[i].push_back(subjet->auxdata<int>( "GhostCHadronsFinalCount" ));
+                    try {
+                      m_rcjetsub_Ghosts_BHadron_Final_Count[i].push_back(subjet->auxdata<int>( "GhostBHadronsFinalCount" ));
+                      m_rcjetsub_Ghosts_CHadron_Final_Count[i].push_back(subjet->auxdata<int>( "GhostCHadronsFinalCount" ));
+                    } catch (SG::ExcBadAuxVar e) {
+                      //didn't find any ghost b-hadron info, have to assume it's a light jet
+                      ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
+                      m_rcjetsub_Ghosts_BHadron_Final_Count[i].push_back(0);
+                      m_rcjetsub_Ghosts_CHadron_Final_Count[i].push_back(0);
+                    }
                 } // end for-loop over subjets
                 ++i;
             } // end for-loop over re-clustered jets
@@ -3158,6 +3209,9 @@ namespace top {
     }
 
     void EventSaverFlatNtuple::calculateUpgradeEvent(const top::ParticleLevelEvent& upgradeEvent) {
+        for ( auto & selectionDecision : m_upgrade_SelectionDecisions ){
+            selectionDecision.second = upgradeEvent.m_selectionDecisions[ selectionDecision.first ];
+        }
 
         // to get the fixed mc weight
         const xAOD::TruthEventContainer * truthEvent(nullptr);
@@ -3181,6 +3235,12 @@ namespace top {
        m_el_phi.resize(upgradeEvent.m_electrons->size());
        m_el_e.resize(upgradeEvent.m_electrons->size());
        m_el_charge.resize(upgradeEvent.m_electrons->size());
+       m_el_true_type.resize(upgradeEvent.m_electrons->size());
+       m_el_true_origin.resize(upgradeEvent.m_electrons->size());
+       //m_el_true_firstEgMotherTruthOrigin.resize(upgradeEvent.m_electrons->size());
+       //m_el_true_firstEgMotherTruthType.resize(upgradeEvent.m_electrons->size());
+       //m_el_true_isPrompt.resize(upgradeEvent.m_electrons->size());
+       if (m_config->HLLHCFakes()) m_el_faketype.resize(upgradeEvent.m_electrons->size());
 
        for (const auto  elPtr : * upgradeEvent.m_electrons) {
          m_el_pt[i] = elPtr->pt();
@@ -3188,6 +3248,73 @@ namespace top {
          m_el_phi[i] = elPtr->phi();
          m_el_e[i] = elPtr->e();
          m_el_charge[i] = elPtr->charge();
+
+	 m_el_true_type[i] = 0;
+	 m_el_true_origin[i] = 0;
+	 //m_el_true_firstEgMotherTruthType[i] = 0;
+	 //m_el_true_firstEgMotherTruthOrigin[i] = 0;
+	 //m_el_true_isPrompt[i] = 0;
+	 if (!m_config->HLLHCFakes()) {
+	     if (elPtr->isAvailable<unsigned int>("particleType")) {
+	         m_el_true_type[i] = elPtr->auxdata<unsigned int>("particleType");
+	     } else if (elPtr->isAvailable<unsigned int>("classifierParticleType")) {
+	         m_el_true_type[i] = elPtr->auxdata<unsigned int>("classifierParticleType");
+	     } else {
+	         top::check(false, "Could not obtain truth Type decoration for electron!");
+	     }
+	     if (elPtr->isAvailable<unsigned int>("particleOrigin")) {
+	         m_el_true_origin[i] = elPtr->auxdata<unsigned int>("particleOrigin");
+	     } else if (elPtr->isAvailable<unsigned int>("classifierParticleOrigin")) {
+	         m_el_true_origin[i] = elPtr->auxdata<unsigned int>("classifierParticleOrigin");
+	     } else {
+	         top::check(false, "Could not obtain truth Origin decoration for electron!");
+	     }
+	     //if (elPtr->isAvailable<unsigned int>("firstEgMotherTruthType")) {
+	     //    m_el_true_firstEgMotherTruthType[i] = elPtr->auxdata<unsigned int>("firstEgMotherTruthType");
+	     //} else {
+	     //    top::check(false, "Could not obtain mother's truth Type decoration for electron!");
+	     //}
+	     //if (elPtr->isAvailable<unsigned int>("firstEgMotherTruthOrigin")) {
+	     //    m_el_true_firstEgMotherTruthOrigin[i] = elPtr->auxdata<unsigned int>("firstEgMotherTruthOrigin");
+	     //} else {
+	     //    top::check(false, "Could not obtain mother's truth Origin decoration for electron!");
+	     //}
+	     //m_el_true_isPrompt[i] = isPromptElectron(m_el_true_type[i], m_el_true_origin[i], m_el_true_firstEgMotherTruthType[i], m_el_true_firstEgMotherTruthOrigin[i]);
+	 } else {
+	   if (elPtr->isAvailable<int>("FakeType")) {
+	     m_el_faketype[i] = elPtr->auxdata<int>("FakeType");
+	   } else {
+	     top::check(false, "Could not obtain FakeType decoration for electron!");
+	   }
+	   if (m_el_faketype[i] == 0) { // truthType/Origin only available for true electron (also for electron fake, but we are not interested in its truth info)
+	     if (elPtr->isAvailable<unsigned int>("particleType")) {
+	         m_el_true_type[i] = elPtr->auxdata<unsigned int>("particleType");
+	     } else if (elPtr->isAvailable<unsigned int>("classifierParticleType")) {
+	         m_el_true_type[i] = elPtr->auxdata<unsigned int>("classifierParticleType");
+	     } else {
+	         top::check(false, "Could not obtain truth Type decoration for electron!");
+	     }
+	     if (elPtr->isAvailable<unsigned int>("particleOrigin")) {
+	         m_el_true_origin[i] = elPtr->auxdata<unsigned int>("particleOrigin");
+	     } else if (elPtr->isAvailable<unsigned int>("classifierParticleOrigin")) {
+	         m_el_true_origin[i] = elPtr->auxdata<unsigned int>("classifierParticleOrigin");
+	     } else {
+	         top::check(false, "Could not obtain truth Origin decoration for electron!");
+	     }
+	     //if (elPtr->isAvailable<unsigned int>("firstEgMotherTruthType")) {
+	     //    m_el_true_firstEgMotherTruthType[i] = elPtr->auxdata<unsigned int>("firstEgMotherTruthType");
+	     //} else {
+	     //    top::check(false, "Could not obtain mother's truth Type decoration for electron!");
+	     //}
+	     //if (elPtr->isAvailable<unsigned int>("firstEgMotherTruthOrigin")) {
+	     //    m_el_true_firstEgMotherTruthOrigin[i] = elPtr->auxdata<unsigned int>("firstEgMotherTruthOrigin");
+	     //} else {
+	     //    top::check(false, "Could not obtain mother's truth Origin decoration for electron!");
+	     //}
+	     //m_el_true_isPrompt[i] = isPromptElectron(m_el_true_type[i], m_el_true_origin[i], m_el_true_firstEgMotherTruthType[i], m_el_true_firstEgMotherTruthOrigin[i]);
+	   }
+	 }
+
          ++i;
        }
 
@@ -3198,6 +3325,9 @@ namespace top {
        m_mu_phi.resize(upgradeEvent.m_muons->size());
        m_mu_e.resize(upgradeEvent.m_muons->size());
        m_mu_charge.resize(upgradeEvent.m_muons->size());
+       m_mu_true_type.resize(upgradeEvent.m_muons->size());
+       m_mu_true_origin.resize(upgradeEvent.m_muons->size());
+       m_mu_true_isPrompt.resize(upgradeEvent.m_muons->size());
 
        for (const auto  muPtr : * upgradeEvent.m_muons) {
          m_mu_pt[i] = muPtr->pt();
@@ -3205,6 +3335,26 @@ namespace top {
          m_mu_phi[i] = muPtr->phi();
          m_mu_e[i] = muPtr->e();
          m_mu_charge[i] = muPtr->charge();
+
+	 m_mu_true_type[i] = 0;
+	 m_mu_true_origin[i] = 0;
+	 m_mu_true_isPrompt[i] = 0;
+	 if (muPtr->isAvailable<unsigned int>("particleType")) {
+	     m_mu_true_type[i] = muPtr->auxdata<unsigned int>("particleType");
+	 } else if (muPtr->isAvailable<unsigned int>("classifierParticleType")) {
+	     m_mu_true_type[i] = muPtr->auxdata<unsigned int>("classifierParticleType");
+	 } else {
+	     top::check(false, "Could not obtain truth Type decoration for muon!");
+	 }
+	 if (muPtr->isAvailable<unsigned int>("particleOrigin")) {
+	     m_mu_true_origin[i] = muPtr->auxdata<unsigned int>("particleOrigin");
+	 } else if (muPtr->isAvailable<unsigned int>("classifierParticleOrigin")) {
+	     m_mu_true_origin[i] = muPtr->auxdata<unsigned int>("classifierParticleOrigin");
+	 } else {
+	     top::check(false, "Could not obtain truth Origin decoration for muon!");
+	 }
+	 m_mu_true_isPrompt[i] = isPromptMuon(m_mu_true_type[i], m_mu_true_origin[i]);
+
          ++i;
        }
 
@@ -3228,8 +3378,16 @@ namespace top {
 
          if(jetPtr->auxdata<int>("pileUp")==0) {
            m_jet_isPileup[i]=0;
-           m_jet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
-           m_jet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
+           try {
+             m_jet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
+             m_jet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
+           } catch (SG::ExcBadAuxVar e) {
+             //didn't find any ghost b-hadron info, have to assume it's a light jet
+             ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
+             m_jet_Ghosts_BHadron_Final_Count[i] = 0;
+             m_jet_Ghosts_CHadron_Final_Count[i] = 0;
+           }
+
          } else {
            m_jet_isPileup[i]=1;
            m_jet_Ghosts_BHadron_Final_Count[i] = 0;
@@ -3255,8 +3413,12 @@ namespace top {
                m_ljet_phi[i] = jetPtr->phi();
                m_ljet_e[i] = jetPtr->e();
 
-               m_ljet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
+              if (jetPtr->isAvailable<int>("GhostBHadronsFinalCount")) {
+                m_ljet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
+              }
+              if (jetPtr->isAvailable<int>("GhostCHadronsFinalCount")) {
                m_ljet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
+              }
 
                ++i;
            }
@@ -3269,11 +3431,53 @@ namespace top {
             m_ph_eta.resize(upgradeEvent.m_photons->size());
             m_ph_phi.resize(upgradeEvent.m_photons->size());
             m_ph_e.resize(upgradeEvent.m_photons->size());
+            m_ph_true_type.resize(upgradeEvent.m_photons->size());
+            m_ph_true_origin.resize(upgradeEvent.m_photons->size());
+            if (m_config->HLLHCFakes()) m_ph_faketype.resize(upgradeEvent.m_photons->size());
+
             for (const auto* const phPtr : * upgradeEvent.m_photons) {
                 m_ph_pt[i] = phPtr->pt();
                 m_ph_eta[i] = phPtr->eta();
                 m_ph_phi[i] = phPtr->phi();
                 m_ph_e[i] = phPtr->e();
+ 		if (!m_config->HLLHCFakes()) {
+ 		    if (phPtr->isAvailable<unsigned int>("particleType")) {
+         	        m_ph_true_type[i] = phPtr->auxdata<unsigned int>("particleType");
+         	    } else if (phPtr->isAvailable<unsigned int>("classifierParticleType")) {
+         	        m_ph_true_type[i] = phPtr->auxdata<unsigned int>("classifierParticleType");
+         	    } else {
+         	        top::check(false, "Could not obtain truth Type decoration for photon!");
+         	    }
+ 		    if (phPtr->isAvailable<unsigned int>("particleOrigin")) {
+         	        m_ph_true_origin[i] = phPtr->auxdata<unsigned int>("particleOrigin");
+         	    } else if (phPtr->isAvailable<unsigned int>("classifierParticleOrigin")) {
+         	        m_ph_true_origin[i] = phPtr->auxdata<unsigned int>("classifierParticleOrigin");
+         	    } else {
+         	        top::check(false, "Could not obtain truth Origin decoration for photon!");
+         	    }
+ 		} else {
+ 		  if (phPtr->isAvailable<int>("FakeType")) {
+ 	   	    m_ph_faketype[i] = phPtr->auxdata<int>("FakeType");
+            	  } else {
+            	    top::check(false, "Could not obtain FakeType decoration for photon!");
+            	  }
+ 		  if (m_ph_faketype[i] == 0) { // truthType/Origin only available for true photon (also for electron fake, but we are not interested in its truth info)
+ 		    if (phPtr->isAvailable<unsigned int>("particleType")) {
+         	        m_ph_true_type[i] = phPtr->auxdata<unsigned int>("particleType");
+         	    } else if (phPtr->isAvailable<unsigned int>("classifierParticleType")) {
+         	        m_ph_true_type[i] = phPtr->auxdata<unsigned int>("classifierParticleType");
+         	    } else {
+         	        top::check(false, "Could not obtain truth Type decoration for photon!");
+         	    }
+ 		    if (phPtr->isAvailable<unsigned int>("particleOrigin")) {
+         	        m_ph_true_origin[i] = phPtr->auxdata<unsigned int>("particleOrigin");
+         	    } else if (phPtr->isAvailable<unsigned int>("classifierParticleOrigin")) {
+         	        m_ph_true_origin[i] = phPtr->auxdata<unsigned int>("classifierParticleOrigin");
+         	    } else {
+         	        top::check(false, "Could not obtain truth Origin decoration for photon!");
+         	    }
+ 		  }
+ 		}
 
                 ++i;
             }
@@ -3282,6 +3486,11 @@ namespace top {
        // MET
        m_met_met = upgradeEvent.m_met->met();
        m_met_phi = upgradeEvent.m_met->phi();
+
+       if (m_config->doMCGeneratorWeights()) {
+           // delegate to helper function.
+           loadMCGeneratorWeights();
+       }
 
     }
 

@@ -107,6 +107,14 @@ class TopConfig final {
   inline bool isAFII() const {return m_isAFII;}
   inline void setIsAFII(const bool value) {if(!m_configFixed){m_isAFII = value;}}
 
+  // Generators name
+  inline std::string getGenerators() const {return m_generators;}
+  inline void setGenerators(const std::string value) {if(!m_configFixed){m_generators = value;}}
+
+  // AMITag
+  inline std::string getAMITag() const {return m_AMITag;}
+  inline void setAMITag(const std::string value) {if(!m_configFixed){m_AMITag = value;}}
+
   // Is this a Primary xAOD?
   inline bool isPrimaryxAOD() const {return m_isPrimaryxAOD;}
   inline void setIsPrimaryxAOD(const bool value) {if(!m_configFixed){m_isPrimaryxAOD = value;}}
@@ -427,7 +435,8 @@ class TopConfig final {
   inline virtual void electronPtcut(const float pt)       {if(!m_configFixed){m_electronPtcut = pt;}}
   inline virtual void electronIsolation(const std::string& iso) {if(!m_configFixed){m_electronIsolation = iso;}}
   inline virtual void electronIsolationLoose(const std::string& iso) {if(!m_configFixed){m_electronIsolationLoose = iso;}}
-  inline virtual void electronIsoSFs(const bool b){if(!m_configFixed){m_electronIsoSFs = b;}}
+  void electronIsolationSF(std::string const & iso) {if(!m_configFixed){m_electronIsolationSF = iso;}}
+  void electronIsolationSFLoose(std::string const & iso) {if(!m_configFixed){m_electronIsolationSFLoose = iso;}}
 
   inline virtual const std::string& egammaSystematicModel(){return m_egammaSystematicModel;}
   inline virtual const std::string& electronID()     const {return m_electronID;   }
@@ -436,6 +445,8 @@ class TopConfig final {
   inline virtual float electronPtcut()       const {return m_electronPtcut;}
   inline virtual const std::string& electronIsolation() const {return m_electronIsolation;}
   inline virtual const std::string& electronIsolationLoose() const {return m_electronIsolationLoose;}
+  std::string const & electronIsolationSF() const {return m_electronIsolationSF;}
+  std::string const & electronIsolationSFLoose() const {return m_electronIsolationSFLoose;}
   inline virtual bool electronIsoSFs() const {return m_electronIsoSFs;}
   inline const std::string& electronIDDecoration() const {return m_electronIDDecoration;}
   inline const std::string& electronIDLooseDecoration() const {return m_electronIDLooseDecoration;}
@@ -456,6 +467,8 @@ class TopConfig final {
   inline virtual void muonQualityLoose(const std::string& quality)  {if(!m_configFixed){m_muonQualityLoose = quality;}}
   inline virtual void muonIsolation(const std::string& iso) {if(!m_configFixed){m_muonIsolation = iso;}}
   inline virtual void muonIsolationLoose(const std::string& iso) {if(!m_configFixed){m_muonIsolationLoose = iso;}}
+  void muonIsolationSF(std::string const & iso) {if(!m_configFixed){m_muonIsolationSF = iso;}}
+  void muonIsolationSFLoose(std::string const & iso) {if(!m_configFixed){m_muonIsolationSFLoose = iso;}}
 
   inline virtual float muonPtcut() const {return m_muonPtcut;}
   inline virtual float muonEtacut() const {return m_muonEtacut;}
@@ -463,6 +476,8 @@ class TopConfig final {
   inline virtual const std::string& muonQualityLoose() const {return m_muonQualityLoose;}
   inline virtual const std::string& muonIsolation() const {return m_muonIsolation;}
   inline virtual const std::string& muonIsolationLoose() const {return m_muonIsolationLoose;}
+  std::string const & muonIsolationSF() const {return m_muonIsolationSF;}
+  std::string const & muonIsolationSFLoose() const {return m_muonIsolationSFLoose;}
 
   // Jet configuration
   inline virtual void jetPtcut(const float pt)       {if(!m_configFixed){m_jetPtcut = pt;}}
@@ -960,6 +975,8 @@ class TopConfig final {
 
   bool m_isMC;
   bool m_isAFII;
+  std::string m_generators;
+  std::string m_AMITag;
   bool m_isPrimaryxAOD;
   bool m_isTruthDxAOD = false;
   std::string m_derivationStream;
@@ -1083,7 +1100,9 @@ class TopConfig final {
   float m_electronPtcut;
   std::string m_electronIsolation;
   std::string m_electronIsolationLoose;
-  bool m_electronIsoSFs;
+  std::string m_electronIsolationSF;
+  std::string m_electronIsolationSFLoose;
+  bool const m_electronIsoSFs; // no longer supported, always true (use m_electronIsolationSF instead)
   int m_electron_d0SigCut;
   float m_electron_delta_z0;
 
@@ -1097,6 +1116,8 @@ class TopConfig final {
   std::string m_muonQualityLoose; // loose muon quality used in object selection
   std::string m_muonIsolation;
   std::string m_muonIsolationLoose;
+  std::string m_muonIsolationSF;
+  std::string m_muonIsolationSFLoose;
   int   m_muon_d0SigCut;
   float m_muon_delta_z0;
 

@@ -86,6 +86,8 @@ namespace top{
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutTight;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutTightTrackOnly;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutLoose;
+      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutHighMuTight;
+      ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_FixedCutHighMuLoose;
       // the following is needed to make sure all muons for which d0sig is calculated are at least Loose
       ToolHandle<CP::IMuonSelectionTool> m_muonSelectionToolVeryLooseVeto;
 

@@ -461,6 +461,12 @@ class SlimmingHelper:
                 elif collectionName=="BTagging_AntiKt8EMTopoExKt3Sub":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("BTagging_AntiKt8EMTopoExKt3Sub"))
+                elif collectionName=="BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub_expert":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
+                        items.extend(BTaggingExpertContent("AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets"))
+                elif collectionName=="BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3Sub_expert":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
+                        items.extend(BTaggingExpertContent("AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJets"))
                 elif collectionName=="InDetTrackParticles":
                         from DerivationFrameworkInDet.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent
                         items.extend(InDetTrackParticlesCPContent)

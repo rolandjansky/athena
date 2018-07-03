@@ -2,12 +2,15 @@
 #
 # @author Nils Krumnack
 
-
 atlas_subdir( AsgAnalysisAlgorithms )
 
 atlas_depends_on_subdirs(
    PUBLIC
+   Control/AthContainers
+   Control/AthContainersInterfaces
+   Control/AthToolSupport/AsgTools
    Event/xAOD/xAODBase
+   Event/xAOD/xAODEventInfo
    PhysicsAnalysis/Algorithms/SelectionHelpers
    PhysicsAnalysis/Algorithms/SystematicsHandles
    PhysicsAnalysis/AnalysisCommon/PATCore
@@ -15,7 +18,6 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/D3PDTools/AnaAlgorithm
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PRIVATE
-   Control/AthToolSupport/AsgTools
    Event/xAOD/xAODJet
    Event/xAOD/xAODMuon
    Event/xAOD/xAODTau
@@ -25,10 +27,10 @@ atlas_depends_on_subdirs(
 atlas_add_library( AsgAnalysisAlgorithmsLib
    AsgAnalysisAlgorithms/*.h AsgAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS AsgAnalysisAlgorithms
-   LINK_LIBRARIES xAODBase SelectionHelpersLib SystematicsHandlesLib
-     PATInterfaces AnaAlgorithmLib AsgAnalysisInterfaces PATCoreLib
-   PRIVATE_LINK_LIBRARIES AsgTools RootCoreUtils
-     xAODJet xAODMuon xAODEgamma xAODTau )
+   LINK_LIBRARIES AthContainers AthContainersInterfaces AsgTools xAODBase
+     xAODEventInfo SelectionHelpersLib SystematicsHandlesLib PATCoreLib
+     PATInterfaces AnaAlgorithmLib AsgAnalysisInterfaces
+   PRIVATE_LINK_LIBRARIES xAODJet xAODMuon xAODTau xAODEgamma RootCoreUtils )
 
 atlas_add_dictionary( AsgAnalysisAlgorithmsDict
    AsgAnalysisAlgorithms/AsgAnalysisAlgorithmsDict.h

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ****************************************************************************
@@ -297,7 +297,7 @@ namespace Analysis {
                 
                 // Daniel Scheirich: remove track too far from the Jpsi vertex (DeltaZ cut)
                 if(m_trkDeltaZ>0 &&
-                   fabs((*trkItr1)->z0() - (*jpsiItr)->z()) > m_trkDeltaZ )
+                   fabs((*trkItr1)->z0() + (*trkItr1)->vz() - (*jpsiItr)->z()) > m_trkDeltaZ )
                     continue;
                 
                 for (TrackBag::iterator trkItr2=trkItr1+1; trkItr2!=theIDTracksAfterSelection.end(); ++trkItr2) { // inner loop
@@ -317,7 +317,7 @@ namespace Analysis {
                     
                     // Daniel Scheirich: remove track too far from the Jpsi vertex (DeltaZ cut)
                     if(m_trkDeltaZ>0 &&
-                       fabs((*trkItr2)->z0() - (*jpsiItr)->z()) > m_trkDeltaZ )
+                       fabs((*trkItr2)->z0() + (*trkItr2)->vz() - (*jpsiItr)->z()) > m_trkDeltaZ )
                         continue;
                     
 		    if (m_oppChargesOnly && !oppositeCharges(*trkItr1,*trkItr2)) continue; //enforce opposite charges

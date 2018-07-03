@@ -6,7 +6,7 @@
 #define JETMC15_H_
 
 #include "TopObjectSelectionTools/JetSelectionBase.h"
-#include "JetJvtEfficiency/IJetJvtEfficiency.h"
+#include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 
 #include "AsgTools/ToolHandle.h"
 

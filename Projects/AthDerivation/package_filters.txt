@@ -217,6 +217,7 @@
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/CommonTools/ExpressionEvaluation
 + PhysicsAnalysis/D3PDTools/RootCoreUtils
++ PhysicsAnalysis/D3PDTools/AnaAlgorithm
 + PhysicsAnalysis/DerivationFramework/.*
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
@@ -233,6 +234,7 @@
 + PhysicsAnalysis/JetTagging/JetTagNonPromptLepton
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/.*
 + PhysicsAnalysis/JetTagging/JetTagTools
++ PhysicsAnalysis/JetTagging/FlavorTagDiscriminants
 + PhysicsAnalysis/JpsiUpsilonTools
 + PhysicsAnalysis/MCTruthClassifier
 + PhysicsAnalysis/MuonID/MuonIDAnalysis/.*
