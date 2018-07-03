@@ -74,6 +74,8 @@ if jobproperties.Beam.beamType() == 'cosmics':
                 include ("LArMonTools/LArCoverage_jobOptions.py")
             if LArMonFlags.doLArDigitMon():
                 include ("LArMonTools/LArDigitMon_jobOptions.py")
+            if LArMonFlags.doLArNoiseCorrelationMon():
+                include ("LArMonTools/LArNoiseCorrelationMon_jobOptions.py")
             if LArMonFlags.doLArNoisyROMon():
                 include ("LArMonTools/LArNoisyROMon_jobOptions.py")
             if LArMonFlags.doLArRawChannelMon():
@@ -99,6 +101,8 @@ elif jobproperties.Beam.beamType() == 'singlebeam':
                 include ("LArMonTools/LArCoverage_jobOptions.py")
             if LArMonFlags.doLArDigitMon():
                 include ("LArMonTools/LArDigitMon_jobOptions.py")
+            if LArMonFlags.doLArNoiseCorrelationMon():
+                include ("LArMonTools/LArNoiseCorrelationMon_jobOptions.py")
             if LArMonFlags.doLArNoisyROMon():
                 include ("LArMonTools/LArNoisyROMon_jobOptions.py")
             if LArMonFlags.doLArRawChannelMon():
@@ -123,6 +127,8 @@ else:  # should be jobproperties.Beam.beamType() =='collisions'
                 include ("LArMonTools/LArCoverage_jobOptions.py")
             if LArMonFlags.doLArDigitMon():
                 include ("LArMonTools/LArDigitMon_jobOptions.py")
+            if LArMonFlags.doLArNoiseCorrelationMon():
+                include ("LArMonTools/LArNoiseCorrelationMon_jobOptions.py")
             if LArMonFlags.doLArNoisyROMon():
                 include ("LArMonTools/LArNoisyROMon_jobOptions.py")
             if LArMonFlags.doLArRawChannelMon():
