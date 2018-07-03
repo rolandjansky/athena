@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ActsAlignment/ActsAlignedExtrapAlg.h"
+#include "ActsGeometry/ActsAlignedExtrapAlg.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "EventInfo/EventInfo.h"

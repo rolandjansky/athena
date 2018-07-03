@@ -122,9 +122,9 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 from AthExHive import AthExHiveConf
-from ActsAlignment import ActsAlignmentConf
+from ActsGeometry import ActsGeometryConf
 
-extrapAlg = ActsAlignmentConf.ActsAlignedExtrapAlg("ActsAlignedExtrapAlg_1", 
+extrapAlg = ActsGeometryConf.ActsAlignedExtrapAlg("ActsAlignedExtrapAlg_1", 
                                                     OutputLevel=VERBOSE)
 
 extrapAlg.ExtrapolationTool = exTool
@@ -134,7 +134,7 @@ topSequence += extrapAlg
 from AthenaCommon.AlgSequence import AthSequencer 
 condSeq = AthSequencer("AthCondSeq") 
 
-condSeq+=ActsAlignmentConf.GeomShiftCondAlg("GeomShiftCondAlg_1",
+condSeq+=ActsGeometryConf.GeomShiftCondAlg("GeomShiftCondAlg_1",
                                             ZShiftPerLB=0.5,
                                             OutputLevel=VERBOSE)
 

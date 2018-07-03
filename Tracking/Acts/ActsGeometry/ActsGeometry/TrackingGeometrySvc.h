@@ -8,7 +8,7 @@
 
 #include "ActsGeometry/ITrackingGeometrySvc.h"
 
-#include "ActsAlignment/ShiftCondObj.h"
+#include "ActsGeometry/ShiftCondObj.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadCondHandle.h"

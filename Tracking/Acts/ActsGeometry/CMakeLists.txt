@@ -17,8 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           DetectorDescription/GeoModel/GeoModelUtilities/
-                          ActsInterop
-                          ActsAlignment )
+                          ActsInterop )
 
 # External dependencies:
 find_package( CLHEP )

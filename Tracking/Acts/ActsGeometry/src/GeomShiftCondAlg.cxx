@@ -3,9 +3,8 @@
 */
 
 
-#include "ActsAlignment/GeomShiftCondAlg.h"
-#include "AthExHive/IASCIICondDbSvc.h"
-#include "ActsAlignment/ShiftCondObj.h"
+#include "ActsGeometry/GeomShiftCondAlg.h"
+#include "ActsGeometry/ShiftCondObj.h"
 
 #include "StoreGate/WriteCondHandle.h"
 
@@ -171,7 +170,6 @@ StatusCode GeomShiftCondAlg::execute() {
     ATH_MSG_DEBUG("LB EventInfo = " << evt->event_ID()->lumi_block());
     ATH_MSG_DEBUG("LB context = " << getContext().eventID().lumi_block());
 
-    unsigned int intvl_length = 1000;
     unsigned int intvl_num = evt->event_ID()->lumi_block();
 
     double val = intvl_num * double(m_zShiftPerLB);

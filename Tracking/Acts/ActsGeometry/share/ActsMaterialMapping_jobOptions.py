@@ -88,12 +88,12 @@ mTrackWriterSvc.FilePath = "MaterialTracks_mapping.root"
 # mTrackWriterSvc.MaxQueueSize = 10
 ServiceMgr += mTrackWriterSvc
 
-from ActsAlignment import ActsAlignmentConf
+from ActsGeometry import ActsGeometryConf
 
 ## SET UP ALIGNMENT CONDITIONS ALGORITHM
 from AthenaCommon.AlgSequence import AthSequencer 
 condSeq = AthSequencer("AthCondSeq") 
-condSeq += ActsAlignmentConf.NominalAlignmentCondAlg("NominalAlignmentCondAlg", 
+condSeq += ActsGeometryConf.NominalAlignmentCondAlg("NominalAlignmentCondAlg", 
                                                      OutputLevel=VERBOSE)
 ## END OF CONDITIONS SETUP
 

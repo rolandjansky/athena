@@ -8,8 +8,7 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
-#include "ActsAlignment/ShiftCondObj.h"
-#include "AthExHive/IASCIICondDbSvc.h"
+#include "ActsGeometry/ShiftCondObj.h"
 
 #include "EventInfo/EventInfo.h"
 #include "GaudiKernel/ICondSvc.h"
@@ -19,19 +18,14 @@
 
 #include <string>
 
-namespace InDetDD {
-  class InDetDetectorManager;
-  class SiDetectorManager;
-  class TRT_DetectorManager;
-}
 
 
-class GeomShiftCondAlg  :  public AthAlgorithm {
+class NominalAlignmentCondAlg  :  public AthAlgorithm {
   
 public:
     
-  GeomShiftCondAlg (const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~GeomShiftCondAlg();
+  NominalAlignmentCondAlg (const std::string& name, ISvcLocator* pSvcLocator);
+  virtual ~NominalAlignmentCondAlg();
   
   virtual bool isClonable() const override { return true; }
 
@@ -45,18 +39,7 @@ private:
 
   SG::WriteCondHandleKey<GeoAlignmentStore> m_wchk {this, "PixelAlignmentKey", "PixelAlignment", "cond handle key"};
 
-  Gaudi::Property<std::string> m_dbKey {this, "Key_DB", "X2", "explicit dbKey for cond handle"};
-  Gaudi::Property<double> m_zShiftPerLB {this, "ZShiftPerLB", 10.5, ""};
-
   ServiceHandle<ICondSvc> m_cs;
-  //ServiceHandle<IASCIICondDbSvc> m_cds;
-
-  ServiceHandle<StoreGateSvc> m_detStore;
-  const InDetDD::SiDetectorManager* p_pixelManager;
-  const InDetDD::SiDetectorManager* p_SCTManager;
-  const InDetDD::TRT_DetectorManager* p_TRTManager;
-
-  std::vector<const GeoAlignableTransform*> m_topAligns;
 
 };
 

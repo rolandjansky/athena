@@ -9,12 +9,12 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GeoModelUtilities/GeoAlignmentStore.h"
 
-#include "ActsAlignment/ShiftCondObj.h"
+#include "ActsGeometry/ShiftCondObj.h"
 #include "ActsGeometry/IExCellWriterSvc.h"
 #include "ActsGeometry/IExtrapolationTool.h"
 
-#include "GeoModelUtilities/GeoAlignmentStore.h"
 
 #include <string>
 
