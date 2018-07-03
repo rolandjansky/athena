@@ -457,10 +457,10 @@ class SlimmingHelper:
                         items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackJets"))
                 elif collectionName=="BTagging_AntiKt8EMTopoExKt2Sub":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
-                        items.extend(BTaggingExpertContent("BTagging_AntiKt8EMTopoExKt2Sub"))
+                        items.extend(BTaggingExpertContent("AntiKt8EMTopoExKt2SubJets"))
                 elif collectionName=="BTagging_AntiKt8EMTopoExKt3Sub":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
-                        items.extend(BTaggingExpertContent("BTagging_AntiKt8EMTopoExKt3Sub"))
+                        items.extend(BTaggingExpertContent("AntiKt8EMTopoExKt3SubJets"))
                 elif collectionName=="BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub_expert":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets"))

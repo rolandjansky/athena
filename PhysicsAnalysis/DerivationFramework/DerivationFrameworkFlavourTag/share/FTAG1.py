@@ -189,7 +189,10 @@ FTAG1SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt8EMTopoJets",
                                         "AntiKt8EMTopoExKt2SubJets",
-                                        "AntiKt8EMTopoExKt3SubJets",]
+                                        "AntiKt8EMTopoExKt3SubJets",
+                                        "BTagging_AntiKt8EMTopoExKt2Sub",
+                                        "BTagging_AntiKt8EMTopoExKt3Sub",
+                                         ]
 
 FTAG1SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "BTagging_AntiKtVR30Rmax4Rmin02Track",
@@ -300,16 +303,16 @@ FTAG1SlimmingHelper.AppendToDictionary = {
   "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJFVtxAux"    :   "xAOD::BTagVertexAuxContainer",
   "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubSecVtx"      :   "xAOD::VertexContainer"   ,
   "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubSecVtxAux"   :   "xAOD::VertexAuxContainer",
-  # "AntiKt8EMTopoJets"                              :   "xAOD::JetContainer"        ,
-  # "AntiKt8EMTopoJetsAux"                           :   "xAOD::JetAuxContainer"     ,
-  # "AntiKt8EMTopoExKt2SubJets"                      :   "xAOD::JetContainer"        ,
-  # "AntiKt8EMTopoExKt2SubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
-  # "BTagging_AntiKt8EMTopoExKt2Sub"                 :   "xAOD::BTaggingContainer"   ,
-  # "BTagging_AntiKt8EMTopoExKt2SubAux"              :   "xAOD::BTaggingAuxContainer",
-  # "AntiKt8EMTopoExKt3SubJets"                      :   "xAOD::JetContainer"        ,
-  # "AntiKt8EMTopoExKt3SubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
-  # "BTagging_AntiKt8EMTopoExKt3Sub"                 :   "xAOD::BTaggingContainer"   ,
-  # "BTagging_AntiKt8EMTopoExKt3SubAux"              :   "xAOD::BTaggingAuxContainer"
+  "AntiKt8EMTopoJets"                              :   "xAOD::JetContainer"        ,
+  "AntiKt8EMTopoJetsAux"                           :   "xAOD::JetAuxContainer"     ,
+  "AntiKt8EMTopoExKt2SubJets"                      :   "xAOD::JetContainer"        ,
+  "AntiKt8EMTopoExKt2SubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKt8EMTopoExKt2Sub"                 :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt8EMTopoExKt2SubAux"              :   "xAOD::BTaggingAuxContainer",
+  "AntiKt8EMTopoExKt3SubJets"                      :   "xAOD::JetContainer"        ,
+  "AntiKt8EMTopoExKt3SubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKt8EMTopoExKt3Sub"                 :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt8EMTopoExKt3SubAux"              :   "xAOD::BTaggingAuxContainer"
   }
 #----------------------------------------------------------------------
 
