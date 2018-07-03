@@ -810,28 +810,6 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getFastVertices(const ftk::FTK_Track
 bool FTK_DataProviderSvc::fillVertexContainerCache(bool withRefit, xAOD::TrackParticleContainer* tps) {
 
   bool gotVertices = false;
-  if (tps->size() > 1) {
-    ATH_MSG_DEBUG( "fillVertexContainerCache: finding vertices from " << tps->size() << " TrackParticles ");
-
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> theXAODContainers = m_VertexFinderTool->findVertex(tps);
-
-    ATH_MSG_DEBUG( "fillVertexContainerCache: got "<< theXAODContainers.first->size() << " vertices");
-    if (theXAODContainers.first == nullptr) return gotVertices;
-
-    xAOD::VertexContainer* myVertexContainer = 0;
-    xAOD::VertexAuxContainer* myVertexAuxContainer = 0;
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> myVxContainers = std::make_pair( myVertexContainer, myVertexAuxContainer );
-    
-    if (theXAODContainers.first->size() >1 && m_doVertexSorting) {
-      myVxContainers = m_VertexCollectionSortingTool->sortVertexContainer(*theXAODContainers.first);
-      delete theXAODContainers.first; 
-      delete theXAODContainers.second; 
-    } else {
-      myVxContainers.first = theXAODContainers.first;
-      myVxContainers.second = theXAODContainers.second;
-    }
-    if (myVxContainers.first == nullptr) return gotVertices;
-    if (not myVxContainers.first->hasStore()) return gotVertices;
 
   xAOD::VertexContainer* myVertexContainer = nullptr;
   xAOD::VertexAuxContainer* myVertexAuxContainer = nullptr;
