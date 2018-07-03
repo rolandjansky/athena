@@ -342,14 +342,11 @@ namespace top {
 	  const xAOD::JetContainer* vrc_jets(nullptr);
 	  top::check(evtStore()->retrieve(vrc_jets,varRCJetContainerName),"Failed to retrieve RC JetContainer");
 	  
-	  auto goodVarRCJets = std::make_unique<xAOD::JetContainer>();
-	  auto goodVarRCJetsAux = std::make_unique<xAOD::AuxContainerBase>();
-	  goodVarRCJets->setStore (goodVarRCJetsAux.get()); //< Connect the two
 	  for (auto vrcjet : *vrc_jets){
-	    if(vrcjet->auxdataConst<bool>("PassedSelection"))goodVarRCJets->push_back((xAOD::Jet*)vrcjet);
+	    if(vrcjet->auxdataConst<bool>("PassedSelection"))event.m_VarRCJets[name].push_back((xAOD::Jet*)vrcjet);
 	    //std::cout << vrcjet->pt() << std :: endl;
 	  }
-	  event.m_VarRCJets[name]=goodVarRCJets.get();
+	  
 	}
       }
     }

@@ -2263,7 +2263,7 @@ namespace top {
 	  // Execute the re-clustering code
           // - make jet container, put it in TStore, do re-clustering
           std::string VarRC = "vrcjet";
-	  std::map< std::string,xAOD::JetContainer* > VarRCJets=event.m_VarRCJets;
+	  std::map< std::string,std::vector<xAOD::Jet*> > VarRCJets=event.m_VarRCJets;
 	  for (auto& rho : m_VarRCJetRho){
             for (auto& mass_scale : m_VarRCJetMassScale){
 	      std::replace( rho.begin(), rho.end(), '.', '_');
@@ -2284,8 +2284,8 @@ namespace top {
 
 	      // Initialize the vectors to be saved as branches
 	      
-	      xAOD::JetContainer* vrc_jets = VarRCJets[name];
-              unsigned int sizeOfRCjets = vrc_jets->size();
+	      std::vector<xAOD::Jet*>& vrc_jets = VarRCJets[name];
+              unsigned int sizeOfRCjets = vrc_jets.size();
 	      m_VarRCjetBranches[VarRC+"_"+name+"_pt"].resize(sizeOfRCjets,-999.);
 	      m_VarRCjetBranches[VarRC+"_"+name+"_eta"].resize(sizeOfRCjets,-999.);
 	      m_VarRCjetBranches[VarRC+"_"+name+"_phi"].resize(sizeOfRCjets,-999.);
@@ -2300,12 +2300,9 @@ namespace top {
 
 	      unsigned int i = 0;
 	      
-	      for (xAOD::JetContainer::const_iterator jet_itr = vrc_jets->begin(); jet_itr != vrc_jets->end(); ++jet_itr) {
+	      for (i=0; i<sizeOfRCjets; ++i) {
 	      //for (xAOD::JetContainer::const_iterator jet_itr = (event.m_VarRCJets[name]).begin(); jet_itr != (event.m_VarRCJets[name]).end(); ++jet_itr) {
-		const xAOD::Jet* rc_jet = *jet_itr;
-
-		std::cout << name << " index: " << i << " " << sizeOfRCjets << " " << m_VarRCjetBranches[VarRC+"_"+name+"_pt"][i]<< std::endl;
-		std::cout << rc_jet->pt() << std::endl;
+		const xAOD::Jet* rc_jet = vrc_jets[i];
 
 		m_VarRCjetBranches[VarRC+"_"+name+"_pt"][i]   = rc_jet->pt();
 		m_VarRCjetBranches[VarRC+"_"+name+"_eta"][i]  = rc_jet->eta();
