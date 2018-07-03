@@ -33,6 +33,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "FTK_DataProviderInterfaces/IFTK_UncertaintyTool.h"
 #include "FTK_RecToolInterfaces/IFTK_DuplicateTrackRemovalTool.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 
 /// Forward Declarations ///
 class AtlasDetectorID;
@@ -175,6 +176,7 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   ToolHandle< IFTK_VertexFinderTool > m_RawVertexFinderTool;
   ToolHandle< Trk::IRIO_OnTrackCreator >      m_ROTcreator;
   ToolHandle< IFTK_DuplicateTrackRemovalTool > m_DuplicateTrackRemovalTool;
+  ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SCTLorentzAngleTool", "Tool to retrieve Lorentz angle of SCT"};
 
   double m_trainingBeamspotX;
   double m_trainingBeamspotY;

@@ -17,6 +17,7 @@
 #include "TrkFitterInterfaces/ITrackFitter.h" 
 #include "TrkFitterUtils/FitterTypes.h" 
 #include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 
 class StoreGateSvc;
 
@@ -74,6 +75,7 @@ private:
   const InDetDD::PixelDetectorManager* m_pixelManager;
   const InDetDD::SCT_DetectorManager* m_SCT_Manager;
 
+  ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
   ToolHandle<Trk::ITrackFitter> m_trackFitter;
   bool m_doFit;
   bool m_doTruth;

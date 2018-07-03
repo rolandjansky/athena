@@ -105,6 +105,8 @@ FTK_SCTClusterOnTrackTool::initialize() {
     return StatusCode::FAILURE;
   }
 
+  ATH_CHECK(m_lorentzAngleTool.retrieve());
+
   return sc;
 }
 
@@ -157,7 +159,7 @@ FTK_SCTClusterOnTrackTool::correct
   if (m_option_errorStrategy == 2 || m_option_correctionStrategy == 0) {
     double pNormal = trackPar.momentum().dot(EL->normal());
     double pPhi = trackPar.momentum().dot(Amg::AngleAxis3D(asin(-sinAlpha), Amg::Vector3D::UnitZ()) * EL->phiAxis());
-    dphi = atan(pPhi / pNormal) - atan(EL->getTanLorentzAnglePhi());
+    dphi = atan(pPhi / pNormal) - atan(m_lorentzAngleTool->getTanLorentzAngle(iH));
   }
 
   // SCT_ClusterOnTrack production

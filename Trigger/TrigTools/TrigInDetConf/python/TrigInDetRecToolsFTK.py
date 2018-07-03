@@ -54,10 +54,15 @@ ToolSvc += InDetTrigBroadPixelClusterOnTrackToolFTK
 if (InDetTrigFlags.doPrintConfigurables()):
   print InDetTrigBroadPixelClusterOnTrackToolFTK
   
+# SiLorentzAngleTool for SCT
+if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+  from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+  sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
 InDetTrigBroadSCT_ClusterOnTrackToolFTK = FTK_SCTClusterOnTrackTool("InDetTrigBroadSCT_ClusterOnTrackToolFTK",
                                                                     CorrectionStrategy = 0,  # do correct position bias
-                                                                    ErrorStrategy      = 0)  # do use broad errors
+                                                                    ErrorStrategy      = 0,  # do use broad errors
+                                                                    SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool)
 ToolSvc += InDetTrigBroadSCT_ClusterOnTrackToolFTK
 if (InDetTrigFlags.doPrintConfigurables()):
   print InDetTrigBroadSCT_ClusterOnTrackToolFTK
