@@ -39,13 +39,16 @@ private:
 
 
 std::unique_ptr<const Logger>
-makeAthenaLogger(IMessageSvc *svc, const std::string& name, boost::optional<const std::string&> parent_name);
+makeAthenaLogger(IMessageSvc *svc, const std::string& name, int level, boost::optional<std::string> parent_name);
 
 std::unique_ptr<const Logger>
 makeAthenaLogger(CommonMessagingBase* parent, const std::string& name);
 
 std::unique_ptr<const Logger>
-makeAthenaLogger(CommonMessagingBase* parent, const std::string& name, boost::optional<const std::string&> parent_name);
+makeAthenaLogger(CommonMessagingBase* parent, const std::string& name, boost::optional<std::string> parent_name);
 
+// problem: string literal does not play well with boost::optional
+std::unique_ptr<const Logger>
+makeAthenaLogger(CommonMessagingBase* parent, const std::string& name, const std::string& parent_name); 
 
 }  // end of namespace Acts
