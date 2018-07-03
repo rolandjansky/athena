@@ -8,7 +8,11 @@
 #include <iostream>
 #include <string>
 
+#include "AtlasStyle.C"
+
 void plot_zshift(std::string fname) {
+
+  SetAtlasStyle();
 
   TCanvas c;
 
@@ -46,6 +50,9 @@ void plot_zshift(std::string fname) {
   for(size_t i=0;i<nSlices;i++) {
     std::string hname = "slice_"+std::to_string(i+1);
     slices.emplace_back(hname.c_str(), hname.c_str(), 1000, 400, 800, 600, 0, 200);
+    slices.back().SetMarkerSize(0.2);
+    slices.back().GetXaxis()->SetTitle("z [mm]");
+    slices.back().GetYaxis()->SetTitle("r [mm]");
   }
 
   std::vector<EColor> colors = {kRed, kBlue, kGreen, kMagenta, kOrange};
@@ -115,6 +122,12 @@ void plot_zshift(std::string fname) {
 
   g_z_proc.SetLineColor(kRed);
   g_z_evt.SetLineColor(kGreen);
+  g_z_proc.SetMarkerColor(kRed);
+  g_z_evt.SetMarkerColor(kGreen);
+
+  
+  g_z_proc.SetMarkerSize(0.2);
+  g_z_evt.SetMarkerSize(0.2);
 
   for(size_t i=0;i<z_by_proc.size();i++) {
     g_z_proc.SetPoint(g_z_proc.GetN(), z_by_proc.at(i).first, z_by_proc.at(i).second);
@@ -122,8 +135,8 @@ void plot_zshift(std::string fname) {
   }
 
 
-  g_z_proc.Draw("al");
-  g_z_evt.Draw("l+same");
+  g_z_proc.Draw("ap");
+  g_z_evt.Draw("p+same");
   c.SaveAs("z_over_n.pdf");
 
 }

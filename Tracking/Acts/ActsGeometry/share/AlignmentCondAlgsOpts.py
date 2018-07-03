@@ -161,6 +161,12 @@ condSeq+=ActsGeometryConf.GeomShiftCondAlg("GeomShiftCondAlg_1",
 # Event related parameters
 #--------------------------------------------------------------
 
+eventPrintFrequency = 500
+if hasattr(ServiceMgr,"AthenaEventLoopMgr"):
+    ServiceMgr.AthenaEventLoopMgr.EventPrintoutInterval = eventPrintFrequency
+if hasattr(ServiceMgr,"AthenaHiveEventLoopMgr"):
+    ServiceMgr.AthenaHiveEventLoopMgr.EventPrintoutInterval = eventPrintFrequency
+
 theApp.EvtMax = 10000
 
 nProc = jp.ConcurrencyFlags.NumProcs()
