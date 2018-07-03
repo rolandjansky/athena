@@ -44,6 +44,7 @@ StatusCode
 Acts::TrackingGeometrySvc::initialize()
 {
   ATH_CHECK(m_rch.initialize());
+  ATH_MSG_INFO(name() << " is initializing");
   
   ATH_CHECK ( m_detStore->retrieve(p_pixelManager, "Pixel") );
   ATH_CHECK ( m_detStore->retrieve(p_SCTManager, "SCT") );
@@ -109,6 +110,7 @@ Acts::TrackingGeometrySvc::initialize()
   //const Acts::TrackingVolume* = m_trackingGeometry->highestTrackingVolume();
 
 
+  ATH_MSG_INFO("Acts TrackingGeometry construction completed");
   
   return StatusCode::SUCCESS;
 }
@@ -116,24 +118,7 @@ Acts::TrackingGeometrySvc::initialize()
 std::shared_ptr<const Acts::TrackingGeometry>
 Acts::TrackingGeometrySvc::trackingGeometry() {
 
-  // this is called from Alg::execute, test here
-  //auto ctx = Gaudi::Hive::currentContext();
-
-  //if (!ctx.valid()) {
-    //ATH_MSG_DEBUG("TrackingGeometry requested outside of valid event context");
-    //return m_trackingGeometry;
-  //}
-
-  //ATH_MSG_DEBUG("TrackingGeometry requested from ctx:" << ctx.eventID());
-
-  //SG::ReadCondHandle<ShiftCondObj> rch( m_rch, ctx );
-  //const ShiftCondObj *shift = *rch;
-  //if (shift != 0) {
-    //ATH_MSG_INFO("  read CH: " << rch.key() << " = " << *shift );
-  //} else {
-    //ATH_MSG_ERROR("  CDO ptr for " << rch.key() << " == zero");
-  //}
-
+  ATH_MSG_VERBOSE("Retrieving tracking geometry");
   return m_trackingGeometry;
 }
 
