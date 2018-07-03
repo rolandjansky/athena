@@ -3,8 +3,8 @@ PhysicsAnalysis/JetMissingEtID/JetSelectorTools:
    Package hosting jet selection (cleaning) tools
 ========================================================
 
-:authors: Julia Gonski
-:contact: j.gonski@cern.ch
+:authors: Zach Marshall, Julia Gonski
+:contact: ZLMarshall@lbl.gov, j.gonski@cern.ch
 
 .. meta::
    :description: JetSelectorTools: Package hosting jet selection (cleaning) tools

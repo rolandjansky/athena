@@ -7,7 +7,7 @@
 
 // PBdR (17Apr2007)
 
-#include <iostream>
+#include <exception>
 #include <map>
 #include <vector>
 
@@ -66,8 +66,8 @@ class AlVec {
   inline double* ptrData() const;
 
  protected:
-  int _size;
-  double* ptr_data;
+  int m_size;
+  double* m_ptr_data;
   std::string m_pathbin;
   std::string m_pathtxt;
 
@@ -82,39 +82,35 @@ class AlVec {
 // inline methods:
 
 inline int AlVec::size() const {
-  return _size;
+  return m_size;
 }
 
 inline double* AlVec::ptrData() const {
-  return ptr_data;
+  return m_ptr_data;
 }
 
 inline double& AlVec::operator[](int i) {
   if( i < 0 ) {
-    std::cerr << "AlVec: Index < zero! " << std::endl;
-    return ptr_data[0];
+    throw std::out_of_range( "AlVec: Index < zero! " );
   }
 
-  if( i >= _size ) {
-    std::cerr << "AlVec: Index too large! " << std::endl;
-    return ptr_data[0];
+  if( i >= m_size ) {
+    throw std::out_of_range( "AlVec: Index too large! ");
   }
 
-  return *(ptr_data+i);
+  return *(m_ptr_data+i);
 }
 
 inline const double& AlVec::operator[](int i) const {
   if( i < 0 ) {
-    std::cerr << "AlVec: Index < zero! " << std::endl;
-    return ptr_data[0];
+    throw std::out_of_range( "AlVec: Index < zero! " );
   }
 
-  if( i >= _size ) {
-    std::cerr << "AlVec: Index too large! " << std::endl;
-    return ptr_data[0];
+  if( i >= m_size ) {
+    throw std::out_of_range( "AlVec: Index too large! " );
   }
 
-  return *(ptr_data+i);
+  return *(m_ptr_data+i);
 }
 
 } // end namespace Trk

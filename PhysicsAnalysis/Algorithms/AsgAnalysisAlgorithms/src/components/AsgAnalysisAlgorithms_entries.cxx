@@ -13,6 +13,7 @@
 #include <AsgAnalysisAlgorithms/AsgxAODNTupleMakerAlg.h>
 #include <AsgAnalysisAlgorithms/KinematicHistAlg.h>
 #include <AsgAnalysisAlgorithms/ObjectCutFlowHistAlg.h>
+#include <AsgAnalysisAlgorithms/OverlapRemovalAlg.h>
 #include <AsgAnalysisAlgorithms/PileupReweightingAlg.h>
 #include <AsgAnalysisAlgorithms/SysListLoaderAlg.h>
 
@@ -22,6 +23,7 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgViewFromSelectionAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgxAODNTupleMakerAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, KinematicHistAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, ObjectCutFlowHistAlg)
+DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, OverlapRemovalAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, PileupReweightingAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, SysListLoaderAlg)
 
@@ -32,6 +34,7 @@ DECLARE_FACTORY_ENTRIES(AsgAnalysisAlgorithms) {
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgxAODNTupleMakerAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, KinematicHistAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, ObjectCutFlowHistAlg)
+  DECLARE_NAMESPACE_ALGORITHM (CP, OverlapRemovalAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, PileupReweightingAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, SysListLoaderAlg)
 }

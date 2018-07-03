@@ -38,6 +38,8 @@
 
 namespace met {
 
+  ANA_MSG_SOURCE (msgMET, "MetUtilities")
+
   using std::vector;
 
   using xAOD::MissingET;
@@ -1121,15 +1123,17 @@ namespace met {
 
   // **** Sum up MET terms ****
 
-  StatusCode METMaker::buildMETSum(const std::string& totalName,
-				   xAOD::MissingETContainer* metCont,
-				   MissingETBase::Types::bitmask_t softTermsSource)
+  StatusCode buildMETSum(const std::string& totalName,
+                         xAOD::MissingETContainer* metCont,
+                         MissingETBase::Types::bitmask_t softTermsSource)
   {
-    ATH_MSG_DEBUG("Build MET total: " << totalName);
+    using namespace msgMET;
+
+    ANA_MSG_DEBUG("Build MET total: " << totalName);
 
     MissingET* metFinal = nullptr;
     if( fillMET(metFinal, metCont, totalName, MissingETBase::Source::total()) != StatusCode::SUCCESS) {
-      ATH_MSG_ERROR("failed to fill MET term \"" << totalName << "\"");
+      ANA_MSG_ERROR("failed to fill MET term \"" << totalName << "\"");
       return StatusCode::FAILURE;
     }
 
@@ -1143,11 +1147,11 @@ namespace met {
       if( met->name().find("_Duplicate")!=std::string::npos){
 	continue;
       }
-      ATH_MSG_VERBOSE("Add MET term " << met->name() );
+      ANA_MSG_VERBOSE("Add MET term " << met->name() );
       *metFinal += *met;
     }
 
-    ATH_MSG_DEBUG( "Rebuilt MET Final --"
+    ANA_MSG_DEBUG( "Rebuilt MET Final --"
 		   << " mpx: " << metFinal->mpx()
 		   << " mpy: " << metFinal->mpy()
 		   );
@@ -1155,14 +1159,22 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
+  StatusCode METMaker::buildMETSum(const std::string& totalName,
+				   xAOD::MissingETContainer* metCont,
+				   MissingETBase::Types::bitmask_t softTermsSource)
+  {
+    return met::buildMETSum (totalName, metCont, softTermsSource);
+  }
+
   //this is used to not create a private store
   //it puts the given new MET object into the container
-  StatusCode METMaker::fillMET(xAOD::MissingET *& met,
+  StatusCode fillMET(xAOD::MissingET *& met,
 			       xAOD::MissingETContainer * metCont,
 			       const std::string& metKey,
 			       const MissingETBase::Types::bitmask_t metSource){
+    using namespace msgMET;
     if(met != nullptr){
-      ATH_MSG_ERROR("You can't fill a filled MET value");
+      ANA_MSG_ERROR("You can't fill a filled MET value");
       return StatusCode::FAILURE;
     }
     metCont->reserve(10);
@@ -1170,7 +1182,7 @@ namespace met {
     // add the new container as a "duplicate". This should be for the soft term to make sure the jet term is reconstructed correctly
     std::string duplicate = "";
     if(metCont->find(metKey)!=metCont->end()){
-      ATH_MSG_VERBOSE("avoiding adding a duplicate term");
+      ANA_MSG_VERBOSE("avoiding adding a duplicate term");
       duplicate = "_Duplicate";
     }
 
@@ -1181,6 +1193,12 @@ namespace met {
     met->setSource(metSource);
 
     return StatusCode::SUCCESS;
+  }
+  StatusCode METMaker::fillMET(xAOD::MissingET *& met,
+			       xAOD::MissingETContainer * metCont,
+			       const std::string& metKey,
+			       const MissingETBase::Types::bitmask_t metSource){
+    return met::fillMET (met, metCont, metKey, metSource);
   }
 
   // Accept Track
