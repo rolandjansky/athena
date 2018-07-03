@@ -12,6 +12,10 @@
 
 #include "GaudiKernel/ContextSpecificPtr.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "GeoModelUtilities/GeoAlignmentStore.h"
+
 // ACTS
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Utilities/BFieldMapUtils.hpp"
