@@ -113,30 +113,29 @@ void iFatras::SimHitCreatorID::createHits(const ISF::ISFParticle& isp, const std
        double time                                = (*plIter).time;
        // -------------------------------------------------------------------------
        const Trk::TrkDetElementBase* hitDetElement =  hitParameter->associatedSurface().associatedDetectorElement();
-       if (hitDetElement){
-           // initialize an unvalid one
-           Identifier hitId = hitDetElement ?  hitDetElement->identify() : Identifier();
-           if (m_idHelper->is_pixel(hitId)) {
-             // -----------------------------------------------------------------------
-             // HIT in Pixel Detector
-             // -----------------------------------------------------------------------
-             ATH_MSG_VERBOSE(  "[ sim ] Creating Pixel Cluster" );
-             m_pixelHitCreator->createSimHit(isp,*hitParameter,time); ++nHits;
-           }
-           else if (m_idHelper->is_sct(hitId)) {
-             // -----------------------------------------------------------------------
-             // HIT in SCT Detector
-             // -----------------------------------------------------------------------
-               ATH_MSG_VERBOSE(  "[ sim ] Creating SCT Cluster" );
-               m_sctHitCreator->createSimHit(isp,*hitParameter,time); ++nHits;
-           }
-           else if (m_idHelper->is_trt(hitId)) {
-             // -----------------------------------------------------------------------
-             // HIT in TRT Detector 
-             // -----------------------------------------------------------------------
-             ATH_MSG_VERBOSE(  "[ sim ] Creating TRT DriftCircle" );
-             m_trtHitCreator->createSimHit(isp,*hitParameter,time); ++nHits;
-         }
+
+       // initialize an unvalid one
+       Identifier hitId = hitDetElement ?  hitDetElement->identify() : Identifier();
+       if (m_idHelper->is_pixel(hitId)) {
+         // -----------------------------------------------------------------------
+         // HIT in Pixel Detector
+         // -----------------------------------------------------------------------
+         ATH_MSG_VERBOSE(  "[ sim ] Creating Pixel Cluster" );
+         m_pixelHitCreator->createSimHit(isp,*hitParameter,time); ++nHits;
+       }
+       else if (m_idHelper->is_sct(hitId)) {
+         // -----------------------------------------------------------------------
+         // HIT in SCT Detector
+         // -----------------------------------------------------------------------
+           ATH_MSG_VERBOSE(  "[ sim ] Creating SCT Cluster" );
+           m_sctHitCreator->createSimHit(isp,*hitParameter,time); ++nHits;
+       }
+       else if (m_idHelper->is_trt(hitId)) {
+         // -----------------------------------------------------------------------
+         // HIT in TRT Detector 
+         // -----------------------------------------------------------------------
+         ATH_MSG_VERBOSE(  "[ sim ] Creating TRT DriftCircle" );
+         m_trtHitCreator->createSimHit(isp,*hitParameter,time); ++nHits;
        }
    }
   ATH_MSG_VERBOSE(  "[ idtrack ] **** done, " << nHits << " hits created from this track." );    

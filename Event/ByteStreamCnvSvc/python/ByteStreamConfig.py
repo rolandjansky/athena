@@ -46,11 +46,9 @@ def TrigBSReadCfg( inputFlags ):
 
     from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
     iovMetaDataTool = IOVDbMetaDataTool()
-    acc.addPublicTool( iovMetaDataTool )    
 
     from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMetadataTool
     bsMetaDataTool = ByteStreamMetadataTool()
-    acc.addPublicTool( bsMetaDataTool )
 
     from StoreGate.StoreGateConf import ProxyProviderSvc, StoreGateSvc
     metaDataStore = StoreGateSvc("MetaDataStore")   

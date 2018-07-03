@@ -37,7 +37,6 @@
 #include "JetEDM/PseudoJetVector.h"
 #include "JetRec/PseudoJetContainer.h"
 
-using fastjet::PseudoJet;
 
 class MuonSegmentPseudoJetGetter
 :  public asg::AsgTool,
@@ -84,7 +83,7 @@ protected:  //data
 
 
  private:
-  std::vector<PseudoJet> 
+  std::vector<fastjet::PseudoJet> 
     createPseudoJets(const xAOD::MuonSegmentContainer*) const; 
 
 };

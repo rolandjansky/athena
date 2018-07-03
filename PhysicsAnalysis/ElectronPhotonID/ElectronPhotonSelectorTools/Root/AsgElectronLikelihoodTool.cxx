@@ -28,9 +28,7 @@
 //EDM includes
 #include "xAODEgamma/Electron.h"
 #include "xAODTracking/Vertex.h"
-#include "xAODTracking/VertexContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
-#include "xAODHIEvent/HIEventShapeContainer.h"
 #include "TEnv.h"
 
 #include "PathResolver/PathResolver.h"
@@ -199,6 +197,10 @@ StatusCode AsgElectronLikelihoodTool::initialize()
       return StatusCode::FAILURE;
     }
 
+    // Setup primary vertex key handle
+    m_primVtxContKey = m_primVtxContName;
+    ATH_CHECK( m_primVtxContKey.initialize(m_usePVCont) );
+
     m_rootTool->m_variableNames =  env.GetValue("VariableNames","");
     m_rootTool->m_cutLikelihood = AsgConfigHelper::HelperDouble("CutLikelihood",env);
     m_rootTool->m_cutLikelihoodPileupCorrection = AsgConfigHelper::HelperDouble("CutLikelihoodPileupCorrection", env);
@@ -250,6 +252,11 @@ StatusCode AsgElectronLikelihoodTool::initialize()
     m_rootTool->m_pileupMaxForPileupTransform = env.GetValue("PileupMaxForPileupTransform", 50);
 
 
+    // Setup HI container key handle (must come after init from env)
+    m_HIESContKey = m_CaloSumsContName;
+    bool doCentralityTransform = m_rootTool->m_doCentralityTransform;
+    ATH_CHECK( m_HIESContKey.initialize(doCentralityTransform) );
+    
   } else{  //Error if it cant find the conf
       ATH_MSG_ERROR("Could not find configuration file");
       return StatusCode::FAILURE;
@@ -919,22 +926,11 @@ double AsgElectronLikelihoodTool::calculate(const xAOD::IParticle* part) const
 //=============================================================================
 unsigned int AsgElectronLikelihoodTool::getNPrimVertices() const
 {
-  static bool PVExists = true; 
   unsigned int nVtx(0);
-  const xAOD::VertexContainer* vxContainer(0);
-  if(PVExists)
-  {
-    if ( StatusCode::SUCCESS != evtStore()->retrieve( vxContainer, m_primVtxContName ) )
-    {
-      ATH_MSG_WARNING ( "Vertex container not found with name: " << m_primVtxContName );
-      PVExists = false; // if retrieve failed, don't try to retrieve again
-      return nVtx;
-    }
-    for ( unsigned int i=0; i<vxContainer->size(); i++ )
-    {
-      const xAOD::Vertex* vxcand = vxContainer->at(i);
+  SG::ReadHandle<xAOD::VertexContainer> vtxCont (m_primVtxContKey); 
+  for ( unsigned int i = 0; i < vtxCont->size(); i++ ) {
+      const xAOD::Vertex* vxcand = vtxCont->at(i);
       if ( vxcand->nTrackParticles() >= 2 ) nVtx++;
-    }
   }
   return nVtx;
 }
@@ -944,23 +940,14 @@ unsigned int AsgElectronLikelihoodTool::getNPrimVertices() const
 //=============================================================================
 double AsgElectronLikelihoodTool::getFcalEt() const
 {
-  static bool CaloSumsExists = true; 
   double fcalEt(0.);
-  const xAOD::HIEventShapeContainer* HIESContainer(0);
-  if(CaloSumsExists){
-    if ( StatusCode::SUCCESS != evtStore()->retrieve( HIESContainer, m_CaloSumsContName ) )
-    {
-      ATH_MSG_WARNING ( "CaloSums container not found with name: " << m_CaloSumsContName );
-      CaloSumsExists = false; // if retrieve failed, don't try to retrieve again
-      return fcalEt;
-    }
-    xAOD::HIEventShapeContainer::const_iterator es_itr = HIESContainer->begin();
-    xAOD::HIEventShapeContainer::const_iterator es_end = HIESContainer->end();
-    for (; es_itr != es_end; es_itr++){
+  SG::ReadHandle<xAOD::HIEventShapeContainer> HIESCont (m_HIESContKey); 
+  xAOD::HIEventShapeContainer::const_iterator es_itr = HIESCont->begin();
+  xAOD::HIEventShapeContainer::const_iterator es_end = HIESCont->end();
+  for (; es_itr != es_end; es_itr++){
       double et = (*es_itr)->et();
       const std::string name = (*es_itr)->auxdataConst<std::string>("Summary");
       if (name == "FCal") fcalEt = et*1.e-6;
-    }
   }
   return fcalEt;
 }

@@ -17,6 +17,7 @@
 
 using std::string;
 using jet::PseudoJetVector;
+using fastjet::PseudoJet;
 
 //**********************************************************************
 

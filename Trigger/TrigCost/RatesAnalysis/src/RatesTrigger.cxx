@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RatesAnalysis/RatesTrigger.h"
@@ -107,8 +107,8 @@ const std::string RatesTrigger::printRate(const double ratesDenominator) const {
        << " +- "           << std::setw(11) << std::left << uniqueErr << " Hz";
   }
   ss << " : ";
-  if (m_seed != "") ss << m_seed << " [PS:" << m_seedPrescale << "] -> ";
   ss << m_name << " [PS:" << m_prescale << "]";
+  if (m_seed != "") ss << " <- " << m_seed << " [PS:" << m_seedPrescale << "]";
   return ss.str();
 }
 

@@ -50,8 +50,6 @@ public:
   { std::abort(); }
   virtual void acceptDHVisitor(IDataHandleVisitor*) const override
   { std::abort(); }
-  virtual void commitHandles() override
-  { std::abort(); }
   virtual const DataObjIDColl& inputDataObjs() const override
   { std::abort(); }
   virtual void addDependency(const DataObjID&, const Gaudi::DataHandle::Mode&) override

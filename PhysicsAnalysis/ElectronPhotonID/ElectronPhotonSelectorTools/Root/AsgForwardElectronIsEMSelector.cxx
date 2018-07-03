@@ -21,6 +21,7 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "xAODTracking/Vertex.h"
 #include "PathResolver/PathResolver.h"
 #include "TEnv.h"
 #include <cstdint>
@@ -102,6 +103,11 @@ StatusCode AsgForwardElectronIsEMSelector::initialize()
     ATH_MSG_DEBUG("Configfile to use  " << m_configFile );
     TEnv env(filename.c_str());
 
+    // Setup primary vertex key handle
+    m_primVtxContKey = m_primVtxContName;
+    ATH_CHECK( m_primVtxContKey.initialize(m_usePVCont) );
+
+    
     ///------- Read in the TEnv config ------///
 
     //Override the mask via the config only if it is not set 
@@ -325,22 +331,11 @@ unsigned int AsgForwardElectronIsEMSelector::calocuts_electrons(const xAOD::Egam
 ////=============================================================================
 unsigned int AsgForwardElectronIsEMSelector::getNPrimVertices() const
 {
-  static bool PVExists = true;
   unsigned int nVtx(0);
-  const xAOD::VertexContainer* vxContainer(0);
-  if(PVExists)
-    {
-      if ( StatusCode::SUCCESS != evtStore()->retrieve( vxContainer, m_primVtxContName ) )
-	{
-	  ATH_MSG_WARNING ( "Vertex container not found with name: " << m_primVtxContName );
-	  PVExists = false; // if retrieve failed, don't try to retrieve again
-	  return nVtx;
-	}
-      for ( unsigned int i=0; i<vxContainer->size(); i++ )
-	{
-	  const xAOD::Vertex* vxcand = vxContainer->at(i);
-	  if ( vxcand->nTrackParticles() >= 3 ) nVtx++;
-	}
-    }
+  SG::ReadHandle<xAOD::VertexContainer> vtxCont (m_primVtxContKey); 
+  for ( unsigned int i = 0; i < vtxCont->size(); i++ ) {
+      const xAOD::Vertex* vtxcand = vtxCont->at(i);
+      if ( vtxcand->nTrackParticles() >= 3 ) nVtx++;
+  }
   return nVtx;
 }

@@ -32,7 +32,6 @@ if DetFlags.haveRIO.pixel_on():
     InDetPixelConditionsSummarySvc = PixelConditionsSummarySvc()
   
     #Tool version for athenaMT
-#    from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummaryTool
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
     InDetPixelConditionsSummaryTool = PixelConditionsSummaryTool()
 

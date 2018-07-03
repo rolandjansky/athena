@@ -12,6 +12,7 @@
 // AthenaBaseComps includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthAlgorithmDHUpdate.h"
+#include "AthAlgStartVisitor.h"
 
 // STL includes
 
@@ -165,13 +166,8 @@ StatusCode AthAlgorithm::sysStart()
   // This allows CondHandleKeys to cache pointers to their conditions containers.
   // (CondInputLoader makes the containers that it creates during start(),
   // so initialize() is too early for this.)
-  for (Gaudi::DataHandle* h : inputHandles()) {
-    if (h->isCondition()) {
-      if (SG::VarHandleKey* k = dynamic_cast<SG::VarHandleKey*> (h)) {
-        ATH_CHECK( k->start() );
-      }
-    }
-  }
+  AthAlgStartVisitor visitor;
+  acceptDHVisitor (&visitor);
   
   return StatusCode::SUCCESS;
 }

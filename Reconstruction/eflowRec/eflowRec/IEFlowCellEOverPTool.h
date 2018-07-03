@@ -24,6 +24,9 @@ class eflowEEtaBinnedParameters;
 /** Must declare this, with name of interface*/
 static const InterfaceID IID_IEFlowCellEOverPTool("IEFlowCellEOverPTool", 1, 0);
 
+/**
+Pure virtual base class, from which concrete classes inherit and define  reference e/p mean and widths, as well as reference energy density radial profile fit parameters. Inherits from AthAlgTool. 
+*/
 class IEFlowCellEOverPTool : public AthAlgTool {
 
  public:

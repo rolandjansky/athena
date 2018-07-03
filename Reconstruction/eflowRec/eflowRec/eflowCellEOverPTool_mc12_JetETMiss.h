@@ -21,6 +21,9 @@ Description: New EM e/p for DC14 - JetMET ONLY - this is because taus already tu
 
 class eflowBaseParameters;
 
+/**
+Class to store reference e/p mean and widths, as well as reference energy density radial profile fit parameters. The data is input to an eflowEEtaBinnedParameters object in the execute method. Stores data at the uncalibrated (EM) scale and is used by default. This inherits from IEFlowCellEOverPTool.
+*/
 class eflowCellEOverPTool_mc12_JetETMiss : public IEFlowCellEOverPTool {
 
  public:

@@ -26,7 +26,6 @@ void AmdcDb2Sql::SetUseKeysOn(int UseKeysOn){ m_UseKeysOn  = UseKeysOn ;}
 void AmdcDb2Sql::DoIt(std::string TagFileName,std::string tag,IRDBAccessSvc* pIRDBAccessSvc){
 
   DoSql(TagFileName,"AMDC",tag,pIRDBAccessSvc);
-//  DoSql(TagFileName,"AGDD",tag,pIRDBAccessSvc);
   DoSql(TagFileName,"ATYP",tag,pIRDBAccessSvc);
   DoSql(TagFileName,"ACUT",tag,pIRDBAccessSvc);
   DoSql(TagFileName,"WRPC",tag,pIRDBAccessSvc);
@@ -50,18 +49,6 @@ void AmdcDb2Sql::DoIt(std::string TagFileName,std::string tag,IRDBAccessSvc* pIR
   DoSql(TagFileName,"APTP",tag,pIRDBAccessSvc);
   DoSql(TagFileName,"ASZT",tag,pIRDBAccessSvc);
   DoSql(TagFileName,"ISZT",tag,pIRDBAccessSvc);
- 
-//  DoSql(TagFileName,"ABRT",tag,pIRDBAccessSvc);
-//  DoSql(TagFileName,"AECT",tag,pIRDBAccessSvc);
-//  DoSql(TagFileName,"ECST",tag,pIRDBAccessSvc);
-//  DoSql(TagFileName,"FEET",tag,pIRDBAccessSvc);
-//  DoSql(TagFileName,"GENV",tag,pIRDBAccessSvc);
-//  DoSql(TagFileName,"JDSH",tag,pIRDBAccessSvc);
-//  DoSql(TagFileName,"JFSH",tag,pIRDBAccessSvc);
-//  DoSql(TagFileName,"JTSH",tag,pIRDBAccessSvc);
-//  DoSql(TagFileName,"MBAP",tag,pIRDBAccessSvc);
- 
-//   DoSql(TagFileName,"AgddXMLVariables",tag,pIRDBAccessSvc);
  
   DoSql(TagFileName,"HwSwIdMapping",tag,pIRDBAccessSvc);
 

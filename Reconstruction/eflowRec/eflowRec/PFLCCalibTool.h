@@ -16,6 +16,9 @@
 class eflowCaloObjectContainer;
 class eflowRecCluster;
 
+/**
+This tool can either use a series of CaloClusterCollectionProcessor to calibrate the modified xAOD::CaloCluster (modified when we do the charged shower subtraction) using recalculated LC weights or its own internal method to use the stored LC weights in the eflowRecCluster objects. If using the LC weights which were stored in the eflowRecCluster then we use the container of eflowRecCluster, but if using recalculated LC weights for the modified xAOD::CaloCluster (modified when we remove calorimeter cells in the charged shower subtraction) then we need the container of xAOD::CaloCluster. The PFClusterCollectionTool provides both of these containers.
+*/
 class PFLCCalibTool : public extends<AthAlgTool, IPFBaseTool> {
 
   public:

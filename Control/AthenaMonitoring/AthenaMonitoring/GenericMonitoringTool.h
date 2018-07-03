@@ -88,6 +88,12 @@ private:
 
 /*
  * Helper class to declare an empty monitoring ToolHandle
+ *
+ * This can be used in case an empty monitoring tool needs to be declared in the constructor:
+ *    declareProperty("MonTool", m_monTool=VoidMonitoringTool(this), "Monitoring tool");
+ *
+ * It is however preferred to instead use the initializer syntax in the header file:
+ *    ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
  */
 class VoidMonitoringTool : public ToolHandle<GenericMonitoringTool> {
 public:

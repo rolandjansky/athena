@@ -30,8 +30,8 @@ namespace dqm_algorithms
 	  void  printDescription(std::ostream& out);
  
 	  private:
-	  std::string name_;
-	  double precision_;
+	  std::string m_name;
+	  double m_precision;
 	};
 }
 

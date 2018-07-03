@@ -17,6 +17,9 @@ CREATED:  18th Aug, 2005
 
 #include <iostream>
 
+/**
+This object holds the expected energy deposit of a track and the known width of that distribution.
+*/
 class eflowFirstInt {
 
  public:
