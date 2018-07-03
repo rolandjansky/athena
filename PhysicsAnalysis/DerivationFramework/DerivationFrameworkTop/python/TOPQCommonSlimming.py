@@ -178,6 +178,7 @@ def setup(TOPQname, stream):
                  "AntiKt4PV0TrackJets",
                  "AntiKt4LCTopoJets",
                  "AntiKt10LCTopoJets",
+                 "AntiKt10LCTopoCSSKJets",
                  "AntiKt10TruthWZJets",
                  ] # veto list
                 )
