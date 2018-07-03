@@ -5,6 +5,7 @@
 #
 ###############################################################
 
+import os
 
 # Use Global flags and DetFlags.
 from AthenaCommon.DetFlags import DetFlags
@@ -44,8 +45,12 @@ from AthenaCommon.AppMgr import ServiceMgr
 from ActsGeometry.ActsGeometryConfig import TrackingGeometrySvc
 
 trkGeomSvc = TrackingGeometrySvc()
-trkGeomSvc.UseMaterialMap = True
-trkGeomSvc.MaterialMapInputFile = "MaterialMaps.pb"
+
+# skip material map input on CI job
+if not os.getenv("CI"):
+  trkGeomSvc.UseMaterialMap = True
+  trkGeomSvc.MaterialMapInputFile = "MaterialMaps.pb"
+
 trkGeomSvc.BarrelMaterialBins = [40, 60] # phi z
 trkGeomSvc.EndcapMaterialBins = [50, 20] # phi r
 trkGeomSvc.OutputLevel = INFO
