@@ -14,23 +14,23 @@ class AthenaPrintPolicy : public Logging::OutputPrintPolicy
 {
 public:
 
-  AthenaPrintPolicy(std::shared_ptr<MsgStream> msg) : p_msg(msg) {}
+  AthenaPrintPolicy(std::shared_ptr<MsgStream> msg) : m_msg(msg) {}
 
   void
   flush(const Logging::Level& lvl, const std::ostringstream& input);
 
 private:
-  std::shared_ptr<MsgStream> p_msg;
+  std::shared_ptr<MsgStream> m_msg;
 };
 
 class AthenaFilterPolicy : public Logging::OutputFilterPolicy {
 public:
-  AthenaFilterPolicy(std::shared_ptr<MsgStream> msg) : p_msg(msg) {}
+  AthenaFilterPolicy(std::shared_ptr<MsgStream> msg) : m_msg(msg) {}
 
   bool doPrint(const Acts::Logging::Level& lvl) const;
 
 private:
-  std::shared_ptr<MsgStream> p_msg;
+  std::shared_ptr<MsgStream> m_msg;
   MSG::Level m_currentLevel;
 };
 

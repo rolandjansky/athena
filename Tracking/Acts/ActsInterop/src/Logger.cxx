@@ -22,7 +22,7 @@ Acts::AthenaPrintPolicy::flush(const Logging::Level& lvl, const std::ostringstre
   };
 
   MSG::Level athLevel = athLevelVector[lvl];
-  (*p_msg) << athLevel << input.str() << endmsg;
+  (*m_msg) << athLevel << input.str() << endmsg;
 }
   
 
@@ -39,7 +39,7 @@ Acts::AthenaFilterPolicy::doPrint(const Acts::Logging::Level& lvl) const
   };
 
   MSG::Level athLevel = athLevelVector[lvl];
-  return p_msg->level() <= athLevel;
+  return m_msg->level() <= athLevel;
 }
 
 std::unique_ptr<const Acts::Logger>
