@@ -60,7 +60,7 @@ StatusCode ActsAlignedExtrapAlg::initialize() {
   pgCfg.etaRange = {1.5, 4};
 
   m_particleGun = std::make_unique<ParticleGun>(
-      pgCfg, ACTS_ATH_LOGGER("ParticleGun"));
+      pgCfg, Acts::makeAthenaLogger(this, "ParticleGun"));
   
   m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
 

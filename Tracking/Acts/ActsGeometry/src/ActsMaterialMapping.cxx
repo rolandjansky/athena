@@ -96,7 +96,7 @@ StatusCode ActsMaterialMapping::initialize() {
   };
 
   m_materialMapper = std::make_unique<Acts::MaterialMapper>(matMapCfg);
-  m_materialMapper->setLogger(ACTS_ATH_LOGGER("MaterialMapper"));
+  m_materialMapper->setLogger(Acts::makeAthenaLogger(this, "MaterialMapper", "ActsMatMap"));
     
 
   // use this as the prototype, will be copied on first access
@@ -177,7 +177,7 @@ StatusCode ActsMaterialMapping::finalize() {
   ATH_MSG_DEBUG("Write Surface Material histograms");
   Acts::RootIndexedMaterialWriter::Config wCfg;
   wCfg.name = "MaterialWriter";
-  wCfg.logger = ACTS_ATH_LOGGER(wCfg.name);
+  wCfg.logger = Acts::makeAthenaLogger(this, wCfg.name, "ActsMatMap");
   wCfg.fileName = "SurfaceMaterials.root";
   Acts::RootIndexedMaterialWriter mWriter(wCfg);
 
@@ -190,7 +190,7 @@ StatusCode ActsMaterialMapping::finalize() {
   Acts::ProtobufMaterialMapWriter::Config matMapWriterCfg;
   matMapWriterCfg.outfile = "MaterialMaps.pb";
   Acts::ProtobufMaterialMapWriter matMapWriter(std::move(matMapWriterCfg), 
-                                               ACTS_ATH_LOGGER("ProtobufMaterialMapWriter"));
+                                               Acts::makeAthenaLogger(this, "PBMatMapWriter", "ActsMatMap"));
   matMapWriter.write(sMaterialMaps);
 
 

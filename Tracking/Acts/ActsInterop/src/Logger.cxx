@@ -3,8 +3,12 @@
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaBaseComps/AthMessaging.h"
 #include "GaudiKernel/SmartIF.h"
+#include "GaudiKernel/INamedInterface.h"
+#include "GaudiKernel/CommonMessaging.h"
 
 #include "Acts/Utilities/Logger.hpp"
+
+#include <boost/optional.hpp>
 
 #include <iostream>
 #include <string>
@@ -42,38 +46,39 @@ Acts::AthenaFilterPolicy::doPrint(const Acts::Logging::Level& lvl) const
   return m_msg->level() <= athLevel;
 }
 
+
 std::unique_ptr<const Acts::Logger>
-Acts::getDefaultLogger(const std::string&    name,
-                 const Logging::Level& /*lvl*/,
-                 std::ostream*         /*log_stream*/)
+Acts::makeAthenaLogger(IMessageSvc *svc, const std::string& name, boost::optional<const std::string&> parent_name)
 {
-  //throw std::runtime_error(std::string(__FUNCTION__) + " for " + name + " is not supported");;
-  AthMessaging *athMsg = new AthMessaging(Athena::getMessageSvc(), name);
-  
-  std::shared_ptr<MsgStream> msg(&athMsg->msg());
+  using namespace Logging;
 
+  std::string full_name = name;
+  if (parent_name) {
+    full_name = *parent_name + "." + full_name;
+  }
+
+  auto msg = std::make_shared<MsgStream>(svc, full_name);
+  if (parent_name) {
+    msg->setLevel(svc->outputLevel(*parent_name));
+  }
   auto filter = std::make_unique<AthenaFilterPolicy>(msg);
   auto print = std::make_unique<AthenaPrintPolicy>(msg);
   return std::make_unique<const Logger>(std::move(print), std::move(filter));
 }
 
-
-std::unique_ptr<const Acts::Logger>
-Acts::makeAthenaLogger(MsgStream& msg_) {
-
-  using namespace Logging;
-  auto msg = std::make_shared<MsgStream>(msg_);
-  auto filter = std::make_unique<AthenaFilterPolicy>(msg);
-  auto print = std::make_unique<AthenaPrintPolicy>(msg);
-  return std::make_unique<const Logger>(std::move(print), std::move(filter));
+  std::unique_ptr<const Acts::Logger>
+Acts::makeAthenaLogger(CommonMessagingBase* parent, const std::string& name)
+{
+  // no explicit name, get from component
+  INamedInterface *inamed = dynamic_cast<INamedInterface*>(parent);
+  boost::optional<const std::string&> parent_name = boost::none;
+  // this will not prefix if parent is not named (which it should be)
+  if (inamed != nullptr) parent_name = inamed->name();
+  return Acts::makeAthenaLogger(parent, name, parent_name);
 }
 
 std::unique_ptr<const Acts::Logger>
-Acts::makeAthenaLogger(IMessageSvc *svc, const std::string&parent_name, const std::string& name = "") {
-  using namespace Logging;
-  auto msg = std::make_shared<MsgStream>(svc, parent_name + "." + name);
-  msg->setLevel(svc->outputLevel(parent_name));
-  auto filter = std::make_unique<AthenaFilterPolicy>(msg);
-  auto print = std::make_unique<AthenaPrintPolicy>(msg);
-  return std::make_unique<const Logger>(std::move(print), std::move(filter));
+Acts::makeAthenaLogger(CommonMessagingBase* parent, const std::string& name, boost::optional<const std::string&> parent_name)
+{
+  return Acts::makeAthenaLogger(parent->msgSvc().get(), name, parent_name);
 }

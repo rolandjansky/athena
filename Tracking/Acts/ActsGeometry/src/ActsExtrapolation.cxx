@@ -68,7 +68,7 @@ StatusCode ActsExtrapolation::initialize() {
   pgCfg.etaRange = {-6, 6};
 
   m_particleGun = std::make_unique<ParticleGun>(
-      pgCfg, ACTS_ATH_LOGGER("ParticleGun"));
+      pgCfg, Acts::makeAthenaLogger(this, "ParticleGun"));
 
 
   
