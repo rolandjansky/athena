@@ -304,7 +304,7 @@ namespace top {
 	//else{
 	  //if(calibratedJetsTDS->at(index)->pt() > 60000.)std::cout << "Jet didn't passed JVT cut: Jet pt : " << calibratedJetsTDS->at(index)->pt() << std::endl;
 	//}
-	if(jet->eta() > 2.5) std::cout << "Found jet with eta higher than 2.5" << std::endl;
+	//if(jet->eta() > 2.5) std::cout << "Found jet with eta higher than 2.5" << std::endl;
       }
       
       
