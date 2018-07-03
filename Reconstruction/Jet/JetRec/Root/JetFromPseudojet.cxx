@@ -76,7 +76,6 @@ buildAndSetEMScaleMom(xAOD::Jet* jet,
 	      (inputtype == xAOD::JetInput::EMTopoOriginSKTime) ||
 	      (inputtype == xAOD::JetInput::EMTopoOriginCS) ||
               (inputtype == xAOD::JetInput::LCTopoOriginCS) ||
-	      (inputtype == xAOD::JetInput::EMTopoOriginCSTime) ||
 	      (inputtype == xAOD::JetInput::EMTopoOriginVor) ||
               (inputtype == xAOD::JetInput::LCTopoOriginVor) ||
 	      (inputtype == xAOD::JetInput::EMTopoOriginCSSK) ||
