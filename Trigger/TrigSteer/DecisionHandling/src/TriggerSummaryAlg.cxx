@@ -42,7 +42,7 @@ StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
   for ( auto input: inputHandles ) {
     if ( input.isValid() ) {
       for ( auto decisionObject: *input )  {
-	TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
+        TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
       }
       ATH_MSG_DEBUG( "Found "<<input->size()<<" Decisions for " << input.key() );
     } else {
@@ -57,9 +57,6 @@ StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
 
   // check for an evident error, this is HLT chain not mentioned at the L1
   // that is the only reason we pull the L1 here
- 
-
-  
 
   auto summaryCont = std::make_unique<TrigCompositeUtils::DecisionContainer>();
   auto summaryAuxCont = std::make_unique<TrigCompositeUtils::DecisionAuxContainer>();
@@ -71,7 +68,6 @@ StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
     TrigCompositeUtils::addDecisionID( id, summaryObj );
   }
 
-  
   // if ( ! m_hltResultKey.empty() ) {
   //   auto result = std::make_unique<HLT::HLTResult>();
   //   CHECK( buildHLTResult( result ) );
@@ -86,6 +82,3 @@ StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
 
   return StatusCode::SUCCESS;
 }
-
-
-
