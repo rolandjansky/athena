@@ -6,6 +6,9 @@
 # art-output: monitoring.mc.root
 # art-output: dcube
 
+# Create empty pool file
+art.py createpoolfile
+
 echo "Running SUSYTools test: \'share/minimalExampleJobOptions_mc.py\'"
 athena SUSYTools/minimalExampleJobOptions_mc.py --evtMax=-1
 echo  "art-result: $? TEST"
