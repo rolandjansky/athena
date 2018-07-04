@@ -14,7 +14,8 @@ namespace ForwardTracker {
   class IBender {
 
   public:
-    
+
+    virtual ~IBender() {}
     virtual void bend(IParticle&) const = 0;
 
     typedef boost::shared_ptr<IBender> ConstPtr_t;
