@@ -133,13 +133,16 @@ Token& Token::fromString(const std::string& source)    {
          } else if (::strncmp("[CNT=", p1, 5) == 0) {
             m_cntID.assign (p2+1, p3-p2-1);
          } else if (::strncmp(fmt_oid, p1, 5) == 0) {
+            long long unsigned int first, second;
             if (::strncmp("]", p1 + 22, 1) == 0) { // 5 + 8(int) + 1(minus) + 8(int) = 22
-               ::sscanf(p1, fmt_oid_old, &m_oid.first, &m_oid.second);
-               if (int(m_oid.first) == ~0x0) m_oid.first = ~0x0LL;
-               if (int(m_oid.second) == ~0x0) m_oid.second = ~0x0LL;
+               ::sscanf(p1, fmt_oid_old, &first, &second);
+               if (int(first) == ~0x0) first = ~0x0LL;
+               if (int(second) == ~0x0) second = ~0x0LL;
             } else {
-               ::sscanf(p1, fmt_oid, &m_oid.first, &m_oid.second);
+               ::sscanf(p1, fmt_oid, &first, &second);
             }
+            m_oid.first = first;
+            m_oid.second = second;
          } else if (::strncmp(fmt_clid, p1, 6) == 0) {
             m_classID.fromString(p1 + 6);
          } else if (::strncmp(fmt_tech, p1, 6) == 0) {

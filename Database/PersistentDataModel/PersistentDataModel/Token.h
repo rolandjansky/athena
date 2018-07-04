@@ -21,9 +21,9 @@
 class Token   {
 public:
    // typedef std::pair<long long int, long long int> OID_t;
-   struct OID_t : public std::pair<long long unsigned int, long long unsigned int> {
+   struct OID_t : public std::pair<long long int, long long int> {
      OID_t() {}
-     OID_t(long long unsigned int i1, long long unsigned int i2) : std::pair<long long unsigned int, long long unsigned int> (i1,i2) {}
+     OID_t(long long int i1, long long int i2) : std::pair<long long int, long long int> (i1,i2) {}
    };
 
 private:
