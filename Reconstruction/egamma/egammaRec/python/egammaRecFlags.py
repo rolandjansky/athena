@@ -1,3 +1,4 @@
+
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
@@ -86,12 +87,6 @@ class cellContainerName (JobProperty):
     allowedTypes=['str']
     StoredValue=''
  
-class doSwitchTRTGas (JobProperty):
-    """ switch using Xenon gas in TRT
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=True
 
 # Super cluster options
 class doSuperclusters (JobProperty):
@@ -141,8 +136,8 @@ jobproperties.add_Container(egammaRecFlags)
 
 # I want always the following flags in the container  
 _list_Egamma=[Enabled, doEgammaCaloSeeded, doEgammaForwardSeeded, doBremFinding, doVertexBuilding,
-              doConversions, doTopoCaloSeeded, cellContainerName, doSwitchTRTGas,
-              doEgammaTruthAssociation, clusterCorrectionVersion, calibMVAVersion, doSuperclusters, 
+              doConversions, doTopoCaloSeeded, cellContainerName, doEgammaTruthAssociation, 
+              clusterCorrectionVersion, calibMVAVersion, doSuperclusters, 
               inputTopoClusterCollection, egammaTopoClusterCollection]
 
 for j in _list_Egamma: 
