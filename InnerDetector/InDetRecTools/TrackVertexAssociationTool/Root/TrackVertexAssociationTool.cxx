@@ -242,27 +242,27 @@ template <typename T>
 const xAOD::Vertex *TrackVertexAssociationTool::getUniqueMatchVertexInternal(
     const xAOD::TrackParticle &trk, T &vx_list) const
 {
-  float mini_dz = m_dzSinTheta_cut;
-  const xAOD::Vertex *mini_vertex{0};
+  float min_dz = m_dzSinTheta_cut;
+  const xAOD::Vertex *bestMatchVertex{0};
 
   for (auto *vertex : vx_list) {
     float dzSinTheta = 0.;
 
     bool match_status = isMatch(trk, *vertex, dzSinTheta);
     if (match_status) {
-      if (dzSinTheta < mini_dz) {
-        mini_dz = dzSinTheta;
-        mini_vertex = vertex;
+      if (dzSinTheta < min_dz) {
+        min_dz = dzSinTheta;
+        bestMatchVertex = vertex;
       }
     }
   }
 
   // check if get the matched Vertex, for the tracks not used in vertex fit
-  if (!mini_vertex) {
+  if (!bestMatchVertex) {
     ATH_MSG_DEBUG("Could not find any matched vertex for this track");
   }
 
-  return mini_vertex;
+  return bestMatchVertex;
 }
 
 template <typename T, typename U>
