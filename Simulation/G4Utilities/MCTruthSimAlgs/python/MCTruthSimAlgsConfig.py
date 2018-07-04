@@ -7,45 +7,64 @@ from AthenaCommon import CfgMgr
 
 def genericMergeMcEventCollTool(name="MergeMcEventCollTool", **kwargs):
     kwargs.setdefault("TruthCollKey", "TruthEvent")
-    kwargs.setdefault("LowTimeToKeep", -50.5)
-    kwargs.setdefault("HighTimeToKeep", 50.5)
-    kwargs.setdefault("KeepUnstable", False)
-    kwargs.setdefault("AbsEtaMax", 5.0)
-    kwargs.setdefault("OutOfTimeAbsEtaMax", 3.0)
-    kwargs.setdefault("rRange", 20.0)
-    kwargs.setdefault("zRange", 200.0)
-    #kwargs.setdefault("ptMin", 0.4*GeV)
-    #kwargs.setdefault("EKinMin", 1.0*MeV)
-    kwargs.setdefault("SaveCavernBackground", True)
-    kwargs.setdefault("SaveInTimeMinBias", True)
-    kwargs.setdefault("SaveOutOfTimeMinBias", True)
-    kwargs.setdefault("SaveRestOfMinBias", False)
-    kwargs.setdefault("AddBackgroundCollisionVertices", True)
-    kwargs.setdefault("CompressOutputCollection", False)
-
-    return CfgMgr.MergeMcEventCollTool(name, **kwargs)
+    if 'SimpleMerge' in digitizationFlags.experimentalDigi():
+        if not digitizationFlags.doXingByXingPileUp(): # Algorithm approach
+            kwargs.setdefault("PileUpMergeSvc", "PileUpMergeSvc")
+        return CfgMgr.SimpleMergeMcEventCollTool(name, **kwargs)
+    elif 'MC16Merge' in digitizationFlags.experimentalDigi():
+        if not digitizationFlags.doXingByXingPileUp(): # Algorithm approach
+            kwargs.setdefault("PileUpMergeSvc", "PileUpMergeSvc")
+        if digitizationFlags.doLowPtMinBias:
+            kwargs.setdefault("ExpectLowPtMinBiasBackgroundCollection", True)
+        if digitizationFlags.doHighPtMinBias:
+            kwargs.setdefault("ExpectHighPtMinBiasBackgroundCollection", True)
+        return CfgMgr.MC16MergeMcEventCollTool(name, **kwargs)
+    else:
+        kwargs.setdefault("LowTimeToKeep", -50.5)
+        kwargs.setdefault("HighTimeToKeep", 50.5)
+        kwargs.setdefault("KeepUnstable", False)
+        kwargs.setdefault("AbsEtaMax", 5.0)
+        kwargs.setdefault("OutOfTimeAbsEtaMax", 3.0)
+        kwargs.setdefault("rRange", 20.0)
+        kwargs.setdefault("zRange", 200.0)
+        #kwargs.setdefault("ptMin", 0.4*GeV)
+        #kwargs.setdefault("EKinMin", 1.0*MeV)
+        kwargs.setdefault("SaveCavernBackground", True)
+        kwargs.setdefault("SaveInTimeMinBias", True)
+        kwargs.setdefault("SaveOutOfTimeMinBias", True)
+        kwargs.setdefault("SaveRestOfMinBias", False)
+        kwargs.setdefault("AddBackgroundCollisionVertices", True)
+        kwargs.setdefault("CompressOutputCollection", False)
+        #kwargs.setdefault("CopyCompleteGenEvents", True)
+        return CfgMgr.MergeMcEventCollTool(name, **kwargs)
 
 def MergeMcEventCollTool(name="MergeMcEventCollTool", **kwargs):
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", -30000)
         kwargs.setdefault("LastXing",   30000)
-    kwargs.setdefault("DoSlimming", True)
-    kwargs.setdefault("OnlySaveSignalTruth", False)
+    keys =['SimpleMerge', 'MC16Merge']
+    if set(keys).isdisjoint(set(digitizationFlags.experimentalDigi())):
+        kwargs.setdefault("DoSlimming", False)
+        kwargs.setdefault("OnlySaveSignalTruth", False)
     return genericMergeMcEventCollTool(name, **kwargs)
 
 def SignalOnlyMcEventCollTool(name="SignalOnlyMcEventCollTool", **kwargs):
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", 0)
         kwargs.setdefault("LastXing",  0)
-    kwargs.setdefault("OnlySaveSignalTruth", True)
+    keys =['SimpleMerge', 'MC16Merge']
+    if set(keys).isdisjoint(set(digitizationFlags.experimentalDigi())):
+        kwargs.setdefault("OnlySaveSignalTruth", True)
     return genericMergeMcEventCollTool(name, **kwargs)
 
 def InTimeOnlyMcEventCollTool(name="InTimeOnlyMcEventCollTool", **kwargs):
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", 0)
         kwargs.setdefault("LastXing",  0)
-    kwargs.setdefault("DoSlimming", False)
-    kwargs.setdefault("OnlySaveSignalTruth", False)
+    keys =['SimpleMerge', 'MC16Merge']
+    if set(keys).isdisjoint(set(digitizationFlags.experimentalDigi())):
+        kwargs.setdefault("DoSlimming", False)
+        kwargs.setdefault("OnlySaveSignalTruth", False)
     return genericMergeMcEventCollTool(name, **kwargs)
 
 ############################################################################
@@ -73,6 +92,8 @@ def getMergeTruthJetsTool(name="MergeTruthJetsTool", **kwargs):
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", TruthJet_FirstXing() )
         kwargs.setdefault("LastXing",  TruthJet_LastXing() )
+    #kwargs.setdefault("OutputLevel",  1 )
+
     return CfgMgr.MergeTruthJetsTool(name, **kwargs)
 
 def getMergeTruthJetsFilterTool(name="MergeTruthJetsFilterTool", **kwargs):
@@ -109,17 +130,14 @@ def MergeTrackRecordCollTool(name="MergeTrackRecordCollTool", **kwargs):
 
     return CfgMgr.MergeTrackRecordCollTool(name, **kwargs)
 
+
 def MergeCaloEntryLayerTool(name="MergeCaloEntryLayerTool", **kwargs):
     kwargs.setdefault("TrackRecordCollKey", "CaloEntryLayer" )
-    return MergeTrackRecordCollTool(name, **kwargs)
+    if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
+        kwargs.setdefault("FirstXing", TrackRecord_FirstXing() )
+        kwargs.setdefault("LastXing",  TrackRecord_LastXing() )
 
-def MergeMuonEntryLayerTool(name="MergeMuonEntryLayerTool", **kwargs):
-    kwargs.setdefault("TrackRecordCollKey", "MuonEntryLayer" )
-    return MergeTrackRecordCollTool(name, **kwargs)
-
-def MergeMuonExitLayerTool(name="MergeMuonExitLayerTool", **kwargs):
-    kwargs.setdefault("TrackRecordCollKey", "MuonExitLayer" )
-    return MergeTrackRecordCollTool(name, **kwargs)
+    return CfgMgr.MergeTrackRecordCollTool(name, **kwargs)
 
 
 ############################################################################
