@@ -12,8 +12,8 @@
 #include "PixelNoisyCellGenerator.h"
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SiReadoutCellId.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 
 #include "CLHEP/Random/RandFlat.h"

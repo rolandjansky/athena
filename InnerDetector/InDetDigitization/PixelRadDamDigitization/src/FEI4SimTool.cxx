@@ -4,7 +4,7 @@
 
 #include "FEI4SimTool.h"
 
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 #include "SiDigitization/SiHelper.h"
 #include "InDetReadoutGeometry/SiReadoutCellId.h"

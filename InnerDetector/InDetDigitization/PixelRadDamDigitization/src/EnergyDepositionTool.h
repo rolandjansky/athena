@@ -34,7 +34,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelConditionsTools/IModuleDistortionsTool.h"
 #include "SiDigitization/SiChargedDiodeCollection.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 namespace RadDam{
 
