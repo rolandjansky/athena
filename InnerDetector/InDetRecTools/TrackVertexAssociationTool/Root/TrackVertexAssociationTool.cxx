@@ -18,7 +18,7 @@ namespace CP {
 
 TrackVertexAssociationTool::TrackVertexAssociationTool(std::string name) :
   AsgTool(name),
-  m_wp(""),
+  m_wp("Custom"),
   m_d0_cut(-1),
   m_use_d0sig(false),
   m_d0sig_cut(-1),
@@ -37,8 +37,65 @@ TrackVertexAssociationTool::TrackVertexAssociationTool(std::string name) :
 
 StatusCode TrackVertexAssociationTool::initialize()
 {
-  ATH_MSG_INFO("Cut on d0 significance: " << m_d0sig_cut << "\t(d0sig_cut)");
+  ATH_MSG_INFO(" Initializing TrackVertexAssociationTool");
+
+  if ( m_wp == "Electron" ) {
+    m_d0_cut = -1;
+    m_use_d0sig = true;
+    m_d0sig_cut = 5.0;
+    m_dzSinTheta_cut = 0.5;
+    m_doUsedInFit = false;
+    m_requirePriVtx = false;
+  } else if ( m_wp == "Muon" ) {
+    m_d0_cut = -1;
+    m_use_d0sig = true;
+    m_d0sig_cut = 3.0;
+    m_dzSinTheta_cut = 0.5;
+    m_doUsedInFit = false;
+    m_requirePriVtx = false;
+  } else if ( m_wp == "Loose" ) {
+    m_d0_cut = -1;
+    m_use_d0sig = false;
+    m_d0sig_cut = -1;
+    m_dzSinTheta_cut = 3.;
+    m_doUsedInFit = true;
+    m_requirePriVtx = true;
+  } else if ( m_wp == "Nominal" ) {
+    m_d0_cut = 2.;
+    m_use_d0sig = false;
+    m_d0sig_cut = -1;
+    m_dzSinTheta_cut = 3.;
+    m_doUsedInFit = false;
+    m_requirePriVtx = false;
+  } else if ( m_wp == "Tight" ) {
+    m_d0_cut = 0.5;
+    m_use_d0sig = false;
+    m_d0sig_cut = -1;
+    m_dzSinTheta_cut = 0.5;
+    m_doUsedInFit = false;
+    m_requirePriVtx = false;
+  } else if ( m_wp == "Custom" ) {
+    // nothing to do here
+  } else {
+    ATH_MSG_ERROR("Invalid TVA working point '" << m_wp << "' - for a custom configuration, please provide 'Custom' for the 'WorkingPoint' property");
+    return StatusCode::FAILURE;
+  }
+
+  if ( m_wp == "Custom" ) {
+    ATH_MSG_INFO("TVA working point 'Custom' provided - tool properties are initialized to default values unless explicitly set by the user");
+  } else {
+    ATH_MSG_INFO("TVA working point '" << m_wp << "' provided - tool properties have been configured accordingly");
+  }
+
+  if(m_use_d0sig){
+    ATH_MSG_INFO("Cut on d0 significance: " << m_d0sig_cut << "\t(d0sig_cut)");
+  } else {
+    ATH_MSG_INFO("Cut on d0: " << m_d0_cut << "\t(d0_cut)");
+  }
   ATH_MSG_INFO("Cut on Δz * sin θ: " << m_dzSinTheta_cut << "\t(dzSinTheta_cut)");
+
+  ATH_MSG_INFO("Allow UsedInFit MatchStatus: " << m_doUsedInFit << "\t(doUsedInFit)");
+  ATH_MSG_INFO("Require VxType::PriVtx for unique match: " << m_requirePriVtx << "\t(requirePriVtx)");
 
   return StatusCode::SUCCESS;
 }
