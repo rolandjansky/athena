@@ -27,7 +27,7 @@
 //const_iterator and indexFind are provided for backwards compatability. they are not optimal
 /*
 IT is faster to iterate over the container with this method:
-    auto hashes= m_container->GetAllCurrentHashs(); 
+    auto hashes= m_container->GetAllCurrentHashes();
     for (auto hash : hashes) {
         T* coll = m_container->indexFindPtr(hash); 
         //Use coll here
@@ -61,15 +61,20 @@ private:
     typedef EventContainers::IdentifiableCacheBase IdentifiableCacheBase;
     typedef IdentifiableCacheBase::waitlistPair waitlistPair;
     mutable std::vector< waitlistPair> m_waitlist;
+    mutable std::mutex m_waitMutex;
 
 public:
 
   void Wait() const{
-
+    //lockguard to protect m_waitlist from multiple wait calls
+    typedef std::lock_guard<decltype(m_waitMutex)> lockguard;
+    lockguard lock(m_waitMutex);
     while(!m_waitlist.empty()){
        waitlistPair &o = m_waitlist.back();
        auto hash = o->first;
-       std::unique_lock<decltype(o->second.mutex )> lk(o->second.mutex);
+       //unique lock is necessary for the condition variable to have access to unlock
+       typedef std::unique_lock<decltype(o->second.mutex)> uniquelock;
+       uniquelock lk(o->second.mutex);
        while(m_cacheLink->itemInProgress(hash)){
           o->second.condition.wait(lk);
        }
@@ -101,7 +106,7 @@ public:
             if(m_end) return *this;
             //If called on iterator created by "fast" iterator method const_iterator( const MyType* idC, IdentifierHash hash  )
             if(!m_sptr) { 
-                auto ids = m_idContainer->GetAllCurrentHashs();
+                auto ids = m_idContainer->GetAllCurrentHashes();
                 m_sptr    = std::shared_ptr<Hash_Container> (new Hash_Container());
                 m_sptr->swap(ids);
                 m_hashItr = std::find(m_sptr->begin(), m_sptr->end(), m_hash);
@@ -176,7 +181,7 @@ public:
         const_iterator(const MyType* idC, bool end) : m_sptr(), m_current(nullptr), m_idContainer(idC), m_end(end)
         {
             if(!m_end) {
-                auto ids = m_idContainer->GetAllCurrentHashs();
+                auto ids = m_idContainer->GetAllCurrentHashes();
                 if(ids.empty()) {//For empty containers
                     m_end = true;
                 } else {
@@ -290,7 +295,7 @@ public:
     //If this is an "offline" mode IDC then this is identical to the cache
     //If this is an "online" mode IDC then this is the items that both exist in the cache 
     //and have a postive mask element
-    virtual std::vector<IdentifierHash> GetAllCurrentHashs() const override final {
+    virtual std::vector<IdentifierHash> GetAllCurrentHashes() const override final {
         if(not m_OnlineMode) return m_cacheLink->ids();
         else{
             Wait();

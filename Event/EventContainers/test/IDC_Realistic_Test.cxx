@@ -175,7 +175,7 @@ public:
         }
 
         int wrong = 0;
-        auto hashes = container.GetAllCurrentHashs();
+        auto hashes = container.GetAllCurrentHashes();
         if(hashes.size()!=(size_t) 1000-c.aborted) {
             std::cout << "Error container is " << hashes.size() << " not " << 1000-c.aborted << std::endl;
             std::abort();

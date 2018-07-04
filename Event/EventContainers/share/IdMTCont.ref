@@ -7,7 +7,7 @@ Full Size:100000 N Coll:100000
 By interation
 Iteration over collections: user, kernel, elapsed 0 0 1957 
   Number of Collection  Accessed 100000
-By GetAllCurrentHashs search
+By GetAllCurrentHashes search
 Iteration over collections : user, kernel, elapsed 10000 0 1546 
 iter, hash id 0 
 nd, val 0 0
@@ -137,7 +137,7 @@ Full Size:100000 N Coll:100000
 By interation
 Iteration over collections: user, kernel, elapsed 0 0 2060 
   Number of Collection  Accessed 100000
-By GetAllCurrentHashs search
+By GetAllCurrentHashes search
 Iteration over collections : user, kernel, elapsed 10000 0 1710 
 iter, hash id 0 
 nd, val 0 0
@@ -267,7 +267,7 @@ Full Size:100000 N Coll:100000
 By interation
 Iteration over collections: user, kernel, elapsed 0 0 1925 
   Number of Collection  Accessed 100000
-By GetAllCurrentHashs search
+By GetAllCurrentHashes search
 Iteration over collections : user, kernel, elapsed 0 0 1734 
 iter, hash id 0 
 nd, val 0 0
@@ -397,7 +397,7 @@ Full Size:100000 N Coll:100000
 By interation
 Iteration over collections: user, kernel, elapsed 0 0 2029 
   Number of Collection  Accessed 100000
-By GetAllCurrentHashs search
+By GetAllCurrentHashes search
 Iteration over collections : user, kernel, elapsed 10000 0 1651 
 iter, hash id 0 
 nd, val 0 0
@@ -527,7 +527,7 @@ Full Size:100000 N Coll:100000
 By interation
 Iteration over collections: user, kernel, elapsed 0 10000 2044 
   Number of Collection  Accessed 100000
-By GetAllCurrentHashs search
+By GetAllCurrentHashes search
 Iteration over collections : user, kernel, elapsed 0 0 1764 
 iter, hash id 0 
 nd, val 0 0
