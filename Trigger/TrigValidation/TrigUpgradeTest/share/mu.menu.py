@@ -89,19 +89,23 @@ if  TriggerFlags.doMuon==True:
 
     
     if TriggerFlags.doID==False:
-        if doL2SA==True and doL2CB==False and doEFSA==False:           
+        if doL2SA==True  and doL2CB==False and doEFSA==False:           
             MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[ChainStep("Step1_mufast", [muFastStep]) ])]
-            MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6",  ChainSteps=[ChainStep("Step1_mufast", [muFastStep]) ])]
-        if doEFSA==True and doL2SA==False and doL2CB==False:
+            MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[ChainStep("Step1_mufast", [muFastStep]) ])]
+        if doL2SA==False and doL2CB==False and doEFSA==True: 
             MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[ChainStep("Step1_mufast", [muFastStep]) ])]
+            MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[ChainStep("Step1_mufast", [muFastStep]) ])]
     elif TriggerFlags.doID==True:    
-        if doL2SA==True and doL2CB==True and doEFSA==False:
+        if doL2SA==True  and doL2CB==True  and doEFSA==False:
             MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[ChainStep("Step1_mufast", [muFastStep]),
                                                                              ChainStep("Step2_muComb", [muCombStep]) ])]
-        if doL2SA==True and doEFSA==True and doL2CB==True:
+            MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[ChainStep("Step1_mufast", [muFastStep]),
+                                                                             ChainStep("Step2_muComb", [muCombStep]) ])]
+        if doL2SA==True  and doL2CB==True  and doEFSA==True:
             MenuChains += [Chain(name='HLT_mu6', Seed="L1_MU6",  ChainSteps=[ChainStep("Step1_mufast", [muFastStep]),
                                                                              ChainStep("Step2_muComb", [muCombStep]) ])]
-            
+            MenuChains += [Chain(name='HLT_2mu6', Seed="L1_MU6", ChainSteps=[ChainStep("Step1_mufast", [muFastStep]),
+                                                                             ChainStep("Step2_muComb", [muCombStep]) ])]           
     
     
             

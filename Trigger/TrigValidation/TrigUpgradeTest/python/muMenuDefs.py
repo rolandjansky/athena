@@ -59,11 +59,11 @@ if TriggerFlags.doID:
   (viewAlgs, eventAlgs) = makeInDetAlgs()
 
   from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Muon
-  theFTF = TrigFastTrackFinder_Muon()
-  theFTF.OutputLevel = DEBUG
-  theFTF.TracksName = "TrigFastTrackFinder_MuTracks"
-  theFTF.isRoI_Seeded = True
-  viewAlgs.append(theFTF)
+  theFTF_Muon = TrigFastTrackFinder_Muon()
+  theFTF_Muon.OutputLevel = DEBUG
+  #theFTF_Muon.TracksName = "TrigFastTrackFinder_MuTracks"
+  theFTF_Muon.isRoI_Seeded = True
+  viewAlgs.append(theFTF_Muon)
   
   ### A simple algorithm to confirm that data has been inherited from parent view ###
   ### Required to satisfy data dependencies                                       ###
@@ -340,8 +340,10 @@ if TriggerFlags.doMuon:
     l2muCombViewsMaker = EventViewCreatorAlgorithm("l2muCombViewsMaker", OutputLevel=DEBUG)
     l2muCombViewsMaker.ViewFallThrough = True
     l2muCombViewsMaker.RoIsLink = "roi" # -||-
-    l2muCombViewsMaker.InViewRoIs = "MUTrkRoIs" # contract with the consumer
-    l2muCombViewsMaker.Views = "MUTrkViewRoIs"
+    #l2muCombViewsMaker.InViewRoIs = "MUTrkRoIs" # contract with the consumer
+    #l2muCombViewsMaker.Views = "MUTrkViewRoIs"
+    l2muCombViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the consumer
+    l2muCombViewsMaker.Views = "EMCombViewRoIs"
     l2muCombViewsMaker.ViewNodeName = l2muCombViewNode.name()
 
 
@@ -356,12 +358,12 @@ if TriggerFlags.doMuon:
         viewAlg.roiCollectionName = l2muCombViewsMaker.InViewRoIs
       if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
         TrackParticlesName = viewAlg.TrackParticlesName
-        viewAlg.TrackName = theFTF.TracksName
+        #viewAlg.TrackName = theFTF_Muon.TracksName
 
     ### please read out TrigmuCombMTConfig file ###
     ### and set up to run muCombMT algorithm    ###
     from TrigmuComb.TrigmuCombMTConfig import TrigmuCombMTConfig
-    muCombAlg = TrigmuCombMTConfig("Muon", theFTF.getName())
+    muCombAlg = TrigmuCombMTConfig("Muon", theFTF_Muon.getName())
     muCombAlg.OutputLevel = DEBUG
     muCombAlg.L2StandAloneMuonContainerName = muFastAlg.MuonL2SAInfo
     muCombAlg.TrackParticlesContainerName = TrackParticlesName
