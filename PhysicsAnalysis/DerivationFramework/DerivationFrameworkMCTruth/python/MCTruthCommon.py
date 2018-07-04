@@ -296,7 +296,8 @@ def addParentAndDownstreamParticles(kernel=None,
                                     generations=1,
                                     parents=[6],
                                     prefix='TopQuark',
-                                    collection_prefix=None): 
+                                    collection_prefix=None,
+                                    rejectHadronChildren=False): 
   # Ensure that we are adding it to something
     if kernel is None:
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
@@ -311,7 +312,8 @@ def addParentAndDownstreamParticles(kernel=None,
     collection_maker = DerivationFramework__TruthDecayCollectionMaker( name='DFCommon'+prefix+'AndDecaysTool',
                                                                        NewCollectionName=collection_name,
                                                                        PDGIDsToKeep=parents,
-                                                                       Generations=generations)
+                                                                       Generations=generations,
+                                                                       RejectHadronChildren=rejectHadronChildren)
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += collection_maker
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
@@ -326,25 +328,31 @@ def addTausAndDownstreamParticles(kernel=None, generations=1):
                                     prefix='Tau') 
 
 # Add W bosons and their downstream particles 
-def addWbosonsAndDownstreamParticles(kernel=None, generations=1):
+def addWbosonsAndDownstreamParticles(kernel=None, generations=1,
+                                     rejectHadronChildren=False):
     return addParentAndDownstreamParticles(kernel=kernel,
-                                    generations=generations,
-                                    parents=[24],
-                                    prefix='Wboson') 
+                                           generations=generations,
+                                           parents=[24],
+                                           prefix='Wboson',
+                                           rejectHadronChildren=rejectHadronChildren) 
 
 # Add W/Z/H bosons and their downstream particles (notice "boson" here does not include photons and gluons)
-def addBosonsAndDownstreamParticles(kernel=None, generations=1):
+def addBosonsAndDownstreamParticles(kernel=None, generations=1,
+                                    rejectHadronChildren=False):
     return addParentAndDownstreamParticles(kernel=kernel,
-                                    generations=generations,
-                                    parents=[23,24,25],
-                                    prefix='Boson') 
+                                           generations=generations,
+                                           parents=[23,24,25],
+                                           prefix='Boson',
+                                           rejectHadronChildren=rejectHadronChildren) 
 
 
-def addTopQuarkAndDownstreamParticles(kernel=None, generations=1):
+def addTopQuarkAndDownstreamParticles(kernel=None, generations=1,
+                                      rejectHadronChildren=False):
    return addParentAndDownstreamParticles(kernel=kernel,
-                                    generations=generations,
-                                    parents=[6],
-                                    prefix='TopQuark')
+                                          generations=generations,
+                                          parents=[6],
+                                          prefix='TopQuark',
+                                          rejectHadronChildren=rejectHadronChildren)
 
 # Add electrons, photons, and their downstream particles in a special collection
 def addEgammaAndDownstreamParticles(kernel=None, generations=1):
