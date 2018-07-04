@@ -76,7 +76,7 @@ TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1SkimmingKern
 from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
 addStandardJetsForTop(TOPQ1Sequence,'TOPQ1')
 
-addSoftDropJetsForTop(TOPQ1Sequence, "TOPQ1")
+DerivationFrameworkTop.TOPQCommonJets.addSoftDropJetsForTop(TOPQ1Sequence, "TOPQ1")
 
 #Then apply jet calibration
 DerivationFrameworkTop.TOPQCommonJets.applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
@@ -135,9 +135,3 @@ DerivationFrameworkJob += TOPQ1Sequence
 import DerivationFrameworkTop.TOPQCommonSlimming
 DerivationFrameworkTop.TOPQCommonSlimming.setup('TOPQ1', TOPQ1Stream)
 
-TOPQ1Stream.AddItem("xAOD::JetContainer#AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets")
-TOPQ1Stream.AddItem("xAOD::JetAuxContainer#AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux.")
-
-if DerivationFrameworkIsMonteCarlo:
-  TOPQ1Stream.AddItem("xAOD::JetContainer#AntiKt10TruthSoftDropBeta100Zcut10Jets")
-  TOPQ1Stream.AddItem("xAOD::JetAuxContainer#AntiKt10TruthSoftDropBeta100Zcut10JetsAux.")
