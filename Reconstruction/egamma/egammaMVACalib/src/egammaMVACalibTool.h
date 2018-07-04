@@ -10,12 +10,14 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "MVAUtils/BDT.h"
 
 // Framework includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TH2Poly.h"
 #include "TObject.h"
-#inlcude "TString.h"
+#include "TString.h"
+#include "TFormula.h"
 
 // STL includes
 #include <string>
@@ -82,7 +84,7 @@ private:
   std::vector<std::vector<std::function<float(const xAOD::Egamma*, const xAOD::CaloCluster*)> > > m_funcs;
 
   /// shifts for mean10
-  std::vector<TFormula> > m_shifts;
+  std::vector<TFormula> m_shifts;
 
 
   /// A dictionary of all available functions
@@ -102,9 +104,11 @@ private:
   /// a function called by the above functions to setup the egamma funcs
   StatusCode initializeEgammaFuncs(const std::string& prefix);
 
-  /// a utility to get a TString out of an TObjString pointer
-  const TString& egammaMVACalibTools::getString(TObject* obj) const
+  /// a function called by initialize to setup the BDT, funcs, and shifts.
+  StatusCode setupBDT(std::string fileName);
 
+  /// a utility to get a TString out of an TObjString pointer
+  const TString& getString(TObject* obj) const;
   
 };
 

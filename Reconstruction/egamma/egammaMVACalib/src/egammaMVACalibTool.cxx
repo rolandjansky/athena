@@ -5,10 +5,9 @@
 #include "egammaMVACalibTool.h"
 
 #include "egammaMVACalib/egammaMVALayerDepth.h"
-#include "egammaMVACalib/egammaMVATreeHelper.h"
-#include "MVAUtils/BDT.h"
+#include "egammaMVACalib/egammaMVATreeHelpers.h"
 #include "PathResolver/PathResolver.h"
-#include "xAODEgamma/PhotonAODHelpers.h"
+#include "xAODEgamma/PhotonxAODHelpers.h"
 
 #include "TFile.h"
 
@@ -41,15 +40,15 @@ StatusCode egammaMVACalibTool::initialize()
   switch (m_particleType) {
   case xAOD::EgammaParameters::electron:
     ATH_CHECK(initializeElectronFuncs());
-    ATH_CHECK(setupBDT(PathResolverFindCalibFile(folder + "/MVACalib_electron.weights.root")));
+    ATH_CHECK(setupBDT(PathResolverFindCalibFile(m_folder + "/MVACalib_electron.weights.root")));
     break;
-  case xAOD::EgammaParameters::uncovertedPhoton:
+  case xAOD::EgammaParameters::unconvertedPhoton:
     ATH_CHECK(initializeUnconvertedPhotonFuncs());
-    ATH_CHECK(setupBDT(PathResolverFindCalibFile(folder + "/MVACalib_unconvertedPhoton.weights.root")));
+    ATH_CHECK(setupBDT(PathResolverFindCalibFile(m_folder + "/MVACalib_unconvertedPhoton.weights.root")));
     break;
-  case xAOD::EgammaParameters::covertedPhoton:
+  case xAOD::EgammaParameters::convertedPhoton:
     ATH_CHECK(initializeConvertedPhotonFuncs());
-    ATH_CHECK(setupBDT(PathResolverFindCalibFile(folder + "/MVACalib_convertedPhoton.weights.root")));
+    ATH_CHECK(setupBDT(PathResolverFindCalibFile(m_folder + "/MVACalib_convertedPhoton.weights.root")));
     break;
   default:
     ATH_MSG_FATAL("Particle type not set properly: " << m_particleType);
@@ -64,27 +63,27 @@ StatusCode egammaMVACalibTool::finalize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammmMVACalibTool::setupBDT(std::string fileName)
+StatusCode egammaMVACalibTool::setupBDT(std::string fileName)
 {
-  std::unique_ptr<TFile> f(TFile::Open(fileName));
+  std::unique_ptr<TFile> f(TFile::Open(fileName.c_str()));
   if (!f || f->IsZombie() ) {
     ATH_MSG_FATAL("Could not open file: " << fileName);
     return StatusCode::FAILURE;
   }
 
   // Load hPoly
-  TH2Poly *hPoly = nullPtr;
+  TH2Poly *hPoly = nullptr;
   f->GetObject("hPoly", hPoly);
   if (!hPoly) {
     ATH_MSG_FATAL("Could not find hPoly");
     return StatusCode::FAILURE;
   }
   
-  m_hPoly = hPoly->Clone();
+  m_hPoly.reset(static_cast<TH2Poly*>(hPoly->Clone()));
   m_hPoly->SetDirectory(0);
 
   // Load variables
-  TObjArray *variablesTmp = nullPtr;
+  TObjArray *variablesTmp = nullptr;
   f->GetObject("variables", variablesTmp);
   if (!variablesTmp) {
     ATH_MSG_FATAL("Could not find variables");
@@ -94,7 +93,7 @@ StatusCode egammmMVACalibTool::setupBDT(std::string fileName)
   variables->SetOwner(); // to delete the objects when d-tor is called
 
   // Load shifts
-  TObjArray *shiftsTmp = nullPtr;
+  TObjArray *shiftsTmp = nullptr;
   f->GetObject("shifts", shiftsTmp);
   if (!shiftsTmp) {
     ATH_MSG_FATAL("Could not find shifts");
@@ -104,7 +103,7 @@ StatusCode egammmMVACalibTool::setupBDT(std::string fileName)
   shifts->SetOwner(); // to delete the objects when d-tor is called
 
   // Load trees
-  TObjArray *treesTmp = nullPtr;
+  TObjArray *treesTmp = nullptr;
   std::unique_ptr<TObjArray> trees;
   f->GetObject("trees", treesTmp);
   if (treesTmp) {
@@ -140,7 +139,6 @@ StatusCode egammmMVACalibTool::setupBDT(std::string fileName)
   TIter nextShift(shifts.get());
   for (int i=0; (tree = (TTree*) nextTree()) && ((TObjString*) nextVariables()); ++i)
   {
-    BDT *bdt = new BDT(tree);
     m_BDTs.emplace_back(tree);
 
     std::vector<std::function<float(const xAOD::Egamma*, const xAOD::CaloCluster*)> > funcs;
@@ -154,13 +152,13 @@ StatusCode egammmMVACalibTool::setupBDT(std::string fileName)
       const TString& varName = getString(str2);
       if (!varName.Length()) {
 	ATH_MSG_FATAL("There was an empty variable name!");
-	return StatusCode::FATAL;
+	return StatusCode::FAILURE;
       }
       try {
-	funcs.push_back(m_funcsLibrary.at(varName));
+	funcs.push_back(m_funcLibrary.at(varName.Data()));
       } catch(const std::out_of_range& e) {
 	ATH_MSG_FATAL("Could not find formula for variable " << varName << ", error: " << e.what());
-	return StatusCode::FATAL;	
+	return StatusCode::FAILURE;	
       } 
     }
     m_funcs.push_back(std::move(funcs));
@@ -175,10 +173,12 @@ StatusCode egammmMVACalibTool::setupBDT(std::string fileName)
 
 }
 
-StatusCode egammmMVACalibTool::initializeElectronFuncs()
+StatusCode egammaMVACalibTool::initializeElectronFuncs()
 {
   ATH_CHECK(initializeClusterFuncs("el"));
   ATH_CHECK(initializeEgammaFuncs("el"));
+
+  using namespace egammaMVATreeHelpers;
 
   m_funcLibrary["el_charge"] = [](const xAOD::Egamma* eg, const xAOD::CaloCluster*)
     { return compute_el_charge(*(static_cast<const xAOD::Electron*>(eg))); };
@@ -194,7 +194,7 @@ StatusCode egammmMVACalibTool::initializeElectronFuncs()
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammmMVACalibTool::initializeUnconvertedPhotonFuncs()
+StatusCode egammaMVACalibTool::initializeUnconvertedPhotonFuncs()
 {
   ATH_CHECK(initializeClusterFuncs("ph"));
   ATH_CHECK(initializeEgammaFuncs("ph"));
@@ -202,7 +202,7 @@ StatusCode egammmMVACalibTool::initializeUnconvertedPhotonFuncs()
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammmMVACalibTool::initializeConvertedPhotonFuncs()
+StatusCode egammaMVACalibTool::initializeConvertedPhotonFuncs()
 {
   ATH_CHECK(initializeClusterFuncs("ph"));
   ATH_CHECK(initializeEgammaFuncs("ph"));
@@ -238,8 +238,11 @@ StatusCode egammmMVACalibTool::initializeConvertedPhotonFuncs()
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammmMVACalibTool::initializeClusterFuncs(const std::string& prefix)
+StatusCode egammaMVACalibTool::initializeClusterFuncs(const std::string& prefix)
 {
+
+  using namespace egammaMVATreeHelpers;
+
   m_funcLibrary[prefix + "_cl_eta"] = [](const xAOD::Egamma*, const xAOD::CaloCluster* cl)
     { return compute_cl_eta(*cl); };
   m_funcLibrary[prefix + "_cl_phi"] = [](const xAOD::Egamma*, const xAOD::CaloCluster* cl)
@@ -251,7 +254,7 @@ StatusCode egammmMVACalibTool::initializeClusterFuncs(const std::string& prefix)
   m_funcLibrary[prefix + "_cl_phiCalo"] = [](const xAOD::Egamma*, const xAOD::CaloCluster* cl)
     { return compute_cl_phiCalo(*cl); };
   m_funcLibrary[prefix + "_cl_E_TileGap3"] = [](const xAOD::Egamma*, const xAOD::CaloCluster* cl)
-    { return cl.eSample(CaloSampling::TileGap3); };
+    { return cl->eSample(CaloSampling::TileGap3); };
 
   if (m_use_layer_corrected) {
     m_funcLibrary[prefix + "_rawcl_Es0"] = [](const xAOD::Egamma*, const xAOD::CaloCluster* cl)
@@ -282,7 +285,7 @@ StatusCode egammmMVACalibTool::initializeClusterFuncs(const std::string& prefix)
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammmMVACalibTool::initializeEgammaFuncs(const std::string& prefix)
+StatusCode egammaMVACalibTool::initializeEgammaFuncs(const std::string& prefix)
 {
   m_funcLibrary[prefix + "_e011"] = [](const xAOD::Egamma* eg, const xAOD::CaloCluster*)
     { return eg->showerShapeValue(xAOD::EgammaParameters::e011); };
@@ -374,15 +377,17 @@ StatusCode egammmMVACalibTool::initializeEgammaFuncs(const std::string& prefix)
   return StatusCode::SUCCESS;
 }
 
-const TString& egammaMVACalibTools::getString(TObject* obj) const
+const TString& egammaMVACalibTool::getString(TObject* obj) const
 {
   TObjString *objS = dynamic_cast<TObjString*>(obj);
-  if (!objS) return TString();
+  if (!objS) {
+    throw std::runtime_error("egammaMVACalibTool::getString was passed something that was not a string object");
+  }
   return objS->GetString();
 }
 
-float egammaMVACalibTools::getEnergy(const xAOD::Egamma* eg,
-				     const xAOD::CaloCluster* clus) const
+float egammaMVACalibTool::getEnergy(const xAOD::Egamma* eg,
+				    const xAOD::CaloCluster* clus) const
 {
 
   if (!clus && eg) {
@@ -390,7 +395,7 @@ float egammaMVACalibTools::getEnergy(const xAOD::Egamma* eg,
   }
   if (!clus) {
     ATH_MSG_FATAL("The cluster pointer must not be null!");
-    throw std::runtime_error("egammaMVACalibTools::getEnergy called with a null cluster");
+    throw std::runtime_error("egammaMVACalibTool::getEnergy called with a null cluster");
     return 0.0;
   }
 
@@ -422,7 +427,7 @@ float egammaMVACalibTools::getEnergy(const xAOD::Egamma* eg,
   // what to do if the MVA response is 0;
   if (mvaOutput == 0.) {
     if (m_clusterEif0) {
-      return clus->E();
+      return clus->e();
     } else {
       return 0.;
     }
@@ -430,11 +435,11 @@ float egammaMVACalibTools::getEnergy(const xAOD::Egamma* eg,
 
   // calcluate the unshifted energy
   const auto energy = (m_calibrationType == fullCalibration) ?
-    mvaOutput : (initialEnergy * mvaOutput);
+    mvaOutput : (initEnergy * mvaOutput);
 
   ATH_MSG_DEBUG("energy after MVA = " << energy);
 
-  if (shift_type == NSHIFT) {
+  if (m_shiftType == NOSHIFT) {
     // if no shift, just return the unshifted energy
     return energy;
   }
@@ -443,7 +448,7 @@ float egammaMVACalibTools::getEnergy(const xAOD::Egamma* eg,
   const auto etGeV = (energy / std::cosh(clus->eta())) / CLHEP::GeV;
 
   // evaluate the TFormula associated with the bin
-  const auto shift = m_shifts[bin]->Eval(etGeV);
+  const auto shift = m_shifts[bin].Eval(etGeV);
   ATH_MSG_DEBUG("shift = " << shift);
   if (shift > 0.5) {
     return energy / shift;

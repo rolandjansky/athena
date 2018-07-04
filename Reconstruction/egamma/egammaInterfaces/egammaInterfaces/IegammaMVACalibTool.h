@@ -6,6 +6,10 @@
 
 #include "GaudiKernel/IAlgTool.h"
 
+// EDM includes
+#include "xAODEgamma/EgammaFwd.h"
+#include "xAODCaloEvent/CaloClusterFwd.h"
+
 /**
  * @class IegammaMVACalibTool
  * @brief A tool used by the egammaMVASvc to help manage the MVAs.

@@ -46,7 +46,7 @@ atlas_add_library( egammaMVACalibLib
 if( NOT XAOD_STANDALONE )
    atlas_add_component( egammaMVACalib
       src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES GaudiKernel egammaMVACalibLib )
+      LINK_LIBRARIES GaudiKernel egammaMVACalibLib PathResolver MVAUtils )
 endif()
 
 atlas_add_dictionary( egammaMVACalibDict
