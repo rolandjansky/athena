@@ -47,9 +47,12 @@ from ActsGeometry.ActsGeometryConfig import TrackingGeometrySvc
 trkGeomSvc = TrackingGeometrySvc()
 
 # skip material map input on CI job
-if not os.getenv("CI"):
+if "CI" not in os.environ:
+  print "Non CI mode, use MatMap"
   trkGeomSvc.UseMaterialMap = True
   trkGeomSvc.MaterialMapInputFile = "MaterialMaps.pb"
+else:
+  print "CI mode, no MatMap"
 
 trkGeomSvc.BarrelMaterialBins = [40, 60] # phi z
 trkGeomSvc.EndcapMaterialBins = [50, 20] # phi r
