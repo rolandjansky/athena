@@ -49,7 +49,7 @@ def _createCfgFlags():
 
 
 # Trigger
-    from TriggerJobOpts.NewTriggerFlags import createTriggerFlags
+    from TriggerJobOpts.TriggerConfigFlags import createTriggerFlags
     acf.join( createTriggerFlags() )
 
 

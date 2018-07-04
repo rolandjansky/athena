@@ -104,9 +104,6 @@ def createTriggerFlags():
 
     # trigger reconstruction 
 
-    # controls track extension tool setting (not sure we can handle it via this flag now, should it be moved to Trigger.InDet?)
-    flags.addFlag('Trigger.id.useOfflineSpacePoints', False)
-
     # enables the correction for pileup in cell energy calibration (should it be moved to some place where other calo flags are defined?)
     flags.addFlag('Trigger.calo.doOffsetCorrection', True )
 
