@@ -12,8 +12,8 @@ exec 2>&1
 run() { (set -x; exec "$@") }
 
 dosim=1
-dorec=0    # Reco_tf.py not yet working
-dophy=0    # Set dophy=1 to run InDetPhysValMonitoring over old ESD
+dorec=1    # Reco_tf.py not yet working
+dophy=1    # If dorec=0, set dophy=1 to run InDetPhysValMonitoring over old ESD
 artdata=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
 #artdata=/eos/atlas/atlascerngroupdisk/data-art/grid-input
 
@@ -112,7 +112,12 @@ if [ $dorec -ne 0 ]; then
                   POOLMergeAthenaMPDAODIDTRKVALID0:'InDetSLHC_Example/preInclude.SLHC.NoTRT_NoBCM_NoDBM.Ana.py,InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py' \
     --postExec    HITtoRDO:'pixeldigi.EnableSpecialPixels=False; CfgMgr.MessageSvc().setError+=["HepMcParticleLink"];' \
                   RAWtoESD:'ToolSvc.InDetSCT_ClusteringTool.useRowInformation=True; from AthenaCommon.AppMgr import ToolSvc; ToolSvc.InDetTrackSummaryTool.OutputLevel=INFO;'
-  echo "art-result: $? reco"
+  reco_stat=$?
+  echo "art-result: $reco_stat reco"
+  if [ "$reco_stat" -ne 0 ]; then
+    echo "`basename \"$0\"`: Reco_tf.py isn't working yet. Remove jobReport.json to prevent pilot declaring a failed job."
+    run rm -f jobReport.json
+  fi
 
 fi
 
