@@ -108,8 +108,14 @@ bool TrackVertexAssociationTool::isCompatible(
   float dzSinTheta = 0.;
   bool status = false;
 
-  status = isMatch(trk, vx, dzSinTheta);
+  MatchStatus matchstatus = isMatch(trk, vx, dzSinTheta);
 
+  if(matchstatus == TrackVertexAssociationTool::UsedInFit || matchstatus == TrackVertexAssociationTool::Matched ) {
+    status = true;
+  }
+  else {
+    status = false;
+  }
   return status;
 }
 
@@ -165,23 +171,45 @@ TrackVertexAssociationTool::getUniqueMatchMap(
 
 // private methods
 
-bool TrackVertexAssociationTool::isMatch(const xAOD::TrackParticle &trk,
-                                         const xAOD::Vertex &vx,
-                                         float &dzSinTheta) const
+TrackVertexAssociationTool::MatchStatus TrackVertexAssociationTool::isMatch(const xAOD::TrackParticle &trk,
+                                                                            const xAOD::Vertex &vx,
+                                                                            float &dzSinTheta) const
 {
   // ATH_MSG_DEBUG("<###### Enter: isMatch() function ######>");
 
   if (&vx == NULL) {
     // this should never happen because vx is a reference
     ATH_MSG_DEBUG("Invalid Vertex pointer, return false");
-    return false;
+    return UnMatch;
   }
 
   if (vx.vertexType() == xAOD::VxType::NoVtx) {
     // ATH_MSG_DEBUG(
     //     "The Vertex is a fake one, will not do track-vertex association");
-    return false;
+    return UnMatch;
   }
+
+  float vx_z0 = vx.z();
+  float trk_z0 = trk.z0();
+  float beamspot_z0 = trk.vz();
+  float theta = trk.theta();
+  // calculate Δz * sin θ
+  dzSinTheta = fabs((trk_z0 - vx_z0 + beamspot_z0) * sin(theta));
+
+  // If vertex fit information is flagged to be used,
+  if(m_doUsedInFit) {
+    if(trk.vertex()==&vx) { // check whether the track is used for the given vertex fit
+      ATH_MSG_DEBUG("This track is used to fit the vertex");
+      return UsedInFit;
+    } else if (trk.vertex()!=0) { // otherwise, automatically return UnMatch if it was used in another vertex fit
+      return UnMatch;
+    }
+  }
+
+  // Now use cuts to determine a match
+  // Only arrive here if:
+  // 1. vertex fit info was flagged to be used but track wasn't used in any vertex fit
+  // 2. vertex fit info wasn't flagged to be used
 
   const xAOD::EventInfo *evt{0};
   if (evtStore()->retrieve(evt, "EventInfo").isFailure()) {
@@ -194,28 +222,21 @@ bool TrackVertexAssociationTool::isMatch(const xAOD::TrackParticle &trk,
         &trk, evt->beamPosSigmaX(), evt->beamPosSigmaY(), evt->beamPosSigmaXY());
     // d0 significance cut
     if (m_d0sig_cut >= 0 && fabs(d0sig) > m_d0sig_cut)
-      return false;
+      return UnMatch;
 
   } else {
 
     float trk_d0=trk.d0();
     // d0 cut
     if (m_d0_cut >= 0 && fabs(trk_d0) > m_d0sig_cut)
-      return false;
+      return UnMatch;
 
   }
 
-  float vx_z0 = vx.z();
-  float trk_z0 = trk.z0();
-  float beamspot_z0 = trk.vz();
-  float theta = trk.theta();
-
-  // calculate Δz * sin θ
-  dzSinTheta = fabs((trk_z0 - vx_z0 + beamspot_z0) * sin(theta));
   if (m_dzSinTheta_cut >= 0 && dzSinTheta > m_dzSinTheta_cut)
-    return false;
+    return UnMatch;
 
-  return true;
+  return Matched;
 }
 
 template <typename U, typename V>
@@ -247,12 +268,18 @@ const xAOD::Vertex *TrackVertexAssociationTool::getUniqueMatchVertexInternal(
 
   for (auto *vertex : vx_list) {
     float dzSinTheta = 0.;
-
-    bool match_status = isMatch(trk, *vertex, dzSinTheta);
-    if (match_status) {
-      if (dzSinTheta < min_dz) {
-        min_dz = dzSinTheta;
-        bestMatchVertex = vertex;
+    MatchStatus matchstatus = isMatch(trk, *vertex, dzSinTheta);
+    if(matchstatus == TrackVertexAssociationTool::UsedInFit) {
+      return vertex;
+    }
+    else {
+      if ((m_requirePriVtx && vertex->vertexType()==xAOD::VxType::PriVtx) || (!m_requirePriVtx)) {
+        if (matchstatus == TrackVertexAssociationTool::Matched) {
+          if (dzSinTheta < min_dz) {
+            min_dz = dzSinTheta;
+            bestMatchVertex = vertex;
+          }
+        }
       }
     }
   }

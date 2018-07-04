@@ -56,7 +56,7 @@ namespace CP {
     private:
       /// Checks if a track-vertex pair passes the cuts.  Returns
       /// Δz * sin θ of the pair in `dzSinTheta` if successful.
-      bool isMatch(const xAOD::TrackParticle &trk, const xAOD::Vertex &vx,
+      MatchStatus isMatch(const xAOD::TrackParticle &trk, const xAOD::Vertex &vx,
                    float &dzSinTheta) const;
 
       template <typename T, typename U>
