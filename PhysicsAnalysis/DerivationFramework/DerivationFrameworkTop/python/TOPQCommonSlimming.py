@@ -48,9 +48,9 @@ def setup(TOPQname, stream):
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKt4EMPFlow
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKt4EMTopo
+  TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
   # trimmed jets
   if TOPQname == 'TOPQ1':
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets
   # additional variables for electrons/photons objects
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_Electrons
