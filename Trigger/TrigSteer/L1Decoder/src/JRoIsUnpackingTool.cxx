@@ -62,8 +62,11 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
     addChainsToDecision( thresholdChainsPair.first, fsDecision, activeChains );    
   }
   ATH_MSG_DEBUG( "Stored "  << decisionIDs( fsDecision ).size() << "  decision in FS RoI" );
-  for ( auto chain : decisionIDs( fsDecision ) ) {
-    ATH_MSG_DEBUG( "Chain decision stored for FS RoI " <<  HLT::Identifier( chain ) );      
+  
+  if ( msgLvl(MSG::DEBUG) ) {
+    for ( auto chain : decisionIDs( fsDecision ) ) {
+      ATH_MSG_DEBUG( "Chain decision stored for FS RoI " <<  HLT::Identifier( chain ) );      
+    }
   }
 
 
@@ -106,9 +109,12 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
       decision->setObjectLink( "initialRecRoI", ElementLink<DataVector<LVL1::RecJetRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
     }     
   }
-  for ( auto roi: *trigRoIs ) {
-    ATH_MSG_DEBUG( "RoI Eta: " << roi->eta() << " Phi: " << roi->phi() << " RoIWord: " << roi->roiWord() );
+  if ( msgLvl(MSG::DEBUG) ) {
+    for ( auto roi: *trigRoIs ) {
+      ATH_MSG_DEBUG( "RoI Eta: " << roi->eta() << " Phi: " << roi->phi() << " RoIWord: " << roi->roiWord() );
+    }
   }
+
   // monitoring
   {
     using namespace Monitored;
