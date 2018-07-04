@@ -40,6 +40,12 @@ namespace xAOD {
       /// Default constructor
       TrigComposite_v1();
 
+       /// Copy constructor
+       TrigComposite_v1( const TrigComposite_v1& parent );
+
+       /// Assignment operator
+       TrigComposite_v1& operator=( const TrigComposite_v1& rhs );
+
       /// @name Basic properties
       /// @{
 
@@ -158,7 +164,7 @@ namespace xAOD {
       /// Raw access to the persistent link CLIDs (non-const)
       std::vector< uint32_t >& linkColClidsNC();
 
-      const std::string m_collectionSuffix = "__COLL";
+      static const std::string s_collectionSuffix;
 
    }; // class TrigComposite_v1
 

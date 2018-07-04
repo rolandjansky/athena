@@ -218,8 +218,8 @@ summary.InputDecision = "HLTChains"
 summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
 from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
 edmCreator = HLTEDMCreator()
-edmCreator.TrigCompositeContainer = [ "EgammaCaloDecisions", "ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "HLTChainsResult" ]
-
+edmCreator.TrigCompositeContainer = [ "L2ElectronLinks", "filterCaloRoIsAlg", "EgammaCaloDecisions","ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "HLTChainsResult",
+"JRoIDecisions", "MonitoringSummaryStep1", "RerunEMRoIDecisions", "RerunMURoIDecisions", "TAURoIDecisions", "L2CaloLinks", "FilteredEMRoIDecisions", "FilteredEgammaCaloDecisions"  ]
 
 egammaViewsMerger = HLTEDMCreator("egammaViewsMerger")
 
@@ -275,13 +275,19 @@ StreamESD.ItemList += [ "xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronCo
                         "xAOD::TrackParticleAuxContainer#HLT_xAOD_TrackParticleContainer_L2ElectronTracksAux.", 
                         "xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux."]
 
+StreamESD.ItemList += [ "EventInfo#ByteStreamEventInfo" ]
+
+StreamESD.ItemList += [ "TrigRoiDescriptorCollection#EMRoIs" ]
+StreamESD.ItemList += [ "TrigRoiDescriptorCollection#JRoIs" ]
+StreamESD.ItemList += [ "TrigRoiDescriptorCollection#METRoI" ]
+StreamESD.ItemList += [ "TrigRoiDescriptorCollection#MURoIs" ]
+StreamESD.ItemList += [ "TrigRoiDescriptorCollection#TAURoIs" ]
+
 print "ESD file content " 
 print StreamESD.ItemList
 
-
 hltTop = seqOR( "hltTop", [ steps, mon, summary, StreamESD ] )
 topSequence += hltTop
-
 
 from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence(topSequence)
