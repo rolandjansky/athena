@@ -21,7 +21,6 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "TrigCaloRec/TrigCaloQuality.h"
-#include "egammaMVACalib/IegammaMVATool.h"
 #include "xAODEgamma/EgammaEnums.h"
 
 class ISvcLocator;
@@ -33,7 +32,7 @@ TrigEFCaloCalibFex::TrigEFCaloCalibFex(const std::string & name, ISvcLocator* pS
   // Read cuts - should probably get these from an xml file
   declareProperty( "AcceptAll",            m_acceptAll  = false );
   declareProperty( "egType", m_egType = "Electron");
-  declareProperty("MVACalibTool", m_MVACalibTool);
+  //declareProperty("MVACalibSvc", m_MVACalibSvc);
   declareProperty("ApplyMVACalib", m_applyMVACalib=true);
   declareProperty("ClusterContainerKey", m_persKey="TrigEFCaloCalibFex");
   m_caloCellDetPos = new CaloCellDetPos();
@@ -72,19 +71,19 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltInitialize()
   ATH_MSG_DEBUG("AcceptAll            = "	<< (m_acceptAll==true ? "True" : "False") ); 
   // Get the cluster correction tool
   
-  if(m_MVACalibTool.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Failed to retrieve " << m_MVACalibTool);
+  if(m_MVACalibSvc.retrieve().isFailure()) {
+      ATH_MSG_ERROR("Failed to retrieve " << m_MVACalibSvc);
       m_applyMVACalib = false;
       return HLT::BAD_JOB_SETUP;
   }
   else {
-      ATH_MSG_DEBUG("Retrieved tool " << m_MVACalibTool);   
+      ATH_MSG_DEBUG("Retrieved service " << m_MVACalibSvc);   
   }
   
   
   if (timerSvc()){
    m_totalTimer  = addTimer("TrigEFCaloCalibFexTot");
-   m_toolTimer = addTimer("MVACalibTool");
+   m_toolTimer = addTimer("MVACalibSvc");
   }
   
   ATH_MSG_DEBUG("Initialization of TrigEFCaloHypo completed successfully");
@@ -259,7 +258,7 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
             ATH_MSG_DEBUG("Applying MVA Calib");
 
             if (timerSvc()) m_toolTimer->start();    
-            if(m_MVACalibTool->hltexecute(newClus,m_egType).isFailure())
+            if(m_MVACalibSvc->hltexecute(newClus,m_egType).isFailure())
                 ATH_MSG_DEBUG("MVACalib Fails");
             if (timerSvc()) m_toolTimer->stop();    
         }

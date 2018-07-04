@@ -32,8 +32,9 @@
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloUtils/CaloCellDetPos.h"
+#include "egammaInterfaces/IegammaMVASvc.h"
+
 class TrigCaloQuality;
-class IegammaMVATool;
 /**
  * \class TrigEFCaloCalibFex 
  * \brief TrigEFCaloCalibFex is a Trigger Fex Algorithm that retrieves the EF xAODCaloCluster
@@ -67,7 +68,7 @@ class TrigEFCaloCalibFex : public HLT::FexAlgo  {
   
   CaloCellDetPos *m_caloCellDetPos;
   /** Handle to the MVA calibration Tool **/
-  ToolHandle<IegammaMVATool>  m_MVACalibTool;  
+  ServiceHandle<IegammaMVASvc>  m_MVACalibSvc {this, "MVACalibSvc", ""};  
 
   // Timers
   TrigTimer* m_totalTimer;
