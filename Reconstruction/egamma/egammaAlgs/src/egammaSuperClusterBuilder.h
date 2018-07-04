@@ -30,7 +30,7 @@ protected:
   egammaSuperClusterBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
   /** should be called by the derived class in the initialize phase */
-  StatusCode initialize();
+  StatusCode initialize() override;
 
   /** Is clus in window center around ref? */
   bool MatchesInWindow(const xAOD::CaloCluster *ref,
