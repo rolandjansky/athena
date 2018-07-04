@@ -33,6 +33,7 @@ DerivationFramework::TruthDecayCollectionMaker::TruthDecayCollectionMaker(const 
     declareProperty("KeepBHadrons", m_keepBHadrons=false, "Keep b-hadrons (easier than by PDG ID)");
     declareProperty("KeepCHadrons", m_keepCHadrons=false, "Keep c-hadrons (easier than by PDG ID)");
     declareProperty("KeepBSM", m_keepBSM=false, "Keep BSM particles (easier than by PDG ID)");
+    declareProperty("RejectHadronChildren", m_rejectHadronChildren=false, "Drop hadron descendants");
     declareProperty("Generations", m_generations=-1, "Number of generations after the particle in question to keep (-1 for all)");
 }
 
@@ -183,6 +184,9 @@ int DerivationFramework::TruthDecayCollectionMaker::addTruthVertex( const xAOD::
     // Add all the outgoing particles
     for (size_t n=0;n<old_vert.nOutgoingParticles();++n){
         if (!old_vert.outgoingParticle(n)) continue; // Just in case we removed some truth particles, e.g. G4 decays
+	if (m_rejectHadronChildren && old_vert.outgoingParticle(n)->isHadron()) { // Option to skip hadrons outright{
+	  continue;
+	}
         // Continue on the next generation; note that we only decrement the generation if this particle doesn't also pass our cuts
         int part_index = addTruthParticle( *old_vert.outgoingParticle(n), part_cont, vert_cont, seen_particles,
                                            generations-1+(id_ok(*old_vert.outgoingParticle(n))?1:0) );
