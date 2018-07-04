@@ -31,8 +31,12 @@ using Athena::Units::GeV;
 
 CaloBaselineMon::CaloBaselineMon(const std::string& type, const std::string& name, const IInterface* parent) :
   CaloMonToolBase(type, name, parent),
+  m_bool_pedestalMon(false),
+  m_bool_bcidtoolMon(false),
   m_calo_id(nullptr),
-  m_bunchCrossingTool("BunchCrossingTool")
+  m_bunchCrossingTool("BunchCrossingTool"),
+  m_h1_BCID_bcidtoolMon(nullptr),
+  m_h1_BCID_pedestalMon(nullptr)
 {
   declareInterface<IMonitorToolBase>(this);
 
@@ -312,7 +316,7 @@ StatusCode CaloBaselineMon::fillHistograms() {
 	m_sum_partition_eta[iPart][iEta] = m_sum_partition_eta[iPart][iEta]*(m_inv_etaBinWidth[iPart])/(2*M_PI)/lbAverageInteractionsPerCrossing();
 	float etaToBeFilled = ((float) iEta)*m_etaBinWidth[iPart] + m_etaMin[iPart];
 	m_partHistos[iPart].hProf_bcidtoolMon_vs_Eta->Fill(etaToBeFilled,m_sum_partition_eta[iPart][iEta]);
-	m_partHistos[iPart].hProf_bcidtoolMon_vs_EtaBCID[iEta]->Fill(m_bunchCrossingTool->distanceFromFront(bcid)/25,m_sum_partition_eta[iPart][iEta]);
+	m_partHistos[iPart].hProf_bcidtoolMon_vs_EtaBCID[iEta]->Fill(m_bunchCrossingTool->distanceFromFront(bcid)/25.,m_sum_partition_eta[iPart][iEta]);
 	m_partHistos[iPart].hProf_bcidtoolMon_vs_LB->Fill(lumiBlock,m_sum_partition_eta[iPart][iEta]);
       }
     }
