@@ -6,6 +6,9 @@
 # art-output: hist-DATA_DAOD_PHYSVAL.root
 # art-output: dcube
 
+# Create empty pool file
+art.py createpoolfile
+
 echo "Running SUSYTools test: \'TestSUSYToolsAlg.py -t DATA -m -1\'"
 TestSUSYToolsAlg.py -t DATA -m -1
 echo  "art-result: $? TEST"
