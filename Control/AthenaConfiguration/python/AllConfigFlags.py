@@ -49,10 +49,8 @@ def _createCfgFlags():
 
 
 # Trigger
-    acf.addFlag("Trigger.inputLVL1ConfigFile", "UNSPECIFIED")
-    acf.addFlag("Trigger.L1Decoder.doMuon", True) # should have dependency on detector flag doCalo
-    acf.addFlag("Trigger.L1Decoder.doCalo", True) 
-    acf.addFlag("Trigger.L1Decoder.forceEnableAllChains", True)
+    from TriggerJobOpts.NewTriggerFlags import createTriggerFlags
+    acf.join( createTriggerFlags() )
 
 
     return acf
