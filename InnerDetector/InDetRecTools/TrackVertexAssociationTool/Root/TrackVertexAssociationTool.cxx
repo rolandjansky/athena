@@ -188,16 +188,27 @@ bool TrackVertexAssociationTool::isMatch(const xAOD::TrackParticle &trk,
     throw std::runtime_error("Could not retrieve EventInfo");
   }
 
+  if (m_use_d0sig) {
+
+    double d0sig = xAOD::TrackingHelpers::d0significance(
+        &trk, evt->beamPosSigmaX(), evt->beamPosSigmaY(), evt->beamPosSigmaXY());
+    // d0 significance cut
+    if (m_d0sig_cut >= 0 && fabs(d0sig) > m_d0sig_cut)
+      return false;
+
+  } else {
+
+    float trk_d0=trk.d0();
+    // d0 cut
+    if (m_d0_cut >= 0 && fabs(trk_d0) > m_d0sig_cut)
+      return false;
+
+  }
+
   float vx_z0 = vx.z();
   float trk_z0 = trk.z0();
   float beamspot_z0 = trk.vz();
   float theta = trk.theta();
-  double d0sig = xAOD::TrackingHelpers::d0significance(
-      &trk, evt->beamPosSigmaX(), evt->beamPosSigmaY(), evt->beamPosSigmaXY());
-
-  // d0 significance cut
-  if (m_d0sig_cut >= 0 && fabs(d0sig) > m_d0sig_cut)
-    return false;
 
   // calculate Δz * sin θ
   dzSinTheta = fabs((trk_z0 - vx_z0 + beamspot_z0) * sin(theta));
