@@ -154,9 +154,9 @@ class AthConfigFlags(object):
          return
 
     def dump(self):
-        print  "%40.40s : %s" % ("Flag Name","Value")
+        print  "%-40.40s : %s" % ("Flag Name","Value")
         for name in sorted(self._flagdict):
-            print "%40.40s : %s" % (name,repr(self._flagdict[name]))
+            print "%-40.40s : %s" % (name,repr(self._flagdict[name]))
 
     def initAll(self): #Mostly a self-test method
         for n,f in self._flagdict.items():
