@@ -341,9 +341,16 @@ if DRAWZSel:
 #################
 
 if dumpTrtInfo:
+
+    from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
+    InDetTRT_DriftFunctionTool = TRT_DriftFunctionTool(name = "InDetTRT_DriftFunctionTool",
+                                                       IsMC = isIdTrkDxAODSimulation)
+
     from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import TRT_PrepDataToxAOD
     xAOD_TRT_PrepDataToxAOD = TRT_PrepDataToxAOD( name = "xAOD_TRT_PrepDataToxAOD")
+
     ## Content steering Properties (default value shown as comment)
+    xAOD_TRT_PrepDataToxAOD.TRTDriftFunctionTool = InDetTRT_DriftFunctionTool
     xAOD_TRT_PrepDataToxAOD.OutputLevel=INFO
     xAOD_TRT_PrepDataToxAOD.UseTruthInfo = dumpTruthInfo
     #xAOD_TRT_PrepDataToxAOD.WriteSDOs    = True

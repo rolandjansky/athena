@@ -11,9 +11,10 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
+
 #include "InDetIdentifier/TRT_ID.h"
 #include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "TH1D.h"
 #include "TFile.h"
@@ -29,9 +30,10 @@ TRT_DCS_ConditionsSvc::TRT_DCS_ConditionsSvc( const std::string& name,
   m_evtStore("StoreGateSvc",name),
   m_detStore("DetectorStore",name),
   m_mapSvc("TRT_HWMappingSvc",name),
-  m_Barrel_HV_COOLCont(0),
-  m_EndcapA_HV_COOLCont(0),
-  m_EndcapC_HV_COOLCont(0),
+  m_condSvc("CondSvc",name),
+  m_barrelReadKey("/TRT/DCS/HV/BARREL"),
+  m_EAReadKey("/TRT/DCS/HV/ENDCAPA"),
+  m_ECReadKey("/TRT/DCS/HV/ENDCAPC"),
   m_TRT_ID_Helper(0),
   m_numFlagRED(0),
   m_numFlagNOINFO(0),
@@ -46,13 +48,15 @@ TRT_DCS_ConditionsSvc::TRT_DCS_ConditionsSvc( const std::string& name,
   m_h_Barrel_HVvalAvg(0),
   m_h_EndcapA_HVvalAvg(0),
   m_h_EndcapC_HVvalAvg(0),
-  m_nEvts(0)
+  m_nBAEvts(0),
+  m_nEAEvts(0),
+  m_nECEvts(0)
 {
   // Get properties from job options
-  declareProperty( "VeryVerbose", m_VeryVerbose = false );
   declareProperty( "Barrel_HV_COOLFolderName", m_Barrel_HV_COOLFolderName = "/TRT/DCS/HV/BARREL" );
   declareProperty( "EndcapA_HV_COOLFolderName", m_EndcapA_HV_COOLFolderName = "/TRT/DCS/HV/ENDCAPA" );
   declareProperty( "EndcapC_HV_COOLFolderName", m_EndcapC_HV_COOLFolderName = "/TRT/DCS/HV/ENDCAPC" );
+  declareProperty( "VeryVerbose", m_VeryVerbose = false );
   declareProperty( "HV_WarningValueLow",  m_HVWarnValHi = 2000. );
   declareProperty( "HV_WarningValueHigh", m_HVWarnValLo = 1000. );
   declareProperty( "HWMapSvc", m_mapSvc );
@@ -66,6 +70,13 @@ TRT_DCS_ConditionsSvc::TRT_DCS_ConditionsSvc( const std::string& name,
     ATH_MSG_WARNING( "DoIOVChecking is deprecated and does nothing. Please remove from your job options configuration." );
     m_doIOVchecking = false;
   }
+  // initialize caches
+  m_evtBA.push_back(-1);
+  m_evtEA.push_back(-1);
+  m_evtEC.push_back(-1);
+  m_Barrel_HV_COOLCont.push_back(nullptr);
+  m_EndcapA_HV_COOLCont.push_back(nullptr);
+  m_EndcapC_HV_COOLCont.push_back(nullptr);
 }
 
 //////////
@@ -91,7 +102,10 @@ StatusCode TRT_DCS_ConditionsSvc::initialize() {
   }
 
   // initialize DataHandle keys
-  ATH_CHECK(m_EventInfoKey.initialize());
+  ATH_CHECK( m_EventInfoKey.initialize());
+  ATH_CHECK( m_barrelReadKey.initialize() );
+  ATH_CHECK( m_EAReadKey.initialize() );
+  ATH_CHECK( m_ECReadKey.initialize() );
 
   // Get the TRT Identifier Helper.
   sc = m_detStore->retrieve( m_TRT_ID_Helper, "TRT_ID" );
@@ -106,15 +120,6 @@ StatusCode TRT_DCS_ConditionsSvc::initialize() {
     ATH_MSG_ERROR( "Couldn't get " << m_mapSvc );
     return sc;
   }
-
-  // Register a callback for "BeginEvent"
-  IIncidentSvc* incSvc;
-  sc = service( "IncidentSvc", incSvc );
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR( "Couldn't get the IncidentSvc." );
-    return sc;
-  }
-  incSvc->addListener( this, std::string("BeginEvent") );
 
   return sc;
 }
@@ -225,11 +230,8 @@ StatusCode TRT_DCS_ConditionsSvc::getValue( const std::string foldername,
   //       chanName   = "HVB_S24_M3_B3_OutputVoltage"
    */
 
-  // Get the folder from the DetectorStore.
-  const CondAttrListCollection* DCScondFolder = 0;
-  if ( foldername == m_Barrel_HV_COOLFolderName  ) DCScondFolder = m_Barrel_HV_COOLCont;
-  if ( foldername == m_EndcapA_HV_COOLFolderName ) DCScondFolder = m_EndcapA_HV_COOLCont;
-  if ( foldername == m_EndcapC_HV_COOLFolderName ) DCScondFolder = m_EndcapC_HV_COOLCont;
+  // Get the folder from the CondStore.
+  const CondAttrListCollection* DCScondFolder = getCollection(foldername);
   if ( !DCScondFolder ) {
     sc = m_detStore->retrieve( DCScondFolder, foldername );
     if ( sc.isFailure() ) {
@@ -284,11 +286,8 @@ StatusCode TRT_DCS_ConditionsSvc::getValue( const std::string foldername,
   //       chanNum    = e.g. result from HV map query
    */
 
-  // Get the folder from the DetectorStore.
-  const CondAttrListCollection* DCScondFolder = 0;
-  if ( foldername == m_Barrel_HV_COOLFolderName  ) DCScondFolder = m_Barrel_HV_COOLCont;
-  if ( foldername == m_EndcapA_HV_COOLFolderName ) DCScondFolder = m_EndcapA_HV_COOLCont;
-  if ( foldername == m_EndcapC_HV_COOLFolderName ) DCScondFolder = m_EndcapC_HV_COOLCont;
+  // Get the folder from the CondStore.
+  const CondAttrListCollection* DCScondFolder = getCollection(foldername);
   if ( !DCScondFolder ) {
     StatusCode sc = m_detStore->retrieve( DCScondFolder, foldername );
     if ( sc.isFailure() ) {
@@ -348,9 +347,9 @@ StatusCode TRT_DCS_ConditionsSvc::finalize() {
   ATH_MSG_INFO( "Reported RED " << m_numFlagRED << " times." );
   ATH_MSG_INFO( "If these are suspicious numbers, turn on VERBOSE output and set VeryVerbose=True to see more info." );
   if ( m_doMonitoring ) {
-    m_h_Barrel_HVvalAvg->Scale(1./double(m_nEvts));
-    m_h_EndcapA_HVvalAvg->Scale(1./double(m_nEvts));
-    m_h_EndcapC_HVvalAvg->Scale(1./double(m_nEvts));
+    m_h_Barrel_HVvalAvg->Scale(1./double(m_nBAEvts));
+    m_h_EndcapA_HVvalAvg->Scale(1./double(m_nEAEvts));
+    m_h_EndcapC_HVvalAvg->Scale(1./double(m_nECEvts));
     TFile* outFile = new TFile("TRT_DCS_Monitoring.root","RECREATE");
     bool file = outFile->cd();
     if (file){
@@ -370,35 +369,64 @@ StatusCode TRT_DCS_ConditionsSvc::finalize() {
 }
 
 //////////
-/// IncidentSvc incident handler
-/////
-void TRT_DCS_ConditionsSvc::handle( const Incident& inc ) {
-  StatusCode sc(StatusCode::SUCCESS);
+/// get pointer
+//////////
+const CondAttrListCollection* TRT_DCS_ConditionsSvc::getCollection( const std::string foldername) {
+  const EventContext& event_context=Gaudi::Hive::currentContext();
+  EventContext::ContextID_t slot=event_context.slot();
+  EventContext::ContextEvt_t event_id=event_context.evt();
+  std::lock_guard<std::mutex> lock(m_cacheMutex);
+  if(foldername == m_Barrel_HV_COOLFolderName  ) {
+    if(slot>=m_evtBA.size()) {
+      m_evtBA.resize(slot+1);
+      m_Barrel_HV_COOLCont.resize(slot+1);
+    }    
+    if(m_evtBA[slot]!=event_id) {
+      SG::ReadCondHandle<CondAttrListCollection> rst(m_barrelReadKey,event_context);
+      m_evtBA[slot]=event_id;
+      m_Barrel_HV_COOLCont[slot]=(*rst);
+      monitorBarrel();
+    }
+    return  m_Barrel_HV_COOLCont[slot];
 
-  // BeginEvent handler
-  if ( inc.type() == "BeginEvent" ) {
-    // Get the COOL DCS conditions attribute list pointers from the detector store
-    m_Barrel_HV_COOLCont = 0;
-    m_EndcapA_HV_COOLCont = 0;
-    m_EndcapC_HV_COOLCont = 0;
-    sc = m_detStore->retrieve( m_Barrel_HV_COOLCont, m_Barrel_HV_COOLFolderName );
-    if ( sc.isFailure() ) {
-      ATH_MSG_WARNING( "Couldn't retrieve folder " << m_Barrel_HV_COOLFolderName
-		       << " from DetectorStore.  Has it been loaded into IOVDbSvc?" );
-      return;
+  } else if(foldername == m_EndcapA_HV_COOLFolderName  ) {
+    if(slot>=m_evtEA.size()) {
+      m_evtEA.resize(slot+1);
+      m_EndcapA_HV_COOLCont.resize(slot+1);
+    }    
+    if(m_evtEA[slot]!=event_id) {
+      SG::ReadCondHandle<CondAttrListCollection> rst(m_EAReadKey,event_context);
+      m_evtEA[slot]=event_id;
+      m_EndcapA_HV_COOLCont[slot]=(*rst);
+      monitorEndcapA();
     }
-    sc = m_detStore->retrieve( m_EndcapA_HV_COOLCont, m_EndcapA_HV_COOLFolderName );
-    if ( sc.isFailure() ) {
-      ATH_MSG_WARNING( "Couldn't retrieve folder " << m_EndcapA_HV_COOLFolderName
-		       << " from DetectorStore.  Has it been loaded into IOVDbSvc?" );
-      return;
+    return  m_EndcapA_HV_COOLCont[slot];
+
+  } else if (foldername == m_EndcapC_HV_COOLFolderName  ) {
+    if(slot>=m_evtEC.size()) {
+      m_evtEC.resize(slot+1);
+      m_EndcapC_HV_COOLCont.resize(slot+1);
+    }    
+    if(m_evtEC[slot]!=event_id) {
+      SG::ReadCondHandle<CondAttrListCollection> rst(m_ECReadKey,event_context);
+      m_evtEC[slot]=event_id;
+      m_EndcapC_HV_COOLCont[slot]=(*rst);
+      monitorEndcapC();
     }
-    sc = m_detStore->retrieve( m_EndcapC_HV_COOLCont, m_EndcapC_HV_COOLFolderName );
-    if ( sc.isFailure() ) {
-      ATH_MSG_WARNING( "Couldn't retrieve folder " << m_EndcapC_HV_COOLFolderName
-		       << " from DetectorStore.  Has it been loaded into IOVDbSvc?" );
-      return;
-    }
+    return  m_EndcapC_HV_COOLCont[slot];
+
+  } else {
+    ATH_MSG_WARNING( " TRT DCS HV folder requested with bad folder name " );
+  }
+  return nullptr; 
+}
+
+
+/// Monitor barrel HV
+/////
+void TRT_DCS_ConditionsSvc::monitorBarrel(){
+
+    StatusCode sc(StatusCode::SUCCESS);
 
     // Get the current event timestamp
     m_currentTimestamp = 0;
@@ -416,15 +444,16 @@ void TRT_DCS_ConditionsSvc::handle( const Incident& inc ) {
     // Monitoring Histograms
     if ( m_doMonitoring ) {
       CondAttrListCollection::name_const_iterator chanNameMapItr;
-      m_nEvts++;
-      
+      m_nBAEvts++;
+
+      const CondAttrListCollection* clc = getCollection(m_Barrel_HV_COOLFolderName);      
       // Set up Monitoring Histograms if not done (first event)
       if (!m_h_Barrel_HVvalAvg) {
-	m_h_Barrel_nRED = new TH1D("Barrel_nRED","Barrel - nRED",m_Barrel_HV_COOLCont->name_size(),1,m_Barrel_HV_COOLCont->name_size());
-	m_h_Barrel_nNOINFO = new TH1D("Barrel_nNOINFO","Barrel - nNOINFO",m_Barrel_HV_COOLCont->name_size(),1,m_Barrel_HV_COOLCont->name_size());
-	m_h_Barrel_HVvalAvg = new TH1D("Barrel_HVvalAvg","Barrel - HVvalAvg",m_Barrel_HV_COOLCont->name_size(),1,m_Barrel_HV_COOLCont->name_size());
-	for ( chanNameMapItr = m_Barrel_HV_COOLCont->name_begin();
-	      chanNameMapItr != m_Barrel_HV_COOLCont->name_end(); ++chanNameMapItr ) {
+	m_h_Barrel_nRED = new TH1D("Barrel_nRED","Barrel - nRED",clc->name_size(),1,clc->name_size());
+	m_h_Barrel_nNOINFO = new TH1D("Barrel_nNOINFO","Barrel - nNOINFO",clc->name_size(),1,clc->name_size());
+	m_h_Barrel_HVvalAvg = new TH1D("Barrel_HVvalAvg","Barrel - HVvalAvg",clc->name_size(),1,clc->name_size());
+	for ( chanNameMapItr = clc->name_begin();
+	      chanNameMapItr != clc->name_end(); ++chanNameMapItr ) {
 	  std::string chanName( (*chanNameMapItr).second );
 	  int chanNum( (*chanNameMapItr).first );
 	  m_h_Barrel_nRED->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
@@ -432,40 +461,12 @@ void TRT_DCS_ConditionsSvc::handle( const Incident& inc ) {
 	  m_h_Barrel_HVvalAvg->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
 	}
       }
-
-      if (!m_h_EndcapA_HVvalAvg) {
-	m_h_EndcapA_nRED = new TH1D("EndcapA_nRED","EndcapA - nRED",m_EndcapA_HV_COOLCont->name_size(),1,m_EndcapA_HV_COOLCont->name_size());
-	m_h_EndcapA_nNOINFO = new TH1D("EndcapA_nNOINFO","EndcapA - nNOINFO",m_EndcapA_HV_COOLCont->name_size(),1,m_EndcapA_HV_COOLCont->name_size());
-	m_h_EndcapA_HVvalAvg = new TH1D("EndcapA_HVvalAvg","EndcapA - HVvalAvg",m_EndcapA_HV_COOLCont->name_size(),1,m_EndcapA_HV_COOLCont->name_size());
-	for ( chanNameMapItr = m_EndcapA_HV_COOLCont->name_begin();
-	      chanNameMapItr != m_EndcapA_HV_COOLCont->name_end(); ++chanNameMapItr ) {
-	  std::string chanName( (*chanNameMapItr).second );
-	  int chanNum( (*chanNameMapItr).first );
-	  m_h_EndcapA_nRED->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
-	  m_h_EndcapA_nNOINFO->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
-	  m_h_EndcapA_HVvalAvg->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
-	}
-      }
-
-      if (!m_h_EndcapC_HVvalAvg) {
-	m_h_EndcapC_nRED = new TH1D("EndcapC_nRED","EndcapC - nRED",m_EndcapC_HV_COOLCont->name_size(),1,m_EndcapC_HV_COOLCont->name_size());
-	m_h_EndcapC_nNOINFO = new TH1D("EndcapC_nNOINFO","EndcapC - nNOINFO",m_EndcapC_HV_COOLCont->name_size(),1,m_EndcapC_HV_COOLCont->name_size());
-	m_h_EndcapC_HVvalAvg = new TH1D("EndcapC_HVvalAvg","EndcapC - HVvalAvg",m_EndcapC_HV_COOLCont->name_size(),1,m_EndcapC_HV_COOLCont->name_size());
-	for ( chanNameMapItr = m_EndcapC_HV_COOLCont->name_begin();
-	      chanNameMapItr != m_EndcapC_HV_COOLCont->name_end(); ++chanNameMapItr ) {
-	  std::string chanName( (*chanNameMapItr).second );
-	  int chanNum( (*chanNameMapItr).first );
-	  m_h_EndcapC_nRED->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
-	  m_h_EndcapC_nNOINFO->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
-	  m_h_EndcapC_HVvalAvg->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
-	}
-      }
+      return;
 
       // Fill Monitoring Histograms
 
-      // Barrel
-      for ( chanNameMapItr = m_Barrel_HV_COOLCont->name_begin();
-	    chanNameMapItr != m_Barrel_HV_COOLCont->name_end(); ++chanNameMapItr ) {
+      for ( chanNameMapItr = clc->name_begin();
+	    chanNameMapItr != clc->name_end(); ++chanNameMapItr ) {
 	std::string chanName( (*chanNameMapItr).second );
 	int chanNum( (*chanNameMapItr).first );
 	InDet::TRT_DCS_StatusFlag theFlag;
@@ -478,9 +479,53 @@ void TRT_DCS_ConditionsSvc::handle( const Incident& inc ) {
 	if ( theFlag == InDet::TRT_DCS_NOINFO ) m_h_Barrel_nNOINFO->Fill(chanNum);
 	if (!sc.isFailure()) m_h_Barrel_HVvalAvg->Fill(chanNum,theVoltage);
       }
-      // EndcapA
-      for ( chanNameMapItr = m_EndcapA_HV_COOLCont->name_begin();
-	    chanNameMapItr != m_EndcapA_HV_COOLCont->name_end(); ++chanNameMapItr ) {
+
+    } // end of doMonitoring
+
+  return;
+}
+/// Monitor EndcapA HV
+/////
+void TRT_DCS_ConditionsSvc::monitorEndcapA(){
+
+    StatusCode sc(StatusCode::SUCCESS);
+
+    // Get the current event timestamp
+    m_currentTimestamp = 0;
+    SG::ReadHandle<xAOD::EventInfo> evtInfo(m_EventInfoKey);
+
+    if (not evtInfo.isValid()) {
+      ATH_MSG_WARNING( "Couldn't get " << m_EventInfoKey.key()
+		       << " from StoreGate." );
+      return;
+    }
+
+    m_currentTimestamp = evtInfo->timeStamp();
+    if (m_VeryVerbose) ATH_MSG_VERBOSE( "Event timestamp: " << m_currentTimestamp );
+
+    // Monitoring Histograms
+    if ( m_doMonitoring ) {
+      CondAttrListCollection::name_const_iterator chanNameMapItr;
+      m_nEAEvts++;
+
+      const CondAttrListCollection* clc = getCollection(m_EndcapA_HV_COOLFolderName);      
+      // Set up Monitoring Histograms if not done (first event)
+      if (!m_h_EndcapA_HVvalAvg) {
+	m_h_EndcapA_nRED = new TH1D("EndcapA_nRED","EA - nRED",clc->name_size(),1,clc->name_size());
+	m_h_EndcapA_nNOINFO = new TH1D("EndcapA_nNOINFO","EA - nNOINFO",clc->name_size(),1,clc->name_size());
+	m_h_EndcapA_HVvalAvg = new TH1D("EndcapA_HVvalAvg","EA - HVvalAvg",clc->name_size(),1,clc->name_size());
+	for ( chanNameMapItr = clc->name_begin();
+	      chanNameMapItr != clc->name_end(); ++chanNameMapItr ) {
+	  std::string chanName( (*chanNameMapItr).second );
+	  int chanNum( (*chanNameMapItr).first );
+	  m_h_EndcapA_nRED->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
+	  m_h_EndcapA_nNOINFO->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
+	  m_h_EndcapA_HVvalAvg->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
+	}
+      }
+
+      for ( chanNameMapItr = clc->name_begin();
+	    chanNameMapItr != clc->name_end(); ++chanNameMapItr ) {
 	std::string chanName( (*chanNameMapItr).second );
 	int chanNum( (*chanNameMapItr).first );
 	InDet::TRT_DCS_StatusFlag theFlag;
@@ -493,9 +538,51 @@ void TRT_DCS_ConditionsSvc::handle( const Incident& inc ) {
 	if ( theFlag == InDet::TRT_DCS_NOINFO ) m_h_EndcapA_nNOINFO->Fill(chanNum);
 	if (!sc.isFailure()) m_h_EndcapA_HVvalAvg->Fill(chanNum,theVoltage);
       }
-      // EndcapC
-      for ( chanNameMapItr = m_EndcapC_HV_COOLCont->name_begin();
-	    chanNameMapItr != m_EndcapC_HV_COOLCont->name_end(); ++chanNameMapItr ) {
+    }
+   return;
+}
+/// Monitor EndcapC HV
+/////
+void TRT_DCS_ConditionsSvc::monitorEndcapC(){
+
+    StatusCode sc(StatusCode::SUCCESS);
+
+    // Get the current event timestamp
+    m_currentTimestamp = 0;
+    SG::ReadHandle<xAOD::EventInfo> evtInfo(m_EventInfoKey);
+
+    if (not evtInfo.isValid()) {
+      ATH_MSG_WARNING( "Couldn't get " << m_EventInfoKey.key()
+		       << " from StoreGate." );
+      return;
+    }
+
+    m_currentTimestamp = evtInfo->timeStamp();
+    if (m_VeryVerbose) ATH_MSG_VERBOSE( "Event timestamp: " << m_currentTimestamp );
+
+    // Monitoring Histograms
+    if ( m_doMonitoring ) {
+      CondAttrListCollection::name_const_iterator chanNameMapItr;
+      m_nECEvts++;
+
+      const CondAttrListCollection* clc = getCollection(m_EndcapC_HV_COOLFolderName);      
+      // Set up Monitoring Histograms if not done (first event)
+      if (!m_h_EndcapC_HVvalAvg) {
+	m_h_EndcapC_nRED = new TH1D("EndcapC_nRED","EC - nRED",clc->name_size(),1,clc->name_size());
+	m_h_EndcapC_nNOINFO = new TH1D("EndcapC_nNOINFO","EC - nNOINFO",clc->name_size(),1,clc->name_size());
+	m_h_EndcapC_HVvalAvg = new TH1D("EndcapC_HVvalAvg","EC - HVvalAvg",clc->name_size(),1,clc->name_size());
+	for ( chanNameMapItr = clc->name_begin();
+	      chanNameMapItr != clc->name_end(); ++chanNameMapItr ) {
+	  std::string chanName( (*chanNameMapItr).second );
+	  int chanNum( (*chanNameMapItr).first );
+	  m_h_EndcapC_nRED->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
+	  m_h_EndcapC_nNOINFO->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
+	  m_h_EndcapC_HVvalAvg->GetXaxis()->SetBinLabel(chanNum,chanName.c_str());
+	}
+      }
+
+      for ( chanNameMapItr = clc->name_begin();
+	    chanNameMapItr != clc->name_end(); ++chanNameMapItr ) {
 	std::string chanName( (*chanNameMapItr).second );
 	int chanNum( (*chanNameMapItr).first );
 	InDet::TRT_DCS_StatusFlag theFlag;
@@ -508,10 +595,6 @@ void TRT_DCS_ConditionsSvc::handle( const Incident& inc ) {
 	if ( theFlag == InDet::TRT_DCS_NOINFO ) m_h_EndcapC_nNOINFO->Fill(chanNum);
 	if (!sc.isFailure()) m_h_EndcapC_HVvalAvg->Fill(chanNum,theVoltage);
       }
-
-    } // end of doMonitoring
-
-  }
-
-  return;
+    }
+   return;
 }
