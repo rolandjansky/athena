@@ -23,6 +23,9 @@ def createTriggerFlags():
     # enable HLT part of the trigger
     flags.addFlag('Trigger.doHLT', True)
 
+    # changes decoding of L1 so that allways all configured chains are enabled, testing mode
+    flags.addFlag("Trigger.L1Decoder.forceEnableAllChains", False)
+    
     # if 1, Run1 decoding version is set; if 2, Run2 
     flags.addFlag('Trigger.EDMDecodingVersion', 2)
 
@@ -78,20 +81,25 @@ def createTriggerFlags():
 
     # name of the trigger menu
     flags.addFlag('Trigger.triggerMenuSetup', 'MC_pp_v7_tight_mc_prescale')
+
+    # version of the menu
+    from AthenaCommon.AppMgr import release_metadata
+    flags.addFlag('Trigger.menuVersion',
+                  lambda prevFlags:  release_metadata()['release'] )
     
     # generate or not the L1 configuration
     flags.addFlag('Trigger.generateLVL1Config', False)
     
     # L1 XML file name 
     flags.addFlag('Trigger.LVL1ConfigFile',
-                lambda prevFlags: 'LVL1config_'+prevFlags.triggerMenuSetup()+'_' + prevFlags.menuVersion() + '.xml')
+                lambda prevFlags: 'LVL1config_'+prevFlags.get('Trigger.triggerMenuSetup')+'_' + prevFlags.get('Trigger.menuVersion') + '.xml')
 
     # generate or not the L1 topo configuration
     flags.addFlag('Trigger.generateLVL1TopoConfig', False)
     
     # L1 topo XML file name
     flags.addFlag('Trigger.LVL1TopoConfigFile',
-                lambda prevFlags: 'LVL1config_'+prevFlags.triggerMenuSetup()+'_' + prevFlags.menuVersion() + '.xml')
+                lambda prevFlags: 'LVL1config_'+prevFlags.get('Trigger.triggerMenuSetup')+'_' + prevFlags.get('Trigger.menuVersion') + '.xml')
 
 
     # trigger reconstruction 
@@ -112,10 +120,10 @@ def createTriggerFlags():
                                            
     # Particle ID tune
     flags.addFlag('Trigger.egamma.pidVersion',
-                lambda prefVlags:
+                lambda prevFlags:
                 __tunes(default='ElectronPhotonSelectorTools/trigger/rel21_mc16a/',
                         ver2016='ElectronPhotonSelectorTools/trigger/rel21_mc16a/',
-                        ver2017='ElectronPhotonSelectorTools/trigger/rel21_20170214/')( prevFlags.gte('Trigger.run2Config') )
+                        ver2017='ElectronPhotonSelectorTools/trigger/rel21_20170214/')( prevFlags.get('Trigger.run2Config') )
     )
 
     # cluster correction version, allowed value is: None or v12phiflip_noecorrnogap
