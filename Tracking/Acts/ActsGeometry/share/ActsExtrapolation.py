@@ -47,6 +47,7 @@ from ActsGeometry.ActsGeometryConfig import TrackingGeometrySvc
 trkGeomSvc = TrackingGeometrySvc()
 
 # skip material map input on CI job
+print os.environ
 if "CI" not in os.environ:
   print "Non CI mode, use MatMap"
   trkGeomSvc.UseMaterialMap = True
