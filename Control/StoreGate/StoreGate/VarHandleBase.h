@@ -35,8 +35,11 @@
 #include "SGTools/StlVectorClids.h"
 #include "SGTools/StlMapClids.h"
 
+namespace SGTest {
+  class TestStore;
+}
 namespace Athena_test {
-  void varHandleTest(void);
+  void varHandleTest(SGTest::TestStore&);
   void resetableTest(void);
   void refCountTest(void);
 }
@@ -85,7 +88,7 @@ namespace SG {
   class VarHandleBase : public IResetable
   {
     // For testing.
-    friend void Athena_test::varHandleTest(void);
+    friend void Athena_test::varHandleTest(SGTest::TestStore&);
     friend void Athena_test::resetableTest(void);
     friend void Athena_test::refCountTest(void);
     friend std::ostream& operator<<( std::ostream&, const VarHandleBase&);

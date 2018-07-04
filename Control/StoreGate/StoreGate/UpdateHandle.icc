@@ -217,7 +217,7 @@ UpdateHandle<T>::ptr()
 template <class T>
 inline
 typename UpdateHandle<T>::pointer_type
-UpdateHandle<T>::cachedPtr() const
+UpdateHandle<T>::cachedPtr()
 {
   return reinterpret_cast<pointer_type>(this->m_ptr);
 }
