@@ -117,6 +117,7 @@ namespace top{
     m_KLFitterLH("SetMe"),
     m_KLFitterTopMassFixed(true),
     m_KLFitterSaveAllPermutations(false),
+    m_KLFitterFailOnLessThanXJets(false),
 
     // PseudoTop
     m_doPseudoTop(false),
@@ -1028,6 +1029,10 @@ namespace top{
         m_KLFitterSaveAllPermutations = true;
     if (settings->value( "KLFitterSaveAllPermutations" ) == "False")
         m_KLFitterSaveAllPermutations = false;
+    if (settings->value( "KLFitterFailOnLessThanXJets" ) == "True")
+        m_KLFitterFailOnLessThanXJets = true;
+    if (settings->value( "KLFitterFailOnLessThanXJets" ) == "False")
+        m_KLFitterFailOnLessThanXJets = false;
 
     //--- Check for configuration on the global lepton triggers ---//
     if (settings->value( "UseGlobalLeptonTriggerSF" ) == "True"){

@@ -628,6 +628,8 @@ private:
 
     //KLFitter
     short m_klfitter_selected;
+    /// Selection
+    std::vector<std::string> m_klfitter_selection;
     /// Error flags
     std::vector<short> m_klfitter_minuitDidNotConverge;
     std::vector<short> m_klfitter_fitAbortedDueToNaN;
@@ -638,6 +640,7 @@ private:
     std::vector<unsigned int> m_klfitter_bestPermutation;
     std::vector<float> m_klfitter_logLikelihood;
     std::vector<float> m_klfitter_eventProbability;
+    std::vector<unsigned int> m_klfitter_parameters_size;
     std::vector<std::vector<double>> m_klfitter_parameters;
     std::vector<std::vector<double>> m_klfitter_parameterErrors;
 
@@ -1180,6 +1183,8 @@ protected:
 
   ///KLFitter
   const short& klfitter_selected() const { return m_klfitter_selected;}
+  /// Selection
+  const std::vector<std::string> klfitter_selection() const { return m_klfitter_selection;}
   /// Error flags
   const std::vector<short>& klfitter_minuitDidNotConverge() const { return m_klfitter_minuitDidNotConverge;}
   const std::vector<short>& klfitter_fitAbortedDueToNaN() const { return m_klfitter_fitAbortedDueToNaN;}
@@ -1189,6 +1194,7 @@ protected:
   const std::vector<unsigned int>& klfitter_bestPermutation() const { return m_klfitter_bestPermutation;}
   const std::vector<float>& klfitter_logLikelihood() const { return m_klfitter_logLikelihood;}
   const std::vector<float>& klfitter_eventProbability() const { return m_klfitter_eventProbability;}
+  const std::vector<unsigned int>& klfitter_parameters_size() const { return m_klfitter_parameters_size;}
   const std::vector<std::vector<double>>& klfitter_parameters() const { return m_klfitter_parameters;}
   const std::vector<std::vector<double>>& klfitter_parameterErrors() const { return m_klfitter_parameterErrors;}
   /// Model
