@@ -28,6 +28,12 @@ namespace CP {
   /// https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TrackingCPRecsEarly2018#Track_to_Vertex_Association_Tool
   class TrackVertexAssociationTool : virtual public asg::AsgTool, virtual public ITrackVertexAssociationTool
   {
+    // MatchCode for the matching
+    enum MatchStatus{
+      UsedInFit=1, // Track used in the vertex fitting process and doUsedInFit = true
+      Matched=2,   // Track matched to the vertex by IP cuts alone
+      UnMatch=0};  // Track not matched to the vertex
+
     ASG_TOOL_CLASS(TrackVertexAssociationTool, ITrackVertexAssociationTool)
     public:
       TrackVertexAssociationTool(std::string name);
@@ -54,21 +60,36 @@ namespace CP {
                    float &dzSinTheta) const;
 
       template <typename T, typename U>
-      xAOD::TrackVertexAssociationMap getMatchMapImpl(T &trk_list,
+      xAOD::TrackVertexAssociationMap getMatchMapInternal(T &trk_list,
                                                       U &vx_list) const;
 
       template <typename T, typename U>
-      xAOD::TrackVertexAssociationMap getUniqueMatchMapImpl(T &trk_list,
+      xAOD::TrackVertexAssociationMap getUniqueMatchMapInternal(T &trk_list,
                                                             U &vx_list) const;
 
       template <typename T>
-      const xAOD::Vertex *getUniqueMatchVertexImpl(const xAOD::TrackParticle &trk,
+      const xAOD::Vertex *getUniqueMatchVertexInternal(const xAOD::TrackParticle &trk,
                                                    T &vx_list) const;
 
-      /// Cut on dz*sin theta
-      float m_dzSinTheta_cut;
-      /// Cut on d0 significance
+      // Working Point to operate on
+      std::string m_wp;
+
+      // Cut on d0
+      float m_d0_cut;
+      // flag to cut on d0sig instead of d0
+      bool m_use_d0sig;
+      // Cut on d0 significance
       float m_d0sig_cut;
+
+      // Cut on dz*sin theta
+      float m_dzSinTheta_cut;
+
+      // Control whether to allow for a MatchStatus of UsedInFit
+      bool m_doUsedInFit;
+
+      // Control whether a vertex must be VxType::PriVtx in order for a track (not UsedInFit) to be uniquely matched to it
+      bool m_requirePriVtx;
+
   };
 
 } // namespace CP

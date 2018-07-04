@@ -16,11 +16,23 @@ using namespace std;
 
 namespace CP {
 
-TrackVertexAssociationTool::TrackVertexAssociationTool(std::string name)
-    : AsgTool(name)
+TrackVertexAssociationTool::TrackVertexAssociationTool(std::string name) :
+  AsgTool(name),
+  m_wp(""),
+  m_d0_cut(-1),
+  m_use_d0sig(false),
+  m_d0sig_cut(-1),
+  m_dzSinTheta_cut(-1),
+  m_doUsedInFit(false),
+  m_requirePriVtx(false)
 {
-  declareProperty("d0sig_cut", m_d0sig_cut = -1);
-  declareProperty("dzSinTheta_cut", m_dzSinTheta_cut = -1);
+  declareProperty("WorkingPoint", m_wp);
+  declareProperty("d0_cut", m_d0_cut);
+  declareProperty("use_d0sig", m_use_d0sig);
+  declareProperty("d0sig_cut", m_d0sig_cut);
+  declareProperty("dzSinTheta_cut", m_dzSinTheta_cut);
+  declareProperty("doUsedInFit", m_doUsedInFit);
+  declareProperty("requirePriVtx", m_requirePriVtx);
 }
 
 StatusCode TrackVertexAssociationTool::initialize()
@@ -48,21 +60,21 @@ xAOD::TrackVertexAssociationMap TrackVertexAssociationTool::getMatchMap(
     std::vector<const xAOD::TrackParticle *> &trk_list,
     std::vector<const xAOD::Vertex *> &vx_list) const
 {
-  return getMatchMapImpl(trk_list, vx_list);
+  return getMatchMapInternal(trk_list, vx_list);
 }
 
 xAOD::TrackVertexAssociationMap TrackVertexAssociationTool::getMatchMap(
     const xAOD::TrackParticleContainer &trkCont,
     const xAOD::VertexContainer &vxCont) const
 {
-  return getMatchMapImpl(trkCont, vxCont);
+  return getMatchMapInternal(trkCont, vxCont);
 }
 
 const xAOD::Vertex *TrackVertexAssociationTool::getUniqueMatchVertex(
     const xAOD::TrackParticle &trk,
     std::vector<const xAOD::Vertex *> &vx_list) const
 {
-  return getUniqueMatchVertexImpl(trk, vx_list);
+  return getUniqueMatchVertexInternal(trk, vx_list);
 }
 
 ElementLink<xAOD::VertexContainer>
@@ -71,7 +83,7 @@ TrackVertexAssociationTool::getUniqueMatchVertexLink(
 {
   ElementLink<xAOD::VertexContainer> vx_link_tmp;
 
-  const xAOD::Vertex *vx_tmp = getUniqueMatchVertexImpl(trk, vxCont);
+  const xAOD::Vertex *vx_tmp = getUniqueMatchVertexInternal(trk, vxCont);
   if (vx_tmp) {
     vx_link_tmp.toContainedElement(vxCont, vx_tmp);
   }
@@ -83,7 +95,7 @@ TrackVertexAssociationTool::getUniqueMatchMap(
     std::vector<const xAOD::TrackParticle *> &trk_list,
     std::vector<const xAOD::Vertex *> &vx_list) const
 {
-  return getUniqueMatchMapImpl(trk_list, vx_list);
+  return getUniqueMatchMapInternal(trk_list, vx_list);
 }
 
 xAOD::TrackVertexAssociationMap
@@ -91,7 +103,7 @@ TrackVertexAssociationTool::getUniqueMatchMap(
     const xAOD::TrackParticleContainer &trkCont,
     const xAOD::VertexContainer &vxCont) const
 {
-  return getUniqueMatchMapImpl(trkCont, vxCont);
+  return getUniqueMatchMapInternal(trkCont, vxCont);
 }
 
 // private methods
@@ -140,7 +152,7 @@ bool TrackVertexAssociationTool::isMatch(const xAOD::TrackParticle &trk,
 
 template <typename U, typename V>
 xAOD::TrackVertexAssociationMap
-TrackVertexAssociationTool::getMatchMapImpl(U &trk_list, V &vx_list) const
+TrackVertexAssociationTool::getMatchMapInternal(U &trk_list, V &vx_list) const
 {
   xAOD::TrackVertexAssociationMap trktovxmap;
 
@@ -159,7 +171,7 @@ TrackVertexAssociationTool::getMatchMapImpl(U &trk_list, V &vx_list) const
 }
 
 template <typename T>
-const xAOD::Vertex *TrackVertexAssociationTool::getUniqueMatchVertexImpl(
+const xAOD::Vertex *TrackVertexAssociationTool::getUniqueMatchVertexInternal(
     const xAOD::TrackParticle &trk, T &vx_list) const
 {
   float mini_dz = m_dzSinTheta_cut;
@@ -187,7 +199,7 @@ const xAOD::Vertex *TrackVertexAssociationTool::getUniqueMatchVertexImpl(
 
 template <typename T, typename U>
 xAOD::TrackVertexAssociationMap
-TrackVertexAssociationTool::getUniqueMatchMapImpl(T &trk_list,
+TrackVertexAssociationTool::getUniqueMatchMapInternal(T &trk_list,
                                                   U &vx_list) const
 {
   xAOD::TrackVertexAssociationMap trktovxmap;
@@ -201,7 +213,7 @@ TrackVertexAssociationTool::getUniqueMatchMapImpl(T &trk_list,
   }
 
   for (auto *track : trk_list) {
-    const xAOD::Vertex *vx_match = getUniqueMatchVertexImpl(*track, vx_list);
+    const xAOD::Vertex *vx_match = getUniqueMatchVertexInternal(*track, vx_list);
     if (vx_match) {
       // can find matched vertex
       trktovxmap[vx_match].push_back(track);
