@@ -63,8 +63,8 @@ StatusCode MC16MergeMcEventCollTool::prepareEvent(unsigned int nInputEvents)
 }
 
 StatusCode MC16MergeMcEventCollTool::processBunchXing(int /*bunchXing*/,
-                                                      PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-                                                      PileUpEventInfo::SubEvent::const_iterator eSubEvents)
+                                                      SubEventIterator bSubEvents,
+                                                      SubEventIterator eSubEvents)
 {
   //If the job has to deal with MinBias events, making sure that the collections exist in StoreGate for every event (otherwise the out-streaming will complain)
   if (m_expectLowPtMinBiasBackgroundCollection) {
@@ -75,11 +75,11 @@ StatusCode MC16MergeMcEventCollTool::processBunchXing(int /*bunchXing*/,
     ATH_MSG_VERBOSE( this->name()<<"::processBunchXing: creating high-pT MinBias collection to be used in this or following events" );
     ATH_CHECK( prepareOutputMcEventCollections( PileUpTimeEventIndex::HighPtMinimumBias ) );
   }
-  PileUpEventInfo::SubEvent::const_iterator iEvt(bSubEvents);
+  SubEventIterator iEvt(bSubEvents);
   //loop over the McEventCollections (each one assumed to containing exactly one GenEvent) of the various input events
   while (iEvt != eSubEvents)
     {
-      StoreGateSvc& seStore(*iEvt->pSubEvtSG);
+      StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
       ATH_CHECK( prepareOutputMcEventCollections(iEvt->type()) );
       const McEventCollection *pMEC(nullptr);
       ATH_CHECK(seStore.retrieve(pMEC, m_truthCollKey.value()));
