@@ -23,7 +23,6 @@
 #include <string>
 #include <memory>
 #include <functional>
-#include <unordered_map>
 
 
 /**
@@ -87,25 +86,36 @@ private:
   std::vector<TFormula> m_shifts;
 
 
-  /// A dictionary of all available functions
-  std::unordered_map<std::string,
-		     std::function<float(const xAOD::Egamma*, const xAOD::CaloCluster*)> > m_funcLibrary;
-
   /// initialize the functions needed for electrons
-  StatusCode initializeElectronFuncs();
+  StatusCode initializeElectronFuncs(std::unordered_map<std::string,
+				     std::function<float(const xAOD::Egamma*, 
+							 const xAOD::CaloCluster*)> >& funcLibrary) const;
   /// initialize the functions needed for unconverted photons
-  StatusCode initializeUnconvertedPhotonFuncs();
+  StatusCode initializeUnconvertedPhotonFuncs(std::unordered_map<std::string,
+					      std::function<float(const xAOD::Egamma*, 
+								  const xAOD::CaloCluster*)> >& funcLibrary) const;
   /// initialize the functions needed for converted photons
-  StatusCode initializeConvertedPhotonFuncs();
+  StatusCode initializeConvertedPhotonFuncs(std::unordered_map<std::string,
+					    std::function<float(const xAOD::Egamma*, 
+								const xAOD::CaloCluster*)> >& funcLibrary) const;
 
   /// a function called by the above functions to setup the cluster funcs
-  StatusCode initializeClusterFuncs(const std::string& prefix);
+  StatusCode initializeClusterFuncs(std::unordered_map<std::string,
+				    std::function<float(const xAOD::Egamma*, 
+							const xAOD::CaloCluster*)> >& funcLibrary,
+				    const std::string& prefix) const;
 
   /// a function called by the above functions to setup the egamma funcs
-  StatusCode initializeEgammaFuncs(const std::string& prefix);
+  StatusCode initializeEgammaFuncs(std::unordered_map<std::string,
+				   std::function<float(const xAOD::Egamma*, 
+						       const xAOD::CaloCluster*)> >& funcLibrary,
+				   const std::string& prefix) const;
 
   /// a function called by initialize to setup the BDT, funcs, and shifts.
-  StatusCode setupBDT(std::string fileName);
+  StatusCode setupBDT(const std::unordered_map<std::string,
+		      std::function<float(const xAOD::Egamma*, 
+					  const xAOD::CaloCluster*)> >& funcLibrary,
+		      std::string fileName);
 
   /// a utility to get a TString out of an TObjString pointer
   const TString& getString(TObject* obj) const;
