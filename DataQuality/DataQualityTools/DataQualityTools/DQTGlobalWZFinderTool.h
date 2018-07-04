@@ -21,9 +21,17 @@
 #include "DataQualityTools/DataQualityFatherMonTool.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
+#include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
+#include "xAODEventInfo/EventInfo.h"
+
+#include <xAODEgamma/ElectronContainer.h>
+#include <xAODEgamma/ElectronAuxContainer.h>
+#include <xAODEgamma/EgammaContainer.h>
+#include <xAODEgamma/PhotonContainer.h>
 
 #include "TMath.h"
 #include <string>
+#include "xAODCore/ShallowCopy.h"
 
 class TProfile;
 class TH1F_LW;
@@ -36,6 +44,7 @@ namespace CP {
 
 namespace Trig {
   class ITrigMuonMatching;
+  class ITrigEgammaMatchingTool;
 }
 
 class DQTGlobalWZFinderTool: public DataQualityFatherMonTool
@@ -61,6 +70,9 @@ private:
   void doMuonTriggerTP(const xAOD::Muon* , const xAOD::Muon*);
   void doMuonTruthEff(std::vector<const xAOD::Muon*>&);
   void doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmuonsZ, const xAOD::Vertex* pVtx);
+  void doEleTriggerTP(const xAOD::Electron*,const xAOD::Electron*);
+  void doEleTP(const xAOD::Electron*, const xAOD::Electron*, const xAOD::Vertex*, const xAOD::EventInfo*, bool);
+  bool goodElectrons(const xAOD::EventInfo*, const xAOD::Electron*, const xAOD::Vertex*, bool);
 
       TH1F_LW *m_W_mt_ele;
       TH1F_LW *m_W_mt_mu;
@@ -100,16 +112,53 @@ private:
       TH1F *m_ZBosonCounter_El;
       TH1F *m_ZBosonCounter_Mu;
 
-      //Trigger T&P
+      //Muon T&P
       TH1F_LW *m_mutrigtp_matches;
-
-      //Reco T&P
       TH1F_LW *m_muloosetp_match_os;
       TH1F_LW *m_muloosetp_match_ss;
       TH1F_LW *m_muloosetp_nomatch_os;
       TH1F_LW *m_muloosetp_nomatch_ss;
-      // MC truth
       TH1F_LW *m_mcmatch;
+      //Electron T&P
+      TH1F_LW *m_eltrigtp_matches;
+      TH1F_LW *m_ele_tight_bad_os;
+      TH1F_LW *m_ele_tight_bad_ss;
+      TH1F_LW *m_ele_tight_good_os;
+      TH1F_LW *m_ele_tight_good_ss;
+
+      //Electron Iso
+      TH1F* m_ele_isolation_loose;
+      TH1F* m_ele_isolation_all;
+
+
+
+      //2D MC Histograms
+      //Resonance Counter
+      TH1F *m_mc_ZBosonCounter_Mu;
+      //Trigger T&P
+      TH2F *m_mc_mutrigtp_matches;
+      //Reco T&P
+      TH2F *m_mc_muloosetp_match_os;
+      TH2F *m_mc_muloosetp_match_ss;
+      TH2F *m_mc_muloosetp_nomatch_os;
+      TH2F *m_mc_muloosetp_nomatch_ss;
+      // MC truth
+      TH2F *m_mc_mcmatch;
+
+      //2D MC Electrons
+      TH1F *m_mc_ZBosonCounter_El;
+      TH2F *m_mc_eltrigtp_matches;
+      TH2F *m_mc_ele_tight_bad_os;
+      TH2F *m_mc_ele_tight_bad_ss;
+      TH2F *m_mc_ele_tight_good_os;
+      TH2F *m_mc_ele_tight_good_ss;
+
+
+
+
+
+
+
       
       //Second component of counter array is for trigger aware counter
       int m_JPsiCounterSBG[2];
@@ -150,7 +199,13 @@ private:
       ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationSelectionTool;
       ToolHandle<Trig::ITrigMuonMatching> m_muTrigMatchTool;
+      ToolHandle<Trig::ITrigDecisionTool> m_trigDecisionTool;
+      ToolHandle<Trig::ITrigEgammaMatchingTool> m_elTrigMatchTool;
+
       bool m_useOwnMuonSelection;
+
+      // MC check
+      bool m_isSimulation;
             
       // to guard against endless messages 
       bool m_printedErrorEleContainer;
