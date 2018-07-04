@@ -25,9 +25,23 @@ StatusCode egammaMVASvc::initialize()
 {
   ATH_MSG_DEBUG("In initialize of " << name() << "..." );
   
-  ATH_CHECK(m_mvaElectron.retrieve());
-  ATH_CHECK(m_mvaUnconvertedPhoton.retrieve());
-  ATH_CHECK(m_mvaConvertedPhoton.retrieve());
+  if (m_mvaElectron.isEnabled()) {
+    ATH_CHECK(m_mvaElectron.retrieve());
+  } else {
+    m_mvaElectron.disable();
+  }
+
+  if (m_mvaUnconvertedPhoton.isEnabled()) {
+    ATH_CHECK(m_mvaUnconvertedPhoton.retrieve());
+  } else {
+    m_mvaUnconvertedPhoton.disable();
+  }
+
+  if (m_mvaConvertedPhoton.isEnabled()) {
+    ATH_CHECK(m_mvaConvertedPhoton.retrieve());
+  } else {
+    m_mvaConvertedPhoton.disable();
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -49,11 +63,26 @@ StatusCode egammaMVASvc::execute(xAOD::CaloCluster* cluster,
   float mvaE = 0.0;
 
   if (xAOD::EgammaHelpers::isElectron(eg)) {
-    mvaE = m_mvaElectron->getEnergy(eg, cluster);
+    if (m_mvaElectron.isEnabled()) {
+      mvaE = m_mvaElectron->getEnergy(eg, cluster);
+    } else {
+      ATH_MSG_FATAL("Trying to calibrate an electron, but disabled");
+      return StatusCode::FAILURE;
+    }
   } else if (xAOD::EgammaHelpers::isConvertedPhoton(eg)) {
-    mvaE = m_mvaConvertedPhoton->getEnergy(eg, cluster);
+    if (m_mvaConvertedPhoton.isEnabled()) {
+      mvaE = m_mvaConvertedPhoton->getEnergy(eg, cluster);
+    } else {
+      ATH_MSG_FATAL("Trying to calibrate a converted photon, but disabled");
+      return StatusCode::FAILURE;
+    }
   } else if (xAOD::EgammaHelpers::isPhoton(eg)) {
-    mvaE = m_mvaUnconvertedPhoton->getEnergy(eg, cluster);
+    if (m_mvaUnconvertedPhoton.isEnabled()) {
+      mvaE = m_mvaUnconvertedPhoton->getEnergy(eg, cluster);
+    } else {
+      ATH_MSG_FATAL("Trying to calibrate an unconverted photon, but disabled");
+      return StatusCode::FAILURE;
+    }
   } else {
     ATH_MSG_FATAL("Egamma object is of unsupported type");
     return StatusCode::FAILURE;
@@ -81,13 +110,28 @@ StatusCode egammaMVASvc::execute(xAOD::CaloCluster* cluster,
   float mvaE = 0.0;
   switch (egType) {
   case xAOD::EgammaParameters::electron:
-    mvaE = m_mvaElectron->getEnergy(nullptr, cluster);
+    if (m_mvaElectron.isEnabled()) {
+      mvaE = m_mvaElectron->getEnergy(nullptr, cluster);
+    } else {
+      ATH_MSG_FATAL("Trying to calibrate an electron, but disabled");
+      return StatusCode::FAILURE;
+    }
     break;
   case xAOD::EgammaParameters::convertedPhoton:
-    mvaE = m_mvaConvertedPhoton->getEnergy(nullptr, cluster);
+    if (m_mvaConvertedPhoton.isEnabled()) {
+      mvaE = m_mvaConvertedPhoton->getEnergy(nullptr, cluster);
+    } else {
+      ATH_MSG_FATAL("Trying to calibrate a converted photon, but disabled");
+      return StatusCode::FAILURE;
+    }
     break;
   case xAOD::EgammaParameters::unconvertedPhoton:
-    mvaE = m_mvaUnconvertedPhoton->getEnergy(nullptr, cluster);
+    if (m_mvaUnconvertedPhoton.isEnabled()) {
+      mvaE = m_mvaUnconvertedPhoton->getEnergy(nullptr, cluster);
+    } else {
+      ATH_MSG_FATAL("Trying to calibrate an unconverted photon, but disabled");
+      return StatusCode::FAILURE;
+    }
     break;
   default:
     ATH_MSG_FATAL("Egamma object is of unsupported type");
