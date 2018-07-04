@@ -54,14 +54,14 @@ StatusCode SimpleMergeMcEventCollTool::prepareEvent(unsigned int nInputEvents)
 }
 
 StatusCode SimpleMergeMcEventCollTool::processBunchXing(int /*bunchXing*/,
-                                                        PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-                                                        PileUpEventInfo::SubEvent::const_iterator eSubEvents)
+                                                        SubEventIterator bSubEvents,
+                                                        SubEventIterator eSubEvents)
 {
-  PileUpEventInfo::SubEvent::const_iterator iEvt(bSubEvents);
+  SubEventIterator iEvt(bSubEvents);
   //loop over the McEventCollections (each one assumed to containing exactly one GenEvent) of the various input events
   while (iEvt != eSubEvents)
     {
-      StoreGateSvc& seStore(*iEvt->pSubEvtSG);
+      StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
       const McEventCollection *pMEC(nullptr);
       ATH_CHECK(seStore.retrieve(pMEC, m_truthCollKey.value()));
       ATH_MSG_DEBUG ("processBunchXing: SubEvt McEventCollection from StoreGate " << seStore.name() );
