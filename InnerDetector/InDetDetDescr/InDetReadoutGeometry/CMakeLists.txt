@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/GeoModel/GeoModelKernel
+                          DetectorDescription/GeoModel/GeoModelUtilities
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
                           GaudiKernel
@@ -38,6 +39,6 @@ atlas_add_library( InDetReadoutGeometry
                    PUBLIC_HEADERS InDetReadoutGeometry
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel SGTools AtlasDetDescr GeoModelKernel GeoPrimitives Identifier GaudiKernel InDetCondServices InDetIdentifier TrkDetElementBase TrkSurfaces TrkEventPrimitives StoreGateLib SGtests AthenaBaseComps
-                   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities DetDescrConditions IdDictDetDescr TRT_ConditionsData )
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel SGTools AtlasDetDescr GeoModelKernel GeoModelUtilities GeoPrimitives Identifier GaudiKernel InDetCondServices InDetIdentifier TrkDetElementBase TrkSurfaces TrkEventPrimitives StoreGateLib SGtests AthenaBaseComps DetDescrConditions
+                   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities IdDictDetDescr TRT_ConditionsData )
 

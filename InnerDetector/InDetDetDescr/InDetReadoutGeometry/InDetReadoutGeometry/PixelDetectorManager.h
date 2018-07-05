@@ -27,6 +27,8 @@ class IdentifierHash;
 class GeoAlignableTransform;
 class GeoVFullPhysVol;
 class GeoVPhysVol;
+class GeoVAlignmentStore;
+class CondAttrListCollection;
 
 namespace InDetDD {
 
@@ -74,7 +76,18 @@ namespace InDetDD {
                                              int layer_wheel,
                                              int phi_module, 
     					                     int eta_module) const;
-    
+
+      /** access to individual elements using Identifier using SiDetectorElementCollection */
+      virtual const SiDetectorElement* getDetectorElement(const Identifier &id, const SiDetectorElementCollection* coll) const;
+      /** access to individual elements using IdentiferHash using SiDetectorElementCollection */
+      virtual const SiDetectorElement* getDetectorElement(const IdentifierHash &idHash, const SiDetectorElementCollection* coll) const;
+      /** access to individual elements : via element identification using SiDetectorElementCollection */
+      const SiDetectorElement* getDetectorElement(int barrel_endcap,
+                                                  int layer_wheel,
+                                                  int phi_module,
+                                                  int eta_module,
+                                                  const SiDetectorElementCollection* coll) const;
+
       /** access to whole collection via Iterators */
       virtual const SiDetectorElementCollection * getDetectorElementCollection() const;
       virtual SiDetectorElementCollection::const_iterator getDetectorElementBegin() const;
@@ -128,7 +141,9 @@ namespace InDetDD {
       bool processSpecialAlignment(const std::string &, InDetDD::AlignFolderType) const;
 
       /** Process new global DB folders for L1 and L2 **/
-      bool processGlobalAlignment(const std::string &, int level, FrameType frame) const;
+      bool processGlobalAlignment(const std::string &, int level, FrameType frame,
+                                  const CondAttrListCollection* obj,
+                                  GeoVAlignmentStore* alignStore) const;
     
      private:  
     
@@ -136,9 +151,10 @@ namespace InDetDD {
           it translates into the LocalDelta or GlobalDelta function of SiDetectorManager
       */
       virtual bool setAlignableTransformDelta(int level, 
-    					                      const Identifier & id, 
-    					                      const Amg::Transform3D & delta,
-    					                      FrameType frame) const;
+                                              const Identifier & id, 
+                                              const Amg::Transform3D & delta,
+                                              FrameType frame,
+                                              GeoVAlignmentStore* alignStore) const;
       
     
       /** prevent copy and assignment */
