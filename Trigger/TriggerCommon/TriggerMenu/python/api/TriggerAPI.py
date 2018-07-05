@@ -10,7 +10,7 @@ from PathResolver import PathResolver
 from AthenaCommon.Logging import logging
 
 class TriggerAPI:
-    centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20180412.pickle")
+    centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20180703.pickle")
     if centralPickleFile: centralPickleFile = os.path.realpath(centralPickleFile)
     privatePickleFile = "TriggerInfo.pickle"
     dbQueries = None
@@ -122,6 +122,34 @@ class TriggerAPI:
         return list(lowset)
         
     @classmethod
+    def getInactive(cls, period, triggerType=TriggerType.ALL, additionalTriggerType=TriggerType.UNDEFINED, matchPattern="", livefraction=1e-99, reparse=False):
+        ''' Returns a list of HLT chains that were fully inactive, excluding disabled chains in rerun.
+            period: see TriggerEnums.TriggerPeriod for all possibilities, recommeded TriggerPeriod.y2017
+            triggerType: see TriggerEnums.TriggerType for all possibilities, example TriggerType.el_single
+            additionalTriggerType: can request additional types to match, use TriggerType.ALL to show combined triggers of any kind
+                                   accepts also a list as input in that case all types have to match
+            matchPattern: provide additionally a regex-like expression to be applied
+            livefraction: accept items that are not unprescaled but have a live fraction above this threshold, example 0.95
+                          The live fraction is only an approximation, weighting the number of lumiblocks by prescale.
+        '''
+        cls._loadTriggerPeriod(period,reparse)
+        return cls.dbQueries[(period,cls.customGRL)]._getInactive(triggerType, additionalTriggerType, matchPattern, livefraction)
+    
+    @classmethod
+    def getActive(cls, period, triggerType=TriggerType.ALL, additionalTriggerType=TriggerType.UNDEFINED, matchPattern="", livefraction=1e-99, reparse=False):
+        ''' Returns a list of HLT chains that were active at some point, including disabled chains in rerun.
+            period: see TriggerEnums.TriggerPeriod for all possibilities, recommeded TriggerPeriod.y2017
+            triggerType: see TriggerEnums.TriggerType for all possibilities, example TriggerType.el_single
+            additionalTriggerType: can request additional types to match, use TriggerType.ALL to show combined triggers of any kind
+                                   accepts also a list as input in that case all types have to match
+            matchPattern: provide additionally a regex-like expression to be applied
+            livefraction: accept items that are not unprescaled but have a live fraction above this threshold, example 0.95
+                          The live fraction is only an approximation, weighting the number of lumiblocks by prescale.
+        '''
+        cls._loadTriggerPeriod(period,reparse)
+        return cls.dbQueries[(period,cls.customGRL)]._getActive(triggerType, additionalTriggerType, matchPattern, livefraction)
+    
+    @classmethod
     def getAllHLT(cls, period, triggerType=TriggerType.ALL, additionalTriggerType=TriggerType.UNDEFINED, matchPattern="", reparse=False):
         ''' Returns a map of {HLT chains: average live fraction} for a given period.
             The average live fraction is an approximation weighting the number of lumiblocks by prescale.
@@ -153,10 +181,10 @@ class TriggerAPI:
     def _loadTriggerPeriod(cls, period, reparse):
         cls.init()
         if (period,cls.customGRL) not in cls.dbQueries:
-            if period >= TriggerPeriod.runNumber or (isinstance(period,TriggerPeriod) and period.isBasePeriod()):
+            if TriggerPeriod.isRunNumber(period) or (isinstance(period,TriggerPeriod) and period.isBasePeriod()):
                 cls.dbQueries[(period,cls.customGRL)] = TriggerInfo(period,cls.customGRL)
                 cls.privatedbQueries[(period,cls.customGRL)] = cls.dbQueries[(period,cls.customGRL)]
-                if not period & TriggerPeriod.future or period >= TriggerPeriod.runNumber: 
+                if not period & TriggerPeriod.future or TriggerPeriod.isRunNumber(period): 
                     #Don't pickle TM information since it can change, very cheap to retrieve anyway
                     with open(cls.privatePickleFile, 'w') as f:
                         pickle.dump( cls.privatedbQueries , f)
@@ -168,13 +196,34 @@ class TriggerAPI:
                 cls.privatedbQueries[(period,cls.customGRL)] = cls.dbQueries[(period,cls.customGRL)]
         if reparse: cls.dbQueries[(period,cls.customGRL)].reparse()
 
-def main():
-    ''' Run some tests '''
-    for triggerType in TriggerType:
-        unprescaled = TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017,triggerType)
-        print triggerType
+    @classmethod
+    def dumpFullPickle(cls):
+        with open(cls.privatePickleFile, 'w') as f:
+            pickle.dump( cls.dbQueries , f)
+        print sorted(cls.dbQueries.keys())
+
+def main(dumpFullPickle=False):
+    ''' Run some tests or dump the full pickle for CalibPath '''
+
+    if dumpFullPickle:
+        for triggerPeriod in TriggerPeriod:
+            unprescaled = TriggerAPI.getLowestUnprescaled(triggerPeriod,TriggerType.mu_single)
+            print triggerPeriod
+            print sorted(unprescaled)
+        #Cache also one run for the example script
+        unprescaled = TriggerAPI.getLowestUnprescaled(337833,TriggerType.mu_single)
+        print 337833
         print sorted(unprescaled)
+        TriggerAPI.dumpFullPickle()
+    else:
+        try: period = int(sys.argv[1])
+        except: period = TriggerPeriod.y2017
+        for triggerType in TriggerType:
+            unprescaled = TriggerAPI.getLowestUnprescaled(period,triggerType)
+            print triggerType
+            print sorted(unprescaled)
 
 if __name__ == "__main__":
-        sys.exit(main())
+        dumpFullPickle = ("dumpFullPickle" in sys.argv)
+        sys.exit(main(dumpFullPickle))
 

@@ -36,34 +36,39 @@ class TriggerType(IntEnum):
 
 class TriggerPeriod(IntEnum):
     y2015             = 1 << 0
-    y2016periodAD3    = 1 << 1
-    y2016periodD4plus = 1 << 2
-    y2017periodB1     = 1 << 3
-    y2017periodB2B4   = 1 << 4
-    y2017periodB5B7   = 1 << 5
-    y2017periodB8     = 1 << 6
-    y2017periodC      = 1 << 7
-    y2017periodD1D5   = 1 << 8
-    y2017periodD6     = 1 << 9
-    y2017periodE      = 1 << 10
-    y2017periodF      = 1 << 11
-    y2017periodGHI    = 1 << 12
-    y2017periodK      = 1 << 13
-    y2017periodN      = 1 << 14
+    y2016periodA      = 1 << 1
+    y2016periodBD3    = 1 << 2
+    y2016periodD4plus = 1 << 3
+    y2017periodB1     = 1 << 4
+    y2017periodB2B4   = 1 << 5
+    y2017periodB5B7   = 1 << 6
+    y2017periodB8     = 1 << 7
+    y2017periodC      = 1 << 8
+    y2017periodD1D5   = 1 << 9
+    y2017periodD6     = 1 << 10
+    y2017periodEF     = 1 << 11
+    y2017periodGHIK   = 1 << 12
+    y2017periodN      = 1 << 13
+    y2018periodBF     = 1 << 14
 
-    future1p8e34      = 1 << 16
-    future2e34        = 1 << 17
     runNumber         = 1 << 18 #Can't get higher than this, enters the run number domain
+    future1p8e34      = 1 << 19 
+    future2e34        = 1 << 20
 
     y2017periodB      = y2017periodB1   | y2017periodB2B4 | y2017periodB5B7 | y2017periodB8
     y2017periodD      = y2017periodD1D5 | y2017periodD6
-    y2017periodAll    = y2017periodB    | y2017periodC    | y2017periodD    | y2017periodE | y2017periodF | y2017periodGHI | y2017periodK | y2017periodN
+    y2017periodAll    = y2017periodB    | y2017periodC    | y2017periodD    | y2017periodEF | y2017periodGHIK | y2017periodN
+    y2018             = y2018periodBF
     y2017             = y2017periodAll
-    y2016             = y2016periodAD3  | y2016periodD4plus
+    y2016             = y2016periodA    | y2016periodBD3  | y2016periodD4plus
     future            = future1p8e34    | future2e34
 
     def isBasePeriod(self):
-        return self >= TriggerPeriod.runNumber or all([self & x == 0 or self & x == self for x in TriggerPeriod])
+        return TriggerPeriod.isRunNumber(self) or all([self & x == 0 or self & x == self for x in TriggerPeriod])
+
+    @classmethod
+    def isRunNumber(cls, number):
+        return (number >= TriggerPeriod.runNumber and number < TriggerPeriod.runNumber*2)
 
     @classmethod
     def basePeriods(cls):
