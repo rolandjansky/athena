@@ -799,7 +799,6 @@ int buildUpCluster(hitVector *currentHits, cluster &clu) {
     /* Now we have a non empty cluster */
     bool newHitsAdded = false;
     int distanceis = clu.hitlist.size();
-    hitVector::iterator hitCluP; // hits in cluster
     //for (hitCluP=clu.hitlist.begin(); hitCluP!=clu.hitlist.end(); ++hitCluP) { // loop over hits in cluster
     for(int i = 0; i < distanceis; i++) {
         FTKRawHit* hit = clu.hitlist.at(i);
