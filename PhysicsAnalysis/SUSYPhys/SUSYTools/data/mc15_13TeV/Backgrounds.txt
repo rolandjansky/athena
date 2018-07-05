@@ -2171,7 +2171,7 @@
 # Pythia8 gamma+jet
 
 423099          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP8_17                    1.7234e+11            1.0             3.2053E-05         0.0                           
-423100          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP17_35                   16715000000.0         1.0             2.8776E-05         0.0                           
+423100          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP17_35                   16715000000.0         1.0             2.8772E-05         0.0                           
 423101          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP35_50                   1396500000.0          1.0             2.5207E-05         0.0                           
 423102          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP50_70                   379540000.0           1.0             2.67056938015e-05  0.0                           
 423103          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP70_140                  106210000.0           1.0             3.9397E-05         0.0                           
@@ -2444,7 +2444,7 @@
 364253          Sherpa_222_NNPDF30NNLO_lllv                                   4.5779                1.0             1.0000E+00         0.0                           
 364254          Sherpa_222_NNPDF30NNLO_llvv                                   12.491                1.0             1.0                0.0                           
 364255          Sherpa_222_NNPDF30NNLO_lvvv                                   3.2357                1.0             1.0                0.0                           
-364261          Sherpa_222_NNPDF30NNLO_lllv_3lepfilter                        1.5763                1.0             2.0409E-01         0.0                           
+364261          Sherpa_222_NNPDF30NNLO_lllv_3lepfilter                        1.576                 1.0             2.0476E-01         0.0                           
 364283          Sherpa_222_NNPDF30NNLO_lllljj_EW6                             0.010545              1.0             1.0000E+00         0.0                           
 364284          Sherpa_222_NNPDF30NNLO_lllvjj_EW6                             0.047066              1.0             1.0000E+00         0.0                           
 364285          Sherpa_222_NNPDF30NNLO_llvvjj_EW6                             0.11612               1.0             1.0000E+00         0.0                           
@@ -2821,6 +2821,8 @@
 410397          MadGraphPythia8EvtGen_ttbar_wbee_MEN30LO_A14N23LO             0.18586               1.12            1.0000E+00         0.0                           
 410398          MadGraphPythia8EvtGen_ttbar_wbmumu_MEN30LO_A14N23LO           0.18636               1.12            1.0000E+00         0.0                           
 410399          MadGraphPythia8EvtGen_ttbar_wbtautau_MEN30LO_A14N23LO         0.018747              1.12            1.0000E+00         0.0                           
+
+410408          aMcAtNloPythia8EvtGen_tWZ_Ztoll_minDR1                        0.016046              1.0             1.0000E+00         0.0                           
 
 ################################################################################################################
 # Sherpa 2.2.0 ttV

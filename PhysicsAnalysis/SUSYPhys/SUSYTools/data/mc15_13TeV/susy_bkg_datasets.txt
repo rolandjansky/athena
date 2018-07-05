@@ -2858,6 +2858,8 @@ mc15_13TeV.410397.MadGraphPythia8EvtGen_ttbar_wbee_MEN30LO_A14N23LO.evgen.EVNT.e
 mc15_13TeV.410398.MadGraphPythia8EvtGen_ttbar_wbmumu_MEN30LO_A14N23LO.evgen.EVNT.e6086
 mc15_13TeV.410399.MadGraphPythia8EvtGen_ttbar_wbtautau_MEN30LO_A14N23LO.evgen.EVNT.e6086
 
+mc15_13TeV.410408.aMcAtNloPythia8EvtGen_tWZ_Ztoll_minDR1.evgen.EVNT.e6423
+
 ################################################################################################################
 # Sherpa 2.2.0 ttV
 
