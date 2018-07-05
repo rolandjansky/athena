@@ -44,7 +44,7 @@ void AmdcDbSvcMakerFromRDB::Set(
   pIRDBAccessSvc->connect();
 
   AMDC(pIRDBAccessSvc,pAmdcDbSvc);
-  AGDD(pIRDBAccessSvc,pAmdcDbSvc);
+  // AGDD(pIRDBAccessSvc,pAmdcDbSvc);
   
   ATYP(pIRDBAccessSvc,pAmdcDbSvc);
   ACUT(pIRDBAccessSvc,pAmdcDbSvc);
