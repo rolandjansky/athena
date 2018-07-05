@@ -71,7 +71,7 @@ class TgcRoadDefiner: public AthAlgTool
   TrigL2MuonSA::TgcFit::PointArray m_tgcWireInnPoints;   // List of TGC wire inner station points.
 
   double m_rWidth_TGC_Failed;
-
+  
   ServiceHandle<IRegSelSvc> m_regionSelector;
   const MdtIdHelper* m_mdtIdHelper;
 

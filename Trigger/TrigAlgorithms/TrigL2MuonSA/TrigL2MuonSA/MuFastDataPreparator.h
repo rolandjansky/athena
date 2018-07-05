@@ -100,8 +100,9 @@ class MuFastDataPreparator: public AthAlgTool
  protected:
   
   // Services
+  //ServiceHandle<LVL1RPC::RPCRecRoiSvc> m_recRPCRoiSvc;
   ServiceHandle<LVL1RPC::RPCRecRoiSvc> m_recRPCRoiSvc {
-	this, "RPCRecRoiSvc", "LVL1RPC::RPCRecRoiSvc", "Reconstruction of RPC RoI"};
+  	this, "RPCRecRoiSvc", "LVL1RPC::RPCRecRoiSvc", "Reconstruction of RPC RoI"};
 
  private:
   

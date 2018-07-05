@@ -75,6 +75,13 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
 
    ATH_CHECK( m_storeGateSvc.retrieve() );
 
+   ATH_CHECK( m_tgcRawDataProvider.retrieve() );
+   ATH_MSG_DEBUG("Retrieved tool " << m_tgcRawDataProvider);
+
+   // Locate RegionSelector
+   ATH_CHECK( m_regionSelector.retrieve() );
+   ATH_MSG_DEBUG("Retrieved service RegionSelector");
+
    ServiceHandle<StoreGateSvc> detStore( "DetectorStore", name() );
    ATH_CHECK( detStore.retrieve() );
    ATH_MSG_DEBUG("Retrieved DetectorStore.");
@@ -85,16 +92,8 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
    ATH_CHECK( m_activeStore.retrieve() ); 
    ATH_MSG_DEBUG("Retrieved ActiveStoreSvc." );
 
-   ATH_CHECK( m_tgcRawDataProvider.retrieve() );
-   ATH_MSG_DEBUG("Retrieved tool " << m_tgcRawDataProvider.name());
-
    ATH_CHECK( m_tgcPrepDataProvider.retrieve() );
-   ATH_MSG_DEBUG("Retrieved tool " << m_tgcPrepDataProvider.name());
-
-   // Locate RegionSelector
-
-   ATH_CHECK( m_regionSelector.retrieve() );
-   ATH_MSG_DEBUG("Retrieved service RegionSelector");
+   ATH_MSG_DEBUG("Retrieved tool " << m_tgcPrepDataProvider );
 
    // Locate ROBDataProvider
    ATH_CHECK( m_robDataProvider.retrieve() );

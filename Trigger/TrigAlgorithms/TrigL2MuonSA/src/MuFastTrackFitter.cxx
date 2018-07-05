@@ -26,7 +26,6 @@ TrigL2MuonSA::MuFastTrackFitter::MuFastTrackFitter(const std::string& type,
   AthAlgTool(type,name,parent),
   m_storeGateSvc( "StoreGateSvc", name ),
   m_use_mcLUT(true),
-  //m_alignmentBarrelLUTSvc(0),
   m_use_endcapInnerFromBarrel(false),
   m_sagittaRadiusEstimate("TrigL2MuonSA::SagittaRadiusEstimate"),
   m_alphaBetaEstimate("TrigL2MuonSA::AlphaBetaEstimate"),
@@ -79,10 +78,16 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::setMCFlag(BooleanProperty use_mcLUT)
   if (m_use_mcLUT) {
     // Barrel 
     const ServiceHandle<PtBarrelLUTSvc> ptBarrelLUTSvc("PtBarrelLUTSvc_MC", name());
-    ATH_CHECK( ptBarrelLUTSvc.retrieve() );
+    if ( ptBarrelLUTSvc.retrieve().isFailure() ) {
+       ATH_MSG_ERROR("Could not find PtBarrelLUTSvc");
+       return StatusCode::FAILURE;
+    }
     // Endcap
     const ServiceHandle<PtEndcapLUTSvc> ptEndcapLUTSvc("PtEndcapLUTSvc_MC", name());
-    ATH_CHECK( ptEndcapLUTSvc.retrieve() );
+    if ( ptEndcapLUTSvc.retrieve().isFailure() ) {
+       ATH_MSG_ERROR("Could not find PtEndcaplLUTSvc");
+       return StatusCode::FAILURE;
+    }
 
     m_alphaBetaEstimate->setMCFlag(m_use_mcLUT, &*ptEndcapLUTSvc);
 
@@ -90,13 +95,19 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::setMCFlag(BooleanProperty use_mcLUT)
 
     m_ptFromAlphaBeta->setMCFlag(m_use_mcLUT, &*ptEndcapLUTSvc);
 
-  } else{ 
+  } else { 
     // Barrel
     const ServiceHandle<PtBarrelLUTSvc> ptBarrelLUTSvc("PtBarrelLUTSvc", name());
-    ATH_CHECK( ptBarrelLUTSvc.retrieve() );
+    if ( ptBarrelLUTSvc.retrieve().isFailure() ) {
+       ATH_MSG_ERROR("Could not find PtBarrelLUTSvc");
+       return StatusCode::FAILURE;
+    }
     // Endcap
     const ServiceHandle<PtEndcapLUTSvc> ptEndcapLUTSvc("PtEndcapLUTSvc", name());
-    ATH_CHECK( ptEndcapLUTSvc.retrieve() );
+    if ( ptEndcapLUTSvc.retrieve().isFailure() ) {
+       ATH_MSG_ERROR("Could not find PtEndcaplLUTSvc");
+       return StatusCode::FAILURE;
+    }
 
     m_alphaBetaEstimate->setMCFlag(m_use_mcLUT, &*ptEndcapLUTSvc);
 
@@ -105,8 +116,12 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::setMCFlag(BooleanProperty use_mcLUT)
     m_ptFromAlphaBeta->setMCFlag(m_use_mcLUT, &*ptEndcapLUTSvc);
 
   }
-  ServiceHandle<AlignmentBarrelLUTSvc> alignmentBarrelLUTSvc("AlignmentBarrelLUTSvc", name());
-  ATH_CHECK( alignmentBarrelLUTSvc.retrieve() );
+
+  const ServiceHandle<AlignmentBarrelLUTSvc> alignmentBarrelLUTSvc("AlignmentBarrelLUTSvc", name());
+  if ( alignmentBarrelLUTSvc.retrieve().isFailure() ) {
+     ATH_MSG_ERROR("Could not find AlignmentBarrelLUTSvc");
+     return StatusCode::FAILURE;
+  }
 
   // Calculation of sagitta and radius
   // sc = m_sagittaRadiusEstimate.retrieve();
@@ -144,6 +159,7 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::setMCFlag(BooleanProperty use_mcLUT)
   // }
   // ATH_MSG_DEBUG("Retrieved service " << m_ptFromAlphaBeta);
 
+  ATH_MSG_DEBUG( "Completed tp set " << (m_use_mcLUT?"MC":"not MC") << " flag" );    
 
   return StatusCode::SUCCESS;
 }

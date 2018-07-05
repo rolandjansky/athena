@@ -57,7 +57,6 @@ class RpcRoadDefiner: public AthAlgTool
 			double                       roiEtaMinHigh,
 			double                       roiEtaMaxHigh);
 
-  //void setMdtGeometry(IRegSelSvc* regionSelector, const MdtIdHelper* mdtIdHelper);
   void setMdtGeometry( const ServiceHandle<IRegSelSvc>& regionSelector, 
                        const MdtIdHelper* mdtIdHelper);
   void setRoadWidthForFailure(double rWidth_RPC_Failed);

@@ -60,7 +60,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::initialize()
    
    // BackExtrapolator services
    ATH_CHECK( m_backExtrapolator.retrieve() );
- 
+
    ATH_CHECK( m_alphaBetaEstimate.retrieve() );
    ATH_MSG_DEBUG("Retrieved service " << m_alphaBetaEstimate);
 
@@ -75,27 +75,30 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::initialize()
 StatusCode TrigL2MuonSA::MuFastStationFitter::setMCFlag(BooleanProperty use_mcLUT)
 {
   m_use_mcLUT = use_mcLUT;
-  StatusCode sc = StatusCode::SUCCESS;
 
   if (m_use_mcLUT) {
      const ServiceHandle<TrigL2MuonSA::PtEndcapLUTSvc> ptEndcapLUTSvc("PtEndcapLUTSvc_MC", name());
-     ATH_CHECK( ptEndcapLUTSvc.retrieve() );
-
+     if ( ptEndcapLUTSvc.retrieve().isFailure() ) {
+        ATH_MSG_ERROR("Could not find PtEndcaplLUTSvc");
+        return StatusCode::FAILURE;
+     }
      // Calculation of alpha and beta
      m_alphaBetaEstimate->setMCFlag(m_use_mcLUT, &*ptEndcapLUTSvc);
      // conversion: alpha, beta -> pT
      m_ptFromAlphaBeta->setMCFlag(m_use_mcLUT, &*ptEndcapLUTSvc);
-
   } else {
      const ServiceHandle<TrigL2MuonSA::PtEndcapLUTSvc> ptEndcapLUTSvc("PtEndcapLUTSvc", name());
-     ATH_CHECK( ptEndcapLUTSvc.retrieve() );
-
+     if ( ptEndcapLUTSvc.retrieve().isFailure() ) {
+        ATH_MSG_ERROR("Could not find PtEndcaplLUTSvc");
+        return StatusCode::FAILURE;
+     }
      // Calculation of alpha and beta
      m_alphaBetaEstimate->setMCFlag(m_use_mcLUT, &*ptEndcapLUTSvc);
      // conversion: alpha, beta -> pT
      m_ptFromAlphaBeta->setMCFlag(m_use_mcLUT, &*ptEndcapLUTSvc);
-
   }
+
+  ATH_MSG_DEBUG( "Completed tp set " << (m_use_mcLUT?"MC":"not MC") << " flag" );    
 
   return StatusCode::SUCCESS;
 }

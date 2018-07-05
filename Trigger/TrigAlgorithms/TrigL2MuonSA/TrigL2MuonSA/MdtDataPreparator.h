@@ -127,8 +127,9 @@ namespace TrigL2MuonSA {
     ServiceHandle<ActiveStoreSvc> m_activeStore;
     
     // Tools for the Raw data conversion
-    ToolHandle<Muon::IMuonRawDataProviderTool>  m_mdtRawDataProvider {
-	this, "MDT_RawDataProvider", "Muon::MDT_RawDataProviderTool", "MDTRawDataProviderTool"};
+    ToolHandle<Muon::IMuonRawDataProviderTool>  m_mdtRawDataProvider;
+    //ToolHandle<Muon::IMuonRawDataProviderTool>  m_mdtRawDataProvider {
+    // 	this, "MDT_RawDataProvider", "Muon::MDT_RawDataProviderTool", "MDTRawDataProviderTool"};
     
     // Cabling
     ServiceHandle<MuonMDT_CablingSvc> m_mdtCabling;
@@ -153,8 +154,9 @@ namespace TrigL2MuonSA {
     ToolHandle<MdtRegionDefiner>  m_mdtRegionDefiner;
 
     // handles to data access
-    ToolHandle<Muon::IMuonRdoToPrepDataTool> m_mdtPrepDataProvider {
-	this, "MdtPrepDataProvider", "Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool", "MdtPrepDataProviderTool"};
+    ToolHandle<Muon::IMuonRdoToPrepDataTool> m_mdtPrepDataProvider;
+    //ToolHandle<Muon::IMuonRdoToPrepDataTool> m_mdtPrepDataProvider {
+    // 	this, "MdtPrepDataProvider", "Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool", "MdtPrepDataProviderTool"};
 
     SG::ReadHandleKey<MdtCsmContainer> m_mdtCsmContainerKey{
 	this, "MDTCSMContainer", "MDTCSM", "Name of the MDTRDO to read in"};

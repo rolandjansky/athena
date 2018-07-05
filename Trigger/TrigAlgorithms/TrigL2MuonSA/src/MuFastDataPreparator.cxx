@@ -30,7 +30,6 @@ TrigL2MuonSA::MuFastDataPreparator::MuFastDataPreparator(const std::string& type
                                                          const std::string& name,
                                                          const IInterface*  parent): 
   AthAlgTool(type,name,parent),
-  m_recRPCRoiSvc("LVL1RPC::RPCRecRoiSvc",""),
   m_options(),
   m_regionSelector("RegSelSvc", name ),
   m_rpcDataPreparator("TrigL2MuonSA::RpcDataPreparator"),
@@ -132,11 +131,17 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::setMCFlag(BooleanProperty use_mcL
 
   if (m_use_mcLUT) {
     const ServiceHandle<TrigL2MuonSA::PtEndcapLUTSvc> ptEndcapLUTSvc("PtEndcapLUTSvc_MC", name()); 
-    ATH_CHECK( ptEndcapLUTSvc.retrieve() );
+    if ( ptEndcapLUTSvc.retrieve().isFailure() ) {
+      ATH_MSG_DEBUG("Could not retrieve PtEndcapLUTSvc_MC");
+      return StatusCode::FAILURE;
+    }
     m_tgcRoadDefiner->setPtLUT(&*ptEndcapLUTSvc);
   } else {
     const ServiceHandle<TrigL2MuonSA::PtEndcapLUTSvc> ptEndcapLUTSvc("PtEndcapLUTSvc", name()); 
-    ATH_CHECK( ptEndcapLUTSvc.retrieve() );
+    if ( ptEndcapLUTSvc.retrieve().isFailure() ) {
+      ATH_MSG_DEBUG("Could not retrieve PtEndcapLUTSvc");
+      return StatusCode::FAILURE;
+    }
     m_tgcRoadDefiner->setPtLUT(&*ptEndcapLUTSvc);
   }
 

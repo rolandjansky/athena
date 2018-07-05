@@ -65,37 +65,37 @@ class MuFastStationFitter: public AthAlgTool
       BooleanProperty m_use_mcLUT;
 		
       Gaudi::Property< double > m_endcapinn_mdt_chi2_limit {
-	this, "ENDCAPINN_MDT_CHI2_LIMIT", 20, ""};    
+	this, "ENDCAPINN_MDT_CHI2_LIMIT", 20., ""};    
       Gaudi::Property< double > m_endcapmid_mdt_chi2_limit {
-	this, "ENDCAPMID_MDT_CHI2_LIMIT", 20, ""};   
+	this, "ENDCAPMID_MDT_CHI2_LIMIT", 20., ""};   
       Gaudi::Property< double > m_endcapout_mdt_chi2_limit {
-	this, "ENDCAPOUT_MDT_CHI2_LIMIT", 20, ""};   
+	this, "ENDCAPOUT_MDT_CHI2_LIMIT", 20., ""};   
       Gaudi::Property< double > m_endcapee_mdt_chi2_limit {
-	this, "ENDCAPEE_MDT_CHI2_LIMIT",  20, ""};    
+	this, "ENDCAPEE_MDT_CHI2_LIMIT",  20., ""};    
 
       Gaudi::Property< double > m_rwidth_Endcapinn_first {
-	this, "RWIDTH_EndcapINN_FIRST",  150, ""};  
+	this, "RWIDTH_EndcapINN_FIRST",  150., ""};  
       Gaudi::Property< double > m_rwidth_Endcapinn_second {
-	this, "RWIDTH_EndcapINN_SECOND", 80, ""};  
+	this, "RWIDTH_EndcapINN_SECOND", 80., ""};  
       Gaudi::Property< double > m_rwidth_Endcapmid_first {
-	this, "RWIDTH_EndcapMID_FIRST", 150, ""}; 
+	this, "RWIDTH_EndcapMID_FIRST", 150., ""}; 
       Gaudi::Property< double > m_rwidth_Endcapmid_second {
-	this, "RWIDTH_EndcapMID_SECOND", 100, ""}; 
+	this, "RWIDTH_EndcapMID_SECOND", 100., ""}; 
       Gaudi::Property< double > m_rwidth_Endcapout_first {
-	this, "RWIDTH_EndcapOUT_FIRST", 120, ""}; 
+	this, "RWIDTH_EndcapOUT_FIRST", 120., ""}; 
       Gaudi::Property< double > m_rwidth_Endcapout_second {
-	this, "RWIDTH_EndcapOUT_SECOND", 60, ""}; 
+	this, "RWIDTH_EndcapOUT_SECOND", 60., ""}; 
       Gaudi::Property< double > m_rwidth_Endcapee_first {
-	this, "RWIDTH_EndcapEE_FIRST", 150, ""};   
+	this, "RWIDTH_EndcapEE_FIRST", 150., ""};   
       Gaudi::Property< double > m_rwidth_Endcapee_second {
-	this, "RWIDTH_EndcapEE_SECOND", 100, ""};  
+	this, "RWIDTH_EndcapEE_SECOND", 100., ""};  
 
       Gaudi::Property< double > m_mdt_driftspace_uplimit {
 	this, "MDT_DRFITSPACE_UPLIMIT", 14.8, ""};
       Gaudi::Property< double > m_mdt_driftspace_downlimit {
 	this, "MDT_DRFITSPACE_DOWNLIMIT", 0.1, ""};
       Gaudi::Property< double > m_mdt_drifttime_limit {
-	this, "MDT_DRFITTIME_LIMIT", 1700, ""};
+	this, "MDT_DRFITTIME_LIMIT", 1700., ""};
 
       ToolHandle<ITrigMuonBackExtrapolator> m_backExtrapolator {
 	this, "BackExtrapolator", "TrigMuonBackExtrapolator", "public tool for back extrapolating the muon tracks to the IV"};

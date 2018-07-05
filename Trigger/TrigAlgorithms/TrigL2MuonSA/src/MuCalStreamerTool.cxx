@@ -45,8 +45,6 @@ TrigL2MuonSA::MuCalStreamerTool::MuCalStreamerTool(const std::string& type,
    m_calibEvent(0),
    m_roi(NULL),
    m_tgcDataPreparator("TrigL2MuonSA::TgcDataPreparator")  
-
-
 {
    declareInterface<TrigL2MuonSA::MuCalStreamerTool>(this);
 }
