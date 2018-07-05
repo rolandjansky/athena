@@ -1,5 +1,3 @@
-# $Id: CMakeLists.txt 793296 2017-01-21 01:09:39Z sfarrell $
-
 # The name of the package:
 atlas_subdir( AssociationUtils )
 
@@ -37,9 +35,9 @@ find_package( GTest )
 
 # Libraries in the package:
 atlas_add_library( AssociationUtilsLib
-   AssociationUtils/*.h Root/*.cxx ${AssociationUtilsLibDict}
+   AssociationUtils/*.h Root/*.cxx
    PUBLIC_HEADERS AssociationUtils
-   INCLUDE_DIRS ${ROOT_ICNLUDE_DIRS}
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODBase xAODEgamma xAODJet
    xAODMuon xAODTau xAODTracking AthContainers AthLinks AnaAlgorithmLib
    PRIVATE_LINK_LIBRARIES CxxUtils FourMomUtils )
