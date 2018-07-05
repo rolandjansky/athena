@@ -2473,7 +2473,6 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
   std::map   <Identifier,std::string>::const_iterator itrs;
   std::map   <Identifier,      float>::const_iterator itrf;
   std::map   <Identifier,        int>::const_iterator itri;
-  std::vector<Identifier>            ::const_iterator itrv;
 
   ATH_MSG_DEBUG ( "Size Summary RPC_EfficiencyMap: " << m_rSummarySvc->RPC_EfficiencyMap().size() );
   for (itr=m_rSummarySvc->RPC_EfficiencyMap().begin(); itr!=m_rSummarySvc->RPC_EfficiencyMap().end(); ++itr) {
