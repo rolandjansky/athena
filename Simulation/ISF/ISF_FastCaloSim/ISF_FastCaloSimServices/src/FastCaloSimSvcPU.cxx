@@ -97,7 +97,7 @@ StatusCode ISF::FastCaloSimSvcPU::initialize()
    ATH_MSG_INFO ( m_screenOutputPrefix << "Initializing FastCaloSimSvcPU ...");
    
    detID=new AtlasDetectorID();
-   IdDictParser* parser = new IdDictParser;
+   std::unique_ptr<IdDictParser> parser(new IdDictParser());
    IdDictMgr& idd = parser->parse ("IdDictParser/ATLAS_IDS.xml");
    if (detID->initialize_from_dictionary(idd))
    {
@@ -111,8 +111,6 @@ StatusCode ISF::FastCaloSimSvcPU::initialize()
    {
      ATH_MSG_WARNING ("larID->initialize_from_dictionary returned non-zero return code.");
    }
-   
-   delete parser;
    
    // access tools and store them
    if ( retrieveTools<ICaloCellMakerTool>(m_caloCellMakerTools_setup).isFailure() ) 
