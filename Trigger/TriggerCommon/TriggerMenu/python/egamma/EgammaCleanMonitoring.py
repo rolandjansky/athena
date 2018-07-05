@@ -6,8 +6,8 @@ EgammaChainsToKeepMonitoring={
 "g22_tight",
 "g35_medium",
 "g35_loose",
-"e60_lhmedium_nod0",
-"e17_lhvloose_nod0",
-"e15_lhloose_nod0",
+"e60_lhmedium",
+"e17_lhvloose",
+"e15_lhloose",
 "e5_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5",
 }
