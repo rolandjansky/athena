@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 """ Tau slice signatures """
 
@@ -254,7 +254,7 @@ class L2EFChain_tau(L2EFChainDef):
         tauRoiUpdater.z0HalfWidth = 7.0
 
         #ftracks = trkcore+[tauRoiUpdater]+trkiso
-        if not idperf:
+        if not idperf and preselection != 'tracktwoMVA':
             ftracks = trkcore + [tauRoiUpdater, tauRejectEmpty] + trkiso
         else :
             ftracks = trkcore+[tauRoiUpdater]+trkiso
@@ -328,7 +328,9 @@ class L2EFChain_tau(L2EFChainDef):
         # MVA TES for preselection and precision steps
         MVATES = preselection in needsCaloMVAPre
         # track counting based on EF tracks + BDT classification for core tracks
-        TrackBDT = preselection in ['tracktwoMVA']
+        #TrackBDT = preselection in ['tracktwoMVA']
+        # can't afford to use track BDT unfortunately, rates too high (especially when including 0p)
+        TrackBDT = False
         # evaluate RNN for triggers using RNN ID, and 2018 support triggers (even those using BDT ID, to avoid too many different precision sequences)
         RNN = selection in ['verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN'] or preselection in preselection2018
         # chains using 2018 features

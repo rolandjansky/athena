@@ -189,11 +189,14 @@ float InDet::TRT_ElectronPidToolRun2::HTcalculator::getProbHT(
   // Jared - Temporarily disable ZR corrections, reproducibility issues with calibration
   //correctionZR = 1.0;
 
-  parent.msg(MSG::DEBUG) << "check       "
-                         << "  GammaOccupan: " << correctionPGOG
-                         << "  correctionSL: " << correctionSL
-                         << "  correctionZR: " << correctionZR
-                         << "  correctionTW: " << correctionTW << endmsg;
+
+  if (parent.msgLvl(MSG::DEBUG)) {
+    parent.msg(MSG::DEBUG) << "check       "
+                           << "  GammaOccupan: " << correctionPGOG
+                           << "  correctionSL: " << correctionSL
+                           << "  correctionZR: " << correctionZR
+                           << "  correctionTW: " << correctionTW << endmsg;
+  }
   
   // Jared - Development output 
   //std::cout  << "check       "
@@ -259,7 +262,9 @@ StatusCode InDet::TRT_ElectronPidToolRun2::HTcalculator::ReadVectorDB( const Dat
    CondAttrListVec::const_iterator first_channel = channel_values->begin();
    CondAttrListVec::const_iterator last_channel  = channel_values->end();
 
-   parent.msg(MSG::DEBUG) << "There are " << channel_values->size() << "  Channels " << endmsg;
+   if (parent.msgLvl(MSG::DEBUG)) {
+     parent.msg(MSG::DEBUG) << "There are " << channel_values->size() << "  Channels " << endmsg;
+   }
    int inichan = 0;
    for (; first_channel != last_channel; ++first_channel) {
      switch(first_channel->first){
@@ -597,8 +602,10 @@ StatusCode InDet::TRT_ElectronPidToolRun2::HTcalculator::ReadVectorDB( const Dat
 	}
     }
 
-   parent.msg(MSG::DEBUG) << "We have read " << inichan << " good channels" << endmsg;
-   parent.msg(MSG::DEBUG) << m_par_pHTvsPGOG_new [0][0].GetBinValue(0) << "\t" << m_par_pHTvsPGOG_new [0][0].GetBinValue(1) << " " << m_par_pHTvsPGOG_new [0][0].GetBinValue(2) << endmsg;
+   if (parent.msgLvl(MSG::DEBUG)) {
+       parent.msg(MSG::DEBUG) << "We have read " << inichan << " good channels" << endmsg;
+       parent.msg(MSG::DEBUG) << m_par_pHTvsPGOG_new [0][0].GetBinValue(0) << "\t" << m_par_pHTvsPGOG_new [0][0].GetBinValue(1) << " " << m_par_pHTvsPGOG_new [0][0].GetBinValue(2) << endmsg;
+   }
 
 
    for (int i = 0 ; i < N_DET; i++) {

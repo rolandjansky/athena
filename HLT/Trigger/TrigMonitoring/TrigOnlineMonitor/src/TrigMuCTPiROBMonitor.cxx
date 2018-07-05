@@ -1027,8 +1027,10 @@ void TrigMuCTPiROBMonitor::decodeMuCTPi(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment
     /* Create MuCTPIResult object */
     m_lvl1muCTPIResult = new ROIB::MuCTPIResult( muCTPIHead, muCTPITrail, m_lvl1muCTPIRoIs );
     /* Dump object if requested */
-    ATH_MSG_DEBUG( m_lvl1muCTPIResult->dump() );
-    m_lvl1muCTPIResult->dumpData(msg());
+    if (msgLvl(MSG::DEBUG)) {
+      ATH_MSG_DEBUG( m_lvl1muCTPIResult->dump() );
+      m_lvl1muCTPIResult->dumpData(msg());
+    }
 
     // fill histograms and compute RoI hashes
     float num_roib_rois =  m_lvl1muCTPIRoIs.size();
@@ -1096,10 +1098,12 @@ void TrigMuCTPiROBMonitor::decodeMuCTPi(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment
     m_daqmuCTPIResult = new MuCTPI_RDO( candidateMultiplicity, dataWord );
 
     // print contents
-    MuCTPI_MultiplicityWord_Decoder(m_daqmuCTPIResult->candidateMultiplicity()).dumpData(msg());
-    for (uint32_t w : m_daqmuCTPIResult->dataWord()) {
-      MuCTPI_DataWord_Decoder(w).dumpData(msg());
-      dumpRoIBDataWord(mirodToRoIBDataWord(w));
+    if (msgLvl(MSG::DEBUG)) {
+      MuCTPI_MultiplicityWord_Decoder(m_daqmuCTPIResult->candidateMultiplicity()).dumpData(msg());
+      for (uint32_t w : m_daqmuCTPIResult->dataWord()) {
+        MuCTPI_DataWord_Decoder(w).dumpData(msg());
+        dumpRoIBDataWord(mirodToRoIBDataWord(w));
+      }
     }
 
     // now select out the RoI candidates for the BCID which triggered the event and save them in 

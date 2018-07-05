@@ -56,7 +56,17 @@ echo "${CMD}"
 RESULT=$(eval "${CMD}")
 echo "${RESULT}"
 
-# copy the test results to EOS area
+echo "TDAQ_RELEASE_BASE = ${TDAQ_RELEASE_BASE}"
+echo "AtlasBuildBranch = ${AtlasBuildBranch}"
+echo "AtlasProject = ${AtlasProject}"
+echo "AtlasBuildStamp  = ${AtlasBuildStamp}"
+echo "AtlasVersion = ${AtlasVersion}"
+
+ART_DIRECTORY=$(command -v art.py)
+ART_VERSION=$(art.py --version)
+echo "INFO: Using ART version ${ART_VERSION} in ${ART_DIRECTORY} directory"
+
+# configure MGM_URL
 if [ -z "${EOS_MGM_URL}" ]; then
   echo "WARNING: EOS_MGM_URL variable is empty, setting it to root://eosatlas.cern.ch"
   export EOS_MGM_URL="root://eosatlas.cern.ch"
@@ -64,6 +74,15 @@ else
   echo "EOS_MGM_URL variable contains", ${EOS_MGM_URL}
 fi
 
+# run build tests
+SUBDIR=${AtlasBuildBranch}/${AtlasProject}/${PLATFORM}/${AtlasBuildStamp}
+OUTDIR="${RELEASE_BASE}/art-build/${SUBDIR}"
+CMD="art.py run ${RELEASE_BASE}/build/install/${AtlasProject}/*/InstallArea/${PLATFORM}/src ${OUTDIR}"
+echo "${CMD}"
+RESULT=$(eval "${CMD}")
+echo "${RESULT}"
+
+# copy the test results to EOS area
 TARGETDIR=/eos/atlas/atlascerngroupdisk/data-art/build-output/${SUBDIR}
 if [[ ! -e ${TARGETDIR} ]]; then
   echo Target directory "${TARGETDIR}"

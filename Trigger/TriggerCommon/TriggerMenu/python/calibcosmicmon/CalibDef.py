@@ -135,6 +135,8 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
         self.setupL1SaturatedMon()
       elif 'zdcpeb' in self.chainPart['purpose']:
         self.setupZDCPEBChains()
+      elif 'calibAFPALFA' in self.chainPart['purpose']:
+        self.setupAFPALFACalibrationChains()
       elif 'calibAFP' in self.chainPart['purpose']:
         self.setupAFPCalibrationChains()
       elif 'rpcpeb' in self.chainPart['purpose']:
@@ -364,6 +366,21 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
      self.TErenamingDict = {
        'L2_':     'L2_l1AFPcalib',
        }
+     
+   ###########################################################################
+   # AFP+ALFA Calibration chains
+   ###########################################################################
+   def setupAFPALFACalibrationChains(self):
+     
+     from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+     
+     l2_AFPALFASubDetListWriter = TrigSubDetListWriter("AFPALFASubDetListWriter")
+     l2_AFPALFASubDetListWriter.SubdetId = ['TDAQ_CTP','FORWARD_AFP','FORWARD_ALPHA']
+     l2_AFPALFASubDetListWriter.MaxRoIsPerEvent=1
+     
+     self.robWriter = [l2_AFPALFASubDetListWriter]            
+     self.L2sequenceList += [['', self.robWriter, 'L2_AFPALFAcalib']]
+     self.L2signatureList += [[['L2_AFPALFAcalib']]]
      
    ###########################################################################
    # LarNoiseBurst chains

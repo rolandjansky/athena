@@ -733,6 +733,7 @@ AllowedCalibChainIdentifiers = ['csccalib',
                                 'l1satmon',
                                 'zdcpeb',
                                 'calibAFP',
+                                'calibAFPALFA',
                                 'rpcpeb',
                                 'idpsl1',
                                 'larpebcalib'
