@@ -23,7 +23,7 @@ atlas_add_library( TrigMultiVarHypoLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigMultiVarHypo
                    LINK_LIBRARIES xAODTrigCalo xAODTrigRinger TrigCaloEvent TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib DecisionHandlingLib
-                   PRIVATE_LINK_LIBRARIES GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES GaudiKernel AthViews )
 
 atlas_add_component( TrigMultiVarHypo
                      src/components/*.cxx
