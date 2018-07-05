@@ -555,7 +555,7 @@ StatusCode ParticleCombinerTool::buildComposite( xAOD::CompositeParticleContaine
     // Sort the constituents in decending pt order, if requested
     if ( m_sortConstit.value() ) {
       std::sort( anIPartLinkList.begin(), anIPartLinkList.end(),
-                 [this](const xAOD::IParticleLink& a, const xAOD::IParticleLink& b) {
+                 [](const xAOD::IParticleLink& a, const xAOD::IParticleLink& b) {
                    return CxxUtils::fpcompare::greater( (*a)->pt(), (*b)->pt() );
                  } );
     }
