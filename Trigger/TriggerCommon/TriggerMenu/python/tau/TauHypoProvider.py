@@ -95,36 +95,17 @@ class TauHypoProvider:
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo
                         theVars = ['NTrackMax', 'EtCalibMin', 'Level']
                         theThresh = self.thresholdsEF[(criteria, int(threshold))]
-                        theVars.extend(['Method'])
-                        theThresh.extend([3])
+                        theVars.extend(['Method','NTrackMin','HighptIDThr'])
+                        theThresh.extend([3,0,280000.])
                         currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
 
-                    elif 'RNN' in criteria:
-                        # EtCalibMin useless until we have MVA TES with track variables
-                        # arbitrary set level to 2 (i.e. "medium"), the Hypo code will fallback to 1 (loose) above 330 GeV
-                        # the expected syntax is RNNmediumXlooseY, where X and Y refer to the medium and loose WPs 
-                        import re
-                        try:
-                            RNNmedium = re.search('RNNmedium(.+?)loose', criteria).group(1)
-                        except AttributeError:
-                            raise
-                        try:
-                            RNNloose = re.split('loose', criteria)[1]
-                        except AttributeError:
-                            raise
-
-                        from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo
-                        theVars = ['NTrackMin','NTrackMax','EtCalibMin','Level','Method','RNNmedium','RNNloose']
-                        theThresh = [0, 3, int(threshold)*self.GeV, 2, 4, int(RNNmedium), int(RNNloose)]
-                        currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
-                    
                     else:
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo
                         theVars = ['NTrackMax', 'EtCalibMin', 'Level']
                         theThresh = self.thresholdsEF[(criteria, int(threshold))]
                         currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
 
-        if strategy == 'calo' or strategy =='ptonly' or strategy == 'mvonly' or strategy == 'caloonly' or strategy == 'track' or strategy == 'trackonly' or strategy == 'tracktwo' or strategy == 'tracktwoEF' or strategy == 'tracktwoEFmvaTES' or strategy == 'tracktwoMVA' or strategy == 'tracktwoMVA0p' or strategy == 'trackcalo' or strategy == 'tracktwocalo' or strategy == 'tracktwo2015' or strategy == 'FTK' or strategy == 'FTKRefit' or strategy == 'FTKNoPrec':
+        if strategy == 'calo' or strategy =='ptonly' or strategy == 'mvonly' or strategy == 'caloonly' or strategy == 'track' or strategy == 'trackonly' or strategy == 'tracktwo' or strategy == 'tracktwoEF' or strategy == 'tracktwoEFmvaTES' or strategy == 'tracktwoMVA' or strategy == 'trackcalo' or strategy == 'tracktwocalo' or strategy == 'tracktwo2015' or strategy == 'FTK' or strategy == 'FTKRefit' or strategy == 'FTKNoPrec':
 
             # Simple implementation of 2015 pre-selection
             currentHypoKey = 'l2'+part+'_tau'+threshold+'_'+criteria+'_'+strategy
@@ -173,11 +154,11 @@ class TauHypoProvider:
                     theThresh = [0,3,1,0.*self.GeV,-1111,0]
                     currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
                 else:
-                    if strategy != 'tracktwo' and strategy != 'tracktwoEF' and strategy != 'tracktwoEFmvaTES' and strategy != 'tracktwoMVA' and strategy != 'tracktwoMVA0p' and strategy != 'FTK' and strategy != 'FTKRefit' and strategy != 'FTKNoPrec':
+                    if strategy != 'tracktwo' and strategy != 'tracktwoEF' and strategy != 'tracktwoEFmvaTES' and strategy != 'tracktwoMVA' and strategy != 'FTK' and strategy != 'FTKRefit' and strategy != 'FTKNoPrec':
                         theVars = ['LowerPtCut','LowerTrackPtCut']
                         theThresh = [int(threshold)*self.GeV,1.*self.GeV]
                         currentHypo = HLTTrackTauHypo(currentHypoKey, theVars, theThresh)
-                    elif strategy == 'tracktwoMVA0p':
+                    elif strategy == 'tracktwoMVA':
                         theVars = ['NTrackMin','NTrackMax','NWideTrackMax','EtCalibMin', 'Level','Method']
                         theThresh = [0,3,1,0.*self.GeV,-1111,0]
                         currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)

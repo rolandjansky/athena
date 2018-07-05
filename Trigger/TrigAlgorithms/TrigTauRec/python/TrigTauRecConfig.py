@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 
 """ TrigTauRec """
@@ -449,11 +449,15 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             tools.append(taualgs.getTauVertexFinder(doUseTJVA=False)) #don't use TJVA by default
             # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)       
             tools.append(taualgs.getTauAxis())
-
-            # Count tracks with deltaZ0 cut of 1mm
-            # WARNING! tightened to 0.75 mm
-            tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=0.75, prefix='TrigTauTight_'))
             
+            # for now, use 'doMVATES=False' to detect tracktwoEF, instead of introducing new flag
+            if not doMVATES:
+                # Count tracks with deltaZ0 cut of 1mm for tracktwoEF           
+                tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=1))
+            else:
+                # tightened to 0.75 mm for tracktwoMVA (until the track BDT can be used)
+                tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=0.75, prefix='TrigTauTightDZ_'))            
+
             if doTrackBDT:                
                 # BDT track classification
                 tools.append(taualgs.getTauTrackClassifier())
@@ -478,14 +482,6 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             # tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
             tools.append(taualgs.getPileUpCorrection())
 
-
-            # WARNING! moved here temporarily
-            for tool in tools:
-                tool.inTrigger = True
-                tool.calibFolder = 'TrigTauRec/00-11-02/'
-                pass
-
-
             if doRNN:
                 # RNN tau ID
                 tools.append(taualgs.getTauJetRNNEvaluator(NetworkFile0P="rnnid_config_0p_v3.json",
@@ -497,12 +493,11 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
                 # flattened RNN score and WP
                 tools.append(taualgs.getTauWPDecoratorJetRNN())
 
-        
-            # WARNING! Moved before retrieving RNN algorithms, as those temporarily use files in dev/TrigTauRec (set from TrigTauAlgorithmsHolder)
-            #for tool in tools:
-            #    tool.inTrigger = True
-            #    tool.calibFolder = 'TrigTauRec/00-11-02/'
-            #    pass
+
+            for tool in tools:
+                tool.inTrigger = True
+                tool.calibFolder = 'TrigTauRec/00-11-02/'
+                pass
 
             self.Tools = tools
 

@@ -1069,9 +1069,10 @@ void  FTKPattGenRoot::SetModuleGeometryCheck(const std::string &fileName,
                <<"select="<<" (undefined selection algorithm)\n";
          }
       } else {
+         Fatal("SetModuleGeometryCheck")
+            <<"module geometry "<<fileName<<" not found but select="
+            <<m_select<<"\n";
          m_select= RndSector;
-         Error("SetModuleGeometryCheck")
-            <<"module geometry "<<fileName<<" not found\n";
          Warning("SetModuleGeometryCheck")
             <<"revert to select="<<m_select
             <<": no boudary check, random sector selection\n";
