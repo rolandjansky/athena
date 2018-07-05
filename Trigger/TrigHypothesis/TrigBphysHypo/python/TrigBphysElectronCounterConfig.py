@@ -70,6 +70,7 @@ class TrigBphysElectronCounter_bBee (TrigBphysElectronCounterPy):
         self.ptElectronMin = []
         self.setEFElectronThresholds( self.ptElectronMin, defaultThreshold )
         self.electronCollectionKey = "egamma_Electrons"
+        self.overlapdR = 0.005
 
         # set up PID - defined in TrigHypothesis/TrigEgammaHypo/python/TrigEgammaPidTools
         from TrigEgammaHypo.TrigEgammaPidTools import (ElectronToolName,BLooseISEMBits,ElectronIsEMBits)
