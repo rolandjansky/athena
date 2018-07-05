@@ -176,8 +176,7 @@ namespace MuonGM {
 
     // calculate the phi width 
 
-    return ( measPhi ? 2.*tan(0.5*inputPhiPitch)*(radialDistance+pos.y()) : inputRowPitch );
-
+    return ( measPhi ? tan(inputPhiPitch*M_PI/180.)*(radialDistance+pos.y()) : inputRowPitch );
   }
 
   inline double MuonPadDesign::gasGapThickness() const {
