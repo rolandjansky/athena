@@ -99,12 +99,19 @@ StatusCode ISF::FastCaloSimSvcPU::initialize()
    detID=new AtlasDetectorID();
    IdDictParser* parser = new IdDictParser;
    IdDictMgr& idd = parser->parse ("IdDictParser/ATLAS_IDS.xml");
-   detID->initialize_from_dictionary(idd);
+   if (detID->initialize_from_dictionary(idd))
+   {
+     ATH_MSG_WARNING ("detID->initialize_from_dictionary returned non-zero return code.");
+   }
    
    larID=new LArEM_ID();
    //IdDictMgr& lar_idd = parser->parse("IdDictParser/IdDictLArCalorimeter.xml");
    IdDictMgr& lar_idd = parser->parse("IdDictParser/ATLAS_IDS.xml");
-   larID->initialize_from_dictionary(lar_idd);
+   if (larID->initialize_from_dictionary(lar_idd))
+   {
+     ATH_MSG_WARNING ("larID->initialize_from_dictionary returned non-zero return code.");
+   }
+   
    delete parser;
    
    // access tools and store them
