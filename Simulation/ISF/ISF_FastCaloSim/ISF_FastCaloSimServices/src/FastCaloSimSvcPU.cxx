@@ -51,6 +51,8 @@
 /** Constructor **/
 ISF::FastCaloSimSvcPU::FastCaloSimSvcPU(const std::string& name,ISvcLocator* svc) :
   BaseSimulationSvc(name, svc),
+  detID(nullptr),
+  larID(nullptr),
   m_extrapolator(),
   m_ownPolicy(static_cast<int>(SG::VIEW_ELEMENTS)),
   m_batchProcessMcTruth(false),
@@ -62,7 +64,7 @@ ISF::FastCaloSimSvcPU::FastCaloSimSvcPU(const std::string& name,ISvcLocator* svc
   m_caloCellMakerTools_simulate(),
   m_caloCellMakerTools_release(),
   m_punchThroughTool(""),
-  m_theContainer(0),
+  m_theContainer(nullptr),
   m_particleBroker ("ISF_ParticleBroker",name)
 {
   // where to go 
