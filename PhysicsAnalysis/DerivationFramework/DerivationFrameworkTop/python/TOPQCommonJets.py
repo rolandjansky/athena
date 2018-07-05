@@ -140,14 +140,14 @@ def addExKtDoubleTagVariables(algseq, ToolSvc):
    # build subjets
    ExKtTopJetCollection__FatJet = ExKtTopJetCollection__FatJetConfigs.keys()
    ExKtTopJetCollection__SubJet = []
-
+ 
    for key, config in ExKtTopJetCollection__FatJetConfigs.items():
     # N=2 subjets
-    ExKtTopJetCollection__SubJet += addExKt(algseq, ToolSvc, [key], nSubjets=2, **config)
+    ExKtTopJetCollection__SubJet += addExKtCoM(algseq, ToolSvc, key, nSubjets=2, **config)
 
     # N=3 subjets
     if "RNNCone" not in key:
-      ExKtTopJetCollection__SubJet += addExKt(algseq, ToolSvc, [key], nSubjets=3, **config)
+      ExKtTopJetCollection__SubJet += addExKtCoM(algseq, ToolSvc, key, nSubjets=3, **config)
 
    algseq += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterSubjetBuild", SGKeys=[name+"Aux." for name in ExKtTopJetCollection__SubJet])
    from DerivationFrameworkFlavourTag.FlavourTagCommon import *
