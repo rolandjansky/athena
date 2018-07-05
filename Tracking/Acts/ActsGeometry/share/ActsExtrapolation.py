@@ -6,6 +6,7 @@
 ###############################################################
 
 import os
+import logging
 
 # Use Global flags and DetFlags.
 from AthenaCommon.DetFlags import DetFlags
@@ -40,6 +41,16 @@ from IOVDbSvc.CondDB import conddb
 conddb.setGlobalTag('OFLCOND-SIM-00-00-00')
 conddb.addOverride("/Indet/Align", "InDetAlign_R2_Nominal")
 
+## SET UP ALIGNMENT CONDITIONS ALGORITHM
+from IOVSvc.IOVSvcConf import CondSvc
+svcMgr += CondSvc( OutputLevel=INFO )
+from ActsGeometry import ActsGeometryConf
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+condSeq += ActsGeometryConf.NominalAlignmentCondAlg("NominalAlignmentCondAlg",
+                                                     OutputLevel=VERBOSE)
+## END OF CONDITIONS SETUP
+
 
 from AthenaCommon.AppMgr import ServiceMgr
 from ActsGeometry.ActsGeometryConfig import TrackingGeometrySvc
@@ -47,12 +58,14 @@ from ActsGeometry.ActsGeometryConfig import TrackingGeometrySvc
 trkGeomSvc = TrackingGeometrySvc()
 
 # skip material map input on CI job
-print os.environ
-if "CI" not in os.environ:
-  print "Non CI mode, use MatMap"
+matMapFile = "MaterialMaps.pb"
+
+if os.path.exists(matMapFile):
   trkGeomSvc.UseMaterialMap = True
   trkGeomSvc.MaterialMapInputFile = "MaterialMaps.pb"
+  logging.info("Material map from %s configured", matMapFile)
 else:
+  logging.info("Material map file at %s not found, do not configure", matMapFile)
   print "CI mode, no MatMap"
 
 trkGeomSvc.BarrelMaterialBins = [40, 60] # phi z
