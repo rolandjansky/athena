@@ -14,6 +14,7 @@
 #include "Acts/Extrapolation/IExtrapolationEngine.hpp"
 
 #include "ActsGeometry/IExtrapolationTool.h"
+#include "ActsGeometry/TrackingGeometryTool.h"
 
 namespace Acts {
 
@@ -48,7 +49,7 @@ public:
 private:
 
   ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
-  ServiceHandle<Acts::ITrackingGeometrySvc> m_trackingGeometrySvc;
+  ToolHandle<Acts::TrackingGeometryTool> m_trackingGeometryTool{this, "TrackingGeometryTool", "Acts__TrackingGeometryTool"};
 
   std::shared_ptr<Acts::ExtrapolationEngine> m_exEngine;
 

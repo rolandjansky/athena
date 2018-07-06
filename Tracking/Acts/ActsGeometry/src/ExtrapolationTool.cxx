@@ -24,8 +24,7 @@
 Acts::ExtrapolationTool::ExtrapolationTool(const std::string& type, const std::string& name,
     const IInterface* parent) 
   : IExtrapolationTool(type, name, parent),
-    m_fieldServiceHandle("AtlasFieldSvc", name),
-    m_trackingGeometrySvc("TrackingGeometrySvc", name)
+    m_fieldServiceHandle("AtlasFieldSvc", name)
 {
 
 }
@@ -71,8 +70,8 @@ Acts::ExtrapolationTool::initialize()
     propEngine = propEngine_;
   }
 
-  ATH_CHECK( m_trackingGeometrySvc.retrieve() );
-  auto trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
+  ATH_CHECK( m_trackingGeometryTool.retrieve() );
+  auto trackingGeometry = m_trackingGeometryTool->trackingGeometry();
 
 
   // (b) MaterialEffectsEngine

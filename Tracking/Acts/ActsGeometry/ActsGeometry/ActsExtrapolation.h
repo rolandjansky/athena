@@ -9,9 +9,6 @@
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
 #include "GaudiKernel/ISvcLocator.h"
-
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/ReadCondHandleKey.h"
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 
 // ACTS
