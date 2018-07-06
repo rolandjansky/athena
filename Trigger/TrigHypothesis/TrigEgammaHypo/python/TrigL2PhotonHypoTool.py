@@ -1,4 +1,5 @@
 
+
 def TrigL2PhotonHypoToolFromName( name ):
     """ provides configuration of the hypo tool giben the chain name
     The argument will be replaced by "parsed" chain dict. For now it only serves simplest chain HLT_eXYZ.
@@ -25,6 +26,23 @@ def TrigL2PhotonHypoToolFromName( name ):
         monTool.HistPath = 'L2PhotonHypo/'+tool.name()
         tool.MonTool = monTool
         tool += monTool
+
+    from AthenaCommon.SystemOfUnits import GeV    
+    nt = len( thresholds )
+    tool.ETthr = [ [0.*GeV, 0.*GeV, 0.*GeV, 0.*GeV, 0.*GeV, 0.*GeV, 0.*GeV, 0.*GeV, 0.*GeV] ] *nt
+    tool.CARCOREthr = [ [0., 0., 0., 0., 0., 0., 0., 0., 0.] ] *nt
+    tool.CAERATIOthr = [ [0., 0., 0., 0., 0., 0., 0., 0., 0.] ] *nt
+    tool.EtaBins = [0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47] *nt
+    tool.dETACLUSTERthr = [0.1] * nt
+    tool.dPHICLUSTERthr = [0.1] *nt 
+    tool.F1thr = [0.005] *nt
+    tool.ET2thr = [ [90.0*GeV, 90.0*GeV, 90.0*GeV, 90.0*GeV, 90.0*GeV, 90.0*GeV, 90.0*GeV, 90.0*GeV, 90.0*GeV] ] *nt
+    tool.HADET2thr = [ [999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0, 999.0] ] *nt
+    tool.HADETthr = [ [0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035] ] *nt
+
+#    for th, thvalue in enumerate(thresholds):
+#        print th, thvalue
+#        tool.ETthr [ th ] = [(float(thvalue)-1.)*GeV]*9
 
     return tool
 
