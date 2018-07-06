@@ -30,33 +30,57 @@ class TauRecConfigured ( Configured ) :
         self.msglevel = msglevel
         from tauRec.tauRecConf import TauProcessorAlg 
         from tauRec.tauRecFlags import tauFlags
+        from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool
+        # add calo cell finalizer tool
+        TauCellContainerFinalizer = CaloCellContainerFinalizerTool(name='tauRec_tauPi0CellContainerFinalizer')
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += TauCellContainerFinalizer
+
         self._TauProcessorAlgHandle = TauProcessorAlg ( name=self.name+'Alg',
                                                         Key_jetInputContainer="AntiKt4LCTopoJets",
-                                                        Key_tauOutputContainer="TauJets",
+                                                        Key_tauOutputContainer="tmp_TauJets",
                                                         Key_tauTrackOutputContainer="TauTracks",
+                                                        Key_tauShotClusOutputContainer="TauShotClusters",
+                                                        Key_tauShotPFOOutputContainer="TauShotParticleFlowObjects",
+                                                        Key_tauPi0CellOutputContainer="TauCommonPi0Cells",
                                                         #MaxEta = 2.5,                                                                         
                                                         MaxEta = tauFlags.tauRecSeedMaxEta(),
                                                         MinPt = 10.*GeV,
-                                                        doCreateTauContainers = True)
+                                                        doCreateTauContainers = True,
+                                                        CellMakerTool = TauCellContainerFinalizer)
 
         Configured.__init__(self, ignoreExistingDataObject=ignoreExistingDataObject)
 
 
     def WrapTauRecToolExecHandle(self, tool=None ):
+        print "WrapToolsNone"
+
         self.TauProcessorAlgHandle().Tools = tool
         #self.TauProcessorAlgHandle().name = tool.name+'Alg'
         from AthenaCommon.AlgSequence import AlgSequence
 
         topSequence = AlgSequence()
 
+        from AthenaCommon.AlgScheduler import AlgScheduler
+        AlgScheduler.ShowDataDependencies(True)
+        AlgScheduler.ShowControlFlow(True)
+        
         from SGComps.SGCompsConf import SGInputLoader
         # not needed? There by default now?
         topSequence += SGInputLoader()
         topSequence.SGInputLoader.Load = [ ('xAOD::JetContainer','AntiKt4LCTopoJets'), ('xAOD::VertexContainer', 'PrimaryVertices'),
                                            ('xAOD::TrackParticleContainer','InDetTrackParticles'), ('CaloCellContainer','AllCalo') ]
+
         topSequence += self.TauProcessorAlgHandle()
 
+        # separate algorithm, from CaloRec
+        #if self.doPi0Clus:
+        #    import tauRec.Pi0ClusterMakerHolder as pi0alg
+        #    topSequence += pi0alg.getTauPi0ClusterMaker()
+
+
     def WrapTauRecToolExecHandles(self, tools=[]):
+
         self.TauProcessorAlgHandle().Tools = tools
         for tool in tools:
             self.TauProcessorAlghandle().tool.getFullName = tool
@@ -69,6 +93,7 @@ class TauRecConfigured ( Configured ) :
         topSequence += SGInputLoader(OutputLevel=INFO)
         topSequence.SGInputLoader.Load = [ ('xAOD::JetContainer','AntiKt4LCTopoJets'), ('xAOD::VertexContainer', 'PrimaryVertices'),
                                            ('xAOD::TrackParticleContainer','InDetTrackParticles'), ('CaloCellContainer','AllCalo') ]
+
         topSequence += self.TauProcessorAlgHandle()
 
 

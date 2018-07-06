@@ -45,7 +45,11 @@ public:
   virtual StatusCode initialize();
   // pass all tracks in the tau cone to all track classifier sub tools
   virtual StatusCode execute(xAOD::TauJet& pTau);
-  virtual StatusCode executeCaloClus(xAOD::TauJet&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
+  virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
+  virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
+  virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
+  virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
+  virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
 
 private:
   ToolHandleArray<TrackMVABDT> m_vClassifier;
@@ -71,7 +75,11 @@ class TrackMVABDT
   // for possible MVA inputs. Only Variables defined in the root weights file
   // are passed to the MVA object
   StatusCode initialize();
-  StatusCode executeCaloClus(xAOD::TauJet&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
+  StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
+  StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
+  StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
+  StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
+  StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
   StatusCode finalize();
   
   // executes MVA object to get the BDT score, makes the decision and resets

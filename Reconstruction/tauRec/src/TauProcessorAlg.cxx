@@ -19,6 +19,8 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 
+#include "CaloInterface/ICaloCellMakerTool.h"
+#include "NavFourMom/INavigable4MomentumCollection.h"
 
 //-----------------------------------------------------------------------------
 // Constructor
@@ -30,12 +32,14 @@ m_tools(this), //make tools private
 m_maxEta(2.5),
 m_minPt(10000),
 m_doCreateTauContainers(false),
-m_data()
+m_data(),
+m_cellMakerTool("")
 {
   declareProperty("Tools", m_tools);
   declareProperty("MaxEta", m_maxEta);
   declareProperty("MinPt", m_minPt);
   declareProperty("doCreateTauContainers", m_doCreateTauContainers);
+  declareProperty("CellMakerTool", m_cellMakerTool);
 }
 
 //-----------------------------------------------------------------------------
@@ -51,6 +55,7 @@ StatusCode TauProcessorAlg::initialize() {
 
 
     //ATH_MSG_INFO("FF::TauProcessorAlg :: initialize()");
+  CHECK( m_cellMakerTool.retrieve() );
 
     //-------------------------------------------------------------------------
     // No tools allocated!
@@ -99,6 +104,8 @@ StatusCode TauProcessorAlg::initialize() {
     ATH_CHECK( m_tauOutputContainer.initialize() );
     ATH_CHECK( m_tauTrackOutputContainer.initialize() );
     ATH_CHECK( m_tauShotClusOutputContainer.initialize() );
+    ATH_CHECK( m_tauShotPFOOutputContainer.initialize() );
+    ATH_CHECK( m_tauPi0CellOutputContainer.initialize() );
 
     return StatusCode::SUCCESS;
 }
@@ -163,7 +170,6 @@ StatusCode TauProcessorAlg::execute() {
       pTauTrackAuxCont = new xAOD::TauTrackAuxContainer();
       pTauTrackCont->setStore( pTauTrackAuxCont );
 
-
     } else {
       //-------------------------------------------------------------------------                                             
       // retrieve Tau Containers from StoreGate                                                                                     
@@ -208,6 +214,18 @@ StatusCode TauProcessorAlg::execute() {
     ATH_MSG_DEBUG("  write: " << tauShotClusHandle.key() << " = " << "..." );
     ATH_CHECK(tauShotClusHandle.record(std::unique_ptr<xAOD::CaloClusterContainer>{tauShotClusContainer}, std::unique_ptr<xAOD::CaloClusterAuxContainer>{tauShotClusAuxStore}));
 
+    SG::WriteHandle<xAOD::PFOContainer> tauShotPFOHandle( m_tauShotPFOOutputContainer );
+    xAOD::PFOContainer* tauShotPFOContainer = new xAOD::PFOContainer();
+    xAOD::PFOAuxContainer* tauShotPFOAuxStore = new xAOD::PFOAuxContainer();
+    tauShotPFOContainer->setStore(tauShotPFOAuxStore);
+    ATH_MSG_DEBUG("  write: " << tauShotPFOHandle.key() << " = " << "..." );
+    ATH_CHECK(tauShotPFOHandle.record(std::unique_ptr<xAOD::PFOContainer>{tauShotPFOContainer}, std::unique_ptr<xAOD::PFOAuxContainer>{tauShotPFOAuxStore}));
+
+    SG::WriteHandle<CaloCellContainer> tauPi0CellHandle( m_tauPi0CellOutputContainer );
+    CaloCellContainer* Pi0CellContainer = new CaloCellContainer();
+    ATH_MSG_DEBUG("  write: " << tauPi0CellHandle.key() << " = " << "..." );
+    ATH_CHECK(tauPi0CellHandle.record(std::unique_ptr<CaloCellContainer>(Pi0CellContainer)));
+
     //---------------------------------------------------------------------                                                        
     // Loop over seeds
     //---------------------------------------------------------------------                                                 
@@ -249,7 +267,11 @@ StatusCode TauProcessorAlg::execute() {
 	ATH_MSG_INFO("ProcessorAlg Invoking tool " << (*itT)->name());
 	
 	if ( (*itT)->name().find("ShotFinder") != std::string::npos){
-	  sc = (*itT)->executeCaloClus(*pTau, *tauShotClusContainer);
+	  sc = (*itT)->executeShotFinder(*pTau, *tauShotClusContainer, *tauShotPFOContainer);
+	}
+	else if ( (*itT)->name().find("Pi0CreateROI") != std::string::npos){
+	  ATH_MSG_INFO("EXEC PI0CREATEROI");
+	  sc = (*itT)->executePi0CreateROI(*pTau, *Pi0CellContainer);
 	}
 	else {
 	  sc = (*itT)->execute(*pTau);
@@ -291,6 +313,14 @@ StatusCode TauProcessorAlg::execute() {
       if (sc != StatusCode::SUCCESS)
 	return StatusCode::FAILURE;
     }
+
+    // Check this is needed for the cell container?
+    // symlink as INavigable4MomentumCollection (as in CaloRec/CaloCellMaker)
+    ATH_CHECK(evtStore()->symLink(Pi0CellContainer, static_cast<INavigable4MomentumCollection*> (0)));
+    //---------------------------------------------------------------------
+    // use the m_cellMakerTool to finalize the custom CaloCellContainer
+    //---------------------------------------------------------------------
+    CHECK( m_cellMakerTool->process(static_cast<CaloCellContainer*> (Pi0CellContainer)) );
 
 
   if (sc.isSuccess()) {

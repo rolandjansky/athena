@@ -42,8 +42,6 @@ using std::string;
 TauShotFinder::TauShotFinder(   const string& name ) :
     TauRecToolBase(name)
     , m_caloWeightTool("H1WeightToolCSC12Generic")
-    , m_PFOShotContainer(0)
-    , m_PFOShotAuxStore(0)
     , m_calo_dd_man(NULL)
     , m_calo_id(NULL)
     , m_pt1(0)
@@ -75,7 +73,6 @@ StatusCode TauShotFinder::initialize() {
     CHECK( m_caloWeightTool.retrieve() );
 
     ATH_CHECK( m_caloCellInputContainer.initialize() );
-    ATH_CHECK( m_tauPFOOutputContainer.initialize() );
 
     // initialize calo cell geo
     m_calo_dd_man  = CaloDetDescrManager::instance();
@@ -126,21 +123,11 @@ StatusCode TauShotFinder::finalize()
 }
 
 StatusCode TauShotFinder::eventInitialize() {
-
-  // Shot cluster container created in TauProcessorAlg    
-
-  //---------------------------------------------------------------------
-  // Create Shot PFO container
-  //---------------------------------------------------------------------
-  m_PFOShotContainer = new xAOD::PFOContainer();
-  m_PFOShotAuxStore = new xAOD::PFOAuxContainer();
-  m_PFOShotContainer->setStore(m_PFOShotAuxStore); 
-
   return StatusCode::SUCCESS;
-
 }
 
-StatusCode TauShotFinder::executeCaloClus(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& tauShotClusterContainer) {
+StatusCode TauShotFinder::executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& tauShotClusterContainer,
+					    xAOD::PFOContainer& tauShotPFOContainer) {
 
     // Any tau needs to have shot PFO vectors. Set empty vectors before nTrack cut
     vector<ElementLink<xAOD::PFOContainer> > empty;
@@ -278,11 +265,11 @@ StatusCode TauShotFinder::executeCaloClus(xAOD::TauJet& pTau, xAOD::CaloClusterC
         
         // create shot PFO and store it in output container
         xAOD::PFO* shot = new xAOD::PFO();
-        m_PFOShotContainer->push_back( shot );
+        tauShotPFOContainer.push_back( shot );
 
         // Create element link from tau to shot
         ElementLink<xAOD::PFOContainer> PFOElementLink;
-        PFOElementLink.toContainedElement( *m_PFOShotContainer, shot );
+        PFOElementLink.toContainedElement( tauShotPFOContainer, shot );
         pTau.addShotPFOLink( PFOElementLink );
        
         if( mergePhi ){
@@ -415,11 +402,6 @@ StatusCode TauShotFinder::executeCaloClus(xAOD::TauJet& pTau, xAOD::CaloClusterC
 }
 
 StatusCode TauShotFinder::eventFinalize() {
-    
-  SG::WriteHandle<xAOD::PFOContainer> tauPFOHandle( m_tauPFOOutputContainer );
-  ATH_MSG_DEBUG("  write: " << tauPFOHandle.key() << " = " << "..." );
-  ATH_CHECK(tauPFOHandle.record(std::unique_ptr<xAOD::PFOContainer>{m_PFOShotContainer}, std::unique_ptr<xAOD::PFOAuxContainer>{m_PFOShotAuxStore}));
-
   return StatusCode::SUCCESS;
 }
 

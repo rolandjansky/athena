@@ -32,8 +32,11 @@ TauRecCoreBuilder(doPi0Clus=_doPi0Clus, doTJVA=_doTJVA)
 if _doPi0Clus:
     include("tauRec/Pi0ClusterMaker_jobOptions.py")
 
-#from tauRec.TauRecBuilder import TauRecPi0EflowProcessor
-#TauRecPi0EflowProcessor(doPi0Clus=_doPi0Clus)
+from tauRec.TauRecBuilder import TauRecPi0EflowProcessor
+TauRecPi0EflowProcessor(doPi0Clus=_doPi0Clus)
+
+from tauRec.TauRecRunner import TauRecRunner
+TauRecRunner(doPi0Clus=_doPi0Clus, doTJVA=_doTJVA)
 
 #from tauRec.TauRecBuilder import TauRecVariablesProcessor
 #TauRecVariablesProcessor(doPi0Clus=_doPi0Clus)

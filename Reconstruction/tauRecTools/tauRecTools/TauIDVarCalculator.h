@@ -31,8 +31,11 @@ class TauIDVarCalculator: public TauRecToolBase
   virtual StatusCode initialize();
 
   virtual StatusCode execute(xAOD::TauJet&);
-
-  virtual StatusCode executeCaloClus(xAOD::TauJet&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
+  virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
+  virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
+  virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
+  virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
+  virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
 
   virtual StatusCode finalize();
 

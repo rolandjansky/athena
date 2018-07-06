@@ -375,20 +375,12 @@ def getPi0ClusterFinder():
     
     if _name in cached_instances:
         return cached_instances[_name]
-    
-    from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool
-    TauCellContainerFinalizer = CaloCellContainerFinalizerTool(name=sPrefix+'tauPi0CellContainerFinalizer')
-    
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += TauCellContainerFinalizer
-    
+
     from tauRecTools.tauRecToolsConf import TauPi0CreateROI
     TauPi0CreateROI = TauPi0CreateROI(name = _name,
                                       #        CaloWeightTool = getCellWeightTool(),
                                       #        ExtrapolateToCaloTool = getExtrapolateToCaloTool(),
-                                      CellMakerTool = TauCellContainerFinalizer,
-                                      Key_caloCellInputContainer="AllCalo", 
-                                      Key_tauCaloOutputContainer="TauCommonPi0Cells"
+                                      Key_caloCellInputContainer="AllCalo"
                                       )
     
     cached_instances[_name] = TauPi0CreateROI
@@ -501,8 +493,7 @@ def getTauShotFinder():
                                   MinPtCut              = shotPtCut_1Photon,
                                   AutoDoubleShotCut     = shotPtCut_2Photons,
                                   MergedBDTScoreCut     = (-9999999.,-9999999.,-9999999.,-9999999.,-9999999.),
-                                  Key_caloCellInputContainer="AllCalo",
-                                  Key_tauPFOOutputContainer="TauShotParticleFlowObjects"
+                                  Key_caloCellInputContainer="AllCalo"
                                   )
     cached_instances[_name] = TauShotFinder
     return TauShotFinder

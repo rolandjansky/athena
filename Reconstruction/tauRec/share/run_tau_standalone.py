@@ -106,9 +106,11 @@ from tauRec.TauRecBuilder import TauRecCoreBuilder
 TauRecCoreBuilder(doPi0Clus=_doPi0Clus, doTJVA=_doTJVA)
 
 #include("tauRec/Pi0ClusterMaker_Crakow_jobOptions.py")
-#if _doPi0Clus:
-#    include("tauRec/Pi0ClusterMaker_jobOptions.py")
+if _doPi0Clus:
+   include("tauRec/Pi0ClusterMaker_jobOptions.py")
 
+from tauRec.TauRecRunner import TauRecRunner
+TauRecRunner(doPi0Clus=_doPi0Clus, doTJVA=_doTJVA)
 
 # minimal set of job options to run tau reco on an ESD file
 # uses main TauRecRunner script

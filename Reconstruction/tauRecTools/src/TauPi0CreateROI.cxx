@@ -17,7 +17,6 @@
 //#include "CaloEvent/CaloCellContainer.h"
 //#include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloUtils/CaloCellList.h"
-#include "CaloInterface/ICaloCellMakerTool.h"
 
 //#include "AthContainers/OwnershipPolicy.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
@@ -35,12 +34,9 @@ using std::string;
 
 TauPi0CreateROI::TauPi0CreateROI(   const string& name ) :
      TauRecToolBase(name)
-    , m_cellMakerTool("")
     , m_calo_dd_man(NULL)
     , m_calo_id(NULL)
-    , m_pPi0CellContainer(NULL)
 {
-    declareProperty("CellMakerTool", m_cellMakerTool);
 }
    
 //-------------------------------------------------------------------------
@@ -54,14 +50,12 @@ StatusCode TauPi0CreateROI::initialize() {
     
     // retrieve tools
     ATH_MSG_DEBUG( "Retrieving tools" );
-    CHECK( m_cellMakerTool.retrieve() );
     
     // initialize calo cell geo
     m_calo_dd_man  = CaloDetDescrManager::instance();
     m_calo_id      = m_calo_dd_man->getCaloCell_ID();
 
     ATH_CHECK( m_caloCellInputContainer.initialize() );
-    ATH_CHECK( m_tauCaloOutputContainer.initialize() );
 
     return StatusCode::SUCCESS;
 }
@@ -85,15 +79,10 @@ StatusCode TauPi0CreateROI::eventInitialize() {
         m_addedCellsMap.push_back(NULL);
     }
 
-    //---------------------------------------------------------------------
-    // Create CustomCellContainer and register in StoreGate
-    //---------------------------------------------------------------------
-    m_pPi0CellContainer = new CaloCellContainer();
-
     return StatusCode::SUCCESS;
 }
 
-StatusCode TauPi0CreateROI::execute(xAOD::TauJet& pTau) {
+StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& pPi0CellContainer) {
 
     //---------------------------------------------------------------------
     // only run on 1-5 prong taus 
@@ -134,29 +123,13 @@ StatusCode TauPi0CreateROI::execute(xAOD::TauJet& pTau) {
         if(samp>7) continue;
 
         // Store cell in output container
-        storeCell(cell);
+        storeCell(cell, pPi0CellContainer);
     }
 
     return StatusCode::SUCCESS;
 }
 
 StatusCode TauPi0CreateROI::eventFinalize() {
-
-  // Declare write handle
-  SG::WriteHandle<CaloCellContainer> tauCaloHandle( m_tauCaloOutputContainer );
-  ATH_MSG_DEBUG("  write: " << tauCaloHandle.key() << " = " << "..." );
-
-  // Write completed cell container
-  ATH_CHECK(tauCaloHandle.record(std::unique_ptr<CaloCellContainer>(m_pPi0CellContainer)));
-
-  // here or event initialize?
-  // symlink as INavigable4MomentumCollection (as in CaloRec/CaloCellMaker)
-  ATH_CHECK(evtStore()->symLink(m_pPi0CellContainer, static_cast<INavigable4MomentumCollection*> (0)));
-
-  //---------------------------------------------------------------------
-  // use the m_cellMakerTool to finalize the custom CaloCellContainer
-  //---------------------------------------------------------------------
-  CHECK( m_cellMakerTool->process(static_cast<CaloCellContainer*> (m_pPi0CellContainer)) );
 
   return StatusCode::SUCCESS;
 }
@@ -165,7 +138,7 @@ StatusCode TauPi0CreateROI::finalize() {
     return StatusCode::SUCCESS;
 }
 
-void TauPi0CreateROI::storeCell(const CaloCell* cell){
+void TauPi0CreateROI::storeCell(const CaloCell* cell, CaloCellContainer& cellContainer){
     // Store cell in output container if it is a new cell
     // Produce a copy of the cell, in order to prevent 
     // the energy of the original cell to be changed. 
@@ -178,7 +151,7 @@ void TauPi0CreateROI::storeCell(const CaloCell* cell){
 
     if(isNewCell){
         CaloCell* copyCell = cell->clone();
-        m_pPi0CellContainer->push_back(copyCell);
+        cellContainer.push_back(copyCell);
         m_addedCellsMap[cellHash] = copyCell;
     }
 }

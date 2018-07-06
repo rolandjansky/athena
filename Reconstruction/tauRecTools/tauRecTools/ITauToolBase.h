@@ -38,7 +38,12 @@ class ITauToolBase : virtual public asg::IAsgTool
   //! Execute - called for each tau candidate
   //-----------------------------------------------------------------
   virtual StatusCode execute(xAOD::TauJet& pTau) = 0;
-  virtual StatusCode executeCaloClus(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& tauShotClusterContainer) = 0;
+  virtual StatusCode executeShotFinder(xAOD::TauJet& pTau, xAOD::CaloClusterContainer& shotClusterContainer, xAOD::PFOContainer& PFOContainer ) = 0;
+  virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& caloCellContainer ) = 0;
+  virtual StatusCode executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
+					      xAOD::PFOContainer& hadronicPFOContainer, xAOD::CaloClusterContainer& caloClusterContainer ) = 0;
+  virtual StatusCode executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& vertexContainer ) = 0;  
+  virtual StatusCode executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& PFOContainer ) = 0;  
 
   //-----------------------------------------------------------------
   //! Event finalizer - called at the end of each event
