@@ -12,8 +12,8 @@ run() { (set -x; exec "$@") }
 
 # Following specify which steps to run.
 dosim=1
-dorec=1         # Reco_tf.py not yet working
-dophy=1         # If dorec=0, set dophy=1 to run InDetPhysValMonitoring over old ESD
+dorec=1    # Reco_tf.py not yet working
+dophy=1    # If dorec=0, set dophy=1 to run InDetPhysValMonitoring over old ESD
 
 # Following specify DCube output directories. Set empty to disable.
 dcube_sim_fixref="dcube_sim"
