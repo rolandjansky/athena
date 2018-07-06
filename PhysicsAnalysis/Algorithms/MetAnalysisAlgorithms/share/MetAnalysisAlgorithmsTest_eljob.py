@@ -62,7 +62,30 @@ job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 # Set up the systematics loader/handler algorithm:
 sysLoader = AnaAlgorithmConfig( 'CP::SysListLoaderAlg/SysLoaderAlg' )
 sysLoader.sigmaRecommended = 1
-job.algsAdd( sysLoader )
+job += sysLoader
+
+# Set up a selection alg for demonstration purposes
+# Also to avoid warnings from building MET with very soft electrons
+from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
+selalg = createAlgorithm( 'CP::AsgSelectionAlg', 'METEleSelAlg' )
+addPrivateTool( selalg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
+selalg.selectionTool.minPt = 10e3
+selalg.selectionTool.maxEta = 2.47
+selalg.selectionDecoration = 'selectPtEta'
+selalg.particles = 'Electrons'
+# We need to copy here, because w/o an output container, it's assumed
+# that the input container is non-const
+selalg.particlesOut = 'DecorElectrons_%SYS%'
+job += selalg
+print( selalg ) # For debugging
+
+# Now make a view container holding only the electrons for the MET calculation
+viewalg = createAlgorithm( 'CP::AsgViewFromSelectionAlg','METEleViewAlg' )
+viewalg.selection = [ 'selectPtEta' ]
+viewalg.input = 'DecorElectrons_%SYS%'
+viewalg.output = 'METElectrons_%SYS%'
+job += viewalg
+print( viewalg ) # For debugging
 
 # Include, and then set up the met analysis algorithm sequence:
 from MetAnalysisAlgorithms.MetAnalysisSequence import makeMetAnalysisSequence
@@ -73,12 +96,12 @@ metSequence = makeMetAnalysisSequence( dataType, metSuffix="AntiKt4EMTopo",
                                        jetContainer="AntiKt4EMTopoJets", jetSystematics="(^$)",
                                        components=[
                                         {"containerName":"Muons", "regex":"(^$)", "type":xAOD.Type.Muon, "termName":"RefMuon"},
-                                        {"containerName":"Electrons", "regex":"(^$)", "type":xAOD.Type.Electron, "termName":"RefEle"}] )
+                                        {"containerName":"METElectrons_%SYS%", "regex":"(^$)", "type":xAOD.Type.Electron, "termName":"RefEle"}] )
 print( metSequence ) # For debugging
 
 # Add all algorithms to the job:
 for alg in metSequence:
-    job.algsAdd( alg )
+    job += alg
     pass
 
 # Run the job using the direct driver.
