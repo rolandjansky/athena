@@ -33,7 +33,7 @@
 #include "HepMC/HEPEVT_Wrapper.h"
 
 // #include "PythiaBc_i/PythiaBc.h"
-#include "ExoGraviton_i/ExoGraviton.h"
+// #include "ExoGraviton_i/ExoGraviton.h"
 #include "PathResolver/PathResolver.h"
 
 #include "Pythia_i/Lhefinfo.h"
@@ -350,7 +350,7 @@ StatusCode Pythia::genInitialize() {
 	double myfl2 = mystring.numpiece(5);
 	double myfl3 = mystring.numpiece(6);
     // For ExoGraviton_i and PythiaBc_i user param. input
-    int myint6 = mystring.intpiece(2);
+    // int myint6 = mystring.intpiece(2);
 
     // Print a warning when attempt is made to choose PYTUNE tune via MSTP(5) ;
     // more than MSTP(5) setting is needed for consistent PYTUNE run within Athena
@@ -652,10 +652,10 @@ StatusCode Pythia::genInitialize() {
       }
     }
     // for ExoGraviton user parameter setup
-    else if (myblock == "grav")
-     {
-       ::WriteGravParam(myint6, myint1, (double)myfl0);
-     }
+//    else if (myblock == "grav")
+//     {
+//       ::WriteGravParam(myint6, myint1, (double)myfl0);
+//     }
     // for PythiaBc_i user parameters setup
 //    else if (myblock == "pythiabc")
 //     {
