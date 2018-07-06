@@ -39,10 +39,16 @@ for script in opts.scripts:
          theApp.exit()
 
     # for interactive: drop into prompt
-      break
+      break  
 
 else:
  ## only get here if all scripts successfully included
+
+   if "-h" in opts.user_opts or "--help" in opts.user_opts:
+      #user was displaying help messages ... stop here ..
+      from AthenaCommon.AthOptionsParser import _error_msg
+      print _error_msg
+      theApp.exit()
 
  ## load from .pkl file if given
    if opts.fromdb:
