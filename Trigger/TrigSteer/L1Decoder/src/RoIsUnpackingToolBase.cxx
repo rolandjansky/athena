@@ -55,8 +55,9 @@ void RoIsUnpackingToolBase::addChainsToDecision( HLT::Identifier thresholdId,
                                                  TrigCompositeUtils::Decision* d,
                                                  const HLT::IDSet& activeChains ) const {
   auto chains = m_thresholdToChainMapping.find( thresholdId );
-  if ( chains == m_thresholdToChainMapping.end() )
+  if ( chains == m_thresholdToChainMapping.end() ) {
     return;
+  }
   for ( auto chainId: chains->second ) {
     if ( activeChains.find(chainId) != activeChains.end() )
       TrigCompositeUtils::addDecisionID( chainId.numeric(), d );
