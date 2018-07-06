@@ -33,7 +33,7 @@ def makeMetAnalysisSequence( dataType, metSuffix, jetContainer, jetSystematics,
                            'MetMakerAlg' )
     addPrivateTool( alg, 'makerTool',
                     'met::METMaker' )
-    alg.makerTool.DoPFlow = "PFlow" in jetContainer
+    alg.makerTool.DoPFlow = "PFlow" in metSuffix
     alg.metCore = "MET_Core_" + metSuffix
     alg.metAssociation = "METAssoc_" + metSuffix
     alg.jets = jetContainer
