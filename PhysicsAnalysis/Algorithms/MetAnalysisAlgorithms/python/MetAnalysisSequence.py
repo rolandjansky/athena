@@ -38,18 +38,23 @@ def makeMetAnalysisSequence( dataType, metSuffix, jetContainer, jetSystematics,
     alg.metAssociation = "METAssoc_" + metSuffix
     alg.jets = jetContainer
     alg.jetsRegex = jetSystematics
-    alg.particles = []
-    alg.particlesRegex = []
-    alg.particlesType = []
-    alg.particlesKey = []
+    particles = []
+    particlesRegex = []
+    particlesType = []
+    particlesKey = []
+    print "components: ", components
     for part in components :
-        alg.particles.append (part["containerName"])
-        alg.particlesRegex.append (part["regex"])
-        alg.particlesType.append (part["type"])
-        alg.particlesKey.append (part["termName"])
+        particles.append (part["containerName"])
+        particlesRegex.append (part["regex"])
+        particlesType.append (part["type"])
+        particlesKey.append (part["termName"])
         metSys += "|" + part["regex"]
         pass
     alg.systematicsRegex = "(^MET_.*)"
+    alg.particles = particles
+    alg.particlesRegex = particlesRegex
+    alg.particlesType = particlesType
+    alg.particlesKey = particlesKey
     alg.met = metName
     seq += alg
 
