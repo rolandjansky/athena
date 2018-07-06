@@ -21,7 +21,7 @@ else
 fi
 
 export ATLAS_LOCAL_ROOT_BASE="${ATLAS_LOCAL_ROOT_BASE:-/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase}"
-# shellcheck source=/dev/null
+# shellcheck source=/dev/null 
 source "${ATLAS_LOCAL_ROOT_BASE}"/user/atlasLocalSetup.sh --quiet
 if [ "${BRANCH}" == "master" ]; then
    lsetup -a testing asetup
@@ -48,25 +48,10 @@ ART_DIRECTORY=$(command -v art.py)
 ART_VERSION=$(art.py --version)
 echo "INFO: Using ART version ${ART_VERSION} in ${ART_DIRECTORY} directory"
 
-# run build tests
-SUBDIR=${AtlasBuildBranch}/${AtlasProject}/${PLATFORM}/${AtlasBuildStamp}
-OUTDIR="${RELEASE_BASE}/art-build/${SUBDIR}"
-CMD="art.py run ${RELEASE_BASE}/build/install/${AtlasProject}/*/InstallArea/${PLATFORM}/src ${OUTDIR}"
-echo "${CMD}"
-RESULT=$(eval "${CMD}")
-echo "${RESULT}"
+# automatic clean-up build-output EOS area
+art-clean.py --eos --release --base-dir=/eos/atlas/atlascerngroupdisk/data-art/build-output --delete "${AtlasBuildBranch}" "${AtlasProject}" "${PLATFORM}" || true &
 
-echo "TDAQ_RELEASE_BASE = ${TDAQ_RELEASE_BASE}"
-echo "AtlasBuildBranch = ${AtlasBuildBranch}"
-echo "AtlasProject = ${AtlasProject}"
-echo "AtlasBuildStamp  = ${AtlasBuildStamp}"
-echo "AtlasVersion = ${AtlasVersion}"
-
-ART_DIRECTORY=$(command -v art.py)
-ART_VERSION=$(art.py --version)
-echo "INFO: Using ART version ${ART_VERSION} in ${ART_DIRECTORY} directory"
-
-# configure MGM_URL
+# configure EOS_MGM_URL
 if [ -z "${EOS_MGM_URL}" ]; then
   echo "WARNING: EOS_MGM_URL variable is empty, setting it to root://eosatlas.cern.ch"
   export EOS_MGM_URL="root://eosatlas.cern.ch"
