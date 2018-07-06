@@ -326,7 +326,7 @@
       <Generic name="InputWidth1stStage" value=":InputWidth1stStageSortJET:"/>
       <Generic name="OutputWidth" value=":OutputWidthSortJET:"/>
       <Generic name="JetSize" value="2"/>
-      <Generic name="DoEtaCut" value="0"/>
+      <Generic name="DoEtaCut" value="1"/>
     </Fixed>
     <Variable>
       <Parameter pos="0" name="MinEta" value="31"/>

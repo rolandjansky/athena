@@ -201,7 +201,10 @@ class TopoAlgoDef:
             alg.addgeneric('JetSize', HW.DefaultJetSize.value) 
             alg.addvariable('MinEta', _mineta)
             alg.addvariable('MaxEta', jetabseta)
-            alg.addgeneric('DoEtaCut', 0)
+            if jet_type=='FJ':
+                alg.addgeneric('DoEtaCut', 1)
+            else:
+                alg.addgeneric('DoEtaCut', 0)
             tm.registerAlgo(alg) 
 
         for jet_type in ['J']:
