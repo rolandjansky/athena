@@ -25,7 +25,14 @@ algSeq += sysLoader
 
 # Include, and then set up the met analysis algorithm sequence:
 from MetAnalysisAlgorithms.MetAnalysisSequence import makeMetAnalysisSequence
-metSequence = makeMetAnalysisSequence( dataType, "AntiKt4EMTopoJets", "(^$)", [{"containerName":"Muons", "regex":"(^$)", "type":8, "termName":"RefMuon"}, {"containerName":"Electrons", "regex":"(^$)", "type":6, "termName":"RefEle"}] )
+# Touch the ObjectType enum to trigger dict loading
+from ROOT import xAOD
+xAOD.Type.ObjectType
+metSequence = makeMetAnalysisSequence( dataType, metSuffix="AntiKt4EMTopo",
+                                       jetContainer="AntiKt4EMTopoJets", jetSystematics="(^$)",
+                                       components=[
+                                        {"containerName":"Muons", "regex":"(^$)", "type":xAOD.Type.Muon, "termName":"RefMuon"},
+                                        {"containerName":"Electrons", "regex":"(^$)", "type":xAOD.Type.Electron, "termName":"RefEle"}] )
 print( metSequence ) # For debugging
 
 # Add the sequence to the job:
