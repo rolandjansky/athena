@@ -12,7 +12,7 @@
 
 #include <MetAnalysisAlgorithms/MetBuilderAlg.h>
 
-#include <METUtilities/METMaker.h>
+#include <METUtilities/METHelpers.h>
 #include <xAODMissingET/MissingETAuxContainer.h>
 
 //
