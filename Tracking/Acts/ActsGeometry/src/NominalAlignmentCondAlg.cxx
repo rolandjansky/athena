@@ -101,6 +101,7 @@ StatusCode NominalAlignmentCondAlg::execute() {
     EventIDBase start(1, EventIDBase::UNDEFEVT);
     EventIDBase end(1, EventIDBase::UNDEFEVT);
     start.set_lumi_block(0);
+    end.set_lumi_block(9999); // this is not actually forever
 
     EventIDRange r(start, end);
 

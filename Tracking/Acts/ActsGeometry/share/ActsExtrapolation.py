@@ -66,7 +66,6 @@ if os.path.exists(matMapFile):
   logging.info("Material map from %s configured", matMapFile)
 else:
   logging.info("Material map file at %s not found, do not configure", matMapFile)
-  print "CI mode, no MatMap"
 
 trkGeomSvc.BarrelMaterialBins = [40, 60] # phi z
 trkGeomSvc.EndcapMaterialBins = [50, 20] # phi r
@@ -79,7 +78,15 @@ ServiceMgr += exCellWriterSvc
 
 import MagFieldServices.SetupField
 
+# setup the McEventSelector
 import AthenaCommon.AtlasUnixGeneratorJob
+svcMgr.EventSelector.FirstEvent=0
+svcMgr.EventSelector.RunNumber=1
+svcMgr.EventSelector.InitialTimeStamp=0
+svcMgr.EventSelector.TimeStampInterval=1
+svcMgr.EventSelector.FirstLB=1
+svcMgr.EventSelector.EventsPerLB = 100
+
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 

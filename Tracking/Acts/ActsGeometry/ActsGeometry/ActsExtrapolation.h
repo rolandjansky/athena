@@ -10,6 +10,10 @@
 #include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
 #include "GaudiKernel/ISvcLocator.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "GeoModelUtilities/GeoAlignmentStore.h"
+
 // ACTS
 #include "Acts/EventData/TrackParameters.hpp"
 #include "Acts/Utilities/BFieldMapUtils.hpp"
@@ -90,6 +94,9 @@ private:
 
   Gaudi::Property<bool> m_writeMaterialTracks{this, "WriteMaterialTracks", false, ""};
   ServiceHandle<Acts::IMaterialTrackWriterSvc> m_materialTrackWriterSvc;
+  
+  // we need alignment, even though it should be nominal
+  SG::ReadCondHandleKey<GeoAlignmentStore> m_rch {this, "PixelAlignmentKey", "PixelAlignment", "cond read key"};
 
   template <class T>
   Acts::MaterialTrack
