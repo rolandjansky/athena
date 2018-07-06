@@ -50,14 +50,14 @@ lastref_dir=last_results
 
 if [ \( $dosim -ne 0 -a -n "$dcube_sim_lastref" \) -o \( $dophy -ne 0 -a -n "$dcube_rec_lastref" \) ]; then
   run art.py download --user=artprod --dst="$lastref_dir" InDetSLHC_Example "$script"
-  ls -la "$lastref_dir"
+  run ls -la "$lastref_dir"
 fi
 
 dcube() {
   # Run DCube and print art-result (if $2 is not empty)
   step="$1" statname="$2" dcubemon="$3" dcubecfg="$4" dcuberef="$5" dcubedir="$6"
   test -n "$dcubedir" || return
-  ls -lLU "$art_dcube" "$dcubemon" "$dcubecfg" "$dcuberef"
+  run ls -lLU "$art_dcube" "$dcubemon" "$dcubecfg" "$dcuberef"
   if [ ! -s "$dcubemon" ]; then
     echo "$script: $step output '$dcubemon' not created. Don't create $dcubedir output." 2>&1
     test -n "$statname" && echo "art-result: 20 $statname"
@@ -81,7 +81,7 @@ dcube() {
 
 if [ $dosim -ne 0 ]; then
 
-  ls -lL "$evnt"
+  run ls -lL "$evnt"
 
   # Sim step: based on RTT SimInclinedDuals_GMX job:
   run Sim_tf.py \
@@ -113,7 +113,7 @@ if [ $dorec -ne 0 ]; then
     hits="$hits_ref"
   fi
 
-  ls -lL "$hits"
+  run ls -lL "$hits"
 
   # Reco step: based on RecoInclinedDuals_GMX RTT job
   run Reco_tf.py \
@@ -153,7 +153,7 @@ fi
 
 if [ $dophy -ne 0 ]; then
 
-  ls -lLU "$esd" "$jo"
+  run ls -lLU "$esd" "$jo"
 
   if [ ! -s "$esd" ]; then
     echo "$script: Reco_tf output '$esd' not created - exit" 2>&1
