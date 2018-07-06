@@ -1,0 +1,75 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+################################################################################
+##
+#@file TauRecRunConfigured.py
+#
+#@brief Auxilary class used by TauRec[AOD]Builder.py
+#@brief Main tau algorithms in TauRecBuilder.py are actually tools and not algs
+#@brief this class facilitates an easy method of wrapping the TauRecBuilder tools
+#@brief with a dummy algorithm, TauProcessorAlg.cxx
+#
+#@author J. Griffiths
+#
+################################################################################
+
+from RecExConfig.Configured import Configured
+from AthenaCommon.SystemOfUnits import *
+
+################################################################################
+## @class TauRecRunConfigured
+# Make TauRecXYZ public this class
+################################################################################
+class TauRecRunConfigured ( Configured ) :
+    """Intermediate class which wraps up a ITauToolExecBase
+    into a tauRec/TauProcessorAlg algorithm
+    """
+
+    def __init__(self, name = "TauRecRunConfigured", msglevel=3, ignoreExistingDataObject=True) :
+        self.name = name
+        self.msglevel = msglevel
+        from tauRec.tauRecConf import TauRunnerAlg 
+        from tauRec.tauRecFlags import tauFlags
+        self._TauRunnerAlgHandle = TauRunnerAlg ( name=self.name+'Alg', 
+                                                  Key_tauInputContainer="tmp_TauJets",
+                                                  Key_tauOutputContainer="TauJets")
+                                                                                                
+        Configured.__init__(self, ignoreExistingDataObject=ignoreExistingDataObject)
+
+
+    def WrapTauRecToolExecHandle(self, tool=None ):
+        print "RUN RECRUNNER"
+        self.TauRunnerAlgHandle().Tools = tool
+        from AthenaCommon.AlgSequence import AlgSequence
+
+        topSequence = AlgSequence()
+
+        #from AthenaCommon.AlgScheduler import AlgScheduler
+        #AlgScheduler.ShowDataDependencies(True)
+        #AlgScheduler.ShowControlFlow(True)
+        
+        #from SGComps.SGCompsConf import SGInputLoader
+        # not needed? There by default now?
+        #topSequence += SGInputLoader()
+        #topSequence.SGInputLoader.Load = [ ('xAOD::JetContainer','AntiKt4LCTopoJets'), ('xAOD::VertexContainer', 'PrimaryVertices'),
+         #                                  ('xAOD::TrackParticleContainer','InDetTrackParticles'), ('CaloCellContainer','AllCalo') ]
+        
+        topSequence += self.TauRunnerAlgHandle()
+
+    def AddToolsToToolSvc(self, tools=[]):
+        from AthenaCommon.AppMgr import ToolSvc
+        from tauRec.tauRecFlags import tauFlags
+        for tool in tools :
+            # if tool.__slots__['calibFolder'].count('TauDiscriminant'):
+            #     tool.calibFolder = tauFlags.TauDiscriminantCVMFSPath()
+            # else :
+            #     tool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
+            tool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
+            if tool not in ToolSvc : ToolSvc += tool
+            pass
+
+
+
+    def TauRunnerAlgHandle(self):
+        return self._TauRunnerAlgHandle
+

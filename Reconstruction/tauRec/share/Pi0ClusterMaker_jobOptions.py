@@ -313,4 +313,6 @@ if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
         CaloTopoForTausMaker.LocalCalibForTaus.LCClassify.MaxProbability = 0.50
         CaloTopoForTausMaker.LocalCalibForTaus.LCClassify.UseNormalizedEnergyDensity = True
 
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
 topSequence += CaloTopoForTausMaker
