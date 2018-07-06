@@ -2,14 +2,14 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef STGCSIMHITCOLLECTION_P1_H
-#define STGCSIMHITCOLLECTION_P1_H
+#ifndef STGCSIMHITCOLLECTION_P2_H
+#define STGCSIMHITCOLLECTION_P2_H
 
 #include <vector>
-#include "GeneratorObjectsTPCnv/HepMcParticleLink_p1.h"
+#include "GeneratorObjectsTPCnv/HepMcParticleLink_p2.h"
 
 namespace Muon {
-  class sTGCSimHitCollection_p1   
+  class sTGCSimHitCollection_p2   
   {
   public:
     std::vector<int>      m_sTGCId;
@@ -27,7 +27,7 @@ namespace Muon {
     std::vector<float>    m_depositEnergy;
     std::vector<float>    m_StepLength;
 
-    std::vector<HepMcParticleLink_p1>  m_partLink;
+    std::vector<HepMcParticleLink_p2>  m_partLink;
   };
 }
 

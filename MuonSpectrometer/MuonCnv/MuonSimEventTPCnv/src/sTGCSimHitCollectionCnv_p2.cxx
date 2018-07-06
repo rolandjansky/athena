@@ -3,9 +3,9 @@
 */
 
 #include "MuonSimEvent/sTGCSimHit.h"
-#include "MuonSimEventTPCnv/sTGCSimHitCollectionCnv_p1.h"
-#include "MuonSimEventTPCnv/sTGCSimHitCollection_p1.h"
-#include "GeneratorObjectsTPCnv/HepMcParticleLinkCnv_p1.h"
+#include "MuonSimEventTPCnv/sTGCSimHitCollectionCnv_p2.h"
+#include "MuonSimEventTPCnv/sTGCSimHitCollection_p2.h"
+#include "GeneratorObjectsTPCnv/HepMcParticleLinkCnv_p2.h"
 
 //#include <cmath>
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -15,71 +15,43 @@
 // Athena
 #include "StoreGate/StoreGateSvc.h"
 
-void sTGCSimHitCollectionCnv_p1::transToPers(const sTGCSimHitCollection* transCont, Muon::sTGCSimHitCollection_p1* persCont, MsgStream &log)
+void sTGCSimHitCollectionCnv_p2::transToPers(const sTGCSimHitCollection* transCont, Muon::sTGCSimHitCollection_p2* persCont, MsgStream &log)
 {
   // for reasons of efficiency, set size before hand
   unsigned int size=transCont->size();
   persCont->m_sTGCId.reserve(size);
   persCont->m_globalTime.reserve(size);
-  persCont->m_globalpreTime.reserve(size);
-  // preStep Global
-  persCont->m_prestX.reserve(size);
-  persCont->m_prestY.reserve(size);
-  persCont->m_prestZ.reserve(size);
-  // preStep Local
-  persCont->m_prelocX.reserve(size);
-  persCont->m_prelocY.reserve(size);
-  persCont->m_prelocZ.reserve(size);
   // postStep Global
   persCont->m_stX.reserve(size);
   persCont->m_stY.reserve(size);
   persCont->m_stZ.reserve(size);
   // postStep Local
-  persCont->m_locX.reserve(size);
-  persCont->m_locY.reserve(size);
-  persCont->m_locZ.reserve(size);
-  persCont->m_kineticEnergy.reserve(size);
   persCont->m_particleEncoding.reserve(size);
   persCont->m_ptX.reserve(size);
   persCont->m_ptY.reserve(size);
   persCont->m_ptZ.reserve(size);
   persCont->m_depositEnergy.reserve(size);
-  persCont->m_StepLength.reserve(size);	
   persCont->m_partLink.reserve(size);
 
   // make convertor to handle HepMcParticleLinks
-  HepMcParticleLinkCnv_p1 hepMcPLCnv;
-  HepMcParticleLink_p1 persLink; // will use this as a temp object inside the loop
+  HepMcParticleLinkCnv_p2 hepMcPLCnv;
+  HepMcParticleLink_p2 persLink; // will use this as a temp object inside the loop
 
   // loop through container, filling pers object  
   sTGCSimHitCollection::const_iterator it = transCont->begin(), itEnd = transCont->end();
   for (; it != itEnd; ++it) {
     persCont->m_sTGCId.push_back(it->sTGCId());
     persCont->m_globalTime.push_back(it->globalTime());
-    persCont->m_globalpreTime.push_back(it->globalpreTime());
-    // preStep Global
-    persCont->m_prestX.push_back(it->globalPrePosition().x());
-    persCont->m_prestY.push_back(it->globalPrePosition().y());
-    persCont->m_prestZ.push_back(it->globalPrePosition().z());
-    // preStep Local
-    persCont->m_prelocX.push_back(it->localPrePosition().x());
-    persCont->m_prelocY.push_back(it->localPrePosition().y());
-    persCont->m_prelocZ.push_back(it->localPrePosition().z());
     // postStep Global
     persCont->m_stX.push_back(it->globalPosition().x());
     persCont->m_stY.push_back(it->globalPosition().y());
     persCont->m_stZ.push_back(it->globalPosition().z());
     // postStep Local
-    persCont->m_locX.push_back(it->localPosition().x());
-    persCont->m_locY.push_back(it->localPosition().y());
-    persCont->m_locZ.push_back(it->localPosition().z());
-    persCont->m_kineticEnergy.push_back(it->kineticEnergy());
     persCont->m_particleEncoding.push_back(it->particleEncoding()); 
     persCont->m_ptX.push_back(it->globalDirection().x());
     persCont->m_ptY.push_back(it->globalDirection().y());
     persCont->m_ptZ.push_back(it->globalDirection().z());
     persCont->m_depositEnergy.push_back(it->depositEnergy());
-    persCont->m_StepLength.push_back(it->StepLength());
 		
     hepMcPLCnv.transToPers(&it->particleLink(),&persLink, log);   
     persCont->m_partLink.push_back(persLink);
@@ -88,16 +60,16 @@ void sTGCSimHitCollectionCnv_p1::transToPers(const sTGCSimHitCollection* transCo
 }
 
 
-sTGCSimHitCollection* sTGCSimHitCollectionCnv_p1::createTransient(const Muon::sTGCSimHitCollection_p1* persObj, MsgStream &log) {
+sTGCSimHitCollection* sTGCSimHitCollectionCnv_p2::createTransient(const Muon::sTGCSimHitCollection_p2* persObj, MsgStream &log) {
   std::auto_ptr<sTGCSimHitCollection> trans(new sTGCSimHitCollection("DefaultCollectionName",persObj->m_globalTime.size()));
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 }
 
 
-void sTGCSimHitCollectionCnv_p1::persToTrans(const Muon::sTGCSimHitCollection_p1* persCont, sTGCSimHitCollection* transCont, MsgStream &log) 
+void sTGCSimHitCollectionCnv_p2::persToTrans(const Muon::sTGCSimHitCollection_p2* persCont, sTGCSimHitCollection* transCont, MsgStream &log) 
 {
-  HepMcParticleLinkCnv_p1 hepMcPLCnv;
+  HepMcParticleLinkCnv_p2 hepMcPLCnv;
     
   //transCont->reserve(persCont->m_sTGCId.size());//done in createTransient
   for (unsigned int i = 0; i < persCont->m_sTGCId.size(); i++) { 
@@ -112,7 +84,7 @@ void sTGCSimHitCollectionCnv_p1::persToTrans(const Muon::sTGCSimHitCollection_p1
     HepMcParticleLink link;
     hepMcPLCnv.persToTrans(&persCont->m_partLink[i],&link, log);   
 
-    transCont->Emplace(persCont->m_sTGCId[i], persCont->m_globalTime[i], position, persCont->m_particleEncoding[i], direction, persCont->m_depositEnergy[i]);
+    transCont->Emplace(persCont->m_sTGCId[i], persCont->m_globalTime[i], position, persCont->m_particleEncoding[i], direction, persCont->m_depositEnergy[i], link);
   }
 }
 

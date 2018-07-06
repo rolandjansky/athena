@@ -8,10 +8,10 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "MuonSimEvent/sTGCSimHitCollection.h"
 
-#include "MuonSimEventTPCnv/sTGCSimHitCollectionCnv_p1.h"
+#include "MuonSimEventTPCnv/sTGCSimHitCollectionCnv_p2.h"
 
 // the latest persistent representation type of DataCollection:
-typedef  Muon::sTGCSimHitCollection_p1  sTGCSimHitCollection_PERS;
+typedef  Muon::sTGCSimHitCollection_p2  sTGCSimHitCollection_PERS;
 typedef  T_AthenaPoolCustomCnv<sTGCSimHitCollection, sTGCSimHitCollection_PERS >  sTGCSimHitCollectionCnvBase;
 
 /**
@@ -32,8 +32,7 @@ public:
     virtual sTGCSimHitCollection*        createTransient ();
         
 private:
-    sTGCSimHitCollectionCnv_p1    m_TPConverter_p1;
-    //sTGCSimHitCollectionCnv_p2    m_TPConverter_p2;
+    sTGCSimHitCollectionCnv_p2    m_TPConverter_p2;
 };
 
 #endif

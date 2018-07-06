@@ -26,6 +26,6 @@
 #include "MuonSimEventTPCnv/MDTSimHitCollection_p3.h"
 #include "MuonSimEventTPCnv/GenericMuonSimHitCollection_p1.h"
 #include "MuonSimEventTPCnv/GenericMuonSimHitCollection_p2.h"
-#include "MuonSimEventTPCnv/sTGCSimHitCollection_p1.h"
+#include "MuonSimEventTPCnv/sTGCSimHitCollection_p2.h"
 
 #endif // MUONSIMEVENTTPCNV_MUONSIMEVENTTPCNVDICT_H
