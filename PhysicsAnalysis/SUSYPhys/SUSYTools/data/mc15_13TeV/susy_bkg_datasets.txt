@@ -93,6 +93,8 @@ mc15_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.evgen.EVNT.e6337
 mc15_13TeV.410471.PhPy8EG_A14_ttbar_hdamp258p75_allhad.evgen.EVNT.e6337
 mc15_13TeV.410472.PhPy8EG_A14_ttbar_hdamp258p75_dil.evgen.EVNT.e6348
 
+mc15_13TeV.410480.PhPy8EG_A14_ttbar_hdamp517p5_SingleLep.evgen.EVNT.e6454
+
 mc15_13TeV.410442.aMcAtNloPythia8EvtGen_MEN30NLO_A14N23LO_ttbar_dil.evgen.EVNT.e6407
 
 mc15_13TeV.410424.Sherpa_224_NNPDF30NNLO_ttbar_dilepton_MEPS_NLO.evgen.EVNT.e6404
@@ -2855,6 +2857,8 @@ mc15_13TeV.410278.aMcAtNloPythia8EvtGen_MEN30NLO_A14N23LO_tttautau_mll_1_5.evgen
 mc15_13TeV.410397.MadGraphPythia8EvtGen_ttbar_wbee_MEN30LO_A14N23LO.evgen.EVNT.e6086
 mc15_13TeV.410398.MadGraphPythia8EvtGen_ttbar_wbmumu_MEN30LO_A14N23LO.evgen.EVNT.e6086
 mc15_13TeV.410399.MadGraphPythia8EvtGen_ttbar_wbtautau_MEN30LO_A14N23LO.evgen.EVNT.e6086
+
+mc15_13TeV.410408.aMcAtNloPythia8EvtGen_tWZ_Ztoll_minDR1.evgen.EVNT.e6423
 
 ################################################################################################################
 # Sherpa 2.2.0 ttV
