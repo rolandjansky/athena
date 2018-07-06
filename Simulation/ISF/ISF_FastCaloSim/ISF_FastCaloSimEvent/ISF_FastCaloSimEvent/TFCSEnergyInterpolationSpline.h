@@ -36,7 +36,7 @@ public:
 
   void Print(Option_t *option="") const;
 
-  static void unit_test(TFCSSimulationState* simulstate=nullptr,TFCSTruthState* truth=nullptr, const TFCSExtrapolationState* extrapol=nullptr);
+  static void unit_test(TFCSSimulationState* simulstate=nullptr,TFCSTruthState* truth=nullptr, const TFCSExtrapolationState* extrapol=nullptr,TGraph* grspline=nullptr);
 private:
   TSpline3 m_spline;
 

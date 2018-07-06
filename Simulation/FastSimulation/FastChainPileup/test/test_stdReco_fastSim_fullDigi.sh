@@ -37,8 +37,8 @@ Reco_tf.py --inputRDOFile='RDO_pileup_fastsim_fulldigi.pool.root'\
 echo "art-result: $? ESD step"
 
 
-#add an additional payload from the job (corollary file).                                                           
-# art-output: InDetStandardPlots.root  
+#add an additional payload from the job (corollary file).
+# art-output: InDetStandardPlots.root
 #Regression test
 
 ArtPackage=$1
@@ -54,6 +54,5 @@ echo  "art-result: $? regression"
 # art-output: dcube/dcube.xml
 # art-output: dcube/dcube.log
 # art-output: dcube/dcubelog.xml
-# art-output: dcube/dcube.xml.php 
+# art-output: dcube/dcube.xml.php
 echo "art-result: $? histcompArtPackage
-

@@ -39,7 +39,7 @@ import string
 import argparse
 import xmlrpclib
 
-import pathExtract         
+from DataQualityUtils import pathExtract         
 
 from ROOT import TFile,TCanvas,TBox,TPaveText,TColor
 from ROOT import TH1,TH2,TH1I,TH1D,TH2D

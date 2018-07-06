@@ -36,7 +36,7 @@ import os, sys
 import string
 import argparse,xmlrpclib
 
-import pathExtract         
+from DataQualityUtils import pathExtract         
 
 from ROOT import TFile,TCanvas,TBox,TColor,TLegend
 from ROOT import TH1,TH2,TH1I
@@ -211,8 +211,8 @@ if (objectType == "EMTopoJets_eta"):
 # Tau
 if (objectType == "Tau"):
   histoPath  = {"NoCut":"run_%d/Tau/tauPhiVsEta"%(runNumber),
-                "Et15GeV":"run_%d/Tau/tauPhiVsEta_et15"%(runNumber),
-                "Et15GeVBdtLoose":"run_%d/Tau/tauPhiVsEta_et15_BDTLoose"%(runNumber)}
+                "Et15GeV":"run_%d/Tau/tauPhiVsEtaEt15"%(runNumber),
+                "Et15GeVBdtLoose":"run_%d/Tau/tauPhiVsEtaEt15BDTLoose"%(runNumber)}
   histoLegend = {"NoCut":"Et > 4GeV",
                  "Et15GeV":"Et > 10GeV",
                  "Et15GeVBdtLoose":"Et > 15GeV-BDT loose"}

@@ -6,7 +6,6 @@
  AlgTool to follow track (adding HitOnTrack's) using interpolation and/or
  extrapolation methods
  ------------------------------------------------------------------------
- Copyright (C) 2000 by ATLAS Collaboration
  ***************************************************************************/
 
 #ifndef IPATTRACKFOLLOWER_TRACKFOLLOWER_H

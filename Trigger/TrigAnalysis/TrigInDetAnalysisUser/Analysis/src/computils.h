@@ -1,11 +1,13 @@
 // emacs: this is -*- c++ -*-
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 //
 //   @file    computils.h         
 //   
 //
 //   @author M.Sutton
 // 
-//   Copyright (C) 2012 M.Sutton (sutt@cern.ch)    
 //
 //   $Id: comparitor.cxx, v0.0   Sat Aug 30 2014 14:38:03 CEST  sutt $
 
@@ -17,6 +19,7 @@
 #include <vector>
 #include <cstdio>
 #include <cstdlib>
+#include <exception>
 
 #include "label.h"
 #include "utils.h"
@@ -72,6 +75,9 @@ void contents( std::vector<std::string>& keys,
 double realmax( TH1* h, bool include_error=true, double lo=0, double hi=0 );
 double realmin( TH1* h, bool include_error=true, double lo=0, double hi=0 );
 
+std::string findcell( std::string name, const std::string regex, const std::string splitex="/" );
+
+std::string findrun( TFile *f );
 
 double plotable( TH1* h ); // , double xlo=-999, double xhi=-999 );
 
@@ -199,6 +205,8 @@ public:
   double hi() const { return m_hi; } 
   
   double binwidth() const { return m_binwidth; }
+
+  std::string c_str() const { return m_info; }
 
 public:
 
@@ -419,11 +427,6 @@ public:
       }
 #endif
 
-      // if(i==0)  htest()->Draw("ep");
-     
-      //      if ( contains(href()->GetName(),"sigma") ) href()->SetMinimum(0);
-
-      //      std::cout << "plotref " << plotref << " " << href() << std::endl; 
 
       if ( plotref && href() ) { 
 	if ( contains(href()->GetName(),"_vs_")  || 
@@ -460,17 +463,12 @@ public:
 
       htest()->Draw("ep same");
 
-
       // href()->Draw("lhistsame");
       // htest()->Draw("lhistsame");
 
       std::string key = m_plotfilename;
 
       //      std::cout << "adding key " << key << std::endl; 
-
-      // if      ( contains( key, "FastTrack" ) )  leg->AddEntry( htest(), "  Run 2: Fast Tracking", "p" );
-      // else if ( contains( key, "EFID_" ) )      leg->AddEntry( htest(), "  Run 1: EFID Tracking", "p" );
-      // else if ( contains( key, "_EFID" ) )      leg->AddEntry( htest(), "  Run 2: Precision Tracking", "p" );
       
       //      std::cout << "cost size " << key.size() << std::endl;
 
@@ -503,26 +501,14 @@ public:
 	std::string rkey = key;
 	
 	key += std::string(" : ");
-	//       	if ( key.size()<15 ) { 
-	//	  key += _mean;
-	//	  leg->AddEntry( htest(), key.c_str(), "p" );
-	//	}
-	//	else { 
-	  leg->AddEntry( htest(), key.c_str(), "p" );
-	  leg->AddEntry( hnull, _mean, "p" );
-	  //	}
+	leg->AddEntry( htest(), key.c_str(), "p" );
+	leg->AddEntry( hnull, _mean, "p" );
 
 	if ( displayref ) { 
 	  rkey += std::string(" : ");
-	  //	  if ( rkey.size()<15 ) { 
-	  //    rkey += _meanref;
-	  //	    leg->AddEntry( href(), rkey.c_str(), "l" );
-	  //	  }
-	  //	  else { 
-	    leg->AddEntry( hnull, "", "l" );
-	    leg->AddEntry( href(), rkey.c_str(), "l" );
-	    leg->AddEntry( hnull, _meanref, "l" );
-	    //	  }
+	  leg->AddEntry( hnull, "", "l" );
+	  leg->AddEntry( href(), rkey.c_str(), "l" );
+	  leg->AddEntry( hnull, _meanref, "l" );
 	}
 
 
@@ -790,6 +776,7 @@ public:
       if ( xinfo.log() && m_lo>0 ) SetLogx(true);
       else                         SetLogx(false);
     }
+
   }
 
 
@@ -913,10 +900,112 @@ private:
 };
 
 
-std::string findcell( std::string name, const std::string regex, const std::string splitex="/" );
 
 
-std::string findrun( TFile *f );
+/// details of the histogram axes etc
+
+class HistDetails { 
+
+public:
+
+  HistDetails( const std::vector<std::string>& v ) : m_xinfo(v[2]), m_yinfo(v[4]) { 
+    if ( v.size() < 6 ) throw std::exception();
+    m_details.reserve(6);
+    for ( size_t i=0 ; i<6 ; i++ ) m_details.push_back(v[i]); 
+  }
+
+  HistDetails( const std::string* vp ) : m_xinfo(vp[2]), m_yinfo(vp[4]) { 
+    m_details.reserve(6);
+    for ( size_t i=0 ; i<6 ; i++ ) m_details.push_back(vp[i]); 
+  }
+
+
+  std::string  name() const { return m_details[0]; } 
+
+  std::string  info() const { return m_details[1]; } 
+
+  std::string xtitle() const { return m_details[3]; }
+  std::string ytitle() const { return m_details[5]; }
+
+  const AxisInfo& xaxis() const { return m_xinfo; }
+  const AxisInfo& yaxis() const { return m_yinfo; }
+
+private:
+
+  std::vector<std::string> m_details;
+
+  AxisInfo m_xinfo;
+  AxisInfo m_yinfo;
+
+};
+
+
+
+inline std::ostream& operator<<( std::ostream& s, const HistDetails& h ) { 
+  return s << "[ " << h.name() << "  \tx: \"" << h.xtitle() << "\"   " << h.xaxis() << "\t\ty: \"" << h.ytitle() << "\"   " << h.yaxis() << " ]"; 
+}
+
+
+
+// plot panel inforamtion
+
+class Panel { 
+
+public:
+
+  /// don't know how many rows or total hists yet,
+  /// but do know number of columns 
+  Panel( const std::string& s, int nc ) : 
+    m_name(s), m_nhist(-1), m_nrows(-1), m_ncols(nc) { 
+    m_hist.reserve( nc );
+  } 
+
+  /// know number of rows and columns
+  Panel( const std::string& s, int nr, int nc ) : 
+    m_name(s), m_nhist(nr*nc), m_nrows(nr), m_ncols(nc) { 
+    m_hist.reserve( m_nhist );
+  } 
+
+  void push_back( const HistDetails& h ) { 
+    m_hist.push_back( h );
+    m_nhist = m_hist.size();
+    m_nrows = m_nhist/m_ncols + (m_nhist%m_ncols ? 1 : 0 );
+  }
+
+  std::string name() const { return m_name; }
+
+  size_t size() const { return m_hist.size(); }
+
+  const HistDetails& operator[](int i) const { return m_hist.at(i); }
+  HistDetails&       operator[](int i)       { return m_hist.at(i); }
+
+  const HistDetails& back() const { return m_hist.back(); }
+   HistDetails&      back()       { return m_hist.back(); }
+
+  int nrows() const { return m_nrows; }
+  int ncols() const { return m_ncols; }
+
+private:
+
+  std::string               m_name;
+
+  int                       m_nhist;
+
+  int                       m_nrows;
+  int                       m_ncols;
+
+  std::vector<HistDetails> m_hist;
+
+};
+
+
+
+inline std::ostream& operator<<( std::ostream& s, const Panel& p ) { 
+  s << "Panel: " << p.name();
+  for ( size_t i=0 ; i<p.size() ; i++ ) s << "\n\t" << p[i];
+  return s;
+}
+
 
 
 

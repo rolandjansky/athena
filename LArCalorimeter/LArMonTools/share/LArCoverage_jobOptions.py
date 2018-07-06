@@ -20,6 +20,14 @@ theLArBadChannelTool.ReadFromASCII=False
 ToolSvc+=theLArBadChannelTool
 ToolSvc.LArCoverage.LArBadChannelTool=theLArBadChannelTool
 
+# KnownMNBFEBsTool configuration
+if 'COMP200' not in conddb.GetInstance():
+    theMNBFebTool=LArBadChanTool("KnownMNBFEBsTool")
+    theMNBFebTool.CoolMissingFEBsFolder="/LAR/BadChannels/KnownMNBFEBs"
+    ToolSvc+=theMNBFebTool
+    ToolSvc.LArCoverage.LArKnownMNBFEBsTool=theMNBFebTool
+
+
 # CaloNoiseTool configuration
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theLArCoverageCaloNoiseTool=CaloNoiseToolDefault()

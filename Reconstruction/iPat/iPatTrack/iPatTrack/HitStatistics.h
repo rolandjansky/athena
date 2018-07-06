@@ -6,7 +6,6 @@
  detailed statistics of hits associated to track
  (including comparison with truth - kine indices)
  -----------------------------------------------
- Copyright (C) 2000 by ATLAS Collaboration
  ***************************************************************************/
 
 #ifndef IPATTRACK_HITSTATISTICS_H

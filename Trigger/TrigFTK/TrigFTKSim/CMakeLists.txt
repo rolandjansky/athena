@@ -147,6 +147,11 @@ atlas_add_executable( trigftk_dataflow
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps PileUpToolsLib StoreGateLib SGtests GaudiKernel InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool IdDictDetDescr EventInfo NavFourMom GeneratorObjects InDetRawData InDetSimData TrkMeasurementBase TrkRIO_OnTrack TrigFTKSimLib )
 
+atlas_add_executable( trigftk_makeconn
+                      standalone/make_conn.cc
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps PileUpToolsLib StoreGateLib SGtests GaudiKernel InDetIdentifier InDetReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool IdDictDetDescr EventInfo NavFourMom GeneratorObjects InDetRawData InDetSimData TrkMeasurementBase TrkRIO_OnTrack TrigFTKSimLib )
+
 # Install files from the package:
 atlas_install_python_modules( python/__init__.py python/TrigFTKTruthAlgsConfig.py python/QueryFTKdb.py python/findInputs.py python/FTKSimOptions.py )
 atlas_install_joboptions( share/*.py )

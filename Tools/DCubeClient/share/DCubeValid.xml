@@ -69,6 +69,13 @@
 
 <!-- known projects -->
 <project>Athena</project>
+<project>AthAnalysis</project>
+<project>AnalysisBase</project>
+<project>AthDerivation</project>
+<project>AthSimulation</project>
+<project>AthenaP1</project>
+<project>AthDatQuality</project>
+<project>AnalysisTop</project>
 <project>AtlasProduction</project>
 <project>AtlasOffline</project>
 <project>AtlasAnalysis</project> 

@@ -147,8 +147,10 @@ private:
   std::vector<double>                   m_pixPhiError;              //!< phi error when not using the ClusterMaker
   std::vector<double>                   m_pixEtaError;              //!< eta error when not using the ClusterMaker
   int                                   m_pixErrorStrategy;         //!< error strategy for the  ClusterMaker
-  double                                m_DiffusionShiftX; //Shift of the track to improve cluster size description
-  double                                m_DiffusionShiftY; //Shift of the track to improve cluster size description
+  double                                m_pixDiffShiftBarrX; //Shift of the track to improve cluster size description
+  double                                m_pixDiffShiftBarrY; //Shift of the track to improve cluster size description
+  double                                m_pixDiffShiftEndCX; //Shift of the track to improve cluster size description
+  double                                m_pixDiffShiftEndCY; //Shift of the track to improve cluster size description
   double                                m_ThrConverted;
   
   bool m_mergeCluster; //!< enable the merging of neighbour Pixel clusters >  
