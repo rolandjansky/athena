@@ -29,10 +29,10 @@ namespace TrigCostRootAnalysis {
    */
   class MonitorChain: public MonitorBase {
   public:
-    MonitorChain(const TrigCostData* _costData);
-    void newEvent(Float_t _weight = 1.);
-    CounterBase* newCounter(const std::string& _name, Int_t _ID);
-    Bool_t getIfActive(ConfKey_t _mode);
+    MonitorChain(const TrigCostData* costData);
+    void newEvent(Float_t weight = 1.);
+    CounterBase* newCounter(const std::string& name, Int_t ID);
+    Bool_t getIfActive(ConfKey_t mode);
     void saveOutput();
   }; //class MonitorChain
 } // namespace TrigCostRootAnalysis

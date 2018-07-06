@@ -14,6 +14,7 @@
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutSet.h"
 #include "GeoModelKernel/GeoPhysVol.h"
+#include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "GaudiKernel/MsgStream.h"
 #include "TrkSurfaces/PlaneSurface.h"
@@ -50,9 +51,7 @@ namespace MuonGM {
     setStationName(stName);
 
     if (mgr->MinimalGeoFlag() == 0) {
-      GeoPhysVol* pvc = NULL;
-      pvc = (GeoPhysVol*)pv;
-      if (pvc != NULL) {
+      if (GeoFullPhysVol* pvc = dynamic_cast<GeoFullPhysVol*> (pv)) {
 	unsigned int nchildvol = pvc->getNChildVols();
 	int lgg = 0;
 	int llay = 0;

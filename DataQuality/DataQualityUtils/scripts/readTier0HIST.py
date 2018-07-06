@@ -18,7 +18,7 @@ import os, sys
 import argparse
 import xmlrpclib
 
-import pathExtract         
+from DataQualityUtils import pathExtract
 
 from ROOT import TFile,TBrowser
 from ROOT import gStyle

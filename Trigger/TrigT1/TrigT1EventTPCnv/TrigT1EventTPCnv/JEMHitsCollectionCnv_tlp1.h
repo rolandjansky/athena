@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef JEMHitsCollectionCNV_TLP1_H
 #define JEMHitsCollectionCNV_TLP1_H
 

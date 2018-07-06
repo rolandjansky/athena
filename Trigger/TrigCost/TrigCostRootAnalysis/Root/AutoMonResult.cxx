@@ -46,33 +46,33 @@ namespace TrigCostRootAnalysis {
    */
 
   void AutoMonResult::saveOutput() const {
-    const std::string _output = Config::config().getStr(kOutputDirectory) + "/AutoMonResult.json";
+    const std::string output = Config::config().getStr(kOutputDirectory) + "/AutoMonResult.json";
 
-    Info("AutoMonResult::saveOutput", ("Outputting AutoMonResult to " + _output).c_str());
-    std::ofstream _fout(_output.c_str());
+    Info("AutoMonResult::saveOutput", ("Outputting AutoMonResult to " + output).c_str());
+    std::ofstream fout(output.c_str());
 
-    JsonExport _json;
-    _json.addNode(_fout, "AutoMonResults");
+    JsonExport json;
+    json.addNode(fout, "AutoMonResults");
 
-    saveList(_json, m_alert_list, _fout, AlertStatus::ALERT);
+    saveList(json, m_alert_list, fout, AlertStatus::ALERT);
 
     if (m_interest_level >= AlertStatus::WARNING) {
-      saveList(_json, m_warning_list, _fout, AlertStatus::WARNING);
+      saveList(json, m_warning_list, fout, AlertStatus::WARNING);
     }
     if (m_interest_level >= AlertStatus::ADVISORY) {
-      saveList(_json, m_advisory_list, _fout, AlertStatus::ADVISORY);
+      saveList(json, m_advisory_list, fout, AlertStatus::ADVISORY);
     }
 
-    _json.endNode(_fout);
-    _fout.close();
+    json.endNode(fout);
+    fout.close();
   } //end saveOutput
 
   /*
    * Save output of a particular list to the JSON file.
    */
 
-  void AutoMonResult::saveList(JsonExport _json, std::map < const CounterBase*, const AutoMonTest* > list,
-                               std::ofstream& _fout, const AlertStatus& alert) const {
+  void AutoMonResult::saveList(JsonExport json, std::map < const CounterBase*, const AutoMonTest* > list,
+                               std::ofstream& fout, const AlertStatus& alert) const {
     for (auto list_iter = list.begin(); list_iter != list.end(); ++list_iter) {
       const std::string alertLevel = getResultString(alert);
       const std::string testName = (list_iter->second)->getTestName();
@@ -85,16 +85,16 @@ namespace TrigCostRootAnalysis {
         std::to_string((list_iter->first)->getValue((list_iter->second)->getVarName(),
                                                     (list_iter->second)->getVarOption()));
 
-      _json.addNode(_fout, counterName);
-      _json.addLeafCustom(_fout, "alertLevel", alertLevel);
-      _json.addLeafCustom(_fout, "testName", testName);
-      _json.addLeafCustom(_fout, "counterName", counterName);
-      _json.addLeafCustom(_fout, "MonitorName", MonitorName);
-      _json.addLeafCustom(_fout, "range", range);
-      _json.addLeafCustom(_fout, "AboveOrBelow", AboveOrBelow);
-      _json.addLeafCustom(_fout, "threshold", threshold);
-      _json.addLeafCustom(_fout, "value", value);
-      _json.endNode(_fout);
+      json.addNode(fout, counterName);
+      json.addLeafCustom(fout, "alertLevel", alertLevel);
+      json.addLeafCustom(fout, "testName", testName);
+      json.addLeafCustom(fout, "counterName", counterName);
+      json.addLeafCustom(fout, "MonitorName", MonitorName);
+      json.addLeafCustom(fout, "range", range);
+      json.addLeafCustom(fout, "AboveOrBelow", AboveOrBelow);
+      json.addLeafCustom(fout, "threshold", threshold);
+      json.addLeafCustom(fout, "value", value);
+      json.endNode(fout);
     }// end of loop over list
   } // end saveList
 

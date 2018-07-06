@@ -49,7 +49,7 @@ TrigMultiTrkFex::TrigMultiTrkFex(const std::string & name, ISvcLocator* pSvcLoca
   HLT::AllTEAlgo(name, pSvcLocator)
   ,m_bphysHelperTool("TrigBphysHelperUtilsTool")
   ,m_BmmHypTot(0)
-  , m_maxNOutputObject(-1)
+  , m_maxNOutputObject(5000)
   , m_trackCollectionKey()
   , m_outputTrackCollectionKey()
   , m_bphysCollectionKey()
@@ -78,7 +78,7 @@ TrigMultiTrkFex::TrigMultiTrkFex(const std::string & name, ISvcLocator* pSvcLoca
   // Read cuts
 
   declareProperty("AcceptAll",    m_acceptAll=true);
-  declareProperty("maxNOutputObject", m_maxNOutputObject  = -1 );
+declareProperty("maxNOutputObject", m_maxNOutputObject  = 5000 ); // set this to -1 to avoid cut completely
   declareProperty("trackCollectionKey", m_trackCollectionKey  = "" );
   declareProperty("outputTrackCollectionKey", m_outputTrackCollectionKey  = "MultiTrkFex" );
   declareProperty("bphysCollectionKey", m_bphysCollectionKey  = "MultiTrkFex" );

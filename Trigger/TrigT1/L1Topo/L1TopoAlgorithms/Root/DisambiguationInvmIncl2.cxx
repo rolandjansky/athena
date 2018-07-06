@@ -1,7 +1,9 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 /*********************************
  * DisambiguationInvmIncl2.cpp
  * Created by Davide Gerbaudo on 2016-10-10.
- * Copyright (c) 2016 Davide Gerbaudo. All rights reserved.
  *
  * @brief compute the INVMASS**2 between distinct objects from two lists and applies invmass criteria
  *

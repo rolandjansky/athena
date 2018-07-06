@@ -430,8 +430,8 @@ bool ThinGeantTruthAlg::isStatus1BSMParticle(const xAOD::TruthParticle* part) co
         abs(pdg)== 7 || // 4th gen beauty
         abs(pdg)== 8 || // 4th gen top
         (600 < abs(pdg) && abs(pdg) < 607) || // scalar leptoquarks
-        (1000000<abs(pdg) && abs(pdg)<1000040) || // left-handed SUSY
-        (2000000<abs(pdg) && abs(pdg)<2000040) || // right-handed SUSY
+        (1000000<abs(pdg) && abs(pdg)<2000000) || // left-handed SUSY (including R-Hadrons)
+        (2000000<abs(pdg) && abs(pdg)<3000000) || // right-handed SUSY (including R-Hadrons)
         abs(pdg)==6000005 || // X5/3
         abs(pdg)==6000006 || // T2/3
         abs(pdg)==6000007 || // B-1/3
