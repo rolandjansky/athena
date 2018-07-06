@@ -109,7 +109,6 @@ namespace LikeEnum {
         int nSiHitsPlusDeadSensors;
         int nPixHitsPlusDeadSensors;
         bool passBLayerRequirement;
-        int convBit;
         uint8_t ambiguityBit;
         double d0;
         double deltaEta;
@@ -185,7 +184,7 @@ namespace Root {
                                 double eta, double eT,
                                 int nSiHitsPlusDeadSensors, int nPixHitsPlusDeadSensors,
                                 bool passBLayerRequirement,
-                                int convBit, uint8_t ambiguityBit, double d0, double deltaEta, double deltaphires, 
+                                uint8_t ambiguityBit, double d0, double deltaEta, double deltaphires, 
                                      double wstot, double EoverP, double ip ) const;
         /** Return dummy accept with only info */
         asg::AcceptData accept() const { return asg::AcceptData(&m_acceptInfo); }
@@ -251,8 +250,6 @@ namespace Root {
         std::vector<double> m_cutDeltaEta;
         // /** @brief do cut on delta phi bit*/
         std::vector<double> m_cutDeltaPhiRes;
-        /** @brief do cut on conversion bit*/
-        bool m_doCutConversion;
         /** @brief do cut on ambiguity bit*/
         std::vector<int> m_cutAmbiguity;
         /** @brief do remove f3 variable from likelihood at high Et (>80 GeV)*/
@@ -261,8 +258,6 @@ namespace Root {
         bool m_doRemoveTRTPIDAtHighEt;
         /** @brief do smooth interpolation between bins */
         bool m_doSmoothBinInterpolation;
-        /** @brief use binning for high ET LH*/
-        bool m_useHighETLHBinning;
         /** @brief use one extra bin for high ET LH*/
         bool m_useOneExtraHighETLHBin;
         /** @brief ET threshold for using high ET cuts and bin */
@@ -352,9 +347,6 @@ namespace Root {
         /// The position of the NBlayer cut bit in the AcceptInfo return object
         int m_cutPosition_NBlayer;
 
-        /// The position of the conversion cut bit in the AcceptInfo return object
-        int m_cutPosition_conversion;
-
         /// The position of the ambiguity cut bit in the AcceptInfo return object
         int m_cutPosition_ambiguity;
 
@@ -377,10 +369,8 @@ namespace Root {
         int m_cutPositionEoverPAtHighET;
 
         static const double fIpBounds[IP_BINS+1];
-        static const unsigned int  s_fnEtBinsHist     = 8;  // number of hists stored for LH with many high ET bins (useHighETLHBinning), including 4GeV bin
-        static const unsigned int  s_fnDiscEtBins     = 33; // number of discs stored for LH with many high ET bins (useHighETLHBinning), excluding 4GeV bin
-        static const unsigned int  s_fnEtBinsHistOrig = 7;  // number of hists stored for original LH, including 4GeV bin (for backwards compatibility)
-        static const unsigned int  s_fnDiscEtBinsOrig = 9;  // number of discs stored for original LH, excluding 4GeV bin (for backwards compatibility)
+        static const unsigned int  s_fnEtBinsHist = 7;  // number of hists stored for original LH, including 4GeV bin (for backwards compatibility)
+        static const unsigned int  s_fnDiscEtBins = 9;  // number of discs stored for original LH, excluding 4GeV bin (for backwards compatibility)
         static const unsigned int  s_fnDiscEtBinsOneExtra = 10; // number of discs stored for original LH plus one for HighETBinThreshold (useOneExtraHighETLHBin), excluding 4GeV bin
         static const unsigned int  s_fnEtaBins        = 10;
         static const unsigned int  s_fnVariables      = 13;
