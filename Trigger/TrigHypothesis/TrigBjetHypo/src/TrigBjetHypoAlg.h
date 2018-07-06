@@ -16,6 +16,7 @@
 
 
 #include "TrigBjetHypoTool.h"
+#include "DecisionHandling/HypoBase.h"
 
 /**
  * @class Implements b-jet selection for the new HLT framework
@@ -23,7 +24,7 @@
  **/
 
 class TrigBjetHypoAlg
-  : public ::AthReentrantAlgorithm
+  : public ::HypoBase
 { 
  public: 
 
