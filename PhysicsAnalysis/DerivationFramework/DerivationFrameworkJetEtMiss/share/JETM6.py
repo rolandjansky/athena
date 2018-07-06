@@ -226,6 +226,12 @@ addDefaultTrimmedJets(jetm6Seq,"JETM6")
 
 addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, algseq=jetm6Seq, outputGroup="JETM6")
 
+if DerivationFrameworkIsMonteCarlo:
+  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=True)
+
+addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], jetm6Seq, "JETM6", ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed")
+addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1, algseq=jetm6Seq, outputGroup="JETM6", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
+
 #====================================================================
 # SET UP STREAM
 #====================================================================
@@ -268,6 +274,19 @@ JETM6SlimmingHelper.AllVariables = [
 JETM6SlimmingHelper.ExtraVariables = [
     'CaloCalTopoClusters.calE.calEta.calM.calPhi.CENTER_MAG', 'BTagging_AntiKt4EMTopo.MSV_N2Tpair.MSV_badTracksIP.MSV_energyTrkInJet.MSV_normdist.MSV_nvsec.MSV_vertices.MV1_discriminant.MV2c00_discriminant.MV2c100_discriminant.MV2c10_discriminant.MV2c20_discriminant.MV2m_pb.MV2m_pc.MV2m_pu.MultiSVbb1_discriminant.MultiSVbb2_discriminant.SV0_N2Tpair.SV1_pb.SV1_pc.SV1_pu.IP3D_pb.IP3D_pc.IP3D_pu',
     NewTrigVars["Electrons"][0],NewTrigVars["Muons"][0],NewTrigVars["Photons"][0]]
+
+JETM6SlimmingHelper.AppendToDictionary = {
+    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,  
+    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+}
+JETM6SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"]
+
+if DerivationFrameworkIsMonteCarlo:
+  JETM6SlimmingHelper.AppendToDictionary = {
+    "AntiKt10TruthSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,
+    "AntiKt10TruthSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+  }
+  JETM6SlimmingHelper.AllVariables  += ["AntiKt10TruthSoftDropBeta100Zcut10Jets"]
 
 addOriginCorrectedClusters(JETM6SlimmingHelper,writeLC=True,writeEM=True)
 
