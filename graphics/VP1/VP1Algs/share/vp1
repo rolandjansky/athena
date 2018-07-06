@@ -157,7 +157,6 @@ FLAG_CAVERN=0
 FLAG_TOYDETECTOR=0
 FLAG_GEOMODELSTATS=0
 FLAG_EXTRAPOLATOR=0
-FLAG_SPACEPOINTS=0
 FLAG_NOEXTRAPOLATOR=0
 FLAG_FITTER=0
 FLAG_MC=0
@@ -286,8 +285,6 @@ while [ $i -le $# ]; do
 	FLAG_TOYDETECTOR=1
     elif [ "x${arg}" == "x-geomodel-stats" ]; then
 	FLAG_GEOMODELSTATS=1
-    elif [ "x${arg}" == "x-spacepoints" ]; then
-	FLAG_SPACEPOINTS=1
     elif [ "x${arg}" == "x-extrapolator" ]; then
 	FLAG_EXTRAPOLATOR=1
     elif [ "x${arg}" == "x-noextrapolator" ]; then
@@ -536,9 +533,6 @@ fi
 
 if [ "x$FLAG_NOID" == "x1" -a "x$FLAG_NOMUON" == "x1" -a "x$FLAG_EXTRAPOLATOR" == "x1" ]; then
     ERRORS="$ERRORS\nOptions -extrapolator can not be used when both -noid and -nomuon are specified"
-fi
-if [ "x$FLAG_NOID" == "x1" -a "x$FLAG_SPACEPOINTS" == "x1" ]; then
-    ERRORS="$ERRORS\nOptions -spacepoints can not be used when -noid is specified"
 fi
 
 if [ "x$FLAG_EXTRAPOLATOR" == "x1" -a "x$FLAG_NOEXTRAPOLATOR" == "x1" ]; then
@@ -962,10 +956,6 @@ if [ "x$FLAG_GEOMODELSTATS" != "x0" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
     OPTS="${OPTS}vp1GeoModelStats=True"
 fi
-if [ "x$FLAG_SPACEPOINTS" != "x0" ]; then
-    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
-    OPTS="${OPTS}vp1SpacePoints=True"
-fi
 if [ "x$FLAG_EXTRAPOLATOR" != "x0" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
     OPTS="${OPTS}vp1Extrapolator=True"
@@ -980,7 +970,7 @@ if [ "x$FLAG_NOAUTOCONF" != "x0" ]; then
 fi
 if [ "x$FLAG_FITTER" != "x0" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
-    OPTS="${OPTS}vp1Fitter=True"
+    ERRORS="$ERRORS\nOption -refit is not currently supported."    
 fi
 if [ "x$FLAG_FATRAS" != "x0" ]; then
     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
