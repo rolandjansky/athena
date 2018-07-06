@@ -35,20 +35,20 @@ namespace TrigCostRootAnalysis {
   class DBKey {
   public:
     DBKey() : m_SMK(-1), m_L1PSK(-1), m_HLTPSK(-1), m_keyString() {}
-    DBKey(Int_t _SMK, Int_t _L1PSK, Int_t _HLTPSK) : m_SMK(-1), m_L1PSK(-1), m_HLTPSK(-1), m_keyString() {
-      set(_SMK, _L1PSK, _HLTPSK);
+    DBKey(Int_t SMK, Int_t L1PSK, Int_t HLTPSK) : m_SMK(-1), m_L1PSK(-1), m_HLTPSK(-1), m_keyString() {
+      set(SMK, L1PSK, HLTPSK);
     }
 
     ~DBKey() {}
-    void set(Int_t _SMK, Int_t _L1PSK, Int_t _HLTPSK) {
-      if (m_SMK == _SMK && m_L1PSK == _L1PSK && m_HLTPSK == _HLTPSK) return;
+    void set(Int_t SMK, Int_t L1PSK, Int_t HLTPSK) {
+      if (m_SMK == SMK && m_L1PSK == L1PSK && m_HLTPSK == HLTPSK) return;
 
-      m_SMK = _SMK;
-      m_L1PSK = _L1PSK;
-      m_HLTPSK = _HLTPSK;
-      std::stringstream _ss;
-      _ss << "SMK_" << _SMK << "_L1_" << _L1PSK << "_HLT_" << _HLTPSK;
-      _ss >> m_keyString;
+      m_SMK = SMK;
+      m_L1PSK = L1PSK;
+      m_HLTPSK = HLTPSK;
+      std::stringstream ss;
+      ss << "SMK_" << SMK << "_L1_" << L1PSK << "_HLT_" << HLTPSK;
+      ss >> m_keyString;
     }
 
     Int_t SMK() const {
@@ -95,32 +95,32 @@ namespace TrigCostRootAnalysis {
    */
   class TrigConfInterface {
   public:
-    static Bool_t configure(TChain* _chain);
-    static void newEvent(UInt_t _lb);
+    static Bool_t configure(TChain* chain);
+    static void newEvent(UInt_t lb);
     static Int_t getCurrentSMK();
     static Int_t getCurrentL1PSK();
     static Int_t getCurrentHLTPSK();
     static const DBKey& getCurrentDBKey();
-    static void getEntry(Long64_t _entry); //TODO remove me
-    static const std::string getHLTNameFromChainID(Int_t _chainID, Int_t _level = 0); //Note - copy string here (origin
+    static void getEntry(Long64_t entry); //TODO remove me
+    static const std::string getHLTNameFromChainID(Int_t chainID, Int_t level = 0); //Note - copy string here (origin
                                                                                       // volatile)
-    static UInt_t getNHLTGroupNamesFromChainID(Int_t _chainID);
-    static const std::string getHLTGroupNameFromChainID(Int_t _chainID, UInt_t _group); //Note - copy string here
+    static UInt_t getNHLTGroupNamesFromChainID(Int_t chainID);
+    static const std::string getHLTGroupNameFromChainID(Int_t chainID, UInt_t group); //Note - copy string here
                                                                                         // (origin volatile)
-    static const std::string& getLowerChainName(const std::string& _name);
-    static const std::string& getHLTSeqNameFromIndex(const UInt_t _index);
-    static const std::string& getHLTAlgNameFromSeqIDAndAlgPos(const UInt_t _index, const UInt_t _position);
-    static UInt_t getHLTAlgNameIDFromSeqIDAndAlgPos(const UInt_t _index, const UInt_t _position);
-    static const std::string& getHLTAlgClassNameFromSeqIDAndAlgPos(const UInt_t _index, const UInt_t _position);
-    static UInt_t getHLTAlgClassNameIDFromSeqIDAndAlgPos(const UInt_t _index, const UInt_t _position);
-    static Int_t getCtpId(const std::string& _name);
-    static const std::string& getNameFromCtpId(Int_t _ctpId);
-    static Float_t getPrescale(std::string _chainName);
-    static Float_t getPassthrough(const std::string& _name);
+    static const std::string& getLowerChainName(const std::string& name);
+    static const std::string& getHLTSeqNameFromIndex(const UInt_t index);
+    static const std::string& getHLTAlgNameFromSeqIDAndAlgPos(const UInt_t index, const UInt_t position);
+    static UInt_t getHLTAlgNameIDFromSeqIDAndAlgPos(const UInt_t index, const UInt_t position);
+    static const std::string& getHLTAlgClassNameFromSeqIDAndAlgPos(const UInt_t index, const UInt_t position);
+    static UInt_t getHLTAlgClassNameIDFromSeqIDAndAlgPos(const UInt_t index, const UInt_t position);
+    static Int_t getCtpId(const std::string& name);
+    static const std::string& getNameFromCtpId(Int_t ctpId);
+    static Float_t getPrescale(std::string chainName);
+    static Float_t getPassthrough(const std::string& name);
     static UInt_t getMetaStringN();
-    static std::string getMetaStringKey(UInt_t _m);
-    static std::string getMetaStringVal(UInt_t _m);
-    static std::string getMetaStringVal(std::string _key);
+    static std::string getMetaStringKey(UInt_t m);
+    static std::string getMetaStringVal(UInt_t m);
+    static std::string getMetaStringVal(std::string key);
     static StringIntMap_t getBunchGroupSetup();
     static void populateLBPerKeysetStrings();
 
@@ -144,43 +144,44 @@ namespace TrigCostRootAnalysis {
     //Direct calls
     // Chain
     static UInt_t getChainN();
-    static UInt_t getChainLevel(UInt_t _c);
-    static UInt_t getChainCounter(UInt_t _c);
-    static std::string getChainName(UInt_t _c);
-    static UInt_t getChainEBHypoNameSize(UInt_t _c);
-    static std::string getChainEBHypoName(UInt_t _c, UInt_t _h);
-    static UInt_t getChainGroupsNameSize(UInt_t _c);
-    static std::string getChainGroupName(UInt_t _c, UInt_t _g);
-    static const std::vector<std::string>& getChainRatesGroupNames(UInt_t _c);
-    static std::string getChainCPSGroup(UInt_t _c);
-    static UInt_t getChainStreamNameSize(UInt_t _c);
-    static std::string getChainStreamName(UInt_t _c, UInt_t _g);
-    static std::vector<std::string> getChainStreamNames(UInt_t _c);
-    static Bool_t getChainIsMainStream(UInt_t _c);
+    static UInt_t getChainLevel(UInt_t c);
+    static UInt_t getChainCounter(UInt_t c);
+    static std::string getChainName(UInt_t c);
+    static UInt_t getChainEBHypoNameSize(UInt_t c);
+    static std::string getChainEBHypoName(UInt_t c, UInt_t h);
+    static UInt_t getChainGroupsNameSize(UInt_t c);
+    static std::string getChainGroupName(UInt_t c, UInt_t g);
+    static const std::vector<std::string>& getChainRatesGroupNames(UInt_t c);
+    static std::string getChainCPSGroup(UInt_t c);
+    static UInt_t getChainStreamNameSize(UInt_t c);
+    static std::string getChainStreamName(UInt_t c, UInt_t g);
+    static std::vector<std::string> getChainStreamNames(UInt_t c);
+    static Bool_t getChainIsMainStream(UInt_t c);
+    static Bool_t getChainIsMainStream(const std::string& name);
 
     // // Chain->Sig //todo gruntwork
-    // UInt_t      GetSigN(UInt_t _c) const;
-    // UInt_t      GetSigCounter(UInt_t _c, UInt_t _s) const;
-    // UInt_t      GetSigLogic(UInt_t _c, UInt_t _s) const;
-    // std::string GetSigLabel(UInt_t _c, UInt_t _s) const;
-    // UInt_t      GetSigNOutputTE(UInt_t _c, UInt_t _s) const;
-    // UInt_t      GetSigOutputTE(UInt_t _c, UInt_t _s, UInt_t _t) const;
+    // UInt_t      GetSigN(UInt_t c) const;
+    // UInt_t      GetSigCounter(UInt_t c, UInt_t s) const;
+    // UInt_t      GetSigLogic(UInt_t c, UInt_t s) const;
+    // std::string GetSigLabel(UInt_t c, UInt_t s) const;
+    // UInt_t      GetSigNOutputTE(UInt_t c, UInt_t s) const;
+    // UInt_t      GetSigOutputTE(UInt_t c, UInt_t s, UInt_t t) const;
 
     // // Seq
     // UInt_t       GetSeqN() const;
-    // UInt_t       GetSeqID(UInt_t _s) const;
-    // UInt_t       GetSeqIndex(UInt_t _s) const;
-    // std::string  GetSeqName(UInt_t _s) const;
-    // UInt_t       GetSeqNInputTEs(UInt_t _s) const;
-    // UInt_t       GetSeqInputTE(UInt_t _s, UInt_t _t) const;
+    // UInt_t       GetSeqID(UInt_t s) const;
+    // UInt_t       GetSeqIndex(UInt_t s) const;
+    // std::string  GetSeqName(UInt_t s) const;
+    // UInt_t       GetSeqNInputTEs(UInt_t s) const;
+    // UInt_t       GetSeqInputTE(UInt_t s, UInt_t t) const;
     // // Seq->Alg
-    // UInt_t      GetAlgN(UInt_t _s) const;
-    // UInt_t      GetAlgIndex(UInt_t _s, UInt_t _a) const;
-    // UInt_t      GetAlgPosition(UInt_t _s, UInt_t _a) const;
-    // UInt_t      GetAlgNameID(UInt_t _s, UInt_t _a) const;
-    // std::string GetAlgName(UInt_t _s, UInt_t _a) const;
-    // UInt_t      GetAlgTypeID(UInt_t _s, UInt_t _a) const;
-    // std::string GetAlgTypeName(UInt_t _s, UInt_t _a) const;
+    // UInt_t      GetAlgN(UInt_t s) const;
+    // UInt_t      GetAlgIndex(UInt_t s, UInt_t a) const;
+    // UInt_t      GetAlgPosition(UInt_t s, UInt_t a) const;
+    // UInt_t      GetAlgNameID(UInt_t s, UInt_t a) const;
+    // std::string GetAlgName(UInt_t s, UInt_t a) const;
+    // UInt_t      GetAlgTypeID(UInt_t s, UInt_t a) const;
+    // std::string GetAlgTypeName(UInt_t s, UInt_t a) const;
   private:
     // Not to be instanced, static use only
     TrigConfInterface();
@@ -202,6 +203,8 @@ namespace TrigCostRootAnalysis {
 
     static std::set<DBKey> m_seenKeys; //!< Set of keys which we have seen in the processing
     static std::map<UInt_t, DBKey> m_lumiToKeyMap; //!< Which LB are using which keys
+
+    static std::map<std::string, Bool_t> m_mainChains; //!< Cache of which chains are in the Main stream (by name)
   }; //class TrigConfInterface
 } // namespace TrigCostRootAnalysis
 

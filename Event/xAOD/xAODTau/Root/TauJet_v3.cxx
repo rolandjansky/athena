@@ -454,7 +454,7 @@ namespace xAOD {
 
   const TauJet_v3::TauTrackLinks_t TauJet_v3::tauTrackLinksWithMask(unsigned int mask) const{
     TauJet_v3::TauTrackLinks_t links;
-    for(const ElementLink< xAOD::TauTrackContainer > link : tauTrackAcc(*this) ){
+    for(const ElementLink< xAOD::TauTrackContainer >& link : tauTrackAcc(*this) ){
       if( (*link)->flagWithMask(mask))
 	links.push_back(link);
     }
@@ -474,7 +474,7 @@ namespace xAOD {
   const TauTrack* TauJet_v3::trackWithMask( size_t i, unsigned int mask, int* container_index ) const {
     uint tracks_pass_mask=0;
 
-    for(const ElementLink< xAOD::TauTrackContainer > link : tauTrackAcc(*this) ){
+    for(const ElementLink< xAOD::TauTrackContainer >& link : tauTrackAcc(*this) ){
       const TauTrack* trk = *link;
       if(trk->flagWithMask(mask)){
 	if(tracks_pass_mask==i) {
@@ -541,7 +541,7 @@ namespace xAOD {
   /// Get the v<pointer> to all tracks associated with this tau, regardless of classification
   std::vector<TauTrack*> TauJet_v3::allTracks() {
     std::vector<TauTrack*> trks;
-    for(ElementLink< xAOD::TauTrackContainer > link : tauTrackAcc(*this) ){
+    for(ElementLink< xAOD::TauTrackContainer >& link : tauTrackAcc(*this) ){
       const TauTrack* c_trk = *link;
       xAOD::TauTrackContainer* tauTrackContainer = link.getDataNonConstPtr();
       TauTrack* trk=tauTrackContainer->at(link.index());
@@ -571,7 +571,7 @@ namespace xAOD {
   //number of tracks with a given classification
   size_t TauJet_v3::nTracksWithMask(unsigned int flags) const{
     size_t n(0);
-    for(const ElementLink< xAOD::TauTrackContainer > link : tauTrackAcc(*this) ){
+    for(const ElementLink< xAOD::TauTrackContainer >& link : tauTrackAcc(*this) ){
       const TauTrack* trk = *link;
       if(trk->flagWithMask(flags)) n++;
     }    

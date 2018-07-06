@@ -279,7 +279,15 @@ HLTTestApps::Event::Event(const eformat::read::FullEventFragment& event)
                               "ignore the current ROB fragment.");
             msg % robid % m_lvl1_id;
             ers::warning(HLTTESTAPPS_UNCLASSIFIED(msg.str()));
-          }
+          } 
+	  else if ((!sm_rob2ros.empty()) && (sm_rob2ros.find(robid)==sm_rob2ros.end())) 
+          {
+            boost::format msg("Found ROB id (0x%08x) while "
+                              "configuring event with LVL1 id=%lu, which is not in the provided ROS to ROB mapping. "
+                              "This ROB fragment will be ignored.");
+            msg % robid % m_lvl1_id;
+            ers::warning(HLTTESTAPPS_UNCLASSIFIED(msg.str()));
+	  }
           else
           {
             m_map.insert(std::make_pair(robid, ROB{robid, pair.second}));

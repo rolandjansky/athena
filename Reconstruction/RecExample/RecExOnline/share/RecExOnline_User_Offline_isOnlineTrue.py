@@ -73,7 +73,7 @@ InputFormat       = 'bytestream'
 ### projectName       = 'data15_comm'
 #projectName       = 'data15_13TeV'
 
-fileName          = '/afs/cern.ch/work/y/yunju/public/GM_raw2016/data16_13TeV.00302347.express_express.merge.RAW._lb0432._SFO-ALL._0001.1'
+fileName          = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExOnline/data16_13TeV.00302347.express_express.merge.RAW._lb0432._SFO-ALL._0001.1'
 projectName       = 'data16_13TeV'
 
 

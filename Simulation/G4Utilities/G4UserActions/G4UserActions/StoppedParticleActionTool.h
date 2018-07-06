@@ -27,6 +27,10 @@ namespace G4UA
       virtual G4UserSteppingAction* getSteppingAction() override final
       { return static_cast<G4UserSteppingAction*>( getAction() ); }
 
+    private:
+
+      int m_stoppingCondition; // Stopping condition setting
+
     protected:
 
       virtual std::unique_ptr<StoppedParticleAction> makeAction() override final;

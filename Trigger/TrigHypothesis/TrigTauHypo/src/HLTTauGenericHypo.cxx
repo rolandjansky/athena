@@ -73,21 +73,21 @@ HLT::ErrorCode HLTTauGenericHypo::hltInitialize()
 // ----------------------------------------------------------------------
 {
   
-  msg() << MSG::INFO << "in initialize()" << endmsg;
+  ATH_MSG_INFO("in initialize()");
   
-  msg() << MSG::INFO << " REGTEST: HLTTauGenericHypo will cut on "           << endmsg;
-  msg() << MSG::INFO << " REGTEST: ------ "                                       << endmsg;
+  ATH_MSG_INFO(" REGTEST: HLTTauGenericHypo will cut on "          );
+  ATH_MSG_INFO(" REGTEST: ------ "                                      );
   
   
   // Here we store the formulas since they need to compile
   for(unsigned int i=0; i<m_member.size(); i++)
     {
       m_store.push_back(TFormula(("TauHypoCut"+m_formula.at(i)).c_str(), m_formula.at(i).c_str()));
-      msg() << MSG::INFO << " REGTEST: " << m_formula.at(i) << endmsg;
+      ATH_MSG_INFO(" REGTEST: " << m_formula.at(i));
     }
-  msg() << MSG::INFO << " REGTEST: where x is the ID variables, y is Tau pT and z is Tau eta " << endmsg;
+  ATH_MSG_INFO(" REGTEST: where x is the ID variables, y is Tau pT and z is Tau eta ");
 
-  msg() << MSG::INFO << "Initialization of HLTTauGenericHypo completed successfully" << endmsg;
+  ATH_MSG_INFO("Initialization of HLTTauGenericHypo completed successfully");
   return HLT::OK;
 }
 
@@ -99,7 +99,7 @@ HLT::ErrorCode HLTTauGenericHypo::hltInitialize()
 HLT::ErrorCode HLTTauGenericHypo::hltFinalize(){
 // ----------------------------------------------------------------------
   
-  msg() << MSG::INFO << "in finalize()" << endmsg;
+  ATH_MSG_INFO("in finalize()");
   return HLT::OK;
 }
 
@@ -113,8 +113,7 @@ HLT::ErrorCode HLTTauGenericHypo::hltExecute(const HLT::TriggerElement* inputTE,
 // ----------------------------------------------------------------------
   
   // Get the messaging service, print where you are
-  if( msgLvl() <= MSG::DEBUG )  
-    msg() << MSG::DEBUG << "REGTEST:"<< name() << ": in execute()" << endmsg;
+  ATH_MSG_DEBUG("REGTEST:"<< name() << ": in execute()");
   
   // general reset
   pass = false;
@@ -123,13 +122,13 @@ HLT::ErrorCode HLTTauGenericHypo::hltExecute(const HLT::TriggerElement* inputTE,
   std::vector<const xAOD::TauJetContainer*> myTauContainers;
   HLT::ErrorCode status = getFeatures(inputTE, myTauContainers);
   if ( status != HLT::OK || myTauContainers.size()==0) {
-    msg() << MSG::ERROR << "Input tau collection could not be found " << endmsg;
+    ATH_MSG_ERROR("Input tau collection could not be found ");
     return status;
   } else {
-    msg() << MSG::DEBUG << " Input tau collection has size " << myTauContainers.size() << endmsg;
+    ATH_MSG_DEBUG(" Input tau collection has size " << myTauContainers.size());
     if((myTauContainers.back())->size()==0)
       {
-	msg() << MSG::DEBUG << "No taus in input collection: Rejecting" << endmsg;
+	ATH_MSG_DEBUG("No taus in input collection: Rejecting");
 	return status;
       }
   }
@@ -152,10 +151,10 @@ HLT::ErrorCode HLTTauGenericHypo::hltExecute(const HLT::TriggerElement* inputTE,
       
       // What about upper and lower bounds? can work using x, y, z, t...
       double theResult = m_store.at(i).Eval(theValue, theTau->pt(), theTau->eta());
-      msg() << MSG::DEBUG << " Evaluating Hypothesis on ID Variable #: " << m_member.at(i) << endmsg;
-      msg() << MSG::DEBUG << " With Cut = " << m_formula.at(i).c_str() << endmsg;
-      msg() << MSG::DEBUG << " And value x (ID), y (pT), z (Eta) = " << theValue <<", "<< theTau->pt() << ", " << theTau->eta() << endmsg;
-      msg() << MSG::DEBUG << " Result = " << (theResult > 0.5) << endmsg;
+      ATH_MSG_DEBUG(" Evaluating Hypothesis on ID Variable #: " << m_member.at(i));
+      ATH_MSG_DEBUG(" With Cut = " << m_formula.at(i).c_str());
+      ATH_MSG_DEBUG(" And value x (ID), y (pT), z (Eta) = " << theValue <<", "<< theTau->pt() << ", " << theTau->eta());
+      ATH_MSG_DEBUG(" Result = " << (theResult > 0.5));
 
       if(theResult < 0.5)
 	{
@@ -166,19 +165,15 @@ HLT::ErrorCode HLTTauGenericHypo::hltExecute(const HLT::TriggerElement* inputTE,
   
   if (hasFailed)
     {
-      if( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG
-	      << " REGTEST: Cut Number: "
-	      << hasFailed-1
-              << " did not pass the threshold" 
-	      << endmsg;
+  ATH_MSG_DEBUG(" REGTEST: Cut Number: "
+             << hasFailed-1
+             << " did not pass the threshold" );
       return HLT::OK;
     }
 
   pass = true;
   
-  if( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << " REGTEST: TE accepted !! " << endmsg;
+  ATH_MSG_DEBUG(" REGTEST: TE accepted !! ");
   
   
   return HLT::OK;

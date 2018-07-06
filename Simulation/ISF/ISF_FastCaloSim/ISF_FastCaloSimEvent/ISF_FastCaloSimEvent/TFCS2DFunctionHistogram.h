@@ -19,7 +19,7 @@ class TFCS2DFunctionHistogram:public TFCS2DFunction
     virtual void Initialize(TH2* hist);
 
     using TFCS2DFunction::rnd_to_fct;
-    virtual void rnd_to_fct(float& valuex,float& valuey,float rnd0,float rnd1);
+    virtual void rnd_to_fct(float& valuex,float& valuey,float rnd0,float rnd1) const;
 
     const std::vector<float>& get_HistoBordersx() const {return m_HistoBorders;};
     std::vector<float>& get_HistoBordersx() {return m_HistoBorders;};

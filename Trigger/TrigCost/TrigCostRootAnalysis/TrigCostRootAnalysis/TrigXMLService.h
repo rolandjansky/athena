@@ -36,25 +36,25 @@ namespace TrigCostRootAnalysis {
     static TrigXMLService& trigXMLService(); //!< Use this method to get the singleton
     void init();
 
-    Double_t getPrescale(const std::string& _name);
-    Float_t getEventWeight(UInt_t _eventNumber, UInt_t _lb, UInt_t _pass);
-    Double_t getHLTCostWeightingFactor(const std::string& _chainName);
+    Double_t getPrescale(const std::string& name);
+    Float_t getEventWeight(UInt_t eventNumber, UInt_t lb, UInt_t pass);
+    Double_t getHLTCostWeightingFactor(const std::string& chainName);
     Float_t getLumiExtrapWeight();
     IntIntMap_t& getBGMap();
     IntIntMap_t& getBGUnbiasedMap();
-    Float_t getLBMuValue(Int_t _lb);
+    Float_t getLBMuValue(Int_t lb);
 
-    void saveRuleBookXML(CounterCollection_t& _counterCollections, std::string _levelStr);
-    void saveXMLElement(std::ofstream& _fout, XMLExport& _xml, CounterBaseRates* _counter);
-    void parseUpgradeXML(StringIntMap_t& _isoBits, std::multiset<ChainInfo>& _upgradeChains);
+    void saveRuleBookXML(CounterCollection_t& counterCollections, std::string levelStr);
+    void saveXMLElement(std::ofstream& fout, XMLExport& xml, CounterBaseRates* counter);
+    void parseUpgradeXML(StringIntMap_t& isoBits, std::multiset<ChainInfo>& upgradeChains);
 
     Bool_t hasExpressPrescaleInfo();
     Bool_t hasChainComments();
-    Double_t getExpressPrescaleInfo(const std::string& _name);
-    std::string getChainComment(const std::string& _name);
+    Double_t getExpressPrescaleInfo(const std::string& name);
+    std::string getChainComment(const std::string& name);
 
-    void parseEnhancedBiasXML(Int_t _runNumber);
-    void exportEnhancedBiasXML(UInt_t _eventNumber, Float_t _weight, UInt_t _bunchGroup, Int_t _unbiased);
+    void parseEnhancedBiasXML(Int_t runNumber);
+    void exportEnhancedBiasXML(UInt_t eventNumber, Float_t weight, UInt_t bunchGroup, Int_t unbiased);
     void saveExportedEnhancedBiasXML();
 
     void writePrescaleXML();
@@ -62,22 +62,22 @@ namespace TrigCostRootAnalysis {
     Bool_t getEnabled() {return m_serviceEnabled;}
 
     Bool_t getParsedRunXML();
-    Bool_t getIsLBFlaggedBad(Int_t _lb);
+    Bool_t getIsLBFlaggedBad(Int_t lb);
     Int_t getNBunchGroups();
-    std::string getBunchGroupName(Int_t _id);
-    Int_t getBunchGroupSize(Int_t _id);
-    Int_t getOnlineEventsInLB(Int_t _lb);
+    std::string getBunchGroupName(Int_t id);
+    Int_t getBunchGroupSize(Int_t id);
+    Int_t getOnlineEventsInLB(Int_t lb);
 
     void parseHLTFarmXML();
-    UInt_t getComputerType(UInt_t _hash);
+    UInt_t getComputerType(UInt_t hash);
   private:
-    void parseRunXML(const Int_t _runNumber, const Bool_t _primaryRun);
+    void parseRunXML(const Int_t runNumber, const Bool_t primaryRun);
 
-    void parseXML(UInt_t _xmlID);
+    void parseXML(UInt_t xmlID);
 
-    void parseL1MenuXML(TXMLEngine* _xml, void* _xmlDoc);
-    void parseMenuXML(TXMLEngine* _xml, void* _xmlDoc);
-    void parsePrescaleXML(TXMLEngine* _xml, void* _xmlDoc);
+    void parseL1MenuXML(TXMLEngine* xml, void* xmlDoc);
+    void parseMenuXML(TXMLEngine* xml, void* xmlDoc);
+    void parsePrescaleXML(TXMLEngine* xml, void* xmlDoc);
 
     /**
      * Private constructor.
@@ -170,7 +170,7 @@ namespace TrigCostRootAnalysis {
     // Maps which hold all the extrapolation data per lumi block
   public:
     IntFloatMap_t m_lumiPerLB; //!< Map of lumi block number to the inst. lumi
-    IntFloatMap_t m_muPerLB; //!< Map of lumi block to the inst. <mu>
+    IntFloatMap_t m_muPerLB; //!< Map of lumi block to the inst. \<mu\>
     IntFloatMap_t m_deadtimePerLB; //!< Map of lumi block the deadtime (only changes for Multi Run)
     IntIntMap_t m_pairedBunchesPerLB; //!< Map of lumi block to number of paired colliding bunches (only changes for
                                       // Multi Run)

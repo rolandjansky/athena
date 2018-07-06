@@ -1496,7 +1496,7 @@ class TopoAlgoDef:
         for x in [
             {"minEta": -16, "maxEta": 16, "minPhi": 15, "maxPhi": 29, "otype" : "EM", "ocut" : 20, "inputwidth": HW.OutputWidthSortEM},
             {"minEta": -16, "maxEta": 16, "minPhi": 15, "maxPhi": 29, "otype" : "J", "ocut" : 100, "inputwidth": HW.OutputWidthSortJET},
-            {"minEta": -16, "maxEta": 16, "minPhi": 15, "maxPhi": 29, "otype" : "MU", "ocut" : 20, "inputwidth": HW.OutputWidthSortMU},
+            {"minEta": -16, "maxEta": 16, "minPhi": 15, "maxPhi": 29, "otype" : "MU", "ocut" : 10, "inputwidth": HW.OutputWidthSortMU},
             ]:
 
             for k in x:
@@ -1644,7 +1644,7 @@ class TopoAlgoDef:
 
         if usev7:
             algoList = [
-                {"minDphi": 27,  "maxDphi": 31, "otype" : "EM",  "ocut1" : 0,  "olist" : "s", "nleading1" : 1, "inputwidth1": HW.OutputWidthSortEM, "ocut2" : 0, "nleading2": 6},
+                {"minDphi": 27,  "maxDphi": 32, "otype" : "EM",  "ocut1" : 0,  "olist" : "s", "nleading1" : 1, "inputwidth1": HW.OutputWidthSortEM, "ocut2" : 0, "nleading2": 6},
             ]
         else:
             algoList = []
