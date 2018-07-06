@@ -4,7 +4,7 @@ __doc__ = "ToolFactories to instantiate all egammaTools with default configurati
 __author__ = "Bruno Lenzi"
 
 import egammaToolsConf
-from egammaRec.Factories import FcnWrapper, ToolFactory, PublicToolFactory, FullNameWrapper
+from egammaRec.Factories import FcnWrapper, ToolFactory, ServiceFactory, FullNameWrapper
 from egammaRec import egammaKeys
 from egammaRec.egammaRecFlags import jobproperties # to set jobproperties.egammaRecFlags
 from RecExConfig.RecFlags import rec
@@ -48,16 +48,34 @@ def configureClusterCorrections(swTool):
 egammaSwTool = ToolFactory(egammaToolsConf.egammaSwTool,
                            postInit=[configureClusterCorrections])
 
-from egammaMVACalib import egammaMVACalibConf 
-egammaMVATool =  PublicToolFactory(egammaMVACalibConf.egammaMVATool,
+from egammaMVACalib import egammaMVACalibConf
+import cppyy
+cppyy.loadDictionary('xAODEgammaDict')
+from ROOT import xAOD
+
+electronMVATool = ToolFactory(egammaMVACalibConf.egammaMVACalibTool,
+                              ParticleType = xAOD.EgammaParameters.electron,
                               folder=jobproperties.egammaRecFlags.calibMVAVersion())
+
+unconvPhotonMVATool = ToolFactory(egammaMVACalibConf.egammaMVACalibTool,
+                                  ParticleType = xAOD.EgammaParameters.unconvertedPhoton,
+                                  folder=jobproperties.egammaRecFlags.calibMVAVersion())
+
+convertedPhotonMVATool = ToolFactory(egammaMVACalibConf.egammaMVACalibTool,
+                                     ParticleType = xAOD.EgammaParameters.convertedPhoton,
+                                     folder=jobproperties.egammaRecFlags.calibMVAVersion())
+
+egammaMVASvc =  ServiceFactory(egammaMVACalibConf.egammaMVASvc,
+                               ElectronTool = electronMVATool,
+                               UnconvertedPhotonTool = unconvPhotonMVATool,
+                               ConvertedPhotonTool = convertedPhotonMVATool)
 
 EMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
                             OutputClusterContainerName = egammaKeys.outputClusterKey(),
                             OutputTopoSeededClusterContainerName = egammaKeys.outputTopoSeededClusterKey(),
                             ClusterCorrectionTool = egammaSwTool,
                             doSuperCluster = jobproperties.egammaRecFlags.doSuperclusters(),
-                            MVACalibTool= egammaMVATool
+                            MVACalibSvc = egammaMVASvc
                             )
 
 

@@ -48,15 +48,19 @@ private:
 
   /// MVA tool for electron
   ToolHandle<IegammaMVACalibTool> m_mvaElectron {this,
-      "MVAElectronTool", "", "Tool to handle MVA trees for electrons"}; 
+      "ElectronTool", "", "Tool to handle MVA trees for electrons"}; 
 
   /// MVA tool for uncovnerted photon
   ToolHandle<IegammaMVACalibTool> m_mvaUnconvertedPhoton {this,
-      "MVAElectronTool", "", "Tool to handle MVA trees for unconverted photons"};
+      "UnconvertedPhotonTool", "", "Tool to handle MVA trees for unconverted photons"};
 
   /// MVA tool for converted photon
   ToolHandle<IegammaMVACalibTool> m_mvaConvertedPhoton {this,
-      "MVAElectronTool", "", "Tool to handle MVA trees for converted photons"};
+      "ConvertedPhotonTool", "", "Tool to handle MVA trees for converted photons"};
+
+  Gaudi::Property<float> m_maxConvR {this,
+      "MaxConvRadius", 800.0, 
+      "The maximum conversion radius for a photon to be considered converted"}; 
   
 };
 

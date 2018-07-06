@@ -69,7 +69,8 @@ StatusCode egammaMVASvc::execute(xAOD::CaloCluster* cluster,
       ATH_MSG_FATAL("Trying to calibrate an electron, but disabled");
       return StatusCode::FAILURE;
     }
-  } else if (xAOD::EgammaHelpers::isConvertedPhoton(eg)) {
+  } else if (xAOD::EgammaHelpers::isConvertedPhoton(eg) && 
+	     xAOD::EgammaHelpers::conversionRadius(static_cast<const xAOD::Photon*>(eg)) < m_maxConvR) {
     if (m_mvaConvertedPhoton.isEnabled()) {
       mvaE = m_mvaConvertedPhoton->getEnergy(eg, cluster);
     } else {

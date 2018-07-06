@@ -133,6 +133,54 @@ namespace egammaMVATreeHelpers
     else return original;
   }
 
+  // a utility function
+  inline float getPtAtFirstMeasurement(const xAOD::TrackParticle* tp)
+  {
+    if (!tp) return 0;
+    for (unsigned int i = 0; i < tp->numberOfParameters(); ++i) {
+      if (tp->parameterPosition(i) == xAOD::FirstMeasurement) {
+	return hypot(tp->parameterPX(i), tp->parameterPY(i));
+      }
+    }
+    return tp->pt();
+  }
+
+  // define a few without using conversion helper
+  inline float compute_ptconv(const xAOD::Photon* ph)
+  {
+    static const SG::AuxElement::Accessor<float> accPx("px");
+    static const SG::AuxElement::Accessor<float> accPy("py");
+    
+    auto vx = ph->vertex();
+    return vx ? std::hypot(accPx(*vx), accPy(*vx)) : 0.0;
+  }
+
+  inline float compute_pt1conv(const xAOD::Photon* ph)
+  {
+    static const SG::AuxElement::Accessor<float> accPt1("pt1");
+    
+    const xAOD::Vertex* vx = ph->vertex();
+    if (!vx) return 0.0;
+    if (accPt1.isAvailable(*vx)) {
+      return accPt1(*vx);
+    } else {
+      return getPtAtFirstMeasurement(vx->trackParticle(0));
+    }
+  }
+
+  inline float compute_pt2conv(const xAOD::Photon* ph)
+  {
+    static const SG::AuxElement::Accessor<float> accPt2("pt2");
+    
+    const xAOD::Vertex* vx = ph->vertex();
+    if (!vx) return 0.0;
+    if (accPt2.isAvailable(*vx)) {
+      return accPt2(*vx);
+    } else {
+      return getPtAtFirstMeasurement(vx->trackParticle(1));
+    }
+  }
+
   struct ConversionHelper
   {
     ConversionHelper(const xAOD::Photon* ph)
@@ -217,16 +265,6 @@ namespace egammaMVATreeHelpers
       return sum.Perp();
     }
   private:
-    float getPtAtFirstMeasurement(const xAOD::TrackParticle* tp) const
-    {
-      if (!tp) return 0;
-      for (unsigned int i = 0; i < tp->numberOfParameters(); ++i)
-        if (tp->parameterPosition(i) == xAOD::FirstMeasurement)
-          return hypot(tp->parameterPX(i), tp->parameterPY(i));
-      static asg::AsgMessaging static_msg("ConversionHelper");
-      static_msg.msg(MSG::WARNING) << "Could not find first parameter, return pt at perigee";
-      return tp->pt();
-    }
     const xAOD::Vertex* m_vertex;
     const xAOD::TrackParticle* m_tp0;
     const xAOD::TrackParticle* m_tp1;
