@@ -4,20 +4,28 @@
 # art-include: 21.9/Athena
 # art-output: *.root
 # art-output: *.xml
-# art-output: dcube_sim
-# art-output: dcube
+# art-output: dcube*
 
 # Fix ordering of output in logfile
 exec 2>&1
 run() { (set -x; exec "$@") }
 
+# Following specify which steps to run.
 dosim=1
-dorec=1    # Reco_tf.py not yet working
-dophy=1    # If dorec=0, set dophy=1 to run InDetPhysValMonitoring over old ESD
+dorec=1         # Reco_tf.py not yet working
+dophy=1         # If dorec=0, set dophy=1 to run InDetPhysValMonitoring over old ESD
+
+# Following specify DCube output directories. Set empty to disable.
+dcube_sim_fixref="dcube_sim"
+dcube_sim_lastref="dcube_sim_last"
+dcube_rec_fixref="dcube"
+dcube_rec_lastref="dcube_last"
+
 artdata=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
 #artdata=/eos/atlas/atlascerngroupdisk/data-art/grid-input
 
 name="InclinedDuals"
+script="`basename \"$0\"`"
 evnt=$artdata/InDetSLHC_Example/inputs/EVNT.01485091._001049.pool.root.1
 hits_ref=$artdata/InDetSLHC_Example/inputs/InclinedDuals_HITS.root
 if [ $dosim -ne 0 ]; then
@@ -38,8 +46,38 @@ dcubecfg_rec=$artdata/InDetSLHC_Example/dcube/config/InclinedDuals_physval.xml
 dcuberef_sim=$artdata/InDetSLHC_Example/ReferenceHistograms/InclinedDuals_SiHitValid.root
 dcuberef_rec=$artdata/InDetSLHC_Example/ReferenceHistograms/InclinedDuals_physval.root
 art_dcube=/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube
+lastref_dir=last_results
 
-#ls -lL "$evnt" "$hits" "$hits_ref" "$esd" "$jo" "$art_dcube" "$dcubecfg_sim" "$dcuberef_sim" "$dcubecfg_rec" "$dcuberef_rec"
+if [ \( $dosim -ne 0 -a -n "$dcube_sim_lastref" \) -o \( $dophy -ne 0 -a -n "$dcube_rec_lastref" \) ]; then
+  run art.py download --user=artprod --dst="$lastref_dir" InDetSLHC_Example "$script"
+  ls -la "$lastref_dir"
+fi
+
+dcube() {
+  # Run DCube and print art-result (if $2 is not empty)
+  step="$1" statname="$2" dcubemon="$3" dcubecfg="$4" dcuberef="$5" dcubedir="$6"
+  test -n "$dcubedir" || return
+  ls -lLU "$art_dcube" "$dcubemon" "$dcubecfg" "$dcuberef"
+  if [ ! -s "$dcubemon" ]; then
+    echo "$script: $step output '$dcubemon' not created. Don't create $dcubedir output." 2>&1
+    test -n "$statname" && echo "art-result: 20 $statname"
+    return
+  fi
+  if [ ! -s "$dcuberef" ]; then
+    echo "$script: $step DCube reference '$dcuberef' not available. Don't create $dcubedir output." 2>&1
+    test -n "$statname" && echo "art-result: 21 $statname"
+    return
+  fi
+  echo "$script: Run DCube on $step output '$dcubemon'"
+  keep=""
+  test "$dcubedir" != "dcube" -a -d "dcube" && keep="dcube_keep_`uuidgen`"
+  test -n "$keep" && run mv -f dcube "$keep"
+  run "$art_dcube" "$name" "$dcubemon" "$dcubecfg" "$dcuberef"
+  dcube_stat=$?
+  test -n "$statname" && echo "art-result: $dcube_stat $statname"
+  test "dcubedir" != "dcube" && run mv -f dcube "$dcubedir"
+  test -n "$keep" && run mv -f "$keep" dcube
+}
 
 if [ $dosim -ne 0 ]; then
 
@@ -62,24 +100,16 @@ if [ $dosim -ne 0 ]; then
     --postExec    EVNTtoHITS:'ServiceMgr.DetDescrCnvSvc.DoInitNeighbours=False; from AthenaCommon import CfgGetter; CfgGetter.getService("ISF_MC15aPlusTruthService").BeamPipeTruthStrategies+=["ISF_MCTruthStrategyGroupIDHadInt_MC15"];'
   echo "art-result: $? sim"
 
-  ls -lL "$dcubemon_sim" "$art_dcube" "$dcubecfg_sim" "$dcuberef_sim"
-
-  if [ ! -s "$dcubemon_sim" ]; then
-    echo "`basename \"$0\"`: Sim_tf output '$hits' not created. Skip Sim DCube step." 2>&1
-    echo "art-result: 20 sim-plot"
-  else
-    # DCube Sim hit plots
-    run "$art_dcube" "$name" "$dcubemon_sim" "$dcubecfg_sim" "$dcuberef_sim"
-    echo "art-result: $? sim-plot"
-    run mv -f dcube dcube_sim
-  fi
+  # DCube Sim hit plots
+  dcube Sim_tf ""       "$dcubemon_sim" "$dcubecfg_sim"              "$dcuberef_sim" "$dcube_sim_fixref"
+  dcube Sim_tf sim-plot "$dcubemon_sim" "$dcubecfg_sim" "$lastref_dir/$dcubemon_sim" "$dcube_sim_lastref"
 
 fi
 
 if [ $dorec -ne 0 ]; then
 
   if [ $dosim -ne 0 ] && [ ! -s "$hits" ] && [ -s "$hits_ref" ]; then
-    echo "`basename \"$0\"`: Sim_tf output '$hits' not created. Run Reco_tf on '$hits_ref' instead." 2>&1
+    echo "$script: Sim_tf output '$hits' not created. Run Reco_tf on '$hits_ref' instead." 2>&1
     hits="$hits_ref"
   fi
 
@@ -115,7 +145,7 @@ if [ $dorec -ne 0 ]; then
   reco_stat=$?
   echo "art-result: $reco_stat reco"
   if [ "$reco_stat" -ne 0 ]; then
-    echo "`basename \"$0\"`: Reco_tf.py isn't working yet. Remove jobReport.json to prevent pilot declaring a failed job."
+    echo "$script: Reco_tf.py isn't working yet. Remove jobReport.json to prevent pilot declaring a failed job."
     run rm -f jobReport.json
   fi
 
@@ -123,32 +153,25 @@ fi
 
 if [ $dophy -ne 0 ]; then
 
-  ls -lL "$esd" "$jo"
+  ls -lLU "$esd" "$jo"
 
   if [ ! -s "$esd" ]; then
-    echo "`basename \"$0\"`: Reco_tf output '$esd' not created - exit" 2>&1
+    echo "$script: Reco_tf output '$esd' not created - exit" 2>&1
     echo "art-result: 21 physval"
-    echo "art-result: 21 plot"
+#   test -n "$dcube_rec_fixref"  && echo "art-result: 22 plot-fixref"
+    test -n "$dcube_rec_lastref" && echo "art-result: 22 plot"
     exit
   fi
 
   # Run InDetPhysValMonitoring on ESD.
   # It should eventually be possible to include this in the reco step, but this needs Reco_tf to support the ITk IDPVM setup.
   ( set -x
-    inputESDFile="$esd" athena.py "$jo"
+    inputESDFile="$esd" exec athena.py "$jo"
   )
   echo "art-result: $? physval"
 
-  ls -lL "$dcubemon_rec" "$art_dcube" "$dcubecfg_rec" "$dcuberef_rec"
-
-  if [ ! -s "$dcubemon_rec" ]; then
-    echo "`basename \"$0\"`: InDetPhysValMonitoring output '$dcubemon_rec' not created - exit" 2>&1
-    echo "art-result: 22 plot"
-    exit
-  fi
-
   # DCube InDetPhysValMonitoring performance plots
-  run "$art_dcube" "$name" "$dcubemon_rec" "$dcubecfg_rec" "$dcuberef_rec"
-  echo "art-result: $? plot"
+  dcube InDetPhysValMonitoring ""   "$dcubemon_rec" "$dcubecfg_rec"              "$dcuberef_rec" "$dcube_rec_fixref"
+  dcube InDetPhysValMonitoring plot "$dcubemon_rec" "$dcubecfg_rec" "$lastref_dir/$dcubemon_rec" "$dcube_rec_lastref"
 
 fi

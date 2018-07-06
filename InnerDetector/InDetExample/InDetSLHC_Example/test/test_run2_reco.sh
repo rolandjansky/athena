@@ -4,19 +4,27 @@
 # art-include: 21.9/Athena
 # art-output: *.root
 # art-output: *.xml
-# art-output: dcube_sim
-# art-output: dcube
+# art-output: dcube*
 
 # Fix ordering of output in logfile
 exec 2>&1
 run() { (set -x; exec "$@") }
 
+# Following specify which steps to run.
 dosim=0
 dorec=1
+
+# Following specify DCube output directories. Set empty to disable.
+dcube_sim_fixref="dcube_sim"
+dcube_sim_lastref="dcube_sim_last"
+dcube_rec_fixref="dcube"
+dcube_rec_lastref="dcube_last"
+
 artdata=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
 #artdata=/eos/atlas/atlascerngroupdisk/data-art/grid-input
 
 name="run2"
+script="`basename \"$0\"`"
 evnt=$artdata/InDetSLHC_Example/inputs/EVNT.12860049._002516.pool.root.1
 hits_ref=$artdata/Tier0ChainTests/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.simul.HITS.e6337_s3126/HITS.12860054._032508.pool.root.1
 if [ $dosim -ne 0 ]; then
@@ -31,6 +39,39 @@ dcuberef_sim=$artdata/InDetSLHC_Example/ReferenceHistograms/run2_SiHitValid.root
 dcubecfg_rec=$artdata/InDetSLHC_Example/dcube/config/run2_physval.xml
 dcuberef_rec=$artdata/InDetSLHC_Example/ReferenceHistograms/run2_physval.root
 art_dcube=/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube
+
+lastref_dir=last_results
+
+if [ \( $dosim -ne 0 -a -n "$dcube_sim_lastref" \) -o \( $dorec -ne 0 -a -n "$dcube_rec_lastref" \) ]; then
+  run art.py download --user=artprod --dst="$lastref_dir" InDetSLHC_Example "$script"
+  ls -la "$lastref_dir"
+fi
+
+dcube() {
+  # Run DCube and print art-result (if $2 is not empty)
+  step="$1" statname="$2" dcubemon="$3" dcubecfg="$4" dcuberef="$5" dcubedir="$6"
+  test -n "$dcubedir" || return
+  ls -lLU "$art_dcube" "$dcubemon" "$dcubecfg" "$dcuberef"
+  if [ ! -s "$dcubemon" ]; then
+    echo "$script: $step output '$dcubemon' not created. Don't create $dcubedir output." 2>&1
+    test -n "$statname" && echo "art-result: 20 $statname"
+    return
+  fi
+  if [ ! -s "$dcuberef" ]; then
+    echo "$script: $step DCube reference '$dcuberef' not available. Don't create $dcubedir output." 2>&1
+    test -n "$statname" && echo "art-result: 21 $statname"
+    return
+  fi
+  echo "$script: Run DCube on $step output '$dcubemon'"
+  keep=""
+  test "$dcubedir" != "dcube" -a -d "dcube" && keep="dcube_keep_`uuidgen`"
+  test -n "$keep" && run mv -f dcube "$keep"
+  run "$art_dcube" "$name" "$dcubemon" "$dcubecfg" "$dcuberef"
+  dcube_stat=$?
+  test -n "$statname" && echo "art-result: $dcube_stat $statname"
+  test "dcubedir" != "dcube" && run mv -f dcube "$dcubedir"
+  test -n "$keep" && run mv -f "$keep" dcube
+}
 
 if [ $dosim -ne 0 ]; then
 
@@ -59,24 +100,16 @@ if [ $dosim -ne 0 ]; then
     --postInclude     default:'RecJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py'
   echo "art-result: $? sim"
 
-  ls -lL "$dcubemon_sim" "$art_dcube" "$dcubecfg_sim" "$dcuberef_sim"
-
-  if [ ! -s "$dcubemon_sim" ]; then
-    echo "`basename \"$0\"`: Sim_tf output '$hits' not created. Skip Sim DCube step." 2>&1
-    echo "art-result: 20 sim-plot"
-  else
-    # DCube Sim hit plots
-    run "$art_dcube" "$name" "$dcubemon_sim" "$dcubecfg_sim" "$dcuberef_sim"
-    echo  "art-result: $? sim-plot"
-    run mv -f dcube dcube_sim
-  fi
+  # DCube Sim hit plots
+  dcube Sim_tf ""       "$dcubemon_sim" "$dcubecfg_sim"              "$dcuberef_sim" "$dcube_sim_fixref"
+  dcube Sim_tf sim-plot "$dcubemon_sim" "$dcubecfg_sim" "$lastref_dir/$dcubemon_sim" "$dcube_sim_lastref"
 
 fi
 
 if [ $dorec -ne 0 ]; then
 
   if [ $dosim -ne 0 ] && [ ! -s "$hits" ] && [ -s "$hits_ref" ]; then
-    echo "`basename \"$0\"`: Sim_tf output '$hits' not created. Run Reco_tf on '$hits_ref' instead." 2>&1
+    echo "$script: Sim_tf output '$hits' not created. Run Reco_tf on '$hits_ref' instead." 2>&1
     hits="$hits_ref"
   fi
 
@@ -96,16 +129,8 @@ if [ $dorec -ne 0 ]; then
     --preExec 'from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False); rec.doTrigger.set_Value_and_Lock(False); from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True); InDetPhysValFlags.doValidateTracksInJets.set_Value_and_Lock(True); InDetPhysValFlags.doValidateGSFTracks.set_Value_and_Lock(False); rec.doDumpProperties=True; rec.doCalo=False; rec.doEgamma=False; rec.doForwardDet=False; rec.doInDet=True; rec.doJetMissingETTag=False; rec.doLArg=False; rec.doLucid=False; rec.doMuon=False; rec.doMuonCombined=False; rec.doSemiDetailedPerfMon=True; rec.doTau=False; rec.doTile=False;'
   echo "art-result: $? reco"
 
-  ls -lL "$dcubemon_rec" "$art_dcube" "$dcubecfg_rec" "$dcuberef_rec"
-
-  if [ ! -s "$dcubemon_rec" ]; then
-    echo "`basename \"$0\"`: InDetPhysValMonitoring output '$dcubemon_rec' not created - exit" 2>&1
-    echo "art-result: 22 plot"
-    exit
-  fi
-
   # DCube InDetPhysValMonitoring performance plots
-  run "$art_dcube" "$name" "$dcubemon_rec" "$dcubecfg_rec" "$dcuberef_rec"
-  echo "art-result: $? plot"
+  dcube InDetPhysValMonitoring ""   "$dcubemon_rec" "$dcubecfg_rec"              "$dcuberef_rec" "$dcube_rec_fixref"
+  dcube InDetPhysValMonitoring plot "$dcubemon_rec" "$dcubecfg_rec" "$lastref_dir/$dcubemon_rec" "$dcube_rec_lastref"
 
 fi
