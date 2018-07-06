@@ -117,8 +117,7 @@
 - Generators/TrackRecordGenerator
 + Generators/.*
 + InnerDetector/InDetExample/InDetRecExample
-#+ InnerDetector/InDetRecTools/InDetTrackSelectionTool
-+ InnerDetector/InDetRecTools
++ InnerDetector/InDetRecTools/InDetTrackSelectionTool
 + LArCalorimeter/LArGeoModel/LArHV
 + LArCalorimeter/LArGeoModel/LArReadoutGeometry
 + LArCalorimeter/LArIdentifier
