@@ -11,6 +11,7 @@ class PixelDCSConditionsToolSetup:
         self.dbInstance = "DCS_OFL"
 
         self.useDB = True
+        self.isDATA = True
 
         self.stateAlgName = "PixelDCSCondStateAlg"
         self.hvAlgName = "PixelDCSCondHVAlg"
@@ -59,6 +60,12 @@ class PixelDCSConditionsToolSetup:
     def setUseDB(self, useDB):
         self.useDB = useDB
 
+    def getIsDATA(self):
+        return self.isDATA
+
+    def setIsDATA(self, isDATA):
+        self.isDATA = isDATA
+
     def getStateAlgName(self):
         return self.stateAlgName
 
@@ -90,23 +97,25 @@ class PixelDCSConditionsToolSetup:
         from IOVDbSvc.CondDB import conddb
 
         if (self.useDB):
-            if not conddb.folderRequested(self.stateFolder):
-                conddb.addFolder(self.dbInstance, self.stateFolder, className="CondAttrListCollection")
-            if not conddb.folderRequested(self.statusFolder):
-                conddb.addFolder(self.dbInstance, self.statusFolder, className="CondAttrListCollection")
             if not conddb.folderRequested(self.hvFolder):
                 conddb.addFolder(self.dbInstance, self.hvFolder, className="CondAttrListCollection")
             if not conddb.folderRequested(self.tempFolder):
                 conddb.addFolder(self.dbInstance, self.tempFolder, className="CondAttrListCollection")
+            if (self.isDATA):
+                if not conddb.folderRequested(self.stateFolder):
+                    conddb.addFolder(self.dbInstance, self.stateFolder, className="CondAttrListCollection")
+                if not conddb.folderRequested(self.statusFolder):
+                    conddb.addFolder(self.dbInstance, self.statusFolder, className="CondAttrListCollection")
 
     def setAlgs(self):
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
         
-        if not hasattr(condSeq, self.stateAlgName):
-            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
-            condSeq += PixelDCSCondStateAlg(name = self.stateAlgName)
-        self.stateAlg = getattr(condSeq, self.stateAlgName)
+        if (self.isDATA):
+            if not hasattr(condSeq, self.stateAlgName):
+                from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
+                condSeq += PixelDCSCondStateAlg(name = self.stateAlgName)
+            self.stateAlg = getattr(condSeq, self.stateAlgName)
 
         if not hasattr(condSeq, self.hvAlgName):
             from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondHVAlg
@@ -122,8 +131,7 @@ class PixelDCSConditionsToolSetup:
         from AthenaCommon.AppMgr import ToolSvc
         if not hasattr(ToolSvc, self.toolName):
             from PixelConditionsTools.PixelConditionsToolsConf import PixelDCSConditionsTool
-            ToolSvc += PixelDCSConditionsTool(name = self.toolName, UseDB = self.useDB)
-#            ToolSvc += PixelDCSConditionsTool(name = self.toolName, ReadAllDBFolders = self.readAllDBFolders, ReturnHVTemp = self.returnHVTemp)
+            ToolSvc += PixelDCSConditionsTool(name=self.toolName, UseDB=self.useDB, IsDATA=self.isDATA)
         self.tool = getattr(ToolSvc, self.toolName)
 
     def setup(self):

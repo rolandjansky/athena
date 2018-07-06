@@ -21,13 +21,6 @@ SiPropertiesTool::initialize()
     ATH_MSG_FATAL("Invalid detector name: " << m_detectorName << ". Must be Pixel or SCT.");
     return StatusCode::FAILURE;
   }
-
-  bool isPixel{m_detectorName == "Pixel"};
-  if (isPixel) {
-    ATH_MSG_FATAL("PIXEL case is not implemented yet!!!");
-    return StatusCode::FAILURE;
-  }
-
   ATH_CHECK(m_propertiesVector.initialize());
 
   return StatusCode::SUCCESS;

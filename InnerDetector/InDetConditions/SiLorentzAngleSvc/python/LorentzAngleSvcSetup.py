@@ -12,7 +12,6 @@
 #
 # for both pixel and SCT or to set pixel and SCT separately do:
 #
-#  lorentzAngleSvc.pixelForceUseDB()
 #  lorentzAngleSvc.sctForceUseDB()
 #
 #
@@ -48,20 +47,19 @@ class LorentzAngleSvcSetup:
 
         from AthenaCommon.DetFlags      import DetFlags
 
-        from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
+#        from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
 
         ##
         ## Pixel
         ##
         if ( DetFlags.detdescr.pixel_on() ):
-
-            from PixelLorentzAngleSvcSetup import pixelLorentzAngleSvcSetup
-            self.pixel = pixelLorentzAngleSvcSetup.PixelLorentzAngleSvc
-            self.pixelSiliconConditionsSvc = pixelLorentzAngleSvcSetup.PixelSiliconConditionsSvc
-            self.PixelSiliconConditionsSvc = pixelLorentzAngleSvcSetup.PixelSiliconConditionsSvc
-            self.pixelSiPropertiesSvc      = pixelLorentzAngleSvcSetup.PixelSiPropertiesSvc
-            self.PixelSiPropertiesSvc      = pixelLorentzAngleSvcSetup.PixelSiPropertiesSvc
-
+            from PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+            pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+            self.pixel = pixelLorentzAngleToolSetup.PixelLorentzAngleTool
+            self.pixelDCSConditionsTool = pixelLorentzAngleToolSetup.PixelDCSConditionsTool
+            self.PixelDCSConditionsTool = pixelLorentzAngleToolSetup.PixelDCSConditionsTool
+            self.pixelSiPropertiesTool  = pixelLorentzAngleToolSetup.PixelSiPropertiesTool
+            self.PixelSiPropertiesTool  = pixelLorentzAngleToolSetup.PixelSiPropertiesTool
         ##
         ## SCT 
         ##
@@ -79,9 +77,6 @@ class LorentzAngleSvcSetup:
     def forceUseDB(self) :
         "Force usage of conditions DB"
         from AthenaCommon.DetFlags      import DetFlags
-        if ( DetFlags.detdescr.pixel_on() ):
-            self.pixelForceUseDB()
-
         if ( DetFlags.detdescr.SCT_on() ):
             self.sctForceUseDB() 
     
@@ -107,8 +102,11 @@ lorentzAngleSvc = LorentzAngleSvcSetup()
 
 from AthenaCommon.DetFlags      import DetFlags
 if ( DetFlags.detdescr.pixel_on() ):
-   from PixelLorentzAngleSvcSetup import PixelLorentzAngleSvc
+   from PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+   pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+   PixelLorentzAngleTool = pixelLorentzAngleToolSetup.PixelLorentzAngleTool
 if ( DetFlags.detdescr.SCT_on() ):
    from SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
    SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool
+

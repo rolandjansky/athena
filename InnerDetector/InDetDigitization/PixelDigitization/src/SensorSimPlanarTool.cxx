@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -50,8 +50,9 @@ SensorSimPlanarTool::~SensorSimPlanarTool() { }
 //    I N I T I A L I Z E
 //===============================================
 StatusCode SensorSimPlanarTool::initialize() {
-  ATH_CHECK(SensorSimTool::initialize()); 
   ATH_MSG_DEBUG ( "SensorSimPlanarTool::initialize()");
+  ATH_CHECK(SensorSimTool::initialize()); 
+  ATH_CHECK(m_lorentzAngleTool.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -86,6 +87,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
 
   //Set up physical detector properties, switch on detector material
   ATH_MSG_DEBUG("Applying planar sensor simulation");
+
   double sensorThickness = Module.design().thickness();
   const InDet::SiliconProperties & siProperties = m_siPropertiesTool->getSiProperties(Module.identifyHash());
   double eleholePairEnergy = 0;
@@ -103,9 +105,8 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
 
   double collectionDist = 0.2*CLHEP::mm;
   double smearScale = 1. + 0.35*smearRand;
-  double tanLorentz = Module.getTanLorentzAnglePhi();
+  double tanLorentz = m_lorentzAngleTool->getTanLorentzAngle(Module.identifyHash());
   double coLorentz=sqrt(1+pow(tanLorentz,2));
-
 
   //**************************************//
   //*** Now diffuse charges to surface *** //

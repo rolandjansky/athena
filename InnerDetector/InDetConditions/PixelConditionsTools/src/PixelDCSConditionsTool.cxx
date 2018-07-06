@@ -9,32 +9,36 @@ PixelDCSConditionsTool::PixelDCSConditionsTool(const std::string& type, const st
   base_class(type, name, parent),
   m_pixid(nullptr),
   m_useDB(true),
+  m_isDATA(true),
   m_defaultTemperature(-5.0),
   m_defaultBiasVoltage(150.0),
   m_defaultDepletionVoltage(40.0)
 {
   declareProperty("UseDB",       m_useDB); 
+  declareProperty("IsDATA",      m_isDATA); 
   declareProperty("Temperature", m_defaultTemperature, "Default temperature in Celcius."); 
   declareProperty("BiasVoltage", m_defaultBiasVoltage, "Default bias voltage in Volt." ); 
   declareProperty("DepletionVoltage", m_defaultDepletionVoltage, "Default depletion voltage in Volt."); 
 }
 
 StatusCode PixelDCSConditionsTool::initialize() {
-  ATH_MSG_INFO("PixelDCSConditionsTool::initialize()");
+  ATH_MSG_DEBUG("PixelDCSConditionsTool::initialize()");
 
   if (m_useDB) {
     ATH_CHECK(m_condKeyHV.initialize());
     ATH_CHECK(m_condKeyTemp.initialize());
-    ATH_CHECK(m_condKeyState.initialize());
-    ATH_CHECK(m_condKeyStatus.initialize());
-    ATH_CHECK(detStore()->retrieve(m_pixid,"PixelID"));
+    if (m_isDATA) {
+      ATH_CHECK(m_condKeyState.initialize());
+      ATH_CHECK(m_condKeyStatus.initialize());
+    }
   }
+  ATH_CHECK(detStore()->retrieve(m_pixid,"PixelID"));
 
   return StatusCode::SUCCESS; 
 }
 
 StatusCode PixelDCSConditionsTool::finalize() {
-  ATH_MSG_INFO("PixelDCSConditionsTool::finalize()");
+  ATH_MSG_DEBUG("PixelDCSConditionsTool::finalize()");
   return StatusCode::SUCCESS; 
 } 
 
@@ -92,6 +96,7 @@ float PixelDCSConditionsTool::depletionVoltage(const IdentifierHash& /*elementHa
 
 std::string PixelDCSConditionsTool::PixelFSMState(const IdentifierHash& elementHash) const {
   std::string defaultState = "READY";
+  if (!m_isDATA) { return defaultState; }
   if (m_useDB) {
     const PixelDCSConditionsData* data(getCondDataState());
     if (data==nullptr) { return defaultState; }
@@ -104,6 +109,7 @@ std::string PixelDCSConditionsTool::PixelFSMState(const IdentifierHash& elementH
 
 std::string PixelDCSConditionsTool::PixelFSMStatus(const IdentifierHash& elementHash) const {
   std::string defaultStatus = "OK";
+  if (!m_isDATA) { return defaultStatus; }
   if (m_useDB) {
     const PixelDCSConditionsData* data(getCondDataStatus());
     if (data==nullptr) { return defaultStatus; }

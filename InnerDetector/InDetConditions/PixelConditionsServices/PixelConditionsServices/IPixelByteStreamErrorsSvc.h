@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCONDITIONSSERVICES_IPIXELBYTESTREAMERRORSSVC_H
@@ -32,9 +32,6 @@ class IdentifierHash;
 namespace InDetDD{
   class PixelDetectorManager; 
 }
-
-// STSTST  const InterfaceID IID_IPixelByteStreamErrorsSvc("IPixelByteStreamErrorsSvc",1,0);
-
 
 /**
  * @class PixelByteStreamErrorsSvc

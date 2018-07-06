@@ -43,11 +43,35 @@ def EnergyDepositionTool(name="EnergyDepositionTool", **kwargs):
     return CfgMgr.EnergyDepositionTool(name, **kwargs)
 
 def SensorSimPlanarTool(name="SensorSimPlanarTool", **kwargs):
+    from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
+    pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
+    pixelDCSConditionsToolSetup.setIsDATA(False)
+    pixelDCSConditionsToolSetup.setup()
+    from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
+    pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
+    pixelSiPropertiesToolSetup.setSiliconTool(pixelDCSConditionsToolSetup.getTool())
+    pixelSiPropertiesToolSetup.setup()
+    from AthenaCommon.AppMgr import ToolSvc
+    if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
+        from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+        pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+
+    kwargs.setdefault("SiPropertiesTool", pixelSiPropertiesToolSetup.getTool())
+    kwargs.setdefault("LorentzAngleTool", ToolSvc.PixelLorentzAngleTool)
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     return CfgMgr.SensorSimPlanarTool(name, **kwargs)
 
 def SensorSim3DTool(name="SensorSim3DTool", **kwargs):
+    from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
+    pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
+    pixelDCSConditionsToolSetup.setIsDATA(False)
+    pixelDCSConditionsToolSetup.setup()
+    from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
+    pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
+    pixelSiPropertiesToolSetup.setSiliconTool(pixelDCSConditionsToolSetup.getTool())
+    pixelSiPropertiesToolSetup.setup()
+    kwargs.setdefault("SiPropertiesTool", pixelSiPropertiesToolSetup.getTool())
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     return CfgMgr.SensorSim3DTool(name, **kwargs)
@@ -170,20 +194,14 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     from AthenaCommon.Resilience import protectedInclude
     from AthenaCommon.Include import include
     from AthenaCommon.AppMgr import ServiceMgr
+    from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon.CfgGetter import getService
-    protectedInclude( "PixelConditionsServices/PixelDCSSvc_jobOptions.py" )
-    include.block( "PixelConditionsServices/PixelDCSSvc_jobOptions.py" )
     protectedInclude("PixelConditionsServices/PixelCalibSvc_jobOptions.py")
     from IOVDbSvc.CondDB import conddb
     conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed")
     PixelCablingSvc = getService("PixelCablingSvc")
     ServiceMgr += PixelCablingSvc
     print  PixelCablingSvc
-    if not hasattr(ServiceMgr, "PixelSiPropertiesSvc"):
-      from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc
-      from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
-      pixelSiPropertiesSvc = SiPropertiesSvc(name = "PixelSiPropertiesSvc",DetectorName="Pixel",SiConditionsServices = lorentzAngleSvc.pixelSiliconConditionsSvc)
-      ServiceMgr += pixelSiPropertiesSvc
     kwargs.setdefault("InputObjectName", "PixelHits")
     chargeTools = [] #Tools in array for flexibility
     feSimTools = []

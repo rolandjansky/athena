@@ -43,6 +43,7 @@ class PixelDCSConditionsTool: public extends<AthAlgTool, IPixelDCSConditionsTool
     const PixelID* m_pixid;
 
     bool m_useDB;
+    bool m_isDATA;
     float m_defaultTemperature;
     float m_defaultBiasVoltage;
     float m_defaultDepletionVoltage;

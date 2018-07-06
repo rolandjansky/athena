@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,6 +21,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SensorSimTool.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 
 class SensorSimPlanarTool : public SensorSimTool {
 
@@ -35,6 +36,8 @@ class SensorSimPlanarTool : public SensorSimTool {
 
   private:
     SensorSimPlanarTool();
+
+    ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "PixelLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
     int    m_numberOfSteps;
     int    m_numberOfCharges;  

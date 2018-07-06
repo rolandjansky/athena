@@ -41,11 +41,6 @@ StatusCode SiLorentzAngleTool::initialize() {
   }
   m_isPixel = (m_detectorName == "Pixel");
 
-  if (m_isPixel) {
-    ATH_MSG_FATAL("SiLorentzAngleTool is not yet implemented for Pixel!");
-    return StatusCode::FAILURE;
-  }
-
   // Read Cond Handle
   ATH_CHECK(m_condData.initialize());
 
