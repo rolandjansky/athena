@@ -38,15 +38,16 @@ class LArG3Escale_TDR : public CaloCellCorrection
     LArG3Escale_TDR(const std::string& type, const std::string& name, 
 		    const IInterface* parent);
 
-    ~LArG3Escale_TDR();
-    virtual StatusCode initialize(); 
+    virtual ~LArG3Escale_TDR();
+    virtual StatusCode initialize() override;
 
-    void MakeCorrection(CaloCell* theCell);    
+    virtual void MakeCorrection (CaloCell* theCell,
+                                 const EventContext& ctx) const override;  
 
  private: 
 
-    double scaleb(double eta);
-    double scalee(double eta);
+    double scaleb(double eta) const;
+    double scalee(double eta) const;
 
     static const double s_gap0;
     static const double s_etacr;

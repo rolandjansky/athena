@@ -20,6 +20,7 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "StoreGate/StoreGateSvc.h"
 
 
@@ -47,7 +48,7 @@ MakeLArCellFromRaw::~MakeLArCellFromRaw()
 void MakeLArCellFromRaw::initialize( const LArRoI_Map* roiMap ,
 	const std::vector<CaloCellCorrection*>* pCorr, unsigned int poolMaxSize )
 {
-
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   ISvcLocator* svcLoc = Gaudi::svcLocator( );
 
@@ -182,7 +183,7 @@ void MakeLArCellFromRaw::initialize( const LArRoI_Map* roiMap ,
       if(pCorr)  {
 	// make a fake LArCell, and get the correction factor. 
 	   LArCell larCell(caloDDE,en,time,qu,g); 
-           cell.eCorr   = getCorrection(&larCell, *pCorr) ; 
+           cell.eCorr   = getCorrection(&larCell, *pCorr, ctx);
       }
     } catch (LArID_Exception& ex){
                     ++n_em_err; 
@@ -224,7 +225,7 @@ void MakeLArCellFromRaw::initialize( const LArRoI_Map* roiMap ,
       if(pCorr)  {
 	// make a fake LArCell, and get the correction factor. 
 	   LArCell larCell(caloDDE,en,time,qu,g); 
-           cell.eCorr   = getCorrection(&larCell, *pCorr) ; 
+           cell.eCorr   = getCorrection(&larCell, *pCorr, ctx);
       }
       ++n_hec; 
     } catch (LArID_Exception& ex){
@@ -265,7 +266,7 @@ void MakeLArCellFromRaw::initialize( const LArRoI_Map* roiMap ,
       if(pCorr)  {
 	// make a fake LArCell, and get the correction factor. 
 	   LArCell larCell(caloDDE,en,time,qu,g); 
-           cell.eCorr   = getCorrection(&larCell, *pCorr) ; 
+           cell.eCorr   = getCorrection(&larCell, *pCorr, ctx);
       }
       ++n_fcal; 
     } catch (LArID_Exception& ex){
@@ -355,19 +356,19 @@ LArCell* MakeLArCellFromRaw::getLArCell(unsigned int feb, unsigned int chan ,
 
 }
 
-double MakeLArCellFromRaw::getCorrection (LArCell* cell, 
-	const std::vector<CaloCellCorrection*>& vCorr )
+double
+MakeLArCellFromRaw::getCorrection(LArCell* cell, 
+                                  const std::vector<CaloCellCorrection*>& vCorr,
+                                  const EventContext& ctx) const
 {
 // LArCell was made with energy = 50. 
  	double en= 50. * GeV ; 
 //	cell->setEnergy(en); 
 
         // apply corrections. 
-        std::vector<CaloCellCorrection*>::const_iterator it= 
- 	      vCorr.begin(); 
-        for(; it!=vCorr.end(); ++it)
+        for (const CaloCellCorrection* corr : vCorr)
          {
-             (*it)->MakeCorrection(cell); 
+           corr->MakeCorrection (cell, ctx);
          } 
 
 	double c=  cell->energy()/en; 

@@ -211,7 +211,8 @@ LArG3Escale::~LArG3Escale()
 
 // MakeCorrection:  This is called with a pointer to the Cell Object.
 
-void LArG3Escale::MakeCorrection(CaloCell* theCell)
+void LArG3Escale::MakeCorrection (CaloCell* theCell,
+                                  const EventContext& /*ctx*/) const
 {
   double energy = theCell->energy();
   double scale = this->correction(theCell->caloDDE());
@@ -221,7 +222,7 @@ void LArG3Escale::MakeCorrection(CaloCell* theCell)
 
 // MakeCorrection:  This is called with a pointer to the Cell Object.
 
-double  LArG3Escale::correction(const CaloDetDescrElement* theCaloDDE)
+double  LArG3Escale::correction(const CaloDetDescrElement* theCaloDDE) const
 {
 
   float eta = theCaloDDE->eta();
@@ -304,7 +305,7 @@ double  LArG3Escale::correction(const CaloDetDescrElement* theCaloDDE)
 // larscale returns the scale factor for barrel and endcap
 ////////////////////////////////////////////////////////////////////
 
-double LArG3Escale::LArScale(int bar_ec, double abseta)
+double LArG3Escale::LArScale(int bar_ec, double abseta) const
 {
 
  double scale = 0;
@@ -337,7 +338,7 @@ double LArG3Escale::LArScale(int bar_ec, double abseta)
 // scalee returns the scale factor for the Inner Wheel of em calo
 ///////////////////////////////////////////////////////////////////
 
-double LArG3Escale::scalee(double abseta)
+double LArG3Escale::scalee(double abseta) const
 {
   double scale; 
   double corr; 
@@ -383,7 +384,7 @@ energy is added at the cluster level in LArGapCorrection.
 
 */
 
-double LArG3Escale::GetWgt(int layer,double aeta)
+double LArG3Escale::GetWgt(int layer,double aeta) const
 {
   if (aeta > s_etamax || aeta < s_etamin)
     return 1.;

@@ -29,9 +29,10 @@ public:
 		   const IInterface* parent);
 
   ~LArCellRecalibration();
-  virtual StatusCode initialize(); 
+  virtual StatusCode initialize() override;
 
-  void MakeCorrection(CaloCell* theCell);    
+  virtual void MakeCorrection (CaloCell* theCell,
+                               const EventContext& ctx) const override;
 
  private: 
 

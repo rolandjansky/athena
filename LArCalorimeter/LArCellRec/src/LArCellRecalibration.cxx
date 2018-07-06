@@ -37,8 +37,9 @@ StatusCode LArCellRecalibration::initialize() {
 }
 
 
-void LArCellRecalibration::MakeCorrection(CaloCell* theCell) {
-
+void LArCellRecalibration::MakeCorrection (CaloCell* theCell,
+                                           const EventContext& /*ctx*/) const
+{
   Identifier id = theCell->ID();
   CaloGain::CaloGain gain = theCell->gain();
   float newEnergy=theCell->energy();

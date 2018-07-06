@@ -29,7 +29,8 @@ public:
 
   virtual StatusCode initialize() override;
   
-  virtual void MakeCorrection (CaloCell* theCell) override;
+  virtual void MakeCorrection (CaloCell* theCell,
+                               const EventContext& ctx) const override;
 
 
 private:

@@ -9,7 +9,7 @@
  *
  * @brief Apply miscalibration in EM calorimeter at cell level
  *
- * \ G.Unal (based on other similar tools rom K.Voss)
+ * \ G.Unal (based on other similar tools from K.Voss)
  *
  *  \date   October 25, 2006 
  */
@@ -44,9 +44,10 @@ class LArCellEmMiscalib :  public CaloCellCorrection
   virtual ~LArCellEmMiscalib() {};
   
   /*! Constructor */
-  virtual StatusCode initialize() ; 
+  virtual StatusCode initialize() override;
   
-  void MakeCorrection(CaloCell* theCell);
+  virtual void MakeCorrection (CaloCell* theCell,
+                               const EventContext& ctx) const override;
   
  private:
 

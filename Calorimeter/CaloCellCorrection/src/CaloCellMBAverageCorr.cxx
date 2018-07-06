@@ -44,7 +44,8 @@ StatusCode CaloCellMBAverageCorr::initialize()
 
 // ============================================================================
 
-void CaloCellMBAverageCorr::MakeCorrection(CaloCell* theCell)
+void CaloCellMBAverageCorr::MakeCorrection (CaloCell* theCell,
+                                            const EventContext& /*ctx*/) const
 {
    float pedestal = m_caloMBAverageTool->average(theCell);
    theCell->addEnergy(-pedestal);

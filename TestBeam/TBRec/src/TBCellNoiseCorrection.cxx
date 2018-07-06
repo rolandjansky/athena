@@ -150,7 +150,8 @@ StatusCode TBCellNoiseCorrection::finalize()
 } 
 // MakeCorrection:  This is called with a pointer to the Cell Object.
 
-void TBCellNoiseCorrection::MakeCorrection(CaloCell* theCell)
+void TBCellNoiseCorrection::MakeCorrection (CaloCell* theCell,
+                                            const EventContext& /*ctx*/) const
 {
 
 //   const CaloDetDescrElement* elt = theCell->caloDDE();

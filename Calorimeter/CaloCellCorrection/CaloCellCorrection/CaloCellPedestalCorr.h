@@ -13,6 +13,7 @@
 #include "CaloInterface/ICaloLumiBCIDTool.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "GaudiKernel/ToolHandle.h"
+#include <unordered_map>
 
 class CaloCondBlobFlt;
 class CaloCell;
@@ -30,9 +31,10 @@ public:
 
   virtual ~CaloCellPedestalCorr() {};
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  void MakeCorrection(CaloCell* theCell);
+  void MakeCorrection (CaloCell* theCell,
+                       const EventContext& ctx) const override;
 
 private:
 
@@ -42,8 +44,8 @@ private:
   virtual StatusCode updateMap(IOVSVC_CALLBACK_ARGS);
   //=== blob storage
   const DataHandle<CondAttrListCollection> m_noiseAttrListColl;
-  std::map<unsigned int, const CaloCondBlobFlt*> m_noiseBlobMap;
-  std::map<unsigned int, const CaloCondBlobFlt*>::const_iterator m_lastIt;
+  typedef std::unordered_map<unsigned int, const CaloCondBlobFlt*> NoiseBlobMap_t;
+  NoiseBlobMap_t m_noiseBlobMap;
 
   ToolHandle<ICaloCoolIdTool> m_caloCoolIdTool;
   float m_lumi0;

@@ -31,12 +31,13 @@ class TBCellNoiseCorrection : public CaloCellCorrection, virtual public IInciden
     TBCellNoiseCorrection (const std::string& type, const std::string& name, 
 		const IInterface* parent);
 
-    ~TBCellNoiseCorrection();
-    virtual StatusCode initialize(); 
-    virtual StatusCode finalize(); 
+    virtual ~TBCellNoiseCorrection();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
-    void MakeCorrection(CaloCell* theCell);    
-    void handle(const Incident&);
+    void MakeCorrection (CaloCell* theCell,
+                         const EventContext& ctx) const override;
+    virtual void handle(const Incident&) override;
 
  private: 
 

@@ -33,10 +33,11 @@ class TBEMECCellEtaCorrection : public CaloCellCorrection
     TBEMECCellEtaCorrection (const std::string& type, const std::string& name, 
 		const IInterface* parent);
 
-    ~TBEMECCellEtaCorrection();
-    virtual StatusCode initialize(); 
+    virtual ~TBEMECCellEtaCorrection();
+    virtual StatusCode initialize() override;
 
-    void MakeCorrection(CaloCell* theCell);    
+    virtual void MakeCorrection (CaloCell* theCell,
+                                 const EventContext& ctx) const override;
 
  private: 
 
