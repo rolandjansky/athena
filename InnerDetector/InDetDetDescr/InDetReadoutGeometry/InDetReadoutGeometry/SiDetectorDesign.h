@@ -16,6 +16,7 @@
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Vector3D.h"
+#include "CLHEP/Geometry/Transform3D.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "GeoModelKernel/RCBase.h"
 #include "InDetDD_Defs.h"
@@ -156,6 +157,9 @@ public:
        return localModuleCentreRadius() if SCT_StripStereoAnnulusDesign; otherwise -1 */
     virtual double localModuleCentreRadius() const ; 
 
+    /** only relevant for SCT. Return strip1Dim(int strip, int row) if SCT; otherwise -1 */
+    virtual int strip1Dim(int strip, int row) const;
+
     ///////////////////////////////////////////////////////////////////
     // Pure virtual methods:
     ///////////////////////////////////////////////////////////////////
@@ -213,6 +217,8 @@ public:
     /**  Element boundary */
     virtual const Trk::SurfaceBounds &bounds() const = 0;
 
+    /** Transform from SiHit to GeoModel frame */
+    virtual const HepGeom::Transform3D SiHitToGeoModel() const; 
 
     ///////////////////////////////////////////////////////////
     //
@@ -335,6 +341,10 @@ inline int SiDetectorDesign::readoutSide() const {
 
 inline double SiDetectorDesign::localModuleCentreRadius() const{
     return -1.0; 
+}
+
+inline int SiDetectorDesign::strip1Dim(int strip, int row) const{
+    return -1.0;
 }
 }  // namespace InDetDD
 #endif // INDETREADOUTGEOMETRY_SIDETECTORDESIGN_H

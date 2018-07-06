@@ -133,6 +133,8 @@ public:
 
     bool nearBondGap(const SiLocalPosition &, double) const;
 
+    // Transform from SiHit to GeoModel frame
+    const HepGeom::Transform3D SiHitToGeoModel() const;
 
     // ------------------------------------------------------------------------------------------
 

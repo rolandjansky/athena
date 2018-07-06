@@ -153,7 +153,7 @@ SiDetectorElement::updateCache() const
   bool firstTimeTmp = m_firstTime;
   m_firstTime = false;
   
-  const HepGeom::Transform3D & geoTransform = transformHit();
+  const HepGeom::Transform3D &geoTransform = getMaterialGeom()->getAbsoluteTransform();
 
   double radialShift = 0.;
   //TO:
@@ -288,7 +288,7 @@ SiDetectorElement::updateCache() const
       if (m_design->etaSymmetric()) {
 	m_etaDirection = false;
       } else {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to swap local xEta axis." << endreq;
+	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to swap local xEta axis." << endreq;
       }
     }
     if (std::abs(etaDir) < 0.5) { // Check that it is in roughly the right direction.
@@ -300,7 +300,7 @@ SiDetectorElement::updateCache() const
   } // end if (m_firstTime)
   
 
-
+  m_transformHit   = geoTransform * m_design->SiHitToGeoModel();
   m_transformCLHEP = geoTransform * recoToHitTransform();
   //m_transform = m_commonItems->solenoidFrame() * geoTransform * recoToHitTransform();
   m_transform = Amg::CLHEPTransformToEigen(m_transformCLHEP);
@@ -391,7 +391,10 @@ SiDetectorElement::updateConditionsCache() const
 const HepGeom::Transform3D &
 SiDetectorElement::transformHit() const
 {
-  return getMaterialGeom()->getAbsoluteTransform();
+  if (!m_cacheValid) {
+      updateCache();
+  }
+  return m_transformHit;
 }
 
 const Amg::Transform3D &
@@ -1098,7 +1101,8 @@ Amg::Vector2D
 SiDetectorElement::localPositionOfCell(const Identifier & id) const
 {
   SiCellId cellId = cellIdFromIdentifier(id);
-  Amg::Vector2D pos(m_design->localPositionOfCell(cellId));
+  SiLocalPosition silp = m_design->localPositionOfCell(cellId);
+  Amg::Vector2D pos = hitLocalToLocal(silp.xEta(), silp.xPhi());
   return correctLocalPosition(pos);
 }
 
@@ -1185,7 +1189,16 @@ SiDetectorElement::cellIdFromIdentifier(const Identifier & identifier) const
     } else {
       const SCT_ID * sctIdHelper = static_cast<const SCT_ID *>(getIdHelper());
       if (sctIdHelper) {
-	cellId =  SiCellId(sctIdHelper->strip(identifier));
+        int row = sctIdHelper->row(identifier);
+        int strip = sctIdHelper->strip(identifier);
+        if (row < 0) { // This sensor does not have rows
+          cellId = SiCellId(strip);
+        }
+        else {
+          auto &sctDesign = *m_design; 
+          int strip1D = sctDesign.strip1Dim(strip, row);
+          cellId = SiCellId(strip1D);
+        }
       }
     }
   }

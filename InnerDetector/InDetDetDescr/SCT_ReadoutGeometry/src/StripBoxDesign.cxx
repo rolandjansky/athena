@@ -20,9 +20,7 @@ StripBoxDesign::StripBoxDesign(const SiDetectorDesign::Axis stripDirection,
                                const int nStrips,
                                const double pitch,
                                const double length) : 
-// The box is symmetric in all three dimensions. But we have to cover that up or the SCT software 
-// swaps things wrongly and gets the local-to-global transform (transformHit()) wrong.
-    SCT_ModuleSideDesign(thickness, false, false, true, 1, nRows * nStrips, nRows * nStrips, 0, false, carrier,
+    SCT_ModuleSideDesign(thickness, true, true, true, 1, nRows * nStrips, nRows * nStrips, 0, false, carrier,
                          readoutSide, stripDirection, thicknessDirection) {
     if (nRows <= 0) {
         throw std::runtime_error(
@@ -248,6 +246,10 @@ void StripBoxDesign::distanceToDetectorEdge(SiLocalPosition const & pos,
    phiDist = xPhiEdge - xPhi;
 
 
+}
+
+const HepGeom::Transform3D StripBoxDesign::SiHitToGeoModel() const {
+   return HepGeom::RotateY3D(90.*CLHEP::deg) ;
 }
 
 } // namespace InDetDD

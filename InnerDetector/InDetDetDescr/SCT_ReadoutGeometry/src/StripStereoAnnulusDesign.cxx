@@ -335,5 +335,9 @@ DetectorShape StripStereoAnnulusDesign::shape() const
    return InDetDD::Annulus;
  }
 
+const HepGeom::Transform3D StripStereoAnnulusDesign::SiHitToGeoModel() const {
+   return HepGeom::RotateY3D(90.*CLHEP::deg) ;
+}
+
 } // namespace InDetDD
 
