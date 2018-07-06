@@ -247,12 +247,20 @@ summary.OutputLevel = DEBUG
 
 steps = seqAND("HLTSteps", [ step0, step1, step0r ]  )
 
-from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT
+from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
 mon = TrigSignatureMoniMT()
 mon.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions", "WhateverElse" ]
 from TrigUpgradeTest.TestUtils import MenuTest
 mon.ChainsList = [ x.split(":")[1] for x in  MenuTest.CTPToChainMapping ]
 mon.OutputLevel = DEBUG
+
+step1Collector = DecisionCollectorTool("Step1Collector")
+step1Collector.Decisions = ["EgammaCaloDecisions"]
+
+step2Collector = DecisionCollectorTool("Step2Collector")
+step2Collector.Decisions = ["ElectronL2Decisions"]
+mon.CollectorTools = [step1Collector, step2Collector]
+
 
 import AthenaPoolCnvSvc.WriteAthenaPool
 from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
