@@ -4,8 +4,8 @@
 
 //Dear emacs, this is -*-c++-*-
 
-#ifndef CALOREC_CaloCellRescaler_H
-#define CALOREC_CaloCellRescaler_H
+#ifndef CALOCELLCORRECTION_CALOCELLRESCALER_H
+#define CALOCELLCORRECTION_CALOCELLRESCALER_H
 
 
 #include "CaloUtils/CaloCellCorrection.h"

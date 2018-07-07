@@ -9,7 +9,7 @@
 //
 // ****************************************************************************************
 
-#include "CaloCellCorrection/CaloCellRandomizer.h"
+#include "CaloCellRandomizer.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
