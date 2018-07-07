@@ -62,7 +62,7 @@ dcube() {
     test -n "$statname" && echo "art-result: 21 $statname"
     return
   fi
-  echo "$script: Run DCube on $step output '$dcubemon'"
+  echo "$script: DCube comparison of $step output '$dcubemon' with '$dcuberef' reference"
   keep=""
   test "$dcubedir" != "dcube" -a -d "dcube" && keep="dcube_keep_`uuidgen`"
   test -n "$keep" && run mv -f dcube "$keep"
