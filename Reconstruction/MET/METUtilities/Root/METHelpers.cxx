@@ -9,9 +9,6 @@
 // Author: T.J.Khoo<khoo@cern.ch>
 ///////////////////////////////////////////////////////////////////
 
-// Framework includes
-#include "AsgTools/MessageCheck.h"
-
 // METUtilities includes
 #include "METUtilities/METHelpers.h"
 

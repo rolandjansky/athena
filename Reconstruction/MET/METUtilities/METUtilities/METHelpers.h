@@ -11,15 +11,19 @@
 #ifndef METUTILITIES_MET_METHELPERS_H
 #define METUTILITIES_MET_METHELPERS_H 1
 
+// Framework includes
+#include "AsgTools/MessageCheck.h"
+#include "AsgTools/StatusCode.h"
+
 #include "xAODMuon/MuonContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
-#include "AsgTools/StatusCode.h"
 
 namespace met {
 
-  const static MissingETBase::Types::bitmask_t invisSource = 0x100000; // doesn't overlap with any other
+  ANA_MSG_HEADER (msgMET)
 
+  const static MissingETBase::Types::bitmask_t invisSource = 0x100000; // doesn't overlap with any other
 
   void addGhostMuonsToJets(const xAOD::MuonContainer& muons, xAOD::JetContainer& jets);
 
