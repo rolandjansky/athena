@@ -16,10 +16,7 @@ PURPOSE:  A simple toy model to simulate longitudinal cross-talk
 
 ********************************************************************/
 
-#include "TBRec/TBEMECXTalkToyModel.h"
-
-#include "StoreGate/StoreGateSvc.h"
-
+#include "TBEMECXTalkToyModel.h"
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCell.h"

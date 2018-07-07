@@ -2,8 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define TileRec_h1000_cxx
-#include "TBRec/TileRec_h1000.h"
+#include "TileRec_h1000.h"
 
 TileRec_h1000::TileRec_h1000(TTree *tree)
   : fChain(0),

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TBRec/TBPartIDCherenkovMuTag.h"
+#include "TBPartIDCherenkovMuTag.h"
 #include "TBEvent/TBIdentifiedParticle.h"
 #include "TBEvent/TBScintillatorCont.h"
 
