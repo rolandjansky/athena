@@ -75,7 +75,7 @@ dcube() {
   run "$art_dcube" "$name" "$dcubemon" "$dcubecfg" "$dcuberef"
   dcube_stat=$?
   test -n "$statname" && echo "art-result: $dcube_stat $statname"
-  test "dcubedir" != "dcube" && run mv -f dcube "$dcubedir"
+  test "$dcubedir" != "dcube" && run mv -f dcube "$dcubedir"
   test -n "$keep" && run mv -f "$keep" dcube
 }
 
