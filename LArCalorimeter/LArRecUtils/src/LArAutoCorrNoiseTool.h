@@ -15,8 +15,8 @@
  Interfaces defined in ILArAutoCorrNoiseTool.h
 
    */
-#ifndef LARCALIBUTILS_LARAUTOCORRNOISETOOL_H
-#define LARCALIBUTILS_LARAUTOCORRNOISETOOL_H
+#ifndef LARRECUTILS_LARAUTOCORRNOISETOOL_H
+#define LARRECUTILS_LARAUTOCORRNOISETOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"

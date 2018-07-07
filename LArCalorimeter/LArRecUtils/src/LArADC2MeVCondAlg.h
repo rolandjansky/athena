@@ -6,8 +6,8 @@
 
 
 
-#ifndef LARADC2MEVCONDALG_H
-#define LARADC2MEVCONDALG_H
+#ifndef LARRECUTILS_LARADC2MEVCONDALG_H
+#define LARRECUTILS_LARADC2MEVCONDALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"

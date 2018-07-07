@@ -12,8 +12,8 @@
    * @version 0-0-1, 28/01/2004
    *
    */
-#ifndef LARCALIBUTILS_LARADC2MEVTOOL_H
-#define LARCALIBUTILS_LARADC2MEVTOOL_H
+#ifndef LARRECUTILS_LARADC2MEVTOOL_H
+#define LARRECUTILS_LARADC2MEVTOOL_H
 
 #include "LArElecCalib/ILArADC2MeVTool.h"
 #include "GaudiKernel/IIncidentListener.h"
