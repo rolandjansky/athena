@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LARCELLREC_LArCellGainPathology_H
-#define LARCELLREC_LArCellGainPathology_H
+#ifndef LARCELLREC_LARCELLGAINPATHOLOGY_H
+#define LARCELLREC_LARCELLGAINPATHOLOGY_H
 
 /** 
 @class LArCellGainPathology

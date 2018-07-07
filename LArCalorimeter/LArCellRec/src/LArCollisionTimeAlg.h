@@ -5,8 +5,8 @@
 // TheLArCollisionsAlg.h
 //
 
-#ifndef _LArCollisionTimeAlg_LArCollisionTimeAlg_H
-#define _LArCollisionTimeAlg_LArCollisionTimeAlg_H
+#ifndef LARCELLREC_LARCOLLISIONTIMEALG_H
+#define LARCELLREC_LARCOLLISIONTIMEALG_H
 
 #include <string>
 

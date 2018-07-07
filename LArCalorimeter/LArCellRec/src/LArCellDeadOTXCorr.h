@@ -20,8 +20,8 @@
  */
 
 
-#ifndef LARCELLDEADOTXCORR_H
-#define LARCELLDEADOTXCORR_H 
+#ifndef LARCELLREC_LARCELLDEADOTXCORR_H
+#define LARCELLREC_LARCELLDEADOTXCORR_H
 
 // CaloCell Energy Correction Tool for Missing FEBs
 // by Deepak Kar with help from Guillaume Unal and Damien Prieur

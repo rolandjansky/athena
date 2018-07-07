@@ -47,13 +47,6 @@ process(CaloCellContainer * theCellContainer)
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
 
-class CaloDetDescrManager; 
-class Identifier; 
-class StoreGateSvc; 
-class CaloDetDescrElement;
-class IAtRndmGenSvc;
-class LArG3Escale ;
-
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "CaloIdentifier/LArID.h"
 #include "Identifier/IdContext.h"
@@ -65,13 +58,20 @@ class LArG3Escale ;
 #include "Identifier/IdentifierHash.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 //#include "LArCellRec/LArHitMap.h"
-#include "LArCellRec/LArHitInfo.h"
+#include "LArHitInfo.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "LArElecCalib/ILArfSampl.h"
 
 #include <CLHEP/Random/Randomize.h>
 
+
+class CaloDetDescrManager; 
+class Identifier; 
+class StoreGateSvc; 
+class CaloDetDescrElement;
+class IAtRndmGenSvc;
+class LArG3Escale ;
 
 class LArCellBuilderFromLArHitTool: public AthAlgTool,
 					   public IIncidentListener,  
