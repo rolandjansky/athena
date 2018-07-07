@@ -57,8 +57,7 @@ atlas_add_test( ViewCollectionMerge_test
 atlas_add_test( SimpleViews SCRIPT test/test_simple_view_example.sh
                 PROPERTIES PASS_REGULAR_EXPRESSION "INFO view_test running with store view9" )
 
-atlas_add_test( ViewScheduling SCRIPT test/test_view_scheduling.sh
-                PROPERTIES PASS_REGULAR_EXPRESSION "INFO 109" )
+atlas_add_test( ViewScheduling SCRIPT test/test_view_scheduling.sh )
 
 atlas_add_test( ViewNestFail SCRIPT test/test_view_nest_fail.sh
                 PROPERTIES PASS_REGULAR_EXPRESSION "Execution of algorithm nest_alg failed" )
