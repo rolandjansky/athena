@@ -62,7 +62,7 @@ job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 # Set up the systematics loader/handler algorithm:
 sysLoader = AnaAlgorithmConfig( 'CP::SysListLoaderAlg/SysLoaderAlg' )
 sysLoader.sigmaRecommended = 1
-job.algAdd( sysLoader )
+job.algsAdd( sysLoader )
 
 # Set up a selection alg for demonstration purposes
 # Also to avoid warnings from building MET with very soft electrons
