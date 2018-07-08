@@ -5,6 +5,10 @@
 # Declare the package name:
 atlas_subdir( DQDefects )
 
+# Declare the package's dependencies:
+atlas_depends_on_subdirs( PRIVATE
+                          DataQuality/DQUtils )
+
 # External dependencies:
 find_package( Oracle )
 find_package( pytools )
