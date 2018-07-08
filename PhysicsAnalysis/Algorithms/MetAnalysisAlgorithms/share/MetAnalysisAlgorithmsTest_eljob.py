@@ -62,7 +62,7 @@ job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 # Set up the systematics loader/handler algorithm:
 sysLoader = AnaAlgorithmConfig( 'CP::SysListLoaderAlg/SysLoaderAlg' )
 sysLoader.sigmaRecommended = 1
-job += sysLoader
+job.algAdd( sysLoader )
 
 # Set up a selection alg for demonstration purposes
 # Also to avoid warnings from building MET with very soft electrons
@@ -76,7 +76,7 @@ selalg.particles = 'Electrons'
 # We need to copy here, because w/o an output container, it's assumed
 # that the input container is non-const
 selalg.particlesOut = 'DecorElectrons_%SYS%'
-job += selalg
+job.algsAdd( selalg )
 print( selalg ) # For debugging
 
 # Now make a view container holding only the electrons for the MET calculation
@@ -84,7 +84,7 @@ viewalg = createAlgorithm( 'CP::AsgViewFromSelectionAlg','METEleViewAlg' )
 viewalg.selection = [ 'selectPtEta' ]
 viewalg.input = 'DecorElectrons_%SYS%'
 viewalg.output = 'METElectrons_%SYS%'
-job += viewalg
+job.algsAdd( viewalg )
 print( viewalg ) # For debugging
 
 # Include, and then set up the met analysis algorithm sequence:
@@ -101,7 +101,7 @@ print( metSequence ) # For debugging
 
 # Add all algorithms to the job:
 for alg in metSequence:
-    job += alg
+    job.algsAdd( alg )
     pass
 
 # Run the job using the direct driver.
