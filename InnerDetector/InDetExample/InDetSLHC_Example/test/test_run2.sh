@@ -101,8 +101,8 @@ if [ $dosim -ne 0 ]; then
   echo "art-result: $? sim"
 
   # DCube Sim hit plots
-  dcube Sim_tf ""       "$dcubemon_sim" "$dcubecfg_sim"              "$dcuberef_sim" "$dcube_sim_fixref"
   dcube Sim_tf sim-plot "$dcubemon_sim" "$dcubecfg_sim" "$lastref_dir/$dcubemon_sim" "$dcube_sim_lastref"
+  dcube Sim_tf ""       "$dcubemon_sim" "$dcubecfg_sim"              "$dcuberef_sim" "$dcube_sim_fixref"
 
 fi
 
@@ -130,7 +130,7 @@ if [ $dorec -ne 0 ]; then
   echo "art-result: $? reco"
 
   # DCube InDetPhysValMonitoring performance plots
-  dcube InDetPhysValMonitoring ""   "$dcubemon_rec" "$dcubecfg_rec"              "$dcuberef_rec" "$dcube_rec_fixref"
   dcube InDetPhysValMonitoring plot "$dcubemon_rec" "$dcubecfg_rec" "$lastref_dir/$dcubemon_rec" "$dcube_rec_lastref"
+  dcube InDetPhysValMonitoring ""   "$dcubemon_rec" "$dcubecfg_rec"              "$dcuberef_rec" "$dcube_rec_fixref"
 
 fi
