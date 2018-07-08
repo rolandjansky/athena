@@ -208,7 +208,7 @@ public:
     PseudoView(int s, int r, EventContainers::IdentifiableCache<MyCollection>* inIDC, int i) : IDC(inIDC), RoIStart(s), RoIEnd(r),
         threads(i), c()   {}
 
-
+  virtual ~PseudoView() {}
 };
 
 class PseudoViewNoLock : public PseudoView {
