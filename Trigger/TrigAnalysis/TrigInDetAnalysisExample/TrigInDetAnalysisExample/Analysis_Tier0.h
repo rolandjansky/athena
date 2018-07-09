@@ -92,10 +92,12 @@ class Analysis_Tier0 : public TrackAnalysis {
   TProfile* h_npixvseta;
   TProfile* h_npixvsphi;
   TProfile* h_npixvsd0;
+  TProfile* h_npixvspT;
 
   TProfile* h_nsctvseta;
   TProfile* h_nsctvsphi;
   TProfile* h_nsctvsd0;
+  TProfile* h_nsctvspT;
 
   TProfile* h_ntrtvseta;
   TProfile* h_ntrtvsphi;
@@ -105,10 +107,12 @@ class Analysis_Tier0 : public TrackAnalysis {
   TProfile* h_npixvseta_rec;
   TProfile* h_npixvsphi_rec;
   TProfile* h_npixvsd0_rec;
+  TProfile* h_npixvspT_rec;
 
   TProfile* h_nsctvseta_rec;
   TProfile* h_nsctvsphi_rec;
   TProfile* h_nsctvsd0_rec;
+  TProfile* h_nsctvspT_rec;
 
   TProfile* h_ntrtvseta_rec;
   TProfile* h_ntrtvsphi_rec;
