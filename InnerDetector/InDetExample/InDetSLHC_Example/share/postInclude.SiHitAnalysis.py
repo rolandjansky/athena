@@ -4,7 +4,9 @@ topSequence.PixelHitAnalysis.CollectionName='PixelHits'
 topSequence += SiHitAnalysis('SCTHitAnalysis')
 topSequence.SCTHitAnalysis.CollectionName='SCT_Hits'
 topSequence.PixelHitAnalysis.HistPath='/SiHitAnalysis/'
+topSequence.PixelHitAnalysis.isITK = True
 topSequence.SCTHitAnalysis.HistPath='/SiHitAnalysis/'
+topSequence.SCTHitAnalysis.isITK = True
 topSequence.PixelHitAnalysis.ExpertMode= "off"
 topSequence.SCTHitAnalysis.ExpertMode= "off"
 
