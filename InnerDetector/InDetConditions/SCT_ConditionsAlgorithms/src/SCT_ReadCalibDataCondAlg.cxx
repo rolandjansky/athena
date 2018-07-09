@@ -325,20 +325,20 @@ StatusCode SCT_ReadCalibDataCondAlg::execute() {
   }
 
   //  Record the output cond objects
+  ATH_MSG_DEBUG("There are " << writeCdoInfo->size() << " elements in " << writeHandleInfo.key());
   if (writeHandleInfo.record(rangeW, std::move(writeCdoInfo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_AllGoodStripInfo " << writeHandleInfo.key() 
                   << " with EventRange " << rangeW << " into Conditions Store");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_DEBUG("There are " << writeCdoInfo->size() << " elements in " << writeHandleInfo.key());
   ATH_MSG_INFO("recorded new CDO " << writeHandleInfo.key() << " with range " << rangeW << " into Conditions Store");
   for (unsigned int i{GAIN}; i<NFEATURES; i++) {
+    ATH_MSG_DEBUG("There are " << writeCdoData[i]->size() << " elements in " << writeHandleData[i].key());
     if (writeHandleData[i].record(rangeW, std::move(writeCdoData[i])).isFailure()) {
       ATH_MSG_FATAL("Could not record SCT_CalibDefectData " << writeHandleData[i].key()
                     << " with EventRange " << rangeW << " into Conditions Store");
       return StatusCode::FAILURE;
     }
-    ATH_MSG_DEBUG("There are " << writeCdoData[i]->size() << " elements in " << writeHandleData[i].key());
     ATH_MSG_INFO("recorded new CDO " << writeHandleData[i].key() << " with range " << rangeW << " into Conditions Store");
   }
 
