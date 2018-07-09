@@ -189,8 +189,8 @@ def _setupConfig():
 
         # for debugging uncomment the following three lines
         from AthenaCommon.Constants import VERBOSE
+        ToolSvc.IOVDbMetaDataTool.OutputLevel = VERBOSE
         svcMgr.MetaDataSvc.OutputLevel = VERBOSE
-        svcMgr.MetaDataSvc.MetaDataTools[ "IOVDbMetaDataTool"].OutputLevel = VERBOSE
 
         dbConnection = "<dbConnection>impl=cool;techno=oracle;schema=ATLAS_COOLONL_READER;devdb10:COOLTEST:atlas_trig_stelzer</dbConnection>"
 
