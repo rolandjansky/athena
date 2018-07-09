@@ -228,7 +228,7 @@ TrackVertexAssociationTool::MatchStatus TrackVertexAssociationTool::isMatch(cons
 
     float trk_d0=trk.d0();
     // d0 cut
-    if (m_d0_cut >= 0 && fabs(trk_d0) > m_d0sig_cut)
+    if (m_d0_cut >= 0 && fabs(trk_d0) > m_d0_cut)
       return UnMatch;
 
   }
