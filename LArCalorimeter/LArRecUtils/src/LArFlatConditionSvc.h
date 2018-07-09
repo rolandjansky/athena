@@ -4,8 +4,8 @@
 
 //Dear emacs, this is -*-c++-*-
 
-#ifndef LARCALORIMETER_LARFLATCONDITIONSVC_H
-#define LARCALORIMETER_LARFLATCONDITIONSVC_H
+#ifndef LARRECUTILS_LARFLATCONDITIONSVC_H
+#define LARRECUTILS_LARFLATCONDITIONSVC_H
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthService.h"

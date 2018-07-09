@@ -22,8 +22,8 @@
 
    *
    */
-#ifndef LARCALIBUTILS_LAROFCTOOL_H
-#define LARCALIBUTILS_LAROFCTOOL_H
+#ifndef LARRECUTILS_LAROFCTOOL_H
+#define LARRECUTILS_LAROFCTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"

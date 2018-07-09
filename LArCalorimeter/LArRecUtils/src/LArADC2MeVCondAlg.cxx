@@ -3,7 +3,7 @@
 */
 
 
-#include "LArRecUtils/LArADC2MeVCondAlg.h"
+#include "LArADC2MeVCondAlg.h"
 
 #include "LArRawConditions/LArADC2MeV.h"
 #include "LArCabling/LArOnOffIdMapping.h"

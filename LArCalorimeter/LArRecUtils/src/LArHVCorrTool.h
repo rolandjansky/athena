@@ -4,8 +4,8 @@
 
 //Dear emacs, this is -*-c++-*-
 
-#ifndef LARCALIBUTILS_LARHVCORRTOOL_H
-#define LARCALIBUTILS_LARHVCORRTOOL_H
+#ifndef LARRECUTILS_LARHVCORRTOOL_H
+#define LARRECUTILS_LARHVCORRTOOL_H
 
 //#include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"

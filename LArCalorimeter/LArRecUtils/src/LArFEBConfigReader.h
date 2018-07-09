@@ -3,8 +3,8 @@
 */
 
 //Dear emacs, this is -*-c++-*-
-#ifndef LARFEBCONFIGREADERTOOL
-#define LARFEBCONFIGREADERTOOL
+#ifndef LARRECUTILS_LARFEBCONFIGREADERTOOL
+#define LARRECUTILS_LARFEBCONFIGREADERTOOL
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "LArElecCalib/ILArFEBConfigReader.h"
