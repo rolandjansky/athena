@@ -11,6 +11,7 @@
 #include "TopParticleLevel/ParticleLevelPhotonObjectSelector.h"
 
 #include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthParticleAuxContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
@@ -39,7 +40,7 @@ UpgradeObjectLoader::UpgradeObjectLoader( const std::shared_ptr<top::TopConfig> 
  {
 
   if ( m_active ){
-    std::cout << "Upgrade level reconstruction is enabled; telling you how I am configured:" << '\n';
+    ATH_MSG_INFO("Upgrade level reconstruction is enabled; telling you how I am configured:");
     //asg::setProperty(m_upgrade, "Layout", UpgradePerformanceFunctionsxAOD::Step1p6) , "Failed to setProperty" );
     m_upgrade.reset( new UpgradePerformanceFunctionsxAOD("UpgradePerformanceFunctionsxAOD"));
     top::check(m_upgrade->setProperty("Layout", UpgradePerformanceFunctionsxAOD::Step1p6) , "Failed to setProperty" );
@@ -118,17 +119,18 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
   
   // Load event info object directly into the particleEvent
   top::check( evtStore()->retrieve( particleEvent.m_info, m_config->sgKeyEventInfo() ),
-	      "xAOD::TEvent::retrieve failed for EventInfo" );
+      "xAOD::TEvent::retrieve failed for EventInfo" );
 
   /* ------------------------------ Muons -----------------------------------------------------------*/
   // Get muons
   const xAOD::TruthParticleContainer * origmuons(0);
   top::check( evtStore()->retrieve( origmuons, m_config->sgKeyTruthMuons() ),
-	    "xAOD::TEvent::retrieve failed for Truth Muons" );
+      "xAOD::TEvent::retrieve failed for Truth Muons" );
 
   // Shallow copy 
-  std::pair< xAOD::TruthParticleContainer*, xAOD::ShallowAuxContainer* > muons_shallowCopy = xAOD::shallowCopyContainer( *origmuons );
-  xAOD::TruthParticleContainer* muons = muons_shallowCopy.first;
+  auto muons_shallowCopy = xAOD::shallowCopyContainer( *origmuons );
+  std::unique_ptr<xAOD::TruthParticleContainer> muons (muons_shallowCopy.first);
+  std::unique_ptr<xAOD::ShallowAuxContainer>    muonsAux (muons_shallowCopy.second);
 
   // container to put the selected muons in - use view container to avoid deep copies
   m_selectedMuons.reset( new xAOD::TruthParticleContainer(SG::VIEW_ELEMENTS));
@@ -137,11 +139,9 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
   for(auto muon : *muons) {
     // efficiency (assume pass unsmeared pT here)
     const double eff = m_upgrade->getMuonEfficiency( muon->pt(), muon->eta());
-    //std::cout << "Muon with pT " << muon->pt() << " has efficiency = " << eff << std::endl;
 
     // smear
     m_upgrade->smearMuon( *muon );
-    //std::cout << "\t smeared pT " << muon->pt() << std::endl;
 
     // store efficiency correction
     if(m_upgrade->getRandom3()->Uniform() < eff) {
@@ -158,8 +158,8 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
   std::sort(m_selectedMuons->begin(), m_selectedMuons->end(), ptSort);
 
   // keep hold of the pointers in our private variables (also clears last event)
-  m_muons.reset(muons);
-  m_muonsShallowAux.reset(muons_shallowCopy.second);
+  m_muons           = std::move(muons);
+  m_muonsShallowAux = std::move(muonsAux);
 
   // pass the muons to the ParticleLevelEvent object
   particleEvent.m_muons = m_selectedMuons.get();
@@ -168,30 +168,31 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
   // Get electrons
   const xAOD::TruthParticleContainer * origelectrons(0);
   top::check( evtStore()->retrieve( origelectrons, m_config->sgKeyTruthElectrons() ),
-	    "xAOD::TEvent::retrieve failed for Truth Electrons" );
+      "xAOD::TEvent::retrieve failed for Truth Electrons" );
   
   // Shallow copy 
-  std::pair< xAOD::TruthParticleContainer*, xAOD::ShallowAuxContainer* > electrons_shallowCopy = xAOD::shallowCopyContainer( *origelectrons );
-  xAOD::TruthParticleContainer* electrons = electrons_shallowCopy.first;
+  auto electrons_shallowCopy = xAOD::shallowCopyContainer( *origelectrons );
+  std::unique_ptr<xAOD::TruthParticleContainer> electrons    (electrons_shallowCopy.first);
+  std::unique_ptr<xAOD::ShallowAuxContainer>    electronsAux (electrons_shallowCopy.second);
 
   // we are going to put selected 'good' electrons in to a xAOD::TruthParticleContainer
   m_selectedElectrons.reset();
   m_selectedElectrons = std::make_shared<xAOD::TruthParticleContainer>();
   m_auxElectronCont.reset();
-  m_auxElectronCont = std::make_shared<xAOD::TruthParticleAuxContainer>();
+  m_auxElectronCont = std::make_shared<xAOD::AuxContainerBase>();
   m_selectedElectrons->setStore(m_auxElectronCont.get()); // connect container & store
   //fake electrons container
-  xAOD::TruthParticleContainer* fakeElectrons = new xAOD::TruthParticleContainer();
-  xAOD::TruthParticleAuxContainer* auxfakeElectronsCont = new xAOD::TruthParticleAuxContainer();
-  fakeElectrons->setStore(auxfakeElectronsCont); // connect container & store  
+  auto fakeElectrons    = std::make_unique<xAOD::TruthParticleContainer>();
+  auto fakeElectronsAux = std::make_unique<xAOD::TruthParticleAuxContainer>();
+  fakeElectrons->setStore(fakeElectronsAux.get()); // connect container & store
     
   //fake photons container
-  xAOD::TruthParticleContainer* fakePhotons = NULL;
-  xAOD::TruthParticleAuxContainer* auxfakePhotonsCont = NULL;
+  std::unique_ptr<xAOD::TruthParticleContainer>    fakePhotons = nullptr;
+  std::unique_ptr<xAOD::TruthParticleAuxContainer> fakePhotonsAux = nullptr;
   if( m_dofakes && m_config->useTruthPhotons() ){
-    fakePhotons = new xAOD::TruthParticleContainer();
-    auxfakePhotonsCont = new xAOD::TruthParticleAuxContainer();
-    fakePhotons->setStore(auxfakePhotonsCont); // connect container & store  
+    fakePhotons = std::make_unique<xAOD::TruthParticleContainer>();
+    fakePhotonsAux = std::make_unique<xAOD::TruthParticleAuxContainer>();
+    fakePhotons->setStore(fakePhotonsAux.get()); // connect container & store
   }
   
   // Smear & efficiency correct electrons
@@ -202,20 +203,18 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
       if(m_upgrade->getRandom3()->Uniform() < fakeEff) {
         xAOD::TruthParticle *fakePhoton = new xAOD::TruthParticle();
         fakePhotons->push_back( fakePhoton );
-	*fakePhoton = *electron;
-	fakePhoton->auxdata<int>("passReco") = 1;
-	fakePhoton->auxdata<int>("FakeType") = 1; // faketype 0:true, 1:e->y, 2:j->y
-	electron->auxdata<bool>("FakingPhoton") = true; //add auxdata to identify the electron that is used as fake photon
+        *fakePhoton = *electron;
+        fakePhoton->auxdata<int>("passReco") = 1;
+        fakePhoton->auxdata<int>("FakeType") = 1; // faketype 0:true, 1:e->y, 2:j->y
+        electron->auxdata<bool>("FakingPhoton") = true; //add auxdata to identify the electron that is used as fake photon
       } else electron->auxdata<bool>("FakingPhoton") = false; //add auxdata to identify the electron that is used as fake photon
     }
 
     // efficiency (assume pass unsmeared pT here)
     const double eff = m_upgrade->getElectronEfficiency( electron->pt(), electron->eta());
-    //std::cout << "Electron with pT " << electron->pt() << " has efficiency = " << eff << std::endl;
 
     // smear
     m_upgrade->smearElectron( *electron );
-    //std::cout << "\t smeared pT " << electron->pt() << std::endl;
 
     // store efficiency result
     if(m_upgrade->getRandom3()->Uniform() < eff) {
@@ -232,17 +231,16 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
     }
   }
 
-  delete electrons_shallowCopy.first;
-  delete electrons_shallowCopy.second;
   /* ------------------------------ Jets-----------------------------------------------------------*/
   // Get jets
   const xAOD::JetContainer * origjets(0);
   top::check( evtStore()->retrieve( origjets, m_config->sgKeyTruthJets() ),
-	    "xAOD::TEvent::retrieve failed for Truth Jets" );
+      "xAOD::TEvent::retrieve failed for Truth Jets" );
 
   // Shallow copy 
-  std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > jets_shallowCopy = xAOD::shallowCopyContainer( *origjets );
-  xAOD::JetContainer* jets = jets_shallowCopy.first;
+  auto jets_shallowCopy = xAOD::shallowCopyContainer( *origjets );
+  std::unique_ptr<xAOD::JetContainer>        jets(jets_shallowCopy.first);
+  std::unique_ptr<xAOD::ShallowAuxContainer> jetsAux(jets_shallowCopy.second);
 
   // we are going to put selected 'good' jets in to a xAOD::JetContainer
   xAOD::JetContainer* selectedJets = new xAOD::JetContainer();
@@ -259,18 +257,18 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
         fakeElectrons->push_back( fakeElectron );
         m_upgrade->smearFakeElectron(*fakeElectron, *jet);
         fakeElectron->auxdata<int>("passReco") = 1;
-	fakeElectron->auxdata<int>("FakeType") = 2; // faketype 0:true, 2:j->e
+        fakeElectron->auxdata<int>("FakeType") = 2; // faketype 0:true, 2:j->e
         continue;
       }
       if(m_config->useTruthPhotons()){
         //fake photon efficiency
         const float fakeEff2 = m_upgrade->getPhotonFakeRate(jet->pt());
         if(m_upgrade->getRandom3()->Uniform() < fakeEff2) {
-	  xAOD::TruthParticle *fakePhoton = new xAOD::TruthParticle();
+          xAOD::TruthParticle *fakePhoton = new xAOD::TruthParticle();
           fakePhotons->push_back( fakePhoton );
           m_upgrade->smearFakePhoton(*fakePhoton, *jet);
-	  fakePhoton->auxdata<int>("passReco") = 1;
-	  fakePhoton->auxdata<int>("FakeType") = 2; // faketype 0:true, 1:e->y, 2:j->y
+          fakePhoton->auxdata<int>("passReco") = 1;
+          fakePhoton->auxdata<int>("FakeType") = 2; // faketype 0:true, 1:e->y, 2:j->y
           continue;
         }
       }
@@ -313,8 +311,6 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
     }
     else jet->auxdata<int>("passTrackConf") = 0;
 
-    
-    //std::cout << "\t smeared pT " << jet->pt() << std::endl;
   }
 
   // now get the pileup jets
@@ -329,18 +325,20 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
         fakeElectrons->push_back( fakeElectron );
         m_upgrade->smearFakeElectron(*fakeElectron, puJet);
         fakeElectron->auxdata<int>("passReco") = 1;
-	fakeElectron->auxdata<int>("FakeType") = 2; // faketype 0:true, 2:j->e
+        fakeElectron->auxdata<int>("FakeType") = 2; // faketype 0:true, 2:j->e
         continue;
       }
       if(m_config->useTruthPhotons()){
         //fake photon efficiency
         const float fakeEff2 = m_upgrade->getPhotonFakeRate(puJet.Pt());
         if(m_upgrade->getRandom3()->Uniform() < fakeEff2) {//TODO: are we going to use uniform?
-	  xAOD::TruthParticle *fakePhoton = new xAOD::TruthParticle();
+          xAOD::TruthParticle *fakePhoton = new xAOD::TruthParticle();
           fakePhotons->push_back( fakePhoton );
           m_upgrade->smearFakePhoton(*fakePhoton, puJet);
           fakePhoton->auxdata<int>("passReco") = 1;
-	  fakePhoton->auxdata<int>("FakeType") = 2; // faketype 0:true, 1:e->y, 2:j->y
+          fakePhoton->auxdata<int>("FakeType") = 2; // faketype 0:true, 1:e->y, 2:j->y
+          top::check(fakePhoton->isAvailable<int>("FakeType"), "missing faketype KF0");
+          top::check(fakePhotons->back()->isAvailable<int>("FakeType"), "missing faketype KF1");
           continue;
         }
       }
@@ -371,10 +369,6 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
   
   // pass the jets to the ParticleLevelEvent object
   particleEvent.m_jets = selectedJets;
-  
-  // clean up memory from the shallow copy of jets that is finished with now
-  delete jets;
-  delete jets_shallowCopy.second;
 
   /* -------------------------- Fat Jets-----------------------------------------------------------*/
   if ( m_config->useTruthLargeRJets() ){
@@ -383,10 +377,10 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
     top::check( evtStore()->retrieve( origfatjets, m_config->sgKeyTruthLargeRJets() ),
                 "xAOD::TEvent::retrieve failed for Truth Jets" );
  
-    //std::cout << "is large r jet" << std::endl;
     // Shallow copy 
-    std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > fatjets_shallowCopy = xAOD::shallowCopyContainer( *origfatjets );
-    xAOD::JetContainer* fatjets = fatjets_shallowCopy.first;
+    auto fatjets_shallowCopy = xAOD::shallowCopyContainer( *origfatjets );
+    std::unique_ptr<xAOD::JetContainer> fatjets(fatjets_shallowCopy.first);
+    std::unique_ptr<xAOD::ShallowAuxContainer> fatjetsAux(fatjets_shallowCopy.second);
 
     // we are going to put selected 'good' fat jets in to a xAOD::JetContainer
     xAOD::JetContainer* selectedFatJets = new xAOD::JetContainer();
@@ -410,9 +404,6 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
     m_fatjetsAux.reset(auxFatJetCont);
 
     particleEvent.m_largeRJets = selectedFatJets;
-
-    delete fatjets;
-    delete fatjets_shallowCopy.second;
   }
 
   /* ------------------------------ photons -----------------------------------------------------------*/
@@ -424,7 +415,8 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
     
     // Shallow copy 
     std::pair< xAOD::TruthParticleContainer*, xAOD::ShallowAuxContainer* > photons_shallowCopy = xAOD::shallowCopyContainer( *origphotons );
-    xAOD::TruthParticleContainer* photons = photons_shallowCopy.first;
+    std::unique_ptr<xAOD::TruthParticleContainer> photons(photons_shallowCopy.first);
+    std::unique_ptr<xAOD::ShallowAuxContainer>    photonsAux(photons_shallowCopy.second);
 
     // we are going to put selected 'good' photons in to a xAOD::TruthParticleContainer
     m_selectedPhotons.reset();
@@ -446,22 +438,23 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
       } 
       else photon->auxdata<int>("passReco") = 0;
 
+      if (m_dofakes) photon->auxdata<int>("FakeType") = 0; // faketype 0:true, 1:e->y, 2:j->y
       // apply all cuts
       if( m_objectSelector_Photon->apply( *photon ) ){
-	if (m_dofakes) photon->auxdata<int>("FakeType") = 0; // faketype 0:true, 1:e->y, 2:j->y
         xAOD::TruthParticle *newPh = new xAOD::TruthParticle();
         m_selectedPhotons->push_back( newPh ); //particle acquires the selectedPhotons auxStore
         *newPh = *photon; //deep copy
       }
     }
-    delete photons_shallowCopy.first;
-    delete photons_shallowCopy.second;
 
     if(m_dofakes){
-       for(auto f_ph : *fakePhotons) {
-         if( m_objectSelector_Photon->apply( *f_ph ) ) m_selectedPhotons->push_back( f_ph );
-       }
-       delete auxfakePhotonsCont;
+      for(auto f_ph : *fakePhotons) {
+        if( m_objectSelector_Photon->apply( *f_ph ) ) {
+          xAOD::TruthParticle *newPh = new xAOD::TruthParticle();
+          m_selectedPhotons->push_back( newPh );
+          *newPh = *f_ph;
+        }
+      }
     }
 
     // sort the photons by pT
@@ -473,15 +466,21 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
 
     // pass the photons to the ParticleLevelEvent object
     particleEvent.m_photons = m_selectedPhotons.get();
+    for (const auto* const ph : * particleEvent.m_photons) {
+      top::check(ph->isAvailable<int>("FakeType"), "missing faketype KF3");
+    }
   }
 
 
   /* ---------- Electron finalization (after fakes treatment) -------------------*/
   if(m_dofakes){
-     for(auto f_el : *fakeElectrons) {
-       if( m_objectSelector_Electron->apply( *f_el ) ) m_selectedElectrons->push_back( f_el );
-     }
-     delete auxfakeElectronsCont;
+    for(auto f_el : *fakeElectrons) {
+      if( m_objectSelector_Electron->apply( *f_el ) ) {
+        xAOD::TruthParticle *newEl = new xAOD::TruthParticle();
+        m_selectedElectrons->push_back( newEl );
+        *newEl = *f_el;
+      }
+    }
   }
   // sort the electrons by pT
   std::sort(m_selectedElectrons->begin(), m_selectedElectrons->end(), ptSort);
@@ -496,7 +495,7 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
   /* ----------------------------- MET ------------------------------------------*/
   const xAOD::MissingETContainer * origmetcont(0);
   top::check( evtStore()->retrieve( origmetcont, m_config->sgKeyTruthMET() ),
-	    "xAOD::TEvent::retrieve failed for Truth MET" );  
+      "xAOD::TEvent::retrieve failed for Truth MET" );
 
   ATH_MSG_DEBUG("N(MET) = " << origmetcont->size());
 

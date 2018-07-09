@@ -168,6 +168,12 @@ reducedJetList = ["AntiKt2PV0TrackJets",
 replaceAODReducedJets(reducedJetList,jetm3Seq,"JETM3")
 addDefaultTrimmedJets(jetm3Seq,"JETM3")
 
+if DerivationFrameworkIsMonteCarlo:
+  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=True)
+
+addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], jetm3Seq, "JETM3", ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed")
+addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1, algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
+
 #=======================================
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT
 #=======================================
@@ -233,6 +239,19 @@ for truthc in [
     ]:
     JETM3SlimmingHelper.StaticContent.append("xAOD::TruthParticleContainer#"+truthc)
     JETM3SlimmingHelper.StaticContent.append("xAOD::TruthParticleAuxContainer#"+truthc+"Aux.")
+
+JETM3SlimmingHelper.AppendToDictionary = {
+    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,
+    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+}
+JETM3SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"]
+
+if DerivationFrameworkIsMonteCarlo:
+  JETM3SlimmingHelper.AppendToDictionary = {
+    "AntiKt10TruthSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,
+    "AntiKt10TruthSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+  }
+  JETM3SlimmingHelper.AllVariables  += ["AntiKt10TruthSoftDropBeta100Zcut10Jets"]
 
 # Trigger content
 JETM3SlimmingHelper.IncludeMuonTriggerContent = True

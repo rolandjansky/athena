@@ -275,6 +275,7 @@ class TopConfig final {
   inline bool KLFitterTopMassFixed() const {return m_KLFitterTopMassFixed;}
   inline bool KLFitterSaveAllPermutations() const {return m_KLFitterSaveAllPermutations;}
 
+  inline bool KLFitterFailOnLessThanXJets() const {return m_KLFitterFailOnLessThanXJets;}
   // PseudoTop
   inline bool doPseudoTop() const {return m_doPseudoTop;}
   inline void setPseudoTop(){if(!m_configFixed){m_doPseudoTop = true;}}
@@ -1051,6 +1052,7 @@ class TopConfig final {
   std::string m_KLFitterLH;
   bool m_KLFitterTopMassFixed;
   bool m_KLFitterSaveAllPermutations;
+  bool m_KLFitterFailOnLessThanXJets;
 
   // PseudoTop
   bool m_doPseudoTop;

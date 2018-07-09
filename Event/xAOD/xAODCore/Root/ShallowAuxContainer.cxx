@@ -42,6 +42,7 @@ namespace xAOD {
         m_auxids (), 
         m_name( parent.m_name ) {
 
+      remakeAuxIDs();
    }
 
    /// @param parent The parent object to make a shallow copy of
@@ -61,6 +62,7 @@ namespace xAOD {
       const SG::IAuxStoreIO* temp =
          dynamic_cast< const SG::IAuxStoreIO* >( m_parentLink.cptr() );
       m_parentIO = const_cast< SG::IAuxStoreIO* >( temp );
+      remakeAuxIDs();
    }
 
    ShallowAuxContainer::~ShallowAuxContainer() {

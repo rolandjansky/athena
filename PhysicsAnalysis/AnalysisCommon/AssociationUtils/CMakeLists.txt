@@ -1,4 +1,3 @@
-
 # The name of the package:
 atlas_subdir( AssociationUtils )
 
@@ -23,6 +22,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODMuon
    Event/xAOD/xAODTau
    Event/xAOD/xAODTracking
+   PhysicsAnalysis/D3PDTools/AnaAlgorithm
    PRIVATE
    Control/CxxUtils
    Event/FourMomUtils
@@ -35,31 +35,18 @@ find_package( Boost COMPONENTS program_options )
 find_package( GTest )
 
 # Libraries in the package:
-atlas_add_root_dictionary( AssociationUtilsLib AssociationUtilsLibDict
-   ROOT_HEADERS AssociationUtils/OverlapRemovalTool.h
-   AssociationUtils/BaseOverlapTool.h AssociationUtils/DeltaROverlapTool.h
-   AssociationUtils/EleEleOverlapTool.h
-   AssociationUtils/EleMuSharedTrkOverlapTool.h
-   AssociationUtils/EleJetOverlapTool.h AssociationUtils/MuJetOverlapTool.h
-   AssociationUtils/AltMuJetOverlapTool.h
-   AssociationUtils/TauLooseEleOverlapTool.h
-   AssociationUtils/TauLooseMuOverlapTool.h AssociationUtils/TauJetOverlapTool.h
-   AssociationUtils/TauAntiTauJetOverlapTool.h
-   AssociationUtils/ObjLinkOverlapTool.h AssociationUtils/ToolBox.h
-   AssociationUtils/BJetHelper.h AssociationUtils/DeltaRMatcher.h
-   AssociationUtils/MuJetGhostDRMatcher.h
-   AssociationUtils/OverlapDecorationHelper.h
-   AssociationUtils/OverlapLinkHelper.h
-   Root/LinkDef.h
-   EXTERNAL_PACKAGES ROOT )
-
 atlas_add_library( AssociationUtilsLib
-   AssociationUtils/*.h Root/*.cxx ${AssociationUtilsLibDict}
+   AssociationUtils/*.h Root/*.cxx
    PUBLIC_HEADERS AssociationUtils
-   INCLUDE_DIRS ${ROOT_ICNLUDE_DIRS}
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODBase xAODEgamma xAODJet
-   xAODMuon xAODTau xAODTracking AthContainers AthLinks
+   xAODMuon xAODTau xAODTracking AthContainers AthLinks AnaAlgorithmLib
    PRIVATE_LINK_LIBRARIES CxxUtils FourMomUtils )
+
+atlas_add_dictionary( AssociationUtilsDict
+    AssociationUtils/AssociationUtilsDict.h
+    AssociationUtils/selection.xml
+    LINK_LIBRARIES AssociationUtilsLib )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( AssociationUtils
