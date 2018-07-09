@@ -180,9 +180,18 @@ class AthReentrantAlgorithm
   /** Cardinality (Maximum number of clones that can exist)
    *  special value 0 means that algorithm is reentrant
    *
-   * Override this to return 0 for reentrant algorithms.
-   */
+   * Override this to return 0 for reentrant algorithms.   */
   virtual unsigned int cardinality() const override;
+
+
+  /**
+   * @brief Return the current event context.
+   *
+   * Override this because the base class version won't work correctly
+   * for reentrant algorithms.  (We shouldn't really be using this
+   * for reentrant algorithms, but just in case.).
+   */
+  virtual const EventContext& getContext() const override;
 
 
 private:  

@@ -56,11 +56,7 @@ StatusCode ViewSubgraphAlg::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT 
   const EventContext& ctx = getContext();
-#else
-  const EventContext& ctx = *getContext();
-#endif
   
   //Make a vector of dummy data to initialise the views
   std::vector<int> viewData;

@@ -221,7 +221,6 @@ StatusCode SCTSiLorentzAngleCondAlg::execute()
     // the detector is not fully depleted and we need to take this into account.
     // We take absolute values just in case voltages are signed.
     const InDetDD::SiDetectorElement* element{m_detManager->getDetectorElement(elementHash)};
-    element->invalidateConditions(); // Invalidate cache of conditions which keep Lorentz angle of SiDetectorElement
     double depletionDepth{element->thickness()};
     if (deplVoltage==0.0) {
       ATH_MSG_WARNING("Depletion voltage in "<<__FILE__<<" is zero, which might be a bug.");

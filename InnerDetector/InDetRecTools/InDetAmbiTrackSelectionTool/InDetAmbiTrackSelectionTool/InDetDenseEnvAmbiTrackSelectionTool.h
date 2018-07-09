@@ -14,20 +14,23 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
-#include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkToolInterfaces/IAmbiTrackSelectionTool.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include <map>
 #include <vector>
-#include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "TrkValInterfaces/ITrkObserverTool.h"
+#include "TrkTrack/Track.h" //for use in the struct lessTrkTrack implementation in this header
 #include "TrkParameters/TrackParameters.h"
+#include <cmath> //for std::fabs in implementation of structs in this header
+#include <iostream> //for cout in dumpInfo 
 
 class SiliconID;
 class Identifier;
 class IBLParameterSvc;
 namespace Trk {
-  class Track;
+  class ITrkObserverTool;
+  class TrackStateOnSurface;
+  class RIO_OnTrack;
+  class PrepRawData;
 }
 
 namespace InDet 
@@ -201,7 +204,7 @@ namespace InDet
               return true;
             if(ATH_UNLIKELY(!y->trackParameters() && y->trackParameters()->size() <= 0) )
               return false;
-            return fabs( (*x->trackParameters())[0]->parameters()[Trk::qOverP]) < fabs( (*y->trackParameters())[0]->parameters()[Trk::qOverP]) ;
+            return std::fabs( (*x->trackParameters())[0]->parameters()[Trk::qOverP]) < std::fabs( (*y->trackParameters())[0]->parameters()[Trk::qOverP]) ;
           }
       };
 

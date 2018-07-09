@@ -24,9 +24,10 @@ public:
 
   virtual ~CaloCellMBAverageCorr() {};
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  void MakeCorrection(CaloCell* theCell);
+  void MakeCorrection (CaloCell* theCell,
+                       const EventContext& ctx) const override;
 
 private:
 

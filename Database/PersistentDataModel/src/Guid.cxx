@@ -10,7 +10,7 @@
 
 #include "uuid/uuid.h"
 
-static const char* fmt_Guid = "%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX";
+static const char* const fmt_Guid = "%08X-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX";
 
 //{ 0x0,0x0,0x0,{0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0}};
 static const Guid clid_null(std::string("00000000-0000-0000-0000-000000000000"));
@@ -19,7 +19,7 @@ const Guid& Guid::null() {
    return clid_null;
 }
 
-Guid::GuidGenMethod Guid::m_guidGenMethod = Guid::initGuidGenMethod();
+const Guid::GuidGenMethod Guid::m_guidGenMethod = Guid::initGuidGenMethod();
 
 Guid::GuidGenMethod Guid::initGuidGenMethod() {
    char* envv = getenv("POOL_GUID_TIME");

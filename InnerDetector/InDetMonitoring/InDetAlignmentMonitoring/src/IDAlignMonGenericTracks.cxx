@@ -7,8 +7,7 @@
 // AUTHORS: Beate Heinemann, Tobias Golling
 // **********************************************************************
 
-#include <sstream>
-#include <math.h>
+#include <cmath>
 #include "TH1.h"
 #include "TH2.h"
 #include "TProfile.h"
@@ -29,7 +28,6 @@
 #include "InDetPrepRawData/SiCluster.h"
 
 
-//#include "Particle/TrackParticleContainer.h"
 #include "Particle/TrackParticle.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 
@@ -40,7 +38,6 @@
 #include "xAODEventInfo/EventInfo.h"
 
 
-//#include "AthenaMonitoring/AthenaMonManager.h"
 #include "IDAlignMonGenericTracks.h"
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 
@@ -2141,8 +2138,8 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
     if(charge>0) m_pT_p -> Fill(trkpt, hweight);
     if(charge<0) m_pT_n -> Fill(trkpt, hweight);
     
-    m_pTRes      -> Fill(fabs(Err_qOverP/qOverP)       , hweight);
-    m_pTResOverP -> Fill(fabs(Err_qOverP/qOverP*qOverP), hweight);
+    m_pTRes      -> Fill(std::fabs(Err_qOverP/qOverP)       , hweight);
+    m_pTResOverP -> Fill(std::fabs(Err_qOverP/qOverP*qOverP), hweight);
 
     
 
@@ -2184,42 +2181,42 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
       m_trk_TRTHitsvEta  -> Fill( trketa           , nhtrt   , hweight);
       m_trk_chi2oDoF_Phi -> Fill( trkphi           , chi2oDoF, hweight);
       m_trk_chi2oDoF_Pt  -> Fill( charge*trkpt     , chi2oDoF, hweight);
-      m_trk_chi2oDoF_P   -> Fill( charge*fabs(trkP), chi2oDoF, hweight);
+      m_trk_chi2oDoF_P   -> Fill( charge*std::fabs(trkP), chi2oDoF, hweight);
       m_trk_chi2ProbDist -> Fill( chi2Prob                   , hweight);
       m_errCotTheta      -> Fill( Err_cottheta               , hweight);
       m_errCotThetaVsD0BS-> Fill( d0bscorr         , Err_cottheta, hweight);
-      m_errCotThetaVsPt  -> Fill( fabs(trkpt)      , Err_cottheta, hweight);
-      m_errCotThetaVsP   -> Fill( fabs(trkP)       , Err_cottheta, hweight);
+      m_errCotThetaVsPt  -> Fill( std::fabs(trkpt)      , Err_cottheta, hweight);
+      m_errCotThetaVsP   -> Fill( std::fabs(trkP)       , Err_cottheta, hweight);
       m_errCotThetaVsPhi -> Fill( trkphi           , Err_cottheta, hweight);
       m_errCotThetaVsEta -> Fill( trketa           , Err_cottheta, hweight);
       m_errTheta         -> Fill( Err_theta                   , hweight); 
       m_errThetaVsD0BS   -> Fill( d0bscorr         , Err_theta, hweight);
-      m_errThetaVsPt     -> Fill( fabs(trkpt)      , Err_theta, hweight);
-      m_errThetaVsP      -> Fill( fabs(trkP)       , Err_theta, hweight);
+      m_errThetaVsPt     -> Fill( std::fabs(trkpt)      , Err_theta, hweight);
+      m_errThetaVsP      -> Fill( std::fabs(trkP)       , Err_theta, hweight);
       m_errThetaVsPhi    -> Fill( trkphi           , Err_theta, hweight);
       m_errThetaVsEta    -> Fill( trketa           , Err_theta, hweight);
       m_errD0            -> Fill( Err_d0                      , hweight);
       m_errD0VsD0BS      -> Fill( d0bscorr         , Err_d0   , hweight);
-      m_errD0VsPt        -> Fill( fabs(trkpt)      , Err_d0   , hweight);
-      m_errD0VsP         -> Fill( fabs(trkP)       , Err_d0   , hweight);
+      m_errD0VsPt        -> Fill( std::fabs(trkpt)      , Err_d0   , hweight);
+      m_errD0VsP         -> Fill( std::fabs(trkP)       , Err_d0   , hweight);
       m_errD0VsPhi       -> Fill( trkphi           , Err_d0   , hweight);
       m_errD0VsEta       -> Fill( trketa           , Err_d0   , hweight);
       m_errPhi0          -> Fill( Err_phi                     , hweight);
       m_errPhi0VsD0BS    -> Fill( d0bscorr         , Err_phi  , hweight);
-      m_errPhi0VsPt      -> Fill( fabs(trkpt)      , Err_phi  , hweight);
-      m_errPhi0VsP       -> Fill( fabs(trkP)       , Err_phi  , hweight);
+      m_errPhi0VsPt      -> Fill( std::fabs(trkpt)      , Err_phi  , hweight);
+      m_errPhi0VsP       -> Fill( std::fabs(trkP)       , Err_phi  , hweight);
       m_errPhi0VsPhi0    -> Fill( trkphi           , Err_phi  , hweight);
       m_errPhi0VsEta     -> Fill( trketa           , Err_phi  , hweight);
       m_errZ0            -> Fill( Err_z0                      , hweight);
       //m_errZ0VsD0BS      -> Fill( d0bscorr         , Err_z0   , hweight);
-      m_errZ0VsPt        -> Fill( fabs(trkpt)      , Err_z0   , hweight);
-      m_errZ0VsP         -> Fill( fabs(trkP)       , Err_z0   , hweight);
+      m_errZ0VsPt        -> Fill( std::fabs(trkpt)      , Err_z0   , hweight);
+      m_errZ0VsP         -> Fill( std::fabs(trkP)       , Err_z0   , hweight);
       m_errZ0VsPhi0      -> Fill( trkphi           , Err_z0   , hweight);
       m_errZ0VsEta       -> Fill( trketa           , Err_z0   , hweight);
       m_errPt            -> Fill( Err_Pt                      , hweight);
       m_errPtVsD0BS      -> Fill( d0bscorr         , Err_Pt   , hweight);
       m_errPtVsPt        -> Fill( trkpt            , Err_Pt   , hweight);
-      m_errPtVsP         -> Fill( fabs(trkP)       , Err_Pt   , hweight);
+      m_errPtVsP         -> Fill( std::fabs(trkP)       , Err_Pt   , hweight);
       m_errPt_Pt2        -> Fill( Err_Pt/(trkpt*trkpt)        , hweight);
       m_errPt_Pt2VsPt    -> Fill( trkpt , Err_Pt/(trkpt*trkpt), hweight);
       m_errPt_Pt2VsEta   -> Fill( trketa, Err_Pt/(trkpt*trkpt), hweight);
@@ -2356,7 +2353,7 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
     } 
   
     if(trkpt > ptlast){
-      z_E[0]   = fabs(trkpt / sin(trktheta));
+      z_E[0]   = std::fabs(trkpt / sin(trktheta));
       z_pz[0]  = trkpt / tan(trktheta);
       z_px[0]  = trkpt * sin(trkphi);
       z_py[0]  = trkpt * cos(trkphi);
@@ -2369,7 +2366,8 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
 
     // 
     
-
+    delete myIPandSigma;
+    myIPandSigma=nullptr;
   } // end of loop on trks
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of good tracks from TrackCollection: "<< ngTracks<< endmsg;
@@ -2412,7 +2410,7 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
       else charge = 1; 
     }   
     if(trkpt > ptlast && trkpt < ptfirst && chargefirst*charge < 0 && trkpt > 20){
-      z_E[1]   = fabs(trkpt / sin(trktheta));
+      z_E[1]   = std::fabs(trkpt / sin(trktheta));
       z_pz[1]  = trkpt / tan(trktheta);
       z_px[1]  = trkpt * sin(trkphi);
       z_py[1]  = trkpt * cos(trkphi);
@@ -2425,12 +2423,11 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
 
   if(z_true){
     // build invariant mass of two highest pT tracks
-    // M = sqrt(E1*E2 - px1*px2 - py1*py2 - pz1*pz2);
     float M = (z_E[0]+z_E[1])*(z_E[0]+z_E[1]) - (z_px[0]+z_px[1])*(z_px[0]+z_px[1]) - (z_py[0]+z_py[1])*(z_py[0]+z_py[1]) - (z_pz[0]+z_pz[1])*(z_pz[0]+z_pz[1]);
     if( M <= 0 ) 
       M =0;
     else 
-      M = sqrt(M);
+      M = std::sqrt(M);
     
 
     m_Zmumu -> Fill(M, hweight);
@@ -2443,15 +2440,15 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
       m_ZpT_n -> Fill(-z_pT[0], hweight);
     }
 
-    if(fabs(z_eta[0]) < m_barrelEta && fabs(z_eta[1]) < m_barrelEta) m_Zmumu_barrel-> Fill(M, hweight);
+    if(std::fabs(z_eta[0]) < m_barrelEta && std::fabs(z_eta[1]) < m_barrelEta) m_Zmumu_barrel-> Fill(M, hweight);
     if(z_eta[0] >=  m_barrelEta && z_eta[1] >=  m_barrelEta)         m_Zmumu_eca   -> Fill(M, hweight);
     if(z_eta[0] <= -m_barrelEta && z_eta[1] <= -m_barrelEta)         m_Zmumu_ecc   -> Fill(M, hweight);
     
-    if((fabs(z_eta[0]) < m_barrelEta && z_eta[1] >= m_barrelEta) ||
-       (z_eta[0] >= m_barrelEta && fabs(z_eta[1]) < m_barrelEta))    m_Zmumu_barrel_eca -> Fill(M, hweight);
+    if((std::fabs(z_eta[0]) < m_barrelEta && z_eta[1] >= m_barrelEta) ||
+       (z_eta[0] >= m_barrelEta && std::fabs(z_eta[1]) < m_barrelEta))    m_Zmumu_barrel_eca -> Fill(M, hweight);
 
-    if((fabs(z_eta[0]) < m_barrelEta && z_eta[1] <= -m_barrelEta) ||
-       (z_eta[0] <= -m_barrelEta && fabs(z_eta[1]) < m_barrelEta))   m_Zmumu_barrel_ecc -> Fill(M, hweight);
+    if((std::fabs(z_eta[0]) < m_barrelEta && z_eta[1] <= -m_barrelEta) ||
+       (z_eta[0] <= -m_barrelEta && std::fabs(z_eta[1]) < m_barrelEta))   m_Zmumu_barrel_ecc -> Fill(M, hweight);
 
   }
 

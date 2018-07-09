@@ -15,6 +15,17 @@
 // ********************************************************************
 
 
+#include "LArCollisionTimeMonTool.h"
+
+#include "LWHists/TH1F_LW.h"
+#include "LWHists/TH2F_LW.h"
+
+#include "LArRecEvent/LArCollisionTime.h"
+
+#include "xAODEventInfo/EventInfo.h"
+
+#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+
 #include <sstream>
 #include <iomanip>
 #include <fstream>
@@ -25,16 +36,6 @@
 #include <map>
 #include <utility>
 #include <algorithm>
-
-#include "LWHists/TH1F_LW.h"
-#include "LWHists/TH2F_LW.h"
-
-#include "LArMonTools/LArCollisionTimeMonTool.h"
-#include "LArRecEvent/LArCollisionTime.h"
-
-#include "xAODEventInfo/EventInfo.h"
-
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 
 using namespace std;
 

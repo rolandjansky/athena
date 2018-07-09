@@ -58,11 +58,7 @@ StatusCode ViewMergeAlg::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
   const EventContext& ctx = getContext();
-#else
-  const EventContext& ctx = *getContext();
-#endif
 
   //Merge results
   std::vector< int > outputVector;

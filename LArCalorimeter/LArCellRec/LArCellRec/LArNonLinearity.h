@@ -36,10 +36,11 @@ class LArNonLinearity : public CaloCellCorrection
     LArNonLinearity(const std::string& type, const std::string& name, 
 		const IInterface* parent);
 
-    ~LArNonLinearity();
-    virtual StatusCode initialize(); 
+    virtual ~LArNonLinearity();
+    virtual StatusCode initialize() override;
 
-    void MakeCorrection(CaloCell* theCell);    
+    virtual void MakeCorrection (CaloCell* theCell,
+                                 const EventContext& ctx) const override;
 
  private: 
  

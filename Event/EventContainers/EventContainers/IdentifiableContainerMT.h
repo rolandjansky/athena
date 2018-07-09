@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTCONTAINERS_IDENTIFIABLECONTAINERMT_H
@@ -27,7 +27,7 @@
 //const_iterator and indexFind are provided for backwards compatability. they are not optimal
 /*
 IT is faster to iterate over the container with this method:
-    auto hashes= m_container->GetAllCurrentHashs(); 
+    auto hashes= m_container->GetAllCurrentHashes();
     for (auto hash : hashes) {
         T* coll = m_container->indexFindPtr(hash); 
         //Use coll here
@@ -52,13 +52,36 @@ public:
     typedef T* const * const_pointer;
     typedef T          base_value_type;
     typedef std::vector<IdentifierHash> Hash_Container;
+    typedef EventContainers::IDC_Lock IDC_Lock;
 
 private:
     ICACHE *m_cacheLink;
-    std::vector<bool> m_mask;
+    mutable std::vector<bool> m_mask;
     bool m_OnlineMode;
+    typedef EventContainers::IdentifiableCacheBase IdentifiableCacheBase;
+    typedef IdentifiableCacheBase::waitlistPair waitlistPair;
+    mutable std::vector< waitlistPair> m_waitlist;
+    mutable std::mutex m_waitMutex;
 
 public:
+
+  void Wait() const{
+    //lockguard to protect m_waitlist from multiple wait calls
+    typedef std::lock_guard<decltype(m_waitMutex)> lockguard;
+    lockguard lock(m_waitMutex);
+    while(!m_waitlist.empty()){
+       waitlistPair &o = m_waitlist.back();
+       auto hash = o->first;
+       //unique lock is necessary for the condition variable to have access to unlock
+       typedef std::unique_lock<decltype(o->second.mutex)> uniquelock;
+       uniquelock lk(o->second.mutex);
+       while(m_cacheLink->itemInProgress(hash)){
+          o->second.condition.wait(lk);
+       }
+       if(m_cacheLink->itemAborted(hash)) m_mask[hash] = false;//reset flag
+       m_waitlist.pop_back();
+    }
+  }
 
     class const_iterator
     {
@@ -83,7 +106,7 @@ public:
             if(m_end) return *this;
             //If called on iterator created by "fast" iterator method const_iterator( const MyType* idC, IdentifierHash hash  )
             if(!m_sptr) { 
-                auto ids = m_idContainer->GetAllCurrentHashs();
+                auto ids = m_idContainer->GetAllCurrentHashes();
                 m_sptr    = std::shared_ptr<Hash_Container> (new Hash_Container());
                 m_sptr->swap(ids);
                 m_hashItr = std::find(m_sptr->begin(), m_sptr->end(), m_hash);
@@ -158,7 +181,7 @@ public:
         const_iterator(const MyType* idC, bool end) : m_sptr(), m_current(nullptr), m_idContainer(idC), m_end(end)
         {
             if(!m_end) {
-                auto ids = m_idContainer->GetAllCurrentHashs();
+                auto ids = m_idContainer->GetAllCurrentHashes();
                 if(ids.empty()) {//For empty containers
                     m_end = true;
                 } else {
@@ -229,6 +252,8 @@ public:
     /// If it does exist it incorporates it into the IDC view but changing the mask.
     virtual bool tryFetch(IdentifierHash hashId) override final;
 
+    bool tryFetch(IdentifierHash hashId, IDC_Lock &);
+
     /// Tries will look for item in cache, if it doesn't exist will call the cache IMAKER
     /// If cache doesn't have an IMAKER then this fails.
     StatusCode fetchOrCreate(IdentifierHash hashId);
@@ -242,10 +267,6 @@ public:
     /// (and ownership) to client
     T*  removeCollection(IdentifierHash hashId);
 #endif
-
-    /// set m_hashids to have all the possible hash values given
-    /// the hash max
-    void setAllCollections(unsigned int hashMax);
 
     /// reset m_hashids and call IdentifiableCache's cleanup
     virtual void cleanup() override final;
@@ -263,6 +284,7 @@ public:
     /// return number of collections
     virtual size_t numberOfCollections() const override final{
         if(!m_OnlineMode) return m_cacheLink->numberOfHashes();
+        Wait(); 
         size_t count =0;
         for(auto b : m_mask) count += b;
         return count;
@@ -273,9 +295,10 @@ public:
     //If this is an "offline" mode IDC then this is identical to the cache
     //If this is an "online" mode IDC then this is the items that both exist in the cache 
     //and have a postive mask element
-    virtual std::vector<IdentifierHash> GetAllCurrentHashs() const override final {
+    virtual std::vector<IdentifierHash> GetAllCurrentHashes() const override final {
         if(not m_OnlineMode) return m_cacheLink->ids();
         else{
+            Wait();
 	    std::vector<IdentifierHash> ids;
             for(size_t i =0 ; i < m_mask.size(); ++i) if(m_mask[i]) ids.emplace_back(i);
             return ids;
@@ -297,7 +320,7 @@ public:
 
 #ifdef IdentifiableCacheBaseRemove
 template < class T>
-T*
+T*  //Please don't do this we want to get rid of this
 IdentifiableContainerMT<T>::removeCollection( IdentifierHash hashId )
 {
     using namespace EventContainers;
@@ -333,7 +356,7 @@ template < class T>
 const T*
 IdentifiableContainerMT<T>::indexFindPtr( IdentifierHash hashId ) const
 {
-    if(m_mask[hashId])  return m_cacheLink->find(hashId);
+    if(m_mask[hashId])  return m_cacheLink->findWait(hashId);
     else                return nullptr;
 }
 
@@ -382,6 +405,20 @@ IdentifiableContainerMT<T>::tryFetch(IdentifierHash hashId)
     m_mask[hashId] = true;
     return true; 
 }
+
+template < class T>
+bool
+IdentifiableContainerMT<T>::tryFetch(IdentifierHash hashId, IDC_Lock &lock)
+{
+    if(!m_OnlineMode){
+       return tryFetch(hashId);//No point calling expensive lock method
+    }
+    int flag = m_cacheLink->tryLock(hashId, lock, m_waitlist);
+
+    if(flag > 0) { m_mask[hashId] = flag!=3; return true;}
+    return false;
+}
+
 
 template < class T >
 StatusCode 

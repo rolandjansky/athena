@@ -100,3 +100,4 @@ class TrigL2CaloRingerFexMT : public AthAlgorithm  {
   ToolHandle<GenericMonitoringTool> m_monTool { this, "MonTool", "GenericMonitoringTool/RingerFexMon", "Monitoring" };
 
 };
+

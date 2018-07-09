@@ -58,7 +58,9 @@ StatusCode LArCellRescaler::checkConstants(IOVSVC_CALLBACK_ARGS) {
 
 
 
-void LArCellRescaler::MakeCorrection(CaloCell* theCell) {
+void LArCellRescaler::MakeCorrection (CaloCell* theCell,
+                                      const EventContext& /*ctx*/) const
+{
   const IdentifierHash& hash_id=theCell->caloDDE()->calo_hash();
   if (m_factors.isValid() && hash_id<m_factors->size())
     theCell->setEnergy(theCell->energy()*(*m_factors)[hash_id]);

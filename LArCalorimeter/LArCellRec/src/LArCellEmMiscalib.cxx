@@ -205,7 +205,8 @@ int LArCellEmMiscalib::region(int barrelec, double eta, double phi)
 /////////////////////////////////////////////////////////////////////
 
 
-void  LArCellEmMiscalib::MakeCorrection(CaloCell * theCell )
+void  LArCellEmMiscalib::MakeCorrection (CaloCell * theCell,
+                                         const EventContext& /*ctx*/) const
 {
 
   

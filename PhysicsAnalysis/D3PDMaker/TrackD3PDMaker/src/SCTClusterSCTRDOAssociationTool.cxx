@@ -84,7 +84,6 @@ StatusCode SCTClusterSCTRDOAssociationTool::reset (const  InDet::SCT_Cluster& p)
   if ( sc.isFailure() ) REPORT_MESSAGE (MSG::ERROR)<< "Failed to calculate the tempID.";
 
   std::vector< Identifier> sctClusterIdentifier; 
-  std::vector<Identifier>::iterator posItr;
 
   const std::vector<Identifier>& rdoList = p.rdoList();
   sctClusterIdentifier.insert(sctClusterIdentifier.end(),rdoList.begin(),rdoList.end());

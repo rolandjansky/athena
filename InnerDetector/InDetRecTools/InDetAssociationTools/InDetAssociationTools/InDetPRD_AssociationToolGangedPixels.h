@@ -10,8 +10,6 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
-#include <set>
-#include <map>
 
 class AtlasDetectorID;
 class Identifier;

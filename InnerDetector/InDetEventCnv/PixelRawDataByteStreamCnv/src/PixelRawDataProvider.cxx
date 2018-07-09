@@ -47,34 +47,30 @@ PixelRawDataProvider::~PixelRawDataProvider(){
 // Initialize
 
 StatusCode PixelRawDataProvider::initialize() {
-  msg(MSG::INFO) << "PixelRawDataProvider::initialize" << endmsg;
+  ATH_MSG_INFO("PixelRawDataProvider::initialize");
 
   // Get ROBDataProviderSvc
   if (m_robDataProvider.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve service " << m_robDataProvider << endmsg;
+    ATH_MSG_FATAL("Failed to retrieve service " << m_robDataProvider);
     return StatusCode::FAILURE;
   } else
-    msg(MSG::INFO) << "Retrieved service " << m_robDataProvider << endmsg;
+    ATH_MSG_INFO("Retrieved service " << m_robDataProvider);
  
   // Get PixelRawDataProviderTool
   if (m_rawDataTool.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_rawDataTool << endmsg;
+    ATH_MSG_FATAL("Failed to retrieve tool " << m_rawDataTool);
     return StatusCode::FAILURE;
   } else
-    msg(MSG::INFO) << "Retrieved tool " << m_rawDataTool << endmsg;
+    ATH_MSG_INFO("Retrieved tool " << m_rawDataTool);
  
-
- if (detStore()->retrieve(m_pixel_id, "PixelID").isFailure()) {
-     msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
-     return StatusCode::FAILURE;
- }
+  ATH_CHECK(detStore()->retrieve(m_pixel_id, "PixelID"));
 
   // Get the cabling service
   if (m_pixelCabling.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve service " << m_pixelCabling << endmsg;
+    ATH_MSG_FATAL("Failed to retrieve service " << m_pixelCabling);
     return StatusCode::FAILURE;
   } else
-    msg(MSG::INFO) << "Retrieved tool " << m_pixelCabling << endmsg;
+    ATH_MSG_INFO("Retrieved tool " << m_pixelCabling);
 
   ATH_CHECK( m_rdoContainerKey.initialize() );
   ATH_CHECK( m_rdoCacheKey.initialize(!m_rdoCacheKey.key().empty()) );
@@ -98,7 +94,7 @@ typedef EventContainers::IdentifiableContTemp<InDetRawDataCollection<PixelRDORaw
 StatusCode PixelRawDataProvider::execute() {
 
 #ifdef PIXEL_DEBUG
-    msg(MSG::DEBUG) << "Create Pixel RDO Container" << endmsg;
+    ATH_MSG_DEBUG("Create Pixel RDO Container");
 #endif
 
   // now create the container and register the collections
@@ -147,8 +143,8 @@ StatusCode PixelRawDataProvider::execute() {
 
 
 #ifdef PIXEL_DEBUG
-    msg(MSG::DEBUG) << "Number of ROB fragments " << listOfRobf.size() 
-		    << " (out of=" << listOfRobs.size() << " expected)" << endmsg;
+    ATH_MSG_DEBUG("Number of ROB fragments " << listOfRobf.size()
+                  << " (out of=" << listOfRobs.size() << " expected)");
 #endif
 
   std::unique_ptr<DummyPixelRDO> tempcont;
@@ -158,11 +154,11 @@ StatusCode PixelRawDataProvider::execute() {
          static_cast< IPixelRDO_Container* >(rdoContainer.ptr());
   // ask PixelRawDataProviderTool to decode it and to fill the IDC
   if (m_rawDataTool->convert(listOfRobf,  containerInterface).isFailure())
-    msg(MSG::ERROR) << "BS conversion into RDOs failed" << endmsg;
+    ATH_MSG_ERROR("BS conversion into RDOs failed");
 
   if(tempcont) tempcont->MergeToRealContainer(rdoContainer.ptr());
 #ifdef PIXEL_DEBUG
-    msg(MSG::DEBUG) << "Number of Collections in IDC " << rdoContainer->numberOfCollections() << endmsg;
+    ATH_MSG_DEBUG("Number of Collections in IDC " << rdoContainer->numberOfCollections());
 #endif
 
   return StatusCode::SUCCESS;

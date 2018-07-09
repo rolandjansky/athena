@@ -53,7 +53,7 @@
 // LAr includes
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArRecUtils/LArHVCorrTool.h"
+#include "LArElecCalib/ILArHVCorrTool.h"
 
 // Tile includes
 #include "TileEvent/TileDigitsContainer.h"

@@ -54,7 +54,6 @@ private:
    int GetEpsAngle   (std::string NameOfTheSet) ;
    
    void AMDC(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc);
-   void AGDD(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc);
 
    void ATYP(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc);
    void ACUT(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc);

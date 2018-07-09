@@ -22,7 +22,8 @@
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
-
+#include "EventContainers/IDC_Lock.h"
+#include <map>
 //abarton
 //Enabling the ability to remove collections to help compatability with old code.
 //This may be removed to improved threadsafety.
@@ -31,12 +32,20 @@
 namespace EventContainers {
 
 
+
 class IdentifiableCacheBase
 {
+
 public:
+//here for access from other classes
+static constexpr uintptr_t INVALIDflag = UINTPTR_MAX;
+static constexpr uintptr_t ABORTEDflag = UINTPTR_MAX-1;
+static constexpr size_t s_lockBucketSize =6;
 
 typedef std::true_type thread_safe;
 typedef std::set<IdentifierHash> idset_t;
+typedef std::map<IdentifierHash, mutexPair>::iterator waitlistPair;
+
 #if 0
   struct deleter
   {
@@ -77,6 +86,7 @@ typedef std::set<IdentifierHash> idset_t;
   
   // Return payload if there, null if not there.
   const void* find (IdentifierHash hash) const;
+  const void* findWait (IdentifierHash hash) const;
 
   // Try to make payload if not there.
   const void* get (IdentifierHash hash);
@@ -86,12 +96,14 @@ typedef std::set<IdentifierHash> idset_t;
   bool add (IdentifierHash hash, const void* p, bool TakeOwnerShip);
   bool add (IdentifierHash hash, void_unique_ptr p);
 
+  int tryLock(IdentifierHash, IDC_Lock &, std::vector<waitlistPair>&);
+  int itemAborted(IdentifierHash) const;
+  int itemInProgress(IdentifierHash) const;
 #ifdef IdentifiableCacheBaseRemove
   bool remove (IdentifierHash hash);
 #endif
   size_t fullSize() const { return m_owns.size(); }
   size_t numberOfHashes() const;
-  
 protected:
   IdentifiableCacheBase (IdentifierHash maxHash, const IMaker* maker);
   ~IdentifiableCacheBase();
@@ -114,6 +126,9 @@ private:
   mutable mutex_t m_mutex;
 
   std::condition_variable m_cond;
+  mutable mutex_t m_mapMutexes[s_lockBucketSize];
+  mutable std::map<IdentifierHash, mutexPair> m_HoldingMutexes[s_lockBucketSize];
+
 };
 
 

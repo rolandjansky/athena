@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -33,7 +33,6 @@ muCombMT::muCombMT(const std::string& name, ISvcLocator* pSvcLocator):
    AthAlgorithm(name, pSvcLocator),
    m_MagFieldSvc(0)
 {
-   declareProperty("MonTool", m_monTool=VoidMonitoringTool(this), "Monitoring tool");
 }
 
 StatusCode muCombMT::initialize()

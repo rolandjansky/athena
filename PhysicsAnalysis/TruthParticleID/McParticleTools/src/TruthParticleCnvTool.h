@@ -73,8 +73,9 @@ class TruthParticleCnvTool :  virtual public ITruthParticleCnvTool,
   virtual ~TruthParticleCnvTool ();
   
   // Athena's Hooks
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() const override;
+  virtual StatusCode execute (const EventContext& ctx) const override;
   
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
@@ -91,7 +92,7 @@ class TruthParticleCnvTool :  virtual public ITruthParticleCnvTool,
   StatusCode convert( const McEventCollection* mcEvts,
 		      const unsigned int genEvtIndex,
 		      TruthParticleContainer* mcParts,
-		      const ITruthParticleVisitor* visitor ) const;
+		      const ITruthParticleVisitor* visitor ) const override;
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 

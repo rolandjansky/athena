@@ -69,10 +69,13 @@ iFatras::HadIntProcessorParametric::HadIntProcessorParametric(const std::string&
   m_hadIntPointR(0.),
   m_hadIntPointZ(0.),
   m_hadIntMotherPdg(0),
+  m_hadIntMotherBarcode(0),
   m_hadIntMotherP(0.),
+  m_hadIntMotherPt(0.),
   m_hadIntMotherPhi(0.),
   m_hadIntMotherEta(0.),
-  m_hadIntChildren(0)
+  m_hadIntChildren(0),
+  m_hadIntChildE(0.)
 {
       // property setting
       declareProperty("MinimumHadronicOutEnergy"            , m_minimumHadOutEnergy);

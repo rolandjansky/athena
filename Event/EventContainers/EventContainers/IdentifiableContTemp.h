@@ -1,3 +1,8 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+
 #ifndef EVENTCONTAINERS_IDENTIFIABLETEMP_H
 #define EVENTCONTAINERS_IDENTIFIABLETEMP_H
 //This is a dummy version of the identifiable container.
@@ -37,7 +42,7 @@ public:
         return m_randomcont[hashId];
     }
     
-    virtual std::vector<IdentifierHash> GetAllCurrentHashs() const override{
+    virtual std::vector<IdentifierHash> GetAllCurrentHashes() const override{
         std::vector<IdentifierHash> out;
         out.reserve(m_usedhashes.size());
         for(auto x : m_usedhashes) out.push_back(x.first);

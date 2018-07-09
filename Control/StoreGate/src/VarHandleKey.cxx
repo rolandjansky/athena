@@ -20,7 +20,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-static const char* storeSeparator = "+";
+static const char* const storeSeparator = "+";
 
 namespace SG {
 
@@ -50,8 +50,8 @@ VarHandleKey::VarHandleKey (CLID clid,
     m_storeHandle (storeName, "VarHandleKey")
 {
   parseKey (sgkey, storeName);
-  m_isEventStore =  (storeName == StoreID::storeName(StoreID::EVENT_STORE) ||
-                     storeName == StoreID::storeName(StoreID::PILEUP_STORE));
+  m_isEventStore =  (m_storeHandle.name() == StoreID::storeName(StoreID::EVENT_STORE) ||
+                     m_storeHandle.name() == StoreID::storeName(StoreID::PILEUP_STORE));
 }
 
 
@@ -204,7 +204,7 @@ void VarHandleKey::parseKey (const std::string& key,
     return;
   }
 
-  // StoreName separator is ":"
+  // StoreName separator is "+"
   sp = key.find(storeSeparator);
   if(sp == std::string::npos) {
     m_sgKey = key;

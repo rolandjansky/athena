@@ -79,9 +79,9 @@ LArG3Escale_TDR::~LArG3Escale_TDR()
 
 // MakeCorrection:  This is called with a pointer to the Cell Object.
 
-void LArG3Escale_TDR::MakeCorrection(CaloCell* theCell)
+void LArG3Escale_TDR::MakeCorrection (CaloCell* theCell,
+                                      const EventContext& /*ctx*/) const
 {
-
   float eta = theCell->eta();
   Identifier id =  theCell->ID();
  
@@ -193,7 +193,7 @@ void LArG3Escale_TDR::MakeCorrection(CaloCell* theCell)
 
 // scaleb returns the scale factor for the EM barrel calorimeter (NOT PS):
 
-double LArG3Escale_TDR::scaleb(double abseta)
+double LArG3Escale_TDR::scaleb(double abseta) const
 {
 
   double scale ; 
@@ -214,7 +214,7 @@ double LArG3Escale_TDR::scaleb(double abseta)
 
 // scalee returns the scale factor for the EM endcap calorimeter (NOT PS):
 
-double LArG3Escale_TDR::scalee(double abseta)
+double LArG3Escale_TDR::scalee(double abseta) const
 {
   double scale; 
   double corr; 

@@ -1,13 +1,13 @@
-#include "CaloCondPhysAlgs/CaloCellNoiseAlg.h"
-#include "CaloCondPhysAlgs/CaloNoise2Ntuple.h"
-#include "CaloCondPhysAlgs/CaloRescaleNoise.h"
-#include "CaloCondPhysAlgs/CaloFillCellPositionShift.h"
-#include "CaloCondPhysAlgs/CaloCellPosition2Ntuple.h"
-#include "CaloCondPhysAlgs/CaloAddCellPedShift.h"
-#include "CaloCondPhysAlgs/FCAL_HV_Energy_Rescale.h"
-#include "CaloCondPhysAlgs/CaloCellCalcEnergyCorr.h"
-#include "CaloCondPhysAlgs/CaloCellEnergyCorr2Ntuple.h"
-#include "CaloCondPhysAlgs/LArMinBiasAlg.h"
+#include "../CaloCellNoiseAlg.h"
+#include "../CaloNoise2Ntuple.h"
+#include "../CaloRescaleNoise.h"
+#include "../CaloFillCellPositionShift.h"
+#include "../CaloCellPosition2Ntuple.h"
+#include "../CaloAddCellPedShift.h"
+#include "../FCAL_HV_Energy_Rescale.h"
+#include "../CaloCellCalcEnergyCorr.h"
+#include "../CaloCellEnergyCorr2Ntuple.h"
+#include "../LArMinBiasAlg.h"
 
 DECLARE_COMPONENT( CaloCellNoiseAlg )
 DECLARE_COMPONENT( CaloNoise2Ntuple )

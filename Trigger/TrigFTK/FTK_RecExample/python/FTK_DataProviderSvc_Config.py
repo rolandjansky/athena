@@ -10,6 +10,14 @@ class ConfiguredFTK_DataProviderSvc(FTK_DataProviderSvc) :
     def __init__(self, name = "ConfiguredFTK_DataProviderSvc"):
         print "In FTK_DataProviderSvc_Config.py"
         FTK_DataProviderSvc.__init__(self, name)
+
+        # SiLorentzAngleTool for SCT
+        from AthenaCommon.AppMgr import ToolSvc
+        if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+            from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+            sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+        FTK_DataProviderSvc.SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool
+
         # Track Fitter
         from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator, InDetTrigNavigator, InDetTrigPropagator, InDetTrigRefitRotCreator,InDetTrigBroadInDetRotCreator, \

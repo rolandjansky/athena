@@ -14,11 +14,11 @@ atlas_depends_on_subdirs(
    Control/AthContainers
    Control/AthenaKernel
    Control/SGTools
+   Control/CxxUtils
    Database/PersistentDataModel
    GaudiKernel
    PRIVATE
-   AtlasTest/TestTools
-   Control/CxxUtils )
+   AtlasTest/TestTools )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -164,6 +164,12 @@ atlas_add_test( ReadDecorHandle_test
 
 atlas_add_test( WriteDecorHandle_test
    SOURCES test/WriteDecorHandle_test.cxx
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
+   LINK_LIBRARIES StoreGateLib AthContainers TestTools
+   ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
+
+atlas_add_test( CondHandleKeyArray_test
+   SOURCES test/CondHandleKeyArray_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
    LINK_LIBRARIES StoreGateLib AthContainers TestTools
    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )

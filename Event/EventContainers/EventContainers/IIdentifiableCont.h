@@ -1,3 +1,8 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+
 #ifndef EVENTCONTAINERS_IIDENTIFIABLECONT_H
 #define EVENTCONTAINERS_IIDENTIFIABLECONT_H
 #include "Identifier/Identifier.h"
@@ -10,7 +15,7 @@ class IIdentifiableCont{
 public:
     virtual  const T* indexFindPtr( IdentifierHash hashId ) const = 0;
 
-    virtual std::vector<IdentifierHash> GetAllCurrentHashs() const =0;
+    virtual std::vector<IdentifierHash> GetAllCurrentHashes() const =0;
 
     virtual StatusCode addOrDelete(std::unique_ptr<T> ptr, IdentifierHash hashId) =0;
 

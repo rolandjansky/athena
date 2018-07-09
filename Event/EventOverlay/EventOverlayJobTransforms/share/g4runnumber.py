@@ -38,12 +38,18 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.EvtMax.unlock()
 athenaCommonFlags.EvtMax.set_Value_and_Lock(num_lines)
 
+
 #fix iov metadata
-if not hasattr(ServiceMgr.ToolSvc, 'IOVDbMetaDataTool'):
-    from AthenaCommon import CfgMgr
-    svcMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
-    svcMgr.ToolSvc.IOVDbMetaDataTool.MinMaxRunNumbers = [svcMgr.EvtIdModifierSvc.Modifiers[0], 2147483647]
-    ## FIXME need to use maxRunNumber = 2147483647 for now to keep overlay working but in the future this should be set properly.
+try:
+    svcMgr.MetaDataSvc.MetaDataTools["IOVDbMetaDataTool"]
+except IndexError:
+    from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
+    svcMgr.MetaDataSvc.MetaDataTools+=[IOVDbMetaDataTool()]
+    pass
+
+svcMgr.MetaDataSvc.MetaDataTools["IOVDbMetaDataTool"].MinMaxRunNumbers = [svcMgr.EvtIdModifierSvc.Modifiers[0], 2147483647]
+   ## FIXME need to use maxRunNumber = 2147483647 for now to keep overlay working but in the future this should be set properly.
+
     
 #use conditions from this run number and timestamp
 svcMgr.EventSelector.RunNumber = svcMgr.EvtIdModifierSvc.Modifiers[0]

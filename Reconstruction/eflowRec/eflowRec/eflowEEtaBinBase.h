@@ -20,6 +20,9 @@ CREATED:  17th May, 2006
 
 class eflowParameters;
 
+/**
+Base class which sets up some of the infrastructure to store the e/p reference values. The base class has methods to return bin indices, and has a bool to toggle whether to use linear or log interpolation between bins (such that the e/p reference can smoothly vary as a function of kinematics).
+*/
 class eflowEEtaBinBase {
  public:
 

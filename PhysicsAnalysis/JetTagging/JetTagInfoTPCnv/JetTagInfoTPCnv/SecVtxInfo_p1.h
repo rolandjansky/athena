@@ -5,6 +5,8 @@
 #ifndef JETTAGINFOTPCNV_SECVTXINFO_P1_H
 #define JETTAGINFOTPCNV_SECVTXINFO_P1_H
 
+#include "CxxUtils/unused.h"
+
 ///
 /// Cache all info having to do with the secondary vertex.
 ///
@@ -21,7 +23,8 @@ namespace Analysis
 
       /// Info stored in the SecVtxInfo subclass:
 
-      int m_numSelTracksForFit;
+      // Unused, but shouldn't delete it since it's part of the persistent data.
+      int ATH_UNUSED_MEMBER(m_numSelTracksForFit);
       float m_dist;
       float m_rphidist;
       float m_prob;

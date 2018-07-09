@@ -1,0 +1,36 @@
+range 0 to 1000
+range 50 to 1050
+range 100 to 1100
+range 150 to 1150
+range 200 to 1200
+range 250 to 1250
+range 300 to 1300
+range 350 to 1350
+range 400 to 1400
+range 450 to 1450
+0/50
+10/50
+20/50
+30/50
+40/50
+NoLock
+deleted 163825
+countHit 256975
+fills 500000
+reads 492300
+aborted 7700
+0/50
+10/50
+20/50
+30/50
+40/50
+Lock
+deleted 0
+countHit 427500
+fills 500000
+reads 492300
+aborted 7700
+Total elements 500000
+MyDigits left undeleted 0
+no lock time 2.60611
+lock time 1.12183

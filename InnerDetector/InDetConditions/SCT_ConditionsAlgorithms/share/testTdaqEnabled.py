@@ -75,7 +75,6 @@ import AtlasGeoModel.GeoModelInit
 # Disable SiLorentzAngleSvc to remove
 # ERROR ServiceLocatorHelper::createService: wrong interface id IID_665279653 for service
 ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
-ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleTool=""
 
 from IOVSvc.IOVSvcConf import CondSvc 
 ServiceMgr += CondSvc()

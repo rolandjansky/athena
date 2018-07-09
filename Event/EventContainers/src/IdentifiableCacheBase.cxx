@@ -14,15 +14,16 @@
 // In ids, INVALID -- conversion/add failed.
 // In ids, valid --- Have payload
 // In ids, null --- Conversion in progress.
-
+// Not in ids, INVALID --- intention to add soon
 
 #include "EventContainers/IdentifiableCacheBase.h"
+
+
 using namespace std;
 namespace EventContainers {
 
-
-static const void* INVALID = reinterpret_cast<const void*>(-1L);
-
+static const void* INVALID = reinterpret_cast<const void*>(IdentifiableCacheBase::INVALIDflag);
+static const void* ABORTED = reinterpret_cast<const void*>(IdentifiableCacheBase::ABORTEDflag);
 
 IdentifiableCacheBase::IdentifiableCacheBase (IdentifierHash maxHash,
                                               const IMaker* maker)
@@ -30,7 +31,7 @@ IdentifiableCacheBase::IdentifiableCacheBase (IdentifierHash maxHash,
     m_owns(maxHash, false),
     m_maker (maker)
 {
-   for(auto &h : m_vec) h.store(nullptr, std::memory_order_relaxed); //Ensure initialized to null
+   for(auto &h : m_vec) h.store(nullptr, std::memory_order_relaxed); //Ensure initialized to null - I'm not sure if this is implicit
 }
 
 
@@ -39,6 +40,33 @@ IdentifiableCacheBase::~IdentifiableCacheBase()
   if (!m_ids.empty())
     std::abort();
 }
+
+int IdentifiableCacheBase::tryLock(IdentifierHash hash, IDC_Lock &lock, std::vector<waitlistPair> &wait){
+   const void *ptr1 = m_vec[hash]; //atomic load
+   if(ptr1==nullptr){
+      size_t slot = hash % s_lockBucketSize;
+      lock_t lockhdl(m_mapMutexes[slot]);
+      if(m_vec[hash].compare_exchange_strong(ptr1, INVALID)){//atomic swap
+         //First call
+
+         auto &mutexpair = m_HoldingMutexes[slot][hash]; //make new pair in unmoving memory
+         
+         lock.LockOn(&m_vec[hash], &mutexpair);
+         return 0;
+      }
+   }
+
+   if(ptr1 == INVALID){
+      size_t slot = hash % s_lockBucketSize;
+      lock_t lockhdl(m_mapMutexes[slot]);
+      //Second call while not finished
+      wait.emplace_back(m_HoldingMutexes[slot].find(hash));
+      return 1;
+   }
+   if(ptr1 == ABORTED) return 3;
+   return 2;   //Already completed
+}
+
 
 void IdentifiableCacheBase::clear (deleter_f* deleter)
 {
@@ -63,16 +91,49 @@ void IdentifiableCacheBase::cleanUp (deleter_f* deleter)
   m_ids.clear();
 }
 
+int IdentifiableCacheBase::itemAborted (IdentifierHash hash) const{
+   const void* p = m_vec[hash].load();
+   return (p == ABORTED);
+}
+
+
+int IdentifiableCacheBase::itemInProgress (IdentifierHash hash) const{
+   const void* p = m_vec[hash].load();
+   return (p == INVALID);
+}
+
 
 const void* IdentifiableCacheBase::find (IdentifierHash hash) const
 {
   if (hash >= m_vec.size()) return nullptr;
-  const void* p = m_vec[hash].load(std::memory_order_relaxed);
-  if (p == INVALID)
+  const void* p = m_vec[hash].load();
+  if (p >= ABORTED)
     return nullptr;
   return p;
 }
 
+
+
+const void* IdentifiableCacheBase::findWait (IdentifierHash hash) const
+{
+  if (hash >= m_vec.size()) return nullptr;
+  const void* p = m_vec[hash];
+  if(p<ABORTED) return p;
+  size_t slot = hash % s_lockBucketSize;
+  std::unique_lock<std::mutex> lockmap(m_mapMutexes[slot]);
+
+  mutexPair &mutpair = m_HoldingMutexes[slot][hash]; //make new pair in unmoving memory
+  lockmap.unlock();
+  while(m_vec[hash]==INVALID){
+     std::unique_lock<decltype(mutpair.mutex)> lk(mutpair.mutex);//mutex associated with condition
+     while(itemInProgress(hash)){
+        mutpair.condition.wait(lk);
+     }
+  }
+  p = m_vec[hash];
+  if(p>=ABORTED) return nullptr;
+  return p;
+}
 
 const void* IdentifiableCacheBase::get (IdentifierHash hash)
 {
@@ -156,8 +217,8 @@ std::vector<IdentifierHash> IdentifiableCacheBase::ids() const
   ret.reserve (m_vec.size());
   lock_t lock (m_mutex);
   for (IdentifierHash hash : m_ids) {
-    const void* p = m_vec[hash];
-    if (p && p != INVALID)
+    const void* p = m_vec[hash].load();
+    if (p && p < ABORTED)
       ret.push_back (hash);
   }
   return ret;
@@ -177,13 +238,12 @@ bool IdentifiableCacheBase::add (IdentifierHash hash, const void* p, bool owns)
 //     cout << "iterator wrong " << endl;
      return false;
   }
-  assert (m_vec[hash] == nullptr);
+  assert (m_vec[hash] == nullptr || m_vec[hash]==INVALID);//Can be invalid in the case of "tryfetch lock"
   m_vec[hash] = p ? p : INVALID;
   m_owns[hash] = p!=nullptr ? owns : false;
   m_ids.insert (it, hash);
   return true;
 }
-
 
 
 bool IdentifiableCacheBase::add (IdentifierHash hash,
@@ -194,7 +254,7 @@ bool IdentifiableCacheBase::add (IdentifierHash hash,
   idset_t::iterator it = m_ids.lower_bound (hash);
   if (it != m_ids.end() && *it == hash)
     return false;
-  assert (m_vec[hash] == nullptr);
+  assert (m_vec[hash] == nullptr || m_vec[hash]==INVALID);//Can be invalid in the case of "tryfetch lock"
   if (p) {
     m_vec[hash] = p.release();
     m_owns[hash] = true;

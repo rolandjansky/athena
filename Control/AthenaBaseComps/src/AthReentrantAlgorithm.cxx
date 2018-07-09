@@ -12,12 +12,11 @@
 // AthenaBaseComps includes
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthAlgorithmDHUpdate.h"
+#include "AthAlgStartVisitor.h"
 
 // Framework includes
 #include "GaudiKernel/Property.h"
-#ifndef REENTRANT_GAUDI
 #include "GaudiKernel/ThreadLocalContext.h"
-#endif
 
 
 #include "./VHKASupport.h"
@@ -170,6 +169,19 @@ unsigned int AthReentrantAlgorithm::cardinality() const
 
 
 /**
+ * @brief Return the current event context.
+ *
+ * Override this because the base class version won't work correctly
+ * for reentrant algorithms.  (We shouldn't really be using this
+ * for reentrant algorithms, but just in case.).
+ */
+const EventContext& AthReentrantAlgorithm::getContext() const
+{
+  return Gaudi::Hive::currentContext();
+}
+
+
+/**
  * @brief Perform system initialization for an algorithm.
  *
  * We override this to declare all the elements of handle key arrays
@@ -203,13 +215,8 @@ StatusCode AthReentrantAlgorithm::sysStart()
   // This allows CondHandleKeys to cache pointers to their conditions containers.
   // (CondInputLoader makes the containers that it creates during start(),
   // so initialize() is too early for this.)
-  for (Gaudi::DataHandle* h : inputHandles()) {
-    if (h->isCondition()) {
-      if (SG::VarHandleKey* k = dynamic_cast<SG::VarHandleKey*> (h)) {
-        ATH_CHECK( k->start() );
-      }
-    }
-  }
+  AthAlgStartVisitor visitor;
+  acceptDHVisitor (&visitor);
   
   return StatusCode::SUCCESS;
 }

@@ -32,7 +32,6 @@ if DetFlags.haveRIO.pixel_on():
     InDetPixelConditionsSummarySvc = PixelConditionsSummarySvc()
   
     #Tool version for athenaMT
-#    from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummaryTool
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
     InDetPixelConditionsSummaryTool = PixelConditionsSummaryTool()
 
@@ -404,10 +403,11 @@ if DetFlags.haveRIO.TRT_on():
         TRTSlopesFolder = conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/slopes","/TRT/Calib/slopes",className='TRTCond::RtRelationMultChanContainer')
 
     if not conddb.folderRequested('/TRT/Calib/ToTCalib'):
-        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib")
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib",className='CondAttrListCollection')
 
     if not conddb.folderRequested('/TRT/Calib/HTCalib'):
-      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib")
+      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib",className='CondAttrListCollection')
+
 
     # Calibration DB Service
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
@@ -427,13 +427,6 @@ if DetFlags.haveRIO.TRT_on():
     # Argon straw list
     if not conddb.folderRequested('/TRT/Cond/StatusHT'):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT",className='TRTCond::StrawStatusMultChanContainer')
-
-    # DCS Data Folders
-    if (globalflags.InputFormat() == 'bytestream' and globalflags.DataSource() == 'data'):
-        if InDetFlags.useTrtDCS():
-            conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/BARREL <cache>600</cache>")
-            conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/ENDCAPA <cache>600</cache>")
-            conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/ENDCAPC <cache>600</cache>")
 
     # TRT PID tools        
     if not conddb.folderRequested( "/TRT/Calib/PID" ):

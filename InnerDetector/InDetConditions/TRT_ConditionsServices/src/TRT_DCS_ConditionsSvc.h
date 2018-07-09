@@ -10,20 +10,21 @@
  *  DCS conditions data from COOL
  * author Denver Whittington <Denver.Whittington@cern.ch>
  **/
-
+#include <vector>
+#include "AthenaBaseComps/AthService.h"
 #include "TRT_ConditionsServices/ITRT_DCS_ConditionsSvc.h"
 #include "TRT_ConditionsServices/ITRT_ConditionsSvc.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/ICondSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "TRT_ConditionsServices/ITRT_HWMappingSvc.h"
-
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 
 class StoreGateSvc;
-class CondAttrListCollection;
 class TRT_ID;
 class Identifier;
 class TH1D;
@@ -31,8 +32,8 @@ class TH1D;
 /// Service for accessing DCS conditions information
 class TRT_DCS_ConditionsSvc : public AthService,
   virtual public ITRT_ConditionsSvc,
-  virtual public ITRT_DCS_ConditionsSvc,
-  virtual public IIncidentListener {
+  virtual public ITRT_DCS_ConditionsSvc
+  {
 
  public:
 
@@ -63,8 +64,12 @@ class TRT_DCS_ConditionsSvc : public AthService,
    */
   StatusCode getValue( const std::string, const int, InDet::TRT_DCS_ValueType& );
 
-  /// Handle IncidentSvc callbacks
-  void handle( const Incident& );
+  const CondAttrListCollection* getCollection( const std::string);
+
+  void monitorBarrel();
+  void monitorEndcapA();
+  void monitorEndcapC();
+
 
   /// @name Functions inherited from ITRT_ConditionsSvc
   //@{
@@ -91,14 +96,23 @@ class TRT_DCS_ConditionsSvc : public AthService,
   ServiceHandle<StoreGateSvc> m_detStore;
   ServiceHandle<ITRT_HWMappingSvc> m_mapSvc;
   SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this,"EventInfoKey","EventInfo","RHK for EventInfo"};
+  // Conditions access
+  ServiceHandle<ICondSvc> m_condSvc;
+  SG::ReadCondHandleKey<CondAttrListCollection> m_barrelReadKey{this,"BarrelKeyName","in","HV Barrel in-key"};
+  SG::ReadCondHandleKey<CondAttrListCollection> m_EAReadKey{this,"EAKeyName","in","HV EA in-key"};
+  SG::ReadCondHandleKey<CondAttrListCollection> m_ECReadKey{this,"ECKeyName","in","HV EC in-key"};
+  mutable std::vector<const CondAttrListCollection*> m_Barrel_HV_COOLCont;
+  mutable std::vector<const CondAttrListCollection*> m_EndcapA_HV_COOLCont;
+  mutable std::vector<const CondAttrListCollection*> m_EndcapC_HV_COOLCont;
+  mutable std::mutex m_cacheMutex;
+  mutable std::vector<EventContext::ContextEvt_t> m_evtBA;
+  mutable std::vector<EventContext::ContextEvt_t> m_evtEA;
+  mutable std::vector<EventContext::ContextEvt_t> m_evtEC;
+
   int m_IOVmaxLength;
   bool m_doIOVchecking;
   bool m_FallBackOnCOOLChanNames;
 
-  /// COOL DCS data containers
-  const CondAttrListCollection* m_Barrel_HV_COOLCont;
-  const CondAttrListCollection* m_EndcapA_HV_COOLCont;
-  const CondAttrListCollection* m_EndcapC_HV_COOLCont;
 
   // Straw Helpers
   const TRT_ID* m_TRT_ID_Helper;
@@ -124,7 +138,9 @@ class TRT_DCS_ConditionsSvc : public AthService,
   TH1D* m_h_Barrel_HVvalAvg; // don't forget to divide by nEvts at end!
   TH1D* m_h_EndcapA_HVvalAvg; // don't forget to divide by nEvts at end!
   TH1D* m_h_EndcapC_HVvalAvg; // don't forget to divide by nEvts at end!
-  int m_nEvts;
+  int m_nBAEvts;
+  int m_nEAEvts;
+  int m_nECEvts;
 };
 
 /// Query Interface

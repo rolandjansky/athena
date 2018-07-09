@@ -11,7 +11,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "StoreGate/WriteCondHandleKey.h"
-#include "PixelConditionsData/PixelDCSCondData.h"
+#include "PixelConditionsData/PixelDCSConditionsData.h"
 
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Property.h"
@@ -20,17 +20,16 @@ class PixelDCSCondTempAlg : public AthAlgorithm {
   public:
     PixelDCSCondTempAlg(const std::string& name, ISvcLocator* pSvcLocator);
     virtual ~PixelDCSCondTempAlg() = default;
-    StatusCode initialize() override;
-    StatusCode execute() override;
-    StatusCode finalize() override;
+
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute() override;
+    virtual StatusCode finalize() override;
 
   private:
-    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey;
-    SG::WriteCondHandleKey<PixelDCSCondData> m_writeKey;
+    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/PIXEL/DCS/TEMPERATURE", "Key of input (raw) temperature conditions folder"};
+    SG::WriteCondHandleKey<PixelDCSConditionsData> m_writeKey{this, "WriteKey", "PixelDCSTempCondData", "Key of output (derived) temperature conditions folder"};
 
     ServiceHandle<ICondSvc> m_condSvc;
-
-    BooleanProperty m_returnHVTemp;
 };
 
 #endif // PIXELDCSCONDTEMPALG

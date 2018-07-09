@@ -49,7 +49,6 @@ CaloCellPedestalCorr::CaloCellPedestalCorr(
  declareProperty("LumiFolderName",m_lumiFolderName="/TRIGGER/LUMI/LBLESTONL");
  declareProperty("LumiBCIDTool",m_caloLumiBCIDTool,"Tool for BCID pileup offset average correction");
  declareProperty("isMC",m_isMC,"Data/MC flag");
- m_lastIt=m_noiseBlobMap.begin();
 }
 
 //========================================================
@@ -147,7 +146,7 @@ StatusCode CaloCellPedestalCorr::updateMap(IOVSVC_CALLBACK_ARGS_K(keys) )
     unsigned int sysId = static_cast<unsigned int>(iColl->first);
     
     //=== delete old CaloCondBlobFlt (which does not own the blob)
-    std::map<unsigned int, const CaloCondBlobFlt*>::iterator iOld = m_noiseBlobMap.find(sysId);
+    NoiseBlobMap_t::iterator iOld = m_noiseBlobMap.find(sysId);
     if(iOld != m_noiseBlobMap.end()){
       delete iOld->second;
     }
@@ -160,13 +159,13 @@ StatusCode CaloCellPedestalCorr::updateMap(IOVSVC_CALLBACK_ARGS_K(keys) )
     m_noiseBlobMap[sysId] = flt;
     
   }//end iColl
-  m_lastIt=m_noiseBlobMap.begin();
   return StatusCode::SUCCESS;
 }
 
 // ============================================================================
 
-void CaloCellPedestalCorr::MakeCorrection(CaloCell* theCell)
+void CaloCellPedestalCorr::MakeCorrection (CaloCell* theCell,
+                                           const EventContext& /*ctx*/) const
 {
 
   float pedestal=0.;
@@ -176,19 +175,17 @@ void CaloCellPedestalCorr::MakeCorrection(CaloCell* theCell)
     unsigned int subHash;
     const unsigned int iCool = m_caloCoolIdTool->getCoolChannelId(cellHash,subHash);
     //std::cout << "Got iCool=" << iCool << " subhash=" << subHash << std::endl;
-    if (m_lastIt->first!=iCool) {
-      m_lastIt=m_noiseBlobMap.find(iCool);
-    }
-    //The following checks would make sense but were obmitted to speed up execution:
-    //1. m_lastIt!=m_noiseBlobMap.end() eg, if iCool exists
+    NoiseBlobMap_t::const_iterator it = m_noiseBlobMap.find (iCool);
+    //The following checks would make sense but were omitted to speed up execution:
+    //1. it!=m_noiseBlobMap.end() eg, if iCool exists
     //2. subHash < flt->getNChans()
-    const CaloCondBlobFlt* const flt = m_lastIt->second;
+    const CaloCondBlobFlt* const flt = it->second;
     const unsigned int dbGain = CaloCondUtils::getDbCaloGain(theCell->gain());
     pedestal = flt->getCalib(subHash, dbGain, m_lumi0);
   }
 
   if (!m_caloLumiBCIDTool.empty() ) {
-       pedestal = pedestal + m_caloLumiBCIDTool->average(theCell,0);
+    pedestal = pedestal + m_caloLumiBCIDTool->average(theCell,0);
   }
 
   theCell->addEnergy(-pedestal);

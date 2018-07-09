@@ -20,10 +20,10 @@ class TFCS1DFunctionRegression:public TFCS1DFunction
     ~TFCS1DFunctionRegression() {};
 
     using TFCS1DFunction::rnd_to_fct;
-    virtual double rnd_to_fct(double rnd);
-    double  regression_value(double uniform);
+    virtual double rnd_to_fct(double rnd) const;
+    double  regression_value(double uniform) const;
     void    set_weights(vector<vector<double> > fWeightMatrix0to1, vector<vector<double> > fWeightMatrix1to2);
-    double  sigmoid(double);
+    double  sigmoid(double) const;
 
   private:
 

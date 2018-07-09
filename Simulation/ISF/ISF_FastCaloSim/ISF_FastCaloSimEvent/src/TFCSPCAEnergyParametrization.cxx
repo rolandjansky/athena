@@ -23,6 +23,7 @@
 TFCSPCAEnergyParametrization::TFCSPCAEnergyParametrization(const char* name, const char* title):TFCSEnergyParametrization(name,title)
 {
   m_numberpcabins=1;
+  do_rescale=1;
 }
 
 bool TFCSPCAEnergyParametrization::is_match_Ekin_bin(int Ekin_bin) const 
@@ -67,97 +68,71 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
   TVectorD* SigmaValues   =m_SigmaValues[pcabin-1];
   TVectorD* Gauss_means   =m_Gauss_means[pcabin-1];
   TVectorD* Gauss_rms     =m_Gauss_rms[pcabin-1];
-  TVectorD* LowerBounds   =m_LowerBounds[pcabin-1];
   std::vector<TFCS1DFunction*> cumulative=m_cumulative[pcabin-1];
   
   TRandom3* Random3=new TRandom3(); Random3->SetSeed(0);
 
-  std::vector<std::string> layer;
   std::vector<int> layerNr;
   for(unsigned int i=0;i<m_RelevantLayers.size();i++)
-    layerNr.push_back(m_RelevantLayers[i]);
-  for(unsigned int i=0;i<layerNr.size();i++)
-    {
-      std::string thislayer=Form("layer%i",layerNr[i]);
-      layer.push_back(thislayer);
-    }
-  layer.push_back("totalE");
+   layerNr.push_back(m_RelevantLayers[i]);
   
   double* vals_gauss_means=(double*)Gauss_means->GetMatrixArray();
   double* vals_gauss_rms  =Gauss_rms->GetMatrixArray();
-  double* vals_lowerBounds=LowerBounds->GetMatrixArray();
 
-  double *output_data = new double[layer.size()] ;
-  double *input_data = new double[layer.size()]  ;
+  double *output_data = new double[layerNr.size()+1];
+  double *input_data = new double[layerNr.size()+1];
 
-  for(unsigned int l=0;l<layer.size();l++)
-    {
-      double mean=vals_gauss_means[l];
-      double rms =vals_gauss_rms[l];
-      double gauszz=Random3->Gaus(mean,rms);
-      input_data[l]=gauszz;
-    }
+  for(unsigned int l=0;l<=layerNr.size();l++)
+  {
+   double mean=vals_gauss_means[l];
+   double rms =vals_gauss_rms[l];
+   double gauszz=Random3->Gaus(mean,rms);
+   input_data[l]=gauszz;
+  }
 
-  P2X(SigmaValues, MeanValues, EV, layer.size(), input_data, output_data, layer.size());
+  P2X(SigmaValues, MeanValues, EV, layerNr.size()+1, input_data, output_data, layerNr.size()+1);
 
-  double *simdata_uniform = new double[layer.size()];
-  double *simdata = new double[layer.size()];
-  double *simdata_scaled = new double[layer.size()];
+  double *simdata = new double[layerNr.size()+1];
   double sum_fraction=0.0;
-  for(unsigned int l=0;l<layer.size();l++)
-    {
-      simdata_uniform[l]=(TMath::Erf(output_data[l]/1.414213562)+1)/2.f;
-
-      if(simdata_uniform[l]<vals_lowerBounds[l]) simdata_uniform[l]=vals_lowerBounds[l];
-
-      simdata[l]=cumulative[l]->rnd_to_fct(simdata_uniform[l]);
-
-      if(simdata[l]<0) simdata[l]=0;
-      if(layer[l]!="totalE" && simdata[l]>1) simdata[l]=1;
-      if(layer[l]!="totalE") sum_fraction+=simdata[l];
-
-    }
-
-  double scale=1.0/sum_fraction;
-
-  sum_fraction=0.0;
-
-  for(unsigned int l=0;l<layer.size();l++)
-    {
-      if(layer[l]!="totalE")
-        {
-          simdata_scaled[l]=simdata[l]*scale;
-          if(l<layerNr.size())
-            {
-              sum_fraction+=simdata_scaled[l];
-            }
-        }
-    }
-
-  double total_energy=simdata[layer.size()-1]*simulstate.E()/Ekin_nominal();
-  //double total_energy=simdata[layer.size()-1];
+  for(unsigned int l=0;l<=layerNr.size();l++)
+  {
+   double simdata_uniform=(TMath::Erf(output_data[l]/1.414213562)+1)/2.f;
+   
+   simdata[l]=cumulative[l]->rnd_to_fct(simdata_uniform);
+   
+   if(l!=layerNr.size()) //sum up the fractions, but not the totalE
+    sum_fraction+=simdata[l];
+  }
+  
+  double scalefactor=1.0/sum_fraction;
+  if(!do_rescale) scalefactor=1.0;
+  
+  for(unsigned int l=0;l<layerNr.size();l++)
+  {
+   simdata[l]*=scalefactor;
+  }
+  
+  double total_energy=simdata[layerNr.size()]*simulstate.E()/Ekin_nominal();
   simulstate.set_E(total_energy);
   ATH_MSG_DEBUG("set E to total_energy="<<total_energy);
   
   for(int s=0;s<CaloCell_ID_FCS::MaxSample;s++)
-    {
-      double energyfrac=0.0;
-      for(unsigned int l=0;l<layerNr.size();l++)
-        {
-          if(layerNr[l]==s)
-            energyfrac=simdata_scaled[l];
-        }
-      simulstate.set_Efrac(s,energyfrac);
-      simulstate.set_E(s,energyfrac*total_energy);
-    }
+  {
+   double energyfrac=0.0;
+   for(unsigned int l=0;l<layerNr.size();l++)
+   {
+    if(layerNr[l]==s)
+     energyfrac=simdata[l];
+   }
+   simulstate.set_Efrac(s,energyfrac);
+   simulstate.set_E(s,energyfrac*total_energy);
+   simulstate.set_SF(scalefactor);
+  }
 
   delete Random3;
   delete [] output_data;
   delete [] input_data;
   delete [] simdata;
-  delete [] simdata_uniform;
-  delete [] simdata_scaled;
-
 
 }
 
@@ -228,14 +203,12 @@ bool TFCSPCAEnergyParametrization::loadInputs(TFile* file, std::string folder)
       TVectorD* SigmaValues   =(TVectorD*)gDirectory->Get("SigmaValues");
       TVectorD* Gauss_means   =(TVectorD*)gDirectory->Get("Gauss_means");
       TVectorD* Gauss_rms     =(TVectorD*)gDirectory->Get("Gauss_rms");
-      TVectorD* LowerBounds   =(TVectorD*)gDirectory->Get("LowerBounds");
       
       if(symCov == NULL)       {ATH_MSG_WARNING("TFCSPCAEnergyParametrization::symCov in pcabin "<<bin<<" is null!"); load_ok=false;}
       if(MeanValues == NULL)   {ATH_MSG_WARNING("TFCSPCAEnergyParametrization::MeanValues in pcabin "<<bin<<" is null!"); load_ok=false;}
       if(SigmaValues == NULL)  {ATH_MSG_WARNING("TFCSPCAEnergyParametrization::SigmaValues in pcabin "<<bin<<" is null!"); load_ok=false;}
       if(Gauss_means == NULL)  {ATH_MSG_WARNING("TFCSPCAEnergyParametrization::Gauss_means in pcabin "<<bin<<" is null!"); load_ok=false;}
       if(Gauss_rms == NULL)    {ATH_MSG_WARNING("TFCSPCAEnergyParametrization::Gause_rms in pcabin "<<bin<<" is null!"); load_ok=false;}
-      if(LowerBounds == NULL)  {ATH_MSG_WARNING("TFCSPCAEnergyParametrization::LowerBounds in pcabin "<<bin<<" is null!"); load_ok=false;}
       
       if(!load_ok) return false;
       
@@ -246,7 +219,6 @@ bool TFCSPCAEnergyParametrization::loadInputs(TFile* file, std::string folder)
       m_SigmaValues.push_back(SigmaValues);
       m_Gauss_means.push_back(Gauss_means);
       m_Gauss_rms.push_back(Gauss_rms);
-      m_LowerBounds.push_back(LowerBounds);
       
       std::vector<std::string> layer;
       std::vector<int> layerNr;

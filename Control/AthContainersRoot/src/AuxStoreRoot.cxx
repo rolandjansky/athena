@@ -16,6 +16,7 @@
 #include "AthContainers/exceptions.h"
 #include "AthContainers/tools/error.h"
 #include "RootUtils/Type.h"
+#include "CxxUtils/checker_macros.h"
 #include "TROOT.h"
 #include "TBranch.h"
 #include "TLeaf.h"
@@ -142,8 +143,11 @@ const void* AuxStoreRoot::getData(SG::auxid_t auxid) const
   // lock
   const void* ret = SG::AuxStoreInternal::getData (auxid);
   if (!ret) {
-    if (const_cast<AuxStoreRoot*>(this)->readData(auxid))
+    // Const-cast ok; protected by mutex.
+    AuxStoreRoot* p ATLAS_THREAD_SAFE = const_cast<AuxStoreRoot*>(this);
+    if (p->readData (auxid)) {
       ret = SG::AuxStoreInternal::getData (auxid);
+    }
   }
   return ret;
 }
@@ -167,11 +171,13 @@ const void* AuxStoreRoot::getData(SG::auxid_t auxid) const
  *
  * If the container is locked, throw an exception.
  */
-void* AuxStoreRoot::getData(SG::auxid_t auxid,
-                            size_t /*size*/, size_t /*capacity*/)
+void* AuxStoreRoot::getData (SG::auxid_t auxid,
+                             size_t /*size*/, size_t /*capacity*/)
 {
   // MN:  how do we add new attributes to this store? A:for now we don't
-  return const_cast<void*>(getData(auxid));
+  // Const-cast ok because this method is non-const.
+  void* p ATLAS_THREAD_SAFE = const_cast<void*> (getData(auxid));
+  return p;
 }
 
 
@@ -221,8 +227,11 @@ const void* AuxStoreRoot::getIOData(SG::auxid_t auxid) const
   guard_t guard (m_mutex);
   const void* ret = SG::AuxStoreInternal::getIODataInternal (auxid, true);
   if (!ret) {
-    if (const_cast<AuxStoreRoot*>(this)->readData(auxid))
+    // Const-cast ok; protected by mutex.
+    AuxStoreRoot* p ATLAS_THREAD_SAFE = const_cast<AuxStoreRoot*>(this);
+    if (p->readData (auxid)) {
       ret = SG::AuxStoreInternal::getIOData (auxid);
+    }
   }
   return ret;
 }
@@ -297,7 +306,7 @@ bool AuxStoreRoot::readData(SG::auxid_t auxid)
        setOption (auxid, SG::AuxDataOption ("nbits", 32));
    }
 
-   void* vector = const_cast<void*>(SG::AuxStoreInternal::getIOData (auxid)); // xxx
+   void* vector = SG::AuxStoreInternal::getIODataInternal (auxid, false);
 
    return doReadData (m_container, auxid, *branch, cl, vector, m_entry);
 }

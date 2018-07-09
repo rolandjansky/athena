@@ -37,3 +37,7 @@ atlas_add_dictionary( xAODTriggerDict
 atlas_add_test( ut_xaodtrigger_bytestreamauxcontainer_v1_test
   SOURCES test/ut_xaodtrigger_bytestreamauxcontainer_v1_test.cxx
   LINK_LIBRARIES AthContainers xAODTrigger )
+
+atlas_add_test( ut_xaodtrigger_trigcomposite_test
+  SOURCES test/ut_xaodtrigger_trigcomposite_test.cxx
+  LINK_LIBRARIES AthContainers xAODTrigger )

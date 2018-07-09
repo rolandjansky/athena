@@ -70,9 +70,6 @@ public:
 
   /** Get depletion voltage */
   virtual double getDepletionVoltage(const IdentifierHash& elementHash) const = 0;
-
-  /** Retrieve detector manager */
-  virtual StatusCode retrieveDetectorManager() = 0;
 };
 
 #endif // ISiLorentzAngleTool_h

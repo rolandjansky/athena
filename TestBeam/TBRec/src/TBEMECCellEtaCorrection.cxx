@@ -90,7 +90,9 @@ TBEMECCellEtaCorrection::~TBEMECCellEtaCorrection()
 
 // MakeCorrection:  This is called with a pointer to the Cell Object.
 
-void TBEMECCellEtaCorrection::MakeCorrection(CaloCell* theCell)
+void
+TBEMECCellEtaCorrection::MakeCorrection (CaloCell* theCell,
+                                         const EventContext& /*ctx*/) const
 {
   MsgStream log(msgSvc(), name());
 

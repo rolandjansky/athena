@@ -160,7 +160,7 @@ StatusCode PixelMainMon::bookHitsMon(void) {
     }
   }
 
-  m_hitmap_tmp = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("HitMap_tmp", ("Hit map for monitoring" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D));
+  m_hitmap_tmp = std::make_unique<PixelMon2DMapsLW>("HitMap_tmp", ("Hit map for monitoring" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D);
   sc = m_hitmap_tmp->regHist(rdoShift);
 
   for (int i = 0; i < PixLayer::COUNT; i++) {
@@ -170,7 +170,7 @@ StatusCode PixelMainMon::bookHitsMon(void) {
   }
 
   if (m_doOnline) {
-    m_hitmap_mon = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("HitMap_Mon", ("Hit map for monitoring" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D));
+    m_hitmap_mon = std::make_unique<PixelMon2DMapsLW>("HitMap_Mon", ("Hit map for monitoring" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D);
     sc = m_hitmap_mon->regHist(rdoShift);
 
     for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
@@ -252,19 +252,19 @@ StatusCode PixelMainMon::bookHitsMon(void) {
   }
 
   if (m_do2DMaps) {
-    m_occupancy = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("Occupancy", ("hit map" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D));
+    m_occupancy = std::make_unique<PixelMon2DMapsLW>("Occupancy", ("hit map" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D);
     sc = m_occupancy->regHist(rdoShift);
 
-    m_average_pixocc = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("Occupancy_per_pixel", ("#hits / pixel" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL, false));
+    m_average_pixocc = std::make_unique<PixelMon2DMapsLW>("Occupancy_per_pixel", ("#hits / pixel" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL, false);
     sc = m_average_pixocc->regHist(rdoShift);
 
-    m_occupancy_pix_evt = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("Occupancy_per_pixel_event", ("#hits / pixel / event" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D));
+    m_occupancy_pix_evt = std::make_unique<PixelMon2DProfilesLW>("Occupancy_per_pixel_event", ("#hits / pixel / event" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D);
     sc = m_occupancy_pix_evt->regHist(rdoShift);
 
-    m_Lvl1ID_diff_mod_ATLAS_per_LB = std::make_unique<PixelMon2DLumiProfiles>(PixelMon2DLumiProfiles("Lvl1ID_diff_ATLAS_mod_per_LB", ("ATLAS_{Level 1 ID} - Module_{Level 1 ID} per LB" + m_histTitleExt).c_str(), "#Delta Level 1 ID", PixMon::HistConf::kPixIBL));
+    m_Lvl1ID_diff_mod_ATLAS_per_LB = std::make_unique<PixelMon2DLumiProfiles>("Lvl1ID_diff_ATLAS_mod_per_LB", ("ATLAS_{Level 1 ID} - Module_{Level 1 ID} per LB" + m_histTitleExt).c_str(), "#Delta Level 1 ID", PixMon::HistConf::kPixIBL);
     sc = m_Lvl1ID_diff_mod_ATLAS_per_LB->regHist(timeExpert);
 
-    m_Lvl1ID_absdiff_mod_ATLAS_per_LB = std::make_unique<PixelMon2DLumiProfiles>(PixelMon2DLumiProfiles("Lvl1ID_absdiff_ATLAS_mod_per_LB", ("ATLAS_{Level 1 ID} - Module_{Level 1 ID} per LB" + m_histTitleExt).c_str(), "#Delta Level 1 ID", PixMon::HistConf::kPixIBL));
+    m_Lvl1ID_absdiff_mod_ATLAS_per_LB = std::make_unique<PixelMon2DLumiProfiles>("Lvl1ID_absdiff_ATLAS_mod_per_LB", ("ATLAS_{Level 1 ID} - Module_{Level 1 ID} per LB" + m_histTitleExt).c_str(), "#Delta Level 1 ID", PixMon::HistConf::kPixIBL);
     sc = m_Lvl1ID_absdiff_mod_ATLAS_per_LB->regHist(timeExpert);
   }
 
@@ -380,7 +380,7 @@ StatusCode PixelMainMon::bookHitsLumiBlockMon(void) {
     sc = lumiBlockHist.regHist(m_Lvl1A_10min_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), 14, -1.5, 12.5));
   }
 
-  m_occupancy_10min = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("Occupancy_10min", ("hit occupancy" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D));
+  m_occupancy_10min = std::make_unique<PixelMon2DMapsLW>("Occupancy_10min", ("hit occupancy" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D);
   sc = m_occupancy_10min->regHist(lumiBlockHist);
 
   if (sc.isFailure()) ATH_MSG_WARNING("Problems with booking Hit histograms per LB (low stat)");

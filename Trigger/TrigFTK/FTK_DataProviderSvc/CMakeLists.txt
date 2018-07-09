@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTracking
 #                          Event/xAOD/xAODViews
                           GaudiKernel
+                          InnerDetector/InDetConditions/InDetCondServices
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           Tools/PyJobTransforms
