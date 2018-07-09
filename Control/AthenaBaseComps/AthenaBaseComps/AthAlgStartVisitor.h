@@ -30,6 +30,9 @@
  * conditions object.
  *
  * We use @c IDataHandleVisitor to do this recursively for all owned tools as well.
+ *
+ * FIXME: this should probably be moved to GaudiKernel, and have all AlgTools
+ *        started by their parent Algorithms
  */
 class AthAlgStartVisitor
   : public IDataHandleVisitor
@@ -41,10 +44,14 @@ public:
    */
   virtual void visit (const IDataHandleHolder* holder) override;
 
+  AthAlgStartVisitor() = default;
+  AthAlgStartVisitor(INamedInterface*);  /// figure out where we're called from
 
 private:
   /// Keep track of components we've already processed.
   std::unordered_set<const IDataHandleHolder*> m_seen;
+  bool m_recursive {true};            /// process recursively (for Algs)
+  bool m_ignore {false};              /// don't do anything  (if Sequence)
 };
 
 
