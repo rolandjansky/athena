@@ -20,20 +20,7 @@ def setupMenu():
     PhysicsStream="Main"
 
     ### Remove HLT items that have a remapped L1 threshold and therefore not available in MC
-    L1toRemove = [
-        'L1_MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO',
-        'L1_EM3_ALFA_EINE',
-        'L1_2EM3_ALFA_EINE',
-        'L1_MBTS_ALFA',
-        'L1_ALFA_Jet_Phys',
-        'L1_ALFA_Diff_Phys',
-        'L1_ALFA_CDiff_Phys',
-        'L1_ALFA_CEP',
-        'L1_TRT_ALFA_EINE',
-        'L1_TRT_ALFA_ANY',
-        'L1_TRT_ALFA_ANY_UNPAIRED_ISO',
-        'L1_TRT_ALFA_ANY_PAIRED_UNPAIRED_ISO',
-    ]
+    L1toRemove = []
 
     for prop in dir(TriggerFlags):
         if prop[-5:]!='Slice': continue
@@ -2481,10 +2468,6 @@ ps_minb_list=[
     'mb_perf_L1RD1_FILLED',
     'mb_sptrk_vetombts2in_L1ZDC_AND',
     'mb_sptrk_vetombts2in_L1ZDC_A_C',
-    '2g3_loose_mb_sptrk_vetombts2in_L1ALFA_ELAS',
-    '2g3_loose_mb_sptrk_vetombts2in_L1ALFA_SYST',
-    'mb_sptrk_vetombts2in_L1ALFA_ANY',
-    'mb_sptrk_vetombts2in_L1ALFA_ANY_UNPAIRED_ISO',
     'mb_sp600_pusup300_trk40_hmt_L1TE5',
     'mb_sp700_pusup350_trk50_hmt_L1TE5',
     'mb_sp900_pusup400_trk50_hmt_L1TE5',
@@ -2978,7 +2961,7 @@ ps_minb_list=[
 ##     'mb_sptrk_L1VTE5',
 ##     'mb_sptrk_L1VTE10',
 #    'mb_sptrk_L1MBTS_1',
-    
+   
     'noalg_mb_L1LUCID',
     'noalg_mb_L1LUCID_EMPTY',
     'noalg_mb_L1LUCID_UNPAIRED_ISO',
