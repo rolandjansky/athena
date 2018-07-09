@@ -75,11 +75,80 @@ class StatusCode;
 #endif // SCT_DO_DESCRIPTION
 
 namespace SCT_ByteStreamErrors {
+  // Define enumerators
   enum errorTypes {
     SCT_ERRORTYPELIST(SCT_DO_ENUM)
   };
+  // Define strings of enumerators
   static const std::string errorTypesDescription[] = {
     SCT_ERRORTYPELIST(SCT_DO_DESCRIPTION)
+  };
+
+  // Define bad errors to be used in reconstruction and monitoring
+  static const std::vector<errorTypes> BadErrors = {
+    TimeOutError,
+    BCIDError,
+    LVL1IDError,
+    HeaderTrailerLimitError,
+    MaskedLink,
+    TruncatedROD,
+    ROBFragmentError,
+    MissingLinkHeaderError,
+    MaskedROD
+  };
+  // Define bad errors in FE-link level to be used in monitoring
+  static const std::vector<errorTypes> LinkLevelBadErrors = {
+    TimeOutError,
+    BCIDError,
+    LVL1IDError,
+    HeaderTrailerLimitError,
+    MaskedLink
+  };
+  // Define bad errors in ROD level to be used in monitoring
+  static const std::vector<errorTypes> RodLevelBadErrors = {
+    TruncatedROD,
+    ROBFragmentError,
+    MissingLinkHeaderError, // We cannot know which FE-link does not have header. We assign this error to all the FE-links of the ROD.
+    MaskedROD
+  };
+  // Define errors in FE-link level to be used in monitoring (assigned by SCT_RodDecoder::addSingleError)
+  static const std::vector<errorTypes> LinkLevelErrors = {
+    ByteStreamParseError,
+    TimeOutError,
+    BCIDError,
+    LVL1IDError,
+    PreambleError,
+    FormatterError,
+    TrailerError,
+    TrailerOverflowError,
+    HeaderTrailerLimitError,
+    ABCDError,
+    RawError,
+    MaskedLink,
+    ABCDError_Chip0,
+    ABCDError_Chip1,
+    ABCDError_Chip2,
+    ABCDError_Chip3,
+    ABCDError_Chip4,
+    ABCDError_Chip5,
+    ABCDError_Error1,
+    ABCDError_Error2,
+    ABCDError_Error4,
+    TempMaskedChip0,
+    TempMaskedChip1,
+    TempMaskedChip2,
+    TempMaskedChip3,
+    TempMaskedChip4,
+    TempMaskedChip5,
+    ABCDError_Error7
+  };
+  // Define errors in ROD level to be used in monitoring (assigned by SCT_RodDecoder::addRODError)
+  static const std::vector<errorTypes> RodLevelErrors = {
+    RODClockError,
+    TruncatedROD,
+    ROBFragmentError,
+    MissingLinkHeaderError, // We cannot know which FE-link does not have header. We assign this error to all the FE-links of the ROD.
+    MaskedROD
   };
 }
 
