@@ -122,7 +122,7 @@ StatusCode SensorSimPlanarTool::initialize() {
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_80V_fl2e14.root") );
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl1.7e14.root") );                                                                                                            
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl7e13.root") );
-    mapsPath_list.push_back( PathResolverFindCalibFile("maps_PIX_150V_fl4e13.root") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl4e13.root") );
 
     fluence_layers.push_back(2e14);
     fluence_layers.push_back(1.7e14);
@@ -155,16 +155,29 @@ StatusCode SensorSimPlanarTool::initialize() {
 
   }else if(m_fluence==6){
 
-    mapsPath_list.push_back( PathResolver::find_file("maps_IBL_400V_fl8_7e14.root", "DATAPATH") );
-    mapsPath_list.push_back( PathResolver::find_file("maps_PIX_400V_fl4_6e14.root", "DATAPATH") );
+    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_IBL_400V_fl8_7e14.root", "DATAPATH") );
+    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_400V_fl4_6e14.root", "DATAPATH") );
     
-    mapsPath_list.push_back( PathResolver::find_file("maps_PIX_250V_fl2_1e14.root", "DATAPATH") );
-    mapsPath_list.push_back( PathResolver::find_file("maps_PIX_150V_fl1_3e14.root", "DATAPATH") );
+    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_250V_fl2_1e14.root", "DATAPATH") );
+    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_150V_fl1_3e14.root", "DATAPATH") );
 
     fluence_layers.push_back(8.7e14);
     fluence_layers.push_back(4.6e14);
     fluence_layers.push_back(2.1e14);
     fluence_layers.push_back(1.3e14);
+
+  }else if(m_fluence==7){
+
+    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_IBL_endLHC.root", "DATAPATH") );
+    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_blayer_endLHC.root", "DATAPATH") );
+
+    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_L1_endLHC.root", "DATAPATH") );
+    mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_L2_endLHC.root", "DATAPATH") );
+
+    m_fluence_layers.push_back(2*8.7e14);
+    m_fluence_layers.push_back(2*4.6e14);
+    m_fluence_layers.push_back(2*2.1e14);
+    m_fluence_layers.push_back(2*1.3e14);
 
   }
   
