@@ -309,7 +309,7 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg5d2Seq)
-FlavorTagInit(JetCollections = ['AntiKt4PV0TrackJets'], Sequencer = higg5d2Seq)
+# FlavorTagInit(JetCollections = ['AntiKt4PV0TrackJets'], Sequencer = higg5d2Seq)
 
 # Jet calibration should come after fat jets
 # applyJetCalibration_xAODColl(jetalg="AntiKt4EMTopo", sequence=higg5d2Seq)
