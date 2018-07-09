@@ -44,24 +44,27 @@
 // Gaudi includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include <boost/graph/undirected_graph.hpp>
-#include <boost/graph/bron_kerbosch_all_cliques.hpp>
+#include "boost/graph/adjacency_list.hpp"
 //
 #include  "Particle/TrackParticle.h"
 #include  "xAODTracking/TrackParticleContainer.h"
 //
-#include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 //
-#include "TH1D.h"
-#include "TH2D.h"
-#include "TProfile.h"
 
 #include "InDetRecToolInterfaces/ISecVertexInJetFinder.h"
-//#include "InDetMaterialRejTool/InDetMaterialRejTool.h"
+
+class TH1D;
+class TH2D;
+class TH1F;
+class TProfile;
+
+namespace Trk{
+  class TrkVKalVrtFitter;
+  class IVertexFitter;
+}
 
 
-
-  typedef std::vector<double> dvect;
+typedef std::vector<double> dvect;
 
  
 //------------------------------------------------------------------------
@@ -239,15 +242,12 @@ namespace InDet {
       bool     m_getNegativeTail;
       bool     m_getNegativeTag;
       bool     m_MultiWithOneTrkVrt;
-      //bool     m_killHighPtIBLFakes;
 
       double    m_VertexMergeCut;
       double    m_TrackDetachCut;
 
 
       ToolHandle < Trk::IVertexFitter >       m_fitterSvc;
-//      ToolHandle < Trk::ITrkVKalVrtFitter >   m_fitSvc;
-//      ToolHandle< IInDetMaterialRejection > m_materialMap;
       Trk::TrkVKalVrtFitter*   m_fitSvc;
  
 
@@ -525,7 +525,6 @@ namespace InDet {
     void clique(const Clique& clq, Graph& )
     { 
       std::vector<int> new_clique(0);
-      //for(auto i = clq.begin(); i != clq.end(); ++i) std::cout<< *i << ","; std::cout<<'\n';  //For debugging
       for(auto i = clq.begin(); i != clq.end(); ++i) new_clique.push_back(*i);
       m_allCliques.push_back(new_clique);
     }

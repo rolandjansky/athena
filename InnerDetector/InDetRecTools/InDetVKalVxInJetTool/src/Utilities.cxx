@@ -6,10 +6,11 @@
 #include "InDetVKalVxInJetTool/InDetVKalVxInJetTool.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
 #include "TrkTrackSummary/TrackSummary.h"
+#include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
+
 //-------------------------------------------------
 // Other stuff
 #include <cmath>
-#include<iostream>
 
 
 namespace InDet{  
@@ -21,11 +22,7 @@ namespace InDet{
   const
   { // B hadron flight direction based on 2 separate tracks and PV. Calculated via plane-plane crossing
     Amg::Vector3D PVRT(PrimVrt.x(),PrimVrt.y(),PrimVrt.z());
-    ////double d01=trk1->d0();    double d02=trk2->d0();
-    ////double z01=trk1->z0();    double z02=trk2->z0();
-    ////double phi1=trk1->phi0(); double phi2=trk2->phi0();
-    ////Amg::Vector3D new1(trk1->vx()-d01*sin(phi1),trk1->vy()+d01*cos(phi1),trk1->vz()+z01); // Wrong sign!!!!!
-    ////Amg::Vector3D new2(trk2->vx()-d02*sin(phi2),trk2->vy()+d02*cos(phi2),trk2->vz()+z02);
+
 //----------------------------------------------------------------------------
     Amg::Vector3D   pnt1=trk1->perigeeParameters().position()-PVRT;
     Amg::Vector3D   mom1((trk1->p4()).Px(),(trk1->p4()).Py(),(trk1->p4()).Pz());
@@ -58,28 +55,7 @@ namespace InDet{
   }
 
   void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *, const std::string ) const {
-/*  void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *WrkVrtSet, const std::string name) const {
-    int nGoodV=0;
-    for(int iv=0; iv<(int)WrkVrtSet->size(); iv++) {
-      std::cout<<name
-      <<"= "<<(*WrkVrtSet)[iv].vertex[0]
-      <<", "<<(*WrkVrtSet)[iv].vertex[1]
-      <<", "<<(*WrkVrtSet)[iv].vertex[2]
-      <<" NTrk="<<(*WrkVrtSet)[iv].SelTrk.size()
-      <<" is good="<<std::boolalpha<<(*WrkVrtSet)[iv].Good<<std::noboolalpha
-      <<"  Chi2="<<(*WrkVrtSet)[iv].Chi2
-      <<"  Mass="<<(*WrkVrtSet)[iv].vertexMom.M()
-      <<"  detached="<<(*WrkVrtSet)[iv].detachedTrack
-      <<"  proj.dist="<<(*WrkVrtSet)[iv].ProjectedVrt
-      <<" trk=";
-      for(int kk=0; kk<(int)(*WrkVrtSet)[iv].SelTrk.size(); kk++) {
-                std::cout<<", "<<(*WrkVrtSet)[iv].SelTrk[kk];}
-      //for(int kk=0; kk<(int)(*WrkVrtSet)[iv].SelTrk.size(); kk++) {
-      //          std::cout<<", "<<MomAtVrt((*WrkVrtSet)[iv].TrkAtVrt[kk]).Perp();}
-      std::cout<<'\n';
-      if((*WrkVrtSet)[iv].Good)nGoodV++;
-    }
-    std::cout<<name<<" N="<<nGoodV<<'\n';*/
+
   }
 
                /*  Technicalities */
@@ -277,7 +253,6 @@ namespace InDet{
 
     AmgSymMatrix(3)  WgtMtx = PrimCovMtx.inverse();
 
-//    std::cout << " Inversion ="<<iFail<<'\n';
 
     Signif =   distx*WgtMtx(0,0)*distx
               +disty*WgtMtx(1,1)*disty
@@ -287,8 +262,6 @@ namespace InDet{
            +2.*disty*WgtMtx(1,2)*distz;
     Signif=sqrt(Signif);
     if(Signif != Signif)  Signif = 0.;
-//    std::cout << " Inversion signif="<<Signif<<", "<<sqrt(distx*distx+disty*disty+distz*distz)<<'\n';
-//    return sqrt(distx*distx+disty*disty+distz*distz);
     return Signif;
   }
 //
