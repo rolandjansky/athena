@@ -10,6 +10,7 @@
 #include "TopHLUpgrade/UpgradePhotonObjectSelector.h"
 #include "TopParticleLevel/ParticleLevelPhotonObjectSelector.h"
 
+#include "xAODTruth/TruthVertexContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticleAuxContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
@@ -152,6 +153,14 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
     // apply all cuts
     if( m_objectSelector_Muon->apply( *muon ) ) m_selectedMuons->push_back( muon );
 
+    //add production vertex info
+    const ElementLink<xAOD::TruthVertexContainer> prodVtxLink =
+      muon->auxdata<ElementLink< xAOD::TruthVertexContainer > >("prodVtxLinkx");
+    if(prodVtxLink.isValid()) {
+      const xAOD::TruthVertex *tvtx = *prodVtxLink;
+      muon->auxdata<float>("prodVtx_z") = tvtx->z();
+      muon->auxdata<float>("prodVtx_perp") = tvtx->perp();
+    }
   }
 
   // sort the muons by pT
