@@ -26,7 +26,7 @@ namespace CP
     , m_selectionTool ("", this)
   {
     declareProperty ("selectionTool", m_selectionTool, "the selection tool we apply");
-    declareProperty ("m_selectionDecoration", m_selectionDecoration, "the decoration for the jet selection");
+    declareProperty ("selectionDecoration", m_selectionDecoration, "the decoration for the jet selection");
   }
 
 
@@ -43,7 +43,7 @@ namespace CP
       ANA_MSG_ERROR ("no selection decoration name set");
       return StatusCode::FAILURE;
     }
-    m_selectionAccessor = std::make_unique<SG::AuxElement::Accessor<SelectionType> > (m_selectionDecoration);
+    ANA_CHECK (makeSelectionAccessor (m_selectionDecoration, m_selectionAccessor));
 
     return StatusCode::SUCCESS;
   }
@@ -58,8 +58,8 @@ namespace CP
         ANA_CHECK (m_jetHandle.getCopy (jets, sys));
         for (xAOD::Jet *jet : *jets)
         {
-          (*m_selectionAccessor) (*jet)
-            = selectionFromBool(m_selectionTool->keep(*jet));
+          m_selectionAccessor->setBool
+            (*jet, m_selectionTool->keep(*jet));
         }
         return StatusCode::SUCCESS;
       });
