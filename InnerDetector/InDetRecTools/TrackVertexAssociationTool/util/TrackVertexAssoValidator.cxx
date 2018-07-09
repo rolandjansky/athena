@@ -29,9 +29,7 @@
 #include "xAODTracking/VertexContainer.h"
 
 // Local include(s):
-#include "TrackVertexAssociationTool/LooseTrackVertexAssociationTool.h"
-#include "TrackVertexAssociationTool/TightTrackVertexAssociationTool.h"
-#include "TrackVertexAssociationTool/BaseTrackVertexAssociationTool.h"
+#include "TrackVertexAssociationTool/TrackVertexAssociationTool.h"
 
 int main() {
 
@@ -55,18 +53,23 @@ int main() {
    RETURN_CHECK( APP_NAME, event.readFrom( infile.get() ) );
 
    // Set up the needed tool(s):
-   CP::BaseTrackVertexAssociationTool
-      trktovxtool( "BaseTrackVertexAssociationTool" );
+   CP::TrackVertexAssociationTool
+      trktovxtool( "TrackVertexAssociationTool" );
    RETURN_CHECK( APP_NAME, trktovxtool.setProperty( "OutputLevel",
                                                     MSG::ERROR ) );
-   RETURN_CHECK( APP_NAME, trktovxtool.setProperty( "dzSinTheta_cut", 0.5 ) );
-   RETURN_CHECK( APP_NAME, trktovxtool.setProperty( "d0sig_cut", 5 ) );
+   RETURN_CHECK( APP_NAME, trktovxtool.setProperty( "WorkingPoint", "Nominal" ) );
    RETURN_CHECK( APP_NAME, trktovxtool.initialize() );
 
    // Loop over the file:
    const Long64_t nentries = event.getEntries();
    Info( APP_NAME, "Total Number of Events: %lld ", nentries );
-   for( Long64_t entry = 0; entry < nentries; ++entry ) {
+   Long64_t maxEntries = nentries;
+   // run only over the first 100 events
+   if(nentries > 100) {
+      maxEntries = 100;
+   }
+   Info( APP_NAME, "Running over first %lld events", maxEntries );
+   for( Long64_t entry = 0; entry < maxEntries; ++entry ) {
 
       // Load the event:
       if( event.getEntry( entry ) < 0 ) {
