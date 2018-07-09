@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PUBLIC
                           TileCalorimeter/TileIdentifier
                           PRIVATE
                           AtlasTest/TestTools
-                          Calorimeter/CaloCellCorrection
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloEvent
                           Control/AthenaKernel

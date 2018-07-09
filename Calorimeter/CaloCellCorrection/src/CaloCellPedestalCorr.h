@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CALOREC_CALOCELLPEDESTALCORR_H
-#define CALOREC_CALOCELLPEDESTALCORR_H
+#ifndef CALOCELLCORRECTION_CALOCELLPEDESTALCORR_H
+#define CALOCELLCORRECTION_CALOCELLPEDESTALCORR_H
 
 #include "CaloUtils/CaloCellCorrection.h"
 #include "CaloIdentifier/CaloGain.h"

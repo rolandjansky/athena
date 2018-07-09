@@ -4,8 +4,8 @@
 
 //Dear emacs, this is -*-c++-*-
 
-#ifndef CALOCELLTIMECORRTOOL
-#define CALOCELLTIMECORRTOOL
+#ifndef CALOCELLCORRECTION_CALOCELLTIMECORRTOOL_H
+#define CALOCELLCORRECTION_CALOCELLTIMECORRTOOL_H
 
 #include "CaloUtils/CaloCellCorrection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"

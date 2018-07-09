@@ -11,7 +11,7 @@
 //
 // ****************************************************************************************
 
-#include "CaloCellCorrection/CaloCellPedestalCorr.h"
+#include "CaloCellPedestalCorr.h"
 
 #include "CaloEvent/CaloCell.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
@@ -22,10 +22,6 @@
 //=== CaloCondBlod
 #include "CaloCondBlobObjs/CaloCondBlobFlt.h"
 #include "CaloCondBlobObjs/CaloCondUtils.h"
-
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
-
 
 #include "CaloIdentifier/CaloCell_ID.h"
 

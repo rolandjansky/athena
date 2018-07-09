@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CaloCellCorrection/CaloCellTimeCorrTool.h" 
+#include "CaloCellTimeCorrTool.h" 
 #include "CaloEvent/CaloCell.h"
 #include "CaloCondBlobObjs/CaloCondBlobFlt.h"
 
