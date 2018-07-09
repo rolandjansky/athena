@@ -12,7 +12,9 @@ from AthenaCommon.SystemOfUnits import GeV, mm
 from AthenaCommon.AppMgr import ToolSvc
 from egammaRec.Factories import Factory, ToolFactory
 
-from TrigEgammaRec.TrigEgammaToolFactories import TrigEgammaMVACalibTool
+
+from egammaMVACalib.TrigEgammaMVACalibFactories import TrigEgammaMVASvc
+
 def configureTrigEFCaloCalibFexMonitoring(tool):
     
     from TrigEgammaHypo.TrigEFCaloHypoMonitoring import TrigEFCaloCalibFexValidationMonitoring, TrigEFCaloCalibFexOnlineMonitoring
@@ -26,7 +28,7 @@ def configureTrigEFCaloCalibFexMonitoring(tool):
 TrigEFCaloCalibFex_Electron = Factory(TrigEgammaHypoConf.TrigEFCaloCalibFex, name = "TrigEFCaloCalibFex_Electron", doAdd=False, 
         AcceptAll = True,
         ApplyMVACalib = True,
-        MVACalibTool = TrigEgammaMVACalibTool,
+        MVACalibSvc = TrigEgammaMVASvc,
         egType = 'Electron',
         ClusterContainerKey = 'TrigEFCaloCalibFex',
         postInit = [configureTrigEFCaloCalibFexMonitoring],
@@ -35,7 +37,7 @@ TrigEFCaloCalibFex_Electron = Factory(TrigEgammaHypoConf.TrigEFCaloCalibFex, nam
 TrigEFCaloCalibFex_Photon = Factory(TrigEgammaHypoConf.TrigEFCaloCalibFex, name = "TrigEFCaloCalibFex_Photon", doAdd=False, 
         AcceptAll = True,
         ApplyMVACalib = True,
-        MVACalibTool = TrigEgammaMVACalibTool,
+        MVACalibSvc = TrigEgammaMVASvc,
         egType = 'Photon',
         ClusterContainerKey = 'TrigEFCaloCalibFex',
         postInit = [configureTrigEFCaloCalibFexMonitoring],

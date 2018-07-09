@@ -27,6 +27,8 @@ egammaMVACalibTool::~egammaMVACalibTool()
 StatusCode egammaMVACalibTool::initialize()
 {
 
+  ATH_MSG_DEBUG("Initializing with particle " << m_particleType);
+
   if (m_shiftType == MEAN10TOTRUE) {
     ATH_MSG_DEBUG("Using Mean10 shift");
   } else if (m_shiftType == NOSHIFT) {
@@ -77,6 +79,9 @@ StatusCode egammaMVACalibTool::setupBDT(const std::unordered_map<std::string,
 							    const xAOD::CaloCluster*)> >& funcLibrary,
 					std::string fileName)
 {
+
+  ATH_MSG_DEBUG("Trying to open " << fileName);
+
   std::unique_ptr<TFile> f(TFile::Open(fileName.c_str()));
   if (!f || f->IsZombie() ) {
     ATH_MSG_FATAL("Could not open file: " << fileName);
@@ -472,6 +477,9 @@ float egammaMVACalibTool::getEnergy(const xAOD::Egamma* eg,
 				    const xAOD::CaloCluster* clus) const
 {
 
+  ATH_MSG_DEBUG("calling getEnergy with cluster (" << clus << ") and eg (" << eg <<")");
+
+
   if (!clus && eg) {
     clus = eg->caloCluster();
   }
@@ -492,12 +500,14 @@ float egammaMVACalibTool::getEnergy(const xAOD::Egamma* eg,
 
   const auto bin = m_hPoly->FindBin(etaVar, energyVarGeV) - 1; // poly bins are shifted by one
 
+  ATH_MSG_DEBUG("Using bin: " << bin);
+
   // select the bdt and funcsions. (shifts are done later if needed)
   const auto& bdt = m_BDTs[bin];
   const auto& funcs = m_funcs[bin];
 
   const size_t sz = funcs.size();
-  
+
   // could consider adding std::array support to the BDTs
   std::vector<float> vars(sz);
 

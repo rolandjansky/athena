@@ -66,11 +66,11 @@ private:
 
   /// string with folder for weight files
   Gaudi::Property<std::string> m_folder {this, 
-      "folder", "egammaMVACalib/offline/v3",
+      "folder", "",
       "string with folder for weight files"}; 
 
   Gaudi::Property<bool> m_use_layer_corrected {this,
-      "use_layer_corrected", true,
+      "use_layer_corrected", false,
       "whether to use layer corrections"};
 
   /// A TH2Poly used to extract bin numbers. Note there is an offset of 1

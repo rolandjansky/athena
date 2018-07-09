@@ -26,20 +26,26 @@ StatusCode egammaMVASvc::initialize()
   ATH_MSG_DEBUG("In initialize of " << name() << "..." );
   
   if (m_mvaElectron.isEnabled()) {
+    ATH_MSG_DEBUG("Retrieving mvaElectron");
     ATH_CHECK(m_mvaElectron.retrieve());
   } else {
+    ATH_MSG_DEBUG("Disabling mvaElectron");
     m_mvaElectron.disable();
   }
 
   if (m_mvaUnconvertedPhoton.isEnabled()) {
+    ATH_MSG_DEBUG("Retrieving mvaUnconvertedPhoton");
     ATH_CHECK(m_mvaUnconvertedPhoton.retrieve());
   } else {
+    ATH_MSG_DEBUG("Disabling mvaUnconvertedPhoton");
     m_mvaUnconvertedPhoton.disable();
   }
 
   if (m_mvaConvertedPhoton.isEnabled()) {
+    ATH_MSG_DEBUG("Retrieving mvaConvertedPhoton");
     ATH_CHECK(m_mvaConvertedPhoton.retrieve());
   } else {
+    ATH_MSG_DEBUG("Disabling mvaConvertedPhoton");
     m_mvaConvertedPhoton.disable();
   }
 
@@ -55,6 +61,9 @@ StatusCode egammaMVASvc::finalize(){
 StatusCode egammaMVASvc::execute(xAOD::CaloCluster* cluster,
 				 const xAOD::Egamma* eg) const
 {
+
+  ATH_MSG_DEBUG("calling execute with cluster (" << cluster << ") and eg (" << eg <<")");
+
   if (!eg || !cluster) {
     ATH_MSG_FATAL("Invalid Pointer to egamma or cluster object");
     return StatusCode::FAILURE;
@@ -102,8 +111,11 @@ StatusCode egammaMVASvc::execute(xAOD::CaloCluster* cluster,
 }
 
 StatusCode egammaMVASvc::execute(xAOD::CaloCluster* cluster,
-				 const xAOD::EgammaParameters::EgammaType egType) const
+				 xAOD::EgammaParameters::EgammaType egType) const
 {
+
+  ATH_MSG_DEBUG("calling execute with cluster (" << cluster << ") and egType (" << egType <<")");
+
   if (!cluster) {
     ATH_MSG_ERROR("Invalid Pointer to egamma or cluster object");
     return StatusCode::FAILURE;
@@ -119,14 +131,8 @@ StatusCode egammaMVASvc::execute(xAOD::CaloCluster* cluster,
     }
     break;
   case xAOD::EgammaParameters::convertedPhoton:
-    if (m_mvaConvertedPhoton.isEnabled()) {
-      mvaE = m_mvaConvertedPhoton->getEnergy(nullptr, cluster);
-    } else {
-      ATH_MSG_FATAL("Trying to calibrate a converted photon, but disabled");
-      return StatusCode::FAILURE;
-    }
-    break;
   case xAOD::EgammaParameters::unconvertedPhoton:
+    // treat converted photons like unconverted photons since don't have access to vertex
     if (m_mvaUnconvertedPhoton.isEnabled()) {
       mvaE = m_mvaUnconvertedPhoton->getEnergy(nullptr, cluster);
     } else {
@@ -151,6 +157,8 @@ StatusCode egammaMVASvc::execute(xAOD::CaloCluster* cluster,
   return StatusCode::SUCCESS;
 }
 
+// I wonder if this should be removed, and the user should just use the execute
+// with egType passed as an xAOD::EgammaParameters::EgammaType instead of a string
 StatusCode egammaMVASvc::hltexecute(xAOD::CaloCluster* cluster, const std::string& egType) const
 {
   if (egType == "Electron") {
