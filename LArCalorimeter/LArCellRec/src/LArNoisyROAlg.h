@@ -2,10 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LARNOISYROALG_H
-#define LARNOISYROALG_H
-
-
+#ifndef LARCELLREC_LARNOISYROALG_H
+#define LARCELLREC_LARNOISYROALG_H
 
 /** 
 @class LArNoisyROAlg

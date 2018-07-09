@@ -3,8 +3,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LARCELLREC_LArCellMerger_H
-#define LARCELLREC_LArCellMerger_H
+#ifndef LARCELLREC_LARCELLMERGER_H
+#define LARCELLREC_LARCELLMERGER_H
 
 /** 
 @class LArCellMerger

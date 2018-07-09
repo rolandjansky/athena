@@ -5,8 +5,8 @@
 // TheLArCollisionsAlg.h
 //
 
-#ifndef _LArTimeVetoAlg_LArTimeVetoAlg_H
-#define _LArTimeVetoAlg_LArTimeVetoAlg_H
+#ifndef LARCELLREC_LARTIMEVETOALG_H
+#define LARCELLREC_LARTIMEVETOALG_H
 
 #include <string>
 

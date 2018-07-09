@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LARCELLREC_LArCellRecalibration_H
-#define LARCELLREC_LArCellRecalibration_H
+#ifndef LARCELLREC_LARCELLRECALIBRATION_H
+#define LARCELLREC_LARCELLRECALIBRATION_H
 
 
 #include "CaloUtils/CaloCellCorrection.h"

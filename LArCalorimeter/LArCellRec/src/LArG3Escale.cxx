@@ -26,7 +26,7 @@ Updated : Jul 2003 (DR)
 ********************************************************************/
 
 // INCLUDE LAr header files:
-#include "LArCellRec/LArG3Escale.h"
+#include "LArG3Escale.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 

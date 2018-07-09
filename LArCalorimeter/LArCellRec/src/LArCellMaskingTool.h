@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LARCELLMASKINGTOOL_H
-#define LARCELLMASKINGTOOL_H
+#ifndef LARCELLREC_LARCELLMASKINGTOOL_H
+#define LARCELLREC_LARCELLMASKINGTOOL_H
 
 
 #include "AthenaBaseComps/AthAlgTool.h"

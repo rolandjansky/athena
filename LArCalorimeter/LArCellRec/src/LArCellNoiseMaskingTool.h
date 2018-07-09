@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LARCELLREC_LArCellNoiseMaskingTool_H
-#define LARCELLREC_LArCellNoiseMaskingTool_H
+#ifndef LARCELLREC_LARCELLNOISEMASKINGTOOL_H
+#define LARCELLREC_LARCELLNOISEMASKINGTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"

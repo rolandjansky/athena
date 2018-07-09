@@ -4,8 +4,8 @@
 
 //Dear emacs, this is -*-c++-*-
 
-#ifndef LARCELLREC_LArCellHVCorr_H
-#define LARCELLREC_LArCellHVCorr_H
+#ifndef LARCELLREC_LARCELLHVCORR_H
+#define LARCELLREC_LARCELLHVCORR_H
 
 
 #include "CaloUtils/CaloCellCorrection.h"

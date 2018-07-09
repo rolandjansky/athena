@@ -2,9 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArCellRec/LArCellRescaler.h" 
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "LArCellRescaler.h" 
 #include "CaloEvent/CaloCell.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
