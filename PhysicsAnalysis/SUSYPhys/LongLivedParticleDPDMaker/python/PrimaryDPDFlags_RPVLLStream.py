@@ -100,7 +100,7 @@ primRPVLLDESDM.add_JobProperty(doQuirks)
 class doHips(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
-    StoredValue = True ## FOR TESTING RPVLL-TRIGGERS -- SET TO FALSE AFTER
+    StoredValue = False
     pass
 primRPVLLDESDM.add_JobProperty(doHips)
 

@@ -22,7 +22,6 @@ def getTriggerList( trigger_type, matching_pattern="", reject_list=[] ):
         TriggerPeriod.future, trigger_type, matchPattern=matching_pattern )
     
     unprescaled_triggers = lowestUnprescaled + lowestUnprescaledAny + unprescaled
-    #unprescaled_triggers = unprescaled
 
     for trigger in unprescaled_triggers:
         if trigger in triggerList: continue
@@ -40,11 +39,6 @@ def getTriggerList( trigger_type, matching_pattern="", reject_list=[] ):
 class RPVLLTriggers:
 
     # methods to return analysis-filter-specific trigger lists
-
-    # TEST
-    def getTestTriggers(self):
-        test_list = getTriggerList( TriggerType.el_single, "", ["ivarloose", "L1EM24VHIM"] )
-        return test_list
 
     # DV+Muon - Barrel
     def getDVMuonBarrelTriggers(self):
