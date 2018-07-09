@@ -40,7 +40,7 @@ namespace CP
       ANA_MSG_ERROR ("no isolation decoration name set");
       return StatusCode::FAILURE;
     }
-    m_isolationAccessor = std::make_unique<SG::AuxElement::Accessor<SelectionType> > (m_isolationDecoration);
+    ANA_CHECK (makeSelectionAccessor (m_isolationDecoration, m_isolationAccessor));
 
     ANA_CHECK (m_isolationTool.retrieve());
     m_systematicsList.addHandle (m_muonHandle);
@@ -58,8 +58,8 @@ namespace CP
         ANA_CHECK (m_muonHandle.getCopy (muons, sys));
         for (xAOD::Muon *muon : *muons)
         {
-          (*m_isolationAccessor) (*muon)
-            = selectionFromAccept (m_isolationTool->accept (*muon));
+          m_isolationAccessor->setBits
+            (*muon, selectionFromAccept (m_isolationTool->accept (*muon)));
         }
         return StatusCode::SUCCESS;
       });
