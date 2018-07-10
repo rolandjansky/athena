@@ -83,7 +83,7 @@ StatusCode TrackVertexAssoTestAlg::execute()
   ATH_MSG_INFO("Testing TrackVertexAssociationTool::isCompatible...");
   if(trkCont->size()!=0 && vxCont->size()!=0)
   {
-    bool isMatched=m_TVATool->isCompatible(*(trkCont->at(0)), *(vxCont->at(0)));
+    bool isMatched = m_TVATool->isCompatible(*(trkCont->at(0)), *(vxCont->at(0)));
     ATH_MSG_INFO("Is the first track compatible with the first vertex (the PriVx)? "<< isMatched);
   }
 
@@ -108,7 +108,7 @@ StatusCode TrackVertexAssoTestAlg::execute()
   }
   if(trkCont->size()!=0)
   {
-    const xAOD::Vertex *vx=m_TVATool->getUniqueMatchVertex(*(trkCont->at(0)), v_vx);
+    const xAOD::Vertex *vx = m_TVATool->getUniqueMatchVertex(*(trkCont->at(0)), v_vx);
     ATH_MSG_INFO("Unique match vertex for first track: " << vx);
   }
 
@@ -116,7 +116,7 @@ StatusCode TrackVertexAssoTestAlg::execute()
   ATH_MSG_INFO("Testing TrackVertexAssociationTool::getUniqueMatchVertexLink...");
   if(trkCont->size() > 2)
   {
-    ElementLink<xAOD::VertexContainer> match_vx=m_TVATool->getUniqueMatchVertexLink(*(trkCont->at(2)), *vxCont );
+    ElementLink<xAOD::VertexContainer> match_vx = m_TVATool->getUniqueMatchVertexLink(*(trkCont->at(2)), *vxCont );
 
     if(match_vx.isValid())
     {
@@ -142,7 +142,7 @@ StatusCode TrackVertexAssoTestAlg::execute()
   // Example of accessing tracks matched to each vertex. Tracks are stored in a std::vector<xAOD::TrackParticle* >, for more details see TrackVertexAssociationMap.h
 
   // const xAOD::Vertex *pv=vxCont->at(0);
-  // xAOD::TrackVertexAssociationList trkvxassoList=trkvxassoMap[pv];
+  // xAOD::TrackVertexAssociationList trkvxassoList = trkvxassoMap[pv];
   // ATH_MSG_INFO("Number of tracks associated to the PriVx: " << trkvxassoList.size());
 
 
