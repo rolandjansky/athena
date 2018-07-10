@@ -33,6 +33,7 @@
 #include "GaudiKernel/ThreadLocalContext.h"
 
 #include "GeoModelUtilities/GeoAlignmentStore.h"
+#include "InDetIdentifier/TRT_ID.h"
 
 #include <boost/thread/shared_mutex.hpp>
 
@@ -53,6 +54,9 @@ Acts::TrackingGeometrySvc::initialize()
   ATH_CHECK ( m_detStore->retrieve(p_SCTManager, "SCT") );
   ATH_CHECK ( m_detStore->retrieve(p_TRTManager, "TRT") );
 
+  if (m_detStore->retrieve(m_TRT_idHelper, "TRT_ID").isFailure()) {
+    msg(MSG::ERROR) << "Could not retrieve TRT ID Helper" << endmsg;
+  }
   
   std::list<std::shared_ptr<const Acts::ITrackingVolumeBuilder>> volumeBuilders;
 
@@ -161,6 +165,7 @@ Acts::TrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager
     cfg.elementStore = m_elementStore;
     cfg.layerCreator = layerCreator;
     cfg.trackingGeometrySvc = this;
+    cfg.idHelper = m_TRT_idHelper;
     gmLayerBuilder = std::make_shared<const Acts::GeoModelStrawLayerBuilder>(cfg,
       Acts::makeAthenaLogger(this, "GMSLayBldr", "ActsTGSvc"));
 

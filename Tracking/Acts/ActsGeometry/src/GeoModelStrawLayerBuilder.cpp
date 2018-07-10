@@ -50,7 +50,6 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
   size_t    nBarrelRings  = trtNums->getNBarrelRings();
   size_t    nBarrelPhiSectors = trtNums->getNBarrelPhi();
 
-  TRT_ID idHelper;
 
   ACTS_VERBOSE("- Numerology reports: - " << nBarrelRings << " barrel rings");
   ACTS_VERBOSE("                      - " << nBarrelPhiSectors << " barrel phi sectors");
@@ -88,13 +87,25 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
           const InDetDD::TRT_BarrelElement* brlElem 
             = m_cfg.mng->getBarrelElement(iposneg, iring, iphisec, ilayer);
 
-          int nStraws = brlElem->nStraws();
+          unsigned int nStraws = brlElem->nStraws();
 
-          for(int istraw=0;istraw<nStraws;istraw++) {
+          for(unsigned int istraw=0;istraw<nStraws;istraw++) {
 
             auto trf = std::make_shared<const Transform3D>(brlElem->strawTransform(istraw));
-            Identifier straw_id = idHelper.straw_id(brlElem->identify(), istraw);
-            // @TODO: ID IS WRONG!!!!! all straws get the same ID
+            auto code = brlElem->getCode(); 
+            Identifier straw_id = m_cfg.idHelper->straw_id(code.isPosZ() == 1 ? 1 : -1, 
+                                                    code.getPhiIndex(), 
+                                                    code.getModuleIndex(),
+                                                    code.getStrawLayerIndex(), 
+                                                    istraw);
+
+            //ACTS_VERBOSE((code.isPosZ() == 1 ? 1 : -1) << " " <<
+                         //code.getPhiIndex() << " " <<
+                         //code.getModuleIndex() << " " <<
+                         //code.getStrawLayerIndex() << " " <<
+                         //istraw);
+            //ACTS_VERBOSE("BRL: " << straw_id);
+
             auto elem = std::make_shared<const Acts::GeoModelDetectorElement>(
                 trf, brlElem, straw_id, m_cfg.trackingGeometrySvc);
 
@@ -146,8 +157,6 @@ Acts::GeoModelStrawLayerBuilder::endcapLayers(int side)
   size_t    nEndcapWheels  = trtNums->getNEndcapWheels();
   size_t    nEndcapPhiSectors = trtNums->getNEndcapPhi();
 
-  TRT_ID idHelper;
-
   ACTS_VERBOSE("- Numerology reports: - " << nEndcapWheels<< " endcap wheels");
   ACTS_VERBOSE("                      - " << nEndcapPhiSectors << " endcap phi sectors");
 
@@ -176,12 +185,26 @@ Acts::GeoModelStrawLayerBuilder::endcapLayers(int side)
       
         size_t iposneg = side < 0 ? 0 : 1;
         const InDetDD::TRT_EndcapElement* ecElem = m_cfg.mng->getEndcapElement(iposneg, iwheel, ilayer, iphisec);
-        int nStraws = ecElem->nStraws();
+        unsigned int nStraws = ecElem->nStraws();
 
-        for(int istraw=0;istraw<nStraws;istraw++) {
+        for(unsigned int istraw=0;istraw<nStraws;istraw++) {
 
           auto trf = std::make_shared<const Transform3D>(ecElem->strawTransform(istraw));
-          Identifier straw_id = idHelper.straw_id(ecElem->identify(), istraw);
+
+          auto code = ecElem->getCode(); 
+          Identifier straw_id = m_cfg.idHelper->straw_id(code.isPosZ() == 1 ? 2 : -2, 
+                                                  code.getPhiIndex(), 
+                                                  code.getWheelIndex(),
+                                                  code.getStrawLayerIndex(), 
+                                                  istraw);
+
+          //ACTS_VERBOSE((code.isPosZ() == 1 ? 2 : -2) << " " <<
+                       //code.getPhiIndex() << " " << 
+                       //code.getWheelIndex() << " " <<
+                       //code.getStrawLayerIndex() << " " <<
+                       //istraw);
+          //ACTS_VERBOSE("EC:" << straw_id);
+
           auto elem = std::make_shared<const Acts::GeoModelDetectorElement>(
               trf, ecElem, straw_id, m_cfg.trackingGeometrySvc);
 

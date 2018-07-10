@@ -24,6 +24,7 @@
 #include "Acts/Utilities/Definitions.hpp"
 #include "Acts/Utilities/Logger.hpp"
 
+class TRT_ID;
 
 namespace Acts {
 
@@ -45,6 +46,7 @@ public:
     std::shared_ptr<const LayerCreator> layerCreator = nullptr;
     std::shared_ptr<ElementVector> elementStore;
     const Acts::TrackingGeometrySvc* trackingGeometrySvc = nullptr;
+    const TRT_ID* idHelper = nullptr;
   };
   
   /// Constructor

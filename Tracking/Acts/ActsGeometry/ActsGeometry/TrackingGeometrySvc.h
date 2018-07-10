@@ -24,6 +24,7 @@ namespace InDetDD {
   class TRT_DetectorManager;
 }
 
+class TRT_ID;
 class GeoAlignmentStore;
 
 namespace Acts {
@@ -67,6 +68,8 @@ private:
     
   std::shared_ptr<std::vector<std::shared_ptr<const Acts::GeoModelDetectorElement>>> m_elementStore;
   std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeometry;
+  
+  const TRT_ID *m_TRT_idHelper;
     
   Gaudi::Property<bool> m_useMaterialMap{this, "UseMaterialMap", false, ""};
   Gaudi::Property<std::string> m_materialMapInputFile{this, "MaterialMapInputFile", "", ""};

@@ -36,6 +36,7 @@
 
 
 
+
 Acts::GeoModelDetectorElement::GeoModelDetectorElement(
     const InDetDD::SiDetectorElement* detElem,
     const Acts::TrackingGeometrySvc* trkSvc)
@@ -120,7 +121,7 @@ Acts::GeoModelDetectorElement::GeoModelDetectorElement(
   auto lineBounds = std::make_shared<const Acts::LineBounds>(innerTubeRadius, length);
   m_bounds = lineBounds;
 
-  auto straw = std::make_shared<const Acts::StrawSurface>(lineBounds, *this, detElem->identify());
+  auto straw = std::make_shared<const Acts::StrawSurface>(lineBounds, *this, m_explicitIdentifier);
   m_surface = straw;
 }
 
