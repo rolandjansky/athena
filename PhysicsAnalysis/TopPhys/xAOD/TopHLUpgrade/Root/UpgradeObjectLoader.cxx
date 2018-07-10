@@ -127,6 +127,10 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
   const xAOD::TruthParticleContainer * origmuons(0);
   top::check( evtStore()->retrieve( origmuons, m_config->sgKeyTruthMuons() ),
       "xAOD::TEvent::retrieve failed for Truth Muons" );
+  // get truth particles
+  const xAOD::TruthParticleContainer * truthpart(0);
+  top::check( evtStore()->retrieve( truthpart, m_config->sgKeyMCParticle() ),
+      "xAOD::TEvent::retrieve failed for Truth Particles" );
 
   // Shallow copy 
   auto muons_shallowCopy = xAOD::shallowCopyContainer( *origmuons );
@@ -151,15 +155,27 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
     else muon->auxdata<int>("passReco") = 0;
 
     // apply all cuts
-    if( m_objectSelector_Muon->apply( *muon ) ) m_selectedMuons->push_back( muon );
+    if( m_objectSelector_Muon->apply( *muon ) ) {
 
-    //add production vertex info
-    const ElementLink<xAOD::TruthVertexContainer> prodVtxLink =
-      muon->auxdata<ElementLink< xAOD::TruthVertexContainer > >("prodVtxLink");
-    if(prodVtxLink.isValid()) {
-      const xAOD::TruthVertex *tvtx = *prodVtxLink;
-      muon->auxdata<float>("prodVtx_z") = tvtx->z();
-      muon->auxdata<float>("prodVtx_perp") = tvtx->perp();
+      //find matching truth particle by barcode
+      //this is done after selection to spend less time looping all TPs
+      for (const auto tp : *truthpart) {
+        if (muon->barcode() == tp->barcode()) {
+          //Add production vertex info- only truthparticle has a working
+          //prodVtxLink
+          const ElementLink<xAOD::TruthVertexContainer> prodVtxLink =
+            tp->auxdata<ElementLink< xAOD::TruthVertexContainer > >
+            ("prodVtxLink");
+          if(prodVtxLink.isValid()) {
+            const xAOD::TruthVertex *tvtx = *prodVtxLink;
+            muon->auxdata<float>("prodVtx_z") = tvtx->z();
+            muon->auxdata<float>("prodVtx_perp") = tvtx->perp();
+          }
+          break;
+        }
+      }
+
+      m_selectedMuons->push_back( muon );
     }
   }
 

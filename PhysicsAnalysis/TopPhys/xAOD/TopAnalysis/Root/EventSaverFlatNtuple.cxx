@@ -3356,8 +3356,8 @@ namespace top {
 	 m_mu_true_type[i] = 0;
 	 m_mu_true_origin[i] = 0;
 	 m_mu_true_isPrompt[i] = 0;
-         m_mu_prodVtx_z[i] = 0;
-         m_mu_prodVtx_perp[i] = 0;
+         m_mu_prodVtx_z[i] = -999;
+         m_mu_prodVtx_perp[i] = -999;
 	 if (muPtr->isAvailable<unsigned int>("particleType")) {
 	     m_mu_true_type[i] = muPtr->auxdata<unsigned int>("particleType");
 	 } else if (muPtr->isAvailable<unsigned int>("classifierParticleType")) {
