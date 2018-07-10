@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 """Interface to the general ART configuration."""
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
@@ -69,6 +69,13 @@ class ArtConfiguration(object):
                         keys.append(key)
 
         return keys
+
+    def packages(self):
+        """Return all packages, including 'All', defined in the configuration."""
+        if self.config is None:
+            return []
+
+        return self.config.keys()
 
     def get(self, nightly_release, project, platform, package, key, default_value=None):
         """Return most specific value for specified key and matching pattern.

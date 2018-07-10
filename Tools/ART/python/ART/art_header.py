@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 """Class to handle art-headers."""
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
@@ -18,6 +18,7 @@ class ArtHeader(object):
     """Class to handle art-headers."""
 
     ART_CI = 'art-ci'
+    ART_CORES = 'art-cores'
     ART_DESCRIPTION = 'art-description'
     ART_INCLUDE = 'art-include'
     ART_INPUT = 'art-input'
@@ -46,6 +47,7 @@ class ArtHeader(object):
         self.add(ArtHeader.ART_CI, ListType, [])
 
         # "grid" type only
+        self.add(ArtHeader.ART_CORES, IntType, 1)
         self.add(ArtHeader.ART_OUTPUT, ListType, [])
         self.add(ArtHeader.ART_INPUT, StringType, None)
         self.add(ArtHeader.ART_INPUT_NFILES, IntType, 1)
