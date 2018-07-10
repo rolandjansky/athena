@@ -271,20 +271,20 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
       Acts::DiscSurface* outerBoundary 
         = new Acts::DiscSurface(transformOuter, pl.minR, pl.maxR);
 
-      size_t binsPhi = m_cfg.endcapMaterialBins.first;
-      size_t binsR = m_cfg.endcapMaterialBins.second;
+      size_t matBinsPhi = m_cfg.endcapMaterialBins.first;
+      size_t matBinsR = m_cfg.endcapMaterialBins.second;
 
       Acts::BinUtility materialBinUtil(
-          binsPhi, -M_PI, M_PI, Acts::closed, Acts::binPhi);
+          matBinsPhi, -M_PI, M_PI, Acts::closed, Acts::binPhi);
       materialBinUtil += Acts::BinUtility(
-            binsR, pl.minR, pl.maxR, Acts::open, Acts::binR, transformNominal);
+          matBinsR, pl.minR, pl.maxR, Acts::open, Acts::binR, transformNominal);
       
       materialProxy
         = std::make_shared<const SurfaceMaterialProxy>(materialBinUtil);
 
       ACTS_VERBOSE("[L] Layer is marked to carry support material on Surface ( "
           "inner=0 / center=1 / outer=2 ) : " << "inner");
-      ACTS_VERBOSE("with binning: [" << binsPhi << ", " << binsR << "]");
+      ACTS_VERBOSE("with binning: [" << matBinsPhi << ", " << matBinsR << "]");
 
       ACTS_VERBOSE("Created ApproachSurfaces for disc layer at:");
       ACTS_VERBOSE(" - inner:   Z=" << layerZInner);
@@ -296,6 +296,31 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
       // @TODO: make this configurable somehow
       innerBoundary->setAssociatedMaterial(materialProxy);
 
+      int nModPhi = std::numeric_limits<int>::max();
+      int nModR = 0;
+
+      // want to figure out bins in phi
+      for (const auto& srf : layerSurfaces) {
+        auto elm = dynamic_cast<const GeoModelDetectorElement*>(srf->associatedDetectorElement());
+        auto id = elm->identityHelper();
+        int phi_mod_max = id.phi_module_max();
+        int eta_mod_max = id.eta_module_max();
+        nModPhi = std::min(nModPhi, phi_mod_max+1);
+        nModR = eta_mod_max+1;
+      }
+
+      ACTS_VERBOSE("Identifier reports: " << nModPhi << " is lowest for " << nModR << " r-rings");
+
+      // the modules in the innermost r-rings are exactly shifted by one half module width
+      // since it's the same number of modules, this gives binning trouble. Reduce bins
+      // by half: about 2 module pairs should be in each bin. This should be fine.
+      // @TODO: evaluate
+      size_t nBinsPhi = nModPhi/2.;
+      size_t nBinsR = nModR;
+
+      ACTS_VERBOSE("Creating r x phi binned layer with " << nBinsR << " x " << nBinsPhi << " bins");
+
+
       approachDescriptor 
         = std::make_unique<Acts::GenericApproachDescriptor<Acts::Surface>>(
             std::vector<const Acts::Surface*>({innerBoundary, 
@@ -303,8 +328,8 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
                                                outerBoundary}));
 
       auto layer = m_cfg.layerCreator->discLayer(layerSurfaces, 
-                                                 equidistant, 
-                                                 equidistant, 
+                                                 nBinsR, 
+                                                 nBinsPhi, 
                                                  pl,
                                                  transformNominal,
                                                  std::move(approachDescriptor));

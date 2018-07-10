@@ -80,3 +80,27 @@ Acts::IdentityHelper::side() const
     return getSCTIDHelper()->side(id);
   }
 }
+
+int 
+Acts::IdentityHelper::phi_module_max() const
+{
+  auto id = m_elem->identify();
+  if (m_elem->isPixel()) {
+    return getPixelIDHelper()->phi_module_max(id);
+  }
+  else {
+    return getSCTIDHelper()->phi_module_max(id);
+  }
+}
+
+int 
+Acts::IdentityHelper::eta_module_max() const
+{
+  auto id = m_elem->identify();
+  if (m_elem->isPixel()) {
+    return getPixelIDHelper()->eta_module_max(id);
+  }
+  else {
+    return getSCTIDHelper()->eta_module_max(id);
+  }
+}

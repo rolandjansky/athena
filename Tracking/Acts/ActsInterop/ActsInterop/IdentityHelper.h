@@ -19,6 +19,9 @@ public:
   int eta_module() const;
   int side() const;
 
+  int phi_module_max() const;
+  int eta_module_max() const;
+
 private:
   const InDetDD::SiDetectorElement* m_elem;
   
