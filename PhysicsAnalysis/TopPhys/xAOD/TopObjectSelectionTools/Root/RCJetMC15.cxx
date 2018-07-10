@@ -276,41 +276,41 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
 
 	 // LCTOPO CLUSTERS
  
-	   for (auto cluster : *myClusters){
-	     for (auto subjet : rcjet->getConstituents() ){
-	       const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());
+	   // for (auto cluster : *myClusters){
+	   //   for (auto subjet : rcjet->getConstituents() ){
+	   //     const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());
 	  
-		 // 	  //const xAOD::CaloCluster* cluster_raw = static_cast<const xAOD::CaloCluster*>(cluster->rawConstituents());
-       	      float dR = subjet_raw->p4().DeltaR(cluster->p4());
-       	      if (dR < 0.4){
-		TLorentzVector temp_p4;
-       		temp_p4.SetPtEtaPhiE(cluster->pt((xAOD::CaloCluster_v1::State(1))), cluster->eta((xAOD::CaloCluster_v1::State(1))), cluster->phi((xAOD::CaloCluster_v1::State(1))), cluster->e((xAOD::CaloCluster_v1::State(1))));
-       		clusters.push_back(fastjet::PseudoJet(temp_p4.Px(),temp_p4.Py(),temp_p4.Pz(),temp_p4.E()));
-       		break;
-       	      }
-	     }
-	   }
+	   // 	 // 	  //const xAOD::CaloCluster* cluster_raw = static_cast<const xAOD::CaloCluster*>(cluster->rawConstituents());
+       	   //    float dR = subjet_raw->p4().DeltaR(cluster->p4());
+       	   //    if (dR < 0.4){
+	   // 	TLorentzVector temp_p4;
+       	   // 	temp_p4.SetPtEtaPhiE(cluster->pt((xAOD::CaloCluster_v1::State(1))), cluster->eta((xAOD::CaloCluster_v1::State(1))), cluster->phi((xAOD::CaloCluster_v1::State(1))), cluster->e((xAOD::CaloCluster_v1::State(1))));
+       	   // 	clusters.push_back(fastjet::PseudoJet(temp_p4.Px(),temp_p4.Py(),temp_p4.Pz(),temp_p4.E()));
+       	   // 	break;
+       	   //    }
+	   //   }
+	   // }
 
 	  
-	   //SCALED CLUSTERS
-	   // for (auto subjet : rcjet->getConstituents() ){
-	   //   const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());
+	  // //  //SCALED CLUSTERS
+	   for (auto subjet : rcjet->getConstituents() ){
+	     const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());
 
- 	  // // Make sure we don't try to access jets that have had the clusters thinned
-	  // bool hasConstituents=true;
-	  // auto links = subjet_raw->constituentLinks();
-	  // for(auto link : links) {
-	  //   if(!link.isValid()) {
-	  //     ATH_MSG_WARNING("Some of the RC Jet Constituents have been thinned - will not be included in RCJet JSS calculation");
-	  //     hasConstituents=false;
-	  //     break;
-	  //   }
-	  // }
-	  // if (!hasConstituents) {continue;}
+ 	  // Make sure we don't try to access jets that have had the clusters thinned
+	  bool hasConstituents=true;
+	  auto links = subjet_raw->constituentLinks();
+	  for(auto link : links) {
+	    if(!link.isValid()) {
+	      ATH_MSG_WARNING("Some of the RC Jet Constituents have been thinned - will not be included in RCJet JSS calculation");
+	      hasConstituents=false;
+	      break;
+	    }
+	  }
+	  if (!hasConstituents) {continue;}
 
-	  // for (auto clus_itr : subjet_raw->getConstituents() ){
-	  //   if(clus_itr->e() > 0){
-	  //     TLorentzVector temp_p4;
+	  for (auto clus_itr : subjet_raw->getConstituents() ){
+	    if(clus_itr->e() > 0){
+	      TLorentzVector temp_p4;
 	  
 	  //std::cout << "SubJetRaw ConstitScale pt = " << subjet_raw->jetP4(xAOD::JetEMScaleMomentum).pt() << std::endl;
 	  //std::cout << "SubJetRaw ConstitScale pt = " << subjet_raw->jetP4(xAOD::JetConstitScaleMomentum).pt() << std::endl;
@@ -332,11 +332,16 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
 	  //std::cout <<"Cluster EM pT = " << clus_itr->pt() << std::endl;
 	  //std::cout <<"Cluster LC pT = " << clus_itr->pt() << std::endl;
 	      	  
-	  //double sf = subjet_raw->jetP4().pt() / subjet_raw->jetP4(xAOD::JetEMScaleMomentum).pt();
+	  //    double sf = subjet_raw->jetP4().pt() / subjet_raw->jetP4(xAOD::JetEMScaleMomentum).pt();
+	      double sf = 1.0;
 	  //std::cout << "SF = " << sf << std::endl;
-	  //temp_p4.SetPtEtaPhiM(clus_itr->pt()*sf, clus_itr->eta(), clus_itr->phi(), clus_itr->m());
+	  temp_p4.SetPtEtaPhiM(clus_itr->pt()*sf, clus_itr->eta(), clus_itr->phi(), clus_itr->m());
 
-	  //clusters.push_back(fastjet::PseudoJet(temp_p4.Px(),temp_p4.Py(),temp_p4.Pz(),temp_p4.E()));
+	  clusters.push_back(fastjet::PseudoJet(temp_p4.Px(),temp_p4.Py(),temp_p4.Pz(),temp_p4.E()));
+	    }
+	  }
+	   }
+       
 	       
        
     
