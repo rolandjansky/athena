@@ -72,6 +72,7 @@ fi
 
 # Stop on errors from here on out:
 set -e
+set -o pipefail
 
 # We are in BASH, get the path of this script in a simple way:
 thisdir=$(dirname ${BASH_SOURCE[0]})
