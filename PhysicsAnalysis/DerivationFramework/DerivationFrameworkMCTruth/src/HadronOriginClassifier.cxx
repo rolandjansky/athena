@@ -39,7 +39,7 @@ namespace DerivationFramework{
           || (m_DSID>=407037 && m_DSID<=407040) //Powheg+Hpp MET/HT sliced
           || m_DSID ==410536 || m_DSID == 410537
           || m_DSID == 410245 //aMC@NLO+H++ , ttbb
-          || (m_DSID>= 410557 && m_DSID == 410559) // new Powheg+H7, mc16
+          || (m_DSID>=410557 && m_DSID<=410559) // new Powheg+H7, mc16
           || (m_DSID>=411082 && m_DSID<=411090) //Powheg+H7 HF-filtered
           ){
       m_GenUsed=HerwigPP;
