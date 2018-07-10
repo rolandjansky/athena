@@ -7,4 +7,5 @@
 
 #include "SUSYTools/SUSYObjDef_xAOD.h"
 #include "SUSYTools/SUSYCrossSection.h"
+#include "src/SUSYToolsAlg.h"
 #endif // not SUSYTOOLS_SUSYTOOLSDICT_H

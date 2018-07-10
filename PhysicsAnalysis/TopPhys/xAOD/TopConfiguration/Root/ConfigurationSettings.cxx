@@ -309,6 +309,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("KLFitterLH", "Select likelihood depending on signal, ttbar, ttbar_angles, ttH, ttZTrilepton, ttbar_AllHadronic, ttbar_BoostedLJets", "ttbar");
     registerParameter("KLFitterTopMassFixed","Fix the mass of the top quark? True or False","True");
     registerParameter("KLFitterSaveAllPermutations","Save All permutations to the output file (False will save only the best)","False");
+    registerParameter("KLFitterFailOnLessThanXJets","Fail if kLeadingX or kBtagPriorityXJets is set and the number of jets in the event is less than X (Default is False)","False");
 
     registerParameter("DynamicKeys", "Additional dynamic key list seperated by ,", "");
 

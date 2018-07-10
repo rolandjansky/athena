@@ -2,4 +2,5 @@
    <class name="ST::SUSYObjDef_xAOD" />
    <class name="ST::ISUSYObjDef_xAODTool" />
    <class name="SUSY::CrossSectionDB" />
+   <class name="SUSYToolsAlg" />
 </lcgdict>

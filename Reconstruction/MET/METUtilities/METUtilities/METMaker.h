@@ -35,18 +35,6 @@
 
 namespace met {
 
-  /// standalone version of functionality in \ref METMaker
-  /// \{
-  ANA_MSG_HEADER (msgMET)
-  StatusCode buildMETSum(const std::string& totalName,
-                         xAOD::MissingETContainer* metCont,
-                         MissingETBase::Types::bitmask_t softTermsSource);
-  StatusCode fillMET(xAOD::MissingET *& met,
-                     xAOD::MissingETContainer * metCont,
-                     const std::string& metKey,
-                     const MissingETBase::Types::bitmask_t metSource);
-  /// \}
-
   // typedefs
   typedef ElementLink<xAOD::IParticleContainer> obj_link_t;
 

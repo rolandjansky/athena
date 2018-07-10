@@ -815,11 +815,13 @@ namespace top {
                 // If FULL information is requested
                 if( m_config->KLFitterOutput() == "FULL"){
                   /// Debugging information
+                  systematicTree->makeOutputVariable(m_klfitter_selection,"klfitter_selection");
                   systematicTree->makeOutputVariable(m_klfitter_minuitDidNotConverge,"klfitter_minuitDidNotConverge");
                   systematicTree->makeOutputVariable(m_klfitter_fitAbortedDueToNaN,"klfitter_fitAbortedDueToNaN");
                   systematicTree->makeOutputVariable(m_klfitter_atLeastOneFitParameterAtItsLimit,"klfitter_atLeastOneFitParameterAtItsLimit");
                   systematicTree->makeOutputVariable(m_klfitter_invalidTransferFunctionAtConvergence,"klfitter_invalidTransferFunctionAtConvergence");
                   /// Global
+                  systematicTree->makeOutputVariable(m_klfitter_parameters_size,"klfitter_parameters_size");
                   systematicTree->makeOutputVariable(m_klfitter_parameters,"klfitter_parameters");
                   systematicTree->makeOutputVariable(m_klfitter_parameterErrors,"klfitter_parameterErrors");
                   systematicTree->makeOutputVariable(m_klfitter_bestPermutation,"klfitter_bestPermutation");
@@ -2364,6 +2366,7 @@ namespace top {
                 nPermutations = event.m_KLFitterResults->size();
             }
 
+            m_klfitter_selection.resize(nPermutations);
             m_klfitter_minuitDidNotConverge.resize(nPermutations);
             m_klfitter_fitAbortedDueToNaN.resize(nPermutations);
             m_klfitter_atLeastOneFitParameterAtItsLimit.resize(nPermutations);
@@ -2373,6 +2376,7 @@ namespace top {
             m_klfitter_bestPermutation.resize(nPermutations);
             m_klfitter_logLikelihood.resize(nPermutations);
             m_klfitter_eventProbability.resize(nPermutations);
+            m_klfitter_parameters_size.resize(nPermutations);
             m_klfitter_parameters.resize(nPermutations);
             m_klfitter_parameterErrors.resize(nPermutations);
 
@@ -2484,6 +2488,14 @@ namespace top {
 
             if (validKLFitter) {
                 for (const auto* const klPtr : *event.m_KLFitterResults) {
+                    m_klfitter_selection[iPerm] = "unknown";
+                    std::hash<std::string> st_hash;
+                    for(unsigned int s=0; s<m_config->allSelectionNames()->size(); ++s){
+                       if(st_hash(m_config->allSelectionNames()->at(s))==klPtr->selectionCode()){
+                          m_klfitter_selection[iPerm] = m_config->allSelectionNames()->at(s);
+                          break;
+                       }
+                    }
                     m_klfitter_minuitDidNotConverge[iPerm] = klPtr->minuitDidNotConverge();
                     m_klfitter_fitAbortedDueToNaN[iPerm] = klPtr->fitAbortedDueToNaN();
                     m_klfitter_atLeastOneFitParameterAtItsLimit[iPerm] = klPtr->atLeastOneFitParameterAtItsLimit();
@@ -2496,6 +2508,7 @@ namespace top {
                     }
                     m_klfitter_logLikelihood[iPerm] = klPtr->logLikelihood();
                     m_klfitter_eventProbability[iPerm] = klPtr->eventProbability();
+                    m_klfitter_parameters_size[iPerm] = klPtr->parameters().size();
                     m_klfitter_parameters[iPerm] = klPtr->parameters();
                     m_klfitter_parameterErrors[iPerm] = klPtr->parameterErrors();
 

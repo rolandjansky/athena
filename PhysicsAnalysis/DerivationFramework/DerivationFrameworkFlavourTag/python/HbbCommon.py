@@ -34,6 +34,7 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doTr
       #           "FastJetPlugin" for EECambridge plugin
       algj = "ee_kt"
 
+    if globalflags.DataSource()=='data': ExGhostLabels = []
     SubjetContainerName = "%sEx%s%iSubJets" % (JetCollectionName.replace("Jets", ""), subjet_mode, nsubjet)
     ExKtbbTagToolName = str( "Ex%sbbTagTool%i_%s" % (subjet_mode, nsubjet, JetCollectionName) )
     if hasattr(jtm, ExKtbbTagToolName):

@@ -93,6 +93,8 @@
 410471          PhPy8EG_A14_ttbar_hdamp258p75_allhad                          729.77                1.13974074379   4.5626E-01         0.0                           
 410472          PhPy8EG_A14_ttbar_hdamp258p75_dil                             729.77                1.13975636159   1.0545E-01         0.0                           
 
+410480          PhPy8EG_A14_ttbar_hdamp517p5_SingleLep                        729.74                1.0             4.3849E-01         0.0                           
+
 410442          aMcAtNloPythia8EvtGen_MEN30NLO_A14N23LO_ttbar_dil             711.06                1.0             1.0724E-01         0.0                           
 
 410424          Sherpa_224_NNPDF30NNLO_ttbar_dilepton_MEPS_NLO                77.807                1.0             1.0000E+00         0.0                           
@@ -150,16 +152,16 @@
 410064          PowhegPythiaEvtGen_P2012_Wt_DS_dilepton_top                   3.4133                1.054           1.0000E+00         0.0                           
 410065          PowhegPythiaEvtGen_P2012_Wt_DS_dilepton_antitop               3.409                 1.054           1.0000E+00         0.0                           
 
-407049          PowhegPythiaEvtGen_P2012CT10_Wt_DS_inclusive_top_HT500        32.394                1.054           6.0318E-02         0.0                           
+407049          PowhegPythiaEvtGen_P2012CT10_Wt_DS_inclusive_top_HT500        32.383                1.054           6.0268E-02         0.0                           
 407050          PowhegPythiaEvtGen_P2012CT10radHi_Wt_inclusive_top_HT500      34.916                1.027           9.0664E-02         0.0                           
 407051          PowhegPythiaEvtGen_P2012CT10radLo_Wt_inclusive_top_HT500      33.41                 1.073           8.5891E-02         0.0                           
-407052          PowhegPythiaEvtGen_P2012CT10_Wt_DS_inclusive_top_MET200       32.405                1.054           7.1003E-03         0.0                           
+407052          PowhegPythiaEvtGen_P2012CT10_Wt_DS_inclusive_top_MET200       32.394                1.054           7.0969E-03         0.0                           
 407053          PowhegPythiaEvtGen_P2012CT10radHi_Wt_inclusive_top_MET200     34.916                1.027           1.1859E-02         0.0                           
 407054          PowhegPythiaEvtGen_P2012CT10radLo_Wt_inclusive_top_MET200     33.41                 1.073           1.0725E-02         0.0                           
 407055          PowhegPythiaEvtGen_P2012CT10_Wt_DS_inclusive_tbar_HT500       32.359                1.054           6.0110E-02         0.0                           
 407056          PowhegPythiaEvtGen_P2012CT10radHi_Wt_inclusive_tbar_HT500     34.895                1.027           9.0560E-02         0.0                           
 407057          PowhegPythiaEvtGen_P2012CT10radLo_Wt_inclusive_tbar_HT500     33.391                1.073           8.5838E-02         0.0                           
-407058          PowhegPythiaEvtGen_P2012CT10_Wt_DS_inclusive_tbar_MET200      32.38                 1.054           7.0303E-03         0.0                           
+407058          PowhegPythiaEvtGen_P2012CT10_Wt_DS_inclusive_tbar_MET200      32.366                1.054           7.0357E-03         0.0                           
 407059          PowhegPythiaEvtGen_P2012CT10radHi_Wt_inclusive_tbar_MET200    34.895                1.027           1.1789E-02         0.0                           
 407060          PowhegPythiaEvtGen_P2012CT10radLo_Wt_inclusive_tbar_MET200    33.392                1.073           1.0686E-02         0.0                           
 407061          PowhegHerwigppEvtGen_UEEE5_Wt_inclusive_top_HT500             34.078                1.054           8.0651E-02         0.0                           
@@ -711,7 +713,7 @@
 363431          Sherpa_NNPDF30NNLO_Znunu_Pt1000_2000_CFilterBVeto             0.0066711             0.9728          2.7083E-01         0.0                           
 363432          Sherpa_NNPDF30NNLO_Znunu_Pt1000_2000_BFilter                  0.006645              0.9728          1.7833E-01         0.0                           
 363433          Sherpa_NNPDF30NNLO_Znunu_Pt2000_E_CMS_CVetoBVeto              2.4506e-05            0.9728          5.7361E-01         0.0                           
-363434          Sherpa_NNPDF30NNLO_Znunu_Pt2000_E_CMS_CFilterBVeto            2.45e-05              0.9728          2.6571E-01         0.0                           
+363434          Sherpa_NNPDF30NNLO_Znunu_Pt2000_E_CMS_CFilterBVeto            2.4924e-05            0.9728          2.6532E-01         0.0                           
 363435          Sherpa_NNPDF30NNLO_Znunu_Pt2000_E_CMS_BFilter                 2.443e-05             0.9728          5.3827E-01         0.0                           
 
 
@@ -1524,8 +1526,8 @@
 364358          Sherpa_221_NNPDF30NNLO_Zee_Mll2Ml_MAXHTPTV70_140              568.54                1.0             1.0000E+00         0.0                           
 364359          Sherpa_221_NNPDF30NNLO_Zmumu_Mll2Ml_MAXHTPTV70_140            458.51                1.0             1.0000E+00         0.0                           
 364360          Sherpa_221_NNPDF30NNLO_Ztautau_Mll2Ml_MAXHTPTV70_140          140.71                1.0             1.0000E+00         0.0                           
-364361          Sherpa_221_NNPDF30NNLO_Zee_Mll2Ml_MAXHTPTV140_280             206.81                1.0             1.0000E+00         0.0                           
-364362          Sherpa_221_NNPDF30NNLO_Zmumu_Mll2Ml_MAXHTPTV140_280           164.0                 1.0             1.0000E+00         0.0                           
+364361          Sherpa_221_NNPDF30NNLO_Zee_Mll2Ml_MAXHTPTV140_280             206.82                1.0             1.0000E+00         0.0                           
+364362          Sherpa_221_NNPDF30NNLO_Zmumu_Mll2Ml_MAXHTPTV140_280           163.99                1.0             1.0000E+00         0.0                           
 364363          Sherpa_221_NNPDF30NNLO_Ztautau_Mll2Ml_MAXHTPTV140_280         43.267                1.0             1.0000E+00         0.0                           
 364280          Sherpa_221_NNPDF30NNLO_Zee_Mll2Ml_MAXHTPTV280_E_CMS           46.041                0.9751          1.0000E+00         0.0                           
 364281          Sherpa_221_NNPDF30NNLO_Zmumu_Mll2Ml_MAXHTPTV280_E_CMS         36.391                0.9751          1.0000E+00         0.0                           
@@ -1539,7 +1541,7 @@
 304017          Sherpa_CT10_Wtaunu2JetsEW1JetQCD15GeV                         26.581                1.0             1.0000E+00         0.0                           
 304018          Sherpa_CT10_Znunu2JetsEW1JetQCD15GeV                          13.591                1.0             1.0000E+00         0.0                           
 304019          Sherpa_CT10_Zee2JetsEW1JetQCD15GeVM40                         2.5443                1.0             1.0000E+00         0.0                           
-304020          Sherpa_CT10_Zmumu2JetsEW1JetQCD15GeVM40                       2.5412                1.0             1.0000E+00         0.0                           
+304020          Sherpa_CT10_Zmumu2JetsEW1JetQCD15GeVM40                       2.5426                1.0             1.0000E+00         0.0                           
 304021          Sherpa_CT10_Ztautau2JetsEW1JetQCD15GeVM40                     2.5408                1.0             1.0000E+00         0.0                           
 
 ################################################################################################################
@@ -1586,16 +1588,16 @@
 # MadGraph W HT filtered
 
 363600          MGPy8EG_N30NLO_Wenu_Ht0_70_CVetoBVeto                         16719.0               1.12            8.3755E-01         0.0                           
-363601          MGPy8EG_N30NLO_Wenu_Ht0_70_CFilterBVeto                       16720.0               1.12            1.3888E-01         0.0                           
-363602          MGPy8EG_N30NLO_Wenu_Ht0_70_BFilter                            16718.0               1.12            2.4680E-02         0.0                           
+363601          MGPy8EG_N30NLO_Wenu_Ht0_70_CFilterBVeto                       16720.0               1.12            1.3893E-01         0.0                           
+363602          MGPy8EG_N30NLO_Wenu_Ht0_70_BFilter                            16718.0               1.12            2.4673E-02         0.0                           
 363603          MGPy8EG_N30NLO_Wenu_Ht70_140_CVetoBVeto                       755.39                1.12            7.1225E-01         0.0                           
 363604          MGPy8EG_N30NLO_Wenu_Ht70_140_CFilterBVeto                     755.82                1.12            2.4182E-01         0.0                           
-363605          MGPy8EG_N30NLO_Wenu_Ht70_140_BFilter                          755.65                1.12            5.0390E-02         0.0                           
+363605          MGPy8EG_N30NLO_Wenu_Ht70_140_BFilter                          755.68                1.12            5.0387E-02         0.0                           
 363606          MGPy8EG_N30NLO_Wenu_Ht140_280_CVetoBVeto                      318.94                1.12            6.6597E-01         0.0                           
-363607          MGPy8EG_N30NLO_Wenu_Ht140_280_CFilterBVeto                    319.91                1.12            2.6803E-01         0.0                           
-363608          MGPy8EG_N30NLO_Wenu_Ht140_280_BFilter                         319.45                1.12            7.3314E-02         0.0                           
-363609          MGPy8EG_N30NLO_Wenu_Ht280_500_CVetoBVeto                      73.538                1.12            6.1954E-01         0.0                           
-363610          MGPy8EG_N30NLO_Wenu_Ht280_500_CFilterBVeto                    73.512                1.12            2.8657E-01         0.0                           
+363607          MGPy8EG_N30NLO_Wenu_Ht140_280_CFilterBVeto                    319.92                1.12            2.6798E-01         0.0                           
+363608          MGPy8EG_N30NLO_Wenu_Ht140_280_BFilter                         319.45                1.12            7.3321E-02         0.0                           
+363609          MGPy8EG_N30NLO_Wenu_Ht280_500_CVetoBVeto                      73.558                1.12            6.1951E-01         0.0                           
+363610          MGPy8EG_N30NLO_Wenu_Ht280_500_CFilterBVeto                    73.522                1.12            2.8659E-01         0.0                           
 363611          MGPy8EG_N30NLO_Wenu_Ht280_500_BFilter                         73.565                1.12            9.7287E-02         0.0                           
 363612          MGPy8EG_N30NLO_Wenu_Ht500_700_CVetoBVeto                      11.519                1.12            5.8698E-01         0.0                           
 363613          MGPy8EG_N30NLO_Wenu_Ht500_700_CFilterBVeto                    11.517                1.12            2.9905E-01         0.0                           
@@ -1924,10 +1926,10 @@
 
 304307          Sherpa_CT10_Wqq_Pt280_500                                     29.487                1.0             1.0000E+00         0.0                           
 304308          Sherpa_CT10_Wqq_Pt500_1000                                    2.162                 1.0             1.0000E+00         0.0                           
-304309          Sherpa_CT10_Wqq_Pt1000                                        0.045999              1.0             1.0000E+00         0.0                           
+304309          Sherpa_CT10_Wqq_Pt1000                                        0.046218              1.0             1.0000E+00         0.0                           
 304707          Sherpa_CT10_Zqq_Pt280_500                                     12.623                1.0             1.0000E+00         0.0                           
 304708          Sherpa_CT10_Zqq_Pt500_1000                                    0.90771               1.0             1.0000E+00         0.0                           
-304709          Sherpa_CT10_Zqq_Pt1000                                        0.018384              1.0             1.0000E+00         0.0                           
+304709          Sherpa_CT10_Zqq_Pt1000                                        0.018344              1.0             1.0000E+00         0.0                           
 
 ################################################################################################################
 # Sherpa gamma+jet
@@ -2168,9 +2170,9 @@
 ################################################################################################################
 # Pythia8 gamma+jet
 
-423099          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP8_17                    1.7234e+11            1.0             3.2056E-05         0.0                           
-423100          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP17_35                   16715000000.0         1.0             2.8776E-05         0.0                           
-423101          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP35_50                   1396500000.0          1.0             2.5309E-05         0.0                           
+423099          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP8_17                    1.7234e+11            1.0             3.2053E-05         0.0                           
+423100          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP17_35                   16715000000.0         1.0             2.8772E-05         0.0                           
+423101          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP35_50                   1396500000.0          1.0             2.5207E-05         0.0                           
 423102          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP50_70                   379540000.0           1.0             2.67056938015e-05  0.0                           
 423103          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP70_140                  106210000.0           1.0             3.9397E-05         0.0                           
 423104          Pythia8EvtGen_A14NNPDF23LO_gammajet_DP140_280                 6704600.0             1.0             4.9497E-05         0.0                           
@@ -2442,7 +2444,7 @@
 364253          Sherpa_222_NNPDF30NNLO_lllv                                   4.5779                1.0             1.0000E+00         0.0                           
 364254          Sherpa_222_NNPDF30NNLO_llvv                                   12.491                1.0             1.0                0.0                           
 364255          Sherpa_222_NNPDF30NNLO_lvvv                                   3.2357                1.0             1.0                0.0                           
-364261          Sherpa_222_NNPDF30NNLO_lllv_3lepfilter                        1.5763                1.0             2.0370E-01         0.0                           
+364261          Sherpa_222_NNPDF30NNLO_lllv_3lepfilter                        1.576                 1.0             2.0476E-01         0.0                           
 364283          Sherpa_222_NNPDF30NNLO_lllljj_EW6                             0.010545              1.0             1.0000E+00         0.0                           
 364284          Sherpa_222_NNPDF30NNLO_lllvjj_EW6                             0.047066              1.0             1.0000E+00         0.0                           
 364285          Sherpa_222_NNPDF30NNLO_llvvjj_EW6                             0.11612               1.0             1.0000E+00         0.0                           
@@ -2465,7 +2467,7 @@
 
 # Very low mll
 364288          Sherpa_222_NNPDF30NNLO_llll_lowMllPtComplement                1.4555                1.0             1.0000E+00         0.0                           
-364289          Sherpa_222_NNPDF30NNLO_lllv_lowMllPtComplement                2.9653                1.0             1.0000E+00         0.0                           
+364289          Sherpa_222_NNPDF30NNLO_lllv_lowMllPtComplement                2.9557                1.0             1.0000E+00         0.0                           
 364290          Sherpa_222_NNPDF30NNLO_llvv_lowMllPtComplement                0.17337               1.0             1.0000E+00         0.0                           
 
 ################################################################################################################
@@ -2577,7 +2579,7 @@
 364552          Sherpa_222_NNPDF30NNLO_eegammagamma_pty_35_70                 0.66657               1.0             1.0000E+00         0.0                           
 364553          Sherpa_222_NNPDF30NNLO_eegammagamma_pty_70_140                1.3941                1.0             1.0000E+00         0.0                           
 364554          Sherpa_222_NNPDF30NNLO_eegammagamma_pty_140_E_CMS             0.0098839             1.0             1.0000E+00         0.0                           
-364557          Sherpa_222_NNPDF30NNLO_mumugammagamma_pty_35_70               0.57028               1.0             1.0000E+00         0.0                           
+364557          Sherpa_222_NNPDF30NNLO_mumugammagamma_pty_35_70               0.59784               1.0             1.0000E+00         0.0                           
 364558          Sherpa_222_NNPDF30NNLO_mumugammagamma_pty_70_140              0.05993               1.0             1.0000E+00         0.0                           
 364559          Sherpa_222_NNPDF30NNLO_mumugammagamma_pty_140_E_CMS           0.0098907             1.0             1.0000E+00         0.0                           
 364562          Sherpa_222_NNPDF30NNLO_tautaugammagamma_pty_35_70             0.78736               1.0             1.0000E+00         0.0                           
@@ -2819,6 +2821,8 @@
 410397          MadGraphPythia8EvtGen_ttbar_wbee_MEN30LO_A14N23LO             0.18586               1.12            1.0000E+00         0.0                           
 410398          MadGraphPythia8EvtGen_ttbar_wbmumu_MEN30LO_A14N23LO           0.18636               1.12            1.0000E+00         0.0                           
 410399          MadGraphPythia8EvtGen_ttbar_wbtautau_MEN30LO_A14N23LO         0.018747              1.12            1.0000E+00         0.0                           
+
+410408          aMcAtNloPythia8EvtGen_tWZ_Ztoll_minDR1                        0.016046              1.0             1.0000E+00         0.0                           
 
 ################################################################################################################
 # Sherpa 2.2.0 ttV

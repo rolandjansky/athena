@@ -4,7 +4,7 @@
 from AnaAlgorithm.AlgSequence import AlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
-def makeMetAnalysisSequence( dataType, jetContainer, jetSystematics,
+def makeMetAnalysisSequence( dataType, metSuffix, jetContainer, jetSystematics,
                              components ):
     """Create a met analysis algorithm sequence
 
@@ -15,12 +15,13 @@ def makeMetAnalysisSequence( dataType, jetContainer, jetSystematics,
     if not dataType in ["data", "mc", "afii"] :
         raise ValueError ("invalid data type: " + dataType)
 
-    if dataType == "data" :
-        metName = "AnalysisMet_%SYS%"
-        pass
-    else :
-        metName = "PreAnalysisMet_%SYS%"
-        pass
+    # if dataType == "data" :
+    #     metName = "AnalysisMet_%SYS%"
+    #     pass
+    # else :
+    #     metName = "PreAnalysisMet_%SYS%"
+    #     pass
+    metName = "AnalysisMet_%SYS%"
     metSys = "(^$)"
 
     # Create the analysis algorithm sequence object:
@@ -32,26 +33,28 @@ def makeMetAnalysisSequence( dataType, jetContainer, jetSystematics,
                            'MetMakerAlg' )
     addPrivateTool( alg, 'makerTool',
                     'met::METMaker' )
-    alg.makerTool.ORCaloTaggedMuons = True
-    alg.makerTool.DoSetMuonJetEMScale = False
-    alg.makerTool.DoMuonEloss = False
-    alg.makerTool.DoPFlow = False
-    alg.makerTool.JetSelection = "Tight"
-    alg.metCore = "MET_Core_" + jetContainer[:-4]
-    alg.metAssociation = "METAssoc_" + jetContainer[:-4];
+    alg.makerTool.DoPFlow = "PFlow" in metSuffix
+    alg.metCore = "MET_Core_" + metSuffix
+    alg.metAssociation = "METAssoc_" + metSuffix
     alg.jets = jetContainer
     alg.jetsRegex = jetSystematics
-    alg.particles = []
-    alg.particlesRegex = []
-    alg.particlesType = []
-    alg.particlesKey = []
+    particles = []
+    particlesRegex = []
+    particlesType = []
+    particlesKey = []
+    print "components: ", components
     for part in components :
-        alg.particles.append (part["containerName"])
-        alg.particlesRegex.append (part["regex"])
-        alg.particlesType.append (part["type"])
-        alg.particlesKey.append (part["termName"])
+        particles.append (part["containerName"])
+        particlesRegex.append (part["regex"])
+        particlesType.append (part["type"])
+        particlesKey.append (part["termName"])
         metSys += "|" + part["regex"]
         pass
+    alg.systematicsRegex = "(^MET_.*)"
+    alg.particles = particles
+    alg.particlesRegex = particlesRegex
+    alg.particlesType = particlesType
+    alg.particlesKey = particlesKey
     alg.met = metName
     seq += alg
 
@@ -61,8 +64,8 @@ def makeMetAnalysisSequence( dataType, jetContainer, jetSystematics,
         addPrivateTool( alg, 'systematicsTool',
                         'met::METSystematicsTool' )
         alg.met = metName
-        metName = "AnalysisMet_%SYS"
-        alg.metOut = metName
+        #metName = "AnalysisMet_%SYS"
+        #alg.metOut = metName
         alg.metRegex = metSys
         alg.systematicsRegex = "(^MET_.*)"
         metSys += "|" + alg.systematicsRegex
