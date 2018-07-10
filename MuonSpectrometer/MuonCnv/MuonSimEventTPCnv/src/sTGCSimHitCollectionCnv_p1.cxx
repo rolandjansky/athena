@@ -3,9 +3,9 @@
 */
 
 #include "MuonSimEvent/sTGCSimHit.h"
-#include "MuonSimEventTPCnv/sTGCSimHitCollectionCnv_p2.h"
-#include "MuonSimEventTPCnv/sTGCSimHitCollection_p2.h"
-#include "GeneratorObjectsTPCnv/HepMcParticleLinkCnv_p2.h"
+#include "MuonSimEventTPCnv/sTGCSimHitCollectionCnv_p1.h"
+#include "MuonSimEventTPCnv/sTGCSimHitCollection_p1.h"
+#include "GeneratorObjectsTPCnv/HepMcParticleLinkCnv_p1.h"
 
 //#include <cmath>
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -15,7 +15,7 @@
 // Athena
 #include "StoreGate/StoreGateSvc.h"
 
-void sTGCSimHitCollectionCnv_p2::transToPers(const sTGCSimHitCollection* transCont, Muon::sTGCSimHitCollection_p2* persCont, MsgStream &log)
+void sTGCSimHitCollectionCnv_p1::transToPers(const sTGCSimHitCollection* transCont, Muon::sTGCSimHitCollection_p1* persCont, MsgStream &log)
 {
   // for reasons of efficiency, set size before hand
   unsigned int size=transCont->size();
@@ -34,8 +34,8 @@ void sTGCSimHitCollectionCnv_p2::transToPers(const sTGCSimHitCollection* transCo
   persCont->m_partLink.reserve(size);
 
   // make convertor to handle HepMcParticleLinks
-  HepMcParticleLinkCnv_p2 hepMcPLCnv;
-  HepMcParticleLink_p2 persLink; // will use this as a temp object inside the loop
+  HepMcParticleLinkCnv_p1 hepMcPLCnv;
+  HepMcParticleLink_p1 persLink; // will use this as a temp object inside the loop
 
   // loop through container, filling pers object  
   sTGCSimHitCollection::const_iterator it = transCont->begin(), itEnd = transCont->end();
@@ -60,16 +60,16 @@ void sTGCSimHitCollectionCnv_p2::transToPers(const sTGCSimHitCollection* transCo
 }
 
 
-sTGCSimHitCollection* sTGCSimHitCollectionCnv_p2::createTransient(const Muon::sTGCSimHitCollection_p2* persObj, MsgStream &log) {
+sTGCSimHitCollection* sTGCSimHitCollectionCnv_p1::createTransient(const Muon::sTGCSimHitCollection_p1* persObj, MsgStream &log) {
   std::auto_ptr<sTGCSimHitCollection> trans(new sTGCSimHitCollection("DefaultCollectionName",persObj->m_globalTime.size()));
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 }
 
 
-void sTGCSimHitCollectionCnv_p2::persToTrans(const Muon::sTGCSimHitCollection_p2* persCont, sTGCSimHitCollection* transCont, MsgStream &log) 
+void sTGCSimHitCollectionCnv_p1::persToTrans(const Muon::sTGCSimHitCollection_p1* persCont, sTGCSimHitCollection* transCont, MsgStream &log) 
 {
-  HepMcParticleLinkCnv_p2 hepMcPLCnv;
+  HepMcParticleLinkCnv_p1 hepMcPLCnv;
     
   //transCont->reserve(persCont->m_sTGCId.size());//done in createTransient
   for (unsigned int i = 0; i < persCont->m_sTGCId.size(); i++) { 
