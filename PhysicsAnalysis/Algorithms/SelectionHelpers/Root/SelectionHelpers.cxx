@@ -36,5 +36,5 @@ namespace CP
 
 
 
-  ANA_MSG_SOURCE (msgSelectionHelpers, "selectionHelpers");
+  ANA_MSG_SOURCE (msgSelectionHelpers, "selectionHelpers")
 }

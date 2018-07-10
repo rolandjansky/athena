@@ -55,7 +55,7 @@ namespace CP
   SelectionType selectionFromAccept (const Root::TAccept& accept);
 
 
-  ANA_MSG_HEADER (msgSelectionHelpers);
+  ANA_MSG_HEADER (msgSelectionHelpers)
 }
 
 #endif
