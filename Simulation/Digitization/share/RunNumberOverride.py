@@ -20,14 +20,9 @@ if digitizationFlags.dataRunNumber.get_Value():
     from Digitization.RunDependentConfig import buildListOfModifiers
     ServiceMgr.EvtIdModifierSvc.Modifiers += buildListOfModifiers()
     #fix iov metadata
-    try:
-        ServiceMgr.MetaDataSvc.MetaDataTools["IOVDbMetaDataTool"]
-    except IndexError:
-        from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
-        ServiceMgr.MetaDataSvc.MetaDataTools+=[IOVDbMetaDataTool()]
-        pass
-
-    ServiceMgr.MetaDataSvc.MetaDataTools["IOVDbMetaDataTool"].MinMaxRunNumbers = [myRunNumber, myRunNumber+1]#2147483647]
+    if not hasattr(ServiceMgr.ToolSvc, 'IOVDbMetaDataTool'):
+        ServiceMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
+    ServiceMgr.ToolSvc.IOVDbMetaDataTool.MinMaxRunNumbers = [myRunNumber, myRunNumber+1]#2147483647]
     myInitialTimeStamp=ServiceMgr.EvtIdModifierSvc.Modifiers[2]
 
     ServiceMgr.EventSelector.OverrideRunNumberFromInput=True

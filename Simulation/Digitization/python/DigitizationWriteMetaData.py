@@ -11,15 +11,12 @@ def ModifyingEventIdBySvc():
     if digitizationFlags.RunAndLumiOverrideList.statusOn or digitizationFlags.dataRunNumber.statusOn:
         from AthenaCommon.AppMgr import ServiceMgr
         if hasattr(ServiceMgr, 'EvtIdModifierSvc'):
-            try:
-                #GaudiHandleArray implements __geitem__ but no has_key functionality
-                ServiceMgr.MetaDataSvc.MetaDataTools["IOVDbMetaDataTool"]
-            except IndexError:
+            if hasattr(ServiceMgr.ToolSvc, 'IOVDbMetaDataTool'):
+                return True
+            else:
                 logDigitizationWriteMetadata.error('Found the EvtIdModifierSvc, but not the IOVDbMetaDataTool. \
                 It will not be possible to set the min and max run number of the job.')
                 raise SystemExit("Found the EvtIdModifierSvc, but not the IOVDbMetaDataTool.")
-            else:
-                pass
         else:
             raise SystemExit("jobProperties.Digitization.RunAndLumiOverrideList is set, but no EvtIdModifierSvc found!")
     else :
@@ -42,8 +39,8 @@ def getRunNumberRangeForOutputMetadata():
     if ModifyingEventIdBySvc():
         logDigitizationWriteMetadata.info('Setting the  Digitization MetaData IOV from the IOVDbMetaDataTool')
         from AthenaCommon.AppMgr import ServiceMgr
-        myRunNumber=ServiceMgr.MetaDataSvc.MetaDataTools["IOVDbMetaDataTool"].MinMaxRunNumbers[0]
-        myEndRunNumber=ServiceMgr.MetaDataSvc.MetaDataTools["IOVDbMetaDataTool"].MinMaxRunNumbers[1]
+        myRunNumber=ServiceMgr.ToolSvc.IOVDbMetaDataTool.MinMaxRunNumbers[0]
+        myEndRunNumber=ServiceMgr.ToolSvc.IOVDbMetaDataTool.MinMaxRunNumbers[1]
     else :
         if myRunNumber > 0 :
             logDigitizationWriteMetadata.info('Found Run Number %s in hits file metadata.', str(myRunNumber) )

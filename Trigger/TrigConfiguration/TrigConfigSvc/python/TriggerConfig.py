@@ -180,17 +180,21 @@ def _setupConfig():
         from AthenaCommon.AppMgr  import ServiceMgr as svcMgr
         from AthenaCommon.AppMgr import ToolSvc
 
-        if not hasattr( svcMgr, 'MetaDataSvc' ):
+        if not hasattr( ToolSvc, 'IOVDbMetaDataTool' ):
             from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
+            ToolSvc += IOVDbMetaDataTool( "IOVDbMetaDataTool" )
+
+        
+        if not hasattr( svcMgr, 'MetaDataSvc' ):
             from AthenaServices.AthenaServicesConf import MetaDataSvc
             svcMgr += MetaDataSvc( "MetaDataSvc" )
             svcMgr.MetaDataSvc.MetaDataContainer = "MetaDataHdr"
-            svcMgr.MetaDataSvc.MetaDataTools += [ IOVDbMetaDataTool() ]
+            svcMgr.MetaDataSvc.MetaDataTools += [ "IOVDbMetaDataTool" ]
 
         # for debugging uncomment the following three lines
         from AthenaCommon.Constants import VERBOSE
+        ToolSvc.IOVDbMetaDataTool.OutputLevel = VERBOSE
         svcMgr.MetaDataSvc.OutputLevel = VERBOSE
-        svcMgr.MetaDataSvc.MetaDataTools[ "IOVDbMetaDataTool"].OutputLevel = VERBOSE
 
         dbConnection = "<dbConnection>impl=cool;techno=oracle;schema=ATLAS_COOLONL_READER;devdb10:COOLTEST:atlas_trig_stelzer</dbConnection>"
 

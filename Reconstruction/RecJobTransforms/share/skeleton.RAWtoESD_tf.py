@@ -200,7 +200,9 @@ if hasattr(runArgs,"topOptions"): include(runArgs.topOptions)
 else: include( "RecExCommon/RecExCommon_topOptions.py" )
 
 if hasattr(runArgs,"inputRDO_TRIGFile") and rec.doFileMetaData():
-    svcMgr.MetaDataSvc.MetaDataTools += [  CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool") ]
+    ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool",
+                              OutputLevel = 3 )
+    svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
 
 #==========================================================
 # Use LZIB for compression of temporary outputs of AthenaMP
