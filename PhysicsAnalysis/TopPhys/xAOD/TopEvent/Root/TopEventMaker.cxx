@@ -324,6 +324,7 @@ namespace top {
       top::check(evtStore()->retrieve(rc_jets,rcJetContainerName),"Failed to retrieve RC JetContainer");
       //Object selection
       for (auto rcjet : *rc_jets){
+	top::check( rcjet->isAvailable<bool>("PassedSelection") , " Can't find jet decoration \"PassedSelection\" - we need it to decide if we should keep the reclustered jet in the top::Event instance or not!");
 	if(rcjet->auxdataConst<bool>("PassedSelection"))event.m_RCJets.push_back((xAOD::Jet*)rcjet);
       }
     }
@@ -342,8 +343,10 @@ namespace top {
 	  const xAOD::JetContainer* vrc_jets(nullptr);
 	  top::check(evtStore()->retrieve(vrc_jets,varRCJetContainerName),"Failed to retrieve RC JetContainer");
 	  
+	  event.m_VarRCJets[name] = std::make_shared<xAOD::JetContainer>(SG::VIEW_ELEMENTS);
 	  for (auto vrcjet : *vrc_jets){
-	    if(vrcjet->auxdataConst<bool>("PassedSelection"))event.m_VarRCJets[name].push_back((xAOD::Jet*)vrcjet);
+	    top::check( vrcjet->isAvailable<bool>("PassedSelection") , " Can't find jet decoration \"PassedSelection\" - we need it to decide if we should keep the variable-R reclustered jet in the top::Event instance or not!");
+	    if(vrcjet->auxdataConst<bool>("PassedSelection"))event.m_VarRCJets[name]->push_back((xAOD::Jet*)vrcjet);
 	    //std::cout << vrcjet->pt() << std :: endl;
 	  }
 	  
