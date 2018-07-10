@@ -30,6 +30,7 @@
 + Control/AthToolSupport/AsgTools
 + Control/AthenaBaseComps
 + Control/AthenaCommon
++ Control/AthenaExamples/AthExHelloWorld
 + Control/AthenaInterprocess
 + Control/AthenaKernel
 + Control/AthenaMP

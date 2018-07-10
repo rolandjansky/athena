@@ -9,8 +9,12 @@ class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
         print "In FTK_DataProviderSvc_Config.py"  
         FTK_DataProviderSvc.__init__(self, name) 
 
+        # SiLorentzAngleTool for SCT
         from AthenaCommon.AppMgr import ToolSvc
-
+        if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
+            from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+            sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+        FTK_DataProviderSvc.SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool
 
         from TrigInDetConf.TrigInDetRecToolsFTK import InDetTrigTrackFitterFTK, InDetTrigRotCreatorFTK, TrigFTK_VertexCollectionSortingTool, \
         TrigFTK_UncertaintyTool,TrigFTK_RawVertexFinderTool,InDetTrigTrackParticleCreatorToolFTK,InDetTrigTrackSummaryToolFTK

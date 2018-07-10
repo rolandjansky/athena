@@ -60,4 +60,4 @@ ClassIDSvc           INFO  getRegistryEntries: read 754 CLIDRegistry entries for
 ClassIDSvc           INFO  getRegistryEntries: read 401 CLIDRegistry entries for module ALL
 test2
 arralg2             ERROR Explicit circular data dependency detected for id  ( 'AthenaBaseCompsTest::MyObj' , 'StoreGateSvc+aaa' ) 
-arralg2             FATAL /home/leggett/work/v30r1.002/src/Control/AthenaBaseComps/src/AthAlgorithm.cxx:142 (StatusCode AthAlgorithm::sysInitialize()): code 0: Algorithm::sysInitialize()
+arralg2             FATAL ../AthCommonDataStore.icc (StatusCode AthCommonDataStore<PBASE>::sysInitialize() [with PBASE = AthCommonMsg<Algorithm>]): code 0: PBASE::sysInitialize()

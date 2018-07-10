@@ -14,6 +14,7 @@
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 
 #include "FTK_DataProviderInterfaces/IFTK_DataProviderSvc.h"
 
@@ -101,6 +102,8 @@ public:
   const InDetDD::SCT_DetectorManager*  m_SCT_Manager;
 
   const AtlasDetectorID* m_id_helper;
+
+  ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
 
   /// Histograms ///
   TH1D* m_h_FTK_RawTrack_n;

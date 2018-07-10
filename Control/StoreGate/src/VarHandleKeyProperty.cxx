@@ -4,10 +4,10 @@
 
 // $Id$
 /**
- * @file VarHandleKeyProperty.cxx
+ * @file StoreGate/src/VarHandleKeyProperty.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Jan, 2016
- * @brief 
+ * @brief Handle Gaudi property setting for VarHandleKey.
  */
 
 // STL includes
@@ -18,7 +18,7 @@
 // StoreGate includes
 #include "StoreGate/VarHandleKeyProperty.h"
 
-static const char* storeSeparator = "+";
+static const char* const storeSeparator = "+";
 
 namespace Gaudi { 
 namespace Parsers {

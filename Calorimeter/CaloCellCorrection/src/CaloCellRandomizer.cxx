@@ -9,7 +9,7 @@
 //
 // ****************************************************************************************
 
-#include "CaloCellCorrection/CaloCellRandomizer.h"
+#include "CaloCellRandomizer.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
@@ -75,9 +75,9 @@ StatusCode CaloCellRandomizer::initialize()
 
 // ============================================================================
 
-void CaloCellRandomizer::MakeCorrection (CaloCell* theCell)
+void CaloCellRandomizer::MakeCorrection (CaloCell* theCell,
+                                         const EventContext& ctx) const
 {
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   CLHEP::HepRandomEngine* engine = m_randomEngine->getEngine (ctx);
 
   int sampl = 0;

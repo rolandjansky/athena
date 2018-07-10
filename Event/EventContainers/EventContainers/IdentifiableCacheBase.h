@@ -22,7 +22,6 @@
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
-#include "EventContainers/IDC_Wait.h"
 #include "EventContainers/IDC_Lock.h"
 #include <map>
 //abarton

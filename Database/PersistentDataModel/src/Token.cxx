@@ -7,13 +7,14 @@
 #include <cstdio>
 #include <cstring>
 #include <climits>
+#include <atomic>
 
-static const char* fmt_clid = "[CLID=";
-static const char* fmt_tech = "[TECH=%08X]";
-static const char* fmt_oid  = "[OID=%016llX-%016llX]";
-static const char* fmt_oid_old  = "[OID=%08llX-%08llX]";
+static const char* const fmt_clid = "[CLID=";
+static const char* const fmt_tech = "[TECH=%08X]";
+static const char* const fmt_oid  = "[OID=%016llX-%016llX]";
+static const char* const fmt_oid_old  = "[OID=%08llX-%08llX]";
 static const int KEY_MASK = (~0u) << CHAR_BIT;
-static int s_numCount = 0;
+static std::atomic<int> s_numCount { 0 };
 
 int numTokenInstances() { return s_numCount; }
 
@@ -130,18 +131,18 @@ Token& Token::fromString(const std::string& source)    {
          if (::strncmp("[DB=", p1, 4) == 0)  {
             m_dbID.fromString(p1 + 4);
          } else if (::strncmp("[CNT=", p1, 5) == 0) {
-            char* p3mod = const_cast<char*>(p3);
-            *p3mod = 0;
-            m_cntID = p2 + 1;
-            *p3mod = ']';
+            m_cntID.assign (p2+1, p3-p2-1);
          } else if (::strncmp(fmt_oid, p1, 5) == 0) {
+            long long unsigned int first, second;
             if (::strncmp("]", p1 + 22, 1) == 0) { // 5 + 8(int) + 1(minus) + 8(int) = 22
-               ::sscanf(p1, fmt_oid_old, &m_oid.first, &m_oid.second);
-               if (int(m_oid.first) == ~0x0) m_oid.first = ~0x0LL;
-               if (int(m_oid.second) == ~0x0) m_oid.second = ~0x0LL;
+               ::sscanf(p1, fmt_oid_old, &first, &second);
+               if (int(first) == ~0x0) first = ~0x0LL;
+               if (int(second) == ~0x0) second = ~0x0LL;
             } else {
-               ::sscanf(p1, fmt_oid, &m_oid.first, &m_oid.second);
+               ::sscanf(p1, fmt_oid, &first, &second);
             }
+            m_oid.first = first;
+            m_oid.second = second;
          } else if (::strncmp(fmt_clid, p1, 6) == 0) {
             m_classID.fromString(p1 + 6);
          } else if (::strncmp(fmt_tech, p1, 6) == 0) {
@@ -150,11 +151,9 @@ Token& Token::fromString(const std::string& source)    {
             while (*(p2 + 1) == '[' && p3 && *(++p3) != 0 && *p3 != ']') {
                p3 = ::strchr(p3, ']');
             }
-            char* p3mod = const_cast<char*>(p3);
-            if (p3mod) *p3mod = 0;
-            m_auxString += p1;
+            if (!p3) p3 = source.c_str() + source.size();
+            m_auxString.append (p1, p3-p1);
             m_auxString += "]";
-            if (p3mod) *p3mod = ']';
          }
       }
    }

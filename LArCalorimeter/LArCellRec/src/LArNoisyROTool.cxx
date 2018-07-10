@@ -9,7 +9,7 @@
 /////////////////////////////////////////////////////////////////// 
 
 // LArCellRec includes
-#include "LArCellRec/LArNoisyROTool.h"
+#include "LArNoisyROTool.h"
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "LArRecEvent/LArNoisyROSummary.h"

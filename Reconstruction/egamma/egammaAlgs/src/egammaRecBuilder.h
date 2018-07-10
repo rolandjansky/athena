@@ -35,11 +35,11 @@ class egammaRecBuilder : public AthAlgorithm
   egammaRecBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
   /** @brief initialize method*/
-  StatusCode initialize();
+  StatusCode initialize() override final;
   /** @brief finalize method*/
-  StatusCode finalize();
+  StatusCode finalize() override final;
   /** @brief execute method*/
-  StatusCode execute();
+  StatusCode execute() override final;
   
  private:
 

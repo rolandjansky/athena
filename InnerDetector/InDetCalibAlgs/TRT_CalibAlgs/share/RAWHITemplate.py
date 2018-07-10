@@ -427,6 +427,13 @@ topSequence.InDetPixelClusterization.TRTEffiCut=0.5
 #conddb.addOverride('/Indet/TrkErrorScaling','TrkErrorScaling_7T_2010_02')
 #conddb.addFolderWithTag('TRT_OFL','/TRT/Calib/errors','TrtCalibErrors-ErrorVal-00-00')
 
+# DCS Data Folders
+if (globalflags.InputFormat() == 'bytestream' and globalflags.DataSource() == 'data'):
+    if InDetFlags.useTrtDCS():
+        conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/BARREL <cache>600</cache>",classname='CondAttrListCollection')
+        conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/ENDCAPA <cache>600</cache>",classname='CondAttrListCollection')
+        conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/ENDCAPC <cache>600</cache>",classname='CondAttrListCollection')
+
 """
 
     if not calibconstants=="":

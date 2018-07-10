@@ -218,8 +218,8 @@ summary.InputDecision = "HLTChains"
 summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
 from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
 edmCreator = HLTEDMCreator()
-edmCreator.TrigCompositeContainer = [ "EgammaCaloDecisions", "ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "HLTChainsResult" ]
-
+edmCreator.TrigCompositeContainer = [ "L2ElectronLinks", "filterCaloRoIsAlg", "EgammaCaloDecisions","ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "HLTChainsResult",
+"JRoIDecisions", "MonitoringSummaryStep1", "RerunEMRoIDecisions", "RerunMURoIDecisions", "TAURoIDecisions", "L2CaloLinks", "FilteredEMRoIDecisions", "FilteredEgammaCaloDecisions"  ]
 
 egammaViewsMerger = HLTEDMCreator("egammaViewsMerger")
 
@@ -247,12 +247,20 @@ summary.OutputLevel = DEBUG
 
 steps = seqAND("HLTSteps", [ step0, step1, step0r ]  )
 
-from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT
+from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT, DecisionCollectorTool
 mon = TrigSignatureMoniMT()
 mon.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions", "WhateverElse" ]
 from TrigUpgradeTest.TestUtils import MenuTest
 mon.ChainsList = [ x.split(":")[1] for x in  MenuTest.CTPToChainMapping ]
 mon.OutputLevel = DEBUG
+
+step1Collector = DecisionCollectorTool("Step1Collector")
+step1Collector.Decisions = ["EgammaCaloDecisions"]
+
+step2Collector = DecisionCollectorTool("Step2Collector")
+step2Collector.Decisions = ["ElectronL2Decisions"]
+mon.CollectorTools = [step1Collector, step2Collector]
+
 
 import AthenaPoolCnvSvc.WriteAthenaPool
 from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
@@ -275,13 +283,19 @@ StreamESD.ItemList += [ "xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronCo
                         "xAOD::TrackParticleAuxContainer#HLT_xAOD_TrackParticleContainer_L2ElectronTracksAux.", 
                         "xAOD::TrigEMClusterAuxContainer#HLT_xAOD__TrigEMClusterContainer_L2CaloClustersAux."]
 
+StreamESD.ItemList += [ "EventInfo#ByteStreamEventInfo" ]
+
+StreamESD.ItemList += [ "TrigRoiDescriptorCollection#EMRoIs" ]
+StreamESD.ItemList += [ "TrigRoiDescriptorCollection#JRoIs" ]
+StreamESD.ItemList += [ "TrigRoiDescriptorCollection#METRoI" ]
+StreamESD.ItemList += [ "TrigRoiDescriptorCollection#MURoIs" ]
+StreamESD.ItemList += [ "TrigRoiDescriptorCollection#TAURoIs" ]
+
 print "ESD file content " 
 print StreamESD.ItemList
 
-
 hltTop = seqOR( "hltTop", [ steps, mon, summary, StreamESD ] )
 topSequence += hltTop
-
 
 from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence(topSequence)

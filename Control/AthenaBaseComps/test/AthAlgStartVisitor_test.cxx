@@ -9,7 +9,7 @@
  */
 
 #undef NDEBUG
-#include "../src/AthAlgStartVisitor.h"
+#include "AthenaBaseComps/AthAlgStartVisitor.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TestTools/initGaudi.h"
@@ -89,7 +89,7 @@ void test1 (ISvcLocator* svcLoc)
   assert (h4.m_started == 0);
   assert (h5.m_started == 0);
 
-  AthAlgStartVisitor v;
+  AthAlgStartVisitor v( &alg );
   alg.acceptDHVisitor (&v);
 
   assert (h1.m_started == 1);

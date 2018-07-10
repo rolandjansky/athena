@@ -21,7 +21,7 @@ athenaCommonFlags.RuntimeStrictness = "abort"
 #--------------------------------------------------------------
 # Set default recFlags
 #--------------------------------------------------------------
-if os.environ['CMTCONFIG'].endswith('-dbg'):
+if os.environ.get('CMTCONFIG','').endswith('-dbg'):
     recFlags.doEdmMonitor       = True 
     recFlags.doNameAuditor      = True
 else:

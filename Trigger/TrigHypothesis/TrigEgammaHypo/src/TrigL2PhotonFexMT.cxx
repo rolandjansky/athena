@@ -7,24 +7,14 @@
 
 /**************************************************************************
  ** 
- **   Original Author:       R.Goncalo    
- **
- **   File: Trigger/TrigHypothesis/TrigEgammaHypo/TrigL2PhotonHypo.cxx
- **                   
- **   Description: Fex algo for TrigPhotons
- ** 
- **   Modified by: R.Goncalo 
- **                V. Perez-Reale
- **                A.Hamilton
- **                V. Dao (new TrigPhoton constructor used)
- **
- **   Created:      Thu Jun 06 16:01:12 BST 2006
+ **   Original Author:       B.Safarzadeh   
+
  **************************************************************************/ 
 
 #include "TrigL2PhotonFexMT.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
-#include "xAODTrigEgamma/TrigPhotonAuxContainer.h"
+#include "xAODTrigEgamma/TrigPhotonContainer.h"
 
 
 class ISvcLocator;
@@ -33,7 +23,6 @@ class ISvcLocator;
 TrigL2PhotonFexMT::TrigL2PhotonFexMT(const std::string & name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
 {
-  m_trigPhotonContainer =0;
 }
 
 
@@ -44,46 +33,37 @@ TrigL2PhotonFexMT::~TrigL2PhotonFexMT()
 StatusCode TrigL2PhotonFexMT::initialize()
 {
 
-ATH_CHECK( m_roiCollectionKey.initialize() );
-ATH_CHECK( m_TrigEMClusterContainerKey.initialize() );
+  ATH_CHECK( m_roiCollectionKey.initialize() );
+  ATH_CHECK( m_TrigEMClusterContainerKey.initialize() );
+  ATH_CHECK(m_outputPhotonsKey.initialize());
   ATH_MSG_DEBUG("Initialization:");
-    return  StatusCode::SUCCESS;
+  return  StatusCode::SUCCESS;
 }
 
 
 StatusCode TrigL2PhotonFexMT::finalize()
 {
-    ATH_MSG_INFO("in finalize()");
-     return StatusCode::SUCCESS;
+  ATH_MSG_INFO("in finalize()");
+  return StatusCode::SUCCESS;
 }
 
 
 StatusCode TrigL2PhotonFexMT::execute() 
 {
- using namespace xAOD;
- auto ctx = getContext();
+  using namespace xAOD;
+  auto ctx = getContext();
 
- //  xAOD::TrigPhotonAuxContainer trigPhotonAuxContainer;
-
+  //  xAOD::TrigPhotonAuxContainer trigPhotonAuxContainer;
 
   auto trigPhotoColl =   SG::makeHandle (m_outputPhotonsKey, ctx);  
   ATH_CHECK( trigPhotoColl.record (std::make_unique<xAOD::TrigPhotonContainer>(),
-				  std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );
+				   std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );
 
   ATH_MSG_DEBUG( "Made WriteHandle " << m_outputPhotonsKey );
   ATH_MSG_INFO( name() << " running with store " <<  getContext().getExtension<Atlas::ExtendedEventContext>()->proxy()->name() );
 
-  // always create a TrigPhotonContainer, even if it will be empty
-  //  if(!m_trigPhotonContainer) {
-  //  m_trigPhotonContainer = new xAOD::TrigPhotonContainer();
-  //  m_trigPhotonContainer->setStore(&trigPhotonAuxContainer);
-  // }
-  // else {
-  //  m_trigPhotonContainer->clear();
-  //}
-  
 
- auto roiCollection = SG::makeHandle(m_roiCollectionKey, ctx);
+  auto roiCollection = SG::makeHandle(m_roiCollectionKey, ctx);
   if (roiCollection->size()==0) {
     ATH_MSG_DEBUG(" RoI collection size = 0");
     return StatusCode::SUCCESS;
@@ -114,45 +94,39 @@ StatusCode TrigL2PhotonFexMT::execute()
 
 
   // retrieve the TrigEMCluster from the ElementLink
-    const xAOD::TrigEMCluster* pClus = elink_cluster;
+  const xAOD::TrigEMCluster* pClus = elink_cluster;
 
   if(pClus == 0){
-      ATH_MSG_ERROR("Failed to retieve TrigEMCluster from the ElementLink");
-      return StatusCode::SUCCESS; //HLT::MISSING_FEATURE;
+    ATH_MSG_ERROR("Failed to retieve TrigEMCluster from the ElementLink");
+    return StatusCode::SUCCESS; //HLT::MISSING_FEATURE;
   }
   
   float dEta =  pClus->eta() - etaRef;
   // Deal with angle diferences greater than Pi
   float dPhi =  fabs(pClus->phi() - phiRef);
   dPhi = (dPhi < M_PI ? dPhi : 2*M_PI - dPhi );
-   ATH_MSG_DEBUG("TrigPhoton will be built with: dEta=" << dEta
-		 << "  and dPhi= " << dPhi);
-
-
+  ATH_MSG_DEBUG("TrigPhoton will be built with: dEta=" << dEta
+		<< "  and dPhi= " << dPhi);
 
   // create TrigPhoton from TrigEMCluster
   xAOD::TrigPhoton* p_trigPhoton = new xAOD::TrigPhoton();
   // push TrigPhoton into TrigPhotonContainer
-  m_trigPhotonContainer->push_back(p_trigPhoton);
-	p_trigPhoton->init( roiDescriptor->roiId(), dPhi, dEta, EClus);
-//					    elink_cluster.getStorableObjectPointer(), 
-//					    elink_cluster.index() );
+  trigPhotoColl->push_back(p_trigPhoton);
+  p_trigPhoton->init( roiDescriptor->roiId(), dPhi, dEta, EClus);
   
 
-
-ATH_MSG_DEBUG("REGTEST: TrigPhotonContainer has " << m_trigPhotonContainer->size()
-		      << " element");
-   if (!m_trigPhotonContainer->empty()) {
-      xAOD::TrigPhoton* p_tp = m_trigPhotonContainer->front();
-      ATH_MSG_DEBUG("REGTEST: TrigPhoton: RoI=" << p_tp->roiWord()       
-	    << "; eta="    << p_tp->eta() 
-	    << "; phi="    << p_tp->phi() 
-	    << "; Et="     << p_tp->emCluster()->et() 
-	    << "; Had Et=" << p_tp->etHad() 
-	    << "; EnergyRatio=" << p_tp->eratio()
-	    << "; rCore=" << p_tp->rcore());
-      }  
-   return StatusCode::SUCCESS;
+  ATH_MSG_DEBUG("REGTEST: TrigPhotonContainer has " << trigPhotoColl->size()<< " element");
+  if (!trigPhotoColl->empty()) {
+    xAOD::TrigPhoton* p_tp = trigPhotoColl->front();
+    ATH_MSG_DEBUG("REGTEST: TrigPhoton: RoI=" << p_tp->roiWord()       
+		  << "; eta="    << p_tp->eta() 
+		  << "; phi="    << p_tp->phi() 
+		  << "; Et="     << p_tp->emCluster()->et() 
+		  << "; Had Et=" << p_tp->etHad() 
+		  << "; EnergyRatio=" << p_tp->eratio()
+		  << "; rCore=" << p_tp->rcore());
+  }  
+  return StatusCode::SUCCESS;
 
 }
 

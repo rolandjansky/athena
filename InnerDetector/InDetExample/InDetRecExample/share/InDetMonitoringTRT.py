@@ -3,6 +3,7 @@
 #--------------------------------------------------------------
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaCommon.GlobalFlags           import globalflags
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.DetFlags import DetFlags
@@ -29,11 +30,16 @@ else: # no track quality cuts for cosmics or single beams
 #-------------------------------------------------------------
 # Barrel Monitoring
 #-------------------------------------------------------------
+from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
+InDetTRT_DriftFunctionTool = TRT_DriftFunctionTool(name                = "InDetTRT_DriftFunctionTool",
+                                                   IsMC      = (globalflags.DataSource == 'geant4'))
+
 from TRT_Monitoring.TRT_MonitoringConf import TRT_Monitoring_Tool
 InDetTRT_Monitoring_Tool = TRT_Monitoring_Tool (name                         = "TRT_Monitoring_Tool",
                                                 TRTRawDataObjectName         = InDetKeys.TRT_RDOs(),
                                                 NumberOfEvents               = -1,
                                                 TRTTracksObjectName          = InDetKeys.UnslimmedTracks(),
+                                                DriftFunctionTool            = InDetTRT_DriftFunctionTool,
                                                 TrkSummaryTool               = InDetTrackSummaryTool,
                                                 Map_Path                     = "../maps/", # obsolete
                                                 LE_TimeWindow_MIN            = 0,   # can be 0,1,or 2

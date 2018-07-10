@@ -117,11 +117,11 @@ DummyLumirangeTool::initialize()
    ATH_MSG_DEBUG("Filled a metadata container of size " << defMeta.size());
 
    CollectionMetadata* def = new CollectionMetadata(defMeta);
-   CollectionMetadataContainer* cont = new CollectionMetadataContainer();
-   cont->push_back(def);
+   auto cont = std::make_unique<CollectionMetadataContainer>();
+   cont->push_back (def);
 
    SG::WriteHandle<CollectionMetadataContainer> wcmd(m_wcmd);
-   ATH_CHECK( wcmd.record (std::make_unique<CollectionMetadataContainer>(*cont)) );
+   ATH_CHECK( wcmd.record (std::move (cont)) );
    ATH_MSG_DEBUG("Stored CollectionMetadataContainer in " << m_storeName);
    ATH_MSG_DEBUG("Size: " << def->size());
    ATH_MSG_DEBUG("Contents: ");

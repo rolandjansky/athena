@@ -22,8 +22,10 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "TrkVertexAnalysisUtils/V0Tools.h"
+#include "InDetV0Finder/InDetV0FinderTool.h"
 #include "GaudiKernel/IPartPropSvc.h"
 #include "StoreGate/WriteDecorHandle.h"
+#include "HepPDT/ParticleDataTable.hh"
 
 #include <vector>
 #include <cmath>
@@ -194,6 +196,7 @@ StatusCode InDetV0Finder::initialize()
   return StatusCode::SUCCESS;
 }
 
+
 StatusCode InDetV0Finder::execute()
 {
 
@@ -229,26 +232,53 @@ StatusCode InDetV0Finder::execute()
   ATH_CHECK( m_v0FinderTool->performSearch(v0Container, v0AuxContainer,
 					   ksContainer, ksAuxContainer,
 					   laContainer, laAuxContainer,
-                                           lbContainer, lbAuxContainer,
+             lbContainer, lbAuxContainer,
 					   primaryVertex, importedVxContainer) );
+					   
+	auto cleanUpOnExit= [&](){
+	  delete v0Container;
+	  delete v0AuxContainer;
+	  delete ksContainer;
+	  delete ksAuxContainer;
+	  delete laContainer;
+	  delete laAuxContainer;
+	  delete lbContainer;
+	  delete lbAuxContainer;
+	};
 
   //---- Recording section: write the results to StoreGate ---//
 
   SG::WriteHandle<xAOD::VertexContainer> h_V0( m_v0Key );
-  ATH_CHECK( h_V0.record(std::unique_ptr<xAOD::VertexContainer>(v0Container), 
-			 std::unique_ptr<xAOD::VertexAuxContainer>(v0AuxContainer)) );
+  if ( h_V0.record(std::unique_ptr<xAOD::VertexContainer>(v0Container), 
+			 std::unique_ptr<xAOD::VertexAuxContainer>(v0AuxContainer)) !=StatusCode::SUCCESS){
+		ATH_MSG_ERROR("Storegate record of v0Container failed.");
+		cleanUpOnExit();
+		return StatusCode::FAILURE;
+	}
 
   SG::WriteHandle<xAOD::VertexContainer> h_Ks( m_ksKey );
-  ATH_CHECK( h_Ks.record(std::unique_ptr<xAOD::VertexContainer>(ksContainer), 
-			 std::unique_ptr<xAOD::VertexAuxContainer>(ksAuxContainer)) );
+  if ( h_Ks.record(std::unique_ptr<xAOD::VertexContainer>(ksContainer), 
+			 std::unique_ptr<xAOD::VertexAuxContainer>(ksAuxContainer)) != StatusCode::SUCCESS){
+	  ATH_MSG_ERROR("Storegate record of ksContainer failed.");
+	  cleanUpOnExit();
+	  return StatusCode::FAILURE;
+	}
 
   SG::WriteHandle<xAOD::VertexContainer> h_La( m_laKey );
-  ATH_CHECK( h_La.record(std::unique_ptr<xAOD::VertexContainer>(laContainer), 
-			 std::unique_ptr<xAOD::VertexAuxContainer>(laAuxContainer)) );
+  if( h_La.record(std::unique_ptr<xAOD::VertexContainer>(laContainer), 
+			 std::unique_ptr<xAOD::VertexAuxContainer>(laAuxContainer)) !=  StatusCode::SUCCESS){
+    ATH_MSG_ERROR("Storegate record of laContainer failed.");
+	  cleanUpOnExit();
+	  return StatusCode::FAILURE;
 
+  }
   SG::WriteHandle<xAOD::VertexContainer> h_Lb( m_lbKey );
-  ATH_CHECK(h_Lb.record(std::unique_ptr<xAOD::VertexContainer>(lbContainer), 
-			std::unique_ptr<xAOD::VertexAuxContainer>(lbAuxContainer)) );
+  if(h_Lb.record(std::unique_ptr<xAOD::VertexContainer>(lbContainer), 
+			std::unique_ptr<xAOD::VertexAuxContainer>(lbAuxContainer)) != StatusCode::SUCCESS){
+	  ATH_MSG_ERROR("Storegate record of lbContainer failed.");
+	  cleanUpOnExit();
+	  return StatusCode::FAILURE;
+	}
 
   if (m_decorate) {
     SG::WriteDecorHandle<xAOD::VertexContainer, float> decorKsMass(m_decorKsMass);

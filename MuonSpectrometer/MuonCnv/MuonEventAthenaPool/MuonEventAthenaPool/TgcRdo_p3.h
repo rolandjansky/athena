@@ -7,6 +7,7 @@
 
 #include <vector>
 #include "MuonEventAthenaPool/TgcRawData_p3.h"
+#include "CxxUtils/unused.h"
 
 class TgcRdo_p3 : public std::vector<TgcRawData_p3>
 {
@@ -37,7 +38,8 @@ private:
 
     // ID of this instance
     uint16_t m_id;
-    uint32_t m_idHash; 
+    // Unused, but shouldn't delete it since it's part of the persistent data.
+    uint32_t ATH_UNUSED_MEMBER(m_idHash);
 
 
     // online IDs

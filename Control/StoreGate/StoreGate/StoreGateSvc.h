@@ -59,6 +59,7 @@
 #include "StoreGate/SGWPtr.h"
 #include "SGTools/DataStore.h"
 #include "StoreGate/SGObjectWithVersion.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
@@ -1016,8 +1017,9 @@ private:
 
   /// Remember calls to retrieve and record for a MT store, so we can
   /// warn about them during finalize().
-  mutable BadItemList m_badRetrieves;
-  mutable BadItemList m_badRecords;
+  // Thread-safe, since they're protected by m_badMutex.
+  mutable BadItemList m_badRetrieves ATLAS_THREAD_SAFE;
+  mutable BadItemList m_badRecords   ATLAS_THREAD_SAFE;
 
   /// Protect access to m_bad* members.
   typedef std::mutex mutex_t;

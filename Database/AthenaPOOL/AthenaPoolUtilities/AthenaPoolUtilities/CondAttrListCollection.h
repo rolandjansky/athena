@@ -14,7 +14,7 @@
  */
 
 #ifndef DBDATAOBJECTS_CONDATTRLISTCOLLECTION_H
-# define DBDATAOBJECTS_CONDATTRLISTCOLLECTION_H 
+#define DBDATAOBJECTS_CONDATTRLISTCOLLECTION_H 
 
 //<<<<<< INCLUDES                                                       >>>>>>
 

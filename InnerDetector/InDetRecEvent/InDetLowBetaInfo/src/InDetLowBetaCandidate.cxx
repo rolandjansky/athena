@@ -28,7 +28,7 @@ namespace InDet {
 					       float TRTLikelihoodError,
 					       float   TRTHighTbits):m_TRTCorrBitsOverThreshold(TRTCorrBitsOverThreshold), m_TRTTrailingEdge( TRTTrailingEdge), m_TRTTrailingEdgeError( TRTTrailingEdgeError), m_TRTNLastBits(TRTNLastBits), m_TRTdEdx(TRTdEdx), m_TRTLikelihoodBeta(TRTLikelihoodBeta), m_TRTLikelihoodError(TRTLikelihoodError), m_TRTHighTbits( TRTHighTbits ) {}
    
-
+/**
   InDetLowBetaCandidate::InDetLowBetaCandidate(const InDetLowBetaCandidate& rhs) :
      m_TRTCorrBitsOverThreshold(rhs.m_TRTCorrBitsOverThreshold),
      m_TRTTrailingEdge(rhs.m_TRTTrailingEdge),
@@ -54,6 +54,7 @@ namespace InDet {
     }
     return *this;
   }
+**/
 
   InDetLowBetaCandidate::~InDetLowBetaCandidate() {}
 
@@ -70,20 +71,11 @@ namespace InDet {
 	    return sl;
 	  }
 
-  //std::ostrem& InDetLowBetaCandidate::dump(std::ostrem sl) const {
-  //	    sl << "Printing InDet::InDetLowBetaCandidate: " << endmsg;
-  //	    sl << "TRTCorrBitsOverThreshold: " << m_TRTCorrBitsOverThreshold << endmsg;
-  //    sl << "TRTTrailingEdge: " << m_TRTTrailingEdge << endmsg;
-  //    sl << "TRTTrailingEdgeError: " << m_TRTTrailingEdgeError << endmsg;
-  //    sl << "TRTNLastBits: " << m_TRTNLastBits << endmsg;
-  //    return sl;
-  //	  }
 
   MsgStream& operator << ( MsgStream& sl, const InDetLowBetaCandidate& sf)
 	  { return sf.dump(sl); }
 	
-  //std::ostream& operator << ( std::ostream& sl, const InDetLowBetaCandidate& sf)
-  //	  { return sf.dump(sl); }
+
 	    
   float InDetLowBetaCandidate::getTRTCorrBitsOverThreshold() const
           {	    
