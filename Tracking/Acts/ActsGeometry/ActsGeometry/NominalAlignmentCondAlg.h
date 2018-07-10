@@ -9,6 +9,7 @@
 #include "StoreGate/WriteCondHandleKey.h"
 
 #include "ActsGeometry/ShiftCondObj.h"
+#include "ActsGeometry/ITrackingGeometrySvc.h"
 
 #include "EventInfo/EventInfo.h"
 #include "GaudiKernel/ICondSvc.h"
@@ -40,6 +41,7 @@ private:
   SG::WriteCondHandleKey<GeoAlignmentStore> m_wchk {this, "PixelAlignmentKey", "PixelAlignment", "cond handle key"};
 
   ServiceHandle<ICondSvc> m_cs;
+  ServiceHandle<Acts::ITrackingGeometrySvc> m_trackingGeometrySvc;
 
 };
 

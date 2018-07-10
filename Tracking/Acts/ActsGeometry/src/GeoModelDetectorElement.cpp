@@ -146,40 +146,99 @@ const Acts::Transform3D&
 Acts::GeoModelDetectorElement::transform(const Identifier&) const
 {
 
-  auto get_transform = [this](GeoAlignmentStore* store, bool def) -> Transform3D {
-    return boost::apply_visitor(GetTransformVisitor(store, def, m_defTransform.get()), m_detElement);
-  };
 
   auto ctx = Gaudi::Hive::currentContext();
 
   if (!ctx.valid()) {
     // this is really only the case single threaded, but let's be safe and lock it down
-    std::lock_guard<std::mutex> guard(m_cacheMutex);
-    if (m_defTransform) return *m_defTransform;
-    m_defTransform = std::make_shared<const Transform3D>(get_transform(nullptr, true));
-    return *m_defTransform;
+    // also, we're not super afraid about performance here
+    return getDefaultTransformMutexed();
   }
 
   // retrieve GAS from tracking geometry svc
   const GeoAlignmentStore* alignmentStore = m_trackingGeometrySvc->getGeoAlignmentStore(ctx);
 
-  if (!rch.isValid()) {
-    return *m_defTransform;
+  // no GAS, is this initialization?
+  if (alignmentStore == nullptr) {
+    throw std::runtime_error("GeoAlignmentStore could not be found for valid context.");
   }
 
-  // since we "cache" in GAS for this IOV, we need this to be mutable.
-  // @TODO: find out if this breaks something
-  GeoAlignmentStore* alignmentStore = const_cast<GeoAlignmentStore*>(*rch);
-
-  // early return if cache is valid for IOV
   const Transform3D* cachedTrf = alignmentStore->getTransform(this);
-  if (cachedTrf != nullptr) return *cachedTrf;
+  if (cachedTrf == nullptr) {
+    throw std::runtime_error("Detector transform not found in GeoAlignmentStore.");
+  }
 
-  // no trf cached
-  Transform3D trf = get_transform(alignmentStore, false);
-  alignmentStore->setTransform(this, trf);
-  return *(alignmentStore->getTransform(this));
-  
+  return *cachedTrf;
+}
+
+void
+Acts::GeoModelDetectorElement::storeTransform(GeoAlignmentStore* gas) const
+{
+  struct get_transform : public boost::static_visitor<Transform3D>
+  {
+    get_transform(GeoAlignmentStore* gas, const Transform3D* trtTrf)
+      : m_store(gas), m_trtTrf(trtTrf) {}
+
+    Transform3D operator()(const InDetDD::SiDetectorElement* detElem) const
+    {
+      HepGeom::Transform3D g2l 
+        = detElem->getMaterialGeom()->getAbsoluteTransform(m_store);
+
+      return Amg::CLHEPTransformToEigen(g2l * detElem->recoToHitTransform());
+    }
+    
+    Transform3D operator()(const InDetDD::TRT_BaseElement*) const
+    {
+      return *m_trtTrf;
+    }
+
+    GeoAlignmentStore* m_store;
+    const Transform3D* m_trtTrf;
+  };
+
+  Transform3D trf 
+    = boost::apply_visitor(get_transform(gas, m_defTransform.get()), m_detElement);
+
+  gas->setTransform(this, trf);
+  if (gas->getTransform(this) == nullptr) {
+    throw std::runtime_error("Detector element was unable to store transform in GAS");
+  }
+
+}
+
+const Acts::Transform3D&
+Acts::GeoModelDetectorElement::getDefaultTransformMutexed() const
+{
+  struct get_default_transform : public boost::static_visitor<Transform3D>
+  {
+    get_default_transform(const Transform3D* trtTrf) : m_trtTrf(trtTrf) {}
+
+    Transform3D operator()(const InDetDD::SiDetectorElement* detElem) const
+    {
+      HepGeom::Transform3D g2l 
+        = detElem->getMaterialGeom()->getDefAbsoluteTransform();
+
+      return Amg::CLHEPTransformToEigen(g2l * detElem->recoToHitTransform());
+    }
+    
+    Transform3D operator()(const InDetDD::TRT_BaseElement*) const
+    {
+      return *m_trtTrf;
+    }
+
+    const Transform3D* m_trtTrf;
+  };
+    
+  std::lock_guard<std::mutex> guard(m_cacheMutex);
+  if (m_defTransform) {
+    return *m_defTransform;
+  }
+  // transform not yet set
+  m_defTransform 
+    = std::make_shared<const Transform3D>(
+        boost::apply_visitor(get_default_transform(m_defTransform.get()), m_detElement));
+
+  return *m_defTransform;
 }
 
 const Acts::Surface&
@@ -197,7 +256,5 @@ Acts::GeoModelDetectorElement::thickness() const
 Identifier
 Acts::GeoModelDetectorElement::identify() const
 {
-  
-
   return boost::apply_visitor(IdVisitor(m_explicitIdentifier), m_detElement);
 }

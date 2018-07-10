@@ -74,6 +74,10 @@ public:
   /// Return local to global transform associated with this identifier
   virtual const Transform3D&
   transform(const Identifier& identifier = Identifier()) const final override;
+  
+  void
+  storeTransform(GeoAlignmentStore* gas) const;
+
 
   /// Set the identifier after construction (sometimes needed)
   virtual void
@@ -104,31 +108,13 @@ public:
 
 
 private:
-
-  struct GetTransformVisitor : public boost::static_visitor<Transform3D> {
-    explicit GetTransformVisitor(GeoAlignmentStore* store, bool def, const Transform3D* fallback)
-      : m_store(store), m_default(def), m_fallback(fallback)
-    {}
-
-    Transform3D operator()(const InDetDD::SiDetectorElement* detElem) const
-    {
-      HepGeom::Transform3D g2l;
-      if (m_default) g2l = detElem->getMaterialGeom()->getDefAbsoluteTransform(m_store);
-      else g2l = detElem->getMaterialGeom()->getAbsoluteTransform(m_store);
-
-      return Amg::CLHEPTransformToEigen(g2l * detElem->recoToHitTransform());
-    }
-
-    Transform3D operator()(const InDetDD::TRT_BaseElement*) const
-    {
-      return *m_fallback;
-    }
-
-    GeoAlignmentStore* m_store;
-    bool m_default;
-    const Transform3D* m_fallback;
-  };
   
+  /// Returns default transform. For TRT this is static and set in constructor.
+  /// For silicon detectors it is calulated from GM, and stored. Thus the method 
+  /// is not const. The store is mutexed.
+  const Transform3D&
+  getDefaultTransformMutexed() const;
+
   struct IdVisitor : public boost::static_visitor<Identifier>
   {
     explicit IdVisitor(const Identifier& id) : m_explicitIdentifier(id) {}

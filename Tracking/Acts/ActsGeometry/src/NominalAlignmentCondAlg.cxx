@@ -27,7 +27,10 @@
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "InDetReadoutGeometry/ExtendedAlignableTransform.h"
 
+#include "ActsGeometry/GeoModelDetectorElement.hpp"
 #include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Detector/TrackingVolume.hpp"
 
 #include <thread>
 #include <chrono>
@@ -37,7 +40,8 @@
 NominalAlignmentCondAlg::NominalAlignmentCondAlg( const std::string& name, 
             ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
-  m_cs("CondSvc",name)
+  m_cs("CondSvc",name),
+  m_trackingGeometrySvc("TrackingGeometrySvc", name)
 {
 }
 
@@ -107,12 +111,27 @@ StatusCode NominalAlignmentCondAlg::execute() {
 
     ATH_MSG_DEBUG("Will register nominal alignment for range: " << r);
 
-    // we record an empty alignment store
-    GeoAlignmentStore* alignStore = new GeoAlignmentStore();
+    // create empty alignment store, no deltas
+    GeoAlignmentStore* alignmentStore = new GeoAlignmentStore();
 
-    if (wch.record(r, alignStore).isFailure()) {
+    // populate the alignment store with all detector elements
+    auto trkGeom = m_trackingGeometrySvc->trackingGeometry();
+    const Acts::TrackingVolume* trkVol = trkGeom->highestTrackingVolume();
+
+    ATH_MSG_DEBUG("Populating GeoAlignmentStore for IOV for " 
+        << trkVol->detectorElements().size() << " detector elements");
+    for (const auto& de : trkVol->detectorElements()) {
+      using GMDE = Acts::GeoModelDetectorElement;
+      GMDE* mutableGMDetElem
+        = const_cast<GMDE*>(dynamic_cast<const GMDE*>(de.second));
+      mutableGMDetElem->storeTransform(alignmentStore);
+    }
+    ATH_MSG_DEBUG("GeoAlignmentStore populated");
+
+
+    if (wch.record(r, alignmentStore).isFailure()) {
       ATH_MSG_ERROR("could not record nominal GeoAlignmentStore " << wch.key() 
-		    << " = " << alignStore
+		    << " = " << alignmentStore
                     << " with EventRange " << r);
       return StatusCode::FAILURE;
     }
