@@ -18,6 +18,7 @@
 # art-output: *.root
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
+# art-output: TotalEventsProcessed.txt
 
 export NAME="mc_pp_v7_nops_aod_ftk_build"
 export MENU="MC_pp_v7_no_prescale"
@@ -25,6 +26,7 @@ export INPUT="ftk"
 export JOBOPTIONS="TriggerTest/testCommonSliceAthenaTrigRDOtoAOD.py"
 export EVENTS="5"
 export COST_MONITORING="False"
+export EXTRA="from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.doFTK=True;from RecExConfig.RecFlags import rec;rec.doFTK.set_Value_and_Lock(True);"
 
 source exec_athena_art_trigger_validation.sh
 source exec_art_triggertest_post.sh
