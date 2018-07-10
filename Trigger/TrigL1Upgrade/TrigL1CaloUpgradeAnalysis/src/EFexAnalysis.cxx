@@ -5,7 +5,7 @@
 
 /** 
  * NAME : 	EFexAnalysis.cxx
- * PACKAGE : 	Trigger/TrigL1Upgrade/TrigL1CaloUpgrade/EFexAnalysis
+ * PACKAGE : 	Trigger/TrigL1Upgrade/TrigL1CaloUpgradeAnalysis/EFexAnalysis
  *
  * AUTHOR : 	Denis Oliveira Damazio
  *
@@ -23,6 +23,8 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTrigger/EmTauRoIContainer.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "TrigL1CaloUpgrade/BCID.h"
 
 EFexAnalysis::EFexAnalysis( const std::string& name, ISvcLocator* pSvcLocator ) : AthAlgorithm (name, pSvcLocator){
        declareProperty("EnableMonitoring", m_enableMon=false);
@@ -37,7 +39,7 @@ EFexAnalysis::~EFexAnalysis(){}
 StatusCode EFexAnalysis::initialize(){
 	
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "initializing TrigT1CaloEFex" << endreq;
+	msg << MSG::DEBUG << "initializing EFexAnalysis" << endreq;
         if ( m_enableMon ){
 		std::string histoName(name());
 		histoName+="Algo.root";
@@ -79,6 +81,8 @@ StatusCode EFexAnalysis::initialize(){
 		m_res_off_eta = new TH2F("res_off_eta","resolution with respect offline versus eta",50,-5.0,5.0,60,-30.0,30.0);
 		m_res_off_pt = new TH2F("res_off_pt","resolution with respect offline versus pt",60,0.0,60.0,60,-30.0,30.0);
 		m_res_off_nvtx = new TH2F("res_off_nvtx","resolution with respect offline versus nvtx",120,0.0,120.0,60,-30.0,30.0);
+		m_res_off_bcid = new TH2F("res_off_bcid","resolution with respect offline versus bcid",3500,0.0,3500.0,60,-30.0,30.0);
+		m_res_off_bcidN = new TH2F("res_off_bcidN","resolution with respect offline versus bcidN",150,0.0,150.0,60,-30.0,30.0);
 
 		m_res_phi_off = new TH1F("res_phi_off","phi resolution with respect offline electron",60,-30.0,30.0);
 		m_res_phi_off_eta = new TH2F("res_phi_off_eta","phi resolution with respect offline versus eta",50,-5.0,5.0,60,-30.0,30.0);
@@ -92,6 +96,8 @@ StatusCode EFexAnalysis::initialize(){
 		m_res_rEta_off_eta = new TH2F("res_rEta_off_eta","rEta resolution with respect offline versus eta",50,-5.0,5.0,60,-30.0,30.0);
 		m_res_rEta_off_pt = new TH2F("res_rEta_off_pt","rEta resolution with respect offline versus pt",60,0.0,60.0,60,-30.0,30.0);
 		m_res_rEta_off_nvtx = new TH2F("res_rEta_off_nvtx","rEta resolution with respect offline versus nvtx",120,0.0,120.0,60,-30.0,30.0);
+		m_res_rEta_off_bcid = new TH2F("res_rEta_off_bcid","rEta resolution with respect offline versus bcid",3500,0.0,3500.0,60,-30.0,30.0);
+		m_res_rEta_off_bcidN = new TH2F("res_rEta_off_bcidN","rEta resolution with respect offline versus bcidN",150,0.0,150.0,60,-30.0,30.0);
 
 		m_res_f1_off = new TH1F("res_f1_off","f1 resolution with respect offline electron",60,-30.0,30.0);
 		m_res_f1_off_eta = new TH2F("res_f1_off_eta","f1 resolution with respect offline versus eta",50,-5.0,5.0,60,-30.0,30.0);
@@ -101,6 +107,9 @@ StatusCode EFexAnalysis::initialize(){
 		m_res_f3_off = new TH1F("res_f3_off","f3 resolution with respect offline electron",60,-30.0,30.0);
 		m_res_f3_off_eta = new TH2F("res_f3_off_eta","f3 resolution with respect offline versus eta",50,-5.0,5.0,60,-30.0,30.0);
 		m_res_f3_off_pt = new TH2F("res_f3_off_pt","f3 resolution with respect offline versus pt",60,0.0,60.0,60,-30.0,30.0);
+		m_res_f3_off_nvtx = new TH2F("res_f3_off_nvtx","f3 resolution with respect offline versus nvtx",120,0.0,120.0,60,-30.0,30.0);
+		m_res_f3_off_bcid = new TH2F("res_f3_off_bcid","f3 resolution with respect offline versus bcid",3500,0.0,3500.0,60,-30.0,30.0);
+		m_res_f3_off_bcidN = new TH2F("res_f3_off_bcidN","f3 resolution with respect offline versus bcidN",150,0.0,150.0,60,-30.0,30.0);
 
 		m_eff_off_pt_n = new TH1F("eff_off_pt_n","efficiency with respect to offline pt",60,0,60.0);
 		m_eff_off_pt_d = new TH1F("eff_off_pt_d","efficiency with respect to offline pt",60,0,60.0);
@@ -113,7 +122,7 @@ StatusCode EFexAnalysis::initialize(){
 
 StatusCode EFexAnalysis::finalize(){
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "finalizing TrigT1CaloEFex" << endreq;
+	msg << MSG::DEBUG << "finalizing EFexAnalysis" << endreq;
         if ( m_enableMon ){
 		m_histFile->Write();
 		m_histFile->Close();
@@ -124,7 +133,17 @@ StatusCode EFexAnalysis::finalize(){
 StatusCode EFexAnalysis::execute(){
 	
         MsgStream msg(msgSvc(), name());
-	msg << MSG::DEBUG << "execute TrigT1CaloEFex" << endreq;
+	msg << MSG::DEBUG << "execute EFexAnalysis" << endreq;
+        const xAOD::EventInfo* evt(0);
+        if ( evtStore()->retrieve(evt,"EventInfo").isFailure() ){
+                msg << MSG::WARNING << "did not find EventInfo container" << endreq;
+        }
+        long bunch_crossing(-1);
+        long bunch_crossingNor(-1);
+        if ( evt ) {
+           bunch_crossing = evt->bcid();
+           bunch_crossingNor = bcids_from_start ( bunch_crossing );
+        }
         const xAOD::TrigEMClusterContainer* scluster(nullptr);
 	if ( evtStore()->retrieve(scluster,m_inputClusterName).isFailure() ){
 		msg << MSG::WARNING << "did not find super cluster container" << endreq;
@@ -133,11 +152,7 @@ StatusCode EFexAnalysis::execute(){
         const xAOD::EmTauRoIContainer* lvl1(nullptr);
 	if ( evtStore()->retrieve(lvl1,m_inputLvl1Name).isFailure() ){
 		msg << MSG::WARNING << "did not find old l1 container" << endreq;
-		return StatusCode::SUCCESS;
-	}
-        if ( lvl1 ) {
-		//for(auto l1 : *lvl1 )
-		//std::cout << "test L1 : " << l1->eta() << " " << l1->phi() << " " << l1->eT() << std::endl;
+		//return StatusCode::SUCCESS;
 	}
 
 	const xAOD::VertexContainer* nvtx(NULL);
@@ -195,7 +210,7 @@ StatusCode EFexAnalysis::execute(){
 		if ( tt->pt() > 16000 ) m_eff_truth_eta_d->Fill( tt->eta() );
 		for( auto cl : *scluster ){
 			if ( fabsf( tt->eta() - cl->eta() ) > 0.06 ) continue;
-			float dphi = fabsf( tt->eta() - cl->eta() );
+			float dphi = fabsf( tt->phi() - cl->phi() );
 			dphi = fabsf( M_PI - dphi );
 			dphi = fabsf( M_PI - dphi );
 			if ( dphi > 0.09 ) continue;
@@ -238,6 +253,8 @@ StatusCode EFexAnalysis::execute(){
 			
 			if ( (el->caloCluster()->et() > 9e3) && (fabsf(el->eta())<2.47) )
                         m_res_off_nvtx->Fill( nvtxs, resolution );
+                        m_res_off_bcid->Fill( bunch_crossing, resolution );
+                        m_res_off_bcidN->Fill( bunch_crossingNor, resolution );
 
                         float off_eta = el->caloCluster()->eta();
                         float SE_eta = cl->eta();
@@ -269,6 +286,8 @@ StatusCode EFexAnalysis::execute(){
 			m_res_rEta_off_pt->Fill( el->pt()/1e3, resol_reta );
 			if ( (el->caloCluster()->et() > 9e3) && (fabsf(el->eta())<2.47) )
                         m_res_rEta_off_nvtx->Fill( nvtxs, resol_reta );
+                        m_res_rEta_off_bcid->Fill( bunch_crossing, resol_reta );
+                        m_res_rEta_off_bcidN->Fill( bunch_crossingNor, resol_reta );
 
 			float off_f1 = el->auxdata<float>("f1");
 			float SE_f1 = 0.0;
@@ -294,6 +313,9 @@ StatusCode EFexAnalysis::execute(){
 			m_res_f3_off->Fill( resol_f3 );
 			m_res_f3_off_eta->Fill( el->eta(), resol_f3 );
 			m_res_f3_off_pt->Fill( el->pt()/1e3, resol_f3 );
+                        m_res_f3_off_nvtx->Fill( nvtxs, resol_f3 );
+                        m_res_f3_off_bcid->Fill( bunch_crossing, resol_f3 );
+                        m_res_f3_off_bcidN->Fill( bunch_crossingNor, resol_f3 );
 
                         m_eff_off_pt_n->Fill( el->pt()/1e3 );
                         if ( el->pt() > 16000 ) m_eff_off_eta_n->Fill( el->eta() );

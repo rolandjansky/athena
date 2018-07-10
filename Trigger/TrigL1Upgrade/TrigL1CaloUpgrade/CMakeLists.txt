@@ -20,9 +20,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigL1Calo
                           Event/xAOD/xAODTrigger
                           Event/xAOD/xAODTruth
+                          Event/xAOD/xAODEventInfo
                           LArCalorimeter/LArRawEvent
                           LArCalorimeter/LArTools
-			  LArCalorimeter/LArCabling )
+			  LArCalorimeter/LArCabling
+			  Calorimeter/CaloInterface )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -32,7 +34,7 @@ atlas_add_component( TrigL1CaloUpgrade
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel CaloDetDescrLib CaloEvent CaloIdentifier AthenaBaseComps xAODEgamma xAODTracking xAODTrigCalo xAODTrigL1Calo xAODTrigger xAODTruth LArRawEvent LArToolsLib LArCablingLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel CaloDetDescrLib CaloEvent CaloIdentifier AthenaBaseComps xAODEgamma xAODTracking xAODTrigCalo xAODTrigL1Calo xAODTrigger xAODTruth LArRawEvent LArTools LArCabling )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
