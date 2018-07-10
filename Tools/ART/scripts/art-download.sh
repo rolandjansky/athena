@@ -25,6 +25,7 @@ source "${ATLAS_LOCAL_ROOT_BASE}"/user/atlasLocalSetup.sh --quiet
 unset ALRB_noGridMW
 
 lsetup -f rucio
+lsetup -f "xrootd 4.7.1"
 
 echo "Name: ${NAME}"
 echo "Directory: ${DIRECTORY}"
