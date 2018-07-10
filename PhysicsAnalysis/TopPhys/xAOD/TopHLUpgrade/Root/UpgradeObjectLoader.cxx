@@ -155,7 +155,7 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
 
     //add production vertex info
     const ElementLink<xAOD::TruthVertexContainer> prodVtxLink =
-      muon->auxdata<ElementLink< xAOD::TruthVertexContainer > >("prodVtxLinkx");
+      muon->auxdata<ElementLink< xAOD::TruthVertexContainer > >("prodVtxLink");
     if(prodVtxLink.isValid()) {
       const xAOD::TruthVertex *tvtx = *prodVtxLink;
       muon->auxdata<float>("prodVtx_z") = tvtx->z();
