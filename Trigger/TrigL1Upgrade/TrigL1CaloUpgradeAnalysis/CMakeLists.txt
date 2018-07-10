@@ -1,47 +1,42 @@
 ################################################################################
-# Package: TrigL1CaloUpgrade
+# Package: TrigL1CaloUpgradeAnalysis
 ################################################################################
 
 # Declare the package name:
-atlas_subdir( TrigL1CaloUpgrade )
+atlas_subdir( TrigL1CaloUpgradeAnalysis )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
-                          Calorimeter/CaloDetDescr
                           Calorimeter/CaloEvent
                           Calorimeter/CaloIdentifier
                           Calorimeter/CaloInterface
                           Control/AthenaBaseComps
+                          Event/xAOD/xAODEgamma
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTrigCalo
-                          Event/xAOD/xAODTrigL1Calo
+                          Event/xAOD/xAODTrigger
                           Event/xAOD/xAODTruth
                           LArCalorimeter/LArCabling
-                          LArCalorimeter/LArRawEvent )
+                          LArCalorimeter/LArRawEvent
+                          Trigger/TrigL1Upgrade/TrigL1CaloUpgrade )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
-atlas_add_library( TrigL1CaloUpgradeLib
-                   src/*.cxx
-                   PUBLIC_HEADERS TrigL1CaloUpgrade
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel
-                                          CaloDetDescr CaloEvent CaloIdentifier AthenaBaseComps xAODEventInfo
-                                          xAODTracking xAODTrigCalo xAODTrigL1Calo xAODTruth LArCabling LArRawEvent)
-
-atlas_add_component( TrigL1CaloUpgrade
+atlas_add_component( TrigL1CaloUpgradeAnalysis
+                     src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} TrigL1CaloUpgradeLib
-                                    CaloDetDescr CaloEvent CaloIdentifier AthenaBaseComps xAODEventInfo
-                                    xAODTracking xAODTrigCalo xAODTrigL1Calo xAODTruth LArCabling LArRawEvent)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel
+                                    CaloDetDescr CaloEvent CaloIdentifier AthenaBaseComps xAODEgamma xAODEventInfo
+                                    xAODTracking xAODTrigger xAODTrigCalo xAODTruth LArCabling LArRawEvent TrigL1CaloUpgradeLib)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
+
 
