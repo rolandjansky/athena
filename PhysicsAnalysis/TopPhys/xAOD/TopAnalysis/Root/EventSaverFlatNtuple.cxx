@@ -2155,7 +2155,7 @@ namespace top {
 	    m_rcjet_Qw_clstr.resize(sizeOfRCjets,-999.);
 	  }
 	  unsigned int i = 0;
-	  for (xAOD::JetContainer::const_iterator jet_itr = event.m_RCJets.begin(); jet_itr != event.m_RCJets.end(); ++jet_itr) {
+	  for (auto jet_itr = event.m_RCJets.begin(); jet_itr != event.m_RCJets.end(); ++jet_itr) {
 	  //for (xAOD::JetContainer::const_iterator jet_itr = rc_jets->begin(); jet_itr != rc_jets->end(); ++jet_itr) {
 	    const xAOD::Jet* rc_jet = *jet_itr;
 
