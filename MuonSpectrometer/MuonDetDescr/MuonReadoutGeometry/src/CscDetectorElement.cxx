@@ -7,7 +7,6 @@
 // it can be accessed via hash-id;
 // it holds pointers to CscReadoutElements belonging to him 
  -------------------------------------------------------------------------
- Copyright (C) 2005 by ATLAS Collaboration
  ***************************************************************************/
 
 //<doc><file>	$Id: CscDetectorElement.cxx,v 1.1 2009-05-20 15:24:08 tcorneli Exp $
