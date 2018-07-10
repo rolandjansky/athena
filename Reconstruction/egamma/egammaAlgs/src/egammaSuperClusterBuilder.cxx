@@ -401,7 +401,7 @@ StatusCode egammaSuperClusterBuilder::CalibrateCluster(xAOD::CaloCluster* newClu
   //So We will need at the end to do the final update in the EMClusterTool
   //For now apply just cluster info only calibration.
   if (m_calibrateClusters) {
-    ATH_CHECK(m_MVACalibSvc->execute(newCluster,egType));
+    ATH_CHECK(m_MVACalibSvc->execute(*newCluster,egType));
   }
   ATH_MSG_DEBUG("========== cluster only calibration ==== ");
   ATH_MSG_DEBUG("Cluster Energy after cluster only calibration: "<<newCluster->e());

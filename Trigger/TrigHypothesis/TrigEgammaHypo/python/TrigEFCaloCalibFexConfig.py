@@ -25,11 +25,15 @@ def configureTrigEFCaloCalibFexMonitoring(tool):
 
     tool.AthenaMonTools = [ time, validation, online ]
 
+import cppyy
+cppyy.loadDictionary('xAODEgammaDict')
+from ROOT import xAOD
+
 TrigEFCaloCalibFex_Electron = Factory(TrigEgammaHypoConf.TrigEFCaloCalibFex, name = "TrigEFCaloCalibFex_Electron", doAdd=False, 
         AcceptAll = True,
         ApplyMVACalib = True,
         MVACalibSvc = TrigEgammaMVASvc,
-        egType = 'Electron',
+        egType = xAOD.EgammaParameters.electron,
         ClusterContainerKey = 'TrigEFCaloCalibFex',
         postInit = [configureTrigEFCaloCalibFexMonitoring],
         )
@@ -38,7 +42,7 @@ TrigEFCaloCalibFex_Photon = Factory(TrigEgammaHypoConf.TrigEFCaloCalibFex, name 
         AcceptAll = True,
         ApplyMVACalib = True,
         MVACalibSvc = TrigEgammaMVASvc,
-        egType = 'Photon',
+        egType = xAOD.EgammaParameters.unconvertedPhoton,
         ClusterContainerKey = 'TrigEFCaloCalibFex',
         postInit = [configureTrigEFCaloCalibFexMonitoring],
         )

@@ -62,7 +62,7 @@ class TrigEFCaloCalibFex : public HLT::FexAlgo  {
   // to set Accept-All mode 
   bool m_acceptAll;
   bool m_applyMVACalib;
-  std::string m_egType;
+  int m_egType;
   std::string m_persKey; // Cluster container key
   xAOD::CaloClusterContainer* m_pCaloClusterContainer; //!<  pointer to CaloClusterContainer 
   

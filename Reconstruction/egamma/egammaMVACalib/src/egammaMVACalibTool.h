@@ -6,7 +6,7 @@
 
 // Package includes
 #include "egammaInterfaces/IegammaMVACalibTool.h"
-#include "xAODEgamma/EgammaDefs.h"
+#include "xAODEgamma/EgammaEnums.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODCaloEvent/CaloCluster.h"

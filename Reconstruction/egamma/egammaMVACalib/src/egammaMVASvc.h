@@ -35,14 +35,11 @@ public:
       This method needs to be valid also for reconstruction
   */
 
-  StatusCode execute(xAOD::CaloCluster* cluster,
-		     const xAOD::Egamma* eg) const override final;
+  StatusCode execute(xAOD::CaloCluster& cluster,
+		     const xAOD::Egamma& eg) const override final;
 
-  StatusCode execute(xAOD::CaloCluster* cluster,
+  StatusCode execute(xAOD::CaloCluster& cluster,
 		     xAOD::EgammaParameters::EgammaType egType) const override final;
-
-  StatusCode hltexecute(xAOD::CaloCluster* cluster,
-			const std::string& egType) const override final;
 
 private:
 

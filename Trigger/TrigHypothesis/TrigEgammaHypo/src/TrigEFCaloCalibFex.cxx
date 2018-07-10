@@ -31,7 +31,7 @@ TrigEFCaloCalibFex::TrigEFCaloCalibFex(const std::string & name, ISvcLocator* pS
 {
   // Read cuts - should probably get these from an xml file
   declareProperty( "AcceptAll",            m_acceptAll  = false );
-  declareProperty( "egType", m_egType = "Electron");
+  declareProperty( "egType", m_egType = xAOD::EgammaParameters::electron);
   //declareProperty("MVACalibSvc", m_MVACalibSvc);
   declareProperty("ApplyMVACalib", m_applyMVACalib=true);
   declareProperty("ClusterContainerKey", m_persKey="TrigEFCaloCalibFex");
@@ -258,7 +258,7 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
             ATH_MSG_DEBUG("Applying MVA Calib");
 
             if (timerSvc()) m_toolTimer->start();    
-            if(m_MVACalibSvc->hltexecute(newClus,m_egType).isFailure())
+            if(m_MVACalibSvc->execute(*newClus,static_cast<xAOD::EgammaParameters::EgammaType>(m_egType)).isFailure())
                 ATH_MSG_DEBUG("MVACalib Fails");
             if (timerSvc()) m_toolTimer->stop();    
         }
