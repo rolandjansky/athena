@@ -46,6 +46,9 @@ public:
   virtual
   std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine() const;
 
+  void
+  prepareAlignment() const;
+
 private:
 
   ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
@@ -59,6 +62,13 @@ private:
 
 };
 
+}
+
+inline
+void
+Acts::ExtrapolationTool::prepareAlignment() const 
+{
+  m_trackingGeometryTool->prepareAlignment();
 }
 
 

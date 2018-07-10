@@ -3,6 +3,8 @@
 
 #include "GaudiKernel/IInterface.h"
 
+class EventContext;
+class GeoAlignmentStore;
 
 namespace Acts {
   
@@ -20,6 +22,13 @@ namespace Acts {
     std::shared_ptr<const Acts::TrackingGeometry>
     trackingGeometry() = 0;
 
+    virtual
+    void 
+    setGeoAlignmentStore(const GeoAlignmentStore* gas, const EventContext& ctx) = 0;
+    
+    virtual
+    const GeoAlignmentStore*
+    getGeoAlignmentStore(const EventContext& ctx) const = 0;
 
   };
 }

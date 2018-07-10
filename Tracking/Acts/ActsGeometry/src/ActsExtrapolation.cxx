@@ -92,6 +92,7 @@ StatusCode ActsExtrapolation::initialize() {
 StatusCode ActsExtrapolation::execute_r(const EventContext& ctx) const 
 {
 
+  m_extrapolationTool->prepareAlignment();
   ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
   rngWrapper->setSeed( name(), ctx );
 

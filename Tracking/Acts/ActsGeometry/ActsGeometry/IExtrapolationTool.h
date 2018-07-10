@@ -42,6 +42,10 @@ public:
   virtual
   std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine() const = 0;
 
+  virtual
+  void
+  prepareAlignment() const = 0;
+
 };
 
 }

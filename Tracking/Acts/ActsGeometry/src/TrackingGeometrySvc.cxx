@@ -32,6 +32,10 @@
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
+#include "GeoModelUtilities/GeoAlignmentStore.h"
+
+#include <boost/thread/shared_mutex.hpp>
+
 
 Acts::TrackingGeometrySvc::TrackingGeometrySvc(const std::string& name, ISvcLocator* svc)
    : base_class(name,svc),
@@ -43,7 +47,6 @@ Acts::TrackingGeometrySvc::TrackingGeometrySvc(const std::string& name, ISvcLoca
 StatusCode
 Acts::TrackingGeometrySvc::initialize()
 {
-  ATH_CHECK(m_rch.initialize());
   ATH_MSG_INFO(name() << " is initializing");
   
   ATH_CHECK ( m_detStore->retrieve(p_pixelManager, "Pixel") );
@@ -270,4 +273,19 @@ Acts::TrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager
         Acts::makeAthenaLogger(this, "CylVolBldr", "ActsTGSvc"));
 
   return cylinderVolumeBuilder;
+}
+
+void
+Acts::TrackingGeometrySvc::setGeoAlignmentStore(const GeoAlignmentStore* gas, const EventContext& ctx) 
+{
+  boost::unique_lock<boost::shared_mutex> lock(m_gasMapMutex);
+  m_gasMap[ctx.slot()] = gas;
+}
+
+const GeoAlignmentStore*
+Acts::TrackingGeometrySvc::getGeoAlignmentStore(const EventContext& ctx) const
+{
+  boost::shared_lock<boost::shared_mutex> lock(m_gasMapMutex);
+  if (m_gasMap.find(ctx.slot()) == m_gasMap.end()) return nullptr;
+  return m_gasMap[ctx.slot()];
 }

@@ -124,7 +124,18 @@ exTool.FieldMode = "Constant"
 exTool.ConstantFieldVector = [0, 0, 0]
 exTool.MatEngineDoELossCorrection = False
 
+
+trkGeomTool = CfgMgr.Acts__TrackingGeometryTool("TrackingGeometryTool")
+trkGeomTool.OutputLevel = INFO;
+exTool.TrackingGeometryTool = trkGeomTool
+
 alg.ExtrapolationTool = exTool
+
+eventPrintFrequency = 100
+if hasattr(ServiceMgr,"AthenaEventLoopMgr"):
+    ServiceMgr.AthenaEventLoopMgr.EventPrintoutInterval = eventPrintFrequency
+if hasattr(ServiceMgr,"AthenaHiveEventLoopMgr"):
+    ServiceMgr.AthenaHiveEventLoopMgr.EventPrintoutInterval = eventPrintFrequency
 
 
 # alg.OutputLevel = VERBOSE

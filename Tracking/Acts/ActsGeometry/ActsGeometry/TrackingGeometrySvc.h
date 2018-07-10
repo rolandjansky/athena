@@ -5,6 +5,7 @@
 //#include "GaudiKernel/ToolHandle.h"
 //#include "GaudiKernel/IIncidentListener.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "GaudiKernel/EventContext.h"
 
 #include "ActsGeometry/ITrackingGeometrySvc.h"
 
@@ -13,15 +14,17 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadCondHandle.h"
 
-#include "GeoModelUtilities/GeoAlignmentStore.h"
 
 #include <map>
+#include <boost/thread/shared_mutex.hpp>
 
 namespace InDetDD {
   class InDetDetectorManager;
   class SiDetectorManager;
   class TRT_DetectorManager;
 }
+
+class GeoAlignmentStore;
 
 namespace Acts {
 
@@ -46,7 +49,11 @@ public:
   std::shared_ptr<const Acts::TrackingGeometry>
   trackingGeometry() override;
   
-  SG::ReadCondHandleKey<GeoAlignmentStore> alignmentCondHandleKey() const;
+  void 
+  setGeoAlignmentStore(const GeoAlignmentStore* gas, const EventContext& ctx) override;
+    
+  const GeoAlignmentStore*
+  getGeoAlignmentStore(const EventContext& ctx) const override;
 
 
 private:
@@ -63,20 +70,16 @@ private:
     
   Gaudi::Property<bool> m_useMaterialMap{this, "UseMaterialMap", false, ""};
   Gaudi::Property<std::string> m_materialMapInputFile{this, "MaterialMapInputFile", "", ""};
-
   Gaudi::Property<std::vector<size_t>> m_barrelMaterialBins{this, "BarrelMaterialBins", {10, 10}};
   Gaudi::Property<std::vector<size_t>> m_endcapMaterialBins{this, "EndcapMaterialBins", {5, 20}};
   
-  SG::ReadCondHandleKey<GeoAlignmentStore> m_rch {this, "PixelAlignmentKey", "PixelAlignment", "cond read key"};
+  mutable std::unordered_map<EventContext::ContextID_t, const GeoAlignmentStore*> m_gasMap;
+  mutable boost::shared_mutex m_gasMapMutex;
 
 
 };
 
 }
 
-inline SG::ReadCondHandleKey<GeoAlignmentStore>
-Acts::TrackingGeometrySvc::alignmentCondHandleKey() const {
-  return m_rch;
-}
 
 #endif 

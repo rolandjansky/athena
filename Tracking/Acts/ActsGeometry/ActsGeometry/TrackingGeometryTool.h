@@ -36,6 +36,8 @@ public:
   std::shared_ptr<const Acts::TrackingGeometry>
   trackingGeometry() const;
 
+  StatusCode prepareAlignment() const;
+
 
 private:
 

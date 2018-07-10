@@ -160,8 +160,8 @@ Acts::GeoModelDetectorElement::transform(const Identifier&) const
     return *m_defTransform;
   }
 
-  // ctx is valid
-  SG::ReadCondHandle<GeoAlignmentStore> rch(m_trackingGeometrySvc->alignmentCondHandleKey());
+  // retrieve GAS from tracking geometry svc
+  const GeoAlignmentStore* alignmentStore = m_trackingGeometrySvc->getGeoAlignmentStore(ctx);
 
   if (!rch.isValid()) {
     return *m_defTransform;
