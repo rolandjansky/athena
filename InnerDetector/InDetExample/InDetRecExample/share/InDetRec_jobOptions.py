@@ -702,6 +702,66 @@ else:
 
     # ------------------------------------------------------------
     #
+    # --- Pixel Tracklets on all PRDs
+    #
+    # ------------------------------------------------------------
+    
+    if InDetFlags.doTrackSegmentsPixelFourLayer():
+      # --- load cuts for pixel segment finding
+      if (not 'InDetNewTrackingCutsPixelFourLayer' in dir()):
+        print "InDetRec_jobOptions: InDetNewTrackingCutsPixelFourLayer not set before - import them now"
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsPixelFourLayer = ConfiguredNewTrackingCuts("PixelFourLayer")
+      InDetNewTrackingCutsPixelFourLayer.printInfo()
+      # --- configure pixel segment finding
+      include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
+      InDetPixelFourLayerTrackingSiPattern = ConfiguredNewTrackingSiPattern([],InDetKeys.ResolvedPixelFourLayerTracks(),
+                                                                            InDetKeys.SiSpSeededPixelFourLayerTracks(),
+                                                                            InDetNewTrackingCutsPixelFourLayer,
+                                                                            TrackCollectionKeys,
+                                                                            TrackCollectionTruthKeys)
+
+      include ("InDetRecExample/ConfiguredNewTrackingTRTExtension.py")
+      InDetPixelFourLayerTrackingTRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsPixelFourLayer,
+                                                                 InDetKeys.ResolvedPixelFourLayerTracks(),
+                                                                 InDetKeys.ExtendedTracksPixelFourLayer(),
+                                                                 InDetKeys.ExtendedTracksMapPixelFourLayer(),
+                                                                 TrackCollectionKeys,
+                                                                 TrackCollectionTruthKeys,
+                                                                 False)
+
+    # ------------------------------------------------------------
+    #
+    # --- Pixel Stublets (3 layer tracks) on all PRDs
+    #
+    # ------------------------------------------------------------
+    
+    if InDetFlags.doTrackSegmentsPixelThreeLayer():
+      # --- load cuts for pixel segment finding
+      if (not 'InDetNewTrackingCutsPixelThreeLayer' in dir()):
+        print "InDetRec_jobOptions: InDetNewTrackingCutsPixelThreeLayer not set before - import them now"
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsPixelThreeLayer = ConfiguredNewTrackingCuts("PixelThreeLayer")
+      InDetNewTrackingCutsPixelThreeLayer.printInfo()
+      # --- configure pixel segment finding
+      include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
+      InDetPixelThreeLayerTrackingSiPattern = ConfiguredNewTrackingSiPattern([],InDetKeys.ResolvedPixelThreeLayerTracks(),
+                                                                            InDetKeys.SiSpSeededPixelThreeLayerTracks(),
+                                                                            InDetNewTrackingCutsPixelThreeLayer,
+                                                                            TrackCollectionKeys,
+                                                                            TrackCollectionTruthKeys)
+
+      include ("InDetRecExample/ConfiguredNewTrackingTRTExtension.py")
+      InDetPixelThreeLayerTrackingTRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsPixelThreeLayer,
+                                                                 InDetKeys.ResolvedPixelThreeLayerTracks(),
+                                                                 InDetKeys.ExtendedTracksPixelThreeLayer(),
+                                                                 InDetKeys.ExtendedTracksMapPixelThreeLayer(),
+                                                                 TrackCollectionKeys,
+                                                                 TrackCollectionTruthKeys,
+                                                                 False)
+
+    # ------------------------------------------------------------
+    #
     # --- Beam Gas option (runs after NewT + LowPt)
     #
     # ------------------------------------------------------------
@@ -1027,6 +1087,59 @@ else:
        if (InDetFlags.doPrintConfigurables()):
          print TrkTrackCollectionMerger_pix
 
+      # Dummy Merger to fill additional info for all PRD pixel tracklets
+      if InDetFlags.doTrackSegmentsPixelFourLayer():
+       DummyCollectionFourLayer = []
+       DummyCollectionFourLayer += [ InDetKeys.ExtendedTracksPixelFourLayer()]
+       TrkTrackCollectionMerger_pixFourLayer = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger_pixFourLayer",
+                                                                          TracksLocation          = DummyCollectionFourLayer,
+                                                                          OutputTracksLocation    = InDetKeys.PixelFourLayerTracks(),
+                                                                          AssoTool                = InDetPrdAssociationTool,
+                                                                          UpdateSharedHitsOnly    = False,
+                                                                          UpdateAdditionalInfo    = True,
+                                                                          SummaryTool             = InDetTrackSummaryToolSharedHits)
+       #TrkTrackCollectionMerger_pix.OutputLevel = VERBOSE
+       topSequence += TrkTrackCollectionMerger_pixFourLayer
+
+       
+       if InDetFlags.doTruth():
+          # set up the truth info for this container
+          #
+            include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+            InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.PixelFourLayerTracks(),
+                                                         InDetKeys.PixelFourLayerDetailedTracksTruth(),
+                                                         InDetKeys.PixelFourLayerTracksTruth())
+    
+
+       if (InDetFlags.doPrintConfigurables()):
+         print TrkTrackCollectionMerger_pixFourLayer
+
+      # Dummy Merger to fill additional info for all PRD pixel stublets
+      if InDetFlags.doTrackSegmentsPixelThreeLayer():
+       DummyCollectionThreeLayer = []
+       DummyCollectionThreeLayer += [ InDetKeys.ExtendedTracksPixelThreeLayer()]
+       TrkTrackCollectionMerger_pixThreeLayer = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger_pixThreeLayer",
+                                                                           TracksLocation          = DummyCollectionThreeLayer,
+                                                                           OutputTracksLocation    = InDetKeys.PixelThreeLayerTracks(),
+                                                                           AssoTool                = InDetPrdAssociationTool,
+                                                                           UpdateSharedHitsOnly    = False,
+                                                                           UpdateAdditionalInfo    = True,
+                                                                           SummaryTool             = InDetTrackSummaryToolSharedHits)
+       #TrkTrackCollectionMerger_pix.OutputLevel = VERBOSE
+       topSequence += TrkTrackCollectionMerger_pixThreeLayer
+
+       
+       if InDetFlags.doTruth():
+          # set up the truth info for this container
+          #
+            include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+            InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.PixelThreeLayerTracks(),
+                                                         InDetKeys.PixelThreeLayerDetailedTracksTruth(),
+                                                         InDetKeys.PixelThreeLayerTracksTruth())
+    
+
+       if (InDetFlags.doPrintConfigurables()):
+         print TrkTrackCollectionMerger_pixThreeLayer
 
     # ------------------------------------------------------------
     #

@@ -449,6 +449,42 @@ class PixelPrdAssociationDetailedTracksTruth(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'PixelPrdAssociationTracksDetailedTruth'
 
+class SiSpSeededPixelFourLayerTracks(JobProperty):
+    """StoreGate key for SP seeded pixel tracks run after new tracking on all PRDs"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'SiSPSeededPixelFourLayerTracks'
+
+class PixelFourLayerTracksTruth(JobProperty):
+    """StoreGate key for pixel tracks truth run after New Tracking on all PRDs"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'PixelFourLayerTracksTruthCollection'
+
+class PixelFourLayerDetailedTracksTruth(JobProperty):
+    """StoreGate key for detailed pixel tracks truth run after New Tracking on all PRDs"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'PixelFourLayerTracksDetailedTruth'
+
+class SiSpSeededPixelThreeLayerTracks(JobProperty):
+    """StoreGate key for pixel stublets with 3 SPs run after new tracking on all PRDs"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'SiSPSeededPixelThreeLayerTracks'
+
+class PixelThreeLayerTracksTruth(JobProperty):
+    """StoreGate key for pixel stublets with 3 SPs truth run after New Tracking on all PRDs"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'PixelThreeLayerTracksTruthCollection'
+
+class PixelThreeLayerDetailedTracksTruth(JobProperty):
+    """StoreGate key for detailed pixel stublets with 3 SPs truth run after New Tracking on all PRDs"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'PixelThreeLayerTracksDetailedTruth'
+
 class SiSpSeededSCTTracks(JobProperty):
     """StoreGate key for SP seeded SCT standalone tracks """
     statusOn     = True
@@ -497,6 +533,54 @@ class ExtendedTracksMapPixelPrdAssociation(JobProperty):
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'ExtendedTracksMapPixelPrdAssociation'
+
+class ResolvedPixelFourLayerTracks(JobProperty):
+    """StoreGate key for resolved pixel tracks run after New Tracking on all PRDs"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ResolvedPixelFourLayerTracks'
+
+class ExtendedTracksPixelFourLayer(JobProperty):
+    """ Storegate key for new-tracking extended pixel tracks"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ExtendedTracksPixelFourLayer'
+
+class PixelFourLayerTracks(JobProperty):
+    """StoreGate key for rfinal pixel tracks run after New Tracking on all PRDs"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'PixelFourLayerTracks'
+
+class ExtendedTracksMapPixelFourLayer(JobProperty):
+    """ Storegate key for new-tracking extended pixel tracks map"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ExtendedTracksMapPixelFourLayer'
+
+class ResolvedPixelThreeLayerTracks(JobProperty):
+    """StoreGate key for resolved pixel tracks run after New Tracking on all PRDs"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ResolvedPixelThreeLayerTracks'
+
+class ExtendedTracksPixelThreeLayer(JobProperty):
+    """ Storegate key for new-tracking extended pixel tracks"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ExtendedTracksPixelThreeLayer'
+
+class PixelThreeLayerTracks(JobProperty):
+    """StoreGate key for rfinal pixel tracks run after New Tracking on all PRDs"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'PixelThreeLayerTracks'
+
+class ExtendedTracksMapPixelThreeLayer(JobProperty):
+    """ Storegate key for new-tracking extended pixel tracks map"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ExtendedTracksMapPixelThreeLayer'
 
 class SCTTracks(JobProperty):
     """StoreGate key for resolved SCT standalone tracks """
@@ -981,6 +1065,30 @@ class xAODPixelPrdAssociationExtendedTrackParticleContainer(JobProperty):
     allowedTypes = ['str']
     StoredValue = "InDetPixelPrdAssociationExtendedTrackParticles"
 
+class xAODPixelFourLayerTrackParticleContainer(JobProperty):
+    """xAOD PixelTrackParticle on all hits using four layers"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "InDetPixelFourLayerTrackParticles"
+
+class xAODPixelFourLayerExtendedTrackParticleContainer(JobProperty):
+    """xAOD Extended PixelTrackParticle on all hits using four layers"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "InDetPixelFourLayerExtendedTrackParticles"
+
+class xAODPixelThreeLayerTrackParticleContainer(JobProperty):
+    """xAOD PixelTrackParticle on all hits using three layers"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "InDetPixelThreeLayerTrackParticles"
+
+class xAODPixelThreeLayerExtendedTrackParticleContainer(JobProperty):
+    """xAOD Extended PixelTrackParticle on all hits using four layers"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "InDetPixelThreeLayerExtendedTrackParticles"
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -1069,6 +1177,8 @@ jobproperties.InDetContainerKeys.add_JobProperty(PseudoDetailedTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(PseudoTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededPixelTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededPixelPrdAssociationTracks)
+jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededPixelFourLayerTracks)
+jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededPixelThreeLayerTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededSCTTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelDetailedTracksTruth)
@@ -1079,6 +1189,18 @@ jobproperties.InDetContainerKeys.add_JobProperty(ExtendedTracksPixelPrdAssociati
 jobproperties.InDetContainerKeys.add_JobProperty(ExtendedTracksMapPixelPrdAssociation)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelPrdAssociationTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelPrdAssociationDetailedTracksTruth)
+jobproperties.InDetContainerKeys.add_JobProperty(PixelFourLayerTracks)
+jobproperties.InDetContainerKeys.add_JobProperty(ResolvedPixelFourLayerTracks)
+jobproperties.InDetContainerKeys.add_JobProperty(ExtendedTracksPixelFourLayer)
+jobproperties.InDetContainerKeys.add_JobProperty(ExtendedTracksMapPixelFourLayer)
+jobproperties.InDetContainerKeys.add_JobProperty(PixelFourLayerTracksTruth)
+jobproperties.InDetContainerKeys.add_JobProperty(PixelFourLayerDetailedTracksTruth)
+jobproperties.InDetContainerKeys.add_JobProperty(PixelThreeLayerTracks)
+jobproperties.InDetContainerKeys.add_JobProperty(ResolvedPixelThreeLayerTracks)
+jobproperties.InDetContainerKeys.add_JobProperty(ExtendedTracksPixelThreeLayer)
+jobproperties.InDetContainerKeys.add_JobProperty(ExtendedTracksMapPixelThreeLayer)
+jobproperties.InDetContainerKeys.add_JobProperty(PixelThreeLayerTracksTruth)
+jobproperties.InDetContainerKeys.add_JobProperty(PixelThreeLayerDetailedTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(SCTTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(TRTTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(TRTTracks_NewT)
@@ -1156,6 +1278,10 @@ jobproperties.InDetContainerKeys.add_JobProperty(xAODSCTTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODTRTTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelPrdAssociationTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelPrdAssociationExtendedTrackParticleContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelFourLayerTrackParticleContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelFourLayerExtendedTrackParticleContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelThreeLayerTrackParticleContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelThreeLayerExtendedTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(DBMDetailedTracksTruth) 
 jobproperties.InDetContainerKeys.add_JobProperty(DBMTracksTruth) 
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededDBMTracks) 

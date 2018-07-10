@@ -1146,6 +1146,22 @@ if InDetFlags.doPattern():
                                                                         TrackQualityCut       = 9.3
                                                                         )
         ToolSvc += InDetSiComTrackFinderDBM
+    if InDetFlags.doTrackSegmentsPixelThreeLayer():
+        InDetSiComTrackFinderThreeLayerTracking = InDet__SiCombinatorialTrackFinder_xk(name                  = 'InDetSiComTrackFinderThreeLayerTracking',
+                                                                                       PropagatorTool        = InDetPatternPropagator,
+                                                                                       UpdatorTool           = InDetPatternUpdator,
+                                                                                       RIOonTrackTool        = InDetRotCreatorDigital,
+                                                                                       AssosiationTool       = InDetPrdAssociationTool,
+                                                                                       usePixel              = DetFlags.haveRIO.pixel_on(),
+                                                                                       useSCT                = DetFlags.haveRIO.SCT_on(),
+                                                                                       PixManagerLocation    = InDetKeys.PixelManager(),
+                                                                                       SCTManagerLocation    = InDetKeys.SCT_Manager(),
+                                                                                       PixelClusterContainer = InDetKeys.PixelClusters(),
+                                                                                       SCT_ClusterContainer  = InDetKeys.SCT_Clusters(),
+                                                                                       PassThroughExtension  = True
+                                                                                       )
+
+        ToolSvc += InDetSiComTrackFinderThreeLayerTracking
     if InDetFlags.doDBMstandalone():
         InDetSiComTrackFinder.MagneticFieldMode     =  "NoField"
     if (DetFlags.haveRIO.SCT_on()):
@@ -1158,6 +1174,8 @@ if InDetFlags.doPattern():
       print InDetSiComTrackFinder
       if InDetFlags.doDBM():
           print InDetSiComTrackFinderDBM
+      if InDetFlags.doTrackSegmentsPixelThreeLayer():
+          print InDetSiComTrackFinderThreeLayerTracking
 
 # ------------------------------------------------------------
 #

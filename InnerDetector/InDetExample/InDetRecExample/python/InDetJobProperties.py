@@ -1110,6 +1110,18 @@ class doTrackSegmentsPixelPrdAssociation(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
+class doTrackSegmentsPixelFourLayer(InDetFlagsJobProperty):
+    """Turn running of track segment creation in pixel after NewTracking, using all available hits, on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class doTrackSegmentsPixelThreeLayer(InDetFlagsJobProperty):
+    """Turn running of pixel stablet creation in pixel after NewTracking, using all available hits, on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class doSLHCVeryForward(InDetFlagsJobProperty): 
   """Turn running of SLHC reconstruction for Very Forward extension on and off""" 
   statusOn     = True 
@@ -1293,6 +1305,8 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.cutLevel               , 2    )
        self.checkThenSet(self.priVtxCutLevel         , 1    )
        self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
+       self.checkThenSet(self.doTrackSegmentsPixelFourLayer     , False)
+       self.checkThenSet(self.doTrackSegmentsPixelThreeLayer    , False)
        self.checkThenSet(self.perigeeExpression      , 'Vertex')
        self.checkThenSet(self.doRefitInvalidCov      ,True)
 
@@ -1329,6 +1343,8 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doPixelClusterSplitting, False)
        self.checkThenSet(self.doTIDE_Ambi, False)
        self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
+       self.checkThenSet(self.doTrackSegmentsPixelFourLayer     , False)
+       self.checkThenSet(self.doTrackSegmentsPixelThreeLayer    , False)
 
     elif (self.doIBL()):
        print "----> InDetJobProperties for IBL"
@@ -1497,9 +1513,9 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doMonitoringSCT        , False )
        self.checkThenSet(self.doMonitoringTRT        , False )
        self.checkThenSet(self.doMonitoringAlignment  , False )
-       self.checkThenSet(self.doBremRecovery         , False)
-       self.checkThenSet(self.doCaloSeededBrem       , False)
-       self.checkThenSet(self.doHadCaloSeededSSS     , False)
+       self.checkThenSet(self.doBremRecovery         , False )
+       self.checkThenSet(self.doCaloSeededBrem       , False )
+       self.checkThenSet(self.doHadCaloSeededSSS     , False )
     # --- new setup for LargeD0 retracking -- what the user
     # --- is allowed to change
     elif self.doDVRetracking():
@@ -1540,6 +1556,8 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doCaloSeededBrem        , True              )
        self.checkThenSet(self.doHadCaloSeededSSS      , False             )
        self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False   )
+       self.checkThenSet(self.doTrackSegmentsPixelFourLayer     , False   )
+       self.checkThenSet(self.doTrackSegmentsPixelThreeLayer    , False   )
        # --- Output
        self.checkThenSet(self.AODall                  , False             )
        self.checkThenSet(self.doxAOD                  , True              )
@@ -1561,6 +1579,8 @@ class InDetJobProperties(JobPropertyContainer):
           self.checkThenSet(self.doForwardTracks     , False )
           # --- run tracklets
           self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
+          self.checkThenSet(self.doTrackSegmentsPixelFourLayer     , False)
+          self.checkThenSet(self.doTrackSegmentsPixelThreeLayer    , False)
           self.checkThenSet(self.doTrackSegmentsPixel, True )
           #self.checkThenSet(self.doTrackSegmentsSCT  , False )
           #self.checkThenSet(self.doTrackSegmentsTRT  , False )
@@ -1635,6 +1655,8 @@ class InDetJobProperties(JobPropertyContainer):
         self.checkThenSet(self.doTIDE_Ambi, False)
         self.checkThenSet(self.doTIDE_RescalePixelCovariances, False)
         self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
+        self.checkThenSet(self.doTrackSegmentsPixelFourLayer     , False)
+        self.checkThenSet(self.doTrackSegmentsPixelThreeLayer    , False)
 
     if rec.doExpressProcessing() :
        self.checkThenSet(self.useBeamConstraint,False)
@@ -2759,6 +2781,8 @@ _list_InDetJobProperties = [Enabled,
                             ForceCoraCool,
                             ForceCoolVectorPayload,
                             doTrackSegmentsPixelPrdAssociation,
+                            doTrackSegmentsPixelFourLayer,
+                            doTrackSegmentsPixelThreeLayer,
                             doSLHCVeryForward,
                             doTRTGlobalOccupancy,
                             doNNToTCalibration,
