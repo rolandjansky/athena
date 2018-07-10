@@ -174,10 +174,10 @@ StatusCode SensorSimPlanarTool::initialize() {
     mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_L1_endLHC.root", "DATAPATH") );
     mapsPath_list.push_back( PathResolver::find_file("PixelDigitization/maps_PIX_L2_endLHC.root", "DATAPATH") );
 
-    m_fluence_layers.push_back(2*8.7e14);
-    m_fluence_layers.push_back(2*4.6e14);
-    m_fluence_layers.push_back(2*2.1e14);
-    m_fluence_layers.push_back(2*1.3e14);
+    fluence_layers.push_back(2*8.7e14);
+    fluence_layers.push_back(2*4.6e14);
+    fluence_layers.push_back(2*2.1e14);
+    fluence_layers.push_back(2*1.3e14);
 
   }
   
