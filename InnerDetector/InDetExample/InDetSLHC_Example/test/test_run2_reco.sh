@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: Upgrade release for Run2
+# art-description: Upgrade release for Run2 - reco only
 # art-type: grid
 # art-include: 21.9/Athena
 # art-output: *.root
@@ -11,7 +11,7 @@ exec 2>&1
 run() { (set -x; exec "$@") }
 
 # Following specify which steps to run.
-dosim=1
+dosim=0
 dorec=1
 
 # Following specify DCube output directories. Set empty to disable.
