@@ -81,6 +81,13 @@ StatusCode ParticleLevelRCJetObjectLoader::execute(const top::ParticleLevelEvent
     // (do not re-make the 'nominal' jet container over & over again!)
     if (!evtStore()->contains<xAOD::JetContainer>(m_OutputJetContainer)) {
         m_jetReclusteringTool->execute();
+	
+	const xAOD::JetContainer* rc_jets(nullptr);
+	top::check(evtStore()->retrieve(rc_jets,m_OutputJetContainer),"Failed to retrieve particle RC JetContainer");
+	
+	for( auto rcjet : *rc_jets ){
+	  rcjet->auxdecor<bool>("PassedSelection") = passSelection(*rcjet);
+	}
     }
 
     return StatusCode::SUCCESS;

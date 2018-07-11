@@ -13,6 +13,7 @@
 #include <memory>
 
 #include "TopParticleLevel/ObjectSelectorBase.h"
+#include "TopParticleLevel/ParticleLevelRCJetObjectLoader.h"
 
 #include "AsgTools/AsgTool.h"
 
@@ -100,6 +101,8 @@ namespace top {
         std::unique_ptr<ObjectSelectorBase<xAOD::TruthParticle> > m_objectSelector_Photon;
 	std::unique_ptr<ObjectSelectorBase<xAOD::Jet> > m_objectSelector_Jet;
 	std::unique_ptr<ObjectSelectorBase<xAOD::Jet> > m_objectSelector_LargeRJet;
+	std::unique_ptr<ParticleLevelRCJetObjectLoader> m_particleLevelRCJetObjectLoader;
+	
     private:
 	// The dressed leptons (shallow copies of the input containers)
 	std::unique_ptr<xAOD::TruthParticleContainer> m_electronsDressed;
@@ -121,7 +124,7 @@ namespace top {
 	std::unique_ptr<xAOD::JetContainer> m_goodJets;
 	std::unique_ptr<xAOD::JetAuxContainer> m_goodJetsAux;
 
-    std::unique_ptr<xAOD::JetContainer> m_goodLargeRJets;
+	std::unique_ptr<xAOD::JetContainer> m_goodLargeRJets;
 	std::unique_ptr<xAOD::JetAuxContainer> m_goodLargeRJetsAux;
 
 	// Flag denoting whether the loader tool is active. Will be set by the

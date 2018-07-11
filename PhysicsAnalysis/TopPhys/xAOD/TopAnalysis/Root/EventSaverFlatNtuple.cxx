@@ -17,7 +17,6 @@
 #include <boost/algorithm/string.hpp>
 
 #include "TopParticleLevel/ParticleLevelEvent.h"
-#include "TopParticleLevel/ParticleLevelRCJetObjectLoader.h"
 
 #include "TopFakes/TopFakesMMWeightCalculator.h"
 
@@ -1127,10 +1126,7 @@ namespace top {
 
         // RC branches
         if (m_makeRCJets){
-          // first initialise the ParticleLevelRCJetObjectLoader
-          m_rcjet_particle = std::unique_ptr<ParticleLevelRCJetObjectLoader> ( new ParticleLevelRCJetObjectLoader( m_config ) );
-          top::check(m_rcjet_particle->initialize(),"Failed to initialize ParticleLevelRCJetObjectLoader");
-          // then create the branches
+          // create the branches
           m_particleLevelTreeManager->makeOutputVariable(m_rcjet_pt,     "rcjet_pt");
           m_particleLevelTreeManager->makeOutputVariable(m_rcjet_eta,    "rcjet_eta");
           m_particleLevelTreeManager->makeOutputVariable(m_rcjet_phi,    "rcjet_phi");
@@ -3015,23 +3011,13 @@ namespace top {
         }
 
         if(m_makeRCJets){
-            // Execute the re-clustering code
-            // - make jet container of small-r jets in the event, put it in TStore, do re-clustering
-            top::check(m_rcjet_particle->execute(plEvent),"Failed to execute ParticleLevelRCJetObjectLoader container");
-
-            // Get the name of the container of re-clustered jets
-            m_RCJetContainerParticle = m_rcjet_particle->rcjetContainerName();
-
-            // -- Retrieve the re-clustered jets from TStore & save good re-clustered jets -- //
-            const xAOD::JetContainer* rc_jets_particle(nullptr);
-            top::check(evtStore()->retrieve(rc_jets_particle,m_RCJetContainerParticle),"Failed to retrieve particle RC JetContainer");
-
+            
             // re-clustered jet substructure
             static SG::AuxElement::ConstAccessor<float> RCSplit12("Split12");
             static SG::AuxElement::ConstAccessor<float> RCSplit23("Split23");
 
             // Initialize the vectors to be saved as branches
-            unsigned int sizeOfRCjets(rc_jets_particle->size());
+            unsigned int sizeOfRCjets(plEvent.m_RCJets.size());
 
             m_rcjet_pt.clear();
             m_rcjet_eta.clear();
@@ -3060,15 +3046,8 @@ namespace top {
             m_rcjetsub_Ghosts_CHadron_Final_Count.resize(sizeOfRCjets, std::vector<int>());
 
             unsigned int i = 0;
-            std::vector<int> rc_particle_selected_jets;
-            rc_particle_selected_jets.clear();
-
-            for (xAOD::JetContainer::const_iterator jet_itr = rc_jets_particle->begin(); jet_itr != rc_jets_particle->end(); ++jet_itr) {
-                const xAOD::Jet* rc_jet = *jet_itr;
-                if (!m_rcjet_particle->passSelection(*rc_jet))
-                    continue;
-
-                rc_particle_selected_jets.push_back(rc_jet->index());
+            for( auto rc_jet : plEvent.m_RCJets){
+	      
 
                 m_rcjet_pt[i]   = rc_jet->pt();
                 m_rcjet_eta[i]  = rc_jet->eta();
@@ -3103,20 +3082,6 @@ namespace top {
                 } // end for-loop over subjets
                 ++i;
             } // end for-loop over re-clustered jets
-	    // we resized earlier to the size of rc_jets_particle container, but then only stored a sub-set
-	    // so have to resize again to shrink to correct size incase some jets were not stored
-            m_rcjet_pt.resize(i,-999);
-            m_rcjet_eta.resize(i,-999.);
-            m_rcjet_phi.resize(i,-999.);
-            m_rcjet_e.resize(i,-999.);
-            m_rcjet_d12.resize(i,-999.);
-            m_rcjet_d23.resize(i,-999.);
-            m_rcjetsub_pt.resize(i, std::vector<float>());
-            m_rcjetsub_eta.resize(i, std::vector<float>());
-            m_rcjetsub_phi.resize(i, std::vector<float>());
-            m_rcjetsub_e.resize(i, std::vector<float>());
-            m_rcjetsub_Ghosts_BHadron_Final_Count.resize(i, std::vector<int>());
-            m_rcjetsub_Ghosts_CHadron_Final_Count.resize(i, std::vector<int>());
 
         }
 

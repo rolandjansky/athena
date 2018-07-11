@@ -152,7 +152,14 @@ namespace top {
             std::cout << "   " << std::setw( 20 ) << "DoOverlapRemoval Mu-Jet? " << std::setw( 5 ) << std::boolalpha << m_config->doParticleLevelOverlapRemovalMuJet() << '\n';
             std::cout << "   " << std::setw( 20 ) << "DoOverlapRemoval El-Jet? " << std::setw( 5 ) << std::boolalpha << m_config->doParticleLevelOverlapRemovalElJet() << '\n';
             std::cout << "   " << std::setw( 20 ) << "DoOverlapRemoval Jet-Photon? " << std::setw( 5 ) << std::boolalpha << m_config->doParticleLevelOverlapRemovalJetPhoton() << '\n';
-
+	    
+	    
+	    if ( m_config->useRCJets()){
+	      m_particleLevelRCJetObjectLoader = std::unique_ptr<ParticleLevelRCJetObjectLoader> ( new ParticleLevelRCJetObjectLoader( m_config ) );
+	      top::check(m_particleLevelRCJetObjectLoader->initialize(),"Failed to initialize ParticleLevelRCJetObjectLoader");
+	  
+	    }
+	    
         } else {
             std::cout << "Particle level reconstruction is disabled." << '\n';
         }
@@ -506,6 +513,23 @@ namespace top {
         plEvent.m_jets = m_config->useTruthJets() ? m_goodJets.get() : nullptr;
         plEvent.m_largeRJets = m_config->useTruthLargeRJets() ? m_goodLargeRJets.get() : nullptr;
         plEvent.m_met = m_config->useTruthMET() ? (* mets)[ "NonInt" ] : nullptr;
+
+	
+	if ( m_config->useRCJets() ){
+	  top::check(m_particleLevelRCJetObjectLoader->execute(plEvent),"Failed to execute ParticleLevelRCJetObjectLoader container");
+	  // Get the name of the container of re-clustered jets
+	  std::string RCJetContainerNane = m_particleLevelRCJetObjectLoader->rcjetContainerName();
+
+	  // -- Retrieve the re-clustered jets from TStore & save good re-clustered jets -- //
+	  const xAOD::JetContainer* rc_jets(nullptr);
+	  top::check(evtStore()->retrieve(rc_jets,RCJetContainerNane),"Failed to retrieve particle RC JetContainer");
+	  
+	  for( auto rcjet : *rc_jets){
+	    top::check( rcjet->isAvailable<bool>("PassedSelection") , " Can't find reclustered jet decoration \"PassedSelection\" - we need it to decide if we should keep the reclustered jet in the top::Event instance or not!");
+	    if(rcjet->auxdataConst<bool>("PassedSelection"))plEvent.m_RCJets.push_back((xAOD::Jet*)rcjet);
+	  }
+	  
+	}
 
         return plEvent;
     }
