@@ -2,33 +2,28 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EGAMMAMVACALIB_EGAMMAMVATREEHELPERS
-#define EGAMMAMVACALIB_EGAMMAMVATREEHELPERS
-
-#include <functional>
-#include <string>
-#include <map>
-#include <array>
-#include <vector>
-#include <tuple>
-#include <cmath>
-#include <set>
-#include <cstdint>
-#include <numeric>
+#ifndef EGAMMAMVACALIB_EGAMMAMVAFUNCTIONS
+#define EGAMMAMVACALIB_EGAMMAMVAFUNCTIONS
 
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
+#include "xAODEgamma/PhotonxAODHelpers.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "egammaMVALayerDepth.h"
 
-#include <TTree.h>
-#include <TLorentzVector.h>
-
+// for the ConversionHelper (deprecated?)
 #include <AsgTools/AsgMessaging.h>
 
-#include <egammaMVACalib/egammaMVALayerDepth.h>
+#include "TLorentzVector.h"
 
+#include <functional>
+#include <string>
+#include <unordered_map>
+#include <cmath>
+#include <memory>
+#include <stdexcept>
 
 
 /**
@@ -36,7 +31,7 @@
  * MVA calibration
  **/
 
-namespace egammaMVATreeHelpers
+namespace egammaMVAFunctions
 {
   // inline functions to avoid duplicates problem during linking (and performance)
   // cluster functions
@@ -146,13 +141,27 @@ namespace egammaMVATreeHelpers
   }
 
   // define a few without using conversion helper
-  inline float compute_ptconv(const xAOD::Photon* ph)
+
+  /// This ptconv function uses the vertex decorations
+  inline float compute_ptconv_decor(const xAOD::Photon* ph)
   {
     static const SG::AuxElement::Accessor<float> accPx("px");
     static const SG::AuxElement::Accessor<float> accPy("py");
     
     auto vx = ph->vertex();
     return vx ? std::hypot(accPx(*vx), accPy(*vx)) : 0.0;
+  }
+
+  /// This ptconv is the old one used by MVACalib
+  inline float compute_ptconv(const xAOD::Photon* ph)
+  {
+    auto vx = ph->vertex();
+    if (!vx) return 0.0;
+ 
+    TLorentzVector sum;
+    if (vx->trackParticle(0)) sum += vx->trackParticle(0)->p4();
+    if (vx->trackParticle(1)) sum += vx->trackParticle(1)->p4();
+    return sum.Perp();
   }
 
   inline float compute_pt1conv(const xAOD::Photon* ph)
@@ -181,6 +190,26 @@ namespace egammaMVATreeHelpers
     }
   }
 
+  // The functions to return the dictionaries of functions,
+  // i.e., the variable name to function
+
+  /// Define the map type since it's long
+  using funcMap_t = std::unordered_map<std::string,
+				       std::function<float(const xAOD::Egamma*, const xAOD::CaloCluster*)> >;
+
+  /// A function to build the map for electrons
+  std::unique_ptr<funcMap_t> initializeElectronFuncs(bool useLayerCorrected);
+
+  /// A function to build the map for uncoverted photons
+  std::unique_ptr<funcMap_t> initializeUnconvertedPhotonFuncs(bool useLayerCorrected);
+
+  /// A function to build the map for converted photons
+  std::unique_ptr<funcMap_t> initializeConvertedPhotonFuncs(bool useLayerCorrected);
+
+
+  /// The ConversionHelper struct used by egammaMVATree 
+  /// but not the functions in the dictionaries above.
+  /// (Might want to consider deprecating)
   struct ConversionHelper
   {
     ConversionHelper(const xAOD::Photon* ph)

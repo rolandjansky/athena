@@ -28,7 +28,7 @@
 #include <AsgTools/AsgMessaging.h>
 
 #include "egammaMVACalib/egammaMVALayerDepth.h"
-#include "egammaMVACalib/egammaMVATreeHelpers.h"
+#include "egammaMVACalib/egammaMVAFunctions.h"
 
 
 
@@ -173,8 +173,8 @@ private:
   void init_variables(const std::set<std::string>& variables);
   typedef std::tuple<std::string, std::function<float(const xAOD::Photon&)>, float> FloatElement; //!
   typedef std::tuple<std::string, std::function<int(const xAOD::Photon&)>, int> IntElement; //!
-  typedef std::tuple<std::string, std::function<float(const egammaMVATreeHelpers::ConversionHelper&)>, float> FloatElementConv; //!
-  typedef std::tuple<std::string, std::function<int(const egammaMVATreeHelpers::ConversionHelper&)>, int> IntElementConv; //!
+  typedef std::tuple<std::string, std::function<float(const egammaMVAFunctions::ConversionHelper&)>, float> FloatElementConv; //!
+  typedef std::tuple<std::string, std::function<int(const egammaMVAFunctions::ConversionHelper&)>, int> IntElementConv; //!
   std::vector<FloatElement> m_functions_float_from_photon; //!
   std::vector<IntElement> m_functions_int_from_photon; //!
   std::vector<FloatElementConv> m_functions_float_from_ConversionHelper; //!

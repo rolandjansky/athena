@@ -11,6 +11,7 @@
 #include "xAODEgamma/Photon.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "MVAUtils/BDT.h"
+#include "egammaMVACalib/egammaMVAFunctions.h"
 
 // Framework includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -18,6 +19,7 @@
 #include "TObject.h"
 #include "TString.h"
 #include "TFormula.h"
+#include "TTree.h"
 
 // STL includes
 #include <string>
@@ -69,7 +71,7 @@ private:
       "folder", "",
       "string with folder for weight files"}; 
 
-  Gaudi::Property<bool> m_use_layer_corrected {this,
+  Gaudi::Property<bool> m_useLayerCorrected {this,
       "use_layer_corrected", false,
       "whether to use layer corrections"};
 
@@ -85,36 +87,8 @@ private:
   /// shifts for mean10
   std::vector<TFormula> m_shifts;
 
-
-  /// initialize the functions needed for electrons
-  StatusCode initializeElectronFuncs(std::unordered_map<std::string,
-				     std::function<float(const xAOD::Egamma*, 
-							 const xAOD::CaloCluster*)> >& funcLibrary) const;
-  /// initialize the functions needed for unconverted photons
-  StatusCode initializeUnconvertedPhotonFuncs(std::unordered_map<std::string,
-					      std::function<float(const xAOD::Egamma*, 
-								  const xAOD::CaloCluster*)> >& funcLibrary) const;
-  /// initialize the functions needed for converted photons
-  StatusCode initializeConvertedPhotonFuncs(std::unordered_map<std::string,
-					    std::function<float(const xAOD::Egamma*, 
-								const xAOD::CaloCluster*)> >& funcLibrary) const;
-
-  /// a function called by the above functions to setup the cluster funcs
-  StatusCode initializeClusterFuncs(std::unordered_map<std::string,
-				    std::function<float(const xAOD::Egamma*, 
-							const xAOD::CaloCluster*)> >& funcLibrary,
-				    const std::string& prefix) const;
-
-  /// a function called by the above functions to setup the egamma funcs
-  StatusCode initializeEgammaFuncs(std::unordered_map<std::string,
-				   std::function<float(const xAOD::Egamma*, 
-						       const xAOD::CaloCluster*)> >& funcLibrary,
-				   const std::string& prefix) const;
-
   /// a function called by initialize to setup the BDT, funcs, and shifts.
-  StatusCode setupBDT(const std::unordered_map<std::string,
-		      std::function<float(const xAOD::Egamma*, 
-					  const xAOD::CaloCluster*)> >& funcLibrary,
+  StatusCode setupBDT(const egammaMVAFunctions::funcMap_t& funcLibrary,
 		      std::string fileName);
 
   /// a utility to get a TString out of an TObjString pointer
