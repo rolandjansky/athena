@@ -29,9 +29,15 @@
 #include <xAODEgamma/EgammaContainer.h>
 #include <xAODEgamma/PhotonContainer.h>
 
+#include <ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h>
+#include <PileupReweighting/PileupReweightingTool.h>
+
+
 #include "TMath.h"
 #include <string>
+#include <iostream>
 #include "xAODCore/ShallowCopy.h"
+
 
 class TProfile;
 class TH1F_LW;
@@ -70,9 +76,22 @@ private:
   void doMuonTriggerTP(const xAOD::Muon* , const xAOD::Muon*);
   void doMuonTruthEff(std::vector<const xAOD::Muon*>&);
   void doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmuonsZ, const xAOD::Vertex* pVtx);
+
+//----- Electron START -----//
   void doEleTriggerTP(const xAOD::Electron*,const xAOD::Electron*);
   void doEleTP(const xAOD::Electron*, const xAOD::Electron*, const xAOD::Vertex*, const xAOD::EventInfo*, bool);
-  bool goodElectrons(const xAOD::EventInfo*, const xAOD::Electron*, const xAOD::Vertex*, bool);
+  bool goodElectrons(const xAOD::EventInfo*, const xAOD::Electron*, const xAOD::Vertex*, bool); 
+
+  ToolHandle<Trig::ITrigEgammaMatchingTool> m_elTrigMatchTool;
+
+  TH1F_LW *m_eltrigtp_matches;
+
+  TH1F_LW *m_ele_tight_bad_os;
+  TH1F_LW *m_ele_tight_bad_ss;
+  TH1F_LW *m_ele_tight_good_os;
+  TH1F_LW *m_ele_tight_good_ss;
+
+//----- Electron END ------//
 
       TH1F_LW *m_W_mt_ele;
       TH1F_LW *m_W_mt_mu;
@@ -111,54 +130,28 @@ private:
       TH1F_LW *m_UpsilonCounter_Mu;
       TH1F *m_ZBosonCounter_El;
       TH1F *m_ZBosonCounter_Mu;
+      TH1F *m_ZBosonCounter_Mu_CMS;
 
-      //Muon T&P
+
+      //Trigger T&P
       TH1F_LW *m_mutrigtp_matches;
+      TH1F_LW *m_mutrigtp_matches_CMS;
+
+
+      //Reco T&P
       TH1F_LW *m_muloosetp_match_os;
       TH1F_LW *m_muloosetp_match_ss;
       TH1F_LW *m_muloosetp_nomatch_os;
       TH1F_LW *m_muloosetp_nomatch_ss;
-      TH1F_LW *m_mcmatch;
-      //Electron T&P
-      TH1F_LW *m_eltrigtp_matches;
-      TH1F_LW *m_ele_tight_bad_os;
-      TH1F_LW *m_ele_tight_bad_ss;
-      TH1F_LW *m_ele_tight_good_os;
-      TH1F_LW *m_ele_tight_good_ss;
 
-      //Electron Iso
-      TH1F* m_ele_isolation_loose;
-      TH1F* m_ele_isolation_all;
+      TH1F_LW *m_muloosetp_match_os_CMS;
+      TH1F_LW *m_muloosetp_match_ss_CMS;
+      TH1F_LW *m_muloosetp_nomatch_os_CMS;
+      TH1F_LW *m_muloosetp_nomatch_ss_CMS;
 
 
-
-      //2D MC Histograms
-      //Resonance Counter
-      TH1F *m_mc_ZBosonCounter_Mu;
-      //Trigger T&P
-      TH2F *m_mc_mutrigtp_matches;
-      //Reco T&P
-      TH2F *m_mc_muloosetp_match_os;
-      TH2F *m_mc_muloosetp_match_ss;
-      TH2F *m_mc_muloosetp_nomatch_os;
-      TH2F *m_mc_muloosetp_nomatch_ss;
       // MC truth
-      TH2F *m_mc_mcmatch;
-
-      //2D MC Electrons
-      TH1F *m_mc_ZBosonCounter_El;
-      TH2F *m_mc_eltrigtp_matches;
-      TH2F *m_mc_ele_tight_bad_os;
-      TH2F *m_mc_ele_tight_bad_ss;
-      TH2F *m_mc_ele_tight_good_os;
-      TH2F *m_mc_ele_tight_good_ss;
-
-
-
-
-
-
-
+      TH1F_LW *m_mcmatch;
       
       //Second component of counter array is for trigger aware counter
       int m_JPsiCounterSBG[2];
@@ -191,6 +184,8 @@ private:
       std::string m_tracksName;
       Float_t m_electronEtCut;
       Float_t m_muonPtCut;
+      Float_t m_muonPtCut_CMS;
+
       Float_t m_metCut;
       Float_t m_zCutLow;
       Float_t m_zCutHigh;
@@ -199,13 +194,8 @@ private:
       ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationSelectionTool;
       ToolHandle<Trig::ITrigMuonMatching> m_muTrigMatchTool;
-      ToolHandle<Trig::ITrigDecisionTool> m_trigDecisionTool;
-      ToolHandle<Trig::ITrigEgammaMatchingTool> m_elTrigMatchTool;
 
       bool m_useOwnMuonSelection;
-
-      // MC check
-      bool m_isSimulation;
             
       // to guard against endless messages 
       bool m_printedErrorEleContainer;
