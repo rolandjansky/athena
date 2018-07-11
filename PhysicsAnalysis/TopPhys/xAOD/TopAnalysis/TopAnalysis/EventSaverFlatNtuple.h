@@ -583,6 +583,8 @@ private:
     std::string m_jetsyst;     // jet systematic naming scheme
     std::map<std::string,std::vector<float>> m_VarRCjetBranches;
     std::map<std::string,std::vector<std::vector<float>>> m_VarRCjetsubBranches;
+    std::map<std::string,std::vector<float>> m_VarRCjetBranchesParticle;
+    std::map<std::string,std::vector<std::vector<float>>> m_VarRCjetsubBranchesParticle;
     std::vector<int> m_rcjet_nsub;
     std::vector<float> m_rcjet_pt;
     std::vector<float> m_rcjet_eta;

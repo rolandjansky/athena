@@ -102,6 +102,9 @@ namespace top {
 	std::unique_ptr<ObjectSelectorBase<xAOD::Jet> > m_objectSelector_Jet;
 	std::unique_ptr<ObjectSelectorBase<xAOD::Jet> > m_objectSelector_LargeRJet;
 	std::unique_ptr<ParticleLevelRCJetObjectLoader> m_particleLevelRCJetObjectLoader;
+	std::map<std::string,std::unique_ptr<ParticleLevelRCJetObjectLoader> > m_particleLevelVarRCJetObjectLoader;
+	std::vector<std::string> m_VarRCJetRho;
+	std::vector<std::string> m_VarRCJetMassScale;
 	
     private:
 	// The dressed leptons (shallow copies of the input containers)

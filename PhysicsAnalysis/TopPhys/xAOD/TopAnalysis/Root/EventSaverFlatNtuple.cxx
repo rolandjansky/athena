@@ -213,6 +213,9 @@ namespace top {
 	  m_makeVarRCJets = true;
 	  m_VarRCjetBranches.clear();    // clear map of branches just in case
 	  m_VarRCjetsubBranches.clear();
+	  m_VarRCjetBranchesParticle.clear();
+	  m_VarRCjetsubBranchesParticle.clear();
+	  
 
 	  boost::split(m_VarRCJetRho, config->VarRCJetRho(), boost::is_any_of(","));
 	  boost::split(m_VarRCJetMassScale, config->VarRCJetMassScale(), boost::is_any_of(","));
@@ -1141,6 +1144,27 @@ namespace top {
           m_particleLevelTreeManager->makeOutputVariable(m_rcjetsub_Ghosts_CHadron_Final_Count, "rcjetsub_nGhosts_cHadron");
         }
 
+	if (m_makeVarRCJets){
+	  std::string VarRC = "vrcjet";
+
+	  for (auto& rho : m_VarRCJetRho){
+	    for (auto& mass_scale : m_VarRCJetMassScale){
+	      std::replace( rho.begin(), rho.end(), '.', '_');
+	      std::string name = rho+mass_scale;
+	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetBranchesParticle[VarRC+"_"+name+"_pt"], VarRC+"_"+name+"_pt");
+	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetBranchesParticle[VarRC+"_"+name+"_eta"],VarRC+"_"+name+"_eta");
+	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetBranchesParticle[VarRC+"_"+name+"_phi"],VarRC+"_"+name+"_phi");
+	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetBranchesParticle[VarRC+"_"+name+"_e"],  VarRC+"_"+name+"_e");
+	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetBranchesParticle[VarRC+"_"+name+"_d12"],VarRC+"_"+name+"_d12"); // requires >= 2 subjets
+	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetBranchesParticle[VarRC+"_"+name+"_d23"],VarRC+"_"+name+"_d23"); // requires >= 3 subjets
+	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_pt"],  VarRC+"sub_"+name+"_pt");  // vector of vectors for subjet info
+	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_eta"], VarRC+"sub_"+name+"_eta");
+	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_phi"], VarRC+"sub_"+name+"_phi");
+	      m_particleLevelTreeManager->makeOutputVariable(m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_e"],   VarRC+"sub_"+name+"_e");
+	    } // end loop over mass parameters
+	  } // end loop over multipliers for mass scale
+	} // end if VarRC jets
+
         //met
         if ( m_config->useTruthMET() ){
             m_particleLevelTreeManager->makeOutputVariable(m_met_met, "met_met");
@@ -2047,16 +2071,6 @@ namespace top {
         }
 
 	if (m_makeRCJets){
-	  // Execute the re-clustering code
-	  // - make jet container of small-r jets in the event, put it in TStore, do re-clustering
-	  //top::check(m_rc->execute(event),"Failed to execute RCJetMC15 container");
-
-	  // Get the name of the container of re-clustered jets in TStore
-	  //m_RCJetContainer = m_rc->rcjetContainerName(event.m_hashValue,event.m_isLoose);
-
-	  // -- Retrieve the re-clustered jets from TStore & save good re-clustered jets -- //
-	  //const xAOD::JetContainer* rc_jets(nullptr);
-	  //top::check(evtStore()->retrieve(rc_jets,m_RCJetContainer),"Failed to retrieve RC JetContainer");
 
 	  // re-clustered jet substructure
 	  static SG::AuxElement::ConstAccessor<float> RCSplit12("Split12");
@@ -2258,23 +2272,12 @@ namespace top {
 	/**********************************/
 	// VarRC jets
 	if (m_makeVarRCJets){
-	  // Execute the re-clustering code
-          // - make jet container, put it in TStore, do re-clustering
           std::string VarRC = "vrcjet";
 	  std::unordered_map< std::string,std::shared_ptr<xAOD::JetContainer> > VarRCJets=event.m_VarRCJets;
 	  for (auto& rho : m_VarRCJetRho){
             for (auto& mass_scale : m_VarRCJetMassScale){
 	      std::replace( rho.begin(), rho.end(), '.', '_');
 	      std::string name = rho+mass_scale;
-
-	      //top::check(m_VarRC[name]->execute(event),"Failed to execute RCJetMC15 container");
-
-	      //// Get the name of the container of re-clustered jets in TStore
-              //m_RCJetContainer = m_VarRC[name]->rcjetContainerName(event.m_hashValue,event.m_isLoose);
-
-	      //// -- Retrieve the re-clustered jets from TStore & save good re-clustered jets -- //
-              //const xAOD::JetContainer* vrc_jets(nullptr);
-	      //top::check(evtStore()->retrieve(vrc_jets,m_RCJetContainer),"Failed to retrieve RC JetContainer");
 
 	      // re-clustered jet substructure
               static SG::AuxElement::ConstAccessor<float> VarRCSplit12("Split12");
@@ -2299,11 +2302,8 @@ namespace top {
 	      unsigned int i = 0;
 	      
 	      for (auto jet_ptr : *vrc_jets) {
-	      //for (xAOD::JetContainer::const_iterator jet_itr = (event.m_VarRCJets[name]).begin(); jet_itr != (event.m_VarRCJets[name]).end(); ++jet_itr) {
 		const xAOD::Jet* rc_jet = jet_ptr;
 		
-		//std::cout << "Found jet with pt = " << rc_jet->pt() << " name: " << name << " passed selection: " << rc_jet->auxdataConst<bool>("PassedSelection") << std::endl;
-
 		m_VarRCjetBranches[VarRC+"_"+name+"_pt"][i]   = rc_jet->pt();
 		m_VarRCjetBranches[VarRC+"_"+name+"_eta"][i]  = rc_jet->eta();
 		m_VarRCjetBranches[VarRC+"_"+name+"_phi"][i]  = rc_jet->phi();
@@ -3084,6 +3084,72 @@ namespace top {
             } // end for-loop over re-clustered jets
 
         }
+
+	// VarRC jets
+	if (m_makeVarRCJets){
+          std::string VarRC = "vrcjet";
+	  std::unordered_map< std::string,std::shared_ptr<xAOD::JetContainer> > VarRCJets=plEvent.m_VarRCJets;
+	  for (auto& rho : m_VarRCJetRho){
+            for (auto& mass_scale : m_VarRCJetMassScale){
+	      std::replace( rho.begin(), rho.end(), '.', '_');
+	      std::string name = rho+mass_scale;
+
+	      // re-clustered jet substructure
+              static SG::AuxElement::ConstAccessor<float> VarRCSplit12("Split12");
+	      static SG::AuxElement::ConstAccessor<float> VarRCSplit23("Split23");
+
+	      // Initialize the vectors to be saved as branches
+	      
+	      xAOD::JetContainer* vrc_jets = VarRCJets[name].get();
+              unsigned int sizeOfRCjets = vrc_jets->size();
+	      m_VarRCjetBranchesParticle[VarRC+"_"+name+"_pt"].resize(sizeOfRCjets,-999.);
+	      m_VarRCjetBranchesParticle[VarRC+"_"+name+"_eta"].resize(sizeOfRCjets,-999.);
+	      m_VarRCjetBranchesParticle[VarRC+"_"+name+"_phi"].resize(sizeOfRCjets,-999.);
+	      m_VarRCjetBranchesParticle[VarRC+"_"+name+"_e"].resize(sizeOfRCjets,-999.);
+	      m_VarRCjetBranchesParticle[VarRC+"_"+name+"_d12"].resize(sizeOfRCjets,-999.);
+	      m_VarRCjetBranchesParticle[VarRC+"_"+name+"_d23"].resize(sizeOfRCjets,-999.);
+	      m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_pt"].resize(sizeOfRCjets, std::vector<float>());
+	      m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_eta"].resize(sizeOfRCjets, std::vector<float>());
+	      m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_phi"].resize(sizeOfRCjets, std::vector<float>());
+	      m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_e"].resize(sizeOfRCjets, std::vector<float>());
+
+	      unsigned int i = 0;
+	      
+	      for (auto jet_ptr : *vrc_jets) {
+		const xAOD::Jet* rc_jet = jet_ptr;
+
+		m_VarRCjetBranchesParticle[VarRC+"_"+name+"_pt"][i]   = rc_jet->pt();
+		m_VarRCjetBranchesParticle[VarRC+"_"+name+"_eta"][i]  = rc_jet->eta();
+		m_VarRCjetBranchesParticle[VarRC+"_"+name+"_phi"][i]  = rc_jet->phi();
+		m_VarRCjetBranchesParticle[VarRC+"_"+name+"_e"][i]    = rc_jet->e();
+
+		m_VarRCjetBranchesParticle[VarRC+"_"+name+"_d12"][i] = (VarRCSplit12.isAvailable(*rc_jet)) ? VarRCSplit12(*rc_jet) : -999.;
+		m_VarRCjetBranchesParticle[VarRC+"_"+name+"_d23"][i] = (VarRCSplit23.isAvailable(*rc_jet)) ? VarRCSplit23(*rc_jet) : -999.;
+
+		// loop over subjets
+                const xAOD::Jet* subjet(nullptr);
+		m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_pt"][i].clear();     // clear the vector size (otherwise it grows out of control!)
+		m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_eta"][i].clear();
+		m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_phi"][i].clear();
+		m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_e"][i].clear();
+		for(auto rc_jet_subjet : rc_jet->getConstituents()){
+		  subjet = static_cast<const xAOD::Jet*>(rc_jet_subjet->rawConstituent());
+
+		  m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_pt"][i].push_back(subjet->pt());
+		  m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_eta"][i].push_back(subjet->eta());
+		  m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_phi"][i].push_back(subjet->phi());
+		  m_VarRCjetsubBranchesParticle[VarRC+"_"+name+"_sub_e"][i].push_back(subjet->e());
+		} // end for-loop over subjets
+		++i;
+
+	      } // end for-loop over re-clustered jets
+
+	    } // end loop over mass parameters
+	  } // end loop over multipliers for mass scale
+	} // end if make VarRC jets
+	// end VarRC jets
+	
+	
 
         //met
         if ( m_config->useTruthMET() ){

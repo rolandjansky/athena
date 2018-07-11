@@ -24,6 +24,8 @@
 
 #include "TopConfiguration/TopConfig.h"
 
+#include <boost/algorithm/string.hpp>
+
 // #define TOP_PARTICLE_LEVEL_DEBUG_OVERLAP_REMOVAL 1
 
 namespace top {
@@ -159,6 +161,25 @@ namespace top {
 	      top::check(m_particleLevelRCJetObjectLoader->initialize(),"Failed to initialize ParticleLevelRCJetObjectLoader");
 	  
 	    }
+	    
+	    if (m_config->useVarRCJets() == true){
+	      boost::split(m_VarRCJetRho, m_config->VarRCJetRho(), boost::is_any_of(","));
+	      boost::split(m_VarRCJetMassScale, m_config->VarRCJetMassScale(), boost::is_any_of(","));
+	
+	      for (auto& rho : m_VarRCJetRho){
+		for (auto& mass_scale : m_VarRCJetMassScale){
+		  std::replace( rho.begin(), rho.end(), '.', '_');
+		  std::string name = rho+mass_scale;
+		  m_particleLevelVarRCJetObjectLoader[name] = std::unique_ptr<ParticleLevelRCJetObjectLoader> ( new ParticleLevelRCJetObjectLoader( m_config ) );
+		  top::check(m_particleLevelVarRCJetObjectLoader[name]->setProperty( "VarRCjets", true ) , "Failed to set VarRCjets property of VarRCJetMC15");
+		  top::check(m_particleLevelVarRCJetObjectLoader[name]->setProperty( "VarRCjets_rho",  rho ) , "Failed to set VarRCjets rho property of VarRCJetMC15");
+		  top::check(m_particleLevelVarRCJetObjectLoader[name]->setProperty( "VarRCjets_mass_scale", mass_scale ) , "Failed to set VarRCjets mass scale property of VarRCJetMC15");
+		  top::check(m_particleLevelVarRCJetObjectLoader[name]->initialize(),"Failed to initialize VarRCJetMC15");
+		} // end loop over mass scale parameters (e.g., top mass, w mass, etc.)
+	      } // end loop over mass scale multiplies (e.g., 1.,2.,etc.)
+	    }
+	    
+	    
 	    
         } else {
             std::cout << "Particle level reconstruction is disabled." << '\n';
@@ -514,7 +535,7 @@ namespace top {
         plEvent.m_largeRJets = m_config->useTruthLargeRJets() ? m_goodLargeRJets.get() : nullptr;
         plEvent.m_met = m_config->useTruthMET() ? (* mets)[ "NonInt" ] : nullptr;
 
-	
+	// Reclustered jets
 	if ( m_config->useRCJets() ){
 	  top::check(m_particleLevelRCJetObjectLoader->execute(plEvent),"Failed to execute ParticleLevelRCJetObjectLoader container");
 	  // Get the name of the container of re-clustered jets
@@ -530,6 +551,32 @@ namespace top {
 	  }
 	  
 	}
+	// Variable-R reclustered jets
+	if (m_config->useVarRCJets()){
+	  for (auto& rho : m_VarRCJetRho){
+	    for (auto& mass_scale : m_VarRCJetMassScale){
+	      std::replace( rho.begin(), rho.end(), '.', '_');
+	      std::string name = rho+mass_scale;
+	      top::check(m_particleLevelVarRCJetObjectLoader[name]->execute(plEvent),"Failed to execute RCJetMC15 container");
+    
+	      // Get the name of the container of re-clustered jets in TStore
+	      std::string varRCJetContainerName = m_particleLevelVarRCJetObjectLoader[name]->rcjetContainerName();
+    
+	      // -- Retrieve the re-clustered jets from TStore & save good re-clustered jets -- //
+	      const xAOD::JetContainer* vrc_jets(nullptr);
+	      top::check(evtStore()->retrieve(vrc_jets,varRCJetContainerName),"Failed to retrieve RC JetContainer");
+	      
+	      plEvent.m_VarRCJets[name] = std::make_shared<xAOD::JetContainer>(SG::VIEW_ELEMENTS);
+	      for (auto vrcjet : *vrc_jets){
+		top::check( vrcjet->isAvailable<bool>("PassedSelection") , " Can't find jet decoration \"PassedSelection\" - we need it to decide if we should keep the variable-R reclustered jet in the top::Event instance or not!");
+		if(vrcjet->auxdataConst<bool>("PassedSelection"))plEvent.m_VarRCJets[name]->push_back((xAOD::Jet*)vrcjet);
+	      }
+	      
+	    }
+	  }
+	}
+
+
 
         return plEvent;
     }

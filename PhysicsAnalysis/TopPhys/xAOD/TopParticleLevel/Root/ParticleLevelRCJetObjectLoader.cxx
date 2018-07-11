@@ -16,17 +16,24 @@
 #include "TopConfiguration/TopConfig.h"
     
 
-ParticleLevelRCJetObjectLoader::ParticleLevelRCJetObjectLoader( const std::shared_ptr<top::TopConfig> & cfg ): asg::AsgTool( "ParticleLevelRCJetObjectLoader" ), 
-    m_config(cfg),
-  m_ptcut(0.),
-  m_etamax(0.),
-  m_trim(0.),
-  m_radius(0.),
-  m_treeName("particleLevel"),
-  m_InJetContainerBase( "AntiKt4TruthWZJets_RC"),
-  m_OutJetContainerBase("AntiKt10RCTrim"),
-  m_InputJetContainer("AntiKt4TruthWZJets_RC"),
-  m_OutputJetContainer("AntiKt10RCTrim"){}
+ParticleLevelRCJetObjectLoader::ParticleLevelRCJetObjectLoader( const std::shared_ptr<top::TopConfig> & cfg ): asg::AsgTool( "ParticleLevelRCJetObjectLoader" ),m_config(cfg) 
+{
+    m_ptcut = 0.;
+    m_etamax=0.;
+    m_trim=0.;
+    m_radius=0.;
+    m_treeName = "particleLevel";
+    m_InJetContainerBase = "AntiKt4TruthWZJets_RC";
+    m_OutJetContainerBase = "AntiKt10RCTrim";
+    m_InputJetContainer = "AntiKt4TruthWZJets_RC";
+    m_OutputJetContainer = "AntiKt10RCTrim";
+    m_VarRCjets_rho = "";
+    m_VarRCjets_mass_scale = "";
+    m_name = "";
+    declareProperty( "VarRCjets", m_VarRCjets=false);
+    declareProperty( "VarRCjets_rho",       m_VarRCjets_rho="");
+    declareProperty( "VarRCjets_mass_scale",m_VarRCjets_mass_scale="");
+}
 
 ParticleLevelRCJetObjectLoader::~ParticleLevelRCJetObjectLoader() {}
 
@@ -35,22 +42,46 @@ StatusCode ParticleLevelRCJetObjectLoader::initialize(){
     /* Initialize the re-clustered jets */
     ATH_MSG_INFO(" Initializing particle level Re-clustered jets ");
     
-    m_ptcut  =  m_config->RCJetPtcut() ;     // for initialize [GeV] & passSelection
-    m_etamax =  m_config->RCJetEtacut() ;    // for passSelection
-    m_trim   =  m_config->RCJetTrimcut() ;   // for initialize
-    m_radius =  m_config->RCJetRadius() ; // for initialize    
+    m_name = m_VarRCjets_rho+m_VarRCjets_mass_scale;
+    
+    
+    if(m_VarRCjets){
+      m_ptcut  = m_config->VarRCJetPtcut();        // 100 GeV
+      m_etamax = m_config->VarRCJetEtacut();       // 2.5
+      m_trim   = m_config->VarRCJetTrimcut();      // 0.05 (5% jet pT)
+      m_radius = m_config->VarRCJetMaxRadius(); // 1.2  (min=0.4)
+      m_minradius   = 0.4;                                // 0.4 default (until we have smaller jets!)
+      std::string original_rho(m_VarRCjets_rho);
+      std::replace( original_rho.begin(), original_rho.end(), '_', '.');
+      float rho     = std::stof(original_rho);
+      float m_scale = mass_scales.at(m_VarRCjets_mass_scale);
+      m_massscale   = rho*m_scale*1e-3;        
+    }
+    else {
+      m_ptcut  =  m_config->RCJetPtcut() ;     // for initialize [GeV] & passSelection
+      m_etamax =  m_config->RCJetEtacut() ;    // for passSelection
+      m_trim   =  m_config->RCJetTrimcut() ;   // for initialize
+      m_radius =  m_config->RCJetRadius() ; // for initialize    
+      m_minradius = -1.0;
+      m_massscale = -1.0;
+    }
+    
+    
+    
     
 
     m_InputJetContainer  = m_InJetContainerBase;
-    m_OutputJetContainer = m_OutJetContainerBase;
+    m_OutputJetContainer = m_OutJetContainerBase + m_name;
 
     // build a jet re-clustering tool for each case
-    m_jetReclusteringTool = new JetReclusteringTool(m_treeName);
+    m_jetReclusteringTool = new JetReclusteringTool(m_treeName+m_name);
     top::check(m_jetReclusteringTool->setProperty("InputJetContainer",  m_InputJetContainer),"Failed inputjetcontainer initialize reclustering tool");
     top::check(m_jetReclusteringTool->setProperty("OutputJetContainer", m_OutputJetContainer),"Failed outputjetcontainer initialize reclustering tool");
     top::check(m_jetReclusteringTool->setProperty("ReclusterRadius",    m_radius),"Failed re-clustering radius initialize reclustering tool");
     top::check(m_jetReclusteringTool->setProperty("RCJetPtMin",         m_ptcut*1e-3),"Failed ptmin [GeV] initialize reclustering tool");
     top::check(m_jetReclusteringTool->setProperty("RCJetPtFrac",        m_trim),"Failed pT fraction initialize reclustering tool");
+    top::check(m_jetReclusteringTool->setProperty("VariableRMinRadius", m_minradius),"Failed VarRC min radius initialize reclustering tool");
+    top::check(m_jetReclusteringTool->setProperty("VariableRMassScale", m_massscale),"Failed VarRC mass scale initialize reclustering tool");
     top::check(m_jetReclusteringTool->initialize(),"Failed to initialize reclustering tool");
     
 
