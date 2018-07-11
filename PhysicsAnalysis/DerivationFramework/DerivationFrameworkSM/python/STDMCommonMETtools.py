@@ -87,6 +87,7 @@ def addMETAssocMap(sequence=DerivationFrameworkJob,
 	from METReconstruction.METAssocConfig import getMETAssocAlg
 
 	####### CHSParticleFlowObjects
+	'''	
 	from JetRec.JetRecConf import JetToolRunner
 	from RecExConfig.AutoConfiguration import IsInInputFile
 	containerexists = IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects")
@@ -104,6 +105,7 @@ def addMETAssocMap(sequence=DerivationFrameworkJob,
 	    #print "adding JetToolRunner"
 	    from JetRec.JetRecConf import JetAlgorithm
 	    sequence += JetAlgorithm("jetalgCHSPFlow", Tools=[jtm.jetconstitCHSPFlow])
+	'''
 	#######
 
 	associators = [AssocConfig(jettype),
@@ -115,9 +117,9 @@ def addMETAssocMap(sequence=DerivationFrameworkJob,
 	cfg = METAssocConfig(assocname,
                     	associators,
                     	doPFlow=doPflow,
-                        doRecoil=dorecoil,
+                        doRecoil=dorecoil
                         #modConstKey="JetETMissNeutralParticleFlowObjects"
-                        modConstKey="CHSParticleFlowObjects"
+                        #modConstKey="CHSParticleFlowObjects"
                     	)
 
 	metFlags.METAssocConfigs()[cfg.suffix] = cfg
