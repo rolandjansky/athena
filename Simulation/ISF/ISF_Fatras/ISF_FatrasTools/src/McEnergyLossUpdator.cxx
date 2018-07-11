@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_FatrasTools/McEnergyLossUpdator.h"
+#include "McEnergyLossUpdator.h"
 
 // Trk
 #include "TrkGeometry/MaterialProperties.h"
