@@ -1,7 +1,7 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
-#include "ISF_FatrasToolsID/SimHitCreatorID.h"
-#include "ISF_FatrasToolsID/HitCreatorSilicon.h"
-#include "ISF_FatrasToolsID/HitCreatorTRT.h"
+#include "../SimHitCreatorID.h"
+#include "../HitCreatorSilicon.h"
+#include "../HitCreatorTRT.h"
 
 DECLARE_NAMESPACE_TOOL_FACTORY( iFatras, SimHitCreatorID )
 DECLARE_NAMESPACE_TOOL_FACTORY( iFatras, HitCreatorSilicon )

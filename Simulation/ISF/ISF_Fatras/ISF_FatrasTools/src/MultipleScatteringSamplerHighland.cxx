@@ -10,7 +10,7 @@
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkExUtils/MaterialInteraction.h"
 
-#include "ISF_FatrasTools/MultipleScatteringSamplerHighland.h"
+#include "MultipleScatteringSamplerHighland.h"
 
 #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 
