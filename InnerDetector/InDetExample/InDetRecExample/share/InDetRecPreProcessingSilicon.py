@@ -25,8 +25,12 @@ if InDetFlags.doPRDFormation():
    
    if DetFlags.makeRIO.pixel_on() or DetFlags.makeRIO.SCT_on():
       #
-      # --- SiLorentzAngleTool for SCT
+      # --- SiLorentzAngleTool
       #
+      if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
+        from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+        pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+
       if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
         from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
         sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
@@ -39,6 +43,7 @@ if InDetFlags.doPRDFormation():
                                                       PixelCalibSvc        = None,
                                                       PixelOfflineCalibSvc = None,
                                                       UsePixelCalibCondDB  = False,
+                                                      PixelLorentzAngleTool = ToolSvc.PixelLorentzAngleTool,
                                                       SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool)
 
       if DetFlags.makeRIO.pixel_on() and not (athenaCommonFlags.isOnline() or InDetFlags.doSLHC()):

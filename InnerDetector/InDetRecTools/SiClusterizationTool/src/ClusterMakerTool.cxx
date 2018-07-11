@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -105,6 +105,7 @@ StatusCode  ClusterMakerTool::initialize(){
      }
    }
 
+   ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
    ATH_CHECK(m_sctLorentzAngleTool.retrieve());
 
    return StatusCode::SUCCESS;
@@ -193,8 +194,8 @@ PixelCluster* ClusterMakerTool::pixelCluster(
     }
   }
 // ask for Lorentz correction, get global position
- 
-  double shift = element->getLorentzCorrection();
+
+  double shift = m_pixelLorentzAngleTool->getLorentzShift(element->identifyHash());
   const InDetDD::SiLocalPosition& localPosition = 
           InDetDD::SiLocalPosition(localPos[Trk::locY],
                           localPos[Trk::locX]+shift,0);
@@ -388,7 +389,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   if (msgLvl(MSG::VERBOSE)) msg() << "omega =  " << omegax << " " << omegay << endmsg;
 
 // ask for Lorentz correction, get global position
-  double shift = element->getLorentzCorrection();
+  double shift = m_pixelLorentzAngleTool->getLorentzShift(element->identifyHash());
   const InDetDD::SiLocalPosition& localPosition = 
     InDetDD::SiLocalPosition(localPos[Trk::locY],
 			     localPos[Trk::locX]+shift,0);

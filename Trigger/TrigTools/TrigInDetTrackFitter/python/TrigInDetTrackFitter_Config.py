@@ -69,6 +69,10 @@ class ConfiguredTrigL2_InDetRotCreator(Trk__RIO_OnTrackCreator) :
         from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
         
         # SiLorentzAngleTool
+        if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
+            from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+            pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+
         if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
             from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
             sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
@@ -80,13 +84,19 @@ class ConfiguredTrigL2_InDetRotCreator(Trk__RIO_OnTrackCreator) :
                                                                         LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
             myL2_PixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("TrigL2_PixelClusterOnTrackTool",
                                                                           PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
-                                                                          ErrorStrategy = 0)
+                                                                          ErrorStrategy = 0,
+                                                                          LorentzAngleTool = ToolSvc.PixelLorentzAngleTool)
+
         else:
             myL2_SCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool("TrigL2_SCT_ClusterOnTrackTool",
                                                                         CorrectionStrategy = 0,
                                                                         ErrorStrategy      = 2,
                                                                         LorentzAngleTool   = ToolSvc.SCTLorentzAngleTool)
-            myL2_PixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("TrigL2_PixelClusterOnTrackTool",PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),ErrorStrategy = 1)
+            myL2_PixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("TrigL2_PixelClusterOnTrackTool",
+                                                                          PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
+                                                                          ErrorStrategy = 1,
+                                                                          LorentzAngleTool = ToolSvc.PixelLorentzAngleTool)
+
                     
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += myL2_PixelClusterOnTrackTool

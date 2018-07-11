@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 class PixelConditionsServicesSetup:
   """
@@ -15,6 +15,18 @@ class PixelConditionsServicesSetup:
     self._print = False
     self._lock = False
     self.config(useDCS=True, onlineMode=False, prefix='')    #default offline settings
+
+    ########### STSTST NEW ##############
+    from AthenaCommon.AppMgr import ServiceMgr
+    self.svcMgr = ServiceMgr
+    from AthenaCommon.AppMgr import ToolSvc
+    self.toolSvc = ToolSvc
+
+    self.isData = False
+    from AthenaCommon.GlobalFlags import globalflags
+    if globalflags.DataSource() == 'data':
+      self.isData = True
+    ########### STSTST NEW ##############
 
 
   def config(self, useDCS=True, onlineMode=False, prefix=''):
@@ -173,84 +185,139 @@ class PixelConditionsServicesSetup:
     
 #    if self._print:  print SpecialPixelMapSvc
 
+#STSTST    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+#STSTST    from AthenaCommon.GlobalFlags import globalflags
+#STSTST    if self.useDCS or self.onlineMode:
+#STSTST      #sim
+#STSTST      if globalflags.DataSource() == 'geant4' or (not athenaCommonFlags.isOnline()):      
+#STSTST        if not conddb.folderRequested('/PIXEL/DCS/TEMPERATURE'):
+#STSTST          conddb.addFolder("DCS_OFL","/PIXEL/DCS/TEMPERATURE")
+#STSTST        if not conddb.folderRequested('/PIXEL/DCS/HV'):
+#STSTST          conddb.addFolder("DCS_OFL","/PIXEL/DCS/HV")
+#STSTST        if not conddb.folderRequested('/PIXEL/DCS/FSMSTATUS'):
+#STSTST          conddb.addFolder("DCS_OFL","/PIXEL/DCS/FSMSTATUS")
+#STSTST        if not conddb.folderRequested('/PIXEL/DCS/FSMSTATE'):
+#STSTST          conddb.addFolder("DCS_OFL","/PIXEL/DCS/FSMSTATE")
+#STSTST      else:
+#STSTST        if not conddb.folderRequested('/PIXEL/HLT/DCS/TEMPERATURE'):
+#STSTST          conddb.addFolder("PIXEL_ONL","/PIXEL/HLT/DCS/TEMPERATURE")
+#STSTST          #conddb.addFolder("PIXEL","/PIXEL/HLT/DCS/TEMPERATURE <tag>PixDCSTemp-UPD1-00</tag>")
+#STSTST        if not conddb.folderRequested('/PIXEL/HLT/DCS/HV'):
+#STSTST          conddb.addFolder("PIXEL_ONL","/PIXEL/HLT/DCS/HV")
+#STSTST          #conddb.addFolder("PIXEL","/PIXEL/HLT/DCS/HV <tag>PixDCSHV-UPD1-00</tag>")
+#STSTST        
+#STSTST
+#STSTST      from PixelConditionsServices.PixelConditionsServicesConf import PixelDCSSvc
+#STSTST      InDetPixelDCSSvc =  PixelDCSSvc(name = 'TrigPixelDCSSvc',
+#STSTST                                      RegisterCallback     = True,
+#STSTST                                      TemperatureFolder    = "/PIXEL/DCS/TEMPERATURE",
+#STSTST                                      HVFolder             = "/PIXEL/DCS/HV",
+#STSTST                                      FSMStatusFolder      = "/PIXEL/DCS/FSMSTATUS",
+#STSTST                                      FSMStateFolder       = "/PIXEL/DCS/FSMSTATE",
+#STSTST                                      TemperatureFieldName = "temperature",
+#STSTST                                      HVFieldName          = "HV",
+#STSTST                                      FSMStatusFieldName   = "FSM_status",
+#STSTST                                      FSMStateFieldName    = "FSM_state",
+#STSTST                                      UseFSMStatus         = False,
+#STSTST                                      UseFSMState          = False
+#STSTST                                      )
+#STSTST
+#STSTST      if globalflags.DataSource() == 'data':
+#STSTST        if (not athenaCommonFlags.isOnline()):
+#STSTST          InDetPixelDCSSvc.TemperatureFolder = "/PIXEL/DCS/TEMPERATURE"
+#STSTST          InDetPixelDCSSvc.HVFolder = "/PIXEL/DCS/HV"
+#STSTST        else:
+#STSTST          InDetPixelDCSSvc.TemperatureFolder = "/PIXEL/HLT/DCS/TEMPERATURE"
+#STSTST          InDetPixelDCSSvc.HVFolder = "/PIXEL/HLT/DCS/HV"
+#STSTST        
+#STSTST      ServiceMgr += InDetPixelDCSSvc
+#STSTST
+#STSTST
+#STSTST    if self.useDCS or self.onlineMode:
+#STSTST      if self._print: print InDetPixelDCSSvc
+#STSTST
+#STSTST
+#STSTST    #this needs also updates how LorentzAngleSvc is accessed ()
+#STSTST    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleSvc
+#STSTST    PixelLorentzAngleSvc = SiLorentzAngleSvc(name='PixelLorentzAngleSvc')
+#STSTST    from PixelConditionsServices.PixelConditionsServicesConf import PixelSiliconConditionsSvc
+#STSTST    pixelSiliconConditionsSvc=PixelSiliconConditionsSvc(name=self.instanceName('PixelSiliconConditionsSvc'),
+#STSTST                                                        PixelDCSSvc = 'TrigPixelDCSSvc')
+#STSTST    ServiceMgr += pixelSiliconConditionsSvc
+#STSTST
+#STSTST    PixelLorentzAngleSvc.SiConditionsServices = pixelSiliconConditionsSvc
+#STSTST    PixelLorentzAngleSvc.UseMagFieldSvc = True         #may need also MagFieldSvc instance
+#STSTST
+#STSTST    #if self.useDCS or self.onlineMode:
+#STSTST      #if (globalflags.DataSource() == 'data'):
+#STSTST    #else:
+#STSTST      #pixelSiliconConditionsSvc.ForceUseGeoModel = True
+#STSTST      #PixelLorentzAngleSvc.pixelForceUseGeoModel()
+#STSTST    if self._print: 
+#STSTST      print pixelSiliconConditionsSvc
+#STSTST      print PixelLorentzAngleSvc
+
+
+  ########### STSTST NEW ##############
+  def createTool(self):
+    self.dcsTool     = self.initDcsTool('InDetPixelDCSConditionsTool')
+    self.lorentzTool = self.initLorentzAngleTool('PixelLorentzAngleTool')
+
+    pass
+
+  def initDcsTool(self, instanceName):
+    "Init DCS conditions tool"
+
+    from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
+    pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
+    pixelDCSConditionsToolSetup.setToolName(instanceName)
+    pixelDCSConditionsToolSetup.setIsDATA(self.isData)
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    from AthenaCommon.GlobalFlags import globalflags
-    if self.useDCS or self.onlineMode:
-      #sim
-      if globalflags.DataSource() == 'geant4' or (not athenaCommonFlags.isOnline()):      
-        if not conddb.folderRequested('/PIXEL/DCS/TEMPERATURE'):
-          conddb.addFolder("DCS_OFL","/PIXEL/DCS/TEMPERATURE")
-        if not conddb.folderRequested('/PIXEL/DCS/HV'):
-          conddb.addFolder("DCS_OFL","/PIXEL/DCS/HV")
-        if not conddb.folderRequested('/PIXEL/DCS/FSMSTATUS'):
-          conddb.addFolder("DCS_OFL","/PIXEL/DCS/FSMSTATUS")
-        if not conddb.folderRequested('/PIXEL/DCS/FSMSTATE'):
-          conddb.addFolder("DCS_OFL","/PIXEL/DCS/FSMSTATE")
-      else:
-        if not conddb.folderRequested('/PIXEL/HLT/DCS/TEMPERATURE'):
-          conddb.addFolder("PIXEL_ONL","/PIXEL/HLT/DCS/TEMPERATURE")
-          #conddb.addFolder("PIXEL","/PIXEL/HLT/DCS/TEMPERATURE <tag>PixDCSTemp-UPD1-00</tag>")
-        if not conddb.folderRequested('/PIXEL/HLT/DCS/HV'):
-          conddb.addFolder("PIXEL_ONL","/PIXEL/HLT/DCS/HV")
-          #conddb.addFolder("PIXEL","/PIXEL/HLT/DCS/HV <tag>PixDCSHV-UPD1-00</tag>")
-        
+    if athenaCommonFlags.isOnline():
+      pixelDCSConditionsToolSetup.setHVFolder("/PIXEL/HLT/DCS/HV")
+      pixelDCSConditionsToolSetup.setTempFolder("/PIXEL/HLT/DCS/TEMPERATURE")
+      pixelDCSConditionsToolSetup.setDbInstance("PIXEL_ONL")
+    else:
+      pixelDCSConditionsToolSetup.setHVFolder("/PIXEL/DCS/HV")
+      pixelDCSConditionsToolSetup.setTempFolder("/PIXEL/DCS/TEMPERATURE")
+      pixelDCSConditionsToolSetup.setDbInstance("DCS_OFL")
 
-      from PixelConditionsServices.PixelConditionsServicesConf import PixelDCSSvc
-      InDetPixelDCSSvc =  PixelDCSSvc(name = 'TrigPixelDCSSvc',
-                                      RegisterCallback     = True,
-                                      TemperatureFolder    = "/PIXEL/DCS/TEMPERATURE",
-                                      HVFolder             = "/PIXEL/DCS/HV",
-                                      FSMStatusFolder      = "/PIXEL/DCS/FSMSTATUS",
-                                      FSMStateFolder       = "/PIXEL/DCS/FSMSTATE",
-                                      TemperatureFieldName = "temperature",
-                                      HVFieldName          = "HV",
-                                      FSMStatusFieldName   = "FSM_status",
-                                      FSMStateFieldName    = "FSM_state",
-                                      UseFSMStatus         = False,
-                                      UseFSMState          = False
-                                      )
+    pixelDCSConditionsToolSetup.setup()
+    dcsTool = pixelDCSConditionsToolSetup.getTool()
+    return dcsTool
 
-      if globalflags.DataSource() == 'data':
-        if (not athenaCommonFlags.isOnline()):
-          InDetPixelDCSSvc.TemperatureFolder = "/PIXEL/DCS/TEMPERATURE"
-          InDetPixelDCSSvc.HVFolder = "/PIXEL/DCS/HV"
-        else:
-          InDetPixelDCSSvc.TemperatureFolder = "/PIXEL/HLT/DCS/TEMPERATURE"
-          InDetPixelDCSSvc.HVFolder = "/PIXEL/HLT/DCS/HV"
-        
-      ServiceMgr += InDetPixelDCSSvc
+  def initLorentzAngleTool(self, instanceName):
+    "Inititalize Lorentz angle Tool"
 
+    from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
+    pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
+    pixelSiPropertiesToolSetup.setSiliconTool(self.dcsTool)
+    pixelSiPropertiesToolSetup.setup()
 
-    if self.useDCS or self.onlineMode:
-      if self._print: print InDetPixelDCSSvc
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "PixelSiLorentzAngleCondAlg"):
+      from SiLorentzAngleSvc.SiLorentzAngleSvcConf import PixelSiLorentzAngleCondAlg
+      from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+      condSeq += PixelSiLorentzAngleCondAlg(name = "PixelSiLorentzAngleCondAlg",
+                                            PixelDCSConditionsTool = self.dcsTool,
+                                            SiPropertiesTool = pixelSiPropertiesToolSetup.getTool(),
+                                            UseMagFieldSvc = True,
+                                            UseMagFieldDcs = (not athenaCommonFlags.isOnline()))
+      pixelSiLorentzAngleCondAlg = condSeq.PixelSiLorentzAngleCondAlg
 
+    if not hasattr(self.toolSvc, instanceName):
+      from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
+      self.toolSvc += SiLorentzAngleTool(name=instanceName, DetectorName="Pixel", SiLorentzAngleCondData="PixelSiLorentzAngleCondData")
+    pixelLorentzAngleTool = getattr(self.toolSvc, instanceName)
+    pixelLorentzAngleTool.UseMagFieldSvc = True
 
-    #this needs also updates how LorentzAngleSvc is accessed ()
-    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleSvc
-    PixelLorentzAngleSvc = SiLorentzAngleSvc(name='PixelLorentzAngleSvc')
-    from PixelConditionsServices.PixelConditionsServicesConf import PixelSiliconConditionsSvc
-    pixelSiliconConditionsSvc=PixelSiliconConditionsSvc(name=self.instanceName('PixelSiliconConditionsSvc'),
-                                                        PixelDCSSvc = 'TrigPixelDCSSvc')
-    ServiceMgr += pixelSiliconConditionsSvc
+    print "STSTST initLorentzAngleTool end ",instanceName
 
-    PixelLorentzAngleSvc.SiConditionsServices = pixelSiliconConditionsSvc
-    PixelLorentzAngleSvc.UseMagFieldSvc = True         #may need also MagFieldSvc instance
+  def instanceName(self, toolname):
+    return self.prefix+toolname
 
-    #if self.useDCS or self.onlineMode:
-      #if (globalflags.DataSource() == 'data'):
-    #else:
-      #pixelSiliconConditionsSvc.ForceUseGeoModel = True
-      #PixelLorentzAngleSvc.pixelForceUseGeoModel()
-    if self._print: 
-      print pixelSiliconConditionsSvc
-      print PixelLorentzAngleSvc
-
-
-
-  def instanceName(self,tool):
-    return self.prefix+tool
-
-
+  pass
 
 
 #to be moved to
@@ -481,8 +548,7 @@ class SCT_ConditionsToolsSetup:
     "Inititalize Lorentz angle Tool"
     if not hasattr(self.toolSvc, instanceName):
       from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
-      self.toolSvc += SiLorentzAngleTool(name = instanceName,
-                                         DetectorName = "SCT")
+      self.toolSvc += SiLorentzAngleTool(name=instanceName, DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
     SCTLorentzAngleTool = getattr(self.toolSvc, instanceName)
     SCTLorentzAngleTool.UseMagFieldSvc = True #may need also MagFieldSvc instance
     

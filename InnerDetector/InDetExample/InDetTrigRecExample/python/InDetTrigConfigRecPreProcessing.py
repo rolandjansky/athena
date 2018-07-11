@@ -58,7 +58,7 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigClusterMakerTool
 
       from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
-      
+
       # MergedPixelTool (public)
       from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPixelConditionsSummaryTool

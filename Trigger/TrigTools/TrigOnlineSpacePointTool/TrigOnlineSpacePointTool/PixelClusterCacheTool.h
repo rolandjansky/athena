@@ -18,6 +18,7 @@
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 #include "SiClusterizationTool/IPixelClusteringTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 #include <vector>
 #include <string>
 
@@ -57,6 +58,7 @@ private:
   std::string m_rdoContainerName;
   ServiceHandle<IPixelByteStreamErrorsSvc>   m_bsErrorSvc;
   ToolHandle<InDet::IPixelClusteringTool> m_clusteringTool;
+  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "PixelLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
   bool m_doBS;
 };

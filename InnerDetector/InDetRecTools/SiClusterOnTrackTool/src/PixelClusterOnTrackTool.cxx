@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -202,6 +202,7 @@ InDet::PixelClusterOnTrackTool::initialize() {
 #include "IBL_calibration.h"
   ///  
 
+  ATH_CHECK(m_lorentzAngleTool.retrieve());
    
   return StatusCode::SUCCESS;
 }
@@ -378,7 +379,7 @@ InDet::PixelClusterOnTrackTool::correctDefault
     double boweta = atan2(trketacomp, trknormcomp);
     float etatrack = trackPar.eta();
 
-    float tanl = element->getTanLorentzAnglePhi();
+    float tanl = m_lorentzAngleTool->getTanLorentzAngle(iH);
     int readoutside = element->design().readoutSide();
 
     // map the angles of inward-going tracks onto [-PI/2, PI/2]

@@ -8,17 +8,23 @@
 
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
+print "STSTST InDetTrigConditionsAccess 1"
+
 if InDetTrigFlags.useConditionsClasses():
   _useDCS = False
   _onlineMode = True
   _prefix = 'InDetTrig'
   #_prefix = ''
 
+  print "STSTST InDetTrigConditionsAccess 2"
+
   from InDetTrigRecExample.InDetTrigConfigConditions import PixelConditionsSetup
   PixelConditionsSetup.config(useDCS=_useDCS,onlineMode=_onlineMode,prefix=_prefix)
   PixelConditionsSetup.lock()
   PixelConditionsSetup.createSvc()
+  PixelConditionsSetup.createTool()
 
+  print "STSTST InDetTrigConditionsAccess 3"
   
   from InDetTrigRecExample.InDetTrigConfigConditions import SCT_ConditionsSetup
   SCT_ConditionsSetup.config(useDCS=_useDCS, onlineMode=_onlineMode, prefix=_prefix)
