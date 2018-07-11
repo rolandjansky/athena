@@ -9,7 +9,7 @@
 // Trk include
 #include "TrkGeometry/MaterialProperties.h"
 
-#include "ISF_FatrasTools/MultipleScatteringSamplerGeneralMixture.h"
+#include "MultipleScatteringSamplerGeneralMixture.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 
 // static particle masses
