@@ -20,6 +20,7 @@
 #include <vector>
 #else
 #include <AthenaBaseComps/AthHistogramAlgorithm.h>
+#include <AsgTools/MessageCheck.h>
 #endif
 
 class TH1;
