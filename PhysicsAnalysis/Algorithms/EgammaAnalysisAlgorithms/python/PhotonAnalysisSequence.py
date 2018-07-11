@@ -4,12 +4,18 @@
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
-def makePhotonAnalysisSequence( dataType, quality = 0 ):
+from ROOT import egammaPID
+
+def makePhotonAnalysisSequence( dataType, quality = egammaPID.PhotonTight,
+                                recomputeIsEM = False,
+                                prefilterIsEM = False):
     """Create a photon analysis algorithm sequence
 
     Keywrod arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")
       quality -- The photon quality to require during the selection
+      recomputeLikelihood -- Whether to rerun the cut-based selection. If not, use derivation flags
+      prefilterLikelihood -- Creates intermediate selection on IsEM, in case of cluster thinning etc
     """
 
     if not dataType in ["data", "mc", "afii"] :
@@ -17,6 +23,35 @@ def makePhotonAnalysisSequence( dataType, quality = 0 ):
 
     # Create the analysis algorithm sequence object:
     seq = AnaAlgSequence( "PhotonAnalysisSequence" )
+
+    # Set up the photon selection algorithm:
+    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'PhotonIsEMSelectorAlg' )
+    alg.selectionDecoration = 'selectEM'
+    if recomputeIsEM:
+        # Rerun the cut-based ID
+        addPrivateTool( alg, 'selectionTool', 'AsgPhotonIsEMSelector' )
+        alg.selectionTool.isEMMask = quality
+        alg.selectionTool.ConfigFile = \
+        'ElectronPhotonSelectorTools/offline/20180116/PhotonIsEMTightSelectorCutDefs.conf'
+    else:
+        # Select from Derivation Framework flags
+        addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
+        WPnames = {egammaPID.PhotonLoose:"Loose",
+            egammaPID.PhotonTight:"Tight"}
+        dfFlag = "DFCommonPhotonsIsEM" + WPnames[quality]
+        alg.selectionTool.selectionFlags = [dfFlag]
+    seq.append( alg, inputPropName = 'particles',
+    outputPropName = 'particlesOut' )
+
+    # Only run subsequent processing on the objects passing LH cut
+    # This is needed e.g. for top derivations that thin the clusters
+    # from the electrons failing Loose(LH)
+    # Basically invalidates the first cutflow step
+    if prefilterIsEM:
+        alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
+        'PhotonLHViewFromSelectionAlg' )
+        alg.selection = [ 'selectIsEM' ]
+        seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
 
     # Set up the calibration ans smearing algorithm:
     alg = createAlgorithm( 'CP::EgammaCalibrationAndSmearingAlg',
@@ -54,16 +89,6 @@ def makePhotonAnalysisSequence( dataType, quality = 0 ):
         alg.isolationCorrectionTool.IsMC = 1
         pass
     seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut' )
-
-    # Set up the photon selection algorithm:
-    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'PhotonIsEMSelectorAlg' )
-    addPrivateTool( alg, 'selectionTool', 'AsgPhotonIsEMSelector' )
-    alg.selectionTool.isEMMask = quality
-    alg.selectionTool.ConfigFile = \
-        'ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMTightSelectorCutDefs.conf'
-    alg.selectionDecoration = 'selectEM'
-    seq.append( alg, inputPropName = 'particles',
-                outputPropName = 'particlesOut' )
 
     # Set up the photon efficiency correction algorithm:
     alg = createAlgorithm( 'CP::PhotonEfficiencyCorrectionAlg',
