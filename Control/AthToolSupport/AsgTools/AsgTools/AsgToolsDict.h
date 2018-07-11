@@ -18,6 +18,8 @@
 // setProperty(...) function(s) come(s) from the AlgTool base class, with all
 // the necessary dictionaries declared in GaudiKernel.
 #ifdef ASGTOOL_STANDALONE
+// In athena, we get this from GAUDI
+#include "AsgTools/StatusCode.h"
 
 // Helper macro for declaring the setProperty functions to the dictionary:
 #define SETPROPERTY_INSTAN( TYPE )                                            \
