@@ -225,6 +225,9 @@ def setupMenu():
         ['mu4_mu2noL1_L1MU4', 'L1_MU4',  ['L1_MU4',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu4','mu2noL1']]],
         ['mu6_mu2noL1_L1MU6', 'L1_MU6',  ['L1_MU6',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu6','mu2noL1']]],
 
+        #ALFA: ATR-18254
+        ['mu4_mu2noL1_L1MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO',   'L1_MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO', ['L1_MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO',''], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1,['serial',-1,['mu4','mu2noL1']]], 
+        ['mu4_mu2noL1_L1MU4_ALFA_EINE',   'L1_MU4_ALFA_EINE', ['L1_MU4_ALFA_EINE',''], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1,['serial',-1,['mu4','mu2noL1']]],
 
 			 ]
 
@@ -921,6 +924,14 @@ def setupMenu():
         ['j20_L1J12',                    'L1_J12', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['j10_320eta490_L1MBTS_2',          'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['2j10_deta20_L1MBTS_2',            'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+
+        #ALFA: ATR-18254
+        ['2j10_L1TRT_ALFA_EINE', 'L1_TRT_ALFA_EINE', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['2j10_L1TRT_ALFA_ANY_PAIRED_UNPAIRED_ISO', 'L1_TRT_ALFA_ANY_PAIRED_UNPAIRED_ISO', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['2j10_L1ALFA_ELAS', 'L1_ALFA_ELAS', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['2j10_L1ALFA_SYST', 'L1_ALFA_SYS', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['2j10_L1MBTS_ALFA', 'L1_MBTS_ALFA', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['j15_L1ALFA_Jet_Phys', 'L1_ALFA_Jet_Phys', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
 
         #Low-mu run triggers
         ['j45_L1AFP_A_OR_C_J12',          'L1_AFP_A_OR_C_J12',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
@@ -3086,8 +3097,6 @@ def setupMenu():
         ['e20_lhtight_nod0_ivarloose_3j20_L1EM18VHI_3J20', 'L1_EM18VHI_3J20',    ['L1_EM18VHI',''], [PhysicsStream], ['Primary:20000','RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1, ['serial',-1,["e20_lhtight_nod0_ivarloose","3j20"] ]],
         ['e20_lhmedium_nod0_3j20_L1EM18VHI_3J20', 'L1_EM18VHI_3J20',    ['L1_EM18VHI',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1, ['serial',-1,["e20_lhmedium_nod0","3j20"] ]],
          
-         
-         
         #nod0 chains:
         ['e28_lhvloose_nod0_L1EM22VH_3j20noL1',  'L1_EM22VH', ['L1_EM22VH',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1, ['serial',-1,["e28_lhvloose_nod0_L1EM22VH","3j20noL1"] ]],
         ['e28_lhvloose_nod0_L1EM22VH_4j20noL1',  'L1_EM22VH', ['L1_EM22VH',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1, ['serial',-1,["e28_lhvloose_nod0_L1EM22VH","4j20noL1"] ]],
@@ -3390,6 +3399,11 @@ def setupMenu():
 
         ['e9_lhloose_bBeexM2700_2mu4_nomucomb_L1BPH-0DR3-EM7J15_2MU4', 'L1_BPH-0DR3-EM7J15_2MU4',    ['L1_EM7','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1,['parallel',-1,[] ]],
         ['e9_lhloose_bBeexM6000_2mu4_nomucomb_L1BPH-0DR3-EM7J15_2MU4',  'L1_BPH-0DR3-EM7J15_2MU4',   ['L1_EM7','L1_2MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1,['parallel',-1,[] ]],	
+
+        #ALFA: ATR-18254
+        ['2g3_loose_mb_sptrk_vetombts2in_L1ALFA_ELAS', 'L1_ALFA_ELAS', ['2EM3',''], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1, ['serial', -1, ['2g3_loose', 'mb_sptrk_vetombts2in_L1ALFA_ELAS']]], 
+        ['2g3_loose_mb_sptrk_vetombts2in_L1ALFA_SYST', 'L1_ALFA_SYS', ['2EM3',''], ['MinBias'], [ 'RATE:ALFA','BW:Detector'],  -1, ['serial', -1, ['2g3_loose', 'mb_sptrk_vetombts2in_L1ALFA_SYST']]], 
+
 	 
         ['e9_lhvloose_nod0_e5_lhvloose_nod0_bBeexM6000_mu6_nomucomb_L1BPH-0M9-EM7-EM5_MU6',  'L1_BPH-0M9-EM7-EM5_MU6',   ['L1_EM7','L1_EM3','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1,['parallel',-1,[] ]],
         ['e5_lhvloose_nod0_bBeexM6000_mu6_nomucomb_L1BPH-0DR3-EM7J15_MU6',  'L1_BPH-0DR3-EM7J15_MU6',   ['L1_EM7','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1,['parallel',-1,[] ]],
@@ -3952,28 +3966,7 @@ def setupMenu():
         ['mb_sptrk_vetombts2in_L1ZDC_AND',                  'L1_ZDC_AND',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['mb_sptrk_vetombts2in_L1ZDC_A_C',                  'L1_ZDC_A_C',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
 
-        #ATR-18254
-        ['noalg_L1MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO',   'L1_MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
-        ['noalg_L1MU4_ALFA_EINE',   'L1_MU4_ALFA_EINE', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1],
-        ['mu4_mu2noL1_L1MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO',   'L1_MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO', ['L1_MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO',''], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1,['serial',-1,['mu4','mu2noL1']]], 
-        ['mu4_mu2noL1_L1MU4_ALFA_EINE',   'L1_MU4_ALFA_EINE', ['L1_MU4_ALFA_EINE',''], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1,['serial',-1,['mu4','mu2noL1']]],
-        ['noalg_L1EM3_ALFA_EINE', 'L1_EM3_ALFA_EINE', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
-        ['noalg_L12EM3_ALFA_EINE', 'L1_2EM3_ALFA_EINE', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
-        ['noalg_L1DPHI-2EM3_VTE5.24ETA49_ALFA_EINE', 'L1_DPHI-2EM3_VTE5.24ETA49_ALFA_EINE', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
-        ['2g3_loose_mb_sptrk_vetombts2in_L1ALFA_ELAS', 'L1_ALFA_ELAS', ['2EM3',''], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1, ['serial', -1, ['2g3_loose', 'mb_sptrk_vetombts2in_L1ALFA_ELAS']]], 
-        ['2g3_loose_mb_sptrk_vetombts2in_L1ALFA_SYST', 'L1_ALFA_SYS', ['2EM3',''], ['MinBias'], [ 'RATE:ALFA','BW:Detector'],  -1, ['serial', -1, ['2g3_loose', 'mb_sptrk_vetombts2in_L1ALFA_SYST']]], 
-
-        ['noalg_L1J12_ALFA_EINE', 'L1_J12_ALFA_EINE', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
-        ['2j10_L1TRT_ALFA_EINE', 'L1_TRT_ALFA_EINE', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
-        ['2j10_L1TRT_ALFA_ANY_PAIRED_UNPAIRED_ISO', 'L1_TRT_ALFA_ANY_PAIRED_UNPAIRED_ISO', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
-        ['2j10_L1ALFA_ELAS', 'L1_ALFA_ELAS', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
-        ['2j10_L1ALFA_SYST', 'L1_ALFA_SYS', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
-        ['2j10_L1MBTS_ALFA', 'L1_MBTS_ALFA', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
-        ['j15_L1ALFA_Jet_Phys', 'L1_ALFA_Jet_Phys', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
-        ['noalg_L1ALFA_Jet_Phys', 'L1_ALFA_Jet_Phys', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
-
-        ['noalg_L1ALFA_Diff_Phys', 'L1_ALFA_Diff_Phys',  [],  ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1],
-        ['noalg_L1ALFA_CDiff_Phys', 'L1_ALFA_CDiff_Phys', [],  ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1],
+        #ALFA: ATR-18254
         ['mb_sptrk_vetombts2in_L1ALFA_CEP', 'L1_ALFA_CEP', [],  ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1],
         ['mb_sptrk_vetombts2in_L1TRT_ALFA_EINE', 'L1_TRT_ALFA_EINE', [],  ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1],
         ['mb_sptrk_vetombts2in_L1ALFA_ANY', 'L1_ALFA_ANY', [],  ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1],
@@ -4085,9 +4078,20 @@ def setupMenu():
         ['alfacalib_L1ALFA_ELAST18',  'L1_ALFA_ELAST18'      , [], ['ALFACalib'], [ 'RATE:ALFACalibration','BW:Detector'], -1],
         ['alfacalib_L1ALFA_SYS',   'L1_ALFA_SYS'     , [], ['ALFACalib'], ['RATE:ALFACalibration', 'BW:Other'], -1], 
         ['alfacalib_L1ALFA_SYS_Calib',   'L1_ALFA_SYS_Calib'      , [], ['ALFACalib'], [ 'RATE:ALFACalibration','BW:Detector'], -1],        
+        #ATR-18254
         ['noalg_L1ALFA_Phys',    'L1_ALFA_Phys',    [], ['MinBias'], ["RATE:MinBias", "RATE:ALFA", "BW:Other"], -1], 
         ['noalg_L1ALFA_PhysAny', 'L1_ALFA_PhysAny', [], ['MinBias'], ["RATE:MinBias", "RATE:ALFA", "BW:Other"], -1], 
         ['noalg_L1ALFA_SYS', 'L1_ALFA_SYS', [], ['MinBias'], ["RATE:MinBias", "RATE:ALFA", "BW:Other"], -1], 
+        ['noalg_L1ALFA_Jet_Phys', 'L1_ALFA_Jet_Phys', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['noalg_L1ALFA_Diff_Phys', 'L1_ALFA_Diff_Phys',  [],  ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1],
+        ['noalg_L1ALFA_CDiff_Phys', 'L1_ALFA_CDiff_Phys', [],  ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1],
+        ['noalg_L1MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO',   'L1_MU4_ALFA_ANY_PAIRED_UNPAIRED_ISO', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['noalg_L1MU4_ALFA_EINE',   'L1_MU4_ALFA_EINE', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1],
+        ['noalg_L1EM3_ALFA_EINE', 'L1_EM3_ALFA_EINE', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['noalg_L12EM3_ALFA_EINE', 'L1_2EM3_ALFA_EINE', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['noalg_L1DPHI-2EM3_VTE5.24ETA49_ALFA_EINE', 'L1_DPHI-2EM3_VTE5.24ETA49_ALFA_EINE', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+        ['noalg_L1J12_ALFA_EINE', 'L1_J12_ALFA_EINE', [], ['MinBias'], [ 'RATE:ALFA','BW:Detector'], -1], 
+
         #
         ['ibllumi_L1RD0_ABORTGAPNOTCALIB',    'L1_RD0_ABORTGAPNOTCALIB', [], ['IBLLumi'], [ 'RATE:IBLLumi','BW:Detector'], -1],
         ['ibllumi_L1RD0_FILLED',    'L1_RD0_FILLED', [], ['IBLLumi'], [ 'RATE:IBLLumi','BW:Detector'], -1],

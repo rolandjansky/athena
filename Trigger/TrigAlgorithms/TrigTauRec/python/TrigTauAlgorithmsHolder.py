@@ -162,7 +162,7 @@ def getMvaTESEvaluator():
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import MvaTESEvaluator
     MvaTESEvaluator = MvaTESEvaluator(name = _name,
-                                      WeightFileName = 'OnlineMvaTES_BRT_v0.weights.root')
+                                      WeightFileName = 'OnlineMvaTES_BRT_v1.weights.root')
 
     ToolSvc += MvaTESEvaluator
     cached_instances[_name] = MvaTESEvaluator
@@ -871,20 +871,15 @@ def getTauWPDecoratorJetRNN():
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauWPDecorator
     TauWPDecorator = TauWPDecorator( name=_name,
-                                     flatteningFile0Prong = "rnnid_flat_0p_v3.root",
-                                     flatteningFile1Prong = "rnnid_flat_1p_v3.root",
-                                     flatteningFile3Prong = "rnnid_flat_mp_v3.root",
+                                     flatteningFile0Prong = "rnnid_flat_0p_v4.root",
+                                     flatteningFile1Prong = "rnnid_flat_1p_v4.root",
+                                     flatteningFile3Prong = "rnnid_flat_mp_v4.root",
                                      CutEnumVals =
                                      [ ROOT.xAOD.TauJetParameters.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.JetRNNSigLoose,
                                        ROOT.xAOD.TauJetParameters.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.JetRNNSigTight ],
-                                     SigEff0P = [0.98, 0.60, 0.55, 0.40],
-                                     SigEff1P = [0.992, 0.99, 0.97, 0.96],
-                                     SigEff3P = [0.99, 0.90, 0.88, 0.85],
-                                     # test WP combinations
-                                     DecorWPNames = ["RNNWP0","RNNWP1","RNNWP2","RNNWP3","RNNWP4","RNNWP5","RNNWP6","RNNWP7","RNNWP8","RNNWP9"],
-                                     DecorWPCutEffs0P = [0.90, 0.90, 0.85, 0.60, 0.55, 0.55, 0.55, 0.50, 0.50, 0.50 ],
-                                     DecorWPCutEffs1P = [0.99, 0.99, 0.98, 0.97, 0.97, 0.97, 0.97, 0.97, 0.97, 0.97 ],
-                                     DecorWPCutEffs3P = [0.98, 0.97, 0.97, 0.88, 0.89, 0.88, 0.87, 0.88, 0.87, 0.86 ],
+                                     SigEff0P = [0.98, 0.90, 0.65, 0.50],
+                                     SigEff1P = [0.992, 0.99, 0.965, 0.94],
+                                     SigEff3P = [0.99, 0.98, 0.865, 0.80],
                                      ScoreName = "RNNJetScore",
                                      NewScoreName = "RNNJetScoreSigTrans",
                                      DefineWPs = True,

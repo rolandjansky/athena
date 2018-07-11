@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 """ Tau slice signatures """
 
@@ -254,8 +254,7 @@ class L2EFChain_tau(L2EFChainDef):
         tauRoiUpdater.z0HalfWidth = 7.0
 
         #ftracks = trkcore+[tauRoiUpdater]+trkiso
-        # WARNING: allow 0p for tracktwoMVA0p
-        if not idperf and preselection != 'tracktwoMVA0p':
+        if not idperf and preselection != 'tracktwoMVA':
             ftracks = trkcore + [tauRoiUpdater, tauRejectEmpty] + trkiso
         else :
             ftracks = trkcore+[tauRoiUpdater]+trkiso
@@ -314,13 +313,13 @@ class L2EFChain_tau(L2EFChainDef):
         needsCaloPre  = ['calo', 'ptonly', 'mvonly', 'caloonly',
                          'track', 'trackonly', 'tracktwo', 'tracktwoEF',
                          'trackcalo', 'tracktwocalo','tracktwo2015']
-        needsCaloMVAPre = ['tracktwoEFmvaTES','tracktwoMVA','tracktwoMVA0p']
+        needsCaloMVAPre = ['tracktwoEFmvaTES','tracktwoMVA']
         # Strategies which need fast-track finding
         needsTrackTwoPre = ['tracktwo', 'tracktwoonly', 'tracktwocalo','tracktwo2015']
-        needsTrackTwoNoPre = ['tracktwoEF','tracktwoEFmvaTES','tracktwoMVA','tracktwoMVA0p']
+        needsTrackTwoNoPre = ['tracktwoEF','tracktwoEFmvaTES','tracktwoMVA']
         needsTrackPre    = ['track', 'trackonly', 'trackcalo', 'FTK', 'FTKRefit', 'FTKNoPrec']
         # Strategies which need Run-II final hypo
-        needsRun2Hypo = ['calo', 'ptonly', 'mvonly', 'caloonly', 'trackonly', 'track', 'tracktwo', 'tracktwoEF', 'tracktwoEFmvaTES', 'tracktwoMVA', 'tracktwoMVA0p', 'tracktwocalo', 'trackcalo', 'FTK', 'FTKRefit', 'FTKNoPrec', 'tracktwo2015']
+        needsRun2Hypo = ['calo', 'ptonly', 'mvonly', 'caloonly', 'trackonly', 'track', 'tracktwo', 'tracktwoEF', 'tracktwoEFmvaTES', 'tracktwoMVA', 'tracktwocalo', 'trackcalo', 'FTK', 'FTKRefit', 'FTKNoPrec', 'tracktwo2015']
         fastTrackingUsed = needsTrackPre + needsTrackTwoPre + needsTrackTwoNoPre
 
 
@@ -329,15 +328,11 @@ class L2EFChain_tau(L2EFChainDef):
         # MVA TES for preselection and precision steps
         MVATES = preselection in needsCaloMVAPre
         # track counting based on EF tracks + BDT classification for core tracks
-        #TrackBDT = preselection in ['tracktwoMVA','tracktwoMVA0p']
-        # can't afford to use track BDT, rates too high
-        TrackBDT = preselection in ['tracktwoMVA']
-
+        #TrackBDT = preselection in ['tracktwoMVA']
+        # can't afford to use track BDT unfortunately, rates too high (especially when including 0p)
+        TrackBDT = False
         # evaluate RNN for triggers using RNN ID, and 2018 support triggers (even those using BDT ID, to avoid too many different precision sequences)
-        #RNN = selection in ['verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN'] or preselection in preselection2018
-        # to be able to test many 0p/1p/3p combinations of RNN WPs
-        RNN = 'RNN' in selection or preselection in preselection2018
-
+        RNN = selection in ['verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN'] or preselection in preselection2018
         # chains using 2018 features
         needsAlgo2018 = (preselection in preselection2018) or MVATES or TrackBDT or RNN 
         # give unique name to precision sequence
@@ -432,9 +427,7 @@ class L2EFChain_tau(L2EFChainDef):
                 
                 # don't evaluate BDT for RNN chains
                 EFsequence = []
-                # to test RNN WPs
-                #if selection not in ['verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN']:
-                if 'RNN' not in selection:
+                if selection not in ['verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN']:
                     EFsequence.append( TrigTauDiscriGetter2015() )
 
                 EFsequence.append( theEFHypo )

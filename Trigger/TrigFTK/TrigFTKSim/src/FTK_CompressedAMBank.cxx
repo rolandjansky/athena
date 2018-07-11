@@ -604,7 +604,7 @@ int FTK_CompressedAMBank::writePCachedBankFile
       unsigned int ndc[8]; // number of DC bits per plane
       unsigned int wildcard;
       //unsigned lowestSSID;
-      int sector,firstPattern,lastPattern,isub,lamb;
+      int sector,firstPattern,lastPattern,isub,lamb,allPatternsUsed;
       auxtree->Branch("nplanes",&nplanes,"nplanes/I");
       auxtree->Branch("ndc",ndc,"ndc[nplanes]/I");
       auxtree->Branch("sector",&sector,"sector/I");
@@ -613,6 +613,7 @@ int FTK_CompressedAMBank::writePCachedBankFile
       auxtree->Branch("lamb",&lamb,"lamb/I");
       auxtree->Branch("isub",&isub,"isub/I");
       auxtree->Branch("wildcard",&wildcard,"wildcard/I");
+      auxtree->Branch("allPatternsUsed",&allPatternsUsed,"allPatternsUsed/I");
       //auxtree->Branch("lowestSSID",&lowestSSID,"lowestSSID/I");
       // set number of DC bits per plane (constant)
       for(int i=0;i<getNPlanes();i++) {
@@ -627,6 +628,11 @@ int FTK_CompressedAMBank::writePCachedBankFile
          isub= nsub ? (sector % nsub) : 0;
          lamb= nlamb ? (sector % nlamb) : 0;
          wildcard=m_SectorWC[sector];
+         MAP<int,bool>::const_iterator tooFew=m_tooFew.find(sector);
+         allPatternsUsed=-1;
+         if(tooFew!=m_tooFew.end()) {
+            allPatternsUsed=(*tooFew).second ? 1 : 0;
+         }
          //lowestSSID=;
          auxtree->Fill();
       }
@@ -1442,7 +1448,7 @@ void FTK_CompressedAMBank::importDCpatterns
       // here: top_sectorByLamb has all bits set to one and is larger or equal the largest sector/nlamb
       unsigned leadingBitMask=(top_sectorByNlamb>>1)+1;
       unsigned sectorByLamb=0;
-      while(true) {
+      for(unsigned count=0;count<=top_sectorByNlamb;count++) {
          //for(unsigned sector=ilamb;sector<sectorPointer.size();sector+=nlamb) {
          unsigned sector=sectorByLamb*nlamb+ilamb;
 
@@ -1459,7 +1465,6 @@ void FTK_CompressedAMBank::importDCpatterns
             if(sectorByLamb & mask) break;
             // if the bit is zero, have to count the next bit
          }
-         if(!sectorByLamb) break; // all bits were counted, stop
          // when counting in reverse bit order, sectors are not produced in sequence
          // high (invalid) sector numbers are produced in random order and have
          // to be skipped
@@ -1694,6 +1699,7 @@ void FTK_CompressedAMBank::importDCpatterns
             Debug("importDCpatterns")
                <<"sector "<<sector<<" nPatt="<<ipatt<<"\n";
          }
+         if(!sectorByLamb) break; // all bits were counted, stop
       } // end loop over sectors
    } // end loop over subregions
 }
@@ -3549,7 +3555,6 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
       for(std::list<FTK_CompressedAMBank::Partition>::const_iterator
              iPartition=partitionList.begin();iPartition!=partitionList.end();
           iPartition++) {
-         maxpatts+=(*iPartition).fNumPatternMax;
          // the FTKPatternBySectorBlockReader is reading the patterns
          // sector-by-sector, in a pre-defined coverage range
          //
@@ -3569,7 +3574,8 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
          Info("readSectorOrderedBank")
             <<"reading from "<<name<<" nLayer="<<TSPreader->GetNLayers()
             <<" partition "<<partitionCount<<" maxpattern="
-            <<(*iPartition).fNumPatternMax<<" maxSector="<<(*iPartition).fNumSectorMax
+            <<(*iPartition).fNumPatternMax
+            <<" maxSector="<<(*iPartition).fNumSectorMax
             <<"\n";
          // the coverage map holds for each coverage the number of patterns
          // it is used in order to estimate down to which coverage the patterns
@@ -3582,7 +3588,6 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
 #ifdef SEARCH_MEMORY_LEAK
          printVmemUsage("after GetNPatternsByCoverage");
 #endif
-         std::map<int,int>::const_reverse_iterator i=coverageMap.rbegin();
          TSPreader->Rewind();
 #ifdef SEARCH_MEMORY_LEAK
          printVmemUsage("after Rewind");
@@ -3592,6 +3597,7 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
          uint32_t totalPatterns=0;
          uint64_t totalPatternsCoverage=0;
          int nDC0=nDC;
+         maxpatts=nDC0+(*iPartition).fNumPatternMax;
          for(std::map<int,int>::const_iterator j=coverageMap.begin();
              j!=coverageMap.end();j++) {
             totalPatterns += (*j).second;
@@ -3603,71 +3609,74 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
             <<" average coverage: "
             <<(totalPatterns ? (totalPatternsCoverage/(double)totalPatterns):0)
             <<"\n";
-         int covEnd;
          std::set<int> loadedSectorList;
          int maxNumSector=(*iPartition).fNumSectorMax;
          if(maxNumSector<0) maxNumSector=(*iPartition).fSectorSet.size();
-         do {
-            std::map<int,int>::const_reverse_iterator j=i;
-            int npattEstimate=nDC;
-            covEnd=(*i).first;
-            while((j!=coverageMap.rend())&&(npattEstimate<maxpatts)) {
-               npattEstimate += (*j).second;
-               covEnd=(*j).first;
-               j++;
+         // loop over coverage ranges
+         // starting with coverage indicated by (*i)
+         bool tooFew=true;
+         int covEnd=0;
+         for(std::map<int,int>::const_reverse_iterator i=coverageMap.rbegin();
+             i!=coverageMap.rend();) {
+            // read a minimum of one coverages
+            int nAvail=0;
+            int covBegin=(*i).first;
+            do {
+               nAvail +=(*i).second;
+               covEnd=(*i).first;
+               i++;
+            } while((nDC+nAvail<=maxpatts)&&(i!=coverageMap.rend()));
+            // read all patterns in the given coverage range
+            int nTSPold=nTSP;
+            int nDCold=nDC;
+            for(std::set<int>::const_iterator sectorPtr=
+                   (*iPartition).fSectorSet.begin();
+                sectorPtr!=(*iPartition).fSectorSet.end();sectorPtr++) {
+               int sector=*sectorPtr;
+               if(loadedSectorList.find(sector)==loadedSectorList.end()) {
+                  if((int)loadedSectorList.size()>=maxNumSector) continue;
+                  loadedSectorList.insert(sector);
+               }
+               FTKPatternOneSector *patterns=
+                  TSPreader->Read(sector,covEnd);
+               if(patterns) {
+                  insertPatterns(sector,patterns,maxpatts,dcPatterns,nDC,nTSP);
+                  delete patterns;
+               }
+               if(nDC>=maxpatts) break;
             }
             Info("readSectorOrderedBank")
-               <<"adding coverage range "<<(*i).first<<"-"<<covEnd
-               <<" extra patterns="<<npattEstimate-nDC<<"\n";
-            // read all patterns in the given coverage range
-            // (not reading the smallest coverage)
-            // these patterns for sure will fit into the DC bank
-            //for(int sector=TSPreader->GetFirstSector();sector>=0;
-            //    sector=TSPreader->GetNextSector(sector)) {
-            for(std::set<int>::const_iterator sectorPtr=
-                   (*iPartition).fSectorSet.begin();
-                sectorPtr!=(*iPartition).fSectorSet.end();sectorPtr++) {
-               int sector=*sectorPtr;
-               if(loadedSectorList.find(sector)==loadedSectorList.end()) {
-                  if((int)loadedSectorList.size()>=maxNumSector) continue;
-                  loadedSectorList.insert(sector);
+               <<"added coverage range "<<covBegin<<"-"<<covEnd
+               <<" DC added="<<nDC-nDCold
+               <<" TSP used="<<nTSP-nTSPold<<"/"<<nAvail
+               <<"\n";
+            if(nDC>=maxpatts){ 
+               if((nTSP-nTSPold<nAvail)||(i!=coverageMap.rend())) {
+                  tooFew=false;
                }
-               FTKPatternOneSector *patterns=TSPreader->Read(sector,covEnd+1);
-               if(patterns) {
-                  insertPatterns(sector,patterns,maxpatts,dcPatterns,nDC,nTSP);
-                  delete patterns;
-               }
+               break;
             }
-            // read patterns for the smallest coverage
-            // these patterns will partially fit into the bank
-            for(std::set<int>::const_iterator sectorPtr=
-                   (*iPartition).fSectorSet.begin();
-                sectorPtr!=(*iPartition).fSectorSet.end();sectorPtr++) {
-               int sector=*sectorPtr;
-               if(loadedSectorList.find(sector)==loadedSectorList.end()) {
-                  if((int)loadedSectorList.size()>=maxNumSector) continue;
-                  loadedSectorList.insert(sector);
-               }
-               FTKPatternOneSector *patterns=TSPreader->Read(sector,covEnd);
-               if(patterns) {
-                  insertPatterns(sector,patterns,maxpatts,dcPatterns,nDC,nTSP);
-                  delete patterns;
-                  if(nDC>=maxpatts) break;
-               }
-            }
-            i=j;
-             // stop if all patterns have been read
+            // stop if all patterns have been read
             // or if the maximum number of patterns is reached
 
-            // DEBUG - speed up parttern reading
+            // for DEBUGGING - speed up pattern reading
             //   break;
 
-         } while((i!=coverageMap.rend())&&(nDC<maxpatts));
+         }
+         for(std::set<int>::const_iterator sectorPtr=
+                (*iPartition).fSectorSet.begin();
+             sectorPtr!=(*iPartition).fSectorSet.end();sectorPtr++) {
+            int sector=*sectorPtr;
+            m_tooFew[sector]=tooFew;
+         }
          Info("readSectorOrderedBank")
             <<"partition "<<partitionCount<<" number of DC patterns: "<<nDC-nDC0
+            <<"/"<<maxpatts-nDC0
             <<" smallest coverage="<<covEnd
             <<" #sectors="<<loadedSectorList.size()
             <<" maxnsector="<<maxNumSector
+            <<" tooFew="<<tooFew
+            <<" nDC="<<nDC
             <<"\n";
          partitionCount++;
          sectorCount += loadedSectorList.size();
@@ -3695,6 +3704,7 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
          pos += dcPatterns[sector].size()*offsetSSID;
          numPattern+=dcPatterns[sector].size();
       }
+      Info("readSectorOrderedBank")<<"numPattern="<<numPattern<<"\n";
       int32_t *ssidData=new int32_t[pos];
       for(unsigned sector=0;sector<dcPatterns.size();sector++) {
          HitPatternMap_t const &hitMap=dcPatterns[sector];
