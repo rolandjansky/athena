@@ -142,8 +142,32 @@ public:
   virtual StatusCode recordData();
 
   // FE-I4B service records
-  virtual void updateServiceRecords(int code, unsigned int count) {m_ServiceRecords[code] = count;}
-  virtual unsigned int getServiceRecordCount(int code) {return m_ServiceRecords[code];}
+  virtual void setServiceRecord(IdentifierHash module, unsigned int fe_number,
+                                int code, unsigned int payload) {
+    m_all_service_codes[module][fe_number].push_back(std::pair<int, unsigned int>(code, payload));
+  }
+
+  // Get vector containing service record/payload pairs for given frontend
+  virtual std::vector<std::pair<int, unsigned int> > getFeServiceRecords(IdentifierHash module, unsigned int fe_number) {
+
+    std::vector<std::pair<int, unsigned int> > module_SRs;
+    
+    auto module_itr = m_all_service_codes.find(module);
+    if (module_itr != m_all_service_codes.end()) {
+        auto fe_itr = module_itr->second.find(fe_number);
+        if (fe_itr != module_itr->second.end()) {
+            module_SRs = fe_itr->second;
+        }
+    }
+    return module_SRs;
+  }
+
+  virtual const std::map<IdentifierHash, std::map<unsigned int, std::vector<std::pair<int, unsigned int> > > > & getAllServiceCodes() {
+    return m_all_service_codes;
+  }
+  
+
+
 
 private:
   const PixelID* m_pixel_id;
@@ -176,22 +200,21 @@ private:
   int m_numLimitError;
   
   // Collection of all FE errors in the event
-  // m_all_FE_errors[moduleID][FEnumber] = errorcode
   std::map<IdentifierHash, std::map<unsigned int, unsigned int> > m_all_FE_errors;
 
   // ROB fragment length for each module
   std::map<IdentifierHash, unsigned int> m_module_fragment_size;
 
   // FE-I4B service record codes
-  // Array of counters for each code, i.e. m_ServiceRecords[0] is the
-  // count for code 0 (BCID counter error)
-  unsigned int m_ServiceRecords[32];
+  std::map<IdentifierHash, std::map<unsigned int, std::vector<std::pair<int, unsigned int>>>> m_all_service_codes;
 
-
-  //  int m_numRawErrors;
   
   unsigned int m_max_hashes;
   bool m_readESD;
+
+  // Error masks
+  unsigned int m_errormask_pixel;
+  unsigned int m_errormask_ibl;
 };
 
 #endif
