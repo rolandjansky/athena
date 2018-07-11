@@ -10,11 +10,13 @@
 // Version 1.0 30/10/2004 I.Gavrilenko
 ///////////////////////////////////////////////////////////////////
 
-#include <iostream>
+#include <ostream>
 #include <iomanip>
 
 #include "SiZvertexTool_xk/SiZvertexMaker_xk.h"
 #include "SiSpacePointsSeed/SiSpacePointsSeed.h"
+#include "VxVertex/Vertex.h"
+#include <map>
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
