@@ -27,6 +27,27 @@ EscapedEnergyProcessing::EscapedEnergyProcessing(LArG4CalibSD* SD)
 EscapedEnergyProcessing::~EscapedEnergyProcessing()
 {;}
 
+std::unique_ptr<G4Step> EscapedEnergyProcessing::CreateFakeStep( G4TouchableHandle& a_touchableHandle,
+                                                                 G4ThreeVector& a_point,
+                                                                 G4double a_energy ) const
+{
+  auto fakeStep = std::make_unique<G4Step>();
+  G4StepPoint*        fakePreStepPoint  = fakeStep->GetPreStepPoint();
+  G4StepPoint*        fakePostStepPoint = fakeStep->GetPostStepPoint();
+  // Set the touchable volume at PreStepPoint:
+  fakePreStepPoint->SetTouchableHandle(a_touchableHandle);
+  fakePreStepPoint->SetPosition(a_point);
+  fakePreStepPoint->SetGlobalTime(0.);
+  // Most of the calculators expect a PostStepPoint as well.  For
+  // now, try setting this to be the same as the PreStepPoint.
+  fakePostStepPoint->SetTouchableHandle(a_touchableHandle);
+  fakePostStepPoint->SetPosition(a_point);
+  fakePostStepPoint->SetGlobalTime(0.);
+  // The total energy deposit in the step is actually irrelevant.
+  fakeStep->SetTotalEnergyDeposit(a_energy);
+  return std::move(fakeStep);
+}
+
 G4bool EscapedEnergyProcessing::Process( G4TouchableHandle& a_touchableHandle,
                                          G4ThreeVector& a_point,
                                          G4double a_energy )
@@ -46,39 +67,12 @@ G4bool EscapedEnergyProcessing::Process( G4TouchableHandle& a_touchableHandle,
   // Escaped energies from non-sensitive volumes requires a special
   // sensitive detector.
 
-  // The first time this routine is called, we have to set up some
-  // Geant4 structures for the fake step.
+  // // Create a phoney pre-step and post-step point, and use them to
+  // // initialize a phoney G4Step.
 
-  static G4StepPoint*        fakePreStepPoint  = 0;
-  static G4StepPoint*        fakePostStepPoint = 0;
-  static G4Step*             fakeStep          = 0;
-
-  // Create a phoney pre-step and post-step point, and use them to
-  // initialize a phoney G4Step.
-
-  if ( fakeStep == 0 )
-    {
-      fakeStep = new G4Step();
-      fakePreStepPoint  = fakeStep->GetPreStepPoint();
-      fakePostStepPoint = fakeStep->GetPostStepPoint();
-    }
-
-
-  // Set the touchable volume at PreStepPoint:
-  fakePreStepPoint->SetTouchableHandle(a_touchableHandle);
-  fakePreStepPoint->SetPosition(a_point);
-  fakePreStepPoint->SetGlobalTime(0.);
-
-  // Most of the calculators in LArG4 expect a PostStepPoint as
-  // well.  For now, try setting this to be the same as the
-  // PreStepPoint.
-  fakePostStepPoint->SetTouchableHandle(a_touchableHandle);
-  fakePostStepPoint->SetPosition(a_point);
-  fakePostStepPoint->SetGlobalTime(0.);
-
-  // The total energy deposit in the step is actually irrelevant.
-  fakeStep->SetTotalEnergyDeposit(a_energy);
-
+  auto fakeStep = CreateFakeStep(a_touchableHandle, a_point, a_energy );
+  G4StepPoint*        fakePreStepPoint = fakeStep->GetPreStepPoint();
+  G4StepPoint*        fakePostStepPoint = fakeStep->GetPostStepPoint();
   // Here is the actual location of the escaped energy, as the
   // fourth component of a vector.  (Why not just pass the energy in
   // the G4Step?  Because CalibrationSensitiveDetector::SpecialHit()
@@ -88,7 +82,7 @@ G4bool EscapedEnergyProcessing::Process( G4TouchableHandle& a_touchableHandle,
 
   std::vector<G4double> energies;
   energies.resize(4,0.);
-  energies[3] = a_energy;
+  energies[3] = fakeStep->GetTotalEnergyDeposit();//a_energy;
 
   // If we find a calibration sensitive detector in the original
   // volume, use that sensitive detector.  If we don't, use a
@@ -148,7 +142,7 @@ G4bool EscapedEnergyProcessing::Process( G4TouchableHandle& a_touchableHandle,
                              << larG4CalibSD->GetName()
                              << "'" << G4endl;
 #endif
-                      larG4CalibSD->SpecialHit(fakeStep,energies);
+                      larG4CalibSD->SpecialHit(fakeStep.get(),energies);
                     }
                 }// -- for (1)
               if(!found)
@@ -168,7 +162,7 @@ G4bool EscapedEnergyProcessing::Process( G4TouchableHandle& a_touchableHandle,
                          << G4endl;
                   G4cout << "   Using default sensitive detector." << G4endl;
 #endif
-                  m_defaultSD->SpecialHit( fakeStep, energies );
+                  m_defaultSD->SpecialHit( fakeStep.get(), energies );
                   return false; // error
                 }// - !found (1)
 
@@ -183,7 +177,7 @@ G4bool EscapedEnergyProcessing::Process( G4TouchableHandle& a_touchableHandle,
                   G4cout << "   ... which is a LArG4CalibSD "
                          << G4endl;
 #endif
-                  larG4CalibSD->SpecialHit( fakeStep, energies );
+                  larG4CalibSD->SpecialHit( fakeStep.get(), energies );
                 }
               else // larG4CalibSD!=0
                 {
@@ -202,7 +196,7 @@ G4bool EscapedEnergyProcessing::Process( G4TouchableHandle& a_touchableHandle,
                              << G4endl;
 #endif
 
-                      calibSD->SpecialHit( fakeStep, energies );
+                      calibSD->SpecialHit( fakeStep.get(), energies );
                     }
                   else
                     {
@@ -221,7 +215,7 @@ G4bool EscapedEnergyProcessing::Process( G4TouchableHandle& a_touchableHandle,
                              << G4endl;
                       G4cout << "   Using default sensitive detector." << G4endl;
 #endif
-                      m_defaultSD->SpecialHit( fakeStep, energies );
+                      m_defaultSD->SpecialHit( fakeStep.get(), energies );
                       return false; // error
                     }
                 }
@@ -244,7 +238,7 @@ G4bool EscapedEnergyProcessing::Process( G4TouchableHandle& a_touchableHandle,
                  << G4endl;
           G4cout << "   Using default sensitive detector." << G4endl;
 #endif
-          m_defaultSD->SpecialHit( fakeStep, energies );
+          m_defaultSD->SpecialHit( fakeStep.get(), energies );
           return false; // error
         }
     }

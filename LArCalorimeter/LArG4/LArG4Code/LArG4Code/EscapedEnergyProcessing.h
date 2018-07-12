@@ -28,7 +28,9 @@
 
 #include "G4TouchableHandle.hh"
 #include "G4ThreeVector.hh"
+#include "G4Step.hh"
 #include "globals.hh"
+#include <memory>
 
 class LArG4CalibSD;
 
@@ -45,6 +47,7 @@ public:
   virtual G4bool Process( G4TouchableHandle& handle, G4ThreeVector& point, G4double energy );
 
 private:
+  std::unique_ptr<G4Step> CreateFakeStep( G4TouchableHandle& handle, G4ThreeVector& point, G4double energy) const;
 
   // Local pointer to the default SD that this should put hits into
   LArG4CalibSD* m_defaultSD;

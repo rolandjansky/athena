@@ -37,6 +37,7 @@
 #include "G4TouchableHandle.hh"
 #include "G4ThreeVector.hh"
 #include "globals.hh"
+#include <memory>
 
 class G4Step;
 
@@ -65,6 +66,7 @@ public:
 
 private:
   TileEscapedEnergyProcessing() = delete;
+  std::unique_ptr<G4Step> CreateFakeStep( G4TouchableHandle& handle, G4ThreeVector& point, G4double energy) const;
   // takes the flag that particle has escaped,
   // the 'mother' step of escaped particle and
   // amount of that energy, which can't be calculated
