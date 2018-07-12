@@ -60,7 +60,7 @@ StatusCode TauRunnerAlg::initialize() {
     ATH_CHECK( m_pi0ClusterOutputContainer.initialize() );
     ATH_CHECK( m_hadronicPFOOutputContainer.initialize() );
     ATH_CHECK( m_vertexOutputContainer.initialize() );
-
+    ATH_CHECK( m_chargedPFOOutputContainer.initialize() );
     StatusCode sc;
 
     //-------------------------------------------------------------------------
@@ -171,8 +171,15 @@ StatusCode TauRunnerAlg::execute() {
     ATH_MSG_DEBUG("  write: " << vertOutHandle.key() << " = " << "..." );
     ATH_CHECK(vertOutHandle.record(std::unique_ptr<xAOD::VertexContainer>{pSecVtxContainer}, std::unique_ptr<xAOD::VertexAuxContainer>{pSecVtxAuxContainer}));
 
+    // charged PFO container
+    xAOD::PFOContainer* chargedPFOContainer = new xAOD::PFOContainer();
+    xAOD::PFOAuxContainer* chargedPFOAuxStore = new xAOD::PFOAuxContainer();
+    chargedPFOContainer->setStore(chargedPFOAuxStore);
+    SG::WriteHandle<xAOD::PFOContainer> chargedPFOHandle( m_chargedPFOOutputContainer );
+    ATH_MSG_DEBUG("  write: " << chargedPFOHandle.key() << " = " << "..." );
+    ATH_CHECK(chargedPFOHandle.record(std::unique_ptr<xAOD::PFOContainer>{chargedPFOContainer}, std::unique_ptr<xAOD::PFOAuxContainer>{chargedPFOAuxStore}));
   
-  //-------------------------------------------------------------------------                        
+    //-------------------------------------------------------------------------
     // Initialize tools for this event
     //-------------------------------------------------------------------------                                                      
     ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
@@ -217,7 +224,9 @@ StatusCode TauRunnerAlg::execute() {
 	if ( (*itT)->name().find("Pi0ClusterCreator") != std::string::npos){
           sc = (*itT)->executePi0ClusterCreator(*pTau, *neutralPFOContainer, *hadronicClusterPFOContainer, *pi0CaloClusterContainer);
         }
-	else {
+	else if ( (*itT)->name().find("Pi0ClusterScaler") != std::string::npos){
+	sc = (*itT)->executePi0ClusterScaler(*pTau, *chargedPFOContainer);
+	}else {
 	  sc = (*itT)->execute(*pTau);
 	}
 	if (sc.isFailure())

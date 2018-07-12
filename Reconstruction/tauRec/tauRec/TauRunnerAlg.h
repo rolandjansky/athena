@@ -59,6 +59,8 @@ class TauRunnerAlg: public AthAlgorithm
 	SG::WriteHandleKey<xAOD::CaloClusterContainer> m_pi0ClusterOutputContainer{this,"Key_pi0ClusterOutputContainer", "TauPi0Clusters", "tau pi0cluster output"};
 	SG::WriteHandleKey<xAOD::PFOContainer> m_hadronicPFOOutputContainer{this,"Key_hadronicPFOOutputContainer", "TauHadronicParticleFlowObjects", "tau hadronic pfo out key"};
 	SG::WriteHandleKey<xAOD::VertexContainer> m_vertexOutputContainer{this,"Key_vertexOutputContainer", "TauSecondaryVertices", "input vertex container key"};
+	SG::WriteHandleKey<xAOD::PFOContainer> m_chargedPFOOutputContainer{this,"Key_chargedPFOOutputContainer", "TauChargedParticleFlowObjects", "tau charged pfo o\
+ut key"};
 
 	
 };

@@ -31,12 +31,12 @@ public:
     virtual StatusCode initialize();
     virtual StatusCode eventInitialize();
     virtual StatusCode finalize();
-    virtual StatusCode execute(xAOD::TauJet& pTau);
+    virtual StatusCode execute(xAOD::TauJet&) { return StatusCode::SUCCESS; }
     virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
-    virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& pChargedPFOContainer); 
     virtual StatusCode eventFinalize();
 
     virtual void print() const { }
@@ -50,7 +50,7 @@ private:
     void resetNeutralPFOs(xAOD::TauJet& pTau);
     
     /** @brief create charged PFOs */
-    void createChargedPFOs(xAOD::TauJet& pTau);
+    void createChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pChargedPFOContainer);
 
     /** @brief extrapolate charged PFO tracks to EM and HAD layers */
     //void extrapolateChargedPFOs(xAOD::TauJet& pTau);
@@ -77,8 +77,6 @@ private:
     //xAOD::PFODetails::PFOAttributes PHIECAL;
     //xAOD::PFODetails::PFOAttributes ETAHCAL;
     //xAOD::PFODetails::PFOAttributes PHIHCAL;
-
-    SG::WriteHandleKey<xAOD::PFOContainer> m_chargedPFOOutputContainer{this,"Key_chargedPFOOutputContainer", "TauChargedParticleFlowObjects", "tau charged pfo out key"};
 
 };
 

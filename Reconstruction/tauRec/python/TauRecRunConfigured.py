@@ -36,7 +36,8 @@ class TauRecRunConfigured ( Configured ) :
                                                   Key_neutralPFOOutputContainer="TauPi0Clusters",
                                                   Key_pi0ClusterOutputContainer="TauNeutralParticleFlowObjects",
                                                   Key_hadronicPFOOutputContainer="TauHadronicParticleFlowObjects",
-                                                  Key_vertexOutputContainer = "TauSecondaryVertices"
+                                                  Key_vertexOutputContainer = "TauSecondaryVertices",
+                                                  Key_chargedPFOOutputContainer = 'TauChargedParticleFlowObjects'
                                                   )
                                                                                                 
         Configured.__init__(self, ignoreExistingDataObject=ignoreExistingDataObject)

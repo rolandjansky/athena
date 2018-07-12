@@ -409,9 +409,7 @@ def getPi0ClusterScaler():
         return cached_instances[_name]
 
     from tauRecTools.tauRecToolsConf import TauPi0ClusterScaler
-    TauPi0ClusterScaler = TauPi0ClusterScaler(name = _name,
-                                              Key_chargedPFOOutputContainer = 'TauChargedParticleFlowObjects'
-                                              )
+    TauPi0ClusterScaler = TauPi0ClusterScaler(name = _name)
 
     cached_instances[_name] = TauPi0ClusterScaler
     return TauPi0ClusterScaler

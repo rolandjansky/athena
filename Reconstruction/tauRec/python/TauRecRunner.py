@@ -83,14 +83,14 @@ class TauRecRunner ( TauRecRunConfigured ) :
             if InDetFlags.doVertexFinding():
                 tools.append(taualgs.getTauVertexVariables())
 
-            #tools.append(taualgs.getTauCommonCalcVars())
-            #tools.append(taualgs.getTauSubstructure())
+            tools.append(taualgs.getTauCommonCalcVars())
+            tools.append(taualgs.getTauSubstructure())
 
-            #if self.doPi0Clus: 
-             #   tools.append(taualgs.getPi0ClusterScaler())
-              #  tools.append(taualgs.getPi0ScoreCalculator())
+            if self.doPi0Clus:
+                tools.append(taualgs.getPi0ClusterScaler())
+                # tools.append(taualgs.getPi0ScoreCalculator())
                 # SWITCHED OFF SELECTOR< SINCE NO CHARGED PFOS AVAILABLE ATM
-               # tools.append(taualgs.getPi0Selector())
+                # tools.append(taualgs.getPi0Selector())
 
             #tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
 
