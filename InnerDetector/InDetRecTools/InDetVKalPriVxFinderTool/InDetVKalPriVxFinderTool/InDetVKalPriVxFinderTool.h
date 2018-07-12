@@ -28,7 +28,7 @@
 // Normal STL and physical vectors
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
-#include <vector>
+
 // Gaudi includes
 #include  "TrkTrack/TrackCollection.h"
 #include  "TrkParameters/TrackParameters.h"
@@ -41,17 +41,20 @@
 //
 #include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include  "InDetRecToolInterfaces/IVertexFinder.h"
-#include  "xAODTracking/Vertex.h"
-#include  "xAODTracking/TrackParticle.h"
-#include  "xAODTracking/VertexContainer.h"
+#include  "xAODTracking/VertexContainerFwd.h"
 #include  "xAODTracking/VertexAuxContainer.h"
 //
+#include <vector>
+#include <utility>//for std::pair
 
 
 class IBeamCondSvc;
 
 
+
+
 namespace Trk {
+  class TrackParticle;
 }
 
 namespace InDet {
@@ -72,7 +75,6 @@ namespace InDet {
    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const Trk::TrackParticleBaseCollection* trackTES);
    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const xAOD::TrackParticleContainer* trackTES);  
 //
-//Old   VxContainer* findVertex(const Rec::TrackParticleContainer* partTES);
 				
 
   private:
@@ -117,8 +119,6 @@ namespace InDet {
    PublicToolHandle< Trk::ITrackSummaryTool > m_sumSvc
       {this,"TrackSummaryTool","Trk::TrackSummaryTool/AtlasTrackSummaryTool",""}; //!< Pointer to the track summary tool
    ServiceHandle< IBeamCondSvc >  m_iBeamCondSvc; //!< pointer to the beam condition service
-   //Trk::ITrkVKalVrtFitter*      m_fitSvc;
-   //IBeamCondSvc* m_iBeamCondSvc; 
    PublicToolHandle<Trk::ITrackSelectorTool>  m_trkSelector
       {this,"DefaultTrackSelection","DefaultTrackSelection",""};
 
@@ -212,16 +212,7 @@ namespace InDet {
                     const TrackCollection* trackTES = 0,
                     const Trk::TrackParticleBaseCollection* partTES = 0);
 
-//   VxContainer* SaveResults( int NVrt,
-//	            std::vector< Amg::Vector3D >                & PVrtList,
-//                  std::vector< AmgSymMatrix(3) >              & ErrorMatrixPerVrt,
-//		    std::vector<double>                         & Chi2PerVrt,
-//                  std::vector<int>                            & NTrkPerVrt,
-//		    std::vector< std::vector<const Trk::TrackParticleBase*> > & PrtPerVrt,
-//		    std::vector< std::vector<const Trk::Track*> >         & TrkPerVrt,
-//		    std::vector< std::vector<double> >          & TrkWgtPerVrt,
-//                  const TrackCollection* trackTES = 0,
-//                  const Trk::TrackParticleBaseCollection* partTES = 0);
+
 
    StatusCode CutTrk(double PInvVert, double ThetaVert, double A0Vert, double Chi2, 
            long int PixelHits,long int SctHits,long int SharedHits, long int BLayHits);
