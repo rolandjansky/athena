@@ -18,7 +18,7 @@ namespace CP {
 
 TrackVertexAssociationTool::TrackVertexAssociationTool(std::string name) :
   AsgTool(name),
-  m_wp("Custom"),
+  m_wp("Nominal"),
   m_d0_cut(-1),
   m_use_d0sig(false),
   m_d0sig_cut(-1),
