@@ -338,10 +338,11 @@ namespace CaloG4 {
 	result.energy[kInvisible0] -= escapedEnergy;        
 
 	if ( a_processEscaped ) {
+          auto fakeStep = CreateFakeStep(pTrack->GetVertexPosition(), escapedEnergy);
 #ifdef DEBUG_ENERGIES
 	  allOK =
 #endif
-            ProcessEscapedEnergy( pTrack->GetVertexPosition(), escapedEnergy );
+            ProcessEscapedEnergy( fakeStep.get() ); //pTrack->GetVertexPosition(), escapedEnergy );
         }
 	else {
 	  result.energy[kEscaped] += escapedEnergy;
@@ -525,7 +526,7 @@ namespace CaloG4 {
 
 
 
-  G4bool SimulationEnergies::ProcessEscapedEnergy( G4ThreeVector a_point, G4double a_energy ) const
+  G4bool SimulationEnergies::ProcessEscapedEnergy( G4Step* fakeStep ) const
   {
     // Escaped energy requires special processing.  The energy was not
     // deposited in the current G4Step, but at the beginning of the
@@ -538,8 +539,6 @@ namespace CaloG4 {
     // escaped energy.  We use the EscapedEnergyRegistry class to
     // route the request for special processing to the appropriate
     // procedure.
-
-    auto fakeStep = CreateFakeStep(a_point, a_energy);
 
     // Choose which VEscapedEnergyProcessing routine we'll use based
     // on the volume name.
@@ -555,7 +554,7 @@ namespace CaloG4 {
 
       if ( eep != 0 ) {
         // Call the appropriate routine.
-        return eep->Process( fakeStep.get() ); //touchableHandle, a_point, a_energy );
+        return eep->Process( fakeStep );
       }
       // If we reach here, we're in a volume that has no escaped energy
       // procedure (probably neither Tile nor LAr).
@@ -565,7 +564,7 @@ namespace CaloG4 {
 
       eep = registry->GetProcessing( "LAr::" );
       if ( eep != 0 ) {
-        return eep->Process( fakeStep.get() ); //touchableHandle, a_point, a_energy );
+        return eep->Process( fakeStep );
       }
 
       // If we get here, the registry was never initialized for LAr.
@@ -585,7 +584,7 @@ namespace CaloG4 {
 
       eep = registry->GetProcessing( "LAr::" );
       if ( eep != 0 ) {
-        return eep->Process( fakeStep.get() ); //touchableHandle, a_point, a_energy );
+        return eep->Process( fakeStep );
       }
       // If we get here, the registry was never initialized for LAr.
       std::call_once(warning2OnceFlag, [](){
@@ -600,7 +599,7 @@ namespace CaloG4 {
     }
   }
 
-std::unique_ptr<G4Step> SimulationEnergies::CreateFakeStep(G4ThreeVector& a_point, G4double a_energy) const
+std::unique_ptr<G4Step> SimulationEnergies::CreateFakeStep(const G4ThreeVector& a_point, G4double a_energy) const
 {
     // The first time this routine is called, we have to set up some
     // Geant4 navigation pointers.
