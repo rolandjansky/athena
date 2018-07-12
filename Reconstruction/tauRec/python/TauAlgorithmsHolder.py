@@ -396,10 +396,7 @@ def getPi0ClusterCreator():
     
     from tauRecTools.tauRecToolsConf import TauPi0ClusterCreator
     TauPi0ClusterCreator = TauPi0ClusterCreator(name = _name,
-                                                Key_Pi0ClusterContainer="TauPi0SubtractedClusters",
-                                                Key_neutralPFOOutputContainer="TauPi0Clusters",
-                                                Key_pi0ClusterOutputContainer="TauNeutralParticleFlowObjects",
-                                                Key_hadronicPFOOutputContainer="TauHadronicParticleFlowObjects"
+                                                Key_Pi0ClusterContainer="TauPi0SubtractedClusters"
                                                 )
     
     cached_instances[_name] = TauPi0ClusterCreator

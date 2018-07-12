@@ -32,7 +32,11 @@ class TauRecRunConfigured ( Configured ) :
         from tauRec.tauRecFlags import tauFlags
         self._TauRunnerAlgHandle = TauRunnerAlg ( name=self.name+'Alg', 
                                                   Key_tauInputContainer="tmp_TauJets",
-                                                  Key_tauOutputContainer="TauJets")
+                                                  Key_tauOutputContainer="TauJets",
+                                                  Key_neutralPFOOutputContainer="TauPi0Clusters",
+                                                  Key_pi0ClusterOutputContainer="TauNeutralParticleFlowObjects",
+                                                  Key_hadronicPFOOutputContainer="TauHadronicParticleFlowObjects"
+                                                  )
                                                                                                 
         Configured.__init__(self, ignoreExistingDataObject=ignoreExistingDataObject)
 

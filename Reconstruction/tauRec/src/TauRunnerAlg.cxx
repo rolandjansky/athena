@@ -56,7 +56,12 @@ StatusCode TauRunnerAlg::initialize() {
         return StatusCode::FAILURE;
     }
 
+    ATH_CHECK( m_neutralPFOOutputContainer.initialize() );
+    ATH_CHECK( m_pi0ClusterOutputContainer.initialize() );
+    ATH_CHECK( m_hadronicPFOOutputContainer.initialize() );
+
     StatusCode sc;
+
 
     //-------------------------------------------------------------------------
     // Allocate tools
@@ -131,6 +136,32 @@ StatusCode TauRunnerAlg::finalize() {
 StatusCode TauRunnerAlg::execute() {
   
   StatusCode sc;
+
+
+
+    // write neutral PFO container
+    xAOD::PFOContainer* neutralPFOContainer = new xAOD::PFOContainer();
+    xAOD::PFOAuxContainer* neutralPFOAuxStore = new xAOD::PFOAuxContainer();
+    neutralPFOContainer->setStore(neutralPFOAuxStore);
+    SG::WriteHandle<xAOD::PFOContainer> neutralPFOHandle( m_neutralPFOOutputContainer );
+    ATH_MSG_DEBUG("  write: " << neutralPFOHandle.key() << " = " << "..." );
+    ATH_CHECK(neutralPFOHandle.record(std::unique_ptr<xAOD::PFOContainer>{neutralPFOContainer}, std::unique_ptr<xAOD::PFOAuxContainer>{neutralPFOAuxStore}));
+
+    // write hadronic cluster PFO container
+    xAOD::PFOContainer* hadronicClusterPFOContainer = new xAOD::PFOContainer();
+    xAOD::PFOAuxContainer* hadronicClusterPFOAuxStore = new xAOD::PFOAuxContainer();
+    hadronicClusterPFOContainer->setStore(hadronicClusterPFOAuxStore);
+    SG::WriteHandle<xAOD::PFOContainer> hadronicPFOHandle( m_hadronicPFOOutputContainer );
+    ATH_MSG_DEBUG("  write: " << hadronicPFOHandle.key() << " = " << "..." );
+    ATH_CHECK(hadronicPFOHandle.record(std::unique_ptr<xAOD::PFOContainer>{hadronicClusterPFOContainer}, std::unique_ptr<xAOD::PFOAuxContainer>{hadronicClusterPFOAuxStore}));
+
+    // pi0 calo clusters
+    xAOD::CaloClusterContainer* pi0CaloClusterContainer = new xAOD::CaloClusterContainer();
+    xAOD::CaloClusterAuxContainer* pi0CaloClusterAuxContainer = new xAOD::CaloClusterAuxContainer();
+    pi0CaloClusterContainer->setStore(pi0CaloClusterAuxContainer);
+    SG::WriteHandle<xAOD::CaloClusterContainer> pi0CaloClusHandle( m_pi0ClusterOutputContainer );
+    ATH_MSG_DEBUG("  write: " << pi0CaloClusHandle.key() << " = " << "..." );
+    ATH_CHECK(pi0CaloClusHandle.record(std::unique_ptr<xAOD::CaloClusterContainer>{pi0CaloClusterContainer}, std::unique_ptr<xAOD::CaloClusterAuxContainer>{pi0CaloClusterAuxContainer}));
   
   //-------------------------------------------------------------------------                        
     // Initialize tools for this event
@@ -174,7 +205,12 @@ StatusCode TauRunnerAlg::execute() {
       ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
       for (; itT != itTE; ++itT) {
 	ATH_MSG_INFO("RunnerAlg Invoking tool " << (*itT)->name());
-	sc = (*itT)->execute(*pTau);
+	if ( (*itT)->name().find("Pi0ClusterCreator") != std::string::npos){
+          sc = (*itT)->executePi0ClusterCreator(*pTau, *neutralPFOContainer, *hadronicClusterPFOContainer, *pi0CaloClusterContainer);
+        }
+	else {
+	  sc = (*itT)->execute(*pTau);
+	}
 	if (sc.isFailure())
 	  break;
       }

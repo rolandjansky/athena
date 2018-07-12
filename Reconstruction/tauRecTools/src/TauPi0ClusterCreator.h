@@ -29,10 +29,11 @@ public:
     virtual StatusCode initialize();
     virtual StatusCode finalize();
     virtual StatusCode eventInitialize();
-    virtual StatusCode execute(xAOD::TauJet& pTau);
+    virtual StatusCode execute(xAOD::TauJet& pTau) { return StatusCode::SUCCESS; }
     virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
-    virtual StatusCode executePi0ClusterCreator(xAOD::TauJet&, xAOD::PFOContainer&, xAOD::PFOContainer&, xAOD::CaloClusterContainer&) { return StatusCode::SUCCESS; }
+    virtual StatusCode executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
+						xAOD::PFOContainer& hadronicClusterPFOContainer, xAOD::CaloClusterContainer& pi0CaloClusContainer);
     virtual StatusCode executeVertexVariables(xAOD::TauJet&, xAOD::VertexContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode executePi0ClusterScaler(xAOD::TauJet&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode eventFinalize();
@@ -69,32 +70,12 @@ private:
     std::vector<float> get2ndEtaMomWRTCluster(const xAOD::CaloCluster* /*pi0Candidate*/);
 
     /** @brief get hadronic cluster PFOs*/
-    bool setHadronicClusterPFOs(xAOD::TauJet& pTau);
-
-    /** @brief new neutral PFO container */
-    xAOD::PFOContainer* m_neutralPFOContainer;
-    xAOD::PFOAuxContainer* m_neutralPFOAuxStore;
-
-    /** @brief new hadronic cluster PFO container */
-    xAOD::PFOContainer* m_hadronicClusterPFOContainer;
-    xAOD::PFOAuxContainer* m_hadronicClusterPFOAuxStore;
-    
+    bool setHadronicClusterPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pHadronicClusterContainer);
 
     /** @brief pt threshold for pi0 candidate clusters */
     double m_clusterEtCut;
-
-    /** @brief in AODMode (probaby never true) */
-    bool m_AODmode;
-
-    /** @brief output cluster container */
-    xAOD::CaloClusterContainer* m_pi0CaloClusterContainer;
-    xAOD::CaloClusterAuxContainer* m_pi0CaloClusterAuxContainer;
-
     
     SG::ReadHandleKey<xAOD::CaloClusterContainer> m_pi0ClusterInputContainer{this,"Key_Pi0ClusterContainer", "TauPi0SubtractedClusters", "input pi0 cluster"};
-    SG::WriteHandleKey<xAOD::PFOContainer> m_neutralPFOOutputContainer{this,"Key_neutralPFOOutputContainer", "TauNeutralParticleFlowObjects", "tau neutral pfo out key"};
-    SG::WriteHandleKey<xAOD::CaloClusterContainer> m_pi0ClusterOutputContainer{this,"Key_pi0ClusterOutputContainer", "TauPi0Clusters", "tau pi0cluster output"};
-    SG::WriteHandleKey<xAOD::PFOContainer> m_hadronicPFOOutputContainer{this,"Key_hadronicPFOOutputContainer", "TauHadronicParticleFlowObjects", "tau hadronic pfo out key"};
 
 };
 

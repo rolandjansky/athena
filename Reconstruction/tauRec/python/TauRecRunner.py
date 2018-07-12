@@ -73,7 +73,7 @@ class TauRecRunner ( TauRecRunConfigured ) :
                         
             ### TauRecPi0EflowProcessor ###
             # Tools in this section were originally in TauRecPi0EflowProcessor
-            #if self.doPi0Clus: tools.append(taualgs.getPi0ClusterCreator())
+            if self.doPi0Clus: tools.append(taualgs.getPi0ClusterCreator())
             
             ###############################
 
@@ -82,7 +82,7 @@ class TauRecRunner ( TauRecRunConfigured ) :
             # Tools in this section were originally in TauRecVariablesProcessor
             if InDetFlags.doVertexFinding():
                 tools.append(taualgs.getTauVertexVariables())
-            
+
             #tools.append(taualgs.getTauCommonCalcVars())
             #tools.append(taualgs.getTauSubstructure())
 
