@@ -30,19 +30,15 @@
 //   7) Jet energy used in (2) calculation 
 //---------------------------------------------------------------------------------------- 
 
-namespace Trk {
-extern   int  pgraphm_(
-         long int *weit, long int *edges, long int *nodes,
-         long int *set, long int *nptr,  long int *nth);
-}
-//extern "C" {
-//  float prob_(const float & Chi2, const long int& ndf);
-//}
+//namespace Trk {
+//  extern int  pgraphm_(
+//         long int *weit, long int *edges, long int *nodes,
+//         long int *set, long int *nptr,  long int *nth); }
 
 
 namespace InDet{
 
-const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comoming from B,C-decays
+const double c_vrtBCMassLimit=5500.;  // Mass limit to consider a vertex not coming from B,C-decays
 
 
 //   std::vector<xAOD::Vertex*> InDetVKalVxInJetTool::GetVrtSecMulti(
@@ -61,8 +57,9 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
    {
 
       const double probVrtMergeLimit=0.04;
+      const int    useMaterialRejection=1;
 
-      m_NRefTrk=0;
+      m_NRefPVTrk=0;
       int inpNPart=0; 
       int i,j;
       if(xAODwrk){
@@ -95,21 +92,11 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
                           NTracks = RECwork->listJetTracks.size();
                           MomentumJet = TotalMom(GetPerigeeVector(RECwork->listJetTracks));}
 
-      if(NTracks>m_TrackInJetNumberLimit){
-        if     (xAODwrk ) xAODwrk->listJetTracks.resize(m_TrackInJetNumberLimit);
-        else if(RECwork ) RECwork->listJetTracks.resize(m_TrackInJetNumberLimit);
-        NTracks=m_TrackInJetNumberLimit;
-      }
       if( NTracks < 2 ) { return finalVertices;} // 0,1 selected track => nothing to do!
 
-      if(xAODwrk){
-          while( xAODwrk->listJetTracks.size()>4 && medianPtF(xAODwrk->listJetTracks)/JetDir.Pt()<0.01) 
-             xAODwrk->listJetTracks.pop_back();
-          NTracks = xAODwrk->listJetTracks.size();
-      }
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Number of selected tracks inside jet= " <<NTracks << endmsg;
       
-      if(m_FillHist){m_hb_jmom->Fill( MomentumJet.Perp(), m_w_1);
+      if(m_fillHist){m_hb_jmom->Fill( MomentumJet.Perp(), m_w_1);
                      m_hb_ntrkjet->Fill( (double) NTracks, m_w_1); }
 
 //
@@ -190,13 +177,13 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
           }
           if     (xAODwrk)sc = VKalVrtFitFastBase(xAODwrk->tmpListTracks,newvrt.vertex);
 	  else if(RECwork)sc = VKalVrtFitFastBase(RECwork->tmpListTracks,newvrt.vertex);
-          if( sc.isFailure() || newvrt.vertex.perp() > m_Rlayer2*2.  ) {   /* No initial estimation */ 
+          if( sc.isFailure() || newvrt.vertex.perp() > m_rLayer2*2.  ) {   /* No initial estimation */ 
               m_fitSvc->setApproximateVertex(PrimVrt.x(), PrimVrt.y(), PrimVrt.z()); /*Use as starting point*/
-              if( m_MultiWithPrimary ) m_fitSvc->setApproximateVertex(0., 0., 0.); 
+              if( m_multiWithPrimary ) m_fitSvc->setApproximateVertex(0., 0., 0.); 
  	  } else {
 	      Amg::Vector3D vDist=newvrt.vertex-PrimVrt.position();
               double JetVrtDir = JetDir.Px()*vDist.x() + JetDir.Py()*vDist.y() + JetDir.Pz()*vDist.z();
-              if( m_MultiWithPrimary ) JetVrtDir=fabs(JetVrtDir); /* Always positive when primary vertex is seeked for*/ 
+              if( m_multiWithPrimary ) JetVrtDir=fabs(JetVrtDir); /* Always positive when primary vertex is seeked for*/ 
               if( JetVrtDir>0. ) {                           /* Good initial estimation */ 
                   m_fitSvc->setApproximateVertex(newvrt.vertex.x(),newvrt.vertex.y(),newvrt.vertex.z()); /*Use as starting point*/
 	      }else{
@@ -285,7 +272,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
         }   if(jv!=tmpN)   break;  // One vertex is erased. Restart check
       }     if(iv==tmpN-1) break;  // No vertex deleted
     }
-    if(m_FillHist){ int cvgood=0; for(int iv=0; iv<(int)(*WrkVrtSet).size(); iv++) if((*WrkVrtSet)[iv].Good)cvgood++;
+    if(m_fillHist){ int cvgood=0; for(int iv=0; iv<(int)(*WrkVrtSet).size(); iv++) if((*WrkVrtSet)[iv].Good)cvgood++;
                     m_hb_rawVrtN->Fill( (float)cvgood, m_w_1); }
 //- Try to merge all vertices which have at least 2 common track
     for(int iv=0; iv<(int)(*WrkVrtSet).size()-1; iv++ ){
@@ -294,7 +281,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
          if(!(*WrkVrtSet)[jv].Good )           continue;
          if(nTrkCommon( WrkVrtSet, iv, jv)<2)  continue;
          if( VrtVrtDist((*WrkVrtSet)[iv].vertex,(*WrkVrtSet)[iv].vertexCov,
-                        (*WrkVrtSet)[jv].vertex,(*WrkVrtSet)[jv].vertexCov) < m_VertexMergeCut) {
+                        (*WrkVrtSet)[jv].vertex,(*WrkVrtSet)[jv].vertexCov) < m_vertexMergeCut) {
 	    double probV=0.;
             if     (xAODwrk)probV=mergeAndRefitVertices( WrkVrtSet, iv, jv, newvrt, xAODwrk->listJetTracks);
             else if(RECwork)probV=mergeAndRefitVertices( WrkVrtSet, iv, jv, newvrt, RECwork->listJetTracks);
@@ -319,7 +306,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 //       if( (*WrkVrtSet)[iv].SelTrk.size()!=2)continue;
 //       if( (*WrkVrtSet)[iv].ProjectedVrt <0.) (*WrkVrtSet)[iv].Good =false;
 //       if( (*WrkVrtSet)[iv].Chi2 > 10.) (*WrkVrtSet)[iv].Good=false;
-//       if( (*WrkVrtSet)[iv].vertexMom.M()>VrtBCMassLimit) (*WrkVrtSet)[iv].Good=false; //VK B-tagging specific requirement
+//       if( (*WrkVrtSet)[iv].vertexMom.M()>c_vrtBCMassLimit) (*WrkVrtSet)[iv].Good=false; //VK B-tagging specific requirement
 //     }      
 //-Remove all bad vertices from the working set    
     int tmpV=0; while( tmpV<(int)(*WrkVrtSet).size() )if( !(*WrkVrtSet)[tmpV].Good ) { (*WrkVrtSet).erase((*WrkVrtSet).begin()+tmpV);} else {tmpV++;}
@@ -373,18 +360,18 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
  //printWrkSet(WrkVrtSet,"Iterat");
 
          double foundMinVrtDst = 1000000.;
-         if(foundMaxT<m_TrackDetachCut) foundMinVrtDst = minVrtVrtDist( WrkVrtSet, foundV1, foundV2);
+         if(foundMaxT<m_trackDetachCut) foundMinVrtDst = minVrtVrtDist( WrkVrtSet, foundV1, foundV2);
 
 //Choice of action
-          if( foundMaxT<m_TrackDetachCut && foundMinVrtDst<m_VertexMergeCut && nTrkCommon( WrkVrtSet, foundV1, foundV2)){
-          //if( foundMaxT<m_TrackDetachCut && foundMinVrtDst<m_VertexMergeCut){
+          if( foundMaxT<m_trackDetachCut && foundMinVrtDst<m_vertexMergeCut && nTrkCommon( WrkVrtSet, foundV1, foundV2)){
+          //if( foundMaxT<m_trackDetachCut && foundMinVrtDst<m_vertexMergeCut){
              bool vrtMerged=false;   //to check whether something is really merged
-             while(foundMinVrtDst<m_VertexMergeCut){
+             while(foundMinVrtDst<m_vertexMergeCut){
                if(foundV1<foundV2) { int tmp=foundV1; foundV1=foundV2; foundV2=tmp;} /*Always drop vertex with smallest number*/
 	       double probV=0.;
                if     (xAODwrk)probV=mergeAndRefitVertices( WrkVrtSet, foundV1, foundV2, newvrt, xAODwrk->listJetTracks);
                else if(RECwork)probV=mergeAndRefitVertices( WrkVrtSet, foundV1, foundV2, newvrt, RECwork->listJetTracks);
-	       if(probV>probVrtMergeLimit && newvrt.vertexMom.M()<VrtBCMassLimit){        //  Good merged vertex found
+	       if(probV>probVrtMergeLimit && newvrt.vertexMom.M()<c_vrtBCMassLimit){        //  Good merged vertex found
                  double tstDst=JetProjDist(newvrt.vertex, PrimVrt, JetDir);
 	         if(tstDst>0.){                               // only positive vertex directions are accepted as merging result
                    std::swap((*WrkVrtSet)[foundV1],newvrt);
@@ -419,12 +406,12 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 // Final check/merge for close vertices
 //
     double minDistVV=minVrtVrtDist( WrkVrtSet, foundV1, foundV2); //recalculate VV distances
-    while ( minDistVV < m_VertexMergeCut) {
+    while ( minDistVV < m_vertexMergeCut) {
         if(foundV1<foundV2) { int tmp=foundV1; foundV1=foundV2; foundV2=tmp;}
 	double probV=0.;
         if     (xAODwrk)probV=mergeAndRefitVertices( WrkVrtSet, foundV1, foundV2, newvrt, xAODwrk->listJetTracks);
         else if(RECwork)probV=mergeAndRefitVertices( WrkVrtSet, foundV1, foundV2, newvrt, RECwork->listJetTracks);
-	if(probV>probVrtMergeLimit && newvrt.vertexMom.M()<VrtBCMassLimit){        //  Good merged vertex found
+	if(probV>probVrtMergeLimit && newvrt.vertexMom.M()<c_vrtBCMassLimit){        //  Good merged vertex found
            double tstDst=JetProjDist(newvrt.vertex, PrimVrt, JetDir);
 	   if(tstDst>0.){                               // only positive vertex directions are accepted as merging result
               std::swap((*WrkVrtSet)[foundV1],newvrt);
@@ -498,20 +485,19 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
        if( fabs(curVrt.vertex.z())>650. ){curVrt.Good=false; continue;}  //vertex outside Pixel det. For ALL vertices
        if(curVrt.SelTrk.size() != 1)     continue;
        curVrt.Good=false;       // Make them bad by default
-       if(MomAtVrt(curVrt.TrkAtVrt[0]).Pt() < m_JetPtFractionCut*JetDir.Perp() ) continue; //Low Pt
-       if(m_MultiWithOneTrkVrt){          /* 1track vertices left unassigned from good 2tr vertices */
+       if(m_multiWithOneTrkVrt){          /* 1track vertices left unassigned from good 2tr vertices */
           VrtVrtDist(PrimVrt,curVrt.vertex, curVrt.vertexCov, Signif3D); //VK non-projected Signif3D is worse
           double tmpProb=TMath::Prob( curVrt.Chi2, 1);                 //Chi2 of the original 2tr vertex
           bool trkGood=false;
-          if     (RECwork)trkGood=Check1TrVertexInPixel(RECwork->listJetTracks[curVrt.SelTrk[0]],curVrt.vertex);
-          else if(xAODwrk)trkGood=Check1TrVertexInPixel(xAODwrk->listJetTracks[curVrt.SelTrk[0]],curVrt.vertex);
+          if     (RECwork)trkGood=Check1TrVertexInPixel(RECwork->listJetTracks[curVrt.SelTrk[0]],curVrt.vertex,curVrt.vertexCov);
+          else if(xAODwrk)trkGood=Check1TrVertexInPixel(xAODwrk->listJetTracks[curVrt.SelTrk[0]],curVrt.vertex,curVrt.vertexCov);
           if(trkGood && tmpProb>0.01){  /* accept only good tracks coming from good 2tr vertex*/
-             //if( m_useMaterialRejection && insideMatLayer(curVrt.vertex.x(),curVrt.vertex.y()) ) continue;
+             //if( useMaterialRejection && insideMatLayer(curVrt.vertex.x(),curVrt.vertex.y()) ) continue;
              std::vector<double> Impact,ImpactError;   double Signif3DP = 0;
              if     (xAODwrk) Signif3DP=m_fitSvc->VKalGetImpact(xAODwrk->listJetTracks[curVrt.SelTrk[0]],PrimVrt.position(), 1, Impact, ImpactError);
 	     else if(RECwork) Signif3DP=m_fitSvc->VKalGetImpact(RECwork->listJetTracks[curVrt.SelTrk[0]],PrimVrt.position(), 1, Impact, ImpactError);
-             if(m_FillHist&&curVrt.vertex.perp()>20.){m_hb_diffPS->Fill( Signif3DP, m_w_1); }
-             if( Signif3DP>2.*m_TrkSigCut && Signif3D>m_Sel2VrtSigCut) curVrt.Good=true; // accept only tracks which are far from primary vertex
+             if(m_fillHist&&curVrt.vertex.perp()>20.){m_hb_diffPS->Fill( Signif3DP, m_w_1); }
+             if( Signif3DP>2.*m_trkSigCut && Signif3D>m_sel2VrtSigCut) curVrt.Good=true; // accept only tracks which are far from primary vertex
           }
        }
     }
@@ -548,29 +534,28 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 //-----------------------------------------------------------------------------------------
           if(nth==2 && m_useVertexCleaning){
             if(RECwork){
-	       if(!Check2TrVertexInPixel(RECwork->tmpListTracks[0],RECwork->tmpListTracks[1],curVrt.vertex,Signif3D))continue;
+	       if(!Check2TrVertexInPixel(RECwork->tmpListTracks[0],RECwork->tmpListTracks[1],curVrt.vertex,curVrt.vertexCov))continue;
             }else if(xAODwrk){
-	       if(!Check2TrVertexInPixel(xAODwrk->tmpListTracks[0],xAODwrk->tmpListTracks[1],curVrt.vertex,Signif3D))continue;
+	       if(!Check2TrVertexInPixel(xAODwrk->tmpListTracks[0],xAODwrk->tmpListTracks[1],curVrt.vertex,curVrt.vertexCov))continue;
             }
 	  }
 //
 //---  Check interactions on pixel layers
 //
-          //if( curVrt.vertex.perp()>m_Rbeampipe-2. && curVrt.detachedTrack<0) {
-          if( curVrt.vertex.perp()>m_Rbeampipe-2.) {
+          //if( curVrt.vertex.perp()>m_beampipeR-2. && curVrt.detachedTrack<0) {
+          if( curVrt.vertex.perp()>m_beampipeR-2.) {
 	    double minPt=1.e9;  for(int ti=0; ti<nth; ti++) minPt=TMath::Min(minPt,MomAtVrt(curVrt.TrkAtVrt[ti]).Pt());
-	    double ptLim=TMath::Max(m_hadronIntPtCut,m_JetPtFractionCut*JetDir.Perp());
-            if(m_FillHist){  
+            if(m_fillHist){  
 	       m_hb_totmass2T0->Fill( curVrt.vertexMom.M()-nth*m_massPi, m_w_1);
 	       m_hb_r2d->Fill( curVrt.vertex.perp(), m_w_1);
             }
-            if(m_useMaterialRejection && minPt<ptLim){
+            if(useMaterialRejection){
 	      if( insideMatLayer(curVrt.vertex.x(),curVrt.vertex.y()) ) continue;
             }
 	    //double dR=0; for(int mi=0;mi<nth-1;mi++)for(int mj=mi+1;mj<nth;mj++)
 	    //         dR=TMath::Max(dR,MomAtVrt(curVrt.TrkAtVrt[mi]).DeltaR(MomAtVrt(curVrt.TrkAtVrt[mj])));
-            //if(m_FillHist)m_hb_deltaRSVPV->Fill(dR,m_w_1);
-            //if( m_killHighPtIBLFakes && curVrt.vertex.perp()<m_Rlayer1 && dR<0.015)continue;
+            //if(m_fillHist)m_hb_deltaRSVPV->Fill(dR,m_w_1);
+            //if( m_killHighPtIBLFakes && curVrt.vertex.perp()<m_rLayer1 && dR<0.015)continue;
 	    if(Signif3D<20.) continue;
           }
 //
@@ -579,7 +564,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
              double mass_PiPi =  curVrt.vertexMom.M();  
              double mass_PPi  =  massV0(curVrt.TrkAtVrt,m_massP,m_massPi);
              double mass_EE   =  massV0(curVrt.TrkAtVrt,m_massE,m_massE);
-             if(m_FillHist){ m_hb_massPiPi->Fill( mass_PiPi, m_w_1);
+             if(m_fillHist){ m_hb_massPiPi->Fill( mass_PiPi, m_w_1);
                              m_hb_massPPi ->Fill( mass_PPi,  m_w_1); 
                              if( curVrt.vertex.perp()>20.)m_hb_massEE  ->Fill( mass_EE,   m_w_1);  } 
  	     if( fabs(mass_PiPi-m_massK0) < 22.)     continue;
@@ -587,15 +572,15 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
              if( mass_EE < 60. && curVrt.vertex.perp() > 20.) continue;
           }          
 //---
-	  if(m_FillHist){m_hb_sig3DTot->Fill( Signif3D, m_w_1); }
-          if(Signif3D<m_Sel2VrtSigCut)continue;      //Main PV-SV distance quality cut 
+	  if(m_fillHist){m_hb_sig3DTot->Fill( Signif3D, m_w_1); }
+          if(Signif3D<m_sel2VrtSigCut)continue;      //Main PV-SV distance quality cut 
 //-----
 //        float Dist2D= (*WrkVrtSet)[iv].vertex.perp();
 //	  if(Dist2D<2.){
 //            double tmpProb=0.;
 //            if       (xAODwrk)tmpProb=FitVertexWithPV( WrkVrtSet, iv, PrimVrt, xAODwrk->listJetTracks);
 //            else if(RECwork)tmpProb=FitVertexWithPV( WrkVrtSet, iv, PrimVrt, RECwork->listJetTracks);
-//            if(m_FillHist){m_hb_trkPtMax->Fill( tmpProb*1.e5, m_w_1); }
+//            if(m_fillHist){m_hb_trkPtMax->Fill( tmpProb*1.e5, m_w_1); }
 //            if(tmpProb>0.01)continue; // Vertex can be associated with PV
 //	  }
 //---
@@ -605,7 +590,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
     }
 //
 //--Final cleaning of the 1-track vertices set. Must be behind all other cleanings.
-    if(m_MultiWithOneTrkVrt) Clean1TrVertexSet(WrkVrtSet);
+    if(m_multiWithOneTrkVrt) Clean1TrVertexSet(WrkVrtSet);
 //------------ Debug
 //    std::vector<const xAOD::TrackParticle*> tempTrk(0);
 //    for(auto & iv : (*WrkVrtSet)){ if(iv.Good){for(auto & it : iv.SelTrk)tempTrk.push_back(xAODwrk->listJetTracks.at(it));}}
@@ -620,7 +605,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
        nth=iv.SelTrk.size(); if(nth == 0) continue;   /* Definitely bad vertices */
        Amg::Vector3D tmpVec=iv.vertex-PrimVrt.position();
        TLorentzVector Momentum(tmpVec.x(),tmpVec.y(),tmpVec.z(),m_massPi);
-       //if(Momentum.DeltaR(JetDir)>m_ConeForTag) iv.Good=false; /* Vertex outside jet cone??? Very bad cut*/
+       //if(Momentum.DeltaR(JetDir)>m_coneForTag) iv.Good=false; /* Vertex outside jet cone??? Very bad cut*/
        if( iv.Good) {
 	  nGoodVertices++;                                    
 	  GoodVertices.emplace_back(iv);    /* add it */
@@ -654,7 +639,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
     if(nGoodVertices>1){
       if( GoodVertices[1].vertexMom.M()-GoodVertices[0].vertexMom.M() > 5000.) std::swap( GoodVertices[0], GoodVertices[1] );
     }
-    if(m_FillHist){m_hb_distVV->Fill( minVrtVrtDist( WrkVrtSet, foundV1, foundV2), m_w_1); }
+    if(m_fillHist){m_hb_distVV->Fill( minVrtVrtDist( WrkVrtSet, foundV1, foundV2), m_w_1); }
 //----------------------------------------------------------------------------------
 //  Nonused tracks for one-track-vertex search
 //
@@ -736,7 +721,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
              trackPt=pTvsDir(Amg::Vector3D(JetDir.Vect().X(),JetDir.Vect().X(),JetDir.Vect().Z()), GoodVertices[iv].TrkAtVrt[i]);
              if(trackPt>trackPtMax)trackPtMax=trackPt;
           }
-          if( m_FillHist ){
+          if( m_fillHist ){
             if(nth==1)m_hb_r1dc->Fill( GoodVertices[iv].vertex.perp(), m_w_1);
             if(nth==2)m_hb_r2dc->Fill( GoodVertices[iv].vertex.perp(), m_w_1);
             if(nth==3)m_hb_r3dc->Fill( GoodVertices[iv].vertex.perp(), m_w_1);
@@ -785,7 +770,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
           nGoodVertices++;
           if(nth==1)n1trVrt++;
 //-----
-          if( iv==0 && m_MultiWithPrimary ) continue;  //skip primary vertex if present
+          if( iv==0 && m_multiWithPrimary ) continue;  //skip primary vertex if present
           VertexMom += GoodVertices[iv].vertexMom;
     }
 //===================Fake vertex with list of all tracks for optimisation
@@ -799,7 +784,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 //    }       finalVertices.push_back(tmpVertex);
 //==============================================
 
-    if(m_FillHist){m_hb_goodvrtN->Fill( nGoodVertices+0.1, m_w_1);
+    if(m_fillHist){m_hb_goodvrtN->Fill( nGoodVertices+0.1, m_w_1);
                    m_hb_goodvrtN->Fill( n1trVrt+15., m_w_1);}
     if(nGoodVertices == 0){
       delete WrkVrtSet;
@@ -822,10 +807,10 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
       Results.push_back(0.);                                        //6th  -  not clear what to use here -> return 0.
       Results.push_back(MomentumJet.E());                 //7th
 
-      if(m_FillHist){m_hb_ratio->Fill( Results[1], m_w_1); }
-      if(m_FillHist){m_hb_totmass->Fill( Results[0], m_w_1); }
-      if(m_FillHist){m_hb_nvrt2->Fill( Results[2], m_w_1); }
-      if(m_FillHist){m_hb_mom->Fill( MomentumJet.Perp(), m_w_1);} 
+      if(m_fillHist){m_hb_ratio->Fill( Results[1], m_w_1); }
+      if(m_fillHist){m_hb_totmass->Fill( Results[0], m_w_1); }
+      if(m_fillHist){m_hb_nvrt2->Fill( Results[2], m_w_1); }
+      if(m_fillHist){m_hb_mom->Fill( MomentumJet.Perp(), m_w_1);} 
 
       delete WrkVrtSet; delete TrkInVrt; if(weit)delete[] weit; if(Solution)delete[] Solution;
 
@@ -886,7 +871,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 	   newvrt.SelTrk[1]=(*WrkVrtSet)[iv].SelTrk[SelT];
            sc = VKalVrtFitFastBase(ListBaseTracks,newvrt.vertex);
            if( sc.isFailure() )  continue;
-           if( newvrt.vertex.perp() > m_Rlayer2*2. )  newvrt.vertex=Amg::Vector3D(0.,0.,0.);
+           if( newvrt.vertex.perp() > m_rLayer2*2. )  newvrt.vertex=Amg::Vector3D(0.,0.,0.);
            m_fitSvc->setApproximateVertex(newvrt.vertex[0],newvrt.vertex[1],newvrt.vertex[2]);
            sc=VKalVrtFitBase(ListBaseTracks,
                                        newvrt.vertex,
@@ -929,7 +914,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 	 if(!(*WrkVrtSet)[mtv].Good)            continue;   
          if( std::find((*WrkVrtSet)[mtv].SelTrk.begin(),(*WrkVrtSet)[mtv].SelTrk.end(), Trk1) != (*WrkVrtSet)[mtv].SelTrk.end()){
            //double m2Vrt=((*WrkVrtSet)[mtv].vertexMom+(*WrkVrtSet)[i1tv].vertexMom).M(); //VK Commented.  M cut in other places
-           //if(m2Vrt>VrtBCMassLimit){ (*WrkVrtSet)[i1tv].Good=false;  break; } //1Tr + manyTr system is too heavy
+           //if(m2Vrt>c_vrtBCMassLimit){ (*WrkVrtSet)[i1tv].Good=false;  break; } //1Tr + manyTr system is too heavy
 	   foundInGoodVrt++; countVT[mtv]++; linkedVrt[i1tv]=mtv;  //Linked vertex found
          }
        }
@@ -1010,7 +995,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 	          Chi2Red=(*WrkVrtSet)[VertexNumber].Chi2PerTrk.at(itmp);            //   Normal Chi2 seems the best
                   if(NTrkInVrt==2){
 		    Chi2Red=(*WrkVrtSet)[VertexNumber].Chi2/2.;                     //VK 2track vertices with Normal Chi2Red
-	            if((*WrkVrtSet)[VertexNumber].vertexMom.M()>VrtBCMassLimit)Chi2Red=100.; //VK break immediately very heavy 2tr vertices
+	            if((*WrkVrtSet)[VertexNumber].vertexMom.M()>c_vrtBCMassLimit)Chi2Red=100.; //VK break immediately very heavy 2tr vertices
                   }
                   double prob_vrt = TMath::Prob( (*WrkVrtSet)[VertexNumber].Chi2, 2*(*WrkVrtSet)[VertexNumber].SelTrk.size()-3);
                   if( MaxOf < Chi2Red ){
@@ -1034,8 +1019,8 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
               if     (SelectedVertex==v1 && dst2<dst1)  SelectedVertex=v2;  // Swap to remove the closest to PV vertex
               else if(SelectedVertex==v2 && dst1<dst2)  SelectedVertex=v1;  // Swap to remove the closest to PV vertex
               double M1=(*WrkVrtSet)[v1].vertexMom.M();  double M2=(*WrkVrtSet)[v2].vertexMom.M();
-              if( M1>VrtBCMassLimit && M2<VrtBCMassLimit ) SelectedVertex=v1;
-              if( M1<VrtBCMassLimit && M2>VrtBCMassLimit ) SelectedVertex=v2;
+              if( M1>c_vrtBCMassLimit && M2<c_vrtBCMassLimit ) SelectedVertex=v1;
+              if( M1<c_vrtBCMassLimit && M2>c_vrtBCMassLimit ) SelectedVertex=v2;
             }
             if( (*WrkVrtSet)[v1].SelTrk.size()+(*WrkVrtSet)[v2].SelTrk.size() > 4){
 	       if( (*WrkVrtSet)[v1].SelTrk.size()==2 && dst1>dst2) SelectedVertex=v2;
@@ -1079,7 +1064,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 	       (*TrkInVrt)[LeftTrack].erase(it); break;
 	      }     
 	   }   
-	   if( (*WrkVrtSet)[SelectedVertex].vertexMom.M()>VrtBCMassLimit)(*WrkVrtSet)[SelectedVertex].Good=false; // Vertex is too heavy
+	   if( (*WrkVrtSet)[SelectedVertex].vertexMom.M()>c_vrtBCMassLimit)(*WrkVrtSet)[SelectedVertex].Good=false; // Vertex is too heavy
            int ipos=0; if(posInVrtFit==0)ipos=1;  // Position of remaining track in previous 2track vertex fit
 	   (*WrkVrtSet)[SelectedVertex].vertexMom=MomAtVrt((*WrkVrtSet)[SelectedVertex].TrkAtVrt[ipos]); //Redefine vertexMom using remaining track
 	   if((*TrkInVrt)[LeftTrack].size()>0)(*WrkVrtSet)[SelectedVertex].Good=false;    //Vertex is declared false only if remaining track 
@@ -1173,14 +1158,6 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
    {
       if(!(*WrkVrtSet).at(V1).Good)return -1.;         //bad vertex
       if(!(*WrkVrtSet).at(V2).Good)return -1.;         //bad vertex
-      double RMin=TMath::Min((*WrkVrtSet)[V1].vertex.perp(),(*WrkVrtSet)[V2].vertex.perp());
-      double RMax=TMath::Max((*WrkVrtSet)[V1].vertex.perp(),(*WrkVrtSet)[V2].vertex.perp());
-      if(RMax-RMin>m_SVResolutionR){
-        if(RMin<m_RlayerB && m_RlayerB<RMax) return -1.;
-        if(RMin<m_Rlayer1 && m_Rlayer1<RMax) return -1.;
-        if(RMin<m_Rlayer2 && m_Rlayer2<RMax) return -1.;
-      }
-      
       newvrt.Good=true;
       int NTrk_V1=(*WrkVrtSet)[V1].SelTrk.size();
       int NTrk_V2=(*WrkVrtSet)[V2].SelTrk.size();
@@ -1369,7 +1346,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
 
 
 //For possble future use 
-/*    if( m_MultiWithOneTrkVrt && (!m_MultiWithPrimary) && nGoodVertices<5){        // Addition of one-track vertices is allowed
+/*    if( m_multiWithOneTrkVrt && (!m_multiWithPrimary) && nGoodVertices<5){        // Addition of one-track vertices is allowed
       double addVrtChi2Cut   =5.0;
       double addSig3DCut     =5.0;
       int tmpNTrk=0; if(xAODwrk)tmpNTrk=xAODwrk->listJetTracks.size(); else if(RECwork)tmpNTrk=RECwork->listJetTracks.size();
@@ -1390,7 +1367,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
           if(tmpNBLHits>0){       // accept only tracks with b-layer hit
             if       (RECwork)Signif3DP = m_fitSvc->VKalGetImpact(RECwork->listJetTracks[atr], PrimVrt.position(), 1, Impact, ImpactError);
             else if(xAODwrk)Signif3DP = m_fitSvc->VKalGetImpact(xAODwrk->listJetTracks[atr], PrimVrt.position(), 1, Impact, ImpactError);
-            if( Signif3DP > m_TrkSigCut ) nonusedTracks.push_back(atr);
+            if( Signif3DP > m_trkSigCut ) nonusedTracks.push_back(atr);
           }
         }
       }       

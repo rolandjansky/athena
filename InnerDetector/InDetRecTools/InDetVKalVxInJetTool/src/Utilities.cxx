@@ -7,13 +7,28 @@
 #include "TrkNeutralParameters/NeutralParameters.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
-
+#include "xAODTruth/TruthParticleContainer.h"
 //-------------------------------------------------
 // Other stuff
 #include <cmath>
 
 
 namespace InDet{  
+
+  double InDetVKalVxInJetTool::RankBTrk(double TrkPt, double JetPt, double Signif)  const
+  {
+     double coeffSig=1.0;
+     double s_prob=(Signif-coeffSig)/Signif;   // Old probability to be b-track
+     double coeffPt=10.;
+     double pfrac=(TrkPt-m_cutPt)/sqrt(JetPt);
+     double p_prob= pfrac/(coeffPt+pfrac);    // Old probability to be b-track
+     if(TrkPt + JetPt == 0.) return s_prob;
+     else if(Signif == 0.)   return p_prob;
+     //----------------------------------Initial definition of selective variable
+     double contrib=0.4;
+     return (1.+contrib)*std::max(s_prob,0.)+(1.-contrib)*p_prob;
+  }
+
 
   TLorentzVector  InDetVKalVxInJetTool::GetBDir( const xAOD::TrackParticle* trk1,
                                                  const xAOD::TrackParticle* trk2,
@@ -22,7 +37,6 @@ namespace InDet{
   const
   { // B hadron flight direction based on 2 separate tracks and PV. Calculated via plane-plane crossing
     Amg::Vector3D PVRT(PrimVrt.x(),PrimVrt.y(),PrimVrt.z());
-
 //----------------------------------------------------------------------------
     Amg::Vector3D   pnt1=trk1->perigeeParameters().position()-PVRT;
     Amg::Vector3D   mom1((trk1->p4()).Px(),(trk1->p4()).Py(),(trk1->p4()).Pz());
@@ -59,36 +73,29 @@ namespace InDet{
   }
 
                /*  Technicalities */
-  double InDetVKalVxInJetTool::ProjPos(const Amg::Vector3D & Vrt, const TLorentzVector & JetDir)
-  const
-  {
-    //Amg::Vector3D Vrt=SV-PV;
-    return (Vrt.x()*JetDir.Px() + Vrt.y()*JetDir.Py() + Vrt.z()*JetDir.Pz())/JetDir.P();
-  }
-
-  double InDetVKalVxInJetTool::ProjPosT(const Amg::Vector3D & Vrt, const TLorentzVector & JetDir)
-  const
-  {
-    return (Vrt.x()*JetDir.Px() + Vrt.y()*JetDir.Py())/JetDir.Pt();
+  double InDetVKalVxInJetTool::ProjSV_PV(const Amg::Vector3D & SV, const xAOD::Vertex & PV, const TLorentzVector & Jet) const
+  {  
+     TVector3 SV_PV( SV.x()-PV.x(), SV.y()-PV.y(), SV.z()-PV.z() );
+     return Jet.Vect().Unit()*SV_PV.Unit();
   }
 
   bool InDetVKalVxInJetTool::insideMatLayer(float xvt,float yvt) const
   {
-        float Dist2DBP=sqrt( (xvt-m_Xbeampipe)*(xvt-m_Xbeampipe) + (yvt-m_Ybeampipe)*(yvt-m_Ybeampipe) ); 
-        float Dist2DBL=sqrt( (xvt-m_XlayerB)*(xvt-m_XlayerB) + (yvt-m_YlayerB)*(yvt-m_YlayerB) ); 
-        float Dist2DL1=sqrt( (xvt-m_Xlayer1)*(xvt-m_Xlayer1) + (yvt-m_Ylayer1)*(yvt-m_Ylayer1) );
-        float Dist2DL2=sqrt( (xvt-m_Xlayer2)*(xvt-m_Xlayer2) + (yvt-m_Ylayer2)*(yvt-m_Ylayer2) );
+        float Dist2DBP=sqrt( (xvt-m_beampipeX)*(xvt-m_beampipeX) + (yvt-m_beampipeY)*(yvt-m_beampipeY) ); 
+        float Dist2DBL=sqrt( (xvt-m_xLayerB)*(xvt-m_xLayerB) + (yvt-m_yLayerB)*(yvt-m_yLayerB) ); 
+        float Dist2DL1=sqrt( (xvt-m_xLayer1)*(xvt-m_xLayer1) + (yvt-m_yLayer1)*(yvt-m_yLayer1) );
+        float Dist2DL2=sqrt( (xvt-m_xLayer2)*(xvt-m_xLayer2) + (yvt-m_yLayer2)*(yvt-m_yLayer2) );
         if(m_existIBL){              // 4-layer pixel detector
-               if( fabs(Dist2DBP-m_Rbeampipe)< 1.0)  return true;           // Beam Pipe removal  
-               if( fabs(Dist2DBL-m_RlayerB)  < 2.5)     return true;
-               if( fabs(Dist2DL1-m_Rlayer1)  < 3.0)      return true;
-               if( fabs(Dist2DL2-m_Rlayer2)  < 3.0)      return true;
-               //if( fabs(Dist2DL2-m_Rlayer3)  < 4.0)      return true;
+               if( fabs(Dist2DBP-m_beampipeR)< 1.0)  return true;           // Beam Pipe removal  
+               if( fabs(Dist2DBL-m_rLayerB)  < 2.5)     return true;
+               if( fabs(Dist2DL1-m_rLayer1)  < 3.0)      return true;
+               if( fabs(Dist2DL2-m_rLayer2)  < 3.0)      return true;
+               //if( fabs(Dist2DL2-m_rLayer3)  < 4.0)      return true;
         }else{                       // 3-layer pixel detector
-               if( fabs(Dist2DBP-m_Rbeampipe)< 1.5)  return true;           // Beam Pipe removal  
-               if( fabs(Dist2DBL-m_RlayerB)  < 3.5)     return true;
-               if( fabs(Dist2DL1-m_Rlayer1)  < 4.0)      return true;
-               if( fabs(Dist2DL2-m_Rlayer2)  < 5.0)      return true;
+               if( fabs(Dist2DBP-m_beampipeR)< 1.5)  return true;           // Beam Pipe removal  
+               if( fabs(Dist2DBL-m_rLayerB)  < 3.5)     return true;
+               if( fabs(Dist2DL1-m_rLayer1)  < 4.0)      return true;
+               if( fabs(Dist2DL2-m_rLayer2)  < 5.0)      return true;
         }
         return false; 
   }
@@ -156,6 +163,31 @@ namespace InDet{
     Signif=sqrt(Signif);
     if( Signif!=Signif ) Signif = 0.;
     return sqrt(distx*distx+disty*disty+distz*distz);
+  }
+
+  double InDetVKalVxInJetTool::VrtVrtDist2D(const xAOD::Vertex & PrimVrt, const Amg::Vector3D & SecVrt, 
+                                          const std::vector<double> SecVrtErr, double& Signif)
+  const
+  {
+    double distx =  PrimVrt.x()- SecVrt.x();
+    double disty =  PrimVrt.y()- SecVrt.y();
+
+
+    AmgSymMatrix(3)  PrimCovMtx=PrimVrt.covariancePosition();  //Create
+    AmgSymMatrix(2)  CovMtx;
+    CovMtx(0,0) = PrimCovMtx(0,0) + SecVrtErr[0];
+    CovMtx(0,1) = PrimCovMtx(0,1) + SecVrtErr[1];
+    CovMtx(1,0) = PrimCovMtx(1,0) + SecVrtErr[1];
+    CovMtx(1,1) = PrimCovMtx(1,1) + SecVrtErr[2];
+
+    AmgSymMatrix(2)  WgtMtx = CovMtx.inverse();
+
+    Signif = distx*WgtMtx(0,0)*distx
+            +disty*WgtMtx(1,1)*disty
+         +2.*distx*WgtMtx(0,1)*disty;
+    Signif=sqrt(Signif);
+    if( Signif!=Signif ) Signif = 0.;
+    return sqrt(distx*distx+disty*disty);
   }
 
 //--------------------------------------------------
@@ -267,6 +299,22 @@ namespace InDet{
 //
 
 
+//----------------------------
+//   Vertex error along radius
+//----------------------------
+  double InDetVKalVxInJetTool::VrtRadiusError(const Amg::Vector3D & SecVrt, const std::vector<double>  & VrtErr) const
+  {
+    double DirX=SecVrt.x(), DirY=SecVrt.y(); 
+    double Covar =    DirX*VrtErr[0]*DirX
+                  +2.*DirX*VrtErr[1]*DirY
+                     +DirY*VrtErr[2]*DirY;
+    Covar /= DirX*DirX + DirY*DirY;
+    Covar=sqrt(Covar);
+    if(Covar != Covar)  Covar = 0.;
+    return Covar;
+  }
+
+
 
   double InDetVKalVxInJetTool::ConeDist(const AmgVector(5) & VectPerig, const TLorentzVector & JetDir)
   const
@@ -304,16 +352,15 @@ namespace InDet{
 
 
 
-   int InDetVKalVxInJetTool::FindMax( std::vector<double>& Chi2PerTrk, std::vector<int> & cntTrk)
+   int InDetVKalVxInJetTool::FindMax( std::vector<double>& Chi2PerTrk, std::vector<float> & Rank)
    const
    { 
       double Chi2Ref=0.;
-      int Position=0;
+      int Position=-1;
       if( Chi2PerTrk.size() < 1 ) return Position ;
       for (int i=0; i< (int)Chi2PerTrk.size(); i++){
-         if( Chi2PerTrk[i]/cntTrk[i] > Chi2Ref) { Chi2Ref=Chi2PerTrk[i]/cntTrk[i]; Position=i;}
+	if(Chi2PerTrk[i]/std::max(Rank[i],(float)0.1) > Chi2Ref) { Chi2Ref=Chi2PerTrk[i]/std::max(Rank[i],(float)0.1); Position=i;}
       }
-
       return Position;
    }      
   
@@ -519,8 +566,10 @@ namespace InDet{
 
   }
 
-
-
+  StatusCode InDetVKalVxInJetTool::GetTrkFitWeights(std::vector<double> & wgt) const
+  {
+    return m_fitSvc->VKalGetTrkWeights(wgt);
+  }
 /*************************************************************************************************************/
   void   InDetVKalVxInJetTool::getPixelLayers(const Rec::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLays  ) const
   {
@@ -558,7 +607,7 @@ namespace InDet{
 	  //   bitH=HitPattern&((int)pow(2,Trk::pixelBarrel1));
         } else {                     // 3-layer pixel detector
           uint8_t BLhit,NPlay,NHoles,IBLhit;
-          if(!Part->summaryValue( BLhit,  xAOD::numberOfInnermostPixelLayerHits) )          BLhit = 0;
+          if(!Part->summaryValue( BLhit,  xAOD::numberOfBLayerHits) )          BLhit = 0;
           if(!Part->summaryValue(IBLhit,  xAOD::numberOfInnermostPixelLayerHits) )  IBLhit = 0; // Some safety
           BLhit=BLhit>IBLhit ? BLhit : IBLhit;                                                  // Some safety
           if(!Part->summaryValue( NPlay,  xAOD::numberOfContribPixelLayers) )  NPlay = 0;
@@ -666,10 +715,41 @@ namespace InDet{
       return VrtCovMtx;
   }
 
-  double InDetVKalVxInJetTool::trkPtCorr(double pT) const
-  {
-     double adp=pT/64000.; if(adp<0.)adp=0; if(adp>1.)adp=1.; adp=sqrt(adp)/2.;
-     return adp;
+  void InDetVKalVxInJetTool::fillVrtNTup( std::vector<Vrt2Tr>  & all2TrVrt)
+  const
+  {	 if(!m_curTup)return;
+         int ipnt=0;
+         for(auto vrt : all2TrVrt) {
+	   if(ipnt==100)break;
+	   m_curTup->VrtDist2D[ipnt]=vrt.FitVertex.perp();
+	   m_curTup->VrtSig3D[ipnt]=vrt.Signif3D;
+	   m_curTup->VrtSig2D[ipnt]=vrt.Signif2D;
+	   m_curTup->itrk[ipnt]=vrt.i;
+	   m_curTup->jtrk[ipnt]=vrt.j;
+	   m_curTup->mass[ipnt]=vrt.Momentum.M();
+	   m_curTup->Chi2[ipnt]=vrt.Chi2;
+	   m_curTup->badVrt[ipnt]=vrt.badVrt;
+           ipnt++; m_curTup->nVrt=ipnt;
+        }
+  } 
+
+  int InDetVKalVxInJetTool::getG4Inter(const xAOD::TrackParticle* TP ) const {
+      if( TP->isAvailable< ElementLink< xAOD::TruthParticleContainer> >( "truthParticleLink") ) {
+        const ElementLink<xAOD::TruthParticleContainer>& tplink = 
+                               TP->auxdata< ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink");
+        if( tplink.isValid() && (*tplink)->barcode()>200000) return 1;
+      }
+      return 0;
   }
+  int InDetVKalVxInJetTool::getMCPileup(const xAOD::TrackParticle* TP ) const {
+      if( TP->isAvailable< ElementLink< xAOD::TruthParticleContainer> >( "truthParticleLink") ) {
+        const ElementLink<xAOD::TruthParticleContainer>& tplink = 
+                               TP->auxdata< ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink");
+        if( !tplink.isValid() ) return 1;
+      } else { return 1; }
+      return 0;
+  }
+  int InDetVKalVxInJetTool::getG4Inter(const Rec::TrackParticle* ) const { return 0; }
+  int InDetVKalVxInJetTool::getMCPileup(const Rec::TrackParticle* ) const { return 0; }
 
 }  //end namespace
