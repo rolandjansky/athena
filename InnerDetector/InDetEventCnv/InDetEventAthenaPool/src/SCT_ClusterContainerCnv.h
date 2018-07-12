@@ -50,7 +50,6 @@ protected:
 public:
   SCT_ClusterContainerCnv (ISvcLocator* svcloc);
 protected:
-  ~SCT_ClusterContainerCnv();
   virtual SCT_ClusterContainer_PERS*   createPersistent (InDet::SCT_ClusterContainer* transCont);
   virtual InDet::SCT_ClusterContainer* createTransient ();
 

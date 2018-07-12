@@ -22,6 +22,7 @@
 #include "D3PDMakerUtils/SGCollectionGetterTool.h"
 #include "LArSimEvent/LArHitContainer.h"
 #include "LArElecCalib/ILArfSampl.h"
+#include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include <vector>
 #include <list>
 #include <map>
@@ -38,7 +39,6 @@ class CaloDetDescrManager ;
 class Identifier;
 
 class CaloSuperCellDetDescrManager;
-class ICaloSuperCellIDTool;
 
 class CaloCell_SuperCell_ID; 
 

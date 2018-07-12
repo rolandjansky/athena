@@ -17,8 +17,7 @@
 
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
-class LUCID_RawDataContainer;
-
+#include "LUCID_RawEvent/LUCID_RawDataContainer.h"
 
 namespace D3PD {
   

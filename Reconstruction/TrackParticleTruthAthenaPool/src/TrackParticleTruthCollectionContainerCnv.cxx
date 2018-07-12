@@ -7,6 +7,7 @@
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionContainerCnv_tlp2.h"
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p1.h"
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p2.h"
+#include "ParticleTruth/TrackParticleTruthVector.h"
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"

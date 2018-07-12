@@ -37,7 +37,7 @@ namespace pool  {
     */
   class RootOODb  : public IOODatabase  {
   public:
-    typedef Gaudi::PluginService::Factory<IOODatabase*> Factory;
+    typedef Gaudi::PluginService::Factory<IOODatabase*()> Factory;
 
     /// Standard Constructor
     RootOODb(DbType typ=ROOT_StorageType);

@@ -45,9 +45,9 @@ class TrigT2JetCnv : public TrigT2JetCnvBase
    
 public:
   TrigT2JetCnv( ISvcLocator *svcloc );
-protected:
   ~TrigT2JetCnv();
  
+protected:
    
    virtual TrigT2Jet_PERS *createPersistent( TrigT2Jet *transObj);
    virtual TrigT2Jet      *createTransient();

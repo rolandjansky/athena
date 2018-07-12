@@ -662,8 +662,3 @@ StatusCode ResolutionTool::finalize() {
 
   return StatusCode::SUCCESS;
 }
-
-//------------------------------------------------------------------------------
-ResolutionTool::~ResolutionTool() {}
-
-

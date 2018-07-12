@@ -17,6 +17,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonOverlayBase/MuonOverlayBase.h"
+#include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 
 #include "MuonRDO/CscRawDataContainer.h"
 
@@ -30,7 +31,6 @@
 #include <map>
 
 class CscIdHelper;
-class IMuonDigitizationTool;
 
 namespace std { template<typename _Tp> class auto_ptr; }
 

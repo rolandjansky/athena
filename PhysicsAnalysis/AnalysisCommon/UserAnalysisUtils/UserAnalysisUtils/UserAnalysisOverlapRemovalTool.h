@@ -95,11 +95,6 @@ public:
   /** check if execute() is already called for this tool in this job for this event */
   bool isExecuted();
 
-protected:
-
-   /** Standard destructor */
-   virtual ~UserAnalysisOverlapRemovalTool();
-
 private:
   struct Vectors {
     ConstDataVector<INavigable4MomentumCollection>* m_outputParticles;

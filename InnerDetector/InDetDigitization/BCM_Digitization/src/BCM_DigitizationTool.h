@@ -6,6 +6,7 @@
 #define BCM_DIGITIZATION_BCM_DIGITIZATIONTOOL_H
 
 #include "PileUpTools/PileUpToolBase.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -21,7 +22,6 @@
 
 // Data member classes
 class PileUpMergeSvc;
-class IAtRndmGenSvc;
 class InDetSimDataCollection;
 
 namespace CLHEP
