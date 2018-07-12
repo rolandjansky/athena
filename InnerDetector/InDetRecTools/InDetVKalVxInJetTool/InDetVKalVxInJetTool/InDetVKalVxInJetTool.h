@@ -50,13 +50,15 @@
 #include  "xAODTracking/TrackParticleContainer.h"
 //
 //
-
 #include "InDetRecToolInterfaces/ISecVertexInJetFinder.h"
+//#include "InDetMaterialRejTool/InDetMaterialRejTool.h"
+#include "InDetVKalVxInJetTool/InDetTrkInJetType.h"
 
 class TH1D;
 class TH2D;
 class TH1F;
 class TProfile;
+class TTree;
 
 namespace Trk{
   class TrkVKalVrtFitter;

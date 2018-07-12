@@ -6,6 +6,7 @@
 #include "InDetVKalVxInJetTool/InDetVKalVxInJetTool.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
 #include "TrkTrackSummary/TrackSummary.h"
+#include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "xAODTruth/TruthParticleContainer.h"
 //-------------------------------------------------
 // Other stuff
