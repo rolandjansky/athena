@@ -44,6 +44,7 @@ EventCleaningTool::EventCleaningTool(const std::string& name)
   , m_or()
   , m_prefix()
   , m_decorate()
+  , m_useDecorations()
   , m_cleaningLevel()
   , m_jetCleaningTool("JetCleaningTool/JetCleaningTool") 
 {
@@ -53,6 +54,7 @@ EventCleaningTool::EventCleaningTool(const std::string& name)
   declareProperty( "OrDecorator" , m_or = "passOR" );
   declareProperty( "JetCleanPrefix", m_prefix = "" );
   declareProperty( "DoDecorations", m_decorate = true );
+  declareProperty( "UseDecorations" , m_useDecorations=false);
   declareProperty( "CleaningLevel" , m_cleaningLevel = "LooseBad");
   m_jetCleaningTool.declarePropertyFor(this, "JetCleaningTool");
 }
@@ -79,6 +81,7 @@ StatusCode EventCleaningTool::initialize()
   
   //initialize jet cleaning tool
   ATH_CHECK(m_jetCleaningTool.setProperty("CutLevel", m_cleaningLevel )); 
+  ATH_CHECK(m_jetCleaningTool.setProperty("UseDecorations", m_useDecorations ));  //for AODs we can't use decorations
   ATH_CHECK(m_jetCleaningTool.retrieve());
   ATH_MSG_INFO( "Event cleaning tool configured with cut level " << m_cleaningLevel  );
 
@@ -123,7 +126,7 @@ bool EventCleaningTool::acceptEvent(const xAOD::JetContainer* jets) const
 
 int EventCleaningTool::keepJet(const xAOD::Jet& jet) const 
 { 
-	return m_jetCleaningTool->keep(jet); 
+	return m_jetCleaningTool->keep(jet);
 }
 
 //=============================================================================
