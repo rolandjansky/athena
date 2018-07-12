@@ -34,27 +34,7 @@ TileEscapedEnergyProcessing::~TileEscapedEnergyProcessing() {
 
 }
 
-std::unique_ptr<G4Step> TileEscapedEnergyProcessing::CreateFakeStep( G4TouchableHandle& a_touchableHandle, G4ThreeVector& a_point, G4double a_energy) const
-{
-  auto fakeStep = std::make_unique<G4Step>();
-  G4StepPoint*        fakePreStepPoint  = fakeStep->GetPreStepPoint();
-  G4StepPoint*        fakePostStepPoint = fakeStep->GetPostStepPoint();
-  // Set the touchable volume at PreStepPoint:
-  fakePreStepPoint->SetTouchableHandle(a_touchableHandle);
-  fakePreStepPoint->SetPosition(a_point);
-  fakePreStepPoint->SetGlobalTime(0.);
-  // Most of the calculators expect a PostStepPoint as well.  For
-  // now, try setting this to be the same as the PreStepPoint.
-  fakePostStepPoint->SetTouchableHandle(a_touchableHandle);
-  fakePostStepPoint->SetPosition(a_point);
-  fakePostStepPoint->SetGlobalTime(0.);
-  // The total energy deposit in the step is actually irrelevant.
-  fakeStep->SetTotalEnergyDeposit(a_energy);
-  return std::move(fakeStep);
-}
-
-G4bool TileEscapedEnergyProcessing::Process(G4TouchableHandle& a_touchableHandle, G4ThreeVector& a_point,
-                                            G4double a_energy) {
+G4bool TileEscapedEnergyProcessing::Process( G4Step* fakeStep ) {
   // Escaped energy requires special processing.  The energy was not
   // deposited in the current G4Step, but at the beginning of the
   // particle's track.  For example, if a neutrino escapes the
@@ -62,17 +42,6 @@ G4bool TileEscapedEnergyProcessing::Process(G4TouchableHandle& a_touchableHandle
   // neutrino was created, not at the point where it escaped the
   // detector.
 
-  // The first time this routine is called, we have to set up some
-  // Geant4 structures for the fake step.
-
-  // // Create a phoney pre-step and post-step point, and use them to
-  // // initialize a phoney G4Step.
-
-  auto fakeStep = CreateFakeStep(a_touchableHandle, a_point, a_energy );
-  return ProcessNew(fakeStep.get());
-}
-
-G4bool TileEscapedEnergyProcessing::ProcessNew( G4Step* fakeStep ) {
   // Find out in which physical volume our hit is located.
   G4VPhysicalVolume* volume = fakeStep->GetPreStepPoint()->GetPhysicalVolume();
 

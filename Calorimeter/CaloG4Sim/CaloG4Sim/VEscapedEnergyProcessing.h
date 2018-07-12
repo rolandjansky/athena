@@ -42,8 +42,7 @@ namespace CaloG4 {
     // located; the value of "point" itself in case additional
     // processing is necessary, and the amount of escaped energy.
 
-    virtual G4bool Process( G4TouchableHandle& handle, G4ThreeVector& point, G4double energy ) = 0;
-    virtual G4bool ProcessNew( G4Step* fakeStep ) = 0;
+    virtual G4bool Process( G4Step* fakeStep ) = 0;
   };
 
 } // namespace CaloG4

@@ -30,7 +30,6 @@
 #include "G4ThreeVector.hh"
 #include "G4Step.hh"
 #include "globals.hh"
-#include <memory>
 
 class LArG4CalibSD;
 
@@ -44,12 +43,9 @@ public:
   // located; the value of "point" itself in case additional
   // processing is necessary, and the amount of escaped energy.
 
-  virtual G4bool Process( G4TouchableHandle& handle, G4ThreeVector& point, G4double energy );
-  virtual G4bool ProcessNew( G4Step* fakeStep );
+  virtual G4bool Process( G4Step* fakeStep );
 
 private:
-  std::unique_ptr<G4Step> CreateFakeStep( G4TouchableHandle& handle, G4ThreeVector& point, G4double energy) const;
-
   // Local pointer to the default SD that this should put hits into
   LArG4CalibSD* m_defaultSD;
 };

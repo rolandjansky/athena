@@ -37,7 +37,6 @@
 #include "G4TouchableHandle.hh"
 #include "G4ThreeVector.hh"
 #include "globals.hh"
-#include <memory>
 
 class G4Step;
 
@@ -49,8 +48,7 @@ public:
   // Method: The G4TouchableHandle to the volume in which "point" is
   // located; the value of "point" itself in case additional
   // processing is necessary, and the amount of escaped energy.
-  virtual G4bool Process(G4TouchableHandle& handle, G4ThreeVector& point, G4double energy);
-  virtual G4bool ProcessNew( G4Step* fakeStep );
+  virtual G4bool Process( G4Step* fakeStep );
 
   //After escaped particle is detected and its 'mother' step is created
   //this method will retrieve the respective SD for the volume where escaped
@@ -67,7 +65,6 @@ public:
 
 private:
   TileEscapedEnergyProcessing() = delete;
-  std::unique_ptr<G4Step> CreateFakeStep( G4TouchableHandle& handle, G4ThreeVector& point, G4double energy) const;
   // takes the flag that particle has escaped,
   // the 'mother' step of escaped particle and
   // amount of that energy, which can't be calculated

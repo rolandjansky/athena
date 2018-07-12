@@ -35,6 +35,7 @@
 #include "globals.hh"
 
 #include <map>
+#include <memory>
 #include <vector>
 
 #ifdef ATHENAHIVE
@@ -128,6 +129,8 @@ namespace CaloG4 {
 
     // Escaped energy requires special processing.
     G4bool ProcessEscapedEnergy( G4ThreeVector point, G4double energy ) const;
+
+    std::unique_ptr<G4Step> CreateFakeStep(G4ThreeVector& a_point, G4double a_energy) const;
 
     // Used to keep track of processing state.
 #ifdef ATHENAHIVE
