@@ -297,10 +297,8 @@ def getTauVertexVariables():
                                               VertexFitter = getTauAdaptiveVertexFitter(),
                                               #VertexFitter = "Trk::AdaptiveVertexFitter/InDetAdaptiveVxFitterTool",
                                               SeedFinder = getTauCrossDistancesSeedFinder(),
-                                              runOnAOD = bAODmode,
                                               Key_vertexInputContainer = _DefaultVertexContainer,
-                                              Key_trackPartInputContainer = _DefaultTrackContainer, # ATM only needed in case old API is used
-                                              Key_vertexOutputContainer = "TauSecondaryVertices"
+                                              Key_trackPartInputContainer = _DefaultTrackContainer # ATM only needed in case old API is used
                                               #OutputLevel = 2                                            
                                               )
     

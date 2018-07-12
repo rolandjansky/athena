@@ -59,9 +59,9 @@ StatusCode TauRunnerAlg::initialize() {
     ATH_CHECK( m_neutralPFOOutputContainer.initialize() );
     ATH_CHECK( m_pi0ClusterOutputContainer.initialize() );
     ATH_CHECK( m_hadronicPFOOutputContainer.initialize() );
+    ATH_CHECK( m_vertexOutputContainer.initialize() );
 
     StatusCode sc;
-
 
     //-------------------------------------------------------------------------
     // Allocate tools
@@ -162,6 +162,15 @@ StatusCode TauRunnerAlg::execute() {
     SG::WriteHandle<xAOD::CaloClusterContainer> pi0CaloClusHandle( m_pi0ClusterOutputContainer );
     ATH_MSG_DEBUG("  write: " << pi0CaloClusHandle.key() << " = " << "..." );
     ATH_CHECK(pi0CaloClusHandle.record(std::unique_ptr<xAOD::CaloClusterContainer>{pi0CaloClusterContainer}, std::unique_ptr<xAOD::CaloClusterAuxContainer>{pi0CaloClusterAuxContainer}));
+
+    // secondary vertices
+    xAOD::VertexContainer* pSecVtxContainer = new xAOD::VertexContainer();
+    xAOD::VertexAuxContainer* pSecVtxAuxContainer = new xAOD::VertexAuxContainer();
+    pSecVtxContainer->setStore( pSecVtxAuxContainer );
+    SG::WriteHandle<xAOD::VertexContainer> vertOutHandle( m_vertexOutputContainer );
+    ATH_MSG_DEBUG("  write: " << vertOutHandle.key() << " = " << "..." );
+    ATH_CHECK(vertOutHandle.record(std::unique_ptr<xAOD::VertexContainer>{pSecVtxContainer}, std::unique_ptr<xAOD::VertexAuxContainer>{pSecVtxAuxContainer}));
+
   
   //-------------------------------------------------------------------------                        
     // Initialize tools for this event
