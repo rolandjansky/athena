@@ -71,8 +71,13 @@ G4bool EscapedEnergyProcessing::Process( G4TouchableHandle& a_touchableHandle,
   // // initialize a phoney G4Step.
 
   auto fakeStep = CreateFakeStep(a_touchableHandle, a_point, a_energy );
+  return ProcessNew(fakeStep.get());
+}
+
+G4bool EscapedEnergyProcessing::ProcessNew( G4Step* fakeStep ) {
   G4StepPoint*        fakePreStepPoint = fakeStep->GetPreStepPoint();
   G4StepPoint*        fakePostStepPoint = fakeStep->GetPostStepPoint();
+  G4TouchableHandle a_touchableHandle = fakePreStepPoint->GetTouchableHandle();
   // Here is the actual location of the escaped energy, as the
   // fourth component of a vector.  (Why not just pass the energy in
   // the G4Step?  Because CalibrationSensitiveDetector::SpecialHit()
@@ -142,18 +147,19 @@ G4bool EscapedEnergyProcessing::Process( G4TouchableHandle& a_touchableHandle,
                              << larG4CalibSD->GetName()
                              << "'" << G4endl;
 #endif
-                      larG4CalibSD->SpecialHit(fakeStep.get(),energies);
+                      larG4CalibSD->SpecialHit(fakeStep,energies);
                     }
                 }// -- for (1)
               if(!found)
                 {
 #ifdef DEBUG_PROCESS
+                  const G4ThreeVector& a_point = fakePreStepPoint->GetPosition();
                   G4cout << "LArG4::EscapedEnergyProcessing::Process - "
                          << " particle (x,y,z)=("
                          << a_point.x() << ","
                          << a_point.y() << ","
                          << a_point.z() << ") with energy="
-                         << a_energy
+                         << fakeStep->GetTotalEnergyDeposit()
                          << " was created in volume '"
                          << physicalVolume->GetName()
                          << "'; could not find a CalibrationSensitiveDetector"
@@ -162,7 +168,7 @@ G4bool EscapedEnergyProcessing::Process( G4TouchableHandle& a_touchableHandle,
                          << G4endl;
                   G4cout << "   Using default sensitive detector." << G4endl;
 #endif
-                  m_defaultSD->SpecialHit( fakeStep.get(), energies );
+                  m_defaultSD->SpecialHit( fakeStep, energies );
                   return false; // error
                 }// - !found (1)
 
@@ -177,7 +183,7 @@ G4bool EscapedEnergyProcessing::Process( G4TouchableHandle& a_touchableHandle,
                   G4cout << "   ... which is a LArG4CalibSD "
                          << G4endl;
 #endif
-                  larG4CalibSD->SpecialHit( fakeStep.get(), energies );
+                  larG4CalibSD->SpecialHit( fakeStep, energies );
                 }
               else // larG4CalibSD!=0
                 {
@@ -196,17 +202,18 @@ G4bool EscapedEnergyProcessing::Process( G4TouchableHandle& a_touchableHandle,
                              << G4endl;
 #endif
 
-                      calibSD->SpecialHit( fakeStep.get(), energies );
+                      calibSD->SpecialHit( fakeStep, energies );
                     }
                   else
                     {
 #ifdef DEBUG_PROCESS
+                      const G4ThreeVector& a_point = fakePreStepPoint->GetPosition();
                       G4cout << "LArG4::EscapedEnergyProcessing::Process - "
                              << " particle (x,y,z)=("
                              << a_point.x() << ","
                              << a_point.y() << ","
                              << a_point.z() << ") with energy="
-                             << a_energy
+                             << fakeStep->GetTotalEnergyDeposit()
                              << " was created in volume '"
                              << physicalVolume->GetName()
                              << "' with sensitive detector '"
@@ -215,7 +222,7 @@ G4bool EscapedEnergyProcessing::Process( G4TouchableHandle& a_touchableHandle,
                              << G4endl;
                       G4cout << "   Using default sensitive detector." << G4endl;
 #endif
-                      m_defaultSD->SpecialHit( fakeStep.get(), energies );
+                      m_defaultSD->SpecialHit( fakeStep, energies );
                       return false; // error
                     }
                 }
@@ -226,19 +233,20 @@ G4bool EscapedEnergyProcessing::Process( G4TouchableHandle& a_touchableHandle,
           // If we reach this point, then the particle whose energy
           // has escaped was created outside of a sensitive region.
 #ifdef DEBUG_PROCESS
+          const G4ThreeVector& a_point = fakePreStepPoint->GetPosition();
           G4cout << "LArG4::EscapedEnergyProcessing::Process - "
                  << " particle (x,y,z)=("
                  << a_point.x() << ","
                  << a_point.y() << ","
                  << a_point.z() << ") with energy="
-                 << a_energy
+                 << fakeStep->GetTotalEnergyDeposit()
                  << " was created in volume '"
                  << physicalVolume->GetName()
                  << "' which is not sensitive."
                  << G4endl;
           G4cout << "   Using default sensitive detector." << G4endl;
 #endif
-          m_defaultSD->SpecialHit( fakeStep.get(), energies );
+          m_defaultSD->SpecialHit( fakeStep, energies );
           return false; // error
         }
     }

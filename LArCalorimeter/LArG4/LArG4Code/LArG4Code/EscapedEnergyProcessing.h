@@ -45,6 +45,7 @@ public:
   // processing is necessary, and the amount of escaped energy.
 
   virtual G4bool Process( G4TouchableHandle& handle, G4ThreeVector& point, G4double energy );
+  virtual G4bool ProcessNew( G4Step* fakeStep );
 
 private:
   std::unique_ptr<G4Step> CreateFakeStep( G4TouchableHandle& handle, G4ThreeVector& point, G4double energy) const;

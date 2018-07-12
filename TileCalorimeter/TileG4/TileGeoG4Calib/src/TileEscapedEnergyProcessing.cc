@@ -69,9 +69,10 @@ G4bool TileEscapedEnergyProcessing::Process(G4TouchableHandle& a_touchableHandle
   // // initialize a phoney G4Step.
 
   auto fakeStep = CreateFakeStep(a_touchableHandle, a_point, a_energy );
-  G4StepPoint*        fakePreStepPoint = fakeStep->GetPreStepPoint();
-  G4StepPoint*        fakePostStepPoint = fakeStep->GetPostStepPoint();
+  return ProcessNew(fakeStep.get());
+}
 
+G4bool TileEscapedEnergyProcessing::ProcessNew( G4Step* fakeStep ) {
   // Find out in which physical volume our hit is located.
   G4VPhysicalVolume* volume = fakeStep->GetPreStepPoint()->GetPhysicalVolume();
 
@@ -89,16 +90,16 @@ G4bool TileEscapedEnergyProcessing::Process(G4TouchableHandle& a_touchableHandle
         if (volumeName.find("Tile") == G4String::npos) {
           G4cout << "WARNING TileEscapedEnergyProcessing::Process - escaped particle was created in "
                  << volume->GetName() << ", out of TILE" << G4endl;
-          G4cout << "WARNING: add escaped energy " << a_energy <<" to energy5 " << G4endl;
-          m_energy5 += a_energy;
+          G4cout << "WARNING: add escaped energy " << fakeStep->GetTotalEnergyDeposit() <<" to energy5 " << G4endl;
+          m_energy5 += fakeStep->GetTotalEnergyDeposit();
           return false;}  //World volume or no Tile volume / false sensitive
 
         m_escaped = true;
-        m_escapedEnergy = a_energy;
+        m_escapedEnergy = fakeStep->GetTotalEnergyDeposit();
 
         G4String SDname = calibSD->GetName();
         //store escaped energy in the appropriate hit
-        Call_SD_ProcessHits(fakeStep.get(), SDname);
+        Call_SD_ProcessHits(fakeStep, SDname);
       } else {
         return false; // error
       }
@@ -107,8 +108,8 @@ G4bool TileEscapedEnergyProcessing::Process(G4TouchableHandle& a_touchableHandle
       // has escaped was created outside of a sensitive region.
       G4cout << "WARNING: TileEscapedEnergyProcessing::Process - Escaped particle was created in "
              << volume->GetName() << " which is not sensitive." << G4endl;
-      G4cout << " add escaped energy " << a_energy <<" to energy5 " << G4endl;
-      m_energy5 += a_energy;
+      G4cout << " add escaped energy " << fakeStep->GetTotalEnergyDeposit() <<" to energy5 " << G4endl;
+      m_energy5 += fakeStep->GetTotalEnergyDeposit();
       return false;
     }
   }
