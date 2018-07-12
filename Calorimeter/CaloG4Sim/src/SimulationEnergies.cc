@@ -338,11 +338,11 @@ namespace CaloG4 {
 	result.energy[kInvisible0] -= escapedEnergy;        
 
 	if ( a_processEscaped ) {
-          auto fakeStep = CreateFakeStep(pTrack->GetVertexPosition(), escapedEnergy);
+          auto fakeStep = CreateFakeStep(pTrack, escapedEnergy);
 #ifdef DEBUG_ENERGIES
 	  allOK =
 #endif
-            ProcessEscapedEnergy( fakeStep.get() ); //pTrack->GetVertexPosition(), escapedEnergy );
+            ProcessEscapedEnergy( fakeStep.get() );
         }
 	else {
 	  result.energy[kEscaped] += escapedEnergy;
@@ -599,28 +599,17 @@ namespace CaloG4 {
     }
   }
 
-std::unique_ptr<G4Step> SimulationEnergies::CreateFakeStep(const G4ThreeVector& a_point, G4double a_energy) const
+std::unique_ptr<G4Step> SimulationEnergies::CreateFakeStep(G4Track* a_track, G4double a_energy) const
 {
-    // The first time this routine is called, we have to set up some
-    // Geant4 navigation pointers.
+  const G4ThreeVector& a_point = a_track->GetVertexPosition();
 
-    static G4Navigator*        navigator         = 0;
-    static G4TouchableHandle   a_touchableHandle;
-
-    // Locate the G4TouchableHandle associated with the volume
-    // containing "a_point".
-
-    if ( navigator == 0 )
-      {
-        // Get the navigator object used by the G4TransportationManager.
-        navigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
-        // Initialize the touchableHandle object.
-        a_touchableHandle = new G4TouchableHistory();
-      }
-    navigator->
-      LocateGlobalPointAndUpdateTouchable(a_point,
-                                          a_touchableHandle(),
-                                          false);
+  // Locate the G4TouchableHandle associated with the volume
+  // containing "a_point".
+  G4TouchableHandle   a_touchableHandle = new G4TouchableHistory();
+  G4TransportationManager::GetTransportationManager()->
+    GetNavigatorForTracking()->LocateGlobalPointAndUpdateTouchable(a_point,
+                                                                   a_touchableHandle(),
+                                                                   false);
 
   auto fakeStep = std::make_unique<G4Step>();
   G4StepPoint*        fakePreStepPoint  = fakeStep->GetPreStepPoint();
@@ -636,6 +625,7 @@ std::unique_ptr<G4Step> SimulationEnergies::CreateFakeStep(const G4ThreeVector& 
   fakePostStepPoint->SetGlobalTime(0.);
   // The total energy deposit in the step is actually irrelevant.
   fakeStep->SetTotalEnergyDeposit(a_energy);
+  fakeStep->SetTrack(a_track);
   return std::move(fakeStep);
 }
 

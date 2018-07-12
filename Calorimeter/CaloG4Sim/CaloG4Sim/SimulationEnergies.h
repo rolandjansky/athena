@@ -45,6 +45,7 @@
 
 // Forward declarations.
 class G4Step;
+class G4Track;
 
 namespace CaloG4 {
 
@@ -130,7 +131,7 @@ namespace CaloG4 {
     // Escaped energy requires special processing.
     G4bool ProcessEscapedEnergy( G4Step* fakeStep ) const;
 
-    std::unique_ptr<G4Step> CreateFakeStep(const G4ThreeVector& a_point, G4double a_energy) const;
+    std::unique_ptr<G4Step> CreateFakeStep(G4Track* a_track, G4double a_energy) const;
 
     // Used to keep track of processing state.
 #ifdef ATHENAHIVE
