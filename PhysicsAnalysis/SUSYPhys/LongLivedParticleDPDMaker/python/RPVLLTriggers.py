@@ -154,3 +154,6 @@ class RPVLLTriggers:
         #HipsTriggerFilterExpression
         HIPsList = getTriggerList( TriggerType.exotics, "hiptrt" )
         return HIPsList
+
+    # on / off switch
+    doTriggerAPI = True

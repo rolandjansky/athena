@@ -21,6 +21,7 @@ class HipsTriggerFilterExpression(JobProperty):
     allowedTypes = ['bool']
     StoredValue = True
     triggers = ['HLT_g0_hiptrt_L1EM18VH', 'HLT_g0_hiptrt_L1EM20VH', 'HLT_g0_hiptrt_L1EM20VHI', 'HLT_g0_hiptrt_L1EM22VHI', 'HLT_g0_hiptrt_L1EM24VHI', 'HLT_g0_hiptrt_L1EM24VHIM']
-    triggers += apitriggers.getHIPsTriggers() # TriggerAPI
+    if apitriggers.doTriggerAPI:
+        triggers += apitriggers.getHIPsTriggers() # TriggerAPI
     pass
 primHIPsDESD.add_JobProperty(HipsTriggerFilterExpression)

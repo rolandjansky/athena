@@ -26,7 +26,8 @@ class Emerging_FilterFlags(JobProperty):
                     "HLT_4j140",
                     "HLT_4j150"
                     ]
-    Triggers    += apitriggers.getEmergingTriggers() ## TriggerAPI
+    if apitriggers.doTriggerAPI:
+        Triggers    += apitriggers.getEmergingTriggers() ## TriggerAPI
 primRPVLLDESDM.add_JobProperty(Emerging_FilterFlags)
 
 class Emerging_containerFlags(JobProperty):

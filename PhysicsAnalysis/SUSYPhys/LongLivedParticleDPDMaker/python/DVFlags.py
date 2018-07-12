@@ -11,6 +11,7 @@ primRPVLLDESDM=jobproperties.PrimaryDPDFlags_RPVLLStream
 from LongLivedParticleDPDMaker.RPVLLTriggers import RPVLLTriggers
 apitriggers = RPVLLTriggers()
 
+
 class DV_containerFlags(JobProperty):
     statusOn = True
     photonCollectionName='Photons'
@@ -36,7 +37,8 @@ class DV_MultiJetTriggerFlags(JobProperty):
 			"HLT_7j25_gsc50_boffperf_split_L14J20" ]#gsc 
     triggers += ["HLT_2j275_j140","HLT_2j250_j120","HLT_2j220_j120"]#3jet
     triggers += ["HLT_5j85_L14J15"] # 2018 5 jet
-    triggers += apitriggers.getDVMultiJetTriggers() ## TriggerAPI
+    if apitriggers.doTriggerAPI:
+        triggers += apitriggers.getDVMultiJetTriggers() ## TriggerAPI
     pass
 primRPVLLDESDM.add_JobProperty(DV_MultiJetTriggerFlags)
 
@@ -162,7 +164,8 @@ class DV_MuonBarrelFilterFlags(JobProperty):
     cutEtMin=60.0*Units.GeV
     cutEtaMax=1.1
     triggers=["HLT_mu60_0eta105_msonly"]
-    triggers += apitriggers.getDVMuonBarrelTriggers() ## TriggerAPI
+    if apitriggers.doTriggerAPI:
+        triggers += apitriggers.getDVMuonBarrelTriggers() ## TriggerAPI
     nPassed=1
     pass
 primRPVLLDESDM.add_JobProperty(DV_MuonBarrelFilterFlags)
@@ -174,7 +177,8 @@ class DV_MuonFullMSFilterFlags(JobProperty):
     cutEtMin=80.0*Units.GeV
     cutEtaMax=2.5
     triggers=["HLT_mu80_msonly_3layersEC"]
-    triggers += apitriggers.getDVMuonFullMSTriggers() ## TriggerAPI
+    if apitriggers.doTriggerAPI:
+        triggers += apitriggers.getDVMuonFullMSTriggers() ## TriggerAPI
     nPassed=1
     pass
 primRPVLLDESDM.add_JobProperty(DV_MuonFullMSFilterFlags)
@@ -188,7 +192,8 @@ class DV_PhotonFilterFlags(JobProperty):
     cutIsEM="Loose"
     triggers=["HLT_g140_loose"]
     triggers+=["HLT_g140_tight","HLT_g200_loose"]#2017
-    triggers += apitriggers.getDVPhotonTriggers() ## TriggerAPI
+    if apitriggers.doTriggerAPI:
+        triggers += apitriggers.getDVPhotonTriggers() ## TriggerAPI
     prescale=20
     nPassed=1
     pass
@@ -220,7 +225,8 @@ class DV_METFilterFlags(JobProperty):
     triggers+=[ "HLT_xe110_pufit_xe70_L1XE50" ] #2018 primary
     triggers+=[ "HLT_xe110_pufit_xe65_L1XE55","HLT_xe100_pufit_xe75_L1XE60", 
                 "HLT_xe110_pufit_xe65_L1XE60" ] #2018 backup
-    triggers += apitriggers.getDVMETTriggers() ## TriggerAPI
+    if apitriggers.doTriggerAPI:
+        triggers += apitriggers.getDVMETTriggers() ## TriggerAPI
     pass
 primRPVLLDESDM.add_JobProperty(DV_METFilterFlags)
 

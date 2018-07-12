@@ -17,13 +17,17 @@ class DiLep_FilterFlags(JobProperty):
     StoredValue    = True
     
     SiPhTriggers    = ["HLT_g140_loose", "HLT_g200_loose", "HLT_g200_loose_L1EM24VHIM"]
-    SiPhTriggers   += apitriggers.getDiLepSiPhTriggers() ## TriggerAPI
+    if apitriggers.doTriggerAPI:
+        SiPhTriggers   += apitriggers.getDiLepSiPhTriggers() ## TriggerAPI
     DiPhTriggers    = ["HLT_2g50_loose_L12EM20VH", "HLT_2g60_loose_L12EM20VH"]
-    DiPhTriggers   += apitriggers.getDiLepDiPhTriggers() ## TriggerAPI
+    if apitriggers.doTriggerAPI:
+        DiPhTriggers   += apitriggers.getDiLepDiPhTriggers() ## TriggerAPI
     SiMuTriggers    = ["HLT_mu80_msonly_3layersEC"]
-    SiMuTriggers   += apitriggers.getDiLepSiMuTriggers() ## TriggerAPI
+    if apitriggers.doTriggerAPI:
+        SiMuTriggers   += apitriggers.getDiLepSiMuTriggers() ## TriggerAPI
     SiMuBaTriggers  = ["HLT_mu60_0eta105_msonly"]
-    SiMuBaTriggers += apitriggers.getDiLepSiMuBaTriggers() ## TriggerAPI
+    if apitriggers.doTriggerAPI:
+        SiMuBaTriggers += apitriggers.getDiLepSiMuBaTriggers() ## TriggerAPI
     
     ElEtaMax       = 2.5
     PhEtaMax       = 2.5

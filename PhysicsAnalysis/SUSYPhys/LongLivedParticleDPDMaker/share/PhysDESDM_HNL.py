@@ -6,9 +6,12 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 ## TriggerAPI ##
 from LongLivedParticleDPDMaker.RPVLLTriggers import RPVLLTriggers
 apitriggers = RPVLLTriggers()
+apitriggerlist = []
+if apitriggers.doTriggerAPI:
+    apitriggerlist = apitriggers.getHNLTriggers()
 
 HnlFilterTool = skimtool( name = "HnlFilterTool",
-                          Triggers  = ["HLT_mu26_ivarmedium"] + apitriggers.getHNLTriggers(),
+                          Triggers  = ["HLT_mu26_ivarmedium"] + apitriggerlist,
                           Mu1PtMin  = 28*Units.GeV,
                           Mu1Types  = [0],
                           Mu1IsoCut = 0.05,
