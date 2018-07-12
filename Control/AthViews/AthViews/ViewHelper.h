@@ -18,7 +18,6 @@
 #include "AthContainers/DataVector.h"
 #include "AthContainers/AuxElement.h"
 #include "AthContainers/AuxStoreInternal.h"
-
 #include "tbb/task.h"
 
 namespace ViewHelper
@@ -296,6 +295,35 @@ namespace ViewHelper
     }
 
     return handle.cptr();
+  }
+
+  /**
+   * navigate from the TrigComposite to nearest view and fetch object from it
+   * @return handle (can be invalid)
+   */
+
+
+  template<typename T>
+  SG::ReadHandle<T> getHandleFromView( const SG::View* view , const SG::ReadHandleKey<T>& rhKey, const EventContext& context ) {
+   
+    SG::View* nview = const_cast<SG::View*>(view);  // we need it until reading from const IProxyDict is not supported
+
+    auto handle = SG::makeHandle( rhKey, context );    
+    if ( handle.setProxyDict( nview ).isFailure() ) { // we ignore it besause the handle will be invalid anyways if this call is unsuccesfull
+      return SG::ReadHandle<T>( "CantSetViewProxy" );    
+    }
+    return handle;
+  }
+
+  
+  /**
+   * Create EL to a collection in view
+   * @warning no checks are made as to the validity of the created EL
+   */
+
+  template<typename T>
+  ElementLink<T> makeLink(const SG::View* view, const SG::ReadHandle<T>& handle, size_t index ) {
+    return ElementLink<T>( view->name()+"_"+handle.key(), index );
   }
 
 } // EOF namspace ViewHelper

@@ -6,7 +6,7 @@
 #include "TrigL2CaloHypoAlgMT.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
-
+#include "AthViews/ViewHelper.h"
 
 using namespace TrigCompositeUtils;
 
@@ -20,9 +20,9 @@ StatusCode TrigL2CaloHypoAlgMT::initialize() {
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
   
-  CHECK( m_hypoTools.retrieve() );
+  ATH_CHECK( m_hypoTools.retrieve() );
   
-  CHECK( m_clustersKey.initialize() );
+  ATH_CHECK( m_clustersKey.initialize() );
   renounce( m_clustersKey );// clusters are made in views, so they are not in the EvtStore: hide them
 
   return StatusCode::SUCCESS;
@@ -74,18 +74,14 @@ StatusCode TrigL2CaloHypoAlgMT::execute_r( const EventContext& context ) const {
   for ( auto previousDecision: *previousDecisionsHandle ) {
     //get RoI
     auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
-    CHECK( roiEL.isValid() );
+    ATH_CHECK( roiEL.isValid() );
     const TrigRoiDescriptor* roi = *roiEL;
 
     // get View
     auto viewEL = previousDecision->objectLink< ViewContainer >( "view" );
-    CHECK( viewEL.isValid() );
-    const SG::View* view_const = *viewEL;
-    SG::View* view = const_cast<SG::View*>(view_const); // CHECK THIS!
-
-    // get clusters of that view
-    auto clusterHandle =  SG::makeHandle( m_clustersKey, context );
-    CHECK( clusterHandle.setProxyDict( view ) );
+    ATH_CHECK( viewEL.isValid() );
+    auto clusterHandle = ViewHelper::getHandleFromView( *viewEL, m_clustersKey, context);
+    ATH_CHECK( clusterHandle.isValid() );
     ATH_MSG_DEBUG ( "Cluster handle size: " << clusterHandle->size() << "..." );
 
     // create new decision
@@ -95,14 +91,14 @@ StatusCode TrigL2CaloHypoAlgMT::execute_r( const EventContext& context ) const {
     toolInput.emplace_back( d, roi, clusterHandle.cptr()->at(0), previousDecision );
 
      {
-      auto el = ElementLink<xAOD::TrigEMClusterContainer>( view->name()+"_"+clusterHandle.key(), 0 ); // 0 because there is only one obj in per-view collection
-      CHECK( el.isValid() );
+       auto el = ViewHelper::makeLink( *viewEL, clusterHandle, 0 );
+      ATH_CHECK( el.isValid() );
       d->setObjectLink( "feature",  el );
     }
      d->setObjectLink( "roi", roiEL );
      d->setObjectLink( "view", viewEL );
      TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
-     ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision "<<counter <<" for view "<<view->name()  );
+     ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision " << counter << " for view " << (*viewEL)->name()  );
      counter++;
 
   }
@@ -111,12 +107,12 @@ StatusCode TrigL2CaloHypoAlgMT::execute_r( const EventContext& context ) const {
 
    
   for ( auto& tool: m_hypoTools ) {
-    CHECK( tool->decide( toolInput ) );
+    ATH_CHECK( tool->decide( toolInput ) );
   }
  
   {// make output handle and debug
     auto outputHandle = SG::makeHandle(decisionOutput(), context);
-    CHECK( outputHandle.record( std::move( decisions ), std::move( aux ) ) );
+    ATH_CHECK( outputHandle.record( std::move( decisions ), std::move( aux ) ) );
     ATH_MSG_DEBUG ( "Exit with "<<outputHandle->size() <<" decisions");
     TrigCompositeUtils::DecisionIDContainer allPassingIDs;
     if ( outputHandle.isValid() ) {
