@@ -298,18 +298,10 @@ namespace top {
         }
 
         top::check( jet->isAvailable<char>("passJVT") , " Can't find jet decoration \"passJVT\" - we need it to decide if we should keep the jet in the top::Event instance or not!");
-        if (jet->auxdataConst<char>( "passJVT" )){
+        if (jet->auxdataConst<char>( "passJVT" ))
           event.m_jets.push_back(calibratedJetsTDS->at(index));
-	}
-	//else{
-	  //if(calibratedJetsTDS->at(index)->pt() > 60000.)std::cout << "Jet didn't passed JVT cut: Jet pt : " << calibratedJetsTDS->at(index)->pt() << std::endl;
-	//}
-	//if(jet->eta() > 2.5) std::cout << "Found jet with eta higher than 2.5" << std::endl;
       }
       
-      
-      //std::cout << "evtStore()->contains<xAOD::JetContainer>(m_config->sgKeyJetsTDS(hash,looseJets)): " << evtStore()->contains<xAOD::JetContainer>(m_config->sgKeyJetsTDS(hash,looseJets)) << std::endl;
-      //std::cout << "m_config->sgKeyJetsTDS(hash,looseJets): " << m_config->sgKeyJetsTDS(hash,looseJets) << std::endl;
       //shallow copies aren't sorted!
       //sort only the selected taus (faster)
       event.m_jets.sort(top::descendingPtSorter);
@@ -347,7 +339,6 @@ namespace top {
 	  for (auto vrcjet : *vrc_jets){
 	    top::check( vrcjet->isAvailable<bool>("PassedSelection") , " Can't find jet decoration \"PassedSelection\" - we need it to decide if we should keep the variable-R reclustered jet in the top::Event instance or not!");
 	    if(vrcjet->auxdataConst<bool>("PassedSelection"))event.m_VarRCJets[name]->push_back((xAOD::Jet*)vrcjet);
-	    //std::cout << vrcjet->pt() << std :: endl;
 	  }
 	  
 	}

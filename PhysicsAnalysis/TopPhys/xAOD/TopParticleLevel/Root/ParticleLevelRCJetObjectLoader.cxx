@@ -27,8 +27,6 @@ ParticleLevelRCJetObjectLoader::ParticleLevelRCJetObjectLoader( const std::share
     m_OutJetContainerBase = "AntiKt10RCTrim";
     m_InputJetContainer = "AntiKt4TruthWZJets_RC";
     m_OutputJetContainer = "AntiKt10RCTrim";
-    m_VarRCjets_rho = "";
-    m_VarRCjets_mass_scale = "";
     m_name = "";
     declareProperty( "VarRCjets", m_VarRCjets=false);
     declareProperty( "VarRCjets_rho",       m_VarRCjets_rho="");

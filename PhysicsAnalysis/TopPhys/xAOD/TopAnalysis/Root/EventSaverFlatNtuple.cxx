@@ -200,16 +200,14 @@ namespace top {
 
 
 	// fixed-R re-clustering (RC)
-	if (config->useRCJets() == true){
+	if (config->useRCJets()){
 	  m_makeRCJets = true;
-
-	  if (config->useRCJetSubstructure() == true)
-	    m_useRCJSS = true;
+	  m_useRCJSS = config->useRCJetSubstructure();
 	  
 	}
 
 	// variable-R re-clustering (VarRC)
-	if (config->useVarRCJets() == true){
+	if (config->useVarRCJets()){
 	  m_makeVarRCJets = true;
 	  m_VarRCjetBranches.clear();    // clear map of branches just in case
 	  m_VarRCjetsubBranches.clear();
@@ -2168,11 +2166,9 @@ namespace top {
 	  }
 	  unsigned int i = 0;
 	  for (auto jet_itr = event.m_RCJets.begin(); jet_itr != event.m_RCJets.end(); ++jet_itr) {
-	  //for (xAOD::JetContainer::const_iterator jet_itr = rc_jets->begin(); jet_itr != rc_jets->end(); ++jet_itr) {
+	    
 	    const xAOD::Jet* rc_jet = *jet_itr;
 
-            //if (!m_rc->passSelection(*rc_jet))
-	      //continue;
 
             m_rcjet_pt[i]   = rc_jet->pt();
             m_rcjet_eta[i]  = rc_jet->eta();
