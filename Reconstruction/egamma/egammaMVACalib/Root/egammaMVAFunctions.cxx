@@ -107,7 +107,7 @@ namespace egammaMVAFunctions
 	  
 	  float rv = 0.0;
 	  if (xAOD::EgammaHelpers::numberOfSiTracks(ph) == 2) {
-	    rv = std::max(0.0f, compute_correctedcl_Eacc(*cl)/std::cosh(compute_cl_eta(*cl)*compute_ptconv(ph)));
+	    rv = std::max(0.0f, compute_correctedcl_Eacc(*cl)/(std::cosh(compute_cl_eta(*cl))*compute_ptconv(ph)));
 	  } 
 	  return std::min(rv, 2.0f);
 	};
@@ -118,7 +118,7 @@ namespace egammaMVAFunctions
 	  
 	  float rv = 0.0;
 	  if (xAOD::EgammaHelpers::numberOfSiTracks(ph) == 2) {
-	    rv = std::max(0.0f, compute_rawcl_Eacc(*cl)/std::cosh(compute_cl_eta(*cl)*compute_ptconv(ph)));
+	    rv = std::max(0.0f, compute_rawcl_Eacc(*cl)/(std::cosh(compute_cl_eta(*cl))*compute_ptconv(ph)));
 	  } 
 	  return std::min(rv, 2.0f);
 	};
