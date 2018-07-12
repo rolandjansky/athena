@@ -220,7 +220,7 @@ StatusCode TauRunnerAlg::execute() {
       ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
       ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
       for (; itT != itTE; ++itT) {
-	ATH_MSG_INFO("RunnerAlg Invoking tool " << (*itT)->name());
+	ATH_MSG_DEBUG("RunnerAlg Invoking tool " << (*itT)->name());
 	if ( (*itT)->name().find("Pi0ClusterCreator") != std::string::npos){
           sc = (*itT)->executePi0ClusterCreator(*pTau, *neutralPFOContainer, *hadronicClusterPFOContainer, *pi0CaloClusterContainer);
         }

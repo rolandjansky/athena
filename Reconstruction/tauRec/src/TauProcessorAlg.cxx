@@ -264,7 +264,7 @@ StatusCode TauProcessorAlg::execute() {
       ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
       ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
       for (; itT != itTE; ++itT) {
-	ATH_MSG_INFO("ProcessorAlg Invoking tool " << (*itT)->name());
+	ATH_MSG_DEBUG("ProcessorAlg Invoking tool " << (*itT)->name());
 	
 	if ( (*itT)->name().find("ShotFinder") != std::string::npos){
 	  sc = (*itT)->executeShotFinder(*pTau, *tauShotClusContainer, *tauShotPFOContainer);
