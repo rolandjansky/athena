@@ -79,7 +79,7 @@ StatusCode TrigL2ElectronHypoAlgMT::execute_r( const EventContext& context ) con
 
     // get electron from that view:
     size_t electronCounter = 0;
-    auto electronsHandle = ViewHelper::getHandleFromView( *viewEL, m_electronsKey, context );
+    auto electronsHandle = ViewHelper::makeHandle( *viewEL, m_electronsKey, context );
     ATH_CHECK( electronsHandle.isValid() );
     ATH_MSG_DEBUG ( "electron handle size: " << electronsHandle->size() << "..." );
 

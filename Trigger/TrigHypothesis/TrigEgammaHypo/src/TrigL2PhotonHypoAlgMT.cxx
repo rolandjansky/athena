@@ -76,7 +76,7 @@ StatusCode TrigL2PhotonHypoAlgMT::execute_r( const EventContext& context ) const
     
     // get electron from that view:
     size_t photonCounter = 0;
-    auto photonsHandle = ViewHelper::getHandleFromView( *viewEL, m_photonsKey, context );  
+    auto photonsHandle = ViewHelper::makeHandle( *viewEL, m_photonsKey, context );  
 
     ATH_CHECK( photonsHandle.isValid() );
     ATH_MSG_DEBUG ( "electron handle size: " << photonsHandle->size() << "..." );

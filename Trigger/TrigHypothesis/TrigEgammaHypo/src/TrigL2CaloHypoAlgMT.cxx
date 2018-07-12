@@ -80,7 +80,7 @@ StatusCode TrigL2CaloHypoAlgMT::execute_r( const EventContext& context ) const {
     // get View
     auto viewEL = previousDecision->objectLink< ViewContainer >( "view" );
     ATH_CHECK( viewEL.isValid() );
-    auto clusterHandle = ViewHelper::getHandleFromView( *viewEL, m_clustersKey, context);
+    auto clusterHandle = ViewHelper::makeHandle( *viewEL, m_clustersKey, context);
     ATH_CHECK( clusterHandle.isValid() );
     ATH_MSG_DEBUG ( "Cluster handle size: " << clusterHandle->size() << "..." );
 

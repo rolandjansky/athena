@@ -304,7 +304,7 @@ namespace ViewHelper
 
 
   template<typename T>
-  SG::ReadHandle<T> getHandleFromView( const SG::View* view , const SG::ReadHandleKey<T>& rhKey, const EventContext& context ) {
+  SG::ReadHandle<T> makeHandle( const SG::View* view , const SG::ReadHandleKey<T>& rhKey, const EventContext& context ) {
    
     SG::View* nview = const_cast<SG::View*>(view);  // we need it until reading from const IProxyDict is not supported
 
