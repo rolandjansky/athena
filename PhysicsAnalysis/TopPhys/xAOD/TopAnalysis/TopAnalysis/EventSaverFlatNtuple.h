@@ -492,6 +492,8 @@ private:
     std::vector<int>   m_mu_true_type;
     std::vector<int>   m_mu_true_origin;
     std::vector<char>  m_mu_true_isPrompt;
+    std::vector<float>  m_mu_prodVtx_z;
+    std::vector<float>  m_mu_prodVtx_perp;
     //photons
     std::vector<float> m_ph_pt;
     std::vector<float> m_ph_eta;
