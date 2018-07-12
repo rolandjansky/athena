@@ -42,7 +42,6 @@ namespace xAOD {
         m_auxids (), 
         m_name( parent.m_name ) {
 
-      remakeAuxIDs();
    }
 
    /// @param parent The parent object to make a shallow copy of
@@ -62,7 +61,6 @@ namespace xAOD {
       const SG::IAuxStoreIO* temp =
          dynamic_cast< const SG::IAuxStoreIO* >( m_parentLink.cptr() );
       m_parentIO = const_cast< SG::IAuxStoreIO* >( temp );
-      remakeAuxIDs();
    }
 
    ShallowAuxContainer::~ShallowAuxContainer() {
@@ -115,7 +113,7 @@ namespace xAOD {
       const SG::IAuxStoreIO* temp =
          dynamic_cast< const SG::IAuxStoreIO* >( m_parentLink.cptr() );
       m_parentIO = const_cast< SG::IAuxStoreIO* >( temp );
-      remakeAuxIDs();
+      m_auxids.clear();
       return;
    }
 
@@ -156,7 +154,7 @@ namespace xAOD {
       m_store = store;
       m_storeIO = dynamic_cast< SG::IAuxStoreIO* >( m_store );
       m_ownsStore = true;
-      remakeAuxIDs();
+      m_auxids.clear();
 
       return;
    }
@@ -180,7 +178,7 @@ namespace xAOD {
       const void* result = m_store->getData( auxid );
       if( result ) {
          if( nids != m_store->getAuxIDs().size() ) {
-            remakeAuxIDs();
+           m_auxids.clear();
          }
          return result;
       }
@@ -190,7 +188,7 @@ namespace xAOD {
          nids = m_parentLink->getAuxIDs().size();
          result = m_parentLink->getData( auxid );
          if( result && ( nids != m_parentLink->getAuxIDs().size() ) ) {
-            remakeAuxIDs();
+           m_auxids.clear();
          }
          return result;
       }
@@ -202,6 +200,9 @@ namespace xAOD {
    const ShallowAuxContainer::auxid_set_t&
    ShallowAuxContainer::getAuxIDs() const {
 
+      if (m_auxids.empty()) {
+        remakeAuxIDs();
+      }
       return m_auxids;
    }
 
@@ -237,7 +238,7 @@ namespace xAOD {
       const size_t nids = m_store->getAuxIDs().size();
       void* result = m_store->getDecoration( auxid, size, capacity );
       if( result && ( nids != m_store->getAuxIDs().size() ) ) {
-         remakeAuxIDs();
+         m_auxids.clear();
       }
       return result;
    }
@@ -271,7 +272,7 @@ namespace xAOD {
      guard_t guard (m_mutex);
      bool ret = m_store->clearDecorations();
      if (ret) {
-       remakeAuxIDs();
+       m_auxids.clear();
      }
      return ret;
    }
