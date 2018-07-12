@@ -45,7 +45,8 @@ StatusCode TauPi0ClusterScaler::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TauPi0ClusterScaler::eventInitialize() 
+StatusCode TauPi0ClusterScaler::eventInitialize()
+{
   return StatusCode::SUCCESS;
 }
 
