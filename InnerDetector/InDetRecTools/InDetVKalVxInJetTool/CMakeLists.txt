@@ -28,14 +28,17 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( Eigen )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread TMVA )
 
 # Component(s) in the package:
-atlas_add_component( InDetVKalVxInJetTool
+atlas_add_library( InDetVKalVxInJetTool 
                      src/*.cxx
                      src/components/*.cxx
+		     PUBLIC_HEADERS InDetVKalVxInJetTool
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces Particle TrkVKalVrtFitterLib GeoPrimitives AnalysisUtilsLib TrkNeutralParameters TrkParticleBase TrkTrackSummary VxSecVertex VxVertex TrkToolInterfaces TrkVertexFitterInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel 
+		        InDetRecToolInterfaces Particle TrkVKalVrtFitterLib GeoPrimitives AnalysisUtilsLib TrkNeutralParameters 
+		        TrkParticleBase TrkTrackSummary VxSecVertex VxVertex TrkToolInterfaces TrkVertexFitterInterfaces PathResolver )
 
 # Install files from the package:
 atlas_install_headers( InDetVKalVxInJetTool )
