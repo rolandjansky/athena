@@ -14,13 +14,14 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 ///Local include(s)
 #include "TrigMultiVarHypo/preprocessor/TrigRingerPreprocessor.h"
 #include "TrigMultiVarHypo/discriminator/MultiLayerPerceptron.h"
 
 ///xAOD include(s)
-#include "xAODTrigCalo/TrigEMCluster.h"
+#include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigRinger/TrigRNNOutput.h"
 #include "xAODTrigRinger/TrigRNNOutputContainer.h"
 #include "xAODTrigRinger/TrigRingerRings.h"
@@ -39,7 +40,6 @@ class TrigL2CaloRingerFexMT : public AthAlgorithm  {
     StatusCode execute();
 
   protected:
-    //Time monitoring
     TrigTimer* m_storeTimer;
     TrigTimer* m_normTimer;
     TrigTimer* m_decisionTimer;
@@ -77,10 +77,17 @@ class TrigL2CaloRingerFexMT : public AthAlgorithm  {
     unsigned  m_nPreproc;
     float     m_output;
 
-    SG::ReadHandleKey<xAOD::TrigRingerRings> m_ringerShape { 
+    SG::ReadHandleKey<xAOD::TrigRingerRings> m_ringsKey { 
 	this,
         "CaloRingsKey",
         "CaloRings",
+        ""
+    };
+  
+  SG::ReadHandleKey<xAOD::TrigEMClusterContainer> m_clustersKey { 
+	this,
+        "ClustersKey",
+        "CaloClusters",
         ""
     };
 
@@ -90,6 +97,7 @@ class TrigL2CaloRingerFexMT : public AthAlgorithm  {
 	"CaloRNNOutput",
 	""
     };
+  ToolHandle<GenericMonitoringTool> m_monTool { this, "MonTool", "GenericMonitoringTool/RingerFexMon", "Monitoring" };
 
 };
 

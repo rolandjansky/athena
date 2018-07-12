@@ -40,18 +40,7 @@ if globalflags.InputFormat.is_bytestream():
 testChains = ["HLT_e3_etcut", "HLT_e5_etcut", "HLT_e7_etcut", "HLT_2e3_etcut", "HLT_e3e5_etcut"]
 topSequence.L1DecoderTest.prescaler.Prescales = ["HLT_e3_etcut:2", "HLT_2e3_etcut:2.5"]
 
-
-
-from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
-theFastCaloAlgo=T2CaloEgamma_FastAlgo("FastCaloAlgo" )
-theFastCaloAlgo.OutputLevel=VERBOSE
-theFastCaloAlgo.ClustersName="HLT_xAOD__TrigEMClusterContainer_L2CaloClusters" #"L2CaloClusters"
-svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
-
  
-from TrigMultiVarHypo.TrigL2CaloRingerFexMTInit import init_ringer
-trigL2CaloRingerFexMT = init_ringer()
-trigL2CaloRingerFexMT.OutputLevel = DEBUG    
 
 
 
@@ -59,6 +48,7 @@ from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq, findAlgorithm
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
+clustersKey = "HLT_xAOD__TrigEMClusterContainer_L2CaloClusters" #"L2CaloClusters"
 
 def createFastCaloSequence(rerun=False):
    __prefix = "Rerurn_" if rerun else ""
@@ -69,10 +59,16 @@ def createFastCaloSequence(rerun=False):
    #clusterMaker=T2CaloEgamma_FastAlgo(__prefix+"FastClusterMaker" )
    clusterMaker=T2CaloEgamma_FastAlgo( "FastClusterMaker" )
    clusterMaker.OutputLevel=VERBOSE
-   clusterMaker.ClustersName = theFastCaloAlgo.ClustersName
+   clusterMaker.ClustersName=clustersKey
    svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
-   fastCaloInViewAlgs = seqAND( __prefix+"fastCaloInViewAlgs", [ clusterMaker ])
+   from TrigMultiVarHypo.TrigL2CaloRingerFexMTInit import init_ringer
+   trigL2CaloRingerFexMT = init_ringer()
+   trigL2CaloRingerFexMT.ClustersKey = clusterMaker.ClustersName
+   trigL2CaloRingerFexMT.OutputLevel = DEBUG    
+   
+   
+   fastCaloInViewAlgs = seqAND( __prefix+"fastCaloInViewAlgs", [ clusterMaker, trigL2CaloRingerFexMT ])
 
    filterL1RoIsAlg = RoRSeqFilter( __prefix+"filterL1RoIsAlg")
    filterL1RoIsAlg.Input = [__l1RoIDecisions]
@@ -125,7 +121,7 @@ viewAlgs.append(theFTF)
 # A simple algorithm to confirm that data has been inherited from parent view
 # Required to satisfy data dependencies
 ViewVerify = CfgMgr.AthViews__ViewDataVerifier("electronViewDataVerifier")
-ViewVerify.DataObjects = [('xAOD::TrigEMClusterContainer','StoreGateSvc+'+theFastCaloAlgo.ClustersName)]
+ViewVerify.DataObjects = [('xAOD::TrigEMClusterContainer','StoreGateSvc+'+clustersKey)]
 ViewVerify.OutputLevel = DEBUG
 viewAlgs.append(ViewVerify)
 
@@ -137,7 +133,7 @@ for viewAlg in viewAlgs:
 
 from TrigEgammaHypo.TrigL2ElectronFexMTConfig import L2ElectronFex_1
 theElectronFex= L2ElectronFex_1()
-theElectronFex.TrigEMClusterName = theFastCaloAlgo.ClustersName
+theElectronFex.TrigEMClusterName = clustersKey
 theElectronFex.TrackParticlesName = TrackParticlesName
 theElectronFex.ElectronsName=  "HLT_xAOD__TrigElectronContainer_L2ElectronFex" #"Electrons"
 theElectronFex.OutputLevel=VERBOSE
@@ -233,8 +229,8 @@ egammaViewsMerger.TrigElectronContainerInViews = [ theElectronFex.ElectronsName 
 egammaViewsMerger.TrigElectronContainer = [ theElectronFex.ElectronsName ]
 
 egammaViewsMerger.TrigEMClusterContainerViews = [ "EMCaloViews" ]
-egammaViewsMerger.TrigEMClusterContainerInViews = [ theFastCaloAlgo.ClustersName ]
-egammaViewsMerger.TrigEMClusterContainer = [ theFastCaloAlgo.ClustersName ]
+egammaViewsMerger.TrigEMClusterContainerInViews = [ clustersKey ]
+egammaViewsMerger.TrigEMClusterContainer = [ clustersKey ]
 
 egammaViewsMerger.OutputLevel = VERBOSE
 

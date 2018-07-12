@@ -26,5 +26,11 @@ def init_ringer():
     ringer.Weights     = theRingerConfig.Weights
     ringer.EtaBins     = theRingerConfig.EtaBins
     ringer.EtBins      = theRingerConfig.EtBins
-    
+    from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+
+    monTool = GenericMonitoringTool("RingerFexMon")
+    monTool.Histograms = [ defineHistogram( "TIME_total",      title="Total Time;time[ms]",         xbins=50, xmin=0, xmax=100 ),
+                           defineHistogram( "TIME_preprocess", title="Preprocessing Time;time[ms]", xbins=50, xmin=0, xmax=50 ),
+                           defineHistogram( "TIME_decision",   title="Decision Time;time[ms]",      xbins=50, xmin=0, xmax=50 )]
+    ringer.MonTool = monTool
     return ringer

@@ -21,16 +21,11 @@ theFastCaloAlgo.ClustersName="L2CaloClusters"
 svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
  
-from TrigMultiVarHypo.TrigL2CaloRingerFexMTInit import init_ringer
-trigL2CaloRingerFexMT = init_ringer()
-trigL2CaloRingerFexMT.OutputLevel = DEBUG    
-
-
 
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
-fastCaloInViewAlgs = seqAND("fastCaloInViewAlgs", [theFastCaloAlgo, trigL2CaloRingerFexMT])
+fastCaloInViewAlgs = seqAND("fastCaloInViewAlgs", [theFastCaloAlgo])
 
 
 
