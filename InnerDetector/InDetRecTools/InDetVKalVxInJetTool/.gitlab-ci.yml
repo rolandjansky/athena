@@ -1,5 +1,0 @@
-testjob1:
- variables:
-    ATLAS_LOCAL_ROOT_BASE: /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
- script:
-  - ls
