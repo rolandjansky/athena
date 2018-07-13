@@ -15,6 +15,7 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4LogicalVolume.hh"
 #include "G4VSensitiveDetector.hh"
+#include "CxxUtils/AthUnlikelyMacros.h"
 
 #undef DEBUG_PROCESS
 
@@ -66,140 +67,46 @@ G4bool EscapedEnergyProcessing::Process( G4Step* fakeStep ) {
   G4VPhysicalVolume* physicalVolume = a_touchableHandle->GetVolume();
 
   // If the volume is valid...
-  if ( physicalVolume != 0 )
-    {
+  if (ATH_LIKELY(physicalVolume)) {
 #ifdef DEBUG_PROCESS
-      G4cout << "LArG4::EscapedEnergyProcessing::Process - "
-             << " particle created in volume '"
-             << physicalVolume->GetName()
-             << "'" << G4endl;
+    G4cout << "LArG4::EscapedEnergyProcessing::Process - "
+           << " particle created in volume '"
+           << physicalVolume->GetName()
+           << "'" << G4endl;
 #endif
 
-      G4LogicalVolume* logicalVolume = physicalVolume->GetLogicalVolume();
+    G4LogicalVolume* logicalVolume = physicalVolume->GetLogicalVolume();
 
-      // To prevent some potential problems with uninitialized values,
-      // set the material of the step points.
-      fakePreStepPoint->SetMaterial( logicalVolume->GetMaterial()  );
-      fakePostStepPoint->SetMaterial( logicalVolume->GetMaterial()  );
+    // To prevent some potential problems with uninitialized values,
+    // set the material of the step points.
+    fakePreStepPoint->SetMaterial( logicalVolume->GetMaterial()  );
+    fakePostStepPoint->SetMaterial( logicalVolume->GetMaterial()  );
 
-      // Is this volume associated with a sensitive detector?
-      G4VSensitiveDetector* sensitiveDetector =
-        logicalVolume->GetSensitiveDetector();
+    // Is this volume associated with a sensitive detector?
+    G4VSensitiveDetector* sensitiveDetector =
+      logicalVolume->GetSensitiveDetector();
 
-      if ( sensitiveDetector != 0 )
-        {
-
+    if (ATH_LIKELY(sensitiveDetector)) {
 #ifdef DEBUG_PROCESS
-          G4cout << "   ... which has sensitive detector '"
-                 << sensitiveDetector->GetName()
-                 << "'" << G4endl;
+      G4cout << "   ... which has sensitive detector '" << sensitiveDetector->GetName() << "'" << G4endl;
 #endif
-
-          LArG4CalibSD* larG4CalibSD = 0;
-
-          G4MultiSensitiveDetector* larG4MultSD = dynamic_cast<G4MultiSensitiveDetector*>(sensitiveDetector);
-
-          // Most probably this is a LArG4MultSD
-          if(larG4MultSD !=0)
-            {
-              G4bool found = false;
-              for(unsigned int i=0; i<larG4MultSD->GetSize(); i++)
-                {
-                  larG4CalibSD = dynamic_cast<LArG4CalibSD*>(larG4MultSD->GetSD(i));
-                  if (larG4CalibSD!= 0)
-                    {
-                      // We found one.  Process the energy.
-                      found = true;
+      LArG4CalibSD* larG4CalibSD(nullptr);
+      G4MultiSensitiveDetector* larG4MultSD = dynamic_cast<G4MultiSensitiveDetector*>(sensitiveDetector);
+      // Most probably this is a LArG4MultSD
+      if (ATH_LIKELY(larG4MultSD)) {
+        G4bool found(false);
+        for (unsigned int i=0; i<larG4MultSD->GetSize(); i++) {
+          larG4CalibSD = dynamic_cast<LArG4CalibSD*>(larG4MultSD->GetSD(i));
+          if (larG4CalibSD) {
+            // We found one.  Process the energy.
+            found = true;
 #ifdef DEBUG_PROCESS
-                      G4cout << "   ... which contains calibration sensitive detector '"
-                             << larG4CalibSD->GetName()
-                             << "'" << G4endl;
+            G4cout << "   ... which contains calibration sensitive detector '" << larG4CalibSD->GetName() << "'" << G4endl;
 #endif
-                      larG4CalibSD->SpecialHit(fakeStep,energies);
-                    }
-                }// -- for (1)
-              if(!found)
-                {
-#ifdef DEBUG_PROCESS
-                  const G4ThreeVector& a_point = fakePreStepPoint->GetPosition();
-                  G4cout << "LArG4::EscapedEnergyProcessing::Process - "
-                         << " particle (x,y,z)=("
-                         << a_point.x() << ","
-                         << a_point.y() << ","
-                         << a_point.z() << ") with energy="
-                         << fakeStep->GetTotalEnergyDeposit()
-                         << " was created in volume '"
-                         << physicalVolume->GetName()
-                         << "'; could not find a CalibrationSensitiveDetector"
-                         << " within  LArG4MultSD'"
-                         << larG4MultSD->GetName() << "'"
-                         << G4endl;
-                  G4cout << "   Using default sensitive detector." << G4endl;
-#endif
-                  m_defaultSD->SpecialHit( fakeStep, energies );
-                  return false; // error
-                }// - !found (1)
-
-            }
-          else // larG4MultSD !=0
-            {
-              // Next possibility - LArG4CalibSD
-              larG4CalibSD = dynamic_cast<LArG4CalibSD*>(sensitiveDetector);
-              if(larG4CalibSD!=0)
-                {
-#ifdef DEBUG_PROCESS
-                  G4cout << "   ... which is a LArG4CalibSD "
-                         << G4endl;
-#endif
-                  larG4CalibSD->SpecialHit( fakeStep, energies );
-                }
-              else // larG4CalibSD!=0
-                {
-                  // --- backwards compatibility ---
-
-                  // We've found a sensitive detector.  Is it a CalibrationSensitiveDetector?
-                  LArG4CalibSD* calibSD
-                    = dynamic_cast<LArG4CalibSD*>(sensitiveDetector);
-
-                  if ( calibSD != 0 )
-                    {
-                      // It is!  Process the energy.
-
-#ifdef DEBUG_PROCESS
-                      G4cout << "   ... which is a calibration sensitive detector "
-                             << G4endl;
-#endif
-
-                      calibSD->SpecialHit( fakeStep, energies );
-                    }
-                  else
-                    {
-#ifdef DEBUG_PROCESS
-                      const G4ThreeVector& a_point = fakePreStepPoint->GetPosition();
-                      G4cout << "LArG4::EscapedEnergyProcessing::Process - "
-                             << " particle (x,y,z)=("
-                             << a_point.x() << ","
-                             << a_point.y() << ","
-                             << a_point.z() << ") with energy="
-                             << fakeStep->GetTotalEnergyDeposit()
-                             << " was created in volume '"
-                             << physicalVolume->GetName()
-                             << "' with sensitive detector '"
-                             << sensitiveDetector->GetName()
-                             << "' which is not a CalibrationSensitiveDetector."
-                             << G4endl;
-                      G4cout << "   Using default sensitive detector." << G4endl;
-#endif
-                      m_defaultSD->SpecialHit( fakeStep, energies );
-                      return false; // error
-                    }
-                }
-            }
-        }
-      else
-        {
-          // If we reach this point, then the particle whose energy
-          // has escaped was created outside of a sensitive region.
+            larG4CalibSD->SpecialHit(fakeStep,energies);
+          }
+        }// -- for (1)
+        if (ATH_UNLIKELY(!found)) {
 #ifdef DEBUG_PROCESS
           const G4ThreeVector& a_point = fakePreStepPoint->GetPosition();
           G4cout << "LArG4::EscapedEnergyProcessing::Process - "
@@ -210,14 +117,79 @@ G4bool EscapedEnergyProcessing::Process( G4Step* fakeStep ) {
                  << fakeStep->GetTotalEnergyDeposit()
                  << " was created in volume '"
                  << physicalVolume->GetName()
-                 << "' which is not sensitive."
+                 << "'; could not find a CalibrationSensitiveDetector"
+                 << " within  LArG4MultSD'"
+                 << larG4MultSD->GetName() << "'"
                  << G4endl;
           G4cout << "   Using default sensitive detector." << G4endl;
 #endif
           m_defaultSD->SpecialHit( fakeStep, energies );
           return false; // error
+        }// - !found (1)
+
+      } else {// larG4MultSD !=0
+        // Next possibility - LArG4CalibSD
+        larG4CalibSD = dynamic_cast<LArG4CalibSD*>(sensitiveDetector);
+        if (ATH_LIKELY(larG4CalibSD)) {
+#ifdef DEBUG_PROCESS
+          G4cout << "   ... which is a LArG4CalibSD " << G4endl;
+#endif
+          larG4CalibSD->SpecialHit( fakeStep, energies );
         }
+        else {// larG4CalibSD!=0
+              // --- backwards compatibility ---
+
+              // We've found a sensitive detector.  Is it a CalibrationSensitiveDetector?
+          LArG4CalibSD* calibSD = dynamic_cast<LArG4CalibSD*>(sensitiveDetector);
+          if ( calibSD ) {
+            // It is!  Process the energy.
+#ifdef DEBUG_PROCESS
+            G4cout << "   ... which is a calibration sensitive detector " << G4endl;
+#endif
+            calibSD->SpecialHit( fakeStep, energies );
+          } else {
+#ifdef DEBUG_PROCESS
+            const G4ThreeVector& a_point = fakePreStepPoint->GetPosition();
+            G4cout << "LArG4::EscapedEnergyProcessing::Process - "
+                   << " particle (x,y,z)=("
+                   << a_point.x() << ","
+                   << a_point.y() << ","
+                   << a_point.z() << ") with energy="
+                   << fakeStep->GetTotalEnergyDeposit()
+                   << " was created in volume '"
+                   << physicalVolume->GetName()
+                   << "' with sensitive detector '"
+                   << sensitiveDetector->GetName()
+                   << "' which is not a CalibrationSensitiveDetector."
+                   << G4endl;
+            G4cout << "   Using default sensitive detector." << G4endl;
+#endif
+            m_defaultSD->SpecialHit( fakeStep, energies );
+            return false; // error
+          }
+        }
+      }
+    } else {
+      // If we reach this point, then the particle whose energy
+      // has escaped was created outside of a sensitive region.
+#ifdef DEBUG_PROCESS
+      const G4ThreeVector& a_point = fakePreStepPoint->GetPosition();
+      G4cout << "LArG4::EscapedEnergyProcessing::Process - "
+             << " particle (x,y,z)=("
+             << a_point.x() << ","
+             << a_point.y() << ","
+             << a_point.z() << ") with energy="
+             << fakeStep->GetTotalEnergyDeposit()
+             << " was created in volume '"
+             << physicalVolume->GetName()
+             << "' which is not sensitive."
+             << G4endl;
+      G4cout << "   Using default sensitive detector." << G4endl;
+#endif
+      m_defaultSD->SpecialHit( fakeStep, energies );
+      return false; // error
     }
+  }
 
   // Processing was OK.
   return true;
