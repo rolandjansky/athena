@@ -44,7 +44,6 @@ class IRPCConditionsSvc;
 namespace Muon {
 
 
-class IMuonRawDataProviderTool;
 class IRPC_RDO_Decoder;
     
     
@@ -101,7 +100,6 @@ private:
   bool  m_doingSecondLoopAmbigColls;    //!< true if running a second loop over ambiguous collections in RoI-based mode
   bool  m_reduceCablingOverlap;         //!< toggle on/off the overlap removal
   float m_timeShift;                    //!< any global time shift ?!
-  bool m_useBStoRdoTool;                //!< toggle on/off the decoding of RPC BS into RDO for EF
   bool m_decodeData;                    //!< toggle on/off the decoding of RPC RDO into RpcPerpData
   bool m_RPCInfoFromDb;                 //!< correct time prd from cool db
   // end of configurable options 
@@ -128,8 +126,6 @@ private:
 
 //   // Rob Data Provider handle 
 //   ServiceHandle<IROBDataProviderSvc>          m_robDataProvider;
-  // handle tp the RPC_RawDataProviderTool
-  ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool; 
   ToolHandle<Muon::IRPC_RDO_Decoder>         m_rpcRdoDecoderTool; 
 
   ServiceHandle<IRPCConditionsSvc> m_rSummarySvc;

@@ -19,8 +19,8 @@ def RpcPrepDataProviderTool(name="RpcPrepDataProviderTool",**kwargs):
   import MuonCnvExample.MuonCablingConfig
 
   # If we run trigger from BS, then the RDO to PRD tools need to automatically run BS to RDO tools
-  kwargs.setdefault("useBStoRdoTool", DetFlags.readRDOBS.RPC_on() and recAlgs.doTrigger())
-  kwargs.setdefault("RawDataProviderTool", "RpcRawDataProviderTool")
+  #kwargs.setdefault("useBStoRdoTool", DetFlags.readRDOBS.RPC_on() and recAlgs.doTrigger())
+  #kwargs.setdefault("RawDataProviderTool", "RpcRawDataProviderTool")
 ### TODO: in C++ do not retrieve tool if useBStoRdoTool==False
 ##  if not kwargs["useBStoRdoTool"]:
 ##    kwargs["RawDataProviderTool"] = None # empty tool

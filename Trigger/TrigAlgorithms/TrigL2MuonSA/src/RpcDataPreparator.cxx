@@ -10,6 +10,7 @@
 
 #include "CLHEP/Units/PhysicalConstants.h"
 
+#include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
@@ -44,10 +45,12 @@ TrigL2MuonSA::RpcDataPreparator::RpcDataPreparator(const std::string& type,
    m_storeGateSvc( "StoreGateSvc", name ),
    m_activeStore(0),
    m_regionSelector(0),
+   m_rawDataProviderTool("Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool"),
    m_rpcPrepDataProvider("Muon::RpcRdoToPrepDataTool/RpcPrepDataProviderTool"),
    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
 {
    declareInterface<TrigL2MuonSA::RpcDataPreparator>(this);
+   declareProperty("RpcRawDataProvider", m_rawDataProviderTool);
    declareProperty("RpcPrepDataProvider", m_rpcPrepDataProvider);
 }
 
@@ -109,6 +112,13 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
      return sc ;
    }
    ATH_MSG_DEBUG("Retrieved ActiveStoreSvc."); 
+
+   // Retreive PRC raw data provider tool
+   if (m_rawDataProviderTool.retrieve().isFailure()) {
+     msg (MSG::FATAL) << "Failed to retrieve " << m_rawDataProviderTool << endmsg;
+     return StatusCode::FAILURE;
+   } else
+     msg (MSG::INFO) << "Retrieved Tool " << m_rawDataProviderTool << endmsg;
 
    // Retrieve the RPC cabling service
    ServiceHandle<IRPCcablingServerSvc> RpcCabGet ("RPCcablingServerSvc", name());
@@ -198,6 +208,10 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
      
      std::vector<uint32_t> rpcRobList;
      m_regionSelector->DetROBIDListUint(RPC, *iroi, rpcRobList);
+
+     if ( m_rawDataProviderTool->convert(rpcRobList).isFailure()) {
+       ATH_MSG_WARNING("Conversion of BS for decoding of RPCs failed");
+     }
      if ( m_rpcPrepDataProvider->decode(rpcRobList).isFailure() ) {
        ATH_MSG_WARNING("Problems when preparing RPC PrepData ");
      }
