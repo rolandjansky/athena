@@ -611,7 +611,7 @@ class ItemDef:
         LVL1MenuItem('L1_J40_FTK'   ).setLogic( J40  & physcond).setTriggerType(TT.ftk)    # noqa: F821
 
 #        LVL1MenuItem('L1_ZB_J20').setLogic(ZB_EM15 & J20 & physcond).setTriggerType(TT.zerobs)    # noqa: F821
-        if (('Physics_HI_v3' in TriggerFlags.triggerMenuSetup()) or ('MC_HI_v3' in TriggerFlags.triggerMenuSetup()) or ('Physics_HI_v4' in TriggerFlags.triggerMenuSetup()) or ('MC_HI_v4' in TriggerFlags.triggerMenuSetup()) or ('Physics_HI_v5' in TriggerFlags.triggerMenuSetup()) or ('MC_HI_v5' in TriggerFlags.triggerMenuSetup())):
+        if ('Physics_HI_v' in TriggerFlags.triggerMenuSetup() or 'MC_HI_v' in TriggerFlags.triggerMenuSetup()):
             LVL1MenuItem('L1_ZB', ctpid=240).setLogic(ZB_J75 & physcond).setTriggerType(TT.zerobs) # noqa: F821
         else:
             LVL1MenuItem('L1_ZB', ctpid=240).setLogic(ZB_EM15 & physcond).setTriggerType(TT.zerobs)# noqa: F821

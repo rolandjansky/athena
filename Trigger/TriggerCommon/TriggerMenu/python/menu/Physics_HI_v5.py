@@ -19,7 +19,7 @@ def setupMenu():
     MinBiasStream="MinBias"
     UPCStream="UPC"
     UCCStream="UCC"
-    PCStream="PC"
+    #PCStream="PC"
 
     # Disable Calo offset correction for HI menus (ATR-13323)
     from CaloTools.CaloNoiseFlags import jobproperties
