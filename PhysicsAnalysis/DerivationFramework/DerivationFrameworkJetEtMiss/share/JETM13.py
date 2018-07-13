@@ -103,6 +103,15 @@ JETM13SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                      "TruthParticles",
                                      "TruthEvents",
                                      ]
+JETM13SlimmingHelper.ExtraVariables = [
+  "InDetTrackParticles.particleHypothesis.vx.vy.vz",
+  "GSFTrackParticles.particleHypothesis.vx.vy.vz",
+  "PrimaryVertices.x.y.z",
+  "TauJets.clusterLinks",
+  "Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus.clusterLinks.FSR_CandidateEnergy",
+  "MuonSegments.x.y.z.px.py.pz",
+  "AntiKt4LCTopoJets.pt.eta.phi.m",
+  ]
 
 for truthc in [
   "TruthMuons",
