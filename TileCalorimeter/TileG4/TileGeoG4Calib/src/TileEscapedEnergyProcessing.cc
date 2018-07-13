@@ -21,6 +21,7 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4SDManager.hh"
 #include "G4VSensitiveDetector.hh"
+#include "CxxUtils/AthUnlikelyMacros.h"
 
 TileEscapedEnergyProcessing::TileEscapedEnergyProcessing(const int /*verboseLevel*/)
   : m_escaped(false),
@@ -46,22 +47,25 @@ G4bool TileEscapedEnergyProcessing::Process( G4Step* fakeStep ) {
   G4VPhysicalVolume* volume = fakeStep->GetPreStepPoint()->GetPhysicalVolume();
 
   // If the volume is valid...
-  if (volume != 0) {
+  if (ATH_LIKELY(volume)) {
     // Is this volume associated with a sensitive detector?
     G4VSensitiveDetector* sensitiveDetector = volume->GetLogicalVolume()->GetSensitiveDetector();
 
-    if (sensitiveDetector != 0) {
+    if (ATH_LIKELY(sensitiveDetector)) {
       // We've found a sensitive detector.
       TileGeoG4CalibSD* calibSD = dynamic_cast<TileGeoG4CalibSD*>(sensitiveDetector);
 
-      if (calibSD != 0) {
+      if (ATH_LIKELY(calibSD)) {
         G4String volumeName = volume->GetName();
-        if (volumeName.find("Tile") == G4String::npos) {
-          G4cout << "WARNING TileEscapedEnergyProcessing::Process - escaped particle was created in "
-                 << volume->GetName() << ", out of TILE" << G4endl;
-          G4cout << "WARNING: add escaped energy " << fakeStep->GetTotalEnergyDeposit() <<" to energy5 " << G4endl;
+        if (ATH_UNLIKELY(volumeName.find("Tile") == G4String::npos)) {
+          G4ExceptionDescription description;
+          description << "Process: escaped particle was created in "
+                      << volume->GetName() << ", out of TILE.\n"
+                      << "Add escaped energy " << fakeStep->GetTotalEnergyDeposit() <<" to energy5.";
+          G4Exception("TileEscapedEnergyProcessing", "CreatedOutsideTile", JustWarning, description);
           m_energy5 += fakeStep->GetTotalEnergyDeposit();
-          return false;}  //World volume or no Tile volume / false sensitive
+          return false;
+        }  //World volume or non-Tile volume / false sensitive
 
         m_escaped = true;
         m_escapedEnergy = fakeStep->GetTotalEnergyDeposit();
@@ -70,14 +74,22 @@ G4bool TileEscapedEnergyProcessing::Process( G4Step* fakeStep ) {
         //store escaped energy in the appropriate hit
         Call_SD_ProcessHits(fakeStep, SDname);
       } else {
+        G4ExceptionDescription description;
+        description << "Process: Escaped particle was created in "
+                    << volume->GetName() << ".\n"
+                    << "The sensitive Detector associated with this volume is not of type TileGeoG4CalibSD.\n"
+                    << "Doing nothing.";
+        G4Exception("TileEscapedEnergyProcessing", "WrongSDType", JustWarning, description);
         return false; // error
       }
     } else {
       // If we reach this point, then the particle whose energy
       // has escaped was created outside of a sensitive region.
-      G4cout << "WARNING: TileEscapedEnergyProcessing::Process - Escaped particle was created in "
-             << volume->GetName() << " which is not sensitive." << G4endl;
-      G4cout << " add escaped energy " << fakeStep->GetTotalEnergyDeposit() <<" to energy5 " << G4endl;
+      G4ExceptionDescription description;
+      description << "Process: Escaped particle was created in "
+                  << volume->GetName() << " which is not sensitive.\n"
+                  << "Add escaped energy " << fakeStep->GetTotalEnergyDeposit() <<" to energy5 ";
+      G4Exception("TileEscapedEnergyProcessing", "NonSensitiveVol", JustWarning, description);
       m_energy5 += fakeStep->GetTotalEnergyDeposit();
       return false;
     }
