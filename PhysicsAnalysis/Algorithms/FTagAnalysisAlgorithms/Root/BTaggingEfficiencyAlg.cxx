@@ -12,8 +12,6 @@
 
 #include <FTagAnalysisAlgorithms/BTaggingEfficiencyAlg.h>
 
-#include <RootCoreUtils/Assert.h>
-
 //
 // method implementations
 //
