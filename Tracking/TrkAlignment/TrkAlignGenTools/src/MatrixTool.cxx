@@ -1426,7 +1426,7 @@ namespace Trk {
 
       case SOLVE_FAST:
       case DIRECT_SOLVE_FAST:
-        info = solveSparseEigen();
+        info = solve***REMOVED***();
         break;
 
       default:
@@ -2147,13 +2147,13 @@ namespace Trk {
   }
 
   //________________________________________________________________________
-  int MatrixTool::solveSparseEigen()
+  int MatrixTool::solve***REMOVED***()
   {
-    ATH_MSG_INFO("solving Global using SparseEigen");
+    ATH_MSG_INFO("solving Global using ***REMOVED***");
     if(m_logStream) {
       *m_logStream<<"*************************************************************"<<std::endl;
       *m_logStream<<"**************  solving using Global method  ****************"<<std::endl;
-      *m_logStream<<"**************      using SparseEigen        ****************"<<std::endl;
+      *m_logStream<<"**************          using ***REMOVED***           ****************"<<std::endl;
       *m_logStream<<"*************************************************************"<<std::endl;
     }
 
@@ -2205,17 +2205,17 @@ namespace Trk {
     ATH_MSG_DEBUG("running the solving");
 
     // solve
-    int info = (*aBetterMat).SolveWithEigen(*aBetterVec);
+    int info = (*aBetterMat).***REMOVED***Solve(*aBetterVec);
 
     if(info == 0) {
-      ATH_MSG_INFO("SolveWithEigen solving OK");
+      ATH_MSG_INFO("***REMOVED*** solving OK");
       if(m_logStream)
-        *m_logStream<<"SolveWithEigen solving OK."<<std::endl;
+        *m_logStream<<"***REMOVED*** solving OK."<<std::endl;
     }
     else {
-      msg(MSG::ERROR)<<"SolveWithEigen error code (0 if OK) = "<<info<<endreq;
+      msg(MSG::ERROR)<<"***REMOVED*** error code (0 if OK) = "<<info<<endreq;
       if(m_logStream)
-        *m_logStream<<"SolveWithEigen error code (0 if OK) = "<<info<<std::endl;
+        *m_logStream<<"***REMOVED*** error code (0 if OK) = "<<info<<std::endl;
     }
 
     if( isCopy )
@@ -2225,11 +2225,11 @@ namespace Trk {
     // stop measuring time
     clock_t stoptime = clock();
     double totaltime = (stoptime-starttime)/double(CLOCKS_PER_SEC);
-    ATH_MSG_INFO("Time spent in SolveWithEigen: "<<totaltime<<" s");
+    ATH_MSG_INFO("Time spent in solve***REMOVED***: "<<totaltime<<" s");
 
     ATH_MSG_DEBUG("Alignment constants:");
     // compute alignment corrections (translations in mm and rotations in rad)
-    // for solveSparseEigen variances are not calculated
+    // for ***REMOVED*** variances are not calculated
     for(int i=0; i<m_aNDoF; i++) {
 
       double param = -(*aBetterVec)[i];
@@ -2273,7 +2273,7 @@ namespace Trk {
     delete aBetterVec;
 
     // need to do this since success return value from Lapack is 0
-    // and from SolveWithEigen() it is 1
+    // and from solve***REMOVED***() it is 1
     if (info==0)
       info = 1;
 
