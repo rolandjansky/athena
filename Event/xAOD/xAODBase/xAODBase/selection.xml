@@ -17,9 +17,6 @@
   <class name="ElementLinkVector<xAOD::IParticleContainer>" />
   <class name="std::vector<ElementLinkVector<xAOD::IParticleContainer> >" />
 
-  <!-- An attempt to make the ObjectType enumeration visible in Python...  -->
-  <enum name="xAOD::Type::ObjectType" />
-
   <!-- The helper functions: -->
   <function pattern="xAOD::*" />
 
