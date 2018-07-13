@@ -10,8 +10,8 @@
 #define TRKGEOMETRY_MATERIALSTEPCOLLECTION_H
 
 #include "TrkGeometry/MaterialStep.h"
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
  
 namespace Trk {
     typedef DataVector<Trk::MaterialStep> MaterialStepCollection;
