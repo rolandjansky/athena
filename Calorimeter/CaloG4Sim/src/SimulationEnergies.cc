@@ -117,8 +117,10 @@
 #include "G4TransportationManager.hh"
 #include "G4TouchableHandle.hh"
 #include "G4TouchableHistory.hh"
-
 #include "G4ios.hh"
+
+#include "CxxUtils/AthUnlikelyMacros.h"
+
 #include <vector>
 #include <string>
 #include <mutex>
@@ -234,12 +236,9 @@ namespace CaloG4 {
     G4ParticleDefinition* particle = pTrack->GetDefinition();
 
     // If it is a step of a neutrino tracking: 
-    if (particle == G4NeutrinoE::Definition() || particle == G4AntiNeutrinoE::Definition() || // nu_e,   anti_nu_e
-        particle == G4NeutrinoMu::Definition() || particle == G4AntiNeutrinoMu::Definition() || // nu_mu,  anti_nu_mu 
-        particle == G4NeutrinoTau::Definition() || particle == G4AntiNeutrinoTau::Definition())   // nu_tau, anti_nu_tau
-      {
-	return result;
-      }
+    if (ParticleIsNeutrino(particle)) {
+      return result;
+    }
 
     G4TrackStatus status = pTrack->GetTrackStatus();
     G4double dEStepVisible = step->GetTotalEnergyDeposit();
@@ -296,10 +295,7 @@ namespace CaloG4 {
       totalEofSecondary = (*fSecondary)[lp1]->GetTotalEnergy();
 
       //----- use this information:
-      if (secondaryID == G4NeutrinoE::Definition() || secondaryID == G4AntiNeutrinoE::Definition() || // nu_e,   anti_nu_e
-          secondaryID == G4NeutrinoMu::Definition() || secondaryID == G4AntiNeutrinoMu::Definition() || // nu_mu,  anti_nu_mu
-          secondaryID == G4NeutrinoTau::Definition() || secondaryID == G4AntiNeutrinoTau::Definition())   // nu_tau, anti_nu_tau
-       {
+      if (ParticleIsNeutrino(secondaryID)) {
         result.energy[kInvisible0] -= totalEofSecondary;
         result.energy[kEscaped] += totalEofSecondary;
       }
@@ -563,7 +559,7 @@ namespace CaloG4 {
       // procedure for non-sensitive volumes.  Let's use that (for now).
 
       eep = registry->GetProcessing( "LAr::" );
-      if ( eep != 0 ) {
+      if (ATH_LIKELY(eep)) {
         return eep->Process( fakeStep );
       }
 
@@ -583,7 +579,7 @@ namespace CaloG4 {
       //  Let's use that (for now).
 
       eep = registry->GetProcessing( "LAr::" );
-      if ( eep != 0 ) {
+      if (ATH_LIKELY(eep)) {
         return eep->Process( fakeStep );
       }
       // If we get here, the registry was never initialized for LAr.
@@ -597,6 +593,13 @@ namespace CaloG4 {
         });
       return false;
     }
+  }
+
+  inline G4bool SimulationEnergies::ParticleIsNeutrino( G4ParticleDefinition* particle ) const
+  {
+    return (particle == G4NeutrinoE::Definition() || particle == G4AntiNeutrinoE::Definition() || // nu_e,   anti_nu_e
+            particle == G4NeutrinoMu::Definition() || particle == G4AntiNeutrinoMu::Definition() || // nu_mu,  anti_nu_mu
+            particle == G4NeutrinoTau::Definition() || particle == G4AntiNeutrinoTau::Definition());   // nu_tau, anti_nu_tau
   }
 
 std::unique_ptr<G4Step> SimulationEnergies::CreateFakeStep(G4Track* a_track, G4double a_energy) const
