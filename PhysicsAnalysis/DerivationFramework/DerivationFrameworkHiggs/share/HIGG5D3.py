@@ -133,6 +133,7 @@ Run2DataTriggers=['HLT_2j35_bmv2c2070_2j35_L13J25.0ETA23',
                   'HLT_g100_loose',
                   'HLT_g120_loose', # added on Jan 2016
                   'HLT_g25_medium_L1EM22VHI_j35_0eta490_bmv2c2077_split_3j35_0eta490_invm700',
+                  'HLT_g25_medium_L1EM22VHI_j35_0eta490_bmv2c1077_split_3j35_0eta490_invm700',
                   'HLT_g25_medium_L1EM22VHI_2j35_0eta490_bmv2c2077_split_2j35_0eta490', # added on Apr 2016
                   'HLT_g25_medium_L1EM22VHI_2j35_0eta490_bmv2c1077_split_2j35_0eta490',
                   'HLT_2g20_tight',
