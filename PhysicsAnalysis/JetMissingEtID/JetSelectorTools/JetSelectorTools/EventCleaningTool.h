@@ -52,7 +52,7 @@ class EventCleaningTool : public virtual IEventCleaningTool,
     virtual StatusCode initialize() override;
 
      /** Initialize method */
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
 
     virtual bool acceptEvent(const xAOD::JetContainer* jets) const override;
 
