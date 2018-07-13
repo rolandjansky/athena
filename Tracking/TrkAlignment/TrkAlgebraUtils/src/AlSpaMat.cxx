@@ -19,76 +19,88 @@
 #include <math.h>
 #include <float.h>
 #include <stdint.h>
-#include <stdexcept>
 
 #include <TMatrixDSparse.h>
 
+extern"C" {
+  void ma27id_(int ICNTL[],double CNTL[]);
 
-#include <Eigen/Core>
-#include <Eigen/IterativeLinearSolvers>
-#include <Eigen/SparseCholesky>
+  void ma27ad_(int *N,int *NZ,int IRN[],int ICN[],
+               int IW[],int *LIW,int IKEEP[],int IW1p[],
+               int *NSTEPS,int *IFLAG,int ICNTL[],double CNTL[],
+               int INFO[],double *OPS);
 
+  void ma27bd_(int *N,int *NZ,int IRN[],int ICN[],
+               double A[],int *LA,int IW[],int *LIW,int IKEEP[],
+               int *NSTEPS,int *MAXFRT, int IW1[],int ICNTL[],
+               double CNTL[], int INFO[]);
+
+  void ma27cd_(int *N, double A[],int *LA,int IW[],int *LIW,
+               double W[],int *MAXFRT,double RHS[],int IW1[],int *NSTEPS,
+               int ICNTL[], int INFO[]);
+}
 
 namespace Trk {
 
 //______________________________________________________________________________
 AlSpaMat::AlSpaMat()
 {
-  m_matrix_type = 2;
-  m_size = 0;
-  m_nele = 0;
-  m_ptr_row = nullptr;
-  m_ptr_col = nullptr;    // set pointer to null
+  _matrix_type = 2;
+  _size = 0;
+  _nele = 0;
+  ptr_row = NULL;
+  ptr_col = NULL;    // set pointer to null
 }
 
 //______________________________________________________________________________
 AlSpaMat::AlSpaMat(long int N)
 {
-  m_matrix_type = 2;
-  m_size = N;
-  m_nele = 0;
-  m_ptr_row = nullptr;
-  m_ptr_col = nullptr;    // set pointer to null
+  _matrix_type = 2;
+  _size = N;
+  _nele = 0;
+  ptr_row = NULL;
+  ptr_col = NULL;    // set pointer to null
 }
 
 //______________________________________________________________________________
 AlSpaMat::AlSpaMat(const AlSpaMat& m)
  : AlSymMatBase(m)
 {
-  m_matrix_type = 2;
-  m_size = m.size();
-  m_ptr_row = nullptr;
-  m_ptr_col = nullptr;    // set pointer to null
+  _matrix_type = 2;
+  _size = m.size();
+  ptr_row = NULL;
+  ptr_col = NULL;    // set pointer to null
   copy(m);
 }
 
 //______________________________________________________________________________
 AlSpaMat::AlSpaMat(const AlSymMat& m)
 {
-  m_matrix_type = 2;
-  m_size = m.size();
-  m_ptr_row = nullptr;
-  m_ptr_col = nullptr;    // set pointer to null
+  _matrix_type = 2;
+  _size = m.size();
+  ptr_row = NULL;
+  ptr_col = NULL;    // set pointer to null
   copy(m);
 }
 
 //______________________________________________________________________________
 AlSpaMat::~AlSpaMat()
 {
-  m_ptr_map.clear();
-  if( m_ptr_row != nullptr )  delete [] m_ptr_row;
-  if( m_ptr_col != nullptr )  delete [] m_ptr_col;
+  ptr_map.clear();
+  if( ptr_row != NULL )  delete [] ptr_row;
+  if( ptr_col != NULL )  delete [] ptr_col;
 }
 
 //______________________________________________________________________________
 void AlSpaMat::copy(const AlSpaMat& m)
 {
   if( size() != m.size()) {
-    throw std::range_error( "AlSpaMat::copy: size do not match!" );
+    std::cerr << "AlSpaMat::copy: size do not match!" << std::endl;
+    return;
   }
-  m_ptr_map.clear();
-  m_nele=m.m_nele;
-  m_ptr_map = m.m_ptr_map;
+  ptr_map.clear();
+  _nele=m._nele;
+  ptr_map = m.ptr_map;
   return;
 }
 
@@ -96,17 +108,18 @@ void AlSpaMat::copy(const AlSpaMat& m)
 void AlSpaMat::copy(const AlSymMat& m)
 {
   if( size() != m.size()) {
-    throw std::range_error( "AlSpaMat::copy: size do not match!" );
+    std::cerr << "AlSpaMat::copy: size do not match!" << std::endl;
+    return;
   }
-  m_ptr_map.clear();
-  m_nele=0;
+  ptr_map.clear();
+  _nele=0;
 
   // Convert Storage System
-  for (int i = 0; i<m_size; i++)
+  for (int i = 0; i<_size; i++)
     for (int j = 0; j<=i; j++)
       if  (m.elemc(i,j) != 0.) {
-        m_ptr_map.insert(std::make_pair(std::make_pair(i,j), m.elemc(i,j)));
-        m_nele++;
+        ptr_map.insert(std::make_pair(std::make_pair(i,j), m.elemc(i,j)));
+        _nele++;
       }
 
   return;
@@ -116,19 +129,20 @@ void AlSpaMat::copy(const AlSymMat& m)
 void AlSpaMat::copy(const AlMat& m)
 {
   if( size() != m.nrow() || size() != m.ncol() ) {
-    throw std::range_error( "AlSpaMat::copy: size do not match!" );
+    std::cerr << "AlSpaMat::copy: size do not match!" << std::endl;
+    return;
   }
 
   // copy just the lower triangle:
-  m_ptr_map.clear();
-  m_nele=0;
+  ptr_map.clear();
+  _nele=0;
 
   //Convert Storage System
-  for (int i = 0; i<m_size; i++)
+  for (int i = 0; i<_size; i++)
     for (int j = 0; j<=i; j++)
       if  (m.elemc(i,j) != 0.) {
-        m_ptr_map.insert(std::make_pair(std::make_pair(i,j), m.elemc(i,j)));
-        m_nele++;
+        ptr_map.insert(std::make_pair(std::make_pair(i,j), m.elemc(i,j)));
+        _nele++;
       }
 
   return;
@@ -139,34 +153,38 @@ double& AlSpaMat::elemr(long int i,long int j)
 {
 #ifdef _DEBUG
   if( i<0 ) {
-    throw std::out_of_range( "AlSpaMat::elemr: Index 1 < zero! " );
+    std::cerr << "AlSpaMat::elemr: Index 1 < zero! " << i << std::endl;
+    return ptr_map.begin()->second;
   }
   if( i>=size() ) {
-    throw std::out_of_range( "AlSpaMat::elemr: Index 1 too large! " );
+    std::cerr << "AlSpaMat::elemr: Index 1 too large! " << i << std::endl;
+    return ptr_map.begin()->second;
   }
   if( j<0 ) {
-    throw std::out_of_range( "AlSpaMat::elemr: Index 2 < zero! " );
+    std::cerr << "AlSpaMat::elemr: Index 2 < zero! " << j << std::endl;
+    return ptr_map.begin()->second;
   }
   if( j>=size() ) {
-    throw std::out_of_range("AlSpaMat::elemr: Index 2 too large! " );;
+    std::cerr << "AlSpaMat::elemr: Index 2 too large! " << j << std::endl;
+    return ptr_map.begin()->second;
   }
 #endif
   // try fast referencing:
   mapiterator pos;
   indices key = j < i ? std::make_pair(i,j) : std::make_pair(j,i);
-  pos=m_ptr_map.find(key);
-  if( pos!=m_ptr_map.end() )    // already exists
+  pos=ptr_map.find(key);
+  if( pos!=ptr_map.end() )    // already exists
     return pos->second;
   else {                      // does not yet exist
     // create it with the null value:
-    m_nele++;
-    return (m_ptr_map.insert(std::make_pair(key, 0.))).first->second;
+    _nele++;
+    return (ptr_map.insert(std::make_pair(key, 0.))).first->second;
   }
   // simpler implementation of the above:
   /*
-    m_ptr_map[key]=0;
-    m_nele = m_ptr_map.size();
-    return m_ptr_map[key];
+    ptr_map[key]=0;
+    _nele = ptr_map.size();
+    return ptr_map[key];
   */
 }
 
@@ -175,24 +193,28 @@ double  AlSpaMat::elemc(long int i,long int j) const
 {
 #ifdef _DEBUG
   if( i<0 ) {
-    throw std::out_of_range( "AlSpaMat::elemc: Index 1 < zero! " );
+    std::cerr << "AlSpaMat::elemc: Index 1 < zero! " << i << std::endl;
+    return 0.0;
   }
   if( i>=size() ) {
-    throw std::out_of_range( "AlSpaMat::elemc: Index 1 too large! " );
+    std::cerr << "AlSpaMat::elemc: Index 1 too large! " << i << std::endl;
+    return 0.0;
   }
   if( j<0 ) {
-    throw std::out_of_range( "AlSpaMat::elemc: Index 2 < zero! " );
+    std::cerr << "AlSpaMat::elemc: Index 2 < zero! " << j << std::endl;
+    return 0.0;
   }
   if( j>=size() ) {
-    throw std::out_of_range( "AlSpaMat::elemc: Index 2 too large! " );
+    std::cerr << "AlSpaMat::elemc: Index 2 too large! " << j << std::endl;
+    return 0.0;
   }
 #endif
   // try fast referencing:
   const_mapiterator pos;
   indices key = j < i ? std::make_pair(i,j) : std::make_pair(j,i);
-  pos=m_ptr_map.find(key);
+  pos=ptr_map.find(key);
 
-  if( pos!=m_ptr_map.end() )    // already exists
+  if( pos!=ptr_map.end() )    // already exists
     return pos->second;
 
   // does not yet exist
@@ -206,16 +228,20 @@ indices  AlSpaMat::elem(long int i,long int j) const
   // ATTENTION! the key value is returned:
 #ifdef _DEBUG
   if( i<0 ) {
-    throw std::out_of_range( "AlSpaMat::elem: Index 1 < zero! " );
+    std::cerr << "AlSpaMat::elem: Index 1 < zero! " << i << std::endl;
+    return std::make_pair(0,0);
   }
   if( i>=size() ) {
-    throw std::out_of_range( "AlSpaMat::elem: Index 1 too large! " );
+    std::cerr << "AlSpaMat::elem: Index 1 too large! " << i << std::endl;
+    return std::make_pair(0,0);
   }
   if( j<0 ) {
-    throw std::out_of_range( "AlSpaMat::elem: Index 2 < zero! " );
+    std::cerr << "AlSpaMat::elem: Index 2 < zero! " << j << std::endl;
+    return std::make_pair(0,0);
   }
   if( j>=size() ) {
-    throw std::out_of_range( "AlSpaMat::elem: Index 2 too large! " );
+    std::cerr << "AlSpaMat::elem: Index 2 too large! " << j << std::endl;
+    return std::make_pair(0,0);
   }
 #endif
 
@@ -228,7 +254,7 @@ AlSpaMat&  AlSpaMat::operator=(const AlSpaMat& m)
 {
   
  if ( this != &m ) {
-    m_size=m.size();
+    _size=m.size();
     copy(m);
   }
   return *this;
@@ -237,7 +263,7 @@ AlSpaMat&  AlSpaMat::operator=(const AlSpaMat& m)
 //______________________________________________________________________________
 AlSpaMat&  AlSpaMat::operator=(const AlSymMat& m)
 {
-  m_size=m.size();
+  _size=m.size();
   copy(m);
   return *this;
 }
@@ -246,10 +272,11 @@ AlSpaMat&  AlSpaMat::operator=(const AlSymMat& m)
 AlSpaMat&  AlSpaMat::operator=(const AlMat& m)
 {
   if( m.nrow() != m.ncol() ) {
-    throw std::range_error( "AlSpaMat::=operator: allowed for square matrices only!" );
+    std::cerr << "AlSpaMat::=operator: allowed for square matrices only!" << std::endl;
+    return *this;
   }
 
-  m_size=m.nrow();
+  _size=m.nrow();
   copy(m);
   return *this;
 }
@@ -258,7 +285,7 @@ AlSpaMat&  AlSpaMat::operator=(const AlMat& m)
 AlSpaMat&  AlSpaMat::operator=(const double& d)
 {
   mapiterator pos;
-  for (pos = m_ptr_map.begin(); pos!=m_ptr_map.end(); pos++)
+  for (pos = ptr_map.begin(); pos!=ptr_map.end(); pos++)
     pos->second = d;
 
   return *this;
@@ -268,14 +295,15 @@ AlSpaMat&  AlSpaMat::operator=(const double& d)
 AlSpaMat AlSpaMat::operator+(const AlSpaMat& m) const
 {
   if( size() != m.size()) {
-    throw std::range_error(  "AlSpaMat::operator+: size do not match!" );
+    std::cerr << "AlSpaMat::operator+: size do not match!" << std::endl;
+    return *this;
   }
 
   AlSpaMat b(m);
   const_mapiterator pos;
-  for (pos = m_ptr_map.begin(); pos!=m_ptr_map.end(); pos++)
-    b.m_ptr_map[pos->first] += pos->second;
-  b.m_nele = b.m_ptr_map.size();
+  for (pos = ptr_map.begin(); pos!=ptr_map.end(); pos++)
+    b.ptr_map[pos->first] += pos->second;
+  b._nele = b.ptr_map.size();
 
   return b;
 }
@@ -284,13 +312,14 @@ AlSpaMat AlSpaMat::operator+(const AlSpaMat& m) const
 AlSpaMat&  AlSpaMat::operator+=(const AlSpaMat& m)
 {
   if( size() != m.size()) {
-    throw std::range_error( "AlSpaMat::operator+=: size do not match!" );
+    std::cerr << "AlSpaMat::operator+=: size do not match!" << std::endl;
+    return *this;
   }
 
   const_mapiterator pos;
-  for (pos = m.m_ptr_map.begin(); pos!=m.m_ptr_map.end(); pos++)
-    (*this).m_ptr_map[pos->first] += pos->second;
-  m_nele = m_ptr_map.size();
+  for (pos = m.ptr_map.begin(); pos!=m.ptr_map.end(); pos++)
+    (*this).ptr_map[pos->first] += pos->second;
+  _nele = ptr_map.size();
 
   return *this;
 }
@@ -299,14 +328,15 @@ AlSpaMat&  AlSpaMat::operator+=(const AlSpaMat& m)
 AlSpaMat AlSpaMat::operator-(const AlSpaMat& m) const
 {
   if( size() != m.size()) {
-    throw std::range_error(  "AlSpaMat::operator-: size do not match!" );
+    std::cerr << "AlSpaMat::operator-: size do not match!" << std::endl;
+    return *this;
   }
 
   AlSpaMat b(m);
   const_mapiterator pos;
-  for (pos = m_ptr_map.begin(); pos!=m_ptr_map.end(); pos++)
-    b.m_ptr_map[pos->first] -= pos->second;
-  b.m_nele = b.m_ptr_map.size();
+  for (pos = ptr_map.begin(); pos!=ptr_map.end(); pos++)
+    b.ptr_map[pos->first] -= pos->second;
+  b._nele = b.ptr_map.size();
 
   return b;
 }
@@ -315,13 +345,14 @@ AlSpaMat AlSpaMat::operator-(const AlSpaMat& m) const
 AlSpaMat&  AlSpaMat::operator-=(const AlSpaMat& m)
 {
   if( size() != m.size()) {
-    throw std::range_error(  "AlSpaMat::operator-=: size do not match!" );
+    std::cerr << "AlSpaMat::operator-=: size do not match!" << std::endl;
+    return *this;
   }
 
   const_mapiterator pos;
-  for (pos = m.m_ptr_map.begin(); pos!=m.m_ptr_map.end(); pos++)
-    (*this).m_ptr_map[pos->first] -= pos->second;
-  m_nele = m_ptr_map.size();
+  for (pos = m.ptr_map.begin(); pos!=m.ptr_map.end(); pos++)
+    (*this).ptr_map[pos->first] -= pos->second;
+  _nele = ptr_map.size();
 
   return *this;
 }
@@ -330,7 +361,9 @@ AlSpaMat&  AlSpaMat::operator-=(const AlSpaMat& m)
 AlMat AlSpaMat::operator*(const AlSymMatBase& m) const
 {
   if( size() != m.size() ) {
-    throw std::range_error(  "AlSpaMat::operator*: size do not match!" );
+    std::cerr << "AlSpaMat::operator*: size do not match!" << std::endl;
+    AlMat b( size(), m.size());
+    return b;
   }
 
   long int  isiz(size());
@@ -347,7 +380,8 @@ AlMat AlSpaMat::operator*(const AlSymMatBase& m) const
 //______________________________________________________________________________
 AlMat  AlSpaMat::operator*(const AlMat& m) const {
   if( size() != m.nrow() ) {
-    throw std::range_error(  "AlSpaMat::operator*: size do not match!" );
+    std::cerr << "AlSpaMat::operator*: size do not match!" << std::endl;
+    return m;
   }
 
   long int  isiz(size());
@@ -366,7 +400,8 @@ AlMat  AlSpaMat::operator*(const AlMat& m) const {
 AlVec AlSpaMat::operator*(const AlVec& v) const
 {
   if( size() != v.size() ) {
-    throw std::range_error(  "AlSpaMat::operator*: size do not match! " );
+    std::cerr << "AlSpaMat::operator*: size do not match! " << std::endl;
+    return v;
   }
 
   long int  isiz(size());
@@ -383,7 +418,7 @@ AlVec AlSpaMat::operator*(const AlVec& v) const
 AlSpaMat&  AlSpaMat::operator*=(const double& d)
 {
   mapiterator pos;
-  for (pos = m_ptr_map.begin(); pos!=m_ptr_map.end(); pos++)
+  for (pos = ptr_map.begin(); pos!=ptr_map.end(); pos++)
     pos->second *= d;
 
   return *this;
@@ -394,8 +429,8 @@ AlSpaMat  AlSpaMat::operator*(const double& d) const
 {
   AlSpaMat a(size());
   const_mapiterator pos;
-  for (pos = m_ptr_map.begin(); pos!=m_ptr_map.end(); pos++)
-    a.m_ptr_map.insert(std::make_pair(pos->first, (pos->second)*d));
+  for (pos = ptr_map.begin(); pos!=ptr_map.end(); pos++)
+    a.ptr_map.insert(std::make_pair(pos->first, (pos->second)*d));
 
   return a;
 }
@@ -403,94 +438,118 @@ AlSpaMat  AlSpaMat::operator*(const double& d) const
 //______________________________________________________________________________
 double AlSpaMat::determinant()
 {
-  throw std::invalid_argument( "AlSpaMat::determinant: not implemented!" );
+  double deter = 1.;
+
+  std::cerr << "AlSpaMat::determinant: not implemented!" << std::endl;
+
+  return deter;
 }
 
-int AlSpaMat::SolveWithEigen(AlVec& RHS){
- 
-  if(RHS.size() != size() ){
-    throw std::range_error(  "AlSpaMat::SolveWithEigen vector size is incorrect" );
-  }
-  
-  Eigen::VectorXd eigenBigVector( RHS.size() );
-  for(int i(0); i< RHS.size(); ++i ){
-    eigenBigVector[i] = RHS[i];
-  }
+//______________________________________________________________________________
+int AlSpaMat::***REMOVED***Solve(AlVec& RHS)
+{
+  int ICNTL[30];
+  double CNTL[5];
+  ma27id_(ICNTL,CNTL);
 
-  Eigen::SparseMatrix<double> eigenBigMatrix( m_size, m_size );
-  
-  typedef Eigen::Triplet<double> Triplet;
-  std::vector<Triplet> tripletList;
-  tripletList.reserve(m_nele);
+  double* ptr_data = new double[_nele];
+  ptr_row = new int[_nele];
+  ptr_col = new int[_nele];
+
+  int Size(_size);
+  int Nele(_nele);
+
+  //Convert Storage System
+
   long int      i, j;
   long int counter(0);
   mapiterator pos;
-  for (pos = m_ptr_map.begin(); pos!=m_ptr_map.end(); pos++){
+  for (pos = ptr_map.begin(); pos!=ptr_map.end(); pos++){
     elem(pos->first, i, j);
-    tripletList.push_back(Triplet(i,j,pos->second));
-    if(i!=j) tripletList.push_back(Triplet(j,i,pos->second));
+    *(ptr_data+counter)=pos->second;
+    *(ptr_row+counter)= i+1;
+    *(ptr_col+counter)= j+1;
     counter++;
   }
-  eigenBigMatrix.setFromTriplets(tripletList.begin(), tripletList.end());
 
-  // Eigen::CholmodSupernodalLLT  is much much quicker (x50) so it would be great to move to that in the future
-  // requires an external package SuiteSparse
-  // BiCGSTAB was the fastest iterative solver in Eigen from a quick test
-  // SimplicialLDLT was the fastest direct solver in Eigen (x2 slower than BiCGSTAB ) 
+  int LIW =3/2*(2*Nele+3*Size+1);
+  int* IW = new int[LIW];
+  int* IKEEP = new int[3*Size];
+  int* IW1 = new int[2*Size];
+  int NSTEPS;
+  int IFLAG = 0;
+  int INFO[20];
+  double OPS;
 
-  // Eigen::BiCGSTAB<Eigen::SparseMatrix<double> > solver;
-  Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > solver;
+  ma27ad_(&Size, &Nele,ptr_row,ptr_col,
+          IW,&LIW,IKEEP,IW1,
+          &NSTEPS,&IFLAG,ICNTL,CNTL,
+          INFO,&OPS);
 
-  solver.compute(eigenBigMatrix);
-  if(solver.info()!=Eigen::Success) {
-    // decomposition failed
-    throw std::domain_error("AlSpaMat::SolveWithEigen: failed to compute: -- is the input matrix singular?" );
-    return 1;
-  }
+  int MAXFRT;
+  int LA =2*INFO[4];
 
-  Eigen::VectorXd x = solver.solve( eigenBigVector );
-  if(solver.info()!=Eigen::Success) {
-  // solving failed
-    throw std::domain_error("AlSpaMat::SolveWithEigen: Failed to solve: -- is your matrix singular? ");
-    return 2;
-  }
-  
-  //Copy results into vector
-  for(int i(0); i< RHS.size(); ++i ){
-    RHS[i] = x[i];
-  }
+  double* TempA = new double[Nele];
+  for (int i=0; i<Nele ;i++)
+    *(TempA+i) = *(ptr_data+i);
 
-  //Check accuracy
-  Eigen::VectorXd residual = eigenBigMatrix * x - eigenBigVector;
-  double sumresidual = 0;
-  for( int i=0; i<residual.size(); ++i){
-    sumresidual += fabs(residual[i]);
-  }
-  sumresidual /= (double) residual.size();
-  
-  if( sumresidual > 1e-3 ){
-    throw std::overflow_error( "AlSpaMat::SolveWithEigen: your solution is no good! ");
-    return 3;
-  }
+  delete [] ptr_data;
+  ptr_data = new double[LA];
 
-  return 0;
+  for (int i=0; i<LA ;i++)
+    *(ptr_data+i)=0;
 
+  for (int i=0; i<Nele ;i++)
+    *(ptr_data+i)= *(TempA+i);
 
+  delete [] TempA;
+
+  ma27bd_(&Size,&Nele,ptr_row,ptr_col,
+          ptr_data,&LA,IW,&LIW,IKEEP,
+          &NSTEPS,&MAXFRT,IW1,ICNTL,
+          CNTL,INFO);
+
+  double* W =new double[MAXFRT];
+
+  double* RHStemp =new double[Size];
+  for (int i=0; i<Size; i++)
+    RHStemp[i] = RHS[i];
+
+  ma27cd_(&Size, ptr_data,&LA,IW,&LIW,
+          W,&MAXFRT,RHStemp,IW1,&NSTEPS,
+          ICNTL,INFO);
+
+  for (int i=0; i<Size; i++)
+    RHS[i] = RHStemp[i];
+
+  delete [] RHStemp;
+  delete [] IW;
+  delete [] IKEEP;
+  delete [] IW1;
+  delete [] W;
+
+  delete [] ptr_data;  ptr_data=NULL;
+  delete [] ptr_row;   ptr_row=NULL;
+  delete [] ptr_col;   ptr_col=NULL;
+
+  return INFO[0];
 }
-
-
 
 //______________________________________________________________________________
 //jlove int AlSpaMat::diagonalize(char jobz, AlVec& w, AlMat& z) {
 int AlSpaMat::diagonalize(char, AlVec&, AlMat&)
 {
-  throw std::invalid_argument( "AlSpaMat::diagonalize: not implemented!" );
+  std::cerr << "AlSpaMat::diagonalize: not implemented!" << std::endl;
+  int ierr = -1;
+  return ierr;
 }
 
 //______________________________________________________________________________
 int AlSpaMat::invert()
 {
-  throw std::invalid_argument( "AlSpaMat::invert: not implemented!" );
+  std::cerr << "AlSpaMat::invert: not implemented!" << std::endl;
+  int ierr = -1;
+  return ierr;
 }
 
 //______________________________________________________________________________
@@ -498,16 +557,16 @@ void AlSpaMat::RemoveDoF(int index, int nelem)
 {
   // index here is the first alignment parameter to remove, nelem number of consecutive ones
 
-  m_size-=nelem;
+  _size-=nelem;
   long int n=index+nelem-1;
   mapiterator pos;
-  mapiterator pos_obs=m_ptr_map.end();
-  for (pos = m_ptr_map.begin(); pos!=m_ptr_map.end(); pos++) {
+  mapiterator pos_obs=ptr_map.end();
+  for (pos = ptr_map.begin(); pos!=ptr_map.end(); pos++) {
 
-    if( pos_obs!=m_ptr_map.end() )
-      m_ptr_map.erase(pos_obs);
+    if( pos_obs!=ptr_map.end() )
+      ptr_map.erase(pos_obs);
 
-    pos_obs = m_ptr_map.end();
+    pos_obs = ptr_map.end();
 
     long int k, l;
     elem(pos->first, k, l);
@@ -526,9 +585,9 @@ void AlSpaMat::RemoveDoF(int index, int nelem)
     }
   }
 
-  if( pos_obs!=m_ptr_map.end() )
-    m_ptr_map.erase(pos_obs);
-  m_nele = m_ptr_map.size();
+  if( pos_obs!=ptr_map.end() )
+    ptr_map.erase(pos_obs);
+  _nele = ptr_map.size();
 }
 
 //______________________________________________________________________________
@@ -536,11 +595,12 @@ int AlSpaMat::RemoveCollsRows(std::vector<int> indices)
 {
   int n = indices.size();
   if (n==0) {
-    return m_size;
+    std::cerr<<"Vector of indices to remove is empty."<<std::endl;
+    return _size;
   }
-  if (n>m_size) {
-    throw std::invalid_argument( "AlSpaMat::RemoveCollsRows: Vector of indices larger than matrix size." );
-    return m_size;
+  if (n>_size) {
+    std::cerr<<"Vector of indices larger than matrix size."<<std::endl;
+    return _size;
   }
 
   // first sort the list of indices descending
@@ -555,13 +615,14 @@ int AlSpaMat::RemoveCollsRows(std::vector<int> indices)
 
   // remove rows and columns starting from largest indices
   for (int i=0;i<n;i++) {
-    if (indices[i] > m_size-1) {
-      throw std::out_of_range( "AlSpaMat::RemoveCollsRows: Index goes beyond matrix." );
+    if (indices[i] > _size-1) {
+      std::cerr<<"Index "<<indices[i]<<" goes beyond matrix (size "<<_size<<")."<<std::endl;
+      continue;
     }
     RemoveDoF(indices[i]);
   }
 
-  return m_size;
+  return _size;
 }
 
 //______________________________________________________________________________
@@ -591,15 +652,15 @@ void AlSpaMat::RemoveAlignPar(int index, int control)
         counterCol=0;
       }
 
-      pos = m_ptr_map.find(std::make_pair(row+shiftRow,col+shiftCol));
-      if( pos!=m_ptr_map.end() ) {    // exists
+      pos = ptr_map.find(std::make_pair(row+shiftRow,col+shiftCol));
+      if( pos!=ptr_map.end() ) {    // exists
         elemr(row,col) = pos->second;
-        m_ptr_map.erase(pos);
+        ptr_map.erase(pos);
       }
       else {
-        pos = m_ptr_map.find(std::make_pair(row,col));
-        if( pos!=m_ptr_map.end() )
-          m_ptr_map.erase(pos);
+        pos = ptr_map.find(std::make_pair(row,col));
+        if( pos!=ptr_map.end() )
+          ptr_map.erase(pos);
       }
       counterCol++;
       if (counterCol==5-control) {
@@ -615,7 +676,7 @@ void AlSpaMat::RemoveAlignPar(int index, int control)
     }
   }
 
-  m_nele = m_ptr_map.size();
+  _nele = ptr_map.size();
 }
 
 //______________________________________________________________________________
@@ -633,21 +694,21 @@ void AlSpaMat::RemoveModule(int index)
 void AlSpaMat::reSize(long int n)
 {
   // balanced binary tree!
-  if( n!=m_size ) {
+  if( n!=_size ) {
     // make a temporary copy:
     AlSpaMat m(*this);
-    m_ptr_map.clear();
-    m_size = n;
+    ptr_map.clear();
+    _size = n;
     long int i, j;
     mapiterator pos;
-    for (pos = m.m_ptr_map.begin(); pos!=m.m_ptr_map.end(); pos++) {
+    for (pos = m.ptr_map.begin(); pos!=m.ptr_map.end(); pos++) {
       m.elem(pos->first, i, j);
       if( i<n && j<n )
-        m_ptr_map.insert(*pos);
+        ptr_map.insert(*pos);
     }
   }
 
-  m_nele = m_ptr_map.size();
+  _nele = ptr_map.size();
   return;
 }
 
@@ -667,12 +728,12 @@ void AlSpaMat::SetPathTxt(const std::string &path)
 //jlove StatusCode AlSpaMat::Write(const std::string &filename, bool binary,
 //                           bool square, double scale, float version){
 StatusCode AlSpaMat::Write(const std::string &filename, bool binary,
-                           bool /*square*/, double, float version)
+                           bool square, double, float version)
 {
   std::ofstream outmat;
 
   int32_t msizz = 1000000+size();
-  int32_t nelem = m_ptr_map.size();
+  int32_t nelem = ptr_map.size();
 
   if(binary) {
     outmat.open((m_pathbin+filename).c_str(), std::ios::binary);
@@ -683,6 +744,9 @@ StatusCode AlSpaMat::Write(const std::string &filename, bool binary,
     outmat.write((char*)&msizz, sizeof (msizz));
     outmat.write((char*)&version, sizeof (version));
     outmat.write((char*)&nelem, sizeof (nelem));
+    // std::cout << "AlSpaMat::Write: msizz = " << msizz << std::endl;
+    // std::cout << "AlSpaMat::Write: version = " << version << std::endl;
+    // std::cout << "AlSpaMat::Write: nelem = " << nelem << std::endl;
   }
   else {
     outmat.open((m_pathtxt+filename).c_str());
@@ -701,7 +765,7 @@ StatusCode AlSpaMat::Write(const std::string &filename, bool binary,
   int32_t i, j;
 
   mapiterator pos;
-  for (pos = m_ptr_map.begin(); pos!=m_ptr_map.end(); pos++) {
+  for (pos = ptr_map.begin(); pos!=ptr_map.end(); pos++) {
     melem = pos->second;
     elem(pos->first, ii, jj);   i=ii;  j=jj;     // just a type conversion
     if(binary) {
@@ -713,6 +777,8 @@ StatusCode AlSpaMat::Write(const std::string &filename, bool binary,
       outmat << std::setw(6) << i  << std::setw(6) << j << std::setw(18) << melem << std::endl;
   }
   outmat.close();
+  if(square)
+    std::cout << "AlSpaMat::Write: square flag has been ignored!" << std::endl;
 
   return StatusCode::SUCCESS;
 }
@@ -724,7 +790,7 @@ StatusCode AlSpaMat::CheckMatVersion(const std::string filename, bool &StdUnits)
   if(inmat.fail())
     return StatusCode::FAILURE;
 
-  m_ptr_map.clear();
+  ptr_map.clear();
 
   int32_t msiz=0;
   inmat.read((char*)&msiz, sizeof (msiz));
@@ -739,6 +805,8 @@ StatusCode AlSpaMat::CheckMatVersion(const std::string filename, bool &StdUnits)
 
   inmat.close();
 
+  // std::cout << "AlSpaMat::StdUnits: " << StdUnits << std::endl;
+
   return StatusCode::SUCCESS;
 }
 
@@ -749,11 +817,13 @@ StatusCode AlSpaMat::Read(const std::string &filename, int &dofs, bool &triang, 
   if (StatusCode::SUCCESS != CheckMatVersion(m_pathbin+filename, m_StdUnits))
     return StatusCode::FAILURE;
 
+  // std::cout << "AlSpaMat::StdUnits: " << m_StdUnits << std::endl;
+
   std::ifstream inmat((m_pathbin+filename).c_str(), std::ios::binary);
   if(inmat.fail())
     return StatusCode::FAILURE;
 
-  m_ptr_map.clear();
+  ptr_map.clear();
 
   int32_t msiz=0;
   int32_t nelem;
@@ -762,10 +832,11 @@ StatusCode AlSpaMat::Read(const std::string &filename, int &dofs, bool &triang, 
     dofs = msiz-1000000;
   else
     dofs = abs(msiz);
-  m_size = dofs;
+  _size = dofs;
 
   if (m_StdUnits)
     inmat.read((char*)&version, sizeof (version));
+  // std::cout << "AlSpaMat::Write: version = " << version << std::endl;
 
   double melem=0;
   int32_t i, j;
@@ -773,12 +844,13 @@ StatusCode AlSpaMat::Read(const std::string &filename, int &dofs, bool &triang, 
   if(msiz>999999) { // sparse format
     triang=false;
     inmat.read((char*)&nelem, sizeof (nelem));
-    m_nele=nelem;
+    _nele=nelem;
+    // std::cout << "AlSpaMat::Write: nelem = " << nelem << std::endl;
     for(int k=0; k<nelem; k++) {
       inmat.read((char*)&i, sizeof (i));
       inmat.read((char*)&j, sizeof (j));
       inmat.read((char*)&melem, sizeof (melem));
-      m_ptr_map.insert(std::make_pair(std::make_pair(i,j), melem));
+      ptr_map.insert(std::make_pair(std::make_pair(i,j), melem));
     }
   }
   else if(msiz>0) { // square format
@@ -786,24 +858,26 @@ StatusCode AlSpaMat::Read(const std::string &filename, int &dofs, bool &triang, 
     for(int32_t i=0; i<msiz; i++) {
       for(int32_t j=0; j<msiz; j++) {
         inmat.read((char*)&melem, sizeof (melem));
+        // std::cout << "AlSpaMat::Write: nelem = " << nelem << std::endl;
         if( i>=j && melem!=0. )
-          m_ptr_map.insert(std::make_pair(std::make_pair(i,j), melem));
+          ptr_map.insert(std::make_pair(std::make_pair(i,j), melem));
       }
     }
   }
   else { // triangular format
     triang=true;
     msiz = (-1)*msiz;
+    // std::cout << "msiz="  << msiz << std::endl;
     for( int32_t i=0; i<msiz; i++) {
       for( int32_t j=0; j<=i; j++) {
         inmat.read((char*)&melem, sizeof (melem));
         if( melem!=0. )
-          m_ptr_map.insert(std::make_pair(std::make_pair(i,j), melem));
+          ptr_map.insert(std::make_pair(std::make_pair(i,j), melem));
       }
     }
   }
 
-  m_nele = m_ptr_map.size();
+  _nele = ptr_map.size();
   inmat.close();
   return StatusCode::SUCCESS;
 }
@@ -816,7 +890,7 @@ StatusCode AlSpaMat::ReadProjected(const std::string &filename, int &dofs,
   if(inmat.fail())
     return StatusCode::FAILURE;
 
-  m_ptr_map.clear();
+  ptr_map.clear();
 
   int32_t msiz=0;
   int32_t nelem;
@@ -825,7 +899,7 @@ StatusCode AlSpaMat::ReadProjected(const std::string &filename, int &dofs,
     dofs = msiz-1000000;
   else
     dofs = abs(msiz);
-  m_size = dofs;
+  _size = dofs;
 
   inmat.read((char*)&version, sizeof (version));
 
@@ -835,12 +909,13 @@ StatusCode AlSpaMat::ReadProjected(const std::string &filename, int &dofs,
   if(msiz>999999) { // sparse format
     triang=false;
     inmat.read((char*)&nelem, sizeof (nelem));
-    m_nele=nelem;
+    _nele=nelem;
+//    std::cout << "AlSpaMat::Write: nelem = " << nelem << std::endl;
     for(int k=0; k<nelem; k++) {
       inmat.read((char*)&i, sizeof (i));
       inmat.read((char*)&j, sizeof (j));
       inmat.read((char*)&melem, sizeof (melem));
-      m_ptr_map.insert(std::make_pair(std::make_pair(i,j), melem));
+      ptr_map.insert(std::make_pair(std::make_pair(i,j), melem));
     }
   }
   else if(msiz>0) { // square format
@@ -849,23 +924,24 @@ StatusCode AlSpaMat::ReadProjected(const std::string &filename, int &dofs,
       for(int32_t j=0; j<msiz; j++) {
         inmat.read((char*)&melem, sizeof (melem));
         if( i>=j && melem!=0. )
-          m_ptr_map.insert(std::make_pair(std::make_pair(i,j), melem));
+          ptr_map.insert(std::make_pair(std::make_pair(i,j), melem));
       }
     }
   }
   else { // triangular format
     triang=true;
     msiz = (-1)*msiz;
+//    std::cout << "msiz="  << msiz << std::endl;
     for( int32_t i=0; i<msiz; i++) {
       for( int32_t j=0; j<=i; j++) {
         inmat.read((char*)&melem, sizeof (melem));
         if( melem!=0. )
-          m_ptr_map.insert(std::make_pair(std::make_pair(i,j), melem));
+          ptr_map.insert(std::make_pair(std::make_pair(i,j), melem));
       }
     }
   }
 
-  m_nele = m_ptr_map.size();
+  _nele = ptr_map.size();
   inmat.close();
   return StatusCode::SUCCESS;
 }
@@ -873,15 +949,15 @@ StatusCode AlSpaMat::ReadProjected(const std::string &filename, int &dofs,
 TMatrixDSparse* AlSpaMat::makeTMatrix()
 {
 
-  long int nonZeroElements = m_ptr_map.size();
+  long int nonZeroElements = ptr_map.size();
   int    *irow = new int[nonZeroElements];
   int    *icol = new int[nonZeroElements];
   double *val  = new double[nonZeroElements];
 
   long int      i, j;
   long int counter(0);
-  const_mapiterator pos = m_ptr_map.begin();
-  for(pos=m_ptr_map.begin(); pos!=m_ptr_map.end(); pos++){
+  const_mapiterator pos = ptr_map.begin();
+  for(pos=ptr_map.begin(); pos!=ptr_map.end(); pos++){
     i = pos->first.first;
     j = pos->first.second;
     *(val+counter)=pos->second;
@@ -890,7 +966,9 @@ TMatrixDSparse* AlSpaMat::makeTMatrix()
      counter++;
   }
 
-  TMatrixDSparse* myTMatrix = new TMatrixDSparse(0,m_size-1,0,m_size-1);
+  std::cout << counter << " " << nonZeroElements << " size " << _size  <<std::endl;
+
+  TMatrixDSparse* myTMatrix = new TMatrixDSparse(0,_size-1,0,_size-1);
   myTMatrix->SetMatrixArray(nonZeroElements,irow,icol,val);
 
   delete [] irow;
