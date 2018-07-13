@@ -310,7 +310,7 @@ namespace ViewHelper
 
     auto handle = SG::makeHandle( rhKey, context );    
     if ( handle.setProxyDict( nview ).isFailure() ) { // we ignore it besause the handle will be invalid anyways if this call is unsuccesfull
-      return SG::ReadHandle<T>( "CantSetViewProxy" );    
+      throw std::runtime_error("Can't make ReadHandle of key " + rhKey.key() + " type " + ClassID_traits<T>::typeName() + " in view " + view->name() );
     }
     return handle;
   }
