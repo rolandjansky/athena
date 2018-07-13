@@ -1,0 +1,7 @@
+<!-- $Id: selection.xml 618909 2014-09-29 10:16:52Z krasznaa $ -->
+<lcgdict>
+
+  <!-- An attempt to make the ObjectType enumeration visible in Python...  -->
+  <enum name="xAOD::Type::ObjectType" />
+
+</lcgdict>
