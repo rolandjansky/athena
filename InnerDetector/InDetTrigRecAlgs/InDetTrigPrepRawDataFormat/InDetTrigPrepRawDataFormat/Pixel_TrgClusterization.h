@@ -110,7 +110,6 @@ namespace InDet {
     std::vector<int> m_ClusHashId;
     std::vector<int> m_PixBSErr;
     
-    //ToolHandle<ClusterMakerTool>        m_globalPosAlg;   //!< global position maker 
     ToolHandle<ITrigRawDataProviderTool>     m_rawDataProvider;
     ToolHandle<PixelGangedAmbiguitiesFinder> m_gangedAmbiguitiesFinder; 
     //!< class to find out which
@@ -123,9 +122,9 @@ namespace InDet {
     std::string              m_clustersName; 
     std::string              m_ambiguitiesMapName;
     
-    const PixelID*           m_idHelper;
-    PixelClusterContainer*   m_clusterContainer;
-    const SiDetectorManager* m_manager;
+    const PixelID*           m_idHelper{};
+    PixelClusterContainer*   m_clusterContainer{};
+    const SiDetectorManager* m_manager{};
     
     ServiceHandle<IRegSelSvc>     m_regionSelector;     //!< region selector service
     bool m_doFullScan;             //!< support for FullScan mode
