@@ -578,6 +578,7 @@ def addHbbTagger(
 # Large-R RC jets w/ ExKt 2 & 3 subjets
 #===================================================================
 def addExKtDoubleTaggerRCJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetConfigs, ExKtJetCollection__FatJet, ExKtJetCollection__SubJet):#, jetToolName, algoName):
+   DFisMC = (globalflags.DataSource()=='geant4')
    jetToolName = "DFReclustertingTool"
    algoName = "DFJetReclusteringAlgo"
    
@@ -593,7 +594,6 @@ def addExKtDoubleTaggerRCJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetCon
      getattr(ToolSvc,jetToolName).DoArea = False
      getattr(ToolSvc,jetToolName).GhostTracksInputContainer = "InDetTrackParticles"
      getattr(ToolSvc,jetToolName).GhostTracksVertexAssociationName  = "JetTrackVtxAssoc"
-     DFisMC = (globalflags.DataSource()=='geant4')
      if(DFisMC):
        getattr(ToolSvc,jetToolName).GhostTruthInputBContainer = "BHadronsFinal"
        getattr(ToolSvc,jetToolName).GhostTruthInputCContainer = "CHadronsFinal"
@@ -602,10 +602,14 @@ def addExKtDoubleTaggerRCJets(sequence, ToolSvc):#, ExKtJetCollection__FatJetCon
      DFJetAlgs[jetToolName] = getattr(ToolSvc,jetToolName)
    
    # build subjets
+   GhostLabels = ["GhostTrack"]
+   if(DFisMC):
+     GhostLabels += ["GhostBHadronsFinal"]
+     GhostLabels += ["GhostCHadronsFinal"]
    # N=2 subjets
-   ExKtJetCollection__SubJet += addExKtCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=2, doTrackSubJet=True)
+   ExKtJetCollection__SubJet += addExKtCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=2, doTrackSubJet=True, ExGhostLabels=GhostLabels)
    # N=3 subjets
-   ExKtJetCollection__SubJet += addExKtCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=3, doTrackSubJet=True)
+   ExKtJetCollection__SubJet += addExKtCoM(sequence, ToolSvc, ExKtJetCollection__FatJet, nSubjets=3, doTrackSubJet=True, ExGhostLabels=GhostLabels)
 
    sequence += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterSubjetBuild", SGKeys=[name+"Aux." for name in ExKtJetCollection__SubJet])
 
