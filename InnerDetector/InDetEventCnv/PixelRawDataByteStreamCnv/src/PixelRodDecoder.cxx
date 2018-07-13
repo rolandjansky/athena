@@ -945,7 +945,14 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
                 // Write the error word to the service
                 if (offlineIdHash != 0xffffffff && errorcode) {
-                   m_errors->setFeErrorCode(offlineIdHash, (mLink & 0x1), errorcode);     
+                   m_errors->setFeErrorCode(offlineIdHash, (mLink & 0x1), errorcode);
+
+                   // Check if error code is already set for this wafer
+                   uint32_t existing_code = m_errors->getModuleErrors(offlineIdHash);
+                   if (existing_code) {
+                       errorcode = existing_code | errorcode;
+                   }
+                   m_errors->setModuleErrors(offlineIdHash, errorcode);
                }
 
 
@@ -990,12 +997,9 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                     if (trailererror & (1 << 0))
                         m_errors->addTrailerError();
                 }
-            
-                // Write module error word to the service
-                // This is only to be done for FE-I3, makes no sense for FE-I4.
-                if ( offlineIdHash != 0xffffffff )
-                    m_errors->setModuleErrors(offlineIdHash, errorcode);
             }
+            if ( offlineIdHash != 0xffffffff ) // now write the error word to the service
+                m_errors->setModuleErrors(offlineIdHash, errorcode);
 
             break;
 
@@ -1027,7 +1031,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
                     // Treatment of the FE flag serviceCode and serviceCodeCounter
                     // Returns encoded uint32_t to be added to errorcode
-                    uint32_t encodedServiceCodes = treatmentFEFlagInfo(offlineIdHash, (mLink & 0x1), serviceCode, serviceCodeCounter);
+                    uint32_t encodedServiceCodes = treatmentFEFlagInfo(serviceCode, serviceCodeCounter);
 
                     // Insert service codes into errorcode
                     // CCC CCCC CCCC CCCC CCCC EPpl bzhv
@@ -1687,7 +1691,7 @@ void PixelRodDecoder::addToFlaggedErrorCounter(const unsigned int & serviceCodeC
 }
 */
 
-uint32_t PixelRodDecoder::treatmentFEFlagInfo(IdentifierHash module, unsigned int fe_number, unsigned int serviceCode, unsigned int serviceCodeCounter) {
+uint32_t PixelRodDecoder::treatmentFEFlagInfo(unsigned int serviceCode, unsigned int serviceCodeCounter) {
 
     unsigned int etc = 0, l1req = 0;
 
@@ -1695,10 +1699,10 @@ uint32_t PixelRodDecoder::treatmentFEFlagInfo(IdentifierHash module, unsigned in
     if (serviceCode == 16) {                        // I'm not like those other codes
         etc = (serviceCodeCounter >> 4) & 0x1F;
         l1req = serviceCodeCounter & 0x7;
-        m_errors->setServiceRecord(module, fe_number, serviceCode, etc);
+        m_errors->updateServiceRecords(serviceCode, etc);
     }
     else {
-        m_errors->setServiceRecord(module, fe_number, serviceCode, serviceCodeCounter);
+        m_errors->updateServiceRecords(serviceCode, serviceCodeCounter);
     }
 
     // Return a 19-bit code to be used for monitoring
