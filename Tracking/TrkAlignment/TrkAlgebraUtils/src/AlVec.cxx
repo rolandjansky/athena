@@ -12,35 +12,34 @@
 #include <fstream>
 #include <stdint.h>
 #include <math.h>
-#include <exception>
 
 namespace Trk {
 
 //______________________________________________________________________________
 AlVec::AlVec() {
-  m_size = 0;
-  m_ptr_data = 0;  // set pointer to null
+  _size = 0;
+  ptr_data = 0;  // set pointer to null
   m_pathbin="./";
   m_pathtxt="./";
 }
 
 //______________________________________________________________________________
 AlVec::AlVec(int N) {
-  m_size = N;
-  m_ptr_data = new double[m_size];
+  _size = N;
+  ptr_data = new double[_size];
   m_pathbin="./";
   m_pathtxt="./";
 
-  double*  p = m_ptr_data + m_size;
-  while (p > m_ptr_data) *(--p) = 0.;
+  double*  p = ptr_data + _size;
+  while (p > ptr_data) *(--p) = 0.;
 }
 
 //______________________________________________________________________________
 AlVec::AlVec(const AlVec& v) {
-  m_size   = v.m_size;
+  _size   = v._size;
   m_pathbin = v.m_pathbin;
   m_pathtxt = v.m_pathtxt;
-  m_ptr_data = new double[m_size];
+  ptr_data = new double[_size];
 
   copy(v);
 }
@@ -48,25 +47,26 @@ AlVec::AlVec(const AlVec& v) {
 //______________________________________________________________________________
 AlVec::~AlVec()
 {
-  delete [] m_ptr_data;
+  delete [] ptr_data;
 }
 
 //______________________________________________________________________________
 void AlVec::copy(const AlVec& v) {
-  if(m_size!=v.m_size) {
-    throw std::range_error( "AlVec Assignment: size does not match!" );
+  if(_size!=v._size) {
+    std::cerr << "AlVec Assignment: size does not match!" << std::endl;
+    return;
   }
 
-  double*  p = m_ptr_data + m_size;
-  double*  q = v.m_ptr_data + m_size;
-  while (p > m_ptr_data) *(--p) = (*(--q));
+  double*  p = ptr_data + _size;
+  double*  q = v.ptr_data + _size;
+  while (p > ptr_data) *(--p) = (*(--q));
 }
 
 //______________________________________________________________________________
 AlVec&  AlVec::operator=(const double& d) {
 
-  double*  p = m_ptr_data + m_size;
-  while (p > m_ptr_data) *(--p) = d;
+  double*  p = ptr_data + _size;
+  while (p > ptr_data) *(--p) = d;
 
   return *this;
 }
@@ -75,69 +75,74 @@ AlVec&  AlVec::operator=(const double& d) {
 AlVec& AlVec::operator=(const AlVec& v) {
   if (this==&v) return *this;
 
-  if(m_size!=0 && m_size!=v.m_size) {
-    throw std::range_error( "AlVec Assignment: size does not match!" );
+  if(_size!=0 && _size!=v._size) {
+    std::cerr << "AlVec Assignment: size does not match!" << std::endl;
+    return *this;
   }
 
-  if ( m_ptr_data != v.m_ptr_data )  copy(v);
+  if ( ptr_data != v.ptr_data )  copy(v);
 
   return *this;
 }
 
 //______________________________________________________________________________
 AlVec AlVec::operator+(const AlVec& v) const {
-  if( m_size != v.m_size ) {
-    throw std::range_error(  "operator+: vectors size does not match!" );
+  if( _size != v._size ) {
+    std::cerr << "operator+: vectors size does not match!" << std::endl;
+    return *this;
   }
 
-  AlVec b(m_size);
+  AlVec b(_size);
 
-  double*  p = m_ptr_data + m_size;
-  double*  q = v.m_ptr_data + m_size;
-  double*  r = b.m_ptr_data + m_size;
-  while (p > m_ptr_data) *(--r) = (*(--p))+(*(--q));
+  double*  p = ptr_data + _size;
+  double*  q = v.ptr_data + _size;
+  double*  r = b.ptr_data + _size;
+  while (p > ptr_data) *(--r) = (*(--p))+(*(--q));
 
   return b;
 }
 
 //______________________________________________________________________________
 AlVec& AlVec::operator+=(const AlVec& v) {
-  if( m_size != v.m_size ) {
-    throw std::range_error(  "operator+=: vectors size does not match!" );
+  if( _size != v._size ) {
+    std::cerr << "operator+=: vectors size does not match!" << std::endl;
+    return *this;
   }
 
-  double*  p = m_ptr_data + m_size;
-  double*  q = v.m_ptr_data + m_size;
-  while (p > m_ptr_data) *(--p) += (*(--q));
+  double*  p = ptr_data + _size;
+  double*  q = v.ptr_data + _size;
+  while (p > ptr_data) *(--p) += (*(--q));
 
   return *this;
 }
 
 //______________________________________________________________________________
 AlVec AlVec::operator-(const AlVec& v) const {
-  if( m_size != v.m_size ) {
-    throw std::range_error(  "operator-: vectors size does not match!" );
+  if( _size != v._size ) {
+    std::cerr << "operator-: vectors size does not match!" << std::endl;
+    return *this;
   }
 
-  AlVec b(m_size);
+  AlVec b(_size);
 
-  double*  p = m_ptr_data + m_size;
-  double*  q = v.m_ptr_data + m_size;
-  double*  r = b.m_ptr_data + m_size;
-  while (p > m_ptr_data) *(--r) = (*(--p))-(*(--q));
+  double*  p = ptr_data + _size;
+  double*  q = v.ptr_data + _size;
+  double*  r = b.ptr_data + _size;
+  while (p > ptr_data) *(--r) = (*(--p))-(*(--q));
 
   return b;
 }
 
 //______________________________________________________________________________
 AlVec& AlVec::operator-=(const AlVec& v) {
-  if( m_size != v.m_size ) {
-    throw std::range_error(  "operator+=: vectors size does not match!" );
+  if( _size != v._size ) {
+    std::cerr << "operator+=: vectors size does not match!" << std::endl;
+    return *this;
   }
 
-  double*  p = m_ptr_data + m_size;
-  double*  q = v.m_ptr_data + m_size;
-  while (p > m_ptr_data) *(--p) -= (*(--q));
+  double*  p = ptr_data + _size;
+  double*  q = v.ptr_data + _size;
+  while (p > ptr_data) *(--p) -= (*(--q));
 
   return *this;
 }
@@ -145,41 +150,44 @@ AlVec& AlVec::operator-=(const AlVec& v) {
 //______________________________________________________________________________
 double AlVec::operator*(const AlVec& v) const {
   double  b=0.;
-  if( m_size != v.m_size ) {
-    throw std::range_error(  "scalar product: vectors size does not match!" );
+  if( _size != v._size ) {
+    std::cerr << "scalar product: vectors size does not match!" << std::endl;
+    return b;
   }
 
-  double*  p = m_ptr_data + m_size;
-  double*  q = v.m_ptr_data + m_size;
-  while (p > m_ptr_data) b += *(--p)*(*(--q));
+  double*  p = ptr_data + _size;
+  double*  q = v.ptr_data + _size;
+  while (p > ptr_data) b += *(--p)*(*(--q));
 
   return b;
 }
 
 //______________________________________________________________________________
 AlVec AlVec::operator*(const AlMat& m) const {
-  if (m_size != m.nrow()) {
-    throw std::range_error(  "Left hand vector-matrix multiplication: size does not match!" );
+  if (_size != m.nrow()) {
+    std::cerr << "Left hand vector-matrix multiplication: size does not match!" << std::endl;
+    return *this;
   }
 
   AlVec b(m.ncol());
 
   for (int i=0;i<m.ncol();i++) {
-    for (int j=0;j<m_size;j++)  *(b.m_ptr_data+i) += *(m_ptr_data+j)*m.elemc(j, i);
+    for (int j=0;j<_size;j++)  *(b.ptr_data+i) += *(ptr_data+j)*m.elemc(j, i);
   }
   return b;
 }
 
 //______________________________________________________________________________
 AlVec  AlVec::operator*(const AlSymMatBase& m) const {
-  if (m_size != m.size()) {
-    throw std::range_error(  "Left hand vector-matrix multiplication: size does not match!" );
+  if (_size != m.size()) {
+    std::cerr << "Left hand vector-matrix multiplication: size does not match!" << std::endl;
+    return *this;
   }
 
-  AlVec b(m_size);
+  AlVec b(_size);
 
-  for (int i=0;i<m_size;i++) {
-    for (int j=0;j<m_size;j++)  *(b.m_ptr_data+i) += *(m_ptr_data+j)*m.elemc(j, i);
+  for (int i=0;i<_size;i++) {
+    for (int j=0;j<_size;j++)  *(b.ptr_data+i) += *(ptr_data+j)*m.elemc(j, i);
   }
   return b;
 }
@@ -187,8 +195,8 @@ AlVec  AlVec::operator*(const AlSymMatBase& m) const {
 //______________________________________________________________________________
 AlVec& AlVec::operator*=(const double& d) {
 
-  double*  p = m_ptr_data + m_size;
-  while (p > m_ptr_data) *(--p) *= d;
+  double*  p = ptr_data + _size;
+  while (p > ptr_data) *(--p) *= d;
 
   return *this;
 }
@@ -199,8 +207,8 @@ AlVec& AlVec::operator*=(const double& d) {
 double AlVec::norm() const {
 
   double result(0.);
-  double * p = m_ptr_data + m_size;
-  while (p > m_ptr_data) {
+  double * p = ptr_data + _size;
+  while (p > ptr_data) {
     --p;
     result += *p * *p ;
   }
@@ -210,16 +218,16 @@ double AlVec::norm() const {
 
 //______________________________________________________________________________
 void AlVec::reSize(int Nnew) {
-  if ( Nnew>=0 && Nnew != m_size ) {
-    double*  p = m_ptr_data;
-    int m_size_old = m_size;
-    m_ptr_data = new double[Nnew];
-    m_size = Nnew;
-    int k = m_size <= m_size_old ? m_size : m_size_old;
+  if ( Nnew>=0 && Nnew != _size ) {
+    double*  p = ptr_data;
+    int _size_old = _size;
+    ptr_data = new double[Nnew];
+    _size = Nnew;
+    int k = _size <= _size_old ? _size : _size_old;
 
     p += k;
-    double*  q = m_ptr_data + k;
-    while (q > m_ptr_data) *(--q) = *(--p);
+    double*  q = ptr_data + k;
+    while (q > ptr_data) *(--q) = *(--p);
 
     delete [] p;
   }
@@ -231,9 +239,9 @@ void AlVec::RemoveModule(int index) {
   const int shift=6;
   const int start = shift*index;
 
-  if(start<m_size && index>=0){
-    for(int row=start; row<m_size; row++) {
-      *(m_ptr_data+row)=*(m_ptr_data+row+shift);
+  if(start<_size && index>=0){
+    for(int row=start; row<_size; row++) {
+      *(ptr_data+row)=*(ptr_data+row+shift);
     }
   }
 }
@@ -248,8 +256,8 @@ void AlVec::RemoveAlignPar(int index, int control)
   index = index-control;
   //  std::cout << "index: " << index << " - control: " << control << std::endl;
 
-  for(int row=index; row<m_size; row++) {
-    *(m_ptr_data+row) = *(m_ptr_data+row+shift);
+  for(int row=index; row<_size; row++) {
+    *(ptr_data+row) = *(ptr_data+row+shift);
     counter++;
     if (counter==5-control) { counter=0; shift++; }
   }
@@ -260,10 +268,12 @@ int AlVec::RemoveElements(std::vector<int> indices)
 {
   int n = indices.size();
   if (n==0) {
-    return m_size;
+    std::cerr<<"Vector of indices to remove is empty."<<std::endl;
+    return _size;
   }
-  if (n>m_size) {
-    throw std::range_error( "Vector of indices larger than matrix size." );
+  if (n>_size) {
+    std::cerr<<"Vector of indices larger than matrix size."<<std::endl;
+    return _size;
   }
 
   // first sort the list of indices descending
@@ -279,18 +289,18 @@ int AlVec::RemoveElements(std::vector<int> indices)
   // remove elements starting from largest indices
   for (int i=0;i<n;i++) {
     int index = indices[i];
-    if (index > m_size-1) {
-      throw std::out_of_range( "AlVec::RemoveElements: Index  goes beyond matrix " );
+    if (index > _size-1) {
+      std::cerr<<"Index "<<index<<" goes beyond matrix (size "<<_size<<")."<<std::endl;
       continue;
     }
 
-    for (int j=index; j<m_size-1; j++)
-      *(m_ptr_data+j) = *(m_ptr_data+j+1);
+    for (int j=index; j<_size-1; j++)
+      *(ptr_data+j) = *(ptr_data+j+1);
 
-    m_size--;
+    _size--;
   }
 
-  return m_size;
+  return _size;
 }
 
 //______________________________________________________________________________
@@ -310,7 +320,7 @@ StatusCode AlVec::Write(const std::string &filename, bool binary, double scale,
                         std::map<int,unsigned long long> moduleIndexMap, float version)
 {
   std::ofstream outvec;
-  int32_t  io_size=m_size;
+  int32_t  io_size=_size;
 //  int32_t  io_scale=scale;
 
   if(binary) {
@@ -328,7 +338,7 @@ StatusCode AlVec::Write(const std::string &filename, bool binary, double scale,
     outvec.setf(std::ios::fixed);
     outvec.setf(std::ios::showpoint);
     outvec.precision(6);
-    outvec << "DoF: " << std::setw(6) << m_size << std::endl;
+    outvec << "DoF: " << std::setw(6) << _size << std::endl;
     outvec << "scale: " << std::setw(18) << scale << std::endl;
     outvec << "AlVec version: " << std::setw(6) << version << std::endl;
   }
@@ -337,13 +347,13 @@ StatusCode AlVec::Write(const std::string &filename, bool binary, double scale,
   double  velem=0;
   std::map<int,unsigned long long>::iterator itcod;
 
-  for( int i=0; i<m_size; i++) {
+  for( int i=0; i<_size; i++) {
     itcod=moduleIndexMap.find(i/6);
     if (itcod != moduleIndexMap.end()) {
       ielem = (itcod->second);
     }
 
-    velem = *(m_ptr_data+i);
+    velem = *(ptr_data+i);
 
     if(binary){
       outvec.write((char*)&(ielem), sizeof (ielem));
@@ -363,7 +373,7 @@ StatusCode AlVec::WritePartial(const std::string &filename, bool binary, double 
   std::ofstream outvec;
 
   /*
-    int32_t  io_size=m_size;
+    int32_t  io_size=_size;
     //  int32_t  io_scale=scale;
     
     if(binary) {
@@ -382,7 +392,7 @@ StatusCode AlVec::WritePartial(const std::string &filename, bool binary, double 
     outvec.setf(std::ios::fixed);
     outvec.setf(std::ios::showpoint);
     outvec.precision(6);
-    outvec << "DoF: " << std::setw(6) << m_size << std::endl;
+    outvec << "DoF: " << std::setw(6) << _size << std::endl;
     outvec << "scale: " << std::setw(18) << scale << std::endl;
     outvec << "AlVec version: " << std::setw(6) << version << std::endl;
     }
@@ -395,12 +405,12 @@ StatusCode AlVec::WritePartial(const std::string &filename, bool binary, double 
   double velem=0;
   std::map<int,unsigned long long>::iterator itcod;
 
-  for( int i=0; i<m_size; i++) {
+  for( int i=0; i<_size; i++) {
     itcod=moduleIndexMap.find(i);
     if (itcod != moduleIndexMap.end())
       ielem = (itcod->second);
 
-    velem = *(m_ptr_data+i);
+    velem = *(ptr_data+i);
 
     if(binary){
       outvec.write((char*)&(ielem), sizeof (ielem));
@@ -426,13 +436,13 @@ StatusCode AlVec::WritePartial(const std::string &filename, bool binary, double 
   double velem=0;
   std::map<int,std::string>::iterator itcod;
   
-  for( int i=0; i<m_size; i++) {
+  for( int i=0; i<_size; i++) {
     itcod=moduleNameMap.find(i);
     if (itcod != moduleNameMap.end()) {
       elem = (itcod->second);
     }
 
-    velem = *(m_ptr_data+i);
+    velem = *(ptr_data+i);
         
     if(binary){    
       std::cout<<"can't write module name in binary output!"<<std::endl;
@@ -449,7 +459,7 @@ StatusCode AlVec::WritePartial(const std::string &filename, bool binary, double 
 StatusCode AlVec::InitializeOutputVector(const std::string& filename, bool binary, double scale, 
 					 float version, std::ofstream& outvec)
 {
-  int32_t  io_size=m_size;
+  int32_t  io_size=_size;
   
   if(binary) {
     outvec.open((m_pathbin+filename).c_str(), std::ios::binary);
@@ -467,7 +477,7 @@ StatusCode AlVec::InitializeOutputVector(const std::string& filename, bool binar
     outvec.setf(std::ios::fixed);
     outvec.setf(std::ios::showpoint);
     outvec.precision(6);
-    outvec << "DoF: " << std::setw(6) << m_size << std::endl;
+    outvec << "DoF: " << std::setw(6) << _size << std::endl;
     outvec << "scale: " << std::setw(18) << scale << std::endl;    
     outvec << "AlVec version: " << std::setw(6) << version << std::endl;    
   }
@@ -480,19 +490,19 @@ StatusCode AlVec::ReadPartial(const std::string &filename, double &scale,
 {
   bool m_StdUnits = true;
   if (StatusCode::SUCCESS != CheckVecVersion(m_pathbin+filename, m_StdUnits)) {
-    //std::cout<<"CheckVecVersion failed"<<std::endl;
+    std::cout<<"CheckVecVersion failed"<<std::endl;
     return StatusCode::FAILURE;
   }
 
   std::ifstream invec((m_pathbin+filename).c_str(), std::ios::binary);
   if(invec.fail()) {
-    //std::cout<<"ifstream failed"<<std::endl;
+    std::cout<<"ifstream failed"<<std::endl;
     return StatusCode::FAILURE;
   }
 
   int32_t vsiz=0;
   invec.read((char*)&vsiz, sizeof (vsiz));
-  m_size  = vsiz;
+  _size  = vsiz;
 
 //  int32_t io_scale;
   invec.read((char*)&scale, sizeof(scale));
@@ -507,12 +517,12 @@ StatusCode AlVec::ReadPartial(const std::string &filename, double &scale,
 
   int64_t ielem=0;
   double  velem=0.0;
-  for( int i=0; i<m_size; i++) {
+  for( int i=0; i<_size; i++) {
     invec.read((char*)&ielem, sizeof (ielem));
     modmap[i] = ielem;
 
     invec.read((char*)&velem, sizeof (velem));
-    *(m_ptr_data+i) = velem;
+    *(ptr_data+i) = velem;
 
     // std::cout << "AlVec (" << i << "):: " << ielem << ", " << velem << std::endl;
 
@@ -558,7 +568,7 @@ StatusCode AlVec::Read(const std::string &filename, double &scale,
 
   bool m_StdUnits = true;
   if (StatusCode::SUCCESS != CheckVecVersion(m_pathbin+filename, m_StdUnits)) {
-    //std::cout<<"CheckVecVersion failed"<<std::endl;
+    std::cout<<"CheckVecVersion failed"<<std::endl;
     return StatusCode::FAILURE;
   }
 
@@ -568,8 +578,8 @@ StatusCode AlVec::Read(const std::string &filename, double &scale,
 
   int32_t vsiz=0;
   invec.read((char*)&vsiz, sizeof (vsiz));
-  m_size  = vsiz;
-//  std::cout<<"size="<<m_size<<std::endl;
+  _size  = vsiz;
+//  std::cout<<"size="<<_size<<std::endl;
 
 //  int32_t io_scale;
   invec.read((char*)&scale, sizeof (scale));
@@ -585,12 +595,12 @@ StatusCode AlVec::Read(const std::string &filename, double &scale,
 
   int64_t ielem=0;
   double  velem=0.0;
-  for( int i=0; i<m_size; i++) {
+  for( int i=0; i<_size; i++) {
     invec.read((char*)&ielem, sizeof (ielem));
     modmap[i/6] = ielem;
 
     invec.read((char*)&velem, sizeof (velem));
-    *(m_ptr_data+i) = velem;
+    *(ptr_data+i) = velem;
 
     // std::cout << "AlVec (" << i << "):: " << ielem << ", " << velem << std::endl;
 
@@ -610,7 +620,7 @@ StatusCode AlVec::ReadProjected(const std::string &filename, double &scale,
 
   int32_t vsiz=0;
   invec.read((char*)&vsiz, sizeof (vsiz));
-  m_size  = vsiz;
+  _size  = vsiz;
 
 //  int32_t io_scale;
   invec.read((char*)&scale, sizeof (scale));
@@ -623,12 +633,12 @@ StatusCode AlVec::ReadProjected(const std::string &filename, double &scale,
 
   int64_t ielem=0;
   double  velem=0.0;
-  for( int i=0; i<m_size; i++) {
+  for( int i=0; i<_size; i++) {
     invec.read((char*)&ielem, sizeof (ielem));
     modmap[i/6] = ielem;
 
     invec.read((char*)&velem, sizeof (velem));
-    *(m_ptr_data+i) = velem;
+    *(ptr_data+i) = velem;
 
     // std::cout << "AlVec (" << i << "):: " << ielem << ", " << velem << std::endl;
 
@@ -646,13 +656,13 @@ StatusCode AlVec::ReadScalaPack(const std::string &filename){
 
   int32_t vsiz=0;
   eigenvec.read((char*)&vsiz, sizeof (vsiz));
-  m_size=vsiz;
+  _size=vsiz;
 
   double velem=0;
-  for( int i=0; i<m_size; i++) {
+  for( int i=0; i<_size; i++) {
     eigenvec.read((char*)&velem, sizeof (velem));
     // printf("v[%d] = %.16lf \n",i,velem);
-    *(m_ptr_data+i) = velem;
+    *(ptr_data+i) = velem;
   }
 
   eigenvec.close();
@@ -663,7 +673,7 @@ StatusCode AlVec::ReadScalaPack(const std::string &filename){
 StatusCode AlVec::WriteEigenvalueVec(const std::string &filename, bool binary){
 
   std::ofstream outvec;
-  int32_t  io_size=m_size;
+  int32_t  io_size=_size;
 
   if(binary) {
     outvec.open((m_pathbin+filename).c_str(), std::ios::binary);
@@ -682,16 +692,16 @@ StatusCode AlVec::WriteEigenvalueVec(const std::string &filename, bool binary){
     outvec.setf(std::ios::fixed);
     outvec.setf(std::ios::showpoint);
     outvec.precision(6);
-    outvec << "AlVec::DoF: " << std::setw(6) << m_size << std::endl;
+    outvec << "AlVec::DoF: " << std::setw(6) << _size << std::endl;
   }
 
   //jlove int32_t ielem=0;
   double  velem=0;
 //  std::map<int,int>::iterator itcod;
 
-  for( int i=0; i<m_size; i++) {
+  for( int i=0; i<_size; i++) {
 
-    velem = *(m_ptr_data+i);
+    velem = *(ptr_data+i);
 
     if(binary)
       outvec.write((char*)&(velem), sizeof (velem));

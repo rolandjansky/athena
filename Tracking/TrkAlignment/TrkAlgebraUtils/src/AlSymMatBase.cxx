@@ -19,26 +19,26 @@ namespace Trk {
 //______________________________________________________________________________
 AlSymMatBase::AlSymMatBase()
 {
-  m_matrix_type = 0;
-  m_size = 0;
-  m_nele = 0;
+  _matrix_type = 0;
+  _size = 0;
+  _nele = 0;
 }
 
 //______________________________________________________________________________
 AlSymMatBase::AlSymMatBase(long int N)
 {
-  m_matrix_type = 0;
-  m_size = N;
-  m_nele = N*(N+1)/2;
+  _matrix_type = 0;
+  _size = N;
+  _nele = N*(N+1)/2;
 
 }
 
 //______________________________________________________________________________
 AlSymMatBase::AlSymMatBase(const AlSymMatBase & m)
 {
-  m_matrix_type = 0;
-  m_size      = m.size();
-  m_nele      = m.m_nele;
+  _matrix_type = 0;
+  _size      = m.size();
+  _nele      = m._nele;
 }
 
 //______________________________________________________________________________
@@ -46,8 +46,8 @@ AlSymMatBase & AlSymMatBase::operator=(const AlSymMatBase & m)
 {
   if (this==&m)
     return *this;
-  m_matrix_type=m.m_matrix_type;
-  m_nele=m.m_nele;
+  _matrix_type=m._matrix_type;
+  _nele=m._nele;
 
   return *this;
 }
