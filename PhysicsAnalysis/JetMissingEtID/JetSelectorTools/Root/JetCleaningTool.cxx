@@ -365,10 +365,6 @@ const Root::TAccept& JetCleaningTool::accept( const xAOD::Jet& jet) const
           isJetClean = m_acc_jetClean(jet);
           return accept (isJetClean, FracSamplingMaxIndex);
   }
-  //else if(TightBad==m_cutLevel && m_acc_looseClean.isAvailable(jet) && m_useDecorations){ //if you configured tight but don't have the Tight jetClean decoration
-  //        isJetClean = m_acc_looseClean(jet);
-  //        return accept (isJetClean, sumpttrk, FracSamplingMax, jet.eta(), jet.pt(), FracSamplingMaxIndex);
-  //}
   else{   //running over AOD, need to use all variables
 	  ATH_MSG_DEBUG("DFCommon jet cleaning variable not available ... Using jet cleaning tool");
 	  // Get all of the required variables
