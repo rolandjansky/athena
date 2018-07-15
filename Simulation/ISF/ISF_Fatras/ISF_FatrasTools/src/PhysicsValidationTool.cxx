@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_FatrasTools/PhysicsValidationTool.h"
+#include "PhysicsValidationTool.h"
 
 // Tracking
 #include "TrkParameters/TrackParameters.h"

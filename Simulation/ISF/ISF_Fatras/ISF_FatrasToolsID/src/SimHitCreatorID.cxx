@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_FatrasToolsID/SimHitCreatorID.h"
+#include "SimHitCreatorID.h"
 
 // iFatras && ISF
 #include "ISF_FatrasInterfaces/IHitCreator.h"

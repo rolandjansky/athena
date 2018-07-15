@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_FatrasTools/HadIntProcessorParametric.h"
+#include "HadIntProcessorParametric.h"
 
 // Gaudi Kernel
 #include "GaudiKernel/IRndmGenSvc.h"

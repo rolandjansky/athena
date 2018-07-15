@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_FatrasToolsMS/SimHitCreatorMS.h"
+#include "SimHitCreatorMS.h"
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
