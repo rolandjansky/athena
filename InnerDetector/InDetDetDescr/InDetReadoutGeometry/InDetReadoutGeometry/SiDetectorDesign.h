@@ -343,7 +343,7 @@ inline double SiDetectorDesign::localModuleCentreRadius() const{
     return -1.0; 
 }
 
-inline int SiDetectorDesign::strip1Dim(int strip, int row) const{
+inline int SiDetectorDesign::strip1Dim(int, int) const{
     return -1.0;
 }
 }  // namespace InDetDD
