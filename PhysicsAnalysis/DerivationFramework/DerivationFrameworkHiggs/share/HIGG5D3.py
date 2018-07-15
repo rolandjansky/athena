@@ -43,7 +43,6 @@ HIGG5D3ThinningHelper = ThinningHelper("HIGG5D3ThinningHelper")
 HIGG5D3ThinningHelper.TriggerChains = 'HLT_g.*|HLT_2g.*|HLT_mu.*|HLT_j.*|HLT_b.*|HLT_2b.*' 
 HIGG5D3ThinningHelper.AppendToStream(HIGG5D3Stream) 
 
-
 import DerivationFrameworkHiggs.HIGG5Common as HIGG5Common
 thinningTools.append( HIGG5Common.getInDetTrackParticleThinning(        'HIGG5D3',HIGG5D3ThinningHelper) )
 thinningTools.append( HIGG5Common.getAntiKt4EMTopoTrackParticleThinning('HIGG5D3',HIGG5D3ThinningHelper,   ApplyAnd=True) )
@@ -53,6 +52,9 @@ thinningTools.append( HIGG5Common.getPhotonTrackParticleThinning(       'HIGG5D3
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('HIGG5D3',HIGG5D3ThinningHelper) )
 thinningTools.append( HIGG5Common.getAntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Thinning('HIGG5D3',HIGG5D3ThinningHelper) )
 
+# Truth particles
+if DerivationFrameworkIsMonteCarlo:
+    thinningTools.append(HIGG5Common.getTruthThinningTool('HIGG5D3', HIGG5D3ThinningHelper))
 
 
 #====================================================================
