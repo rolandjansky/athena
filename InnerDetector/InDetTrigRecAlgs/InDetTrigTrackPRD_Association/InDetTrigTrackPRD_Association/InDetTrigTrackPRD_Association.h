@@ -11,6 +11,8 @@
 //!< Trigger specific stuff
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "TrigInterfaces/FexAlgo.h"
+#include <vector>
+#include <iosfwd>
 
 
 namespace InDet {
@@ -52,10 +54,10 @@ namespace InDet {
      
       std::vector<std::string>              m_tracksName    ; // Name of track collections       
       ToolHandle<Trk::IPRD_AssociationTool> m_assoTool      ; // Assotiation tool
-      int                                   m_outputlevel   ;
+      int                                   m_outputlevel{}   ;
       int                                   m_tracksPRD[10];
       int                                   m_tracksPRDn[10];
-      int                                   m_nprint;
+      int                                   m_nprint{};
       bool                                  m_istracks[10];
 
       ///////////////////////////////////////////////////////////////////
