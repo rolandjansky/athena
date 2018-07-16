@@ -22,6 +22,7 @@ __all__ = [ 'Configurable',
             'ConfigurableUser'
             ]
 
+
 ## for messaging
 from Logging import logging
 log = logging.getLogger( 'Configurable' )
@@ -63,6 +64,8 @@ class Configurable( object ):
                               # are used for debugging purposes
 
    _printOnce = 0
+
+   configurableRun3Behavior=0
 
    def __new__ ( cls, *args, **kwargs ):
       """To Gaudi, any object with the same type/name is the same object. Hence,
@@ -109,7 +112,9 @@ class Configurable( object ):
          raise NameError( '"%s": type separator "/" no allowed in component name, '\
                           'typename is derived from configurable instead' % name )
 
-      if 'AthenaConfiguration.ComponentAccumulator' not in sys.modules.keys():
+      #Uncomment the following line for debugging:
+      #print "cls.configurableRun3Behavior=",cls.configurableRun3Behavior
+      if cls.configurableRun3Behavior==0:
          # ordinary recycle case
          try:
             conf = cls.configurables[ name ]
@@ -165,7 +170,11 @@ class Configurable( object ):
                              (name,conf.__class__.__name__,cls.__name__) )
          except KeyError:
             pass
-      pass #end if not new configuration approach
+      else:
+         #Run 3 style config
+         #Uncomment this line to verify that RecExCommon doesn't use that
+         #print "Run 3 style config" 
+         pass #end if not new configuration approach
     # still here: create a new instance ...
       conf = object.__new__( cls )
 
@@ -177,10 +186,12 @@ class Configurable( object ):
       cls.__init__( conf, *args, **kwargs )
 
     # update normal, per-class cache
-      cls.configurables[ name ] = conf
+      if cls.configurableRun3Behavior==0:
+         cls.configurables[ name ] = conf
 
     # update generics super-cache
-      cls.allConfigurables[ name ] = conf
+      if cls.configurableRun3Behavior==0:
+         cls.allConfigurables[ name ] = conf
 
       return conf
 
