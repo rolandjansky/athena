@@ -341,6 +341,7 @@ StatusCode DumpAll::execute(){
 	   m_selectron_isolscell.push_back(isolscell);
 	   xAOD::Electron elFI;
 	   elFI.makePrivateStore();
+	   elFI.setAuthor(xAOD::EgammaParameters::AuthorElectron);
 	   xAOD::CaloClusterContainer * clusters = new xAOD::CaloClusterContainer();
 	   xAOD::CaloClusterAuxContainer * clustersAux = new xAOD::CaloClusterAuxContainer();
 	   clusters->setStore(clustersAux);
@@ -487,7 +488,6 @@ StatusCode DumpAll::execute(){
 
 	m_counter++;
 	gettimeofday(&t2,NULL);
-	//std::cout << "name : " << name() << " " << t1.tv_sec << " " << t1.tv_usec << " " << t2.tv_sec << " " << t2.tv_usec << std::endl;
 	
 	return StatusCode::SUCCESS;
 }
