@@ -115,7 +115,7 @@ StatusCode TrigMufastHypoAlg::execute_r( const EventContext& context ) const
     ATH_MSG_DEBUG("REGTEST: " << m_muFastKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());
     ATH_MSG_DEBUG("REGTEST:  View = " << (*viewEL));
     ATH_MSG_DEBUG("REGTEST:  RoI  = eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());
-    ATH_MSG_DEBUG("Added view, roi, cluster, previous decision to new decision "<<counter <<" for view "<<view->name()  );
+    ATH_MSG_DEBUG("Added view, roi, feature, previous decision to new decision "<<counter <<" for view "<<view->name()  );
     counter++;
   }
 
