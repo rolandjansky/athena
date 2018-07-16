@@ -188,8 +188,10 @@ namespace InDetDD {
       /// ie with no misalignment. 
       const HepGeom::Transform3D defTransformCLHEP() const; 
       const Amg::Transform3D defTransform() const; 
-      /// Center in global coordinates
+      /// Center of the sensor in global coordinates
       const Amg::Vector3D & center() const; 
+      /// Center of the local reference system in global coordinates
+      const Amg::Vector3D & origin() const; 
     
       const HepGeom::Transform3D & transformCLHEP() const;
     
@@ -665,6 +667,8 @@ namespace InDetDD {
       mutable HepGeom::Vector3D<double> m_phiAxisCLHEP;
       mutable Amg::Vector3D m_center;
       mutable HepGeom::Vector3D<double> m_centerCLHEP;
+      mutable Amg::Vector3D m_origin;
+      mutable HepGeom::Vector3D<double> m_originCLHEP;
     
       mutable double m_minZ;
       mutable double m_maxZ;
@@ -700,7 +704,7 @@ namespace InDetDD {
     inline Amg::Vector3D SiDetectorElement::globalPosition(const Amg::Vector2D &localPos) const
     {
       if (!m_cacheValid) updateCache();
-      return m_center + localPos[Trk::distEta] * m_etaAxis + localPos[Trk::distPhi] * m_phiAxis;
+      return m_origin + localPos[Trk::distEta] * m_etaAxis + localPos[Trk::distPhi] * m_phiAxis;
       
     }
 
@@ -712,7 +716,7 @@ namespace InDetDD {
      inline HepGeom::Point3D<double> SiDetectorElement::globalPositionCLHEP(const Amg::Vector2D &localPos) const
     {
       if (!m_cacheValid) updateCache();
-      return m_centerCLHEP + localPos[Trk::distEta] * m_etaAxisCLHEP + localPos[Trk::distPhi] * m_phiAxisCLHEP;
+      return m_originCLHEP + localPos[Trk::distEta] * m_etaAxisCLHEP + localPos[Trk::distPhi] * m_phiAxisCLHEP;
       
     }
      //here
@@ -729,13 +733,13 @@ namespace InDetDD {
     inline Amg::Vector2D SiDetectorElement::localPosition(const HepGeom::Point3D<double> & globalPosition) const
     {
       if (!m_cacheValid) updateCache();
-      HepGeom::Vector3D<double> relativePos = globalPosition - m_centerCLHEP;
+      HepGeom::Vector3D<double> relativePos = globalPosition - m_originCLHEP;
       return Amg::Vector2D(relativePos.dot(m_phiAxisCLHEP), relativePos.dot(m_etaAxisCLHEP));
     }
 
     inline Amg::Vector2D SiDetectorElement::localPosition(const Amg::Vector3D & globalPosition) const{
       if (!m_cacheValid) updateCache();
-      Amg::Vector3D relativePos = globalPosition - m_center;
+      Amg::Vector3D relativePos = globalPosition - m_origin;
       return Amg::Vector2D(relativePos.dot(m_phiAxis), relativePos.dot(m_etaAxis));
 }
 

@@ -162,10 +162,13 @@ SiDetectorElement::updateCache() const
   if(testDesign->IsSiDesignType(SiDesignType::SCT|SiDesignType::Stereo|SiDesignType::AnnulusDesign)) 
      radialShift = testDesign->localModuleCentreRadius(); 
       
-  HepGeom::Point3D<double> centerGeoModel(radialShift, 0., 0.);
-  m_centerCLHEP = geoTransform * centerGeoModel;
+  HepGeom::Point3D<double> centerSensor(radialShift, 0., 0.);
+  m_centerCLHEP = geoTransform * centerSensor;
   m_center = Amg::Vector3D(m_centerCLHEP[0],m_centerCLHEP[1],m_centerCLHEP[2]);
   
+  HepGeom::Point3D<double> centerGeoModel(0., 0., 0.);
+  m_originCLHEP = geoTransform * centerGeoModel;
+  m_origin = Amg::Vector3D(m_originCLHEP[0],m_originCLHEP[1],m_originCLHEP[2]);
   //
   // Determine directions depth, eta and phi axis in reconstruction local frame
   // ie depth away from interaction point
@@ -522,6 +525,13 @@ SiDetectorElement::center() const
 {
   if (!m_cacheValid) updateCache();
   return m_center;
+}
+
+const Amg::Vector3D & 
+SiDetectorElement::origin() const
+{
+  if (!m_cacheValid) updateCache();
+  return m_origin;
 }
 
 const Amg::Vector3D & 
