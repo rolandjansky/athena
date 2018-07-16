@@ -6,6 +6,9 @@
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.GlobalFlags import globalflags
 
+from AthenaCommon.AlgSequence import AthSequencer
+from MuonCondSvc.MuonCondSvcConf import MuonAlignmentErrorDbAlg
+
 from MuonRecExample.MuonRecUtils import logMuon
 from IOVDbSvc.CondDB import conddb
 
@@ -88,6 +91,9 @@ if muonAlignFlags.UseAsBuilt:
         MuonAlignmentDbTool.ParlineFolders += ["/MUONALIGN/MDT/ASBUILTPARAMS"]
 
 # nuisance parameter used during track fit to account for alignment uncertainty
+condSequence = AthSequencer("AthCondSeq")
 if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
    'HLT' not in globalflags.ConditionsTag() and not conddb.isOnline :
-    conddb.addFolder("MUONALIGN_OFL","/MUONALIGN/ERRS")
+    conddb.addFolder("MUONALIGN_OFL","/MUONALIGN/ERRS",className='CondAttrListCollection')
+    condSequence += MuonAlignmentErrorDbAlg("MuonAlignmentErrorDbAlg")
+
