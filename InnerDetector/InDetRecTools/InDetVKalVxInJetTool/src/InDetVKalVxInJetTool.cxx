@@ -11,6 +11,7 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "TH1D.h"
 #include "TH2D.h"
+#include "TTree.h"
 #include "TProfile.h"
 
 #include "TMath.h"
