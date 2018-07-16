@@ -18,7 +18,7 @@ def CaloNoiseToolCfg(configFlags):
     if configFlags.get("global.isOnline"):
         #online mode:
         folder  = "/CALO/Noise/CellNoise"
-        result.addConfig(addFolders,configFlags,inputFlags,folder,'CALO_ONL')
+        result.merge(addFolders(configFlags,inputFlags,folder,'CALO_ONL'))
         caloNoiseToolDB.FolderNames=[folder,]
         if fixedLumi >= 0 :
             caloNoiseToolDB.Luminosity = fixedLumi
@@ -26,7 +26,7 @@ def CaloNoiseToolCfg(configFlags):
         else:
             if useCaloLumi:
                 lumiFolder='/CALO/Noise/PileUpNoiseLumi'
-                result.addConfig(addFolders,configFlags,lumiFolder,'CALO')
+                result.merge(addFolders(configFlags,lumiFolder,'CALO'))
                 caloNoiseToolDB.LumiFolderName = lumiFolder
                 caloNoiseToolDB.Luminosity = -1.
                 log.info("online mode: use luminosity from /CALO/Noise/PileUpNoiseLumi to scale pileup noise")
@@ -45,7 +45,7 @@ def CaloNoiseToolCfg(configFlags):
         else:
             if useCaloLumi:
                 lumiFolder='/CALO/Ofl/Noise/PileUpNoiseLumi'
-                result.addConfig(addFolders,configFlags,lumiFolder,'CALO_OFL')
+                result.merge(addFolders(configFlags,lumiFolder,'CALO_OFL'))
                 log.info("offline mode: use luminosity from /CALO/Ofl/Noise/PileuUpNoiseLumi to scale pileup noise")
                 caloNoiseToolDB.LumiFolderName = lumiFolder
                 caloNoiseToolDB.Luminosity=-1.
@@ -69,11 +69,11 @@ def CaloNoiseToolCfg(configFlags):
             caloNoiseToolDB.Luminosity = -1
             if useCaloLumi:
                 lumiFolder='/CALO/Ofl/Noise/PileUpNoiseLumi'
-                result.addConfig(addFolders,configFlags,lumiFolder,'CALO_OFL')
+                result.merge(addFolders(configFlags,lumiFolder,'CALO_OFL'))
                 log.info("offline mode: use luminosity from /CALO/Ofl/Noise/PileUpNoiseLumi to scale pileup noise")
             else:
                 lumiFolder = '/TRIGGER/LUMI/LBLESTONL'
-                result.addConfig(addFolders,configFlags,lumiFolder,'TRIGGER_ONL')
+                result.merge(addFolders(configFlags,lumiFolder,'TRIGGER_ONL'))
                 log.info("offline mode: use luminosity = f(Lumiblock) to scale pileup noise")
                 caloNoiseToolDB.LumiFolderName = lumiFolder
 
@@ -91,10 +91,10 @@ def CaloNoiseToolCfg(configFlags):
         pass #end of real data case
     
     for (db,fldr) in folders:
-        result.addConfig(addFolders,configFlags,fldr,db)
+        result.merge(addFolders(configFlags,fldr,db))
     
     caloNoiseToolDB.FolderNames=[f[1] for f in folders]    
 
     result.addPublicTool(caloNoiseToolDB)
     
-    return result
+    return result,caloNoiseToolDB
