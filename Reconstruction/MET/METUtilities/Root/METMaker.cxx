@@ -12,6 +12,7 @@
 
 // METUtilities includes
 #include "METUtilities/METMaker.h"
+#include "METUtilities/METHelpers.h"
 
 // MET EDM
 #include "xAODMissingET/MissingETContainer.h"
@@ -37,8 +38,6 @@
 #include "xAODEgamma/EgammaxAODHelpers.h"
 
 namespace met {
-
-  ANA_MSG_SOURCE (msgMET, "MetUtilities")
 
   using std::vector;
 
@@ -77,8 +76,6 @@ namespace met {
 
   // Implement dphi as well if we start correcting the jet phi.
   // static const SG::AuxElement::Decorator< std::vector<float> > dec_constitObjDphis("ConstitObjectDphis");
-
-  const static MissingETBase::Types::bitmask_t invisSource = 0x100000; // doesn't overlap with any other
 
   ///////////////////////////////////////////////////////////////////
   // Public methods:
@@ -236,6 +233,7 @@ namespace met {
       ATH_MSG_WARNING("Invalid object type provided: " << metType);
       return StatusCode::FAILURE;
     }
+    ATH_MSG_VERBOSE("Executing rebuildMET with input type " << metType);
 
     MissingET* met = nullptr;
     if( fillMET(met,metCont, metKey , metSource) != StatusCode::SUCCESS) {
@@ -245,6 +243,7 @@ namespace met {
 
     // If muon eloss corrections are required, create a new term to hold these if it doesn't already exist
     if(metType==xAOD::Type::Muon && (m_muEloss || m_doSetMuonJetEMScale) && !(*metCont)["MuonEloss"]) {
+      ATH_MSG_VERBOSE("Creating Muon Eloss term");
       MissingET* met_muEloss = nullptr;
       if( fillMET(met_muEloss,metCont,"MuonEloss",
 		  MissingETBase::Source::Muon | MissingETBase::Source::Calo) != StatusCode::SUCCESS) {
@@ -1121,44 +1120,6 @@ namespace met {
     return rebuildMET(met,collection,map,MissingETBase::UsageHandler::PhysicsObject);
   }
 
-  // **** Sum up MET terms ****
-
-  StatusCode buildMETSum(const std::string& totalName,
-                         xAOD::MissingETContainer* metCont,
-                         MissingETBase::Types::bitmask_t softTermsSource)
-  {
-    using namespace msgMET;
-
-    ANA_MSG_DEBUG("Build MET total: " << totalName);
-
-    MissingET* metFinal = nullptr;
-    if( fillMET(metFinal, metCont, totalName, MissingETBase::Source::total()) != StatusCode::SUCCESS) {
-      ANA_MSG_ERROR("failed to fill MET term \"" << totalName << "\"");
-      return StatusCode::FAILURE;
-    }
-
-    for(const auto& met : *metCont) {
-      if(MissingETBase::Source::isTotalTerm(met->source())) continue;
-      if(met->source()==invisSource) continue;
-      if(softTermsSource && MissingETBase::Source::isSoftTerm(met->source())) {
-	if(!MissingETBase::Source::hasPattern(met->source(),softTermsSource)) continue;
-      }
-      // skip the duplicate terms
-      if( met->name().find("_Duplicate")!=std::string::npos){
-	continue;
-      }
-      ANA_MSG_VERBOSE("Add MET term " << met->name() );
-      *metFinal += *met;
-    }
-
-    ANA_MSG_DEBUG( "Rebuilt MET Final --"
-		   << " mpx: " << metFinal->mpx()
-		   << " mpy: " << metFinal->mpy()
-		   );
-
-    return StatusCode::SUCCESS;
-  }
-
   StatusCode METMaker::buildMETSum(const std::string& totalName,
 				   xAOD::MissingETContainer* metCont,
 				   MissingETBase::Types::bitmask_t softTermsSource)
@@ -1166,34 +1127,7 @@ namespace met {
     return met::buildMETSum (totalName, metCont, softTermsSource);
   }
 
-  //this is used to not create a private store
-  //it puts the given new MET object into the container
-  StatusCode fillMET(xAOD::MissingET *& met,
-			       xAOD::MissingETContainer * metCont,
-			       const std::string& metKey,
-			       const MissingETBase::Types::bitmask_t metSource){
-    using namespace msgMET;
-    if(met != nullptr){
-      ANA_MSG_ERROR("You can't fill a filled MET value");
-      return StatusCode::FAILURE;
-    }
-    metCont->reserve(10);
 
-    // add the new container as a "duplicate". This should be for the soft term to make sure the jet term is reconstructed correctly
-    std::string duplicate = "";
-    if(metCont->find(metKey)!=metCont->end()){
-      ANA_MSG_VERBOSE("avoiding adding a duplicate term");
-      duplicate = "_Duplicate";
-    }
-
-    met = new xAOD::MissingET();
-    metCont->push_back(met);
-
-    met->setName  (metKey+duplicate);
-    met->setSource(metSource);
-
-    return StatusCode::SUCCESS;
-  }
   StatusCode METMaker::fillMET(xAOD::MissingET *& met,
 			       xAOD::MissingETContainer * metCont,
 			       const std::string& metKey,

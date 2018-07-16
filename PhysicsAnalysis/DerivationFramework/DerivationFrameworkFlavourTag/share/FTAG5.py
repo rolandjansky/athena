@@ -161,26 +161,23 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKt10LCTopoTrimmedPtFrac5SmallR2
 
 
 #==================================================================
-# Augment tracks in jets with additional information
+# Augment tracks and jets with additional information
 #==================================================================
 
 FTAG5Seq += CfgMgr.BTagVertexAugmenter()
-for jc in OutputJets["FTAG5"]:
-   if 'Truth' in jc:
-       continue
-   FTAG5Seq += CfgMgr.BTagTrackAugmenter(
+for jc in FTAG5BTaggedJets:
+    # Add some track information
+    FTAG5Seq += CfgMgr.BTagTrackAugmenter(
        "BTagTrackAugmenter_" + jc,
        OutputLevel=INFO,
        JetCollectionName = jc,
        TrackToVertexIPEstimator = FTAG5IPETool,
        SaveTrackVectors = True,
-   )
-
-# also add some b-tagging jet-wise information
-for sjc in FTAG5BTaggedJets:
+    )
+    # also add some b-tagging jet-wise information
     FTAG5Seq += CfgMgr.BTagJetAugmenterAlg(
-           "FTAG5JetAugmenter_"+sjc,
-           JetCollectionName=sjc
+           "FTAG5JetAugmenter_"+jc,
+           JetCollectionName=jc
     )
 
 #================================================================

@@ -6,13 +6,17 @@ from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
 def makeElectronAnalysisSequence( dataType,
                                   isolationWP = 'GradientLoose',
-                                  likelihoodWP = 'LooseLHElectron' ):
+                                  likelihoodWP = 'LooseLHElectron',
+                                  recomputeLikelihood = False,
+                                  prefilterLikelihood = False ):
     """Create an electron analysis algorithm sequence
 
-    Keywrod arguments:
+    Keyword arguments:
       dataType -- The data type to run on ("data", "mc" or "afii")
       isolationWP -- The isolation selection working point to use
       likelihoodWP -- The likelihood selection working point to use
+      recomputeLikelihood -- Whether to rerun the LH. If not, use derivation flags
+      prefilterLikelihood -- Creates intermediate selection on LH, in case of cluster thinning etc
     """
 
     if not dataType in ["data", "mc", "afii"] :
@@ -20,6 +24,36 @@ def makeElectronAnalysisSequence( dataType,
 
     # Create the analysis algorithm sequence object:
     seq = AnaAlgSequence( "ElectronAnalysisSequence" )
+
+    # Set up the likelihood ID selection algorithm
+    # It is safe to do this before calibration, as the cluster E is used
+    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronLikelihoodAlg' )
+    alg.selectionDecoration = 'selectLikelihood'
+    lhNcuts = 1
+    if recomputeLikelihood:
+        # Rerun the likelihood ID
+        addPrivateTool( alg, 'selectionTool', 'AsgElectronLikelihoodTool' )
+        alg.selectionTool.primaryVertexContainer = 'PrimaryVertices'
+        alg.selectionTool.WorkingPoint = likelihoodWP
+        lhNcuts = 7
+    else:
+        # Select from Derivation Framework flags
+        addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
+        dfFlag = "DFCommonElectronsLH" + likelihoodWP.split('LH')[0]
+        alg.selectionTool.selectionFlags = [dfFlag]
+        lhNcuts = 1
+    seq.append( alg, inputPropName = 'particles',
+    outputPropName = 'particlesOut' )
+
+    # Only run subsequent processing on the objects passing LH cut
+    # This is needed e.g. for top derivations that thin the clusters
+    # from the electrons failing Loose(LH)
+    # Basically invalidates the first cutflow step
+    if prefilterLikelihood:
+        alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
+        'ElectronLHViewFromSelectionAlg' )
+        alg.selection = [ 'selectLikelihood' ]
+        seq.append( alg, inputPropName = 'input', outputPropName = 'output' )
 
     # Set up the calibration and smearing algorithm:
     alg = createAlgorithm( 'CP::EgammaCalibrationAndSmearingAlg',
@@ -47,15 +81,6 @@ def makeElectronAnalysisSequence( dataType,
         alg.isolationCorrectionTool.IsMC = 1
         pass
     seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut' )
-
-    # Set up the likelihood ID selection algorithm:
-    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronLikelihoodAlg' )
-    addPrivateTool( alg, 'selectionTool', 'AsgElectronLikelihoodTool' )
-    alg.selectionTool.primaryVertexContainer = 'PrimaryVertices'
-    alg.selectionTool.WorkingPoint = likelihoodWP
-    alg.selectionDecoration = 'selectLikelihood'
-    seq.append( alg, inputPropName = 'particles',
-                outputPropName = 'particlesOut' )
 
     # Set up the isolation selection algorithm:
     alg = createAlgorithm( 'CP::EgammaIsolationSelectionAlg',
