@@ -24,19 +24,9 @@
 #include "TrigEgammaMatchingTool/ITrigEgammaMatchingTool.h"
 #include "xAODEventInfo/EventInfo.h"
 
-#include <xAODEgamma/ElectronContainer.h>
-#include <xAODEgamma/ElectronAuxContainer.h>
-#include <xAODEgamma/EgammaContainer.h>
-#include <xAODEgamma/PhotonContainer.h>
-
-#include <ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h>
-#include <PileupReweighting/PileupReweightingTool.h>
-
-
 #include "TMath.h"
 #include <string>
 #include <iostream>
-#include "xAODCore/ShallowCopy.h"
 
 
 class TProfile;

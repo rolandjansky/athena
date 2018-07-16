@@ -27,7 +27,6 @@
 #include "xAODMissingET/MissingET.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODTracking/TrackParticle.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
 #include "xAODJet/Jet.h"
@@ -39,7 +38,6 @@
 
 #include <vector>
 
-#include "xAODEventInfo/EventInfo.h"
 #include "TProfile.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
@@ -398,11 +396,6 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      }
      
      ATH_MSG_DEBUG("ElectronContainer successfully retrieved");
-     // make shallow copy
-     auto shallowCopy = xAOD::shallowCopyContainer (*elecTES);
-     std::unique_ptr<xAOD::ElectronContainer> elecTES_shallow(shallowCopy.first);
-     std::unique_ptr<xAOD::ShallowAuxContainer> shallowAux(shallowCopy.second);
-
 
      //Get Muons        
      //     const Analysis::MuonContainer* muons  = 0;
@@ -479,21 +472,12 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
      const xAOD::Electron*  subleadingAllEle(0);
      std::vector<const xAOD::Electron*> allElectrons;
 
-     int passMedium = 0;
-     int allEle = 0;
      // Electron Cut Flow
      Int_t El_N = 0;
      ATH_MSG_DEBUG("Start electron selection");
 
-     for (xAOD::ElectronContainer::const_iterator itr=elecTES_shallow->begin(); itr != elecTES_shallow->end(); ++itr) {
-     // Count Loose/All electrons
+     for (xAOD::ElectronContainer::const_iterator itr=elecTES->begin(); itr != elecTES->end(); ++itr) {
        allElectrons.push_back(*itr);
-       allEle++;
-       bool passSel_iso = false;
-       (*itr)->passSelection(passSel_iso, "LHMedium");
-       if(passSel_iso){
- 	 passMedium++;
-       }
 
 	const xAOD::Electron* electron_itr = (*itr);
         if(goodElectrons(thisEventInfo, electron_itr, pVtx, isBad)){
