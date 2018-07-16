@@ -538,7 +538,7 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="71" partition="1" name="L1_LAR-ZEE" complex_deadtime="0" definition="(ZEE-EM20shi2[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10010000" monitor="LF:111|HF:000">
+    <TriggerItem ctpid="71" partition="1" name="L1_LAR-ZEE" complex_deadtime="0" definition="(ZEE-EM20shi2[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:111|HF:000">
       <AND>
         <TriggerCondition multi="1" name="ZEE-EM20shi2_x1" triggerthreshold="ZEE-EM20shi2"/>
         <InternalTrigger name="BGRP0"/>
