@@ -31,17 +31,17 @@ class T2VertexBeamSpotOnlineMonitoring(TrigGenericMonitoringToolConfig):
             # Cumulative histograms
             #---------------------------------------
             # Total number of cumulative bins:
-            #                  31,500
+            #                  33,100
             #---------------------------------------
 
             # Number of tracks per event
-            # Total number of bins: 600
+            # Total number of bins: 2000
             self.Histograms += [ defineHistogram('TotalTracks', type='TH1F',
                                                  title="TotalTracks; N tracks per event; Number of events",
-                                                 xbins=300, xmin=0.0, xmax=600.0) ]
+                                                 xbins=1000, xmin=0.0, xmax=1000.0) ]
             self.Histograms += [ defineHistogram('TotalTracksPass', type='TH1F',
                                                  title="TotalTracksPass;  N accepted tracks per event; Number of events",
-                                                 xbins=300, xmin=0.0, xmax=500.0) ]
+                                                 xbins=1000, xmin=0.0, xmax=1000.0) ]
 
             # Track Z position
             # Total number of Bins: 200
