@@ -6,7 +6,7 @@ def createTriggerFlags():
 
     flags = AthConfigFlags()
     # enables L1 simulation
-    flags.addFlag('Trigger.doLVL1', lambda prevFlags: prevFlags('global.isMC'))
+    flags.addFlag('Trigger.doLVL1', lambda prevFlags: prevFlags.get('global.isMC'))
 
     # enables L1 topological trigger simulation
     flags.addFlag('Trigger.doL1Topo', True )
@@ -92,14 +92,14 @@ def createTriggerFlags():
     
     # L1 XML file name 
     flags.addFlag('Trigger.LVL1ConfigFile',
-                lambda prevFlags: 'LVL1config_'+prevFlags.get('Trigger.triggerMenuSetup')+'_' + prevFlags.get('Trigger.menuVersion') + '.xml')
+                lambda prevFlags: 'LVL1config_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
 
     # generate or not the L1 topo configuration
     flags.addFlag('Trigger.generateLVL1TopoConfig', False)
     
     # L1 topo XML file name
     flags.addFlag('Trigger.LVL1TopoConfigFile',
-                lambda prevFlags: 'LVL1config_'+prevFlags.get('Trigger.triggerMenuSetup')+'_' + prevFlags.get('Trigger.menuVersion') + '.xml')
+                lambda prevFlags: 'LVL1config_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
 
 
     # trigger reconstruction 
@@ -120,7 +120,7 @@ def createTriggerFlags():
                 lambda prevFlags:
                 __tunes(default='ElectronPhotonSelectorTools/trigger/rel21_mc16a/',
                         ver2016='ElectronPhotonSelectorTools/trigger/rel21_mc16a/',
-                        ver2017='ElectronPhotonSelectorTools/trigger/rel21_20170214/')( prevFlags.get('Trigger.run2Config') )
+                        ver2017='ElectronPhotonSelectorTools/trigger/rel21_20170214/')( prevFlags.Trigger.run2Config )
     )
 
     # cluster correction version, allowed value is: None or v12phiflip_noecorrnogap
@@ -128,14 +128,14 @@ def createTriggerFlags():
                 lambda prevFlags:
                 __tunes(default=None,
                         ver2016=None,
-                        ver2017='v12phiflip_noecorrnogap')( prevFlags.get('Trigger.run2Config') )
+                        ver2017='v12phiflip_noecorrnogap')( prevFlags.Trigger.run2Config )
     )
     # tune of MVA
     flags.addFlag('Trigger.egamma.calibMVAVersiona',
                   lambda prevFlags:
                   __tunes(default='egammaMVACalib/online/v3',
                           ver2016='egammaMVACalib/online/v3',
-                          ver2017='egammaMVACalib/online/v6')( prevFlags.get('Trigger.run2Config') )
+                          ver2017='egammaMVACalib/online/v6')( prevFlags.Trigger.run2Config )
     )
 
     # muons
@@ -159,12 +159,16 @@ def createTriggerFlags():
     # also not defined the Prescale sets yet
     # abortOnConfigurationError - never red
     # in signatures
-    # egamma: rinferVrsion - not used
+    # egamma: ringerVersion - not used
     # muon: doMuonCalibrationStream - not used
     # tau: doTrackingApproach - not used
 
-if __name__ == '__main__':
-    flags = createTriggerFlags()
-    flags.set('Trigger.run2Config', '2017')
-    assert flags.get('Trigger.egamma.clusterCorrectionVersion') == 'v12phiflip_noecorrnogap'
-    flags.dump()
+
+    
+import unittest
+class __YearDependentFlagTest(unittest.TestCase):    
+    def runTest(self):
+        flags = createTriggerFlags()
+        flags.set('Trigger.run2Config', '2017')
+        self.assertEqual(flags.Trigger.egamma.clusterCorrectionVersion, "v12phiflip_noecorrnogap", " dependent flag setting does not work")
+        flags.dump()
