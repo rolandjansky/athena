@@ -2,7 +2,7 @@
 
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig 
 
-ACCEPTANCE_labels = ' HltExecute : PassNElectrons : Pass pt : pass isEM'
+ACCEPTANCE_labels = ' HltExecute : PassNElectrons : Pass elec PID : pass pt'
 ACCEPTANCE_number = 4
 
 class TrigBphysElectronCounterValidationMonitoring(TrigGenericMonitoringToolConfig):

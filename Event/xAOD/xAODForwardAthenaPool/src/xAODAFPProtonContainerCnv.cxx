@@ -16,3 +16,4 @@
 
 // This is just a dummy file, here to convince the CMake code not to
 // auto-generate a converter for this type.
+

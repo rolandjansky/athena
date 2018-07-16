@@ -332,23 +332,73 @@ def ctp_defects(d, i, runNumber):
             import detmaskmod # ugly: could happen for more than one defect - should be cheap though
             nlbs = detmaskmod.getNumLumiBlocks(runNumber)
             rv.append(defect_iov(defect, message, False, when.GetNbinsX(), nlbs+1))
-    print "The following defects were extracted: " # TODO: remove this line?
-    print rv # TODO: remove this line?
+    #print "The following defects were extracted: " # TODO: remove this line?
+    #print rv # TODO: remove this line?
     return rv
 
+def sct_lowstat_defect(d, i, runNumber):
+    histogram = d.Get('InnerDetector/SCT/Summary/tracksPerRegion')
+    if not histogram:
+        return None
+    if histogram.GetEntries() < 200:
+        return [defect_val('SCT_GLOBAL_LOWSTAT', 'Low statistics', False)]
+    else:
+        return []
+
 def sct_conf_defects(d, i, runNumber):
-    mapping = { 1: 'SCT_MOD_OUT_GT40',
-                4: 'SCT_MOD_ERR_GT40',
-                6: 'SCT_MOD_NOISE_GT40',
-                }
+    def sct_conf_defects_core(d, i, runNumber, histname, mapping):
+        rv = []
+        histogram = d.Get(histname)
+        if not histogram: 
+            return None
+        for bin in mapping:
+            if histogram.GetBinContent(bin) > 40:
+                rv.append(defect_val(mapping[bin], '%.1d modules affected' % histogram.GetBinContent(bin), False))
+        return rv
+
+    rv1 = sct_conf_defects_core(d, i, runNumber, 'InnerDetector/SCT/Summary/SCTConfOutM',
+                                { 1: 'SCT_MOD_OUT_GT40' })
+    rv2 = sct_conf_defects_core(d, i, runNumber, 'InnerDetector/SCT/Summary/SCTConfNew',
+                                { 3: 'SCT_MOD_ERR_GT40',
+                                  5: 'SCT_MOD_NOISE_GT40' })
+    if rv1 is None and rv2 is None:
+        return None
+    else:
+        return (rv1 if rv1 is not None else [])+(rv2 if rv2 is not None else [])
+
+def sct_perlb_defects(d, i, runNumber):
+    pairs = [('InnerDetector/SCT/Summary/SCT_LinksWithLinkLevelErrorsVsLbs', 
+              'SCT_PERIOD_ERR_GT40', lambda _: _ > 80),
+             ('InnerDetector/SCT/Summary/SCT_LinksWithRODLevelErrorsVsLbs', 
+              'SCT_ROD_OUT', lambda _: _ >= 1)]
 
     rv = []
-    histogram = d.Get('InnerDetector/SCT/SCTAll/ModuleStatus/SCTConf')
-    if not histogram: return None
-    for bin in mapping:
-        if histogram.GetBinContent(bin) > 40:
-            rv.append(defect_val(mapping[bin], '%.1d modules affected' % histogram.GetBinContent(bin), False))
-    return rv    
+    bad_lbs = {}
+    overflow_bad_lbs = {}
+    message = 'Automatically set'
+    foundany = False
+
+    for hname, dname, policy in pairs:
+        when = d.Get(hname)
+        if not when:
+            continue
+        foundany = True
+
+    # extract bad bins
+        bad_lbs[dname] = [bin for bin in xrange(1, when.GetNbinsX()+1) if policy(when.GetBinContent(bin))]
+        overflow_bad_lbs[dname] = policy(when.GetBinContent(when.GetNbinsX()+1))
+        
+        for lb in bad_lbs[dname]:
+            rv.append(defect_iov(dname, message, False, lb, lb+1))
+        if overflow_bad_lbs[dname]:
+            message += '; defect occurred past end of monitoring histogram, marking end of run as bad'
+            import detmaskmod # ugly: could happen for more than one defect - should be cheap though
+            nlbs = detmaskmod.getNumLumiBlocks(runNumber)
+            rv.append(defect_iov(dname, message, False, when.GetNbinsX(), nlbs+1))
+    if foundany:
+        return rv
+    else:
+        return None
 
 def iovs_merge(l):
     l.sort(key=lambda x: x.since)
@@ -371,54 +421,23 @@ def iovs_merge(l):
         rl.append(previous._replace(until=until))
     return rl
 
-def sct_readout_defects(d, i, runNumber):
-    def sct_readout_defects_core(d, prefix, l, comment):
-        import re
-        for k in d.GetListOfKeys():
-            keyname = k.GetName()
-            m = re.search(prefix + '\((\d+)', keyname)
-            if m:
-                l.append(int(m.group(1))+1)
-
-    def lb_comment(lb, l):
-        # l is a tuple name, list
-        rvl = []
-        for name, l2 in l:
-            if lb in l2:
-                rvl.append(name)
-        return ' '.join(rvl)
-
-    robfragment = d.Get('InnerDetector/SCT/SCTAll/ModuleStatus/SCTROBFragmentConf_/Results')
-    robwarnings = []; roberrors = []
-    if not robfragment: return None
-    for prefix, l in (('WarningBin', robwarnings),
-                      ('ErrorBin', roberrors)):
-        sct_readout_defects_core(robfragment, prefix, l, 'ROBFragment')
-
-    maskedlink = d.Get('InnerDetector/SCT/SCTAll/ModuleStatus/SCTMaskedLinkConf_/Results')
-    linkwarnings = []; linkerrors = []
-    if not maskedlink: return None
-    for prefix, l in (('WarningBin', linkwarnings),
-                      ('ErrorBin', linkerrors)):
-        sct_readout_defects_core(maskedlink, prefix, l, 'MaskedLink')
-    allwarnings = set(robwarnings + roberrors + linkwarnings + linkerrors)
-    namelisttuple = (('ROBFragment', robwarnings),
-                     ('MaskedLink', linkwarnings),
-                     ('ROBFragment', roberrors),
-                     ('MaskedLink', linkerrors))
-    allwarnings_defects = [defect_iov('SCT_ROD_OUT_1', lb_comment(lb, namelisttuple), False, lb, lb+1) for lb in allwarnings]
-    allwarnings_defects = iovs_merge(allwarnings_defects)
-
-    allerrors = set(roberrors + linkerrors)
-    namelisttuple = (('ROBFragment', roberrors),
-                     ('MaskedLink', linkerrors))
-    allerrors_defects = [defect_iov('SCT_GLOBAL_UNKNOWN', lb_comment(lb, namelisttuple), False, lb, lb+1) for lb in allerrors]
-    allerrors_defects = iovs_merge(allerrors_defects)
-    
-    #if allwarnings_defects: print allwarnings_defects
-    #if allerrors_defects: print allerrors_defects
-    
-    return allwarnings_defects + allerrors_defects
+def sct_eff_defect(d, i, runNumber):
+    h1 = d.Get('InnerDetector/SCT/Summary/SctTotalEffBCID_/Results/Status')
+    h2 = d.Get('InnerDetector/SCT/Summary/SctTotalEff_/Results/Status')
+    if not h1 or not h2: return None
+    badstatuses = set(['Yellow', 'Red'])
+    statuscheck = []
+    for h in h1, h2:
+        status = set(x.GetName() for x in h.GetListOfKeys())
+        if len(badstatuses & status) > 0:
+            assert len(status) == 1, 'Status must be length one or the file is corrupt'
+            statuscheck.append(True)
+        else:
+            statuscheck.append(False)
+    if all(statuscheck):
+        return [defect_val('SCT_EFF_LT99', 'Automatically set for whole run', False)]
+    else:
+        return []
 
 def dqmf_node_defect(node, defect, badstatuses=['Red']):
     badstatuses = set(badstatuses)
@@ -436,19 +455,19 @@ def dqmf_node_defect(node, defect, badstatuses=['Red']):
 def hancool_defects(runNumber, filePath="./", dbConnection="", db_tag='HEAD', isESn=True):
     import pix_defect
     analyzers = []
-    if False:
-        analyzers += [ctp_defects]
     if isESn:
-        analyzers += [dqmf_node_defect('InnerDetector/SCT/SCTAll/Hits/SctTotalEff', 'SCT_EFF_LT99', ['Yellow', 'Red']),
-                      dqmf_node_defect('InnerDetector/SCT/SCTAll/Hits/SctTotalEff', 'SCT_GLOBAL_UNKNOWN', ['Red']),
-                      dqmf_node_defect('InnerDetector/SCT/SCTAll/ModuleStatus/SCTConf', 'SCT_GLOBAL_UNKNOWN', ['Red']),
+        # CTP
+        analyzers += [ctp_defects]
+        # SCT
+        analyzers += [sct_eff_defect,
+                      sct_lowstat_defect,
                       sct_conf_defects,
-                      sct_readout_defects,
+                      sct_perlb_defects,
                       ]
 
     if ( len(filePath) == 0 or filePath[-1] != '/'):
         filePath+="/"
-    if (len(dbConnection)<1): dbConnection = "/afs/cern.ch/user/a/atlasdqm/dqmdisk1/cherrypy-devel/defectstest.db/CONDBR2"
+    if (len(dbConnection)<1): dbConnection = "/afs/cern.ch/user/a/atlasdqm/dqmdisk1/cherrypy-devel/defectstest.db/COMP200"
 
     import ROOT
     # Conflict logic: shorter intervals override longer ones
@@ -485,7 +504,8 @@ def hancool_defects(runNumber, filePath="./", dbConnection="", db_tag='HEAD', is
         globname = fnames[0][0]
         filename = os.path.basename(globname)    
         since, until = getLimits(filename)
-        defects += pix_defect.execute(runNumber, globname, until-1)
+        # disabled until fixed
+        #defects += pix_defect.execute(runNumber, globname, until-1)
 
     from DQDefects import DefectsDB
     ddb = DefectsDB(dbConnection, read_only=False)
@@ -493,7 +513,6 @@ def hancool_defects(runNumber, filePath="./", dbConnection="", db_tag='HEAD', is
         detmask_defects(runNumber, ddb)
     with ddb.storage_buffer:
         for defect in iovs_merge(defects):
-            #print defect
             ddb.insert(defect.defect, since=(runNumber << 32 | defect.since),
                        until=(runNumber << 32 | defect.until),
                        comment=defect.comment,
