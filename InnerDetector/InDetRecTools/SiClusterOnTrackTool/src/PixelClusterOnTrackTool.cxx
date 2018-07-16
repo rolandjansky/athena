@@ -13,6 +13,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "SiClusterOnTrackTool/PixelClusterOnTrackTool.h"
+#include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetIdentifier/PixelID.h"
@@ -273,8 +274,8 @@ InDet::PixelClusterOnTrackTool::FillFromDataBase() const{
           m_fD.emplace_back(std::move(fd));
         }
       }else {
-        msg(MSG::ERROR) << "Cannot find covariance corrections for key "
-                        << "/PIXEL/PixelClustering/PixelCovCorr" << " - no correction " << endmsg;
+        ATH_MSG_ERROR( "Cannot find covariance corrections for key "
+                        << "/PIXEL/PixelClustering/PixelCovCorr" << " - no correction " );
         
       }
     }
@@ -300,11 +301,9 @@ InDet::PixelClusterOnTrackTool::correct
     m_applyNNcorrection = false;
   }
 #endif
-
-  if (!m_applyNNcorrection ||
-      ((dynamic_cast<const InDetDD::SiDetectorElement *>(rio.detectorElement()))->isBlayer() && !m_NNIBLcorrection &&
-       !m_IBLAbsent)) {
-    return correctDefault(rio, trackPar);
+  auto element= dynamic_cast<const InDetDD::SiDetectorElement *>(rio.detectorElement());
+  if ((not m_applyNNcorrection) or (element and element->isBlayer() and (not m_NNIBLcorrection) and (not m_IBLAbsent))){
+        return correctDefault(rio, trackPar);
   }else {
     if (m_errorStrategy == 0 || m_errorStrategy == 1) {
       // version from Giacinto
@@ -374,8 +373,8 @@ InDet::PixelClusterOnTrackTool::correctDefault
     float trkphicomp = my_track.dot(my_phiax);
     float trketacomp = my_track.dot(my_etaax);
     float trknormcomp = my_track.dot(my_normal);
-    double bowphi = atan2(trkphicomp, trknormcomp);
-    double boweta = atan2(trketacomp, trknormcomp);
+    double bowphi = std::atan2(trkphicomp, trknormcomp);
+    double boweta = std::atan2(trketacomp, trknormcomp);
     float etatrack = trackPar.eta();
 
     float tanl = element->getTanLorentzAnglePhi();
@@ -391,7 +390,7 @@ InDet::PixelClusterOnTrackTool::correctDefault
     // finally, subtract the Lorentz angle effect
     // the readoutside term is needed because of a bug in old
     // geometry versions (CSC-01-* and CSC-02-*)
-    double angle = atan(tan(bowphi) - readoutside * tanl);
+    double angle = std::atan(std::tan(bowphi) - readoutside * tanl);
 
     // try to understand...
     const Identifier element_id = element->identify();
@@ -729,8 +728,8 @@ InDet::PixelClusterOnTrackTool::correctNN
     float trkphicomp = my_track.dot(my_phiax);
     float trketacomp = my_track.dot(my_etaax);
     float trknormcomp = my_track.dot(my_normal);
-    double bowphi = atan2(trkphicomp, trknormcomp);
-    double boweta = atan2(trketacomp, trknormcomp);
+    double bowphi = std::atan2(trkphicomp, trknormcomp);
+    double boweta = std::atan2(trketacomp, trknormcomp);
 
     Amg::Vector2D locpos = pixelPrepCluster->localPosition();
     if (element->isBarrel() && !m_disableDistortions) {
@@ -771,16 +770,14 @@ InDet::PixelClusterOnTrackTool::correctNN
     }
   }
 
-  if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << " Old position x: " << pixelPrepCluster->localPosition()[0] <<
-      " +/- " << std::sqrt(pixelPrepCluster->localCovariance()(0, 0))
-                    << " y: " << pixelPrepCluster->localPosition()[1] <<
-      " +/- " << std::sqrt(pixelPrepCluster->localCovariance()(1, 1)) << endmsg;
-    msg(MSG::DEBUG) << " Final position x: " << finalposition[0] <<
-      " +/- " << std::sqrt(finalerrormatrix(0, 0)) <<
-      " y: " << finalposition[1] << " +/- " <<
-      std::sqrt(finalerrormatrix(1, 1)) << endmsg;
-  }
+  ATH_MSG_DEBUG( " Old position x: " << pixelPrepCluster->localPosition()[0] 
+      << " +/- " << std::sqrt(pixelPrepCluster->localCovariance()(0, 0))
+      << " y: " << pixelPrepCluster->localPosition()[1]
+      << " +/- " << std::sqrt(pixelPrepCluster->localCovariance()(1, 1)) <<"\n" 
+      << " Final position x: " << finalposition[0]
+      << " +/- " << std::sqrt(finalerrormatrix(0, 0))
+      << " y: " << finalposition[1] << " +/- "
+      <<std::sqrt(finalerrormatrix(1, 1)) );
 
   Amg::Vector3D my_track = trackPar.momentum();
   Amg::Vector3D my_normal = element->normal();
@@ -789,8 +786,8 @@ InDet::PixelClusterOnTrackTool::correctNN
   float trkphicomp = my_track.dot(my_phiax);
   float trketacomp = my_track.dot(my_etaax);
   float trknormcomp = my_track.dot(my_normal);
-  double bowphi = atan2(trkphicomp, trknormcomp);
-  double boweta = atan2(trketacomp, trknormcomp);
+  double bowphi = std::atan2(trkphicomp, trknormcomp);
+  double boweta = std::atan2(trketacomp, trknormcomp);
 
   if (element->isBarrel() && !m_disableDistortions) {
     correctBow(element->identify(), finalposition, bowphi, boweta);
@@ -831,7 +828,7 @@ InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi(const InDet::PixelCluster *
   int numberOfSubclusters = 1;
 
   vectorOfPositions.push_back(pixelPrepCluster->localPosition());
-#ifdef __clustermap
+  #ifdef __clustermap
 
   SG::ReadHandle<InDet::PixelGangedClusterAmbiguities> splitClusterMap(m_splitClusterHandle);
   InDet::PixelGangedClusterAmbiguities::const_iterator mapBegin = splitClusterMap->begin();
@@ -843,9 +840,7 @@ InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi(const InDet::PixelCluster *
     if (first == pixelPrepCluster && second != pixelPrepCluster) {
       ATH_MSG_DEBUG("Found additional split cluster in ambiguity map (+=1).");
       numberOfSubclusters += 1;
- 
       const SiCluster *otherOne = second;
- 
       const InDet::PixelCluster *pixelAddCluster = dynamic_cast<const InDet::PixelCluster *>(otherOne);
       if (pixelAddCluster == 0) {
         ATH_MSG_WARNING("Pixel ambiguity map has empty pixel cluster. Please DEBUG!");
@@ -853,27 +848,17 @@ InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi(const InDet::PixelCluster *
       }
       vectorOfPositions.push_back(pixelAddCluster->localPosition());
  
-      if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG) << "Found one more pixel cluster. Position x: "
-                        << pixelAddCluster->localPosition()[0] << "y: " << pixelAddCluster->localPosition()[1] <<
-        endmsg;
-      }
+      ATH_MSG_DEBUG( "Found one more pixel cluster. Position x: "
+                        << pixelAddCluster->localPosition()[0] << "y: " << pixelAddCluster->localPosition()[1]);
     }// find relevant element of map
   }// iterate over map
 #endif
 
-  // A.S. hack for the moment: isSplit is also set for modified (non-split) 1-pixel-clusters ... is this needed anyway ?
-  //
-  // if (pixelPrepCluster->isSplit() && numberOfSubclusters<2)
-  // {
-  // msg(MSG::WARNING) << " Cluster is split but no further clusters found in split cluster map." << endmsg;
-  // }
-
   // now you have numberOfSubclusters and the vectorOfPositions (Amg::Vector2D)
 
   const Trk::AtaPlane *parameters = dynamic_cast<const Trk::AtaPlane *>(&trackPar);
-  if (parameters == 0) {
-    msg(MSG::WARNING) << "Parameters are not at a plane ! Aborting cluster correction... " << endmsg;
+  if (not parameters) {
+    ATH_MSG_WARNING( "Parameters are not at a plane ! Aborting cluster correction... " );
     return false;
   }
 
@@ -887,17 +872,15 @@ InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi(const InDet::PixelCluster *
                                                  allErrorMatrix,
                                                  numberOfSubclusters);
 
-  if (allLocalPositions.size() == 0) {
-    if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << " Cluster cannot be treated by NN. Giving back to default clusterization " << endmsg;
-    }
+  if (allLocalPositions.empty()) {
+    ATH_MSG_DEBUG( " Cluster cannot be treated by NN. Giving back to default clusterization " );
+    
     return false;
   }
 
   if (allLocalPositions.size() != size_t(numberOfSubclusters)) {
-    msg(MSG::WARNING) << "Returned position vector size " << allLocalPositions.size() <<
-    " not according to expected number of subclusters: " << numberOfSubclusters << ". Abort cluster correction..." <<
-    endmsg;
+    ATH_MSG_WARNING( "Returned position vector size " << allLocalPositions.size() <<
+    " not according to expected number of subclusters: " << numberOfSubclusters << ". Abort cluster correction..." );
     return false;
   }
 
@@ -923,16 +906,15 @@ InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi(const InDet::PixelCluster *
       square(vectorOfPositions[1][1] - allLocalPositions[0][1]) / allErrorMatrix[0](1, 1) +
       square(vectorOfPositions[0][1] - allLocalPositions[1][1]) / allErrorMatrix[1](1, 1);
 
-    if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << " Old pix (1) x: " << vectorOfPositions[0][0] << " y: " << vectorOfPositions[0][1] << endmsg;
-      msg(MSG::DEBUG) << " Old pix (2) x: " << vectorOfPositions[1][0] << " y: " << vectorOfPositions[1][1] << endmsg;
-      msg(MSG::DEBUG) << " Pix (1) x: " << allLocalPositions[0][0] << " +/- " << std::sqrt(allErrorMatrix[0](0, 0))
-                      << " y: " << allLocalPositions[0][1] << " +/- " << std::sqrt(allErrorMatrix[0](1, 1)) << endmsg;
-      msg(MSG::DEBUG) << " Pix (2) x: " << allLocalPositions[1][0] << " +/- " << std::sqrt(allErrorMatrix[1](0, 0))
-                      << " y: " << allLocalPositions[1][1] << " +/- " << std::sqrt(allErrorMatrix[1](1, 1)) << endmsg;
-      msg(MSG::DEBUG) << " Old (1) new (1) dist: " << std::sqrt(distancesq1) << " Old (1) new (2) " << std::sqrt(distancesq2) <<
-      endmsg;
-    }
+    ATH_MSG_DEBUG(
+     " Old pix (1) x: " << vectorOfPositions[0][0] << " y: " << vectorOfPositions[0][1] << "\n"
+      << " Old pix (2) x: " << vectorOfPositions[1][0] << " y: " << vectorOfPositions[1][1] << "\n"
+      << " Pix (1) x: " << allLocalPositions[0][0] << " +/- " << std::sqrt(allErrorMatrix[0](0, 0))
+      << " y: " << allLocalPositions[0][1] << " +/- " << std::sqrt(allErrorMatrix[0](1, 1)) <<"\n"
+      << " Pix (2) x: " << allLocalPositions[1][0] << " +/- " << std::sqrt(allErrorMatrix[1](0, 0))
+      << " y: " << allLocalPositions[1][1] << " +/- " << std::sqrt(allErrorMatrix[1](1, 1)) << "\n"
+      << " Old (1) new (1) dist: " << std::sqrt(distancesq1) << " Old (1) new (2) " << std::sqrt(distancesq2) );
+    
 
     if (distancesq1 < distancesq2) {
       finalposition = allLocalPositions[0];
