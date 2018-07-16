@@ -17,6 +17,9 @@ extern "C" {
 // xAOD include(s):
 #include "xAODCore/AuxInfoBase.h"
 
+// TrigCompositeUtils::DecisionID
+#include "xAODTrigger/TrigComposite.h"
+
 namespace xAOD {
 
    /// Class holding the data handled by TrigDecision_v1
@@ -65,6 +68,14 @@ namespace xAOD {
       std::vector< uint32_t > efPrescaled;
       std::vector< uint32_t > lvl2Resurrected;
       std::vector< uint32_t > efResurrected;
+      /// @}
+
+      /// @name HLT result variables. Run 3. Extended July 2018
+      /// @{
+      // typedef unsigned int DecisionID;
+      std::vector< ::TrigCompositeUtils::DecisionID > chainMTPassedRaw;
+      std::vector< ::TrigCompositeUtils::DecisionID > chainMTPrescaled;
+      std::vector< ::TrigCompositeUtils::DecisionID > chainMTResurrected;
       /// @}
 
    }; // class TrigDecisionAuxInfo_v1

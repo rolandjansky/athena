@@ -88,4 +88,32 @@ namespace xAOD {
    //
    /////////////////////////////////////////////////////////////////////////////
 
+   /////////////////////////////////////////////////////////////////////////////
+   //
+   // Additions for Run 3
+
+   AUXSTORE_OBJECT_SETTER_AND_GETTER( TrigDecision_v1, std::vector< ::TrigCompositeUtils::DecisionID >,
+                                      chainMTPassedRaw, setChainMTPassedRaw )
+
+   AUXSTORE_OBJECT_SETTER_AND_GETTER( TrigDecision_v1, std::vector< ::TrigCompositeUtils::DecisionID >,
+                                      chainMTPrescaled, setChainMTPrescaled )
+
+   AUXSTORE_OBJECT_SETTER_AND_GETTER( TrigDecision_v1, std::vector< ::TrigCompositeUtils::DecisionID >,
+                                      chainMTResurrected, setChainMTResurrected )
+
+   bool TrigDecision_v1::chainMTPassedRaw( ::TrigCompositeUtils::DecisionID id ) const {
+      return std::find(chainMTPassedRaw().begin(), chainMTPassedRaw().end(), id) != chainMTPassedRaw().end();
+   }
+
+   bool TrigDecision_v1::chainMTPrescaled( ::TrigCompositeUtils::DecisionID id ) const {
+      return std::find(chainMTPrescaled().begin(), chainMTPrescaled().end(), id) != chainMTPrescaled().end();
+   }
+
+   bool TrigDecision_v1::chainMTResurrected( ::TrigCompositeUtils::DecisionID id ) const {
+      return std::find(chainMTResurrected().begin(), chainMTResurrected().end(), id) != chainMTResurrected().end();
+   }
+
+   //
+   /////////////////////////////////////////////////////////////////////////////
+
 } // namespace xAOD

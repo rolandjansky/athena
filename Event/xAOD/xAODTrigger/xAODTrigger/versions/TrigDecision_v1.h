@@ -17,6 +17,9 @@ extern "C" {
 // EDM include(s):
 #include "AthContainers/AuxElement.h"
 
+// TrigCompositeUtils::DecisionID
+#include "xAODTrigger/TrigComposite.h"
+
 namespace xAOD {
 
    /// Interface to the raw trigger decision information of the event
@@ -152,6 +155,30 @@ namespace xAOD {
       void setEFResurrected( const std::vector< uint32_t >& value );
 
       /// @}
+
+      /// @name AthenaMT accessors
+      /// @{
+
+      /// Get the passed-raw chains
+      const std::vector< ::TrigCompositeUtils::DecisionID >& chainMTPassedRaw() const;
+      bool chainMTPassedRaw( ::TrigCompositeUtils::DecisionID id ) const;
+      /// Set the EF passed-raw items
+      void setChainMTPassedRaw( const std::vector< ::TrigCompositeUtils::DecisionID >& value );
+
+      /// Get the EF prescaled items
+      const std::vector< ::TrigCompositeUtils::DecisionID >& chainMTPrescaled() const;
+      bool chainMTPrescaled( ::TrigCompositeUtils::DecisionID id ) const;
+      /// Set the EF prescaled items
+      void setChainMTPrescaled( const std::vector< ::TrigCompositeUtils::DecisionID >& value );
+
+      /// Get the EF resurrected items
+      const std::vector< ::TrigCompositeUtils::DecisionID >& chainMTResurrected() const;
+      bool chainMTResurrected( ::TrigCompositeUtils::DecisionID id ) const;
+      /// Set the EF resurrected items
+      void setChainMTResurrected( const std::vector< ::TrigCompositeUtils::DecisionID >& value );
+
+      /// @}
+
 
    }; // class TrigDecision_v1
 
