@@ -32,6 +32,8 @@
 #include <fastjet/contrib/Nsubjettiness.hh>
 #include "JetSubStructureUtils/Qw.h"
 #include "JetSubStructureUtils/KtSplittingScale.h"
+//#include "JetSubStructureUtils/EnergyCorrelatorGeneralizedTools.h"
+//#include "JetSubStructureUtils/EnergyCorrelator.h"
 
 RCJetMC15::RCJetMC15( const std::string& name ) :
   asg::AsgTool( name ),
@@ -62,6 +64,7 @@ RCJetMC15::RCJetMC15( const std::string& name ) :
   m_split12(nullptr),
   m_split23(nullptr),
   m_qw(nullptr),
+  //m_gECF332(nullptr),
   m_unique_syst(false){
     declareProperty( "config" , m_config );
     declareProperty( "VarRCjets", m_VarRCjets=false);
@@ -116,6 +119,7 @@ StatusCode RCJetMC15::initialize(){
 	  delete m_split12;
 	  delete m_split23;
 	  delete m_qw;
+	  //delete m_gECF332;
 	  
 	  // Setup a bunch of FastJet stuff
 	  //define the type of jets you will build (http://fastjet.fr/repo/doxygen-3.0.3/classfastjet_1_1JetDefinition.html)
@@ -133,6 +137,8 @@ StatusCode RCJetMC15::initialize(){
 	  m_split23 = new JetSubStructureUtils::KtSplittingScale(2);
 
 	  m_qw = new JetSubStructureUtils::Qw();
+
+	  //m_gECF332 = new JetSubStructureUtils::EnergyCorrelatorGeneralized(3,3,2, JetSubStructureUtils::EnergyCorrelator::pt_R);
 	}
     }
 
@@ -384,6 +390,10 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
  	double split12 = m_split12->result(correctedJet);
  	double split23 = m_split23->result(correctedJet);
  	double qw = m_qw->result(correctedJet);
+
+
+	// MlB's t/H discriminators
+	//double gECF332 = m_gECF332->result(correctedJet);
        
  	// now attach the results to the original jet
  	rcjet->auxdecor<float>("Tau32_clstr") = tau32;
@@ -402,6 +412,8 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
  	rcjet->auxdecor<float>("d12_clstr") = split12;
  	rcjet->auxdecor<float>("d23_clstr") = split23;
  	rcjet->auxdecor<float>("Qw_clstr") = qw;
+
+	//rcjet->auxdecor<float>("gECF332_clstr") = gECF332;
        
  	// lets also store the rebuilt jet incase we need it later
  	rcjet->auxdecor<float>("RRCJet_pt") = correctedJet.pt();
@@ -435,6 +447,7 @@ StatusCode RCJetMC15::finalize() {
     delete m_split12;
     delete m_split23;
     delete m_qw;
+    //delete m_gECF332;
     
     return StatusCode::SUCCESS;
 }
