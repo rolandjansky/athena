@@ -7,8 +7,7 @@
 // AUTHORS: Jed Biesiada, Tobias Golling, Beate Heinemann
 // **********************************************************************
 
-#include <sstream>
-#include <math.h>
+#include <cmath>
 #include <vector>
 
 #include "TH1.h"
@@ -20,9 +19,14 @@
 
 
 #include "GaudiKernel/IJobOptionsSvc.h"
+#include "GaudiKernel/SystemOfUnits.h"
+#include "GaudiKernel/PhysicalConstants.h"
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
+
+#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
 
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/LocalParameters.h"
@@ -39,7 +43,6 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
-// #include "AthenaMonitoring/AthenaMonManager.h"
 #include "InDetPerformanceMonitoring/IDPerfMonKshort.h"
 
 

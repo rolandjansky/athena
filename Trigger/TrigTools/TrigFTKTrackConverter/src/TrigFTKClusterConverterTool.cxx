@@ -142,6 +142,8 @@ StatusCode TrigFTKClusterConverterTool::initialize() {
     return sc; 
   } 
 
+  ATH_CHECK(m_sctLorentzAngleTool.retrieve());
+
   ATH_MSG_INFO("TrigFTKClusterConverterTool initialized ");
   return sc;
 }
@@ -196,7 +198,7 @@ InDet::SCT_Cluster* TrigFTKClusterConverterTool::createSCT_Cluster(IdentifierHas
 
   InDet::SiWidth siWidth(Amg::Vector2D(w,1), Amg::Vector2D(width,stripLength) );
 
-  double shift = pDE->getLorentzCorrection();
+  double shift = m_sctLorentzAngleTool->getLorentzShift(hash);
 
   double derivedPos = localPos[Trk::locX]+shift; 
   double rawPos = (hCoord-0.5*767)*pDE->phiPitch();

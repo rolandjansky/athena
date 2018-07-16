@@ -60,9 +60,9 @@ public:
   ToolHandle<Trk::IRIO_OnTrackCreator>          m_riontrackTube   ;  
   ToolHandle<ITRT_DriftFunctionTool>            m_drifttool       ;
   ToolHandle<Trk::IRIO_OnTrackErrorScalingTool> m_errorScalingTool;
-  bool                                          m_scaleTrtCov     ;
-  bool                                          m_useToTCorrection;  //!< Shall the Time over Threshold correction be used?
-  double                                        m_scalefactor     ; //scale factor for hit uncertainty
+  bool                                          m_scaleTrtCov{}     ;
+  bool                                          m_useToTCorrection{};  //!< Shall the Time over Threshold correction be used?
+  double                                        m_scalefactor{}     ; //scale factor for hit uncertainty
 
 };
 

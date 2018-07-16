@@ -82,17 +82,11 @@ StatusCode PixelRodDecoder::initialize() {
     } else
         ATH_MSG_INFO("Retrieved service " << m_pixelCabling);
 
-    if (detStore()->retrieve(m_pixel_id, "PixelID").isFailure()) {
-        ATH_MSG_FATAL( "Could not get Pixel ID helper" );
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(detStore()->retrieve(m_pixel_id, "PixelID"));
 
     const InDetDD::PixelDetectorManager* pixelManager;
 
-    if (detStore()->retrieve(pixelManager, "Pixel").isFailure()) {
-        ATH_MSG_FATAL("failed to get Pixel Manager");
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(detStore()->retrieve(pixelManager, "Pixel"));
 
     // check if the ibl layer is present or not (this is necessary for backward compatibility with non-IBL geometries)
     m_is_ibl_present = false;

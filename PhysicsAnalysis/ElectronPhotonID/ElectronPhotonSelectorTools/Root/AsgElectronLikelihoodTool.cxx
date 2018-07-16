@@ -1,15 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
    @class AsgElectronLikelihoodTool
-   @brief Electron selector tool to select objects in Asgena using an underlying pure ROOT tool.
+   @brief Electron selector tool to select objects in Athena using an underlying pure ROOT tool.
 
    @author Karsten Koeneke
    @date   October 2012
-
-   09-APR-2014, convert to ASGTool (Jovan Mitrevski)
+   @update April 2014, converted to ASGTool by Jovan Mitrevski
 
 */
 
@@ -73,8 +72,6 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("CutLikelihood4GeV",m_rootTool->m_cutLikelihood4GeV,"Cut on likelihood discriminant, 4 GeV special bin");
   // The pileup-correction part of the likelihood cut values - 4 GeV
   declareProperty("CutLikelihoodPileupCorrection4GeV",m_rootTool->m_cutLikelihoodPileupCorrection4GeV,"Pileup correction for LH discriminant, 4 GeV special bin");
-  // do the conversion cut
-  declareProperty("doCutConversion",m_rootTool->m_doCutConversion,"Apply the conversion bit cut");
   // do the ambiguity cut
   declareProperty("CutAmbiguity" ,m_rootTool->m_cutAmbiguity ,"Apply a cut on the ambiguity bit");
   // cut on b-layer
@@ -95,8 +92,6 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("doRemoveTRTPIDAtHighEt",m_rootTool->m_doRemoveTRTPIDAtHighEt,"Turn off TRTPID at high Et");
   // use smooth interpolation between LH bins
   declareProperty("doSmoothBinInterpolation",m_rootTool->m_doSmoothBinInterpolation,"use smooth interpolation between LH bins");
-  // use binning for high ET LH
-  declareProperty("useHighETLHBinning",m_rootTool->m_useHighETLHBinning,"Use binning for high ET LH");
   // use one extra bin for high ET LH
   declareProperty("useOneExtraHighETLHBin",m_rootTool->m_useOneExtraHighETLHBin,"Use one extra bin for high ET LH");
   // cut on Wstot above HighETBinThreshold
@@ -206,8 +201,6 @@ StatusCode AsgElectronLikelihoodTool::initialize()
     m_rootTool->m_cutLikelihoodPileupCorrection = AsgConfigHelper::HelperDouble("CutLikelihoodPileupCorrection", env);
     m_rootTool->m_cutLikelihood4GeV = AsgConfigHelper::HelperDouble("CutLikelihood4GeV",env);
     m_rootTool->m_cutLikelihoodPileupCorrection4GeV = AsgConfigHelper::HelperDouble("CutLikelihoodPileupCorrection4GeV", env);
-    // do the conversion cut
-    m_rootTool->m_doCutConversion = env.GetValue("doCutConversion", false);
     // do the ambiguity cut
     m_rootTool->m_cutAmbiguity  = AsgConfigHelper::HelperInt("CutAmbiguity", env);
     // cut on b-layer
@@ -230,7 +223,6 @@ StatusCode AsgElectronLikelihoodTool::initialize()
     m_rootTool->m_doSmoothBinInterpolation = env.GetValue("doSmoothBinInterpolation", false);
     m_caloOnly = env.GetValue("caloOnly", false);
 
-    m_rootTool->m_useHighETLHBinning = env.GetValue("useHighETLHBinning", false);
     m_rootTool->m_useOneExtraHighETLHBin = env.GetValue("useOneExtraHighETLHBin", false);
     // cut on Wstot above HighETBinThreshold
     m_rootTool->m_cutWstotAtHighET = AsgConfigHelper::HelperDouble("CutWstotAtHighET", env);
@@ -342,7 +334,6 @@ asg::AcceptData AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg, dou
   float d0(0.0);
   float deltaEta=0, deltaPhiRescaled2=0;
   float wstot=0, EoverP=0;
-  int convBit(0); // this no longer works
   uint8_t ambiguityBit(0); 
   double ip(0);
 
@@ -405,11 +396,11 @@ asg::AcceptData AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg, dou
   // for now don't cache. 
   double likelihood = calculate(eg, ip); 
 
-  ATH_MSG_VERBOSE( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nHitsPlusPixDeadSensors=%i, passBLayerRequirement=%i, convBit=%i, ambiguityBit=%i, d0=%8.5f, deltaEta=%8.5f, deltaphires=%5.8f, wstot=%8.5f, EoverP=%8.5f, ip=%8.5f",
+  ATH_MSG_VERBOSE( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nHitsPlusPixDeadSensors=%i, passBLayerRequirement=%i, ambiguityBit=%i, d0=%8.5f, deltaEta=%8.5f, deltaphires=%5.8f, wstot=%8.5f, EoverP=%8.5f, ip=%8.5f",
 			likelihood, eta, et,
 			nSiHitsPlusDeadSensors, nPixHitsPlusDeadSensors,
 			passBLayerRequirement,
-			convBit, ambiguityBit, d0, deltaEta, deltaPhiRescaled2,
+			ambiguityBit, d0, deltaEta, deltaPhiRescaled2,
 			wstot, EoverP, ip ));
   
   if (!allFound) {
@@ -424,7 +415,6 @@ asg::AcceptData AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg, dou
                              nSiHitsPlusDeadSensors,
                              nPixHitsPlusDeadSensors,
                              passBLayerRequirement,
-                             convBit,
                              ambiguityBit,
                              d0,
                              deltaEta,
@@ -477,7 +467,6 @@ asg::AcceptData AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, doubl
   uint8_t nSiHitsPlusDeadSensors(0);
   uint8_t nPixHitsPlusDeadSensors(0);
   bool passBLayerRequirement(false); 
-  int convBit(0); // this no longer works
   uint8_t ambiguityBit(0);
 
   // Get the pileup or centrality information
@@ -507,11 +496,11 @@ asg::AcceptData AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, doubl
     notFoundList += "wtots1 ";
   }
 
-  ATH_MSG_VERBOSE( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nPixHitsPlusDeadSensors=%i, passBLayerRequirement=%i, convBit=%i, ambiguityBit=%i, ip=%8.5f, wstot=%8.5f",
+  ATH_MSG_VERBOSE( Form("PassVars: LH=%8.5f, eta=%8.5f, et=%8.5f, nSiHitsPlusDeadSensors=%i, nPixHitsPlusDeadSensors=%i, passBLayerRequirement=%i, ambiguityBit=%i, ip=%8.5f, wstot=%8.5f",
 			likelihood, eta, et,
 			nSiHitsPlusDeadSensors, nPixHitsPlusDeadSensors, 
 			passBLayerRequirement,
-			convBit, ambiguityBit, ip, wstot));
+			ambiguityBit, ip, wstot));
   
 
   if (!allFound) {
@@ -526,7 +515,6 @@ asg::AcceptData AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, doubl
                              nSiHitsPlusDeadSensors,
                              nPixHitsPlusDeadSensors,
                              passBLayerRequirement,
-                             convBit,
                              ambiguityBit,
                              d0,
                              deltaEta,

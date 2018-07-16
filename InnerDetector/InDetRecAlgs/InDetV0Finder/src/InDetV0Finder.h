@@ -6,7 +6,7 @@
                           InDetV0Finder.h  -  Description
                              -------------------
     begin   : 20-07-2005
-    authors : Evelina Bouhova-Thacker (Lancater University), Rob Henderson (Lancater University)
+    authors : Evelina Bouhova-Thacker (Lancaster University), Rob Henderson (Lancater University)
     email   : e.bouhova@cern.ch, r.henderson@lancaster.ac.uk
     changes :
 
@@ -17,8 +17,9 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "InDetV0Finder/InDetV0FinderTool.h"
-#include "HepPDT/ParticleDataTable.hh"
+#include "xAODTracking/VertexContainerFwd.h"
+
+
 
 /**
    @class InDetV0Finder
@@ -30,18 +31,20 @@
 
 /* Forward declarations */
 
-namespace Trk
-{
+namespace Trk{
   class V0Tools;
+}
+
+namespace HepPDT{
   class ParticleDataTable;
 }
 
 namespace InDet
 {
   class VertexPointEstimator;
-
+  class InDetV0FinderTool;
+  
   class InDetV0Finder : public AthAlgorithm
-
   {
   public:
     InDetV0Finder(const std::string &name, ISvcLocator *pSvcLocator);
@@ -50,6 +53,7 @@ namespace InDet
     StatusCode execute();
     StatusCode finalize();
     StatusCode resetStatistics();
+    
 
   protected:
     // input primary vertices

@@ -430,7 +430,7 @@ int BoostedXbbTag::result(const xAOD::Jet& jet, std::string algorithm_name, cons
 
   // filter out the track jets we do not want (pT > 10 GeV and |eta| < 2.5 and at least 2 constituents)
   associated_trackJets.erase(
-    std::remove_if(associated_trackJets.begin(), associated_trackJets.end(),  [this](const xAOD::Jet* jet) -> bool { return (jet->pt()/1.e3 < 10.0 || fabs(jet->eta()) > 2.5 || jet->numConstituents() < 2); }),
+    std::remove_if(associated_trackJets.begin(), associated_trackJets.end(),  [](const xAOD::Jet* jet) -> bool { return (jet->pt()/1.e3 < 10.0 || fabs(jet->eta()) > 2.5 || jet->numConstituents() < 2); }),
     associated_trackJets.end());
   if(associated_trackJets.size() < 2){
     if(m_working_point.find("single") == std::string::npos){

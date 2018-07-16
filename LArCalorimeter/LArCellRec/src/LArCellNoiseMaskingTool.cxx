@@ -14,12 +14,7 @@ PURPOSE:
 
 ********************************************************************/
 
-#include "LArCellRec/LArCellNoiseMaskingTool.h"
-
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ListItem.h"
+#include "LArCellNoiseMaskingTool.h"
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloCell_ID.h"

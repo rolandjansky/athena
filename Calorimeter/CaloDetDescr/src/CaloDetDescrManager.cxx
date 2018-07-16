@@ -759,6 +759,12 @@ void CaloDetDescrManager_Base::add(CaloDetDescriptor* descr)
     m_descr_vec[descr->calo_hash()] = descr;
 }
 
+void CaloDetDescrManager_Base::add(std::unique_ptr<CaloDetDescriptor> descr)
+{
+    IdentifierHash idhash = descr->calo_hash();
+    m_descr_vec[idhash] = descr.release();
+}
+
 void CaloDetDescrManager_Base::add_tile(CaloDetDescriptor* descr)
 {
   m_tile_descr_vec.push_back(descr);

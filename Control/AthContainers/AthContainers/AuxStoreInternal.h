@@ -334,6 +334,20 @@ protected:
 
 
   /**
+   * @brief Return a pointer to the data to be stored for one aux data item.
+   * @param auxid The identifier of the desired aux data item.
+   * @param quiet If true, then don't print an error on failure.
+   *
+   * This will usually be a pointer to a @c std::vector; however, it may
+   * be something different for a standalone object.
+   *
+   * Returns 0 and reports an error if the requested aux data item
+   * does not exist.
+   */
+  void* getIODataInternal (auxid_t auxid, bool quiet);
+
+
+  /**
    * @brief Add a new auxid to the set of those being managed by this store.
    * @param auxid The auxid to add.
    */

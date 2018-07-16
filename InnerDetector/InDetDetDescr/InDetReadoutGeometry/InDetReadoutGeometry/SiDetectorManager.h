@@ -30,6 +30,7 @@ class Identifier;
 class IdentifierHash;
 class AtlasDetectorID;
 class GeoAlignableTransform;
+class GeoVAlignmentStore;
 
 namespace InDetDD {
 
@@ -74,6 +75,10 @@ class SiNumerology;
       virtual SiDetectorElement * getDetectorElement(const Identifier &id) const = 0;
       virtual SiDetectorElement * getDetectorElement(const IdentifierHash &idHash) const = 0;
     
+      /** access to individual elements using Identifier or IdentiferHash using SiDetectorElementCollection */
+      virtual const SiDetectorElement* getDetectorElement(const Identifier &id, const SiDetectorElementCollection* coll) const = 0;
+      virtual const SiDetectorElement* getDetectorElement(const IdentifierHash &idHash, const SiDetectorElementCollection* coll) const = 0;
+
       /** access to whole collectiom */
       virtual const SiDetectorElementCollection * getDetectorElementCollection() const = 0;
       virtual SiDetectorElementCollection::const_iterator getDetectorElementBegin() const = 0;
@@ -105,12 +110,14 @@ class SiNumerology;
       
       /** Helper method to set delta transform from a global delta - Amg interface*/
       bool setAlignableTransformGlobalDelta(ExtendedAlignableTransform * extXF, 
-    					const Amg::Transform3D & delta) const;
+                                            const Amg::Transform3D & delta,
+                                            GeoVAlignmentStore* alignStore=nullptr) const;
     
       /** Helper method to set delta transform from a local delta - Amg interface */
       bool setAlignableTransformLocalDelta(ExtendedAlignableTransform * extXF, 
-    				       const Amg::Transform3D & localToGlobalXF,
-    				       const Amg::Transform3D & delta) const;
+                                           const Amg::Transform3D & localToGlobalXF,
+                                           const Amg::Transform3D & delta,
+                                           GeoVAlignmentStore* alignStore=nullptr) const;
     
       /** Access to module design */
       void addDesign(const SiDetectorDesign *);
@@ -128,9 +135,10 @@ class SiNumerology;
     
       /** This method is called by the InDetDetectorManager */
       virtual bool setAlignableTransformDelta(int level, 
-    					  const Identifier & id, 
-    					  const Amg::Transform3D & delta,
-    					  FrameType frame) const = 0;
+                                              const Identifier & id, 
+                                              const Amg::Transform3D & delta,
+                                              FrameType frame,
+                                              GeoVAlignmentStore* alignStore) const = 0;
     
     
     

@@ -168,14 +168,14 @@ public:
    * @brief Dereference the pointer.
    * Returns the cached pointer.  Throws ExcNullWriteHandle if null.
    */
-  pointer_type operator->() const;
+  pointer_type operator->();
 
 
   /**
    * @brief Dereference the pointer.
    * Returns the cached pointer.  Throws ExcNullWriteHandle if null.
    */
-  reference_type operator*() const;
+  reference_type operator*();
 
 
   /**
@@ -189,13 +189,13 @@ public:
    * @brief Dereference the pointer.
    * Returns the cached pointer.
    */
-  pointer_type ptr() const;
+  pointer_type ptr();
 
 
   /**
    * @brief Return the cached pointer directly; no lookup.
    */
-  pointer_type cachedPtr() const;
+  pointer_type cachedPtr();
 
 
   /**
@@ -531,7 +531,7 @@ private:
    *
    * If it is null, throw ExcNullWriteHandle.
    */
-  pointer_type checkedCachedPtr() const;
+  pointer_type checkedCachedPtr();
 
 
   /**

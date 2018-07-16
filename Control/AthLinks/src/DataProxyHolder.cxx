@@ -68,7 +68,9 @@ DataProxyHolder::toStorableObject (const_pointer_t obj,
     if (sg == 0)
       sg = SG::CurrentEventStore::store();
 
-    m_proxy = sg->proxy (obj);
+    if (sg) {
+      m_proxy = sg->proxy (obj);
+    }
     if (m_proxy == 0) {
       // Didn't find a proxy for this object.
       // Store the object pointer directly, and return 0.

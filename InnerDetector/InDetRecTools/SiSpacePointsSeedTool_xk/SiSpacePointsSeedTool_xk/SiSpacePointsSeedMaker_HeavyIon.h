@@ -16,7 +16,7 @@
 #ifndef SiSpacePointsSeedMaker_HeavyIon_H
 #define SiSpacePointsSeedMaker_HeavyIon_H
 
-#include <list>
+
 #include "GaudiKernel/ServiceHandle.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -24,9 +24,12 @@
 #include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "SiSpacePointsSeedTool_xk/SiSpacePointForSeed.h"
+#include <list>
+#include <vector>
+#include <map>
+#include <iosfwd>
 
 class MsgStream   ;
 class IBeamCondSvc;
@@ -115,96 +118,96 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
       
       ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle ;
-      MagField::IMagFieldSvc*                m_fieldService       ;
+      MagField::IMagFieldSvc*                m_fieldService {}      ;
 
       IBeamCondSvc* p_beam                                        ;
-      bool                        m_pixel                         ;
-      bool                        m_sct                           ;
-      bool                        m_endlist                       ;
-      bool                        m_useOverlap                    ;
-      bool                        m_trigger                       ;
-      bool                        m_izvertex                      ;
-      int                         m_outputlevel                   ;
-      int                         m_nprint                        ;
-      int                         m_state                         ;
-      int                         m_nspoint                       ;
-      int                         m_mode                          ;
-      int                         m_nlist                         ;
-      int                         m_maxsize                       ;
-      unsigned int                m_maxNumberVertices             ;
-      float                       m_r1min, m_r1minv               ;
-      float                       m_r1max, m_r1maxv               ;
-      float                       m_r2min, m_r2minv               ;
-      float                       m_r2max, m_r2maxv               ;
-      float                       m_r3min                         ;
-      float                       m_r3max                         ;
-      float                       m_drmin, m_drminv               ;
-      float                       m_drmax                         ;
-      float                       m_rapcut                        ;
-      float                       m_dzdrmin                       ;
-      float                       m_dzdrmax                       ;
-      float                       m_zmin                          ;
-      float                       m_zmax                          ;
-      float                       m_zminU                         ;
-      float                       m_zmaxU                         ;
-      float                       m_ftrig                         ;
-      float                       m_ftrigW                        ;
-      float                       m_r_rmax                        ;
-      float                       m_r_rstep                       ;
-      float                       m_dzver                         ;
-      float                       m_dzdrver                       ;
-      float                       m_diver                         ;
-      float                       m_diverpps                      ;
-      float                       m_diversss                      ;
-      float                       m_dazmax                        ;
-      float                       m_ptmin                         ;
-      float                       m_ipt                           ;
-      float                       m_ipt2                          ;
-      float                       m_COF                           ;
-      float                       m_K                             ;
-      int m_r_size                                                  ;
-      int m_rf_size                                                 ;
-      int m_rfz_size                                                ;
-      std::list<InDet::SiSpacePointForSeed*>* m_r_Sorted            ;
+      bool                        m_pixel  {}                       ;
+      bool                        m_sct    {}                       ;
+      bool                        m_endlist {}                      ;
+      bool                        m_useOverlap {}                   ;
+      bool                        m_trigger  {}                     ;
+      bool                        m_izvertex  {}                    ;
+      int                         m_outputlevel  {}                 ;
+      int                         m_nprint  {}                      ;
+      int                         m_state {}                        ;
+      int                         m_nspoint {}                      ;
+      int                         m_mode   {}                       ;
+      int                         m_nlist  {}                       ;
+      int                         m_maxsize  {}                     ;
+      unsigned int                m_maxNumberVertices  {}           ;
+      float                       m_r1min{}, m_r1minv {}              ;
+      float                       m_r1max{}, m_r1maxv   {}            ;
+      float                       m_r2min{}, m_r2minv {}              ;
+      float                       m_r2max{}, m_r2maxv {}              ;
+      float                       m_r3min{}                         ;
+      float                       m_r3max{}                         ;
+      float                       m_drmin{}, m_drminv {}              ;
+      float                       m_drmax{}                         ;
+      float                       m_rapcut {}                       ;
+      float                       m_dzdrmin{}                       ;
+      float                       m_dzdrmax {}                      ;
+      float                       m_zmin{}                          ;
+      float                       m_zmax {}                         ;
+      float                       m_zminU  {}                       ;
+      float                       m_zmaxU  {}                       ;
+      float                       m_ftrig {}                        ;
+      float                       m_ftrigW {}                       ;
+      float                       m_r_rmax {}                       ;
+      float                       m_r_rstep  {}                     ;
+      float                       m_dzver  {}                       ;
+      float                       m_dzdrver {}                      ;
+      float                       m_diver   {}                      ;
+      float                       m_diverpps  {}                    ;
+      float                       m_diversss {}                     ;
+      float                       m_dazmax  {}                      ;
+      float                       m_ptmin  {}                       ;
+      float                       m_ipt   {}                        ;
+      float                       m_ipt2  {}                        ;
+      float                       m_COF {}                          ;
+      float                       m_K  {}                           ;
+      int m_r_size      {}                                            ;
+      int m_rf_size  {}                                               ;
+      int m_rfz_size  {}                                              ;
+      std::list<InDet::SiSpacePointForSeed*>* m_r_Sorted  {}          ;
       std::list<InDet::SiSpacePointForSeed*>  m_rfz_Sorted [   583] ;
       std::list<InDet::SiSpacePointForSeed*>  m_rfzv_Sorted[   300] ;
       std::list<InDet::SiSpacePointForSeed*>  m_l_spforseed         ;
       std::list<InDet::SiSpacePointForSeed*>::iterator m_i_spforseed; 
       std::list<InDet::SiSpacePointForSeed*>::iterator m_rMin     ;
 
-      int m_ns,m_nsaz,m_nsazv                                     ;
-      int m_fNmax,m_fvNmax                                        ;
-      int m_fNmin,m_fvNmin                                        ;
-      int m_zMin                                                  ;
-      int  m_nr     ; int* m_r_index   ; int* m_r_map                 ;
-      int  m_nrfz   , m_rfz_index  [583], m_rfz_map  [583]            ;
-      int  m_nrfzv  , m_rfzv_index [300], m_rfzv_map [300]            ;
+      int m_ns{},m_nsaz{},m_nsazv {}                                    ;
+      int m_fNmax{},m_fvNmax {}                                       ;
+      int m_fNmin{},m_fvNmin    {}                                    ;
+      int m_zMin{}                                                  ;
+      int  m_nr{}     ; int* m_r_index{}   ; int* m_r_map{}                 ;
+      int  m_nrfz {}  , m_rfz_index  [583], m_rfz_map  [583]            ;
+      int  m_nrfzv{}  , m_rfzv_index [300], m_rfzv_map [300]            ;
       int m_rfz_b[583],m_rfz_t[593],m_rfz_ib[583][9],m_rfz_it[583][9]     ;
       int m_rfzv_n[300],m_rfzv_i[300][6]                              ;
-      float m_sF                                                  ;
-      float m_sFv                                                 ;
+      float m_sF{}                                                  ;
+      float m_sFv {}                                                ;
 
       ///////////////////////////////////////////////////////////////////
       // Tables for 3 space points seeds search
       ///////////////////////////////////////////////////////////////////
      
-      int    m_maxsizeSP                                          ;                    
-      InDet::SiSpacePointForSeed** m_SP                           ;
-      float               *  m_Zo                                 ; 
-      float               *  m_Tz                                 ;
-      float               *  m_R                                  ;
-      float               *  m_U                                  ;
-      float               *  m_V                                  ;
-      float               *  m_Er                                 ;
+      int    m_maxsizeSP {}                                         ;                    
+      InDet::SiSpacePointForSeed** m_SP  {}                         ;
+      float               *  m_Zo {}                                ; 
+      float               *  m_Tz {}                                ;
+      float               *  m_R  {}                                ;
+      float               *  m_U {}                                 ;
+      float               *  m_V  {}                                ;
+      float               *  m_Er {}                                ;
 
       std::list<InDet::SiSpacePointsSeed*>           m_l_seeds    ;
       std::list<InDet::SiSpacePointsSeed*>::iterator m_i_seed     ; 
       std::list<InDet::SiSpacePointsSeed*>::iterator m_i_seede    ;
 
       std::multimap<float,InDet::SiSpacePointsSeed*> m_mapOneSeeds;
-      InDet::SiSpacePointsSeed*                      m_OneSeeds   ;
-      int                                            m_maxOneSize ;
-      int                                            m_nOneSeeds  ;
+      InDet::SiSpacePointsSeed*                      m_OneSeeds {}  ;
+      int                                            m_maxOneSize {};
+      int                                            m_nOneSeeds {} ;
       std::list<float>                               m_l_vertex   ;
  
       ///////////////////////////////////////////////////////////////////
@@ -218,10 +221,7 @@ namespace InDet {
       ///////////////////////////////////////////////////////////////////
       // Space points container
       ///////////////////////////////////////////////////////////////////
-      
-//      std::string                        m_spacepointsSCTname     ;
-//      std::string                        m_spacepointsPixelname   ;
-//      std::string                        m_spacepointsOverlapname ; 
+
       std::string                        m_beamconditions         ;
       SG::ReadHandle<SpacePointContainer>         m_spacepointsSCT         ;
       SG::ReadHandle<SpacePointContainer>         m_spacepointsPixel       ;

@@ -15,6 +15,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 
 #include "GeoModelKernel/GeoVFullPhysVol.h"
+#include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
 #include "CLHEP/Geometry/Point3D.h"
@@ -46,9 +47,10 @@ using Trk::distDepth;
 
 // Constructor with parameters:
 SiDetectorElement::SiDetectorElement(const Identifier &id,
-				     const SiDetectorDesign *design,
-				     const GeoVFullPhysVol *geophysvol,
-				     SiCommonItems * commonItems) :
+                                     const SiDetectorDesign *design,
+                                     const GeoVFullPhysVol *geophysvol,
+                                     SiCommonItems * commonItems,
+                                     const GeoAlignmentStore* geoAlignStore) :
   TrkDetElementBase(geophysvol),
   m_id(id),
   m_design(design),
@@ -65,7 +67,8 @@ SiDetectorElement::SiDetectorElement(const Identifier &id,
   m_tanLorentzAnglePhi(0),
   m_tanLorentzAngleEta(0),
   m_lorentzCorrection(0),
-  m_surface(0)
+  m_surface(0),
+  m_geoAlignStore(geoAlignStore)
 {
   //The following are fixes for coverity bug 11955, uninitialized scalars:
   const bool boolDefault(true);
@@ -390,6 +393,10 @@ SiDetectorElement::updateConditionsCache() const
 const HepGeom::Transform3D &
 SiDetectorElement::transformHit() const
 {
+  if (m_geoAlignStore) {
+    const HepGeom::Transform3D* ptrXf = m_geoAlignStore->getAbsPosition(getMaterialGeom());
+    if(ptrXf) return *ptrXf;
+  }
   return getMaterialGeom()->getAbsoluteTransform();
 }
 
@@ -410,16 +417,21 @@ SiDetectorElement::transformCLHEP() const
   return m_transformCLHEP;
 
 }
+
 const HepGeom::Transform3D 
 SiDetectorElement::defTransformCLHEP() const
 {
+  if (m_geoAlignStore) {
+    const HepGeom::Transform3D* ptrXf = m_geoAlignStore->getDefAbsPosition(getMaterialGeom());
+    if(ptrXf) return *ptrXf * recoToHitTransform();
+  }
   return getMaterialGeom()->getDefAbsoluteTransform() * recoToHitTransform();
 }  
    
 const Amg::Transform3D 
 SiDetectorElement::defTransform() const
 {
-  HepGeom::Transform3D tmpTransform =  getMaterialGeom()->getDefAbsoluteTransform() * recoToHitTransform();
+  HepGeom::Transform3D tmpTransform = defTransformCLHEP();
   return Amg::CLHEPTransformToEigen(tmpTransform);
 }
 

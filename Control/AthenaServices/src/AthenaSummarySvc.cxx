@@ -88,7 +88,6 @@ public:
   string dump() const {
     string x("{");
     map<string,vector<string> >::const_iterator itr;
-    vector<string>::const_iterator itv;
     unsigned int iv;
     for (itr=m_dat.begin(); itr != m_dat.end(); ++itr) {
       if (x.length() > 1) { x+= ","; }

@@ -15,7 +15,6 @@
 // Calo includes
 #include "CaloEvent/CaloCellContainer.h"
 #include "Identifier/IdentifierHash.h"
-#include "CaloCellCorrection/CaloCellNeighborsAverageCorr.h"
 
 // Tile includes
 #include "CaloIdentifier/TileID.h"

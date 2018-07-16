@@ -21,11 +21,18 @@
 
 class ITRT_CalDbSvc;
 class TRT_ID;
-class IIncidentSvc;
+
 
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ICondSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/DataHandle.h"
+// AttributeList
+#include "CoralBase/Attribute.h"
+#include "CoralBase/AttributeListSpecification.h"
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 /**
  @class TRT_DriftFunctionTool
   
@@ -34,8 +41,7 @@ class IIncidentSvc;
 
 */
 class TRT_DriftFunctionTool: public AthAlgTool, 
-			     virtual public ITRT_DriftFunctionTool,
-			     virtual public IIncidentListener {
+			     virtual public ITRT_DriftFunctionTool{
 
 public:
   /** Constructor                           */
@@ -82,33 +88,33 @@ public:
   double errorOfDriftRadius(double drifttime, Identifier id, float mu = -10, unsigned int word=0) const;  
 
   /** Returns time over threshold correction to the drift time (ns) */
-  double driftTimeToTCorrection(double tot, Identifier id) const;
+  double driftTimeToTCorrection(double tot, Identifier id);
   
   /** Returns high threshold correction to the drift time (ns) */
-  double driftTimeHTCorrection(Identifier id) const;
+  double driftTimeHTCorrection(Identifier id);
   
   /** Initialise Rt relation in data */
   void setupRtRelationData();
   /** Initialise Rt relation in MC */
   void setupRtRelationMC();
 
-  /** handle BeginRun incidents */
-  void handle(const Incident& inc);
 
 private:
-  // Update of database entries.
-  StatusCode update( IOVSVC_CALLBACK_ARGS );
   
   /** Tool to fetch data from database */
   ServiceHandle< ITRT_CalDbSvc >   m_TRTCalDbSvc;
   ServiceHandle< ITRT_CalDbSvc >   m_TRTCalDbSvc2;
 
-  /** Service to report incidents (begin run, begin event) */
-  ServiceHandle< IIncidentSvc > m_IncidentSvc;
 
   /** DetectorManager and helper */
   const InDetDD::TRT_DetectorManager* m_manager;
   const TRT_ID* m_trtid;
+
+  bool m_setupToT;                     //!< true at first call
+  bool m_setupHT;                      //!< true at first call
+  //  ReadHandle  keys
+  SG::ReadCondHandleKey<CondAttrListCollection> m_ToTkey{this,"ToTKeyName","/TRT/Calib/ToTCalib","ToTCalib in-key"};
+  SG::ReadCondHandleKey<CondAttrListCollection> m_HTkey{this,"HTKeyName","/TRT/Calib/HTCalib","HTCalib in-key"};
 
   double m_drifttimeperbin;            //!< 3.125ns
   double m_error;                      //!< universal error
@@ -145,6 +151,7 @@ private:
   double m_t0_shift;                   //!< digiversion dependent t0 shift
   float m_tot_corrections[2][20];      //!< ToT corrections for 20 ToT bins in barrel and endcap
   double m_ht_corrections[2];  	       //!< HT corrections for barrel and endcap
+  mutable std::mutex m_cacheMutex;
 };
 
 inline bool TRT_DriftFunctionTool::isValidTime(double drifttime) const

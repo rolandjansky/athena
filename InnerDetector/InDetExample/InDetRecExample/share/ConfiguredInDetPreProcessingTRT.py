@@ -40,6 +40,8 @@ class ConfiguredInDetPreProcessingTRT:
          #
          # --- TRT_DriftFunctionTool
          #
+
+
          from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
          InDetTRT_DriftFunctionTool = TRT_DriftFunctionTool(name                = prefix+"DriftFunctionTool",
                                                             TRTCalDbTool        = InDetTRTCalDbSvc)
@@ -47,6 +49,13 @@ class ConfiguredInDetPreProcessingTRT:
          if (not useTimeInfo) or InDetFlags.noTRTTiming():
             InDetTRT_DriftFunctionTool.DummyMode      = True
             InDetTRT_DriftFunctionTool.UniversalError = 1.15
+
+         # --- set Data/MC flag
+         if(globalflags.DataSource != 'geant4') :
+             InDetTRT_DriftFunctionTool.IsMC = False
+         else :
+             InDetTRT_DriftFunctionTool.IsMC = True
+
          # --- overwrite for calibration of MC
          if usePhase and jobproperties.Beam.beamType()=='cosmics' and globalflags.DataSource == "geant4":
             InDetTRT_DriftFunctionTool.AllowDigiVersionOverride = True
@@ -154,7 +163,8 @@ class ConfiguredInDetPreProcessingTRT:
          if InDetFlags.doTRTGlobalOccupancy():
           from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
           InDetTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(  name 		= "InDet_TRT_LocalOccupancy",
-								isTrigger	= False
+								isTrigger	= False,
+                                                                TRTDriftFunctionTool = InDetTRT_DriftFunctionTool
 	  )
 
           ToolSvc += InDetTRT_LocalOccupancy

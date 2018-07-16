@@ -148,6 +148,7 @@ StatusCode FTK_RDO_MonitorAlgo::initialize(){
   ATH_CHECK(detStore()->retrieve(m_SCT_Manager));
   ATH_CHECK(detStore()->retrieve(m_id_helper, "AtlasID"));
 
+  ATH_CHECK(m_sctLorentzAngleTool.retrieve());
 
   ATH_MSG_INFO("RDO_CollectionName " << m_ftk_raw_trackcollection_Name);
   ATH_MSG_INFO("offlineTracksName "<<m_offlineTracksName);
@@ -1512,7 +1513,7 @@ double FTK_RDO_MonitorAlgo::getSctLocX(const IdentifierHash hash, const float ra
 	
   const InDetDD::SCT_ModuleSideDesign* design;
 
-  double shift = pDE->getLorentzCorrection();
+  double shift = m_sctLorentzAngleTool->getLorentzShift(hash);
 
   Identifier wafer_id = m_sctId->wafer_id(hash);
 

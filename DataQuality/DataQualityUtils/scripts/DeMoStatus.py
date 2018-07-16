@@ -71,12 +71,12 @@ parser = ArgumentParser(description='',formatter_class=RawTextHelpFormatter)
 parser.add_argument('-y','--year',dest='parser_year',default = ["2018"],nargs='*',help='Year [Default: 2018]',action='store')
 parser.add_argument('-t','--tag',dest='parser_tag',default = ["Tier0_2018"],nargs='*',help='Defect tag [Default: "Tier0_2018"]',action='store')
 parser.add_argument('-s','--system',dest='parser_system',default="LAr",help='System: LAr, CaloCP [Default: "LAr"]',action='store')
-parser.add_argument('-d','--directory',dest='parser_directory',default="/afs/cern.ch/user/l/larmon/public/prod/LADIeS",help='Directory to display',action='store')
+parser.add_argument('-d','--directory',dest='parser_directory',default="./",help='Directory to display',action='store')
 parser.add_argument('--yearStats',dest='parser_plotYS',help='Plot the year stats per period',action='store_true')
 parser.add_argument('--yearStatsLarge',dest='parser_letterYS',help='Plot the year stats as a function of the letter (large) periods',action='store_true')
 parser.add_argument('--lumiNotPercent',dest='parser_lumiNotPercent',help='Display results in term of lumi and not percent',action='store_true')
 parser.add_argument('--noRecovPlot',dest='parser_noRecovPlot',help='Do not plot the recoverable histograms',action='store_false')
-parser.add_argument('--savePage1',dest='parser_savePage1',help='Save yearStats results in ~larmon/public/prod/LADIeS/DeMoPlots',action='store_true')
+parser.add_argument('--savePlots',dest='parser_savePlots',help='Save yearStats results in ~larmon/public/prod/LADIeS/DeMoPlots',action='store_true')
 parser.add_argument('--approvedPlots',dest='parser_approvedPlots',help='Cosmetics to get the approved plots',action='store_true')
 
 args = parser.parse_args()
@@ -113,10 +113,10 @@ options['plotYearStats'] = args.parser_plotYS
 options['plotYearStatsLarge'] = args.parser_letterYS # Plot results as a function of letter period (A,B,C...) and not only as a function of subperiod (A1,A2,B1,B2,B3...)
 options['lumiNotPercent'] = args.parser_lumiNotPercent
 options['recovPlot'] = args.parser_noRecovPlot
-options['savePage1'] = args.parser_savePage1  
+options['savePlots'] = args.parser_savePlots  
 options['approvedPlots'] = args.parser_approvedPlots
 
-if options['savePage1']:
+if options['savePlots']:
   options['plotYearStats'] = True
   options['plotYearStatsLarge'] = False
   options['lumiNotPercent'] = False
@@ -127,7 +127,7 @@ if options['approvedPlots']:
   options['lumiNotPercent'] = False  
   options['recovPlot'] = False
 
-if not (options['plotYearStats'] or options['plotYearStatsLarge'] or options['savePage1']):
+if not (options['plotYearStats'] or options['plotYearStatsLarge'] or options['savePlots']):
   options['plotYearStats'] = True
 
 gStyle.SetOptStat(0)
@@ -265,21 +265,20 @@ for iYT in yearTagList:
     canvasResults[iYT]['intLumi'].SetGridy(1)
 
     # On request, save the plot in LArPage1/DeMoPlots to be displayed in Page1
-    if options["savePage1"]:
-      print "I am updating the LArPage1 statistics..."
+    if options["savePlots"]:
       for iCanvas in canvasResults[iYT].keys():
         canvasResults[iYT][iCanvas].Update()
         if ("defects" in iCanvas):
-          canvasResults[iYT][iCanvas].Print("../LArPage1/DeMoPlots/defects.png")
+          canvasResults[iYT][iCanvas].Print("%s/grl-defects.png"%yearTagDir[yearTag])
         if ("veto" in iCanvas):
-          canvasResults[iYT][iCanvas].Print("../LArPage1/DeMoPlots/veto.png")
+          canvasResults[iYT][iCanvas].Print("%s/grl-veto.png"%yearTagDir[yearTag])
         if ("intLumi" in iCanvas):
-          canvasResults[iYT][iCanvas].Print("../LArPage1/DeMoPlots/lumi.png")
-      f0 = open("../LArPage1/DeMoPlots/ineff.dat",'w')
-      f0.write("%.3f %.3f %s\n"%(totalIneffDef,totalIneffVeto,strLumi(h1Period_IntLuminosity[iYT].GetBinContent(subperiodNb[iYT]),"pb")))
-      f0.write(strftime("%d %b-%H:%M",localtime()))
-      f0.close()
-      os.system("cp %s/runs-ALL.dat ../LArPage1/DeMoPlots/"%(directory))
+          canvasResults[iYT][iCanvas].Print("%s/grl-lumi.png"%yearTagDir[yearTag])
+#      f0 = open("../LArPage1/DeMoPlots/ineff.dat",'w')
+#      f0.write("%.3f %.3f %s\n"%(totalIneffDef,totalIneffVeto,strLumi(h1Period_IntLuminosity[iYT].GetBinContent(subperiodNb[iYT]),"pb")))
+#      f0.write(strftime("%d %b-%H:%M",localtime()))
+#      f0.close()
+#      os.system("cp %s/runs-ALL.dat ../LArPage1/DeMoPlots/"%(directory))
 
 yearTagNb = len(yearTagList)
 

@@ -68,6 +68,7 @@ StatusCode DFlowAlg3::initialize()
   CHECK( m_r_ints.initialize() );
   CHECK( m_w_dflowDummy.initialize() );
   CHECK( m_testUpdate.initialize() );
+  CHECK( m_condKeyTest.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -171,6 +172,10 @@ StatusCode DFlowAlg3::execute()
   // Test update handles
   SG::ReadHandle< HiveDataObj > testUpdate( m_testUpdate, ctx );
   ATH_MSG_INFO( "Update handle final: " << testUpdate->val() );
+
+  // Test conditions handles
+  SG::ReadCondHandle< CondDataObj > testConditions( m_condKeyTest, ctx );
+  ATH_MSG_INFO( "Conditions handle test: " << **testConditions << " from key " << testConditions.fullKey() );
 
   return StatusCode::SUCCESS;
 }

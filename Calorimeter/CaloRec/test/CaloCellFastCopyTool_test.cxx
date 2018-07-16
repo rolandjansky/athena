@@ -234,6 +234,14 @@ public:
   }
 
 
+  template <class CONT>
+  StatusCode testProcess (CaloCellFastCopyTool* tool,
+                          CONT* destCont)
+  {
+    return tool->process (destCont);
+  }
+
+
   void testViewNotAvoidingDuplicatesFindCellIsNotFast()
   {
     testViewNotAvoidingDuplicatesIsFindCellFast("CopyToolTest[1]", false);
@@ -263,7 +271,7 @@ public:
       CxxUtils::make_unique<CaloConstCellContainer>(SG::OwnershipPolicy::VIEW_ELEMENTS);
 
     // Test tool
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that all TileGap3 cells from source container has
     // been copied in destination container.
@@ -289,7 +297,7 @@ public:
     }
 
     // Test next event (imitated);
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
     // Not avoiding duplicates, therefore
     // size of destination container has been doubled
     assert( destCont->size() == (2 * m_tileGap3Hashes.size()) );
@@ -332,7 +340,7 @@ public:
     destCont->push_back(cell.get());
 
     // Test tool
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that all TileGap3 cells from source container
     // has been copied to destination container
@@ -359,7 +367,7 @@ public:
     }
 
     // Test the next event (imitated)
-    assert( tool->process(destCont.get()).isSuccess() );
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
     // Test that size of destination container has not been changed,
     // because avoiding duplicates.
     assert( destCont->size() == m_tileGap3Hashes.size() );
@@ -395,7 +403,7 @@ public:
       CxxUtils::make_unique<CaloCellContainer>(SG::OwnershipPolicy::VIEW_ELEMENTS);
 
     // Test tool
-    assert(tool->process(destCont.get()).isFailure());
+    assert(testProcess (tool.get(), destCont.get()).isFailure());
   }
 
 
@@ -430,7 +438,7 @@ public:
     std::unique_ptr<CaloCellContainer> destCont =
       CxxUtils::make_unique<CaloCellContainer>(SG::OwnershipPolicy::VIEW_ELEMENTS);
     // Test tool
-    assert(tool->process(destCont.get()).isFailure());
+    assert(testProcess (tool.get(), destCont.get()).isFailure());
   }
 
 
@@ -466,7 +474,7 @@ public:
       CxxUtils::make_unique<CaloCellContainer>(SG::OwnershipPolicy::OWN_ELEMENTS);
 
     // Test tool
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that all TileGap3 cells has been copied to destination container.
     assert( destCont->size() == m_tileGap3Hashes.size() );
@@ -496,7 +504,7 @@ public:
     }
 
     // Test the next event (imitated)
-    assert( tool->process(destCont.get()).isSuccess() );
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that size of destination container has been doubled
     // because of not avoiding duplicates
@@ -540,7 +548,7 @@ public:
     destCont->push_back(cell);
 
     // Test tool
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that all TileGap3 cells has been copied to destination container.
     assert( destCont->size() == m_tileGap3Hashes.size() );
@@ -571,7 +579,7 @@ public:
     }
 
     // Test the next event (imitated)
-    assert( tool->process(destCont.get()).isSuccess() );
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that size of destination container has not been changed,
     // because avoiding duplicates.
@@ -611,7 +619,7 @@ public:
       CxxUtils::make_unique<CaloConstCellContainer>(SG::OwnershipPolicy::OWN_ELEMENTS);
 
     // Test tool
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that all TileGap3 cells has been copied to destination container.
     assert( destCont->size() == m_tileGap3Hashes.size() );
@@ -641,7 +649,7 @@ public:
     }
 
     // Test the next event (imitated)
-    assert( tool->process(destCont.get()).isSuccess() );
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that size of destination container has been doubled
     // because of not avoiding duplicates
@@ -685,7 +693,7 @@ public:
     destCont->push_back(cell);
 
     // Test tool
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that all TileGap3 cells has been copied to destination container.
     assert( destCont->size() == m_tileGap3Hashes.size() );
@@ -716,7 +724,7 @@ public:
     }
 
     // Test the next event (imitated)
-    assert( tool->process(destCont.get()).isSuccess() );
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that size of destination container has not been changed,
     // because avoiding duplicates.
@@ -769,13 +777,13 @@ public:
                           caloCellName));
 
     // Test tool
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that all TileGap3 cells has been copied to destination container.
     assert( destCont->size() == nTileGap3 );
 
     // Test next event (imitated)
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that size of destination container has been doubled
     // because of not avoiding duplicates
@@ -799,14 +807,14 @@ public:
                           caloCellName));
 
     // Test tool
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that all TileGap1 + TileGap3 cells has been copied to destination container.
     unsigned int nTileGap1AndTileGap3((nTileGap1 + nTileGap3));
     assert( destCont->size() == nTileGap1AndTileGap3 );
 
     // Test next event (imitated)
-    assert(tool->process(destCont.get()).isSuccess());
+    assert(testProcess (tool.get(), destCont.get()).isSuccess());
 
     // Test that size of destination container has not been changed,
     // because avoiding duplicates.

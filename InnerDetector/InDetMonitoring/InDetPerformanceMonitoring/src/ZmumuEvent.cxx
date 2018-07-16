@@ -19,7 +19,6 @@
 // ATLAS headers
 #include "StoreGate/StoreGateSvc.h"
 
-//#include "muonEvent/MuonParamDefs.h"
 
 #include "CLHEP/Random/RandFlat.h"
 
@@ -334,15 +333,12 @@ const xAOD::TrackParticle*  ZmumuEvent::getLooseIDTk( unsigned int /*uPart*/ )
       while ( xTrkItr != xTrkItrE )
 	{
 	  const xAOD::TrackParticle* pxTrack = *xTrkItr;
-	  if(!(pxTrack->track())) continue;
+	  if(!(pxTrack)) continue;
 	  const Trk::Track* pxTrkTrack = pxTrack->track();
-	  if ( !pxTrack ) continue;
+	  if ( !pxTrack->track() ) continue;
 	  const Trk::Perigee* pxPerigee = pxTrkTrack->perigeeParameters() ;
 	  if ( !pxPerigee ) continue;
 
-	  // const float fTrkPt    = pxPerigee->pT()*1.0e-3;
-	  // const float fTrkPtErr = fabs( pxPerigee->localErrorMatrix().error(Trk::qOverP) );
-	  // const float fPtSig    = ( 1.0f / pxPerigee->pT() ) /  fTrkPtErr;  // Potential problem.
 	  const float fTrkPhi   = pxPerigee->parameters()[Trk::phi];
 	  const float fTrkEta   = pxPerigee->eta();
 

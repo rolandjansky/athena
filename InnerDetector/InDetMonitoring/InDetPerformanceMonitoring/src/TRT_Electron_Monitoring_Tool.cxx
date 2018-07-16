@@ -10,6 +10,10 @@
 // **********************************************************************
 
 #include "InDetPerformanceMonitoring/TRT_Electron_Monitoring_Tool.h"
+#include "LWHists/TH1F_LW.h"
+#include "LWHists/TH2F_LW.h"
+#include "LWHists/TProfile_LW.h"
+
 
 const float electron_mass = 0.511 * Gaudi::Units::MeV;
 const float muon_mass = 105.66 * Gaudi::Units::MeV;
@@ -757,14 +761,13 @@ fillAllHistograms(xAOD::TrackParticle *trkP, float mass, int PCand){
         break;
       case DET_BARRELC:
         myGeoHists = &m_tBarrelC;
-	break;
+	      break;
       case DET_ENDCAPA:
         myGeoHists = &m_tEndCapA;
-	break;
+	      break;
       case DET_ENDCAPC:
         myGeoHists = &m_tEndCapC;
-	break;
-      default : continue;
+	      break;
     }
     if(!myGeoHists) continue;
     if(nLLHits[i]>0){

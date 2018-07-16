@@ -58,7 +58,7 @@ public:
     
     /// @name strutors
     //@{
-    AtlasDetectorID(void);
+    AtlasDetectorID();
     AtlasDetectorID(const AtlasDetectorID& other);
     ~AtlasDetectorID(void);
     AtlasDetectorID& operator= (const AtlasDetectorID& other);
@@ -240,6 +240,9 @@ public:
     virtual void setMessageSvc  (IMessageSvc* msgSvc);
     //@}
 
+    /// Set flag for suppressing informational output.
+    void set_quiet (bool quiet);
+
 
 protected:
 
@@ -318,6 +321,9 @@ protected:
 
     /// pointer to the message service
     IMessageSvc*        m_msgSvc;
+
+    /// If true, suppress DEBUG/INFO messages.
+    bool m_quiet;
 
 
     /// List of dictionary names used by this helper

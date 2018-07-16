@@ -46,8 +46,12 @@ using std::atan2;
 
 /** Constructor **/
 ISF::FastCaloSimSvcV2::FastCaloSimSvcV2(const std::string& name, ISvcLocator* svc) :
-  BaseSimulationSvc(name, svc),m_param(0),
-  m_rndGenSvc("AtRndmGenSvc", name)
+  BaseSimulationSvc(name, svc),
+  m_param(nullptr),
+  m_theContainer(nullptr),
+  m_rndGenSvc("AtRndmGenSvc", name),
+  m_randomEngine(nullptr),
+  m_caloGeo(nullptr)
 {
   declareProperty("ParamsInputFilename"            ,       m_paramsFilename,"TFCSparam.root");
   declareProperty("ParamsInputObject"              ,       m_paramsObject,"SelPDGID");

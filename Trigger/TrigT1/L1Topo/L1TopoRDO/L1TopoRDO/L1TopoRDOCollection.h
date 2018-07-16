@@ -6,8 +6,8 @@
 #define L1TOPORDO_L1TOPORDOCOLLECTION_H
 
 #include "L1TopoRDO/L1TopoRDO.h"
-#include "DataModel/DataVector.h"
-#include "SGTools/BaseInfo.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/BaseInfo.h"
 
 //! Container of L1TopoRDOs (standard Athena boilerplate)
 class L1TopoRDOCollection : public DataVector<L1TopoRDO> {

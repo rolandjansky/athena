@@ -42,7 +42,7 @@ public:
         return m_randomcont[hashId];
     }
     
-    virtual std::vector<IdentifierHash> GetAllCurrentHashs() const override{
+    virtual std::vector<IdentifierHash> GetAllCurrentHashes() const override{
         std::vector<IdentifierHash> out;
         out.reserve(m_usedhashes.size());
         for(auto x : m_usedhashes) out.push_back(x.first);

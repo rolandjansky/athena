@@ -13,7 +13,6 @@
 
 #include "xAODTrigger/TrigPassBitsContainer.h"
 #include "xAODTrigger/TrigPassBits.h"
-#include "xAODTrigger/TrigCompositeContainer.h"
 #include "AthContainers/debug.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetConstituentVector.h"
@@ -52,6 +51,8 @@
 #include "tauEvent/TauJetContainer.h"
 #include "tauEvent/TauJet.h"
 
+#include "xAODEventInfo/EventInfo.h"
+
 #include "xAODMuon/MuonContainer.h"
 #include "MuonCombinedToolInterfaces/IMuonPrintingTool.h"
 
@@ -88,8 +89,15 @@
 #include "xAODTrigMinBias/TrigTrackCountsContainer.h"
 #include "xAODTrigMinBias/TrigTrackCounts.h"
 
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "TrigRoiConversion/RoiSerialise.h"
+#include "xAODTrigger/RoiDescriptorStore.h"
+
+#include "TrigT1Interfaces/RecEmTauRoI.h"
+
 
 #include <iostream>
+#include <fstream>
 
 static  int trackWarningNum;
 static  int vertexWarningNum;
@@ -98,51 +106,56 @@ static  int  maxRepWarnings;
 
 TrigEDMChecker::TrigEDMChecker(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool")
+    m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool"),
+    m_clidSvc( "ClassIDSvc", name )
 {
-	/** switches to control the analysis through job options */
+  /** switches to control the analysis through job options */
 
-	declareProperty("doDumpAll", m_doDumpAll = true);
-    declareProperty("doDumpTrigPassBits", m_doDumpTrigPassBits = false);
-	declareProperty("doDumpLVL1_ROI", m_doDumpLVL1_ROI = false);
-	declareProperty("doDumpTrigMissingET", m_doDumpTrigMissingET = false);
-	declareProperty("doDumpxAODTrigMissingET", m_doDumpxAODTrigMissingET = false);
-	declareProperty("doDumpMuonFeature", m_doDumpMuonFeature = false);
-	declareProperty("doDumpCombinedMuonFeature", m_doDumpCombinedMuonFeature = false);
-	declareProperty("doDumpTileMuFeature",      m_doDumpTileMuFeature = false);
-	declareProperty("doDumpTileTrackMuFeature", m_doDumpTileTrackMuFeature = false);
-	declareProperty("doDumpTrigPhotonContainer", m_doDumpTrigPhotonContainer = false);
-	declareProperty("doDumpTrigL2BphysContainer", m_doDumpTrigL2BphysContainer = false);
-	declareProperty("doDumpTrigEFBphysContainer", m_doDumpTrigEFBphysContainer = false);
-	declareProperty("doDumpTrigEFBjetContainer", m_doDumpTrigEFBjetContainer = false);
-	declareProperty("doDumpTrigL2BjetContainer", m_doDumpTrigL2BjetContainer = false);
-	declareProperty("doDumpxAODJetContainer", m_doDumpxAODJetContainer = false);
-	declareProperty("doDumpTrigMuonEFContainer", m_doDumpTrigMuonEFContainer = false);
-	declareProperty("doDumpTrigMuonEFInfoContainer", m_doDumpTrigMuonEFInfoContainer = false);
-	declareProperty("doDumpTrigMuonEFIsolationContainer", m_doDumpTrigMuonEFIsolationContainer = false);
-	declareProperty("doDumpxAODMuonContainer", m_doDumpxAODMuonContainer = false);
-	declareProperty("doDumpTrigElectronContainer", m_doDumpTrigElectronContainer = false);
-	declareProperty("doDumpxAODTrigElectronContainer", m_doDumpxAODTrigElectronContainer = false);
-	declareProperty("doDumpxAODTrigPhotonContainer", m_doDumpxAODTrigPhotonContainer = false);
-	declareProperty("doDumpxAODElectronContainer", m_doDumpxAODElectronContainer = false);
-	declareProperty("doDumpxAODPhotonContainer", m_doDumpxAODPhotonContainer = false);
-	declareProperty("doDumpHLTResult", m_doDumpHLTResult = false);
-	declareProperty("doDumpTrigTauContainer", m_doDumpTrigTauContainer = false);
-	declareProperty("doDumpTrigTauTracksInfo", m_doDumpTrigTauTracksInfo = false);
-	declareProperty("doDumpTrigInDetTrackCollection", m_doDumpTrigInDetTrackCollection = false);
-	declareProperty("doDumpTrigVertexCollection", m_doDumpTrigVertexCollection = false);
-	declareProperty("doDumpTrigEMCluster", m_doDumpTrigEMCluster = false);
-	declareProperty("doDumpTrigEMClusterContainer", m_doDumpTrigEMClusterContainer = false);
-	declareProperty("doDumpxAODTrigEMCluster", m_doDumpxAODTrigEMCluster = false);
-	declareProperty("doDumpxAODTrigEMClusterContainer", m_doDumpxAODTrigEMClusterContainer = false);
-	declareProperty("doDumpTrigTauClusterContainer", m_doDumpTrigTauClusterContainer = false);
-	declareProperty("doDumpTrackParticleContainer", m_doDumpTrackParticleContainer = false);
-	declareProperty("doDumpTauJetContainer", m_doDumpTauJetContainer = false);
-	declareProperty("doDumpxAODTrackParticle", m_doDumpxAODTrackParticle = false);
-	declareProperty("doDumpxAODVertex", m_doDumpxAODVertex = false);
-	declareProperty("doDumpxAODTauJetContainer", m_doDumpxAODTauJetContainer = false);
-	declareProperty("doDumpxAODTrigMinBias", m_doDumpxAODTrigMinBias = false);
-	declareProperty("dumpTrigCompositeContainers", m_dumpTrigCompositeContainers, "List of TC to dump" );
+  declareProperty("doDumpAll", m_doDumpAll = true);
+  declareProperty("doDumpTrigPassBits", m_doDumpTrigPassBits = false);
+  declareProperty("doDumpLVL1_ROI", m_doDumpLVL1_ROI = false);
+  declareProperty("doDumpTrigMissingET", m_doDumpTrigMissingET = false);
+  declareProperty("doDumpxAODTrigMissingET", m_doDumpxAODTrigMissingET = false);
+  declareProperty("doDumpMuonFeature", m_doDumpMuonFeature = false);
+  declareProperty("doDumpCombinedMuonFeature", m_doDumpCombinedMuonFeature = false);
+  declareProperty("doDumpTileMuFeature",      m_doDumpTileMuFeature = false);
+  declareProperty("doDumpTileTrackMuFeature", m_doDumpTileTrackMuFeature = false);
+  declareProperty("doDumpTrigPhotonContainer", m_doDumpTrigPhotonContainer = false);
+  declareProperty("doDumpTrigL2BphysContainer", m_doDumpTrigL2BphysContainer = false);
+  declareProperty("doDumpTrigEFBphysContainer", m_doDumpTrigEFBphysContainer = false);
+  declareProperty("doDumpTrigEFBjetContainer", m_doDumpTrigEFBjetContainer = false);
+  declareProperty("doDumpTrigL2BjetContainer", m_doDumpTrigL2BjetContainer = false);
+  declareProperty("doDumpxAODJetContainer", m_doDumpxAODJetContainer = false);
+  declareProperty("doDumpTrigMuonEFContainer", m_doDumpTrigMuonEFContainer = false);
+  declareProperty("doDumpTrigMuonEFInfoContainer", m_doDumpTrigMuonEFInfoContainer = false);
+  declareProperty("doDumpTrigMuonEFIsolationContainer", m_doDumpTrigMuonEFIsolationContainer = false);
+  declareProperty("doDumpxAODMuonContainer", m_doDumpxAODMuonContainer = false);
+  declareProperty("doDumpTrigElectronContainer", m_doDumpTrigElectronContainer = false);
+  declareProperty("doDumpxAODTrigElectronContainer", m_doDumpxAODTrigElectronContainer = false);
+  declareProperty("doDumpxAODTrigPhotonContainer", m_doDumpxAODTrigPhotonContainer = false);
+  declareProperty("doDumpxAODElectronContainer", m_doDumpxAODElectronContainer = false);
+  declareProperty("doDumpxAODPhotonContainer", m_doDumpxAODPhotonContainer = false);
+  declareProperty("doDumpHLTResult", m_doDumpHLTResult = false);
+  declareProperty("doDumpTrigTauContainer", m_doDumpTrigTauContainer = false);
+  declareProperty("doDumpTrigTauTracksInfo", m_doDumpTrigTauTracksInfo = false);
+  declareProperty("doDumpTrigInDetTrackCollection", m_doDumpTrigInDetTrackCollection = false);
+  declareProperty("doDumpTrigVertexCollection", m_doDumpTrigVertexCollection = false);
+  declareProperty("doDumpTrigEMCluster", m_doDumpTrigEMCluster = false);
+  declareProperty("doDumpTrigEMClusterContainer", m_doDumpTrigEMClusterContainer = false);
+  declareProperty("doDumpxAODTrigEMCluster", m_doDumpxAODTrigEMCluster = false);
+  declareProperty("doDumpxAODTrigEMClusterContainer", m_doDumpxAODTrigEMClusterContainer = false);
+  declareProperty("doDumpTrigTauClusterContainer", m_doDumpTrigTauClusterContainer = false);
+  declareProperty("doDumpTrackParticleContainer", m_doDumpTrackParticleContainer = false);
+  declareProperty("doDumpTauJetContainer", m_doDumpTauJetContainer = false);
+  declareProperty("doDumpxAODTrackParticle", m_doDumpxAODTrackParticle = false);
+  declareProperty("doDumpxAODVertex", m_doDumpxAODVertex = false);
+  declareProperty("doDumpxAODTauJetContainer", m_doDumpxAODTauJetContainer = false);
+  declareProperty("doDumpxAODTrigMinBias", m_doDumpxAODTrigMinBias = false);
+  declareProperty("doDumpStoreGate", m_doDumpStoreGate = false );
+  declareProperty("doDumpAllTrigComposite", m_doDumpAllTrigComposite = false );
+  declareProperty("dumpTrigCompositeContainers", m_dumpTrigCompositeContainers, "List of TC to dump" );
+  declareProperty("doDumpTrigCompsiteNavigation", m_doDumpTrigCompsiteNavigation = false );
+  declareProperty( "ClassIDSvc", m_clidSvc, "Service providing CLID info" );
 }
 
 
@@ -151,46 +164,49 @@ TrigEDMChecker::~TrigEDMChecker() {}
 
 StatusCode TrigEDMChecker::initialize() {
 
-	ATH_MSG_DEBUG("Initializing TrigEDMChecker");
+  ATH_MSG_DEBUG("Initializing TrigEDMChecker");
 
-	ATH_MSG_INFO("REGTEST Initializing...");
-	ATH_MSG_INFO("REGTEST m_doDumpAll                     = " <<  m_doDumpAll );
-	ATH_MSG_INFO("REGTEST m_doDumpLVL1_ROI                = " <<  m_doDumpLVL1_ROI);
-	ATH_MSG_INFO("REGTEST m_doDumpTrigMissingET           = " <<  m_doDumpTrigMissingET );
-	ATH_MSG_INFO("REGTEST m_doDumpxAODTrigMissingET       = " <<  m_doDumpxAODTrigMissingET );
-	ATH_MSG_INFO("REGTEST m_doDumpMuonFeature             = " <<  m_doDumpMuonFeature );
-	ATH_MSG_INFO("REGTEST m_doDumpCombinedMuonFeature     = " <<  m_doDumpCombinedMuonFeature );
-	ATH_MSG_INFO("REGTEST m_doDumpTileMuFeature           = " <<  m_doDumpTileMuFeature);
-	ATH_MSG_INFO("REGTEST m_doDumpTileTrackMuFeature      = " <<  m_doDumpTileTrackMuFeature);
-	ATH_MSG_INFO("REGTEST m_doDumpTrigPhotonContainer     = " <<  m_doDumpTrigPhotonContainer );
-	ATH_MSG_INFO("REGTEST m_doDumpTrigL2BphysContainer    = " <<  m_doDumpTrigL2BphysContainer );
-	ATH_MSG_INFO("REGTEST m_doDumpTrigEFBphysContainer    = " <<  m_doDumpTrigEFBphysContainer );
-	ATH_MSG_INFO("REGTEST m_doDumpTrigEFBjetContainer     = " <<  m_doDumpTrigEFBjetContainer );
-	ATH_MSG_INFO("REGTEST m_doDumpTrigL2BjetContainer     = " <<  m_doDumpTrigL2BjetContainer );
-	ATH_MSG_INFO("REGTEST m_doDumpxAODJetContainer        = " <<  m_doDumpxAODJetContainer );
-	ATH_MSG_INFO("REGTEST m_doDumpTrigMuonEFContainer     = " <<  m_doDumpTrigMuonEFContainer );
-	ATH_MSG_INFO("REGTEST m_doDumpTrigMuonEFInfoContainer = " <<  m_doDumpTrigMuonEFInfoContainer );
-	ATH_MSG_INFO("REGTEST m_doDumpxAODMuonContainer       = " <<  m_doDumpxAODMuonContainer );
-	ATH_MSG_INFO("REGTEST m_doDumpTrigElectronContainer   = " <<  m_doDumpTrigElectronContainer );
-	ATH_MSG_INFO("REGTEST m_doDumpxAODTrigElectronContainer   = " <<  m_doDumpxAODTrigElectronContainer );
-	ATH_MSG_INFO("REGTEST m_doDumpxAODTrigPhotonContainer   = " <<  m_doDumpxAODTrigPhotonContainer );
-	ATH_MSG_INFO("REGTEST m_doDumpxAODElectronContainer   = " <<  m_doDumpxAODElectronContainer );
-	ATH_MSG_INFO("REGTEST m_doDumpxAODPhotonContainer   = " <<  m_doDumpxAODPhotonContainer );
-	ATH_MSG_INFO("REGTEST m_doDumpHLTResult               = " <<  m_doDumpHLTResult );
-	ATH_MSG_INFO("REGTEST m_doDumpTrigTauContainer        = " <<  m_doDumpTrigTauContainer );
-	ATH_MSG_INFO("REGTEST m_doDumpTrigTauTracksInfo       = " <<  m_doDumpTrigTauTracksInfo );
-	ATH_MSG_INFO("REGTEST m_doDumpTrigInDetTrackCollection= " <<  m_doDumpTrigInDetTrackCollection );
-	ATH_MSG_INFO("REGTEST m_doDumpTrigVertexCollection    = " <<  m_doDumpTrigVertexCollection );
-	ATH_MSG_INFO("REGTEST m_doDumpTrigEMCluster           = " <<  m_doDumpTrigEMCluster );
-	ATH_MSG_INFO("REGTEST m_doDumpTrigEMClusterContainer        = " <<  m_doDumpTrigEMClusterContainer );
-	ATH_MSG_INFO("REGTEST m_doDumpTrigTauClusterContainer = " <<  m_doDumpTrigTauClusterContainer );
-	ATH_MSG_INFO("REGTEST m_doDumpTrackParticleContainer          = " <<  m_doDumpTrackParticleContainer );
-	ATH_MSG_INFO("REGTEST m_doDumpTauJetContainer          = " <<  m_doDumpTauJetContainer );
-	ATH_MSG_INFO("REGTEST m_doDumpxAODTrackParticle         = " <<  m_doDumpxAODTrackParticle );
-	ATH_MSG_INFO("REGTEST m_doDumpxAODVertex                = " <<  m_doDumpxAODVertex );
-	ATH_MSG_INFO("REGTEST m_doDumpxAODTauJetContainer          = " << m_doDumpxAODTauJetContainer );
-	ATH_MSG_INFO("REGTEST m_doDumpxAODTrigMinBias          = " << m_doDumpxAODTrigMinBias );
-	ATH_MSG_INFO("REGTEST dumpTrigCompositeContainers          = " << m_dumpTrigCompositeContainers );
+  ATH_MSG_INFO("REGTEST Initializing...");
+  ATH_MSG_INFO("REGTEST m_doDumpAll                      = " << m_doDumpAll );
+  ATH_MSG_INFO("REGTEST m_doDumpLVL1_ROI                 = " << m_doDumpLVL1_ROI);
+  ATH_MSG_INFO("REGTEST m_doDumpTrigMissingET            = " << m_doDumpTrigMissingET );
+  ATH_MSG_INFO("REGTEST m_doDumpxAODTrigMissingET        = " << m_doDumpxAODTrigMissingET );
+  ATH_MSG_INFO("REGTEST m_doDumpMuonFeature              = " << m_doDumpMuonFeature );
+  ATH_MSG_INFO("REGTEST m_doDumpCombinedMuonFeature      = " << m_doDumpCombinedMuonFeature );
+  ATH_MSG_INFO("REGTEST m_doDumpTileMuFeature            = " << m_doDumpTileMuFeature);
+  ATH_MSG_INFO("REGTEST m_doDumpTileTrackMuFeature       = " << m_doDumpTileTrackMuFeature);
+  ATH_MSG_INFO("REGTEST m_doDumpTrigPhotonContainer      = " << m_doDumpTrigPhotonContainer );
+  ATH_MSG_INFO("REGTEST m_doDumpTrigL2BphysContainer     = " << m_doDumpTrigL2BphysContainer );
+  ATH_MSG_INFO("REGTEST m_doDumpTrigEFBphysContainer     = " << m_doDumpTrigEFBphysContainer );
+  ATH_MSG_INFO("REGTEST m_doDumpTrigEFBjetContainer      = " << m_doDumpTrigEFBjetContainer );
+  ATH_MSG_INFO("REGTEST m_doDumpTrigL2BjetContainer      = " << m_doDumpTrigL2BjetContainer );
+  ATH_MSG_INFO("REGTEST m_doDumpxAODJetContainer         = " << m_doDumpxAODJetContainer );
+  ATH_MSG_INFO("REGTEST m_doDumpTrigMuonEFContainer      = " << m_doDumpTrigMuonEFContainer );
+  ATH_MSG_INFO("REGTEST m_doDumpTrigMuonEFInfoContainer  = " << m_doDumpTrigMuonEFInfoContainer );
+  ATH_MSG_INFO("REGTEST m_doDumpxAODMuonContainer        = " << m_doDumpxAODMuonContainer );
+  ATH_MSG_INFO("REGTEST m_doDumpTrigElectronContainer    = " << m_doDumpTrigElectronContainer );
+  ATH_MSG_INFO("REGTEST m_doDumpxAODTrigElectronContainer= " << m_doDumpxAODTrigElectronContainer );
+  ATH_MSG_INFO("REGTEST m_doDumpxAODTrigPhotonContainer  = " << m_doDumpxAODTrigPhotonContainer );
+  ATH_MSG_INFO("REGTEST m_doDumpxAODElectronContainer    = " << m_doDumpxAODElectronContainer );
+  ATH_MSG_INFO("REGTEST m_doDumpxAODPhotonContainer      = " << m_doDumpxAODPhotonContainer );
+  ATH_MSG_INFO("REGTEST m_doDumpHLTResult                = " << m_doDumpHLTResult );
+  ATH_MSG_INFO("REGTEST m_doDumpTrigTauContainer         = " << m_doDumpTrigTauContainer );
+  ATH_MSG_INFO("REGTEST m_doDumpTrigTauTracksInfo        = " << m_doDumpTrigTauTracksInfo );
+  ATH_MSG_INFO("REGTEST m_doDumpTrigInDetTrackCollection = " << m_doDumpTrigInDetTrackCollection );
+  ATH_MSG_INFO("REGTEST m_doDumpTrigVertexCollection     = " << m_doDumpTrigVertexCollection );
+  ATH_MSG_INFO("REGTEST m_doDumpTrigEMCluster            = " << m_doDumpTrigEMCluster );
+  ATH_MSG_INFO("REGTEST m_doDumpTrigEMClusterContainer   = " << m_doDumpTrigEMClusterContainer );
+  ATH_MSG_INFO("REGTEST m_doDumpTrigTauClusterContainer  = " << m_doDumpTrigTauClusterContainer );
+  ATH_MSG_INFO("REGTEST m_doDumpTrackParticleContainer   = " << m_doDumpTrackParticleContainer );
+  ATH_MSG_INFO("REGTEST m_doDumpTauJetContainer          = " << m_doDumpTauJetContainer );
+  ATH_MSG_INFO("REGTEST m_doDumpxAODTrackParticle        = " << m_doDumpxAODTrackParticle );
+  ATH_MSG_INFO("REGTEST m_doDumpxAODVertex               = " << m_doDumpxAODVertex );
+  ATH_MSG_INFO("REGTEST m_doDumpxAODTauJetContainer      = " << m_doDumpxAODTauJetContainer );
+  ATH_MSG_INFO("REGTEST m_doDumpxAODTrigMinBias          = " << m_doDumpxAODTrigMinBias );
+  ATH_MSG_INFO("REGTEST m_doDumpStoreGate                = " << m_doDumpStoreGate );
+  ATH_MSG_INFO("REGTEST m_doDumpAllTrigComposite         = " << m_doDumpAllTrigComposite );
+  ATH_MSG_INFO("REGTEST m_dumpTrigCompositeContainers    = " << m_dumpTrigCompositeContainers );
+  ATH_MSG_INFO("REGTEST m_doDumpTrigCompsiteNavigation   = " << m_doDumpTrigCompsiteNavigation );
 	
 //      puts this here for the moment
     maxRepWarnings = 5;
@@ -206,6 +222,10 @@ StatusCode TrigEDMChecker::initialize() {
 	    return sc;
 	  }
 	}
+
+  if (m_doDumpTrigCompsiteNavigation) {
+    ATH_CHECK( m_clidSvc.retrieve() );
+  }
 
 	return StatusCode::SUCCESS;
 }
@@ -494,6 +514,24 @@ StatusCode TrigEDMChecker::execute() {
       }      
 	}
 	
+  if (m_doDumpAll || m_doDumpStoreGate) {
+    ATH_MSG_DEBUG(evtStore()->dump());
+  }
+
+  if (m_doDumpAll || m_doDumpTrigCompsiteNavigation) {
+    std::string trigCompositeSteering;
+    ATH_CHECK(TrigCompositeNavigationToDot(trigCompositeSteering));
+    ATH_MSG_DEBUG(trigCompositeSteering);
+    const xAOD::EventInfo* evtInfo = nullptr;
+    if (evtStore()->contains<xAOD::EventInfo>("EventInfo")) {
+      StatusCode sc = evtStore()->retrieve(evtInfo);
+    }
+    static int eventStatic = 0; // Might not always have EventInfo (early testing of Run-3 software)
+    const std::string evtNumber = (evtInfo == nullptr ? std::to_string(eventStatic++) : std::to_string(evtInfo->eventNumber()));
+    std::ofstream ofile(std::string("NavigationGraph_" + evtNumber + ".dot").c_str());
+    ofile << trigCompositeSteering;
+  }
+
 	ATH_CHECK( dumpTrigComposite() );
 	
 	return StatusCode::SUCCESS;
@@ -3939,14 +3977,21 @@ StatusCode TrigEDMChecker::dumpxAODVertex() {
 }
 
 StatusCode TrigEDMChecker::dumpTrigComposite() {
-  ATH_MSG_INFO( "REGTEST ==========END of xAOD::TrigCompositeContainer DUMP===========" );
+  ATH_MSG_INFO( "REGTEST ==========START of xAOD::TrigCompositeContainer DUMP===========" );
+
+  if (m_doDumpAllTrigComposite) {
+    m_dumpTrigCompositeContainers.clear();
+    const CLID TrigCompositeCLID = static_cast<CLID>( ClassID_traits< xAOD::TrigCompositeContainer >::ID() );
+    evtStore()->keys(TrigCompositeCLID, m_dumpTrigCompositeContainers);
+  }
+
   for ( const std::string & key: m_dumpTrigCompositeContainers ) {
     // get the collection
     if ( not evtStore()->contains<xAOD::TrigCompositeContainer>(key) ) {    
-      ATH_MSG_INFO("Absent TrigCompositeContainer: " << key );
+      ATH_MSG_WARNING("Absent TrigCompositeContainer: " << key );
       continue;
     }
-    ATH_MSG_DEBUG( "Dumping container of : " << key );
+    ATH_MSG_DEBUG( " #################### Dumping container of : " << key );
     const xAOD::TrigCompositeContainer* cont= nullptr;
     ATH_CHECK( evtStore()->retrieve( cont, key ) );
     
@@ -3962,8 +4007,118 @@ StatusCode TrigEDMChecker::dumpTrigComposite() {
       ATH_MSG_DEBUG( "Link col keys    : " << tc->linkColKeys() );
       ATH_MSG_DEBUG( "Link col CLIDs   : " << tc->linkColClids() );
       ATH_MSG_DEBUG( "Link col indices : " << tc->linkColIndices() );
+
+      // Get the objects we know of
+      for (size_t i = 0; i < tc->linkColNames().size(); ++i) ATH_CHECK(checkTrigCompositeElementLink(tc, i));
+
     }
   }
   ATH_MSG_INFO( "REGTEST ==========END of xAOD::TrigCompositeContainer DUMP===========" );
+  return StatusCode::SUCCESS;
+}
+
+
+
+StatusCode TrigEDMChecker::checkTrigCompositeElementLink(const xAOD::TrigComposite* tc, size_t element) { 
+
+  const std::string name = tc->linkColNames().at(element);
+  const CLID clid = static_cast<CLID>(tc->linkColClids().at(element));
+
+  if (clid == ClassID_traits< TrigRoiDescriptorCollection >::ID()) { 
+
+    const ElementLink<TrigRoiDescriptorCollection> elementLink = tc->objectLink<TrigRoiDescriptorCollection>(name);
+    if (!elementLink.isValid()) ATH_MSG_WARNING("Invalid element link from '" << tc->name() << "' to '" << name << "'");
+    else ATH_MSG_DEBUG("Got TrigRoiDescriptor:" << *elementLink);
+
+  } else if (clid == ClassID_traits< DataVector< LVL1::RecEmTauRoI > >::ID()) { // There could be a few ROI types....
+    // CLASS_DEF( DataVector< LVL1::RecEmTauRoI >, 6256, 1 )
+
+    const ElementLink<DataVector< LVL1::RecEmTauRoI >> elementLink = tc->objectLink<DataVector< LVL1::RecEmTauRoI >>(name);
+    if (!elementLink.isValid()) ATH_MSG_WARNING("Invalid element link from '" << tc->name() << "' to '" << name << "'");
+    else ATH_MSG_DEBUG("Got LVL1::RecEmTauRoI:" << *elementLink);
+
+   } else if (clid == ClassID_traits< xAOD::TrigCompositeContainer >::ID()) {
+    
+    const ElementLink<xAOD::TrigCompositeContainer> elementLink = tc->objectLink<xAOD::TrigCompositeContainer>(name);
+    if (!elementLink.isValid()) ATH_MSG_WARNING("Invalid element link from '" << tc->name() << "' to '" << name << "'");
+    else ATH_MSG_DEBUG("Got TrigComposite:" << (*elementLink)->name());
+
+  } else {
+    ATH_MSG_DEBUG("Ignoring link to '" << name << "' with CLID " << clid);
+  }
+
+  return StatusCode::SUCCESS;
+
+}
+
+
+StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue) {
+  std::vector<std::string> keys;
+  // This constexpr is evaluated at compile time
+  const CLID TrigCompositeCLID = static_cast<CLID>( ClassID_traits< xAOD::TrigCompositeContainer >::ID() );
+  evtStore()->keys(TrigCompositeCLID, keys);
+  std::string typeNameTC;
+  ATH_CHECK(m_clidSvc->getTypeNameOfID(TrigCompositeCLID, typeNameTC));
+  ATH_MSG_DEBUG("Got " <<  keys.size() << " keys for " << typeNameTC);
+
+  // First retrieve them all (this should not be needed in future)
+  const xAOD::TrigCompositeContainer* container = nullptr;
+  for (const std::string key : keys) ATH_CHECK( evtStore()->retrieve( container, key ) );
+
+  std::stringstream ss;
+  ss << "digraph {" << std::endl;
+  ss << "  node [shape=rectangle]" << std::endl;
+  ss << "  rankdir = BT" << std::endl;
+
+  // Now process them
+  for (const std::string key : keys) {
+    ATH_CHECK( evtStore()->retrieve( container, key ) );
+    size_t index = 0;
+    ss << "  subgraph " << key << " {" << std::endl;
+    ss << "    label=\"" << key << "\"" << std::endl;
+    // ss << "    rank=same" << std::endl; // dot cannot handle this is seems
+    for (const xAOD::TrigComposite* tc : *container ) {
+      // Output my name
+      ss << "    \"" << tc << "\" [label=\"" << typeNameTC << "\\n" << key << ":" << std::to_string(index);
+      if (tc->name() != "") ss << "\\n" << tc->name();
+      ss << "\"]" << std::endl;    
+      // Output all the things I link to
+      for (size_t i = 0; i < tc->linkColNames().size(); ++i) {
+        const std::string link = tc->linkColNames().at(i);
+        if (link == "seed") {
+          const xAOD::TrigComposite* seed = tc->object<xAOD::TrigComposite>("seed");
+          ss << "    \"" << tc << "\" -> \"" << seed << "\" [label=\"seed\"]" << std::endl; 
+        } else {
+          // Start with my class ID
+          const CLID linkCLID = static_cast<CLID>( tc->linkColClids().at(i) );
+          // Use it to get my class name
+          std::string tname;
+          ATH_CHECK(m_clidSvc->getTypeNameOfID(linkCLID, tname));
+          // Now ge the sgkey I'm linking to & the index
+          const SG::sgkey_t key = static_cast<SG::sgkey_t>( tc->linkColKeys().at(i) );
+          const unsigned index = tc->linkColIndices().at(i);
+          // Look it up
+          CLID checkCLID;
+          const std::string* keyStr = evtStore()->keyToString(key, checkCLID);
+          if (checkCLID != linkCLID) {
+            ATH_MSG_ERROR("Inconsistent CLID " << checkCLID << "stored in storegate for key " << key
+              << " expecting " << linkCLID << " class name:" << tname);
+          }
+          // Print
+          ss << "    \"" << tc << "\" -> \"";
+          ss << tname << "\\n";
+          if (keyStr != nullptr) ss << *keyStr << ":";
+          else ss << "[KEY "<< key <<" NOT IN STORE]:"; 
+          ss << index << "\" [label=\"" << link << "\"]" << std::endl; 
+        }
+      }
+      ++index;
+    }
+    ss << "  }" << std::endl;
+  }
+
+  ss << "}" << std::endl;
+
+  returnValue.assign( ss.str() );
   return StatusCode::SUCCESS;
 }

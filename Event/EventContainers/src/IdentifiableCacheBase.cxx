@@ -14,7 +14,7 @@
 // In ids, INVALID -- conversion/add failed.
 // In ids, valid --- Have payload
 // In ids, null --- Conversion in progress.
-// Not in ids, INVALID --- intension to add soon
+// Not in ids, INVALID --- intention to add soon
 
 #include "EventContainers/IdentifiableCacheBase.h"
 
@@ -217,7 +217,7 @@ std::vector<IdentifierHash> IdentifiableCacheBase::ids() const
   ret.reserve (m_vec.size());
   lock_t lock (m_mutex);
   for (IdentifierHash hash : m_ids) {
-    const void* p = m_vec[hash].load(std::memory_order_acquire);
+    const void* p = m_vec[hash].load();
     if (p && p < ABORTED)
       ret.push_back (hash);
   }
@@ -238,7 +238,7 @@ bool IdentifiableCacheBase::add (IdentifierHash hash, const void* p, bool owns)
 //     cout << "iterator wrong " << endl;
      return false;
   }
-  assert (m_vec[hash] == nullptr);
+  assert (m_vec[hash] == nullptr || m_vec[hash]==INVALID);//Can be invalid in the case of "tryfetch lock"
   m_vec[hash] = p ? p : INVALID;
   m_owns[hash] = p!=nullptr ? owns : false;
   m_ids.insert (it, hash);
@@ -254,7 +254,7 @@ bool IdentifiableCacheBase::add (IdentifierHash hash,
   idset_t::iterator it = m_ids.lower_bound (hash);
   if (it != m_ids.end() && *it == hash)
     return false;
-  assert (m_vec[hash] == nullptr);
+  assert (m_vec[hash] == nullptr || m_vec[hash]==INVALID);//Can be invalid in the case of "tryfetch lock"
   if (p) {
     m_vec[hash] = p.release();
     m_owns[hash] = true;
