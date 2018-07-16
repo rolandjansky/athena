@@ -40,6 +40,8 @@ namespace InDet
     : HLT::FexAlgo (name, pSvcLocator),
       m_particleCreatorTool("Trk::ParticleCreatorTool"),
       m_residualCalc("Trk::ResidualPullCalculator"),
+      m_idHelper{},
+      m_pixelId{},
       m_tracks(0),
       m_doIBLresidual(false),
       m_slice_name(""),
@@ -258,7 +260,7 @@ namespace InDet
     tpCont->setStore( &tpAuxCont );
 
 
-    if(m_tracks && runAlg) {
+    if(runAlg) { //m_tracks should not be checked here, it has been dereferenced already
       for(unsigned int idtr=0; idtr< m_tracks->size(); ++idtr) {
         const ElementLink<TrackCollection> trackLink(*m_tracks, idtr);
 
