@@ -43,17 +43,11 @@ StatusCode MakeInputDataHeader::execute() {
          ATH_MSG_FATAL("Could not find any DataHeader");
          return(StatusCode::FAILURE);
       }
-      for ( ; dh != dhEnd; dh++) {
-         if (p_SGevent->transientContains<DataHeader>(dh.key()) && dh->checkStatus(DataHeader::Primary)) {
-            dh->setStatus(DataHeader::Input);
-         }
-      }
    }
    if (!p_SGevent->retrieve(dh, m_streamName.value()).isSuccess()) {
       ATH_MSG_FATAL("Could not find DataHeader: " << m_streamName.value());
       return(StatusCode::FAILURE);
    }
-   dh->setStatus(DataHeader::Primary);
    return(StatusCode::SUCCESS);
 }
 //___________________________________________________________________________

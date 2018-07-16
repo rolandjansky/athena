@@ -158,7 +158,7 @@ StatusCode ByteStreamNavigationProviderSvc::readEvent() {
           // Key hold file name
          file  = dataHeader->getProcessTag();
          token = dataHeader->begin()->getToken();
-      } else if (token == 0 && dataHeader->checkStatus(DataHeader::Primary)) {
+      } else if (token == 0 && dataHeader->isInput()) {
          for (std::vector<DataHeaderElement>::const_iterator i = dataHeader->beginProvenance(),
 		         iEnd = dataHeader->endProvenance(); i != iEnd; i++) {
             if (i->getToken() != 0 && i->getToken()->technology() == 0x00001000) {
