@@ -71,13 +71,28 @@ class TauRecConfigured ( Configured ) :
         topSequence.SGInputLoader.Load = [ ('xAOD::JetContainer','AntiKt4LCTopoJets'), ('xAOD::VertexContainer', 'PrimaryVertices'),
                                            ('xAOD::TrackParticleContainer','InDetTrackParticles'), ('CaloCellContainer','AllCalo') ]
 
+        from AthenaCommon.AppMgr import ToolSvc
+        from JetRec.JetRecConf import JetAlgorithm
+        jetTrackAlg = JetAlgorithm("JetTrackAlg_forTaus")
+        from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
+        TauTVATool = TrackVertexAssociationTool(TrackParticleContainer = "InDetTrackParticles",
+                                                TrackVertexAssociation="JetTrackVtxAssoc_forTaus",
+                                                VertexContainer= "PrimaryVertices",
+                                                MaxTransverseDistance = 2.5 *mm,
+                                                #MaxLongitudinalDistance = 2 *mm,
+                                                MaxZ0SinTheta = 3.0 *mm,
+                                                #OutputLevel=2
+                                                )
+        ToolSvc += TauTVATool
+        jetTrackAlg.Tools = [ TauTVATool ]
+        topSequence += jetTrackAlg
+
+        # Can I move this to different script?
+        #import tauRec.TauAlgorithmsHolder as taualgs
+        # add tauJVF tool to topSequence
+        #taualgs.setupTauJVFTool
+
         topSequence += self.TauProcessorAlgHandle()
-
-        # separate algorithm, from CaloRec
-        #if self.doPi0Clus:
-        #    import tauRec.Pi0ClusterMakerHolder as pi0alg
-        #    topSequence += pi0alg.getTauPi0ClusterMaker()
-
 
     def WrapTauRecToolExecHandles(self, tools=[]):
 

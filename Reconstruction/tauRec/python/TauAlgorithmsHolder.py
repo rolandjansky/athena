@@ -581,6 +581,7 @@ def getInDetTrackSelectorToolxAOD():
 
 ############################################################################
 # setup up JVA tools
+# Currently not used - moved into TauRecConfigured.py and added directly to topSequence
 def setupTauJVFTool():
     from AthenaCommon.AppMgr import ToolSvc
 
@@ -623,8 +624,8 @@ def setupTauJVFTool():
                                           MaxZ0SinTheta = 3.0 *mm,
                                           #OutputLevel=2
                                           )
-    #jetTrackAlg.Tools = [ToolSvc.JetTrackSelectionTool , ToolSvc.TrackVertexAssociationTool ]                                          
-    jetTrackAlg.Tools = [ToolSvc.TrackVertexAssociationTool ]                                          
+    #jetTrackAlg.Tools = [ToolSvc.JetTrackSelectionTool , ToolSvc.TrackVertexAssociationTool ]
+    jetTrackAlg.Tools = [ ToolSvc.TrackVertexAssociationTool ]
     
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()    
@@ -637,8 +638,8 @@ def getTauVertexFinder(doUseTJVA=False):
     if _name in cached_instances:
         return cached_instances[_name]
     
-    if doUseTJVA:
-        setupTauJVFTool()
+    #if doUseTJVA:
+    #    setupTauJVFTool()
     
     # Algorithm that overwrites numTrack() and charge() of all tauJets in the container
     from tauRecTools.tauRecToolsConf import TauVertexFinder
