@@ -20,10 +20,6 @@
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
-// For the call-back
-#include "MuonCondInterface/IMuonAlignmentErrorDbTool.h"
-#include "StoreGate/StoreGateSvc.h"
-
 #include <fstream>
 #include <sstream>
 #include <boost/functional/hash.hpp>
@@ -33,8 +29,7 @@ using namespace MuonAlign;
 AlignmentErrorTool::AlignmentErrorTool(const std::string& t, const std::string& n, const IInterface* p)
 : AthAlgTool(t,n,p),
   m_idTool("MuonCalib::IdToFixedIdTool"),
-  m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-  m_pMuonAlignmentErrorDbSvc("MuonAlignmentErrorDbSvc", "MuonAlignmentErrorDbSvc")
+  m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
 {
   declareInterface<Trk::ITrkAlignmentDeviationTool>(this);
   declareProperty("idTool", m_idTool);
@@ -64,7 +59,7 @@ StatusCode AlignmentErrorTool::initialize() {
 
   ATH_CHECK( m_idTool.retrieve() );
   ATH_CHECK( m_idHelper.retrieve() );
-
+  /*
   // MAP DEVIATION INITIALIZATION
   // from local file
   if ( m_read_local_file ) {
@@ -101,7 +96,7 @@ StatusCode AlignmentErrorTool::initialize() {
         ATH_MSG_INFO("Call-back to DB returned status success");
 
   }
-
+  */
   ATH_CHECK(m_readKey.initialize());
     
   return StatusCode::SUCCESS;
@@ -113,9 +108,6 @@ StatusCode AlignmentErrorTool::initialize() {
 StatusCode AlignmentErrorTool::finalize() {
 
   ATH_MSG_INFO("AlignmentErrorTool::finalize()");
-
-  AlignmentErrorTool::deleteAlignmentDeviationsList ();
-
   //ATH_MSG_DEBUG("Currently we have " << AlignmentErrorTool::deviationSummary_t::i_instance << " deviation vectors");
 
   return StatusCode::SUCCESS;
@@ -124,17 +116,7 @@ StatusCode AlignmentErrorTool::finalize() {
 void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::vector<Trk::AlignmentDeviation*>& deviations) const {
 
   ATH_MSG_DEBUG("AlignmentErrorTool::makeAlignmentDeviations()");
-  /*
-  // CLEAR HITS VECTOR //
-  for ( unsigned int i = 0; i<m_deviationsVec.size(); i++) {
-     m_deviationsVec[i]->hits.clear();
-     Amg::Vector3D nullvec(0., 0., 0.);
-     m_deviationsVec[i]->sumP = nullvec;
-     m_deviationsVec[i]->sumU = nullvec;
-     m_deviationsVec[i]->sumV = nullvec;
-     m_deviationsVec[i]->sumW2 = 0.;
-  }
-  */
+
   SG::ReadCondHandle<MuonAlignmentErrorData> readHandle{m_readKey};
   const MuonAlignmentErrorData* readCdo{*readHandle};
   if(readCdo==0){
@@ -159,24 +141,7 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
     tmp->sumW2 = 0.;
     devSumVec.push_back(tmp);
   }
-  /*
-  for(unsigned int i=0; i < m_deviationsVec.size(); i++) {
-    std::cout<<"ckato m_deviationsVec i "<<i
-	     <<" traslation "<<m_deviationsVec[i]->traslation
-	     <<" rotation "<<m_deviationsVec[i]->rotation
-	     <<" stationName "<<m_deviationsVec[i]->stationName
-	     <<" multilayer "<<m_deviationsVec[i]->multilayer
-	     <<std::endl; 
-  }
-  for(unsigned int i=0; i < devSumVec.size(); i++) {
-    std::cout<<"ckato devSumVec i "<<i
-	     <<" traslation "<<devSumVec[i]->traslation
-	     <<" rotation "<<devSumVec[i]->rotation
-	     <<" stationName "<<devSumVec[i]->stationName
-	     <<" multilayer "<<devSumVec[i]->multilayer
-	     <<std::endl; 
-  }    
-  */
+
   typedef DataVector< const Trk::TrackStateOnSurface > tsosc_t;
   const tsosc_t* tsosc = track.trackStateOnSurfaces();
 
@@ -410,116 +375,9 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
 }
 
 ////////////////////////////
-// OTHER METHODS //
-////////////////////////////
-////////////////////////////
-// INITIALIZE/DELETE NEW LIST OF DEVIATIONS, TO BE CALLED AT EACH CALL-BACK TO THE DB
-////////////////////////////
-void AlignmentErrorTool::initializeAlignmentDeviationsList (std::istream& indata) {
-
-  // CLEANUP
-  deleteAlignmentDeviationsList();
-
-  if (!indata) {
-    ATH_MSG_ERROR("Alignment error configuration invalid");
-    return;
-  }
-
-  ATH_MSG_DEBUG("In AlignmentErrorTool::initializeAlignmentDeviationsList");
-
-  ATH_MSG_DEBUG("***********************************");
-  ATH_MSG_DEBUG("PARSING LIST OF DEVIATIONS...");
-  std::string line;
-  while ( getline(indata, line) ) {
-
-    // READING COMMENTS
-    if ( line.substr(0, 1) == "#" ) {
-      // ATH_MSG_DEBUG("Reading a commented line saying " << line);
-      continue;
-    }
-
-    // READING FROM INPUT FILE:                                //
-    std::string flag("");
-    double version_tag = -1.;
-    std::string name_sstring("");
-    std::string multilayer_sstring("");
-    double traslation(0.);
-    double rotation(0.);
-
-    // GET INPUT FILE VERSION
-    if ( line.substr(0, 7) == "version" ) {
-
-      std::istringstream(line) >> flag >> version_tag;
-
-      ATH_MSG_INFO("*****************************************");
-      ATH_MSG_INFO("Input file version " << version_tag);
-      ATH_MSG_INFO("*****************************************");
-
-      continue;
-    } 
-
-    // A FLAG CHARACTERIZING THE TYPE OF ERROR
-    // A REGULAR EXPRESSION FOR THE STATION NAME (EX: BIL.*)   //
-    // TWO DOUBLES FOR THE TRANSLATION AND ROTATION DEVIATIONS //
-    if (std::istringstream(line) >> flag >> name_sstring >> multilayer_sstring >> traslation >> rotation) {
-
-      ATH_MSG_DEBUG(flag << " " << name_sstring << " " << multilayer_sstring << " " << traslation << " " << rotation);
-
-      // TEMPORARY PER STATION DEVIATION STRUCT //
-      deviationSummary_t* tmp = new deviationSummary_t;
-
-      // SAVING A REGULAR EXPRESSION WITH THE STATION NAME //
-      const boost::regex name_regexp(name_sstring);
-
-      // SAVING THE STATION DEVIATIONS IN THE STRUCT //
-      tmp->stationName = name_regexp;
-      tmp->multilayer = multilayer_sstring;
-      tmp->traslation = traslation;
-      tmp->rotation = rotation;
-
-      // FILLING THE VECTOR OF STRUCT CONTAINING THE STATION DEVIATIONS //
-      m_deviationsVec.push_back(tmp);
-
-    } //check stream is not at the end
-
-  } // end of loop on input file lines
-
-  if (m_deviationsVec.empty()) {
-    ATH_MSG_WARNING("Could not read any alignment error configuration");
-  }
-}
-
-void AlignmentErrorTool::deleteAlignmentDeviationsList () {
-
-   ATH_MSG_DEBUG("In AlignmentErrorTool::deleteAlignmentDeviationsList");
-
-   // NOW EMPTY THE LOCAL DEVIATIONS VECTOR //
-   for(unsigned int iDev=0; iDev < m_deviationsVec.size(); iDev++) {
-      delete m_deviationsVec[iDev];
-   }
-   m_deviationsVec.clear();
-
-   return;
-}
-
-StatusCode AlignmentErrorTool::update(IOVSVC_CALLBACK_ARGS){
-  ATH_MSG_DEBUG("Call Back for AlignmentErrorTool");
-
-  // THESE METHODS SHOULD BE CALLED AT EACH CALL-BACK
-  std::istringstream indata(m_pMuonAlignmentErrorDbSvc->ListErrorValue()); 
-  initializeAlignmentDeviationsList(indata); 
-
-  ATH_MSG_DEBUG("###########################################");
-  ATH_MSG_DEBUG("List of deviations updated");
-  ATH_MSG_DEBUG(m_pMuonAlignmentErrorDbSvc->ListErrorValue());
-  ATH_MSG_DEBUG("###########################################");
-
-  return StatusCode::SUCCESS;
-}
-
-////////////////////////////
 // RECOGNIZE STATION NAME //
 ////////////////////////////
+
 inline std::string AlignmentErrorTool::hardwareName(MuonCalib::MuonFixedId calibId) const {
   if (sector(calibId)==13) {
     if (calibId.eta()== 7 && calibId.stationName()==5) return "BOE1A13"; // BOE1A13 not BOL7A13
