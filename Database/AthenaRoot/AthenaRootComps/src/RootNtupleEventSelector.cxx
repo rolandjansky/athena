@@ -1132,7 +1132,7 @@ RootNtupleEventSelector::fetchNtuple(const std::string& fname,
     return tree;
   }
   // std::cout << "::TFile::GetTree(" << m_tupleName << ")..." << std::endl;
-  tree = (TTree*)f->Get(tupleName.c_str());
+  tree = static_cast<TTree*>(f->Get(tupleName.c_str()));
   if (!tree) {
     ATH_MSG_ERROR("could not retrieve tree [" << tupleName << "]"
                   << " from file [" << fname << "]");
@@ -1159,7 +1159,7 @@ RootNtupleEventSelector::fetchNtuple(const std::string& fname,
 
 void RootNtupleEventSelector::addMetadataFromDirectoryName(const std::string &metadirname, TFile *fileObj, const std::string &prefix) const
 {
-  TDirectoryFile *metadir = (TDirectoryFile*)fileObj->Get(metadirname.c_str());
+  TDirectoryFile *metadir = static_cast<TDirectoryFile*>(fileObj->Get(metadirname.c_str()));
   if (!metadir) return;
   addMetadataFromDirectory(metadir, prefix);
 }
