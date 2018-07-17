@@ -7,7 +7,7 @@
 
 #include "TrkGeometry/MaterialStep.h"
 #include "TrkGeometry/Layer.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 namespace TrkDetDetDescrPoolRegister {
      /** the standard vector of MaterialStep */

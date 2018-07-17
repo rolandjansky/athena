@@ -27,6 +27,9 @@ class eflowEEtaBinnedParameters;
 
 namespace eflowSubtract {
 
+ /**
+Used in eflowCellLevelSubtractionTool and eflowRecoverSplitShowersTool to perform the removal of calorimeter cells from clusters. Makes use of eflowCellList, eflowRingSubtractionManager and eflowCellSubtractionFacilitator.
+ */
 class Subtractor{
 
 public:

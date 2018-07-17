@@ -271,6 +271,11 @@ class DataStore;
     /// Drop the reference to the data object.
     void resetRef();
 
+    // PLEASE NOTE: The data members of this class are ordered so that
+    // the most frequently accessed members are grouped together, within
+    // the first cache line.  See the layout at the end of this file.
+    // Be aware of this when making changes to the layout of this class.
+
     unsigned int m_refCount;
 
     ///reset and not delete: default is true

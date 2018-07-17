@@ -1,8 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-# default configuration of the ElectronLikelihoodMenuDefs
-# 
-
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ 
 import cppyy
 try :
     cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
@@ -19,7 +16,6 @@ std.vector('int')
 # Import a needed helper
 from PATCore.HelperUtils import *
 
-
 def ElectronLikelihoodCUSTOMMediumConfig(theTool) :
     '''
     This is for the custom implementation of the MediumLLH definitions.
@@ -32,9 +28,6 @@ def ElectronLikelihoodCUSTOMMediumConfig(theTool) :
 
     # PdfFileName
     theTool.inputPDFFileName = "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root"
-
-    # do cut on conversion
-    theTool.doCutConversion = 0
 
     # do remove f3 at high Et
     theTool.doRemoveF3AtHighEt = 0
@@ -87,9 +80,6 @@ def ElectronLikelihoodCUSTOMMediumNoGSFConfig(theTool) :
 
     # PdfFileName
     theTool.inputPDFFileName = "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root"
-
-    # do cut on conversion
-    theTool.doCutConversion = 0
 
     # do remove f3 at high Et
     theTool.doRemoveF3AtHighEt = 0

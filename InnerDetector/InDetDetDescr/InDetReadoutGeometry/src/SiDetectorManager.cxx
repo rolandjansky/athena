@@ -60,7 +60,8 @@ namespace InDetDD
 
     bool SiDetectorManager::setAlignableTransformLocalDelta(ExtendedAlignableTransform * extXF, 
                                                             const Amg::Transform3D & localToGlobalXF,
-                                                            const Amg::Transform3D & delta) const
+                                                            const Amg::Transform3D & delta,
+                                                            GeoVAlignmentStore* alignStore) const
     {
         // ATTENTION -------------------------------------------------------- (A.S.)
         // CLHEP < -- > AMG interface method
@@ -90,7 +91,7 @@ namespace InDetDD
             HepGeom::Transform3D correctedDelta = transform.inverse()*localToGlobalXFCLHEP      // (A*B*C).inverse() * T
                                                    * Amg::EigenTransformToCLHEP(delta)             // l
                                                    * localToGlobalXFCLHEP.inverse() * transform;   // T.inverse() * (A*B*C)
-            extXF->alignableTransform()->setDelta(correctedDelta);
+            extXF->alignableTransform()->setDelta(correctedDelta, alignStore);
             return true;
         } else {
             return false;
@@ -98,7 +99,8 @@ namespace InDetDD
     }
 
     bool SiDetectorManager::setAlignableTransformGlobalDelta(ExtendedAlignableTransform * extXF, 
-                                                             const Amg::Transform3D& delta) const {
+                                                             const Amg::Transform3D& delta,
+                                                             GeoVAlignmentStore* alignStore) const {
         // ATTENTION -------------------------------------------------------- (A.S.)
         // CLHEP < -- > AMG interface method
         
@@ -122,7 +124,7 @@ namespace InDetDD
         if (child && extXF->alignableTransform()) {
             // do the calculation in CLHEP  
             const HepGeom::Transform3D& transform = child->getDefAbsoluteTransform();
-            extXF->alignableTransform()->setDelta(transform.inverse() * Amg::EigenTransformToCLHEP(delta) * transform);
+            extXF->alignableTransform()->setDelta(transform.inverse() * Amg::EigenTransformToCLHEP(delta) * transform, alignStore);
             return true;
         } else {
             return false;

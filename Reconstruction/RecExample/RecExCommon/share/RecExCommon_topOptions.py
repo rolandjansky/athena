@@ -1008,8 +1008,8 @@ if globalflags.InputFormat()=='bytestream':
 
     # enable IOVDbSvc to read metadata
     svcMgr.MetaDataSvc.MetaDataContainer = "MetaDataHdr"
-    from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
-    svcMgr.MetaDataSvc.MetaDataTools += [ IOVDbMetaDataTool() ]
+    if not hasattr (svcMgr.ToolSvc, 'IOVDbMetaDataTool'):
+        svcMgr.MetaDataSvc.MetaDataTools += [ "IOVDbMetaDataTool" ]
 
 MetaDataStore=svcMgr.MetaDataStore
 
@@ -1027,11 +1027,13 @@ if rec.doFileMetaData():
         else:
             #ok to use the metadata tool if single process
             from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
-            svcMgr.MetaDataSvc.MetaDataTools += [ LumiBlockMetaDataTool() ]
+            svcMgr.MetaDataSvc.MetaDataTools += [ "LumiBlockMetaDataTool" ]
         # Trigger tool
-        svcMgr.MetaDataSvc.MetaDataTools += [ CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool" ) ]
+        ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool" )
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
         # EventFormat tool
-        svcMgr.MetaDataSvc.MetaDataTools += [ CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool" ) ]
+        ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool" )
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
 
     else:
         # Create LumiBlock meta data containers *before* creating the output StreamESD/AOD
@@ -1052,7 +1054,8 @@ if rec.doFileMetaData():
     try:
         # ByteStreamMetadata
         from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMetadataTool        
-        svcMgr.MetaDataSvc.MetaDataTools += [ ByteStreamMetadataTool() ]
+        if not hasattr (svcMgr.ToolSvc, 'ByteStreamMetadataTool'):
+            svcMgr.MetaDataSvc.MetaDataTools += [ "ByteStreamMetadataTool" ]
     except Exception:
         treatException("Could not load ByteStreamMetadataTool")
 
@@ -1430,14 +1433,13 @@ if rec.doWriteAOD():
 
     if rec.doFileMetaData():
         # Trigger tool
-        trigMDTool= CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool")
-        if not trigMDTool in svcMgr.MetaDataSvc.MetaDataTools:
-            svcMgr.MetaDataSvc.MetaDataTools += [ trigMDTool ]
+        ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool")
+
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
         # EventFormat tool
-        
-        efMDTool=CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool")
-        if not efMDTool in  svcMgr.MetaDataSvc.MetaDataTools:
-            svcMgr.MetaDataSvc.MetaDataTools += [ efMDTool ]
+        ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool")
+
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
         # Put MetaData in AOD stream via AugmentedPoolStream_
         # Write all meta data containers
         StreamAOD_Augmented.AddMetaDataItem(dfMetadataItemList())

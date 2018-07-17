@@ -50,7 +50,7 @@ class ISCT_FillCabling:virtual public IInterface{
   /**Fill the cabling maps
    * @param[in] @c SCT_CablingSvc& , reference to the underlying data service
    */
-  virtual StatusCode fillMaps(ISCT_CablingSvc* cabling) = 0;
+  virtual StatusCode fillMaps(ISCT_CablingSvc* cabling) const = 0;
   
   /**Report whether the map was filled
    * @return @c bool

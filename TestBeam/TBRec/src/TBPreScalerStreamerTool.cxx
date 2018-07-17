@@ -2,13 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Service.h"
-
-#include "StoreGate/StoreGateSvc.h"
-
-#include "TBRec/TBEventStreamerTool.h"
-#include "TBRec/TBPreScalerStreamerTool.h"
+#include "TBEventStreamerTool.h"
+#include "TBPreScalerStreamerTool.h"
 
 // already included in TBPreScalerStreamerTool.h
 //#include "CLHEP/Random/RanluxEngine.h"

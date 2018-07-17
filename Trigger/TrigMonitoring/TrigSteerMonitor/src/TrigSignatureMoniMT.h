@@ -12,7 +12,7 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "xAODEventInfo/EventInfo.h"
-
+#include "DecisionCollectorTool.h"
 
 /**
  * @class Algorithm implementing monitoring of the HLT decision in the MT framework
@@ -35,9 +35,12 @@ class TrigSignatureMoniMT : public ::AthAlgorithm
   TrigSignatureMoniMT();
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_l1DecisionsKey{ this, "L1Decisions", "HLTChainsResult", "Chains activated after the L1" };
 
+  
+  
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_finalDecisionsKey{ this, "FinalDecisions", {}, "Final stage of all decisions" };
-  typedef std::map<std::string, std::vector<std::string> > StringToStringVectorMap;
-  Gaudi::Property< StringToStringVectorMap > m_steps{ this, "FinalDecisionToStepsMap", {}, "Mapping from each final decision object in FinalDecisions to the decisions at earlier steps" };
+
+  //  typedef std::map<std::string, std::vector<std::string> > StringToStringVectorMap;
+  //Gaudi::Property< StringToStringVectorMap > m_steps{ this, "FinalDecisionToStepsMap", {}, "Mapping from each final decision object in FinalDecisions to the decisions at earlier steps" };
   Gaudi::Property<std::vector<std::string> > m_allChains{ this, "ChainsList", {}, "List of all configured chains" };
   
   std::map<unsigned int, int> m_chainIDToBinMap;
@@ -46,7 +49,8 @@ class TrigSignatureMoniMT : public ::AthAlgorithm
   Gaudi::Property<std::string> m_bookingPath{ this, "HistParh", "/EXPERT/TrigSteer_HLT", "Booking path for the histogram"};
 
   TH2* m_outputHistogram;
-  
+
+  ToolHandleArray<DecisionCollectorTool> m_collectorTools{ this, "CollectorTools", {}, "Tools that collect decisions for steps" };
   
   int nBinsX() const { return m_allChains.size() +1; }
   int nBinsY() const;

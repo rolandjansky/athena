@@ -14,13 +14,8 @@ PURPOSE:
 
 ********************************************************************/
 
-#include "LArCellRec/LArCellGainPathology.h"
+#include "LArCellGainPathology.h"
 
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/StatusCode.h"
 #include "StoreGate/StoreGateSvc.h" 
 #include "CaloEvent/CaloCellContainer.h"
 #include "Identifier/Identifier.h"

@@ -2,11 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/StatusCode.h"
-
-#include "PathResolver/PathResolver.h"
-
-#include "TBRec/TBPlaneTrackingAlgo.h"
+#include "TBPlaneTrackingAlgo.h"
 #include "TBEvent/TBHitPlaneCont.h"
 #include "TBEvent/TBBPCCont.h"
 #include "TBEvent/TBHitPlane.h"
@@ -15,6 +11,7 @@
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
+#include "PathResolver/PathResolver.h"
 
 #include <vector>
 #include <iostream>

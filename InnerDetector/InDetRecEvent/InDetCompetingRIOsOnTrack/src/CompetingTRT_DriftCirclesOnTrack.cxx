@@ -13,7 +13,8 @@
 // InDet
 #include "InDetCompetingRIOsOnTrack/CompetingTRT_DriftCirclesOnTrack.h"
 // std
-#include <math.h>
+#include <cmath>
+#include <ostream>
 
 // default constructor
 InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack():
@@ -21,18 +22,14 @@ InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack():
   m_associatedSurface(0),
   m_globalPosition(0),
   m_containedChildRots(0),
-  //        m_assumedTrackParameters(0),
   m_ROTsHaveCommonSurface(8) {}
 
 // copy constructor
 InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack(const InDet::CompetingTRT_DriftCirclesOnTrack& compROT) :
   Trk::CompetingRIOsOnTrack(compROT),
-  //m_associatedSurface(compROT.m_associatedSurface ? compROT.m_associatedSurface->clone() : 0),
   m_globalPosition(compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : 0),
   m_containedChildRots(0),
-  //        m_assumedTrackParameters(compROT.m_assumedTrackParameters ? m_assumedTrackParameters->clone() : 0),
   m_ROTsHaveCommonSurface(compROT.m_ROTsHaveCommonSurface) {
-  //        cout << "CompetingTRT_DriftCirclesOnTrack: in copy constructor" << endl;
   if (compROT.m_associatedSurface) {
     // copy only if surface is not one owned by a detector Element
     m_associatedSurface = (!compROT.m_associatedSurface->associatedDetectorElement()) ? compROT.m_associatedSurface->clone() : compROT.m_associatedSurface;
@@ -43,7 +40,6 @@ InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack(const 
   std::vector< const InDet::TRT_DriftCircleOnTrack* >::const_iterator rotIter = compROT.m_containedChildRots->begin();
   for (; rotIter!=compROT.m_containedChildRots->end(); ++rotIter) {
     m_containedChildRots->push_back((*rotIter)->clone());
-    //        cout << "pushed back cloned ROT" << endl;
   }
 }
 
@@ -62,7 +58,6 @@ InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack(
   m_associatedSurface(sf),
   m_globalPosition(0),
   m_containedChildRots(childrots),
-  //    m_assumedTrackParameters(assumedTrkPars),
   m_ROTsHaveCommonSurface(ROTsHaveComSrfc)
 {
   
@@ -70,18 +65,7 @@ InDet::CompetingTRT_DriftCirclesOnTrack::CompetingTRT_DriftCirclesOnTrack(
   m_localCovariance = *effecLocalErrMat;
   delete effecLocalErrMat;
   delete effecLocalPars;
-  //  if (childrots->size() != assgnProb->size()){
-  //      // TODO: Throw something...
-  //      // maybe delete given objects.
-  //         // at least give an error message
-  //  } else {
-  //         // search for maximum assignment probability (surface of this ROT is used as common surface):
-  //         Trk::AssignmentProb maxAssgnProb = m_assignProb->operator[](0);
-  //         //unsigned int imax = 0;
-  //         for (unsigned int i=1; i<m_rotsnum; i++) {
-  //             if (m_assignProb->operator[](i) > maxAssgnProb) {imax=i};
-  //         }
-  //     }
+
 }
 
 InDet::CompetingTRT_DriftCirclesOnTrack& InDet::CompetingTRT_DriftCirclesOnTrack::operator=(const InDet::CompetingTRT_DriftCirclesOnTrack& compROT) {
@@ -92,7 +76,6 @@ InDet::CompetingTRT_DriftCirclesOnTrack& InDet::CompetingTRT_DriftCirclesOnTrack
     clearChildRotVector();
     delete m_containedChildRots;
     delete m_globalPosition;
-    //        delete m_assumedTrackParameters;
     // delete surface if not owned by detElement
     if (m_associatedSurface && !m_associatedSurface->associatedDetectorElement())
       delete m_associatedSurface;
@@ -104,7 +87,6 @@ InDet::CompetingTRT_DriftCirclesOnTrack& InDet::CompetingTRT_DriftCirclesOnTrack
       m_associatedSurface = 0;
     }
     m_globalPosition     = compROT.m_globalPosition ? new Amg::Vector3D(*compROT.m_globalPosition) : 0;
-    //        m_assumedTrackParameters     = compROT.m_assumedTrackParameters ? compROT.m_assumedTrackParameters->clone() : 0;
     m_ROTsHaveCommonSurface     = compROT.m_ROTsHaveCommonSurface;
     std::vector<const InDet::TRT_DriftCircleOnTrack*>::const_iterator rotIter = compROT.m_containedChildRots->begin();
     for (; rotIter!=compROT.m_containedChildRots->end(); ++rotIter)
@@ -120,7 +102,6 @@ InDet::CompetingTRT_DriftCirclesOnTrack::~CompetingTRT_DriftCirclesOnTrack() {
   delete m_globalPosition;
   clearChildRotVector();
   delete m_containedChildRots;
-  //    delete m_assumedTrackParameters;
 }
 
 void InDet::CompetingTRT_DriftCirclesOnTrack::clearChildRotVector() {
@@ -164,17 +145,9 @@ bool InDet::CompetingTRT_DriftCirclesOnTrack::ROTsHaveCommonSurface(const bool w
   //     for all    | just ROTs with non-vanishing assgnProb
   //      * 1       |   * 3
   if (withNonVanishingAssignProb) {
-    //if (!(m_ROTsHaveCommonSurface / 3)==2){
     return (m_ROTsHaveCommonSurface / 3);
-    //}else{
-    //have to calc: should not happen here!!!
-    //}
   } else {
-    //if (!(m_ROTsHaveCommonSurface % 3)==2){
     return (m_ROTsHaveCommonSurface % 3);
-    //}else{
-    //have to calc: should not happen here!!!
-    //}
   }
 
 }
@@ -201,9 +174,7 @@ const Amg::Vector3D& InDet::CompetingTRT_DriftCirclesOnTrack::globalPosition() c
     for (; rotIter != m_containedChildRots->end(); ++rotIter, ++assgnProbIter) {
       globalPos += ( ((*assgnProbIter)/assgnProbSum) * ((*rotIter)->globalPosition()) );
     }
-    //     for (unsigned int index = 0; index < m_rotsnum; index++) {
-    //         globalPos += (m_assignProb->operator[](index)) * (m_containedChildRots->operator[](index)->globalPosition());
-    //     }
+   
   } else {
     globalPos = (*m_containedChildRots->begin())->globalPosition();
   }

@@ -4,7 +4,6 @@
 
 // This is a test cxx file for IdentifiableContainerMT. 
 //  
-#include "src/IDC_Wait.cxx"
 #include "EventContainers/IdentifiableContainerMT.h" 
 #include "EventContainers/SelectAllObjectMT.h" 
 #include "ID_ContainerTest.h" 
@@ -244,7 +243,7 @@ int ID_ContainerTest::execute(){
     startOfKernelTime  = System::kernelTime   ( System::microSec );
     startOfElapsedTime = System::ellapsedTime ( System::microSec );
     // Access all COllections
-/*    auto hashes= m_container->GetAllCurrentHashs(); 
+/*    auto hashes= m_container->GetAllCurrentHashes(); 
     int nc1 = 0 ; 
     for (auto hash : hashes) {
         auto coll = m_container->indexFindPtr(hash); 
@@ -274,13 +273,13 @@ int ID_ContainerTest::execute(){
 
     std::cout <<"  Number of Collection  Accessed "<<nc1<<std::endl;
 
-    std::cout << "By GetAllCurrentHashs search\n";
+    std::cout << "By GetAllCurrentHashes search\n";
 
     startOfUserTime    = System::userTime( System::microSec );
     startOfKernelTime  = System::kernelTime   ( System::microSec );
     startOfElapsedTime = System::ellapsedTime ( System::microSec );
     // Access all COllections
-    auto hashes= m_container->GetAllCurrentHashs(); 
+    auto hashes= m_container->GetAllCurrentHashes(); 
     nc1 = 0 ; 
     for (auto hash : hashes) {
         auto coll = m_container->indexFindPtr(hash); 
@@ -299,7 +298,7 @@ int ID_ContainerTest::execute(){
 
 
     // Print out some hash ids via iterator
-    hashes= m_container->GetAllCurrentHashs();  
+    hashes= m_container->GetAllCurrentHashes();  
     nc1 = 0 ; 
     unsigned int skip1 = 0;
     for ( auto h = hashes.cbegin() ; h!=hashes.cend() && nc1 < 10; ++h, ++skip1) {
@@ -565,8 +564,8 @@ int ID_ContainerTest::execute(){
         std::cout << __FILE__ << " cache does not contain correct elements" << std::endl;
         std::abort();
     }
-    assert(containerOnline->GetAllCurrentHashs().size() == 2);
-    if(containerOnline->GetAllCurrentHashs() != IDCshouldContain){
+    assert(containerOnline->GetAllCurrentHashes().size() == 2);
+    if(containerOnline->GetAllCurrentHashes() != IDCshouldContain){
         std::cout << __FILE__ << " IDC does not contain correct elements" << std::endl;
         std::abort();
     }

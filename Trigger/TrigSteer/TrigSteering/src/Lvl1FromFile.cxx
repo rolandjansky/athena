@@ -130,7 +130,6 @@ ErrorCode Lvl1FromFile::activate(const std::string& str, std::vector<HLT::Steeri
     }
   } else {
     std::vector<std::string> names = split(str, ";");
-    std::vector<std::string>::const_iterator namesIt;
     ATH_MSG_DEBUG("activating selected chains:" << names);
     
     for (std::vector<HLT::SteeringChain*>::const_iterator it = m_configuredChains->begin();

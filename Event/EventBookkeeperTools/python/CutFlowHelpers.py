@@ -78,6 +78,8 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
     cutflowtool = BookkeeperTool(outname+"Tool",
                                  InputCollName = inname,
                                  OutputCollName= outname) 
+    svcMgr.ToolSvc += cutflowtool
+
     # Add tool to MetaDataSvc
     svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
 
@@ -89,6 +91,7 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
         pdfweighttool = BookkeeperTool(name,
                                        OutputCollName= name, 
                                        InputCollName = name)
+        svcMgr.ToolSvc += pdfweighttool
 
         # Add tool to MetaDataSvc
         svcMgr.MetaDataSvc.MetaDataTools += [pdfweighttool]

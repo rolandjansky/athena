@@ -14,7 +14,7 @@ msg = logging.getLogger('MetaReader')
 from PyUtils.MetaReader import read_metadata
 
 
-def __tree_print(content, indent = 2, pad = 0, list_max_items = -1, dict_sort=None, ascii=False):
+def _tree_print(content, indent = 2, pad = 0, list_max_items = -1, dict_sort=None, ascii=False):
 	s = ''
 
 	if isinstance(content, dict):
@@ -45,7 +45,7 @@ def __tree_print(content, indent = 2, pad = 0, list_max_items = -1, dict_sort=No
 			else:
 				s += ('|' if not last else '`') + '-' * indent + ' ' + skey + ': '
 
-			lines = __tree_print(value, indent=indent, pad = pad, dict_sort = dict_sort, list_max_items = list_max_items, ascii = ascii).split('\n')
+			lines = _tree_print(value, indent=indent, pad = pad, dict_sort = dict_sort, list_max_items = list_max_items, ascii = ascii).split('\n')
 
 			if len(lines) == 1:
 				s += lines[0] + '\n'
@@ -75,7 +75,7 @@ def __tree_print(content, indent = 2, pad = 0, list_max_items = -1, dict_sort=No
 	return s
 
 
-def __main():
+def _main():
 	# Parsing the arguments provided by user
 	parser = argparse.ArgumentParser(description='This script reads metadata from a given file')
 	parser.add_argument('filenames',
@@ -115,6 +115,13 @@ def __main():
 						type=str,
 						choices=['POOL', 'BS'],
 						help="The file type of the input filename. By default, it tries to determine itself the file type of the input.")
+	parser.add_argument('-f',
+						'--filter',
+						default= [],
+						metavar='FILTER',
+	                    nargs = '+',
+						type=str,
+						help="The metadata keys to filter. ")
 	args = parser.parse_args()
 
 	verbose = args.verbose
@@ -124,6 +131,7 @@ def __main():
 	indent = args.indent
 	mode = args.mode
 	file_type = args.type
+	meta_key_filter = args.filter
 
 	msg.setLevel(logging.INFO if verbose else logging.WARNING)
 	# create a stream handler
@@ -139,13 +147,13 @@ def __main():
 	msg.info('Imported headers in: {0} miliseconds'.format((time.time() - startTime) * 1e3))
 	msg.info('The output file is: {0}'.format(output))
 
-	metadata = read_metadata(filenames, file_type, mode= mode)
+	metadata = read_metadata(filenames, file_type, mode= mode, meta_key_filter= meta_key_filter)
 
 	if output is None:
 		if is_json:
 			print(json.dumps(metadata, indent= indent))
 		else:
-			print(__tree_print(metadata, indent= indent, pad= 18, dict_sort='key', list_max_items = 8))
+			print(_tree_print(metadata, indent= indent, pad= 18, dict_sort='key', list_max_items = 8))
 
 	else:
 		if is_json:
@@ -153,12 +161,12 @@ def __main():
 				print >> fd, json.dumps(metadata, indent=indent)
 		else:
 			with open(output, 'w') as fd:
-				print >> fd, __tree_print(metadata, indent = indent, pad = 18, dict_sort = 'key', list_max_items = 8, ascii = True)
+				print >> fd, _tree_print(metadata, indent = indent, pad = 18, dict_sort = 'key', list_max_items = 8, ascii = True)
 
 	msg.info('Done!')
 
 if __name__ == '__main__':
-	__main()
+	_main()
 
 
 

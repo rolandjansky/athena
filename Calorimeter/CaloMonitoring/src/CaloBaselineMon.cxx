@@ -31,8 +31,12 @@ using Athena::Units::GeV;
 
 CaloBaselineMon::CaloBaselineMon(const std::string& type, const std::string& name, const IInterface* parent) :
   CaloMonToolBase(type, name, parent),
+  m_bool_pedestalMon(false),
+  m_bool_bcidtoolMon(false),
   m_calo_id(nullptr),
-  m_bunchCrossingTool("BunchCrossingTool")
+  m_bunchCrossingTool("BunchCrossingTool"),
+  m_h1_BCID_bcidtoolMon(nullptr),
+  m_h1_BCID_pedestalMon(nullptr)
 {
   declareInterface<IMonitorToolBase>(this);
 
@@ -169,7 +173,7 @@ void CaloBaselineMon::bookPartitionHistos(partitionHistos& partition, uint partN
       hTitle = "Pedestal baseline ( "+str_auxTitle+") - "+m_partNames[partNumber]+" - " + str_eta0 +" < eta < " + str_eta1;
       partition.hProf_pedestalMon_vs_EtaBCID[iEta] = TProfile_LW::create(hName.c_str(), hTitle.c_str(),m_BCID0_nbins,m_BCID0_min,m_BCID0_max);
       partition.hProf_pedestalMon_vs_EtaBCID[iEta]->GetXaxis()->SetTitle("BCID");
-      partition.hProf_pedestalMon_vs_EtaBCID[iEta]->GetYaxis()->SetTitle("");
+      partition.hProf_pedestalMon_vs_EtaBCID[iEta]->GetYaxis()->SetTitle("E_T/(#Delta#eta.#Delta#phi.#mu)[MeV]");
       group.regHist(partition.hProf_pedestalMon_vs_EtaBCID[iEta]).ignore();  
     }      
     
@@ -177,13 +181,13 @@ void CaloBaselineMon::bookPartitionHistos(partitionHistos& partition, uint partN
     hTitle = "Pedestal baseline ( "+str_auxTitle+") - "+m_partNames[partNumber];
     partition.hProf_pedestalMon_vs_Eta = TProfile_LW::create(hName.c_str(), hTitle.c_str(),m_nbOfEtaBins[partNumber],m_etaMin[partNumber],m_etaMax[partNumber]);
     partition.hProf_pedestalMon_vs_Eta->GetXaxis()->SetTitle("Eta");
-    partition.hProf_pedestalMon_vs_Eta->GetYaxis()->SetTitle("Average over BCID");
+    partition.hProf_pedestalMon_vs_Eta->GetYaxis()->SetTitle("E_T/(#Delta#eta.#Delta#phi.#mu)[MeV]");
     group.regHist(partition.hProf_pedestalMon_vs_Eta).ignore();  
     
     hName  = "hprof1d_pedestalMon_"+m_partNames[partNumber]+"_LB";
     partition.hProf_pedestalMon_vs_LB = TProfile_LW::create(hName.c_str(), hTitle.c_str(),lb_nbins,0,(float) lb_nbins);
     partition.hProf_pedestalMon_vs_LB->GetXaxis()->SetTitle("Luminosity block");
-    partition.hProf_pedestalMon_vs_LB->GetYaxis()->SetTitle("Average over BCID and eta");
+    partition.hProf_pedestalMon_vs_LB->GetYaxis()->SetTitle("E_T/(#Delta#eta.#Delta#phi.#mu)[MeV]");
     group.regHist(partition.hProf_pedestalMon_vs_LB).ignore();  
   }
 
@@ -201,7 +205,7 @@ void CaloBaselineMon::bookPartitionHistos(partitionHistos& partition, uint partN
       hTitle = "BCIDtool baseline ( "+str_auxTitle+")-"+m_partNames[partNumber]+" - " + str_eta0 +" < eta < " + str_eta1;
       partition.hProf_bcidtoolMon_vs_EtaBCID[iEta] = TProfile_LW::create(hName.c_str(), hTitle.c_str(),BCID_nbins,BCID_min,BCID_max);
       partition.hProf_bcidtoolMon_vs_EtaBCID[iEta]->GetXaxis()->SetTitle("BCID");
-      partition.hProf_bcidtoolMon_vs_EtaBCID[iEta]->GetYaxis()->SetTitle("");
+      partition.hProf_bcidtoolMon_vs_EtaBCID[iEta]->GetYaxis()->SetTitle("E_T/(#Delta#eta.#Delta#phi.#mu)[MeV]");
       group.regHist(partition.hProf_bcidtoolMon_vs_EtaBCID[iEta]).ignore();  
     }
 
@@ -210,13 +214,13 @@ void CaloBaselineMon::bookPartitionHistos(partitionHistos& partition, uint partN
     hTitle = "BCIDtool baseline ( "+str_auxTitle+") - "+m_partNames[partNumber];
     partition.hProf_bcidtoolMon_vs_Eta = TProfile_LW::create(hName.c_str(), hTitle.c_str(),m_nbOfEtaBins[partNumber],m_etaMin[partNumber],m_etaMax[partNumber]);
     partition.hProf_bcidtoolMon_vs_Eta->GetXaxis()->SetTitle("Eta");
-    partition.hProf_bcidtoolMon_vs_Eta->GetYaxis()->SetTitle("Average over BCID");
+    partition.hProf_bcidtoolMon_vs_Eta->GetYaxis()->SetTitle("E_T/(#Delta#eta.#Delta#phi.#mu)[MeV]");
     group.regHist(partition.hProf_bcidtoolMon_vs_Eta).ignore();  
 
     hName  = "hprof1d_bcidtoolMon"+m_partNames[partNumber]+"_LB";
     partition.hProf_bcidtoolMon_vs_LB = TProfile_LW::create(hName.c_str(), hTitle.c_str(),lb_nbins,0,(float) lb_nbins);
     partition.hProf_bcidtoolMon_vs_LB->GetXaxis()->SetTitle("Luminosity block");
-    partition.hProf_bcidtoolMon_vs_LB->GetYaxis()->SetTitle("Average over BCID and eta");
+    partition.hProf_bcidtoolMon_vs_LB->GetYaxis()->SetTitle("E_T/(#Delta#eta.#Delta#phi.#mu)[MeV]");
     group.regHist(partition.hProf_bcidtoolMon_vs_LB).ignore();  
   }
 
@@ -242,7 +246,7 @@ StatusCode CaloBaselineMon::fillHistograms() {
 
   // Fill pedestalMon only when the bunch is empty and far away enough from the last train.
   if (m_bool_pedestalMon){
-    if ((not m_bunchCrossingTool->isFilled(bcid)) and (m_bunchCrossingTool->gapAfterBunch(bcid) >= m_pedestalMon_BCIDmin*25.)) thisEvent_bool_pedestalMon = true;
+    if ((not m_bunchCrossingTool->isFilled(bcid)) and (m_bunchCrossingTool->gapAfterBunch(bcid) >= m_pedestalMon_BCIDmin*25.) and (m_bunchCrossingTool->gapBeforeBunch(bcid) >= m_pedestalMon_BCIDmin*25.)) thisEvent_bool_pedestalMon = true;
   }
   // Fill bcidtoolMon only when the bunch is in a bunch train and within accepted BCID range.
   if (m_bool_bcidtoolMon){
@@ -288,11 +292,14 @@ StatusCode CaloBaselineMon::fillHistograms() {
     m_sum_partition_eta[partThisAlgo][etaBin] += energy;
   } // cell iter loop
 
+
   // Loop on cells is over. Now fill histograms with sum per eta.
   if (thisEvent_bool_pedestalMon ) {
     m_h1_BCID_pedestalMon->Fill(bcid);
     for (uint iPart = 0;iPart <  m_partNames.size();iPart++){ 
       for (uint iEta = 0; iEta < m_nbOfEtaBins[iPart]; iEta ++){
+	// Normalize the sum by the \delta\eta.\delta\phi.\mu
+	m_sum_partition_eta[iPart][iEta] = m_sum_partition_eta[iPart][iEta]*(m_inv_etaBinWidth[iPart])/(2*M_PI)/lbAverageInteractionsPerCrossing();
 	float etaToBeFilled = ((float) iEta)*m_etaBinWidth[iPart] + m_etaMin[iPart];
 	m_partHistos[iPart].hProf_pedestalMon_vs_Eta->Fill(etaToBeFilled,m_sum_partition_eta[iPart][iEta]);
 	m_partHistos[iPart].hProf_pedestalMon_vs_EtaBCID[iEta]->Fill(bcid,m_sum_partition_eta[iPart][iEta]);
@@ -305,9 +312,11 @@ StatusCode CaloBaselineMon::fillHistograms() {
     m_h1_BCID_bcidtoolMon->Fill(bcid);
     for (uint iPart = 0;iPart <  m_partNames.size();iPart++){ 
       for (uint iEta = 0; iEta < m_nbOfEtaBins[iPart]; iEta ++){
+	// Normalize the sum by the \delta\eta.\delta\phi.\mu
+	m_sum_partition_eta[iPart][iEta] = m_sum_partition_eta[iPart][iEta]*(m_inv_etaBinWidth[iPart])/(2*M_PI)/lbAverageInteractionsPerCrossing();
 	float etaToBeFilled = ((float) iEta)*m_etaBinWidth[iPart] + m_etaMin[iPart];
 	m_partHistos[iPart].hProf_bcidtoolMon_vs_Eta->Fill(etaToBeFilled,m_sum_partition_eta[iPart][iEta]);
-	m_partHistos[iPart].hProf_bcidtoolMon_vs_EtaBCID[iEta]->Fill(m_bunchCrossingTool->distanceFromFront(bcid)/25,m_sum_partition_eta[iPart][iEta]);
+	m_partHistos[iPart].hProf_bcidtoolMon_vs_EtaBCID[iEta]->Fill(m_bunchCrossingTool->distanceFromFront(bcid)/25.,m_sum_partition_eta[iPart][iEta]);
 	m_partHistos[iPart].hProf_bcidtoolMon_vs_LB->Fill(lumiBlock,m_sum_partition_eta[iPart][iEta]);
       }
     }

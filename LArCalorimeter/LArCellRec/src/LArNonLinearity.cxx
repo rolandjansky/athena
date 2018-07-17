@@ -16,12 +16,11 @@ PURPOSE:  non linearity if only linear calibration fit is used
 ********************************************************************/
 
 // INCLUDE LAr header files:
-#include "LArCellRec/LArNonLinearity.h"
+#include "LArNonLinearity.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "CaloEvent/CaloCell.h"
-#include "StoreGate/StoreGateSvc.h"
 // Units
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -105,7 +104,8 @@ LArNonLinearity::~LArNonLinearity()
 
 // MakeCorrection:  This is called with a pointer to the Cell Object.
 
-void LArNonLinearity::MakeCorrection(CaloCell* theCell)
+void LArNonLinearity::MakeCorrection (CaloCell* theCell,
+                                      const EventContext& /*ctx*/) const
 {
   float eta = theCell->eta();
   Identifier id =  theCell->ID();

@@ -126,11 +126,6 @@ if DetFlags.writeRDOPool.any_on():
     ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; COMPRESSION_ALGORITHM = '2'" ]
     ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; COMPRESSION_LEVEL = '1'" ]
     ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '1'" ]
-    # Switch on splitting for the 4 largest container (default off)
-    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; ContainerName = 'TTree=CollectionTree(InDetSimDataCollection_p1/PixelSDO_Map)'; CONTAINER_SPLITLEVEL = '99'" ]
-    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; ContainerName = 'TTree=CollectionTree(InDetSimDataCollection_p1/SCT_SDO_Map)'; CONTAINER_SPLITLEVEL = '99'" ]
-    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; ContainerName = 'TTree=CollectionTree(InDetSimDataCollection_p1/TRT_SDO_Map)'; CONTAINER_SPLITLEVEL = '99'" ]
-    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; ContainerName = 'TTree=CollectionTree(LArRawChannelContainer_p4/LArRawChannels)'; CONTAINER_SPLITLEVEL = '99'" ]
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------

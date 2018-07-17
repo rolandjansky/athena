@@ -19,23 +19,12 @@ Trk::MagneticFieldProperties::MagneticFieldProperties(const Amg::Vector3D& field
   m_magneticField(field)
 {}
 
+Trk::MagneticFieldProperties::MagneticFieldProperties(const MagneticFieldProperties& matprop) = default;
 
-Trk::MagneticFieldProperties::MagneticFieldProperties(const Trk::MagneticFieldProperties& magprop) :
-  m_magneticFieldMode(magprop.m_magneticFieldMode),
-  m_magneticField(magprop.m_magneticField)
-{}  
+Trk::MagneticFieldProperties& Trk::MagneticFieldProperties::operator=(const MagneticFieldProperties& matprop) = default;
 
-Trk::MagneticFieldProperties& Trk::MagneticFieldProperties::operator=(const Trk::MagneticFieldProperties& magprop)
-{
-  if (this != &magprop){
-     m_magneticFieldMode = magprop.m_magneticFieldMode;
-     m_magneticField     = magprop.m_magneticField;
-  }
-  return(*this);
-}
+Trk::MagneticFieldProperties& Trk::MagneticFieldProperties::operator=(MagneticFieldProperties && matprop) = default;
 
-
- 
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
 MsgStream& Trk::operator<<( MsgStream& sl, const Trk::MagneticFieldProperties& mprop)
 {

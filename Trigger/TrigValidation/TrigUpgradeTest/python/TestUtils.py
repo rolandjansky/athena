@@ -25,6 +25,8 @@ class MenuTest:
                          "68:HLT_xe10", # the item is L1_XE10
                          "152:HLT_xs20",
                          "50:HLT_te15", # the seed is L1_TE15.0ETA24
+                         "93:HLT_j85",
+                         "93:HLT_j60",
                          ]
 
     EMThresholdToChainMapping = ["EM3 : HLT_e3_etcut",
@@ -38,8 +40,8 @@ class MenuTest:
 
     TAUThresholdToChainMapping = ["HA8 : HLT_tau10"]
 
-    JThresholdToChainMapping = ["J20 : HLT_j30",
-                                  "J25 : HLT_j30"]
+    JThresholdToChainMapping = ["J20 : HLT_j85",
+                                "J20 : HLT_j60"]
 
     MUThresholdToChainMapping = ["MU6 : HLT_mu6",
                                  "MU6 : HLT_mu6idperf",

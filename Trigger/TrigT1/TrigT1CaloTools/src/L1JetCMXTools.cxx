@@ -359,8 +359,6 @@ void L1JetCMXTools::getHits(const xAOD::CMXJetTob *tob, HitsVector &hit10,
 
   std::vector<TrigConf::TriggerThreshold *> thresholds =
       m_configSvc->ctpConfig()->menu().thresholdVector();
-  std::vector<TriggerThreshold *>::const_iterator it;
-  //std::vector<TriggerThreshold *>::const_iterator itE = thresholds.end();
   for (int slice = 0; slice < timeslices; ++slice) {
     if (err.get(LVL1::DataError::Overflow)) {
       hit10[slice] = 0x7fff;

@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/AthenaPoolCnvSvc
                           LArCalorimeter/LArRawEvent
                           LArCalorimeter/LArRecEvent
+                          Control/CxxUtils
                           PRIVATE
                           AtlasTest/TestTools
                           Calorimeter/CaloIdentifier

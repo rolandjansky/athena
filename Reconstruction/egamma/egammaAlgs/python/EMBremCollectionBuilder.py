@@ -1,17 +1,19 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2001-2018 CERN for the benefit of the ATLAS collaboration
+
+__doc__ = "ToolFactory to instantiate  egammaBremCollectionBuilder with default configuration"
+__author__ = "Christos"
 
 # default configuration of the EMBremCollectionBuilder
 from AthenaCommon.Logging import logging
 from AthenaCommon.SystemOfUnits import *
 from AthenaCommon.Constants import *
-from AthenaCommon.AppMgr import ServiceMgr
+
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.GlobalFlags  import globalflags
 from RecExConfig.RecFlags  import rec
 from InDetRecExample.InDetJobProperties import InDetFlags
 import traceback
-
 #import base class
 from egammaAlgs import egammaAlgsConf
 from egammaTools.InDetTools import egammaExtrapolator
@@ -39,16 +41,13 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
                                                 Extrapolator = AtlasExtrapolator(),
                                                 ReintegrateOutliers=True)
         from AthenaCommon.AppMgr import ToolSvc
-        #ToolSvc += GSFRefitterTool
-
-        # ----------- load association tool from Inner Detector to handle pixel ganged ambiguities
+        #
+        # Load association tool from Inner Detector to handle pixel ganged ambiguities
         #
         from InDetAssociationTools.InDetAssociationToolsConf import InDet__InDetPRD_AssociationToolGangedPixels
         GSFBuildInDetPrdAssociationTool = InDet__InDetPRD_AssociationToolGangedPixels(name = "GSFBuildInDetPrdAssociationTool",
-                                                                                PixelClusterAmbiguitiesMapName = 'PixelClusterAmbiguitiesMap')
+                                                                                      PixelClusterAmbiguitiesMapName = 'PixelClusterAmbiguitiesMap')
         ToolSvc += GSFBuildInDetPrdAssociationTool        
-        #
-        # ----------- Load SummaryTool
         #
         # Loading Configurable HoleSearchTool
         #
@@ -70,7 +69,7 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
             
         ToolSvc += GSFBuildHoleSearchTool
         #
-        # Load BLayer tool
+        #  Load BLayer tool
         #
         GSFBuildTestBLayerTool = None
         if DetFlags.haveRIO.pixel_on() :
@@ -81,25 +80,35 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
                                                                 PixelSummaryTool = ToolSvc.PixelConditionsSummaryTool,
                                                                 Extrapolator    = GSFBuildInDetExtrapolator)
             ToolSvc += GSFBuildTestBLayerTool
-
-        # Configurable version of TRT_ElectronPidTools
+        #
+        #  Configurable version of TRT_ElectronPidTools
         #
         GSFBuildTRT_ElectronPidTool = None
         if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC() and not InDetFlags.doHighPileup() :
+         
+            isMC = False
+            if globalflags.DataSource == "geant4" :
+                isMC = True
+            from TRT_DriftFunctionTool.TRT_DriftFunctionToolConf import TRT_DriftFunctionTool
+            InDetTRT_DriftFunctionTool = TRT_DriftFunctionTool(name      = "InDetTRT_DriftFunctionTool",
+                                                               IsMC      = isMC)
+            ToolSvc += InDetTRT_DriftFunctionTool
             
+   
             from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
-            GSFBuildTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="GSF_TRT_LocalOccupancy")
+            GSFBuildTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="GSF_TRT_LocalOccupancy",
+                                                                   TRTDriftFunctionTool = InDetTRT_DriftFunctionTool)
             ToolSvc += GSFBuildTRT_LocalOccupancy
-                
+            
             from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2
             GSFBuildTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "GSFBuildTRT_ElectronPidTool",
                                                                          TRT_LocalOccupancyTool = GSFBuildTRT_LocalOccupancy,
                                                                          isData = (globalflags.DataSource == 'data') )
- 
+            
             ToolSvc += GSFBuildTRT_ElectronPidTool
 
         #
-        # Configurable version of PixelToTPIDTOol
+        #  Configurable version of PixelToTPIDTOol
         #
         GSFBuildPixelToTPIDTool = None
         if DetFlags.haveRIO.pixel_on():                 
@@ -108,21 +117,21 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
             GSFBuildPixelToTPIDTool.ReadFromCOOL = True
             ToolSvc += GSFBuildPixelToTPIDTool
         #
-        # Configrable version of loading the InDetTrackSummaryHelperTool
+        #  Configrable version of loading the InDetTrackSummaryHelperTool
         #
         from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
         GSFBuildTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name            = "GSFBuildTrackSummaryHelperTool",
-                                                                             AssoTool        = GSFBuildInDetPrdAssociationTool,
-                                                                             PixelToTPIDTool = GSFBuildPixelToTPIDTool,
-                                                                             TestBLayerTool  = GSFBuildTestBLayerTool,
-                                                                             DoSharedHits    = False,
-                                                                             HoleSearch      = GSFBuildHoleSearchTool,
-                                                                             usePixel        = DetFlags.haveRIO.pixel_on(),
-                                                                             useSCT          = DetFlags.haveRIO.SCT_on(),
-                                                                             useTRT          = DetFlags.haveRIO.TRT_on())
+                                                                            AssoTool        = GSFBuildInDetPrdAssociationTool,
+                                                                            PixelToTPIDTool = GSFBuildPixelToTPIDTool,
+                                                                            TestBLayerTool  = GSFBuildTestBLayerTool,
+                                                                            DoSharedHits    = False,
+                                                                            HoleSearch      = GSFBuildHoleSearchTool,
+                                                                            usePixel        = DetFlags.haveRIO.pixel_on(),
+                                                                            useSCT          = DetFlags.haveRIO.SCT_on(),
+                                                                            useTRT          = DetFlags.haveRIO.TRT_on())
         ToolSvc += GSFBuildTrackSummaryHelperTool
         #
-        # Configurable version of TrkTrackSummaryTool: no TRT_PID tool needed here (no shared hits)
+        #  Configurable version of TrkTrackSummaryTool: no TRT_PID tool needed here (no shared hits)
         #
         from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
         GSFBuildInDetTrackSummaryTool = Trk__TrackSummaryTool(name = "GSFBuildInDetTrackSummaryTool",
@@ -133,7 +142,7 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
                                                               PixelToTPIDTool        = GSFBuildPixelToTPIDTool)
         ToolSvc += GSFBuildInDetTrackSummaryTool
         #
-        # --- load patricle creator tool
+        #  load patricle creator tool
         #
         from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
         GSFBuildInDetParticleCreatorTool = Trk__TrackParticleCreatorTool(name                    = "GSFBuildInDetParticleCreatorTool",
@@ -142,44 +151,28 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
                                                                          TrackSummaryTool        = GSFBuildInDetTrackSummaryTool,
                                                                          UseTrackSummaryTool     = False,
                                                                          ForceTrackSummaryUpdate = False)
-        #ToolSvc += GSFBuildInDetParticleCreatorTool
         #
-        # --- do track slimming
+        #  do track slimming
         #
         from TrkTrackSlimmingTool.TrkTrackSlimmingToolConf import Trk__TrackSlimmingTool as ConfigurableTrackSlimmingTool
         GSFBuildInDetTrkSlimmingTool = ConfigurableTrackSlimmingTool(name  = "GSFBuildInDetTrackSlimmingTool",
                                                                      KeepParameters = False,
                                                                      KeepOutliers   = True )
-        #ToolSvc += GSFBuildInDetTrkSlimmingTool
-
-
-        # do the configuration
-        self.ClusterContainerName="LArClusterEM"
-        from InDetRecExample.InDetKeys import InDetKeys
-        self.TrackParticleContainerName=InDetKeys.xAODTrackParticleContainer()
-        self.OutputTrkPartContainerName="GSFTrackParticles"
-        self.OutputTrackContainerName="GSFTracks"
+        # 
+	#  Default Configuration
+        #
         self.TrackRefitTool= GSFRefitterTool
         self.TrackParticleCreatorTool=GSFBuildInDetParticleCreatorTool
         self.TrackSlimmingTool=GSFBuildInDetTrkSlimmingTool
         self.TrackSummaryTool=GSFBuildInDetTrackSummaryTool
 
-        # do the configuration (from old EMBremCollectionBuilderBase)
-        self.minNoSiHits=4
-        self.broadDeltaEta=0.1   # this is multiplied by 2 for the Candidate Match , so +- 0.2 in eta
-        self.broadDeltaPhi=0.15   # this is multiplied by 2 for the Candidate Match , so +- 0.3 in phi
-        self.narrowDeltaEta=0.05 
-        #These have to be relaxed enough for the conversions
-        self.narrowDeltaPhi=0.05   
-        self.narrowDeltaPhiBrem=0.20 #Dominated by the needs of assymetric conversions
-        self.narrowDeltaPhiRescale=0.05  
-        self.narrowDeltaPhiRescaleBrem=0.1
-
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
+from InDetRecExample.InDetKeys import InDetKeys
 EMBremCollectionBuilder = AlgFactory( egammaBremCollectionBuilder,
                                       name = 'EMBremCollectionBuilder',
                                       ExtrapolationTool = EMExtrapolationTools,
-                                      OutputTrackContainerName=egammaKeys.outputTrackKey(),
-                                      ClusterContainerName=egammaKeys.inputClusterKey(),
+                                      TrackParticleContainerName=InDetKeys.xAODTrackParticleContainer(),
+                                      OutputTrkPartContainerName=egammaKeys.outputTrackParticleKey(),
+                                      OutputTrackContainerName=egammaKeys.outputTrackKey(),  
                                       DoTruth=rec.doTruth()
                                       )

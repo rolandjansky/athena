@@ -48,7 +48,7 @@ public:
 
 private:
    /// Technology identifier
-   long m_technology;
+   long unsigned m_technology;
    /// File name
    std::string m_fileName;
    /// Container name

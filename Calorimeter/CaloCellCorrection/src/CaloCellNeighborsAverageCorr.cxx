@@ -10,7 +10,7 @@
 //
 // ****************************************************************************************
 
-#include "CaloCellCorrection/CaloCellNeighborsAverageCorr.h"
+#include "CaloCellNeighborsAverageCorr.h"
 
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -22,8 +22,6 @@
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include <map> //useful in testMode
 
 // ======================================================

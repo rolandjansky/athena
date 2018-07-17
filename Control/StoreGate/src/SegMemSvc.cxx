@@ -18,7 +18,6 @@ using namespace std;
 
 SegMemSvc::SegMemSvc( const std::string& name, ISvcLocator* svc )
   : Service( name, svc ), p_incSvc("IncidentSvc",name),
-    m_log(msgSvc(), name), 
     m_arena_job("sms_job",&m_ahead_job), 
     m_arena_evt("sms_evt",&m_ahead_evt), 
     m_arena_inc("sms_inc",&m_ahead_inc) 
@@ -94,30 +93,24 @@ void
 SegMemSvc::handle(const Incident& inc) {
 
   if (inc.type() == "EndEvent") {
-    if (m_log.level() <= MSG::DEBUG) {
-      m_log << MSG::DEBUG << "Running report for " << m_arena_evt.name() 
-            << std::endl;
+    if (msgStream().level() <= MSG::DEBUG) {
       std::ostringstream ost;
       m_ahead_evt.report(ost);
-      m_log << MSG::DEBUG << ost.str() << endmsg;
-      //       m_log << MSG::DEBUG << "header: " << m_ahead.reportStr() << endmsg;
-      
+      debug() << "Running report for " << m_arena_evt.name()
+              << ost.str() << endmsg;
     }
 
-    m_log << MSG::DEBUG << "freeing all memory allocated for Event"
-          << endmsg;
+    debug() << "freeing all memory allocated for Event" << endmsg;
     m_arena_evt.reset();
     m_ahead_evt.reset();
 
   } else if ( inc.type() == "DefragMemory") {
 
-    if (m_log.level() <= MSG::DEBUG) {
-      m_log << MSG::DEBUG << "defragmenting memory"
-            << endmsg;
+    if (msgStream().level() <= MSG::DEBUG) {
+      debug() << "defragmenting memory" << endmsg;
     }
-    m_log << MSG::DEBUG << "freeing all memory allocated associated with "
-          << "DefragMemory incident"
-          << endmsg;
+    debug() << "freeing all memory allocated associated with "
+            << "DefragMemory incident" << endmsg;
     m_arena_inc.reset();
     m_ahead_inc.reset();
   }

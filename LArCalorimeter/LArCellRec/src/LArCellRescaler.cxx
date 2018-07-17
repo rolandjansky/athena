@@ -2,9 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArCellRec/LArCellRescaler.h" 
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "LArCellRescaler.h" 
 #include "CaloEvent/CaloCell.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 
@@ -58,7 +56,9 @@ StatusCode LArCellRescaler::checkConstants(IOVSVC_CALLBACK_ARGS) {
 
 
 
-void LArCellRescaler::MakeCorrection(CaloCell* theCell) {
+void LArCellRescaler::MakeCorrection (CaloCell* theCell,
+                                      const EventContext& /*ctx*/) const
+{
   const IdentifierHash& hash_id=theCell->caloDDE()->calo_hash();
   if (m_factors.isValid() && hash_id<m_factors->size())
     theCell->setEnergy(theCell->energy()*(*m_factors)[hash_id]);

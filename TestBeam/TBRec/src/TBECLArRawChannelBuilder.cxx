@@ -2,8 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TBRec/TBECLArRawChannelBuilder.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "TBECLArRawChannelBuilder.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 

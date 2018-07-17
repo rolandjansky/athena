@@ -42,7 +42,6 @@
 - PhysicsAnalysis/SUSYPhys/SUSYTools
 - PhysicsAnalysis/TauID/DiTauMassTools
 #- PhysicsAnalysis/TauID/TauCorrUncert  #no CMakeLists.txt file
-- PhysicsAnalysis/TopPhys/KLFitter
 - PhysicsAnalysis/TopPhys/QuickAna
 - PhysicsAnalysis/TopPhys/TopPhysUtils/.*
 - PhysicsAnalysis/TopPhys/xAOD/.*

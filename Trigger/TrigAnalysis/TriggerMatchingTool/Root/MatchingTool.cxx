@@ -38,7 +38,6 @@ namespace Trig {
 
 #ifndef XAOD_STANDALONE
   void MatchingTool::updateOutputLevel(Property& p) {
-    this->msg_update_handler(p); //calls original handler
     impl()->msg().setLevel(msgLevel()); //pass on our message level to the matchingimplementation
   }
 #endif

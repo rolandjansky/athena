@@ -72,7 +72,7 @@ def IOVDbSvcCfg(configFlags):
         result.addService(DBReplicaSvc(COOLSQLiteVetoPattern="/DBRelease/"))
 
     
-    return result
+    return result,iovDbSvc
 
 
 #Convenience method to add folders:
@@ -83,8 +83,7 @@ def addFolders(configFlags,folderstrings,detDb=None,className=None):
     if isinstance(folderstrings,str):
         folderstrings=[folderstrings,]
 
-    result=ComponentAccumulator()
-    result.addConfig(IOVDbSvcCfg,configFlags)
+    result,iovDbSvc=IOVDbSvcCfg(configFlags)
 
     #Add class-name to CondInputLoader (if reqired)
     if className is not None:
@@ -95,7 +94,7 @@ def addFolders(configFlags,folderstrings,detDb=None,className=None):
         #result.addCondAlgo(CondInputLoader(Load=loadFolders))
  
 
-    iovDbSvc=result.getService("IOVDbSvc")
+
     
     if detDb is not None:
         dbname=configFlags.get("IOVDb.DatabaseInstance")
@@ -112,7 +111,7 @@ def addFolders(configFlags,folderstrings,detDb=None,className=None):
         else:
             iovDbSvc.Folders.append(fs)
 
-    return result
+    return result,None
 
 
 _dblist={

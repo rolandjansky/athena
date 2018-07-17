@@ -11,6 +11,10 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+#include "xAODTrigger/TrigCompositeContainer.h"
+
+#include "AthenaKernel/IClassIDSvc.h"
+
 #include <string>
 
 // forward declarations of muon track classes used in TrigMuonEFInfo
@@ -156,6 +160,9 @@ class TrigEDMChecker : public AthAlgorithm  {
    bool m_doDumpxAODVertex;
    StatusCode dumpxAODVertex();
 
+   bool m_doDumpStoreGate;
+   StatusCode dumpStoreGate();
+
    bool m_doDumpxAODTrigMinBias;
    StatusCode dumpxAODTrigMinBias();
    void dumpTrigSpacePointCounts();
@@ -163,10 +170,36 @@ class TrigEDMChecker : public AthAlgorithm  {
    void dumpTrigVertexCounts();
    void dumpTrigTrackCounts();
 
-
+   bool m_doDumpAllTrigComposite;
    std::vector<std::string> m_dumpTrigCompositeContainers;
+
+   /**
+    * @brief Dump information on TrigComposite collections
+    *
+    * Only dumpTrigCompositeContainers are dumped unless doDumpAllTrigComposite is set
+    */
    StatusCode dumpTrigComposite();
+
+   /**
+    * @brief Dump details on element links within TrigComposites
+    *
+    * With specific checking of the Run-3 relationships
+    */
+   StatusCode checkTrigCompositeElementLink(const xAOD::TrigComposite* tc, size_t element); 
+
+   bool m_doDumpTrigCompsiteNavigation;
+
+   /**
+    * @brief Construct graph of HLT navigation in Run-3
+    * @param returnValue String to populate with dot graph.
+    *
+    * Navigates all TrigComposite objects in store gate and forms a relational graph in the dot format
+    */
+   StatusCode TrigCompositeNavigationToDot(std::string& returnValue);
+
    ToolHandle<Rec::IMuonPrintingTool>            m_muonPrinter;
+
+   ServiceHandle< ::IClassIDSvc > m_clidSvc;
 
 };
 

@@ -350,6 +350,12 @@ StatusCode TileDQFragLWMonTool::fillHistograms() {
     m_isFirstEvent = false;
   }
 
+  if (m_manager->forkedProcess()) {
+    fillMasking();
+    m_nEvents = 1;
+    m_nEventsWithAllDigits = 0;
+  }
+
   if (getL1info() == 0x82) {
     ++m_nEventsWithAllDigits;
   }

@@ -38,6 +38,5 @@
 #include "egammaInterfaces/IegammaTrkRefitterTool.h"
 #include "egammaInterfaces/Iegammaqweta1c.h"
 #include "egammaInterfaces/Iegammaqweta2c.h"
-#include "egammaInterfaces/IelectronSuperClusterBuilder.h"
-#include "egammaInterfaces/IphotonSuperClusterBuilder.h"
+#include "egammaInterfaces/IegammaMVASvc.h"
 #endif // EGAMMAINTERFACES_EGAMMAINTERFACESDICT_H

@@ -39,8 +39,7 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
 	m_allowMetaDataStop(false),
 	m_persToClid(),
 	m_toolForClid(),
-	m_streamForKey(),		
-	m_metaDataTools(this){
+	m_streamForKey() {
    // declare properties
    declareProperty("MetaDataContainer", m_metaDataCont = "");
    declareProperty("MetaDataTools", m_metaDataTools);

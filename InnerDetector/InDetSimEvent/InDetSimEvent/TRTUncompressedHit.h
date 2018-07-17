@@ -26,6 +26,13 @@ public:
 
   // Destructor: FIXME POOL
   inline virtual ~TRTUncompressedHit() {};
+  
+  //copy c'tor defaulted
+  TRTUncompressedHit(const TRTUncompressedHit &) = default;
+  //assignment defaulted
+  TRTUncompressedHit & operator = (const TRTUncompressedHit &) =default;
+  //move assignment defaulted
+  TRTUncompressedHit & operator = (TRTUncompressedHit &&) = default;
 
   bool operator < (const TRTUncompressedHit& obj) const
   {return m_hitID < obj.m_hitID;}

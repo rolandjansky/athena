@@ -79,7 +79,8 @@ private:
 
  // Find correction factor for this LArCell 
  double getCorrection(LArCell* cell,
-		   const std::vector<CaloCellCorrection*>& vCorr );
+                      const std::vector<CaloCellCorrection*>& vCorr,
+                      const EventContext& ctx) const;
 
  // cells in a FEB stored in a vector
  typedef std::vector<CellInfo> CELL_VEC ; 

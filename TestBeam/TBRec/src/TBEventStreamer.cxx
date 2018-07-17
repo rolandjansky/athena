@@ -3,14 +3,8 @@
 */
 
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ListItem.h"
-
-#include "StoreGate/StoreGateSvc.h"
-
-#include "TBRec/TBEventStreamerTool.h"
-#include "TBRec/TBEventStreamer.h"
+#include "TBEventStreamerTool.h"
+#include "TBEventStreamer.h"
 
 TBEventStreamer::TBEventStreamer(const std::string& name,
 				 ISvcLocator* pService)

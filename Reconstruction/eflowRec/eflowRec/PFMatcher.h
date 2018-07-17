@@ -28,6 +28,9 @@ struct MatchDistance {
   bool m_isMatch;
 };
 
+/**
+Checks if a cluster should be matched to a track or not, and has methods to return list of best matches.
+*/
 class TrackClusterMatcher {
 public:
   TrackClusterMatcher( std::unique_ptr<IDistanceProvider> distanceProvider, double matchCut):

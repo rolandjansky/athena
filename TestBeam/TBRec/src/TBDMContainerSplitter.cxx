@@ -2,16 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ListItem.h"
+#include "TBDMContainerSplitter.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "CaloDmDetDescr/CaloDmDescrManager.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
-
-#include "TBRec/TBDMContainerSplitter.h"
 
 TBDMContainerSplitter::TBDMContainerSplitter(const std::string& name, 
 				   ISvcLocator* pSvcLocator) : 

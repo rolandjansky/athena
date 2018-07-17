@@ -220,21 +220,21 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
 
   if (m_do2DMaps && !m_doOnline) {
     for (int i = 0; i < ErrorCategoryMODROD::COUNT - 3; i++) {
-      m_errhist_errtype_map[i] = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW(error_type_labels[i].first, ("Total " + error_type_labels[i].second + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true));
+      m_errhist_errtype_map[i] = std::make_unique<PixelMon2DMapsLW>(error_type_labels[i].first, ("Total " + error_type_labels[i].second + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true);
       sc = m_errhist_errtype_map[i]->regHist(rodHistos);
     }
     for (int i = 0; i < ErrorCategory::COUNT; i++) {
-      m_errhist_errcat_map[i] = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW(error_cat_labels[i].first, ("Total " + error_cat_labels[i].second + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true));
+      m_errhist_errcat_map[i] = std::make_unique<PixelMon2DMapsLW>(error_cat_labels[i].first, ("Total " + error_cat_labels[i].second + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true);
       sc = m_errhist_errcat_map[i]->regHist(rodHistos);
     }
   }
 
   if (m_do2DMaps) {
-    m_errhist_femcc_errwords_map = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("femcc_errorwords", ("Average FE/MCC Error Words" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D));
+    m_errhist_femcc_errwords_map = std::make_unique<PixelMon2DProfilesLW>("femcc_errorwords", ("Average FE/MCC Error Words" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D);
     sc = m_errhist_femcc_errwords_map->regHist(rodHistos);
-    m_errhist_bitstr_occ_errors = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("Bitstr_Occ_Errors", ("Average Bit-Stream Occupancy (FE/MCC Errors, at 100k L1)" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL, true));
+    m_errhist_bitstr_occ_errors = std::make_unique<PixelMon2DProfilesLW>("Bitstr_Occ_Errors", ("Average Bit-Stream Occupancy (FE/MCC Errors, at 100k L1)" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL, true);
     sc = m_errhist_bitstr_occ_errors->regHist(rodHistos);
-    m_errhist_bitstr_occ_tot = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("Bitstr_Occ_Tot", ("Average Bit-Stream Occupancy (at 100k L1)" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL, true));
+    m_errhist_bitstr_occ_tot = std::make_unique<PixelMon2DProfilesLW>("Bitstr_Occ_Tot", ("Average Bit-Stream Occupancy (at 100k L1)" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL, true);
     sc = m_errhist_bitstr_occ_tot->regHist(rodHistos);
   }
 
@@ -256,7 +256,7 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
     }
     hname = makeHistname((error_state_labels[j].first + "_Map"), false);
     htitles = makeHisttitle((error_state_labels[j].second + " per event per LB"), "", false);
-    m_errhist_expert_maps[j] = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW(hname.c_str(), htitles.c_str(), PixMon::HistConf::kPix, true));
+    m_errhist_expert_maps[j] = std::make_unique<PixelMon2DMapsLW>(hname.c_str(), htitles.c_str(), PixMon::HistConf::kPix, true);
     sc = m_errhist_expert_maps[j]->regHist(rodExpert);
   }
 
@@ -271,7 +271,7 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
   for (int j = kNumErrorStates; j < kNumErrorStates + kNumErrorStatesIBL; j++) {
     hname = makeHistname((error_state_labelsIBL[j - kNumErrorStates].first + "_Map"), false);
     htitles = makeHisttitle((error_state_labelsIBL[j - kNumErrorStates].second + " per event per LB"), "", false);
-    m_errhist_expert_maps[j] = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW(hname.c_str(), htitles.c_str(), PixMon::HistConf::kDBMIBL, m_doIBL));
+    m_errhist_expert_maps[j] = std::make_unique<PixelMon2DMapsLW>(hname.c_str(), htitles.c_str(), PixMon::HistConf::kDBMIBL, m_doIBL);
     sc = m_errhist_expert_maps[j]->regHist(rodExpert);
   }
 
@@ -318,13 +318,13 @@ StatusCode PixelMainMon::bookRODErrorLumiBlockMon(void) {
   StatusCode sc;
 
   if (m_do2DMaps && !m_doOnline) {
-    m_errors_LB = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("Errors_LB", ("Errors" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true));
+    m_errors_LB = std::make_unique<PixelMon2DMapsLW>("Errors_LB", ("Errors" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true);
     sc = m_errors_LB->regHist(lumiBlockHist);
 
-    m_errors_RODSync_mod = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("Errors_RODSync_LB", ("Errors_RODSync" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true));
+    m_errors_RODSync_mod = std::make_unique<PixelMon2DMapsLW>("Errors_RODSync_LB", ("Errors_RODSync" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true);
     sc = m_errors_RODSync_mod->regHist(lumiBlockHist);
 
-    m_errors_ModSync_mod = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("Errors_ModSync_LB", ("Errors_ModSync" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true));
+    m_errors_ModSync_mod = std::make_unique<PixelMon2DMapsLW>("Errors_ModSync_LB", ("Errors_ModSync" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, true);
     sc = m_errors_ModSync_mod->regHist(lumiBlockHist);
   }
 
