@@ -56,33 +56,30 @@ StatusCode TauRunnerAlg::initialize() {
         return StatusCode::FAILURE;
     }
 
+    ATH_CHECK( m_tauInputContainer.initialize() );
+
+    ATH_CHECK( m_tauOutputContainer.initialize() );
     ATH_CHECK( m_neutralPFOOutputContainer.initialize() );
     ATH_CHECK( m_pi0ClusterOutputContainer.initialize() );
     ATH_CHECK( m_hadronicPFOOutputContainer.initialize() );
     ATH_CHECK( m_vertexOutputContainer.initialize() );
     ATH_CHECK( m_chargedPFOOutputContainer.initialize() );
-    StatusCode sc;
 
     //-------------------------------------------------------------------------
     // Allocate tools
     //-------------------------------------------------------------------------
+    ATH_CHECK( m_tools.retrieve() );
+
     ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
     ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
+
     ATH_MSG_INFO("List of tools in execution sequence:");
     ATH_MSG_INFO("------------------------------------");
-
     unsigned int tool_count = 0;
-
     for (; itT != itTE; ++itT) {
-        sc = itT->retrieve();
-        if (sc.isFailure()) {
-            ATH_MSG_WARNING("Cannot find tool named <" << *itT << ">");
-	    return StatusCode::FAILURE;
-        } else {
-            ++tool_count;
-            ATH_MSG_INFO((*itT)->type() << " - " << (*itT)->name());
-	    (*itT)->setTauEventData(&m_data);
-	}
+      ++tool_count;
+      ATH_MSG_INFO((*itT)->type() << " - " << (*itT)->name());
+      (*itT)->setTauEventData(&m_data);
     }
     ATH_MSG_INFO(" ");
     ATH_MSG_INFO("------------------------------------");
@@ -91,11 +88,7 @@ StatusCode TauRunnerAlg::initialize() {
         ATH_MSG_ERROR("could not allocate any tool!");
         return StatusCode::FAILURE;
     }
-
     ///////////////////////////////////////////////////////////////////////////
-
-    ATH_CHECK( m_tauInputContainer.initialize() );
-    ATH_CHECK( m_tauOutputContainer.initialize() );
 
     return StatusCode::SUCCESS;
 }
@@ -125,7 +118,6 @@ StatusCode TauRunnerAlg::finalize() {
   } else  {
   }
 
-
   return StatusCode::SUCCESS;
 
 }
@@ -136,8 +128,6 @@ StatusCode TauRunnerAlg::finalize() {
 StatusCode TauRunnerAlg::execute() {
   
   StatusCode sc;
-
-
 
     // write neutral PFO container
     xAOD::PFOContainer* neutralPFOContainer = new xAOD::PFOContainer();
@@ -225,8 +215,9 @@ StatusCode TauRunnerAlg::execute() {
           sc = (*itT)->executePi0ClusterCreator(*pTau, *neutralPFOContainer, *hadronicClusterPFOContainer, *pi0CaloClusterContainer);
         }
 	else if ( (*itT)->name().find("Pi0ClusterScaler") != std::string::npos){
-	sc = (*itT)->executePi0ClusterScaler(*pTau, *chargedPFOContainer);
-	}else {
+	  sc = (*itT)->executePi0ClusterScaler(*pTau, *chargedPFOContainer);
+	}
+	else {
 	  sc = (*itT)->execute(*pTau);
 	}
 	if (sc.isFailure())

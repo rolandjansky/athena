@@ -53,9 +53,14 @@ TauProcessorAlg::~TauProcessorAlg() {
 //-----------------------------------------------------------------------------
 StatusCode TauProcessorAlg::initialize() {
 
+    ATH_CHECK( m_jetInputContainer.initialize() );
+    ATH_CHECK( m_tauOutputContainer.initialize() );
+    ATH_CHECK( m_tauTrackOutputContainer.initialize() );
+    ATH_CHECK( m_tauShotClusOutputContainer.initialize() );
+    ATH_CHECK( m_tauShotPFOOutputContainer.initialize() );
+    ATH_CHECK( m_tauPi0CellOutputContainer.initialize() );
 
-    //ATH_MSG_INFO("FF::TauProcessorAlg :: initialize()");
-  CHECK( m_cellMakerTool.retrieve() );
+    ATH_CHECK( m_cellMakerTool.retrieve() );
 
     //-------------------------------------------------------------------------
     // No tools allocated!
@@ -65,30 +70,21 @@ StatusCode TauProcessorAlg::initialize() {
         return StatusCode::FAILURE;
     }
 
-    StatusCode sc;
-
-
     //-------------------------------------------------------------------------
     // Allocate tools
     //-------------------------------------------------------------------------
+    ATH_CHECK( m_tools.retrieve() );
     ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
     ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
     ATH_MSG_INFO("List of tools in execution sequence:");
     ATH_MSG_INFO("------------------------------------");
 
-
     unsigned int tool_count = 0;
 
     for (; itT != itTE; ++itT) {
-        sc = itT->retrieve();
-        if (sc.isFailure()) {
-            ATH_MSG_WARNING("Cannot find tool named <" << *itT << ">");
-	    return StatusCode::FAILURE;
-        } else {
-            ++tool_count;
-            ATH_MSG_INFO((*itT)->type() << " - " << (*itT)->name());
-	    (*itT)->setTauEventData(&m_data);
-	}
+      ++tool_count;
+      ATH_MSG_INFO((*itT)->type() << " - " << (*itT)->name());
+      (*itT)->setTauEventData(&m_data);
     }
     ATH_MSG_INFO(" ");
     ATH_MSG_INFO("------------------------------------");
@@ -99,13 +95,6 @@ StatusCode TauProcessorAlg::initialize() {
     }
 
     ///////////////////////////////////////////////////////////////////////////
-
-    ATH_CHECK( m_jetInputContainer.initialize() );
-    ATH_CHECK( m_tauOutputContainer.initialize() );
-    ATH_CHECK( m_tauTrackOutputContainer.initialize() );
-    ATH_CHECK( m_tauShotClusOutputContainer.initialize() );
-    ATH_CHECK( m_tauShotPFOOutputContainer.initialize() );
-    ATH_CHECK( m_tauPi0CellOutputContainer.initialize() );
 
     return StatusCode::SUCCESS;
 }
