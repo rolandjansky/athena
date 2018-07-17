@@ -34,7 +34,7 @@ namespace CP {
   ///
   /// To apply the recommendations, please visit
   /// https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TrackingCPRecsEarly2018#Track_to_Vertex_Association_Tool
-  class TrackVertexAssociationTool : virtual public asg::AsgTool, virtual public ITrackVertexAssociationTool
+  class TrackVertexAssociationTool : public asg::AsgTool, virtual public ITrackVertexAssociationTool
   {
     // MatchCode for the matching
     enum MatchStatus{
