@@ -8,6 +8,7 @@
 // for accessing info from the DB
 #include "MuonCondInterface/IMuonAlignmentErrorDbSvc.h"
 #include "MuonCondSvc/MuonAlignmentErrorData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "TrkToolInterfaces/ITrkAlignmentDeviationTool.h"
 #include "MuonAlignErrorBase/AlignmentDeviation.h"
@@ -97,6 +98,8 @@ namespace MuonAlign {
       int sector(MuonCalib::MuonFixedId calibId) const;
       int hardwareEta(MuonCalib::MuonFixedId calibId) const;
       bool isSmallSector(MuonCalib::MuonFixedId calibId) const;
+
+      SG::ReadCondHandleKey<MuonAlignmentErrorData> m_readKey{this, "ReadKey", "MuonAlignmentErrorData", "Key of MuonAlignmentErrorData"};
 
   };
 }

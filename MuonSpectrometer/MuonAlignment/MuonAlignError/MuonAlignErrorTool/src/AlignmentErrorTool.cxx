@@ -101,6 +101,8 @@ StatusCode AlignmentErrorTool::initialize() {
         ATH_MSG_INFO("Call-back to DB returned status success");
 
   }
+
+  ATH_CHECK(m_readKey.initialize());
     
   return StatusCode::SUCCESS;
 
@@ -133,6 +135,47 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
      m_deviationsVec[i]->sumW2 = 0.;
   }
 
+  SG::ReadCondHandle<MuonAlignmentErrorData> readHandle{m_readKey};
+  const MuonAlignmentErrorData* readCdo{*readHandle};
+  if(readCdo==0){
+    ATH_MSG_ERROR("Null pointer to the read conditions object");
+    std::cout<<"ckato Null pointer to the read conditions object"<<std::endl;
+    return;
+  }
+  std::vector<deviationStr> devStrVec;
+  readCdo->getVec(devStrVec);
+  std::vector<deviationSummary_t*> devSumVec;
+  for(unsigned int i=0; i < devStrVec.size(); i++) {
+    deviationSummary_t* tmp = new deviationSummary_t;
+    tmp->traslation = devStrVec[i].traslation;
+    tmp->rotation = devStrVec[i].rotation;
+    tmp->stationName = devStrVec[i].stationName;
+    tmp->multilayer = devStrVec[i].multilayer;
+    tmp->hits.clear();
+    Amg::Vector3D nullvec(0., 0., 0.);
+    tmp->sumP = nullvec;
+    tmp->sumU = nullvec;
+    tmp->sumV = nullvec;
+    tmp->sumW2 = 0.;
+    devSumVec.push_back(tmp);
+  }
+
+  for(unsigned int i=0; i < m_deviationsVec.size(); i++) {
+    std::cout<<"ckato m_deviationsVec i "<<i
+	     <<" traslation "<<m_deviationsVec[i]->traslation
+	     <<" rotation "<<m_deviationsVec[i]->rotation
+	     <<" stationName "<<m_deviationsVec[i]->stationName
+	     <<" multilayer "<<m_deviationsVec[i]->multilayer
+	     <<std::endl; 
+  }
+  for(unsigned int i=0; i < devSumVec.size(); i++) {
+    std::cout<<"ckato devSumVec i "<<i
+	     <<" traslation "<<devSumVec[i]->traslation
+	     <<" rotation "<<devSumVec[i]->rotation
+	     <<" stationName "<<devSumVec[i]->stationName
+	     <<" multilayer "<<devSumVec[i]->multilayer
+	     <<std::endl; 
+  }    
 
   typedef DataVector< const Trk::TrackStateOnSurface > tsosc_t;
   const tsosc_t* tsosc = track.trackStateOnSurfaces();
@@ -354,6 +397,10 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
   // NOW EMPTY THE LOCAL DEVIATIONS VECTOR //
   for(unsigned int iDev=0; iDev < new_deviationsVec.size(); iDev++) {
      delete new_deviationsVec[iDev];
+  }
+
+  for(unsigned int iDev=0; iDev < devSumVec.size(); iDev++) {
+    delete devSumVec[iDev];
   }
 
   //ATH_MSG_DEBUG("Currently we have " << AlignmentErrorTool::deviationSummary_t::i_instance << " deviation vectors");
