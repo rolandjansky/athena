@@ -280,10 +280,8 @@ def getAntiKt10LCTopoCaloClusterThinning(tool_prefix, thinning_helper, **kwargs)
     kwargs.setdefault('SGKey',                'AntiKt10LCTopoJets')
     kwargs.setdefault('SelectionString',      '(AntiKt10LCTopoJets.pt > 100*GeV && abs(AntiKt10LCTopoJets.eta)<2.6)')
     kwargs.setdefault('AdditionalClustersKey', ["EMOriginTopoClusters","LCOriginTopoClusters","CaloCalTopoClusters"])
-    return getJetCaloClusterThinning(tool_prefix,
-                                     thinning_helper,
-                                     AdditionalClustersKey = kwargs.pop('AdditionalClustersKey'),
-                                     **kwargs)
+    return getJetCaloClusterThinning(tool_prefix, thinning_helper, **kwargs)
+
 
 def getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning(tool_prefix, thinning_helper) :
     from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
