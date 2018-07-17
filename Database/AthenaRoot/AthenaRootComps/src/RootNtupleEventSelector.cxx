@@ -49,6 +49,7 @@
 
 #include "TObject.h"
 #include "TTree.h"
+#include "TRegexp.h"
 CLASS_DEF( TObject,    74939790 , 1 )
 #include "AthenaRootComps/TransferTree.h"
 
@@ -296,6 +297,20 @@ RootNtupleEventSelector::RootNtupleEventSelector( const std::string& name,
 RootNtupleEventSelector::~RootNtupleEventSelector()
 {}
 
+
+void getTreeNames( TList* keys , std::vector<std::string>& treeNames, const std::string& path ) {
+  TIter keyIter(keys);
+  TKey* key;
+  while( (key = (TKey*)keyIter()) ) {
+    if(strcmp(key->GetClassName(),"TTree")==0) {
+      treeNames.push_back(path+key->GetName());
+    } else if(strcmp(key->GetClassName(),"TDirectoryFile")==0) {
+      TDirectory* dir = static_cast<TDirectory*>(key->ReadObj());
+      getTreeNames( dir->GetListOfKeys() , treeNames, path + key->GetName() + "/" );
+    }
+  }
+}
+
 StatusCode RootNtupleEventSelector::initialize()
 {
   ATH_MSG_INFO ("Enter RootNtupleEventSelector initialization...");
@@ -341,6 +356,54 @@ StatusCode RootNtupleEventSelector::initialize()
       ("Selector configured to read [" << nbrInputFiles << "] file(s)..."
        << endmsg
        << "                      TTree [" << m_tupleName.value() << "]");
+  }
+  
+  
+  bool hasWildcards(false);
+  for(auto& tupleName : m_tupleNames) {
+    if(tupleName.find("*")!=std::string::npos) {
+      hasWildcards=true; break;
+    }
+  }
+  
+  if(hasWildcards) {
+    //use the first file to resolve the tree names ...
+    std::unique_ptr<TFile> firstFile( TFile::Open( m_inputCollectionsName.value()[0].c_str() ) );
+    if(!firstFile) {
+      ATH_MSG_FATAL("Could not open the first input file: " << m_inputCollectionsName.value()[0]);
+      return StatusCode::FAILURE;
+    }
+    
+    
+    
+    
+    
+    //get all tree names ...
+    std::vector<std::string> treeNames;
+    getTreeNames( firstFile->GetListOfKeys(), treeNames, "" );
+    
+    
+    std::vector<std::string> foundTupleNames;
+    for(auto& tupleName : m_tupleNames) {
+      TRegexp re(tupleName.c_str(),true);
+      
+      for(auto& treeName : treeNames) {
+        Ssiz_t tmp;
+        if(re.Index(treeName,&tmp)==-1) continue;
+        foundTupleNames.push_back(treeName);
+        ATH_MSG_INFO("Will read tree: " << treeName);
+      }
+    }
+    firstFile->Close();
+    m_tupleNames = foundTupleNames;
+    
+    if ( m_tupleNames.empty() ) {
+      ATH_MSG_ERROR
+        ("No matching trees found");
+      return StatusCode::FAILURE;
+    } 
+    
+    
   }
 
   {
