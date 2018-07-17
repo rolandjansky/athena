@@ -290,6 +290,8 @@ RootNtupleEventSelector::RootNtupleEventSelector( const std::string& name,
                    "List of branch names to activate" );
   
   declareProperty( "CreateEventInfo", m_createEventInfo=false, "Are EventInfo objects created per event or not? .. there is overhead to their creation" );
+  
+  declareProperty( "IgnoreMissingTrees", m_ignoreMissingTrees=false, "If True, missing trees will not terminate the event loop" );
 }
 
 // Destructor
@@ -298,12 +300,12 @@ RootNtupleEventSelector::~RootNtupleEventSelector()
 {}
 
 
-void getTreeNames( TList* keys , std::vector<std::string>& treeNames, const std::string& path ) {
+void getTreeNames( TList* keys , std::set<std::string>& treeNames, const std::string& path ) {
   TIter keyIter(keys);
   TKey* key;
   while( (key = (TKey*)keyIter()) ) {
     if(strcmp(key->GetClassName(),"TTree")==0) {
-      treeNames.push_back(path+key->GetName());
+      treeNames.insert(path+key->GetName());
     } else if(strcmp(key->GetClassName(),"TDirectoryFile")==0) {
       TDirectory* dir = static_cast<TDirectory*>(key->ReadObj());
       getTreeNames( dir->GetListOfKeys() , treeNames, path + key->GetName() + "/" );
@@ -367,26 +369,28 @@ StatusCode RootNtupleEventSelector::initialize()
   }
   
   if(hasWildcards) {
-    //use the first file to resolve the tree names ...
-    std::unique_ptr<TFile> firstFile( TFile::Open( m_inputCollectionsName.value()[0].c_str() ) );
-    if(!firstFile) {
-      ATH_MSG_FATAL("Could not open the first input file: " << m_inputCollectionsName.value()[0]);
-      return StatusCode::FAILURE;
+    //use the all files to resolve the tree names ...
+
+    std::set<std::string> treeNames;
+    for(unsigned int i=0;i<m_inputCollectionsName.value().size();i++) {
+      std::unique_ptr<TFile> theFile( TFile::Open( m_inputCollectionsName.value()[i].c_str() ) );
+      if(!theFile) {
+        ATH_MSG_FATAL("Could not open the first input file: " << m_inputCollectionsName.value()[i]);
+        return StatusCode::FAILURE;
+      }
+      getTreeNames( theFile->GetListOfKeys(), treeNames, "" );
+      theFile->Close();
     }
     
     
     
+   
     
-    
-    //get all tree names ...
-    std::vector<std::string> treeNames;
-    getTreeNames( firstFile->GetListOfKeys(), treeNames, "" );
     
     
     std::vector<std::string> foundTupleNames;
     for(auto& tupleName : m_tupleNames) {
       TRegexp re(tupleName.c_str(),true);
-      
       for(auto& treeName : treeNames) {
         Ssiz_t tmp;
         if(re.Index(treeName,&tmp)==-1) continue;
@@ -394,7 +398,7 @@ StatusCode RootNtupleEventSelector::initialize()
         ATH_MSG_INFO("Will read tree: " << treeName);
       }
     }
-    firstFile->Close();
+    
     m_tupleNames = foundTupleNames;
     
     if ( m_tupleNames.empty() ) {
@@ -596,6 +600,10 @@ RootNtupleEventSelector::next( IEvtSelector::Context& ctx ) const
         const std::string& fname = fnames[fidx];
         tree = fetchNtuple(fname, m_tupleNames[rctx->tupleIndex()]);
         if (!tree) {
+          if(m_ignoreMissingTrees) {
+            ATH_MSG_WARNING("Unable to get tree: " << m_tupleNames[rctx->tupleIndex()] << " from file: " << fname);
+            fidx++;continue;
+          }
           throw "RootNtupleEventSelector: Unable to get tree";
         }
         rctx->setTree(tree);
@@ -1187,7 +1195,7 @@ RootNtupleEventSelector::fetchNtuple(const std::string& fname,
     }
   }
   if (!f || f->IsZombie()) {
-    ATH_MSG_ERROR("could not open next file in input collection ["
+    if(!m_ignoreMissingTrees) ATH_MSG_ERROR("could not open next file in input collection ["
                   << fname << "]");
     if (f) {
       f->Close();
@@ -1197,7 +1205,7 @@ RootNtupleEventSelector::fetchNtuple(const std::string& fname,
   // std::cout << "::TFile::GetTree(" << m_tupleName << ")..." << std::endl;
   tree = static_cast<TTree*>(f->Get(tupleName.c_str()));
   if (!tree) {
-    ATH_MSG_ERROR("could not retrieve tree [" << tupleName << "]"
+    if(!m_ignoreMissingTrees) ATH_MSG_ERROR("could not retrieve tree [" << tupleName << "]"
                   << " from file [" << fname << "]");
     f->Close();
     return tree;
@@ -1310,7 +1318,7 @@ RootNtupleEventSelector::do_init_io()
 
   m_tuple = fetchNtuple(m_inputCollectionsName.value()[m_collIdx],
                         m_tupleNames[0]);
-  if (!m_tuple) {
+  if (!m_tuple && !m_ignoreMissingTrees) {
     throw "RootNtupleEventSelector: Unable to fetch Ntuple";
   }
 
@@ -1345,7 +1353,7 @@ RootNtupleEventSelector::find_coll_idx (int evtidx,
       if (itr.min_entries == -1) {
         TTree *tree = fetchNtuple(m_inputCollectionsName.value()[icoll],
                                   m_tupleNames[ituple]);
-        if (tree) {
+        if (tree || m_ignoreMissingTrees) {
           long offset = 0;
           if (icoll > 0) {
             offset = m_collEvts[ituple][icoll-1].max_entries;
@@ -1353,7 +1361,7 @@ RootNtupleEventSelector::find_coll_idx (int evtidx,
           else if (ituple > 0) {
             offset = m_collEvts[ituple-1].back().max_entries;
           }
-          itr.entries = tree->GetEntriesFast();
+          itr.entries = (tree) ? tree->GetEntriesFast() : 0;
           itr.min_entries = offset;
           itr.max_entries = offset + itr.entries;
         } else {
