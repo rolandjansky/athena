@@ -65,9 +65,6 @@ namespace MuonAlign {
         double sumW2;
       };
 
-      bool m_read_local_file;
-      std::string m_local_input_filename;
-
       // SOME USEFUL METHODS //
       // GET STATION EXACT NAME, FROM: https://svnweb.cern.ch/cern/wsvn/atlas-giraudpf/giraudpf/MuonSpectrometer/MuonAlignment/MuonAlignTrk/trunk/MuonAlignTrk/MuonFixedId.h
       std::string hardwareName(MuonCalib::MuonFixedId calibId) const;

@@ -34,8 +34,6 @@ AlignmentErrorTool::AlignmentErrorTool(const std::string& t, const std::string& 
   declareInterface<Trk::ITrkAlignmentDeviationTool>(this);
   declareProperty("idTool", m_idTool);
   declareProperty("IdHelper", m_idHelper );
-  declareProperty("read_local_file", m_read_local_file=false);
-  declareProperty("local_input_filename", m_local_input_filename="");
 }
 
 AlignmentErrorTool::~AlignmentErrorTool() {
@@ -59,44 +57,6 @@ StatusCode AlignmentErrorTool::initialize() {
 
   ATH_CHECK( m_idTool.retrieve() );
   ATH_CHECK( m_idHelper.retrieve() );
-  /*
-  // MAP DEVIATION INITIALIZATION
-  // from local file
-  if ( m_read_local_file ) {
-     // THESE METHODS SHOULD BE CALLED AT EACH CALL-BACK
-     std::string full_input_filename = PathResolver::find_file( m_local_input_filename, "DATAPATH");
-     std::ifstream indata(full_input_filename.c_str());
-     initializeAlignmentDeviationsList( indata );
-     ATH_MSG_INFO("filename " << m_local_input_filename );
-     ATH_MSG_INFO("*****************************************");     
-     //ATH_MSG_DEBUG("###########################################");
-     //ATH_MSG_DEBUG("List of deviations updated");
-     //ATH_MSG_DEBUG(data.str());
-     //ATH_MSG_DEBUG("###########################################");
-  } else {
-  // from DB
-
-    ATH_CHECK( m_pMuonAlignmentErrorDbSvc.retrieve() );
-
-    // FIRST INITIALIZATION TO ENFORCE TOOL CORRECTLY CONFIGURED
-    int I=0;
-    std::list<std::string> keys;
-    if (update(I,keys).isFailure()) {
-      return StatusCode::FAILURE;
-    }
-
-    // INITIALIZE TOOL TO EXTRACT INFO FROM DB
-    if ( detStore()->regFcn(&IMuonAlignmentErrorDbSvc::initInfo,
-        &*m_pMuonAlignmentErrorDbSvc,
-        &AlignmentErrorTool::update, this) != StatusCode::SUCCESS ) {
-    
-        ATH_MSG_INFO("Call-back to DB returned status failure, loading a new list of deviations from the DB");
-    
-    } else
-        ATH_MSG_INFO("Call-back to DB returned status success");
-
-  }
-  */
   ATH_CHECK(m_readKey.initialize());
     
   return StatusCode::SUCCESS;
