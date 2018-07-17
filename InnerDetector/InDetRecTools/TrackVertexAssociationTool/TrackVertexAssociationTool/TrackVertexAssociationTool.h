@@ -48,8 +48,6 @@ namespace CP {
 
       StatusCode initialize();
 
-      void print() const;
-
       virtual bool isCompatible( const xAOD::TrackParticle &trk, const xAOD::Vertex &vx ) const override;
 
       virtual xAOD::TrackVertexAssociationMap getMatchMap( std::vector< const xAOD::TrackParticle *> &trk_list, std::vector< const xAOD::Vertex *> &vx_list) const override;

@@ -100,8 +100,6 @@ StatusCode TrackVertexAssociationTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-void TrackVertexAssociationTool::print() const {}
-
 bool TrackVertexAssociationTool::isCompatible(
     const xAOD::TrackParticle &trk, const xAOD::Vertex &vx) const
 {
