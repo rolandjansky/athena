@@ -50,16 +50,16 @@ namespace CP {
 
       void print() const;
 
-      bool isCompatible( const xAOD::TrackParticle &trk, const xAOD::Vertex &vx ) const;
+      virtual bool isCompatible( const xAOD::TrackParticle &trk, const xAOD::Vertex &vx ) const override;
 
-      xAOD::TrackVertexAssociationMap getMatchMap( std::vector< const xAOD::TrackParticle *> &trk_list, std::vector< const xAOD::Vertex *> &vx_list) const;
-      xAOD::TrackVertexAssociationMap getMatchMap( const xAOD::TrackParticleContainer &trkCont, const xAOD::VertexContainer &vxCont ) const;
+      virtual xAOD::TrackVertexAssociationMap getMatchMap( std::vector< const xAOD::TrackParticle *> &trk_list, std::vector< const xAOD::Vertex *> &vx_list) const override;
+      virtual xAOD::TrackVertexAssociationMap getMatchMap( const xAOD::TrackParticleContainer &trkCont, const xAOD::VertexContainer &vxCont ) const override;
 
-      ElementLink< xAOD::VertexContainer> getUniqueMatchVertexLink(const xAOD::TrackParticle &, const xAOD::VertexContainer &vxCont) const;
-      const xAOD::Vertex* getUniqueMatchVertex( const xAOD::TrackParticle &trk, std::vector< const xAOD::Vertex *> &vx_list) const;
+      virtual ElementLink< xAOD::VertexContainer> getUniqueMatchVertexLink(const xAOD::TrackParticle &, const xAOD::VertexContainer &vxCont) const override;
+      virtual const xAOD::Vertex* getUniqueMatchVertex( const xAOD::TrackParticle &trk, std::vector< const xAOD::Vertex *> &vx_list) const override;
 
-      xAOD::TrackVertexAssociationMap getUniqueMatchMap( std::vector< const xAOD::TrackParticle *> &trk_list , std::vector< const xAOD::Vertex *> &vx_list) const;
-      xAOD::TrackVertexAssociationMap getUniqueMatchMap( const xAOD::TrackParticleContainer &trkCont , const xAOD::VertexContainer &vxCont) const;
+      virtual xAOD::TrackVertexAssociationMap getUniqueMatchMap( std::vector< const xAOD::TrackParticle *> &trk_list , std::vector< const xAOD::Vertex *> &vx_list) const override;
+      virtual xAOD::TrackVertexAssociationMap getUniqueMatchMap( const xAOD::TrackParticleContainer &trkCont , const xAOD::VertexContainer &vxCont) const override;
 
     private:
       /// Checks if a track-vertex pair passes the cuts.  Returns
