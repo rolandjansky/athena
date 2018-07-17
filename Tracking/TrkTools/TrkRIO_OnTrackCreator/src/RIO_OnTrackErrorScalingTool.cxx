@@ -397,6 +397,8 @@ Trk::RIO_OnTrackErrorScalingTool::createScaledPixelCovariance
          && m_scaling_pix[idx+1].size()>1 );
 
   scale2by2(*newCov,m_scaling_pix[idx] /* phi */ ,m_scaling_pix[idx+1] /* eta */);
+  std::cout << "DEBUG createScaledPixelCovariance region:" << s_pix_names[idx] << " " << inputCov << " -> " << *newCov << std::endl;
+
   if (msgLvl(MSG::VERBOSE)) {
     msg(MSG::VERBOSE) << "changing original Pix-" << (idx==kPixEndcapPhi ? "EC " : (idx==kPixIBLPhi ? "IBL" : "BR " )) << " cov " << endmsg;
     msg(MSG::VERBOSE) << inputCov << " to "<< *newCov
@@ -434,6 +436,7 @@ double sinLocalAngle) const
     (*newCov)(0,0) *= a*a;
     (*newCov)(0,0) += b*b;
   }
+  std::cout << "DEBUG createScaledSctCovariance endcap:" << is_endcap << " angle=" << sinLocalAngle  << " " << inputCov << " -> " << *newCov << std::endl;
   return newCov;
 }
 
@@ -460,6 +463,7 @@ Trk::RIO_OnTrackErrorScalingTool::createScaledTrtCovariance
   (*newCov)(0,0) *= a*a;
   (*newCov)(0,0) += b*b;
   (*newCov)(0,0) *= (1. + m_mu * c); 
+  std::cout << "DEBUG createScaledTrtCovariance endcap:" << is_endcap << " mu=" << m_mu  << " " << inputCov << " -> " << *newCov << std::endl;
   return newCov;
 }
 
