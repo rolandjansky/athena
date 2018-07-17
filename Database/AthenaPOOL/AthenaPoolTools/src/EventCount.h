@@ -30,6 +30,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "PersistentDataModel/Guid.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "EventInfo/EventID.h"
 
 class IClassIDSvc;
@@ -59,7 +61,8 @@ public:
   
 private:
   bool m_dump;                     /// PROP If dump is set to true then the 
-				   ///  object summary will be printed 
+				   ///  object summary will be printed
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey;
   ServiceHandle<IClassIDSvc> m_pCLIDSvc;
   
   int m_nev;                        /// Event count for output
