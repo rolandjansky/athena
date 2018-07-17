@@ -7,6 +7,7 @@
 
 // for accessing info from the DB
 #include "MuonCondInterface/IMuonAlignmentErrorDbSvc.h"
+#include "MuonCondSvc/MuonAlignmentErrorData.h"
 
 #include "TrkToolInterfaces/ITrkAlignmentDeviationTool.h"
 #include "MuonAlignErrorBase/AlignmentDeviation.h"
