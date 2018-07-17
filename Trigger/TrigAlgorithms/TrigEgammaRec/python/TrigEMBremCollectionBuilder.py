@@ -1,11 +1,18 @@
-class TrigEMBremCollectionBuilder() :
-  def __init__(self, name="TrigEMBremCollectionBuilder"):
-    mlog = logging.getLogger(name)
+from egammaTools import egammaToolsConf
 
+class TrigEMBremCollectionBuilder(egammaToolsConf.EMBremCollectionBuilder) :
+  __slots__ = ()
+  def __init__(self, name="TrigEMBremCollectionBuilder", **kw):
+    from AthenaCommon.Logging import logging
+    mlog = logging.getLogger(name)
+    mlog.info("entering")
+
+    super(TrigEMBremCollectionBuilder, self).__init__(name, **kw)
     
     from egammaTrackTools.egammaTrackToolsConf import egammaTrkRefitterTool
+    from TrigEgammaRec.TrigEgammaTrackTools import GSFTrigTrackFitter,GSFTrigExtrapolator
     GSFTrigRefitterTool = egammaTrkRefitterTool(name = 'GSFTrigRefitterTool',
-                                                FitterTool = egammaRec.EMCommonRefitter.GSFTrigTrackFitter,
+                                                FitterTool = GSFTrigTrackFitter,
                                                 useBeamSpot = False,
                                                 ReintegrateOutliers=True)
     from AthenaCommon.AppMgr import ToolSvc
@@ -23,11 +30,15 @@ class TrigEMBremCollectionBuilder() :
     # Loading Configurable HoleSearchTool
     #
     from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
+    from AthenaCommon.DetFlags import DetFlags
+    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+    from AthenaCommon.GlobalFlags import globalflags
+    
     GSFTrigHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "GSFTrigHoleSearchTool",
-                                                            Extrapolator = GSFTrigInDetExtrapolator,
+                                                            Extrapolator = GSFTrigExtrapolator,
                                                             usePixel      = DetFlags.haveRIO.pixel_on(),
                                                             useSCT        = DetFlags.haveRIO.SCT_on(),
-                                                            checkBadSCTChip = InDetFlags.checkDeadElementsOnTrack(),
+                                                            checkBadSCTChip = InDetTrigFlags.checkDeadElementsOnTrack(),
                                                             CountDeadModulesAfterLastHit = True)
     
     from AthenaCommon.AppMgr import ServiceMgr
@@ -50,13 +61,13 @@ class TrigEMBremCollectionBuilder() :
         ServiceMgr += PixelConditionsSummarySvc()            
         GSFTrigTestBLayerTool = InDet__InDetTestBLayerTool(name            = "GSFTrigTestBLayerTool",
                                                             PixelSummarySvc = ServiceMgr.PixelConditionsSummarySvc,
-                                                            Extrapolator    = GSFTrigInDetExtrapolator)
+                                                            Extrapolator    = GSFTrigExtrapolator)
         ToolSvc += GSFTrigTestBLayerTool
 
     # Configurable version of TRT_ElectronPidTools
     #
     GSFTrigTRT_ElectronPidTool = None
-    if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC() and not InDetFlags.doHighPileup() :
+    if DetFlags.haveRIO.TRT_on() and not InDetTrigFlags.doSLHC() and not InDetTrigFlags.doHighPileup() :
         
         from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
         GSFTrigTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="GSFTrig_TRT_LocalOccupancy")
@@ -109,7 +120,7 @@ class TrigEMBremCollectionBuilder() :
     from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
     GSFTrigInDetParticleCreatorTool = Trk__TrackParticleCreatorTool(name                    = "GSFTrigInDetParticleCreatorTool",
                                                                      KeepParameters          = True,
-                                                                     Extrapolator            = GSFTrigInDetExtrapolator,
+                                                                     Extrapolator            = GSFTrigExtrapolator,
                                                                      TrackSummaryTool        = GSFTrigInDetTrackSummaryTool,
                                                                      UseTrackSummaryTool     = False,
                                                                      ForceTrackSummaryUpdate = False)
@@ -125,11 +136,10 @@ class TrigEMBremCollectionBuilder() :
 
 
     # do the configuration
-    self.ClusterContainerName="LArClusterEM"
-    from InDetRecExample.InDetKeys import InDetKeys
-    self.TrackParticleContainerName=InDetKeys.xAODTrackParticleContainer()
-    self.OutputTrkPartContainerName="GSFTrigTrackParticles"
-    self.OutputTrackContainerName="GSFTrigTracks"
+    # self.ClusterContainerName="LArClusterEM"
+    # self.TrackParticleContainerName=InDetKeys.xAODTrackParticleContainer()
+    # self.OutputTrkPartContainerName="GSFTrigTrackParticles"
+    # self.OutputTrackContainerName="GSFTrigTracks"
     self.TrackRefitTool= GSFTrigRefitterTool
     self.TrackParticleCreatorTool=GSFTrigInDetParticleCreatorTool
     self.TrackSlimmingTool=GSFTrigInDetTrkSlimmingTool

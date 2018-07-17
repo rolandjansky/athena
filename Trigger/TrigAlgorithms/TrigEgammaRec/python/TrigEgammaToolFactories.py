@@ -257,15 +257,7 @@ TrigPhotonSuperClusterBuilder = ToolFactory( egammaToolsConf.photonSuperClusterB
                                          AddCellsWindowPhiCellsEndcap=999
                                          )
 
-from egammaTools.egammaToolsFactories import egammaBremCollectionBuilder
-from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
-
-TrigEMBremCollectionBuilder = ToolFactory( egammaBremCollectionBuilder,
-                                        name = 'TrigEMBremCollectionBuilder',
-                                        ExtrapolationTool = EMExtrapolationTools,
-                                        #OutputTrackContainerName=egammaKeys.outputTrackKey(),
-                                        #ClusterContainerName=egammaKeys.inputClusterKey(),
-                                        #DoTruth=rec.doTruth()
-                                        )
-
+from TrigEgammaRec.TrigEMBremCollectionBuilder import TrigEMBremCollectionBuilder
+TrigEMBremCollectionBuilder = ToolFactory( TrigEMBremCollectionBuilder,
+                                           name = 'TrigEgammaEMBremCollectionBuilder')
 del mlog
