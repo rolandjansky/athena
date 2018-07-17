@@ -22,7 +22,7 @@ else
     joblog=${test}.log
     if [ "$status" = 0 ]
 	then 
-	#echo "[92;1m post_check_co.sh> OK: ${test} exited normally. Output is in $joblog [m"
+	# Exited normally; output in $joblog.
 	reflog=../share/${test}.ref
         grep -e 'RunEventTag' \
              -e 'ByteStreamAtt' \
@@ -101,8 +101,6 @@ else
 		then
 		echo "[97;101;1m post_check_co.sh> ERROR: $joblog and $reflog differ [m"
 		exit 1
-	    else
-		true; #echo "[92;1m post_check_co.sh> OK: $joblog and $reflog identical [m"
 	    fi
 	else
 	    tail $joblog
@@ -119,7 +117,6 @@ fi
 
 # Check output for ERROR/FATAL
 joblog=${test}.log
-#echo 
 
 exit $status
 
