@@ -3729,8 +3729,8 @@ if not TriggerFlags.doFTK():
     chain_list+=ps_ftk_list
 
 Prescales.HLTPrescales_tightperf_mc_prescale.update(dict(map(None,chain_list,len(chain_list)*[ [-1, 0,-1] ])))
-Prescales.L1Prescales_CPSampleProd_mc_prescale= deepcopy(Prescales.L1Prescales)
-Prescales.HLTPrescales_CPSampleProd_mc_prescale = deepcopy(Prescales.HLTPrescales_tightperf_mc_prescale)
+Prescales.L1Prescales_TriggerValidation_mc_prescale= deepcopy(Prescales.L1Prescales)
+Prescales.HLTPrescales_TriggerValidation_mc_prescale = deepcopy(Prescales.HLTPrescales_tightperf_mc_prescale)
 ######################################################
 # TIGHT mc prescales
 ######################################################

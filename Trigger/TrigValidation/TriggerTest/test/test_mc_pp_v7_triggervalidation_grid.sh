@@ -21,8 +21,8 @@
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
 
-export NAME="mc_pp_v7_cpsampleprod_grid"
-export MENU="MC_pp_v7_CPSampleProd_mc_prescale"
+export NAME="mc_pp_v7_triggervalidation_grid"
+export MENU="MC_pp_v7_TriggerValidation_mc_prescale"
 export EVENTS="500"
 
 source exec_athena_art_trigger_validation.sh
