@@ -62,13 +62,13 @@ def lumi(triggerPythonConfig):
             L1Prescales = Prescales.L1Prescales_no_prescale
             HLTPrescales = Prescales.HLTPrescales_no_prescale
             log.info(" HLTPrescales %s" % HLTPrescales)
-        elif 'no_prescale' in menu_name:
-            L1Prescales = Prescales.L1Prescales_no_prescale
-            HLTPrescales = Prescales.HLTPrescales_no_prescale
-            log.info(" HLTPrescales %s" % HLTPrescales)
         elif 'BulkMCProd' in menu_name:
             L1Prescales = Prescales.L1Prescales_BulkMCProd_mc_prescale
             HLTPrescales = Prescales.HLTPrescales_BulkMCProd_mc_prescale
+            log.info(" HLTPrescales %s" % HLTPrescales)
+        elif 'CPSampleProd' in menu_name:
+            L1Prescales = Prescales.L1Prescales_CPSampleProd_mc_prescale
+            HLTPrescales = Prescales.HLTPrescales_CPSampleProd_mc_prescale
             log.info(" HLTPrescales %s" % HLTPrescales)
         elif 'TriggerValidation' in menu_name:
             L1Prescales = Prescales.L1Prescales_TriggerValidation_mc_prescale
