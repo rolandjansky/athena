@@ -24,6 +24,14 @@ namespace CP {
   ///
   /// Supported properties (set via setProperty):
   ///
+  /// - WorkingPoint: Working Point to operate on.
+  /// - d0_cut: Cut on d0. Not applied if set to -1.
+  /// - use_d0sig: flag to cut on d0sig instead of d0.
+  /// - d0sig_cut: Cut on \f$ |d_{0}^{BL} \mathrm{significance}| \f$.  Not applied if set to -1.
+  /// - dzSinTheta_cut: Cut on \f$ |\Delta z_{0}^{BL} \sin \theta| \f$ (in mm).  Not applied if set to -1.
+  /// - doUsedInFit: Control whether to allow for a MatchStatus of UsedInFit.
+  /// - requirePriVtx: Control whether a vertex must be VxType::PriVtx in order for a track (not UsedInFit) to be uniquely matched to it
+  ///
   /// To apply the recommendations, please visit
   /// https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TrackingCPRecsEarly2018#Track_to_Vertex_Association_Tool
   class TrackVertexAssociationTool : virtual public asg::AsgTool, virtual public ITrackVertexAssociationTool
