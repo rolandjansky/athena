@@ -46,7 +46,7 @@ namespace CP {
     public:
       TrackVertexAssociationTool(const std::string& name);
 
-      StatusCode initialize();
+      virtual StatusCode initialize() override;
 
       virtual bool isCompatible( const xAOD::TrackParticle &trk, const xAOD::Vertex &vx ) const override;
 
