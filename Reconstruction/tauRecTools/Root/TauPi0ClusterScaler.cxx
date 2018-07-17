@@ -135,15 +135,13 @@ void TauPi0ClusterScaler::createChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContain
         chargedPFO->setCharge(tauTrack->track()->charge());
         chargedPFO->setP4(tauTrack->p4());
         // link to track
-        if(not chargedPFO->setTrackLink((*tauTrackLink)->trackLinks().at(0))) 
-            ATH_MSG_WARNING("Could not add Track to PFO");
-        // link to tau track
-        ElementLink< xAOD::IParticleContainer > newTauTrackLink;
-        newTauTrackLink.toPersistent();
-        newTauTrackLink.resetWithKeyAndIndex( tauTrackLink.persKey(), tauTrackLink.persIndex() );
-        if(not chargedPFO->setAssociatedParticleLink(xAOD::PFODetails::CaloCluster,newTauTrackLink)) 
-            ATH_MSG_WARNING("Could not add TauTrack to PFO");
-        // link from tau
+	if(not chargedPFO->setTrackLink((*tauTrackLink)->trackLinks().at(0)))
+	  ATH_MSG_WARNING("Could not add Track to PFO");
+	// now directly using tau track link from above
+        if(not chargedPFO->setAssociatedParticleLink(xAOD::PFODetails::CaloCluster,tauTrackLink))
+	  ATH_MSG_WARNING("Could not add TauTrack to PFO");
+
+	// link from tau
         pTau.addProtoChargedPFOLink(ElementLink< xAOD::PFOContainer >
                                     (chargedPFO, cPFOContainer));
     }
@@ -182,24 +180,25 @@ void TauPi0ClusterScaler::associateHadronicToChargedPFOs(xAOD::TauJet& pTau)
                 ATH_MSG_WARNING("ChargedPFO has no associated TauTrack");
                 continue;
             }
-            auto tauTrack = dynamic_cast<const xAOD::TauTrack*>(tauTrackPcleVec.at(0));
-            if( not tauTrack ){
+
+	    auto tauTrack = dynamic_cast<const xAOD::TauTrack*>(tauTrackPcleVec.at(0));
+	    if( not tauTrack ){
                 ATH_MSG_WARNING("Failed to retrieve TauTrack from ChargedPFO");
                 continue;
-            } 
-            float etaCalo = -10.0;
-            float phiCalo = -10.0;
-            if( not tauTrack->detail(xAOD::TauJetParameters::CaloSamplingEtaHad, etaCalo))
-                ATH_MSG_WARNING("Failed to retrieve extrapolated chargedPFO eta");
-            if( not tauTrack->detail(xAOD::TauJetParameters::CaloSamplingPhiHad, phiCalo))
-                ATH_MSG_WARNING("Failed to retrieve extrapolated chargedPFO phi");
+	    }
+	    float etaCalo = -10.0;
+	    float phiCalo = -10.0;
+	    if( not tauTrack->detail(xAOD::TauJetParameters::CaloSamplingEtaHad, etaCalo))
+	      ATH_MSG_WARNING("Failed to retrieve extrapolated chargedPFO eta");
+	    if( not tauTrack->detail(xAOD::TauJetParameters::CaloSamplingPhiHad, phiCalo))
+	      ATH_MSG_WARNING("Failed to retrieve extrapolated chargedPFO phi");
             // calculate dR (false means use eta instead of rapidity)
             float dR = xAOD::P4Helpers::deltaR((**hadPFOLink), etaCalo, phiCalo, false);
             ATH_MSG_DEBUG("chargedPFO, pt: " << chargedPFO->pt()
-                            << ", type: " << tauTrack->flagSet()
-                            << ", eta: " << etaCalo 
-                            << ", phi: " << phiCalo
-                            << ", dR: " << dR );
+			  << ", type: " << tauTrack->flagSet()
+			  << ", eta: " << etaCalo
+			  << ", phi: " << phiCalo
+			  << ", dR: " << dR );
             if (dR < dRmin){
                 dRmin = dR;
                 chargedPFOMatch = chargedPFO;

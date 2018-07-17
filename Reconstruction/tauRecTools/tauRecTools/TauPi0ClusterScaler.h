@@ -64,10 +64,6 @@ private:
     /** @brief associate charged PFOs to neutral PFOs */
     void subtractChargedEnergyFromNeutralPFOs(xAOD::TauJet& pTau);
 
-    /** @brief new charged PFO container and name */
-    xAOD::PFOContainer* m_chargedPFOContainer;
-    xAOD::PFOAuxContainer* m_chargedPFOAuxStore;
-
     /** @brief sets of EM/Had samplings for track extrapolation */
     //std::set<CaloSampling::CaloSample> m_EMSamplings;
     //std::set<CaloSampling::CaloSample> m_HadSamplings;
