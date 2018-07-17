@@ -16,7 +16,7 @@ using namespace std;
 
 namespace CP {
 
-TrackVertexAssociationTool::TrackVertexAssociationTool(std::string name) :
+TrackVertexAssociationTool::TrackVertexAssociationTool(const std::string& name) :
   AsgTool(name),
   m_wp("Nominal"),
   m_d0_cut(-1),

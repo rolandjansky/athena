@@ -36,7 +36,7 @@ namespace CP {
 
     ASG_TOOL_CLASS(TrackVertexAssociationTool, ITrackVertexAssociationTool)
     public:
-      TrackVertexAssociationTool(std::string name);
+      TrackVertexAssociationTool(const std::string& name);
 
       StatusCode initialize();
 
