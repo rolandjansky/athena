@@ -338,12 +338,14 @@ void TauEfficiencyCorrectionsTool::printConfig(bool bAlways)
       ATH_MSG_DEBUG( "  EfficiencyCorrectionTypes " << iEfficiencyCorrectionType );
     ATH_MSG_DEBUG( "  InputFilePathRecoHadTau " << m_sInputFilePathRecoHadTau );
     ATH_MSG_DEBUG( "  InputFilePathEleOLRHadTau " << m_sInputFilePathEleOLRHadTau );
+    ATH_MSG_DEBUG( "  InputFilePathEleOLRElectron " << m_sInputFilePathEleOLRElectron );
     ATH_MSG_DEBUG( "  InputFilePathJetIDHadTau " << m_sInputFilePathJetIDHadTau );
     ATH_MSG_DEBUG( "  InputFilePathContJetIDHadTau " << m_sInputFilePathContJetIDHadTau );
     ATH_MSG_DEBUG( "  InputFilePathEleIDHadTau " << m_sInputFilePathEleIDHadTau );
     ATH_MSG_DEBUG( "  InputFilePathTriggerHadTau " << m_sInputFilePathTriggerHadTau );
     ATH_MSG_DEBUG( "  VarNameRecoHadTau " << m_sVarNameRecoHadTau );
     ATH_MSG_DEBUG( "  VarNameEleOLRHadTau " << m_sVarNameEleOLRHadTau );
+    ATH_MSG_DEBUG( "  VarNameEleOLRElectron " << m_sVarNameEleOLRElectron );
     ATH_MSG_DEBUG( "  VarNameJetIDHadTau " << m_sVarNameJetIDHadTau );
     ATH_MSG_DEBUG( "  VarNameContJetIDHadTau " << m_sVarNameContJetIDHadTau );
     ATH_MSG_DEBUG( "  VarNameEleIDHadTau " << m_sVarNameEleIDHadTau );
