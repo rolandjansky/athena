@@ -9,9 +9,7 @@ atlas_subdir( TrkGeometry )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthContainers
                           DetectorDescription/GeoPrimitives
                           GaudiKernel
                           Tracking/TrkDetDescr/TrkDetDescrUtils
@@ -34,12 +32,12 @@ atlas_add_library( TrkGeometry
                    PUBLIC_HEADERS TrkGeometry
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel DataModel SGTools GeoPrimitives GaudiKernel TrkDetDescrUtils TrkGeometrySurfaces TrkSurfaces TrkVolumes TrkEventPrimitives TrkNeutralParameters TrkParameters
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel AthContainers GeoPrimitives GaudiKernel TrkDetDescrUtils TrkGeometrySurfaces TrkSurfaces TrkVolumes TrkEventPrimitives TrkNeutralParameters TrkParameters
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} EventPrimitives )
 
 atlas_add_dictionary( TrkGeometryDict
                       TrkGeometry/TrkGeometryDict.h
                       TrkGeometry/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel DataModel SGTools GeoPrimitives GaudiKernel TrkDetDescrUtils TrkGeometrySurfaces TrkSurfaces TrkVolumes TrkEventPrimitives TrkNeutralParameters TrkParameters EventPrimitives TrkGeometry )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel AthContainers GeoPrimitives GaudiKernel TrkDetDescrUtils TrkGeometrySurfaces TrkSurfaces TrkVolumes TrkEventPrimitives TrkNeutralParameters TrkParameters EventPrimitives TrkGeometry )
 
