@@ -32,8 +32,8 @@
 #include <fastjet/contrib/Nsubjettiness.hh>
 #include "JetSubStructureUtils/Qw.h"
 #include "JetSubStructureUtils/KtSplittingScale.h"
-//#include "JetSubStructureUtils/EnergyCorrelatorGeneralizedTools.h"
-//#include "JetSubStructureUtils/EnergyCorrelator.h"
+#include "JetSubStructureUtils/EnergyCorrelatorGeneralized.h"
+#include "JetSubStructureUtils/EnergyCorrelator.h"
 
 RCJetMC15::RCJetMC15( const std::string& name ) :
   asg::AsgTool( name ),
@@ -64,7 +64,15 @@ RCJetMC15::RCJetMC15( const std::string& name ) :
   m_split12(nullptr),
   m_split23(nullptr),
   m_qw(nullptr),
-  //m_gECF332(nullptr),
+  m_gECF332(nullptr),
+  m_gECF461(nullptr),
+  m_gECF322(nullptr),
+  m_gECF331(nullptr),
+  m_gECF422(nullptr),
+  m_gECF441(nullptr),
+  m_gECF212(nullptr),
+  m_gECF321(nullptr),
+  m_gECF311(nullptr),  
   m_unique_syst(false){
     declareProperty( "config" , m_config );
     declareProperty( "VarRCjets", m_VarRCjets=false);
@@ -119,8 +127,16 @@ StatusCode RCJetMC15::initialize(){
 	  delete m_split12;
 	  delete m_split23;
 	  delete m_qw;
-	  //delete m_gECF332;
-	  
+	  delete m_gECF332;
+	  delete m_gECF461;
+	  delete m_gECF322;
+	  delete m_gECF331;
+	  delete m_gECF422;
+	  delete m_gECF441;
+	  delete m_gECF212;
+	  delete m_gECF321;
+	  delete m_gECF311;
+
 	  // Setup a bunch of FastJet stuff
 	  //define the type of jets you will build (http://fastjet.fr/repo/doxygen-3.0.3/classfastjet_1_1JetDefinition.html)
 	  m_jet_def_rebuild = new fastjet::JetDefinition(fastjet::antikt_algorithm, 1.0, fastjet::E_scheme, fastjet::Best);
@@ -137,8 +153,16 @@ StatusCode RCJetMC15::initialize(){
 	  m_split23 = new JetSubStructureUtils::KtSplittingScale(2);
 
 	  m_qw = new JetSubStructureUtils::Qw();
-
-	  //m_gECF332 = new JetSubStructureUtils::EnergyCorrelatorGeneralized(3,3,2, JetSubStructureUtils::EnergyCorrelator::pt_R);
+	  
+	  m_gECF332 = new JetSubStructureUtils::EnergyCorrelatorGeneralized(3,3,2, JetSubStructureUtils::EnergyCorrelator::pt_R);
+	  m_gECF461 = new JetSubStructureUtils::EnergyCorrelatorGeneralized(6,4,1, JetSubStructureUtils::EnergyCorrelator::pt_R);
+	  m_gECF322 = new JetSubStructureUtils::EnergyCorrelatorGeneralized(2,3,2, JetSubStructureUtils::EnergyCorrelator::pt_R);
+	  m_gECF331 = new JetSubStructureUtils::EnergyCorrelatorGeneralized(3,3,1, JetSubStructureUtils::EnergyCorrelator::pt_R);
+	  m_gECF422 = new JetSubStructureUtils::EnergyCorrelatorGeneralized(2,4,2, JetSubStructureUtils::EnergyCorrelator::pt_R);
+	  m_gECF441 = new JetSubStructureUtils::EnergyCorrelatorGeneralized(4,4,1, JetSubStructureUtils::EnergyCorrelator::pt_R);
+	  m_gECF212 = new JetSubStructureUtils::EnergyCorrelatorGeneralized(1,2,2, JetSubStructureUtils::EnergyCorrelator::pt_R);
+	  m_gECF321 = new JetSubStructureUtils::EnergyCorrelatorGeneralized(2,3,1, JetSubStructureUtils::EnergyCorrelator::pt_R);
+	  m_gECF311 = new JetSubStructureUtils::EnergyCorrelatorGeneralized(1,3,1, JetSubStructureUtils::EnergyCorrelator::pt_R);
 	}
     }
 
@@ -393,8 +417,31 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
 
 
 	// MlB's t/H discriminators
-	//double gECF332 = m_gECF332->result(correctedJet);
-       
+	// E = (a*n) / (b*m)
+	// for an ECFG_X_Y_Z, a=Y, n=Z -> dimenionless variable
+	double gECF332 = m_gECF332->result(correctedJet);
+	double gECF461 = m_gECF461->result(correctedJet);
+	double gECF322 = m_gECF322->result(correctedJet);
+	double gECF331 = m_gECF331->result(correctedJet);
+	double gECF422 = m_gECF422->result(correctedJet);
+	double gECF441 = m_gECF441->result(correctedJet);
+	double gECF212 = m_gECF212->result(correctedJet);
+	double gECF321 = m_gECF321->result(correctedJet);
+	double gECF311 = m_gECF311->result(correctedJet);
+
+	double L1=-999.0, L2=-999.0, L3=-999.0, L4=-999.0, L5=-999.0;
+	if (fabs(gECF212) > 1e-12){
+	  L1 = gECF321 / (pow(gECF212,(1.0)));
+	  L2 = gECF331 / (pow(gECF212,(3.0/2.0)));
+	}
+	if (fabs(gECF331) > 1e-12){
+	  L3 = gECF311 / (pow(gECF331,(1.0/3.0) ));
+	  L4 = gECF322 / (pow(gECF331,(4.0/3.0) ));
+	}
+	if (fabs(gECF441) > 1e-12){
+	  L5 = gECF422 / (pow(gECF441, (1.0)));
+	}	
+	
  	// now attach the results to the original jet
  	rcjet->auxdecor<float>("Tau32_clstr") = tau32;
  	rcjet->auxdecor<float>("Tau21_clstr") = tau21;
@@ -413,8 +460,20 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
  	rcjet->auxdecor<float>("d23_clstr") = split23;
  	rcjet->auxdecor<float>("Qw_clstr") = qw;
 
-	//rcjet->auxdecor<float>("gECF332_clstr") = gECF332;
-       
+       	rcjet->auxdecor<float>("gECF332_clstr") = gECF332;
+	rcjet->auxdecor<float>("gECF461_clstr") = gECF461;
+	rcjet->auxdecor<float>("gECF322_clstr") = gECF322;
+	rcjet->auxdecor<float>("gECF331_clstr") = gECF331;
+	rcjet->auxdecor<float>("gECF422_clstr") = gECF422;
+	rcjet->auxdecor<float>("gECF441_clstr") = gECF441;
+	rcjet->auxdecor<float>("gECF212_clstr") = gECF212;
+	rcjet->auxdecor<float>("gECF321_clstr") = gECF321;
+	rcjet->auxdecor<float>("gECF311_clstr") = gECF311;
+	rcjet->auxdecor<float>("L1_clstr") = L1;
+	rcjet->auxdecor<float>("L2_clstr") = L2;
+	rcjet->auxdecor<float>("L3_clstr") = L3;
+	rcjet->auxdecor<float>("L4_clstr") = L4;
+	rcjet->auxdecor<float>("L5_clstr") = L5;
  	// lets also store the rebuilt jet incase we need it later
  	rcjet->auxdecor<float>("RRCJet_pt") = correctedJet.pt();
  	rcjet->auxdecor<float>("RRCJet_eta") = correctedJet.eta();
@@ -447,8 +506,16 @@ StatusCode RCJetMC15::finalize() {
     delete m_split12;
     delete m_split23;
     delete m_qw;
-    //delete m_gECF332;
-    
+    delete m_gECF332;
+    delete m_gECF461;
+    delete m_gECF322;
+    delete m_gECF331;
+    delete m_gECF422;
+    delete m_gECF441;
+    delete m_gECF212;
+    delete m_gECF321;
+    delete m_gECF311;
+     
     return StatusCode::SUCCESS;
 }
 
