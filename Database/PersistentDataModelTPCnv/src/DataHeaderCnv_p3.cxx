@@ -78,8 +78,9 @@ void DataHeaderElementCnv_p3::persToTrans(const DataHeaderElement_p3* pers,
       snprintf(text, length, "][TECH=%08X][OID=%08X-%08X]", pers->m_technology, pers->m_oid1, pers->m_oid2);
       tokenStr.append(text);
    }
-   delete trans->m_token; trans->m_token = new Token;
-   const_cast<Token*>(trans->m_token)->fromString(tokenStr);
+   Token* token = new Token;
+   token->fromString(tokenStr);
+   delete trans->m_token; trans->m_token = token;
 }
 //______________________________________________________________________________
 void DataHeaderElementCnv_p3::transToPers(const DataHeaderElement* /*trans*/,
