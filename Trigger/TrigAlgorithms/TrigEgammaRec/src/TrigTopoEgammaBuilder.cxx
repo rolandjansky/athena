@@ -639,7 +639,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
         HLT::TriggerElement* outputTE )
 {
     if ( msgLvl() <= MSG::DEBUG ) {
-        msg() << MSG::DEBUG << "Executing HLT alg. TrigTopoEgammaBuilder" << endreq;
+        msg() << MSG::DEBUG << "Executing HLT alg. TrigTopoEgammaBuilder p01" << endreq;
         msg() << MSG::DEBUG << "inputTE->getId(): " << inputTE->getId() << endreq;
     } 
     // Time total TrigTopoEgammaBuilder execution time.
@@ -907,31 +907,44 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     xAOD::CaloClusterAuxContainer clusContainer_tmpAux;
     clusContainer_tmp.setStore(&clusContainer_tmpAux);
 
-    ATH_MSG_DEBUG( "before copy clusters" );
+    ATH_MSG_DEBUG( "before copy " << clusContainer->size() << " clusters");
 
     xAOD::CaloClusterContainer::const_iterator cciter = clusContainer->begin();
     xAOD::CaloClusterContainer::const_iterator ccend  = clusContainer->end();
     for (; cciter != ccend; ++cciter) {
-        ATH_MSG_DEBUG("->CHECKING Cluster at eta,phi,et " << (*cciter)->eta() << " , "<< (*cciter)->phi() << " , " << (*cciter)->et());
+        ATH_MSG_DEBUG("->CHECKING Cluster " << (cciter-clusContainer->begin()) <<
+                       " at eta, phi, et " << (*cciter)->eta() << ", " <<
+                       (*cciter)->phi() << ", " << (*cciter)->et() << 
+                       "NCells=" << (*cciter)->size() <<
+                       "cell_begin==cell_end" << ( (*cciter)->cell_begin() == (*cciter)->cell_end() ) );
+
+        double emfrac(-11111);
+        if(!(*cciter)->retrieveMoment(xAOD::CaloCluster::ENG_FRAC_EM,emfrac)){
+            ATH_MSG_WARNING("No EM fraction momement stored in original cluster");
+        }
+        ATH_MSG_DEBUG(">CHECKING Cluster: em_fraction=" << emfrac );
         clusContainer_tmp.push_back( new xAOD::CaloCluster( **cciter ) );
     }
 
-    ATH_MSG_DEBUG( "before xAOD::shallowCopyContainer" );
+    ATH_MSG_DEBUG( "before xAOD::shallowCopyContainer, clusContainer_tmp.size=" << clusContainer_tmp.size() );
 
     std::pair<xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > inputShallowcopy = xAOD::shallowCopyContainer( clusContainer_tmp );
+
+    ATH_MSG_DEBUG( "inputShallowcopy.first->size=" << inputShallowcopy.first->size() );
 
     //Here it just needs to be a view copy ,
     //i.e the collection we create does not really
     //own its elements
     ConstDataVector<xAOD::CaloClusterContainer>* viewCopy =  new ConstDataVector <xAOD::CaloClusterContainer> (SG::VIEW_ELEMENTS );
 
-    ATH_MSG_DEBUG( "before topoclustercopier" );
-
     //First run the egamma Topo Copier that will select copy over cluster of interest to egammaTopoCluster
     TRIG_CHECK_SC(m_topoclustercopier->hltExecute(inputShallowcopy, viewCopy));
+    ATH_MSG_DEBUG( "viewCopy->size=" << viewCopy->size() );
 
     //Then retrieve them
     const xAOD::CaloClusterContainer *clusters_copy = viewCopy->asDataVector();
+
+    ATH_MSG_DEBUG( "after topoclustercopier, clusters_copy->size=" << clusters_copy->size() );
     //--------------------------------
 
     // loop over clusters.
@@ -945,11 +958,16 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
         egRec->setCaloClusters( elClusters );
         m_eg_container->push_back( egRec );
     } // End attaching clusters to egammaRec
+
+    ATH_MSG_DEBUG("m_eg_container->size: "<< m_eg_container->size() );
+
     //
     // Conversions
     //
     // Need method which takes egRec and VxContainer
     if(m_doConversions){
+        ATH_MSG_DEBUG("doConversions=true");
+        ATH_MSG_DEBUG("pVxContainer->size: "<< pVxContainer->size() );
         ATH_MSG_DEBUG("REGTEST:: Run Conversion Builder for egContainer");
         if (timerSvc()) m_timerTool2->start(); //timer
         for(auto egRec : *m_eg_container) {
@@ -963,6 +981,8 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     // Check for Track Match. 
     
     if(m_doTrackMatching){
+        ATH_MSG_DEBUG("doTrackMatching=true");
+        ATH_MSG_DEBUG("pTrackParticleContainer->size: "<< pTrackParticleContainer->size() );
         for(auto egRec : *m_eg_container) {
             if (timerSvc()) m_timerTool1->start(); //timer
             if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
