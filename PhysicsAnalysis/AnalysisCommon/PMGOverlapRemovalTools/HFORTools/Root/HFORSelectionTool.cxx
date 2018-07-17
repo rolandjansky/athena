@@ -84,9 +84,9 @@ StatusCode HFORSelectionTool::initialize() {
   m_hforTruth.readRunConfig(filename) ;
 
   ATH_MSG_INFO( BOOST_CURRENT_FUNCTION << ": Initialization done.");
-  return StatusCode::SUCCESS ;
   m_isConfigured = false ;
 
+  return StatusCode::SUCCESS ;
 }
 //==============================================================================
 
@@ -268,7 +268,10 @@ StatusCode HFORSelectionTool::setSampleType()  {
 // Getter to access the sample type
 //==============================================================================
 HFORType HFORSelectionTool::getSampleType() {
-  if (! m_isConfigured) setSampleType() ;
+  if (! m_isConfigured) {
+    ATH_CHECK( setSampleType(), noType );
+    m_isConfigured = true;
+  }
   //Return an enum object with the type of the sample
   return m_sampleType ;
 }
@@ -278,7 +281,10 @@ HFORType HFORSelectionTool::getSampleType() {
 // Getter to access the sample name
 //==============================================================================
 std::string HFORSelectionTool::getSampleName() {
-  if (! m_isConfigured) setSampleType() ;
+  if (! m_isConfigured) {
+    ATH_CHECK( setSampleType(), "unknown" );
+    m_isConfigured = true;
+  }
   //Return a string with the type of the sample (bb, cc, c, light or unknown)
   return m_sampleName ;
 }
