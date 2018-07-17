@@ -35,7 +35,7 @@ namespace CP
       bool keep = true;
       for (const auto& accessor : m_accessors)
       {
-        if (((*accessor.first) (*particle) | accessor.second) != selectionAccept())
+        if ((accessor.first->getBits (*particle) | accessor.second) != selectionAccept())
         {
           keep = false;
           break;
@@ -108,7 +108,8 @@ namespace CP
       SelectionType ignore = 0;
       if (iter < m_ignore.size())
         ignore = m_ignore[iter];
-      auto accessor = std::make_unique<SG::AuxElement::ConstAccessor<SelectionType> > (m_selection[iter]);
+      std::unique_ptr<ISelectionAccessor> accessor;
+      ANA_CHECK (makeSelectionAccessor (m_selection[iter], accessor));
       m_accessors.push_back (std::make_pair (std::move (accessor), ignore));
     }
 
