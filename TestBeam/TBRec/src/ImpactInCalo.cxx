@@ -3,7 +3,7 @@
 */
 
 
-#include "TBRec/ImpactInCalo.h"
+#include "ImpactInCalo.h"
 #include <iostream>
 
 

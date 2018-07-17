@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_FatrasToolsMS/SimHitCreatorMS.h"
+#include "SimHitCreatorMS.h"
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"
@@ -47,6 +47,12 @@ iFatras::SimHitCreatorMS::SimHitCreatorMS(const std::string& t,
     m_incidentSvc("IncidentSvc", n),
     m_extrapolator(""),
     m_measTool("Muon::MuonTGMeasurementTool/MuonTGMeasurementTool"),
+    m_mdtSimHitCollection(nullptr),
+    m_rpcSimHitCollection(nullptr),
+    m_tgcSimHitCollection(nullptr),
+    m_cscSimHitCollection(nullptr),
+    m_mmSimHitCollection(nullptr),
+    m_stgcSimHitCollection(nullptr),
     m_mdtCollectionName("MDT_Hits"),
     m_rpcCollectionName("RPC_Hits"),
     m_tgcCollectionName("TGC_Hits"),
@@ -55,15 +61,15 @@ iFatras::SimHitCreatorMS::SimHitCreatorMS(const std::string& t,
     m_stgcCollectionName("sTGC_Hits"),
     m_randomSvc("AtDSFMTGenSvc", n),
     m_randomEngineName("FatrasRnd"),
-    m_randomEngine(0),  
-    m_mdtHitIdHelper(0),
-    m_rpcHitIdHelper(0),
-    m_cscHitIdHelper(0),
-    m_tgcHitIdHelper(0),
-    m_mmOffToSimId(NULL),
-    m_stgcOffToSimId(NULL),
+    m_randomEngine(nullptr),  
+    m_mdtHitIdHelper(nullptr),
+    m_rpcHitIdHelper(nullptr),
+    m_cscHitIdHelper(nullptr),
+    m_tgcHitIdHelper(nullptr),
+    m_mmOffToSimId(nullptr),
+    m_stgcOffToSimId(nullptr),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_muonMgr(0),
+    m_muonMgr(nullptr),
     m_mdtSigmaDriftRadius(0.08),
     m_createAllMdtHits(true)
 {

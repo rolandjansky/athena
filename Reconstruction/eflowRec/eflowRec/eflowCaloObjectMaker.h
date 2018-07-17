@@ -20,6 +20,9 @@ class eflowRecClusterContainer;
 class eflowRecCluster;
 class eflowRecTrack;
 
+/**
+This class creates eflowCaloObjects and adds them into the eflowCaloObjectContainer.
+*/
 class eflowCaloObjectMaker {
 
 public:

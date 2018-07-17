@@ -3,8 +3,8 @@
 */
 
 
-#include "TBRec/ImpactInCaloCollection.h"
-#include "TBRec/ImpactInCalo.h"
+#include "ImpactInCaloCollection.h"
+#include "ImpactInCalo.h"
 
 void ImpactInCaloCollection::print() const{
 	ImpactInCaloCollection::const_iterator iter;

@@ -85,8 +85,6 @@ StatusCode egammaSwTool::execute(xAOD::CaloCluster *cluster){
   // protection against bad clusters
   if (cluster==0) return StatusCode::SUCCESS;
 
-  std::vector<CaloClusterProcessor*>::const_iterator firstTool, lastTool;
-  
   xAOD::CaloCluster::ClusterSize requestedSize = cluster->clusterSize();
   switch (requestedSize) {
   case xAOD::CaloCluster::SW_55ele:

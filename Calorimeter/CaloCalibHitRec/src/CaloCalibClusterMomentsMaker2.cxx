@@ -303,7 +303,6 @@ CaloCalibClusterMomentsMaker2::execute(const EventContext& /*ctx*/,
   bool foundAllContainers (true);
   const DataHandle<CaloCalibrationHitContainer> cchc;
   std::vector<const CaloCalibrationHitContainer *> v_cchc;
-  std::vector<std::string>::iterator iter;
   for (const std::string& cname : m_CalibrationHitContainerNames) {
     if ( !evtStore()->contains<CaloCalibrationHitContainer>(cname)) {
       if (m_foundAllContainers) {

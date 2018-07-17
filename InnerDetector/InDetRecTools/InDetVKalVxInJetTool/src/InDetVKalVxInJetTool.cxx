@@ -6,12 +6,17 @@
 #include "InDetVKalVxInJetTool/InDetVKalVxInJetTool.h"
 #include "VxSecVertex/VxSecVertexInfo.h"
 #include "VxSecVertex/VxSecVKalVertexInfo.h"
+#include  "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
+
 #include "GaudiKernel/ITHistSvc.h"
+#include "TH1D.h"
+#include "TH2D.h"
+#include "TProfile.h"
+
 #include "TMath.h"
 //
 //-------------------------------------------------
 // Other stuff
-//#include "GaudiKernel/MsgStream.h"
 //
 #include<iostream>
 

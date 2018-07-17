@@ -72,7 +72,6 @@ private:
   SG::ReadHandleKeyArray<PRD_MultiTruthCollection> m_PRD_TruthNames;
   SG::ReadHandleKeyArray<MuonSimDataCollection> m_SDO_TruthNames;
   SG::ReadHandleKey<CscSimDataCollection> m_CSC_SDO_TruthNames;
-  SG::ReadHandleKey<xAODTruthParticleLinkVector> m_truthLinkVecName;
   ToolHandle<Muon::MuonIdHelperTool>    m_idHelper;
   ToolHandle<Muon::MuonEDMPrinterTool>  m_printer;
   ToolHandle<IMCTruthClassifier>        m_truthClassifier;

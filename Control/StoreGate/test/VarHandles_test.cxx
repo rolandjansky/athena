@@ -55,7 +55,7 @@ namespace Athena_test {
     return in;
   }
 
-  void varHandleTest() {
+  void varHandleTest (SGTest::TestStore& store) {
     //empty handles
     ReadHandle<MyDataObj> empty;
     ReadHandle<MyDataObj> copy(empty); 
@@ -101,7 +101,7 @@ namespace Athena_test {
     WriteHandle<MyDataObj> hMy ("hMy");
     assert(!hMy.isInitialized());
     assert(hMy.cachedPtr() == nullptr);
-    hMy.setProxyDict (&SGTest::store);
+    hMy.setProxyDict (&store);
     hMy = std::make_unique<MyDataObj>(4);
     //assert(hMy.setState(pMyProxy).isSuccess());
     assert(hMy.isInitialized());
@@ -304,11 +304,11 @@ using namespace Athena_test;
 //#include "Reflex/PluginService.h"
 
 int main() {
-  SGTest::initTestStore();
+  std::unique_ptr<SGTest::TestStore> store = SGTest::getTestStore();
   ISvcLocator* pDum;
   initGaudi(pDum); //need MessageSvc
   cout << "*** VarHandles_test starts ***" <<endl;
-  varHandleTest();
+  varHandleTest(*store);
   resetableTest();
   refCountTest();
   cout << "*** VarHandles_test OK ***" <<endl;

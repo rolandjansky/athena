@@ -35,7 +35,6 @@ public:
 private:
   std::string m_branchName;
   ChainEntry::RoIType m_RoIType;
-  RoILinksCnvTool* m_RoILinksCnvTool;
   MsgStream* m_log;
 
   // Ntuple variables

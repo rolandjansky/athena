@@ -13,11 +13,12 @@
 // Version 1.0 21/04/2004 I.Gavrilenko
 ///////////////////////////////////////////////////////////////////
 
-#include <iostream>
+#include <ostream>
 #include <iomanip>
 
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "SiSpacePointsSeedTool_xk/SiSpacePointsSeedMaker_ITK.h"
+#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -94,13 +95,9 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   m_ybeam[0]  = 0.      ; m_ybeam[1]= 0.; m_ybeam[2]=1.; m_ybeam[3]=0.;
   m_zbeam[0]  = 0.      ; m_zbeam[1]= 0.; m_zbeam[2]=0.; m_zbeam[3]=1.;
   
-//  m_spacepointsSCTname     = "SCT_SpacePoints"   ;
-//  m_spacepointsPixelname   = "PixelSpacePoints"  ;
-//  m_spacepointsOverlapname = "OverlapSpacePoints"; 
+
   m_beamconditions         = "BeamCondSvc"       ;
-//  m_spacepointsSCT         = 0                   ;
-//  m_spacepointsPixel       = 0                   ;
-//  m_spacepointsOverlap     = 0                   ;
+
 
   declareInterface<ISiSpacePointsSeedMaker>(this);
 
@@ -458,9 +455,6 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion
   // Get sct space points containers from store gate 
   //
   if(m_sct && vSCT.size()) {
-
-//    m_spacepointsSCT     = 0;
-//    StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
 
     if(m_spacepointsSCT.isValid()) {
 
@@ -1744,7 +1738,6 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 
       for(int t=Nb;  t!=Nt; ++t) {
 
-	//if(fabs(Tzb-m_Tz[t])*Se > 1.) continue;
 
 	// Trigger point
 	//	
@@ -1761,25 +1754,27 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 	float Cb    = (1.-B0*m_Y[b])*C0;
 	float Sb    = (A0+B0*m_X[b])*C0;
 	float db[3] = {Sx*Cb-Sy*Sb,Sx*Sb+Sy*Cb,Ce};  
-	float rb[3];  if(!m_SP[b]->coordinates(db,rb)) continue;
+	float rbDup[3];  //a new and different rb
+	if(!m_SP[b]->coordinates(db,rbDup)) continue;
 
 	// Top     point
 	//
 	float Ct    = (1.-B0*m_Y[t])*C0;
 	float St    = (A0+B0*m_X[t])*C0;
 	float dt[3] = {Sx*Ct-Sy*St,Sx*St+Sy*Ct,Ce};  
-	float rt[3];  if(!m_SP[t]->coordinates(dt,rt)) continue;
+	float rtDup[3];  //doesnt hide previous declaration of rt
+	if(!m_SP[t]->coordinates(dt,rtDup)) continue;
 
-	float xb    = rb[0]-rn[0];
-	float yb    = rb[1]-rn[1];
-	float xt    = rt[0]-rn[0];
-	float yt    = rt[1]-rn[1];
+	float xb    = rbDup[0]-rn[0];
+	float yb    = rbDup[1]-rn[1];
+	float xt    = rtDup[0]-rn[0];
+	float yt    = rtDup[1]-rn[1];
 
 	float rb2   = 1./(xb*xb+yb*yb);
 	float rt2   = 1./(xt*xt+yt*yt);
 	
-	float tb    =  (rn[2]-rb[2])*sqrt(rb2);
-	float tz    =  (rt[2]-rn[2])*sqrt(rt2);
+	float tb    =  (rn[2]-rbDup[2])*sqrt(rb2);
+	float tz    =  (rtDup[2]-rn[2])*sqrt(rt2);
 
 	float dT  = ((tb-tz)*(tb-tz)-m_R[t]*Rb2z-(Erb+m_Er[t]))-(m_R[t]*Rb2r)*((tb+tz)*(tb+tz));
 	if( dT > ICSA) continue;
@@ -1793,7 +1788,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 	float ut    = (xt*Ax+yt*Ay)*rt2;
 	float vt    = (yt*Ax-xt*Ay)*rt2;
 	
-	float dU  = ut-ub; if(dU == 0.) continue;	
+	float dU  = ut-ub; 
+	if(dU == 0.) continue;	
 	float A   = (vt-vb)/dU;
 	float S2  = 1.+A*A                           ;
 	float B   = vb-A*ub                          ;
@@ -1803,8 +1799,11 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 	float Im  = fabs((A-B*Rn)*Rn)                ; 
 
 	if(Im <= imax) {
-	  float dr; m_R[t] < m_R[b] ? dr = m_R[t] : dr = m_R[b]; Im+=fabs((Tzb-m_Tz[t])/(dr*sTzb2));
-	  m_CmSp.push_back(std::make_pair(B/sqrt(S2),m_SP[t])); m_SP[t]->setParam(Im);
+	  float dr; 
+	  m_R[t] < m_R[b] ? dr = m_R[t] : dr = m_R[b]; 
+	  Im+=fabs((Tzb-m_Tz[t])/(dr*sTzb2));
+	  m_CmSp.push_back(std::make_pair(B/sqrt(S2),m_SP[t])); 
+	  m_SP[t]->setParam(Im);
 	}
 	
       }

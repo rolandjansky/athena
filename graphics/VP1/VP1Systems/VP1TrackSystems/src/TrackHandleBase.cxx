@@ -1601,9 +1601,8 @@ bool TrackHandleBase::isIDTrack() const
 {
   const Amg::Vector3D * start = startPoint();
   if (!start) return false;
-  return start->perp()<1100 &&fabs( start->perp())<3500;  
+  return start->perp()<1100 &&fabs( start->z())>3500;  
 }
-
 
 //____________________________________________________________________
 QList<AssociatedObjectHandleBase*> TrackHandleBase::getAllAscObjHandles() const
@@ -1962,7 +1961,8 @@ void TrackHandleBase::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfItems) 
   assert(m_d->m_objBrowseTree==0);
   m_d->m_objBrowseTree = new QTreeWidgetItem();
 
-  QString l = shortInfo();
+  QString direction = QString::fromUtf8("(\u03B7,\u03D5)=[") + QString::number(momentum().eta(),'f',2) + ","+QString::number(momentum().phi(),'f',2)+"], ";
+  QString l = direction + shortInfo();
   m_d->m_objBrowseTree->setText(0, type()+QString(QString::number(listOfItems.size())) );
   m_d->m_objBrowseTree->setText(1, l );    
 

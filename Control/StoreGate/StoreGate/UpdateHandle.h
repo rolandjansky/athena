@@ -220,7 +220,7 @@ namespace SG {
     /**
      * @brief Return the cached pointer directly; no lookup.
      */
-    pointer_type cachedPtr() const;
+    pointer_type cachedPtr();
 
 
     /**

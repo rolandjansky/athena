@@ -551,11 +551,12 @@ class TRTConditionsServicesSetup:
       conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors","/TRT/Calib/errors",className='TRTCond::RtRelationMultChanContainer')
       # not needed anymore conddb.addOverride('/TRT/Onl/Calib/errors','TrtCalibErrorsOnl-ErrorVal-00-00')
 
-    if not (conddb.folderRequested('/TRT/Calib/ToTCalib') or conddb.folderRequested('/TRT/Onl/Calib/ToTCalib')):
-      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib")
+    if not conddb.folderRequested('/TRT/Calib/ToTCalib'):
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib",className='CondAttrListCollection')
 
-    if not (conddb.folderRequested('/TRT/Calib/HTCalib') or conddb.folderRequested('/TRT/Onl/Calib/HTCalib')):
-      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib")
+    if not conddb.folderRequested('/TRT/Calib/HTCalib'):
+      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib",className='CondAttrListCollection')
+
 
     # Calibration DB Service
     from AthenaCommon.AppMgr import ServiceMgr
@@ -577,16 +578,8 @@ class TRTConditionsServicesSetup:
       conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT",className='TRTCond::StrawStatusMultChanContainer')
 
 
-    # DCS Data Folders
+
     from AthenaCommon.GlobalFlags import globalflags
-    if (globalflags.InputFormat() == 'bytestream' and globalflags.DataSource() == 'data'):
-      if self.useDCS and not self.onlineMode:
-        if not conddb.folderRequested('/TRT/DCS/HV/BARREL <cache>600</cache>'):
-          conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/BARREL <cache>600</cache>")
-        if not conddb.folderRequested('/TRT/DCS/HV/ENDCAPA <cache>600</cache>'):
-          conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/ENDCAPA <cache>600</cache>")
-        if not conddb.folderRequested('/TRT/DCS/HV/ENDCAPC <cache>600</cache>'):
-          conddb.addFolder('DCS_OFL',"/TRT/DCS/HV/ENDCAPC <cache>600</cache>")
     
     # TRT PID tools
     if not (conddb.folderRequested('/TRT/Calib/PID') or conddb.folderRequested('/TRT/Onl/Calib/PID')):

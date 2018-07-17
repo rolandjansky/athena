@@ -826,10 +826,6 @@ StatusCode MM_DigitizationTool::doDigitization() {
 			float inAngle_XZ = 90. - inAngleCompliment_XZ;
 			float inAngle_YZ = 90. - inAngleCompliment_YZ;
 
-			// Flipping angles for flipped boards... Need to check this.
-			inAngle_XZ = (roParam.readoutSide).at(m_muonHelper->GetLayer(simId)-1)*inAngle_XZ ;
-			inAngle_YZ = (roParam.readoutSide).at(m_muonHelper->GetLayer(simId)-1)*inAngle_YZ ;
-
 			ATH_MSG_DEBUG(  "At eta: "
 							<<     m_idHelper->stationEta(layerID)
 							<< " phi: "

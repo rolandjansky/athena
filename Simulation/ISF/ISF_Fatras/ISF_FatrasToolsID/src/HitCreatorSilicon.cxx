@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_FatrasToolsID/HitCreatorSilicon.h"
+#include "HitCreatorSilicon.h"
 
 // ISF
 #include "ISF_Event/ISFParticle.h"
@@ -62,6 +62,7 @@ iFatras::HitCreatorSilicon::HitCreatorSilicon(const std::string& t, const std::s
   m_sctIdHelper(0),
   m_condSummaryTool("PixelConditionsSummaryTool", this),
   m_useConditionsTool(true),
+  m_dEdX_function(0),
   m_siPathToCharge(500.),
   m_fastEnergyDepositionModel(true)
 {

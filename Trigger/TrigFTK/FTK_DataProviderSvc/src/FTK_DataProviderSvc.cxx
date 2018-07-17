@@ -272,6 +272,7 @@ StatusCode FTK_DataProviderSvc::initialize() {
   ATH_CHECK(m_RawVertexFinderTool.retrieve());
   ATH_MSG_INFO( " getting ROTcreator tool with name " << m_ROTcreator.name());
   ATH_CHECK(m_ROTcreator.retrieve());
+  ATH_CHECK(m_sctLorentzAngleTool.retrieve());
 
   // Register incident handler
   ServiceHandle<IIncidentSvc> iincSvc( "IncidentSvc", name());
@@ -1697,7 +1698,7 @@ const Trk::RIO_OnTrack* FTK_DataProviderSvc::createSCT_Cluster(const FTK_RawSCT_
   const double width((double(nStrips)/double(nStrips+1))*( lastStripPos.xPhi()-firstStripPos.xPhi()));
   const InDetDD::SiLocalPosition centre((firstStripPos+lastStripPos)/2.0);
 
-  double shift = pDE->getLorentzCorrection();
+  const double shift = m_sctLorentzAngleTool->getLorentzShift(hash);
   Amg::Vector2D localPos(centre.xPhi()+shift,  centre.xEta());
 
   ATH_MSG_VERBOSE(" centre.xPhi() " << centre.xPhi()  << " centre.xEta() " << centre.xEta());
@@ -1754,8 +1755,6 @@ const Trk::RIO_OnTrack* FTK_DataProviderSvc::createSCT_Cluster(const FTK_RawSCT_
     }
 
      if (!m_correctSCTClusters || sct_cluster_on_track == nullptr) {
-      double shift = pDE->getLorentzCorrection();
-
       Amg::Vector2D locPos(pCL->localPosition()[Trk::locX]+shift,pCL->localPosition()[Trk::locY]);
       ATH_MSG_VERBOSE("locX "<< pCL->localPosition()[Trk::locX] << " locY " << pCL->localPosition()[Trk::locY] << " lorentz shift " << shift);
 

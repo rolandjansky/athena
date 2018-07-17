@@ -26,8 +26,8 @@ def L1DecoderCfg(flags):
 
     if flags.get("Trigger.L1Decoder.doMuon") == True:
         from L1Decoder.L1MuonConfig import RPCCablingConfig, TGCCablingConfig
-        acc.addConfig( TGCCablingConfig, flags )
-        acc.addConfig( RPCCablingConfig, flags )
+        acc.merge(TGCCablingConfig(flags ))
+        acc.merge(RPCCablingConfig(flags ))
         decoderAlg.roiUnpackers += [ MURoIsUnpackingTool( Decisions = "MURoIDecisions",
                                                           OutputTrigRoIs = "MURoIs",
                                                           MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 ) ) ]        
@@ -37,16 +37,16 @@ def L1DecoderCfg(flags):
     for u in decoderAlg.roiUnpackers:
         u.OutputLevel=DEBUG
 
-    acc.addEventAlgo(decoderAlg)
-    
+
 
     from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvcCfg
-    acc.addConfig( TrigConfigSvcCfg, flags )
+    acc.merge(TrigConfigSvcCfg(flags ))
 
-
-    return acc
+    return acc,decoderAlg
 
 if __name__ == "__main__":
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
     ConfigFlags.set("Trigger.L1Decoder.doCalo",True)
@@ -54,7 +54,8 @@ if __name__ == "__main__":
     ConfigFlags.set("Trigger.L1Decoder.forceEnableAllChains",True)
     ConfigFlags.set('global.InputFiles',["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1",])
     ConfigFlags.lock()
-    l1 = L1DecoderCfg( ConfigFlags )
+    acc, alg = L1DecoderCfg( ConfigFlags )
+    acc.addEventAlgo(alg)
     f=open("L1DecoderConf.pkl","w")
-    l1.store(f)
+    acc.store(f)
     f.close()

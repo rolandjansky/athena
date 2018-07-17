@@ -9,7 +9,7 @@
 // Trk include
 #include "TrkGeometry/MaterialProperties.h"
 
-#include "ISF_FatrasTools/MultipleScatteringSamplerGeneralMixture.h"
+#include "MultipleScatteringSamplerGeneralMixture.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 
 // static particle masses
@@ -106,16 +106,16 @@ double iFatras::MultipleScatteringSamplerGeneralMixture::simTheta(const Trk::Mat
     //see Mixture models of multiple scattering: computation and simulation. - R.Frühwirth, M. Liendl. -
     //Computer Physics Communications 141 (2001) 230–246
     //----------------------------------------------------------------------------------------------//
-    double * scattering_params;
+    std::vector<double> scattering_params;
     // Decide which mixture is best
     if (dOverX0/(beta*beta)>0.6/pow(Z,0.6)){ //Gaussian
       // Gaussian mixture or pure Gaussian
       if (dOverX0/(beta*beta)>10){
-	  scattering_params=getGaussian(beta,p,dOverX0,s_genMixScale); // Get parameters
+	  scattering_params = getGaussian(beta,p,dOverX0,s_genMixScale); // Get parameters
 	  //std::cout<<"MultipleScatteringSamplerGeneralMixture::multipleScatteringUpdate: using pure_gaussian"<<std::endl;
       }
       else{
-	  scattering_params=getGaussmix(beta,p,dOverX0,Z,s_genMixScale); // Get parameters
+	  scattering_params = getGaussmix(beta,p,dOverX0,Z,s_genMixScale); // Get parameters
 	  //std::cout<<"MultipleScatteringSamplerGeneralMixture::multipleScatteringUpdate: using gaussian_mixture"<<std::endl;
       }
       theta = simGaussmix(scattering_params); // Simulate
@@ -147,8 +147,8 @@ double iFatras::MultipleScatteringSamplerGeneralMixture::simTheta(const Trk::Mat
   return theta*s_projectionFactor;
 }
 
-double * iFatras::MultipleScatteringSamplerGeneralMixture::getGaussian(double beta, double p,double dOverX0, double scale) const{
-  double * scattering_params = new double[4];
+std::vector<double> iFatras::MultipleScatteringSamplerGeneralMixture::getGaussian(double beta, double p,double dOverX0, double scale) const{
+  std::vector<double> scattering_params(4);
   scattering_params[0]=15./beta/p*sqrt(dOverX0)*scale; //Total standard deviation of mixture
   scattering_params[1]=1.0; //Variance of core
   scattering_params[2]=1.0; //Variance of tails
@@ -156,8 +156,8 @@ double * iFatras::MultipleScatteringSamplerGeneralMixture::getGaussian(double be
   return scattering_params;
 }
 
-double * iFatras::MultipleScatteringSamplerGeneralMixture::getGaussmix(double beta, double p,double dOverX0,double Z, double scale) const{  
-  double * scattering_params = new double[4];
+std::vector<double> iFatras::MultipleScatteringSamplerGeneralMixture::getGaussmix(double beta, double p,double dOverX0,double Z, double scale) const{  
+  std::vector<double> scattering_params(4);
   scattering_params[0]=15./beta/p*sqrt(dOverX0)*scale; //Total standard deviation of mixture
   double d1=log(dOverX0/(beta*beta));
   double d2=log(pow(Z,2.0/3.0)*dOverX0/(beta*beta));
@@ -173,8 +173,8 @@ double * iFatras::MultipleScatteringSamplerGeneralMixture::getGaussmix(double be
   return scattering_params;
 }
 
-double * iFatras::MultipleScatteringSamplerGeneralMixture::getSemigauss(double beta,double p,double dOverX0,double Z, double scale) const{
-  double * scattering_params = new double[6];
+std::vector<double> iFatras::MultipleScatteringSamplerGeneralMixture::getSemigauss(double beta,double p,double dOverX0,double Z, double scale) const{
+  std::vector<double> scattering_params(6);
   double N=dOverX0*1.587E7*pow(Z,1.0/3.0)/(beta*beta)/(Z+1)/log(287/sqrt(Z));
   scattering_params[4]=15./beta/p*sqrt(dOverX0)*scale; //Total standard deviation of mixture
   double rho=41000/pow(Z,2.0/3.0);
@@ -191,7 +191,7 @@ double * iFatras::MultipleScatteringSamplerGeneralMixture::getSemigauss(double b
   return scattering_params;
 }
 
-double iFatras::MultipleScatteringSamplerGeneralMixture::simGaussmix(double * scattering_params) const{
+double iFatras::MultipleScatteringSamplerGeneralMixture::simGaussmix(std::vector<double> scattering_params) const{
   double sigma_tot = scattering_params[0];
   double var1 = scattering_params[1];
   double var2 = scattering_params[2];
@@ -204,7 +204,7 @@ double iFatras::MultipleScatteringSamplerGeneralMixture::simGaussmix(double * sc
   return sqrt(var2)*sqrt(-2*log(u))*sigma_tot;
 }
 
-double iFatras::MultipleScatteringSamplerGeneralMixture::simSemigauss(double * scattering_params) const{
+double iFatras::MultipleScatteringSamplerGeneralMixture::simSemigauss(std::vector<double> scattering_params) const{
   double a = scattering_params[0];
   double b = scattering_params[1];
   double var1 = scattering_params[2];

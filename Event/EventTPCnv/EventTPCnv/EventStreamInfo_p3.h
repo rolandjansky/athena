@@ -36,7 +36,7 @@ friend class EventStreamInfoCnv_p3;
 friend class PoolFilePeeker;
 
 
-private:
+public:
    unsigned int	m_numberOfEvents;	// Number of Events
    std::vector<unsigned int> m_runNumbers;	// Run#
    std::vector<unsigned int> m_lumiBlockNumbers;	// LumiBlock#

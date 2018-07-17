@@ -102,8 +102,9 @@ DataHeaderElement& DataHeaderElement::operator=(const DataHeaderElement& rhs) {
       m_alias = rhs.m_alias;
       if (m_ownToken) { delete m_token; m_token = 0; m_ownToken = false; }
       if (rhs.getToken() != 0) {
-         m_token = new Token; m_ownToken = true;
-         rhs.getToken()->setData(const_cast<Token*>(m_token));
+         Token* newtok = new Token;
+         m_token = newtok; m_ownToken = true;
+         rhs.getToken()->setData(newtok);
       }
       m_hashes = rhs.m_hashes;
    }

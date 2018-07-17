@@ -41,18 +41,20 @@ class TrigMufastHypoTool: public ::AthAlgTool {
     virtual ~TrigMufastHypoTool();
 
     struct MuonClusterInfo {
-    MuonClusterInfo( TrigCompositeUtils::Decision* d, const TrigRoiDescriptor* r, const xAOD::L2StandAloneMuon* c,
+    MuonClusterInfo( TrigCompositeUtils::Decision* d, 
+                     const TrigRoiDescriptor* r, 
+                     const xAOD::L2StandAloneMuon* f,
   		     const TrigCompositeUtils::Decision* previousDecision )
     : decision( d ), 
       roi( r ),
-      cluster( c ),
-      previousDecisionIDs(TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
-			  TrigCompositeUtils::decisionIDs( previousDecision ).end() )
+      muFast( f ),
+      previousDecisionIDs( TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
+			   TrigCompositeUtils::decisionIDs( previousDecision ).end() )
       {}
       
       TrigCompositeUtils::Decision* decision;
       const TrigRoiDescriptor* roi;
-      const xAOD::L2StandAloneMuon* cluster;
+      const xAOD::L2StandAloneMuon* muFast;
       const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
     };
 

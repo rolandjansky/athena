@@ -5,7 +5,6 @@
 ///////////////////////////////////////////////////////////////////
 //  Header file for class  PixelClusterOnTrackTool
 ///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 // Interface for PixelClusterOnTrack production
 ///////////////////////////////////////////////////////////////////
@@ -19,22 +18,27 @@
 
 
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-#include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
+/** The following cannot be fwd declared for interesting reason; the return type of
+ * 'correct' is InDet::PixelClusterOnTrack* here, but in the baseclass is 
+ * Trk::RIO_OnTrack*. This works if the inheritance is known, but fwd declaration results
+ * in an error:
+ * invalid covariant return type for 'virtual const InDet::PixelClusterOnTrack* 
+ InDet::PixelClusterOnTrackTool::correct(const Trk::PrepRawData&, 
+ const TrackParameters&) const'
+ * because the return type has changed and the compiler has no information to cast.
+ **/
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
 #include "TrkParameters/TrackParameters.h"
-//#include "InDetIdentifier/PixelID.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkAmbiguityProcessor/dRMap.h"
-
-//#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
-//#include "PixelConditionsTools/IModuleDistortionsTool.h"
-
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
 class PixelID;
 class IPixelOfflineCalibSvc;
 class IModuleDistortionsTool;
+namespace Trk{
+  class IRIO_OnTrackErrorScalingTool;
+}
 
 class StoreGateSvc;
 class IIBLParameterSvc;

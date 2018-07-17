@@ -8,8 +8,8 @@
     authors : Tatjana Lenz <tatjana.lenz@cern.ch>
  ***************************************************************************/
 #include "InDetZVTOPVxFinder/ZVTOP_TrkPartBaseVertexState.h"
-#include "VxVertex/Vertex.h"
 #include "TrkParticleBase/TrackParticleBase.h"
+
 
 namespace InDet {
 
@@ -21,10 +21,9 @@ namespace InDet {
   m_vtx_prob(vs.m_vtx_prob),
   m_vertex(vs.m_vertex),
   m_beam_spot(vs.m_beam_spot),
-  m_tracks(std::vector<const Trk::TrackParticleBase*>())
+  m_tracks(vs.m_tracks)
   {
-         for (std::vector<const Trk::TrackParticleBase*>::const_iterator itr = vs.m_tracks.begin();
-         itr != vs.m_tracks.end(); ++itr) m_tracks.push_back(*itr); 
+    
   }
   ZVTOP_TrkPartBaseVertexState::~ZVTOP_TrkPartBaseVertexState() {}
 } // end of namespace

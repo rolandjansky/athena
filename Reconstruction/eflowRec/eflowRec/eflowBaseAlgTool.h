@@ -20,6 +20,9 @@ class eflowRecTrackContainer;
 class eflowRecClusterContainer;
 #include "GaudiKernel/IAlgTool.h"
 
+/**
+An Algtool base class for eflowRec, which inherits from IAlgTool and defines a pure virtual execute method which takes an eflowCaloObjectContainer (which is a DataVector of eflowCaloObject) pointer as its argument.
+*/
 class eflowBaseAlgTool : virtual public IAlgTool {
 
  public:

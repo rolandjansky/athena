@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Tools/PyJobTransforms
                           DetectorDescription/GeoPrimitives
+                          InnerDetector/InDetConditions/InDetCondServices
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/VxVertex
                           Tracking/TrkVertexFitter/TrkVxEdmCnv

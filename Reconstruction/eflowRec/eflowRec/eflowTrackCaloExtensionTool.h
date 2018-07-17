@@ -23,13 +23,16 @@
 
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 namespace Trk {
-//class IParticleCaloExtensionTool;
+
 class TrackParametersIdHelper;
 }
 class eflowTrackCaloPoints;
 
 static const InterfaceID IID_eflowTrackCaloExtensionTool("eflowTrackCaloExtensionTool", 1, 0);
 
+/**
+ Inherits from eflowTrackExtrapolatorBaseAlgTool and AthAlgTool. Uses ParticleCaloExtenstionTool to extrapolate tracks to the calorimeter, and creates an eflowTrackCaloPoints object.
+*/
 class eflowTrackCaloExtensionTool: virtual public eflowTrackExtrapolatorBaseAlgTool, public AthAlgTool {
 
 public:

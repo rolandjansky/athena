@@ -46,7 +46,7 @@ svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 from TrigMultiVarHypo.TrigL2CaloRingerFexMTInit import init_ringer
 trigL2CaloRingerFexMT = init_ringer()
 trigL2CaloRingerFexMT.OutputLevel = DEBUG    
-
+trigL2CaloRingerFexMT.ClustersKey = theFastCaloAlgo.ClustersName
 
 
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq

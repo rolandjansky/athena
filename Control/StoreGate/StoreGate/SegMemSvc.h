@@ -85,8 +85,6 @@ private:
   
   ServiceHandle<IIncidentSvc> p_incSvc;
 
-  mutable MsgStream m_log;
-  
   /// helper to for printout
   inline std::string cvt(SegMemSvc::LIFETIME life) {
     switch  (life) {

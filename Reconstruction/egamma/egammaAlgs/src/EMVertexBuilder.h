@@ -26,10 +26,9 @@ class EMVertexBuilder : public AthAlgorithm {
  public:
   EMVertexBuilder (const std::string& name, ISvcLocator* pSvcLocator);
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
-
-  virtual StatusCode execute();
+  virtual StatusCode initialize() override final;
+  virtual StatusCode finalize() override final;
+  virtual StatusCode execute() override final;
 
  private:
 	

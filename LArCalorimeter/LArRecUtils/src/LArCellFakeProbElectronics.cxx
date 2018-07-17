@@ -15,10 +15,7 @@ PURPOSE:  Scales down the energy of cells due to simulated
           failure of the readout
 
 ********************************************************************/
-#include "LArRecUtils/LArCellFakeProbElectronics.h"
-
-#include "StoreGate/StoreGateSvc.h"
-
+#include "LArCellFakeProbElectronics.h"
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"

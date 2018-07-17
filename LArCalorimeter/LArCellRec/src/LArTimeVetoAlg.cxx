@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArCellRec/LArTimeVetoAlg.h"
+#include "LArTimeVetoAlg.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "LArRecEvent/LArEventBitInfo.h"
 #include "GaudiKernel/Property.h"

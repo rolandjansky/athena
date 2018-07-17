@@ -578,7 +578,6 @@ void AlSpaMat::RemoveAlignPar(int index, int control)
   index = index-control;
 
   mapiterator pos;
-  indices key;
 
   for(int row=index; row<(size()-shiftRow); row++) {
     shiftCol = 0;

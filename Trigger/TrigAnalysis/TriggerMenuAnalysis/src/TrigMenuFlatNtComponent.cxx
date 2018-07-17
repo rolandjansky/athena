@@ -15,9 +15,9 @@ using namespace std;
 
 RoINtComponent::RoINtComponent(const std::string& brname, 
 			       ChainEntry::RoIType roi_type, 
-			       RoILinksCnvTool* roitool, 
+			       RoILinksCnvTool* /*roitool*/, 
 			       MsgStream* msg) : 
-  m_branchName(brname), m_RoIType(roi_type), m_RoILinksCnvTool(roitool), 
+  m_branchName(brname), m_RoIType(roi_type), 
   m_log(msg), 
   m_type(0), m_lastStep(0) {
 }
