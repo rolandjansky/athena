@@ -32,6 +32,23 @@ private:
   char **m_names;
 };
 
+#include "MuonRIO_OnTrack/MDTRIO_OnTrackErrorScaling.h"
+class MDTRIO_OnTrackErrorScalingKit
+  : public RIO_OnTrackErrorScalingSpecialisedKit<MDTRIO_OnTrackErrorScaling>
+{
+public:
+  MDTRIO_OnTrackErrorScalingKit() {}
+
+  ~MDTRIO_OnTrackErrorScalingKit() {}
+
+  virtual unsigned int nParametres() const override {
+    return MDTRIO_OnTrackErrorScaling::kNParamTypes;
+  }
+  virtual const char **paramNames()  const override {
+    return MDTRIO_OnTrackErrorScaling::paramNames();
+  }
+};
+
 
 namespace {
   // register all kits with the help of a dummy function which sets a global anonymous bool
@@ -39,6 +56,7 @@ namespace {
     return
          RIO_OnTrackErrorScalingKitManager::instance().registerKit("RPCRIO_OnTrackErrorScaling",    new MuonEtaPhiRIO_OnTrackErrorScalingKit("RPC"))
       && RIO_OnTrackErrorScalingKitManager::instance().registerKit("TGCRIO_OnTrackErrorScaling",    new MuonEtaPhiRIO_OnTrackErrorScalingKit("TGC"))
-      && RIO_OnTrackErrorScalingKitManager::instance().registerKit("CSCRIO_OnTrackErrorScaling",    new MuonEtaPhiRIO_OnTrackErrorScalingKit("CSC"));
+      && RIO_OnTrackErrorScalingKitManager::instance().registerKit("CSCRIO_OnTrackErrorScaling",    new MuonEtaPhiRIO_OnTrackErrorScalingKit("CSC"))
+      && RIO_OnTrackErrorScalingKitManager::instance().registerKit("MDTRIO_OnTrackErrorScaling",    new MDTRIO_OnTrackErrorScalingKit);
     } ) ();
 }
