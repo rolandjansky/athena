@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEventInfo
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
+                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
                           Tracking/TrkEvent/TrkPrepRawData
                           Tracking/TrkEvent/TrkRIO_OnTrack )
 
@@ -27,7 +28,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TrkRIO_OnTrackCreator
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel EventPrimitives GaudiKernel TrkParameters TrkToolInterfaces AthenaPoolUtilities AtlasDetDescr Identifier xAODEventInfo InDetIdentifier InDetRIO_OnTrack TrkPrepRawData TrkRIO_OnTrack )
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel EventPrimitives GaudiKernel TrkParameters TrkToolInterfaces AthenaPoolUtilities AtlasDetDescr Identifier xAODEventInfo InDetIdentifier InDetRIO_OnTrack MuonRIO_OnTrack TrkPrepRawData TrkRIO_OnTrack )
 
 # Install files from the package:
 atlas_install_headers( TrkRIO_OnTrackCreator )
