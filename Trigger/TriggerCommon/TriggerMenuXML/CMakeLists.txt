@@ -117,9 +117,9 @@ atlas_build_trigger_menu( MC_pp_v7_tightperf_mc_prescale )
 atlas_build_trigger_menu( MC_pp_v7_BulkMCProd_mc_prescale )
 atlas_build_trigger_menu( MC_pp_v7_CPSampleProd_mc_prescale )
 
-atlas_build_trigger_menu( Physics_HI_v3 )
-atlas_build_trigger_menu( MC_HI_v3 )
-atlas_build_trigger_menu( MC_HI_v3_tight_mc_prescale )
+atlas_build_trigger_menu( Physics_HI_v5 )
+atlas_build_trigger_menu( MC_HI_v5 )
+atlas_build_trigger_menu( MC_HI_v5_tight_mc_prescale )
 
 atlas_build_trigger_menu( Physics_HI_v4 )
 atlas_build_trigger_menu( MC_HI_v4 )
