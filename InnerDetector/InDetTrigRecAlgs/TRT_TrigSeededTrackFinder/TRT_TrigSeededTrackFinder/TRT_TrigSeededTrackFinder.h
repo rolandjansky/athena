@@ -36,6 +36,7 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "TrigInterfaces/FexAlgo.h"
 
+
 class IRegSelSvc;
 
 namespace InDet {
@@ -78,33 +79,33 @@ namespace InDet {
   protected:
       ServiceHandle<IRegSelSvc>     m_regionSelector;      //!< region selector service
       
-      double       m_etaHalfWidth;   //!< ROI half-width in eta.
-      double       m_phiHalfWidth;   //!< ROI half-width in phi.
-      bool         m_doFullScan;    //!< FullScan mode
+      double       m_etaHalfWidth{};   //!< ROI half-width in eta.
+      double       m_phiHalfWidth{};   //!< ROI half-width in phi.
+      bool         m_doFullScan{};    //!< FullScan mode
       
-      int                     m_nDetElPixel;  //Number of pixel det elements
-      int                     m_nDetElSCT;    //Number of SCT det elements
-      double                  m_RoIEta;      
-      double                  m_RoIPhi;
+      int                     m_nDetElPixel{};  //Number of pixel det elements
+      int                     m_nDetElSCT{};    //Number of SCT det elements
+      double                  m_RoIEta{};      
+      double                  m_RoIPhi{};
       
       ///////////////////////////////////////////////////////////////////
       // Protected data 
       ///////////////////////////////////////////////////////////////////
      
-      int                                m_outputlevel      ;  // Print level for debug
-      int                                m_nprint           ;  // Kind of  print    
-      int                                m_ntracks          ;  // Number of tracks found
+      int                                m_outputlevel{}      ;  // Print level for debug
+      int                                m_nprint{}           ;  // Kind of  print    
+      int                                m_ntracks{}          ;  // Number of tracks found
 
-      bool                               m_doRefit          ;  // Do final careful refit of tracks
-      bool                               m_doExtension      ; // Find the TRT extension of the Si track segment 
-      bool                               m_saveTRT          ;  // Output stand-alone TRT segments
+      bool                               m_doRefit{}          ;  // Do final careful refit of tracks
+      bool                               m_doExtension{}      ; // Find the TRT extension of the Si track segment 
+      bool                               m_saveTRT{}          ;  // Output stand-alone TRT segments
 
 
       ToolHandle<ITRT_SeededTrackFinder>   m_trackmaker     ;  //Track maker tool
       ToolHandle<Trk::ITrackFitter>        m_fitterTool     ;  //Refitting tool
       ToolHandle<ITRT_TrackExtensionTool>  m_trtExtension   ; // TRT track extension tool
 
-      const Trk::SegmentCollection      *m_Segments         ;  // Segments to use
+      const Trk::SegmentCollection      *m_Segments{}         ;  // Segments to use
 
       ///Sets and maps to use for dropping dublicates
       //typedef std::set<const Trk::PrepRawData*> PrdSignature;
@@ -112,20 +113,20 @@ namespace InDet {
       //PrdSignatureSet                           m_prdSigSet;
 
       ///Track quality cuts
-      int                                     m_minNDF       ;  //Minimum number of degrees of freedom
+      int                                     m_minNDF{}       ;  //Minimum number of degrees of freedom
 
       ///Counters
-      int m_nTrtSeg          ;  //Number of TRT segments to be investigated per event
-      int m_nTrtSegGood      ;  //Number of TRT segments that will be investigated per event
-      int m_nBckTrk          ;  //Total number of back tracks found with or without Si extension per event
-      int m_nBckTrkTrt       ;  //Number of back tracks found without a Si extension per event
-      int m_nBckTrkSi        ;  //Number of back tracks found with Si extension per event
+      int m_nTrtSeg{}          ;  //Number of TRT segments to be investigated per event
+      int m_nTrtSegGood{}      ;  //Number of TRT segments that will be investigated per event
+      int m_nBckTrk{}          ;  //Total number of back tracks found with or without Si extension per event
+      int m_nBckTrkTrt{}       ;  //Number of back tracks found without a Si extension per event
+      int m_nBckTrkSi{}        ;  //Number of back tracks found with Si extension per event
 
-      int m_nTrtSegTotal     ;  // Total number of TRT segments to be investigated
-      int m_nTrtSegGoodTotal ;  // Total number of TRT segments that will be investigated
-      int m_nBckTrkTotal     ;  // Total number of back tracks found with or without Si extension
-      int m_nBckTrkTrtTotal  ;  // Total number of back tracks found without a Si extension
-      int m_nBckTrkSiTotal   ;  // Total number of back tracks found with Si extension
+      int m_nTrtSegTotal{}     ;  // Total number of TRT segments to be investigated
+      int m_nTrtSegGoodTotal{} ;  // Total number of TRT segments that will be investigated
+      int m_nBckTrkTotal{}     ;  // Total number of back tracks found with or without Si extension
+      int m_nBckTrkTrtTotal{}  ;  // Total number of back tracks found without a Si extension
+      int m_nBckTrkSiTotal{}   ;  // Total number of back tracks found with Si extension
 
       ///////////////////////////////////////////////////////////////////
       // Protected methods
@@ -141,7 +142,7 @@ namespace InDet {
       MsgStream&    dumpevent(MsgStream&    out) const;
       
       //Timing
-      TrigTimer      *m_timerRegSel;
+      TrigTimer      *m_timerRegSel{};
 
     };
   MsgStream&    operator << (MsgStream&   ,const TRT_TrigSeededTrackFinder&);
