@@ -4,6 +4,7 @@ from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__PixelClusterOnT
 egTrigPixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("egTrigPixelClusterOnTrackTool",
                                                                DisableDistortions = False,
                                                                applyNNcorrection = False)
+ToolSvc += egTrigPixelClusterOnTrackTool
 
 from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__SCT_ClusterOnTrackTool
 egTrigSCT_ClusterOnTrackTool = InDet__SCT_ClusterOnTrackTool ("egTrigSCT_ClusterOnTrackTool",
@@ -66,39 +67,39 @@ ToolSvc += egTrigTrkExtrapolator
 
 # Set up the GSF
 from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
-GsfTrigMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'GsfTrigMaterialUpdator')
-ToolSvc += GsfTrigMaterialUpdator
+GSFTrigMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'GSFTrigMaterialUpdator')
+ToolSvc += GSFTrigMaterialUpdator
 # component Reduction
 from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__QuickCloseComponentsMultiStateMerger
-GsfTrigComponentReduction = Trk__QuickCloseComponentsMultiStateMerger (name                      = 'GsfTrigComponentReduction',
+GSFTrigComponentReduction = Trk__QuickCloseComponentsMultiStateMerger (name                      = 'GSFTrigComponentReduction',
                                                                        MaximumNumberOfComponents = 12)
-ToolSvc += GsfTrigComponentReduction
+ToolSvc += GSFTrigComponentReduction
 
 from TrkMeasurementUpdator.TrkMeasurementUpdatorConf import Trk__KalmanUpdator as ConfiguredKalmanUpdator
 egTrigTrkUpdator = ConfiguredKalmanUpdator('egTrigTrkUpdator')
 ToolSvc += egTrigTrkUpdator
 
 from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMeasurementUpdator
-GsfTrigMeasurementUpdator = Trk__GsfMeasurementUpdator( name    = 'GsfTrigMeasurementUpdator',
+GSFTrigMeasurementUpdator = Trk__GsfMeasurementUpdator( name    = 'GSFTrigMeasurementUpdator',
                                                     Updator = egTrigTrkUpdator )
-ToolSvc += GsfTrigMeasurementUpdator
+ToolSvc += GSFTrigMeasurementUpdator
 
 from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfExtrapolator
-GsfTrigExtrapolator = Trk__GsfExtrapolator(name                          = 'GsfTrigExtrapolator',
+GSFTrigExtrapolator = Trk__GsfExtrapolator(name                          = 'GSFTrigExtrapolator',
                                        Propagators                   = [ egTrigTrkPropagator ],
                                        SearchLevelClosestParameters  = 10,
                                        StickyConfiguration           = True,
                                        Navigator                     = egTrigTrkNavigator,
-                                       GsfMaterialConvolution        = GsfTrigMaterialUpdator,
-                                       ComponentMerger               = GsfTrigComponentReduction,
+                                       GsfMaterialConvolution        = GSFTrigMaterialUpdator,
+                                       ComponentMerger               = GSFTrigComponentReduction,
                                        SurfaceBasedMaterialEffects   = False )
-ToolSvc += GsfTrigExtrapolator
+ToolSvc += GSFTrigExtrapolator
 
 
 from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GaussianSumFitter
 GSFTrigTrackFitter = Trk__GaussianSumFitter(name                    = 'GSFTrigTrackFitter',
-                                        ToolForExtrapolation    = GsfTrigExtrapolator,
-                                        MeasurementUpdatorType  = GsfTrigMeasurementUpdator,
+                                        ToolForExtrapolation    = GSFTrigExtrapolator,
+                                        MeasurementUpdatorType  = GSFTrigMeasurementUpdator,
                                         ReintegrateOutliers     = True,
                                         MakePerigee             = True,
                                         RefitOnMeasurementBase  = True,
