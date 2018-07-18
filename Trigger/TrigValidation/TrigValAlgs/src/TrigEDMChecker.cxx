@@ -4100,9 +4100,11 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
           // Look it up
           CLID checkCLID;
           const std::string* keyStr = evtStore()->keyToString(key, checkCLID);
-          if (checkCLID != linkCLID) {
-            ATH_MSG_ERROR("Inconsistent CLID " << checkCLID << "stored in storegate for key " << key
-              << " expecting " << linkCLID << " class name:" << tname);
+          if (keyStr != nullptr && checkCLID != linkCLID) {
+            std::string tnameOfCheck;
+            m_clidSvc->getTypeNameOfID(checkCLID, tnameOfCheck).ignore(); // Might be invalid. But we don't care.
+            ATH_MSG_ERROR("Inconsistent CLID " << checkCLID << " [" << tnameOfCheck << "] stored in storegate for key " << key
+              << ". We were expecting " << linkCLID << " [" << tname << "]");
           }
           // Print
           ss << "    \"" << tc << "\" -> \"";

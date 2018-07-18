@@ -105,8 +105,7 @@ StatusCode TrigDecisionMakerMT::execute_r(const EventContext& context) const
       TrigCompositeUtils::decisionIDs(decisionObject, allPassedSet);
     }
     if (allPassedSet.size()) ++m_hltPassed;
-    std::vector<TrigCompositeUtils::DecisionID> toRecordPassed;
-    std::copy(allPassedSet.begin(), allPassedSet.end(), std::back_inserter(toRecordPassed));
+    std::vector<TrigCompositeUtils::DecisionID> toRecordPassed(allPassedSet.begin(), allPassedSet.end());
     trigDec->setChainMTPassedRaw(toRecordPassed);
   }
 
