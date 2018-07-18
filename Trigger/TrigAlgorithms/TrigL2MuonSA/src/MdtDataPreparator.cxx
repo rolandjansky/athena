@@ -68,6 +68,9 @@ TrigL2MuonSA::MdtDataPreparator::MdtDataPreparator(const std::string& type,
    m_BMGid(-1)
 {
    declareInterface<TrigL2MuonSA::MdtDataPreparator>(this);
+
+   declareProperty("MDT_RawDataProvider", m_mdtRawDataProvider);
+   declareProperty("MdtPrepDataProvider", m_mdtPrepDataProvider);
 }
 
 // --------------------------------------------------------------------------------

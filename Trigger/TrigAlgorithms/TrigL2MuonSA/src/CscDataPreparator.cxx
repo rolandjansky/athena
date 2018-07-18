@@ -38,8 +38,13 @@ TrigL2MuonSA::CscDataPreparator::CscDataPreparator(const std::string& type,
    m_storeGateSvc( "StoreGateSvc", name ),
    m_activeStore( "ActiveStoreSvc", name ),
    m_regionSelector( "RegSelSvc", name )
+   m_cscPrepDataProvider("Muon::CscRdoToCscPrepDataTool/CscPrepDataProviderTool"),
+   m_cscClusterProvider("CscThresholdClusterBuilderTool")
 {
    declareInterface<TrigL2MuonSA::CscDataPreparator>(this);
+
+   declareProperty("CscPrepDataProvider", m_cscPrepDataProvider);
+   declareProperty("CscClusterProvider",  m_cscClusterProvider);
 }
 
 // --------------------------------------------------------------------------------

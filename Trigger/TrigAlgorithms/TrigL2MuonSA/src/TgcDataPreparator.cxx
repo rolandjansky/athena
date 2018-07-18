@@ -43,11 +43,15 @@ TrigL2MuonSA::TgcDataPreparator::TgcDataPreparator(const std::string& type,
   AthAlgTool(type,name,parent),
    m_storeGateSvc( "StoreGateSvc", name ),
    m_activeStore( "ActiveStoreSvc", name ), 
+   m_tgcPrepDataProvider("Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool"),
+   m_tgcRawDataProvider("Muon::TGC_RawDataProviderTool"),
    m_regionSelector( "RegSelSvc", name ), 
    m_robDataProvider( "ROBDataProviderSvc", name ),
    m_options(), m_recMuonRoIUtils()
 {
    declareInterface<TrigL2MuonSA::TgcDataPreparator>(this);
+   declareProperty("TgcPrepDataProvider", m_tgcPrepDataProvider);
+   declareProperty("TGC_RawDataProvider", m_tgcRawDataProvider);
 }
 
 

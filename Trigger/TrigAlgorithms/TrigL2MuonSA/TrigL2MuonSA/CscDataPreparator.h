@@ -96,10 +96,12 @@ namespace TrigL2MuonSA {
     ServiceHandle<IRegSelSvc>  m_regionSelector;
     
     // CSC PrepDataProvider
-    ToolHandle<Muon::IMuonRdoToPrepDataTool> m_cscPrepDataProvider {
-	this, "CscPrepDataProvider", "Muon::CscRdoToCscPrepDataTool/CscPrepDataProviderTool", ""};
-    ToolHandle<ICscClusterBuilder> m_cscClusterProvider {
-	this, "CscClusterProvider", "CscThresholdClusterBuilderTool", ""};
+    ToolHandle<Muon::IMuonRdoToPrepDataTool> m_cscPrepDataProvider;
+    //ToolHandle<Muon::IMuonRdoToPrepDataTool> m_cscPrepDataProvider {
+    //  	this, "CscPrepDataProvider", "Muon::CscRdoToCscPrepDataTool/CscPrepDataProviderTool", ""};
+    ToolHandle<ICscClusterBuilder> m_cscClusterProvider;
+    //ToolHandle<ICscClusterBuilder> m_cscClusterProvider {
+    //  	this, "CscClusterProvider", "CscThresholdClusterBuilderTool", ""};
 
     SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscPrepContainerKey{
 	this, "CSCPrepDataContainer", "CSC_Clusters", "Name of the CSCContainer to read in"};

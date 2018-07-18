@@ -99,12 +99,14 @@ class TgcDataPreparator: public AthAlgTool
       MuonTGC_CablingSvc* m_tgcCabling;	
 
       // Tool for Rdo to Prep Data conversion
-      ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tgcPrepDataProvider {
-	this, "TgcPrepDataProvider", "Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool", ""};
-	
-      // Tools for the Raw data conversion
-      ToolHandle<Muon::IMuonRawDataProviderTool>  m_tgcRawDataProvider {
-	this, "TGC_RawDataProvider", "Muon::TGC_RawDataProviderTool", ""};
+      ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tgcPrepDataProvider;
+      //ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tgcPrepDataProvider {
+      // 	this, "TgcPrepDataProvider", "Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool", ""};
+      //  
+      //// Tools for the Raw data conversion
+      ToolHandle<Muon::IMuonRawDataProviderTool>  m_tgcRawDataProvider;
+      //ToolHandle<Muon::IMuonRawDataProviderTool>  m_tgcRawDataProvider {
+      // 	this, "TGC_RawDataProvider", "Muon::TGC_RawDataProviderTool", ""};
 
       // Region Selector
       ServiceHandle<IRegSelSvc> m_regionSelector;

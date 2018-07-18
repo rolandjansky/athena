@@ -44,9 +44,11 @@ TrigL2MuonSA::RpcDataPreparator::RpcDataPreparator(const std::string& type,
    m_storeGateSvc( "StoreGateSvc", name ),
    m_activeStore( "ActiveStoreSvc", name ),
    m_regionSelector( "RegSelSvc", name ),
+   m_rpcPrepDataProvider("Muon::RpcRdoToPrepDataTool/RpcPrepDataProviderTool"),
    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
 {
    declareInterface<TrigL2MuonSA::RpcDataPreparator>(this);
+   declareProperty("RpcPrepDataProvider", m_rpcPrepDataProvider);
 }
 
 // --------------------------------------------------------------------------------
