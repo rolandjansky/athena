@@ -93,15 +93,15 @@ JetConstituentModSequence::copyModRecord(const SG::ReadHandleKey<T>& inKey,
     return StatusCode::FAILURE;
   }
 
-  std::pair< T*, xAOD::ShallowAuxContainer* > newclust = 
+  std::pair< T*, xAOD::ShallowAuxContainer* > newconstit =
     xAOD::shallowCopyContainer(*inHandle);    
-  newclust.second->setShallowIO(m_saveAsShallow);
+  newconstit.second->setShallowIO(m_saveAsShallow);
   
-  for (auto t : m_modifiers) {ATH_CHECK(t->process(newclust.first));}
+  for (auto t : m_modifiers) {ATH_CHECK(t->process(newconstit.first));}
 
   auto handle = makeHandle(outKey);
-  ATH_CHECK(handle.record(std::unique_ptr<T>(newclust.first),
-                          std::unique_ptr<xAOD::ShallowAuxContainer>(newclust.second)));
+  ATH_CHECK(handle.record(std::unique_ptr<T>(newconstit.first),
+                          std::unique_ptr<xAOD::ShallowAuxContainer>(newconstit.second)));
   
   return StatusCode::SUCCESS;
 }
