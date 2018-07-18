@@ -1,3 +1,21 @@
+#    'L1_ALFA_ELAST15' : {1 : TriggerRule(PS=1, comment='ALFA') },
+#        'L1_ALFA_ELAST18' : {1 : TriggerRule(PS=1, comment='ALFA') },
+#        'L1_ALFA_SYST17'  : {1 : TriggerRule(PS=1, comment='ALFA') },
+#        'L1_ALFA_SYST18'  : {1 : TriggerRule(PS=1, comment='ALFA') },
+#        'L1_ALFA_ANY'     : {1 : TriggerRule(PS=1, comment='ALFA') },
+#        'L1_ALFA_ANY_EMPTY' : {1 : TriggerRule(PS=1, comment='ALFA') },
+#        'L1_ALFA_ANY_FIRSTEMPTY' : {1 : TriggerRule(PS=1, comment='ALFA') },
+#        'L1_ALFA_ANY_UNPAIRED_ISO' : {1 : TriggerRule(PS=1, comment='ALFA') },
+#        'L1_ALFA_ANY_UNPAIRED_NONISO' : {1 : TriggerRule(PS=1, comment='ALFA') },
+#        'L1_ALFA_ANY_CALIB' : {1 : TriggerRule(PS=1, comment='ALFA') },
+#        'L1_ALFA_ANY_ABORTGAPNOTCALIB' : {1 : TriggerRule(PS=1, comment='ALFA') },
+#        'L1_ALFA_B1_EMPTY' : {1 : TriggerRule(PS=1, comment='ALFA') },
+#        'L1_ALFA_B2_EMPTY' : {1 : TriggerRule(PS=1, comment='ALFA') },
+#        'L1_ALFA_B7L1_OD' : {1 : TriggerRule(PS=1, comment='ALFA') },
+#        'L1_ALFA_A7L1_OD' : {1 : TriggerRule(PS=1, comment='ALFA') },
+#        'L1_ALFA_A7R1_OD' : {1 : TriggerRule(PS=1, comment='ALFA') },
+#        'L1_ALFA_B7R1_OD' : {1 : TriggerRule(PS=1, comment='ALFA') },
+#        'L1_ALFA_BGT_BGRP1' : {1 : TriggerRule(PS=10, comment='ALFA') },
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
 # Run this file in order to print out the empty slots
@@ -9,9 +27,9 @@ def print_available():
     for i in range(512):
       if i==463: continue #reserved for L1_RD2_BGRP14, L1_RD3_BGRP15 now assigned to 510 for partition 3 ATR-17737
       if i>=509 and i<=511: continue #reserved for CALREQ
-      if not i in Lvl1Flags.CtpIdMap().values(): available.append(str(i))
+      if not i in Lvl1Flags.CtpIdMap().values(): available.append(i)
     available.sort()
-    print "There are %d available CTP IDs:"%len(available),",".join(available)
+    print "There are %d available CTP IDs:"%len(available),",".join(map(str,available))
     print "IDs >= 472 go in partition 2, IDs >= 492 go in partition 3"
 
 def defineMenu():
@@ -860,8 +878,8 @@ def defineMenu():
         'L1_ALFA_BGT_BGRP4','L1_ALFA_BGT_BGRP10',
         'L1_ALFA_SHOWSYST5',
 #        'L1_ALFA_SYST9','L1_ALFA_SYST10','L1_ALFA_SYST11','L1_ALFA_SYST12',
-#        'L1_ALFA_SYST17','L1_ALFA_SYST18',
-#        'L1_ALFA_ANY',
+        'L1_ALFA_SYST17','L1_ALFA_SYST18',
+        'L1_ALFA_ANY',
         'L1_ALFA_ANY_EMPTY','L1_ALFA_B1_EMPTY','L1_ALFA_B2_EMPTY','L1_ALFA_ANY_FIRSTEMPTY','L1_ALFA_ANY_UNPAIRED_ISO','L1_ALFA_ANY_UNPAIRED_NONISO',
         'L1_ALFA_ANY_BGRP10',
         'L1_ALFA_ANY_ABORTGAPNOTCALIB','L1_ALFA_ANY_CALIB',
@@ -1495,7 +1513,24 @@ def defineMenu():
         'L1_AFP_C_BGRP0'	:	435,
         'L1_AFP_A_BGRP0'	:	455,
 
-
+        'L1_ALFA_ELAST15' : 464,
+        'L1_ALFA_ELAST18' : 477,
+        'L1_ALFA_SYST17'  : 478,
+        'L1_ALFA_SYST18'  : 489,
+        'L1_ALFA_ANY'     : 490,
+        'L1_ALFA_ANY_EMPTY' : 491,
+        'L1_ALFA_ANY_FIRSTEMPTY' : 492,
+        'L1_ALFA_ANY_UNPAIRED_ISO' : 493,
+        'L1_ALFA_ANY_UNPAIRED_NONISO' : 494,
+        'L1_ALFA_ANY_CALIB' : 495,
+        'L1_ALFA_ANY_ABORTGAPNOTCALIB' : 496,
+        'L1_ALFA_B1_EMPTY' : 313,
+        'L1_ALFA_B2_EMPTY' : 314,
+        'L1_ALFA_B7L1_OD' : 324,
+        'L1_ALFA_A7L1_OD' : 325,
+        'L1_ALFA_A7R1_OD' : 326,
+        'L1_ALFA_B7R1_OD' : 328,
+        'L1_ALFA_BGT_BGRP1' : 349,
         
         'L1_MU6_FTK'                           : 499,
         'L1_MU20_FTK'                          : 500,
