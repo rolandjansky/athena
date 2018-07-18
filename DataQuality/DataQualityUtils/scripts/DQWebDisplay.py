@@ -88,21 +88,23 @@ if __name__ == "__main__":
   else:
     configModule = args[1]
   
-  #try:
-  #  if options.htag:
-  cmod = importConfiguration(configModule, options.htag)
-  #  else:
-  #    cmod = importConfiguration(configModule)  
-  #except Exception, e:
-  #  print "Could not import configuration module \'" + configModule + "\'"
-  #  sys.exit(1)
-  print cmod
-  
-  #try:
-  config = cmod.dqconfig
-  #except Exception, e:
-  #  print "Configuration object 'dqconfig' not defined in module \'" + configModule + "\'"
-  #  sys.exit(1)
+  try:
+    if options.htag:
+      cmod = importConfiguration(configModule, options.htag)
+    else:
+      cmod = importConfiguration(configModule)  
+  except Exception, e:
+    print "Could not import configuration module \'" + configModule + "\'"
+    sys.exit(1)
+
+  try:
+    if options.htag:
+      config = cmod 
+    else:
+      config = cmod.dqconfig
+  except Exception, e:
+    print "Configuration object 'dqconfig' not defined in module \'" + configModule + "\'"
+    sys.exit(1)
 
 
   DQWebDisplay( inputFile, runAccumulating, config )

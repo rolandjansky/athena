@@ -11,9 +11,8 @@ def getmodule(modname, htag=None):
     assert isinstance(modname, basestring), 'Argument to getmodule must be a string'
 
     if (htag):
-        from . import base_htag; return base_htag.get_config(htag)
+        from . import test_htag; return test_htag.get_config(htag)
     
-
     # Local file?
     try:
         mod = __import__(modname)

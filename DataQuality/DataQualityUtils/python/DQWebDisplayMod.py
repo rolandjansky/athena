@@ -765,10 +765,10 @@ def generateDQIndexFiles( server, installPath, project, indexFile, runListFile, 
     print cmd
     return os.system( cmd ) == 0
 
-def importConfiguration(modname):
+def importConfiguration(modname, htag=None):
     from DataQualityConfigurations import getmodule
     print 'getting configuration', modname
-    return getmodule(modname)
+    return getmodule(modname, htag)
 
 def email(msg, subject, whofrom, addressees):
     import smtplib
@@ -837,18 +837,24 @@ if __name__ == "__main__":
   else:
     configModule = args[1]
   
-  #try:
-  cmod = importConfiguration(configModule, options.htag)
-  #except Exception, e:
-  #  print "Could not import configuration module \'" + configModule + "\'"
-  #  sys.exit(1)
+  try:
+    if options.htag:
+      cmod = importConfiguration(configModule, options.htag)
+    else:
+      cmod = importConfiguration(configModule)
+  except Exception, e:
+    print "Could not import configuration module \'" + configModule + "\'"
+    sys.exit(1)
 
-  #try:
-  config = cmod.dqconfig
-  #except Exception, e:
-  #  print "Configuration object 'dqconfig' not defined in module \'" + configModule + "\'"
-  #  sys.exit(1)
-
+  try:
+    if options.htag:
+      config = cmod
+    else:
+      config = cmod.dqconfig
+  except Exception, e:
+    print "Configuration object 'dqconfig' not defined in module \'" + configModule + "\'"
+    sys.exit(1)
+  
   
   DQWebDisplay( inputFile, runAccumulating, config )
 
