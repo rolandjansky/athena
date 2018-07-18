@@ -316,7 +316,7 @@ SCT_ByteStreamErrorsSvc::isGood(const IdentifierHash & elementIdHash) {
   
   if (m_useDCSfromBS && (! HVisOn() ) ) return false;
 
-  if (m_isRODSimulatedData) return false;
+  //  if (m_isRODSimulatedData) return false;
   
   bool result(true);
   
@@ -387,7 +387,7 @@ bool
 SCT_ByteStreamErrorsSvc::isGood(const Identifier & elementId, InDetConditions::Hierarchy h){
   if (not canReportAbout(h)) return true;
   
-  if (m_isRODSimulatedData) return false;
+  //  if (m_isRODSimulatedData) return false;
 
   if (h==InDetConditions::SCT_SIDE) {
     const IdentifierHash elementIdHash = m_sct_id->wafer_hash(elementId);
