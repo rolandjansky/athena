@@ -64,6 +64,7 @@ class TauRecConfigured ( Configured ) :
         AlgScheduler.ShowControlFlow(True)
         
         from SGComps.SGCompsConf import SGInputLoader
+        topSequence += SGInputLoader()
         topSequence.SGInputLoader.Load = [ ('xAOD::JetContainer','AntiKt4LCTopoJets'), ('xAOD::VertexContainer', 'PrimaryVertices'),
                                            ('xAOD::TrackParticleContainer','InDetTrackParticles'), ('CaloCellContainer','AllCalo') ]
 
