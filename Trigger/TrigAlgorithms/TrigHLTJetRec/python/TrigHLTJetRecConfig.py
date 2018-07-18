@@ -74,7 +74,7 @@ def configHLTEventDensityTool(name,
     toolProperties = dict(
         JetAlgorithm        = JetAlgorithm,
         JetRadius           = radius,
-        JetInput            = pjGetter,
+        InputContainer      = pjGetter.OutputContainer,
         AbsRapidityMin      = AbsRapidityMin,
         AbsRapidityMax      = AbsRapidityMax,
         AreaDefinition      = AreaDefinition,
