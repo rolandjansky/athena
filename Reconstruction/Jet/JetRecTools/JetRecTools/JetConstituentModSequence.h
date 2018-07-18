@@ -56,18 +56,16 @@ protected:
   bool m_saveAsShallow = true;
 
   // note: not all keys will be used for a particular instantiation
-  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outClusterKey;
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_inClusterKey{this, "InClusterKey", "", "ReadHandleKey for unmodified CaloClusters"};
+  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outClusterKey{this, "OutClusterKey", "", "WriteHandleKey for modified CaloClusters"};
 
-  SG::WriteHandleKey<xAOD::PFOContainer> m_outPFOChargedKey;
-  SG::WriteHandleKey<xAOD::PFOContainer> m_outPFONeutralKey;
+  SG::ReadHandleKey<xAOD::PFOContainer> m_inPFOChargedKey{this, "InChargedPFOKey", "", "ReadHandleKey for modified Charged PFlow Objects"};
+  SG::WriteHandleKey<xAOD::PFOContainer> m_outPFOChargedKey{this, "OutChargedPFOKey", "", "WriteHandleKey for modified Charged PFlow Objects"};
 
-  SG::WriteHandleKey<ConstDataVector<xAOD::PFOContainer>> m_outPFOAllKey{};
+  SG::ReadHandleKey<xAOD::PFOContainer> m_inPFONeutralKey{this, "InNeutralPFOKey", "", "ReadHandleKey for modified Neutral PFlow Objects"};
+  SG::WriteHandleKey<xAOD::PFOContainer> m_outPFONeutralKey{this, "OutNeutralPFOKey", "", "WriteHandleKey for modified Neutral PFlow Objects"};
 
-  SG::ReadHandleKey<xAOD::PFOContainer> m_inPFOChargedKey{};
-  SG::ReadHandleKey<xAOD::PFOContainer> m_inPFONeutralKey{};
-  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_inClusterKey{};
-  SG::ReadHandleKey<xAOD::PFOContainer> m_inPFOChargedCopyKey{};
-  SG::ReadHandleKey<xAOD::PFOContainer> m_inPFONeutralCopyKey{};
+  SG::WriteHandleKey<ConstDataVector<xAOD::PFOContainer>> m_outPFOAllKey{this, "OutAllPFOKey", "", "WriteHandleKey for all modified PFlow Objects"};
 
   StatusCode copyModRecordPFO() const;
 
