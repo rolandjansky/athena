@@ -13,6 +13,7 @@ extern "C" {
 #   include <stdint.h>
 }
 #include <vector>
+#include <string>
 
 // EDM include(s):
 #include "AthContainers/AuxElement.h"
@@ -161,28 +162,36 @@ namespace xAOD {
 
       /// Get the passed-raw chains
       const std::vector< ::TrigCompositeUtils::DecisionID >& chainMTPassedRaw() const;
-      bool chainMTPassedRaw( ::TrigCompositeUtils::DecisionID id ) const;
       /// Set the EF passed-raw items
       void setChainMTPassedRaw( const std::vector< ::TrigCompositeUtils::DecisionID >& value );
+      /// Basic access modes
+      bool isPassed( ::TrigCompositeUtils::DecisionID id ) const;
+      bool isPassed( const std::string& hltChainName ) const;
 
       /// Get the EF prescaled items
       const std::vector< ::TrigCompositeUtils::DecisionID >& chainMTPrescaled() const;
-      bool chainMTPrescaled( ::TrigCompositeUtils::DecisionID id ) const;
       /// Set the EF prescaled items
       void setChainMTPrescaled( const std::vector< ::TrigCompositeUtils::DecisionID >& value );
+      /// Basic access modes
+      bool isPrescaled( ::TrigCompositeUtils::DecisionID id ) const;
+      bool isPrescaled( const std::string& hltChainName ) const;
 
       /// Get the EF resurrected items
       const std::vector< ::TrigCompositeUtils::DecisionID >& chainMTResurrected() const;
-      bool chainMTResurrected( ::TrigCompositeUtils::DecisionID id ) const;
       /// Set the EF resurrected items
       void setChainMTResurrected( const std::vector< ::TrigCompositeUtils::DecisionID >& value );
+      /// Basic access modes
+      bool isResurrected( ::TrigCompositeUtils::DecisionID id ) const;
+      bool isResurrected( const std::string& hltChainName ) const;
 
       /// @}
-
 
    }; // class TrigDecision_v1
 
 } // namespace xAOD
+
+std::ostream& operator<<(std::ostream& s, const xAOD::TrigDecision_v1& td);
+
 
 // Declare the inheritance of the type:
 #include "xAODCore/BaseInfo.h"
