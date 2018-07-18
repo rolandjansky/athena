@@ -68,7 +68,8 @@ namespace CP
   /// to yield other kinds of decorations as well.
   StatusCode
   makeSelectionAccessor (const std::string& name,
-                         std::unique_ptr<ISelectionAccessor>& accessor);
+                         std::unique_ptr<ISelectionAccessor>& accessor,
+                         bool defaultToChar = false);
 }
 
 #endif
