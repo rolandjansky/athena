@@ -145,7 +145,7 @@ StatusCode TauRunnerAlg::execute() {
     ATH_MSG_DEBUG("  write: " << hadronicPFOHandle.key() << " = " << "..." );
     ATH_CHECK(hadronicPFOHandle.record(std::unique_ptr<xAOD::PFOContainer>{hadronicClusterPFOContainer}, std::unique_ptr<xAOD::PFOAuxContainer>{hadronicClusterPFOAuxStore}));
 
-    // pi0 calo clusters
+    // write pi0 calo clusters
     xAOD::CaloClusterContainer* pi0CaloClusterContainer = new xAOD::CaloClusterContainer();
     xAOD::CaloClusterAuxContainer* pi0CaloClusterAuxContainer = new xAOD::CaloClusterAuxContainer();
     pi0CaloClusterContainer->setStore(pi0CaloClusterAuxContainer);
@@ -153,7 +153,7 @@ StatusCode TauRunnerAlg::execute() {
     ATH_MSG_DEBUG("  write: " << pi0CaloClusHandle.key() << " = " << "..." );
     ATH_CHECK(pi0CaloClusHandle.record(std::unique_ptr<xAOD::CaloClusterContainer>{pi0CaloClusterContainer}, std::unique_ptr<xAOD::CaloClusterAuxContainer>{pi0CaloClusterAuxContainer}));
 
-    // secondary vertices
+    // write secondary vertices
     xAOD::VertexContainer* pSecVtxContainer = new xAOD::VertexContainer();
     xAOD::VertexAuxContainer* pSecVtxAuxContainer = new xAOD::VertexAuxContainer();
     pSecVtxContainer->setStore( pSecVtxAuxContainer );
@@ -161,7 +161,7 @@ StatusCode TauRunnerAlg::execute() {
     ATH_MSG_DEBUG("  write: " << vertOutHandle.key() << " = " << "..." );
     ATH_CHECK(vertOutHandle.record(std::unique_ptr<xAOD::VertexContainer>{pSecVtxContainer}, std::unique_ptr<xAOD::VertexAuxContainer>{pSecVtxAuxContainer}));
 
-    // charged PFO container
+    // write charged PFO container
     xAOD::PFOContainer* chargedPFOContainer = new xAOD::PFOContainer();
     xAOD::PFOAuxContainer* chargedPFOAuxStore = new xAOD::PFOAuxContainer();
     chargedPFOContainer->setStore(chargedPFOAuxStore);
@@ -183,7 +183,7 @@ StatusCode TauRunnerAlg::execute() {
     // Declare container
     const xAOD::TauJetContainer * pTauContainer = 0;
 
-    // Read in tau jets
+    // Read in temporary tau jets
     SG::ReadHandle<xAOD::TauJetContainer> tauInputHandle(m_tauInputContainer);
     if (!tauInputHandle.isValid()) {
       ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << tauInputHandle.key());
@@ -214,6 +214,9 @@ StatusCode TauRunnerAlg::execute() {
 	if ( (*itT)->name().find("Pi0ClusterCreator") != std::string::npos){
           sc = (*itT)->executePi0ClusterCreator(*pTau, *neutralPFOContainer, *hadronicClusterPFOContainer, *pi0CaloClusterContainer);
         }
+	else if ( (*itT)->name().find("VertexVariables") != std::string::npos){
+	  sc = (*itT)->executeVertexVariables(*pTau, *pSecVtxContainer);
+	}
 	else if ( (*itT)->name().find("Pi0ClusterScaler") != std::string::npos){
 	  sc = (*itT)->executePi0ClusterScaler(*pTau, *chargedPFOContainer);
 	}
@@ -241,6 +244,5 @@ StatusCode TauRunnerAlg::execute() {
   } else  {
   }
   
-  ATH_MSG_INFO("Done Runner alg");
   return StatusCode::SUCCESS;
 }
