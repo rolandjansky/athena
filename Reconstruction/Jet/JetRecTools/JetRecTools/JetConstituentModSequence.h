@@ -10,8 +10,8 @@
 #define JETRECTOOLS_JETCONSTITUENTMODSEQUENCE_H
 
 //
-// // Michael Nelson, CERN & Univesity of Oxford
-// // February, 2016
+// Michael Nelson, CERN & Univesity of Oxford
+// February, 2016
 
 #include <string>
 #include "AsgTools/AsgTool.h"
@@ -65,7 +65,7 @@ protected:
   SG::ReadHandleKey<xAOD::PFOContainer> m_inNeutralPFOKey{this, "InNeutralPFOKey", "", "ReadHandleKey for modified Neutral PFlow Objects"};
   SG::WriteHandleKey<xAOD::PFOContainer> m_outNeutralPFOKey{this, "OutNeutralPFOKey", "", "WriteHandleKey for modified Neutral PFlow Objects"};
 
-  SG::WriteHandleKey<ConstDataVector<xAOD::PFOContainer>> m_outAllPFOKey{this, "OutAllPFOKey", "", "WriteHandleKey for all modified PFlow Objects"};
+  SG::WriteHandleKey<xAOD::PFOContainer> m_outAllPFOKey{this, "OutAllPFOKey", "", "WriteHandleKey for all modified PFlow Objects"};
 
   StatusCode copyModRecordPFO() const;
 

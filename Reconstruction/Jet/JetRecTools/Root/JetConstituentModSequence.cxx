@@ -7,7 +7,6 @@
 // Will later add the intermediate step
 
 #include "JetRecTools/JetConstituentModSequence.h"
-#include "AthContainers/ConstDataVector.h"
 
 JetConstituentModSequence::JetConstituentModSequence(const std::string &name):
   asg::AsgTool(name),
@@ -118,40 +117,40 @@ JetConstituentModSequence::copyModRecordPFO() const {
   auto inChargedPFOHandle = makeHandle(m_inChargedPFOKey);
   if(!inNeutralPFOHandle.isValid()){
     ATH_MSG_WARNING("Unable to retrieve input PFO containers \""
-		    << inNeutralPFOKey.key() << "\" and \""
-		    << iniChargedPFOKey.key() << "\"");
+		    << m_inNeutralPFOKey.key() << "\" and \""
+		    << m_inChargedPFOKey.key() << "\"");
     return StatusCode::FAILURE;
   }
 
   //    Copy the input containers individually, set I/O option and record
   //    Neutral PFOs
-  std::pair< T*, xAOD::ShallowAuxContainer* > neutralCopy =
+  std::pair<xAOD::PFOContainer*, xAOD::ShallowAuxContainer* > neutralCopy =
     xAOD::shallowCopyContainer(*inNeutralPFOHandle);
   neutralCopy.second->setShallowIO(m_saveAsShallow);
   //
   auto outNeutralPFOHandle = makeHandle(m_outNeutralPFOKey);
-  ATH_CHECK(outNeutralPFOHandle.record(std::unique_ptr<T>(neutralCopy.first),
+  ATH_CHECK(outNeutralPFOHandle.record(std::unique_ptr<xAOD::PFOContainer>(neutralCopy.first),
 				    std::unique_ptr<xAOD::ShallowAuxContainer>(neutralCopy.second)));
   //    Charged PFOs
-  std::pair< T*, xAOD::ShallowAuxContainer* > chargedCopy =
+  std::pair<xAOD::PFOContainer*, xAOD::ShallowAuxContainer* > chargedCopy =
     xAOD::shallowCopyContainer(*inChargedPFOHandle);
   chargedCopy.second->setShallowIO(m_saveAsShallow);
   //
-  auto outChargedPFOHandle = makeHandle(outChargedPFOKey);
-  ATH_CHECK(outChargedPFOHandle.record(std::unique_ptr<T>(chargedCopy.first),
+  auto outChargedPFOHandle = makeHandle(m_outChargedPFOKey);
+  ATH_CHECK(outChargedPFOHandle.record(std::unique_ptr<xAOD::PFOContainer>(chargedCopy.first),
 				    std::unique_ptr<xAOD::ShallowAuxContainer>(chargedCopy.second)));
 
   // 2. Set up output handle for merged (view) container and record
   auto outAllPFOHandle = makeHandle(m_outAllPFOKey);
-  ATH_CHECK(outAllPFOHandle.record(std::make_unique<ConstDataVector<xAOD::PFOContainer>>(SG::VIEW_ELEMENTS)));
+  ATH_CHECK(outAllPFOHandle.record(std::make_unique<xAOD::PFOContainer>(SG::VIEW_ELEMENTS)));
   //    Merge charged & neutral PFOs into the viw container
-  outAllPFOHandle->assign(neutralPFOHandle->begin(), neutralPFOHandle->end());
-  outAllPFOHandle->insert(outPFOHandle->end(),
-                    chargedPFOHandle->begin(), 
-                    chargedPFOHandle->end());
+  outAllPFOHandle->assign(outNeutralPFOHandle->begin(), outNeutralPFOHandle->end());
+  outAllPFOHandle->insert(outAllPFOHandle->end(),
+			  outChargedPFOHandle->begin(), 
+			  outChargedPFOHandle->end());
 
   // 3. Now process modifications on all PFOs
-  for (auto t : m_modifiers) {ATH_CHECK(t->process(*outAllPFOHandle));}
+  for (auto t : m_modifiers) {ATH_CHECK(t->process(outAllPFOHandle.ptr()));}
 
   return StatusCode::SUCCESS;
 }
