@@ -86,20 +86,6 @@ int JetConstituentModSequence::execute() const {
     break; 
   }
   
-  case xAOD::Type::TruthParticle: {
-    auto sc = copyModRecord(m_inTruthParticleKey, 
-                            m_truthParticleKey);
-    if(!sc.isSuccess()){return 1;}
-    break;
-  }
-        
-  case xAOD::Type::TrackParticle: {
-    auto sc = copyModRecord(m_inTrackParticleKey, 
-                            m_trackParticleKey);
-    if(!sc.isSuccess()){return 1;}
-    break;
-  }
-
   case xAOD::Type::ParticleFlow: {
     auto sc = copyModRecordPFO();
     if(!sc.isSuccess()){return 1;}
