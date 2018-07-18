@@ -48,7 +48,6 @@ public:
   /// Action.
   StatusCode fillEventShape() const;
   StatusCode fillEventShape(xAOD::EventShape* es) const;
-  StatusCode fillEventShape(xAOD::EventShape* es, const xAOD::IParticleContainer* input) const;
 
   /// This function is only a convenience function for use in Standalone Analysis
   /// it avoids the need of configuring the tool by copying pre-determined EventShape

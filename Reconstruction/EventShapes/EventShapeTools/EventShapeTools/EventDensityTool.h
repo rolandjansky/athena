@@ -56,7 +56,6 @@ public:
   /// Action.
   StatusCode fillEventShape() const;
   StatusCode fillEventShape(xAOD::EventShape* es) const;
-  StatusCode fillEventShape(xAOD::EventShape* es, const xAOD::IParticleContainer* input) const;
    
 protected:
   
