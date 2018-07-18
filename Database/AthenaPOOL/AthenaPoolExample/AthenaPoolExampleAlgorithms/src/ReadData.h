@@ -12,7 +12,10 @@
  **/
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthenaPoolExampleData/ExampleTrackContainer.h"
+#include "AthenaPoolExampleData/ExampleHitContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 
 class StoreGateSvc;
 
@@ -21,7 +24,7 @@ namespace AthPoolEx {
 /** @class AthPoolEx::ReadData
  *  @brief This class provides an example for reading event data objects from Pool.
  **/
-class ReadData : public AthAlgorithm {
+class ReadData : public AthReentrantAlgorithm {
 public: // Constructor and Destructor
    /// Standard Service Constructor
    ReadData(const std::string& name, ISvcLocator* pSvcLocator);
@@ -30,13 +33,15 @@ public: // Constructor and Destructor
 
 public:
 /// Gaudi Service Interface method implementations:
-   StatusCode initialize();
-   StatusCode execute();
-   StatusCode finalize();
+   virtual StatusCode initialize() override;
+   virtual StatusCode execute_r (const EventContext& ctx) const override;
+   virtual StatusCode finalize() override;
 
 private:
    ServiceHandle<StoreGateSvc> p_SGinMeta;
    ServiceHandle<StoreGateSvc> p_SGmeta;
+   SG::ReadHandleKey<ExampleTrackContainer> m_exampleTrackKey { this, "ExampleTrackKey", "MyTracks" };
+   SG::ReadHandleKey<ExampleHitContainer> m_exampleHitKey { this, "ExampleHitKey", "MyHits" };
 };
 
 } // end namespace AthPoolEx
