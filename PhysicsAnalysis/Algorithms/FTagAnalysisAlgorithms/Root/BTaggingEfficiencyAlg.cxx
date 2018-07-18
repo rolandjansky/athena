@@ -42,7 +42,7 @@ namespace CP
         ANA_MSG_ERROR ("can't specify both onlyInefficiency and selectionDecoration");
         return StatusCode::FAILURE;
       }
-      m_selectionAccessor = std::make_unique<SG::AuxElement::Accessor<SelectionType> > (m_selectionDecoration);
+      ANA_CHECK (makeSelectionAccessor (m_selectionDecoration, m_selectionAccessor));
     }
 
     if (m_efficiencyDecoration.empty())
@@ -84,8 +84,7 @@ namespace CP
           // it.  You do the pre-selection via a view container like
           // for all the other CP algorithms.
           if (!m_onlyInefficiency &&
-              (!m_selectionAccessor ||
-               (*m_selectionAccessor) (*jet) == selectionAccept()))
+              (!m_selectionAccessor || m_selectionAccessor->getBool (*jet)))
           {
             ANA_CHECK_CORRECTION (m_outOfValidity, *jet, m_efficiencyTool->getScaleFactor (*jet, eff));
           } else
