@@ -1098,6 +1098,8 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
   //We could add secondaries cluster in this logic.
   //Also probably we could factor some common code.
   //-----------------------------------------------------------------
+  ATH_MSG_DEBUG("Build xAOD::Electron objects");
+
   //Build xAOD::Electron objects
   for (const auto& electronRec : *electronSuperRecs) {
 
@@ -1107,6 +1109,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     for (const auto& photonRec : *photonSuperRecs) {
 
       //See if the same seed (0 element in the constituents) seed also a photon
+      ATH_MSG_DEBUG("See if the same seed (0 element in the constituents) seed also a photon");
       if(caloClusterLinks(*(electronRec->caloCluster())).at(0)==
 	 caloClusterLinks(*(photonRec->caloCluster())).at(0)){
 	ATH_MSG_DEBUG("Running AmbiguityTool for electron");
@@ -1131,10 +1134,13 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
       if ( !getElectron(electronRec, m_electron_container, author,type) ){
 	return HLT::ERROR;
       }
+      ATH_MSG_DEBUG("getElectron success");
     }
   }
 
   //-----------------------------------------------------------------
+
+  ATH_MSG_DEBUG("Build xAOD::Photon objects");
   //Build xAOD::Photon objects.
   for (const auto& photonRec : *photonSuperRecs) {
     unsigned int author = xAOD::EgammaParameters::AuthorPhoton;
@@ -1143,6 +1149,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     //See if the same seed (0 element in the constituents) seed also an electron
     for (const auto& electronRec : *electronSuperRecs) {
 
+    ATH_MSG_DEBUG("See if the same seed (0 element in the constituents) seed also an electron");
     if(caloClusterLinks(*(photonRec->caloCluster())).at(0) ==
        caloClusterLinks(*(electronRec->caloCluster())).at(0)){
       ATH_MSG_DEBUG("Running AmbiguityTool for photon");
@@ -1165,11 +1172,13 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
       if ( !getPhoton(photonRec, m_photon_container, author,type) ){
 	return HLT::ERROR;
       }
+      ATH_MSG_DEBUG("getPhoton success");
     }
   }
 
 // -----------------------------------------------------------------------------------------------
     //Dress the Electron objects
+    ATH_MSG_DEBUG("Dress the Electron objects");
     for (const auto& eg : *m_electron_container){
         // EMFourMomentum
         if (timerSvc()) m_timerTool4->start(); //timer
@@ -1267,6 +1276,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     }
 
     //Dress the Photon objects
+    ATH_MSG_DEBUG("Dress the Photon objects");
     for (const auto& eg : *m_photon_container){
         // EMFourMomentum
         if (timerSvc()) m_timerTool4->start(); //timer
