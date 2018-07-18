@@ -17,4 +17,14 @@ checker.dumpTrigCompositeContainers     =  [ "FilteredEMRoIDecisions", "L2CaloLi
 "JRoIDecisions", "MonitoringSummaryStep1", "RerunEMRoIDecisions", "RerunMURoIDecisions", "TAURoIDecisions", "EMRoIDecisions"  ]
 
 from AthenaCommon.AppMgr import topSequence
+
+# At runtime it claims it currently does not need this but it's wrong
+from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+topSequence+=xAODMaker__EventInfoCnvAlg()
+
 topSequence += checker
+
+# Note that for now this needs to come after the checker.doDumpTrigCompsiteNavigation has force-retrieved all the TrigComposite collections from storegate
+from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
+topSequence+=TrigDecisionMakerMT()
+topSequence.TrigDecMakerMT.OutputLevel = DEBUG
