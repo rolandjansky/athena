@@ -18,6 +18,9 @@ from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectio
 IsoCorrectionTool = ToolFactory(ICT,
                                 name = "NewLeakageCorrTool")
 
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+
 doPFlow = False
 PFlowObjectsInConeTool = None
 from RecExConfig.RecAlgsFlags import recAlgs
@@ -37,13 +40,20 @@ if recAlgs.doEFlow() :
 
   from JetRec.JetRecStandard import jtm
   from JetRec.JetRecConf import PseudoJetGetter
-  jtm += PseudoJetGetter(
+  emnpflowget = PseudoJetGetter(
     name               = "emnpflowget",
     Label              = "EMNPFlow",
     InputContainer = "CHSNeutralParticleFlowObjects",
     OutputContainer = "PseudoJetEMNPFlow",
     SkipNegativeEnergy = True,
     )
+  jtm += emnpflowget
+  # PseudoJetGetters are now run in their own dedicated algs
+  from JetRec.JetRecConf import PseudoJetAlgorithm
+  # EMTopo (non-origin corrected) clusters
+  topSequence += PseudoJetAlgorithm("pjalg_"+jtm.emget.Label,PJGetter=jtm.emget)
+  # EM Neutral PFOs
+  topSequence += PseudoJetAlgorithm("pjalg_"+emnpflowget.Label,PJGetter=emnpflowget)
 
 # tool to collect topo clusters in cone
 from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInConeTool
@@ -62,10 +72,7 @@ def configureEDCorrection(tool):
   OutputLevel = min(getPropertyValue(tool, 'OutputLevel'), INFO)
   try:
     from AthenaCommon.AppMgr import ToolSvc
-    from AthenaCommon.AlgSequence import AlgSequence
     from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAthAlg
-    from JetRec.JetRecStandard import jtm
-    topSequence = AlgSequence()
     if not hasattr(topSequence,'EDtpIsoCentralAlg'):
       tccc = configEventDensityTool("EDtpIsoCentralTool", jtm.emget,
                                     radius          = 0.5,
