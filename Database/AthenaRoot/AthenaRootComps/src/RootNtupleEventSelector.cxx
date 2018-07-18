@@ -300,15 +300,16 @@ RootNtupleEventSelector::~RootNtupleEventSelector()
 {}
 
 
-void getTreeNames( TList* keys , std::set<std::string>& treeNames, const std::string& path ) {
-  TIter keyIter(keys);
+void getTreeNames( TList& keys , std::set<std::string>& treeNames, const std::string& path ) {
+  TIter keyIter(&keys);
   TKey* key;
   while( (key = (TKey*)keyIter()) ) {
     if(strcmp(key->GetClassName(),"TTree")==0) {
       treeNames.insert(path+key->GetName());
     } else if(strcmp(key->GetClassName(),"TDirectoryFile")==0) {
       TDirectory* dir = static_cast<TDirectory*>(key->ReadObj());
-      getTreeNames( dir->GetListOfKeys() , treeNames, path + key->GetName() + "/" );
+      TList* dirKeys = dir->GetListOfKeys();
+      if(dirKeys) getTreeNames( *dirKeys , treeNames, path + key->GetName() + "/" );
     }
   }
 }
@@ -378,7 +379,8 @@ StatusCode RootNtupleEventSelector::initialize()
         ATH_MSG_FATAL("Could not open the first input file: " << m_inputCollectionsName.value()[i]);
         return StatusCode::FAILURE;
       }
-      getTreeNames( theFile->GetListOfKeys(), treeNames, "" );
+      TList* keys = theFile->GetListOfKeys();
+      if(keys) getTreeNames( *keys, treeNames, "" );
       theFile->Close();
     }
     
@@ -1203,7 +1205,7 @@ RootNtupleEventSelector::fetchNtuple(const std::string& fname,
     return tree;
   }
   // std::cout << "::TFile::GetTree(" << m_tupleName << ")..." << std::endl;
-  tree = static_cast<TTree*>(f->Get(tupleName.c_str()));
+  tree = dynamic_cast<TTree*>(f->Get(tupleName.c_str()));
   if (!tree) {
     if(!m_ignoreMissingTrees) ATH_MSG_ERROR("could not retrieve tree [" << tupleName << "]"
                   << " from file [" << fname << "]");
@@ -1230,7 +1232,7 @@ RootNtupleEventSelector::fetchNtuple(const std::string& fname,
 
 void RootNtupleEventSelector::addMetadataFromDirectoryName(const std::string &metadirname, TFile *fileObj, const std::string &prefix) const
 {
-  TDirectoryFile *metadir = static_cast<TDirectoryFile*>(fileObj->Get(metadirname.c_str()));
+  TDirectoryFile *metadir = dynamic_cast<TDirectoryFile*>(fileObj->Get(metadirname.c_str()));
   if (!metadir) return;
   addMetadataFromDirectory(metadir, prefix);
 }
