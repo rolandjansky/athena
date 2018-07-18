@@ -44,6 +44,19 @@ namespace CP
       if (keep)
         output->push_back (particle);
     }
+    if (m_sortPt)
+    {
+      std::sort (output->begin(), output->end(), [] (const xAOD::IParticle *a, const xAOD::IParticle *b) {return a->pt() > b->pt();});
+    }
+
+    // This is not necessarily the most efficient mechanism, as we add
+    // elements that then get removed again.  However, if we do sort
+    // objects, this is the safest mechanism to really get the first N
+    // objects.  Plus it should still be reasonably performant and few
+    // people are expected to use this option anyways.
+    if (output->size() > m_sizeLimit)
+      output->resize (m_sizeLimit);
+
     ANA_CHECK (evtStore()->record (output.release(), m_outputHandle.getName (sys)));
 
     return StatusCode::SUCCESS;
@@ -87,6 +100,8 @@ namespace CP
     /// isn't supported as a property type for AnaAlgorithm right now
     declareProperty ("selection", m_selection, "the list of selection decorations");
     declareProperty ("ignore", m_ignore, "the list of cuts to *ignore* for each selection");
+    declareProperty ("sortPt", m_sortPt, "whether to sort objects in pt");
+    declareProperty ("sizeLimit", m_sizeLimit, "the limit on the size of the output container");
   }
 
 
