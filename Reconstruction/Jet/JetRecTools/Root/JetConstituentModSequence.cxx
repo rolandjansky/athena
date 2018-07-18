@@ -130,7 +130,7 @@ JetConstituentModSequence::copyModRecordPFO() const {
   //
   auto outNeutralPFOHandle = makeHandle(m_outNeutralPFOKey);
   ATH_CHECK(outNeutralPFOHandle.record(std::unique_ptr<xAOD::PFOContainer>(neutralCopy.first),
-				    std::unique_ptr<xAOD::ShallowAuxContainer>(neutralCopy.second)));
+				       std::unique_ptr<xAOD::ShallowAuxContainer>(neutralCopy.second)));
   //    Charged PFOs
   std::pair<xAOD::PFOContainer*, xAOD::ShallowAuxContainer* > chargedCopy =
     xAOD::shallowCopyContainer(*inChargedPFOHandle);
@@ -138,7 +138,7 @@ JetConstituentModSequence::copyModRecordPFO() const {
   //
   auto outChargedPFOHandle = makeHandle(m_outChargedPFOKey);
   ATH_CHECK(outChargedPFOHandle.record(std::unique_ptr<xAOD::PFOContainer>(chargedCopy.first),
-				    std::unique_ptr<xAOD::ShallowAuxContainer>(chargedCopy.second)));
+				       std::unique_ptr<xAOD::ShallowAuxContainer>(chargedCopy.second)));
 
   // 2. Set up output handle for merged (view) container and record
   auto outAllPFOHandle = makeHandle(m_outAllPFOKey);
