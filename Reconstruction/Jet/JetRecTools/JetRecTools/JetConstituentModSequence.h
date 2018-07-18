@@ -56,7 +56,7 @@ protected:
   bool m_saveAsShallow = true;
 
   // note: not all keys will be used for a particular instantiation
-  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_caloClusterKey;
+  SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outClusterKey;
 
   SG::WriteHandleKey<xAOD::PFOContainer> m_outPFOChargedKey;
   SG::WriteHandleKey<xAOD::PFOContainer> m_outPFONeutralKey;
@@ -65,7 +65,7 @@ protected:
 
   SG::ReadHandleKey<xAOD::PFOContainer> m_inPFOChargedKey{};
   SG::ReadHandleKey<xAOD::PFOContainer> m_inPFONeutralKey{};
-  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_inCaloClusterKey{};
+  SG::ReadHandleKey<xAOD::CaloClusterContainer> m_inClusterKey{};
   SG::ReadHandleKey<xAOD::PFOContainer> m_inPFOChargedCopyKey{};
   SG::ReadHandleKey<xAOD::PFOContainer> m_inPFONeutralCopyKey{};
 

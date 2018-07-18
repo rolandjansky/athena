@@ -39,9 +39,9 @@ StatusCode JetConstituentModSequence::initialize() {
   m_outPFOAllKey = m_outputContainer+"ParticleFlowObjects";
   m_outPFOChargedKey = m_outputContainer+"ChargedParticleFlowObjects";
   m_outPFONeutralKey = m_outputContainer+"NeutralParticleFlowObjects";
-  m_caloClusterKey = m_outputContainer;
+  m_outClusterKey = m_outputContainer;
 
-  m_inCaloClusterKey = m_inputContainer;
+  m_inClusterKey = m_inputContainer;
   m_inPFOChargedKey = m_inputContainer + "ChargedParticleFlowObjects";
   m_inPFONeutralKey = m_inputContainer + "NeutralParticleFlowObjects";
 
@@ -50,11 +50,11 @@ StatusCode JetConstituentModSequence::initialize() {
   m_inPFOChargedCopyKey = m_outPFOChargedKey.key();
 
   ATH_CHECK(m_outPFOAllKey.initialize());
-  ATH_CHECK(m_caloClusterKey.initialize());
+  ATH_CHECK(m_outClusterKey.initialize());
   ATH_CHECK(m_outPFOChargedKey.initialize());
   ATH_CHECK(m_outPFONeutralKey.initialize());
   
-  ATH_CHECK(m_inCaloClusterKey.initialize());
+  ATH_CHECK(m_inClusterKey.initialize());
   ATH_CHECK(m_inPFOChargedKey.initialize());
   ATH_CHECK(m_inPFONeutralKey.initialize());
   ATH_CHECK(m_inPFOChargedCopyKey.initialize());
@@ -80,8 +80,8 @@ int JetConstituentModSequence::execute() const {
   switch(m_inputType){
 
   case xAOD::Type::CaloCluster: {
-    auto sc  = copyModRecord(m_inCaloClusterKey, 
-                             m_caloClusterKey);
+    auto sc  = copyModRecord(m_inClusterKey, 
+                             m_outClusterKey);
     if(!sc.isSuccess()){return 1;}
     break; 
   }
