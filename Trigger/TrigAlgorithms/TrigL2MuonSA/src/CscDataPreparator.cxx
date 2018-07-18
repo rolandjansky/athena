@@ -37,7 +37,7 @@ TrigL2MuonSA::CscDataPreparator::CscDataPreparator(const std::string& type,
    AthAlgTool(type,name,parent),
    m_storeGateSvc( "StoreGateSvc", name ),
    m_activeStore( "ActiveStoreSvc", name ),
-   m_regionSelector( "RegSelSvc", name )
+   m_regionSelector( "RegSelSvc", name ),
    m_cscPrepDataProvider("Muon::CscRdoToCscPrepDataTool/CscPrepDataProviderTool"),
    m_cscClusterProvider("CscThresholdClusterBuilderTool")
 {
