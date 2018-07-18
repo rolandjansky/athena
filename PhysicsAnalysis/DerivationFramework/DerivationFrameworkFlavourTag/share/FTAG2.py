@@ -109,7 +109,7 @@ addDefaultTrimmedJets(FTAG2Seq,"FTAG2",dotruth=True)
 # Add Large-R RC jets w/ ExKt 2 & 3 subjets
 #===================================================================
 
-addExKtDoubleTaggerRCJets(FTAG1Seq, ToolSvc)
+addExKtDoubleTaggerRCJets(FTAG2Seq, ToolSvc)
 
 #===================================================================
 # Variable Radius (VR) Jets
