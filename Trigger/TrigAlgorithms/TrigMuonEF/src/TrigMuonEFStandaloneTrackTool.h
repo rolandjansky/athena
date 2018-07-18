@@ -301,6 +301,9 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   // if true do caching
   bool m_doCache;
   
+  // Flag to decide whether or not to run BS decoding
+  Gaudi::Property< bool > m_decodeBS { this, "DecodeBS", true, "Flag to decide whether or not to run BS->RDO decoding" };
+
   bool m_useCscData;
   bool m_useRpcData;
   bool m_useTgcData;

@@ -272,6 +272,8 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
 	  << "useCscRobDecoding           " << m_useCscRobDecoding << endmsg;
 
     msg() << MSG::DEBUG
+          << m_decodeBS.name() << "          " << m_decodeBS << endmsg;
+    msg() << MSG::DEBUG
 	  << "doTimeOutChecks                " << m_doTimeOutChecks << endmsg;
     msg() << MSG::DEBUG
 	  << "doTimeOutGuard                 " << m_doTimeOutGuard << endmsg;   
@@ -303,8 +305,8 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  // Retrieve raw data provider tool (for RPCs)
-  if (m_rawDataProviderTool.retrieve().isSuccess()) {
+  // Retrieve raw data provider tool (for RPCs) if needed
+  if (m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS }).isSuccess()) {
     msg (MSG::INFO) << "Retrieved " << m_rawDataProviderTool << endmsg;
   }
   else {
@@ -878,10 +880,12 @@ if (m_useMdtData>0) {
   if (m_useRpcData && !rpc_hash_ids.empty()) {// RPC decoding
     if (m_useRpcSeededDecoding) {// seeded decoding of RPC
 
-      if (m_rawDataProviderTool->convert( getRpcRobList(muonRoI) ).isSuccess()) {
-	ATH_MSG_DEBUG("RPC BS conversion for ROB-based seeded PRD decoding done successfully");
-      } else {
-	ATH_MSG_WARNING("RPC BS conversion for ROB-based seeded PRD decoding failed");
+      if(m_decodeBS) { 
+        if (m_rawDataProviderTool->convert( getRpcRobList(muonRoI) ).isSuccess()) {
+          ATH_MSG_DEBUG("RPC BS conversion for ROB-based seeded PRD decoding done successfully");
+        } else {
+          ATH_MSG_WARNING("RPC BS conversion for ROB-based seeded PRD decoding failed");
+        }
       }
       if (m_rpcPrepDataProvider->decode( getRpcRobList(muonRoI) ).isSuccess()) {
 	ATH_MSG_DEBUG("ROB-based seeded PRD decoding of RPC done successfully");
