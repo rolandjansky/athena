@@ -798,6 +798,8 @@ def setupMenu():
 # ATR-18407
         ['xe90_pufittrack_lcw_nojcalib_xe105_pufit_xe65_L1XE50', 'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe90_pufittrack_lcw_nojcalib','xe105_pufit_xe65_L1XE50']]],
 
+        ['xe0noL1_pufittrack_lcw_nojcalib_xe100_pufit_xe65',   '',        [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1, ['serial',-1,['xe100_pufit','xe65','xe0noL1_pufittrack_lcw_nojcalib']]],
+
 # L1XE55
         ['xe110_pufit_xe60_L1XE55', 'L1_XE55', ['L1_XE55','L1_XE55'], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit','x60_L1XE55'] ]],
 
@@ -2120,7 +2122,7 @@ def setupMenu():
 
 #ATR-17462
         ['2g6_tight_icalotight_L1J50', 'L1_J50', ['L1_2EM3','L1_J50'], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1],
-
+        ['2g6_loose_L1J50', 'L1_J50', ['L1_2EM3','L1_J50'], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1],
 
         #move razor triggers from physics to MC: ATR-17795
         ['j30_xe10_razor170', 'L1_2J15_XE55', ['',''], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial',-1,['j30','xe10']]],
@@ -3044,6 +3046,7 @@ ps_rerun_list = [
     'xe0noL1_l2fsperf_pufit',
     'xe0noL1_l2fsperf_tc_em',
     'xe0noL1_l2fsperf_tc_lcw',
+    'xe0noL1_pufittrack_lcw_nojcalib_xe100_pufit_xe65',
 
     ]
 
