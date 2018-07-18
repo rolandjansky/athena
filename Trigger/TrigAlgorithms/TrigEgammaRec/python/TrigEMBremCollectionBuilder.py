@@ -10,7 +10,7 @@ class TrigEMBremCollectionBuilder(egammaToolsConf.EMBremCollectionBuilder) :
     super(TrigEMBremCollectionBuilder, self).__init__(name, **kw)
     
     from egammaTrackTools.egammaTrackToolsConf import egammaTrkRefitterTool
-    from TrigEgammaRec.TrigEgammaTrackTools import GSFTrigTrackFitter,GSFTrigExtrapolator
+    from TrigEgammaRec.TrigEgammaTrackTools import GSFTrigTrackFitter,GSFTrigExtrapolator,egTrigTrkExtrapolator
     GSFTrigRefitterTool = egammaTrkRefitterTool(name = 'GSFTrigRefitterTool',
                                                 FitterTool = GSFTrigTrackFitter,
                                                 useBeamSpot = False,
@@ -35,7 +35,7 @@ class TrigEMBremCollectionBuilder(egammaToolsConf.EMBremCollectionBuilder) :
     from AthenaCommon.GlobalFlags import globalflags
     
     GSFTrigHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "GSFTrigHoleSearchTool",
-                                                            Extrapolator = GSFTrigExtrapolator,
+                                                            Extrapolator = egTrigTrkExtrapolator,
                                                             usePixel      = DetFlags.haveRIO.pixel_on(),
                                                             useSCT        = DetFlags.haveRIO.SCT_on(),
                                                             checkBadSCTChip = InDetTrigFlags.checkDeadElementsOnTrack(),
@@ -61,7 +61,7 @@ class TrigEMBremCollectionBuilder(egammaToolsConf.EMBremCollectionBuilder) :
         ServiceMgr += PixelConditionsSummarySvc()            
         GSFTrigTestBLayerTool = InDet__InDetTestBLayerTool(name            = "GSFTrigTestBLayerTool",
                                                             PixelSummarySvc = ServiceMgr.PixelConditionsSummarySvc,
-                                                            Extrapolator    = GSFTrigExtrapolator)
+                                                            Extrapolator    = egTrigTrkExtrapolator)
         ToolSvc += GSFTrigTestBLayerTool
 
     # Configurable version of TRT_ElectronPidTools
@@ -120,7 +120,7 @@ class TrigEMBremCollectionBuilder(egammaToolsConf.EMBremCollectionBuilder) :
     from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
     GSFTrigInDetParticleCreatorTool = Trk__TrackParticleCreatorTool(name                    = "GSFTrigInDetParticleCreatorTool",
                                                                      KeepParameters          = True,
-                                                                     Extrapolator            = GSFTrigExtrapolator,
+                                                                     Extrapolator            = egTrigTrkExtrapolator,
                                                                      TrackSummaryTool        = GSFTrigInDetTrackSummaryTool,
                                                                      UseTrackSummaryTool     = False,
                                                                      ForceTrackSummaryUpdate = False)
