@@ -62,8 +62,8 @@ protected:
   
 private: 
   // DataHandles
-  SG::ReadHandleKey<PseudoJetContainer> m_inPJHandleKey{this, "InputContainer", "", "ReadHandleKey for input PseudoJetVector"};
-  SG::WriteHandleKey<xAOD::EventShape> m_outEDHandleKey{this, "OutputContainer", "GenericEventDensity", "WriteHandleKey for output EventDensity"};
+  SG::ReadHandleKey<PseudoJetContainer> m_inPJKey{this, "InputContainer", "", "ReadHandleKey for input PseudoJetVector"};
+  SG::WriteHandleKey<xAOD::EventShape> m_outEDKey{this, "OutputContainer", "GenericEventDensity", "WriteHandleKey for output EventDensity"};
 
   // Properties
   std::string m_jetalg;                     // JetAlg
