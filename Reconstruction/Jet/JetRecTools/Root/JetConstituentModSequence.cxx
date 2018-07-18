@@ -36,35 +36,34 @@ StatusCode JetConstituentModSequence::initialize() {
     return StatusCode::FAILURE;
   }
 
-  m_outAllPFOKey = m_outputContainer+"ParticleFlowObjects";
-  m_outChargedPFOKey = m_outputContainer+"ChargedParticleFlowObjects";
-  m_outNeutralPFOKey = m_outputContainer+"NeutralParticleFlowObjects";
-  m_outClusterKey = m_outputContainer;
-
-  m_inClusterKey = m_inputContainer;
-  m_inChargedPFOKey = m_inputContainer + "ChargedParticleFlowObjects";
-  m_inNeutralPFOKey = m_inputContainer + "NeutralParticleFlowObjects";
-
-  // allow reading in of containers previously written out
-  m_inNeutralPFOCopyKey = m_outNeutralPFOKey.key();
-  m_inChargedPFOCopyKey = m_outChargedPFOKey.key();
-
-  ATH_CHECK(m_outAllPFOKey.initialize());
-  ATH_CHECK(m_outClusterKey.initialize());
-  ATH_CHECK(m_outChargedPFOKey.initialize());
-  ATH_CHECK(m_outNeutralPFOKey.initialize());
-  
-  ATH_CHECK(m_inClusterKey.initialize());
-  ATH_CHECK(m_inChargedPFOKey.initialize());
-  ATH_CHECK(m_inNeutralPFOKey.initialize());
-  ATH_CHECK(m_inChargedPFOCopyKey.initialize());
-  ATH_CHECK(m_inNeutralPFOCopyKey.initialize());
-
+  // Set and initialise DataHandleKeys only for the correct input type
+  // Die if the input type is unsupported
   switch(m_inputType) {
   case xAOD::Type::CaloCluster:
-    break;
+    {
+      m_inClusterKey = m_inputContainer;
+      m_outClusterKey = m_outputContainer;
+  
+      ATH_CHECK(m_inClusterKey.initialize());
+      ATH_CHECK(m_outClusterKey.initialize());
+      break;
+    }
   case xAOD::Type::ParticleFlow:
-    break;
+    {
+      m_inChargedPFOKey = m_inputContainer + "ChargedParticleFlowObjects";
+      m_inNeutralPFOKey = m_inputContainer + "NeutralParticleFlowObjects";
+
+      m_outChargedPFOKey = m_outputContainer+"ChargedParticleFlowObjects";
+      m_outNeutralPFOKey = m_outputContainer+"NeutralParticleFlowObjects";
+      m_outAllPFOKey = m_outputContainer+"ParticleFlowObjects";
+
+      ATH_CHECK(m_inChargedPFOKey.initialize());
+      ATH_CHECK(m_inNeutralPFOKey.initialize());
+      ATH_CHECK(m_outChargedPFOKey.initialize());
+      ATH_CHECK(m_outNeutralPFOKey.initialize());
+      ATH_CHECK(m_outAllPFOKey.initialize());
+      break;
+    }
   default:
     ATH_MSG_ERROR(" Unsupported input type "<< m_inputType );
     return StatusCode::FAILURE;
