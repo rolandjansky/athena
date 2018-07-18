@@ -18,7 +18,7 @@
 // construction/destruction
 sTGCSensitiveDetector::sTGCSensitiveDetector(const std::string& name, const std::string& hitCollectionName)
   : G4VSensitiveDetector( name )
-  , m_GenericMuonHitCollection( hitCollectionName )
+  , m_sTGCSimHitCollection( hitCollectionName )
 {
   m_muonHelper = sTgcHitIdHelper::GetHelper();
   //m_muonHelper->PrintFields();
@@ -27,7 +27,7 @@ sTGCSensitiveDetector::sTGCSensitiveDetector(const std::string& name, const std:
 // Implemenation of memebr functions
 void sTGCSensitiveDetector::Initialize(G4HCofThisEvent*)
 {
-  if (!m_GenericMuonHitCollection.isValid()) m_GenericMuonHitCollection = CxxUtils::make_unique<GenericMuonSimHitCollection>();
+  if (!m_sTGCSimHitCollection.isValid()) m_sTGCSimHitCollection = CxxUtils::make_unique<sTGCSimHitCollection>();
 }
 
 G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/)
@@ -40,26 +40,19 @@ G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*RO
 
   if (!charge && (!geantinoHit)) return false;
   //  G4cout << "\t\t sTGCSD: Hit in a sensitive layer!!!!! " << G4endl;
-  const G4AffineTransform trans = currentTrack->GetTouchable()->GetHistory()->GetTopTransform(); // from global to local
+  //const G4AffineTransform trans = currentTrack->GetTouchable()->GetHistory()->GetTopTransform(); // from global to local
   G4StepPoint* postStep=aStep->GetPostStepPoint();
-  G4StepPoint* preStep=aStep->GetPreStepPoint();
+  //G4StepPoint* preStep=aStep->GetPreStepPoint();
   const G4Step* post_Step=aStep->GetTrack()->GetStep();
 
   Amg::Vector3D position = Amg::Hep3VectorToEigen(postStep->GetPosition());
-  Amg::Vector3D local_position = Amg::Hep3VectorToEigen( trans.TransformPoint( postStep->GetPosition() ) );
-
-  Amg::Vector3D preposition = Amg::Hep3VectorToEigen( preStep->GetPosition() );
-  Amg::Vector3D local_preposition = Amg::Hep3VectorToEigen( trans.TransformPoint( preStep->GetPosition() ) );
 
   int pdgCode=currentTrack->GetDefinition()->GetPDGEncoding();
 
   float globalTime=postStep->GetGlobalTime();
-  float globalpreTime=preStep->GetGlobalTime();
-  float eKin=postStep->GetKineticEnergy();
 
   Amg::Vector3D direction= Amg::Hep3VectorToEigen( postStep->GetMomentumDirection() );
   float depositEnergy=post_Step->GetTotalEnergyDeposit();
-  float StepLength=post_Step->GetStepLength();
 
   if (depositEnergy<0.0001 && (!geantinoHit)) return false;
 
@@ -108,9 +101,8 @@ G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*RO
 
   int sTgcId = m_muonHelper->BuildsTgcHitId(subType, iPhi, iRing, mLayer,nLayer, iSide);
   TrackHelper trHelp(aStep->GetTrack());
-  int barcode = trHelp.GetBarcode();
 
-  m_GenericMuonHitCollection->Emplace(sTgcId,globalTime,globalpreTime,position,local_position,preposition,local_preposition,pdgCode,eKin,direction,depositEnergy,StepLength,barcode);
+  m_sTGCSimHitCollection->Emplace(sTgcId,globalTime,position,pdgCode,direction,depositEnergy,trHelp.GetParticleLink());
 
   return true;
 }
