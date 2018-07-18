@@ -36,29 +36,29 @@ StatusCode JetConstituentModSequence::initialize() {
     return StatusCode::FAILURE;
   }
 
-  m_outPFOAllKey = m_outputContainer+"ParticleFlowObjects";
-  m_outPFOChargedKey = m_outputContainer+"ChargedParticleFlowObjects";
-  m_outPFONeutralKey = m_outputContainer+"NeutralParticleFlowObjects";
+  m_outAllPFOKey = m_outputContainer+"ParticleFlowObjects";
+  m_outChargedPFOKey = m_outputContainer+"ChargedParticleFlowObjects";
+  m_outNeutralPFOKey = m_outputContainer+"NeutralParticleFlowObjects";
   m_outClusterKey = m_outputContainer;
 
   m_inClusterKey = m_inputContainer;
-  m_inPFOChargedKey = m_inputContainer + "ChargedParticleFlowObjects";
-  m_inPFONeutralKey = m_inputContainer + "NeutralParticleFlowObjects";
+  m_inChargedPFOKey = m_inputContainer + "ChargedParticleFlowObjects";
+  m_inNeutralPFOKey = m_inputContainer + "NeutralParticleFlowObjects";
 
   // allow reading in of containers previously written out
-  m_inPFONeutralCopyKey = m_outPFONeutralKey.key();
-  m_inPFOChargedCopyKey = m_outPFOChargedKey.key();
+  m_inNeutralPFOCopyKey = m_outNeutralPFOKey.key();
+  m_inChargedPFOCopyKey = m_outChargedPFOKey.key();
 
-  ATH_CHECK(m_outPFOAllKey.initialize());
+  ATH_CHECK(m_outAllPFOKey.initialize());
   ATH_CHECK(m_outClusterKey.initialize());
-  ATH_CHECK(m_outPFOChargedKey.initialize());
-  ATH_CHECK(m_outPFONeutralKey.initialize());
+  ATH_CHECK(m_outChargedPFOKey.initialize());
+  ATH_CHECK(m_outNeutralPFOKey.initialize());
   
   ATH_CHECK(m_inClusterKey.initialize());
-  ATH_CHECK(m_inPFOChargedKey.initialize());
-  ATH_CHECK(m_inPFONeutralKey.initialize());
-  ATH_CHECK(m_inPFOChargedCopyKey.initialize());
-  ATH_CHECK(m_inPFONeutralCopyKey.initialize());
+  ATH_CHECK(m_inChargedPFOKey.initialize());
+  ATH_CHECK(m_inNeutralPFOKey.initialize());
+  ATH_CHECK(m_inChargedPFOCopyKey.initialize());
+  ATH_CHECK(m_inNeutralPFOCopyKey.initialize());
 
   switch(m_inputType) {
   case xAOD::Type::CaloCluster:
@@ -110,33 +110,33 @@ JetConstituentModSequence::copyModRecordPFO() const {
   // written to store gate. Request that the  copies not be modified.
 
   using PFOCont = xAOD::PFOContainer;
-  ATH_CHECK(copyModRecord<PFOCont>(m_inPFOChargedKey, 
-                                   m_outPFOChargedKey));
+  ATH_CHECK(copyModRecord<PFOCont>(m_inChargedPFOKey, 
+                                   m_outChargedPFOKey));
 
-  ATH_CHECK(copyModRecord<PFOCont>(m_inPFONeutralKey, 
-                                   m_outPFONeutralKey));
+  ATH_CHECK(copyModRecord<PFOCont>(m_inNeutralPFOKey, 
+                                   m_outNeutralPFOKey));
 
 
   /* read in copies of neutral and chargeed PFO objects just written out,
      place into a single data vector, modify them, and write them out */
 
-  auto outHandle = makeHandle(m_outPFOAllKey);
+  auto outHandle = makeHandle(m_outAllPFOKey);
 
   ATH_CHECK(outHandle.record(std::make_unique<ConstDataVector<xAOD::PFOContainer>>(SG::VIEW_ELEMENTS)));
   
                              
-  auto neutralHandle = makeHandle(m_inPFONeutralCopyKey);
+  auto neutralHandle = makeHandle(m_inNeutralPFOCopyKey);
   if(!neutralHandle.isValid()){
     ATH_MSG_WARNING("Unable to retrieve copy of neutral PFOs from " 
-                    << m_inPFONeutralCopyKey.key());
+                    << m_inNeutralPFOCopyKey.key());
     return StatusCode::FAILURE;
   }
 
 
-  auto chargedHandle = makeHandle(m_inPFOChargedCopyKey);
+  auto chargedHandle = makeHandle(m_inChargedPFOCopyKey);
   if(!chargedHandle.isValid()){
     ATH_MSG_WARNING("Unable to retrieve copy of charged PFOs from " 
-                    << m_inPFOChargedCopyKey.key());
+                    << m_inChargedPFOCopyKey.key());
     return StatusCode::FAILURE;
   }
 
