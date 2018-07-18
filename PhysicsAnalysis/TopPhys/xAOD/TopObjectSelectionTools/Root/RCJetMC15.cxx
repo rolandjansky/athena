@@ -284,8 +284,8 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
        top::check(evtStore()->retrieve(myJets,m_OutputJetContainer),"Failed to retrieve RC JetContainer");
 
        // // get the clusters (directly we so can try using the LCTopo clusters)
-       const xAOD::CaloClusterContainer* myClusters(nullptr);
-       top::check(evtStore()->retrieve(myClusters, "CaloCalTopoClusters"), "Failed to retrieve CaloCalTopoClusters");
+       //const xAOD::CaloClusterContainer* myClusters(nullptr);
+       //top::check(evtStore()->retrieve(myClusters, "CaloCalTopoClusters"), "Failed to retrieve CaloCalTopoClusters");
        
        // get the subjets and clusters of the rcjets
        for (auto rcjet : *myJets){
