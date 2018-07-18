@@ -791,6 +791,22 @@ namespace top {
 		systematicTree->makeOutputVariable(m_rcjet_d12_clstr,  "rcjet_d12_clstr");
 		systematicTree->makeOutputVariable(m_rcjet_d23_clstr,  "rcjet_d23_clstr");
 		systematicTree->makeOutputVariable(m_rcjet_Qw_clstr,  "rcjet_Qw_clstr");
+
+		systematicTree->makeOutputVariable(m_rcjet_gECF332_clstr,  "rcjet_gECF332_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_gECF461_clstr,  "rcjet_gECF461_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_gECF322_clstr,  "rcjet_gECF322_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_gECF331_clstr,  "rcjet_gECF331_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_gECF422_clstr,  "rcjet_gECF422_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_gECF441_clstr,  "rcjet_gECF441_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_gECF212_clstr,  "rcjet_gECF212_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_gECF321_clstr,  "rcjet_gECF321_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_gECF311_clstr,  "rcjet_gECF311_clstr");
+
+		systematicTree->makeOutputVariable(m_rcjet_L1_clstr,    "rcjet_L1_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_L2_clstr,    "rcjet_L2_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_L3_clstr,    "rcjet_L3_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_L4_clstr,    "rcjet_L4_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_L5_clstr,    "rcjet_L5_clstr");
 	      }
 	    }
 	    // vRC branches
@@ -1158,6 +1174,47 @@ namespace top {
           m_particleLevelTreeManager->makeOutputVariable(m_rcjetsub_e,   "rcjetsub_e");
           m_particleLevelTreeManager->makeOutputVariable(m_rcjetsub_Ghosts_BHadron_Final_Count, "rcjetsub_nGhosts_bHadron");
           m_particleLevelTreeManager->makeOutputVariable(m_rcjetsub_Ghosts_CHadron_Final_Count, "rcjetsub_nGhosts_cHadron");
+	  
+	  if (m_useRCJSS){
+		m_particleLevelTreeManager->makeOutputVariable(m_rrcjet_pt,     "rrcjet_pt");
+		m_particleLevelTreeManager->makeOutputVariable(m_rrcjet_eta,    "rrcjet_eta");
+		m_particleLevelTreeManager->makeOutputVariable(m_rrcjet_phi,    "rrcjet_phi");
+		m_particleLevelTreeManager->makeOutputVariable(m_rrcjet_e,      "rrcjet_e");
+ 
+		// RCJet SS from Clusters
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_tau32_clstr,  "rcjet_tau32_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_tau21_clstr,  "rcjet_tau21_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_tau3_clstr,  "rcjet_tau3_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_tau2_clstr,  "rcjet_tau2_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_tau1_clstr,  "rcjet_tau1_clstr");
+ 
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_D2_clstr,    "rcjet_D2_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_ECF1_clstr,  "rcjet_ECF1_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_ECF2_clstr,  "rcjet_ECF2_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_ECF3_clstr,  "rcjet_ECF3_clstr");
+ 
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_d12_clstr,  "rcjet_d12_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_d23_clstr,  "rcjet_d23_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_Qw_clstr,  "rcjet_Qw_clstr");
+
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF332_clstr,  "rcjet_gECF332_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF461_clstr,  "rcjet_gECF461_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF322_clstr,  "rcjet_gECF322_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF331_clstr,  "rcjet_gECF331_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF422_clstr,  "rcjet_gECF422_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF441_clstr,  "rcjet_gECF441_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF212_clstr,  "rcjet_gECF212_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF321_clstr,  "rcjet_gECF321_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_gECF311_clstr,  "rcjet_gECF311_clstr");
+
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_L1_clstr,    "rcjet_L1_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_L2_clstr,    "rcjet_L2_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_L3_clstr,    "rcjet_L3_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_L4_clstr,    "rcjet_L4_clstr");
+		m_particleLevelTreeManager->makeOutputVariable(m_rcjet_L5_clstr,    "rcjet_L5_clstr");
+	      }
+
+	  
         }
 
         //met
@@ -2098,6 +2155,21 @@ namespace top {
  	  static SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
  	  static SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
  	  static SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
+
+	  static SG::AuxElement::ConstAccessor<float> gECF332_clstr("gECF332_clstr");
+	  static SG::AuxElement::ConstAccessor<float> gECF461_clstr("gECF461_clstr");
+	  static SG::AuxElement::ConstAccessor<float> gECF322_clstr("gECF322_clstr");
+	  static SG::AuxElement::ConstAccessor<float> gECF331_clstr("gECF331_clstr");
+	  static SG::AuxElement::ConstAccessor<float> gECF422_clstr("gECF422_clstr");
+	  static SG::AuxElement::ConstAccessor<float> gECF441_clstr("gECF441_clstr");
+	  static SG::AuxElement::ConstAccessor<float> gECF212_clstr("gECF212_clstr");
+	  static SG::AuxElement::ConstAccessor<float> gECF321_clstr("gECF321_clstr");
+	  static SG::AuxElement::ConstAccessor<float> gECF311_clstr("gECF311_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> L1_clstr("L1_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> L2_clstr("L2_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> L3_clstr("L3_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> L4_clstr("L4_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> L5_clstr("L5_clstr");
 	  // store also the jet that is rebuilt to calculate the JSS
  	  static SG::AuxElement::ConstAccessor<float> RRCJet_pt("RRCJet_pt");
  	  static SG::AuxElement::ConstAccessor<float> RRCJet_eta("RRCJet_eta");
@@ -2138,7 +2210,20 @@ namespace top {
 	  m_rcjet_d12_clstr.clear();
 	  m_rcjet_d23_clstr.clear();    
 	  m_rcjet_Qw_clstr.clear();
-
+	  m_rcjet_gECF332_clstr.clear();
+	  m_rcjet_gECF461_clstr.clear();
+	  m_rcjet_gECF322_clstr.clear();
+	  m_rcjet_gECF331_clstr.clear();
+	  m_rcjet_gECF422_clstr.clear();
+	  m_rcjet_gECF441_clstr.clear();
+	  m_rcjet_gECF212_clstr.clear();
+	  m_rcjet_gECF321_clstr.clear();
+	  m_rcjet_gECF311_clstr.clear();
+	  m_rcjet_L1_clstr.clear();
+	  m_rcjet_L2_clstr.clear();
+	  m_rcjet_L3_clstr.clear();
+	  m_rcjet_L4_clstr.clear();
+	  m_rcjet_L5_clstr.clear();
 
 	  m_rcjet_pt.resize(sizeOfRCjets,-999.);
 	  m_rcjet_eta.resize(sizeOfRCjets,-999.);
@@ -2172,6 +2257,22 @@ namespace top {
 	    m_rcjet_d12_clstr.resize(sizeOfRCjets,-999.);
 	    m_rcjet_d23_clstr.resize(sizeOfRCjets,-999.);
 	    m_rcjet_Qw_clstr.resize(sizeOfRCjets,-999.);
+
+	    m_rcjet_gECF332_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_gECF461_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_gECF322_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_gECF331_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_gECF422_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_gECF441_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_gECF212_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_gECF321_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_gECF311_clstr.resize(sizeOfRCjets,-999.);
+
+	    m_rcjet_L1_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_L2_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_L3_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_L4_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_L5_clstr.resize(sizeOfRCjets,-999.);
 	  }
 	  unsigned int i = 0;
 	  for (xAOD::JetContainer::const_iterator jet_itr = rc_jets->begin(); jet_itr != rc_jets->end(); ++jet_itr) {
@@ -2206,6 +2307,23 @@ namespace top {
 	      m_rcjet_d12_clstr[i] = (d12_clstr.isAvailable(*rc_jet)) ? d12_clstr(*rc_jet) : -999.;
 	      m_rcjet_d23_clstr[i] = (d23_clstr.isAvailable(*rc_jet)) ? d23_clstr(*rc_jet) : -999.;
 	      m_rcjet_Qw_clstr[i] = (Qw_clstr.isAvailable(*rc_jet)) ? Qw_clstr(*rc_jet) : -999.;
+
+	      m_rcjet_gECF332_clstr[i] = (gECF332_clstr.isAvailable(*rc_jet)) ? gECF332_clstr(*rc_jet) : -999.;
+	      m_rcjet_gECF461_clstr[i] = (gECF461_clstr.isAvailable(*rc_jet)) ? gECF461_clstr(*rc_jet) : -999.;
+	      m_rcjet_gECF322_clstr[i] = (gECF322_clstr.isAvailable(*rc_jet)) ? gECF322_clstr(*rc_jet) : -999.;
+	      m_rcjet_gECF331_clstr[i] = (gECF331_clstr.isAvailable(*rc_jet)) ? gECF331_clstr(*rc_jet) : -999.;
+	      m_rcjet_gECF422_clstr[i] = (gECF422_clstr.isAvailable(*rc_jet)) ? gECF422_clstr(*rc_jet) : -999.;
+	      m_rcjet_gECF441_clstr[i] = (gECF441_clstr.isAvailable(*rc_jet)) ? gECF441_clstr(*rc_jet) : -999.;
+	      m_rcjet_gECF212_clstr[i] = (gECF212_clstr.isAvailable(*rc_jet)) ? gECF212_clstr(*rc_jet) : -999.;
+	      m_rcjet_gECF321_clstr[i] = (gECF321_clstr.isAvailable(*rc_jet)) ? gECF321_clstr(*rc_jet) : -999.;
+	      m_rcjet_gECF311_clstr[i] = (gECF311_clstr.isAvailable(*rc_jet)) ? gECF311_clstr(*rc_jet) : -999.;
+
+	      m_rcjet_L1_clstr[i] = (L1_clstr.isAvailable(*rc_jet)) ? L1_clstr(*rc_jet) : -999.;
+	      m_rcjet_L2_clstr[i] = (L2_clstr.isAvailable(*rc_jet)) ? L2_clstr(*rc_jet) : -999.;
+	      m_rcjet_L3_clstr[i] = (L3_clstr.isAvailable(*rc_jet)) ? L3_clstr(*rc_jet) : -999.;
+	      m_rcjet_L4_clstr[i] = (L4_clstr.isAvailable(*rc_jet)) ? L4_clstr(*rc_jet) : -999.;
+	      m_rcjet_L5_clstr[i] = (L5_clstr.isAvailable(*rc_jet)) ? L5_clstr(*rc_jet) : -999.;
+
 	    }
 	    
             // loop over subjets
@@ -2271,6 +2389,21 @@ namespace top {
 	    m_rcjet_d12_clstr.resize(i);
 	    m_rcjet_d23_clstr.resize(i);
 	    m_rcjet_Qw_clstr.resize(i);
+
+	    m_rcjet_gECF332_clstr.resize(i);
+	    m_rcjet_gECF461_clstr.resize(i);
+	    m_rcjet_gECF322_clstr.resize(i);
+	    m_rcjet_gECF331_clstr.resize(i);
+	    m_rcjet_gECF422_clstr.resize(i);
+	    m_rcjet_gECF441_clstr.resize(i);
+	    m_rcjet_gECF212_clstr.resize(i);
+	    m_rcjet_gECF321_clstr.resize(i);
+	    m_rcjet_gECF311_clstr.resize(i);
+	    m_rcjet_L1_clstr.resize(i);
+	    m_rcjet_L2_clstr.resize(i);
+	    m_rcjet_L3_clstr.resize(i);
+	    m_rcjet_L4_clstr.resize(i);
+	    m_rcjet_L5_clstr.resize(i);
 	  }
 	} // end if make rcjets
 	// end re-clustered jets
@@ -3053,6 +3186,40 @@ namespace top {
             static SG::AuxElement::ConstAccessor<float> RCSplit12("Split12");
             static SG::AuxElement::ConstAccessor<float> RCSplit23("Split23");
 
+	    // re-clustered jet substructure from clusters
+	    static SG::AuxElement::ConstAccessor<float> Tau21_clstr("Tau21_clstr");
+	    static SG::AuxElement::ConstAccessor<float> Tau32_clstr("Tau32_clstr");
+	    static SG::AuxElement::ConstAccessor<float> Tau3_clstr("Tau3_clstr");
+	    static SG::AuxElement::ConstAccessor<float> Tau2_clstr("Tau2_clstr");
+	    static SG::AuxElement::ConstAccessor<float> Tau1_clstr("Tau1_clstr");
+	    static SG::AuxElement::ConstAccessor<float> D2_clstr("D2_clstr");
+	    static SG::AuxElement::ConstAccessor<float> ECF1_clstr("ECF1_clstr");
+	    static SG::AuxElement::ConstAccessor<float> ECF2_clstr("ECF2_clstr");
+	    static SG::AuxElement::ConstAccessor<float> ECF3_clstr("ECF3_clstr");
+	    static SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
+	    static SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
+	    static SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
+	    static SG::AuxElement::ConstAccessor<float> gECF332_clstr("gECF332_clstr");
+	    static SG::AuxElement::ConstAccessor<float> gECF461_clstr("gECF461_clstr");
+	    static SG::AuxElement::ConstAccessor<float> gECF322_clstr("gECF322_clstr");
+	    static SG::AuxElement::ConstAccessor<float> gECF331_clstr("gECF331_clstr");
+	    static SG::AuxElement::ConstAccessor<float> gECF422_clstr("gECF422_clstr");
+	    static SG::AuxElement::ConstAccessor<float> gECF441_clstr("gECF441_clstr");
+	    static SG::AuxElement::ConstAccessor<float> gECF212_clstr("gECF212_clstr");
+	    static SG::AuxElement::ConstAccessor<float> gECF321_clstr("gECF321_clstr");
+	    static SG::AuxElement::ConstAccessor<float> gECF311_clstr("gECF311_clstr");
+	    static SG::AuxElement::ConstAccessor<float> L1_clstr("L1_clstr");
+	    static SG::AuxElement::ConstAccessor<float> L2_clstr("L2_clstr");
+	    static SG::AuxElement::ConstAccessor<float> L3_clstr("L3_clstr");
+	    static SG::AuxElement::ConstAccessor<float> L4_clstr("L4_clstr");
+	    static SG::AuxElement::ConstAccessor<float> L5_clstr("L5_clstr");
+	    // store also the jet that is rebuilt to calculate the JSS
+	    static SG::AuxElement::ConstAccessor<float> RRCJet_pt("RRCJet_pt");
+	    static SG::AuxElement::ConstAccessor<float> RRCJet_eta("RRCJet_eta");
+	    static SG::AuxElement::ConstAccessor<float> RRCJet_phi("RRCJet_phi");
+	    static SG::AuxElement::ConstAccessor<float> RRCJet_e("RRCJet_e");
+
+	  
             // Initialize the vectors to be saved as branches
             unsigned int sizeOfRCjets(rc_jets_particle->size());
 
@@ -3069,6 +3236,35 @@ namespace top {
             m_rcjetsub_Ghosts_BHadron_Final_Count.clear();
             m_rcjetsub_Ghosts_CHadron_Final_Count.clear();
 
+     
+	    m_rcjet_tau32_clstr.clear();
+	    m_rcjet_tau21_clstr.clear();
+	    m_rcjet_tau3_clstr.clear();
+	    m_rcjet_tau2_clstr.clear();
+	    m_rcjet_tau1_clstr.clear();
+	    m_rcjet_D2_clstr.clear();
+	    m_rcjet_ECF1_clstr.clear();
+	    m_rcjet_ECF2_clstr.clear();
+	    m_rcjet_ECF3_clstr.clear();
+	    m_rcjet_d12_clstr.clear();
+	    m_rcjet_d23_clstr.clear();    
+	    m_rcjet_Qw_clstr.clear();
+	    
+	    m_rcjet_gECF332_clstr.clear();
+	    m_rcjet_gECF461_clstr.clear();
+	    m_rcjet_gECF322_clstr.clear();
+	    m_rcjet_gECF331_clstr.clear();
+	    m_rcjet_gECF422_clstr.clear();
+	    m_rcjet_gECF441_clstr.clear();
+	    m_rcjet_gECF212_clstr.clear();
+	    m_rcjet_gECF321_clstr.clear();
+	    m_rcjet_gECF311_clstr.clear();
+	    m_rcjet_L1_clstr.clear();
+	    m_rcjet_L2_clstr.clear();
+	    m_rcjet_L3_clstr.clear();
+	    m_rcjet_L4_clstr.clear();
+	    m_rcjet_L5_clstr.clear();
+	  
             m_rcjet_pt.resize(sizeOfRCjets,-999.);
             m_rcjet_eta.resize(sizeOfRCjets,-999.);
             m_rcjet_phi.resize(sizeOfRCjets,-999.);
@@ -3082,6 +3278,44 @@ namespace top {
             m_rcjetsub_Ghosts_BHadron_Final_Count.resize(sizeOfRCjets, std::vector<int>());
             m_rcjetsub_Ghosts_CHadron_Final_Count.resize(sizeOfRCjets, std::vector<int>());
 
+	    if (m_useRCJSS){
+	      m_rrcjet_pt.resize(sizeOfRCjets,-999.);
+	      m_rrcjet_eta.resize(sizeOfRCjets,-999.);
+	      m_rrcjet_phi.resize(sizeOfRCjets,-999.);
+	      m_rrcjet_e.resize(sizeOfRCjets,-999.);
+     
+	      m_rcjet_tau32_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_tau21_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_tau1_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_tau2_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_tau3_clstr.resize(sizeOfRCjets,-999.);
+ 	  
+	      m_rcjet_D2_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_ECF1_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_ECF2_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_ECF3_clstr.resize(sizeOfRCjets,-999.);
+ 
+	      m_rcjet_d12_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_d23_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_Qw_clstr.resize(sizeOfRCjets,-999.);
+
+	      m_rcjet_gECF332_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_gECF461_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_gECF322_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_gECF331_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_gECF422_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_gECF441_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_gECF212_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_gECF321_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_gECF311_clstr.resize(sizeOfRCjets,-999.);
+
+	      m_rcjet_L1_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_L2_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_L3_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_L4_clstr.resize(sizeOfRCjets,-999.);
+	      m_rcjet_L5_clstr.resize(sizeOfRCjets,-999.);
+
+	    }
             unsigned int i = 0;
             std::vector<int> rc_particle_selected_jets;
             rc_particle_selected_jets.clear();
@@ -3101,6 +3335,44 @@ namespace top {
                 m_rcjet_d12[i] = (RCSplit12.isAvailable(*rc_jet)) ? RCSplit12(*rc_jet) : -999.;
                 m_rcjet_d23[i] = (RCSplit23.isAvailable(*rc_jet)) ? RCSplit23(*rc_jet) : -999.;
 
+		if (m_useRCJSS){
+		  m_rrcjet_pt[i]   =  (RRCJet_pt.isAvailable(*rc_jet))  ? RRCJet_pt(*rc_jet) : -999.;
+		  m_rrcjet_eta[i]  =  (RRCJet_eta.isAvailable(*rc_jet)) ? RRCJet_eta(*rc_jet) : -999.;
+		  m_rrcjet_phi[i]  =  (RRCJet_phi.isAvailable(*rc_jet)) ? RRCJet_phi(*rc_jet) : -999.;
+		  m_rrcjet_e[i]    =  (RRCJet_e.isAvailable(*rc_jet))   ? RRCJet_e(*rc_jet) : -999.;
+
+		  m_rcjet_tau32_clstr[i] = (Tau32_clstr.isAvailable(*rc_jet)) ? Tau32_clstr(*rc_jet) : -999.;
+		  m_rcjet_tau21_clstr[i] = (Tau21_clstr.isAvailable(*rc_jet)) ? Tau21_clstr(*rc_jet) : -999.;
+		  m_rcjet_tau3_clstr[i] = (Tau3_clstr.isAvailable(*rc_jet)) ? Tau3_clstr(*rc_jet) : -999.;
+		  m_rcjet_tau2_clstr[i] = (Tau2_clstr.isAvailable(*rc_jet)) ? Tau2_clstr(*rc_jet) : -999.;
+		  m_rcjet_tau1_clstr[i] = (Tau1_clstr.isAvailable(*rc_jet)) ? Tau1_clstr(*rc_jet) : -999.;
+		  m_rcjet_D2_clstr[i] = (D2_clstr.isAvailable(*rc_jet)) ? D2_clstr(*rc_jet) : -999.;
+		  m_rcjet_ECF1_clstr[i] = (ECF1_clstr.isAvailable(*rc_jet)) ? ECF1_clstr(*rc_jet) : -999.;
+		  m_rcjet_ECF2_clstr[i] = (ECF2_clstr.isAvailable(*rc_jet)) ? ECF2_clstr(*rc_jet) : -999.;
+		  m_rcjet_ECF3_clstr[i] = (ECF3_clstr.isAvailable(*rc_jet)) ? ECF3_clstr(*rc_jet) : -999.;
+		  m_rcjet_d12_clstr[i] = (d12_clstr.isAvailable(*rc_jet)) ? d12_clstr(*rc_jet) : -999.;
+		  m_rcjet_d23_clstr[i] = (d23_clstr.isAvailable(*rc_jet)) ? d23_clstr(*rc_jet) : -999.;
+		  m_rcjet_Qw_clstr[i] = (Qw_clstr.isAvailable(*rc_jet)) ? Qw_clstr(*rc_jet) : -999.;
+
+		  m_rcjet_gECF332_clstr[i] = (gECF332_clstr.isAvailable(*rc_jet)) ? gECF332_clstr(*rc_jet) : -999.;
+		  m_rcjet_gECF461_clstr[i] = (gECF461_clstr.isAvailable(*rc_jet)) ? gECF461_clstr(*rc_jet) : -999.;
+		  m_rcjet_gECF322_clstr[i] = (gECF322_clstr.isAvailable(*rc_jet)) ? gECF322_clstr(*rc_jet) : -999.;
+		  m_rcjet_gECF331_clstr[i] = (gECF331_clstr.isAvailable(*rc_jet)) ? gECF331_clstr(*rc_jet) : -999.;
+		  m_rcjet_gECF422_clstr[i] = (gECF422_clstr.isAvailable(*rc_jet)) ? gECF422_clstr(*rc_jet) : -999.;
+		  m_rcjet_gECF441_clstr[i] = (gECF441_clstr.isAvailable(*rc_jet)) ? gECF441_clstr(*rc_jet) : -999.;
+		  m_rcjet_gECF212_clstr[i] = (gECF212_clstr.isAvailable(*rc_jet)) ? gECF212_clstr(*rc_jet) : -999.;
+		  m_rcjet_gECF321_clstr[i] = (gECF321_clstr.isAvailable(*rc_jet)) ? gECF321_clstr(*rc_jet) : -999.;
+		  m_rcjet_gECF311_clstr[i] = (gECF311_clstr.isAvailable(*rc_jet)) ? gECF311_clstr(*rc_jet) : -999.;
+		  
+		  m_rcjet_L1_clstr[i] = (L1_clstr.isAvailable(*rc_jet)) ? L1_clstr(*rc_jet) : -999.;
+		  m_rcjet_L2_clstr[i] = (L2_clstr.isAvailable(*rc_jet)) ? L2_clstr(*rc_jet) : -999.;
+		  m_rcjet_L3_clstr[i] = (L3_clstr.isAvailable(*rc_jet)) ? L3_clstr(*rc_jet) : -999.;
+		  m_rcjet_L4_clstr[i] = (L4_clstr.isAvailable(*rc_jet)) ? L4_clstr(*rc_jet) : -999.;
+		  m_rcjet_L5_clstr[i] = (L5_clstr.isAvailable(*rc_jet)) ? L5_clstr(*rc_jet) : -999.;
+
+
+		}
+	    
                 // loop over subjets
                 m_rcjetsub_pt[i].clear();     // clear the vector size (otherwise it grows out of control!)
                 m_rcjetsub_eta[i].clear();
@@ -3141,6 +3413,43 @@ namespace top {
             m_rcjetsub_Ghosts_BHadron_Final_Count.resize(i, std::vector<int>());
             m_rcjetsub_Ghosts_CHadron_Final_Count.resize(i, std::vector<int>());
 
+	    if (m_useRCJSS){
+	      m_rrcjet_pt.resize(i);
+	      m_rrcjet_eta.resize(i);
+	      m_rrcjet_phi.resize(i);
+	      m_rrcjet_e.resize(i);
+
+	      m_rcjet_tau21_clstr.resize(i);
+	      m_rcjet_tau32_clstr.resize(i);
+	      m_rcjet_tau1_clstr.resize(i);
+	      m_rcjet_tau2_clstr.resize(i);
+	      m_rcjet_tau3_clstr.resize(i);
+ 	  
+	      m_rcjet_D2_clstr.resize(i);
+	      m_rcjet_ECF1_clstr.resize(i);
+	      m_rcjet_ECF2_clstr.resize(i);
+	      m_rcjet_ECF3_clstr.resize(i);
+ 
+	      m_rcjet_d12_clstr.resize(i);
+	      m_rcjet_d23_clstr.resize(i);
+	      m_rcjet_Qw_clstr.resize(i);
+
+	      m_rcjet_gECF332_clstr.resize(i);
+	      m_rcjet_gECF461_clstr.resize(i);
+	      m_rcjet_gECF322_clstr.resize(i);
+	      m_rcjet_gECF331_clstr.resize(i);
+	      m_rcjet_gECF422_clstr.resize(i);
+	      m_rcjet_gECF441_clstr.resize(i);
+	      m_rcjet_gECF212_clstr.resize(i);
+	      m_rcjet_gECF321_clstr.resize(i);
+	      m_rcjet_gECF311_clstr.resize(i);
+	      m_rcjet_L1_clstr.resize(i);
+	      m_rcjet_L2_clstr.resize(i);
+	      m_rcjet_L3_clstr.resize(i);
+	      m_rcjet_L4_clstr.resize(i);
+	      m_rcjet_L5_clstr.resize(i);
+	    }
+	    
         }
 
         //met
