@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           GaudiKernel
 			  MuonSpectrometer/MuonCablings/MuonMDT_Cabling
+			  MuonSpectrometer/MuonCablings/MuonCablingData
                           MuonSpectrometer/MuonCalib/MdtCalib/MdtCalibData
                           MuonSpectrometer/MuonCalib/MuonCalibIdentifier
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
@@ -34,13 +35,13 @@ atlas_add_library( MdtCalibSvcLib
                    src/*.cxx
                    PUBLIC_HEADERS MdtCalibSvc
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel MuonMDT_Cabling MdtCalibData MuonCalibIdentifier MuonPrepRawData StoreGateLib SGtests MuonIdHelpersLib PathResolver
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel MuonMDT_CablingLib MdtCalibData MuonCalibIdentifier MuonPrepRawData StoreGateLib SGtests MuonIdHelpersLib PathResolver
                    PRIVATE_LINK_LIBRARIES MagFieldInterfaces MuonCalibEvent MuonReadoutGeometry )
 
 atlas_add_component( MdtCalibSvc
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel MdtCalibData MuonMDT_Cabling MuonCalibIdentifier MuonPrepRawData StoreGateLib SGtests MagFieldInterfaces MuonCalibEvent MuonReadoutGeometry MuonIdHelpersLib MdtCalibSvcLib PathResolver )
+                     LINK_LIBRARIES MdtCalibSvcLib )
 
 # Install files from the package:
 atlas_install_runtime( share/DC2_t0.dat share/DC2_rt.dat )
