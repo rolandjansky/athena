@@ -40,12 +40,8 @@ StatusCode JetConstituentModSequence::initialize() {
   m_outPFOChargedKey = m_outputContainer+"ChargedParticleFlowObjects";
   m_outPFONeutralKey = m_outputContainer+"NeutralParticleFlowObjects";
   m_caloClusterKey = m_outputContainer;
-  m_truthParticleKey = m_outputContainer;
-  m_trackParticleKey = m_outputContainer;
 
   m_inCaloClusterKey = m_inputContainer;
-  m_inTrackParticleKey = m_inputContainer;
-  m_inTruthParticleKey = m_inputContainer;
   m_inPFOChargedKey = m_inputContainer + "ChargedParticleFlowObjects";
   m_inPFONeutralKey = m_inputContainer + "NeutralParticleFlowObjects";
 
@@ -55,14 +51,10 @@ StatusCode JetConstituentModSequence::initialize() {
 
   ATH_CHECK(m_outPFOAllKey.initialize());
   ATH_CHECK(m_caloClusterKey.initialize());
-  ATH_CHECK(m_truthParticleKey.initialize());
-  ATH_CHECK(m_trackParticleKey.initialize());
   ATH_CHECK(m_outPFOChargedKey.initialize());
   ATH_CHECK(m_outPFONeutralKey.initialize());
   
   ATH_CHECK(m_inCaloClusterKey.initialize());
-  ATH_CHECK(m_inTruthParticleKey.initialize());
-  ATH_CHECK(m_inTrackParticleKey.initialize());
   ATH_CHECK(m_inPFOChargedKey.initialize());
   ATH_CHECK(m_inPFONeutralKey.initialize());
   ATH_CHECK(m_inPFOChargedCopyKey.initialize());

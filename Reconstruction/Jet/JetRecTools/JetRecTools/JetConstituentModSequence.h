@@ -57,8 +57,6 @@ protected:
 
   // note: not all keys will be used for a particular instantiation
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_caloClusterKey;
-  SG::WriteHandleKey<xAOD::TruthParticleContainer> m_truthParticleKey;
-  SG::WriteHandleKey<xAOD::TrackParticleContainer> m_trackParticleKey;
 
   SG::WriteHandleKey<xAOD::PFOContainer> m_outPFOChargedKey;
   SG::WriteHandleKey<xAOD::PFOContainer> m_outPFONeutralKey;
@@ -68,8 +66,6 @@ protected:
   SG::ReadHandleKey<xAOD::PFOContainer> m_inPFOChargedKey{};
   SG::ReadHandleKey<xAOD::PFOContainer> m_inPFONeutralKey{};
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_inCaloClusterKey{};
-  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_inTruthParticleKey{};
-  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_inTrackParticleKey{};
   SG::ReadHandleKey<xAOD::PFOContainer> m_inPFOChargedCopyKey{};
   SG::ReadHandleKey<xAOD::PFOContainer> m_inPFONeutralCopyKey{};
 
