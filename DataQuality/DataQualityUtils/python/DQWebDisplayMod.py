@@ -24,12 +24,20 @@ os.chdir(CWD)
 os.environ['TDAQ_ERS_NO_SIGNAL_HANDLERS'] = '1'
 
 import sys
+from optparse import OptionParser
 import ROOT
 ## Importing gSystem may change the current directory to one of the
 ## command-line arguments; chdir to original directory to have
 ## predictable behavior
 from ROOT import gSystem
 os.chdir(CWD)
+
+parser = OptionParser()
+parser.add_option("--htag", dest="htag",
+                  help='Use configuration from a specified htag')
+
+(options, args) = parser.parse_args()
+
 
 from DataQualityUtils.handimod import handiWithComparisons
 from DataQualityUtils.handimod import makeCSSFile
@@ -51,7 +59,7 @@ class LockAcquisitionException(Exception):
     def __init__(self, msg):
         super(LockAcquisitionException,self).__init__(msg)
 
-def DQWebDisplay( inputFilePath, runAccumulating, c ):
+def DQWebDisplay( inputFilePath, runAccumulating, c, htag=None ):
     
     print ""
     print "SVN version:"
@@ -785,10 +793,10 @@ def addAmiTags(fileList, amitag):
         rf.Close()
 
 def usage():
-  cmdi = sys.argv[0].rfind("/")
-  cmd = sys.argv[0][cmdi+1:]
+  #cmdi = sys.argv[0].rfind("/")
+  #cmd = sys.argv[0][cmdi+1:]
   print ""
-  print "Usage: ", cmd, "<data_file> <config> <processing_version> [run_accumulating [conditions_string]]"
+  print "Usage: DQWebDisplay.py <data_file> <config> <processing_version> [run_accumulating [conditions_string]]"
   print ""
   print "This is a production utility; use TEST config for development and testing."
   print ""
@@ -796,50 +804,50 @@ def usage():
   print ""
 
 if __name__ == "__main__":
-  if len(sys.argv) < 4 or len(sys.argv) > 7:
+  if len(args) < 4 or len(args) > 7:
     usage()
     sys.exit(0)
   
-  inputFile  = sys.argv[1] # data file
+  inputFile  = args[0] # data file
   runAccumulating = False
-  if len(sys.argv) in (6,7):
-    if sys.argv[4] == "True" or sys.argv[4] == "1":
+  if len(args) in (6,7):
+    if args[4] == "True" or args[3] == "1":
       runAccumulating = True
   
-  if len(sys.argv) == 7:
+  if len(args) == 7:
       ROOT.gSystem.Load('libDataQualityInterfaces')
-      ROOT.dqi.ConditionsSingleton.getInstance().setCondition(sys.argv[5])
+      ROOT.dqi.ConditionsSingleton.getInstance().setCondition(args[4])
 
   configModule = ""
   
-  if   sys.argv[2] == "TEST":
+  if   args[1] == "TEST":
     configModule = "TestDisplay"
-  elif sys.argv[2] == "RTT":
+  elif args[1] == "RTT":
     configModule = "RTTDisplay"
-  elif sys.argv[2] == "TCT":
+  elif args[1] == "TCT":
     configModule = "TCTDisplay"
-  elif sys.argv[2] == "FDR1":
+  elif args[1] == "FDR1":
     configModule = "fdr08_run1"
-  elif sys.argv[2] == "FDR2" or sys.argv[2] == "FDR2a" or sys.argv[2] == "FDR2b" or sys.argv[2] == "FDR2c":
+  elif args[1] == "FDR2" or args[1] == "FDR2a" or args[1] == "FDR2b" or args[1] == "FDR2c":
     configModule = "fdr08_run2"
-  elif sys.argv[2] == "Cosmics08":
+  elif args[1] == "Cosmics08":
     configModule = "data08_cos"
-  elif sys.argv[2] == "SingleBeam08":
+  elif args[1] == "SingleBeam08":
     configModule = "data08_1beam"
   else:
-    configModule = sys.argv[2]
+    configModule = args[1]
   
-  try:
-    cmod = importConfiguration(configModule)
-  except Exception, e:
-    print "Could not import configuration module \'" + configModule + "\'"
-    sys.exit(1)
+  #try:
+  cmod = importConfiguration(configModule, options.htag)
+  #except Exception, e:
+  #  print "Could not import configuration module \'" + configModule + "\'"
+  #  sys.exit(1)
 
-  try:
-    config = cmod.dqconfig
-  except Exception, e:
-    print "Configuration object 'dqconfig' not defined in module \'" + configModule + "\'"
-    sys.exit(1)
+  #try:
+  config = cmod.dqconfig
+  #except Exception, e:
+  #  print "Configuration object 'dqconfig' not defined in module \'" + configModule + "\'"
+  #  sys.exit(1)
 
   
   DQWebDisplay( inputFile, runAccumulating, config )

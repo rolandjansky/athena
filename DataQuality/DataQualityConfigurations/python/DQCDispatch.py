@@ -7,8 +7,12 @@
 #
 # 2012-12-05 Peter Onyisi
 
-def getmodule(modname):
+def getmodule(modname, htag=None):
     assert isinstance(modname, basestring), 'Argument to getmodule must be a string'
+
+    if (htag):
+        from . import base_htag; return base_htag.get_config(htag)
+    
 
     # Local file?
     try:
@@ -36,7 +40,7 @@ def getmodule(modname):
         or modname.endswith('_calib')
         or modname.endswith('_comm')):
         from . import base_data; return base_data
-    if (modname.endswith('_hi')
+    elif (modname.endswith('_hi')
         or modname.endswith('_hip')):
         from . import base_data_hi; return base_data_hi
     elif (modname.endswith('_1beam') ):
