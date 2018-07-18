@@ -44,21 +44,10 @@ class TauRecRunConfigured ( Configured ) :
 
 
     def WrapTauRecToolExecHandle(self, tool=None ):
-        print "RUN RECRUNNER"
         self.TauRunnerAlgHandle().Tools = tool
         from AthenaCommon.AlgSequence import AlgSequence
 
         topSequence = AlgSequence()
-
-        #from AthenaCommon.AlgScheduler import AlgScheduler
-        #AlgScheduler.ShowDataDependencies(True)
-        #AlgScheduler.ShowControlFlow(True)
-        
-        #from SGComps.SGCompsConf import SGInputLoader
-        # not needed? There by default now?
-        #topSequence += SGInputLoader()
-        #topSequence.SGInputLoader.Load = [ ('xAOD::JetContainer','AntiKt4LCTopoJets'), ('xAOD::VertexContainer', 'PrimaryVertices'),
-         #                                  ('xAOD::TrackParticleContainer','InDetTrackParticles'), ('CaloCellContainer','AllCalo') ]
         
         topSequence += self.TauRunnerAlgHandle()
 
@@ -73,8 +62,6 @@ class TauRecRunConfigured ( Configured ) :
             tool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
             if tool not in ToolSvc : ToolSvc += tool
             pass
-
-
 
     def TauRunnerAlgHandle(self):
         return self._TauRunnerAlgHandle

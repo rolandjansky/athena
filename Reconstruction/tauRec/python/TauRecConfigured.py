@@ -53,10 +53,8 @@ class TauRecConfigured ( Configured ) :
 
 
     def WrapTauRecToolExecHandle(self, tool=None ):
-        print "WrapToolsNone"
 
         self.TauProcessorAlgHandle().Tools = tool
-        #self.TauProcessorAlgHandle().name = tool.name+'Alg'
         from AthenaCommon.AlgSequence import AlgSequence
 
         topSequence = AlgSequence()
@@ -66,11 +64,10 @@ class TauRecConfigured ( Configured ) :
         AlgScheduler.ShowControlFlow(True)
         
         from SGComps.SGCompsConf import SGInputLoader
-        # not needed? There by default now?
-        topSequence += SGInputLoader()
         topSequence.SGInputLoader.Load = [ ('xAOD::JetContainer','AntiKt4LCTopoJets'), ('xAOD::VertexContainer', 'PrimaryVertices'),
                                            ('xAOD::TrackParticleContainer','InDetTrackParticles'), ('CaloCellContainer','AllCalo') ]
 
+        # Can I move this to different script?
         from AthenaCommon.AppMgr import ToolSvc
         from JetRec.JetRecConf import JetAlgorithm
         jetTrackAlg = JetAlgorithm("JetTrackAlg_forTaus")
@@ -87,13 +84,13 @@ class TauRecConfigured ( Configured ) :
         jetTrackAlg.Tools = [ TauTVATool ]
         topSequence += jetTrackAlg
 
-        # Can I move this to different script?
-        #import tauRec.TauAlgorithmsHolder as taualgs
+        # import tauRec.TauAlgorithmsHolder as taualgs
         # add tauJVF tool to topSequence
-        #taualgs.setupTauJVFTool
+        # taualgs.setupTauJVFTool
 
         topSequence += self.TauProcessorAlgHandle()
 
+    # No longer used?
     def WrapTauRecToolExecHandles(self, tools=[]):
 
         self.TauProcessorAlgHandle().Tools = tools

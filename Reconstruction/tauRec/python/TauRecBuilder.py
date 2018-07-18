@@ -65,36 +65,12 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
         objKeyStore.addManyTypesStreamAOD(self._output)              
         
         import tauRec.TauAlgorithmsHolder as taualgs
+        from tauRec.tauRecFlags import tauFlags
         
-        ########################################################################
-        # TauBuilder
-        # create the taus
-        try:
-            from tauRec.tauRecFlags import tauFlags
-            #from tauRecTools.tauRecToolsConf import TauBuilderTool
-            #self._TauBuilderToolHandle = TauBuilderTool(
-            #    name = self.name,
-            #    SeedContainer            = _jet_collection,
-            #    TauContainer             = _outputKey,
-            #    TauAuxContainer          = _outputAuxKey,
-            #    Key_jetInputContainer="AntiKt4LCTopoJets", 
-            #    Key_tauOutputContainer="TauJets", 
-            #    Key_tauTrackOutputContainer="TauTracks",
-                #MaxEta = 2.5,
-            #    MaxEta = tauFlags.tauRecSeedMaxEta(),
-            #    MinPt = 10.*GeV,
-            #    doCreateTauContainers = True)
-        except Exception:
-            mlog.error("could not get handle to TauBuilder")
-            print traceback.format_exc()
-            return False
-
-
         #switch off TJVA if jet reco don't use tracks.
         from JetRec.JetRecFlags import jetFlags
         if not jetFlags.useTracks():
             self.do_TJVA = False  # switch off TJVA
-        
         
         tools = []
         try:
@@ -137,66 +113,14 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
                 #Need to run together, they will select either PID or vertex based on another flag
                 #tools.append(tauRec.TauConversionAlgorithms.getPhotonConversionTool())
                 #tools.append(tauRec.TauConversionAlgorithms.getTauConversionFinderTool())
-            
+
             # tools.append(taualgs.getContainerLock())
-                
-            ### TauRecPi0EflowProcessor ###
-            # Tools in this section were originally in TauRecPi0EflowProcessor
-            # if self.doPi0Clus: tools.append(taualgs.getPi0ClusterCreator())
-            
-            ###############################
 
-            ### TauRecVariablesProcessor ###
-            # Tools in this section were originally in TauRecVariablesProcessor
-            #if InDetFlags.doVertexFinding():
-             #   tools.append(taualgs.getTauVertexVariables())
-            
-            #tools.append(taualgs.getTauCommonCalcVars())
-            #tools.append(taualgs.getTauSubstructure())
-
-            #if self.doPi0Clus: 
-             #   tools.append(taualgs.getPi0ClusterScaler())
-              #  tools.append(taualgs.getPi0ScoreCalculator())
-                # SWITCHED OFF SELECTOR< SINCE NO CHARGED PFOS AVAILABLE ATM
-               # tools.append(taualgs.getPi0Selector())
-
-            #tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
-
-            # PanTau:
-            #if tauFlags.doPanTau() :
-             #   import PanTauAlgs.JobOptions_Main_PanTau as pantau
-              #  tools.append(pantau.getPanTau())
- 
-            # these tools need pantau info
-            #tools.append(taualgs.getCombinedP4FromRecoTaus())
-            #tools.append(taualgs.getMvaTESVariableDecorator())
-            #tools.append(taualgs.getMvaTESEvaluator())
-
-            #if tauFlags.doRunTauDiscriminant():
-                #tools.append(taualgs.getTauIDVarCalculator())
-                #tools.append(taualgs.getTauJetBDTEvaluator("TauJetBDT1P", weightsFile="vars2016_pt_gamma_1p_isofix.root", minNTracks=0, maxNTracks=1)) #update config?
-                #tools.append(taualgs.getTauJetBDTEvaluator("TauJetBDT3P", weightsFile="vars2016_pt_gamma_3p_isofix.root", minNTracks=2, maxNTracks=1000)) #update config?
-                #tools.append(taualgs.getTauWPDecoratorJetBDT())
-                #tools.append(taualgs.getTauJetBDTEvaluator("TauEleBDT_def", weightsFile="", outputVarName="BDTEleScore"))#just inits values
-                #tools.append(taualgs.getTauJetBDTEvaluator("TauEleBDT_bar", 
-                 #                                          weightsFile="EleBDT1PBar.root", minNTracks=1, maxAbsTrackEta=1.37, 
-                  #                                         outputVarName="BDTEleScore")) #update config?
-                #tools.append(taualgs.getTauJetBDTEvaluator("TauEleBDT_end1", 
-                 #                                          weightsFile="EleBDT1PEnd1.root", minNTracks=1, minAbsTrackEta=1.37, 
-                  #                                         maxAbsTrackEta=2.0, outputVarName="BDTEleScore")) #update config?
-                #tools.append(taualgs.getTauJetBDTEvaluator("TauEleBDT_end23", 
-                 #                                          weightsFile="EleBDT1PEnd23.root", minNTracks=1, minAbsTrackEta=2.0, 
-                  #                                         maxAbsTrackEta=3.0, outputVarName="BDTEleScore")) #update config?
-                #tools.append(taualgs.getTauWPDecoratorEleBDT())
-                #tools.append(taualgs.getTauEleOLRDecorator())
-                
-            
             ################################
 
             from tauRec.tauRecFlags import tauFlags
             tools+=tauFlags.tauRecToolsDevToolList()
             TauRecConfigured.AddToolsToToolSvc(self, tools)
-            #self.TauBuilderToolHandle().Tools = tools
             
         except Exception:
             mlog.error("could not append tools to TauBuilder")
@@ -218,7 +142,7 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
          return self._outputType
 
 
-
+# No longer used
 ################################################################################
 ## @class TauRecPi0EflowProcessor
 # Calculate eflow information and run the Pi0 finder algorithms
@@ -279,7 +203,7 @@ class TauRecPi0EflowProcessor ( TauRecConfigured ) :
     def TauProcessorToolHandle(self):
         return self._TauProcessorToolHandle
 
-
+# No longer used
 ################################################################################
 ## @class TauRecVariablesProcessor
 # Calculate remaining Tau variables and properties
