@@ -285,7 +285,7 @@ StatusCode HLTXAODBphysMonTool::book()
 {
     ATH_MSG_DEBUG ("Booking... ");
 
-    if (!newRun) {
+    if (!newRunFlag()) {
         ATH_MSG_DEBUG ("Booking... not a new run, continuing");
         return StatusCode::SUCCESS;
     }
@@ -354,7 +354,7 @@ StatusCode HLTXAODBphysMonTool::fill()
 StatusCode HLTXAODBphysMonTool::proc() {
     ATH_MSG_DEBUG ("proc... ");
     
-    if (!endOfRun)
+    if (!endOfRunFlag())
     {
         ATH_MSG_DEBUG ("proc... Not end-of-run, returning");
         return StatusCode::SUCCESS;
@@ -510,28 +510,27 @@ StatusCode HLTXAODBphysMonTool::bookEfficiencyGroup(const std::string & groupNam
     //book profile for the efficiency groups
     ATH_MSG_DEBUG("bookEfficiencyGroup: " << groupName);
     
-    int bin;
+    int nBins(40);
     
     TString prefix = m_prefix + "_" + groupName; // convert from std::string to TString
     
-    if (groupName.find("BMuMuX")!=std::string::npos) bin=20;    
-    else bin=40; 
+    if (groupName.find("BMuMuX")!=std::string::npos) nBins=20;     
     
     // *************** SHIFTER ****************** //
     addMonGroup(new MonGroup(this,m_base_path_shifter+"/Efficiency/"+groupName,run));
     ATH_MSG_DEBUG("bookEfficiencyGroup: Example hist name: " << prefix+"_eta");
     
-    addProfile  ( new TProfile(prefix+"_eta", prefix+"_eta"   ,bin,-3.,3.) );
-    addProfile  ( new TProfile(prefix+"_phi", prefix+"_phi"   ,bin, -TMath::Pi(), TMath::Pi()) );
-    addProfile  ( new TProfile(prefix+"_pt",  prefix+"_pt"    ,bin, 0,50) );
+    addProfile  ( new TProfile(prefix+"_eta", prefix+"_eta"   ,nBins,-3.,3.) );
+    addProfile  ( new TProfile(prefix+"_phi", prefix+"_phi"   ,nBins, -TMath::Pi(), TMath::Pi()) );
+    addProfile  ( new TProfile(prefix+"_pt",  prefix+"_pt"    ,nBins, 0,50) );
     
-    addProfile  ( new TProfile(prefix+"_eta1", prefix+"_eta1", bin, -3.,3.) );
-    addProfile  ( new TProfile(prefix+"_phi1", prefix+"_phi1", bin, -TMath::Pi(), TMath::Pi()) );
-    addProfile  ( new TProfile(prefix+"_pt1",  prefix+"_pt1" , bin, 0,50) );
+    addProfile  ( new TProfile(prefix+"_eta1", prefix+"_eta1", nBins, -3.,3.) );
+    addProfile  ( new TProfile(prefix+"_phi1", prefix+"_phi1", nBins, -TMath::Pi(), TMath::Pi()) );
+    addProfile  ( new TProfile(prefix+"_pt1",  prefix+"_pt1" , nBins, 0,50) );
     
-    addProfile  ( new TProfile(prefix+"_eta2", prefix+"_eta2", bin, -3.,3.) );
-    addProfile  ( new TProfile(prefix+"_phi2", prefix+"_phi2", bin, -TMath::Pi(), TMath::Pi()) );
-    addProfile  ( new TProfile(prefix+"_pt2",  prefix+"_pt2" , bin, 0,50) );
+    addProfile  ( new TProfile(prefix+"_eta2", prefix+"_eta2", nBins, -3.,3.) );
+    addProfile  ( new TProfile(prefix+"_phi2", prefix+"_phi2", nBins, -TMath::Pi(), TMath::Pi()) );
+    addProfile  ( new TProfile(prefix+"_pt2",  prefix+"_pt2" , nBins, 0,50) );
     
     
     // *************** EXPERT ****************** //
