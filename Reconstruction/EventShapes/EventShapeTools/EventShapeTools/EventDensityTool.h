@@ -31,9 +31,8 @@
 #include "fastjet/JetDefinition.hh"
 #include "fastjet/AreaDefinition.hh"
 #include "fastjet/Selector.hh"
-#include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
-#include "JetInterface/IPseudoJetGetter.h"
+#include "JetRec/PseudoJetContainer.h"
 #include "EventShapeInterface/IEventShapeTool.h"
 #include "xAODEventShape/EventShape.h"
 
@@ -63,13 +62,12 @@ protected:
   
 private: 
   // DataHandles
-  SG::ReadHandleKey<xAOD::EventShape>       m_outconIn;
-  SG::WriteHandleKey<xAOD::EventShape>      m_outcon;
+  SG::ReadHandleKey<PseudoJetContainer> m_inPJHandleKey{this, "InputContainer", "", "ReadHandleKey for input PseudoJetVector"};
+  SG::WriteHandleKey<xAOD::EventShape> m_outEDHandleKey{this, "OutputContainer", "GenericEventDensity", "WriteHandleKey for output EventDensity"};
 
   // Properties
   std::string m_jetalg;                     // JetAlg
   float m_jetrad;                           // JetRadius
-  ToolHandle<IPseudoJetGetter> m_pjgetter;  // JetInput
   float m_rapmin;                           // RapidityMax
   float m_rapmax;                           // RapidityMax
   std::string m_areadef;                    // AreaDefinition
