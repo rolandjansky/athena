@@ -11,7 +11,7 @@ def configEventDensityTool( name, pjGetter, radius, **options ):
     toolProperties = dict(
         JetAlgorithm        = "Kt",
         JetRadius           = radius,
-        JetInput            = pjGetter,
+        InputContainer      = pjGetter.OutputContainer,
         AbsRapidityMin      = 0.0,
         AbsRapidityMax      = 2.0,
         AreaDefinition      = "Voronoi",
