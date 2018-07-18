@@ -29,7 +29,7 @@ public:
     virtual StatusCode initialize();
     virtual StatusCode finalize();
     virtual StatusCode eventInitialize();
-    virtual StatusCode execute(xAOD::TauJet& pTau) { return StatusCode::SUCCESS; }
+    virtual StatusCode execute(xAOD::TauJet&) { return StatusCode::SUCCESS; }
     virtual StatusCode executeShotFinder(xAOD::TauJet&, xAOD::CaloClusterContainer&, xAOD::PFOContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode executePi0CreateROI(xAOD::TauJet&, CaloCellContainer&) { return StatusCode::SUCCESS; }
     virtual StatusCode executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
