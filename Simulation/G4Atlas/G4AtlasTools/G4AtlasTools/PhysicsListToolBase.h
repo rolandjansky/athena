@@ -36,6 +36,10 @@ public:
   virtual void SetPhysicsOptions() override;
 
 private:
+
+  /// This command prints a message about a G4Command depending on its returnCode
+  void CommandLog(int returnCode, const std::string& commandString) const;
+
   ToolHandleArray<IPhysicsOptionTool> m_phys_option;
   ToolHandleArray<IPhysicsOptionTool> m_phys_decay;
   G4VModularPhysicsList* m_physicsList; ///!< Handle on the physics list
