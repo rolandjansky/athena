@@ -1,21 +1,3 @@
-#    'L1_ALFA_ELAST15' : {1 : TriggerRule(PS=1, comment='ALFA') },
-#        'L1_ALFA_ELAST18' : {1 : TriggerRule(PS=1, comment='ALFA') },
-#        'L1_ALFA_SYST17'  : {1 : TriggerRule(PS=1, comment='ALFA') },
-#        'L1_ALFA_SYST18'  : {1 : TriggerRule(PS=1, comment='ALFA') },
-#        'L1_ALFA_ANY'     : {1 : TriggerRule(PS=1, comment='ALFA') },
-#        'L1_ALFA_ANY_EMPTY' : {1 : TriggerRule(PS=1, comment='ALFA') },
-#        'L1_ALFA_ANY_FIRSTEMPTY' : {1 : TriggerRule(PS=1, comment='ALFA') },
-#        'L1_ALFA_ANY_UNPAIRED_ISO' : {1 : TriggerRule(PS=1, comment='ALFA') },
-#        'L1_ALFA_ANY_UNPAIRED_NONISO' : {1 : TriggerRule(PS=1, comment='ALFA') },
-#        'L1_ALFA_ANY_CALIB' : {1 : TriggerRule(PS=1, comment='ALFA') },
-#        'L1_ALFA_ANY_ABORTGAPNOTCALIB' : {1 : TriggerRule(PS=1, comment='ALFA') },
-#        'L1_ALFA_B1_EMPTY' : {1 : TriggerRule(PS=1, comment='ALFA') },
-#        'L1_ALFA_B2_EMPTY' : {1 : TriggerRule(PS=1, comment='ALFA') },
-#        'L1_ALFA_B7L1_OD' : {1 : TriggerRule(PS=1, comment='ALFA') },
-#        'L1_ALFA_A7L1_OD' : {1 : TriggerRule(PS=1, comment='ALFA') },
-#        'L1_ALFA_A7R1_OD' : {1 : TriggerRule(PS=1, comment='ALFA') },
-#        'L1_ALFA_B7R1_OD' : {1 : TriggerRule(PS=1, comment='ALFA') },
-#        'L1_ALFA_BGT_BGRP1' : {1 : TriggerRule(PS=10, comment='ALFA') },
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
 # Run this file in order to print out the empty slots
