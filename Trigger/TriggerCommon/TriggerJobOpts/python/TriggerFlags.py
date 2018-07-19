@@ -1,12 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-""" Trigger specific flags  """
-
-
-__author__  = 'T. Bold, J. Baines'
-__version__=""
-__doc__="Trigger specific flags  "
-
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TriggerJobOpts.TriggerFlags' )
