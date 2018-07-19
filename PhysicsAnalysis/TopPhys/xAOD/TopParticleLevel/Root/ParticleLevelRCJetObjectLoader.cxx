@@ -35,6 +35,7 @@ ParticleLevelRCJetObjectLoader::ParticleLevelRCJetObjectLoader( const std::share
     m_InputJetContainer = "AntiKt4TruthWZJets_RC";
     m_OutputJetContainer = "AntiKt10RCTrim";
     m_name = "";
+    m_useJSS = false;
     m_jet_def_rebuild = nullptr;
     m_nSub1_beta1 = nullptr;
     m_nSub2_beta1 = nullptr;
