@@ -51,6 +51,7 @@ See _gensequence in both classes:
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
+logging.getLogger().info("with supercluster + calotopo")
 log = logging.getLogger("TriggerMenu.egamma.EgammaDef")
 
 # Imports for HLT ID
@@ -66,6 +67,8 @@ from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_eGamma,
                                            TrigCaloTowerMaker_eGamma)
 
 from TrigEgammaRec.TrigEgammaToolFactories import TrigCaloClusterMaker_slw
+#from TrigEgammaRec.TrigEgammaToolFactories import TrigCaloClusterMaker_topo
+from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMaker_topo
 
 # FEX for Egamma
 from TrigEgammaHypo.TrigL2ElectronFexConfig import L2ElectronFex_1
@@ -199,6 +202,7 @@ class EgammaFexBuilder(object):
         self._tower_maker    = TrigCaloTowerMaker_eGamma()
         self._tower_maker_ion    = TrigCaloTowerMaker_eGamma("TrigCaloTowerMaker_eGamma_heavyIon")
         self._cluster_maker  = TrigCaloClusterMaker_slw()
+        self._cluster_maker_topo  = TrigCaloClusterMaker_topo()
         self._electron_calib           = TrigEFCaloCalibFex_Electron()
         self._photon_calib           = TrigEFCaloCalibFex_Photon()
 
@@ -296,6 +300,12 @@ class EgammaFexBuilder(object):
         calo_ion = False
         seq=[]
 
+        do_superclusters=False
+        if 'addInfo' in chain_part:
+            if 'sc' in chain_part['addInfo']:
+                do_superclusters=True
+                log.debug('Superclusters for precisecalo')
+
         
         if 'extra' in chain_part:
             if chain_part['extra'] == 'ion':
@@ -304,6 +314,9 @@ class EgammaFexBuilder(object):
             seq = [theTrigCaloCellMaker_eGammaHI, self._tower_maker_ion, self._cluster_maker] 
         elif 'bloose' in idinfo  :
             seq = [TrigCaloCellMaker_eGamma_LargeRoI(), self._tower_maker_ion, self._cluster_maker] 
+        elif do_superclusters:
+            log.info('precisecalo: use topoclusters for sc chains')
+            seq = [self._cell_maker,self._tower_maker,self._cluster_maker_topo]
         else:
             seq = [self._cell_maker,self._tower_maker,self._cluster_maker]
         
