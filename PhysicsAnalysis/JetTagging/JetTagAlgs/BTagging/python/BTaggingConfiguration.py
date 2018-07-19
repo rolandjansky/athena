@@ -1588,14 +1588,14 @@ def taggerIsPossible(tagger):
                       'IP2DSpcFlip',
                       'IP2DSpcPos',
                       'IP2DSpcNeg',
-                      'IP2DTrigHybrid', #FLS
+                      #'IP2DTrigHybrid', #FLS
                       'IP3DFlip',
                       'IP3DPos',
                       'IP3DNeg',
                       'IP3DSpcFlip',
                       'IP3DSpcPos',
                       'IP3DSpcNeg',
-                      'IP3DTrigHybrid', #FLS
+                      #'IP3DTrigHybrid', #FLS
                       'SV1Flip',
                       'SV2Flip',
                       'TrackCountingFlip',
