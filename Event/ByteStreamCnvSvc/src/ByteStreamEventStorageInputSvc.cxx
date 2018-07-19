@@ -525,10 +525,10 @@ StatusCode ByteStreamEventStorageInputSvc::generateDataHeader()
 
     if (m_sgSvc->contains<EventInfo>("ByteStreamEventInfo")) {
       // Temporary event header pointer for retrieval of the old one , if exists
-      const DataHandle<EventInfo> Ei_temp;
+      const EventInfo* Ei_temp = nullptr;
       //Ei_temp = m_sgSvc->retrieve<EventInfo>("ByteStreamEventInfo");
       if (m_sgSvc->retrieve(Ei_temp,"ByteStreamEventInfo").isSuccess()) {
-        StatusCode sc = m_sgSvc->remove(Ei_temp.cptr());
+        StatusCode sc = m_sgSvc->remove(Ei_temp);
         if (!sc.isSuccess()) {
           ATH_MSG_ERROR("Failed to remove ByteStreamEventInfo");
         }
