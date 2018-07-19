@@ -11,7 +11,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <IsolationSelection/IIsolationSelectionTool.h>
-#include <SelectionHelpers/SelectionHelpers.h>
+#include <SelectionHelpers/ISelectionAccessor.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <xAODMuon/MuonContainer.h>
@@ -55,7 +55,7 @@ namespace CP
 
     /// \brief the accessor for \ref m_isolationDecoration
   private:
-    std::unique_ptr<const SG::AuxElement::Accessor<SelectionType> > m_isolationAccessor;
+    std::unique_ptr<ISelectionAccessor> m_isolationAccessor;
   };
 }
 

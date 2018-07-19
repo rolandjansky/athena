@@ -102,6 +102,7 @@ DiTauIDVarCalculator::DiTauIDVarCalculator( const std::string& name )
   declareProperty( "DiTauDecayChannel", m_sDecayChannel = "HadHad");
   declareProperty( "MuonTrackRemoval", m_bMuonTrackRemoval = true);
   declareProperty( "RecalcStandardID", m_bRecalcStandardID = false);
+  declareProperty( "doCalcSubjetLeadElectronID", m_bCalcSubjetLeadElectronID = false);
 }
 
 //______________________________________________________________________________
@@ -292,8 +293,11 @@ StatusCode DiTauIDVarCalculator::calculateHadHadIDVariables(const xAOD::DiTauJet
   xDiTau.auxdecor< float >( "d0_leadtrack_subl") = d0_leadtrack(xDiTau, 1);
   xDiTau.auxdecor< float >( "f_isotracks" ) = f_isotracks(xDiTau);
   xDiTau.auxdecor< int >( "n_iso_ellipse" ) = n_iso_ellipse(xDiTau);
-  xDiTau.auxdecor< int >( "leadjet_elid" ) = subjetLeadElectronID(xDiTau, 0);
-  xDiTau.auxdecor< int >( "subleadjet_elid" ) = subjetLeadElectronID(xDiTau, 1);
+  if (m_bCalcSubjetLeadElectronID)
+  {
+    xDiTau.auxdecor< int >( "leadjet_elid" ) = subjetLeadElectronID(xDiTau, 0);
+    xDiTau.auxdecor< int >( "subleadjet_elid" ) = subjetLeadElectronID(xDiTau, 1);
+  }
 
   
   if (m_bCalcCluserVariables)

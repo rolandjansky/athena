@@ -106,6 +106,12 @@ replaceAODReducedJets(reducedJetList,FTAG2Seq,"FTAG2", extendedFlag)
 addDefaultTrimmedJets(FTAG2Seq,"FTAG2",dotruth=True)
 
 #===================================================================
+# Add Large-R RC jets w/ ExKt 2 & 3 subjets
+#===================================================================
+
+addExKtDoubleTaggerRCJets(FTAG2Seq, ToolSvc)
+
+#===================================================================
 # Variable Radius (VR) Jets
 #===================================================================
 
@@ -153,7 +159,13 @@ FTAG2SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "AntiKt4EMTopoJets","BTagging_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMPFlowJets",
-                                        "MET_Reference_AntiKt4EMPFlow"]
+                                        "MET_Reference_AntiKt4EMPFlow"
+                                        "AntiKt8EMTopoJets",
+                                        "AntiKt8EMTopoExKt2SubJets",
+                                        "AntiKt8EMTopoExKt3SubJets",
+                                        "BTagging_AntiKt8EMTopoExKt2Sub",
+                                        "BTagging_AntiKt8EMTopoExKt3Sub",
+                                        ]
 
 FTAG2SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "BTagging_AntiKtVR30Rmax4Rmin02Track",
@@ -221,6 +233,14 @@ FTAG2SlimmingHelper.AppendToDictionary = {
   "BTagging_AntiKt2TrackSecVtxAux"                 :   "xAOD::VertexAuxContainer",
   "AntiKt8EMTopoJets"                              :   "xAOD::JetContainer"        ,
   "AntiKt8EMTopoJetsAux"                           :   "xAOD::JetAuxContainer"     ,
+  "AntiKt8EMTopoExKt2SubJets"                      :   "xAOD::JetContainer"        ,
+  "AntiKt8EMTopoExKt2SubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKt8EMTopoExKt2Sub"                 :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt8EMTopoExKt2SubAux"              :   "xAOD::BTaggingAuxContainer",
+  "AntiKt8EMTopoExKt3SubJets"                      :   "xAOD::JetContainer"        ,
+  "AntiKt8EMTopoExKt3SubJetsAux"                   :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKt8EMTopoExKt3Sub"                 :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt8EMTopoExKt3SubAux"              :   "xAOD::BTaggingAuxContainer"
 }
 
 #----------------------------------------------------------------------

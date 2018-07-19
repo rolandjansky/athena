@@ -100,6 +100,7 @@ class JetCleaningTool : public asg::AsgTool , virtual public IJetSelector
     std::string m_cutName; 
     CleaningLevel m_cutLevel;
     bool m_doUgly;
+    bool m_useDecorations;
     std::string m_jetCleanDFName; //new implementation with derivation level event cleaning decision
     SG::AuxElement::ConstAccessor<char> m_acc_jetClean;
     SG::AuxElement::ConstAccessor<char> m_acc_looseClean;

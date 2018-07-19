@@ -10,6 +10,7 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
 if DerivationFrameworkIsMonteCarlo: 
   from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
@@ -42,7 +43,6 @@ HIGG5D3ThinningHelper = ThinningHelper("HIGG5D3ThinningHelper")
 HIGG5D3ThinningHelper.TriggerChains = 'HLT_g.*|HLT_2g.*|HLT_mu.*|HLT_j.*|HLT_b.*|HLT_2b.*' 
 HIGG5D3ThinningHelper.AppendToStream(HIGG5D3Stream) 
 
-
 import DerivationFrameworkHiggs.HIGG5Common as HIGG5Common
 thinningTools.append( HIGG5Common.getInDetTrackParticleThinning(        'HIGG5D3',HIGG5D3ThinningHelper) )
 thinningTools.append( HIGG5Common.getAntiKt4EMTopoTrackParticleThinning('HIGG5D3',HIGG5D3ThinningHelper,   ApplyAnd=True) )
@@ -52,6 +52,9 @@ thinningTools.append( HIGG5Common.getPhotonTrackParticleThinning(       'HIGG5D3
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('HIGG5D3',HIGG5D3ThinningHelper) )
 thinningTools.append( HIGG5Common.getAntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Thinning('HIGG5D3',HIGG5D3ThinningHelper) )
 
+# Truth particles
+if DerivationFrameworkIsMonteCarlo:
+    thinningTools.append(HIGG5Common.getTruthThinningTool('HIGG5D3', HIGG5D3ThinningHelper))
 
 
 #====================================================================
@@ -133,6 +136,7 @@ Run2DataTriggers=['HLT_2j35_bmv2c2070_2j35_L13J25.0ETA23',
                   'HLT_g100_loose',
                   'HLT_g120_loose', # added on Jan 2016
                   'HLT_g25_medium_L1EM22VHI_j35_0eta490_bmv2c2077_split_3j35_0eta490_invm700',
+                  'HLT_g25_medium_L1EM22VHI_j35_0eta490_bmv2c1077_split_3j35_0eta490_invm700',
                   'HLT_g25_medium_L1EM22VHI_2j35_0eta490_bmv2c2077_split_2j35_0eta490', # added on Apr 2016
                   'HLT_g25_medium_L1EM22VHI_2j35_0eta490_bmv2c1077_split_2j35_0eta490',
                   'HLT_2g20_tight',
@@ -305,6 +309,8 @@ addDefaultTrimmedJets(higg5d3Seq,"HIGG5D3Jets");
 addVRJets(higg5d3Seq)
 addHbbTagger(higg5d3Seq, ToolSvc)
 
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg5d3Seq)
+
 higg5d3Seq += CfgMgr.DerivationFramework__DerivationKernel(
     "HIGG5D3Kernel",
     ThinningTools = thinningTools
@@ -339,9 +345,11 @@ HIGG5D3SlimmingHelper.SmartCollections = [ "Electrons",
                                            "TauJets",
                                            "MET_Reference_AntiKt4EMTopo",
                                            "AntiKt4EMTopoJets",
+                                           "AntiKt4EMPFlowJets",
                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                            "AntiKt4TruthJets",
                                            "BTagging_AntiKt4EMTopo",
+                                           "BTagging_AntiKt4EMPFlow",
                                            "BTagging_AntiKt2Track",
                                            "InDetTrackParticles",
                                            "PrimaryVertices" ]
@@ -355,8 +363,6 @@ if DerivationFrameworkIsMonteCarlo :
 
 
 HIGG5D3SlimmingHelper.ExtraVariables = ExtraContent
-HIGG5D3SlimmingHelper.ExtraVariables.append(
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore.KtDR.Dip12.ZCut12.ThrustMin.ThrustMaj.Angularity.Aplanarity.Sphericity.PlanarFlow.FoxWolfram2.FoxWolfram0")
 HIGG5D3SlimmingHelper.AllVariables = ExtraContainers
 if DerivationFrameworkIsMonteCarlo :
     HIGG5D3SlimmingHelper.ExtraVariables += ExtraContentTruth

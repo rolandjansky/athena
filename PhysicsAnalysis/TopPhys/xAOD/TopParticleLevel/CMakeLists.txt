@@ -14,10 +14,17 @@ atlas_depends_on_subdirs( PUBLIC
                           TopConfiguration
 			  TruthUtils
                           MCTruthClassifier
-                          JetReclustering )
+                          JetReclustering
+                          JetSubStructureUtils
+
+			  )
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
+
+# Need fast jet for the RC jet substructure code
+find_package( FastJet COMPONENTS fastjetplugins fastjettools )
+find_package( FastJetContrib COMPONENTS EnergyCorrelator Nsubjettiness )
 
 # Custom definitions needed for this package:
 add_definitions( -g )
@@ -37,6 +44,9 @@ atlas_add_library( TopParticleLevel Root/*.cxx Root/*.h Root/*.icc
                                   MCTruthClassifierLib
 				  TruthUtils
 				  JetReclusteringLib
-                                  ${ROOT_LIBRARIES}
+				  JetSubStructureUtils
+                                  ${ROOT_LIBRARIES}		  
+                                  ${FASTJET_LIBRARIES}
+                                  ${FASTJETCONTRIB_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
 

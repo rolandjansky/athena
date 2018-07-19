@@ -10,8 +10,8 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <JetAnalysisInterfaces/IJetJvtEfficiency.h>
+#include <SelectionHelpers/ISelectionAccessor.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
-#include <SelectionHelpers/SelectionHelpers.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <xAODJet/JetContainer.h>
@@ -59,7 +59,7 @@ namespace CP
 
     /// \brief the accessor for \ref m_selection
   private:
-    std::unique_ptr<const SG::AuxElement::Accessor<SelectionType> > m_selectionAccessor;
+    std::unique_ptr<ISelectionAccessor> m_selectionAccessor;
 
     /// \brief the decoration for the JVT efficiency
   private:
