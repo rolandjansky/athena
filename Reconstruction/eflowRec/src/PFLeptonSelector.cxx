@@ -19,7 +19,7 @@ StatusCode PFLeptonSelector::initialize(){
 
 StatusCode PFLeptonSelector::execute(){
 
-  SG::WriteHandle<xAOD::ElectronContainer> selectedElectronsWriteHandle(m_selectedElectronsWriteHandleKey);
+  SG::WriteHandle<ConstDataVector<xAOD::ElectronContainer >> selectedElectronsWriteHandle(m_selectedElectronsWriteHandleKey);
   SG::WriteHandle<ConstDataVector<xAOD::MuonContainer> > selectedMuonsWriteHandle(m_selectedMuonsWriteHandleKey);
   SG::WriteHandle<ConstDataVector<CaloCellContainer> > leptonCaloCellsWriteHandle(m_leptonCaloCellsWriteHandleKey);
   
@@ -42,7 +42,7 @@ StatusCode PFLeptonSelector::execute(){
 
 StatusCode PFLeptonSelector::finalize(){ return StatusCode::SUCCESS; }
 
-StatusCode PFLeptonSelector::selectElectrons(SG::WriteHandle<xAOD::ElectronContainer>& selectedElectronsWriteHandle, SG::WriteHandle<ConstDataVector<CaloCellContainer> > leptonCaloCellsWriteHandle ){
+StatusCode PFLeptonSelector::selectElectrons(SG::WriteHandle<ConstDataVector<xAOD::ElectronContainer >>& selectedElectronsWriteHandle, SG::WriteHandle<ConstDataVector<CaloCellContainer> > leptonCaloCellsWriteHandle ){
 
   SG::ReadHandle<xAOD::ElectronContainer>  electronsReadHandle(m_electronsReadHandleKey);
   
@@ -62,7 +62,7 @@ StatusCode PFLeptonSelector::selectElectrons(SG::WriteHandle<xAOD::ElectronConta
 	  continue;
 	}
 	if (true == val_med){
-	  if (selectedElectronsWriteHandle.isValid()) selectedElectronsWriteHandle->push_back(const_cast<xAOD::Electron*>(theElectron));
+	  if (selectedElectronsWriteHandle.isValid()) selectedElectronsWriteHandle->push_back(theElectron);
 	  else ATH_MSG_WARNING("Do not have valid WriteHandle for ElectronContainer with name: " << selectedElectronsWriteHandle.key());
 	  if (true == m_storeLeptonCells) this->storeElectronCells(*theElectron,leptonCaloCellsWriteHandle);
 	}//mediumPP
@@ -138,9 +138,9 @@ void PFLeptonSelector::storeLeptonCells(const xAOD::CaloCluster& theCluster, SG:
   else ATH_MSG_WARNING("This cluster has an invalid pointer to its cells, in storeLeptonCells");
 }
 
-StatusCode PFLeptonSelector::recordLeptonContainers(SG::WriteHandle<xAOD::ElectronContainer>& selectedElectronsWriteHandle, SG::WriteHandle<ConstDataVector<xAOD::MuonContainer> >& selectedMuonsWriteHandle,SG::WriteHandle<ConstDataVector<CaloCellContainer> > leptonCaloCellsWriteHandle){
+StatusCode PFLeptonSelector::recordLeptonContainers(SG::WriteHandle<ConstDataVector<xAOD::ElectronContainer >>& selectedElectronsWriteHandle, SG::WriteHandle<ConstDataVector<xAOD::MuonContainer> >& selectedMuonsWriteHandle,SG::WriteHandle<ConstDataVector<CaloCellContainer> > leptonCaloCellsWriteHandle){
 
-  StatusCode sc = selectedElectronsWriteHandle.record(std::make_unique<xAOD::ElectronContainer>(SG::VIEW_ELEMENTS));
+  StatusCode sc = selectedElectronsWriteHandle.record(std::make_unique<ConstDataVector<xAOD::ElectronContainer >>(SG::VIEW_ELEMENTS));
   
   if (sc.isFailure()) {
     ATH_MSG_WARNING("Could not record electron WriteHandle with key: " << selectedElectronsWriteHandle.key());
