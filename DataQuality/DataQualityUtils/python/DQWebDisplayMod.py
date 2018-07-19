@@ -811,7 +811,7 @@ if __name__ == "__main__":
   inputFile  = args[0] # data file
   runAccumulating = False
   if len(args) in (6,7):
-    if args[4] == "True" or args[3] == "1":
+    if args[3] == "True" or args[3] == "1":
       runAccumulating = True
   
   if len(args) == 7:
