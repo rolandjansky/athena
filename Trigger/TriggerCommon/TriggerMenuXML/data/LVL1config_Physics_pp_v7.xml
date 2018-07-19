@@ -19,7 +19,7 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="2" partition="1" name="L1_EM12" complex_deadtime="0" definition="(EM12[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:111|HF:000">
+    <TriggerItem ctpid="2" partition="1" name="L1_EM12" complex_deadtime="0" definition="(EM12[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:111|HF:111">
       <AND>
         <TriggerCondition multi="1" name="EM12_x1" triggerthreshold="EM12"/>
         <InternalTrigger name="BGRP0"/>
@@ -1782,7 +1782,7 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="223" partition="1" name="L1_BCM_AC_CA_BGRP0" complex_deadtime="0" definition="((BCM_AtoC[x1]|BCM_CtoA[x1])&amp;BGRP0)" trigger_type="10100000" monitor="LF:000|HF:111">
+    <TriggerItem ctpid="223" partition="1" name="L1_BCM_AC_CA_BGRP0" complex_deadtime="0" definition="((BCM_AtoC[x1]|BCM_CtoA[x1])&amp;BGRP0)" trigger_type="10100000" monitor="LF:000|HF:000">
       <AND>
         <OR>
           <TriggerCondition multi="1" name="BCM_AtoC_x1" triggerthreshold="BCM_AtoC"/>

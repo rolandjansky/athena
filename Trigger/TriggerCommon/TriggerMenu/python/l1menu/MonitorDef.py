@@ -181,10 +181,10 @@ class MonitorDef:
 
         monItemsHF[TBP|TAP|TAV] = [
             "L1_BCM_Wide_BGRP0",
-            "L1_BCM_AC_CA_BGRP0",
             "L1_BCM_AC_UNPAIRED_ISO",
             "L1_BCM_CA_UNPAIRED_ISO",
             "L1_J12",
+            "L1_EM12",
             "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
             ]
 
