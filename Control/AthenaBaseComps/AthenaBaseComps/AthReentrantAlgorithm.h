@@ -147,6 +147,16 @@ class AthReentrantAlgorithm
   virtual const EventContext& getContext() const override;
 
 
+  /**
+   * @brief Execute an algorithm.
+   *
+   * We override this in order to work around an issue with the Algorithm
+   * base class storing the event context in a member variable that can
+   * cause crashes in MT jobs.
+   */
+  virtual StatusCode sysExecute (const EventContext& ctx) override;
+
+
   
   /**
    * @brief Return the list of extra output dependencies.
