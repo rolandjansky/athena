@@ -6,7 +6,11 @@ def get_config(htag):
     client = pyAMI.client.Client('atlas')
     AtlasAPI.init()
     
-    configs = ast.literal_eval(AtlasAPI.get_ami_tag(client,htag)[0]['phconfig'])['filepaths']['Collisions']
+    try:
+        configs = ast.literal_eval(AtlasAPI.get_ami_tag(client,htag)[0]['phconfig'])['filepaths']['Collisions']
+    except:
+        print "Field phconfig not found for this htag. Please set up the release associated with this tag instead"
+        sys.exit(1)
         
     from DataQualityUtils.DQWebDisplayConfig import DQWebDisplayConfig
     import os

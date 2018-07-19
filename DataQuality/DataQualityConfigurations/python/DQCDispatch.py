@@ -39,7 +39,7 @@ def getmodule(modname, htag=None):
         or modname.endswith('_calib')
         or modname.endswith('_comm')):
         from . import base_data; return base_data
-    elif (modname.endswith('_hi')
+    if (modname.endswith('_hi')
         or modname.endswith('_hip')):
         from . import base_data_hi; return base_data_hi
     elif (modname.endswith('_1beam') ):
