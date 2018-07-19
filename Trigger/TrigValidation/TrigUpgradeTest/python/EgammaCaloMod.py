@@ -293,7 +293,9 @@ def EgammaCaloMod( flags ):
               "HLT_e7_etcut"]
 
     from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
-    hypo.HypoTools =  [ TrigL2CaloHypoToolFromName( c ) for c in chains ]
+    for chain in chains:
+        tool  = TrigL2CaloHypoToolFromName( chain )
+        hypo.HypoTools +=  [ tool ]
 
     #acc.addEventAlgo( hypo, sequenceName = 'L2CaloEgamma' )
     mainSeq+=hypo
