@@ -115,7 +115,7 @@ bool
 SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   
-  if (isRODSimulatedData()) return false;
+  //  if (isRODSimulatedData()) return false;
   
   bool result{true};
 
@@ -160,7 +160,7 @@ bool
 SCT_ByteStreamErrorsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
   
-  if (isRODSimulatedData()) return false;
+  //  if (isRODSimulatedData()) return false;
 
   if (h==InDetConditions::SCT_SIDE) {
     const IdentifierHash elementIdHash{m_sct_id->wafer_hash(elementId)};
