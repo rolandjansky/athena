@@ -27,6 +27,9 @@ from BTagging.BTaggingConfiguration_IP2DNegTag import *
 #from BTagging.BTaggingConfiguration_IP2DSpcPosTag import *
 #from BTagging.BTaggingConfiguration_IP2DSpcTag import *
 from BTagging.BTaggingConfiguration_IP2DTag import *
+# FLS
+from BTagging.BTaggingConfiguration_IP2DTrigHybridTag import *
+#---
 #from BTagging.BTaggingConfiguration_IP3DFlipTag import *
 from BTagging.BTaggingConfiguration_IP3DNegTag import *
 #from BTagging.BTaggingConfiguration_IP3DPosTag import *
@@ -35,6 +38,9 @@ from BTagging.BTaggingConfiguration_IP3DNegTag import *
 #from BTagging.BTaggingConfiguration_IP3DSpcPosTag import *
 #from BTagging.BTaggingConfiguration_IP3DSpcTag import *
 from BTagging.BTaggingConfiguration_IP3DTag import *
+# FLS
+from BTagging.BTaggingConfiguration_IP3DTrigHybridTag import *
+#---
 from BTagging.BTaggingConfiguration_RNNIPTag import *
 
 # Jet fitter taggers
@@ -1582,12 +1588,14 @@ def taggerIsPossible(tagger):
                       'IP2DSpcFlip',
                       'IP2DSpcPos',
                       'IP2DSpcNeg',
+                      'IP2DTrigHybrid', #FLS
                       'IP3DFlip',
                       'IP3DPos',
                       'IP3DNeg',
                       'IP3DSpcFlip',
                       'IP3DSpcPos',
                       'IP3DSpcNeg',
+                      'IP3DTrigHybrid', #FLS
                       'SV1Flip',
                       'SV2Flip',
                       'TrackCountingFlip',
