@@ -11,6 +11,10 @@ ATLAS Collaboration
 #include "SiTrigSpacePointFormation/SiTrigSpacePointFinder.h"
 #include "SiSpacePointFormation/SiTrackerSpacePointFinder.h"
 #include "SiSpacePointTool/SiSpacePointMakerTool.h"
+//
+
+#include "InDetPrepRawData/PixelClusterCollection.h"
+#include "InDetPrepRawData/SCT_ClusterCollection.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 
