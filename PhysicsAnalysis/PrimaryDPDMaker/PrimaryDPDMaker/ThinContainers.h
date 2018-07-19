@@ -28,66 +28,46 @@ Description: This is a short algorithm to select calorimeter cells that are
 ******************************************************************************/
 
 
-#include <string>
-#include <vector>
+
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "EventKernel/INavigable4Momentum.h"
 #include "AthenaKernel/IThinningSvc.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "AthContainers/DataVector.h"
+#include "GaudiKernel/ToolHandle.h"
 
-#include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/Vector/ThreeVector.h"
-
-// Needed for TrackParticles
-#include "Particle/TrackParticleContainer.h"
 // Needed for Tracks
-#include "TrkTrack/TrackCollection.h" 
-#include "TrkTrack/Track.h" 
+#include "TrkTrack/TrackCollection.h" //typedef, cannot fwd include
 
 // Needed for the cell IDs
 #include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
+//
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloClusterContainer.h"
 
-// Needed for the pixel clusters
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+//following are typedef'ed, cannot fwd include
 #include "InDetPrepRawData/PixelClusterContainer.h"
-#include "InDetPrepRawData/PixelClusterCollection.h"
-#include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
-#include "InDetPrepRawData/SCT_ClusterCollection.h"
-#include "InDetPrepRawData/SCT_Cluster.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
-#include "InDetPrepRawData/TRT_DriftCircleCollection.h"
-#include "InDetPrepRawData/TRT_DriftCircle.h"
-#include "InDetIdentifier/PixelID.h"
 
 // Needed for RegSelSvc
-#include "GaudiKernel/ToolHandle.h"
-#include "IRegionSelector/RegSelEnums.h"
+#include "IRegionSelector/RegSelEnums.h" //contains the DETID enum
 
-typedef InDet::PixelClusterContainer PixelClusterContainer;
-typedef InDet::PixelClusterCollection PixelClusterCollection;
-typedef InDet::PixelCluster PixelCluster;
+//
+#include <string>
+#include <vector>
+#include <set>
 
-typedef InDet::SCT_ClusterContainer SCT_ClusterContainer;
-typedef InDet::SCT_ClusterCollection SCT_ClusterCollection;
-typedef InDet::SCT_Cluster SCT_Cluster;
-
-typedef InDet::TRT_DriftCircleContainer TRT_DriftCircleContainer;
-typedef InDet::TRT_DriftCircleCollection TRT_DriftCircleCollection;
-typedef InDet::TRT_DriftCircle TRT_DriftCircle;
-
-//class CaloClusterContainer;
 //Needed for RegSelSvc
 class IRegSelSvc;
 class I4Momentum;
+namespace Rec{
+  class TrackParticleContainer;
+}
 
+namespace CLHEP{
+  class HepLorentzVector;
+  class Hep3Vector;
+}
 
 
 class ThinContainers : public AthAlgorithm {

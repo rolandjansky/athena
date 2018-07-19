@@ -22,10 +22,9 @@ class CaloDM_ID;
 class CaloDmDescrManager;
 class CaloDmEnergy;
 
-#include "StoreGate/DataHandle.h"
-
 #include "CaloRec/CaloClusterCollectionProcessor.h"
-//#include "CaloEvent/CaloClusterMoment.h"
+#include "CaloSimEvent/CaloCalibrationHitContainer.h"
+#include "StoreGate/ReadHandleKeyArray.h"
 #include <string>
 #include <vector>
 #include <set>
@@ -118,14 +117,14 @@ class CaloCalibClusterMomentsMaker: public AthAlgTool, virtual public CaloCluste
    *
    * The containers specified in this property should hold calibration
    * hits inside the calorimeter systems. */
-  std::vector<std::string> m_CalibrationHitContainerNames;
+  SG::ReadHandleKeyArray<CaloCalibrationHitContainer> m_CalibrationHitContainerNames;
 
   /** 
    * @brief vector of dead material calibration hit container names to use. 
    *
    * The containers specified in this property should hold calibration
    * hits outside the calorimeter systems - i.e. dead material hits ... */
-  std::vector<std::string> m_DMCalibrationHitContainerNames;
+  SG::ReadHandleKeyArray<CaloCalibrationHitContainer> m_DMCalibrationHitContainerNames;
 
   const CaloDetDescrManager* m_calo_dd_man; 
 

@@ -16,7 +16,6 @@
 #include "GaudiKernel/GaudiException.h"
 
 // InDet
-#include "InDetPrepRawData/TRT_DriftCircle.h"
 
 
 // for ElementLink to IdentifiableContainer PixelClusterContainer
@@ -36,7 +35,7 @@ namespace InDetDD {
 typedef ElementLink<InDet::TRT_DriftCircleContainer> ElementLinkToIDCTRT_DriftCircleContainer;
 
 namespace InDet{
-
+  class TRT_DriftCircle;
 
   /**@class TRT_DriftCircleOnTrack
   Represents 'corrected' measurements from the TRT (for example, corrected for wire sag). The 
@@ -56,6 +55,8 @@ namespace InDet{
       TRT_DriftCircleOnTrack(const TRT_DriftCircleOnTrack &);
       /**Assignment operator*/
       TRT_DriftCircleOnTrack &operator=(const TRT_DriftCircleOnTrack &);
+      /**Move assignment operator*/
+      TRT_DriftCircleOnTrack &operator=(TRT_DriftCircleOnTrack &&);
 		
      /** Constructor with parameters and without externalPrediction:
       RIO pointer, LocalPosition*, LocalErrorMatrix*, 

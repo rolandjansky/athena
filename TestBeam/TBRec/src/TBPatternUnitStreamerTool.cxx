@@ -2,21 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Service.h"
-
-#include "StoreGate/StoreGateSvc.h"
+#include "TBPatternUnitStreamerTool.h"
 
 #include "TBEvent/TBTriggerPatternUnit.h"
 #include "TBEvent/TBEventInfo.h"
 
-#include "TBRec/TBPatternUnitStreamerTool.h"
-
 #include <string>
-
-//#include <iomanip>
 #include <ios>
-//#include <iomanip>
 
 TBPatternUnitStreamerTool::TBPatternUnitStreamerTool(const std::string& name,
 						     const std::string& type,

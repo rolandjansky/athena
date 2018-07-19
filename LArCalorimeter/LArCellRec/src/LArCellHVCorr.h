@@ -45,9 +45,9 @@ public:
   //Implements the ILArCellHVCorrTool interface
   virtual float getCorrection(const Identifier id) override;
 
-  StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) override;
 
-  bool updateOnLastCallback() {return m_updateOnLastCallback;}
+  virtual bool updateOnLastCallback() override {return m_updateOnLastCallback;}
 
  private: 
   float getCorrection(const Identifier id) const;

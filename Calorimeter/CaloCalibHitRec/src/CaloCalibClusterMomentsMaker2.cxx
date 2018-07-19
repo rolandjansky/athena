@@ -40,17 +40,12 @@
 #include "McParticleEvent/TruthParticle.h"
 #include "McParticleEvent/TruthParticleContainer.h"
 
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/IToolSvc.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include <math.h>
-#include <CLHEP/Units/SystemOfUnits.h>
 #include <CLHEP/Vector/LorentzVector.h>
-#include <CLHEP/Geometry/Vector3D.h>
 
 
 using CLHEP::HepLorentzVector;
@@ -290,57 +285,53 @@ StatusCode CaloCalibClusterMomentsMaker2::initialize()
     }
   }
 
+  ATH_CHECK( m_CalibrationHitContainerNames.initialize() );
+  ATH_CHECK( m_DMCalibrationHitContainerNames.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
 //###############################################################################
 
 StatusCode
-CaloCalibClusterMomentsMaker2::execute(const EventContext& /*ctx*/,
+CaloCalibClusterMomentsMaker2::execute(const EventContext& ctx,
                                        xAOD::CaloClusterContainer *theClusColl) const
 {
 
   bool foundAllContainers (true);
-  const DataHandle<CaloCalibrationHitContainer> cchc;
   std::vector<const CaloCalibrationHitContainer *> v_cchc;
-  for (const std::string& cname : m_CalibrationHitContainerNames) {
-    if ( !evtStore()->contains<CaloCalibrationHitContainer>(cname)) {
+  for (const SG::ReadHandleKey<CaloCalibrationHitContainer>& key :
+         m_CalibrationHitContainerNames)
+  {
+    SG::ReadHandle<CaloCalibrationHitContainer> cchc (key, ctx);
+    if ( !cchc.isValid() ) {
       if (m_foundAllContainers) {
 	// print ERROR message only if there was at least one event with 
 	// all containers 
-	msg(MSG::ERROR) << "SG does not contain calibration hit container " << cname << endmsg;
+	msg(MSG::ERROR) << "SG does not contain calibration hit container " << key.key() << endmsg;
       }
       foundAllContainers = false;
     }
     else {
-      StatusCode sc = evtStore()->retrieve(cchc,cname);
-      if (sc.isFailure() ) {
-	msg(MSG::ERROR) << "Cannot retrieve calibration hit container " << cname << endmsg;
-	foundAllContainers = false;
-      } 
-      else
-	v_cchc.push_back(cchc);
+      v_cchc.push_back(cchc.cptr());
     }
   }
 
   std::vector<const CaloCalibrationHitContainer *> v_dmcchc;
-  for (const std::string& cname : m_DMCalibrationHitContainerNames) {
-    if ( !evtStore()->contains<CaloCalibrationHitContainer>(cname)) {
+  for (const SG::ReadHandleKey<CaloCalibrationHitContainer>& key :
+         m_DMCalibrationHitContainerNames)
+  {
+    SG::ReadHandle<CaloCalibrationHitContainer> cchc (key, ctx);
+    if ( !cchc.isValid() ) {
       if (m_foundAllContainers) {
 	// print ERROR message only if there was at least one event with 
 	// all containers 
-	msg(MSG::ERROR) << "SG does not contain DM calibration hit container " << cname << endmsg;
+	msg(MSG::ERROR) << "SG does not contain DM calibration hit container " << key.key() << endmsg;
       }
       foundAllContainers = false;
     }
     else {
-      StatusCode sc = evtStore()->retrieve(cchc,cname);
-      if (sc.isFailure() ) {
-	msg(MSG::ERROR) << "Cannot retrieve DM calibration hit container " << cname << endmsg;
-	foundAllContainers = false;
-      }
-      else
-	v_dmcchc.push_back(cchc);
+      v_dmcchc.push_back(cchc.cptr());
     }
   }
 

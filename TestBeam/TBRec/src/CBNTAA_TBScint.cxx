@@ -2,10 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TBRec/CBNTAA_TBScint.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/INTupleSvc.h"
+#include "CBNTAA_TBScint.h"
 
 #include "LArG4TBSimEvent/LArG4H6FrontHitCollection.h"
 #include <fstream>
