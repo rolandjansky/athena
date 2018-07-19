@@ -30,7 +30,7 @@ larCondFlags.OFCShapeFolder.set_Value_and_Lock("")
 
 globalflags.isOverlay.set_Value_and_Lock(True)
 overlayFlags.isDataOverlay.set_Value_and_Lock(True)
-isRealData = True
+isRealData = overlayFlags.isDataOverlay()
 
 from AthenaCommon.BeamFlags import jobproperties
 jobproperties.Beam.beamType.set_Value_and_Lock("collisions")
@@ -81,7 +81,7 @@ if hasattr(runArgs,"samplingFractionDbTag"): digitizationFlags.physicsList=runAr
 if hasattr(runArgs,"digiRndmSvc"): digitizationFlags.rndmSvc=runArgs.digiRndmSvc
 #if hasattr(runArgs, "AddCaloDigi"): digitizationFlags.experimentalDigi+=["AddCaloDigi"]
 
-readBS = True
+readBS = overlayFlags.isDataOverlay()
 overlayFlags.doBkg=False #ACH
 
 #GlobalFlags.InputFormat.set_bytestream()
