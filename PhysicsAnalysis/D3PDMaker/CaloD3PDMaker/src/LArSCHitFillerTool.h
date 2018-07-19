@@ -16,7 +16,6 @@
 #define CALOD3PDMAKER_LARSCHITFILLERTOOL_H
 
 // Gaudi/Athena include(s):
-#include "StoreGate/DataHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "D3PDMakerUtils/BlockFillerTool.h"
 #include "D3PDMakerUtils/SGCollectionGetterTool.h"
@@ -79,7 +78,7 @@ private:
   const TileID     *m_tileid;    
   const LArOnlineID* m_onlineHelper;
   ToolHandle<LArCablingService> m_larCablingSvc;
-  const DataHandle<ILArfSampl>    m_dd_fSampl;
+  const ILArfSampl*   m_dd_fSampl;
 
   /// parameters
   int *m_nSC;
