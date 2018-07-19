@@ -41,7 +41,8 @@ HFORSelectionTool::HFORSelectionTool( const std::string& name )
     m_sampleRunNumber (0),
     m_sampleName ("unknown"),
     m_evtCounterAll (0),
-    m_evtCounterKilled (0) {
+    m_evtCounterKilled (0),
+    m_isConfigured (false) {
   declareProperty( "MatchCone",     m_matchCone = 0.4 );
   declareProperty( "runConfigFile", m_runConfigFile = "HFORTools/mc15_AlpgenPythia_2016.cfg" ) ;
   declareProperty( "HFORStrategy", m_HFORStrategy  = "DRBased" );
@@ -269,7 +270,7 @@ StatusCode HFORSelectionTool::setSampleType()  {
 //==============================================================================
 HFORType HFORSelectionTool::getSampleType() {
   if (! m_isConfigured) {
-    ATH_CHECK( setSampleType(), noType );
+    ATH_CHECK( setSampleType(), HFORType::noType );
     m_isConfigured = true;
   }
   //Return an enum object with the type of the sample
