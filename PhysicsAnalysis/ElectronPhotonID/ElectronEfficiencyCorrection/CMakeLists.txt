@@ -78,6 +78,12 @@ if( XAOD_STANDALONE )
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
       xAODCore ElectronEfficiencyCorrectionLib )
 
+   atlas_add_executable( EgEfficiencyCorr_testEgEfficiencyCorrFwd
+      util/testEgEfficiencyCorrFwd.cxx util/SFHelpers.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
+      xAODCore ElectronEfficiencyCorrectionLib )
+    
    atlas_add_executable( EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile
       util/testEgEfficiencyCorrWithoutFile.cxx 
       util/CreateDummyEl.cxx util/SFHelpers.cxx
