@@ -1,11 +1,21 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 /**
    @class AsgForwardElectronLikelihoodTool
    @brief Electron selector tool to select objects in Asgena using an underlying pure ROOT tool.
 
 */
 
+
+
+
+
+
 // Include this class's header
 #include "ElectronPhotonSelectorTools/AsgForwardElectronLikelihoodTool.h"
+
 #include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "TForwardElectronLikelihoodTool.h"
 #include "EGSelectorConfigurationMapping.h"
@@ -20,15 +30,10 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
+#include "xAODHIEvent/HIEventShapeContainer.h"
 #include "TEnv.h"
 
 #include "PathResolver/PathResolver.h"
-
-
-
-
-
-
 
 
 //=============================================================================
