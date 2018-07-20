@@ -436,7 +436,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   if (m_errorTool->corrupt() || m_errorTool->robOrUnpackingError()) {
     if (m_debug) msg(MSG::DEBUG) << "Corrupt L1Calo event" << endreq;
     m_h_l1topo_1d_Errors->Fill(CALO_CONV);
-    topo_error|=(1>>CALO_CONV);
+    topo_error|=(1<<CALO_CONV);
   }
 
   const DataHandle<CTP_RDO> ctpRDO = 0;
@@ -507,7 +507,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   if (sc.isFailure() || !cmxtob) {
     ATH_MSG_DEBUG ("No CMX tobs found in TES");
     m_h_l1topo_1d_Errors->Fill(NO_CMX);
-    topo_error|=(1>>NO_CMX);
+    topo_error|=(1<<NO_CMX);
   }   
   else {
     ATH_MSG_DEBUG( "Found CMXJetTobCollection, looping on TOBs ..." );
@@ -578,7 +578,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   sc = evtStore()->retrieve(rdos);
   if (sc.isFailure() or 0 == rdos) {
     m_h_l1topo_1d_Errors->Fill(NO_DAQ);
-    topo_error|=(1>>NO_DAQ);
+    topo_error|=(1<<NO_DAQ);
     ATH_MSG_DEBUG ( "Could not retrieve L1Topo DAQ RDO collection "
 		    "from StoreGate" );
   }
@@ -604,14 +604,14 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
       if (! errors.empty()){
 	ATH_MSG_WARNING( "Converter errors reported: " << errors );
 	m_h_l1topo_1d_Errors->Fill(DAQ_CONV);
-	topo_error|=(1>>DAQ_CONV);
+	topo_error|=(1<<DAQ_CONV);
       }
       const std::vector<uint32_t> cDataWords = rdo->getDataWords();
 
       if ( cDataWords.size() == 0 ) {
         ATH_MSG_DEBUG ( "L1TopoRDO DAQ is empty" );
 	m_h_l1topo_1d_Errors->Fill(NO_DAQ);
-	topo_error|=(1>>NO_DAQ);
+	topo_error|=(1<<NO_DAQ);
       }
 
       // initialise header: beware, this can make a valid-looking header
@@ -625,7 +625,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 	    header = L1Topo::Header(word);
 	    if (header.payload_crc()!=0) {
 	      m_h_l1topo_1d_Errors->Fill(PAYL_CRC);
-	      topo_error|=(1>>PAYL_CRC);
+	      topo_error|=(1<<PAYL_CRC);
 	    }
 	    i_fpga=(((rdo->getSourceID())>>3)&2)+header.fpga();
 	    break;
@@ -649,7 +649,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 	    if (status.overflow()) m_h_l1topo_1d_Overflows->Fill(0.5);
 	    if (status.crc()) {
 	      m_h_l1topo_1d_Errors->Fill(F_CRC);
-	      topo_error|=(1>>F_CRC);
+	      topo_error|=(1<<F_CRC);
 	    }
 	    break;
 	  }
@@ -778,13 +778,13 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
     if (! errors.empty()) {
       ATH_MSG_WARNING( "Converter errors reported: " << errors );
       m_h_l1topo_1d_Errors->Fill(ROI_CONV);
-      topo_error|=(1>>ROI_CONV);
+      topo_error|=(1<<ROI_CONV);
     }
     const std::vector<uint32_t> cDataWords = rdo.getDataWords();
     if ( cDataWords.size() == 0 ) {
       ATH_MSG_DEBUG ( "L1TopoRDO ROI is empty" );
       m_h_l1topo_1d_Errors->Fill(NO_ROI);
-      topo_error|=(1>>NO_ROI);
+      topo_error|=(1<<NO_ROI);
     }
     for (auto word : cDataWords) {
       switch (L1Topo::blockType(word)) {
@@ -828,7 +828,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 			     inserter(keyDiff[t],keyDiff[t].begin()));
     if (keyDiff[t].size()>0) {
       m_h_l1topo_1d_Errors->Fill(CMX_MATCH);
-      topo_error|=(1>>CMX_MATCH);
+      topo_error|=(1<<CMX_MATCH);
     }
     for (auto& tob : keyDiff[t]) {
       int x,y;
