@@ -103,7 +103,7 @@ NoiseMapBuilder::~NoiseMapBuilder(){}
 std::string NoiseMapBuilder::getDCSIDFromPosition (int barrel_ec, int layer, int modPhi, int module_eta){
   for(unsigned int ii = 0; ii < m_pixelMapping.size(); ii++) {
     if (m_pixelMapping[ii].second.size() != 4) {
-      std::cout << "getDCSIDFromPosition: Vector size is not 4!" << std::endl;
+      ATH_MSG_WARNING( "getDCSIDFromPosition: Vector size is not 4!" );
       return std::string("Error!");
     }
     if (m_pixelMapping[ii].second[0] != barrel_ec) continue;
@@ -112,7 +112,7 @@ std::string NoiseMapBuilder::getDCSIDFromPosition (int barrel_ec, int layer, int
     if (m_pixelMapping[ii].second[3] != module_eta) continue;
     return m_pixelMapping[ii].first;
   }
-  std::cout << "Not found!" << std::endl;
+  ATH_MSG_WARNING( "Not found!" );
   return std::string("Error!");
 }
 
@@ -159,7 +159,7 @@ std::vector<std::string> NoiseMapBuilder::splitter(const std::string &str,
 //
 //=========================================================
 StatusCode NoiseMapBuilder::initialize(){
-  ATH_MSG_INFO("Initializing NoiseMapBuilder");
+  ATH_MSG_DEBUG("Initializing NoiseMapBuilder");
 
   // retrieve THistSvc
   StatusCode sc = m_tHistSvc.retrieve();
@@ -218,14 +218,16 @@ StatusCode NoiseMapBuilder::initialize(){
 
 StatusCode NoiseMapBuilder::registerHistograms(){
 
- const std::string mapFile = "PixelMapping_Run2.dat";
- char * tmppath= std::getenv("DATAPATH");
- const unsigned int maxPathStringLength{3000};
-  if((not tmppath) or (strlen(tmppath) > maxPathStringLength) ){
-      ATH_MSG_ERROR( "FATAL: Unable to retrieve environmental DATAPATH" );
+  const std::string mapFile = "PixelMapping_Run2.dat";
+  char* getenvPath = std::getenv("DATAPATH");
+  const unsigned int maxPathStringLength{3000};
+  if((not getenvPath) or (strlen(getenvPath) > maxPathStringLength) ){
+      ATH_MSG_FATAL( "Unable to retrieve environmental DATAPATH" );
       return StatusCode::FAILURE;
   }
-  tmppath=strdup(tmppath);
+  std::stringstream tmpSstr{};
+  tmpSstr<<getenvPath;
+  std::string tmppath(tmpSstr.str());
  
   std::vector<std::string> paths = splitter(tmppath, ':'); 
   bool found(false);  
