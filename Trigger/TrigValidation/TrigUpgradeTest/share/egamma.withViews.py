@@ -213,7 +213,7 @@ summary = TriggerSummaryAlg( "TriggerSummaryAlg" )
 summary.InputDecision = "HLTChains"
 summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
 
-from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
+from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator, HLTResultCreatorByteStream
 egammaViewsMerger = HLTEDMCreator("egammaViewsMerger")
 egammaViewsMerger.TrigCompositeContainer = [ "L2ElectronLinks", "filterCaloRoIsAlg", "EgammaCaloDecisions","ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "HLTChainsResult", "JRoIDecisions", "MonitoringSummaryStep1", "RerunEMRoIDecisions", "RerunMURoIDecisions", "TAURoIDecisions", "L2CaloLinks", "FilteredEMRoIDecisions", "FilteredEgammaCaloDecisions" ]
 
@@ -232,9 +232,12 @@ egammaViewsMerger.TrigEMClusterContainer = [ clustersKey ]
 
 egammaViewsMerger.OutputLevel = VERBOSE
 
-svcMgr.StoreGateSvc.OutputLevel = VERBOSE
+svcMgr.StoreGateSvc.OutputLevel = INFO
 
-summary.OutputTools = [ egammaViewsMerger ]
+streamnigTool = HLTResultCreatorByteStream(OutputLevel=VERBOSE)
+
+streamnigTool.CollectionsToSerialize = [ "xAOD::TrigCompositeContainer#EgammaCaloDecisions", "xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex", "xAOD::TrigElectronAuxContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFexAux."  ]
+summary.OutputTools = [ egammaViewsMerger, streamnigTool ]
 
 
 summary.OutputLevel = DEBUG
