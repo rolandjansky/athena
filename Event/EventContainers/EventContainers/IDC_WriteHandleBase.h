@@ -3,29 +3,35 @@
 */
 
 
-#ifndef IDC_LOCK_H
-#define IDC_LOCK_H
+#ifndef IDC_WRITEHANDLEBASE_H
+#define IDC_WRITEHANDLEBASE_H
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
-#include <utility>
 
 namespace EventContainers {
 
 struct mutexPair{
    std::condition_variable condition;
    std::mutex mutex;
-   mutexPair() : condition(), mutex() {}
+#ifndef NDEBUG
+   std::atomic<int> counter;
+#endif
+   mutexPair() : condition(), mutex() {
+#ifndef NDEBUG
+      counter.store(0);
+#endif
+   }
 };
 
 
-class IDC_Lock{
-
+class IDC_WriteHandleBase{
+protected:
    std::atomic<const void*>*  m_atomic;
    mutexPair *m_mut;   
-
+   IDC_WriteHandleBase();
 public:
-   IDC_Lock() : m_atomic(nullptr) { }
+
    void LockOn(std::atomic<const void*>* in, mutexPair *pair){
       m_atomic = in;
       m_mut    = pair;
@@ -33,7 +39,7 @@ public:
    void DropLock();
    void ReleaseLock();
 
-   ~IDC_Lock() { ReleaseLock(); }
+   ~IDC_WriteHandleBase();
 };
 
 }
