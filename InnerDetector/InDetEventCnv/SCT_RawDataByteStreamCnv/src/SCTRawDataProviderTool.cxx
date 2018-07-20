@@ -44,7 +44,7 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
   if(vecRobs.empty()) return StatusCode::SUCCESS;
   ATH_MSG_DEBUG("SCTRawDataProviderTool::convert()");
   
-  decodeErrCount = 0;
+  m_decodeErrCount = 0;
 
   StatusCode sc{StatusCode::SUCCESS};
 
@@ -62,13 +62,13 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
     else {
       sc = m_decoder->fillCollection(*rob_it, rdoIdc, errs, bsFracCont);
       if (sc==StatusCode::FAILURE) {
-        if (decodeErrCount < 100) {
+        if (m_decodeErrCount < 100) {
           ATH_MSG_ERROR("Problem with SCT ByteStream Decoding!");
-          decodeErrCount++;
+          m_decodeErrCount++;
         } 
-        else if (100 == decodeErrCount) {
+        else if (100 == m_decodeErrCount) {
           ATH_MSG_ERROR("Too many Problem with SCT Decoding messages, turning message off.  ");
-          decodeErrCount++;
+          m_decodeErrCount++;
         }
       }
     }
