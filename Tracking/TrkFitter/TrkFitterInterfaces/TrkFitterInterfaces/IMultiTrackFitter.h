@@ -17,7 +17,7 @@
 #include "TrkFitterUtils/FitterStatusCode.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkParameters/TrackParameters.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 namespace Trk {
 
 class Track;                 //!> ATLAS standard track class
