@@ -45,16 +45,20 @@ namespace CP
       if (keep)
         output->push_back (particle);
     }
+
     if (m_sortPt)
     {
       std::sort (output->begin(), output->end(), [] (const xAOD::IParticle *a, const xAOD::IParticle *b) {return CxxUtils::fpcompare::greater (a->pt(), b->pt());});
     }
 
-    // This is not necessarily the most efficient mechanism, as we add
-    // elements that then get removed again.  However, if we do sort
-    // objects, this is the safest mechanism to really get the first N
-    // objects.  Plus it should still be reasonably performant and few
-    // people are expected to use this option anyways.
+    // If anyone might be concerned about efficiency here, this will
+    // add/sort a couple more entries than needed only to remove them
+    // from the vector afterwards, so there is a slight efficiency
+    // loss.  However, this option is not expected to be used very
+    // often and the algorithm is still expected to run quickly, so I
+    // decided to keep the code above simpler and just do this as a
+    // separate step, instead of trying to optimize this by
+    // integrating it with the code above.
     if (output->size() > m_sizeLimit)
       output->resize (m_sizeLimit);
 
