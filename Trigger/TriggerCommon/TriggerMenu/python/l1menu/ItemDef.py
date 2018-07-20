@@ -186,6 +186,7 @@ class ItemDef:
 
         LVL1MenuItem('L1_EM3_TE50'       ).setLogic( EM3      & TE50 & physcond).setTriggerType( TT.calo )         # noqa: F821
         LVL1MenuItem('L1_EM3_VTE50'      ).setLogic( EM3      & Not(TE50) & physcond).setTriggerType( TT.calo )    # noqa: F821
+        LVL1MenuItem('L1_EM7_VTE200'      ).setLogic( EM7      & Not(TE200) & physcond).setTriggerType( TT.calo )    # noqa: F821
 
         LVL1MenuItem('L1_EM3_UNPAIRED_ISO'   ).setLogic(EM3 & unpaired_isocond).setTriggerType( TT.calo )       # noqa: F821
         LVL1MenuItem('L1_EM3_UNPAIRED_NONISO').setLogic(EM3 & unpaired_nonisocond).setTriggerType( TT.calo )    # noqa: F821
@@ -213,6 +214,12 @@ class ItemDef:
         LVL1MenuItem('L1_J12_VTE200'      ).setLogic( J12      & Not(TE200) & physcond).setTriggerType( TT.calo )    # noqa: F821
         
         LVL1MenuItem('L1_TE5_VTE200'      ).setLogic( TE5      & Not(TE200) & physcond).setTriggerType( TT.calo )    # noqa: F821
+        LVL1MenuItem('L1_TE5_VTE100'      ).setLogic( TE5      & Not(TE100) & physcond).setTriggerType( TT.calo )    # noqa: F821
+        LVL1MenuItem('L1_TE5_VTE50'      ).setLogic( TE5      & Not(TE50) & physcond).setTriggerType( TT.calo )    # noqa: F821
+        
+        LVL1MenuItem('L1_TE4_VTE200'      ).setLogic( TE4      & Not(TE200) & physcond).setTriggerType( TT.calo )    # noqa: F821
+        LVL1MenuItem('L1_TE4_VTE100'      ).setLogic( TE4      & Not(TE100) & physcond).setTriggerType( TT.calo )    # noqa: F821
+        LVL1MenuItem('L1_TE4_VTE50'      ).setLogic( TE4      & Not(TE50) & physcond).setTriggerType( TT.calo )    # noqa: F821
 
 
         # MUON ctpid=[0x20;0x2f]
@@ -259,6 +266,7 @@ class ItemDef:
         
         LVL1MenuItem('L1_MU4_VTE10').setLogic( MU4      & Not(TE10) & physcond).setTriggerType(TT.muon)          # noqa: F821
         LVL1MenuItem('L1_2MU4_VTE10').setLogic( MU4.x(2)      & Not(TE10) & physcond).setTriggerType(TT.muon)    # noqa: F821
+        LVL1MenuItem('L1_2MU4_VTE50').setLogic( MU4.x(2)      & Not(TE50) & physcond).setTriggerType(TT.muon)    # noqa: F821
         
         LVL1MenuItem('L1_MU0_TE50' ).setLogic( MU0      & TE50 & physcond).setTriggerType(TT.muon)    # noqa: F821
 
@@ -292,6 +300,7 @@ class ItemDef:
         
         LVL1MenuItem('L1_MU0_VTE50').setLogic( MU0      & Not(TE50) & physcond).setTriggerType(TT.muon)    # noqa: F821
         LVL1MenuItem('L1_MU4_VTE50').setLogic( MU4      & Not(TE50) & physcond).setTriggerType(TT.muon)    # noqa: F821
+        LVL1MenuItem('L1_MU6_VTE50').setLogic( MU6      & Not(TE50) & physcond).setTriggerType(TT.muon)    # noqa: F821
 
         LVL1MenuItem('L1_MU0_MV_VTE50').setLogic( MU0 & Not(MBTS_A & MBTS_C) & Not(TE50) & physcond).setTriggerType(TT.muon)    # noqa: F821
         LVL1MenuItem('L1_MU4_MV_VTE50').setLogic( MU4 & Not(MBTS_A & MBTS_C) & Not(TE50) & physcond).setTriggerType(TT.muon)    # noqa: F821
@@ -818,6 +827,7 @@ class ItemDef:
         LVL1MenuItem('L1_VTE4' ).setLogic( Not(TE4)  & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_VTE5' ).setLogic( Not(TE5)  & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_VTE10').setLogic( Not(TE10) & physcond).setTriggerType(TT.calo)    # noqa: F821
+        LVL1MenuItem('L1_VTE20').setLogic( Not(TE20) & physcond).setTriggerType(TT.calo)    # noqa: F821
 
         LVL1MenuItem('L1_TE5_NZ').setLogic( TE5 & Not(ZDC_AND) & physcond).setTriggerType(TT.calo) # noqa: F821
         
@@ -929,6 +939,7 @@ class ItemDef:
         # ZDC
         ZDC_A_C = ZDC_A & ZDC_C                     # noqa: F821
         VZDC_A_C = Not(ZDC_A) & Not(ZDC_C)          # noqa: F821
+        VZDC_AORC = Not(ZDC_A) | Not(ZDC_C)          # noqa: F821
         LVL1MenuItem('L1_ZDC'               ).setLogic((ZDC_A | ZDC_C) & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_ZDC_A'             ).setLogic( ZDC_A & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_ZDC_C'             ).setLogic( ZDC_C & physcond).setTriggerType(TT.minb)    # noqa: F821
@@ -954,7 +965,11 @@ class ItemDef:
 
         LVL1MenuItem('L1_ZDC_A_C_VTE200'           ).setLogic( ZDC_A_C & Not(TE200) & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_ZDC_A_C_TE5_VTE200'       ).setLogic( ZDC_A_C & TE5 & Not(TE200) & physcond).setTriggerType(TT.minb)    # noqa: F821
-
+        
+        LVL1MenuItem('L1_VZDC_A_C_TE5_VTE200'       ).setLogic( VZDC_A_C & TE5 & Not(TE200) & physcond).setTriggerType(TT.minb)    # noqa: F821
+        LVL1MenuItem('L1_VZDC_A_C_TE20_VTE200'       ).setLogic( VZDC_A_C & TE20 & Not(TE200) & physcond).setTriggerType(TT.minb)    # noqa: F821
+        LVL1MenuItem('L1_VZDC_AORC_TE5_VTE200'      ).setLogic( VZDC_AORC & TE5 & Not(TE200) & physcond).setTriggerType(TT.minb)    # noqa: F821
+        
         LVL1MenuItem('L1_ZDC_MBTS_1'        ).setLogic((ZDC_A | ZDC_C) & MBTS_1 & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_ZDC_MBTS_2'        ).setLogic((ZDC_A | ZDC_C) & MBTS_2 & physcond).setTriggerType(TT.minb)    # noqa: F821
 
@@ -992,8 +1007,10 @@ class ItemDef:
         LVL1MenuItem('L1_ZDC_C_VZDC_A_VTE200'      ).setLogic(ZDC_C & Not(ZDC_A) & Not(TE200) & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_ZDC_XOR'           ).setLogic(ZDC_XOR  & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_ZDC_XOR_TE5_VTE200'           ).setLogic(ZDC_XOR  & TE5 & Not(TE200) & physcond).setTriggerType(TT.minb)    # noqa: F821
+        LVL1MenuItem('L1_ZDC_XOR_TE20_VTE200'           ).setLogic(ZDC_XOR  & TE20 & Not(TE200) & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_ZDC_XOR_TRT_VTE200'           ).setLogic(ZDC_XOR  & NIMTRT & Not(TE200) & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_ZDC_XOR_VTE200'               ).setLogic(ZDC_XOR  & Not(TE200) & physcond).setTriggerType(TT.minb)    # noqa: F821
+        LVL1MenuItem('L1_ZDC_XOR_VTE200_MBTS_1'               ).setLogic(ZDC_XOR  & Not(TE200) & MBTS_1 & physcond).setTriggerType(TT.minb)    # noqa: F821
 
         # ATR-14967
         LVL1MenuItem('L1_EM3_VZDC_A'               ).setLogic( EM3 & Not(ZDC_A) & physcond).setTriggerType(TT.minb)    # noqa: F821
@@ -1029,6 +1046,7 @@ class ItemDef:
         LVL1MenuItem('L1_2MU4_VTE10_VZDC_C').setLogic( MU4.x(2)      & Not(TE10) & Not(ZDC_C) & physcond).setTriggerType(TT.muon)    # noqa: F821
 
         LVL1MenuItem('L1_MU4_VZDC_A_C'               ).setLogic( MU4 & VZDC_A_C & physcond).setTriggerType(TT.muon)    # noqa: F821
+        LVL1MenuItem('L1_MU4_VZDC_AORC_VTE200'               ).setLogic( MU4 & VZDC_AORC & Not(TE200) & physcond).setTriggerType(TT.muon)    # noqa: F821
         LVL1MenuItem('L1_MU6_VZDC_A'               ).setLogic( MU6 & Not(ZDC_A) & physcond).setTriggerType(TT.muon)    # noqa: F821
         LVL1MenuItem('L1_MU6_VZDC_C'               ).setLogic( MU6 & Not(ZDC_C) & physcond).setTriggerType(TT.muon)    # noqa: F821
         LVL1MenuItem('L1_MU6_VTE10_VZDC_A').setLogic( MU6      & Not(TE10) & Not(ZDC_A) & physcond).setTriggerType(TT.muon)    # noqa: F821
