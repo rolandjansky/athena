@@ -64,6 +64,12 @@ namespace CP
       }
     }
 
+    if (asChar && asBits)
+    {
+      ANA_MSG_ERROR ("can't specify both 'as_bits' and 'as_char' for the same selection decoration, pick one!!!");
+      return StatusCode::FAILURE;
+    }
+
     if (!asChar && !asBits)
     {
       if (defaultToChar)
