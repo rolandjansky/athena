@@ -12,6 +12,7 @@
 
 #include <AsgAnalysisAlgorithms/AsgViewFromSelectionAlg.h>
 
+#include <CxxUtils/fpcompare.h>
 #include <xAODEgamma/PhotonContainer.h>
 #include <xAODEgamma/ElectronContainer.h>
 #include <xAODJet/JetContainer.h>
@@ -46,7 +47,7 @@ namespace CP
     }
     if (m_sortPt)
     {
-      std::sort (output->begin(), output->end(), [] (const xAOD::IParticle *a, const xAOD::IParticle *b) {return a->pt() > b->pt();});
+      std::sort (output->begin(), output->end(), [] (const xAOD::IParticle *a, const xAOD::IParticle *b) {return CxxUtils::fpcompare::greater (a->pt(), b->pt());});
     }
 
     // This is not necessarily the most efficient mechanism, as we add
