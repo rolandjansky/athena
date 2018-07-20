@@ -39,7 +39,6 @@
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
@@ -259,15 +258,6 @@ namespace InDet
     m_idHelperSCT = IdHelperSCT;
     
 
-    ///SCT Manager
-    if(detStore->retrieve(m_SCT_Manager, "SCT").isFailure()){
-      msg() << MSG::FATAL   << "Could not get SCT_Manager !" << endmsg;
-    }
-    else{
-      msg() << MSG::DEBUG << "SCT manager found !" << endmsg;
-    }
-    
-    
     // Pixel Manager
     if(detStore->retrieve(m_Pixel_Manager, "Pixel").isFailure()){
       msg() << MSG::FATAL   << "Could not get Pixel_Manager !" << endmsg;
@@ -506,7 +496,10 @@ namespace InDet
                 const Identifier& idbECSCTUB = m_idHelperSCT->wafer_id(hitIdbec);
                 barrelECSCTUB = m_idHelperSCT->barrel_ec(idbECSCTUB);
                 const Trk::TrackStateOnSurface* OtherModuleSideHit(0);
-                const Identifier& OtherModuleSideID = m_SCT_Manager->getDetectorElement(id)->otherSide()->identify();
+                const IdentifierHash waferHash = m_idHelperSCT->wafer_hash(id);
+                IdentifierHash otherSideHash;
+                m_idHelperSCT->get_other_side(waferHash, otherSideHash);
+                const Identifier OtherModuleSideID = m_idHelperSCT->wafer_id(otherSideHash);
                 //const Trk::RIO_OnTrack* hit(0);
         
                 for (const Trk::TrackStateOnSurface* TempTsos : *(*itResTrk)->trackStateOnSurfaces()) {
