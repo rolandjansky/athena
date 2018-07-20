@@ -6,6 +6,8 @@
   
 include("TrigUpgradeTest/testHLT_MT.py") 
 
+print "Hellow World"
+
 ### workaround to prevent online trigger folders to be enabled ###
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 InDetTrigFlags.useConditionsClasses.set_Value_and_Lock(False)
@@ -185,8 +187,8 @@ if TriggerFlags.doMuon:
       if doEFSA: 
         efMuViewNode += CscRdoToCscPrepData  
         efMuViewNode += CscClusterBuilder 
-      if doL2SA:
-        l2MuViewNode += CscRawDataProvider
+      #if doL2SA:
+      #  l2MuViewNode += CscRawDataProvider
    
     ### MDT RDO data ###
     if muonRecFlags.doMDTs():
@@ -222,10 +224,10 @@ if TriggerFlags.doMuon:
                                                     OutputLevel  = INFO)
       if doEFSA:
         efMuViewNode += MdtRdoToMdtPrepData
-      if doL2SA:
-        l2MuViewNode += MdtRawDataProvider
+      #if doL2SA:
+      #  l2MuViewNode += MdtRawDataProvider
 
-    ### RPC RDO data ###
+    #### RPC RDO data ###
     if muonRecFlags.doRPCs():
       from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcROD_Decoder
       RPCRodDecoder = Muon__RpcROD_Decoder(name	 = "RPCRodDecoder",
@@ -258,8 +260,8 @@ if TriggerFlags.doMuon:
                                                     OutputLevel  = INFO)
       if doEFSA:
         efMuViewNode += RpcRdoToRpcPrepData
-      if doL2SA:
-        l2MuViewNode += RpcRawDataProvider
+      #if doL2SA:
+      #  l2MuViewNode += RpcRawDataProvider
 
     ### TGC RDO data ###
     if muonRecFlags.doTGCs():
@@ -296,8 +298,8 @@ if TriggerFlags.doMuon:
                                                     OutputLevel  = INFO)
       if doEFSA:
         efMuViewNode += TgcRdoToTgcPrepData
-      if doL2SA:
-        l2MuViewNode += TgcRawDataProvider
+      #if doL2SA:
+      #  l2MuViewNode += TgcRawDataProvider
 
     
     #Run clustering
@@ -355,6 +357,94 @@ if TriggerFlags.doMuon:
     muFastAlg.MuonCalibrationStream = "MuonCalibrationStream"
     muFastAlg.forID = "forID"
     muFastAlg.forMS = "forMS"
+
+    ### To create BS->RDO data ###
+    ### RPCRDO ###
+    if muonRecFlags.doRPCs():
+      from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderTool
+      L2MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderTool(name    = "L2MuonSA_MuonRpcRawDataProviderTool",
+                                                                   OutputLevel = DEBUG)
+      ToolSvc += L2MuonRpcRawDataProviderTool
+  
+      from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
+      L2RpcRdoToPrepDataTool = Muon__RpcRdoToPrepDataTool(name                = "L2MuonSA_RpcRdoToPrepDataTool",
+                                                          OutputLevel         = DEBUG,
+                                                          RawDataProviderTool = L2MuonRpcRawDataProviderTool,
+                                                          useBStoRdoTool      = True)
+      ToolSvc += L2RpcRdoToPrepDataTool
+
+      from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcDataPreparator
+      L2RpcDataPreparator = TrigL2MuonSA__RpcDataPreparator(OutputLevel = DEBUG,
+                                                            RpcPrepDataProvider = L2RpcRdoToPrepDataTool)
+      ToolSvc += L2RpcDataPreparator
+       
+      muFastAlg.DataPreparator.RPCDataPreparator = L2RpcDataPreparator
+
+    ### TGCRDO ###
+    if muonRecFlags.doTGCs():
+      from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TGC_RawDataProviderTool
+      L2MuonTgcRawDataProviderTool = Muon__TGC_RawDataProviderTool(name        = "L2MuonSA_MuonTgcRawDataProviderTool",
+                                                                   OutputLevel = DEBUG)
+      ToolSvc += L2MuonTgcRawDataProviderTool
+ 
+      from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
+      L2TgcRdoToPrepDataTool = Muon__TgcRdoToPrepDataTool(name                = "L2MuonSA_TgcRdoToPrepDataTool",
+                                                          OutputLevel         = DEBUG,
+                                                          RawDataProviderTool = L2MuonTgcRawDataProviderTool,
+                                                          useBStoRdoTool      = True)
+      ToolSvc += L2TgcRdoToPrepDataTool
+
+      from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__TgcDataPreparator
+      L2TgcDataPreparator = TrigL2MuonSA__TgcDataPreparator(OutputLevel         = DEBUG,
+                                                            TgcPrepDataProvider = L2TgcRdoToPrepDataTool,
+                                                            TGC_RawDataProvider = L2MuonTgcRawDataProviderTool)
+      ToolSvc += L2TgcDataPreparator
+       
+      muFastAlg.DataPreparator.TGCDataPreparator = L2TgcDataPreparator
+
+    ### MDTRDO ###
+    if muonRecFlags.doMDTs():
+      from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MDT_RawDataProviderTool
+      L2MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderTool(name        = "L2MuonSA_MuonMdtRawDataProviderTool",
+                                                                   OutputLevel = DEBUG )
+      ToolSvc += L2MuonMdtRawDataProviderTool
+  
+      from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
+      L2MdtRdoToPrepDataTool = Muon__MdtRdoToPrepDataTool(name                = "L2MuonSA_MdtRdoToPrepDataTool",
+                                                             OutputLevel         = DEBUG,
+                                                             RawDataProviderTool = L2MuonMdtRawDataProviderTool,
+                                                             useBStoRdoTool      = True)
+      ToolSvc += L2MdtRdoToPrepDataTool
+  
+      from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MdtDataPreparator
+      L2MdtDataPreparator = TrigL2MuonSA__MdtDataPreparator(OutputLevel = DEBUG,
+                                                            MDT_RawDataProvider = L2MuonMdtRawDataProviderTool,
+                                                            MdtPrepDataProvider = L2MdtRdoToPrepDataTool)
+      ToolSvc += L2MdtDataPreparator
+      
+      muFastAlg.DataPreparator.MDTDataPreparator = L2MdtDataPreparator
+
+    ### CSCRDO ###
+    if muonRecFlags.doCSCs():
+      from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
+      L2MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name        = "L2MuonSA_MuonCscRawDataProviderTool",
+                                                                   OutputLevel = DEBUG )
+      ToolSvc += L2MuonCscRawDataProviderTool
+  
+      from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
+      L2CscRdoToPrepDataTool = Muon__CscRdoToCscPrepDataTool(name                = "L2MuonSA_CscRdoToPrepDataTool",
+                                                             OutputLevel         = DEBUG,
+                                                             RawDataProviderTool = L2MuonCscRawDataProviderTool,
+                                                             useBStoRdoTool      = True)
+      ToolSvc += L2CscRdoToPrepDataTool
+  
+      from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__CscDataPreparator
+      L2CscDataPreparator = TrigL2MuonSA__CscDataPreparator(OutputLevel = DEBUG,
+                                                            CscPrepDataProvider = L2CscRdoToPrepDataTool)
+      ToolSvc += L2CscDataPreparator
+       
+      muFastAlg.DataPreparator.CSCDataPreparator = L2CscDataPreparator
+
     l2MuViewNode += muFastAlg
     
     # set up MuFastHypo

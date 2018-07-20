@@ -42,6 +42,10 @@ TrigL2MuonSA::MuFastDataPreparator::MuFastDataPreparator(const std::string& type
 {
    declareInterface<TrigL2MuonSA::MuFastDataPreparator>(this);
    declareProperty("RPCRecRoiSvc",      m_recRPCRoiSvc,      "Reconstruction of RPC RoI");
+   declareProperty("RPCDataPreparator", m_rpcDataPreparator );
+   declareProperty("TGCDataPreparator", m_tgcDataPreparator );
+   declareProperty("MDTDataPreparator", m_mdtDataPreparator );
+   declareProperty("CSCDataPreparator", m_cscDataPreparator );
 }
 
 // --------------------------------------------------------------------------------
