@@ -45,28 +45,27 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
   ATH_MSG_DEBUG("SCTRawDataProviderTool::convert()");
   static int decodeErrCount{0};
 
-  /**  are we working on a new event ? */
-  std::vector<const ROBFragment*>::const_iterator rob_it{vecRobs.begin()};
-  
   StatusCode sc{StatusCode::SUCCESS};
 
   /** loop over the ROB fragments */
 
-  for(; rob_it!=vecRobs.end(); ++rob_it) {
+  for(const ROBFragment* rob_it : vecRobs) {
     /** get the ID of this ROB/ROD */
-    uint32_t robid{(*rob_it)->rod_source_id()};
+    uint32_t robid{(rob_it)->rod_source_id()};
     /** check if this ROBFragment was already decoded (EF case in ROIs) */
     if (!m_robIdSet.insert(robid).second) {
       ATH_MSG_DEBUG(" ROB Fragment with ID  "
                     << std::hex<<robid << std::dec
                     << " already decoded, skip"); 
-    } else {
-      sc = m_decoder->fillCollection(**rob_it, rdoIdc, errs, bsFracCont);
+    } 
+    else {
+      sc = m_decoder->fillCollection(*rob_it, rdoIdc, errs, bsFracCont);
       if (sc==StatusCode::FAILURE) {
         if (decodeErrCount < 100) {
           ATH_MSG_ERROR("Problem with SCT ByteStream Decoding!");
           decodeErrCount++;
-        } else if (100 == decodeErrCount) {
+        } 
+        else if (100 == decodeErrCount) {
           ATH_MSG_ERROR("Too many Problem with SCT Decoding messages, turning message off.  ");
           decodeErrCount++;
         }
