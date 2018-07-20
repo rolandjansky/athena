@@ -12,7 +12,7 @@ metaMultivariateTrigHybridTagManager = {'IsATagger': True,
                                                       'IP2DTrigHybridTag',
                                                       'IP3DTrigHybridTag',
                                                       'NewJetFitterVxFinder',
-                                                      'SV1Tag'],
+                                                      'SV1TrigHybridTag'],
                                         'ToolCollection': 'MultivariateTrigHybridTagManager'}
 
 
@@ -33,7 +33,7 @@ def toolMultivariateTrigHybridTagManager(name, useBTagFlagsDefaults=True, **opti
     if useBTagFlagsDefaults:
         defaults = {'OutputLevel': BTaggingFlags.OutputLevel,
                     'inputSV0SourceName': 'SV0',
-                    'inputSV1SourceName': 'SV1',
+                    'inputSV1SourceName': 'SV1TrigHybrid',
                     'inputIP2DSourceName': 'IP2DTrigHybrid',
                     'inputIP3DSourceName': 'IP3DTrigHybrid',
                     'inputJFSourceName': 'JetFitter',
