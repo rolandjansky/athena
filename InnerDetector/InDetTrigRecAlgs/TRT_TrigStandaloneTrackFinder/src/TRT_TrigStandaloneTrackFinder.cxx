@@ -17,6 +17,7 @@
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "InDetIdentifier/TRT_ID.h"
+#include "TrkTrack/Track.h"
 #include "TrkTrack/TrackInfo.h"
 
 //Eigen
