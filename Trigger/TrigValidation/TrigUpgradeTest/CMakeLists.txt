@@ -133,6 +133,12 @@ atlas_add_test( NewJO
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO
 		)
 
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_l1sim )
+atlas_add_test( l1sim
+		SCRIPT test/test_l1sim.sh
+                PROPERTIES TIMEOUT 500 
+		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_l1sim
+		)
+
 atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )
-atlas_install_scripts( test/test*.sh )
