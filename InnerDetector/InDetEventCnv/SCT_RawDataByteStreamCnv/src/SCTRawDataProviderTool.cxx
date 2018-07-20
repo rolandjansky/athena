@@ -43,7 +43,8 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
 {
   if(vecRobs.empty()) return StatusCode::SUCCESS;
   ATH_MSG_DEBUG("SCTRawDataProviderTool::convert()");
-  static int decodeErrCount{0};
+  
+  decodeErrCount = 0;
 
   StatusCode sc{StatusCode::SUCCESS};
 
