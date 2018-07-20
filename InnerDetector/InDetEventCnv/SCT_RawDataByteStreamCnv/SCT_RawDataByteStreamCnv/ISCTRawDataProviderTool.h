@@ -32,7 +32,7 @@ class ISCTRawDataProviderTool : virtual public IAlgTool
                              SCT_ByteStreamFractionContainer* bsFracCont) = 0;
 
   //Replace the incident calls with private calls, more MT friendly
-  virtual void BeginNewEvent() = 0;
+  virtual void beginNewEvent() = 0;
 };
 
 #endif // SCT_RAWDATABYTESTREAMCNV_ISCTRAWDATAPROVIDERTOOL_H
