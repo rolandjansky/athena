@@ -12,7 +12,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "InDetIdentifier/SCT_ID.h"
 
 #include "InDetAlignGenTools/InDetAlignHitQualSelTool.h"
 
@@ -32,7 +32,6 @@ InDetAlignHitQualSelTool::InDetAlignHitQualSelTool( const std::string& t
   , m_acceptPixelHits( true )
   , m_acceptSCTHits( true )
   , m_PIXManager{}
-  , m_SCTManager{}
   , m_pixelid{}
   , m_sctID{} 
 {
@@ -60,8 +59,6 @@ StatusCode InDetAlignHitQualSelTool::initialize() {
   ATH_CHECK(detStore()->retrieve(m_pixelid, "PixelID"));
   // get pixel manager
   ATH_CHECK(detStore()->retrieve( m_PIXManager, "Pixel" )) ;
-  // get SCT manager
-  ATH_CHECK( detStore()->retrieve( m_SCTManager, "SCT" ) );
   return StatusCode::SUCCESS ;
 }
 
@@ -286,7 +283,7 @@ bool InDetAlignHitQualSelTool::isGoodClusterSize( const std::vector<Identifier>&
 
 bool InDetAlignHitQualSelTool::isEdgeChannel( const vector<Identifier>& idVec ) const {
   for( unsigned int i=0, i_max=idVec.size() ; i!=i_max ; ++i ) {
-    if( m_SCTManager->identifierBelongs(idVec[i]) ) {
+    if( m_sctID->is_sct(idVec[i]) ) {
       int stripId = m_sctID->strip(idVec[i]) ;
       if( stripId == 0 || stripId == 767 ) {
         ATH_MSG_DEBUG( " SCT strip " << i << " with id " << stripId << " is an edge channel " ) ;
