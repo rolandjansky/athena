@@ -65,8 +65,6 @@ namespace Muon {
     declareProperty("SDOs",      m_SDO_TruthNames);
     std::stable_sort(m_SDO_TruthNames.begin(),m_SDO_TruthNames.end());
 
-    declareProperty("xAODTruthLinkVector",m_truthLinkVecName="xAODTruthLinks");
-
     declareProperty("MCTruthClassifier",   m_truthClassifier);
     declareProperty("MuonIdHelperTool",    m_idHelper);
     declareProperty("MuonEDMPrinterTool",  m_printer);
@@ -129,13 +127,6 @@ namespace Muon {
 	}
       }
     }
-
-    // get truth links
-    const xAODTruthParticleLinkVector* truthParticleLinkVec = 0;
-    if(evtStore()->contains<xAODTruthParticleLinkVector>(m_truthLinkVecName)){
-      ATH_CHECK(evtStore()->retrieve(truthParticleLinkVec, m_truthLinkVecName));
-    }
-
 
     // create output container
     xAOD::TruthParticleContainer* muonTruthContainer = new xAOD::TruthParticleContainer();
@@ -214,18 +205,11 @@ namespace Muon {
 
       // if configured look up truth classification
       if( !m_truthClassifier.empty() ){
-	for( const auto& entry : *truthParticleLinkVec ){
-	  if( !entry->second.isValid() || *entry->second != truth ) continue;
-
-	  // if configured also get truth classification
-	  if( entry->first.cptr() ){
-	    auto truthClass = m_truthClassifier->particleTruthClassifier(entry->first.cptr());
-	    type = truthClass.first;
-	    origin = truthClass.second;
-	    ATH_MSG_VERBOSE("Got truth type  " << static_cast<int>(type) << "  origin " << static_cast<int>(origin));
-	  }
-	  break;
-	}
+	// if configured also get truth classification
+	auto truthClass = m_truthClassifier->particleTruthClassifier(truth);
+	type = truthClass.first;
+	origin = truthClass.second;
+	ATH_MSG_VERBOSE("Got truth type  " << static_cast<int>(type) << "  origin " << static_cast<int>(origin));
 	int& theType   = const_cast<xAOD::TruthParticle*>(truthParticle)->auxdata<int>("truthType");
 	int& theOrigin = const_cast<xAOD::TruthParticle*>(truthParticle)->auxdata<int>("truthOrigin");
 	theType = static_cast<int>(type);
