@@ -413,6 +413,7 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance=None):
     if 'SV1Flip' in TaggerList:
         ConfInstance.addTool('SV1FlipTag', ToolSvc, 'BTagTrackToJetAssociator',
                              JetCollection, Verbose=BTaggingFlags.OutputLevel < 3)
+
 #          if BTaggingFlags.SV2:
 #            addTool('SV2Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 #          if BTaggingFlags.SV2Flip:
@@ -772,6 +773,9 @@ def SetupJetCollectionTrig(JetCollection, TaggerList, ConfInstance=None):
                              JetCollection, Verbose=BTaggingFlags.OutputLevel < 3)
     if 'SV1Flip' in TaggerList:
         ConfInstance.addTool('SV1FlipTag', ToolSvc, 'BTagTrackToJetAssociator',
+                             JetCollection, Verbose=BTaggingFlags.OutputLevel < 3)
+    if 'SV1TrigHybrid' in TaggerList:
+        ConfInstance.addTool('SV1TrigHybridTag', ToolSvc, 'BTagTrackToJetAssociator',
                              JetCollection, Verbose=BTaggingFlags.OutputLevel < 3)
     if 'SV0' in TaggerList:
         ConfInstance.addTool('SV0Tag', ToolSvc, 'BTagTrackToJetAssociator',
