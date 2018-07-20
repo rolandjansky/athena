@@ -22,7 +22,7 @@
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
 
 #include "TrkSurfaces/Surface.h"
-#include "StoreGate/StoreGateSvc.h"
+//#include "StoreGate/StoreGateSvc.h"
  
 #include "MuonCnvToolInterfaces/IDC_Helper.h"
 
@@ -248,19 +248,6 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
     if (sizeVectorRequested == 0) m_fullEventDone = true;
   }
 
-  // Check RPC PrepData container is created    
-  if(!evtStore()->contains<Muon::RpcPrepDataContainer>(m_rpcPrepDataContainerKey.key())) {  
-    ATH_MSG_WARNING("Could not record container of RPC PrepData Container");
-  } else {
-    ATH_MSG_DEBUG("RPC PrepData Container recorded in StoreGate with key " << m_rpcPrepDataContainerKey.key());
-  }
-  // Check RPC Coin container is created
-  if(!evtStore()->contains<Muon::RpcCoinDataContainer>(m_rpcCoinDataContainerKey.key())) {  
-    ATH_MSG_WARNING("Could not record container of RPC Coin Container");
-  } else {
-    ATH_MSG_DEBUG("RPC Coin Container recorded in StoreGate with key " << m_rpcCoinDataContainerKey.key());
-  }
- 
   if (sizeVectorRequested != 0) {
     // the program goes in here only if RoI-based decoding has been called and the full event is not already decoded
     // this code ensures decoding of every offline hash id is called only once
@@ -322,12 +309,6 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
     }
   }
   // we come here if the rdo container is already in SG (for example in MC RDO!) => the ContainerManager return NULL
-  if(!evtStore()->contains<RpcPadContainer>(m_rdoContainerKey.key())) {  
-    ATH_MSG_WARNING("Could not record container of RPC PrepData Container");
-  } else {
-    ATH_MSG_DEBUG("RPCPAD Container recorded in StoreGate with key " << m_rdoContainerKey.key());
-  }
-  ATH_MSG_DEBUG("Retrieving Rpc PAD container from the store");      
   auto rdoContainerHandle = SG::makeHandle(m_rdoContainerKey);
   if (!rdoContainerHandle.isValid()) {
     ATH_MSG_WARNING("Retrieval of RPC RDO container failed !");

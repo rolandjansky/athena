@@ -6,8 +6,6 @@
   
 include("TrigUpgradeTest/testHLT_MT.py") 
 
-print "Hellow World"
-
 ### workaround to prevent online trigger folders to be enabled ###
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 InDetTrigFlags.useConditionsClasses.set_Value_and_Lock(False)

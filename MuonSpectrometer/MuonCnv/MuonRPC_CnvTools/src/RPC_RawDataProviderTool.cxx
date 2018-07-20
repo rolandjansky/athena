@@ -252,11 +252,9 @@ StatusCode Muon::RPC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
     if (padHandle.isPresent())
       return StatusCode::SUCCESS;
     auto pad = std::make_unique<RpcPadContainer> (padMaxIndex);
-    //ATH_CHECK( padHandle.record (std::move (pad)) );
  
     SG::WriteHandle<RpcSectorLogicContainer>    logicHandle(m_sec);
     auto logic = std::make_unique<RpcSectorLogicContainer>();
-    //ATH_CHECK( logicHandle.record (std::move (logic)) );
     
     for (ROBFragmentList::const_iterator itFrag = vecRobs.begin(); itFrag != vecRobs.end(); itFrag++)
     {
