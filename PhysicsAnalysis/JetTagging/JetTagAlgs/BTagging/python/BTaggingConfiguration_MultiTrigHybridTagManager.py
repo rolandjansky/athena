@@ -5,17 +5,18 @@
 # Author: Marie Lanfermann (October 2015)
 from BTagging.BTaggingFlags import BTaggingFlags
 
-metaMultivariateTrigHybridTagManager = { 'IsATagger'          : True,
-#              'xAODBaseName'       : 'MultivariateTrigHybridTagManager',
-              'DependsOn'          : ['AtlasExtrapolator',
-                                      'BTagTrackToVertexTool',
-                                      'IP2DTag',
-                                      'IP3DTag',
-                                      'NewJetFitterVxFinder',
-                                      'SV1Tag'],
-              'ToolCollection'     : 'MultivariateTrigHybridTagManager' }
+metaMultivariateTrigHybridTagManager = {'IsATagger': True,
+                                        #              'xAODBaseName'       : 'MultivariateTrigHybridTagManager',
+                                        'DependsOn': ['AtlasExtrapolator',
+                                                      'BTagTrackToVertexTool',
+                                                      'IP2DTrigHybridTag',
+                                                      'IP3DTrigHybridTag',
+                                                      'NewJetFitterVxFinder',
+                                                      'SV1Tag'],
+                                        'ToolCollection': 'MultivariateTrigHybridTagManager'}
 
-def toolMultivariateTrigHybridTagManager(name, useBTagFlagsDefaults = True, **options):
+
+def toolMultivariateTrigHybridTagManager(name, useBTagFlagsDefaults=True, **options):
     """Sets up a MultivariateTrigHybridTagManager tool and returns it.
 
     The following options have BTaggingFlags defaults:
@@ -30,13 +31,13 @@ def toolMultivariateTrigHybridTagManager(name, useBTagFlagsDefaults = True, **op
     input:             name: The name of the tool (should be unique).
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
-        defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
-                     'inputSV0SourceName'               : 'SV0',
-                     'inputSV1SourceName'               : 'SV1',
-                     'inputIP2DSourceName'              : 'IP2D',
-                     'inputIP3DSourceName'              : 'IP3D',
-                     'inputJFSourceName'                : 'JetFitter',
-                     }
+        defaults = {'OutputLevel': BTaggingFlags.OutputLevel,
+                    'inputSV0SourceName': 'SV0',
+                    'inputSV1SourceName': 'SV1',
+                    'inputIP2DSourceName': 'IP2DTrigHybrid',
+                    'inputIP3DSourceName': 'IP3DTrigHybrid',
+                    'inputJFSourceName': 'JetFitter',
+                    }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
