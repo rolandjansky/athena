@@ -103,20 +103,28 @@ class CscSegment;
  private:
   IntegerProperty m_msglevel;
   UtilTools *m_util;
-  ToolHandle<CscRegDict> m_cscregdict;
+  ToolHandle<CscRegDict> m_cscregdict {
+	this, "CscRegDict", "TrigL2MuonSA::CscRegDict", ""};
 #ifndef XAOD_ANALYSIS
   const MuonGM::MuonDetectorManager *m_muonMgr;
 #endif
   
   
   //properties                                                                                                                                                             
-  BooleanProperty m_use_geometry;
-  DoubleProperty m_max_chisquare;
-  DoubleProperty m_max_residual_eta;
-  DoubleProperty m_max_residual_phi;
-  DoubleProperty m_err_eta;
-  DoubleProperty m_err_phi;
-  DoubleProperty m_err_ip;
+  Gaudi::Property< bool > m_use_geometry {
+	this, "UseGeometry", false, ""};
+  Gaudi::Property< double > m_max_chisquare {
+	this, "max_chisquare", 25., ""};
+  Gaudi::Property< double > m_max_residual_eta {
+	this, "max_residual_eta", 100., ""};
+  Gaudi::Property< double > m_max_residual_phi {
+	this, "max_residual_phi", 250., ""};
+  Gaudi::Property< double > m_err_eta {
+	this, "err_eta", 3., ""};
+  Gaudi::Property< double > m_err_phi {
+	this, "err_phi", 6., ""};
+  Gaudi::Property< double > m_err_ip {
+	this, "err_ip", 250., ""};
   
   
 };

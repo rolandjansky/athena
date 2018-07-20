@@ -26,8 +26,6 @@ TrigL2MuonSA::PtFromAlphaBeta::PtFromAlphaBeta(const std::string& type,
   m_ptEndcapLUT(0)
 {
   declareInterface<TrigL2MuonSA::PtFromAlphaBeta>(this);
-  declareProperty("useCscPt", m_use_cscpt=false);
-  declareProperty("AvoidMisalignedCSCs", m_avoid_misaligned_cscs=true,"avoid using the 2 new chambers, whose alignment is not completed");
 }
 
 // --------------------------------------------------------------------------------

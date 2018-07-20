@@ -65,10 +65,10 @@ namespace TrigL2MuonSA {
     
     BooleanProperty  m_use_mcLUT;
 
-    const PtEndcapLUTSvc*                  m_ptEndcapLUTSvc;
-    const PtBarrelLUTSvc*                  m_ptBarrelLUTSvc;
+    //const PtEndcapLUTSvc*                  m_ptEndcapLUTSvc;
+    //const PtBarrelLUTSvc*                  m_ptBarrelLUTSvc;
     
-    const AlignmentBarrelLUTSvc*           m_alignmentBarrelLUTSvc;
+    //const AlignmentBarrelLUTSvc*           m_alignmentBarrelLUTSvc;
     
     BooleanProperty  m_use_endcapInnerFromBarrel;
 

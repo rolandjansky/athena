@@ -31,16 +31,16 @@ using namespace SG;
 
 MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc) 
   : HLT::FexAlgo(name, svc), 
-    m_storeGate("StoreGateSvc", this->name()), 
+    m_storeGate("StoreGateSvc", name), 
     m_timerSvc("TrigTimerSvc", name),
-    m_regionSelector("RegSelSvc", this->name()),
+    m_regionSelector("RegSelSvc", name),
     m_recMuonRoIUtils(),
     m_rpcHits(), m_tgcHits(),
     m_mdtRegion(), m_muonRoad(),
     m_rpcFitResult(), m_tgcFitResult(),
     m_mdtHits_normal(), m_mdtHits_overlap(),
     m_cscHits(),
-    m_jobOptionsSvc("JobOptionsSvc", this->name()) 
+    m_jobOptionsSvc("JobOptionsSvc", name) 
 {
 }
 // --------------------------------------------------------------------------------
