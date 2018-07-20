@@ -309,6 +309,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
     }
   }
   // we come here if the rdo container is already in SG (for example in MC RDO!) => the ContainerManager return NULL
+  ATH_MSG_DEBUG("Retrieving Rpc PAD container from the store");
   auto rdoContainerHandle = SG::makeHandle(m_rdoContainerKey);
   if (!rdoContainerHandle.isValid()) {
     ATH_MSG_WARNING("Retrieval of RPC RDO container failed !");
@@ -673,6 +674,7 @@ void Muon::RpcRdoToPrepDataTool::printInputRdo()
   /// RPC context
   IdContext rpcContext = m_rpcHelper->module_context();
   /// RPC RDO container --- assuming it is available
+  ATH_MSG_DEBUG("Retrieving Rpc PAD container from the store");
   auto rdoContainerHandle = SG::makeHandle(m_rdoContainerKey);
   if (!rdoContainerHandle.isValid()) {
     ATH_MSG_WARNING("Retrieval of RPC RDO container failed !");

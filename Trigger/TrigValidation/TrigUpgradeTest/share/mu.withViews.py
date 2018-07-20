@@ -225,7 +225,7 @@ if TriggerFlags.doMuon:
       #if doL2SA:
       #  l2MuViewNode += MdtRawDataProvider
 
-    #### RPC RDO data ###
+    ### RPC RDO data ###
     if muonRecFlags.doRPCs():
       from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcROD_Decoder
       RPCRodDecoder = Muon__RpcROD_Decoder(name	 = "RPCRodDecoder",
