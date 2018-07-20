@@ -1484,11 +1484,11 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
       status = rpcCoinDataHandle.record(std::make_unique<Muon::RpcCoinDataContainer>(m_rpcHelper->module_hash_max()));
 
       if (status.isFailure() || !rpcCoinDataHandle.isValid() ) 	{
-        ATH_MSG_FATAL("Could not record container of RPC TrigCoinData Container at " << m_rpcPrepDataContainerKey.key());
+        ATH_MSG_FATAL("Could not record container of RPC TrigCoinData Container at " << m_rpcCoinDataContainerKey.key());
         return status;
       } else {
         m_rpcCoinDataContainer = rpcCoinDataHandle.ptr();
-	ATH_MSG_DEBUG("RPC TrigCoinData Container recorded in StoreGate with key " << m_rpcPrepDataContainerKey.key());
+	ATH_MSG_DEBUG("RPC TrigCoinData Container recorded in StoreGate with key " << m_rpcCoinDataContainerKey.key());
       }      
       ATH_MSG_VERBOSE(" RpcCoinDataContainer created");
     } 
