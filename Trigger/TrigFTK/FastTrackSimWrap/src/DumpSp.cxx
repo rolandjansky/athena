@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -329,6 +329,8 @@ DumpSp::initialize()
   } else {
     ATH_MSG_INFO("Retrieved service " << m_beamCondSvc);
   }
+
+  ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -1272,7 +1274,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
         // FlagAA: THIS CODE IS NOT BACKWARD COMPATIBLE! Commited on Sep 18th, 2013
         // now stores the local position in millimiters without Lorentz Correction
         // before it was storing a floating point coordinate in units of pixels
-        localx = (*iCluster)->localPosition()[Trk::distPhi] - sielement->getLorentzCorrection();
+        localx = (*iCluster)->localPosition()[Trk::distPhi] - m_pixelLorentzAngleTool->getLorentzShift(sielement->identifyHash());
         localy = (*iCluster)->localPosition()[Trk::distEta];
       }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FASTTRACKSIMWRAP_DUMPSP
@@ -48,6 +48,8 @@
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
+
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 
 class AtlasDetectorID;
 class StoreGateSvc;
@@ -141,6 +143,7 @@ private:
   ServiceHandle<IInDetConditionsSvc>        m_pixelCondSummarySvc; // tool to retrieve pixel conditions db
   ToolHandle<IInDetConditionsTool>          m_sctCondSummaryTool{this, "SctSummaryTool",
       "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions Summary"}; // tool to retrieve SCT conditions db
+  ToolHandle<ISiLorentzAngleTool>           m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
   //#else
     // ToolHandle<Trk::TruthToTrack>             m_truthToTrack; //!< tool to create track parameters from a gen particle
   //#endif

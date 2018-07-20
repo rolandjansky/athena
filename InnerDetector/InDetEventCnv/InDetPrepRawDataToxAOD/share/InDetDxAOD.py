@@ -405,9 +405,23 @@ if dumpSctInfo:
         print xAOD_SCT_PrepDataToxAOD.properties()
 
 if dumpPixInfo:
+    from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
+    pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
+    pixelDCSConditionsToolSetup.setIsDATA(False)
+    pixelDCSConditionsToolSetup.setup()
+    from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
+    pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
+    pixelSiPropertiesToolSetup.setSiliconTool(pixelDCSConditionsToolSetup.getTool())
+    pixelSiPropertiesToolSetup.setup()
+    from AthenaCommon.AppMgr import ToolSvc
+    if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
+        from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+        pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+
     from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import PixelPrepDataToxAOD
     xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "xAOD_PixelPrepDataToxAOD")
-    ## Content steering Properties (default value shown as comment)
+    xAOD_PixelPrepDataToxAOD.PixelDCSConditionsTool = pixelDCSConditionsToolSetup.getTool()
+    xAOD_PixelPrepDataToxAOD.LorentzAngleTool       = ToolSvc.PixelLorentzAngleTool
     xAOD_PixelPrepDataToxAOD.OutputLevel          = INFO
     xAOD_PixelPrepDataToxAOD.UseTruthInfo         = dumpTruthInfo
     xAOD_PixelPrepDataToxAOD.WriteRDOinformation  = InDetDxAODFlags.DumpPixelRdoInfo()

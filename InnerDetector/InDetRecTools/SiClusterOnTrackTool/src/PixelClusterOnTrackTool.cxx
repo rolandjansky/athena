@@ -439,7 +439,7 @@ InDet::PixelClusterOnTrackTool::correctDefault
       design->positionFromColumnRow(colmax, rowmax);
 
     InDetDD::SiLocalPosition centroid = 0.25 * (pos1 + pos2 + pos3 + pos4);
-    double shift = element->getLorentzCorrection();
+    double shift = m_lorentzAngleTool->getLorentzShift(iH);
     int nrows = rowmax - rowmin + 1;
     int ncol = colmax - colmin + 1;
     double ang = 999.;

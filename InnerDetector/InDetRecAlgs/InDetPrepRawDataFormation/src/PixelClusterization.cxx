@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -145,13 +145,12 @@ namespace InDet{
         if (!RDO_Collection || RDO_Collection->empty()) continue;
         if( clusterContainer->tryFetch( rdoCollections.hashId() )) continue;
 
-
         // Use one of the specific clustering AlgTools to make clusters
         std::unique_ptr<PixelClusterCollection> clusterCollection (m_clusteringTool->clusterize(*RDO_Collection, *m_manager, *m_idHelper));
+
         if (clusterCollection && !clusterCollection->empty()){
 
           m_gangedAmbiguitiesFinder->execute(clusterCollection.get(),*m_manager,*ambiguitiesMap);
-
           IdentifierHash hash = clusterCollection->identifyHash();
           ATH_CHECK(clusterContainer->addOrDelete( std::move(clusterCollection), hash ));
         }else{

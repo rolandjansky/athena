@@ -18,6 +18,8 @@ DetFlags.detdescr.SCT_setOn()
 globalflags.DataSource='geant4'
 #globalflags.DataSource='data'
 
+isData = (globalflags.DataSource == 'data')
+
 # Select the geometry version. 
 globalflags.DetDescrVersion='ATLAS-R1-2012-03-01-00'
 
@@ -64,28 +66,22 @@ from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
 # Pixel
 #
 # Load DCS service
-include( "PixelConditionsServices/PixelDCSSvc_jobOptions.py" )
+from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
+pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
+pixelDCSConditionsToolSetup.setIsDATA(isData)
+pixelDCSConditionsToolSetup.setup()
+from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
+pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
+pixelSiPropertiesToolSetup.setSiliconTool(pixelDCSConditionsToolSetup.getTool())
+pixelSiPropertiesToolSetup.setup()
+pixelSiPropertiesTool = pixelSiPropertiesToolSetup.getTool()
 
-## Silicon conditions service (set up by LorentzAngleSvcSetup)
-pixelSiliconConditionsSvc = lorentzAngleSvc.PixelSiliconConditionsSvc
-## Or directly from ServiceMgr (its the same instance)
-#pixelSiliconConditionsSvc=ServiceMgr.PixelSiliconConditionsSvc
-## Or if you want a different instance than used by LorentzAngleSvcSetup
-#from PixelConditionsServices.PixelConditionsServicesConf import PixelSiliconConditionsSvc
-#pixelSiliconConditionsSvc = PixelSiliconConditionsSvc("OtherPixel_SiliconConditionsSvc")
-#ServiceMgr += pixelSiliconConditionsSvc
+ReadPixelElements.UseConditionsTools = True
+ReadPixelElements.SiLorentzAngleTool = lorentzAngleSvc.pixel
+ReadPixelElements.SiPropertiesTool   = pixelSiPropertiesTool
+ReadPixelElements.SiConditionsTool   = None
 
-# Silicon properties service
-pixelSiPropertiesSvc = SiPropertiesSvc(name = "PixelSiPropertiesSvc",
-                                     DetectorName="Pixel",
-                                     SiConditionsServices = pixelSiliconConditionsSvc)
-ServiceMgr += pixelSiPropertiesSvc
-
-ReadPixelElements.SiLorentzAngleSvc = lorentzAngleSvc.pixel
-ReadPixelElements.SiPropertiesSvc   = pixelSiPropertiesSvc
-ReadPixelElements.SiConditionsSvc   = pixelSiliconConditionsSvc
-
-ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=lorentzAngleSvc.pixel
+ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleTool=lorentzAngleSvc.pixel
 
 #
 # SCT

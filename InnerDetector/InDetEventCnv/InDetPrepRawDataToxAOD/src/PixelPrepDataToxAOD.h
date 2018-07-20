@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,6 +20,8 @@
 #include "xAODTracking/TrackMeasurementValidation.h"
 #include "xAODTracking/TrackMeasurementValidationContainer.h"
 
+#include "PixelConditionsTools/IPixelDCSConditionsTool.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 
 #include <string>
 
@@ -29,9 +31,7 @@ class InDetSimDataCollection;
 
 class IdentifierHash;
 class IPixelCalibSvc;
-class IPixelDCSSvc;
 class IPixelByteStreamErrorsSvc;
-class ISiLorentzAngleSvc;
 
 namespace InDet
 {
@@ -103,9 +103,9 @@ private:
   bool m_useSiHitsGeometryMatching;
 
   ServiceHandle<IPixelCalibSvc> m_calibSvc;
-  ServiceHandle<IPixelDCSSvc> m_pixelDCSSvc;
+  ToolHandle<IPixelDCSConditionsTool> m_DCSConditionsTool{this, "PixelDCSConditionsTool", "PixelDCSConditionsTool", "Tool to retrieve Pixel information"};
   ServiceHandle<IPixelByteStreamErrorsSvc> m_pixelBSErrorsSvc;
-  ServiceHandle<ISiLorentzAngleSvc> m_lorentzAngleSvc;
+  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
   // -- Private members   
   bool m_firstEventWarnings;

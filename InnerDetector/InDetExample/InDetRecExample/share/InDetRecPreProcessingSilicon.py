@@ -74,7 +74,6 @@ if InDetFlags.doPRDFormation():
          # --- Neutral Network version ?
          #
          if InDetFlags.pixelClusterSplittingType() == 'NeuralNet':
-
             useBeamConstraint = InDetFlags.useBeamConstraint()
             
             # --- new NN prob tool
@@ -119,7 +118,6 @@ if InDetFlags.doPRDFormation():
          # --- Neutral Network version ?
          #
          elif InDetFlags.pixelClusterSplittingType() == 'AnalogClus':      
-
             # new splitter tool
             from SiClusterizationTool.SiClusterizationToolConf import InDet__TotPixelClusterSplitter
             TotPixelClusterSplitter=InDet__TotPixelClusterSplitter (name="TotPixelClusterSplitter")

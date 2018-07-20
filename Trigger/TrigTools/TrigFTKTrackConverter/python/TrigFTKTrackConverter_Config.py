@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from TrigFTKTrackConverter.TrigFTKTrackConverterConf import  TrigFTKTrackConverter
 from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
@@ -70,11 +70,14 @@ from TrigFTKTrackConverter.TrigFTKTrackConverterConf import  TrigFTKClusterConve
 class ConfiguredTrigFTKTool(TrigFTKClusterConverterTool):
     def __init__(self, name = "ConfiguredTrigFTKClusterConverterTool"):
         TrigFTKClusterConverterTool.__init__(self, name) 
-        # SiLorentzAngleTool for SCT
         from AthenaCommon.AppMgr import ToolSvc
+        if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
+            from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+            sctLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
         if not hasattr(ToolSvc, "SCTLorentzAngleTool"):
             from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
             sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+        TrigFTKClusterConverterTool.PixelLorentzAngleTool = ToolSvc.PixelLorentzAngleTool
         TrigFTKClusterConverterTool.SCTLorentzAngleTool = ToolSvc.SCTLorentzAngleTool
                                                             
 

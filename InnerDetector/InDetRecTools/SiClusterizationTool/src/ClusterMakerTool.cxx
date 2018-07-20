@@ -202,7 +202,6 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   Amg::Vector2D locpos(localPos[Trk::locX]+shift, localPos[Trk::locY]);
   // find global position of element
   Amg::Vector3D globalPos = element->globalPosition(localPosition);
-
   // error matrix
   const Amg::Vector2D& colRow = width.colRow();// made ref to avoid 
                                              // unnecessary copy EJWM
@@ -396,7 +395,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   Amg::Vector2D locpos(localPos[Trk::locX]+shift, localPos[Trk::locY]);
 // find global position of element
   Amg::Vector3D globalPos = element->globalPosition(localPosition);
-        
+
   // error matrix
   const Amg::Vector2D& colRow = width.colRow();// made ref to avoid 
                                              // unnecessary copy EJWM
@@ -473,6 +472,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
                     split,
                     splitProb1,
                     splitProb2);
+
  return newCluster;
 
 }

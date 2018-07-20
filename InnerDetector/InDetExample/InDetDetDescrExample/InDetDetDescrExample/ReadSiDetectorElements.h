@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetDetDescrExample_ReadSiDetectorElements_h
@@ -24,9 +24,6 @@ namespace InDetDD{
   class SiDetectorElement;
 }
 
-class ISiliconConditionsSvc;
-class ISiPropertiesSvc;
-class ISiLorentzAngleSvc;
 class AtlasDetectorID;
 class PixelID;
 class SCT_ID;
@@ -53,9 +50,6 @@ public:
   bool m_doLoop;
   bool m_doInit;
   bool m_doExec;
-  ServiceHandle<ISiLorentzAngleSvc> m_siLorentzAngleSvc;
-  ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
-  ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc;
   bool m_useConditionsTools;
   ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Silicon conditions tool"};
   ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "SiPropertiesTool", "Silicon properties tool"};

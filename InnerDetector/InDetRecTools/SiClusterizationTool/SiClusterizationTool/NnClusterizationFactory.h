@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
  #ifndef BTAGTOOL_NnClusterizationFactory_C
@@ -35,6 +35,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 
  class TTrainedNetwork;
  class TH1;
@@ -204,6 +205,7 @@ namespace InDet {
      std::string m_thresholdIndicator;
 
     ToolHandle<Trk::NeuralNetworkToHistoTool> m_networkToHistoTool;
+    ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
     ServiceHandle<IPixelCalibSvc> m_calibSvc;
     
 

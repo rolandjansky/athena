@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,9 +22,6 @@
 // forward declare of this causes a compilation error (which I do not fully understand) 
 // in LazyOfflineSpacePointTool in a trigger package (T.L.)
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
-
-//class PixelConditionsSummarySvc;
-//template <class T> class ServiceHandle;
 
 class PixelID;
 

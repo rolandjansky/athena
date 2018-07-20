@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,6 +23,8 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 
 #include <string>
 #include <vector>
@@ -87,6 +89,7 @@ private:
   const PixelID* m_pixel_ID;                             //!< Handle to the ID helper
 
   ToolHandle<InDet::ClusterMakerTool>  m_clusterMaker;   //!< ToolHandle to ClusterMaker
+  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "PixelLorentzAngleTool", "Tool to retreive Lorentz angle"};
   bool                                  m_pixUseClusterMaker; //!< use the pixel cluster maker or not
 
   InDet::PixelClusterContainer*         m_pixelClusterContainer;               //!< the PixelClusterContainer

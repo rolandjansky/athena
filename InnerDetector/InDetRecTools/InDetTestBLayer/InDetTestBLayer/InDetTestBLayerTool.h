@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetTestBLayerTool_H
@@ -114,7 +114,7 @@ namespace InDet {
     ToolHandle< Trk::IExtrapolator >  m_extrapolator;    
 
     /** Handles to IConditionsSummaryServices for Pixels */
-    ToolHandle <IInDetConditionsTool> m_pixelCondSummaryTool;
+    ToolHandle <IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelSummaryTool", "PixelConditionsSummaryTool/InDetPixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
 
     /** pointer to the residual pull calculator **/
     ToolHandle < Trk::IResidualPullCalculator > m_residualPullCalculator;

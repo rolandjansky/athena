@@ -14,7 +14,7 @@ PixelDCSCondHVAlg::PixelDCSCondHVAlg(const std::string& name, ISvcLocator* pSvcL
 }
 
 StatusCode PixelDCSCondHVAlg::initialize() {
-  ATH_MSG_INFO("PixelDCSCondHVAlg::initialize()");
+  ATH_MSG_DEBUG("PixelDCSCondHVAlg::initialize()");
 
   ATH_CHECK(m_condSvc.retrieve());
 
@@ -28,7 +28,7 @@ StatusCode PixelDCSCondHVAlg::initialize() {
 }
 
 StatusCode PixelDCSCondHVAlg::execute() {
-  ATH_MSG_INFO("PixelDCSCondHVAlg::execute()");
+  ATH_MSG_DEBUG("PixelDCSCondHVAlg::execute()");
 
   SG::WriteCondHandle<PixelDCSConditionsData> writeHandle(m_writeKey);
   if (writeHandle.isValid()) {
@@ -79,7 +79,7 @@ StatusCode PixelDCSCondHVAlg::execute() {
 }
 
 StatusCode PixelDCSCondHVAlg::finalize() {
-  ATH_MSG_INFO("PixelDCSCondHVAlg::finalize()");
+  ATH_MSG_DEBUG("PixelDCSCondHVAlg::finalize()");
   return StatusCode::SUCCESS;
 }
 

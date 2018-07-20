@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -142,6 +142,7 @@ StatusCode TrigFTKClusterConverterTool::initialize() {
     return sc; 
   } 
 
+  ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
   ATH_CHECK(m_sctLorentzAngleTool.retrieve());
 
   ATH_MSG_INFO("TrigFTKClusterConverterTool initialized ");
@@ -296,7 +297,7 @@ InDet::PixelCluster* TrigFTKClusterConverterTool::createPixelCluster(IdentifierH
 
   InDet::SiWidth siWidth(Amg::Vector2D(phiWidth,etaWidth),Amg::Vector2D(phiW,etaW)); 
 
-  double shift = pDE->getLorentzCorrection();
+  double shift = m_pixelLorentzAngleTool->getLorentzShift(hash);
   Amg::Vector2D position(phiPos+shift,etaPos);
 
   std::vector<Identifier> rdoList;

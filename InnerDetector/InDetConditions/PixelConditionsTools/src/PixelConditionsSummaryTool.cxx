@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SIMULATIONBASE
@@ -9,7 +9,6 @@
 
 #include "InDetIdentifier/PixelID.h"
 
-#include "PixelConditionsServices/IPixelDCSSvc.h"
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 #include "PixelConditionsServices/ISpecialPixelMapSvc.h"
 #include "PixelConditionsData/SpecialPixelMap.h"
@@ -20,13 +19,11 @@
 #include "PixelGeoModel/IBLParameterSvc.h"
 
 PixelConditionsSummaryTool::PixelConditionsSummaryTool(const std::string& type, const std::string& name, const IInterface* parent)
-  :
-  AthAlgTool(type, name, parent),
+  :AthAlgTool(type, name, parent),
   m_detStore("DetectorStore", name),
   m_pixelID(0),
   m_specialPixelMapKey("SpecialPixelMap"),
   m_specialPixelMapSvc("SpecialPixelMapSvc", name),
-  m_pixelDCSSvc("PixelDCSSvc", name),
   m_IBLParameterSvc("IBLParameterSvc",name),
   m_pixelBSErrorsSvc("PixelByteStreamErrorsSvc", name),
   m_pixelTDAQSvc("PixelTDAQSvc", name),
@@ -53,85 +50,51 @@ PixelConditionsSummaryTool::PixelConditionsSummaryTool(const std::string& type, 
 
 PixelConditionsSummaryTool::~PixelConditionsSummaryTool(){}
 
-
-
-
-//======== queryInterface, initialize, finalize
-
-
 StatusCode PixelConditionsSummaryTool::initialize(){
-  msg(MSG::INFO) << "Initializing PixelConditionsSummaryTool" << endmsg;
+  ATH_MSG_DEBUG("PixelConditionsSummaryTool::initialize()");
+
   ATH_CHECK(m_specialPixelMapKey.initialize());
 
-  StatusCode sc = setProperties();
-  if( !sc.isSuccess() ){
-    msg(MSG::FATAL) << "Unable to set properties" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(setProperties());
+
   if (m_IBLParameterSvc.retrieve().isFailure()) {
     msg(MSG::WARNING) << "Could not retrieve IBLParameterSvc" << endmsg;
   }
   else {
     m_IBLParameterSvc->setBoolParameters(m_useSpecialPixelMap,"EnableSpecialPixels");
   }
-  sc = m_detStore.retrieve();
-  if( !sc.isSuccess() ){
-    msg(MSG::FATAL) << "Unable to retrieve detector store" << endmsg;
-    return StatusCode::FAILURE;
+
+  ATH_CHECK(m_detStore.retrieve());
+
+  if (m_useDCS) {
+    ATH_CHECK(m_DCSConditionsTool.retrieve());
   }
 
-  if(m_useDCS){
-    if (StatusCode::SUCCESS!=m_pixelDCSSvc.retrieve()) {
-      msg(MSG::FATAL) << "Unable to retrieve PixelDCSSvc" << endmsg;
-      return StatusCode::FAILURE;
-    }
-    msg(MSG::INFO) << "PixelDCSSvc retrieved" << endmsg;
+  if (m_useBS) {
+    ATH_CHECK(m_pixelBSErrorsSvc.retrieve());
   }
 
-  if(m_useBS){
-    if (StatusCode::SUCCESS!=m_pixelBSErrorsSvc.retrieve()) {
-      msg(MSG::FATAL) << "Unable to retrieve PixelBSErrorSvc" << endmsg;
-      return StatusCode::FAILURE;
-    }
-    msg(MSG::INFO) << "PixelBSErrorsSvc retrieved" << endmsg;
-  }
+  ATH_CHECK(m_detStore->retrieve(m_pixelID,"PixelID"));
 
-  sc = m_detStore->retrieve( m_pixelID, "PixelID" );
-  if( !sc.isSuccess() ){
-    ATH_MSG_FATAL( "Unable to retrieve pixel ID helper" );
-    return StatusCode::FAILURE;
-  }
+  if (m_useSpecialPixelMap) {
+    ATH_CHECK(m_specialPixelMapSvc.retrieve());
 
-  if(m_useSpecialPixelMap){
-    sc = m_specialPixelMapSvc.retrieve();
-
-    if( !sc.isSuccess() ){
-      msg(MSG::FATAL) << "Unable to retrieve SpecialPixelMapSvc" << endmsg;
-      return StatusCode::FAILURE;
-    }
-
-    if(m_specialPixelMapSvc->getNPixelMaps() == 0){
-      msg(MSG::WARNING) << "No special pixel maps configured" << endmsg;
-      msg(MSG::WARNING) << "Disabling use of special pixel maps" << endmsg;
+    if (m_specialPixelMapSvc->getNPixelMaps()==0) {
+      ATH_MSG_WARNING("No special pixel maps configured");
+      ATH_MSG_WARNING("Disabling use of special pixel maps");
       m_useSpecialPixelMap = false;
     }
-    else{
+    else {
       //Callback removed for athena MT
     }
   }
 
-  if(m_useTDAQ){
-    sc = m_pixelTDAQSvc.retrieve();
-
-    if( !sc.isSuccess() ){
-      ATH_MSG_FATAL("Unable to retrieve PixelTDAQSvc");
-      return StatusCode::FAILURE;
-    }
+  if (m_useTDAQ) {
+    ATH_CHECK(m_pixelTDAQSvc.retrieve());
   }
 
   return StatusCode::SUCCESS;
 }
-
 
 StatusCode PixelConditionsSummaryTool::queryInterface(const InterfaceID& riid, void** ppvIf){
 
@@ -150,22 +113,16 @@ StatusCode PixelConditionsSummaryTool::queryInterface(const InterfaceID& riid, v
   return StatusCode::SUCCESS;
 }
 
+bool PixelConditionsSummaryTool::isActive(const Identifier & elementId, const InDetConditions::Hierarchy h) const {
 
-
-//======== isActive methods
-
-
-bool PixelConditionsSummaryTool::isActive(const Identifier & elementId, const InDetConditions::Hierarchy h) const{
-
-  //Identifier moduleID       = m_pixelID->wafer_id(elementId);
   IdentifierHash moduleHash = m_pixelID->wafer_hash(elementId);
 
-  if(m_useBS && !m_pixelBSErrorsSvc->isActive(moduleHash)) return false;
+  if (m_useBS && !m_pixelBSErrorsSvc->isActive(moduleHash)) { return false; }
 
-  if(m_useDCS){
+  if (m_useDCS) {
 
     bool isDCSActive = false;
-    std::string dcsState = m_pixelDCSSvc->getFSMState(moduleHash);
+    std::string dcsState = m_DCSConditionsTool->PixelFSMState(moduleHash);
 
     for(unsigned int istate=0; istate<m_isActiveStates.size(); istate++){
       if(m_isActiveStates[istate] == dcsState) isDCSActive = true;
@@ -218,8 +175,7 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash & elementHash) co
   if(m_useDCS){
 
     bool isDCSActive = false;
-    std::string dcsState = m_pixelDCSSvc->getFSMState(elementHash);
-
+    std::string dcsState = m_DCSConditionsTool->PixelFSMState(elementHash);
 
     for(unsigned int istate=0; istate<m_isActiveStates.size(); istate++){
       if(m_isActiveStates[istate] == dcsState) isDCSActive = true;
@@ -251,7 +207,7 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash & elementHash, co
   if(m_useDCS){
 
     bool isDCSActive = false;
-    std::string dcsState = m_pixelDCSSvc->getFSMState(elementHash);
+    std::string dcsState = m_DCSConditionsTool->PixelFSMState(elementHash);
 
     for(unsigned int istate=0; istate<m_isActiveStates.size(); istate++){
       if(m_isActiveStates[istate] == dcsState) isDCSActive = true;
@@ -291,7 +247,7 @@ double PixelConditionsSummaryTool::activeFraction(const IdentifierHash & element
   if(m_useDCS){
 
     bool isDCSActive = false;
-    std::string dcsState = m_pixelDCSSvc->getFSMState(elementHash);
+    std::string dcsState = m_DCSConditionsTool->PixelFSMState(elementHash);
 
     for(unsigned int istate=0; istate<m_isActiveStates.size(); istate++){
       if(m_isActiveStates[istate] == dcsState) isDCSActive = true;
@@ -365,10 +321,9 @@ bool PixelConditionsSummaryTool::isGood(const Identifier & elementId, const InDe
   if(m_useDCS){
 
     bool isDCSActive = false;
-    std::string dcsState = m_pixelDCSSvc->getFSMState(moduleHash);
+    std::string dcsState = m_DCSConditionsTool->PixelFSMState(moduleHash);
     bool isDCSGood = false;
-    std::string dcsStatus = m_pixelDCSSvc->getFSMStatus(moduleHash);
-
+    std::string dcsStatus = m_DCSConditionsTool->PixelFSMStatus(moduleHash);
 
     for(unsigned int istate=0; istate<m_isActiveStates.size(); istate++){
       if(m_isActiveStates[istate] == dcsState) isDCSActive = true;
@@ -439,9 +394,9 @@ bool PixelConditionsSummaryTool::isGood(const IdentifierHash & elementHash) cons
    if(m_useDCS){
 
     bool isDCSActive = false;
-    std::string dcsState = m_pixelDCSSvc->getFSMState(elementHash);
+    std::string dcsState = m_DCSConditionsTool->PixelFSMState(elementHash);
     bool isDCSGood = false;
-    std::string dcsStatus = m_pixelDCSSvc->getFSMStatus(elementHash);
+    std::string dcsStatus = m_DCSConditionsTool->PixelFSMStatus(elementHash);
 
     for(unsigned int istate=0; istate<m_isActiveStates.size(); istate++){
       if(m_isActiveStates[istate] == dcsState) isDCSActive = true;
@@ -476,9 +431,9 @@ bool PixelConditionsSummaryTool::isGood(const IdentifierHash & elementHash, cons
    if(m_useDCS){
 
     bool isDCSActive = false;
-    std::string dcsState = m_pixelDCSSvc->getFSMState(elementHash);
+    std::string dcsState = m_DCSConditionsTool->PixelFSMState(elementHash);
     bool isDCSGood = false;
-    std::string dcsStatus = m_pixelDCSSvc->getFSMStatus(elementHash);
+    std::string dcsStatus = m_DCSConditionsTool->PixelFSMStatus(elementHash);
 
     for(unsigned int istate=0; istate<m_isActiveStates.size(); istate++){
       if(m_isActiveStates[istate] == dcsState) isDCSActive = true;
@@ -520,9 +475,9 @@ double PixelConditionsSummaryTool::goodFraction(const IdentifierHash & elementHa
   if(m_useDCS){
 
     bool isDCSActive = false;
-    std::string dcsState = m_pixelDCSSvc->getFSMState(elementHash);
+    std::string dcsState = m_DCSConditionsTool->PixelFSMState(elementHash);
     bool isDCSGood = false;
-    std::string dcsStatus = m_pixelDCSSvc->getFSMStatus(elementHash);
+    std::string dcsStatus = m_DCSConditionsTool->PixelFSMStatus(elementHash);
 
     for(unsigned int istate=0; istate<m_isActiveStates.size(); istate++){
       if(m_isActiveStates[istate] == dcsState) isDCSActive = true;

@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //Local
 #include "InDetGlobalErrorMonTool.h"
 
 #include "InDetIdentifier/PixelID.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 
@@ -23,7 +22,6 @@ InDetGlobalErrorMonTool::InDetGlobalErrorMonTool( const std::string & type,
   m_pixID( 0 ),
   m_pixManager( 0 ),
   m_sctManager( 0 ),
-  m_pixCond("PixelConditionsSummarySvc", name),
   m_ErrorSvc("PixelByteStreamErrorsSvc",name),
   m_errorGeoPixel(),
   m_disabledGeoPixel(),
@@ -58,10 +56,7 @@ StatusCode InDetGlobalErrorMonTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if (m_pixCond.retrieve().isFailure()){
-    msg(MSG::ERROR) << "Could not retrieve Pixel conditions service!" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_pixelCondSummaryTool.retrieve());
 
   ATH_CHECK(m_ConfigurationTool.retrieve());
   ATH_CHECK(m_byteStreamErrTool.retrieve());
@@ -302,7 +297,7 @@ bool InDetGlobalErrorMonTool::SyncPixel()
       IdentifierHash waferHash = m_pixID->wafer_hash((*fit));
       
       // Inactive module, flagging time!
-      if ( m_pixCond->isActive( waferHash ) == false )
+      if ( m_pixelCondSummaryTool->isActive( waferHash ) == false )
 	{
 	  moduleGeo_t moduleGeo;
 	  
@@ -316,7 +311,7 @@ bool InDetGlobalErrorMonTool::SyncPixel()
 	  
 	}
       // Bad module, flagging time!
-      if ( m_pixCond->isActive( waferHash ) == true && m_pixCond->isGood( waferHash ) == false )
+      if ( m_pixelCondSummaryTool->isActive( waferHash ) == true && m_pixelCondSummaryTool->isGood( waferHash ) == false )
 	{
 	  moduleGeo_t moduleGeo;
 	  

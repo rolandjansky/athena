@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -314,6 +314,7 @@ void PixelGangedAmbiguitiesFinder::execute(
       rmNumber++;
     }    
     if(msgLvl(MSG::DEBUG)) msg() << rmNumber << " fake clusters from ganged pixel have been removed" << endmsg;
+
 }
   
 

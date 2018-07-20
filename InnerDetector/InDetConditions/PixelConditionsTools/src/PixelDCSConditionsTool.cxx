@@ -10,7 +10,7 @@ PixelDCSConditionsTool::PixelDCSConditionsTool(const std::string& type, const st
   m_pixid(nullptr),
   m_useDB(true),
   m_isDATA(true),
-  m_defaultTemperature(-5.0),
+  m_defaultTemperature(-7.0),
   m_defaultBiasVoltage(150.0),
   m_defaultDepletionVoltage(40.0)
 {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,9 +31,7 @@
 #include "CLHEP/Geometry/Point3D.h"
 
 #include "PixelConditionsServices/IPixelCalibSvc.h"
-#include "PixelConditionsServices/IPixelDCSSvc.h"
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
-#include "InDetCondServices/ISiLorentzAngleSvc.h"
 
 #define AUXDATA(OBJ, TYP, NAME) \
   static const SG::AuxElement::Accessor<TYP> acc_##NAME (#NAME);  acc_##NAME(*(OBJ))
@@ -48,9 +46,7 @@ PixelPrepDataToxAOD::PixelPrepDataToxAOD(const std::string &name, ISvcLocator *p
   m_PixelHelper(0),
   m_useSiHitsGeometryMatching(true),
   m_calibSvc("PixelCalibSvc", name),
-  m_pixelDCSSvc("PixelDCSSvc", name),
   m_pixelBSErrorsSvc("PixelByteStreamErrorsSvc", name),
-  m_lorentzAngleSvc("PixelLorentzAngleSvc", name),
   m_firstEventWarnings(true)
 { 
   // --- Steering and configuration flags
@@ -91,11 +87,11 @@ StatusCode PixelPrepDataToxAOD::initialize()
 
   CHECK(m_calibSvc.retrieve());
 
-  CHECK(m_pixelDCSSvc.retrieve());
+  ATH_CHECK(m_DCSConditionsTool.retrieve());
 
   CHECK(m_pixelBSErrorsSvc.retrieve());
 
-  CHECK(m_lorentzAngleSvc.retrieve());
+  ATH_CHECK(m_lorentzAngleTool.retrieve());
 
   ATH_CHECK(m_clustercontainer_key.initialize());
   m_need_sihits = (m_writeNNinformation || m_writeSiHits) && m_useTruthInfo;
@@ -227,12 +223,11 @@ StatusCode PixelPrepDataToxAOD::execute()
       if(m_writeRDOinformation) {
         IdentifierHash moduleHash = clusterCollection->identifyHash();
         AUXDATA(xprd,int,isBSError) = (int)m_pixelBSErrorsSvc->isActive(moduleHash);
-        AUXDATA(xprd,std::string,DCSState) = (std::string)m_pixelDCSSvc->getFSMState(moduleHash);
-
-        AUXDATA(xprd,float,BiasVoltage) = (float)m_lorentzAngleSvc->getBiasVoltage(moduleHash);
-        AUXDATA(xprd,float,Temperature) = (float)m_lorentzAngleSvc->getTemperature(moduleHash);
-        AUXDATA(xprd,float,DepletionVoltage) = (float)m_lorentzAngleSvc->getDepletionVoltage(moduleHash);
-        AUXDATA(xprd,float,LorentzShift) = (float)m_lorentzAngleSvc->getLorentzShift(moduleHash);
+        AUXDATA(xprd,std::string,DCSState) = (std::string)m_DCSConditionsTool->PixelFSMState(moduleHash);
+        AUXDATA(xprd,float,BiasVoltage) = (float)m_DCSConditionsTool->biasVoltage(moduleHash);
+        AUXDATA(xprd,float,Temperature) = (float)m_DCSConditionsTool->temperature(moduleHash);
+        AUXDATA(xprd,float,DepletionVoltage) = (float)m_DCSConditionsTool->depletionVoltage(moduleHash);
+        AUXDATA(xprd,float,LorentzShift) = (float)m_lorentzAngleTool->getLorentzShift(moduleHash);
 
         addRdoInformation(xprd,  prd);
       } 
@@ -835,7 +830,7 @@ void PixelPrepDataToxAOD::addNNInformation(xAOD::TrackMeasurementValidation* xpr
   float trknormcomp = trackDir.dot(module_normal);
   double bowphi     = atan2(trkphicomp,trknormcomp);
   double boweta     = atan2(trketacomp,trknormcomp);
-  double tanl = de->getTanLorentzAnglePhi();
+  double tanl = m_lorentzAngleTool->getTanLorentzAngle(de->identifyHash());
   if(bowphi > TMath::Pi()/2) bowphi -= TMath::Pi();
   if(bowphi < -TMath::Pi()/2) bowphi += TMath::Pi();
   int readoutside = design->readoutSide();
@@ -933,8 +928,7 @@ void  PixelPrepDataToxAOD::addNNTruthInfo(  xAOD::TrackMeasurementValidation* xp
 		return;
 	}
   // lorentz shift correction    
-  double shift = de->getLorentzCorrection();
-  
+  double shift = m_lorentzAngleTool->getLorentzShift(de->identifyHash());
   unsigned hitNumber(0);
   for( auto& siHit : matchingHits ){
     
@@ -1011,7 +1005,8 @@ void  PixelPrepDataToxAOD::addNNTruthInfo(  xAOD::TrackMeasurementValidation* xp
     //Truth Track incident angle theta
     theta[hitNumber] = atan2(diffPositions.z() ,diffPositions.x());
     //Truth track incident angle phi -- correct for lorentz angle
-    float tanlorentz = de->getTanLorentzAnglePhi();
+    float tanlorentz = m_lorentzAngleTool->getTanLorentzAngle(de->identifyHash());
+  
     int readoutside = design->readoutSide();
     phi[hitNumber] = atan(tan(bowphi)-readoutside*tanlorentz);
     

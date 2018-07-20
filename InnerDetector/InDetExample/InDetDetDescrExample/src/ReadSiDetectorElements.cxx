@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetDetDescrExample/ReadSiDetectorElements.h"
@@ -17,8 +17,6 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "Identifier/Identifier.h"
-#include "InDetCondServices/ISiLorentzAngleSvc.h"
-#include "SiPropertiesSvc/ISiPropertiesSvc.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
 
 #include "InDetReadoutGeometry/SiLocalPosition.h"
@@ -46,9 +44,6 @@ ReadSiDetectorElements::ReadSiDetectorElements(const std::string& name, ISvcLoca
   AthAlgorithm(name, pSvcLocator),
   m_managerName("Pixel"),  // or SCT
   m_doLoop(true),
-  m_siLorentzAngleSvc("PixelLorentzAngleSvc",name),
-  m_siConditionsSvc("PixelSiliconConditionsSvc",name),
-  m_siPropertiesSvc("PixelSiPropertiesSvc",name),
   m_manager(0),
   m_idHelper(0),
   m_pixelIdHelper(0),
@@ -61,9 +56,6 @@ ReadSiDetectorElements::ReadSiDetectorElements(const std::string& name, ISvcLoca
   declareProperty("DoInitialize", m_doInit = false);
   declareProperty("DoExecute",    m_doExec = true);
   declareProperty("UseConditionsTools", m_useConditionsTools = false);
-  declareProperty("SiLorentzAngleSvc", m_siLorentzAngleSvc);
-  declareProperty("SiConditionsSvc", m_siConditionsSvc);
-  declareProperty("SiPropertiesSvc", m_siPropertiesSvc);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -104,18 +96,6 @@ StatusCode ReadSiDetectorElements::initialize(){
     ATH_CHECK(m_siConditionsTool.retrieve());
     ATH_CHECK(m_siPropertiesTool.retrieve());
   } else {
-    StatusCode sc = m_siLorentzAngleSvc.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Could not retrieve Lorentz Angle Svc: " << m_siLorentzAngleSvc.name() );
-    }
-    sc = m_siPropertiesSvc.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Could not retrieve silicon properties svc: " << m_siPropertiesSvc.name() );
-    }
-    sc = m_siConditionsSvc.retrieve();
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Could not retrieve silicon conditions service: " << m_siConditionsSvc.name() );
-    }
     m_siLorentzAngleTool.disable();
     m_siConditionsTool.disable();
     m_siPropertiesTool.disable();
@@ -172,29 +152,15 @@ void ReadSiDetectorElements::printAllElements() {
                          << m_siConditionsTool->temperature(hashId) << " "
                          << m_siConditionsTool->biasVoltage(hashId) << " "
                          << m_siConditionsTool->depletionVoltage(hashId));
-        } else {
-          ATH_MSG_ALWAYS(" Temperature (C), bias voltage, depletion voltage: "
-                         << m_siConditionsSvc->temperature(hashId) << " "
-                         << m_siConditionsSvc->biasVoltage(hashId) << " "
-                         << m_siConditionsSvc->depletionVoltage(hashId));
         }
 
-        if (m_manager->getName() == "Pixel") {
-          //msg(MSG::ALWAYS) << "Via SiDetectorElement:"
-          ATH_MSG_ALWAYS(" Lorentz correction (mm), tanLorentzPhi = "
-                         << element->getLorentzCorrection()/CLHEP::mm << " "
-                         << element->getTanLorentzAnglePhi());
-        } else {
-          //msg(MSG::ALWAYS) << "Direct from SiLorentzAngleSvc:"
-          ATH_MSG_ALWAYS(" Lorentz correction (mm), tanLorentzPhi = "
-                         << m_siLorentzAngleTool->getLorentzShift(hashId)/CLHEP::mm << " "
-                         << m_siLorentzAngleTool->getTanLorentzAngle(hashId));
-        }
+        //msg(MSG::ALWAYS) << "Direct from SiLorentzAngleSvc:"
+        ATH_MSG_ALWAYS(" Lorentz correction (mm), tanLorentzPhi = "
+            << m_siLorentzAngleTool->getLorentzShift(hashId)/CLHEP::mm << " "
+            << m_siLorentzAngleTool->getTanLorentzAngle(hashId));
 
         // These are no longer accessed through the detector element.
-        const InDet::SiliconProperties & siProperties = m_useConditionsTools
-          ? m_siPropertiesTool->getSiProperties(hashId)
-          : m_siPropertiesSvc->getSiProperties(hashId);
+        const InDet::SiliconProperties & siProperties = m_siPropertiesTool->getSiProperties(hashId);
         ATH_MSG_ALWAYS(" Hall Mobility (cm2/volt/s), Drift mobility (cm2/volt/s), diffusion constant (cm2/s) = " 
                        << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
                        << siProperties.driftMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
@@ -529,32 +495,16 @@ ReadSiDetectorElements::testElement(const Identifier & id,
                    );
     ATH_MSG_ALWAYS(" center: r (mm) = " <<  element->center().perp()/CLHEP::mm 
                    << ", phi (deg) = " <<  element->center().phi()/CLHEP::deg);
-    const InDet::SiliconProperties & siProperties = m_useConditionsTools
-      ? m_siPropertiesTool->getSiProperties(hashId)
-      : m_siPropertiesSvc->getSiProperties(hashId);
-    if (m_manager->getName() == "Pixel") {
-      ATH_MSG_ALWAYS(" Lorentz correction (mm), mobility (cm2/V/s), tanLorentzPhi = "
-                     << element->getLorentzCorrection()/CLHEP::mm << " "
-                     << element->getLorentzCorrection()/CLHEP::mm << " "
-                     << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " "
-                     << element->getTanLorentzAnglePhi());
-    } else {
-      ATH_MSG_ALWAYS(" Lorentz correction (mm), mobility (cm2/V/s), tanLorentzPhi = "
-                     << m_siLorentzAngleTool->getLorentzShift(hashId)/CLHEP::mm << " "
-                     << element->getLorentzCorrection()/CLHEP::mm << " "
-                     << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " "
-                     << m_siLorentzAngleTool->getTanLorentzAngle(hashId));
-    }
+    const InDet::SiliconProperties & siProperties = m_siPropertiesTool->getSiProperties(hashId);
+    ATH_MSG_ALWAYS(" Lorentz correction (mm), mobility (cm2/V/s), tanLorentzPhi = "
+                   << m_siLorentzAngleTool->getLorentzShift(hashId)/CLHEP::mm << " "
+                   << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " "
+                   << m_siLorentzAngleTool->getTanLorentzAngle(hashId));
     if (m_useConditionsTools) {
       ATH_MSG_ALWAYS(" Temperature (C), bias voltage, depletion voltage: "
                      << m_siConditionsTool->temperature(hashId) << " "
                      << m_siConditionsTool->biasVoltage(hashId) << " "
                      << m_siConditionsTool->depletionVoltage(hashId));
-    } else {
-      ATH_MSG_ALWAYS(" Temperature (C), bias voltage, depletion voltage: "
-                     << m_siConditionsSvc->temperature(hashId) << " "
-                     << m_siConditionsSvc->biasVoltage(hashId) << " "
-                     << m_siConditionsSvc->depletionVoltage(hashId));
     }
     ATH_MSG_ALWAYS(" sin(tilt), tilt (deg), sin(stereo), stereo (deg) = " 
                    << element->sinTilt() << ", " 

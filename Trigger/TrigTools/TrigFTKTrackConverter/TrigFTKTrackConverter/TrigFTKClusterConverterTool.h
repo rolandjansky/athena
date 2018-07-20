@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //implementation
@@ -75,6 +75,7 @@ private:
   const InDetDD::PixelDetectorManager* m_pixelManager;
   const InDetDD::SCT_DetectorManager* m_SCT_Manager;
 
+  ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
   ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
   ToolHandle<Trk::ITrackFitter> m_trackFitter;
   bool m_doFit;

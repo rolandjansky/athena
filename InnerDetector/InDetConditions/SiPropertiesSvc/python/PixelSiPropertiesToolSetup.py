@@ -8,7 +8,7 @@ class PixelSiPropertiesToolSetup:
         self.alg = None
         self.toolName = "PixelSiPropertiesTool"
         self.tool = None
-        self.siliconTool = None
+#        self.siliconTool = None
 
     def getAlgName(self):
         return self.algName
@@ -28,23 +28,21 @@ class PixelSiPropertiesToolSetup:
     def getTool(self):
         return self.tool
 
-    def setSiliconTool(self, siliconTool):
-        self.siliconTool = siliconTool
+#    def setSiliconTool(self, siliconTool):
+#        self.siliconTool = siliconTool
 
     def setAlg(self):
+        from AthenaCommon.AppMgr import ToolSvc
+        if not hasattr(ToolSvc, "PixelDCSConditionsTool"):
+            from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
+            pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
+            pixelDCSConditionsToolSetup.setup()
+
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
-
         if not hasattr(condSeq, self.algName):
             from SiPropertiesSvc.SiPropertiesSvcConf import PixelSiPropertiesCondAlg
-            condSeq += PixelSiPropertiesCondAlg(name = self.algName)
-
-#            if self.siliconTool is None:
-#                condSeq += PixelSiPropertiesCondAlg(name = self.algName)
-#            else:
-#                condSeq += PixelSiPropertiesCondAlg(name = self.algName,
-#                                                  SiConditionsTool = self.siliconTool)
-
+            condSeq += PixelSiPropertiesCondAlg(name = self.algName, PixelDCSConditionsTool=ToolSvc.PixelDCSConditionsTool)
         self.alg = getattr(condSeq, self.algName)
 
     def setTool(self):

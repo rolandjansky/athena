@@ -19,7 +19,7 @@ PixelSiPropertiesCondAlg::PixelSiPropertiesCondAlg(const std::string& name, ISvc
 }
 
 StatusCode PixelSiPropertiesCondAlg::initialize() {
-  ATH_MSG_INFO("PixelSiPropertiesCondAlg::initialize()");
+  ATH_MSG_DEBUG("PixelSiPropertiesCondAlg::initialize()");
 
   ATH_CHECK(detStore()->retrieve(m_detManager,"Pixel"));
   ATH_CHECK(detStore()->retrieve(m_pixid,"PixelID"));
@@ -39,7 +39,7 @@ StatusCode PixelSiPropertiesCondAlg::initialize() {
 }
 
 StatusCode PixelSiPropertiesCondAlg::execute() {
-  ATH_MSG_INFO("PixelSiPropertiesCondAlg::execute()");
+  ATH_MSG_DEBUG("PixelSiPropertiesCondAlg::execute()");
 
   SG::WriteCondHandle<InDet::SiliconPropertiesVector> writeHandle(m_writeKey);
   if (writeHandle.isValid()) {
@@ -116,7 +116,7 @@ StatusCode PixelSiPropertiesCondAlg::execute() {
 }
 
 StatusCode PixelSiPropertiesCondAlg::finalize() {
-  ATH_MSG_INFO("PixelSiPropertiesCondAlg::finalize()");
+  ATH_MSG_DEBUG("PixelSiPropertiesCondAlg::finalize()");
   return StatusCode::SUCCESS;
 }
 

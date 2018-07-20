@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigOnlineSpacePointTool/FastPixelClusterization.h"
@@ -438,9 +438,7 @@ void FastPixelClusterization::addCluster(const Identifier& pixId,
 
 	Amg::Vector2D w1(widthPhi, widthRz);
 	Amg::Vector2D dummy(rdoWidthPhi, rdoWidthRz);
-// STSTST  IdentifierHash hashId = m_pixelID->wafer_hash(pixId);
   double shift = m_lorentzAngleTool->getLorentzShift(m_pixelID->wafer_hash(pixId));
-  std::cout << "STSTST FastPixelClusterization " << shift << " " << m_pixelID->wafer_hash(pixId) << std::endl;
 	Amg::Vector2D localpos(centrePhi+shift, centreRz);
 	InDet::SiWidth siwidth(dummy, w1);
 	Amg::MatrixX* locErrMat = nullptr; //No error matrix

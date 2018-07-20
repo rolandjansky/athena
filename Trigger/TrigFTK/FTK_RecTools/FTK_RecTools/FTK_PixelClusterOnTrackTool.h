@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,6 +27,7 @@
 //#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 //#include "PixelConditionsTools/IModuleDistortionsTool.h"
 
+#include "InDetCondServices/ISiLorentzAngleTool.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 class PixelID;
 class IPixelOfflineCalibSvc;
@@ -131,6 +132,7 @@ public:
 
   ToolHandle<IModuleDistortionsTool>            m_pixDistoTool    ;
   ToolHandle<Trk::IRIO_OnTrackErrorScalingTool> m_errorScalingTool;
+  ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool", "Tool to retreive Lorentz angle"};
   ServiceHandle<IPixelOfflineCalibSvc>          m_calibSvc        ;
   StoreGateSvc*                                 m_detStore        ;
   /* ME: Test histos have nothing to do with production code, use a flag

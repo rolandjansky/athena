@@ -16,8 +16,6 @@ if use_broad_cluster_sct == None :
 # detector specific settings will override the global setting:
 use_broad_cluster_any = use_broad_cluster_pix or use_broad_cluster_sct
 
-print "STSTST InDetRecLoadTool 1"
-
 #load common NN tools for clustering and ROT creation
 if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
 
@@ -54,18 +52,12 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
             from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
             pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
 
-        if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
-            print "STSTST",ToolSvc
-            print "STSTST",pixelLorentzAngleToolSetup
-
-        print "STSTST InDetRecLoadTools"
-
         from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory
 
         from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
         if ( not geoFlags.Run() in ["RUN2", "RUN3"] ) :
             NnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "NnClusterizationFactory",
-#                                                                      PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool,
+                                                                      PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool,
                                                                       NetworkToHistoTool   = NeuralNetworkToHistoTool,
                                                                       doRunI = True,
                                                                       useToT = False,
@@ -78,7 +70,7 @@ if InDetFlags.doPixelClusterSplitting() and not InDetFlags.doSLHC():
 
         else:
             NnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "NnClusterizationFactory",
-#                                                                      PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool,
+                                                                      PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool,
                                                                       NetworkToHistoTool   = NeuralNetworkToHistoTool,
                                                                       LoadNoTrackNetwork   = True,
                                                                       useToT = InDetFlags.doNNToTCalibration(),
@@ -105,21 +97,13 @@ elif InDetFlags.doPixelClusterSplitting():
         from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
         pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
 
-    if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
-        print "STSTST",ToolSvc
-        print "STSTST",pixelLorentzAngleToolSetup
-
-    print "STSTST InDetRecLoadTools X"
-
     from SiClusterizationTool.SiClusterizationToolConf import InDet__TruthClusterizationFactory
-    NnClusterizationFactory = InDet__TruthClusterizationFactory( name                 = "TruthClusterizationFactory")
-#                                                                 PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool)
+    NnClusterizationFactory = InDet__TruthClusterizationFactory( name                 = "TruthClusterizationFactory",
+                                                                 PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool)
     ToolSvc += NnClusterizationFactory
     if (InDetFlags.doPrintConfigurables()):
         print NnClusterizationFactory
 
-
-print "STSTST InDetRecLoadTool 2"
 
 # --- load cabling (if needed)
 include("InDetRecExample/InDetRecCabling.py")
@@ -138,10 +122,7 @@ from TrkEventCnvTools import TrkEventCnvToolsConfig
 # ----------- control loading of ROT_creator
 #
 
-print "STSTST InDetRecLoadTool 3 ",InDetFlags.loadRotCreator()
-
 if InDetFlags.loadRotCreator():
-
     #
     # --- configure default ROT creator
     #
@@ -882,17 +863,27 @@ if InDetFlags.loadAssoTool():
 #
 # ----------- control loading of SummaryTool
 #
+
 if InDetFlags.loadSummaryTool():
 
     from TrkTrackSummaryTool.AtlasTrackSummaryTool import AtlasTrackSummaryTool
     AtlasTrackSummaryTool = AtlasTrackSummaryTool()
     ToolSvc += AtlasTrackSummaryTool
 
+    if not hasattr(ToolSvc, "PixelConditionsSummaryTool"):
+        from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
+        pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
+        pixelConditionsSummaryToolSetup.setUseDCS((globalflags.DataSource=='data'))
+        pixelConditionsSummaryToolSetup.setUseBS((globalflags.DataSource=='data'))
+        pixelConditionsSummaryToolSetup.setup()
+
+
     #
     # Loading Pixel test tool
     #
     from InDetTestPixelLayer.InDetTestPixelLayerConf import InDet__InDetTestPixelLayerTool
     InDetTestPixelLayerTool = InDet__InDetTestPixelLayerTool(name = "InDetTestPixelLayerTool",
+                                                             PixelSummaryTool = ToolSvc.PixelConditionsSummaryTool,
                                                              CheckActiveAreas=InDetFlags.checkDeadElementsOnTrack(),
                                                              CheckDeadRegions=InDetFlags.checkDeadElementsOnTrack(),
                                                              CheckDisabledFEs=InDetFlags.checkDeadElementsOnTrack())
@@ -906,6 +897,7 @@ if InDetFlags.loadSummaryTool():
     from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
     InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "InDetHoleSearchTool",
                                                           Extrapolator = InDetExtrapolator,
+                                                          PixelSummaryTool = ToolSvc.PixelConditionsSummaryTool,
                                                           usePixel      = DetFlags.haveRIO.pixel_on(),
                                                           useSCT        = DetFlags.haveRIO.SCT_on(),                                                          
                                                           CountDeadModulesAfterLastHit = True,
@@ -930,7 +922,7 @@ if InDetFlags.loadSummaryTool():
     if DetFlags.haveRIO.pixel_on() :
         from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
         InDetRecTestBLayerTool = InDet__InDetTestBLayerTool(name            = "InDetRecTestBLayerTool",
-                                                            PixelSummaryTool = InDetPixelConditionsSummaryTool,
+                                                            PixelSummaryTool = ToolSvc.PixelConditionsSummaryTool,
                                                             Extrapolator    = InDetExtrapolator)
         ToolSvc += InDetRecTestBLayerTool
         if (InDetFlags.doPrintConfigurables()):

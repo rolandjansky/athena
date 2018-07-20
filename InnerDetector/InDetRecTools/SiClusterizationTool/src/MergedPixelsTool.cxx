@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -192,7 +192,7 @@ namespace InDet {
 						       const PixelID& pixelID) const
   {
     // Get the messaging service, print where you are
-    
+
     Identifier elementID = collection.identify();
     
     // Get hash Identifier for these RDOs
@@ -212,7 +212,6 @@ namespace InDet {
     // If module is bad, do not create a cluster collection
     if (m_useModuleMap &&  !(m_summaryTool->isGood(idHash))) 
       return 0;
-    
     
     typedef InDetRawDataCollection<PixelRDORawData> RDO_Collection;
     
@@ -667,6 +666,7 @@ namespace InDet {
 	*lvl1group=0;
 	lvl1group++;
       }
+
     return clusterCollection;
   }
 
@@ -895,6 +895,7 @@ PixelCluster* MergedPixelsTool::makeCluster
             splitProb2);
         return cluster;
     }
+
 }
 //--------------------------------------------------------------------------
   // Determines if a pixel cell (whose identifier is the first argument) is 
@@ -940,7 +941,6 @@ void MergedPixelsTool::checkForMerge(const Identifier& id,
     // Look at each of groups that haven't already been checked to see if
     // RDO identifier is in any of them. If so, copy vector to base group and 
     // the vector that has been copied.
-
     typedef RDO_Vector::const_iterator idIterator;
     typedef TOT_Vector::const_iterator totIterator;
     MergedPixelsTool::RDO_GroupVector::const_iterator nextGroup(baseGroup+1);

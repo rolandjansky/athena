@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 
 # ------------------------------------------------------------
@@ -92,17 +92,53 @@ if InDetTrigFlags.loadRotCreator():
   from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__PixelClusterOnTrackTool
   from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
 
+  from TrkNeuralNetworkUtils.TrkNeuralNetworkUtilsConf import Trk__NeuralNetworkToHistoTool
+  NeuralNetworkToHistoTool=Trk__NeuralNetworkToHistoTool(name = "NeuralNetworkToHistoTool")
+  
+  ToolSvc += NeuralNetworkToHistoTool
+  if (InDetTrigFlags.doPrintConfigurables()):
+    print NeuralNetworkToHistoTool
+
+  from SiClusterizationTool.SiClusterizationToolConf import InDet__NnClusterizationFactory
+  from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
+  if ( not geoFlags.Run() in ["RUN2", "RUN3"] ) :
+    NnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "NnClusterizationFactory",
+                                                              PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool,
+                                                              NetworkToHistoTool   = NeuralNetworkToHistoTool,
+                                                              doRunI = True,
+                                                              useToT = False,
+                                                              useRecenteringNNWithoutTracks = True,
+                                                              useRecenteringNNWithTracks = False,
+                                                              correctLorShiftBarrelWithoutTracks = 0,
+                                                              correctLorShiftBarrelWithTracks = 0.030,
+                                                              LoadNoTrackNetwork   = True,
+                                                              LoadWithTrackNetwork = True)
+  else:
+    NnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "NnClusterizationFactory",
+                                                              PixelLorentzAngleTool= ToolSvc.PixelLorentzAngleTool,
+                                                              NetworkToHistoTool   = NeuralNetworkToHistoTool,
+                                                              LoadNoTrackNetwork   = True,
+                                                              useToT = InDetTrigFlags.doNNToTCalibration(),
+                                                              LoadWithTrackNetwork = True)
+         
+  ToolSvc += NnClusterizationFactory
+
+  from IOVDbSvc.CondDB import conddb
+  if not conddb.folderRequested('/PIXEL/PixelClustering/PixelClusNNCalib'):
+    conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelClusNNCalib")
+  if InDetTrigFlags.doTIDE_RescalePixelCovariances() :
+    if not conddb.folderRequested('/PIXEL/PixelClustering/PixelCovCorr'):
+      conddb.addFolder("PIXEL_OFL","/PIXEL/PixelClustering/PixelCovCorr")
+
+  if (InDetTrigFlags.doPrintConfigurables()):
+    print NnClusterizationFactory
+
   InDetTrigPixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetTrigPixelClusterOnTrackTool",
                                      PixelOfflineCalibSvc=PixelConditionsSetup.instanceName('PixelOfflineCalibSvc'),
                                      ErrorStrategy = 2,
-#                                     LorentzAngleTool = PixelConditionsSetup.instanceName('PixelLorentzAngleTool'))
                                      LorentzAngleTool = ToolSvc.PixelLorentzAngleTool)
 
-  print "STSTST InDetTrigConfigRecLoadTools 1"
-
   ToolSvc += InDetTrigPixelClusterOnTrackTool
-
-  print "STSTST InDetTrigConfigRecLoadTools 2"
 
   if (InDetTrigFlags.doPrintConfigurables()):
     print InDetTrigPixelClusterOnTrackTool
@@ -596,9 +632,7 @@ if InDetTrigFlags.loadFitter():
 
 
 if DetFlags.haveRIO.pixel_on():
-  from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
-  from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
-  InDetTrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(PixelConditionsSetup.instanceName('PixelConditionsSummaryTool'))
+  InDetTrigPixelConditionsSummaryTool = ToolSvc.PixelConditionsSummaryTool
 else:
   InDetTrigPixelConditionsSummaryTool = None
 

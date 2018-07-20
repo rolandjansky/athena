@@ -3,40 +3,29 @@
 class PixelLorentzAngleToolSetup:
     "Class to simplify setup of PixelLorentzAngleTool"
     def __init__(self):
-        from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
-        pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
+        from AthenaCommon.AppMgr import ToolSvc
+        if not hasattr(ToolSvc, "PixelDCSConditionsTool"):
+            from PixelConditionsTools.PixelDCSConditionsToolSetup import PixelDCSConditionsToolSetup
+            pixelDCSConditionsToolSetup = PixelDCSConditionsToolSetup()
+            pixelDCSConditionsToolSetup.setup()
 
-        # CHECK CHECK!!! For HLT
-        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+        if not hasattr(ToolSvc, "PixelSiPropertiesTool"):
+            from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
+            pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
+            pixelSiPropertiesToolSetup.setup()
 
-        if athenaCommonFlags.isOnline():
-            from AthenaCommon.GlobalFlags import globalflags
-            pixelDCSConditionsToolSetup.setDbInstance("PIXEL_ONL")
-            pixelDCSConditionsToolSetup.setHVFolder("/PIXEL/HLT/DCS/HV")
-            pixelDCSConditionsToolSetup.setTempFolder("/PIXEL/HLT/DCS/TEMPERATURE")
-
-        pixelDCSConditionsToolSetup.setup()
-
-        from SiPropertiesSvc.PixelSiPropertiesToolSetup import PixelSiPropertiesToolSetup
-        pixelSiPropertiesToolSetup = PixelSiPropertiesToolSetup()
-        pixelSiPropertiesToolSetup.setSiliconTool(pixelDCSConditionsToolSetup.getTool())
-        pixelSiPropertiesToolSetup.setup()
-
-        # Set up PixelSiLorentzAngleCondAlg
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
         if not hasattr(condSeq, "PixelSiLorentzAngleCondAlg"):
             from SiLorentzAngleSvc.SiLorentzAngleSvcConf import PixelSiLorentzAngleCondAlg
             from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
             condSeq += PixelSiLorentzAngleCondAlg(name = "PixelSiLorentzAngleCondAlg",
-                                                  PixelDCSConditionsTool = pixelDCSConditionsToolSetup.getTool(),
-                                                  SiPropertiesTool = pixelSiPropertiesToolSetup.getTool(),
+                                                  PixelDCSConditionsTool = ToolSvc.PixelDCSConditionsTool,
+                                                  SiPropertiesTool = ToolSvc.PixelSiPropertiesTool,
                                                   UseMagFieldSvc = True,
                                                   UseMagFieldDcs = (not athenaCommonFlags.isOnline()))
         pixelSiLorentzAngleCondAlg = condSeq.PixelSiLorentzAngleCondAlg
 
-        # Set up PixelLorentzAngleTool
-        from AthenaCommon.AppMgr import ToolSvc
         if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
             from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleTool
             ToolSvc += SiLorentzAngleTool(name="PixelLorentzAngleTool", DetectorName="Pixel", SiLorentzAngleCondData="PixelSiLorentzAngleCondData")

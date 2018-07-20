@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -272,6 +272,7 @@ StatusCode FTK_DataProviderSvc::initialize() {
   ATH_CHECK(m_RawVertexFinderTool.retrieve());
   ATH_MSG_INFO( " getting ROTcreator tool with name " << m_ROTcreator.name());
   ATH_CHECK(m_ROTcreator.retrieve());
+  ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
   ATH_CHECK(m_sctLorentzAngleTool.retrieve());
 
   // Register incident handler
@@ -1996,8 +1997,8 @@ const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const FTK_RawPi
       pixel_cluster_on_track = m_ROTcreator->correct(*pixel_cluster,trkPerigee);
     } 
     if (!m_correctPixelClusters || pixel_cluster_on_track==nullptr) {
-      double shift = pixelDetectorElement->getLorentzCorrection();
-       Amg::Vector2D locPos(pixel_cluster->localPosition()[Trk::locX]+shift,pixel_cluster->localPosition()[Trk::locY]);
+      const double shift = m_pixelLorentzAngleTool->getLorentzShift(hash);
+      Amg::Vector2D locPos(pixel_cluster->localPosition()[Trk::locX]+shift,pixel_cluster->localPosition()[Trk::locY]);
       ATH_MSG_VERBOSE("locX "<< pixel_cluster->localPosition()[Trk::locX] << " locY " << pixel_cluster->localPosition()[Trk::locY] << " lorentz shift " << shift);
       pixel_cluster_on_track=new InDet::PixelClusterOnTrack (pixel_cluster,
 							     locPos,

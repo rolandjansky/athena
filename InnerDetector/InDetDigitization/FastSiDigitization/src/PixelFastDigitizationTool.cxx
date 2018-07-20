@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -208,6 +208,7 @@ StatusCode PixelFastDigitizationTool::initialize()
     ATH_MSG_DEBUG ( m_gangedAmbiguitiesFinder.propertyName() << ": Retrieved tool " << m_gangedAmbiguitiesFinder.type() );
   }
 
+  ATH_CHECK(m_lorentzAngleTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -589,10 +590,11 @@ StatusCode PixelFastDigitizationTool::digitize()
       // the delta ranges
       int deltaRawPhi = 0;
       // apply the lorentz correction
-      const double tanLorAng = m_pixTanLorentzAngleScalor*hitSiDetElement->getTanLorentzAnglePhi();
+      const IdentifierHash detElHash = hitSiDetElement->identifyHash();
+      const double tanLorAng = m_pixTanLorentzAngleScalor*m_lorentzAngleTool->getTanLorentzAngle(detElHash);
       const int lorentzDirection = tanLorAng > 0. ? 1 : -1;
       // shift parameters
-      const double shift = hitSiDetElement->getLorentzCorrection();
+      const double shift = m_lorentzAngleTool->getLorentzShift(detElHash);
       // validation filling
 
       // lorenz angle effects : offset goes against the lorentzAngle

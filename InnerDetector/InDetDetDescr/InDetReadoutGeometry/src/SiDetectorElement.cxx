@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -373,20 +373,9 @@ SiDetectorElement::updateConditionsCache() const
 {
   m_conditionsCacheValid = true;
 
-  // 
-  // Lorentz Angle related stuff
-  // 
-
-  if (isPixel() and m_commonItems->lorentzAngleSvc()) {
-    m_tanLorentzAnglePhi = m_commonItems->lorentzAngleSvc()->getTanLorentzAngle(m_idHash);
-    m_tanLorentzAngleEta = m_commonItems->lorentzAngleSvc()->getTanLorentzAngleEta(m_idHash);
-    m_lorentzCorrection = m_commonItems->lorentzAngleSvc()->getLorentzShift(m_idHash);
-  } else {
-    // Set to zero
-    m_tanLorentzAnglePhi = 0.;
-    m_tanLorentzAngleEta = 0.;
-    m_lorentzCorrection =  0.;
-  }
+  m_tanLorentzAnglePhi = 0.;
+  m_tanLorentzAngleEta = 0.;
+  m_lorentzCorrection =  0.;
 }
 
 
