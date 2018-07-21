@@ -33,7 +33,7 @@ pat="$2 $3"
 if [[ "$pat" = "-s "* ]]; then
     selectpatterns=`echo "$pat" | sed 's/-s\s*//'`
 else
-    extrapatterns="$pat"
+    extrapatterns="$2"
 fi
 
 #verbose="1"
