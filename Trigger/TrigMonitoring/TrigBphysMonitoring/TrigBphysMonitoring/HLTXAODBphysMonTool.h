@@ -68,11 +68,7 @@ private:
     StatusCode fillEfficiencyGroups(); //! fill the hists for the efficiency groups
     StatusCode fillEfficiencyGroup(const std::string & groupName, const std::string & chainName); //! helper method for dedicated Efficiency chains
 
-    StatusCode divideEfficiencyGroups(); //! fill the hists for the efficiency groups
-    StatusCode divideEfficiencyGroup(const std::string & denomGroupName, const std::string & numeratorGroupName,
-                                     const std::string & denominatorChainName, const std::string & numeratorChainName); //! helper method for dedicated Efficiency chains
-
-    
+        
     void bookTrigBphysHists(const std::string & trigname,const std::string & prefix, const std::string & path, const std::string & chainName, const bool fullSetOfHists = true);
     void fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, const std::string & trigItem,
                             const std::string & prefix, const std::string & path, const std::string & chainName, const bool fullSetOfHists = true);
@@ -81,10 +77,11 @@ private:
     // member variables
     ToolHandle<Trig::TrigDecisionTool> m_tdt;
     const Trig::ChainGroup *m_all;
+    //list for pair of muon track links for efficiency 
+    std::list<std::pair<const xAOD::TrackParticle *,const xAOD::TrackParticle *>> m_efficiency_denomnoVtxOS_pairs;   
 
     // vector of muon pairs to check if already put into histograms
     std::vector<std::pair<const xAOD::TrackParticle *,const xAOD::TrackParticle *>> m_muon_pairs_processed;
-    
     
     // property variables
     double m_muonMass; //! mass of muon
