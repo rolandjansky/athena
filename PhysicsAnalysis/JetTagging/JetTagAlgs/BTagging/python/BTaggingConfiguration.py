@@ -75,7 +75,6 @@ from BTagging.BTaggingConfiguration_SoftMuonTag import *
 from BTagging.BTaggingConfiguration_SV0Tag import *
 from BTagging.BTaggingConfiguration_SV1FlipTag import *
 from BTagging.BTaggingConfiguration_SV1Tag import *
-from BTagging.BTaggingConfiguration_SV1TrigHybridTag import *
 #from BTagging.BTaggingConfiguration_SV2FlipTag import *
 from BTagging.BTaggingConfiguration_SV2Tag import *
 

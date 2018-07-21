@@ -21,7 +21,6 @@ class _BTaggingFlags:
              'SV0', 'MultiSVbb1', 'MultiSVbb2',
              'SV1', 'SV1Flip',
              'SV2', 'SV2Flip',
-             'SV1TrigHybrid',
              'JetProb', 'JetProbFlip',
              'IPFordG', 'IPFordGNeg',
              'SoftEl',
@@ -246,8 +245,6 @@ class _BTaggingFlags:
                 setattr(self, attr, True)
             if attr == 'SV1Flip':
                 setattr(self, attr, False)
-            if attr == 'SV1TrigHybrid':
-                setattr(self, attr, True)
             if attr == 'SV2':
                 setattr(self, attr, False)
             if attr == 'SV2Flip':
@@ -351,7 +348,7 @@ class _BTaggingFlags:
                                  'TrackCountingFlip', 'JetProb', 'JetProbFlip'])
 
         for attr in self._TriggerTaggers:
-            setattr(self, attr, ['IP2D', 'IP2DTrigHybrid', 'IP3D', 'IP3DTrigHybrid', 'SV1', 'SV1TrigHybrid',
+            setattr(self, attr, ['IP2D', 'IP2DTrigHybrid', 'IP3D', 'IP3DTrigHybrid', 'SV1',
                                  'MV2c10TrigHybrid', 'MV2c10', 'MV2c20'])
 
         for attr in self._jetFinderBasedOn:
