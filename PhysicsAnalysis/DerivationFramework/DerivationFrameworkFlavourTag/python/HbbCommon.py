@@ -202,18 +202,21 @@ def addVRJets(sequence, do_ghost=False, *pos_opts, **opts):
 
     VRJetName="AntiKtVR30Rmax4Rmin02Track"
     VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet"
-    if do_ghost:
-        ghost_suffix = "GhostTag"
-        VRJetName += ghost_suffix
-        VRGhostLabel += ghost_suffix
     VRJetAlg="AntiKt"
     VRJetRadius=0.4
     VRJetInputs='pv0track'
     VRJetOptions = dict(
-        ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
+        ghostArea = 0 , ptmin = 2000,
         variableRMinRadius = 0.02, variableRMassScale = 30000,
         calibOpt = "none")
 
+    # Change some options if we have do_ghost set to true. Hopefully
+    # this will be the only VR collection in the future.
+    if do_ghost:
+        ghost_suffix = "GhostTag"
+        VRJetName += ghost_suffix
+        VRGhostLabel += ghost_suffix
+        VRJetOptions['ptmin'] = 7000
 
     #==========================================================
     # Build VR jets
