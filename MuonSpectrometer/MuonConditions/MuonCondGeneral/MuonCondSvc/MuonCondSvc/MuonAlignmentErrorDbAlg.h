@@ -2,6 +2,10 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+/**
+  MuonAlignmentErrorDbAlg reads raw condition data and writes derived condition data (MuonAlignmentErrorData) to the condition store
+*/
+
 #ifndef MUONCONDSVC_MUONALIGNMENTERRORDBALG_H
 #define MUONCONDSVC_MUONALIGNMENTERRORDBALG_H
 

@@ -4,6 +4,10 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+/**
+   MuonAlignmentErrorData is condition data which is derived and recorded by MuonAlignmentErrorDbAlg
+ */
+
 #ifndef MUONALIGNMENTERRORDATA_H
 #define MUONALIGNMENTERRORDATA_H
 
@@ -45,18 +49,9 @@ private:
     
 };
 
-// https://twiki.cern.ch/twiki/bin/view/AtlasComputing/MultiThreadingConditionsAccess
-
-//#include "AthenaKernel/CondCont.h"
-//#include "SGTools/BaseInfo.h"
-//CONDCONT_DEF( CondCont<MuonAlignmentErrorData>, 265772564 );
-
-// http://acode-browser.usatlas.bnl.gov/lxr/source/athena/LArCalorimeter/LArCabling/LArCabling/LArOnOffIdMapping.h
-
 #include "CLIDSvc/CLASS_DEF.h"
 CLASS_DEF( MuonAlignmentErrorData, 115867308, 1)
 #include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<MuonAlignmentErrorData>, 265772564, 0)
-
 
 #endif
