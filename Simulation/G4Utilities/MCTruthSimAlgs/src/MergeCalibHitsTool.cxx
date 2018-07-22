@@ -83,9 +83,9 @@ StatusCode MergeCalibHitsTool::processBunchXing(int bunchXing,
       ATH_MSG_VERBOSE ( " Bunch Crossing: " <<bunchXing << ". Process CalibrationHit container " << m_CalibrationHitContainer[iHitContainer] );
       const CaloCalibrationHitContainer* hitCont;
       if (!m_pMergeSvc->retrieveSingleSubEvtData(m_CalibrationHitContainer[iHitContainer], hitCont,
-						 bunchXing, iEvt).isSuccess()){
-	ATH_MSG_ERROR("CaloCalibrationHitContainer not found for event key " << m_CalibrationHitContainer[iHitContainer]);
-	return StatusCode::FAILURE;
+                                                 bunchXing, iEvt).isSuccess()){
+        ATH_MSG_VERBOSE("CaloCalibrationHitContainer not found for event key " << m_CalibrationHitContainer[iHitContainer]);
+        continue;
       }
 
       //if this is the first SubEvent for this Event then create the hitContainers;
