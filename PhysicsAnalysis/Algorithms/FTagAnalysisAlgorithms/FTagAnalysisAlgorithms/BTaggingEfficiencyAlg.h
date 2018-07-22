@@ -11,10 +11,12 @@
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
+#include <SelectionHelpers/ISelectionAccessor.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <SystematicsHandles/SysReadHandle.h>
 #include <xAODJet/JetContainer.h>
+#include <memory>
 
 namespace CP
 {
@@ -67,7 +69,7 @@ namespace CP
 
     /// \brief the accessor for \ref m_selectionDecoration
   private:
-    std::unique_ptr<const SG::AuxElement::Accessor<SelectionType> > m_selectionAccessor;
+    std::unique_ptr<ISelectionAccessor> m_selectionAccessor;
 
     /// \brief only run the inefficency for all jets
   private:
