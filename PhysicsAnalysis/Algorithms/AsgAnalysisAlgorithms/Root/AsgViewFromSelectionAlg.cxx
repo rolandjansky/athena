@@ -12,6 +12,7 @@
 
 #include <AsgAnalysisAlgorithms/AsgViewFromSelectionAlg.h>
 
+#include <CxxUtils/fpcompare.h>
 #include <xAODEgamma/PhotonContainer.h>
 #include <xAODEgamma/ElectronContainer.h>
 #include <xAODJet/JetContainer.h>
@@ -44,6 +45,23 @@ namespace CP
       if (keep)
         output->push_back (particle);
     }
+
+    if (m_sortPt)
+    {
+      std::sort (output->begin(), output->end(), [] (const xAOD::IParticle *a, const xAOD::IParticle *b) {return CxxUtils::fpcompare::greater (a->pt(), b->pt());});
+    }
+
+    // If anyone might be concerned about efficiency here, this will
+    // add/sort a couple more entries than needed only to remove them
+    // from the vector afterwards, so there is a slight efficiency
+    // loss.  However, this option is not expected to be used very
+    // often and the algorithm is still expected to run quickly, so I
+    // decided to keep the code above simpler and just do this as a
+    // separate step, instead of trying to optimize this by
+    // integrating it with the code above.
+    if (output->size() > m_sizeLimit)
+      output->resize (m_sizeLimit);
+
     ANA_CHECK (evtStore()->record (output.release(), m_outputHandle.getName (sys)));
 
     return StatusCode::SUCCESS;
@@ -87,6 +105,8 @@ namespace CP
     /// isn't supported as a property type for AnaAlgorithm right now
     declareProperty ("selection", m_selection, "the list of selection decorations");
     declareProperty ("ignore", m_ignore, "the list of cuts to *ignore* for each selection");
+    declareProperty ("sortPt", m_sortPt, "whether to sort objects in pt");
+    declareProperty ("sizeLimit", m_sizeLimit, "the limit on the size of the output container");
   }
 
 

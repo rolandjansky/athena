@@ -15,6 +15,7 @@
 #include <SystematicsHandles/SysReadHandle.h>
 #include <SystematicsHandles/SysWriteHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
+#include <limits>
 
 namespace CP
 {
@@ -60,6 +61,12 @@ namespace CP
 
   private:
     std::vector<SelectionType> m_ignore;
+
+  private:
+    bool m_sortPt {false};
+
+  private:
+    std::size_t m_sizeLimit {std::numeric_limits<std::size_t>::max()};
 
     /// the list of accessors and cut ignore list
   private:
