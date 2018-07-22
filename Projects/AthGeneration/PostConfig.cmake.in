@@ -17,7 +17,7 @@ find_package( Gaudi REQUIRED )
 add_definitions( -DGENERATIONBASE )
  
 set( GENERATIONBASE TRUE CACHE BOOL
-    "Flag specifying that this is a generation release build" 
+    "Flag specifying that this is a generation release build" )
 
 # Load all the files from the externals/ subdirectory:
 get_filename_component( _thisdir ${CMAKE_CURRENT_LIST_FILE} PATH )
