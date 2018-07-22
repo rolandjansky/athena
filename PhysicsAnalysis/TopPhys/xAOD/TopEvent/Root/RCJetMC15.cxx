@@ -289,8 +289,8 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
 	   for (auto rcjet : *myJets){
 	   
 	     std::vector<fastjet::PseudoJet> clusters;
-	     // //  //SCALED CLUSTERS
-	     getScaledClusters(clusters,rcjet);
+	     // //  //EMTOPO CLUSTERS
+	     getEMTopoClusters(clusters,rcjet);
 	     //	//  // LCTOPO CLUSTERS
 	     //getLCTopoClusters(clusters,rcjet);
 		
@@ -516,7 +516,7 @@ bool RCJetMC15::passSelection(const xAOD::Jet& jet) const {
   return true;
 }
 
-void RCJetMC15::getScaledClusters(std::vector<fastjet::PseudoJet>& clusters,const xAOD::Jet* rcjet){
+void RCJetMC15::getEMTopoClusters(std::vector<fastjet::PseudoJet>& clusters,const xAOD::Jet* rcjet){
   
   clusters.clear();
   

@@ -83,7 +83,7 @@ public:
 
     bool passSelection(const xAOD::Jet& jet) const;
     
-    void getScaledClusters(std::vector<fastjet::PseudoJet>& clusters,const xAOD::Jet* rcjet);
+    void getEMTopoClusters(std::vector<fastjet::PseudoJet>& clusters,const xAOD::Jet* rcjet);
     void getLCTopoClusters(std::vector<fastjet::PseudoJet>& clusters,const xAOD::Jet* rcjet);
 
 
