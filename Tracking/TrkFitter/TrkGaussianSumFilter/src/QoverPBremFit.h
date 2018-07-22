@@ -17,7 +17,7 @@
 #include <vector>
 
 #include "GaudiKernel/ToolHandle.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkGaussianSumFilter/BremFind.h"
 
