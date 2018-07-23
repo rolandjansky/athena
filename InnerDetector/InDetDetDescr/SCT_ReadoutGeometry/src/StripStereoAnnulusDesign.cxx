@@ -36,7 +36,6 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
     m_R(centreR),
     m_lengthBF(2. * centreR * sin(stereoAngle / 2.)) // Eq. 5 p. 7
 {
-    SetSiDesignType(SiDesignType::SCT|SiDesignType::Stereo|SiDesignType::AnnulusDesign);
     if (nRows < 0) {
         throw std::runtime_error(
                   "ERROR: StripStereoAnnulusDesign called with negative number of rows");
@@ -74,6 +73,10 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
 
 StripStereoAnnulusDesign::~StripStereoAnnulusDesign() {
     delete m_bounds;
+}
+
+HepGeom::Point3D<double> StripStereoAnnulusDesign::sensorCenter() const {
+    return HepGeom::Point3D<double>(m_R, 0., 0.);
 }
 
 void StripStereoAnnulusDesign::getStripRow(SiCellId cellId, int *strip2D, int *rowNum) const {
@@ -161,10 +164,6 @@ SiLocalPosition StripStereoAnnulusDesign::localPositionOfCell(SiCellId const &ce
     getStripRow(cellId, &strip, &row);
     double r = (m_stripEndRadius[row] + m_stripStartRadius[row]) / 2.;
     return stripPosAtR(strip, row, r);
-}
-
-double StripStereoAnnulusDesign::localModuleCentreRadius() const {
-  return m_R;
 }
 
 SiLocalPosition StripStereoAnnulusDesign::stripPosAtR(int strip, int row, double r) const {

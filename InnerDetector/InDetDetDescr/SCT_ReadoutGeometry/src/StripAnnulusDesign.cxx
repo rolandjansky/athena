@@ -26,8 +26,6 @@ StripAnnulusDesign::StripAnnulusDesign(const SiDetectorDesign::Axis stripDirecti
     SCT_ModuleSideDesign(thickness, true, true, true, 1, 0, 0, 0, false, carrier,
                          readoutSide, stripDirection, thicknessDirection),m_nRows(nRows) {
 
-    SetSiDesignType(SiDesignType::SCT|SiDesignType::AnnulusDesign);
-
     if (nRows < 0) {
         throw std::runtime_error(
                   "ERROR: StripAnnulusDesign called with negative number of rows");
@@ -71,6 +69,11 @@ StripAnnulusDesign::StripAnnulusDesign(const SiDetectorDesign::Axis stripDirecti
 
 StripAnnulusDesign::~StripAnnulusDesign() {
     delete m_bounds;
+}
+
+HepGeom::Point3D<double> StripAnnulusDesign::sensorCenter() const {
+    double centerR = (m_stripStartRadius[0] + m_stripEndRadius.back()) / 2.;
+    return HepGeom::Point3D<double>(centerR, 0., 0.);
 }
 
 void StripAnnulusDesign::getStripRow(SiCellId cellId, int *strip2D, int *rowNum) const {

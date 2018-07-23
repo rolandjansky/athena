@@ -43,14 +43,6 @@ enum DetectorShape {
   Box=0, Trapezoid, Annulus,Other
 };
 
-enum SiDesignType{
-    SCT = 1,
-    Barrel = 2,
-    Stereo = 4,
-    AnnulusDesign = 8,
-    BoxDesign = 16
-};
-
 /** @class SiDetectorDesign
 
    Base class for the detector design classes for Pixel and SCT.
@@ -101,29 +93,14 @@ public:
     /** Destructor: */
     virtual ~SiDetectorDesign();
 
-    /**set SiDesignType */
-    void SetSiDesignType(int type){
-      m_designType |=  type;
-    }
-
-    /**clear SiDesignType */
-    void ClearSiDesignType(int type){
-      m_designType &= ~type;
-    }
-
     ///////////////////////////////////////////////////////////////////
     // Const methods:
     ///////////////////////////////////////////////////////////////////
     
-    /**get SiDesignType */
-    int GetSiDesignType() const {
-      return m_designType;
-    }
-
-    /**compare SiDesignType */
-    bool IsSiDesignType(int type) const {
-      return (m_designType&type) == type;
-    }
+    /** Return the centre of a sensor in the local reference frame. 
+        For most designs, this is the origin of the local reference frame.
+        For StripStereoAnnulusDesign, this is not the case (coordinate origin is "on the beamline") */
+    virtual HepGeom::Point3D<double> sensorCenter() const;
 
     /** Test if point is in the active part of the detector with specified tolerances */
     SiIntersect inDetector(const SiLocalPosition &localPosition, double phiTol,
@@ -152,10 +129,6 @@ public:
     /** Override default symmetries to prevent swapping of axes.
        NB. Flags can be changed from true to false but not false to true. */
     void setSymmetry(bool phiSymmetric, bool etaSymmetric, bool depthSymmetric);
-
-    /** only relevant for SCT_StripStereoAnnulusDesign.
-       return localModuleCentreRadius() if SCT_StripStereoAnnulusDesign; otherwise -1 */
-    virtual double localModuleCentreRadius() const ; 
 
     /** only relevant for SCT. Return strip1Dim(int strip, int row) if SCT; otherwise -1 */
     virtual int strip1Dim(int strip, int row) const;
@@ -280,7 +253,6 @@ private:
     // Private data:
     ///////////////////////////////////////////////////////////////////
 private:
-    int m_designType; // !< Identify the type of inherited class of SiDetectorDesign
     Axis m_etaAxis; // !< local axis corresponding to eta direction
     Axis m_phiAxis; // !< local axis corresponding to phi direction
     Axis m_depthAxis; // !< local axis corresponding to depth direction
@@ -337,10 +309,6 @@ inline bool SiDetectorDesign::depthSymmetric() const {
 
 inline int SiDetectorDesign::readoutSide() const {
     return (m_readoutSidePosDepth) ? +1 : -1;
-}
-
-inline double SiDetectorDesign::localModuleCentreRadius() const{
-    return -1.0; 
 }
 
 inline int SiDetectorDesign::strip1Dim(int, int) const{

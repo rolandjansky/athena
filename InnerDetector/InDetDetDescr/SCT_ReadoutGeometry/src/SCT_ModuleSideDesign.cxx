@@ -41,7 +41,6 @@ SCT_ModuleSideDesign::SCT_ModuleSideDesign(const double thickness,
     SiDetectorDesign(thickness, phiSymmetric, etaSymmetric, depthSymmetric, carrierType, readoutSide),
     m_scheme(crystals, diodes, cells, shift),
     m_swapStripReadout(swapStripReadout) {
-        SetSiDesignType(SiDesignType::SCT);
 }
 
 SCT_ModuleSideDesign::SCT_ModuleSideDesign(const double thickness,
