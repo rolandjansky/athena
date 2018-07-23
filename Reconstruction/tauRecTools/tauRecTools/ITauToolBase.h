@@ -7,6 +7,9 @@
 
 #include "AsgTools/IAsgTool.h"
 #include "tauRecTools/TauEventData.h"
+#include "xAODParticleEvent/Particle.h"
+#include "xAODParticleEvent/ParticleContainer.h"
+#include "xAODParticleEvent/ParticleAuxContainer.h"
 
 /**
  * @brief The base class for all tau tools.
@@ -44,6 +47,7 @@ class ITauToolBase : virtual public asg::IAsgTool
 					      xAOD::PFOContainer& hadronicPFOContainer, xAOD::CaloClusterContainer& caloClusterContainer ) = 0;
   virtual StatusCode executeVertexVariables(xAOD::TauJet& pTau, xAOD::VertexContainer& vertexContainer ) = 0;  
   virtual StatusCode executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& PFOContainer ) = 0;  
+  virtual StatusCode executePanTau(xAOD::TauJet& pTau, xAOD::ParticleContainer& particleContainer) =0;
 
   //-----------------------------------------------------------------
   //! Event finalizer - called at the end of each event
