@@ -68,9 +68,7 @@ class CaloNoiseDbExample: public AthAlgorithm
   //=== non-property members
   const xAOD::EventInfo*    m_evt;
   //
-  const DataHandle<CaloIdManager> m_caloIdMgr;
   const CaloCell_ID*       m_calo_id;
-  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
   
   //=== blob storage
   const DataHandle<CondAttrListCollection>                m_noiseAttrListColl;
