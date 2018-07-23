@@ -35,7 +35,8 @@ from TrigEgammaRec.TrigEgammaToolFactories import (TrigCaloIsolationTool,
         TrigEMShowerBuilder,
         TrigEgammaTopoClusterCopier,
         TrigElectronSuperClusterBuilder, 
-        TrigPhotonSuperClusterBuilder
+        TrigPhotonSuperClusterBuilder,
+        TrigEMBremCollectionBuilder                                                   
         )
 
 def configureTrigEgammaMonitoring(tool):
@@ -59,7 +60,8 @@ TrigEgammaRec = Factory(TrigEgammaRecConf.TrigEgammaRec, name="TrigEgammaRec",do
     # Tools with non-default configuration
     TrackMatchBuilderTool = TrigEMTrackMatchBuilder,
     ShowerBuilderTool = TrigEMShowerBuilder,
-    
+    BremCollectionBuilderTool = TrigEMBremCollectionBuilder,
+                        
     # Set the isolation tools
     TrackIsolationTool = TrigTrackIsolationTool, 
     CaloCellIsolationTool = TrigCaloIsolationTool, 

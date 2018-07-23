@@ -615,8 +615,8 @@ void TrigEgammaPlotTool::bookAbsResolutionHistos(const std::string directory){
     cd(directory);    
     addHistogram(new TH1F("res_pt", "HLT p_{T} resolution; (p_{T}(on)-p_{T}(off)) ; Count", 200, -1.5, 1.5));
     addHistogram(new TH1F("res_et", "HLT E_{T} resolution; (E_{T}(on)-E_{T}(off)) ; Count", 200, -0.5, 0.5));
-    addHistogram(new TH1F("res_eta", "#eta resolution; (#eta(on)-#eta(off)) ; Count", 40, -0.2, 0.2));
-    addHistogram(new TH1F("res_phi", "#phi resolution; (#phi(on)-#phi(off)) ; Count", 40, -0.2, 0.2));
+    addHistogram(new TH1F("res_eta", "#eta resolution; (#eta(on)-#eta(off)) ; Count", 40, -0.001, 0.001));
+    addHistogram(new TH1F("res_phi", "#phi resolution; (#phi(on)-#phi(off)) ; Count", 40, -0.001, 0.001));
 
     addHistogram(new TH2F("res_etVsEta", "HLT E_{T} resolution as function of #eta; #eta; (E_{T}(on)-E_{T}(off)); Count",
                 50, -2.47, 2.47,
@@ -690,8 +690,8 @@ void TrigEgammaPlotTool::bookAbsResolutionHistos(const std::string directory){
 void TrigEgammaPlotTool::bookResolutionHistos(const std::string directory){
     cd(directory);
     addHistogram(new TH1F("res_et", "E_{T} resolution; (E_{T}(on)-E_{T}(off))/E_{T}(off) ; Count", 100, -0.1, 0.1));
-    addHistogram(new TH1F("res_eta", "#eta resolution; (#eta(on)-#eta(off))/#eta(off) ; Count", 40, -0.2, 0.2));
-    addHistogram(new TH1F("res_phi", "#phi resolution; (#phi(on)-#phi(off))/#phi(off) ; Count", 40, -0.2, 0.2));
+    addHistogram(new TH1F("res_eta", "#eta resolution; (#eta(on)-#eta(off))/#eta(off) ; Count", 40, -0.001, 0.001));
+    addHistogram(new TH1F("res_phi", "#phi resolution; (#phi(on)-#phi(off))/#phi(off) ; Count", 40, -0.001, 0.001));
     addHistogram(new TH2F("res_etVsEta", "E_{T} resolution as function of #eta; #eta; (E_{T}(on)-E_{T}(off))/E_{T}(off); Count",
                 25, -2.5, 2.5,
                 50, -0.1, 0.1));
