@@ -55,7 +55,7 @@ StatusCode MergeGenericMuonSimHitCollTool::processBunchXing(int bunchXing,
     // loop over containers
     for (unsigned int iHitContainer=0;iHitContainer<m_SimHitContainerNames.size();++iHitContainer) {
       ATH_MSG_VERBOSE ( " Bunch Crossing: " <<bunchXing << ". Process GenericMuonSimHitCollection " << m_SimHitContainerNames[iHitContainer] );
-      const GenericMuonSimHitCollection* hitCont;
+      const GenericMuonSimHitCollection* hitCont = nullptr;
       if (!m_pMergeSvc->retrieveSingleSubEvtData(m_SimHitContainerNames[iHitContainer], hitCont,
 						 bunchXing, iEvt).isSuccess()){
 	ATH_MSG_ERROR("GenericMuonSimHitCollection not found for event key " << m_SimHitContainerNames[iHitContainer]);
