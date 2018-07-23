@@ -8,7 +8,6 @@
 #include "TopAnalysis/EventSaverBase.h"
 #include "TopCorrections/ScaleFactorRetriever.h"
 #include "TopEventSelectionTools/TreeManager.h"
-#include "TopObjectSelectionTools/RCJetMC15.h"
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
@@ -16,8 +15,6 @@
 #include "AthContainers/DataVector.h"
 #include <unordered_map>
 
-// fwd declare particle-level class
-class ParticleLevelRCJetObjectLoader;
 
 namespace top {
 
@@ -583,14 +580,13 @@ private:
     std::string m_RCJetContainer;       // name for RC jets container in TStore
     std::vector<std::string> m_VarRCJetRho;
     std::vector<std::string> m_VarRCJetMassScale;
-    std::unique_ptr<RCJetMC15> m_rc;
-    std::map<std::string,std::unique_ptr<RCJetMC15> > m_VarRC;
     std::string m_egamma;      // egamma systematic naming scheme
     std::string m_muonsyst;    // muon systematic naming scheme
     std::string m_jetsyst;     // jet systematic naming scheme
-    std::unordered_map<std::size_t, JetReclusteringTool*> m_jetReclusteringTool;
     std::map<std::string,std::vector<float>> m_VarRCjetBranches;
     std::map<std::string,std::vector<std::vector<float>>> m_VarRCjetsubBranches;
+    std::map<std::string,std::vector<float>> m_VarRCjetBranchesParticle;
+    std::map<std::string,std::vector<std::vector<float>>> m_VarRCjetsubBranchesParticle;
     std::vector<int> m_rcjet_nsub;
     std::vector<float> m_rcjet_pt;
     std::vector<float> m_rcjet_eta;
@@ -843,11 +839,6 @@ private:
     std::vector<int> m_ljet_Ghosts_CHadron_Final_Count;
     std::vector<std::vector<int>> m_rcjetsub_Ghosts_BHadron_Final_Count;
     std::vector<std::vector<int>> m_rcjetsub_Ghosts_CHadron_Final_Count;
-
-    // for rc jets at particle level
-    std::unique_ptr<ParticleLevelRCJetObjectLoader> m_rcjet_particle;
-    std::string m_RCJetContainerParticle;       // name for RC jets container
-
 
     // Truth tree inserted variables
     // This can be expanded as required
@@ -1161,12 +1152,9 @@ protected:
   const std::string& RCJetContainer() const { return m_RCJetContainer;} // name for RC jets container in TStore
   const std::vector<std::string>& VarRCJetRho() const { return m_VarRCJetRho;}
   const std::vector<std::string>& VarRCJetMassScale() const { return m_VarRCJetMassScale;}
-  const std::unique_ptr<RCJetMC15>& rc() const { return m_rc;}
-  const std::map<std::string,std::unique_ptr<RCJetMC15> >& VarRC() const { return m_VarRC;}
   const std::string& egamma() const { return m_egamma;} // egamma systematic naming scheme
   const std::string& muonsyst() const { return m_muonsyst;} // muon systematic naming scheme
   const std::string& jetsyst() const { return m_jetsyst;} // jet systematic naming scheme
-  const std::unordered_map<std::size_t, JetReclusteringTool*>& jetReclusteringTool() const { return m_jetReclusteringTool;}
   const std::map<std::string,std::vector<float>>& VarRCjetBranches() const { return m_VarRCjetBranches;}
   const std::map<std::string,std::vector<std::vector<float>>>& VarRCjetsubBranches() const { return m_VarRCjetsubBranches;}
   const std::vector<int>& rcjet_nsub() const { return m_rcjet_nsub;}
@@ -1377,10 +1365,6 @@ protected:
   const std::vector<int>& ljet_Ghosts_CHadron_Final_Count() const { return m_ljet_Ghosts_CHadron_Final_Count;}
   const std::vector<std::vector<int>>& rcjetsub_Ghosts_BHadron_Final_Count() const { return m_rcjetsub_Ghosts_BHadron_Final_Count;}
   const std::vector<std::vector<int>>& rcjetsub_Ghosts_CHadron_Final_Count() const { return m_rcjetsub_Ghosts_CHadron_Final_Count;}
-
-  // for rc jets at particle level
-  const std::unique_ptr<ParticleLevelRCJetObjectLoader>& rcjet_particle() const { return m_rcjet_particle;}
-  const std::string& RCJetContainerParticle() const { return m_RCJetContainerParticle;} // name for RC jets container
 
   // Truth tree inserted variables
   // This can be expanded as required

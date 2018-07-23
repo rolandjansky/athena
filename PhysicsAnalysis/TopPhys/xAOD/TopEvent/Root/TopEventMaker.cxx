@@ -23,6 +23,10 @@
 
 #include "TopPartons/PartonHistory.h"
 
+#include <boost/algorithm/string.hpp>
+
+#include <iostream>
+
 namespace top {
 
   TopEventMaker::TopEventMaker( const std::string& name ) :
@@ -30,6 +34,34 @@ namespace top {
     m_config(nullptr)
   {
     declareProperty( "config" , m_config );
+  }
+  
+  StatusCode TopEventMaker::initialize(){
+    if (m_config->useRCJets() == true){
+      m_rc=std::unique_ptr<RCJetMC15> ( new RCJetMC15( "RCJetMC15" ) );
+      top::check(m_rc->setProperty( "config" , m_config ) , "Failed to set config property of RCJetMC15");
+      top::check(m_rc->initialize(),"Failed to initialize RCJetMC15");
+    }
+    
+    if (m_config->useVarRCJets() == true){
+      boost::split(m_VarRCJetRho, m_config->VarRCJetRho(), boost::is_any_of(","));
+      boost::split(m_VarRCJetMassScale, m_config->VarRCJetMassScale(), boost::is_any_of(","));
+
+      for (auto& rho : m_VarRCJetRho){
+	for (auto& mass_scale : m_VarRCJetMassScale){
+	  std::replace( rho.begin(), rho.end(), '.', '_');
+	  std::string name = rho+mass_scale;
+	  m_VarRC[name] = std::unique_ptr<RCJetMC15> ( new RCJetMC15( "VarRCJetMC15_"+name ) );
+	  top::check(m_VarRC[name]->setProperty( "config" , m_config ) , "Failed to set config property of VarRCJetMC15");
+	  top::check(m_VarRC[name]->setProperty( "VarRCjets", true ) , "Failed to set VarRCjets property of VarRCJetMC15");
+	  top::check(m_VarRC[name]->setProperty( "VarRCjets_rho",  rho ) , "Failed to set VarRCjets rho property of VarRCJetMC15");
+	  top::check(m_VarRC[name]->setProperty( "VarRCjets_mass_scale", mass_scale ) , "Failed to set VarRCjets mass scale property of VarRCJetMC15");
+	  top::check(m_VarRC[name]->initialize(),"Failed to initialize VarRCJetMC15");
+	} // end loop over mass scale parameters (e.g., top mass, w mass, etc.)
+      } // end loop over mass scale multiplies (e.g., 1.,2.,etc.)
+    }
+    
+    return StatusCode::SUCCESS;
   }
   
   /// As top-xaod isn't an asg::AsgTool, it doesn't have access to all the information
@@ -249,6 +281,7 @@ namespace top {
       xAOD::JetContainer* calibratedJetsTDS(nullptr);
       top::check(evtStore()->retrieve(calibratedJetsTDS, m_config->sgKeyJetsTDS(hash,looseJets) ), "Failed to retrieve taus");  
       
+      
       for (auto index : currentSystematic.goodJets()) {
         auto jet = calibratedJetsTDS->at(index);
 
@@ -274,6 +307,44 @@ namespace top {
       event.m_jets.sort(top::descendingPtSorter);
       
     }
+
+    // Reclustered jets
+    if (m_config->useRCJets()){
+      top::check(m_rc->execute(event),"Failed to execute RCJetMC15 container");
+      std::string rcJetContainerName = m_rc->rcjetContainerName(event.m_hashValue,event.m_isLoose);
+      const xAOD::JetContainer* rc_jets(nullptr);
+      top::check(evtStore()->retrieve(rc_jets,rcJetContainerName),"Failed to retrieve RC JetContainer");
+      //Object selection
+      for (auto rcjet : *rc_jets){
+	top::check( rcjet->isAvailable<bool>("PassedSelection") , " Can't find jet decoration \"PassedSelection\" - we need it to decide if we should keep the reclustered jet in the top::Event instance or not!");
+	if(rcjet->auxdataConst<bool>("PassedSelection"))event.m_RCJets.push_back((xAOD::Jet*)rcjet);
+      }
+    }
+    // Variable-R reclustered jets
+    if (m_config->useVarRCJets()){
+      for (auto& rho : m_VarRCJetRho){
+	for (auto& mass_scale : m_VarRCJetMassScale){
+	  std::replace( rho.begin(), rho.end(), '.', '_');
+	  std::string name = rho+mass_scale;
+	  top::check(m_VarRC[name]->execute(event),"Failed to execute RCJetMC15 container");
+
+	  // Get the name of the container of re-clustered jets in TStore
+	  std::string varRCJetContainerName = m_VarRC[name]->rcjetContainerName(event.m_hashValue,event.m_isLoose);
+
+	  // -- Retrieve the re-clustered jets from TStore & save good re-clustered jets -- //
+	  const xAOD::JetContainer* vrc_jets(nullptr);
+	  top::check(evtStore()->retrieve(vrc_jets,varRCJetContainerName),"Failed to retrieve RC JetContainer");
+	  
+	  event.m_VarRCJets[name] = std::make_shared<xAOD::JetContainer>(SG::VIEW_ELEMENTS);
+	  for (auto vrcjet : *vrc_jets){
+	    top::check( vrcjet->isAvailable<bool>("PassedSelection") , " Can't find jet decoration \"PassedSelection\" - we need it to decide if we should keep the variable-R reclustered jet in the top::Event instance or not!");
+	    if(vrcjet->auxdataConst<bool>("PassedSelection"))event.m_VarRCJets[name]->push_back((xAOD::Jet*)vrcjet);
+	  }
+	  
+	}
+      }
+    }
+
 
     //large-R jets
     if (m_config->useLargeRJets()) {

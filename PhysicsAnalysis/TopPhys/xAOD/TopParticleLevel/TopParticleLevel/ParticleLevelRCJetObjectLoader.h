@@ -76,12 +76,21 @@ public:
      std::string rcjetContainerName(){return m_OutputJetContainer; };
     
 private:
+
+    std::string m_name;
     const std::shared_ptr<top::TopConfig> & m_config;
+
+    bool m_VarRCjets;
+    std::string m_VarRCjets_rho;
+    std::string m_VarRCjets_mass_scale;
 
     float m_ptcut;       // in GeV
     float m_etamax;
     float m_trim;
     float m_radius;
+    float m_minradius;
+    float m_massscale;
+  
     bool  m_useJSS;
 
     std::string m_treeName;
@@ -91,6 +100,9 @@ private:
     std::string m_InputJetContainer;
     std::string m_OutputJetContainer;
    
+
+    
+
     //Substructure tool definitions
     fastjet::JetDefinition* m_jet_def_rebuild; 	  
     fastjet::contrib::Nsubjettiness* m_nSub1_beta1;
@@ -111,6 +123,13 @@ private:
     JetSubStructureUtils::EnergyCorrelatorGeneralized* m_gECF212;
     JetSubStructureUtils::EnergyCorrelatorGeneralized* m_gECF321;
     JetSubStructureUtils::EnergyCorrelatorGeneralized* m_gECF311;
+
+    std::map<std::string,float> mass_scales = {
+        {"m_t",172500.},
+        {"m_w",80385.},
+        {"m_z",91188.},
+        {"m_h",125090.}};
+
 
     //re-clustered jets
     //  -> need unordered map for systematics
