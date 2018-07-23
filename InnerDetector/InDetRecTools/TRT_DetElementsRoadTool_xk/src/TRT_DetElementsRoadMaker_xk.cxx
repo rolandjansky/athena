@@ -1046,7 +1046,7 @@ void InDet::TRT_DetElementsRoadMaker_xk::magneticFieldInit()
   //
   m_zfield = 0.;
 
-  if(pMF && m_fieldprop.magneticFieldMode()!=Trk::NoField) {
+  if(m_fieldprop.magneticFieldMode()!=Trk::NoField) {
     double f[3], p[3] ={10.,10.,0.}; m_fieldService->getFieldZR(p,f);
     m_zfield =  299.7925*f[2];
   }
