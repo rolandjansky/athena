@@ -49,10 +49,9 @@ StatusCode CaloNoise2Ntuple::initialize()
 
   ATH_CHECK( service("THistSvc",m_thistSvc) );
 
-  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
-  m_calo_id      = m_caloIdMgr->getCaloCell_ID();
-
-  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
+  const CaloIdManager* mgr = nullptr;
+  ATH_CHECK( detStore()->retrieve( mgr ) );
+  m_calo_id      = mgr->getCaloCell_ID();
 
   ATH_CHECK( m_noiseTool.retrieve() );
 
@@ -99,12 +98,15 @@ StatusCode CaloNoise2Ntuple::stop()
 {
   ATH_MSG_INFO ( "  Run Number, lumiblock " << m_runNumber << " " << m_lumiBlock );
 
+  const CaloDetDescrManager* calodetdescrmgr = nullptr;
+  ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
+
   int ncell=m_calo_id->calo_cell_hash_max();
   ATH_MSG_INFO ( " start loop over Calo cells " << ncell );
   for (int i=0;i<ncell;i++) {
        IdentifierHash idHash=i;
        Identifier id=m_calo_id->cell_id(idHash);
-       const CaloDetDescrElement* calodde = m_calodetdescrmgr->get_element(id);
+       const CaloDetDescrElement* calodde = calodetdescrmgr->get_element(id);
        int subCalo;
        IdentifierHash idSubHash = m_calo_id->subcalo_cell_hash (idHash, subCalo);
 
