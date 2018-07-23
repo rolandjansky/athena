@@ -2259,25 +2259,22 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="279" partition="1" name="L1_W-90RO2-XEHT-0" complex_deadtime="0" definition="(90RATIO2-XE0-HT0-AJj15all.ETA49[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="279" partition="1" name="L1_BPTX0_BGRP0" complex_deadtime="0" definition="(BPTX0[x1]&amp;BGRP0)" trigger_type="10000001" monitor="LF:111|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="90RATIO2-XE0-HT0-AJj15all.ETA49_x1" triggerthreshold="90RATIO2-XE0-HT0-AJj15all.ETA49"/>
+        <TriggerCondition multi="1" name="BPTX0_x1" triggerthreshold="BPTX0"/>
         <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="280" partition="1" name="L1_W-250RO2-XEHT-0" complex_deadtime="0" definition="(250RATIO2-XE0-HT0-AJj15all.ETA49[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="280" partition="1" name="L1_BPTX1_BGRP0" complex_deadtime="0" definition="(BPTX1[x1]&amp;BGRP0)" trigger_type="10000001" monitor="LF:111|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="250RATIO2-XE0-HT0-AJj15all.ETA49_x1" triggerthreshold="250RATIO2-XE0-HT0-AJj15all.ETA49"/>
+        <TriggerCondition multi="1" name="BPTX1_x1" triggerthreshold="BPTX1"/>
         <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="281" partition="1" name="L1_W-HT20-JJ15.ETA49" complex_deadtime="0" definition="(HT20-AJj15all.ETA49[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="281" partition="1" name="L1_BCM_Wide_BGRP0" complex_deadtime="0" definition="(BCM_Wide[x1]&amp;BGRP0)" trigger_type="10100000" monitor="LF:000|HF:111">
       <AND>
-        <TriggerCondition multi="1" name="HT20-AJj15all.ETA49_x1" triggerthreshold="HT20-AJj15all.ETA49"/>
+        <TriggerCondition multi="1" name="BCM_Wide_x1" triggerthreshold="BCM_Wide"/>
         <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
     <TriggerItem ctpid="282" partition="1" name="L1_DPHI-2EM7_VTE50" complex_deadtime="0" definition="(EM7[x2]&amp;27DPHI32-EMs1-EMs6[x1]&amp;!TE50[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
