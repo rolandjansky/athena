@@ -49,6 +49,77 @@ def getHIGG5CommonTruth() :
         "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthParticleLink.truthType"
         ]
 
+def getHIGG5CommonTruthDictionExtionson() :
+    return {
+        "TruthBoson"                         : "xAOD::TruthParticleContainer" ,
+        "TruthBosonAux"                      : "xAOD::TruthParticleAuxContainer" ,
+        "TruthTop"                           : "xAOD::TruthParticleContainer" ,
+        "TruthTopAux"                        : "xAOD::TruthParticleAuxContainer" ,
+        "TruthBSM"                           : "xAOD::TruthParticleContainer" ,
+        "TruthBSMAux"                        : "xAOD::TruthParticleAuxContainer" ,
+        "HardScatterParticles"               : "xAOD::TruthParticleContainer" ,
+        "HardScatterParticlesAux"            : "xAOD::TruthParticleAuxContainer" ,
+        "TruthBosonWithDecayParticles"       : "xAOD::TruthParticleContainer" ,
+        "TruthBosonWithDecayParticlesAux"    : "xAOD::TruthParticleAuxContainer" ,
+        "TruthTopQuarkWithDecayParticles"    : "xAOD::TruthParticleContainer" ,
+        "TruthTopQuarkWithDecayParticlesAux" : "xAOD::TruthParticleAuxContainer" ,
+        "TruthHFWithDecayParticles"          : "xAOD::TruthParticleContainer" ,
+        "TruthHFWithDecayParticlesAux"       : "xAOD::TruthParticleAuxContainer" ,
+        "HardScatterVertices"                : "xAOD::TruthVertexContainer" ,
+        "HardScatterVerticesAux"             : "xAOD::TruthVertexAuxContainer" ,
+        "TruthBosonWithDecayVertices"        : "xAOD::TruthVertexContainer" ,
+        "TruthBosonWithDecayVerticesAux"     : "xAOD::TruthVertexAuxContainer" ,
+        "TruthTopQuarkWithDecayVertices"     : "xAOD::TruthVertexContainer" ,
+        "TruthTopQuarkWithDecayVerticesAux"  : "xAOD::TruthVertexAuxContainer" ,
+        "TruthPrimaryVertices"               : "xAOD::TruthVertexContainer",
+        "TruthPrimaryVerticesAux"            : "xAOD::TruthVertexAuxContainer",
+        "TruthHFWithDecayVertices"           : "xAOD::TruthVertexContainer",
+        "TruthHFWithDecayVerticesAux"        : "xAOD::TruthVertexAuxContainer"
+        }
+
+def getHIGG5CommonDictionExtionson(add_truth_if_mc=True) :
+  common_dict = {
+      "AntiKtVR30Rmax4Rmin02TrackJets"         : "xAOD::JetContainer"        ,
+      "AntiKtVR30Rmax4Rmin02TrackJetsAux"      : "xAOD::JetAuxContainer"     ,
+      "BTagging_AntiKtVR30Rmax4Rmin02Track"    : "xAOD::BTaggingContainer"   ,
+      "BTagging_AntiKtVR30Rmax4Rmin02TrackAux" : "xAOD::BTaggingAuxContainer",
+      "BTagging_AntiKt4EMPFlow"                : "xAOD::BTaggingContainer"   ,
+      "BTagging_AntiKt4EMPFlowAux"             : "xAOD::BTaggingAuxContainer"
+      }
+  from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
+  if add_truth_if_mc and DerivationFrameworkIsMonteCarlo:
+      common_dict.update( getHIGG5CommonTruthDictionExtionson() )
+  return common_dict
+
+def getHIGG5CommonSmartCollections(add_truth_if_mc=True) :
+    common_smart_collections= ["Electrons",
+                               "Photons",
+                               "Muons",
+                               "TauJets",
+                               "MET_Reference_AntiKt4EMTopo",
+                               "MET_Reference_AntiKt4EMPFlow",
+                               "AntiKt4EMTopoJets",
+                               "AntiKt4EMPFlowJets",
+                               "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                               #  "AntiKtVR30Rmax4Rmin02Track",
+
+                               "BTagging_AntiKt4EMTopo",
+                               "BTagging_AntiKt4EMPFlow",
+                               "BTagging_AntiKt2Track",
+                               #  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                               #  "BTagging_AntiKtVR30Rmax4Rmin02Track",
+                               "InDetTrackParticles",
+                               "PrimaryVertices"]
+    from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
+    if add_truth_if_mc and DerivationFrameworkIsMonteCarlo :
+        common_smart_collections += [
+            "AntiKt4TruthJets",
+            "AntiKt4TruthWZJets"
+            #          ,"AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets"
+            ]
+    return common_smart_collections
+
+
 def filterContentList(pattern, content_list) :
     result=[]
     import re

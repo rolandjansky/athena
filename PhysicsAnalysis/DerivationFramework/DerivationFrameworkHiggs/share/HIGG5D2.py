@@ -17,7 +17,7 @@ if DerivationFrameworkIsMonteCarlo:
   scheduleTauTruthTools()
 
 # running on data or MC
-from AthenaCommon.GlobalFlags import globalflags
+# from AthenaCommon.GlobalFlags import globalflags
 # print "DEBUG is MC ? ",DerivationFrameworkIsMonteCarlo
 
 if DerivationFrameworkIsMonteCarlo :
@@ -362,64 +362,8 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkHiggs.HIGG5D2ExtraContent import *
 HIGG5D2SlimmingHelper = SlimmingHelper("HIGG5D2SlimmingHelper")
 
-HIGG5D2SlimmingHelper.AppendToDictionary = {
-  "AntiKtVR30Rmax4Rmin02TrackJets"               :   "xAOD::JetContainer"        ,
-  "AntiKtVR30Rmax4Rmin02TrackJetsAux"            :   "xAOD::JetAuxContainer"     ,
-  "BTagging_AntiKtVR30Rmax4Rmin02Track"          :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"       :   "xAOD::BTaggingAuxContainer",
-  "BTagging_AntiKt4EMPFlow" : "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKt4EMPFlowAux" : "xAOD::BTaggingAuxContainer"   ,
-  "TruthBoson" : "xAOD::TruthParticleContainer" ,
-  "TruthBosonAux" : "xAOD::TruthParticleAuxContainer" ,
-  "TruthTop" : "xAOD::TruthParticleContainer" ,
-  "TruthTopAux" : "xAOD::TruthParticleAuxContainer" ,
-  "TruthBSM" : "xAOD::TruthParticleContainer" ,
-  "TruthBSMAux" : "xAOD::TruthParticleAuxContainer" ,
-  "HardScatterParticles" : "xAOD::TruthParticleContainer" ,
-  "HardScatterParticlesAux" : "xAOD::TruthParticleAuxContainer" ,
-  "TruthBosonWithDecayParticles" : "xAOD::TruthParticleContainer" ,
-  "TruthBosonWithDecayParticlesAux" : "xAOD::TruthParticleAuxContainer" ,
-  "TruthTopQuarkWithDecayParticles" : "xAOD::TruthParticleContainer" ,
-  "TruthTopQuarkWithDecayParticlesAux" : "xAOD::TruthParticleAuxContainer" ,
-  "TruthHFWithDecayParticles" : "xAOD::TruthParticleContainer" ,
-  "TruthHFWithDecayParticlesAux" : "xAOD::TruthParticleAuxContainer" ,
-  "HardScatterVertices" : "xAOD::TruthVertexContainer" ,
-  "HardScatterVerticesAux" : "xAOD::TruthVertexAuxContainer" ,
-  "TruthBosonWithDecayVertices" : "xAOD::TruthVertexContainer" ,
-  "TruthBosonWithDecayVerticesAux" : "xAOD::TruthVertexAuxContainer" ,
-  "TruthTopQuarkWithDecayVertices" : "xAOD::TruthVertexContainer" ,
-  "TruthTopQuarkWithDecayVerticesAux" : "xAOD::TruthVertexAuxContainer" ,
-  "TruthPrimaryVertices" : "xAOD::TruthVertexContainer",
-  "TruthPrimaryVerticesAux" : "xAOD::TruthVertexAuxContainer",
-  "TruthHFWithDecayVertices" : "xAOD::TruthVertexContainer",
-  "TruthHFWithDecayVerticesAux" : "xAOD::TruthVertexAuxContainer",
-  }
-
-HIGG5D2SlimmingHelper.SmartCollections = [ "Electrons",
-                                           "Photons",
-                                           "Muons",
-                                           "TauJets",
-                                           "MET_Reference_AntiKt4EMTopo",
-                                           "MET_Reference_AntiKt4EMPFlow",
-                                           "AntiKt4EMTopoJets",
-                                           "AntiKt4EMPFlowJets",
-                                           "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                           "AntiKt4TruthJets",
-#                                            "AntiKtVR30Rmax4Rmin02Track",
-                                           "BTagging_AntiKt4EMTopo",
-                                           "BTagging_AntiKt4EMPFlow",
-                                           "BTagging_AntiKt2Track",
-#                                           "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-#                                           "BTagging_AntiKtVR30Rmax4Rmin02Track",
-                                           "InDetTrackParticles",
-                                           "PrimaryVertices" ]
-if DerivationFrameworkIsMonteCarlo :
-    HIGG5D2SlimmingHelper.SmartCollections += [
-         "AntiKt4TruthJets",
-         "AntiKt4TruthWZJets"
-#          ,"AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets"
-    ]
-
+HIGG5D2SlimmingHelper.AppendToDictionary = HIGG5Common.getHIGG5CommonDictionExtionson()
+HIGG5D2SlimmingHelper.SmartCollections =   HIGG5Common.getHIGG5CommonSmartCollections()
 
 HIGG5D2SlimmingHelper.ExtraVariables = ExtraContent
 HIGG5D2SlimmingHelper.ExtraVariables.append(
@@ -446,13 +390,13 @@ if DerivationFrameworkIsMonteCarlo :
 HIGG5Common.addJetOutputs(HIGG5D2SlimmingHelper,["HIGG5D2Jets"],slimmed_content,['AntiKt4PV0TrackJets'])
 addOriginCorrectedClusters(HIGG5D2SlimmingHelper, writeLC=True, writeEM=False)
 
-HIGG5D2SlimmingHelper.IncludeMuonTriggerContent = True
-HIGG5D2SlimmingHelper.IncludeEGammaTriggerContent = True
-#HIGG5D2SlimmingHelper.IncludeBPhysTriggerContent = True
-#HIGG5D2SlimmingHelper.IncludeJetTauEtMissTriggerContent = True
-HIGG5D2SlimmingHelper.IncludeEtMissTriggerContent = True
-HIGG5D2SlimmingHelper.IncludeJetTriggerContent = True
+HIGG5D2SlimmingHelper.IncludeMuonTriggerContent         = True
+HIGG5D2SlimmingHelper.IncludeEGammaTriggerContent       = True
+# HIGG5D2SlimmingHelper.IncludeBPhysTriggerContent        = True
+# HIGG5D2SlimmingHelper.IncludeJetTauEtMissTriggerContent = True
+HIGG5D2SlimmingHelper.IncludeEtMissTriggerContent       = True
+HIGG5D2SlimmingHelper.IncludeJetTriggerContent          = True
 # if globalflags.DataSource()!='geant4': # for very early data
-# HIGG5D2SlimmingHelper.IncludeBJetTriggerContent = True
+#   HIGG5D2SlimmingHelper.IncludeBJetTriggerContent       = True
 
 HIGG5D2SlimmingHelper.AppendContentToStream(HIGG5D2Stream)

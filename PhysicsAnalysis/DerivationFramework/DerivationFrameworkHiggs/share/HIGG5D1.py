@@ -32,6 +32,8 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_HIGG5D1Stream )
 HIGG5D1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 HIGG5D1Stream.AcceptAlgs(["HIGG5D1Kernel"])
 
+import DerivationFrameworkHiggs.HIGG5Common as HIGG5Common
+
 #====================================================================
 # THINNING TOOLS
 #====================================================================
@@ -44,7 +46,6 @@ HIGG5D1ThinningHelper = ThinningHelper("HIGG5D1ThinningHelper")
 HIGG5D1ThinningHelper.TriggerChains = 'HLT_xe.*|HLT_j.*|HLT_g.*'
 HIGG5D1ThinningHelper.AppendToStream(HIGG5D1Stream)
 
-import DerivationFrameworkHiggs.HIGG5Common as HIGG5Common
 #TrackParticles thinning
 # thinningTools.append( HIGG5Common.getAntiKt4EMTopoTrackParticleThinning('HIGG5D1',HIGG5D1ThinningHelper) )
 thinningTools.append( HIGG5Common.getMuonTrackParticleThinning(         'HIGG5D1',HIGG5D1ThinningHelper) )
@@ -63,11 +64,12 @@ thinningTools.append( HIGG5Common.getAntiKt10LCTopoCaloClusterThinning( 'HIGG5D1
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('HIGG5D1',HIGG5D1ThinningHelper) )
 
 # MC truth thinning (not for data)
-if DerivationFrameworkIsMonteCarlo :
-    thinningTools.append(HIGG5Common.getTruthThinningTool('HIGG5D1', HIGG5D1ThinningHelper))
-    #add Truth3 information
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
-    addStandardTruthContents()
+# if DerivationFrameworkIsMonteCarlo :
+#  from DerivationFrameworkHiggs.TruthCategories import *
+#  # thinningTools.append(HIGG5Common.getTruthThinningTool('HIGG5D1', HIGG5D1ThinningHelper))
+#  #add Truth3 information
+#  # from DerivationFrameworkMCTruth.MCTruthCommon import *
+#  # addStandardTruthContents()
 
 #====================================================================
 # jet selection
@@ -262,6 +264,11 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg5d1Seq)
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 higg5d1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
+#====================================================================
+# SET UP CUSTOM TRUTH3 INFORMATION
+#====================================================================
+if DerivationFrameworkIsMonteCarlo :
+  HIGG5Common.getTruth3Collections(higg5d1Seq)
 
 higg5d1Seq += CfgMgr.DerivationFramework__DerivationKernel(
     "HIGG5D1Kernel_jet",
@@ -290,47 +297,8 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkHiggs.HIGG5D1ExtraContent import *
 HIGG5D1SlimmingHelper = SlimmingHelper("HIGG5D1SlimmingHelper")
 
-HIGG5D1SlimmingHelper.AppendToDictionary = {
-  "AntiKtVR30Rmax4Rmin02TrackJets"               :   "xAOD::JetContainer"        ,
-  "AntiKtVR30Rmax4Rmin02TrackJetsAux"            :   "xAOD::JetAuxContainer"     ,
-  "BTagging_AntiKtVR30Rmax4Rmin02Track"          :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"       :   "xAOD::BTaggingAuxContainer",
-  "BTagging_AntiKt4EMPFlow" : "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKt4EMPFlowAux" : "xAOD::BTaggingAuxContainer"   ,
-  "TruthBoson" : "xAOD::TruthParticleContainer" ,
-  "TruthBosonAux" : "xAOD::TruthParticleAuxContainer" ,
-  "TruthTop" : "xAOD::TruthParticleContainer" ,
-  "TruthTopAux" : "xAOD::TruthParticleAuxContainer" ,
-  "TruthBSM" : "xAOD::TruthParticleContainer" ,
-  "TruthBSMAux" : "xAOD::TruthParticleAuxContainer" ,
-  }
-
-HIGG5D1SlimmingHelper.SmartCollections = [ "Electrons",
-                                           "Photons",
-                                           "Muons",
-                                           "TauJets",
-                                           "MET_Reference_AntiKt4EMTopo",
-                                           "MET_Reference_AntiKt4EMPFlow",
-                                           "AntiKt4EMTopoJets",
-                                           "AntiKt4EMPFlowJets",
-                                           "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                           "AntiKt4TruthJets",
-#                                            "AntiKtVR30Rmax4Rmin02Track",
-                                           "BTagging_AntiKt4EMTopo",
-                                           "BTagging_AntiKt4EMPFlow",
-                                           "BTagging_AntiKt2Track",
-#                                           "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-#                                           "BTagging_AntiKtVR30Rmax4Rmin02Track",
-                                           "InDetTrackParticles",
-                                           "PrimaryVertices" ]
-if DerivationFrameworkIsMonteCarlo :
-    HIGG5D1SlimmingHelper.SmartCollections += [
-         "AntiKt4TruthJets",
-         "AntiKt4TruthWZJets"
-#          ,"AntiKt10TruthWZTrimmedPtFrac5SmallR20Jets"
-    ]
-
-
+HIGG5D1SlimmingHelper.AppendToDictionary = HIGG5Common.getHIGG5CommonDictionExtionson()
+HIGG5D1SlimmingHelper.SmartCollections   = HIGG5Common.getHIGG5CommonSmartCollections()
 
 HIGG5D1SlimmingHelper.ExtraVariables = ExtraContent
 HIGG5D1SlimmingHelper.ExtraVariables.append(
@@ -356,12 +324,12 @@ HIGG5Common.addJetOutputs(HIGG5D1SlimmingHelper,["HIGG5D1Jets"],slimmed_content,
 addOriginCorrectedClusters(HIGG5D1SlimmingHelper, writeLC=True, writeEM=False)
 
 # if not DerivationFrameworkIsMonteCarlo : # for very early data
-# HIGG5D1SlimmingHelper.IncludeMuonTriggerContent = True
+#   HIGG5D1SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG5D1SlimmingHelper.IncludeEGammaTriggerContent = True
 # HIGG5D1SlimmingHelper.IncludeBJetTriggerContent = True
 # HIGG5D1SlimmingHelper.IncludeBPhysTriggerContent = True
 # HIGG5D1SlimmingHelper.IncludeJetTauEtMissTriggerContent = True
 HIGG5D1SlimmingHelper.IncludeEtMissTriggerContent = True
-HIGG5D1SlimmingHelper.IncludeJetTriggerContent = True
+HIGG5D1SlimmingHelper.IncludeJetTriggerContent    = True
 
 HIGG5D1SlimmingHelper.AppendContentToStream(HIGG5D1Stream)
