@@ -63,7 +63,6 @@ StatusCode RIO_OnTrackErrorScalingCondAlg::initialize() {
 
 
 void RIO_OnTrackErrorScalingCondAlg::registerAttribute(std::string name, unsigned int type_idx, unsigned int param_idx) {
-  assert( !m_outputList.empty());
   if (!m_attributeMap.insert( std::make_pair(name, std::make_pair(type_idx,param_idx)) ).second) {
     std::stringstream message;
     message << "Failed to add RIO_OnTrackErrorScaling paramter : " << name << ".";
