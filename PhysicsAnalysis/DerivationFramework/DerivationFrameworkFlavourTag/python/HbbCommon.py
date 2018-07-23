@@ -216,7 +216,7 @@ def addVRJets(sequence, do_ghost=False, *pos_opts, **opts):
         ghost_suffix = "GhostTag"
         VRJetName += ghost_suffix
         VRGhostLabel += ghost_suffix
-        VRJetOptions['ptmin'] = 7000
+        VRJetOptions['ptmin'] = 5000
 
     #==========================================================
     # Build VR jets
