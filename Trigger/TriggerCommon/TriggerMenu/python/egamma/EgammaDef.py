@@ -66,8 +66,9 @@ from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_eGamma,
                                            TrigCaloCellMaker_eGamma_LargeRoI,
                                            TrigCaloTowerMaker_eGamma)
 
-from TrigEgammaRec.TrigEgammaToolFactories import TrigCaloClusterMaker_slw
+#from TrigEgammaRec.TrigEgammaToolFactories import TrigCaloClusterMaker_slw
 #from TrigEgammaRec.TrigEgammaToolFactories import TrigCaloClusterMaker_topo
+from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMaker_slw
 from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMaker_topo
 
 # FEX for Egamma
