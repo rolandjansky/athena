@@ -63,7 +63,6 @@ CaloCalibClusterMomentsMaker::CaloCalibClusterMomentsMaker(const std::string& ty
     m_calo_id(0),
     m_caloDM_ID(0),
     m_caloDmDescrManager(0),
-    m_storeGate(0),
     m_energyMin(200*MeV),
     m_energyMinCalib(20*MeV),
     m_apars_alpha(0.5),
