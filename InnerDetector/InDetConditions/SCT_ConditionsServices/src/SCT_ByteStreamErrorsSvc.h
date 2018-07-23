@@ -85,9 +85,7 @@ public:
 
   std::set<IdentifierHash>* getErrorSet(int errorType);
 
-  void setRODSimulatedData();
-
-  bool isRODSimulatedData();
+  bool isRODSimulatedData(const IdentifierHash& elementIdHash) const;
 
   void addError(IdentifierHash id, int errorType);
   void addErrorCount(int errorType);
@@ -134,8 +132,6 @@ private:
 
   int m_numBsErrors[SCT_ByteStreamErrors::NUM_ERROR_TYPES];
 
-  bool m_isRODSimulatedData;
-
   SG::ReadHandleKey<InDetBSErrContainer> m_bsErrContainerName;
 
   bool m_useDCSfromBS;
@@ -147,6 +143,8 @@ private:
   bool m_disableRODs;
   double m_rodFailureFraction;
   unsigned int m_randomSeed; // The seed of random numbers for ROD disabling
+
+  bool m_checkRODSimulatedData;
 
   std::map<boost::uint32_t, bool> m_rodDecodeStatuses;
 
