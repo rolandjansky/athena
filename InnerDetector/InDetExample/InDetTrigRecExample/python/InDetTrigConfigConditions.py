@@ -50,13 +50,13 @@ class PixelConditionsServicesSetup:
 
   def createSvc(self):
     from AthenaCommon.AppMgr import ToolSvc
-    if not hasattr(ToolSvc, "PixelConditionsSummaryTool"):
-        from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
-        pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
-        pixelConditionsSummaryToolSetup.setUseDCS(self.useDCS)
-        pixelConditionsSummaryToolSetup.setUseBS(self.useBS)
-        pixelConditionsSummaryToolSetup.setUseTDAQ(self.useTDAQ)
-        pixelConditionsSummaryToolSetup.setup()
+
+    from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
+    pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
+    pixelConditionsSummaryToolSetup.setUseDCS(self.useDCS)
+    pixelConditionsSummaryToolSetup.setUseBS(self.useBS)
+    pixelConditionsSummaryToolSetup.setUseTDAQ(self.useTDAQ)
+    pixelConditionsSummaryToolSetup.setup()
 
     PixelConditionsSummaryTool = ToolSvc.PixelConditionsSummaryTool
 
@@ -150,9 +150,8 @@ class PixelConditionsServicesSetup:
 
   def createTool(self):
     from AthenaCommon.AppMgr import ToolSvc
-    if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
-        from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
-        pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+    from SiLorentzAngleSvc.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
+    pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
 
     pass
 

@@ -9,8 +9,9 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-#include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
+// STSTST #include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
+#include "InDetRIO_OnTrack/PixelRIO_OnTrackErrorScaling.h"
 
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
 #include "TrkParameters/TrackParameters.h"
@@ -197,7 +198,6 @@ public:
   double m_phix[s_nbinphi+1];
   double m_etax[s_nbineta+1];
 };
->>>>>>> upstream/master
 
 } // end of namespace InDet
 
