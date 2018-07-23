@@ -90,7 +90,7 @@ def defineMenu():
         # 24 x 1-bit thresholds
         
         # 8 x TE
-        'TE5', 'TE20', 'TE50', 'TE100', 'TE200', 'TE10000', 'TE12000', 'TE14000',
+        'TE4', 'TE5', 'TE20', 'TE50', 'TE100', 'TE200', 'TE10000', 'TE12000',
         
         # 8 x XE
         'XE35', 'XE40', 'XE45', 'XE50', 'XE55', 'XE60', 'XE70', 'XE80',
@@ -446,9 +446,15 @@ def defineMenu():
                        'L1_TE200', 
                        'L1_TE10000',
                        'L1_TE12000',
-		       'L1_TE14000',
+		       'L1_TE4',
                        'L1_TE5_NZ',
+               'L1_VTE20',        
 		       'L1_TE5_VTE200',
+		       'L1_TE5_VTE100',
+		       'L1_TE5_VTE50',
+		       'L1_TE4_VTE200',
+		       'L1_TE4_VTE100',
+		       'L1_TE4_VTE50',
 		       # restricted TE
 		       'L1_TE500.0ETA49',
                        'L1_TE1500.0ETA49',
@@ -490,10 +496,15 @@ def defineMenu():
 		       #ZDC one side
 		       'L1_ZDC_A_VZDC_C_VTE200',
 		       'L1_ZDC_C_VZDC_A_VTE200',
-	               'L1_ZDC_XOR',
+	           'L1_ZDC_XOR',
 		       'L1_ZDC_XOR_VTE200',
-	               'L1_ZDC_XOR_TE5_VTE200',
-                       'L1_ZDC_XOR_TRT_VTE200',
+	           'L1_ZDC_XOR_TE5_VTE200',
+	           'L1_ZDC_XOR_TE20_VTE200',
+               'L1_ZDC_XOR_TRT_VTE200',
+               'L1_ZDC_XOR_VTE200_MBTS_1',
+		       'L1_VZDC_A_C_TE5_VTE200',
+	           'L1_VZDC_A_C_TE20_VTE200',
+	           'L1_VZDC_AORC_TE5_VTE200',
 		       #coincidence
 		       'L1_ZDC_A_C_VTE200',
 	               'L1_ZDC_A_C_TE5_VTE200',
@@ -514,14 +525,14 @@ def defineMenu():
                        'L1_2J15_NL',
                        #'L1_MU0_MV',
                        #'L1_2MU0_MV',
-                       #'L1_MU0_MV_VTE50',
                        #'L1_MU0_VTE50',
-                       #'L1_MU0_TE50',
+                       'L1_MU6_VTE50',
                        'L1_MU4_MV_VTE50',
                        'L1_MU4_VTE50',
+                       'L1_2MU4_VTE50',
                        'L1_MU4_TE50',
-                       #'L1_EM3_MV_VTE50',
-                       #'L1_EM3_VTE50',
+                       'L1_MU4_VZDC_AORC_VTE200',
+                       'L1_EM7_VTE200',
                        'L1_J12_VTE100',
                        'L1_J12_VTE200',
                        ## VDM
@@ -707,18 +718,17 @@ def defineMenu():
         'L1_ZDC_AND_VTE50' : 27,
         #'L1_EM3_VTE20': 28,
                 
-        #'L1_MU0_MV_VTE50' : 34,
-        #'L1_MU0_VTE50' : 35,
+        'L1_2MU4_VTE50' : 35,
         'L1_ZDC_A_C_VTE50' : 36,
         'L1_ZDC_A_C_UNPAIRED_NONISO' : 37,
         'L1_MU4_VTE50' : 38,
         'L1_MU4_MV_VTE50' : 39,
         'L1_ZDC_A_C_OVERLAY' : 40,
-        #'L1_MU0_TE50' : 41,
+        'L1_MU6_VTE50' : 41,
         'L1_ZDC_A_C_TE50' : 42,
         'L1_MU4_TE50' : 43,
-        #'L1_EM3_VTE50' : 44,
-        #'L1_EM3_MV_VTE50' : 45,
+        'L1_EM7_VTE200' : 44,
+        'L1_MU4_VZDC_AORC_VTE200' : 45,
         'L1_J12_VTE100' : 46,
         'L1_BGRP7' : 47,
         'L1_LUCID_BGRP7' : 48,
@@ -798,11 +808,12 @@ def defineMenu():
         'L1_J30_FIRSTEMPTY' : 130,
         'L1_MBTSA2' : 131,
         'L1_TE5' : 132,
-        'L1_TE14000' : 133,
+        'L1_TE4' : 133,
         'L1_TE20' : 134,
         'L1_TE50' : 138,
         'L1_TE100' : 136,
         'L1_TE200' : 135,
+        'L1_VTE20' : 129,
         'L1_MBTSA3' : 137,
         
         'L1_2J5' : 139,
@@ -1002,6 +1013,11 @@ def defineMenu():
 
 	#'L1_J5': 334,
 	'L1_TE5_VTE200': 335,
+	'L1_TE5_VTE100': 346,
+	'L1_TE5_VTE50': 347,
+	'L1_TE4_VTE200': 348,
+	'L1_TE4_VTE100': 349,
+	'L1_TE4_VTE50': 350,
 
         # restricted TE for overlay
         'L1_TE500.0ETA49_OVERLAY': 336,
@@ -1018,7 +1034,7 @@ def defineMenu():
         'L1_CALREQ2' : 511,
 	
 
-
+    'L1_ZDC_XOR_TE20_VTE200' : 481,
 	'L1_TRT_FILLED' : 482,
 	'L1_TRT_EMPTY'  : 483,
 	'L1_ZDC_A_VZDC_C_VTE200' : 484,
@@ -1030,7 +1046,14 @@ def defineMenu():
 	'L1_ZDC_VTE200' : 490,
 	'L1_ZDC_A_C_VTE200' : 491,
 	'L1_ZDC_A_C_TE5_VTE200' : 492,
+	'L1_ZDC_XOR_VTE200_MBTS_1' : 495,
+	'L1_VZDC_A_C_TE5_VTE200' : 496,
+	'L1_VZDC_A_C_TE20_VTE200' : 497,
+	'L1_VZDC_AORC_TE5_VTE200' : 498,
 	}
 
     Lvl1Flags.prescales = {}
+
+if __name__ == "__main__": print_available()
+
     
