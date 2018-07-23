@@ -59,8 +59,6 @@ StatusCode TauVertexVariables::initialize() {
 
 StatusCode TauVertexVariables::eventInitialize() {
 
-  bool inTrigger = tauEventData()->inTrigger();
-    
   return StatusCode::SUCCESS;
 
 }
