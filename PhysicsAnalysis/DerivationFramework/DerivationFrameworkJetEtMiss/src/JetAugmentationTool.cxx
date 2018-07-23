@@ -10,7 +10,7 @@
 
 #include "JetAugmentationTool.h"
 #include "xAODCore/ShallowCopy.h"
-#include "JetAnalysisInterfaces/JetJvtEfficiency.h"
+#include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 
 namespace DerivationFramework {
 
