@@ -216,8 +216,14 @@ class RootNtupleEventSelector :
   /// List of branches to activate in the @c TTree 
   StringArrayProperty m_activeBranchNames;
 
+  /// Should missing trees be ignored (only prints a warning)
+  bool m_ignoreMissingTrees;
+
   /// Number of events to skip at the beginning 
   long m_skipEvts;
+  
+  /// Flag if we create EventInfo object or not (default=false ... true will slow down event loop)
+  bool m_createEventInfo;
 
   /// Names of all trees over which to iterate.
   std::vector<std::string> m_tupleNames;

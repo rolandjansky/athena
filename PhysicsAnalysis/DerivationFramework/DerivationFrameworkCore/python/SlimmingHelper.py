@@ -51,7 +51,7 @@ msg.setLevel(L.logging.INFO)
 class lockable_list(list):
         def __init__(self,data=[]):
                 list.__init__(self,data)
-                self.__dict__["_locked"] = False                
+                self.__dict__["_locked"] = False
         def append(self,name):
                 if self._locked == True:
                         msg.error("Attempting to Modify SlimmingHelper after AppendContentToStream has Been Called")
@@ -76,7 +76,7 @@ def buildNamesAndTypes():
         else:
                 from DerivationFrameworkCore.StaticNamesAndTypes import StaticNamesAndTypes
                 namesAndTypes = StaticNamesAndTypes
-        return namesAndTypes    
+        return namesAndTypes
 
 class SlimmingHelper:
         def __init__(self,inputName):
@@ -85,9 +85,9 @@ class SlimmingHelper:
                 self.StaticContent = lockable_list() # Content added explicitly via old-style content lists
                 self.ExtraVariables = lockable_list() # Content added by users via variable names (dictionary type:[item1,item,..,N])
                 # Smart slimming (only variables needed for CP + kinematics)
-                self.SmartCollections = lockable_list() 
+                self.SmartCollections = lockable_list()
                 self.AllVariables = lockable_list() # Containers for which all branches should be kept
-                self.AppendToDictionary = {} 
+                self.AppendToDictionary = {}
                 self.NamesAndTypes = buildNamesAndTypes()
                 self.theHandler = ContentHandler(self.name+"Handler",self.NamesAndTypes)
                 self.IncludeMuonTriggerContent = False
@@ -99,7 +99,7 @@ class SlimmingHelper:
                 self.IncludeBJetTriggerContent = False
                 self.IncludeBPhysTriggerContent = False
                 self.IncludeMinBiasTriggerContent = False
-                
+
         # This hack prevents any members from being modified after lock is set to true, this happens in AppendContentToStream
         def __setattr__(self,name,value):
                 if self._locked==True:
@@ -113,25 +113,25 @@ class SlimmingHelper:
         # Function to check the configuration of the Smart Slimming List
         def CheckList(self,masterList):
                 conflicted_items=[]
-                for item in CompulsoryContent:          
+                for item in CompulsoryContent:
                         if item.endswith("#*"):
                                 compare_str=item[:-2].replace("xAOD::","")
-                                for m_item in masterList:                                       
+                                for m_item in masterList:
                                         if m_item.startswith(compare_str):
                                                 conflicted_items.append(m_item)
                 if len(conflicted_items)!=0:
                         msg.error("Smart Slimming lists attempting to add " +str(conflicted_items)+" which are already included in Compulsory content please remove these items from Smart Slimming List")
                         raise RuntimeError("Conflict in Smart Slimming List and Compulsory Content")
 
-                                        
-        # The main routine: called by all job options once.  
+
+        # The main routine: called by all job options once.
         def AppendContentToStream(self,Stream):
                 # Master item list: all items that must be passed to the ContentHandler for processing
                 # This will now be filled
                 masterItemList = []
                 # All variables list: where all variables are requested, no variable lists are needed
                 # This list ensures that variables are not added individually in such cases
-                allVariablesList = []          
+                allVariablesList = []
                 # Add all-variable collections
                 if len(self.AllVariables)>0:
                         formatName = Stream.Name.strip("Stream_DAOD")
@@ -161,57 +161,57 @@ class SlimmingHelper:
                         from DerivationFrameworkCore.JetTriggerFixContent import JetTriggerFixContent
                         for item in JetTriggerFixContent:
                                 Stream.AddItem(item)
-                
+
                 if (self.IncludeEtMissTriggerContent == True):
                         triggerContent = True
                         self.SmartCollections.append("HLT_xAOD__TrigMissingETContainer_TrigEFMissingET")
                         from DerivationFrameworkCore.EtMissTriggerFixContent import EtMissTriggerFixContent
                         for item in EtMissTriggerFixContent:
                                 Stream.AddItem(item)
-                        
+
                 if (self.IncludeTauTriggerContent == True):
                         triggerContent = True
                         self.SmartCollections.append("HLT_xAOD__TauJetContainer_TrigTauRecMerged")
-                        
+
                 if (self.IncludeBJetTriggerContent == True):
                         triggerContent = True
                         self.SmartCollections.append("HLT_xAOD__BTaggingContainer_HLTBjetFex")
-                        
+
                 if (self.IncludeBPhysTriggerContent == True):
                         triggerContent = True
                         self.SmartCollections.append("HLT_xAOD__TrigBphysContainer_EFBMuMuFex")
-                                
+
                 if (self.IncludeMinBiasTriggerContent == True):
                         triggerContent = True
                         self.SmartCollections.append("HLT_xAOD__TrigVertexCountsContainer_vertexcounts")
-                        
+
                 # Smart items
                 if len(self.SmartCollections)>0:
                         for collection in self.SmartCollections:
                                 masterItemList.extend(self.GetSmartItems(collection))
 
-                # Run some basic tests to prevent clashes with CompulsoryContent content                
+                # Run some basic tests to prevent clashes with CompulsoryContent content
                 self.CheckList(masterItemList)
-                
+
                 # Add extra variables
                 if len(self.ExtraVariables)>0:
                         for item in self.ExtraVariables:
                                 masterItemList.extend(self.GetExtraItems(item))
-                
+
                 #Add on-the-fly containers to the dictionary
                 for _cont,_type in ContainersOnTheFly:
                         if not self.AppendToDictionary.has_key(_cont):
                                 self.AppendToDictionary[_cont]=_type
 
                 # Process the master list...
-                                                                       
+
                 # Main containers (this is a simple list of lines, one per container X collection)
                 mainEntries = []
                 # Aux items (this is a dictionary: collection name and list of aux variables)
                 auxEntries = {}
                 self.theHandler.AppendToDictionary = self.AppendToDictionary
                 mainEntries,auxEntries = self.theHandler.GetContent(masterItemList,allVariablesList)
-                
+
                 # Add processed items to the stream
                 excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation" #  From https://svnweb.cern.ch/trac/atlasoff/browser/InnerDetector/InDetExample/InDetRecExample/trunk/share/WriteInDetAOD.py#L41
                 excludedAuxEntries= [entry.strip("-") for entry in excludedAuxData.split(".")]
@@ -222,7 +222,7 @@ class SlimmingHelper:
                         theDictionary = dict(self.NamesAndTypes.items() + self.AppendToDictionary.items())
                         if item in theDictionary.keys():
                                 if (theDictionary[item]=='xAOD::JetAuxContainer'):
-                                        entry = "xAOD::JetAuxContainer#"+item+"." 
+                                        entry = "xAOD::JetAuxContainer#"+item+"."
                                 elif (theDictionary[item]=='xAOD::ShallowAuxContainer'):
                                         entry = "xAOD::ShallowAuxContainer#"+item+"."
                                 elif ("AuxInfo" in theDictionary[item]):
@@ -232,23 +232,23 @@ class SlimmingHelper:
                                 elif (theDictionary[item]=='xAOD::EventInfo'):
                                         entry = "xAOD::AuxInfoBase!#"+item+"."
                                 elif (theDictionary[item]=='xAOD::EventShape'):
-                                        entry = "xAOD::AuxInfoBase!#"+item+"." 
-                                # Next two lines - remaining containers 
+                                        entry = "xAOD::AuxInfoBase!#"+item+"."
+                                # Next two lines - remaining containers
                                 # that still need to be expanded with AuxStoreWrapper
                                 elif (theDictionary[item] in ContainersForExpansion):
                                         entry = "xAOD::AuxContainerBase#"+item+"."
                                 else:
-                                        entry = "xAOD::AuxContainerBase!#"+item+"."   
+                                        entry = "xAOD::AuxContainerBase!#"+item+"."
                                 for element in auxEntries[item]:
                                         if (theDictionary[item.replace("Aux","")]=='xAOD::TrackParticleContainer') and element in excludedAuxEntries:continue #Skip anything that shouldn't be written out to a DAOD for tracks
                                         length = len(auxEntries[item])
                                         if (element==(auxEntries[item])[length-1]):
                                                 entry += element
-                                        else: 
+                                        else:
                                                 entry += element+"."
                                 if theDictionary[item.replace("Aux","")]=='xAOD::TrackParticleContainer' and auxEntries[item]=="":
                                         entry+=excludedAuxData
-                                Stream.AddItem(entry)   
+                                Stream.AddItem(entry)
 
                 # Add compulsory items not covered by smart slimming (so no expansion)
                 for item in CompulsoryContent:
@@ -260,14 +260,14 @@ class SlimmingHelper:
                         from DerivationFrameworkCore.JetTauEtMissTriggerContent import JetTauEtMissTriggerContent
                         for item in JetTauEtMissTriggerContent:
                                 Stream.AddItem(item)
-                        
-                # JetTrigger: not slimmed for now because of CLID issue 
+
+                # JetTrigger: not slimmed for now because of CLID issue
                 #if (self.IncludeJetTriggerContent == True):
                 #       triggerContent = True
                 #       from DerivationFrameworkCore.JetTriggerContent import JetTriggerContent
                 #       for item in JetTriggerContent:
                 #               Stream.AddItem(item)
-                                
+
                 # Same issue for BJetTrigger
                 #if (self.IncludeBJetTriggerContent == True):
                 #       triggerContent = True
@@ -275,16 +275,16 @@ class SlimmingHelper:
                 #       for item in BJetTriggerContent:
                 #       Stream.AddItem(item)
 
-                # non xAOD collections for MinBias      
+                # non xAOD collections for MinBias
                 if (self.IncludeMinBiasTriggerContent == True):
                         from DerivationFrameworkCore.MinBiasTrigger_nonxAOD_Content import MinBiasTrigger_nonxAOD_Content
                         for item in MinBiasTrigger_nonxAOD_Content:
                                 Stream.AddItem(item)
-                                
+
                 if (triggerContent):
                         for item in CompulsoryTriggerNavigation:
                                 Stream.AddItem(item)
-                                
+
                 # Add non-xAOD and on-the-fly content (not covered by smart slimming so no expansion)
                 badItemsWildcards = []
                 badItemsXAOD = []
@@ -302,15 +302,15 @@ class SlimmingHelper:
                 if (len(badItemsXAOD)>0):
                         msg.error("These static items are xAOD collections: not permitted")
                         print badItemsXAOD
-                        raise RuntimeError("Static content list contains xAOD collections")             
+                        raise RuntimeError("Static content list contains xAOD collections")
                 #Prevent any more modifications As they will be completely ignored, and hard to debug
                 print self.ExtraVariables,dir(self.ExtraVariables)
-               
+
                 self.StaticContent.lock()
                 self.ExtraVariables.lock()
                 self.SmartCollections.lock()
                 self.AllVariables.lock()
-                self._locked=True 
+                self._locked=True
 
 ###################################################################################
 ###################################################################################
@@ -417,7 +417,16 @@ class SlimmingHelper:
                         items.extend(AntiKt7LCTopoJetsCPContent)
                 elif collectionName=="AntiKt8LCTopoJets":
                         from DerivationFrameworkJetEtMiss.AntiKt8LCTopoJetsCPContent import AntiKt8LCTopoJetsCPContent
-                        items.extend(AntiKt8LCTopoJetsCPContent)
+                        items.extend(AntiKt8LCTopoJetsCPContent)  
+                elif collectionName=="AntiKt8EMTopoJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt8EMTopoJetsCPContent import AntiKt8EMTopoJetsCPContent
+                        items.extend(AntiKt8EMTopoJetsCPContent)
+                elif collectionName=="AntiKt8EMTopoExKt2SubJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt8EMTopoExKt2SubJetsCPContent import AntiKt8EMTopoExKt2SubJetsCPContent
+                        items.extend(AntiKt8EMTopoExKt2SubJetsCPContent)
+                elif collectionName=="AntiKt8EMTopoExKt3SubJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt8EMTopoExKt3SubJetsCPContent import AntiKt8EMTopoExKt3SubJetsCPContent
+                        items.extend(AntiKt8EMTopoExKt3SubJetsCPContent)
                 elif collectionName=="BTagging_AntiKt4LCTopo":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt4LCTopoJets"))
@@ -446,6 +455,12 @@ class SlimmingHelper:
                 elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_expert":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackJets"))
+                elif collectionName=="BTagging_AntiKt8EMTopoExKt2Sub":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
+                        items.extend(BTaggingExpertContent("AntiKt8EMTopoExKt2SubJets"))
+                elif collectionName=="BTagging_AntiKt8EMTopoExKt3Sub":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
+                        items.extend(BTaggingExpertContent("AntiKt8EMTopoExKt3SubJets"))
                 elif collectionName=="BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub_expert":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets"))
@@ -465,25 +480,25 @@ class SlimmingHelper:
                         from DerivationFrameworkCore.EGammaTriggerContent import EGammaTriggerContent
                         items.extend(EGammaTriggerContent)
                 elif collectionName=="HLT_xAOD__JetContainer_a4tcemsubjesFS":
-                        from DerivationFrameworkCore.JetTriggerContent import JetTriggerContent 
+                        from DerivationFrameworkCore.JetTriggerContent import JetTriggerContent
                         items.extend(JetTriggerContent)
                 elif collectionName=="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET":
-                        from DerivationFrameworkCore.EtMissTriggerContent import EtMissTriggerContent 
+                        from DerivationFrameworkCore.EtMissTriggerContent import EtMissTriggerContent
                         items.extend(EtMissTriggerContent)
                 elif collectionName=="HLT_xAOD__TauJetContainer_TrigTauRecMerged":
-                        from DerivationFrameworkCore.TauTriggerContent import TauTriggerContent 
+                        from DerivationFrameworkCore.TauTriggerContent import TauTriggerContent
                         items.extend(TauTriggerContent)
                 elif collectionName=="HLT_xAOD__BTaggingContainer_HLTBjetFex":
                         from DerivationFrameworkFlavourTag.BJetTriggerContent import BJetTriggerContent
                         items.extend(BJetTriggerContent)
                 elif collectionName=="HLT_xAOD__TrigBphysContainer_EFBMuMuFex":
-                        from DerivationFrameworkCore.BPhysTriggerContent import BPhysTriggerContent 
+                        from DerivationFrameworkCore.BPhysTriggerContent import BPhysTriggerContent
                         items.extend(BPhysTriggerContent)
                 elif collectionName=="HLT_xAOD__TrigVertexCountsContainer_vertexcounts":
-                        from DerivationFrameworkCore.MinBiasTriggerContent import MinBiasTriggerContent 
+                        from DerivationFrameworkCore.MinBiasTriggerContent import MinBiasTriggerContent
                         items.extend(MinBiasTriggerContent)
                 else:
-                        raise RuntimeError("Smart slimming container "+collectionName+" does not exist or does not have a smart slimming list") 
+                        raise RuntimeError("Smart slimming container "+collectionName+" does not exist or does not have a smart slimming list")
                 return items
 
         # Kinematics content only
@@ -500,7 +515,7 @@ class SlimmingHelper:
                 auxContainerName = splitup[0]+"Aux"
                 items = []
                 items.append(splitup[0])
-                auxLine = ""            
+                auxLine = ""
                 length = len(splitup)
                 for string in splitup:
                         if string==splitup[0]:
@@ -512,18 +527,15 @@ class SlimmingHelper:
                                 auxLine = auxLine+string+"."
                 items.append(auxLine)
                 return items
-        
+
         # Check that static content is legit
         def ValidateStaticContent(self,item):
                 # No wildcards
                 if ("*" in item):
                         return "WILDCARD"
                 # No xAOD containers
-                sep = item.split("#") 
+                sep = item.split("#")
                 collection = sep[1]
                 if ("xAOD::" in item and sep[1] in self.NamesAndTypes.keys()):
                         return "XAOD"
-                return "OK"     
-
-
-  
+                return "OK"

@@ -492,6 +492,8 @@ private:
     std::vector<int>   m_mu_true_type;
     std::vector<int>   m_mu_true_origin;
     std::vector<char>  m_mu_true_isPrompt;
+    std::vector<float>  m_mu_prodVtx_z;
+    std::vector<float>  m_mu_prodVtx_perp;
     //photons
     std::vector<float> m_ph_pt;
     std::vector<float> m_ph_eta;
@@ -621,6 +623,22 @@ private:
     std::vector<float> m_rcjet_d12_clstr;
     std::vector<float> m_rcjet_d23_clstr;
     std::vector<float> m_rcjet_Qw_clstr;
+
+    std::vector<float> m_rcjet_gECF332_clstr;
+    std::vector<float> m_rcjet_gECF461_clstr;
+    std::vector<float> m_rcjet_gECF322_clstr;
+    std::vector<float> m_rcjet_gECF331_clstr;
+    std::vector<float> m_rcjet_gECF422_clstr;
+    std::vector<float> m_rcjet_gECF441_clstr;
+    std::vector<float> m_rcjet_gECF212_clstr;
+    std::vector<float> m_rcjet_gECF321_clstr;
+    std::vector<float> m_rcjet_gECF311_clstr;
+    std::vector<float> m_rcjet_L1_clstr;
+    std::vector<float> m_rcjet_L2_clstr;
+    std::vector<float> m_rcjet_L3_clstr;
+    std::vector<float> m_rcjet_L4_clstr;
+    std::vector<float> m_rcjet_L5_clstr;
+
     
     //met
     float m_met_met;
@@ -1175,7 +1193,21 @@ protected:
   const std::vector<float>& rcjet_d12_clstr() const { return m_rcjet_d12_clstr;}
   const std::vector<float>& rcjet_d23_clstr() const { return m_rcjet_d23_clstr;}
   const std::vector<float>& rcjet_Qw_clstr() const { return m_rcjet_Qw_clstr;}
-  
+  const std::vector<float>& rcjet_gECF332_clstr() const { return m_rcjet_gECF332_clstr;}
+  const std::vector<float>& rcjet_gECF461_clstr() const { return m_rcjet_gECF461_clstr;}
+  const std::vector<float>& rcjet_gECF322_clstr() const { return m_rcjet_gECF322_clstr;}
+  const std::vector<float>& rcjet_gECF331_clstr() const { return m_rcjet_gECF331_clstr;}
+  const std::vector<float>& rcjet_gECF422_clstr() const { return m_rcjet_gECF422_clstr;}
+  const std::vector<float>& rcjet_gECF441_clstr() const { return m_rcjet_gECF441_clstr;}
+  const std::vector<float>& rcjet_gECF212_clstr() const { return m_rcjet_gECF212_clstr;}
+  const std::vector<float>& rcjet_gECF321_clstr() const { return m_rcjet_gECF321_clstr;}
+  const std::vector<float>& rcjet_gECF311_clstr() const { return m_rcjet_gECF311_clstr;}
+   
+  const std::vector<float>& rcjet_L1_clstr() const { return m_rcjet_L1_clstr;}
+  const std::vector<float>& rcjet_L2_clstr() const { return m_rcjet_L2_clstr;}
+  const std::vector<float>& rcjet_L3_clstr() const { return m_rcjet_L3_clstr;}
+  const std::vector<float>& rcjet_L4_clstr() const { return m_rcjet_L4_clstr;}
+  const std::vector<float>& rcjet_L5_clstr() const { return m_rcjet_L5_clstr;}
 
   //met
   const float& met_met() const { return m_met_met;}

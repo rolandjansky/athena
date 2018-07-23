@@ -105,9 +105,7 @@ OutputJets["FTAG1"] = ["AntiKtVR30Rmax4Rmin02TrackJets",
                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJets",
                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets",
                        "AntiKt4EMTopoJets",
-                       "AntiKt8EMTopoJets",
-                       "AntiKt8EMTopoExKt2SubJets",
-                       "AntiKt8EMTopoExKt3SubJets",]
+                       ]
 
 
 reducedJetList = ["AntiKt2PV0TrackJets",
@@ -185,7 +183,13 @@ FTAG1SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "PrimaryVertices",
                                         "InDetTrackParticles",
                                         "AntiKt4EMTopoJets", "BTagging_AntiKt4EMTopo",
-                                        "MET_Reference_AntiKt4EMTopo"]
+                                        "MET_Reference_AntiKt4EMTopo",
+                                        "AntiKt8EMTopoJets",
+                                        "AntiKt8EMTopoExKt2SubJets",
+                                        "AntiKt8EMTopoExKt3SubJets",
+                                        "BTagging_AntiKt8EMTopoExKt2Sub",
+                                        "BTagging_AntiKt8EMTopoExKt3Sub",
+                                         ]
 
 FTAG1SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "BTagging_AntiKtVR30Rmax4Rmin02Track",
@@ -196,8 +200,6 @@ FTAG1SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJFVtx",
                                     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub",
                                     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJFVtx",
-                                    "BTagging_AntiKt8EMTopoExKt2Sub",
-                                    "BTagging_AntiKt8EMTopoExKt3Sub",
                                     "BTagging_AntiKt4EMTopo",
                                     "BTagging_AntiKt2Track",
                                     "BTagging_AntiKt4EMTopoJFVtx",

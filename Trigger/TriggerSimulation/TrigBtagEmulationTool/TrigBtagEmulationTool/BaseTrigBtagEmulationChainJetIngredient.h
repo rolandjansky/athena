@@ -128,6 +128,8 @@ namespace Trig {
     bool isContained(const TrigBtagEmulationChainJetIngredient_HLT&) const;
     virtual void addJetsMulteplicity(const TrigBtagEmulationChainJetIngredient_HLT&); 
 
+    virtual std::vector< std::vector< std::string > > resolveConflict( const TrigBtagEmulationChainJetIngredient_HLT& ) const;
+
   protected:
     virtual void setPT(const std::string&);
     virtual void setEta(const std::string&);

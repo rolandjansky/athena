@@ -11,6 +11,7 @@ import AthenaRootComps.ReadAthenaRoot
 svcMgr.EventSelector.InputCollections = _cbntfiles
 svcMgr.EventSelector.TupleName = "CollectionTree"
 svcMgr.EventSelector.TupleName = "egamma"
+svcMgr.EventSelector.CreateEventInfo=True
 
 from AthenaPython import PyAthena
 StatusCode = PyAthena.StatusCode
