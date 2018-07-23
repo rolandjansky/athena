@@ -40,9 +40,6 @@ RpcPadContByteStreamCnv::RpcPadContByteStreamCnv(ISvcLocator* svcloc) :
     m_storeGate("StoreGateSvc", "RpcPadContByteStreamCnv")
 {}
 
-RpcPadContByteStreamCnv::~RpcPadContByteStreamCnv() 
-{}
-
 const CLID& RpcPadContByteStreamCnv::classID(){
 return ClassID_traits<RpcPadContainer>::ID() ;
 }

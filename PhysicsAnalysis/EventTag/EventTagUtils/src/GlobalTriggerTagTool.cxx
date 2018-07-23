@@ -369,9 +369,6 @@ StatusCode  GlobalTriggerTagTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-/** destructor */
-GlobalTriggerTagTool::~GlobalTriggerTagTool() {}
-
 inline bool GlobalTriggerTagTool::isPassed(std::string name, unsigned int condition) {
   return m_trigDec->isPassed(name, condition);
 }

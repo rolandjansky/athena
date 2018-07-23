@@ -45,9 +45,6 @@ public:
 
 protected:
 
-  /** Standard destructor */
-  virtual ~EventInfoAttListTool( );
-
   /** the various components to build their own fragments of tag */
   StatusCode eventTag       (AthenaAttributeList& eventTagCol, 
                              const xAOD::EventInfo& eventInfo);

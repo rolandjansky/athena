@@ -18,7 +18,7 @@
 
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
-class LArCollisionTime;
+#include "LArRecEvent/LArCollisionTime.h"
 
 
 namespace D3PD {

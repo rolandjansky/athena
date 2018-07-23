@@ -25,11 +25,6 @@ SegmentCollectionCnv::SegmentCollectionCnv(ISvcLocator* svcloc):
 }
 
 //-----------------------------------------------------------------------------
-// Destructor
-//-----------------------------------------------------------------------------
-SegmentCollectionCnv::~SegmentCollectionCnv() {}
-
-//-----------------------------------------------------------------------------
 // Initializer
 //-----------------------------------------------------------------------------
 void SegmentCollectionCnv::initializeOldExtConverters()

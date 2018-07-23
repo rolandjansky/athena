@@ -16,10 +16,12 @@
 
 #include "TRT_TrigTrackSegmentsFinder/TRT_TrigTrackSegmentsFinder.h"
 #include "TrkSegment/SegmentCollection.h"
+#include "TrigTimeAlgs/TrigTimerSvc.h"
 
 //Trigger stuff
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "IRegionSelector/IRegSelSvc.h"
+#include <ostream>
 
 
 ///////////////////////////////////////////////////////////////////

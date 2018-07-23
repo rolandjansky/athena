@@ -15,16 +15,15 @@
  */
 
 
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "CaloSimEvent/CaloCalibrationHitContainer.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKeyArray.h"
+#include "StoreGate/ReadHandleKey.h"
 #include <vector>
 #include <string>
 #include <set>
 
-// #include "CaloEvent/CaloClusterMoment.h"
-// #include "CaloEvent/CaloClusterContainer.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
-// #include "xAODCaloEvent/CaloClusterMoment.h"
 
 class StoreGateSvc;
 class AtlasDetectorID;
@@ -66,16 +65,13 @@ class GetLCSinglePionsPerf : public AthAlgorithm
     //CaloDepthTool* m_caloDepthTool;
     const CaloDmDescrManager *m_caloDmDescrManager;
 
-    std::string m_clusterBasicCollName;
-    std::vector<std::string > m_clusterCollNames;
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clusterBasicCollName;
+    SG::ReadHandleKeyArray<xAOD::CaloClusterContainer> m_clusterCollNames;
     std::string m_outputFileName;
     TFile * m_outputFile;
-    std::vector<std::string> m_CalibrationHitContainerNames;
-    std::vector<std::string> m_DMCalibrationHitContainerNames;
+    SG::ReadHandleKeyArray<CaloCalibrationHitContainer> m_CalibrationHitContainerNames;
+    SG::ReadHandleKeyArray<CaloCalibrationHitContainer> m_DMCalibrationHitContainerNames;
     moment_name_vector m_validMoments;
-
-//     const DataHandle<CaloClusterContainer> pClusColl;
-    const DataHandle<xAOD::CaloClusterContainer> m_clusColl ;
 
     double m_distance_cut;
 
@@ -150,9 +146,12 @@ class GetLCSinglePionsPerf : public AthAlgorithm
     int m_mc_enerbin;
     int m_mc_phibin;
 
-    int fill_reco();
-    int fill_moments();
-    int fill_calibhits();
+    int fill_reco (const xAOD::CaloClusterContainer& clusColl,
+                   const EventContext& ctx);
+    int fill_moments (const xAOD::CaloClusterContainer& clusColl,
+                      const EventContext& ctx);
+    int fill_calibhits (const xAOD::CaloClusterContainer& clusColl,
+                        const EventContext& ctx);
 
 };
 

@@ -18,7 +18,7 @@
 
 
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloInterface/ILArNoisyROTool.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -27,14 +27,14 @@
 class CaloCellContainer;
 class LArNoisyROSummary; 
 
-class LArNoisyROAlg : public AthAlgorithm
+class LArNoisyROAlg : public AthReentrantAlgorithm
 {
  public:
 
   LArNoisyROAlg(const std::string &name,ISvcLocator *pSvcLocator);
-  virtual StatusCode initialize();
-  virtual StatusCode execute();   
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute_r (const EventContext& ctx) const override;   
+  virtual StatusCode finalize() override;
 
  
  private: 

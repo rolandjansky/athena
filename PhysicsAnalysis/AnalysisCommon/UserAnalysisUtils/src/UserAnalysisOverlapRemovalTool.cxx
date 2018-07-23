@@ -105,10 +105,6 @@ StatusCode UserAnalysisOverlapRemovalTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-//------------------------------------------------------------------------------
-UserAnalysisOverlapRemovalTool::~UserAnalysisOverlapRemovalTool()
-{}
-
 //-------------------------------------------------------------------------------
 StatusCode UserAnalysisOverlapRemovalTool::execute() {
   ATH_MSG_DEBUG("in execute()" );

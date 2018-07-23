@@ -15,13 +15,13 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/DataHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "IOVDbTestConditions/IOVDbTestAmdbCorrection.h"
 
 // STL includes
 #include <string>
 
 class IAlgTool;
 class StoreGateSvc;
-class IOVDbTestAmdbCorrection;
 
 /**
  * @class BeginRunAlg

@@ -44,13 +44,11 @@ class TrigVertexCollectionCnv : public TrigVertexCollectionCnvBase
   
   friend class CnvFactory<TrigVertexCollectionCnv>;
  
-  protected:
-   
 public:
   TrigVertexCollectionCnv( ISvcLocator *svcloc );
-protected:
   ~TrigVertexCollectionCnv();
 
+protected:
    virtual TrigVertexCollection_PERS *createPersistent( TrigVertexCollection *transObj);
    virtual TrigVertexCollection      *createTransient();
  

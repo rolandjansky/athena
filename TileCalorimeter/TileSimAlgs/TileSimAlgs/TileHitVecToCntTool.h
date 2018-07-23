@@ -32,10 +32,13 @@
 #include "TileIdentifier/TileFragHash.h"
 #include "TileSimEvent/TileHitVector.h"
 #include "TileEvent/TileHitContainer.h"
+#include "TileConditions/TileCablingSvc.h"
 
 // Athena includes
 #include "PileUpTools/PileUpToolBase.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/ITriggerTime.h"
 
 // Gaudi includes
 #include "GaudiKernel/ServiceHandle.h"
@@ -50,10 +53,7 @@ class TileInfo;
 class TileHitNonConstContainer;
 class TileDetDescrManager;
 class PileUpMergeSvc;
-class ITriggerTime;
-class IAtRndmGenSvc;
 class Identifier;
-class TileCablingSvc;
 class TileCablingService;
 class TileHitCollection;
 

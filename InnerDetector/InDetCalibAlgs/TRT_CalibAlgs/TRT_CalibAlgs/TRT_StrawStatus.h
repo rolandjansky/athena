@@ -21,6 +21,7 @@
 #include "TrkTrack/Track.h"
 #include "VxVertex/VxContainer.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 
 #include <cstdlib>
 #include <string>
@@ -34,10 +35,6 @@ class ITRT_StrawNeighbourSvc;
 class ITRT_StrawStatusSummarySvc ;
 class ITRT_HWMappingSvc;
 class ITRT_DCS_ConditionsSvc;
-
-namespace Trk {
-  class ITrackHoleSearchTool;
-}
 
 
 namespace InDet 

@@ -47,8 +47,7 @@ private:
   std::vector<float> m_hvvalue;    // value to fill for every hvline
 
   // Private members
-  const DataHandle<CaloIdManager> m_caloIdMgr;
-  const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
+  const CaloDetDescrManager* m_calodetdescrmgr;
   const LArEM_ID* m_larem_id;
   const LArHEC_ID* m_larhec_id;
   const LArFCAL_ID* m_larfcal_id;

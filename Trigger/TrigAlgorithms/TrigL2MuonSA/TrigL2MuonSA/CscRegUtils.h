@@ -67,7 +67,7 @@ class CscRegDict: public AthAlgTool{
   int stationPhi(int hash);
   
  private:
-  BooleanProperty  m_isMC;
+  Gaudi::Property< bool >  m_isMC { this, "MCFlag", true, "" };
   CscRegion m_reg_dict[32];//dictionary of CSC regions
   int m_module_hashes[2][2][8];//dictionary of hashIds
   

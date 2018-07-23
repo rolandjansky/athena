@@ -2,7 +2,7 @@ AddTrigMap           INFO in initialize()
 WriteData           DEBUG Property update for OutputLevel : new value = 2
 WriteData            INFO in initialize()
 WriteData           DEBUG input handles: 0
-WriteData           DEBUG output handles: 0
+WriteData           DEBUG output handles: 2
 WriteData           DEBUG Data Deps for WriteData
 DecisionSvc          INFO Inserting stream: FullColl with no Algs
 DecisionSvc          INFO Inserting stream: NullColl with no Algs
@@ -108,5 +108,8 @@ WriteData           DEBUG in execute()
 WriteData            INFO EventInfo event: 19  run: 0
 WriteData            INFO registered all data
 FullColl.Regist...   INFO Collection Events output: 20
+FullColl.Regist...   INFO Unable to register collection: PFN 'RootCollection||PFN:SplittableCollection.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
 NullColl.Regist...   INFO Collection Events output: 0
+NullColl.Regist...   INFO Unable to register collection: PFN 'RootCollection||PFN:NullableCollection.root' already registered ( POOL : "registerPFN" from "FileCatalog" )
 WriteData            INFO in finalize()
+WriteData           DEBUG Calling destructor

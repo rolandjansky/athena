@@ -16,7 +16,7 @@ class IRDBAccessSvc;
 class IGeoModelSvc;
 class GeoFullPhysVol;
 #ifndef SIMULATIONBASE
-class AmdcsimrecAthenaSvc;
+#include "AmdcAth/AmdcsimrecAthenaSvc.h"
 #endif
 
 

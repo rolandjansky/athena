@@ -5,31 +5,20 @@
 #ifndef SCT_TestDistortionsTool_h
 #define SCT_TestDistortionsTool_h
 
-#include <string>
-#include <memory>
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "TH2F.h"
-#include "TH3F.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/ITHistSvc.h"
-
-
-
-//Gaudi
-#include "GaudiKernel/ToolHandle.h"
 
 //package includes
 #include "SCT_ModuleDistortions/ISCT_ModuleDistortionsTool.h"
 
-class ITHistSvc;
-class TH2I;
+//Gaudi
+#include "GaudiKernel/ToolHandle.h"
+
+//STL
+#include <string>
+#include <memory>
+
 class TH2F;
 class TH3F;
-namespace InDetDD
-{
-  class SiDetectorManager;
-}
 
 class SCT_TestDistortionsTool:public AthAlgorithm{
   public:
@@ -54,5 +43,3 @@ class SCT_TestDistortionsTool:public AthAlgorithm{
 
 };
 #endif
-
-

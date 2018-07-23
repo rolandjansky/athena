@@ -17,16 +17,15 @@
 // xAOD include(s):
 #include "xAODTriggerCnv/IMuonRoICnvTool.h"
 
+#include "TrigT1CaloToolInterfaces/IL1JEMJetTools.h"
+#include "TrigT1Interfaces/RecMuonRoiSvc.h"
+#include "TrigT1CaloToolInterfaces/IL1CPMTools.h"
+
 // Forward declaration(s):
 class StoreGateSvc;
 class LVL1_ROI;
 namespace TrigConf {
   class ILVL1ConfigSvc;
-}
-namespace LVL1 {
-  class RecMuonRoiSvc;
-  class IL1CPMTools;
-  class IL1JEMJetTools;
 }
 namespace ROIB {
   class RoIBResult;

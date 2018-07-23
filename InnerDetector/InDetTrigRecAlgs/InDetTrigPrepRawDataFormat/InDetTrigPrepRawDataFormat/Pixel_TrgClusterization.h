@@ -34,6 +34,10 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "Identifier/IdentifierHash.h"
 
+#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
+#include "SiClusterizationTool/IPixelClusteringTool.h"
+#include "SiClusterizationTool/PixelGangedAmbiguitiesFinder.h"
+
 
 #include <string>
 
@@ -43,7 +47,6 @@
 
 class IRegSelSvc;
 class TrigTimer;
-class IPixelByteStreamErrorsSvc;
 class PixelID;
 class IROBDataProviderSvc;
 
@@ -53,8 +56,6 @@ namespace InDetDD {
 
 namespace InDet {
   
-  class PixelGangedAmbiguitiesFinder;  
-  class IPixelClusteringTool;
   class ITrigRawDataProviderTool;
   
   class Pixel_TrgClusterization : public HLT::FexAlgo {

@@ -26,6 +26,7 @@
 //---------------
 #include "CaloLocalHadCalib/GetLCDefs.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+#include "StoreGate/ReadHandle.h"
 
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -225,6 +226,8 @@ StatusCode GetLCClassification::initialize()
       }
     }
   }
+
+  ATH_CHECK( m_clusterCollName.initialize() );
   
   return StatusCode::SUCCESS;
 }
@@ -247,14 +250,7 @@ StatusCode GetLCClassification::finalize()
 
 StatusCode GetLCClassification::execute()
 {
-  const DataHandle<xAOD::CaloClusterContainer> cc ;
-  StatusCode sc = evtStore()->retrieve(cc,m_clusterCollName);
-
-  if(sc != StatusCode::SUCCESS) {
-    ATH_MSG_ERROR( "Could not retrieve ClusterContainer " 
-                   << m_clusterCollName << " from StoreGate"  );
-    return sc;
-  }
+  SG::ReadHandle<xAOD::CaloClusterContainer> cc (m_clusterCollName);
 
   // total calib hit energy of all clusters 
   double eCalibTot(0.); 
