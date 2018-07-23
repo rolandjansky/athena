@@ -1085,14 +1085,16 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  ATH_MSG_DEBUG("Build  "<< electronSuperRecs->size() << " electron Super Clusters");
+  ATH_MSG_DEBUG("Build  "<< photonSuperRecs->size() << " photon Super Clusters");
+
   //
   //For now naive double loops bases on the seed (constituent at position 0)
   //For ambiguity. Probably we could mark in one pass , for now naive solution
   //These should be the CaloCalTopo links for the clustes. the 0 should be the seed (always there)
   static const SG::AuxElement::Accessor < std::vector< ElementLink< xAOD::CaloClusterContainer > > > caloClusterLinks("constituentClusterLinks");
+  ATH_MSG_DEBUG("constituentClusterLinks AuxId=" << caloClusterLinks.auxid() );
 
-  ATH_MSG_DEBUG("Build  "<< electronSuperRecs->size() << " electron Super Clusters");
-  ATH_MSG_DEBUG("Build  "<< photonSuperRecs->size() << " photon Super Clusters");
   //
   //Look at the constituents , for ambiguity resolution, for now based on the seed only
   //We could add secondaries cluster in this logic.
@@ -1106,12 +1108,21 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     unsigned int author = xAOD::EgammaParameters::AuthorElectron;
     xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::electron;
 
+    ATH_MSG_DEBUG("build el: Aux for electronRec isAvailable=" << caloClusterLinks.isAvailable( *(electronRec->caloCluster()) ) );
+
+    const std::vector< ElementLink< xAOD::CaloClusterContainer > > &elLinks = caloClusterLinks( *(electronRec->caloCluster()) );
+    ATH_MSG_DEBUG( "build el: elLinks.size()=" << elLinks.size() );
+
     for (const auto& photonRec : *photonSuperRecs) {
 
       //See if the same seed (0 element in the constituents) seed also a photon
+      ATH_MSG_DEBUG("build el: Aux for photonRec isAvailable=" << caloClusterLinks.isAvailable( *(photonRec->caloCluster()) ) );
+
+      const std::vector< ElementLink< xAOD::CaloClusterContainer > > &phLinks = caloClusterLinks( *(photonRec->caloCluster()) );
+      ATH_MSG_DEBUG( "build el: phLinks.size()=" << phLinks.size() );
+
       ATH_MSG_DEBUG("See if the same seed (0 element in the constituents) seed also a photon");
-      if(caloClusterLinks(*(electronRec->caloCluster())).at(0)==
-	 caloClusterLinks(*(photonRec->caloCluster())).at(0)){
+      if( elLinks.at(0) == phLinks.at(0) ) {
 	ATH_MSG_DEBUG("Running AmbiguityTool for electron");
 
         ATH_MSG_DEBUG("REGTEST:: Running AmbiguityTool");
@@ -1146,13 +1157,22 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     unsigned int author = xAOD::EgammaParameters::AuthorPhoton;
     xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::photon;
 
+      ATH_MSG_DEBUG("build ph: Aux for photonRec isAvailable=" << caloClusterLinks.isAvailable( *(photonRec->caloCluster()) ) );
+
+      const std::vector< ElementLink< xAOD::CaloClusterContainer > > &phLinks = caloClusterLinks( *(photonRec->caloCluster()) );
+      ATH_MSG_DEBUG( "build ph: phLinks.size()=" << phLinks.size() );
+
     //See if the same seed (0 element in the constituents) seed also an electron
     for (const auto& electronRec : *electronSuperRecs) {
 
-    ATH_MSG_DEBUG("See if the same seed (0 element in the constituents) seed also an electron");
-    if(caloClusterLinks(*(photonRec->caloCluster())).at(0) ==
-       caloClusterLinks(*(electronRec->caloCluster())).at(0)){
-      ATH_MSG_DEBUG("Running AmbiguityTool for photon");
+      ATH_MSG_DEBUG("build ph: Aux for electronRec isAvailable=" << caloClusterLinks.isAvailable( *(electronRec->caloCluster()) ) );
+
+      const std::vector< ElementLink< xAOD::CaloClusterContainer > > &elLinks = caloClusterLinks( *(electronRec->caloCluster()) );
+      ATH_MSG_DEBUG( "build ph: elLinks.size()=" << elLinks.size() );
+
+      ATH_MSG_DEBUG("See if the same seed (0 element in the constituents) seed also an electron");
+      if( phLinks.at(0) == elLinks.at(0) ) {
+        ATH_MSG_DEBUG("Running AmbiguityTool for photon");
         ATH_MSG_DEBUG("REGTEST:: Running AmbiguityTool");
         if (timerSvc()) m_timerTool3->start(); //timer
 
